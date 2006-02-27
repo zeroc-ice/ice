@@ -1,0 +1,5611 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="icec"
+	ProjectGUID="{96BE20B0-7E1E-4380-A9AD-2CB77F6F7E7C}"
+	>
+	<Platforms>
+		<Platform
+			Name="Smartphone 2003 (ARMV4)"
+		/>
+		<Platform
+			Name="Pocket PC 2003 (ARMV4)"
+		/>
+	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
+	<Configurations>
+		<Configuration
+			Name="Release Static|Smartphone 2003 (ARMV4)"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName="$(PlatformName)\$(ConfigurationName)/icec.tlb"
+				HeaderFileName=""
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				ExecutionBucket="7"
+				Optimization="4"
+				AdditionalIncludeDirectories="..,../../include"
+				PreprocessorDefinitions="NDEBUG;ARM;_ARM_;ARMV4;_LIB;ICEE_STATIC_LIBS;_WIN32_WCE=$(CEVER);$(CePlatform);UNDER_CE=$(CEVER);UNICODE;ICEE_PURE_CLIENT"
+				RuntimeLibrary="0"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile="$(PlatformName)\$(ConfigurationName)/icec.pch"
+				AssemblerListingLocation="$(PlatformName)\$(ConfigurationName)/"
+				ObjectFile="$(PlatformName)\$(ConfigurationName)/"
+				ProgramDataBaseFileName="$(PlatformName)\$(ConfigurationName)/"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="$(PlatformName)\$(ConfigurationName)\icec.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+				SuppressStartupBanner="true"
+				OutputFile="$(PlatformName)\$(ConfigurationName)/icec.bsc"
+			/>
+			<Tool
+				Name="VCCodeSignTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+			<DeploymentTool
+				ForceDirty="-1"
+				RemoteDirectory=""
+				RegisterOutput="0"
+				AdditionalFiles=""
+			/>
+			<DebuggerTool
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release Static|Pocket PC 2003 (ARMV4)"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName="$(PlatformName)\$(ConfigurationName)/icec.tlb"
+				HeaderFileName=""
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				ExecutionBucket="7"
+				Optimization="4"
+				AdditionalIncludeDirectories="..,../../include"
+				PreprocessorDefinitions="NDEBUG;ARM;_ARM_;ARMV4;_LIB;ICEE_STATIC_LIBS;_WIN32_WCE=$(CEVER);$(CePlatform);UNDER_CE=$(CEVER);UNICODE;ICEE_PURE_CLIENT"
+				RuntimeLibrary="0"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile="$(PlatformName)\$(ConfigurationName)/icec.pch"
+				AssemblerListingLocation="$(PlatformName)\$(ConfigurationName)/"
+				ObjectFile="$(PlatformName)\$(ConfigurationName)/"
+				ProgramDataBaseFileName="$(PlatformName)\$(ConfigurationName)/"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="$(PlatformName)\$(ConfigurationName)\icec.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+				SuppressStartupBanner="true"
+				OutputFile="$(PlatformName)\$(ConfigurationName)/icec.bsc"
+			/>
+			<Tool
+				Name="VCCodeSignTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+			<DeploymentTool
+				ForceDirty="-1"
+				RemoteDirectory=""
+				RegisterOutput="0"
+				AdditionalFiles=""
+			/>
+			<DebuggerTool
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Smartphone 2003 (ARMV4)"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="true"
+				SuppressStartupBanner="true"
+				TargetEnvironment="1"
+				TypeLibraryName="$(PlatformName)\$(ConfigurationName)/icec.tlb"
+				HeaderFileName=""
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				ExecutionBucket="7"
+				Optimization="4"
+				AdditionalIncludeDirectories="..,../../include"
+				PreprocessorDefinitions="ARM;_ARM_;ARMV4;NDEBUG;_USRDLL;ICE_API_EXPORTS;_WIN32_WCE=$(CEVER);$(CePlatform);UNDER_CE=$(CEVER);UNICODE;ICEE_PURE_CLIENT"
+				RuntimeLibrary="0"
+				RuntimeTypeInfo="true"
+				PrecompiledHeaderFile="$(PlatformName)\$(ConfigurationName)/icec.pch"
+				AssemblerListingLocation="$(PlatformName)\$(ConfigurationName)/"
+				ObjectFile="$(PlatformName)\$(ConfigurationName)/"
+				ProgramDataBaseFileName="$(PlatformName)\$(ConfigurationName)/"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				AdditionalOptions="/r "
+				PreprocessorDefinitions="UNDER_CE=$(CEVER),_WIN32_WCE=$(CEVER),NDEBUG,UNICODE,_UNICODE,$(CePlatform),ARM,_ARM_,ARMV4"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions="/ALIGN:4096 /subsystem:$(CESubsystem) /MACHINE:ARM "
+				AdditionalDependencies="winsock.lib commctrl.lib mmtimer.lib coredll.lib ws2.lib ccrtrtti.lib secchk.lib ccrtrtti.lib"
+				OutputFile="ARMV4Rel/iceec10.dll"
+				LinkIncremental="1"
+				SuppressStartupBanner="true"
+				IgnoreDefaultLibraryNames="$(CENoDefaultLib)"
+				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/iceec10.pdb"
+				StackReserveSize="65536"
+				StackCommitSize="4096"
+				EntryPointSymbol="_DllMainCRTStartup"
+				BaseAddress="0x00100000"
+				ImportLibrary="$(PlatformName)\$(ConfigurationName)/iceec10.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+				SuppressStartupBanner="true"
+				OutputFile="$(PlatformName)\$(ConfigurationName)/icec.bsc"
+			/>
+			<Tool
+				Name="VCCodeSignTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+			<DeploymentTool
+				ForceDirty="-1"
+				RemoteDirectory=""
+				RegisterOutput="0"
+				AdditionalFiles=""
+			/>
+			<DebuggerTool
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Pocket PC 2003 (ARMV4)"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="true"
+				SuppressStartupBanner="true"
+				TargetEnvironment="1"
+				TypeLibraryName="$(PlatformName)\$(ConfigurationName)/icec.tlb"
+				HeaderFileName=""
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				ExecutionBucket="7"
+				Optimization="4"
+				AdditionalIncludeDirectories="..,../../include"
+				PreprocessorDefinitions="ARM;_ARM_;ARMV4;NDEBUG;_USRDLL;ICE_API_EXPORTS;_WIN32_WCE=$(CEVER);$(CePlatform);UNDER_CE=$(CEVER);UNICODE;ICEE_PURE_CLIENT"
+				RuntimeLibrary="0"
+				RuntimeTypeInfo="true"
+				PrecompiledHeaderFile="$(PlatformName)\$(ConfigurationName)/icec.pch"
+				AssemblerListingLocation="$(PlatformName)\$(ConfigurationName)/"
+				ObjectFile="$(PlatformName)\$(ConfigurationName)/"
+				ProgramDataBaseFileName="$(PlatformName)\$(ConfigurationName)/"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				AdditionalOptions="/r "
+				PreprocessorDefinitions="UNDER_CE=$(CEVER),_WIN32_WCE=$(CEVER),NDEBUG,UNICODE,_UNICODE,$(CePlatform),ARM,_ARM_,ARMV4"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions="/ALIGN:4096 /subsystem:$(CESubsystem) /MACHINE:ARM "
+				AdditionalDependencies="winsock.lib commctrl.lib mmtimer.lib coredll.lib ws2.lib ccrtrtti.lib secchk.lib ccrtrtti.lib"
+				OutputFile="ARMV4Rel/iceec10.dll"
+				LinkIncremental="1"
+				SuppressStartupBanner="true"
+				IgnoreDefaultLibraryNames="$(CENoDefaultLib)"
+				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/iceec10.pdb"
+				StackReserveSize="65536"
+				StackCommitSize="4096"
+				EntryPointSymbol="_DllMainCRTStartup"
+				BaseAddress="0x00100000"
+				ImportLibrary="$(PlatformName)\$(ConfigurationName)/iceec10.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+				SuppressStartupBanner="true"
+				OutputFile="$(PlatformName)\$(ConfigurationName)/icec.bsc"
+			/>
+			<Tool
+				Name="VCCodeSignTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+			<DeploymentTool
+				ForceDirty="-1"
+				RemoteDirectory=""
+				RegisterOutput="0"
+				AdditionalFiles=""
+			/>
+			<DebuggerTool
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug Static|Smartphone 2003 (ARMV4)"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName="$(PlatformName)\$(ConfigurationName)/icec.tlb"
+				HeaderFileName=""
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				ExecutionBucket="7"
+				Optimization="0"
+				AdditionalIncludeDirectories="..,../../include"
+				PreprocessorDefinitions="DEBUG;ARM;_ARM_;ARMV4;_LIB;ICEE_STATIC_LIBS;_WIN32_WCE=$(CEVER);$(CePlatform);UNDER_CE=$(CEVER);UNICODE;ICEE_PURE_CLIENT"
+				RuntimeLibrary="1"
+				EnableFunctionLevelLinking="true"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile="$(PlatformName)\$(ConfigurationName)/icec.pch"
+				AssemblerListingLocation="$(PlatformName)\$(ConfigurationName)/"
+				ObjectFile="$(PlatformName)\$(ConfigurationName)/"
+				ProgramDataBaseFileName="$(PlatformName)\$(ConfigurationName)/"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="$(PlatformName)\$(ConfigurationName)\icec.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+				SuppressStartupBanner="true"
+				OutputFile="$(PlatformName)\$(ConfigurationName)/icec.bsc"
+			/>
+			<Tool
+				Name="VCCodeSignTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+			<DeploymentTool
+				ForceDirty="-1"
+				RemoteDirectory=""
+				RegisterOutput="0"
+				AdditionalFiles=""
+			/>
+			<DebuggerTool
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug Static|Pocket PC 2003 (ARMV4)"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName="$(PlatformName)\$(ConfigurationName)/icec.tlb"
+				HeaderFileName=""
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				ExecutionBucket="7"
+				Optimization="0"
+				AdditionalIncludeDirectories="..,../../include"
+				PreprocessorDefinitions="DEBUG;ARM;_ARM_;ARMV4;_LIB;ICEE_STATIC_LIBS;_WIN32_WCE=$(CEVER);$(CePlatform);UNDER_CE=$(CEVER);UNICODE;ICEE_PURE_CLIENT"
+				RuntimeLibrary="1"
+				EnableFunctionLevelLinking="true"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile="$(PlatformName)\$(ConfigurationName)/icec.pch"
+				AssemblerListingLocation="$(PlatformName)\$(ConfigurationName)/"
+				ObjectFile="$(PlatformName)\$(ConfigurationName)/"
+				ProgramDataBaseFileName="$(PlatformName)\$(ConfigurationName)/"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="$(PlatformName)\$(ConfigurationName)\icec.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+				SuppressStartupBanner="true"
+				OutputFile="$(PlatformName)\$(ConfigurationName)/icec.bsc"
+			/>
+			<Tool
+				Name="VCCodeSignTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+			<DeploymentTool
+				ForceDirty="-1"
+				RemoteDirectory=""
+				RegisterOutput="0"
+				AdditionalFiles=""
+			/>
+			<DebuggerTool
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|Smartphone 2003 (ARMV4)"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG"
+				MkTypLibCompatible="true"
+				SuppressStartupBanner="true"
+				TargetEnvironment="1"
+				TypeLibraryName="$(PlatformName)\$(ConfigurationName)/icec.tlb"
+				HeaderFileName=""
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				ExecutionBucket="7"
+				Optimization="0"
+				AdditionalIncludeDirectories="..,../../include"
+				PreprocessorDefinitions="DEBUG;ARM;_ARM_;ARMV4;_USRDLL;ICE_API_EXPORTS;_WIN32_WCE=$(CEVER);$(CePlatform);UNDER_CE=$(CEVER);UNICODE;ICEE_PURE_CLIENT"
+				RuntimeLibrary="1"
+				EnableFunctionLevelLinking="true"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile="$(PlatformName)\$(ConfigurationName)/icec.pch"
+				AssemblerListingLocation="$(PlatformName)\$(ConfigurationName)/"
+				ObjectFile="$(PlatformName)\$(ConfigurationName)/"
+				ProgramDataBaseFileName="$(PlatformName)\$(ConfigurationName)/"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				AdditionalOptions="/r "
+				PreprocessorDefinitions="UNDER_CE=$(CEVER),_WIN32_WCE=$(CEVER),DEBUG,UNICODE,_UNICODE,$(CePlatform),ARM,_ARM_,ARMV4"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions="/ALIGN:4096 /subsystem:$(CESubsystem) /MACHINE:ARM "
+				AdditionalDependencies="ccrtrtti.lib coredll.lib ws2.lib secchk.lib ccrtrtti.lib"
+				OutputFile="ARMV4Dbg/iceec10d.dll"
+				LinkIncremental="2"
+				SuppressStartupBanner="true"
+				IgnoreDefaultLibraryNames="$(CENoDefaultLib)"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/iceec10d.pdb"
+				StackReserveSize="65536"
+				StackCommitSize="4096"
+				EntryPointSymbol="_DllMainCRTStartup"
+				BaseAddress="0x00100000"
+				ImportLibrary="$(PlatformName)\$(ConfigurationName)/iceec10d.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+				SuppressStartupBanner="true"
+				OutputFile="$(PlatformName)\$(ConfigurationName)/icec.bsc"
+			/>
+			<Tool
+				Name="VCCodeSignTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+			<DeploymentTool
+				ForceDirty="-1"
+				RemoteDirectory=""
+				RegisterOutput="0"
+				AdditionalFiles=""
+			/>
+			<DebuggerTool
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|Pocket PC 2003 (ARMV4)"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG"
+				MkTypLibCompatible="true"
+				SuppressStartupBanner="true"
+				TargetEnvironment="1"
+				TypeLibraryName="$(PlatformName)\$(ConfigurationName)/icec.tlb"
+				HeaderFileName=""
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				ExecutionBucket="7"
+				Optimization="0"
+				AdditionalIncludeDirectories="..,../../include"
+				PreprocessorDefinitions="DEBUG;ARM;_ARM_;ARMV4;_USRDLL;ICE_API_EXPORTS;_WIN32_WCE=$(CEVER);$(CePlatform);UNDER_CE=$(CEVER);UNICODE;ICEE_PURE_CLIENT"
+				RuntimeLibrary="1"
+				EnableFunctionLevelLinking="true"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile="$(PlatformName)\$(ConfigurationName)/icec.pch"
+				AssemblerListingLocation="$(PlatformName)\$(ConfigurationName)/"
+				ObjectFile="$(PlatformName)\$(ConfigurationName)/"
+				ProgramDataBaseFileName="$(PlatformName)\$(ConfigurationName)/"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				AdditionalOptions="/r "
+				PreprocessorDefinitions="UNDER_CE=$(CEVER),_WIN32_WCE=$(CEVER),DEBUG,UNICODE,_UNICODE,$(CePlatform),ARM,_ARM_,ARMV4"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions="/ALIGN:4096 /subsystem:$(CESubsystem) /MACHINE:ARM "
+				AdditionalDependencies="ccrtrtti.lib coredll.lib ws2.lib secchk.lib ccrtrtti.lib"
+				OutputFile="ARMV4Dbg/iceec10d.dll"
+				LinkIncremental="2"
+				SuppressStartupBanner="true"
+				IgnoreDefaultLibraryNames="$(CENoDefaultLib)"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/iceec10d.pdb"
+				StackReserveSize="65536"
+				StackCommitSize="4096"
+				EntryPointSymbol="_DllMainCRTStartup"
+				BaseAddress="0x00100000"
+				ImportLibrary="$(PlatformName)\$(ConfigurationName)/iceec10d.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+				SuppressStartupBanner="true"
+				OutputFile="$(PlatformName)\$(ConfigurationName)/icec.bsc"
+			/>
+			<Tool
+				Name="VCCodeSignTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+			<DeploymentTool
+				ForceDirty="-1"
+				RemoteDirectory=""
+				RegisterOutput="0"
+				AdditionalFiles=""
+			/>
+			<DebuggerTool
+			/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter
+			Name="Source Files"
+			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+			>
+			<File
+				RelativePath="..\IceE\BasicStream.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\Buffer.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="BuiltinSequences.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\Communicator.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\Cond.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\Connection.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\TcpTransport\Connector.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\DefaultsAndOverrides.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\Endpoint.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\TcpTransport\EndpointFactory.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\ExceptionBase.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\FactoryTable.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\FactoryTableDef.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="Identity.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\IdentityUtil.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\Initialize.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\Instance.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\LocalException.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\LocalObject.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="Locator.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\LocatorInfo.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="Logger.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\LoggerI.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\LoggerUtil.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\Network.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\OperationMode.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\Outgoing.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\OutgoingConnectionFactory.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\Properties.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\Proxy.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\ProxyFactory.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\RecMutex.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\Reference.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\ReferenceFactory.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="Router.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\RouterInfo.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\RoutingTable.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\RWRecMutex.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\SafeStdio.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\Shared.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\StaticMutex.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\StringUtil.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\TcpTransport\TcpEndpoint.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\Thread.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\ThreadException.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\Time.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\TraceLevels.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\TraceUtil.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\TcpTransport\Transceiver.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\UnknownEndpoint.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\IceE\UUID.cpp"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+		<Filter
+			Name="Header Files"
+			Filter="h;hpp;hxx;hm;inl"
+			>
+			<File
+				RelativePath="..\..\include\IceE\AbstractMutex.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Algorithm.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\BasicStream.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Buffer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\BuiltinSequences.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Communicator.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\CommunicatorF.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Cond.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Config.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Config.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Connection.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\ConnectionF.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Connector.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\ConnectorF.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Current.h"
+				>
+			</File>
+			<File
+				RelativePath="DefaultsAndOverrides.h"
+				>
+			</File>
+			<File
+				RelativePath="DefaultsAndOverridesF.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Endpoint.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\EndpointF.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\EndpointFactory.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\EndpointFactoryF.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Exception.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Exception.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\FacetMap.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\FactoryTable.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\FactoryTableDef.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Functional.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Functional.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Handle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Handle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Ice.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\IceE.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Identity.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\IdentityUtil.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Initialize.h"
+				>
+			</File>
+			<File
+				RelativePath="Instance.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\InstanceF.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Iterator.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\LocalException.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\LocalObject.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\LocalObjectF.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Locator.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\LocatorF.h"
+				>
+			</File>
+			<File
+				RelativePath="LocatorInfo.h"
+				>
+			</File>
+			<File
+				RelativePath="LocatorInfoF.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Lock.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Logger.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\LoggerF.h"
+				>
+			</File>
+			<File
+				RelativePath="LoggerI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\LoggerUtil.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Monitor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Mutex.h"
+				>
+			</File>
+			<File
+				RelativePath="Network.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Object.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\ObjectF.h"
+				>
+			</File>
+			<File
+				RelativePath="..\IceE\OutgoingConnectionFactory.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Properties.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\PropertiesF.h"
+				>
+			</File>
+			<File
+				RelativePath="PropertiesI.h"
+				>
+			</File>
+			<File
+				RelativePath="Protocol.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Proxy.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\ProxyF.h"
+				>
+			</File>
+			<File
+				RelativePath="ProxyFactory.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\ProxyFactoryF.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\ProxyHandle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\RecMutex.h"
+				>
+			</File>
+			<File
+				RelativePath="Reference.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\ReferenceF.h"
+				>
+			</File>
+			<File
+				RelativePath="ReferenceFactory.h"
+				>
+			</File>
+			<File
+				RelativePath="ReferenceFactoryF.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Router.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\RouterF.h"
+				>
+			</File>
+			<File
+				RelativePath="RouterInfo.h"
+				>
+			</File>
+			<File
+				RelativePath="RouterInfoF.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\RoutingTable.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\RoutingTableF.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\RWRecMutex.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\SafeStdio.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Shared.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\StaticMutex.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\StringUtil.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Thread.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\ThreadException.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Time.h"
+				>
+			</File>
+			<File
+				RelativePath="TraceLevels.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\TraceLevelsF.h"
+				>
+			</File>
+			<File
+				RelativePath="TraceUtil.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Transceiver.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\TransceiverF.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\UndefSysMacros.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\UserExceptionFactory.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\UserExceptionFactoryF.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\UUID.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Resource Files"
+			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+			>
+			<File
+				RelativePath="..\..\slice\IceE\BuiltinSequences.ice"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/BuiltinSequences.ice&#x0D;&#x0A;move BuiltinSequences.h. ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\BuiltinSequences.h;BuiltinSequences.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/BuiltinSequences.ice&#x0D;&#x0A;move BuiltinSequences.h. ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\BuiltinSequences.h;BuiltinSequences.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/BuiltinSequences.ice&#x0D;&#x0A;move BuiltinSequences.h. ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\BuiltinSequences.h;BuiltinSequences.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/BuiltinSequences.ice&#x0D;&#x0A;move BuiltinSequences.h. ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\BuiltinSequences.h;BuiltinSequences.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/BuiltinSequences.ice&#x0D;&#x0A;move BuiltinSequences.h. ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\BuiltinSequences.h;BuiltinSequences.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/BuiltinSequences.ice&#x0D;&#x0A;move BuiltinSequences.h. ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\BuiltinSequences.h;BuiltinSequences.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/BuiltinSequences.ice&#x0D;&#x0A;move BuiltinSequences.h. ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\BuiltinSequences.h;BuiltinSequences.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/BuiltinSequences.ice&#x0D;&#x0A;move BuiltinSequences.h. ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\BuiltinSequences.h;BuiltinSequences.cpp"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\slice\IceE\FacetMap.ice"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/FacetMap.ice&#x0D;&#x0A;move FacetMap.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\FacetMap.h;FacetMap.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/FacetMap.ice&#x0D;&#x0A;move FacetMap.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\FacetMap.h;FacetMap.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/FacetMap.ice&#x0D;&#x0A;move FacetMap.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\FacetMap.h;FacetMap.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/FacetMap.ice&#x0D;&#x0A;move FacetMap.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\FacetMap.h;FacetMap.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/FacetMap.ice&#x0D;&#x0A;move FacetMap.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\FacetMap.h;FacetMap.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/FacetMap.ice&#x0D;&#x0A;move FacetMap.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\FacetMap.h;FacetMap.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/FacetMap.ice&#x0D;&#x0A;move FacetMap.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\FacetMap.h;FacetMap.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/FacetMap.ice&#x0D;&#x0A;move FacetMap.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\FacetMap.h;FacetMap.cpp"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\slice\IceE\Identity.ice"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Identity.ice&#x0D;&#x0A;move Identity.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Identity.h;Identity.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Identity.ice&#x0D;&#x0A;move Identity.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Identity.h;Identity.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Identity.ice&#x0D;&#x0A;move Identity.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Identity.h;Identity.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Identity.ice&#x0D;&#x0A;move Identity.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Identity.h;Identity.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Identity.ice&#x0D;&#x0A;move Identity.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Identity.h;Identity.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Identity.ice&#x0D;&#x0A;move Identity.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Identity.h;Identity.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Identity.ice&#x0D;&#x0A;move Identity.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Identity.h;Identity.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Identity.ice&#x0D;&#x0A;move Identity.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Identity.h;Identity.cpp"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\slice\IceE\Locator.ice"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice&#x0D;&#x0A;move Locator.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Locator.h;Locator.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice&#x0D;&#x0A;move Locator.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Locator.h;Locator.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice&#x0D;&#x0A;move Locator.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Locator.h;Locator.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice&#x0D;&#x0A;move Locator.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Locator.h;Locator.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice&#x0D;&#x0A;move Locator.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Locator.h;Locator.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice&#x0D;&#x0A;move Locator.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Locator.h;Locator.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice&#x0D;&#x0A;move Locator.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Locator.h;Locator.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice&#x0D;&#x0A;move Locator.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Locator.h;Locator.cpp"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\slice\IceE\LocatorF.ice"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice&#x0D;&#x0A;move LocatorF.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\LocatorF.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice&#x0D;&#x0A;move LocatorF.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\LocatorF.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice&#x0D;&#x0A;move LocatorF.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\LocatorF.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice&#x0D;&#x0A;move LocatorF.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\LocatorF.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice&#x0D;&#x0A;move LocatorF.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\LocatorF.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice&#x0D;&#x0A;move LocatorF.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\LocatorF.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice&#x0D;&#x0A;move LocatorF.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\LocatorF.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice&#x0D;&#x0A;move LocatorF.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\LocatorF.h"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\slice\IceE\Logger.ice"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice&#x0D;&#x0A;move Logger.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Logger.h;Logger.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice&#x0D;&#x0A;move Logger.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Logger.h;Logger.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice&#x0D;&#x0A;move Logger.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Logger.h;Logger.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice&#x0D;&#x0A;move Logger.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Logger.h;Logger.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice&#x0D;&#x0A;move Logger.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Logger.h;Logger.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice&#x0D;&#x0A;move Logger.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Logger.h;Logger.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice&#x0D;&#x0A;move Logger.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Logger.h;Logger.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice&#x0D;&#x0A;move Logger.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Logger.h;Logger.cpp"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\slice\IceE\LoggerF.ice"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice&#x0D;&#x0A;move LoggerF.h ..\..\include\icee&#x0D;&#x0A;del LoggerF.cpp&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\LoggerF.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice&#x0D;&#x0A;move LoggerF.h ..\..\include\icee&#x0D;&#x0A;del LoggerF.cpp&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\LoggerF.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice&#x0D;&#x0A;move LoggerF.h ..\..\include\icee&#x0D;&#x0A;del LoggerF.cpp&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\LoggerF.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice&#x0D;&#x0A;move LoggerF.h ..\..\include\icee&#x0D;&#x0A;del LoggerF.cpp&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\LoggerF.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice&#x0D;&#x0A;move LoggerF.h ..\..\include\icee&#x0D;&#x0A;del LoggerF.cpp&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\LoggerF.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice&#x0D;&#x0A;move LoggerF.h ..\..\include\icee&#x0D;&#x0A;del LoggerF.cpp&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\LoggerF.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice&#x0D;&#x0A;move LoggerF.h ..\..\include\icee&#x0D;&#x0A;del LoggerF.cpp&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\LoggerF.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice&#x0D;&#x0A;move LoggerF.h ..\..\include\icee&#x0D;&#x0A;del LoggerF.cpp&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\LoggerF.h"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\slice\IceE\Router.ice"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice&#x0D;&#x0A;move Router.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Router.h;Router.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice&#x0D;&#x0A;move Router.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Router.h;Router.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice&#x0D;&#x0A;move Router.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Router.h;Router.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice&#x0D;&#x0A;move Router.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Router.h;Router.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice&#x0D;&#x0A;move Router.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Router.h;Router.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice&#x0D;&#x0A;move Router.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Router.h;Router.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice&#x0D;&#x0A;move Router.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Router.h;Router.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice&#x0D;&#x0A;move Router.h ..\..\include\icee&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\Router.h;Router.cpp"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\slice\IceE\RouterF.ice"
+				>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice&#x0D;&#x0A;move RouterF.h ..\..\include\icee&#x0D;&#x0A;del RouterF.cpp&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\RouterF.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice&#x0D;&#x0A;move RouterF.h ..\..\include\icee&#x0D;&#x0A;del RouterF.cpp&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\RouterF.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice&#x0D;&#x0A;move RouterF.h ..\..\include\icee&#x0D;&#x0A;del RouterF.cpp&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\RouterF.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice&#x0D;&#x0A;move RouterF.h ..\..\include\icee&#x0D;&#x0A;del RouterF.cpp&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\RouterF.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice&#x0D;&#x0A;move RouterF.h ..\..\include\icee&#x0D;&#x0A;del RouterF.cpp&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\RouterF.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice&#x0D;&#x0A;move RouterF.h ..\..\include\icee&#x0D;&#x0A;del RouterF.cpp&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\RouterF.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice&#x0D;&#x0A;move RouterF.h ..\..\include\icee&#x0D;&#x0A;del RouterF.cpp&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\RouterF.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice&#x0D;&#x0A;move RouterF.h ..\..\include\icee&#x0D;&#x0A;del RouterF.cpp&#x0D;&#x0A;"
+						Outputs="..\..\include\icee\RouterF.h"
+					/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>
