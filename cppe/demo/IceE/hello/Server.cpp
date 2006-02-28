@@ -33,6 +33,7 @@ main(int argc, char* argv[])
     {
 	Ice::PropertiesPtr properties = Ice::createProperties();
         properties->load("config");
+	properties->setProperty("Ice.Override.Timeout", "100");
 	communicator = Ice::initializeWithProperties(argc, argv, properties);
 	status = run(argc, argv, communicator);
     }
