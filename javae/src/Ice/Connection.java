@@ -779,6 +779,13 @@ public final class Connection
     public synchronized void
     setAdapter(ObjectAdapter adapter)
     {
+        if(_blocking)
+	{
+	    FeatureNotSupportedException ex = new FeatureNotSupportedException();
+	    ex.unsupportedFeature = "setAdapter with blocking connection";
+	    throw ex;
+	}
+
 	//
 	// Wait for all the incoming to be dispatched (to be consistent
 	// with IceE).

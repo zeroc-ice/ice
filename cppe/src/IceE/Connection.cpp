@@ -809,9 +809,12 @@ Ice::Connection::setAdapter(const ObjectAdapterPtr& adapter)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    //
-    // TODO: Add support for blocking mode here!
-    //
+    if(_blocking)
+    {
+        FeatureNotSupportedException ex(__FILE__, __LINE__);
+	ex.unsupportedFeature = "setAdapter with blocking connection";
+        throw ex;
+    }
 
     //
     // Wait for all the incoming to be dispatched. We can't modify the
