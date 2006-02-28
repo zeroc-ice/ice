@@ -13,8 +13,8 @@
 # blocking mode.
 #
 
-blocking = 0
-#blocking = 1
+#blocking = 0
+blocking = 1
 
 #
 # If you don't set "host" below, then the IceE library will try to find
