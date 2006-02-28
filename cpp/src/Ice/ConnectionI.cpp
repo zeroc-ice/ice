@@ -485,7 +485,12 @@ Ice::ConnectionI::sendRequest(BasicStream* os, Outgoing* out, bool compress)
 	
 	if(_exception.get())
 	{
-	    _exception->ice_throw();
+	    //
+	    // If the exception is closed before we even have a chance
+	    // to send our request, we always try to send the request
+	    // again.
+	    //
+	    throw LocalExceptionWrapper(*_exception.get(), true);
 	}
 
 	assert(_state > StateNotValidated);
@@ -645,7 +650,12 @@ Ice::ConnectionI::sendAsyncRequest(BasicStream* os, const OutgoingAsyncPtr& out,
 
 	if(_exception.get())
 	{
-	    _exception->ice_throw();
+	    //
+	    // If the exception is closed before we even have a chance
+	    // to send our request, we always try to send the request
+	    // again.
+	    //
+	    throw LocalExceptionWrapper(*_exception.get(), true);
 	}
 
 	assert(_state > StateNotValidated);

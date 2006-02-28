@@ -163,9 +163,9 @@ IceProxy::Ice::Object::ice_isA(const string& __id, const Context& __context)
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->ice_isA(__id, __context);
 	}
-	catch(const NonRepeatable& __ex)
+	catch(const LocalExceptionWrapper& __ex)
 	{
-	    __handleException(*__ex.get(), __cnt);
+	    __handleExceptionWrapperRelaxed(__ex, __cnt);
 	}
 	catch(const LocalException& __ex)
 	{
@@ -192,9 +192,9 @@ IceProxy::Ice::Object::ice_ping(const Context& __context)
 	    __del->ice_ping(__context);
 	    return;
 	}
-	catch(const NonRepeatable& __ex)
+	catch(const LocalExceptionWrapper& __ex)
 	{
-	    __handleException(*__ex.get(), __cnt);
+	    __handleExceptionWrapperRelaxed(__ex, __cnt);
 	}
 	catch(const LocalException& __ex)
 	{
@@ -221,9 +221,9 @@ IceProxy::Ice::Object::ice_ids(const Context& __context)
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->ice_ids(__context);
 	}
-	catch(const NonRepeatable& __ex)
+	catch(const LocalExceptionWrapper& __ex)
 	{
-	    __handleException(*__ex.get(), __cnt);
+	    __handleExceptionWrapperRelaxed(__ex, __cnt);
 	}
 	catch(const LocalException& __ex)
 	{
@@ -250,9 +250,9 @@ IceProxy::Ice::Object::ice_id(const Context& __context)
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->ice_id(__context);
 	}
-	catch(const NonRepeatable& __ex)
+	catch(const LocalExceptionWrapper& __ex)
 	{
-	    __handleException(*__ex.get(), __cnt);
+	    __handleExceptionWrapperRelaxed(__ex, __cnt);
 	}
 	catch(const LocalException& __ex)
 	{
@@ -285,16 +285,16 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->ice_invoke(operation, mode, inParams, outParams, context);
 	}
-	catch(const NonRepeatable& __ex)
+	catch(const LocalExceptionWrapper& __ex)
 	{
 	    bool canRetry = mode == Nonmutating || mode == Idempotent;
 	    if(canRetry)
 	    {
-		__handleException(*__ex.get(), __cnt);
+		__handleExceptionWrapperRelaxed(__ex, __cnt);
 	    }
 	    else
 	    {
-		__rethrowException(*__ex.get());
+		__handleExceptionWrapper(__ex);
 	    }
 	}
 	catch(const LocalException& __ex)
@@ -818,17 +818,31 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
 }
 
 void
-IceProxy::Ice::Object::__rethrowException(const LocalException& ex)
+IceProxy::Ice::Object::__handleExceptionWrapper(const LocalExceptionWrapper& ex)
 {
-    //
-    // Only _delegate needs to be mutex protected here.
-    //
     {
 	IceUtil::Mutex::Lock sync(*this);
 	_delegate = 0;
     }
 
-    ex.ice_throw();
+    if(!ex.retry())
+    {
+	ex.get()->ice_throw();
+    }
+}
+
+void
+IceProxy::Ice::Object::__handleExceptionWrapperRelaxed(const LocalExceptionWrapper& ex, int& cnt)
+{
+    if(!ex.retry())
+    {
+	__handleException(*ex.get(), cnt);
+    }
+    else
+    {
+	IceUtil::Mutex::Lock sync(*this);
+	_delegate = 0;
+    }
 }
 
 //
@@ -993,7 +1007,7 @@ IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context& __context)
     }
     catch(const ::Ice::LocalException& __ex)
     {
-	throw ::IceInternal::NonRepeatable(__ex);
+	throw ::IceInternal::LocalExceptionWrapper(__ex, false);
     }
     return __ret;
 }
@@ -1021,7 +1035,7 @@ IceDelegateM::Ice::Object::ice_ping(const Context& __context)
     }
     catch(const ::Ice::LocalException& __ex)
     {
-	throw ::IceInternal::NonRepeatable(__ex);
+	throw ::IceInternal::LocalExceptionWrapper(__ex, false);
     }
 }
 
@@ -1050,7 +1064,7 @@ IceDelegateM::Ice::Object::ice_ids(const Context& __context)
     }
     catch(const ::Ice::LocalException& __ex)
     {
-	throw ::IceInternal::NonRepeatable(__ex);
+	throw ::IceInternal::LocalExceptionWrapper(__ex, false);
     }
     return __ret;
 }
@@ -1080,7 +1094,7 @@ IceDelegateM::Ice::Object::ice_id(const Context& __context)
     }
     catch(const ::Ice::LocalException& __ex)
     {
-	throw ::IceInternal::NonRepeatable(__ex);
+	throw ::IceInternal::LocalExceptionWrapper(__ex, false);
     }
     return __ret;
 }
@@ -1113,7 +1127,7 @@ IceDelegateM::Ice::Object::ice_invoke(const string& operation,
         }
         catch(const ::Ice::LocalException& __ex)
         {
-            throw ::IceInternal::NonRepeatable(__ex);
+            throw ::IceInternal::LocalExceptionWrapper(__ex, false);
         }
     }
     return ok;

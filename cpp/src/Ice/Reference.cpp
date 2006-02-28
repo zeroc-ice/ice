@@ -408,29 +408,29 @@ public:
 };
 
 IceInternal::Reference::Reference(const InstancePtr& inst, const CommunicatorPtr& com, const Identity& ident,
-				  const Context& ctx, const string& fs, Mode md)
-    : _instance(inst),
-      _communicator(com),
-      _mode(md),
-      _identity(ident),
-      _context(ctx),
-      _facet(fs),
-      _cacheConnection(true),
-      _endpointSelection(Random),
-      _hashInitialized(false)
+				  const Context& ctx, const string& fs, Mode md) :
+    _hashInitialized(false),
+    _instance(inst),
+    _communicator(com),
+    _mode(md),
+    _identity(ident),
+    _context(ctx),
+    _facet(fs),
+    _cacheConnection(true),
+    _endpointSelection(Random)
 {
 }
 
-IceInternal::Reference::Reference(const Reference& r)
-    : _instance(r._instance),
-      _communicator(r._communicator),
-      _mode(r._mode),
-      _identity(r._identity),
-      _context(r._context),
-      _facet(r._facet),
-      _cacheConnection(r._cacheConnection),
-      _endpointSelection(r._endpointSelection),
-      _hashInitialized(false)
+IceInternal::Reference::Reference(const Reference& r) :
+    _hashInitialized(false),
+    _instance(r._instance),
+    _communicator(r._communicator),
+    _mode(r._mode),
+    _identity(r._identity),
+    _context(r._context),
+    _facet(r._facet),
+    _cacheConnection(r._cacheConnection),
+    _endpointSelection(r._endpointSelection)
 {
 }
 
@@ -439,9 +439,9 @@ void IceInternal::decRef(IceInternal::FixedReference* p) { p->__decRef(); }
 
 IceInternal::FixedReference::FixedReference(const InstancePtr& inst, const CommunicatorPtr& com, const Identity& ident,
 					    const Context& ctx, const string& fs, Mode md,
-					    const vector<ConnectionIPtr>& fixedConns)
-    : Reference(inst, com, ident, ctx, fs, md),
-      _fixedConnections(fixedConns)
+					    const vector<ConnectionIPtr>& fixedConns) :
+    Reference(inst, com, ident, ctx, fs, md),
+    _fixedConnections(fixedConns)
 {
 }
 
@@ -626,9 +626,9 @@ IceInternal::FixedReference::clone() const
     return new FixedReference(*this);
 }
 
-IceInternal::FixedReference::FixedReference(const FixedReference& r)
-    : Reference(r),
-      _fixedConnections(r._fixedConnections)
+IceInternal::FixedReference::FixedReference(const FixedReference& r) :
+    Reference(r),
+    _fixedConnections(r._fixedConnections)
 {
 }
 
@@ -834,19 +834,19 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
 
 IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const CommunicatorPtr& com,
 						  const Identity& ident, const Context& ctx, const string& fs, Mode md,
-						  bool sec, const RouterInfoPtr& rtrInfo, bool collocationOpt)
-    : Reference(inst, com, ident, ctx, fs, md),
-      _secure(sec),
-      _routerInfo(rtrInfo),
-      _collocationOptimization(collocationOpt)
+						  bool sec, const RouterInfoPtr& rtrInfo, bool collocationOpt) :
+    Reference(inst, com, ident, ctx, fs, md),
+    _secure(sec),
+    _routerInfo(rtrInfo),
+    _collocationOptimization(collocationOpt)
 {
 }
 
-IceInternal::RoutableReference::RoutableReference(const RoutableReference& r)
-    : Reference(r),
-      _secure(r._secure),
-      _routerInfo(r._routerInfo),
-      _collocationOptimization(r._collocationOptimization)
+IceInternal::RoutableReference::RoutableReference(const RoutableReference& r) :
+    Reference(r),
+    _secure(r._secure),
+    _routerInfo(r._routerInfo),
+    _collocationOptimization(r._collocationOptimization)
 {
 }
 
@@ -992,9 +992,9 @@ void IceInternal::decRef(IceInternal::DirectReference* p) { p->__decRef(); }
 IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const CommunicatorPtr& com,
 					      const Identity& ident, const Context& ctx, const string& fs, Mode md,
 					      bool sec, const vector<EndpointIPtr>& endpts,
-					      const RouterInfoPtr& rtrInfo, bool collocationOpt)
-    : RoutableReference(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt),
-      _endpoints(endpts)
+					      const RouterInfoPtr& rtrInfo, bool collocationOpt) :
+    RoutableReference(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt),
+    _endpoints(endpts)
 {
 }
 
@@ -1223,9 +1223,9 @@ IceInternal::DirectReference::clone() const
     return new DirectReference(*this);
 }
 
-IceInternal::DirectReference::DirectReference(const DirectReference& r)
-    : RoutableReference(r),
-      _endpoints(r._endpoints)
+IceInternal::DirectReference::DirectReference(const DirectReference& r) :
+    RoutableReference(r),
+    _endpoints(r._endpoints)
 {
 }
 
@@ -1236,11 +1236,11 @@ IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const
 						  const Identity& ident, const Context& ctx, const string& fs, Mode md,
 						  bool sec, const string& adptid, const RouterInfoPtr& rtrInfo,
 						  const LocatorInfoPtr& locInfo, bool collocationOpt,
-						  int locatorCacheTimeout)
-    : RoutableReference(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt),
-      _adapterId(adptid),
-      _locatorInfo(locInfo),
-      _locatorCacheTimeout(locatorCacheTimeout)
+						  int locatorCacheTimeout) :
+    RoutableReference(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt),
+    _adapterId(adptid),
+    _locatorInfo(locInfo),
+    _locatorCacheTimeout(locatorCacheTimeout)
 {
 }
 
@@ -1485,7 +1485,9 @@ IceInternal::IndirectReference::hash() const
         return _hashValue;
     }
     RoutableReference::hash(); // Initializes _hashValue.
-    for(string::const_iterator p = _adapterId.begin(); p != _adapterId.end(); ++p) // Add hash of adapter ID to base hash.
+
+    // Add hash of adapter ID to base hash.
+    for(string::const_iterator p = _adapterId.begin(); p != _adapterId.end(); ++p)
     {
         _hashValue = 5 * _hashValue + *p;
     }
@@ -1570,12 +1572,11 @@ IceInternal::IndirectReference::clone() const
     return new IndirectReference(*this);
 }
 
-IceInternal::IndirectReference::IndirectReference(const IndirectReference& r)
-    : RoutableReference(r),
-      _adapterId(r._adapterId),
-      _connectionId(r._connectionId),
-      _locatorInfo(r._locatorInfo),
-      _locatorCacheTimeout(r._locatorCacheTimeout)
+IceInternal::IndirectReference::IndirectReference(const IndirectReference& r) :
+    RoutableReference(r),
+    _adapterId(r._adapterId),
+    _connectionId(r._connectionId),
+    _locatorInfo(r._locatorInfo),
+    _locatorCacheTimeout(r._locatorCacheTimeout)
 {
 }
-

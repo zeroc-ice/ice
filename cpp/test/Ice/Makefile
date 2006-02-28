@@ -25,7 +25,8 @@ SUBDIRS		= operations \
 		  stream \
 		  hold \
 		  custom \
-		  binding
+		  binding \
+		  retry
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

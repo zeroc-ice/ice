@@ -73,6 +73,7 @@ tests = [ \
     "Ice/stream", \
     "Ice/hold", \
     "Ice/custom", \
+    "Ice/retry", \
     "IceSSL/configuration", \
     "IceSSL/loadPEM", \
     "IceSSL/certificateAndKeyParsing", \

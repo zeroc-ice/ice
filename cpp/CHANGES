@@ -1,17 +1,23 @@
 Changes since version 3.0.1
 ---------------------------
 
+- If several proxies share the same connection, and an operation call
+  on one of the proxies causes a failure and the shared connection to
+  be closed, then subsequent calls on the other proxies will try to
+  establish a new connection instead of throwing an exception, even if
+  retries are disabled.
+
 - IcePatch2 now performs incremental reads of files during compression
   and checksum calculation. Previously the entire file being processed
   was read into memory.
 
-- If a proxy is not configured with the -h parameter, Ice will now 
+- If a proxy is not configured with the -h parameter, Ice will now
   attempt to connect using all local interfaces. The loopback
   interface (127.0.0.1) will only be tried if it is the only local
   interface present.
 
 - Added the ability to specify alternate mappings for Slice sequences
-  other than std::vector. Please see the Ice  manual for more details.
+  other than std::vector. Please see the Ice manual for more details.
 
 - Fixed a bug in slice2cpp that caused one-shot constructors for
   classes to incorrectly initialize base classes for class hierarchies

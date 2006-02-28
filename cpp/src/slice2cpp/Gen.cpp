@@ -1767,15 +1767,15 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "return;";
     }
     C << eb;
-    C << nl << "catch(const ::IceInternal::NonRepeatable& __ex)";
+    C << nl << "catch(const ::IceInternal::LocalExceptionWrapper& __ex)";
     C << sb;
     if(p->mode() == Operation::Idempotent || p->mode() == Operation::Nonmutating)
     {
-	C << nl << "__handleException(*__ex.get(), __cnt);";
+	C << nl << "__handleExceptionWrapperRelaxed(__ex, __cnt);";
     }
     else
     {
-	C << nl << "__rethrowException(*__ex.get());";
+	C << nl << "__handleExceptionWrapper(__ex);";
     }
     C << eb;
     C << nl << "catch(const ::Ice::LocalException& __ex)";
@@ -2165,7 +2165,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << eb;
     C << nl << "catch(const ::Ice::LocalException& __ex)";
     C << sb;
-    C << nl << "throw ::IceInternal::NonRepeatable(__ex);";
+    C << nl << "throw ::IceInternal::LocalExceptionWrapper(__ex, false);";
     C << eb;
     C << eb;
 }
@@ -2360,7 +2360,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
 	C << eb;
         C << nl << "catch(const ::Ice::LocalException& __ex)";
         C << sb;
-        C << nl << "throw ::IceInternal::NonRepeatable(__ex);";
+        C << nl << "throw ::IceInternal::LocalExceptionWrapper(__ex, false);";
 	C << eb;
 	C << eb;
 	C << eb;

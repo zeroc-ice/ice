@@ -50,6 +50,8 @@ ICE_API void decRef(::IceProxy::Ice::Router*);
 ICE_API void incRef(::IceProxy::Ice::Locator*);
 ICE_API void decRef(::IceProxy::Ice::Locator*);
 
+class LocalExceptionWrapper;
+
 }
 
 namespace Ice
@@ -155,7 +157,8 @@ public:
     ::IceInternal::ReferencePtr __reference() const;
     void __copyFrom(const ::Ice::ObjectPrx&);
     void __handleException(const ::Ice::LocalException&, int&);
-    void __rethrowException(const ::Ice::LocalException&);
+    void __handleExceptionWrapper(const ::IceInternal::LocalExceptionWrapper&);
+    void __handleExceptionWrapperRelaxed(const ::IceInternal::LocalExceptionWrapper&, int&);
     void __checkTwowayOnly(const char*) const;
     void __checkTwowayOnly(const ::std::string&) const;
 

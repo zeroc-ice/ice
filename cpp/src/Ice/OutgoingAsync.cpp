@@ -18,6 +18,7 @@
 #include <Ice/LocatorInfo.h>
 #include <Ice/ProxyFactory.h>
 #include <Ice/RouterInfo.h>
+#include <Ice/Outgoing.h> // For LocalExceptionWrapper.
 
 using namespace std;
 using namespace Ice;
@@ -372,6 +373,13 @@ IceInternal::OutgoingAsync::__send()
 		// cannot modify state here and in such callbacks.
 		//
 		return;
+	    }
+	    catch(const LocalExceptionWrapper& ex)
+	    {
+		if(!ex.retry())
+		{
+		    ex.get()->ice_throw();
+		}
 	    }
 	    catch(const LocalException& ex)
 	    {
