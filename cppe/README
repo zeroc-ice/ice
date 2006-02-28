@@ -146,109 +146,126 @@ If ICEE_HAS_BATCH is defined, the Ice-E client library will include
 support for sending batch messages. This feature cannot be disabled
 in the server library.
 
-
 Blocking Client Support
 -----------------------
 
 If ICEE_PURE_BLOCKING_CLIENT is defined, the Ice-E client library will
-include support only for the blocking client-side concurrency model. If
-it is not defined or the server library is being used the blocking model
-can still be chosen by setting the --Ice.Blocking property.
+include support only for the blocking client-side concurrency model.
+If it is not defined, or the server library is being used, the
+blocking model can still be chosen by setting the --Ice.Blocking
+property.
 
 
 Alternate Sequence Mapping
 ==========================
 
-By default, slice sequences map to std::vector in C++. However it is 
-possible to control the type that is generated for sequences though the
-use of metadata. Any user defined class may be used as the sequence type
-as long as it conforms to the following constraints:
+Slice sequences map to std::vector by default, but it is possible to
+change this mapping using metadata. Any user-defined class can be used
+as the sequence type as long as it conforms to the following
+constraints:
 
- * has default constructor
- * has copy constructor
- * has constructor which take initial size of sequence as paramater
- * implements size() to return current sequence size
- * implements swap() to swap contents with another class of same type
- * has a iterator and const_iterator and implements begin() and end()
- * is responsible for it's own memory management
+ * has a default constructor
+ * has a copy constructor
+ * has a constructor that takes the initial size of the sequence as a
+   parameter
+ * implements size() to return the current sequence size
+ * implements swap() to swap contents with another class of the same
+   type
+ * has an iterator and const_iterator and implements begin() and end()
+ * is responsible for its own memory management
 
-std::vector, std::list and std::deque all conform to the above and thus
-can all be used.
+In addition std::vector, the templates std::list and std::deque
+conform to the constraints above and can also be used.
 
-To set an alternate mapping for a sequence in slice you use the following
-sytax:
+The following syntax should be used to specify an alternate mapping
+for a Slice sequence:
 
 ["cpp:type:std::deque< ::Ice::Byte>"] sequence<byte> ByteSeq;
 
-This will cause a std::deque to be used wherever you use ByteSeq in your
-slice definitions. You can also sepcify an alternate mapping for only a
-specific use of a sequence type, such as a specific operation paramater.
-The syntax for modifying mapping of operation paramaters or class and
-structure members is as follows:
+This metadata will cause std::deque to be used for all occurrences of
+ByteSeq in your Slice definitions. You can also define an alternate
+sequence mapping for specific occurrences of a sequence type, such as
+an operation parameter or the data member of a struct, using the
+syntax shown below:
+
+sequence<byte> ByteSeq; // Uses the default mapping to std::vector.
 
 struct S
 {
-    ["cpp:type:std::list< ::Ice::Byte>"] ByteSeq b;
+    // This member uses the default mapping.
+    ByteSeq seq1;
+
+    // Modify the mapping for this data member.
+    ["cpp:type:std::list< ::Ice::Byte>"] ByteSeq seq2;
 };
 
-class C
+interface I
 {
-    ["cpp:type:list< ::Ice::Byte>"] op(["cpp:type:list< ::Ice::Byte>"] ByteSeq bs);
-
-    ["cpp:type:list< ::Ice::Byte>""] ByteSeq b;    
+    // Modify the mapping of the return value and the parameter.
+    ["cpp:type:list< ::Ice::Byte>"]
+    ByteSeq op(["cpp:type:list< ::Ice::Byte>"] ByteSeq seq);
 };
 
-There are also two special mapping that can only be used for operation in
-paramaters, array and range. The array mapping maps the slice sequence to 
-a pair of pointers [first, last) to the sequences contained type. For example
+Two additional metadata directives are supported for the input
+parameters of an operation. The "array" directive maps a sequence to
+a pair of pointers to the element type as [first, last). Consider
+this example:
 
-class C
+interface I
 {
-    void op(["cpp:array"] ByteSeq bs);
+    void op(["cpp:array"] ByteSeq seq);
 };
 
-will map to std::pair<const Ice::Byte*, const Ice::Byte*>.
+The signature of the servant's method is mapped as follows:
 
-For byte sequences these pointers will point directly into the marshall
-stream, meaning that no extra copy is done on the server side, thus
-improving performance.
+void op(std::pair<const Ice::Byte*, const Ice::Byte*>, ...)
 
-The range mapping maps to a pair of const_iterators that point to the
-begining and end of the sequence. For example
+For byte sequences, these pointers refer to memory in the Ice run
+time's internal buffers, which avoids the overhead of an extra copy
+on the server side.
 
-class C
+The "range" directive maps a sequence to a pair of const_iterators
+that point to the beginning and end of the sequence. For example:
+
+interface I
 {
-    void op(["cpp:range"] ByteSeq bs);
-    };
+    void op(["cpp:range"] ByteSeq seq);
 };
 
-will map to std::pair<ByteSeq::const_iterator, ByteSeq::const_iterator>
+The signature of the servant's method is mapped as follows:
 
-It is also possible to specify a different sequence type with the range
-metadata. For example
+void op(std::pair<ByteSeq::const_iterator, ByteSeq::const_iterator>, ...)
 
-class C
+The range directive accepts an optional argument specifying an
+alternate sequence type, as shown in this example:
+
+interface I
 {
-    void op(["cpp:range:std::deque< ::Ice::Byte>"] ByteSeq bs);
+    void op(["cpp:range:std::deque< ::Ice::Byte>"] ByteSeq seq);
 };
 
-will map to std::pair<std::deque< ::Ice::Byte>::const_iterator, std::deque< ::Ice::Byte>::const_iterator>
+The signature of the servant's method is mapped as follows:
 
-Finally, when using a alternate sequence mapping it is usually necessary
-for the generated header file to include the file defining the alternate
-type in order for the generated code to compile. Extra includes can also 
-be specified with metadata. For example if you make use of std::list and
-std::deque in your slice you would add the following at the top of your
-slice file.
+void op(std::pair<std::deque< ::Ice::Byte>::const_iterator,
+		  std::deque< ::Ice::Byte>::const_iterator>, ...)
+
+Finally, when using an alternate sequence mapping, it is usually
+necessary for the generated header file to include a file that
+defines the alternate type. You can force the inclusion of one
+or more files using global metadata.
+
+For example, if you make use of std::list and std::deque as
+alternate sequence mappings, you would need to add the following
+metadata to the beginning of your Slice file:
 
 [["cpp:include:deque", "cpp:include:list"]]
 
-Please take a look at test/IceE/custom for code examples of the use of
-alternate C++ sequence mappings.
+The code example in the test/IceE/custom subdirectory demonstrates
+the use of alternate sequence mappings.
 
 
 Installation
 ============
 
 For installation instructions, please refer to the INSTALL.* file for
-your plaftorm.
+your platform.
