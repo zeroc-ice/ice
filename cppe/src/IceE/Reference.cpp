@@ -1058,7 +1058,11 @@ IceInternal::IndirectReference::hash() const
     {
         return _hashValue;
     }
+#ifdef ICEE_HAS_ROUTER
     RoutableReference::hash(); // Initializes _hashValue.
+#else
+    Reference::hash(); // Initializes _hashValue.
+#endif
     for(string::const_iterator p = _adapterId.begin(); p != _adapterId.end(); ++p) // Add hash of adapter ID to base hash.
     {
         _hashValue = 5 * _hashValue + *p;
