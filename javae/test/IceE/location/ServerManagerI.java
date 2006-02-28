@@ -22,10 +22,10 @@ public class ServerManagerI extends _ServerManagerDisp
     startServer(Ice.Current current)
     {
 	String[] argv = new String[0];
-        java.util.Iterator i = _communicators.iterator();
-	while(i.hasNext())
+        java.util.Enumeration e = _communicators.elements();
+	while(e.hasMoreElements())
 	{
-	    Ice.Communicator c = (Ice.Communicator)i.next();
+	    Ice.Communicator c = (Ice.Communicator)e.nextElement();
 	    c.waitForShutdown();
 	    c.destroy();
 	}
