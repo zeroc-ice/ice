@@ -1,0 +1,82 @@
+======================================================================
+Requirements
+======================================================================
+
+Version
+-------
+
+Ice-E has been extensively tested under the following environments:
+
+- Microsoft Device Emulator 1.0 Preview
+
+- HP iPaq hx2400
+
+
+C++ compiler
+------------
+
+The following Microsoft Visual C++ compilers are supported:
+
+- Microsoft Visual C++ 2005 with Smart Device support
+
+
+Slice-to-Embedded-C++ translator
+--------------------------------
+
+You will need the Slice-to-Embedded-C++ translator (slice2cppe) and
+preprocessor (icecpp). You can download a binary distribution from the
+ZeroC web site, or you can build the Slice-to-Embedded-C++ translator
+yourself.
+
+Binary and source distributions for the supported platforms are
+available at
+
+http://www.zeroc.com/download.html
+
+
+======================================================================
+Installing and Configuring Microsoft Visual C++ 2005
+======================================================================
+
+- Install Visual Studio 2005 making sure to include the Smart Device
+  support (Language Tools->Visual C++->Smart Device Support)
+
+- Add the location of the slice2cppe compiler to your "Executable
+  files" list in Tools->Options->Projects and Solutions->VC++ Directories.
+
+======================================================================
+Compilation and Testing
+======================================================================
+
+Using your favorite Zip tool, unzip the Ice-E archive anywhere you
+like, then start the Visual Studio 2005 IDE. You are now ready to 
+compile Ice-E.
+
+Open the "all_CE.sln" solution.
+
+Four build configurations are supported:
+
+  Release
+  Debug
+  Debug Static
+  Release Static
+
+Configurations whose names end in "Static" generate static libraries
+for the Ice-E run time, whereas the other configurations generate
+DLLs.
+
+Set your active project to "all" to compile everything including the
+tests and demos. To set your active project click on "all" in the class
+view, then use Project->Set as StartUp Project. To start the compilation
+use Build->Build all.
+
+In order to run the test suite, you must build all of the tests, and
+then manually run the server followed by the client. Any failures
+will be reported.
+
+
+======================================================================
+Installation
+======================================================================
+
+No automatic installation support is provided.
