@@ -155,6 +155,98 @@ include support only for the blocking client-side concurrency model. If
 it is not defined or the server library is being used the blocking model
 can still be chosen by setting the --Ice.Blocking property.
 
+
+Alternate Sequence Mapping
+==========================
+
+By default, slice sequences map to std::vector in C++. However it is 
+possible to control the type that is generated for sequences though the
+use of metadata. Any user defined class may be used as the sequence type
+as long as it conforms to the following constraints:
+
+ * has default constructor
+ * has copy constructor
+ * has constructor which take initial size of sequence as paramater
+ * implements size() to return current sequence size
+ * implements swap() to swap contents with another class of same type
+ * has a iterator and const_iterator and implements begin() and end()
+ * is responsible for it's own memory management
+
+std::vector, std::list and std::deque all conform to the above and thus
+can all be used.
+
+To set an alternate mapping for a sequence in slice you use the following
+sytax:
+
+["cpp:type:std::deque< ::Ice::Byte>"] sequence<byte> ByteSeq;
+
+This will cause a std::deque to be used wherever you use ByteSeq in your
+slice definitions. You can also sepcify an alternate mapping for only a
+specific use of a sequence type, such as a specific operation paramater.
+The syntax for modifying mapping of operation paramaters or class and
+structure members is as follows:
+
+struct S
+{
+    ["cpp:type:std::list< ::Ice::Byte>"] ByteSeq b;
+};
+
+class C
+{
+    ["cpp:type:list< ::Ice::Byte>"] op(["cpp:type:list< ::Ice::Byte>"] ByteSeq bs);
+
+    ["cpp:type:list< ::Ice::Byte>""] ByteSeq b;    
+};
+
+There are also two special mapping that can only be used for operation in
+paramaters, array and range. The array mapping maps the slice sequence to 
+a pair of pointers [first, last) to the sequences contained type. For example
+
+class C
+{
+    void op(["cpp:array"] ByteSeq bs);
+};
+
+will map to std::pair<const Ice::Byte*, const Ice::Byte*>.
+
+For byte sequences these pointers will point directly into the marshall
+stream, meaning that no extra copy is done on the server side, thus
+improving performance.
+
+The range mapping maps to a pair of const_iterators that point to the
+begining and end of the sequence. For example
+
+class C
+{
+    void op(["cpp:range"] ByteSeq bs);
+    };
+};
+
+will map to std::pair<ByteSeq::const_iterator, ByteSeq::const_iterator>
+
+It is also possible to specify a different sequence type with the range
+metadata. For example
+
+class C
+{
+    void op(["cpp:range:std::deque< ::Ice::Byte>"] ByteSeq bs);
+};
+
+will map to std::pair<std::deque< ::Ice::Byte>::const_iterator, std::deque< ::Ice::Byte>::const_iterator>
+
+Finally, when using a alternate sequence mapping it is usually necessary
+for the generated header file to include the file defining the alternate
+type in order for the generated code to compile. Extra includes can also 
+be specified with metadata. For example if you make use of std::list and
+std::deque in your slice you would add the following at the top of your
+slice file.
+
+[["cpp:include:deque", "cpp:include:list"]]
+
+Please take a look at test/IceE/custom for code examples of the use of
+alternate C++ sequence mappings.
+
+
 Installation
 ============
 
