@@ -572,6 +572,7 @@ IceInternal::FixedReference::getConnection(bool& compress) const
 
     ConnectionIPtr connection = filteredConns[0];
     assert(connection);
+    connection->throwException(); // Throw in case our connection is already destroyed.
     compress = connection->endpoint()->compress();
 
     return connection;

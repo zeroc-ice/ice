@@ -57,6 +57,8 @@ public:
     bool isDestroyed() const;
     bool isFinished() const;
 
+    void throwException() const; // Throws the connection exception if destroyed.
+
     void waitUntilHolding() const;
     void waitUntilFinished(); // Not const, as this might close the connection upon timeout.
 

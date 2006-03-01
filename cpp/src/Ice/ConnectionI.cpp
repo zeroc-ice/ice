@@ -337,6 +337,18 @@ Ice::ConnectionI::isFinished() const
 }
 
 void
+Ice::ConnectionI::throwException() const
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+    if(_exception.get())
+    {
+	assert(_state >= StateClosing);
+	_exception->ice_throw();
+    }
+}
+
+void
 Ice::ConnectionI::waitUntilHolding() const
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
