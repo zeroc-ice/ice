@@ -896,21 +896,21 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
     //
     switch(getEndpointSelection())
     {
-    case Random:
-    {
-	random_shuffle(endpoints.begin(), endpoints.end());
-	break;
-    }
-    case Ordered:
-    {
-	// Nothing to do.
-	break;
-    }
-    default:
-    {
-	assert(false);
-	break;
-    }
+	case Random:
+	{
+	    random_shuffle(endpoints.begin(), endpoints.end());
+	    break;
+	}
+	case Ordered:
+	{
+	    // Nothing to do.
+	    break;
+	}
+	default:
+	{
+	    assert(false);
+	    break;
+	}
     }
     
     //

@@ -13,8 +13,8 @@
 # protocol. Otherwise TCP is used.
 #
 
-protocol = "ssl"
-#protocol = "tcp"
+#protocol = "ssl"
+protocol = "tcp"
 
 #
 # Set compressed to 1 in case you want to run the tests with
