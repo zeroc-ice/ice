@@ -36,10 +36,6 @@ namespace IceInternal
 {
 
 class Outgoing;
-#ifndef ICEE_PURE_BLOCKING_CLIENT
-class Incoming;
-#endif
-class BasicStream;
 
 }
 
