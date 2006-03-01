@@ -584,6 +584,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name bindingS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name retryC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name retryS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -3157,6 +3163,42 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name iceutil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "retryC"=.\test\Ice\retry\retryC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2cpp
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "retryS"=.\test\Ice\retry\retryS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name slice2cpp
     End Project Dependency
 }}}
 
