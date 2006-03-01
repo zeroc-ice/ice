@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../../include" /D "_CONSOLE" /D "NDEBUG" /D "WIN32_LEAN_AND_MEAN" /FD /c
-# SUBTRACT CPP /Z<none> /Fr /YX
+# SUBTRACT CPP /Fr /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -51,7 +51,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 /nologo /subsystem:console /pdb:none /machine:I386 /out:"server.exe" /FIXED:no
+# ADD LINK32 Ice.lib IceUtil.lib /nologo /subsystem:console /pdb:none /machine:I386 /out:"server.exe" /FIXED:no
 # SUBTRACT LINK32 /debug /nodefaultlib
 
 !ELSEIF  "$(CFG)" == "routerS - Win32 Debug"
@@ -77,7 +77,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 /nologo /subsystem:console /debug /machine:I386 /out:"server.exe" /pdbtype:sept /FIXED:no
+# ADD LINK32 Iced.lib IceUtild.lib /nologo /subsystem:console /debug /machine:I386 /out:"server.exe" /pdbtype:sept /FIXED:no
 # SUBTRACT LINK32 /pdb:none
 
 !ENDIF 
