@@ -1,6 +1,9 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Peformance improvements if an AMI callback object is reused with the
+  same proxy.
+
 - If several proxies share the same connection, and an operation call
   on one of the proxies causes a failure and the shared connection to
   be closed, then subsequent calls on the other proxies will try to

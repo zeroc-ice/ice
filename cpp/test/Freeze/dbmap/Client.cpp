@@ -215,7 +215,7 @@ run(const CommunicatorPtr& communicator, const string& envName)
     ByteIntMap::iterator p;
     ByteIntMap::const_iterator cp;
 
-    cout << "testing populate... ";
+    cout << "testing populate... " << flush;
     //
     // First try non-const iterator
     //
@@ -239,7 +239,7 @@ run(const CommunicatorPtr& communicator, const string& envName)
     test(m.size() == alphabet.size());
     cout << "ok" << endl;
 
-    cout << "testing map::find... ";
+    cout << "testing map::find... " << flush;
     j = find(alphabet.begin(), alphabet.end(), 'n');
     
     cp = m.find(*j);
@@ -247,7 +247,7 @@ run(const CommunicatorPtr& communicator, const string& envName)
     test(cp->first == 'n' && cp->second == j - alphabet.begin());
     cout << "ok" << endl;
 
-    cout << "testing erase... ";
+    cout << "testing erase... " << flush;
 
     //
     // erase first offset characters (first offset characters is
@@ -289,12 +289,12 @@ run(const CommunicatorPtr& communicator, const string& envName)
     //
     // Get an iterator for the deleted element - this should fail.
     //
-    cout << "testing map::find (again)... ";
+    cout << "testing map::find (again)... " << flush;
     cp = m.find('a');
     test(cp == m.end());
     cout << "ok" << endl;
 
-    cout << "testing iterators... ";
+    cout << "testing iterators... " << flush;
     p = m.begin();
     ByteIntMap::iterator p2 = p;
 
@@ -354,7 +354,7 @@ run(const CommunicatorPtr& communicator, const string& envName)
     //
     // Test writing into an iterator.
     //
-    cout << "testing iterator.set... ";
+    cout << "testing iterator.set... " << flush;
 
     p = m.find('d');
     test(p != m.end() && p->second == 3);
@@ -430,7 +430,7 @@ run(const CommunicatorPtr& communicator, const string& envName)
     //
     populateDB(connection, m);
 
-    cout << "testing algorithms... ";
+    cout << "testing algorithms... " << flush;
 
     for_each(m.begin(), m.end(), ForEachTest);
 

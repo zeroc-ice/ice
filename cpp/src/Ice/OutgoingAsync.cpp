@@ -203,7 +203,7 @@ IceInternal::OutgoingAsync::__finished(const LocalException& exc)
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(_monitor);
 
-    if(_reference)
+    if(__is) // Don't retry if cleanup has been called.
     {
 	bool doRetry = false;
 	
@@ -280,7 +280,7 @@ IceInternal::OutgoingAsync::__prepare(const ObjectPrx& prx, const string& operat
 	//
 	// We must first wait for other requests to finish.
 	//
-	while(_reference)
+	while(__is)
 	{
 	    _monitor.wait();
 	}
@@ -290,9 +290,18 @@ IceInternal::OutgoingAsync::__prepare(const ObjectPrx& prx, const string& operat
 	//
 	prx->__checkTwowayOnly(operation);
 
-	_reference = prx->__reference();
-	assert(!_connection);
-	_connection = _reference->getConnection(_compress);
+	ReferencePtr ref = prx->__reference();
+
+	//
+	// Optimization: Don't update the connection if it is not
+	// necessary.
+	//
+	if(!_connection || !_reference || _reference != ref)
+	{
+	    _connection = ref->getConnection(_compress);
+	}
+
+	_reference = ref;
 	_cnt = 0;
 	_mode = mode;
 	assert(!__is);
@@ -406,7 +415,7 @@ IceInternal::OutgoingAsync::__send()
 void
 IceInternal::OutgoingAsync::warning(const Exception& ex) const
 {
-    if(_reference) // Don't print anything if cleanup() was already called.
+    if(__is) // Don't print anything if cleanup() was already called.
     {
 	if(_reference->getInstance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
 	{
@@ -419,7 +428,7 @@ IceInternal::OutgoingAsync::warning(const Exception& ex) const
 void
 IceInternal::OutgoingAsync::warning(const std::exception& ex) const
 {
-    if(_reference) // Don't print anything if cleanup() was already called.
+    if(__is) // Don't print anything if cleanup() was already called.
     {
 	if(_reference->getInstance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
 	{
@@ -432,7 +441,7 @@ IceInternal::OutgoingAsync::warning(const std::exception& ex) const
 void
 IceInternal::OutgoingAsync::warning() const
 {
-    if(_reference) // Don't print anything if cleanup() was already called.
+    if(__is) // Don't print anything if cleanup() was already called.
     {
 	if(_reference->getInstance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
 	{
@@ -445,8 +454,6 @@ IceInternal::OutgoingAsync::warning() const
 void
 IceInternal::OutgoingAsync::cleanup()
 {
-    _reference = 0;
-    _connection = 0;
     delete __is;
     __is = 0;
     delete __os;

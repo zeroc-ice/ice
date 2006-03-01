@@ -57,7 +57,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     if(!singleCertVerifier)
     {
-        cout << "client and server trusted, client using stock certificate... ";
+        cout << "client and server trusted, client using stock certificate... " << flush;
 
         properties->setProperty("IceSSL.Client.Config", "sslconfig_6.xml");
         sslPlugin->configure(IceSSL::Client);

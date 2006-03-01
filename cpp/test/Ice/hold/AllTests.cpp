@@ -29,14 +29,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(hold == base);
     cout << "ok" << endl;
 
-    cout << "changing state between active and hold rapidly... ";
+    cout << "changing state between active and hold rapidly... " << flush;
     for(int i = 0; i < 100; ++i)
     {
 	hold->putOnHold(0);
     }
     cout << "ok" << endl;
 
-    cout << "changing state to hold and shutting down server... ";
+    cout << "changing state to hold and shutting down server... " << flush;
     hold->shutdown();
     cout << "ok" << endl;
 }

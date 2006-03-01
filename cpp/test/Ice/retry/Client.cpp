@@ -41,14 +41,14 @@ main(int argc, char* argv[])
 	//
 	// This test kills connections, so we don't want warnings.
 	//
-	//properties->setProperty("Ice.Warn.Connections", "0");
+	properties->setProperty("Ice.Warn.Connections", "0");
 
 	communicator = Ice::initialize(argc, argv);
 	status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)
     {
-	cerr << ex << endl;
+	cerr << "xxxxxxxxxxxxx" << ex << endl;
 	status = EXIT_FAILURE;
     }
 

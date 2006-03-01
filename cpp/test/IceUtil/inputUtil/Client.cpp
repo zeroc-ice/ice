@@ -33,7 +33,7 @@ const Int64 Int64Max = 0x7fffffffffffffffLL;
 int
 main(int, char**)
 {
-    cout << "testing string-to-64-bit integer conversion... ";
+    cout << "testing string-to-64-bit integer conversion... " << flush;
 
     bool b;
     Int64 result;
@@ -111,7 +111,7 @@ main(int, char**)
 
     cout << "ok" << endl;
 
-    cout << "testing string to command line arguments... ";
+    cout << "testing string to command line arguments... " << flush;
     vector<string> args;
 
     test(IceUtil::Options::split("").empty());
