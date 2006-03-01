@@ -15,7 +15,7 @@ Ice-E has been extensively tested under the following environments:
 C++ compiler
 ------------
 
-The following Microsoft Visual C++ compilers are supported:
+The following Microsoft Visual C++ compiler is supported:
 
 - Microsoft Visual C++ 2005 with Smart Device support
 
