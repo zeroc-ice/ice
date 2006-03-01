@@ -149,9 +149,6 @@ Compilation and Testing
 Using your favorite Zip tool, unzip the Ice-E archive anywhere you
 like, then start the EVC 4.0 IDE. You are now ready to compile Ice-E.
 
-Microsoft eMbedded Visual C++ 4.0
----------------------------------
-
 Open the "all.vcw" workspace.
 
 Eight build configurations are supported:
