@@ -1,0 +1,52 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# This file is included by Make.rules when uname is Darwin.
+#
+
+CXX	                = c++
+
+CXXFLAGS		= -ftemplate-depth-128 -Wall -D_REENTRANT
+
+ifeq ($(OPTIMIZE),yes)
+     CXXFLAGS		:= -O2 -DNDEBUG $(CXXFLAGS)
+else
+     CXXFLAGS		:= -g $(CXXFLAGS)
+endif
+
+#
+# C++ run-time libraries, necessary for linking some shared libraries.
+#
+CXXLIBS			=
+
+LDPLATFORMFLAGS		= -Wl,-executable_path,$(bindir)
+
+shlibldflags		= $(CXXFLAGS) -L$(libdir)
+
+mklibfilename       	= $(if $(2),lib$(1).$(2).dylib,lib$(1).dylib)
+mksoname           	= $(if $(2),lib$(1).$(2).dylib,lib$(1).dylib)
+
+mklibname           	= lib$(1).dylib
+
+mkshlib                 = $(CXX) -single_module -dynamiclib $(shlibldflags) -o $(1) -install_name @executable_path/../lib/$(2) $(3) $(4)
+
+mklib		= ar cr $(1) $(2)
+
+BASELIBS		= -lpthread 
+LIBS			= -lIceE $(BASELIBS)
+MINLIBS			= -lIceEC $(BASELIBS)
+TESTLIBS		= -lTestCommon $(LIBS)
+
+ICEUTIL_OS_LIBS         = -lpthread
+ICE_OS_LIBS             = -ldl
+
+PLATFORM_HAS_READLINE   := no
+
+export DYLD_LIBRARY_PATH := $(libdir):$(DYLD_LIBRARY_PATH)

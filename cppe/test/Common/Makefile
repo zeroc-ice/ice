@@ -24,6 +24,7 @@ HDIR		= $(includedir)/Ice
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I../include $(CPPFLAGS) -DICE_TEST_COMMON_API_EXPORTS
+LINKWITH	:= -lIceE
 
 ifeq ($(STATICLIBS),yes)
 $(libdir)/$(LIBNAME): $(OBJS)

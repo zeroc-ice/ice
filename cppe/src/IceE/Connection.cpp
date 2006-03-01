@@ -627,7 +627,7 @@ Ice::Connection::flushBatchRequests()
 	//
 	Byte* dest = &(_batchStream.b[0]) + headerSize;
 #ifdef ICE_BIG_ENDIAN
-	Byte* src = reinterpret_cast<const Byte*>(&_batchRequestNum) + sizeof(Ice::Int) - 1;
+	const Byte* src = reinterpret_cast<const Byte*>(&_batchRequestNum) + sizeof(Ice::Int) - 1;
 	*dest++ = *src--;
 	*dest++ = *src--;
 	*dest++ = *src--;
