@@ -27,7 +27,7 @@
 #define ICEE_HAS_BATCH
 
 //
-// Comment this line if you don't want the pure client library built
+// Comment this out if you don't want the pure client library built
 // with only blocking support.
 //
 #define ICEE_PURE_BLOCKING_CLIENT

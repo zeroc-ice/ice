@@ -332,13 +332,13 @@ DEP_CPP_BASIC=\
 	"..\IceE\DefaultsAndOverridesF.h"\
 	"..\IceE\EndpointFactoryF.h"\
 	"..\IceE\Instance.h"\
-	"..\IceE\Protocol.h"\
 	"..\IceE\ProxyFactory.h"\
 	"..\IceE\ReferenceFactoryF.h"\
 	
 NODEP_CPP_BASIC=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
+	"..\IceE\Protocol.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -418,13 +418,13 @@ DEP_CPP_BASIC=\
 	"..\IceE\DefaultsAndOverridesF.h"\
 	"..\IceE\EndpointFactoryF.h"\
 	"..\IceE\Instance.h"\
-	"..\IceE\Protocol.h"\
 	"..\IceE\ProxyFactory.h"\
 	"..\IceE\ReferenceFactoryF.h"\
 	
 NODEP_CPP_BASIC=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
+	"..\IceE\Protocol.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -514,13 +514,13 @@ DEP_CPP_BASIC=\
 	"..\IceE\DefaultsAndOverridesF.h"\
 	"..\IceE\EndpointFactoryF.h"\
 	"..\IceE\Instance.h"\
-	"..\IceE\Protocol.h"\
 	"..\IceE\ProxyFactory.h"\
 	"..\IceE\ReferenceFactoryF.h"\
 	
 NODEP_CPP_BASIC=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
+	"..\IceE\Protocol.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -611,12 +611,12 @@ DEP_CPP_BASIC=\
 	"..\IceE\DefaultsAndOverridesF.h"\
 	"..\IceE\EndpointFactoryF.h"\
 	"..\IceE\Instance.h"\
-	"..\IceE\Protocol.h"\
 	"..\IceE\ProxyFactory.h"\
 	"..\IceE\ReferenceFactoryF.h"\
 	
 NODEP_CPP_BASIC=\
 	"..\..\..\..\usr\include\pthread.h"\
+	"..\IceE\Protocol.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -696,13 +696,13 @@ DEP_CPP_BASIC=\
 	"..\IceE\DefaultsAndOverridesF.h"\
 	"..\IceE\EndpointFactoryF.h"\
 	"..\IceE\Instance.h"\
-	"..\IceE\Protocol.h"\
 	"..\IceE\ProxyFactory.h"\
 	"..\IceE\ReferenceFactoryF.h"\
 	
 NODEP_CPP_BASIC=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
+	"..\IceE\Protocol.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -783,11 +783,11 @@ DEP_CPP_BASIC=\
 	"..\IceE\DefaultsAndOverridesF.h"\
 	"..\IceE\EndpointFactoryF.h"\
 	"..\IceE\Instance.h"\
-	"..\IceE\Protocol.h"\
 	"..\IceE\ProxyFactory.h"\
 	"..\IceE\ReferenceFactoryF.h"\
 	
 NODEP_CPP_BASIC=\
+	"..\IceE\Protocol.h"\
 	"..\IceE\RouterInfoF.h"\
 	
 
@@ -825,13 +825,13 @@ DEP_CPP_BASIC=\
 	"..\IceE\DefaultsAndOverridesF.h"\
 	"..\IceE\EndpointFactoryF.h"\
 	"..\IceE\Instance.h"\
-	"..\IceE\Protocol.h"\
 	"..\IceE\ProxyFactory.h"\
 	"..\IceE\ReferenceFactoryF.h"\
 	
 NODEP_CPP_BASIC=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
+	"..\IceE\Protocol.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -922,11 +922,11 @@ DEP_CPP_BASIC=\
 	"..\IceE\DefaultsAndOverridesF.h"\
 	"..\IceE\EndpointFactoryF.h"\
 	"..\IceE\Instance.h"\
-	"..\IceE\Protocol.h"\
 	"..\IceE\ProxyFactory.h"\
 	"..\IceE\ReferenceFactoryF.h"\
 	
 NODEP_CPP_BASIC=\
+	"..\IceE\Protocol.h"\
 	"..\IceE\RouterInfoF.h"\
 	
 
@@ -3032,7 +3032,6 @@ DEP_CPP_CONNE=\
 	"..\IceE\Endpoint.h"\
 	"..\IceE\EndpointFactoryF.h"\
 	"..\IceE\Instance.h"\
-	"..\IceE\Protocol.h"\
 	"..\IceE\ProxyFactory.h"\
 	"..\IceE\Reference.h"\
 	"..\IceE\ReferenceFactory.h"\
@@ -3043,6 +3042,7 @@ DEP_CPP_CONNE=\
 NODEP_CPP_CONNE=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
+	"..\IceE\Protocol.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -3142,7 +3142,6 @@ DEP_CPP_CONNE=\
 	"..\IceE\Endpoint.h"\
 	"..\IceE\EndpointFactoryF.h"\
 	"..\IceE\Instance.h"\
-	"..\IceE\Protocol.h"\
 	"..\IceE\ProxyFactory.h"\
 	"..\IceE\Reference.h"\
 	"..\IceE\ReferenceFactory.h"\
@@ -3153,6 +3152,7 @@ DEP_CPP_CONNE=\
 NODEP_CPP_CONNE=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
+	"..\IceE\Protocol.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -3259,7 +3259,6 @@ DEP_CPP_CONNE=\
 	"..\IceE\Endpoint.h"\
 	"..\IceE\EndpointFactoryF.h"\
 	"..\IceE\Instance.h"\
-	"..\IceE\Protocol.h"\
 	"..\IceE\ProxyFactory.h"\
 	"..\IceE\Reference.h"\
 	"..\IceE\ReferenceFactory.h"\
@@ -3270,6 +3269,7 @@ DEP_CPP_CONNE=\
 NODEP_CPP_CONNE=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
+	"..\IceE\Protocol.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -3377,7 +3377,6 @@ DEP_CPP_CONNE=\
 	"..\IceE\Endpoint.h"\
 	"..\IceE\EndpointFactoryF.h"\
 	"..\IceE\Instance.h"\
-	"..\IceE\Protocol.h"\
 	"..\IceE\ProxyFactory.h"\
 	"..\IceE\Reference.h"\
 	"..\IceE\ReferenceFactory.h"\
@@ -3387,6 +3386,7 @@ DEP_CPP_CONNE=\
 	
 NODEP_CPP_CONNE=\
 	"..\..\..\..\usr\include\pthread.h"\
+	"..\IceE\Protocol.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -3486,7 +3486,6 @@ DEP_CPP_CONNE=\
 	"..\IceE\Endpoint.h"\
 	"..\IceE\EndpointFactoryF.h"\
 	"..\IceE\Instance.h"\
-	"..\IceE\Protocol.h"\
 	"..\IceE\ProxyFactory.h"\
 	"..\IceE\Reference.h"\
 	"..\IceE\ReferenceFactory.h"\
@@ -3497,6 +3496,7 @@ DEP_CPP_CONNE=\
 NODEP_CPP_CONNE=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
+	"..\IceE\Protocol.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -3595,7 +3595,6 @@ DEP_CPP_CONNE=\
 	"..\IceE\Endpoint.h"\
 	"..\IceE\EndpointFactoryF.h"\
 	"..\IceE\Instance.h"\
-	"..\IceE\Protocol.h"\
 	"..\IceE\ProxyFactory.h"\
 	"..\IceE\Reference.h"\
 	"..\IceE\ReferenceFactory.h"\
@@ -3604,6 +3603,7 @@ DEP_CPP_CONNE=\
 	"..\IceE\Transceiver.h"\
 	
 NODEP_CPP_CONNE=\
+	"..\IceE\Protocol.h"\
 	"..\IceE\RouterInfoF.h"\
 	
 
@@ -3661,7 +3661,6 @@ DEP_CPP_CONNE=\
 	"..\IceE\Endpoint.h"\
 	"..\IceE\EndpointFactoryF.h"\
 	"..\IceE\Instance.h"\
-	"..\IceE\Protocol.h"\
 	"..\IceE\ProxyFactory.h"\
 	"..\IceE\Reference.h"\
 	"..\IceE\ReferenceFactory.h"\
@@ -3672,6 +3671,7 @@ DEP_CPP_CONNE=\
 NODEP_CPP_CONNE=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
+	"..\IceE\Protocol.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -3779,7 +3779,6 @@ DEP_CPP_CONNE=\
 	"..\IceE\Endpoint.h"\
 	"..\IceE\EndpointFactoryF.h"\
 	"..\IceE\Instance.h"\
-	"..\IceE\Protocol.h"\
 	"..\IceE\ProxyFactory.h"\
 	"..\IceE\Reference.h"\
 	"..\IceE\ReferenceFactory.h"\
@@ -3788,6 +3787,7 @@ DEP_CPP_CONNE=\
 	"..\IceE\Transceiver.h"\
 	
 NODEP_CPP_CONNE=\
+	"..\IceE\Protocol.h"\
 	"..\IceE\RouterInfoF.h"\
 	
 
@@ -24211,12 +24211,12 @@ DEP_CPP_TRACEU=\
 	"..\..\include\IceE\StringUtil.h"\
 	"..\..\include\IceE\ThreadException.h"\
 	"..\..\include\IceE\TraceLevelsF.h"\
-	"..\IceE\Protocol.h"\
 	"..\IceE\TraceLevels.h"\
 	"..\IceE\TraceUtil.h"\
 	
 NODEP_CPP_TRACEU=\
 	"..\..\..\..\usr\include\pthread.h"\
+	"..\IceE\Protocol.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -24284,12 +24284,12 @@ DEP_CPP_TRACEU=\
 	"..\..\include\IceE\StringUtil.h"\
 	"..\..\include\IceE\ThreadException.h"\
 	"..\..\include\IceE\TraceLevelsF.h"\
-	"..\IceE\Protocol.h"\
 	"..\IceE\TraceLevels.h"\
 	"..\IceE\TraceUtil.h"\
 	
 NODEP_CPP_TRACEU=\
 	"..\..\..\..\usr\include\pthread.h"\
+	"..\IceE\Protocol.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -24364,12 +24364,12 @@ DEP_CPP_TRACEU=\
 	"..\..\include\IceE\ThreadException.h"\
 	"..\..\include\IceE\TraceLevelsF.h"\
 	"..\..\include\IceE\UndefSysMacros.h"\
-	"..\IceE\Protocol.h"\
 	"..\IceE\TraceLevels.h"\
 	"..\IceE\TraceUtil.h"\
 	
 NODEP_CPP_TRACEU=\
 	"..\..\..\..\usr\include\pthread.h"\
+	"..\IceE\Protocol.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -24444,12 +24444,12 @@ DEP_CPP_TRACEU=\
 	"..\..\include\IceE\ThreadException.h"\
 	"..\..\include\IceE\TraceLevelsF.h"\
 	"..\..\include\IceE\UndefSysMacros.h"\
-	"..\IceE\Protocol.h"\
 	"..\IceE\TraceLevels.h"\
 	"..\IceE\TraceUtil.h"\
 	
 NODEP_CPP_TRACEU=\
 	"..\..\..\..\usr\include\pthread.h"\
+	"..\IceE\Protocol.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -24517,12 +24517,12 @@ DEP_CPP_TRACEU=\
 	"..\..\include\IceE\StringUtil.h"\
 	"..\..\include\IceE\ThreadException.h"\
 	"..\..\include\IceE\TraceLevelsF.h"\
-	"..\IceE\Protocol.h"\
 	"..\IceE\TraceLevels.h"\
 	"..\IceE\TraceUtil.h"\
 	
 NODEP_CPP_TRACEU=\
 	"..\..\..\..\usr\include\pthread.h"\
+	"..\IceE\Protocol.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -24589,9 +24589,11 @@ DEP_CPP_TRACEU=\
 	"..\..\include\IceE\StringUtil.h"\
 	"..\..\include\IceE\ThreadException.h"\
 	"..\..\include\IceE\TraceLevelsF.h"\
-	"..\IceE\Protocol.h"\
 	"..\IceE\TraceLevels.h"\
 	"..\IceE\TraceUtil.h"\
+	
+NODEP_CPP_TRACEU=\
+	"..\IceE\Protocol.h"\
 	
 
 !ELSEIF  "$(CFG)" == "icec - Win32 (WCE emulator) Debug Static"
@@ -24617,12 +24619,12 @@ DEP_CPP_TRACEU=\
 	"..\..\include\IceE\StringUtil.h"\
 	"..\..\include\IceE\ThreadException.h"\
 	"..\..\include\IceE\TraceLevelsF.h"\
-	"..\IceE\Protocol.h"\
 	"..\IceE\TraceLevels.h"\
 	"..\IceE\TraceUtil.h"\
 	
 NODEP_CPP_TRACEU=\
 	"..\..\..\..\usr\include\pthread.h"\
+	"..\IceE\Protocol.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -24696,9 +24698,11 @@ DEP_CPP_TRACEU=\
 	"..\..\include\IceE\ThreadException.h"\
 	"..\..\include\IceE\TraceLevelsF.h"\
 	"..\..\include\IceE\UndefSysMacros.h"\
-	"..\IceE\Protocol.h"\
 	"..\IceE\TraceLevels.h"\
 	"..\IceE\TraceUtil.h"\
+	
+NODEP_CPP_TRACEU=\
+	"..\IceE\Protocol.h"\
 	
 
 !ENDIF 
@@ -26519,7 +26523,7 @@ SOURCE=.\PropertiesI.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Protocol.h
+SOURCE=..\..\include\IceE\Protocol.h
 # End Source File
 # Begin Source File
 
