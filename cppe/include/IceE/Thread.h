@@ -19,7 +19,7 @@ namespace IceUtil
 
 class Time;
 
-#ifdef _WIN32
+#ifdef _WIN32_WCE
 struct HandleWrapper : public Shared
 {
     // Inline for performance reasons.
@@ -40,16 +40,7 @@ struct HandleWrapper : public Shared
     HANDLE handle;
     bool release;
 };
-
 typedef Handle<HandleWrapper> HandleWrapperPtr;
-#endif
-
-#ifdef _WIN32_WCE
-    typedef unsigned long ThreadId;
-#elif _WIN32
-    typedef unsigned int ThreadId;
-#else
-    typedef pthread_t ThreadId;
 #endif
 
 class ICE_API ThreadControl
@@ -59,9 +50,9 @@ public:
     ThreadControl();
 
 #ifdef _WIN32
-    ThreadControl(const HandleWrapperPtr&, ThreadId);
+    ThreadControl(const HandleWrapperPtr&, DWORD);
 #else
-    ThreadControl(ThreadId);
+    ThreadControl(pthread_t);
 #endif
 
     ThreadControl(const ThreadControl&);
@@ -69,12 +60,6 @@ public:
 
     bool operator==(const ThreadControl&) const;
     bool operator!=(const ThreadControl&) const;
-    bool operator<(const ThreadControl&) const;
-
-    //
-    // Return the ID of the thread underlying this ThreadControl.
-    //
-    ThreadId id() const;
 
     //
     // Wait until the controlled thread terminates. The call has POSIX
@@ -99,21 +84,27 @@ public:
     void detach();
 
     //
-    // Check whether a thread is still alive. This is useful to implement
-    // a non-blocking join().
+    // id() returns the Thread ID on Windows and the underlying pthread_t
+    // on POSIX platforms.
     //
-    bool isAlive() const;
+#ifdef _WIN32
+    typedef DWORD ID;
+#else
+    typedef pthread_t ID;
+#endif 
+    ID id() const;
 
     static void sleep(const Time&);
     static void yield();
 
 private:
 
-    Mutex _stateMutex;
 #ifdef _WIN32
+    DWORD _id;
     HandleWrapperPtr _handle;
+#else
+    pthread_t _thread;
 #endif
-    ThreadId _id;
 };
 
 class ICE_API Thread : virtual public IceUtil::Shared
@@ -122,8 +113,6 @@ public:
 
     Thread();
     virtual ~Thread();
-
-    ThreadId id() const;
 
     virtual void run() = 0;
 
@@ -135,17 +124,33 @@ public:
     bool operator!=(const Thread&) const;
     bool operator<(const Thread&) const;
 
-    Thread(const Thread&);		// Copying is forbidden
-    void operator=(const Thread&);	// Assignment is forbidden
+    //
+    // Check whether a thread is still alive. This is useful to implement
+    // a non-blocking join().
+    //
+    bool isAlive() const;
 
-private:
+    //
+    // This function is an implementation detail;
+    // do not call it.
+    //
+    void _done();
 
+
+protected:
     Mutex _stateMutex;
     bool _started;
+    bool _running;
+
 #ifdef _WIN32
     HandleWrapperPtr _handle;
+    DWORD _id;
+#else
+    pthread_t _thread;
 #endif
-    ThreadId _id;
+
+    Thread(const Thread&);		// Copying is forbidden
+    void operator=(const Thread&);	// Assignment is forbidden
 };
 
 typedef Handle<Thread> ThreadPtr;

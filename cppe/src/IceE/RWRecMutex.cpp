@@ -11,11 +11,35 @@
 #include <IceE/Exception.h>
 #include <IceE/Time.h>
 
+IceUtil::DeadlockException::DeadlockException(const char* file, int line) :
+    Exception(file, line)
+{
+}
+
+const char* IceUtil::DeadlockException::_name = "IceUtil::DeadlockException";
+
+const ::std::string
+IceUtil::DeadlockException::ice_name() const
+{
+    return _name;
+}
+
+IceUtil::Exception*
+IceUtil::DeadlockException::ice_clone() const
+{
+    return new DeadlockException(*this);
+}
+
+void
+IceUtil::DeadlockException::ice_throw() const
+{
+    throw *this;
+}
 
 IceUtil::RWRecMutex::RWRecMutex() :
     _count(0),
-    _writerId(0),
-    _waitingWriters(0)
+    _waitingWriters(0),
+    _upgrading(false)
 {
 }
 
@@ -95,7 +119,7 @@ IceUtil::RWRecMutex::writeLock() const
     // If the mutex is already write locked by this writer then
     // decrement _count, and return.
     //
-    if(_count < 0 && _writerId == ThreadControl().id())
+    if(_count < 0 && _writerId == ThreadControl())
     {
 	--_count;
 	return;
@@ -107,7 +131,7 @@ IceUtil::RWRecMutex::writeLock() const
     //
     while(_count != 0)
     {
-	_waitingWriters++;
+	++_waitingWriters;
 	try
 	{
 	    _writers.wait(lock);
@@ -124,7 +148,7 @@ IceUtil::RWRecMutex::writeLock() const
     // Got the lock, indicate it's held by a writer.
     //
     _count = -1;
-    _writerId = ThreadControl().id();
+    _writerId = ThreadControl();
 }
 
 bool
@@ -136,7 +160,7 @@ IceUtil::RWRecMutex::tryWriteLock() const
     // If the mutex is already write locked by this writer then
     // decrement _count, and return.
     //
-    if(_count < 0 && _writerId == ThreadControl().id())
+    if(_count < 0 && _writerId == ThreadControl())
     {
 	--_count;
 	return true;
@@ -154,7 +178,7 @@ IceUtil::RWRecMutex::tryWriteLock() const
     // Got the lock, indicate it's held by a writer.
     //
     _count = -1;
-    _writerId = ThreadControl().id();
+    _writerId = ThreadControl();
     return true;
 }
 
@@ -166,7 +190,7 @@ IceUtil::RWRecMutex::timedWriteLock(const Time& timeout) const
     //
     // If the mutex is already write locked by this writer then
     // decrement _count, and return.
-    if(_count < 0 && _writerId == ThreadControl().id())
+    if(_count < 0 && _writerId == ThreadControl())
     {
 	--_count;
 	return true;
@@ -182,7 +206,7 @@ IceUtil::RWRecMutex::timedWriteLock(const Time& timeout) const
 	Time remainder = end - Time::now();
 	if(remainder > Time())
 	{
-	    _waitingWriters++;
+	    ++_waitingWriters;
 	    try
 	    {
 		bool result = _writers.timedWait(lock, remainder);
@@ -208,7 +232,7 @@ IceUtil::RWRecMutex::timedWriteLock(const Time& timeout) const
     // Got the lock, indicate it's held by a writer.
     //
     _count = -1;
-    _writerId = ThreadControl().id();
+    _writerId = ThreadControl();
     return true;
 }
 
@@ -258,7 +282,7 @@ IceUtil::RWRecMutex::unlock() const
 	//
 	ww = (_waitingWriters != 0 && _count == 0);
 	wr = (_waitingWriters == 0);
-    }
+    } // Unlock mutex.
 
     //
     // Wake up a waiting writer if there is one. If not, wake up all
@@ -266,14 +290,23 @@ IceUtil::RWRecMutex::unlock() const
     //
     if(ww)
     {
-	//
-	// Wake writer
-	//
-	_writers.signal();
+	if(_upgrading)
+	{
+	    //
+	    // If there is an untimed upgrader, it runs.
+	    //
+	    _upgrader.signal();
+	}
+	else
+	{
+	    //
+	    // Wake a normal writer.
+	    //
+	    _writers.signal();
+	}
     }
     else if(wr)
     {
-	_writerId = 0;
 	//
 	// Wake readers
 	//
@@ -286,6 +319,11 @@ IceUtil::RWRecMutex::upgrade() const
 {
     Mutex::Lock lock(_mutex);
 
+    if(_upgrading)
+    {
+        throw DeadlockException(__FILE__, __LINE__);
+    }
+
     // Reader owns at least one count
     //
     assert(_count > 0);
@@ -294,33 +332,45 @@ IceUtil::RWRecMutex::upgrade() const
     //
     // Wait to acquire the write lock.
     //
+    _upgrading = true;
     while(_count != 0)
     {
-	_waitingWriters++;
+	++_waitingWriters;
 	try
 	{
-	    _writers.wait(lock);
+	    _upgrader.wait(lock);
 	}
 	catch(...)
 	{
+	    _upgrading = false;
 	    --_waitingWriters;
-	    _count++;
+	    ++_count;
 	    throw;
 	}
-	_waitingWriters--;	
+	--_waitingWriters;	
     }
 
     //
     // Got the lock, indicate it's held by a writer.
     //
     _count = -1;
-    _writerId = ThreadControl().id();
+    _writerId = ThreadControl();
+    _upgrading = false;
 }
 
 bool
 IceUtil::RWRecMutex::timedUpgrade(const Time& timeout) const
 {
     Mutex::Lock lock(_mutex);
+
+    //
+    // If another reader is already waiting for an upgrade,
+    // this upgrade cannot possibly succeed.
+    //
+    if(_upgrading)
+    {
+        return false;
+    }
 
     // Reader owns at least one count
     //
@@ -330,35 +380,40 @@ IceUtil::RWRecMutex::timedUpgrade(const Time& timeout) const
     //
     // Wait to acquire the write lock.
     //
+    _upgrading = true;
     Time end = Time::now() + timeout;
     while(_count != 0)
     {
 	Time remainder = end - Time::now();
 	if(remainder > Time())
 	{
-	    _waitingWriters++;
+	    ++_waitingWriters;
 	    try
 	    {
-		bool result = _writers.timedWait(lock, remainder);
-		_waitingWriters--;
-		if(result == false)
+		bool result = _upgrader.timedWait(lock, remainder);
+		--_waitingWriters;
+		if(!result)
 		{
-		    _count++;
+		    _upgrading = false;
+		    ++_count;
 		    return false;
 		}
 	    }
 	    catch(...)
 	    {
+		_upgrading = false;
 		--_waitingWriters;
-		_count++;
+		++_count;
 		throw;
 	    }
 	}
 	else
 	{
 	    //
-	    // If a timeout occurred then the lock wasn't acquired
-	    _count++;
+	    // The lock isn't acquired if a timeout occurred.
+	    //
+	    ++_count;
+	    _upgrading = false;
 	    return false;
 	}
     }
@@ -367,6 +422,18 @@ IceUtil::RWRecMutex::timedUpgrade(const Time& timeout) const
     // Got the lock, indicate it's held by a writer.
     //
     _count = -1;
-    _writerId = ThreadControl().id();
+    _writerId = ThreadControl();
+    _upgrading = false;
     return true;
+}
+
+void
+IceUtil::RWRecMutex::downgrade() const
+{
+    Mutex::Lock lock(_mutex);
+
+    if(++_count == 0)
+    {
+	_count = 1;
+    }
 }

@@ -178,7 +178,7 @@ Ice::Connection::isFinished() const
 
 	if(_transceiver != 0
 #ifndef ICEE_PURE_BLOCKING_CLIENT
-	   || _dispatchCount != 0 || (_threadPerConnection && _threadPerConnection->getThreadControl().isAlive())
+	   || _dispatchCount != 0 || (_threadPerConnection && _threadPerConnection->isAlive())
 #endif
 	  )
 	{

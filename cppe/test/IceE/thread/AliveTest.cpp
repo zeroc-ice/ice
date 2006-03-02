@@ -92,8 +92,8 @@ AliveTest::run()
     AliveTestThreadPtr t = new AliveTestThread(childCreated, parentReady);
     IceUtil::ThreadControl c = t->start();
     childCreated.waitForSignal();
-    test(c.isAlive());
+    test(t->isAlive());
     parentReady.signal();
     c.join();
-    test(!c.isAlive());
+    test(!t->isAlive());
 }
