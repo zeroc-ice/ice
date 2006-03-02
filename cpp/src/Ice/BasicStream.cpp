@@ -723,6 +723,32 @@ IceInternal::BasicStream::write(const vector<bool>& v)
     }
 }
 
+namespace
+{
+
+template<size_t boolSize>
+struct BasicStreamWriteBoolHelper
+{
+    static void write(const bool* begin, BasicStream::Container::size_type pos, BasicStream::Container& b, Int sz)
+    {
+        for(int idx = 0; idx < sz; ++idx)
+        {
+           b[pos + idx] = static_cast<Ice::Byte>(*(begin + idx));
+        }
+    }
+};
+
+template<>
+struct BasicStreamWriteBoolHelper<1>
+{
+    static void write(const bool* begin, BasicStream::Container::size_type pos, BasicStream::Container& b, Int sz)
+    {
+        memcpy(&b[pos], begin, sz);
+    }
+};
+
+}
+
 void
 IceInternal::BasicStream::write(const bool* begin, const bool* end)
 {
@@ -732,14 +758,7 @@ IceInternal::BasicStream::write(const bool* begin, const bool* end)
     {
         Container::size_type pos = b.size();
         resize(pos + sz);
-#if defined(__APPLE__)
-        for(int idx = 0; idx < sz; ++idx)
-        {
-           b[pos + idx] = static_cast<Ice::Byte>(*(begin + idx));
-        }
-#else
-        memcpy(&b[pos], begin, sz);
-#endif
+	BasicStreamWriteBoolHelper<sizeof(bool)>::write(begin, pos, b, sz);
     }
 }
 
@@ -761,6 +780,39 @@ IceInternal::BasicStream::read(vector<bool>& v)
     }
 }
 
+namespace
+{
+
+template<size_t boolSize>
+struct BasicStreamReadBoolHelper
+{
+    static void read(pair<const bool*, const bool*>& v, IceUtil::auto_array<bool>& b,
+		     Int sz, BasicStream::Container::iterator& i)
+    {
+        bool* array = new bool[sz];
+        for(int idx = 0; idx < sz; ++idx)
+        {
+	    array[idx] = static_cast<bool>(*(i + idx));
+        }
+        v.first = array;
+        v.second = array + sz;
+        b.reset(array);
+    }
+};
+
+template<>
+struct BasicStreamReadBoolHelper<1>
+{
+    static void read(pair<const bool*, const bool*>& v, IceUtil::auto_array<bool>& b,
+		     Int sz, BasicStream::Container::iterator& i)
+    {
+        v.first = reinterpret_cast<bool*>(i);
+        v.second = reinterpret_cast<bool*>(i) + sz;
+    }
+};
+
+}
+
 void
 IceInternal::BasicStream::read(pair<const bool*, const bool*>& v, IceUtil::auto_array<bool>& b)
 {
@@ -769,20 +821,7 @@ IceInternal::BasicStream::read(pair<const bool*, const bool*>& v, IceUtil::auto_
     if(sz > 0)
     {
         checkFixedSeq(sz, 1);
-#if defined(__APPLE__)
-        bool* array = new bool[sz];
-        for(int idx; idx < sz; ++idx)
-        {
-           array[idx] = (bool)*(i + idx);
-        }
-        v.first = array;
-        v.second = array + sz;
-        b.reset(array);
-#else
-        assert(sizeof(bool) == 1);
-        v.first = reinterpret_cast<bool*>(i);
-        v.second = reinterpret_cast<bool*>(i) + sz;
-#endif
+	BasicStreamReadBoolHelper<sizeof(bool)>::read(v, b, sz, i);
         i += sz;
     }
     else
