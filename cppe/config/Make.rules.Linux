@@ -97,6 +97,8 @@ ifeq ($(CXX),c++)
 
    mklib		= ar cr $(1) $(2)
 
+   LDPLATFORMFLAGS 	= -Wl,--enable-new-dtags -Wl,-rpath,$(install_libdir)
+
 endif
 
 ifeq ($(CXX),icpc)
