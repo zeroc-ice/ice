@@ -268,7 +268,6 @@ filesToRemove = [ \
     os.path.join("ice", "iceemakedist.py"), \
     os.path.join("ice", "makedist.py"), \
     os.path.join("ice", "makebindist.py"), \
-    os.path.join("ice", "newmakebindist.py"), \
     os.path.join("ice", "RPMTools.py"), \
     os.path.join("ice", "fixCopyright.py"), \
     os.path.join("ice", "fixVersion.py"), \
