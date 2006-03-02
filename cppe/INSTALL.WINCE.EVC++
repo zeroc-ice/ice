@@ -21,7 +21,7 @@ C++ compiler
 
 The following Microsoft Visual C++ compilers & SDKs are supported:
 
-- Microsoft eMbedded Visual C++ 4.0 SP4 with STLport 5.0 (or later)
+- Microsoft eMbedded Visual C++ 4.0 SP4 with STLport 5.0.2
 
 - Standard SDK for Windows CE .NET 4.2
 
@@ -77,7 +77,7 @@ http://www.zeroc.com/download.html
 STLport
 -------
 
-Ice-E requires STLport 5.0 or later. You can download STLport at the
+Ice-E requires STLport 5.0.2. You can download STLport at the
 following location:
 
 http://sourceforge.net/projects/stlport
