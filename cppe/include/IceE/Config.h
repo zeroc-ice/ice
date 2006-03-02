@@ -54,11 +54,17 @@
 #endif
 
 //
-// On Windows CE, socket timeouts (SO_SNDTIMEO and SO_RCVTIMEO) are
-// not supported so we use select()/WSAEventSelect to implement
+// We use select()/WSAEventSelect for timeouts on Windows. This is 
+// necessary because on Windows if a socket times out it can't be
+// safely re-used (and we need the transceiver read() call to 
+// periodically timeout because it can't be unblocked by shutting
+// down the socket.)
+//
+// Also, on Windows CE, socket timeouts (SO_SNDTIMEO and SO_RCVTIMEO)
+// are not supported so we use select()/WSAEventSelect to implement
 // timeouts.
 //
-#if defined(_WIN32_WCE)
+#if defined(_WIN32)
 #   define ICEE_USE_SELECT_FOR_TIMEOUTS
 #endif
 

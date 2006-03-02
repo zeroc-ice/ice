@@ -164,13 +164,13 @@ IceInternal::Transceiver::writeWithTimeout(Buffer& buf, int timeout)
 		if(wouldBlock())
 		{
 		    doSelect(false, timeout > 0 ? timeout : _writeTimeout);
-		    continue;
+ 		    continue;
 		}
 #endif
 
 		if(connectionLost())
 		{
-		    ConnectionLostException ex(__FILE__, __LINE__);
+ 		    ConnectionLostException ex(__FILE__, __LINE__);
 		    ex.error = getSocketErrno();
 		    throw ex;
 		}

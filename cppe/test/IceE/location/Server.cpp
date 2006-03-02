@@ -29,7 +29,7 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-	Ice::PropertiesPtr properties = Ice::createProperties();
+	Ice::PropertiesPtr properties = Ice::createProperties(argc, argv);
         properties->setProperty("ServerManager.Endpoints", "default -p 12010");
 
         loadConfig(properties);
@@ -39,9 +39,10 @@ public:
 	// return quickly. Otherwise server will hang since client is not 
 	// listening for these messages.
 	//
-	if(properties->getProperty("Ice.Blocking") != "0")
+	if(properties->getPropertyAsInt("Ice.Blocking") > 0)
 	{
 	    properties->setProperty("Ice.Override.Timeout", "100");
+	    properties->setProperty("Ice.Warn.Connections", "0");
 	}
 
 	//

@@ -20,6 +20,8 @@
 using namespace std;
 using namespace Ice;
 
+static IceUtil::StaticMutex globalMutex = ICE_STATIC_MUTEX_INITIALIZER;
+
 class LoggerI : public Logger
 {
 public:
@@ -27,12 +29,14 @@ public:
     virtual void
     print(const string& message)
     {
+	IceUtil::StaticMutex::Lock sync(globalMutex);
 	tprintf("%s\n", message.c_str());
     }
     
     virtual void
     trace(const string& category, const string& message)
     {
+	IceUtil::StaticMutex::Lock sync(globalMutex);
 	string s = "[ ";
 #ifdef _WIN32
 	{
@@ -63,12 +67,14 @@ public:
     virtual void
     warning(const string& message)
     {
+	IceUtil::StaticMutex::Lock sync(globalMutex);
 	tprintf("warning: %s\n", message.c_str());
     }
 
     virtual void
     error(const string& message)
     {
+	IceUtil::StaticMutex::Lock sync(globalMutex);
 	tprintf("error: %s\n", message.c_str());
     }
 };

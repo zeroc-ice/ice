@@ -8,12 +8,13 @@
 // **********************************************************************
 
 #include <IceE/LoggerI.h>
+#include <IceE/StaticMutex.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceUtil::Mutex Ice::LoggerI::_globalMutex;
+static IceUtil::StaticMutex globalMutex = ICE_STATIC_MUTEX_INITIALIZER;
 
 Ice::LoggerI::LoggerI(const string& prefix)
 {
@@ -26,7 +27,7 @@ Ice::LoggerI::LoggerI(const string& prefix)
 void
 Ice::LoggerI::print(const string& message)
 {
-    IceUtil::Mutex::Lock sync(_globalMutex);
+    IceUtil::StaticMutex::Lock sync(globalMutex);
 
     fprintf(stderr, "%s\n", message.c_str());
 }
@@ -34,7 +35,7 @@ Ice::LoggerI::print(const string& message)
 void
 Ice::LoggerI::trace(const string& category, const string& message)
 {
-    IceUtil::Mutex::Lock sync(_globalMutex);
+    IceUtil::StaticMutex::Lock sync(globalMutex);
 
     string s = "[ ";
     s += _prefix;
@@ -56,13 +57,13 @@ Ice::LoggerI::trace(const string& category, const string& message)
 void
 Ice::LoggerI::warning(const string& message)
 {
-    IceUtil::Mutex::Lock sync(_globalMutex);
+    IceUtil::StaticMutex::Lock sync(globalMutex);
     fprintf(stderr, "%swarning: %s\n", _prefix.c_str(), message.c_str());
 }
 
 void
 Ice::LoggerI::error(const string& message)
 {
-    IceUtil::Mutex::Lock sync(_globalMutex);
+    IceUtil::StaticMutex::Lock sync(globalMutex);
     fprintf(stderr, "%serror: %s\n", _prefix.c_str(), message.c_str());
 }

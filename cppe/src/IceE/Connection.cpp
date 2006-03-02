@@ -135,11 +135,6 @@ Ice::Connection::close(bool force)
 #endif
 
 	setState(StateClosing, CloseConnectionException(__FILE__, __LINE__));
-
-	//
-	// TODO: If blocking model we should call readStream() to wait for
-	// the connection closure from the server?
-	//
     }
 }
 
@@ -930,7 +925,15 @@ Ice::Connection::Connection(const InstancePtr& instance,
     }
     else
     {
+#ifdef _WIN32
+	//
+	// On Windows, the recv() call doesn't return if the socket is
+	// shutdown. We use the timeout to not block indefinitely.
+	// 
+	_transceiver->setTimeouts(_endpoint->timeout(), _endpoint->timeout());
+#else
 	_transceiver->setTimeouts(-1, _endpoint->timeout());
+#endif
     }
 #else
     _transceiver->setTimeouts(_endpoint->timeout(), _endpoint->timeout());
@@ -1321,7 +1324,7 @@ Ice::Connection::setState(State state)
 	_transceiver->shutdownReadWrite();
 
 	//
-	// In blocking mode, we close the transceiver now.
+ 	// In blocking mode, we close the transceiver now.
 	//
 #ifndef ICEE_PURE_BLOCKING_CLIENT
 	if(_blocking)
@@ -1625,6 +1628,16 @@ Ice::Connection::run()
 	    readStreamAndParseMessage(_stream, requestId);
 #endif
 	}
+#ifdef _WIN32
+	catch(const Ice::TimeoutException&)
+	{
+	    //
+	    // See the comment in the Connection constructor. This is
+	    // necessary to not block in recv() indefinitely.
+	    //
+	    continue;
+	}
+#endif
 	catch(const Ice::LocalException& ex)
 	{
 	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);

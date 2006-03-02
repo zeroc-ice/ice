@@ -28,15 +28,16 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-	Ice::PropertiesPtr properties = Ice::createProperties();
+	Ice::PropertiesPtr properties = Ice::createProperties(argc, argv);
         loadConfig(properties);
 
 	//
 	// For blocking client change retry interval from default.
 	//
-	if(properties->getProperty("Ice.Blocking") != "0")
+	if(properties->getPropertyAsInt("Ice.Blocking") > 0)
 	{
 	    properties->setProperty("Ice.RetryIntervals", "0 0");
+	    properties->setProperty("Ice.Warn.Connections", "0");
 	}
 
 	properties->setProperty("Ice.Default.Locator",

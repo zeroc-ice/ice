@@ -31,12 +31,6 @@ private:
 
     std::string _prefix;
     std::string _emptyPrefix;
-
-    //
-    // A global mutex is used to avoid garbled output with multiple
-    // communicators.
-    //
-    static IceUtil::Mutex _globalMutex;
 };
 
 }
