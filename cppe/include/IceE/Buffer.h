@@ -104,39 +104,33 @@ public:
 
 	void swap(Container&);
 	
-	void clear()
-	{
-#ifdef ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
-	    if(_buf != _fixed)
-	    {
-		free(_buf);
-		_buf = _fixed;
-	    }
-	    _size = 0;
-	    _capacity = ICE_BUFFER_FIXED_SIZE;
-#else
-	    free(_buf);
-	    _buf = 0;
-	    _size = 0;
-	    _capacity = 0;
-#endif
-	}
+	void clear();
 
 	void resize(size_type n) // Inlined for performance reasons.
         {
-	    if(n == 0 || n > _capacity)
+	    if(n == 0)
 	    {
-		// Not inlined on purpose (to keep the size of the inlined code down).
-		resizeImpl(n); 
+		clear();
 	    }
-	    else
+	    else if(n > _capacity)
 	    {
-		_size = n;
+		reserve(n); 
 	    }
+	    _size = n;
 	}
 
 	void reset()
 	{
+	    if(_size > 0 && _size * 2 < _capacity)
+	    {
+		//
+		// If the current buffer size is smaller than the
+		// buffer capacity, we shrink the buffer memory to the
+		// current size. This is to avoid holding on too much
+		// memory if it's not needed anymore.
+		//
+		reserve(_size);
+	    }
 	    _size = 0;
 	}
 
@@ -162,7 +156,7 @@ public:
 
 	Container(const Container&);
 	void operator=(const Container&);
-	void resizeImpl(size_type);
+	void reserve(size_type);
 
 	pointer _buf;
 	size_type _size;

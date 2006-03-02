@@ -1610,8 +1610,8 @@ Ice::Connection::run()
 #ifndef ICEE_PURE_CLIENT
 	Int invokeNum = 0;
 	_in.os()->reset();
-	_in.is()->reset();
 #endif
+	_stream.reset();
 
 	//
 	// Read and parse the next message. We don't need to lock the

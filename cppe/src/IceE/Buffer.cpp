@@ -71,48 +71,66 @@ IceInternal::Buffer::Container::swap(Container& other)
 }
 
 void
-IceInternal::Buffer::Container::resizeImpl(size_type n)
+IceInternal::Buffer::Container::clear()
 {
-    if(n == 0)
+#ifdef ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
+    if(_buf != _fixed)
     {
-	clear();
+	free(_buf);
+	_buf = _fixed;
+    }
+    _size = 0;
+    _capacity = ICE_BUFFER_FIXED_SIZE;
+#else
+    free(_buf);
+    _buf = 0;
+    _size = 0;
+    _capacity = 0;
+#endif
+}
+
+void
+IceInternal::Buffer::Container::reserve(size_type n)
+{
+    if(n > _capacity)
+    {
+	_capacity = std::max<size_type>(n, 2 * _capacity);
+	_capacity = std::max<size_type>(static_cast<size_type>(240), _capacity);
+    }
+    else if(n < _capacity)
+    {
+	_capacity = n;
     }
     else
     {
-	if(n > _capacity)
-	{
-	    _capacity = std::max<size_type>(n, 2 * _capacity);
-	    _capacity = std::max<size_type>(static_cast<size_type>(240), _capacity);
-	    
+	return;
+    }
+    
 #ifdef ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
-	    if(_buf != _fixed)
-	    {
-		_buf = reinterpret_cast<pointer>(realloc(_buf, _capacity));
-	    }
-	    else
-	    {
-		_buf = reinterpret_cast<pointer>(malloc(_capacity));
-		memcpy(_buf, _fixed, _size);
-	    }
+    if(_buf != _fixed)
+    {
+	_buf = reinterpret_cast<pointer>(realloc(_buf, _capacity));
+    }
+    else if(_capacity > ICE_BUFFER_FIXED_SIZE)
+    {
+	_buf = reinterpret_cast<pointer>(malloc(_capacity));
+	memcpy(_buf, _fixed, _size);
+    }
 #else
-	    if(_buf)
-	    {
-		_buf = reinterpret_cast<pointer>(realloc(_buf, _capacity));
-	    }
-	    else
-	    {
-		_buf = reinterpret_cast<pointer>(malloc(_capacity));
-	    }
+    if(_buf)
+    {
+	_buf = reinterpret_cast<pointer>(realloc(_buf, _capacity));
+    }
+    else
+    {
+	_buf = reinterpret_cast<pointer>(malloc(_capacity));
+    }
 #endif
-	    
-	    if(!_buf)
-	    {
-		SyscallException ex(__FILE__, __LINE__);
-		ex.error = getSystemErrno();
-		throw ex;
-	    }
-	}
-
-	_size = n;
+	
+    if(!_buf)
+    {
+	SyscallException ex(__FILE__, __LINE__);
+	ex.error = getSystemErrno();
+	throw ex;
     }
 }
