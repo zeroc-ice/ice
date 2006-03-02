@@ -30,7 +30,7 @@ using namespace std;
 //
 IceUtil::ThreadControl::ThreadControl() :
     _id(GetCurrentThreadId()),
-    _handle(new HandleWrapper(static_cast<HANDLE>(_id), false))
+    _handle(new HandleWrapper(reinterpret_cast<HANDLE>(_id), false))
 {
 }
 #else
@@ -61,8 +61,8 @@ IceUtil::ThreadControl::ThreadControl(const HandleWrapperPtr& handle, IceUtil::T
 }
 
 IceUtil::ThreadControl::ThreadControl(const ThreadControl& tc) :
-    _id(tc.id),
-    _handle(tc.handle)
+    _id(tc._id),
+    _handle(tc._handle)
 {
 }
 
@@ -71,8 +71,8 @@ IceUtil::ThreadControl::operator=(const ThreadControl& rhs)
 {
     if(&rhs != this)
     {
-	_id = rhs.id;
-	_handle = rhs.handle;
+	_id = rhs._id;
+	_handle = rhs._handle;
     }
     return *this;
 }
@@ -143,6 +143,11 @@ IceUtil::Thread::~Thread()
 static void*
 startHook(void* arg)
 {
+    //
+    // Ensure that the thread doesn't go away until run() has
+    // completed.
+    //
+    IceUtil::ThreadPtr thread;
     try
     {
 	IceUtil::Thread* rawThread = static_cast<IceUtil::Thread*>(arg);
@@ -153,11 +158,7 @@ startHook(void* arg)
         unsigned int seed = static_cast<unsigned int>(IceUtil::Time::now().toMicroSeconds());
         srand(seed);            
 
-	//
-	// Ensure that the thread doesn't go away until run() has
-	// completed.
-	//
-	IceUtil::ThreadPtr thread = rawThread;
+	thread = rawThread;
 
 	//
 	// See the comment in IceUtil::Thread::start() for details.
@@ -201,8 +202,10 @@ IceUtil::Thread::start(size_t stackSize)
     __incRef();
 
 #ifndef _WIN32_WCE
+    unsigned int id;
     _handle->handle = (HANDLE)_beginthreadex(
-	0, stackSize, (unsigned int (__stdcall*)(void*))startHook, (LPVOID)this, 0, &_id);
+	0, stackSize, (unsigned int (__stdcall*)(void*))startHook, (LPVOID)this, 0, &id);
+    _id = id;
 #else
     _handle->handle = CreateThread(
 	0, stackSize, (unsigned long (__stdcall*)(void*))startHook, (LPVOID)this, 0, &_id);

@@ -19,7 +19,7 @@ namespace IceUtil
 
 class Time;
 
-#ifdef _WIN32_WCE
+#ifdef _WIN32
 struct HandleWrapper : public Shared
 {
     // Inline for performance reasons.
