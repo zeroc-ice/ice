@@ -35,8 +35,16 @@ public class BasicStream
     // This function allows this object to be reused, rather than reallocated.
     //
     public void
-    reset()
+    reset(boolean shrink)
     {
+	if(shrink)
+	{
+	    if(_limit > 0 && _limit * 2 < _capacity)
+	    {
+		reallocate(_limit);
+		_capacity = _buf.capacity();
+	    }
+	}
         _limit = 0;
         _buf.limit(_capacity);
         _buf.position(0);
