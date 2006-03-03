@@ -105,7 +105,12 @@ IceUtil::Thread::~Thread()
 {
 }
 
+
+#ifdef _WIN32_WCE
+static DWORD
+#else
 static unsigned int
+#endif
 WINAPI startHook(void* arg)
 {
     // Ensure that the thread doesn't go away until run() has
