@@ -19,75 +19,12 @@ IceUtil::ThreadControl::ThreadControl() :
     _handle(0),
     _id(GetCurrentThreadId())
 {
-    HANDLE currentThread = GetCurrentThread();
-    HANDLE currentProcess = GetCurrentProcess();   
-
-    if(DuplicateHandle(currentProcess,
-		       currentThread,
-		       currentProcess,
-		       &_handle,
-		       0,
-		       FALSE,
-		       DUPLICATE_SAME_ACCESS) == 0)
-    {
-	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
-    }
 }
 
 IceUtil::ThreadControl::ThreadControl(HANDLE handle, IceUtil::ThreadControl::ID id) :
+    _handle(handle),
     _id(id)
 {
-    HANDLE currentProcess = GetCurrentProcess();    
-
-    if(DuplicateHandle(currentProcess,
-		       handle,
-		       currentProcess,
-		       &_handle,
-		       0,
-		       FALSE,
-		       DUPLICATE_SAME_ACCESS) == 0)
-    {
-	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
-    }
-}
-  
-IceUtil::ThreadControl::ThreadControl(const ThreadControl& tc) :
-    _handle(0)
-{
-    operator=(tc);
-}
-
-IceUtil::ThreadControl::~ThreadControl()
-{
-    assert(_handle != 0);
-    bool ok = CloseHandle(_handle);
-    assert(ok);
-}
-
-IceUtil::ThreadControl&
-IceUtil::ThreadControl::operator=(const ThreadControl& rhs)
-{
-    if(&rhs != this)
-    {
-	if(_handle != 0 && CloseHandle(_handle) == 0)
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
-	}	
-	_id = rhs._id;
-
-	HANDLE currentProcess = GetCurrentProcess(); 
-	if(DuplicateHandle(currentProcess,
-			   rhs._handle,
-			   currentProcess,
-			   &_handle,
-			   0,
-			   FALSE,
-			   DUPLICATE_SAME_ACCESS) == 0)
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
-	}
-    }
-    return *this;
 }
 
 bool
@@ -102,22 +39,35 @@ IceUtil::ThreadControl::operator!=(const ThreadControl& rhs) const
     return _id != rhs._id;
 }
 
-
 void
 IceUtil::ThreadControl::join()
 {
+    if(_handle == 0)
+    {
+	throw BadThreadControlException(__FILE__, __LINE__);
+    }
+
     int rc = WaitForSingleObject(_handle, INFINITE);
     if(rc != WAIT_OBJECT_0)
     {
 	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
+    
+    detach();
 }
 
 void
 IceUtil::ThreadControl::detach()
 {
-    // On Windows, a thread is cleaned up when the last handle to this thread
-    // is closed.
+    if(_handle == 0)
+    {
+	throw BadThreadControlException(__FILE__, __LINE__);
+    }
+    
+    if(CloseHandle(_handle) == 0)
+    {
+	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+    }
 }
 
 IceUtil::ThreadControl::ID
@@ -125,7 +75,6 @@ IceUtil::ThreadControl::id() const
 {
     return _id;
 }
-
 
 void
 IceUtil::ThreadControl::sleep(const Time& timeout)
@@ -154,11 +103,6 @@ IceUtil::Thread::Thread() :
 
 IceUtil::Thread::~Thread()
 {
-    if(_handle != 0)
-    {
-	bool ok = CloseHandle(_handle);
-	assert(ok);
-    }
 }
 
 static unsigned int
@@ -293,36 +237,18 @@ IceUtil::Thread::_done()
     _running = false;
 }
 
-
 #else
 
-IceUtil::ThreadControl::ThreadControl(IceUtil::ThreadControl::ID thread) :
-    _thread(thread)
+IceUtil::ThreadControl::ThreadControl(pthread_t thread) :
+    _thread(thread),
+    _detachable(true)
 {
 }
 
 IceUtil::ThreadControl::ThreadControl() :
-    _thread(pthread_self())
+    _thread(pthread_self()),
+    _detachable(false)
 {
-}
-
-IceUtil::ThreadControl::ThreadControl(const ThreadControl& tc) :
-    _thread(tc._thread)
-{
-}
-
-IceUtil::ThreadControl::~ThreadControl()
-{
-}
-
-IceUtil::ThreadControl&
-IceUtil::ThreadControl::operator=(const ThreadControl& rhs)
-{
-    if(&rhs != this)
-    {
-	_thread = rhs._thread;
-    }
-    return *this;
 }
 
 bool
@@ -340,6 +266,11 @@ IceUtil::ThreadControl::operator!=(const ThreadControl& rhs) const
 void
 IceUtil::ThreadControl::join()
 {
+    if(!_detachable)
+    {
+	throw BadThreadControlException(__FILE__, __LINE__);
+    }
+
     void* ignore = 0;
     int rc = pthread_join(_thread, &ignore);
     if(rc != 0)
@@ -351,6 +282,11 @@ IceUtil::ThreadControl::join()
 void
 IceUtil::ThreadControl::detach()
 {
+    if(!_detachable)
+    {
+	throw BadThreadControlException(__FILE__, __LINE__);
+    }
+
     int rc = pthread_detach(_thread);
     if(rc != 0)
     {
@@ -389,7 +325,6 @@ IceUtil::Thread::Thread() :
 IceUtil::Thread::~Thread()
 {
 }
-
 
 extern "C" 
 {

@@ -23,6 +23,10 @@ class ICE_UTIL_API ThreadControl
 {
 public:
 
+    //
+    // Constructs a ThreadControl representing the current thread.
+    // join and detach cannot be called on such ThreadControl object.
+    //
     ThreadControl();
 
 #ifdef _WIN32
@@ -31,12 +35,14 @@ public:
     ThreadControl(pthread_t);
 #endif
 
-    ThreadControl(const ThreadControl&);
+    //
+    // Default copy destructor, assignment operator and destructor OK
+    //
 
-    ~ThreadControl();
-
-    ThreadControl& operator=(const ThreadControl&);
-
+    //
+    // == and != are meaningful only before the thread is joined/detached,
+    // or while the thread is still running.
+    //
     bool operator==(const ThreadControl&) const;
     bool operator!=(const ThreadControl&) const;
 
@@ -83,6 +89,13 @@ private:
     DWORD  _id;
 #else
     pthread_t _thread;
+
+    //
+    // Used to prevent joining/detaching a ThreadControl constructed
+    // with the default constructor. Only needed to enforce our
+    // portable join/detach behavior.
+    //
+    const bool _detachable;
 #endif
 };
 
@@ -104,8 +117,7 @@ public:
     bool operator<(const Thread&) const;
 
     //
-    // Check whether a thread is still alive. This is useful to implement
-    // a non-blocking join().
+    // Check whether a thread is still alive.
     //
     bool isAlive() const;
 
