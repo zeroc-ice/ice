@@ -71,6 +71,8 @@ dictionary<string, MyEnum> StringMyEnumD;
     void shutdown();
 
     void opVoid();
+
+    void opSleep(int duration);
     
     byte opByte(byte p1, byte p2,
 		out byte p3);
@@ -149,6 +151,7 @@ dictionary<string, MyEnum> StringMyEnumD;
 
     StringStringD opContext();
 
+    void opDoubleMarshaling(double p1, DoubleS p2);
 };
 
 ["ami", "amd"] class MyDerivedClass extends MyClass

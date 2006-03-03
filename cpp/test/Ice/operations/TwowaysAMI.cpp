@@ -836,6 +836,23 @@ public:
 
 typedef IceUtil::Handle<AMI_MyDerivedClass_opDerivedI> AMI_MyDerivedClass_opDerivedIPtr;
 
+class AMI_MyClass_opDoubleMarshalingI : public Test::AMI_MyClass_opDoubleMarshaling, public CallbackBase
+{
+public:
+
+    virtual void ice_response()
+    {
+	called();
+    }
+
+    virtual void ice_exception(const ::Ice::Exception& ex)
+    {
+	test(false);
+    }
+};
+
+typedef IceUtil::Handle<AMI_MyClass_opDoubleMarshalingI> AMI_MyClass_opDoubleMarshalingIPtr;
+
 void
 twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 {
@@ -1285,6 +1302,14 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 
 	    communicator->setDefaultContext(Ice::Context());
 	}
+    }
+
+    {
+        Ice::Double d = 1278312346.0 / 13.0;
+	Test::DoubleS ds(5, d);
+	AMI_MyClass_opDoubleMarshalingIPtr cb = new AMI_MyClass_opDoubleMarshalingI;
+	p->opDoubleMarshaling_async(cb, d, ds);
+	test(cb->check());
     }
 
     {

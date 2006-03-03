@@ -57,6 +57,11 @@ main(int argc, char* argv[])
 	//
 	properties->setProperty("Ice.MessageSizeMax", "100");
 
+	//
+	// We don't want connection warnings because of the timeout test.
+	//
+	properties->setProperty("Ice.Warn.Connections", "0");
+
 	communicator = Ice::initialize(argc, argv);
 	status = run(argc, argv, communicator);
     }

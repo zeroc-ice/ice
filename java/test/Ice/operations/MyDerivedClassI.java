@@ -9,6 +9,15 @@
 
 public final class MyDerivedClassI extends Test.MyDerivedClass
 {
+    private static void
+    test(boolean b)
+    {
+        if(!b)
+        {
+            throw new RuntimeException();
+        }
+    }
+
     public
     MyDerivedClassI(Ice.ObjectAdapter adapter, Ice.Identity identity)
     {
@@ -25,6 +34,22 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     public void
     opVoid(Ice.Current current)
     {
+    }
+
+    public void
+    opSleep(int duration, Ice.Current current)
+    {
+	while(true)
+	{
+	    try
+	    {
+		Thread.currentThread().sleep(duration);
+		break;
+	    }
+	    catch(java.lang.InterruptedException ex)
+	    {
+	    }
+	}	
     }
 
     public boolean
@@ -302,6 +327,17 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     opContext(Ice.Current current)
     {
 	return current.ctx;
+    }
+
+    public void
+    opDoubleMarshaling(double p1, double[] p2, Ice.Current current)
+    {
+	double d = 1278312346.0 / 13.0;
+	test(p1 == d);
+	for(int i = 0; i < p2.length; ++i)
+	{
+	    test(p2[i] == d);
+	}
     }
 
     public String[]

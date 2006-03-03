@@ -62,6 +62,22 @@ public class AllTests
 	test(c.equals(c2));
 	System.out.println("ok");
 
+	if(!collocated)
+	{
+	    System.out.print("testing timeout... ");
+	    System.out.flush();
+	    try
+	    {
+		Test.MyClassPrx clTimeout = Test.MyClassPrxHelper.uncheckedCast(cl.ice_timeout(500));
+		clTimeout.opSleep(1000);
+		test(false);
+	    }
+	    catch(Ice.TimeoutException ex)
+	    {
+	    }
+	    System.out.println("ok");
+	}
+
         System.out.print("testing twoway operations... ");
         System.out.flush();
         Twoways.twoways(communicator, cl);

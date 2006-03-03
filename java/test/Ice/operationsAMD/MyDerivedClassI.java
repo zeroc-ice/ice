@@ -9,6 +9,15 @@
 
 public final class MyDerivedClassI extends Test.MyDerivedClass
 {
+    private static void
+    test(boolean b)
+    {
+        if(!b)
+        {
+            throw new RuntimeException();
+        }
+    }
+
     static class Thread_opVoid extends Thread
     {
 	public
@@ -71,6 +80,23 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
 	_opVoidThread = new Thread_opVoid(cb);
 	_opVoidThread.start();
+    }
+
+    public void
+    opSleep_async(Test.AMD_MyClass_opSleep cb, int duration, Ice.Current current)
+    {
+	while(true)
+	{
+	    try
+	    {
+		Thread.currentThread().sleep(duration);
+		cb.ice_response();
+		break;
+	    }
+	    catch(java.lang.InterruptedException ex)
+	    {
+	    }
+	}	
     }
 
     public void
@@ -340,6 +366,18 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     opContext_async(Test.AMD_MyClass_opContext cb, Ice.Current current)
     {
         cb.ice_response(current.ctx);
+    }
+
+    public void
+    opDoubleMarshaling_async(Test.AMD_MyClass_opDoubleMarshaling cb, double p1, double[] p2, Ice.Current current)
+    {
+	double d = 1278312346.0 / 13.0;
+	test(p1 == d);
+	for(int i = 0; i < p2.length; ++i)
+	{
+	    test(p2[i] == d);
+	}
+	cb.ice_response();
     }
 
     public void

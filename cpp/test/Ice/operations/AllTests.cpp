@@ -101,6 +101,21 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
     cout << "ok" << endl;
 
+    if(!collocated)
+    {
+	cout << "testing timeout... " << flush;
+	Test::MyClassPrx clTimeout = Test::MyClassPrx::uncheckedCast(cl->ice_timeout(500));
+	try
+	{
+	    clTimeout->opSleep(2000);
+	    test(false);
+	}
+	catch(const Ice::TimeoutException&)
+	{
+	}
+	cout << "ok" << endl;
+    }
+
     cout << "testing twoway operations... " << flush;
     void twoways(const Ice::CommunicatorPtr&, const Test::MyClassPrx&);
     twoways(communicator, cl);

@@ -9,6 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <TestI.h>
+#include <TestCommon.h>
 #include <functional>
 
 MyDerivedClassI::MyDerivedClassI(const Ice::ObjectAdapterPtr& adapter, const Ice::Identity& identity) :
@@ -26,6 +27,12 @@ MyDerivedClassI::shutdown(const Ice::Current&)
 void
 MyDerivedClassI::opVoid(const Ice::Current&)
 {
+}
+
+void
+MyDerivedClassI::opSleep(int duration, const Ice::Current&)
+{
+    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(duration));
 }
 
 Ice::Byte
@@ -353,6 +360,17 @@ Test::StringStringD
 MyDerivedClassI::opContext(const Ice::Current& c)
 {
     return c.ctx;
+}
+
+void 
+MyDerivedClassI::opDoubleMarshaling(Ice::Double p1, const Test::DoubleS& p2, const Ice::Current&)
+{
+    Ice::Double d = 1278312346.0 / 13.0;
+    test(p1 == d);
+    for(unsigned int i = 0; i < p2.size(); ++i)
+    {
+        test(p2[i] == d);
+    }
 }
 
 void

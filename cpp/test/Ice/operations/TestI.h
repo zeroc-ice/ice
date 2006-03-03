@@ -22,6 +22,8 @@ public:
 
     virtual void opVoid(const Ice::Current&);
 
+    virtual void opSleep(int, const Ice::Current&);
+
     virtual Ice::Byte opByte(Ice::Byte,
 			     Ice::Byte,
 			     Ice::Byte&,
@@ -151,6 +153,8 @@ public:
     virtual void opByteSOneway(const Test::ByteS&, const Ice::Current&);
 
     virtual Ice::Context opContext(const Ice::Current&);
+
+    virtual void opDoubleMarshaling(Ice::Double, const Test::DoubleS&, const Ice::Current&);
 
     virtual void opDerived(const Ice::Current&);
 

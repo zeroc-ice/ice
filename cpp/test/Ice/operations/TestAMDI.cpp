@@ -9,6 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <TestAMDI.h>
+#include <TestCommon.h>
 #include <functional>
 
 class Thread_opVoid : public IceUtil::Thread
@@ -60,6 +61,15 @@ MyDerivedClassI::opVoid_async(const Test::AMD_MyClass_opVoidPtr& cb, const Ice::
 
     _opVoidThread = new Thread_opVoid(cb);
     _opVoidThread->start();
+}
+
+void
+MyDerivedClassI::opSleep_async(const Test::AMD_MyClass_opSleepPtr& cb, 
+			       int duration, 
+			       const Ice::Current&)
+{
+    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(duration));
+    cb->ice_response();
 }
 
 void
@@ -378,6 +388,19 @@ MyDerivedClassI::opContext_async(const Test::AMD_MyClass_opContextPtr& cb, const
 {
     Test::StringStringD r = c.ctx;
     cb->ice_response(r);
+}
+
+void 
+MyDerivedClassI::opDoubleMarshaling_async(const Test::AMD_MyClass_opDoubleMarshalingPtr& cb,
+					  Ice::Double p1, const Test::DoubleS& p2, const Ice::Current&)
+{
+    Ice::Double d = 1278312346.0 / 13.0;
+    test(p1 == d);
+    for(unsigned int i = 0; i < p2.size(); ++i)
+    {
+        test(p2[i] == d);
+    }
+    cb->ice_response();
 }
 
 void

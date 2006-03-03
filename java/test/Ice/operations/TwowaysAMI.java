@@ -1039,6 +1039,29 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     }
 
+    private static class AMI_MyClass_opDoubleMarshalingI extends Test.AMI_MyClass_opDoubleMarshaling
+    {
+	public void
+	ice_response()
+	{
+	    callback.called();
+	}
+
+	public void
+	ice_exception(Ice.LocalException ex)
+	{
+	    test(false);
+	}
+
+	public boolean
+	check()
+	{
+	    return callback.check();
+	}
+
+	private Callback callback = new Callback();
+    }
+
     static void
     twowaysAMI(Ice.Communicator communicator, Test.MyClassPrx p)
     {
@@ -1500,6 +1523,18 @@ class TwowaysAMI
 
 		communicator.setDefaultContext(new java.util.HashMap());
 	    }
+	}
+
+	{
+	    double d = 1278312346.0 / 13.0;
+	    double[] ds = new double[5];
+	    for(int i = 0; i < 5; i++)
+	    {
+		ds[i] = d;
+	    }
+	    AMI_MyClass_opDoubleMarshalingI cb = new AMI_MyClass_opDoubleMarshalingI();
+	    p.opDoubleMarshaling_async(cb, d, ds);
+	    test(cb.check());
 	}
 
 	{

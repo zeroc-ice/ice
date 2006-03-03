@@ -25,6 +25,10 @@ public:
     virtual void opVoid_async(const Test::AMD_MyClass_opVoidPtr&,
 			      const Ice::Current&);
 
+    virtual void opSleep_async(const Test::AMD_MyClass_opSleepPtr&,
+			       int,
+			       const Ice::Current&);
+
     virtual void opByte_async(const Test::AMD_MyClass_opBytePtr&,
 			      Ice::Byte, Ice::Byte,
 			      const Ice::Current&);
@@ -127,6 +131,9 @@ public:
 				     const Ice::Current&);
 
     virtual void opContext_async(const Test::AMD_MyClass_opContextPtr&, const Ice::Current&);
+
+    virtual void opDoubleMarshaling_async(const Test::AMD_MyClass_opDoubleMarshalingPtr&,
+					  Ice::Double, const Test::DoubleS&, const Ice::Current&);
 
     virtual void opDerived_async(const Test::AMD_MyDerivedClass_opDerivedPtr&,
 				 const Ice::Current&);
