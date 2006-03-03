@@ -19,45 +19,30 @@ namespace IceUtil
 
 class Time;
 
-#ifdef _WIN32
-struct HandleWrapper : public Shared
-{
-    // Inline for performance reasons.
-    HandleWrapper(HANDLE h, bool r = true) :
-	handle(h), release(r)
-    {
-    }
-
-    // Inline for performance reasons.
-    virtual ~HandleWrapper()
-    {
-	if(handle && release)
-	{
-	    CloseHandle(handle);
-	}
-    }
-
-    HANDLE handle;
-    bool release;
-};
-typedef Handle<HandleWrapper> HandleWrapperPtr;
-#endif
-
 class ICE_API ThreadControl
 {
 public:
 
+    //
+    // Constructs a ThreadControl representing the current thread.
+    // join and detach cannot be called on such ThreadControl object.
+    //
     ThreadControl();
 
 #ifdef _WIN32
-    ThreadControl(const HandleWrapperPtr&, DWORD);
+    ThreadControl(HANDLE, DWORD);
 #else
     ThreadControl(pthread_t);
 #endif
 
-    ThreadControl(const ThreadControl&);
-    ThreadControl& operator=(const ThreadControl&);
+    //
+    // Default copy destructor, assignment operator and destructor OK
+    //
 
+    //
+    // == and != are meaningful only before the thread is joined/detached,
+    // or while the thread is still running.
+    //
     bool operator==(const ThreadControl&) const;
     bool operator!=(const ThreadControl&) const;
 
@@ -100,10 +85,17 @@ public:
 private:
 
 #ifdef _WIN32
-    DWORD _id;
-    HandleWrapperPtr _handle;
+    HANDLE _handle;
+    DWORD  _id;
 #else
     pthread_t _thread;
+
+    //
+    // Used to prevent joining/detaching a ThreadControl constructed
+    // with the default constructor. Only needed to enforce our
+    // portable join/detach behavior.
+    //
+    bool _detachable;
 #endif
 };
 
@@ -125,8 +117,7 @@ public:
     bool operator<(const Thread&) const;
 
     //
-    // Check whether a thread is still alive. This is useful to implement
-    // a non-blocking join().
+    // Check whether a thread is still alive.
     //
     bool isAlive() const;
 
@@ -136,19 +127,19 @@ public:
     //
     void _done();
 
-
 protected:
     Mutex _stateMutex;
     bool _started;
     bool _running;
 
 #ifdef _WIN32
-    HandleWrapperPtr _handle;
-    DWORD _id;
+    HANDLE _handle;
+    DWORD  _id;
 #else
     pthread_t _thread;
 #endif
 
+private:
     Thread(const Thread&);		// Copying is forbidden
     void operator=(const Thread&);	// Assignment is forbidden
 };

@@ -159,3 +159,29 @@ IceUtil::ThreadNotStartedException::ice_throw() const
 {
     throw *this;
 }
+
+IceUtil::BadThreadControlException::BadThreadControlException(const char* file, int line) :
+    Exception(file, line)
+{
+}
+
+const char* IceUtil::BadThreadControlException::_name = "IceUtil::BadThreadControlException";
+
+const string
+IceUtil::BadThreadControlException::ice_name() const
+{
+    return _name;
+}
+
+IceUtil::Exception*
+IceUtil::BadThreadControlException::ice_clone() const
+{
+    return new BadThreadControlException(*this);
+}
+
+void
+IceUtil::BadThreadControlException::ice_throw() const
+{
+    throw *this;
+}
+

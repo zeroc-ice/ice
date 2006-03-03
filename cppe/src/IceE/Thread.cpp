@@ -13,68 +13,18 @@
 
 #include <stdio.h>
 
-using namespace std;
-
 #ifdef _WIN32
 
-#ifndef _WIN32_WCE
-#   include <process.h>
-#endif
-
-#ifdef _WIN32_WCE
-//
-// Under WCE it is not possible to call DuplicateHandle on a thread
-// handle. Instead we use the handle wrapper. This constructor uses
-// GetCurrentThreadId() to get the current thread object. This object
-// can also be used as the thread handle.
-//
 IceUtil::ThreadControl::ThreadControl() :
-    _id(GetCurrentThreadId()),
-    _handle(new HandleWrapper(reinterpret_cast<HANDLE>(_id), false))
-{
-}
-#else
-IceUtil::ThreadControl::ThreadControl() :
-    _id(GetCurrentThreadId()),
-    _handle(new HandleWrapper(0))
-{
-    HANDLE currentThread = GetCurrentThread();
-    HANDLE currentProcess = GetCurrentProcess();   
-
-    if(DuplicateHandle(currentProcess,
-		       currentThread,
-		       currentProcess,
-		       &_handle->handle,
-		       0,
-		       FALSE,
-		       DUPLICATE_SAME_ACCESS) == 0)
-    {
-	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
-    }
-}
-#endif
-
-IceUtil::ThreadControl::ThreadControl(const HandleWrapperPtr& handle, IceUtil::ThreadControl::ID id) :
-    _id(id),
-    _handle(handle)
+    _handle(0),
+    _id(GetCurrentThreadId())
 {
 }
 
-IceUtil::ThreadControl::ThreadControl(const ThreadControl& tc) :
-    _id(tc._id),
-    _handle(tc._handle)
+IceUtil::ThreadControl::ThreadControl(HANDLE handle, IceUtil::ThreadControl::ID id) :
+    _handle(handle),
+    _id(id)
 {
-}
-
-IceUtil::ThreadControl&
-IceUtil::ThreadControl::operator=(const ThreadControl& rhs)
-{
-    if(&rhs != this)
-    {
-	_id = rhs._id;
-	_handle = rhs._handle;
-    }
-    return *this;
 }
 
 bool
@@ -92,17 +42,32 @@ IceUtil::ThreadControl::operator!=(const ThreadControl& rhs) const
 void
 IceUtil::ThreadControl::join()
 {
-    int rc = WaitForSingleObject(_handle->handle, INFINITE);
+    if(_handle == 0)
+    {
+	throw BadThreadControlException(__FILE__, __LINE__);
+    }
+
+    int rc = WaitForSingleObject(_handle, INFINITE);
     if(rc != WAIT_OBJECT_0)
     {
 	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
+    
+    detach();
 }
 
 void
 IceUtil::ThreadControl::detach()
 {
-    // No-op: Windows doesn't have the concept of detaching a thread.
+    if(_handle == 0)
+    {
+	throw BadThreadControlException(__FILE__, __LINE__);
+    }
+    
+    if(CloseHandle(_handle) == 0)
+    {
+	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+    }
 }
 
 IceUtil::ThreadControl::ID
@@ -131,7 +96,7 @@ IceUtil::ThreadControl::yield()
 IceUtil::Thread::Thread() :
     _started(false),
     _running(false),
-    _handle(new HandleWrapper(0)),
+    _handle(0),
     _id(0)
 {
 }
@@ -140,14 +105,14 @@ IceUtil::Thread::~Thread()
 {
 }
 
-static void*
-startHook(void* arg)
+static unsigned int
+WINAPI startHook(void* arg)
 {
-    //
     // Ensure that the thread doesn't go away until run() has
     // completed.
     //
     IceUtil::ThreadPtr thread;
+
     try
     {
 	IceUtil::Thread* rawThread = static_cast<IceUtil::Thread*>(arg);
@@ -158,6 +123,10 @@ startHook(void* arg)
         unsigned int seed = static_cast<unsigned int>(IceUtil::Time::now().toMicroSeconds());
         srand(seed);            
 
+	//
+	// Ensure that the thread doesn't go away until run() has
+	// completed.
+	//
 	thread = rawThread;
 
 	//
@@ -169,11 +138,19 @@ startHook(void* arg)
     catch(const IceUtil::Exception& e)
     {
 	fprintf(stderr, "IceUtil::Thread::run(): uncaught exception: %s\n", e.toString());
+    } 
+    catch(...)
+    {
+	fprintf(stderr, "IceUtil::Thread::run(): uncaught exception\n");
     }
     thread->_done();
-
+   
     return 0;
 }
+
+#ifndef _WIN32_WCE
+#   include <process.h>
+#endif
 
 IceUtil::ThreadControl
 IceUtil::Thread::start(size_t stackSize)
@@ -200,17 +177,21 @@ IceUtil::Thread::start(size_t stackSize)
     // __decRef().
     //
     __incRef();
-
-#ifndef _WIN32_WCE
-    unsigned int id;
-    _handle->handle = (HANDLE)_beginthreadex(
-	0, stackSize, (unsigned int (__stdcall*)(void*))startHook, (LPVOID)this, 0, &id);
-    _id = id;
+    
+#ifdef _WIN32_WCE
+    _handle = CreateThread(0, stackSize,
+			   startHook, this, 0, &_id);
 #else
-    _handle->handle = CreateThread(
-	0, stackSize, (unsigned long (__stdcall*)(void*))startHook, (LPVOID)this, 0, &_id);
+    unsigned int id;
+    _handle = 
+	reinterpret_cast<HANDLE>(
+	    _beginthreadex(0, 
+			   static_cast<unsigned int>(stackSize), 
+			   startHook, this, 0, &id));
+    _id = id;
 #endif
-    if(_handle->handle == 0)
+   
+    if(_handle == 0)
     {
 	__decRef();
 	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
@@ -242,7 +223,7 @@ IceUtil::Thread::operator==(const Thread& rhs) const
 bool
 IceUtil::Thread::operator!=(const Thread& rhs) const
 {
-    return !operator==(rhs);
+    return this != &rhs;
 }
 
 bool
@@ -265,31 +246,19 @@ IceUtil::Thread::_done()
     _running = false;
 }
 
+
 #else
 
 IceUtil::ThreadControl::ThreadControl(pthread_t thread) :
-    _thread(thread)
+    _thread(thread),
+    _detachable(true)
 {
 }
 
 IceUtil::ThreadControl::ThreadControl() :
-    _thread(pthread_self())
+    _thread(pthread_self()),
+    _detachable(false)
 {
-}
-
-IceUtil::ThreadControl::ThreadControl(const ThreadControl& tc) :
-    _thread(tc._thread)
-{
-}
-
-IceUtil::ThreadControl&
-IceUtil::ThreadControl::operator=(const ThreadControl& rhs)
-{
-    if(&rhs != this)
-    {
-	_thread = rhs._thread;
-    }
-    return *this;
 }
 
 bool
@@ -307,6 +276,11 @@ IceUtil::ThreadControl::operator!=(const ThreadControl& rhs) const
 void
 IceUtil::ThreadControl::join()
 {
+    if(!_detachable)
+    {
+	throw BadThreadControlException(__FILE__, __LINE__);
+    }
+
     void* ignore = 0;
     int rc = pthread_join(_thread, &ignore);
     if(rc != 0)
@@ -318,6 +292,11 @@ IceUtil::ThreadControl::join()
 void
 IceUtil::ThreadControl::detach()
 {
+    if(!_detachable)
+    {
+	throw BadThreadControlException(__FILE__, __LINE__);
+    }
+
     int rc = pthread_detach(_thread);
     if(rc != 0)
     {
@@ -328,7 +307,7 @@ IceUtil::ThreadControl::detach()
 IceUtil::ThreadControl::ID
 IceUtil::ThreadControl::id() const
 {
-    return _thread;
+    return _thread;;
 }
 
 void
@@ -357,7 +336,8 @@ IceUtil::Thread::~Thread()
 {
 }
 
-extern "C" {
+extern "C" 
+{
 static void*
 startHook(void* arg)
 {
@@ -366,6 +346,7 @@ startHook(void* arg)
     // completed.
     //
     IceUtil::ThreadPtr thread;
+
     try
     {
 	IceUtil::Thread* rawThread = static_cast<IceUtil::Thread*>(arg);
@@ -380,14 +361,14 @@ startHook(void* arg)
     }
     catch(const IceUtil::Exception& e)
     {
-	//fprintf(stderr, "IceUtil::Thread::run(): uncaught exception: %s\n", e.toString());
+	fprintf(stderr, "IceUtil::Thread::run(): uncaught exception: %s\n", e.toString());
     }
     catch(...)
     {
 	fprintf(stderr, "IceUtil::Thread::run(): uncaught exception\n");
     }
     thread->_done();
-
+    
     return 0;
 }
 }
@@ -476,7 +457,7 @@ IceUtil::Thread::operator==(const Thread& rhs) const
 bool
 IceUtil::Thread::operator!=(const Thread& rhs) const
 {
-    return !operator==(rhs);
+    return this != &rhs;
 }
 
 bool
