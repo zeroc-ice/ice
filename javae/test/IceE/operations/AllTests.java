@@ -75,7 +75,6 @@ public class AllTests
 	catch(Ice.TimeoutException ex)
 	{
 	}
-
 	out.println("ok");
 
         out.print("testing twoway operations... ");

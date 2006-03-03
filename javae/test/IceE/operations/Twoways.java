@@ -661,16 +661,16 @@ class Twoways
 
 		communicator.setDefaultContext(new java.util.Hashtable());
 	    }
-
+	}
+	
+	{
+	    double d = 1278312346.0 / 13.0;
+	    double[] ds = new double[5];
+	    for(int i = 0; i < 5; i++)
 	    {
-		double d = 1278312346.0 / 13.0;
-		double[] ds = new double[5];
-		for(int i = 0; i < 5; i++)
-		{
-		    ds[i] = d;
-		}
-		p.opDoubleMarshaling(d, ds);
+		ds[i] = d;
 	    }
+	    p.opDoubleMarshaling(d, ds);
 	}
     }
 }

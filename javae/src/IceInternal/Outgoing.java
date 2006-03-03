@@ -76,6 +76,7 @@ public final class Outgoing
 		    // exception's stack trace, but there doesn't seem
 		    // to be a way to do this yet in CLDC.
 		    //
+		    //_exception.fillInStackTrace();
 		    
                     //      
                     // A CloseConnectionException indicates graceful
