@@ -507,7 +507,7 @@ IceInternal::Transceiver::doSelect(bool read, int timeout)
 	    //
 	    if(read && nevents.lNetworkEvents & FD_READ && nevents.iErrorCode[FD_READ_BIT] != 0)
 	    {
-		WSASetLastError(nevents.iErrorCode[FD_CLOSE_BIT]);
+		WSASetLastError(nevents.iErrorCode[FD_READ_BIT]);
 	    }
 	    else if(!read && nevents.lNetworkEvents & FD_WRITE && nevents.iErrorCode[FD_WRITE_BIT] != 0)
 	    {
