@@ -203,6 +203,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name customS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name retryC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name retryS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -766,6 +772,42 @@ Package=<4>
 ###############################################################################
 
 Project: "operationsS"=.\test\IceE\operations\operationsS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "retryC"=.\test\IceE\retry\retryC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "retryS"=.\test\IceE\retry\retryS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

@@ -4,7 +4,7 @@
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=retryS - Win32 Debug
+CFG=retryS - Win32 Debug Static
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
@@ -13,12 +13,14 @@ CFG=retryS - Win32 Debug
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "retryS.mak" CFG="retryS - Win32 Debug"
+!MESSAGE NMAKE /f "retryS.mak" CFG="retryS - Win32 Debug Static"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
 !MESSAGE "retryS - Win32 Release" (based on "Win32 (x86) Console Application")
 !MESSAGE "retryS - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "retryS - Win32 Debug Static" (based on "Win32 (x86) Console Application")
+!MESSAGE "retryS - Win32 Release Static" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -42,8 +44,8 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../../include" /I "../../include" /D "_CONSOLE" /D "NDEBUG" /D "WIN32_LEAN_AND_MEAN" /FD /c
-# SUBTRACT CPP /Fr /YX
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O1 /I "." /I "../../../include" /I "../../include" /D "NDEBUG" /D "WIN32_LEAN_AND_MEAN" /D "_CONSOLE" /FD /c
+# SUBTRACT CPP /Z<none> /Fr /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -51,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 Ice.lib IceUtil.lib /nologo /subsystem:console /pdb:none /machine:I386 /out:"server.exe" /libpath:"../../../lib" /FIXED:no
+# ADD LINK32 /nologo /subsystem:console /incremental:yes /machine:I386 /out:"server.exe" /libpath:"../../../lib"
 # SUBTRACT LINK32 /debug /nodefaultlib
 
 !ELSEIF  "$(CFG)" == "retryS - Win32 Debug"
@@ -68,8 +70,8 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /I "../../include" /D "_CONSOLE" /D "_DEBUG" /D "WIN32_LEAN_AND_MEAN" /FD /GZ /c
-# SUBTRACT CPP /Fr /YX
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /I "../../include" /D "_DEBUG" /D "WIN32_LEAN_AND_MEAN" /D "_CONSOLE" /Fr /FD /GZ /c
+# SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -77,8 +79,66 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 Iced.lib IceUtild.lib /nologo /subsystem:console /debug /machine:I386 /out:"server.exe" /pdbtype:sept /libpath:"../../../lib" /FIXED:no
+# ADD LINK32 /nologo /subsystem:console /debug /machine:I386 /out:"server.exe" /pdbtype:sept /libpath:"../../../../lib" /fixed:no
 # SUBTRACT LINK32 /pdb:none
+
+!ELSEIF  "$(CFG)" == "retryS - Win32 Debug Static"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 1
+# PROP BASE Output_Dir "retryS___Win32_Debug_Static"
+# PROP BASE Intermediate_Dir "retryS___Win32_Debug_Static"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 1
+# PROP Output_Dir "DebugStatic"
+# PROP Intermediate_Dir "DebugStatic"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /I "../../include" /D "_DEBUG" /D "_CONSOLE" /Fr /FD /GZ /c
+# SUBTRACT BASE CPP /YX
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /I "../../include" /D "_DEBUG" /D "ICEE_STATIC_LIBS" /D "WIN32_LEAN_AND_MEAN" /D "_CONSOLE" /Fr /FD /GZ /c
+# SUBTRACT CPP /YX
+# ADD BASE RSC /l 0x409 /d "_DEBUG"
+# ADD RSC /l 0x409 /d "_DEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 /nologo /subsystem:console /debug /machine:I386 /out:"server.exe" /pdbtype:sept /libpath:"../../../../lib"
+# SUBTRACT BASE LINK32 /incremental:no /nodefaultlib
+# ADD LINK32 ws2_32.lib rpcrt4.lib /nologo /subsystem:console /debug /machine:I386 /out:"server.exe" /pdbtype:sept /libpath:"../../../../lib" /fixed:no
+# SUBTRACT LINK32 /pdb:none
+
+!ELSEIF  "$(CFG)" == "retryS - Win32 Release Static"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "retryS___Win32_Release_Static"
+# PROP BASE Intermediate_Dir "retryS___Win32_Release_Static"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "ReleaseStatic"
+# PROP Intermediate_Dir "ReleaseStatic"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../../include" /I "../../include" /D "NDEBUG" /D "_CONSOLE" /FD /c
+# SUBTRACT BASE CPP /Fr /YX
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O1 /I "." /I "../../../include" /I "../../include" /D "NDEBUG" /D "ICEE_STATIC_LIBS" /D "WIN32_LEAN_AND_MEAN" /D "_CONSOLE" /FD /c
+# SUBTRACT CPP /Z<none> /Fr /YX
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 /nologo /subsystem:console /incremental:yes /machine:I386 /out:"server.exe" /libpath:"../../../lib"
+# SUBTRACT BASE LINK32 /debug /nodefaultlib
+# ADD LINK32 ws2_32.lib rpcrt4.lib /nologo /subsystem:console /machine:I386 /out:"server.exe" /libpath:"../../../lib"
+# SUBTRACT LINK32 /incremental:yes /debug /nodefaultlib
 
 !ENDIF 
 
@@ -86,6 +146,8 @@ LINK32=link.exe
 
 # Name "retryS - Win32 Release"
 # Name "retryS - Win32 Debug"
+# Name "retryS - Win32 Debug Static"
+# Name "retryS - Win32 Release Static"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -123,12 +185,11 @@ SOURCE=.\Test.ice
 
 !IF  "$(CFG)" == "retryS - Win32 Release"
 
-USERDEP__TEST_="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Test.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe Test.ice
+	slice2cppe.exe -I. Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -139,12 +200,41 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "retryS - Win32 Debug"
 
-USERDEP__TEST_="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Test.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe Test.ice
+	slice2cppe.exe -I. Test.ice
+
+"Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "retryS - Win32 Debug Static"
+
+# Begin Custom Build
+InputPath=.\Test.ice
+
+BuildCmds= \
+	slice2cppe.exe -I. Test.ice
+
+"Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "retryS - Win32 Release Static"
+
+# Begin Custom Build
+InputPath=.\Test.ice
+
+BuildCmds= \
+	slice2cppe.exe -I. Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)

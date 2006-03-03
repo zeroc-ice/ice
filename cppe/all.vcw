@@ -438,6 +438,42 @@ Package=<4>
 
 ###############################################################################
 
+Project: "retryC"=.\test\IceE\retry\retryC.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "retryS"=.\test\IceE\retry\retryS.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "sliceexC"=.\test\IceE\slicing\sliceexC.vcp - Package Owner=<4>
 
 Package=<5>
