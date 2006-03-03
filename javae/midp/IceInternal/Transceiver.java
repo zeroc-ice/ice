@@ -322,7 +322,7 @@ final public class Transceiver
 
 	if(_shutdown && buf.hasRemaining())
 	{
-	    throw new ConnectionCloseException();
+	    throw new Ice.ConnectionLostException();
 	}
     }
 
