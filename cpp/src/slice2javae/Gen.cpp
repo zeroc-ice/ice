@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <Gen.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/Algorithm.h>
