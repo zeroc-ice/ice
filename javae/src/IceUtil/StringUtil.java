@@ -197,7 +197,8 @@ public final class StringUtil
 	}
 	catch(java.io.IOException ex)
 	{
-	    return null; // XXX
+	    Debug.Assert(false);
+	    return null; // This should never happen 
 	}
 
         StringBuffer result = new StringBuffer(bytes.length);
