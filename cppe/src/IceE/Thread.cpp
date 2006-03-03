@@ -137,7 +137,7 @@ WINAPI startHook(void* arg)
     }
     catch(const IceUtil::Exception& e)
     {
-	fprintf(stderr, "IceUtil::Thread::run(): uncaught exception: %s\n", e.toString());
+	fprintf(stderr, "IceUtil::Thread::run(): uncaught exception: %s\n", e.toString().c_str());
     } 
     catch(...)
     {
@@ -361,7 +361,7 @@ startHook(void* arg)
     }
     catch(const IceUtil::Exception& e)
     {
-	fprintf(stderr, "IceUtil::Thread::run(): uncaught exception: %s\n", e.toString());
+	fprintf(stderr, "IceUtil::Thread::run(): uncaught exception: %s\n", e.toString().c_str());
     }
     catch(...)
     {
