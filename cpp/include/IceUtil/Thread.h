@@ -95,7 +95,7 @@ private:
     // with the default constructor. Only needed to enforce our
     // portable join/detach behavior.
     //
-    const bool _detachable;
+    bool _detachable;
 #endif
 };
 

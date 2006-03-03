@@ -140,6 +140,10 @@ WINAPI startHook(void* arg)
 	cerr << "IceUtil::Thread::run(): uncaught exception: ";
 	cerr << e << endl;
     } 
+    catch(...)
+    {
+	cerr << "IceUtil::Thread::run(): uncaught exception" << endl;
+    }
     thread->_done();
    
     return 0;
