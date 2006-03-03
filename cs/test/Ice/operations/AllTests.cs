@@ -71,7 +71,7 @@ public class AllTests
 		clTimeout.opSleep(1000);
 		test(false);
 	    }
-	    catch(Ice.TimeoutException ex)
+	    catch(Ice.TimeoutException)
 	    {
 	    }
 	    Console.Out.WriteLine("ok");

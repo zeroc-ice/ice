@@ -84,6 +84,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "BatchOneways.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Client.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
