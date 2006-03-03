@@ -189,17 +189,20 @@ IceProxy::Ice::Object::ice_isA(const string& __id, const Context& __context)
             {
                 if(!__ok)
                 {
-                    __stream->throwException();
+		    try
+		    {
+                        __stream->throwException();
+		    }
+		    catch(const ::Ice::UserException& __ex)
+		    {
+		        throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+		    }
                 }
                 __stream->read(__ret);
             }
-            catch(const ::Ice::UserException&)
-            {
-                throw ::Ice::UnknownUserException(__FILE__, __LINE__);
-            }
             catch(const ::Ice::LocalException& __ex)
             {
-                throw ::IceInternal::NonRepeatable(__ex);
+                throw ::IceInternal::LocalExceptionWrapper(__ex, false);
             }
 #if defined(_MSC_VER) && defined(_M_ARM) // ARM bug.
             catch(...)
@@ -209,9 +212,9 @@ IceProxy::Ice::Object::ice_isA(const string& __id, const Context& __context)
 #endif
             return __ret;
 	}
-	catch(const NonRepeatable& __ex)
+	catch(const LocalExceptionWrapper& __ex)
 	{
-	    __handleException(*__ex.get(), __cnt);
+	    __handleExceptionWrapperRelaxed(__ex, __cnt);
 	}
 	catch(const LocalException& __ex)
 	{
@@ -249,16 +252,19 @@ IceProxy::Ice::Object::ice_ping(const Context& __context)
                 BasicStream* __is = __og.stream();
                 if(!__ok)
                 {
-                    __is->throwException();
+		    try
+		    {
+                        __is->throwException();
+		    }
+		    catch(const ::Ice::UserException& __ex)
+		    {
+		        throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+		    }
                 }
-            }
-            catch(const ::Ice::UserException&)
-            {
-                throw ::Ice::UnknownUserException(__FILE__, __LINE__);
             }
             catch(const ::Ice::LocalException& __ex)
             {
-                throw ::IceInternal::NonRepeatable(__ex);
+                throw ::IceInternal::LocalExceptionWrapper(__ex, false);
             }
 #if defined(_MSC_VER) && defined(_M_ARM) // ARM bug.
             catch(...)
@@ -268,9 +274,9 @@ IceProxy::Ice::Object::ice_ping(const Context& __context)
 #endif
 	    return;
 	}
-	catch(const NonRepeatable& __ex)
+	catch(const LocalExceptionWrapper& __ex)
 	{
-	    __handleException(*__ex.get(), __cnt);
+	    __handleExceptionWrapperRelaxed(__ex, __cnt);
 	}
 	catch(const LocalException& __ex)
 	{
@@ -310,17 +316,20 @@ IceProxy::Ice::Object::ice_ids(const Context& __context)
                 BasicStream* __is = __og.stream();
                 if(!__ok)
                 {
-                    __is->throwException();
+		    try
+		    {
+                        __is->throwException();
+		    }
+		    catch(const ::Ice::UserException& __ex)
+		    {
+		        throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+		    }
                 }
                 __is->read(__ret);
             }
-            catch(const ::Ice::UserException&)
-            {
-                throw ::Ice::UnknownUserException(__FILE__, __LINE__);
-            }
             catch(const ::Ice::LocalException& __ex)
             {
-                throw ::IceInternal::NonRepeatable(__ex);
+                throw ::IceInternal::LocalExceptionWrapper(__ex, false);
             }
 #if defined(_MSC_VER) && defined(_M_ARM) // ARM bug.
             catch(...)
@@ -330,9 +339,9 @@ IceProxy::Ice::Object::ice_ids(const Context& __context)
 #endif
             return __ret;
 	}
-	catch(const NonRepeatable& __ex)
+	catch(const LocalExceptionWrapper& __ex)
 	{
-	    __handleException(*__ex.get(), __cnt);
+	    __handleExceptionWrapperRelaxed(__ex, __cnt);
 	}
 	catch(const LocalException& __ex)
 	{
@@ -372,17 +381,20 @@ IceProxy::Ice::Object::ice_id(const Context& __context)
                 BasicStream* __is = __og.stream();
                 if(!__ok)
                 {
-                    __is->throwException();
+		    try
+		    {
+                        __is->throwException();
+		    }
+		    catch(const ::Ice::UserException& __ex)
+		    {
+		        throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+		    }
                 }
                 __is->read(__ret);
             }
-            catch(const ::Ice::UserException&)
-            {
-                throw ::Ice::UnknownUserException(__FILE__, __LINE__);
-            }
             catch(const ::Ice::LocalException& __ex)
             {
-                throw ::IceInternal::NonRepeatable(__ex);
+                throw ::IceInternal::LocalExceptionWrapper(__ex, false);
             }
 #if defined(_MSC_VER) && defined(_M_ARM) // ARM bug.
             catch(...)
@@ -392,9 +404,9 @@ IceProxy::Ice::Object::ice_id(const Context& __context)
 #endif
             return __ret;
 	}
-	catch(const NonRepeatable& __ex)
+	catch(const LocalExceptionWrapper& __ex)
 	{
-	    __handleException(*__ex.get(), __cnt);
+	    __handleExceptionWrapperRelaxed(__ex, __cnt);
 	}
 	catch(const LocalException& __ex)
 	{
@@ -679,17 +691,31 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
 }
 
 void
-IceProxy::Ice::Object::__rethrowException(const LocalException& ex)
+IceProxy::Ice::Object::__handleExceptionWrapper(const LocalExceptionWrapper& ex)
 {
-    //
-    // Only _connection needs to be mutex protected here.
-    //
     {
-        ::IceUtil::Mutex::Lock sync(*this);
+        IceUtil::Mutex::Lock sync(*this);
         _connection = 0;
     }
 
-    ex.ice_throw();
+    if(!ex.retry())
+    {
+        ex.get()->ice_throw();
+    }
+}
+
+void
+IceProxy::Ice::Object::__handleExceptionWrapperRelaxed(const LocalExceptionWrapper& ex, int& cnt)
+{
+    if(!ex.retry())
+    {
+        __handleException(*ex.get(), cnt);
+    }
+    else
+    {
+        IceUtil::Mutex::Lock sync(*this);
+        _connection = 0;
+    }
 }
 
 void

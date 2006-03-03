@@ -23,6 +23,7 @@
         <ant dir="package"/>
 	<ant dir="slicing"/> 
 	<ant dir="translator"/> 
+	<ant dir="retry"/> 
     </target>
 
     <target name="clean">
@@ -37,6 +38,7 @@
         <ant dir="package" target="clean"/>
 	<ant dir="slicing" target="clean"/> 
 	<ant dir="translator" target="clean"/> 
+	<ant dir="retry" target="clean"/> 
     </target>
 
 </project>

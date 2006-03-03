@@ -109,6 +109,7 @@ public class FixedReference extends Reference
 	{
 	    IceUtil.Debug.Assert(connection != null);
 	}
+	connection.throwException();
 
 	return connection;
     }

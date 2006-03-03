@@ -19,21 +19,29 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::NonRepeatable::NonRepeatable(const NonRepeatable& ex)
-{
-    _ex.reset(dynamic_cast<LocalException*>(ex.get()->ice_clone()));
-}
-
-IceInternal::NonRepeatable::NonRepeatable(const ::Ice::LocalException& ex)
+IceInternal::LocalExceptionWrapper::LocalExceptionWrapper(const LocalException& ex, bool r) :
+    _retry(r)
 {
     _ex.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
 }
 
-const ::Ice::LocalException*
-IceInternal::NonRepeatable::get() const
+IceInternal::LocalExceptionWrapper::LocalExceptionWrapper(const LocalExceptionWrapper& ex) :
+    _retry(ex._retry)
+{
+    _ex.reset(dynamic_cast<LocalException*>(ex.get()->ice_clone()));
+}
+
+const LocalException*
+IceInternal::LocalExceptionWrapper::get() const
 {
     assert(_ex.get());
     return _ex.get();
+}
+
+bool
+IceInternal::LocalExceptionWrapper::retry() const
+{
+    return _retry;
 }
 
 IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const string& operation,
@@ -148,11 +156,11 @@ IceInternal::Outgoing::invoke()
 		}
 		
 		//
-		// Throw the exception wrapped in a NonRepeatable, to
+		// Throw the exception wrapped in a LocalExceptionWrapper, to
 		// indicate that the request cannot be resent without
 		// potentially violating the "at-most-once" principle.
 		//
-		throw NonRepeatable(*_exception.get());
+		throw LocalExceptionWrapper(*_exception.get(), false);
 	    }
 	    
 	    if(_state == StateUserException)
@@ -221,7 +229,7 @@ IceInternal::Outgoing::abort(const LocalException& ex)
 	// only the batch request that caused the problem will be
 	// aborted, but all other requests in the batch as well.
 	//
-	throw NonRepeatable(ex);
+	throw LocalExceptionWrapper(ex, false);
     }
 #endif
     

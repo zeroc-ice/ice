@@ -67,6 +67,8 @@ public:
     bool isDestroyed() const;
     bool isFinished() const;
 
+    void throwException() const; // Throws the connection exception if destroyed.
+
 #ifndef ICEE_PURE_CLIENT
     void waitUntilHolding() const;
 #endif

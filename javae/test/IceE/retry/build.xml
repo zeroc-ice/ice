@@ -1,0 +1,120 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice-E is licensed to you under the terms described in the
+ ICEE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+<project name="test_IceE_retry" default="all" basedir=".">
+
+    <!-- set global properties for this build -->
+    <property name="top.dir" value="../../.."/>
+
+    <!-- Include common definitions -->
+    <import file="${top.dir}/config/common.xml"/>
+
+    <target name="init" depends="config-init"/>
+
+    <target name="generate" depends="init">
+        <!-- Create the output directory for generated code -->
+        <mkdir dir="${generated.dir}"/>
+        <slice2javae outputdir="${generated.dir}">
+            <fileset dir="." includes="Test.ice"/>
+        </slice2javae>
+    </target>
+
+    <target name="compile" depends="generate">
+        <mkdir dir="${class.dir}"/>
+        <javac srcdir="${generated.dir}" destdir="${class.dir}" classpath="${jdk.lib.dir}/IceE.jar" debug="${debug}"
+	    target="1.1"/>
+        <javac srcdir="." destdir="${class.dir}" classpath="${jdk.lib.dir}/IceE.jar" excludes="generated/**"
+	    debug="${debug}" target="1.1"/>
+    </target>
+
+    <target name="midp-compile" depends="generate" if="midp">
+        <mkdir dir="${midp.class.dir}"/>
+        <javac srcdir="${generated.dir}" destdir="${midp.class.dir}" classpath="${midp.lib.dir}" debug="${debug}"
+	    target="1.1"/>
+        <javac srcdir="." destdir="${midp.class.dir}" classpath="${midp.lib.dir}" excludes="generated/**"
+	    debug="${debug}" target="1.1"/>
+    </target>
+
+    <property name="testname" value="Retry"/>
+
+    <target name="midlet-jar" depends="midp-compile" if="midp">
+	<ant dir="../common" inheritAll="false" target="compile"/>
+        <mkdir dir="tmp"/>
+	<manifest file="MANIFEST.MF">
+	    <attribute name="Microedition-Configuration" value="CLDC-1.1"/>
+	    <attribute name="MIDlet-Name" value="${testname}Test"/>
+            <attribute name="MIDlet-Vendor" value="ZeroC"/>
+	    <attribute name="MIDlet-Version" value="1.0"/>
+	    <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
+        </manifest>
+
+	<copy overwrite="true" file="config" todir="${midp.class.dir}"/>
+	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="${midp.class.dir}"/>
+	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="${midp.lib.dir}" update="true"/>
+	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="../common/midp" update="true"
+	    excludes="**/Client.class,**/Server.class,**/Collocated.class"/>
+    </target>
+
+    <target name="obfuscate" depends="midlet-jar" if="hasProguardAndMIDP">
+	<taskdef resource="proguard/ant/task.properties"/>
+	<move overwrite="true" file="tmp/${testname}.jar" tofile="tmp/${testname}_orig.jar"/>
+	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="on"
+	    allowaccessmodification="on" printseeds="on" usemixedcaseclassnames="off">
+	    <injar file="tmp/${testname}_orig.jar"/>
+	    <outjar file="tmp/${testname}.jar"/>
+	    <libraryjar refid="wtklibs"/>
+	    <keep access="public" extends="javax.microedition.midlet.MIDlet"/>
+	    <keepclasseswithmembernames>
+		<method access="native" />
+	    </keepclasseswithmembernames>
+	</proguard>
+    </target>
+
+    <target name="preverify" depends="obfuscate" if="midp">
+        <exec executable="${WTK}/bin/preverify">
+           <arg line="-classpath ${WTKLIBS}"/>
+            <arg line="-d ."/>
+	    <arg line="tmp/${testname}.jar"/>
+	</exec>
+    </target>
+
+    <!-- Write the descriptor files -->
+    <target name="midlet" depends="preverify" if="midp">
+	<length property="jarfile-length" file="${testname}.jar"/>
+	<jadfile file="${testname}.jad">
+	    <attribute name="MIDlet-Version" value="1.0"/>
+            <attribute name="MIDlet-Vendor" value="ZeroC"/>
+	    <attribute name="MIDlet-Jar-URL" value="${testname}.jar"/>
+	    <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
+	    <attribute name="MicroEdition-Configuration" value="CLDC-1.1"/>
+	    <attribute name="MIDlet-1" value="Client, , ClientWrapper"/>
+	    <attribute name="MIDlet-2" value="Collocated, , CollocatedWrapper"/>
+	    <attribute name="MIDlet-3" value="Server, , ServerWrapper"/>
+	    <attribute name="MIDlet-Jar-Size" value="${jarfile-length}"/>
+	    <attribute name="MIDlet-Name" value="${testname}Test"/>
+	    <attribute name="MIDlet-Permissions" 
+		value="javax.microedition.io.Connector.socket, javax.microedition.io.Connector.serversocket"/>
+        </jadfile>
+    </target>
+
+    <target name="all" depends="compile,midlet"/>
+
+    <target name="clean">
+        <delete dir="${generated.dir}"/>
+	<delete dir="${class.dir}"/>
+	<delete dir="${midp.class.dir}"/>
+	<delete dir="tmp"/>
+	<delete quiet="true" file="${testname}.jar"/>
+	<delete quiet="true" file="${testname}.jad"/>
+	<delete quiet="true" file="MANIFEST.MF"/>
+    </target>
+
+</project>

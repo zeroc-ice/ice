@@ -283,7 +283,7 @@ final public class Transceiver
 	byte[] data = buf.array();
 	int chunkSize = WRITE_CHUNK; 
 
-	while(buf.hasRemaining())
+	while(buf.hasRemaining() && !_shutdown)
 	{
 	    int pos = buf.position();
 	    try
@@ -318,6 +318,11 @@ final public class Transceiver
 		se.initCause(ex);
 		throw se;
 	    }
+	}
+
+	if(_shutdown && buf.hasRemaining())
+	{
+	    throw new ConnectionCloseException();
 	}
     }
 

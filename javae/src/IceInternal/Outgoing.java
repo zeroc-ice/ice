@@ -45,7 +45,7 @@ public final class Outgoing
     // Returns true if ok, false if user exception.
     public boolean
     invoke()
-        throws NonRepeatable
+        throws LocalExceptionWrapper
     {
 	if(IceUtil.Debug.ASSERT)
 	{
@@ -95,11 +95,11 @@ public final class Outgoing
                     }
 
                     //
-                    // Throw the exception wrapped in a NonRepeatable, to
+                    // Throw the exception wrapped in a LocalExceptionWrapper, to
                     // indicate that the request cannot be resent without
                     // potentially violating the "at-most-once" principle.
                     //
-                    throw new NonRepeatable(_exception);
+                    throw new LocalExceptionWrapper(_exception, false);
                 }
 
                 if(_state == StateUserException)
@@ -155,7 +155,7 @@ public final class Outgoing
 
     public void
     abort(Ice.LocalException ex)
-        throws NonRepeatable
+        throws LocalExceptionWrapper
     {
 	if(IceUtil.Debug.ASSERT)
 	{
@@ -178,7 +178,7 @@ public final class Outgoing
 	    // be aborted, but all other requests in the batch as
 	    // well.
 	    //
-	    throw new NonRepeatable(ex);
+            throw new LocalExceptionWrapper(ex, false);
 	}
 
 	throw ex;

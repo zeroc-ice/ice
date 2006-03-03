@@ -60,7 +60,8 @@ tests = [ \
     "IceE/location", \
     "IceE/adapterDeactivation", \
     "IceE/slicing", \
-    "IceE/package"
+    "IceE/package", \
+    "IceE/retry"
     ]
 
 def usage():

@@ -26,23 +26,33 @@ namespace IceInternal
 {
 
 //
-// An exception wrapper, which is used to indicate that an operation
-// that failed due to an exception is not repeatable if "at-most-once"
-// semantics must be guaranteed.
+// An exception wrapper, which is used for local exceptions that
+// require special retry considerations.
 //
-class ICE_API NonRepeatable
+class ICE_API LocalExceptionWrapper
 {
 public:
 
-    NonRepeatable(const NonRepeatable&);
-    NonRepeatable(const Ice::LocalException&);
+    LocalExceptionWrapper(const Ice::LocalException&, bool);
+    LocalExceptionWrapper(const LocalExceptionWrapper&);
+
     const Ice::LocalException* get() const;
+
+    //
+    // If true, always repeat the request. Don't take retry settings
+    // or "at-most-once" guarantees into account.
+    //
+    // If false, only repeat the request if the retry settings allow
+    // to do so, and if "at-most-once" does not need to be guaranteed.
+    //
+    bool retry() const;
 
 private:
 
-    const NonRepeatable& operator=(const NonRepeatable&);
+    const LocalExceptionWrapper& operator=(const LocalExceptionWrapper&);
 
     std::auto_ptr<Ice::LocalException> _ex;
+    bool _retry;
 };
 
 class ICE_API Outgoing : private IceUtil::noncopyable

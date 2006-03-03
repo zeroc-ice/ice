@@ -63,6 +63,7 @@ tests = [
     "IceE/adapterDeactivation", 
     "IceE/slicing", 
     "IceE/custom", 
+    "IceE/retry", 
     ]
 
 #

@@ -20,6 +20,7 @@ SUBDIRS		= operations \
 		  adapterDeactivation \
 		  slicing \
 		  custom \
+		  retry \
 		  thread \
 		  uuid
 

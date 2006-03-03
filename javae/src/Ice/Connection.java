@@ -150,6 +150,16 @@ public final class Connection
     }
 
     public synchronized void
+    throwException()
+    {
+        if(_exception != null)
+	{
+	    IceUtil.Debug.Assert(_state >= StateClosing);
+	    throw _exception;
+	}
+    }
+
+    public synchronized void
     waitUntilHolding()
     {
 	while(_state < StateHolding || _dispatchCount > 0)
@@ -290,6 +300,7 @@ public final class Connection
 
     public void
     sendRequest(IceInternal.BasicStream os, IceInternal.Outgoing out)
+        throws IceInternal.LocalExceptionWrapper
     {
 	boolean requestSent = false;
 	try
@@ -303,7 +314,7 @@ public final class Connection
 			IceUtil.Debug.Assert(_exception != null);
 
 		    }
-		    throw _exception;
+		    throw new IceInternal.LocalExceptionWrapper(_exception, true);
 		}
 
 		int requestId = 0;

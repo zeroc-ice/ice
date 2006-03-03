@@ -73,17 +73,20 @@ public class ObjectPrxHelperBase implements ObjectPrx
                         IceInternal.BasicStream __is = __og.stream();
                         if(!__ok)
                         {
-                            __is.throwException();
+			    try
+			    {
+                                __is.throwException();
+			    }
+			    catch(UserException __ex)
+			    {
+			        throw new Ice.UnknownUserException(__ex.ice_name());
+			    }
                         }
                         return __is.readBool();
                     }
-                    catch(UserException __ex)
-                    {
-                        throw new Ice.UnknownUserException(__ex.ice_name());
-                    }
                     catch(LocalException __ex)
                     {
-                        throw new IceInternal.NonRepeatable(__ex);
+                        throw new IceInternal.LocalExceptionWrapper(__ex, false);
                     }
                 }
                 finally
@@ -91,9 +94,9 @@ public class ObjectPrxHelperBase implements ObjectPrx
                     __connection.reclaimOutgoing(__og);
                 }
             }
-            catch(IceInternal.NonRepeatable __ex)
+            catch(IceInternal.LocalExceptionWrapper __ex)
             {
-                __cnt = __handleException(__ex.get(), __cnt);
+                __cnt = __handleExceptionWrapperRelaxed(__ex, __cnt);
             }
             catch(LocalException __ex)
             {
@@ -128,16 +131,19 @@ public class ObjectPrxHelperBase implements ObjectPrx
                         IceInternal.BasicStream __is = __og.stream();
                         if(!__ok)
                         {
-                            __is.throwException();
+			    try
+			    {
+                                __is.throwException();
+			    }
+			    catch(UserException __ex)
+			    {
+			        throw new Ice.UnknownUserException(__ex.ice_name());
+			    }
                         }
-                    }
-                    catch(UserException __ex)
-                    {
-                        throw new Ice.UnknownUserException(__ex.ice_name());
                     }
                     catch(LocalException __ex)
                     {
-                        throw new IceInternal.NonRepeatable(__ex);
+                        throw new IceInternal.LocalExceptionWrapper(__ex, false);
                     }
                 }
                 finally
@@ -146,9 +152,9 @@ public class ObjectPrxHelperBase implements ObjectPrx
                 }
                 return;
             }
-            catch(IceInternal.NonRepeatable __ex)
+            catch(IceInternal.LocalExceptionWrapper __ex)
             {
-                __cnt = __handleException(__ex.get(), __cnt);
+                __cnt = __handleExceptionWrapperRelaxed(__ex, __cnt);
             }
             catch(LocalException __ex)
             {
@@ -183,17 +189,20 @@ public class ObjectPrxHelperBase implements ObjectPrx
                         IceInternal.BasicStream __is = __og.stream();
                         if(!__ok)
                         {
+			    try
+			    {
                             __is.throwException();
+			    }
+			    catch(UserException __ex)
+			    {
+			        throw new Ice.UnknownUserException(__ex.ice_name());
+			    }
                         }
                         return __is.readStringSeq();
                     }
-                    catch(UserException __ex)
-                    {
-                        throw new Ice.UnknownUserException(__ex.ice_name());
-                    }
                     catch(LocalException __ex)
                     {
-                        throw new IceInternal.NonRepeatable(__ex);
+                        throw new IceInternal.LocalExceptionWrapper(__ex, false);
                     }
                 }
                 finally
@@ -201,9 +210,9 @@ public class ObjectPrxHelperBase implements ObjectPrx
                     __connection.reclaimOutgoing(__og);
                 }
             }
-            catch(IceInternal.NonRepeatable __ex)
+            catch(IceInternal.LocalExceptionWrapper __ex)
             {
-                __cnt = __handleException(__ex.get(), __cnt);
+                __cnt = __handleExceptionWrapperRelaxed(__ex, __cnt);
             }
             catch(LocalException __ex)
             {
@@ -238,17 +247,20 @@ public class ObjectPrxHelperBase implements ObjectPrx
                         IceInternal.BasicStream __is = __og.stream();
                         if(!__ok)
                         {
-                            __is.throwException();
+			    try
+			    {
+                                __is.throwException();
+			    }
+			    catch(UserException __ex)
+			    {
+			        throw new Ice.UnknownUserException(__ex.ice_name());
+			    }
                         }
                         return __is.readString();
                     }
-                    catch(UserException __ex)
-                    {
-                        throw new Ice.UnknownUserException(__ex.ice_name());
-                    }
                     catch(LocalException __ex)
                     {
-                        throw new IceInternal.NonRepeatable(__ex);
+                        throw new IceInternal.LocalExceptionWrapper(__ex, false);
                     }
                 }
                 finally
@@ -256,9 +268,9 @@ public class ObjectPrxHelperBase implements ObjectPrx
                     __connection.reclaimOutgoing(__og);
                 }
             }
-            catch(IceInternal.NonRepeatable __ex)
+            catch(IceInternal.LocalExceptionWrapper __ex)
             {
-                __cnt = __handleException(__ex.get(), __cnt);
+                __cnt = __handleExceptionWrapperRelaxed(__ex, __cnt);
             }
             catch(LocalException __ex)
             {
@@ -544,11 +556,35 @@ public class ObjectPrxHelperBase implements ObjectPrx
 	}
     }
 
-    public final synchronized void
-    __rethrowException(LocalException ex)
+    public final void
+    __handleExceptionWrapper(IceInternal.LocalExceptionWrapper ex)
     {
-        _connection = null;
-        throw ex;
+        synchronized(this)
+	{
+	    _connection = null;
+	}
+
+	if(!ex.retry())
+	{
+	    throw ex.get();
+	}
+    }
+
+    public final int
+    __handleExceptionWrapperRelaxed(IceInternal.LocalExceptionWrapper ex, int cnt)
+    {
+        if(!ex.retry())
+	{
+	    return __handleException(ex.get(), cnt);
+	}
+	else
+	{
+	    synchronized(this)
+	    {
+	        _connection = null;
+	    }
+	    return cnt;
+	}
     }
 
     public final void

@@ -387,9 +387,9 @@ void IceInternal::decRef(IceInternal::FixedReference* p) { p->__decRef(); }
 
 IceInternal::FixedReference::FixedReference(const InstancePtr& inst, const CommunicatorPtr& com, const Identity& ident,
 					    const Context& ctx, const string& fs, Mode md,
-					    const vector<ConnectionPtr>& fixedConns)
-    : Reference(inst, com, ident, ctx, fs, md, false),
-      _fixedConnections(fixedConns)
+					    const vector<ConnectionPtr>& fixedConns) :
+    Reference(inst, com, ident, ctx, fs, md, false),
+    _fixedConnections(fixedConns)
 {
 }
 
@@ -493,6 +493,7 @@ IceInternal::FixedReference::getConnection() const
 
     ConnectionPtr connection = randomCons[0];
     assert(connection);
+    connection->throwException(); // Throw in case our connection is already destroyed.
 
     return connection;
 }
@@ -546,9 +547,9 @@ IceInternal::FixedReference::clone() const
     return new FixedReference(*this);
 }
 
-IceInternal::FixedReference::FixedReference(const FixedReference& r)
-    : Reference(r),
-      _fixedConnections(r._fixedConnections)
+IceInternal::FixedReference::FixedReference(const FixedReference& r) :
+    Reference(r),
+    _fixedConnections(r._fixedConnections)
 {
 }
 
@@ -635,13 +636,13 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
 
 IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const CommunicatorPtr& com,
 						  const Identity& ident, const Context& ctx, const string& fs,
-						  Mode md, bool sec, const RouterInfoPtr& rtrInfo)
-    : Reference(inst, com, ident, ctx, fs, md, sec), _routerInfo(rtrInfo)
+						  Mode md, bool sec, const RouterInfoPtr& rtrInfo) :
+    Reference(inst, com, ident, ctx, fs, md, sec), _routerInfo(rtrInfo)
 {
 }
 
-IceInternal::RoutableReference::RoutableReference(const RoutableReference& r)
-    : Reference(r), _routerInfo(r._routerInfo)
+IceInternal::RoutableReference::RoutableReference(const RoutableReference& r) :
+    Reference(r), _routerInfo(r._routerInfo)
 {
 }
 #endif
@@ -853,8 +854,8 @@ IceInternal::DirectReference::clone() const
     return new DirectReference(*this);
 }
 
-IceInternal::DirectReference::DirectReference(const DirectReference& r)
-    : Parent(r), _endpoints(r._endpoints)
+IceInternal::DirectReference::DirectReference(const DirectReference& r) :
+    Parent(r), _endpoints(r._endpoints)
 {
 }
 
@@ -1063,7 +1064,8 @@ IceInternal::IndirectReference::hash() const
 #else
     Reference::hash(); // Initializes _hashValue.
 #endif
-    for(string::const_iterator p = _adapterId.begin(); p != _adapterId.end(); ++p) // Add hash of adapter ID to base hash.
+    // Add hash of adapter ID to base hash
+    for(string::const_iterator p = _adapterId.begin(); p != _adapterId.end(); ++p)
     {
         _hashValue = 5 * _hashValue + *p;
     }

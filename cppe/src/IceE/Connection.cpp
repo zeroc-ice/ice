@@ -198,6 +198,18 @@ Ice::Connection::isFinished() const
     return true;
 }
 
+void
+Ice::Connection::throwException() const
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+    if(_exception.get())
+    {
+        assert(_state >= StateClosing);
+        _exception->ice_throw();
+    }
+}
+
 #ifndef ICEE_PURE_CLIENT
 
 void
@@ -303,7 +315,12 @@ Ice::Connection::sendRequest(BasicStream* os, Outgoing* out)
 	if(!_transceiver)
 	{
 	    assert(_exception.get());
-	    _exception->ice_throw();
+	    //
+	    // If the connection is closed before we even have a chance
+	    // to send our request, we always try to send the request
+	    // again.
+	    //
+	    throw LocalExceptionWrapper(*_exception.get(), true);
 	}
 
 	Int requestId;
