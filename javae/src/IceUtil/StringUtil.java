@@ -178,16 +178,27 @@ public final class StringUtil
 	    }
 	}
 
-        byte[] bytes = null;
-        try
-        {
-            bytes = s.getBytes("UTF8");
-        }
-        catch(java.io.UnsupportedEncodingException ex)
-        {
-            Debug.Assert(false);
-            return null;
-        }
+	byte[] bytes = null;
+
+	//
+	// Normally a simple call to the getBytes() specifying the UTF8
+	// encoding is all that is needed here. It appears that the Nokia
+	// emulators and possibly some of the Nokia phones don't accept
+	// encoding arguments to string operations.  This allows us to
+	// get a create a byte representation of a UTF encoded string in
+	// a roundabout way.
+	//
+	try
+	{
+	    java.io.ByteArrayOutputStream bs = new java.io.ByteArrayOutputStream();
+	    java.io.DataOutputStream os = new java.io.DataOutputStream(bs);
+	    os.writeUTF(s);
+	    bytes = bs.toByteArray();
+	}
+	catch(java.io.IOException ex)
+	{
+	    return null; // XXX
+	}
 
         StringBuffer result = new StringBuffer(bytes.length);
         for(int i = 0; i < bytes.length; i++)
@@ -348,13 +359,26 @@ public final class StringUtil
 	    decodeString(s, start, end, sb);
 	    String decodedString = sb.toString();
 
-	    byte[] arr = new byte[decodedString.length()];
-	    for(int i = 0; i < arr.length; ++i)
+	    byte[] arr = new byte[decodedString.length() + 2];
+	    for(int i = 2; i < arr.length; ++i)
 	    {
-	        arr[i] = (byte)decodedString.charAt(i);
+	        arr[i] = (byte)decodedString.charAt(i-2);
 	    }
 
-	    result.value = new String(arr, 0, arr.length, "UTF8");
+	    //
+	    // Normally a simple call to the String constructor with the
+	    // byte array and the UTF8 encoding is all that is needed
+	    // here. It appears that the Nokia emulators and possibly
+	    // some of the Nokia phones don't accept encoding arguments
+	    // to string operations. This allows us to get a UTF encoded
+	    // string from our byte array in a somewhat roundabout way.
+	    //
+	    short i = new Integer(decodedString.length()).shortValue();
+	    arr[0] = (byte)(i & 0xff00);
+	    arr[1] = (byte)(i & 0x00ff);
+	    java.io.ByteArrayInputStream bs = new java.io.ByteArrayInputStream(arr);
+	    java.io.DataInputStream is = new java.io.DataInputStream(bs);
+	    result.value = is.readUTF();
 	    return true;
 	}
 	catch(java.lang.Exception ex)
