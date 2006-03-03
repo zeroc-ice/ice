@@ -60,7 +60,7 @@
 	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="${midp.class.dir}"/>
 	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="${midp.lib.dir}" update="true"/>
 	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="../common/midp" update="true"
-	    excludes="**/Client.class,**/Server.class,**/Collocated.class"/>
+	    excludes="**/Client.class,**/Server.class"/>
     </target>
 
     <target name="obfuscate" depends="midlet-jar" if="hasProguardAndMIDP">
