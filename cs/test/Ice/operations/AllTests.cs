@@ -60,6 +60,22 @@ public class AllTests
 	Ice.Context c2 = tccp.getContext();
 	test(c.Equals(c2));
 	Console.Out.WriteLine("ok");
+
+	if(!collocated)
+	{
+	    Console.Out.Write("testing timeout... ");
+	    Console.Out.Flush();
+	    try
+	    {
+		Test.MyClassPrx clTimeout = Test.MyClassPrxHelper.uncheckedCast(cl.ice_timeout(500));
+		clTimeout.opSleep(1000);
+		test(false);
+	    }
+	    catch(Ice.TimeoutException ex)
+	    {
+	    }
+	    Console.Out.WriteLine("ok");
+	}
 	
 	Console.Out.Write("testing twoway operations... ");
 	Console.Out.Flush();
@@ -68,12 +84,18 @@ public class AllTests
 	derivedProxy.opDerived();
 	Console.Out.WriteLine("ok");
 	
-	if (!collocated)
+	if(!collocated)
 	{
 	    Console.Out.Write("testing twoway operations with AMI... ");
 	    Console.Out.Flush();
 	    TwowaysAMI.twowaysAMI(communicator, cl);
 	    TwowaysAMI.twowaysAMI(communicator, derivedProxy);
+	    Console.Out.WriteLine("ok");
+
+	    Console.Out.Write("testing batch oneway operations... ");
+	    Console.Out.Flush();
+	    BatchOneways.batchOneways(cl);
+	    BatchOneways.batchOneways(derivedProxy);
 	    Console.Out.WriteLine("ok");
 	}
 	

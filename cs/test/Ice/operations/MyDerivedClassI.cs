@@ -11,6 +11,14 @@ using System;
 
 public sealed class MyDerivedClassI : Test.MyDerivedClass
 {
+    private static void test(bool b)
+    {
+	if (!b)
+	{
+	    throw new Exception();
+	}
+    }
+
     public MyDerivedClassI(Ice.ObjectAdapter adapter, Ice.Identity identity)
     {
 	_adapter = adapter;
@@ -26,6 +34,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
     {
     }
     
+    public override void opSleep(int duration, Ice.Current current)
+    {
+	System.Threading.Thread.Sleep(duration);
+    }
+
     public override bool opBool(bool p1, bool p2, out bool p3, Ice.Current current)
     {
 	p3 = p1;
@@ -244,11 +257,25 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
 	return r;
     }
     
+    public override void opByteSOneway(Test.ByteS s, Ice.Current current)
+    {
+    }
+
     public override Ice.Context opContext(Ice.Current current)
     {
 	return current.ctx == null ? new Ice.Context() : (Ice.Context)current.ctx.Clone();
     }
     
+    public override void opDoubleMarshaling(double p1, Test.DoubleS p2, Ice.Current current)
+    {
+	double d = 1278312346.0 / 13.0;
+	test(p1 == d);
+	for(int i = 0; i < p2.Count; ++i)
+	{
+	    test(p2[i] == d);
+	}
+    }
+
     public override Test.StringS opStringS(Test.StringS p1, Test.StringS p2, out Test.StringS p3, Ice.Current current)
     {
 	p3 = new Test.StringS();

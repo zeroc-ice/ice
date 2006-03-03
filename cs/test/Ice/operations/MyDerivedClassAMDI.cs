@@ -12,6 +12,14 @@ using System.Threading;
 
 public sealed class MyDerivedClassI : Test.MyDerivedClass
 {
+    private static void test(bool b)
+    {
+	if (!b)
+	{
+	    throw new Exception();
+	}
+    }
+
     internal class Thread_opVoid
     {
         public Thread_opVoid(Test.AMD_MyClass_opVoid cb)
@@ -75,6 +83,12 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         _opVoidThread.Start();
     }
     
+    public override void opSleep_async(Test.AMD_MyClass_opSleep cb, int duration, Ice.Current current)
+    {
+	System.Threading.Thread.Sleep(duration);
+	cb.ice_response();
+    }
+
     public override void opBool_async(Test.AMD_MyClass_opBool cb, bool p1, bool p2, Ice.Current current)
     {
         cb.ice_response(p2, p1);
@@ -282,6 +296,23 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         cb.ice_response(current.ctx);
     }
     
+    public override void opByteSOneway_async(Test.AMD_MyClass_opByteSOneway cb, Test.ByteS s, Ice.Current current)
+    {
+	cb.ice_response();
+    }
+
+    public override void opDoubleMarshaling_async(Test.AMD_MyClass_opDoubleMarshaling cb, double p1, Test.DoubleS p2, 
+					          Ice.Current current)
+    {
+	double d = 1278312346.0 / 13.0;
+	test(p1 == d);
+	for(int i = 0; i < p2.Count; ++i)
+	{
+	    test(p2[i] == d);
+	}
+	cb.ice_response();
+    }
+
     public override void opStringS_async(Test.AMD_MyClass_opStringS cb, Test.StringS p1, Test.StringS p2, Ice.Current current)
     {
         Test.StringS p3 = new Test.StringS();
