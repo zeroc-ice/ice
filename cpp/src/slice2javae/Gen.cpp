@@ -151,25 +151,6 @@ Slice::JavaVisitor::writeThrowsClause(const string& package, const ExceptionList
 }
 
 void
-Slice::JavaVisitor::writeDelegateThrowsClause(const string& package, const ExceptionList& throws)
-{
-    Output& out = output();
-    out.inc();
-    out << nl << "throws ";
-    out.useCurrentPosAsIndent();
-    out << "IceInternal.NonRepeatable";
-
-    ExceptionList::const_iterator r;
-    for(r = throws.begin(); r != throws.end(); ++r)
-    {
-	out << "," << nl;
-	out << getAbsolute(*r, package);
-    }
-    out.restoreIndent();
-    out.dec();
-}
-
-void
 Slice::JavaVisitor::writeHashCode(Output& out, const TypePtr& type, const string& name, int& iter)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -2275,7 +2256,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
         out << nl << "catch(Ice.LocalException __ex)";
         out << sb;
-        out << nl << "throw new IceInternal.NonRepeatable(__ex);";
+        out << nl << "throw new IceInternal.LocalExceptionWrapper(__ex, false);";
         out << eb;
         out << eb;
         out << nl << "finally";
@@ -2287,15 +2268,15 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << nl << "return ;";
 	}
         out << eb;
-        out << nl << "catch(IceInternal.NonRepeatable __ex)";
+        out << nl << "catch(IceInternal.LocalExceptionWrapper __ex)";
         out << sb;
         if(op->mode() == Operation::Idempotent || op->mode() == Operation::Nonmutating)
         {
-            out << nl << "__cnt = __handleException(__ex.get(), __cnt);";
+            out << nl << "__cnt = __handleExceptionWrapperRelaxed(__ex, __cnt);";
         }
         else
         {
-            out << nl << "__rethrowException(__ex.get());";
+            out << nl << "__handleExceptionWrapper(__ex);";
         }
         out << eb;
         out << nl << "catch(Ice.LocalException __ex)";

@@ -57,12 +57,6 @@ protected:
     void writeThrowsClause(const std::string&, const ExceptionList&);
 
     //
-    // Generate a throws clause for delegate operations containing only
-    // non-local exceptions.
-    //
-    void writeDelegateThrowsClause(const std::string&, const ExceptionList&);
-
-    //
     // Generate code to compute a hash code for a type.
     //
     void writeHashCode(::IceUtil::Output&, const TypePtr&, const std::string&, int&);
