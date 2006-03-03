@@ -179,7 +179,7 @@ public:
 	    while(p != threads.end())
 	    {
 		ThreadControl control = (*p)->getThreadControl();
-		if(!control.isAlive())
+		if(!(*p)->isAlive())
 		{
 		    control.join();
 		    p = threads.erase(p);
