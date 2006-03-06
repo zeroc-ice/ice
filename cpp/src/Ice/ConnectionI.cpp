@@ -498,7 +498,7 @@ Ice::ConnectionI::sendRequest(BasicStream* os, Outgoing* out, bool compress)
 	if(_exception.get())
 	{
 	    //
-	    // If the exception is closed before we even have a chance
+	    // If the connection is closed before we even have a chance
 	    // to send our request, we always try to send the request
 	    // again.
 	    //
