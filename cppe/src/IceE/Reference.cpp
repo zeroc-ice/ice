@@ -18,7 +18,6 @@
 #ifdef ICEE_HAS_ROUTER
 #   include <IceE/RouterInfo.h>
 #   include <IceE/Router.h>
-#   include <IceE/Connection.h>
 #endif
 
 #ifdef ICEE_HAS_LOCATOR
@@ -26,6 +25,7 @@
 #   include <IceE/Locator.h>
 #endif
 
+#include <IceE/Connection.h>
 #include <IceE/Functional.h>
 #include <IceE/OutgoingConnectionFactory.h>
 #include <IceE/LoggerUtil.h>
