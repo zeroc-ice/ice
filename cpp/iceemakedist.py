@@ -359,6 +359,12 @@ makeRulesName = os.path.join("ice", "config", "Make.rules")
 fixMakeRules(makeRulesName)
 
 #
+# Get Ice-E version.
+#
+config = open(os.path.join("icee", "include", "IceE", "Config.h"), "r")
+version = re.search("ICEE_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
+
+#
 # Enable STATICLIBS and OPTIMIZE in config/Make.rules.
 #
 makeRules = open(makeRulesName, "r")
@@ -369,6 +375,8 @@ for i in range(len(lines)):
 	lines[i] = lines[i].replace("#STATICLIBS", "STATICLIBS")
     if lines[i].find("#OPTIMIZE") == 0:
 	lines[i] = lines[i].replace("#OPTIMIZE", "OPTIMIZE")
+    if lines[i].find("prefix") == 0:
+	lines[i] = lines[i].replace("Ice-$(VERSION)", "IceE-" + version)
 makeRules = open(makeRulesName, "w")
 makeRules.writelines(lines)
 makeRules.close()
@@ -406,11 +414,8 @@ for makeFileName in [os.path.join("ice", "src", "IceUtil", "Makefile"), \
     makeFile.close()
 
 #
-# Get Ice-E version.
+# Fix versions in READE and INSTALL files.
 #
-config = open(os.path.join("icee", "include", "IceE", "Config.h"), "r")
-version = re.search("ICEE_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
-
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("ice", "README*"), version)
 fixVersion(find("ice", "INSTALL*"), version)
