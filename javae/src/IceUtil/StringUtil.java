@@ -202,11 +202,15 @@ public final class StringUtil
 	}
 
         StringBuffer result = new StringBuffer(bytes.length);
-        for(int i = 0; i < bytes.length; i++)
+
+	//
+	// The characters in the byte array created by the
+	// DataOutput.writeUTF() call start on the third byte.
+	//
+        for(int i = 2; i < bytes.length; i++)
         {
             encodeChar(bytes[i], result, special);
         }
-
         return result.toString();
     }
 
