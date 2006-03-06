@@ -67,7 +67,7 @@ Slice::JavaEOutput::printHeader()
     static const char* header =
 "// **********************************************************************\n"
 "//\n"
-"// Copyright (c) 2005 ZeroC, Inc. All rights reserved.\n"
+"// Copyright (c) 2005-2006 ZeroC, Inc. All rights reserved.\n"
 "//\n"
 "// This copy of Ice-E is licensed to you under the terms described in the\n"
 "// ICEE_LICENSE file included in this distribution.\n"
