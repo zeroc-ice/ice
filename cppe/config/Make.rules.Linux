@@ -33,6 +33,17 @@ ifeq ($(CXX),g++)
    CXX			= c++
 endif
 
+
+ifeq ($(MACHINE),x86_64)
+   #
+   # Default build on x86_64 is 64-bit.
+   #
+   ifeq ($(LP64),)
+      LP64      = yes
+   endif
+endif
+
+
 ifeq ($(CXX),c++)
 
    ifeq ($(MACHINE),sparc64)

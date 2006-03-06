@@ -12,7 +12,7 @@
 # if it does not exist.
 #
 
-prefix			= /opt/IceE-$(VERSION)
+prefix			= /home/bernard/tmp/opt/IceE-$(VERSION)
 
 #
 # Define OPTIMIZE_SIZE as yes if you want to build with minimal size.
@@ -32,8 +32,8 @@ prefix			= /opt/IceE-$(VERSION)
 #STATICLIBS		= yes
 
 #
-# Define LP64 as yes if you want to build in 64-bit mode on a platform
-# that supports both 32 and 64 bit.
+# Define LP64 as yes or no if you want force a 32 or 64 bit. The default
+# is platform-dependent
 #
 #LP64			:= yes
 
@@ -65,13 +65,7 @@ libdir			= $(top_srcdir)/lib
 includedir		= $(top_srcdir)/include
 slicedir		= $(top_srcdir)/slice
 
-ifeq ($(LP64),yes)
-    install_bindir	= $(prefix)/bin$(lp64suffix)
-    install_libdir	= $(prefix)/lib$(lp64suffix)
-else
-    install_bindir	= $(prefix)/bin
-    install_libdir	= $(prefix)/lib
-endif
+install_bindir	        = $(prefix)/bin
 
 install_includedir	= $(prefix)/include
 install_slicedir	= $(prefix)/slice
@@ -98,8 +92,10 @@ endif
 include	 $(top_srcdir)/config/Make.rules.$(UNAME)
 
 ifeq ($(LP64),yes)
+    install_libdir	  := $(prefix)/lib$(lp64suffix)
     libsubdir		  := lib$(lp64suffix)
 else
+    install_libdir	  := $(prefix)/lib
     libsubdir		  := lib
 endif
 
