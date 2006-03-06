@@ -12,7 +12,7 @@
 # if it does not exist.
 #
 
-prefix			= /home/bernard/tmp/opt/IceE-$(VERSION)
+prefix			= /opt/IceE-$(VERSION)
 
 #
 # Define OPTIMIZE_SIZE as yes if you want to build with minimal size.
