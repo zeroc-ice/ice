@@ -9,24 +9,28 @@ def usage():
     print "Usage: " + sys.argv[0] + " [options] [path]"
     print
     print "Options:"
+    print "-e    Fix version for Ice-E instead of Ice."
     print "-h    Show this message."
     print
 
 #
 # Returns the new copyright
 #
-def copyright(commentMark):
+def copyright(commentMark, patchIceE):
     result = [ ]
     result.append(commentMark + " **********************************************************************\n")
     result.append(commentMark + "\n")
     result.append(commentMark + " Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.\n")
     result.append(commentMark + "\n")
-    result.append(commentMark + " This copy of Ice is licensed to you under the terms described in the\n")
-    result.append(commentMark + " ICE_LICENSE file included in this distribution.\n")
+    if patchIceE == True:
+        result.append(commentMark + " This copy of Ice-E is licensed to you under the terms described in the\n")
+        result.append(commentMark + " ICEE_LICENSE file included in this distribution.\n")
+    else:
+        result.append(commentMark + " This copy of Ice is licensed to you under the terms described in the\n")
+        result.append(commentMark + " ICE_LICENSE file included in this distribution.\n")
     result.append(commentMark + "\n")
     result.append(commentMark + " **********************************************************************\n")
     return result
-
 
 #
 # Replace one copyright
@@ -130,18 +134,18 @@ def replaceCopyright(file, commentMark, commentBegin, commentEnd, newCopyrightLi
 #
 # Replace alls copyrights
 #
-def replaceAllCopyrights(path):
+def replaceAllCopyrights(path, patchIceE):
 
-    cppCopyright = copyright("//")
-    mcCopyright = copyright("; //")
-    makefileCopyright = copyright("#")
-    vbCopyright = copyright("'")
+    cppCopyright = copyright("//", patchIceE)
+    mcCopyright = copyright("; //", patchIceE)
+    makefileCopyright = copyright("#", patchIceE)
+    vbCopyright = copyright("'", patchIceE)
     pythonCopyright = []
     pythonCopyright.append("#!/usr/bin/env python\n");
     pythonCopyright.extend(makefileCopyright)
     xmlCopyright = []
     xmlCopyright.append("<!--\n");
-    xmlCopyright.extend(copyright(""))
+    xmlCopyright.extend(copyright("", patchIceE))
     xmlCopyright.append("-->\n");
     
     files = os.listdir(path)
@@ -150,7 +154,7 @@ def replaceAllCopyrights(path):
         if x == "CVS":
             print "Skipping CVS directory"
         elif os.path.isdir(fullpath) and not os.path.islink(fullpath):
-            replaceAllCopyrights(fullpath)
+            replaceAllCopyrights(fullpath, patchIceE)
         else:
             
             commentMark = ""
@@ -196,12 +200,16 @@ def replaceAllCopyrights(path):
 # Main
 #
 
+patchIceE = False
 path = "."
 
 for x in sys.argv[1:]:
     if x == "-h":
         usage()
         sys.exit(0)
+    elif x == "-e":
+        patchIceE = True
+	path = "../icee"
     elif x.startswith("-"):
         print sys.argv[0] + ": unknown option `" + x + "'"
         print
@@ -210,4 +218,4 @@ for x in sys.argv[1:]:
     else:
         path = x
  
-replaceAllCopyrights(path)
+replaceAllCopyrights(path, patchIceE)
