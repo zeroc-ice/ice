@@ -21,9 +21,9 @@ sections below.
 Concurrency Models
 ------------------
 
-Ice-E supports only the thread-per-connection concurrency model; the
-thread pool concurrency model is not supported. Applications that
-make nested callbacks must be aware of the following limitations of
+Ice-E supports only the thread-per-connection server-side concurrency
+model; the thread pool concurrency model is not supported. Applications
+that make nested callbacks must be aware of the following limitations of
 the thread-per-connection model:
 
 * For bidirectional connections, the nested callback must be a oneway
@@ -33,6 +33,12 @@ the thread-per-connection model:
   be a twoway invocation.
 
 * Only one level of nested callbacks is allowed.
+
+For the client-side, IceE supports a blocking concurrency model as well
+as the thread-per-connection model, which can provide better performance
+results. The Ice.Blocking configuration property is used to enable the
+blocking model. In addition to the limitations of the thread-per-connection
+model, the blocking model also disallows the use of bidirectional connections.
 
 Transports
 ----------
