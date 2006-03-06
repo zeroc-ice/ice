@@ -638,8 +638,9 @@ class Twoways
 		test(!p2.opContext().isEmpty());
 
 		communicator.setDefaultContext(dflt);
-		Test.MyClassPrx c = Test.MyClassPrxHelper.checkedCast(
-					communicator.stringToProxy("test:default -p 12010 -t 10000"));
+		String ref = communicator.getProperties().getPropertyWithDefault("Test.Proxy", 
+		    "test:default -p 12010 -t 10000");
+		Test.MyClassPrx c = Test.MyClassPrxHelper.checkedCast(communicator.stringToProxy(ref));
 		test(IceUtil.Hashtable.equals(c.opContext(), dflt)); 
 
 		dflt.put("a", "c");
