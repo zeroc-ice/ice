@@ -12,7 +12,7 @@ A recent Linux distribution for x86 or x86_64.
 C++ compiler
 ------------
 
-- GCC 3.2, 3.3, 3.4, 4.0.1
+- GCC 3.2, 3.3, 3.4, or 4.0.1 or later
 
 
 Slice-to-Embedded-C++ translator
