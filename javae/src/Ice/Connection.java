@@ -1720,14 +1720,14 @@ public final class Connection
     public void
     warning(String msg, Exception ex)
     {
-        String s = msg + ":\n" + ex.toString() + _desc;
+        String s = msg + ":\n" + ex.toString() + "\n" + _desc;
         _logger.warning(s);
     }
 
     public void
     error(String msg, Exception ex)
     {
-        String s = msg + ":\n" + _desc + ex.toString();
+        String s = msg + ":\n" + ex.toString() + "\n" + _desc;
         _logger.error(s);
     }
 
