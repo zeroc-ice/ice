@@ -6,15 +6,13 @@ Requirements
 Operating System
 ----------------
 
-A recent Linux distribution for x86 or x86-64.
+A recent Linux distribution for x86 or x86_64.
 
 
 C++ compiler
 ------------
 
-- GCC 3.2, 3.3, 3.4, 4.0.1; or
-
-- Intel C++ 8.1
+- GCC 3.2, 3.3, 3.4, or 4.0.1 or later
 
 
 ======================================================================
@@ -50,17 +48,14 @@ Ice-E.
 
 
 ======================================================================
-64 bit builds on x86-64
+32 bit builds on x86_64
 ======================================================================
 
-To build the Ice-E translators in 64 bit mode, you need to do the
-following:
+By default, builds on x86_64 are 64-bit. To perform a 32-bit build on
+a x86_64 Linux system, set the environment variable LP64 to no, as
+shown below:
 
-- Set the environment variable LP64 to yes, as shown below:
-
-  $ export LP64=yes
-
-- Build as described above (with gcc).
+  $ export LP64=no
 
 
 ======================================================================
@@ -74,6 +69,5 @@ After installation, make sure that the <prefix>/bin directory is in
 your PATH, and the <prefix>/lib directory is in your
 LD_LIBRARY_PATH (if you built dynamic libraries). 
 
-If LP64 is set to yes, the libraries are installed in <prefix>/lib64
-and the programs are installed in <prefix>/bin64. No other changes are
-necessary.
+On a x86_64 system, the libraries are installed in <prefix>/lib64
+unless LP64 is set to no. No other changes are necessary.
