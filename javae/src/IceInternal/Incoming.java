@@ -427,9 +427,9 @@ final public class Incoming
 	_os.instance().logger().warning(sb.toString());
     }
 
-    final private BasicStream _os;
-    final private BasicStream _is;
-    final private Ice.Connection _connection;
+    final private BasicStream _os = null;
+    final private BasicStream _is = null;
+    final private Ice.Connection _connection = null;
     private Ice.ObjectAdapter _adapter;
     private ServantManager _servantManager;
     private Ice.Current _current;
