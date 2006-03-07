@@ -24,7 +24,8 @@ public class Client
 
         try
         {
-            Ice.Properties properties = Ice.Util.createProperties(args);
+	    Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
+            Ice.Properties properties = Ice.Util.createProperties(argsH);
 	    properties.setProperty("Ice.Default.Locator", "locator:default -p 12010");
 
 	    if(properties.getPropertyAsInt("Ice.Blocking") > 0)
@@ -33,8 +34,8 @@ public class Client
 		properties.setProperty("Ice.Warn.Connections", "0");
 	    }
 
-            communicator = Ice.Util.initializeWithProperties(args, properties);
-            status = run(args, communicator, System.out);
+            communicator = Ice.Util.initializeWithProperties(argsH, properties);
+            status = run(argsH.value, communicator, System.out);
         }
         catch (Ice.LocalException ex)
         {
