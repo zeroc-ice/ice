@@ -134,11 +134,11 @@ The network trace level:
 </row>
 <row>
 <entry>1</entry>
-<entry>Trace connection establishment and closure.</entry>
+<entry>Trace successful connection establishment and closure.</entry>
 </row>
 <row>
 <entry>2</entry>
-<entry>Like 1, but more detailed.</entry>
+<entry>Like 1, but also traces attempts to bind, connect, and disconnect sockets.</entry>
 </row>
 <row>
 <entry>3</entry>
