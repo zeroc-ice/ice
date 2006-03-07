@@ -58,9 +58,9 @@ Compilation
 Using your favorite Zip tool, unzip the Ice-E translator archive
 anywhere you like, then start the Microsoft Visual C++ IDE.
 
-Open the "icee.dsw" workspace.  If you are using Visual C++ .NET 2003
-or Visual C++ 2005, then the project files must first be converted
-from Visual C++ 6.0 to the new solution and project file format.
+Open the "icee.dsw" workspace. If you are using Visual C++ .NET 2003
+or Visual C++ 2005, you must first convert the project files from
+Visual C++ 6.0 to the new solution and project file format.
 
 Set your active project to "icee" to build all of the Ice-E
 translator executables. Four build configurations are supported:
