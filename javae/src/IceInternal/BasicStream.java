@@ -44,6 +44,8 @@ public class BasicStream
 	    //
 	    // If twice the size of the stream is less than the capacity
 	    // for more than two consecutive times, we shrink the buffer.
+	    // This is to avoid holding on too much memory if it's not 
+	    // needed anymore.
 	    //
 	    if(++_shrinkCounter > 2)
 	    {
