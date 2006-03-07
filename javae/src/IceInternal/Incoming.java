@@ -427,9 +427,13 @@ final public class Incoming
 	_os.instance().logger().warning(sb.toString());
     }
 
-    final private BasicStream _os = null;
-    final private BasicStream _is = null;
-    final private Ice.Connection _connection = null;
+    //
+    // These were private but javac 1.1.8 complains.
+    //
+    private BasicStream _os;
+    private BasicStream _is;
+    private Ice.Connection _connection;
+
     private Ice.ObjectAdapter _adapter;
     private ServantManager _servantManager;
     private Ice.Current _current;
