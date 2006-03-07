@@ -353,23 +353,6 @@ default value is 1.
 </section>
 </section>
 
-<section><title>Ice.Warn.Leaks</title>
-<section><title>Synopsis</title>
-<synopsis>
-Ice.Warn.Leaks=<replaceable>num</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-If <replaceable>num</replaceable> is set to a value larger than zero,
-the <literal>Ice::Communicator</literal> destructor prints a
-warning if some other Ice-related C++ objects are still in memory. The
-default value is 1. (C++ only.)
-</para>
-</section>
-</section>
-
 </section>
 
 <!-- ********************************************************************** -->

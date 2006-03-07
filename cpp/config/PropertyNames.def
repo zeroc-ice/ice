@@ -169,7 +169,6 @@ Ice:
     Warn.Datagrams
     Warn.Dispatch
     Warn.Endpoints
-    Warn.Leaks
 
 IceBox:
     InstanceName

@@ -1,6 +1,8 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Removed the Ice.Warn.Leaks property.
+
 - Peformance improvements if an AMI callback object is reused with the
   same proxy.
 
