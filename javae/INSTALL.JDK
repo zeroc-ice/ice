@@ -16,7 +16,7 @@ environments:
 
 * Linux using JDK 1.1.8 and 1.4.2.
 * Windows 2000/XP using JDK 1.1.8 and 1.4.2.
-* Windows CE 4.2 with CrEme 3.26 (http://www.nsicom.com) on a Pocket
+* Windows CE 4.2 with CrEme 3.27 (http://www.nsicom.com) on a Pocket
   PC 2003 (HP iPAQ PXA270).
 
 Due to the portability of Java, it is very likely that it will also
