@@ -16,21 +16,21 @@ module Test
 interface ServerManager
 {
     void startServer();
-    void shutdown();
+    idempotent void shutdown();
 };
 
 interface Hello
 {
-    void sayHello();
+    idempotent void sayHello();
 };
 
 interface TestIntf
 {
-    void shutdown();
+    idempotent void shutdown();
 
-    Hello* getHello();
+    idempotent Hello* getHello();
 
-    Hello* getReplicatedHello();
+    idempotent Hello* getReplicatedHello();
 
     void migrateHello();
 };
