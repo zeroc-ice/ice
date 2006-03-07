@@ -49,9 +49,9 @@ public class BasicStream
 	    //
 	    if(++_shrinkCounter > 2)
 	    {
-	        reallocate(_limit);
-	        _capacity = _buf.capacity();
-		_shrinkCounter = 0;
+ 	        allocate(_limit);
+ 	        _capacity = _buf.capacity();
+ 		_shrinkCounter = 0;
 	    }
 	}
 	else
