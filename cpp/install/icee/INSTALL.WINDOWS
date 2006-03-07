@@ -19,11 +19,14 @@ The following Microsoft Visual C++ compilers are supported:
 
 - Visual C++ .NET 2003 (aka VC 7.1)
 
+- Visual C++ 2005 (aka VC++ 8.0)
+
 The STL (Standard Template Library) that is included with Visual C++
 6.0 is not supported. You must use STLport 4.5 (or later) with Visual
 C++ 6.0.
 
-For Visual C++ .NET 2003, you can use the included STL library.
+For Visual C++ .NET 2003 and Visual C++ 2005, you can use the included
+STL library.
 
 
 STLport
@@ -55,9 +58,9 @@ Compilation
 Using your favorite Zip tool, unzip the Ice-E translator archive
 anywhere you like, then start the Microsoft Visual C++ IDE.
 
-Open the "icee.dsw" workspace. If you are using Visual C++ .NET, then
-the project files must first be converted from Visual C++ 6.0 to .NET
-format.
+Open the "icee.dsw" workspace.  If you are using Visual C++ .NET 2003
+or Visual C++ 2005, then the project files must first be converted
+from Visual C++ 6.0 to the new solution and project file format.
 
 Set your active project to "icee" to build all of the Ice-E
 translator executables. Four build configurations are supported:
@@ -73,11 +76,11 @@ We recommend using a static configuration in order to avoid potential
 conflicts with an existing Ice installation.
 
 To set your active project with Visual C++ 6.0, use Project->Set
-Active Project. For Visual C++ .NET, click on "icee" in the class
-view, then use Project->Set as StartUp Project.
+Active Project. For Visual C++ .NET 2003 and Visual C++ 2005, click on
+"icee" in the class view, then use Project->Set as StartUp Project.
 
 To start the compilation, use Build->Build for Visual C++ 6.0, or
-Build->Build icee for Visual C++ .NET, respectively.
+Build->Build icee for Visual C++ .NET 2003 or Visual C++ 2005.
 
 
 ======================================================================
