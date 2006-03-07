@@ -27,10 +27,11 @@ public class Server
         // return quickly. Otherwise server will hang since client is not 
         // listening for these messages.
         //
-        if(communicator.getProperties().getProperty("Ice.Blocking") != "0")
+	if(communicator.getProperties().getPropertyAsInt("Ice.Blocking") > 0)
         {
-            communicator.getProperties().setProperty("Ice.Override.Timeout", "100");
-        }
+            communicator.getProperties().setProperty("Ice.Override.Timeout", "100"); 
+	    communicator.getProperties().setProperty("Ice.Warn.Connections", "0");
+	}
 
 	//
 	// Register the server manager. The server manager creates a new
