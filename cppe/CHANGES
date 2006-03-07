@@ -1,6 +1,8 @@
 Changes since version 1.0.0
 ---------------------------
 
+- Removed the Ice.Warn.Leaks property.
+
 - If several proxies share the same connection, and an operation call
   on one of the proxies causes a failure and the shared connection to
   be closed, then subsequent calls on the other proxies will try to
