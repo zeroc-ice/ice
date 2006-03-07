@@ -129,7 +129,15 @@ public:
 		// current size. This is to avoid holding on too much
 		// memory if it's not needed anymore.
 		//
-		reserve(_size);
+	        if(++_shrinkCounter > 2)
+		{
+		    reserve(_size);
+		    _shrinkCounter = 0;
+		}
+	    }
+	    else
+	    {
+	        _shrinkCounter = 0;
 	    }
 	    _size = 0;
 	}
@@ -161,6 +169,7 @@ public:
 	pointer _buf;
 	size_type _size;
 	size_type _capacity;
+	int _shrinkCounter;
 
 #ifdef ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
 	//

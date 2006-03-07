@@ -68,6 +68,7 @@ IceInternal::Buffer::Container::swap(Container& other)
 
     std::swap(_size, other._size);
     std::swap(_capacity, other._capacity);
+    std::swap(_shrinkCounter, other._shrinkCounter);
 }
 
 void
