@@ -29,21 +29,32 @@ public class BasicStream
 	_messageSizeMax = _instance.messageSizeMax(); // Cached for efficiency.
 
 	_seqDataStack = null;
+
+	_shrinkCounter = 0;
     }
 
     //
     // This function allows this object to be reused, rather than reallocated.
     //
     public void
-    reset(boolean shrink)
+    reset()
     {
-	if(shrink)
+	if(_limit > 0 && _limit * 2 < _capacity)
 	{
-	    if(_limit > 0 && _limit * 2 < _capacity)
+	    //
+	    // If twice the size of the stream is less than the capacity
+	    // for more than two consecutive times, we shrink the buffer.
+	    //
+	    if(++_shrinkCounter > 2)
 	    {
-		reallocate(_limit);
-		_capacity = _buf.capacity();
+	        reallocate(_limit);
+	        _capacity = _buf.capacity();
+		_shrinkCounter = 0;
 	    }
+	}
+	else
+	{
+	    _shrinkCounter = 0;
 	}
         _limit = 0;
         _buf.limit(_capacity);
@@ -97,6 +108,10 @@ public class BasicStream
 	SeqData tmpSeqDataStack = other._seqDataStack;
 	other._seqDataStack = _seqDataStack;
 	_seqDataStack = tmpSeqDataStack;
+
+	int tmpShrinkCounter = other._shrinkCounter;
+	other._shrinkCounter = _shrinkCounter;
+	_shrinkCounter = tmpShrinkCounter;
     }
 
     public void
@@ -1523,6 +1538,7 @@ public class BasicStream
     private int _writeSlice;
 
     private int _messageSizeMax;
+    private int _shrinkCounter;
 
     private static final class SeqData
     {

@@ -37,7 +37,7 @@ public final class Outgoing
 	{
 	    IceUtil.Debug.Assert(_stream != null);
 	}
-        _stream.reset(false); // Don't shrink the buffer for performance reasons.
+        _stream.reset();
 
         writeHeader(operation, mode, context);
     }

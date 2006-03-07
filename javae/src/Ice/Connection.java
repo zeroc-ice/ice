@@ -362,7 +362,7 @@ public final class Connection
 		    //
 		    // Re-use the stream for reading the reply.
 		    //
-		    os.reset(false); // Don't shrink the buffer for performance reasons.
+		    os.reset();
 			
 		    //
 		    // Read the reply.
@@ -1513,8 +1513,8 @@ public final class Connection
 	{
 	    info.requestId = 0;
 	    info.invokeNum = 0;
-	    _in.os().reset(true); // Shrink the buffer if necessary.
-	    _in.is().reset(true); // Shrink the buffer if necessary.
+	    _in.os().reset();
+	    _in.is().reset();
 	    
 	    //
 	    // Read and parse the next message. We don't need to lock the
