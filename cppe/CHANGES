@@ -9,26 +9,26 @@ Changes since version 1.0.0
   establish a new connection instead of throwing an exception, even if
   retries are disabled.
 
-- Added blocking client side concurrency model. The use of this model is
-  controlled by the Ice.Blocking property.
+- Added blocking client side concurrency model. The use of this model
+  is controlled by the Ice.Blocking property.
 
-- If a proxy is not configured with a -h paramater, Ice will now
-  attempt to connect using all local interfaces. The loopback interface 
-  (127.0.0.1) will only be tried if it is the only local interface present.
+- If a proxy is not configured with the -h parameter, Ice will now
+  attempt to connect using all local interfaces. The loopback
+  interface (127.0.0.1) will only be tried if it is the only local
+  interface present.
 
 - Fixed the marshalling of doubles on ARM/Linux.
 
-- Added the ability to specify other mappings for slice sequences other
-  than std::vector. This is done through metadata in a similar way to
-  which IceJ supports alternate sequence mappings. Please see the Ice 
-  manual for more details.
+- Added the ability to specify alternate mappings for Slice sequences
+  other than std::vector. Please see the README file for more
+  information.
 
 - Fixed a bug in slice2cpp that caused one-shot constructors for
   classes to incorrectly initialize base classes for class hierarchies
   three or more levels deep.
 
-- Fixed a bug in the Slice parser that caused problems if an
-  included file contained white space in the file name.
+- Fixed a bug in the Slice parser that caused problems if an included
+  file contained white space in the file name.
 
 - Fixed a deadlock during shutdown that could happen with
   bi-directional connections.
@@ -38,12 +38,12 @@ Changes since version 1.0.0
 - Connection::close(false) (i.e., graceful connection shutdown) now
   waits until all outstanding requests have completed.
 
-- Ice will now listen on all local interfaces if no -h parameter
-  is present in the endpoint configuration and no default host has
-  been set. It will also listen to all interfaces if the -h parameter
-  is set to *. In such configurations the endpoints published
-  in proxies will not contain the loopback interface (127.0.0.1)
-  unless it is the only local interface present.
+- Ice will now listen on all local interfaces if no -h parameter is
+  present in the endpoint configuration and no default host has been
+  set. It will also listen to all interfaces if the -h parameter is
+  set to 0.0.0.0. In such configurations the endpoints published in
+  proxies will not contain the loopback interface (127.0.0.1) unless
+  it is the only local interface present.
 
 - slice2cppe now provides the --add-header option. It adds a #include
   directive for the specified header at the beginning of the generated
@@ -51,8 +51,8 @@ Changes since version 1.0.0
 
       slice2cppe --add-header=precompiled.h x.ice
 
-  adds "#include <precompiled.h> to the beginning of x.cpp (before any
-  other include directives).
+  adds "#include <precompiled.h>" to the beginning of x.cpp (before
+  any other include directives).
 
   You can specify an optional guard, for example:
 
@@ -72,6 +72,6 @@ Changes since version 1.0.0
   Ice::AlreadyRegisteredException if it is called with the name of an
   object adapter that already exists.
 
-- GCC compiles now use -Os rather than -O3 for optimized builds.
+- Ice-E now uses -Os rather than -O3 for optimized GCC builds.
 
 - EVC++ release builds now use "Optimize Size".

@@ -2,8 +2,9 @@
 Requirements
 ======================================================================
 
-Version
--------
+
+Environment
+-----------
 
 Ice-E has been extensively tested under the following environments:
 
@@ -38,11 +39,13 @@ http://www.zeroc.com/download.html
 Installing and Configuring Microsoft Visual C++ 2005
 ======================================================================
 
-- Install Visual Studio 2005 making sure to include the Smart Device
+- Install Visual Studio 2005, making sure to include the Smart Device
   support (Language Tools->Visual C++->Smart Device Support)
 
 - Add the location of the slice2cppe compiler to your "Executable
-  files" list in Tools->Options->Projects and Solutions->VC++ Directories.
+  files" list in Tools->Options->Projects and
+  Solutions->VC++ Directories.
+
 
 ======================================================================
 Compilation and Testing
@@ -65,10 +68,10 @@ Configurations whose names end in "Static" generate static libraries
 for the Ice-E run time, whereas the other configurations generate
 DLLs.
 
-Set your active project to "all" to compile everything including the
-tests and demos. To set your active project click on "all" in the class
-view, then use Project->Set as StartUp Project. To start the compilation
-use Build->Build all.
+Set your active project to "all" to compile everything, including the
+tests and demos. To set your active project, click on "all" in the
+class view, then use Project->Set as StartUp Project. To start the
+compilation, use Build->Build all.
 
 In order to run the test suite, you must build all of the tests, and
 then manually run the server followed by the client. Any failures

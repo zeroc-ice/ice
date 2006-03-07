@@ -91,9 +91,10 @@ $ export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
 32 bit builds on x86_64
 ======================================================================
 
-By default, builds on x86_64 are 64-bit. To perform a 32-bit build
-on a x86_64 Linux system, set the environment variable LP64 to no,
-as shown below:
+By default, builds on x86_64 are 64-bit. To perform a 32-bit build on
+an x86_64 Linux system, set the environment variable LP64 to no, as
+shown below:
+
   $ export LP64=no
 
 
@@ -105,10 +106,10 @@ Simply run "make install". This will install Ice-E in the directory
 specified by the "prefix" variable in config/Make.rules.
 
 After installation, make sure the <prefix>/lib directory is in your
-LD_LIBRARY_PATH. When compiling Ice-E programs, you must also make sure
-to pass the location of the <prefix>/include directory to the compiler
-with the -I option, and the location of the <prefix>/lib directory
-with the -L option.
+LD_LIBRARY_PATH. When compiling Ice-E programs, you must also make
+sure to pass the location of the <prefix>/include directory to the
+compiler with the -I option, and the location of the <prefix>/lib
+directory with the -L option.
 
-On a x86_64 system, the libraries are installed in <prefix>/lib64
+On an x86_64 system, the libraries are installed in <prefix>/lib64
 unless LP64 is set to no. No other changes are necessary.

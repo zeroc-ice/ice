@@ -10,15 +10,15 @@ Changes since version 1.0.0
 - Added blocking client side concurrency model. The use of this model is
   controlled by the Ice.Blocking property.
 
-- Fixed bug in identityToString() and proxyToString() that could
-  cause incorrect string values to be returned for identities
-  containing characters outside the ASCII range.
+- Fixed bug in identityToString() and proxyToString() that could cause
+  incorrect string values to be returned for identities containing
+  characters outside the ASCII range.
 
 - The contents of the default context set on a communicator were
   ignored, so an empty default context was marshaled. Fixed this.
 
-- Fixed a bug in the Slice parser that caused problems if an
-  included file contained white space in the file name.
+- Fixed a bug in the Slice parser that caused problems if an included
+  file contained white space in the file name.
 
 - Fixed a deadlock during shutdown that could happen with
   bi-directional connections.
