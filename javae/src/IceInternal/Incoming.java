@@ -428,7 +428,7 @@ final public class Incoming
     }
 
     //
-    // These were private but javac 1.1.8 complains.
+    // The following three members were 'final' but javac 1.1.8 complains.
     //
     private BasicStream _os;
     private BasicStream _is;
