@@ -45,7 +45,6 @@
 // files include STLport headers.
 //
 #define _STLP_USE_MFC
-#define _STLP_NO_OWN_IOSTREAMS
 #define _STLP_NO_NEW_IOSTREAMS
 #define _STLP_NO_IOSTREAMS
 
