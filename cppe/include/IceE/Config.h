@@ -27,10 +27,12 @@
 #define ICEE_HAS_BATCH
 
 //
-// Comment this out if you don't want the pure client library built
-// with only blocking support.
+// Comment this out if want the pure client library built with both
+// blocking and thread-per-connection concurrency model support.
+// If uncommented, only blocking support will be included in client
+// library.
 //
-#define ICEE_PURE_BLOCKING_CLIENT
+//#define ICEE_PURE_BLOCKING_CLIENT
 
 // ***********************************************************************
 //
