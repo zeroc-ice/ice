@@ -38,15 +38,15 @@ public:
     {
 	IceUtil::StaticMutex::Lock sync(globalMutex);
 	string s = "[ ";
-#ifdef _WIN32
 	{
 	    char buf[1024];
+#ifdef _WIN32
 	    sprintf(buf, "%ld", GetTickCount());
+#else
+	    sprintf(buf, "%lu", (long)IceUtil::Time::now().toMilliSeconds());
+#endif
 	    s += buf;
 	}
-#else
- 	s += IceUtil::Time::now().toMilliSeconds();
-#endif
 	s += ' ';
 	
 	if(!category.empty())
