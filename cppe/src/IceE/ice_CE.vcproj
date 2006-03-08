@@ -129,7 +129,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				ExecutionBucket="7"
-				Optimization="3"
+				Optimization="1"
 				AdditionalIncludeDirectories="..,../../include"
 				PreprocessorDefinitions="NDEBUG;ARM;_ARM_;ARMV4;_WIN32_WCE=$(CEVER);$(CePlatform);UNDER_CE=$(CEVER);UNICODE;_LIB;ICEE_STATIC_LIBS"
 				RuntimeLibrary="0"
@@ -691,7 +691,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				ExecutionBucket="7"
-				Optimization="3"
+				Optimization="1"
 				AdditionalIncludeDirectories="..,../../include"
 				PreprocessorDefinitions="ARM;_ARM_;ARMV4;NDEBUG;UNICODE;_WIN32_WCE=$(CEVER);$(CePlatform);UNDER_CE=$(CEVER);_USRDLL;ICE_API_EXPORTS"
 				RuntimeLibrary="0"
@@ -5176,11 +5176,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\IceUtil\Config.h"
+				RelativePath="..\..\include\IceE\Config.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\IceE\Config.h"
+				RelativePath="..\..\include\IceUtil\Config.h"
 				>
 			</File>
 			<File
@@ -5228,11 +5228,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\IceUtil\Exception.h"
+				RelativePath="..\..\include\IceE\Exception.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\IceE\Exception.h"
+				RelativePath="..\..\include\IceUtil\Exception.h"
 				>
 			</File>
 			<File
@@ -5248,19 +5248,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\IceUtil\Functional.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\include\IceE\Functional.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\IceUtil\Handle.h"
+				RelativePath="..\..\include\IceUtil\Functional.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\include\IceE\Handle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceUtil\Handle.h"
 				>
 			</File>
 			<File
