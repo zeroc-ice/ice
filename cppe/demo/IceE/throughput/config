@@ -1,2 +1,7 @@
 Throughput.Proxy=throughput:default -p 10000
 Throughput.Endpoints=default -p 10000
+
+#
+# Use faster blocking client side model by default.
+#
+Ice.Blocking=1

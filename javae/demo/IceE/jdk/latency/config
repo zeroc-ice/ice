@@ -1,2 +1,7 @@
 Latency.Ping=ping:default -p 10000
 Latency.Endpoints=default -p 10000
+
+#
+# Use faster blocking client side model by default.
+#
+Ice.Blocking=1

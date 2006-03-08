@@ -1,5 +1,7 @@
 Throughput.Throughput=throughput:default -p 10000
 Throughput.Endpoints=default -p 10000
 
-Ice.MonitorConnections=0
-Ice.ConnectionIdleTime=0
+#
+# Use faster blocking client side model by default.
+#
+Ice.Blocking=1
