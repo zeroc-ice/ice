@@ -355,7 +355,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				ExecutionBucket="7"
-				Optimization="4"
+				Optimization="3"
 				AdditionalIncludeDirectories=".,../../../include"
 				PreprocessorDefinitions="ARM;_ARM_;ARMV4;NDEBUG;_WIN32_WCE=$(CEVER);$(CePlatform);UNDER_CE=$(CEVER);UNICODE;ICEE_PURE_CLIENT"
 				RuntimeLibrary="0"
@@ -556,7 +556,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				ExecutionBucket="7"
-				Optimization="4"
+				Optimization="3"
 				AdditionalIncludeDirectories=".,../../../include"
 				PreprocessorDefinitions="ARM;_ARM_;ARMV4;NDEBUG;ICEE_STATIC_LIBS;_WIN32_WCE=$(CEVER);$(CePlatform);UNDER_CE=$(CEVER);UNICODE;ICEE_PURE_CLIENT"
 				RuntimeLibrary="0"
