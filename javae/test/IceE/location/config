@@ -11,6 +11,7 @@
 # configure proxies and endpoints. Modify the properties listed below as
 # appropriate for the network configuration for your test.
 
+Test.ServerManager=ServerManager:default -t 10000 -p 12010
 Ice.Default.Locator=locator:default -p 12010
 ServerManagerAdapter.Endpoints=default -p 12010 -t 30000
 
