@@ -20,6 +20,54 @@ public class AllTests
         }
     }
 
+    static class GetAdapterNameCB extends AMI_TestIntf_getAdapterName
+    {
+	synchronized public void 
+	ice_response(String adapterName)
+	{
+	    _name = adapterName;
+	    notify();
+	}
+
+	public void
+	ice_exception(Ice.LocalException ex)
+        {
+	    test(false);
+	}
+
+	public void
+	ice_exception(Ice.UserException ex)
+        {
+	    test(false);
+	}
+
+	synchronized public String
+	getResult()
+        {
+	    while(_name == null)
+	    {
+		try
+		{
+		    wait();
+		}
+		catch(java.lang.InterruptedException ex)
+		{
+		}
+	    }
+	    return _name;
+	}
+	
+	private String _name = null;
+    };
+
+    private static String
+    getAdapterNameWithAMI(TestIntfPrx test)
+    {
+	GetAdapterNameCB cb = new GetAdapterNameCB();
+	test.getAdapterName_async(cb);
+	return cb.getResult();
+    }
+
     private static TestIntfPrx
     createTestIntfPrx(java.util.List adapters)
     {
@@ -302,6 +350,44 @@ public class AllTests
 	}
 	System.out.println("ok");
 
+	System.out.print("testing per request binding with multiple endpoints and AMI... ");
+	System.out.flush();
+	{
+	    java.util.List adapters = new java.util.ArrayList();
+	    adapters.add(com.createObjectAdapter("AdapterAMI51", "default"));
+	    adapters.add(com.createObjectAdapter("AdapterAMI52", "default"));
+	    adapters.add(com.createObjectAdapter("AdapterAMI53", "default"));
+
+	    TestIntfPrx test = TestIntfPrxHelper.uncheckedCast(createTestIntfPrx(adapters).ice_cacheConnection(false));
+	    test(!test.ice_getCacheConnection());
+
+	    java.util.Set names = new java.util.HashSet();
+	    names.add("AdapterAMI51");
+	    names.add("AdapterAMI52");
+	    names.add("AdapterAMI53");
+	    while(!names.isEmpty())
+	    {
+		names.remove(getAdapterNameWithAMI(test));
+	    }
+
+	    com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters.get(0));
+
+	    names.add("AdapterAMI52");
+	    names.add("AdapterAMI53");
+	    while(!names.isEmpty())
+	    {
+		names.remove(getAdapterNameWithAMI(test));
+	    }
+
+	    com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters.get(2));
+
+
+	    test(getAdapterNameWithAMI(test).equals("AdapterAMI52"));
+	
+	    deactivate(com, adapters);
+	}
+	System.out.println("ok");
+
 	System.out.print("testing per request binding and ordered endpoint selection... ");
 	System.out.flush();
 	{
@@ -356,6 +442,66 @@ public class AllTests
 	    test(i == nRetry);
 	    adapters.add(com.createObjectAdapter("Adapter64", endpoints[0].toString()));
 	    for(i = 0; i < nRetry && test.getAdapterName().equals("Adapter64"); i++);
+	    test(i == nRetry);
+
+	    deactivate(com, adapters);
+	}
+	System.out.println("ok");
+
+	System.out.print("testing per request binding and ordered endpoint selection and AMI... ");
+	System.out.flush();
+	{
+	    java.util.List adapters = new java.util.ArrayList();
+	    adapters.add(com.createObjectAdapter("AdapterAMI61", "default"));
+	    adapters.add(com.createObjectAdapter("AdapterAMI62", "default"));
+	    adapters.add(com.createObjectAdapter("AdapterAMI63", "default"));
+
+	    TestIntfPrx test = createTestIntfPrx(adapters);
+	    test = TestIntfPrxHelper.uncheckedCast(test.ice_endpointSelection(Ice.EndpointSelectionType.Ordered));
+	    test(test.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered);
+	    test = TestIntfPrxHelper.uncheckedCast(test.ice_cacheConnection(false));
+	    test(!test.ice_getCacheConnection());
+	    int nRetry = 5;
+	    int i;
+
+	    //
+	    // Ensure that endpoints are tried in order by deactiving the adapters
+	    // one after the other.
+	    //
+	    for(i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI61"); i++);
+	    test(i == nRetry);
+	    com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters.get(0));
+	    for(i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI62"); i++);
+	    test(i == nRetry);
+	    com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters.get(1));
+	    for(i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI63"); i++);
+	    test(i == nRetry);
+	    com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters.get(2));
+	
+	    try
+	    {
+		test.getAdapterName();
+	    }
+	    catch(Ice.ConnectionRefusedException ex)
+	    {
+	    }
+
+	    Ice.Endpoint[] endpoints = test.ice_getEndpoints();
+
+	    adapters.clear();
+
+	    //
+	    // Now, re-activate the adapters with the same endpoints in the opposite
+	    // order.
+	    // 
+	    adapters.add(com.createObjectAdapter("AdapterAMI66", endpoints[2].toString()));
+	    for(i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI66"); i++);
+	    test(i == nRetry);
+	    adapters.add(com.createObjectAdapter("AdapterAMI65", endpoints[1].toString()));
+	    for(i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI65"); i++);
+	    test(i == nRetry);
+	    adapters.add(com.createObjectAdapter("AdapterAMI64", endpoints[0].toString()));
+	    for(i = 0; i < nRetry && getAdapterNameWithAMI(test).equals("AdapterAMI64"); i++);
 	    test(i == nRetry);
 
 	    deactivate(com, adapters);

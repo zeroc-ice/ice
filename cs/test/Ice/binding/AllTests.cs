@@ -10,6 +10,7 @@
 using System;
 using System.Collections;
 using System.Diagnostics;
+using System.Threading;
 using Test;
 
 public class AllTests
@@ -20,6 +21,44 @@ public class AllTests
         {
             throw new System.Exception();
         }
+    }
+
+    private class GetAdapterNameCB : AMI_TestIntf_getAdapterName
+    {
+        public override void ice_response(string name)
+        {
+	    lock(this)
+	    {
+		_name = name;
+		Monitor.Pulse(this);
+	    }
+        }
+        
+        public override void ice_exception(Ice.Exception ex)
+        {
+            test(false);
+        }
+	
+	public string getResult()
+        {
+	    lock(this)
+            {
+		while(_name == null)
+		{
+		    Monitor.Wait(this);
+		}
+		return _name;
+	    }	    
+	}
+	
+	private string _name = null;
+    };
+
+    private static string getAdapterNameWithAMI(TestIntfPrx test)
+    {
+	GetAdapterNameCB cb = new GetAdapterNameCB();
+	test.getAdapterName_async(cb);
+	return cb.getResult();
     }
 
     private static void shuffle(ref ArrayList array)
@@ -323,6 +362,44 @@ public class AllTests
 	}
 	Console.Out.WriteLine("ok");
 
+	Console.Out.Write("testing per request binding with multiple endpoints and AMI... ");
+	Console.Out.Flush();
+	{
+	    ArrayList adapters = new ArrayList();
+	    adapters.Add(com.createObjectAdapter("AdapterAMI51", "default"));
+	    adapters.Add(com.createObjectAdapter("AdapterAMI52", "default"));
+	    adapters.Add(com.createObjectAdapter("AdapterAMI53", "default"));
+
+	    TestIntfPrx obj = TestIntfPrxHelper.uncheckedCast(createTestIntfPrx(adapters).ice_cacheConnection(false));
+	    test(!obj.ice_getCacheConnection());
+
+	    IceUtil.Set names = new IceUtil.Set();
+	    names.Add("AdapterAMI51");
+	    names.Add("AdapterAMI52");
+	    names.Add("AdapterAMI53");
+	    while(names.Count > 0)
+	    {
+		names.Remove(getAdapterNameWithAMI(obj));
+	    }
+
+	    com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[0]);
+
+	    names.Add("AdapterAMI52");
+	    names.Add("AdapterAMI53");
+	    while(names.Count > 0)
+	    {
+		names.Remove(getAdapterNameWithAMI(obj));
+	    }
+
+	    com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[2]);
+
+
+	    test(getAdapterNameWithAMI(obj).Equals("AdapterAMI52"));
+	
+	    deactivate(com, adapters);
+	}
+	Console.Out.WriteLine("ok");
+
 	Console.Out.Write("testing per request binding and ordered endpoint selection... ");
 	Console.Out.Flush();
 	{
@@ -377,6 +454,66 @@ public class AllTests
 	    test(i == nRetry);
 	    adapters.Add(com.createObjectAdapter("Adapter64", endpoints[0].ToString()));
 	    for(i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter64"); i++);
+	    test(i == nRetry);
+
+	    deactivate(com, adapters);
+	}
+	Console.Out.WriteLine("ok");
+
+	Console.Out.Write("testing per request binding and ordered endpoint selection and AMI... ");
+	Console.Out.Flush();
+	{
+	    ArrayList adapters = new ArrayList();
+	    adapters.Add(com.createObjectAdapter("AdapterAMI61", "default"));
+	    adapters.Add(com.createObjectAdapter("AdapterAMI62", "default"));
+	    adapters.Add(com.createObjectAdapter("AdapterAMI63", "default"));
+
+	    TestIntfPrx obj = createTestIntfPrx(adapters);
+	    obj = TestIntfPrxHelper.uncheckedCast(obj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered));
+	    test(obj.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered);
+	    obj = TestIntfPrxHelper.uncheckedCast(obj.ice_cacheConnection(false));
+	    test(!obj.ice_getCacheConnection());
+	    int nRetry = 3;
+	    int i;
+
+	    //
+	    // Ensure that endpoints are tried in order by deactiving the adapters
+	    // one after the other.
+	    //
+	    for(i = 0; i < nRetry && getAdapterNameWithAMI(obj).Equals("AdapterAMI61"); i++);
+	    test(i == nRetry);
+	    com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[0]);
+	    for(i = 0; i < nRetry && getAdapterNameWithAMI(obj).Equals("AdapterAMI62"); i++);
+	    test(i == nRetry);
+	    com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[1]);
+	    for(i = 0; i < nRetry && getAdapterNameWithAMI(obj).Equals("AdapterAMI63"); i++);
+	    test(i == nRetry);
+	    com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[2]);
+	
+	    try
+	    {
+		obj.getAdapterName();
+	    }
+	    catch(Ice.ConnectionRefusedException)
+	    {
+	    }
+
+	    Ice.Endpoint[] endpoints = obj.ice_getEndpoints();
+
+	    adapters.Clear();
+
+	    //
+	    // Now, re-activate the adapters with the same endpoints in the opposite
+	    // order.
+	    // 
+	    adapters.Add(com.createObjectAdapter("AdapterAMI66", endpoints[2].ToString()));
+	    for(i = 0; i < nRetry && getAdapterNameWithAMI(obj).Equals("AdapterAMI66"); i++);
+	    test(i == nRetry);
+	    adapters.Add(com.createObjectAdapter("AdapterAMI65", endpoints[1].ToString()));
+	    for(i = 0; i < nRetry && getAdapterNameWithAMI(obj).Equals("AdapterAMI65"); i++);
+	    test(i == nRetry);
+	    adapters.Add(com.createObjectAdapter("AdapterAMI64", endpoints[0].ToString()));
+	    for(i = 0; i < nRetry && getAdapterNameWithAMI(obj).Equals("AdapterAMI64"); i++);
 	    test(i == nRetry);
 
 	    deactivate(com, adapters);

@@ -14,6 +14,50 @@
 using namespace std;
 using namespace Test;
 
+class GetAdapterNameCB : public AMI_TestIntf_getAdapterName, public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    virtual void
+    ice_response(const string& name)
+    {
+	Lock sync(*this);
+	assert(!name.empty());
+	_name = name;
+	notify();
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception&)
+    {
+	test(false);
+    }
+
+    virtual string
+    getResult()
+    {
+	Lock sync(*this);
+	while(_name.empty())
+	{
+	    wait();
+	}
+	return _name;
+    }
+
+private:
+
+    string _name;
+};
+typedef IceUtil::Handle<GetAdapterNameCB> GetAdapterNameCBPtr;
+
+string
+getAdapterNameWithAMI(const TestIntfPrx& test)
+{
+    GetAdapterNameCBPtr cb = new GetAdapterNameCB();
+    test->getAdapterName_async(cb);
+    return cb->getResult();
+}
+
 TestIntfPrx
 createTestIntfPrx(vector<RemoteObjectAdapterPrx>& adapters)
 {
@@ -287,6 +331,42 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
+    cout << "testing per request binding with multiple endpoints and AMI... " << flush;
+    {
+	vector<RemoteObjectAdapterPrx> adapters;
+	adapters.push_back(com->createObjectAdapter("AdapterAMI51", "default"));
+	adapters.push_back(com->createObjectAdapter("AdapterAMI52", "default"));
+	adapters.push_back(com->createObjectAdapter("AdapterAMI53", "default"));
+
+	TestIntfPrx test = TestIntfPrx::uncheckedCast(createTestIntfPrx(adapters)->ice_cacheConnection(false));
+	test(!test->ice_getCacheConnection());
+
+	set<string> names;
+	names.insert("AdapterAMI51");
+	names.insert("AdapterAMI52");
+	names.insert("AdapterAMI53");
+	while(!names.empty())
+	{
+	    names.erase(getAdapterNameWithAMI(test));
+	}
+
+	com->deactivateObjectAdapter(adapters[0]);
+
+	names.insert("AdapterAMI52");
+	names.insert("AdapterAMI53");
+	while(!names.empty())
+	{
+	    names.erase(getAdapterNameWithAMI(test));
+	}
+
+	com->deactivateObjectAdapter(adapters[2]);
+
+	test(test->getAdapterName() == "AdapterAMI52");
+	
+	deactivate(com, adapters);
+    }
+    cout << "ok" << endl;
+
     cout << "testing per request binding and ordered endpoint selection... " << flush;
     {
 	vector<RemoteObjectAdapterPrx> adapters;
@@ -340,6 +420,65 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(i == nRetry);
 	adapters.push_back(com->createObjectAdapter("Adapter64", endpoints[0]->toString()));
 	for(i = 0; i < nRetry && test->getAdapterName() == "Adapter64"; i++);
+	test(i == nRetry);
+
+	deactivate(com, adapters);
+    }
+    cout << "ok" << endl;
+
+    cout << "testing per request binding and ordered endpoint selection and AMI... " << flush;
+    {
+	vector<RemoteObjectAdapterPrx> adapters;
+	adapters.push_back(com->createObjectAdapter("AdapterAMI61", "default"));
+	adapters.push_back(com->createObjectAdapter("AdapterAMI62", "default"));
+	adapters.push_back(com->createObjectAdapter("AdapterAMI63", "default"));
+
+	TestIntfPrx test = createTestIntfPrx(adapters);
+	test = TestIntfPrx::uncheckedCast(test->ice_endpointSelection(Ice::Ordered));
+	test(test->ice_getEndpointSelection() == Ice::Ordered);
+	test = TestIntfPrx::uncheckedCast(test->ice_cacheConnection(false));
+	test(!test->ice_getCacheConnection());
+	const int nRetry = 5;
+	int i;
+
+	//
+	// Ensure that endpoints are tried in order by deactiving the adapters
+	// one after the other.
+	//
+	for(i = 0; i < nRetry && getAdapterNameWithAMI(test) == "AdapterAMI61"; i++);
+	test(i == nRetry);
+	com->deactivateObjectAdapter(adapters[0]);
+	for(i = 0; i < nRetry && getAdapterNameWithAMI(test) == "AdapterAMI62"; i++);
+	test(i == nRetry);
+	com->deactivateObjectAdapter(adapters[1]);
+	for(i = 0; i < nRetry && getAdapterNameWithAMI(test) == "AdapterAMI63"; i++);
+	test(i == nRetry);
+	com->deactivateObjectAdapter(adapters[2]);
+	
+	try
+	{
+	    test->getAdapterName();
+	}
+	catch(const Ice::ConnectionRefusedException&)
+	{
+	}
+
+	Ice::EndpointSeq endpoints = test->ice_getEndpoints();
+
+	adapters.clear();
+
+	//
+	// Now, re-activate the adapters with the same endpoints in the opposite
+	// order.
+	// 
+	adapters.push_back(com->createObjectAdapter("AdapterAMI66", endpoints[2]->toString()));
+	for(i = 0; i < nRetry && getAdapterNameWithAMI(test) == "AdapterAMI66"; i++);
+	test(i == nRetry);
+	adapters.push_back(com->createObjectAdapter("AdapterAMI65", endpoints[1]->toString()));
+	for(i = 0; i < nRetry && getAdapterNameWithAMI(test) == "AdapterAMI65"; i++);
+	test(i == nRetry);
+	adapters.push_back(com->createObjectAdapter("AdapterAMI64", endpoints[0]->toString()));
+	for(i = 0; i < nRetry && getAdapterNameWithAMI(test) == "AdapterAMI64"; i++);
 	test(i == nRetry);
 
 	deactivate(com, adapters);
