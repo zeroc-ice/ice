@@ -108,12 +108,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "ZeroC, Inc.\0"
-            VALUE "FileDescription", "Ice Hello Server\0"
+            VALUE "FileDescription", "IceE Hello Server\0"
             VALUE "FileVersion", "1.0.0.1\0"
             VALUE "InternalName", "HelloServer.exe\0"
-            VALUE "LegalCopyright", "Copyright (c) 2003 - 2005 ZeroC, Inc.  All rights reserved.\0"
+            VALUE "LegalCopyright", "Copyright (c) 2003 - 2006 ZeroC, Inc.  All rights reserved.\0"
             VALUE "OriginalFilename", "HelloServer.exe\0"
-            VALUE "ProductName", "Ice\0"
+            VALUE "ProductName", "IceE\0"
             VALUE "ProductVersion", "1.0.0.1\0"
         END
     END

@@ -1,5 +1,5 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
+// Microsoft Visual C++ generated include file.
 // Used by HelloClient.rc
 //
 #define IDD_HELLOCLIENT_DIALOG          101

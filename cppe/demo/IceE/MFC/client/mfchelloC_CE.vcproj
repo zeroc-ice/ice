@@ -1244,7 +1244,7 @@
 				>
 			</File>
 			<File
-				RelativePath="HelloClientCE.rc"
+				RelativePath="HelloClientCE_VC.rc"
 				>
 			</File>
 		</Filter>
