@@ -11,6 +11,7 @@
 #include <IceE/Time.h>
 #include <IceE/Thread.h>
 #include <IceE/StaticMutex.h>
+#include <IceE/Monitor.h>
 #include <TestApplication.h>
 #include <set>
 #include <vector>
@@ -25,41 +26,80 @@ inline void usage(const char* myName)
     tprintf("Usage: %s [number of UUIDs to generate] [number of threads]\n", myName);
 }
 
-class InsertThread : public Thread, public Mutex
+class CountedBarrier : public Shared, public Monitor<Mutex>
 {
 public:
 
-    
-    InsertThread(int threadId, set<string>& uuidSet, long howMany, bool verbose)
-	: _threadId(threadId), _uuidSet(uuidSet), _howMany(howMany), _verbose(verbose), _destroyed(false)
+    CountedBarrier(int count) :
+      _count(count)
     {
     }
 
+    void
+    decrement()
+    {
+	Lock sync(*this);
+	--_count;
+	if(_count == 0)
+	{
+	    notify();
+	}
+    }
+
+    void
+    waitZero()
+    {
+	Lock sync(*this);
+	while(_count != 0)
+	{
+	    wait();
+	}
+    }
+
+    bool
+    isZero() const
+    {
+	Lock sync(*this);
+	return _count == 0;
+    }
+
+private:
+
+    int _count;
+};
+typedef Handle<CountedBarrier> CountedBarrierPtr;
+
+class InsertThread : public Thread, public Monitor<Mutex>
+{
+public:
+    
+    InsertThread(const CountedBarrierPtr& start, const CountedBarrierPtr& stop, int threadId, set<string>& uuidSet, long howMany, bool verbose)
+	: _start(start), _stop(stop), _threadId(threadId), _uuidSet(uuidSet), _howMany(howMany), _verbose(verbose), _destroyed(false)
+    {
+    }
 
     virtual void
     run()
     {
-	for(long i = 0; i < _howMany; i++)
+	_start->waitZero();
+
+	for(long i = 0; i < _howMany && !destroyed(); i++)
 	{
-	    if(destroyed())
-	    {
-		return;
-	    }
-
 	    string uuid = generateUUID();
-
-	    StaticMutex::Lock lock(staticMutex);
-	    pair<set<string>::iterator, bool> ok = _uuidSet.insert(uuid);
-	    if(!ok.second)
 	    {
-	        tprintf("******* iteration %d\n", i);
-		tprintf("******* Duplicate UUID: %s\n", (*ok.first).c_str());
-	    }
+		StaticMutex::Lock lock(staticMutex);
+		pair<set<string>::iterator, bool> ok = _uuidSet.insert(uuid);
+		if(!ok.second)
+		{
+		    tprintf("******* iteration %d\n", i);
+		    tprintf("******* Duplicate UUID: %s\n", (*ok.first).c_str());
+		}
 
-	    test(ok.second);
+		test(ok.second);
+	    }
 
 #ifdef _WIN32_WCE
-	    if(i > 0 && (i % 10) == 0)
+	    if(i > 0 && (i % 100) == 0)
 	    {
 		tprintf(".");
 	    }
@@ -70,6 +110,12 @@ public:
 	    }
 #endif
 	}
+
+	_stop->decrement();
+#ifdef _WIN32_WCE
+	// This will cause the main thread to wake.
+	tprintf(".");
+#endif
     }
 
     void
@@ -86,12 +132,14 @@ public:
 	return _destroyed;
     }
 
-private:
+ private:
 
-    int _threadId;
+    const CountedBarrierPtr _start;
+    const CountedBarrierPtr _stop;
+    const int _threadId;
     set<string>& _uuidSet;
-    long _howMany;
-    bool _verbose;
+    const long _howMany;
+    const bool _verbose;
     bool _destroyed;
 };
 typedef Handle<InsertThread> InsertThreadPtr;
@@ -146,7 +194,71 @@ public:
 	        return EXIT_FAILURE;
 	    }
         }
+
+	tprintf("Generating %d UUIDs", howMany);
+        tprintf("... ");
     
+        if(verbose)
+        {
+	    tprintf("\n");
+        }
+        set<string> uuidSet;
+        Time startTime = Time::now();
+	long i;
+	for(i = 0; i < howMany; i++)
+	{
+    	    string uuid = generateUUID();
+
+	    pair<set<string>::iterator, bool> ok = uuidSet.insert(uuid);
+	    if(!ok.second)
+	    {
+	        tprintf("******* iteration %d\n", i);
+		tprintf("******* Duplicate UUID: %s\n", (*ok.first).c_str());
+	    }
+
+	    test(ok.second);
+
+#ifdef _WIN32_WCE
+	    if(i > 0 && (i % 100) == 0)
+	    {
+		tprintf(".");
+		if(terminated())
+		{
+		    break;
+		}
+		MSG Msg;
+		while(PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE))
+		{
+		    TranslateMessage(&Msg);
+		    DispatchMessage(&Msg);
+		}
+	    }
+#else
+	    if(verbose && i > 0 && (i % 100000 == 0))
+	    {
+		tprintf("generated %d UUIDs.\n", i);
+	    }
+#endif
+	}
+#ifdef _WIN32_WCE
+	if(terminated())
+	{
+	    return EXIT_SUCCESS;
+	}
+#endif
+
+        Time finish = Time::now();
+
+        tprintf("ok\n");
+
+#ifndef _WIN32_WCE
+        if(verbose)
+#endif
+        {
+            tprintf("Each UUID took an average of %.04f ms to generate and insert into a set<string>.\n",
+		    ((double) ((finish - startTime).toMilliSeconds())) / howMany);
+        }
+
         tprintf("Generating %d UUIDs using %d thread", howMany, threadCount);
         if(threadCount > 1)
         {
@@ -159,64 +271,58 @@ public:
 	    tprintf("\n");
         }
 
-        set<string> uuidSet;
-    
-        vector<InsertThreadPtr> threads;
+	startTime = Time::now();
+	vector<InsertThreadPtr> threads;
 
-        Time start = Time::now();
-        for(int i = 0; i < threadCount; i++)
+	CountedBarrierPtr stop = new CountedBarrier(threadCount);
+	CountedBarrierPtr start = new CountedBarrier(threadCount);
+        for(i = 0; i < threadCount; i++)
         {
-	    InsertThreadPtr t = new InsertThread(i, uuidSet, howMany / threadCount, verbose); 
+	    InsertThreadPtr t = new InsertThread(start, stop, i, uuidSet, howMany / threadCount, verbose); 
 	    t->start();
 	    threads.push_back(t);
+	    start->decrement();
         }
 
-	vector<InsertThreadPtr>::iterator p;
+        vector<InsertThreadPtr>::iterator p;
+
 #ifdef _WIN32_WCE
-	while(!threads.empty())
+	while(!stop->isZero() && !terminated())
 	{
-	    p = threads.begin();
-	    while(p != threads.end())
-	    {
-		ThreadControl control = (*p)->getThreadControl();
-		if(!(*p)->isAlive())
-		{
-		    control.join();
-		    p = threads.erase(p);
-		}
-		else
-		{
-		    ++p;
-		}
-	    }
-
 	    MSG Msg;
-	    while(PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE))
+	    if(GetMessage(&Msg, NULL, 0, 0))
 	    {
-		TranslateMessage(&Msg);
-		DispatchMessage(&Msg);
-	    }
-
-	    //
-	    // If the user terminated the app, the destroy all the
-	    // threads. This loop will end once all the threads have gone.
-	    //
-	    if(terminated())
-	    {
-		p = threads.begin();
-		while(p != threads.end())
+		//
+		// Process all pending events.
+		//
+		do
 		{
-		    (*p)->destroy();
+		    TranslateMessage(&Msg);
+		    DispatchMessage(&Msg);
 		}
+		while(PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE));
 	    }
 	}
-#else
-        for(p = threads.begin(); p != threads.end(); ++p)
+	
+	//
+	// If the user terminated the app, the destroy all the
+	// threads. This loop will end once all the threads have gone.
+	//
+	if(terminated())
+	{
+	    for(p = threads.begin(); p != threads.end(); ++p)
+	    {
+		(*p)->destroy();
+	    }
+	}
+#endif
+	stop->waitZero();
+        finish = Time::now();
+
+	for(p = threads.begin(); p != threads.end(); ++p)
         {
 	    (*p)->getThreadControl().join();
         }
-#endif
-        Time finish = Time::now();
 
         tprintf("ok\n");
 
@@ -225,7 +331,7 @@ public:
 #endif
         {
             tprintf("Each UUID took an average of %.04f ms to generate and insert into a set<string>.\n",
-		    ((double) ((finish - start).toMilliSeconds())) / howMany);
+		    ((double) ((finish - startTime).toMilliSeconds())) / howMany);
         }
 
         return EXIT_SUCCESS;
