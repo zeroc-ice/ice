@@ -48,18 +48,6 @@ public abstract class Reference implements Cloneable
 	return _context;
     }
 
-    public final boolean
-    getCacheConnection()
-    {
-	return _cacheConnection;
-    }
-
-    public final Ice.EndpointSelectionType
-    getEndpointSelection()
-    {
-	return _endpointSelection;
-    }
-
     public final Reference
     defaultContext()
     {
@@ -79,6 +67,8 @@ public abstract class Reference implements Cloneable
     public abstract EndpointI[] getEndpoints();
     public abstract boolean getCollocationOptimization();
     public abstract int getLocatorCacheTimeout();
+    public abstract boolean getCacheConnection();
+    public abstract Ice.EndpointSelectionType getEndpointSelection();
 
     //
     // The change* methods (here and in derived classes) create
@@ -140,30 +130,6 @@ public abstract class Reference implements Cloneable
 	return r;
     }
 
-    public final Reference
-    changeCacheConnection(boolean newCache)
-    {
-        if(newCache == _cacheConnection)
-	{
-	    return this;
-	}
-	Reference r = _instance.referenceFactory().copy(this);
-	r._cacheConnection = newCache;
-	return r;
-    }
-
-    public final Reference
-    changeEndpointSelection(Ice.EndpointSelectionType newType)
-    {
-        if(newType == _endpointSelection)
-	{
-	    return this;
-	}
-	Reference r = _instance.referenceFactory().copy(this);
-	r._endpointSelection = newType;
-	return r;
-    }
-
     public abstract Reference changeSecure(boolean newSecure);
     public abstract Reference changeRouter(Ice.RouterPrx newRouter);
     public abstract Reference changeLocator(Ice.LocatorPrx newLocator);
@@ -174,6 +140,8 @@ public abstract class Reference implements Cloneable
     public abstract Reference changeAdapterId(String newAdapterId);
     public abstract Reference changeEndpoints(EndpointI[] newEndpoints);
     public abstract Reference changeLocatorCacheTimeout(int newTimeout);
+    public abstract Reference changeCacheConnection(boolean newCache);
+    public abstract Reference changeEndpointSelection(Ice.EndpointSelectionType newType);
 
     public synchronized int
     hashCode()
@@ -364,16 +332,6 @@ public abstract class Reference implements Cloneable
             return false;
         }
 
-	if(_cacheConnection != r._cacheConnection)
-	{
-	    return false;
-	}
-
-	if(_endpointSelection != r._endpointSelection)
-	{
-	    return false;
-	}
-
         return true;
     }
 
@@ -401,8 +359,6 @@ public abstract class Reference implements Cloneable
     private java.util.Map _context;
     private static java.util.HashMap _emptyContext = new java.util.HashMap();
     private String _facet;
-    private boolean _cacheConnection;
-    private Ice.EndpointSelectionType _endpointSelection;
 
     protected int _hashValue;
     protected boolean _hashInitialized;
@@ -428,8 +384,6 @@ public abstract class Reference implements Cloneable
         _identity = ident;
 	_context = ctx == null ? _emptyContext : ctx;
         _facet = fac;
-	_cacheConnection = true;
-	_endpointSelection = Ice.EndpointSelectionType.Random;
 	_hashInitialized = false;
     }
 }

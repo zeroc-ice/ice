@@ -91,30 +91,6 @@ IceInternal::Reference::changeFacet(const string& newFacet) const
     return r;
 }
 
-ReferencePtr
-IceInternal::Reference::changeCacheConnection(bool newCache) const
-{
-    if(newCache == _cacheConnection)
-    {
-	return ReferencePtr(const_cast<Reference*>(this));
-    }
-    ReferencePtr r = _instance->referenceFactory()->copy(this);
-    r->_cacheConnection = newCache;
-    return r;
-}
-
-ReferencePtr
-IceInternal::Reference::changeEndpointSelection(EndpointSelectionType newType) const
-{
-    if(newType == _endpointSelection)
-    {
-	return ReferencePtr(const_cast<Reference*>(this));
-    }
-    ReferencePtr r = _instance->referenceFactory()->copy(this);
-    r->_endpointSelection = newType;
-    return r;
-}
-
 Int
 Reference::hash() const
 {
@@ -302,16 +278,6 @@ IceInternal::Reference::operator==(const Reference& r) const
 	return false;
     }
 
-    if(_cacheConnection != r._cacheConnection)
-    {
-	return false;
-    }
-
-    if(_endpointSelection != r._endpointSelection)
-    {
-	return false;
-    }
-
     return true;
 }
 
@@ -364,24 +330,6 @@ IceInternal::Reference::operator<(const Reference& r) const
 	return false;
     }
     
-    if(!_cacheConnection && r._cacheConnection)
-    {
-	return true;
-    }
-    else if(r._cacheConnection < _cacheConnection)
-    {
-	return false;
-    }
-    
-    if(_endpointSelection < r._endpointSelection)
-    {
-	return true;
-    }
-    else if(r._endpointSelection < _endpointSelection)
-    {
-	return false;
-    }
-    
     return false;
 }
 
@@ -415,9 +363,7 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const CommunicatorPtr
     _mode(md),
     _identity(ident),
     _context(ctx),
-    _facet(fs),
-    _cacheConnection(true),
-    _endpointSelection(Random)
+    _facet(fs)
 {
 }
 
@@ -428,9 +374,7 @@ IceInternal::Reference::Reference(const Reference& r) :
     _mode(r._mode),
     _identity(r._identity),
     _context(r._context),
-    _facet(r._facet),
-    _cacheConnection(r._cacheConnection),
-    _endpointSelection(r._endpointSelection)
+    _facet(r._facet)
 {
 }
 
@@ -457,6 +401,12 @@ IceInternal::FixedReference::getSecure() const
     return false;
 }
 
+int
+IceInternal::FixedReference::getLocatorCacheTimeout() const
+{
+    return 0;
+}
+
 string
 IceInternal::FixedReference::getAdapterId() const
 {
@@ -475,10 +425,16 @@ IceInternal::FixedReference::getCollocationOptimization() const
     return false;
 }
 
-int
-IceInternal::FixedReference::getLocatorCacheTimeout() const
+bool
+IceInternal::FixedReference::getCacheConnection() const
 {
-    return 0;
+    return false;
+}
+
+Ice::EndpointSelectionType
+IceInternal::FixedReference::getEndpointSelection() const
+{
+    return Random;
 }
 
 ReferencePtr
@@ -527,6 +483,12 @@ IceInternal::FixedReference::changeConnectionId(const string&) const
 }
 
 ReferencePtr
+IceInternal::FixedReference::changeLocatorCacheTimeout(int) const
+{
+    return FixedReferencePtr(const_cast<FixedReference*>(this));
+}
+
+ReferencePtr
 IceInternal::FixedReference::changeAdapterId(const string& newAdapterId) const
 {
     return FixedReferencePtr(const_cast<FixedReference*>(this));    
@@ -539,7 +501,13 @@ IceInternal::FixedReference::changeEndpoints(const vector<EndpointIPtr>& newEndp
 }
 
 ReferencePtr
-IceInternal::FixedReference::changeLocatorCacheTimeout(int) const
+IceInternal::FixedReference::changeCacheConnection(bool) const
+{
+    return FixedReferencePtr(const_cast<FixedReference*>(this));    
+}
+
+ReferencePtr
+IceInternal::FixedReference::changeEndpointSelection(EndpointSelectionType) const
 {
     return FixedReferencePtr(const_cast<FixedReference*>(this));
 }
@@ -723,6 +691,18 @@ IceInternal::RoutableReference::getCollocationOptimization() const
     return _collocationOptimization;
 }
 
+bool
+IceInternal::RoutableReference::getCacheConnection() const
+{
+    return _cacheConnection;
+}
+
+Ice::EndpointSelectionType
+IceInternal::RoutableReference::getEndpointSelection() const
+{
+    return _endpointSelection;
+}
+
 ReferencePtr
 IceInternal::RoutableReference::changeSecure(bool newSecure) const
 {
@@ -760,6 +740,30 @@ IceInternal::RoutableReference::changeCollocationOptimization(bool newCollocatio
     return r;
 }
 
+ReferencePtr
+IceInternal::RoutableReference::changeCacheConnection(bool newCache) const
+{
+    if(newCache == _cacheConnection)
+    {
+	return RoutableReferencePtr(const_cast<RoutableReference*>(this));
+    }
+    RoutableReferencePtr r = RoutableReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
+    r->_cacheConnection = newCache;
+    return r;
+}
+
+ReferencePtr
+IceInternal::RoutableReference::changeEndpointSelection(EndpointSelectionType newType) const
+{
+    if(newType == _endpointSelection)
+    {
+	return RoutableReferencePtr(const_cast<RoutableReference*>(this));
+    }
+    RoutableReferencePtr r = RoutableReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
+    r->_endpointSelection = newType;
+    return r;
+}
+
 int
 IceInternal::RoutableReference::hash() const
 {
@@ -783,6 +787,14 @@ IceInternal::RoutableReference::operator==(const Reference& r) const
 	return false;
     }
     if(_collocationOptimization != rhs->_collocationOptimization)
+    {
+	return false;
+    }
+    if(_cacheConnection != rhs->_cacheConnection)
+    {
+	return false;
+    }
+    if(_endpointSelection != rhs->_endpointSelection)
     {
 	return false;
     }
@@ -827,6 +839,22 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
 	    {
 		return false;
 	    }
+	    if(!_cacheConnection && rhs->_cacheConnection)
+	    {
+		return true;
+	    }
+	    else if(rhs->_cacheConnection < _cacheConnection)
+	    {
+		return false;
+	    }
+	    if(_endpointSelection < rhs->_endpointSelection)
+	    {
+		return true;
+	    }
+	    else if(rhs->_endpointSelection < _endpointSelection)
+	    {
+		return false;
+	    }
             return _routerInfo < rhs->_routerInfo;
         }
     }
@@ -839,7 +867,9 @@ IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const
     Reference(inst, com, ident, ctx, fs, md),
     _secure(sec),
     _routerInfo(rtrInfo),
-    _collocationOptimization(collocationOpt)
+    _collocationOptimization(collocationOpt),
+    _cacheConnection(true),
+    _endpointSelection(Random)
 {
 }
 
@@ -847,7 +877,9 @@ IceInternal::RoutableReference::RoutableReference(const RoutableReference& r) :
     Reference(r),
     _secure(r._secure),
     _routerInfo(r._routerInfo),
-    _collocationOptimization(r._collocationOptimization)
+    _collocationOptimization(r._collocationOptimization),
+    _cacheConnection(r._cacheConnection),
+    _endpointSelection(r._endpointSelection)
 {
 }
 

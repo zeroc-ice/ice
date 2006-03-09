@@ -44,6 +44,18 @@ public abstract class RoutableReference extends Reference
         return _collocationOptimization;
     }
 
+    public final boolean
+    getCacheConnection()
+    {
+	return _cacheConnection;
+    }
+
+    public final Ice.EndpointSelectionType
+    getEndpointSelection()
+    {
+	return _endpointSelection;
+    }
+
     public Reference
     changeSecure(boolean newSecure)
     {
@@ -81,6 +93,30 @@ public abstract class RoutableReference extends Reference
 	return r;
     }
 
+    public final Reference
+    changeCacheConnection(boolean newCache)
+    {
+        if(newCache == _cacheConnection)
+	{
+	    return this;
+	}
+	RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+	r._cacheConnection = newCache;
+	return r;
+    }
+
+    public final Reference
+    changeEndpointSelection(Ice.EndpointSelectionType newType)
+    {
+        if(newType == _endpointSelection)
+	{
+	    return this;
+	}
+	RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+	r._endpointSelection = newType;
+	return r;
+    }
+
     public synchronized int
     hashCode()
     {
@@ -107,6 +143,14 @@ public abstract class RoutableReference extends Reference
 	{
 	    return false;
 	}
+	if(_cacheConnection != rhs._cacheConnection)
+	{
+	    return false;
+	}
+	if(_endpointSelection != rhs._endpointSelection)
+	{
+	    return false;
+	}
 	return _routerInfo == null ? rhs._routerInfo == null : _routerInfo.equals(rhs._routerInfo);
     }
 
@@ -125,6 +169,8 @@ public abstract class RoutableReference extends Reference
 	_secure = sec;
 	_routerInfo = rtrInfo;
 	_collocationOptimization = collocationOpt;
+	_cacheConnection = true;
+	_endpointSelection = Ice.EndpointSelectionType.Random;
     }
 
     protected Ice.ConnectionI
@@ -305,4 +351,6 @@ public abstract class RoutableReference extends Reference
     private boolean _secure;
     private RouterInfo _routerInfo; // Null if no router is used.
     private boolean _collocationOptimization;
+    private boolean _cacheConnection;
+    private Ice.EndpointSelectionType _endpointSelection;
 }

@@ -50,16 +50,6 @@ namespace IceInternal
 	    return context_;
 	}
 
-	public bool getCacheConnection()
-	{
-	    return cacheConnection_;
-	}
-
-	public Ice.EndpointSelectionType getEndpointSelection()
-	{
-	    return endpointSelection_;
-	}
-
 	public Reference defaultContext()
 	{
 	    Reference r = instance_.referenceFactory().copy(this);
@@ -76,6 +66,8 @@ namespace IceInternal
 	public abstract EndpointI[] getEndpoints();
 	public abstract bool getCollocationOptimization();
 	public abstract int getLocatorCacheTimeout();
+	public abstract bool getCacheConnection();
+	public abstract Ice.EndpointSelectionType getEndpointSelection();
 
 	//
 	// The change* methods (here and in derived classes) create
@@ -133,28 +125,6 @@ namespace IceInternal
 	    return r;
 	}
 
-	public Reference changeCacheConnection(bool newCache)
-	{
-	    if(newCache == cacheConnection_)
-	    {
-		return this;
-	    }
-	    Reference r = instance_.referenceFactory().copy(this);
-	    r.cacheConnection_ = newCache;
-	    return r;
-	}
-
-	public Reference changeEndpointSelection(Ice.EndpointSelectionType newType)
-	{
-	    if(newType == endpointSelection_)
-	    {
-		return this;
-	    }
-	    Reference r = instance_.referenceFactory().copy(this);
-	    r.endpointSelection_ = newType;
-	    return r;
-	}	
-
 	public abstract Reference changeSecure(bool newSecure);
 	public abstract Reference changeRouter(Ice.RouterPrx newRouter);
 	public abstract Reference changeLocator(Ice.LocatorPrx newLocator);
@@ -165,6 +135,8 @@ namespace IceInternal
 	public abstract Reference changeAdapterId(string newAdapterId);
 	public abstract Reference changeEndpoints(EndpointI[] newEndpoints);
 	public abstract Reference changeLocatorCacheTimeout(int newTimeout);
+	public abstract Reference changeCacheConnection(bool newCache);
+	public abstract Reference changeEndpointSelection(Ice.EndpointSelectionType newType);
 
 	public override int GetHashCode()
 	{
@@ -354,16 +326,6 @@ namespace IceInternal
 		return false;
 	    }
 
-	    if(cacheConnection_ != r.cacheConnection_)
-	    {
-		return false;
-	    }
-
-	    if(endpointSelection_ != r.endpointSelection_)
-	    {
-		return false;
-	    }
-
 	    return true;
 	}
 
@@ -382,8 +344,6 @@ namespace IceInternal
 	private Ice.Context context_;
 	private static Ice.Context _emptyContext = new Ice.Context();
 	private string facet_;
-	private bool cacheConnection_;
-	private Ice.EndpointSelectionType endpointSelection_;
 
 	protected int hashValue_;
 	protected bool hashInitialized_;
@@ -408,8 +368,6 @@ namespace IceInternal
 	    identity_ = ident;
 	    context_ = ctx == null ? _emptyContext : ctx;
 	    facet_ = fac;
-	    cacheConnection_ = true;
-	    endpointSelection_ = Ice.EndpointSelectionType.Random;
 	    hashInitialized_ = false;
 	}
 
@@ -460,6 +418,16 @@ namespace IceInternal
 	    return 0;
 	}
 
+	public override bool getCacheConnection()
+	{
+	    return false;
+	}
+
+	public override Ice.EndpointSelectionType getEndpointSelection()
+	{
+	    return Ice.EndpointSelectionType.Random;
+	}
+
 	public override Reference changeSecure(bool sec)
 	{
 	    return this;
@@ -492,6 +460,16 @@ namespace IceInternal
 
 	public override Reference changeLocatorCacheTimeout(int newTimeout)
         {
+	    return this;
+	}
+
+	public override Reference changeCacheConnection(bool newCache)
+	{
+	    return this;
+	}
+
+	public override Reference changeEndpointSelection(Ice.EndpointSelectionType newType)
+	{
 	    return this;
 	}
 
@@ -720,6 +698,16 @@ namespace IceInternal
 	    return _collocationOptimization;
 	}
 
+	public override bool getCacheConnection()
+	{
+	    return _cacheConnection;
+	}
+
+	public override Ice.EndpointSelectionType getEndpointSelection()
+	{
+	    return _endpointSelection;
+	}
+
 	public override Reference changeSecure(bool newSecure)
 	{
 	    if(newSecure == _secure)
@@ -754,6 +742,28 @@ namespace IceInternal
 	    return r;
 	}
 
+	public override Reference changeCacheConnection(bool newCache)
+	{
+	    if(newCache == _cacheConnection)
+	    {
+		return this;
+	    }
+	    RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+	    r._cacheConnection = newCache;
+	    return r;
+	}
+
+	public override Reference changeEndpointSelection(Ice.EndpointSelectionType newType)
+	{
+	    if(newType == _endpointSelection)
+	    {
+		return this;
+	    }
+	    RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+	    r._endpointSelection = newType;
+	    return r;
+	}	
+
 	public override bool Equals(object obj)
 	{
 	    //
@@ -770,6 +780,14 @@ namespace IceInternal
 		return false;
 	    }
 	    if(_collocationOptimization != rhs._collocationOptimization)
+	    {
+		return false;
+	    }
+	    if(_cacheConnection != rhs._cacheConnection)
+	    {
+		return false;
+	    }
+	    if(_endpointSelection != rhs._endpointSelection)
 	    {
 		return false;
 	    }
@@ -798,6 +816,8 @@ namespace IceInternal
 	    _secure = sec;
 	    _routerInfo = rtrInfo;
 	    _collocationOptimization = collocationOpt;
+	    _cacheConnection = true;
+	    _endpointSelection = Ice.EndpointSelectionType.Random;
 	}
 
 	//
@@ -989,6 +1009,8 @@ namespace IceInternal
 	private bool _secure;
 	private RouterInfo _routerInfo; // Null if no router is used.
 	private bool _collocationOptimization;
+	private bool _cacheConnection;
+	private Ice.EndpointSelectionType _endpointSelection;
     }
 
     public class DirectReference : RoutableReference

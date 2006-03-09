@@ -211,11 +211,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	adapters.push_back(com->createObjectAdapter("Adapter36", endpoints[2]->toString()));
 	for(i = 0; i < nRetry && test->getAdapterName() == "Adapter36"; i++);
 	test(i == nRetry);
-	test->ice_connection()->close(true);
+	test->ice_connection()->close(false);
 	adapters.push_back(com->createObjectAdapter("Adapter35", endpoints[1]->toString()));
 	for(i = 0; i < nRetry && test->getAdapterName() == "Adapter35"; i++);
 	test(i == nRetry);
-	test->ice_connection()->close(true);
+	test->ice_connection()->close(false);
 	adapters.push_back(com->createObjectAdapter("Adapter34", endpoints[0]->toString()));
 	for(i = 0; i < nRetry && test->getAdapterName() == "Adapter34"; i++);
 	test(i == nRetry);

@@ -47,8 +47,6 @@ public:
     const std::string& getFacet() const { return _facet; }
     const InstancePtr& getInstance() const { return _instance; }
     const Ice::Context& getContext() const { return _context; }
-    const bool getCacheConnection() const { return _cacheConnection; }
-    const Ice::EndpointSelectionType getEndpointSelection() const { return _endpointSelection; }
 
     ReferencePtr defaultContext() const;
 
@@ -59,6 +57,8 @@ public:
     virtual std::vector<EndpointIPtr> getEndpoints() const = 0;
     virtual bool getCollocationOptimization() const = 0;
     virtual int getLocatorCacheTimeout() const = 0;
+    virtual bool getCacheConnection() const = 0;
+    virtual Ice::EndpointSelectionType getEndpointSelection() const = 0;
 
     //
     // The change* methods (here and in derived classes) create
@@ -69,8 +69,6 @@ public:
     ReferencePtr changeMode(Mode) const;
     ReferencePtr changeIdentity(const Ice::Identity&) const;
     ReferencePtr changeFacet(const std::string&) const;
-    ReferencePtr changeCacheConnection(bool) const;
-    ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const;
 
     virtual ReferencePtr changeSecure(bool) const = 0;
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const = 0;
@@ -82,6 +80,8 @@ public:
     virtual ReferencePtr changeAdapterId(const std::string&) const = 0;
     virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const = 0;
     virtual ReferencePtr changeLocatorCacheTimeout(int) const = 0;
+    virtual ReferencePtr changeCacheConnection(bool) const = 0;
+    virtual ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const = 0;
     
     virtual int hash() const; // Conceptually const.
 
@@ -125,8 +125,6 @@ private:
     Ice::Identity _identity;
     Ice::Context _context;
     std::string _facet;
-    bool _cacheConnection;
-    Ice::EndpointSelectionType _endpointSelection;
 };
 
 class FixedReference : public Reference
@@ -143,6 +141,8 @@ public:
     virtual std::string getAdapterId() const;
     virtual std::vector<EndpointIPtr> getEndpoints() const;
     virtual bool getCollocationOptimization() const;
+    virtual bool getCacheConnection() const;
+    virtual Ice::EndpointSelectionType getEndpointSelection() const;
 
     virtual ReferencePtr changeSecure(bool) const;
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const;
@@ -154,6 +154,8 @@ public:
     virtual ReferencePtr changeLocatorCacheTimeout(int) const;
     virtual ReferencePtr changeAdapterId(const std::string&) const;
     virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const;
+    virtual ReferencePtr changeCacheConnection(bool) const;
+    virtual ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const;
 
     virtual void streamWrite(BasicStream*) const;
     virtual std::string toString() const;
@@ -186,10 +188,14 @@ public:
 
     virtual bool getSecure() const;
     virtual bool getCollocationOptimization() const;
+    virtual bool getCacheConnection() const;
+    virtual Ice::EndpointSelectionType getEndpointSelection() const;
 
     virtual ReferencePtr changeSecure(bool) const;
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const;
     virtual ReferencePtr changeCollocationOptimization(bool) const;
+    virtual ReferencePtr changeCacheConnection(bool) const;
+    virtual ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const;
 
     virtual Ice::ConnectionIPtr getConnection(bool&) const = 0;
 
@@ -214,6 +220,8 @@ private:
     bool _secure;
     RouterInfoPtr _routerInfo; // Null if no router is used.
     bool _collocationOptimization;
+    bool _cacheConnection;
+    Ice::EndpointSelectionType _endpointSelection;
 };
 
 class DirectReference : public RoutableReference

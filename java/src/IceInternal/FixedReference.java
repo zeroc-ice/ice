@@ -60,6 +60,18 @@ public class FixedReference extends Reference
 	return 0;
     }
 
+    public final boolean
+    getCacheConnection()
+    {
+	return false;
+    }
+
+    public final Ice.EndpointSelectionType
+    getEndpointSelection()
+    {
+	return Ice.EndpointSelectionType.Random;
+    }
+
     public Reference
     changeSecure(boolean sec)
     {
@@ -100,6 +112,18 @@ public class FixedReference extends Reference
     changeLocatorCacheTimeout(int newTimeout)
     {
         return this;
+    }
+
+    public final Reference
+    changeCacheConnection(boolean newCache)
+    {
+	return this;
+    }
+
+    public final Reference
+    changeEndpointSelection(Ice.EndpointSelectionType newType)
+    {
+	return this;
     }
 
     public Reference
