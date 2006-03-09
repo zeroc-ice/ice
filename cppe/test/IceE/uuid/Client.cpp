@@ -71,17 +71,24 @@ typedef Handle<CountedBarrier> CountedBarrierPtr;
 
 class InsertThread : public Thread, public Monitor<Mutex>
 {
+    enum State
+    {
+	StateWaiting,
+	StateRunning,
+	StateDestroyed
+    };
 public:
     
     InsertThread(const CountedBarrierPtr& start, const CountedBarrierPtr& stop, int threadId, set<string>& uuidSet, long howMany, bool verbose)
-	: _start(start), _stop(stop), _threadId(threadId), _uuidSet(uuidSet), _howMany(howMany), _verbose(verbose), _destroyed(false)
+	: _start(start), _stop(stop), _threadId(threadId), _uuidSet(uuidSet), _howMany(howMany), _verbose(verbose), _state(StateWaiting)
     {
     }
 
     virtual void
     run()
     {
-	_start->waitZero();
+	_start->decrement();
+	waitNotWaiting();
 
 	for(long i = 0; i < _howMany && !destroyed(); i++)
 	{
@@ -122,14 +129,33 @@ public:
     destroy()
     {
 	Lock sync(*this);
-	_destroyed = true;
+	_state = StateDestroyed;
+	notify();
     }
 
     bool
     destroyed() const
     {
 	Lock sync(*this);
-	return _destroyed;
+	return _state == StateDestroyed;
+    }
+
+    void
+    waitNotWaiting()
+    {
+	Lock sync(*this);
+	while(_state == StateWaiting)
+	{
+	    wait();
+	}
+    }
+
+    void
+    stopWaiting()
+    {
+	Lock sync(*this);
+	_state = StateRunning;
+	notify();
     }
 
  private:
@@ -140,7 +166,7 @@ public:
     set<string>& _uuidSet;
     const long _howMany;
     const bool _verbose;
-    bool _destroyed;
+    State _state;
 };
 typedef Handle<InsertThread> InsertThreadPtr;
 
@@ -281,7 +307,11 @@ public:
 	    InsertThreadPtr t = new InsertThread(start, stop, i, uuidSet, howMany / threadCount, verbose); 
 	    t->start();
 	    threads.push_back(t);
-	    start->decrement();
+        }
+	start->waitZero();
+	for(i = 0; i < threadCount; i++)
+        {
+	    threads[i]->stopWaiting();
         }
 
         vector<InsertThreadPtr>::iterator p;
