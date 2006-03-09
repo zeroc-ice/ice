@@ -173,7 +173,11 @@ public abstract class Reference
             h = 5 * h + (int)_identity.category.charAt(i);
         }
 
-	h = 5 * h + _context.elements().hashCode();
+	java.util.Enumeration e = _context.elements();
+	while(e.hasMoreElements())
+	{
+	    h = 5 * h + e.nextElement().hashCode();
+	}
 
         sz = _facet.length();
         for(int i = 0; i < sz; i++)
