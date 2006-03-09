@@ -45,6 +45,10 @@ Changes since version 1.0.0
   proxies will not contain the loopback interface (127.0.0.1) unless
   it is the only local interface present.
 
+- Added object adapter property <adapter>.ReplicaGroupId which
+  allows adapters to be replicated. See the IceGrid chapter in the
+  manual for more information.
+
 - slice2cppe now provides the --add-header option. It adds a #include
   directive for the specified header at the beginning of the generated
   source file. For example:
