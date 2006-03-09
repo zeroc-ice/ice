@@ -42,7 +42,7 @@ public:
 	--_count;
 	if(_count == 0)
 	{
-	    notify();
+	    notifyAll();
 	}
     }
 
@@ -69,18 +69,12 @@ private:
 };
 typedef Handle<CountedBarrier> CountedBarrierPtr;
 
-class InsertThread : public Thread, public Monitor<Mutex>
+class InsertThread : public Thread, public Mutex
 {
-    enum State
-    {
-	StateWaiting,
-	StateRunning,
-	StateDestroyed
-    };
 public:
     
     InsertThread(const CountedBarrierPtr& start, const CountedBarrierPtr& stop, int threadId, set<string>& uuidSet, long howMany, bool verbose)
-	: _start(start), _stop(stop), _threadId(threadId), _uuidSet(uuidSet), _howMany(howMany), _verbose(verbose), _state(StateWaiting)
+	: _start(start), _stop(stop), _threadId(threadId), _uuidSet(uuidSet), _howMany(howMany), _verbose(verbose), _destroyed(false)
     {
     }
 
@@ -88,7 +82,7 @@ public:
     run()
     {
 	_start->decrement();
-	waitNotWaiting();
+	_start->waitZero();
 
 	for(long i = 0; i < _howMany && !destroyed(); i++)
 	{
@@ -129,35 +123,15 @@ public:
     destroy()
     {
 	Lock sync(*this);
-	_state = StateDestroyed;
-	notify();
+	_destroyed = true;
     }
 
     bool
     destroyed() const
     {
 	Lock sync(*this);
-	return _state == StateDestroyed;
+	return _destroyed;
     }
-
-    void
-    waitNotWaiting()
-    {
-	Lock sync(*this);
-	while(_state == StateWaiting)
-	{
-	    wait();
-	}
-    }
-
-    void
-    stopWaiting()
-    {
-	Lock sync(*this);
-	_state = StateRunning;
-	notify();
-    }
-
  private:
 
     const CountedBarrierPtr _start;
@@ -166,7 +140,7 @@ public:
     set<string>& _uuidSet;
     const long _howMany;
     const bool _verbose;
-    State _state;
+    bool _destroyed;
 };
 typedef Handle<InsertThread> InsertThreadPtr;
 
@@ -228,43 +202,14 @@ public:
         {
 	    tprintf("\n");
         }
-        set<string> uuidSet;
+	//
+	// First measure raw time to produce UUIDs.
+	//
         Time startTime = Time::now();
 	long i;
 	for(i = 0; i < howMany; i++)
 	{
-    	    string uuid = generateUUID();
-
-	    pair<set<string>::iterator, bool> ok = uuidSet.insert(uuid);
-	    if(!ok.second)
-	    {
-	        tprintf("******* iteration %d\n", i);
-		tprintf("******* Duplicate UUID: %s\n", (*ok.first).c_str());
-	    }
-
-	    test(ok.second);
-
-#ifdef _WIN32_WCE
-	    if(i > 0 && (i % 100) == 0)
-	    {
-		tprintf(".");
-		if(terminated())
-		{
-		    break;
-		}
-		MSG Msg;
-		while(PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE))
-		{
-		    TranslateMessage(&Msg);
-		    DispatchMessage(&Msg);
-		}
-	    }
-#else
-	    if(verbose && i > 0 && (i % 100000 == 0))
-	    {
-		tprintf("generated %d UUIDs.\n", i);
-	    }
-#endif
+    	    generateUUID();
 	}
 #ifdef _WIN32_WCE
 	if(terminated())
@@ -297,6 +242,8 @@ public:
 	    tprintf("\n");
         }
 
+	set<string> uuidSet;
+        
 	startTime = Time::now();
 	vector<InsertThreadPtr> threads;
 
@@ -307,11 +254,6 @@ public:
 	    InsertThreadPtr t = new InsertThread(start, stop, i, uuidSet, howMany / threadCount, verbose); 
 	    t->start();
 	    threads.push_back(t);
-        }
-	start->waitZero();
-	for(i = 0; i < threadCount; i++)
-        {
-	    threads[i]->stopWaiting();
         }
 
         vector<InsertThreadPtr>::iterator p;
