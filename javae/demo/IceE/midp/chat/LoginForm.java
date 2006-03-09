@@ -81,7 +81,7 @@ public class LoginForm extends Form implements CommandListener, Runnable
 	Demo.ChatSessionPrx session = null;
 	try
 	{
-	    String routerStr = "Glacier2/router:tcp -h " + server + " -p " + port;
+	    String routerStr = "DemoGlacier2/router:tcp -h " + server + " -p " + port;
 	    Glacier2.RouterPrx router =
 		Glacier2.RouterPrxHelper.checkedCast(_communicator.stringToProxy(routerStr));
 	    if(router != null)
