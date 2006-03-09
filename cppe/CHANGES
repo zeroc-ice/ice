@@ -1,6 +1,8 @@
 Changes since version 1.0.0
 ---------------------------
 
+- Added support for the Visual C++ 2005 compiler.
+
 - Removed the Ice.Warn.Leaks property.
 
 - If several proxies share the same connection, and an operation call

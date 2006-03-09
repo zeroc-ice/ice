@@ -39,7 +39,7 @@ public:
 	    //
 	    // We don't throw directly NullHandleException here to
 	    // keep the code size of this method to a minimun (the
-	    // assembly code fo throwing an exception is much bigger
+	    // assembly code for throwing an exception is much bigger
 	    // than just a function call). This maximises the chances
 	    // of inlining by compiler optimization.
 	    //
@@ -56,7 +56,7 @@ public:
 	    //
 	    // We don't throw directly NullHandleException here to
 	    // keep the code size of this method to a minimun (the
-	    // assembly code fo throwing an exception is much bigger
+	    // assembly code for throwing an exception is much bigger
 	    // than just a function call). This maximises the chances
 	    // of inlining by compiler optimization.
 	    //
