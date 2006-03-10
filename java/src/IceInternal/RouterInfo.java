@@ -14,7 +14,7 @@ public final class RouterInfo
     RouterInfo(Ice.RouterPrx router)
     {
         _router = router;
-        _routingTable = new Ice.RoutingTable();
+        _routingTable = new RoutingTable();
 
         assert(_router != null);
     }
@@ -141,6 +141,6 @@ public final class RouterInfo
     private final Ice.RouterPrx _router;
     private Ice.ObjectPrx _clientProxy;
     private Ice.ObjectPrx _serverProxy;
-    private final Ice.RoutingTable _routingTable;
+    private final RoutingTable _routingTable;
     private Ice.ObjectAdapter _adapter;
 }

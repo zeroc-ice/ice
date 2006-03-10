@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-namespace Ice
+namespace IceInternal
 {
 
     using System.Collections;
@@ -33,7 +33,7 @@ namespace Ice
 	//
 	// Returns false if the Proxy exists already.
 	//
-	public bool add(ObjectPrx prx)
+	public bool add(Ice.ObjectPrx prx)
 	{
 	    if(prx == null)
 	    {
@@ -43,7 +43,7 @@ namespace Ice
 	    //
 	    // We insert the proxy in its default form into the routing table.
 	    //
-	    ObjectPrx proxy = prx.ice_twoway().ice_secure(false);
+	    Ice.ObjectPrx proxy = prx.ice_twoway().ice_secure(false);
 	    
 	    lock(this)
 	    {
@@ -58,23 +58,7 @@ namespace Ice
 		}
 	    }
 	}
-	
-	//
-	// Returns null if no Proxy exists for the given identity.
-	//
-	public ObjectPrx get(Identity ident)
-	{
-	    if(ident.name.Length == 0)
-	    {
-		return null;
-	    }
-	    
-	    lock(this)
-	    {
-		return (ObjectPrx)_table[ident];
-	    }
-	}
-	
+
 	private Hashtable _table;
     }
 

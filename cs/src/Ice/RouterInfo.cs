@@ -19,7 +19,7 @@ namespace IceInternal
 	internal RouterInfo(Ice.RouterPrx router)
 	{
 	    _router = router;
-	    _routingTable = new Ice.RoutingTable();
+	    _routingTable = new RoutingTable();
 	    
 	    Debug.Assert(_router != null);
 	}
@@ -153,7 +153,7 @@ namespace IceInternal
 	private readonly Ice.RouterPrx _router;
 	private Ice.ObjectPrx _clientProxy;
 	private Ice.ObjectPrx _serverProxy;
-	private readonly Ice.RoutingTable _routingTable;
+	private readonly RoutingTable _routingTable;
 	private Ice.ObjectAdapter _adapter;
     }
 
