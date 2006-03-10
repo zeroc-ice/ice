@@ -874,11 +874,11 @@ SOURCE=.\RouterInfoF.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\ice\RoutingTable.h
+SOURCE=.\RoutingTable.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\ice\RoutingTableF.h
+SOURCE=.\RoutingTableF.h
 # End Source File
 # Begin Source File
 

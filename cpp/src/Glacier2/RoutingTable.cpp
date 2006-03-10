@@ -7,32 +7,19 @@
 //
 // **********************************************************************
 
-#include <Ice/RoutingTable.h>
-#include <Ice/Proxy.h>
+#include <Glacier2/RoutingTable.h>
 
 using namespace std;
 using namespace Ice;
-using namespace IceInternal;
+using namespace Glacier2;
 
-void IceInternal::incRef(RoutingTable* p) { p->__incRef(); }
-void IceInternal::decRef(RoutingTable* p) { p->__decRef(); }
-
-IceInternal::RoutingTable::RoutingTable() :
+Glacier2::RoutingTable::RoutingTable() :
     _tableHint(_table.end())
 {
 }
 
-void
-IceInternal::RoutingTable::clear()
-{
-    IceUtil::Mutex::Lock sync(*this);
-
-    _table.clear();
-    _tableHint = _table.end();
-}
-
 bool
-IceInternal::RoutingTable::add(const ObjectPrx& prx)
+Glacier2::RoutingTable::add(const ObjectPrx& prx)
 {
     if(!prx)
     {
@@ -69,5 +56,41 @@ IceInternal::RoutingTable::add(const ObjectPrx& prx)
     else
     {
 	return false;
+    }
+}
+
+ObjectPrx
+Glacier2::RoutingTable::get(const Identity& ident)
+{
+    if(ident.name.empty())
+    {
+	return 0;
+    }
+
+    IceUtil::Mutex::Lock sync(*this);
+
+    map<Identity, ObjectPrx>::iterator p = _table.end();
+    
+    if(_tableHint != _table.end())
+    {
+	if(_tableHint->first == ident)
+	{
+	    p = _tableHint;
+	}
+    }
+    
+    if(p == _table.end())
+    {
+	p = _table.find(ident);
+    }
+
+    if(p == _table.end())
+    {
+	return 0;
+    }
+    else
+    {
+	_tableHint = p;
+	return p->second;
     }
 }

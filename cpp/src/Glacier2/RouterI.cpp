@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <Ice/RoutingTable.h>
 #include <Glacier2/RouterI.h>
 #include <Glacier2/Session.h>
 
@@ -18,7 +17,7 @@ using namespace Glacier2;
 Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAdapterPtr& serverAdapter,
 			   const ConnectionPtr& connection, const string& userId, const SessionPrx& session) :
     _communicator(clientAdapter->getCommunicator()),
-    _routingTable(new IceInternal::RoutingTable),
+    _routingTable(new RoutingTable),
     _routingTableTraceLevel(_communicator->getProperties()->getPropertyAsInt("Glacier2.Trace.RoutingTable")),
     _clientProxy(clientAdapter->createProxy(stringToIdentity("dummy"))),
     _connection(connection),

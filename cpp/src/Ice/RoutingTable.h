@@ -26,7 +26,7 @@ struct Identity;
 namespace IceInternal
 {
 
-class ICE_API RoutingTable : public IceUtil::Shared, public IceUtil::Mutex
+class RoutingTable : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
 
@@ -41,11 +41,6 @@ public:
     // Returns false if the Proxy exists already.
     //
     bool add(const Ice::ObjectPrx&);
-
-    //
-    // Returns null if no Proxy exists for the given identity.
-    //
-    Ice::ObjectPrx get(const Ice::Identity&);
 
 private:
 

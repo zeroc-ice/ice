@@ -10,7 +10,7 @@
 #ifndef CLIENT_BLOBJECT_H
 #define CLIENT_BLOBJECT_H
 
-#include <Ice/RoutingTableF.h>
+#include <Glacier2/RoutingTable.h>
 #include <Glacier2/Blobject.h>
 
 namespace Glacier2
@@ -23,7 +23,7 @@ class ClientBlobject : public Glacier2::Blobject
 {
 public:
 
-    ClientBlobject(const Ice::CommunicatorPtr&, const IceInternal::RoutingTablePtr&, const Ice::StringSeq&);
+    ClientBlobject(const Ice::CommunicatorPtr&, const RoutingTablePtr&, const Ice::StringSeq&);
     virtual ~ClientBlobject();
 
     virtual void destroy();
@@ -32,7 +32,7 @@ public:
 
 private:
 
-    IceInternal::RoutingTablePtr _routingTable;
+    RoutingTablePtr _routingTable;
     const std::vector<std::string> _allowCategories;
     const int _rejectTraceLevel;
 };

@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <Ice/RoutingTable.h>
 #include <Ice/IdentityUtil.h>
 #include <Glacier2/ClientBlobject.h>
 
@@ -16,7 +15,7 @@ using namespace Ice;
 using namespace Glacier2;
 
 Glacier2::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
-					 const IceInternal::RoutingTablePtr& routingTable,
+					 const RoutingTablePtr& routingTable,
 					 const StringSeq& allowCategories) :
     Glacier2::Blobject(communicator, false),
     _routingTable(routingTable),

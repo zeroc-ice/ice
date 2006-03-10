@@ -127,6 +127,10 @@ SOURCE=.\RouterI.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\RoutingTable.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ServerBlobject.cpp
 # End Source File
 # Begin Source File
@@ -156,6 +160,10 @@ SOURCE=.\RequestQueue.h
 # Begin Source File
 
 SOURCE=.\RouterI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\RoutingTable.h
 # End Source File
 # Begin Source File
 

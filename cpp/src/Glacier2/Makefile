@@ -31,6 +31,7 @@ ROBJS		= Blobject.o \
 		  Glacier2Router.o \
 		  RequestQueue.o \
 		  RouterI.o \
+		  RoutingTable.o \
 		  ServerBlobject.o \
 		  SessionRouterI.o
 
