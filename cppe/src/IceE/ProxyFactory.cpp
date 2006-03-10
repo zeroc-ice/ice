@@ -169,12 +169,12 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
         out << " because of exception\n" << ex.toString();
     }
 
-    if(cnt > 0)
+    if(interval > 0)
     {
         //
         // Sleep before retrying.
         //
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(_retryIntervals[cnt - 1]));
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(interval));
     }
 }
 
