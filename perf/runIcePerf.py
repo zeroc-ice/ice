@@ -114,7 +114,7 @@ def runIcePerfs(expr, results, i):
     test.run("4tp", "throughput", "structSeq", threadPoolFour)
     test.run("tpc", "throughput", "structSeq " + threadPerConnection, threadPerConnection)
 
-def runIceEPerfs(expr, results, i):
+def runIceEPerfs(expr, results, i, blocking):
 
     test = ClientServerTest(expr, results, i, "IceE", "latency twoway")
     test.run("tpc", "latency", "twoway ", "")
@@ -143,6 +143,22 @@ def runIceEPerfs(expr, results, i):
     test = ClientServerTest(expr, results, i, "IceE", "throughput struct seq")
     test.run("tpc", "throughput", "structSeq ", "")
     test.run("tpc blocking", "throughput", "structSeq " + blocking, "")
+
+    test = ClientServerTest(expr, results, i, "IceE", "throughput byte (receive)")
+    test.run("tpc", "throughput", "receive byte ", "")
+    test.run("tpc blocking", "throughput", "receive byte " + blocking, "")
+    
+    test = ClientServerTest(expr, results, i, "IceE", "throughput string seq (receive)")
+    test.run("tpc", "throughput", "receive stringSeq ", "")
+    test.run("tpc blocking", "throughput", "receive stringSeq " + blocking, "")
+    
+    test = ClientServerTest(expr, results, i, "IceE", "throughput long string seq (receive)")
+    test.run("tpc", "throughput", "receive longStringSeq ", "")
+    test.run("tpc blocking", "throughput", "receive longStringSeq " + blocking, "")
+    
+    test = ClientServerTest(expr, results, i, "IceE", "throughput struct seq (receive)")
+    test.run("tpc", "throughput", "receive structSeq ", "")
+    test.run("tpc blocking", "throughput", "receive structSeq " + blocking, "")
 
 def runTAOPerfs(expr, results, i):
 

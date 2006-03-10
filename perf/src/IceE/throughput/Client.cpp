@@ -22,6 +22,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     bool stringSeqTest = false;
     bool longStringSeqTest = false;
     bool structSeqTest = false;
+    bool receive = false;
     int i;
     for(i = 0; i < argc; i++)
     {
@@ -40,6 +41,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
        else if(strcmp(argv[i], "byte") == 0)
        {
 	   byteTest = true;
+       }
+       else if(strcmp(argv[i], "receive") == 0)
+       {
+	   receive = true;
        }
     }
     if(!byteTest && !stringSeqTest && !longStringSeqTest && !structSeqTest)
@@ -66,9 +71,11 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     ThroughputPrx throughputOneway = ThroughputPrx::uncheckedCast(throughput->ice_oneway());
 
     ByteSeq byteSeq(ByteSeqSize, 0);
+#ifdef ICEE_USE_ARRAY_MAPPING
     pair<const Ice::Byte*, const Ice::Byte*> byteArr;
     byteArr.first = &byteSeq[0];
     byteArr.second = byteArr.first + byteSeq.size();
+#endif
 
     StringSeq stringSeq(StringSeqSize, "hello");
 
@@ -87,30 +94,74 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     const int repetitions = 1000;
     if(byteTest)
     {
-	for(i = 0; i < repetitions; ++i)
+	if(!receive)
 	{
-	    throughput->sendByteSeq(byteArr);
+	    for(i = 0; i < repetitions; ++i)
+	    {
+#ifdef ICEE_USE_ARRAY_MAPPING
+		throughput->sendByteSeq(byteArr);
+#else
+		throughput->sendByteSeq(byteSeq);
+#endif
+	    }
+	}
+	else
+	{
+	    for(i = 0; i < repetitions; ++i)
+	    {
+		throughput->recvByteSeq();
+	    }
 	}
     }
     else if(stringSeqTest)
     {
-	for(i = 0; i < repetitions; ++i)
+	if(!receive)
 	{
-	    throughput->sendStringSeq(stringSeq);
+	    for(i = 0; i < repetitions; ++i)
+	    {
+		throughput->sendStringSeq(stringSeq);
+	    }
+	}
+	else
+	{
+	    for(i = 0; i < repetitions; ++i)
+	    {
+		throughput->recvStringSeq();
+	    }
 	}
     }
     else if(longStringSeqTest)
     {
-	for(i = 0; i < repetitions; ++i)
+	if(!receive)
 	{
-	    throughput->sendStringSeq(longStringSeq);
+	    for(i = 0; i < repetitions; ++i)
+	    {
+		throughput->sendStringSeq(longStringSeq);
+	    }
+	}
+	else
+	{
+	    for(i = 0; i < repetitions; ++i)
+	    {
+		throughput->recvLongStringSeq();
+	    }
 	}
     }
     else if(structSeqTest)
     {
-	for(i = 0; i < repetitions; ++i)
+	if(!receive)
 	{
-	    throughput->sendStructSeq(structSeq);
+	    for(i = 0; i < repetitions; ++i)
+	    {
+		throughput->sendStructSeq(structSeq);
+	    }
+	}
+	else
+	{
+	    for(i = 0; i < repetitions; ++i)
+	    {
+		throughput->recvStructSeq();
+	    }
 	}
     }
 

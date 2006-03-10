@@ -337,6 +337,7 @@ class AllResults :
             sortedNames.sort()
             for name in sortedNames:
                 t = [ ]
+                bestResults = { }
                 for subname in namesWithSubnames[name]:
                     if results[test].has_key(name) and results[test][name].has_key(subname):
                         for product in products:
@@ -344,7 +345,12 @@ class AllResults :
                                 k = product + " " + name + " " + subname
                                 v = results[test][name][subname][product]
                                 t.append((k,v))
-
+                                for (h, r) in v.iteritems():
+                                    if not bestResults.has_key(h):
+                                        bestResults[h] = r
+                                    elif r < bestResults[h]:
+                                        bestResults[h] = r
+                                    
                 if len(t) > 0:
 
                     t.sort(compTest)
@@ -353,9 +359,11 @@ class AllResults :
                         for host in hosts:
                             if not v.has_key(host):
                                 print "| %-18s" % "",
+                            elif v[host] / bestResults[host] >= 10.0:
+                                print "| %10.6f (%-#1.2f)" % (v[host], v[host] / bestResults[host]),
                             else:
-                                print "| %10.6f" % v[host],
-                            print ""
+                                print "| %10.6f (%-#1.2f) " % (v[host], v[host] / bestResults[host]),
+                        print ""
 
                     print (" %-" + str(maxLen) + "s") % ("-------------------------------------------"[0:maxLen]),
                     for host in hosts:

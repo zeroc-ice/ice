@@ -9,6 +9,8 @@
 
 top_srcdir	= ../../..
 
+ICEE_USE_ARRAY_MAPPING = yes
+
 CLIENT		= client
 SERVER		= server
 
@@ -28,6 +30,11 @@ SLICE_SRCS	= Throughput.ice
 
 include $(top_srcdir)/config/Make.rules
 include $(top_srcdir)/config/Make.icee.rules
+
+ifeq ($(ICEE_USE_ARRAY_MAPPING),yes)
+	CPPFLAGS := -DICEE_USE_ARRAY_MAPPING $(CPPFLAGS)
+	SLICE2CPPFLAGS := -DICEE_USE_ARRAY_MAPPING $(SLICE2CPPFLAGS)
+endif
 
 CPPFLAGS	:= -I. $(ICE_CPPFLAGS) $(CPPFLAGS)
 

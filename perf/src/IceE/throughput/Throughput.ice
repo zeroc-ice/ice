@@ -30,12 +30,17 @@ const int StringDoubleSeqSize = 50000;
 
 interface Throughput
 {
+#ifdef ICEE_USE_ARRAY_MAPPING
     void sendByteSeq(["cpp:array"] ByteSeq seq);
+#else
+    void sendByteSeq(ByteSeq seq);
+#endif
     ByteSeq recvByteSeq();
     ByteSeq echoByteSeq(ByteSeq seq);
 
     void sendStringSeq(StringSeq seq);
     StringSeq recvStringSeq();
+    StringSeq recvLongStringSeq();
     StringSeq echoStringSeq(StringSeq seq);
 
     void sendStructSeq(StringDoubleSeq seq);

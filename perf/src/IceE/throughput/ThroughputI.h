@@ -20,6 +20,7 @@ public:
     ThroughputI() :
 	_byteSeq(Demo::ByteSeqSize, 0),
 	_stringSeq(Demo::StringSeqSize, "hello"),
+	_longStringSeq(Demo::LongStringSeqSize, "As far as the laws of mathematics refer to reality, they are not certain; and as far as they are certain, they do not refer to reality."),
 	_structSeq(Demo::StringDoubleSeqSize)
     {
         for(int i = 0; i < Demo::StringDoubleSeqSize; ++i)
@@ -29,10 +30,17 @@ public:
 	}
     }
 
+#ifdef ICEE_USE_ARRAY_MAPPING
     virtual void
     sendByteSeq(const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&)
     {
     }
+#else
+    virtual void
+    sendByteSeq(const Demo::ByteSeq&, const Ice::Current&)
+    {
+    }
+#endif
 
     virtual Demo::ByteSeq
     recvByteSeq(const Ice::Current&)
@@ -55,6 +63,12 @@ public:
     recvStringSeq(const Ice::Current&)
     {
 	return _stringSeq;
+    }
+
+    virtual Demo::StringSeq
+    recvLongStringSeq(const Ice::Current&)
+    {
+	return _longStringSeq;
     }
 
     virtual Demo::StringSeq
@@ -90,6 +104,7 @@ private:
 
     Demo::ByteSeq _byteSeq;
     Demo::StringSeq _stringSeq;
+    Demo::StringSeq _longStringSeq;
     Demo::StringDoubleSeq _structSeq;
 };
 
