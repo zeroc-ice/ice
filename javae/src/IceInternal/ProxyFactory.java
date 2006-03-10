@@ -162,14 +162,14 @@ public final class ProxyFactory
             logger.trace(traceLevels.retryCat, s);
         }
 
-        if(cnt > 0)
+        if(interval > 0)
         {
             //
             // Sleep before retrying.
             //
             try
             {
-                Thread.currentThread().sleep(_retryIntervals[cnt - 1]);
+                Thread.currentThread().sleep(interval);
             }
             catch(InterruptedException ex1)
             {
