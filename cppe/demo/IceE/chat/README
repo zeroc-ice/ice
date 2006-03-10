@@ -8,9 +8,19 @@ server:
 
 $ server
 
-In a separate window, change to the Ice demo directory and modify
-the file config.glacier2 to replace "ssl" with "tcp" in the property
-Glacier2.Client.Endpoints.
+In a separate window, change to the Ice demo directory and modify the
+file config.glacier2 as follows: change the Glacier2.Client.Endpoints
+property to use a tcp endpoint. In addition, if the client is run
+outside the Glacier2 router's host, the router must also listen on a
+public interface instead of the loopback interface.
+
+For most configurations the property can be changed from:
+
+Glacier2.Client.Endpoints=ssl -p 10005 -h 127.0.0.1
+
+to:
+
+Glacier2.Client.Endpoints=tcp -p 10005
 
 Next, start the Glacier2 router:
 
