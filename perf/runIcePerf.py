@@ -114,7 +114,7 @@ def runIcePerfs(expr, results, i):
     test.run("4tp", "throughput", "structSeq", threadPoolFour)
     test.run("tpc", "throughput", "structSeq " + threadPerConnection, threadPerConnection)
 
-def runIceEPerfs(expr, results, i, blocking):
+def runIceEPerfs(expr, results, i):
 
     test = ClientServerTest(expr, results, i, "IceE", "latency twoway")
     test.run("tpc", "latency", "twoway ", "")
