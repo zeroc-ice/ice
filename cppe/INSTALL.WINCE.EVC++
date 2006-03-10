@@ -85,7 +85,7 @@ following location:
 http://sourceforge.net/projects/stlport
 
 There is no need to compile STLport for use with Ice-E, since Ice-E
-does not require the iostream support provided by STLport.
+does not use iostream, locale nor complex support provided by STLport.
 
 Users must configure Microsoft eMbedded Visual C++ to use STLport:
 
