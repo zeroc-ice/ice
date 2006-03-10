@@ -53,8 +53,8 @@ For STLport installation instructions, please refer to
 
 http://www.stlport.org/doc/install.html
 
-There is no need to compile STLport for use with Ice-E, since
-Ice-E does not require the iostream support provided by STLport.
+There is no need to compile STLport for use with Ice-E, since Ice-E does
+not use iostream, locale nor complex support provided by STLport.
 
 Users must configure Visual Studio to use STLport:
 
