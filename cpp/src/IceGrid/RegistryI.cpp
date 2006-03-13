@@ -128,7 +128,6 @@ RegistryI::start(bool nowarn)
     }
 
     properties->setProperty("Ice.PrintProcessId", "0");
-    properties->setProperty("Ice.Warn.Leaks", "0");
     properties->setProperty("Ice.ServerIdleTime", "0");
     properties->setProperty("IceGrid.Registry.Client.AdapterId", "");
     properties->setProperty("IceGrid.Registry.Server.AdapterId", "");
