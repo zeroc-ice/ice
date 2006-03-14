@@ -99,7 +99,6 @@ ICE_API void doConnect(SOCKET, struct sockaddr_in&, int);
 ICE_API SOCKET doAccept(SOCKET, int);
 
 ICE_API void getAddress(const std::string&, int, struct sockaddr_in&);
-ICE_API std::string getLocalHost(bool);
 ICE_API bool compareAddress(const struct sockaddr_in&, const struct sockaddr_in&);
 
 ICE_API void createPipe(SOCKET fds[2]);
