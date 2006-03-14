@@ -72,31 +72,67 @@ namespace IceInternal
 
 	public override void patch(Ice.Object v)
 	{
+	    Debug.Assert(type_ != null);
+	    if(v != null && !type_.IsInstanceOfType(v))
+	    {
+		throw new System.InvalidCastException("expected element of type " + type() +
+						      " but received " + v.GetType().FullName); 
+	    }
+
             try 
             {
-                if(_seq is IList)
+                if(_seq is CollectionBase)
                 {
-                    if(_index >= _seq.Count)
+                    if(_index >= _seq.Count) // Need to grow the sequence.
                     {
                         for(int i = _seq.Count; i <= _index; i++)
                         {
-                            ((IList)_seq).Add(dummyObject); // IList implementation does not permit adding null :-(
+                            ((IList)_seq).Add(dummyObject); // Broken CollectionBase implementation
                         }
                     }
-                    ((IList)_seq)[_index] = v;
+
+		    //
+		    // Ugly work-around for broken CollectionBase implementation:
+		    //
+		    // CollectionBase provides implementations of the IList.Add method
+		    // and indexer. However, stupidly, these implementations do not permit
+		    // null to be added or assigned even though, according to the doc, this should work.
+		    // (Attempts to put a null into the collection raise ArgumentNullException.)
+		    // That's why the above code grows the sequence by adding a dummy object.
+		    //
+		    // Furthermore, CollectionBase.Add and the indexer are (incorrectly) non-virtual so,
+		    // when we treat _seq as an IList, we always dispatch into the CollectionBase
+		    // implementation, not into the implementation of the generated sequence type.
+		    // This makes it impossible to assign v to a sequence element if v is null.
+		    //
+		    // The ugly work-around is to use reflection to ensure that we get the
+		    // actual run-time type of the generated sequence, and then
+		    // use dynamic invocation to make sure that we dispatch to the generated indexer,
+		    // instead of the broken indexer provided by CollectionBase.
+		    //
+		    if(v == null)
+		    {
+			object[] ov = new object[2];
+			ov[0] = _index;
+			ov[1] = null;
+			_seq.GetType().GetProperty("Item").GetSetMethod().Invoke(_seq, ov);
+		    }
+		    else
+		    {
+			((IList)_seq)[_index] = v;
+		    }
                 }
                 else
                 {
                     ((System.Array)_seq).SetValue(v, _index);
                 }
             }
-            catch(System.Exception)
+            catch(System.Exception ex)
             {
-                throw new System.InvalidCastException("expected element of type " + type()
-                                                      + " but received " + v.GetType().FullName); 
+                throw new Ice.MarshalException("Unexpected failure during patching", ex);
             }
 	}
-    
+
 	private ICollection _seq;
 	private int _index;
     }

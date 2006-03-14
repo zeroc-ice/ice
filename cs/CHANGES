@@ -1,6 +1,11 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Fixed bug in the unmarshaling code for sequences of classes
+  that use the ["clr:collection"] metadata directive:
+  if such a class sequence contained null references, the client
+  could not unmarshal the sequence.
+
 - Fixed bug in identityToString() and proxyToString() that could
   cause incorrect string values to be returned for identities
   containing characters outside the ASCII range or for characters
