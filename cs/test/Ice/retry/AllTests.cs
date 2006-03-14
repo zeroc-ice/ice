@@ -134,7 +134,7 @@ public class AllTests
 	    retry2.op(true);
 	    test(false);
 	}
-	catch(Ice.ConnectionLostException ex)
+	catch(Ice.ConnectionLostException)
 	{
 	    Console.Out.WriteLine("ok");
 	}
