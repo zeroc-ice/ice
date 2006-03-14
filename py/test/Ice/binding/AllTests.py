@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # **********************************************************************
 #
 # Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
