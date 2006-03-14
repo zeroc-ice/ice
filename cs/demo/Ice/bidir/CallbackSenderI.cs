@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using Demo;
+using System;
 using System.Collections;
 
 class CallbackSenderI : CallbackSenderDisp_
@@ -61,8 +62,10 @@ class CallbackSenderI : CallbackSenderDisp_
 			{
 			    c.callback(_num);
 			}
-			catch(Ice.LocalException)
+			catch(Ice.LocalException ex)
 			{
+			    Console.Error.WriteLine("removing client `" +
+						    Ice.Util.identityToString(c.ice_getIdentity()) + "':\n" + ex);
 			    toRemove.Add(c);
 			}
 		    }
