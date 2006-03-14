@@ -99,7 +99,6 @@ void doConnect(SOCKET, struct sockaddr_in&, int);
 SOCKET doAccept(SOCKET);
 
 void getAddress(const std::string&, int, struct sockaddr_in&);
-std::string getLocalHost(bool);
 bool compareAddress(const struct sockaddr_in&, const struct sockaddr_in&);
 
 std::string errorToString(int);

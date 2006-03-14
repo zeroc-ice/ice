@@ -753,40 +753,6 @@ namespace IceInternal
 	    }
 	}
 	
-	public static string getLocalHost(bool numeric)
-	{
-	    string hostname;
-
-	    int retry = 5;
-
-	repeatGetHostName:
-	    try
-	    {
-		hostname = Dns.GetHostName();
-	    }
-	    catch(Win32Exception ex)
-	    {
-		if(ex.NativeErrorCode == WSATRY_AGAIN && --retry >= 0)
-		{
-		    goto repeatGetHostName;
-		}
-		Ice.DNSException e = new Ice.DNSException("GetHostName failed", ex);
-		throw e;
-	    }
-	    catch(System.Exception ex)
-	    {
-		Ice.DNSException e = new Ice.DNSException("GetHostName failed", ex);
-		throw e;
-	    }
-	    
-	    if(numeric)
-	    {
-	        hostname = getNumericHost(hostname);
-	    }
-
-	    return hostname;
-	}
-
 	public static string getNumericHost(string hostname)
 	{
 	    int retry = 5;

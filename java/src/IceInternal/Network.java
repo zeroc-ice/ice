@@ -544,14 +544,6 @@ public final class Network
         }
     }
 
-    public static String
-    getLocalHost(boolean numeric)
-    {
-        java.net.InetAddress addr = getLocalAddress();
-
-        return numeric ? addr.getHostAddress() : addr.getHostName();
-    }
-
     public static java.net.InetAddress
     getLocalAddress()
     {
