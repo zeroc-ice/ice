@@ -1,7 +1,7 @@
 Build instructions
 ------------------
 
-This version of Ice for C# requires Mono version 1.1.9.
+This version of Ice for C# requires Mono version 1.1.13.
 
 Unpack the archive. The sources will be contained in the 
 IceCS-@ver@ subdirectory.
@@ -44,7 +44,7 @@ in the commands below.)
         /sbin/modprobe binfmt_misc mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
     fi 
     if [ -e /proc/sys/fs/binfmt_misc/register ]; then
-        echo ':CLR:M::MZ::/usr/bin/mono:' > /proc/sys/fs/binfmt_misc/register
+        echo ':CLR:M::MZ::/opt/mono/bin/mono:' > /proc/sys/fs/binfmt_misc/register
     else
         echo "No binfmt_misc support" exit 1
     fi 

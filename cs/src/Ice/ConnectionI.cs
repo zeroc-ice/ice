@@ -316,6 +316,18 @@ namespace Ice
 	    return true;
 	}
 
+	public void throwException()
+	{
+	    lock(this)
+	    {
+	        if(_exception != null)
+		{
+		    Debug.Assert(_state >= StateClosing);
+		    throw _exception;
+		}
+	    }
+	}
+
 	public void waitUntilHolding()
 	{
 	    lock(this)
@@ -547,7 +559,12 @@ namespace Ice
 
 		if(_exception != null)
 		{
-		    throw _exception;
+		    //
+		    // If the connection is closed before we even have a chance
+		    // to send our request, we always try to send the request
+		    // again.
+		    //
+		    throw new IceInternal.LocalExceptionWrapper(_exception, true);
 		}
 
 		Debug.Assert(_state > StateNotValidated);
@@ -657,7 +674,12 @@ namespace Ice
 
 		if(_exception != null)
 		{
-		    throw _exception;
+		    //
+		    // If the connection is closed before we even have a chance
+		    // to send our request, we always try to send the request
+		    // again.
+		    //
+		    throw new IceInternal.LocalExceptionWrapper(_exception, true);
 		}
 
 		Debug.Assert(_state > StateNotValidated);

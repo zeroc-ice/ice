@@ -517,6 +517,7 @@ namespace IceInternal
 
 	    Ice.ConnectionI connection = filteredConns[0];
 	    Debug.Assert(connection != null);
+	    connection.throwException(); // Throw in case our connection is already destroyed.
 	    compress = connection.endpoint().compress();
 
 	    return connection;
@@ -886,24 +887,31 @@ namespace IceInternal
 	    //
 	    switch(getEndpointSelection())
 	    {
-	    case Ice.EndpointSelectionType.Random:
-		for(int i = 0; i < endpoints.Count - 2; ++i)
+	        case Ice.EndpointSelectionType.Random:
 		{
-		    int r = rand_.Next(endpoints.Count - i) + i;
-		    Debug.Assert(r >= i && r < endpoints.Count);
-		    if(r != i)
+		    for(int i = 0; i < endpoints.Count - 2; ++i)
 		    {
-			object tmp = endpoints[i];
-			endpoints[i] = endpoints[r];
-			endpoints[r] = tmp;
+		        int r = rand_.Next(endpoints.Count - i) + i;
+		        Debug.Assert(r >= i && r < endpoints.Count);
+		        if(r != i)
+		        {
+			    object tmp = endpoints[i];
+			    endpoints[i] = endpoints[r];
+			    endpoints[r] = tmp;
+		        }
 		    }
+		    break;
 		}
-		break;
-	    case Ice.EndpointSelectionType.Ordered:
-		break; // Nothing to do
-	    default:
-		Debug.Assert(false);
-		break;
+	        case Ice.EndpointSelectionType.Ordered:
+		{
+		    // Nothing to do.
+		    break;
+		}
+	        default:
+		{
+		    Debug.Assert(false);
+		    break;
+		}
 	    }
 
 	    //

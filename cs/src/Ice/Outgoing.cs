@@ -147,11 +147,11 @@ namespace IceInternal
 			}
 			
 			//
-			// Throw the exception wrapped in a NonRepeatable, to
+			// Throw the exception wrapped in a LocalExceptionWrapper, to
 			// indicate that the request cannot be resent without
 			// potentially violating the "at-most-once" principle.
 			//
-			throw new NonRepeatable(_exception);
+			throw new LocalExceptionWrapper(_exception, false);
 		    }
 		    
 		    if(_state == StateUserException)
@@ -217,7 +217,7 @@ namespace IceInternal
 		// problem will be aborted, but all other requests in
 		// the batch as well.
 		//
-		throw new NonRepeatable(ex);
+		throw new LocalExceptionWrapper(ex, false);
 	    }
 	    
 	    throw ex;

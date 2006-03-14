@@ -133,9 +133,9 @@ namespace Ice
                     ObjectDel_ del__ = getDelegate__();
                     return del__.ice_isA(id__, context__);
                 }
-                catch(IceInternal.NonRepeatable ex__)
+                catch(IceInternal.LocalExceptionWrapper ex__)
                 {
-                    cnt__ = handleException__(ex__.get(), cnt__);
+                    cnt__ = handleExceptionWrapperRelaxed__(ex__, cnt__);
                 }
                 catch(LocalException ex__)
                 {
@@ -161,9 +161,9 @@ namespace Ice
                     del__.ice_ping(context__);
                     return;
                 }
-                catch(IceInternal.NonRepeatable ex__)
+                catch(IceInternal.LocalExceptionWrapper ex__)
                 {
-                    cnt__ = handleException__(ex__.get(), cnt__);
+		    cnt__ = handleExceptionWrapperRelaxed__(ex__, cnt__);
                 }
                 catch(LocalException ex__)
                 {
@@ -188,9 +188,9 @@ namespace Ice
                     ObjectDel_ del__ = getDelegate__();
                     return del__.ice_ids(context__);
                 }
-                catch(IceInternal.NonRepeatable ex__)
+                catch(IceInternal.LocalExceptionWrapper ex__)
                 {
-                    cnt__ = handleException__(ex__.get(), cnt__);
+		    cnt__ = handleExceptionWrapperRelaxed__(ex__, cnt__);
                 }
                 catch(LocalException ex__)
                 {
@@ -215,9 +215,9 @@ namespace Ice
                     ObjectDel_ del__ = getDelegate__();
                     return del__.ice_id(context__);
                 }
-                catch(IceInternal.NonRepeatable ex__)
+                catch(IceInternal.LocalExceptionWrapper ex__)
                 {
-                    cnt__ = handleException__(ex__.get(), cnt__);
+		    cnt__ = handleExceptionWrapperRelaxed__(ex__, cnt__);
                 }
                 catch(LocalException ex__)
                 {
@@ -242,15 +242,15 @@ namespace Ice
                     ObjectDel_ del__ = getDelegate__();
                     return del__.ice_invoke(operation, mode, inParams, out outParams, context);
                 }
-                catch(IceInternal.NonRepeatable ex__)
+                catch(IceInternal.LocalExceptionWrapper ex__)
                 {
                     if(mode == OperationMode.Nonmutating || mode == OperationMode.Idempotent)
                     {
-                        cnt__ = handleException__(ex__.get(), cnt__);
+                        cnt__ = handleExceptionWrapperRelaxed__(ex__, cnt__);
                     }
                     else
                     {
-                        rethrowException__(ex__.get());
+                        handleExceptionWrapper__(ex__);
                     }
                 }
                 catch(LocalException ex__)
@@ -750,12 +750,32 @@ namespace Ice
             }
         }
 
-        public void rethrowException__(LocalException ex)
+        public void handleExceptionWrapper__(IceInternal.LocalExceptionWrapper ex)
         {
             lock(this)
             {
                 _delegate = null;
-                throw ex;
+            }
+
+            if(!ex.retry())
+            {
+                throw ex.get();
+            }
+        }
+
+        public int handleExceptionWrapperRelaxed__(IceInternal.LocalExceptionWrapper ex, int cnt)
+        {
+            if(!ex.retry())
+            {
+                return handleException__(ex.get(), cnt);
+            }
+            else
+            {
+                lock(this)
+                {
+                    _delegate = null;
+                }
+                return cnt;
             }
         }
 
@@ -1119,7 +1139,7 @@ namespace Ice
 		}
 		catch(LocalException ex__)
 		{
-		    throw new IceInternal.NonRepeatable(ex__);
+		    throw new IceInternal.LocalExceptionWrapper(ex__, false);
 		}
             }
             finally
@@ -1151,7 +1171,7 @@ namespace Ice
 		}
 		catch(LocalException ex__)
 		{
-		    throw new IceInternal.NonRepeatable(ex__);
+		    throw new IceInternal.LocalExceptionWrapper(ex__, false);
 		}
             }
             finally
@@ -1184,7 +1204,7 @@ namespace Ice
 		}
 		catch(LocalException ex__)
 		{
-		    throw new IceInternal.NonRepeatable(ex__);
+		    throw new IceInternal.LocalExceptionWrapper(ex__, false);
 		}
             }
             finally
@@ -1217,7 +1237,7 @@ namespace Ice
 		}
 		catch(LocalException ex__)
 		{
-		    throw new IceInternal.NonRepeatable(ex__);
+		    throw new IceInternal.LocalExceptionWrapper(ex__, false);
 		}
             }
             finally
@@ -1253,7 +1273,7 @@ namespace Ice
                     }
                     catch(LocalException ex__)
                     {
-                        throw new IceInternal.NonRepeatable(ex__);
+                        throw new IceInternal.LocalExceptionWrapper(ex__, false);
                     }
                 }
                 return ok;

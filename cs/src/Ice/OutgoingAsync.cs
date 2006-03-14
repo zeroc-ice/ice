@@ -169,7 +169,7 @@ namespace IceInternal
             lock(_monitor)
             {
 
-                if(_reference != null)
+                if(os__ != null)
                 {
                     bool doRetry = false;
 		    
@@ -259,7 +259,7 @@ namespace IceInternal
                     //
                     // We must first wait for other requests to finish.
                     //
-                    while(_reference != null)
+                    while(os__ != null)
                     {
                         Monitor.Wait(_monitor);
                     }
@@ -268,10 +268,19 @@ namespace IceInternal
 		    // Can't call sync via a oneway proxy.
 		    //
 		    ((Ice.ObjectPrxHelperBase)prx).checkTwowayOnly__(operation);
+
+		    Reference rf = ((Ice.ObjectPrxHelperBase)prx).reference__();
+
+		    //
+		    // Optimization: Don't update the connection if it is not
+		    // necessary.
+		    //
+		    if(_connection == null || _reference == null || !_reference.Equals(rf))
+		    {
+		        _connection = rf.getConnection(out _compress);
+		    }
 		    
-                    _reference = ((Ice.ObjectPrxHelperBase)prx).reference__();;
-                    Debug.Assert(_connection == null);
-                    _connection = _reference.getConnection(out _compress);
+		    _reference = rf;
                     _cnt = 0;
                     _mode = mode;
                     Debug.Assert(is__ == null);
@@ -383,6 +392,13 @@ namespace IceInternal
                             //
                             return;
                         }
+			catch(LocalExceptionWrapper ex)
+			{
+			    if(!ex.retry())
+			    {
+			        throw ex.get();
+			    }
+			}
                         catch(Ice.LocalException ex)
                         {
                             ProxyFactory proxyFactory = _reference.getInstance().proxyFactory();
@@ -410,7 +426,7 @@ namespace IceInternal
 
         private void warning(System.Exception ex)
         {
-	    if(_reference != null) // Don't print anything if cleanup() was already called.
+	    if(os__ != null) // Don't print anything if cleanup() was already called.
 	    {
 		if(_reference.getInstance().properties().getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
 		{
@@ -421,8 +437,6 @@ namespace IceInternal
 
         private void cleanup()
         {
-	    _reference = null;
-	    _connection = null;
 	    is__ = null;
 	    os__ = null;
 

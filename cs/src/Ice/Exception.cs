@@ -95,19 +95,40 @@ namespace Ice
 namespace IceInternal
 {
 
-    public class NonRepeatable : Ice.Exception
+    public class LocalExceptionWrapper : Ice.Exception
     {
-        public NonRepeatable(Ice.LocalException ex)
+        public LocalExceptionWrapper(Ice.LocalException ex, bool retry)
         {
             _ex = ex;
+	    _retry = retry;
         }
-	
-        public virtual Ice.LocalException get()
+
+	public LocalExceptionWrapper(LocalExceptionWrapper ex)
+	{
+	    _ex = ex.get();
+	    _retry = ex._retry;
+	}
+
+	public Ice.LocalException get()
+	{
+	    return _ex;
+	}
+
+        //
+        // If true, always repeat the request. Don't take retry settings
+        // or "at-most-once" guarantees into account.
+        //
+        // If false, only repeat the request if the retry settings allow
+        // to do so, and if "at-most-once" does not need to be guaranteed.
+        //
+        public bool
+        retry()
         {
-            return _ex;
+            return _retry;
         }
 	
         private Ice.LocalException _ex;
+	private bool _retry;
     }
 
 }
