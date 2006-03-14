@@ -319,6 +319,16 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     }
 
     public synchronized void
+    throwException()
+    {
+        if(_exception != null)
+        {
+            assert(_state >= StateClosing);
+            throw _exception;
+        }
+    }
+
+    public synchronized void
     waitUntilHolding()
     {
 	while(_state < StateHolding || _dispatchCount > 0)
@@ -495,6 +505,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
     public void
     sendRequest(IceInternal.BasicStream os, IceInternal.Outgoing out, boolean compress)
+        throws IceInternal.LocalExceptionWrapper
     {
 	int requestId = 0;
 	IceInternal.BasicStream stream = null;
@@ -505,7 +516,12 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
 	    if(_exception != null)
 	    {
-		throw _exception;
+		//
+		// If the connection is closed before we even have a chance
+		// to send our request, we always try to send the request
+		// again.
+		//
+		throw new IceInternal.LocalExceptionWrapper(_exception, true);
 	    }
 
 	    assert(_state > StateNotValidated);
@@ -605,6 +621,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
     public void
     sendAsyncRequest(IceInternal.BasicStream os, IceInternal.OutgoingAsync out, boolean compress)
+        throws IceInternal.LocalExceptionWrapper
     {
 	int requestId = 0;
 	IceInternal.BasicStream stream = null;
@@ -615,7 +632,12 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
 	    if(_exception != null)
 	    {
-		throw _exception;
+		//
+		// If the connection is closed before we even have a chance
+		// to send our request, we always try to send the request
+		// again.
+		//
+		throw new IceInternal.LocalExceptionWrapper(_exception, true);
 	    }
 
 	    assert(_state > StateNotValidated);
@@ -2383,7 +2405,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     public IceInternal.Outgoing
     getOutgoing(IceInternal.Reference reference, String operation, OperationMode mode, java.util.Map context,
 		boolean compress)
-	throws IceInternal.NonRepeatable
+	throws IceInternal.LocalExceptionWrapper
     {
 	IceInternal.Outgoing out = null;
 

@@ -105,86 +105,77 @@ public final class ProxyFactory
 	    throw ex;
 	}
 
-	//
-	// There is no point in retrying an operation that resulted in a
-	// MarshalException. This must have been raised locally (because if
-	// it happened in a server it would result in an UnknownLocalException
-	// instead), which means there was a problem in this process that will
-	// not change if we try again.
-	//
-	// The most likely cause for a MarshalException is exceeding the
-	// maximum message size, which is represented by the the subclass
-	// MemoryLimitException. For example, a client can attempt to send a
-	// message that exceeds the maximum memory size, or accumulate enough
-	// batch requests without flushing that the maximum size is reached.
-	//
-	// This latter case is especially problematic, because if we were to
-	// retry a batch request after a MarshalException, we would in fact
-	// silently discard the accumulated requests and allow new batch
-	// requests to accumulate. If the subsequent batched requests do not
-	// exceed the maximum message size, it appears to the client that all
-	// of the batched requests were accepted, when in reality only the
-	// last few are actually sent.
-	//
-	if(ex instanceof Ice.MarshalException)
-	{
-	    throw ex;
-	}
+        //
+        // There is no point in retrying an operation that resulted in a
+        // MarshalException. This must have been raised locally (because
+        // if it happened in a server it would result in an
+        // UnknownLocalException instead), which means there was a problem
+        // in this process that will not change if we try again.
+        //
+        // The most likely cause for a MarshalException is exceeding the
+        // maximum message size, which is represented by the the subclass
+        // MemoryLimitException. For example, a client can attempt to send
+        // a message that exceeds the maximum memory size, or accumulate
+        // enough batch requests without flushing that the maximum size is
+        // reached.
+        //
+        // This latter case is especially problematic, because if we were
+        // to retry a batch request after a MarshalException, we would in
+        // fact silently discard the accumulated requests and allow new
+        // batch requests to accumulate. If the subsequent batched
+        // requests do not exceed the maximum message size, it appears to
+        // the client that all of the batched requests were accepted, when
+        // in reality only the last few are actually sent.
+        //
+        if(ex instanceof Ice.MarshalException)
+        {
+            throw ex;
+        }
 
-	++cnt;
+        ++cnt;
+        assert(cnt > 0);
 
         TraceLevels traceLevels = _instance.traceLevels();
         Ice.Logger logger = _instance.logger();
 
-        //
-        // Instance components may be null if Communicator has been destroyed.
-        //
-        if(traceLevels != null && logger != null)
+        if(cnt > _retryIntervals.length)
         {
-            if(cnt > _retryIntervals.length)
-            {
-                if(traceLevels.retry >= 1)
-                {
-                    String s = "cannot retry operation call because retry limit has been exceeded\n" + ex.toString();
-                    logger.trace(traceLevels.retryCat, s);
-                }
-                throw ex;
-            }
-
             if(traceLevels.retry >= 1)
             {
-                String s = "re-trying operation call";
-                if(cnt > 0 && _retryIntervals[cnt - 1] > 0)
-                {
-                    s += " in " + _retryIntervals[cnt - 1] + "ms";
-                }
-                s += " because of exception\n" + ex;
+                String s = "cannot retry operation call because retry limit has been exceeded\n" + ex.toString();
                 logger.trace(traceLevels.retryCat, s);
             }
-
-            if(cnt > 0)
-            {
-                //
-                // Sleep before retrying.
-                //
-                try
-                {
-                    Thread.currentThread().sleep(_retryIntervals[cnt - 1]);
-                }
-                catch(InterruptedException ex1)
-                {
-                }
-            }
-
-            return cnt;
-        }
-        else
-        {
-            //
-            // Impossible to retry after Communicator has been destroyed.
-            //
             throw ex;
         }
+
+        int interval = _retryIntervals[cnt - 1];
+
+        if(traceLevels.retry >= 1)
+        {
+            String s = "re-trying operation call";
+            if(interval > 0)
+            {
+                s += " in " + interval + "ms";
+            }
+            s += " because of exception\n" + ex;
+            logger.trace(traceLevels.retryCat, s);
+        }
+
+        if(cnt > 0)
+        {
+            //
+            // Sleep before retrying.
+            //
+            try
+            {
+                Thread.currentThread().sleep(interval);
+            }
+            catch(InterruptedException ex1)
+            {
+            }
+        }
+
+        return cnt;
     }
 
     //

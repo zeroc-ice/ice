@@ -1,0 +1,33 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice-E is licensed to you under the terms described in the
+// ICEE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+import Test.*;
+
+public final class RetryI extends _RetryDisp
+{
+    public
+    RetryI()
+    {
+    }
+
+    public void
+    op(boolean kill, Ice.Current current)
+    {
+        if(kill)
+	{
+	    current.con.close(true);
+	}
+    }
+
+    public void
+    shutdown(Ice.Current current)
+    {
+        current.adapter.getCommunicator().shutdown();
+    }
+}

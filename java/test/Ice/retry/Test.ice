@@ -7,21 +7,18 @@
 //
 // **********************************************************************
 
-package IceInternal;
+#ifndef TEST_ICE
+#define TEST_ICE
 
-public class NonRepeatable extends Exception
+module Test
 {
-    public
-    NonRepeatable(Ice.LocalException ex)
-    {
-        _ex = ex;
-    }
 
-    public Ice.LocalException
-    get()
-    {
-        return _ex;
-    }
+interface Retry
+{
+    ["ami"] void op(bool kill);
+    void shutdown();
+};
 
-    private Ice.LocalException _ex;
-}
+};
+
+#endif

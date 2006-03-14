@@ -1,6 +1,15 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Performance improvements if an AMI callback object is reused with 
+  the same proxy.
+
+- If several proxies share the same connection, and an operation call
+  on one of the proxies causes a failure and the shared connection to
+  be closed, then subsequent calls on the other proxies will try to
+  establish a new connection instead of throwing an exception, even if
+  retries are disabled.
+
 - Fixed bug in identityToString() and proxyToString() that could
   cause incorrect string values to be returned for identities
   containing characters outside the ASCII range.

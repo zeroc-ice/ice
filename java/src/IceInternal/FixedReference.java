@@ -174,6 +174,7 @@ public class FixedReference extends Reference
 
 	Ice.ConnectionI connection = filteredConns[0];
 	assert(connection != null);
+	connection.throwException(); // Throw in case our connection is already destroyed.
 	compress.value = connection.endpoint().compress();
 
 	return connection;

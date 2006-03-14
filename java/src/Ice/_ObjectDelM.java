@@ -13,7 +13,7 @@ public class _ObjectDelM implements _ObjectDel
 {
     public boolean
     ice_isA(String __id, java.util.Map __context)
-        throws IceInternal.NonRepeatable
+        throws IceInternal.LocalExceptionWrapper
     {
 	IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_isA", OperationMode.Nonmutating,
 							     __context, __compress);
@@ -47,7 +47,7 @@ public class _ObjectDelM implements _ObjectDel
 	    }
 	    catch(LocalException __ex)
 	    {
-		throw new IceInternal.NonRepeatable(__ex);
+		throw new IceInternal.LocalExceptionWrapper(__ex, false);
 	    }
         }
         finally
@@ -58,7 +58,7 @@ public class _ObjectDelM implements _ObjectDel
 
     public void
     ice_ping(java.util.Map __context)
-        throws IceInternal.NonRepeatable
+        throws IceInternal.LocalExceptionWrapper
     {
 	IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_ping", OperationMode.Nonmutating,
 							     __context, __compress);
@@ -82,7 +82,7 @@ public class _ObjectDelM implements _ObjectDel
 	    }
 	    catch(LocalException __ex)
 	    {
-		throw new IceInternal.NonRepeatable(__ex);
+		throw new IceInternal.LocalExceptionWrapper(__ex, false);
 	    }
         }
         finally
@@ -93,7 +93,7 @@ public class _ObjectDelM implements _ObjectDel
 
     public String[]
     ice_ids(java.util.Map __context)
-        throws IceInternal.NonRepeatable
+        throws IceInternal.LocalExceptionWrapper
     {
 	IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_ids", OperationMode.Nonmutating,
 							     __context, __compress);
@@ -118,7 +118,7 @@ public class _ObjectDelM implements _ObjectDel
 	    }
 	    catch(LocalException __ex)
 	    {
-		throw new IceInternal.NonRepeatable(__ex);
+		throw new IceInternal.LocalExceptionWrapper(__ex, false);
 	    }
         }
         finally
@@ -129,7 +129,7 @@ public class _ObjectDelM implements _ObjectDel
 
     public String
     ice_id(java.util.Map __context)
-        throws IceInternal.NonRepeatable
+        throws IceInternal.LocalExceptionWrapper
     {
 	IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_id", OperationMode.Nonmutating,
 							     __context, __compress);
@@ -154,7 +154,7 @@ public class _ObjectDelM implements _ObjectDel
 	    }
 	    catch(LocalException __ex)
 	    {
-		throw new IceInternal.NonRepeatable(__ex);
+		throw new IceInternal.LocalExceptionWrapper(__ex, false);
 	    }
         }
         finally
@@ -165,7 +165,7 @@ public class _ObjectDelM implements _ObjectDel
 
     public boolean
     ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams, java.util.Map __context)
-        throws IceInternal.NonRepeatable
+        throws IceInternal.LocalExceptionWrapper
     {
 	IceInternal.Outgoing __og = __connection.getOutgoing(__reference, operation, mode, __context, __compress);
         try
@@ -196,7 +196,7 @@ public class _ObjectDelM implements _ObjectDel
                 }
                 catch(LocalException __ex)
                 {
-                    throw new IceInternal.NonRepeatable(__ex);
+                    throw new IceInternal.LocalExceptionWrapper(__ex, false);
                 }
             }
             return ok;

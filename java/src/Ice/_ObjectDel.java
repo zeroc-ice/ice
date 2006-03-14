@@ -12,20 +12,20 @@ package Ice;
 public interface _ObjectDel
 {
     boolean ice_isA(String id, java.util.Map context)
-        throws IceInternal.NonRepeatable;
+        throws IceInternal.LocalExceptionWrapper;
 
     void ice_ping(java.util.Map context)
-        throws IceInternal.NonRepeatable;
+        throws IceInternal.LocalExceptionWrapper;
 
     String[] ice_ids(java.util.Map context)
-        throws IceInternal.NonRepeatable;
+        throws IceInternal.LocalExceptionWrapper;
 
     String ice_id(java.util.Map context)
-        throws IceInternal.NonRepeatable;
+        throws IceInternal.LocalExceptionWrapper;
 
     boolean ice_invoke(String operation, Ice.OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
                        java.util.Map context)
-        throws IceInternal.NonRepeatable;
+        throws IceInternal.LocalExceptionWrapper;
 
     Connection ice_connection();
 }

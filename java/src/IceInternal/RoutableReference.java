@@ -237,15 +237,21 @@ public abstract class RoutableReference extends Reference
 	//
 	switch(getEndpointSelection().value())
 	{
-	case Ice.EndpointSelectionType._Random:
-	    java.util.Collections.shuffle(endpoints);
-	    break;
-	case Ice.EndpointSelectionType._Ordered:
-	    // Nothing to do.
-	    break;
-	default:
-	    assert(false);
-	    break;
+	    case Ice.EndpointSelectionType._Random:
+	    {
+	        java.util.Collections.shuffle(endpoints);
+	        break;
+	    }
+	    case Ice.EndpointSelectionType._Ordered:
+	    {
+	        // Nothing to do.
+	        break;
+	    }
+	    default:
+	    {
+	        assert(false);
+	        break;
+	    }
 	}
 
         //

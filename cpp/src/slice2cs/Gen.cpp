@@ -3349,15 +3349,15 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    _out << nl << "return;";
 	}
 	_out << eb;
-	_out << nl << "catch(IceInternal.NonRepeatable ex__)";
+	_out << nl << "catch(IceInternal.LocalExceptionWrapper ex__)";
 	_out << sb;
 	if(op->mode() == Operation::Idempotent || op->mode() == Operation::Nonmutating)
 	{
-	    _out << nl << "cnt__ = handleException__(ex__.get(), cnt__);";
+	    _out << nl << "cnt__ = handleExceptionWrapperRelaxed__(ex__, cnt__);";
 	}
 	else
 	{
-	    _out << nl << "rethrowException__(ex__.get());";
+	    _out << nl << "handleExceptionWrapper__(ex__);";
 	}
 	_out << eb;
 	_out << nl << "catch(Ice.LocalException ex__)";
@@ -4020,7 +4020,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	_out << eb;
 	_out << nl << "catch(Ice.LocalException ex__)";
 	_out << sb;
-	_out << nl << "throw new IceInternal.NonRepeatable(ex__);";
+	_out << nl << "throw new IceInternal.LocalExceptionWrapper(ex__, false);";
 	_out << eb;
         _out << eb;
         _out << nl << "finally";
@@ -4125,7 +4125,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    _out << eb;
 	    _out << nl << "catch(Ice.LocalException ex__)";
 	    _out << sb;
-	    _out << nl << "throw new IceInternal.NonRepeatable(ex__);";
+	    _out << nl << "throw new IceInternal.LocalExceptionWrapper(ex__, false);";
 	    _out << eb;
 	    _out << nl << "finally";
 	    _out << sb;

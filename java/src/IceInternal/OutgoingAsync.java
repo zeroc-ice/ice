@@ -173,7 +173,7 @@ public abstract class OutgoingAsync
     {
 	synchronized(_monitor)
 	{
-	    if(_reference != null)
+	    if(__os != null) // Don't retry if cleanup() was already called.
 	    {
 		boolean doRetry = false;
 		
@@ -264,7 +264,7 @@ public abstract class OutgoingAsync
 		//
 		// We must first wait for other requests to finish.
 		//
-		while(_reference != null)
+		while(__os != null)
 		{
 		    try
 		    {
@@ -279,10 +279,19 @@ public abstract class OutgoingAsync
 		// Can't call async via a oneway proxy.
 		//
 		((Ice.ObjectPrxHelperBase)prx).__checkTwowayOnly(operation);
+
+		Reference ref = ((Ice.ObjectPrxHelperBase)prx).__reference();
+
+		//
+		// Optimization: Don't update the connection if it is not
+		// necessary.
+		//
+		if(_connection == null || _reference == null || !_reference.equals(ref))
+		{
+		    _connection = ref.getConnection(_compress);
+		}
 		
-		_reference = ((Ice.ObjectPrxHelperBase)prx).__reference();
-		assert(_connection == null);
-		_connection = _reference.getConnection(_compress);
+		_reference = ref;
 		_cnt = 0;
 		_mode = mode;
 		assert(__is == null);
@@ -394,6 +403,13 @@ public abstract class OutgoingAsync
 			//
 			return;
 		    }
+		    catch(LocalExceptionWrapper ex)
+		    {
+		        if(!ex.retry())
+			{
+			    throw ex.get();
+			}
+		    }
 		    catch(Ice.LocalException ex)
 		    {			
 			ProxyFactory proxyFactory = _reference.getInstance().proxyFactory();
@@ -422,7 +438,7 @@ public abstract class OutgoingAsync
     private final void
     warning(java.lang.Exception ex)
     {
-	if(_reference != null) // Don't print anything if cleanup() was already called.
+	if(__os != null) // Don't print anything if cleanup() was already called.
 	{
 	    if(_reference.getInstance().properties().getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
 	    {
@@ -441,8 +457,6 @@ public abstract class OutgoingAsync
     private final void
     cleanup()
     {
-	_reference = null;
-	_connection = null;
 	__is = null;
 	__os = null;
 
