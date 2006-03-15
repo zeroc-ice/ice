@@ -16,7 +16,7 @@ namespace IceSSL
 	{
 	    if(communicator.getProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0)
 	    {
-		communicator.getLogger().error("IceSSL requires Ice.ThreadPerConnection");
+		communicator.getLogger().error("IceSSL requires Ice.ThreadPerConnection=1");
 		return null;
 	    }
 
