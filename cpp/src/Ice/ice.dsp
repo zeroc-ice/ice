@@ -342,6 +342,10 @@ SOURCE=.\PropertyNames.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Protocol.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ProtocolPluginFacade.cpp
 # End Source File
 # Begin Source File
