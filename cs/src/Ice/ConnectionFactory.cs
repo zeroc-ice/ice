@@ -448,8 +448,8 @@ namespace IceInternal
 	    lock(this)
 	    {
 		if(_destroyed)
-		{
-		    throw new Ice.CommunicatorDestroyedException();
+		{ 
+		    return;
 		}
 		
 		foreach(LinkedList connectionList in _connections.Values)

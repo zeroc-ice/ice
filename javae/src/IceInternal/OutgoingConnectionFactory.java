@@ -434,7 +434,7 @@ public final class OutgoingConnectionFactory
     {
         if(_destroyed)
         {
-            throw new Ice.CommunicatorDestroyedException();
+	    return;
         }
 
         java.util.Enumeration p = _connections.elements();

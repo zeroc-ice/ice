@@ -468,7 +468,7 @@ public final class OutgoingConnectionFactory
     {
         if(_destroyed)
         {
-            throw new Ice.CommunicatorDestroyedException();
+            return;
         }
 
         java.util.Iterator p = _connections.values().iterator();

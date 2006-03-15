@@ -441,7 +441,7 @@ IceInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& ad
     
     if(_destroyed)
     {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+	return;
     }
     
     for(multimap<EndpointPtr, ConnectionPtr>::const_iterator p = _connections.begin(); p != _connections.end(); ++p)
