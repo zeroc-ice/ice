@@ -30,7 +30,8 @@ public final class Network
                 "cannot send after socket shutdown", // ESHUTDOWN (Win32)
                 "cannot send after transport endpoint shutdown", // ESHUTDOWN (Linux)
                 "software caused connection abort", // ECONNABORTED
-                "an existing connection was forcibly closed" // unknown
+                "an existing connection was forcibly closed", // unknown
+	        "connection closed by remote host" // unknown
             };
 
             for(int i = 0; i < msgs.length; i++)

@@ -150,7 +150,7 @@ final class SslTransceiver implements IceInternal.Transceiver
 	    throw se;
 	}
 
-	while(buf.hasRemaining())
+	while(buf.hasRemaining() && !_shutdown)
 	{
 	    int pos = buf.position();
 	    try
@@ -179,10 +179,22 @@ final class SslTransceiver implements IceInternal.Transceiver
 	    }
 	    catch(java.io.IOException ex)
 	    {
+		if(IceInternal.Network.connectionLost(ex))
+		{
+		    Ice.ConnectionLostException se = new Ice.ConnectionLostException();
+		    se.initCause(ex);
+		    throw se;
+		}
+		
 		Ice.SocketException se = new Ice.SocketException();
 		se.initCause(ex);
 		throw se;
 	    }
+	}
+
+	if(_shutdown && buf.hasRemaining())
+	{
+	    throw new Ice.ConnectionLostException();
 	}
     }
 
