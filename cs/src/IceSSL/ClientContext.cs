@@ -28,7 +28,7 @@ namespace IceSSL
 	    {
 		AuthInfo info = new AuthInfo();
 		info.stream = stream;
-		IAsyncResult ar = stream.BeginAuthenticateAsClient(host, certs_, protocols_, checkCertRevocation_,
+		IAsyncResult ar = stream.BeginAuthenticateAsClient(host, certs_, protocols_, checkCRL_,
 								   new AsyncCallback(authCallback), info);
 		lock(info)
 		{
@@ -67,18 +67,20 @@ namespace IceSSL
 
 	internal ClientContext(Instance instance) : base(instance)
 	{
-	    //const string prefix = "IceSSL.Client.";
-	    //Ice.Properties properties = communicator.getProperties();
+	    const string prefix = "IceSSL.Client.";
+	    Ice.Properties properties = instance.communicator().getProperties();
 
 	    // TODO: Add client certificates
 	    // TODO: SSLv2 cannot use client certs
 	    certs_ = null;
 
-	    // TODO: Allow user to specify protocols?
-	    protocols_ = SslProtocols.Default;
+	    protocols_ = parseProtocols(prefix + "Protocols");
 
-	    // TODO: Allow user to control this?
-	    checkCertRevocation_ = false;
+	    // TODO: Review default value
+	    checkCRL_ = properties.getPropertyAsIntWithDefault(prefix + "CheckCRL", 0) > 0;
+
+	    // TODO: Review default value
+	    ignoreCertName_ = properties.getPropertyAsIntWithDefault(prefix + "IgnoreCertName", 1) > 0;
 	}
 
 	private class AuthInfo
@@ -123,9 +125,20 @@ namespace IceSSL
 	    int errors = (int)sslPolicyErrors;
 	    if((errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0)
 	    {
-		// TODO: Use a property to determine whether to ignore mismatch?
-		errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
-		message = message + "\nremote certificate name mismatch (ignored)";
+		if(ignoreCertName_)
+		{
+		    errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
+		    message = message + "\nremote certificate name mismatch (ignored)";
+		}
+		else
+		{
+		    if(instance_.securityTraceLevel() >= 1)
+		    {
+			logger_.trace(instance_.securityTraceCategory(),
+				      "SSL certificate validation failed - remote certificate name mismatch");
+		    }
+		    return false;
+		}
 	    }
 
 	    if(errors > 0)
@@ -147,6 +160,7 @@ namespace IceSSL
 
 	private X509CertificateCollection certs_;
 	private SslProtocols protocols_;
-	private bool checkCertRevocation_;
+	private bool checkCRL_;
+	private bool ignoreCertName_;
     }
 }

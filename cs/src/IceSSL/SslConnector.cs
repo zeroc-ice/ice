@@ -36,6 +36,11 @@ namespace IceSSL
 		logger_.trace(instance_.networkTraceCategory(), s);
 	    }
 
+	    if(instance_.securityTraceLevel() >= 2)
+	    {
+		instance_.traceStream(stream, IceInternal.Network.fdToString(fd));
+	    }
+
 	    return new SslTransceiver(instance_, fd, stream);
 	}
 

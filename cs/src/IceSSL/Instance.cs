@@ -61,6 +61,26 @@ namespace IceSSL
 	    return serverContext_;
 	}
 
+	internal void traceStream(System.Net.Security.SslStream stream, string connInfo)
+	{
+	    System.Text.StringBuilder s = new System.Text.StringBuilder();
+	    s.Append("SSL connection summary");
+	    if(connInfo.Length > 0)
+	    {
+		s.Append("\n");
+		s.Append(connInfo);
+	    }
+	    s.Append("\nauthenticated = " + (stream.IsAuthenticated ? "yes" : "no"));
+	    s.Append("\nencrypted = " + (stream.IsEncrypted ? "yes" : "no"));
+	    s.Append("\nsigned = " + (stream.IsSigned ? "yes" : "no"));
+	    s.Append("\nmutually authenticated = " + (stream.IsMutuallyAuthenticated ? "yes" : "no"));
+	    s.Append("\nhash algorithm = " + stream.HashAlgorithm + "/" + stream.HashStrength);
+	    s.Append("\ncipher algorithm = " + stream.CipherAlgorithm + "/" + stream.CipherStrength);
+	    s.Append("\nkey exchange algorithm = " + stream.KeyExchangeAlgorithm + "/" + stream.KeyExchangeStrength);
+	    s.Append("\nprotocol = " + stream.SslProtocol);
+	    communicator().getLogger().trace(securityTraceCategory_, s.ToString());
+	}
+
 	private IceInternal.ProtocolPluginFacade facade_;
 	private int securityTraceLevel_;
 	private string securityTraceCategory_;

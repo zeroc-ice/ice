@@ -352,6 +352,12 @@ namespace IceSSL
 	//
 	public override IceInternal.Acceptor acceptor(ref IceInternal.EndpointI endpoint)
 	{
+	    if(!instance_.serverContext().initialized())
+	    {
+		SslException e = new SslException();
+		e.ice_message_ = "SSL plug-in is not configured for server activities";
+		throw e;
+	    }
 	    SslAcceptor p = new SslAcceptor(instance_, host_, port_);
 	    endpoint = new SslEndpointI(instance_, host_, p.effectivePort(), timeout_, connectionId_,
 					compress_, publish_);

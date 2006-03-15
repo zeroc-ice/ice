@@ -31,8 +31,7 @@ namespace IceSSL
 		AuthInfo info = new AuthInfo();
 		info.stream = stream;
 		IAsyncResult ar = stream.BeginAuthenticateAsServer(cert_, requireClientCert_, protocols_,
-								   checkCertRevocation_,
-								   new AsyncCallback(authCallback), info);
+								   checkCRL_, new AsyncCallback(authCallback), info);
 		lock(info)
 		{
 		    if(!Monitor.Wait(info, timeout == -1 ? Timeout.Infinite : timeout))
@@ -77,39 +76,59 @@ namespace IceSSL
 	    return stream;
 	}
 
+	internal bool initialized()
+	{
+	    return cert_ != null;
+	}
+
 	internal ServerContext(Instance instance) : base(instance)
 	{
 	    const string prefix = "IceSSL.Server.";
 	    Ice.Properties properties = instance.communicator().getProperties();
 
 	    // TODO: Validate filename
-	    string certFile = properties.getProperty(prefix + "CertificateFile");
-	    string certPassword = properties.getProperty(prefix + "CertificateFilePassword");
-	    try
+	    string certFile = properties.getProperty(prefix + "Cert.File");
+	    string certPassword = properties.getProperty(prefix + "Cert.Password");
+	    if(certFile.Length > 0)
 	    {
-		if(certPassword.Length == 0)
+		if(!File.Exists(certFile))
 		{
-		    cert_ = new X509Certificate2(certFile);
+		    logger_.error("IceSSL: server certificate file not found: " + certFile);
+		    Ice.FileException ex = new Ice.FileException();
+		    ex.path = certFile;
+		    throw ex;
 		}
-		else
+		try
 		{
-		    cert_ = new X509Certificate2(certFile, certPassword);
+		    if(certPassword.Length == 0)
+		    {
+			cert_ = new X509Certificate2(certFile);
+		    }
+		    else
+		    {
+			cert_ = new X509Certificate2(certFile, certPassword);
+		    }
 		}
-	    }
-	    catch(CryptographicException ex)
-	    {
-		SslException e = new SslException(ex);
-		e.ice_message_ = certFile;
-		throw e;
+		catch(CryptographicException ex)
+		{
+		    SslException e = new SslException(ex);
+		    e.ice_message_ = "attempting to load certificate from " + certFile;
+		    throw e;
+		}
 	    }
 
-	    requireClientCert_ = properties.getPropertyAsIntWithDefault(prefix + "RequireClientCertificate", 0) > 0;
+	    // TODO: Review default value
+	    requireClientCert_ = properties.getPropertyAsIntWithDefault(prefix + "RequireClientCert", 0) > 0;
 
 	    // TODO: Allow user to specify protocols?
-	    protocols_ = SslProtocols.Default;
+	    //protocols_ = SslProtocols.Default;
+	    protocols_ = parseProtocols(prefix + "Protocols");
 
-	    // TODO: Allow user to control this?
-	    checkCertRevocation_ = false;
+	    // TODO: Review default value
+	    checkCRL_ = properties.getPropertyAsIntWithDefault(prefix + "CheckCRL", 0) > 0;
+
+	    // TODO: Review default value
+	    ignoreCertName_ = properties.getPropertyAsIntWithDefault(prefix + "IgnoreCertName", 1) > 0;
 	}
 
 	private class AuthInfo
@@ -139,7 +158,7 @@ namespace IceSSL
 	}
 
 	private bool validationCallback(object sender, X509Certificate certificate, X509Chain chain,
-					 SslPolicyErrors sslPolicyErrors)
+					SslPolicyErrors sslPolicyErrors)
 	{
 	    if(sslPolicyErrors == SslPolicyErrors.None)
 	    {
@@ -169,9 +188,20 @@ namespace IceSSL
 
 	    if((errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0)
 	    {
-		// TODO: Use a property to determine whether to ignore mismatch?
-		errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
-		message = message + "\nremote certificate name mismatch (ignored)";
+		if(ignoreCertName_)
+		{
+		    errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
+		    message = message + "\nremote certificate name mismatch (ignored)";
+		}
+		else
+		{
+		    if(instance_.securityTraceLevel() >= 1)
+		    {
+			logger_.trace(instance_.securityTraceCategory(),
+				      "SSL certificate validation failed - remote certificate name mismatch");
+		    }
+		    return false;
+		}
 	    }
 
 	    if(errors > 0)
@@ -193,6 +223,7 @@ namespace IceSSL
 	private X509Certificate2 cert_;
 	private bool requireClientCert_;
 	private SslProtocols protocols_;
-	private bool checkCertRevocation_;
+	private bool checkCRL_;
+	private bool ignoreCertName_;
     }
 }
