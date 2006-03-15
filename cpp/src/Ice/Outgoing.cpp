@@ -13,6 +13,7 @@
 #include <Ice/Reference.h>
 #include <Ice/Endpoint.h>
 #include <Ice/LocalException.h>
+#include <Ice/Protocol.h>
 
 using namespace std;
 using namespace Ice;
@@ -58,7 +59,7 @@ IceInternal::Outgoing::Outgoing(ConnectionI* connection, Reference* ref, const s
 	case Reference::ModeOneway:
 	case Reference::ModeDatagram:
 	{
-	    _connection->prepareRequest(&_os);
+	    _os.writeBlob(requestHdr, sizeof(requestHdr));
 	    break;
 	}
 

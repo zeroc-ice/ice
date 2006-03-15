@@ -80,6 +80,7 @@ OBJS		= Acceptor.o \
 		  PropertiesI.o \
 		  Properties.o \
 		  PropertyNames.o \
+		  Protocol.o \
 		  ProtocolPluginFacade.o \
 		  ProxyFactory.o \
 		  Proxy.o \

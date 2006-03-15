@@ -103,7 +103,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	TestIntfPrx test3 = TestIntfPrx::uncheckedCast(test1);
 	test(test3->ice_connection() == test1->ice_connection());
 	test(test3->ice_connection() == test2->ice_connection());
-
+	
 	try
 	{
 	    test3->ice_ping();
@@ -122,6 +122,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	adapters.push_back(com->createObjectAdapter("Adapter12", "default"));
 	adapters.push_back(com->createObjectAdapter("Adapter13", "default"));
 
+	//
+	// Ensure that when a connection is opened it's reused for new
+	// proxies and that all endpoints are eventually tried.
+	//
 	set<string> names;
 	names.insert("Adapter11");
 	names.insert("Adapter12");
@@ -143,8 +147,34 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test1->ice_connection()->close(false);
 	}
 
-	com->deactivateObjectAdapter(adapters[0]);
+	//
+	// Ensure that the proxy correctly caches the connection (we
+	// always send the request over the same connection.)
+	//
+	{
+	    for(vector<RemoteObjectAdapterPrx>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+	    {
+		(*p)->getTestIntf()->ice_ping();
+	    }
+	    
+	    TestIntfPrx test = createTestIntfPrx(adapters);
+	    string name = test->getAdapterName();
+	    const int nRetry = 10;
+	    int i;
+	    for(i = 0; i < nRetry &&  test->getAdapterName() == name; i++);
+	    test(i == nRetry);
 
+	    for(vector<RemoteObjectAdapterPrx>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+	    {
+		(*p)->getTestIntf()->ice_connection()->close(false);
+	    }
+	}	    
+
+	//
+	// Deactivate an adapter and ensure that we can still
+	// establish the connection to the remaining adapters.
+	//
+	com->deactivateObjectAdapter(adapters[0]);
 	names.insert("Adapter12");
 	names.insert("Adapter13");
 	while(!names.empty())
@@ -164,10 +194,104 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test1->ice_connection()->close(false);
 	}
 	
-	com->deactivateObjectAdapter(adapters[2]);
-	
+	//
+	// Deactivate an adapter and ensure that we can still
+	// establish the connection to the remaining adapter.
+	//
+	com->deactivateObjectAdapter(adapters[2]);	
 	TestIntfPrx test = createTestIntfPrx(adapters);
 	test(test->getAdapterName() == "Adapter12");	
+
+	deactivate(com, adapters);
+    }
+    cout << "ok" << endl;
+
+    cout << "testing binding with multiple endpoints and AMI... " << flush;
+    {
+	vector<RemoteObjectAdapterPrx> adapters;
+	adapters.push_back(com->createObjectAdapter("AdapterAMI11", "default"));
+	adapters.push_back(com->createObjectAdapter("AdapterAMI12", "default"));
+	adapters.push_back(com->createObjectAdapter("AdapterAMI13", "default"));
+
+	//
+	// Ensure that when a connection is opened it's reused for new
+	// proxies and that all endpoints are eventually tried.
+	//
+	set<string> names;
+	names.insert("AdapterAMI11");
+	names.insert("AdapterAMI12");
+	names.insert("AdapterAMI13");
+	while(!names.empty())
+	{
+	    vector<RemoteObjectAdapterPrx> adpts = adapters;
+
+	    TestIntfPrx test1 = createTestIntfPrx(adpts);
+	    random_shuffle(adpts.begin(), adpts.end());
+	    TestIntfPrx test2 = createTestIntfPrx(adpts);
+	    random_shuffle(adpts.begin(), adpts.end());
+	    TestIntfPrx test3 = createTestIntfPrx(adpts);
+
+	    test(test1->ice_connection() == test2->ice_connection());
+	    test(test2->ice_connection() == test3->ice_connection());
+	    
+	    names.erase(getAdapterNameWithAMI(test1));
+	    test1->ice_connection()->close(false);
+	}
+
+	//
+	// Ensure that the proxy correctly caches the connection (we
+	// always send the request over the same connection.)
+	//
+	{
+	    for(vector<RemoteObjectAdapterPrx>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+	    {
+		(*p)->getTestIntf()->ice_ping();
+	    }
+	    
+	    TestIntfPrx test = createTestIntfPrx(adapters);
+	    string name = getAdapterNameWithAMI(test);
+	    const int nRetry = 10;
+	    int i;
+	    for(i = 0; i < nRetry && getAdapterNameWithAMI(test) == name; i++);
+	    test(i == nRetry);
+
+	    for(vector<RemoteObjectAdapterPrx>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+	    {
+		(*p)->getTestIntf()->ice_connection()->close(false);
+	    }
+	}	    
+
+	//
+	// Deactivate an adapter and ensure that we can still
+	// establish the connection to the remaining adapters.
+	//
+	com->deactivateObjectAdapter(adapters[0]);
+	names.insert("AdapterAMI12");
+	names.insert("AdapterAMI13");
+	while(!names.empty())
+	{
+	    vector<RemoteObjectAdapterPrx> adpts = adapters;
+
+	    TestIntfPrx test1 = createTestIntfPrx(adpts);
+	    random_shuffle(adpts.begin(), adpts.end());
+	    TestIntfPrx test2 = createTestIntfPrx(adpts);
+	    random_shuffle(adpts.begin(), adpts.end());
+	    TestIntfPrx test3 = createTestIntfPrx(adpts);
+	    
+	    test(test1->ice_connection() == test2->ice_connection());
+	    test(test2->ice_connection() == test3->ice_connection());
+
+	    names.erase(test1->getAdapterName());
+	    test1->ice_connection()->close(false);
+	}
+	
+	//
+	// Deactivate an adapter and ensure that we can still
+	// establish the connection to the remaining adapter.
+	//
+	com->deactivateObjectAdapter(adapters[2]);	
+	TestIntfPrx test = createTestIntfPrx(adapters);
+	test(test->getAdapterName() == "AdapterAMI12");	
 
 	deactivate(com, adapters);
     }

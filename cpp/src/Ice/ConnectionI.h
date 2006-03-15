@@ -64,7 +64,6 @@ public:
 
     void monitor();
 
-    void prepareRequest(IceInternal::BasicStream*);
     void sendRequest(IceInternal::BasicStream*, IceInternal::Outgoing*, bool);
     void sendAsyncRequest(IceInternal::BasicStream*, const IceInternal::OutgoingAsyncPtr&, bool);
 
@@ -164,10 +163,6 @@ private:
 
     const int _acmTimeout;
     IceUtil::Time _acmAbsoluteTimeout;
-
-    const std::vector<Byte> _requestHdr;
-    const std::vector<Byte> _requestBatchHdr;
-    const std::vector<Byte> _replyHdr;
 
     const int _compressionLevel;
 

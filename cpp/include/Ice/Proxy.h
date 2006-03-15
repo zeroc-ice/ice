@@ -198,7 +198,7 @@ public:
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&) = 0;
 
-    virtual ::Ice::ConnectionPtr ice_connection() = 0;
+    virtual ::Ice::ConnectionIPtr __getConnection(bool&) const = 0;
 };
 
 } }
@@ -219,7 +219,7 @@ public:
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
 
-    virtual ::Ice::ConnectionPtr ice_connection();
+    virtual ::Ice::ConnectionIPtr __getConnection(bool&) const;
 
     void __copyFrom(const ::IceInternal::Handle< ::IceDelegateM::Ice::Object>&);
 
@@ -251,7 +251,7 @@ public:
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
 
-    virtual ::Ice::ConnectionPtr ice_connection();
+    virtual ::Ice::ConnectionIPtr __getConnection(bool&) const;
 
     void __copyFrom(const ::IceInternal::Handle< ::IceDelegateD::Ice::Object>&);
 

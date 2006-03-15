@@ -56,11 +56,9 @@ private:
 
     void cleanup();
 
-    ReferencePtr _reference;
-    ::Ice::ConnectionIPtr _connection;
+    ::Ice::ObjectPrx _proxy;
     int _cnt;
     Ice::OperationMode _mode;
-    bool _compress;
 
     IceUtil::Monitor<IceUtil::RecMutex> _monitor;
 };

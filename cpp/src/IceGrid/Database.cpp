@@ -742,8 +742,8 @@ Database::getAdapters(const string& id, bool allRegistered, int& endpointCount)
 	Ice::Identity identity;
 	identity.category = "IceGridAdapter";
 	identity.name = id;
-	AdapterPrx adpt = AdapterPrx::uncheckedCast(_internalAdapter->createDirectProxy(identity));
-	adpts.push_back(make_pair(id, adpt));
+	Ice::ObjectPrx adpt = _internalAdapter->createDirectProxy(identity)->ice_collocationOptimization(false);
+	adpts.push_back(make_pair(id, AdapterPrx::uncheckedCast(adpt)));
 	endpointCount = 1;
 	return adpts;
     }

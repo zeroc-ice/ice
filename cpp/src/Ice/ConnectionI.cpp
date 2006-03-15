@@ -476,15 +476,6 @@ Ice::ConnectionI::monitor()
     }
 }
 
-//
-// TODO: Should not be a member function of Connection.
-//
-void
-Ice::ConnectionI::prepareRequest(BasicStream* os)
-{
-    os->writeBlob(_requestHdr);
-}
-
 void
 Ice::ConnectionI::sendRequest(BasicStream* os, Outgoing* out, bool compress)
 {
@@ -834,7 +825,7 @@ Ice::ConnectionI::prepareBatchRequest(BasicStream* os)
     {
 	try
 	{
-	    _batchStream.writeBlob(_requestBatchHdr);
+	    _batchStream.writeBlob(requestBatchHdr, sizeof(requestBatchHdr));
 	}
 	catch(const LocalException& ex)
 	{
@@ -1411,9 +1402,6 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
     _finishedCount(0),
     _warn(_instance->properties()->getPropertyAsInt("Ice.Warn.Connections") > 0),
     _acmTimeout(0),
-    _requestHdr(headerSize + sizeof(Int), 0),
-    _requestBatchHdr(headerSize + sizeof(Int), 0),
-    _replyHdr(headerSize, 0),
     _compressionLevel(1),
     _nextRequestId(1),
     _requestsHint(_requests.end()),
@@ -1442,42 +1430,6 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
 	    acmTimeout = _instance->clientACM();
 	}
     }
-
-    vector<Byte>& requestHdr = const_cast<vector<Byte>&>(_requestHdr);
-    requestHdr[0] = magic[0];
-    requestHdr[1] = magic[1];
-    requestHdr[2] = magic[2];
-    requestHdr[3] = magic[3];
-    requestHdr[4] = protocolMajor;
-    requestHdr[5] = protocolMinor;
-    requestHdr[6] = encodingMajor;
-    requestHdr[7] = encodingMinor;
-    requestHdr[8] = requestMsg;
-    requestHdr[9] = 0;
-
-    vector<Byte>& requestBatchHdr = const_cast<vector<Byte>&>(_requestBatchHdr);
-    requestBatchHdr[0] = magic[0];
-    requestBatchHdr[1] = magic[1];
-    requestBatchHdr[2] = magic[2];
-    requestBatchHdr[3] = magic[3];
-    requestBatchHdr[4] = protocolMajor;
-    requestBatchHdr[5] = protocolMinor;
-    requestBatchHdr[6] = encodingMajor;
-    requestBatchHdr[7] = encodingMinor;
-    requestBatchHdr[8] = requestBatchMsg;
-    requestBatchHdr[9] = 0;
-
-    vector<Byte>& replyHdr = const_cast<vector<Byte>&>(_replyHdr);
-    replyHdr[0] = magic[0];
-    replyHdr[1] = magic[1];
-    replyHdr[2] = magic[2];
-    replyHdr[3] = magic[3];
-    replyHdr[4] = protocolMajor;
-    replyHdr[5] = protocolMinor;
-    replyHdr[6] = encodingMajor;
-    replyHdr[7] = encodingMinor;
-    replyHdr[8] = replyMsg;
-    replyHdr[9] = 0;
 
     int& compressionLevel = const_cast<int&>(_compressionLevel);
     compressionLevel = _instance->properties()->getPropertyAsIntWithDefault("Ice.Compression.Level", 1);
@@ -2255,7 +2207,7 @@ Ice::ConnectionI::invokeAll(BasicStream& stream, Int invokeNum, Int requestId, B
 	    if(response)
 	    {
 		assert(invokeNum == 1); // No further invocations if a response is expected.
-		os->writeBlob(_replyHdr);
+		os->writeBlob(replyHdr, sizeof(replyHdr));
 		
 		//
 		// Add the request ID.

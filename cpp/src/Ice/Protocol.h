@@ -32,7 +32,7 @@ const ::Ice::Int headerSize = 14;
 //
 // The magic number at the front of each message
 //
-const ::Ice::Byte magic[] = { 0x49, 0x63, 0x65, 0x50 };	// 'I', 'c', 'e', 'P'
+extern const ::Ice::Byte magic[4];
 
 //
 // The current Ice protocol and encoding version
@@ -50,6 +50,13 @@ const ::Ice::Byte requestBatchMsg = 1;
 const ::Ice::Byte replyMsg = 2;
 const ::Ice::Byte validateConnectionMsg = 3;
 const ::Ice::Byte closeConnectionMsg = 4;
+
+//
+// The request header, batch request header and reply header.
+//
+extern const ::Ice::Byte requestHdr[headerSize + sizeof(Ice::Int)];
+extern const ::Ice::Byte requestBatchHdr[headerSize + sizeof(Ice::Int)];
+extern const ::Ice::Byte replyHdr[headerSize];
 
 }
 

@@ -398,6 +398,9 @@ LocatorI::getDirectProxyException(const AdapterPrx& adapter, const string& id, c
     }
     catch(const Ice::Exception&)
     {
+	//
+	// TODO: Add a warning!!!
+	//
     }
 
     PendingRequests requests;

@@ -735,7 +735,8 @@ IceProxy::Ice::Object::ice_connection()
 	try
 	{
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
-	    return __del->ice_connection();
+	    bool compress;
+	    return __del->__getConnection(compress);
 	}
 	catch(const LocalException& __ex)
 	{
@@ -777,6 +778,12 @@ IceProxy::Ice::Object::__copyFrom(const ObjectPrx& from)
 
     if(_reference->getCacheConnection())
     {
+	//
+	// The _delegate attribute is only used if "cache connection"
+	// is enabled. If it's not enabled, we don't keep track of the
+	// delegate -- a new delegate is created for each invocations.
+	//	
+
 	if(delegateD)
 	{
 	    Handle< ::IceDelegateD::Ice::Object> delegate = __createDelegateD();
@@ -931,6 +938,11 @@ IceProxy::Ice::Object::__getDelegate()
 
     if(_reference->getCacheConnection())
     {
+	//
+	// The _delegate attribute is only used if "cache connection"
+	// is enabled. If it's not enabled, we don't keep track of the
+	// delegate -- a new delegate is created for each invocations.
+	//
 	_delegate = delegate;
     }
 
@@ -1133,9 +1145,10 @@ IceDelegateM::Ice::Object::ice_invoke(const string& operation,
     return ok;
 }
 
-ConnectionPtr
-IceDelegateM::Ice::Object::ice_connection()
+ConnectionIPtr
+IceDelegateM::Ice::Object::__getConnection(bool& compress) const
 {
+    compress = __compress;
     return __connection;
 }
 
@@ -1238,8 +1251,8 @@ IceDelegateD::Ice::Object::ice_invoke(const string&,
     return false;
 }
 
-ConnectionPtr
-IceDelegateD::Ice::Object::ice_connection()
+ConnectionIPtr
+IceDelegateD::Ice::Object::__getConnection(bool&) const
 {
     throw CollocationOptimizationException(__FILE__, __LINE__);
     return 0;
