@@ -1,6 +1,32 @@
 Changes since version 3.0.1
 ---------------------------
 
+- AMI invocations will now reuse the connection cached with the
+  proxy instead of always looking up an existing connection for
+  each invocation. As a side effect of this change, AMI invocations 
+  on a proxy with collocation optimization enabled will now raise
+  Ice::CollocationOptimizationException.
+
+- Added Ice.Default.LocatorCacheTimeout property and
+  ice_locatorCacheTimeout() proxy method. If a cached endpoint is
+  older than the configured cache timeout, the Ice runtime won't use
+  the cached endpoint. Instead, the Ice runtime will query again the
+  Ice locator service to retrieve up-to-date endpoints and will update
+  the locator cache. Please see the Ice manual for more information.
+
+- Added the proxy method ice_endpointSelection which allows an
+  application to control how endpoints are selected at connection
+  establishment. Two endpoint selection types are currently supported:
+  Random and Ordered.
+
+- Added the proxy method ice_cacheConnection. This method allows to
+  enable or disable the caching of the connection by the proxy. By 
+  default, the proxy will cache the connection to avoid looking it up
+  for each request. Disabling the connection caching is useful to do
+  per-request load balancing: the proxy will select a connection for
+  each request and the request will eventually be sent to different 
+  servers.
+
 - Removed the Ice.Warn.Leaks property.
 
 - Peformance improvements if an AMI callback object is reused with the
