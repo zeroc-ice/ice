@@ -52,17 +52,17 @@ CallbackClient::run(int argc, char* argv[])
     communicator()->setDefaultRouter(router);
     cout << "ok" << endl;
 
-    cout << "testing stringToProxy for server object... " << flush;
-    ObjectPrx base = communicator()->stringToProxy("c1/callback:tcp -p 12010 -t 10000");
+    cout << "adding thousands of proxies... " << flush;
+    ObjectPrx backendBase = communicator()->stringToProxy("dummy:tcp -p 12010 -t 10000");
+    BackendPrx backend = BackendPrx::uncheckedCast(backendBase);
     cout << "ok" << endl;
     
-    cout << "getting admin proxy... " << flush;
-    ObjectPrx adminBase = communicator()->stringToProxy("router:tcp -h 127.0.0.1 -p 12348 -t 10000");
+    cout << "testing server and router shutdown... " << flush;
+    backend->shutdown();
+    communicator()->setDefaultRouter(0);
+    ObjectPrx adminBase = communicator()->stringToProxy("Glacier2/admin:tcp -h 127.0.0.1 -p 12348 -t 10000");
     Glacier2::AdminPrx admin = Glacier2::AdminPrx::checkedCast(adminBase);
     test(admin);
-    cout << "ok" << endl;
-    
-    cout << "testing Glacier2 shutdown... " << flush;
     admin->shutdown();
     try
     {
