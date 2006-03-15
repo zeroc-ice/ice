@@ -14,7 +14,7 @@
 #
 
 protocol = ""
-#protocol = "ssl"	// TODO: Not implemented yet
+#protocol = "ssl"
 
 #
 # Set compressed to 1 in case you want to run the tests with
@@ -31,6 +31,9 @@ compress = 1
 
 threadPerConnection = 0
 #threadPerConnection = 1
+
+if protocol == "ssl":
+    threadPerConnection = 1
 
 #
 # If you don't set "host" below, then the Ice library will try to find
@@ -155,18 +158,17 @@ if isWin32():
 	os.environ["PATH"] = os.path.join(toplevel, "bin") + ";" + os.getenv("PATH", "")
 
 if protocol == "ssl":
-    plugin		 = " --Ice.Plugin.IceSSL=IceSSL:create"
-    clientProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
-                           " --IceSSL.Client.Config=client_sslconfig.xml"
+    plugin		 = " --Ice.Plugin.IceSSL=" + os.path.join(toplevel, "bin", "icesslcs.dll") + \
+			   ":IceSSL.PluginFactory"
+    clientProtocol       = plugin + " --Ice.Default.Protocol=ssl"
     serverProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs") + \
-                           " --IceSSL.Server.Config=server_sslconfig.xml"
+                           " --IceSSL.ImportCert.LocalMachine.Root=" + \
+				os.path.join(toplevel, "certs", "cacert.pem") + \
+                           " --IceSSL.Server.Cert.File=" + os.path.join(toplevel, "certs", "s_rsa1024.pfx") + \
+                           " --IceSSL.Server.Cert.Password=password"
     clientServerProtocol = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
-                           " --IceSSL.Client.Config=sslconfig.xml" + \
-                           " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs") + \
-                           " --IceSSL.Server.Config=sslconfig.xml"
+                           " --IceSSL.Server.Cert.File=" + os.path.join(toplevel, "certs", "s_rsa1024.pfx") + \
+                           " --IceSSL.Server.Cert.Password=password"
     cppPlugin		    = " --Ice.Plugin.IceSSL=IceSSL:create"
     cppClientProtocol       = cppPlugin + " --Ice.Default.Protocol=ssl" + \
                               " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
@@ -175,10 +177,10 @@ if protocol == "ssl":
                               " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs") + \
                               " --IceSSL.Server.Config=server_sslconfig.xml"
     cppClientServerProtocol = cppPlugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
-                           " --IceSSL.Client.Config=sslconfig.xml" + \
-                           " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs") + \
-                           " --IceSSL.Server.Config=sslconfig.xml"
+                              " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
+                              " --IceSSL.Client.Config=sslconfig.xml" + \
+                              " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs") + \
+                              " --IceSSL.Server.Config=sslconfig.xml"
 else:
     clientProtocol = ""
     serverProtocol = ""
@@ -199,9 +201,6 @@ if threadPerConnection:
     clientProtocol += " --Ice.ThreadPerConnection"
     serverProtocol += " --Ice.ThreadPerConnection"
     clientServerProtocol += " --Ice.ThreadPerConnection"
-    cppClientProtocol += " --Ice.ThreadPerConnection"
-    cppServerProtocol += " --Ice.ThreadPerConnection"
-    cppClientServerProtocol += " --Ice.ThreadPerConnection"
 
 if host != "":
     defaultHost = " --Ice.Default.Host=" + host
@@ -258,14 +257,17 @@ def clientServerTestWithOptionsAndNames(mono, name, additionalServerOptions, add
     client = os.path.join(testdir, clientName)
 
     print createMsg(mono, serverName),
-
-    serverPipe = os.popen(createCmd(mono, server) + serverOptions + " " + additionalServerOptions)
+    serverCmd = createCmd(mono, server) + serverOptions + " " + additionalServerOptions
+    #print "serverCmd=" + serverCmd
+    serverPipe = os.popen(serverCmd)
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
     print createMsg(mono, clientName),
-    clientPipe = os.popen(createCmd(mono, client) + clientOptions + " " + additionalClientOptions)
+    clientCmd = createCmd(mono, client) + clientOptions + " " + additionalClientOptions
+    #print "clientCmd=" + clientCmd
+    clientPipe = os.popen(clientCmd)
     print "ok"
 
     printOutputFromPipe(clientPipe)
