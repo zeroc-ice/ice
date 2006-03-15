@@ -345,13 +345,6 @@ IceInternal::Instance::pluginManager() const
     return _pluginManager;
 }
 
-size_t
-IceInternal::Instance::messageSizeMax() const
-{
-    // No mutex lock, immutable.
-    return _messageSizeMax;
-}
-
 int
 IceInternal::Instance::clientACM() const
 {

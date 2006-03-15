@@ -71,7 +71,7 @@ public:
     EndpointFactoryManagerPtr endpointFactoryManager() const;
     DynamicLibraryListPtr dynamicLibraryList() const;
     Ice::PluginManagerPtr pluginManager() const;
-    size_t messageSizeMax() const;
+    size_t messageSizeMax() const { return _messageSizeMax; }
     Ice::Int clientACM() const;
     Ice::Int serverACM() const;
     void flushBatchRequests();

@@ -39,7 +39,8 @@ IceInternal::BasicStream::BasicStream(Instance* instance) :
 {
 }
 
-IceInternal::BasicStream::~BasicStream()
+void
+IceInternal::BasicStream::clear()
 {
     while(_currentReadEncaps && _currentReadEncaps != &_preAllocatedReadEncaps)
     {
@@ -63,12 +64,6 @@ IceInternal::BasicStream::~BasicStream()
     }
 
     delete _objectList;
-}
-
-Instance*
-IceInternal::BasicStream::instance() const
-{
-    return _instance;
 }
 
 void
@@ -203,36 +198,6 @@ IceInternal::BasicStream::startSeq(int numElements, int minSize)
     }
 }
 
-//
-// Check, given the number of elements requested for this sequence,
-// that this sequence, plus the sum of the sizes of the remaining
-// number of elements of all enclosing sequences, would still fit
-// within the message.
-//
-void
-IceInternal::BasicStream::checkSeq()
-{
-    checkSeq(static_cast<int>(b.end() - i));
-}
-
-void
-IceInternal::BasicStream::checkSeq(int bytesLeft)
-{
-    int size = 0;
-    SeqData* sd = _seqDataStack;
-    do
-    {
-	size += (sd->numElements - 1) * sd->minSize;
-	sd = sd->previous;
-    }
-    while(sd);
-
-    if(size > bytesLeft)
-    {
-	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-    }
-}
-
 void
 IceInternal::BasicStream::checkFixedSeq(int numElements, int elemSize)
 {
@@ -270,33 +235,6 @@ IceInternal::BasicStream::endSeq(int sz)
     delete oldSeqData;
 }
 
-IceInternal::BasicStream::WriteEncaps::WriteEncaps()
-    : writeIndex(0), toBeMarshaledMap(0), marshaledMap(0), typeIdMap(0), typeIdIndex(0), previous(0)
-{
-}
-
-IceInternal::BasicStream::WriteEncaps::~WriteEncaps()
-{
-    delete toBeMarshaledMap;
-    delete marshaledMap;
-    delete typeIdMap;
-}
-
-void
-IceInternal::BasicStream::WriteEncaps::reset()
-{
-    delete toBeMarshaledMap;
-    delete marshaledMap;
-    delete typeIdMap;
-
-    writeIndex = 0;
-    toBeMarshaledMap = 0;
-    marshaledMap = 0;
-    typeIdMap = 0;
-    typeIdIndex = 0;
-    previous = 0;
-}
-
 void
 IceInternal::BasicStream::WriteEncaps::swap(WriteEncaps& other)
 {
@@ -309,86 +247,6 @@ IceInternal::BasicStream::WriteEncaps::swap(WriteEncaps& other)
     std::swap(typeIdIndex, other.typeIdIndex);
 
     std::swap(previous, other.previous);
-}
-
-void
-IceInternal::BasicStream::startWriteEncaps()
-{
-    WriteEncaps* oldEncaps = _currentWriteEncaps;
-    if(!oldEncaps) // First allocated encaps?
-    {
-	_currentWriteEncaps = &_preAllocatedWriteEncaps;
-    }
-    else
-    {
-	_currentWriteEncaps = new WriteEncaps();
-	_currentWriteEncaps->previous = oldEncaps;
-    }
-    _currentWriteEncaps->start = b.size();
-
-    write(Int(0)); // Placeholder for the encapsulation length.
-    write(encodingMajor);
-    write(encodingMinor);
-}
-
-void
-IceInternal::BasicStream::endWriteEncaps()
-{
-    assert(_currentWriteEncaps);
-    Container::size_type start = _currentWriteEncaps->start;
-    Int sz = static_cast<Int>(b.size() - start); // Size includes size and version.
-    Byte* dest = &(*(b.begin() + start));
-
-#ifdef ICE_BIG_ENDIAN
-    const Byte* src = reinterpret_cast<const Byte*>(&sz) + sizeof(Int) - 1;
-    *dest++ = *src--;
-    *dest++ = *src--;
-    *dest++ = *src--;
-    *dest = *src;
-#else
-    const Byte* src = reinterpret_cast<const Byte*>(&sz);
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest = *src;
-#endif
-
-    WriteEncaps* oldEncaps = _currentWriteEncaps;
-    _currentWriteEncaps = _currentWriteEncaps->previous;
-    if(oldEncaps == &_preAllocatedWriteEncaps)
-    {
-	oldEncaps->reset();
-    }
-    else
-    {
-	delete oldEncaps;
-    }
-}
-
-IceInternal::BasicStream::ReadEncaps::ReadEncaps()
-    : patchMap(0), unmarshaledMap(0), typeIdMap(0), typeIdIndex(0), previous(0)
-{
-}
-
-IceInternal::BasicStream::ReadEncaps::~ReadEncaps()
-{
-    delete patchMap;
-    delete unmarshaledMap;
-    delete typeIdMap;
-}
-
-void
-IceInternal::BasicStream::ReadEncaps::reset()
-{
-    delete patchMap;
-    delete unmarshaledMap;
-    delete typeIdMap;
-
-    patchMap = 0;
-    unmarshaledMap = 0;
-    typeIdMap = 0;
-    typeIdIndex = 0;
-    previous = 0;
 }
 
 void
@@ -406,78 +264,6 @@ IceInternal::BasicStream::ReadEncaps::swap(ReadEncaps& other)
     std::swap(typeIdIndex, other.typeIdIndex);
 
     std::swap(previous, other.previous);
-}
-
-void
-IceInternal::BasicStream::startReadEncaps()
-{
-    ReadEncaps* oldEncaps = _currentReadEncaps;
-    if(!oldEncaps) // First allocated encaps?
-    {
-	_currentReadEncaps = &_preAllocatedReadEncaps;
-    }
-    else
-    {
-	_currentReadEncaps = new ReadEncaps();
-	_currentReadEncaps->previous = oldEncaps;
-    }
-    _currentReadEncaps->start = i - b.begin();
-
-    //
-    // I don't use readSize() and writeSize() for encapsulations,
-    // because when creating an encapsulation, I must know in advance
-    // how many bytes the size information will require in the data
-    // stream. If I use an Int, it is always 4 bytes. For
-    // readSize()/writeSize(), it could be 1 or 5 bytes.
-    //
-    Int sz;
-    read(sz);
-    if(sz < 0)
-    {
-	throw NegativeSizeException(__FILE__, __LINE__);
-    }
-    if(i - sizeof(Int) + sz > b.end())
-    {
-	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-    }
-    _currentReadEncaps->sz = sz;
-
-    Byte eMajor;
-    Byte eMinor;
-    read(eMajor);
-    read(eMinor);
-    if(eMajor != encodingMajor
-       || static_cast<unsigned char>(eMinor) > static_cast<unsigned char>(encodingMinor))
-    {
-	UnsupportedEncodingException ex(__FILE__, __LINE__);
-	ex.badMajor = static_cast<unsigned char>(eMajor);
-	ex.badMinor = static_cast<unsigned char>(eMinor);
-	ex.major = static_cast<unsigned char>(encodingMajor);
-	ex.minor = static_cast<unsigned char>(encodingMinor);
-	throw ex;
-    }
-    _currentReadEncaps->encodingMajor = eMajor;
-    _currentReadEncaps->encodingMinor = eMinor;
-}
-
-void
-IceInternal::BasicStream::endReadEncaps()
-{
-    assert(_currentReadEncaps);
-    Container::size_type start = _currentReadEncaps->start;
-    Int sz = _currentReadEncaps->sz;
-    i = b.begin() + start + sz;
-
-    ReadEncaps* oldEncaps = _currentReadEncaps;
-    _currentReadEncaps = _currentReadEncaps->previous;
-    if(oldEncaps == &_preAllocatedReadEncaps)
-    {
-	oldEncaps->reset();
-    }
-    else
-    {
-	delete oldEncaps;
-    }
 }
 
 void
@@ -572,41 +358,6 @@ IceInternal::BasicStream::skipSlice()
     if(i > b.end())
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-    }
-}
-
-void
-IceInternal::BasicStream::writeSize(Int v)
-{
-    assert(v >= 0);
-    if(v > 254)
-    {
-	write(Byte(255));
-	write(v);
-    }
-    else
-    {
-	write(static_cast<Byte>(v));
-    }
-}
-
-void
-IceInternal::BasicStream::readSize(Ice::Int& v)
-{
-    Byte byte;
-    read(byte);
-    unsigned val = static_cast<unsigned char>(byte);
-    if(val == 255)
-    {
-	read(v);
-	if(v < 0)
-	{
-	    throw NegativeSizeException(__FILE__, __LINE__);
-	}
-    }
-    else
-    {
-	v = static_cast<Int>(static_cast<unsigned char>(byte));
     }
 }
 
@@ -962,27 +713,6 @@ IceInternal::BasicStream::read(pair<const Short*, const Short*>& v, IceUtil::aut
 }
 
 void
-IceInternal::BasicStream::write(Int v)
-{
-    Container::size_type pos = b.size();
-    resize(pos + sizeof(Int));
-    Byte* dest = &b[pos];
-#ifdef ICE_BIG_ENDIAN
-    const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(Int) - 1;
-    *dest++ = *src--;
-    *dest++ = *src--;
-    *dest++ = *src--;
-    *dest = *src;
-#else
-    const Byte* src = reinterpret_cast<const Byte*>(&v);
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest = *src;
-#endif
-}
-
-void
 IceInternal::BasicStream::write(const Int* begin, const Int* end)
 {
     Int sz = static_cast<Int>(end - begin);
@@ -1006,30 +736,6 @@ IceInternal::BasicStream::write(const Int* begin, const Int* end)
 	memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), sz * sizeof(Int));
 #endif
     }
-}
-
-void
-IceInternal::BasicStream::read(Int& v)
-{
-    if(b.end() - i < static_cast<int>(sizeof(Int)))
-    {
-	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-    }
-    const Byte* src = &(*i);
-    i += sizeof(Int);
-#ifdef ICE_BIG_ENDIAN
-    Byte* dest = reinterpret_cast<Byte*>(&v) + sizeof(Int) - 1;
-    *dest-- = *src++;
-    *dest-- = *src++;
-    *dest-- = *src++;
-    *dest = *src;
-#else
-    Byte* dest = reinterpret_cast<Byte*>(&v);
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest = *src;
-#endif
 }
 
 void
@@ -1612,19 +1318,6 @@ IceInternal::BasicStream::write(const char*)
 */
 
 void
-IceInternal::BasicStream::write(const string& v)
-{
-    Int sz = static_cast<Int>(v.size());
-    writeSize(sz);
-    if(sz > 0)
-    {
-	Container::size_type pos = b.size();
-	resize(pos + sz);
-	memcpy(&b[pos], v.c_str(), sz);
-    }
-}
-
-void
 IceInternal::BasicStream::write(const string* begin, const string* end)
 {
     Int sz = static_cast<Int>(end - begin);
@@ -1635,27 +1328,6 @@ IceInternal::BasicStream::write(const string* begin, const string* end)
 	{
 	    write(begin[i]);
 	}
-    }
-}
-
-void
-IceInternal::BasicStream::read(string& v)
-{
-    Int sz;
-    readSize(sz);
-    if(sz > 0)
-    {
-	if(b.end() - i < sz)
-	{
-	    throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-	}
-	string(reinterpret_cast<const char*>(&*i), reinterpret_cast<const char*>(&*i) + sz).swap(v);
-//	v.assign(reinterpret_cast<const char*>(&(*i)), sz);
-	i += sz;
-    }
-    else
-    {
-       v.clear();
     }
 }
 
@@ -2078,6 +1750,23 @@ void
 IceInternal::BasicStream::throwMemoryLimitException(const char* file, int line)
 {
     throw MemoryLimitException(file, line);
+}
+
+void
+IceInternal::BasicStream::throwNegativeSizeException(const char* file, int line)
+{
+    throw NegativeSizeException(file, line);
+}
+
+void
+IceInternal::BasicStream::throwUnsupportedEncodingException(const char* file, int line, Byte eMajor, Byte eMinor)
+{   
+    UnsupportedEncodingException ex(file, line);
+    ex.badMajor = static_cast<unsigned char>(eMajor);
+    ex.badMinor = static_cast<unsigned char>(eMinor);
+    ex.major = static_cast<unsigned char>(encodingMajor);
+    ex.minor = static_cast<unsigned char>(encodingMinor);
+    throw ex;
 }
 
 void

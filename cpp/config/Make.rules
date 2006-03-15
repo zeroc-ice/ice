@@ -19,7 +19,7 @@ prefix			?= /opt/Ice-$(VERSION)
 # optimization. Otherwise Ice is build with debug information.
 #
 
-#OPTIMIZE		= yes
+OPTIMIZE		= yes
 
 #
 # Define LP64 as yes or no if you want force a 32 or 64 bit. The default

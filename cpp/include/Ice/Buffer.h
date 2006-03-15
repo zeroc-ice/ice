@@ -7,12 +7,13 @@
 //
 // **********************************************************************
 
-#ifndef ICE_BUFFER_H
-#define ICE_BUFFER_H
+#ifndef ICEE_BUFFER_H
+#define ICEE_BUFFER_H
 
 #include <Ice/Config.h>
 
-//#define ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
+#define ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
+#define ICE_BUFFER_FIXED_SIZE 64
 
 namespace IceInternal
 {
@@ -47,7 +48,7 @@ public:
 	Container() :
 	    _buf(_fixed),
 	    _size(0),
-	    _capacity(_fixedSize)
+	    _capacity(ICE_BUFFER_FIXED_SIZE)
 	{
 	}
 #else
@@ -103,25 +104,43 @@ public:
 
 	void swap(Container&);
 	
-	void clear()
-	{
-#ifdef ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
-	    if(_buf != _fixed)
+	void clear();
+
+	void resize(size_type n) // Inlined for performance reasons.
+        {
+	    if(n == 0)
 	    {
-		free(_buf);
-		_buf = _fixed;
+		clear();
 	    }
-	    _size = 0;
-	    _capacity = _fixedSize;
-#else
-	    free(_buf);
-	    _buf = 0;
-	    _size = 0;
-	    _capacity = 0;
-#endif
+	    else if(n > _capacity)
+	    {
+		reserve(n); 
+	    }
+	    _size = n;
 	}
 
-	void resize(size_type);
+	void reset()
+	{
+	    if(_size > 0 && _size * 2 < _capacity)
+	    {
+		//
+		// If the current buffer size is smaller than the
+		// buffer capacity, we shrink the buffer memory to the
+		// current size. This is to avoid holding on too much
+		// memory if it's not needed anymore.
+		//
+	        if(++_shrinkCounter > 2)
+		{
+		    reserve(_size);
+		    _shrinkCounter = 0;
+		}
+	    }
+	    else
+	    {
+	        _shrinkCounter = 0;
+	    }
+	    _size = 0;
+	}
 
 	void push_back(value_type v)
 	{
@@ -145,10 +164,12 @@ public:
 
 	Container(const Container&);
 	void operator=(const Container&);
+	void reserve(size_type);
 
 	pointer _buf;
 	size_type _size;
 	size_type _capacity;
+	int _shrinkCounter;
 
 #ifdef ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
 	//
@@ -156,8 +177,7 @@ public:
 	// a buffer size larger than _fixedSize is requested, we
 	// allocate memory dynamically.
 	//
-	static const size_type _fixedSize = 64;
-	value_type _fixed[_fixedSize];
+	value_type _fixed[ICE_BUFFER_FIXED_SIZE];
 #endif
     };
 

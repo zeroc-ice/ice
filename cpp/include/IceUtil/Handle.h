@@ -36,7 +36,14 @@ public:
     {
 	if(!_ptr)
 	{
-	    throw NullHandleException(__FILE__, __LINE__);	    
+            //
+            // We don't throw directly NullHandleException here to
+            // keep the code size of this method to a minimun (the
+            // assembly code for throwing an exception is much bigger
+            // than just a function call). This maximises the chances
+            // of inlining by compiler optimization.
+            //
+	    throwNullHandleException(__FILE__, __LINE__);	    
 	}
 
 	return _ptr;
@@ -46,7 +53,14 @@ public:
     {
 	if(!_ptr)
 	{
-	    throw NullHandleException(__FILE__, __LINE__);	    
+            //
+            // We don't throw directly NullHandleException here to
+            // keep the code size of this method to a minimun (the
+            // assembly code for throwing an exception is much bigger
+            // than just a function call). This maximises the chances
+            // of inlining by compiler optimization.
+            //
+	    throwNullHandleException(__FILE__, __LINE__);	    
 	}
 
 	return *_ptr;
@@ -63,7 +77,17 @@ public:
     }
 
     T* _ptr;
+
+private:
+
+    void throwNullHandleException(char *, int) const;
 };
+
+template<typename T> void
+HandleBase<T>::throwNullHandleException(char* file, int line) const
+{
+    throw NullHandleException(file, line);
+}
 
 template<typename T, typename U>
 inline bool operator==(const HandleBase<T>& lhs, const HandleBase<U>& rhs)

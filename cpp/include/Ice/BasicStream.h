@@ -15,6 +15,7 @@
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectFactoryF.h>
 #include <Ice/Buffer.h>
+#include <Ice/Protocol.h>
 #include <IceUtil/AutoArray.h>
 
 namespace Ice
@@ -34,13 +35,25 @@ public:
     typedef void (*PatchFunc)(void*, Ice::ObjectPtr&);
 
     BasicStream(Instance*);
-    ~BasicStream();
+    ~BasicStream()
+    {
+        // Inlined for performance reasons.
+
+        if(_currentReadEncaps != &_preAllocatedReadEncaps ||
+           _currentWriteEncaps != &_preAllocatedWriteEncaps ||
+           _seqDataStack || _objectList)
+        {
+            clear(); // Not inlined.
+        }
+    }
+
+    void clear();
 
     //
     // Must return Instance*, because we don't hold an InstancePtr for
     // optimization reasons (see comments below).
     //
-    Instance* instance() const;
+    Instance* instance() const { return _instance; } // Inlined for performance reasons.
 
     void swap(BasicStream&);
 
@@ -55,8 +68,32 @@ public:
     }
 
     void startSeq(int, int);
-    void checkSeq();
-    void checkSeq(int);
+    void checkSeq()
+    {
+        checkSeq(static_cast<int>(b.end() - i));
+    }
+    void checkSeq(int bytesLeft)
+    {
+        //
+        // Check, given the number of elements requested for this sequence,
+        // that this sequence, plus the sum of the sizes of the remaining
+        // number of elements of all enclosing sequences, would still fit
+        // within the message.
+        //
+        int size = 0;
+        SeqData* sd = _seqDataStack;
+        do
+        {
+            size += (sd->numElements - 1) * sd->minSize;
+            sd = sd->previous;
+        }
+        while(sd);
+
+        if(size > bytesLeft)
+        {
+            throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        }
+    }
     void checkFixedSeq(int, int); // For sequences of fixed-size types.
     void endElement()
     {
@@ -65,11 +102,120 @@ public:
     }
     void endSeq(int);
 
-    void startWriteEncaps();
-    void endWriteEncaps();
+    void startWriteEncaps()
+    {
+        WriteEncaps* oldEncaps = _currentWriteEncaps;
+        if(!oldEncaps) // First allocated encaps?
+        {
+            _currentWriteEncaps = &_preAllocatedWriteEncaps;
+        }
+        else
+        {
+            _currentWriteEncaps = new WriteEncaps();
+            _currentWriteEncaps->previous = oldEncaps;
+        }
+        _currentWriteEncaps->start = b.size();
 
-    void startReadEncaps();
-    void endReadEncaps();
+        write(Ice::Int(0)); // Placeholder for the encapsulation length.
+        write(encodingMajor);
+        write(encodingMinor);
+    }
+    void endWriteEncaps()
+    {
+        assert(_currentWriteEncaps);
+        Container::size_type start = _currentWriteEncaps->start;
+        Ice::Int sz = static_cast<Ice::Int>(b.size() - start); // Size includes size and version.
+        Ice::Byte* dest = &(*(b.begin() + start));
+
+#ifdef ICE_BIG_ENDIAN
+        const Ice::Byte* src = reinterpret_cast<const Ice::Byte*>(&sz) + sizeof(Ice::Int) - 1;
+        *dest++ = *src--;
+        *dest++ = *src--;
+        *dest++ = *src--;
+        *dest = *src;
+#else
+        const Ice::Byte* src = reinterpret_cast<const Ice::Byte*>(&sz);
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest = *src;
+#endif
+
+        WriteEncaps* oldEncaps = _currentWriteEncaps;
+        _currentWriteEncaps = _currentWriteEncaps->previous;
+        if(oldEncaps == &_preAllocatedWriteEncaps)
+        {
+            oldEncaps->reset();
+        }
+        else
+        {
+            delete oldEncaps;
+        }
+    }
+
+    void startReadEncaps()
+    {
+        ReadEncaps* oldEncaps = _currentReadEncaps;
+        if(!oldEncaps) // First allocated encaps?
+        {
+            _currentReadEncaps = &_preAllocatedReadEncaps;
+        }
+        else
+        {
+            _currentReadEncaps = new ReadEncaps();
+            _currentReadEncaps->previous = oldEncaps;
+        }
+        _currentReadEncaps->start = i - b.begin();
+
+        //
+        // I don't use readSize() and writeSize() for encapsulations,
+        // because when creating an encapsulation, I must know in advance
+        // how many bytes the size information will require in the data
+        // stream. If I use an Int, it is always 4 bytes. For
+        // readSize()/writeSize(), it could be 1 or 5 bytes.
+        //
+        Ice::Int sz;
+        read(sz);
+        if(sz < 0)
+        {
+            throwNegativeSizeException(__FILE__, __LINE__);
+        }
+        if(i - sizeof(Ice::Int) + sz > b.end())
+        {
+            throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        }
+        _currentReadEncaps->sz = sz;
+
+        Ice::Byte eMajor;
+        Ice::Byte eMinor;
+        read(eMajor);
+        read(eMinor);
+        if(eMajor != encodingMajor
+           || static_cast<unsigned char>(eMinor) > static_cast<unsigned char>(encodingMinor))
+        {
+            throwUnsupportedEncodingException(__FILE__, __LINE__, eMajor, eMinor);
+        }
+        _currentReadEncaps->encodingMajor = eMajor;
+        _currentReadEncaps->encodingMinor = eMinor;
+    }
+    void endReadEncaps()
+    {
+        assert(_currentReadEncaps);
+        Container::size_type start = _currentReadEncaps->start;
+        Ice::Int sz = _currentReadEncaps->sz;
+        i = b.begin() + start + sz;
+
+        ReadEncaps* oldEncaps = _currentReadEncaps;
+        _currentReadEncaps = _currentReadEncaps->previous;
+        if(oldEncaps == &_preAllocatedReadEncaps)
+        {
+            oldEncaps->reset();
+        }
+        else
+        {
+            delete oldEncaps;
+        }
+    }
     void checkReadEncaps();
     Ice::Int getReadEncapsSize();
     void skipEncaps();
@@ -81,8 +227,37 @@ public:
     void endReadSlice();
     void skipSlice();
 
-    void writeSize(Ice::Int);
-    void readSize(Ice::Int&);
+    void writeSize(Ice::Int v) // Inlined for performance reasons.
+    {
+        assert(v >= 0);
+        if(v > 254)
+        {
+            write(Ice::Byte(255));
+            write(v);
+        }
+        else
+        {
+            write(static_cast<Ice::Byte>(v));
+        }
+    }
+    void readSize(Ice::Int& v) // Inlined for performance reasons.
+    {
+        Ice::Byte byte;
+        read(byte);
+        unsigned val = static_cast<unsigned char>(byte);
+        if(val == 255)
+        {
+            read(v);
+            if(v < 0)
+            {
+                throwNegativeSizeException(__FILE__, __LINE__);
+            }
+        }
+        else
+        {
+            v = static_cast<Ice::Int>(static_cast<unsigned char>(byte));
+        }
+    }
 
     void writeTypeId(const std::string&);
     void readTypeId(std::string&);
@@ -155,9 +330,50 @@ public:
     void read(std::vector<Ice::Short>&);
     void read(std::pair<const Ice::Short*, const Ice::Short*>&, IceUtil::auto_array<Ice::Short>&);
 
-    void write(Ice::Int);
+    void write(Ice::Int v) // Inlined for performance reasons.
+    {
+        Container::size_type pos = b.size();
+        resize(pos + sizeof(Ice::Int));
+        Ice::Byte* dest = &b[pos];
+#ifdef ICE_BIG_ENDIAN
+        const Ice::Byte* src = reinterpret_cast<const Ice::Byte*>(&v) + sizeof(Ice::Int) - 1;
+        *dest++ = *src--;
+        *dest++ = *src--;
+        *dest++ = *src--;
+        *dest = *src;
+#else
+        const Ice::Byte* src = reinterpret_cast<const Ice::Byte*>(&v);
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest = *src;
+#endif
+    }
+
+    void read(Ice::Int& v) // Inlined for performance reasons.
+    {
+        if(b.end() - i < static_cast<int>(sizeof(Ice::Int)))
+        {
+            throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        }
+        const Ice::Byte* src = &(*i);
+        i += sizeof(Ice::Int);
+#ifdef ICE_BIG_ENDIAN
+        Ice::Byte* dest = reinterpret_cast<Ice::Byte*>(&v) + sizeof(Ice::Int) - 1;
+        *dest-- = *src++;
+        *dest-- = *src++;
+        *dest-- = *src++;
+        *dest = *src;
+#else
+        Ice::Byte* dest = reinterpret_cast<Ice::Byte*>(&v);
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest = *src;
+#endif
+    }
+
     void write(const Ice::Int*, const Ice::Int*);
-    void read(Ice::Int&);
     void read(std::vector<Ice::Int>&);
     void read(std::pair<const Ice::Int*, const Ice::Int*>&, IceUtil::auto_array<Ice::Int>&);
 
@@ -188,9 +404,37 @@ public:
     //
     void write(const char*);
 
-    void write(const std::string&);
+    void write(const std::string& v)
+    {
+        Ice::Int sz = static_cast<Ice::Int>(v.size());
+        writeSize(sz);
+        if(sz > 0)
+        {
+            Container::size_type pos = b.size();
+            resize(pos + sz);
+            memcpy(&b[pos], v.c_str(), sz);
+        }
+    }
     void write(const std::string*, const std::string*);
-    void read(std::string&);
+    void read(std::string& v)
+    {
+        Ice::Int sz;
+        readSize(sz);
+        if(sz > 0)
+        {
+            if(b.end() - i < sz)
+            {
+                throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+            }
+            std::string(reinterpret_cast<const char*>(&*i), reinterpret_cast<const char*>(&*i) + sz).swap(v);
+//          v.assign(reinterpret_cast<const char*>(&(*i)), sz);
+            i += sz;
+        }
+        else
+        {
+            v.clear();
+        }
+    }
     void read(std::vector<std::string>&);
 
     void write(const Ice::ObjectPrx&);
@@ -233,6 +477,8 @@ private:
     //
     void throwUnmarshalOutOfBoundsException(const char*, int);
     void throwMemoryLimitException(const char*, int);
+    void throwNegativeSizeException(const char*, int);
+    void throwUnsupportedEncodingException(const char*, int, Ice::Byte, Ice::Byte);
 
     //
     // Optimization. The instance may not be deleted while a
@@ -244,9 +490,30 @@ private:
     {
     public:
 
-	ReadEncaps();
-	~ReadEncaps();
-	void reset();
+	ReadEncaps() : patchMap(0), unmarshaledMap(0), typeIdMap(0), typeIdIndex(0), previous(0)
+	{
+	    // Inlined for performance reasons.
+	}
+	~ReadEncaps()
+	{
+	    // Inlined for performance reasons.
+            delete patchMap;
+            delete unmarshaledMap;
+            delete typeIdMap;
+	}
+	void reset()
+        {
+	    // Inlined for performance reasons.
+            delete patchMap;
+            delete unmarshaledMap;
+            delete typeIdMap;
+
+            patchMap = 0;
+            unmarshaledMap = 0;
+            typeIdMap = 0;
+            typeIdIndex = 0;
+            previous = 0;
+        }
 	void swap(ReadEncaps&);
 
 	Container::size_type start;
@@ -267,9 +534,31 @@ private:
     {
     public:
 
-	WriteEncaps();
-	~WriteEncaps();
-	void reset();
+	WriteEncaps() : writeIndex(0), toBeMarshaledMap(0), marshaledMap(0), typeIdMap(0), typeIdIndex(0), previous(0)
+ 	{
+	    // Inlined for performance reasons.
+	}
+	~WriteEncaps()
+        {
+	    // Inlined for performance reasons.
+            delete toBeMarshaledMap;
+            delete marshaledMap;
+            delete typeIdMap;
+        }
+	void reset()
+        {
+	    // Inlined for performance reasons.
+            delete toBeMarshaledMap;
+            delete marshaledMap;
+            delete typeIdMap;
+
+            writeIndex = 0;
+            toBeMarshaledMap = 0;
+            marshaledMap = 0;
+            typeIdMap = 0;
+            typeIdIndex = 0;
+            previous = 0;
+        }
 	void swap(WriteEncaps&);
 
 	Container::size_type start;

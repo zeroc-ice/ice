@@ -23,7 +23,6 @@
 #include <Ice/OutgoingAsync.h>
 #include <Ice/Incoming.h>
 #include <Ice/LocalException.h>
-#include <Ice/Protocol.h>
 #include <Ice/ReferenceFactory.h> // For createProxy().
 #include <Ice/ProxyFactory.h> // For createProxy().
 #include <bzlib.h>
@@ -112,7 +111,10 @@ Ice::ConnectionI::validate()
 		}
 
 		BasicStream os(_instance.get());
-		os.writeBlob(magic, sizeof(magic));
+		os.write(magic[0]);
+		os.write(magic[1]);
+		os.write(magic[2]);
+		os.write(magic[3]);
 		os.write(protocolMajor);
 		os.write(protocolMinor);
 		os.write(encodingMajor);
@@ -148,8 +150,11 @@ Ice::ConnectionI::validate()
 		}
 		assert(is.i == is.b.end());
 		is.i = is.b.begin();
-		const Byte* m;
-		is.readBlob(m, static_cast<Int>(sizeof(magic)));
+		Byte m[4];
+		is.read(m[0]);
+		is.read(m[1]);
+		is.read(m[2]);
+		is.read(m[3]);
 	        if(m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
 		{
 		    BadMagicException ex(__FILE__, __LINE__);
@@ -1767,7 +1772,10 @@ Ice::ConnectionI::initiateShutdown() const
 	// Before we shut down, we send a close connection message.
 	//
 	BasicStream os(_instance.get());
-	os.writeBlob(magic, sizeof(magic));
+	os.write(magic[0]);
+	os.write(magic[1]);
+	os.write(magic[2]);
+	os.write(magic[3]);
 	os.write(protocolMajor);
 	os.write(protocolMinor);
 	os.write(encodingMajor);
@@ -2339,45 +2347,35 @@ Ice::ConnectionI::run()
 		throw IllegalMessageSizeException(__FILE__, __LINE__);
 	    }
 	    stream.i = stream.b.begin();
-	    const Byte* m;
-	    stream.readBlob(m, static_cast<Int>(sizeof(magic)));
-	    if(m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
+	    const Byte* header;
+	    stream.readBlob(header, headerSize);
+	    if(header[0] != magic[0] || header[1] != magic[1] || header[2] != magic[2] || header[3] != magic[3])
 	    {
 		BadMagicException ex(__FILE__, __LINE__);
-		ex.badMagic = Ice::ByteSeq(&m[0], &m[0] + sizeof(magic));
+		ex.badMagic = Ice::ByteSeq(&header[0], &header[0] + sizeof(magic));
 		throw ex;
 	    }
-	    Byte pMajor;
-	    Byte pMinor;
-	    stream.read(pMajor);
-	    stream.read(pMinor);
-	    if(pMajor != protocolMajor)
+	    if(header[4] != protocolMajor)
 	    {
 		UnsupportedProtocolException ex(__FILE__, __LINE__);
-		ex.badMajor = static_cast<unsigned char>(pMajor);
-		ex.badMinor = static_cast<unsigned char>(pMinor);
+		ex.badMajor = static_cast<unsigned char>(header[4]);
+		ex.badMinor = static_cast<unsigned char>(header[5]);
 		ex.major = static_cast<unsigned char>(protocolMajor);
 		ex.minor = static_cast<unsigned char>(protocolMinor);
 		throw ex;
 	    }
-	    Byte eMajor;
-	    Byte eMinor;
-	    stream.read(eMajor);
-	    stream.read(eMinor);
-	    if(eMajor != encodingMajor)
+	    if(header[6] != encodingMajor)
 	    {
 		UnsupportedEncodingException ex(__FILE__, __LINE__);
-		ex.badMajor = static_cast<unsigned char>(eMajor);
-		ex.badMinor = static_cast<unsigned char>(eMinor);
+		ex.badMajor = static_cast<unsigned char>(header[6]);
+		ex.badMinor = static_cast<unsigned char>(header[7]);
 		ex.major = static_cast<unsigned char>(encodingMajor);
 		ex.minor = static_cast<unsigned char>(encodingMinor);
 		throw ex;
 	    }
-	    Byte messageType;
-	    stream.read(messageType);
-	    Byte compress;
-	    stream.read(compress);
+
 	    Int size;
+	    stream.i -= sizeof(Int);
 	    stream.read(size);
 	    if(size < headerSize)
 	    {
