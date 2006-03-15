@@ -402,7 +402,7 @@ namespace IceInternal
 		case Reference.Mode.ModeOneway: 
 		case Reference.Mode.ModeDatagram: 
 		{
-		    _connection.prepareRequest(_os);
+		    _os.writeBlob(IceInternal.Protocol.requestHdr);
 		    break;
 		}
 		

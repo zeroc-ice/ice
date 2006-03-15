@@ -207,9 +207,10 @@ public class _ObjectDelM implements _ObjectDel
         }
     }
 
-    public Connection
-    ice_connection()
+    public ConnectionI
+    __getConnection(BooleanHolder compress)
     {
+	compress.value = __compress;
 	return __connection;
     }
 

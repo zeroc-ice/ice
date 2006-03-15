@@ -460,26 +460,6 @@ namespace Ice
 	    }
 	}
 	
-	private static readonly byte[] _requestHdr = new byte[]
-	{
-	    IceInternal.Protocol.magic[0], IceInternal.Protocol.magic[1], IceInternal.Protocol.magic[2], 
-	    IceInternal.Protocol.magic[3],
-	    IceInternal.Protocol.protocolMajor, IceInternal.Protocol.protocolMinor,
-	    IceInternal.Protocol.encodingMajor, IceInternal.Protocol.encodingMinor,
-	    IceInternal.Protocol.requestMsg,
-	    (byte)0, // Compression status.
-	    (byte)0, (byte)0, (byte)0, (byte)0, // Message size (placeholder).
-	    (byte)0, (byte)0, (byte)0, (byte)0	// Request ID (placeholder).
-	};
-	
-	//
-	// TODO: Should not be a member function of ConnectionI.
-	//
-	public void prepareRequest(IceInternal.BasicStream os)
-	{
-	    os.writeBlob(_requestHdr);
-	}
-
 	private IceInternal.BasicStream doCompress(IceInternal.BasicStream uncompressed, bool compress)
 	{
 	    if(_compressionSupported)
@@ -764,18 +744,6 @@ namespace Ice
 	    }
 	}
 	
-	private static readonly byte[] _requestBatchHdr = new byte[]
-	{
-	    IceInternal.Protocol.magic[0], IceInternal.Protocol.magic[1], IceInternal.Protocol.magic[2],
-	    IceInternal.Protocol.magic[3],
-	    IceInternal.Protocol.protocolMajor, IceInternal.Protocol.protocolMinor,
-	    IceInternal.Protocol.encodingMajor, IceInternal.Protocol.encodingMinor,
-	    IceInternal.Protocol.requestBatchMsg,
-	    (byte)0, // Compression status.
-	    (byte)0, (byte)0, (byte)0, (byte)0, // Message size (placeholder).
-	    (byte)0, (byte)0, (byte)0, (byte)0	// Number of requests in batch (placeholder).
-	};
-	
 	public void prepareBatchRequest(IceInternal.BasicStream os)
 	{
 	    lock(this)
@@ -800,7 +768,7 @@ namespace Ice
 		{
 		    try
 		    {
-			_batchStream.writeBlob(_requestBatchHdr);
+			_batchStream.writeBlob(IceInternal.Protocol.requestBatchHdr);
 		    }
 		    catch(LocalException ex)
 		    {
@@ -1136,17 +1104,6 @@ namespace Ice
 	    // message().
 	    //
 	}
-	
-	private static readonly byte[] _replyHdr = new byte[]
-	{
-	    IceInternal.Protocol.magic[0], IceInternal.Protocol.magic[1], IceInternal.Protocol.magic[2], 
-	    IceInternal.Protocol.magic[3],
-	    IceInternal.Protocol.protocolMajor, IceInternal.Protocol.protocolMinor,
-	    IceInternal.Protocol.encodingMajor, IceInternal.Protocol.encodingMinor,
-	    IceInternal.Protocol.replyMsg,
-	    (byte)0, // Compression status.
-	    (byte)0, (byte)0, (byte)0, (byte)0 // Message size (placeholder).
-	};
 	
 	public override void message(IceInternal.BasicStream stream, IceInternal.ThreadPool threadPool)
 	{
@@ -1929,7 +1886,7 @@ namespace Ice
 		    if(response)
 		    {
 			Debug.Assert(invokeNum == 1); // No further invocations if a response is expected.
-			os.writeBlob(_replyHdr);
+			os.writeBlob(IceInternal.Protocol.replyHdr);
 			
 			//
 			// Add the request ID.

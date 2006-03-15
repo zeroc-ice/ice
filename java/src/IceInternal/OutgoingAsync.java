@@ -175,8 +175,6 @@ public abstract class OutgoingAsync
 	{
 	    if(__os != null) // Don't retry if cleanup() was already called.
 	    {
-		boolean doRetry = false;
-		
 		//
 		// A CloseConnectionException indicates graceful
 		// server shutdown, and is therefore always repeatable
@@ -194,28 +192,13 @@ public abstract class OutgoingAsync
 		{
 		    try
 		    {
-			ProxyFactory proxyFactory = _reference.getInstance().proxyFactory();
-			if(proxyFactory != null)
-			{
-			    _cnt = proxyFactory.checkRetryAfterException(exc, _reference, _cnt);
-			}
-			else
-			{
-			    throw exc; // The communicator is already destroyed, so we cannot retry.
-			}
-			
-			doRetry = true;
+			_cnt = ((Ice.ObjectPrxHelperBase)_proxy).__handleException(exc, _cnt);
+			__send();
+			return;
 		    }
 		    catch(Ice.LocalException ex)
 		    {
 		    }
-		}
-		
-		if(doRetry)
-		{
-		    _connection = null;
-		    __send();
-		    return;
 		}
 	    }
 	    
@@ -280,49 +263,24 @@ public abstract class OutgoingAsync
 		//
 		((Ice.ObjectPrxHelperBase)prx).__checkTwowayOnly(operation);
 
-		Reference ref = ((Ice.ObjectPrxHelperBase)prx).__reference();
-
-		//
-		// Optimization: Don't update the connection if it is not
-		// necessary.
-		//
-		if(_connection == null || _reference == null || !_reference.equals(ref))
-		{
-		    _connection = ref.getConnection(_compress);
-		}
-		
-		_reference = ref;
+		_proxy = prx;
 		_cnt = 0;
 		_mode = mode;
+
+		Reference ref = ((Ice.ObjectPrxHelperBase)_proxy).__reference();
 		assert(__is == null);
-		__is = new BasicStream(_reference.getInstance());
+		__is = new BasicStream(ref.getInstance());
 		assert(__os == null);
-		__os = new BasicStream(_reference.getInstance());
-		
-                //
-                // If we are using a router, then add the proxy to the router info object.
-                //
-		try
-		{
-		    RoutableReference rr = (RoutableReference)_reference;
-		    if(rr != null && rr.getRouterInfo() != null)
-		    {
-		        rr.getRouterInfo().addProxy(prx);
-		    }
+		__os = new BasicStream(ref.getInstance());		
 
-		}
-		catch(ClassCastException ex)
-		{
-		}
-
-		_connection.prepareRequest(__os);
+		__os.writeBlob(IceInternal.Protocol.requestHdr);
 		
-		_reference.getIdentity().__write(__os);
+		ref.getIdentity().__write(__os);
 
                 //
                 // For compatibility with the old FacetPath.
                 //
-		String facet = _reference.getFacet();
+		String facet = ref.getFacet();
                 if(facet == null || facet.length() == 0)
                 {
                     __os.writeStringSeq(null);
@@ -376,14 +334,11 @@ public abstract class OutgoingAsync
 	    {
 		while(true)
 		{
-		    if(_connection == null)
+		    Ice.BooleanHolder comp = new Ice.BooleanHolder();
+		    Ice.ConnectionI con = ((Ice.ObjectPrxHelperBase)_proxy).__getDelegate().__getConnection(comp);
+		    if(con.timeout() >= 0)
 		    {
-			_connection = _reference.getConnection(_compress);
-		    }
-		    
-		    if(_connection.timeout() >= 0)
-		    {
-			_absoluteTimeoutMillis = System.currentTimeMillis() + _connection.timeout();
+			_absoluteTimeoutMillis = System.currentTimeMillis() + con.timeout();
 		    }
 		    else
 		    {
@@ -392,7 +347,7 @@ public abstract class OutgoingAsync
 		    
 		    try
 		    {
-			_connection.sendAsyncRequest(__os, this, _compress.value);
+			con.sendAsyncRequest(__os, this, comp.value);
 			
 			//
 			// Don't do anything after sendAsyncRequest() returned
@@ -405,25 +360,12 @@ public abstract class OutgoingAsync
 		    }
 		    catch(LocalExceptionWrapper ex)
 		    {
-		        if(!ex.retry())
-			{
-			    throw ex.get();
-			}
+			((Ice.ObjectPrxHelperBase)_proxy).__handleExceptionWrapper(ex);
 		    }
 		    catch(Ice.LocalException ex)
 		    {			
-			ProxyFactory proxyFactory = _reference.getInstance().proxyFactory();
-			if(proxyFactory != null)
-			{
-			    _cnt = proxyFactory.checkRetryAfterException(ex, _reference, _cnt);
-			}
-			else
-			{
-			    throw ex; // The communicator is already destroyed, so we cannot retry.
-			}
-		    }
-		    
-		    _connection = null;
+			_cnt = ((Ice.ObjectPrxHelperBase)_proxy).__handleException(ex, _cnt);
+		    }		    
 		}
 	    }
 	    catch(Ice.LocalException ex)
@@ -440,7 +382,8 @@ public abstract class OutgoingAsync
     {
 	if(__os != null) // Don't print anything if cleanup() was already called.
 	{
-	    if(_reference.getInstance().properties().getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+	    Reference ref = ((Ice.ObjectPrxHelperBase)_proxy).__reference();
+	    if(ref.getInstance().properties().getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
 	    {
 		java.io.StringWriter sw = new java.io.StringWriter();
 		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -449,7 +392,7 @@ public abstract class OutgoingAsync
 		out.print("exception raised by AMI callback:\n");
 		ex.printStackTrace(pw);
 		pw.flush();
-		_reference.getInstance().logger().warning(sw.toString());
+		ref.getInstance().logger().warning(sw.toString());
 	    }
 	}
     }
@@ -466,11 +409,9 @@ public abstract class OutgoingAsync
     protected BasicStream __is;
     protected BasicStream __os;
 
-    private Reference _reference;
-    private Ice.ConnectionI _connection;
+    private Ice.ObjectPrx _proxy;
     private int _cnt;
     private Ice.OperationMode _mode;
-    private Ice.BooleanHolder _compress = new Ice.BooleanHolder();
 
     //
     // Must be volatile, because we don't want to lock the monitor

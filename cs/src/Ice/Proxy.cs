@@ -649,7 +649,8 @@ namespace Ice
                 try
                 {
                     ObjectDel_ del__ = getDelegate__();
-                    return del__.ice_connection();
+		    bool comp;
+                    return del__.getConnection__(out comp);
                 }
                 catch(LocalException ex__)
                 {
@@ -710,6 +711,12 @@ namespace Ice
 
 	    if(_reference.getCacheConnection())
 	    {
+		//
+		// The _delegate attribute is only used if "cache connection"
+		// is enabled. If it's not enabled, we don't keep track of the
+		// delegate -- a new delegate is created for each invocations.
+		//	
+
 		if(delegateD != null)
 		{
 		    ObjectDelD_ @delegate = createDelegateD__();
@@ -841,6 +848,11 @@ namespace Ice
 	    
 		if(_reference.getCacheConnection())
 		{
+		    //
+		    // The _delegate attribute is only used if "cache connection"
+		    // is enabled. If it's not enabled, we don't keep track of the
+		    // delegate -- a new delegate is created for each invocations.
+		    //	
 		    _delegate = @delegate;
 		}
 		
@@ -964,7 +976,8 @@ namespace Ice
 	string ice_id(Ice.Context context);
 	bool ice_invoke(string operation, Ice.OperationMode mode, byte[] inParams, out byte[] outParams,
 			Ice.Context context);
-        Connection ice_connection();
+
+        ConnectionI getConnection__(out bool compress);
     }
 
     public class ObjectDelD_ : ObjectDel_
@@ -1048,7 +1061,7 @@ namespace Ice
             throw new CollocationOptimizationException();
         }
 	
-        public virtual Connection ice_connection()
+        public virtual ConnectionI getConnection__(out bool compress)
         {
             throw new CollocationOptimizationException();
         }
@@ -1284,8 +1297,9 @@ namespace Ice
             }
         }
 	
-        public virtual Connection ice_connection()
+        public virtual ConnectionI getConnection__(out bool compress)
         {
+	    compress = compress__;
             return connection__;
         }
 	

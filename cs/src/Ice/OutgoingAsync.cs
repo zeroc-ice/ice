@@ -171,8 +171,6 @@ namespace IceInternal
 
                 if(os__ != null)
                 {
-                    bool doRetry = false;
-		    
                     //
                     // A CloseConnectionException indicates graceful
                     // server shutdown, and is therefore always repeatable
@@ -190,28 +188,13 @@ namespace IceInternal
                     {
                         try
                         {
-                            ProxyFactory proxyFactory = _reference.getInstance().proxyFactory();
-                            if(proxyFactory != null)
-                            {
-                                _cnt = proxyFactory.checkRetryAfterException(exc, _reference, _cnt);
-                            }
-                            else
-                            {
-                                throw exc; // The communicator is already destroyed, so we cannot retry.
-                            }
-			    
-                            doRetry = true;
+			    _cnt = ((Ice.ObjectPrxHelperBase)_proxy).handleException__(exc, _cnt);
+			    send__();
+			    return;
                         }
                         catch(Ice.LocalException)
                         {
                         }
-                    }
-		    
-                    if(doRetry)
-                    {
-                        _connection = null;
-                        send__();
-                        return;
                     }
                 }
 		
@@ -269,49 +252,24 @@ namespace IceInternal
 		    //
 		    ((Ice.ObjectPrxHelperBase)prx).checkTwowayOnly__(operation);
 
-		    Reference rf = ((Ice.ObjectPrxHelperBase)prx).reference__();
-
-		    //
-		    // Optimization: Don't update the connection if it is not
-		    // necessary.
-		    //
-		    if(_connection == null || _reference == null || !_reference.Equals(rf))
-		    {
-		        _connection = rf.getConnection(out _compress);
-		    }
-		    
-		    _reference = rf;
+		    _proxy = prx;
                     _cnt = 0;
                     _mode = mode;
+
+		    Reference rf = ((Ice.ObjectPrxHelperBase)prx).reference__();
                     Debug.Assert(is__ == null);
-                    is__ = new BasicStream(_reference.getInstance());
+                    is__ = new BasicStream(rf.getInstance());
                     Debug.Assert(os__ == null);
-                    os__ = new BasicStream(_reference.getInstance());
-		    
-                    //
-                    // If we are using a router, then add the proxy to the router info object.
-                    //
-                    try
-                    {
-                        RoutableReference rr = (RoutableReference)_reference;
-                        if(rr != null && rr.getRouterInfo() != null)
-                        {
-                            rr.getRouterInfo().addProxy(prx);
-                        }
+                    os__ = new BasicStream(rf.getInstance());
 
-                    }
-                    catch(InvalidCastException)
-                    {
-                    }
-
-                    _connection.prepareRequest(os__);
+		    os__.writeBlob(IceInternal.Protocol.requestHdr);
 		    
-                    _reference.getIdentity().write__(os__);
+                    rf.getIdentity().write__(os__);
 
                     //
                     // For compatibility with the old FacetPath.
                     //
-                    string facet = _reference.getFacet();
+                    string facet = rf.getFacet();
                     if(facet == null || facet.Length == 0)
                     {
                         os__.writeStringSeq(null);
@@ -362,16 +320,16 @@ namespace IceInternal
                 {
                     while(true)
                     {
-                        if(_connection == null)
-                        {
-                            _connection = _reference.getConnection(out _compress);
-                        }
-			
-			lock(_timeoutMutex) // MONO bug: Should be WaitOne(), but that's broken under Mono 1.0 for Linux.
+			bool comp;
+			Ice.ConnectionI con;
+			con = ((Ice.ObjectPrxHelperBase)_proxy).getDelegate__().getConnection__(out comp);
+
+                        // MONO bug: Should be WaitOne(), but that's broken under Mono 1.0 for Linux.
+			lock(_timeoutMutex)
 			{
-			    if(_connection.timeout() >= 0)
+			    if(con.timeout() >= 0)
 			    {
-				_absoluteTimeoutMillis = System.DateTime.Now.Ticks / 10000 + _connection.timeout();
+				_absoluteTimeoutMillis = System.DateTime.Now.Ticks / 10000 + con.timeout();
 			    }
 			    else
 			    {
@@ -381,7 +339,7 @@ namespace IceInternal
 			
                         try
                         {
-                            _connection.sendAsyncRequest(os__, this, _compress);
+                            con.sendAsyncRequest(os__, this, comp);
 			    
                             //
                             // Don't do anything after sendAsyncRequest() returned
@@ -394,25 +352,12 @@ namespace IceInternal
                         }
 			catch(LocalExceptionWrapper ex)
 			{
-			    if(!ex.retry())
-			    {
-			        throw ex.get();
-			    }
+			    ((Ice.ObjectPrxHelperBase)_proxy).handleExceptionWrapper__(ex);
 			}
                         catch(Ice.LocalException ex)
                         {
-                            ProxyFactory proxyFactory = _reference.getInstance().proxyFactory();
-                            if(proxyFactory != null)
-                            {
-                                _cnt = proxyFactory.checkRetryAfterException(ex, _reference, _cnt);
-                            }
-                            else
-                            {
-                                throw; // The communicator is already destroyed, so we cannot retry.
-                            }
+			    _cnt = ((Ice.ObjectPrxHelperBase)_proxy).handleException__(ex, _cnt);
                         }
-			
-                        _connection = null;
                     }
                 }
                 catch(Ice.LocalException ex)
@@ -428,9 +373,10 @@ namespace IceInternal
         {
 	    if(os__ != null) // Don't print anything if cleanup() was already called.
 	    {
-		if(_reference.getInstance().properties().getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+		Reference rf = ((Ice.ObjectPrxHelperBase)_proxy).reference__();
+		if(rf.getInstance().properties().getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
 		{
-		    _reference.getInstance().logger().warning("exception raised by AMI callback:\n" + ex);
+		    rf.getInstance().logger().warning("exception raised by AMI callback:\n" + ex);
 		}
 	    }
         }
@@ -446,11 +392,9 @@ namespace IceInternal
         protected BasicStream is__;
         protected BasicStream os__;
 
-        private Reference _reference;
-        private Ice.ConnectionI _connection;
+        private Ice.ObjectPrx _proxy;
         private int _cnt;
         private Ice.OperationMode _mode;
-        private bool _compress;
 
         private long _absoluteTimeoutMillis;
         Mutex _timeoutMutex = new Mutex();

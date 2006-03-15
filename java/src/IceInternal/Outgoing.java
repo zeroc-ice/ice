@@ -421,7 +421,7 @@ public final class Outgoing
             case Reference.ModeOneway:
             case Reference.ModeDatagram:
             {
-                _connection.prepareRequest(_os);
+		_os.writeBlob(IceInternal.Protocol.requestHdr);
                 break;
             }
 

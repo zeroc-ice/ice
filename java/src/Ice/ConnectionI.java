@@ -478,31 +478,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	}	    
     }
 
-    private final static byte[] _requestHdr =
-    {
-	IceInternal.Protocol.magic[0],
-	IceInternal.Protocol.magic[1],
-	IceInternal.Protocol.magic[2],
-	IceInternal.Protocol.magic[3],
-        IceInternal.Protocol.protocolMajor,
-        IceInternal.Protocol.protocolMinor,
-        IceInternal.Protocol.encodingMajor,
-        IceInternal.Protocol.encodingMinor,
-        IceInternal.Protocol.requestMsg,
-        (byte)0, // Compression status.
-        (byte)0, (byte)0, (byte)0, (byte)0, // Message size (placeholder).
-        (byte)0, (byte)0, (byte)0, (byte)0  // Request ID (placeholder).
-    };
-
-    //
-    // TODO: Should not be a member function of ConnectionI.
-    //
-    public void
-    prepareRequest(IceInternal.BasicStream os)
-    {
-        os.writeBlob(_requestHdr);
-    }
-
     public void
     sendRequest(IceInternal.BasicStream os, IceInternal.Outgoing out, boolean compress)
         throws IceInternal.LocalExceptionWrapper
@@ -721,22 +696,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	}
     }
 
-    private final static byte[] _requestBatchHdr =
-    {
-	IceInternal.Protocol.magic[0],
-	IceInternal.Protocol.magic[1],
-	IceInternal.Protocol.magic[2],
-	IceInternal.Protocol.magic[3],
-        IceInternal.Protocol.protocolMajor,
-        IceInternal.Protocol.protocolMinor,
-        IceInternal.Protocol.encodingMajor,
-        IceInternal.Protocol.encodingMinor,
-        IceInternal.Protocol.requestBatchMsg,
-        0, // Compression status.
-        (byte)0, (byte)0, (byte)0, (byte)0, // Message size (placeholder).
-        (byte)0, (byte)0, (byte)0, (byte)0  // Number of requests in batch (placeholder).
-    };
-
     public synchronized void
     prepareBatchRequest(IceInternal.BasicStream os)
     {
@@ -763,7 +722,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         {
 	    try
 	    {
-		_batchStream.writeBlob(_requestBatchHdr);
+		_batchStream.writeBlob(IceInternal.Protocol.requestBatchHdr);
 	    }
 	    catch(LocalException ex)
 	    {
@@ -1098,21 +1057,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	// message().
 	//
     }
-
-    private final static byte[] _replyHdr =
-    {
-	IceInternal.Protocol.magic[0],
-	IceInternal.Protocol.magic[1],
-	IceInternal.Protocol.magic[2],
-	IceInternal.Protocol.magic[3],
-        IceInternal.Protocol.protocolMajor,
-        IceInternal.Protocol.protocolMinor,
-        IceInternal.Protocol.encodingMajor,
-        IceInternal.Protocol.encodingMinor,
-        IceInternal.Protocol.replyMsg,
-        (byte)0, // Compression status.
-        (byte)0, (byte)0, (byte)0, (byte)0 // Message size (placeholder).
-    };
 
     public void
     message(IceInternal.BasicStream stream, IceInternal.ThreadPool threadPool)
@@ -1972,7 +1916,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		if(response)
 		{
 		    assert(invokeNum == 1); // No further invocations if a response is expected.
-		    os.writeBlob(_replyHdr);
+		    os.writeBlob(IceInternal.Protocol.replyHdr);
 		    
 		    //
 		    // Add the request ID.

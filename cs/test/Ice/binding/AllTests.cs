@@ -149,6 +149,10 @@ public class AllTests
 	    adapters.Add(com.createObjectAdapter("Adapter12", "default"));
 	    adapters.Add(com.createObjectAdapter("Adapter13", "default"));
 
+	    //
+	    // Ensure that when a connection is opened it's reused for new
+	    // proxies and that all endpoints are eventually tried.
+	    //
 	    IceUtil.Set names = new IceUtil.Set();
 	    names.Add("Adapter11");
 	    names.Add("Adapter12");
@@ -170,8 +174,34 @@ public class AllTests
 		test1.ice_connection().close(false);
 	    }
 	    
-	    com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[0]);
+	    //
+	    // Ensure that the proxy correctly caches the connection (we
+	    // always send the request over the same connection.)
+	    //
+	    {
+		foreach(RemoteObjectAdapterPrx adpt in adapters)
+                {
+		    adpt.getTestIntf().ice_ping();
+		}
+		
+		TestIntfPrx t = createTestIntfPrx(adapters);
+		string name = t.getAdapterName();
+		int nRetry = 10;
+		int i;
+		for(i = 0; i < nRetry && t.getAdapterName().Equals(name); i++);
+		test(i == nRetry);
 
+		foreach(RemoteObjectAdapterPrx adpt in adapters)
+                {
+		    adpt.getTestIntf().ice_connection().close(false);
+		}
+	    }	    
+
+	    //
+	    // Deactivate an adapter and ensure that we can still
+	    // establish the connection to the remaining adapters.
+	    //
+	    com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[0]);
 	    names.Add("Adapter12");
 	    names.Add("Adapter13");
 	    while(names.Count > 0)
@@ -190,11 +220,106 @@ public class AllTests
 		names.Remove(test1.getAdapterName());
 		test1.ice_connection().close(false);
 	    }
-	
-	    com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[2]);
-	
+
+	    //
+	    // Deactivate an adapter and ensure that we can still
+	    // establish the connection to the remaining adapter.
+	    //
+	    com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[2]);	
 	    TestIntfPrx obj = createTestIntfPrx(adapters);
 	    test(obj.getAdapterName().Equals("Adapter12"));
+
+	    deactivate(com, adapters);
+	}
+	Console.Out.WriteLine("ok");
+
+	Console.Out.Write("testing binding with multiple endpoints and AMI... ");
+	Console.Out.Flush();
+	{
+	    ArrayList adapters = new ArrayList();
+	    adapters.Add(com.createObjectAdapter("AdapterAMI11", "default"));
+	    adapters.Add(com.createObjectAdapter("AdapterAMI12", "default"));
+	    adapters.Add(com.createObjectAdapter("AdapterAMI13", "default"));
+
+	    //
+	    // Ensure that when a connection is opened it's reused for new
+	    // proxies and that all endpoints are eventually tried.
+	    //
+	    IceUtil.Set names = new IceUtil.Set();
+	    names.Add("AdapterAMI11");
+	    names.Add("AdapterAMI12");
+	    names.Add("AdapterAMI13");
+	    while(names.Count > 0)
+	    {
+		ArrayList adpts = new ArrayList(adapters);
+
+		TestIntfPrx test1 = createTestIntfPrx(adpts);
+		shuffle(ref adpts);
+		TestIntfPrx test2 = createTestIntfPrx(adpts);
+		shuffle(ref adpts);
+		TestIntfPrx test3 = createTestIntfPrx(adpts);
+		test1.ice_ping();
+		test(test1.ice_connection() == test2.ice_connection());
+		test(test2.ice_connection() == test3.ice_connection());
+
+		names.Remove(getAdapterNameWithAMI(test1));
+		test1.ice_connection().close(false);
+	    }
+	    
+	    //
+	    // Ensure that the proxy correctly caches the connection (we
+	    // always send the request over the same connection.)
+	    //
+	    {
+		foreach(RemoteObjectAdapterPrx adpt in adapters)
+                {
+		    adpt.getTestIntf().ice_ping();
+		}
+		
+		TestIntfPrx t = createTestIntfPrx(adapters);
+		string name = getAdapterNameWithAMI(t);
+		int nRetry = 10;
+		int i;
+		for(i = 0; i < nRetry && getAdapterNameWithAMI(t).Equals(name); i++);
+		test(i == nRetry);
+
+		foreach(RemoteObjectAdapterPrx adpt in adapters)
+                {
+		    adpt.getTestIntf().ice_connection().close(false);
+		}
+	    }	    
+
+	    //
+	    // Deactivate an adapter and ensure that we can still
+	    // establish the connection to the remaining adapters.
+	    //
+	    com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[0]);
+	    names.Add("AdapterAMI12");
+	    names.Add("AdapterAMI13");
+	    while(names.Count > 0)
+	    {
+		ArrayList adpts = new ArrayList(adapters);
+
+		TestIntfPrx test1 = createTestIntfPrx(adpts);
+		shuffle(ref adpts);
+		TestIntfPrx test2 = createTestIntfPrx(adpts);
+		shuffle(ref adpts);
+		TestIntfPrx test3 = createTestIntfPrx(adpts);
+	    
+		test(test1.ice_connection() == test2.ice_connection());
+		test(test2.ice_connection() == test3.ice_connection());
+
+		names.Remove(getAdapterNameWithAMI(test1));
+		test1.ice_connection().close(false);
+	    }
+
+	    //
+	    // Deactivate an adapter and ensure that we can still
+	    // establish the connection to the remaining adapter.
+	    //
+	    com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[2]);	
+	    TestIntfPrx obj = createTestIntfPrx(adapters);
+	    test(getAdapterNameWithAMI(obj).Equals("AdapterAMI12"));
 
 	    deactivate(com, adapters);
 	}

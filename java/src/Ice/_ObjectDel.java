@@ -27,5 +27,5 @@ public interface _ObjectDel
                        java.util.Map context)
         throws IceInternal.LocalExceptionWrapper;
 
-    Connection ice_connection();
+    ConnectionI __getConnection(BooleanHolder compress);
 }

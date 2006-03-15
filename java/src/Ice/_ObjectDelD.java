@@ -100,8 +100,8 @@ public class _ObjectDelD implements _ObjectDel
 	throw new CollocationOptimizationException();
     }
 
-    public Connection
-    ice_connection()
+    public ConnectionI
+    __getConnection(BooleanHolder compress)
     {
 	throw new CollocationOptimizationException();
     }

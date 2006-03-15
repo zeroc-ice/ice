@@ -612,7 +612,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
             try
             {
                 _ObjectDel __del = __getDelegate();
-                return __del.ice_connection();
+                return __del.__getConnection(new BooleanHolder());
             }
             catch(LocalException __ex)
             {
@@ -682,6 +682,12 @@ public class ObjectPrxHelperBase implements ObjectPrx
 
 	if(_reference.getCacheConnection())
 	{
+	    //
+	    // The _delegate attribute is only used if "cache connection"
+	    // is enabled. If it's not enabled, we don't keep track of the
+	    // delegate -- a new delegate is created for each invocations.
+	    //	
+	    
 	    if(delegateD != null)
 	    {
 		_ObjectDelD delegate = __createDelegateD();
@@ -816,6 +822,11 @@ public class ObjectPrxHelperBase implements ObjectPrx
 
 	if(_reference.getCacheConnection())
 	{
+	    //
+	    // The _delegate attribute is only used if "cache connection"
+	    // is enabled. If it's not enabled, we don't keep track of the
+	    // delegate -- a new delegate is created for each invocations.
+	    //
 	    _delegate = delegate;
 	}
 
