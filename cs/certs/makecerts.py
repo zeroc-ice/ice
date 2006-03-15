@@ -44,19 +44,6 @@ if not os.path.exists("cacert.pem"):
     sys.exit(1)
 
 update = force
-if os.path.exists("cacert.der"):
-    cacert_pem_info = os.stat("cacert.pem")
-    cacert_der_info = os.stat("cacert.der")
-    if cacert_pem_info.st_mtime > cacert_der_info.st_mtime:
-	update = 1
-
-if update:
-    os.system("openssl x509 -in cacert.pem -outform DER -out cacert.der")
-    print "Updated cacert.der"
-else:
-    print "Skipped cacert.der"
-
-update = force
 if not os.path.exists("s_rsa1024.pfx"):
     update = 1
 else:
