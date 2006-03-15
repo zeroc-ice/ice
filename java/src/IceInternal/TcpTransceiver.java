@@ -97,12 +97,8 @@ final class TcpTransceiver implements Transceiver
         java.net.Socket socket = _fd.socket();
         try
         {
-	    //
-	    // TODO: Java does not support SHUT_RDWR. Calling both
-	    // shutdownInput and shutdownOutput results in an exception.
-	    //
 	    socket.shutdownInput(); // Shutdown socket for reading
-	    //socket.shutdownOutput(); // Shutdown socket for writing
+	    socket.shutdownOutput(); // Shutdown socket for writing
         }
         catch(java.net.SocketException ex)
         {
@@ -173,6 +169,7 @@ final class TcpTransceiver implements Transceiver
 
 			continue;
 		    }
+
 		    
 		    if(_traceLevels.network >= 3)
 		    {
