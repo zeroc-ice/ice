@@ -60,7 +60,7 @@ CallbackClient::run(int argc, char* argv[])
     string msg;
     for(int i = 1; i <= 100000; ++i)
     {
-	if(1 || i % 100 == 0)
+	if(i % 100 == 0)
 	{
 	    if(!msg.empty())
 	    {
@@ -75,13 +75,13 @@ CallbackClient::run(int argc, char* argv[])
 	Identity ident;
 	string::iterator p;
 
-	ident.name.resize(rand() % 100);
+	ident.name.resize(1 + rand() % 100);
 	for(p = ident.name.begin(); p != ident.name.end(); ++p)
 	{
 	    *p = static_cast<char>(33 + rand() % (127-33));
 	}
 
-	ident.category.resize(rand() % 100);
+	ident.category.resize(rand() % 101);
 	for(p = ident.category.begin(); p != ident.category.end(); ++p)
 	{
 	    *p = static_cast<char>(33 + rand() % (127-33));
