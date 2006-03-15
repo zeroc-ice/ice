@@ -11,77 +11,65 @@
 # Select an installation base directory. The directory will be created
 # if it does not exist.
 #
-
 prefix			?= /opt/Ice-$(VERSION)
 
 #
 # Define OPTIMIZE as yes if you want to build with
 # optimization. Otherwise Ice is build with debug information.
 #
-
-OPTIMIZE		= yes
+OPTIMIZE		?= yes
 
 #
-# Define LP64 as yes or no if you want force a 32 or 64 bit. The default
-# is platform-dependent
+# Define LP64 as yes or no if you want force a 32 or 64 bit. The
+# default is platform-dependent
 #
-#LP64			:= yes
-
+#LP64			?= no
 
 #
 # Define GPL_BUILD as yes if you want to build a copy of Ice licensed
-# to you under the GNU Public License v2.
-# This adds a "no-warranty" notice and accompanying show commands
-# to interactive programs.
+# to you under the GNU Public License v2. This adds a "no-warranty"
+# notice and accompanying show commands to interactive programs.
 #
-GPL_BUILD		:= yes
+GPL_BUILD		?= yes
 
 #
-# Define USE_READLINE as yes if you want to build parts of Ice using 
-# readline on platforms where readline is available 
-# (see PLATFORM_HAS_READLINE in Make.rules.$(UNAME))
+# Define USE_READLINE as yes if you want to build parts of Ice using
+# readline on platforms where readline is available (see
+# PLATFORM_HAS_READLINE in Make.rules.$(UNAME))
 #
 # readline is used by a number of Ice admin programs to provide
 # command history, an optional feature.
 #
-# readline is licensed by the Free Software Foundation under the
-# GNU Public License v2, and cannot be combined with GPL-incompatible
-# software in any program. In particular the OpenSSL license
-# is GPL-incompatible.
-# On Linux and other free operating systems, readline and OpenSSL
-# are usually distributed with the operating system, which may be
-# a solution to this incompatibility. 
+# readline is licensed by the Free Software Foundation under the GNU
+# Public License v2, and cannot be combined with GPL-incompatible
+# software in any program. In particular the OpenSSL license is
+# GPL-incompatible.
 #
-# If you combine Ice with more GPL-incompatible software, or have 
-# licensed Ice under a commercial (non-GPL) license, you should
-# ponder the licensing implications of using readline. 
+# On Linux and other free operating systems, readline and OpenSSL are
+# usually distributed with the operating system, which may be a
+# solution to this incompatibility.
+#
+# If you combine Ice with more GPL-incompatible software, or have
+# licensed Ice under a commercial (non-GPL) license, you should ponder
+# the licensing implications of using readline.
 # 
 ifeq ($(GPL_BUILD),yes)
-   USE_READLINE		   := yes
+   USE_READLINE		   ?= yes
 endif
-
-#
-# The values below can be overridden by defining them as environment
-# variables. For example, if you are using a bourne shell or
-# compatible, you can override the location of STLport like this:
-#
-# export STLPORT_HOME=/usr/local/STLport-4.5
-#
 
 #
 # If you want to use STLport, set STLPORT_HOME to the STLport
 # installation directory. If STLPORT_HOME is undefined or empty,
 # STLport is not used.
 #
-
 #STLPORT_HOME		?= /opt/STLport
 
 
 #
-# If libbzip2 is not installed in a standard location where the compiler 
-# can find it, set BZIP2_HOME to the bzip2 installation directory.
+# If libbzip2 is not installed in a standard location where the
+# compiler can find it, set BZIP2_HOME to the bzip2 installation
+# directory.
 #
-
 #BZIP2_HOME		?= /opt/bzip2
 
 
@@ -90,48 +78,38 @@ endif
 # compiler can find it, set DB_HOME to the Berkeley DB installation
 # directory.
 #
-
 #DB_HOME		?= /opt/db
+
+#
+# If expat is not installed in a standard location where the compiler
+# can find it, set EXPAT_HOME to the expat installation directory.
+#
+#EXPAT_HOME		?= /opt/expat
 
 #
 # If OpenSSL is not installed in a standard location where the
 # compiler can find it, set OPENSSL_HOME to the OpenSSL installation
 # directory.
 #
-
 #OPENSSL_HOME		?= /opt/openssl
-
-#
-# If expat is not installed in a standard location where the
-# compiler can find it, set EXPAT_HOME to the expat
-# installation directory.
-#
 
 #
 # Define if your OpenSSL requires Kerberos, and if Kerberos is not
 # installed in a standard location
 #
-
 KERBEROS_HOME           ?= /usr/kerberos
-
-
-#EXPAT_HOME		?= /opt/expat
-
 
 #
 # If readline is not installed in a standard location where the
-# compiler can find it, AND you want to use readline,
-# set READLINE_HOME to the readline installation directory.
+# compiler can find it, AND you want to use readline, set
+# READLINE_HOME to the readline installation directory.
 #
-#
-
 #READLINE_HOME		?= /opt/readline
 
 #
-# Support for creating static libraries is currently provided
-# only for building the Ice-E translators.
+# Support for creating static libraries is currently provided only for
+# building the Ice-E translators.
 #
-
 #STATICLIBS		= yes
 
 # ----------------------------------------------------------------------
