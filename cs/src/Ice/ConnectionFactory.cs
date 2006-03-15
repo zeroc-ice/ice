@@ -939,6 +939,34 @@ namespace IceInternal
 		    }
 		}
 	    }
+	    catch(Ice.LocalException)
+	    {
+		//
+		// Clean up for finalizer.
+		//
+		
+		if(_acceptor != null)
+		{
+		    try
+		    {
+			_acceptor.close();
+		    }
+		    catch(Ice.LocalException)
+		    {
+			// Here we ignore any exceptions in close().			
+		    }
+		}
+
+		lock(this)
+		{
+		    _state = StateClosed;
+		    _acceptor = null;
+		    _connections = null;
+		    _threadPerIncomingConnectionFactory = null;
+		}
+
+		throw;
+	    }
 	    catch(System.Exception ex)
 	    {
 		//
