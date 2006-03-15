@@ -52,9 +52,46 @@ CallbackClient::run(int argc, char* argv[])
     communicator()->setDefaultRouter(router);
     cout << "ok" << endl;
 
-    cout << "adding thousands of proxies... " << flush;
+    cout << "invoking on thousands of random-generated proxies... " << flush;
     ObjectPrx backendBase = communicator()->stringToProxy("dummy:tcp -p 12010 -t 10000");
     BackendPrx backend = BackendPrx::uncheckedCast(backendBase);
+    backend->ice_ping();
+
+    string msg;
+    for(int i = 1; i <= 100000; ++i)
+    {
+	if(1 || i % 100 == 0)
+	{
+	    if(!msg.empty())
+	    {
+		cout << string(msg.size(), '\b');
+	    }
+	    ostringstream s;
+	    s << i;
+	    msg = s.str();
+	    cout << msg << flush;
+	}
+
+	Identity ident;
+	string::iterator p;
+
+	ident.name.resize(rand() % 100);
+	for(p = ident.name.begin(); p != ident.name.end(); ++p)
+	{
+	    *p = static_cast<char>(33 + rand() % (127-33));
+	}
+
+	ident.category.resize(rand() % 100);
+	for(p = ident.category.begin(); p != ident.category.end(); ++p)
+	{
+	    *p = static_cast<char>(33 + rand() % (127-33));
+	}
+
+	backend = BackendPrx::uncheckedCast(backendBase->ice_newIdentity(ident));
+	backend->ice_ping();
+    }
+//    cout << string(msg.size(), '\b') << string(msg.size(), ' ') << string(msg.size(), '\b');
+    cout << ' ';
     cout << "ok" << endl;
     
     cout << "testing server and router shutdown... " << flush;

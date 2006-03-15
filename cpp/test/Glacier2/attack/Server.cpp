@@ -14,6 +14,33 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
+class ServantLocatorI : virtual public ServantLocator
+{
+public:
+
+    ServantLocatorI() :
+	_backend(new BackendI)
+    {
+    }
+	
+    virtual ObjectPtr locate(const Current&, LocalObjectPtr&)
+    {
+	return _backend;
+    }
+
+    virtual void finished(const Current&, const ObjectPtr&, const LocalObjectPtr&)
+    {
+    }
+
+    virtual void deactivate(const string&)
+    {
+    }
+
+private:
+
+    BackendPtr _backend;
+};
+
 class BackendServer : public Application
 {
 public:
@@ -33,6 +60,7 @@ BackendServer::run(int argc, char* argv[])
 {
     communicator()->getProperties()->setProperty("BackendAdapter.Endpoints", "tcp -p 12010 -t 10000");
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("BackendAdapter");
+    adapter->addServantLocator(new ServantLocatorI, "");
     adapter->activate();
     communicator()->waitForShutdown();
     return EXIT_SUCCESS;
