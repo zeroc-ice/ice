@@ -255,9 +255,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    for(i = 0; i < nRetry && getAdapterNameWithAMI(test) == name; i++);
 	    test(i == nRetry);
 
-	    for(vector<RemoteObjectAdapterPrx>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+	    for(vector<RemoteObjectAdapterPrx>::const_iterator q = adapters.begin(); q != adapters.end(); ++q)
 	    {
-		(*p)->getTestIntf()->ice_connection()->close(false);
+		(*q)->getTestIntf()->ice_connection()->close(false);
 	    }
 	}	    
 
