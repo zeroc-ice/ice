@@ -10,9 +10,12 @@
 namespace IceSSL
 {
     using System;
+    using System.Collections;
+    using System.IO;
     using System.Net.Security;
     using System.Net.Sockets;
     using System.Security.Authentication;
+    using System.Security.Cryptography;
     using System.Security.Cryptography.X509Certificates;
     using System.Threading;
 
@@ -70,10 +73,64 @@ namespace IceSSL
 	    const string prefix = "IceSSL.Client.";
 	    Ice.Properties properties = instance.communicator().getProperties();
 
-	    // TODO: Add client certificates
-	    // TODO: SSLv2 cannot use client certs
-	    certs_ = null;
+	    //
+	    // Load client certificates from files.
+	    //
+	    // TODO: tracing?
+	    certs_ = new X509Certificate2Collection();
+	    string certFile = properties.getProperty(prefix + "Cert.File");
+	    string[] certFiles = instance_.parseFileList(certFile);
+	    for(int i = 0; i < certFiles.Length; ++i)
+	    {
+		if(!File.Exists(certFiles[i]))
+		{
+		    logger_.error("IceSSL: client certificate file not found: " + certFiles[i]);
+		    Ice.FileException ex = new Ice.FileException();
+		    ex.path = certFiles[i];
+		    throw ex;
+		}
+		try
+		{
+		    X509Certificate2 cert = new X509Certificate2(certFiles[i], "");
+		    certs_.Add(cert);
+		}
+		catch(CryptographicException ex)
+		{
+		    SslException e = new SslException(ex);
+		    e.ice_message_ = "attempting to load certificate from " + certFiles[i];
+		    throw e;
+		}
+	    }
 
+	    //
+	    // Select client certificates from stores.
+	    //
+	    // TODO: tracing?
+	    const string findPrefix = "IceSSL.Client.Cert.Find.";
+	    Ice.PropertyDict certProps = properties.getPropertiesForPrefix(findPrefix);
+	    if(certProps.Count > 0)
+	    {
+		foreach(DictionaryEntry entry in certProps)
+		{
+		    string name = (string)entry.Key;
+		    string val = (string)entry.Value;
+		    if(val.Length > 0)
+		    {
+			string storeSpec = name.Substring(findPrefix.Length);
+			X509Certificate2Collection coll = findCertificates(name, storeSpec, val);
+			certs_.AddRange(coll);
+		    }
+		}
+		if(certs_.Count == 0)
+		{
+		    const string msg = "no client certificates found";
+		    logger_.error("IceSSL: " + msg);
+		    SslException e = new SslException();
+		    e.ice_message_ = msg;
+		    throw e;
+		}
+	    }
+Console.WriteLine("Client loaded " + certs_.Count + " certificates");
 	    protocols_ = parseProtocols(prefix + "Protocols");
 
 	    // TODO: Review default value
@@ -158,7 +215,7 @@ namespace IceSSL
 	    return true;
 	}
 
-	private X509CertificateCollection certs_;
+	private X509Certificate2Collection certs_;
 	private SslProtocols protocols_;
 	private bool checkCRL_;
 	private bool ignoreCertName_;

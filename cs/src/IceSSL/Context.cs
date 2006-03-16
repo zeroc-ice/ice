@@ -7,39 +7,21 @@
 //
 // **********************************************************************
 
+using System;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
+
 namespace IceSSL
 {
-    using System;
-    using System.Collections;
-    using System.Security.Authentication;
-    using System.Security.Cryptography;
-    using System.Security.Cryptography.X509Certificates;
-
     internal class Context
     {
 	internal Context(Instance instance)
 	{
 	    instance_ = instance;
 	    logger_ = instance.communicator().getLogger();
-
-	    Ice.Properties properties = instance.communicator().getProperties();
-
-	    //
-	    // Process IceSSL.ImportCert.* properties.
-	    //
-	    Ice.PropertyDict certs = properties.getPropertiesForPrefix("IceSSL.ImportCert.");
-	    foreach(DictionaryEntry entry in certs)
-	    {
-		string name = (string)entry.Key;
-		string val = (string)entry.Value;
-		if(val.Length > 0)
-		{
-		    importCertificate(name, val);
-		}
-	    }
 	}
 
-	internal SslProtocols parseProtocols(string property)
+	protected SslProtocols parseProtocols(string property)
 	{
 	    SslProtocols result = SslProtocols.Default;
 	    string val = instance_.communicator().getProperties().getProperty(property);
@@ -78,53 +60,11 @@ namespace IceSSL
 	    return result;
 	}
 
-	private void importCertificate(string propName, string propValue)
+	protected X509Certificate2Collection findCertificates(string prop, string storeSpec, string value)
 	{
-	    //
-	    // Expecting a property of the following form:
-	    //
-	    // IceSSL.ImportCert.<location>.<name>=<file>[,<file]
-	    //
-	    const string prefix = "IceSSL.ImportCert.";
-	    string sub = propName.Substring(prefix.Length);
-	    int pos = sub.IndexOf('.');
-	    if(pos == -1)
-	    {
-		string msg = "property `" + propName + "' has invalid format";
-		logger_.error("IceSSL: " + msg);
-		SslException e = new SslException();
-		e.ice_message_ = msg;
-		throw e;
-	    }
-
-	    string sloc = sub.Substring(0, pos).ToLower();
-	    StoreLocation loc;
-	    if(sloc == "currentuser")
-	    {
-		loc = StoreLocation.CurrentUser;
-	    }
-	    else if(sloc == "localmachine")
-	    {
-		loc = StoreLocation.LocalMachine;
-	    }
-	    else
-	    {
-		string msg = "unknown store location `" + sloc + "' in " + propName;
-		logger_.error("IceSSL: " + msg);
-		SslException e = new SslException();
-		e.ice_message_ = msg;
-		throw e;
-	    }
-
-	    string name = sub.Substring(pos + 1);
-	    if(name.Length == 0)
-	    {
-		string msg = "invalid store name in " + propName;
-		logger_.error("IceSSL: " + msg);
-		SslException e = new SslException();
-		e.ice_message_ = msg;
-		throw e;
-	    }
+	    StoreLocation storeLoc = 0;
+	    string storeName = null;
+	    instance_.parseStore(prop, storeSpec, ref storeLoc, ref storeName);
 
 	    //
 	    // Open the X509 certificate store.
@@ -132,12 +72,12 @@ namespace IceSSL
 	    X509Store store = null;
 	    try
 	    {
-		store = new X509Store(name, loc);
-		store.Open(OpenFlags.ReadWrite);
+		store = new X509Store(storeName, storeLoc);
+		store.Open(OpenFlags.ReadOnly);
 	    }
 	    catch(Exception ex)
 	    {
-		string msg = "failure while opening store specified by " + propName;
+		string msg = "failure while opening store specified by " + prop;
 		logger_.error("IceSSL: " + msg);
 		SslException e = new SslException(ex);
 		e.ice_message_ = msg;
@@ -145,29 +85,138 @@ namespace IceSSL
 	    }
 
 	    //
-	    // Add each certificate to the store.
+	    // Start with all of the certificates in the collection and filter as necessary.
 	    //
+	    // - If the value is "*", return all certificates.
+	    // - Otherwise, search using key:value pairs. The following keys are supported:
+	    //
+	    //   Issuer
+	    //   IssuerDN
+	    //   Serial
+	    //   Subject
+	    //   SubjectDN
+	    //   SubjectKeyId
+	    //   Thumbprint
+	    //
+	    //   A value must be enclosed in single or double quotes if it contains whitespace.
+	    //
+	    X509Certificate2Collection result = new X509Certificate2Collection();
+	    result.AddRange(store.Certificates);
 	    try
 	    {
-		char[] delim = new char[] {','};
-		string[] arr = propValue.Split(delim, StringSplitOptions.RemoveEmptyEntries);
-		if(arr.Length > 0)
+		if(value != "*")
 		{
-		    for(int i = 0; i < arr.Length; ++i)
+		    int start = 0;
+		    int pos;
+		    while((pos = value.IndexOf(':', start)) != -1)
 		    {
-			try
+			//
+			// Parse the X509FindType.
+			//
+			string field = value.Substring(start, pos - start).Trim().ToLower();
+			X509FindType findType;
+			if(field == "subject")
 			{
-			    X509Certificate2 cert = new X509Certificate2(arr[i]);
-			    store.Add(cert);
+			    findType = X509FindType.FindBySubjectName;
 			}
-			catch(Exception ex)
+			else if(field == "subjectdn")
 			{
-			    string msg = "failure while adding certificate `" + arr[i];
+			    findType = X509FindType.FindBySubjectDistinguishedName;
+			}
+			else if(field == "issuer")
+			{
+			    findType = X509FindType.FindByIssuerName;
+			}
+			else if(field == "issuerdn")
+			{
+			    findType = X509FindType.FindByIssuerDistinguishedName;
+			}
+			else if(field == "thumbprint")
+			{
+			    findType = X509FindType.FindByThumbprint;
+			}
+			else if(field == "subjectkeyid")
+			{
+			    findType = X509FindType.FindBySubjectKeyIdentifier;
+			}
+			else if(field == "serial")
+			{
+			    findType = X509FindType.FindBySerialNumber;
+			}
+			else
+			{
+			    string msg = "unknown key in `" + value + "'";
 			    logger_.error("IceSSL: " + msg);
-			    SslException e = new SslException(ex);
+			    SslException e = new SslException();
 			    e.ice_message_ = msg;
 			    throw e;
 			}
+
+			//
+			// Parse the argument.
+			//
+			start = pos + 1;
+			while(start < value.Length && (value[start] == ' ' || value[start] == '\t'))
+			{
+			    ++start;
+			}
+			if(start == value.Length)
+			{
+			    string msg = "missing argument in `" + value + "'";
+			    logger_.error("IceSSL: " + msg);
+			    SslException e = new SslException();
+			    e.ice_message_ = msg;
+			    throw e;
+			}
+
+			string arg;
+			if(value[start] == '"' || value[start] == '\'')
+			{
+			    int end = start;
+			    ++end;
+			    while(end < value.Length)
+			    {
+				if(value[end] == value[start] && value[end - 1] != '\\')
+				{
+				    break;
+				}
+				++end;
+			    }
+			    if(end == value.Length || value[end] != value[start])
+			    {
+				string msg = "unmatched quote in `" + value + "'";
+				logger_.error("IceSSL: " + msg);
+				SslException e = new SslException();
+				e.ice_message_ = msg;
+				throw e;
+			    }
+			    ++start;
+			    arg = value.Substring(start, end - start);
+			    start = end + 1;
+			}
+			else
+			{
+			    char[] ws = new char[] { ' ', '\t' };
+			    int end = value.IndexOfAny(ws, start);
+			    if(end == -1)
+			    {
+				arg = value.Substring(start);
+				start = value.Length;
+			    }
+			    else
+			    {
+				arg = value.Substring(start, end - start);
+				start = end + 1;
+			    }
+			}
+
+			//
+			// Execute the query.
+			//
+			// TODO: allow user to specify a value for validOnly?
+			//
+			bool validOnly = false;
+			result = result.Find(findType, arg, validOnly);
 		    }
 		}
 	    }
@@ -175,6 +224,8 @@ namespace IceSSL
 	    {
 		store.Close();
 	    }
+
+	    return result;
 	}
 
 	protected Instance instance_;
