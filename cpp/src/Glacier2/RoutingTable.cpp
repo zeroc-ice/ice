@@ -13,8 +13,10 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-Glacier2::RoutingTable::RoutingTable() :
-    _tableHint(_table.end())
+Glacier2::RoutingTable::RoutingTable(const CommunicatorPtr& communicator) :
+    _communicator(communicator),
+    _traceLevel(_communicator->getProperties()->getPropertyAsInt("Glacier2.Trace.RoutingTable")),
+    _maxSize(_communicator->getProperties()->getPropertyAsIntWithDefault("Glacier2.RoutingTable.MaxSize", 1000))
 {
 }
 
@@ -33,28 +35,37 @@ Glacier2::RoutingTable::add(const ObjectPrx& prx)
 
     IceUtil::Mutex::Lock sync(*this);
 
-    map<Identity, ObjectPrx>::iterator p = _table.end();
-    
-    if(_tableHint != _table.end())
-    {
-	if(_tableHint->first == proxy->ice_getIdentity())
-	{
-	    p = _tableHint;
-	}
-    }
-    
-    if(p == _table.end())
-    {
-	p = _table.find(proxy->ice_getIdentity());
-    }
+    EvictorMap::iterator p = _map.find(proxy->ice_getIdentity());
 
-    if(p == _table.end())
+    if(p == _map.end())
     {
-	_tableHint = _table.insert(_tableHint, pair<const Identity, ObjectPrx>(proxy->ice_getIdentity(), proxy));
+	if(_traceLevel)
+	{
+	    Trace out(_communicator->getLogger(), "Glacier2");
+	    out << "adding proxy to routing table:\n" << _communicator->proxyToString(proxy);
+	}
+
+	EvictorEntryPtr entry = new EvictorEntry;
+	p = _map.insert(_map.begin(), pair<const Identity, EvictorEntryPtr>(proxy->ice_getIdentity(), entry));
+	EvictorQueue::iterator q = _queue.insert(_queue.end(), p);
+	entry->proxy = proxy;
+	entry->pos = q;
+
 	return true;
     }
     else
     {
+	if(_traceLevel)
+	{
+	    Trace out(_communicator->getLogger(), "Glacier2");
+	    out << "proxy already in routing table:\n" << _communicator->proxyToString(proxy);
+	}
+
+	EvictorEntryPtr entry = p->second;
+	_queue.erase(entry->pos);
+	EvictorQueue::iterator q = _queue.insert(_queue.end(), p);
+	entry->pos = q;
+
 	return false;
     }
 }
@@ -69,28 +80,19 @@ Glacier2::RoutingTable::get(const Identity& ident)
 
     IceUtil::Mutex::Lock sync(*this);
 
-    map<Identity, ObjectPrx>::iterator p = _table.end();
-    
-    if(_tableHint != _table.end())
-    {
-	if(_tableHint->first == ident)
-	{
-	    p = _tableHint;
-	}
-    }
-    
-    if(p == _table.end())
-    {
-	p = _table.find(ident);
-    }
+    EvictorMap::iterator p = _map.find(ident);
 
-    if(p == _table.end())
+    if(p == _map.end())
     {
 	return 0;
     }
     else
     {
-	_tableHint = p;
-	return p->second;
+	EvictorEntryPtr entry = p->second;
+	_queue.erase(entry->pos);
+	EvictorQueue::iterator q = _queue.insert(_queue.end(), p);
+	entry->pos = q;
+
+	return entry->proxy;
     }
 }

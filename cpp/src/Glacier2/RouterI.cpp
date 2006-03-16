@@ -17,8 +17,7 @@ using namespace Glacier2;
 Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAdapterPtr& serverAdapter,
 			   const ConnectionPtr& connection, const string& userId, const SessionPrx& session) :
     _communicator(clientAdapter->getCommunicator()),
-    _routingTable(new RoutingTable),
-    _routingTableTraceLevel(_communicator->getProperties()->getPropertyAsInt("Glacier2.Trace.RoutingTable")),
+    _routingTable(new RoutingTable(_communicator)),
     _clientProxy(clientAdapter->createProxy(stringToIdentity("dummy"))),
     _connection(connection),
     _userId(userId),
@@ -127,12 +126,6 @@ Glacier2::RouterI::addProxy(const ObjectPrx& proxy, const Current& current)
     IceUtil::Mutex::Lock lock(*this);
 
     assert(!_destroy);
-
-    if(_routingTableTraceLevel)
-    {
-	Trace out(_communicator->getLogger(), "Glacier2");
-	out << "adding proxy to routing table:\n" << _communicator->proxyToString(proxy);
-    }
 
     _timestamp = IceUtil::Time::now();
 

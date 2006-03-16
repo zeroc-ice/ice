@@ -28,7 +28,6 @@ command = router + TestUtil.clientServerOptions + \
           r' --Glacier2.CryptPasswords="' + toplevel + r'/test/Glacier2/attack/passwords"'
 
 print "starting router...",
-print command
 starterPipe = os.popen(command)
 TestUtil.getServerPid(starterPipe)
 TestUtil.getAdapterReady(starterPipe)

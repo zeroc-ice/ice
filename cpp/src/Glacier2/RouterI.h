@@ -50,7 +50,6 @@ private:
 
     const Ice::CommunicatorPtr _communicator;
     const RoutingTablePtr _routingTable;
-    const int _routingTableTraceLevel;
     const Ice::ObjectPrx _clientProxy;
     const Ice::ObjectPrx _serverProxy;
     const ClientBlobjectPtr _clientBlobject;
