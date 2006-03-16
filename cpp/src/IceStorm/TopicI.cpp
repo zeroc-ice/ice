@@ -25,7 +25,7 @@ namespace IceStorm
 // The servant has a 1-1 association with a topic. It is used to
 // receive events from Publishers.
 //
-class PublisherProxyI : public Ice::Blobject
+class PublisherProxyI : public Ice::BlobjectArray
 {
 public:
 
@@ -38,7 +38,7 @@ public:
     {
     }
 
-    virtual bool ice_invoke(const vector< Ice::Byte>&, vector< Ice::Byte>&, const Ice::Current&);
+    virtual bool ice_invoke(const pair<const Ice::Byte*, const Ice::Byte*>&, vector< Ice::Byte>&, const Ice::Current&);
 
 private:
 
@@ -250,7 +250,7 @@ IceStorm::TopicSubscribers::clearErrorList()
 // Incoming events from publishers.
 //
 bool
-PublisherProxyI::ice_invoke(const vector< Ice::Byte>& inParams, vector< Ice::Byte>& outParam,
+PublisherProxyI::ice_invoke(const pair<const Ice::Byte*, const Ice::Byte*>& inParams, vector< Ice::Byte>& outParam,
                             const Ice::Current& current)
 {
     const Ice::Context& context = current.ctx;
@@ -268,7 +268,7 @@ PublisherProxyI::ice_invoke(const vector< Ice::Byte>& inParams, vector< Ice::Byt
     }
     event->op = current.operation;
     event->mode = current.mode;
-    event->data = inParams;
+    vector<Ice::Byte>(inParams.first, inParams.second).swap(event->data);
     event->context = context;
 
     _subscribers->publish(event);

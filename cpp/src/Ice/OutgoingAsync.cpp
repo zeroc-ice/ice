@@ -417,12 +417,12 @@ IceInternal::OutgoingAsync::cleanup()
 
 void
 Ice::AMI_Object_ice_invoke::__invoke(const ObjectPrx& prx, const string& operation, OperationMode mode,
-				     const vector<Byte>& inParams, const Context& context)
+				     const pair<const Byte*, const Byte*>& inParams, const Context& context)
 {
     try
     {
 	__prepare(prx, operation, mode, context);
-	__os->writeBlob(inParams);
+	__os->writeBlob(inParams.first, static_cast<Int>(inParams.second - inParams.first));
 	__os->endWriteEncaps();
     }
     catch(const LocalException& ex)

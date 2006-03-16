@@ -101,8 +101,8 @@ Glacier2::Blobject::destroy()
 }
 
 void
-Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdCB, const ByteSeq& inParams,
-			   const Current& current)
+Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdCB, 
+			   const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams, const Current& current)
 {
     //
     // Set the correct facet on the proxy.

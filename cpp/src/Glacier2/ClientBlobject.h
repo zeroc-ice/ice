@@ -28,7 +28,8 @@ public:
 
     virtual void destroy();
 
-    virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&, const Ice::ByteSeq&, const Ice::Current&);
+    virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&,
+    				  const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&);
 
 private:
 

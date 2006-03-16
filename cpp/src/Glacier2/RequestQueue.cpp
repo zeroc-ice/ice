@@ -46,10 +46,10 @@ private:
 
 }
 
-Glacier2::Request::Request(const ObjectPrx& proxy, const ByteSeq& inParams, const Current& current,
-			   bool forwardContext, const AMD_Object_ice_invokePtr& amdCB) :
+Glacier2::Request::Request(const ObjectPrx& proxy, const std::pair<const Byte*, const Byte*>& inParams,
+			   const Current& current, bool forwardContext, const AMD_Object_ice_invokePtr& amdCB) :
     _proxy(proxy),
-    _inParams(inParams),
+    _inParams(inParams.first, inParams.second),
     _current(current),
     _forwardContext(forwardContext),
     _amdCB(amdCB)

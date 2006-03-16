@@ -38,7 +38,8 @@ Glacier2::ClientBlobject::destroy()
 }
 
 void
-Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& amdCB, const ByteSeq& inParams,
+Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& amdCB, 
+					   const std::pair<const Byte*, const Byte*>& inParams,
 					   const Current& current)
 {
     assert(_routingTable); // Destroyed?

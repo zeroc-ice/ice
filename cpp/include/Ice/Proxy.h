@@ -96,16 +96,25 @@ public:
     ::std::vector< ::std::string> ice_ids(const ::Ice::Context&);
     ::std::string ice_id();
     ::std::string ice_id(const ::Ice::Context&);
+
+    // Returns true if ok, false if user exception.
     bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
-	            ::std::vector< ::Ice::Byte>&); // Returns true if ok, false if user exception.
+	            ::std::vector< ::Ice::Byte>&);
     bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
-	            ::std::vector< ::Ice::Byte>&,
-		    const ::Ice::Context&); // Returns true if ok, false if user exception.
-    void ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&,
-			  const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&);
-    void ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&,
-			  const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
-			  const ::Ice::Context&);
+	            ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
+    bool ice_invoke(const ::std::string&, ::Ice::OperationMode, 
+    		    const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&, ::std::vector< ::Ice::Byte>&);
+    bool ice_invoke(const ::std::string&, ::Ice::OperationMode, 
+    		    const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&, ::std::vector< ::Ice::Byte>&,
+		    const ::Ice::Context&);
+    void ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&, const ::std::string&, ::Ice::OperationMode,
+    			  const ::std::vector< ::Ice::Byte>&);
+    void ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&, const ::std::string&, ::Ice::OperationMode,
+    			  const ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
+    void ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&, const ::std::string&, ::Ice::OperationMode,
+			  const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&);
+    void ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&, const ::std::string&, ::Ice::OperationMode, 
+			  const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&, const ::Ice::Context&);
 
     ::Ice::Identity ice_getIdentity() const;
     ::Ice::ObjectPrx ice_newIdentity(const ::Ice::Identity&) const;
@@ -195,7 +204,8 @@ public:
     virtual void ice_ping(const ::Ice::Context&) = 0;
     virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context&) = 0;
     virtual ::std::string ice_id(const ::Ice::Context&) = 0;
-    virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
+    virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode,
+    			    const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
 			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&) = 0;
 
     virtual ::Ice::ConnectionIPtr __getConnection(bool&) const = 0;
@@ -216,7 +226,8 @@ public:
     virtual void ice_ping(const ::Ice::Context&);
     virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context&);
     virtual ::std::string ice_id(const ::Ice::Context&);
-    virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
+    virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, 
+    			    const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
 			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
 
     virtual ::Ice::ConnectionIPtr __getConnection(bool&) const;
@@ -248,7 +259,8 @@ public:
     virtual void ice_ping(const ::Ice::Context&);
     virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context&);
     virtual ::std::string ice_id(const ::Ice::Context&);
-    virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
+    virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode,
+    			    const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
 			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
 
     virtual ::Ice::ConnectionIPtr __getConnection(bool&) const;

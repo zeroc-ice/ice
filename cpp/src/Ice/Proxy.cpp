@@ -277,6 +277,35 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
 				  vector<Byte>& outParams,
 				  const Context& context)
 {
+    pair<const Byte*, const Byte*> inPair;
+    if(inParams.size() == 0)
+    {
+        inPair.first = inPair.second = 0;
+    }
+    else
+    {
+        inPair.first = &inParams[0];
+	inPair.second = inPair.first + inParams.size();
+    }
+    return ice_invoke(operation, mode, inPair, outParams, context);
+}
+
+bool
+IceProxy::Ice::Object::ice_invoke(const string& operation,
+				  OperationMode mode,
+				  const pair<const Byte*, const Byte*>& inParams,
+				  vector<Byte>& outParams)
+{
+    return ice_invoke(operation, mode, inParams, outParams, _reference->getContext());
+}
+
+bool
+IceProxy::Ice::Object::ice_invoke(const string& operation,
+				  OperationMode mode,
+				  const pair<const Byte*, const Byte*>& inParams,
+				  vector<Byte>& outParams,
+				  const Context& context)
+{
     int __cnt = 0;
     while(true)
     {
@@ -318,6 +347,35 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
 					const string& operation,
 					OperationMode mode,
 					const vector<Byte>& inParams,
+					const Context& context)
+{
+    pair<const Byte*, const Byte*> inPair;
+    if(inParams.size() == 0)
+    {
+        inPair.first = inPair.second = 0;
+    }
+    else
+    {
+        inPair.first = &inParams[0];
+	inPair.second = inPair.first + inParams.size();
+    }
+    ice_invoke_async(cb, operation, mode, inPair, context);
+}
+
+void
+IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
+					const string& operation,
+					OperationMode mode,
+					const pair<const Byte*, const Byte*>& inParams)
+{
+    ice_invoke_async(cb, operation, mode, inParams, _reference->getContext());
+}
+
+void
+IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
+					const string& operation,
+					OperationMode mode,
+					const pair<const Byte*, const Byte*>& inParams,
 					const Context& context)
 {
     cb->__invoke(this, operation, mode, inParams, context);
@@ -1114,7 +1172,7 @@ IceDelegateM::Ice::Object::ice_id(const Context& __context)
 bool
 IceDelegateM::Ice::Object::ice_invoke(const string& operation,
                                       OperationMode mode,
-				      const vector<Byte>& inParams,
+				      const pair<const Byte*, const Byte*>& inParams,
 				      vector<Byte>& outParams,
 				      const Context& context)
 {
@@ -1122,7 +1180,7 @@ IceDelegateM::Ice::Object::ice_invoke(const string& operation,
     try
     {
 	BasicStream* __os = __og.os();
-	__os->writeBlob(inParams);
+	__os->writeBlob(inParams.first, static_cast<Int>(inParams.second - inParams.first));
     }
     catch(const ::Ice::LocalException& __ex)
     {
@@ -1243,7 +1301,7 @@ IceDelegateD::Ice::Object::ice_id(const ::Ice::Context& __context)
 bool
 IceDelegateD::Ice::Object::ice_invoke(const string&,
 				      OperationMode,
-				      const vector<Byte>&,
+				      const pair<const Byte*, const Byte*>& inParams,
 				      vector<Byte>&,
 				      const Context&)
 {

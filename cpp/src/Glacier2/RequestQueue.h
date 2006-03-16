@@ -24,7 +24,7 @@ class Request : public IceUtil::Shared
 {
 public:
 
-    Request(const Ice::ObjectPrx&, const Ice::ByteSeq&, const Ice::Current&, bool,
+    Request(const Ice::ObjectPrx&, const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&, bool,
 	    const Ice::AMD_Object_ice_invokePtr&);
     
     void invoke();

@@ -299,6 +299,26 @@ Ice::Blobject::__dispatch(Incoming& in, const Current& current)
 }
 
 DispatchStatus
+Ice::BlobjectArray::__dispatch(Incoming& in, const Current& current)
+{
+    pair<const Byte*, const Byte*> inParams;
+    vector<Byte> outParams;
+    Int sz = in.is()->getReadEncapsSize();
+    in.is()->readBlob(inParams.first, sz);
+    inParams.second = inParams.first + sz;
+    bool ok = ice_invoke(inParams, outParams, current);
+    in.os()->writeBlob(outParams);
+    if(ok)
+    {
+	return DispatchOK;
+    }
+    else
+    {
+	return DispatchUserException;
+    }
+}
+
+DispatchStatus
 Ice::BlobjectAsync::__dispatch(Incoming& in, const Current& current)
 {
     vector<Byte> inParams;
@@ -324,6 +344,32 @@ Ice::BlobjectAsync::__dispatch(Incoming& in, const Current& current)
     return DispatchAsync;
 }
 
+DispatchStatus
+Ice::BlobjectArrayAsync::__dispatch(Incoming& in, const Current& current)
+{
+    pair<const Byte*, const Byte*> inParams;
+    Int sz = in.is()->getReadEncapsSize();
+    in.is()->readBlob(inParams.first, sz);
+    inParams.second = inParams.first + sz;
+    AMD_Object_ice_invokePtr cb = new ::IceAsync::Ice::AMD_Object_ice_invoke(in);
+    try
+    {
+	ice_invoke_async(cb, inParams, current);
+    }
+    catch(const Exception& ex)
+    {
+	cb->ice_exception(ex);
+    }
+    catch(const ::std::exception& ex)
+    {
+	cb->ice_exception(ex);
+    }
+    catch(...)
+    {
+	cb->ice_exception();
+    }
+    return DispatchAsync;
+}
 void
 Ice::ice_writeObject(const OutputStreamPtr& out, const ObjectPtr& p)
 {
