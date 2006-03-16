@@ -20,12 +20,12 @@ Glacier2::RoutingTable::RoutingTable(const CommunicatorPtr& communicator) :
 {
 }
 
-bool
+void
 Glacier2::RoutingTable::add(const ObjectPrx& prx)
 {
     if(!prx)
     {
-	return false;
+	return;
     }
 
     //
@@ -39,7 +39,7 @@ Glacier2::RoutingTable::add(const ObjectPrx& prx)
 
     if(p == _map.end())
     {
-	if(_traceLevel)
+	if(_traceLevel == 1 || _traceLevel >= 3)
 	{
 	    Trace out(_communicator->getLogger(), "Glacier2");
 	    out << "adding proxy to routing table:\n" << _communicator->proxyToString(proxy);
@@ -50,12 +50,10 @@ Glacier2::RoutingTable::add(const ObjectPrx& prx)
 	EvictorQueue::iterator q = _queue.insert(_queue.end(), p);
 	entry->proxy = proxy;
 	entry->pos = q;
-
-	return true;
     }
     else
     {
-	if(_traceLevel)
+	if(_traceLevel == 1 || _traceLevel >= 3)
 	{
 	    Trace out(_communicator->getLogger(), "Glacier2");
 	    out << "proxy already in routing table:\n" << _communicator->proxyToString(proxy);
@@ -65,8 +63,20 @@ Glacier2::RoutingTable::add(const ObjectPrx& prx)
 	_queue.erase(entry->pos);
 	EvictorQueue::iterator q = _queue.insert(_queue.end(), p);
 	entry->pos = q;
+    }
 
-	return false;
+    while(static_cast<int>(_map.size()) > _maxSize)
+    {
+	p = _queue.front();
+
+	if(_traceLevel >= 2)
+	{
+	    Trace out(_communicator->getLogger(), "Glacier2");
+	    out << "evicting proxy from routing table:\n" << _communicator->proxyToString(p->second->proxy);
+	}
+
+	_map.erase(p);
+	_queue.pop_front();
     }
 }
 

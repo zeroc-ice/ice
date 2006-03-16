@@ -26,20 +26,8 @@ public:
 
     RoutingTable(const Ice::CommunicatorPtr&);
 
-    //
-    // Clear the contents of the routing table.
-    //
-//    void clear();
-
-    //
-    // Returns false if the Proxy exists already.
-    //
-    bool add(const Ice::ObjectPrx&);
-
-    //
-    // Returns null if no Proxy exists for the given identity.
-    //
-    Ice::ObjectPrx get(const Ice::Identity&);
+    void add(const Ice::ObjectPrx&);
+    Ice::ObjectPrx get(const Ice::Identity&); // Returns null if no proxy can be found.
 
 private:
 

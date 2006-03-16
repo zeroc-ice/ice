@@ -261,17 +261,6 @@ IceGrid:
     Registry.Trace.Server
     Registry.Trace.Session
     
-IcePatch:
-    BusyTimeout
-    Directory
-    Dynamic
-    Endpoints
-    PublishedEndpoints
-    RemoveOrphaned
-    Thorough
-    Trace.Files
-    UpdatePeriod
-
 IcePatch2:
     AdapterId
     ReplicaGroupId
@@ -360,72 +349,6 @@ IceStorm:
     Trace.Topic
     Trace.TopicManager
 
-Glacier:
-    Router.AcceptCert
-    Router.AdapterId
-    Router.ReplicaGroupId
-    Router.AllowCategories
-    Router.Client.AdapterId
-    Router.Client.ReplicaGroupId
-    Router.Client.Endpoints
-    Router.Client.ForwardContext
-    Router.Client.PublishedEndpoints
-    Router.Client.SleepTime
-    Router.Client.ThreadPool.Size
-    Router.Client.ThreadPool.SizeMax
-    Router.Client.ThreadPool.SizeWarn
-    Router.Client.ThreadPool.StackSize
-    Router.Client.Throttle.Twoways
-    Router.Endpoints
-    Router.Identity
-    Router.PrintProxyOnFd
-    Router.PublishedEndpoints
-    Router.Server.AdapterId
-    Router.Server.ReplicaGroupId
-    Router.Server.Endpoints
-    Router.Server.ForwardContext
-    Router.Server.PublishedEndpoints
-    Router.Server.SleepTime
-    Router.Server.ThreadPool.Size
-    Router.Server.ThreadPool.SizeMax
-    Router.Server.ThreadPool.SizeWarn
-    Router.Server.ThreadPool.StackSize
-    Router.Server.Throttle.Twoways
-    Router.SessionManager
-    Router.ThreadPool.Size
-    Router.ThreadPool.SizeMax
-    Router.ThreadPool.SizeWarn
-    Router.ThreadPool.StackSize
-    Router.Trace.Client
-    Router.Trace.RoutingTable
-    Router.Trace.Server
-    Router.Trace.Throttle
-    Router.UserId
-    Starter.AdapterId
-    Starter.ReplicaGroupId
-    Starter.AddUserToAllowCategories
-    Starter.Certificate.BitStrength
-    Starter.Certificate.CommonName
-    Starter.Certificate.Country
-    Starter.Certificate.IssuedAdjust
-    Starter.Certificate.Locality
-    Starter.Certificate.Organization
-    Starter.Certificate.OrganizationalUnit
-    Starter.Certificate.SecondsValid
-    Starter.Certificate.StateProvince
-    Starter.CryptPasswords
-    Starter.Endpoints
-    Starter.PermissionsVerifier
-    Starter.PropertiesOverride
-    Starter.PublishedEndpoints
-    Starter.RouterPath
-    Starter.StartupTimeout
-    Starter.ThreadPool.Size
-    Starter.ThreadPool.SizeMax
-    Starter.ThreadPool.SizeWarn
-    Starter.ThreadPool.StackSize
-    Starter.Trace
-
 Glacier2:
     AddUserToAllowCategories
     Admin.Endpoints
@@ -447,6 +370,7 @@ Glacier2:
     InstanceName
     PermissionsVerifier
     RouterIdentity
+    RoutingTable.MaxSize
     Server.AlwaysBatch
     Server.Buffered
     Server.Endpoints

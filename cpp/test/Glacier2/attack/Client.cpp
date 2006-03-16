@@ -29,8 +29,8 @@ main(int argc, char* argv[])
     PropertiesPtr properties = getDefaultProperties(argc, argv);
     
     //
-    // We want to check whether the client retries for reaped proxies,
-    // even with regular retries disabled.
+    // We want to check whether the client retries for evicted
+    // proxies, even with regular retries disabled.
     //
     properties->setProperty("Ice.RetryIntervals", "-1");
 	
@@ -52,7 +52,7 @@ CallbackClient::run(int argc, char* argv[])
     communicator()->setDefaultRouter(router);
     cout << "ok" << endl;
 
-    cout << "invoking on thousands of random-generated proxies... " << flush;
+    cout << "making thousands of invocations on proxies... " << flush;
     ObjectPrx backendBase = communicator()->stringToProxy("dummy:tcp -p 12010 -t 10000");
     BackendPrx backend = BackendPrx::uncheckedCast(backendBase);
     backend->ice_ping();
@@ -75,16 +75,16 @@ CallbackClient::run(int argc, char* argv[])
 	Identity ident;
 	string::iterator p;
 
-	ident.name.resize(1 + rand() % 100);
+	ident.name.resize(1 + rand() % 2);
 	for(p = ident.name.begin(); p != ident.name.end(); ++p)
 	{
-	    *p = static_cast<char>(33 + rand() % (127-33));
+	    *p = static_cast<char>('A' + rand() % 26);
 	}
 
-	ident.category.resize(rand() % 101);
+	ident.category.resize(1); // (rand() % 2);
 	for(p = ident.category.begin(); p != ident.category.end(); ++p)
 	{
-	    *p = static_cast<char>(33 + rand() % (127-33));
+	    *p = static_cast<char>('a' + rand() % 26);
 	}
 
 	backend = BackendPrx::uncheckedCast(backendBase->ice_newIdentity(ident));
