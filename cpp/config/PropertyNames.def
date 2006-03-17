@@ -288,7 +288,7 @@ IcePatch2:
     ThreadPool.SizeWarn
     ThreadPool.StackSize
 
-IceSSL: false
+IceSSL:
     Client.CertPath
     Client.Config
     Client.IgnoreValidPeriod
