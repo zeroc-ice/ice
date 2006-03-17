@@ -82,80 +82,90 @@ namespace IceSSL
 	    return cert_ != null;
 	}
 
-	internal ServerContext(Instance instance) : base(instance)
+	internal ServerContext(Instance instance, X509Certificate2 cert) : base(instance)
 	{
 	    const string prefix = "IceSSL.Server.";
 	    Ice.Properties properties = instance.communicator().getProperties();
 
-	    // TODO: Validate filename
-	    string certFile = properties.getProperty(prefix + "Cert.File");
-	    string certPassword = properties.getProperty(prefix + "Cert.Password");
-	    if(certFile.Length > 0)
+	    if(cert != null)
 	    {
-		if(!File.Exists(certFile))
-		{
-		    logger_.error("IceSSL: server certificate file not found: " + certFile);
-		    Ice.FileException ex = new Ice.FileException();
-		    ex.path = certFile;
-		    throw ex;
-		}
-		try
-		{
-		    if(certPassword.Length == 0)
-		    {
-			cert_ = new X509Certificate2(certFile);
-		    }
-		    else
-		    {
-			cert_ = new X509Certificate2(certFile, certPassword);
-		    }
-		}
-		catch(CryptographicException ex)
-		{
-		    SslException e = new SslException(ex);
-		    e.ice_message_ = "attempting to load certificate from " + certFile;
-		    throw e;
-		}
+		cert_ = cert;
 	    }
 	    else
 	    {
-		const string findPrefix = "IceSSL.Server.Cert.Find.";
-		Ice.PropertyDict certProps = properties.getPropertiesForPrefix(findPrefix);
-		if(certProps.Count > 0)
+		//
+		// Load the certificate from a file if IceSSL.Server.CertFile is defined.
+		//
+		string certFile = properties.getProperty(prefix + "CertFile");
+		string certPassword = properties.getProperty(prefix + "CertPassword");
+		if(certFile.Length > 0)
 		{
-		    X509Certificate2Collection certs = new X509Certificate2Collection();
-		    foreach(DictionaryEntry entry in certProps)
+		    if(!File.Exists(certFile))
 		    {
-			string name = (string)entry.Key;
-			string val = (string)entry.Value;
-			if(val.Length > 0)
+			logger_.error("IceSSL: server certificate file not found: " + certFile);
+			Ice.FileException ex = new Ice.FileException();
+			ex.path = certFile;
+			throw ex;
+		    }
+		    try
+		    {
+			if(certPassword.Length == 0)
 			{
-			    string storeSpec = name.Substring(findPrefix.Length);
-			    X509Certificate2Collection coll = findCertificates(name, storeSpec, val);
-			    certs.AddRange(coll);
+			    cert_ = new X509Certificate2(certFile);
+			}
+			else
+			{
+			    cert_ = new X509Certificate2(certFile, certPassword);
 			}
 		    }
-		    if(certs.Count == 0)
+		    catch(CryptographicException ex)
 		    {
-			const string msg = "no server certificates found";
-			logger_.error("IceSSL: " + msg);
-			SslException e = new SslException();
-			e.ice_message_ = msg;
+			SslException e = new SslException(ex);
+			e.ice_message_ = "attempting to load certificate from " + certFile;
 			throw e;
 		    }
-		    else if(certs.Count > 1)
+		}
+		else
+		{
+		    //
+		    // Select the certificate from a store.
+		    //
+		    const string findPrefix = "IceSSL.Server.FindCert.";
+		    Ice.PropertyDict certProps = properties.getPropertiesForPrefix(findPrefix);
+		    if(certProps.Count > 0)
 		    {
-			logger_.warning("IceSSL: multiple server certificates found");
+			X509Certificate2Collection certs = new X509Certificate2Collection();
+			foreach(DictionaryEntry entry in certProps)
+			{
+			    string name = (string)entry.Key;
+			    string val = (string)entry.Value;
+			    if(val.Length > 0)
+			    {
+				string storeSpec = name.Substring(findPrefix.Length);
+				X509Certificate2Collection coll = findCertificates(name, storeSpec, val);
+				certs.AddRange(coll);
+			    }
+			}
+			if(certs.Count == 0)
+			{
+			    const string msg = "no server certificates found";
+			    logger_.error("IceSSL: " + msg);
+			    SslException e = new SslException();
+			    e.ice_message_ = msg;
+			    throw e;
+			}
+			else if(certs.Count > 1)
+			{
+			    logger_.warning("IceSSL: multiple server certificates found");
+			}
+			cert_ = certs[0];
 		    }
-		    cert_ = certs[0];
 		}
 	    }
 
 	    // TODO: Review default value
-	    requireClientCert_ = properties.getPropertyAsIntWithDefault(prefix + "RequireClientCert", 0) > 0;
+	    requireClientCert_ = properties.getPropertyAsIntWithDefault(prefix + "RequireClientCert", 1) > 0;
 
-	    // TODO: Allow user to specify protocols?
-	    //protocols_ = SslProtocols.Default;
 	    protocols_ = parseProtocols(prefix + "Protocols");
 
 	    // TODO: Review default value

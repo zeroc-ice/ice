@@ -68,69 +68,76 @@ namespace IceSSL
 	    return stream;
 	}
 
-	internal ClientContext(Instance instance) : base(instance)
+	internal ClientContext(Instance instance, X509Certificate2Collection certs) : base(instance)
 	{
 	    const string prefix = "IceSSL.Client.";
 	    Ice.Properties properties = instance.communicator().getProperties();
 
-	    //
-	    // Load client certificates from files.
-	    //
-	    // TODO: tracing?
-	    certs_ = new X509Certificate2Collection();
-	    string certFile = properties.getProperty(prefix + "Cert.File");
-	    string[] certFiles = instance_.parseFileList(certFile);
-	    for(int i = 0; i < certFiles.Length; ++i)
+	    if(certs != null)
 	    {
-		if(!File.Exists(certFiles[i]))
+		certs_ = certs;
+	    }
+	    else
+	    {
+		//
+		// Load client certificate from file.
+		//
+		// TODO: tracing?
+		certs_ = new X509Certificate2Collection();
+		string certFile = properties.getProperty(prefix + "CertFile");
+		string certPassword = properties.getProperty(prefix + "CertPassword");
+		if(certFile.Length > 0)
 		{
-		    logger_.error("IceSSL: client certificate file not found: " + certFiles[i]);
-		    Ice.FileException ex = new Ice.FileException();
-		    ex.path = certFiles[i];
-		    throw ex;
+		    if(!File.Exists(certFile))
+		    {
+			logger_.error("IceSSL: client certificate file not found: " + certFile);
+			Ice.FileException ex = new Ice.FileException();
+			ex.path = certFile;
+			throw ex;
+		    }
+		    try
+		    {
+			X509Certificate2 cert = new X509Certificate2(certFile, certPassword);
+			certs_.Add(cert);
+		    }
+		    catch(CryptographicException ex)
+		    {
+			SslException e = new SslException(ex);
+			e.ice_message_ = "while attempting to load certificate from " + certFile;
+			throw e;
+		    }
 		}
-		try
+
+		//
+		// Select client certificates from stores.
+		//
+		// TODO: tracing?
+		const string findPrefix = "IceSSL.Client.FindCert.";
+		Ice.PropertyDict certProps = properties.getPropertiesForPrefix(findPrefix);
+		if(certProps.Count > 0)
 		{
-		    X509Certificate2 cert = new X509Certificate2(certFiles[i], "");
-		    certs_.Add(cert);
-		}
-		catch(CryptographicException ex)
-		{
-		    SslException e = new SslException(ex);
-		    e.ice_message_ = "attempting to load certificate from " + certFiles[i];
-		    throw e;
+		    foreach(DictionaryEntry entry in certProps)
+		    {
+			string name = (string)entry.Key;
+			string val = (string)entry.Value;
+			if(val.Length > 0)
+			{
+			    string storeSpec = name.Substring(findPrefix.Length);
+			    X509Certificate2Collection coll = findCertificates(name, storeSpec, val);
+			    certs_.AddRange(coll);
+			}
+		    }
+		    if(certs_.Count == 0)
+		    {
+			const string msg = "no client certificates found";
+			logger_.error("IceSSL: " + msg);
+			SslException e = new SslException();
+			e.ice_message_ = msg;
+			throw e;
+		    }
 		}
 	    }
 
-	    //
-	    // Select client certificates from stores.
-	    //
-	    // TODO: tracing?
-	    const string findPrefix = "IceSSL.Client.Cert.Find.";
-	    Ice.PropertyDict certProps = properties.getPropertiesForPrefix(findPrefix);
-	    if(certProps.Count > 0)
-	    {
-		foreach(DictionaryEntry entry in certProps)
-		{
-		    string name = (string)entry.Key;
-		    string val = (string)entry.Value;
-		    if(val.Length > 0)
-		    {
-			string storeSpec = name.Substring(findPrefix.Length);
-			X509Certificate2Collection coll = findCertificates(name, storeSpec, val);
-			certs_.AddRange(coll);
-		    }
-		}
-		if(certs_.Count == 0)
-		{
-		    const string msg = "no client certificates found";
-		    logger_.error("IceSSL: " + msg);
-		    SslException e = new SslException();
-		    e.ice_message_ = msg;
-		    throw e;
-		}
-	    }
-Console.WriteLine("Client loaded " + certs_.Count + " certificates");
 	    protocols_ = parseProtocols(prefix + "Protocols");
 
 	    // TODO: Review default value

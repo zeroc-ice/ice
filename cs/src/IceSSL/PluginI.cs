@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+using System.Security.Cryptography.X509Certificates;
+
 namespace IceSSL
 {
     public sealed class PluginFactory : Ice.PluginFactory
@@ -24,7 +26,7 @@ namespace IceSSL
 	}
     }
 
-    public sealed class PluginI : Ice.LocalObjectImpl, Ice.Plugin
+    public sealed class PluginI : Plugin
     {
 	public
 	PluginI(Ice.Communicator communicator)
@@ -32,9 +34,14 @@ namespace IceSSL
 	    instance_ = new Instance(communicator);
 	}
 
-	public void
+	public override void
 	destroy()
 	{
+	}
+
+	public override void initialize(X509Certificate2Collection clientCerts, X509Certificate2 serverCert)
+	{
+	    instance_.initialize(clientCerts, serverCert);
 	}
 
 	private Instance instance_;

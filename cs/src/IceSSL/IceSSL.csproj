@@ -56,10 +56,9 @@
   <ItemGroup>
     <Compile Include="ClientContext.cs" />
     <Compile Include="Context.cs" />
-    <Compile Include="generated\CertificateVerifier.cs" />
     <Compile Include="generated\Exception.cs" />
-    <Compile Include="generated\Plugin.cs" />
     <Compile Include="Instance.cs" />
+    <Compile Include="Plugin.cs" />
     <Compile Include="PluginI.cs" />
     <Compile Include="ServerContext.cs" />
     <Compile Include="SslAcceptor.cs" />

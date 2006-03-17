@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections;
+using System.Diagnostics;
 using System.Security.Cryptography.X509Certificates;
 
 namespace IceSSL
@@ -41,13 +42,34 @@ namespace IceSSL
 	    // Create the client and server contexts. We always create both, even
 	    // if only one is used.
 	    //
-	    clientContext_ = new ClientContext(this);
-	    serverContext_ = new ServerContext(this);
+	    // If IceSSL.DelayInit=1, postpone the creation of the contexts until
+	    // the application manually initializes the plugin.
+	    //
+	    if(properties.getPropertyAsInt("IceSSL.DelayInit") == 0)
+	    {
+		clientContext_ = new ClientContext(this, null);
+		serverContext_ = new ServerContext(this, null);
+	    }
 
 	    //
 	    // Register the endpoint factory.
 	    //
 	    facade_.addEndpointFactory(new SslEndpointFactory(this));
+	}
+
+	internal void initialize(X509Certificate2Collection clientCerts, X509Certificate2 serverCert)
+	{
+	    if(clientContext_ != null)
+	    {
+		SslException e = new SslException();
+		e.ice_message_ = "plugin is already initialized";
+		throw e;
+	    }
+	    else
+	    {
+		clientContext_ = new ClientContext(this, clientCerts);
+		serverContext_ = new ServerContext(this, serverCert);
+	    }
 	}
 
 	internal Ice.Communicator communicator()
@@ -82,11 +104,27 @@ namespace IceSSL
 
 	internal ClientContext clientContext()
 	{
+	    if(clientContext_ == null)
+	    {
+		string msg = "plugin is not fully initialized";
+		communicator().getLogger().error("IceSSL: " + msg);
+		SslException e = new SslException();
+		e.ice_message_ = msg;
+		throw e;
+	    }
 	    return clientContext_;
 	}
 
 	internal ServerContext serverContext()
 	{
+	    if(serverContext_ == null)
+	    {
+		string msg = "plugin is not fully initialized";
+		communicator().getLogger().error("IceSSL: " + msg);
+		SslException e = new SslException();
+		e.ice_message_ = msg;
+		throw e;
+	    }
 	    return serverContext_;
 	}
 
@@ -110,6 +148,9 @@ namespace IceSSL
 	    communicator().getLogger().trace(securityTraceCategory_, s.ToString());
 	}
 
+	//
+	// Parse a string of the form "location.name" into two parts.
+	//
 	internal void parseStore(string prop, string store, ref StoreLocation loc, ref string name)
 	{
 	    int pos = store.IndexOf('.');
@@ -151,74 +192,40 @@ namespace IceSSL
 	    }
 	}
 
-	internal string[] parseFileList(string files)
-	{
-	    ArrayList l = new ArrayList();
-
-	    int start = 0;
-	    while(start < files.Length)
-	    {
-		while(start < files.Length && (files[start] == ' ' || files[start] == '\t'))
-		{
-		    ++start;
-		}
-		if(start == files.Length)
-		{
-		    break;
-		}
-		if(files[start] == '"' || files[start] == '\'')
-		{
-		    int end = files.IndexOf(files[start], start + 1);
-		    if(end == -1)
-		    {
-			string msg = "unmatched quote in `" + files + "'";
-			communicator().getLogger().error("IceSSL: " + msg);
-			SslException e = new SslException();
-			e.ice_message_ = msg;
-			throw e;
-		    }
-		    ++start;
-		    string f = files.Substring(start, end - start).Trim();
-		    if(f.Length > 0)
-		    {
-			l.Add(f);
-		    }
-		    start = end + 1;
-		}
-		else
-		{
-		    int pos = files.IndexOf(',', start);
-		    if(pos == -1)
-		    {
-			l.Add(files.Substring(start));
-			start = files.Length;
-		    }
-		    else
-		    {
-			string f = files.Substring(start, pos - start).Trim();
-			if(f.Length > 0)
-			{
-			    l.Add(f);
-			}
-			start = pos + 1;
-		    }
-		}
-	    }
-
-	    return (string[])l.ToArray(typeof(string));
-	}
-
 	private void importCertificate(string propName, string propValue)
 	{
 	    //
 	    // Expecting a property of the following form:
 	    //
-	    // IceSSL.ImportCert.<location>.<name>=<file>[,<file]
+	    // IceSSL.ImportCert.<location>.<name>=<file>[;password]
 	    //
 	    const string prefix = "IceSSL.ImportCert.";
 	    StoreLocation loc = 0;
 	    string name = null;
 	    parseStore(propName, propName.Substring(prefix.Length), ref loc, ref name);
+
+	    //
+	    // Extract the filename and password. Either or both can be quoted.
+	    //
+	    string[] arr = splitString(propValue, ';');
+	    if(arr == null)
+	    {
+		string msg = "unmatched quote in `" + propValue + "'";
+		communicator().getLogger().error("IceSSL: " + msg);
+		SslException e = new SslException();
+		e.ice_message_ = msg;
+		throw e;
+	    }
+	    if(arr.Length == 0)
+	    {
+		return;
+	    }
+	    string file = arr[0];
+	    string password = null;
+	    if(arr.Length > 1)
+	    {
+		password = arr[1];
+	    }
 
 	    //
 	    // Open the X509 certificate store.
@@ -239,32 +246,100 @@ namespace IceSSL
 	    }
 
 	    //
-	    // Add each certificate to the store.
+	    // Add the certificate to the store.
 	    //
 	    try
 	    {
-		string[] files = parseFileList(propValue);
-		for(int i = 0; i < files.Length; ++i)
+		X509Certificate2 cert;
+		if(password != null)
 		{
-		    try
-		    {
-			X509Certificate2 cert = new X509Certificate2(files[i]);
-			store.Add(cert);
-		    }
-		    catch(Exception ex)
-		    {
-			string msg = "failure while adding certificate `" + files[i] + "'";
-			communicator().getLogger().error("IceSSL: " + msg);
-			SslException e = new SslException(ex);
-			e.ice_message_ = msg;
-			throw e;
-		    }
+		    cert = new X509Certificate2(file, password);
 		}
+		else
+		{
+		    cert = new X509Certificate2(file);
+		}
+		store.Add(cert);
+	    }
+	    catch(Exception ex)
+	    {
+		string msg = "failure while adding certificate `" + file + "'";
+		communicator().getLogger().error("IceSSL: " + msg);
+		SslException e = new SslException(ex);
+		e.ice_message_ = msg;
+		throw e;
 	    }
 	    finally
 	    {
 		store.Close();
 	    }
+	}
+
+	//
+	// Split strings using a delimiter. Quotes are supported.
+	// Returns null for an unmatched quote.
+	//
+	private string[] splitString(string str, char delim)
+	{
+	    ArrayList l = new ArrayList();
+	    char[] arr = new char[str.Length];
+	    int pos = 0;
+
+	    while(pos < str.Length)
+	    {
+		int n = 0;
+		char quoteChar = '\0';
+		if(str[pos] == '"' || str[pos] == '\'')
+		{
+		    quoteChar = str[pos];
+		    ++pos;
+		}
+		bool trim = true;
+		while(pos < str.Length)
+		{
+		    if(quoteChar != '\0' && str[pos] == '\\' && pos + 1 < str.Length && str[pos + 1] == quoteChar)
+		    {
+			++pos;
+		    }
+		    else if(quoteChar != '\0' && str[pos] == quoteChar)
+		    {
+			trim = false;
+			++pos;
+			quoteChar = '\0';
+			break;
+		    }
+		    else if(str[pos] == delim)
+		    {
+			if(quoteChar == '\0')
+			{
+			    ++pos;
+			    break;
+			}
+		    }
+		    if(pos < str.Length)
+		    {
+			arr[n++] = str[pos++];
+		    }
+		}
+		if(quoteChar != '\0')
+		{
+		    return null; // Unmatched quote.
+		}
+		if(n > 0)
+		{
+		    string s = new string(arr, 0, n);
+		    if(trim)
+		    {
+			s = s.Trim();
+		    }
+		    if(s.Length > 0)
+		    {
+			l.Add(s);
+		    }
+		}
+	    }
+
+	    return (string[])l.ToArray(typeof(string));
 	}
 
 	private IceInternal.ProtocolPluginFacade facade_;
