@@ -82,7 +82,7 @@ public:
     void run()
     {
 	int argc = 0;
-	char* argv[0];
+	char** argv = 0;
 	CommunicatorPtr communicator = initialize(argc, argv);
 	ObjectPrx routerBase = communicator->stringToProxy("abc/def:default -p 12347 -t 10000");
 	Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(routerBase);
@@ -188,7 +188,7 @@ public:
     void run()
     {
 	int argc = 0;
-	char* argv[0];
+	char** argv = 0;
 	CommunicatorPtr communicator = initialize(argc, argv);
 	ObjectPrx routerBase = communicator->stringToProxy("abc/def:default -p 12347 -t 10000");
 	_router = Glacier2::RouterPrx::checkedCast(routerBase);
