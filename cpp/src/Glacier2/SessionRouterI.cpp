@@ -491,7 +491,7 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
 
 
 void
-Glacier2::SessionRouterI::destroySession_async(const AMD_Router_destroySessionPtr& cb, const Current& current)
+Glacier2::SessionRouterI::destroySession(const Current& current)
 {
     RouterIPtr router;
 
@@ -534,12 +534,6 @@ Glacier2::SessionRouterI::destroySession_async(const AMD_Router_destroySessionPt
 	    _routersByCategoryHint = _routersByCategory.end();
 	}
     }
-
-    //
-    // We must send back a response before we close the connection.
-    //
-    cb->ice_response();
-    current.con->close(false);
 
     //
     // We destroy the router outside the thread synchronization, to

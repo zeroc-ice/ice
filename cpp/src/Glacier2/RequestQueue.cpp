@@ -17,11 +17,20 @@ using namespace Glacier2;
 namespace Glacier2
 {
 
+//
+// AMI callback class for twoway requests
+//
+// NOTE: the received response isn't sent back directly with the AMD
+// callback. Instead it's queued and the request queue thread is
+// responsible for sending back the response. It's necessary because
+// sending back the response might block.
+//
 class AMI_Object_ice_invokeI : public AMI_Object_ice_invoke
 {
 public:
 
-    AMI_Object_ice_invokeI(const AMD_Object_ice_invokePtr& amdCB) :
+    AMI_Object_ice_invokeI(const RequestQueuePtr& requestQueue, const AMD_Object_ice_invokePtr& amdCB) :
+	_requestQueue(requestQueue),
 	_amdCB(amdCB)
     {
 	assert(_amdCB);
@@ -30,17 +39,18 @@ public:
     virtual void
     ice_response(bool ok, const std::vector<Byte>& outParams)
     {
-	_amdCB->ice_response(ok, outParams);
+	_requestQueue->addResponse(new Response(_amdCB, ok, outParams));
     }
 
     virtual void
     ice_exception(const Exception& ex)
     {
-	_amdCB->ice_exception(ex);
+	_requestQueue->addResponse(new Response(_amdCB, ex));
     }
 
 private:
 
+    const RequestQueuePtr _requestQueue;
     const AMD_Object_ice_invokePtr _amdCB;
 };
 
@@ -73,12 +83,12 @@ Glacier2::Request::Request(const ObjectPrx& proxy, const std::pair<const Byte*, 
 }
 
 
-void
-Glacier2::Request::invoke()
+bool
+Glacier2::Request::invoke(const RequestQueuePtr& requestQueue)
 {
     if(_proxy->ice_isTwoway())
     {
-	AMI_Object_ice_invokePtr cb = new AMI_Object_ice_invokeI(_amdCB);
+	AMI_Object_ice_invokePtr cb = new AMI_Object_ice_invokeI(requestQueue, _amdCB);
 	if(_forwardContext)
 	{
 	    _proxy->ice_invoke_async(cb, _current.operation, _current.mode, _inParams, _current.ctx);
@@ -87,6 +97,7 @@ Glacier2::Request::invoke()
 	{
 	    _proxy->ice_invoke_async(cb, _current.operation, _current.mode, _inParams);
 	}
+	return true; // A twoway method is being dispatched.
     }
     else
     {
@@ -105,6 +116,7 @@ Glacier2::Request::invoke()
 	catch(const LocalException&)
 	{
 	}
+	return false;
     }
 }
 
@@ -151,6 +163,33 @@ Glacier2::Request::getConnection() const
     return _proxy->ice_connection();
 }
 
+Glacier2::Response::Response(const AMD_Object_ice_invokePtr& amdCB, bool ok, const ByteSeq& outParams) : 
+    _amdCB(amdCB),
+    _ok(ok),
+    _outParams(outParams)
+{
+}
+
+Glacier2::Response::Response(const AMD_Object_ice_invokePtr& amdCB, const Exception& ex) : 
+    _amdCB(amdCB),
+    _ok(false),
+    _exception(ex.ice_clone())
+{
+}
+
+void
+Glacier2::Response::invoke()
+{
+    if(_exception.get())
+    {
+	_amdCB->ice_exception(*_exception.get());
+    }
+    else
+    {
+	_amdCB->ice_response(_ok, _outParams);
+    }
+}
+
 Glacier2::RequestQueue::RequestQueue(const IceUtil::Time& sleepTime) :
     _sleepTime(sleepTime),
     _destroy(false)
@@ -163,6 +202,7 @@ Glacier2::RequestQueue::~RequestQueue()
 
     assert(_destroy);
     assert(_requests.empty());
+    assert(_responses.empty());
 }
 
 void 
@@ -174,8 +214,6 @@ Glacier2::RequestQueue::destroy()
 	assert(!_destroy);
 	_destroy = true;
 	notify();
-	
-	_requests.clear();
     }
 
     //
@@ -217,29 +255,49 @@ Glacier2::RequestQueue::addRequest(const RequestPtr& request)
 }
 
 void
+Glacier2::RequestQueue::addResponse(const ResponsePtr& response)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+    _responses.push_back(response);
+    notify();
+}
+
+void
 Glacier2::RequestQueue::run()
 {
+    RequestQueuePtr self = this; // This is to avoid creating a temporary Ptr for each call to Request::invoke()
+    int dispatchCount = 0; // The dispatch count keeps track of the number of outstanding twoway requests.
     while(true)
     {
 	vector<RequestPtr> requests;
+	vector<ResponsePtr> responses;
 
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 
 	    //
-	    // Wait indefinitely if there's no requests to send.
+	    // Wait indefinitely if there's no requests/responses to
+	    // send. If the queue is being destroyed we still need to
+	    // wait until all the responses for twoway requests are
+	    // received.
 	    //
-            while(!_destroy && _requests.empty())
+            while((!_destroy || dispatchCount != 0) && _requests.empty() && _responses.empty())
             {		
 		wait();
             }
 
-            if(_destroy)
+	    //
+	    // If the queue is being destroyed and there's no requests
+	    // or responses to send, we're done.
+	    //
+            if(_destroy && _requests.empty() && _responses.empty())
             {
+		assert(dispatchCount == 0); // We would have blocked in the wait() above otherwise.
                 return;
             }
 
 	    requests.swap(_requests);
+	    responses.swap(_responses);
 	}
         
         //
@@ -264,7 +322,16 @@ Glacier2::RequestQueue::run()
 		}
 	    }
 	    
-	    (*p)->invoke(); // Exceptions are caught within invoke().
+	    //
+	    // Invoke returns true if the request expects a response.
+	    // If that's the case we increment the dispatch count to
+	    // ensure that the thread won't be destroyed before the
+	    // response is received.
+	    //
+	    if((*p)->invoke(self)) // Exceptions are caught within invoke().
+	    {
+		++dispatchCount;
+	    }
 	}
 
 	for(set<ConnectionPtr>::const_iterator q = flushSet.begin(); q != flushSet.end(); ++q)
@@ -278,6 +345,15 @@ Glacier2::RequestQueue::run()
 		// Ignore.
 	    }
 	}
+
+	//
+	// Send the responses and decrement the dispatch count.
+	//
+	for(vector<ResponsePtr>::const_iterator r = responses.begin(); r != responses.end(); ++r)
+	{
+	    (*r)->invoke();
+	}
+	dispatchCount -= responses.size();
 	
 	//
 	// In order to avoid flooding, we add a delay, if so

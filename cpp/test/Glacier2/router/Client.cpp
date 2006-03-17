@@ -16,12 +16,12 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
-class AMI_Callback_initiateNestedCallbackI : public AMI_Callback_initiateNestedCallback,
-					     public IceUtil::Monitor<IceUtil::Mutex>
+class AMI_Callback_initiateConcurrentCallbackI : public AMI_Callback_initiateConcurrentCallback,
+						 public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    AMI_Callback_initiateNestedCallbackI() :
+    AMI_Callback_initiateConcurrentCallbackI() :
 	_haveResponse(false)
     {
     }
@@ -68,7 +68,284 @@ private:
     auto_ptr<Exception> _ex;
     Int _response;
 };
-typedef IceUtil::Handle<AMI_Callback_initiateNestedCallbackI> AMI_Callback_initiateNestedCallbackIPtr;
+typedef IceUtil::Handle<AMI_Callback_initiateConcurrentCallbackI> AMI_Callback_initiateConcurrentCallbackIPtr;
+
+class MisbehavedClient : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+    
+    MisbehavedClient(int id) : _id(id)
+    {
+    }
+
+    virtual 
+    void run()
+    {
+	int argc = 0;
+	char* argv[0];
+	CommunicatorPtr communicator = initialize(argc, argv);
+	ObjectPrx routerBase = communicator->stringToProxy("abc/def:default -p 12347 -t 10000");
+	Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(routerBase);
+	communicator->setDefaultRouter(router);
+
+	ostringstream os;
+	os << "userid-" << _id;
+	Glacier2::SessionPrx session = router->createSession(os.str(), "abc123");
+	communicator->getProperties()->setProperty("Ice.PrintAdapterReady", "");
+	ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("CallbackReceiverAdapter", "");
+	adapter->activate();
+	adapter->addRouter(router);
+	
+	string category = router->getCategoryForClient();
+
+	{
+	    Lock sync(*this);
+	    _callbackReceiver = new CallbackReceiverI;
+	    notify();
+	}
+	
+	Identity ident;
+	ident.name = "callbackReceiver";
+	ident.category = category;
+	CallbackReceiverPrx receiver = CallbackReceiverPrx::uncheckedCast(adapter->add(_callbackReceiver, ident));
+	
+	ObjectPrx base = communicator->stringToProxy("c1/callback:tcp -p 12010 -t 10000");
+	base = base->ice_oneway();
+	CallbackPrx callback = CallbackPrx::uncheckedCast(base);
+
+	//
+	// Block the CallbackReceiver in wait() to prevent the client from
+	// processing other incoming calls.
+	//
+	callback->initiateWaitCallback(receiver);
+	
+	//
+	// Callback the client with a large payload. This should cause
+	// the Glacier2 request queue thread to block trying to send the
+	// callback to the client because the client is currently blocked
+	// in CallbackReceiverI::waitCallback() and can't process more 
+	// requests.
+	//
+	callback->initiateCallbackWithPayload(receiver);
+	
+	//
+	// Send a regular callback.
+	//
+	callback->initiateCallback(receiver);
+
+	//
+	// Wait to receive this last regular callback before to destroy
+	// the session and finish the thread.
+	//
+	test(_callbackReceiver->callbackOK());
+
+	try
+	{
+	    router->destroySession();
+	    test(false);
+	}
+	catch(Ice::LocalException&)
+	{
+	}
+	communicator->destroy();
+    }
+
+    void
+    notifyWaitCallback()
+    {
+	_callbackReceiver->notifyWaitCallback();
+    }
+
+    void
+    waitForCallback()
+    {
+	{
+	    Lock sync(*this);
+	    while(!_callbackReceiver)
+	    {
+		wait();
+	    }
+	}
+	test(_callbackReceiver->waitCallbackOK());
+    }
+
+private:
+
+    CallbackReceiverIPtr _callbackReceiver;
+    int _id;
+};
+typedef IceUtil::Handle<MisbehavedClient> MisbehavedClientPtr;
+
+class StressClient : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+    
+    StressClient(int id) : _id(id)
+    {
+    }
+
+    virtual 
+    void run()
+    {
+	int argc = 0;
+	char* argv[0];
+	CommunicatorPtr communicator = initialize(argc, argv);
+	ObjectPrx routerBase = communicator->stringToProxy("abc/def:default -p 12347 -t 10000");
+	_router = Glacier2::RouterPrx::checkedCast(routerBase);
+	communicator->setDefaultRouter(_router);
+
+	ostringstream os;
+	os << "userid-" << _id;
+	Glacier2::SessionPrx session = _router->createSession(os.str(), "abc123");
+	communicator->getProperties()->setProperty("Ice.PrintAdapterReady", "");
+	ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("CallbackReceiverAdapter", "");
+	adapter->activate();
+	adapter->addRouter(_router);
+	
+	string category = _router->getCategoryForClient();
+
+	{
+	    Lock sync(*this);
+	    _callbackReceiver = new CallbackReceiverI;
+	    notify();
+	}
+	
+	Identity ident;
+	ident.name = "callbackReceiver";
+	ident.category = category;
+	CallbackReceiverPrx receiver = CallbackReceiverPrx::uncheckedCast(adapter->add(_callbackReceiver, ident));
+	
+	ObjectPrx base = communicator->stringToProxy("c1/callback:tcp -p 12010 -t 10000");
+	base = base->ice_oneway();
+	CallbackPrx callback = CallbackPrx::uncheckedCast(base);
+	
+	//
+	// Send a regular callback.
+	//
+	callback->initiateCallback(receiver);
+
+	//
+	// Stress the router until the connection is closed.
+	//
+	stress(callback, receiver);
+
+	communicator->destroy();
+    }
+
+    virtual void stress(const CallbackPrx& callback, const CallbackReceiverPrx&) = 0;
+
+    void
+    waitForCallback()
+    {
+	{
+	    Lock sync(*this);
+	    while(!_callbackReceiver)
+	    {
+		wait();
+	    }
+	}
+	test(_callbackReceiver->callbackOK());
+    }
+
+    void
+    kill()
+    {
+	try
+	{
+	    _router->destroySession();
+	    test(false);
+	}
+	catch(Ice::LocalException&)
+	{
+	}
+    }
+
+protected:
+
+    CallbackReceiverIPtr _callbackReceiver;
+    Glacier2::RouterPrx _router;
+    int _id;
+};
+typedef IceUtil::Handle<StressClient> StressClientPtr;
+
+class PingStressClient : public StressClient
+{
+public:
+
+    PingStressClient(int id) : StressClient(id) 
+    {
+    }
+
+    virtual void
+    stress(const CallbackPrx& callback, const CallbackReceiverPrx&)
+    {
+	try
+	{
+	    CallbackPrx cb = CallbackPrx::uncheckedCast(callback->ice_twoway());
+	    while(true)
+	    {
+		cb->ice_ping();
+		IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
+	    }
+	}
+	catch(const Ice::Exception&)
+	{
+	}
+    }
+};
+
+class CallbackStressClient : public StressClient
+{
+public:
+
+    CallbackStressClient(int id) : StressClient(id) 
+    {
+    }
+
+    virtual void
+    stress(const CallbackPrx& callback, const CallbackReceiverPrx& receiver)
+    {
+	try
+	{
+	    CallbackPrx cb = CallbackPrx::uncheckedCast(callback->ice_twoway());
+	    while(true)
+	    {
+		cb->initiateCallback(receiver);
+		test(_callbackReceiver->callbackOK());
+		IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
+	    }
+	}
+	catch(const Ice::Exception&)
+	{
+	}
+    }
+};
+
+class CallbackWithPayloadStressClient : public StressClient
+{
+public:
+
+    CallbackWithPayloadStressClient(int id) : StressClient(id) 
+    {
+    }
+
+    virtual void
+    stress(const CallbackPrx& callback, const CallbackReceiverPrx& receiver)
+    {
+	try
+	{
+	    CallbackPrx cb = CallbackPrx::uncheckedCast(callback->ice_twoway());
+	    while(true)
+	    {
+		cb->initiateCallbackWithPayload(receiver);
+		IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+	    }
+	}
+	catch(const Ice::Exception&)
+	{
+	}
+    }
+};
 
 class CallbackClient : public Application
 {
@@ -270,17 +547,23 @@ CallbackClient::run(int argc, char* argv[])
 	cout << "ok" << endl;
     }
 
+    //
+    // Send 3 twoway request to callback the receiver. The callback
+    // receiver only reply to the callback once it received the 3
+    // callbacks. This test ensures that Glacier2 doesn't serialize
+    // twoway requests (see bug 337 for more information).
+    //
     {
-	cout << "testing nested twoway callback... " << flush;
+	cout << "testing concurrent twoway callback... " << flush;
 	Context context;
 	context["_fwd"] = "t";
-	AMI_Callback_initiateNestedCallbackIPtr cb0 = new AMI_Callback_initiateNestedCallbackI();
-	twoway->initiateNestedCallback_async(cb0, 0, twowayR, context);
-	AMI_Callback_initiateNestedCallbackIPtr cb1 = new AMI_Callback_initiateNestedCallbackI();
-	twoway->initiateNestedCallback_async(cb1, 1, twowayR, context);
-	AMI_Callback_initiateNestedCallbackIPtr cb2 = new AMI_Callback_initiateNestedCallbackI();
-	twoway->initiateNestedCallback_async(cb2, 2, twowayR, context);
-	test(callbackReceiverImpl->answerNestedCallbacks(3));
+	AMI_Callback_initiateConcurrentCallbackIPtr cb0 = new AMI_Callback_initiateConcurrentCallbackI();
+	twoway->initiateConcurrentCallback_async(cb0, 0, twowayR, context);
+	AMI_Callback_initiateConcurrentCallbackIPtr cb1 = new AMI_Callback_initiateConcurrentCallbackI();
+	twoway->initiateConcurrentCallback_async(cb1, 1, twowayR, context);
+	AMI_Callback_initiateConcurrentCallbackIPtr cb2 = new AMI_Callback_initiateConcurrentCallbackI();
+	twoway->initiateConcurrentCallback_async(cb2, 2, twowayR, context);
+	test(callbackReceiverImpl->answerConcurrentCallbacks(3));
 	test(cb0->waitResponse() == 0);
 	test(cb1->waitResponse() == 1);
 	test(cb2->waitResponse() == 2);
@@ -360,6 +643,107 @@ CallbackClient::run(int argc, char* argv[])
     }
 
     {
+	cout << "testing buffered mode... " << flush;
+
+	//
+	// Start 5 misbehaving clients.
+	//
+	const int nClients = 5; // Passwords need to be added to the password file if more clients are needed.
+	int i;
+	vector<MisbehavedClientPtr> clients;
+	for(i = 0; i < nClients; ++i)
+	{
+	    clients.push_back(new MisbehavedClient(i));
+	    clients.back()->start();
+	    clients.back()->waitForCallback();
+	}
+
+	//
+	// Sleep for one second to make sure the router starts sending
+	// the callback with the payload to the clients.
+	//
+	IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
+
+	//
+	// Initiate few callbacks with a large payload. Because of 
+	// the buffered mode, this shouldn't block even though the
+	// misbehaved client are not answering their callback
+	// requests.
+	//
+	Context context;
+	context["_fwd"] = "t";
+	twoway->initiateCallbackWithPayload(twowayR, context);
+	twoway->initiateCallbackWithPayload(twowayR, context);
+	twoway->initiateCallbackWithPayload(twowayR, context);
+	twoway->initiateCallbackWithPayload(twowayR, context);
+
+	for(vector<MisbehavedClientPtr>::const_iterator p = clients.begin(); p != clients.end(); ++p)
+	{
+	    (*p)->notifyWaitCallback();
+	    (*p)->getThreadControl().join();
+	}
+
+	cout << "ok" << endl;
+    }
+
+    //
+    // TODO: The stress test fails from time to time so I've disabled it until
+    // it's investigated.
+    //
+//     {
+// 	cout << "stress test... " << flush;
+// 	const int nClients = 5; // Passwords need to be added to the password file if more clients are needed.
+// 	int i;
+// 	vector<StressClientPtr> clients;
+// 	for(i = 0; i < nClients; ++i)
+// 	{
+// 	    switch(rand() % 3)
+// 	    {
+// 	    case 0:
+// 		clients.push_back(new PingStressClient(i));
+// 		break;
+// 	    case 1:
+// 		clients.push_back(new CallbackStressClient(i));
+// 		break;
+// 	    case 2:
+// 		clients.push_back(new CallbackWithPayloadStressClient(i));
+// 		break;
+// 	    default:
+// 		assert(false);
+// 		break;
+// 	    }
+// 	    clients.back()->start();
+// 	    clients.back()->waitForCallback();
+// 	}
+
+// 	//
+// 	// Let the stress client run for a bit.
+// 	//
+// 	IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
+
+// 	//
+// 	// Send some callbacks.
+// 	//
+// 	Context context;
+// 	context["_fwd"] = "t";
+// 	twoway->initiateCallbackWithPayload(twowayR, context);
+// 	twoway->initiateCallback(twowayR);
+// 	test(callbackReceiverImpl->callbackOK());
+
+// 	//
+// 	// Kill the stress clients.
+// 	//
+// 	for(vector<StressClientPtr>::const_iterator p = clients.begin(); p != clients.end(); ++p)
+// 	{
+// 	    (*p)->kill();
+// 	    (*p)->getThreadControl().join();
+// 	}
+
+
+// 	cout << "ok" << endl;
+//     }
+
+    {
 	cout << "testing server shutdown... " << flush;
 	twoway->shutdown();
 	// No ping, otherwise the router prints a warning message if it's
@@ -382,7 +766,14 @@ CallbackClient::run(int argc, char* argv[])
     
     {
 	cout << "destroying session... " << flush;
-	router->destroySession();
+	try
+	{
+	    router->destroySession();
+	    test(false);
+	}
+	catch(const Ice::LocalException&)
+	{
+	}
 	cout << "ok" << endl;
     }
 

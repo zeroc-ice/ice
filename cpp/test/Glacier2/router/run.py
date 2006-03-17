@@ -23,6 +23,7 @@ import TestUtil
 router = os.path.join(toplevel, "bin", "glacier2router")
 
 command = router + TestUtil.clientServerOptions + \
+          r' --Ice.Warn.Dispatch=0' + \
           r' --Glacier2.AllowCategories="c1 c2"' + \
           r' --Glacier2.AddUserToAllowCategories="2"' + \
           r' --Glacier2.RouterIdentity="abc/def"' + \

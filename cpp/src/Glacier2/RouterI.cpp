@@ -147,7 +147,7 @@ Glacier2::RouterI::createSession(const std::string&, const std::string&, const C
 }
 
 void
-Glacier2::RouterI::destroySession_async(const AMD_Router_destroySessionPtr&, const Current&)
+Glacier2::RouterI::destroySession(const Current&)
 {
     assert(false); // Must not be called in this router implementation.
 }
