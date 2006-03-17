@@ -20,7 +20,7 @@ default_ca = ice
 
 
 [ ice ]
-default_days     = 365     # How long certs are valid.
+default_days     = 1825    # How long certs are valid.
 default_md       = md5     # The Message Digest type.
 preserve         = no      # Keep passed DN ordering?
 
@@ -36,12 +36,12 @@ x509_extensions     = root_ca_extensions
 
 [ root_ca_distinguished_name ]
 countryName            = US
-stateOrProvinceName    = Some State
-localityName           = Somewhere
-organizationName       = Your Company
-organizationalUnitName = Development
-commonName             = Your Certificate Authority
-emailAddress           = you@some.net
+stateOrProvinceName    = Florida
+localityName           = Palm Beach Gardens
+organizationName       = ZeroC, Inc.
+organizationalUnitName = Ice
+commonName             = ZeroC Test CA
+emailAddress           = info@zeroc.com
 
 
 [ root_ca_extensions ]

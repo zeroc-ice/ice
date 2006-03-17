@@ -13,8 +13,8 @@ CA_HOME=openssl
 #
 # Generate CA private key and certificate.
 #
-if ! [ -f $ICE_HOME/certs/cacert.pem ]; then
-    echo "Cannot find CA certificate (cacert.pem) in $ICE_HOME/certs."
+if ! [ -f cacert.pem ]; then
+    echo "Cannot find CA certificate (cacert.pem)."
     exit 1
 fi
 
@@ -26,7 +26,7 @@ if ! [ -f $CA_HOME/ca/serial ]; then
 fi
 if ! [ -f $CA_HOME/cacert.der ]; then
     rm -f *.jks
-    openssl x509 -in $ICE_HOME/certs/cacert.pem -outform DER -out $CA_HOME/cacert.der
+    openssl x509 -in cacert.pem -outform DER -out $CA_HOME/cacert.der
 fi
 
 #
@@ -35,7 +35,7 @@ fi
 if ! [ -f server.jks ]; then
     echo "Generating server's private key and certificate..."
     keytool -genkey -alias rsakey -keyalg RSA -keysize 1024 -keypass password -validity 1825 -keystore server.jks \
-	-storepass password -dname "CN=Ice Server, OU=Development, O=Your Company, L=Somewhere, S=Some State, C=US" \
+	-storepass password -dname 'CN=Server, OU=Ice, O="ZeroC, Inc.", L=Palm Beach Gardens, S=Florida, C=US' \
 	|| exit 1
 
     echo "Importing trusted CA certificate..."
@@ -66,7 +66,7 @@ fi
 if ! [ -f client.jks ]; then
     echo "Generating client's private key and certificate..."
     keytool -genkey -alias rsakey -keyalg RSA -keysize 1024 -keypass password -validity 1825 -keystore client.jks \
-	-storepass password -dname "CN=Ice Client, OU=Development, O=Your Company, L=Somewhere, S=Some State, C=US" \
+	-storepass password -dname 'CN=Client, OU=Ice, O="ZeroC, Inc.", L=Palm Beach Gardens, S=Florida, C=US' \
 	    || exit 1
 
     echo "Importing trusted CA certificate..."
