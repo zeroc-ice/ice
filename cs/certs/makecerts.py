@@ -44,6 +44,23 @@ if not os.path.exists("cacert.pem"):
     sys.exit(1)
 
 update = force
+if not os.path.exists("c_rsa1024.pfx"):
+    update = 1
+else:
+    c_rsa1024_info = os.stat("c_rsa1024.pfx")
+    c_rsa1024_pub_info = os.stat("c_rsa1024_pub.pem")
+    c_rsa1024_priv_info = os.stat("c_rsa1024_priv.pem")
+    if c_rsa1024_pub_info.st_mtime > c_rsa1024_info.st_mtime or \
+       c_rsa1024_priv_info.st_mtime > c_rsa1024_info.st_mtime:
+       update = 1
+    
+if update:
+    os.system("openssl pkcs12 -in c_rsa1024_pub.pem -inkey c_rsa1024_priv.pem -export -out c_rsa1024.pfx -passout pass:password")
+    print "Updated c_rsa1024.pfx"
+else:
+    print "Skipped c_rsa1024.pfx"
+
+update = force
 if not os.path.exists("s_rsa1024.pfx"):
     update = 1
 else:
@@ -55,17 +72,7 @@ else:
        update = 1
     
 if update:
-    tmp = open("s_rsa1024_pub.pem", "r")
-    lines = tmp.readlines()
-    tmp.close()
-    tmp = open("s_rsa1024_priv.pem", "r")
-    lines.extend(tmp.readlines())
-    tmp.close()
-    tmp = open("s_rsa1024.pem", "w")
-    tmp.writelines(lines)
-    tmp.close()
-    os.system("openssl pkcs12 -in s_rsa1024.pem -export -out s_rsa1024.pfx -passout pass:password")
-    os.remove("s_rsa1024.pem")
+    os.system("openssl pkcs12 -in s_rsa1024_pub.pem -inkey s_rsa1024_priv.pem -export -out s_rsa1024.pfx -passout pass:password")
     print "Updated s_rsa1024.pfx"
 else:
     print "Skipped s_rsa1024.pfx"
