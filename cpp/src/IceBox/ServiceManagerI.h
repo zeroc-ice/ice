@@ -14,7 +14,6 @@
 #include <Ice/LoggerF.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/DynamicLibraryF.h>
-#include <Ice/Application.h>
 #include <map>
 
 namespace IceBox
@@ -24,7 +23,7 @@ class ServiceManagerI : public ServiceManager
 {
 public:
 
-    ServiceManagerI(::Ice::Application*, int&, char*[]);
+    ServiceManagerI(Ice::CommunicatorPtr, int&, char*[]);
     virtual ~ServiceManagerI();
 
     virtual Ice::SliceChecksumDict getSliceChecksums(const Ice::Current&) const;
@@ -41,18 +40,22 @@ public:
 	::std::string envName;
     };
 
+    bool start();
+    void stop();
+
 private:
 
     void load(const std::string&, const std::string&);
     void start(const std::string&, const std::string&, const ::Ice::StringSeq&);
     void stopAll();
 
-    ::Ice::Application* _server;
+    ::Ice::CommunicatorPtr _communicator;
     ::Ice::LoggerPtr _logger;
-    std::string _progName; // argv[0]
     ::Ice::StringSeq _argv; // Filtered server argument vector, not including program name
     std::map<std::string, ServiceInfo> _services;
 };
+
+typedef IceUtil::Handle<ServiceManagerI> ServiceManagerIPtr;
 
 }
 

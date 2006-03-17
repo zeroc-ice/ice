@@ -20,15 +20,10 @@ using namespace std;
 
 typedef IceBox::Service* (*SERVICE_FACTORY)(CommunicatorPtr);
 
-IceBox::ServiceManagerI::ServiceManagerI(Application* server, int& argc, char* argv[])
-    : _server(server)
+IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc, char* argv[])
+    : _communicator(communicator)
 { 
-    _logger = _server->communicator()->getLogger();
-
-    if(argc > 0)
-    {
-        _progName = argv[0];
-    }
+    _logger = _communicator->getLogger();
 
     for(int i = 1; i < argc; i++)
     {
@@ -49,11 +44,11 @@ IceBox::ServiceManagerI::getSliceChecksums(const Current&) const
 void
 IceBox::ServiceManagerI::shutdown(const Current& current)
 {
-    _server->communicator()->shutdown();
+    _communicator->shutdown();
 }
 
-int
-IceBox::ServiceManagerI::run()
+bool
+IceBox::ServiceManagerI::start()
 {
     try
     {
@@ -64,9 +59,9 @@ IceBox::ServiceManagerI::run()
         // this object adapter, as the endpoint(s) for this object adapter
         // will most likely need to be firewalled for security reasons.
         //
-        ObjectAdapterPtr adapter = _server->communicator()->createObjectAdapter("IceBox.ServiceManager");
+        ObjectAdapterPtr adapter = _communicator->createObjectAdapter("IceBox.ServiceManager");
 
-	PropertiesPtr properties = _server->communicator()->getProperties();
+	PropertiesPtr properties = _communicator->getProperties();
         string identity = properties->getProperty("IceBox.ServiceManager.Identity");
         if(identity.empty())
         {
@@ -147,14 +142,6 @@ IceBox::ServiceManagerI::run()
             cout << bundleName << " ready" << endl;
         }
 
-	//
-	// Don't move after the adapter activation. This allows
-	// applications to wait for the service manager to be
-	// reachable before sending a signal to shutdown the
-	// IceBox.
-	//
-	_server->shutdownOnInterrupt();
-
 	try
 	{
 	    adapter->activate();
@@ -165,31 +152,29 @@ IceBox::ServiceManagerI::run()
 	    // Expected if the communicator has been shutdown.
 	    //
 	}
-
-        _server->communicator()->waitForShutdown();
-	_server->ignoreInterrupt();
-
-        //
-        // Invoke stop() on the services.
-        //
-        stopAll();
     }
     catch(const FailureException& ex)
     {
         Error out(_logger);
         out << ex.reason;
         stopAll();
-        return EXIT_FAILURE;
+        return false;
     }
     catch(const Exception& ex)
     {
         Error out(_logger);
         out << "ServiceManager: " << ex;
         stopAll();
-        return EXIT_FAILURE;
+        return false;
     }
 
-    return EXIT_SUCCESS;
+    return true;
+}
+
+void
+IceBox::ServiceManagerI::stop()
+{
+    stopAll();
 }
 
 void
@@ -270,7 +255,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     ServiceInfo info;
     try
     {
-        info.service = factory(_server->communicator());
+        info.service = factory(_communicator);
     }
     catch(const Exception& ex)
     {
@@ -297,7 +282,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	// add the service properties to the shared commnunicator
 	// property set.
 	//
-	PropertiesPtr properties = _server->communicator()->getProperties();
+	PropertiesPtr properties = _communicator->getProperties();
 	if(properties->getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
 	{
 	    PropertiesPtr fileProperties = createProperties(serviceArgs);
@@ -358,7 +343,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	    delete[] argv;
 	}
 	
-	CommunicatorPtr communicator = info.communicator ? info.communicator : _server->communicator();
+	CommunicatorPtr communicator = info.communicator ? info.communicator : _communicator;
 
 	//
 	// Start the service.

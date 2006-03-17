@@ -53,9 +53,9 @@ Ice.Warn.Connections=1
 # and other pertinent information for creating an SSL connection.
 #
 Ice.Plugin.IceSSL=IceSSL:create
-IceSSL.Client.CertPath=../../../certs
+IceSSL.Client.CertPath=C:\src\ice\certs
 IceSSL.Client.Config=sslconfig.xml
-IceSSL.Server.CertPath=../../../certs
+IceSSL.Server.CertPath=C:\src\ice\certs
 IceSSL.Server.Config=sslconfig.xml
 
 #

@@ -103,7 +103,7 @@ PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin	copy $(OutDir)\$(Targe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\Server.cpp
+SOURCE=.\Service.cpp
 # End Source File
 # Begin Source File
 

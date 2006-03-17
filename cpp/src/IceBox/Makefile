@@ -23,7 +23,7 @@ OBJS		= IceBox.o \
 		  Exception.o
 
 SOBJS		= ServiceManagerI.o \
-		  Server.o
+		  Service.o
 
 AOBJS		= Admin.o
 
