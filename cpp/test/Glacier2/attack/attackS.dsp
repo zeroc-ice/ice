@@ -123,7 +123,7 @@ SOURCE=.\Backend.ice
 
 !IF  "$(CFG)" == "attackS - Win32 Release"
 
-USERDEP__CALLB="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
+USERDEP__BACKE="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Backend.ice
 
@@ -139,7 +139,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "attackS - Win32 Debug"
 
-USERDEP__CALLB="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
+USERDEP__BACKE="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Backend.ice
 

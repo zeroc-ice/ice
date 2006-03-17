@@ -594,6 +594,54 @@ Package=<4>
 
 ###############################################################################
 
+Project: "attackC"=.\test\Glacier2\attack\attackC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name glacier2
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2cpp
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "attackS"=.\test\Glacier2\attack\attackS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name glacier2
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2cpp
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "bench"=.\demo\freeze\bench\bench.dsp - Package Owner=<4>
 
 Package=<5>
