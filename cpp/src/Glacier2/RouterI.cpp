@@ -123,13 +123,21 @@ Glacier2::RouterI::getServerProxy(const Current&) const
 void
 Glacier2::RouterI::addProxy(const ObjectPrx& proxy, const Current& current)
 {
+    ObjectProxySeq proxies;
+    proxies.push_back(proxy);
+    addProxies(proxies, current);
+}
+
+ObjectProxySeq
+Glacier2::RouterI::addProxies(const ObjectProxySeq& proxies, const Current& current)
+{
     IceUtil::Mutex::Lock lock(*this);
 
     assert(!_destroy);
 
     _timestamp = IceUtil::Time::now();
 
-    _routingTable->add(proxy);
+    return _routingTable->add(proxies);
 }
 
 string

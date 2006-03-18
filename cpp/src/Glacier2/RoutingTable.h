@@ -26,7 +26,7 @@ public:
 
     RoutingTable(const Ice::CommunicatorPtr&);
 
-    void add(const Ice::ObjectPrx&);
+    Ice::ObjectProxySeq add(const Ice::ObjectProxySeq&); // Returns evicted proxies.
     Ice::ObjectPrx get(const Ice::Identity&); // Returns null if no proxy can be found.
 
 private:

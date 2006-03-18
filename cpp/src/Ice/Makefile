@@ -89,7 +89,6 @@ OBJS		= Acceptor.o \
 		  RouterF.o \
 		  RouterInfo.o \
 		  Router.o \
-		  RoutingTable.o \
 		  ServantLocatorF.o \
 		  ServantLocator.o \
 		  ServantManager.o \

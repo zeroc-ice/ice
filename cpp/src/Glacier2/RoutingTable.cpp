@@ -20,64 +20,70 @@ Glacier2::RoutingTable::RoutingTable(const CommunicatorPtr& communicator) :
 {
 }
 
-void
-Glacier2::RoutingTable::add(const ObjectPrx& prx)
+ObjectProxySeq
+Glacier2::RoutingTable::add(const ObjectProxySeq& proxies)
 {
-    if(!prx)
-    {
-	return;
-    }
-
-    //
-    // We insert the proxy in its default form into the routing table.
-    //
-    ObjectPrx proxy = prx->ice_twoway()->ice_secure(false);
-
     IceUtil::Mutex::Lock sync(*this);
+    
+    ObjectProxySeq evictedProxies;
 
-    EvictorMap::iterator p = _map.find(proxy->ice_getIdentity());
-
-    if(p == _map.end())
+    for(ObjectProxySeq::const_iterator prx = proxies.begin(); prx != proxies.end(); ++prx)
     {
-	if(_traceLevel == 1 || _traceLevel >= 3)
+	if(!*prx) // We ignore null proxies.
 	{
-	    Trace out(_communicator->getLogger(), "Glacier2");
-	    out << "adding proxy to routing table:\n" << _communicator->proxyToString(proxy);
+	    continue;
 	}
 
-	EvictorEntryPtr entry = new EvictorEntry;
-	p = _map.insert(_map.begin(), pair<const Identity, EvictorEntryPtr>(proxy->ice_getIdentity(), entry));
-	EvictorQueue::iterator q = _queue.insert(_queue.end(), p);
-	entry->proxy = proxy;
-	entry->pos = q;
-    }
-    else
-    {
-	if(_traceLevel == 1 || _traceLevel >= 3)
+	ObjectPrx proxy = (*prx)->ice_twoway()->ice_secure(false); // We add proxies in default form.
+
+	EvictorMap::iterator p = _map.find(proxy->ice_getIdentity());
+	
+	if(p == _map.end())
 	{
-	    Trace out(_communicator->getLogger(), "Glacier2");
-	    out << "proxy already in routing table:\n" << _communicator->proxyToString(proxy);
+	    if(_traceLevel == 1 || _traceLevel >= 3)
+	    {
+		Trace out(_communicator->getLogger(), "Glacier2");
+		out << "adding proxy to routing table:\n" << _communicator->proxyToString(proxy);
+	    }
+	    
+	    EvictorEntryPtr entry = new EvictorEntry;
+	    p = _map.insert(_map.begin(), pair<const Identity, EvictorEntryPtr>(proxy->ice_getIdentity(), entry));
+	    EvictorQueue::iterator q = _queue.insert(_queue.end(), p);
+	    entry->proxy = proxy;
+	    entry->pos = q;
 	}
-
-	EvictorEntryPtr entry = p->second;
-	_queue.erase(entry->pos);
-	EvictorQueue::iterator q = _queue.insert(_queue.end(), p);
-	entry->pos = q;
-    }
-
-    while(static_cast<int>(_map.size()) > _maxSize)
-    {
-	p = _queue.front();
-
-	if(_traceLevel >= 2)
+	else
 	{
-	    Trace out(_communicator->getLogger(), "Glacier2");
-	    out << "evicting proxy from routing table:\n" << _communicator->proxyToString(p->second->proxy);
+	    if(_traceLevel == 1 || _traceLevel >= 3)
+	    {
+		Trace out(_communicator->getLogger(), "Glacier2");
+		out << "proxy already in routing table:\n" << _communicator->proxyToString(proxy);
+	    }
+	    
+	    EvictorEntryPtr entry = p->second;
+	    _queue.erase(entry->pos);
+	    EvictorQueue::iterator q = _queue.insert(_queue.end(), p);
+	    entry->pos = q;
 	}
+	
+	while(static_cast<int>(_map.size()) > _maxSize)
+	{
+	    p = _queue.front();
+	    
+	    if(_traceLevel >= 2)
+	    {
+		Trace out(_communicator->getLogger(), "Glacier2");
+		out << "evicting proxy from routing table:\n" << _communicator->proxyToString(p->second->proxy);
+	    }
+	    
+	    _map.erase(p);
+	    _queue.pop_front();
 
-	_map.erase(p);
-	_queue.pop_front();
+	    evictedProxies.push_back(p->second->proxy);
+	}
     }
+
+    return evictedProxies;
 }
 
 ObjectPrx

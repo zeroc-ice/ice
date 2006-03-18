@@ -15,7 +15,6 @@
 #include <Ice/RouterInfoF.h>
 #include <Ice/RouterF.h>
 #include <Ice/ProxyF.h>
-#include <Ice/RoutingTableF.h>
 
 namespace IceInternal
 {
@@ -67,8 +66,8 @@ private:
     const Ice::RouterPrx _router;
     Ice::ObjectPrx _clientProxy;
     Ice::ObjectPrx _serverProxy;
-    const RoutingTablePtr _routingTable;
     Ice::ObjectAdapterPtr _adapter;
+    std::map<Ice::Identity, int> _map;
 };
 
 }

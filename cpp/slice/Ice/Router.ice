@@ -10,6 +10,8 @@
 #ifndef ICE_ROUTER_ICE
 #define ICE_ROUTER_ICE
 
+#include <Ice/BuiltinSequences.ice>
+
 module Ice
 {
 
@@ -51,10 +53,24 @@ interface Router
      *
      * Add new proxy information to the router's routing table.
      *
+     * <note><para>This method is deprecated, and only used for old
+     * Ice clients (older than version 3.1).</para></note>
+     *
      * @param proxy The proxy to add.
      *
      **/
     idempotent void addProxy(Object* proxy);
+
+    /**
+     *
+     * Add new proxy information to the router's routing table.
+     *
+     * @param proxies The proxies to add.
+     *
+     * @return Proxies discarded by the router.
+     *
+     **/
+    idempotent ObjectProxySeq addProxies(ObjectProxySeq proxies);
 };
 
 };

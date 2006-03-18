@@ -229,6 +229,12 @@ Glacier2::SessionRouterI::addProxy(const ObjectPrx& proxy, const Current& curren
     getRouter(current.con, current.id)->addProxy(proxy, current); // Forward to the per-client router.
 }
 
+ObjectProxySeq
+Glacier2::SessionRouterI::addProxies(const ObjectProxySeq& proxies, const Current& current)
+{
+    return getRouter(current.con, current.id)->addProxies(proxies, current); // Forward to the per-client router.
+}
+
 string
 Glacier2::SessionRouterI::getCategoryForClient(const Ice::Current& current) const
 {
