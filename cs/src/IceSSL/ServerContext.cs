@@ -31,13 +31,17 @@ namespace IceSSL
 	    {
 		AuthInfo info = new AuthInfo();
 		info.stream = stream;
+		info.done = false;
 		IAsyncResult ar = stream.BeginAuthenticateAsServer(cert_, requireClientCert_, protocols_,
 								   checkCRL_, new AsyncCallback(authCallback), info);
 		lock(info)
 		{
-		    if(!Monitor.Wait(info, timeout == -1 ? Timeout.Infinite : timeout))
+		    if(!info.done)
 		    {
-			throw new Ice.TimeoutException("SSL authentication timed out after " + timeout + " msec");
+			if(!Monitor.Wait(info, timeout == -1 ? Timeout.Infinite : timeout))
+			{
+			    throw new Ice.TimeoutException("SSL authentication timed out after " + timeout + " msec");
+			}
 		    }
 		    if(info.ex != null)
 		    {
@@ -172,13 +176,14 @@ namespace IceSSL
 	    checkCRL_ = properties.getPropertyAsIntWithDefault(prefix + "CheckCRL", 0) > 0;
 
 	    // TODO: Review default value
-	    ignoreCertName_ = properties.getPropertyAsIntWithDefault(prefix + "IgnoreCertName", 1) > 0;
+	    checkCertName_ = properties.getPropertyAsIntWithDefault(prefix + "CheckCertName", 0) > 0;
 	}
 
 	private class AuthInfo
 	{
 	    internal SslStream stream;
-	    internal Exception ex;
+	    volatile internal Exception ex;
+	    volatile internal bool done;
 	}
 
 	private static void authCallback(IAsyncResult ar)
@@ -196,6 +201,7 @@ namespace IceSSL
 		}
 		finally
 		{
+		    info.done = true;
 		    Monitor.Pulse(info);
 		}
 	    }
@@ -232,7 +238,7 @@ namespace IceSSL
 
 	    if((errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0)
 	    {
-		if(ignoreCertName_)
+		if(!checkCertName_)
 		{
 		    errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
 		    message = message + "\nremote certificate name mismatch (ignored)";
@@ -268,6 +274,6 @@ namespace IceSSL
 	private bool requireClientCert_;
 	private SslProtocols protocols_;
 	private bool checkCRL_;
-	private bool ignoreCertName_;
+	private bool checkCertName_;
     }
 }
