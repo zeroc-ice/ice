@@ -333,10 +333,10 @@ public class Client : Ice.Application
             try
             {
                 router.destroySession();
-            }
-            catch(Glacier2.SessionNotExistException)
-            {
                 test(false);
+            }
+            catch(Ice.LocalException)
+            {
             }
             Console.Out.WriteLine("ok");
         }
