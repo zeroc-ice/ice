@@ -151,7 +151,7 @@ namespace IceSSL
 	//
 	// Parse a string of the form "location.name" into two parts.
 	//
-	internal void parseStore(string prop, string store, ref StoreLocation loc, ref string name)
+	internal void parseStore(string prop, string store, ref StoreLocation loc, ref StoreName name, ref string sname)
 	{
 	    int pos = store.IndexOf('.');
 	    if(pos == -1)
@@ -181,14 +181,27 @@ namespace IceSSL
 		throw e;
 	    }
 
-	    name = store.Substring(pos + 1);
-	    if(name.Length == 0)
+	    sname = store.Substring(pos + 1);
+	    if(sname.Length == 0)
 	    {
 		string msg = "invalid store name in " + prop;
 		communicator().getLogger().error("IceSSL: " + msg);
 		SslException e = new SslException();
 		e.ice_message_ = msg;
 		throw e;
+	    }
+
+	    //
+	    // Try to convert the name into the StoreName enumeration.
+	    //
+	    try
+	    {
+		name = (StoreName)Enum.Parse(typeof(StoreName), sname, true);
+		sname = null;
+	    }
+	    catch(ArgumentException)
+	    {
+		// Ignore - assume the user is selecting a non-standard store.
 	    }
 	}
 
@@ -201,8 +214,9 @@ namespace IceSSL
 	    //
 	    const string prefix = "IceSSL.ImportCert.";
 	    StoreLocation loc = 0;
-	    string name = null;
-	    parseStore(propName, propName.Substring(prefix.Length), ref loc, ref name);
+	    StoreName name = 0;
+	    string sname = null;
+	    parseStore(propName, propName.Substring(prefix.Length), ref loc, ref name, ref sname);
 
 	    //
 	    // Extract the filename and password. Either or both can be quoted.
@@ -233,7 +247,14 @@ namespace IceSSL
 	    X509Store store = null;
 	    try
 	    {
-		store = new X509Store(name, loc);
+		if(sname != null)
+		{
+		    store = new X509Store(sname, loc);
+		}
+		else
+		{
+		    store = new X509Store(name, loc);
+		}
 		store.Open(OpenFlags.ReadWrite);
 	    }
 	    catch(Exception ex)

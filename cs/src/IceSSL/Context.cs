@@ -63,8 +63,9 @@ namespace IceSSL
 	protected X509Certificate2Collection findCertificates(string prop, string storeSpec, string value)
 	{
 	    StoreLocation storeLoc = 0;
-	    string storeName = null;
-	    instance_.parseStore(prop, storeSpec, ref storeLoc, ref storeName);
+	    StoreName storeName = 0;
+	    string storeNameStr = null;
+	    instance_.parseStore(prop, storeSpec, ref storeLoc, ref storeName, ref storeNameStr);
 
 	    //
 	    // Open the X509 certificate store.
@@ -72,7 +73,14 @@ namespace IceSSL
 	    X509Store store = null;
 	    try
 	    {
-		store = new X509Store(storeName, storeLoc);
+		if(storeNameStr != null)
+		{
+		    store = new X509Store(storeNameStr, storeLoc);
+		}
+		else
+		{
+		    store = new X509Store(storeName, storeLoc);
+		}
 		store.Open(OpenFlags.ReadOnly);
 	    }
 	    catch(Exception ex)
