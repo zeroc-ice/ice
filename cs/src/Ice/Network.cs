@@ -472,10 +472,12 @@ namespace IceInternal
 	    {
 		this.fd = fd;
 		this.ex = null;
+		this.done = false;
 	    }
 
 	    internal Socket fd;
 	    volatile internal Exception ex;
+	    volatile internal bool done;
 	}
 
 	private static void asyncConnectCallback(IAsyncResult ar)
@@ -493,6 +495,7 @@ namespace IceInternal
 		}
 		finally
 		{
+		    info.done = true;
 		    Monitor.Pulse(info);
 		}
 	    }
@@ -516,9 +519,12 @@ namespace IceInternal
 		/* IAsyncResult ar = */ socket.BeginConnect(addr, new AsyncCallback(asyncConnectCallback), info);
 		lock(info)
 		{
-		    if(!Monitor.Wait(info, timeout == -1 ? Timeout.Infinite : timeout))
+		    if(!info.done)
 		    {
-			throw new Ice.ConnectTimeoutException("Connect timed out after " + timeout + " msec");
+			if(!Monitor.Wait(info, timeout == -1 ? Timeout.Infinite : timeout))
+			{
+			    throw new Ice.ConnectTimeoutException("Connect timed out after " + timeout + " msec");
+			}
 		    }
 		    if(info.ex != null)
 		    {
@@ -553,7 +559,7 @@ namespace IceInternal
 		}
 	    }
 	}
-	
+
 	public static Socket doAccept(Socket socket, int timeout)
 	{
 	    Socket ret = null;
