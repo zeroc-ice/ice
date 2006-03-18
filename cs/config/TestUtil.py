@@ -21,16 +21,16 @@ protocol = ""
 # protocol compression.
 #
 
-#compress = 0
-compress = 1
+compress = 0
+#compress = 1
 
 #
 # Set threadPerConnection to 1 in case you want to run the tests in
 # thread per connection mode.
 #
 
-#threadPerConnection = 0
-threadPerConnection = 1
+threadPerConnection = 0
+#threadPerConnection = 1
 
 if protocol == "ssl":
     threadPerConnection = 1
@@ -160,15 +160,23 @@ if isWin32():
 if protocol == "ssl":
     plugin		 = " --Ice.Plugin.IceSSL=" + os.path.join(toplevel, "bin", "icesslcs.dll") + \
 			   ":IceSSL.PluginFactory"
-    clientProtocol       = plugin + " --Ice.Default.Protocol=ssl"
+    clientProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
+                           " --IceSSL.Client.CertFile=" + os.path.join(toplevel, "certs", "c_rsa1024.pfx") + \
+                           " --IceSSL.Client.CertPassword=password" + \
+                           " --IceSSL.Client.CheckCertName=0"
     serverProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.ImportCert.LocalMachine.Root=" + \
+                           " --IceSSL.ImportCert.LocalMachine.AuthRoot=" + \
 				os.path.join(toplevel, "certs", "cacert.pem") + \
-                           " --IceSSL.Server.Cert.File=" + os.path.join(toplevel, "certs", "s_rsa1024.pfx") + \
-                           " --IceSSL.Server.Cert.Password=password"
+                           " --IceSSL.Server.CertFile=" + os.path.join(toplevel, "certs", "s_rsa1024.pfx") + \
+                           " --IceSSL.Server.CertPassword=password"
     clientServerProtocol = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Server.Cert.File=" + os.path.join(toplevel, "certs", "s_rsa1024.pfx") + \
-                           " --IceSSL.Server.Cert.Password=password"
+                           " --IceSSL.ImportCert.LocalMachine.AuthRoot=" + \
+				os.path.join(toplevel, "certs", "cacert.pem") + \
+                           " --IceSSL.Client.CertFile=" + os.path.join(toplevel, "certs", "c_rsa1024.pfx") + \
+                           " --IceSSL.Client.CertPassword=password" + \
+                           " --IceSSL.Client.CheckCertName=0" + \
+                           " --IceSSL.Server.CertFile=" + os.path.join(toplevel, "certs", "s_rsa1024.pfx") + \
+                           " --IceSSL.Server.CertPassword=password"
     cppPlugin		    = " --Ice.Plugin.IceSSL=IceSSL:create"
     cppClientProtocol       = cppPlugin + " --Ice.Default.Protocol=ssl" + \
                               " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
