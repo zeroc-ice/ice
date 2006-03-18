@@ -16,5 +16,5 @@ IceSSL.Server.CertFile=../../../certs/s_rsa1024.pfx
 IceSSL.Server.CertPassword=password
 IceSSL.Client.CertFile=../../../certs/c_rsa1024.pfx
 IceSSL.Client.CertPassword=password
+IceSSL.Trace.Security=2
 Ice.ThreadPerConnection=1
-Ice.Trace.Security=2

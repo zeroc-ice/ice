@@ -61,7 +61,6 @@ public class Client : Ice.Application
         CallbackReceiverPrx datagramR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_datagram());
         
 	bool secure = false;
-	string secureStr = "";
 
         menu();
         
@@ -118,7 +117,6 @@ public class Client : Ice.Application
                 else if(line.Equals("S"))
                 {
 		    secure = !secure;
-		    secureStr = secure ? "s" : "";
 
 		    twoway = CallbackSenderPrxHelper.uncheckedCast(twoway.ice_secure(secure));
 		    oneway = CallbackSenderPrxHelper.uncheckedCast(oneway.ice_secure(secure));
