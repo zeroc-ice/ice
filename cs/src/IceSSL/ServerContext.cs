@@ -10,6 +10,7 @@
 namespace IceSSL
 {
     using System;
+    using System.Diagnostics;
     using System.Collections;
     using System.IO;
     using System.Net.Security;
@@ -174,9 +175,6 @@ namespace IceSSL
 
 	    // TODO: Review default value
 	    checkCRL_ = properties.getPropertyAsIntWithDefault(prefix + "CheckCRL", 0) > 0;
-
-	    // TODO: Review default value
-	    checkCertName_ = properties.getPropertyAsIntWithDefault(prefix + "CheckCertName", 0) > 0;
 	}
 
 	private class AuthInfo
@@ -238,20 +236,10 @@ namespace IceSSL
 
 	    if((errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0)
 	    {
-		if(!checkCertName_)
-		{
-		    errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
-		    message = message + "\nremote certificate name mismatch (ignored)";
-		}
-		else
-		{
-		    if(instance_.securityTraceLevel() >= 1)
-		    {
-			logger_.trace(instance_.securityTraceCategory(),
-				      "SSL certificate validation failed - remote certificate name mismatch");
-		    }
-		    return false;
-		}
+		//
+		// This condition is not expected in a server.
+		//
+		Debug.Assert(false);
 	    }
 
 	    if(errors > 0)
@@ -274,6 +262,5 @@ namespace IceSSL
 	private bool requireClientCert_;
 	private SslProtocols protocols_;
 	private bool checkCRL_;
-	private bool checkCertName_;
     }
 }
