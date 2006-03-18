@@ -23,6 +23,7 @@ public class Client : Ice.Application
 	    "D: send greeting as batch datagram\n" +
 	    "f: flush all batch requests\n" +
 	    "T: set a timeout\n" +
+	    "S: switch secure mode on/off\n" +
 	    "s: shutdown server\n" +
 	    "x: exit\n" +
 	    "?: help\n");
@@ -50,11 +51,12 @@ public class Client : Ice.Application
         HelloPrx batchOneway = HelloPrxHelper.uncheckedCast(twoway.ice_batchOneway());
         HelloPrx datagram = HelloPrxHelper.uncheckedCast(twoway.ice_datagram());
         HelloPrx batchDatagram = HelloPrxHelper.uncheckedCast(twoway.ice_batchDatagram());
-        
+
+	bool secure = false;
         int timeout = -1;
-        
+
         menu();
-        
+
         string line = null;
         do 
         {
@@ -81,11 +83,25 @@ public class Client : Ice.Application
                 }
                 else if(line.Equals("d"))
                 {
-                    datagram.sayHello();
+		    if(secure)
+		    {
+			Console.WriteLine("secure datagrams are not supported");
+		    }
+		    else
+		    {
+			datagram.sayHello();
+		    }
                 }
                 else if(line.Equals("D"))
                 {
-                    batchDatagram.sayHello();
+		    if(secure)
+		    {
+			Console.WriteLine("secure datagrams are not supported");
+		    }
+		    else
+		    {
+			batchDatagram.sayHello();
+		    }
                 }
                 else if(line.Equals("f"))
                 {
@@ -115,6 +131,25 @@ public class Client : Ice.Application
                         Console.WriteLine("timeout is now set to 2000ms");
                     }
                 }
+		else if(line.Equals("S"))
+		{
+		    secure = !secure;
+
+		    twoway = HelloPrxHelper.uncheckedCast(twoway.ice_secure(secure));
+		    oneway = HelloPrxHelper.uncheckedCast(oneway.ice_secure(secure));
+		    batchOneway = HelloPrxHelper.uncheckedCast(batchOneway.ice_secure(secure));
+		    datagram = HelloPrxHelper.uncheckedCast(datagram.ice_secure(secure));
+		    batchDatagram = HelloPrxHelper.uncheckedCast(batchDatagram.ice_secure(secure));
+
+		    if(secure)
+		    {
+			Console.WriteLine("secure mode is now on");
+		    }
+		    else
+		    {
+			Console.WriteLine("secure mode is now off");
+		    }
+		}
                 else if(line.Equals("s"))
                 {
                     twoway.shutdown();

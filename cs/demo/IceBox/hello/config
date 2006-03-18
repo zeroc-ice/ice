@@ -1,9 +1,14 @@
+#
+# To use SSL you must enable it in the following endpoints and enable
+# Ice.Plugin.IceSSL below.
+#
+
 IceBox.InstanceName=DemoIceBox
 
 #
 # The IceBox server endpoint configuration
 #
-IceBox.ServiceManager.Endpoints=tcp -p 9998
+IceBox.ServiceManager.Endpoints=tcp -p 9998#:ssl -p 9999
 
 #
 # The hello service
@@ -14,14 +19,14 @@ IceBox.Service.Hello=helloservice.dll:HelloServiceI
 # The client reads this property to create the reference to the
 # "hello" object in the server.
 #
-Hello.Proxy=hello:tcp -p 10000:udp -p 10000
+Hello.Proxy=hello:tcp -p 10000:udp -p 10000#:ssl -p 10001
 
 #
 # The server creates one single object adapter with the name of
 # the service. The following line sets the endpoints for this
 # adapter.
 #
-Hello.Endpoints=tcp -p 10000:udp -p 10000
+Hello.Endpoints=tcp -p 10000:udp -p 10000#:ssl -p 10001
 
 #
 # Warn about connection exceptions
@@ -45,3 +50,15 @@ Ice.Warn.Connections=1
 # 1 = trace protocol messages
 #
 #Ice.Trace.Protocol=1
+
+#
+# SSL plugin configuration
+#
+#Ice.Plugin.IceSSL=../../../bin/icesslcs.dll:IceSSL.PluginFactory
+IceSSL.ImportCert.LocalMachine.AuthRoot=../../../certs/cacert.pem
+IceSSL.Server.CertFile=../../../certs/s_rsa1024.pfx
+IceSSL.Server.CertPassword=password
+IceSSL.Client.CertFile=../../../certs/c_rsa1024.pfx
+IceSSL.Client.CertPassword=password
+IceSSL.Trace.Security=2
+Ice.ThreadPerConnection=1
