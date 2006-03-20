@@ -1,6 +1,12 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Fixed a bug in the Glacier2 router which could cause the router 
+  to leak resources when a session is destroyed and hang on shutdown.
+
+- Fixed a buffered mode bug in the Glacier2 router which could cause
+  hangs in the router if a client misbehaved.
+
 - AMI invocations will now reuse the connection cached with the
   proxy instead of always looking up an existing connection for
   each invocation. As a side effect of this change, AMI invocations 
