@@ -431,15 +431,28 @@ ServerEntry::getApplication() const
 float
 ServerEntry::getLoad(LoadSample sample) const
 {
-    Lock sync(*this);
-    if(!_loaded.get() && !_load.get())
+    string application;
+    string node;
     {
-	throw ServerNotExistException();
+	Lock sync(*this);
+	if(_loaded.get())
+	{
+	    application = _loaded->application;
+	    node = _loaded->node;
+	}
+	else if(_load.get())
+	{
+	    application = _load->application;
+	    node = _load->node;
+	}
+	else
+	{
+	    throw ServerNotExistException();
+	}
     }
 
-    ServerInfo& info = _proxy ? *_loaded.get() : *_load.get();
     float factor;
-    LoadInfo load = _cache.getNodeCache().get(info.node)->getLoadInfoAndLoadFactor(info.application, factor);
+    LoadInfo load = _cache.getNodeCache().get(node)->getLoadInfoAndLoadFactor(application, factor);
     switch(sample)
     {
     case LoadSample1:
