@@ -1,6 +1,8 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Added requestId to Current.
+
 - Performance improvements if an AMI callback object is reused with 
   the same proxy.
 

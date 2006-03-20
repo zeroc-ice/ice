@@ -42,12 +42,13 @@ final public class Incoming
     }
     
     public void
-    invoke(boolean response)
+    invoke(boolean response, int requestId)
     {
         _current = new Ice.Current();
         _current.id = new Ice.Identity();
         _current.con = _connection;
 	_current.adapter = _adapter;
+	_current.requestId = requestId;
 
 	//
 	// Read the current.

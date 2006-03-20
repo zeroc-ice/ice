@@ -1,3 +1,8 @@
+Changes since version 1.1.0
+---------------------------
+
+- Added requestId to Current.
+
 Changes since version 1.0.0
 ---------------------------
 

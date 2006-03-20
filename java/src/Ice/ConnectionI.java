@@ -1905,7 +1905,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		// Prepare the invocation.
 		//
 		boolean response = !_endpoint.datagram() && requestId != 0;
-		in = getIncoming(adapter, response, compress);
+		in = getIncoming(adapter, response, compress, requestId);
 		IceInternal.BasicStream is = in.is();
 		stream.swap(is);
 		IceInternal.BasicStream os = in.os();
@@ -2310,7 +2310,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     }
 
     private IceInternal.Incoming
-    getIncoming(ObjectAdapter adapter, boolean response, byte compress)
+    getIncoming(ObjectAdapter adapter, boolean response, byte compress, int requestId)
     {
         IceInternal.Incoming in = null;
 
@@ -2318,13 +2318,13 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         {
             if(_incomingCache == null)
             {
-                in = new IceInternal.Incoming(_instance, this, adapter, response, compress);
+                in = new IceInternal.Incoming(_instance, this, adapter, response, compress, requestId);
             }
             else
             {
                 in = _incomingCache;
                 _incomingCache = _incomingCache.next;
-		in.reset(_instance, this, adapter, response, compress);
+		in.reset(_instance, this, adapter, response, compress, requestId);
                 in.next = null;
             }
         }

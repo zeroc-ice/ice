@@ -1100,6 +1100,7 @@ namespace Ice
             current.operation = op;
             current.mode = mode;
             current.ctx = context;
+	    current.requestId = -1;
         }
 	
         public virtual void setup(IceInternal.Reference rf, Ice.ObjectAdapter adapter)

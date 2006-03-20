@@ -27,6 +27,7 @@ struct Current
     ::std::string operation;
     ::Ice::OperationMode mode;
     ::Ice::Context ctx;
+    ::Ice::Int requestId;
 
     ICE_API bool operator==(const Current&) const;
     ICE_API bool operator!=(const Current&) const;

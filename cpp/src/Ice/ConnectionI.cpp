@@ -2204,7 +2204,7 @@ Ice::ConnectionI::invokeAll(BasicStream& stream, Int invokeNum, Int requestId, B
 	    // Prepare the invocation.
 	    //
 	    bool response = !_endpoint->datagram() && requestId != 0;
-	    Incoming in(_instance.get(), this, adapter, response, compress);
+	    Incoming in(_instance.get(), this, adapter, response, compress, requestId);
 	    BasicStream* is = in.is();
 	    stream.swap(*is);
 	    BasicStream* os = in.os();

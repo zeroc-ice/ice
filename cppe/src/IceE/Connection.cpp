@@ -1802,7 +1802,7 @@ Ice::Connection::run()
 		//
 		// Dispatch the incoming request.
 		//
-		_in.invoke(response);
+		_in.invoke(response, requestId);
 	    }
 	}
 	catch(const LocalException& ex)

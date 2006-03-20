@@ -12,9 +12,10 @@ package IceInternal;
 final public class Incoming extends IncomingBase
 {
     public
-    Incoming(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response, byte compress)
+    Incoming(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response, byte compress,
+    	     int requestId)
     {
-	super(instance, connection, adapter, response, compress);
+	super(instance, connection, adapter, response, compress, requestId);
 
         _is = new BasicStream(instance);
     }
@@ -23,14 +24,15 @@ final public class Incoming extends IncomingBase
     // These functions allow this object to be reused, rather than reallocated.
     //
     public void
-    reset(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response, byte compress)
+    reset(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response, byte compress,
+    	  int requestId)
     {
 	if(_is == null)
 	{
 	    _is = new BasicStream(instance);
 	}
 
-	super.reset(instance, connection, adapter, response, compress);
+	super.reset(instance, connection, adapter, response, compress, requestId);
     }
 
     public void

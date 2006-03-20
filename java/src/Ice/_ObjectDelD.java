@@ -141,6 +141,7 @@ public class _ObjectDelD implements _ObjectDel
         current.operation = op;
         current.mode = mode;
         current.ctx = context;
+	current.requestId = -1;
     }
 
     public void

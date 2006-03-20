@@ -18,13 +18,14 @@ public final class Current
     public String operation;
     public OperationMode mode;
     public java.util.Hashtable ctx;
+    public int requestId;
 
     public Current()
     {
     }
 
     public Current(ObjectAdapter adapter, Connection con, Identity id, String facet, String operation,
-		   OperationMode mode, java.util.Hashtable ctx)
+		   OperationMode mode, java.util.Hashtable ctx, int requestId)
     {
 	this.adapter = adapter;
 	this.con = con;
@@ -33,6 +34,7 @@ public final class Current
 	this.operation = operation;
 	this.mode = mode;
 	this.ctx = ctx;
+	this.requestId = requestId;
     }
 
     public boolean
@@ -77,6 +79,10 @@ public final class Current
 	    {
 		return false;
 	    }
+	    if(requestId != _r.requestId)
+	    {
+		return false;
+	    }
 
 	    return true;
 	}
@@ -88,6 +94,6 @@ public final class Current
     ice_clone()
 	throws IceUtil.CloneException
     {
-	return new Current(adapter, con, id, facet, operation, mode, ctx);
+	return new Current(adapter, con, id, facet, operation, mode, ctx, requestId);
     }
 }

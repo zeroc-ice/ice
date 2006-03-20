@@ -1875,7 +1875,7 @@ namespace Ice
 		    // Prepare the invocation.
 		    //
 		    bool response = !_endpoint.datagram() && requestId != 0;
-		    inc = getIncoming(adapter, response, compress);
+		    inc = getIncoming(adapter, response, compress, requestId);
 		    IceInternal.BasicStream ins = inc.istr();
 		    stream.swap(ins);
 		    IceInternal.BasicStream os = inc.ostr();
@@ -2248,7 +2248,7 @@ namespace Ice
 	    }
 	}
 
-	private IceInternal.Incoming getIncoming(ObjectAdapter adapter, bool response, byte compress)
+	private IceInternal.Incoming getIncoming(ObjectAdapter adapter, bool response, byte compress, int requestId)
 	{
 	    IceInternal.Incoming inc = null;
 	    
@@ -2256,13 +2256,13 @@ namespace Ice
 	    {
 		if(_incomingCache == null)
 		{
-		    inc = new IceInternal.Incoming(instance_, this, adapter, response, compress);
+		    inc = new IceInternal.Incoming(instance_, this, adapter, response, compress, requestId);
 		}
 		else
 		{
 		    inc = _incomingCache;
 		    _incomingCache = _incomingCache.next;
-		    inc.reset(instance_, this, adapter, response, compress);
+		    inc.reset(instance_, this, adapter, response, compress, requestId);
 		    inc.next = null;
 		}
 	    }

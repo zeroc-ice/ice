@@ -28,7 +28,7 @@ public:
     void setAdapter(const Ice::ObjectAdapterPtr&);
     const Ice::ObjectAdapterPtr& getAdapter() const { return _adapter; }
 
-    void invoke(bool);
+    void invoke(bool, Ice::Int);
 
     // Inlined for speed optimization.
     BasicStream* os() { return &_os; }

@@ -13,7 +13,7 @@ public class IncomingBase
 {
     protected
     IncomingBase(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response,
-                 byte compress)
+                 byte compress, int requestId)
     {
 	_response = response;
         _compress = compress;
@@ -24,6 +24,7 @@ public class IncomingBase
         _current.id = new Ice.Identity();
         _current.adapter = adapter;
         _current.con = _connection;
+	_current.requestId = requestId;
 
         _cookie = new Ice.LocalObjectHolder();
 
@@ -61,7 +62,8 @@ public class IncomingBase
     // These functions allow this object to be reused, rather than reallocated.
     //
     public void
-    reset(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response, byte compress)
+    reset(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response, byte compress,
+    	  int requestId)
     {
         //
         // Don't recycle the Current object, because servants may keep a reference to it.
@@ -70,6 +72,7 @@ public class IncomingBase
         _current.id = new Ice.Identity();
         _current.adapter = adapter;
         _current.con = connection;
+	_current.requestId = requestId;
 
 	if(_cookie == null)
 	{

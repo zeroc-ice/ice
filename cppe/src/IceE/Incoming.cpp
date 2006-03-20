@@ -50,9 +50,11 @@ IceInternal::Incoming::setAdapter(const Ice::ObjectAdapterPtr& adapter)
 }
 
 void
-IceInternal::Incoming::invoke(bool response)
+IceInternal::Incoming::invoke(bool response, Int requestId)
 {
     assert(_adapter && _servantManager);
+
+    _current.requestId = requestId;
 
     //
     // Clear the context from the previous invocation.

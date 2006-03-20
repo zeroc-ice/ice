@@ -1,6 +1,8 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Added requestId to Current.
+
 - Added typedefs for ProxyType and PointerType to the generated class 
   for slice classes and interfaces to allow for easier templating.
 

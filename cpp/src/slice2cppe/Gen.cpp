@@ -1678,6 +1678,13 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << "public:" << sp;
     H.inc();
 
+    if(!p->isLocal())
+    {
+        H << nl << "typedef " << name << "Prx ProxyType;";
+    }
+    H << nl << "typedef " << name << "Ptr PointerType;";
+    H << nl;
+
     vector<string> params;
     vector<string> allTypes;
     vector<string> allParamDecls;

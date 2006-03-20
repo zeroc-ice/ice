@@ -16,8 +16,8 @@ namespace IceInternal
 
     public class IncomingBase
     {
-	protected internal IncomingBase(Instance instance, Ice.ConnectionI connection,
-	                                Ice.ObjectAdapter adapter, bool response, byte compress)
+	protected internal IncomingBase(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter,
+					bool response, byte compress, int requestId)
 	{
 	    response_ = response;
 	    compress_ = compress;
@@ -28,6 +28,7 @@ namespace IceInternal
 	    current_.id = new Ice.Identity();
 	    current_.adapter = adapter;
 	    current_.con = connection;
+	    current_.requestId = requestId;
 	    
 	    cookie_ = null;
 	}
@@ -61,8 +62,8 @@ namespace IceInternal
 	//
 	// These functions allow this object to be reused, rather than reallocated.
 	//
-	public virtual void reset(Instance instance, Ice.ConnectionI connection,
-	                          Ice.ObjectAdapter adapter, bool response, byte compress)
+	public virtual void reset(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, 
+				  bool response, byte compress, int requestId)
 	{
             //
             // Don't recycle the Current object, because servants may keep a reference to it.
@@ -71,6 +72,7 @@ namespace IceInternal
 	    current_.id = new Ice.Identity();
 	    current_.adapter = adapter;
 	    current_.con = connection;
+	    current_.requestId = requestId;
 	    
 	    Debug.Assert(cookie_ == null);
 	    
@@ -134,8 +136,8 @@ namespace IceInternal
     sealed public class Incoming : IncomingBase
     {
 	public Incoming(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter,
-		        bool response, byte compress)
-	     : base(instance, connection, adapter, response, compress)
+		        bool response, byte compress, int requestId)
+	     : base(instance, connection, adapter, response, compress, requestId)
 	{
 	    _is = new BasicStream(instance);
 	}
@@ -143,15 +145,15 @@ namespace IceInternal
 	//
 	// These functions allow this object to be reused, rather than reallocated.
 	//
-	public override void reset(Instance instance, Ice.ConnectionI connection,
-	                           Ice.ObjectAdapter adapter, bool response, byte compress)
+	public override void reset(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter,
+				   bool response, byte compress, int requestId)
 	{
 	    if(_is == null)
 	    {
 		_is = new BasicStream(instance);
 	    }
 
-	    base.reset(instance, connection, adapter, response, compress);
+	    base.reset(instance, connection, adapter, response, compress, requestId);
 	}
 	
 	public override void reclaim()

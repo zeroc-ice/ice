@@ -133,6 +133,13 @@ local struct Current
      *
      **/
     Context ctx;
+
+    /**
+     *
+     * The request id unless oneway (0) or collocated (-1).
+     *
+     **/
+    int requestId;
 };
 
 };

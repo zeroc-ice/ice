@@ -1660,7 +1660,7 @@ public final class Connection
 			os.writeInt(info.requestId);
 		    }
 		
-		    _in.invoke(response);
+		    _in.invoke(response, info.requestId);
 		}
 	    }
 	    catch(LocalException ex)
