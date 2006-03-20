@@ -242,6 +242,14 @@ IceInternal::RouterInfo::addProxy(const ObjectPrx& proxy)
 	// If we successfully added the proxy to the router, we add it to our local map.
 	//
 	_map.insert(_map.begin(), pair<const Identity, int>(proxy->ice_getIdentity(), 0));
+
+	//
+	// We also must remove whatever proxies the router evicted.
+	//
+	for(ObjectProxySeq::iterator q = evictedProxies.begin(); q != evictedProxies.end(); ++q)
+	{
+	    _map.erase((*q)->ice_getIdentity());
+	}
     }
 }
 
