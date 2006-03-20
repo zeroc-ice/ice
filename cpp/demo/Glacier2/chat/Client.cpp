@@ -165,7 +165,17 @@ public:
 		}
 	    }
 	    while(cin.good());
-	    router->destroySession();
+
+	    try
+	    {
+		router->destroySession();
+	    }
+	    catch(const Ice::LocalException&)
+	    {
+		//
+		// Expected: the router closed the connection.
+		//
+	    }
 	}
 	catch(const Ice::Exception& ex)
 	{

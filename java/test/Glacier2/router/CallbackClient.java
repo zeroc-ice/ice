@@ -347,11 +347,15 @@ class CallbackClient extends Ice.Application
             try
             {
                 router.destroySession();
+                test(false);
             }
             catch(Glacier2.SessionNotExistException ex)
             {
                 test(false);
             }
+	    catch(Ice.LocalException ex)
+	    {
+	    }
             System.out.println("ok");
         }
 

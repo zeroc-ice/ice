@@ -140,7 +140,17 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    }
 	}
 	while(true);
-	router->destroySession();
+	
+	try
+	{
+	    router->destroySession();
+	}
+	catch(const Ice::LocalException&)
+	{
+	    //
+	    // Expected: the router closed the connection.
+	    //
+	}
     }
     catch(const Ice::Exception& ex)
     {

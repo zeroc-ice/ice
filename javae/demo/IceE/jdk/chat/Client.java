@@ -125,7 +125,17 @@ public class Client
                 }
             }
             while(true);
-	    router.destroySession();
+
+	    try
+	    {
+		router.destroySession();
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		//
+		// Expected: the router closed the connection.
+		//
+	    }
 	}
 	catch(Exception ex)
 	{
