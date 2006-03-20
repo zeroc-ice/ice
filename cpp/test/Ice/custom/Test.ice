@@ -101,13 +101,13 @@ sequence<double> DoubleSeq;
 
     BoolSeq opBoolArray(["cpp:array"] BoolSeq inSeq, out BoolSeq outSeq);
 
-    ByteList opByteArray(["cpp:array"] ByteList inSeq, out ByteList outSeq);
+    ["cpp:array"] ByteList opByteArray(["cpp:array"] ByteList inSeq, out ["cpp:array"] ByteList outSeq);
 
     VariableList opVariableArray(["cpp:array"] VariableList inSeq, out VariableList outSeq);
 
     BoolSeq opBoolRange(["cpp:range"] BoolSeq inSeq, out BoolSeq outSeq);
 
-    ByteList opByteRange(["cpp:range"] ByteList inSeq, out ByteList outSeq);
+    ["cpp:range"] ByteList opByteRange(["cpp:range"] ByteList inSeq, out ["cpp:range"] ByteList outSeq);
 
     VariableList opVariableRange(["cpp:range"] VariableList inSeq, out VariableList outSeq);
 
@@ -167,7 +167,7 @@ sequence<double> DoubleSeq;
 
     CPrxList opCPrxList(CPrxList inSeq, out CPrxList outSeq);
 
-    ["cpp:type:std::deque< ::Test::CPtr>"] CSeq 
+    ["cpp:type:std::deque< ::Test::CPtr>"] CSeq
     opCSeq(["cpp:type:std::deque< ::Test::CPtr>"] CSeq inSeq, out ["cpp:type:std::deque< ::Test::CPtr>"] CSeq outSeq);
 
     CList opCList(CList inSeq, out CList outSeq);

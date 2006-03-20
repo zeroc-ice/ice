@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <IceUtil/Iterator.h>
 #include <TestCommon.h>
 #include <Test.h>
 
@@ -64,7 +65,7 @@ public:
     {
     }
 
-    virtual void ice_response(const Test::BoolSeq& out, const Test::BoolSeq& ret)
+    virtual void ice_response(const Test::BoolSeq& ret, const Test::BoolSeq& out)
     {
         test(out == _in);
 	test(ret == _in);
@@ -87,15 +88,24 @@ class AMI_TestIntf_opByteArrayI : public Test::AMI_TestIntf_opByteArray, public 
 {
 public:
 
-    AMI_TestIntf_opByteArrayI(Test::ByteList in)
+    AMI_TestIntf_opByteArrayI(const pair<const Ice::Byte*, const Ice::Byte*>& in)
         : _in(in)
     {
     }
 
-    virtual void ice_response(const Test::ByteList& out, const Test::ByteList& ret)
+    virtual void ice_response(const pair<const Ice::Byte*, const Ice::Byte*>& ret,
+    			      const pair<const Ice::Byte*, const Ice::Byte*>& out)
     {
-        test(out == _in);
-	test(ret == _in);
+        test(_in.second - _in.first == out.second - out.first);
+        test(_in.second - _in.first == ret.second - ret.first);
+    	Ice::Byte* b = const_cast<Ice::Byte*>(_in.first);
+    	Ice::Byte* r = const_cast<Ice::Byte*>(ret.first);
+    	Ice::Byte* o = const_cast<Ice::Byte*>(out.first);
+	while(b != _in.second)
+	{
+	    test(*r++ == *b);
+	    test(*o++ == *b++);
+	}
         called();
     }
 
@@ -106,7 +116,7 @@ public:
 
 private:
 
-    Test::ByteList _in;
+    pair<const Ice::Byte*, const Ice::Byte*> _in;
 };
 
 typedef IceUtil::Handle<AMI_TestIntf_opByteArrayI> AMI_TestIntf_opByteArrayIPtr;
@@ -120,7 +130,7 @@ public:
     {
     }
 
-    virtual void ice_response(const Test::VariableList& out, const Test::VariableList& ret)
+    virtual void ice_response(const Test::VariableList& ret, const Test::VariableList& out)
     {
         test(out == _in);
 	test(ret == _in);
@@ -148,7 +158,7 @@ public:
     {
     }
 
-    virtual void ice_response(const Test::BoolSeq& out, const Test::BoolSeq& ret)
+    virtual void ice_response(const Test::BoolSeq& ret, const Test::BoolSeq& out)
     {
         test(out == _in);
 	test(ret == _in);
@@ -176,10 +186,19 @@ public:
     {
     }
 
-    virtual void ice_response(const Test::ByteList& out, const Test::ByteList& ret)
+    virtual void ice_response(const pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& ret,
+    			      const pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& out)
     {
-        test(out == _in);
-	test(ret == _in);
+        test(ice_distance(out.first, out.second) == static_cast<Ice::Int>(_in.size()));
+        test(ice_distance(ret.first, ret.second) == static_cast<Ice::Int>(_in.size()));
+	Test::ByteList::const_iterator b;
+	Test::ByteList::const_iterator o = out.first;
+	Test::ByteList::const_iterator r = ret.first;
+	for(b = _in.begin(); b != _in.end(); ++b)
+	{
+	    test(*b == *o++);
+	    test(*b == *r++);
+	}
         called();
     }
 
@@ -204,7 +223,7 @@ public:
     {
     }
 
-    virtual void ice_response(const Test::VariableList& out, const Test::VariableList& ret)
+    virtual void ice_response(const Test::VariableList& ret, const Test::VariableList& out)
     {
         test(out == _in);
 	test(ret == _in);
@@ -232,7 +251,7 @@ public:
     {
     }
 
-    virtual void ice_response(const Test::BoolSeq& out, const Test::BoolSeq& ret)
+    virtual void ice_response(const Test::BoolSeq& ret, const Test::BoolSeq& out)
     {
         test(out == _in);
 	test(ret == _in);
@@ -260,7 +279,7 @@ public:
     {
     }
 
-    virtual void ice_response(const Test::ByteList& out, const Test::ByteList& ret)
+    virtual void ice_response(const Test::ByteList& ret, const Test::ByteList& out)
     {
         test(out == _in);
 	test(ret == _in);
@@ -288,7 +307,7 @@ public:
     {
     }
 
-    virtual void ice_response(const Test::VariableList& out, const Test::VariableList& ret)
+    virtual void ice_response(const Test::VariableList& ret, const Test::VariableList& out)
     {
         test(out == _in);
 	test(ret == _in);
@@ -316,7 +335,7 @@ public:
     {
     }
 
-    virtual void ice_response(const deque<bool>& out, const deque<bool>& ret)
+    virtual void ice_response(const deque<bool>& ret, const deque<bool>& out)
     {
         test(out == _in);
 	test(ret == _in);
@@ -344,7 +363,7 @@ public:
     {
     }
 
-    virtual void ice_response(const list<bool>& out, const list<bool>& ret)
+    virtual void ice_response(const list<bool>& ret, const list<bool>& out)
     {
         test(out == _in);
 	test(ret == _in);
@@ -372,7 +391,7 @@ public:
     {
     }
 
-    virtual void ice_response(const deque<Ice::Byte>& out, const deque<Ice::Byte>& ret)
+    virtual void ice_response(const deque<Ice::Byte>& ret, const deque<Ice::Byte>& out)
     {
         test(out == _in);
 	test(ret == _in);
@@ -400,7 +419,7 @@ public:
     {
     }
 
-    virtual void ice_response(const list<Ice::Byte>& out, const list<Ice::Byte>& ret)
+    virtual void ice_response(const list<Ice::Byte>& ret, const list<Ice::Byte>& out)
     {
         test(out == _in);
 	test(ret == _in);
@@ -428,7 +447,7 @@ public:
     {
     }
 
-    virtual void ice_response(const MyByteSeq& out, const MyByteSeq& ret)
+    virtual void ice_response(const MyByteSeq& ret, const MyByteSeq& out)
     {
         test(out == _in);
 	test(ret == _in);
@@ -456,7 +475,7 @@ public:
     {
     }
 
-    virtual void ice_response(const deque<string>& out, const deque<string>& ret)
+    virtual void ice_response(const deque<string>& ret, const deque<string>& out)
     {
         test(out == _in);
 	test(ret == _in);
@@ -484,7 +503,7 @@ public:
     {
     }
 
-    virtual void ice_response(const list<string>& out, const list<string>& ret)
+    virtual void ice_response(const list<string>& ret, const list<string>& out)
     {
         test(out == _in);
 	test(ret == _in);
@@ -512,7 +531,7 @@ public:
     {
     }
 
-    virtual void ice_response(const deque<Test::Fixed>& out, const deque<Test::Fixed>& ret)
+    virtual void ice_response(const deque<Test::Fixed>& ret, const deque<Test::Fixed>& out)
     {
         test(out == _in);
 	test(ret == _in);
@@ -540,7 +559,7 @@ public:
     {
     }
 
-    virtual void ice_response(const list<Test::Fixed>& out, const list<Test::Fixed>& ret)
+    virtual void ice_response(const list<Test::Fixed>& ret, const list<Test::Fixed>& out)
     {
         test(out == _in);
 	test(ret == _in);
@@ -568,7 +587,7 @@ public:
     {
     }
 
-    virtual void ice_response(const deque<Test::Variable>& out, const deque<Test::Variable>& ret)
+    virtual void ice_response(const deque<Test::Variable>& ret, const deque<Test::Variable>& out)
     {
         test(out == _in);
 	test(ret == _in);
@@ -596,7 +615,7 @@ public:
     {
     }
 
-    virtual void ice_response(const list<Test::Variable>& out, const list<Test::Variable>& ret)
+    virtual void ice_response(const list<Test::Variable>& ret, const list<Test::Variable>& out)
     {
         test(out == _in);
 	test(ret == _in);
@@ -624,7 +643,7 @@ public:
     {
     }
 
-    virtual void ice_response(const deque<Test::StringStringDict>& out, const deque<Test::StringStringDict>& ret)
+    virtual void ice_response(const deque<Test::StringStringDict>& ret, const deque<Test::StringStringDict>& out)
     {
         test(out == _in);
 	test(ret == _in);
@@ -652,7 +671,7 @@ public:
     {
     }
 
-    virtual void ice_response(const list<Test::StringStringDict>& out, const list<Test::StringStringDict>& ret)
+    virtual void ice_response(const list<Test::StringStringDict>& ret, const list<Test::StringStringDict>& out)
     {
         test(out == _in);
 	test(ret == _in);
@@ -680,7 +699,7 @@ public:
     {
     }
 
-    virtual void ice_response(const deque<Test::E>& out, const deque<Test::E>& ret)
+    virtual void ice_response(const deque<Test::E>& ret, const deque<Test::E>& out)
     {
         test(out == _in);
 	test(ret == _in);
@@ -708,7 +727,7 @@ public:
     {
     }
 
-    virtual void ice_response(const list<Test::E>& out, const list<Test::E>& ret)
+    virtual void ice_response(const list<Test::E>& ret, const list<Test::E>& out)
     {
         test(out == _in);
 	test(ret == _in);
@@ -736,7 +755,7 @@ public:
     {
     }
 
-    virtual void ice_response(const deque<Test::CPrx>& out, const deque<Test::CPrx>& ret)
+    virtual void ice_response(const deque<Test::CPrx>& ret, const deque<Test::CPrx>& out)
     {
         test(out == _in);
 	test(ret == _in);
@@ -764,7 +783,7 @@ public:
     {
     }
 
-    virtual void ice_response(const list<Test::CPrx>& out, const list<Test::CPrx>& ret)
+    virtual void ice_response(const list<Test::CPrx>& ret, const list<Test::CPrx>& out)
     {
         test(out == _in);
 	test(ret == _in);
@@ -792,7 +811,7 @@ public:
     {
     }
 
-    virtual void ice_response(const deque<Test::CPtr>& out, const deque<Test::CPtr>& ret)
+    virtual void ice_response(const deque<Test::CPtr>& ret, const deque<Test::CPtr>& out)
     {
 	test(out.size() == _in.size());
 	test(ret.size() == _in.size());
@@ -825,7 +844,7 @@ public:
     {
     }
 
-    virtual void ice_response(const list<Test::CPtr>& out, const list<Test::CPtr>& ret)
+    virtual void ice_response(const list<Test::CPtr>& ret, const list<Test::CPtr>& out)
     {
 	test(out.size() == _in.size());
 	test(ret.size() == _in.size());
@@ -1379,21 +1398,15 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
 
         {
-            Test::ByteList in;
-	    Ice::Byte inArray[5];
-	    inArray[0] = '1';
-	    in.push_back(inArray[0]);
-	    inArray[1] = '2';
-	    in.push_back(inArray[1]);
-	    inArray[2] = '3';
-	    in.push_back(inArray[2]);
-	    inArray[3] = '4';
-	    in.push_back(inArray[3]);
-	    inArray[4] = '5';
-	    in.push_back(inArray[4]);
-	    pair<const Ice::Byte*, const Ice::Byte*> inPair(inArray, inArray + 5);
+	    Ice::Byte in[5];
+	    in[0] = '1';
+	    in[1] = '2';
+	    in[2] = '3';
+	    in[3] = '4';
+	    in[4] = '5';
+	    pair<const Ice::Byte*, const Ice::Byte*> inPair(in, in + 5);
 
-	    AMI_TestIntf_opByteArrayIPtr cb = new AMI_TestIntf_opByteArrayI(in);
+	    AMI_TestIntf_opByteArrayIPtr cb = new AMI_TestIntf_opByteArrayI(inPair);
 	    t->opByteArray_async(cb, inPair);
 	    test(cb->check());
         }

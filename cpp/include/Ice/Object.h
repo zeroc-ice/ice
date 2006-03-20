@@ -116,22 +116,22 @@ public:
     virtual IceInternal::DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
 };
 
-class ICE_API BlobjectArrayAsync : virtual public Object
-{
-public:
-
-    // Returns true if ok, false if user exception.
-    virtual void ice_invoke_async(const AMD_Object_ice_invokePtr&, const std::pair<const Byte*, const Byte*>&,
-    				  const Current&) = 0;
-    virtual IceInternal::DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
-};
-
 class ICE_API BlobjectAsync : virtual public Object
 {
 public:
 
     // Returns true if ok, false if user exception.
     virtual void ice_invoke_async(const AMD_Object_ice_invokePtr&, const std::vector<Byte>&, const Current&) = 0;
+    virtual IceInternal::DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
+};
+
+class ICE_API BlobjectArrayAsync : virtual public Object
+{
+public:
+
+    // Returns true if ok, false if user exception.
+    virtual void ice_invoke_async(const AMD_Array_Object_ice_invokePtr&, const std::pair<const Byte*, const Byte*>&,
+    				  const Current&) = 0;
     virtual IceInternal::DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
 };
 

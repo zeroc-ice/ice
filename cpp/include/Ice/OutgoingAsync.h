@@ -76,6 +76,21 @@ public:
     virtual void ice_exception(const Ice::Exception&) = 0;
 
     void __invoke(const Ice::ObjectPrx&, const std::string& operation, OperationMode,
+		  const std::vector<Ice::Byte>&, const Context&);
+
+protected:
+
+    virtual void __response(bool);
+};
+
+class ICE_API AMI_Array_Object_ice_invoke : public IceInternal::OutgoingAsync
+{
+public:
+
+    virtual void ice_response(bool, const std::pair<const Byte*, const Byte*>&) = 0;
+    virtual void ice_exception(const Ice::Exception&) = 0;
+
+    void __invoke(const Ice::ObjectPrx&, const std::string& operation, OperationMode,
 		  const std::pair<const Byte*, const Byte*>&, const Context&);
 
 protected:

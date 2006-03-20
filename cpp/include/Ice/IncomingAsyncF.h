@@ -26,6 +26,7 @@ namespace Ice
 {
 
 class AMD_Object_ice_invoke;
+class AMD_Array_Object_ice_invoke;
 
 }
 
@@ -34,6 +35,8 @@ namespace IceInternal
 
 ICE_API void incRef(::Ice::AMD_Object_ice_invoke*);
 ICE_API void decRef(::Ice::AMD_Object_ice_invoke*);
+ICE_API void incRef(::Ice::AMD_Array_Object_ice_invoke*);
+ICE_API void decRef(::Ice::AMD_Array_Object_ice_invoke*);
 
 }
 
@@ -41,6 +44,7 @@ namespace Ice
 {
 
 typedef IceInternal::Handle<AMD_Object_ice_invoke> AMD_Object_ice_invokePtr;
+typedef IceInternal::Handle<AMD_Array_Object_ice_invoke> AMD_Array_Object_ice_invokePtr;
 
 }
 

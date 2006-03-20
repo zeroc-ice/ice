@@ -31,6 +31,9 @@ void IceInternal::decRef(OutgoingAsync* p) { p->__decRef(); }
 void IceInternal::incRef(AMI_Object_ice_invoke* p) { p->__incRef(); }
 void IceInternal::decRef(AMI_Object_ice_invoke* p) { p->__decRef(); }
 
+void IceInternal::incRef(AMI_Array_Object_ice_invoke* p) { p->__incRef(); }
+void IceInternal::decRef(AMI_Array_Object_ice_invoke* p) { p->__decRef(); }
+
 IceInternal::OutgoingAsync::OutgoingAsync() :
     __is(0),
     __os(0)
@@ -417,12 +420,12 @@ IceInternal::OutgoingAsync::cleanup()
 
 void
 Ice::AMI_Object_ice_invoke::__invoke(const ObjectPrx& prx, const string& operation, OperationMode mode,
-				     const pair<const Byte*, const Byte*>& inParams, const Context& context)
+				     const vector<Byte>& inParams, const Context& context)
 {
     try
     {
 	__prepare(prx, operation, mode, context);
-	__os->writeBlob(inParams.first, static_cast<Int>(inParams.second - inParams.first));
+	__os->writeBlob(inParams);
 	__os->endWriteEncaps();
     }
     catch(const LocalException& ex)
@@ -441,6 +444,42 @@ Ice::AMI_Object_ice_invoke::__response(bool ok) // ok == true means no user exce
     {
 	Int sz = __is->getReadEncapsSize();
 	__is->readBlob(outParams, sz);
+    }
+    catch(const LocalException& ex)
+    {
+	__finished(ex);
+	return;
+    }
+    ice_response(ok, outParams);
+}
+
+void
+Ice::AMI_Array_Object_ice_invoke::__invoke(const ObjectPrx& prx, const string& operation, OperationMode mode,
+				           const pair<const Byte*, const Byte*>& inParams, const Context& context)
+{
+    try
+    {
+	__prepare(prx, operation, mode, context);
+	__os->writeBlob(inParams.first, static_cast<Int>(inParams.second - inParams.first));
+	__os->endWriteEncaps();
+    }
+    catch(const LocalException& ex)
+    {
+	__finished(ex);
+	return;
+    }
+    __send();
+}
+
+void
+Ice::AMI_Array_Object_ice_invoke::__response(bool ok) // ok == true means no user exception.
+{
+    pair<const Byte*, const Byte*> outParams;
+    try
+    {
+	Int sz = __is->getReadEncapsSize();
+	__is->readBlob(outParams.first, sz);
+	outParams.second = outParams.first + sz;
     }
     catch(const LocalException& ex)
     {

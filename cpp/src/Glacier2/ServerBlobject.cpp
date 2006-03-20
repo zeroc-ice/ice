@@ -33,7 +33,7 @@ Glacier2::ServerBlobject::destroy()
 }
 
 void
-Glacier2::ServerBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& amdCB,
+Glacier2::ServerBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invokePtr& amdCB,
 					   const std::pair<const Byte*, const Byte*>& inParams,
 					   const Current& current)
 {

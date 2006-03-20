@@ -26,6 +26,9 @@ void IceInternal::decRef(IncomingAsync* p) { p->__decRef(); }
 void IceInternal::incRef(AMD_Object_ice_invoke* p) { p->__incRef(); }
 void IceInternal::decRef(AMD_Object_ice_invoke* p) { p->__decRef(); }
 
+void IceInternal::incRef(AMD_Array_Object_ice_invoke* p) { p->__incRef(); }
+void IceInternal::decRef(AMD_Array_Object_ice_invoke* p) { p->__decRef(); }
+
 IceInternal::IncomingAsync::IncomingAsync(Incoming& in) :
     IncomingBase(in),
     _instanceCopy(_os.instance()),
@@ -425,6 +428,44 @@ IceAsync::Ice::AMD_Object_ice_invoke::ice_exception(const std::exception& ex)
 
 void
 IceAsync::Ice::AMD_Object_ice_invoke::ice_exception()
+{
+    __exception();
+}
+
+IceAsync::Ice::AMD_Array_Object_ice_invoke::AMD_Array_Object_ice_invoke(Incoming& in) :
+    IncomingAsync(in)
+{
+}
+
+void
+IceAsync::Ice::AMD_Array_Object_ice_invoke::ice_response(bool ok, const pair<const Byte*, const Byte*>& outParams)
+{
+    try
+    {
+	__os()->writeBlob(outParams.first, static_cast<Int>(outParams.second - outParams.first));
+    }
+    catch(const LocalException& ex)
+    {
+	__exception(ex);
+	return;
+    }
+    __response(ok);
+}
+
+void
+IceAsync::Ice::AMD_Array_Object_ice_invoke::ice_exception(const Exception& ex)
+{
+    __exception(ex);
+}
+
+void
+IceAsync::Ice::AMD_Array_Object_ice_invoke::ice_exception(const std::exception& ex)
+{
+    __exception(ex);
+}
+
+void
+IceAsync::Ice::AMD_Array_Object_ice_invoke::ice_exception()
 {
     __exception();
 }

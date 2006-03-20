@@ -349,21 +349,11 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
 					const vector<Byte>& inParams,
 					const Context& context)
 {
-    pair<const Byte*, const Byte*> inPair;
-    if(inParams.size() == 0)
-    {
-        inPair.first = inPair.second = 0;
-    }
-    else
-    {
-        inPair.first = &inParams[0];
-	inPair.second = inPair.first + inParams.size();
-    }
-    ice_invoke_async(cb, operation, mode, inPair, context);
+    cb->__invoke(this, operation, mode, inParams, context);
 }
 
 void
-IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
+IceProxy::Ice::Object::ice_invoke_async(const AMI_Array_Object_ice_invokePtr& cb,
 					const string& operation,
 					OperationMode mode,
 					const pair<const Byte*, const Byte*>& inParams)
@@ -372,7 +362,7 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
 }
 
 void
-IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
+IceProxy::Ice::Object::ice_invoke_async(const AMI_Array_Object_ice_invokePtr& cb,
 					const string& operation,
 					OperationMode mode,
 					const pair<const Byte*, const Byte*>& inParams,

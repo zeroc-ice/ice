@@ -4327,6 +4327,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
     string proxyName = classScope + className + "Prx";
     
     vector<string> params;
+    vector<string> paramsAMD;
     vector<string> paramsDecl;
     vector<string> args;
     
@@ -4342,6 +4343,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
     if(ret)
     {
 	params.push_back(retS);
+	paramsAMD.push_back(inputTypeToString(ret, p->getMetaData(), false));
 	paramsDecl.push_back(retS + " __ret");
 	args.push_back("__ret");
     }
@@ -4358,6 +4360,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	if((*q)->isOutParam())
 	{
 	    params.push_back(typeString);
+	    paramsAMD.push_back(inputTypeToString(type, (*q)->getMetaData(), false));
 	    paramsDecl.push_back(typeString + ' ' + paramName);
 	    args.push_back(paramName);
 
@@ -4425,7 +4428,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 
 	C << sp << nl << "void" << nl << classScopedAMI.substr(2) << '_' << name << "::__response(bool __ok)";
 	C << sb;
-	writeAllocateCode(C, outParams, ret, p->getMetaData());
+	writeAllocateCode(C, outParams, ret, p->getMetaData(), true);
 	C << nl << "try";
 	C << sb;
 	C << nl << "if(!__ok)";
@@ -4461,7 +4464,11 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	C << eb;
 	C << eb;
 
-	writeUnmarshalCode(C, outParams, ret, p->getMetaData());
+	writeUnmarshalCode(C, outParams, 0, StringList(), true);
+	if(ret)
+	{
+	    writeMarshalUnmarshalCode(C, ret, "__ret", false, "", true, p->getMetaData(), true);
+	}
 	if(p->returnsClasses())
 	{
 	    C << nl << "__is->readPendingObjects();";
@@ -4485,7 +4492,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	H << nl << "public:";
 	H.inc();
 	H << sp;
-	H << nl << "virtual void ice_response" << spar << params << epar << " = 0;";
+	H << nl << "virtual void ice_response" << spar << paramsAMD << epar << " = 0;";
 	H << nl << "virtual void ice_exception(const ::Ice::Exception&) = 0;";
 	H << nl << "virtual void ice_exception(const ::std::exception&) = 0;";
 	H << nl << "virtual void ice_exception() = 0;";
@@ -4578,7 +4585,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
 #endif
 
     TypePtr ret = p->returnType();
-    string retS = inputTypeToString(ret, p->getMetaData());
+    string retS = inputTypeToString(ret, p->getMetaData(), false);
     
     if(ret)
     {
@@ -4597,7 +4604,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
 	{
 	    string paramName = fixKwd((*q)->name());
 	    TypePtr type = (*q)->type();
-	    string typeString = inputTypeToString(type, (*q)->getMetaData());
+	    string typeString = inputTypeToString(type, (*q)->getMetaData(), false);
 	    
 	    if(ret || !outParams.empty())
 	    {
@@ -4800,6 +4807,12 @@ Slice::Gen::MetaDataVisitor::visitStructEnd(const StructPtr&)
 void
 Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
 {
+    bool ami = false;
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
+    if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
+    {
+        ami = true;
+    }
     StringList metaData = p->getMetaData();
     TypePtr returnType = p->returnType();
     if(!metaData.empty())
@@ -4818,7 +4831,7 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
         }
         else
         {
-            validate(returnType, metaData, p->definitionContext()->filename(), p->line(), false);
+            validate(returnType, metaData, p->definitionContext()->filename(), p->line(), ami);
         }
     }
 
@@ -4826,7 +4839,7 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
     for(ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
     {
         validate((*q)->type(), (*q)->getMetaData(), p->definitionContext()->filename(), (*q)->line(),
-                 !(*q)->isOutParam());
+                 ami || !(*q)->isOutParam());
     }
 }
 

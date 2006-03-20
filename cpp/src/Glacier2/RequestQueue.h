@@ -28,7 +28,7 @@ class Request : public IceUtil::Shared
 public:
 
     Request(const Ice::ObjectPrx&, const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&, bool,
-	    const Ice::AMD_Object_ice_invokePtr&);
+	    const Ice::AMD_Array_Object_ice_invokePtr&);
     
     bool invoke(const RequestQueuePtr&);
     bool override(const RequestPtr&) const;
@@ -42,21 +42,21 @@ private:
     const Ice::Current _current;
     const bool _forwardContext;
     const std::string _override;
-    const Ice::AMD_Object_ice_invokePtr _amdCB;
+    const Ice::AMD_Array_Object_ice_invokePtr _amdCB;
 };
 
 class Response : public IceUtil::Shared
 {
 public:
 
-    Response(const Ice::AMD_Object_ice_invokePtr&, bool, const Ice::ByteSeq&);
-    Response(const Ice::AMD_Object_ice_invokePtr&, const Ice::Exception&);
+    Response(const Ice::AMD_Array_Object_ice_invokePtr&, bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&);
+    Response(const Ice::AMD_Array_Object_ice_invokePtr&, const Ice::Exception&);
 
     void invoke();
     
 private:
 
-    const Ice::AMD_Object_ice_invokePtr _amdCB;
+    const Ice::AMD_Array_Object_ice_invokePtr _amdCB;
     const bool _ok;
     const Ice::ByteSeq _outParams;
     const std::auto_ptr<Ice::Exception> _exception;

@@ -101,7 +101,7 @@ Glacier2::Blobject::destroy()
 }
 
 void
-Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdCB, 
+Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Array_Object_ice_invokePtr& amdCB, 
 			   const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams, const Current& current)
 {
     //
@@ -300,7 +300,17 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
 		ok = proxy->ice_invoke(current.operation, current.mode, inParams, outParams);
 	    }
 
-	    amdCB->ice_response(ok, outParams);
+	    pair<const Byte*, const Byte*> outPair;
+	    if(outParams.size() == 0)
+	    {
+	        outPair.first = outPair.second = 0;
+	    }
+	    else
+	    {
+	        outPair.first = &outParams[0];
+		outPair.second = outPair.first + outParams.size();
+	    }
+	    amdCB->ice_response(ok, outPair);
 	}
 	catch(const LocalException& ex)
 	{

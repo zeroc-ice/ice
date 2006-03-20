@@ -25,11 +25,11 @@ namespace Glacier2
 // responsible for sending back the response. It's necessary because
 // sending back the response might block.
 //
-class AMI_Object_ice_invokeI : public AMI_Object_ice_invoke
+class AMI_Array_Object_ice_invokeI : public AMI_Array_Object_ice_invoke
 {
 public:
 
-    AMI_Object_ice_invokeI(const RequestQueuePtr& requestQueue, const AMD_Object_ice_invokePtr& amdCB) :
+    AMI_Array_Object_ice_invokeI(const RequestQueuePtr& requestQueue, const AMD_Array_Object_ice_invokePtr& amdCB) :
 	_requestQueue(requestQueue),
 	_amdCB(amdCB)
     {
@@ -37,7 +37,7 @@ public:
     }
 
     virtual void
-    ice_response(bool ok, const std::vector<Byte>& outParams)
+    ice_response(bool ok, const pair<const Byte*, const Byte*>& outParams)
     {
 	_requestQueue->addResponse(new Response(_amdCB, ok, outParams));
     }
@@ -51,13 +51,13 @@ public:
 private:
 
     const RequestQueuePtr _requestQueue;
-    const AMD_Object_ice_invokePtr _amdCB;
+    const AMD_Array_Object_ice_invokePtr _amdCB;
 };
 
 }
 
 Glacier2::Request::Request(const ObjectPrx& proxy, const std::pair<const Byte*, const Byte*>& inParams,
-			   const Current& current, bool forwardContext, const AMD_Object_ice_invokePtr& amdCB) :
+			   const Current& current, bool forwardContext, const AMD_Array_Object_ice_invokePtr& amdCB) :
     _proxy(proxy),
     _inParams(inParams.first, inParams.second),
     _current(current),
@@ -71,7 +71,7 @@ Glacier2::Request::Request(const ObjectPrx& proxy, const std::pair<const Byte*, 
     if(!_proxy->ice_isTwoway())
     {
 	bool ok = true;
-	ByteSeq outParams;
+	pair<const Byte*, const Byte*> outParams(0, 0);
 	_amdCB->ice_response(ok, outParams);
     }
 
@@ -86,16 +86,26 @@ Glacier2::Request::Request(const ObjectPrx& proxy, const std::pair<const Byte*, 
 bool
 Glacier2::Request::invoke(const RequestQueuePtr& requestQueue)
 {
+    pair<const Byte*, const Byte*> inPair;
+    if(_inParams.size() == 0)
+    {
+        inPair.first = inPair.second = 0;
+    }
+    else
+    {
+        inPair.first = &_inParams[0];
+	inPair.second = inPair.first + _inParams.size();
+    }
     if(_proxy->ice_isTwoway())
     {
-	AMI_Object_ice_invokePtr cb = new AMI_Object_ice_invokeI(requestQueue, _amdCB);
+	AMI_Array_Object_ice_invokePtr cb = new AMI_Array_Object_ice_invokeI(requestQueue, _amdCB);
 	if(_forwardContext)
 	{
-	    _proxy->ice_invoke_async(cb, _current.operation, _current.mode, _inParams, _current.ctx);
+	    _proxy->ice_invoke_async(cb, _current.operation, _current.mode, inPair, _current.ctx);
 	}
 	else
 	{
-	    _proxy->ice_invoke_async(cb, _current.operation, _current.mode, _inParams);
+	    _proxy->ice_invoke_async(cb, _current.operation, _current.mode, inPair);
 	}
 	return true; // A twoway method is being dispatched.
     }
@@ -106,11 +116,11 @@ Glacier2::Request::invoke(const RequestQueuePtr& requestQueue)
 	    ByteSeq outParams;
 	    if(_forwardContext)
 	    {
-		_proxy->ice_invoke(_current.operation, _current.mode, _inParams, outParams, _current.ctx);
+		_proxy->ice_invoke(_current.operation, _current.mode, inPair, outParams, _current.ctx);
 	    }
 	    else
 	    {
-		_proxy->ice_invoke(_current.operation, _current.mode, _inParams, outParams);
+		_proxy->ice_invoke(_current.operation, _current.mode, inPair, outParams);
 	    }
 	}
 	catch(const LocalException&)
@@ -163,14 +173,15 @@ Glacier2::Request::getConnection() const
     return _proxy->ice_connection();
 }
 
-Glacier2::Response::Response(const AMD_Object_ice_invokePtr& amdCB, bool ok, const ByteSeq& outParams) : 
+Glacier2::Response::Response(const AMD_Array_Object_ice_invokePtr& amdCB, bool ok, 
+			     const pair<const Byte*, const Byte*>& outParams) : 
     _amdCB(amdCB),
     _ok(ok),
-    _outParams(outParams)
+    _outParams(outParams.first, outParams.second)
 {
 }
 
-Glacier2::Response::Response(const AMD_Object_ice_invokePtr& amdCB, const Exception& ex) : 
+Glacier2::Response::Response(const AMD_Array_Object_ice_invokePtr& amdCB, const Exception& ex) : 
     _amdCB(amdCB),
     _ok(false),
     _exception(ex.ice_clone())
@@ -186,7 +197,17 @@ Glacier2::Response::invoke()
     }
     else
     {
-	_amdCB->ice_response(_ok, _outParams);
+        pair<const Byte*, const Byte*> outPair;
+	if(_outParams.size() == 0)
+	{
+	    outPair.first = outPair.second = 0;
+	}
+	else
+	{
+	    outPair.first = &_outParams[0];
+	    outPair.second = outPair.first + _outParams.size();
+	}
+	_amdCB->ice_response(_ok, outPair);
     }
 }
 

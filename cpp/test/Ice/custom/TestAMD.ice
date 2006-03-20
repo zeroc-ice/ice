@@ -101,13 +101,13 @@ sequence<double> DoubleSeq;
 
     BoolSeq opBoolArray(["cpp:array"] BoolSeq inSeq, out BoolSeq outSeq);
 
-    ByteList opByteArray(["cpp:array"] ByteList inSeq, out ByteList outSeq);
+    ["cpp:array"] ByteList opByteArray(["cpp:array"] ByteList inSeq, out ["cpp:array"] ByteList outSeq);
 
     VariableList opVariableArray(["cpp:array"] VariableList inSeq, out VariableList outSeq);
 
     BoolSeq opBoolRange(["cpp:range"] BoolSeq inSeq, out BoolSeq outSeq);
 
-    ByteList opByteRange(["cpp:range"] ByteList inSeq, out ByteList outSeq);
+    ["cpp:range"] ByteList opByteRange(["cpp:range"] ByteList inSeq, out ["cpp:range"] ByteList outSeq);
 
     VariableList opVariableRange(["cpp:range"] VariableList inSeq, out VariableList outSeq);
 

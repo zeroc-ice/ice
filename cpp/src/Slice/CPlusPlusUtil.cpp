@@ -236,7 +236,7 @@ Slice::returnTypeToString(const TypePtr& type, const StringList& metaData)
 }
 
 string
-Slice::inputTypeToString(const TypePtr& type, const StringList& metaData)
+Slice::inputTypeToString(const TypePtr& type, const StringList& metaData, bool allowArray)
 {
     static const char* inputBuiltinTable[] =
     {
@@ -283,28 +283,43 @@ Slice::inputTypeToString(const TypePtr& type, const StringList& metaData)
         string seqType = findMetaData(metaData, true);
         if(!seqType.empty())
         {
+	    
             if(seqType == "array" || seqType == "range:array")
             {
-                TypePtr elemType = seq->type();
-                string s = typeToString(elemType);
-                return "const ::std::pair<const " + s + "*, const " + s + "*>&";
-            }
-	    else if(seqType.find("range") == 0)
-	    {
-	        string s;
-	        if(seqType.find("range:") == 0)
+	        if(allowArray)
 		{
-		    s = seqType.substr(strlen("range:"));
+                    TypePtr elemType = seq->type();
+                    string s = typeToString(elemType);
+                    return "const ::std::pair<const " + s + "*, const " + s + "*>&";
 		}
 		else
 		{
-	            s = fixKwd(seq->scoped());
+            	    return "const " + fixKwd(seq->scoped()) + "&";
 		}
-		if(s[0] == ':')
+            }
+	    else if(seqType.find("range") == 0)
+	    {
+	        if(allowArray)
 		{
-		    s = " " + s;
+	            string s;
+	            if(seqType.find("range:") == 0)
+		    {
+		        s = seqType.substr(strlen("range:"));
+		    }
+		    else
+		    {
+	                s = fixKwd(seq->scoped());
+		    }
+		    if(s[0] == ':')
+		    {
+		        s = " " + s;
+		    }
+		    return "const ::std::pair<" + s + "::const_iterator, " + s + "::const_iterator>&";
 		}
-		return "const ::std::pair<" + s + "::const_iterator, " + s + "::const_iterator>&";
+		else
+		{
+		    return "const " + fixKwd(seq->scoped()) + "&";
+		}
 	    }
             else
             {
