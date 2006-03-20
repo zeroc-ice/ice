@@ -1,6 +1,9 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Added typedefs for ProxyType and PointerType to the generated class 
+  for slice classes and interfaces to allow for easier templating.
+
 - Fixed a bug in the Glacier2 router which could cause the router 
   to leak resources when a session is destroyed and hang on shutdown.
 
