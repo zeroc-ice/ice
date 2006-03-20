@@ -255,7 +255,7 @@ CallbackReceiverI::waitCallback(const Current& current)
 {
     {
 	Lock sync(*this);
-	assert(!_callback);
+	assert(!_waitCallback);
 	_waitCallback = true;
 	notifyAll();
     }
