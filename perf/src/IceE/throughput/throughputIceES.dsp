@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Target_Dir ""
 MTL=midl.exe
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "$(ICEE_HOME)/include" /I "$(ICE_HOME)/include/stlport" /D "NDEBUG" /D "_CONSOLE" /FD /c
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "$(ICEE_HOME)/include" /I "$(ICE_HOME)/include/stlport" /D "NDEBUG" /D "_CONSOLE" /D "ICEE_USE_ARRAY_MAPPING" /FD /c
 # SUBTRACT CPP /Fr /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -70,7 +70,7 @@ LINK32=link.exe
 # PROP Target_Dir ""
 MTL=midl.exe
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "$(ICEE_HOME)/include" /I "$(ICE_HOME)/include/stlport" /D "_DEBUG" /D "_CONSOLE" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "$(ICEE_HOME)/include" /I "$(ICE_HOME)/include/stlport" /D "_DEBUG" /D "_CONSOLE" /D "ICEE_USE_ARRAY_MAPPING" /FD /GZ /c
 # SUBTRACT CPP /Fr /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -126,7 +126,7 @@ USERDEP__THROU="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\slice.lib"
 InputPath=.\Throughput.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Throughput.ice
+	$(ICE_HOME)\bin\slice2cppe.exe -DICEE_USE_ARRAY_MAPPING Throughput.ice
 
 "Throughput.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -142,7 +142,7 @@ USERDEP__THROU="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\sliced.lib"
 InputPath=.\Throughput.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Throughput.ice
+	$(ICE_HOME)\bin\slice2cppe.exe -DICEE_USE_ARRAY_MAPPING Throughput.ice
 
 "Throughput.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
