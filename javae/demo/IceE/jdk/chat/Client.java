@@ -130,7 +130,7 @@ public class Client
 	    {
 		router.destroySession();
 	    }
-	    catch(Ice.LocalException ex)
+	    catch(Ice.ConnectionLostException ex)
 	    {
 		//
 		// Expected: the router closed the connection.
