@@ -700,61 +700,64 @@ CallbackClient::run(int argc, char* argv[])
 	cout << "ok" << endl;
     }
 
-    {
-	cout << "stress test... " << flush;
-	const int nClients = 3; // Passwords need to be added to the password file if more clients are needed.
-	int i;
-	vector<StressClientPtr> clients;
-	for(i = 0; i < nClients; ++i)
-	{
-	    switch(rand() % 3)
-	    {
-	    case 0:
-		clients.push_back(new PingStressClient(i));
-		break;
-	    case 1:
-		clients.push_back(new CallbackStressClient(i));
-		break;
-	    case 2:
-		clients.push_back(new CallbackWithPayloadStressClient(i));
-		break;
-	    default:
-		assert(false);
-		break;
-	    }
-	    clients.back()->start();
-	}
-	for(vector<StressClientPtr>::const_iterator p = clients.begin(); p != clients.end(); ++p)
-	{
-	    (*p)->notifyThread();
-	}
+    //
+    // TODO: <benoit>This test is still bogus.</benoit>
+    //
+//     {
+// 	cout << "stress test... " << flush;
+// 	const int nClients = 3; // Passwords need to be added to the password file if more clients are needed.
+// 	int i;
+// 	vector<StressClientPtr> clients;
+// 	for(i = 0; i < nClients; ++i)
+// 	{
+// 	    switch(rand() % 3)
+// 	    {
+// 	    case 0:
+// 		clients.push_back(new PingStressClient(i));
+// 		break;
+// 	    case 1:
+// 		clients.push_back(new CallbackStressClient(i));
+// 		break;
+// 	    case 2:
+// 		clients.push_back(new CallbackWithPayloadStressClient(i));
+// 		break;
+// 	    default:
+// 		assert(false);
+// 		break;
+// 	    }
+// 	    clients.back()->start();
+// 	}
+// 	for(vector<StressClientPtr>::const_iterator p = clients.begin(); p != clients.end(); ++p)
+// 	{
+// 	    (*p)->notifyThread();
+// 	}
 
-	//
-	// Let the stress client run for a bit.
-	//
-	IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
+// 	//
+// 	// Let the stress client run for a bit.
+// 	//
+// 	IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
 
-	//
-	// Send some callbacks.
-	//
-	Context context;
-	context["_fwd"] = "t";
-	twoway->initiateCallbackWithPayload(twowayR, context);
-	twoway->initiateCallback(twowayR);
-	test(callbackReceiverImpl->callbackOK());
+// 	//
+// 	// Send some callbacks.
+// 	//
+// 	Context context;
+// 	context["_fwd"] = "t";
+// 	twoway->initiateCallbackWithPayload(twowayR, context);
+// 	twoway->initiateCallback(twowayR);
+// 	test(callbackReceiverImpl->callbackOK());
 
-	//
-	// Kill the stress clients.
-	//
-	for(vector<StressClientPtr>::const_iterator q = clients.begin(); q != clients.end(); ++q)
-	{
-	    (*q)->kill();
-	    (*q)->getThreadControl().join();
-	}
+// 	//
+// 	// Kill the stress clients.
+// 	//
+// 	for(vector<StressClientPtr>::const_iterator q = clients.begin(); q != clients.end(); ++q)
+// 	{
+// 	    (*q)->kill();
+// 	    (*q)->getThreadControl().join();
+// 	}
 
 
-	cout << "ok" << endl;
-    }
+// 	cout << "ok" << endl;
+//     }
 
     {
 	cout << "testing server shutdown... " << flush;
