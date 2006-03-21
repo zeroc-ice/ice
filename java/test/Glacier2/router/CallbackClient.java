@@ -353,8 +353,12 @@ class CallbackClient extends Ice.Application
             {
                 test(false);
             }
+	    catch(Ice.ConnectionLostException ex)
+	    {
+	    }
 	    catch(Ice.LocalException ex)
 	    {
+		test(false);
 	    }
             System.out.println("ok");
         }

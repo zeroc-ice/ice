@@ -335,8 +335,12 @@ public class Client : Ice.Application
                 router.destroySession();
                 test(false);
             }
+	    catch(Ice.ConnectionLostException)
+	    {
+	    }
             catch(Ice.LocalException)
             {
+		test(false);
             }
             Console.Out.WriteLine("ok");
         }
