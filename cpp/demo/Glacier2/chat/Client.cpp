@@ -170,7 +170,7 @@ public:
 	    {
 		router->destroySession();
 	    }
-	    catch(const Ice::LocalException&)
+	    catch(const Ice::ConnectionLostException&)
 	    {
 		//
 		// Expected: the router closed the connection.

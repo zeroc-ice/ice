@@ -144,8 +144,12 @@ public:
 	    router->destroySession();
 	    test(false);
 	}
-	catch(Ice::LocalException&)
+	catch(const Ice::ConnectionLostException&)
 	{
+	}
+	catch(const Ice::LocalException&)
+	{
+	    test(false);
 	}
 	communicator->destroy();
     }
@@ -255,8 +259,12 @@ public:
 	    _router->destroySession();
 	    test(false);
 	}
-	catch(Ice::LocalException&)
+	catch(const Ice::ConnectionLostException&)
 	{
+	}
+	catch(const Ice::LocalException&)
+	{
+	    test(false);
 	}
     }
 
@@ -773,8 +781,12 @@ CallbackClient::run(int argc, char* argv[])
 	    router->destroySession();
 	    test(false);
 	}
+	catch(const Ice::ConnectionLostException&)
+	{
+	}
 	catch(const Ice::LocalException&)
 	{
+	    test(false);
 	}
 	cout << "ok" << endl;
     }
