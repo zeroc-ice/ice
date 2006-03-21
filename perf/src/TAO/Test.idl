@@ -38,6 +38,6 @@ module Test
     oneway void test_oneway();
 
     /// Shutdown the ORB
-    oneway void shutdown ();
+    void shutdown ();
   };
 };

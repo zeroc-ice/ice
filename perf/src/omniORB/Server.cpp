@@ -81,7 +81,7 @@ int main(int argc, char** argv)
 	// stringified IOR.
 	CORBA::String_var sior(orb->object_to_string(obj));
 	ofstream os("test.ior");
-	os << sior << endl;
+	os << sior.in() << endl;
 	os.close();
 
 	//myecho->_remove_ref();

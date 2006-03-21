@@ -120,3 +120,29 @@ Roundtrip_Handler::test_method_excep (Test::AMI_RoundtripExceptionHolder *holder
     }
   ACE_ENDTRY;
 }
+
+void
+Roundtrip_Handler::shutdown (ACE_ENV_SINGLE_ARG_DECL_NOT_USED)
+  ACE_THROW_SPEC ((CORBA::SystemException))
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    _finished = true;
+    notify();
+}
+
+void
+Roundtrip_Handler::shutdown_excep (Test::AMI_RoundtripExceptionHolder *holder
+                                      ACE_ENV_ARG_DECL)
+  ACE_THROW_SPEC ((CORBA::SystemException))
+{
+  ACE_TRY
+    {
+      holder->raise_shutdown (ACE_ENV_SINGLE_ARG_PARAMETER);
+      ACE_TRY_CHECK;
+    }
+  ACE_CATCHANY
+    {
+      ACE_PRINT_EXCEPTION (ACE_ANY_EXCEPTION, "shutdown:");
+    }
+  ACE_ENDTRY;
+}
