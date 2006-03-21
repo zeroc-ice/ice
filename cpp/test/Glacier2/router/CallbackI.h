@@ -32,6 +32,7 @@ public:
 
     bool callbackOK();
     bool waitCallbackOK();
+    bool callbackWithPayloadOK();
     void notifyWaitCallback();
     bool answerConcurrentCallbacks(unsigned int);
 
@@ -39,6 +40,7 @@ private:
 
     bool _callback;
     bool _waitCallback;
+    bool _callbackWithPayload;
     bool _finishWaitCallback;
     std::vector<std::pair< ::Test::AMD_CallbackReceiver_concurrentCallbackPtr, Ice::Int> > _callbacks;
 };

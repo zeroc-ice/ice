@@ -74,7 +74,7 @@ class MisbehavedClient : public IceUtil::Thread, public IceUtil::Monitor<IceUtil
 {
 public:
     
-    MisbehavedClient(int id) : _id(id)
+    MisbehavedClient(int id) : _id(id), _callback(false)
     {
     }
 
@@ -113,12 +113,23 @@ public:
 	base = base->ice_oneway();
 	CallbackPrx callback = CallbackPrx::uncheckedCast(base);
 
+
 	//
 	// Block the CallbackReceiver in wait() to prevent the client from
-	// processing other incoming calls.
+	// processing other incoming calls and wait to receive the callback.
 	//
 	callback->initiateWaitCallback(receiver);
-	
+	test(_callbackReceiver->waitCallbackOK());
+
+	//
+	// Notify the main thread that the callback was received.
+	//
+	{
+	    Lock sync(*this);
+	    _callback = true;
+	    notify();
+	}
+
 	//
 	// Callback the client with a large payload. This should cause
 	// the Glacier2 request queue thread to block trying to send the
@@ -127,17 +138,7 @@ public:
 	// requests.
 	//
 	callback->initiateCallbackWithPayload(receiver);
-	
-	//
-	// Send a regular callback.
-	//
-	callback->initiateCallback(receiver);
-
-	//
-	// Wait to receive this last regular callback before to destroy
-	// the session and finish the thread.
-	//
-	test(_callbackReceiver->callbackOK());
+	test(_callbackReceiver->callbackWithPayloadOK());
 
 	try
 	{
@@ -165,18 +166,18 @@ public:
     {
 	{
 	    Lock sync(*this);
-	    while(!_callbackReceiver)
+	    while(!_callback)
 	    {
 		wait();
 	    }
 	}
-	test(_callbackReceiver->waitCallbackOK());
     }
 
 private:
 
-    CallbackReceiverIPtr _callbackReceiver;
     int _id;
+    CallbackReceiverIPtr _callbackReceiver;
+    bool _callback;
 };
 typedef IceUtil::Handle<MisbehavedClient> MisbehavedClientPtr;
 
@@ -184,7 +185,7 @@ class StressClient : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mu
 {
 public:
     
-    StressClient(int id) : _id(id)
+    StressClient(int id) : _id(id), _notified(false)
     {
     }
 
@@ -208,12 +209,7 @@ public:
 	
 	string category = _router->getCategoryForClient();
 
-	{
-	    Lock sync(*this);
-	    _callbackReceiver = new CallbackReceiverI;
-	    notify();
-	}
-	
+	_callbackReceiver = new CallbackReceiverI;
 	Identity ident;
 	ident.name = "callbackReceiver";
 	ident.category = category;
@@ -222,12 +218,15 @@ public:
 	ObjectPrx base = communicator->stringToProxy("c1/callback:tcp -p 12010 -t 10000");
 	base = base->ice_oneway();
 	CallbackPrx callback = CallbackPrx::uncheckedCast(base);
-	
-	//
-	// Send a regular callback.
-	//
-	callback->initiateCallback(receiver);
 
+	{
+	    Lock sync(*this);
+	    while(!_notified)
+	    {
+		wait();
+	    }
+	}
+	
 	//
 	// Stress the router until the connection is closed.
 	//
@@ -239,16 +238,11 @@ public:
     virtual void stress(const CallbackPrx& callback, const CallbackReceiverPrx&) = 0;
 
     void
-    waitForCallback()
+    notifyThread()
     {
-	{
-	    Lock sync(*this);
-	    while(!_callbackReceiver)
-	    {
-		wait();
-	    }
-	}
-	test(_callbackReceiver->callbackOK());
+	Lock sync(*this);
+	_notified = true;
+	notify();
     }
 
     void
@@ -270,9 +264,10 @@ public:
 
 protected:
 
-    CallbackReceiverIPtr _callbackReceiver;
     Glacier2::RouterPrx _router;
     int _id;
+    CallbackReceiverIPtr _callbackReceiver;
+    bool _notified;
 };
 typedef IceUtil::Handle<StressClient> StressClientPtr;
 
@@ -352,6 +347,7 @@ public:
 	    while(true)
 	    {
 		cb->initiateCallbackWithPayload(receiver, context);
+		test(_callbackReceiver->callbackWithPayloadOK());
 		IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
 	    }
 	}
@@ -660,9 +656,9 @@ CallbackClient::run(int argc, char* argv[])
 	cout << "testing buffered mode... " << flush;
 
 	//
-	// Start 5 misbehaving clients.
+	// Start 3 misbehaving clients.
 	//
-	const int nClients = 5; // Passwords need to be added to the password file if more clients are needed.
+	const int nClients = 3; // Passwords need to be added to the password file if more clients are needed.
 	int i;
 	vector<MisbehavedClientPtr> clients;
 	for(i = 0; i < nClients; ++i)
@@ -687,9 +683,13 @@ CallbackClient::run(int argc, char* argv[])
 	Context context;
 	context["_fwd"] = "t";
 	twoway->initiateCallbackWithPayload(twowayR, context);
+	test(callbackReceiverImpl->callbackWithPayloadOK());
 	twoway->initiateCallbackWithPayload(twowayR, context);
+	test(callbackReceiverImpl->callbackWithPayloadOK());
 	twoway->initiateCallbackWithPayload(twowayR, context);
+	test(callbackReceiverImpl->callbackWithPayloadOK());
 	twoway->initiateCallbackWithPayload(twowayR, context);
+	test(callbackReceiverImpl->callbackWithPayloadOK());
 
 	for(vector<MisbehavedClientPtr>::const_iterator p = clients.begin(); p != clients.end(); ++p)
 	{
@@ -723,7 +723,10 @@ CallbackClient::run(int argc, char* argv[])
 		break;
 	    }
 	    clients.back()->start();
-	    clients.back()->waitForCallback();
+	}
+	for(vector<StressClientPtr>::const_iterator p = clients.begin(); p != clients.end(); ++p)
+	{
+	    (*p)->notifyThread();
 	}
 
 	//
@@ -743,10 +746,10 @@ CallbackClient::run(int argc, char* argv[])
 	//
 	// Kill the stress clients.
 	//
-	for(vector<StressClientPtr>::const_iterator p = clients.begin(); p != clients.end(); ++p)
+	for(vector<StressClientPtr>::const_iterator q = clients.begin(); q != clients.end(); ++q)
 	{
-	    (*p)->kill();
-	    (*p)->getThreadControl().join();
+	    (*q)->kill();
+	    (*q)->getThreadControl().join();
 	}
 
 

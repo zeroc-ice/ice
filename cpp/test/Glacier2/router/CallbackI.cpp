@@ -148,12 +148,13 @@ private:
 CallbackReceiverI::CallbackReceiverI() :
     _callback(false),
     _waitCallback(false),
+    _callbackWithPayload(false),
     _finishWaitCallback(false)
 {
 }
 
 void
-CallbackReceiverI::callback(const Current& current)
+CallbackReceiverI::callback(const Current&)
 {
     Lock sync(*this);
     assert(!_callback);
@@ -206,7 +207,6 @@ bool
 CallbackReceiverI::waitCallbackOK()
 {
     Lock sync(*this);
-
     while(!_waitCallback)
     {
 	if(!timedWait(IceUtil::Time::milliSeconds(10000)))
@@ -216,6 +216,23 @@ CallbackReceiverI::waitCallbackOK()
     }
 
     _waitCallback = false;
+    return true;
+}
+
+bool
+CallbackReceiverI::callbackWithPayloadOK()
+{
+    Lock sync(*this);
+
+    while(!_callbackWithPayload)
+    {
+	if(!timedWait(IceUtil::Time::milliSeconds(10000)))
+	{
+	    return false;
+	}
+    }
+
+    _callbackWithPayload = false;
     return true;
 }
 
@@ -251,7 +268,7 @@ CallbackReceiverI::answerConcurrentCallbacks(unsigned int num)
 }
 
 void
-CallbackReceiverI::waitCallback(const Current& current)
+CallbackReceiverI::waitCallback(const Current&)
 {
     {
 	Lock sync(*this);
@@ -271,8 +288,12 @@ CallbackReceiverI::waitCallback(const Current& current)
 }
 
 void
-CallbackReceiverI::callbackWithPayload(const Ice::ByteSeq&, const Current& current)
+CallbackReceiverI::callbackWithPayload(const Ice::ByteSeq&, const Current&)
 {
+    Lock sync(*this);
+    assert(!_callbackWithPayload);
+    _callbackWithPayload = true;
+    notifyAll();
 }
 
 CallbackI::CallbackI()
