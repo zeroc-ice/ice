@@ -7,6 +7,11 @@
 //
 // **********************************************************************
 
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+#    define _CRT_SECURE_NO_DEPRECATE 1  // C4996 '<C function>' was declared deprecated/
+#    pragma warning( 4 : 4996 ) // C4996 'std::<function>' was declared deprecated
+#endif
+
 #ifdef _WIN32
 #   include <winsock2.h>
 typedef int ssize_t;

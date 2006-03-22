@@ -7,6 +7,11 @@
 //
 // **********************************************************************
 
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+#    define _CRT_SECURE_NO_DEPRECATE 1  // C4996 '<C function>' was declared deprecated/
+#    pragma warning( 4 : 4996 ) // C4996 'std::<function>' was declared deprecated
+#endif
+
 #ifdef _WIN32
 #   include <winsock2.h>
 typedef int ssize_t;
@@ -83,7 +88,7 @@ main(int argc, char* argv[])
 #ifdef WIN32
     struct _timeb tb;
     _ftime(&tb);
-    long start = tb.time * 1000000 + tb.millitm * 1000;
+    long start = (long)tb.time * 1000000 + (long)tb.millitm * 1000;
 #else
     struct timeval tv;
     gettimeofday(&tv, 0);
