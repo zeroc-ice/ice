@@ -9,9 +9,9 @@
 
 package IceSSL;
 
-final class SslEndpointFactory implements IceInternal.EndpointFactory
+final class EndpointFactoryI implements IceInternal.EndpointFactory
 {
-    SslEndpointFactory(Instance instance)
+    EndpointFactoryI(Instance instance)
     {
 	_instance = instance;
     }
@@ -19,7 +19,7 @@ final class SslEndpointFactory implements IceInternal.EndpointFactory
     public short
     type()
     {
-	return SslEndpointI.TYPE;
+	return EndpointI.TYPE;
     }
 
     public String
@@ -31,13 +31,13 @@ final class SslEndpointFactory implements IceInternal.EndpointFactory
     public IceInternal.EndpointI
     create(String str)
     {
-	return new SslEndpointI(_instance, str);
+	return new EndpointI(_instance, str);
     }
 
     public IceInternal.EndpointI
     read(IceInternal.BasicStream s)
     {
-	return new SslEndpointI(_instance, s);
+	return new EndpointI(_instance, s);
     }
 
     public void

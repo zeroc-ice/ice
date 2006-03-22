@@ -65,7 +65,7 @@ class Instance
 	    throw e;
 	}
 
-	_facade.addEndpointFactory(new SslEndpointFactory(this));
+	_facade.addEndpointFactory(new EndpointFactoryI(this));
     }
 
     Ice.Communicator
