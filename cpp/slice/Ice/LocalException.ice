@@ -531,6 +531,12 @@ local exception ConnectionTimeoutException extends TimeoutException
  **/
 local exception ProtocolException
 {
+    /**
+     *
+     * The reason for the failure.
+     *
+     **/
+    string reason;
 };
 
 /**
@@ -718,12 +724,6 @@ local exception IllegalMessageSizeException extends ProtocolException
  **/
 local exception CompressionException extends ProtocolException
 {
-    /**
-     *
-     * The reason for the failure.
-     *
-     **/
-    string reason;
 };
 
 /**
@@ -745,12 +745,6 @@ local exception DatagramLimitException extends ProtocolException
  **/
 local exception MarshalException extends ProtocolException
 {
-    /**
-     *
-     * The reason for the failure.
-     *
-     **/
-    string reason;
 };
 
 /**
@@ -865,6 +859,22 @@ local exception FeatureNotSupportedException
      *
      **/
     string unsupportedFeature;
+};
+
+/**
+ *
+ * This exception indicates a failure in a security subsystem,
+ * such as the IceSSL plugin.
+ *
+ **/
+local exception SecurityException
+{
+    /**
+     *
+     * The reason for the failure.
+     *
+     **/
+    string reason;
 };
 
 };
