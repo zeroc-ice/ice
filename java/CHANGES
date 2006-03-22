@@ -1,6 +1,10 @@
 Changes since version 3.0.1
 ---------------------------
 
+- The property IceSSL.Server.ClientAuth is now deprecated. It has
+  been superceded by IceSSL.Server.VerifyPeer, which has a default
+  value of 2.
+
 - Added requestId to Current.
 
 - Performance improvements if an AMI callback object is reused with 

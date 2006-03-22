@@ -53,5 +53,4 @@ IceSSL.Client.Password=password
 IceSSL.Client.Certs=../../../certs/certs.jks
 IceSSL.Server.Keystore=../../../certs/server.jks
 IceSSL.Server.Password=password
-IceSSL.Server.ClientAuth=1
 IceSSL.Server.Certs=../../../certs/certs.jks
