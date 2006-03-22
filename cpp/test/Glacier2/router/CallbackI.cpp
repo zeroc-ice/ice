@@ -186,6 +186,35 @@ CallbackReceiverI::concurrentCallback_async(const AMD_CallbackReceiver_concurren
     notifyAll();
 }
 
+void
+CallbackReceiverI::waitCallback(const Current&)
+{
+    {
+	Lock sync(*this);
+	assert(!_waitCallback);
+	_waitCallback = true;
+	notifyAll();
+    }
+
+    {
+	Lock sync(*this);
+	while(!_finishWaitCallback)
+	{
+	    test(timedWait(IceUtil::Time::milliSeconds(10000)));
+	}
+	_finishWaitCallback = false;
+    }
+}
+
+void
+CallbackReceiverI::callbackWithPayload(const Ice::ByteSeq&, const Current&)
+{
+    Lock sync(*this);
+    assert(!_callbackWithPayload);
+    _callbackWithPayload = true;
+    notifyAll();
+}
+
 bool
 CallbackReceiverI::callbackOK()
 {
@@ -265,35 +294,6 @@ CallbackReceiverI::answerConcurrentCallbacks(unsigned int num)
     }
     _callbacks.clear();
     return true;
-}
-
-void
-CallbackReceiverI::waitCallback(const Current&)
-{
-    {
-	Lock sync(*this);
-	assert(!_waitCallback);
-	_waitCallback = true;
-	notifyAll();
-    }
-
-    {
-	Lock sync(*this);
-	while(!_finishWaitCallback)
-	{
-	    test(timedWait(IceUtil::Time::milliSeconds(10000)));
-	}
-	_finishWaitCallback = false;
-    }
-}
-
-void
-CallbackReceiverI::callbackWithPayload(const Ice::ByteSeq&, const Current&)
-{
-    Lock sync(*this);
-    assert(!_callbackWithPayload);
-    _callbackWithPayload = true;
-    notifyAll();
 }
 
 CallbackI::CallbackI()
