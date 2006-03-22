@@ -9,7 +9,7 @@
 
 package IceSSL;
 
-final class SslConnector implements IceInternal.Connector
+final class ConnectorI implements IceInternal.Connector
 {
     private static class ConnectThread extends Thread
     {
@@ -274,7 +274,7 @@ final class SslConnector implements IceInternal.Connector
 	    _logger.trace(_instance.networkTraceCategory(), s);
 	}
 
-	return new SslTransceiver(_instance, fd);
+	return new TransceiverI(_instance, fd);
     }
 
     public String
@@ -284,9 +284,9 @@ final class SslConnector implements IceInternal.Connector
     }
 
     //
-    // Only for use by SslEndpoint
+    // Only for use by EndpointI
     //
-    SslConnector(Instance instance, String host, int port)
+    ConnectorI(Instance instance, String host, int port)
     {
 	_instance = instance;
 	_ctx = instance.clientContext();
