@@ -102,7 +102,7 @@ namespace IceSSL
 		// Load the certificate from a file if IceSSL.Server.CertFile is defined.
 		//
 		string certFile = properties.getProperty(prefix + "CertFile");
-		string certPassword = properties.getProperty(prefix + "CertPassword");
+		string password = properties.getProperty(prefix + "Password");
 		if(certFile.Length > 0)
 		{
 		    if(!File.Exists(certFile))
@@ -114,13 +114,13 @@ namespace IceSSL
 		    }
 		    try
 		    {
-			if(certPassword.Length == 0)
+			if(password.Length == 0)
 			{
 			    cert_ = new X509Certificate2(certFile);
 			}
 			else
 			{
-			    cert_ = new X509Certificate2(certFile, certPassword);
+			    cert_ = new X509Certificate2(certFile, password);
 			}
 		    }
 		    catch(CryptographicException ex)

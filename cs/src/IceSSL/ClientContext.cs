@@ -89,7 +89,7 @@ namespace IceSSL
 		// TODO: tracing?
 		certs_ = new X509Certificate2Collection();
 		string certFile = properties.getProperty(prefix + "CertFile");
-		string certPassword = properties.getProperty(prefix + "CertPassword");
+		string password = properties.getProperty(prefix + "Password");
 		if(certFile.Length > 0)
 		{
 		    if(!File.Exists(certFile))
@@ -101,7 +101,7 @@ namespace IceSSL
 		    }
 		    try
 		    {
-			X509Certificate2 cert = new X509Certificate2(certFile, certPassword);
+			X509Certificate2 cert = new X509Certificate2(certFile, password);
 			certs_.Add(cert);
 		    }
 		    catch(CryptographicException ex)

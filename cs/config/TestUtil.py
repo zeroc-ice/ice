@@ -162,21 +162,21 @@ if protocol == "ssl":
 			   ":IceSSL.PluginFactory"
     clientProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
                            " --IceSSL.Client.CertFile=" + os.path.join(toplevel, "certs", "c_rsa1024.pfx") + \
-                           " --IceSSL.Client.CertPassword=password" + \
+                           " --IceSSL.Client.Password=password" + \
                            " --IceSSL.Client.CheckCertName=0"
     serverProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
                            " --IceSSL.ImportCert.LocalMachine.AuthRoot=" + \
 				os.path.join(toplevel, "certs", "cacert.pem") + \
                            " --IceSSL.Server.CertFile=" + os.path.join(toplevel, "certs", "s_rsa1024.pfx") + \
-                           " --IceSSL.Server.CertPassword=password"
+                           " --IceSSL.Server.Password=password"
     clientServerProtocol = plugin + " --Ice.Default.Protocol=ssl" + \
                            " --IceSSL.ImportCert.LocalMachine.AuthRoot=" + \
 				os.path.join(toplevel, "certs", "cacert.pem") + \
                            " --IceSSL.Client.CertFile=" + os.path.join(toplevel, "certs", "c_rsa1024.pfx") + \
-                           " --IceSSL.Client.CertPassword=password" + \
+                           " --IceSSL.Client.Password=password" + \
                            " --IceSSL.Client.CheckCertName=0" + \
                            " --IceSSL.Server.CertFile=" + os.path.join(toplevel, "certs", "s_rsa1024.pfx") + \
-                           " --IceSSL.Server.CertPassword=password"
+                           " --IceSSL.Server.Password=password"
     cppPlugin		    = " --Ice.Plugin.IceSSL=IceSSL:create"
     cppClientProtocol       = cppPlugin + " --Ice.Default.Protocol=ssl" + \
                               " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
