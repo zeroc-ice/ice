@@ -33,13 +33,13 @@ Roundtrip_Handler::sendByteSeq (ACE_ENV_SINGLE_ARG_DECL_NOT_USED)
 }
 
 void
-Roundtrip_Handler::sendByteSeq_excep (Test::AMI_RoundtripExceptionHolder *holder
+Roundtrip_Handler::sendByteSeq_excep (Messaging::ExceptionHolder *holder
                                       ACE_ENV_ARG_DECL)
   ACE_THROW_SPEC ((CORBA::SystemException))
 {
   ACE_TRY
     {
-      holder->raise_test_method (ACE_ENV_SINGLE_ARG_PARAMETER);
+      holder->raise_exception (ACE_ENV_SINGLE_ARG_PARAMETER);
       ACE_TRY_CHECK;
     }
   ACE_CATCHANY
@@ -56,13 +56,13 @@ Roundtrip_Handler::sendStringSeq (ACE_ENV_SINGLE_ARG_DECL_NOT_USED)
 }
 
 void
-Roundtrip_Handler::sendStringSeq_excep (Test::AMI_RoundtripExceptionHolder *holder
+Roundtrip_Handler::sendStringSeq_excep (Messaging::ExceptionHolder *holder
                                       ACE_ENV_ARG_DECL)
   ACE_THROW_SPEC ((CORBA::SystemException))
 {
   ACE_TRY
     {
-      holder->raise_test_method (ACE_ENV_SINGLE_ARG_PARAMETER);
+      holder->raise_exception (ACE_ENV_SINGLE_ARG_PARAMETER);
       ACE_TRY_CHECK;
     }
   ACE_CATCHANY
@@ -79,13 +79,13 @@ Roundtrip_Handler::sendStringDoubleSeq (ACE_ENV_SINGLE_ARG_DECL_NOT_USED)
 }
 
 void
-Roundtrip_Handler::sendStringDoubleSeq_excep (Test::AMI_RoundtripExceptionHolder *holder
+Roundtrip_Handler::sendStringDoubleSeq_excep (Messaging::ExceptionHolder *holder
                                       ACE_ENV_ARG_DECL)
   ACE_THROW_SPEC ((CORBA::SystemException))
 {
   ACE_TRY
     {
-      holder->raise_test_method (ACE_ENV_SINGLE_ARG_PARAMETER);
+      holder->raise_exception (ACE_ENV_SINGLE_ARG_PARAMETER);
       ACE_TRY_CHECK;
     }
   ACE_CATCHANY
@@ -105,13 +105,13 @@ Roundtrip_Handler::test_method (ACE_ENV_SINGLE_ARG_DECL_NOT_USED)
 }
 
 void
-Roundtrip_Handler::test_method_excep (Test::AMI_RoundtripExceptionHolder *holder
+Roundtrip_Handler::test_method_excep (Messaging::ExceptionHolder *holder
                                       ACE_ENV_ARG_DECL)
   ACE_THROW_SPEC ((CORBA::SystemException))
 {
   ACE_TRY
     {
-      holder->raise_test_method (ACE_ENV_SINGLE_ARG_PARAMETER);
+      holder->raise_exception (ACE_ENV_SINGLE_ARG_PARAMETER);
       ACE_TRY_CHECK;
     }
   ACE_CATCHANY
@@ -131,13 +131,13 @@ Roundtrip_Handler::shutdown (ACE_ENV_SINGLE_ARG_DECL_NOT_USED)
 }
 
 void
-Roundtrip_Handler::shutdown_excep (Test::AMI_RoundtripExceptionHolder *holder
+Roundtrip_Handler::shutdown_excep (Messaging::ExceptionHolder *holder
                                       ACE_ENV_ARG_DECL)
   ACE_THROW_SPEC ((CORBA::SystemException))
 {
   ACE_TRY
     {
-      holder->raise_shutdown (ACE_ENV_SINGLE_ARG_PARAMETER);
+      holder->raise_exception (ACE_ENV_SINGLE_ARG_PARAMETER);
       ACE_TRY_CHECK;
     }
   ACE_CATCHANY
