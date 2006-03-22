@@ -9,7 +9,7 @@
 
 package IceSSL;
 
-final class SslTransceiver implements IceInternal.Transceiver
+final class TransceiverI implements IceInternal.Transceiver
 {
     public java.nio.channels.SelectableChannel
     fd()
@@ -310,9 +310,9 @@ final class SslTransceiver implements IceInternal.Transceiver
     }
 
     //
-    // Only for use by SslConnector, SslAcceptor
+    // Only for use by ConnectorI, AcceptorI
     //
-    SslTransceiver(Instance instance, javax.net.ssl.SSLSocket fd)
+    TransceiverI(Instance instance, javax.net.ssl.SSLSocket fd)
     {
 	_instance = instance;
 	_fd = fd;
