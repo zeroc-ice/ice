@@ -9,7 +9,7 @@
 
 package IceSSL;
 
-class SslAcceptor implements IceInternal.Acceptor
+class AcceptorI implements IceInternal.Acceptor
 {
     public java.nio.channels.ServerSocketChannel
     fd()
@@ -94,7 +94,7 @@ class SslAcceptor implements IceInternal.Acceptor
 	    _logger.trace(_instance.networkTraceCategory(), s);
 	}
 
-	return new SslTransceiver(_instance, fd);
+	return new TransceiverI(_instance, fd);
     }
 
     public void
@@ -125,7 +125,7 @@ class SslAcceptor implements IceInternal.Acceptor
 	return _addr.getPort();
     }
 
-    SslAcceptor(Instance instance, String host, int port)
+    AcceptorI(Instance instance, String host, int port)
     {
 	_instance = instance;
 	_ctx = instance.serverContext();
@@ -150,14 +150,22 @@ class SslAcceptor implements IceInternal.Acceptor
 	    _fd = (javax.net.ssl.SSLServerSocket)factory.createServerSocket(port, _backlog, iface);
 	    _addr = (java.net.InetSocketAddress)_fd.getLocalSocketAddress();
 
-	    final int clientAuth = _instance.communicator().getProperties().getPropertyAsIntWithDefault(
-		"IceSSL.Server.ClientAuth", 0);
-	    if(clientAuth == 0)
+	    int verifyPeer = _instance.communicator().getProperties().getPropertyAsIntWithDefault(
+		"IceSSL.Server.VerifyPeer", -1);
+	    if(verifyPeer == -1)
+	    {
+		//
+		// Check deprecated ClientAuth property.
+		//
+		verifyPeer = _instance.communicator().getProperties().getPropertyAsIntWithDefault(
+		    "IceSSL.Server.ClientAuth", 2);
+	    }
+	    if(verifyPeer == 0)
 	    {
 		_fd.setWantClientAuth(false);
 		_fd.setNeedClientAuth(false);
 	    }
-	    else if(clientAuth == 1)
+	    else if(verifyPeer == 1)
 	    {
 		_fd.setWantClientAuth(true);
 	    }
