@@ -166,7 +166,7 @@ namespace IceInternal
 	    return socket;
 	}
 
-	private static void closeSocketNoThrow(Socket socket)
+	public static void closeSocketNoThrow(Socket socket)
 	{
 	    if(socket == null)
 	    {
