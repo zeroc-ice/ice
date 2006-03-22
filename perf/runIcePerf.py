@@ -66,6 +66,7 @@ class ClientServerTest(TestUtil.Test) :
         result = float(clientPipe.read())
 
         clientPipe.close()
+        TestUtil.printOutputFromPipe(serverPipe);
         serverPipe.close()        
 
         os.chdir(cwd)
@@ -222,32 +223,38 @@ def runOmniORBPerfs(expr, results, i, unixSockets):
         product = "omniORB (unix)"
             
     test = ClientServerTest(expr, results, i, product, "latency twoway", "omniORB")
-    test.run("1tp", "", "latency twoway", threadPoolWithoutOpt)
+    if not TestUtil.isWin32():
+        test.run("1tp", "", "latency twoway", threadPoolWithoutOpt)
     test.run("1tp w/ opt", "", "latency twoway", threadPoolWithOpt)
     test.run("tpc", "", "latency twoway", threadPerConnection)
     
     test = ClientServerTest(expr, results, i, product, "latency oneway", "omniORB")
-    test.run("1tp", "", "latency oneway", threadPoolWithoutOpt)
+    if not TestUtil.isWin32():
+        test.run("1tp", "", "latency oneway", threadPoolWithoutOpt)
     test.run("1tp w/ opt", "", "latency oneway", threadPoolWithOpt)
     test.run("tpc", "", "latency oneway", threadPerConnection)
     
     test = ClientServerTest(expr, results, i, product, "throughput byte", "omniORB")
-    test.run("1tp", "", "throughput byte", threadPoolWithoutOpt)
+    if not TestUtil.isWin32():
+        test.run("1tp", "", "throughput byte", threadPoolWithoutOpt)
     test.run("1tp w/ opt", "", "throughput byte", threadPoolWithOpt)
     test.run("tpc", "", "throughput byte", threadPerConnection)
     
     test = ClientServerTest(expr, results, i, product, "throughput string seq", "omniORB")
-    test.run("1tp", "", "throughput string", threadPoolWithoutOpt)
+    if not TestUtil.isWin32():
+        test.run("1tp", "", "throughput string", threadPoolWithoutOpt)
     test.run("1tp w/ opt", "", "throughput string", threadPoolWithOpt)
     test.run("tpc", "", "throughput string", threadPerConnection)
     
     test = ClientServerTest(expr, results, i, product, "throughput long string seq", "omniORB")
-    test.run("1tp", "", "throughput longString", threadPoolWithoutOpt)
+    if not TestUtil.isWin32():
+        test.run("1tp", "", "throughput longString", threadPoolWithoutOpt)
     test.run("1tp w/ opt", "", "throughput longString", threadPoolWithOpt)
     test.run("tpc", "", "throughput longString", threadPerConnection)
     
     test = ClientServerTest(expr, results, i, product, "throughput struct seq", "omniORB")
-    test.run("1tp", "", "throughput struct", threadPoolWithoutOpt)
+    if not TestUtil.isWin32():
+        test.run("1tp", "", "throughput struct", threadPoolWithoutOpt)
     test.run("1tp w/ opt", "", "throughput struct", threadPoolWithOpt)
     test.run("tpc", "", "throughput struct", threadPerConnection)
 
@@ -307,7 +314,8 @@ while i <= niter:
             runTAOPerfs(expr, results, i)
         if os.environ.has_key('OMNIORB_HOME'):
             runOmniORBPerfs(expr, results, i, 0)
-            runOmniORBPerfs(expr, results, i, 1)
+            if not TestUtil.isWin32():
+                runOmniORBPerfs(expr, results, i, 1)
         i += 1
     except KeyboardInterrupt:
         break

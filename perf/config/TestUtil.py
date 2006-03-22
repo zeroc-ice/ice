@@ -17,6 +17,22 @@ for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
 else:
     raise "can't find toplevel directory!"
 
+def isCygwin():
+
+    # The substring on sys.platform is required because some cygwin
+    # versions return variations like "cygwin_nt-4.01".
+    if sys.platform[:6] == "cygwin":
+        return 1
+    else:
+        return 0
+
+def isWin32():
+
+    if sys.platform == "win32" or isCygwin():
+        return 1
+    else:
+        return 0
+
 def getAdapterReady(serverPipe):
 
     output = serverPipe.readline().strip()
