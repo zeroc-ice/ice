@@ -66,7 +66,8 @@
     <Compile Include="TransceiverI.cs" />
   </ItemGroup>
   <PropertyGroup>
-    <PreBuildEvent>"$(SolutionDir)."\bin\generatecs.exe "$(SolutionDir)." "$(ProjectDir)." $(ProjectName)</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
