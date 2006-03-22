@@ -9,12 +9,12 @@
 
 package IceSSL;
 
-final class SslEndpointI extends IceInternal.EndpointI
+final class EndpointI extends IceInternal.EndpointI
 {
     final static short TYPE = 2;
 
     public
-    SslEndpointI(Instance instance, String ho, int po, int ti, String conId, boolean co, boolean pub)
+    EndpointI(Instance instance, String ho, int po, int ti, String conId, boolean co, boolean pub)
     {
 	_instance = instance;
 	_host = ho;
@@ -27,7 +27,7 @@ final class SslEndpointI extends IceInternal.EndpointI
     }
 
     public
-    SslEndpointI(Instance instance, String str)
+    EndpointI(Instance instance, String str)
     {
 	_instance = instance;
 	_host = null;
@@ -150,7 +150,7 @@ final class SslEndpointI extends IceInternal.EndpointI
     }
 
     public
-    SslEndpointI(Instance instance, IceInternal.BasicStream s)
+    EndpointI(Instance instance, IceInternal.BasicStream s)
     {
 	_instance = instance;
 	s.startReadEncaps();
@@ -229,7 +229,7 @@ final class SslEndpointI extends IceInternal.EndpointI
 	}
 	else
 	{
-	    return new SslEndpointI(_instance, _host, _port, timeout, _connectionId, _compress, _publish);
+	    return new EndpointI(_instance, _host, _port, timeout, _connectionId, _compress, _publish);
 	}
     }
 
@@ -245,7 +245,7 @@ final class SslEndpointI extends IceInternal.EndpointI
 	}
 	else
 	{
-	    return new SslEndpointI(_instance, _host, _port, _timeout, connectionId, _compress, _publish);
+	    return new EndpointI(_instance, _host, _port, _timeout, connectionId, _compress, _publish);
 	}
     }
 
@@ -273,7 +273,7 @@ final class SslEndpointI extends IceInternal.EndpointI
 	}
 	else
 	{
-	    return new SslEndpointI(_instance, _host, _port, _timeout, _connectionId, compress, _publish);
+	    return new EndpointI(_instance, _host, _port, _timeout, _connectionId, compress, _publish);
 	}
     }
 
@@ -335,7 +335,7 @@ final class SslEndpointI extends IceInternal.EndpointI
     public IceInternal.Connector
     connector()
     {
-	return new SslConnector(_instance, _host, _port);
+	return new ConnectorI(_instance, _host, _port);
     }
 
     //
@@ -348,9 +348,9 @@ final class SslEndpointI extends IceInternal.EndpointI
     public IceInternal.Acceptor
     acceptor(IceInternal.EndpointIHolder endpoint)
     {
-	SslAcceptor p = new SslAcceptor(_instance, _host, _port);
-	endpoint.value = new SslEndpointI(_instance, _host, p.effectivePort(), _timeout, _connectionId,
-					  _compress, _publish);
+	AcceptorI p = new AcceptorI(_instance, _host, _port);
+	endpoint.value = new EndpointI(_instance, _host, p.effectivePort(), _timeout, _connectionId, _compress,
+				       _publish);
 	return p;
     }
 
@@ -372,7 +372,7 @@ final class SslEndpointI extends IceInternal.EndpointI
                 String host = (String)iter.next();
 		if(includeLoopback || hosts.size() == 1 || !host.equals("127.0.0.1"))
 		{
-                    endps.add(new SslEndpointI(_instance, host, _port, _timeout, _connectionId, _compress,
+                    endps.add(new EndpointI(_instance, host, _port, _timeout, _connectionId, _compress,
 					       hosts.size() == 1 || !host.equals("127.0.0.1")));
 		}
             }
@@ -407,10 +407,10 @@ final class SslEndpointI extends IceInternal.EndpointI
     public boolean
     equivalent(IceInternal.Acceptor acceptor)
     {
-	SslAcceptor sslAcceptor = null;
+	AcceptorI sslAcceptor = null;
 	try
 	{
-	    sslAcceptor = (SslAcceptor)acceptor;
+	    sslAcceptor = (AcceptorI)acceptor;
 	}
 	catch(ClassCastException ex)
 	{
@@ -437,11 +437,11 @@ final class SslEndpointI extends IceInternal.EndpointI
     public int
     compareTo(java.lang.Object obj) // From java.lang.Comparable
     {
-	SslEndpointI p = null;
+	EndpointI p = null;
 
 	try
 	{
-	    p = (SslEndpointI)obj;
+	    p = (EndpointI)obj;
 	}
 	catch(ClassCastException ex)
 	{
