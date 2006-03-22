@@ -13,7 +13,7 @@ namespace IceSSL
     using System.Net.Security;
     using System.Net.Sockets;
 
-    sealed class SslConnector : IceInternal.Connector
+    sealed class ConnectorI : IceInternal.Connector
     {
 	public IceInternal.Transceiver connect(int timeout)
 	{
@@ -28,7 +28,16 @@ namespace IceSSL
 	    IceInternal.Network.doConnectAsync(fd, addr_, timeout);
 
 	    // TODO: Catch exceptions?
-	    SslStream stream = instance_.clientContext().authenticate(fd, host_, timeout);
+	    SslStream stream = null;
+	    try
+	    {
+		stream = instance_.clientContext().authenticate(fd, host_, timeout);
+	    }
+	    catch(System.Exception)
+	    {
+		IceInternal.Network.closeSocketNoThrow(fd);
+		throw;
+	    }
 
 	    if(instance_.networkTraceLevel() >= 1)
 	    {
@@ -41,7 +50,7 @@ namespace IceSSL
 		instance_.traceStream(stream, IceInternal.Network.fdToString(fd));
 	    }
 
-	    return new SslTransceiver(instance_, fd, stream);
+	    return new TransceiverI(instance_, fd, stream);
 	}
 
 	public override string ToString()
@@ -50,9 +59,9 @@ namespace IceSSL
 	}
 
 	//
-	// Only for use by SslEndpoint.
+	// Only for use by EndpointI.
 	//
-	internal SslConnector(Instance instance, string host, int port)
+	internal ConnectorI(Instance instance, string host, int port)
 	{
 	    instance_ = instance;
 	    host_ = host;

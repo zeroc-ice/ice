@@ -16,7 +16,7 @@ namespace IceSSL
     using System.Net.Sockets;
     using System.Security.Cryptography.X509Certificates;
 
-    class SslAcceptor : IceInternal.Acceptor
+    class AcceptorI : IceInternal.Acceptor
     {
 	public virtual Socket fd()
 	{
@@ -79,7 +79,13 @@ namespace IceSSL
 		// This situation occurs when connectToSelf is called; the "remote" end
 		// closes the socket immediately.
 		//
-		return null; // TODO: Correct?
+		IceInternal.Network.closeSocketNoThrow(fd);
+		return null;
+	    }
+	    catch(System.Exception)
+	    {
+		IceInternal.Network.closeSocketNoThrow(fd);
+		throw;
 	    }
 
 	    if(instance_.networkTraceLevel() >= 1)
@@ -93,7 +99,7 @@ namespace IceSSL
 		instance_.traceStream(stream, IceInternal.Network.fdToString(fd));
 	    }
 
-	    return new SslTransceiver(instance_, fd, stream);
+	    return new TransceiverI(instance_, fd, stream);
 	}
 
 	public virtual void connectToSelf()
@@ -121,7 +127,7 @@ namespace IceSSL
 	}
 	
 	internal
-	SslAcceptor(Instance instance, string host, int port)
+	AcceptorI(Instance instance, string host, int port)
 	{
 	    instance_ = instance;
 	    logger_ = instance.communicator().getLogger();
@@ -152,7 +158,7 @@ namespace IceSSL
 	}
 	
 #if DEBUG
-	~SslAcceptor()
+	~AcceptorI()
 	{
 	    lock(this)
 	    {

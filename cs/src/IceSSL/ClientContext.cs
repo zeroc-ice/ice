@@ -59,8 +59,8 @@ namespace IceSSL
 	    {
 		stream.Close();
 
-		SslException e = new SslException(ex);
-		e.ice_message_ = ex.Message;
+		Ice.SecurityException e = new Ice.SecurityException(ex);
+		e.reason = ex.Message;
 		throw e;
 	    }
 	    catch(Exception ex)
@@ -106,8 +106,8 @@ namespace IceSSL
 		    }
 		    catch(CryptographicException ex)
 		    {
-			SslException e = new SslException(ex);
-			e.ice_message_ = "while attempting to load certificate from " + certFile;
+			Ice.SecurityException e = new Ice.SecurityException(ex);
+			e.reason = "while attempting to load certificate from " + certFile;
 			throw e;
 		    }
 		}
@@ -135,8 +135,8 @@ namespace IceSSL
 		    {
 			const string msg = "no client certificates found";
 			logger_.error("IceSSL: " + msg);
-			SslException e = new SslException();
-			e.ice_message_ = msg;
+			Ice.SecurityException e = new Ice.SecurityException();
+			e.reason = msg;
 			throw e;
 		    }
 		}

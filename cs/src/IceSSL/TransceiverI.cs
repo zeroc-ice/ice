@@ -15,7 +15,7 @@ namespace IceSSL
     using System.Net.Sockets;
     using System.IO;
 
-    sealed class SslTransceiver : IceInternal.Transceiver
+    sealed class TransceiverI : IceInternal.Transceiver
     {
 	public Socket fd()
 	{
@@ -266,9 +266,9 @@ namespace IceSSL
 	}
 
 	//
-	// Only for use by SslConnector, SslAcceptor.
+	// Only for use by ConnectorI, AcceptorI.
 	//
-	internal SslTransceiver(Instance instance, Socket fd, SslStream stream)
+	internal TransceiverI(Instance instance, Socket fd, SslStream stream)
 	{
 	    instance_ = instance;
 	    fd_ = fd;
@@ -279,7 +279,7 @@ namespace IceSSL
 	}
 
 #if DEBUG
-	~SslTransceiver()
+	~TransceiverI()
 	{
 	    lock(this)
 	    {

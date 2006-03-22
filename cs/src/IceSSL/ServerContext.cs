@@ -33,8 +33,8 @@ namespace IceSSL
 		AuthInfo info = new AuthInfo();
 		info.stream = stream;
 		info.done = false;
-		IAsyncResult ar = stream.BeginAuthenticateAsServer(cert_, requireClientCert_, protocols_,
-								   checkCRL_, new AsyncCallback(authCallback), info);
+		IAsyncResult ar = stream.BeginAuthenticateAsServer(cert_, verifyPeer_, protocols_, checkCRL_,
+								   new AsyncCallback(authCallback), info);
 		lock(info)
 		{
 		    if(!info.done)
@@ -69,8 +69,8 @@ namespace IceSSL
 	    {
 		stream.Close();
 
-		SslException e = new SslException(ex);
-		e.ice_message_ = ex.Message;
+		Ice.SecurityException e = new Ice.SecurityException(ex);
+		e.reason = ex.Message;
 		throw e;
 	    }
 	    catch(Exception ex)
@@ -125,8 +125,8 @@ namespace IceSSL
 		    }
 		    catch(CryptographicException ex)
 		    {
-			SslException e = new SslException(ex);
-			e.ice_message_ = "attempting to load certificate from " + certFile;
+			Ice.SecurityException e = new Ice.SecurityException(ex);
+			e.reason = "IceSSL: attempting to load certificate from " + certFile;
 			throw e;
 		    }
 		}
@@ -153,10 +153,10 @@ namespace IceSSL
 			}
 			if(certs.Count == 0)
 			{
-			    const string msg = "no server certificates found";
-			    logger_.error("IceSSL: " + msg);
-			    SslException e = new SslException();
-			    e.ice_message_ = msg;
+			    const string msg = "IceSSL: no server certificates found";
+			    logger_.error(msg);
+			    Ice.SecurityException e = new Ice.SecurityException();
+			    e.reason = msg;
 			    throw e;
 			}
 			else if(certs.Count > 1)
@@ -168,8 +168,7 @@ namespace IceSSL
 		}
 	    }
 
-	    // TODO: Review default value
-	    requireClientCert_ = properties.getPropertyAsIntWithDefault(prefix + "RequireClientCert", 1) > 0;
+	    verifyPeer_ = properties.getPropertyAsIntWithDefault(prefix + "VerifyPeer", 1) > 0;
 
 	    protocols_ = parseProtocols(prefix + "Protocols");
 
@@ -221,7 +220,7 @@ namespace IceSSL
 	    int errors = (int)sslPolicyErrors;
 	    if((errors & (int)SslPolicyErrors.RemoteCertificateNotAvailable) > 0)
 	    {
-		if(requireClientCert_)
+		if(verifyPeer_)
 		{
 		    if(instance_.securityTraceLevel() >= 1)
 		    {
@@ -259,7 +258,7 @@ namespace IceSSL
 	}
 
 	private X509Certificate2 cert_;
-	private bool requireClientCert_;
+	private bool verifyPeer_;
 	private SslProtocols protocols_;
 	private bool checkCRL_;
     }

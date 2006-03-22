@@ -54,15 +54,15 @@ namespace IceSSL
 	    //
 	    // Register the endpoint factory.
 	    //
-	    facade_.addEndpointFactory(new SslEndpointFactory(this));
+	    facade_.addEndpointFactory(new EndpointFactoryI(this));
 	}
 
 	internal void initialize(X509Certificate2Collection clientCerts, X509Certificate2 serverCert)
 	{
 	    if(clientContext_ != null)
 	    {
-		SslException e = new SslException();
-		e.ice_message_ = "plugin is already initialized";
+		Ice.SecurityException e = new Ice.SecurityException();
+		e.reason = "plugin is already initialized";
 		throw e;
 	    }
 	    else
@@ -106,10 +106,10 @@ namespace IceSSL
 	{
 	    if(clientContext_ == null)
 	    {
-		string msg = "plugin is not fully initialized";
-		communicator().getLogger().error("IceSSL: " + msg);
-		SslException e = new SslException();
-		e.ice_message_ = msg;
+		string msg = "IceSSL: plugin is not fully initialized";
+		communicator().getLogger().error(msg);
+		Ice.SecurityException e = new Ice.SecurityException();
+		e.reason = msg;
 		throw e;
 	    }
 	    return clientContext_;
@@ -119,10 +119,10 @@ namespace IceSSL
 	{
 	    if(serverContext_ == null)
 	    {
-		string msg = "plugin is not fully initialized";
-		communicator().getLogger().error("IceSSL: " + msg);
-		SslException e = new SslException();
-		e.ice_message_ = msg;
+		string msg = "IceSSL: plugin is not fully initialized";
+		communicator().getLogger().error(msg);
+		Ice.SecurityException e = new Ice.SecurityException();
+		e.reason = msg;
 		throw e;
 	    }
 	    return serverContext_;
@@ -156,10 +156,10 @@ namespace IceSSL
 	    int pos = store.IndexOf('.');
 	    if(pos == -1)
 	    {
-		string msg = "property `" + prop + "' has invalid format";
-		communicator().getLogger().error("IceSSL: " + msg);
-		SslException e = new SslException();
-		e.ice_message_ = msg;
+		string msg = "IceSSL: property `" + prop + "' has invalid format";
+		communicator().getLogger().error(msg);
+		Ice.SecurityException e = new Ice.SecurityException();
+		e.reason = msg;
 		throw e;
 	    }
 
@@ -174,20 +174,20 @@ namespace IceSSL
 	    }
 	    else
 	    {
-		string msg = "unknown store location `" + sloc + "' in " + prop;
-		communicator().getLogger().error("IceSSL: " + msg);
-		SslException e = new SslException();
-		e.ice_message_ = msg;
+		string msg = "IceSSL: unknown store location `" + sloc + "' in " + prop;
+		communicator().getLogger().error(msg);
+		Ice.SecurityException e = new Ice.SecurityException();
+		e.reason = msg;
 		throw e;
 	    }
 
 	    sname = store.Substring(pos + 1);
 	    if(sname.Length == 0)
 	    {
-		string msg = "invalid store name in " + prop;
-		communicator().getLogger().error("IceSSL: " + msg);
-		SslException e = new SslException();
-		e.ice_message_ = msg;
+		string msg = "IceSSL: invalid store name in " + prop;
+		communicator().getLogger().error(msg);
+		Ice.SecurityException e = new Ice.SecurityException();
+		e.reason = msg;
 		throw e;
 	    }
 
@@ -224,10 +224,10 @@ namespace IceSSL
 	    string[] arr = splitString(propValue, ';');
 	    if(arr == null)
 	    {
-		string msg = "unmatched quote in `" + propValue + "'";
-		communicator().getLogger().error("IceSSL: " + msg);
-		SslException e = new SslException();
-		e.ice_message_ = msg;
+		string msg = "IceSSL: unmatched quote in `" + propValue + "'";
+		communicator().getLogger().error(msg);
+		Ice.SecurityException e = new Ice.SecurityException();
+		e.reason = msg;
 		throw e;
 	    }
 	    if(arr.Length == 0)
@@ -259,10 +259,10 @@ namespace IceSSL
 	    }
 	    catch(Exception ex)
 	    {
-		string msg = "failure while opening store specified by " + propName;
-		communicator().getLogger().error("IceSSL: " + msg);
-		SslException e = new SslException(ex);
-		e.ice_message_ = msg;
+		string msg = "IceSSL: failure while opening store specified by " + propName;
+		communicator().getLogger().error(msg);
+		Ice.SecurityException e = new Ice.SecurityException(ex);
+		e.reason = msg;
 		throw e;
 	    }
 
@@ -284,10 +284,10 @@ namespace IceSSL
 	    }
 	    catch(Exception ex)
 	    {
-		string msg = "failure while adding certificate `" + file + "'";
-		communicator().getLogger().error("IceSSL: " + msg);
-		SslException e = new SslException(ex);
-		e.ice_message_ = msg;
+		string msg = "IceSSL: failure while adding certificate `" + file + "'";
+		communicator().getLogger().error(msg);
+		Ice.SecurityException e = new Ice.SecurityException(ex);
+		e.reason = msg;
 		throw e;
 	    }
 	    finally

@@ -49,9 +49,10 @@ namespace IceSSL
 			}
 			else
 			{
-			    logger_.error("IceSSL: unrecognized protocol `" + s + "'");
-			    SslException e = new SslException();
-			    e.ice_message_ = "unrecognized protocol `" + s + "'";
+			    string msg = "IceSSL: unrecognized protocol `" + s + "'";
+			    logger_.error(msg);
+			    Ice.SecurityException e = new Ice.SecurityException();
+			    e.reason = msg;
 			    throw e;
 			}
 		    }
@@ -85,10 +86,10 @@ namespace IceSSL
 	    }
 	    catch(Exception ex)
 	    {
-		string msg = "failure while opening store specified by " + prop;
-		logger_.error("IceSSL: " + msg);
-		SslException e = new SslException(ex);
-		e.ice_message_ = msg;
+		string msg = "IceSSL: failure while opening store specified by " + prop;
+		logger_.error(msg);
+		Ice.SecurityException e = new Ice.SecurityException(ex);
+		e.reason = msg;
 		throw e;
 	    }
 
@@ -153,10 +154,10 @@ namespace IceSSL
 			}
 			else
 			{
-			    string msg = "unknown key in `" + value + "'";
-			    logger_.error("IceSSL: " + msg);
-			    SslException e = new SslException();
-			    e.ice_message_ = msg;
+			    string msg = "IceSSL: unknown key in `" + value + "'";
+			    logger_.error(msg);
+			    Ice.SecurityException e = new Ice.SecurityException();
+			    e.reason = msg;
 			    throw e;
 			}
 
@@ -170,10 +171,10 @@ namespace IceSSL
 			}
 			if(start == value.Length)
 			{
-			    string msg = "missing argument in `" + value + "'";
-			    logger_.error("IceSSL: " + msg);
-			    SslException e = new SslException();
-			    e.ice_message_ = msg;
+			    string msg = "IceSSL: missing argument in `" + value + "'";
+			    logger_.error(msg);
+			    Ice.SecurityException e = new Ice.SecurityException();
+			    e.reason = msg;
 			    throw e;
 			}
 
@@ -192,10 +193,10 @@ namespace IceSSL
 			    }
 			    if(end == value.Length || value[end] != value[start])
 			    {
-				string msg = "unmatched quote in `" + value + "'";
-				logger_.error("IceSSL: " + msg);
-				SslException e = new SslException();
-				e.ice_message_ = msg;
+				string msg = "IceSSL: unmatched quote in `" + value + "'";
+				logger_.error(msg);
+				Ice.SecurityException e = new Ice.SecurityException();
+				e.reason = msg;
 				throw e;
 			    }
 			    ++start;

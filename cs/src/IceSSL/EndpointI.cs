@@ -12,11 +12,11 @@ namespace IceSSL
     using System.Diagnostics;
     using System.Collections;
 
-    sealed class SslEndpointI : IceInternal.EndpointI
+    sealed class EndpointI : IceInternal.EndpointI
     {
 	internal const short TYPE = 2;
 
-	internal SslEndpointI(Instance instance, string ho, int po, int ti, string conId, bool co, bool pub)
+	internal EndpointI(Instance instance, string ho, int po, int ti, string conId, bool co, bool pub)
 	{
 	    instance_ = instance;
 	    host_ = ho;
@@ -28,7 +28,7 @@ namespace IceSSL
 	    calcHashValue();
 	}
 
-	internal SslEndpointI(Instance instance, string str)
+	internal EndpointI(Instance instance, string str)
 	{
 	    instance_ = instance;
 	    host_ = null;
@@ -169,7 +169,7 @@ namespace IceSSL
 	    calcHashValue();
 	}
 
-	internal SslEndpointI(Instance instance, IceInternal.BasicStream s)
+	internal EndpointI(Instance instance, IceInternal.BasicStream s)
 	{
 	    instance_ = instance;
 	    s.startReadEncaps();
@@ -243,7 +243,7 @@ namespace IceSSL
 	    }
 	    else
 	    {
-		return new SslEndpointI(instance_, host_, port_, timeout, connectionId_, compress_, publish_);
+		return new EndpointI(instance_, host_, port_, timeout, connectionId_, compress_, publish_);
 	    }
 	}
 
@@ -258,7 +258,7 @@ namespace IceSSL
 	    }
 	    else
 	    {
-		return new SslEndpointI(instance_, host_, port_, timeout_, connectionId, compress_, publish_);
+		return new EndpointI(instance_, host_, port_, timeout_, connectionId, compress_, publish_);
 	    }
 	}
 
@@ -284,7 +284,7 @@ namespace IceSSL
 	    }
 	    else
 	    {
-		return new SslEndpointI(instance_, host_, port_, timeout_, connectionId_, compress, publish_);
+		return new EndpointI(instance_, host_, port_, timeout_, connectionId_, compress, publish_);
 	    }
 	}
 
@@ -340,7 +340,7 @@ namespace IceSSL
 	//
 	public override IceInternal.Connector connector()
 	{
-	    return new SslConnector(instance_, host_, port_);
+	    return new ConnectorI(instance_, host_, port_);
 	}
 
 	//
@@ -354,12 +354,12 @@ namespace IceSSL
 	{
 	    if(!instance_.serverContext().initialized())
 	    {
-		SslException e = new SslException();
-		e.ice_message_ = "SSL plug-in is not configured for server activities";
+		Ice.SecurityException e = new Ice.SecurityException();
+		e.reason = "IceSSL: plug-in is not configured for server activities";
 		throw e;
 	    }
-	    SslAcceptor p = new SslAcceptor(instance_, host_, port_);
-	    endpoint = new SslEndpointI(instance_, host_, p.effectivePort(), timeout_, connectionId_,
+	    AcceptorI p = new AcceptorI(instance_, host_, port_);
+	    endpoint = new EndpointI(instance_, host_, p.effectivePort(), timeout_, connectionId_,
 					compress_, publish_);
 	    return p;
 	}
@@ -379,7 +379,7 @@ namespace IceSSL
 		{
 		    if(includeLoopback || hosts.Length == 1 || !hosts[i].Equals("127.0.0.1"))
 		    {
-		        endps.Add(new SslEndpointI(instance_, hosts[i], port_, timeout_, connectionId_, compress_,
+		        endps.Add(new EndpointI(instance_, hosts[i], port_, timeout_, connectionId_, compress_,
 					           hosts.Length == 1 || !hosts[i].Equals("127.0.0.1")));
 		    }
 		}
@@ -411,10 +411,10 @@ namespace IceSSL
 
 	public override bool equivalent(IceInternal.Acceptor acceptor)
 	{
-	    SslAcceptor sslAcceptor = null;
+	    AcceptorI sslAcceptor = null;
 	    try
 	    {
-		sslAcceptor = (SslAcceptor)acceptor;
+		sslAcceptor = (AcceptorI)acceptor;
 	    }
 	    catch(System.InvalidCastException)
 	    {
@@ -438,11 +438,11 @@ namespace IceSSL
 
 	public override int CompareTo(object obj)
 	{
-	    SslEndpointI p = null;
+	    EndpointI p = null;
 
 	    try
 	    {
-		p = (SslEndpointI)obj;
+		p = (EndpointI)obj;
 	    }
 	    catch(System.InvalidCastException)
 	    {
@@ -565,16 +565,16 @@ namespace IceSSL
 	private int hashCode_;
     }
 
-    internal sealed class SslEndpointFactory : IceInternal.EndpointFactory
+    internal sealed class EndpointFactoryI : IceInternal.EndpointFactory
     {
-	internal SslEndpointFactory(Instance instance)
+	internal EndpointFactoryI(Instance instance)
 	{
 	    instance_ = instance;
 	}
 
 	public short type()
 	{
-	    return SslEndpointI.TYPE;
+	    return EndpointI.TYPE;
 	}
 
 	public string protocol()
@@ -584,12 +584,12 @@ namespace IceSSL
 
 	public IceInternal.EndpointI create(string str)
 	{
-	    return new SslEndpointI(instance_, str);
+	    return new EndpointI(instance_, str);
 	}
 
 	public IceInternal.EndpointI read(IceInternal.BasicStream s)
 	{
-	    return new SslEndpointI(instance_, s);
+	    return new EndpointI(instance_, s);
 	}
 
 	public void destroy()
