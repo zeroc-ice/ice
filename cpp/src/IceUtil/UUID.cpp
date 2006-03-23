@@ -22,6 +22,7 @@
 
 using namespace std;
 
+#ifndef _WIN32
 namespace IceUtil
 {
 
@@ -32,6 +33,7 @@ namespace IceUtil
 void generateRandomAndGetPid(char*, int, char*);
 
 };
+#endif
 
 // Helper char to hex functions
 //

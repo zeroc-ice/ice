@@ -92,6 +92,7 @@ IceUtil::RandomGeneratorException::ice_throw() const
 // Used by generateUUID() to get a random sequence and the pid of
 // current process.
 //
+#ifndef _WIN32
 namespace IceUtil
 {
 
@@ -105,6 +106,7 @@ generateRandomAndGetPid(char* buffer, int size, char* pid)
 }
 
 }
+#endif
 
 void
 IceUtil::generateRandom(char* buffer, int size)

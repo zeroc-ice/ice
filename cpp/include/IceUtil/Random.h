@@ -31,7 +31,6 @@ private:
 };
 
 ICE_UTIL_API void generateRandom(char*, int);
-ICE_UTIL_API void generateRandomAndGetPid(char*, int, char*);
 ICE_UTIL_API int random(int);
 
 }
