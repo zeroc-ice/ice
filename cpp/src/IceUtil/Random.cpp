@@ -36,13 +36,10 @@ const char* IceUtil::RandomGeneratorException::_name = "IceUtil::RandomGenerator
 // linux-kernel mailing list archive for additional details.
 // Since /dev/urandom on other platforms is usually a port from Linux, this problem 
 // could be widespread. Therefore, we serialize access to /dev/urandom using a static 
-// mutex. We also cache the process id for convenience (needed by generateUUID() to 
-// make sure 2 different processes can't return the same UUID because of this problem, 
-// see UUID.cpp).
+// mutex.
 //
 static IceUtil::StaticMutex staticMutex = ICE_STATIC_MUTEX_INITIALIZER;
 static int fd = -1;
-static char myPid[2];
 
 namespace
 {
@@ -88,26 +85,6 @@ IceUtil::RandomGeneratorException::ice_throw() const
     throw *this;
 }
 
-//
-// Used by generateUUID() to get a random sequence and the pid of
-// current process.
-//
-#ifndef _WIN32
-namespace IceUtil
-{
-
-void
-generateRandomAndGetPid(char* buffer, int size, char* pid)
-{
-    assert(pid);
-    generateRandom(buffer, size);
-    pid[0] = myPid[0];
-    pid[1] = myPid[1];
-}
-
-}
-#endif
-
 void
 IceUtil::generateRandom(char* buffer, int size)
 {
@@ -132,13 +109,6 @@ IceUtil::generateRandom(char* buffer, int size)
 		assert(0);
 		throw RandomGeneratorException(__FILE__, __LINE__);
 	    }
-
-	    //
-	    // Initialize myPid as well
-	    // 
-	    pid_t p = getpid();
-	    myPid[0] = (p >> 8) & 0x7F;
-	    myPid[1] = p & 0xFF;
 	}
 	
 	//

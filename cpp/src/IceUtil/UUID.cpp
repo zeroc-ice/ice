@@ -23,14 +23,27 @@
 using namespace std;
 
 #ifndef _WIN32
+
+static char myPid[2];
+
 namespace IceUtil
 {
 
 //
-// This method is defined in Random.cpp as a convenience for
-// generateUUID.
+// Initialize the pid.
 //
-void generateRandomAndGetPid(char*, int, char*);
+class PidInitializer
+{
+public:
+    
+    PidInitializer()
+    {
+	pid_t p = getpid();
+	myPid[0] = (p >> 8) & 0x7F;
+	myPid[1] = p & 0xFF;
+    }
+};
+static PidInitializer pidInitializer;
 
 };
 #endif
@@ -90,16 +103,14 @@ IceUtil::generateUUID()
     assert(sizeof(UUID) == 16);
 
     // 
-    // Get a random sequence of bytes and the pid of the current
-    // process. Instead of using 122 random bits that could be
-    // duplicated (because of a bug with some Linux kernels and
-    // potentially other Unix platforms -- see comment in Random.cpp),
-    // we replace the last 15 bits of all "random" Randoms by the last
-    // 15 bits of the process id.
+    // Get a random sequence of bytes. Instead of using 122 random
+    // bits that could be duplicated (because of a bug with some Linux
+    // kernels and potentially other Unix platforms -- see comment in
+    // Random.cpp), we replace the last 15 bits of all "random"
+    // Randoms by the last 15 bits of the process id.
     //
     char* buffer = reinterpret_cast<char*>(&uuid);
-    char pid[2];
-    generateRandomAndGetPid(buffer, sizeof(UUID), pid);
+    generateRandom(buffer, sizeof(UUID));
 
     //
     // Adjust the bits that say "version 4" UUID
@@ -112,8 +123,8 @@ IceUtil::generateUUID()
     //
     // Replace the end of the node by myPid (15 bits) 
     //
-    uuid.node[4] = (uuid.node[4] & 0x80) | pid[0];
-    uuid.node[5] = pid[1];
+    uuid.node[4] = (uuid.node[4] & 0x80) | myPid[0];
+    uuid.node[5] = myPid[1];
 
     //
     // Convert to a UUID string
