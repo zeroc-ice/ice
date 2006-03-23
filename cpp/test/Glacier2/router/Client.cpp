@@ -721,7 +721,6 @@ CallbackClient::run(int argc, char* argv[])
 		break;
 	    }
 	    clients.back()->start();
-	    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
 	}
 	for(vector<StressClientPtr>::const_iterator p = clients.begin(); p != clients.end(); ++p)
 	{

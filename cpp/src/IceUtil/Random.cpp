@@ -10,7 +10,7 @@
 #include <IceUtil/Random.h>
 
 #ifdef _WIN32
-// TODO
+#   include <Wincrypt.h>
 #else
 #   include <IceUtil/StaticMutex.h>
 #   include <sys/types.h>
@@ -22,14 +22,17 @@
 using namespace std;
 
 
-IceUtil::RandomGeneratorException::RandomGeneratorException(const char* file, int line) :
-    Exception(file, line)
+IceUtil::RandomGeneratorException::RandomGeneratorException(const char* file, int line, int error) :
+    Exception(file, line),
+    _error(error)
 {
 }
 
 const char* IceUtil::RandomGeneratorException::_name = "IceUtil::RandomGeneratorException";
 
-#ifndef _WIN32
+#ifdef _WIN32
+HCRYPTPROV context = NULL;
+#else
 //
 // Unfortunately on Linux (at least up to 2.6.9), concurrent access to /dev/urandom
 // can return the same value. Search for "Concurrent access to /dev/urandom" in the 
@@ -40,6 +43,7 @@ const char* IceUtil::RandomGeneratorException::_name = "IceUtil::RandomGenerator
 //
 static IceUtil::StaticMutex staticMutex = ICE_STATIC_MUTEX_INITIALIZER;
 static int fd = -1;
+#endif
 
 namespace
 {
@@ -53,24 +57,61 @@ public:
     
     ~RandomCleanup()
     {
-         IceUtil::StaticMutex::Lock lock(staticMutex);
-	 if(fd != -1)
-	 {
-	     close(fd);
-	     fd = -1;
-	 }
+#ifdef _WIN32
+	CryptReleaseContext(context, 0);
+#else
+	IceUtil::StaticMutex::Lock lock(staticMutex);
+	if(fd != -1)
+	{
+	    close(fd);
+	    fd = -1;
+	}
+#endif
     }
 };
 static RandomCleanup uuidCleanup;
 }
 
-
-#endif
-
 const string
 IceUtil::RandomGeneratorException::ice_name() const
 {
     return _name;
+}
+
+void
+IceUtil::RandomGeneratorException::ice_print(ostream& os) const
+{
+    Exception::ice_print(os);
+    if(_error != 0)
+    {
+	os << ":\nrandom generator exception: ";
+#ifdef _WIN32
+	LPVOID lpMsgBuf = 0;
+	DWORD ok = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
+				 FORMAT_MESSAGE_FROM_SYSTEM |
+				 FORMAT_MESSAGE_IGNORE_INSERTS,
+				 NULL,
+				 _error,
+				 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+				 (LPTSTR)&lpMsgBuf,
+				 0,
+				 NULL);
+	
+	if(ok)
+	{
+	    LPCTSTR msg = (LPCTSTR)lpMsgBuf;
+	    assert(msg && strlen((char*)msg) > 0);
+	    os << msg;
+	    LocalFree(lpMsgBuf);
+	}
+	else
+	{
+	    os << "unknown random generator error";
+	}
+#else
+        os << strerror(_error);
+#endif
+    }
 }
 
 IceUtil::Exception*
@@ -89,9 +130,18 @@ void
 IceUtil::generateRandom(char* buffer, int size)
 {
 #ifdef _WIN32
-    //
-    // TODO: XXX
-    //
+    if(context == NULL)
+    {
+	if(!CryptAcquireContext(&context, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
+	{
+	    throw RandomGeneratorException(__FILE__, __LINE__, GetLastError());
+	}
+    }
+
+    if(!CryptGenRandom(context, size, reinterpret_cast<unsigned char*>(buffer)))
+    {
+ 	throw RandomGeneratorException(__FILE__, __LINE__, GetLastError());
+    }
 #else
     int reads = 0;
     size_t index = 0;
@@ -104,7 +154,7 @@ IceUtil::generateRandom(char* buffer, int size)
 	if(fd == -1)
 	{
 	    fd = open("/dev/urandom", O_RDONLY);
-	    if (fd == -1)
+	    if(fd == -1)
 	    {
 		assert(0);
 		throw RandomGeneratorException(__FILE__, __LINE__);
@@ -124,7 +174,7 @@ IceUtil::generateRandom(char* buffer, int size)
 		int err = errno;
 		cerr << "Reading /dev/urandom returned " << strerror(err) << endl;
 		assert(0);
-		throw RandomGeneratorException(__FILE__, __LINE__);
+		throw RandomGeneratorException(__FILE__, __LINE__, errno);
 	    }
 	    else
 	    {

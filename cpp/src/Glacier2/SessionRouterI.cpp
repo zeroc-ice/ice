@@ -480,8 +480,10 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
 	{
 	    string category = router->getServerProxy(current)->ice_getIdentity().category;
 	    assert(!category.empty());
-	    _routersByCategoryHint = _routersByCategory.insert(
-		_routersByCategoryHint, pair<const string, RouterIPtr>(category, router));
+	    pair<map<string, RouterIPtr>::iterator, bool> rc = 
+		_routersByCategory.insert(pair<const string, RouterIPtr>(category, router));
+	    assert(rc.second);
+	    _routersByCategoryHint = rc.first;
 	}
 	
 	if(_sessionTraceLevel >= 1)
