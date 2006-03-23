@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Random.h>
+
 #include <Glacier2/RouterI.h>
 #include <Glacier2/Session.h>
 
@@ -61,10 +63,19 @@ Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAd
 	Identity ident;
 	ident.name = "dummy";
 	ident.category.resize(20);
+#ifdef _WIN32
 	for(string::iterator p = ident.category.begin(); p != ident.category.end(); ++p)
 	{
 	    *p = static_cast<char>(33 + rand() % (127-33)); // We use ASCII 33-126 (from ! to ~, w/o space).
 	}
+#else
+	char buf[20];
+	IceUtil::generateRandom(buf, sizeof(buf));
+	for(unsigned int i = 0; i < sizeof(buf); ++i)
+	{
+	    ident.category[i] = 33 + buf[i] % (127-33); // We use ASCII 33-126 (from ! to ~, w/o space).
+	}
+#endif
 	serverProxy = serverAdapter->createProxy(ident);
 	
 	ServerBlobjectPtr& serverBlobject = const_cast<ServerBlobjectPtr&>(_serverBlobject);

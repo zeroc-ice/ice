@@ -27,6 +27,7 @@ OBJS		= Base64.o \
 		  MD5I.o \
 		  Options.o \
 		  OutputUtil.o \
+		  Random.o \
 		  RWRecMutex.o \
 		  RecMutex.o \
 		  StaticMutex.o \
