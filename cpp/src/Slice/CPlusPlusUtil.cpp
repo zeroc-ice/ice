@@ -780,13 +780,12 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		// Use range (pair<TYPE::const_iterator, TYPE::const_iterator>). In paramters only.
 		// Need to check if iterator type other than default is specified.
 		//
-	        StringList l;
+	        StringList md;
 	        if(seqType.find("range:") == 0)
 		{
-		    l.push_back("cpp:type:" + seqType.substr(strlen("range:")));
+		    md.push_back("cpp:type:" + seqType.substr(strlen("range:")));
 		}
-	        out << nl << typeToString(seq, l, false) << " ___" << fixedParam << ";";
-		writeMarshalUnmarshalCode(out, seq, "___" + fixedParam, false, "", true, l, false);
+		writeMarshalUnmarshalCode(out, seq, "___" + fixedParam, false, "", true, md, false);
 		out << nl << fixedParam << ".first = ___" << fixedParam << ".begin();";
 		out << nl << fixedParam << ".second = ___" << fixedParam << ".end();";
 	    }
@@ -922,6 +921,31 @@ Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const TypePt
     }
 }
 
+static void
+writeRangeAllocateCode(Output& out, const TypePtr& type, const string& fixedName, const StringList& metaData,
+			      bool inParam)
+{
+    if(!inParam)
+    {
+        return;
+    }
+
+    SequencePtr seq = SequencePtr::dynamicCast(type);
+    if(seq)
+    {
+        string seqType = findMetaData(metaData, true);
+	if(seqType.find("range") == 0 && seqType != "range:array")
+	{
+	    StringList md;
+	    if(seqType.find("range:") == 0)
+	    {
+	        md.push_back("cpp:type:" + seqType.substr(strlen("range:")));
+	    }
+            out << nl << typeToString(seq, md, false) << " ___" << fixedName << ";";
+	}
+    }
+}
+
 void
 Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const TypePtr& ret, const StringList& metaData,
 			 bool inParam)
@@ -929,10 +953,20 @@ Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const TypePtr
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
 	out << nl << typeToString((*p)->type(), (*p)->getMetaData(), inParam) << ' ' << fixKwd((*p)->name()) << ';';
+	//
+	// If using a range we need to allocate the range container as well now to ensure they
+	// are always in the same scope.
+	//
+	writeRangeAllocateCode(out, (*p)->type(), fixKwd((*p)->name()), (*p)->getMetaData(), inParam);
     }
     if(ret)
     {
         out << nl << typeToString(ret, metaData, inParam) << " __ret;";
+	//
+	// If using a range we need to allocate the range container as well now to ensure they
+	// are always in the same scope.
+	//
+	writeRangeAllocateCode(out, ret, "__ret", metaData, inParam);
     }
 }
 
