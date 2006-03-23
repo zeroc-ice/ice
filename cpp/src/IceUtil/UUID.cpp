@@ -22,6 +22,17 @@
 
 using namespace std;
 
+namespace IceUtil
+{
+
+//
+// This method is defined in Random.cpp as a convenience for
+// generateUUID.
+//
+void generateRandomAndGetPid(char*, int, char*);
+
+};
+
 // Helper char to hex functions
 //
 inline void halfByteToHex(unsigned char hb, char*& hexBuffer)

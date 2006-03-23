@@ -21,6 +21,7 @@
 
 using namespace std;
 
+
 IceUtil::RandomGeneratorException::RandomGeneratorException(const char* file, int line) :
     Exception(file, line)
 {
@@ -91,13 +92,18 @@ IceUtil::RandomGeneratorException::ice_throw() const
 // Used by generateUUID() to get a random sequence and the pid of
 // current process.
 //
+namespace IceUtil
+{
+
 void
-IceUtil::generateRandomAndGetPid(char* buffer, int size, char* pid)
+generateRandomAndGetPid(char* buffer, int size, char* pid)
 {
     assert(pid);
     generateRandom(buffer, size);
     pid[0] = myPid[0];
     pid[1] = myPid[1];
+}
+
 }
 
 void
