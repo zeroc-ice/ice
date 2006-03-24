@@ -75,15 +75,16 @@ For STLport installation instructions, please refer to
 http://www.stlport.org/doc/install.html
 
 Note: For a regular build of bzip2, both the debug and the release
-library are named "libbz2.lib". In order to be able to have both a debug
-and a release version on your system, please rename the debug library to
-"libbz2d.lib". This is also what the Ice project files expect if you
-build a debug version of Ice. Please also note that the PCRE (Perl
-Compatible Regular Expression) source distribution from the PCRE website
-does not include support for compiling with Microsoft development tools.
-The PCRE sources in our third party sources archive include a NMAKE
-compatible makefile for compiling with Microsoft compilers as well as a
-patch that can be applied to stock PCRE source distributions. 
+library are named "libbz2.lib". In order to be able to have both a
+debug and a release version on your system, please rename the debug
+library to "libbz2d.lib". This is also what the Ice project files
+expect if you build a debug version of Ice. Please also note that
+the PCRE (Perl Compatible Regular Expression) source distribution
+from the PCRE website does not include support for compiling with
+Microsoft development tools. The PCRE sources in our third party
+sources archive include an NMAKE-compatible makefile for compiling
+with Microsoft compilers as well as a patch that can be applied to
+stock PCRE source distributions.
 
 If you compile the third-party libraries from source code, we
 recommend that you use the same Visual C++ version to build all of
