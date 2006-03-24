@@ -1725,7 +1725,7 @@
 		<col key="yes" def="s72">ISProductConfiguration_</col>
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
-		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.0.1-VC80</td></row>
+		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.0.0-VC80</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
 	</table>
 
@@ -2802,11 +2802,11 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>NewProperty1</td><td>0</td><td/></row>
 		<row><td>NewProperty2</td><td>0</td><td/></row>
 		<row><td>PIDTemplate</td><td>12345&lt;###-%%%%%%%&gt;@@@@@</td><td/></row>
-		<row><td>ProductCode</td><td>{EFBBBA41-1F01-4204-BFF6-C51C3D52B052}</td><td/></row>
+		<row><td>ProductCode</td><td>{3dd2f1f2-7e58-4fc5-818c-2c84c3803300}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 3.0.1 for Visual Studio 2005</td><td/></row>
-		<row><td>ProductVersion</td><td>3.0.1</td><td/></row>
+		<row><td>ProductName</td><td>Ice  for Visual Studio 2005</td><td/></row>
+		<row><td>ProductVersion</td><td></td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -2815,7 +2815,7 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>ReinstallModeText</td><td>omus</td><td/></row>
 		<row><td>SHOWLAUNCHPROGRAM</td><td>0</td><td/></row>
 		<row><td>SetupType</td><td>Typical</td><td/></row>
-		<row><td>UpgradeCode</td><td>{98672FC4-DF41-4E74-BD1D-7E027C7EBB2D}</td><td/></row>
+		<row><td>UpgradeCode</td><td>{0a48ee46-f63a-48c3-8e90-07e39197b66b}</td><td/></row>
 		<row><td>_IsMaintenance</td><td>Change</td><td/></row>
 		<row><td>_IsSetupTypeMin</td><td>Typical</td><td/></row>
 	</table>

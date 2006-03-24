@@ -315,11 +315,22 @@ the scripts operation.
 InstallShield hints
 -------------------
 
-XXX - in progress
+  NOTE: If you are going to do a lot of work with InstallShield
+  projects, reading the InstallShield and Windows Installer
+  documentation is highly recommended. Not for their literary value, but
+  the details often tend to be rather arcane and arguably non-intuitive.
 
 - Merge Modules -
+
+Next to the MSI files themselves, merge modules are the 'largest'
+reusable 'component' for constructing installers. Creating merge modules
+is similar to creating installers but cannot be installed by themselves.
+We have been using modules to group release and debug versions of third
  
 - Components and Features -
+
+Installations are organized into components and features to facilitate
+'custom' installation or conditional installation of components. 
 
 - Redistributables -
 

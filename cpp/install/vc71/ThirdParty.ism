@@ -1594,6 +1594,7 @@
 		<row><td>packages</td><td>JGoodies.VC71.4E2D2725_3AFF_413E_8BF4_D0B39DDAB4EE</td><td>0</td></row>
 		<row><td>packages</td><td>OpenSSLDevKit.VC71.1EDEFD63_5320_4657_82FE_73F602750180</td><td>0</td></row>
 		<row><td>packages</td><td>OpenSSLRuntime.VC71.25046D23_B4CC_4B64_BF3F_61A05B6EFA95</td><td>0</td></row>
+		<row><td>packages</td><td>PCREDevKit.VC71.4A724433_93AF_4B84_801A_3C78D206C453</td><td>0</td></row>
 	</table>
 
 	<table name="ISInstallScriptAction">
@@ -1686,6 +1687,7 @@
 		<row><td>JGoodies.VC71.4E2D2725_3AFF_413E_8BF4_D0B39DDAB4EE</td><td>0</td><td>JGoodies Runtime for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>OpenSSLDevKit.VC71.1EDEFD63_5320_4657_82FE_73F602750180</td><td>0</td><td>OpenSSL Dev Kit for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>OpenSSLRuntime.VC71.25046D23_B4CC_4B64_BF3F_61A05B6EFA95</td><td>0</td><td>OpenSSL Runtime for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>PCREDevKit.VC71.4A724433_93AF_4B84_801A_3C78D206C453</td><td>0</td><td>PCRE Dev Kit for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
 	</table>
 
 	<table name="ISMergeModuleCfgValues">
