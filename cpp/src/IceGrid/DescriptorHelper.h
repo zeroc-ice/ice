@@ -28,6 +28,7 @@ public:
 
     std::string operator()(const std::string&, const std::string& = std::string(), bool = true, bool = true) const;
     std::string asInt(const std::string&, const std::string& = std::string()) const;
+    std::string asFloat(const std::string&, const std::string& = std::string()) const;
     void setReserved(const std::string&, const std::string&);
     void setContext(const std::string&);
 

@@ -353,13 +353,41 @@ Resolver::asInt(const string& value, const string& name) const
     string v = operator()(value, name);
     if(!v.empty())
     {
+	string::size_type beg = v.find_first_not_of(' ');
+	string::size_type end = v.find_last_not_of(' ');
+	v = v.substr(beg == string::npos ? 0 : beg, end == string::npos ? v.length() - 1 : end - beg + 1);
+
 	int val;
-	if(!(istringstream(v) >> val))
+	istringstream is(v);
+	if(!(is >> val) || !is.eof())
 	{
 	    DeploymentException ex;
 	    ex.reason = "invalid value `" + value + "' for `" + name + "' in " + _context + ": not an integer";
 	    throw ex;
 	}
+    }
+    return v;
+}
+
+string
+Resolver::asFloat(const string& value, const string& name) const
+{
+    string v = operator()(value, name);
+    if(!v.empty())
+    {
+	string::size_type beg = v.find_first_not_of(' ');
+	string::size_type end = v.find_last_not_of(' ');
+	v = v.substr(beg == string::npos ? 0 : beg, end == string::npos ? v.length() - 1 : end - beg + 1);
+
+	float val;
+	istringstream is(v);
+	if(!(is >> val) || !is.eof())
+	{
+	    DeploymentException ex;
+	    ex.reason = "invalid value `" + value + "' for `" + name + "' in " + _context + ": not a float";
+	    throw ex;
+	}
+	cerr << v << " " << val << endl;
     }
     return v;
 }
@@ -1488,7 +1516,7 @@ NodeHelper::instantiate(const Resolver& resolve) const
 {
     NodeDescriptor desc;
     desc.variables = _definition.variables;
-    desc.loadFactor = resolve(_definition.loadFactor, "load factor");
+    desc.loadFactor = resolve.asFloat(_definition.loadFactor, "load factor");
     desc.description = resolve(_definition.description, "description");
     ServerInstanceHelperDict::const_iterator r;
     for(r = _serverInstances.begin(); r != _serverInstances.end(); ++r)

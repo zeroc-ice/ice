@@ -965,8 +965,6 @@ ServerI::checkDestroyed()
 void
 ServerI::disableOnFailure()
 {
-    assert(_state != Deactivating); // This must be called before switching to the Deactivating state.
-
     //
     // If the server is already disabled, nothing to do.
     //
@@ -980,7 +978,7 @@ ServerI::disableOnFailure()
     // is always and the server wasn't active at the time of the
     // failure we disable the server.
     //
-    if(_disableOnFailure != 0 || _activation == Always && _state != Active)
+    if(_disableOnFailure != 0 || _activation == Always && (_state == Activating || _state == WaitForActivation))
     {
 	_previousActivation = _activation;
 	_activation = Disabled;
