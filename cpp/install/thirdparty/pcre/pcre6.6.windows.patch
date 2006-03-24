@@ -1,0 +1,27 @@
+diff pcre-6.6-cygwin/pcre_internal.h pcre-6.6-win/pcre_internal.h
+82,85d81
+< #ifndef PCRE_SPY
+< #define PCRE_DEFINITION       /* Win32 __declspec(export) trigger for .dll */
+< #endif
+< 
+diff pcre-6.6-cygwin/pcregrep.c pcre-6.6-win/pcregrep.c
+306a307,309
+> 
+> #include <windows.h>
+> 
+311,312d313
+< #include <windows.h>
+< 
+397c398
+< return !isdirectory(filename)
+---
+> return !isdirectory(filename);
+408c409
+< FALSE;
+---
+> return FALSE;
+1048a1050,1053
+> #if defined(_WIN32) && !(_MSC_VER < 1400)
+>     _set_printf_count_output(1);
+> #endif
+> 
