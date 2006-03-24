@@ -39,7 +39,9 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& proxies)
 
 	if(!_verifier.verify(proxy))
 	{
-	    continue;
+	    //
+	    // XXX - handle rejection here!
+	    //
 	}
 
 	EvictorMap::iterator p = _map.find(proxy->ice_getIdentity());
