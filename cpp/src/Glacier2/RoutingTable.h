@@ -13,6 +13,7 @@
 #include <Ice/Ice.h>
 #include <IceUtil/Mutex.h>
 #include <list>
+#include <Glacier2/ProxyVerifier.h>
 
 namespace Glacier2
 {
@@ -49,6 +50,8 @@ private:
 
     EvictorMap _map;
     EvictorQueue _queue;
+
+    ProxyVerifier _verifier; 
 };
 
 }

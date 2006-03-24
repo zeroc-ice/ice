@@ -119,6 +119,10 @@ SOURCE=.\glacier2router.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ProxyVerifier.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\RequestQueue.cpp
 # End Source File
 # Begin Source File

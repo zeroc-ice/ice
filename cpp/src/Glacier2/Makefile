@@ -29,6 +29,7 @@ ROBJS		= Blobject.o \
 		  ClientBlobject.o \
 		  CryptPermissionsVerifierI.o \
 		  Glacier2Router.o \
+		  ProxyVerifier.o \
 		  RequestQueue.o \
 		  RouterI.o \
 		  RoutingTable.o \

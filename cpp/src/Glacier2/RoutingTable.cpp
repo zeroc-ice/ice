@@ -16,7 +16,8 @@ using namespace Glacier2;
 Glacier2::RoutingTable::RoutingTable(const CommunicatorPtr& communicator) :
     _communicator(communicator),
     _traceLevel(_communicator->getProperties()->getPropertyAsInt("Glacier2.Trace.RoutingTable")),
-    _maxSize(_communicator->getProperties()->getPropertyAsIntWithDefault("Glacier2.RoutingTable.MaxSize", 1000))
+    _maxSize(_communicator->getProperties()->getPropertyAsIntWithDefault("Glacier2.RoutingTable.MaxSize", 1000)),
+    _verifier(communicator, "")
 {
 }
 
@@ -35,6 +36,11 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& proxies)
 	}
 
 	ObjectPrx proxy = (*prx)->ice_twoway()->ice_secure(false); // We add proxies in default form.
+
+	if(!_verifier.verify(proxy))
+	{
+	    continue;
+	}
 
 	EvictorMap::iterator p = _map.find(proxy->ice_getIdentity());
 	

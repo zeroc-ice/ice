@@ -366,6 +366,9 @@ Glacier2:
     Client.Trace.Override
     Client.Trace.Reject
     Client.Trace.Request
+    Client.AddProxy.Reject
+    Client.AddProxy.Accept
+    Client.AddProxy.MaxEndpoints
     CryptPasswords
     InstanceName
     PermissionsVerifier
