@@ -100,14 +100,17 @@ struct GenerateRandomString
 	return s;
     }
 };
-
+IceUtil::StaticMutex lock;
 struct GenerateRandomInt
 {
+public:
+
     int
     operator()()
     {
 	return IceUtil::random();
     }
+
 };
 
 template<typename T, typename GenerateFunc> void
@@ -195,7 +198,6 @@ int main(int argc, char* argv[])
 
     runTest<string, GenerateUUID>(threadCount, GenerateUUID(), howMany, verbose, "UUID");
     runTest<string, GenerateRandomString>(threadCount, GenerateRandomString(), howMany, verbose, "string");
-//    runTest<int, GenerateRandomInt>(threadCount, GenerateRandomInt(), howMany, verbose, "integer");
-    
+
     return EXIT_SUCCESS;
 }
