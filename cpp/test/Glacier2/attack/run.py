@@ -20,7 +20,7 @@ else:
 sys.stdout.write("Testing add proxy rules...")
 testcase = file("./test.dat")
 lines = testcase.readlines()
-input = os.popen("./ruletester 1>test.out 2>test.log", "w")
+input = os.popen(r"ruletester 1>test.out 2>test.log", "w")
 for l in lines:
     input.write(l)
 
