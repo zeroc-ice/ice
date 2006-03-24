@@ -197,5 +197,5 @@ IceUtil::random(int limit)
 {
     int r;
     generateRandom(reinterpret_cast<char*>(&r), sizeof(int));
-    return r % limit;
+    return limit == 0 ? r : r % limit;
 }

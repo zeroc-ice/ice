@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/UUID.h>
+#include <IceUtil/Random.h>
 #include <IceUtil/Time.h>
 #include <IceUtil/Thread.h>
 #include <IceUtil/StaticMutex.h>
@@ -26,29 +27,29 @@ inline void usage(const char* myName)
     cerr << "Usage: " << myName << " [number of UUIDs to generate] [number of threads]" << endl;
 }
 
-class InsertThread : public Thread
+template<typename T, typename GenerateFunc> class InsertThread : public Thread
 {
 public:
-
     
-    InsertThread(int threadId, set<string>& uuidSet, long howMany, bool verbose)
-	: _threadId(threadId), _uuidSet(uuidSet), _howMany(howMany), _verbose(verbose)
+    typedef set<T> ItemSet;
+    
+    InsertThread(int threadId, ItemSet& itemSet, GenerateFunc func, long howMany, bool verbose)
+	: _threadId(threadId), _itemSet(itemSet), _func(func), _howMany(howMany), _verbose(verbose)
     {
     }
-
 
     void run()
     {
 	for(long i = 0; i < _howMany; i++)
 	{
-	    string uuid = generateUUID();
+	    T item = _func();
 
 	    StaticMutex::Lock lock(staticMutex);
-	    pair<set<string>::iterator, bool> ok = _uuidSet.insert(uuid);
+	    pair<typename ItemSet::iterator, bool> ok = _itemSet.insert(item);
 	    if(!ok.second)
 	    {
 		cerr << "******* iteration " << i << endl;
-		cerr << "******* Duplicate UUID: " << *ok.first << endl;
+		cerr << "******* Duplicate item: " << *ok.first << endl;
 	    }
 
 	    test(ok.second);
@@ -62,11 +63,94 @@ public:
 
 
 private:
+
     int _threadId;
-    set<string>& _uuidSet;
+    ItemSet& _itemSet;
+    GenerateFunc _func;
     long _howMany;
     bool _verbose;
 };
+
+struct GenerateUUID
+{
+    string
+    operator()()
+    {
+	return generateUUID();
+    }
+};
+
+struct GenerateRandomString
+{
+    string
+    operator()()
+    {
+	string s;
+	s.resize(20);
+	char buf[20];
+	IceUtil::generateRandom(buf, sizeof(buf));
+	for(unsigned int i = 0; i < sizeof(buf); ++i)
+	{
+	    s[i] = 33 + buf[i] % (127-33); // We use ASCII 33-126 (from ! to ~, w/o space).
+	}
+	return s;
+    }
+};
+
+struct GenerateRandomInt
+{
+    int
+    operator()()
+    {
+	return IceUtil::random();
+    }
+};
+
+template<typename T, typename GenerateFunc> void
+runTest(int threadCount, GenerateFunc func, long howMany, bool verbose, string name)
+{
+    cout << "Generating " << howMany << " " << name << "s using " << threadCount << " thread";
+    if(threadCount > 1)
+    {
+	cout << "s";
+    }
+    cout << "... ";
+    
+    if(verbose)
+    {
+	cout << endl;
+    }
+    else
+    {
+	cout << flush;
+    }
+
+    set<T> itemSet;
+    
+    vector<ThreadControl> threads;
+
+    Time start = Time::now();
+    for(int i = 0; i < threadCount; i++)
+    {
+	ThreadPtr t = new InsertThread<T, GenerateFunc>(i, itemSet, func, howMany / threadCount, verbose); 
+	threads.push_back(t->start());
+    }
+    for(vector<ThreadControl>::iterator p = threads.begin(); p != threads.end(); ++p)
+    {
+	p->join();
+    }
+    Time finish = Time::now();
+
+    cout << "ok" << endl;
+
+    if(verbose)
+    {
+        cout << "Each " << name << " took an average of "  
+	     << (double) ((finish - start).toMicroSeconds()) / howMany 
+	     << " micro seconds to generate and insert into a set." 
+	     << endl;
+    }
+}
 
 int main(int argc, char* argv[])
 {
@@ -104,48 +188,10 @@ int main(int argc, char* argv[])
 	    return EXIT_FAILURE;
 	}
     }
+
+    runTest<string, GenerateUUID>(threadCount, GenerateUUID(), howMany, verbose, "UUID");
+    runTest<string, GenerateRandomString>(threadCount, GenerateRandomString(), howMany, verbose, "string");
+//    runTest<int, GenerateRandomInt>(threadCount, GenerateRandomInt(), howMany, verbose, "integer");
     
-    cout << "Generating " << howMany << " UUIDs using " << threadCount << " thread";
-    if(threadCount > 1)
-    {
-	cout << "s";
-    }
-    cout << "... ";
-    
-    if(verbose)
-    {
-	cout << endl;
-    }
-    else
-    {
-	cout << flush;
-    }
-
-    set<string> uuidSet;
-    
-    vector<ThreadControl> threads;
-
-    Time start = Time::now();
-    for(int i = 0; i < threadCount; i++)
-    {
-	ThreadPtr t = new InsertThread(i, uuidSet, howMany / threadCount, verbose); 
-	threads.push_back(t->start());
-    }
-    for(vector<ThreadControl>::iterator p = threads.begin(); p != threads.end(); ++p)
-    {
-	p->join();
-    }
-    Time finish = Time::now();
-
-    cout << "ok" << endl;
-
-    if(verbose)
-    {
-        cout << "Each UUID took an average of "  
-	     << (double) ((finish - start).toMicroSeconds()) / howMany 
-	     << " micro seconds to generate and insert into a set<string>." 
-	     << endl;
-    }
-
     return EXIT_SUCCESS;
 }
