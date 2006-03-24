@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/Random.h>
 #include <Freeze/Freeze.h>
 #include <IceGrid/Database.h>
 #include <IceGrid/TraceLevels.h>
@@ -765,7 +766,7 @@ Database::getAdapters(const string& id, bool allRegistered, int& endpointCount)
 	    adpts.push_back(make_pair(p->first, adpt));
 	    ++p;
 	}
-	random_shuffle(adpts.begin(), adpts.end());
+	random_shuffle(adpts.begin(), adpts.end(), IceUtil::random);
 	endpointCount = static_cast<int>(adpts.size());
 	return adpts;
     }
@@ -927,14 +928,14 @@ Ice::ObjectPrx
 Database::getObjectByType(const string& type)
 {
     Ice::ObjectProxySeq objs = getObjectsByType(type);
-    return objs[rand() % objs.size()];
+    return objs[IceUtil::random(objs.size())];
 }
 
 Ice::ObjectPrx
 Database::getObjectByTypeOnLeastLoadedNode(const string& type, LoadSample sample)
 {
     Ice::ObjectProxySeq objs = getObjectsByType(type);
-    random_shuffle(objs.begin(), objs.end());
+    random_shuffle(objs.begin(), objs.end(), IceUtil::random);
     vector<pair<Ice::ObjectPrx, float> > objectsWithLoad;
     objectsWithLoad.reserve(objs.size());
     for(Ice::ObjectProxySeq::const_iterator p = objs.begin(); p != objs.end(); ++p)

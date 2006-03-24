@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Random.h>
 #include <Ice/Application.h>
 #include <Glacier2/Router.h>
 #include <Backend.h>
@@ -75,16 +76,16 @@ CallbackClient::run(int argc, char* argv[])
 	Identity ident;
 	string::iterator p;
 
-	ident.name.resize(1 + rand() % 2);
+	ident.name.resize(1 + IceUtil::random() % 2);
 	for(p = ident.name.begin(); p != ident.name.end(); ++p)
 	{
-	    *p = static_cast<char>('A' + rand() % 26);
+	    *p = static_cast<char>('A' + IceUtil::random() % 26);
 	}
 
-	ident.category.resize(1); // (rand() % 2);
+	ident.category.resize(1); // (IceUtil::random() % 2);
 	for(p = ident.category.begin(); p != ident.category.end(); ++p)
 	{
-	    *p = static_cast<char>('a' + rand() % 26);
+	    *p = static_cast<char>('a' + IceUtil::random() % 26);
 	}
 
 	backend = BackendPrx::uncheckedCast(backendBase->ice_newIdentity(ident));

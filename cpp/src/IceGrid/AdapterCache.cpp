@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Random.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Locator.h>
 #include <IceGrid/AdapterCache.h>
@@ -337,7 +338,7 @@ ReplicaGroupEntry::getProxies(bool allRegistered, int& nReplicas)
 	else// if(RandomLoadBalancingPolicyPtr::dynamicCast(_loadBalancing))
 	{
 	    replicas = _replicas;
-	    random_shuffle(replicas.begin(), replicas.end());
+	    random_shuffle(replicas.begin(), replicas.end(), IceUtil::random);
 	}
     }
 
@@ -347,7 +348,7 @@ ReplicaGroupEntry::getProxies(bool allRegistered, int& nReplicas)
 	// This must be done outside the synchronization block since
 	// the sort() will call and lock each server entry.
 	//
-	random_shuffle(replicas.begin(), replicas.end());
+	random_shuffle(replicas.begin(), replicas.end(), IceUtil::random);
 	sort(replicas.begin(), replicas.end(), ServerLoadCI(loadSample));
     }
 
@@ -390,7 +391,7 @@ ReplicaGroupEntry::getLeastLoadedNodeLoad(LoadSample loadSample) const
     // This must be done outside the synchronization block since
     // min_element() will call and lock each server entry.
     //
-    random_shuffle(replicas.begin(), replicas.end());
+    random_shuffle(replicas.begin(), replicas.end(), IceUtil::random);
     AdapterEntryPtr adpt = min_element(replicas.begin(), replicas.end(), ServerLoadCI(loadSample))->second;
     return adpt->getLeastLoadedNodeLoad(loadSample);
 }

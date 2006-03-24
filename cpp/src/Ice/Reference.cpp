@@ -25,6 +25,7 @@
 #include <Ice/TraceLevels.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/Random.h>
 
 using namespace std;
 using namespace Ice;
@@ -635,7 +636,7 @@ IceInternal::FixedReference::filterConnections(const vector<ConnectionIPtr>& all
     //
     // Randomize the order of connections.
     //
-    random_shuffle(connections.begin(), connections.end());
+    random_shuffle(connections.begin(), connections.end(), IceUtil::random);
     
     //
     // If a secure connection is requested, remove all non-secure
@@ -931,7 +932,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
     {
 	case Random:
 	{
-	    random_shuffle(endpoints.begin(), endpoints.end());
+	    random_shuffle(endpoints.begin(), endpoints.end(), IceUtil::random);
 	    break;
 	}
 	case Ordered:

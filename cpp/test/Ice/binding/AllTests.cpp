@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Random.h>
 #include <Ice/Ice.h>
 #include <TestCommon.h>
 #include <Test.h>
@@ -135,9 +136,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    vector<RemoteObjectAdapterPrx> adpts = adapters;
 
 	    TestIntfPrx test1 = createTestIntfPrx(adpts);
-	    random_shuffle(adpts.begin(), adpts.end());
+	    random_shuffle(adpts.begin(), adpts.end(), IceUtil::random);
 	    TestIntfPrx test2 = createTestIntfPrx(adpts);
-	    random_shuffle(adpts.begin(), adpts.end());
+	    random_shuffle(adpts.begin(), adpts.end(), IceUtil::random);
 	    TestIntfPrx test3 = createTestIntfPrx(adpts);
 
 	    test(test1->ice_connection() == test2->ice_connection());
@@ -182,9 +183,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    vector<RemoteObjectAdapterPrx> adpts = adapters;
 
 	    TestIntfPrx test1 = createTestIntfPrx(adpts);
-	    random_shuffle(adpts.begin(), adpts.end());
+	    random_shuffle(adpts.begin(), adpts.end(), IceUtil::random);
 	    TestIntfPrx test2 = createTestIntfPrx(adpts);
-	    random_shuffle(adpts.begin(), adpts.end());
+	    random_shuffle(adpts.begin(), adpts.end(), IceUtil::random);
 	    TestIntfPrx test3 = createTestIntfPrx(adpts);
 	    
 	    test(test1->ice_connection() == test2->ice_connection());
@@ -226,9 +227,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    vector<RemoteObjectAdapterPrx> adpts = adapters;
 
 	    TestIntfPrx test1 = createTestIntfPrx(adpts);
-	    random_shuffle(adpts.begin(), adpts.end());
+	    random_shuffle(adpts.begin(), adpts.end(), IceUtil::random);
 	    TestIntfPrx test2 = createTestIntfPrx(adpts);
-	    random_shuffle(adpts.begin(), adpts.end());
+	    random_shuffle(adpts.begin(), adpts.end(), IceUtil::random);
 	    TestIntfPrx test3 = createTestIntfPrx(adpts);
 
 	    test(test1->ice_connection() == test2->ice_connection());
@@ -273,9 +274,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    vector<RemoteObjectAdapterPrx> adpts = adapters;
 
 	    TestIntfPrx test1 = createTestIntfPrx(adpts);
-	    random_shuffle(adpts.begin(), adpts.end());
+	    random_shuffle(adpts.begin(), adpts.end(), IceUtil::random);
 	    TestIntfPrx test2 = createTestIntfPrx(adpts);
-	    random_shuffle(adpts.begin(), adpts.end());
+	    random_shuffle(adpts.begin(), adpts.end(), IceUtil::random);
 	    TestIntfPrx test3 = createTestIntfPrx(adpts);
 	    
 	    test(test1->ice_connection() == test2->ice_connection());

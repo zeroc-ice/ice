@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Random.h>
 #include <Ice/Application.h>
 #include <Glacier2/Router.h>
 #include <TestCommon.h>
@@ -705,7 +706,7 @@ CallbackClient::run(int argc, char* argv[])
 	vector<StressClientPtr> clients;
 	for(i = 0; i < nClients; ++i)
 	{
-	    switch(rand() % 3)
+	    switch(IceUtil::random(3))
 	    {
 	    case 0:
 		clients.push_back(new PingStressClient(i));

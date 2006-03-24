@@ -117,17 +117,20 @@ WINAPI startHook(void* arg)
     {
 	IceUtil::Thread* rawThread = static_cast<IceUtil::Thread*>(arg);
 
-        //
-        // Initialize the random number generator in each thread.
-        //
-        unsigned int seed = static_cast<unsigned int>(IceUtil::Time::now().toMicroSeconds());
-        srand(seed);            
-
 	//
 	// Ensure that the thread doesn't go away until run() has
 	// completed.
 	//
 	thread = rawThread;
+
+#ifdef _WIN32
+        //
+        // Initialize the random number generator in each thread on
+        // Windows (the rand() seed is thread specific).
+        //
+        unsigned int seed = static_cast<unsigned int>(IceUtil::Time::now().toMicroSeconds());
+        srand(seed ^ thread->getThreadControl().id());
+#endif
 
 	//
 	// See the comment in IceUtil::Thread::start() for details.
