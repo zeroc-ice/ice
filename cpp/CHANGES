@@ -1,6 +1,15 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Changed the Ice core and services to use the random generator from
+  IceUtil. The initialization of the communicator doesn't call srand
+  or srand48 anymore. It's up to your application to call it if
+  necessary.
+
+- Added random generator to IceUtil (in include/IceUtil/Random.h). The
+  random generator is using /dev/urandom on Unix platforms and the
+  cryptography API on Windows (CryptGenRandom).
+
 - Added requestId to Current.
 
 - Added typedefs for ProxyType and PointerType to the generated class 
