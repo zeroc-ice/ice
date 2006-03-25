@@ -10,7 +10,6 @@
 #include <Glacier2/ProxyVerifier.h>
 
 #ifdef _WIN32
-#   define  PCRE_STATIC
 #   include <pcreposix.h>
 #else
 #   include <sys/types.h>
@@ -161,9 +160,9 @@ Glacier2::ProxyVerifier::~ProxyVerifier()
     {
 	delete (*i);
     }
-    for(vector<ProxyRule*>::const_iterator i = _rejectRules.begin(); i != _rejectRules.end(); ++i)
+    for(vector<ProxyRule*>::const_iterator j = _rejectRules.begin(); j != _rejectRules.end(); ++j)
     {
-	delete (*i);
+	delete (*j);
     }
 }
 
@@ -225,9 +224,9 @@ Glacier2::ProxyVerifier::verify(const ObjectPrx& proxy)
 	}
 
 	matched = false;
-	for(vector<ProxyRule*>::const_iterator i = _acceptRules.begin(); i != _acceptRules.end() && !matched; ++i)
+	for(vector<ProxyRule*>::const_iterator j = _acceptRules.begin(); j != _acceptRules.end() && !matched; ++j)
 	{
-	    matched = (*i)->check(proxy);
+	    matched = (*j)->check(proxy);
 	}
 	result = matched;
     }
