@@ -1840,7 +1840,12 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
 	}
     }
 
-    if(toServerState(previous) != toServerState(_state))
+    //
+    // Don't send the server update if the state didn't change or if
+    // the server couldn't be forked.
+    //
+    if(toServerState(previous) != toServerState(_state) && 
+       !(previous == Inactive && _state == Deactivating))
     {
 	NodeObserverPrx observer = _node->getObserver();
 	if(observer)
