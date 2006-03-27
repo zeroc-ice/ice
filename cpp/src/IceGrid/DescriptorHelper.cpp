@@ -387,7 +387,6 @@ Resolver::asFloat(const string& value, const string& name) const
 	    ex.reason = "invalid value `" + value + "' for `" + name + "' in " + _context + ": not a float";
 	    throw ex;
 	}
-	cerr << v << " " << val << endl;
     }
     return v;
 }
