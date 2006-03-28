@@ -67,7 +67,8 @@ Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAd
 	IceUtil::generateRandom(buf, sizeof(buf));
 	for(unsigned int i = 0; i < sizeof(buf); ++i)
 	{
-	    ident.category[i] = 33 + buf[i] % (127-33); // We use ASCII 33-126 (from ! to ~, w/o space).
+	    const unsigned char c = static_cast<unsigned char>(buf[i]); // A value between 0-255
+	    ident.category[i] = 33 + c % (127-33); // We use ASCII 33-126 (from ! to ~, w/o space).
 	}
 	serverProxy = serverAdapter->createProxy(ident);
 	
