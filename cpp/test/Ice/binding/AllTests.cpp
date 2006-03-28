@@ -136,9 +136,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    vector<RemoteObjectAdapterPrx> adpts = adapters;
 
 	    TestIntfPrx test1 = createTestIntfPrx(adpts);
+#ifdef _MSC_VER
+	    random_shuffle(adpts.begin(), adpts.end(), ptr_fun(IceUtil::random));
+#else
 	    random_shuffle(adpts.begin(), adpts.end(), IceUtil::random);
+#endif
 	    TestIntfPrx test2 = createTestIntfPrx(adpts);
+#ifdef _MSC_VER
+	    random_shuffle(adpts.begin(), adpts.end(), ptr_fun(IceUtil::random));
+#else
 	    random_shuffle(adpts.begin(), adpts.end(), IceUtil::random);
+#endif
 	    TestIntfPrx test3 = createTestIntfPrx(adpts);
 
 	    test(test1->ice_connection() == test2->ice_connection());
@@ -183,9 +191,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    vector<RemoteObjectAdapterPrx> adpts = adapters;
 
 	    TestIntfPrx test1 = createTestIntfPrx(adpts);
+#ifdef _MSC_VER
+	    random_shuffle(adpts.begin(), adpts.end(), ptr_fun(IceUtil::random));
+#else
 	    random_shuffle(adpts.begin(), adpts.end(), IceUtil::random);
+#endif
 	    TestIntfPrx test2 = createTestIntfPrx(adpts);
+#ifdef _MSC_VER
+	    random_shuffle(adpts.begin(), adpts.end(), ptr_fun(IceUtil::random));
+#else
 	    random_shuffle(adpts.begin(), adpts.end(), IceUtil::random);
+#endif
 	    TestIntfPrx test3 = createTestIntfPrx(adpts);
 	    
 	    test(test1->ice_connection() == test2->ice_connection());
@@ -227,9 +243,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    vector<RemoteObjectAdapterPrx> adpts = adapters;
 
 	    TestIntfPrx test1 = createTestIntfPrx(adpts);
+#ifdef _MSC_VER
+	    random_shuffle(adpts.begin(), adpts.end(), ptr_fun(IceUtil::random));
+#else
 	    random_shuffle(adpts.begin(), adpts.end(), IceUtil::random);
+#endif
 	    TestIntfPrx test2 = createTestIntfPrx(adpts);
+#ifdef _MSC_VER
+	    random_shuffle(adpts.begin(), adpts.end(), ptr_fun(IceUtil::random));
+#else
 	    random_shuffle(adpts.begin(), adpts.end(), IceUtil::random);
+#endif
 	    TestIntfPrx test3 = createTestIntfPrx(adpts);
 
 	    test(test1->ice_connection() == test2->ice_connection());
@@ -274,9 +298,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    vector<RemoteObjectAdapterPrx> adpts = adapters;
 
 	    TestIntfPrx test1 = createTestIntfPrx(adpts);
+#ifdef _MSC_VER
+	    random_shuffle(adpts.begin(), adpts.end(), ptr_fun(IceUtil::random));
+#else
 	    random_shuffle(adpts.begin(), adpts.end(), IceUtil::random);
+#endif
 	    TestIntfPrx test2 = createTestIntfPrx(adpts);
+#ifdef _MSC_VER
+	    random_shuffle(adpts.begin(), adpts.end(), ptr_fun(IceUtil::random));
+#else
 	    random_shuffle(adpts.begin(), adpts.end(), IceUtil::random);
+#endif
 	    TestIntfPrx test3 = createTestIntfPrx(adpts);
 	    
 	    test(test1->ice_connection() == test2->ice_connection());

@@ -766,7 +766,11 @@ Database::getAdapters(const string& id, bool allRegistered, int& endpointCount)
 	    adpts.push_back(make_pair(p->first, adpt));
 	    ++p;
 	}
+#ifdef _MSC_VER
+	random_shuffle(adpts.begin(), adpts.end(), ptr_fun(IceUtil::random));
+#else
 	random_shuffle(adpts.begin(), adpts.end(), IceUtil::random);
+#endif
 	endpointCount = static_cast<int>(adpts.size());
 	return adpts;
     }
@@ -935,7 +939,11 @@ Ice::ObjectPrx
 Database::getObjectByTypeOnLeastLoadedNode(const string& type, LoadSample sample)
 {
     Ice::ObjectProxySeq objs = getObjectsByType(type);
+#ifdef _MSC_VER
+    random_shuffle(objs.begin(), objs.end(), ptr_fun(IceUtil::random));
+#else
     random_shuffle(objs.begin(), objs.end(), IceUtil::random);
+#endif
     vector<pair<Ice::ObjectPrx, float> > objectsWithLoad;
     objectsWithLoad.reserve(objs.size());
     for(Ice::ObjectProxySeq::const_iterator p = objs.begin(); p != objs.end(); ++p)

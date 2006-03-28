@@ -338,7 +338,11 @@ ReplicaGroupEntry::getProxies(bool allRegistered, int& nReplicas)
 	else// if(RandomLoadBalancingPolicyPtr::dynamicCast(_loadBalancing))
 	{
 	    replicas = _replicas;
+#ifdef _MSC_VER
+	    random_shuffle(replicas.begin(), replicas.end(), ptr_fun(IceUtil::random));
+#else
 	    random_shuffle(replicas.begin(), replicas.end(), IceUtil::random);
+#endif
 	}
     }
 
@@ -348,7 +352,11 @@ ReplicaGroupEntry::getProxies(bool allRegistered, int& nReplicas)
 	// This must be done outside the synchronization block since
 	// the sort() will call and lock each server entry.
 	//
+#ifdef _MSC_VER
+	random_shuffle(replicas.begin(), replicas.end(), ptr_fun(IceUtil::random));
+#else
 	random_shuffle(replicas.begin(), replicas.end(), IceUtil::random);
+#endif
 	sort(replicas.begin(), replicas.end(), ServerLoadCI(loadSample));
     }
 
@@ -391,7 +399,11 @@ ReplicaGroupEntry::getLeastLoadedNodeLoad(LoadSample loadSample) const
     // This must be done outside the synchronization block since
     // min_element() will call and lock each server entry.
     //
+#ifdef _MSC_VER
+    random_shuffle(replicas.begin(), replicas.end(), ptr_fun(IceUtil::random));
+#else
     random_shuffle(replicas.begin(), replicas.end(), IceUtil::random);
+#endif
     AdapterEntryPtr adpt = min_element(replicas.begin(), replicas.end(), ServerLoadCI(loadSample))->second;
     return adpt->getLeastLoadedNodeLoad(loadSample);
 }
