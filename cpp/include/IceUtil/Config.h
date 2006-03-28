@@ -65,7 +65,7 @@
 #   define ICE_DECLSPEC_IMPORT /**/
 #endif
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && (_MSC_VER >= 1300)
 #   define ICE_DEPRECATED_API __declspec(deprecated)
 #elif defined(__GNUC__)
 #   define ICE_DEPRECATED_API __attribute__((deprecated))
