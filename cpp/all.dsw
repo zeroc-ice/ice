@@ -590,6 +590,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name retryS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icesslconfigurationC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icesslconfigurationS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -2258,7 +2264,48 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "icesslconfigurationC"=.\test\IceSSL\configuration\icesslconfigurationC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
     Begin Project Dependency
+    Project_Dep_Name icessl
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "icesslconfigurationS"=.\test\IceSSL\configuration\icesslconfigurationS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name icessl
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
 }}}
 
 ###############################################################################
