@@ -30,18 +30,18 @@
 # parsed by PropertiesI::parseIceCommandLineOptions(). If set to
 # false, command line options matching the section label won't be
 # parsed by PropertiesI::parseIceCommandLineOptions. This is useful
-# for plugin properties (e.g.: IceSSL) which are parsed when the
-# plugin is loaded (see PluginManagerI::loadPlugins()).
+# for plugin properties that are parsed when the plugin is loaded
+# (see PluginManagerI::loadPlugins()).
 #
 # Section labels must appear on a line by themselves (possibly
-# followed by a comment).  Leading and trailing whitespace is
+# followed by a comment). Leading and trailing whitespace is
 # ignored. Each section must occur only once in a file. "validProps"
 # is reserved and cannot be used as a section name.
 #
-# Each section contains a number of property names, one to a line.  A
+# Each section contains a number of property names, one to a line. A
 # property name cannot contain the # character. Otherwise, a property
 # name is taken to be any consecutive sequence of non-whitespace
-# characters.  Leading and trailing whitespace is ignored, as is a
+# characters. Leading and trailing whitespace is ignored, as is a
 # trailing comment.
 #
 
@@ -289,38 +289,47 @@ IcePatch2:
     ThreadPool.StackSize
 
 IceSSL:
-    Client.CertPath
-    Client.Config
-    Client.IgnoreValidPeriod
-    Client.Overrides.CACertificate
-    Client.Overrides.DSA.Certificate
-    Client.Overrides.DSA.PrivateKey
-    Client.Overrides.RSA.Certificate
-    Client.Overrides.RSA.PrivateKey
-    Client.Passphrase.Retries
-    Server.CertPath
-    Server.Config
-    Server.IgnoreValidPeriod
-    Server.Overrides.CACertificate
-    Server.Overrides.DSA.Certificate
-    Server.Overrides.DSA.PrivateKey
-    Server.Overrides.RSA.Certificate
-    Server.Overrides.RSA.PrivateKey
-    Server.Passphrase.Retries
+    Client.CertAuthDir
+    Client.CertAuthFile
+    Client.CertFile
+    Client.CheckCertName
+    Client.CheckCRL
+    Client.Ciphers
+    Client.DefaultDir
+    Client.DH.*
+    Client.KeyFile
+    Client.Password
+    Client.PasswordRetryMax
+    Client.Protocols
+    Client.VerifyDepthMax
+    Client.VerifyPeer
+    DelayInit
+    EntropyDaemon
+    ImportCert.*
+    Random
+    Server.CertAuthDir
+    Server.CertAuthFile
+    Server.CertFile
+    Server.CheckCRL
+    Server.Ciphers
+    Server.DefaultDir
+    Server.DH.*
+    Server.KeyFile
+    Server.Password
+    Server.PasswordRetryMax
+    Server.Protocols
+    Server.VerifyDepthMax
+    Server.VerifyPeer
     Trace.Security
     Client.Certs
     Client.CertsPassword
-    Client.Ciphers
     Client.Keystore
     Client.KeystorePassword
-    Client.Password
     Server.Certs
     Server.CertsPassword
-    Server.Ciphers
     Server.ClientAuth
     Server.Keystore
     Server.KeystorePassword
-    Server.Password
 
 IceStorm:
     Flush.Timeout

@@ -2,10 +2,14 @@ Throughput.Throughput=throughput:default -p 10000
 Throughput.Endpoints=default -p 10000
 
 #Ice.Plugin.IceSSL=IceSSL:create
-IceSSL.Client.CertPath=../../../certs
-IceSSL.Client.Config=./sslconfig.xml
-IceSSL.Server.CertPath=../../../certs
-IceSSL.Server.Config=./sslconfig.xml
+IceSSL.Client.DefaultDir=../../../certs
+IceSSL.Client.CertAuthFile=cacert.pem
+IceSSL.Client.CertFile=c_rsa1024_pub.pem
+IceSSL.Client.KeyFile=c_rsa1024_priv.pem
+IceSSL.Server.DefaultDir=../../../certs
+IceSSL.Server.CertAuthFile=cacert.pem
+IceSSL.Server.CertFile=s_rsa1024_pub.pem
+IceSSL.Server.KeyFile=s_rsa1024_priv.pem
 
 Ice.ACM.Client=0
 Ice.ACM.Server=0

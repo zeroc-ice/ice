@@ -43,5 +43,7 @@ IceSSL.Trace.Security=0
 # and other pertinent information for creating an SSL connection.
 #
 Ice.Plugin.IceSSL=IceSSL:create
-IceSSL.Client.CertPath=../../../../certs
-IceSSL.Client.Config=sslconfig.xml
+IceSSL.Client.DefaultDir=../../../../certs
+IceSSL.Client.CertAuthFile=cacert.pem
+IceSSL.Client.CertFile=c_rsa1024_pub.pem
+IceSSL.Client.KeyFile=c_rsa1024_priv.pem

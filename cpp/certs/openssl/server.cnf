@@ -21,8 +21,8 @@ default_ca = ice
 
 [ ice ]
 dir              = $ENV::ICE_HOME/certs/openssl/ca  # Where everything is kept.
-private_key      = $dir/cakey.pem           # The CA Private Key.
-certificate      = $dir/cacert.pem          # The CA Certificate.
+private_key      = $ENV::ICE_HOME/certs/cakey.pem   # The CA Private Key.
+certificate      = $ENV::ICE_HOME/certs/cacert.pem  # The CA Certificate.
 database         = $dir/index.txt           # Database index file.
 new_certs_dir    = $dir                     # Default loc for new certs.
 serial           = $dir/serial              # The current serial number.
@@ -54,6 +54,7 @@ basicConstraints = CA:false
 subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid:always,issuer:always
 
+subjectAltName = DNS:server, IP:127.0.0.1
 
 [ req ]
 default_bits        = 1024

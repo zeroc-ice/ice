@@ -15,56 +15,24 @@ LIBNAME		= $(call mklibname,IceSSL)
 
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
-OBJS		= BaseCerts.o \
-                  CertificateAuthority.o \
-                  CertificateDesc.o \
-                  CertificateVerifierF.o \
-                  CertificateVerifier.o \
-                  CertificateVerifierOpenSSL.o \
-                  ClientContext.o \
-                  ConfigParser.o \
-                  Context.o \
-                  Convert.o \
-                  DefaultCertificateVerifier.o \
-                  DHParams.o \
-                  Exception.o \
-                  GeneralConfig.o \
-                  OpenSSLJanitors.o \
-                  OpenSSLPluginI.o \
-                  OpenSSLUtils.o \
-	   	  PluginF.o \
-	  	  Plugin.o \
-                  RSACertificateGen.o \
-                  RSAKeyPair.o \
-                  RSAPrivateKey.o \
-                  RSAPublicKey.o \
-                  ServerContext.o \
-                  SingleCertificateVerifier.o \
-                  SslAcceptor.o \
-                  SslConnector.o \
-                  SslEndpointI.o \
-                  SslException.o \
-		  SslTransceiver.o \
-                  TempCerts.o \
-                  TraceLevels.o
+OBJS		= AcceptorI.o \
+		  Context.o \
+                  ConnectorI.o \
+                  EndpointI.o \
+                  Instance.o \
+                  PluginI.o \
+                  TransceiverI.o \
+                  Util.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
-SLICE_SRCS	= $(SDIR)/Exception.ice \
-		  $(SDIR)/PluginF.ice \
-		  $(SDIR)/Plugin.ice \
-	 	  $(SDIR)/CertificateVerifierF.ice \
-	 	  $(SDIR)/CertificateVerifier.ice
-
 HDIR		= $(includedir)/IceSSL
-SDIR		= $(slicedir)/IceSSL
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_SSL_API_EXPORTS $(OPENSSL_FLAGS)
-SLICE2CPPFLAGS	:= --ice --include-dir IceSSL --dll-export ICE_SSL_API $(SLICE2CPPFLAGS)
+CPPFLAGS	:= -I. -I.. $(CPPFLAGS) -DICE_SSL_API_EXPORTS $(OPENSSL_FLAGS)
 
-LINKWITH        := $(EXPAT_RPATH_LINK) -lIceXML $(BZIP2_RPATH_LINK) -lIce -lIceUtil $(OPENSSL_LIBS) $(CXXLIBS)
+LINKWITH        := $(BZIP2_RPATH_LINK) -lIce -lIceUtil $(OPENSSL_LIBS) $(CXXLIBS)
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@

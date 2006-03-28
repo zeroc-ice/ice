@@ -11,11 +11,7 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= configuration \
-		  loadPEM \
-		  certificateAndKeyParsing \
-		  certificateVerifier \
-		  certificateVerification 
+SUBDIRS		= configuration
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

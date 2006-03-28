@@ -7,23 +7,12 @@
 //
 // **********************************************************************
 
-#ifndef ICESSL_CONTEXT_H
-#define ICESSL_CONTEXT_H
+#ifndef ICE_SSL_CONTEXT_H
+#define ICE_SSL_CONTEXT_H
 
-#include <Ice/CommunicatorF.h>
-#include <IceSSL/TraceLevelsF.h>
-#include <IceSSL/SslTransceiverF.h>
-#include <IceSSL/ContextF.h>
-
-#include <Ice/BuiltinSequences.h>
-#include <IceSSL/OpenSSL.h>
-#include <IceSSL/CertificateVerifierOpenSSL.h>
-#include <IceSSL/GeneralConfig.h>
-#include <IceSSL/CertificateAuthority.h>
-#include <IceSSL/BaseCerts.h>
-#include <IceSSL/TempCerts.h>
-#include <IceSSL/RSAPublicKey.h>
-#include <IceSSL/RSAKeyPairF.h>
+#include <InstanceF.h>
+#include <UtilF.h>
+#include <Ice/LoggerF.h>
 
 namespace IceSSL
 {
@@ -32,68 +21,55 @@ class Context : public IceUtil::Shared
 {
 public:
 
-    virtual ~Context();
+    Context(const InstancePtr&, const std::string&, SSL_CTX*);
+    ~Context();
 
-    bool isConfigured();
+    SSL_CTX* ctx() const;
 
-    void cleanUp();
+    void validatePeer(SSL*, const std::string&, bool);
 
-    virtual void setCertificateVerifier(const CertificateVerifierPtr&);
-    virtual void addTrustedCertificateBase64(const std::string&);
-    virtual void addTrustedCertificate(const Ice::ByteSeq&);
-    virtual void setRSAKeysBase64(const std::string&, const std::string&);
-    virtual void setRSAKeys(const Ice::ByteSeq&, const Ice::ByteSeq&);
-    virtual void configure(const GeneralConfig&, const CertificateAuthority&, const BaseCertificates&);
-    virtual SslTransceiverPtr createTransceiver(int, const OpenSSLPluginIPtr&, int) = 0;
+    std::string password(bool);
+
+#ifndef OPENSSL_NO_DH
+    DH* dhParams(int);
+#endif
+
+    int verifyCallback(int, SSL*, X509_STORE_CTX*);
+
+    void traceConnection(SSL*, bool);
 
 protected:
 
-    Context(const TraceLevelsPtr&, const Ice::CommunicatorPtr&, const ContextType&);
+    bool checkPath(std::string&, bool);
+    void parseProtocols(const std::string&);
 
-    SSL_METHOD* getSslMethod(SslProtocol);
-    void createContext(SslProtocol);
-
-    virtual void loadCertificateAuthority(const CertificateAuthority&);
-
-    void setKeyCert(const CertificateDesc&, const std::string&, const std::string&);
-
-    void checkKeyCert();
-
-    void addTrustedCertificate(const RSAPublicKey&);
-
-    void addKeyCert(const CertificateFile&, const CertificateFile&);
-
-    void addKeyCert(const RSAKeyPair&);
-
-    void addKeyCert(const Ice::ByteSeq&, const Ice::ByteSeq&);
-
-    void addKeyCert(const std::string&, const std::string&);
-
-    SSL* createSSLConnection(int);
-
-    void setCipherList(const std::string&);
-
-    void setDHParams(const BaseCertificates&);
-
-    TraceLevelsPtr _traceLevels;
-    Ice::CommunicatorPtr _communicator;
-    ContextType _contextType;
-
-    std::string _rsaPrivateKeyProperty;
-    std::string _rsaPublicKeyProperty;
-    std::string _dsaPrivateKeyProperty;
-    std::string _dsaPublicKeyProperty;
-    std::string _caCertificateProperty;
-    std::string _passphraseRetriesProperty;
-    std::string _maxPassphraseRetriesDefault;
-    std::string _connectionHandshakeRetries;
-
-    CertificateVerifierPtr _certificateVerifier;
-
-    SSL_CTX* _sslContext;
-
-    int _maxPassphraseTries;
+    InstancePtr _instance;
+    Ice::LoggerPtr _logger;
+    SSL_CTX* _ctx;
+    std::string _defaultDir;
+    bool _checkCertName;
+    std::string _password;
+#ifndef OPENSSL_NO_DH
+    DHParamsPtr _dhParams;
+#endif
 };
+typedef IceUtil::Handle<Context> ContextPtr;
+
+class ClientContext : public Context
+{
+public:
+
+    ClientContext(const InstancePtr&, SSL_CTX*);
+};
+typedef IceUtil::Handle<ClientContext> ClientContextPtr;
+
+class ServerContext : public Context
+{
+public:
+
+    ServerContext(const InstancePtr&, SSL_CTX*);
+};
+typedef IceUtil::Handle<ServerContext> ServerContextPtr;
 
 }
 

@@ -223,20 +223,6 @@ IceInternal::createSocket(bool udp)
     return fd;
 }
 
-static void
-closeSocketNoThrow(SOCKET fd)
-{
-#ifdef _WIN32
-    int error = WSAGetLastError();
-    closesocket(fd);
-    WSASetLastError(error);
-#else
-    int error = errno;
-    close(fd);
-    errno = error;
-#endif
-}
-
 void
 IceInternal::closeSocket(SOCKET fd)
 {
@@ -257,6 +243,20 @@ IceInternal::closeSocket(SOCKET fd)
 	ex.error = getSocketErrno();
 	throw ex;
     }
+    errno = error;
+#endif
+}
+
+void
+IceInternal::closeSocketNoThrow(SOCKET fd)
+{
+#ifdef _WIN32
+    int error = WSAGetLastError();
+    closesocket(fd);
+    WSASetLastError(error);
+#else
+    int error = errno;
+    close(fd);
     errno = error;
 #endif
 }
@@ -1200,33 +1200,18 @@ IceInternal::fdToString(SOCKET fd)
     struct sockaddr_in localAddr;
     fdToLocalAddress(fd, localAddr);
 
-    bool peerNotConnected = false;
-    socklen_t remoteLen = static_cast<socklen_t>(sizeof(struct sockaddr_in));
     struct sockaddr_in remoteAddr;
-    if(getpeername(fd, reinterpret_cast<struct sockaddr*>(&remoteAddr), &remoteLen) == SOCKET_ERROR)
-    {
-	if(notConnected())
-	{
-	    peerNotConnected = true;
-	}
-	else
-	{
-	    closeSocketNoThrow(fd);
-	    SocketException ex(__FILE__, __LINE__);
-	    ex.error = getSocketErrno();
-	    throw ex;
-	}
-    }
+    bool peerConnected = fdToRemoteAddress(fd, remoteAddr);
 
     ostringstream s;
     s << "local address = " << addrToString(localAddr);
-    if(peerNotConnected)
+    if(peerConnected)
     {
-	s << "\nremote address = <not connected>";
+	s << "\nremote address = " << addrToString(remoteAddr);
     }
     else
     {
-	s << "\nremote address = " << addrToString(remoteAddr);
+	s << "\nremote address = <not connected>";
     }
     return s.str();
 }
@@ -1242,6 +1227,28 @@ IceInternal::fdToLocalAddress(SOCKET fd, struct sockaddr_in& addr)
 	ex.error = getSocketErrno();
 	throw ex;
     }
+}
+
+bool
+IceInternal::fdToRemoteAddress(SOCKET fd, struct sockaddr_in& addr)
+{
+    socklen_t len = static_cast<socklen_t>(sizeof(struct sockaddr_in));
+    if(getpeername(fd, reinterpret_cast<struct sockaddr*>(&addr), &len) == SOCKET_ERROR)
+    {
+	if(notConnected())
+	{
+	    return false;
+	}
+	else
+	{
+	    closeSocketNoThrow(fd);
+	    SocketException ex(__FILE__, __LINE__);
+	    ex.error = getSocketErrno();
+	    throw ex;
+	}
+    }
+
+    return true;
 }
 
 string

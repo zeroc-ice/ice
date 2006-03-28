@@ -9,20 +9,34 @@
 
 top_srcdir	= ../../..
 
-CLIENT		= configuration
+CLIENT		= client
+SERVER		= server
 
-TARGETS		= $(CLIENT)
+TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Configuration.o
+COBJS		= Test.o \
+		  Client.o \
+		  AllTests.o
 
-SRCS		= $(OBJS:.o=.cpp)
+SOBJS		= Test.o \
+		  TestI.o \
+		  Server.o
+
+SRCS		= $(COBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp)
+
+SLICE_SRCS	= Test.ice
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
-$(CLIENT): $(OBJS)
+$(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(OPENSSL_RPATH_LINK) -lIceSSL $(EXPAT_RPATH_LINK) -lIceXML $(LIBS) $(OPENSSL_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
+
+$(SERVER): $(SOBJS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
 
 include .depend

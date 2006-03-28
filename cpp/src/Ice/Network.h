@@ -82,6 +82,7 @@ ICE_API bool recvTruncated();
 
 ICE_API SOCKET createSocket(bool);
 ICE_API void closeSocket(SOCKET);
+ICE_API void closeSocketNoThrow(SOCKET);
 ICE_API void shutdownSocketWrite(SOCKET);
 ICE_API void shutdownSocketReadWrite(SOCKET);
 
@@ -109,6 +110,7 @@ ICE_API std::string lastErrorToString();
 
 ICE_API std::string fdToString(SOCKET);
 ICE_API void fdToLocalAddress(SOCKET, struct sockaddr_in&);
+ICE_API bool fdToRemoteAddress(SOCKET, struct sockaddr_in&);
 ICE_API std::string addrToString(const struct sockaddr_in&);
 
 ICE_API std::vector<std::string> getLocalHosts();
