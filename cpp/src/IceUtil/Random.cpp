@@ -193,12 +193,6 @@ IceUtil::generateRandom(char* buffer, int size)
 }
 
 int
-IceUtil::random()
-{
-    return IceUtil::random(0);
-}
-
-int
 IceUtil::random(int limit)
 {
     int r;
