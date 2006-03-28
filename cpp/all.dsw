@@ -789,90 +789,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "certificateandkeyparsing"=.\test\icessl\certificateandkeyparsing\certificateandkeyparsing.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icessl
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "certificateverificationC"=.\test\icessl\certificateverification\certificateverificationC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icessl
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "certificateverificationS"=.\test\icessl\certificateverification\certificateverificationS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icessl
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "certificateverifier"=.\test\icessl\certificateverifier\certificateverifier.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icessl
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "chatC"=.\demo\Glacier2\chat\chatC.dsp - Package Owner=<4>
 
 Package=<5>
@@ -1009,27 +925,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name iceutil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "configuration"=.\TEST\ICESSL\configuration\configuration.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icessl
     End Project Dependency
 }}}
 
@@ -2364,8 +2259,6 @@ Package=<4>
     Project_Dep_Name ice
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name icexml
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -2686,27 +2579,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "loadpem"=.\test\icessl\loadPEM\loadPEM.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icessl
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name iceutil
