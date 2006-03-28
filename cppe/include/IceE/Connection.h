@@ -74,8 +74,6 @@ public:
 #endif
     void waitUntilFinished(); // Not const, as this might close the connection upon timeout.
 
-    const std::vector<Byte>& getRequestHeader() { return _requestHdr; } // Inlined for performance reasons.
-
     void sendRequest(IceInternal::BasicStream*, IceInternal::Outgoing*);
 
 #ifdef ICEE_HAS_BATCH
@@ -173,16 +171,13 @@ private:
 
     const bool _warn;
 
-    const std::vector<Byte> _requestHdr;
 #ifndef ICEE_PURE_CLIENT
-    const std::vector<Byte> _replyHdr;
     IceInternal::Incoming _in;
 #endif
 #ifndef ICEE_PURE_BLOCKING_CLIENT
     IceInternal::BasicStream _stream;
 #endif
 #ifdef ICEE_HAS_BATCH
-    const std::vector<Byte> _requestBatchHdr;
     IceInternal::BasicStream _batchStream;
     bool _batchStreamInUse;
     int _batchRequestNum;

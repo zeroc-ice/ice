@@ -56,7 +56,7 @@ IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const st
 	case Reference::ModeTwoway:
 	case Reference::ModeOneway:
 	{
-	    _stream.writeBlob(&(_connection->getRequestHeader()[0]), headerSize + sizeof(Int));
+	    _stream.writeBlob(requestHdr, sizeof(requestHdr));
 	    break;
 	}
 

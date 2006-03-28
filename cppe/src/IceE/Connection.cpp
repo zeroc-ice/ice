@@ -530,7 +530,7 @@ Ice::Connection::prepareBatchRequest(BasicStream* os)
     {
 	try
 	{
-	    _batchStream.writeBlob(&_requestBatchHdr[0], headerSize + sizeof(Int));
+	    _batchStream.writeBlob(requestBatchHdr, sizeof(requestBatchHdr));
 	}
 	catch(const LocalException& ex)
 	{
@@ -908,16 +908,13 @@ Ice::Connection::Connection(const InstancePtr& instance,
 	_logger(_instance->logger()), // Cached for better performance.
 	_traceLevels(_instance->traceLevels()), // Cached for better performance.
 	_warn(_instance->properties()->getPropertyAsInt("Ice.Warn.Connections") > 0),
-	_requestHdr(headerSize + sizeof(Int), 0),
 #ifndef ICEE_PURE_CLIENT
-	_replyHdr(headerSize, 0),
 	_in(_instance.get(), this, _stream, adapter),
 #endif
 #ifndef ICEE_PURE_BLOCKING_CLIENT
 	_stream(_instance.get(), _instance->messageSizeMax()),
 #endif
 #ifdef ICEE_HAS_BATCH
-	_requestBatchHdr(headerSize + sizeof(Int), 0),
 	_batchStream(_instance.get(), _instance->messageSizeMax()),
 	_batchStreamInUse(false),
 	_batchRequestNum(0),
@@ -954,47 +951,6 @@ Ice::Connection::Connection(const InstancePtr& instance,
     }
 #else
     _transceiver->setTimeouts(_endpoint->timeout(), _endpoint->timeout());
-#endif
-
-    vector<Byte>& requestHdr = const_cast<vector<Byte>&>(_requestHdr);
-    requestHdr[0] = magic[0];
-    requestHdr[1] = magic[1];
-    requestHdr[2] = magic[2];
-    requestHdr[3] = magic[3];
-    requestHdr[4] = protocolMajor;
-    requestHdr[5] = protocolMinor;
-    requestHdr[6] = encodingMajor;
-    requestHdr[7] = encodingMinor;
-    requestHdr[8] = requestMsg;
-    requestHdr[9] = 0;
-
-#ifdef ICEE_HAS_BATCH
-    vector<Byte>& requestBatchHdr = const_cast<vector<Byte>&>(_requestBatchHdr);
-    requestBatchHdr[0] = magic[0];
-    requestBatchHdr[1] = magic[1];
-    requestBatchHdr[2] = magic[2];
-    requestBatchHdr[3] = magic[3];
-    requestBatchHdr[4] = protocolMajor;
-    requestBatchHdr[5] = protocolMinor;
-    requestBatchHdr[6] = encodingMajor;
-    requestBatchHdr[7] = encodingMinor;
-    requestBatchHdr[8] = requestBatchMsg;
-    requestBatchHdr[9] = 0;
-#endif
-
-#ifndef ICEE_PURE_CLIENT
-    vector<Byte>& replyHdr = const_cast<vector<Byte>&>(_replyHdr);
-    replyHdr[0] = magic[0];
-    replyHdr[1] = magic[1];
-    replyHdr[2] = magic[2];
-    replyHdr[3] = magic[3];
-    replyHdr[4] = protocolMajor;
-    replyHdr[5] = protocolMinor;
-    replyHdr[6] = encodingMajor;
-    replyHdr[7] = encodingMinor;
-    replyHdr[8] = replyMsg;
-    replyHdr[9] = 0;
-
 #endif
 
 #ifdef ICEE_PURE_BLOCKING_CLIENT
@@ -1795,7 +1751,7 @@ Ice::Connection::run()
 		    // Add the reply header and request id.
 		    //
 		    BasicStream* os = _in.os();
-		    os->writeBlob(&_replyHdr[0], headerSize);		
+		    os->writeBlob(replyHdr, sizeof(replyHdr));		
 		    os->write(requestId);
 		}
 	    
