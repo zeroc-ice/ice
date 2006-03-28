@@ -636,8 +636,12 @@ IceInternal::FixedReference::filterConnections(const vector<ConnectionIPtr>& all
     //
     // Randomize the order of connections.
     //
+#ifdef _MSC_VER
     random_shuffle(connections.begin(), connections.end(), ptr_fun(IceUtil::random));
-    
+#else
+    random_shuffle(connections.begin(), connections.end(), IceUtil::random);
+#endif    
+
     //
     // If a secure connection is requested, remove all non-secure
     // connections. Otherwise make non-secure connections preferred over
@@ -932,7 +936,11 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
     {
 	case Random:
 	{
+#ifdef _MSC_VER
 	    random_shuffle(endpoints.begin(), endpoints.end(), ptr_fun(IceUtil::random));
+#else
+	    random_shuffle(endpoints.begin(), endpoints.end(), IceUtil::random);
+#endif
 	    break;
 	}
 	case Ordered:
