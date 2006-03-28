@@ -574,7 +574,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    Ice.ObjectPrx obj = _adapter.createProxy(ident);
 	    if(facet.length() > 0)
 	    {
-		obj = obj.ice_newFacet(facet);
+		obj = obj.ice_facet(facet);
 	    }
 	    return obj;
 	}

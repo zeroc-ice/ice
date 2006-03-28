@@ -46,4 +46,52 @@ final public class Protocol
     public final static byte replyMsg = 2;
     public final static byte validateConnectionMsg = 3;
     public final static byte closeConnectionMsg = 4;
+
+    public final static byte[] requestHdr =
+    {
+	IceInternal.Protocol.magic[0],
+	IceInternal.Protocol.magic[1],
+	IceInternal.Protocol.magic[2],
+	IceInternal.Protocol.magic[3],
+        IceInternal.Protocol.protocolMajor,
+        IceInternal.Protocol.protocolMinor,
+        IceInternal.Protocol.encodingMajor,
+        IceInternal.Protocol.encodingMinor,
+        IceInternal.Protocol.requestMsg,
+        (byte)0, // Compression status.
+        (byte)0, (byte)0, (byte)0, (byte)0, // Message size (placeholder).
+        (byte)0, (byte)0, (byte)0, (byte)0  // Request ID (placeholder).
+    };
+
+    public final static byte[] requestBatchHdr =
+    {
+	IceInternal.Protocol.magic[0],
+	IceInternal.Protocol.magic[1],
+	IceInternal.Protocol.magic[2],
+	IceInternal.Protocol.magic[3],
+        IceInternal.Protocol.protocolMajor,
+        IceInternal.Protocol.protocolMinor,
+        IceInternal.Protocol.encodingMajor,
+        IceInternal.Protocol.encodingMinor,
+        IceInternal.Protocol.requestBatchMsg,
+        0, // Compression status.
+        (byte)0, (byte)0, (byte)0, (byte)0, // Message size (placeholder).
+        (byte)0, (byte)0, (byte)0, (byte)0  // Number of requests in batch (placeholder).
+    };
+
+    public final static byte[] replyHdr =
+    {
+	IceInternal.Protocol.magic[0],
+	IceInternal.Protocol.magic[1],
+	IceInternal.Protocol.magic[2],
+	IceInternal.Protocol.magic[3],
+        IceInternal.Protocol.protocolMajor,
+        IceInternal.Protocol.protocolMinor,
+        IceInternal.Protocol.encodingMajor,
+        IceInternal.Protocol.encodingMinor,
+        IceInternal.Protocol.replyMsg,
+        (byte)0, // Compression status.
+        (byte)0, (byte)0, (byte)0, (byte)0 // Message size (placeholder).
+    };
+
 }

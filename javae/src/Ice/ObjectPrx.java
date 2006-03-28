@@ -30,14 +30,26 @@ public interface ObjectPrx
     String ice_id(java.util.Hashtable __context);
 
     Identity ice_getIdentity();
+    /**
+     * @deprecated This method has been replaced with ice_identity.
+     **/
     ObjectPrx ice_newIdentity(Identity newIdentity);
+    ObjectPrx ice_identity(Identity newIdentity);
 
     java.util.Hashtable ice_getContext();
+    /**
+     * @deprecated This method has been replaced with ice_context.
+     **/
     ObjectPrx ice_newContext(java.util.Hashtable newContext);
+    ObjectPrx ice_context(java.util.Hashtable newContext);
     ObjectPrx ice_defaultContext();
 
     String ice_getFacet();
+    /**
+     * @deprecated This method has been replaced with ice_facet.
+     **/
     ObjectPrx ice_newFacet(String newFacet);
+    ObjectPrx ice_facet(String newFacet);
 
     ObjectPrx ice_twoway();
     boolean ice_isTwoway();

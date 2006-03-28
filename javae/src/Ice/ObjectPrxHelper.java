@@ -29,7 +29,7 @@ public class ObjectPrxHelper extends ObjectPrxHelperBase
 	ObjectPrx d = null;
 	if(b != null)
 	{
-	    Ice.ObjectPrx bb = b.ice_newFacet(f);
+	    Ice.ObjectPrx bb = b.ice_facet(f);
 	    try
 	    {
 		boolean ok = bb.ice_isA("::Object");
@@ -54,7 +54,7 @@ public class ObjectPrxHelper extends ObjectPrxHelperBase
 	ObjectPrx d = null;
 	if(b != null)
 	{
-	    Ice.ObjectPrx bb = b.ice_newFacet(f);
+	    Ice.ObjectPrx bb = b.ice_facet(f);
 	    try
 	    {
 		boolean ok = bb.ice_isA("::Object", ctx);
@@ -85,7 +85,7 @@ public class ObjectPrxHelper extends ObjectPrxHelperBase
 	ObjectPrx d = null;
 	if(b != null)
 	{
-	    Ice.ObjectPrx bb = b.ice_newFacet(f);
+	    Ice.ObjectPrx bb = b.ice_facet(f);
 	    ObjectPrxHelper h = new ObjectPrxHelper();
 	    h.__copyFrom(bb);
 	    d = h;

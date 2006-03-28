@@ -395,7 +395,7 @@ function twoways($communicator, $p)
             test($r == $ctx);
         }
         {
-            $p2 = $p->ice_newContext($ctx)->ice_checkedCast("::Test::MyClass");
+            $p2 = $p->ice_context($ctx)->ice_checkedCast("::Test::MyClass");
             test($p2->ice_getContext() == $ctx);
             $r = $p2->opContext();
             test($r == $ctx);
@@ -410,7 +410,7 @@ function twoways($communicator, $p)
 	    $communicator->setDefaultContext($dflt);
 	    test($p->opContext() != $dflt);
 
-	    $p2 = $p->ice_newContext(array())->ice_uncheckedCast("::Test::MyClass");
+	    $p2 = $p->ice_context(array())->ice_uncheckedCast("::Test::MyClass");
 	    test(count($p2->opContext()) == 0);
 
 	    $p2 = $p->ice_defaultContext()->ice_uncheckedCast("::Test::MyClass");
@@ -424,12 +424,12 @@ function twoways($communicator, $p)
 	    test($c->opContext() == $dflt);
 
 	    $dflt["a"] = "c";
-	    $c2 = $c->ice_newContext($dflt)->ice_uncheckedCast("::Test::MyClass");
+	    $c2 = $c->ice_context($dflt)->ice_uncheckedCast("::Test::MyClass");
 	    $tmp = $c2->opContext();
 	    test($tmp["a"] == "c");
 
 	    $dflt = array();
-	    $c3 = $c2->ice_newContext($dflt)->ice_uncheckedCast("::Test::MyClass");
+	    $c3 = $c2->ice_context($dflt)->ice_uncheckedCast("::Test::MyClass");
 	    $tmp = $c3->opContext();
 	    test(!isset($tmp["a"]));
 

@@ -1423,7 +1423,7 @@ class TwowaysAMI
 		p.opContext_async(cb, ctx);
 		test(cb.check());
 	    }
-	    Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_newContext(ctx));
+	    Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
 	    test(p2.ice_getContext().equals(ctx));
 	    {
 		AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
@@ -1449,7 +1449,7 @@ class TwowaysAMI
 		    test(cb.check());
 		}
 
-		p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_newContext(new java.util.HashMap()));
+		p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_context(new java.util.HashMap()));
 		{
 		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(new java.util.HashMap());
 		    p2.opContext_async(cb);
@@ -1482,7 +1482,7 @@ class TwowaysAMI
 		}
 
 		dflt.put("a", "c");
-		Test.MyClassPrx c2 = Test.MyClassPrxHelper.uncheckedCast(c.ice_newContext(dflt));
+		Test.MyClassPrx c2 = Test.MyClassPrxHelper.uncheckedCast(c.ice_context(dflt));
 		{
 		    java.util.HashMap tmp = new java.util.HashMap();
 		    tmp.put("a", "c");
@@ -1492,7 +1492,7 @@ class TwowaysAMI
 		}
 
 		dflt.clear();
-		Test.MyClassPrx c3 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_newContext(dflt));
+		Test.MyClassPrx c3 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_context(dflt));
 		{
 		    java.util.HashMap tmp = new java.util.HashMap();
 		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);

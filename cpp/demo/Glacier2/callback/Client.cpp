@@ -179,13 +179,13 @@ CallbackClient::run(int argc, char* argv[])
 
 		if(fake)
 		{
-		    twowayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_newIdentity(callbackReceiverFakeIdent));
-		    onewayR = CallbackReceiverPrx::uncheckedCast(onewayR->ice_newIdentity(callbackReceiverFakeIdent));
+		    twowayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_identity(callbackReceiverFakeIdent));
+		    onewayR = CallbackReceiverPrx::uncheckedCast(onewayR->ice_identity(callbackReceiverFakeIdent));
 		}
 		else
 		{
-		    twowayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_newIdentity(callbackReceiverIdent));
-		    onewayR = CallbackReceiverPrx::uncheckedCast(onewayR->ice_newIdentity(callbackReceiverIdent));
+		    twowayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_identity(callbackReceiverIdent));
+		    onewayR = CallbackReceiverPrx::uncheckedCast(onewayR->ice_identity(callbackReceiverIdent));
 		}
 		
 		cout << "callback receiver identity: " << Ice::identityToString(twowayR->ice_getIdentity()) << endl;

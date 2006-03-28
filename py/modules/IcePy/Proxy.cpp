@@ -392,7 +392,7 @@ proxyIceGetIdentity(ProxyObject* self)
 extern "C"
 #endif
 static PyObject*
-proxyIceNewIdentity(ProxyObject* self, PyObject* args)
+proxyIceIdentity(ProxyObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
     assert(identityType);
@@ -413,7 +413,7 @@ proxyIceNewIdentity(ProxyObject* self, PyObject* args)
     Ice::ObjectPrx newProxy;
     try
     {
-        newProxy = (*self->proxy)->ice_newIdentity(ident);
+        newProxy = (*self->proxy)->ice_identity(ident);
     }
     catch(const Ice::Exception& ex)
     {
@@ -422,6 +422,16 @@ proxyIceNewIdentity(ProxyObject* self, PyObject* args)
     }
 
     return createProxy(newProxy, *self->communicator);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceNewIdentity(ProxyObject* self, PyObject* args)
+{
+    PyErr_Warn(PyExc_DeprecationWarning, STRCAST("ice_newIdentity is deprecated, use ice_identity instead."));
+    return proxyIceIdentity(self, args);
 }
 
 #ifdef WIN32
@@ -455,7 +465,7 @@ proxyIceGetContext(ProxyObject* self)
 extern "C"
 #endif
 static PyObject*
-proxyIceNewContext(ProxyObject* self, PyObject* args)
+proxyIceContext(ProxyObject* self, PyObject* args)
 {
     PyObject* dict;
     if(!PyArg_ParseTuple(args, STRCAST("O!"), &PyDict_Type, &dict))
@@ -474,7 +484,7 @@ proxyIceNewContext(ProxyObject* self, PyObject* args)
     Ice::ObjectPrx newProxy;
     try
     {
-        newProxy = (*self->proxy)->ice_newContext(ctx);
+        newProxy = (*self->proxy)->ice_context(ctx);
     }
     catch(const Ice::Exception& ex)
     {
@@ -483,6 +493,16 @@ proxyIceNewContext(ProxyObject* self, PyObject* args)
     }
 
     return createProxy(newProxy, *self->communicator);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceNewContext(ProxyObject* self, PyObject* args)
+{
+    PyErr_Warn(PyExc_DeprecationWarning, STRCAST("ice_newContext is deprecated, use ice_context instead."));
+    return proxyIceContext(self, args);
 }
 
 #ifdef WIN32
@@ -533,7 +553,7 @@ proxyIceGetFacet(ProxyObject* self)
 extern "C"
 #endif
 static PyObject*
-proxyIceNewFacet(ProxyObject* self, PyObject* args)
+proxyIceFacet(ProxyObject* self, PyObject* args)
 {
     char* facet;
     if(!PyArg_ParseTuple(args, STRCAST("s"), &facet))
@@ -546,7 +566,7 @@ proxyIceNewFacet(ProxyObject* self, PyObject* args)
     Ice::ObjectPrx newProxy;
     try
     {
-        newProxy = (*self->proxy)->ice_newFacet(facet);
+        newProxy = (*self->proxy)->ice_facet(facet);
     }
     catch(const Ice::Exception& ex)
     {
@@ -555,6 +575,16 @@ proxyIceNewFacet(ProxyObject* self, PyObject* args)
     }
 
     return createProxy(newProxy, *self->communicator);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceNewFacet(ProxyObject* self, PyObject* args)
+{
+    PyErr_Warn(PyExc_DeprecationWarning, STRCAST("ice_newFacet is deprecated, use ice_facet instead."));
+    return proxyIceFacet(self, args);
 }
 
 #ifdef WIN32
@@ -571,7 +601,7 @@ proxyIceGetAdapterId(ProxyObject* self)
 extern "C"
 #endif
 static PyObject*
-proxyIceNewAdapterId(ProxyObject* self, PyObject* args)
+proxyIceAdapterId(ProxyObject* self, PyObject* args)
 {
     char* id;
     if(!PyArg_ParseTuple(args, STRCAST("s"), &id))
@@ -584,7 +614,7 @@ proxyIceNewAdapterId(ProxyObject* self, PyObject* args)
     Ice::ObjectPrx newProxy;
     try
     {
-        newProxy = (*self->proxy)->ice_newAdapterId(id);
+        newProxy = (*self->proxy)->ice_adapterId(id);
     }
     catch(const Ice::Exception& ex)
     {
@@ -593,6 +623,16 @@ proxyIceNewAdapterId(ProxyObject* self, PyObject* args)
     }
 
     return createProxy(newProxy, *self->communicator);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceNewAdapterId(ProxyObject* self, PyObject* args)
+{
+    PyErr_Warn(PyExc_DeprecationWarning, STRCAST("ice_newAdapterId is deprecated, use ice_adapterId instead."));
+    return proxyIceAdapterId(self, args);
 }
 
 #ifdef WIN32
@@ -622,7 +662,7 @@ proxyIceGetEndpoints(ProxyObject* self)
 extern "C"
 #endif
 static PyObject*
-proxyIceNewEndpoints(ProxyObject* self, PyObject* args)
+proxyIceEndpoints(ProxyObject* self, PyObject* args)
 {
     PyObject* endpoints;
     if(!PyArg_ParseTuple(args, STRCAST("O"), &endpoints))
@@ -656,7 +696,7 @@ proxyIceNewEndpoints(ProxyObject* self, PyObject* args)
     Ice::ObjectPrx newProxy;
     try
     {
-	newProxy = (*self->proxy)->ice_newEndpoints(seq);
+	newProxy = (*self->proxy)->ice_endpoints(seq);
     }
     catch(const Ice::Exception& ex)
     {
@@ -665,6 +705,16 @@ proxyIceNewEndpoints(ProxyObject* self, PyObject* args)
     }
 
     return createProxy(newProxy, *self->communicator);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceNewEndpoints(ProxyObject* self, PyObject* args)
+{
+    PyErr_Warn(PyExc_DeprecationWarning, STRCAST("ice_newEndpoints is deprecated, use ice_endpoints instead."));
+    return proxyIceEndpoints(self, args);
 }
 
 #ifdef WIN32
@@ -1327,7 +1377,7 @@ checkedCastImpl(ProxyObject* p, const string& id, const string& facet, PyObject*
     }
     else
     {
-        target = (*p->proxy)->ice_newFacet(facet);
+        target = (*p->proxy)->ice_facet(facet);
     }
 
     bool b;
@@ -1361,7 +1411,7 @@ checkedCastImpl(ProxyObject* p, const string& id, const string& facet, const Ice
     }
     else
     {
-        target = (*p->proxy)->ice_newFacet(facet);
+        target = (*p->proxy)->ice_facet(facet);
     }
 
     bool b;
@@ -1488,7 +1538,7 @@ proxyIceUncheckedCast(PyObject* type, PyObject* args)
 
     if(strlen(facet) > 0)
     {
-        return createProxy((*p->proxy)->ice_newFacet(facet), *p->communicator, type);
+        return createProxy((*p->proxy)->ice_facet(facet), *p->communicator, type);
     }
     else
     {
@@ -1616,7 +1666,7 @@ proxyUncheckedCast(PyObject* /*self*/, PyObject* args)
 
     if(facet && strlen(facet) > 0)
     {
-        return createProxy((*p->proxy)->ice_newFacet(facet), *p->communicator, NULL);
+        return createProxy((*p->proxy)->ice_facet(facet), *p->communicator, NULL);
     }
     else
     {
@@ -1648,25 +1698,35 @@ static PyMethodDef ProxyMethods[] =
     { STRCAST("ice_getIdentity"), (PyCFunction)proxyIceGetIdentity, METH_NOARGS,
         PyDoc_STR(STRCAST("ice_getIdentity() -> Ice.Identity")) },
     { STRCAST("ice_newIdentity"), (PyCFunction)proxyIceNewIdentity, METH_VARARGS,
-        PyDoc_STR(STRCAST("ice_newIdentity(id) -> Ice.ObjectPrx")) },
+        PyDoc_STR(STRCAST("ice_newIdentity(id) -> Ice.ObjectPrx")) }, // Deprecated
+    { STRCAST("ice_identity"), (PyCFunction)proxyIceIdentity, METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_identity(id) -> Ice.ObjectPrx")) },
     { STRCAST("ice_getContext"), (PyCFunction)proxyIceGetContext, METH_NOARGS,
         PyDoc_STR(STRCAST("ice_getContext() -> dict")) },
     { STRCAST("ice_newContext"), (PyCFunction)proxyIceNewContext, METH_VARARGS,
-        PyDoc_STR(STRCAST("ice_newContext(dict) -> Ice.ObjectPrx")) },
+        PyDoc_STR(STRCAST("ice_newContext(dict) -> Ice.ObjectPrx")) }, // Deprecated
+    { STRCAST("ice_context"), (PyCFunction)proxyIceContext, METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_context(dict) -> Ice.ObjectPrx")) },
     { STRCAST("ice_defaultContext"), (PyCFunction)proxyIceDefaultContext, METH_NOARGS,
         PyDoc_STR(STRCAST("ice_defaultContext() -> Ice.ObjectPrx")) },
     { STRCAST("ice_getFacet"), (PyCFunction)proxyIceGetFacet, METH_NOARGS,
         PyDoc_STR(STRCAST("ice_getFacet() -> string")) },
     { STRCAST("ice_newFacet"), (PyCFunction)proxyIceNewFacet, METH_VARARGS,
-        PyDoc_STR(STRCAST("ice_newFacet(string) -> Ice.ObjectPrx")) },
+        PyDoc_STR(STRCAST("ice_newFacet(string) -> Ice.ObjectPrx")) }, // Deprecated
+    { STRCAST("ice_facet"), (PyCFunction)proxyIceFacet, METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_facet(string) -> Ice.ObjectPrx")) },
     { STRCAST("ice_getAdapterId"), (PyCFunction)proxyIceGetAdapterId, METH_NOARGS,
         PyDoc_STR(STRCAST("ice_getAdapterId() -> string")) },
     { STRCAST("ice_newAdapterId"), (PyCFunction)proxyIceNewAdapterId, METH_VARARGS,
-        PyDoc_STR(STRCAST("ice_newAdapterId(string) -> proxy")) },
+        PyDoc_STR(STRCAST("ice_newAdapterId(string) -> proxy")) }, // Deprecated
+    { STRCAST("ice_adapterId"), (PyCFunction)proxyIceAdapterId, METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_adapterId(string) -> proxy")) },
     { STRCAST("ice_getEndpoints"), (PyCFunction)proxyIceGetEndpoints, METH_NOARGS,
         PyDoc_STR(STRCAST("ice_getEndpoints() -> tuple")) },
     { STRCAST("ice_newEndpoints"), (PyCFunction)proxyIceNewEndpoints, METH_VARARGS,
-        PyDoc_STR(STRCAST("ice_newEndpoints(tuple) -> proxy")) },
+        PyDoc_STR(STRCAST("ice_newEndpoints(tuple) -> proxy")) }, // Deprecated
+    { STRCAST("ice_endpoints"), (PyCFunction)proxyIceEndpoints, METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_endpoints(tuple) -> proxy")) },
     { STRCAST("ice_getLocatorCacheTimeout"), (PyCFunction)proxyIceGetLocatorCacheTimeout, METH_NOARGS,
         PyDoc_STR(STRCAST("ice_getLocatorCacheTimeout() -> int")) },
     { STRCAST("ice_locatorCacheTimeout"), (PyCFunction)proxyIceLocatorCacheTimeout, METH_VARARGS,

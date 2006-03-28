@@ -117,20 +117,25 @@ public:
 			  const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&, const ::Ice::Context&);
 
     ::Ice::Identity ice_getIdentity() const;
-    ::Ice::ObjectPrx ice_newIdentity(const ::Ice::Identity&) const;
+    ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newIdentity(const ::Ice::Identity&) const;
+    ::Ice::ObjectPrx ice_identity(const ::Ice::Identity&) const;
 
     ::Ice::Context ice_getContext() const;
-    ::Ice::ObjectPrx ice_newContext(const ::Ice::Context&) const;
+    ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newContext(const ::Ice::Context&) const;
+    ::Ice::ObjectPrx ice_context(const ::Ice::Context&) const;
     ::Ice::ObjectPrx ice_defaultContext() const;
 
     const ::std::string& ice_getFacet() const;
-    ::Ice::ObjectPrx ice_newFacet(const ::std::string&) const;
+    ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newFacet(const ::std::string&) const;
+    ::Ice::ObjectPrx ice_facet(const ::std::string&) const;
 
     ::std::string ice_getAdapterId() const;
-    ::Ice::ObjectPrx ice_newAdapterId(const ::std::string&) const;
+    ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newAdapterId(const ::std::string&) const;
+    ::Ice::ObjectPrx ice_adapterId(const ::std::string&) const;
 
     ::Ice::EndpointSeq ice_getEndpoints() const;
-    ::Ice::ObjectPrx ice_newEndpoints(const ::Ice::EndpointSeq&) const;
+    ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newEndpoints(const ::Ice::EndpointSeq&) const;
+    ::Ice::ObjectPrx ice_endpoints(const ::Ice::EndpointSeq&) const;
 
     ::Ice::Int ice_getLocatorCacheTimeout() const;
     ::Ice::ObjectPrx ice_locatorCacheTimeout(::Ice::Int) const;
@@ -157,7 +162,6 @@ public:
     ::Ice::ObjectPrx ice_timeout(int) const;
     ::Ice::ObjectPrx ice_router(const ::Ice::RouterPrx&) const;
     ::Ice::ObjectPrx ice_locator(const ::Ice::LocatorPrx&) const;
-
     ::Ice::ObjectPrx ice_collocationOptimization(bool) const;
     ::Ice::ObjectPrx ice_connectionId(const ::std::string&) const;
 
@@ -423,7 +427,7 @@ uncheckedCastImpl< ::Ice::ObjectPrx>(const ::Ice::ObjectPrx& b, const std::strin
     ::Ice::ObjectPrx d = 0;
     if(b)
     {
-	d = b->ice_newFacet(f);
+	d = b->ice_facet(f);
     }
     return d;
 }
@@ -468,7 +472,7 @@ uncheckedCastImpl(const ::Ice::ObjectPrx& b, const std::string& f)
     {
 	typedef typename P::element_type T;
 
-	::Ice::ObjectPrx bb = b->ice_newFacet(f);
+	::Ice::ObjectPrx bb = b->ice_facet(f);
 	d = new T;
 	d->__copyFrom(bb);
     }

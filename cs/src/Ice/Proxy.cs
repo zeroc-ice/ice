@@ -44,20 +44,30 @@ namespace Ice
             Context context);
 
         Identity ice_getIdentity();
+	[Obsolete("This method has been deprecated, use ice_identity instead.")]
         ObjectPrx ice_newIdentity(Identity newIdentity);
-
+        ObjectPrx ice_identity(Identity newIdentity);
+	
         Context ice_getContext();
+	[Obsolete("This method has been deprecated, use ice_context instead.")]
         ObjectPrx ice_newContext(Context newContext);
+        ObjectPrx ice_context(Context newContext);
         ObjectPrx ice_defaultContext();
 	
         string ice_getFacet();
+	[Obsolete("This method has been deprecated, use ice_facet instead.")]
         ObjectPrx ice_newFacet(string newFacet);
+        ObjectPrx ice_facet(string newFacet);
 
         string ice_getAdapterId();
+	[Obsolete("This method has been deprecated, use ice_adapterId instead.")]
         ObjectPrx ice_newAdapterId(string newAdapterId);
+        ObjectPrx ice_adapterId(string newAdapterId);
 
 	Endpoint[] ice_getEndpoints();
+	[Obsolete("This method has been deprecated, use ice_endpoints instead.")]
         ObjectPrx ice_newEndpoints(Endpoint[] newEndpoints);
+        ObjectPrx ice_endpoints(Endpoint[] newEndpoints);
 
 	int ice_getLocatorCacheTimeout();
 	ObjectPrx ice_locatorCacheTimeout(int timeout);
@@ -277,7 +287,7 @@ namespace Ice
             return _reference.getIdentity();
         }
 
-        public ObjectPrx ice_newIdentity(Identity newIdentity)
+        public ObjectPrx ice_identity(Identity newIdentity)
         {
             if(newIdentity.Equals(_reference.getIdentity()))
             {
@@ -291,17 +301,27 @@ namespace Ice
             }
         }
 
+        public ObjectPrx ice_newIdentity(Identity newIdentity)
+        {
+	    return ice_identity(newIdentity);
+	}
+
         public Context ice_getContext()
         {
             return _reference.getContext();
         }
 
-        public ObjectPrx ice_newContext(Context newContext)
+        public ObjectPrx ice_context(Context newContext)
         {
             ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
             proxy.setup(_reference.changeContext(newContext));
             return proxy;
         }
+
+        public ObjectPrx ice_newContext(Context newContext)
+        {
+	    return ice_context(newContext);
+	}
 
 	public ObjectPrx ice_defaultContext()
 	{
@@ -315,7 +335,7 @@ namespace Ice
             return _reference.getFacet();
         }
 
-        public ObjectPrx ice_newFacet(string newFacet)
+        public ObjectPrx ice_facet(string newFacet)
         {
             if(newFacet == null)
             {
@@ -334,12 +354,17 @@ namespace Ice
             }
         }
 
+        public ObjectPrx ice_newFacet(string newFacet)
+        {
+	    return ice_facet(newFacet);
+	}
+
         public string ice_getAdapterId()
         {
             return _reference.getAdapterId();
         }
 
-        public ObjectPrx ice_newAdapterId(string newAdapterId)
+        public ObjectPrx ice_adapterId(string newAdapterId)
         {
             if(newAdapterId == null)
             {
@@ -358,12 +383,17 @@ namespace Ice
             }
         }
 
+        public ObjectPrx ice_newAdapterId(string newAdapterId)
+        {
+	    return ice_adapterId(newAdapterId);
+	}
+
         public Endpoint[] ice_getEndpoints()
         {
             return _reference.getEndpoints();
         }
 
-        public ObjectPrx ice_newEndpoints(Endpoint[] newEndpoints)
+        public ObjectPrx ice_endpoints(Endpoint[] newEndpoints)
         {
             if(Arrays.Equals(newEndpoints, _reference.getEndpoints()))
             {
@@ -378,6 +408,11 @@ namespace Ice
                 return proxy;
             }
         }
+
+        public ObjectPrx ice_newEndpoints(Endpoint[] newEndpoints)
+        {
+	    return ice_endpoints(newEndpoints);
+	}
 
         public int ice_getLocatorCacheTimeout()
         {

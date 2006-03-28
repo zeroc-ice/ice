@@ -81,7 +81,7 @@ public class AllTests
 	    endpoints.addAll(java.util.Arrays.asList(edpts));
 	}
 	return TestIntfPrxHelper.uncheckedCast(
-	    test.ice_newEndpoints((Ice.Endpoint[])endpoints.toArray(new Ice.Endpoint[endpoints.size()])));
+	    test.ice_endpoints((Ice.Endpoint[])endpoints.toArray(new Ice.Endpoint[endpoints.size()])));
     }
 
     private static void

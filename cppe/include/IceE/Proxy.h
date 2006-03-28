@@ -122,14 +122,17 @@ public:
     ::std::string ice_id(const ::Ice::Context&);
 
     ::Ice::Identity ice_getIdentity() const;
-    ::Ice::ObjectPrx ice_newIdentity(const ::Ice::Identity&) const;
-
+    ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newIdentity(const ::Ice::Identity&) const;
+    ::Ice::ObjectPrx ice_identity(const ::Ice::Identity&) const;
+    
     ::Ice::Context ice_getContext() const;
-    ::Ice::ObjectPrx ice_newContext(const ::Ice::Context&) const;
+    ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newContext(const ::Ice::Context&) const;
+    ::Ice::ObjectPrx ice_context(const ::Ice::Context&) const;
     ::Ice::ObjectPrx ice_defaultContext() const;
 
     const ::std::string& ice_getFacet() const;
-    ::Ice::ObjectPrx ice_newFacet(const ::std::string&) const;
+    ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newFacet(const ::std::string&) const;
+    ::Ice::ObjectPrx ice_facet(const ::std::string&) const;
 
     ::Ice::ObjectPrx ice_twoway() const;
     bool ice_isTwoway() const;
@@ -313,7 +316,7 @@ uncheckedCastImpl< ::Ice::ObjectPrx>(const ::Ice::ObjectPrx& b, const std::strin
     ::Ice::ObjectPrx d = 0;
     if(b)
     {
-	d = b->ice_newFacet(f);
+	d = b->ice_facet(f);
     }
     return d;
 }
@@ -358,7 +361,7 @@ uncheckedCastImpl(const ::Ice::ObjectPrx& b, const std::string& f)
     {
 	typedef typename P::element_type T;
 
-	::Ice::ObjectPrx bb = b->ice_newFacet(f);
+	::Ice::ObjectPrx bb = b->ice_facet(f);
 	d = new T;
 	d->__copyFrom(bb);
     }

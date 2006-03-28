@@ -39,20 +39,40 @@ public interface ObjectPrx
                           java.util.Map context);
 
     Identity ice_getIdentity();
+    /**
+     * @deprecated This method has been replaced with ice_identity.
+     **/
     ObjectPrx ice_newIdentity(Identity newIdentity);
+    ObjectPrx ice_identity(Identity newIdentity);
 
     java.util.Map ice_getContext();
+    /**
+     * @deprecated This method has been replaced with ice_context.
+     **/
     ObjectPrx ice_newContext(java.util.Map newContext);
+    ObjectPrx ice_context(java.util.Map newContext);
     ObjectPrx ice_defaultContext();
 
-    String ice_getFacet();
+    String ice_getFacet(); 
+    /**
+     * @deprecated This method has been replaced with ice_facet.
+     **/
     ObjectPrx ice_newFacet(String newFacet);
+    ObjectPrx ice_facet(String newFacet);
 
     String ice_getAdapterId();
+    /**
+     * @deprecated This method has been replaced with ice_adapterId.
+     **/
     ObjectPrx ice_newAdapterId(String newAdapterId);
+    ObjectPrx ice_adapterId(String newAdapterId);
 
     Endpoint[] ice_getEndpoints();
+    /**
+     * @deprecated This method has been replaced with ice_endpoints.
+     **/
     ObjectPrx ice_newEndpoints(Endpoint[] newEndpoints);
+    ObjectPrx ice_endpoints(Endpoint[] newEndpoints);
 
     int ice_getLocatorCacheTimeout();
     ObjectPrx ice_locatorCacheTimeout(int newTimeout);

@@ -633,7 +633,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	    test(r == ctx);
 	}
 	{
-	    Test::MyClassPrx p2 = Test::MyClassPrx::checkedCast(p->ice_newContext(ctx));
+	    Test::MyClassPrx p2 = Test::MyClassPrx::checkedCast(p->ice_context(ctx));
 	    test(p2->ice_getContext() == ctx);
 	    Test::StringStringD r = p2->opContext();
 	    test(r == ctx);
@@ -650,7 +650,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	    communicator->setDefaultContext(dflt);
 	    test(p->opContext() != dflt);
 
-	    Test::MyClassPrx p2 = Test::MyClassPrx::uncheckedCast(p->ice_newContext(Ice::Context()));
+	    Test::MyClassPrx p2 = Test::MyClassPrx::uncheckedCast(p->ice_context(Ice::Context()));
 	    test(p2->opContext().empty());
 
 	    p2 = Test::MyClassPrx::uncheckedCast(p->ice_defaultContext());
@@ -665,11 +665,11 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	    test(c->opContext() == dflt);
 
 	    dflt["a"] = "c";
-	    Test::MyClassPrx c2 = Test::MyClassPrx::uncheckedCast(c->ice_newContext(dflt));
+	    Test::MyClassPrx c2 = Test::MyClassPrx::uncheckedCast(c->ice_context(dflt));
 	    test(c2->opContext()["a"] == "c");
 
 	    dflt.clear();
-	    Test::MyClassPrx c3 = Test::MyClassPrx::uncheckedCast(c2->ice_newContext(dflt));
+	    Test::MyClassPrx c3 = Test::MyClassPrx::uncheckedCast(c2->ice_context(dflt));
 	    Ice::Context tmp = c3->opContext();
 	    test(tmp.find("a") == tmp.end());
 

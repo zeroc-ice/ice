@@ -371,7 +371,7 @@ public final class Outgoing
             case Reference.ModeTwoway:
             case Reference.ModeOneway:
             {
-                _stream.writeBlob(_connection.getRequestHeader());
+                _stream.writeBlob(Protocol.requestHdr);
                 break;
             }
 

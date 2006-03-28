@@ -534,7 +534,7 @@ def allTests(communicator):
 
     id = Ice.stringToIdentity("does not exist")
     try:
-        thrower2 = Test.ThrowerPrx.uncheckedCast(thrower.ice_newIdentity(id))
+        thrower2 = Test.ThrowerPrx.uncheckedCast(thrower.ice_identity(id))
         thrower2.throwAasA(1)
 #        thrower2.ice_ping()
         test(False)
@@ -679,7 +679,7 @@ def allTests(communicator):
     print "catching object not exist exception with AMI... ",
 
     id = Ice.stringToIdentity("does not exist")
-    thrower2 = Test.ThrowerPrx.uncheckedCast(thrower.ice_newIdentity(id))
+    thrower2 = Test.ThrowerPrx.uncheckedCast(thrower.ice_identity(id))
     cb = AMI_Thrower_throwAasAObjectNotExistI()
     thrower2.throwAasA_async(cb, 1)
     test(cb.check())

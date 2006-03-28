@@ -404,7 +404,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     Ice::Identity id = Ice::stringToIdentity("does not exist");
     try
     {
-	ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower->ice_newIdentity(id));
+	ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower->ice_identity(id));
 	thrower2->throwAasA(1);
 //	thrower2->ice_ping();
 	test(false);

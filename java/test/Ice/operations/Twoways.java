@@ -613,7 +613,7 @@ class Twoways
 		test(r.equals(ctx));
 	    }
 	    {
-		Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_newContext(ctx));
+		Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
 		test(p2.ice_getContext().equals(ctx));
 		java.util.Map r = p2.opContext();
 		test(r.equals(ctx));
@@ -629,7 +629,7 @@ class Twoways
 		communicator.setDefaultContext(dflt);
 		test(!p.opContext().equals(dflt));
 
-		Test.MyClassPrx p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_newContext(new java.util.HashMap()));
+		Test.MyClassPrx p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_context(new java.util.HashMap()));
 		test(p2.opContext().isEmpty());
 
 		p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_defaultContext());
@@ -644,11 +644,11 @@ class Twoways
 		test(c.opContext().equals(dflt));
 
 		dflt.put("a", "c");
-		Test.MyClassPrx c2 = Test.MyClassPrxHelper.uncheckedCast(c.ice_newContext(dflt));
+		Test.MyClassPrx c2 = Test.MyClassPrxHelper.uncheckedCast(c.ice_context(dflt));
 		test(c2.opContext().get("a").equals("c"));
 
 		dflt.clear();
-		Test.MyClassPrx c3 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_newContext(dflt));
+		Test.MyClassPrx c3 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_context(dflt));
 		test(c3.opContext().get("a") == null);
 
 		Test.MyClassPrx c4 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_defaultContext());

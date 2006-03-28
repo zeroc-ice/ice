@@ -3834,7 +3834,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "Return Nothing";
     _out.dec();
     _out << nl << "End If";
-    _out << nl << "Dim bb As Ice.ObjectPrx = b.ice_newFacet(f)";
+    _out << nl << "Dim bb As Ice.ObjectPrx = b.ice_facet(f)";
     _out << nl << "Try";
     _out.inc();
     _out << nl << "If bb.ice_isA(\"" << p->scoped() << "\") Then";
@@ -3859,7 +3859,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "Return Nothing";
     _out.dec();
     _out << nl << "End If";
-    _out << nl << "Dim bb As Ice.ObjectPrx = b.ice_newFacet(f)";
+    _out << nl << "Dim bb As Ice.ObjectPrx = b.ice_facet(f)";
     _out << nl << "Try";
     _out.inc();
     _out << nl << "If bb.ice_isA(\"" << p->scoped() << "\", ctx) Then";
@@ -3897,7 +3897,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "Return Nothing";
     _out.dec();
     _out << nl << "End If";
-    _out << nl << "Dim bb As Ice.ObjectPrx = b.ice_newFacet(f)";
+    _out << nl << "Dim bb As Ice.ObjectPrx = b.ice_facet(f)";
     _out << nl << "Dim h As " << name << "PrxHelper = new " << name << "PrxHelper()";
     _out << nl << "h.copyFrom__(bb)";
     _out << nl << "Return h";

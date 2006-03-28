@@ -212,7 +212,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     }
 
     public final ObjectPrx
-    ice_newIdentity(Identity newIdentity)
+    ice_identity(Identity newIdentity)
     {
         if(newIdentity.equals(_reference.getIdentity()))
         {
@@ -226,6 +226,12 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
+    public final ObjectPrx
+    ice_newIdentity(Identity newIdentity)
+    {
+	return ice_identity(newIdentity);
+    }
+
     public final java.util.Map
     ice_getContext()
     {
@@ -233,11 +239,17 @@ public class ObjectPrxHelperBase implements ObjectPrx
     }
 
     public final ObjectPrx
-    ice_newContext(java.util.Map newContext)
+    ice_context(java.util.Map newContext)
     {
 	ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
 	proxy.setup(_reference.changeContext(newContext));
 	return proxy;
+    }
+
+    public final ObjectPrx
+    ice_newContext(java.util.Map newContext)
+    {
+	return ice_context(newContext);
     }
 
     public final ObjectPrx
@@ -255,7 +267,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     }
 
     public final ObjectPrx
-    ice_newFacet(String newFacet)
+    ice_facet(String newFacet)
     {
         if(newFacet == null)
         {
@@ -274,6 +286,12 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
+    public final ObjectPrx
+    ice_newFacet(String newFacet)
+    {
+	return ice_facet(newFacet);
+    }
+
     public final String
     ice_getAdapterId()
     {
@@ -281,7 +299,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     }
 
     public final ObjectPrx
-    ice_newAdapterId(String newAdapterId)
+    ice_adapterId(String newAdapterId)
     {
         if(newAdapterId.equals(_reference.getAdapterId()))
         {
@@ -295,6 +313,12 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
+    public final ObjectPrx
+    ice_newAdapterId(String newAdapterId)
+    {
+	return ice_adapterId(newAdapterId);
+    }
+
     public final Endpoint[]
     ice_getEndpoints()
     {
@@ -302,7 +326,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     }
 
     public final ObjectPrx
-    ice_newEndpoints(Endpoint[] newEndpoints)
+    ice_endpoints(Endpoint[] newEndpoints)
     {
         if(java.util.Arrays.equals(newEndpoints, _reference.getEndpoints()))
         {
@@ -316,6 +340,12 @@ public class ObjectPrxHelperBase implements ObjectPrx
             proxy.setup(_reference.changeEndpoints(edpts));
             return proxy;
         }
+    }
+
+    public final ObjectPrx
+    ice_newEndpoints(Endpoint[] newEndpoints)
+    {
+	return ice_endpoints(newEndpoints);
     }
 
     public final int

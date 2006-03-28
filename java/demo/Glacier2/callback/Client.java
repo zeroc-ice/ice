@@ -182,16 +182,16 @@ public class Client extends Ice.Application
 		    if(fake)
 		    {
 			twowayR = CallbackReceiverPrxHelper.uncheckedCast(
-			    twowayR.ice_newIdentity(callbackReceiverFakeIdent));
+			    twowayR.ice_identity(callbackReceiverFakeIdent));
 			onewayR = CallbackReceiverPrxHelper.uncheckedCast(
-			    onewayR.ice_newIdentity(callbackReceiverFakeIdent));
+			    onewayR.ice_identity(callbackReceiverFakeIdent));
 		    }
 		    else
 		    {
 			twowayR = CallbackReceiverPrxHelper.uncheckedCast(
-			    twowayR.ice_newIdentity(callbackReceiverIdent));
+			    twowayR.ice_identity(callbackReceiverIdent));
 			onewayR = CallbackReceiverPrxHelper.uncheckedCast(
-			    onewayR.ice_newIdentity(callbackReceiverIdent));
+			    onewayR.ice_identity(callbackReceiverIdent));
 		    }
 		    
 		    System.out.println("callback receiver identity: " + 

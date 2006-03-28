@@ -602,7 +602,7 @@ Freeze::EvictorI::addFacet(const ObjectPtr& servant, const Identity& ident, cons
     ObjectPrx obj = _adapter->createProxy(ident);
     if(!facet.empty())
     {
-	obj = obj->ice_newFacet(facet);
+	obj = obj->ice_facet(facet);
     }
     return obj;
 }

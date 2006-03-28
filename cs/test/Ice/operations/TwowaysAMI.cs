@@ -1270,7 +1270,7 @@ public class TwowaysAMI
                 p.opContext_async(cb, ctx);
                 test(cb.check());
             }
-            Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_newContext(ctx));
+            Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
             test(p2.ice_getContext().Equals(ctx));
             {
                 AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
@@ -1295,7 +1295,7 @@ public class TwowaysAMI
 		    test(cb.check());
 		}
 
-		p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_newContext(new Ice.Context()));
+		p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_context(new Ice.Context()));
 		{
 		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(new Ice.Context());
 		    p2.opContext_async(cb);
@@ -1328,7 +1328,7 @@ public class TwowaysAMI
 		}
 
 		dflt["a"] = "c";
-		Test.MyClassPrx c2 = Test.MyClassPrxHelper.uncheckedCast(c.ice_newContext(dflt));
+		Test.MyClassPrx c2 = Test.MyClassPrxHelper.uncheckedCast(c.ice_context(dflt));
 		{
 		    Ice.Context tmp = new Ice.Context();
 		    tmp["a"] = "c";
@@ -1338,7 +1338,7 @@ public class TwowaysAMI
 		}
 
 		dflt.Clear();
-		Test.MyClassPrx c3 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_newContext(dflt));
+		Test.MyClassPrx c3 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_context(dflt));
 		{
 		    Ice.Context tmp = new Ice.Context();
 		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);

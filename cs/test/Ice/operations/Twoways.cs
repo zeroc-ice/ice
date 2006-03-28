@@ -589,7 +589,7 @@ class Twoways
 		test(r.Equals(ctx));
 	    }
 	    {
-		Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_newContext(ctx));
+		Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
 		test(p2.ice_getContext().Equals(ctx));
 		Ice.Context r = p2.opContext();
 		test(r.Equals(ctx));
@@ -605,7 +605,7 @@ class Twoways
 		communicator.setDefaultContext(dflt);
 		test(!p.opContext().Equals(dflt));
 
-		Test.MyClassPrx p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_newContext(new Ice.Context()));
+		Test.MyClassPrx p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_context(new Ice.Context()));
 		test(p2.opContext().Count == 0);
 
 		p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_defaultContext());
@@ -620,11 +620,11 @@ class Twoways
 		test(c.opContext().Equals(dflt));
 
 		dflt["a"] = "c";
-		Test.MyClassPrx c2 = Test.MyClassPrxHelper.uncheckedCast(c.ice_newContext(dflt));
+		Test.MyClassPrx c2 = Test.MyClassPrxHelper.uncheckedCast(c.ice_context(dflt));
 		test(c2.opContext()["a"].Equals("c"));
 
 		dflt.Clear();
-		Test.MyClassPrx c3 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_newContext(dflt));
+		Test.MyClassPrx c3 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_context(dflt));
 		test(c3.opContext()["a"] == null);
 
 		Test.MyClassPrx c4 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_defaultContext());

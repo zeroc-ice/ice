@@ -70,7 +70,7 @@ createTestIntfPrx(vector<RemoteObjectAdapterPrx>& adapters)
 	Ice::EndpointSeq edpts = test->ice_getEndpoints();
 	endpoints.insert(endpoints.end(), edpts.begin(), edpts.end());
     }
-    return TestIntfPrx::uncheckedCast(test->ice_newEndpoints(endpoints));
+    return TestIntfPrx::uncheckedCast(test->ice_endpoints(endpoints));
 }
 
 void

@@ -65,7 +65,7 @@ IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& 
 
     if(b)
     {
-	ObjectPrx bb = b->ice_newFacet(f);
+	ObjectPrx bb = b->ice_facet(f);
 	try
 	{
 	    if(bb->ice_isA(typeId))
@@ -99,7 +99,7 @@ IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& 
 
     if(b)
     {
-	ObjectPrx bb = b->ice_newFacet(f);
+	ObjectPrx bb = b->ice_facet(f);
 	try
 	{
 	    if(bb->ice_isA(typeId, ctx))
@@ -428,11 +428,17 @@ IceProxy::Ice::Object::ice_getContext() const
 }
 
 ObjectPrx
-IceProxy::Ice::Object::ice_newContext(const Context& newContext) const
+IceProxy::Ice::Object::ice_context(const Context& newContext) const
 {
     ObjectPrx proxy(new ::IceProxy::Ice::Object());
     proxy->setup(_reference->changeContext(newContext));
     return proxy;
+}
+
+ObjectPrx
+IceProxy::Ice::Object::ice_newContext(const Context& newContext) const
+{
+    return ice_context(newContext);
 }
 
 ObjectPrx
@@ -450,7 +456,7 @@ IceProxy::Ice::Object::ice_getIdentity() const
 }
 
 ObjectPrx
-IceProxy::Ice::Object::ice_newIdentity(const Identity& newIdentity) const
+IceProxy::Ice::Object::ice_identity(const Identity& newIdentity) const
 {
     if(newIdentity == _reference->getIdentity())
     {
@@ -464,6 +470,12 @@ IceProxy::Ice::Object::ice_newIdentity(const Identity& newIdentity) const
     }
 }
 
+ObjectPrx
+IceProxy::Ice::Object::ice_newIdentity(const Identity& newIdentity) const
+{
+    return ice_identity(newIdentity);
+}
+
 const string&
 IceProxy::Ice::Object::ice_getFacet() const
 {
@@ -471,7 +483,7 @@ IceProxy::Ice::Object::ice_getFacet() const
 }
 
 ObjectPrx
-IceProxy::Ice::Object::ice_newFacet(const string& newFacet) const
+IceProxy::Ice::Object::ice_facet(const string& newFacet) const
 {
     if(newFacet == _reference->getFacet())
     {
@@ -483,6 +495,12 @@ IceProxy::Ice::Object::ice_newFacet(const string& newFacet) const
 	proxy->setup(_reference->changeFacet(newFacet));
 	return proxy;
     }
+}
+
+ObjectPrx
+IceProxy::Ice::Object::ice_newFacet(const string& newFacet) const
+{
+    return ice_facet(newFacet);
 }
 
 ObjectPrx

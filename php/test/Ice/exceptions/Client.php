@@ -204,7 +204,7 @@ function allTests()
     $id = Ice_stringToIdentity("does not exist");
     try
     {
-        $thrower2 = $thrower->ice_newIdentity($id)->ice_uncheckedCast("::Test::Thrower");
+        $thrower2 = $thrower->ice_identity($id)->ice_uncheckedCast("::Test::Thrower");
         $thrower2->throwAasA(1);
         test(false);
     }

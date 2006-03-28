@@ -777,13 +777,13 @@ def twowaysAMI(communicator, p):
     p.opContext_async(cb, ctx)
     test(cb.check())
 
-    p2 = Test.MyClassPrx.checkedCast(p.ice_newContext(ctx))
+    p2 = Test.MyClassPrx.checkedCast(p.ice_context(ctx))
     test(p2.ice_getContext() == ctx)
     cb = AMI_MyClass_opContextEqualI(ctx)
     p2.opContext_async(cb)
     test(cb.check())
 
-    p2 = Test.MyClassPrx.checkedCast(p.ice_newContext(ctx))
+    p2 = Test.MyClassPrx.checkedCast(p.ice_context(ctx))
     test(p2.ice_getContext() == ctx)
     cb = AMI_MyClass_opContextEqualI(ctx)
     p2.opContext_async(cb, ctx)
@@ -798,7 +798,7 @@ def twowaysAMI(communicator, p):
     p.opContext_async(cb)
     test(cb.check())
 
-    p2 = Test.MyClassPrx.uncheckedCast(p.ice_newContext({}))
+    p2 = Test.MyClassPrx.uncheckedCast(p.ice_context({}))
     cb = AMI_MyClass_opContextEqualI({})
     p2.opContext_async(cb)
     test(cb.check())
@@ -820,13 +820,13 @@ def twowaysAMI(communicator, p):
     test(cb.check())
 
     dflt['a'] = 'c'
-    c2 = Test.MyClassPrx.uncheckedCast(c.ice_newContext(dflt))
+    c2 = Test.MyClassPrx.uncheckedCast(c.ice_context(dflt))
     cb = AMI_MyClass_opContextEqualI({'a': 'c'})
     c2.opContext_async(cb)
     test(cb.check())
 
     dflt = {}
-    c3 = Test.MyClassPrx.uncheckedCast(c2.ice_newContext(dflt))
+    c3 = Test.MyClassPrx.uncheckedCast(c2.ice_context(dflt))
     cb = AMI_MyClass_opContextEqualI({})
     c3.opContext_async(cb)
     test(cb.check())

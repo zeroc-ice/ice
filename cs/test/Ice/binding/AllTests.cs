@@ -87,7 +87,7 @@ public class AllTests
 	    endpoints.AddRange(ArrayList.Adapter(obj.ice_getEndpoints()));
 	}
 	return TestIntfPrxHelper.uncheckedCast(
-	    obj.ice_newEndpoints((Ice.Endpoint[])endpoints.ToArray(typeof(Ice.Endpoint))));
+	    obj.ice_endpoints((Ice.Endpoint[])endpoints.ToArray(typeof(Ice.Endpoint))));
     }
 
     private static void deactivate(RemoteCommunicatorPrx communicator, ArrayList adapters)

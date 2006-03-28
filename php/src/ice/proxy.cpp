@@ -165,16 +165,21 @@ static function_entry _proxyMethods[] =
     {"ice_id",                     PHP_FN(Ice_ObjectPrx_ice_id),                     NULL},
     {"ice_ids",                    PHP_FN(Ice_ObjectPrx_ice_ids),                    NULL},
     {"ice_getIdentity",            PHP_FN(Ice_ObjectPrx_ice_getIdentity),            NULL},
-    {"ice_newIdentity",            PHP_FN(Ice_ObjectPrx_ice_newIdentity),            NULL},
+    {"ice_newIdentity",            PHP_FN(Ice_ObjectPrx_ice_identity),               NULL},
+    {"ice_identity",               PHP_FN(Ice_ObjectPrx_ice_identity),               NULL},
     {"ice_getContext",             PHP_FN(Ice_ObjectPrx_ice_getContext),             NULL},
-    {"ice_newContext",             PHP_FN(Ice_ObjectPrx_ice_newContext),             NULL},
+    {"ice_newContext",             PHP_FN(Ice_ObjectPrx_ice_context),                NULL},
+    {"ice_context",                PHP_FN(Ice_ObjectPrx_ice_context),                NULL},
     {"ice_defaultContext",         PHP_FN(Ice_ObjectPrx_ice_defaultContext),         NULL},
     {"ice_getFacet",               PHP_FN(Ice_ObjectPrx_ice_getFacet),               NULL},
-    {"ice_newFacet",               PHP_FN(Ice_ObjectPrx_ice_newFacet),               NULL},
+    {"ice_newFacet",               PHP_FN(Ice_ObjectPrx_ice_facet),                  NULL},
+    {"ice_facet",                  PHP_FN(Ice_ObjectPrx_ice_facet),                  NULL},
     {"ice_getAdapterId",           PHP_FN(Ice_ObjectPrx_ice_getAdapterId),           NULL},
-    {"ice_newAdapterId",           PHP_FN(Ice_ObjectPrx_ice_newAdapterId),           NULL},
+    {"ice_newAdapterId",           PHP_FN(Ice_ObjectPrx_ice_adapterId),              NULL},
+    {"ice_adapterId",              PHP_FN(Ice_ObjectPrx_ice_adapterId),              NULL},
     {"ice_getEndpoints",           PHP_FN(Ice_ObjectPrx_ice_getEndpoints),           NULL},
-    {"ice_newEndpoints",           PHP_FN(Ice_ObjectPrx_ice_newEndpoints),           NULL},
+    {"ice_newEndpoints",           PHP_FN(Ice_ObjectPrx_ice_endpoints),              NULL},
+    {"ice_endpoints",              PHP_FN(Ice_ObjectPrx_ice_endpoints),              NULL},
     {"ice_getLocatorCacheTimeout", PHP_FN(Ice_ObjectPrx_ice_getLocatorCacheTimeout), NULL},
     {"ice_locatorCacheTimeout",    PHP_FN(Ice_ObjectPrx_ice_locatorCacheTimeout),    NULL},
     {"ice_getCacheConnection",     PHP_FN(Ice_ObjectPrx_ice_getCacheConnection),     NULL},
@@ -617,7 +622,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getIdentity)
     createIdentity(return_value, _this->getProxy()->ice_getIdentity() TSRMLS_CC);
 }
 
-ZEND_FUNCTION(Ice_ObjectPrx_ice_newIdentity)
+ZEND_FUNCTION(Ice_ObjectPrx_ice_identity)
 {
     if(ZEND_NUM_ARGS() != 1)
     {
@@ -643,7 +648,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_newIdentity)
     {
         try
         {
-            Ice::ObjectPrx prx = _this->getProxy()->ice_newIdentity(id);
+            Ice::ObjectPrx prx = _this->getProxy()->ice_identity(id);
             if(!createProxy(return_value, prx TSRMLS_CC))
             {
                 RETURN_NULL();
@@ -671,7 +676,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getContext)
     createContext(return_value, _this->getProxy()->ice_getContext() TSRMLS_CC);
 }
 
-ZEND_FUNCTION(Ice_ObjectPrx_ice_newContext)
+ZEND_FUNCTION(Ice_ObjectPrx_ice_context)
 {
     if(ZEND_NUM_ARGS() != 1)
     {
@@ -700,7 +705,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_newContext)
 
     try
     {
-        Ice::ObjectPrx prx = _this->getProxy()->ice_newContext(ctx);
+        Ice::ObjectPrx prx = _this->getProxy()->ice_context(ctx);
         if(!createProxy(return_value, prx TSRMLS_CC))
         {
             RETURN_NULL();
@@ -762,7 +767,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getFacet)
     }
 }
 
-ZEND_FUNCTION(Ice_ObjectPrx_ice_newFacet)
+ZEND_FUNCTION(Ice_ObjectPrx_ice_facet)
 {
     if(ZEND_NUM_ARGS() != 1)
     {
@@ -783,7 +788,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_newFacet)
 
     try
     {
-        Ice::ObjectPrx prx = _this->getProxy()->ice_newFacet(name);
+        Ice::ObjectPrx prx = _this->getProxy()->ice_facet(name);
         if(!createProxy(return_value, prx TSRMLS_CC))
         {
             RETURN_NULL();
@@ -819,7 +824,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getAdapterId)
     }
 }
 
-ZEND_FUNCTION(Ice_ObjectPrx_ice_newAdapterId)
+ZEND_FUNCTION(Ice_ObjectPrx_ice_adapterId)
 {
     if(ZEND_NUM_ARGS() != 1)
     {
@@ -840,7 +845,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_newAdapterId)
 
     try
     {
-	Ice::ObjectPrx prx = _this->getProxy()->ice_newAdapterId(id);
+	Ice::ObjectPrx prx = _this->getProxy()->ice_adapterId(id);
 	if(!createProxy(return_value, prx TSRMLS_CC))
 	{
 	    RETURN_NULL();
@@ -889,7 +894,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getEndpoints)
     }
 }
 
-ZEND_FUNCTION(Ice_ObjectPrx_ice_newEndpoints)
+ZEND_FUNCTION(Ice_ObjectPrx_ice_endpoints)
 {
     if(ZEND_NUM_ARGS() != 1)
     {
@@ -935,7 +940,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_newEndpoints)
 
     try
     {
-	Ice::ObjectPrx prx = _this->getProxy()->ice_newEndpoints(seq);
+	Ice::ObjectPrx prx = _this->getProxy()->ice_endpoints(seq);
 	if(!createProxy(return_value, prx TSRMLS_CC))
 	{
 	    RETURN_NULL();
@@ -1607,7 +1612,7 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
         Ice::ObjectPrx prx = _this->getProxy();
         if(facet)
         {
-            prx = prx->ice_newFacet(facet);
+            prx = prx->ice_facet(facet);
         }
 
         if(check)

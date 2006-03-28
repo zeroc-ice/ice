@@ -26,16 +26,16 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_ping);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_id);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_ids);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_getIdentity);
-ZEND_FUNCTION(Ice_ObjectPrx_ice_newIdentity);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_identity);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_getContext);
-ZEND_FUNCTION(Ice_ObjectPrx_ice_newContext);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_context);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_defaultContext);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_getFacet);
-ZEND_FUNCTION(Ice_ObjectPrx_ice_newFacet);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_facet);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_getAdapterId);
-ZEND_FUNCTION(Ice_ObjectPrx_ice_newAdapterId);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_adapterId);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_getEndpoints);
-ZEND_FUNCTION(Ice_ObjectPrx_ice_newEndpoints);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_endpoints);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_getLocatorCacheTimeout);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_locatorCacheTimeout);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_getCacheConnection);
@@ -83,16 +83,16 @@ ZEND_FUNCTION(Ice_Connection_toString);
     ZEND_FE(Ice_ObjectPrx_ice_id,                NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_ids,               NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_getIdentity,       NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_newIdentity,       NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_identity,          NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_getAdapterId,      NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_newAdapterId,      NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_adapterId,         NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_getEndpoints,      NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_newEndpoints,      NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_endpoints,         NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_getContext,        NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_newContext,        NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_context,           NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_defaultContext,    NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_getFacet,          NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_newFacet,          NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_facet,             NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_twoway,            NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_isTwoway,          NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_oneway,            NULL) \

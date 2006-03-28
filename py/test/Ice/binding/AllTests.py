@@ -8,12 +8,43 @@
 #
 # **********************************************************************
 
-import Ice, Test, random
+import Ice, Test, random, threading
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
+class GetAdapterNameCB:
+    def __init__(self):
+        self._name = ""
+        self._cond = threading.Condition()
+
+    def ice_response(self, name):
+        self._cond.acquire()
+        self._name = name
+        self._cond.notify()
+        self._cond.release()
+
+    def ice_exception(self, ex):
+        test(False)
+
+    def getResult(self):
+        self._cond.acquire()
+        try:
+            while self._name == "":
+                self._cond.wait(5.0)
+            if self._name != "":
+                return self._name
+            else:
+                return ""
+        finally:
+            self._cond.release()
+
+def getAdapterNameWithAMI(proxy):
+    cb = GetAdapterNameCB()
+    proxy.getAdapterName_async(cb)
+    return cb.getResult()
+    
 def createTestIntfPrx(adapters):
     endpoints = []
     test = None
@@ -21,7 +52,7 @@ def createTestIntfPrx(adapters):
 	test = p.getTestIntf()
 	edpts = test.ice_getEndpoints()
 	endpoints.extend(edpts)
-    return Test.TestIntfPrx.uncheckedCast(test.ice_newEndpoints(endpoints))
+    return Test.TestIntfPrx.uncheckedCast(test.ice_endpoints(endpoints))
 
 def deactivate(com, adapters):
     for p in adapters:
@@ -63,6 +94,10 @@ def allTests(communicator):
     adapters.append(com.createObjectAdapter("Adapter12", "default"))
     adapters.append(com.createObjectAdapter("Adapter13", "default"))
 
+    #
+    # Ensure that when a connection is opened it's reused for new
+    # proxies and that all endpoints are eventually tried.
+    #
     names = ["Adapter11", "Adapter12", "Adapter13"]
     while len(names) > 0:
 	adpts = adapters[:]
@@ -81,8 +116,29 @@ def allTests(communicator):
 	    names.remove(name)
 	test1.ice_connection().close(False)
 
-    com.deactivateObjectAdapter(adapters[0])
+    #
+    # Ensure that the proxy correctly caches the connection (we
+    # always send the request over the same connection.)
+    #
+    for a in adapters:
+        a.getTestIntf().ice_ping()
 
+    t = createTestIntfPrx(adapters)
+    name = t.getAdapterName()
+    i = 0
+    nRetry = 5
+    while i < nRetry and t.getAdapterName() == name:
+	i = i + 1
+    test(i == nRetry)
+    
+    for a in adapters:
+        a.getTestIntf().ice_connection().close(False)
+        
+    #
+    # Deactivate an adapter and ensure that we can still
+    # establish the connection to the remaining adapters.
+    #
+    com.deactivateObjectAdapter(adapters[0])
     names.append("Adapter12")
     names.append("Adapter13")
     while len(names) > 0:
@@ -102,10 +158,96 @@ def allTests(communicator):
 	    names.remove(name)
 	test1.ice_connection().close(False)
 
-    com.deactivateObjectAdapter(adapters[2])
-    
+    #
+    # Deactivate an adapter and ensure that we can still
+    # establish the connection to the remaining adapters.
+    #
+    com.deactivateObjectAdapter(adapters[2])    
     t = createTestIntfPrx(adapters)
     test(t.getAdapterName() == "Adapter12")
+
+    deactivate(com, adapters)
+
+    print "ok"
+
+    print "testing binding with multiple endpoints and AMI...",
+
+    adapters = []
+    adapters.append(com.createObjectAdapter("AdapterAMI11", "default"))
+    adapters.append(com.createObjectAdapter("AdapterAMI12", "default"))
+    adapters.append(com.createObjectAdapter("AdapterAMI13", "default"))
+
+    #
+    # Ensure that when a connection is opened it's reused for new
+    # proxies and that all endpoints are eventually tried.
+    #
+    names = ["AdapterAMI11", "AdapterAMI12", "AdapterAMI13"]
+    while len(names) > 0:
+	adpts = adapters[:]
+
+	test1 = createTestIntfPrx(adpts)
+	random.shuffle(adpts)
+	test2 = createTestIntfPrx(adpts)
+	random.shuffle(adpts)
+	test3 = createTestIntfPrx(adpts)
+
+	test(test1.ice_connection() == test2.ice_connection())
+	test(test2.ice_connection() == test3.ice_connection())
+
+	name = getAdapterNameWithAMI(test1)
+	if names.count(name) > 0:
+	    names.remove(name)
+	test1.ice_connection().close(False)
+
+    #
+    # Ensure that the proxy correctly caches the connection (we
+    # always send the request over the same connection.)
+    #
+    for a in adapters:
+        a.getTestIntf().ice_ping()
+
+    t = createTestIntfPrx(adapters)
+    name = getAdapterNameWithAMI(t)
+    i = 0
+    nRetry = 5
+    while i < nRetry and getAdapterNameWithAMI(t) == name:
+	i = i + 1
+    test(i == nRetry)
+    
+    for a in adapters:
+        a.getTestIntf().ice_connection().close(False)
+        
+    #
+    # Deactivate an adapter and ensure that we can still
+    # establish the connection to the remaining adapters.
+    #
+    com.deactivateObjectAdapter(adapters[0])
+    names.append("AdapterAMI12")
+    names.append("AdapterAMI13")
+    while len(names) > 0:
+	adpts = adapters[:]
+
+	test1 = createTestIntfPrx(adpts)
+	random.shuffle(adpts)
+	test2 = createTestIntfPrx(adpts)
+	random.shuffle(adpts)
+	test3 = createTestIntfPrx(adpts)
+
+	test(test1.ice_connection() == test2.ice_connection())
+	test(test2.ice_connection() == test3.ice_connection())
+
+	name = getAdapterNameWithAMI(test1)
+	if names.count(name) > 0:
+	    names.remove(name)
+	test1.ice_connection().close(False)
+
+    #
+    # Deactivate an adapter and ensure that we can still
+    # establish the connection to the remaining adapters.
+    #
+    com.deactivateObjectAdapter(adapters[2])    
+    t = createTestIntfPrx(adapters)
+    test(getAdapterNameWithAMI(t) == "AdapterAMI12")
 
     deactivate(com, adapters)
 
@@ -267,6 +409,39 @@ def allTests(communicator):
 
     print "ok"
 
+    print "testing per request binding with multiple endpoints and AMI...",
+
+    adapters = []
+    adapters.append(com.createObjectAdapter("AdapterAMI51", "default"))
+    adapters.append(com.createObjectAdapter("AdapterAMI52", "default"))
+    adapters.append(com.createObjectAdapter("AdapterAMI53", "default"))
+
+    t = Test.TestIntfPrx.uncheckedCast(createTestIntfPrx(adapters).ice_cacheConnection(False))
+    test(not t.ice_getCacheConnection())
+
+    names = ["AdapterAMI51", "AdapterAMI52", "AdapterAMI53"]
+    while len(names) > 0:
+	name = getAdapterNameWithAMI(t)
+	if names.count(name) > 0:
+	    names.remove(name)
+
+    com.deactivateObjectAdapter(adapters[0])
+
+    names.append("AdapterAMI52")
+    names.append("AdapterAMI53")
+    while len(names) > 0:
+	name = getAdapterNameWithAMI(t)
+	if names.count(name) > 0:
+	    names.remove(name)
+
+    com.deactivateObjectAdapter(adapters[2])
+
+    test(getAdapterNameWithAMI(t) == "AdapterAMI52")
+
+    deactivate(com, adapters)
+
+    print "ok"
+
     print "testing per request binding and ordered endpoint selection...",
 
     adapters = []
@@ -327,6 +502,73 @@ def allTests(communicator):
     adapters.append(com.createObjectAdapter("Adapter64", endpoints[0].toString()))
     i = 0
     while i < nRetry and t.getAdapterName() == "Adapter64":
+	i = i + 1
+    test(i == nRetry)
+
+    deactivate(com, adapters)
+
+    print "ok"
+
+    print "testing per request binding and ordered endpoint selection and AMI...",
+
+    adapters = []
+    adapters.append(com.createObjectAdapter("AdapterAMI61", "default"))
+    adapters.append(com.createObjectAdapter("AdapterAMI62", "default"))
+    adapters.append(com.createObjectAdapter("AdapterAMI63", "default"))
+
+    t = createTestIntfPrx(adapters)
+    t = Test.TestIntfPrx.uncheckedCast(t.ice_endpointSelection(Ice.EndpointSelectionType.Ordered))
+    test(t.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered)
+    t = Test.TestIntfPrx.uncheckedCast(t.ice_cacheConnection(False))
+    test(not t.ice_getCacheConnection())
+    nRetry = 5
+
+    #
+    # Ensure that endpoints are tried in order by deactiving the adapters
+    # one after the other.
+    #
+    i = 0
+    while i < nRetry and getAdapterNameWithAMI(t) == "AdapterAMI61":
+	i = i + 1
+    test(i == nRetry)
+    com.deactivateObjectAdapter(adapters[0])
+    i = 0
+    while i < nRetry and getAdapterNameWithAMI(t) == "AdapterAMI62":
+	i = i + 1
+    test(i == nRetry)
+    com.deactivateObjectAdapter(adapters[1])
+    i = 0
+    while i < nRetry and getAdapterNameWithAMI(t) == "AdapterAMI63":
+	i = i + 1
+    test(i == nRetry)
+    com.deactivateObjectAdapter(adapters[2])
+
+    try:
+	t.getAdapterName()
+    except Ice.ConnectionRefusedException:
+	pass
+
+    endpoints = t.ice_getEndpoints()
+
+    adapters = []
+
+    #
+    # Now, re-activate the adapters with the same endpoints in the opposite
+    # order.
+    # 
+    adapters.append(com.createObjectAdapter("AdapterAMI66", endpoints[2].toString()))
+    i = 0
+    while i < nRetry and getAdapterNameWithAMI(t) == "AdapterAMI66":
+	i = i + 1
+    test(i == nRetry)
+    adapters.append(com.createObjectAdapter("AdapterAMI65", endpoints[1].toString()))
+    i = 0
+    while i < nRetry and getAdapterNameWithAMI(t) == "AdapterAMI65":
+	i = i + 1
+    test(i == nRetry)
+    adapters.append(com.createObjectAdapter("AdapterAMI64", endpoints[0].toString()))
+    i = 0
+    while i < nRetry and getAdapterNameWithAMI(t) == "AdapterAMI64":
 	i = i + 1
     test(i == nRetry)
 

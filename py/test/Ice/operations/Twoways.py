@@ -450,7 +450,7 @@ def twoways(communicator, p):
     test(len(p.ice_getContext()) == 0)
     test(r == ctx)
 
-    p2 = Test.MyClassPrx.checkedCast(p.ice_newContext(ctx))
+    p2 = Test.MyClassPrx.checkedCast(p.ice_context(ctx))
     test(p2.ice_getContext() == ctx)
     r = p2.opContext()
     test(r == ctx)
@@ -464,7 +464,7 @@ def twoways(communicator, p):
     communicator.setDefaultContext(dflt)
     test(p.opContext() != dflt)
 
-    p2 = Test.MyClassPrx.uncheckedCast(p.ice_newContext({}))
+    p2 = Test.MyClassPrx.uncheckedCast(p.ice_context({}))
     test(len(p2.opContext()) == 0)
 
     p2 = Test.MyClassPrx.uncheckedCast(p.ice_defaultContext())
@@ -478,11 +478,11 @@ def twoways(communicator, p):
     test(c.opContext() == dflt)
 
     dflt['a'] = 'c'
-    c2 = Test.MyClassPrx.uncheckedCast(c.ice_newContext(dflt))
+    c2 = Test.MyClassPrx.uncheckedCast(c.ice_context(dflt))
     test(c2.opContext()['a'] == 'c')
 
     dflt = {}
-    c3 = Test.MyClassPrx.uncheckedCast(c2.ice_newContext(dflt))
+    c3 = Test.MyClassPrx.uncheckedCast(c2.ice_context(dflt))
     tmp = c3.opContext()
     test(not tmp.has_key('a'))
 

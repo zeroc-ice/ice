@@ -34,7 +34,7 @@ function createTestIntfPrx($adapters)
 	    $endpoints[] = $e;
 	}
     }
-    $test = $test->ice_newEndpoints($endpoints);
+    $test = $test->ice_endpoints($endpoints);
     return $test->ice_uncheckedCast("::Test::TestIntf");
 }
 

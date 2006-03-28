@@ -98,7 +98,7 @@ public:
 	//
 	if(obj)
 	{
-	    _cb->ice_response(obj->ice_newIdentity(_obj->ice_getIdentity()));
+	    _cb->ice_response(obj->ice_identity(_obj->ice_getIdentity()));
 	}
 	else
 	{
@@ -232,7 +232,7 @@ LocatorI::Request::response(const Ice::ObjectPrx& proxy)
     }
 
     Lock sync(*this);
-    _proxies.push_back(proxy->ice_newIdentity(Ice::stringToIdentity("dummy")));
+    _proxies.push_back(proxy->ice_identity(Ice::stringToIdentity("dummy")));
 
     //
     // If we received all the required proxies, it's time to send the
@@ -277,7 +277,7 @@ LocatorI::Request::sendResponse()
 	}
 
 	Ice::ObjectPrx proxy = _locator->getCommunicator()->stringToProxy("dummy:default");
-	_amdCB->ice_response(proxy->ice_newEndpoints(endpoints));
+	_amdCB->ice_response(proxy->ice_endpoints(endpoints));
     }
 }
 

@@ -3181,7 +3181,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << name << "Prx d = null;";
     out << nl << "if(b != null)";
     out << sb;
-    out << nl << "Ice.ObjectPrx bb = b.ice_newFacet(f);";
+    out << nl << "Ice.ObjectPrx bb = b.ice_facet(f);";
     out << nl << "try";
     out << sb;
     out << nl << "if(bb.ice_isA(\"" << scoped << "\"))";
@@ -3204,7 +3204,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << name << "Prx d = null;";
     out << nl << "if(b != null)";
     out << sb;
-    out << nl << "Ice.ObjectPrx bb = b.ice_newFacet(f);";
+    out << nl << "Ice.ObjectPrx bb = b.ice_facet(f);";
     out << nl << "try";
     out << sb;
     out << nl << "if(bb.ice_isA(\"" << scoped << "\", ctx))";
@@ -3238,7 +3238,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << name << "Prx d = null;";
     out << nl << "if(b != null)";
     out << sb;
-    out << nl << "Ice.ObjectPrx bb = b.ice_newFacet(f);";
+    out << nl << "Ice.ObjectPrx bb = b.ice_facet(f);";
     out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
     out << nl << "h.__copyFrom(bb);";
     out << nl << "d = h;";

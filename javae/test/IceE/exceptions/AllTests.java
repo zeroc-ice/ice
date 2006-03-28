@@ -375,7 +375,7 @@ public class AllTests
 	    Ice.Identity id = Ice.Util.stringToIdentity("does not exist");
 	    try
 	    {
-		ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_newIdentity(id));
+		ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
 		thrower2.ice_ping();
 		test(false);
 	    }

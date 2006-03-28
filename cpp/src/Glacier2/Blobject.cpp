@@ -109,7 +109,7 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Array_Object_ice_invokePt
     //
     if(!current.facet.empty())
     {
-	proxy = proxy->ice_newFacet(current.facet);
+	proxy = proxy->ice_facet(current.facet);
     }
 
     //

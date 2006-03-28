@@ -65,6 +65,14 @@
 #   define ICE_DECLSPEC_IMPORT /**/
 #endif
 
+#if defined(_MSC_VER)
+#   define ICE_DEPRECATED_API __declspec(deprecated)
+#elif defined(__GNUC__)
+#   define ICE_DEPRECATED_API __attribute__((deprecated))
+#else
+#   define ICE_DEPRECATED_API /**/
+#endif
+
 //
 // Let's use these extensions with IceUtil:
 //

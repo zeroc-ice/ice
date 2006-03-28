@@ -1202,7 +1202,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	    p->opContext_async(cb, ctx);
 	    test(cb->check());
 	}
-	Test::MyClassPrx p2 = Test::MyClassPrx::checkedCast(p->ice_newContext(ctx));
+	Test::MyClassPrx p2 = Test::MyClassPrx::checkedCast(p->ice_context(ctx));
 	test(p2->ice_getContext() == ctx);
 	{
 	    AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(ctx);
@@ -1210,7 +1210,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	    test(cb->check());
 	}
 	{
-	    Test::MyClassPrx p2 = Test::MyClassPrx::checkedCast(p->ice_newContext(ctx));
+	    Test::MyClassPrx p2 = Test::MyClassPrx::checkedCast(p->ice_context(ctx));
 	    AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(ctx);
 	    p2->opContext_async(cb, ctx);
 	    test(cb->check());
@@ -1228,7 +1228,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 		test(cb->check());
 	    }
 
-	    Test::MyClassPrx p2 = Test::MyClassPrx::uncheckedCast(p->ice_newContext(Ice::Context()));
+	    Test::MyClassPrx p2 = Test::MyClassPrx::uncheckedCast(p->ice_context(Ice::Context()));
 	    {
 		AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(Ice::Context());
 		p2->opContext_async(cb);
@@ -1261,7 +1261,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	    }
 
 	    dflt["a"] = "c";
-	    Test::MyClassPrx c2 = Test::MyClassPrx::uncheckedCast(c->ice_newContext(dflt));
+	    Test::MyClassPrx c2 = Test::MyClassPrx::uncheckedCast(c->ice_context(dflt));
 	    {
 		Ice::Context tmp;
 		tmp["a"] = "c";
@@ -1271,7 +1271,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	    }
 
 	    dflt.clear();
-	    Test::MyClassPrx c3 = Test::MyClassPrx::uncheckedCast(c2->ice_newContext(dflt));
+	    Test::MyClassPrx c3 = Test::MyClassPrx::uncheckedCast(c2->ice_context(dflt));
 	    {
 	        Ice::Context tmp;
 		AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(tmp);

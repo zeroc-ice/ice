@@ -1043,7 +1043,7 @@ public class AllTests
             Ice.Identity id = Ice.Util.stringToIdentity("does not exist");
             try
             {
-                ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_newIdentity(id));
+                ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
                 thrower2.ice_ping();
                 test(false);
             }
@@ -1251,7 +1251,7 @@ public class AllTests
             
             {
                 Ice.Identity id = Ice.Util.stringToIdentity("does not exist");
-                ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_newIdentity(id));
+                ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
                 AMI_Thrower_throwAasAObjectNotExistI cb = new AMI_Thrower_throwAasAObjectNotExistI();
                 thrower2.throwAasA_async(cb, 1);
                 test(cb.check());

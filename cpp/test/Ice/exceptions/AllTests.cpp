@@ -989,7 +989,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     Ice::Identity id = Ice::stringToIdentity("does not exist");
     try
     {
-	ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower->ice_newIdentity(id));
+	ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower->ice_identity(id));
 	thrower2->throwAasA(1);
 //	thrower2->ice_ping();
 	test(false);
@@ -1206,7 +1206,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
 	{
 	    id = Ice::stringToIdentity("does not exist");
-	    ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower->ice_newIdentity(id));
+	    ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower->ice_identity(id));
 	    AMI_Thrower_throwAasAObjectNotExistIPtr cb = new AMI_Thrower_throwAasAObjectNotExistI;
 	    thrower2->throwAasA_async(cb, 1);
 	    test(cb->check());
