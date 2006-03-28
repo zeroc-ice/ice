@@ -480,10 +480,17 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	    server->ice_ping();
 	    test(false);
 	}
+#ifdef _WIN32
+	catch(const ProtocolException&)
+	{
+	    // Expected.
+	}
+#else
 	catch(const ConnectionLostException&)
 	{
 	    // Expected.
 	}
+#endif
 	catch(const LocalException&)
 	{
 	    test(false);
