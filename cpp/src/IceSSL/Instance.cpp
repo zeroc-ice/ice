@@ -21,8 +21,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceSSL;
 
-void IceSSL::incRef(Instance* p) { p->__incRef(); }
-void IceSSL::decRef(Instance* p) { p->__decRef(); }
+void IceInternal::incRef(IceSSL::Instance* p) { p->__incRef(); }
+void IceInternal::decRef(IceSSL::Instance* p) { p->__decRef(); }
 
 IceSSL::Instance::Instance(const CommunicatorPtr& communicator)
 {
@@ -30,7 +30,7 @@ IceSSL::Instance::Instance(const CommunicatorPtr& communicator)
 
     PropertiesPtr properties = communicator->getProperties();
 
-    _facade = getProtocolPluginFacade(communicator);
+    _facade = IceInternal::getProtocolPluginFacade(communicator);
     _securityTraceLevel = properties->getPropertyAsInt("IceSSL.Trace.Security");
     _securityTraceCategory = "Security";
 

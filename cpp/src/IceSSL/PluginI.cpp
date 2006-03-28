@@ -27,14 +27,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceSSL;
 
-#ifndef ICE_SSL_API
-#   ifdef ICE_SSL_API_EXPORTS
-#       define ICE_SSL_API ICE_DECLSPEC_EXPORT
-#    else
-#       define ICE_SSL_API ICE_DECLSPEC_IMPORT
-#    endif
-#endif
-
 //
 // Plugin factory function.
 //

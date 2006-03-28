@@ -154,8 +154,8 @@ convertDH(unsigned char* p, int plen, unsigned char* g, int glen)
     return dh;
 }
 
-void IceSSL::incRef(DHParams* p) { p->__incRef(); }
-void IceSSL::decRef(DHParams* p) { p->__decRef(); }
+void IceInternal::incRef(IceSSL::DHParams* p) { p->__incRef(); }
+void IceInternal::decRef(IceSSL::DHParams* p) { p->__decRef(); }
 
 IceSSL::DHParams::DHParams() :
     _dh512(0), _dh1024(0), _dh2048(0), _dh4096(0)
