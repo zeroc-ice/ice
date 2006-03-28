@@ -75,10 +75,6 @@ tests = [ \
     "Ice/custom", \
     "Ice/retry", \
     "IceSSL/configuration", \
-    "IceSSL/loadPEM", \
-    "IceSSL/certificateAndKeyParsing", \
-    "IceSSL/certificateVerifier", \
-    "IceSSL/certificateVerification", \
     "Freeze/dbmap", \
     "Freeze/complex", \
     "Freeze/evictor", \
