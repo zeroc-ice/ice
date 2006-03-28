@@ -242,7 +242,6 @@ filesToRemove = [ \
     os.path.join("ice", "RPMTools.py"), \
     os.path.join("ice", "fixCopyright.py"), \
     os.path.join("ice", "fixVersion.py"), \
-    os.path.join("ice", "certs", "makecerts"), \
     os.path.join("ice", "icee.dsw"), \
     os.path.join("ice", "icee.dsp"), \
     os.path.join("ice", "src", "icecpp", "icecppe.dsp"), \
@@ -253,7 +252,6 @@ filesToRemove.extend(find("ice", ".dummy"))
 for x in filesToRemove:
     if os.path.exists(x):
         os.remove(x)
-shutil.rmtree(os.path.join("ice", "certs", "openssl"))
 shutil.rmtree(os.path.join("ice", "install"))
 shutil.rmtree(os.path.join("ice", "src", "slice2cppe"))
 shutil.rmtree(os.path.join("ice", "src", "slice2javae"))
