@@ -88,7 +88,7 @@ CallbackClient::run(int argc, char* argv[])
 	    *p = static_cast<char>('a' + IceUtil::random() % 26);
 	}
 
-	backend = BackendPrx::uncheckedCast(backendBase->ice_newIdentity(ident));
+	backend = BackendPrx::uncheckedCast(backendBase->ice_identity(ident));
 	backend->ice_ping();
     }
 //    cout << string(msg.size(), '\b') << string(msg.size(), ' ') << string(msg.size(), '\b');
