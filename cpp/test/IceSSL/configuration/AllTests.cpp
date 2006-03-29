@@ -189,12 +189,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	try
 	{
 	    server->ice_ping();
-	    fact->destroyServer(server);
 	}
 	catch(const LocalException&)
 	{
 	    test(false);
 	}
+	fact->destroyServer(server);
 	comm->destroy();
     }
     cout << "ok" << endl;
@@ -495,6 +495,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	{
 	    test(false);
 	}
+	fact->destroyServer(server);
 	comm->destroy();
 
 	//
@@ -516,6 +517,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	{
 	    test(false);
 	}
+	fact->destroyServer(server);
 	comm->destroy();
     }
     cout << "ok" << endl;
