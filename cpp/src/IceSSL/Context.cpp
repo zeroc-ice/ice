@@ -29,6 +29,8 @@
 #include <openssl/x509v3.h>
 #include <openssl/err.h>
 
+#include <IceUtil/DisableWarnings.h>
+
 using namespace std;
 using namespace Ice;
 using namespace IceSSL;

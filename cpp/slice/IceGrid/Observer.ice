@@ -59,7 +59,7 @@ struct ServerDynamicInfo
  * A sequence of server dynamic information structures.
  * 
  **/
-sequence<ServerDynamicInfo> ServerDynamicInfoSeq;
+["java:type:java.util.LinkedList"] sequence<ServerDynamicInfo> ServerDynamicInfoSeq;
 
 /**
  *
@@ -88,7 +88,7 @@ struct AdapterDynamicInfo
  * A sequence of adapter dynamic information structures.
  *
  **/
-sequence<AdapterDynamicInfo> AdapterDynamicInfoSeq;
+["java:type:java.util.LinkedList"] sequence<AdapterDynamicInfo> AdapterDynamicInfoSeq;
 
 /**
  *
