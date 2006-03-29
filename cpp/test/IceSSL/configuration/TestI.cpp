@@ -10,6 +10,7 @@
 #include <Ice/Ice.h>
 #include <IceUtil/Thread.h>
 #include <TestI.h>
+#include <TestCommon.h>
 
 using namespace std;
 using namespace Ice;
@@ -60,5 +61,6 @@ ServerFactoryI::destroyServer(const Test::ServerPrx& srv, const Ice::Current&)
 void
 ServerFactoryI::shutdown(const Ice::Current& current)
 {
+    test(_servers.empty());
     current.adapter->getCommunicator()->shutdown();
 }
