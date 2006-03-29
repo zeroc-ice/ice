@@ -104,95 +104,54 @@ IceSSL::Context::Context(const InstancePtr& instance, const string& propPrefix, 
 	throw ex;
     }
 
-    //
-    // Store a pointer to ourself for use in OpenSSL callbacks.
-    //
-    SSL_CTX_set_ex_data(_ctx, 0, this);
-
-    PropertiesPtr properties = _instance->communicator()->getProperties();
-
-    //
-    // Check for a default directory. We look in this directory for
-    // files mentioned in the configuration.
-    //
+    try
     {
-	_defaultDir = properties->getProperty(propPrefix + "DefaultDir");
-    }
+	//
+	// Store a pointer to ourself for use in OpenSSL callbacks.
+	//
+	SSL_CTX_set_ex_data(_ctx, 0, this);
 
-    //
-    // Select protocols.
-    //
-    {
-	string protocols = properties->getProperty(propPrefix + "Protocols");
-	if(!protocols.empty())
+	PropertiesPtr properties = _instance->communicator()->getProperties();
+
+	//
+	// Check for a default directory. We look in this directory for
+	// files mentioned in the configuration.
+	//
 	{
-	    parseProtocols(protocols);
+	    _defaultDir = properties->getProperty(propPrefix + "DefaultDir");
 	}
-    }
 
-    //
-    // Determine whether a certificate is required from the peer.
-    //
-    {
-	int verifyPeer = properties->getPropertyAsIntWithDefault(propPrefix + "VerifyPeer", 2);
-	int sslVerifyMode;
-	switch(verifyPeer)
+	//
+	// Select protocols.
+	//
 	{
-	case 0:
-	    sslVerifyMode = SSL_VERIFY_NONE;
-	    break;
-	case 1:
-	    sslVerifyMode = SSL_VERIFY_PEER;
-	    break;
-	case 2:
-	    sslVerifyMode = SSL_VERIFY_PEER|SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
-	    break;
-	default:
-	{
-	    string msg = "IceSSL: invalid value for " + propPrefix + "VerifyPeer";
-	    if(_instance->securityTraceLevel() >= 1)
+	    string protocols = properties->getProperty(propPrefix + "Protocols");
+	    if(!protocols.empty())
 	    {
-		_logger->trace(_instance->securityTraceCategory(), msg);
+		parseProtocols(protocols);
 	    }
-	    PluginInitializationException ex(__FILE__, __LINE__);
-	    ex.reason = msg;
-	    throw ex;
 	}
-	}
-	SSL_CTX_set_verify(_ctx, sslVerifyMode, opensslVerifyCallback);
-    }
 
-    //
-    // If the configuration defines a password, or the application has supplied
-    // a password prompt object, then register a password callback. Otherwise,
-    // let OpenSSL use its default behavior.
-    //
-    {
-	// TODO: Support quoted value?
-	string password = properties->getProperty(propPrefix + "Password");
-	if(!password.empty() || _instance->passwordPrompt())
+	//
+	// Determine whether a certificate is required from the peer.
+	//
 	{
-	    SSL_CTX_set_default_passwd_cb(_ctx, opensslPasswordCallback);
-	    SSL_CTX_set_default_passwd_cb_userdata(_ctx, this);
-	    _password = password;
-	}
-    }
-
-    int passwordRetryMax = properties->getPropertyAsIntWithDefault(propPrefix + "PasswordRetryMax", 3);
-
-    //
-    // Establish the location of CA certificates.
-    //
-    {
-	string caFile = properties->getProperty(propPrefix + "CertAuthFile");
-	string caDir = properties->getPropertyWithDefault(propPrefix + "CertAuthDir", _defaultDir);
-	const char* file = 0;
-	const char* dir = 0;
-	if(!caFile.empty())
-	{
-	    if(!checkPath(caFile, false))
+	    int verifyPeer = properties->getPropertyAsIntWithDefault(propPrefix + "VerifyPeer", 2);
+	    int sslVerifyMode;
+	    switch(verifyPeer)
 	    {
-		string msg = "IceSSL: CA certificate file not found:\n" + caFile;
+	    case 0:
+		sslVerifyMode = SSL_VERIFY_NONE;
+		break;
+	    case 1:
+		sslVerifyMode = SSL_VERIFY_PEER;
+		break;
+	    case 2:
+		sslVerifyMode = SSL_VERIFY_PEER|SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
+		break;
+	    default:
+	    {
+		string msg = "IceSSL: invalid value for " + propPrefix + "VerifyPeer";
 		if(_instance->securityTraceLevel() >= 1)
 		{
 		    _logger->trace(_instance->securityTraceCategory(), msg);
@@ -201,101 +160,41 @@ IceSSL::Context::Context(const InstancePtr& instance, const string& propPrefix, 
 		ex.reason = msg;
 		throw ex;
 	    }
-	    file = caFile.c_str();
-	}
-	if(!caDir.empty())
-	{
-	    if(!checkPath(caDir, true))
-	    {
-		string msg = "IceSSL: CA certificate directory not found:\n" + caDir;
-		if(_instance->securityTraceLevel() >= 1)
-		{
-		    _logger->trace(_instance->securityTraceCategory(), msg);
-		}
-		PluginInitializationException ex(__FILE__, __LINE__);
-		ex.reason = msg;
-		throw ex;
 	    }
-	    dir = caDir.c_str();
+	    SSL_CTX_set_verify(_ctx, sslVerifyMode, opensslVerifyCallback);
 	}
-	if(file || dir)
-	{
-	    //
-	    // The certificate may be stored in an encrypted file, so handle
-	    // password retries.
-	    //
-	    int count = 0;
-	    int err;
-	    while(count < passwordRetryMax)
-	    {
-		ERR_clear_error();
-		err = SSL_CTX_load_verify_locations(_ctx, file, dir);
-		if(err || !passwordError())
-		{
-		    break;
-		}
-		++count;
-	    }
-	    if(err == 0)
-	    {
-		string msg = "IceSSL: unable to establish CA certificates";
-		if(passwordError())
-		{
-		    msg += ":\ninvalid password";
-		}
-		else
-		{
-		    string err = _instance->sslErrors();
-		    if(!err.empty())
-		    {
-			msg += ":\n" + err;
-		    }
-		}
-		if(_instance->securityTraceLevel() >= 1)
-		{
-		    _logger->trace(_instance->securityTraceCategory(), msg);
-		}
-		PluginInitializationException ex(__FILE__, __LINE__);
-		ex.reason = msg;
-		throw ex;
-	    }
-	}
-    }
 
-    //
-    // Establish the certificate chains and private keys. One RSA certificate and
-    // one DSA certificate are allowed.
-    //
-    {
-#ifdef _WIN32
-	const string sep = ";";
-#else
-	const string sep = ":";
-#endif
-	string certFile = properties->getProperty(propPrefix + "CertFile");
-	string keyFile = properties->getProperty(propPrefix + "KeyFile");
-	vector<string>::size_type numCerts = 0;
-	if(!certFile.empty())
+	//
+	// If the configuration defines a password, or the application has supplied
+	// a password prompt object, then register a password callback. Otherwise,
+	// let OpenSSL use its default behavior.
+	//
 	{
-	    vector<string> files;
-	    if(!splitString(certFile, sep, false, files) || files.size() > 2)
+	    // TODO: Support quoted value?
+	    string password = properties->getProperty(propPrefix + "Password");
+	    if(!password.empty() || _instance->passwordPrompt())
 	    {
-		string msg = "IceSSL: invalid value for " + propPrefix + "CertFile:\n" + certFile;
-		if(_instance->securityTraceLevel() >= 1)
-		{
-		    _logger->trace(_instance->securityTraceCategory(), msg);
-		}
-		PluginInitializationException ex(__FILE__, __LINE__);
-		ex.reason = msg;
-		throw ex;
+		SSL_CTX_set_default_passwd_cb(_ctx, opensslPasswordCallback);
+		SSL_CTX_set_default_passwd_cb_userdata(_ctx, this);
+		_password = password;
 	    }
-	    numCerts = files.size();
-	    for(vector<string>::iterator p = files.begin(); p != files.end(); ++p)
+	}
+
+	int passwordRetryMax = properties->getPropertyAsIntWithDefault(propPrefix + "PasswordRetryMax", 3);
+
+	//
+	// Establish the location of CA certificates.
+	//
+	{
+	    string caFile = properties->getProperty(propPrefix + "CertAuthFile");
+	    string caDir = properties->getPropertyWithDefault(propPrefix + "CertAuthDir", _defaultDir);
+	    const char* file = 0;
+	    const char* dir = 0;
+	    if(!caFile.empty())
 	    {
-		string file = *p;
-		if(!checkPath(file, false))
+		if(!checkPath(caFile, false))
 		{
-		    string msg = "IceSSL: certificate file not found:\n" + file;
+		    string msg = "IceSSL: CA certificate file not found:\n" + caFile;
 		    if(_instance->securityTraceLevel() >= 1)
 		    {
 			_logger->trace(_instance->securityTraceCategory(), msg);
@@ -304,6 +203,25 @@ IceSSL::Context::Context(const InstancePtr& instance, const string& propPrefix, 
 		    ex.reason = msg;
 		    throw ex;
 		}
+		file = caFile.c_str();
+	    }
+	    if(!caDir.empty())
+	    {
+		if(!checkPath(caDir, true))
+		{
+		    string msg = "IceSSL: CA certificate directory not found:\n" + caDir;
+		    if(_instance->securityTraceLevel() >= 1)
+		    {
+			_logger->trace(_instance->securityTraceCategory(), msg);
+		    }
+		    PluginInitializationException ex(__FILE__, __LINE__);
+		    ex.reason = msg;
+		    throw ex;
+		}
+		dir = caDir.c_str();
+	    }
+	    if(file || dir)
+	    {
 		//
 		// The certificate may be stored in an encrypted file, so handle
 		// password retries.
@@ -313,7 +231,7 @@ IceSSL::Context::Context(const InstancePtr& instance, const string& propPrefix, 
 		while(count < passwordRetryMax)
 		{
 		    ERR_clear_error();
-		    err = SSL_CTX_use_certificate_chain_file(_ctx, file.c_str());
+		    err = SSL_CTX_load_verify_locations(_ctx, file, dir);
 		    if(err || !passwordError())
 		    {
 			break;
@@ -322,7 +240,7 @@ IceSSL::Context::Context(const InstancePtr& instance, const string& propPrefix, 
 		}
 		if(err == 0)
 		{
-		    string msg = "IceSSL: unable to load certificate chain from file " + file;
+		    string msg = "IceSSL: unable to establish CA certificates";
 		    if(passwordError())
 		    {
 			msg += ":\ninvalid password";
@@ -345,168 +263,41 @@ IceSSL::Context::Context(const InstancePtr& instance, const string& propPrefix, 
 		}
 	    }
 	}
-	if(keyFile.empty())
-	{
-	    keyFile = certFile; // Assume the certificate file also contains the private key.
-	}
-	if(!keyFile.empty())
-	{
-	    vector<string> files;
-	    if(!splitString(keyFile, sep, false, files) || files.size() > 2)
-	    {
-		string msg = "IceSSL: invalid value for " + propPrefix + "KeyFile:\n" + keyFile;
-		if(_instance->securityTraceLevel() >= 1)
-		{
-		    _logger->trace(_instance->securityTraceCategory(), msg);
-		}
-		PluginInitializationException ex(__FILE__, __LINE__);
-		ex.reason = msg;
-		throw ex;
-	    }
-	    if(files.size() != numCerts)
-	    {
-		string msg = "IceSSL: " + propPrefix + "KeyFile does not agree with " + propPrefix + "CertFile";
-		if(_instance->securityTraceLevel() >= 1)
-		{
-		    _logger->trace(_instance->securityTraceCategory(), msg);
-		}
-		PluginInitializationException ex(__FILE__, __LINE__);
-		ex.reason = msg;
-		throw ex;
-	    }
-	    for(vector<string>::iterator p = files.begin(); p != files.end(); ++p)
-	    {
-		string file = *p;
-		if(!checkPath(file, false))
-		{
-		    string msg = "IceSSL: key file not found:\n" + file;
-		    if(_instance->securityTraceLevel() >= 1)
-		    {
-			_logger->trace(_instance->securityTraceCategory(), msg);
-		    }
-		    PluginInitializationException ex(__FILE__, __LINE__);
-		    ex.reason = msg;
-		    throw ex;
-		}
-		//
-		// The private key may be stored in an encrypted file, so handle
-		// password retries.
-		//
-		int count = 0;
-		int err;
-		while(count < passwordRetryMax)
-		{
-		    ERR_clear_error();
-		    err = SSL_CTX_use_PrivateKey_file(_ctx, file.c_str(), SSL_FILETYPE_PEM);
-		    if(err || !passwordError())
-		    {
-			break;
-		    }
-		    ++count;
-		}
-		if(err == 0)
-		{
-		    string msg = "IceSSL: unable to load private key from file " + file;
-		    if(passwordError())
-		    {
-			msg += ":\ninvalid password";
-		    }
-		    else
-		    {
-			string err = _instance->sslErrors();
-			if(!err.empty())
-			{
-			    msg += ":\n" + err;
-			}
-		    }
-		    if(_instance->securityTraceLevel() >= 1)
-		    {
-			_logger->trace(_instance->securityTraceCategory(), msg);
-		    }
-		    PluginInitializationException ex(__FILE__, __LINE__);
-		    ex.reason = msg;
-		    throw ex;
-		}
-	    }
-	    if(!SSL_CTX_check_private_key(_ctx))
-	    {
-		string err = _instance->sslErrors();
-		string msg = "IceSSL: unable to validate private key(s):\n" + err;
-		if(_instance->securityTraceLevel() >= 1)
-		{
-		    _logger->trace(_instance->securityTraceCategory(), msg);
-		}
-		PluginInitializationException ex(__FILE__, __LINE__);
-		ex.reason = msg;
-		throw ex;
-	    }
-	}
-    }
 
-    //
-    // Establish the cipher list.
-    //
-    {
-	string ciphers = properties->getProperty(propPrefix + "Ciphers");
-	if(!ciphers.empty())
-	{
-	    if(!SSL_CTX_set_cipher_list(_ctx, ciphers.c_str()))
-	    {
-		string err = _instance->sslErrors();
-		string msg = "IceSSL: unable to set ciphers using `" + ciphers + "':\n" + err;
-		if(_instance->securityTraceLevel() >= 1)
-		{
-		    _logger->trace(_instance->securityTraceCategory(), msg);
-		}
-		PluginInitializationException ex(__FILE__, __LINE__);
-		ex.reason = msg;
-		throw ex;
-	    }
-	}
-    }
-
-    //
-    // Establish the maximum verify depth.
-    //
-    {
-	int depth = properties->getPropertyAsIntWithDefault(propPrefix + "VerifyDepthMax", -1);
-	if(depth >= 0)
-	{
-	    SSL_CTX_set_verify_depth(_ctx, depth);
-	}
-    }
-
-    //
-    // Diffie Hellman configuration.
-    //
-    {
-#ifndef OPENSSL_NO_DH
-	_dhParams = new DHParams;
-	SSL_CTX_set_options(_ctx, SSL_OP_SINGLE_DH_USE);
-	SSL_CTX_set_tmp_dh_callback(_ctx, opensslDHCallback);
-#endif
 	//
-	// Properties have the following form:
+	// Establish the certificate chains and private keys. One RSA certificate and
+	// one DSA certificate are allowed.
 	//
-	// ...DH.<keyLength>=file
-	//
-	const string dhPrefix = propPrefix + "DH.";
-	PropertyDict d = properties->getPropertiesForPrefix(dhPrefix);
-	if(!d.empty())
 	{
-#ifdef OPENSSL_NO_DH
-	    _logger->warning("IceSSL: OpenSSL is not configured for Diffie Hellman");
+#ifdef _WIN32
+	    const string sep = ";";
 #else
-	    for(PropertyDict::iterator p = d.begin(); p != d.end(); ++p)
+	    const string sep = ":";
+#endif
+	    string certFile = properties->getProperty(propPrefix + "CertFile");
+	    string keyFile = properties->getProperty(propPrefix + "KeyFile");
+	    vector<string>::size_type numCerts = 0;
+	    if(!certFile.empty())
 	    {
-		string s = p->first.substr(dhPrefix.size());
-		int keyLength = atoi(s.c_str());
-		if(keyLength > 0)
+		vector<string> files;
+		if(!splitString(certFile, sep, false, files) || files.size() > 2)
 		{
-		    string file = p->second;
+		    string msg = "IceSSL: invalid value for " + propPrefix + "CertFile:\n" + certFile;
+		    if(_instance->securityTraceLevel() >= 1)
+		    {
+			_logger->trace(_instance->securityTraceCategory(), msg);
+		    }
+		    PluginInitializationException ex(__FILE__, __LINE__);
+		    ex.reason = msg;
+		    throw ex;
+		}
+		numCerts = files.size();
+		for(vector<string>::iterator p = files.begin(); p != files.end(); ++p)
+		{
+		    string file = *p;
 		    if(!checkPath(file, false))
 		    {
-			string msg = "IceSSL: DH parameter file not found:\n" + file;
+			string msg = "IceSSL: certificate file not found:\n" + file;
 			if(_instance->securityTraceLevel() >= 1)
 			{
 			    _logger->trace(_instance->securityTraceCategory(), msg);
@@ -515,9 +306,37 @@ IceSSL::Context::Context(const InstancePtr& instance, const string& propPrefix, 
 			ex.reason = msg;
 			throw ex;
 		    }
-		    if(!_dhParams->add(keyLength, file))
+		    //
+		    // The certificate may be stored in an encrypted file, so handle
+		    // password retries.
+		    //
+		    int count = 0;
+		    int err;
+		    while(count < passwordRetryMax)
 		    {
-			string msg = "IceSSL: unable to read DH parameter file " + file;
+			ERR_clear_error();
+			err = SSL_CTX_use_certificate_chain_file(_ctx, file.c_str());
+			if(err || !passwordError())
+			{
+			    break;
+			}
+			++count;
+		    }
+		    if(err == 0)
+		    {
+			string msg = "IceSSL: unable to load certificate chain from file " + file;
+			if(passwordError())
+			{
+			    msg += ":\ninvalid password";
+			}
+			else
+			{
+			    string err = _instance->sslErrors();
+			    if(!err.empty())
+			    {
+				msg += ":\n" + err;
+			    }
+			}
 			if(_instance->securityTraceLevel() >= 1)
 			{
 			    _logger->trace(_instance->securityTraceCategory(), msg);
@@ -528,8 +347,197 @@ IceSSL::Context::Context(const InstancePtr& instance, const string& propPrefix, 
 		    }
 		}
 	    }
-#endif
+	    if(keyFile.empty())
+	    {
+		keyFile = certFile; // Assume the certificate file also contains the private key.
+	    }
+	    if(!keyFile.empty())
+	    {
+		vector<string> files;
+		if(!splitString(keyFile, sep, false, files) || files.size() > 2)
+		{
+		    string msg = "IceSSL: invalid value for " + propPrefix + "KeyFile:\n" + keyFile;
+		    if(_instance->securityTraceLevel() >= 1)
+		    {
+			_logger->trace(_instance->securityTraceCategory(), msg);
+		    }
+		    PluginInitializationException ex(__FILE__, __LINE__);
+		    ex.reason = msg;
+		    throw ex;
+		}
+		if(files.size() != numCerts)
+		{
+		    string msg = "IceSSL: " + propPrefix + "KeyFile does not agree with " + propPrefix + "CertFile";
+		    if(_instance->securityTraceLevel() >= 1)
+		    {
+			_logger->trace(_instance->securityTraceCategory(), msg);
+		    }
+		    PluginInitializationException ex(__FILE__, __LINE__);
+		    ex.reason = msg;
+		    throw ex;
+		}
+		for(vector<string>::iterator p = files.begin(); p != files.end(); ++p)
+		{
+		    string file = *p;
+		    if(!checkPath(file, false))
+		    {
+			string msg = "IceSSL: key file not found:\n" + file;
+			if(_instance->securityTraceLevel() >= 1)
+			{
+			    _logger->trace(_instance->securityTraceCategory(), msg);
+			}
+			PluginInitializationException ex(__FILE__, __LINE__);
+			ex.reason = msg;
+			throw ex;
+		    }
+		    //
+		    // The private key may be stored in an encrypted file, so handle
+		    // password retries.
+		    //
+		    int count = 0;
+		    int err;
+		    while(count < passwordRetryMax)
+		    {
+			ERR_clear_error();
+			err = SSL_CTX_use_PrivateKey_file(_ctx, file.c_str(), SSL_FILETYPE_PEM);
+			if(err || !passwordError())
+			{
+			    break;
+			}
+			++count;
+		    }
+		    if(err == 0)
+		    {
+			string msg = "IceSSL: unable to load private key from file " + file;
+			if(passwordError())
+			{
+			    msg += ":\ninvalid password";
+			}
+			else
+			{
+			    string err = _instance->sslErrors();
+			    if(!err.empty())
+			    {
+				msg += ":\n" + err;
+			    }
+			}
+			if(_instance->securityTraceLevel() >= 1)
+			{
+			    _logger->trace(_instance->securityTraceCategory(), msg);
+			}
+			PluginInitializationException ex(__FILE__, __LINE__);
+			ex.reason = msg;
+			throw ex;
+		    }
+		}
+		if(!SSL_CTX_check_private_key(_ctx))
+		{
+		    string err = _instance->sslErrors();
+		    string msg = "IceSSL: unable to validate private key(s):\n" + err;
+		    if(_instance->securityTraceLevel() >= 1)
+		    {
+			_logger->trace(_instance->securityTraceCategory(), msg);
+		    }
+		    PluginInitializationException ex(__FILE__, __LINE__);
+		    ex.reason = msg;
+		    throw ex;
+		}
+	    }
 	}
+
+	//
+	// Establish the cipher list.
+	//
+	{
+	    string ciphers = properties->getProperty(propPrefix + "Ciphers");
+	    if(!ciphers.empty())
+	    {
+		if(!SSL_CTX_set_cipher_list(_ctx, ciphers.c_str()))
+		{
+		    string err = _instance->sslErrors();
+		    string msg = "IceSSL: unable to set ciphers using `" + ciphers + "':\n" + err;
+		    if(_instance->securityTraceLevel() >= 1)
+		    {
+			_logger->trace(_instance->securityTraceCategory(), msg);
+		    }
+		    PluginInitializationException ex(__FILE__, __LINE__);
+		    ex.reason = msg;
+		    throw ex;
+		}
+	    }
+	}
+
+	//
+	// Establish the maximum verify depth.
+	//
+	{
+	    int depth = properties->getPropertyAsIntWithDefault(propPrefix + "VerifyDepthMax", -1);
+	    if(depth >= 0)
+	    {
+		SSL_CTX_set_verify_depth(_ctx, depth);
+	    }
+	}
+
+	//
+	// Diffie Hellman configuration.
+	//
+	{
+#ifndef OPENSSL_NO_DH
+	    _dhParams = new DHParams;
+	    SSL_CTX_set_options(_ctx, SSL_OP_SINGLE_DH_USE);
+	    SSL_CTX_set_tmp_dh_callback(_ctx, opensslDHCallback);
+#endif
+	    //
+	    // Properties have the following form:
+	    //
+	    // ...DH.<keyLength>=file
+	    //
+	    const string dhPrefix = propPrefix + "DH.";
+	    PropertyDict d = properties->getPropertiesForPrefix(dhPrefix);
+	    if(!d.empty())
+	    {
+#ifdef OPENSSL_NO_DH
+		_logger->warning("IceSSL: OpenSSL is not configured for Diffie Hellman");
+#else
+		for(PropertyDict::iterator p = d.begin(); p != d.end(); ++p)
+		{
+		    string s = p->first.substr(dhPrefix.size());
+		    int keyLength = atoi(s.c_str());
+		    if(keyLength > 0)
+		    {
+			string file = p->second;
+			if(!checkPath(file, false))
+			{
+			    string msg = "IceSSL: DH parameter file not found:\n" + file;
+			    if(_instance->securityTraceLevel() >= 1)
+			    {
+				_logger->trace(_instance->securityTraceCategory(), msg);
+			    }
+			    PluginInitializationException ex(__FILE__, __LINE__);
+			    ex.reason = msg;
+			    throw ex;
+			}
+			if(!_dhParams->add(keyLength, file))
+			{
+			    string msg = "IceSSL: unable to read DH parameter file " + file;
+			    if(_instance->securityTraceLevel() >= 1)
+			    {
+				_logger->trace(_instance->securityTraceCategory(), msg);
+			    }
+			    PluginInitializationException ex(__FILE__, __LINE__);
+			    ex.reason = msg;
+			    throw ex;
+			}
+		    }
+		}
+#endif
+	    }
+	}
+    }
+    catch(...)
+    {
+	SSL_CTX_free(_ctx);
+	throw;
     }
 }
 
