@@ -949,7 +949,7 @@ namespace Ice
             {
                 try
                 {
-                    Ice.ObjectPrx bb = b.ice_newFacet(f);
+                    Ice.ObjectPrx bb = b.ice_facet(f);
                     bool ok = bb.ice_isA("::Object");
                     Debug.Assert(ok);
                     ObjectPrxHelper h = new ObjectPrxHelper();
@@ -970,7 +970,7 @@ namespace Ice
             {
                 try
                 {
-                    Ice.ObjectPrx bb = b.ice_newFacet(f);
+                    Ice.ObjectPrx bb = b.ice_facet(f);
                     bool ok = bb.ice_isA("::Object", ctx);
                     Debug.Assert(ok);
                     ObjectPrxHelper h = new ObjectPrxHelper();
@@ -994,7 +994,7 @@ namespace Ice
             ObjectPrx d = null;
             if(b != null)
             {
-                Ice.ObjectPrx bb = b.ice_newFacet(f);
+                Ice.ObjectPrx bb = b.ice_facet(f);
                 ObjectPrxHelper h = new ObjectPrxHelper();
                 h.copyFrom__(bb);
                 d = h;
