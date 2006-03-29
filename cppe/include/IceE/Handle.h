@@ -80,11 +80,11 @@ public:
 
 private:
 
-    void throwNullHandleException(char *, int) const;
+    void throwNullHandleException(const char *, int) const;
 };
 
 template<typename T> void
-HandleBase<T>::throwNullHandleException(char* file, int line) const
+HandleBase<T>::throwNullHandleException(const char* file, int line) const
 {
     throw NullHandleException(file, line);
 }
