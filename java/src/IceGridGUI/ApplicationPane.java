@@ -1,0 +1,393 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+package IceGridGUI;
+
+import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import javax.swing.*;
+import javax.swing.border.AbstractBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.plaf.SplitPaneUI;
+import javax.swing.plaf.basic.BasicSplitPaneUI;
+import javax.swing.tree.TreeCellRenderer;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
+
+import com.jgoodies.looks.Options;
+import com.jgoodies.looks.plastic.PlasticLookAndFeel;
+import com.jgoodies.looks.windows.WindowsLookAndFeel;
+import com.jgoodies.forms.factories.Borders;
+
+import IceGrid.*;
+import IceGridGUI.Application.Editor;
+import IceGridGUI.Application.Root;
+import IceGridGUI.Application.TreeNode;
+
+public class ApplicationPane extends JSplitPane implements Tab
+{
+    public void updateUI()
+    {
+	super.updateUI();
+	setEmptyDividerBorder();
+    }
+    
+    public void selected()
+    {
+	Coordinator c = _root.getCoordinator();
+
+	c.getCloseApplicationAction().setEnabled(true);
+
+	boolean enableSave = _root.needsSaving() && (_root.isLive() || _root.hasFile());
+	c.getSaveAction().setEnabled(enableSave);
+	c.getDiscardUpdatesAction().setEnabled(enableSave);
+
+	if(_root.isLive())
+	{
+	    c.getSaveToRegistryAction().setEnabled(_root.needsSaving());
+	}
+	else
+	{
+	    c.getSaveToRegistryAction().setEnabled(c.getSession() != null);
+	}
+	c.getSaveToFileAction().setEnabled(true);
+
+	
+	c.getBackAction().setEnabled(_previousNodes.size() > 0);
+	c.getForwardAction().setEnabled(_nextNodes.size() > 0);
+	c.showActions(_currentNode);
+    }
+
+    public void showNode(TreeNodeBase node)
+    {
+	TreeNode newNode = (TreeNode)node;
+	
+	if(newNode != _currentNode)
+	{
+	    if(_currentNode != null 
+	       && _currentNode.isEphemeral() && _root.hasNode(_currentNode))
+	    {
+		_currentNode.destroy();
+		_currentNode = null;
+	    }
+
+	    if(newNode == null)
+	    {
+		_currentNode = null;
+		showCurrentNode();
+	    }
+	    else
+	    {
+		if(_currentNode != null && _root.hasNode(_currentNode))
+		{
+		    _previousNodes.add(_currentNode);
+		    while(_previousNodes.size() >= HISTORY_MAX_SIZE)
+		    {
+			_previousNodes.removeFirst();
+		    }
+		    _root.getCoordinator().getBackAction().setEnabled(true);
+		}   
+		_nextNodes.clear();
+		_root.getCoordinator().getForwardAction().setEnabled(false);
+		_currentNode = newNode;
+		showCurrentNode();
+	    }
+	}
+	else
+	{
+	    refresh();
+	}
+    }
+
+    public void refresh()
+    {
+	_root.cancelEdit();
+
+	if(_currentNode != null)
+	{
+	    _root.getCoordinator().showActions(_currentNode);
+	    _currentNode.getEditor();
+	}
+    }
+
+    public void back()
+    {
+	TreeNode previousNode = null;
+	do
+	{
+	    previousNode = (TreeNode)_previousNodes.removeLast();
+	} while(_previousNodes.size() > 0 
+		&& (previousNode == _currentNode || !_root.hasNode(previousNode)));
+		
+	if(_previousNodes.size() == 0)
+	{
+	    _root.getCoordinator().getBackAction().setEnabled(false);
+	}
+
+	if(previousNode != _currentNode)
+	{
+	    if(_currentNode != null)
+	    {
+		_nextNodes.addFirst(_currentNode);
+		_root.getCoordinator().getForwardAction().setEnabled(true);
+	    }
+	    
+	    _currentNode = previousNode;
+	    _root.disableSelectionListener();
+	    _root.setSelectedNode(_currentNode);
+	    _root.enableSelectionListener();
+	    showCurrentNode();
+	}
+    }
+
+    public void forward()
+    {
+	TreeNode nextNode = null;
+	do
+	{
+	    nextNode = (TreeNode)_nextNodes.removeFirst();
+	} while(_nextNodes.size() > 0 
+		&& (nextNode == _currentNode || !_root.hasNode(nextNode)));
+	
+	if(_nextNodes.size() == 0)
+	{
+	    _root.getCoordinator().getForwardAction().setEnabled(false);
+	}
+
+	if(nextNode != _currentNode)
+	{
+	    if(_currentNode != null)
+	    {
+		_previousNodes.add(_currentNode);
+		_root.getCoordinator().getBackAction().setEnabled(true);
+	    }
+	    
+	    _currentNode = nextNode;
+	    _root.disableSelectionListener();
+	    _root.setSelectedNode(_currentNode);
+	    _root.enableSelectionListener();
+	    showCurrentNode();
+	}
+    }
+
+    public Root getRoot()
+    {
+	return _root;
+    }
+
+    //
+    // E.g. to replace an ephemeral root
+    //
+    public void setRoot(Root newRoot)
+    {
+	boolean reset = (_root != null);
+
+	if(reset)
+	{
+	    ToolTipManager.sharedInstance().unregisterComponent(_root.getTree());
+	    _currentNode = null;
+	    _previousNodes.clear();
+	    _nextNodes.clear();
+	}
+
+	_root = newRoot;
+	
+	//
+	// Tree display
+	//
+	TreeCellRenderer renderer = new CellRenderer();
+	PopupListener popupListener = new PopupListener();
+
+	JTree tree = _root.getTree();
+
+	tree.setBorder(new EmptyBorder(5, 5, 5, 5));
+	tree.setCellRenderer(renderer);
+	ToolTipManager.sharedInstance().registerComponent(tree);
+	tree.addMouseListener(popupListener);
+
+	tree.getSelectionModel().setSelectionMode
+	    (TreeSelectionModel.SINGLE_TREE_SELECTION);
+
+	tree.addTreeSelectionListener(new SelectionListener());
+
+	tree.setRootVisible(true);
+
+	JScrollPane leftScroll = 
+	    new JScrollPane(tree,
+			    JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+			    JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+	leftScroll.setBorder(Borders.EMPTY_BORDER);
+
+	_leftPane.setContent(leftScroll);
+
+	if(reset)
+	{
+	    _root.getCoordinator().getMainPane().resetIcon(_root);
+	    _leftPane.validate();
+	    _leftPane.repaint();
+	}
+    }
+
+    public void save()
+    {
+	_root.save();
+    }
+    public void saveToRegistry()
+    {
+	_root.saveToRegistry();
+    }
+    public void saveToFile()
+    {
+	_root.saveToFile();
+    }
+    public void discardUpdates()
+    {
+	_root.discardUpdates();
+    }
+    public boolean close()
+    {
+	_root.getCoordinator().getMainPane().remove(this);
+	return true;
+    }
+
+    ApplicationPane(Root root)
+    {
+	super(JSplitPane.HORIZONTAL_SPLIT, true);
+	setBorder(new EmptyBorder(10, 10, 10, 10));
+	
+	_leftPane = new SimpleInternalFrame("Descriptors");
+	_leftPane.setPreferredSize(new Dimension(280, 350));
+
+	//
+	// Right pane
+	//
+	_propertiesFrame = new SimpleInternalFrame("Properties");
+
+	setLeftComponent(_leftPane);
+	setRightComponent(_propertiesFrame);
+
+	setRoot(root);
+    }   
+
+    private void showCurrentNode()
+    {
+	_root.cancelEdit();
+	_root.getCoordinator().showActions(_currentNode);
+
+	if(_currentNode == null)
+	{
+	    Component oldContent = _propertiesFrame.getContent();
+	    if(oldContent != null)
+	    {
+		_propertiesFrame.remove(oldContent);
+	    }
+	    _propertiesFrame.setTitle("Properties");
+	    _propertiesFrame.setToolBar(null);
+	}
+	else
+	{
+	    Editor editor = _currentNode.getEditor();
+	    Component currentProperties = editor.getProperties();
+	    _propertiesFrame.setContent(currentProperties);
+	    _propertiesFrame.setTitle(currentProperties.getName());
+	    _propertiesFrame.setToolBar(editor.getToolBar());
+	}
+	_propertiesFrame.validate();
+	_propertiesFrame.repaint();
+    }
+
+
+    private void setEmptyDividerBorder()
+    {
+	SplitPaneUI splitPaneUI = getUI();
+	if(splitPaneUI instanceof BasicSplitPaneUI) 
+	{
+	    BasicSplitPaneUI basicUI = (BasicSplitPaneUI)splitPaneUI;
+	    basicUI.getDivider().setBorder(BorderFactory.createEmptyBorder());
+	}
+    }
+
+    private class PopupListener extends MouseAdapter
+    {
+	public void mousePressed(MouseEvent e) 
+	{
+	    maybeShowPopup(e);
+	}
+
+	public void mouseReleased(MouseEvent e) 
+	{
+	    maybeShowPopup(e);
+	}
+
+	private void maybeShowPopup(MouseEvent e) 
+	{
+	    if (e.isPopupTrigger()) 
+	    {
+		JTree tree = (JTree)e.getComponent();
+
+		TreePath path = tree.getPathForLocation(e.getX(), e.getY());
+		
+		if(path != null)
+		{
+		    TreeNode node = (TreeNode)path.getLastPathComponent();
+		    JPopupMenu popup = node.getPopupMenu();
+		    if(popup != null)
+		    {
+			popup.show(tree, e.getX(), e.getY());
+		    }
+		}
+	    }
+	}
+    }
+
+    
+    private class SelectionListener implements TreeSelectionListener
+    {
+	public void valueChanged(TreeSelectionEvent e)
+	{
+	    if(_root.isSelectionListenerEnabled())
+	    {
+		TreePath path = null;
+		if(e.isAddedPath())
+		{
+		    path = e.getPath();
+		}
+
+		if(path == null)
+		{
+		    showNode(null);
+		}
+		else
+		{
+		    showNode((TreeNode)path.getLastPathComponent());
+		}
+	    }
+	}
+    }
+
+
+    private Root _root;
+    private SimpleInternalFrame _leftPane;
+    private SimpleInternalFrame _propertiesFrame;
+
+    //
+    // back/forward navigation
+    //
+    private java.util.LinkedList _previousNodes = new java.util.LinkedList();
+    private java.util.LinkedList _nextNodes = new java.util.LinkedList();
+    private TreeNode _currentNode;
+
+    static private final int HISTORY_MAX_SIZE = 20;
+}

@@ -25,7 +25,6 @@
     <property name="src.dir" value="src"/>
     <property name="generated.dir" value="generated"/>
     <property name="cache.dir" value="depcache"/>
-    <property name="gui.dir" value="admin"/>
 
     <property file="config/build.properties"/>
 
@@ -140,45 +139,39 @@
         <depend srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}" cache="${cache.dir}"/>
 	<javac srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}"
 	    source="1.4" debug="${debug}" optimize="${optimize}"
-	    excludes="IceGrid/**"
+	    excludes="IceGridGUI/**"
 	    includes="**"
-	    deprecation="on"/>
-        <javac srcdir="${generated.dir}" destdir="${lib.dir}"
-	    source="1.4" debug="${debug}" optimize="${optimize}"
-	    includes="IceGrid/**"
-	    classpath="${lib.dir}:${classpath}"
 	    deprecation="on"/>
     </target>
 
     <target name="ice-jar" depends="ice-compile">
 	<jar jarfile="${lib.dir}/Ice.jar" basedir="${lib.dir}">
 	    <include name="**/*.class"/>
+            <exclude name="IceGridGUI/**"/>
 	    <exclude name="*.jar"/>
 	</jar>
     </target>
 
-    <target name="icegrid-gui" depends="ice-compile">
-        <mkdir dir="${gui.dir}"/>
-        <javac srcdir="${src.dir}" destdir="${gui.dir}"
+    <target name="icegridgui-compile" depends="ice-compile">
+        <javac srcdir="${src.dir}" destdir="${lib.dir}"
 	    source="1.4" debug="${debug}" optimize="${optimize}"
-	    includes="IceGrid/**"
-	    classpath="${lib.dir}"
+	    includes="IceGridGUI/**"
 	    deprecation="on"/>
     </target>
 
-    <target name="icegrid-jar" depends="icegrid-gui">
-	<manifest file="${lib.dir}/icegridmanifest.mf">
-	    <attribute name="Main-Class" value="IceGrid.AdminGUI"/>
+    <target name="icegridgui-jar" depends="icegridgui-compile">
+	<manifest file="${lib.dir}/icegridgui.mf">
+	    <attribute name="Main-Class" value="IceGridGUI.Main"/>
 	    <attribute name="Class-Path" value="Ice.jar looks-1.3.2.jar forms-1.0.5.jar"/>
 	</manifest>
-	<jar jarfile="${lib.dir}/IceGridAdmin.jar" manifest="${lib.dir}/icegridmanifest.mf" basedir="${gui.dir}">
-	    <include name="IceGrid/**"/>
+	<jar jarfile="${lib.dir}/IceGridGUI.jar" manifest="${lib.dir}/icegridgui.mf" basedir="${lib.dir}">
+	    <include name="IceGridGUI/**"/>
 	</jar>
-	<jar jarfile="${lib.dir}/IceGridAdmin.jar" manifest="${lib.dir}/icegridmanifest.mf" basedir="resources"
+	<jar jarfile="${lib.dir}/IceGridGUI.jar" manifest="${lib.dir}/icegridgui.mf" basedir="resources"
 	    update="true">
 	    <include name="**"/>
 	</jar>
-	<delete file="${lib.dir}/icegridmanifest.mf" />
+	<delete file="${lib.dir}/icegridgui.mf" />
     </target>
 
     <condition property="icegrid-pro-precond">
@@ -189,6 +182,10 @@
 	    <available file="${berkeleydb.jar}" />
 	</and>	
     </condition>
+
+
+    <!--
+      TODO: bernard: get rid of this confusing IceGridAdmin.jar
 
     <target name="icegrid-pro" depends="icegrid-jar" if="icegrid-pro-precond">
 	<taskdef resource="proguard/ant/task.properties"/>
@@ -210,12 +207,16 @@
     <target name="pseudo-icegrid-pro" unless="icegrid-pro-precond">
 	<move file="${lib.dir}/IceGridAdmin.jar" tofile="${lib.dir}/IceGridGUI.jar" />
     </target>
+    -->
 
-    <target name="compile" depends="ice-compile, icegrid-gui">
+    <target name="compile" depends="ice-compile, icegridgui-compile">
     </target>
 
-    <target name="jar" depends="ice-jar, icegrid-pro, pseudo-icegrid-pro">
-    </target>
+    <!--
+    <target name="jar" depends="ice-jar, icegrid-pro, pseudo-icegrid-pro"/>
+    -->
+    <target name="jar" depends="ice-jar, icegridgui-jar"/>
+
 
     <target name="all" depends="jar">
         <ant inheritAll="false" dir="demo"/>
@@ -225,7 +226,6 @@
     <target name="clean" depends="config-init">
         <delete dir="${generated.dir}"/>
         <delete deleteonexit="true" dir="${lib.dir}"/>
-        <delete deleteonexit="true" dir="${gui.dir}"/>
         <delete dir="${cache.dir}"/>
         <ant inheritAll="false" dir="demo" target="clean"/>
         <ant inheritAll="false" dir="test" target="clean"/>

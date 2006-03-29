@@ -1,0 +1,1036 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+package IceGridGUI.Application;
+
+import java.util.Enumeration;
+
+import javax.swing.JOptionPane;
+import javax.swing.tree.DefaultTreeModel;
+
+import IceGrid.*;
+import IceGridGUI.*;
+
+//
+// The base class for Server, Service, ServerTemplate and ServiceTemplate
+//
+abstract class Communicator extends TreeNode implements DescriptorHolder
+{
+    public Enumeration children()
+    {
+	return new Enumeration()
+	    {
+		public boolean hasMoreElements()
+		{
+		    if(_p.hasNext())
+		    {
+			return true;
+		    }
+		   
+		    while(++_index < _childListArray.length)
+		    {
+			_p = _childListArray[_index].iterator();
+			if(_p.hasNext())
+			{
+			    return true;
+			}
+		    }
+		    return false;
+		}
+
+		public Object nextElement()
+		{
+		    try
+		    {
+			return _p.next();
+		    }
+		    catch(java.util.NoSuchElementException nse)
+		    {
+			if(hasMoreElements())
+			{
+			    return _p.next();
+			}
+			else
+			{
+			    throw nse;
+			}
+		    }
+		}
+		
+		private int _index = 0;
+		private java.util.Iterator _p = _childListArray[0].iterator();
+	    };
+    }
+    
+    public boolean getAllowsChildren()
+    {
+	return true;
+    }
+    
+    public javax.swing.tree.TreeNode getChildAt(int childIndex)
+    {
+	if(childIndex < 0)
+	{
+	    throw new ArrayIndexOutOfBoundsException(childIndex);
+	}
+	int offset = 0;
+	for(int i = 0; i < _childListArray.length; ++i)
+	{
+	    if(childIndex < offset + _childListArray[i].size())
+	    {
+		return _childListArray[i].get(childIndex - offset);
+	    }
+	    else
+	    {
+		offset += _childListArray[i].size();
+	    }
+	}
+	throw new ArrayIndexOutOfBoundsException(childIndex);
+    }
+   
+    public int getChildCount()
+    {
+	int result = 0;
+	for(int i = 0; i < _childListArray.length; ++i)
+	{
+	    result += _childListArray[i].size();
+	}
+	return result;
+    }
+    
+    public int getIndex(javax.swing.tree.TreeNode node)
+    {
+	int offset = 0;
+	for(int i = 0; i < _childListArray.length; ++i)
+	{
+	    int index = _childListArray[i].indexOf(node);
+	    if(index == -1)
+	    {
+		offset += _childListArray[i].size();
+	    }
+	    else
+	    {
+		return offset + index;
+	    }
+	}
+	return -1;
+    }
+
+    public boolean isLeaf()
+    {
+	for(int i = 0; i < _childListArray.length; ++i)
+	{
+	    if(!_childListArray[i].isEmpty())
+	    {
+		return false;
+	    }
+	}
+	return true;
+    }
+
+    //
+    // Actions
+    //
+
+    public void newAdapter()
+    {
+	_adapters.newChild();
+    }
+    public void newDbEnv()
+    {
+	_dbEnvs.newChild();
+    }
+    public void newService()
+    {
+	_services.newChild();
+    }
+    public void newServiceFromTemplate()
+    {
+	_services.newServiceFromTemplate();
+    }
+
+    public void paste()
+    {
+	Object descriptor =  getCoordinator().getClipboard();
+
+	if(descriptor instanceof AdapterDescriptor)
+	{
+	    AdapterDescriptor d = (AdapterDescriptor)descriptor;
+	    _adapters.newAdapter(Adapter.copyDescriptor(d));
+	}
+	else if(descriptor instanceof DbEnvDescriptor)
+	{
+	    DbEnvDescriptor d = (DbEnvDescriptor)descriptor;
+	    _dbEnvs.newDbEnv(DbEnv.copyDescriptor(d));
+	}
+	else if(descriptor instanceof ServiceInstanceDescriptor && _services.initialized())
+	{
+	    ServiceInstanceDescriptor d = (ServiceInstanceDescriptor)descriptor;
+	    _services.newService(Service.copyDescriptor(d));
+	}
+	else
+	{
+	    ((TreeNode)_parent).paste();
+	}
+    }
+    
+    abstract CommunicatorDescriptor getCommunicatorDescriptor();
+    abstract Editable getEnclosingEditable();
+
+    //
+    // Returns all instances of 'this'. When 'this' is a template,
+    // includeTemplate determines whether the template itself is or is not
+    // included in the list. Otherwise, the list contain 'this' instance
+    // in any number of enclosing instances ... often simply 'this'.
+    //
+    abstract java.util.List findInstances(boolean includeTemplate);
+  
+    
+    TreeNode findChildLike(TreeNode other)
+    {
+	if(other instanceof Adapter)
+	{
+	    return _adapters.findChildById(other.getId());
+	}
+	else if(other instanceof DbEnv)
+	{
+	    return _dbEnvs.findChildById(other.getId());
+	}
+	else if(other instanceof Service)
+	{
+	    return _dbEnvs.findChildById(other.getId());
+	}
+	else
+	{
+	    return null;
+	}
+    }
+
+    boolean isIceBox()
+    {
+	return false;
+    }
+
+    protected Communicator(TreeNode parent, String id)
+    {
+	super(parent, id);
+    }
+
+    abstract class ChildList
+    {
+	abstract TreeNode createChild(Object descriptor) throws UpdateFailedException;
+	abstract ChildList getMyChildList(Communicator communicator);
+	abstract void newChild();
+
+	protected ChildList(boolean sorted)
+	{
+	    _sorted = sorted;
+	}
+
+	void write(XMLWriter writer) throws java.io.IOException
+	{
+	    java.util.Iterator p = _children.iterator();
+	    while(p.hasNext())
+	    {
+		TreeNode child = (TreeNode)p.next();
+		child.write(writer);
+	    }
+	}
+
+	//
+	// Some list-like methods
+	//
+	java.util.Iterator iterator()
+	{
+	    return _children.iterator();
+	}
+
+	TreeNode get(int index)
+	{
+	    return (TreeNode)_children.get(index);
+	}
+
+	int indexOf(Object obj)
+	{
+	    return _children.indexOf(obj);
+	}
+	
+	int size()
+	{
+	    return _children.size();
+	}
+
+	boolean isEmpty()
+	{
+	    return _children.isEmpty();
+	}
+	
+	//
+	// Non-list methods
+	//
+
+	void init(java.util.List descriptors) throws UpdateFailedException
+	{
+	    assert _descriptors == null;
+	    assert _children.isEmpty();
+
+	    _descriptors = descriptors;
+	    java.util.Iterator p = _descriptors.iterator();
+
+	    while(p.hasNext())
+	    {
+		Object descriptor = p.next();
+		TreeNode child = createChild(descriptor);
+		addChild(child, false);
+	    }
+	}
+
+	boolean initialized()
+	{
+	    return _descriptors != null;
+	}
+
+	void clear()
+	{
+	    _descriptors = null;
+	    _children.clear();
+	}
+
+	TreeNode addNewChild(Object descriptor) throws UpdateFailedException
+	{
+	    TreeNode child = createChild(descriptor);
+	    addChild(child, true);
+	  
+	    return child;
+	}
+
+	TreeNode findChildWithDescriptor(Object descriptor)
+	{
+	    java.util.Iterator p = _children.iterator();
+	    while(p.hasNext())
+	    {
+		TreeNode child = (TreeNode)p.next();
+		if(child.getDescriptor() == descriptor)
+		{
+		    return child;
+		}
+	    }
+	    return null;
+	}
+
+	TreeNode findChildById(String id)
+	{
+	    java.util.Iterator p = _children.iterator();
+	    while(p.hasNext())
+	    {
+		TreeNode child = (TreeNode)p.next();
+		if(child.getId().equals(id))
+		{
+		    return child;
+		}
+	    }
+	    return null;
+	}
+
+	void addChild(TreeNode child, boolean fireEvent) throws UpdateFailedException
+	{
+	    if(_sorted)
+	    {
+		DefaultTreeModel treeModel = fireEvent ?
+		    getRoot().getTreeModel() : null;
+		
+		if(!insertSortedChild(child, _children, treeModel))
+		{
+		    throw new UpdateFailedException(Communicator.this, child.getId());
+		}
+	    }
+	    else
+	    {
+		//
+		// Just add the child at the end of the list
+		//
+		_children.add(child);
+		if(fireEvent)
+		{
+		    getRoot().getTreeModel().nodesWereInserted(Communicator.this, new int[]{getIndex(child)});
+		}
+	    }
+	}
+
+	int removeChild(TreeNode child)
+	{
+	    int index = getIndex(child);
+	    
+	    _children.remove(child);
+	    
+	    getRoot().getTreeModel().nodesWereRemoved(Communicator.this,
+						    new int[]{index},
+						    new Object[]{child});
+	    return index;
+	} 
+
+	void destroyChild(TreeNode child)
+	{
+	    if(child.isEphemeral())
+	    {
+		removeChild(child);
+	    }
+	    else
+	    {
+		Object descriptor = child.getDescriptor();
+		removeDescriptor(descriptor);
+		getEnclosingEditable().markModified();
+		
+		java.util.List list = findInstances(true);
+		java.util.Iterator p = list.iterator();
+		while(p.hasNext())
+		{
+		    Communicator communicator = (Communicator)p.next();
+		    ChildList container = getMyChildList(communicator);
+		    container.removeChild(container.findChildWithDescriptor(descriptor));
+		}
+	    }
+	}
+
+	void addDescriptor(Object descriptor)
+	{
+	    _children.add(descriptor);
+	}
+
+	void removeDescriptor(Object descriptor)
+	{
+	    //
+	    // A straight remove uses equals(), which is not the desired behavior
+	    //
+	    java.util.Iterator p = _adapters.iterator();
+	    while(p.hasNext())
+	    {
+		if(descriptor == p.next())
+		{
+		    p.remove();
+		    break;
+		}
+	    }
+	}
+	
+	boolean canMove(TreeNode child, boolean up)
+	{	
+	    if(!isEditable())
+	    {
+		return false;
+	    }
+	    else
+	    {
+		int i = _children.indexOf(child);
+		assert i != -1;
+		return (up && i > 0) || (!up && i < _children.size() - 1);
+	    }
+	}
+
+	void move(int listIndex, int index, boolean up)
+	{
+	    Object child = _children.remove(listIndex);
+	    assert child != null;
+
+	    getRoot().getTreeModel().nodesWereRemoved(Communicator.this, 
+						      new int[]{index},
+						      new Object[]{child});
+	    if(up)
+	    {
+		_children.add(listIndex - 1, child);
+		getRoot().getTreeModel().nodesWereInserted(Communicator.this, 
+							   new int[]{index - 1});
+		
+	    }
+	    else
+	    {
+		_children.add(listIndex + 1, child);
+		getRoot().getTreeModel().nodesWereInserted(Communicator.this, 
+							   new int[]{index + 1});
+		
+	    }
+	}
+
+	void tryAdd(Object descriptor) throws UpdateFailedException
+	{
+	    addDescriptor(descriptor);
+
+	    java.util.List newChildren = new java.util.LinkedList();
+	    java.util.List list = findInstances(true);
+	    
+	    java.util.Iterator p = list.iterator();
+	    while(p.hasNext())
+	    {
+		Communicator communicator = (Communicator)p.next();
+		ChildList container = getMyChildList(communicator);
+
+		try
+		{
+		    newChildren.add(container.addNewChild(descriptor));
+		}
+		catch(UpdateFailedException e)
+		{
+		    //
+		    // Rollback
+		    //
+		    java.util.Iterator q = newChildren.iterator();
+		    p = list.iterator();
+		    while(q.hasNext())
+		    {
+			communicator = (Communicator)p.next();
+			container = getMyChildList(communicator);
+			container.removeChild((TreeNode)q.next());
+		    }
+		    removeDescriptor(descriptor);
+		    throw e;
+		}
+	    }
+	    getEnclosingEditable().markModified();
+	}
+
+	void tryUpdate(TreeNode child) throws UpdateFailedException
+	{
+	    //
+	    // Child is an Adapter or DbEnv
+	    //
+	    assert _sorted;
+
+	    java.util.List list = findInstances(true);
+	    Object descriptor = child.getDescriptor();
+	    
+	    java.util.List children = new java.util.Vector();
+
+	    java.util.Iterator p = list.iterator();
+	    while(p.hasNext())
+	    {
+		Communicator communicator = (Communicator)p.next();
+		ChildList container = getMyChildList(communicator);
+
+		try
+		{
+		    child = container.findChildWithDescriptor(descriptor);
+		    removeChild(child);
+		    try
+		    {
+			container.addNewChild(descriptor);
+		    }
+		    catch(UpdateFailedException e)
+		    {
+			addChild(child, true);
+			throw e;
+		    }
+		    children.add(child);
+		}
+		catch(UpdateFailedException e)
+		{
+		    for(int i = children.size() - 1; i >= 0; --i)
+		    {
+			communicator = (Communicator)list.get(i);
+			container = getMyChildList(communicator);
+			child = (TreeNode)children.get(i);
+			TreeNode badChild = container.findChildWithDescriptor(descriptor);
+			container.removeChild(badChild);
+			try
+			{
+			    container.addChild(child, true);
+			}
+			catch(UpdateFailedException ufe)
+			{
+			    assert false; // impossible
+			}
+		    }
+		    throw e;
+		}
+	    }
+	    getEnclosingEditable().markModified();
+	}
+
+	protected String makeNewChildId(String base)
+	{
+	    String id = base;
+	    int i = 0;
+	    while(findChildById(id) != null)
+	    {
+		id = base + "-" + (++i);
+	    }
+	    return id;
+	}
+
+	protected java.util.List _children = new java.util.LinkedList();
+	protected java.util.List _descriptors;
+	protected boolean _sorted;
+    }
+
+    class Adapters extends ChildList
+    {
+	Adapters()
+	{
+	    super(true);
+	}
+	
+	void newChild()
+	{
+	    AdapterDescriptor descriptor = new AdapterDescriptor(
+		"NewAdapter",
+		"",
+		null,
+		"",
+		false,
+		true,
+		new java.util.LinkedList());   
+   
+	    newAdapter(descriptor);
+	}
+
+	TreeNode createChild(Object descriptor)
+	{
+	    AdapterDescriptor ad = (AdapterDescriptor)descriptor;
+	    String name = getResolver().substitute(ad.name);
+	    return new Adapter(Communicator.this, name, ad, false);
+	}
+	
+	ChildList getMyChildList(Communicator communicator)
+	{
+	    return communicator.getAdapters();
+	}
+	
+	private void newAdapter(AdapterDescriptor descriptor)
+	{
+	    descriptor.name = makeNewChildId(descriptor.name);
+	    Adapter adapter = new Adapter(Communicator.this, descriptor.name, descriptor, true);
+	    try
+	    {
+		addChild(adapter, true);
+	    }
+	    catch(UpdateFailedException e)
+	    {
+		assert false;
+	    }
+	    getRoot().setSelectedNode(adapter);
+	}
+
+    }
+
+    class DbEnvs extends ChildList
+    {
+	DbEnvs()
+	{
+	    super(true);
+	}
+	
+	void newChild()
+	{
+	    DbEnvDescriptor descriptor = new DbEnvDescriptor(
+		"NewDbEnv",
+		"",
+		"",
+		new java.util.LinkedList());   
+	    
+	    newDbEnv(descriptor);
+	}
+	
+	TreeNode createChild(Object descriptor)
+	{
+	    DbEnvDescriptor dd = (DbEnvDescriptor)descriptor;
+	    String name = getResolver().substitute(dd.name);
+	    return new DbEnv(Communicator.this, name, dd, false);
+	}
+	
+	ChildList getMyChildList(Communicator communicator)
+	{
+	    return communicator.getDbEnvs();
+	}
+
+	private void newDbEnv(DbEnvDescriptor descriptor)
+	{
+	    descriptor.name = makeNewChildId(descriptor.name);
+	    DbEnv dbEnv = new DbEnv(Communicator.this, descriptor.name, descriptor, true);
+	    try
+	    {
+		addChild(dbEnv, true);
+	    }
+	    catch(UpdateFailedException e)
+	    {
+		assert false;
+	    }
+	    getRoot().setSelectedNode(dbEnv);
+	}
+
+    }
+    
+    class Services extends ChildList
+    {
+	Services()
+	{
+	    super(false);
+	}
+
+	void newChild()
+	{
+	    ServiceDescriptor sd = 
+		new ServiceDescriptor(new java.util.LinkedList(),
+				      new java.util.LinkedList(),
+				      new java.util.LinkedList(),
+				      "",
+				      "NewService",
+				      "");
+	    
+	    ServiceInstanceDescriptor descriptor = 
+		new ServiceInstanceDescriptor("",
+					      new java.util.TreeMap(),
+					      sd);
+	    newService(descriptor);
+	}
+
+	void newServiceFromTemplate()
+	{
+	    ServiceInstanceDescriptor descriptor = 
+		new ServiceInstanceDescriptor("",
+					      new java.util.HashMap(),
+					      null);
+	    newService(descriptor);
+	}
+	
+	void move(Service child, boolean up)
+	{
+	    int index = getIndex(child);
+	    int listIndex = _children.indexOf(child);
+
+	    Object descriptor = child.getDescriptor();
+
+	    getEnclosingEditable().markModified();
+	
+	    _descriptors.remove(listIndex);
+	    if(up)
+	    {
+		_descriptors.add(listIndex - 1, descriptor);
+	    }
+	    else
+	    {
+		_descriptors.add(listIndex + 1, descriptor);
+	    }
+
+	    java.util.List servers = ((Communicator)_parent).findInstances(true);
+	    java.util.Iterator p = servers.iterator();
+	    
+	    while(p.hasNext())
+	    {
+		Server server = (Server)p.next();
+		
+		//
+		// The descriptors are the same as `this` descriptor
+		//
+		server.getServices().move(listIndex, index, up);
+	    }
+	    
+	    getCoordinator().showActions(child);
+	}
+
+	TreeNode createChild(Object o) throws UpdateFailedException
+	{
+	    ServiceInstanceDescriptor descriptor = (ServiceInstanceDescriptor)o;
+	    ServiceDescriptor serviceDescriptor = null;
+	    String serviceName = null;
+	    String displayString = null;
+	    Utils.Resolver serviceResolver = null;
+	    
+	    if(descriptor.template.length() > 0)
+	    {
+		TemplateDescriptor templateDescriptor 
+		    = getRoot().findServiceTemplateDescriptor(descriptor.template);
+		
+		assert templateDescriptor != null;
+		
+		serviceDescriptor = (ServiceDescriptor)templateDescriptor.descriptor;
+		assert serviceDescriptor != null;
+
+		if(Communicator.this instanceof Server)
+		{
+		    serviceResolver = new Utils.Resolver(getResolver(), 
+							 descriptor.parameterValues,
+							 templateDescriptor.parameterDefaults);
+		    serviceName = serviceResolver.substitute(serviceDescriptor.name);
+		    serviceResolver.put("service", serviceName);
+		    displayString = serviceName + ": " + descriptor.template + "<>";
+		}
+		else
+		{
+		    //
+		    // serviceName = TemplateName<unsubstituted param 1, ....>
+		    //
+		    serviceName = templateLabel(descriptor.template, 
+						templateDescriptor.parameters,
+						descriptor.parameterValues,
+						templateDescriptor.parameterDefaults);
+		}
+	    }
+	    else
+	    {
+		serviceDescriptor = descriptor.descriptor;
+		assert serviceDescriptor != null;
+		
+		if(Communicator.this instanceof Server)
+		{
+		    serviceResolver = new Utils.Resolver(getResolver());
+		    serviceName = getResolver().substitute(serviceDescriptor.name);
+		    serviceResolver.put("service", serviceName);
+		}
+		else
+		{
+		    serviceName = serviceDescriptor.name;
+		}
+	    }
+	    
+	    return new Service(Communicator.this,
+			       serviceName,
+			       displayString,
+			       descriptor, 
+			       serviceDescriptor,
+			       serviceResolver);
+	}
+	
+	void tryUpdate(TreeNode child) throws UpdateFailedException
+	{
+	    //
+	    // Rebuilding a Service if quite different since the creation of a service can
+	    // trigger an UpdateFailedException
+	    //
+	    Object descriptor = child.getDescriptor();
+	    
+	    java.util.List list = findInstances(true);
+	    java.util.List children = new java.util.Vector();
+	    int listIndex = _children.indexOf(child);
+	    assert listIndex != -1;
+
+	    java.util.Iterator p = list.iterator();
+	    while(p.hasNext())
+	    {
+		Communicator communicator = (Communicator)p.next();
+		ChildList container = getMyChildList(communicator);
+
+		try
+		{
+		    TreeNode newChild = container.createChild(descriptor);
+		    children.add(container._children.set(listIndex, newChild));
+		    getRoot().getTreeModel().nodeChanged(newChild);
+		}
+		catch(UpdateFailedException e)
+		{
+		    for(int i = children.size() - 1; i >= 0; --i)
+		    {
+			communicator = (Communicator)list.get(i);
+			container = getMyChildList(communicator);
+			container._children.set(listIndex, children.get(i));
+			getRoot().getTreeModel().nodeChanged(child);
+		    }
+		    throw e;
+		}
+	    }
+	    getEnclosingEditable().markModified();
+	}
+       
+	ChildList getMyChildList(Communicator communicator)
+	{
+	    return communicator.getServices();
+	}
+
+	private void newService(ServiceInstanceDescriptor descriptor)
+	{
+	    String baseName = descriptor.descriptor == null ? "NewService" :
+		descriptor.descriptor.name;
+	    String name = makeNewChildId(baseName);
+	    
+	    if(descriptor.descriptor != null)
+	    {
+		descriptor.descriptor.name = name;
+	    }
+	    else
+	    {
+		//
+		// Make sure descriptor.template points to a real template
+		//
+		ServiceTemplate t = getRoot().findServiceTemplate(descriptor.template);
+		
+		if(t == null)
+		{
+		    t = (ServiceTemplate)getRoot().getServiceTemplates().getChildAt(0);
+		    
+		    if(t == null)
+		    {
+			JOptionPane.showMessageDialog(
+			    getCoordinator().getMainFrame(),
+			    "You need to create a service template before you can create a service from a template.",
+			    "No Service Template",
+			    JOptionPane.INFORMATION_MESSAGE);
+			return;
+		    }
+		    else
+		    {
+			descriptor.template = t.getId();
+			descriptor.parameterValues = new java.util.HashMap();
+		    }
+		}
+		
+		//
+		// Validate/update parameterValues
+		//
+		TemplateDescriptor td = (TemplateDescriptor)t.getDescriptor();
+		descriptor.parameterValues = Editor.makeParameterValues(descriptor.parameterValues,
+									td.parameters);
+		
+	    }
+	    
+	    Service service = new Service(Communicator.this, name, descriptor);
+	    try
+	    {
+		addChild(service, true);
+	    }
+	    catch(UpdateFailedException e)
+	    {
+		assert false;
+	    }
+	    getRoot().setSelectedNode(service);
+	}
+    }
+    
+    Adapters getAdapters()
+    {
+	return _adapters;
+    }
+
+    DbEnvs getDbEnvs()
+    {
+	return _dbEnvs;
+    }
+
+    Services getServices()
+    {
+	return _services;
+    }
+
+    java.util.List findServiceInstances(String template)
+    { 
+	java.util.List result = new java.util.LinkedList();
+	java.util.Iterator p = _services.iterator();
+	while(p.hasNext())
+	{
+	    Service service = (Service)p.next();
+	    ServiceInstanceDescriptor d = 
+		(ServiceInstanceDescriptor)service.getDescriptor();
+	    if(d.template.equals(template))
+	    {
+		result.add(service);
+	    }
+	}
+	return result;
+    }
+
+    void removeServiceInstances(String template)
+    {	
+	java.util.Iterator p = _services.iterator();
+	while(p.hasNext())
+	{
+	    Service service = (Service)p.next();
+	    ServiceInstanceDescriptor d = 
+		(ServiceInstanceDescriptor)service.getDescriptor();
+	    if(d.template.equals(template))
+	    {
+		_services.removeChild(service);
+		_services.removeDescriptor(d);
+		getEnclosingEditable().markModified();
+	    }
+	}
+    }
+
+    void removeSortedChildren(String[] childIds, java.util.List fromChildren)
+    {
+	removeSortedChildren(childIds, fromChildren, getRoot().getTreeModel());
+    }
+    void childrenChanged(java.util.List children)
+    {
+	childrenChanged(children, getRoot().getTreeModel());
+    }
+
+    String getProperty(String key)
+    {
+	CommunicatorDescriptor descriptor = getCommunicatorDescriptor();
+	java.util.Iterator p = descriptor.properties.iterator();
+	while(p.hasNext())
+	{
+	    PropertyDescriptor pd = (PropertyDescriptor)p.next();
+	    if(pd.name.equals(key))
+	    {
+		return pd.value;
+	    }
+	}
+	return null;
+    }
+
+    void setProperty(String key, String newValue)
+    {
+	CommunicatorDescriptor descriptor = getCommunicatorDescriptor();
+	removeProperty(key);
+	descriptor.properties.add(new PropertyDescriptor(key, newValue));
+    }
+
+    void removeProperty(String key)
+    {
+	CommunicatorDescriptor descriptor = getCommunicatorDescriptor();
+	java.util.Iterator p = descriptor.properties.iterator();
+	while(p.hasNext())
+	{
+	    PropertyDescriptor pd = (PropertyDescriptor)p.next();
+	    if(pd.name.equals(key))
+	    {
+		p.remove();
+	    }
+	}
+    }
+    
+    static String templateLabel(String templateName,
+				java.util.List parameters,
+				final java.util.Map parameterValues,
+				final java.util.Map parameterDefaults)
+    {
+	String result = templateName + "<";
+	
+	Utils.Stringifier stringifier = new Utils.Stringifier()
+	    {
+		public String toString(Object obj)
+		{
+		    String name = (String)obj;
+		    String val = (String)parameterValues.get(name);
+		    if(val == null)
+		    {
+			val = (String)parameterDefaults.get(name);
+		    }
+		    if(val != null)
+		    {
+			return val;
+		    }
+		    else
+		    {
+			return "";
+		    }
+		}
+	    };
+
+	result += Utils.stringify(parameters, stringifier, ", ", null);
+	result += ">";
+	return result;
+    }
+
+
+    //
+    // Children
+    //
+    protected Adapters _adapters = new Adapters();
+    protected DbEnvs _dbEnvs = new DbEnvs();
+    protected Services _services = new Services();
+    protected ChildList[] _childListArray = new ChildList[]{_adapters, _dbEnvs, _services};
+}
