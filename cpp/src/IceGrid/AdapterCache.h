@@ -94,6 +94,8 @@ private:
     typedef std::vector<std::pair<std::string, ServerAdapterEntryPtr> > ReplicaSeq;
     ReplicaSeq _replicas;
     int _lastReplica;
+
+    static std::pointer_to_unary_function<int, int> _rand;
 };
 typedef IceUtil::Handle<ReplicaGroupEntry> ReplicaGroupEntryPtr;
 

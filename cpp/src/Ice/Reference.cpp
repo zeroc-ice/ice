@@ -34,6 +34,8 @@ using namespace IceInternal;
 void IceInternal::incRef(IceInternal::Reference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::Reference* p) { p->__decRef(); }
 
+pointer_to_unary_function<int, int> Reference::_rand(IceUtil::random);
+
 CommunicatorPtr
 IceInternal::Reference::getCommunicator() const
 {
@@ -636,11 +638,7 @@ IceInternal::FixedReference::filterConnections(const vector<ConnectionIPtr>& all
     //
     // Randomize the order of connections.
     //
-#ifdef _MSC_VER
-    random_shuffle(connections.begin(), connections.end(), ptr_fun(IceUtil::random));
-#else
-    random_shuffle(connections.begin(), connections.end(), IceUtil::random);
-#endif    
+    random_shuffle(connections.begin(), connections.end(), _rand);
 
     //
     // If a secure connection is requested, remove all non-secure
@@ -936,11 +934,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
     {
 	case Random:
 	{
-#ifdef _MSC_VER
-	    random_shuffle(endpoints.begin(), endpoints.end(), ptr_fun(IceUtil::random));
-#else
-	    random_shuffle(endpoints.begin(), endpoints.end(), IceUtil::random);
-#endif
+	    random_shuffle(endpoints.begin(), endpoints.end(), _rand);
 	    break;
 	}
 	case Ordered:

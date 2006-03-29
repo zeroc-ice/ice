@@ -18,6 +18,8 @@
 using namespace std;
 using namespace IceGrid;
 
+pointer_to_unary_function<int, int> ReplicaGroupEntry::_rand(IceUtil::random);
+
 namespace IceGrid
 {
 
@@ -332,17 +334,14 @@ ReplicaGroupEntry::getProxies(bool allRegistered, int& nReplicas)
 	else if(AdaptiveLoadBalancingPolicyPtr::dynamicCast(_loadBalancing))
 	{
 	    replicas = _replicas;
+	    random_shuffle(replicas.begin(), replicas.end(), _rand);
 	    adaptive = true;
 	    loadSample = _loadSample;
 	}
 	else// if(RandomLoadBalancingPolicyPtr::dynamicCast(_loadBalancing))
 	{
 	    replicas = _replicas;
-#ifdef _MSC_VER
-	    random_shuffle(replicas.begin(), replicas.end(), ptr_fun(IceUtil::random));
-#else
-	    random_shuffle(replicas.begin(), replicas.end(), IceUtil::random);
-#endif
+	    random_shuffle(replicas.begin(), replicas.end(), _rand);
 	}
     }
 
@@ -352,11 +351,6 @@ ReplicaGroupEntry::getProxies(bool allRegistered, int& nReplicas)
 	// This must be done outside the synchronization block since
 	// the sort() will call and lock each server entry.
 	//
-#ifdef _MSC_VER
-	random_shuffle(replicas.begin(), replicas.end(), ptr_fun(IceUtil::random));
-#else
-	random_shuffle(replicas.begin(), replicas.end(), IceUtil::random);
-#endif
 	sort(replicas.begin(), replicas.end(), ServerLoadCI(loadSample));
     }
 
@@ -399,11 +393,7 @@ ReplicaGroupEntry::getLeastLoadedNodeLoad(LoadSample loadSample) const
     // This must be done outside the synchronization block since
     // min_element() will call and lock each server entry.
     //
-#ifdef _MSC_VER
-    random_shuffle(replicas.begin(), replicas.end(), ptr_fun(IceUtil::random));
-#else
-    random_shuffle(replicas.begin(), replicas.end(), IceUtil::random);
-#endif
+    random_shuffle(replicas.begin(), replicas.end(), _rand);
     AdapterEntryPtr adpt = min_element(replicas.begin(), replicas.end(), ServerLoadCI(loadSample))->second;
     return adpt->getLeastLoadedNodeLoad(loadSample);
 }

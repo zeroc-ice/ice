@@ -14,7 +14,6 @@
 #else
 #   include <IceUtil/StaticMutex.h>
 #   include <fcntl.h>
-#   include <unistd.h>
 #endif
 
 using namespace std;
