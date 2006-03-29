@@ -13,6 +13,7 @@
 #   include <Wincrypt.h>
 #else
 #   include <IceUtil/StaticMutex.h>
+#   include <unistd.h>
 #   include <fcntl.h>
 #endif
 
