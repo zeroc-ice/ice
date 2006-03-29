@@ -18,6 +18,8 @@
 #   include <rpc.h>
 #else
 #   include <IceUtil/Random.h>
+#   include <sys/types.h>
+#   include <unistd.h>
 #endif
 
 using namespace std;
