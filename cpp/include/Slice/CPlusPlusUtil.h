@@ -27,10 +27,10 @@ SLICE_API void printHeader(::IceUtil::Output&);
 SLICE_API void printVersionCheck(::IceUtil::Output&);
 SLICE_API void printDllExportStuff(::IceUtil::Output&, const std::string&);
 
-SLICE_API std::string typeToString(const TypePtr&, const StringList& = StringList(), bool = true);
-SLICE_API std::string returnTypeToString(const TypePtr&, const StringList& = StringList());
-SLICE_API std::string inputTypeToString(const TypePtr&, const StringList& = StringList(), bool = true);
-SLICE_API std::string outputTypeToString(const TypePtr&, const StringList& = StringList());
+SLICE_API std::string typeToString(const TypePtr&, bool, const StringList& = StringList(), bool = true);
+SLICE_API std::string returnTypeToString(const TypePtr&, bool, const StringList& = StringList());
+SLICE_API std::string inputTypeToString(const TypePtr&, bool, const StringList& = StringList(), bool = true);
+SLICE_API std::string outputTypeToString(const TypePtr&, bool, const StringList& = StringList());
 SLICE_API std::string operationModeToString(Operation::Mode);
 
 SLICE_API std::string fixKwd(const std::string&);
@@ -43,10 +43,11 @@ SLICE_API void writeMarshalCode(::IceUtil::Output&, const ParamDeclList&, const 
 SLICE_API void writeUnmarshalCode(::IceUtil::Output&, const ParamDeclList&, const TypePtr&,
 				  const StringList&, bool = false);
 SLICE_API void writeAllocateCode(::IceUtil::Output&, const ParamDeclList&, const TypePtr&,
-				 const StringList&, bool = false);
+				 const StringList&, bool = false, bool = false);
 SLICE_API void writeStreamMarshalUnmarshalCode(::IceUtil::Output&, const TypePtr&, const std::string&, bool,
-                                               const std::string& = "", const StringList& = StringList());
+                                               const std::string& = "", bool = false, const StringList& = StringList());
 SLICE_API std::string findMetaData(const StringList&, bool);
+SLICE_API bool inWstringModule(const SequencePtr&);
 
 }
 

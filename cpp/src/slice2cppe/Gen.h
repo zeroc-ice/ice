@@ -104,6 +104,8 @@ private:
 
 	std::string _dllExport;
 	bool _doneStaticSymbol;
+	bool _useWstring;
+	std::list<bool> _useWstringHist;
     };
 
     class ProxyDeclVisitor : private ::IceUtil::noncopyable, public ParserVisitor
@@ -146,6 +148,8 @@ private:
 	::IceUtil::Output& C;
 
 	std::string _dllExport;
+	bool _useWstring;
+	std::list<bool> _useWstringHist;
     };
 
     class ObjectDeclVisitor : private ::IceUtil::noncopyable, public ParserVisitor
@@ -191,6 +195,8 @@ private:
 	::IceUtil::Output& C;
 
 	std::string _dllExport;
+	bool _useWstring;
+	std::list<bool> _useWstringHist;
     };
 
     class IceInternalVisitor : private ::IceUtil::noncopyable, public ParserVisitor
@@ -247,12 +253,8 @@ private:
 	::IceUtil::Output& C;
 
 	std::string _dllExport;
-
-        //
-        // Generate code to emit a local variable declaration and initialize it
-        // if necessary.
-        //
-        void writeDecl(::IceUtil::Output&, const std::string&, const TypePtr&);
+	bool _useWstring;
+	std::list<bool> _useWstringHist;
 
         //
         // Generate code to return a dummy value
@@ -290,6 +292,8 @@ private:
     };
 
     static void validateMetaData(const UnitPtr&);
+    static bool setUseWstring(ContainedPtr, std::list<bool>&, bool);
+    static bool resetUseWstring(std::list<bool>&);
     static void printHeader(IceUtil::Output&);
     static void printVersionCheck(IceUtil::Output&);
     static void printDllExportStuff(IceUtil::Output&, const std::string&);

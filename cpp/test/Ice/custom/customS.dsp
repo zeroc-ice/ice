@@ -163,6 +163,14 @@ SOURCE=.\Test.cpp
 
 SOURCE=.\TestI.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\Wstring.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\WstringI.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -178,6 +186,14 @@ SOURCE=.\Test.h
 # Begin Source File
 
 SOURCE=.\TestI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Wstring.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\WstringI.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -244,6 +260,73 @@ BuildCmds= \
    $(BuildCmds)
 
 "Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\Wstring.ice
+
+!IF  "$(CFG)" == "customS - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\Wstring.ice
+
+BuildCmds= \
+	..\..\..\bin\slice2cpp.exe -I. --stream Wstring.ice
+
+"Wstring.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Wstring.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "customS - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\Wstring.ice
+
+BuildCmds= \
+	..\..\..\bin\slice2cpp.exe -I. --stream Wstring.ice
+
+"Wstring.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Wstring.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "customS - Win32 Debug Static"
+
+# Begin Custom Build
+InputPath=.\Wstring.ice
+
+BuildCmds= \
+	..\..\..\bin\slice2cpp.exe -I. --stream Wstring.ice
+
+"Wstring.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Wstring.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "customS - Win32 Release Static"
+
+# Begin Custom Build
+InputPath=.\Wstring.ice
+
+BuildCmds= \
+	..\..\..\bin\slice2cpp.exe -I. --stream Wstring.ice
+
+"Wstring.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Wstring.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

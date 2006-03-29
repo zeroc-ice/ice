@@ -120,7 +120,7 @@ Slice::printDllExportStuff(Output& out, const string& dllExport)
 }
 
 string
-Slice::typeToString(const TypePtr& type, const StringList& metaData, bool inParam)
+Slice::typeToString(const TypePtr& type, bool useWstring, const StringList& metaData, bool inParam)
 {
     static const char* builtinTable[] =
     {
@@ -140,6 +140,14 @@ Slice::typeToString(const TypePtr& type, const StringList& metaData, bool inPara
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
+        if(builtin->kind() == Builtin::KindString)
+	{
+            string strType = findMetaData(metaData, true);
+	    if(useWstring || strType == "wstring")
+	    {
+	        return "::std::wstring";
+	    }
+	}
 	return builtinTable[builtin->kind()];
     }
 
@@ -166,7 +174,7 @@ Slice::typeToString(const TypePtr& type, const StringList& metaData, bool inPara
 	        if(inParam)
 		{
 	            TypePtr elemType = seq->type();
-	            string s = typeToString(elemType);
+	            string s = typeToString(elemType, inWstringModule(seq), seq->typeMetaData());
 	            return "::std::pair<const " + s + "*, const " + s + "*>";
 		}
 		else
@@ -225,18 +233,18 @@ Slice::typeToString(const TypePtr& type, const StringList& metaData, bool inPara
 }
 
 string
-Slice::returnTypeToString(const TypePtr& type, const StringList& metaData)
+Slice::returnTypeToString(const TypePtr& type, bool useWstring, const StringList& metaData)
 {
     if(!type)
     {
 	return "void";
     }
 
-    return typeToString(type, metaData, false);
+    return typeToString(type, useWstring, metaData, false);
 }
 
 string
-Slice::inputTypeToString(const TypePtr& type, const StringList& metaData, bool allowArray)
+Slice::inputTypeToString(const TypePtr& type, bool useWstring, const StringList& metaData, bool allowArray)
 {
     static const char* inputBuiltinTable[] =
     {
@@ -256,6 +264,14 @@ Slice::inputTypeToString(const TypePtr& type, const StringList& metaData, bool a
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
+        if(builtin->kind() == Builtin::KindString)
+	{
+            string strType = findMetaData(metaData, true);
+	    if(useWstring || strType == "wstring")
+	    {
+	        return "const ::std::wstring&";
+	    }
+	}
 	return inputBuiltinTable[builtin->kind()];
     }
 
@@ -289,7 +305,7 @@ Slice::inputTypeToString(const TypePtr& type, const StringList& metaData, bool a
 	        if(allowArray)
 		{
                     TypePtr elemType = seq->type();
-                    string s = typeToString(elemType);
+                    string s = typeToString(elemType, inWstringModule(seq), seq->typeMetaData());
                     return "const ::std::pair<const " + s + "*, const " + s + "*>&";
 		}
 		else
@@ -342,7 +358,7 @@ Slice::inputTypeToString(const TypePtr& type, const StringList& metaData, bool a
 }
 
 string
-Slice::outputTypeToString(const TypePtr& type, const StringList& metaData)
+Slice::outputTypeToString(const TypePtr& type, bool useWstring, const StringList& metaData)
 {
     static const char* outputBuiltinTable[] =
     {
@@ -362,6 +378,14 @@ Slice::outputTypeToString(const TypePtr& type, const StringList& metaData)
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
+        if(builtin->kind() == Builtin::KindString)
+	{
+            string strType = findMetaData(metaData, true);
+	    if(useWstring || strType == "wstring")
+	    {
+	        return "::std::wstring&";
+	    }
+	}
 	return outputBuiltinTable[builtin->kind()];
     }
 
@@ -732,13 +756,13 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
                     seqType = findMetaData(l, false);
 	            if(seqType.empty())
 		    {
-	                out << nl << typeToString(type) << " ___" << fixedParam << ";";
+	                out << nl << typeToString(type, false) << " ___" << fixedParam << ";";
 	                out << nl << scope << "___" << func << (pointer ? "" : "&") << stream << ", ___"
 		            << fixedParam << ", " << scope << "__U__" << fixKwd(seq->name()) << "());";
 		    }
 		    else
 		    {
-		        seqType = "::std::vector< " + typeToString(seq->type()) + ">";
+		        seqType = "::std::vector< " + typeToString(seq->type(), false) + ">";
 		        StringList l;
 			l.push_back("cpp:type:" + seqType);
 		        out << nl << seqType << " ___" << fixedParam << ";";
@@ -752,7 +776,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		else if(builtin->kind() != Builtin::KindString && builtin->kind() != Builtin::KindObject &&
 		        builtin->kind() != Builtin::KindObjectProxy)
 		{
-		    string s = typeToString(builtin);
+		    string s = typeToString(builtin, false);
 		    if(s[0] == ':')
 		    {
 		       s = " " + s;
@@ -762,7 +786,9 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		}
 		else
 		{
-		    out << nl << "::std::vector< " << typeToString(seq->type()) << "> ___" << fixedParam << ";";
+		    out << nl << "::std::vector< " 
+		        << typeToString(seq->type(), inWstringModule(seq), seq->typeMetaData()) << "> ___" 
+			<< fixedParam << ";";
 		    out << nl << stream << deref << func << "___" << fixedParam << ");";
 		}
 
@@ -856,7 +882,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		    {
 		        tmpParam += fixedParam;
 		    }
-	            out << nl << typeToString(type, md) << " " << tmpParam << ";";
+	            out << nl << typeToString(type, false, md) << " " << tmpParam << ";";
 	            out << nl << stream << deref << func << tmpParam << ");";
 		    out << nl << "::std::vector< ::Ice::Byte>(" << tmpParam << ".first, " << tmpParam 
 		        << ".second).swap(" << fixedParam << ");";
@@ -941,18 +967,19 @@ writeRangeAllocateCode(Output& out, const TypePtr& type, const string& fixedName
 	    {
 	        md.push_back("cpp:type:" + seqType.substr(strlen("range:")));
 	    }
-            out << nl << typeToString(seq, md, false) << " ___" << fixedName << ";";
+            out << nl << typeToString(seq, false, md, false) << " ___" << fixedName << ";";
 	}
     }
 }
 
 void
 Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const TypePtr& ret, const StringList& metaData,
-			 bool inParam)
+			 bool useWstring, bool inParam)
 {
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
-	out << nl << typeToString((*p)->type(), (*p)->getMetaData(), inParam) << ' ' << fixKwd((*p)->name()) << ';';
+	out << nl << typeToString((*p)->type(), useWstring, (*p)->getMetaData(), inParam) << ' ' << fixKwd((*p)->name())
+	    << ';';
 	//
 	// If using a range we need to allocate the range container as well now to ensure they
 	// are always in the same scope.
@@ -961,7 +988,7 @@ Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const TypePtr
     }
     if(ret)
     {
-        out << nl << typeToString(ret, metaData, inParam) << " __ret;";
+        out << nl << typeToString(ret, useWstring, metaData, inParam) << " __ret;";
 	//
 	// If using a range we need to allocate the range container as well now to ensure they
 	// are always in the same scope.
@@ -972,7 +999,7 @@ Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const TypePtr
 
 void
 Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const string& param, bool marshal,
-				       const string& str, const StringList& metaData)
+				       const string& str, bool useWstring, const StringList& metaData)
 {
     string fixedParam = fixKwd(param);
 
@@ -1077,14 +1104,29 @@ Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const s
             }
             case Builtin::KindString:
             {
-                if(marshal)
-                {
-                    out << nl << stream << "->writeString(" << fixedParam << ");";
-                }
-                else
-                {
-                    out << nl << fixedParam << " = " << stream << "->readString();";
-                }
+                string strType = findMetaData(metaData, true);
+	        if(useWstring || strType == "wstring")
+		{
+                    if(marshal)
+                    {
+                        out << nl << stream << "->writeWstring(" << fixedParam << ");";
+                    }
+                    else
+                    {
+                        out << nl << fixedParam << " = " << stream << "->readWstring();";
+                    }
+		}
+		else
+		{
+                    if(marshal)
+                    {
+                        out << nl << stream << "->writeString(" << fixedParam << ");";
+                    }
+                    else
+                    {
+                        out << nl << fixedParam << " = " << stream << "->readString();";
+                    }
+		}
                 break;
             }
             case Builtin::KindObject:
@@ -1289,14 +1331,29 @@ Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const s
                     }
                     case Builtin::KindString:
                     {
-                        if(marshal)
-                        {
-                            out << nl << stream << "->writeStringSeq(" << fixedParam << ");";
-                        }
-                        else
-                        {
-                            out << nl << fixedParam << " = " << stream << "->readStringSeq();";
-                        }
+                        string strType = findMetaData(seq->typeMetaData(), true);
+	                if(useWstring || strType == "wstring")
+			{
+                            if(marshal)
+                            {
+                                out << nl << stream << "->writeWstringSeq(" << fixedParam << ");";
+                            }
+                            else
+                            {
+                                out << nl << fixedParam << " = " << stream << "->readWstringSeq();";
+                            }
+			}
+			else
+			{
+                            if(marshal)
+                            {
+                                out << nl << stream << "->writeStringSeq(" << fixedParam << ");";
+                            }
+                            else
+                            {
+                                out << nl << fixedParam << " = " << stream << "->readStringSeq();";
+                            }
+			}
                         break;
                     }
                     case Builtin::KindObject:
@@ -1400,4 +1457,25 @@ Slice::findMetaData(const StringList& metaData, bool inParam)
     }
 
     return "";
+}
+
+bool
+Slice::inWstringModule(const SequencePtr& seq)
+{
+    ContainerPtr cont = seq->container();
+    while(cont)
+    {
+        ModulePtr mod = ModulePtr::dynamicCast(cont);
+	if(!mod)
+	{
+	    break;
+	}
+	StringList metaData = mod->getMetaData();
+	if(find(metaData.begin(), metaData.end(), "cpp:type:wstring") != metaData.end())
+	{
+	    return true;
+	}
+	cont = mod->container();
+    }
+    return false;
 }

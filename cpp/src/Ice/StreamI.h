@@ -84,6 +84,9 @@ public:
     virtual ::std::string readString();
     virtual ::std::vector< ::std::string > readStringSeq();
 
+    virtual ::std::wstring readWstring();
+    virtual ::std::vector< ::std::wstring > readWstringSeq();
+
     virtual ::Ice::Int readSize();
 
     virtual ::Ice::ObjectPrx readProxy();
@@ -146,6 +149,9 @@ public:
 
     virtual void writeString(const ::std::string&);
     virtual void writeStringSeq(const ::std::vector< ::std::string >&);
+
+    virtual void writeWstring(const ::std::wstring&);
+    virtual void writeWstringSeq(const ::std::vector< ::std::wstring >&);
 
     virtual void writeSize(::Ice::Int);
 

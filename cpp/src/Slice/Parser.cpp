@@ -765,7 +765,7 @@ Slice::Container::createStruct(const string& name, bool local)
 }
 
 SequencePtr
-Slice::Container::createSequence(const string& name, const TypePtr& type, bool local)
+Slice::Container::createSequence(const string& name, const TypePtr& type, const StringList& metaData, bool local)
 {
     checkPrefix(name);
 
@@ -819,13 +819,14 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, bool l
 	_unit->error(msg);
     }
     
-    SequencePtr p = new Sequence(this, name, type, local);
+    SequencePtr p = new Sequence(this, name, type, metaData, local);
     _contents.push_back(p);
     return p;
 }
 
 DictionaryPtr
-Slice::Container::createDictionary(const string& name, const TypePtr& keyType, const TypePtr& valueType, bool local)
+Slice::Container::createDictionary(const string& name, const TypePtr& keyType, const StringList& keyMetaData,
+				   const TypePtr& valueType, const StringList& valueMetaData, bool local)
 {
     checkPrefix(name);
 
@@ -890,7 +891,7 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
 	}
     }
 
-    DictionaryPtr p = new Dictionary(this, name, keyType, valueType, local);
+    DictionaryPtr p = new Dictionary(this, name, keyType, keyMetaData, valueType, valueMetaData, local);
     _contents.push_back(p);
     return p;
 }
@@ -974,7 +975,7 @@ Slice::Container::createEnumerator(const string& name)
 }
 
 ConstPtr
-Slice::Container::createConst(const string name, const TypePtr& constType,
+Slice::Container::createConst(const string name, const TypePtr& constType, const StringList& metaData,
 			      const SyntaxTreeBasePtr& literalType, const string& value)
 {
     checkPrefix(name);
@@ -1033,7 +1034,7 @@ Slice::Container::createConst(const string name, const TypePtr& constType,
 	return 0;
     }
 
-    ConstPtr p = new Const(this, name, constType, value);
+    ConstPtr p = new Const(this, name, constType, metaData, value);
     _contents.push_back(p);
     return p;
 }
@@ -3591,6 +3592,12 @@ Slice::Sequence::type() const
     return _type;
 }
 
+StringList
+Slice::Sequence::typeMetaData() const
+{
+    return _typeMetaData;
+}
+
 Contained::ContainedType
 Slice::Sequence::containedType() const
 {
@@ -3650,12 +3657,14 @@ Slice::Sequence::recDependencies(set<ConstructedPtr>& dependencies)
     }
 }
 
-Slice::Sequence::Sequence(const ContainerPtr& container, const string& name, const TypePtr& type, bool local) :
+Slice::Sequence::Sequence(const ContainerPtr& container, const string& name, const TypePtr& type,
+			  const StringList& typeMetaData, bool local) :
     SyntaxTreeBase(container->unit()),
     Type(container->unit()),
     Contained(container, name),
     Constructed(container, name, local),
-    _type(type)
+    _type(type),
+    _typeMetaData(typeMetaData)
 {
 }
 
@@ -3673,6 +3682,18 @@ TypePtr
 Slice::Dictionary::valueType() const
 {
     return _valueType;
+}
+
+StringList
+Slice::Dictionary::keyMetaData() const
+{
+    return _keyMetaData;
+}
+
+StringList
+Slice::Dictionary::valueMetaData() const
+{
+    return _valueMetaData;
 }
 
 Contained::ContainedType
@@ -3821,13 +3842,16 @@ Slice::Dictionary::legalKeyType(const TypePtr& type)
 }
 
 Slice::Dictionary::Dictionary(const ContainerPtr& container, const string& name, const TypePtr& keyType,
-			      const TypePtr& valueType, bool local) :
+			      const StringList& keyMetaData, const TypePtr& valueType, 
+			      const StringList& valueMetaData, bool local) :
     SyntaxTreeBase(container->unit()),
     Type(container->unit()),
     Contained(container, name),
     Constructed(container, name, local),
     _keyType(keyType),
-    _valueType(valueType)
+    _valueType(valueType),
+    _keyMetaData(keyMetaData),
+    _valueMetaData(valueMetaData)
 {
 }
 
@@ -3965,6 +3989,12 @@ TypePtr
 Slice::Const::type() const
 {
     return _type;
+}
+
+StringList
+Slice::Const::typeMetaData() const
+{
+    return _typeMetaData;
 }
 
 string
@@ -4195,11 +4225,12 @@ Slice::Const::isInRange(const string& name, const TypePtr& constType, const stri
     return true; // Everything else is either in range or doesn't need checking.
 }
 
-Slice::Const::Const(const ContainerPtr& container, const string& name,
-	                  const TypePtr& type, const string& value) :
+Slice::Const::Const(const ContainerPtr& container, const string& name, const TypePtr& type,
+		    const StringList& typeMetaData, const string& value) :
     SyntaxTreeBase(container->unit()), 
     Contained(container, name),
     _type(type), 
+    _typeMetaData(typeMetaData),
     _value(value)
 {
 }

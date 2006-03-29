@@ -184,6 +184,22 @@ Ice::InputStreamI::readStringSeq()
     return v;
 }
 
+wstring
+Ice::InputStreamI::readWstring()
+{
+    wstring v;
+    _is.read(v);
+    return v;
+}
+
+vector<wstring>
+Ice::InputStreamI::readWstringSeq()
+{
+    vector<wstring> v;
+    _is.read(v);
+    return v;
+}
+
 Int
 Ice::InputStreamI::readSize()
 {
@@ -417,6 +433,25 @@ Ice::OutputStreamI::writeString(const string& v)
 
 void
 Ice::OutputStreamI::writeStringSeq(const vector<string>& v)
+{
+    if(v.size() == 0)
+    {
+        _os.writeSize(0);
+    }
+    else
+    {
+        _os.write(&v[0], &v[0] + v.size());
+    }
+}
+
+void
+Ice::OutputStreamI::writeWstring(const wstring& v)
+{
+    _os.write(v);
+}
+
+void
+Ice::OutputStreamI::writeWstringSeq(const vector<wstring>& v)
 {
     if(v.size() == 0)
     {

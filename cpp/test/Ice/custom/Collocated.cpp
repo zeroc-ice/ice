@@ -10,6 +10,7 @@
 #include <Ice/Ice.h>
 #include <TestCommon.h>
 #include <TestI.h>
+#include <WstringI.h>
 
 using namespace std;
 
@@ -18,6 +19,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->add(new TestIntfI(communicator), Ice::stringToIdentity("test"));
+    adapter->add(new Test1::WstringClassI, Ice::stringToIdentity("wstring1"));
+    adapter->add(new Test2::WstringClassI, Ice::stringToIdentity("wstring2"));
     adapter->activate();
 
     Test::TestIntfPrx allTests(const Ice::CommunicatorPtr&, bool);

@@ -17,22 +17,29 @@ COLLOCATED	= collocated
 TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD) $(COLLOCATED)
 
 COBJS		= Test.o \
+		  Wstring.o \
 		  Client.o \
 		  AllTests.o \
 		  MyByteSeq.o
 
 SOBJS		= Test.o \
+		  Wstring.o \
 		  TestI.o \
+		  WstringI.o \
 		  Server.o \
 		  MyByteSeq.o
 
 SAMDOBJS	= TestAMD.o \
 		  TestAMDI.o \
+		  WstringAMD.o \
+		  WstringAMDI.o \
 		  ServerAMD.o \
 		  MyByteSeq.o
 
 COLOBJS		= Test.o \
+		  Wstring.o \
 		  TestI.o \
+		  WstringI.o \
 		  Collocated.o \
 		  AllTests.o \
 		  MyByteSeq.o
@@ -41,7 +48,7 @@ SRCS		= $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp) \
 		  $(COLOBJS:.o=.cpp)
 
-SLICE_SRCS	= Test.ice TestAMD.ice
+SLICE_SRCS	= Test.ice TestAMD.ice Wstring.ice
 
 include $(top_srcdir)/config/Make.rules
 

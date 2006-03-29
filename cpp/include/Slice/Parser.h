@@ -392,11 +392,13 @@ public:
     ClassDeclPtr createClassDecl(const std::string&, bool, bool);
     ExceptionPtr createException(const std::string&, const ExceptionPtr&, bool);
     StructPtr createStruct(const std::string&, bool);
-    SequencePtr createSequence(const std::string&, const TypePtr&, bool);
-    DictionaryPtr createDictionary(const std::string&, const TypePtr&, const TypePtr&, bool);
+    SequencePtr createSequence(const std::string&, const TypePtr&, const StringList&, bool);
+    DictionaryPtr createDictionary(const std::string&, const TypePtr&, const StringList&, const TypePtr&,
+    				   const StringList&, bool);
     EnumPtr createEnum(const std::string&, bool);
     EnumeratorPtr createEnumerator(const std::string&);
-    ConstPtr createConst(const std::string, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&);
+    ConstPtr createConst(const std::string, const TypePtr&, const StringList&, const SyntaxTreeBasePtr&,
+    			 const std::string&);
     TypeList lookupType(const std::string&, bool = true);
     TypeList lookupTypeNoBuiltin(const std::string&, bool = true);
     ContainedList lookupContained(const std::string&, bool = true);
@@ -711,6 +713,7 @@ class SLICE_API Sequence : virtual public Constructed
 public:
 
     TypePtr type() const;
+    StringList typeMetaData() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
@@ -722,10 +725,11 @@ public:
 
 protected:
 
-    Sequence(const ContainerPtr&, const std::string&, const TypePtr&, bool);
+    Sequence(const ContainerPtr&, const std::string&, const TypePtr&, const StringList&, bool);
     friend class Container;
 
     TypePtr _type;
+    StringList _typeMetaData;
 };
 
 // ----------------------------------------------------------------------
@@ -738,6 +742,8 @@ public:
 
     TypePtr keyType() const;
     TypePtr valueType() const;
+    StringList keyMetaData() const;
+    StringList valueMetaData() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
@@ -751,11 +757,14 @@ public:
 
 protected:
 
-    Dictionary(const ContainerPtr&, const std::string&, const TypePtr&, const TypePtr&, bool);
+    Dictionary(const ContainerPtr&, const std::string&, const TypePtr&, const StringList&, const TypePtr&, 
+    	       const StringList&, bool);
     friend class Container;
 
     TypePtr _keyType;
     TypePtr _valueType;
+    StringList _keyMetaData;
+    StringList _valueMetaData;
 };
 
 // ----------------------------------------------------------------------
@@ -817,6 +826,7 @@ class SLICE_API Const : virtual public Contained
 public:
 
     TypePtr type() const;
+    StringList typeMetaData() const;
     std::string value() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual ContainedType containedType() const;
@@ -830,10 +840,11 @@ public:
 
 protected:
 
-    Const(const ContainerPtr&, const std::string&, const TypePtr&, const std::string&);
+    Const(const ContainerPtr&, const std::string&, const TypePtr&, const StringList&, const std::string&);
     friend class Container;
 
     TypePtr _type;
+    StringList _typeMetaData;
     std::string _value;
 };
 

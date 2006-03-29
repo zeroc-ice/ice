@@ -163,6 +163,14 @@ SOURCE=.\TestAMD.cpp
 
 SOURCE=.\TestAMDI.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\WstringAMD.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\WstringAMDI.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -178,6 +186,14 @@ SOURCE=.\TestAMD.h
 # Begin Source File
 
 SOURCE=.\TestAMDI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\WstringAMD.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\WstringAMDI.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -244,6 +260,73 @@ BuildCmds= \
    $(BuildCmds)
 
 "TestAMD.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\WstringAMD.ice
+
+!IF  "$(CFG)" == "customAMDS - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\WstringAMD.ice
+
+BuildCmds= \
+	..\..\..\bin\slice2cpp.exe -I. --stream WstringAMD.ice
+
+"WstringAMD.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"WstringAMD.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "customAMDS - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\WstringAMD.ice
+
+BuildCmds= \
+	..\..\..\bin\slice2cpp.exe -I. --stream WstringAMD.ice
+
+"WstringAMD.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"WstringAMD.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "customAMDS - Win32 Debug Static"
+
+# Begin Custom Build
+InputPath=.\WstringAMD.ice
+
+BuildCmds= \
+	..\..\..\bin\slice2cpp.exe -I. --stream WstringAMD.ice
+
+"WstringAMD.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"WstringAMD.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "customAMDS - Win32 Release Static"
+
+# Begin Custom Build
+InputPath=.\WstringAMD.ice
+
+BuildCmds= \
+	..\..\..\bin\slice2cpp.exe -I. --stream WstringAMD.ice
+
+"WstringAMD.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"WstringAMD.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

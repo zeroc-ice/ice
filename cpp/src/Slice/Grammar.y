@@ -1120,21 +1120,23 @@ exception
 // ----------------------------------------------------------------------
 sequence_def
 // ----------------------------------------------------------------------
-: local_qualifier ICE_SEQUENCE '<' type '>' ICE_IDENTIFIER
+: local_qualifier ICE_SEQUENCE '<' meta_data type '>' ICE_IDENTIFIER
 {
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($6);
-    TypePtr type = TypePtr::dynamicCast($4);
+    StringTokPtr ident = StringTokPtr::dynamicCast($7);
+    StringListTokPtr metaData = StringListTokPtr::dynamicCast($4);
+    TypePtr type = TypePtr::dynamicCast($5);
     ContainerPtr cont = unit->currentContainer();
-    $$ = cont->createSequence(ident->v, type, local->v);
+    $$ = cont->createSequence(ident->v, type, metaData->v, local->v);
 }
-| local_qualifier ICE_SEQUENCE '<' type '>' keyword
+| local_qualifier ICE_SEQUENCE '<' meta_data type '>' keyword
 {
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($6);
-    TypePtr type = TypePtr::dynamicCast($4);
+    StringTokPtr ident = StringTokPtr::dynamicCast($7);
+    StringListTokPtr metaData = StringListTokPtr::dynamicCast($4);
+    TypePtr type = TypePtr::dynamicCast($5);
     ContainerPtr cont = unit->currentContainer();
-    $$ = cont->createSequence(ident->v, type, local->v);
+    $$ = cont->createSequence(ident->v, type, metaData->v, local->v);
     unit->error("keyword `" + ident->v + "' cannot be used as sequence name");
 }
 ;
@@ -1142,23 +1144,27 @@ sequence_def
 // ----------------------------------------------------------------------
 dictionary_def
 // ----------------------------------------------------------------------
-: local_qualifier ICE_DICTIONARY '<' type ',' type '>' ICE_IDENTIFIER
+: local_qualifier ICE_DICTIONARY '<' meta_data type ',' meta_data type '>' ICE_IDENTIFIER
 {
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($8);
-    TypePtr keyType = TypePtr::dynamicCast($4);
-    TypePtr valueType = TypePtr::dynamicCast($6);
+    StringTokPtr ident = StringTokPtr::dynamicCast($10);
+    StringListTokPtr keyMetaData = StringListTokPtr::dynamicCast($4);
+    TypePtr keyType = TypePtr::dynamicCast($5);
+    StringListTokPtr valueMetaData = StringListTokPtr::dynamicCast($7);
+    TypePtr valueType = TypePtr::dynamicCast($8);
     ContainerPtr cont = unit->currentContainer();
-    $$ = cont->createDictionary(ident->v, keyType, valueType, local->v);
+    $$ = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v, local->v);
 }
-| local_qualifier ICE_DICTIONARY '<' type ',' type '>' keyword
+| local_qualifier ICE_DICTIONARY '<' meta_data type ',' meta_data type '>' keyword
 {
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($8);
-    TypePtr keyType = TypePtr::dynamicCast($4);
-    TypePtr valueType = TypePtr::dynamicCast($6);
+    StringTokPtr ident = StringTokPtr::dynamicCast($10);
+    StringListTokPtr keyMetaData = StringListTokPtr::dynamicCast($4);
+    TypePtr keyType = TypePtr::dynamicCast($5);
+    StringListTokPtr valueMetaData = StringListTokPtr::dynamicCast($7);
+    TypePtr valueType = TypePtr::dynamicCast($8);
     ContainerPtr cont = unit->currentContainer();
-    $$ = cont->createDictionary(ident->v, keyType, valueType, local->v);
+    $$ = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v, local->v);
     unit->error("keyword `" + ident->v + "' cannot be used as dictionary name");
 }
 ;
@@ -1626,19 +1632,22 @@ const_initializer
 // ----------------------------------------------------------------------
 const_def
 // ----------------------------------------------------------------------
-: ICE_CONST type ICE_IDENTIFIER '=' const_initializer
+: ICE_CONST meta_data type ICE_IDENTIFIER '=' const_initializer
 {
-    TypePtr const_type = TypePtr::dynamicCast($2);
-    StringTokPtr ident = StringTokPtr::dynamicCast($3);
-    SyntaxTreeBaseStringTokPtr value = SyntaxTreeBaseStringTokPtr::dynamicCast($5);
-    $$ = unit->currentContainer()->createConst(ident->v, const_type, value->v.first, value->v.second);
+    StringListTokPtr metaData = StringListTokPtr::dynamicCast($2);
+    TypePtr const_type = TypePtr::dynamicCast($3);
+    StringTokPtr ident = StringTokPtr::dynamicCast($4);
+    SyntaxTreeBaseStringTokPtr value = SyntaxTreeBaseStringTokPtr::dynamicCast($6);
+    $$ = unit->currentContainer()->createConst(ident->v, const_type, metaData->v, value->v.first, value->v.second);
 }
-| ICE_CONST type '=' const_initializer
+| ICE_CONST meta_data type '=' const_initializer
 {
-    TypePtr const_type = TypePtr::dynamicCast($2);
-    SyntaxTreeBaseStringTokPtr value = SyntaxTreeBaseStringTokPtr::dynamicCast($4);
+    StringListTokPtr metaData = StringListTokPtr::dynamicCast($2);
+    TypePtr const_type = TypePtr::dynamicCast($3);
+    SyntaxTreeBaseStringTokPtr value = SyntaxTreeBaseStringTokPtr::dynamicCast($5);
     unit->error("missing constant name");
-    $$ = unit->currentContainer()->createConst(IceUtil::generateUUID(), const_type, value->v.first, value->v.second);
+    $$ = unit->currentContainer()->createConst(IceUtil::generateUUID(), const_type, metaData->v, value->v.first,
+    					       value->v.second);
 }
 ;
 

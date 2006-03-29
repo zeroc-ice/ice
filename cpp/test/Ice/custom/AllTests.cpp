@@ -11,6 +11,7 @@
 #include <IceUtil/Iterator.h>
 #include <TestCommon.h>
 #include <Test.h>
+#include <Wstring.h>
 
 using namespace std;
 
@@ -868,6 +869,138 @@ private:
 };
 
 typedef IceUtil::Handle<AMI_TestIntf_opCListI> AMI_TestIntf_opCListIPtr;
+
+class AMI_Test1_opStringI : public Test1::AMI_WstringClass_opString, public CallbackBase
+{
+public:
+
+    AMI_Test1_opStringI(wstring in)
+        : _in(in)
+    {
+    }
+
+    virtual void ice_response(const wstring& ret, const wstring& out)
+    {
+	test(out == _in);
+	test(ret == _in);
+	called();
+    }
+
+    virtual void ice_exception(const ::Ice::Exception&)
+    {
+        test(false);
+    }
+
+private:
+
+    wstring _in;
+};
+
+typedef IceUtil::Handle<AMI_Test1_opStringI> AMI_Test1_opStringIPtr;
+
+class AMI_Test2_opStringI : public Test2::AMI_WstringClass_opString, public CallbackBase
+{
+public:
+
+    AMI_Test2_opStringI(wstring in)
+        : _in(in)
+    {
+    }
+
+    virtual void ice_response(const wstring& ret, const wstring& out)
+    {
+	test(out == _in);
+	test(ret == _in);
+	called();
+    }
+
+    virtual void ice_exception(const ::Ice::Exception&)
+    {
+        test(false);
+    }
+
+private:
+
+    wstring _in;
+};
+
+typedef IceUtil::Handle<AMI_Test2_opStringI> AMI_Test2_opStringIPtr;
+
+class AMI_Test1_throwExceptI : public Test1::AMI_WstringClass_throwExcept, public CallbackBase
+{
+public:
+
+    AMI_Test1_throwExceptI(wstring in)
+        : _in(in)
+    {
+    }
+
+    virtual void ice_response()
+    {
+        test(false);
+    }
+
+    virtual void ice_exception(const ::Ice::Exception& ex)
+    {
+        try
+	{
+	    ex.ice_throw();
+	}
+	catch(const Test1::WstringException& e)
+	{
+	    test(e.reason == _in);
+	    called();
+	}
+	catch(...)
+	{
+            test(false);
+	}
+    }
+
+private:
+
+    wstring _in;
+};
+
+typedef IceUtil::Handle<AMI_Test1_throwExceptI> AMI_Test1_throwExceptIPtr;
+
+class AMI_Test2_throwExceptI : public Test2::AMI_WstringClass_throwExcept, public CallbackBase
+{
+public:
+
+    AMI_Test2_throwExceptI(wstring in)
+        : _in(in)
+    {
+    }
+
+    virtual void ice_response()
+    {
+        test(false);
+    }
+
+    virtual void ice_exception(const ::Ice::Exception& ex)
+    {
+        try
+	{
+	    ex.ice_throw();
+	}
+	catch(const Test2::WstringException& e)
+	{
+	    test(e.reason == _in);
+	    called();
+	}
+	catch(...)
+	{
+            test(false);
+	}
+    }
+
+private:
+
+    wstring _in;
+};
+
+typedef IceUtil::Handle<AMI_Test2_throwExceptI> AMI_Test2_throwExceptIPtr;
 
 Test::TestIntfPrx
 allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
@@ -1799,6 +1932,105 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
 
         cout << "ok" << endl;
+    }
+
+    cout << "testing wstring... " << flush;
+
+    Test1::WstringSeq wseq1;
+    wseq1.push_back(L"Wide String");
+
+    Test2::WstringSeq wseq2;
+    wseq2 = wseq1;
+
+    Test1::WstringWStringDict wdict1;
+    wdict1[L"Key"] = L"Value";
+
+    Test2::WstringWStringDict wdict2;
+    wdict2 = wdict1;
+
+    ref = communicator->getProperties()->getPropertyWithDefault(
+	"Custom.WstringProxy1", "wstring1:default -p 12010 -t 10000");
+    base = communicator->stringToProxy(ref);
+    test(base);
+    Test1::WstringClassPrx wsc1 = Test1::WstringClassPrx::checkedCast(base);
+    test(t);
+
+    ref = communicator->getProperties()->getPropertyWithDefault(
+	"Custom.WstringProxy2", "wstring2:default -p 12010 -t 10000");
+    base = communicator->stringToProxy(ref);
+    test(base);
+    Test2::WstringClassPrx wsc2 = Test2::WstringClassPrx::checkedCast(base);
+    test(t);
+
+    wstring wstr = L"A Wide String";
+    wstring out;
+    wstring ret = wsc1->opString(wstr, out);
+    test(out == wstr);
+    test(ret == wstr);
+
+    if(!collocated)
+    {
+	AMI_Test1_opStringIPtr cb = new AMI_Test1_opStringI(wstr);
+	wsc1->opString_async(cb, wstr);
+	test(cb->check());
+    }
+
+    ret = wsc2->opString(wstr, out);
+    test(out == wstr);
+    test(ret == wstr);
+
+    if(!collocated)
+    {
+	AMI_Test2_opStringIPtr cb = new AMI_Test2_opStringI(wstr);
+	wsc2->opString_async(cb, wstr);
+	test(cb->check());
+    }
+
+    Test1::WstringStruct wss1;
+    wss1.s = wstr;
+    Test1::WstringStruct wss1out;
+    Test1::WstringStruct wss1ret = wsc1->opStruct(wss1, wss1out);
+    test(wss1out == wss1);
+    test(wss1ret == wss1);
+
+    Test2::WstringStruct wss2;
+    wss2.s = wstr;
+    Test2::WstringStruct wss2out;
+    Test2::WstringStruct wss2ret = wsc2->opStruct(wss2, wss2out);
+    test(wss2out == wss2);
+    test(wss2ret == wss2);
+    cout << "ok" << endl;
+
+    try
+    {
+        wsc1->throwExcept(wstr);
+    }
+    catch(const Test1::WstringException& ex)
+    {
+        test(ex.reason == wstr);
+    }
+
+    if(!collocated)
+    {
+	AMI_Test1_throwExceptIPtr cb = new AMI_Test1_throwExceptI(wstr);
+	wsc1->throwExcept_async(cb, wstr);
+	test(cb->check());
+    }
+
+    try
+    {
+        wsc2->throwExcept(wstr);
+    }
+    catch(const Test2::WstringException& ex)
+    {
+        test(ex.reason == wstr);
+    }
+
+    if(!collocated)
+    {
+	AMI_Test2_throwExceptIPtr cb = new AMI_Test2_throwExceptI(wstr);
+	wsc2->throwExcept_async(cb, wstr);
+	test(cb->check());
     }
 
     return t;

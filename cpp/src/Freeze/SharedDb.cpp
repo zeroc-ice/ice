@@ -49,9 +49,9 @@ extern "C"
 static int customCompare(DB* db, const DBT* dbt1, const DBT* dbt2)
 {
     SharedDb* me = static_cast<SharedDb*>(db->app_private);
-    Byte* first = static_cast<Byte*>(dbt1->data);
+    Ice::Byte* first = static_cast<Ice::Byte*>(dbt1->data);
     Key k1(first, first + dbt1->size);
-    first = static_cast<Byte*>(dbt2->data);
+    first = static_cast<Ice::Byte*>(dbt2->data);
     Key k2(first, first + dbt2->size);
 
     return me->getKeyCompare()->compare(k1, k2);
