@@ -179,16 +179,24 @@ if protocol == "ssl":
                            " --IceSSL.Server.Password=password"
     cppPlugin		    = " --Ice.Plugin.IceSSL=IceSSL:create"
     cppClientProtocol       = cppPlugin + " --Ice.Default.Protocol=ssl" + \
-                              " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
-                              " --IceSSL.Client.Config=client_sslconfig.xml"
+                              " --IceSSL.Client.DefaultDir=" + os.path.join(toplevel, "certs") + \
+                              " --IceSSL.Client.CertAuthFile=cacert.pem" + \
+                              " --IceSSL.Client.CertFile=c_rsa1024_pub.pem" + \
+                              " --IceSSL.Client.KeyFile=c_rsa1024_priv.pem"
     cppServerProtocol       = cppPlugin + " --Ice.Default.Protocol=ssl" + \
-                              " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs") + \
-                              " --IceSSL.Server.Config=server_sslconfig.xml"
+                              " --IceSSL.Server.DefaultDir=" + os.path.join(toplevel, "certs") + \
+                              " --IceSSL.Server.CertAuthFile=cacert.pem" + \
+                              " --IceSSL.Server.CertFile=s_rsa1024_pub.pem" + \
+                              " --IceSSL.Server.KeyFile=s_rsa1024_priv.pem"
     cppClientServerProtocol = cppPlugin + " --Ice.Default.Protocol=ssl" + \
-                              " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
-                              " --IceSSL.Client.Config=sslconfig.xml" + \
-                              " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs") + \
-                              " --IceSSL.Server.Config=sslconfig.xml"
+                              " --IceSSL.Client.DefaultDir=" + os.path.join(toplevel, "certs") + \
+                              " --IceSSL.Client.CertAuthFile=cacert.pem" + \
+                              " --IceSSL.Client.CertFile=c_rsa1024_pub.pem" + \
+                              " --IceSSL.Client.KeyFile=c_rsa1024_priv.pem" + \
+                              " --IceSSL.Server.DefaultDir=" + os.path.join(toplevel, "certs") + \
+                              " --IceSSL.Server.CertAuthFile=cacert.pem" + \
+                              " --IceSSL.Server.CertFile=s_rsa1024_pub.pem" + \
+                              " --IceSSL.Server.KeyFile=s_rsa1024_priv.pem"
 else:
     clientProtocol = ""
     serverProtocol = ""
