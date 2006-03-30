@@ -131,12 +131,10 @@ print "Removing unnecessary files..."
 filesToRemove = [ \
     os.path.join("icepy", "makedist.py"), \
     os.path.join("icepy", "makebindist.py"), \
-    os.path.join("icepy", "certs", "makecerts"), \
     ]
 filesToRemove.extend(find("icepy", ".dummy"))
 for x in filesToRemove:
     os.remove(x)
-shutil.rmtree(os.path.join("icepy", "certs", "openssl"))
 
 #
 # Generate HTML documentation. We need to build icecpp
