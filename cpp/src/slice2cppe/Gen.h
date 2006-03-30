@@ -41,6 +41,8 @@ public:
     bool operator!() const; // Returns true if there was a constructor error
 
     void generate(const UnitPtr&);
+    static bool setUseWstring(ContainedPtr, std::list<bool>&, bool);
+    static bool resetUseWstring(std::list<bool>&);
 
 private:
 
@@ -292,8 +294,6 @@ private:
     };
 
     static void validateMetaData(const UnitPtr&);
-    static bool setUseWstring(ContainedPtr, std::list<bool>&, bool);
-    static bool resetUseWstring(std::list<bool>&);
     static void printHeader(IceUtil::Output&);
     static void printVersionCheck(IceUtil::Output&);
     static void printDllExportStuff(IceUtil::Output&, const std::string&);
