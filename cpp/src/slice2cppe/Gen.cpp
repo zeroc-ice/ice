@@ -368,7 +368,7 @@ Slice::Gen::GlobalIncludeVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 Slice::Gen::TypesVisitor::TypesVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h), C(c), _dllExport(dllExport), _doneStaticSymbol(false)
+    H(h), C(c), _dllExport(dllExport), _doneStaticSymbol(false), _useWstring(false)
 {
 }
 
@@ -1239,7 +1239,7 @@ Slice::Gen::ProxyDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 }
 
 Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h), C(c), _dllExport(dllExport)
+    H(h), C(c), _dllExport(dllExport), _useWstring(false)
 {
 }
 
@@ -1627,7 +1627,7 @@ Slice::Gen::ObjectDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 }
 
 Slice::Gen::ObjectVisitor::ObjectVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h), C(c), _dllExport(dllExport)
+    H(h), C(c), _dllExport(dllExport), _useWstring(false)
 {
 }
 
@@ -2558,7 +2558,7 @@ Slice::Gen::HandleVisitor::visitClassDefStart(const ClassDefPtr& p)
 
 Slice::Gen::ImplVisitor::ImplVisitor(Output& h, Output& c,
                                      const string& dllExport) :
-    H(h), C(c), _dllExport(dllExport)
+    H(h), C(c), _dllExport(dllExport), _useWstring(false)
 {
 }
 
