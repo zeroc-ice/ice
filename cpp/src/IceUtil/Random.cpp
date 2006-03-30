@@ -8,11 +8,11 @@
 // **********************************************************************
 
 #include <IceUtil/Random.h>
+#include <IceUtil/StaticMutex.h>
 
 #ifdef _WIN32
 #   include <Wincrypt.h>
 #else
-#   include <IceUtil/StaticMutex.h>
 #   include <unistd.h>
 #   include <fcntl.h>
 #endif
