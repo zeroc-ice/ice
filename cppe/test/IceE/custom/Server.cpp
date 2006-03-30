@@ -11,6 +11,7 @@
 #include <TestCommon.h>
 #include <TestApplication.h>
 #include <TestI.h>
+#include <WstringI.h>
 
 using namespace std;
 
@@ -37,6 +38,8 @@ public:
 	
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
         adapter->add(new TestIntfI(communicator()), Ice::stringToIdentity("test"));
+	adapter->add(new Test1::WstringClassI, Ice::stringToIdentity("wstring1"));
+	adapter->add(new Test2::WstringClassI, Ice::stringToIdentity("wstring2"));
 	adapter->activate();
 
 #ifndef _WIN32_WCE

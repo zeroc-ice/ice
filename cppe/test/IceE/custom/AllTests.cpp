@@ -11,6 +11,7 @@
 #include <IceE/Locator.h>
 #include <TestCommon.h>
 #include <Test.h>
+#include <Wstring.h>
 
 using namespace std;
 
@@ -456,6 +457,78 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	list<Test::CPrx> ret = t->opCPrxList(in, out);
 	test(out == in);
 	test(ret == in);
+    }
+
+    tprintf("ok\n");
+
+    tprintf("testing wstring... ");
+
+    Test1::WstringSeq wseq1;
+    wseq1.push_back(L"Wide String");
+
+    Test2::WstringSeq wseq2;
+    wseq2 = wseq1;
+
+    Test1::WstringWStringDict wdict1;
+    wdict1[L"Key"] = L"Value";
+
+    Test2::WstringWStringDict wdict2;
+    wdict2 = wdict1;
+
+    ref = communicator->getProperties()->getPropertyWithDefault(
+        "Custom.WstringProxy1", "wstring1:default -p 12010 -t 10000");
+    base = communicator->stringToProxy(ref);
+    test(base);
+    Test1::WstringClassPrx wsc1 = Test1::WstringClassPrx::checkedCast(base);
+    test(t);
+
+    ref = communicator->getProperties()->getPropertyWithDefault(
+        "Custom.WstringProxy2", "wstring2:default -p 12010 -t 10000");
+    base = communicator->stringToProxy(ref);
+    test(base);
+    Test2::WstringClassPrx wsc2 = Test2::WstringClassPrx::checkedCast(base);
+    test(t);
+
+    wstring wstr = L"A Wide String";
+    wstring out;
+    wstring ret = wsc1->opString(wstr, out);
+    test(out == wstr);
+    test(ret == wstr);
+
+    ret = wsc2->opString(wstr, out);
+    test(out == wstr);
+    test(ret == wstr);
+
+    Test1::WstringStruct wss1;
+    wss1.s = wstr;
+    Test1::WstringStruct wss1out;
+    Test1::WstringStruct wss1ret = wsc1->opStruct(wss1, wss1out);
+    test(wss1out == wss1);
+    test(wss1ret == wss1);
+
+    Test2::WstringStruct wss2;
+    wss2.s = wstr;
+    Test2::WstringStruct wss2out;
+    Test2::WstringStruct wss2ret = wsc2->opStruct(wss2, wss2out);
+    test(wss2out == wss2);
+    test(wss2ret == wss2);
+
+    try
+    {
+        wsc1->throwExcept(wstr);
+    }
+    catch(const Test1::WstringException& ex)
+    {
+        test(ex.reason == wstr);
+    }
+
+    try
+    {
+        wsc2->throwExcept(wstr);
+    }
+    catch(const Test2::WstringException& ex)
+    {
+        test(ex.reason == wstr);
     }
 
     tprintf("ok\n");

@@ -116,8 +116,8 @@ PostBuild_Cmds=copy $(OutDir)\iceed.lib ..\..\lib\	copy $(OutDir)\icee11d.pdb ..
 # PROP Intermediate_Dir "ReleaseStatic"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-MTL=midl.exe
 SLICE2CPPEFLAGS=-DICEE
+MTL=midl.exe
 CPP=cl.exe
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_LIB" /Yu"stdafx.h" /FD /c
 # ADD CPP /nologo /MD /W3 /WX /GR /GX /O1 /I ".." /I "../../include" /D "NDEBUG" /D "ICEE_STATIC_LIBS" /D "_LIB" /D "WIN32_LEAN_AND_MEAN" /D FD_SETSIZE=1024 /D "_CONSOLE" /FD /c
@@ -133,7 +133,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\ReleaseStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy                                        $(OutDir)\icee.lib                                        ..\..\lib\ 
+PostBuild_Cmds=copy                                         $(OutDir)\icee.lib                                         ..\..\lib\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "ice - Win32 Debug Static"
@@ -149,8 +149,8 @@ PostBuild_Cmds=copy                                        $(OutDir)\icee.lib   
 # PROP Intermediate_Dir "DebugStatic"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-MTL=midl.exe
 SLICE2CPPEFLAGS=-DICEE
+MTL=midl.exe
 CPP=cl.exe
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_LIB" /Yu"stdafx.h" /FD /GZ /c
 # ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /D "_DEBUG" /D "ICEE_STATIC_LIBS" /D "_LIB" /D "WIN32_LEAN_AND_MEAN" /D FD_SETSIZE=1024 /D "_CONSOLE" /FD /GZ /c
@@ -166,7 +166,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\DebugStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy                                       $(OutDir)\iceed.lib                                       ..\..\lib\ 
+PostBuild_Cmds=copy                                        $(OutDir)\iceed.lib                                        ..\..\lib\ 
 # End Special Build Tool
 
 !ENDIF 
@@ -211,6 +211,10 @@ SOURCE=.\Connection.cpp
 # Begin Source File
 
 SOURCE=..\TcpTransport\Connector.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ConvertUTF.cpp
 # End Source File
 # Begin Source File
 
@@ -326,6 +330,10 @@ SOURCE=.\Properties.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Protocol.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Proxy.cpp
 # End Source File
 # Begin Source File
@@ -410,6 +418,10 @@ SOURCE=..\TcpTransport\Transceiver.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Unicode.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\UnknownEndpoint.cpp
 # End Source File
 # Begin Source File
@@ -435,6 +447,10 @@ SOURCE=..\..\include\IceE\Buffer.h
 # Begin Source File
 
 SOURCE=..\..\include\IceE\BuiltinSequences.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ConvertUTF.h
 # End Source File
 # Begin Source File
 
@@ -607,6 +623,10 @@ SOURCE=.\TraceUtil.h
 # Begin Source File
 
 SOURCE=..\..\include\IceE\UndefSysMacros.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceE\Unicode.h
 # End Source File
 # Begin Source File
 

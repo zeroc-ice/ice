@@ -29,6 +29,7 @@ ICE_OBJS	= BasicStream.o \
 		  Communicator.o \
 		  Cond.o \
 		  Connection.o \
+		  ConvertUTF.o \
 		  DefaultsAndOverrides.o \
 		  Endpoint.o \
 		  ExceptionBase.o \
@@ -66,6 +67,7 @@ ICE_OBJS	= BasicStream.o \
 		  TraceLevels.o \
 		  TraceUtil.o \
 		  UnknownEndpoint.o \
+		  Unicode.o \
 		  UUID.o
 
 LOCAL_OBJS	= BuiltinSequences.o \

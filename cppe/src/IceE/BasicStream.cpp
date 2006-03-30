@@ -1327,6 +1327,43 @@ IceInternal::BasicStream::read(vector<string>& v)
 }
 
 void
+IceInternal::BasicStream::write(const wstring* begin, const wstring* end)
+{
+    Int sz = static_cast<Int>(end - begin);
+    writeSize(sz);
+    if(sz > 0)
+    {
+        for(int i = 0; i < sz; ++i)
+        {
+            write(begin[i]);
+        }
+    }
+}   
+    
+void
+IceInternal::BasicStream::read(vector<wstring>& v)
+{   
+    Int sz;
+    readSize(sz);
+    if(sz > 0)
+    {
+        startSeq(sz, 1);
+        v.resize(sz);
+        for(int j = 0; j < sz; ++j)
+        {
+            read(v[j]);
+            checkSeq();
+            endElement();
+        }
+        endSeq(sz);
+    }
+    else
+    {
+       v.clear();
+    }
+}
+
+void
 IceInternal::BasicStream::write(const ObjectPrx& v)
 {
     _instance->proxyFactory()->proxyToStream(v, this);

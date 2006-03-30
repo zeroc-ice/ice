@@ -32,6 +32,7 @@ LOCAL_OBJS	= BasicStream.o \
 		  Communicator.o \
 		  Cond.o \
 		  Connection.o \
+		  ConvertUTF.o \
 		  Current.o \
 		  DefaultsAndOverrides.o \
 		  Endpoint.o \
@@ -84,6 +85,7 @@ LOCAL_OBJS	= BasicStream.o \
 		  TraceLevels.o \
 		  TraceUtil.o \
 		  UnknownEndpoint.o \
+		  Unicode.o \
 		  UUID.o
 
 OBJS		= $(LOCAL_OBJS) $(TRANSPORT_OBJS)

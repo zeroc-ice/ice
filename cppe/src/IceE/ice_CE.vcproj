@@ -1362,6 +1362,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\ConvertUTF.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Current.cpp"
 				>
 				<FileConfiguration
@@ -3434,6 +3438,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Protocol.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Proxy.cpp"
 				>
 				<FileConfiguration
@@ -5181,11 +5189,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\IceUtil\Config.h"
+				RelativePath="..\..\include\IceE\Config.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\IceE\Config.h"
+				RelativePath="..\..\include\IceUtil\Config.h"
 				>
 			</File>
 			<File
@@ -5202,6 +5210,10 @@
 			</File>
 			<File
 				RelativePath="..\..\include\IceE\ConnectorF.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ConvertUTF.h"
 				>
 			</File>
 			<File
@@ -5233,11 +5245,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\IceUtil\Exception.h"
+				RelativePath="..\..\include\IceE\Exception.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\IceE\Exception.h"
+				RelativePath="..\..\include\IceUtil\Exception.h"
 				>
 			</File>
 			<File
@@ -5253,19 +5265,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\IceUtil\Functional.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\include\IceE\Functional.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\IceUtil\Handle.h"
+				RelativePath="..\..\include\IceUtil\Functional.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\include\IceE\Handle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceUtil\Handle.h"
 				>
 			</File>
 			<File
@@ -5558,6 +5570,10 @@
 			</File>
 			<File
 				RelativePath="..\..\include\IceE\UndefSysMacros.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Unicode.cpp"
 				>
 			</File>
 			<File

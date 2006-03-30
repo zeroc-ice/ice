@@ -45,7 +45,6 @@ RSC=rc.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /WX /GR /GX /O1 /I "." /I "../../../include" /I "../../include" /D "NDEBUG" /D "WIN32_LEAN_AND_MEAN" /D "_CONSOLE" /FD /Zm200 /c
-# SUBTRACT CPP /Z<none>
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -126,7 +125,6 @@ LINK32=link.exe
 # ADD BASE CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../../include" /I "../../include" /D "NDEBUG" /D "_CONSOLE" /FD /c
 # SUBTRACT BASE CPP /Fr /YX
 # ADD CPP /nologo /MD /W3 /WX /GR /GX /O1 /I "." /I "../../../include" /I "../../include" /D "NDEBUG" /D "ICEE_STATIC_LIBS" /D "WIN32_LEAN_AND_MEAN" /D "_CONSOLE" /FD /Zm200 /c
-# SUBTRACT CPP /Z<none>
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -169,6 +167,14 @@ SOURCE=.\Test.cpp
 
 SOURCE=.\TestI.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\Wstring.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\WstringI.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -184,6 +190,14 @@ SOURCE=.\Test.h
 # Begin Source File
 
 SOURCE=.\TestI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Wstring.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\WstringI.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -250,6 +264,73 @@ BuildCmds= \
    $(BuildCmds)
 
 "Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\Wstring.ice
+
+!IF  "$(CFG)" == "customCOL - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\Wstring.ice
+
+BuildCmds= \
+	slice2cppe.exe -I. Wstring.ice
+
+"Wstring.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Wstring.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "customCOL - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\Wstring.ice
+
+BuildCmds= \
+	slice2cppe.exe -I. Wstring.ice
+
+"Wstring.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Wstring.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "customCOL - Win32 Debug Static"
+
+# Begin Custom Build
+InputPath=.\Wstring.ice
+
+BuildCmds= \
+	slice2cppe.exe -I. Wstring.ice
+
+"Wstring.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Wstring.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "customCOL - Win32 Release Static"
+
+# Begin Custom Build
+InputPath=.\Wstring.ice
+
+BuildCmds= \
+	slice2cppe.exe -I. Wstring.ice
+
+"Wstring.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Wstring.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

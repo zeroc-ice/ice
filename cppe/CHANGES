@@ -1,6 +1,10 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Added support for the "cpp:type:wstring" slice metadata. When used
+  generated code will use std::wstring instead of std::string. See
+  manual for more details.
+
 - Added requestId to Current.
 
 

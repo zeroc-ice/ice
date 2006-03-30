@@ -1217,6 +1217,14 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\Wstring.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\WstringI.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1232,6 +1240,14 @@
 			</File>
 			<File
 				RelativePath="TestI.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Wstring.h"
+				>
+			</File>
+			<File
+				RelativePath=".\WstringI.h"
 				>
 			</File>
 		</Filter>
@@ -1312,6 +1328,46 @@
 						Name="VCCustomBuildTool"
 						CommandLine="slice2cppe.exe -I. Test.ice&#x0D;&#x0A;"
 						Outputs="Test.h;Test.cpp"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\Wstring.ice"
+				>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe Wstring.ice"
+						Outputs="Wstring.cpp;Wstring.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe Wstring.ice"
+						Outputs="Wstring.cpp;Wstring.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe Wstring.ice"
+						Outputs="Wstring.cpp;Wstring.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe Wstring.ice"
+						Outputs="Wstring.cpp;Wstring.h"
 					/>
 				</FileConfiguration>
 			</File>

@@ -2498,6 +2498,101 @@ DEP_CPP_CONNEC=\
 # End Source File
 # Begin Source File
 
+SOURCE=.\ConvertUTF.cpp
+
+!IF  "$(CFG)" == "ice - Win32 (WCE emulator) Release"
+
+DEP_CPP_CONVE=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\Unicode.h"\
+	".\ConvertUTF.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE emulator) Debug"
+
+DEP_CPP_CONVE=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\Unicode.h"\
+	".\ConvertUTF.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_CONVE=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\Unicode.h"\
+	".\ConvertUTF.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_CONVE=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\Unicode.h"\
+	".\ConvertUTF.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE ARMV4) Debug Static"
+
+DEP_CPP_CONVE=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\Unicode.h"\
+	".\ConvertUTF.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE ARMV4) Release Static"
+
+DEP_CPP_CONVE=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\Unicode.h"\
+	".\ConvertUTF.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE emulator) Debug Static"
+
+DEP_CPP_CONVE=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\Unicode.h"\
+	".\ConvertUTF.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE emulator) Release Static"
+
+DEP_CPP_CONVE=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\Unicode.h"\
+	".\ConvertUTF.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=.\Current.cpp
 
 !IF  "$(CFG)" == "ice - Win32 (WCE emulator) Release"
@@ -9114,6 +9209,69 @@ DEP_CPP_PROPE=\
 # End Source File
 # Begin Source File
 
+SOURCE=.\Protocol.cpp
+
+!IF  "$(CFG)" == "ice - Win32 (WCE emulator) Release"
+
+DEP_CPP_PROTO=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Protocol.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE emulator) Debug"
+
+DEP_CPP_PROTO=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Protocol.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_PROTO=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Protocol.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_PROTO=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Protocol.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE ARMV4) Debug Static"
+
+DEP_CPP_PROTO=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Protocol.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE ARMV4) Release Static"
+
+DEP_CPP_PROTO=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Protocol.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE emulator) Debug Static"
+
+DEP_CPP_PROTO=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Protocol.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE emulator) Release Static"
+
+DEP_CPP_PROTO=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Protocol.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=.\Proxy.cpp
 
 !IF  "$(CFG)" == "ice - Win32 (WCE emulator) Release"
@@ -13911,6 +14069,101 @@ DEP_CPP_TRANS=\
 # End Source File
 # Begin Source File
 
+SOURCE=.\Unicode.cpp
+
+!IF  "$(CFG)" == "ice - Win32 (WCE emulator) Release"
+
+DEP_CPP_UNICO=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\Unicode.h"\
+	".\ConvertUTF.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE emulator) Debug"
+
+DEP_CPP_UNICO=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\Unicode.h"\
+	".\ConvertUTF.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_UNICO=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\Unicode.h"\
+	".\ConvertUTF.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_UNICO=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\Unicode.h"\
+	".\ConvertUTF.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE ARMV4) Debug Static"
+
+DEP_CPP_UNICO=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\Unicode.h"\
+	".\ConvertUTF.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE ARMV4) Release Static"
+
+DEP_CPP_UNICO=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\Unicode.h"\
+	".\ConvertUTF.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE emulator) Debug Static"
+
+DEP_CPP_UNICO=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\Unicode.h"\
+	".\ConvertUTF.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE emulator) Release Static"
+
+DEP_CPP_UNICO=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\Unicode.h"\
+	".\ConvertUTF.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=.\UnknownEndpoint.cpp
 
 !IF  "$(CFG)" == "ice - Win32 (WCE emulator) Release"
@@ -14385,6 +14638,10 @@ SOURCE=..\..\include\IceE\ConnectorF.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\ConvertUTF.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\IceE\Current.h
 # End Source File
 # Begin Source File
@@ -14738,6 +14995,10 @@ SOURCE=..\..\include\IceE\TransceiverF.h
 # Begin Source File
 
 SOURCE=..\..\include\IceE\UndefSysMacros.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceE\Unicode.h
 # End Source File
 # Begin Source File
 

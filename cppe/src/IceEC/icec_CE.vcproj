@@ -1288,6 +1288,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\IceE\ConvertUTF.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\IceE\DefaultsAndOverrides.cpp"
 				>
 				<FileConfiguration
@@ -2916,6 +2920,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\IceE\Protocol.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\IceE\Proxy.cpp"
 				>
 				<FileConfiguration
@@ -4396,6 +4404,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\IceE\Unicode.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\IceE\UnknownEndpoint.cpp"
 				>
 				<FileConfiguration
@@ -4602,6 +4614,10 @@
 			</File>
 			<File
 				RelativePath="..\..\include\IceE\ConnectorF.h"
+				>
+			</File>
+			<File
+				RelativePath="..\IceE\ConvertUTF.h"
 				>
 			</File>
 			<File
@@ -4906,6 +4922,10 @@
 			</File>
 			<File
 				RelativePath="..\..\include\IceE\UndefSysMacros.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Unicode.h"
 				>
 			</File>
 			<File

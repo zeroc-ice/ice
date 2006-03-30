@@ -15,6 +15,7 @@
 #include <IceE/Buffer.h>
 #include <IceE/AutoArray.h>
 #include <IceE/Protocol.h>
+#include <IceE/Unicode.h>
 
 namespace Ice
 {
@@ -449,6 +450,40 @@ public:
 	}
     }
     void read(std::vector<std::string>&);
+
+    void write(const std::wstring& v)
+    {
+        std::string s = IceUtil::wstringToString(v);
+        Ice::Int sz = static_cast<Ice::Int>(s.size());
+        writeSize(sz);
+        if(sz > 0)
+        {
+            Container::size_type pos = b.size();
+            resize(pos + sz);
+            memcpy(&b[pos], s.c_str(), sz);
+        }
+    }
+    void write(const std::wstring*, const std::wstring*);
+    void read(std::wstring& v)
+    {
+        Ice::Int sz;
+        readSize(sz);
+        if(sz > 0)
+        {
+            if(b.end() - i < sz)
+            {
+                throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+            }
+            std::string s(reinterpret_cast<const char*>(&*i), reinterpret_cast<const char*>(&*i) + sz);
+            IceUtil::stringToWstring(s).swap(v);
+            i += sz;
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+    void read(std::vector<std::wstring>&);
 
     void write(const Ice::ObjectPrx&);
     void read(Ice::ObjectPrx&);
