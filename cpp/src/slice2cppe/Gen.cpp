@@ -2996,7 +2996,7 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
             if(s.find(prefix) == 0)
             {
                 string ss = s.substr(prefix.size());
-                if(ss.find("type:wstring") == 0)
+                if(ss.find("type:wstring") == 0 || ss.find("type:string") == 0)
                 {
                     BuiltinPtr builtin = BuiltinPtr::dynamicCast(cont);
                     ModulePtr module = ModulePtr::dynamicCast(cont);
@@ -3033,10 +3033,14 @@ bool
 Slice::Gen::setUseWstring(ContainedPtr p, list<bool>& hist, bool use)
 {
     hist.push_back(use);
-    if(!use)
+    StringList metaData = p->getMetaData();
+    if(find(metaData.begin(), metaData.end(), "cpp:type:wstring") != metaData.end())
     {
-        StringList metaData = p->getMetaData();
-        use = find(metaData.begin(), metaData.end(), "cpp:type:wstring") != metaData.end();
+        use = true;
+    }
+    else if(find(metaData.begin(), metaData.end(), "cpp:type:string") != metaData.end())
+    {
+        use = false;
     }
     return use;
 }

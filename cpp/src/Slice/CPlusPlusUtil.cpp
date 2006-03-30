@@ -143,7 +143,7 @@ Slice::typeToString(const TypePtr& type, bool useWstring, const StringList& meta
         if(builtin->kind() == Builtin::KindString)
 	{
             string strType = findMetaData(metaData, true);
-	    if(useWstring || strType == "wstring")
+	    if(strType != "string" && (useWstring || strType == "wstring"))
 	    {
 	        return "::std::wstring";
 	    }
@@ -267,7 +267,7 @@ Slice::inputTypeToString(const TypePtr& type, bool useWstring, const StringList&
         if(builtin->kind() == Builtin::KindString)
 	{
             string strType = findMetaData(metaData, true);
-	    if(useWstring || strType == "wstring")
+	    if(strType != "string" && (useWstring || strType == "wstring"))
 	    {
 	        return "const ::std::wstring&";
 	    }
@@ -381,7 +381,7 @@ Slice::outputTypeToString(const TypePtr& type, bool useWstring, const StringList
         if(builtin->kind() == Builtin::KindString)
 	{
             string strType = findMetaData(metaData, true);
-	    if(useWstring || strType == "wstring")
+	    if(strType != "string" && (useWstring || strType == "wstring"))
 	    {
 	        return "::std::wstring&";
 	    }
@@ -1105,7 +1105,7 @@ Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const s
             case Builtin::KindString:
             {
                 string strType = findMetaData(metaData, true);
-	        if(useWstring || strType == "wstring")
+	        if(strType != "string" && (useWstring || strType == "wstring"))
 		{
                     if(marshal)
                     {
@@ -1332,7 +1332,7 @@ Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const s
                     case Builtin::KindString:
                     {
                         string strType = findMetaData(seq->typeMetaData(), true);
-	                if(useWstring || strType == "wstring")
+	        	if(strType != "string" && (useWstring || strType == "wstring"))
 			{
                             if(marshal)
                             {
@@ -1474,6 +1474,10 @@ Slice::inWstringModule(const SequencePtr& seq)
 	if(find(metaData.begin(), metaData.end(), "cpp:type:wstring") != metaData.end())
 	{
 	    return true;
+	}
+	else if(find(metaData.begin(), metaData.end(), "cpp:type:string") != metaData.end())
+	{
+	    return false;
 	}
 	cont = mod->container();
     }

@@ -1999,7 +1999,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     Test2::WstringStruct wss2ret = wsc2->opStruct(wss2, wss2out);
     test(wss2out == wss2);
     test(wss2ret == wss2);
-    cout << "ok" << endl;
 
     try
     {
@@ -2032,6 +2031,8 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	wsc2->throwExcept_async(cb, wstr);
 	test(cb->check());
     }
+
+    cout << "ok" << endl;
 
     return t;
 }
