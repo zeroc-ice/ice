@@ -208,16 +208,24 @@ if protocol == "ssl":
     certs		 = os.path.abspath(os.path.join(toplevel, "certs"))
     plugin		 = " --Ice.Plugin.IceSSL=IceSSL:create"
     clientProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Client.CertPath=" + certs + \
-                           " --IceSSL.Client.Config=client_sslconfig.xml"
+                           " --IceSSL.Client.DefaultDir=" + certs + \
+                           " --IceSSL.Client.CertFile=c_rsa1024_pub.pem" + \
+                           " --IceSSL.Client.KeyFile=c_rsa1024_priv.pem" + \
+                           " --IceSSL.Client.CertAuthFile=cacert.pem"
     serverProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Server.CertPath=" + certs + \
-                           " --IceSSL.Server.Config=server_sslconfig.xml"
+                           " --IceSSL.Server.DefaultDir=" + certs + \
+                           " --IceSSL.Server.CertFile=s_rsa1024_pub.pem" + \
+                           " --IceSSL.Server.KeyFile=s_rsa1024_priv.pem" + \
+                           " --IceSSL.Server.CertAuthFile=cacert.pem"
     clientServerProtocol = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Client.CertPath=" + certs + \
-                           " --IceSSL.Client.Config=sslconfig.xml" + \
-                           " --IceSSL.Server.CertPath=" + certs + \
-                           " --IceSSL.Server.Config=sslconfig.xml"
+                           " --IceSSL.Client.DefaultDir=" + certs + \
+                           " --IceSSL.Client.CertFile=c_rsa1024_pub.pem" + \
+                           " --IceSSL.Client.KeyFile=c_rsa1024_priv.pem" + \
+                           " --IceSSL.Client.CertAuthFile=cacert.pem" + \
+                           " --IceSSL.Server.DefaultDir=" + certs + \
+                           " --IceSSL.Server.CertFile=s_rsa1024_pub.pem" + \
+                           " --IceSSL.Server.KeyFile=s_rsa1024_priv.pem" + \
+                           " --IceSSL.Server.CertAuthFile=cacert.pem"
 else:
     clientProtocol = ""
     serverProtocol = ""
@@ -265,6 +273,7 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
 
     print "starting " + serverName + "...",
     serverCmd = "python " + server + serverOptions + additionalServerOptions + " 2>&1"
+    #print serverCmd
     serverPipe = os.popen(serverCmd)
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)

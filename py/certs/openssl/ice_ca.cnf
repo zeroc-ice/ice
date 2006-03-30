@@ -27,7 +27,7 @@ preserve         = no      # Keep passed DN ordering?
 
 [ req ]
 default_bits        = 2048
-default_keyfile     = $ENV::ICE_HOME/certs/openssl/ca/cakey.pem
+default_keyfile     = openssl/ca/cakey.pem
 default_md          = md5
 prompt              = no
 distinguished_name  = root_ca_distinguished_name
