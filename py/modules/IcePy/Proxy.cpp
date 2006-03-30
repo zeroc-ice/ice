@@ -593,8 +593,20 @@ extern "C"
 static PyObject*
 proxyIceGetAdapterId(ProxyObject* self)
 {
-    string str = (*self->proxy)->ice_getAdapterId();
-    return PyString_FromString(const_cast<char*>(str.c_str()));
+    assert(self->proxy);
+
+    string id;
+    try
+    {
+	id = (*self->proxy)->ice_getAdapterId();
+    }
+    catch(const Ice::Exception& ex)
+    {
+	setPythonException(ex);
+	return NULL;
+    }
+
+    return PyString_FromString(const_cast<char*>(id.c_str()));
 }
 
 #ifdef WIN32
@@ -641,7 +653,19 @@ extern "C"
 static PyObject*
 proxyIceGetEndpoints(ProxyObject* self)
 {
-    Ice::EndpointSeq endpoints = (*self->proxy)->ice_getEndpoints();
+    assert(self->proxy);
+
+    Ice::EndpointSeq endpoints;
+    try
+    {
+	endpoints = (*self->proxy)->ice_getEndpoints();
+    }
+    catch(const Ice::Exception& ex)
+    {
+	setPythonException(ex);
+	return NULL;
+    }
+
     int count = static_cast<int>(endpoints.size());
     PyObjectHandle result = PyTuple_New(count);
     int i = 0;
@@ -723,6 +747,8 @@ extern "C"
 static PyObject*
 proxyIceGetLocatorCacheTimeout(ProxyObject* self)
 {
+    assert(self->proxy);
+
     try
     {
 	Ice::Int timeout = (*self->proxy)->ice_getLocatorCacheTimeout();
@@ -769,6 +795,8 @@ extern "C"
 static PyObject*
 proxyIceGetCacheConnection(ProxyObject* self)
 {
+    assert(self->proxy);
+
     PyObject* b;
     try
     {
@@ -831,6 +859,8 @@ proxyIceGetEndpointSelection(ProxyObject* self)
     PyObjectHandle ord = PyObject_GetAttrString(cls, STRCAST("Ordered"));
     assert(rnd.get() != NULL);
     assert(ord.get() != NULL);
+
+    assert(self->proxy);
 
     PyObject* type;
     try
