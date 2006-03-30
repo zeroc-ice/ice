@@ -15,7 +15,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import IceGrid.*;
 import IceGridGUI.*;
 
-class Adapter extends TreeNode implements CommunicatorChild, DescriptorHolder
+class Adapter extends TreeNode implements DescriptorHolder
 {
     static public AdapterDescriptor copyDescriptor(AdapterDescriptor d)
     {
