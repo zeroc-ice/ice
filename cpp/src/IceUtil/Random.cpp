@@ -60,7 +60,6 @@ public:
     
     ~RandomCleanup()
     {
-	IceUtil::StaticMutex::Lock lock(staticMutex);
 #ifdef _WIN32
 	if(context != NULL)
 	{
@@ -68,6 +67,7 @@ public:
 	    context = NULL;
 	}
 #else
+	IceUtil::StaticMutex::Lock lock(staticMutex);
 	if(fd != -1)
 	{
 	    close(fd);
