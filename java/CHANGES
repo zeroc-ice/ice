@@ -1,6 +1,9 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Fixed a bug where the ice_locator proxy method wouldn't change the
+  proxy locator.
+
 - The property IceSSL.Server.ClientAuth is now deprecated. It has
   been superceded by IceSSL.Server.VerifyPeer, which has a default
   value of 2.

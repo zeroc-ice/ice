@@ -366,6 +366,52 @@ public class ObjectPrxHelperBase implements ObjectPrx
 	return ice_facet(newFacet);
     }
 
+    public final Ice.RouterPrx
+    ice_getRouter()
+    {
+	IceInternal.RouterInfo ri = _reference.getRouterInfo();
+	return ri != null ? ri.getRouter() : null;
+    }
+
+    public final ObjectPrx
+    ice_router(Ice.RouterPrx router)
+    {
+        IceInternal.Reference ref = _reference.changeRouter(router);
+        if(ref.equals(_reference))
+        {
+            return this;
+        }
+        else
+        {
+            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+            proxy.setup(ref);
+            return proxy;
+        }
+    }
+
+    public final Ice.LocatorPrx
+    ice_getLocator()
+    {
+	IceInternal.LocatorInfo ri = _reference.getLocatorInfo();
+	return ri != null ? ri.getLocator() : null;
+    }
+
+    public final ObjectPrx
+    ice_locator(Ice.LocatorPrx locator)
+    {
+        IceInternal.Reference ref = _reference.changeLocator(locator);
+        if(ref.equals(_reference))
+        {
+            return this;
+        }
+        else
+        {
+            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+            proxy.setup(ref);
+            return proxy;
+        }
+    }
+
     public final ObjectPrx
     ice_twoway()
     {
@@ -436,38 +482,6 @@ public class ObjectPrxHelperBase implements ObjectPrx
     ice_timeout(int t)
     {
         IceInternal.Reference ref = _reference.changeTimeout(t);
-        if(ref.equals(_reference))
-        {
-            return this;
-        }
-        else
-        {
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(ref);
-            return proxy;
-        }
-    }
-
-    public final ObjectPrx
-    ice_router(Ice.RouterPrx router)
-    {
-        IceInternal.Reference ref = _reference.changeRouter(router);
-        if(ref.equals(_reference))
-        {
-            return this;
-        }
-        else
-        {
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(ref);
-            return proxy;
-        }
-    }
-
-    public final ObjectPrx
-    ice_locator(Ice.LocatorPrx locator)
-    {
-        IceInternal.Reference ref = _reference.changeLocator(locator);
         if(ref.equals(_reference))
         {
             return this;

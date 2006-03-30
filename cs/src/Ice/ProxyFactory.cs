@@ -83,19 +83,12 @@ namespace IceInternal
 	    //
 	    if(ex is Ice.ObjectNotExistException)
 	    {
-		try
-		{
-		    IndirectReference ir = (IndirectReference)@ref;
-		    if(ir.getLocatorInfo() == null)
-		    {
-			throw ex;
-		    }
-		    ir.getLocatorInfo().clearObjectCache(ir);
-		}
-		catch(System.InvalidCastException)
+		LocatorInfo li = @ref.getLocatorInfo();
+		if(li == null)
 		{
 		    throw ex;
 		}
+		li.clearObjectCache((IndirectReference)@ref);
 	    }
 	    else if(ex is Ice.RequestFailedException)
 	    {

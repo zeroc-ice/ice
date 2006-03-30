@@ -1,6 +1,9 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Fixed a bug where the ice_locator proxy method wouldn't change the
+  proxy locator.
+
 - Added requestId to Current.
 
 - Performance improvements if an AMI callback object is reused with 

@@ -58,58 +58,40 @@ public class IndirectReference extends RoutableReference
     public Reference
     changeLocator(Ice.LocatorPrx newLocator)
     {
-	//
-	// Return a direct reference if a null locator is given.
-	//
-	if(newLocator == null)
+	LocatorInfo newLocatorInfo = getInstance().locatorManager().get(newLocator);
+	if(_locatorInfo != null && newLocatorInfo != null && newLocatorInfo.equals(_locatorInfo))
 	{
-	    return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
-							   getSecure(), new EndpointI[0], getRouterInfo(),
-							   getCollocationOptimization());
-	}
-	else
-	{
-	    LocatorInfo newLocatorInfo = getInstance().locatorManager().get(newLocator);
-	    if(_locatorInfo != null && newLocatorInfo != null && newLocatorInfo.equals(_locatorInfo))
-	    {
-		return this;
-	    }
-	    IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
-	    r._locatorInfo = newLocatorInfo;
 	    return this;
 	}
+	IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
+	r._locatorInfo = newLocatorInfo;
+	return r;
     }
 
     public Reference
     changeCompress(boolean newCompress)
     {
-	//
-	// TODO: This is wrong.
-	//
-        IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
-	if(_locatorInfo != null)
+	if(_overrideCompress && _compress == newCompress)
 	{
-	    Ice.LocatorPrx newLocator = Ice.LocatorPrxHelper.uncheckedCast(
-	    					_locatorInfo.getLocator().ice_compress(newCompress));
-	    r._locatorInfo = getInstance().locatorManager().get(newLocator);
+	    return this;
 	}
-	return r;
+        IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
+	r._compress = newCompress;
+	r._overrideCompress = true;
+	return r;	
     }
 
     public Reference
     changeTimeout(int newTimeout)
     {
-	//
-	// TODO: This is wrong.
-	//
-        IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
-	if(_locatorInfo != null)
+	if(_overrideTimeout && _timeout == newTimeout)
 	{
-	    Ice.LocatorPrx newLocator = Ice.LocatorPrxHelper.uncheckedCast(
-	    					_locatorInfo.getLocator().ice_timeout(newTimeout));
-	    r._locatorInfo = getInstance().locatorManager().get(newLocator);
+	    return this;
 	}
-	return r;
+        IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
+	r._timeout = newTimeout;
+	r._overrideTimeout = true;
+	return r;	
     }
 
     public Reference
@@ -216,9 +198,21 @@ public class IndirectReference extends RoutableReference
 	    {
 	        endpts = _locatorInfo.getEndpoints(this, _locatorCacheTimeout, cached);
 	    }
+
+	    //
+	    // Apply the endpoint overrides to each endpoint.
+	    //
 	    for(int i = 0; i < endpts.length; ++i)
 	    {
 	        endpts[i] = endpts[i].connectionId(_connectionId);
+		if(_overrideCompress)
+		{
+		    endpts[i] = endpts[i].compress(_compress);		    
+		}
+		if(_overrideTimeout)
+		{
+		    endpts[i] = endpts[i].timeout(_timeout);		    
+		}
 	    }
 
 	    try
@@ -313,6 +307,22 @@ public class IndirectReference extends RoutableReference
 	{
 	   return false;
 	}
+	if(_overrideCompress != rhs._overrideCompress)
+	{
+	   return false;
+	}
+	if(_overrideCompress && _compress != rhs._compress)
+	{
+	    return false;
+	}
+	if(_overrideTimeout != rhs._overrideTimeout)
+	{
+	   return false;
+	}
+	if(_overrideTimeout && _timeout != rhs._timeout)
+	{
+	    return false;
+	}
 	if(_locatorInfo == null ? rhs._locatorInfo != null : !_locatorInfo.equals(rhs._locatorInfo))
 	{
 	    return false;
@@ -323,5 +333,9 @@ public class IndirectReference extends RoutableReference
     private String _adapterId;
     private String _connectionId = "";
     private LocatorInfo _locatorInfo;
+    private boolean _overrideCompress;
+    private boolean _compress; // Only used if _overrideCompress == true
+    private boolean _overrideTimeout;
+    private int _timeout; // Only used if _overrideTimeout == true
     private int _locatorCacheTimeout;
 }

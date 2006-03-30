@@ -62,6 +62,18 @@ public abstract class Reference implements Cloneable
         return _communicator;
     }
 
+    public RouterInfo
+    getRouterInfo()
+    {
+        return null;
+    }
+
+    public LocatorInfo
+    getLocatorInfo()
+    {
+        return null;
+    }
+
     public abstract boolean getSecure();
     public abstract String getAdapterId();
     public abstract EndpointI[] getEndpoints();

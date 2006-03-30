@@ -33,6 +33,23 @@ public class AllTests
 	test(base.ice_communicator() == communicator);
 	System.out.println("ok");
 
+	System.out.print("testing proxy methods... ");
+	System.out.flush();
+	test(Ice.Util.identityToString(
+		 base.ice_identity(Ice.Util.stringToIdentity("other")).ice_getIdentity()).equals("other"));
+	test(base.ice_facet("facet").ice_getFacet().equals("facet"));
+	test(base.ice_adapterId("id").ice_getAdapterId().equals("id"));
+	test(base.ice_twoway().ice_isTwoway());
+	test(base.ice_oneway().ice_isOneway());
+	test(base.ice_batchOneway().ice_isBatchOneway());
+	test(base.ice_datagram().ice_isDatagram());
+	test(base.ice_batchDatagram().ice_isBatchDatagram());
+	test(base.ice_secure(true).ice_getSecure());
+	test(!base.ice_secure(false).ice_getSecure());
+	test(base.ice_collocationOptimization(true).ice_getCollocationOptimization());
+	test(!base.ice_collocationOptimization(false).ice_getCollocationOptimization());
+	System.out.println("ok");
+
         System.out.print("testing checked cast... ");
         System.out.flush();
         Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(base);

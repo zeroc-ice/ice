@@ -57,6 +57,12 @@ public:
 
     Ice::CommunicatorPtr getCommunicator() const;
 
+#ifdef ICEE_HAS_ROUTER
+    virtual RouterInfoPtr getRouterInfo() const { return 0; }
+#endif
+#ifdef ICEE_HAS_LOCATOR
+    virtual LocatorInfoPtr getLocatorInfo() const { return 0; }
+#endif
     virtual std::vector<EndpointPtr> getEndpoints() const = 0;
 
     //
@@ -166,7 +172,7 @@ class RoutableReference : public Reference
 {
 public:
 
-    const RouterInfoPtr& getRouterInfo() const { return _routerInfo; }
+    virtual RouterInfoPtr getRouterInfo() const { return _routerInfo; }
     std::vector<EndpointPtr> getRoutedEndpoints() const;
 
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const;
@@ -263,7 +269,8 @@ public:
 		      , const LocatorInfoPtr&);
 
     const std::string& getAdapterId() const { return _adapterId; }
-    const LocatorInfoPtr& getLocatorInfo() const { return _locatorInfo; }
+
+    virtual LocatorInfoPtr getLocatorInfo() const { return _locatorInfo; }
 
     virtual std::vector<EndpointPtr> getEndpoints() const;
 

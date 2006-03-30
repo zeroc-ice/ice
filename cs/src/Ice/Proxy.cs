@@ -78,6 +78,18 @@ namespace Ice
 	EndpointSelectionType ice_getEndpointSelection();
 	ObjectPrx ice_endpointSelection(EndpointSelectionType newType);
 
+	bool ice_getSecure();
+        ObjectPrx ice_secure(bool b);
+
+	Ice.RouterPrx ice_getRouter();
+        ObjectPrx ice_router(Ice.RouterPrx router);
+
+	Ice.LocatorPrx ice_getLocator();
+        ObjectPrx ice_locator(Ice.LocatorPrx locator);
+
+	bool ice_getCollocationOptimization();
+        ObjectPrx ice_collocationOptimization(bool b);
+
         ObjectPrx ice_twoway();
         bool ice_isTwoway();
         ObjectPrx ice_oneway();
@@ -89,13 +101,9 @@ namespace Ice
         ObjectPrx ice_batchDatagram();
         bool ice_isBatchDatagram();
 
-        ObjectPrx ice_secure(bool b);
         ObjectPrx ice_compress(bool co);
         ObjectPrx ice_timeout(int t);
         ObjectPrx ice_connectionId(string connectionId);
-        ObjectPrx ice_router(Ice.RouterPrx router);
-        ObjectPrx ice_locator(Ice.LocatorPrx locator);
-        ObjectPrx ice_collocationOptimization(bool b);
 
         Connection ice_connection();
     }
@@ -471,9 +479,34 @@ namespace Ice
             }
         }
 
-        public ObjectPrx ice_twoway()
+        public bool ice_getSecure()
         {
-            IceInternal.Reference @ref = _reference.changeMode(IceInternal.Reference.Mode.ModeTwoway);
+            return _reference.getSecure();
+        }
+
+        public ObjectPrx ice_secure(bool b)
+        {
+            if(b == _reference.getSecure())
+            {
+                return this;
+            }
+            else
+            {
+                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+                proxy.setup(_reference.changeSecure(b));
+                return proxy;
+            }
+        }
+
+        public Ice.RouterPrx ice_getRouter()
+        {
+	    IceInternal.RouterInfo ri = _reference.getRouterInfo();
+	    return ri != null ? ri.getRouter() : null;
+        }
+
+        public ObjectPrx ice_router(RouterPrx router)
+        {
+            IceInternal.Reference @ref = _reference.changeRouter(router);
             if(@ref.Equals(_reference))
             {
                 return this;
@@ -482,6 +515,60 @@ namespace Ice
             {
                 ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
                 proxy.setup(@ref);
+                return proxy;
+            }
+        }
+
+        public Ice.LocatorPrx ice_getLocator()
+        {
+	    IceInternal.LocatorInfo li = _reference.getLocatorInfo();
+	    return li != null ? li.getLocator() : null;
+        }
+
+        public ObjectPrx ice_locator(LocatorPrx locator)
+        {
+            IceInternal.Reference @ref = _reference.changeLocator(locator);
+            if(@ref.Equals(_reference))
+            {
+                return this;
+            }
+            else
+            {
+                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+                proxy.setup(@ref);
+                return proxy;
+            }
+        }
+
+        public bool ice_getCollocationOptimization()
+        {
+            return _reference.getCollocationOptimization();
+        }
+
+        public ObjectPrx ice_collocationOptimization(bool b)
+        {
+            if(b == _reference.getCollocationOptimization())
+            {
+                return this;
+            }
+            else
+            {
+                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+                proxy.setup(_reference.changeCollocationOptimization(b));
+                return proxy;
+            }
+        }
+
+        public ObjectPrx ice_twoway()
+        {
+            if(_reference.getMode() == IceInternal.Reference.Mode.ModeTwoway)
+            {
+                return this;
+            }
+            else
+            {
+                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+                proxy.setup(_reference.changeMode(IceInternal.Reference.Mode.ModeTwoway));
                 return proxy;
             }
         }
@@ -493,15 +580,14 @@ namespace Ice
 
         public ObjectPrx ice_oneway()
         {
-            IceInternal.Reference @ref = _reference.changeMode(IceInternal.Reference.Mode.ModeOneway);
-            if(@ref.Equals(_reference))
+            if(_reference.getMode() == IceInternal.Reference.Mode.ModeOneway)
             {
                 return this;
             }
             else
             {
                 ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(@ref);
+                proxy.setup(_reference.changeMode(IceInternal.Reference.Mode.ModeOneway));
                 return proxy;
             }
         }
@@ -513,15 +599,14 @@ namespace Ice
 
         public ObjectPrx ice_batchOneway()
         {
-            IceInternal.Reference @ref = _reference.changeMode(IceInternal.Reference.Mode.ModeBatchOneway);
-            if(@ref.Equals(_reference))
+            if(_reference.getMode() == IceInternal.Reference.Mode.ModeBatchOneway)
             {
                 return this;
             }
             else
             {
                 ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(@ref);
+                proxy.setup(_reference.changeMode(IceInternal.Reference.Mode.ModeBatchOneway));
                 return proxy;
             }
         }
@@ -533,15 +618,14 @@ namespace Ice
 
         public ObjectPrx ice_datagram()
         {
-            IceInternal.Reference @ref = _reference.changeMode(IceInternal.Reference.Mode.ModeDatagram);
-            if(@ref.Equals(_reference))
+            if(_reference.getMode() == IceInternal.Reference.Mode.ModeDatagram)
             {
                 return this;
             }
             else
             {
                 ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(@ref);
+                proxy.setup(_reference.changeMode(IceInternal.Reference.Mode.ModeDatagram));
                 return proxy;
             }
         }
@@ -553,15 +637,14 @@ namespace Ice
 
         public ObjectPrx ice_batchDatagram()
         {
-            IceInternal.Reference @ref = _reference.changeMode(IceInternal.Reference.Mode.ModeBatchDatagram);
-            if(@ref.Equals(_reference))
+            if(_reference.getMode() == IceInternal.Reference.Mode.ModeBatchDatagram)
             {
                 return this;
             }
             else
             {
                 ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(@ref);
+                proxy.setup(_reference.changeMode(IceInternal.Reference.Mode.ModeBatchDatagram));
                 return proxy;
             }
         }
@@ -569,21 +652,6 @@ namespace Ice
         public bool ice_isBatchDatagram()
         {
             return _reference.getMode() == IceInternal.Reference.Mode.ModeBatchDatagram;
-        }
-
-        public ObjectPrx ice_secure(bool b)
-        {
-            IceInternal.Reference @ref = _reference.changeSecure(b);
-            if(@ref.Equals(_reference))
-            {
-                return this;
-            }
-            else
-            {
-                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(@ref);
-                return proxy;
-            }
         }
 
         public ObjectPrx ice_compress(bool co)
@@ -619,51 +687,6 @@ namespace Ice
 	public ObjectPrx ice_connectionId(string connectionId)
         {
             IceInternal.Reference @ref = _reference.changeConnectionId(connectionId);
-            if(@ref.Equals(_reference))
-            {
-                return this;
-            }
-            else
-            {
-                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(@ref);
-                return proxy;
-            }
-        }
-
-        public ObjectPrx ice_router(RouterPrx router)
-        {
-            IceInternal.Reference @ref = _reference.changeRouter(router);
-            if(@ref.Equals(_reference))
-            {
-                return this;
-            }
-            else
-            {
-                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(@ref);
-                return proxy;
-            }
-        }
-
-        public ObjectPrx ice_locator(LocatorPrx locator)
-        {
-            IceInternal.Reference @ref = _reference.changeLocator(locator);
-            if(@ref.Equals(_reference))
-            {
-                return this;
-            }
-            else
-            {
-                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(@ref);
-                return proxy;
-            }
-        }
-
-        public ObjectPrx ice_collocationOptimization(bool b)
-        {
-            IceInternal.Reference @ref = _reference.changeCollocationOptimization(b);
             if(@ref.Equals(_reference))
             {
                 return this;
@@ -868,16 +891,10 @@ namespace Ice
 		    // using a router, then add this proxy to the router info
 		    // object.
 		    //
-		    try
+		    IceInternal.RouterInfo ri = _reference.getRouterInfo();
+		    if(ri != null)
 		    {
-			IceInternal.RoutableReference rr = (IceInternal.RoutableReference)_reference;
-			if(rr != null && rr.getRouterInfo() != null)
-			{
-			    rr.getRouterInfo().addProxy(this);
-			}
-		    }
-		    catch(InvalidCastException)
-		    {
+			ri.addProxy(this);
 		    }
 		}
 	    

@@ -908,6 +908,205 @@ proxyIceEndpointSelection(ProxyObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
+proxyIceGetSecure(ProxyObject* self)
+{
+    assert(self->proxy);
+
+    PyObject* b;
+    try
+    {
+        b = (*self->proxy)->ice_getSecure() ? Py_True : Py_False;
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    Py_INCREF(b);
+    return b;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceSecure(ProxyObject* self, PyObject* args)
+{
+    PyObject* flag;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &flag))
+    {
+        return NULL;
+    }
+
+    int n = PyObject_IsTrue(flag);
+    if(n < 0)
+    {
+        return NULL;
+    }
+
+    assert(self->proxy);
+
+    Ice::ObjectPrx newProxy;
+    try
+    {
+        newProxy = (*self->proxy)->ice_secure(n == 1);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    return createProxy(newProxy, *self->communicator);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceGetRouter(ProxyObject* self)
+{
+    assert(self->proxy);
+
+    Ice::RouterPrx router;
+    try
+    {
+        router = (*self->proxy)->ice_getRouter();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    if(!router)
+    {
+	Py_INCREF(Py_None);
+	return Py_None;
+    }
+
+    PyObject* routerProxyType = lookupType("Ice.RouterPrx");
+    assert(routerProxyType != NULL);
+    return createProxy(router, *self->communicator, routerProxyType);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceRouter(ProxyObject* self, PyObject* args)
+{
+    PyObject* p;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &p))
+    {
+        return NULL;
+    }
+
+    PyObject* routerProxyType = lookupType("Ice.RouterPrx");
+    assert(routerProxyType != NULL);
+    Ice::RouterPrx routerProxy;
+    if(PyObject_IsInstance(p, routerProxyType))
+    {
+        routerProxy = Ice::RouterPrx::uncheckedCast(getProxy(p));
+    }
+    else if(p != Py_None)
+    {
+        PyErr_Format(PyExc_ValueError, STRCAST("ice_router requires None or Ice.RouterPrx"));
+        return NULL;
+    }
+
+    assert(self->proxy);
+
+    Ice::ObjectPrx newProxy;
+    try
+    {
+        newProxy = (*self->proxy)->ice_router(routerProxy);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    return createProxy(newProxy, *self->communicator);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceGetLocator(ProxyObject* self)
+{
+    assert(self->proxy);
+
+    Ice::LocatorPrx locator;
+    try
+    {
+        locator = (*self->proxy)->ice_getLocator();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    if(!locator)
+    {
+	Py_INCREF(Py_None);
+	return Py_None;
+    }
+
+    PyObject* locatorProxyType = lookupType("Ice.LocatorPrx");
+    assert(locatorProxyType != NULL);
+    return createProxy(locator, *self->communicator, locatorProxyType);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceLocator(ProxyObject* self, PyObject* args)
+{
+    PyObject* p;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &p))
+    {
+        return NULL;
+    }
+
+    PyObject* locatorProxyType = lookupType("Ice.LocatorPrx");
+    assert(locatorProxyType != NULL);
+    Ice::LocatorPrx locatorProxy;
+    if(PyObject_IsInstance(p, locatorProxyType))
+    {
+        locatorProxy = Ice::LocatorPrx::uncheckedCast(getProxy(p));
+    }
+    else if(p != Py_None)
+    {
+        PyErr_Format(PyExc_ValueError, STRCAST("ice_locator requires None or Ice.LocatorPrx"));
+        return NULL;
+    }
+
+    assert(self->proxy);
+
+    Ice::ObjectPrx newProxy;
+    try
+    {
+        newProxy = (*self->proxy)->ice_locator(locatorProxy);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    return createProxy(newProxy, *self->communicator);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 proxyIceTwoway(ProxyObject* self)
 {
     assert(self->proxy);
@@ -1133,40 +1332,6 @@ proxyIceIsBatchDatagram(ProxyObject* self)
 extern "C"
 #endif
 static PyObject*
-proxyIceSecure(ProxyObject* self, PyObject* args)
-{
-    PyObject* flag;
-    if(!PyArg_ParseTuple(args, STRCAST("O"), &flag))
-    {
-        return NULL;
-    }
-
-    int n = PyObject_IsTrue(flag);
-    if(n < 0)
-    {
-        return NULL;
-    }
-
-    assert(self->proxy);
-
-    Ice::ObjectPrx newProxy;
-    try
-    {
-        newProxy = (*self->proxy)->ice_secure(n == 1);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return NULL;
-    }
-
-    return createProxy(newProxy, *self->communicator);
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
 proxyIceCompress(ProxyObject* self, PyObject* args)
 {
     PyObject* flag;
@@ -1215,88 +1380,6 @@ proxyIceTimeout(ProxyObject* self, PyObject* args)
     try
     {
         newProxy = (*self->proxy)->ice_timeout(timeout);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return NULL;
-    }
-
-    return createProxy(newProxy, *self->communicator);
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
-proxyIceRouter(ProxyObject* self, PyObject* args)
-{
-    PyObject* p;
-    if(!PyArg_ParseTuple(args, STRCAST("O"), &p))
-    {
-        return NULL;
-    }
-
-    PyObject* routerProxyType = lookupType("Ice.RouterPrx");
-    assert(routerProxyType != NULL);
-    Ice::RouterPrx routerProxy;
-    if(PyObject_IsInstance(p, routerProxyType))
-    {
-        routerProxy = Ice::RouterPrx::uncheckedCast(getProxy(p));
-    }
-    else if(p != Py_None)
-    {
-        PyErr_Format(PyExc_ValueError, STRCAST("ice_router requires None or Ice.RouterPrx"));
-        return NULL;
-    }
-
-    assert(self->proxy);
-
-    Ice::ObjectPrx newProxy;
-    try
-    {
-        newProxy = (*self->proxy)->ice_router(routerProxy);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return NULL;
-    }
-
-    return createProxy(newProxy, *self->communicator);
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
-proxyIceLocator(ProxyObject* self, PyObject* args)
-{
-    PyObject* p;
-    if(!PyArg_ParseTuple(args, STRCAST("O"), &p))
-    {
-        return NULL;
-    }
-
-    PyObject* locatorProxyType = lookupType("Ice.LocatorPrx");
-    assert(locatorProxyType != NULL);
-    Ice::LocatorPrx locatorProxy;
-    if(PyObject_IsInstance(p, locatorProxyType))
-    {
-        locatorProxy = Ice::LocatorPrx::uncheckedCast(getProxy(p));
-    }
-    else if(p != Py_None)
-    {
-        PyErr_Format(PyExc_ValueError, STRCAST("ice_locator requires None or Ice.LocatorPrx"));
-        return NULL;
-    }
-
-    assert(self->proxy);
-
-    Ice::ObjectPrx newProxy;
-    try
-    {
-        newProxy = (*self->proxy)->ice_locator(locatorProxy);
     }
     catch(const Ice::Exception& ex)
     {
@@ -1739,6 +1822,18 @@ static PyMethodDef ProxyMethods[] =
         PyDoc_STR(STRCAST("ice_getEndpointSelection() -> bool")) },
     { STRCAST("ice_endpointSelection"), (PyCFunction)proxyIceEndpointSelection, METH_VARARGS,
         PyDoc_STR(STRCAST("ice_endpointSelection(Ice.EndpointSelectionType) -> Ice.ObjectPrx")) },
+    { STRCAST("ice_getSecure"), (PyCFunction)proxyIceGetSecure, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_getSecure() -> bool")) },
+    { STRCAST("ice_secure"), (PyCFunction)proxyIceSecure, METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_secure(bool) -> Ice.ObjectPrx")) },
+    { STRCAST("ice_getRouter"), (PyCFunction)proxyIceGetRouter, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_getRouter() -> Ice.RouterPrx")) },
+    { STRCAST("ice_router"), (PyCFunction)proxyIceRouter, METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_router(Ice.RouterPrx) -> Ice.ObjectPrx")) },
+    { STRCAST("ice_getLocator"), (PyCFunction)proxyIceGetLocator, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_getLocator() -> Ice.LocatorPrx")) },
+    { STRCAST("ice_locator"), (PyCFunction)proxyIceLocator, METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_locator(Ice.LocatorPrx) -> Ice.ObjectPrx")) },
     { STRCAST("ice_twoway"), (PyCFunction)proxyIceTwoway, METH_NOARGS,
         PyDoc_STR(STRCAST("ice_twoway() -> Ice.ObjectPrx")) },
     { STRCAST("ice_isTwoway"), (PyCFunction)proxyIceIsTwoway, METH_NOARGS,
@@ -1759,16 +1854,10 @@ static PyMethodDef ProxyMethods[] =
         PyDoc_STR(STRCAST("ice_batchDatagram() -> Ice.ObjectPrx")) },
     { STRCAST("ice_isBatchDatagram"), (PyCFunction)proxyIceIsBatchDatagram, METH_NOARGS,
         PyDoc_STR(STRCAST("ice_isBatchDatagram() -> bool")) },
-    { STRCAST("ice_secure"), (PyCFunction)proxyIceSecure, METH_VARARGS,
-        PyDoc_STR(STRCAST("ice_secure(bool) -> Ice.ObjectPrx")) },
     { STRCAST("ice_compress"), (PyCFunction)proxyIceCompress, METH_VARARGS,
         PyDoc_STR(STRCAST("ice_compress(bool) -> Ice.ObjectPrx")) },
     { STRCAST("ice_timeout"), (PyCFunction)proxyIceTimeout, METH_VARARGS,
         PyDoc_STR(STRCAST("ice_timeout(int) -> Ice.ObjectPrx")) },
-    { STRCAST("ice_router"), (PyCFunction)proxyIceRouter, METH_VARARGS,
-        PyDoc_STR(STRCAST("ice_router(Ice.RouterPrx) -> Ice.ObjectPrx")) },
-    { STRCAST("ice_locator"), (PyCFunction)proxyIceLocator, METH_VARARGS,
-        PyDoc_STR(STRCAST("ice_locator(Ice.LocatorPrx) -> Ice.ObjectPrx")) },
     { STRCAST("ice_connectionId"), (PyCFunction)proxyIceConnectionId, METH_VARARGS,
         PyDoc_STR(STRCAST("ice_connectionId(string) -> Ice.ObjectPrx")) },
     { STRCAST("ice_connection"), (PyCFunction)proxyIceConnection, METH_NOARGS,

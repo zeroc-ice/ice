@@ -68,6 +68,18 @@ public abstract class Reference
         return _communicator;
     }
 
+    public RouterInfo
+    getRouterInfo()
+    {
+        return null;
+    }
+
+    public LocatorInfo
+    getLocatorInfo()
+    {
+        return null;
+    }
+
     public abstract Endpoint[] getEndpoints();
 
     //

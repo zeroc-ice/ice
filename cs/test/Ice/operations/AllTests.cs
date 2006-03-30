@@ -32,6 +32,22 @@ public class AllTests
 	test(baseProxy.ice_communicator() == communicator);
 	Console.Out.WriteLine("ok");
 
+	Console.Out.Write("testing proxy methods... ");
+	test(Ice.Util.identityToString(
+		 baseProxy.ice_identity(Ice.Util.stringToIdentity("other")).ice_getIdentity()).Equals("other"));
+	test(baseProxy.ice_facet("facet").ice_getFacet().Equals("facet"));
+	test(baseProxy.ice_adapterId("id").ice_getAdapterId().Equals("id"));
+	test(baseProxy.ice_twoway().ice_isTwoway());
+	test(baseProxy.ice_oneway().ice_isOneway());
+	test(baseProxy.ice_batchOneway().ice_isBatchOneway());
+	test(baseProxy.ice_datagram().ice_isDatagram());
+	test(baseProxy.ice_batchDatagram().ice_isBatchDatagram());
+	test(baseProxy.ice_secure(true).ice_getSecure());
+	test(!baseProxy.ice_secure(false).ice_getSecure());
+	test(baseProxy.ice_collocationOptimization(true).ice_getCollocationOptimization());
+	test(!baseProxy.ice_collocationOptimization(false).ice_getCollocationOptimization());
+	Console.Out.WriteLine("ok");
+
 	Console.Out.Write("testing checked cast... ");
 	Console.Out.Flush();
 	Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(baseProxy);

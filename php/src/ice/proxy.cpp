@@ -186,6 +186,8 @@ static function_entry _proxyMethods[] =
     {"ice_cacheConnection",        PHP_FN(Ice_ObjectPrx_ice_cacheConnection),        NULL},
     {"ice_getEndpointSelection",   PHP_FN(Ice_ObjectPrx_ice_getEndpointSelection),   NULL},
     {"ice_endpointSelection",      PHP_FN(Ice_ObjectPrx_ice_endpointSelection),      NULL},
+    {"ice_getSecure",              PHP_FN(Ice_ObjectPrx_ice_getSecure),              NULL},
+    {"ice_secure",                 PHP_FN(Ice_ObjectPrx_ice_secure),                 NULL},
     {"ice_twoway",                 PHP_FN(Ice_ObjectPrx_ice_twoway),                 NULL},
     {"ice_isTwoway",               PHP_FN(Ice_ObjectPrx_ice_isTwoway),               NULL},
     {"ice_oneway",                 PHP_FN(Ice_ObjectPrx_ice_oneway),                 NULL},
@@ -196,7 +198,6 @@ static function_entry _proxyMethods[] =
     {"ice_isDatagram",             PHP_FN(Ice_ObjectPrx_ice_isDatagram),             NULL},
     {"ice_batchDatagram",          PHP_FN(Ice_ObjectPrx_ice_batchDatagram),          NULL},
     {"ice_isBatchDatagram",        PHP_FN(Ice_ObjectPrx_ice_isBatchDatagram),        NULL},
-    {"ice_secure",                 PHP_FN(Ice_ObjectPrx_ice_secure),                 NULL},
     {"ice_compress",               PHP_FN(Ice_ObjectPrx_ice_compress),               NULL},
     {"ice_timeout",                PHP_FN(Ice_ObjectPrx_ice_timeout),                NULL},
     {"ice_connectionId",           PHP_FN(Ice_ObjectPrx_ice_connectionId),           NULL},
@@ -1124,6 +1125,61 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_endpointSelection)
     }
 }
 
+ZEND_FUNCTION(Ice_ObjectPrx_ice_getSecure)
+{
+    if(ZEND_NUM_ARGS() != 0)
+    {
+	WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
+    assert(obj->ptr);
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
+
+    try
+    {
+        bool b = _this->getProxy()->ice_getSecure();
+        RETURN_BOOL(b ? 1 : 0);
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_FALSE;
+    }
+}
+
+ZEND_FUNCTION(Ice_ObjectPrx_ice_secure)
+{
+    if(ZEND_NUM_ARGS() != 1)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
+    assert(obj->ptr);
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
+
+    zend_bool b;
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "b", &b TSRMLS_CC) != SUCCESS)
+    {
+        RETURN_NULL();
+    }
+
+    try
+    {
+        Ice::ObjectPrx prx = _this->getProxy()->ice_secure(b ? true : false);
+        if(!createProxy(return_value, prx TSRMLS_CC))
+        {
+            RETURN_NULL();
+        }
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+}
+
 ZEND_FUNCTION(Ice_ObjectPrx_ice_twoway)
 {
     if(ZEND_NUM_ARGS() != 0)
@@ -1366,38 +1422,6 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isBatchDatagram)
     {
         throwException(ex TSRMLS_CC);
         RETURN_FALSE;
-    }
-}
-
-ZEND_FUNCTION(Ice_ObjectPrx_ice_secure)
-{
-    if(ZEND_NUM_ARGS() != 1)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
-    assert(obj->ptr);
-    Proxy* _this = static_cast<Proxy*>(obj->ptr);
-
-    zend_bool b;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "b", &b TSRMLS_CC) != SUCCESS)
-    {
-        RETURN_NULL();
-    }
-
-    try
-    {
-        Ice::ObjectPrx prx = _this->getProxy()->ice_secure(b ? true : false);
-        if(!createProxy(return_value, prx TSRMLS_CC))
-        {
-            RETURN_NULL();
-        }
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        throwException(ex TSRMLS_CC);
-        RETURN_NULL();
     }
 }
 

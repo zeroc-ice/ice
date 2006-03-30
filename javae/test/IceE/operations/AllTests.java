@@ -29,6 +29,16 @@ public class AllTests
         test(base != null);
         out.println("ok");
 
+	out.print("testing proxy methods... ");
+	out.flush();
+	test(Ice.Util.identityToString(
+		 base.ice_identity(Ice.Util.stringToIdentity("other")).ice_getIdentity()).equals("other"));
+	test(base.ice_facet("facet").ice_getFacet().equals("facet"));
+	test(base.ice_twoway().ice_isTwoway());
+	test(base.ice_oneway().ice_isOneway());
+	test(base.ice_batchOneway().ice_isBatchOneway());
+	out.println("ok");
+
     	out.print("testing ice_communicator... ");
 	out.flush();
 	test(base.ice_communicator() == communicator);

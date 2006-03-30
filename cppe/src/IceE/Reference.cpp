@@ -694,21 +694,7 @@ IceInternal::DirectReference::changeEndpoints(const vector<EndpointPtr>& newEndp
 ReferencePtr
 IceInternal::DirectReference::changeLocator(const LocatorPrx& newLocator) const
 {
-    if(newLocator)
-    {
-	LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(newLocator);
-#ifdef ICEE_HAS_ROUTER
-	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
-							 getSecure(), "", 0, newLocatorInfo);
-#else
-	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
-							 getSecure(), "", newLocatorInfo);
-#endif
-    }
-    else
-    {
-	return DirectReferencePtr(const_cast<DirectReference*>(this));
-    }
+    return DirectReferencePtr(const_cast<DirectReference*>(this));
 }
 
 #endif
@@ -895,30 +881,14 @@ IceInternal::IndirectReference::getEndpoints() const
 ReferencePtr
 IceInternal::IndirectReference::changeLocator(const LocatorPrx& newLocator) const
 {
-    //
-    // Return a direct reference if a null locator is given.
-    //
-    if(!newLocator)
+    LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(newLocator);
+    if(newLocatorInfo == _locatorInfo)
     {
-#ifdef ICEE_HAS_ROUTER
-	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
-							 getSecure(), vector<EndpointPtr>(), getRouterInfo());
-#else
-	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
-							 getSecure(), vector<EndpointPtr>());
-#endif
+	return IndirectReferencePtr(const_cast<IndirectReference*>(this));
     }
-    else
-    {
-	LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(newLocator);
-	if(newLocatorInfo == _locatorInfo)
-	{
-	    return IndirectReferencePtr(const_cast<IndirectReference*>(this));
-	}
-	IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
-	r->_locatorInfo = newLocatorInfo;
-	return r;
-    }
+    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
+    r->_locatorInfo = newLocatorInfo;
+    return r;
 }
 
 ReferencePtr

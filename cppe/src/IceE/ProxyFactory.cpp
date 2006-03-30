@@ -99,12 +99,12 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
 #ifdef ICEE_HAS_LOCATOR
     if(dynamic_cast<const ObjectNotExistException*>(&ex))
     {
-	IndirectReferencePtr ir = IndirectReferencePtr::dynamicCast(ref);
-	if(!ir || !ir->getLocatorInfo())
+	LocatorInfoPtr li = ref->getLocatorInfo();
+	if(!li)
 	{
 	    ex.ice_throw();
 	}
-	ir->getLocatorInfo()->clearObjectCache(ir);
+	li->clearObjectCache(IndirectReferencePtr::dynamicCast(ref));
     }
     else
 #endif

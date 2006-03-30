@@ -26,6 +26,37 @@ def allTests(communicator, ref):
     base5 = communicator.stringToProxy("test2")
     print "ok"
 
+#     print "testing ice_locator and ice_getLocator... ",
+#     test(Ice.proxyIdentityEqual(base.ice_getLocator(), communicator.getDefaultLocator()));
+#     anotherLocator = Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy("anotherLocator"));
+#     base = base.ice_locator(anotherLocator);
+#     test(Ice.proxyIdentityEqual(base.ice_getLocator(), anotherLocator));
+#     communicator.setDefaultLocator(None);
+#     base = communicator.stringToProxy("test @ TestAdapter");
+#     test(not base.ice_getLocator());
+#     base = base.ice_locator(anotherLocator);
+#     test(Ice.proxyIdentityEqual(base.ice_getLocator(), anotherLocator));
+#     communicator.setDefaultLocator(locator);
+#     base = communicator.stringToProxy("test @ TestAdapter");
+#     test(Ice.proxyIdentityEqual(base.ice_getLocator(), communicator.getDefaultLocator())); 
+	
+#     #
+#     # We also test ice_router/ice_getRouter (perhaps we should add a
+#     # test/Ice/router test?)
+#     #
+#     test(not base.ice_getRouter());
+#     anotherRouter = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("anotherRouter"));
+#     base = base.ice_router(anotherRouter);
+#     test(Ice.proxyIdentityEqual(base.ice_getRouter(), anotherRouter));
+#     router = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("dummyrouter"));
+#     communicator.setDefaultRouter(router);
+#     base = communicator.stringToProxy("test @ TestAdapter");
+#     test(Ice.proxyIdentityEqual(base.ice_getRouter(), communicator.getDefaultRouter()));
+#     communicator.setDefaultRouter(None);
+#     base = communicator.stringToProxy("test @ TestAdapter");
+#     test(not base.ice_getRouter());
+#     System.out.println("ok");
+
     print "starting server...",
     manager.startServer()
     print "ok"

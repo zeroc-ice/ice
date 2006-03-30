@@ -83,6 +83,18 @@ public interface ObjectPrx
     EndpointSelectionType ice_getEndpointSelection();
     ObjectPrx ice_endpointSelection(EndpointSelectionType newType);
 
+    boolean ice_getSecure();
+    ObjectPrx ice_secure(boolean b);
+
+    Ice.RouterPrx ice_getRouter();
+    ObjectPrx ice_router(Ice.RouterPrx router);
+
+    Ice.LocatorPrx ice_getLocator();
+    ObjectPrx ice_locator(Ice.LocatorPrx locator);
+
+    boolean ice_getCollocationOptimization();
+    ObjectPrx ice_collocationOptimization(boolean b);
+
     ObjectPrx ice_twoway();
     boolean ice_isTwoway();
     ObjectPrx ice_oneway();
@@ -94,13 +106,9 @@ public interface ObjectPrx
     ObjectPrx ice_batchDatagram();
     boolean ice_isBatchDatagram();
 
-    ObjectPrx ice_secure(boolean b);
     ObjectPrx ice_compress(boolean co);
     ObjectPrx ice_timeout(int t);
     ObjectPrx ice_connectionId(String connectionId);
-    ObjectPrx ice_router(Ice.RouterPrx router);
-    ObjectPrx ice_locator(Ice.LocatorPrx locator);
-    ObjectPrx ice_collocationOptimization(boolean b);
 
     Connection ice_connection();
 

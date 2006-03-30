@@ -67,7 +67,7 @@ public class IndirectReference extends RoutableReference
 	    }
 	    IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
 	    r._locatorInfo = newLocatorInfo;
-	    return this;
+	    return r;
 	}
     }
 

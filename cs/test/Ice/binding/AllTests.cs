@@ -685,7 +685,11 @@ public class AllTests
 		}
 	    
 		TestIntfPrx testSecure = TestIntfPrxHelper.uncheckedCast(obj.ice_secure(true));
-		//test(testSecure.ice_getSecure());
+		test(testSecure.ice_getSecure());
+		testSecure = TestIntfPrxHelper.uncheckedCast(obj.ice_secure(false));
+		test(!testSecure.ice_getSecure());
+		testSecure = TestIntfPrxHelper.uncheckedCast(obj.ice_secure(true));
+		test(testSecure.ice_getSecure());
 		test(obj.ice_connection() != testSecure.ice_connection());
 
 		com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[1]);

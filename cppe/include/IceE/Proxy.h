@@ -134,6 +134,15 @@ public:
     ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newFacet(const ::std::string&) const;
     ::Ice::ObjectPrx ice_facet(const ::std::string&) const;
 
+#ifdef ICEE_HAS_ROUTER
+    ::Ice::ObjectPrx ice_router(const ::Ice::RouterPrx&) const;
+    ::Ice::RouterPrx ice_getRouter() const;
+#endif
+#ifdef ICEE_HAS_LOCATOR
+    ::Ice::ObjectPrx ice_locator(const ::Ice::LocatorPrx&) const;
+    ::Ice::LocatorPrx ice_getLocator() const;
+#endif
+
     ::Ice::ObjectPrx ice_twoway() const;
     bool ice_isTwoway() const;
     ::Ice::ObjectPrx ice_oneway() const;
@@ -144,12 +153,7 @@ public:
 #endif
 
     ::Ice::ObjectPrx ice_timeout(int) const;
-#ifdef ICEE_HAS_ROUTER
-    ::Ice::ObjectPrx ice_router(const ::Ice::RouterPrx&) const;
-#endif
-#ifdef ICEE_HAS_LOCATOR
-    ::Ice::ObjectPrx ice_locator(const ::Ice::LocatorPrx&) const;
-#endif
+
     ::Ice::ConnectionPtr ice_connection();
 
     ::IceInternal::ReferencePtr __reference() const;

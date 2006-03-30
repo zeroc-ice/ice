@@ -86,19 +86,12 @@ public final class ProxyFactory
 	//
 	if(ex instanceof Ice.ObjectNotExistException)
 	{
-	    try
-	    {
-		IceInternal.IndirectReference ir = (IceInternal.IndirectReference)ref;
-		if(ir.getLocatorInfo() == null)
-		{
-		    throw ex;
-		}
-		ir.getLocatorInfo().clearObjectCache(ir);
-	    }
-	    catch(ClassCastException e)
+	    LocatorInfo li = ref.getLocatorInfo();
+	    if(li == null)
 	    {
 		throw ex;
 	    }
+	    li.clearObjectCache((IceInternal.IndirectReference)ref);
 	}
 	else if(ex instanceof Ice.RequestFailedException)
 	{

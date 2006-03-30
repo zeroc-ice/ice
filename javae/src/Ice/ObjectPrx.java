@@ -51,6 +51,12 @@ public interface ObjectPrx
     ObjectPrx ice_newFacet(String newFacet);
     ObjectPrx ice_facet(String newFacet);
 
+    ObjectPrx ice_router(Ice.RouterPrx router);
+    Ice.RouterPrx ice_getRouter();
+    
+    ObjectPrx ice_locator(Ice.LocatorPrx locator);
+    Ice.LocatorPrx ice_getLocator();
+
     ObjectPrx ice_twoway();
     boolean ice_isTwoway();
     ObjectPrx ice_oneway();
@@ -59,8 +65,6 @@ public interface ObjectPrx
     boolean ice_isBatchOneway();
 
     ObjectPrx ice_timeout(int t);
-    ObjectPrx ice_router(Ice.RouterPrx router);
-    ObjectPrx ice_locator(Ice.LocatorPrx locator);
 
     Connection ice_connection();
 

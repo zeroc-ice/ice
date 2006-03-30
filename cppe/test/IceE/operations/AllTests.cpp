@@ -24,6 +24,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(base);
     tprintf("ok\n");
 
+    tprintf("testing proxy methods... ");
+    test(Ice::identityToString(base->ice_identity(Ice::stringToIdentity("other"))->ice_getIdentity()) == "other");
+    test(base->ice_facet("facet")->ice_getFacet() == "facet");
+    test(base->ice_twoway()->ice_isTwoway());
+    test(base->ice_oneway()->ice_isOneway());
+    test(base->ice_batchOneway()->ice_isBatchOneway());
+    tprintf("ok\n");
+
     tprintf("testing ice_communicator... ");
     test(base->ice_communicator().get() == communicator.get());
     tprintf("ok\n");

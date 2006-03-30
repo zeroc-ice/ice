@@ -460,6 +460,20 @@ function allTests()
     test($base != null);
     echo "ok\n";
 
+    echo "testing proxy methods... ";
+    flush();
+    test(Ice_identityToString($base->ice_identity(Ice_stringToIdentity("other"))->ice_getIdentity()) == "other");
+    test($base->ice_facet("facet")->ice_getFacet() == "facet");
+    test($base->ice_adapterId("id")->ice_getAdapterId() == "id");
+    test($base->ice_twoway()->ice_isTwoway());
+    test($base->ice_oneway()->ice_isOneway());
+    test($base->ice_batchOneway()->ice_isBatchOneway());
+    test($base->ice_datagram()->ice_isDatagram());
+    test($base->ice_batchDatagram()->ice_isBatchDatagram());
+    test($base->ice_secure(true)->ice_getSecure());
+    test(!$base->ice_secure(false)->ice_getSecure());
+    echo "ok\n";
+
     echo "testing ice_communicator... ";
     flush();
     test($base->ice_communicator() === $ICE);

@@ -61,6 +61,17 @@ namespace IceInternal
 	{
 	    return communicator_;
 	}
+
+	public virtual RouterInfo getRouterInfo()
+	{
+	    return null;
+	}
+
+	public virtual LocatorInfo getLocatorInfo()
+	{
+	    return null;
+	}
+
 	public abstract bool getSecure();
 	public abstract string getAdapterId();
 	public abstract EndpointI[] getEndpoints();
@@ -670,7 +681,7 @@ namespace IceInternal
 
     public abstract class RoutableReference : Reference
     {
-	public RouterInfo getRouterInfo()
+	public override RouterInfo getRouterInfo()
 	{
 	    return _routerInfo;
 	}
@@ -1055,17 +1066,7 @@ namespace IceInternal
 
 	public override Reference changeLocator(Ice.LocatorPrx newLocator)
 	{
-	    if(newLocator != null)
-	    {
-		LocatorInfo newLocatorInfo = getInstance().locatorManager().get(newLocator);
-		return getInstance().referenceFactory().create(
-		    getIdentity(), getContext(), getFacet(), getMode(), getSecure(), "", null, newLocatorInfo,
-		    getCollocationOptimization(), getLocatorCacheTimeout());
-	    }
-	    else
-	    {
-		return this;
-	    }
+	    return this;
 	}
 
 	public override Reference changeCompress(bool newCompress)
@@ -1242,7 +1243,7 @@ namespace IceInternal
 	    locatorCacheTimeout_ = locatorCacheTimeout;
 	}
 
-	public LocatorInfo getLocatorInfo()
+	public override LocatorInfo getLocatorInfo()
 	{
 	    return locatorInfo_;
 	}
@@ -1264,26 +1265,14 @@ namespace IceInternal
 
 	public override Reference changeLocator(Ice.LocatorPrx newLocator)
 	{
-	    //
-	    // Return a direct reference if a null locator is given.
-	    //
-	    if(newLocator == null)
+	    LocatorInfo newLocatorInfo = getInstance().locatorManager().get(newLocator);
+	    if(locatorInfo_ != null && newLocatorInfo != null && newLocatorInfo.Equals(locatorInfo_))
 	    {
-		return getInstance().referenceFactory().create(
-		    getIdentity(), getContext(), getFacet(), getMode(), getSecure(), new EndpointI[0], getRouterInfo(),
-		    getCollocationOptimization());
-	    }
-	    else
-	    {
-		LocatorInfo newLocatorInfo = getInstance().locatorManager().get(newLocator);
-		if(locatorInfo_ != null && newLocatorInfo != null && newLocatorInfo.Equals(locatorInfo_))
-		{
-		    return this;
-		}
-		IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
-		r.locatorInfo_ = newLocatorInfo;
 		return this;
 	    }
+	    IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
+	    r.locatorInfo_ = newLocatorInfo;
+	    return r;
 	}
 
 	public override Reference changeCompress(bool newCompress)
@@ -1489,7 +1478,7 @@ namespace IceInternal
 	    {
 		return false;
 	    }
-	    if(locatorInfo_ == null ? rhs.locatorInfo_ != null : !rhs.locatorInfo_.Equals(locatorInfo_))
+	    if(locatorInfo_ == null ? rhs.locatorInfo_ != null : !locatorInfo_.Equals(rhs.locatorInfo_))
 	    {
 		return false;
 	    }

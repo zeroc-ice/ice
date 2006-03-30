@@ -607,7 +607,11 @@ def allTests(communicator):
 	    t.ice_connection().close(False)
 
 	testSecure = Test.TestIntfPrx.uncheckedCast(t.ice_secure(True))
-	#test(testSecure.ice_getSecure())
+	test(testSecure.ice_getSecure())
+        testSecure = Test.TestIntfPrx.uncheckedCast(t.ice_secure(False))
+        test(not testSecure.ice_getSecure())
+	testSecure = Test.TestIntfPrx.uncheckedCast(t.ice_secure(True))
+	test(testSecure.ice_getSecure())
 	test(t.ice_connection() != testSecure.ice_connection())
 
 	com.deactivateObjectAdapter(adapters[1])

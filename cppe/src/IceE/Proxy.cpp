@@ -18,6 +18,9 @@
 #ifdef ICEE_HAS_ROUTER
 #   include <IceE/RouterInfo.h>
 #endif
+#ifdef ICEE_HAS_LOCATOR
+#   include <IceE/LocatorInfo.h>
+#endif
 
 using namespace std;
 using namespace Ice;
@@ -503,10 +506,19 @@ IceProxy::Ice::Object::ice_newFacet(const string& newFacet) const
     return ice_facet(newFacet);
 }
 
-ObjectPrx
-IceProxy::Ice::Object::ice_twoway() const
+#ifdef ICEE_HAS_ROUTER
+
+RouterPrx
+IceProxy::Ice::Object::ice_getRouter() const
 {
-    ReferencePtr ref = _reference->changeMode(Reference::ModeTwoway);
+    RouterInfoPtr ri = _reference->getRouterInfo();
+    return ri ? ri->getRouter() : RouterPrx();    
+}
+
+ObjectPrx
+IceProxy::Ice::Object::ice_router(const RouterPrx& router) const
+{
+    ReferencePtr ref = _reference->changeRouter(router);
     if(ref == _reference)
     {
 	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
@@ -515,6 +527,50 @@ IceProxy::Ice::Object::ice_twoway() const
     {
 	ObjectPrx proxy(new ::IceProxy::Ice::Object());
 	proxy->setup(ref);
+	return proxy;
+    }
+}
+
+#endif
+
+#ifdef ICEE_HAS_LOCATOR
+
+LocatorPrx
+IceProxy::Ice::Object::ice_getLocator() const
+{
+    LocatorInfoPtr ri = _reference->getLocatorInfo();
+    return ri ? ri->getLocator() : LocatorPrx();    
+}
+
+ObjectPrx
+IceProxy::Ice::Object::ice_locator(const LocatorPrx& locator) const
+{
+    ReferencePtr ref = _reference->changeLocator(locator);
+    if(ref == _reference)
+    {
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
+	proxy->setup(ref);
+	return proxy;
+    }
+}
+
+#endif
+
+ObjectPrx
+IceProxy::Ice::Object::ice_twoway() const
+{
+    if(_reference->getMode() == Reference::ModeTwoway)
+    {
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
+	proxy->setup(_reference->changeMode(Reference::ModeTwoway));
 	return proxy;
     }
 }
@@ -528,15 +584,14 @@ IceProxy::Ice::Object::ice_isTwoway() const
 ObjectPrx
 IceProxy::Ice::Object::ice_oneway() const
 {
-    ReferencePtr ref = _reference->changeMode(Reference::ModeOneway);
-    if(ref == _reference)
+    if(_reference->getMode() == Reference::ModeOneway)
     {
 	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
 	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref);
+	proxy->setup(_reference->changeMode(Reference::ModeOneway));
 	return proxy;
     }
 }
@@ -551,15 +606,14 @@ IceProxy::Ice::Object::ice_isOneway() const
 ObjectPrx
 IceProxy::Ice::Object::ice_batchOneway() const
 {
-    ReferencePtr ref = _reference->changeMode(Reference::ModeBatchOneway);
-    if(ref == _reference)
+    if(_reference->getMode() == Reference::ModeBatchOneway)
     {
 	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
 	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref);
+	proxy->setup(_reference->changeMode(Reference::ModeBatchOneway));
 	return proxy;
     }
 }
@@ -587,46 +641,6 @@ IceProxy::Ice::Object::ice_timeout(int t) const
     }
 }
 
-#ifdef ICEE_HAS_ROUTER
-
-ObjectPrx
-IceProxy::Ice::Object::ice_router(const RouterPrx& router) const
-{
-    ReferencePtr ref = _reference->changeRouter(router);
-    if(ref == _reference)
-    {
-	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
-    }
-    else
-    {
-	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref);
-	return proxy;
-    }
-}
-
-#endif
-
-#ifdef ICEE_HAS_LOCATOR
-
-ObjectPrx
-IceProxy::Ice::Object::ice_locator(const LocatorPrx& locator) const
-{
-    ReferencePtr ref = _reference->changeLocator(locator);
-    if(ref == _reference)
-    {
-	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
-    }
-    else
-    {
-	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref);
-	return proxy;
-    }
-}
-
-#endif
-
 ConnectionPtr
 IceProxy::Ice::Object::ice_connection()
 {
@@ -642,10 +656,10 @@ IceProxy::Ice::Object::ice_connection()
         // object.
         //
 #ifdef ICEE_HAS_ROUTER
-        RoutableReferencePtr rr = RoutableReferencePtr::dynamicCast(_reference);
-        if(rr && rr->getRouterInfo())
+        RouterInfoPtr ri = _reference->getRouterInfo();
+        if(ri)
         {
-            rr->getRouterInfo()->addProxy(this);
+            ri->addProxy(this);
         }
 #endif
     }
