@@ -4438,7 +4438,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
     if(ret)
     {
 	params.push_back(retS);
-	paramsAMD.push_back(inputTypeToString(ret, _useWstring, p->getMetaData(), false));
+	paramsAMD.push_back(inputTypeToString(ret, _useWstring, p->getMetaData()));
 	paramsDecl.push_back(retS + " __ret");
 	args.push_back("__ret");
     }
@@ -4455,7 +4455,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	if((*q)->isOutParam())
 	{
 	    params.push_back(typeString);
-	    paramsAMD.push_back(inputTypeToString(type, _useWstring, (*q)->getMetaData(), false));
+	    paramsAMD.push_back(inputTypeToString(type, _useWstring, (*q)->getMetaData()));
 	    paramsDecl.push_back(typeString + ' ' + paramName);
 	    args.push_back(paramName);
 
@@ -4697,7 +4697,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
 #endif
 
     TypePtr ret = p->returnType();
-    string retS = inputTypeToString(ret, _useWstring, p->getMetaData(), false);
+    string retS = inputTypeToString(ret, _useWstring, p->getMetaData());
     
     if(ret)
     {
@@ -4716,7 +4716,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
 	{
 	    string paramName = fixKwd((*q)->name());
 	    TypePtr type = (*q)->type();
-	    string typeString = inputTypeToString(type, _useWstring, (*q)->getMetaData(), false);
+	    string typeString = inputTypeToString(type, _useWstring, (*q)->getMetaData());
 	    
 	    if(ret || !outParams.empty())
 	    {
@@ -4768,7 +4768,11 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "try";
 	C << sb;
 	C << nl << "::IceInternal::BasicStream* __os = this->__os();";
-	writeMarshalCode(C, outParams, ret, p->getMetaData());
+	writeMarshalCode(C, outParams, 0, StringList(), true);
+	if(ret)
+	{
+	    writeMarshalUnmarshalCode(C, ret, "__ret", true, "", true, p->getMetaData(), true);
+	}
 	if(p->returnsClasses())
 	{
 	    C << nl << "__os->writePendingObjects();";
@@ -4921,7 +4925,7 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
 {
     bool ami = false;
     ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
-    if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
+    if(cl->hasMetaData("ami") || p->hasMetaData("ami") || cl->hasMetaData("amd") || p->hasMetaData("amd"))
     {
         ami = true;
     }

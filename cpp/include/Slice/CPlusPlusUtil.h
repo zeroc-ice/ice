@@ -29,7 +29,7 @@ SLICE_API void printDllExportStuff(::IceUtil::Output&, const std::string&);
 
 SLICE_API std::string typeToString(const TypePtr&, bool, const StringList& = StringList(), bool = true);
 SLICE_API std::string returnTypeToString(const TypePtr&, bool, const StringList& = StringList());
-SLICE_API std::string inputTypeToString(const TypePtr&, bool, const StringList& = StringList(), bool = true);
+SLICE_API std::string inputTypeToString(const TypePtr&, bool, const StringList& = StringList());
 SLICE_API std::string outputTypeToString(const TypePtr&, bool, const StringList& = StringList());
 SLICE_API std::string operationModeToString(Operation::Mode);
 

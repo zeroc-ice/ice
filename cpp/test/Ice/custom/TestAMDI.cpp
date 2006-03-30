@@ -38,8 +38,7 @@ TestIntfI::opByteArray_async(const Test::AMD_TestIntf_opByteArrayPtr& opByteArra
 			     const std::pair<const Ice::Byte*, const Ice::Byte*>& inSeq,
 			     const Ice::Current& current)
 {
-    Test::ByteList outSeq(inSeq.first, inSeq.second);
-    opByteArrayCB->ice_response(outSeq, outSeq);
+    opByteArrayCB->ice_response(inSeq, inSeq);
 }
 
 void
@@ -65,8 +64,7 @@ TestIntfI::opByteRange_async(const Test::AMD_TestIntf_opByteRangePtr& opByteRang
 			     const std::pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& inSeq,
 			     const Ice::Current& current)
 {
-    Test::ByteList outSeq(inSeq.first, inSeq.second);
-    opByteRangeCB->ice_response(outSeq, outSeq);
+    opByteRangeCB->ice_response(inSeq, inSeq);
 }
 
 void
