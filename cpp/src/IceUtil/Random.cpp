@@ -28,18 +28,23 @@ IceUtil::RandomGeneratorException::RandomGeneratorException(const char* file, in
 
 const char* IceUtil::RandomGeneratorException::_name = "IceUtil::RandomGeneratorException";
 
+//
+// The static mutex is required to lazy initialized the file
+// descriptor for /dev/urandom (Unix) or the cryptographic 
+// context (Windows).
+//
+// Also, unfortunately on Linux (at least up to 2.6.9), concurrent
+// access to /dev/urandom can return the same value. Search for
+// "Concurrent access to /dev/urandom" in the linux-kernel mailing
+// list archive for additional details.  Since /dev/urandom on other
+// platforms is usually a port from Linux, this problem could be
+// widespread. Therefore, we serialize access to /dev/urandom using a
+// static mutex.
+// 
+static IceUtil::StaticMutex staticMutex = ICE_STATIC_MUTEX_INITIALIZER;
 #ifdef _WIN32
 HCRYPTPROV context = NULL;
 #else
-//
-// Unfortunately on Linux (at least up to 2.6.9), concurrent access to /dev/urandom
-// can return the same value. Search for "Concurrent access to /dev/urandom" in the 
-// linux-kernel mailing list archive for additional details.
-// Since /dev/urandom on other platforms is usually a port from Linux, this problem 
-// could be widespread. Therefore, we serialize access to /dev/urandom using a static 
-// mutex.
-//
-static IceUtil::StaticMutex staticMutex = ICE_STATIC_MUTEX_INITIALIZER;
 static int fd = -1;
 #endif
 
@@ -55,10 +60,14 @@ public:
     
     ~RandomCleanup()
     {
-#ifdef _WIN32
-	CryptReleaseContext(context, 0);
-#else
 	IceUtil::StaticMutex::Lock lock(staticMutex);
+#ifdef _WIN32
+	if(context != NULL)
+	{
+	    CryptReleaseContext(context, 0);
+	    context = NULL;
+	}
+#else
 	if(fd != -1)
 	{
 	    close(fd);
@@ -128,6 +137,14 @@ void
 IceUtil::generateRandom(char* buffer, int size)
 {
 #ifdef _WIN32
+    //
+    // It's not clear from the Microsoft documentation if CryptGenRandom 
+    // can be called concurrently from several threads. To be on the safe
+    // side, we also serialize calls to to CryptGenRandom with the static 
+    // mutex.
+    //
+
+    IceUtil::StaticMutex::Lock lock(staticMutex);
     if(context == NULL)
     {
 	if(!CryptAcquireContext(&context, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
@@ -141,44 +158,42 @@ IceUtil::generateRandom(char* buffer, int size)
  	throw RandomGeneratorException(__FILE__, __LINE__, GetLastError());
     }
 #else
-    int reads = 0;
-    size_t index = 0;
 
+    //
+    // Serialize access to /dev/urandom; see comment above.
+    //
+    IceUtil::StaticMutex::Lock lock(staticMutex);
+    if(fd == -1)
     {
-	//
-	// Serialize access to /dev/urandom; see comment above.
-	//
-	IceUtil::StaticMutex::Lock lock(staticMutex);
+	fd = open("/dev/urandom", O_RDONLY);
 	if(fd == -1)
 	{
-	    fd = open("/dev/urandom", O_RDONLY);
-	    if(fd == -1)
-	    {
-		assert(0);
-		throw RandomGeneratorException(__FILE__, __LINE__);
-	    }
+	    assert(0);
+	    throw RandomGeneratorException(__FILE__, __LINE__);
 	}
+    }
+    
+    //
+    // Limit the number of attempts to 20 reads to avoid
+    // a potential "for ever" loop
+    //
+    int reads = 0;
+    size_t index = 0;    
+    while(reads <= 20 && index != static_cast<size_t>(size))
+    {
+	ssize_t bytesRead = read(fd, buffer + index, static_cast<size_t>(size) - index);
 	
-	//
-	// Limit the number of attempts to 20 reads to avoid
-	// a potential "for ever" loop
-	//
-	while(reads <= 20 && index != static_cast<size_t>(size))
+	if(bytesRead == -1 && errno != EINTR)
 	{
-	    ssize_t bytesRead = read(fd, buffer + index, static_cast<size_t>(size) - index);
-	    
-	    if(bytesRead == -1 && errno != EINTR)
-	    {
-		int err = errno;
-		cerr << "Reading /dev/urandom returned " << strerror(err) << endl;
-		assert(0);
-		throw RandomGeneratorException(__FILE__, __LINE__, errno);
-	    }
-	    else
-	    {
-		index += bytesRead;
-		reads++;
-	    }
+	    int err = errno;
+	    cerr << "Reading /dev/urandom returned " << strerror(err) << endl;
+	    assert(0);
+	    throw RandomGeneratorException(__FILE__, __LINE__, errno);
+	}
+	else
+	{
+	    index += bytesRead;
+	    reads++;
 	}
     }
 	
