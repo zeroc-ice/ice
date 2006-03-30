@@ -838,25 +838,34 @@ extern "C"
 static PyObject*
 communicatorSetDefaultRouter(CommunicatorObject* self, PyObject* args)
 {
-    PyObject* routerProxyType = lookupType("Ice.RouterPrx");
-    assert(routerProxyType != NULL);
     PyObject* proxy;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), routerProxyType, &proxy))
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &proxy))
     {
-        return NULL;
+	return NULL;
     }
 
-    Ice::RouterPrx router = Ice::RouterPrx::uncheckedCast(getProxy(proxy));
+    PyObject* routerProxyType = lookupType("Ice.RouterPrx");
+    assert(routerProxyType != NULL);
+    Ice::RouterPrx router;
+    if(PyObject_IsInstance(proxy, routerProxyType))
+    {
+	router = Ice::RouterPrx::uncheckedCast(getProxy(proxy));
+    }
+    else if(proxy != Py_None)
+    {
+	PyErr_Format(PyExc_ValueError, STRCAST("ice_setDefaultRouter requires None or Ice.RouterPrx"));
+	return NULL;
+    }
 
     assert(self->communicator);
     try
     {
-        (*self->communicator)->setDefaultRouter(router);
+	(*self->communicator)->setDefaultRouter(router);
     }
     catch(const Ice::Exception& ex)
     {
-        setPythonException(ex);
-        return NULL;
+	setPythonException(ex);
+	return NULL;
     }
 
     Py_INCREF(Py_None);
@@ -898,25 +907,34 @@ extern "C"
 static PyObject*
 communicatorSetDefaultLocator(CommunicatorObject* self, PyObject* args)
 {
-    PyObject* locatorProxyType = lookupType("Ice.LocatorPrx");
-    assert(locatorProxyType != NULL);
     PyObject* proxy;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), locatorProxyType, &proxy))
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &proxy))
     {
-        return NULL;
+	return NULL;
     }
 
-    Ice::LocatorPrx locator = Ice::LocatorPrx::uncheckedCast(getProxy(proxy));
+    PyObject* locatorProxyType = lookupType("Ice.LocatorPrx");
+    assert(locatorProxyType != NULL);
+    Ice::LocatorPrx locator;
+    if(PyObject_IsInstance(proxy, locatorProxyType))
+    {
+	locator = Ice::LocatorPrx::uncheckedCast(getProxy(proxy));
+    }
+    else if(proxy != Py_None)
+    {
+	PyErr_Format(PyExc_ValueError, STRCAST("ice_setDefaultLocator requires None or Ice.LocatorPrx"));
+	return NULL;
+    }
 
     assert(self->communicator);
     try
     {
-        (*self->communicator)->setDefaultLocator(locator);
+	(*self->communicator)->setDefaultLocator(locator);
     }
     catch(const Ice::Exception& ex)
     {
-        setPythonException(ex);
-        return NULL;
+	setPythonException(ex);
+	return NULL;
     }
 
     Py_INCREF(Py_None);
