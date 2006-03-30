@@ -27,6 +27,21 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     test(base->ice_communicator() == communicator);
     cout << "ok" << endl;
 
+    cout << "testing proxy methods... " << flush;
+    test(Ice::identityToString(base->ice_identity(Ice::stringToIdentity("other"))->ice_getIdentity()) == "other");
+    test(base->ice_facet("facet")->ice_getFacet() == "facet");
+    test(base->ice_adapterId("id")->ice_getAdapterId() == "id");
+    test(base->ice_twoway()->ice_isTwoway());
+    test(base->ice_oneway()->ice_isOneway());
+    test(base->ice_batchOneway()->ice_isBatchOneway());
+    test(base->ice_datagram()->ice_isDatagram());
+    test(base->ice_batchDatagram()->ice_isBatchDatagram());
+    test(base->ice_secure(true)->ice_getSecure());
+    test(!base->ice_secure(false)->ice_getSecure());
+    test(base->ice_collocationOptimization(true)->ice_getCollocationOptimization());
+    test(!base->ice_collocationOptimization(false)->ice_getCollocationOptimization());
+    cout << "ok" << endl;
+
     cout << "testing checked cast... " << flush;
     Test::MyClassPrx cl = Test::MyClassPrx::checkedCast(base);
     test(cl);

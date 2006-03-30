@@ -52,6 +52,9 @@ public:
 
     Ice::CommunicatorPtr getCommunicator() const;
 
+    virtual RouterInfoPtr getRouterInfo() const { return 0; }
+    virtual LocatorInfoPtr getLocatorInfo() const { return 0; }
+
     virtual bool getSecure() const = 0;
     virtual std::string getAdapterId() const = 0;
     virtual std::vector<EndpointIPtr> getEndpoints() const = 0;
@@ -139,10 +142,10 @@ public:
     const std::vector<Ice::ConnectionIPtr>& getFixedConnections() const;
 
     virtual bool getSecure() const;
-    virtual int getLocatorCacheTimeout() const;
     virtual std::string getAdapterId() const;
     virtual std::vector<EndpointIPtr> getEndpoints() const;
     virtual bool getCollocationOptimization() const;
+    virtual int getLocatorCacheTimeout() const;
     virtual bool getCacheConnection() const;
     virtual Ice::EndpointSelectionType getEndpointSelection() const;
 
@@ -185,7 +188,7 @@ class RoutableReference : public Reference
 {
 public:
 
-    const RouterInfoPtr& getRouterInfo() const { return _routerInfo; }
+    virtual RouterInfoPtr getRouterInfo() const { return _routerInfo; }
     std::vector<EndpointIPtr> getRoutedEndpoints() const;
 
     virtual bool getSecure() const;
@@ -272,7 +275,7 @@ public:
 		      const std::string&, Mode, bool, const std::string&, const RouterInfoPtr&, const LocatorInfoPtr&,
 		      bool, int);
 
-    const LocatorInfoPtr& getLocatorInfo() const { return _locatorInfo; }
+    virtual LocatorInfoPtr getLocatorInfo() const { return _locatorInfo; }
 
     virtual int getLocatorCacheTimeout() const;
     virtual std::string getAdapterId() const;
@@ -306,6 +309,10 @@ private:
 
     std::string _adapterId;
     std::string _connectionId;
+    bool _overrideCompress;
+    bool _compress; // Only used if _overrideCompress == true
+    bool _overrideTimeout;
+    int _timeout; // Only used if _overrideTimeout == true
     LocatorInfoPtr _locatorInfo;
     int _locatorCacheTimeout;
 };

@@ -1055,18 +1055,7 @@ IceInternal::DirectReference::getLocatorCacheTimeout() const
 ReferencePtr
 IceInternal::DirectReference::changeLocator(const LocatorPrx& newLocator) const
 {
-    if(newLocator)
-    {
-	LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(newLocator);
-	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
-							 getSecure(), "", 0, newLocatorInfo,
-							 getCollocationOptimization(),
-							 getLocatorCacheTimeout());
-    }
-    else
-    {
-	return DirectReferencePtr(const_cast<DirectReference*>(this));
-    }
+    return DirectReferencePtr(const_cast<DirectReference*>(this));
 }
 
 ReferencePtr
@@ -1275,6 +1264,10 @@ IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const
 						  int locatorCacheTimeout) :
     RoutableReference(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt),
     _adapterId(adptid),
+    _overrideCompress(false),
+    _compress(false),
+    _overrideTimeout(false),
+    _timeout(0),
     _locatorInfo(locInfo),
     _locatorCacheTimeout(locatorCacheTimeout)
 {
@@ -1301,49 +1294,39 @@ IceInternal::IndirectReference::getLocatorCacheTimeout() const
 ReferencePtr
 IceInternal::IndirectReference::changeLocator(const LocatorPrx& newLocator) const
 {
-    //
-    // Return a direct reference if a null locator is given.
-    //
-    if(!newLocator)
+    LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(newLocator);
+    if(newLocatorInfo == _locatorInfo)
     {
-	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
-							 getSecure(), vector<EndpointIPtr>(), getRouterInfo(),
-							 getCollocationOptimization());
+	return IndirectReferencePtr(const_cast<IndirectReference*>(this));
     }
-    else
-    {
-	LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(newLocator);
-	if(newLocatorInfo == _locatorInfo)
-	{
-	    return IndirectReferencePtr(const_cast<IndirectReference*>(this));
-	}
-	IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
-	r->_locatorInfo = newLocatorInfo;
-	return r;
-    }
+    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
+    r->_locatorInfo = newLocatorInfo;
+    return r;
 }
 
 ReferencePtr
 IceInternal::IndirectReference::changeCompress(bool newCompress) const
 {
-    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
-    if(_locatorInfo)
+    if(_overrideCompress && newCompress == _compress)
     {
-	LocatorPrx newLocator = LocatorPrx::uncheckedCast(_locatorInfo->getLocator()->ice_compress(newCompress));
-	r->_locatorInfo = getInstance()->locatorManager()->get(newLocator);
+	return IndirectReferencePtr(const_cast<IndirectReference*>(this));
     }
+    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
+    r->_compress = newCompress;
+    r->_overrideCompress = true;
     return r;
 }
 
 ReferencePtr
 IceInternal::IndirectReference::changeTimeout(int newTimeout) const
 {
-    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
-    if(_locatorInfo)
+    if(_overrideTimeout && newTimeout == _timeout)
     {
-	LocatorPrx newLocator = LocatorPrx::uncheckedCast(_locatorInfo->getLocator()->ice_timeout(newTimeout));
-	r->_locatorInfo = getInstance()->locatorManager()->get(newLocator);
+	return IndirectReferencePtr(const_cast<IndirectReference*>(this));
     }
+    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
+    r->_timeout = newTimeout;
+    r->_overrideTimeout = true;
     return r;
 }
 
@@ -1453,11 +1436,19 @@ IceInternal::IndirectReference::getConnection(bool& comp) const
 	}
 
 	//
-	// Apply the cached connection id to each endpoint.
+	// Apply the endpoint overrides to each endpoint.
 	//
 	for(vector<EndpointIPtr>::iterator p = endpts.begin(); p != endpts.end(); ++p)
 	{
 	    *p = (*p)->connectionId(_connectionId);
+	    if(_overrideCompress)
+	    {
+		*p = (*p)->compress(_compress);		
+	    }
+	    if(_overrideTimeout)
+	    {
+		*p = (*p)->timeout(_timeout);
+	    }
 	}
 
 	try
@@ -1543,7 +1534,11 @@ IceInternal::IndirectReference::operator==(const Reference& r) const
         return false;
     }
 
-    return _adapterId == rhs->_adapterId && _connectionId == rhs->_connectionId && _locatorInfo == rhs->_locatorInfo &&
+    return _adapterId == rhs->_adapterId && 
+	_connectionId == rhs->_connectionId && 
+	_overrideCompress == rhs->_overrideCompress && (!_overrideCompress || _compress == rhs->_compress) &&
+	_overrideTimeout == rhs->_overrideTimeout && (!_overrideTimeout || _timeout == rhs->_timeout) &&
+	_locatorInfo == rhs->_locatorInfo &&
 	_locatorCacheTimeout == rhs->_locatorCacheTimeout;
 }
 
@@ -1587,6 +1582,46 @@ IceInternal::IndirectReference::operator<(const Reference& r) const
                 return false;
             }
 
+	    if(!_overrideCompress && rhs->_overrideCompress)
+	    {
+		return true;
+	    }
+	    else if(rhs->_overrideCompress < _overrideCompress)
+	    {
+		return false;
+	    }
+	    else if(_overrideCompress)
+	    {
+		if(!_compress && rhs->_compress)
+		{
+		    return true;
+		}
+		else if(rhs->_compress < _compress)
+		{
+		    return false;
+		}
+	    }
+
+	    if(!_overrideTimeout && rhs->_overrideTimeout)
+	    {
+		return true;
+	    }
+	    else if(rhs->_overrideTimeout < _overrideTimeout)
+	    {
+		return false;
+	    }
+	    else if(_overrideTimeout)
+	    {
+		if(_timeout < rhs->_timeout)
+		{
+		    return true;
+		}
+		else if(rhs->_timeout < _timeout)
+		{
+		    return false;
+		}
+	    }
+
             if(_locatorInfo < rhs->_locatorInfo)
 	    {
 		return true;
@@ -1612,6 +1647,10 @@ IceInternal::IndirectReference::IndirectReference(const IndirectReference& r) :
     RoutableReference(r),
     _adapterId(r._adapterId),
     _connectionId(r._connectionId),
+    _overrideCompress(r._overrideCompress),
+    _compress(r._compress),
+    _overrideTimeout(r._overrideTimeout),
+    _timeout(r._timeout),
     _locatorInfo(r._locatorInfo),
     _locatorCacheTimeout(r._locatorCacheTimeout)
 {

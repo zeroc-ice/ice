@@ -146,6 +146,18 @@ public:
     ::Ice::EndpointSelectionType ice_getEndpointSelection() const;
     ::Ice::ObjectPrx ice_endpointSelection(::Ice::EndpointSelectionType) const;
 
+    bool ice_getSecure() const;
+    ::Ice::ObjectPrx ice_secure(bool) const;
+
+    ::Ice::RouterPrx ice_getRouter() const;
+    ::Ice::ObjectPrx ice_router(const ::Ice::RouterPrx&) const;
+
+    ::Ice::LocatorPrx ice_getLocator() const;
+    ::Ice::ObjectPrx ice_locator(const ::Ice::LocatorPrx&) const;
+
+    bool ice_getCollocationOptimization() const;
+    ::Ice::ObjectPrx ice_collocationOptimization(bool) const;
+
     ::Ice::ObjectPrx ice_twoway() const;
     bool ice_isTwoway() const;
     ::Ice::ObjectPrx ice_oneway() const;
@@ -157,12 +169,8 @@ public:
     ::Ice::ObjectPrx ice_batchDatagram() const;
     bool ice_isBatchDatagram() const;
 
-    ::Ice::ObjectPrx ice_secure(bool) const;
     ::Ice::ObjectPrx ice_compress(bool) const;
     ::Ice::ObjectPrx ice_timeout(int) const;
-    ::Ice::ObjectPrx ice_router(const ::Ice::RouterPrx&) const;
-    ::Ice::ObjectPrx ice_locator(const ::Ice::LocatorPrx&) const;
-    ::Ice::ObjectPrx ice_collocationOptimization(bool) const;
     ::Ice::ObjectPrx ice_connectionId(const ::std::string&) const;
 
     ::Ice::ConnectionPtr ice_connection();

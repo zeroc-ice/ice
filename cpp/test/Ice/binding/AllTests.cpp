@@ -650,7 +650,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    }
 	    
 	    TestIntfPrx testSecure = TestIntfPrx::uncheckedCast(test->ice_secure(true));
-	    //test(testSecure->ice_getSecure());
+	    test(testSecure->ice_getSecure());
+	    testSecure = TestIntfPrx::uncheckedCast(test->ice_secure(false));
+	    test(!testSecure->ice_getSecure());
+	    testSecure = TestIntfPrx::uncheckedCast(test->ice_secure(true));
+	    test(testSecure->ice_getSecure());
 	    test(test->ice_connection() != testSecure->ice_connection());
 
 	    com->deactivateObjectAdapter(adapters[1]);

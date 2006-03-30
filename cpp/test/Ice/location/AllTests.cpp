@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <Ice/Router.h>
 #include <IceUtil/UUID.h>
 #include <TestCommon.h>
 #include <Test.h>
@@ -40,6 +41,37 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     Ice::ObjectPrx base4 = communicator->stringToProxy("ServerManager"); 
     Ice::ObjectPrx base5 = communicator->stringToProxy("test2");
     Ice::ObjectPrx base6 = communicator->stringToProxy("test @ ReplicatedAdapter");
+    cout << "ok" << endl;
+
+    cout << "testing ice_locator and ice_getLocator... " << flush;
+    test(Ice::proxyIdentityEqual(base->ice_getLocator(), communicator->getDefaultLocator()));
+    Ice::LocatorPrx anotherLocator = Ice::LocatorPrx::uncheckedCast(communicator->stringToProxy("anotherLocator"));
+    base = base->ice_locator(anotherLocator);
+    test(Ice::proxyIdentityEqual(base->ice_getLocator(), anotherLocator));
+    communicator->setDefaultLocator(0);
+    base = communicator->stringToProxy("test @ TestAdapter");
+    test(!base->ice_getLocator());
+    base = base->ice_locator(anotherLocator);
+    test(Ice::proxyIdentityEqual(base->ice_getLocator(), anotherLocator));
+    communicator->setDefaultLocator(locator);
+    base = communicator->stringToProxy("test @ TestAdapter");
+    test(Ice::proxyIdentityEqual(base->ice_getLocator(), communicator->getDefaultLocator())); 
+    
+    //
+    // We also test ice_router/ice_getRouter (perhaps we should add a
+    // test/Ice/router test?)
+    //
+    test(!base->ice_getRouter());
+    Ice::RouterPrx anotherRouter = Ice::RouterPrx::uncheckedCast(communicator->stringToProxy("anotherRouter"));
+    base = base->ice_router(anotherRouter);
+    test(Ice::proxyIdentityEqual(base->ice_getRouter(), anotherRouter));
+    Ice::RouterPrx router = Ice::RouterPrx::uncheckedCast(communicator->stringToProxy("dummyrouter"));
+    communicator->setDefaultRouter(router);
+    base = communicator->stringToProxy("test @ TestAdapter");
+    test(Ice::proxyIdentityEqual(base->ice_getRouter(), communicator->getDefaultRouter()));
+    communicator->setDefaultRouter(0);
+    base = communicator->stringToProxy("test @ TestAdapter");
+    test(!base->ice_getRouter());
     cout << "ok" << endl;
 
     cout << "starting server... " << flush;

@@ -1,6 +1,12 @@
 Changes since version 3.0.1
 ---------------------------
 
+- The ice_timeout and ice_compress proxy methods now correctly
+  override the timeout and compress flag of indirect proxy endpoints.
+
+- Added ice_getSecure, ice_getLocator, ice_getRouter,
+  ice_getCollocationOptimization proxy methods.
+
 - Deprecated ice_newIdentity, ice_newFacet, ice_newContext,
   ice_newAdapterId and ice_newEndpoints methods proxy. You should now
   use the ice_identity, ice_facet, ice_context, ice_adapterId and

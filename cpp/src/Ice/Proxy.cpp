@@ -9,6 +9,7 @@
 
 #include <Ice/Proxy.h>
 #include <Ice/ProxyFactory.h>
+#include <Ice/ReferenceFactory.h>
 #include <Ice/Object.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Outgoing.h>
@@ -582,10 +583,38 @@ IceProxy::Ice::Object::ice_endpointSelection(EndpointSelectionType newType) cons
     }
 }
 
-ObjectPrx
-IceProxy::Ice::Object::ice_twoway() const
+bool
+IceProxy::Ice::Object::ice_getSecure() const
 {
-    ReferencePtr ref = _reference->changeMode(Reference::ModeTwoway);
+    return _reference->getSecure();
+}
+
+ObjectPrx
+IceProxy::Ice::Object::ice_secure(bool b) const
+{
+    if(b == _reference->getSecure())
+    {
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
+	proxy->setup(_reference->changeSecure(b));
+	return proxy;
+    }
+}
+
+RouterPrx
+IceProxy::Ice::Object::ice_getRouter() const
+{
+    RouterInfoPtr ri = _reference->getRouterInfo();
+    return ri ? ri->getRouter() : RouterPrx();
+}
+
+ObjectPrx
+IceProxy::Ice::Object::ice_router(const RouterPrx& router) const
+{
+    ReferencePtr ref = _reference->changeRouter(router);
     if(ref == _reference)
     {
 	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
@@ -594,6 +623,65 @@ IceProxy::Ice::Object::ice_twoway() const
     {
 	ObjectPrx proxy(new ::IceProxy::Ice::Object());
 	proxy->setup(ref);
+	return proxy;
+    }
+}
+
+LocatorPrx
+IceProxy::Ice::Object::ice_getLocator() const
+{
+    LocatorInfoPtr ri = _reference->getLocatorInfo();
+    return ri ? ri->getLocator() : LocatorPrx();
+}
+
+ObjectPrx
+IceProxy::Ice::Object::ice_locator(const LocatorPrx& locator) const
+{
+    ReferencePtr ref = _reference->changeLocator(locator);
+    if(ref == _reference)
+    {
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
+	proxy->setup(ref);
+	return proxy;
+    }
+}
+
+bool
+IceProxy::Ice::Object::ice_getCollocationOptimization() const
+{
+    return _reference->getCollocationOptimization();
+}
+
+ObjectPrx
+IceProxy::Ice::Object::ice_collocationOptimization(bool b) const
+{
+    if(b == _reference->getCollocationOptimization())
+    {
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
+	proxy->setup(_reference->changeCollocationOptimization(b));
+	return proxy;
+    }
+}
+
+ObjectPrx
+IceProxy::Ice::Object::ice_twoway() const
+{
+    if(_reference->getMode() == Reference::ModeTwoway)
+    {
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
+	proxy->setup(_reference->changeMode(Reference::ModeTwoway));
 	return proxy;
     }
 }
@@ -607,15 +695,14 @@ IceProxy::Ice::Object::ice_isTwoway() const
 ObjectPrx
 IceProxy::Ice::Object::ice_oneway() const
 {
-    ReferencePtr ref = _reference->changeMode(Reference::ModeOneway);
-    if(ref == _reference)
+    if(_reference->getMode() == Reference::ModeOneway)
     {
 	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
 	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref);
+	proxy->setup(_reference->changeMode(Reference::ModeOneway));
 	return proxy;
     }
 }
@@ -629,15 +716,14 @@ IceProxy::Ice::Object::ice_isOneway() const
 ObjectPrx
 IceProxy::Ice::Object::ice_batchOneway() const
 {
-    ReferencePtr ref = _reference->changeMode(Reference::ModeBatchOneway);
-    if(ref == _reference)
+    if(_reference->getMode() == Reference::ModeBatchOneway)
     {
 	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
 	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref);
+	proxy->setup(_reference->changeMode(Reference::ModeBatchOneway));
 	return proxy;
     }
 }
@@ -651,15 +737,14 @@ IceProxy::Ice::Object::ice_isBatchOneway() const
 ObjectPrx
 IceProxy::Ice::Object::ice_datagram() const
 {
-    ReferencePtr ref = _reference->changeMode(Reference::ModeDatagram);
-    if(ref == _reference)
+    if(_reference->getMode() == Reference::ModeDatagram)
     {
 	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
 	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref);
+	proxy->setup(_reference->changeMode(Reference::ModeDatagram));
 	return proxy;
     }
 }
@@ -673,15 +758,14 @@ IceProxy::Ice::Object::ice_isDatagram() const
 ObjectPrx
 IceProxy::Ice::Object::ice_batchDatagram() const
 {
-    ReferencePtr ref = _reference->changeMode(Reference::ModeBatchDatagram);
-    if(ref == _reference)
+    if(_reference->getMode() == Reference::ModeBatchDatagram)
     {
 	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
 	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref);
+	proxy->setup(_reference->changeMode(Reference::ModeBatchDatagram));
 	return proxy;
     }
 }
@@ -690,22 +774,6 @@ bool
 IceProxy::Ice::Object::ice_isBatchDatagram() const
 {
     return _reference->getMode() == Reference::ModeBatchDatagram;
-}
-
-ObjectPrx
-IceProxy::Ice::Object::ice_secure(bool b) const
-{
-    ReferencePtr ref = _reference->changeSecure(b);
-    if(ref == _reference)
-    {
-	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
-    }
-    else
-    {
-	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref);
-	return proxy;
-    }
 }
 
 ObjectPrx
@@ -728,54 +796,6 @@ ObjectPrx
 IceProxy::Ice::Object::ice_timeout(int t) const
 {
     ReferencePtr ref = _reference->changeTimeout(t);
-    if(ref == _reference)
-    {
-	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
-    }
-    else
-    {
-	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref);
-	return proxy;
-    }
-}
-
-ObjectPrx
-IceProxy::Ice::Object::ice_router(const RouterPrx& router) const
-{
-    ReferencePtr ref = _reference->changeRouter(router);
-    if(ref == _reference)
-    {
-	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
-    }
-    else
-    {
-	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref);
-	return proxy;
-    }
-}
-
-ObjectPrx
-IceProxy::Ice::Object::ice_locator(const LocatorPrx& locator) const
-{
-    ReferencePtr ref = _reference->changeLocator(locator);
-    if(ref == _reference)
-    {
-	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
-    }
-    else
-    {
-	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref);
-	return proxy;
-    }
-}
-
-ObjectPrx
-IceProxy::Ice::Object::ice_collocationOptimization(bool b) const
-{
-    ReferencePtr ref = _reference->changeCollocationOptimization(b);
     if(ref == _reference)
     {
 	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
@@ -1007,10 +1027,10 @@ IceProxy::Ice::Object::__getDelegate()
 	// using a router, then add this proxy to the router info
 	// object.
 	//
-	RoutableReferencePtr rr = RoutableReferencePtr::dynamicCast(_reference);
-	if(rr && rr->getRouterInfo())
+	RouterInfoPtr ri = _reference->getRouterInfo();
+	if(ri)
 	{
-	    rr->getRouterInfo()->addProxy(this);
+	    ri->addProxy(this);
 	}
     }
 
