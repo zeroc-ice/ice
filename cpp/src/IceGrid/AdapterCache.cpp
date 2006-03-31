@@ -23,39 +23,44 @@ pointer_to_unary_function<int, int> ReplicaGroupEntry::_rand(IceUtil::random);
 namespace IceGrid
 {
 
-struct ServerLoadCI : binary_function<ServerAdapterEntryPtr&, ServerAdapterEntryPtr&, bool>
+struct ReplicaLoadComp : binary_function<ServerAdapterEntryPtr&, ServerAdapterEntryPtr&, bool>
 {
-    ServerLoadCI(LoadSample loadSample) : _loadSample(loadSample) { }
+    typedef ReplicaGroupEntry::ReplicaSeq::value_type Replica;
+    typedef pair<float, Replica> ReplicaLoad;
 
-    bool operator()(const pair<string, ServerAdapterEntryPtr>& lhs, const pair<string, ServerAdapterEntryPtr>& rhs)
+    bool operator()(const ReplicaLoad& lhs, const ReplicaLoad& rhs)
     {
-	float lhsl = 1.0f;
-	try
-	{
-	    lhsl = lhs.second->getLeastLoadedNodeLoad(_loadSample);
-	}
-	catch(const ServerNotExistException&)
-	{
-	}
-	catch(const NodeUnreachableException&)
-	{
-	}
+	return lhs.first < rhs.first;
+    }
+};
 
-	float rhsl = 1.0f;
+struct ToReplicaLoad : public unary_function<const ReplicaLoadComp::Replica&, ReplicaLoadComp::ReplicaLoad>
+{
+    ToReplicaLoad(LoadSample loadSample) : _loadSample(loadSample) { }
+
+    ReplicaLoadComp::ReplicaLoad
+    operator()(const ReplicaLoadComp::Replica& value)
+    {
 	try
 	{
-	    rhsl = rhs.second->getLeastLoadedNodeLoad(_loadSample);
+	    return make_pair(value.second->getLeastLoadedNodeLoad(_loadSample), value);
 	}
-	catch(const ServerNotExistException&)
+	catch(const Ice::Exception&)
 	{
+	    return make_pair(1.0f, value);
 	}
-	catch(const NodeUnreachableException&)
-	{
-	}
-	return lhsl < rhsl;
     }
 
     LoadSample _loadSample;
+};
+
+struct ToReplica : public unary_function<const ReplicaLoadComp::ReplicaLoad&, ReplicaLoadComp::Replica>
+{
+    ReplicaLoadComp::Replica
+    operator()(const ReplicaLoadComp::ReplicaLoad& value)
+    {
+	return value.second;
+    }
 };
 
 }
@@ -292,7 +297,7 @@ void
 ReplicaGroupEntry::removeReplica(const string& replicaId)
 {
     Lock sync(*this);
-    for(ReplicaSeq::iterator p = _replicas.begin(); p != _replicas.end(); ++p)
+    for(ReplicaGroupEntry::ReplicaSeq::iterator p = _replicas.begin(); p != _replicas.end(); ++p)
     {
 	if(replicaId == p->first)
 	{
@@ -351,7 +356,12 @@ ReplicaGroupEntry::getProxies(bool allRegistered, int& nReplicas)
 	// This must be done outside the synchronization block since
 	// the sort() will call and lock each server entry.
 	//
-	sort(replicas.begin(), replicas.end(), ServerLoadCI(loadSample));
+
+	vector<ReplicaLoadComp::ReplicaLoad> rl;
+	transform(replicas.begin(), replicas.end(), back_inserter(rl), ToReplicaLoad(loadSample));
+	sort(rl.begin(), rl.end(), ReplicaLoadComp());
+	replicas.clear();
+	transform(rl.begin(), rl.end(), back_inserter(replicas), ToReplica());
     }
 
     //
@@ -394,7 +404,9 @@ ReplicaGroupEntry::getLeastLoadedNodeLoad(LoadSample loadSample) const
     // min_element() will call and lock each server entry.
     //
     random_shuffle(replicas.begin(), replicas.end(), _rand);
-    AdapterEntryPtr adpt = min_element(replicas.begin(), replicas.end(), ServerLoadCI(loadSample))->second;
+    vector<ReplicaLoadComp::ReplicaLoad> rl;
+    transform(replicas.begin(), replicas.end(), back_inserter(rl), ToReplicaLoad(loadSample));
+    AdapterEntryPtr adpt = min_element(rl.begin(), rl.end(), ReplicaLoadComp())->second.second;
     return adpt->getLeastLoadedNodeLoad(loadSample);
 }
 

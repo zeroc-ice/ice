@@ -85,13 +85,14 @@ public:
     void addReplica(const std::string&, const ServerAdapterEntryPtr&);
     void removeReplica(const std::string&);
 
+    typedef std::vector<std::pair<std::string, ServerAdapterEntryPtr> > ReplicaSeq;
+
 private:
 
     LoadBalancingPolicyPtr _loadBalancing;
     int _loadBalancingNReplicas;
     LoadSample _loadSample;
     std::string _application;
-    typedef std::vector<std::pair<std::string, ServerAdapterEntryPtr> > ReplicaSeq;
     ReplicaSeq _replicas;
     int _lastReplica;
 
