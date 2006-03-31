@@ -305,7 +305,7 @@ IceSSL:
     Client.VerifyPeer
     DelayInit
     EntropyDaemon
-    ImportCert.*
+    ImportCert.<any>.<any>
     Random
     Server.CertAuthDir
     Server.CertAuthFile
@@ -313,7 +313,7 @@ IceSSL:
     Server.CheckCRL
     Server.Ciphers
     Server.DefaultDir
-    Server.DH.*
+    Server.DH.<any>
     Server.KeyFile
     Server.Password
     Server.PasswordRetryMax
