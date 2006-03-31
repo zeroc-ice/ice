@@ -17,6 +17,11 @@ namespace IceSSL
     {
 	public IceInternal.Transceiver connect(int timeout)
 	{
+	    //
+	    // The plugin may not be fully initialized.
+	    //
+	    ClientContext ctx = instance_.clientContext();
+
 	    if(instance_.networkTraceLevel() >= 2)
 	    {
 		string s = "trying to establish ssl connection to " + ToString();
@@ -27,11 +32,10 @@ namespace IceSSL
 	    IceInternal.Network.setBlock(fd, true);
 	    IceInternal.Network.doConnectAsync(fd, addr_, timeout);
 
-	    // TODO: Catch exceptions?
 	    SslStream stream = null;
 	    try
 	    {
-		stream = instance_.clientContext().authenticate(fd, host_, timeout);
+		stream = ctx.authenticate(fd, host_, timeout);
 	    }
 	    catch(System.Exception)
 	    {

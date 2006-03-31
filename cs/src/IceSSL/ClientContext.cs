@@ -24,7 +24,8 @@ namespace IceSSL
 	internal SslStream authenticate(Socket fd, string host, int timeout)
 	{
 	    NetworkStream ns = new NetworkStream(fd, true);
-	    SslStream stream = new SslStream(ns, false, new RemoteCertificateValidationCallback(validationCallback),
+	    ClientValidationCallback cb = new ClientValidationCallback(this, host);
+	    SslStream stream = new SslStream(ns, false, new RemoteCertificateValidationCallback(cb.validationCallback),
 					     null);
 
 	    try
@@ -54,6 +55,16 @@ namespace IceSSL
 	    {
 		stream.Close();
 		throw ex;
+	    }
+	    catch(IOException ex)
+	    {
+		stream.Close();
+
+		if(IceInternal.Network.connectionLost(ex))
+		{
+		    throw new Ice.ConnectionLostException(ex);
+		}
+		throw new Ice.SyscallException(ex);
 	    }
 	    catch(AuthenticationException ex)
 	    {
@@ -94,10 +105,9 @@ namespace IceSSL
 		{
 		    if(!File.Exists(certFile))
 		    {
-			logger_.error("IceSSL: client certificate file not found: " + certFile);
-			Ice.FileException ex = new Ice.FileException();
-			ex.path = certFile;
-			throw ex;
+			Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+			e.reason = "IceSSL: client certificate file not found: " + certFile;
+			throw e;
 		    }
 		    try
 		    {
@@ -106,8 +116,8 @@ namespace IceSSL
 		    }
 		    catch(CryptographicException ex)
 		    {
-			Ice.SecurityException e = new Ice.SecurityException(ex);
-			e.reason = "while attempting to load certificate from " + certFile;
+			Ice.PluginInitializationException e = new Ice.PluginInitializationException(ex);
+			e.reason = "IceSSL: error while attempting to load certificate from " + certFile;
 			throw e;
 		    }
 		}
@@ -133,21 +143,15 @@ namespace IceSSL
 		    }
 		    if(certs_.Count == 0)
 		    {
-			const string msg = "no client certificates found";
-			logger_.error("IceSSL: " + msg);
-			Ice.SecurityException e = new Ice.SecurityException();
-			e.reason = msg;
+			Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+			e.reason = "IceSSL: no client certificates found";
 			throw e;
 		    }
 		}
 	    }
 
 	    protocols_ = parseProtocols(prefix + "Protocols");
-
-	    // TODO: Review default value
 	    checkCRL_ = properties.getPropertyAsIntWithDefault(prefix + "CheckCRL", 0) > 0;
-
-	    // TODO: Review default value
 	    checkCertName_ = properties.getPropertyAsIntWithDefault(prefix + "CheckCertName", 0) > 0;
 	}
 
@@ -179,18 +183,9 @@ namespace IceSSL
 	    }
 	}
 
-	private bool validationCallback(object sender, X509Certificate certificate, X509Chain chain,
-					SslPolicyErrors sslPolicyErrors)
+	internal bool validationCallback(SslStream stream, string host, X509Certificate certificate, X509Chain chain,
+					 SslPolicyErrors sslPolicyErrors)
 	{
-	    if(sslPolicyErrors == SslPolicyErrors.None)
-	    {
-		if(instance_.securityTraceLevel() >= 1)
-		{
-		    logger_.trace(instance_.securityTraceCategory(), "SSL certificate validation succeeded");
-		}
-		return true;
-	    }
-
 	    string message = "";
 	    int errors = (int)sslPolicyErrors;
 	    if((errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0)
@@ -220,6 +215,21 @@ namespace IceSSL
 		return false;
 	    }
 
+	    CertificateVerifier verifier = instance_.certificateVerifier();
+	    if(verifier != null)
+	    {
+		VerifyInfo info = new VerifyInfo();
+		info.incoming = false;
+		info.cert = certificate;
+		info.chain = chain;
+		info.stream = stream;
+		info.address = host;
+		if(!verifier.verify(info))
+		{
+		    return false;
+		}
+	    }
+
 	    if(instance_.securityTraceLevel() >= 1)
 	    {
 		logger_.trace(instance_.securityTraceCategory(), "SSL certificate validation succeeded" + message);
@@ -232,5 +242,27 @@ namespace IceSSL
 	private SslProtocols protocols_;
 	private bool checkCRL_;
 	private bool checkCertName_;
+    }
+
+    //
+    // We need to pass some additional information to the certificate validation callback.
+    //
+    internal class ClientValidationCallback
+    {
+	internal ClientValidationCallback(ClientContext context, string host)
+	{
+	    context_ = context;
+	    host_ = host;
+	}
+
+	internal bool validationCallback(object sender, X509Certificate certificate, X509Chain chain,
+					 SslPolicyErrors sslPolicyErrors)
+	{
+	    SslStream stream = (SslStream)sender;
+	    return context_.validationCallback(stream, host_, certificate, chain, sslPolicyErrors);
+	}
+
+	private ClientContext context_;
+	private string host_;
     }
 }

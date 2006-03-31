@@ -65,13 +65,24 @@ namespace IceSSL
 	{
 	    Debug.Assert(timeout == -1); // Always called with -1 for thread-per-connection.
 
+	    //
+	    // The plugin may not be fully initialized.
+	    //
+	    ServerContext ctx = instance_.serverContext();
+
 	    Socket fd = IceInternal.Network.doAccept(fd_, timeout);
 	    IceInternal.Network.setBlock(fd, true); // SSL requires a blocking socket.
+
+	    if(instance_.networkTraceLevel() >= 2)
+	    {
+		string s = "trying to validate incoming ssl connection\n" + IceInternal.Network.fdToString(fd);
+		logger_.trace(instance_.networkTraceCategory(), s);
+	    }
 
 	    SslStream stream = null;
 	    try
 	    {
-		stream = instance_.serverContext().authenticate(fd, timeout);
+		stream = ctx.authenticate(fd, timeout);
 	    }
 	    catch(Ice.ConnectionLostException)
 	    {

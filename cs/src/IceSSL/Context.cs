@@ -35,24 +35,18 @@ namespace IceSSL
 		    for(int i = 0; i < arr.Length; ++i)
 		    {
 			string s = arr[i].ToLower();
-			if(s == "ssl2" || s == "sslv2")
-			{
-			    result |= SslProtocols.Ssl2;
-			}
-			else if(s == "ssl3" || s == "sslv3")
+			if(s.Equals("ssl3") || s.Equals("sslv3"))
 			{
 			    result |= SslProtocols.Ssl3;
 			}
-			else if(s == "tls")
+			else if(s.Equals("tls1") || s.Equals("tlsv1"))
 			{
 			    result |= SslProtocols.Tls;
 			}
 			else
 			{
-			    string msg = "IceSSL: unrecognized protocol `" + s + "'";
-			    logger_.error(msg);
-			    Ice.SecurityException e = new Ice.SecurityException();
-			    e.reason = msg;
+			    Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+			    e.reason = "IceSSL: unrecognized protocol `" + s + "'";
 			    throw e;
 			}
 		    }
@@ -86,10 +80,8 @@ namespace IceSSL
 	    }
 	    catch(Exception ex)
 	    {
-		string msg = "IceSSL: failure while opening store specified by " + prop;
-		logger_.error(msg);
-		Ice.SecurityException e = new Ice.SecurityException(ex);
-		e.reason = msg;
+		Ice.PluginInitializationException e = new Ice.PluginInitializationException(ex);
+		e.reason = "IceSSL: failure while opening store specified by " + prop;
 		throw e;
 	    }
 
@@ -124,40 +116,38 @@ namespace IceSSL
 			//
 			string field = value.Substring(start, pos - start).Trim().ToLower();
 			X509FindType findType;
-			if(field == "subject")
+			if(field.Equals("subject"))
 			{
 			    findType = X509FindType.FindBySubjectName;
 			}
-			else if(field == "subjectdn")
+			else if(field.Equals("subjectdn"))
 			{
 			    findType = X509FindType.FindBySubjectDistinguishedName;
 			}
-			else if(field == "issuer")
+			else if(field.Equals("issuer"))
 			{
 			    findType = X509FindType.FindByIssuerName;
 			}
-			else if(field == "issuerdn")
+			else if(field.Equals("issuerdn"))
 			{
 			    findType = X509FindType.FindByIssuerDistinguishedName;
 			}
-			else if(field == "thumbprint")
+			else if(field.Equals("thumbprint"))
 			{
 			    findType = X509FindType.FindByThumbprint;
 			}
-			else if(field == "subjectkeyid")
+			else if(field.Equals("subjectkeyid"))
 			{
 			    findType = X509FindType.FindBySubjectKeyIdentifier;
 			}
-			else if(field == "serial")
+			else if(field.Equals("serial"))
 			{
 			    findType = X509FindType.FindBySerialNumber;
 			}
 			else
 			{
-			    string msg = "IceSSL: unknown key in `" + value + "'";
-			    logger_.error(msg);
-			    Ice.SecurityException e = new Ice.SecurityException();
-			    e.reason = msg;
+			    Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+			    e.reason = "IceSSL: unknown key in `" + value + "'";
 			    throw e;
 			}
 
@@ -171,10 +161,8 @@ namespace IceSSL
 			}
 			if(start == value.Length)
 			{
-			    string msg = "IceSSL: missing argument in `" + value + "'";
-			    logger_.error(msg);
-			    Ice.SecurityException e = new Ice.SecurityException();
-			    e.reason = msg;
+			    Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+			    e.reason = "IceSSL: missing argument in `" + value + "'";
 			    throw e;
 			}
 
@@ -193,10 +181,8 @@ namespace IceSSL
 			    }
 			    if(end == value.Length || value[end] != value[start])
 			    {
-				string msg = "IceSSL: unmatched quote in `" + value + "'";
-				logger_.error(msg);
-				Ice.SecurityException e = new Ice.SecurityException();
-				e.reason = msg;
+				Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+				e.reason = "IceSSL: unmatched quote in `" + value + "'";
 				throw e;
 			    }
 			    ++start;

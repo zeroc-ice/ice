@@ -26,14 +26,14 @@ namespace IceSSL
 	{
 	    NetworkStream ns = new NetworkStream(fd, true);
 	    SslStream stream = new SslStream(ns, false, new RemoteCertificateValidationCallback(validationCallback),
-					     null); // TODO: Need callbacks?
+					     null);
 
 	    try
 	    {
 		AuthInfo info = new AuthInfo();
 		info.stream = stream;
 		info.done = false;
-		IAsyncResult ar = stream.BeginAuthenticateAsServer(cert_, verifyPeer_, protocols_, checkCRL_,
+		IAsyncResult ar = stream.BeginAuthenticateAsServer(cert_, verifyPeer_ > 1, protocols_, checkCRL_,
 								   new AsyncCallback(authCallback), info);
 		lock(info)
 		{
@@ -107,10 +107,9 @@ namespace IceSSL
 		{
 		    if(!File.Exists(certFile))
 		    {
-			logger_.error("IceSSL: server certificate file not found: " + certFile);
-			Ice.FileException ex = new Ice.FileException();
-			ex.path = certFile;
-			throw ex;
+			Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+			e.reason = "IceSSL: server certificate file not found: " + certFile;
+			throw e;
 		    }
 		    try
 		    {
@@ -125,8 +124,8 @@ namespace IceSSL
 		    }
 		    catch(CryptographicException ex)
 		    {
-			Ice.SecurityException e = new Ice.SecurityException(ex);
-			e.reason = "IceSSL: attempting to load certificate from " + certFile;
+			Ice.PluginInitializationException e = new Ice.PluginInitializationException(ex);
+			e.reason = "IceSSL: error while attempting to load certificate from " + certFile;
 			throw e;
 		    }
 		}
@@ -153,10 +152,8 @@ namespace IceSSL
 			}
 			if(certs.Count == 0)
 			{
-			    const string msg = "IceSSL: no server certificates found";
-			    logger_.error(msg);
-			    Ice.SecurityException e = new Ice.SecurityException();
-			    e.reason = msg;
+			    Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+			    e.reason = "IceSSL: no server certificates found";
 			    throw e;
 			}
 			else if(certs.Count > 1)
@@ -168,11 +165,8 @@ namespace IceSSL
 		}
 	    }
 
-	    verifyPeer_ = properties.getPropertyAsIntWithDefault(prefix + "VerifyPeer", 1) > 0;
-
+	    verifyPeer_ = properties.getPropertyAsIntWithDefault(prefix + "VerifyPeer", 2);
 	    protocols_ = parseProtocols(prefix + "Protocols");
-
-	    // TODO: Review default value
 	    checkCRL_ = properties.getPropertyAsIntWithDefault(prefix + "CheckCRL", 0) > 0;
 	}
 
@@ -207,20 +201,13 @@ namespace IceSSL
 	private bool validationCallback(object sender, X509Certificate certificate, X509Chain chain,
 					SslPolicyErrors sslPolicyErrors)
 	{
-	    if(sslPolicyErrors == SslPolicyErrors.None)
-	    {
-		if(instance_.securityTraceLevel() >= 1)
-		{
-		    logger_.trace(instance_.securityTraceCategory(), "SSL certificate validation succeeded");
-		}
-		return true;
-	    }
+	    SslStream stream = (SslStream)sender;
 
 	    string message = "";
 	    int errors = (int)sslPolicyErrors;
 	    if((errors & (int)SslPolicyErrors.RemoteCertificateNotAvailable) > 0)
 	    {
-		if(verifyPeer_)
+		if(verifyPeer_ > 1)
 		{
 		    if(instance_.securityTraceLevel() >= 1)
 		    {
@@ -250,15 +237,31 @@ namespace IceSSL
 		return false;
 	    }
 
+	    CertificateVerifier verifier = instance_.certificateVerifier();
+	    if(verifier != null)
+	    {
+		VerifyInfo info = new VerifyInfo();
+		info.incoming = true;
+		info.cert = certificate;
+		info.chain = chain;
+		info.stream = stream;
+		info.address = "";
+		if(!verifier.verify(info))
+		{
+		    return false;
+		}
+	    }
+
 	    if(instance_.securityTraceLevel() >= 1)
 	    {
 		logger_.trace(instance_.securityTraceCategory(), "SSL certificate validation succeeded" + message);
 	    }
+
 	    return true;
 	}
 
 	private X509Certificate2 cert_;
-	private bool verifyPeer_;
+	private int verifyPeer_;
 	private SslProtocols protocols_;
 	private bool checkCRL_;
     }

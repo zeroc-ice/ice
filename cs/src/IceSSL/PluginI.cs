@@ -44,6 +44,11 @@ namespace IceSSL
 	    instance_.initialize(clientCerts, serverCert);
 	}
 
+	public override void setCertificateVerifier(CertificateVerifier verifier)
+	{
+	    instance_.setCertificateVerifier(verifier);
+	}
+
 	private Instance instance_;
     }
 }

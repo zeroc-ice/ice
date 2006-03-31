@@ -61,7 +61,7 @@ namespace IceSSL
 	{
 	    if(clientContext_ != null)
 	    {
-		Ice.SecurityException e = new Ice.SecurityException();
+		Ice.PluginInitializationException e = new Ice.PluginInitializationException();
 		e.reason = "plugin is already initialized";
 		throw e;
 	    }
@@ -70,6 +70,11 @@ namespace IceSSL
 		clientContext_ = new ClientContext(this, clientCerts);
 		serverContext_ = new ServerContext(this, serverCert);
 	    }
+	}
+
+	internal void setCertificateVerifier(CertificateVerifier verifier)
+	{
+	    verifier_ = verifier;
 	}
 
 	internal Ice.Communicator communicator()
@@ -106,10 +111,8 @@ namespace IceSSL
 	{
 	    if(clientContext_ == null)
 	    {
-		string msg = "IceSSL: plugin is not fully initialized";
-		communicator().getLogger().error(msg);
-		Ice.SecurityException e = new Ice.SecurityException();
-		e.reason = msg;
+		Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+		e.reason = "IceSSL: plugin is not fully initialized";
 		throw e;
 	    }
 	    return clientContext_;
@@ -119,13 +122,16 @@ namespace IceSSL
 	{
 	    if(serverContext_ == null)
 	    {
-		string msg = "IceSSL: plugin is not fully initialized";
-		communicator().getLogger().error(msg);
-		Ice.SecurityException e = new Ice.SecurityException();
-		e.reason = msg;
+		Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+		e.reason = "IceSSL: plugin is not fully initialized";
 		throw e;
 	    }
 	    return serverContext_;
+	}
+
+	internal CertificateVerifier certificateVerifier()
+	{
+	    return verifier_;
 	}
 
 	internal void traceStream(System.Net.Security.SslStream stream, string connInfo)
@@ -156,38 +162,32 @@ namespace IceSSL
 	    int pos = store.IndexOf('.');
 	    if(pos == -1)
 	    {
-		string msg = "IceSSL: property `" + prop + "' has invalid format";
-		communicator().getLogger().error(msg);
-		Ice.SecurityException e = new Ice.SecurityException();
-		e.reason = msg;
+		Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+		e.reason = "IceSSL: property `" + prop + "' has invalid format";
 		throw e;
 	    }
 
 	    string sloc = store.Substring(0, pos).ToLower();
-	    if(sloc == "currentuser")
+	    if(sloc.Equals("currentuser"))
 	    {
 		loc = StoreLocation.CurrentUser;
 	    }
-	    else if(sloc == "localmachine")
+	    else if(sloc.Equals("localmachine"))
 	    {
 		loc = StoreLocation.LocalMachine;
 	    }
 	    else
 	    {
-		string msg = "IceSSL: unknown store location `" + sloc + "' in " + prop;
-		communicator().getLogger().error(msg);
-		Ice.SecurityException e = new Ice.SecurityException();
-		e.reason = msg;
+		Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+		e.reason = "IceSSL: unknown store location `" + sloc + "' in " + prop;
 		throw e;
 	    }
 
 	    sname = store.Substring(pos + 1);
 	    if(sname.Length == 0)
 	    {
-		string msg = "IceSSL: invalid store name in " + prop;
-		communicator().getLogger().error(msg);
-		Ice.SecurityException e = new Ice.SecurityException();
-		e.reason = msg;
+		Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+		e.reason = "IceSSL: invalid store name in " + prop;
 		throw e;
 	    }
 
@@ -224,10 +224,8 @@ namespace IceSSL
 	    string[] arr = splitString(propValue, ';');
 	    if(arr == null)
 	    {
-		string msg = "IceSSL: unmatched quote in `" + propValue + "'";
-		communicator().getLogger().error(msg);
-		Ice.SecurityException e = new Ice.SecurityException();
-		e.reason = msg;
+		Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+		e.reason = "IceSSL: unmatched quote in `" + propValue + "'";
 		throw e;
 	    }
 	    if(arr.Length == 0)
@@ -259,10 +257,8 @@ namespace IceSSL
 	    }
 	    catch(Exception ex)
 	    {
-		string msg = "IceSSL: failure while opening store specified by " + propName;
-		communicator().getLogger().error(msg);
-		Ice.SecurityException e = new Ice.SecurityException(ex);
-		e.reason = msg;
+		Ice.PluginInitializationException e = new Ice.PluginInitializationException(ex);
+		e.reason = "IceSSL: failure while opening store specified by " + propName;
 		throw e;
 	    }
 
@@ -284,10 +280,8 @@ namespace IceSSL
 	    }
 	    catch(Exception ex)
 	    {
-		string msg = "IceSSL: failure while adding certificate `" + file + "'";
-		communicator().getLogger().error(msg);
-		Ice.SecurityException e = new Ice.SecurityException(ex);
-		e.reason = msg;
+		Ice.PluginInitializationException e = new Ice.PluginInitializationException(ex);
+		e.reason = "IceSSL: failure while adding certificate `" + file + "'";
 		throw e;
 	    }
 	    finally
@@ -368,5 +362,6 @@ namespace IceSSL
 	private string securityTraceCategory_;
 	private ClientContext clientContext_;
 	private ServerContext serverContext_;
+	private CertificateVerifier verifier_;
     }
 }
