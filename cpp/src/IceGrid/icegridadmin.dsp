@@ -131,6 +131,10 @@ SOURCE=.\FileParser.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\FileParserI.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Grammar.cpp
 # End Source File
 # Begin Source File
@@ -152,6 +156,10 @@ SOURCE=.\Util.cpp
 # Begin Source File
 
 SOURCE=.\FileParser.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\FileParserI.h
 # End Source File
 # Begin Source File
 
