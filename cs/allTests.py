@@ -71,7 +71,8 @@ tests = [ \
     "Glacier2/router", \
     "IceGrid/simple", \
     ]
-
+if os.path.exists(os.path.join(toplevel, "bin", "icesslcs.dll")):
+    tests.append("IceSSL/configuration")
 
 def usage():
     print "usage: " + sys.argv[0] + " [-l]"
