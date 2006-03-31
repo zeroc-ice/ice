@@ -7,6 +7,10 @@
 //
 // **********************************************************************
 
+//
+// NOTE: This test is not interoperable with other language mappings.
+//
+
 using System;
 using System.Security.Cryptography.X509Certificates;
 
@@ -114,7 +118,6 @@ public class AllTests
 
 	string defaultHost = communicator.getProperties().getProperty("Ice.Default.Host");
 	string defaultDir = testDir + "/../certs";
-	//string sep = ";"; // TODO: Fix when Mono supports .NET 2.0.
 
 	//
 	// Load the CA certificates. We could use the IceSSL.ImportCert property, but
@@ -174,6 +177,40 @@ public class AllTests
 		Test.Properties d = createServerProps(testDir, defaultHost);
 		d["IceSSL.Server.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
 		d["IceSSL.Server.Password"] = "password";
+		store.Add(caCert1);
+		Test.ServerPrx server = fact.createServer(d);
+		try
+		{
+		    server.ice_ping();
+		}
+		catch(Ice.LocalException)
+		{
+		    test(false);
+		}
+		fact.destroyServer(server);
+		store.Remove(caCert1);
+		comm.destroy();
+	    }
+	    {
+		//
+		// Supply our own certificate.
+		//
+		X509Certificate2 cert = new X509Certificate2(defaultDir + "/c_rsa_nopass_ca1.pfx", "password");
+		X509Certificate2Collection coll = new X509Certificate2Collection();
+		coll.Add(cert);
+		Ice.Properties props = createClientProps(testDir, defaultHost);
+		props.setProperty("IceSSL.DelayInit", "1");
+		Ice.Communicator comm = Ice.Util.initializeWithProperties(ref args, props);
+		IceSSL.Plugin plugin = (IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
+		test(plugin != null);
+		plugin.initialize(coll, null);
+		Ice.ObjectPrx obj = comm.stringToProxy(factoryRef);
+		test(obj != null);
+		Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(obj);
+		Test.Properties d = createServerProps(testDir, defaultHost);
+		d["IceSSL.Server.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
+		d["IceSSL.Server.Password"] = "password";
+		d["IceSSL.Server.VerifyPeer"] = "2";
 		store.Add(caCert1);
 		Test.ServerPrx server = fact.createServer(d);
 		try
