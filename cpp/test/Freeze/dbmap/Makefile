@@ -17,7 +17,8 @@ OBJS		= Client.o \
                   ByteIntMap.o \
                   IntIdentityMap.o \
                   IntIdentityMapWithIndex.o \
-                  SortedMap.o
+                  SortedMap.o \
+		  WstringWstringMap.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
@@ -45,8 +46,12 @@ SortedMap.h SortedMap.cpp: $(SLICE2FREEZE)
 	rm -f SortedMap.h SortedMap.cpp
 	$(SLICE2FREEZE)  --ice $(SLICE2CPPFLAGS) --dict Test::SortedMap,int,Ice::Identity,sort SortedMap --dict-index "Test::SortedMap,category,sort,std::greater<std::string>" $(slicedir)/Ice/Identity.ice
 
+WstringWstringMap.h WstringWstringMap.cpp: $(SLICE2FREEZE)
+	rm -f WstringWstringMap.h WstringWstringMap.cpp
+	$(SLICE2FREEZE) --dict 'Test::WstringWstringMap,["cpp:type:wstring"]string,["cpp:type:wstring"]string' --dict-index Test::WstringWstringMap WstringWstringMap
+
 clean::
-	rm -f ByteIntMap.h ByteIntMap.cpp IntIdentityMap.h IntIdentityMap.cpp IntIdentityMapWithIndex.h IntIdentityMapWithIndex.cpp SortedMap.h SortedMap.cpp
+	rm -f ByteIntMap.h ByteIntMap.cpp IntIdentityMap.h IntIdentityMap.cpp IntIdentityMapWithIndex.h IntIdentityMapWithIndex.cpp SortedMap.h SortedMap.cpp WstringWstringMap.h WstringWstringMap.cpp
 
 clean::
 	rm -f db/binary db/binary.* db/intIdentity db/intIdentity.* db/__catalog db/log.*

@@ -14,6 +14,7 @@
 #include <IntIdentityMap.h>
 #include <IntIdentityMapWithIndex.h>
 #include <SortedMap.h>
+#include <WstringWstringMap.h>
 #include <Freeze/TransactionHolder.h>
 
 #include <algorithm>
@@ -723,6 +724,35 @@ run(const CommunicatorPtr& communicator, const string& envName)
 	sm.clear();
     }
 
+    cout << "ok" << endl;
+
+    cout << "testing wstring... " << flush;
+
+    { 
+	WstringWstringMap wsm(connection, "wstringMap");
+	    
+	TransactionHolder txHolder(connection);
+	wsm.put(WstringWstringMap::value_type(L"AAAAA", L"aaaaa"));
+	wsm.put(WstringWstringMap::value_type(L"BBBBB", L"bbbbb"));
+	wsm.put(WstringWstringMap::value_type(L"CCCCC", L"ccccc"));
+	wsm.put(WstringWstringMap::value_type(L"DDDDD", L"ddddd"));
+	wsm.put(WstringWstringMap::value_type(L"EEEEE", L"eeeee"));
+	txHolder.commit();
+    }
+
+    { 
+	WstringWstringMap wsm(connection, "wstringMap");
+	{
+	     WstringWstringMap::iterator p = wsm.find(L"BBBBB");
+	     test(p != wsm.end());
+	     test(p->second == L"bbbbb");
+	     
+	     p = wsm.findByValue(L"ddddd");
+	     test(p != wsm.end());
+	     test(p->first == L"DDDDD");
+	}
+	wsm.clear();
+    }
 
     cout << "ok" << endl;
 
