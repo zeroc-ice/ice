@@ -296,6 +296,8 @@ protected:
 private:
 
     std::string _adapterId;
+    bool _overrideTimeout;
+    int _timeout; // Only used if _overrideTimeout == true
     LocatorInfoPtr _locatorInfo;
 #ifdef ICEE_HAS_ROUTER
     typedef RoutableReference Parent;

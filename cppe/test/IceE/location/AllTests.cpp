@@ -12,8 +12,13 @@
 #ifdef ICEE_HAS_LOCATOR
 
 #include <IceE/IceE.h>
+#include <IceE/Locator.h>
 #include <TestCommon.h>
 #include <Test.h>
+
+#ifdef ICEE_HAS_ROUTER
+#   include <IceE/Router.h>
+#endif
 
 using namespace std;
 using namespace Test;
@@ -25,6 +30,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	communicator->stringToProxy(
 	    communicator->getProperties()->getPropertyWithDefault(
 		"Location.Proxy", "ServerManager:default -p 12010 -t 10000")));
+    Ice::LocatorPrx locator = Ice::LocatorPrx::uncheckedCast(communicator->getDefaultLocator());
     test(manager);
 
     tprintf("testing stringToProxy...");
@@ -36,6 +42,39 @@ allTests(const Ice::CommunicatorPtr& communicator)
     Ice::ObjectPrx base6 = communicator->stringToProxy("test @ ReplicatedAdapter");
     tprintf("ok\n");
 
+    tprintf("testing ice_locator and ice_getLocator... ");
+    test(Ice::proxyIdentityEqual(base->ice_getLocator(), communicator->getDefaultLocator()));
+    Ice::LocatorPrx anotherLocator = Ice::LocatorPrx::uncheckedCast(communicator->stringToProxy("anotherLocator"));
+    base = base->ice_locator(anotherLocator);
+    test(Ice::proxyIdentityEqual(base->ice_getLocator(), anotherLocator));
+    communicator->setDefaultLocator(0);
+    base = communicator->stringToProxy("test @ TestAdapter");
+    test(!base->ice_getLocator());
+    base = base->ice_locator(anotherLocator);
+    test(Ice::proxyIdentityEqual(base->ice_getLocator(), anotherLocator));
+    communicator->setDefaultLocator(locator);
+    base = communicator->stringToProxy("test @ TestAdapter");
+    test(Ice::proxyIdentityEqual(base->ice_getLocator(), communicator->getDefaultLocator())); 
+    
+#ifdef ICEE_HAS_ROUTER
+    //
+    // We also test ice_router/ice_getRouter (perhaps we should add a
+    // test/Ice/router test?)
+    //
+    test(!base->ice_getRouter());
+    Ice::RouterPrx anotherRouter = Ice::RouterPrx::uncheckedCast(communicator->stringToProxy("anotherRouter"));
+    base = base->ice_router(anotherRouter);
+    test(Ice::proxyIdentityEqual(base->ice_getRouter(), anotherRouter));
+    Ice::RouterPrx router = Ice::RouterPrx::uncheckedCast(communicator->stringToProxy("dummyrouter"));
+    communicator->setDefaultRouter(router);
+    base = communicator->stringToProxy("test @ TestAdapter");
+    test(Ice::proxyIdentityEqual(base->ice_getRouter(), communicator->getDefaultRouter()));
+    communicator->setDefaultRouter(0);
+    base = communicator->stringToProxy("test @ TestAdapter");
+    test(!base->ice_getRouter());
+#endif
+    tprintf("ok\n");
+    
     tprintf("starting server...");
     manager->startServer();
     tprintf("ok\n");

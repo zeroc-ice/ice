@@ -857,6 +857,8 @@ IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const
 						  const RouterInfoPtr& rtrInfo, const LocatorInfoPtr& locInfo) :
     RoutableReference(inst, com, ident, ctx, fs, md, sec, rtrInfo),
     _adapterId(adptid),
+    _overrideTimeout(false),
+    _timeout(0),
     _locatorInfo(locInfo)
 {
 }
@@ -867,6 +869,8 @@ IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const
 						  const LocatorInfoPtr& locInfo) :
     Reference(inst, com, ident, ctx, fs, md, sec),
     _adapterId(adptid),
+    _overrideTimeout(false),
+    _timeout(0),
     _locatorInfo(locInfo)
 {
 }
@@ -894,12 +898,13 @@ IceInternal::IndirectReference::changeLocator(const LocatorPrx& newLocator) cons
 ReferencePtr
 IceInternal::IndirectReference::changeTimeout(int newTimeout) const
 {
-    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
-    if(_locatorInfo)
+    if(_overrideTimeout && newTimeout == _timeout)
     {
-	LocatorPrx newLocator = LocatorPrx::uncheckedCast(_locatorInfo->getLocator()->ice_timeout(newTimeout));
-	r->_locatorInfo = getInstance()->locatorManager()->get(newLocator);
+	return IndirectReferencePtr(const_cast<IndirectReference*>(this));
     }
+    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
+    r->_timeout = newTimeout;
+    r->_overrideTimeout = true;
     return r;
 }
 
@@ -960,6 +965,18 @@ IceInternal::IndirectReference::getConnection() const
 	    const IndirectReferencePtr self = const_cast<IndirectReference*>(this);
 	    endpts = _locatorInfo->getEndpoints(self, cached);
 	}
+
+	//
+	// Apply the endpoint overrides to each endpoint.
+	//
+	for(vector<EndpointPtr>::iterator p = endpts.begin(); p != endpts.end(); ++p)
+	{
+	    if(_overrideTimeout)
+	    {
+		*p = (*p)->timeout(_timeout);
+	    }
+	}
+
 	vector<EndpointPtr> filteredEndpoints = filterEndpoints(endpts, getMode(), getSecure());
 	if(filteredEndpoints.empty())
 	{
@@ -1054,7 +1071,9 @@ IceInternal::IndirectReference::operator==(const Reference& r) const
     {
         return false;
     }
-    return _adapterId == rhs->_adapterId && _locatorInfo == rhs->_locatorInfo;
+    return _adapterId == rhs->_adapterId && 
+	_overrideTimeout == rhs->_overrideTimeout && (!_overrideTimeout || _timeout == rhs->_timeout) &&
+	_locatorInfo == rhs->_locatorInfo;
 }
 
 bool
@@ -1087,6 +1106,27 @@ IceInternal::IndirectReference::operator<(const Reference& r) const
             {
                 return false;
             }
+
+	    if(!_overrideTimeout && rhs->_overrideTimeout)
+	    {
+		return true;
+	    }
+	    else if(rhs->_overrideTimeout < _overrideTimeout)
+	    {
+		return false;
+	    }
+	    else if(_overrideTimeout)
+	    {
+		if(_timeout < rhs->_timeout)
+		{
+		    return true;
+		}
+		else if(rhs->_timeout < _timeout)
+		{
+		    return false;
+		}
+	    }
+
             return _locatorInfo < rhs->_locatorInfo;
         }
     }
@@ -1100,7 +1140,11 @@ IceInternal::IndirectReference::clone() const
 }
 
 IceInternal::IndirectReference::IndirectReference(const IndirectReference& r)
-    : Parent(r), _adapterId(r._adapterId), _locatorInfo(r._locatorInfo)
+    : Parent(r), 
+      _adapterId(r._adapterId), 
+      _overrideTimeout(r._overrideTimeout),
+      _timeout(r._timeout),
+      _locatorInfo(r._locatorInfo)
 {
 }
 
