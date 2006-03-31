@@ -26,8 +26,10 @@ if ! [ -f cakey1.pem ]; then
     # Generate CA certificates. Also make copies of the certificates using their
     # hash values as filenames, which allows OpenSSL to find them at run time.
     #
-    openssl req -config test_ca.cnf -x509 -days 3650 -newkey rsa -keyout cakey1.pem -out cacert1.pem -outform PEM -nodes
-    openssl req -config test_ca.cnf -x509 -days 3650 -newkey rsa -keyout cakey2.pem -out cacert2.pem -outform PEM -nodes
+    openssl req -config test_ca1.cnf -x509 -days 3650 -newkey rsa -keyout cakey1.pem -out cacert1.pem \
+	-outform PEM -nodes
+    openssl req -config test_ca2.cnf -x509 -days 3650 -newkey rsa -keyout cakey2.pem -out cacert2.pem \
+	-outform PEM -nodes
     cp cacert1.pem `openssl x509 -hash -noout -in cacert1.pem`.0
     cp cacert2.pem `openssl x509 -hash -noout -in cacert2.pem`.1
 

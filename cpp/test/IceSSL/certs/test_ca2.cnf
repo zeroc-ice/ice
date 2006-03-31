@@ -39,7 +39,7 @@ stateOrProvinceName    = Florida
 localityName           = Palm Beach Gardens
 organizationName       = ZeroC, Inc.
 organizationalUnitName = Ice
-commonName             = ZeroC Test CA
+commonName             = ZeroC Test CA 2
 emailAddress           = info@zeroc.com
 
 
