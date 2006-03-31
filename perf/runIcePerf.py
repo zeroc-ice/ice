@@ -145,21 +145,21 @@ def runIceEPerfs(expr, results, i):
     test.run("tpc", "throughput", "structSeq ", "")
     test.run("tpc blocking", "throughput", "structSeq " + blocking, "")
 
-    test = ClientServerTest(expr, results, i, "IceE", "throughput byte (receive)")
-    test.run("tpc", "throughput", "receive byte ", "")
-    test.run("tpc blocking", "throughput", "receive byte " + blocking, "")
+    #test = ClientServerTest(expr, results, i, "IceE", "throughput byte (receive)")
+    #test.run("tpc", "throughput", "receive byte ", "")
+    #test.run("tpc blocking", "throughput", "receive byte " + blocking, "")
     
-    test = ClientServerTest(expr, results, i, "IceE", "throughput string seq (receive)")
-    test.run("tpc", "throughput", "receive stringSeq ", "")
-    test.run("tpc blocking", "throughput", "receive stringSeq " + blocking, "")
+    #test = ClientServerTest(expr, results, i, "IceE", "throughput string seq (receive)")
+    #test.run("tpc", "throughput", "receive stringSeq ", "")
+    #test.run("tpc blocking", "throughput", "receive stringSeq " + blocking, "")
     
-    test = ClientServerTest(expr, results, i, "IceE", "throughput long string seq (receive)")
-    test.run("tpc", "throughput", "receive longStringSeq ", "")
-    test.run("tpc blocking", "throughput", "receive longStringSeq " + blocking, "")
+    #test = ClientServerTest(expr, results, i, "IceE", "throughput long string seq (receive)")
+    #test.run("tpc", "throughput", "receive longStringSeq ", "")
+    #test.run("tpc blocking", "throughput", "receive longStringSeq " + blocking, "")
     
-    test = ClientServerTest(expr, results, i, "IceE", "throughput struct seq (receive)")
-    test.run("tpc", "throughput", "receive structSeq ", "")
-    test.run("tpc blocking", "throughput", "receive structSeq " + blocking, "")
+    #test = ClientServerTest(expr, results, i, "IceE", "throughput struct seq (receive)")
+    #test.run("tpc", "throughput", "receive structSeq ", "")
+    #test.run("tpc blocking", "throughput", "receive structSeq " + blocking, "")
 
 def runTAOPerfs(expr, results, i):
 

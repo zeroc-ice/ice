@@ -118,7 +118,7 @@ int main(int argc, char** argv)
 #ifdef WIN32
 	    struct _timeb tb;
 	    _ftime(&tb);
-	    long start = tb.time * 1000000 + tb.millitm * 1000;
+	    __time64_t start = tb.time * 1000000 + tb.millitm * 1000;
 #else
 	    struct timeval tv;
 	    gettimeofday(&tv, 0);
@@ -192,7 +192,7 @@ int main(int argc, char** argv)
 #ifdef WIN32
 	    struct _timeb tb;
 	    _ftime(&tb);
-	    long start = tb.time * 1000000 + tb.millitm * 1000;
+	    __time64_t start = tb.time * 1000000 + tb.millitm * 1000;
 #else
 	    struct timeval tv;
 	    gettimeofday(&tv, 0);

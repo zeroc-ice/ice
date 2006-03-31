@@ -58,12 +58,21 @@ char response[25] = { 0x49, 0x63, 0x65, 0x50, 0x01, 0x00, 0x01, 0x00,
 int
 main(int argc, char* argv[])
 {
+#ifdef _WIN32
+    WORD version = MAKEWORD(1, 1);
+    WSADATA data;
+    if(WSAStartup(version, &data) != 0)
+    {
+        cerr << "WSAStartup failed!" << endl;
+    }
+#endif
+
     char buffer[64];
 
     SOCKET fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if(fd == INVALID_SOCKET)
     {
-        cerr << "Create socket failed!" << endl;
+        cerr << "Create socket failed! " << WSAGetLastError() << endl;
 	return EXIT_FAILURE;
     }
 

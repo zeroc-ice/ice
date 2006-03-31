@@ -58,6 +58,15 @@ char request[41] = { 0x49, 0x63, 0x65, 0x50, 0x01, 0x00, 0x01, 0x00,
 int
 main(int argc, char* argv[])
 {
+#ifdef _WIN32
+    WORD version = MAKEWORD(1, 1);
+    WSADATA data;
+    if(WSAStartup(version, &data) != 0)
+    {
+        cerr << "WSAStartup failed!" << endl;
+    }
+#endif
+
     char buffer[64];
 
     SOCKET fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -88,7 +97,7 @@ main(int argc, char* argv[])
 #ifdef WIN32
     struct _timeb tb;
     _ftime(&tb);
-    long start = (long)tb.time * 1000000 + (long)tb.millitm * 1000;
+    __time64_t start = tb.time * 1000000 + tb.millitm * 1000;
 #else
     struct timeval tv;
     gettimeofday(&tv, 0);
