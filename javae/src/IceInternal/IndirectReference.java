@@ -50,8 +50,7 @@ public class IndirectReference extends RoutableReference
     changeLocator(Ice.LocatorPrx newLocator)
     {
 	LocatorInfo newLocatorInfo = getInstance().locatorManager().get(newLocator);
-	if((newLocatorInfo == _locatorInfo) ||
-	   (_locatorInfo != null && newLocatorInfo != null && newLocatorInfo.equals(_locatorInfo)))
+	if(_locatorInfo != null && newLocatorInfo != null && newLocatorInfo.equals(_locatorInfo))
 	{
 	    return this;
 	}
