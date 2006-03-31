@@ -26,6 +26,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.File;
 
 import javax.swing.AbstractAction;
@@ -949,6 +951,112 @@ public class Coordinator
 	return _mainPane;
     }
 
+    public ApplicationDescriptor parseFile(File file)
+    {
+	if(_icegridadminProcess == null)
+	{
+	    //
+	    // Start icegridadmin server
+	    //
+	    try
+	    {
+		_icegridadminProcess = Runtime.getRuntime().exec("icegridadmin --server");
+	    }
+	    catch(java.io.IOException e)
+	     {
+		JOptionPane.showMessageDialog(
+		    _mainFrame,
+		    "Failed to start icegridadmin subprocess: " + e.toString(),
+		    "IO Exception",
+		    JOptionPane.ERROR_MESSAGE);
+		return null;
+	    }
+	    
+	    try
+	    {
+		BufferedReader reader = 
+		    new BufferedReader(new InputStreamReader(_icegridadminProcess.getInputStream(),
+							     "US-ASCII"));
+		
+		String str = reader.readLine();
+		reader.close();
+		_fileParser = FileParserPrxHelper.checkedCast(_communicator.stringToProxy(str));
+	    }
+	    catch(java.io.UnsupportedEncodingException e)
+	    {
+		assert false;
+	    }
+	    catch(java.io.IOException e)
+	    {
+		JOptionPane.showMessageDialog(
+		    _mainFrame,
+		    "IO Exception: " + e.toString(),
+		    "IO Exception",
+		    JOptionPane.ERROR_MESSAGE);
+
+		destroyIceGridAdmin();
+		return null;
+
+	    }
+	    catch(Ice.LocalException e)
+	    {
+		JOptionPane.showMessageDialog(
+		    _mainFrame,
+		    "Failed to retrieve FileParser from icegridadmin subprocess: " + e.toString(),
+		    "Communication error",
+		    JOptionPane.ERROR_MESSAGE);
+
+		destroyIceGridAdmin();
+		return null;
+	    }
+	}
+
+	//
+	// TODO: create a local admin object (with a direct proxy) that routes 
+	// getDefaultApplicationDescriptor() to the real admin
+	//
+	AdminPrx admin = null;
+
+	try
+	{
+	    return _fileParser.parse(file.getAbsolutePath(), admin);
+	}
+	catch(ParseException e)
+	{
+	    JOptionPane.showMessageDialog(
+		_mainFrame,
+		"Failed to parse file '" + file.getAbsolutePath() + "':\n" + e.toString(),
+		"Parse error",
+		JOptionPane.ERROR_MESSAGE);
+	    return null;
+	}
+	catch(Ice.LocalException e)
+	{
+	    JOptionPane.showMessageDialog(
+		_mainFrame,
+		"Operation on FileParser failed:\n" + e.toString(),
+		"Communication error",
+		JOptionPane.ERROR_MESSAGE);
+	    destroyIceGridAdmin();
+	    return null;
+	}
+    }
+
+    private void destroyIceGridAdmin()
+    {
+	if(_icegridadminProcess != null)
+	{
+	    try
+	    {
+		_icegridadminProcess.destroy();
+	    }
+	    catch(Exception e)
+	    {}
+	    _icegridadminProcess = null;
+	    _fileParser = null;
+	}
+    }
+
     public File saveToFile(boolean ask, IceGridGUI.Application.Root root,
 			   File file)
     {
@@ -1170,7 +1278,17 @@ public class Coordinator
 		    int result = _fileChooser.showOpenDialog(_mainFrame);
 		    if(result == JFileChooser.APPROVE_OPTION)
 		    {
-			System.err.println("Opening file: " + _fileChooser.getSelectedFile().getAbsolutePath());
+			File file = _fileChooser.getSelectedFile();
+
+			ApplicationDescriptor desc = parseFile(file);
+
+			if(desc != null)
+			{
+			    ApplicationPane app = 
+				new ApplicationPane(new IceGridGUI.Application.Root(Coordinator.this, desc, false, file));
+			    _mainPane.addApplication(app);
+			    _mainPane.setSelectedComponent(app);
+			}
 		    }
 		}
 	    };
@@ -1558,6 +1676,8 @@ public class Coordinator
     //
     private void destroyCommunicator()
     {
+	destroyIceGridAdmin();
+
 	try	   
 	{
 	    _communicator.destroy();
@@ -1787,6 +1907,9 @@ public class Coordinator
     private final Thread _shutdownHook;
 
     private JFileChooser _fileChooser;
+    
+    private Process _icegridadminProcess;
+    private FileParserPrx _fileParser;
 
     static private final int HISTORY_MAX_SIZE = 20;
 

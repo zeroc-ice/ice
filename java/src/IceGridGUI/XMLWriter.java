@@ -46,12 +46,9 @@ public class XMLWriter
 
     public void writeElement(String name, String content) throws IOException
     {
-	//
-	// TODO: deal with ]]> content
-	//
 	_writer.write(_indent);
-	_writer.write("<" + name + "><![CDATA[" + content 
-		      + "]]></" + name + ">" + _newline);
+	_writer.write("<" + name + ">" + escape(content) + 
+		      "</" + name + ">" + _newline);
     }
 
     public void writeStartTag(String name, java.util.List attributes)
@@ -110,6 +107,60 @@ public class XMLWriter
     {
 	_indent = _indent.substring(3);
     }
+
+    private String
+    escape(String input)
+    {
+        String v = input;
+
+        //
+        // Find out whether there is a reserved character to avoid
+        // conversion if not necessary.
+        //
+        final String allReserved = "<>'\"&";
+        boolean hasReserved = false;
+        char[] arr = input.toCharArray();
+        for(int i = 0; i < arr.length; i++)
+        {
+            if(allReserved.indexOf(arr[i]) != -1)
+            {
+                hasReserved = true;
+                break;
+            }
+        }
+        if(hasReserved)
+        {
+            //
+            // First convert all & to &amp;
+            //
+            if(v.indexOf('&') != -1)
+            {
+                v = v.replaceAll("&", "&amp;");
+            }
+
+            //
+            // Next convert remaining reserved characters.
+            //
+            if(v.indexOf('>') != -1)
+            {
+                v = v.replaceAll(">", "&gt;");
+            }
+            if(v.indexOf('<') != -1)
+            {
+                v = v.replaceAll("<", "&lt;");
+            }
+            if(v.indexOf('\'') != -1)
+            {
+                v = v.replaceAll("'", "&apos;");
+            }
+            if(v.indexOf('"') != -1)
+            {
+                v = v.replaceAll("\"", "&quot;");
+            }
+        }
+        return v;
+    }
+
 
     private Writer _writer;
     private String _indent = "";

@@ -501,36 +501,40 @@ public class Root extends ListTreeNode
 
     public void discardUpdates()
     {
+	ApplicationDescriptor desc = null;
+
 	if(_live)
 	{
-	   ApplicationDescriptor desc = _coordinator.getLiveDeploymentRoot().getApplicationDescriptor(_id);
-	   assert desc != null;
-	   desc = IceGridGUI.Application.Root.copyDescriptor(desc);
-
-	   Root newRoot = new Root(_coordinator, desc, true, null);
-	   ApplicationPane app = _coordinator.getMainPane().findApplication(this);
-	   assert app != null;
-	   app.setRoot(newRoot);
-	   
-	   TreeNode node = newRoot.findNodeLike(_tree.getSelectionPath(), false);
-	   if(node == null)
-	   {
-	       newRoot.setSelectedNode(newRoot);
-	   }
-	   else
-	   {
-	       newRoot.setSelectedNode(node);
-	   }
+	    desc = _coordinator.getLiveDeploymentRoot().getApplicationDescriptor(_id);
+	    assert desc != null;
+	    desc = IceGridGUI.Application.Root.copyDescriptor(desc);
 	}
 	else if(_file != null)
 	{
-	    //
-	    // TODO: re-read file
-	    //
+	    desc = _coordinator.parseFile(_file);
+	    if(desc == null)
+	    {
+		return;
+	    }
 	}
 	else
 	{
 	    assert false;
+	}
+
+	Root newRoot = new Root(_coordinator, desc, _live, _file);
+	ApplicationPane app = _coordinator.getMainPane().findApplication(this);
+	assert app != null;
+	app.setRoot(newRoot);
+	
+	TreeNode node = newRoot.findNodeLike(_tree.getSelectionPath(), false);
+	if(node == null)
+	{
+	    newRoot.setSelectedNode(newRoot);
+	}
+	else
+	{
+	    newRoot.setSelectedNode(node);
 	}
 	_coordinator.getCurrentTab().selected();
     }
@@ -950,7 +954,12 @@ public class Root extends ListTreeNode
 
 	writer.writeStartTag("application", attributes);
 
+	if(_descriptor.description.length() > 0)
+	{
+	    writer.writeElement("description", _descriptor.description);
+	}
 	writeVariables(writer, _descriptor.variables);
+	writeDistribution(writer, _descriptor.distrib);
 
 	_serviceTemplates.write(writer);
 	_serverTemplates.write(writer);

@@ -218,6 +218,11 @@ class Node extends ListTreeNode
 	    }
 	    
 	    writer.writeStartTag("node", attributes);
+	    
+	    if(_descriptor.description.length() > 0)
+	    {
+		writer.writeElement("description", _descriptor.description);
+	    }
 	    writeVariables(writer, _descriptor.variables);
 
 	    java.util.Iterator p = _children.iterator();
