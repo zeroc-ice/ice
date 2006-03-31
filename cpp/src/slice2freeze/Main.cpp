@@ -267,7 +267,8 @@ writeCodecC(const TypePtr& type, const StringList& metaData, const string& name,
 
     string typeId = type->typeId();
     BuiltinPtr builtInType = BuiltinPtr::dynamicCast(type);
-    if(builtInType &&  builtInType->kind() == Builtin::KindString && metaData.front() == "cpp:type:wstring")
+    if(builtInType &&  builtInType->kind() == Builtin::KindString && metaData.size() != 0 && 
+       metaData.front() == "cpp:type:wstring")
     {
         typeId = "wstring";
     }
