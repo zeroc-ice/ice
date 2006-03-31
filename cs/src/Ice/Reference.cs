@@ -1239,6 +1239,8 @@ namespace IceInternal
 	    : base(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt)
 	{
 	    adapterId_ = adptid;
+	    overrideTimeout_ = false;
+	    timeout_ = 0;
 	    locatorInfo_ = locInfo;
 	    locatorCacheTimeout_ = locatorCacheTimeout;
 	}

@@ -27,6 +27,8 @@ public class IndirectReference extends RoutableReference
     {
     	super(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt);
         _adapterId = adptid;
+	_overrideTimeout = false;
+	_timeout = 0;
 	_locatorInfo = locInfo;
 	_locatorCacheTimeout = locatorCacheTimeout;
     }
