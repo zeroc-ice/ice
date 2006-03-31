@@ -29,7 +29,7 @@ IceUtil::RandomGeneratorException::RandomGeneratorException(const char* file, in
 const char* IceUtil::RandomGeneratorException::_name = "IceUtil::RandomGeneratorException";
 
 //
-// The static mutex is required to lazy initialized the file
+// The static mutex is required to lazy initialize the file
 // descriptor for /dev/urandom (Unix) or the cryptographic 
 // context (Windows).
 //
@@ -43,7 +43,7 @@ const char* IceUtil::RandomGeneratorException::_name = "IceUtil::RandomGenerator
 // 
 static IceUtil::StaticMutex staticMutex = ICE_STATIC_MUTEX_INITIALIZER;
 #ifdef _WIN32
-HCRYPTPROV context = NULL;
+static HCRYPTPROV context = NULL;
 #else
 static int fd = -1;
 #endif
@@ -67,7 +67,6 @@ public:
 	    context = NULL;
 	}
 #else
-	IceUtil::StaticMutex::Lock lock(staticMutex);
 	if(fd != -1)
 	{
 	    close(fd);
