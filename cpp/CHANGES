@@ -1,9 +1,15 @@
 Changes since version 3.0.1
 ---------------------------
 
-- Added support for the "cpp:type:wstring" slice metadata. When used
-  generated code will use std::wstring instead of std::string. See
-  manual for more details.
+- Replaced the IceSSL plugin. The new plugin no longer uses an XML
+  configuration file but rather relies solely on properties. A Python
+  script is provided in config/convertssl.py to convert old XML files
+  to the new properties. See the Ice manual for more information on
+  the plugin.
+
+- Added support for new Slice metadata ("cpp:type:wstring") that
+  generates code to use std::wstring instead of std::string. See the
+  Ice manual for more details.
 
 - The ice_timeout and ice_compress proxy methods now correctly
   override the timeout and compress flag of indirect proxy endpoints.
