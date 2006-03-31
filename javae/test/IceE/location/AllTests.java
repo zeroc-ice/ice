@@ -27,6 +27,8 @@ public class AllTests
 	    "ServerManager :default -t 10000 -p 12010");
 	ServerManagerPrx manager = ServerManagerPrxHelper.checkedCast(communicator.stringToProxy(serverManagerRef));
 	test(manager != null);
+	Ice.LocatorPrx locator = Ice.LocatorPrxHelper.uncheckedCast(communicator.getDefaultLocator());
+	test(locator != null);
 
 	out.print("testing stringToProxy... ");
         out.flush();
@@ -37,6 +39,38 @@ public class AllTests
 	Ice.ObjectPrx base5 = communicator.stringToProxy("test2");
 	Ice.ObjectPrx base6 = communicator.stringToProxy("test @ ReplicatedAdapter");
 	out.println("ok");
+
+	System.out.print("testing ice_locator and ice_getLocator... ");
+	test(Ice.Util.proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator()) == 0);
+	Ice.LocatorPrx anotherLocator = 
+	    Ice.LocatorPrxHelper.uncheckedCast(communicator.stringToProxy("anotherLocator"));
+	base = base.ice_locator(anotherLocator);
+	test(Ice.Util.proxyIdentityCompare(base.ice_getLocator(), anotherLocator) == 0);
+	communicator.setDefaultLocator(null);
+	base = communicator.stringToProxy("test @ TestAdapter");
+	test(base.ice_getLocator() == null);
+	base = base.ice_locator(anotherLocator);
+	test(Ice.Util.proxyIdentityCompare(base.ice_getLocator(), anotherLocator) == 0);
+	communicator.setDefaultLocator(locator);
+	base = communicator.stringToProxy("test @ TestAdapter");
+	test(Ice.Util.proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator()) == 0); 
+	
+	//
+	// We also test ice_router/ice_getRouter (perhaps we should add a
+	// test/Ice/router test?)
+	//
+	test(base.ice_getRouter() == null);
+	Ice.RouterPrx anotherRouter = Ice.RouterPrxHelper.uncheckedCast(communicator.stringToProxy("anotherRouter"));
+	base = base.ice_router(anotherRouter);
+	test(Ice.Util.proxyIdentityCompare(base.ice_getRouter(), anotherRouter) == 0);
+	Ice.RouterPrx router = Ice.RouterPrxHelper.uncheckedCast(communicator.stringToProxy("dummyrouter"));
+	communicator.setDefaultRouter(router);
+	base = communicator.stringToProxy("test @ TestAdapter");
+	test(Ice.Util.proxyIdentityCompare(base.ice_getRouter(), communicator.getDefaultRouter()) == 0);
+	communicator.setDefaultRouter(null);
+	base = communicator.stringToProxy("test @ TestAdapter");
+	test(base.ice_getRouter() == null);
+	System.out.println("ok");
 
 	//
 	// Start a server, get the port of the adapter it's listening on,

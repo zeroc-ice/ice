@@ -36,8 +36,7 @@ public abstract class RoutableReference extends Reference
     changeRouter(Ice.RouterPrx newRouter)
     {
         RouterInfo newRouterInfo = getInstance().routerManager().get(newRouter);
-	if((newRouterInfo == _routerInfo) ||
-		(newRouterInfo != null && _routerInfo != null && newRouterInfo.equals(_routerInfo)))
+	if(newRouterInfo != null && _routerInfo != null && newRouterInfo.equals(_routerInfo))
 	{
 	    return this;
 	}

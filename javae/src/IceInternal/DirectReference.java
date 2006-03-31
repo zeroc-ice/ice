@@ -46,16 +46,7 @@ public class DirectReference extends RoutableReference
     public Reference
     changeLocator(Ice.LocatorPrx newLocator)
     {
-	if(newLocator != null)
-	{
-	    LocatorInfo newLocatorInfo = getInstance().locatorManager().get(newLocator);
-	    return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
-							   getSecure(), "", null, newLocatorInfo);
-	}
-	else
-	{
-	    return this;
-	}
+	return this;
     }
 
     public Reference
