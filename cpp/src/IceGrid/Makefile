@@ -32,6 +32,8 @@ ADMIN_OBJS	= Grammar.o \
                   DescriptorParser.o \
                   DescriptorBuilder.o \
 		  DescriptorHelper.o \
+                  FileParser.o \
+                  FileParserI.o \
 		  Util.o \
 		  Internal.o \
 		  Client.o
@@ -89,6 +91,7 @@ SRCS		= $(LIB_OBJS:.o=.cpp) \
 
 SLICE_SRCS	= $(SDIR)/Admin.ice \
                   $(SDIR)/Exception.ice \
+                  $(SDIR)/FileParser.ice \
                   $(SDIR)/Query.ice \
 		  $(SDIR)/Observer.ice \
 		  $(SDIR)/Descriptor.ice \

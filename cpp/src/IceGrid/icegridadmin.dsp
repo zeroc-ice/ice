@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I ".." /I "../../include" /I "dummyinclude" /D "_CONSOLE" /D "NDEBUG" /D "WIN32_LEAN_AND_MEAN" /FD /Zm200 /c
-# SUBTRACT CPP /Z<none> /Fr /YX
+# SUBTRACT CPP /Fr /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -127,6 +127,10 @@ SOURCE=.\DescriptorParser.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\FileParser.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Grammar.cpp
 # End Source File
 # Begin Source File
@@ -147,6 +151,10 @@ SOURCE=.\Util.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=.\FileParser.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Grammar.h
 # End Source File
 # Begin Source File
@@ -157,6 +165,35 @@ SOURCE=.\Parser.h
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+# Begin Source File
+
+SOURCE=..\..\slice\IceGrid\FileParser.ice
+
+!IF  "$(CFG)" == "icegridadmin - Win32 Release"
+
+USERDEP__FILEP="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\IceGrid\FileParser.ice
+
+"FileParser.h FileParser.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	..\..\bin\slice2cpp.exe --ice --include-dir IceGrid -I../../slice $(InputPath)
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "icegridadmin - Win32 Debug"
+
+USERDEP__FILEP="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\IceGrid\FileParser.ice
+
+"FileParser.h FileParser.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	..\..\bin\slice2cpp.exe --ice --include-dir IceGrid -I../../slice $(InputPath)
+
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
 # Begin Source File
 
 SOURCE=.\Grammar.y
