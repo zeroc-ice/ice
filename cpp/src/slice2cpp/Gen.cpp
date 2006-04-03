@@ -1778,7 +1778,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << sb;
     if(p->returnsData())
     {
-        C << nl << "__checkTwowayOnly(\"" << name << "\");";
+        C << nl << "__checkTwowayOnly(" << p->flattenedScope() + p->name() + "_name);";
     }
     C << nl << "::IceInternal::Handle< ::IceDelegate::Ice::Object> __delBase = __getDelegate();";
     C << nl << "::IceDelegate" << thisPointer << " __del = dynamic_cast< ::IceDelegate"
@@ -2117,7 +2117,6 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     paramsDecl.push_back("const ::Ice::Context& __context");
 
     string flatName = p->flattenedScope() + p->name() + "_name";
-    C << sp << nl << "static const ::std::string " << flatName << " = \"" << p->name() << "\";";
 
     H << sp << nl << "virtual " << retS << ' ' << name << spar << params << epar << ';';
     C << sp << nl << retS << nl << "IceDelegateM" << scoped << spar << paramsDecl << epar;
@@ -2382,8 +2381,8 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
 	C << sp << nl << retS << nl << "IceDelegateD" << scoped << spar << paramsDecl << epar;
 	C << sb;
 	C << nl << "::Ice::Current __current;";
-	C << nl << "__initCurrent(__current, \"" << p->name()
-	  << "\", " << operationModeToString(p->mode()) << ", __context);";
+	C << nl << "__initCurrent(__current, " << p->flattenedScope() + p->name() + "_name, "
+	  << operationModeToString(p->mode()) << ", __context);";
 	C << nl << "while(true)";
 	C << sb;
 	C << nl << "::IceInternal::Direct __direct(__current);";
@@ -2453,6 +2452,13 @@ Slice::Gen::ObjectDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     H << nl << _dllExport << "bool operator==(const " << name << "&, const " << name << "&);";
     H << nl << _dllExport << "bool operator!=(const " << name << "&, const " << name << "&);";
     H << nl << _dllExport << "bool operator<(const " << name << "&, const " << name << "&);";
+}
+
+void
+Slice::Gen::ObjectDeclVisitor::visitOperation(const OperationPtr& p)
+{
+    string flatName = p->flattenedScope() + p->name() + "_name";
+    C << sp << nl << "static const ::std::string " << flatName << " = \"" << p->name() << "\";";
 }
 
 Slice::Gen::ObjectVisitor::ObjectVisitor(Output& h, Output& c, const string& dllExport, bool stream) :
@@ -4496,15 +4502,13 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	H << sp << nl << "typedef ::IceUtil::Handle< " << classScopedAMI << '_' << name << "> " << classNameAMI
 	  << '_' << name  << "Ptr;";
 	
-	string flatName = "AMI" + p->flattenedScope() + name + "_name";
-	C << sp << nl << "static const ::std::string " << flatName << " = \"" << name << "\";";
+	string flatName = p->flattenedScope() + name + "_name";
 
 	C << sp << nl << "void" << nl << classScopedAMI.substr(2) << '_' << name << "::__invoke" << spar
 	  << paramsDeclInvoke << epar;
 	C << sb;
 	C << nl << "try";
 	C << sb;
-	C << nl << "static const ::std::string __operation(\"" << name << "\");";
 	C << nl << "__prepare(__prx, " << flatName << ", " << operationModeToString(p->mode()) << ", __ctx);";
 	writeMarshalCode(C, inParams, 0, StringList(), true);
 	if(p->sendsClasses())
