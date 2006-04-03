@@ -11,7 +11,7 @@ top_srcdir	= ../../..
 
 CLIENT		= client
 SERVER		= server
-RULETESTER	= ruletester
+#RULETESTER	= ruletester
 
 TARGETS		= $(CLIENT) $(SERVER) $(RULETESTER)
 
@@ -22,7 +22,7 @@ COBJS		= Client.o
 
 SOBJS		= Server.o
 
-RULETESTSRC    = RuleTester.cpp 
+#RULETESTSRC    = RuleTester.cpp 
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
@@ -42,9 +42,9 @@ $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
-$(RULETESTER): $(RULETESTSRC) $(top_srcdir)/src/Glacier2/ProxyVerifier.o
-	rm -f $@
-	$(CXX) $(CPPFLAGS) -I$(top_srcdir)/src/Glacier2 $(LDFLAGS) -o $@ $(RULETESTSRC) \
-    	    $(top_srcdir)/src/Glacier2/ProxyVerifier.o $(LIBS)
+#$(RULETESTER): $(RULETESTSRC) $(top_srcdir)/src/Glacier2/ProxyVerifier.o
+#	rm -f $@
+#	$(CXX) $(CPPFLAGS) -I$(top_srcdir)/src/Glacier2 $(LDFLAGS) -o $@ $(RULETESTSRC) \
+#	$(top_srcdir)/src/Glacier2/ProxyVerifier.o $(LIBS)
 
 include .depend

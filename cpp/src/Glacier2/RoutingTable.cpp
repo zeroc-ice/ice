@@ -84,10 +84,10 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& proxies)
 		out << "evicting proxy from routing table:\n" << _communicator->proxyToString(p->second->proxy);
 	    }
 	    
+	    evictedProxies.push_back(p->second->proxy);
+
 	    _map.erase(p);
 	    _queue.pop_front();
-
-	    evictedProxies.push_back(p->second->proxy);
 	}
     }
 
