@@ -90,19 +90,31 @@ IceInternal::ProxyFactory::referenceToProxy(const ReferencePtr& ref) const
 void
 IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, const ReferencePtr& ref, int& cnt) const
 {
-    //
-    // We retry ObjectNotExistException if the reference is
-    // indirect. Otherwise, we don't retry other *NotExistException,
-    // which are all derived from RequestFailedException.
-    //
     if(dynamic_cast<const ObjectNotExistException*>(&ex))
     {
+	//
+	// We retry ObjectNotExistException if the reference is
+	// indirect. Otherwise, we don't retry other
+	// *NotExistException, which are all derived from
+	// RequestFailedException.
+	//
 	LocatorInfoPtr li = ref->getLocatorInfo();
-	if(!li)
+	if(li)
 	{
-	    ex.ice_throw();
+	    li->clearObjectCache(IndirectReferencePtr::dynamicCast(ref));
 	}
-	li->clearObjectCache(IndirectReferencePtr::dynamicCast(ref));
+	else
+	{
+	    //
+	    // TODO: For now, we retry on ObjectNotExistException if
+	    // we are using a router, to handle proxies evicted by the
+	    // router.
+	    //
+	    if(!ref->getRouterInfo())
+	    {
+		ex.ice_throw();
+	    }
+	}
     }
     else if(dynamic_cast<const RequestFailedException*>(&ex))
     {

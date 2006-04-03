@@ -12,12 +12,13 @@
 #include <Glacier2/Router.h>
 #include <Backend.h>
 #include <TestCommon.h>
+#include <set>
 
 using namespace std;
 using namespace Ice;
 using namespace Test;
 
-class CallbackClient : public Application
+class AttackClient : public Application
 {
 public:
 
@@ -33,14 +34,14 @@ main(int argc, char* argv[])
     // We want to check whether the client retries for evicted
     // proxies, even with regular retries disabled.
     //
-    properties->setProperty("Ice.RetryIntervals", "-1");
+//    properties->setProperty("Ice.RetryIntervals", "-1");
 	
-    CallbackClient app;
+    AttackClient app;
     return app.main(argc, argv);
 }
 
 int
-CallbackClient::run(int argc, char* argv[])
+AttackClient::run(int argc, char* argv[])
 {
     cout << "getting router... " << flush;
     ObjectPrx routerBase = communicator()->stringToProxy("Glacier2/router:default -p 12347 -t 10000");
@@ -58,8 +59,10 @@ CallbackClient::run(int argc, char* argv[])
     BackendPrx backend = BackendPrx::uncheckedCast(backendBase);
     backend->ice_ping();
 
+    set<BackendPrx> backends;
+
     string msg;
-    for(int i = 1; i <= 100000; ++i)
+    for(int i = 1; i <= 10000; ++i)
     {
 	if(i % 100 == 0)
 	{
@@ -88,7 +91,20 @@ CallbackClient::run(int argc, char* argv[])
 	    *p = static_cast<char>('a' + IceUtil::random() % 26);
 	}
 
-	backend = BackendPrx::uncheckedCast(backendBase->ice_identity(ident));
+	BackendPrx newBackend = BackendPrx::uncheckedCast(backendBase->ice_identity(ident));
+
+	set<BackendPrx>::const_iterator q = backends.find(newBackend);
+
+	if(q == backends.end())
+	{
+	    backends.insert(newBackend);
+	    backend = newBackend;
+	}
+	else
+	{
+	    backend = *q;
+	}
+
 	backend->ice_ping();
     }
     cout << string(msg.size(), '\b') << string(msg.size(), ' ') << string(msg.size(), '\b');

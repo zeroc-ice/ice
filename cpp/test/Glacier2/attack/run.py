@@ -17,17 +17,17 @@ for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
 else:
     raise "can't find toplevel directory!"
 
-sys.stdout.write("Testing add proxy rules...")
-testcase = file("./test.dat")
-lines = testcase.readlines()
-input = os.popen(r"ruletester 1>test.out 2>test.log", "w")
-for l in lines:
-    input.write(l)
-
-if not input.close() == None: 
-    print "There were errors, check test.log"
-else:
-    print "ok"
+#sys.stdout.write("Testing add proxy rules...")
+#testcase = file("./test.dat")
+#lines = testcase.readlines()
+#input = os.popen(r"ruletester 1>test.out 2>test.log", "w")
+#for l in lines:
+#    input.write(l)
+#
+#if not input.close() == None: 
+#    print "There were errors, check test.log"
+#else:
+#    print "ok"
 
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil

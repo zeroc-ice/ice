@@ -90,6 +90,7 @@ tests = [ \
     "IceGrid/activation", \
     "IceGrid/replication", \
     "Glacier2/router", \
+    "Glacier2/attack", \
     ]
 
 #
