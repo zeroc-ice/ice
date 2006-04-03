@@ -173,7 +173,14 @@ IceInternal::RouterInfo::getClientProxy()
 	// we must use the same timeout as the already existing
 	// connection.
 	//
-	_clientProxy = _clientProxy->ice_timeout(_router->ice_connection()->timeout());
+	try
+	{
+	    _clientProxy = _clientProxy->ice_timeout(_router->ice_connection()->timeout());
+	}
+	catch(const Ice::CollocationOptimizationException&)
+	{
+	    // Ignore - collocated router
+	}
     }
 
     return _clientProxy;
@@ -190,7 +197,14 @@ IceInternal::RouterInfo::setClientProxy(const ObjectPrx& clientProxy)
     // In order to avoid creating a new connection to the router, we
     // must use the same timeout as the already existing connection.
     //
-    _clientProxy = _clientProxy->ice_timeout(_router->ice_connection()->timeout());
+    try
+    {
+        _clientProxy = _clientProxy->ice_timeout(_router->ice_connection()->timeout());
+    }
+    catch(const Ice::CollocationOptimizationException&)
+    {
+        // Ignore - collocated router
+    }
 }
 
 ObjectPrx
