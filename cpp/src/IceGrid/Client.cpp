@@ -94,11 +94,9 @@ Client::run(int argc, char* argv[])
 
     if(opts.isSet("s") || opts.isSet("server"))
     {
-	ObjectAdapterPtr adapter = 
-	    communicator()->createObjectAdapterWithEndpoints("FileParser", "tcp -h localhost");
+	ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints("FileParser", "tcp -h localhost");
 	adapter->activate();
-	ObjectPrx proxy = adapter->
-	    add(new FileParserI, Ice::stringToIdentity("FileParser"));
+	ObjectPrx proxy = adapter->add(new FileParserI, Ice::stringToIdentity("FileParser"));
 	cout << proxy << endl;
 
 	communicator()->waitForShutdown();
@@ -168,6 +166,13 @@ Client::run(int argc, char* argv[])
 
     Ice::SliceChecksumDict serverChecksums = admin->getSliceChecksums();
     Ice::SliceChecksumDict localChecksums = Ice::sliceChecksums();
+
+    //
+    // The following slice types are only used by the admin CLI.
+    //
+    localChecksums.erase("::IceGrid::FileParser");
+    localChecksums.erase("::IceGrid::ParseException");
+			 
     for(Ice::SliceChecksumDict::const_iterator q = localChecksums.begin(); q != localChecksums.end(); ++q)
     {
         Ice::SliceChecksumDict::const_iterator r = serverChecksums.find(q->first);
