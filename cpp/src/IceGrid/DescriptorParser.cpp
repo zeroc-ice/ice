@@ -171,8 +171,13 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    {
 		error("only one <application> element is allowed");
 	    }
+	    
+	    bool importTemplates = attributes.asBool("import-default-templates", false);
 
-	    if(_admin && attributes.asBool("import-default-templates", false))
+	    //
+	    // TODO: is ignoring importTemplates the desired behavior when _admin == 0? 
+	    //
+	    if(importTemplates && _admin != 0)
 	    {
 		try
 		{
