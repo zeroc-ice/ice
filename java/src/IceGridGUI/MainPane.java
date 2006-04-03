@@ -31,11 +31,9 @@ public class MainPane extends JTabbedPane
 
     public void resetTitle(IceGridGUI.Application.Root root)
     {
-	System.err.println("Reset title");
 	int i = findIndex(root);
 	if(i > 0)
 	{
-	    System.err.println("New title:" + root.getId());
 	    setTitleAt(i, root.getId());
 	}
     }

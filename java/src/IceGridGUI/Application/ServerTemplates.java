@@ -103,6 +103,14 @@ class ServerTemplates extends Templates
 	}
     }
 
+    //
+    // Variable resolution does not make sense for templates / template children
+    //
+    Utils.Resolver getResolver()
+    {
+	return null;
+    }
+
     java.util.Map getUpdates()
     {
 	java.util.Map updates = new java.util.HashMap();

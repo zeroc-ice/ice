@@ -590,7 +590,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 	TreeNode createChild(Object descriptor)
 	{
 	    AdapterDescriptor ad = (AdapterDescriptor)descriptor;
-	    String name = getResolver().substitute(ad.name);
+	    String name = Utils.substitute(ad.name, getResolver());
 	    return new Adapter(Communicator.this, name, ad, false);
 	}
 	
@@ -637,7 +637,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 	TreeNode createChild(Object descriptor)
 	{
 	    DbEnvDescriptor dd = (DbEnvDescriptor)descriptor;
-	    String name = getResolver().substitute(dd.name);
+	    String name =  Utils.substitute(dd.name, getResolver());
 	    return new DbEnv(Communicator.this, name, dd, false);
 	}
 	
@@ -777,7 +777,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 		if(Communicator.this instanceof Server)
 		{
 		    serviceResolver = new Utils.Resolver(getResolver());
-		    serviceName = getResolver().substitute(serviceDescriptor.name);
+		    serviceName = serviceResolver.substitute(serviceDescriptor.name);
 		    serviceResolver.put("service", serviceName);
 		}
 		else

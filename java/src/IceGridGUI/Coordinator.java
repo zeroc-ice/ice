@@ -558,7 +558,6 @@ public class Coordinator
 	    try
 	    {
 		_writeSerial = _sessionKeeper.getSession().startUpdate();
-		System.err.println("Write serial is: " + _writeSerial);
 	    }
 	    finally
 	    {
@@ -594,7 +593,6 @@ public class Coordinator
     {
 	if(--_writeAccessCount == 0)
 	{
-	    System.err.println("finishUpdate");
 	    try
 	    {
 		_writeSerial = -1;
@@ -656,7 +654,7 @@ public class Coordinator
 	_writeSerial = -1;
 	_writeAccessCount = 0;
 	_onExclusiveWrite = null;
-	_admin = null;
+	setAdmin(null);
 	_liveDeploymentRoot.clear();
 
 	//
@@ -812,7 +810,7 @@ public class Coordinator
 	//
 	try
 	{
-	    _admin = session.getAdmin();
+	    setAdmin(session.getAdmin());
 	}
 	catch(Ice.LocalException e)
 	{
@@ -1011,15 +1009,9 @@ public class Coordinator
 	    }
 	}
 
-	//
-	// TODO: create a local admin object (with a direct proxy) that routes 
-	// getDefaultApplicationDescriptor() to the real admin
-	//
-	AdminPrx admin = null;
-
 	try
 	{
-	    return _fileParser.parse(file.getAbsolutePath(), admin);
+	    return _fileParser.parse(file.getAbsolutePath(), getRoutedAdmin());
 	}
 	catch(ParseException e)
 	{
@@ -1056,6 +1048,48 @@ public class Coordinator
 	    _fileParser = null;
 	}
     }
+
+    private AdminPrx getRoutedAdmin()
+    {
+	if(_admin == null)
+	{
+	    return null;
+	}
+	else
+	{
+	    if(_routedAdmin == null)
+	    {
+		//
+		// Create a local Admin object used to route some operations to the real
+		// Admin.
+		// Routing admin calls is even necessary when we don't through Glacier
+		// since the Admin object provided by the Registry is a well-known object
+		// (indirect, locator-dependent).
+		//
+		_adminRouterAdapter = _communicator.
+		    createObjectAdapterWithEndpoints("IceGrid.AdminRouter", "tcp -h localhost");
+		
+		_adminRouter = new AdminRouter();
+		_adminRouter.setAdmin(_admin);
+		
+		_routedAdmin = AdminPrxHelper.uncheckedCast(
+		    _adminRouterAdapter.addWithUUID(_adminRouter));
+		
+		_adminRouterAdapter.activate();
+	    }
+	}
+	return _routedAdmin;
+    }
+
+    private void setAdmin(AdminPrx admin)
+    {
+	_admin = admin;
+	if(_adminRouter != null)
+	{
+	    _adminRouter.setAdmin(admin);
+	}
+    }
+
 
     public File saveToFile(boolean ask, IceGridGUI.Application.Root root,
 			   File file)
@@ -1485,7 +1519,7 @@ public class Coordinator
 
 	_liveDeploymentPane = new LiveDeploymentPane(_liveDeploymentRoot);
 	_mainPane = new MainPane(this);
-	_mainFrame.getContentPane().add(_mainPane, BorderLayout.CENTER);
+	_mainFrame.getContentPane().add(_mainPane, BorderLayout.CENTER);	
     }
 
     JComponent getLiveDeploymentPane()
@@ -1823,6 +1857,10 @@ public class Coordinator
     
     private Ice.ObjectAdapter _localAdapter;
     private Ice.ObjectAdapter _routedAdapter;
+    private Ice.ObjectAdapter _adminRouterAdapter;
+    private AdminPrx _routedAdmin;
+    private AdminRouter _adminRouter;
+  
 
     private IceGridGUI.LiveDeployment.Root _liveDeploymentRoot;
     private LiveDeploymentPane _liveDeploymentPane;

@@ -105,6 +105,14 @@ class ServiceTemplates extends Templates
 	}
     }
 
+    //
+    // Variable resolution does not make sense for templates / template children
+    //
+    Utils.Resolver getResolver()
+    {
+	return null;
+    }
+
     void newServiceTemplate(TemplateDescriptor descriptor)
     {
 	String id = makeNewChildId("NewServiceTemplate");

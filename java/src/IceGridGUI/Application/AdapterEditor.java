@@ -61,7 +61,7 @@ class AdapterEditor extends CommunicatorChildEditor
 		    else
 		    {
 			String replicaGroupId = 
-			    adapter.getResolver().substitute(obj.toString());
+			    Utils.substitute(obj.toString(), adapter.getResolver());
 
 			rg = adapter.getRoot().findReplicaGroup(replicaGroupId);
 		    }
