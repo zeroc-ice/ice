@@ -16,12 +16,12 @@
 // Most CPUs support only one endianness, with the notable exceptions
 // of Itanium (IA64) and MIPS.
 //
-#if defined(__i386)   || defined(_M_IX86)    || \
-    defined(__x86_64) || defined(_M_X64)     || \
-    defined(_M_IA64)  || defined(__alpha__)
+#if defined(__i386)     || defined(_M_IX86) || defined(__x86_64)  || \
+    defined(_M_X64)     || defined(_M_IA64) || defined(__alpha__) || \
+    defined(__MIPSEL__)
 #   define ICE_LITTLE_ENDIAN
-#elif defined(__sparc) || defined(__sparc__) || defined(__hppa) || \
-      defined(__ppc__) || defined(_ARCH_COM)
+#elif defined(__sparc) || defined(__sparc__) || defined(__hppa)      || \
+      defined(__ppc__) || defined(_ARCH_COM) || defined(__MIPSEB__)
 #   define ICE_BIG_ENDIAN
 #else
 #   error "Unknown architecture"
