@@ -269,6 +269,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	{
 	    // Expected.
 	}
+#ifdef _WIN32
+	catch(const ConnectionLostException&)
+	{
+	    // Expected.
+	}
+#endif
 	catch(const LocalException&)
 	{
 	    test(false);
@@ -709,9 +715,8 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	{
 	    server->ice_ping();
 	}
-	catch(const LocalException& ex)
+	catch(const LocalException&)
 	{
-	    cout << ex << endl;
 	    test(false);
 	}
 	fact->destroyServer(server);
