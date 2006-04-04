@@ -7,7 +7,7 @@ Changes since version 3.0.1
   clients and routers (such as Glacier2).
 
 - Added a new property Glacier2.RoutingTable.MaxSize. If more proxies
-  are added when permitted by this property, proxies are evicted from
+  are added than permitted by this property, proxies are evicted from
   Glacier2's internal routing table on a least recently used
   basis. Ice clients from version 3.1 on will automatically retry
   operation calls on such evicted proxies, thereby re-adding them to
