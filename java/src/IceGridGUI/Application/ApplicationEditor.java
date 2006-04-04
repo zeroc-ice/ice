@@ -37,36 +37,7 @@ class ApplicationEditor extends Editor
 	root.disableSelectionListener();
 	try
 	{
-	    if(root.isEphemeral())
-	    {
-		writeDescriptor();
-		ApplicationDescriptor descriptor = 
-		    (ApplicationDescriptor)root.getDescriptor();
-		try
-		{
-		    Root newRoot = new Root(root);
-		    ApplicationPane app = mainPane.findApplication(root);
-		    app.setRoot(newRoot);
-		    newRoot.setSelectedNode(newRoot);
-		    app.showNode(newRoot);
-		    
-		    _target = newRoot;
-		    if(!root.getId().equals(newRoot.getId()))
-		    {
-			mainPane.resetTitle(newRoot);
-		    } 
-		}
-		catch(UpdateFailedException e)
-		{
-		    JOptionPane.showMessageDialog(
-			root.getCoordinator().getMainFrame(),
-			e.toString(),
-			"Apply failed",
-			JOptionPane.ERROR_MESSAGE);
-		    return;
-		}
-	    }
-	    else if(isSimpleUpdate())
+	    if(isSimpleUpdate())
 	    {
 		writeDescriptor();
 		root.updated();
@@ -253,7 +224,7 @@ class ApplicationEditor extends Editor
 	    (ApplicationDescriptor)root.getDescriptor();
 
 	_name.setText(descriptor.name);
-	_name.setEditable(root.isEphemeral() || !root.isLive());
+	_name.setEditable(!root.isLive());
 
 	_description.setText(
 	    Utils.substitute(descriptor.description, resolver));
@@ -284,8 +255,8 @@ class ApplicationEditor extends Editor
 	setDistribDirsField();
 	_distribDirsButton.setEnabled(isEditable);
 
-	_applyButton.setEnabled(root.isEphemeral());
-	_discardButton.setEnabled(root.isEphemeral());	  
+	_applyButton.setEnabled(false);
+	_discardButton.setEnabled(false);	  
 	detectUpdates(true);
     }
     

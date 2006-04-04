@@ -401,7 +401,7 @@ public class Coordinator
 	    {
 		JOptionPane.showMessageDialog(
 		    _mainFrame,
-		    "The application '" + applicationName + "' was not found in the Registry.",
+		    "The application '" + applicationName + "' was not found in the registry.",
 		    "No such application",
 		    JOptionPane.ERROR_MESSAGE);
 	    }
@@ -409,7 +409,6 @@ public class Coordinator
 	    // Essential: deep-copy desc!
 	    //
 	    desc = IceGridGUI.Application.Root.copyDescriptor(desc);
-
 	    app = new ApplicationPane(new IceGridGUI.Application.Root(this, desc, true, null));
 	    _mainPane.addApplication(app);
 	    _liveApplications.put(applicationName, app);
@@ -502,10 +501,9 @@ public class Coordinator
 	JOptionPane.showMessageDialog(
 	    _mainFrame,
 	    "Another session (username = " + e.lockUserId 
-	    + ") has exclusive write access to the Registry",
+	    + ") has exclusive write access to the registry",
 	    "Access Denied",
 	    JOptionPane.ERROR_MESSAGE);
-
     }
 
     public void pasteApplication()
@@ -525,8 +523,11 @@ public class Coordinator
     {
 	_mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	
+	boolean acquired = false;
 	try
 	{
+	    acquireExclusiveWriteAccess(null);
+	    acquired = true;
 	    _sessionKeeper.getSession().removeApplication(name);
 	}
 	catch(AccessDeniedException e)
@@ -542,6 +543,10 @@ public class Coordinator
 	}
 	finally
 	{
+	    if(acquired)
+	    {
+		releaseExclusiveWriteAccess();
+	    }
 	    _mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
 
@@ -1063,7 +1068,7 @@ public class Coordinator
 		// Create a local Admin object used to route some operations to the real
 		// Admin.
 		// Routing admin calls is even necessary when we don't through Glacier
-		// since the Admin object provided by the Registry is a well-known object
+		// since the Admin object provided by the registry is a well-known object
 		// (indirect, locator-dependent).
 		//
 		_adminRouterAdapter = _communicator.
@@ -1242,7 +1247,7 @@ public class Coordinator
 	    };
 
 	_newApplicationWithDefaultTemplates = 
-	    new AbstractAction("Application with default templates from Registry")
+	    new AbstractAction("Application with default templates from registry")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1259,7 +1264,7 @@ public class Coordinator
 		}
 	    };
 	_login.putValue(Action.SHORT_DESCRIPTION, 
-			"Log into an IceGrid Registry");
+			"Log into an IceGrid registry");
 
 	_logout = new AbstractAction("Logout")
 	    {
@@ -1288,7 +1293,7 @@ public class Coordinator
 		}
 	    };
 	_acquireExclusiveWriteAccess.putValue(Action.SHORT_DESCRIPTION, 
-					      "Acquire exclusive write access on the Registry");
+					      "Acquire exclusive write access on the registry");
 	_acquireExclusiveWriteAccess.setEnabled(false);
 
 	
@@ -1302,7 +1307,7 @@ public class Coordinator
 		}
 	    };
 	_releaseExclusiveWriteAccess.putValue(Action.SHORT_DESCRIPTION, 
-					      "Release exclusive write access on the Registry");
+					      "Release exclusive write access on the registry");
 	_releaseExclusiveWriteAccess.setEnabled(false);
 
 	_openApplicationFromFile = new AbstractAction("Application from file")
@@ -1318,10 +1323,12 @@ public class Coordinator
 
 			if(desc != null)
 			{
-			    ApplicationPane app = 
-				new ApplicationPane(new IceGridGUI.Application.Root(Coordinator.this, desc, false, file));
+			    IceGridGUI.Application.Root root = 
+				new IceGridGUI.Application.Root(Coordinator.this, desc, false, file);
+			    ApplicationPane app = new ApplicationPane(root);
 			    _mainPane.addApplication(app);
 			    _mainPane.setSelectedComponent(app);
+			    root.setSelectedNode(root);
 			}
 		    }
 		}
@@ -1329,24 +1336,28 @@ public class Coordinator
 	_openApplicationFromFile.putValue(Action.SHORT_DESCRIPTION, "Open application from file");
 	_openApplicationFromFile.setEnabled(true);
 	
-	_openApplicationFromRegistry = new AbstractAction("Application from Registry")
+	_openApplicationFromRegistry = new AbstractAction("Application from registry")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
 		    Object[] applicationNames = _liveDeploymentRoot.getApplicationNames();
 
 		    String appName = (String)JOptionPane.showInputDialog(
-			_mainFrame, "Which Application do you want to open?", "Open Application from Registry",	 
+			_mainFrame, "Which Application do you want to open?", "Open Application from registry",	 
 			JOptionPane.QUESTION_MESSAGE, null,
 			applicationNames, applicationNames[0]);
 		    
 		    if(appName != null)
 		    {
-			openLiveApplication(appName);
+			IceGridGUI.Application.Root root = openLiveApplication(appName).getRoot();
+			if(root.getSelectedNode() == null)
+			{
+			    root.setSelectedNode(root);
+			}
 		    }
 		}
 	    };
-	_openApplicationFromRegistry.putValue(Action.SHORT_DESCRIPTION, "Open application from Registry");
+	_openApplicationFromRegistry.putValue(Action.SHORT_DESCRIPTION, "Open application from registry");
 	_openApplicationFromRegistry.setEnabled(false);
 
 	_closeApplication = new AbstractAction("Close application")
@@ -1377,7 +1388,7 @@ public class Coordinator
 	_save.putValue(Action.SHORT_DESCRIPTION, "Save");
 
 	
-	_saveToRegistry = new AbstractAction("Save to Registry")
+	_saveToRegistry = new AbstractAction("Save to registry")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1385,7 +1396,7 @@ public class Coordinator
 		}
 	    };
 	_saveToRegistry.setEnabled(false);
-	_saveToRegistry.putValue(Action.SHORT_DESCRIPTION, "Save to Registry");
+	_saveToRegistry.putValue(Action.SHORT_DESCRIPTION, "Save to registry");
 
 	
 	_saveToFile = new AbstractAction("Save to file")
@@ -1567,7 +1578,7 @@ public class Coordinator
 	{
 	    JOptionPane.showMessageDialog(
 		_mainFrame,
-		"The default application descriptor from the IceGrid Registry is invalid:\n"
+		"The default application descriptor from the IceGrid registry is invalid:\n"
 		+ e.reason,
 		"Deployment Exception",
 		JOptionPane.ERROR_MESSAGE);
@@ -1576,9 +1587,9 @@ public class Coordinator
 	{
 	    JOptionPane.showMessageDialog(
 		_mainFrame,
-		"Could not retrieve the default application descriptor from the IceGrid Registry: \n"
+		"Could not retrieve the default application descriptor from the IceGrid registry: \n"
 		+ e.toString(),
-		"Trouble with IceGrid Registry",
+		"Trouble with IceGrid registry",
 		JOptionPane.ERROR_MESSAGE);
 	}
 	finally

@@ -34,7 +34,6 @@ public class Root extends ListTreeNode
 		boolean live, File file)
     {
 	super(false, null, desc.name);
-	_ephemeral = false;
 	_coordinator = coordinator;
 	_descriptor = desc;
 
@@ -55,33 +54,31 @@ public class Root extends ListTreeNode
     }
    
     //
-    // Construct a new, ephemeral Application
+    // Construct a new Application
     //
     public Root(Coordinator coordinator, ApplicationDescriptor desc)
     {
-	super(false, null, desc.name);
-	_ephemeral = true;
+	super(true, null, desc.name);
 	_coordinator = coordinator;
 	_descriptor = desc;
 
-	_tree = new JTree(this, true);
-	_treeModel = (DefaultTreeModel)_tree.getModel();
+	_file = null;
+	_live = false;
+	
+	try
+	{
+	    init();
+	}
+	catch(UpdateFailedException e)
+	{
+	    //
+	    // Impossible
+	    //
+	    assert false;
+	}
     }
 
-    //
-    // Contruct a brand-new Application from an ephemeral Application
-    //
-    Root(Root root) throws UpdateFailedException
-    {
-	super(true, null, root._descriptor.name);
-	_ephemeral = false;
-	_coordinator = root._coordinator;
-	_descriptor = root._descriptor;
-
-	assert root._ephemeral;	
-	init();
-    }
-
+   
     private void init() throws UpdateFailedException
     {
 	_resolver = new Utils.Resolver(_descriptor.variables);
@@ -280,16 +277,15 @@ public class Root extends ListTreeNode
 	{
 	    actions[PASTE] = descriptor instanceof ApplicationDescriptor;
 	}
-	if(!_ephemeral)
-	{
-	    actions[SHOW_VARS] = true;
-	    actions[SUBSTITUTE_VARS] = true;	
-	    actions[NEW_NODE] = true;
-	    actions[NEW_REPLICA_GROUP] = true;
-	    actions[NEW_TEMPLATE_SERVER] = true;
-	    actions[NEW_TEMPLATE_SERVER_ICEBOX] = true;
-	    actions[NEW_TEMPLATE_SERVICE] = true;
-	}
+
+	actions[SHOW_VARS] = true;
+	actions[SUBSTITUTE_VARS] = true;	
+	actions[NEW_NODE] = true;
+	actions[NEW_REPLICA_GROUP] = true;
+	actions[NEW_TEMPLATE_SERVER] = true;
+	actions[NEW_TEMPLATE_SERVER_ICEBOX] = true;
+	actions[NEW_TEMPLATE_SERVICE] = true;
+
 	return actions;
     }
 
@@ -671,12 +667,12 @@ public class Root extends ListTreeNode
 
     public boolean isEphemeral()
     {
-	return _ephemeral;
+	return false;
     }
 
     public void destroy()
     {
-	if(_ephemeral || (!_live && _file == null))
+	if(!_live && _file == null)
 	{
 	    _coordinator.getMainPane().removeApplication(this);
 	}
@@ -1126,7 +1122,6 @@ public class Root extends ListTreeNode
     //
     private JTree _tree;
     private DefaultTreeModel _treeModel;
-    private final boolean _ephemeral;
     private Utils.Resolver _resolver;
 
     private boolean _live;
@@ -1148,7 +1143,7 @@ public class Root extends ListTreeNode
 
     //
     // When this application (and children) is being updated, we
-    // no longer apply updates from the Registry. Only meaningful when
+    // no longer apply updates from the registry. Only meaningful when
     // _live == true
     //
     private boolean _registryUpdatesEnabled = true;
