@@ -32,13 +32,12 @@ public class Client
 	    //
 	    properties.setProperty("Ice.RetryIntervals", "-1");
 
-            communicator = Ice.Util.initialize(ref args);
-
 	    //
-	    // We don't want connection warnings because of the timeout test.
+	    // This test kills connections, so we don't want warnings.
 	    //
 	    properties.setProperty("Ice.Warn.Connections", "0");
 	    
+            communicator = Ice.Util.initialize(ref args);
             status = run(args, communicator);
         }
         catch(Ice.LocalException ex)
