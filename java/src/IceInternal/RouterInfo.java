@@ -71,7 +71,14 @@ public final class RouterInfo
 	    // router, we must use the same timeout as the already
 	    // existing connection.
 	    //
-	    _clientProxy = _clientProxy.ice_timeout(_router.ice_connection().timeout());
+	    try
+	    {
+	        _clientProxy = _clientProxy.ice_timeout(_router.ice_connection().timeout());
+	    }
+	    catch(Ice.CollocationOptimizationException ex)
+	    {
+	        // Ignore - collocated router.
+	    }
         }
 
         return _clientProxy;
@@ -87,7 +94,14 @@ public final class RouterInfo
 	// we must use the same timeout as the already existing
 	// connection.
 	//
-	_clientProxy = _clientProxy.ice_timeout(_router.ice_connection().timeout());
+	try
+	{
+	    _clientProxy = _clientProxy.ice_timeout(_router.ice_connection().timeout());
+	}
+	catch(Ice.CollocationOptimizationException ex)
+	{
+	    // Ignore - collocated router.
+	}
     }
 
     public Ice.ObjectPrx

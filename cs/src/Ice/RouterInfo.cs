@@ -78,7 +78,14 @@ namespace IceInternal
 		    // the router, we must use the same timeout as the
 		    // already existing connection.
 		    //
-		    _clientProxy = _clientProxy.ice_timeout(_router.ice_connection().timeout());
+		    try
+		    {
+		        _clientProxy = _clientProxy.ice_timeout(_router.ice_connection().timeout());
+		    }
+		    catch(Ice.CollocationOptimizationException)
+		    {
+		        // Ignore - collocated router.
+		    }
 		}
 		
 		return _clientProxy;
@@ -96,7 +103,14 @@ namespace IceInternal
 		// router, we must use the same timeout as the already
 		// existing connection.
 		//
-		_clientProxy = _clientProxy.ice_timeout(_router.ice_connection().timeout());
+		try
+		{
+		    _clientProxy = _clientProxy.ice_timeout(_router.ice_connection().timeout());
+		}
+		catch(Ice.CollocationOptimizationException)
+		{
+		    // Ignore - collocated router.
+		}
 	    }
 	}
 
