@@ -1,6 +1,22 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Added a new method addProxies() to Ice::Router, which can return
+  evicted proxies. The old method addProxy() is now deprecated. Note
+  that this is an internal interface for communications between
+  clients and routers (such as Glacier2).
+
+- Added a new property Glacier2.RoutingTable.MaxSize. If more proxies
+  are added when permitted by this property, proxies are evicted from
+  Glacier2's internal routing table on a least recently used
+  basis. Ice clients from version 3.1 on will automatically retry
+  operation calls on such evicted proxies, thereby re-adding them to
+  Glacier2's routing table. Ice clients older then version 3.0 will
+  receive an ObjectNotExistException. To continue to support such old
+  clients, you must set the maximum high enough, so that Glacier2 will
+  not evict proxies. Upgrading your clients to 3.1 is highly
+  recommended to avoid large routing table sizes in Glacier2.
+
 - Replaced the IceSSL plugin. The new plugin no longer uses an XML
   configuration file but rather relies solely on properties. A Python
   script is provided in config/convertssl.py to convert old XML files
