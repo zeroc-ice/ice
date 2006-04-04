@@ -74,6 +74,7 @@ tests = [ \
     "Ice/hold", \
     "Ice/custom", \
     "Ice/retry", \
+    "Ice/timeout", \
     "IceSSL/configuration", \
     "Freeze/dbmap", \
     "Freeze/complex", \

@@ -24,7 +24,8 @@ SUBDIRS		= adapterDeactivation \
 		  slicing \
 		  checksum \
 		  stream \
-		  retry
+		  retry \
+		  timeout
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

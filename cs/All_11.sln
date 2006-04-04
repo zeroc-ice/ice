@@ -394,6 +394,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bindingC_11", "test\Ice\bin
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "timeoutC_11", "test\Ice\timeout\timeoutC_11.csproj", "{30F51832-741D-4EC6-B9A9-8488D07F68C0}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "timeoutS_11", "test\Ice\timeout\timeoutS_11.csproj", "{BFB4ED94-CF6C-4AE7-A5CA-97E83498AD2B}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -740,6 +748,14 @@ Global
 		{C1DF9D7E-F381-4A4E-BF7D-FF47EB38889D}.Debug.Build.0 = Debug|.NET
 		{C1DF9D7E-F381-4A4E-BF7D-FF47EB38889D}.Release.ActiveCfg = Release|.NET
 		{C1DF9D7E-F381-4A4E-BF7D-FF47EB38889D}.Release.Build.0 = Release|.NET
+		{30F51832-741D-4EC6-B9A9-8488D07F68C0}.Debug.ActiveCfg = Debug|.NET
+		{30F51832-741D-4EC6-B9A9-8488D07F68C0}.Debug.Build.0 = Debug|.NET
+		{30F51832-741D-4EC6-B9A9-8488D07F68C0}.Release.ActiveCfg = Release|.NET
+		{30F51832-741D-4EC6-B9A9-8488D07F68C0}.Release.Build.0 = Release|.NET
+		{BFB4ED94-CF6C-4AE7-A5CA-97E83498AD2B}.Debug.ActiveCfg = Debug|.NET
+		{BFB4ED94-CF6C-4AE7-A5CA-97E83498AD2B}.Debug.Build.0 = Debug|.NET
+		{BFB4ED94-CF6C-4AE7-A5CA-97E83498AD2B}.Release.ActiveCfg = Release|.NET
+		{BFB4ED94-CF6C-4AE7-A5CA-97E83498AD2B}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

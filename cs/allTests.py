@@ -68,6 +68,7 @@ tests = [ \
     "Ice/checksum", \
     "Ice/stream", \
     "Ice/retry", \
+    "Ice/timeout", \
     "Glacier2/router", \
     "IceGrid/simple", \
     ]

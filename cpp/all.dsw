@@ -596,6 +596,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name icesslconfigurationS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name timeoutC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name timeoutS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -3706,6 +3712,36 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name iceutil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "timeoutC"=.\test\Ice\timeout\timeoutC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "timeoutS"=.\test\Ice\timeout\timeoutS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
     End Project Dependency
 }}}
 

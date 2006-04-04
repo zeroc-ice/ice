@@ -26,7 +26,8 @@ SUBDIRS		= operations \
 		  hold \
 		  custom \
 		  binding \
-		  retry
+		  retry \
+		  timeout
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
