@@ -48,8 +48,8 @@ namespace IceInternal
 	    }
 	    else
 	    {
-	        overrideTimeout = false;
-		overrideTimeoutValue = -1;
+	        overrideConnectTimeout = false;
+		overrideConnectTimeoutValue = -1;
 	    }
 
 	    val = properties.getProperty("Ice.Override.Compress");

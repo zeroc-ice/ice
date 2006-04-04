@@ -61,7 +61,7 @@ namespace IceInternal
 	    Debug.Assert(interval > 0);
 
 	    instance_ = instance;
-	    _interval = System.TimeSpan.FromMilliseconds(interval * 1000);
+	    _interval = interval * 1000;
 	    _connections = new Set();
 	    
 	    string threadName = instance_.properties().getProperty("Ice.ProgramName");
@@ -151,7 +151,7 @@ namespace IceInternal
 	}
 	
 	private Instance instance_;
-	private readonly System.TimeSpan _interval;
+	private readonly int _interval;
 	private Set _connections;
 	private Thread _thread;
     }
