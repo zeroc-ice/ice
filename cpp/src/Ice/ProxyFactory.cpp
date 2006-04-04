@@ -90,34 +90,54 @@ IceInternal::ProxyFactory::referenceToProxy(const ReferencePtr& ref) const
 void
 IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, const ReferencePtr& ref, int& cnt) const
 {
-    if(dynamic_cast<const ObjectNotExistException*>(&ex))
+    TraceLevelsPtr traceLevels = _instance->traceLevels();
+    LoggerPtr logger = _instance->logger();
+
+    const ObjectNotExistException* one = dynamic_cast<const ObjectNotExistException*>(&ex);
+
+    if(one)
     {
-	//
-	// We retry ObjectNotExistException if the reference is
-	// indirect. Otherwise, we don't retry other
-	// *NotExistException, which are all derived from
-	// RequestFailedException.
-	//
 	LocatorInfoPtr li = ref->getLocatorInfo();
 	if(li)
 	{
+	    //
+	    // We retry ObjectNotExistException if the reference is
+	    // indirect.
+	    //
 	    li->clearObjectCache(IndirectReferencePtr::dynamicCast(ref));
+	}
+	else if(ref->getRouterInfo() && one->operation == "ice_add_proxy")
+	{
+	    //
+	    // If we have a router, an ObjectNotExistException with an
+	    // operation name "ice_add_proxy" indicates to the client
+	    // that the router isn't aware of the proxy (for example,
+	    // because it was evicted by the router). In this case, we
+	    // must *always* retry, so that the missing proxy is added
+	    // to the router.
+	    //
+	    if(traceLevels->retry >= 1)
+	    {
+		Trace out(logger, traceLevels->retryCat);
+		out << "retrying operation call to add proxy to router\n" << ex;
+	    }
+	    return; // We must always retry, so we don't look at the retry count.
 	}
 	else
 	{
 	    //
-	    // TODO: For now, we retry on ObjectNotExistException if
-	    // we are using a router, to handle proxies evicted by the
-	    // router.
+	    // For all other cases, we don't retry
+	    // ObjectNotExistException.
 	    //
-	    if(!ref->getRouterInfo())
-	    {
-		ex.ice_throw();
-	    }
+	    ex.ice_throw();
 	}
     }
     else if(dynamic_cast<const RequestFailedException*>(&ex))
     {
+	//
+        // We don't retry other *NotExistException, which are all
+        // derived from RequestFailedException.
+	//
 	ex.ice_throw();
     }
 
@@ -151,9 +171,6 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
     ++cnt;
     assert(cnt > 0);
     
-    TraceLevelsPtr traceLevels = _instance->traceLevels();
-    LoggerPtr logger = _instance->logger();
-    
     if(cnt > static_cast<int>(_retryIntervals.size()))
     {
 	if(traceLevels->retry >= 1)
@@ -169,7 +186,7 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
     if(traceLevels->retry >= 1)
     {
 	Trace out(logger, traceLevels->retryCat);
-	out << "re-trying operation call";
+	out << "retrying operation call";
 	if(interval > 0)
 	{
 	    out << " in " << interval << "ms";

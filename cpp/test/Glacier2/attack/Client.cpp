@@ -34,7 +34,7 @@ main(int argc, char* argv[])
     // We want to check whether the client retries for evicted
     // proxies, even with regular retries disabled.
     //
-//    properties->setProperty("Ice.RetryIntervals", "-1");
+    properties->setProperty("Ice.RetryIntervals", "-1");
 	
     AttackClient app;
     return app.main(argc, argv);

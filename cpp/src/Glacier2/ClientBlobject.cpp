@@ -67,7 +67,17 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
     if(!proxy)
     {
 	ObjectNotExistException ex(__FILE__, __LINE__);
+
+	//
+	// We use a special operation name indicate to the client that
+	// the proxy for the Ice object has not been found in our
+	// routing table. This can happen if the proxy was evicted
+	// from the routing table.
+	//
 	ex.id = current.id;
+	ex.facet = current.facet;
+	//ex.operation = current.operation;
+	ex.operation = "ice_add_proxy";
 	throw ex;
     }
 
