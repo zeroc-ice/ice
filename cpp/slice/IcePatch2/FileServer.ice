@@ -113,7 +113,7 @@ interface FileServer
      * @return A sequence containing the compressed file contents.
      *
      **/
-    ["ami"] nonmutating Ice::ByteSeq getFileCompressed(string path, int pos, int num)
+    ["ami", "amd", "cpp:array"] nonmutating Ice::ByteSeq getFileCompressed(string path, int pos, int num)
 	throws FileAccessException;
 };
 

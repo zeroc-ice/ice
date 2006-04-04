@@ -738,10 +738,10 @@ public:
     }
 
     virtual void
-    ice_response(const ByteSeq& bytes)
+    ice_response(const pair<const Ice::Byte*, const Ice::Byte*>& bytes)
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	_bytes = bytes;
+	ByteSeq(bytes.first, bytes.second).swap(_bytes);
 	_done = true;
 	notify();
     }
