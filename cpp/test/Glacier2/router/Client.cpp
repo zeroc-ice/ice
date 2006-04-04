@@ -185,7 +185,7 @@ class StressClient : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mu
 {
 public:
     
-    StressClient(int id) : _id(id), _notified(false)
+    StressClient(int id) : _id(id), _initialized(false), _notified(false)
     {
     }
 
@@ -220,6 +220,11 @@ public:
 
 	{
 	    Lock sync(*this);
+	    _initialized = true;
+	    notifyAll();
+	}
+	{
+	    Lock sync(*this);
 	    while(!_notified)
 	    {
 		wait();
@@ -239,9 +244,18 @@ public:
     void
     notifyThread()
     {
-	Lock sync(*this);
-	_notified = true;
-	notify();
+	{
+	    Lock sync(*this);
+	    while(!_initialized)
+	    {
+		wait();
+	    }
+	}
+	{
+	    Lock sync(*this);
+	    _notified = true;
+	    notify();
+	}
     }
 
     void
@@ -255,8 +269,9 @@ public:
 	catch(const Ice::ConnectionLostException&)
 	{
 	}
-	catch(const Ice::LocalException&)
+	catch(const Ice::LocalException& ex)
 	{
+	    cerr << ex << endl;
 	    test(false);
 	}
     }
@@ -266,6 +281,7 @@ protected:
     Glacier2::RouterPrx _router;
     int _id;
     CallbackReceiverIPtr _callbackReceiver;
+    bool _initialized;
     bool _notified;
 };
 typedef IceUtil::Handle<StressClient> StressClientPtr;
