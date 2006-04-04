@@ -44,7 +44,7 @@ ServerFactoryI::createServer(const Test::Properties& props, const Current& curre
     _servers[obj->ice_getIdentity()] = server;
     adapter->activate();
 
-    return Test::ServerPrx::uncheckedCast(obj);;
+    return Test::ServerPrx::uncheckedCast(obj);
 }
 
 void
