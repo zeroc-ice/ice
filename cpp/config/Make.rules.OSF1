@@ -12,25 +12,47 @@
 #
 
 #
-# Default compiler is g++
+# Default compiler is Compaq C++
 #
 ifeq ($(CXX),)
-   CXX			= g++
+   CXX			= cxx
 endif
 
+CC = /usr/ucb/cc -D__osf1__
 
-ifeq ($(CXX),g++)
+
+ifeq ($(CXX),cxx)
+
+   CXXFLAGS		= $(CXXARCHFLAGS) -pthread -std gnu -D_REENTRANT -D__USE_STD_IOSTREAM -D__osf1__ -msg_display_tag -msg_disable codeunreachable,codcauunr,labelnotreach
+
+   ifeq ($(OPTIMIZE),yes)
+      CXXFLAGS		= -O2 -DNDEBUG -tune host
+   else
+      CXXFLAGS		= -g
+   endif
+
+   #
+   # C++ run-time libraries, necessary for linking some shared libraries.
+   #
+   CXXLIBS		=
+
+   mkshlib		= $(CXX) -shared $(LDFLAGS) -o $(1) -soname $(2) $(3) $(4) -lpthread
+
+   mklib		= ar cr $(1) $(2)
+endif
+
+ifeq ($(CXX),g)
 
    CXXFLAGS		= $(CXXARCHFLAGS) -ftemplate-depth-128 -Wall -D_REENTRANT
 
    ifeq ($(STATICLIBS),)
-      CXXFLAGS		+= -fPIC
+      CXXFLAGS		= -fPIC
    endif
 
    ifeq ($(OPTIMIZE),yes)
-      CXXFLAGS		+= -O3 -DNDEBUG
+      CXXFLAGS		= -O3 -DNDEBUG
    else
-      CXXFLAGS		+= -g
+      CXXFLAGS		= -g
    endif
 
    #
@@ -47,7 +69,7 @@ endif
 BASELIBS		= -lIceUtil -lpthread 
 LIBS			= -lIce $(BASELIBS)
 
-ICEUTIL_OS_LIBS         = 
-ICE_OS_LIBS             = -ldl
+ICEUTIL_OS_LIBS         = -lrt
+ICE_OS_LIBS             =
 
 export LD_LIBRARY_PATH	:= $(libdir):$(LD_LIBRARY_PATH)

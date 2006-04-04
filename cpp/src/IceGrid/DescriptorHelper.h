@@ -135,7 +135,40 @@ private:
 };
 typedef IceUtil::Handle<ServerHelper> ServerHelperPtr;
 
-class ServiceInstanceHelper;
+class InstanceHelper
+{
+protected:
+
+    std::map<std::string, std::string> instantiateParams(const Resolver&, 
+							 const std::string&, 
+							 const std::map<std::string, std::string>&,
+							 const std::vector<std::string>&,
+							 const std::map<std::string, std::string>&) const;
+};
+
+
+class ServiceInstanceHelper : public InstanceHelper
+{
+public:
+
+    ServiceInstanceHelper(const ServiceInstanceDescriptor&);
+    ServiceInstanceHelper() { }
+
+    bool operator==(const ServiceInstanceHelper&) const;
+    bool operator!=(const ServiceInstanceHelper&) const;
+
+    ServiceInstanceDescriptor instantiate(const Resolver&) const;
+    void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
+
+    void print(IceUtil::Output&) const;
+
+private:
+    
+    std::string _template;
+    std::map<std::string, std::string> _parameters;
+    mutable ServiceHelper _service;
+};
+
 
 class IceBoxHelper : public ServerHelper
 {
@@ -163,39 +196,6 @@ private:
     IceBoxDescriptorPtr _desc;
 
     std::vector<ServiceInstanceHelper> _services;
-};
-
-class InstanceHelper
-{
-protected:
-
-    std::map<std::string, std::string> instantiateParams(const Resolver&, 
-							 const std::string&, 
-							 const std::map<std::string, std::string>&,
-							 const std::vector<std::string>&,
-							 const std::map<std::string, std::string>&) const;
-};
-
-class ServiceInstanceHelper : public InstanceHelper
-{
-public:
-
-    ServiceInstanceHelper(const ServiceInstanceDescriptor&);
-    ServiceInstanceHelper() { }
-
-    bool operator==(const ServiceInstanceHelper&) const;
-    bool operator!=(const ServiceInstanceHelper&) const;
-
-    ServiceInstanceDescriptor instantiate(const Resolver&) const;
-    void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
-
-    void print(IceUtil::Output&) const;
-
-private:
-    
-    std::string _template;
-    std::map<std::string, std::string> _parameters;
-    mutable ServiceHelper _service;
 };
 
 class ServerInstanceHelper : public InstanceHelper

@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_AUTO_ARRAY_H
-#define ICEE_AUTO_ARRAY_H
+#ifndef ICE_UTIL_AUTO_ARRAY_H
+#define ICE_UTIL_AUTO_ARRAY_H
 
 namespace IceUtil
 {
@@ -62,6 +62,6 @@ private:
     T* _ptr;
 };
 
-}; // End of namespace IceUtil
+} // End of namespace IceUtil
 
 #endif

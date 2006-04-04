@@ -1,6 +1,8 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Integrated contributed updates for Tru64.
+
 - Added a new method addProxies() to Ice::Router, which can return
   evicted proxies. The old method addProxy() is now deprecated. Note
   that this is an internal interface for communications between

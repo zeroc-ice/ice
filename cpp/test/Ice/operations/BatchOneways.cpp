@@ -16,9 +16,9 @@ using namespace std;
 void
 batchOneways(const Test::MyClassPrx& p)
 {
-    const Test::ByteS bs1(10  * 1024, 0);
-    const Test::ByteS bs2(99  * 1024, 0);
-    const Test::ByteS bs3(100  * 1024, 0);
+    const Test::ByteS bs1(10  * 1024);
+    const Test::ByteS bs2(99  * 1024);
+    const Test::ByteS bs3(100  * 1024);
     
     try
     {

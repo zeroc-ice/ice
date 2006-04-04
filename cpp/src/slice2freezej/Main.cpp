@@ -24,6 +24,11 @@ struct DictIndex
     {
 	return member == rhs.member;
     }
+
+    bool operator!=(const DictIndex& rhs) const
+    {
+	return member != rhs.member;
+    }
 };
 
 struct Dict

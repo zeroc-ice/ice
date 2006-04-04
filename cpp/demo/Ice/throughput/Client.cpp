@@ -54,7 +54,7 @@ ThroughputClient::run(int argc, char* argv[])
     }
     ThroughputPrx throughputOneway = ThroughputPrx::uncheckedCast(throughput->ice_oneway());
 
-    ByteSeq byteSeq(ByteSeqSize, 0);
+    ByteSeq byteSeq(ByteSeqSize);
     pair<const Ice::Byte*, const Ice::Byte*> byteArr;
     byteArr.first = &byteSeq[0];
     byteArr.second = byteArr.first + byteSeq.size();

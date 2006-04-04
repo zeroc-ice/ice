@@ -51,6 +51,14 @@ const DWORD SIGHUP = CTRL_LOGOFF_EVENT;
 #endif
 
 //
+// Compaq C++ defines signal() as a macro, causing problems with the _condVar->signal()
+// statement, which the compiler for some reason replaces by the macro.
+//
+#if defined (__digital__) && defined (__unix__)
+#   undef signal
+#endif
+
+//
 // CtrlCHandler callbacks.
 //
 

@@ -36,7 +36,7 @@ typedef int ssize_t;
 #   include <netdb.h>
 #endif
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__osf__) 
 typedef int socklen_t;
 #endif
 

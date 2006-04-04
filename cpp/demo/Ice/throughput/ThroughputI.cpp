@@ -11,7 +11,7 @@
 #include <Ice/Ice.h>
 
 ThroughputI::ThroughputI() :
-    _byteSeq(Demo::ByteSeqSize, 0),
+    _byteSeq(Demo::ByteSeqSize),
     _stringSeq(Demo::StringSeqSize, "hello"),
     _structSeq(Demo::StringDoubleSeqSize),
     _fixedSeq(Demo::FixedSeqSize)
