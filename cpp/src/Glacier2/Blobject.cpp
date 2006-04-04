@@ -113,6 +113,26 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Array_Object_ice_invokePt
     }
 
     //
+    // Modify the proxy according to the request id. This can
+    // be overridden by the _fwd context.
+    //
+    if(current.requestId == 0)
+    {
+        if(_alwaysBatch && _buffered)
+	{
+	    proxy = proxy->ice_batchOneway();
+	}
+	else
+	{
+            proxy = proxy->ice_oneway();
+	}
+    }
+    else if(current.requestId > 0)
+    {
+        proxy = proxy->ice_twoway();
+    }
+
+    //
     // Modify the proxy according to the _fwd context field.
     //
     Context::const_iterator p = current.ctx.find("_fwd");
