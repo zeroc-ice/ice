@@ -568,8 +568,15 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	{
 	    // Expected.
 	}
-	catch(const LocalException&)
+#ifdef _WIN32
+	catch(const ConnectionLostException&)
 	{
+	    // Expected.
+	}
+#endif
+	catch(const LocalException& ex)
+	{
+	    cerr << ex << endl;
 	    test(false);
 	}
 	fact->destroyServer(server);
@@ -598,8 +605,15 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	{
 	    // Expected.
 	}
-	catch(const LocalException&)
+#ifdef _WIN32
+	catch(const ConnectionLostException&)
 	{
+	    // Expected.
+	}
+#endif
+	catch(const LocalException& ex)
+	{
+	    cerr << ex << endl;
 	    test(false);
 	}
 	fact->destroyServer(server);
@@ -629,8 +643,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	{
 	    server->ice_ping();
 	}
-	catch(const LocalException&)
+	catch(const LocalException& ex)
 	{
+	    cerr << ex << endl;
 	    test(false);
 	}
 	fact->destroyServer(server);
@@ -667,8 +682,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	{
 	    server->ice_ping();
 	}
-	catch(const LocalException&)
+	catch(const LocalException& ex)
 	{
+	    cerr << ex << endl;
 	    test(false);
 	}
 	fact->destroyServer(server);
@@ -696,8 +712,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	{
 	    // Expected.
 	}
-	catch(const LocalException&)
+	catch(const LocalException& ex)
 	{
+	    cerr << ex << endl;
 	    test(false);
 	}
 	test(prompt->count() == 4);
@@ -851,8 +868,15 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	{
 	    // Expected.
 	}
-	catch(const LocalException&)
+#ifdef _WIN32
+	catch(const ConnectionLostException&)
 	{
+	    // Expected.
+	}
+#endif
+	catch(const LocalException& ex)
+	{
+	    cerr << ex << endl;
 	    test(false);
 	}
 	fact->destroyServer(server);
