@@ -356,6 +356,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	{
 	    // Expected.
 	}
+#ifdef _WIN32
+	catch(const ConnectionLostException&)
+	{
+	    // Expected.
+	}
+#endif
 	catch(const LocalException&)
 	{
 	    test(false);
@@ -390,6 +396,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	{
 	    // Expected.
 	}
+#ifdef _WIN32
+	catch(const ConnectionLostException&)
+	{
+	    // Expected.
+	}
+#endif
 	catch(const LocalException&)
 	{
 	    test(false);
