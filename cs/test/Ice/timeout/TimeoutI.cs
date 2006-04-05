@@ -20,6 +20,7 @@ internal class ActivateAdapterThread
 
     internal void run()
     {
+	_adapter.waitForHold();
 	Thread.Sleep(_timeout);
 	_adapter.activate();
     }
