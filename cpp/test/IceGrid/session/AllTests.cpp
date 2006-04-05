@@ -95,13 +95,13 @@ public:
 	{
 	    this->applications.insert(make_pair(p->name, *p));
 	}
-	for(AdapterInfoSeq::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+	for(AdapterInfoSeq::const_iterator q = adapters.begin(); q != adapters.end(); ++q)
 	{
-	    this->adapters.insert(make_pair(p->id, *p));
+	    this->adapters.insert(make_pair(q->id, *q));
 	}
-	for(ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
+	for(ObjectInfoSeq::const_iterator r = objects.begin(); r != objects.end(); ++r)
 	{
-	    this->objects.insert(make_pair(p->proxy->ice_getIdentity(), *p));
+	    this->objects.insert(make_pair(r->proxy->ice_getIdentity(), *r));
 	}
 	updated(serial);
     }

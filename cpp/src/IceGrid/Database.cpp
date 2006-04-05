@@ -195,18 +195,18 @@ Database::setObservers(const RegistryObserverPrx& registryObserver, const NodeOb
 	    applications.push_back(p->second);
 	}
 
-	for(StringAdapterInfoDict::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
+	for(StringAdapterInfoDict::const_iterator q = _adapters.begin(); q != _adapters.end(); ++q)
 	{
-	    adapters.push_back(p->second);
+	    adapters.push_back(q->second);
 	    if(adapters.back().id.empty())
 	    {
-		adapters.back().id = p->first;
+		adapters.back().id = q->first;
 	    }
 	}
 	
-	for(IdentityObjectInfoDict::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
+	for(IdentityObjectInfoDict::const_iterator r = _objects.begin(); r != _objects.end(); ++r)
 	{
-	    objects.push_back(p->second);
+	    objects.push_back(r->second);
 	}
     }
 

@@ -396,7 +396,7 @@ LocatorI::getDirectProxyException(const AdapterPrx& adapter, const string& id, c
 	    return;
 	}
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
 	//
 	// TODO: Add a warning!!!
