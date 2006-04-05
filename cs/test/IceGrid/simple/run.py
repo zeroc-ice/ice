@@ -52,7 +52,7 @@ IceGridAdmin.cleanDbDir(os.path.join(testdir, "db"))
 #
 # Start IceGrid registry.
 # 
-iceGridRegistryThread = IceGridAdmin.startIceGridRegistry("12010", testdir)
+iceGridRegistryThread = IceGridAdmin.startIceGridRegistry("12010", testdir, 1)
 
 #
 # Test client/server without on demand activation.
@@ -71,7 +71,7 @@ IceGridAdmin.cleanDbDir(os.path.join(testdir, "db"))
 #
 # Start IceGrid registry and a node.
 #
-iceGridRegistryThread = IceGridAdmin.startIceGridRegistry("12010", testdir)
+iceGridRegistryThread = IceGridAdmin.startIceGridRegistry("12010", testdir, 0)
 iceGridNodeThread = IceGridAdmin.startIceGridNode(testdir)
 
 #

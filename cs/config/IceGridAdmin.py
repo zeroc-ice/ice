@@ -19,6 +19,30 @@ ice_home = os.environ['ICE_HOME']
 
 iceGridPort = "0";
 
+nodeOptions = r' --Ice.Warn.Connections=0' + \
+              r' --IceGrid.Node.Endpoints=default' + \
+              r' --IceGrid.Node.WaitTime=30' + \
+              r' --Ice.ProgramName=icegridnode' + \
+              r' --IceGrid.Node.Trace.Activator=0' + \
+              r' --IceGrid.Node.Trace.Adapter=0' + \
+              r' --IceGrid.Node.Trace.Server=0' + \
+              r' --IceGrid.Node.PrintServersReady=node' + \
+	      r' --Ice.NullHandleAbort' + \
+              r' --Ice.ThreadPool.Server.Size=0';
+
+registryOptions = r' --Ice.Warn.Connections=0' + \
+                  r' --IceGrid.Registry.Server.Endpoints=default' + \
+                  r' --IceGrid.Registry.Internal.Endpoints=default' + \
+                  r' --IceGrid.Registry.Admin.Endpoints=default' + \
+                  r' --IceGrid.Registry.Server.Endpoints=default' + \
+                  r' --IceGrid.Registry.Internal.Endpoints=default' + \
+                  r' --IceGrid.Registry.Admin.Endpoints=default' + \
+                  r' --IceGrid.Registry.Trace.Application=0' + \
+                  r' --IceGrid.Registry.Trace.Adapter=0' + \
+                  r' --IceGrid.Registry.Trace.Object=0' + \
+                  r' --IceGrid.Registry.Trace.Server=0' + \
+                  r' --Ice.ThreadPool.Server.Size=0';
+
 class ReaderThread(Thread):
     def __init__(self, pipe, token):
         self.pipe = pipe
@@ -40,7 +64,7 @@ class ReaderThread(Thread):
         except IOError:
             pass
 
-def startIceGridRegistry(port, testdir):
+def startIceGridRegistry(port, testdir, dynamicRegistration):
 
     global iceGridPort
 
@@ -53,14 +77,13 @@ def startIceGridRegistry(port, testdir):
         os.mkdir(dataDir)
 
     print "starting icegrid registry...",
-    command = iceGrid + TestUtil.cppClientServerOptions + ' --nowarn ' + \
+    command = iceGrid + TestUtil.cppClientServerOptions + ' --nowarn ' + registryOptions + \
               r' --IceGrid.Registry.Client.Endpoints="default -p ' + iceGridPort + ' -t 30000" ' + \
-              r' --IceGrid.Registry.Server.Endpoints=default' + \
-              r' --IceGrid.Registry.Internal.Endpoints=default' + \
-              r' --IceGrid.Registry.Admin.Endpoints=default' + \
               r' --IceGrid.Registry.Data=' + dataDir + \
-              r' --IceGrid.Registry.DynamicRegistration' + \
-              r' --Ice.ProgramName=icegridregistry'
+              r' --IceGrid.Registry.DefaultTemplates=' + os.path.join(ice_home, "config", "templates.xml")
+
+    if dynamicRegistration:
+        command += ' --IceGrid.Registry.DynamicRegistration'        
 
     (stdin, iceGridPipe) = os.popen4(command)
     TestUtil.getAdapterReady(iceGridPipe)
@@ -82,20 +105,15 @@ def startIceGridNode(testdir):
         os.mkdir(dataDir)
 
     overrideOptions = '"' + TestUtil.clientServerOptions.replace("--", "") + \
-	              ' Ice.PrintProcessId=0 Ice.PrintAdapterReady=0' + '"'
+	              ' Ice.ServerIdleTime=0 Ice.PrintProcessId=0 Ice.PrintAdapterReady=0 '+ \
+                      ' Ice.ThreadPool.Server.Size=0"'
 
     print "starting icegrid node...",
-    command = iceGrid + TestUtil.cppClientServerOptions + ' --nowarn ' + \
+    command = iceGrid + TestUtil.cppClientServerOptions + ' --nowarn ' + nodeOptions + \
               r' "--Ice.Default.Locator=IceGrid/Locator:default -p ' + iceGridPort + '" ' + \
-              r' --IceGrid.Node.Endpoints=default' + \
               r' --IceGrid.Node.Data=' + dataDir + \
               r' --IceGrid.Node.Name=localnode' + \
-              r' --IceGrid.Node.PropertiesOverride=' + overrideOptions + \
-              r' --Ice.ProgramName=icegridnode' + \
-              r' --IceGrid.Node.Trace.Activator=0' + \
-              r' --IceGrid.Node.Trace.Adapter=0' + \
-              r' --IceGrid.Node.Trace.Server=0' + \
-              r' --IceGrid.Node.PrintServersReady=node'
+              r' --IceGrid.Node.PropertiesOverride=' + overrideOptions
     
     (stdin, iceGridPipe) = os.popen4(command)
     TestUtil.getAdapterReady(iceGridPipe)
