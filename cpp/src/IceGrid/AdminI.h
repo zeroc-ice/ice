@@ -52,7 +52,7 @@ public:
     virtual void enableServer(const ::std::string&, bool, const Ice::Current&);
     virtual bool isServerEnabled(const ::std::string&, const Ice::Current&) const;
 
-    virtual StringObjectProxyDict getAdapterEndpoints(const ::std::string&, const ::Ice::Current&) const;
+    virtual AdapterInfoSeq getAdapterInfo(const ::std::string&, const ::Ice::Current&) const;
     virtual void removeAdapter(const std::string&, const Ice::Current&);
     virtual Ice::StringSeq getAllAdapterIds(const ::Ice::Current&) const;
 

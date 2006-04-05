@@ -939,18 +939,18 @@ Parser::endpointsAdapter(const list<string>& args)
     try
     {
 	string adapterId = args.front();
-	StringObjectProxyDict proxies = _admin->getAdapterEndpoints(adapterId);
-	if(proxies.size() == 1 && proxies.begin()->first == adapterId)
+	AdapterInfoSeq adpts = _admin->getAdapterInfo(adapterId);
+	if(adpts.size() == 1 && adpts.begin()->id == adapterId)
 	{
-	    string endpoints = _communicator->proxyToString(proxies.begin()->second);
+	    string endpoints = _communicator->proxyToString(adpts.begin()->proxy);
 	    cout << (endpoints.empty() ? "<inactive>" : endpoints) << endl;
 	}
 	else
 	{
-	    for(StringObjectProxyDict::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
+	    for(AdapterInfoSeq::const_iterator p = adpts.begin(); p != adpts.end(); ++p)
 	    {
-		cout << (p->first.empty() ? "<empty>" : p->first) << ": ";
-		string endpoints = _communicator->proxyToString(p->second);
+		cout << (p->id.empty() ? "<empty>" : p->id) << ": ";
+		string endpoints = _communicator->proxyToString(p->proxy);
 		cout << (endpoints.empty() ? "<inactive>" : endpoints) << endl;
 	    }
 	}

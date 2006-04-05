@@ -41,6 +41,9 @@ public:
 
 private:
 
+    void addWellKnownObject(const Ice::ObjectPrx&, const std::string&);
+    void setupThreadPool(const Ice::PropertiesPtr&, const std::string&, int, int = 0);
+
     Ice::CommunicatorPtr _communicator;
     DatabasePtr _database;
     ReapThreadPtr _reaper;

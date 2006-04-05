@@ -286,7 +286,7 @@ LocatorI::LocatorI(const Ice::CommunicatorPtr& communicator,
 		   const Ice::LocatorRegistryPrx& locatorRegistry) :
     _communicator(communicator),
     _database(database),
-    _locatorRegistry(locatorRegistry)
+    _locatorRegistry(Ice::LocatorRegistryPrx::uncheckedCast(locatorRegistry->ice_collocationOptimization(false)))
 {
 }
 
@@ -396,7 +396,7 @@ LocatorI::getDirectProxyException(const AdapterPrx& adapter, const string& id, c
 	    return;
 	}
     }
-    catch(const Ice::Exception&)
+    catch(const Ice::Exception& ex)
     {
 	//
 	// TODO: Add a warning!!!

@@ -574,32 +574,32 @@ AdminI::isServerEnabled(const ::std::string& id, const Ice::Current&) const
     }
 }
 
-StringObjectProxyDict
-AdminI::getAdapterEndpoints(const string& adapterId, const Current&) const
+AdapterInfoSeq
+AdminI::getAdapterInfo(const string& id, const Current&) const
 {
     int count;
-    vector<pair<string, AdapterPrx> > adapters = _database->getAdapters(adapterId, true, count);
-    StringObjectProxyDict adpts;
+    vector<pair<string, AdapterPrx> > adapters = _database->getAdapters(id, true, count);
+    AdapterInfoSeq adpts;
     for(vector<pair<string, AdapterPrx> >::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
     {
+	AdapterInfo info;
+	info.id = p->first;
+	info.replicaGroupId = p->first != id ? id : "";
 	if(p->second)
 	{
 	    try
 	    {
-		adpts[p->first] = p->second->getDirectProxy();
+		info.proxy = p->second->getDirectProxy();
 	    }
 	    catch(const Ice::ObjectNotExistException&)
 	    {
+		continue;
 	    }
 	    catch(const Ice::Exception&)
 	    {
-		adpts[p->first] = 0;
 	    }
 	}
-	else
-	{
-	    adpts[p->first] = 0;
-	}
+	adpts.push_back(info);
     }
     return adpts;
 }

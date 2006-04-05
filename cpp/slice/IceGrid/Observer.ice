@@ -220,8 +220,14 @@ interface RegistryObserver
      * @param applications The applications currently registered with
      * the registry.
      *
+     * @param adapters The adapters which were dynamically registered
+     * with the registry (not through the deployment mechanism).
+     *
+     * @param objects The objects registered with the IceGrid::Admin
+     * interface (not through the deployment mechanism).
+     *
      **/
-    ["ami"] void init(int serial, ApplicationDescriptorSeq applications);
+    ["ami"] void init(int serial, ApplicationDescriptorSeq applications, AdapterInfoSeq adpts, ObjectInfoSeq objects);
 
     /**
      * 
@@ -258,6 +264,56 @@ interface RegistryObserver
      * 
      **/
     void applicationUpdated(int serial, ApplicationUpdateDescriptor desc);
+
+    /**
+     *
+     * The adapterAdded method is called to notify the observer when
+     * an adapter is dynamically registered.
+     *
+     **/
+    void adapterAdded(int serial, AdapterInfo info);
+
+    /**
+     *
+     * The adapterUpdated method is called to notify the observer when
+     * an adapter dynamically registered was updated.
+     *
+     **/
+    void adapterUpdated(int serial, AdapterInfo info);
+
+    /**
+     *
+     * The adapterRemoved method is called to notify the observer when
+     * an adapter dynamically registered was remoevd.
+     *
+     **/
+    void adapterRemoved(int serial, string id);
+
+    /**
+     *
+     * The objectAdded method is called to notify the observer when an
+     * object was added through the IceGrid::Admin interface.
+     *
+     **/
+    void objectAdded(int serial, ObjectInfo info);
+
+    /**
+     *
+     * The objectUpdated method is called to notify the observer when
+     * an object registered through the IceGrid::Admin interface was
+     * updated.
+     *
+     **/
+    void objectUpdated(int serial, ObjectInfo info);
+
+    /**
+     *
+     * The objectRemoved method is called to notify the observer when
+     * an object registered through the IceGrid::Admin interface was 
+     * removed.
+     *
+     **/
+    void objectRemoved(int serial, Ice::Identity id);
 };
 
 interface Query;

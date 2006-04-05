@@ -182,6 +182,8 @@ Database::setObservers(const RegistryObserverPrx& registryObserver, const NodeOb
 {
     int serial;
     ApplicationDescriptorSeq applications;
+    AdapterInfoSeq adapters;
+    ObjectInfoSeq objects;
     {
 	Lock sync(*this);
 	_registryObserver = registryObserver;
@@ -192,12 +194,26 @@ Database::setObservers(const RegistryObserverPrx& registryObserver, const NodeOb
 	{
 	    applications.push_back(p->second);
 	}
+
+	for(StringAdapterInfoDict::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
+	{
+	    adapters.push_back(p->second);
+	    if(adapters.back().id.empty())
+	    {
+		adapters.back().id = p->first;
+	    }
+	}
+	
+	for(IdentityObjectInfoDict::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
+	{
+	    objects.push_back(p->second);
+	}
     }
 
     //
     // Notify the observers.
     //
-    _registryObserver->init(serial, applications);
+    _registryObserver->init(serial, applications, adapters, objects);
 }
 
 void
@@ -563,9 +579,9 @@ Database::getAllNodeServers(const string& node)
 bool
 Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGroupId, const Ice::ObjectPrx& proxy)
 {
-    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
-    StringAdapterInfoDict adapters(connection, _adapterDbName); 
-    if(proxy)
+    AdapterInfo info;
+    int serial;
+    bool updated = false;
     {
 	Lock sync(*this);
 	if(_adapterCache.has(adapterId))
@@ -573,65 +589,64 @@ Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGr
 	    return false;
 	}
 
-	StringAdapterInfoDict::iterator p = adapters.find(adapterId);
-	if(p != adapters.end())
+	StringAdapterInfoDict::iterator p = _adapters.find(adapterId);
+	if(proxy)
 	{
-	    AdapterInfo info = p->second;
-	    info.proxy = proxy;
-	    info.replicaGroupId = replicaGroupId;
-	    p.set(info);
-	    if(_traceLevels->adapter > 0)
+	    if(p != _adapters.end())
 	    {
-		Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-		out << "updated adapter `" << adapterId << "'";
-		if(!replicaGroupId.empty())
-		{
-		    out << " with replica group `" << replicaGroupId << "'";
-		}
+		info = p->second;
+		info.proxy = proxy;
+		info.replicaGroupId = replicaGroupId;
+		p.set(info);
+		updated = true;
 	    }
+	    else
+	    {
+		info.id = adapterId;
+		info.proxy = proxy;
+		info.replicaGroupId = replicaGroupId;
+		_adapters.put(StringAdapterInfoDict::value_type(adapterId, info));
+	    }   
 	}
 	else
 	{
-	    AdapterInfo info;
-	    info.proxy = proxy;
-	    info.replicaGroupId = replicaGroupId;
-	    adapters.put(StringAdapterInfoDict::value_type(adapterId, info));
-	    if(_traceLevels->adapter > 0)
+	    if(p == _adapters.end())
 	    {
-		Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-		out << "added adapter `" << adapterId << "'";
-		if(!replicaGroupId.empty())
-		{
-		    out << " with replica group `" << replicaGroupId << "'";
-		}
+		return true;
 	    }
-	}	    
-	return true;
+	    _adapters.erase(p);
+	}
+
+	serial = ++_serial;
+    }
+
+
+    if(_traceLevels->adapter > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
+	out << (proxy ? (updated ? "updated" : "added") : "removed") << " adapter `" << adapterId << "'";
+	if(!replicaGroupId.empty())
+	{
+	    out << " with replica group `" << replicaGroupId << "'";
+	}
+    }
+
+    if(proxy)
+    {
+	if(updated)
+	{
+	    _registryObserver->adapterUpdated(serial, info);
+	}
+	else
+	{
+	    _registryObserver->adapterAdded(serial, info);
+	}
     }
     else
     {
-	Lock sync(*this);
-	if(_adapterCache.has(adapterId))
-	{
-	    return false;
-	}	
-
-	StringAdapterInfoDict::iterator p = adapters.find(adapterId);
-	if(p == adapters.end())
-	{
-	    return true;
-	}
-	AdapterInfo info = p->second;
-	adapters.erase(p);
-
-	if(_traceLevels->adapter > 0)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-	    out << "removed adapter `" << adapterId << "'";
-	}
-
-	return true;
+	_registryObserver->adapterRemoved(serial, adapterId);
     }
+    return true;
 }
 
 Ice::ObjectPrx
@@ -650,62 +665,73 @@ Database::getAdapterDirectProxy(const string& adapterId)
 void
 Database::removeAdapter(const string& adapterId)
 {
-    try
+    AdapterInfoSeq infos;
+    int serial;
     {
-	AdapterEntryPtr adpt = _adapterCache.get(adapterId);
-	DeploymentException ex;
-	ex.reason = "removing adapter `" + adapterId + "' is not allowed:\n";
-	ex.reason += "the adapter was added with the application descriptor `" + adpt->getApplication() + "'";
-	throw ex;
-    }
-    catch(const AdapterNotExistException&)
-    {
-    }
-
-    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
-
-    {
-	StringAdapterInfoDict adapters(connection, _adapterDbName);
-	StringAdapterInfoDict::iterator p = adapters.find(adapterId);
-	if(p != adapters.end())
+	Lock sync(*this);
+	if(_adapterCache.has(adapterId))
 	{
-	    AdapterInfo info = p->second;
-	    adapters.erase(p);
+	    AdapterEntryPtr adpt = _adapterCache.get(adapterId);
+	    DeploymentException ex;
+	    ex.reason = "removing adapter `" + adapterId + "' is not allowed:\n";
+	    ex.reason += "the adapter was added with the application descriptor `" + adpt->getApplication() + "'";
+	    throw ex;
+	}
 
-	    if(_traceLevels->adapter > 0)
+	Freeze::TransactionHolder txHolder(_connection);
+
+	StringAdapterInfoDict::iterator p = _adapters.find(adapterId);
+	if(p != _adapters.end())
+	{
+	    _adapters.erase(p);
+	}
+	else
+	{
+	    p = _adapters.findByReplicaGroupId(adapterId, true);
+	    if(p == _adapters.end())
 	    {
-		Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-		out << "removed adapter `" << adapterId << "'";
+		throw AdapterNotExistException(adapterId);
 	    }
-	    return;
-	}
-    }
-
-    {
-	Freeze::TransactionHolder txHolder(connection);
-	StringAdapterInfoDict adapters(connection, _adapterDbName);
-
-	StringAdapterInfoDict::iterator p = adapters.findByReplicaGroupId(adapterId, true);
-	if(p == adapters.end())
-	{
-	    throw AdapterNotExistException(adapterId);
-	}
 	
-	while(p != adapters.end())
-	{
-	    AdapterInfo info = p->second;
-	    info.replicaGroupId = "";
-	    adapters.put(StringAdapterInfoDict::value_type(p->first, info));
-	    ++p;
+	    while(p != _adapters.end())
+	    {
+		AdapterInfo info = p->second;
+		info.replicaGroupId = "";
+		infos.push_back(info);
+		_adapters.put(StringAdapterInfoDict::value_type(p->first, info));
+		++p;
+	    }
 	}
 
 	txHolder.commit();
+
+	if(infos.empty())
+	{
+	    serial = ++_serial;
+	}
+	else
+	{
+	    serial = _serial;
+	    _serial += infos.size();
+	}
     }
 
     if(_traceLevels->adapter > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-	out << "removed replica group `" << adapterId << "'";
+	out << "removed " << (infos.empty() ? "adapter" : "replica group") << " `" << adapterId << "'";
+    }
+    
+    if(infos.empty())
+    {
+	_registryObserver->adapterRemoved(serial, adapterId);
+    }
+    else
+    {
+	for(AdapterInfoSeq::const_iterator p = infos.begin(); p != infos.end(); ++p)
+	{
+	    _registryObserver->adapterUpdated(++serial, *p);
+	}
     }
 }
 
@@ -744,7 +770,7 @@ Database::getAdapters(const string& id, bool allRegistered, int& endpointCount)
 	Ice::Identity identity;
 	identity.category = "IceGridAdapter";
 	identity.name = id;
-	Ice::ObjectPrx adpt = _internalAdapter->createDirectProxy(identity)->ice_collocationOptimization(false);
+	Ice::ObjectPrx adpt = _internalAdapter->createDirectProxy(identity);
 	adpts.push_back(make_pair(id, AdapterPrx::uncheckedCast(adpt)));
 	endpointCount = 1;
 	return adpts;
@@ -809,21 +835,28 @@ Database::getAllAdapters(const string& expression)
 void
 Database::addObject(const ObjectInfo& info)
 {
-    Lock sync(*this);
-
+    int serial;
     const Ice::Identity id = info.proxy->ice_getIdentity();
-    if(_objectCache.has(id))
     {
-	throw ObjectExistsException(id);
+	Lock sync(*this);	
+	if(_objectCache.has(id))
+	{
+	    throw ObjectExistsException(id);
+	}
+	
+	if(_objects.find(id) != _objects.end())
+	{
+	    throw ObjectExistsException(id);
+	}
+	_objects.put(IdentityObjectInfoDict::value_type(id, info));
+	
+	serial = ++_serial;
     }
-
-    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
-    IdentityObjectInfoDict objects(connection, _objectDbName); 
-    if(objects.find(id) != objects.end())
-    {
-	throw ObjectExistsException(id);
-    }
-    objects.put(IdentityObjectInfoDict::value_type(id, info));
+	
+    //
+    // Notify the observers.
+    //
+    _registryObserver->objectAdded(serial, info);
 
     if(_traceLevels->object > 0)
     {
@@ -835,33 +868,40 @@ Database::addObject(const ObjectInfo& info)
 void
 Database::removeObject(const Ice::Identity& id)
 {
-    try
+    int serial;
     {
-	ObjectEntryPtr obj = _objectCache.get(id);
-	DeploymentException ex;
-	ex.reason = "removing object `" + Ice::identityToString(id) + "' is not allowed:\n";
-	ex.reason += "the object was added with the application descriptor `" + obj->getApplication() + "'";
-	throw ex;
-    }
-    catch(const ObjectNotRegisteredException&)
-    {
+	Lock sync(*this);	
+	if(_objectCache.has(id))
+	{
+	    DeploymentException ex;
+	    ex.reason = "removing object `" + Ice::identityToString(id) + "' is not allowed:\n";
+	    ex.reason += "the object was added with the application descriptor `";
+	    ex.reason += _objectCache.get(id)->getApplication();
+	    ex.reason += "'";
+	    throw ex;
+	}
+
+	IdentityObjectInfoDict::iterator p = _objects.find(id);
+	if(p == _objects.end())
+	{
+	    ObjectNotRegisteredException ex;
+	    ex.id = id;
+	    throw ex;
+	}
+	_objects.erase(p);
+
+	serial = ++_serial;
     }
 
-    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
-    IdentityObjectInfoDict objects(connection, _objectDbName); 
-    if(objects.find(id) == objects.end())
+    //
+    // Notify the observers.
+    //
+    _registryObserver->objectRemoved(serial, id);
+
+    if(_traceLevels->object > 0)
     {
-	ObjectNotRegisteredException ex;
-	ex.id = id;
-	throw ex;
-    }
-    if(objects.erase(id) > 0)
-    {
-	if(_traceLevels->object > 0)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-	    out << "removed object `" << Ice::identityToString(id) << "'";
-	}
+	Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
+	out << "removed object `" << Ice::identityToString(id) << "'";
     }
 }
 
@@ -869,31 +909,39 @@ void
 Database::updateObject(const Ice::ObjectPrx& proxy)
 {
     const Ice::Identity id = proxy->ice_getIdentity();
-    try
+    int serial;
+    ObjectInfo info;
     {
-	ObjectEntryPtr obj = _objectCache.get(id);
-	DeploymentException ex;
-	ex.reason = "updating object `" + Ice::identityToString(id) + "' is not allowed:\n";
-	ex.reason += "the object was added with the application descriptor `" + obj->getApplication() + "'";
-	throw ex;
-    }
-    catch(const ObjectNotRegisteredException&)
-    {
+	Lock sync(*this);	
+	if(_objectCache.has(id))
+	{
+	    DeploymentException ex;
+	    ex.reason = "updating object `" + Ice::identityToString(id) + "' is not allowed:\n";
+	    ex.reason += "the object was added with the application descriptor `";
+	    ex.reason += _objectCache.get(id)->getApplication();
+	    ex.reason += "'";
+	    throw ex;
+	}
+
+	IdentityObjectInfoDict::iterator p = _objects.find(id);
+	if(p == _objects.end())
+	{
+	    ObjectNotRegisteredException ex;
+	    ex.id = id;
+	    throw ex;
+	}
+	
+	info = p->second;
+	info.proxy = proxy;
+	p.set(info);
+
+	serial = ++_serial;
     }
 
-    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
-    IdentityObjectInfoDict objects(connection, _objectDbName); 
-    IdentityObjectInfoDict::iterator p = objects.find(id);
-    if(p == objects.end())
-    {
-	ObjectNotRegisteredException ex;
-	ex.id = id;
-	throw ex;
-    }
-
-    ObjectInfo info = p->second;
-    info.proxy = proxy;
-    p.set(info);
+    //
+    // Notify the observers.
+    //
+    _registryObserver->objectUpdated(serial, info);
 
     if(_traceLevels->object > 0)
     {

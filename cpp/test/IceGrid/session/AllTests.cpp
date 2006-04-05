@@ -82,17 +82,26 @@ class RegistryObserverI : public RegistryObserver, public IceUtil::Monitor<IceUt
 {
 public:
 
-    RegistryObserverI() : _updated(false)
+    RegistryObserverI() : _updated(0)
     {
     }
 
     virtual void 
-    init(int serial, const ApplicationDescriptorSeq& apps, const Ice::Current&)
+    init(int serial, const ApplicationDescriptorSeq& apps, const AdapterInfoSeq& adapters, 
+	 const ObjectInfoSeq& objects, const Ice::Current&)
     {
 	Lock sync(*this);
 	for(ApplicationDescriptorSeq::const_iterator p = apps.begin(); p != apps.end(); ++p)
 	{
-	    this->applications.insert(make_pair((*p).name, *p));
+	    this->applications.insert(make_pair(p->name, *p));
+	}
+	for(AdapterInfoSeq::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+	{
+	    this->adapters.insert(make_pair(p->id, *p));
+	}
+	for(ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
+	{
+	    this->objects.insert(make_pair(p->proxy->ice_getIdentity(), *p));
 	}
 	updated(serial);
     }
@@ -129,6 +138,54 @@ public:
     }
 
     void
+    adapterAdded(int serial, const AdapterInfo& info, const Ice::Current&)
+    {
+	Lock sync(*this);
+	this->adapters.insert(make_pair(info.id, info));
+	updated(serial);
+    }
+
+    void
+    adapterUpdated(int serial, const AdapterInfo& info, const Ice::Current&)
+    {
+	Lock sync(*this);
+	this->adapters[info.id] = info;
+	updated(serial);
+    }
+
+    void
+    adapterRemoved(int serial, const string& id, const Ice::Current&)
+    {
+	Lock sync(*this);
+	this->adapters.erase(id);
+	updated(serial);
+    }
+
+    void
+    objectAdded(int serial, const ObjectInfo& info, const Ice::Current&)
+    {
+	Lock sync(*this);
+	this->objects.insert(make_pair(info.proxy->ice_getIdentity(), info));
+	updated(serial);
+    }
+
+    void
+    objectUpdated(int serial, const ObjectInfo& info, const Ice::Current&)
+    {
+	Lock sync(*this);
+	this->objects[info.proxy->ice_getIdentity()] = info;
+	updated(serial);
+    }
+
+    void
+    objectRemoved(int serial, const Ice::Identity& id, const Ice::Current&)
+    {
+	Lock sync(*this);
+	this->objects.erase(id);
+	updated(serial);
+    }
+
+    void
     waitForUpdate(const char* file, int line)
     {
 	Lock sync(*this);
@@ -140,11 +197,13 @@ public:
 		test(false); // Timeout
 	    }
 	}
-	_updated = false;
+	--_updated;
     }
 
     int serial;
     map<string, ApplicationDescriptor> applications;
+    map<string, AdapterInfo> adapters;
+    map<Ice::Identity, ObjectInfo> objects;
 
 private:
 
@@ -155,11 +214,11 @@ private:
 	{
 	    this->serial = serial;
 	}
-	_updated = true;
+	++_updated;
 	notifyAll();
     }
 
-    bool _updated;
+    int _updated;
 };
 
 class NodeObserverI : public NodeObserver, public IceUtil::Monitor<IceUtil::Mutex>
@@ -601,6 +660,108 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    regObs1->waitForUpdate(__FILE__, __LINE__);
 	    test(regObs1->applications.empty());
 	    test(++serial == regObs1->serial);
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+
+	//
+	// Test adapterAdded/adapterUpdated/adapterRemoved.
+	//
+	try
+	{
+	    Ice::ObjectPrx obj = communicator->stringToProxy("dummy:tcp -p 10000");
+
+	    Ice::LocatorRegistryPrx locatorRegistry = communicator->getDefaultLocator()->getRegistry();
+	    locatorRegistry->setAdapterDirectProxy("DummyAdapter", obj);
+	    regObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(regObs1->adapters.find("DummyAdapter") != regObs1->adapters.end());
+	    test(regObs1->adapters["DummyAdapter"].proxy == obj);
+	    test(++serial == regObs1->serial);
+	    
+	    obj = communicator->stringToProxy("dummy:tcp -p 10000 -h host");
+	    locatorRegistry->setAdapterDirectProxy("DummyAdapter", obj);
+	    regObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(regObs1->adapters.find("DummyAdapter") != regObs1->adapters.end());
+	    test(regObs1->adapters["DummyAdapter"].proxy == obj);
+	    test(++serial == regObs1->serial);
+
+	    obj = communicator->stringToProxy("dummy:tcp -p 10000 -h host");
+	    locatorRegistry->setReplicatedAdapterDirectProxy("DummyAdapter", "DummyReplicaGroup", obj);
+	    regObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(regObs1->adapters.find("DummyAdapter") != regObs1->adapters.end());
+	    test(regObs1->adapters["DummyAdapter"].proxy == obj);
+	    test(regObs1->adapters["DummyAdapter"].replicaGroupId == "DummyReplicaGroup");
+	    test(++serial == regObs1->serial);
+
+	    obj = communicator->stringToProxy("dummy:tcp -p 10000 -h host");
+	    locatorRegistry->setReplicatedAdapterDirectProxy("DummyAdapter1", "DummyReplicaGroup", obj);
+	    regObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(regObs1->adapters.find("DummyAdapter1") != regObs1->adapters.end());
+	    test(regObs1->adapters["DummyAdapter1"].proxy == obj);
+	    test(regObs1->adapters["DummyAdapter1"].replicaGroupId == "DummyReplicaGroup");
+	    test(++serial == regObs1->serial);
+
+	    obj = communicator->stringToProxy("dummy:tcp -p 10000 -h host");
+	    locatorRegistry->setReplicatedAdapterDirectProxy("DummyAdapter2", "DummyReplicaGroup", obj);
+	    regObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(regObs1->adapters.find("DummyAdapter2") != regObs1->adapters.end());
+	    test(regObs1->adapters["DummyAdapter2"].proxy == obj);
+	    test(regObs1->adapters["DummyAdapter2"].replicaGroupId == "DummyReplicaGroup");
+	    test(++serial == regObs1->serial);
+
+	    admin->removeAdapter("DummyAdapter2");
+	    regObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(regObs1->adapters.find("DummyAdapter2") == regObs1->adapters.end());
+	    test(++serial == regObs1->serial);
+
+	    admin->removeAdapter("DummyReplicaGroup");
+	    regObs1->waitForUpdate(__FILE__, __LINE__);
+	    regObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(regObs1->adapters["DummyAdapter"].replicaGroupId == "");
+	    test(regObs1->adapters["DummyAdapter1"].replicaGroupId == "");
+	    serial += 2;
+	    test(serial == regObs1->serial);
+
+	    locatorRegistry->setAdapterDirectProxy("DummyAdapter", 0);
+	    regObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(regObs1->adapters.find("DummyAdapter") == regObs1->adapters.end());
+	    test(++serial == regObs1->serial);	    
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+
+	//
+	// Test objectAdded/objectUpdated/objectRemoved.
+	//
+	try
+	{
+	    Ice::ObjectPrx obj = communicator->stringToProxy("dummy:tcp -p 10000");
+
+	    admin->addObjectWithType(obj, "::Dummy");
+	    regObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(regObs1->objects.find(Ice::stringToIdentity("dummy")) != regObs1->objects.end());
+	    test(regObs1->objects[Ice::stringToIdentity("dummy")].type == "::Dummy");
+	    test(regObs1->objects[Ice::stringToIdentity("dummy")].proxy == obj);
+	    test(++serial == regObs1->serial);
+	    
+	    obj = communicator->stringToProxy("dummy:tcp -p 10000 -h host");
+	    admin->updateObject(obj);
+	    regObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(regObs1->objects.find(Ice::stringToIdentity("dummy")) != regObs1->objects.end());
+	    test(regObs1->objects[Ice::stringToIdentity("dummy")].type == "::Dummy");
+	    test(regObs1->objects[Ice::stringToIdentity("dummy")].proxy == obj);
+	    test(++serial == regObs1->serial);
+
+	    admin->removeObject(obj->ice_getIdentity());
+	    regObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(regObs1->objects.find(Ice::stringToIdentity("dummy")) == regObs1->objects.end());
+	    test(++serial == regObs1->serial);	    
 	}
 	catch(const Ice::UserException& ex)
 	{

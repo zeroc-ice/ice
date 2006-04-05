@@ -113,6 +113,13 @@ sequence<ObjectInfo> ObjectInfoSeq;
  **/
 struct AdapterInfo
 {
+    /** 
+     *
+     * The id of the adapter.
+     *
+     **/
+    string id;
+
     /**
      *
      * A dummy direct proxy that contains the adapter endpoints. 
@@ -128,7 +135,7 @@ struct AdapterInfo
      **/
     string replicaGroupId;
 };
-dictionary<string, AdapterInfo> AdapterInfoDict;
+sequence<AdapterInfo> AdapterInfoSeq;
 
 /**
  *
@@ -552,22 +559,23 @@ interface Admin
 
     /**
      *
-     * Get the list of endpoints for an adapter.
+     * Get the adapter information for the replica group or adapter
+     * with the given id.
      *
      * @param adapterId The adapter id.
      *
-     * @return A dictionary of adapter direct proxy classified by
-     * server id.
+     * @return A sequence of adapter information structures. If the
+     * given id refers to an adapter, this sequence will contain only
+     * one element. If the given refers to a replica group, the
+     * sequence will contain the adapter information of each member of
+     * the replica group.
      *
-     * @throws AdapterNotExistException Raised if the adapter doesn't
-     * exist.
-     *
-     * @throws NodeUnreachableException Raised if the node could not be
-     * reached.
+     * @throws AdapterNotExistException Raised if the adapter or
+     * replica group doesn't exist.
      *
      **/
-    nonmutating StringObjectProxyDict getAdapterEndpoints(string adapterId)
-	throws AdapterNotExistException, NodeUnreachableException;
+    nonmutating AdapterInfoSeq getAdapterInfo(string id)
+	throws AdapterNotExistException;
 
     /**
      *

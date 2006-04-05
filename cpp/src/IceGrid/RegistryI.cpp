@@ -39,25 +39,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceGrid;
 
-namespace IceStorm
-{
-};
-
-namespace IceGrid
-{
-
-string
-intToString(int v)
-{
-    ostringstream os;
-    os << v;
-    return os.str();
-}
-
-};
-
-RegistryI::RegistryI(const CommunicatorPtr& communicator) :
-    _communicator(communicator)
+RegistryI::RegistryI(const CommunicatorPtr& communicator) : _communicator(communicator)
 {
 }
 
@@ -132,87 +114,12 @@ RegistryI::start(bool nowarn)
     properties->setProperty("IceGrid.Registry.Client.AdapterId", "");
     properties->setProperty("IceGrid.Registry.Server.AdapterId", "");
     properties->setProperty("IceGrid.Registry.Admin.AdapterId", "");
-    properties->setProperty("IceGrid.Registry.Internal.AdapterId", "IceGrid.Registry.Internal");
+    properties->setProperty("IceGrid.Registry.Internal.AdapterId", "");
 
-    //
-    // Setup thread pool size for each thread pool.
-    //
-    int nThreadPool = 0;
-    const string clientThreadPool("IceGrid.Registry.Client.ThreadPool");
-    if(properties->getPropertyAsInt(clientThreadPool + ".Size") == 0 &&
-       properties->getPropertyAsInt(clientThreadPool + ".SizeMax") == 0)
-    {
-	++nThreadPool;
-    }
-    const string serverThreadPool("IceGrid.Registry.Server.ThreadPool");
-    if(properties->getPropertyAsInt(serverThreadPool + ".Size") == 0 &&
-       properties->getPropertyAsInt(serverThreadPool + ".SizeMax") == 0)
-    {
-	++nThreadPool;
-    }
-    const string adminThreadPool("IceGrid.Registry.Admin.ThreadPool");
-    if(properties->getPropertyAsInt(adminThreadPool + ".Size") == 0 &&
-       properties->getPropertyAsInt(adminThreadPool + ".SizeMax") == 0)	
-    {
-	++nThreadPool;
-    }    
-
-    int size = properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 10);
-    if(size < nThreadPool)
-    {
-	size = nThreadPool;
-    }
-    int sizeMax = properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.SizeMax", size * 10);
-    if(sizeMax < size)
-    {
-	sizeMax = size;
-    }
-    int sizeWarn = properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.SizeWarn", sizeMax * 80 / 100);
-
-    if(properties->getPropertyAsInt(clientThreadPool + ".Size") == 0 &&
-       properties->getPropertyAsInt(clientThreadPool + ".SizeMax") == 0)
-    {
-	properties->setProperty(clientThreadPool + ".Size", IceGrid::intToString(size / nThreadPool));
-	properties->setProperty(clientThreadPool + ".SizeMax", IceGrid::intToString(sizeMax / nThreadPool));
-	properties->setProperty(clientThreadPool + ".SizeWarn", IceGrid::intToString(sizeWarn / nThreadPool));
-    }
-    if(properties->getPropertyAsInt(serverThreadPool + ".Size") == 0 &&
-       properties->getPropertyAsInt(serverThreadPool + ".SizeMax") == 0)
-    {
-	properties->setProperty(serverThreadPool + ".Size", IceGrid::intToString(size / nThreadPool));
-	properties->setProperty(serverThreadPool + ".SizeMax", IceGrid::intToString(sizeMax / nThreadPool));
-	properties->setProperty(serverThreadPool + ".SizeWarn", IceGrid::intToString(sizeWarn / nThreadPool));
-    }
-    if(properties->getPropertyAsInt(adminThreadPool + ".Size") == 0 &&
-       properties->getPropertyAsInt(adminThreadPool + ".SizeMax") == 0)	
-    {
-	properties->setProperty(adminThreadPool + ".Size", IceGrid::intToString(size / nThreadPool));
-	properties->setProperty(adminThreadPool + ".SizeMax", IceGrid::intToString(sizeMax / nThreadPool));
-	properties->setProperty(adminThreadPool + ".SizeWarn", IceGrid::intToString(sizeWarn / nThreadPool));
-    }    
-
-    int clientSize = properties->getPropertyAsInt(clientThreadPool + ".Size") * 2;
-    int serverSize = properties->getPropertyAsInt(serverThreadPool + ".Size") * 2;
-    const string internalThreadPool("IceGrid.Registry.Internal.ThreadPool");
-    properties->setProperty(internalThreadPool + ".Size", IceGrid::intToString(clientSize + serverSize));
-
-    int clientSizeMax = properties->getPropertyAsInt(clientThreadPool + ".SizeMax") * 2;
-    if(clientSizeMax < clientSize)
-    {
-	clientSizeMax = clientSize;
-    }
-    int serverSizeMax = properties->getPropertyAsInt(serverThreadPool + ".SizeMax") * 2;
-    if(serverSizeMax < serverSize)
-    {
-	serverSizeMax = serverSize;
-    }
-    properties->setProperty(internalThreadPool + ".SizeMax", IceGrid::intToString(clientSizeMax + serverSizeMax));
-
-    int clientSizeWarn = 
-	properties->getPropertyAsIntWithDefault(clientThreadPool + ".SizeWarn", clientSizeMax * 80 / 100) * 2;
-    int serverSizeWarn = 
-	properties->getPropertyAsIntWithDefault(serverThreadPool + ".SizeWarn", serverSizeMax * 80 / 100) * 2;
-    properties->setProperty(internalThreadPool + ".SizeWarn", IceGrid::intToString(clientSizeWarn + serverSizeWarn));
+    setupThreadPool(properties, "IceGrid.Registry.Client.ThreadPool", 1, 10);
+    setupThreadPool(properties, "IceGrid.Registry.Server.ThreadPool", 1, 10);
+    setupThreadPool(properties, "IceGrid.Registry.Admin.ThreadPool", 1, 10);
+    setupThreadPool(properties, "IceGrid.Registry.Internal.ThreadPool", 1, 100);
 
     TraceLevelsPtr traceLevels = new TraceLevels(properties, _communicator->getLogger(), false);
 
@@ -259,138 +166,69 @@ RegistryI::start(bool nowarn)
     bool dynamicReg = properties->getPropertyAsInt("IceGrid.Registry.DynamicRegistration") > 0;
     ObjectPtr locatorRegistry = new LocatorRegistryI(_database, dynamicReg);
     ObjectPrx obj = serverAdapter->add(locatorRegistry, stringToIdentity(instanceName + "/"+ IceUtil::generateUUID()));
-    LocatorRegistryPrx locatorRegistryPrx = LocatorRegistryPrx::uncheckedCast(obj->ice_collocationOptimization(false));
+    LocatorRegistryPrx locatorRegistryPrx = LocatorRegistryPrx::uncheckedCast(obj);
     ObjectPtr locator = new LocatorI(_communicator, _database, locatorRegistryPrx); 
     Identity locatorId = stringToIdentity(instanceName + "/Locator");
     clientAdapter->add(locator, locatorId);
 
-    //
-    // Create the query interface and register it with the object registry.
-    //
-    QueryPtr query = new QueryI(_communicator, _database);
-    Identity queryId = stringToIdentity(instanceName + "/Query");
-    clientAdapter->add(query, queryId);
-    ObjectPrx queryPrx = clientAdapter->createDirectProxy(queryId);
-    try
-    {
-	_database->removeObject(queryPrx->ice_getIdentity());
-    }
-    catch(const IceGrid::ObjectNotRegisteredException&)
-    {
-    }	
-    ObjectInfo info;
-    info.proxy = queryPrx;
-    info.type = "::IceGrid::Query";	
-    _database->addObject(info);
 
-    //
-    // Create the admin interface and register it with the object registry.
-    //
-    ObjectPtr admin = new AdminI(_database, this, traceLevels);
-    Identity adminId = stringToIdentity(instanceName + "/Admin");
-    adminAdapter->add(admin, adminId);
-    ObjectPrx adminPrx = adminAdapter->createDirectProxy(adminId);
-    try
-    {
-	_database->removeObject(adminPrx->ice_getIdentity());
-    }
-    catch(const IceGrid::ObjectNotRegisteredException&)
-    {
-    }
-    info.proxy = adminPrx;
-    info.type = "::IceGrid::Admin";	
-    _database->addObject(info);
-
-    //
-    // Set the IceGrid.Registry.Internal adapter direct proxy directly in the database.
-    //
-    registryAdapter->add(this, stringToIdentity(instanceName + "/Registry"));
+    Ice::Identity registryId = stringToIdentity(instanceName + "/Registry");
+    registryAdapter->add(this, registryId);
     registryAdapter->activate();
-    Ice::Identity dummy = Ice::stringToIdentity("dummy");
-    _database->setAdapterDirectProxy("IceGrid.Registry.Internal", "", registryAdapter->createDirectProxy(dummy));
-    
+
     //
     // Setup a internal locator to be used by the IceGrid registry itself. This locator is 
-    // registered with the registry object adapter which is using an independant threadpool.
+    // registered with the registry object adapter which is using its own threadpool.
     //
-    locator = new LocatorI(_communicator, _database, locatorRegistryPrx);
-    registryAdapter->add(locator, locatorId);
-    obj = registryAdapter->createDirectProxy(locatorId);
-    _communicator->setDefaultLocator(LocatorPrx::uncheckedCast(obj->ice_collocationOptimization(false)));
+//    obj = registryAdapter->addWithUUID(new LocatorI(_communicator, _database, locatorRegistryPrx));
+//    _communicator->setDefaultLocator(LocatorPrx::uncheckedCast(obj->ice_collocationOptimization(false)));
 
     //
-    // Create the internal IceStorm service.
+    // Create the internal IceStorm service and the registry and node topics.
     //
-    Identity topicMgrId = stringToIdentity(instanceName + "/TopicManager");
-    _iceStorm = IceStorm::Service::create(_communicator, registryAdapter, registryAdapter, "IceGrid.Registry", 
- 					  topicMgrId, "Registry");
+    _iceStorm = IceStorm::Service::create(_communicator, 
+					  registryAdapter, 
+					  registryAdapter, 
+					  "IceGrid.Registry", 
+ 					  stringToIdentity(instanceName + "/TopicManager"),
+					  "Registry");
 
-    //
-    // Create the registry and node observer topic.
-    //
-    IceStorm::TopicPrx nodeObserverTopic;
-    IceStorm::TopicPrx registryObserverTopic;
-    try
-    {
-	registryObserverTopic = _iceStorm->getTopicManager()->create("RegistryObserver");
-    }
-    catch(const IceStorm::TopicExists&)
-    {
-	registryObserverTopic = _iceStorm->getTopicManager()->retrieve("RegistryObserver");
-    }
-    try
-    {
-	nodeObserverTopic = _iceStorm->getTopicManager()->create("NodeObserver");
-    }
-    catch(const IceStorm::TopicExists&)
-    {
-	nodeObserverTopic = _iceStorm->getTopicManager()->retrieve("NodeObserver");
-    }
+    NodeObserverTopic* nodeTopic = new NodeObserverTopic(_iceStorm->getTopicManager());
+    _nodeObserver = NodeObserverPrx::uncheckedCast(registryAdapter->addWithUUID(nodeTopic));
 
-    obj = nodeObserverTopic->getPublisher()->ice_collocationOptimization(false);
-    obj = obj->ice_locator(_communicator->getDefaultLocator()); // TODO: Why is this necessary?
-    NodeObserverTopic* nodeTopic = new NodeObserverTopic(nodeObserverTopic, NodeObserverPrx::uncheckedCast(obj));
-    obj = registryAdapter->addWithUUID(nodeTopic)->ice_collocationOptimization(false);
-    obj = obj->ice_locator(_communicator->getDefaultLocator());
-    _nodeObserver = NodeObserverPrx::uncheckedCast(obj);
+    RegistryObserverTopic* regTopic = new RegistryObserverTopic(_iceStorm->getTopicManager());
+    _registryObserver = RegistryObserverPrx::uncheckedCast(registryAdapter->addWithUUID(regTopic));
 
-    obj = registryObserverTopic->getPublisher()->ice_collocationOptimization(false);
-    obj = obj->ice_locator(_communicator->getDefaultLocator()); // TODO: Why is this necessary?
-    RegistryObserverTopic* regTopic; 
-    regTopic = new RegistryObserverTopic(registryObserverTopic, RegistryObserverPrx::uncheckedCast(obj), *nodeTopic);
-    obj = registryAdapter->addWithUUID(regTopic)->ice_collocationOptimization(false);
-    obj = obj->ice_locator(_communicator->getDefaultLocator());
-    _registryObserver = RegistryObserverPrx::uncheckedCast(obj);
     _database->setObservers(_registryObserver, _nodeObserver);
 
     //
-    // Create the session manager.
+    // Create the query, admin, session manager interfaces;
     //
+    Identity queryId = stringToIdentity(instanceName + "/Query");
+    clientAdapter->add(new QueryI(_communicator, _database), queryId);
+
+    Identity adminId = stringToIdentity(instanceName + "/Admin");
+    adminAdapter->add(new AdminI(_database, this, traceLevels), adminId);
+
+    Identity sessionManagerId = stringToIdentity(instanceName + "/SessionManager");
     ReapThreadPtr reaper = _adminReaper ? _adminReaper : _reaper;
     ObjectPtr sessionManager = new SessionManagerI(*regTopic, *nodeTopic, _database, reaper, adminSessionTimeout);
-    Identity sessionManagerId = stringToIdentity(instanceName + "/SessionManager");
     adminAdapter->add(sessionManager, sessionManagerId);
-    ObjectPrx sessionManagerPrx = adminAdapter->createDirectProxy(sessionManagerId);
-    try
-    {
-	_database->removeObject(sessionManagerPrx->ice_getIdentity());
-    }
-    catch(const IceGrid::ObjectNotRegisteredException&)
-    {
-    }
-    info.proxy = sessionManagerPrx;
-    info.type = "::IceGrid::SessionManager";
-    _database->addObject(info);
+
+    //
+    // Register well known objects with the object registry.
+    //
+    addWellKnownObject(registryAdapter->createProxy(registryId), Registry::ice_staticId());
+    addWellKnownObject(clientAdapter->createProxy(queryId), Query::ice_staticId());
+    addWellKnownObject(adminAdapter->createProxy(adminId), Admin::ice_staticId());
+    addWellKnownObject(adminAdapter->createProxy(sessionManagerId), SessionManager::ice_staticId());
 
     //
     // We are ready to go!
     //
     serverAdapter->activate();
     clientAdapter->activate();
-    if(adminAdapter)
-    {
-	adminAdapter->activate();
-    }
+    adminAdapter->activate();
     
     return true;
 }
@@ -420,8 +258,7 @@ NodeSessionPrx
 RegistryI::registerNode(const std::string& name, const NodePrx& node, const NodeInfo& info, NodeObserverPrx& obs, 
 			const Ice::Current& c)
 {
-    NodePrx n = 
-	NodePrx::uncheckedCast(node->ice_timeout(_nodeSessionTimeout * 1000)->ice_collocationOptimization(false));
+    NodePrx n = NodePrx::uncheckedCast(node->ice_timeout(_nodeSessionTimeout * 1000));
     NodeSessionIPtr session = new NodeSessionI(_database, name, n, info);
     NodeSessionPrx proxy = NodeSessionPrx::uncheckedCast(c.adapter->addWithUUID(session));
     _reaper->add(proxy, session);
@@ -445,4 +282,48 @@ IceStorm::TopicManagerPrx
 RegistryI::getTopicManager()
 {
     return _iceStorm->getTopicManager();
+}
+
+void
+RegistryI::addWellKnownObject(const Ice::ObjectPrx& proxy, const string& type)
+{
+    assert(_database);
+    try
+    {
+	_database->removeObject(proxy->ice_getIdentity());
+    }
+    catch(const IceGrid::ObjectNotRegisteredException&)
+    {
+    }
+    ObjectInfo info;
+    info.proxy = proxy;
+    info.type = type;
+    _database->addObject(info);
+}
+
+void
+RegistryI::setupThreadPool(const Ice::PropertiesPtr& properties, const string& name, int size, int sizeMax)
+{
+    if(properties->getPropertyAsIntWithDefault(name + ".Size", 0) < size)
+    {
+	ostringstream os;
+	os << size;
+	properties->setProperty(name + ".Size", os.str());
+    }
+    else
+    {
+	size = properties->getPropertyAsInt(name + ".Size");
+    }
+
+    if(sizeMax > 0 && properties->getPropertyAsIntWithDefault(name + ".SizeMax", 0) < sizeMax)
+    {
+	if(size >= sizeMax)
+	{
+	    sizeMax = size * 10;
+	}
+	
+	ostringstream os;
+	os << sizeMax;
+	properties->setProperty(name + ".SizeMax", os.str());
+    }
 }

@@ -550,7 +550,7 @@ NodeI::keepAlive()
     {
 	try
 	{
-	    Ice::ObjectPrx obj = getCommunicator()->stringToProxy(_instName + "/Registry@IceGrid.Registry.Internal");
+	    Ice::ObjectPrx obj = getCommunicator()->stringToProxy(_instName + "/Registry");
 	    RegistryPrx registry = RegistryPrx::uncheckedCast(obj);
 	    NodeObserverPrx observer;
 	    setSession(registry->registerNode(_name, _proxy, _platform.getNodeInfo(), observer), observer);

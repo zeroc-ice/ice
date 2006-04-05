@@ -246,17 +246,33 @@ NodeService::start(int argc, char* argv[])
     // termination listener instead?
     //
     properties->setProperty("Ice.ServerIdleTime", "0");
-    if(properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 10) <= 10)
+
+    //
+    // Warn the user that setting Ice.ThreadPool.Server isn't useful.
+    //
+    if(properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 0) > 0)
     {
-	properties->setProperty("Ice.ThreadPool.Server.Size", "10");
+	Warning out(communicator()->getLogger());
+	out << "setting `Ice.ThreadPool.Server.Size' is not useful,\n";
+	out << "you should set individual adapter thread pools instead.";
     }
-    if(properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.SizeWarn", 80) <= 80)
+    
+    int size = properties->getPropertyAsIntWithDefault("IceGrid.Node.ThreadPool.Size", 0);
+    if(size <= 0)
     {
-	properties->setProperty("Ice.ThreadPool.Server.SizeWarn", "80");
+	properties->setProperty("IceGrid.Node.ThreadPool.Size", "1");
     }
-    if(properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.SizeMax", 100) <= 100)
+    int sizeMax = properties->getPropertyAsIntWithDefault("IceGrid.Node.ThreadPool.SizeMax", 0);
+    if(sizeMax <= 0)
     {
-	properties->setProperty("Ice.ThreadPool.Server.SizeMax", "100");
+	if(size >= sizeMax)
+	{
+	    sizeMax = size * 10;
+	}
+	
+	ostringstream os;
+	os << sizeMax;
+	properties->setProperty("IceGrid.Node.ThreadPool.SizeMax", os.str());
     }
 
 
@@ -271,22 +287,6 @@ NodeService::start(int argc, char* argv[])
     //
     if(properties->getPropertyAsInt("IceGrid.Node.CollocateRegistry") > 0)
     {
-        //
-        // The node needs a different thread pool.
-        //
-        if(properties->getPropertyAsIntWithDefault("IceGrid.Node.ThreadPool.Size", 5) <= 0)
-        {
-            properties->setProperty("IceGrid.Node.ThreadPool.Size", "5");
-	}
-	if(properties->getPropertyAsIntWithDefault("IceGrid.Node.ThreadPool.SizeWarn", 80) <= 80)
-	{
-	    properties->setProperty("IceGrid.Node.ThreadPool.SizeWarn", "80");
-	}
-	if(properties->getPropertyAsIntWithDefault("IceGrid.Node.ThreadPool.SizeMax", 100) <= 100)
-	{
-	    properties->setProperty("IceGrid.Node.ThreadPool.SizeMax", "100");
-	}
-
         _registry = new CollocatedRegistry(communicator(), _activator);
         if(!_registry->start(nowarn))
         {
@@ -586,9 +586,11 @@ NodeService::initializeCommunicator(int& argc, char* argv[])
     PropertiesPtr defaultProperties = getDefaultProperties(argc, argv);
     
     //
-    // Make sure that IceGridNode doesn't use thread-per-connection.
+    // Make sure that IceGridNode doesn't use thread-per-connection or
+    // collocation optimization
     //
     defaultProperties->setProperty("Ice.ThreadPerConnection", "");
+    defaultProperties->setProperty("Ice.Default.CollocationOptimization", "0");
 
     return Service::initializeCommunicator(argc, argv);
 }

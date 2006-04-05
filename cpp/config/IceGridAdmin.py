@@ -29,7 +29,8 @@ nodeOptions = r' --Ice.Warn.Connections=0' + \
               r' --IceGrid.Node.Trace.Adapter=0' + \
               r' --IceGrid.Node.Trace.Server=0' + \
               r' --IceGrid.Node.PrintServersReady=node' + \
-	      r' --Ice.NullHandleAbort';
+	      r' --Ice.NullHandleAbort' + \
+              r' --Ice.ThreadPool.Server.Size=0';
 
 registryOptions = r' --Ice.Warn.Connections=0' + \
                   r' --IceGrid.Registry.Server.Endpoints=default' + \
@@ -37,7 +38,12 @@ registryOptions = r' --Ice.Warn.Connections=0' + \
                   r' --IceGrid.Registry.Admin.Endpoints=default' + \
                   r' --IceGrid.Registry.Server.Endpoints=default' + \
                   r' --IceGrid.Registry.Internal.Endpoints=default' + \
-                  r' --IceGrid.Registry.Admin.Endpoints=default';
+                  r' --IceGrid.Registry.Admin.Endpoints=default' + \
+                  r' --IceGrid.Registry.Trace.Application=0' + \
+                  r' --IceGrid.Registry.Trace.Adapter=0' + \
+                  r' --IceGrid.Registry.Trace.Object=0' + \
+                  r' --IceGrid.Registry.Trace.Server=0' + \
+                  r' --Ice.ThreadPool.Server.Size=0';
 
 class ReaderThread(Thread):
     def __init__(self, pipe, token):
@@ -102,7 +108,8 @@ def startIceGridNode(testdir):
         os.mkdir(dataDir)
 
     overrideOptions = '"' + TestUtil.clientServerOptions.replace("--", "") + \
-	              ' Ice.ServerIdleTime=0 Ice.PrintProcessId=0 Ice.PrintAdapterReady=0' + '"'
+	              ' Ice.ServerIdleTime=0 Ice.PrintProcessId=0 Ice.PrintAdapterReady=0 ' + \
+                      ' Ice.ThreadPool.Server.Size=0"'
 
     print "starting icegrid node...",
     command = iceGrid + TestUtil.clientServerOptions + ' --nowarn ' + nodeOptions + \
@@ -110,7 +117,7 @@ def startIceGridNode(testdir):
               r' --IceGrid.Node.Data=' + dataDir + \
               r' --IceGrid.Node.Name=localnode' + \
               r' --IceGrid.Node.PropertiesOverride=' + overrideOptions
-    
+
     (stdin, iceGridPipe) = os.popen4(command)
     TestUtil.getServerPid(iceGridPipe)
     TestUtil.getAdapterReady(iceGridPipe)

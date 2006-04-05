@@ -84,12 +84,16 @@ RegistryService::start(int argc, char* argv[])
 	return false;
     }
 
-    PropertiesPtr properties = communicator()->getProperties();
-    if(properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 5) <= 5)
+    //
+    // Warn the user that setting Ice.ThreadPool.Server isn't useful.
+    //
+    if(communicator()->getProperties()->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 0) > 0)
     {
-	properties->setProperty("Ice.ThreadPool.Server.Size", "5");
+	Warning out(communicator()->getLogger());
+	out << "setting `Ice.ThreadPool.Server.Size' is not useful,\n";
+	out << "you should set individual adapter thread pools instead.";
     }
-
+    
     _registry = new RegistryI(communicator());
     if(!_registry->start(nowarn))
     {
@@ -112,9 +116,11 @@ RegistryService::initializeCommunicator(int& argc, char* argv[])
     PropertiesPtr defaultProperties = getDefaultProperties(argc, argv);
     
     //
-    // Make sure that IceGridRegistry doesn't use thread-per-connection.
+    // Make sure that IceGridRegistry doesn't use
+    // thread-per-connection or collocation optimization.
     //
     defaultProperties->setProperty("Ice.ThreadPerConnection", "");
+    defaultProperties->setProperty("Ice.Default.CollocationOptimization", "0");
 
     return Service::initializeCommunicator(argc, argv);
 }
