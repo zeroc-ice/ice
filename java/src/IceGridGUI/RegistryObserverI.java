@@ -58,8 +58,8 @@ class RegistryObserverI extends _RegistryObserverDisp
     }
 
 
-    public synchronized void init(int serial, java.util.LinkedList applications, 
-				  Ice.Current current)
+    public synchronized void init(int serial, java.util.LinkedList applications, AdapterInfo[] adpts, 
+				  ObjectInfo[] objects, Ice.Current current)
     {
 	_initialized = true;
 	_serial = serial;
@@ -102,7 +102,30 @@ class RegistryObserverI extends _RegistryObserverDisp
 		}
 	    });
     }
-    
+
+    public void adapterAdded(final int serial, final AdapterInfo info, Ice.Current current)
+    {
+    }    
+
+    public void adapterUpdated(final int serial, final AdapterInfo info, Ice.Current current)
+    {
+    }    
+
+    public void adapterRemoved(final int serial, final String id, Ice.Current current)
+    {
+    }    
+
+    public void objectAdded(final int serial, final ObjectInfo info, Ice.Current current)
+    {
+    }    
+
+    public void objectUpdated(final int serial, final ObjectInfo info, Ice.Current current)
+    {
+    }    
+
+    public void objectRemoved(final int serial, final Ice.Identity id, Ice.Current current)
+    {
+    }    
 
     private Coordinator _coordinator;
  
