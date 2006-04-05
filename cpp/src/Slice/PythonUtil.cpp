@@ -833,6 +833,18 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 		_out << ',';
 	    }
 	    _out << "))";
+
+	    string deprecateMetadata;
+	    if((*s)->findMetaData("deprecate", deprecateMetadata) || p->findMetaData("deprecate", deprecateMetadata))
+	    {
+		string msg;
+		string::size_type pos = deprecateMetadata.find(':');
+		if(pos != string::npos && pos < deprecateMetadata.size() - 1)
+		{
+		    msg = deprecateMetadata.substr(pos + 1);
+		}
+		_out << nl << name << "._op_" << (*s)->name() << ".deprecate(\"" << msg << "\")";
+	    }
 	}
     }
 
