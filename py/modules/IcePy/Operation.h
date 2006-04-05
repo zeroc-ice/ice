@@ -26,6 +26,7 @@ public:
 
     virtual PyObject* invoke(const Ice::ObjectPrx&, PyObject*, PyObject*) = 0;
     virtual PyObject* invokeAsync(const Ice::ObjectPrx&, PyObject*, PyObject*, PyObject*) = 0;
+    virtual void deprecate(const std::string&) = 0;
 
     virtual void dispatch(PyObject*, const Ice::AMD_Object_ice_invokePtr&, const std::vector<Ice::Byte>&,
                           const Ice::Current&) = 0;

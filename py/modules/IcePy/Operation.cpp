@@ -51,6 +51,7 @@ public:
 
     virtual PyObject* invoke(const Ice::ObjectPrx&, PyObject*, PyObject*);
     virtual PyObject* invokeAsync(const Ice::ObjectPrx&, PyObject*, PyObject*, PyObject*);
+    virtual void deprecate(const string&);
 
     virtual void dispatch(PyObject*, const Ice::AMD_Object_ice_invokePtr&, const vector<Ice::Byte>&,
                           const Ice::Current&);
@@ -73,6 +74,7 @@ private:
     string _dispatchName;
     bool _sendsClasses;
     bool _returnsClasses;
+    string _deprecateMessage;
 
     bool prepareRequest(const Ice::CommunicatorPtr&, PyObject*, bool, vector<Ice::Byte>&);
     PyObject* unmarshalResults(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
@@ -220,6 +222,25 @@ operationInvokeAsync(OperationObject* self, PyObject* args)
 
     assert(self->op);
     return (*self->op)->invokeAsync(prx, cb, opArgs, ctx);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+operationDeprecate(OperationObject* self, PyObject* args)
+{
+    char* msg;
+    if(!PyArg_ParseTuple(args, STRCAST("s"), &msg))
+    {
+        return NULL;
+    }
+
+    assert(self->op);
+    (*self->op)->deprecate(msg);
+
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 #ifdef WIN32
@@ -461,6 +482,11 @@ IcePy::OperationI::invoke(const Ice::ObjectPrx& proxy, PyObject* args, PyObject*
         return NULL;
     }
 
+    if(!_deprecateMessage.empty())
+    {
+	PyErr_Warn(PyExc_DeprecationWarning, const_cast<char*>(_deprecateMessage.c_str()));
+    }
+
     try
     {
         //
@@ -569,6 +595,11 @@ IcePy::OperationI::invokeAsync(const Ice::ObjectPrx& proxy, PyObject* callback, 
         return NULL;
     }
 
+    if(!_deprecateMessage.empty())
+    {
+	PyErr_Warn(PyExc_DeprecationWarning, const_cast<char*>(_deprecateMessage.c_str()));
+    }
+
     try
     {
         Ice::AMI_Object_ice_invokePtr cb = new AMICallback(this, communicator, callback);
@@ -608,6 +639,19 @@ IcePy::OperationI::invokeAsync(const Ice::ObjectPrx& proxy, PyObject* callback, 
 
     Py_INCREF(Py_None);
     return Py_None;
+}
+
+void
+IcePy::OperationI::deprecate(const string& msg)
+{
+    if(!msg.empty())
+    {
+	_deprecateMessage = msg;
+    }
+    else
+    {
+	_deprecateMessage = "operation " + _name + " is deprecated";
+    }
 }
 
 void
@@ -1129,6 +1173,8 @@ static PyMethodDef OperationMethods[] =
     { STRCAST("invoke"), (PyCFunction)operationInvoke, METH_VARARGS,
       PyDoc_STR(STRCAST("internal function")) },
     { STRCAST("invokeAsync"), (PyCFunction)operationInvokeAsync, METH_VARARGS,
+      PyDoc_STR(STRCAST("internal function")) },
+    { STRCAST("deprecate"), (PyCFunction)operationDeprecate, METH_VARARGS,
       PyDoc_STR(STRCAST("internal function")) },
     { NULL, NULL} /* sentinel */
 };
