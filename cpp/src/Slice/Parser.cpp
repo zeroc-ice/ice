@@ -374,6 +374,21 @@ Slice::Contained::hasMetaData(const string& meta) const
     return find(_metaData.begin(), _metaData.end(), meta) != _metaData.end();
 }
 
+bool
+Slice::Contained::findMetaData(const string& prefix, string& meta) const
+{
+    for(list<string>::const_iterator p = _metaData.begin(); p != _metaData.end(); ++p)
+    {
+	if(p->find(prefix) == 0)
+	{
+	    meta = *p;
+	    return true;
+	}
+    }
+
+    return false;
+}
+
 list<string>
 Slice::Contained::getMetaData() const
 {

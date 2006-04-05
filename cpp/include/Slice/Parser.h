@@ -335,6 +335,7 @@ public:
     void updateIncludeLevel();
 
     bool hasMetaData(const std::string&) const;
+    bool findMetaData(const std::string&, std::string&) const;
     std::list<std::string> getMetaData() const;
     void setMetaData(const std::list<std::string>&);
     void addMetaData(const std::string&); // TODO: remove this method once "cs:" and "vb:" are hard errors.
