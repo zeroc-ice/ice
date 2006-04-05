@@ -9,6 +9,7 @@
 
 namespace IceSSL
 {
+    using System;
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Net.Security;
@@ -104,25 +105,27 @@ namespace IceSSL
 	{
 	    Debug.Assert(fd_ != null);
 
-	    /*
-	     * TODO: Timeouts
-	    if(timeout == -1)
-	    {
-		timeout = System.Threading.Timeout.Infinite;
-	    }
-	    if(stream_.WriteTimeout != timeout)
-	    {
-		stream_.WriteTimeout = timeout;
-	    }
-	    */
-
 	    IceInternal.ByteBuffer buf = stream.prepareWrite();
 	    int remaining = buf.remaining();
 	    int position = buf.position();
 	    try
 	    {
-		stream_.Write(buf.rawBytes(), position, remaining);
-
+		if(timeout == -1)
+		{
+		    stream_.Write(buf.rawBytes(), position, remaining);
+		}
+		else
+		{
+		    //
+		    // We have to use an asynchronous write to support a timeout.
+		    //
+		    IAsyncResult ar = stream_.BeginWrite(buf.rawBytes(), position, remaining, null, null);
+		    if(!ar.AsyncWaitHandle.WaitOne(timeout, false))
+		    {
+			throw new Ice.TimeoutException();
+		    }
+		    stream_.EndWrite(ar);
+		}
 		if(instance_.networkTraceLevel() >= 3)
 		{
 		    string s = "sent " + remaining + " of " + remaining + " bytes via ssl\n" + ToString();
@@ -132,10 +135,10 @@ namespace IceSSL
 		{
 		    stats_.bytesSent(type(), remaining);
 		}
+		buf.position(position + remaining);
 	    }
 	    catch(IOException ex)
 	    {
-		// TODO: Is there a better way than checking the message string?
 		if(IceInternal.Network.connectionLost(ex))
 		{
 		    throw new Ice.ConnectionLostException(ex);
@@ -162,7 +165,7 @@ namespace IceSSL
 	    {
 		throw;
 	    }
-	    catch(System.Exception ex)
+	    catch(Exception ex)
 	    {
 		throw new Ice.SyscallException(ex);
 	    }
@@ -172,57 +175,57 @@ namespace IceSSL
 	{
 	    Debug.Assert(fd_ != null);
 
-	    /*
-	     * TODO: Timeouts
-	    if(timeout == -1)
-	    {
-		timeout = System.Threading.Timeout.Infinite;
-	    }
-	    if(stream_.ReadTimeout != timeout)
-	    {
-		stream_.ReadTimeout = timeout;
-	    }
-	    */
-
-	    //
-	    // TODO: Is this necessary to work around a .NET 2.0 bug?
-	    //
-	    // http://forums.microsoft.com/MSDN/ShowPost.aspx?PostID=171136&SiteID=1
-	    //
-	    fd_.Blocking = true;
-
 	    IceInternal.ByteBuffer buf = stream.prepareRead();    
 	    int remaining = buf.remaining();
 	    int position = buf.position();
 
 	    try
 	    {
-		int ret = stream_.Read(buf.rawBytes(), position, remaining);
-		if(ret == 0)
+		int ret = 0;
+		while(remaining > 0)
 		{
-		    //
-		    // Try to read again; if zero is returned, the connection is lost.
-		    //
-		    ret = stream_.Read(buf.rawBytes(), position, remaining);
-		    if(ret == 0)
+		    if(timeout == -1)
 		    {
-			throw new Ice.ConnectionLostException();
+			ret = stream_.Read(buf.rawBytes(), position, remaining);
+			if(ret == 0)
+			{
+			    //
+			    // Try to read again; if zero is returned, the connection is lost.
+			    //
+			    ret = stream_.Read(buf.rawBytes(), position, remaining);
+			    if(ret == 0)
+			    {
+				throw new Ice.ConnectionLostException();
+			    }
+			}
 		    }
+		    else
+		    {
+			//
+			// We have to use an asynchronous read to support a timeout.
+			//
+			IAsyncResult ar = stream_.BeginRead(buf.rawBytes(), position, remaining, null, null);
+			if(!ar.AsyncWaitHandle.WaitOne(timeout, false))
+			{
+			    throw new Ice.TimeoutException();
+			}
+			ret = stream_.EndRead(ar);
+		    }
+		    if(instance_.networkTraceLevel() >= 3)
+		    {
+			string s = "received " + ret + " of " + remaining + " bytes via ssl\n" + ToString();
+			logger_.trace(instance_.networkTraceCategory(), s);
+		    }    
+		    if(stats_ != null)
+		    {
+			stats_.bytesReceived(type(), ret);
+		    }
+		    remaining -= ret;
+		    buf.position(position += ret);
 		}
-		if(instance_.networkTraceLevel() >= 3)
-		{
-		    string s = "received " + ret + " of " + remaining + " bytes via ssl\n" + ToString();
-		    logger_.trace(instance_.networkTraceCategory(), s);
-		}    
-		if(stats_ != null)
-		{
-		    stats_.bytesReceived(type(), ret);
-		}
-		buf.position(position += ret);
 	    }
 	    catch(IOException ex)
 	    {
-		// TODO: Is there a better way than checking the message string?
 		if(IceInternal.Network.connectionLost(ex))
 		{
 		    throw new Ice.ConnectionLostException(ex);
@@ -245,11 +248,11 @@ namespace IceSSL
 		}
 		throw new Ice.SocketException(ex);
 	    }
-	    catch(Ice.LocalException) // TODO: Necessary?
+	    catch(Ice.LocalException)
 	    {
 		throw;
 	    }
-	    catch(System.Exception ex)
+	    catch(Exception ex)
 	    {
 		throw new Ice.SyscallException(ex);
 	    }
