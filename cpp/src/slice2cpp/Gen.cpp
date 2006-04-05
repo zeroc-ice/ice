@@ -1758,7 +1758,17 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     string thisPointer = fixKwd(scope.substr(0, scope.size() - 2)) + "*";
 
     H << sp;
-    H << nl << retS << ' ' << fixKwd(name) << spar << paramsDecl << epar;
+    H << nl;
+    StringList metaData = p->getMetaData();
+    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+    {
+        if(q->find("deprecate") == 0)
+	{
+       	    H << "ICE_DEPRECATED_API ";
+ 	    break;
+        }
+    }
+    H << retS << ' ' << fixKwd(name) << spar << paramsDecl << epar;
     H << sb;
     H << nl;
     if(ret)

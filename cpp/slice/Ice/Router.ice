@@ -59,7 +59,7 @@ interface Router
      * @param proxy The proxy to add.
      *
      **/
-    idempotent void addProxy(Object* proxy);
+    ["deprecate"] idempotent void addProxy(Object* proxy);
 
     /**
      *

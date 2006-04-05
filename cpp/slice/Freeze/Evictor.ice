@@ -438,7 +438,7 @@ local interface Evictor extends Ice::ServantLocator
      * @see destroyObject
      *
      **/
-    void createObject(Ice::Identity id, Object servant);
+    ["deprecate"] void createObject(Ice::Identity id, Object servant);
 
 
     /**
@@ -461,7 +461,7 @@ local interface Evictor extends Ice::ServantLocator
      * @see createObject
      *
      **/
-    void destroyObject(Ice::Identity id);
+    ["deprecate"] void destroyObject(Ice::Identity id);
 
 };
 

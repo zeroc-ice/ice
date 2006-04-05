@@ -1,6 +1,10 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Added the new slice metadata, "deprecate" which can be used to
+  qualify operations. On most platforms this will cause a compiler
+  warning to be issued if user code uses the deprecated operation.
+
 - Integrated contributed updates for Tru64.
 
 - Added a new method addProxies() to Ice::Router, which can return

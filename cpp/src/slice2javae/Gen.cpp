@@ -2790,6 +2790,22 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     // context parameter.
     //
     out << sp;
+    StringList metaData = p->getMetaData();
+    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+    {
+        if(q->find("deprecate") == 0)
+        {
+            string reason = "This method has been deprecated.";
+            if(q->find("deprecate:") == 0)
+            {
+                reason = q->substr(10);
+            }
+            out << nl << "/**";
+            out << nl << " * @deprecated " << reason;
+            out << nl << " **/";
+            break;
+        }
+    }
     out << nl << "public " << retS << ' ' << name << spar << params << epar;
     writeThrowsClause(package, throws);
     out << ';';

@@ -3117,7 +3117,22 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     string name = fixId(p->name(), DotNet::ICloneable, true);
     vector<string> params = getParams(p);
 
-    _out << sp << nl << typeToString(p->returnType()) << " " << name << spar << params << epar << ';';
+    _out << sp;
+    StringList metaData = p->getMetaData();
+    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+    {
+        if(q->find("deprecate") == 0)
+        {
+            string reason = "This method has been deprecated.";
+            if(q->find("deprecate:") == 0)
+            {
+                reason = q->substr(10);
+            }
+            _out << nl << "[System.Obsolete(\"" << reason << "\")]";
+            break;
+        }
+    }
+    _out << nl << typeToString(p->returnType()) << " " << name << spar << params << epar << ';';
 
     _out << nl << typeToString(p->returnType()) << " " << name
          << spar << params << "Ice.Context context__" << epar << ';'; 
