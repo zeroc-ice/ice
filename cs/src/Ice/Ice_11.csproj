@@ -34,7 +34,7 @@
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
                     NoStdLib = "false"
-                    NoWarn = ""
+                    NoWarn = "0618"
                     Optimize = "false"
                     OutputPath = "..\..\bin\"
                     RegisterForComInterop = "false"
