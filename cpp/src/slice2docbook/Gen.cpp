@@ -103,13 +103,23 @@ Slice::Gen::visitModuleStart(const ModulePtr& p)
 {
     start(_chapter + " id=" + containedToId(p), p->scoped().substr(2));
 
+    string metadata, deprecateReason;
+    if(p->findMetaData("deprecate", metadata))
+    {
+	deprecateReason = "This module has been deprecated.";
+	if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+	{
+	    deprecateReason = metadata.substr(10);
+	}
+    }
+
     start("section", "Overview", false);
     O.zeroIndent();
     O << nl << "<synopsis>";
     printMetaData(p);
     O << "module <classname>" << p->name() << "</classname></synopsis>";
     O.restoreIndent();
-    printComment(p);
+    printComment(p, deprecateReason);
     visitContainer(p);
     end();
 
@@ -134,7 +144,8 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	    O << toString(*q, p);
 	    end();
 	    start("listitem");
-	    printSummary(*q);
+	    string metadata;
+	    printSummary(*q, (*q)->findMetaData("deprecate", metadata));
 	    end();
 	    end();
 	}
@@ -164,7 +175,8 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	    O << toString(*q, p);
 	    end();
 	    start("listitem");
-	    printSummary(*q);
+	    string metadata;
+	    printSummary(*q, (*q)->findMetaData("deprecate", metadata));
 	    end();
 	    end();
 	}
@@ -183,7 +195,8 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	    O << toString(*q, p);
 	    end();
 	    start("listitem");
-	    printSummary(*q);
+	    string metadata;
+	    printSummary(*q, (*q)->findMetaData("deprecate", metadata));
 	    end();
 	    end();
 	}
@@ -206,7 +219,8 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	    O << toString(*q, p);
 	    end();
 	    start("listitem");
-	    printSummary(*q);
+	    string metadata;
+	    printSummary(*q, (*q)->findMetaData("deprecate", metadata));
 	    end();
 	    end();
 	}
@@ -229,7 +243,8 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	    O << toString(*q, p);
 	    end();
 	    start("listitem");
-	    printSummary(*q);
+	    string metadata;
+	    printSummary(*q, (*q)->findMetaData("deprecate", metadata));
 	    end();
 	    end();
 	}
@@ -252,7 +267,8 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	    O << toString(*q, p);
 	    end();
 	    start("listitem");
-	    printSummary(*q);
+	    string metadata;
+	    printSummary(*q, (*q)->findMetaData("deprecate", metadata));
 	    end();
 	    end();
 	}
@@ -276,7 +292,8 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	    O << toString(*q, p);
 	    end();
 	    start("listitem");
-	    printSummary(*q);
+	    string metadata;
+	    printSummary(*q, (*q)->findMetaData("deprecate", metadata));
 	    end();
 	    end();
 	}
@@ -299,7 +316,8 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	    O << toString(*q, p);
 	    end();
 	    start("listitem");
-	    printSummary(*q);
+	    string metadata;
+	    printSummary(*q, (*q)->findMetaData("deprecate", metadata));
 	    end();
 	    end();
 	}
@@ -323,7 +341,18 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	    TypePtr type = (*q)->type();
 	    O << "sequence&lt;" << toString(type, p) << "&gt; <type>" << (*q)->name() << "</type>;</synopsis>";
 	    O.restoreIndent();
-	    printComment(*q);
+
+	    string metadata, deprecateReason;
+	    if((*q)->findMetaData("deprecate", metadata))
+	    {
+		deprecateReason = "This type has been deprecated.";
+		if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+		{
+		    deprecateReason = metadata.substr(10);
+		}
+	    }
+
+	    printComment(*q, deprecateReason);
 	    end();
 	}
     }
@@ -344,7 +373,18 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	    O << "dictionary&lt;" << toString(keyType, p) << ", " << toString(valueType, p) << "&gt; <type>"
 	      << (*q)->name() << "</type>;</synopsis>";
 	    O.restoreIndent();
-	    printComment(*q);
+
+	    string metadata, deprecateReason;
+	    if((*q)->findMetaData("deprecate", metadata))
+	    {
+		deprecateReason = "This type has been deprecated.";
+		if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+		{
+		    deprecateReason = metadata.substr(10);
+		}
+	    }
+
+	    printComment(*q, deprecateReason);
 	    end();
 	}
     }
@@ -356,6 +396,17 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     start(_chapter + " id=" + containedToId(p), p->scoped().substr(2));
 
     start("section", "Overview", false);
+
+    string metadata, deprecateReason;
+    bool deprecatedClass = p->findMetaData("deprecate", metadata);
+    if(deprecatedClass)
+    {
+	deprecateReason = "This type has been deprecated.";
+	if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+	{
+	    deprecateReason = metadata.substr(10);
+	}
+    }
 
     O.zeroIndent();
     O << nl << "<synopsis>";
@@ -410,7 +461,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     }
     O << "</synopsis>";
     O.restoreIndent();
-    printComment(p);
+    printComment(p, deprecateReason);
 
     OperationList operations = p->operations();
     if(!operations.empty() && !_noIndex)
@@ -424,7 +475,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	    O << toString(*q, p);
 	    end();
 	    start("listitem");
-	    printSummary(*q);
+	    printSummary(*q, deprecatedClass || (*q)->findMetaData("deprecate", metadata));
 	    end();
 	    end();
 	}
@@ -444,7 +495,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	    O << toString(*q, p);
 	    end();
 	    start("listitem");
-	    printSummary(*q);
+	    printSummary(*q, deprecatedClass || (*q)->findMetaData("deprecate", metadata));
 	    end();
 	    end();
 	}
@@ -503,7 +554,19 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	    }
 	    O << ";</synopsis>";
 	    O.restoreIndent();
-	    printComment(*q);
+
+	    string reason;
+	    metadata.clear();
+	    if(deprecatedClass || (*q)->findMetaData("deprecate", metadata))
+	    {
+		reason = "This operation has been deprecated.";
+		if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+		{
+		    reason = metadata.substr(10);
+		}
+	    }
+
+	    printComment(*q, reason);
 	    end();
 	}
     }
@@ -518,7 +581,19 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	    TypePtr type = (*q)->type();
 	    O << toString(type, p) << " <structfield>" << (*q)->name() << "</structfield>;</synopsis>";
 	    O.restoreIndent();
-	    printComment(*q);
+
+	    string reason;
+	    metadata.clear();
+	    if(deprecatedClass || (*q)->findMetaData("deprecate", metadata))
+	    {
+		reason = "This member has been deprecated.";
+		if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+		{
+		    reason = metadata.substr(10);
+		}
+	    }
+
+	    printComment(*q, reason);
 	    end();
 	}
     }
@@ -534,6 +609,17 @@ Slice::Gen::visitExceptionStart(const ExceptionPtr& p)
     start(_chapter + " id=" + containedToId(p), p->scoped().substr(2));
 
     start("section", "Overview", false);
+
+    string metadata, deprecateReason;
+    bool deprecatedException = p->findMetaData("deprecate", metadata);
+    if(deprecatedException)
+    {
+	deprecateReason = "This type has been deprecated.";
+	if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+	{
+	    deprecateReason = metadata.substr(10);
+	}
+    }
 
     O.zeroIndent();
     O << nl << "<synopsis>";
@@ -555,7 +641,7 @@ Slice::Gen::visitExceptionStart(const ExceptionPtr& p)
     }
     O << "</synopsis>";
     O.restoreIndent();
-    printComment(p);
+    printComment(p, deprecateReason);
 
     DataMemberList dataMembers = p->dataMembers();
     if(!dataMembers.empty() && !_noIndex)
@@ -569,7 +655,7 @@ Slice::Gen::visitExceptionStart(const ExceptionPtr& p)
 	    O << toString(*q, p);
 	    end();
 	    start("listitem");
-	    printSummary(*q);
+	    printSummary(*q, deprecatedException || (*q)->findMetaData("deprecate", metadata));
 	    end();
 	    end();
 	}
@@ -589,7 +675,19 @@ Slice::Gen::visitExceptionStart(const ExceptionPtr& p)
 	    TypePtr type = (*q)->type();
 	    O << toString(type, p) << " <structfield>" << (*q)->name() << "</structfield>;</synopsis>";
 	    O.restoreIndent();
-	    printComment(*q);
+
+	    string reason;
+	    metadata.clear();
+	    if(deprecatedException || (*q)->findMetaData("deprecate", metadata))
+	    {
+		reason = "This member has been deprecated.";
+		if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+		{
+		    reason = metadata.substr(10);
+		}
+	    }
+
+	    printComment(*q, reason);
 	    end();
 	}
     }
@@ -606,6 +704,17 @@ Slice::Gen::visitStructStart(const StructPtr& p)
 
     start("section", "Overview", false);
 
+    string metadata, deprecateReason;
+    bool deprecatedStruct = p->findMetaData("deprecate", metadata);
+    if(deprecatedStruct)
+    {
+	deprecateReason = "This type has been deprecated.";
+	if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+	{
+	    deprecateReason = metadata.substr(10);
+	}
+    }
+
     O.zeroIndent();
     O << nl << "<synopsis>";
     printMetaData(p);
@@ -616,7 +725,7 @@ Slice::Gen::visitStructStart(const StructPtr& p)
     O << "struct <structname>" << p->name() << "</structname>";
     O << "</synopsis>";
     O.restoreIndent();
-    printComment(p);
+    printComment(p, deprecateReason);
 
     DataMemberList dataMembers = p->dataMembers();
     if(!dataMembers.empty() && !_noIndex)
@@ -630,7 +739,7 @@ Slice::Gen::visitStructStart(const StructPtr& p)
 	    O << toString(*q, p);
 	    end();
 	    start("listitem");
-	    printSummary(*q);
+	    printSummary(*q, deprecatedStruct || (*q)->findMetaData("deprecate", metadata));
 	    end();
 	    end();
 	}
@@ -650,7 +759,19 @@ Slice::Gen::visitStructStart(const StructPtr& p)
 	    TypePtr type = (*q)->type();
 	    O << toString(type, p) << " <structfield>" << (*q)->name() << "</structfield>;</synopsis>";
 	    O.restoreIndent();
-	    printComment(*q);
+
+	    string reason;
+	    metadata.clear();
+	    if(deprecatedStruct || (*q)->findMetaData("deprecate", metadata))
+	    {
+		reason = "This member has been deprecated.";
+		if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+		{
+		    reason = metadata.substr(10);
+		}
+	    }
+
+	    printComment(*q, reason);
 	    end();
 	}
     }
@@ -666,6 +787,17 @@ Slice::Gen::visitEnum(const EnumPtr& p)
     start(_chapter + " id=" + containedToId(p), p->scoped().substr(2));
     start("section", "Overview", false);
 
+    string metadata, deprecateReason;
+    bool deprecatedEnum = p->findMetaData("deprecate", metadata);
+    if(deprecatedEnum)
+    {
+	deprecateReason = "This type has been deprecated.";
+	if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+	{
+	    deprecateReason = metadata.substr(10);
+	}
+    }
+
     O.zeroIndent();
     O << nl << "<synopsis>";
     printMetaData(p);
@@ -676,7 +808,7 @@ Slice::Gen::visitEnum(const EnumPtr& p)
     O << "enum <type>" << p->name() << "</type>";
     O << "</synopsis>";
     O.restoreIndent();
-    printComment(p);
+    printComment(p, deprecateReason);
 
     EnumeratorList enumerators = p->getEnumerators();
     if(!enumerators.empty() && !_noIndex)
@@ -690,7 +822,7 @@ Slice::Gen::visitEnum(const EnumPtr& p)
 	    O << toString(*q, p->container());
 	    end();
 	    start("listitem");
-	    printSummary(*q);
+	    printSummary(*q, deprecatedEnum || (*q)->findMetaData("deprecate", metadata));
 	    end();
 	    end();
 	}
@@ -709,7 +841,17 @@ Slice::Gen::visitEnum(const EnumPtr& p)
 	    printMetaData(*q);
 	    O << "<constant>" << (*q)->name() << "</constant></synopsis>";
 	    O.restoreIndent();
-	    printComment(*q);
+
+	    //
+	    // Enumerators do not support metadata.
+	    //
+	    string reason;
+	    if(deprecatedEnum)
+	    {
+		reason = "This enumerator has been deprecated.";
+	    }
+
+	    printComment(*q, reason);
 	    end();
 	}
     }
@@ -841,7 +983,7 @@ Slice::Gen::printMetaData(const ContainedPtr& p)
 }
 
 void
-Slice::Gen::printComment(const ContainedPtr& p)
+Slice::Gen::printComment(const ContainedPtr& p, const string& deprecateReason)
 {
     ContainerPtr container = ContainerPtr::dynamicCast(p);
     if(!container)
@@ -867,6 +1009,18 @@ Slice::Gen::printComment(const ContainedPtr& p)
     }
 
     end();
+
+    if(!deprecateReason.empty())
+    {
+	start("caution");
+	start("title");
+	O << nl << "Deprecated";
+	end();
+	start("para");
+	O << nl << deprecateReason;
+	end();
+	end();
+    }
 
     if(!par.empty())
     {
@@ -1037,7 +1191,7 @@ Slice::Gen::printComment(const ContainedPtr& p)
 }
 
 void
-Slice::Gen::printSummary(const ContainedPtr& p)
+Slice::Gen::printSummary(const ContainedPtr& p, bool deprecated)
 {
     ContainerPtr container = ContainerPtr::dynamicCast(p);
     if(!container)
@@ -1049,6 +1203,10 @@ Slice::Gen::printSummary(const ContainedPtr& p)
     start("para");
     O.zeroIndent();
     O << nl << summary;
+    if(deprecated)
+    {
+	O << nl << "<emphasis>Deprecated.</emphasis>";
+    }
     O.restoreIndent();
     end();
 }

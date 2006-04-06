@@ -44,8 +44,8 @@ private:
     std::string getComment(const ContainedPtr&, const ContainerPtr&, bool);
     StringList getTagged(const std::string&, std::string&);
     void printMetaData(const ContainedPtr&);
-    void printComment(const ContainedPtr&);
-    void printSummary(const ContainedPtr&);
+    void printComment(const ContainedPtr&, const std::string&);
+    void printSummary(const ContainedPtr&, bool);
     void start(const std::string&);
     void start(const std::string&, const std::string&, bool = true);
     void end();
