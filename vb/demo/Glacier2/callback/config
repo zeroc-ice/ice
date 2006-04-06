@@ -56,12 +56,11 @@ Ice.Warn.Connections=1
 #
 # SSL Configuration
 #
-#Ice.Plugin.IceSSL=IceSSL.PluginFactory
-#Ice.ThreadPerConnection=1
-#IceSSL.Client.Keystore=../../../certs/client.jks
-#IceSSL.Client.Password=password
-#IceSSL.Client.Certs=../../../certs/certs.jks
-#IceSSL.Server.Keystore=../../../certs/server.jks
-#IceSSL.Server.Password=password
-#IceSSL.Server.ClientAuth=1
-#IceSSL.Server.Certs=../../../certs/certs.jks
+#Ice.Plugin.IceSSL=../../../bin/icesslcs.dll:IceSSL.PluginFactory
+IceSSL.ImportCert.LocalMachine.AuthRoot=../../../certs/cacert.pem
+IceSSL.Server.CertFile=../../../certs/s_rsa1024.pfx
+IceSSL.Server.Password=password
+IceSSL.Client.CertFile=../../../certs/c_rsa1024.pfx
+IceSSL.Client.Password=password
+IceSSL.Trace.Security=2
+Ice.ThreadPerConnection=1
