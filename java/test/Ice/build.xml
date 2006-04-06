@@ -31,6 +31,7 @@
         <ant dir="package"/>
         <ant dir="stream"/>
         <ant dir="retry"/>
+        <ant dir="timeout"/>
     </target>
 
     <target name="clean">
@@ -53,6 +54,7 @@
         <ant dir="package" target="clean"/>
         <ant dir="stream" target="clean"/>
         <ant dir="retry" target="clean"/>
+        <ant dir="timeout" target="clean"/>
     </target>
 
 </project>
