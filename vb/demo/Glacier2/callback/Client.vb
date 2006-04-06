@@ -142,11 +142,11 @@ Module Glacier2callbackC
                         fake = Not fake
 
                         If fake Then
-                            twowayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_newIdentity(callbackReceiverFakeIdent))
-                            onewayR = CallbackReceiverPrxHelper.uncheckedCast(onewayR.ice_newIdentity(callbackReceiverFakeIdent))
+                            twowayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_identity(callbackReceiverFakeIdent))
+                            onewayR = CallbackReceiverPrxHelper.uncheckedCast(onewayR.ice_identity(callbackReceiverFakeIdent))
                         Else
-                            twowayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_newIdentity(callbackReceiverIdent))
-                            onewayR = CallbackReceiverPrxHelper.uncheckedCast(onewayR.ice_newIdentity(callbackReceiverIdent))
+                            twowayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_identity(callbackReceiverIdent))
+                            onewayR = CallbackReceiverPrxHelper.uncheckedCast(onewayR.ice_identity(callbackReceiverIdent))
                         End If
 
                         Console.WriteLine("callback receiver identity: " & Ice.Util.identityToString(twowayR.ice_getIdentity()))
