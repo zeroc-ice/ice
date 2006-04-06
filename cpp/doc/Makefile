@@ -20,7 +20,6 @@ SLICEFILES	= $(wildcard ../slice/Ice/*.ice) \
 		  $(wildcard ../slice/Freeze/*.ice) \
 		  $(wildcard ../slice/IceBox/*.ice) \
 		  $(wildcard ../slice/IceGrid/*.ice) \
-		  $(wildcard ../slice/IceSSL/*.ice) \
 		  $(wildcard ../slice/Glacier2/*.ice) \
 		  $(wildcard ../slice/IceStorm/*.ice) \
 		  $(wildcard ../slice/IcePatch2/*.ice)
