@@ -630,18 +630,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "attackR"=.\test\Glacier2\attack\attackR.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
 Project: "attackS"=.\test\Glacier2\attack\attackS.dsp - Package Owner=<4>
 
 Package=<5>
