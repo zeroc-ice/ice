@@ -1709,6 +1709,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     TypePtr ret = p->returnType();
     string retS = returnTypeToString(ret, _useWstring, p->getMetaData());
 
+    ContainerPtr container = p->container();
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+
     vector<string> params;
     vector<string> paramsDecl;
     vector<string> args;
@@ -1757,18 +1760,12 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     string thisPointer = fixKwd(scope.substr(0, scope.size() - 2)) + "*";
 
-    H << sp;
-    H << nl;
-    StringList metaData = p->getMetaData();
-    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+    string deprecateMetadata, deprecateSymbol;
+    if(p->findMetaData("deprecate", deprecateMetadata) || cl->findMetaData("deprecate", deprecateMetadata))
     {
-        if(q->find("deprecate") == 0)
-	{
-       	    H << "ICE_DEPRECATED_API ";
- 	    break;
-        }
+	deprecateSymbol = "ICE_DEPRECATED_API ";
     }
-    H << retS << ' ' << fixKwd(name) << spar << paramsDecl << epar;
+    H << sp << nl << deprecateSymbol << retS << ' ' << fixKwd(name) << spar << paramsDecl << epar;
     H << sb;
     H << nl;
     if(ret)
@@ -1777,7 +1774,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     H << fixKwd(name) << spar << args << "__defaultContext()" << epar << ';';
     H << eb;
-    H << nl << retS << ' ' << fixKwd(name) << spar << params << "const ::Ice::Context&" << epar << ';';
+    H << nl << deprecateSymbol << retS << ' ' << fixKwd(name) << spar << params << "const ::Ice::Context&" << epar
+      << ';';
 
     C << sp << nl << retS << nl << "IceProxy" << scoped << spar << paramsDecl << "const ::Ice::Context& __ctx" << epar;
     C << sb;
@@ -1822,8 +1820,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << eb;
     C << eb;
 
-    ContainerPtr container = p->container();
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
     if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
     {
 	string classNameAMI = "AMI_" + cl->name();
@@ -3233,15 +3229,21 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
     bool nonmutating = p->mode() == Operation::Nonmutating;
     bool amd = !cl->isLocal() && (cl->hasMetaData("amd") || p->hasMetaData("amd"));
 
+    string deprecateMetadata, deprecateSymbol;
+    if(p->findMetaData("deprecate", deprecateMetadata) || cl->findMetaData("deprecate", deprecateMetadata))
+    {
+	deprecateSymbol = "ICE_DEPRECATED_API ";
+    }
+
     H << sp;
     if(!amd)
     {
-	H << nl << "virtual " << retS << ' ' << fixKwd(name) << params
+	H << nl << deprecateSymbol << "virtual " << retS << ' ' << fixKwd(name) << params
 	  << (nonmutating ? " const" : "") << " = 0;";
     }
     else
     {
-	H << nl << "virtual void " << name << "_async" << paramsAMD
+	H << nl << deprecateSymbol << "virtual void " << name << "_async" << paramsAMD
 	  << (nonmutating ? " const" : "") << " = 0;";
     }	
 
