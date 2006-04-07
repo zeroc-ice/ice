@@ -235,7 +235,7 @@ final public class Transceiver
     {
         _fd = fd;
         _traceLevels = instance.traceLevels();
-        _logger = instance.logger();
+        _logger = instance.initializationData().logger;
         _desc = Network.fdToString(_fd);
 	try
 	{

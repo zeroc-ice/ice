@@ -637,7 +637,9 @@ initCommunicator(ice_object* obj TSRMLS_DC)
 
     int argc = 0;
     char** argv = 0;
-    Ice::CommunicatorPtr communicator = Ice::initializeWithProperties(argc, argv, *properties);
+    Ice::InitializationData initData;
+    initData.properties = *properties;
+    Ice::CommunicatorPtr communicator = Ice::initialize(argc, argv, initData);
     obj->ptr = new Ice::CommunicatorPtr(communicator);
 
     //

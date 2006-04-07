@@ -1,6 +1,14 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Added communicator initialize method which takes a InitializationData
+  structure containing communicator members which are only allowed
+  to be set during communicator creation. Currently included are
+  Properties, Logger, Stats and default context. The initializeWith 
+  communicator initialization functions have been deprecated and the 
+  setLogger(), setStats() and setDefaultContext() methods have been 
+  removed.
+
 - Fixed an assertion failure in the object adapter when find is called
   for a non-existent identity.
 

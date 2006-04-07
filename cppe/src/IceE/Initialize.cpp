@@ -123,14 +123,7 @@ Ice::getDefaultProperties(int& argc, char* argv[])
 }
 
 CommunicatorPtr
-Ice::initialize(int& argc, char* argv[], Int version)
-{
-    PropertiesPtr properties = getDefaultProperties(argc, argv);
-    return initializeWithProperties(argc, argv, properties, version);
-}
-
-CommunicatorPtr
-Ice::initializeWithProperties(int& argc, char* argv[], const PropertiesPtr& properties, Int version)
+Ice::initialize(int& argc, char* argv[], InitializationData initData, Int version)
 {
 #ifndef ICE_IGNORE_VERSION
     //
@@ -150,13 +143,26 @@ Ice::initializeWithProperties(int& argc, char* argv[], const PropertiesPtr& prop
     }
 #endif
 
+    if(!initData.properties)
+    {
+        initData.properties = getDefaultProperties(argc, argv);
+    }
+
     StringSeq args = argsToStringSeq(argc, argv);
-    args = properties->parseIceCommandLineOptions(args);
+    args = initData.properties->parseIceCommandLineOptions(args);
     stringSeqToArgs(args, argc, argv);
 
-    CommunicatorPtr communicator = new Communicator(properties);
+    CommunicatorPtr communicator = new Communicator(initData);
     communicator->finishSetup(argc, argv);
     return communicator;
+}
+
+CommunicatorPtr
+Ice::initializeWithProperties(int& argc, char* argv[], const PropertiesPtr& properties, Int version)
+{
+    InitializationData initData;
+    initData.properties = properties;
+    return initialize(argc, argv, initData, version);
 }
 
 InstancePtr

@@ -53,7 +53,7 @@ namespace IceInternal
 	public Reference defaultContext()
 	{
 	    Reference r = instance_.referenceFactory().copy(this);
-	    r.context_ = instance_.getDefaultContext();
+	    r.context_ = instance_.initializationData().defaultContext;
 	    return r;
 	}
 
@@ -1435,13 +1435,12 @@ namespace IceInternal
 			if(cached)
 			{
 			    TraceLevels traceLevels = getInstance().traceLevels();
-			    Ice.Logger logger = getInstance().logger();
 
 			    if(traceLevels.retry >= 2)
 			    {
 				String s = "connection to cached endpoints failed\n" +
 				           "removing endpoints from cache and trying one more time\n" + ex;
-				logger.trace(traceLevels.retryCat, s);
+				getInstance().initializationData().logger.trace(traceLevels.retryCat, s);
 			    }
 			    
 			    continue;

@@ -102,7 +102,8 @@ Ice::ObjectAdapter::activate()
 #ifdef ICEE_HAS_LOCATOR
 	    locatorInfo = _locatorInfo;
 #endif
-	    printAdapterReady = _instance->properties()->getPropertyAsInt("Ice.PrintAdapterReady") > 0;
+	    printAdapterReady = 
+	        _instance->initializationData().properties->getPropertyAsInt("Ice.PrintAdapterReady") > 0;
 	    _printAdapterReadyDone = true;
 	}
 	
@@ -468,7 +469,7 @@ Ice::ObjectAdapter::createReverseProxy(const Identity& ident) const
     // reference.
     //
     vector<EndpointPtr> endpoints;
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->getDefaultContext(), "",
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->initializationData().defaultContext, "",
     							     Reference::ModeTwoway, connections);
     return _instance->proxyFactory()->referenceToProxy(ref);
 }
@@ -631,8 +632,8 @@ Ice::ObjectAdapter::ObjectAdapter(const InstancePtr& instance, const Communicato
     _printAdapterReadyDone(false),
     _name(name),
 #ifdef ICEE_HAS_LOCATOR
-    _id(instance->properties()->getProperty(name + ".AdapterId")),
-    _replicaGroupId(instance->properties()->getProperty(name + ".ReplicaGroupId")),
+    _id(instance->initializationData().properties->getProperty(name + ".AdapterId")),
+    _replicaGroupId(instance->initializationData().properties->getProperty(name + ".ReplicaGroupId")),
 #endif
     _directCount(0),
     _waitForDeactivate(false)
@@ -655,7 +656,7 @@ Ice::ObjectAdapter::ObjectAdapter(const InstancePtr& instance, const Communicato
 	// Parse published endpoints. These are used in proxies
 	// instead of the connection factory endpoints.
 	//
-	string endpts = _instance->properties()->getProperty(name + ".PublishedEndpoints");
+	string endpts = _instance->initializationData().properties->getProperty(name + ".PublishedEndpoints");
 	_publishedEndpoints = parseEndpoints(endpts);
         if(_publishedEndpoints.empty())
         {
@@ -670,7 +671,7 @@ Ice::ObjectAdapter::ObjectAdapter(const InstancePtr& instance, const Communicato
                                   not1(Ice::constMemFun(&Endpoint::publish))), _publishedEndpoints.end());
 
 #ifdef ICEE_HAS_ROUTER
-	string router = _instance->properties()->getProperty(_name + ".Router");
+	string router = _instance->initializationData().properties->getProperty(_name + ".Router");
 	if(!router.empty())
 	{
 	    addRouter(RouterPrx::uncheckedCast(_instance->proxyFactory()->stringToProxy(router)));
@@ -678,7 +679,7 @@ Ice::ObjectAdapter::ObjectAdapter(const InstancePtr& instance, const Communicato
 #endif
 	
 #ifdef ICEE_HAS_LOCATOR
-	string locator = _instance->properties()->getProperty(_name + ".Locator");
+	string locator = _instance->initializationData().properties->getProperty(_name + ".Locator");
 	if(!locator.empty())
 	{
 	    setLocator(LocatorPrx::uncheckedCast(_instance->proxyFactory()->stringToProxy(locator)));
@@ -703,12 +704,12 @@ Ice::ObjectAdapter::~ObjectAdapter()
 {
     if(!_deactivated)
     {
-	Warning out(_instance->logger());
+	Warning out(_instance->initializationData().logger);
 	out << "object adapter `" << _name << "' has not been deactivated";
     }
     else if(_instance)
     {
-	Warning out(_instance->logger());
+	Warning out(_instance->initializationData().logger);
 	out << "object adapter `" << _name << "' deactivation had not been waited for";
     }
     else
@@ -760,11 +761,11 @@ Ice::ObjectAdapter::newDirectProxy(const Identity& ident, const string& facet) c
     // Create a reference and return a proxy for this reference.
     //
 #ifdef ICEE_HAS_ROUTER
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->getDefaultContext(), facet,
-    							     Reference::ModeTwoway, false, endpoints, 0);
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->initializationData().defaultContext,
+    							     facet, Reference::ModeTwoway, false, endpoints, 0);
 #else
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->getDefaultContext(), facet,
-    							     Reference::ModeTwoway, false, endpoints);
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->initializationData().defaultContext,
+    							     facet, Reference::ModeTwoway, false, endpoints);
 #endif
     return _instance->proxyFactory()->referenceToProxy(ref);
 
@@ -778,12 +779,12 @@ Ice::ObjectAdapter::newIndirectProxy(const Identity& ident, const string& facet,
     // Create a reference with the adapter id.
     //
 #ifdef ICEE_HAS_ROUTER
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->getDefaultContext(), facet,
-    							     Reference::ModeTwoway, false, id, 0, _locatorInfo);
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->initializationData().defaultContext,
+    							     facet, Reference::ModeTwoway, false, id, 0, _locatorInfo);
     
 #else
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->getDefaultContext(), facet,
-    							     Reference::ModeTwoway, false, id, _locatorInfo);
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->initializationData().defaultContext,
+    							     facet, Reference::ModeTwoway, false, id, _locatorInfo);
 #endif
 
     //

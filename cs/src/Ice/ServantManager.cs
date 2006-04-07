@@ -237,7 +237,7 @@ public sealed class ServantManager
 		{
 		    string s = "exception during locator deactivation:\n" + "object adapter: `"
 		               + _adapterName + "'\n" + "locator category: `" + p.Key + "'\n" + ex;
-		    instance_.logger().error(s);
+		    instance_.initializationData().logger.error(s);
 		}
 	    }
 	    

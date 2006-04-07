@@ -374,7 +374,7 @@ IceInternal::Transceiver::toString() const
 
 IceInternal::Transceiver::Transceiver(const InstancePtr& instance, SOCKET fd) :
     _traceLevels(instance->traceLevels()),
-    _logger(instance->logger()),
+    _logger(instance->initializationData().logger),
     _fd(fd),
     _readTimeout(-1),
     _writeTimeout(-1),

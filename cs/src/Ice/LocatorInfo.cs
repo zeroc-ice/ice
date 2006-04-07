@@ -179,7 +179,8 @@ namespace IceInternal
 			s.Append("object = " + Ice.Util.identityToString(identity) + "\n");
 		    }
 		    s.Append("reason = " + ex);
-		    @ref.getInstance().logger().trace(@ref.getInstance().traceLevels().locationCat, s.ToString());
+		    @ref.getInstance().initializationData().logger.trace(
+		    	@ref.getInstance().traceLevels().locationCat, s.ToString());
 		}
 	    }
 	    
@@ -285,7 +286,7 @@ namespace IceInternal
 		}
 	    }
 	    
-	    r.getInstance().logger().trace(r.getInstance().traceLevels().locationCat, s.ToString());
+	    r.getInstance().initializationData().logger.trace(r.getInstance().traceLevels().locationCat, s.ToString());
 	}
 	
 	private readonly Ice.LocatorPrx _locator;

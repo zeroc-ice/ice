@@ -26,23 +26,25 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-        Ice::PropertiesPtr properties = Ice::createProperties();
-	//properties->setProperty("Ice.Trace.Network", "5");
-	//properties->setProperty("Ice.Trace.Protocol", "5");
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties();
+	//initData.properties->setProperty("Ice.Trace.Network", "5");
+	//initData.properties->setProperty("Ice.Trace.Protocol", "5");
 
-	loadConfig(properties);
+	loadConfig(initData.properties);
 
 	//
 	// For this test, we want to disable retries.
 	//
-	properties->setProperty("Ice.RetryIntervals", "-1");
+	initData.properties->setProperty("Ice.RetryIntervals", "-1");
 
-	setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
+	initData.logger = getLogger();
+	setCommunicator(Ice::initialize(argc, argv, initData));
 
 	//
 	// This test kills connections, so we don't want warnings.
 	//
-	properties->setProperty("Ice.Warn.Connections", "0");
+	initData.properties->setProperty("Ice.Warn.Connections", "0");
 
         Test::RetryPrx allTests(const Ice::CommunicatorPtr&);
         Test::RetryPrx retry = allTests(communicator());

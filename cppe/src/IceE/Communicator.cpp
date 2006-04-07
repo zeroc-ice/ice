@@ -84,34 +84,22 @@ Ice::Communicator::createObjectAdapterWithEndpoints(const string& name, const st
 
 #endif
 
-void
-Ice::Communicator::setDefaultContext(const Context& ctx)
-{
-    _instance->setDefaultContext(ctx);
-}
-
 Ice::Context
 Ice::Communicator::getDefaultContext() const
 {
-    return _instance->getDefaultContext();
+    return _instance->initializationData().defaultContext;
 }
 
 PropertiesPtr
 Ice::Communicator::getProperties() const
 {
-    return _instance->properties();
+    return _instance->initializationData().properties;
 }
 
 LoggerPtr
 Ice::Communicator::getLogger() const
 {
-    return _instance->logger();
-}
-
-void
-Ice::Communicator::setLogger(const LoggerPtr& logger)
-{
-    _instance->logger(logger);
+    return _instance->initializationData().logger;
 }
 
 #ifdef ICEE_HAS_ROUTER
@@ -156,12 +144,12 @@ Ice::Communicator::flushBatchRequests()
 
 #endif
 
-Ice::Communicator::Communicator(const PropertiesPtr& properties) 
+Ice::Communicator::Communicator(const InitializationData& initData) 
 {
     __setNoDelete(true);
     try
     {
-	const_cast<InstancePtr&>(_instance) = new Instance(this, properties);
+	const_cast<InstancePtr&>(_instance) = new Instance(this, initData);
     }
     catch(...)
     {
@@ -175,7 +163,7 @@ Ice::Communicator::~Communicator()
 {
     if(!_instance->destroyed())
     {
-	Warning out(_instance->logger());
+	Warning out(_instance->initializationData().logger);
 	out << "Ice::Communicator::destroy() has not been called";
     }
 }

@@ -60,8 +60,8 @@ public final class Util
     public static Communicator
     initialize(StringSeqHolder args)
     {
-        Properties properties = getDefaultProperties(args);
-	return initializeWithProperties(args, properties);
+        InitializationData initData = new InitializationData();
+	return initialize(args, initData);
     }
 
     public static Communicator
@@ -72,20 +72,46 @@ public final class Util
     }
 
     public static Communicator
-    initializeWithProperties(StringSeqHolder args, Properties properties)
+    initialize(StringSeqHolder args, InitializationData initData)
     {
-	args.value = properties.parseIceCommandLineOptions(args.value);
+        if(initData.properties == null)
+	{
+           initData.properties = getDefaultProperties(args);
+	}
+	args.value = initData.properties.parseIceCommandLineOptions(args.value);
 
-        Communicator result = new Communicator(properties);
+        Communicator result = new Communicator(initData);
         result.finishSetup(args);
         return result;
     }
 
     public static Communicator
-    initializeWithProperties(String[] args, Properties properties)
+    initialize(String[] args, InitializationData initData)
     {
         StringSeqHolder argsH = new StringSeqHolder(args);
-	return initializeWithProperties(argsH, properties);
+	return initialize(argsH, initData);
+    }
+
+    /**
+     * @deprecated This method has been deprecated, use initialize instead.
+     **/
+    public static Communicator
+    initializeWithProperties(StringSeqHolder args, Properties properties)
+    {
+        InitializationData initData = new InitializationData();
+	initData.properties = properties;
+	return initialize(args, initData);
+    }
+
+    /**
+     * @deprecated This method has been deprecated, use initialize instead.
+     **/
+    public static Communicator
+    initializeWithProperties(String[] args, Properties properties)
+    {
+        InitializationData initData = new InitializationData();
+	initData.properties = properties;
+	return initialize(args, initData);
     }
 
     public static IceInternal.Instance

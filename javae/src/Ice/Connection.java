@@ -830,9 +830,9 @@ public final class Connection
 	_desc = transceiver.toString();
         _type = transceiver.type();
         _endpoint = endpoint;
-        _logger = instance.logger(); // Cached for better performance.
+        _logger = instance.initializationData().logger; // Cached for better performance.
         _traceLevels = instance.traceLevels(); // Cached for better performance.
-	_warn = _instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
+	_warn = _instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
         _nextRequestId = 1;
         _batchStream = new IceInternal.BasicStream(instance);
 	_batchStreamInUse = false;
@@ -840,7 +840,7 @@ public final class Connection
         _dispatchCount = 0;
         _state = StateNotValidated;
 	_stateTime = System.currentTimeMillis();
-	_blocking = _instance.properties().getPropertyAsInt("Ice.Blocking") > 0 && adapter == null;
+	_blocking = _instance.initializationData().properties.getPropertyAsInt("Ice.Blocking") > 0 && adapter == null;
 	_stream = new IceInternal.BasicStream(_instance);
 	_in = new IceInternal.Incoming(_instance, this, _stream, adapter);
 
@@ -864,7 +864,7 @@ public final class Connection
 	        ex.printStackTrace();
 	        String s = "cannot create thread for connection:\n";;
 	        s += ex.toString();
-	        _instance.logger().error(s);
+	        _logger.error(s);
 	    
 	        try
 	        {

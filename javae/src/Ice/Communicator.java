@@ -56,19 +56,13 @@ public final class Communicator
     public Properties
     getProperties()
     {
-        return _instance.properties();
+        return _instance.initializationData().properties;
     }
 
     public Logger
     getLogger()
     {
-        return _instance.logger();
-    }
-
-    public void
-    setLogger(Logger logger)
-    {
-        _instance.logger(logger);
+        return _instance.initializationData().logger;
     }
 
     public RouterPrx
@@ -98,13 +92,7 @@ public final class Communicator
     public java.util.Hashtable
     getDefaultContext()
     {
-	return _instance.getDefaultContext();
-    }
-
-    public void
-    setDefaultContext(java.util.Hashtable ctx)
-    {
-	_instance.setDefaultContext(ctx);
+	return _instance.initializationData().defaultContext;
     }
 
     public void
@@ -113,9 +101,9 @@ public final class Communicator
         _instance.flushBatchRequests();
     }
 
-    Communicator(Properties properties)
+    Communicator(InitializationData initData)
     {
-        _instance = new IceInternal.Instance(this, properties);
+        _instance = new IceInternal.Instance(this, initData);
     }
 
     //

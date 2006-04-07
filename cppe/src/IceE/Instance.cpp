@@ -66,41 +66,6 @@ IceInternal::Instance::destroyed() const
     return _state == StateDestroyed;
 }
 
-PropertiesPtr
-IceInternal::Instance::properties() const
-{
-    //
-    // No check for destruction. It must be possible to access the
-    // properties after destruction.
-    //
-    // No mutex lock, immutable.
-    //
-    return _properties;
-}
-
-LoggerPtr
-IceInternal::Instance::logger() const
-{
-    //
-    // No check for destruction. It must be possible to access the
-    // logger after destruction.
-    //
-    IceUtil::RecMutex::Lock sync(*this);
-    return _logger;
-}
-
-void
-IceInternal::Instance::logger(const LoggerPtr& logger)
-{
-    //
-    // No check for destruction. It must be possible to set the logger
-    // after destruction (needed by logger plugins for example to
-    // unset the logger).
-    //
-    IceUtil::RecMutex::Lock sync(*this);
-    _logger = logger;
-}
-
 TraceLevelsPtr
 IceInternal::Instance::traceLevels() const
 {
@@ -257,35 +222,9 @@ IceInternal::Instance::flushBatchRequests()
 }
 #endif
 
-void
-IceInternal::Instance::setDefaultContext(const Context& ctx)
-{
-    IceUtil::RecMutex::Lock sync(*this);
-    
-    if(_state == StateDestroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
-    _defaultContext = ctx;
-}
-
-Context
-IceInternal::Instance::getDefaultContext() const
-{
-    IceUtil::RecMutex::Lock sync(*this);
-    
-    if(_state == StateDestroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
-    return _defaultContext;
-}
-
-IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const PropertiesPtr& properties) :
+IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const InitializationData& initData) :
     _state(StateActive),
-    _properties(properties),
+    _initData(initData),
     _messageSizeMax(0)
 #ifndef ICEE_PURE_BLOCKING_CLIENT
     , _threadPerConnectionStackSize(0)
@@ -304,8 +243,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	    // StdOut and StdErr redirection
 	    //
 
-	    string stdOutFilename = _properties->getProperty("Ice.StdOut");
-	    string stdErrFilename = _properties->getProperty("Ice.StdErr");
+	    string stdOutFilename = _initData.properties->getProperty("Ice.StdOut");
+	    string stdErrFilename = _initData.properties->getProperty("Ice.StdErr");
 	    
 	    if(stdOutFilename != "")
 	    {
@@ -351,13 +290,13 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	    srand48(seed);
 #endif
 	    
-	    if(_properties->getPropertyAsInt("Ice.NullHandleAbort") > 0)
+	    if(_initData.properties->getPropertyAsInt("Ice.NullHandleAbort") > 0)
 	    {
 		IceUtil::nullHandleAbort = true;
 	    }
 	    
 #ifndef _WIN32
-	    string newUser = _properties->getProperty("Ice.ChangeUser");
+	    string newUser = _initData.properties->getProperty("Ice.ChangeUser");
 	    if(!newUser.empty())
 	    {
 		struct passwd* pw = getpwnam(newUser.c_str());
@@ -412,15 +351,18 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	sync.release();
 	
 
-	_logger = new LoggerI(_properties->getProperty("Ice.ProgramName"));
+	if(!_initData.logger)
+	{
+	    _initData.logger = new LoggerI(_initData.properties->getProperty("Ice.ProgramName"));
+	}
 
-	const_cast<TraceLevelsPtr&>(_traceLevels) = new TraceLevels(_properties);
+	const_cast<TraceLevelsPtr&>(_traceLevels) = new TraceLevels(_initData.properties);
 
-	const_cast<DefaultsAndOverridesPtr&>(_defaultsAndOverrides) = new DefaultsAndOverrides(_properties);
+	const_cast<DefaultsAndOverridesPtr&>(_defaultsAndOverrides) = new DefaultsAndOverrides(_initData.properties);
 
 	{
 	    static const int defaultMessageSizeMax = 1024;
-	    Int num = _properties->getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
+	    Int num = _initData.properties->getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
 	    if(num < 1)
 	    {
 		const_cast<size_t&>(_messageSizeMax) = defaultMessageSizeMax * 1024; // Ignore stupid values.
@@ -438,7 +380,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 
 #ifndef ICEE_PURE_BLOCKING_CLIENT
 	{
-	    Int stackSize = _properties->getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
+	    Int stackSize = _initData.properties->getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
 	    if(stackSize < 0)
 	    {
 		stackSize = 0;
@@ -544,7 +486,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     // Show process id if requested (but only once).
     //
     bool printProcessId = false;
-    if(!printProcessIdDone && _properties->getPropertyAsInt("Ice.PrintProcessId") > 0)
+    if(!printProcessIdDone && _initData.properties->getPropertyAsInt("Ice.PrintProcessId") > 0)
     {
 	//
 	// Safe double-check locking (no dependent variable!)

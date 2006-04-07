@@ -13,12 +13,6 @@ public class Server
     run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
     {
 	//
-	// For this test, we need a dummy logger, otherwise the
-	// assertion test will print an error message.
-	//
-	communicator.setLogger(new DummyLogger());
-
-	//
 	// When running as a MIDlet the properties for the server may be
 	// overridden by configuration. If it isn't then we assume
 	// defaults.
@@ -44,7 +38,13 @@ public class Server
 
         try
         {
-            communicator = Ice.Util.initialize(args);
+	    //
+	    // For this test, we need a dummy logger, otherwise the
+	    // assertion test will print an error message.
+    	    //
+	    Ice.InitializationData initData = new Ice.InitializationData();
+	    initData.logger = new DummyLogger();
+            communicator = Ice.Util.initialize(args, initData);
             status = run(args, communicator, System.out);
         }
         catch(Ice.LocalException ex)

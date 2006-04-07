@@ -137,7 +137,7 @@ public final class ProxyFactory
 	IceUtil.Debug.Assert(cnt > 0);
 
         TraceLevels traceLevels = _instance.traceLevels();
-        Ice.Logger logger = _instance.logger();
+        Ice.Logger logger = _instance.initializationData().logger;
 
         if(cnt > _retryIntervals.length)
         {
@@ -186,7 +186,7 @@ public final class ProxyFactory
     {
         _instance = instance;
 
-	String str = _instance.properties().getPropertyWithDefault("Ice.RetryIntervals", "0");
+	String str = _instance.initializationData().properties.getPropertyWithDefault("Ice.RetryIntervals", "0");
 
         String[] arr = IceUtil.StringUtil.split(str.trim(), " \t\n\r");
 

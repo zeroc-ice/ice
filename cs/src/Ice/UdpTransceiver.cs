@@ -444,10 +444,10 @@ namespace IceInternal
 	internal UdpTransceiver(Instance instance, string host, int port)
 	{
 	    _traceLevels = instance.traceLevels();
-	    _logger = instance.logger();
-	    _stats = instance.stats();
+	    _logger = instance.initializationData().logger;
+	    _stats = instance.initializationData().stats;
 	    _connect = true;
-	    _warn = instance.properties().getPropertyAsInt("Ice.Warn.Datagrams") > 0;
+	    _warn = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
 	    
 	    try
 	    {
@@ -477,10 +477,10 @@ namespace IceInternal
 	internal UdpTransceiver(Instance instance, string host, int port, bool connect)
 	{
 	    _traceLevels = instance.traceLevels();
-	    _logger = instance.logger();
-	    _stats = instance.stats();
+	    _logger = instance.initializationData().logger;
+	    _stats = instance.initializationData().stats;
 	    _connect = connect;
-	    _warn = instance.properties().getPropertyAsInt("Ice.Warn.Datagrams") > 0;
+	    _warn = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
 	    _shutdownReadWrite = false;
 	    
 	    try
@@ -538,7 +538,8 @@ namespace IceInternal
 		    //
 		    // Get property for buffer size and check for sanity.
 		    //
-		    int sizeRequested = instance.properties().getPropertyAsIntWithDefault(prop, dfltSize);
+		    int sizeRequested = 
+		        instance.initializationData().properties.getPropertyAsIntWithDefault(prop, dfltSize);
 		    if(sizeRequested < _udpOverhead)
 		    {
 			_logger.warning("Invalid " + prop + " value of " + sizeRequested + " adjusted to " + dfltSize);

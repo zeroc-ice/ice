@@ -26,13 +26,15 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-	Ice::PropertiesPtr properties = Ice::createProperties();
+        Ice::InitializationData initData;
+	initData.properties = Ice::createProperties();
 
-	properties->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
-        properties->setProperty("Ice.Warn.Dispatch", "0");
+	initData.properties->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
+        initData.properties->setProperty("Ice.Warn.Dispatch", "0");
 
-        loadConfig(properties);
-        setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
+        loadConfig(initData.properties);
+	initData.logger = getLogger();
+        setCommunicator(Ice::initialize(argc, argv, initData));
 
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
         Ice::ObjectPtr object = new ThrowerI(adapter);

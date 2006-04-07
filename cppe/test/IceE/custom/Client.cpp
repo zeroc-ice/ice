@@ -26,10 +26,12 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-	Ice::PropertiesPtr properties = Ice::createProperties();
+        Ice::InitializationData initData;
+	initData.properties = Ice::createProperties();
 
-	loadConfig(properties);
-	setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
+	loadConfig(initData.properties);
+	initData.logger = getLogger();
+	setCommunicator(Ice::initialize(argc, argv, initData));
 
         Test::TestIntfPrx allTests(const Ice::CommunicatorPtr&);
         Test::TestIntfPrx test = allTests(communicator());

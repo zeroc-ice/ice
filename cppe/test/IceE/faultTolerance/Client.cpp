@@ -31,14 +31,15 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-	Ice::PropertiesPtr properties = Ice::createProperties();
-        loadConfig(properties);
-        setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
+    	Ice::InitializationData initData;
+	initData.properties = Ice::createProperties();
+        loadConfig(initData.properties);
+        setCommunicator(Ice::initialize(argc, argv, initData));
 
 	//
 	// This test aborts servers, so we don't want warnings.
 	//
-	properties->setProperty("Ice.Warn.Connections", "0");
+	initData.properties->setProperty("Ice.Warn.Connections", "0");
 
         vector<int> ports;
         for(int i = 1; i < argc; ++i)

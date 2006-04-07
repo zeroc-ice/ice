@@ -402,6 +402,7 @@ function twoways($communicator, $p)
             $r = $p2->opContext($ctx);
             test($r == $ctx);
         }
+	/*
 	{
 	    //
 	    // Test that default context is obtained correctly from communicator.
@@ -446,6 +447,7 @@ function twoways($communicator, $p)
 
 	    $communicator->setDefaultContext(array());
 	}
+	*/
     }
 }
 

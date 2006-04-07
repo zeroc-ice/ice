@@ -48,9 +48,11 @@ namespace Ice
 		if(!_printAdapterReadyDone)
 		{
 		    locatorInfo = _locatorInfo;
-		    registerProcess = instance_.properties().getPropertyAsInt(_name + ".RegisterProcess") > 0;
-		    serverId = instance_.properties().getProperty("Ice.ServerId");
-		    printAdapterReady = instance_.properties().getPropertyAsInt("Ice.PrintAdapterReady") > 0;
+		    registerProcess = 
+		        instance_.initializationData().properties.getPropertyAsInt(_name + ".RegisterProcess") > 0;
+		    serverId = instance_.initializationData().properties.getProperty("Ice.ServerId");
+		    printAdapterReady =
+		        instance_.initializationData().properties.getPropertyAsInt("Ice.PrintAdapterReady") > 0;
 		    communicator = _communicator;
 		    _printAdapterReadyDone = true;
 		}
@@ -526,7 +528,8 @@ namespace Ice
 		    connections.CopyTo(arr, 0);
 		}
                 IceInternal.Reference @ref = instance_.referenceFactory().create(
-		    ident, instance_.getDefaultContext(), "", IceInternal.Reference.Mode.ModeTwoway, arr);
+		    ident, instance_.initializationData().defaultContext, "", IceInternal.Reference.Mode.ModeTwoway, 
+		    arr);
 		return instance_.proxyFactory().referenceToProxy(@ref);
 	    }
 	}
@@ -836,8 +839,8 @@ namespace Ice
 	    _servantManager = new IceInternal.ServantManager(instance, name);
 	    _printAdapterReadyDone = false;
 	    _name = name;
-	    _id = instance.properties().getProperty(name + ".AdapterId");
-	    _replicaGroupId = instance.properties().getProperty(name + ".ReplicaGroupId");
+	    _id = instance.initializationData().properties.getProperty(name + ".AdapterId");
+	    _replicaGroupId = instance.initializationData().properties.getProperty(name + ".ReplicaGroupId");
 	    _incomingConnectionFactories = new ArrayList();
 	    _routerEndpoints = new ArrayList();
 	    _routerInfos = new ArrayList();
@@ -862,7 +865,7 @@ namespace Ice
 		// Parse published endpoints. If set, these are used in proxies
 		// instead of the connection factory endpoints.
 		//
-		string endpts = instance_.properties().getProperty(name + ".PublishedEndpoints");
+		string endpts = instance_.initializationData().properties.getProperty(name + ".PublishedEndpoints");
 		_publishedEndpoints = parseEndpoints(endpts);
 		if(_publishedEndpoints.Count == 0)
 		{
@@ -885,13 +888,13 @@ namespace Ice
 		}
 		_publishedEndpoints = tmp;
 
-		string router = instance_.properties().getProperty(name + ".Router");
+		string router = instance_.initializationData().properties.getProperty(name + ".Router");
 		if(router.Length > 0)
 		{
 		    addRouter(RouterPrxHelper.uncheckedCast(instance_.proxyFactory().stringToProxy(router)));
 		}
 		
-		string locator = instance_.properties().getProperty(name + ".Locator");
+		string locator = instance_.initializationData().properties.getProperty(name + ".Locator");
 		if(locator.Length > 0)
 		{
 		    setLocator(LocatorPrxHelper.uncheckedCast(instance_.proxyFactory().stringToProxy(locator)));
@@ -903,8 +906,9 @@ namespace Ice
 		
 		if(!instance_.threadPerConnection())
 		{
-		    int size = instance_.properties().getPropertyAsInt(_name + ".ThreadPool.Size");
-		    int sizeMax = instance_.properties().getPropertyAsInt(_name + ".ThreadPool.SizeMax");
+		    int size = instance_.initializationData().properties.getPropertyAsInt(_name + ".ThreadPool.Size");
+		    int sizeMax =
+		        instance_.initializationData().properties.getPropertyAsInt(_name + ".ThreadPool.SizeMax");
 		    if(size > 0 || sizeMax > 0)
 		    {
 			_threadPool = new IceInternal.ThreadPool(instance_, _name + ".ThreadPool", 0);
@@ -928,7 +932,8 @@ namespace Ice
 		{
 		    if(!Environment.HasShutdownStarted)
 		    {
-			instance_.logger().warning("object adapter `" + _name + "' has not been deactivated");
+			instance_.initializationData().logger.warning("object adapter `" + _name +
+								      "' has not been deactivated");
 		    }
 		    else
 		    {
@@ -939,7 +944,7 @@ namespace Ice
 		{
 		    if(!Environment.HasShutdownStarted)
 		    {
-			instance_.logger().warning("object adapter `" + _name +
+			instance_.initializationData().logger.warning("object adapter `" + _name +
 			                           "' deactivation had not been waited for");
 		    }
 		    else
@@ -1005,7 +1010,7 @@ namespace Ice
 	    // Create a reference and return a proxy for this reference.
 	    //
 	    IceInternal.Reference reference =
-		instance_.referenceFactory().create(ident, instance_.getDefaultContext(), facet,
+		instance_.referenceFactory().create(ident, instance_.initializationData().defaultContext, facet,
 						    IceInternal.Reference.Mode.ModeTwoway, false, endpoints,
 						    null, instance_.defaultsAndOverrides().
 						    defaultCollocationOptimization);
@@ -1019,7 +1024,7 @@ namespace Ice
 	    // proxy for the reference.
 	    //
 	    IceInternal.Reference reference =
-		instance_.referenceFactory().create(ident, instance_.getDefaultContext(), facet,
+		instance_.referenceFactory().create(ident, instance_.initializationData().defaultContext, facet,
 						    IceInternal.Reference.Mode.ModeTwoway, 
 						    false, id, null, _locatorInfo, 
 						    instance_.defaultsAndOverrides().defaultCollocationOptimization,

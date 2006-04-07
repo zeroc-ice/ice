@@ -28,21 +28,23 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-	Ice::PropertiesPtr properties = Ice::createProperties(argc, argv);
-        loadConfig(properties);
+        Ice::InitializationData initData;
+	initData.properties = Ice::createProperties(argc, argv);
+        loadConfig(initData.properties);
 
 	//
 	// For blocking client change retry interval from default.
 	//
-	if(properties->getPropertyAsInt("Ice.Blocking") > 0)
+	if(initData.properties->getPropertyAsInt("Ice.Blocking") > 0)
 	{
-	    properties->setProperty("Ice.RetryIntervals", "0 0");
-	    properties->setProperty("Ice.Warn.Connections", "0");
+	    initData.properties->setProperty("Ice.RetryIntervals", "0 0");
+	    initData.properties->setProperty("Ice.Warn.Connections", "0");
 	}
 
-	properties->setProperty("Ice.Default.Locator",
-				properties->getPropertyWithDefault("Location.Locator", "locator:default -p 12010"));
-        setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
+	initData.properties->setProperty("Ice.Default.Locator",
+			initData.properties->getPropertyWithDefault("Location.Locator", "locator:default -p 12010"));
+	initData.logger = getLogger();
+        setCommunicator(Ice::initialize(argc, argv, initData));
 
         void allTests(const Ice::CommunicatorPtr&);
 	allTests(communicator());

@@ -12,6 +12,7 @@
 
 #include <IceE/CommunicatorF.h>
 #include <IceE/PropertiesF.h>
+#include <IceE/LoggerF.h>
 #include <IceE/InstanceF.h>
 #include <IceE/BuiltinSequences.h>
 
@@ -31,8 +32,15 @@ ICE_API PropertiesPtr createProperties();
 ICE_API PropertiesPtr createProperties(StringSeq&);
 ICE_API PropertiesPtr createProperties(int&, char*[]);
 
-ICE_API CommunicatorPtr initialize(int&, char*[], Int = ICEE_INT_VERSION);
-ICE_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&, Int = ICEE_INT_VERSION);
+struct InitializationData
+{
+    PropertiesPtr properties;
+    LoggerPtr logger;
+    Context defaultContext;
+};
+
+ICE_API CommunicatorPtr initialize(int&, char*[], InitializationData = InitializationData(), Int = ICEE_INT_VERSION);
+ICE_API ICE_DEPRECATED_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&, Int = ICEE_INT_VERSION);
 
 ICE_API PropertiesPtr getDefaultProperties();
 ICE_API PropertiesPtr getDefaultProperties(StringSeq&);

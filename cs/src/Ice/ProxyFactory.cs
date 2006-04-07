@@ -125,7 +125,7 @@ namespace IceInternal
 	    Debug.Assert(cnt > 0);
 
 	    TraceLevels traceLevels = instance_.traceLevels();
-	    Ice.Logger logger = instance_.logger();
+	    Ice.Logger logger = instance_.initializationData().logger;
 
 	    if(cnt > _retryIntervals.Length)
 	    {
@@ -168,7 +168,7 @@ namespace IceInternal
 	{
 	    instance_ = instance;
 	    
-	    string str = instance_.properties().getPropertyWithDefault("Ice.RetryIntervals", "0");
+	    string str = instance_.initializationData().properties.getPropertyWithDefault("Ice.RetryIntervals", "0");
 	    
 	    char[] separators = { ' ', '\t', '\n', '\r' };
 	    string[] arr = str.Trim().Split(separators);

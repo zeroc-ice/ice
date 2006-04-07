@@ -365,7 +365,9 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
 		serviceArgs = serviceProperties.parseIceCommandLineOptions(serviceArgs);
 		serviceArgs = serviceProperties.parseCommandLineOptions(service, serviceArgs);
 
-		info.communicator = Ice.Util.initializeWithProperties(ref serviceArgs, serviceProperties);
+		Ice.InitializationData initData = new Ice.InitializationData();
+		initData.properties = serviceProperties;
+		info.communicator = Ice.Util.initialize(ref serviceArgs, initData);
 	    }
 	
 	    Ice.Communicator communicator = info.communicator != null ? info.communicator :

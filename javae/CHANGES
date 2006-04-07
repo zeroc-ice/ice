@@ -1,6 +1,13 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Added communicator initialize method which takes a InitializationData
+  structure containing communicator members which are only allowed
+  to be set during communicator creation. Currently included are
+  Properties, Logger, and default context. The initializeWith
+  communicator initialization functions have been deprecated and the
+  setLogger() and setDefaultContext() methods have been removed.
+
 - Added requestId to Current.
 
 Changes since version 1.0.0

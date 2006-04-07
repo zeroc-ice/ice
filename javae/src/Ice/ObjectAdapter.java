@@ -41,7 +41,8 @@ public final class ObjectAdapter
 	    if(!_printAdapterReadyDone)
 	    {
 		locatorInfo = _locatorInfo;
-		printAdapterReady = _instance.properties().getPropertyAsInt("Ice.PrintAdapterReady") > 0;
+		printAdapterReady = 
+		    _instance.initializationData().properties.getPropertyAsInt("Ice.PrintAdapterReady") > 0;
 		_printAdapterReadyDone = true;
 	    }
 	    
@@ -672,8 +673,8 @@ public final class ObjectAdapter
 	_servantManager = new IceInternal.ServantManager(instance, name);
 	_printAdapterReadyDone = false;
         _name = name;
-	_id = instance.properties().getProperty(name + ".AdapterId");
-	_replicaGroupId = instance.properties().getProperty(name + ".ReplicaGroupId");
+	_id = instance.initializationData().properties.getProperty(name + ".AdapterId");
+	_replicaGroupId = instance.initializationData().properties.getProperty(name + ".ReplicaGroupId");
 	_directCount = 0;
 	_waitForDeactivate = false;
 	
@@ -696,16 +697,16 @@ public final class ObjectAdapter
 	    // Parse published endpoints. These are used in proxies
 	    // instead of the connection factory endpoints.
 	    //
-	    String endpts = _instance.properties().getProperty(name + ".PublishedEndpoints");
+	    String endpts = _instance.initializationData().properties.getProperty(name + ".PublishedEndpoints");
 	    _publishedEndpoints = parseEndpoints(endpts);
 
-	    String router = _instance.properties().getProperty(name + ".Router");
+	    String router = _instance.initializationData().properties.getProperty(name + ".Router");
 	    if(router.length() > 0)
 	    {
 		addRouter(RouterPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(router)));
 	    }
 
-	    String locator = _instance.properties().getProperty(name + ".Locator");
+	    String locator = _instance.initializationData().properties.getProperty(name + ".Locator");
 	    if(locator.length() > 0)
 	    {
 		setLocator(LocatorPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(locator)));
@@ -729,11 +730,12 @@ public final class ObjectAdapter
     {
 	if(!_deactivated)
 	{
-	    _instance.logger().warning("object adapter `" + _name + "' has not been deactivated");
+	    _instance.initializationData().logger.warning("object adapter `" + _name + "' has not been deactivated");
 	}
 	else if(_instance != null)
 	{
-	    _instance.logger().warning("object adapter `" + _name + "' deactivation had not been waited for");
+	    _instance.initializationData().logger.warning("object adapter `" + _name +
+	    						  "' deactivation had not been waited for");
 	}
 	else
 	{

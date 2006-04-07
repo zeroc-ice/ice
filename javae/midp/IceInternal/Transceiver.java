@@ -442,7 +442,7 @@ final public class Transceiver
     {
         _connection = (javax.microedition.io.SocketConnection)connection;
         _traceLevels = instance.traceLevels();
-        _logger = instance.logger();
+        _logger = instance.initializationData().logger;
         _desc = Network.toString(_connection);
 	try
 	{

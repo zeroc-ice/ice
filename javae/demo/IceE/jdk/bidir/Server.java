@@ -49,9 +49,10 @@ public class Server
 
         try
         {
-            Ice.Properties properties = Ice.Util.createProperties();
-            properties.load("config");
-            communicator = Ice.Util.initializeWithProperties(args, properties);
+	    Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = Ice.Util.createProperties();
+            initData.properties.load("config");
+            communicator = Ice.Util.initialize(args, initData);
             status = run(args, communicator);
         }
         catch(Ice.LocalException ex)

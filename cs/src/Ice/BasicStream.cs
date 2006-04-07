@@ -1264,7 +1264,7 @@ namespace IceInternal
 			}
 			if(_traceSlicing > 0)
 			{
-			    TraceUtil.traceSlicing("class", id, _slicingCat, instance_.logger());
+			    TraceUtil.traceSlicing("class", id, _slicingCat, instance_.initializationData().logger);
 			}
 			skipSlice(); // Slice off this derived part -- we don't understand it.
 			id = readTypeId(); // Read next id for next iteration.
@@ -1355,7 +1355,7 @@ namespace IceInternal
 		    }
 		    if(_traceSlicing > 0)
 		    {
-			TraceUtil.traceSlicing("exception", id, _slicingCat, instance_.logger());
+			TraceUtil.traceSlicing("exception", id, _slicingCat, instance_.initializationData().logger);
 		    }
 		    skipSlice(); // Slice off what we don't understand.
 		    id = readString(); // Read type id for next slice.
@@ -1438,7 +1438,7 @@ namespace IceInternal
 		    }
 		    catch(System.Exception ex)
 		    {
-		        instance_.logger().warning("exception raised by ice_postUnmarshal::\n" + ex);
+		        instance_.initializationData().logger.warning("exception raised by ice_postUnmarshal::\n" + ex);
 		    }
 		}
 	    }
@@ -1459,7 +1459,7 @@ namespace IceInternal
 	    }
 	    catch(System.Exception ex)
 	    {
-		instance_.logger().warning("exception raised by ice_preMarshal::\n" + ex);
+		instance_.initializationData().logger.warning("exception raised by ice_preMarshal::\n" + ex);
 	    }
 	    v.write__(this);
 	}

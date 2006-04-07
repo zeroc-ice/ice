@@ -30,12 +30,6 @@ public class Server
 {
     private static int run(string[] args, Ice.Communicator communicator)
     {
-	//
-	// For this test, we need a dummy logger, otherwise the
-	// assertion test will print an error message.
-	//
-	communicator.setLogger(new DummyLogger());
-
         Ice.Properties properties = communicator.getProperties();
 	// We don't need to disable warnings because we have a dummy logger.
         //properties.setProperty("Ice.Warn.Dispatch", "0");
@@ -55,7 +49,13 @@ public class Server
         
         try
         {
-            communicator = Ice.Util.initialize(ref args);
+	    //
+	    // For this test, we need a dummy logger, otherwise the
+	    // assertion test will print an error message.
+	    //
+	    Ice.InitializationData initData = new Ice.InitializationData();
+	    initData.logger = new DummyLogger();
+            communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
         }
         catch(Ice.LocalException ex)

@@ -52,10 +52,12 @@ BOOL CChatClientApp::InitInstance()
     LogIPtr log;
     try
     {
-        int argc = 0;
-        communicator = Ice::initialize(argc, 0);
+	Ice::InitializationData initData;
         log = new LogI;
-        communicator->setLogger(log);
+	initData.logger = log;
+
+        int argc = 0;
+        communicator = Ice::initialize(argc, 0, initData);
     }
     catch(const Ice::Exception& ex)
     {

@@ -383,7 +383,8 @@ public final class ReferenceFactory
 
 	if(beg == -1)
 	{
-	    return create(ident, _instance.getDefaultContext(), facet, mode, secure, "", routerInfo, locatorInfo);
+	    return create(ident, _instance.initializationData().defaultContext, facet, mode, secure, "", routerInfo,
+	    		  locatorInfo);
 	}
 
         java.util.Vector endpoints = new java.util.Vector();
@@ -421,7 +422,7 @@ public final class ReferenceFactory
 		throw e;
 	    }
 	    else if(unknownEndpoints.size() != 0 &&
-	    	    _instance.properties().getPropertyAsIntWithDefault("Ice.Warn.Endpoints", 1) > 0)
+	    	    _instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Endpoints", 1) > 0)
 	    {
 	        String msg = "Proxy contains unknown endpoints:";
 		java.util.Enumeration e = unknownEndpoints.elements();
@@ -429,12 +430,12 @@ public final class ReferenceFactory
 		{
 		    msg += " `" + (String)e.nextElement() + "'";
 		}
-		_instance.logger().warning(msg);
+		_instance.initializationData().logger.warning(msg);
 	    }
 
 	    Endpoint[] endp = new Endpoint[endpoints.size()];
 	    endpoints.copyInto(endp);
-	    return create(ident, _instance.getDefaultContext(), facet, mode, secure, endp, routerInfo);
+	    return create(ident, _instance.initializationData().defaultContext, facet, mode, secure, endp, routerInfo);
 	}
 	else if(s.charAt(beg) == '@')
 	{
@@ -474,7 +475,8 @@ public final class ReferenceFactory
 		throw e;
 	    }
 	    adapter = token.value;
-	    return create(ident, _instance.getDefaultContext(), facet, mode, secure, adapter, routerInfo, locatorInfo);
+	    return create(ident, _instance.initializationData().defaultContext, facet, mode, secure, adapter,
+	    		  routerInfo, locatorInfo);
 	}
 
 	Ice.ProxyParseException ex = new Ice.ProxyParseException();
@@ -535,13 +537,15 @@ public final class ReferenceFactory
 	    {
 		endpoints[i] = _instance.endpointFactory().read(s);
 	    }
-	    return create(ident, _instance.getDefaultContext(), facet, mode, secure, endpoints, routerInfo);
+	    return create(ident, _instance.initializationData().defaultContext, facet, mode, secure, endpoints,
+	    		  routerInfo);
 	}
 	else
 	{
 	    endpoints = new Endpoint[0];
 	    adapterId = s.readString();
-	    return create(ident, _instance.getDefaultContext(), facet, mode, secure, adapterId, routerInfo, locatorInfo);
+	    return create(ident, _instance.initializationData().defaultContext, facet, mode, secure, adapterId,
+	    		  routerInfo, locatorInfo);
 	}
     }
 

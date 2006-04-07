@@ -45,8 +45,10 @@ ServerManagerI::startServer(const Ice::Current&)
     // its endpoints with the locator and create references containing
     // the adapter id instead of the endpoints.
     //
-    Ice::CommunicatorPtr serverCommunicator = Ice::initializeWithProperties(argc, argv, _properties);
-    serverCommunicator->setLogger(_adapter->getCommunicator()->getLogger());
+    Ice::InitializationData initData;
+    initData.properties = _properties;
+    initData.logger = _adapter->getCommunicator()->getLogger();
+    Ice::CommunicatorPtr serverCommunicator = Ice::initialize(argc, argv, initData);
     _communicators.push_back(serverCommunicator); 
 
     Ice::ObjectAdapterPtr adapter = serverCommunicator->createObjectAdapter("TestAdapter");

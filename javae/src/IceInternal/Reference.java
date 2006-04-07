@@ -58,7 +58,7 @@ public abstract class Reference
     defaultContext()
     {
 	Reference r = _instance.referenceFactory().copy(this);
-	r._context = _instance.getDefaultContext();
+	r._context = _instance.initializationData().defaultContext;
 	return r;
 
     }

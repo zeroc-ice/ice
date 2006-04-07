@@ -64,27 +64,17 @@ namespace Ice
 	
 	public Properties getProperties()
 	{
-	    return instance_.properties();
+	    return instance_.initializationData().properties;
 	}
 	
 	public Logger getLogger()
 	{
-	    return instance_.logger();
+	    return instance_.initializationData().logger;
 	}
 
-	public void setLogger(Logger logger)
-	{
-	    instance_.logger(logger);
-	}
-	    
 	public Stats getStats()
 	{
-	    return instance_.stats();
-	}
-
-	public void setStats(Stats stats)
-	{
-	    instance_.stats(stats);
+	    return instance_.initializationData().stats;
 	}
 
 	public RouterPrx getDefaultRouter()
@@ -109,12 +99,7 @@ namespace Ice
 	
 	public Ice.Context getDefaultContext()
 	{
-	    return instance_.getDefaultContext();
-	}
-	
-	public void setDefaultContext(Ice.Context ctx)
-	{
-	    instance_.setDefaultContext(ctx);
+	    return instance_.initializationData().defaultContext;
 	}
 
 	public PluginManager getPluginManager()
@@ -127,9 +112,9 @@ namespace Ice
 	    instance_.flushBatchRequests();
 	}
 	
-	internal CommunicatorI(Properties properties, Logger logger)
+	internal CommunicatorI(InitializationData initData)
 	{
-	    instance_ = new IceInternal.Instance(this, properties, logger);
+	    instance_ = new IceInternal.Instance(this, initData);
 	}
 	
 #if DEBUG
@@ -141,7 +126,8 @@ namespace Ice
 		{
 		    if(!System.Environment.HasShutdownStarted)
 		    {
-			instance_.logger().warning("Ice::Communicator::destroy() has not been called");
+			instance_.initializationData().logger.warning(
+				"Ice::Communicator::destroy() has not been called");
 		    }
 		    else
 		    {

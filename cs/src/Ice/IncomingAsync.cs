@@ -95,7 +95,8 @@ namespace IceInternal
 			ex.operation = current_.operation;
 		    }
 		
-		    if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+		    if(os_.instance().initializationData().properties.getPropertyAsIntWithDefault(
+		    									"Ice.Warn.Dispatch", 1) > 1)
 		    {
 			warning__(ex);
 		    }
@@ -146,7 +147,8 @@ namespace IceInternal
 		}
 		catch(Ice.UnknownLocalException ex)
 		{
-		    if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		    if(os_.instance().initializationData().properties.getPropertyAsIntWithDefault(
+		    								"Ice.Warn.Dispatch", 1) > 0)
 		    {
 			warning__(ex);
 		    }
@@ -166,7 +168,8 @@ namespace IceInternal
 		}
 		catch(Ice.UnknownUserException ex)
 		{
-		    if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		    if(os_.instance().initializationData().properties.getPropertyAsIntWithDefault(
+		    								"Ice.Warn.Dispatch", 1) > 0)
 		    {
 			warning__(ex);
 		    }
@@ -186,7 +189,8 @@ namespace IceInternal
 		}
 		catch(Ice.UnknownException ex)
 		{
-		    if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		    if(os_.instance().initializationData().properties.getPropertyAsIntWithDefault(
+		    								"Ice.Warn.Dispatch", 1) > 0)
 		    {
 			warning__(ex);
 		    }
@@ -206,7 +210,8 @@ namespace IceInternal
 		}
 		catch(Ice.LocalException ex)
 		{
-		    if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		    if(os_.instance().initializationData().properties.getPropertyAsIntWithDefault(
+		    								"Ice.Warn.Dispatch", 1) > 0)
 		    {
 			warning__(ex);
 		    }
@@ -226,7 +231,8 @@ namespace IceInternal
 		}
 		catch(Ice.UserException ex)
 		{
-		    if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		    if(os_.instance().initializationData().properties.getPropertyAsIntWithDefault(
+		    								"Ice.Warn.Dispatch", 1) > 0)
 		    {
 			warning__(ex);
 		    }
@@ -246,7 +252,8 @@ namespace IceInternal
 		}
 		catch(System.Exception ex)
 		{
-		    if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		    if(os_.instance().initializationData().properties.getPropertyAsIntWithDefault(
+		    								"Ice.Warn.Dispatch", 1) > 0)
 		    {
 			warning__(ex);
 		    }

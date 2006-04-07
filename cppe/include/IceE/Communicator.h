@@ -35,13 +35,9 @@ public:
     ObjectAdapterPtr createObjectAdapter(const std::string&);
     ObjectAdapterPtr createObjectAdapterWithEndpoints(const std::string&, const std::string&);
 
-    void setDefaultContext(const Context&);
     Context getDefaultContext() const;
-
     PropertiesPtr getProperties() const;
-
     LoggerPtr getLogger() const;
-    void setLogger(const LoggerPtr&);
 
 #ifdef ICEE_HAS_ROUTER
     RouterPrx getDefaultRouter() const;
@@ -59,7 +55,7 @@ public:
 
 private:
 
-    Communicator(const PropertiesPtr&);
+    Communicator(const InitializationData&);
     ~Communicator();
 
     //
@@ -68,8 +64,7 @@ private:
     //
     void finishSetup(int&, char*[]);
 
-    friend ICE_API CommunicatorPtr initialize(int&, char*[], Int);
-    friend ICE_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&, Int);
+    friend ICE_API CommunicatorPtr initialize(int&, char*[], InitializationData, Int);
     friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
 
     const ::IceInternal::InstancePtr _instance;

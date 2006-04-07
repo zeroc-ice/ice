@@ -163,7 +163,10 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     Ice::CommunicatorPtr communicator;
     try
     {
-	communicator = Ice::initializeWithPropertiesAndLogger(argc, argv, props, log);
+        Ice::InitializationData initData;
+	initData.properties = props;
+	initData.logger = log;
+	communicator = Ice::initialize(argc, argv, initData);
     }
     catch(const Ice::Exception& ex)
     {
@@ -533,36 +536,6 @@ communicatorGetLogger(CommunicatorObject* self)
 extern "C"
 #endif
 static PyObject*
-communicatorSetLogger(CommunicatorObject* self, PyObject* args)
-{
-    PyObject* loggerType = lookupType("Ice.Logger");
-    assert(loggerType != NULL);
-
-    PyObject* logger;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), loggerType, &logger))
-    {
-        return NULL;
-    }
-
-    Ice::LoggerPtr wrapper = new LoggerWrapper(logger);
-    try
-    {
-        (*self->communicator)->setLogger(wrapper);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return NULL;
-    }
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
 communicatorAddObjectFactory(CommunicatorObject* self, PyObject* args)
 {
     PyObject* factoryType = lookupType("Ice.ObjectFactory");
@@ -657,39 +630,6 @@ communicatorFindObjectFactory(CommunicatorObject* self, PyObject* args)
     }
 
     return pof->find(id);
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
-communicatorSetDefaultContext(CommunicatorObject* self, PyObject* args)
-{
-    PyObject* dict;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), &PyDict_Type, &dict))
-    {
-        return NULL;
-    }
-
-    Ice::Context ctx;
-    if(!dictionaryToContext(dict, ctx))
-    {
-	return NULL;
-    }
-
-    try
-    {
-        (*self->communicator)->setDefaultContext(ctx);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return NULL;
-
-    }
-
-    Py_INCREF(Py_None);
-    return Py_None;
 }
 
 #ifdef WIN32
@@ -964,16 +904,12 @@ static PyMethodDef CommunicatorMethods[] =
         PyDoc_STR(STRCAST("removeObjectFactory(id) -> None")) },
     { STRCAST("findObjectFactory"), (PyCFunction)communicatorFindObjectFactory, METH_VARARGS,
         PyDoc_STR(STRCAST("findObjectFactory(id) -> Ice.ObjectFactory")) },
-    { STRCAST("setDefaultContext"), (PyCFunction)communicatorSetDefaultContext, METH_VARARGS,
-        PyDoc_STR(STRCAST("setDefaultContext(ctx) -> None")) },
     { STRCAST("getDefaultContext"), (PyCFunction)communicatorGetDefaultContext, METH_NOARGS,
         PyDoc_STR(STRCAST("getDefaultContext() -> Ice.Context")) },
     { STRCAST("getProperties"), (PyCFunction)communicatorGetProperties, METH_NOARGS,
         PyDoc_STR(STRCAST("getProperties() -> Ice.Properties")) },
     { STRCAST("getLogger"), (PyCFunction)communicatorGetLogger, METH_NOARGS,
         PyDoc_STR(STRCAST("getLogger() -> Ice.Logger")) },
-    { STRCAST("setLogger"), (PyCFunction)communicatorSetLogger, METH_VARARGS,
-        PyDoc_STR(STRCAST("setLogger(Ice.Logger) -> None")) },
     { STRCAST("getDefaultRouter"), (PyCFunction)communicatorGetDefaultRouter, METH_NOARGS,
         PyDoc_STR(STRCAST("getDefaultRouter() -> proxy")) },
     { STRCAST("setDefaultRouter"), (PyCFunction)communicatorSetDefaultRouter, METH_VARARGS,

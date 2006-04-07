@@ -150,7 +150,7 @@ final public class Incoming
 		ex.operation = _current.operation;
 	    }
 
-	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
 	    {
 		__warning(ex);
 	    }
@@ -208,7 +208,7 @@ final public class Incoming
         {
 	    _is.endReadEncaps();
 
-	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	    {
 		__warning(ex);
 	    }
@@ -232,7 +232,7 @@ final public class Incoming
         {
 	    _is.endReadEncaps();
 
-	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	    {
 		__warning(ex);
 	    }
@@ -256,7 +256,7 @@ final public class Incoming
         {
 	    _is.endReadEncaps();
 
-	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	    {
 		__warning(ex);
 	    }
@@ -280,7 +280,7 @@ final public class Incoming
         {
 	    _is.endReadEncaps();
 
-	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	    {
 		__warning(ex);
 	    }
@@ -315,7 +315,7 @@ final public class Incoming
         {
 	    _is.endReadEncaps();
 
-	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	    {
 		__warning(ex);
 	    }
@@ -425,7 +425,7 @@ final public class Incoming
 	sb.append("\noperation: " + _current.operation);
 	sb.append("\n");
 	sb.append(ex.toString());
-	_os.instance().logger().warning(sb.toString());
+	_os.instance().initializationData().logger.warning(sb.toString());
     }
 
     //

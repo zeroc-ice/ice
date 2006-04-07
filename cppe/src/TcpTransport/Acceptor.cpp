@@ -103,7 +103,7 @@ IceInternal::Acceptor::effectivePort()
 IceInternal::Acceptor::Acceptor(const InstancePtr& instance, const string& host, int port) :
     _instance(instance),
     _traceLevels(instance->traceLevels()),
-    _logger(instance->logger()),
+    _logger(instance->initializationData().logger),
     _backlog(0)
 {
     if(_backlog <= 0)

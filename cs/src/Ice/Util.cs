@@ -11,11 +11,21 @@ namespace Ice
 {
 
     using IceInternal;
+    using System;
     using System.Runtime.InteropServices;
     using System.Diagnostics;
     using System.IO;
     using System.Text;
     using System.Globalization;
+
+
+    public class InitializationData
+    {
+        public Properties properties;
+	public Logger logger;
+	public Stats stats;
+	public Context defaultContext;
+    }
 
     public sealed class Util
     {
@@ -55,29 +65,47 @@ namespace Ice
 
 	public static Communicator initialize(ref string[] args)
 	{
-	    Properties defaultProperties = getDefaultProperties(ref args);
-	    return initializeWithPropertiesAndLogger(ref args, defaultProperties, null);
+	    InitializationData initData = new InitializationData();
+	    return initialize(ref args, initData);
 	}
 
+	public static Communicator initialize(ref string[] args, InitializationData initData)
+	{
+	    if(initData.properties == null)
+	    {
+	        initData.properties = getDefaultProperties(ref args);
+	    }
+	    args = initData.properties.parseIceCommandLineOptions(args);
+
+	    CommunicatorI result = new CommunicatorI(initData);
+	    result.finishSetup(ref args);
+	    return result;
+	}
+
+	[Obsolete("This method has been deprecated, use initialize instead.")]
 	public static Communicator initializeWithLogger(ref string[] args, Logger logger)
 	{
-	    Properties defaultProperties = getDefaultProperties(ref args);
-	    return initializeWithPropertiesAndLogger(ref args, defaultProperties, logger);
+	    InitializationData initData = new InitializationData();
+	    initData.logger = logger;
+	    return initialize(ref args, initData);
 	}
 	
+	[Obsolete("This method has been deprecated, use initialize instead.")]
 	public static Communicator initializeWithProperties(ref string[] args, Properties properties)
 	{
-    	    return initializeWithPropertiesAndLogger(ref args, properties, null);
+	    InitializationData initData = new InitializationData();
+	    initData.properties = properties;
+	    return initialize(ref args, initData);
 	}
 
+	[Obsolete("This method has been deprecated, use initialize instead.")]
 	public static Communicator initializeWithPropertiesAndLogger(ref string[] args, Properties properties,
 								     Ice.Logger logger)
 	{
-	    args = properties.parseIceCommandLineOptions(args);
-
-	    CommunicatorI result = new CommunicatorI(properties, logger);
-	    result.finishSetup(ref args);
-	    return result;
+	    InitializationData initData = new InitializationData();
+	    initData.properties = properties;
+	    initData.logger = logger;
+	    return initialize(ref args, initData);
 	}
 	
 	public static IceInternal.Instance getInstance(Communicator communicator)

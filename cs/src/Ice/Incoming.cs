@@ -116,7 +116,7 @@ namespace IceInternal
 		output.print("\noperation: " + current_.operation);
 		output.print("\n");
 		output.print(ex.ToString());
-		os_.instance().logger().warning(sw.ToString());
+		os_.instance().initializationData().logger.warning(sw.ToString());
 	    }
 	}
 	
@@ -285,7 +285,8 @@ namespace IceInternal
 		    ex.operation = current_.operation;
 		}
 		
-		if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+		if(os_.instance().initializationData().properties.getPropertyAsIntWithDefault(
+										"Ice.Warn.Dispatch", 1) > 1)
 		{
 		    warning__(ex);
 		}
@@ -340,7 +341,8 @@ namespace IceInternal
 	    {
 	        _is.endReadEncaps();
 		
-		if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		if(os_.instance().initializationData().properties.getPropertyAsIntWithDefault(
+										"Ice.Warn.Dispatch", 1) > 0)
 		{
 		    warning__(ex);
 		}
@@ -364,7 +366,8 @@ namespace IceInternal
 	    {
 	        _is.endReadEncaps();
 		
-		if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		if(os_.instance().initializationData().properties.getPropertyAsIntWithDefault(
+										"Ice.Warn.Dispatch", 1) > 0)
 		{
 		    warning__(ex);
 		}
@@ -388,7 +391,8 @@ namespace IceInternal
 	    {
 	        _is.endReadEncaps();
 		
-		if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		if(os_.instance().initializationData().properties.getPropertyAsIntWithDefault(
+										"Ice.Warn.Dispatch", 1) > 0)
 		{
 		    warning__(ex);
 		}
@@ -412,7 +416,8 @@ namespace IceInternal
 	    {
 	        _is.endReadEncaps();
 		
-		if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		if(os_.instance().initializationData().properties.getPropertyAsIntWithDefault(
+										"Ice.Warn.Dispatch", 1) > 0)
 		{
 		    warning__(ex);
 		}
@@ -437,7 +442,8 @@ namespace IceInternal
 	    {
 	        _is.endReadEncaps();
 		
-		if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		if(os_.instance().initializationData().properties.getPropertyAsIntWithDefault(
+										"Ice.Warn.Dispatch", 1) > 0)
 		{
 		    warning__(ex);
 		}
@@ -462,7 +468,8 @@ namespace IceInternal
 	    {
 		_is.endReadEncaps();
 
-		if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		if(os_.instance().initializationData().properties.getPropertyAsIntWithDefault(
+										"Ice.Warn.Dispatch", 1) > 0)
 		{
 		    warning__(ex);
 		}

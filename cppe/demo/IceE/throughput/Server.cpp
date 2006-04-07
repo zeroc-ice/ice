@@ -42,10 +42,11 @@ main(int argc, char* argv[])
 
     try
     {
-	Ice::PropertiesPtr properties = Ice::createProperties();
-        properties->load("config");
-	properties->setProperty("Ice.Override.Timeout", "100");
-	communicator = Ice::initializeWithProperties(argc, argv, properties);
+        Ice::InitializationData initData;
+	initData.properties = Ice::createProperties();
+        initData.properties->load("config");
+	initData.properties->setProperty("Ice.Override.Timeout", "100");
+	communicator = Ice::initialize(argc, argv, initData);
 	status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

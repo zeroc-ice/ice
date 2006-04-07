@@ -12,12 +12,6 @@ public class Collocated
     public static int
     run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
     {
-	//
-	// For this test, we need a dummy logger, otherwise the
-	// assertion test will print an error message.
-	//
-	communicator.setLogger(new DummyLogger());
-
 	communicator.getProperties().setProperty("Test.Proxy", "thrower:default -p 12010 -t 10000"); 
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
@@ -38,7 +32,13 @@ public class Collocated
 
         try
         {
-            communicator = Ice.Util.initialize(args);
+	    //
+	    // For this test, we need a dummy logger, otherwise the
+	    // assertion test will print an error message.
+    	    //
+	    Ice.InitializationData initData = new Ice.InitializationData();
+	    initData.logger = new DummyLogger();
+            communicator = Ice.Util.initialize(args, initData);
             status = run(args, communicator, System.out);
         }
         catch(Ice.LocalException ex)

@@ -29,33 +29,35 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-	Ice::PropertiesPtr properties = Ice::createProperties(argc, argv);
-        properties->setProperty("ServerManager.Endpoints", "default -p 12010");
+    	Ice::InitializationData initData;
+	initData.properties = Ice::createProperties(argc, argv);
+        initData.properties->setProperty("ServerManager.Endpoints", "default -p 12010");
 
-        loadConfig(properties);
+        loadConfig(initData.properties);
 
 	//
 	// For blocking client test, set timeout so CloseConnection send will
 	// return quickly. Otherwise server will hang since client is not 
 	// listening for these messages.
 	//
-	if(properties->getPropertyAsInt("Ice.Blocking") > 0)
+	if(initData.properties->getPropertyAsInt("Ice.Blocking") > 0)
 	{
-	    properties->setProperty("Ice.Override.Timeout", "100");
-	    properties->setProperty("Ice.Warn.Connections", "0");
+	    initData.properties->setProperty("Ice.Override.Timeout", "100");
+	    initData.properties->setProperty("Ice.Warn.Connections", "0");
 	}
 
 	//
 	// These properties cannot be overridden. The OAs started by
 	// the ServerManager must be local.
 	//
-	properties->setProperty("TestAdapter.Endpoints", "default");
-	properties->setProperty("TestAdapter.AdapterId", "TestAdapter");
-	properties->setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
-	properties->setProperty("TestAdapter2.Endpoints", "default");
-	properties->setProperty("TestAdapter2.AdapterId", "TestAdapter2");
+	initData.properties->setProperty("TestAdapter.Endpoints", "default");
+	initData.properties->setProperty("TestAdapter.AdapterId", "TestAdapter");
+	initData.properties->setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
+	initData.properties->setProperty("TestAdapter2.Endpoints", "default");
+	initData.properties->setProperty("TestAdapter2.AdapterId", "TestAdapter2");
 
-        setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
+	initData.logger = getLogger();
+        setCommunicator(Ice::initialize(argc, argv, initData));
 
         //
         // Register the server manager. The server manager creates a
@@ -72,7 +74,7 @@ public:
         //
         ServerLocatorRegistryPtr registry = new ServerLocatorRegistry();
         registry->addObject(adapter->createProxy(Ice::stringToIdentity("ServerManager")));
-        Ice::ObjectPtr object = new ServerManagerI(adapter, registry, properties);
+        Ice::ObjectPtr object = new ServerManagerI(adapter, registry, initData.properties);
         adapter->add(object, Ice::stringToIdentity("ServerManager"));
 
         Ice::LocatorRegistryPrx registryPrx = 

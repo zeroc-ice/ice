@@ -26,9 +26,11 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-        Ice::PropertiesPtr properties = Ice::createProperties();
-        loadConfig(properties);
-        setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties();
+        loadConfig(initData.properties);
+	initData.logger = getLogger();
+        setCommunicator(Ice::initialize(argc, argv, initData));
 
         InitialPrx allTests(const Ice::CommunicatorPtr&);
         InitialPrx initial = allTests(communicator());

@@ -332,7 +332,7 @@ namespace IceInternal
 			s.Append(" and no more endpoints to try\n");
 		    }
 		    s.Append(exception);
-		    instance_.logger().trace(traceLevels.retryCat, s.ToString());
+		    instance_.initializationData().logger.trace(traceLevels.retryCat, s.ToString());
 		}
 	    }
 	    
@@ -862,7 +862,8 @@ namespace IceInternal
 	    _adapter = adapter;
 	    _registeredWithPool = false;
 	    _finishedCount = 0;
-	    _warn = instance_.properties().getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
+	    _warn = 
+	        instance_.initializationData().properties.getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
 	    _connections = new LinkedList();
 	    _state = StateHolding;
 	    
@@ -933,7 +934,8 @@ namespace IceInternal
 			}
 			catch(System.Exception ex)
 			{
-			    instance_.logger().error("cannot create thread for incoming connection factory:\n" + ex);
+			    instance_.initializationData().logger.error(
+			    	"cannot create thread for incoming connection factory:\n" + ex);
 			    throw;
 			}
 		    }
@@ -1123,7 +1125,7 @@ namespace IceInternal
 	
 	private void warning(Ice.LocalException ex)
 	{
-	    instance_.logger().warning("connection exception:\n" + ex + '\n' + _acceptor.ToString());
+	    instance_.initializationData().logger.warning("connection exception:\n" + ex + '\n' + _acceptor.ToString());
 	}
 
 	private void run()
@@ -1248,12 +1250,13 @@ namespace IceInternal
 	    }
 	    catch(Ice.Exception ex)
 	    {
-		instance_.logger().error("exception in thread per incoming connection factory:\n" + ToString() +
-					 ex.ToString());
+		instance_.initializationData().logger.error("exception in thread per incoming connection factory:\n" +
+					ToString() + ex.ToString());
 	    }
 	    catch(System.Exception ex)
 	    {
-		instance_.logger().error("system exception in thread per incoming connection factory:\n" + ToString() +
+		instance_.initializationData().logger.error(
+					"system exception in thread per incoming connection factory:\n" + ToString() +
 					 ex.ToString());
 	    }
 	}

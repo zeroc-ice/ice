@@ -374,9 +374,10 @@ namespace IceInternal
 	    if(os__ != null) // Don't print anything if cleanup() was already called.
 	    {
 		Reference rf = ((Ice.ObjectPrxHelperBase)_proxy).reference__();
-		if(rf.getInstance().properties().getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+		if(rf.getInstance().initializationData().properties.getPropertyAsIntWithDefault(
+										"Ice.Warn.AMICallback", 1) > 0)
 		{
-		    rf.getInstance().logger().warning("exception raised by AMI callback:\n" + ex);
+		    rf.getInstance().initializationData().logger.warning("exception raised by AMI callback:\n" + ex);
 		}
 	    }
         }

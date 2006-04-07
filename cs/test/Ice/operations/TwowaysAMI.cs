@@ -1254,71 +1254,49 @@ public class TwowaysAMI
         }
         
         {
-            Ice.Context ctx = new Ice.Context();
-            ctx["one"] = "ONE";
-            ctx["two"] = "TWO";
-            ctx["three"] = "THREE";
-            {
-                test(p.ice_getContext().Count == 0);
-                AMI_MyClass_opContextNotEqualI cb = new AMI_MyClass_opContextNotEqualI(ctx);
-                p.opContext_async(cb);
-                test(cb.check());
-            }
-            {
-                test(p.ice_getContext().Count == 0);
-                AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
-                p.opContext_async(cb, ctx);
-                test(cb.check());
-            }
-            Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
-            test(p2.ice_getContext().Equals(ctx));
-            {
-                AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
-                p2.opContext_async(cb);
-                test(cb.check());
-            }
-            {
-                AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
-                p2.opContext_async(cb, ctx);
-                test(cb.check());
-            }
+	    {
+               Ice.Context ctx = new Ice.Context();
+               ctx["one"] = "ONE";
+               ctx["two"] = "TWO";
+               ctx["three"] = "THREE";
+               {
+                   test(p.ice_getContext().Count == 0);
+                   AMI_MyClass_opContextNotEqualI cb = new AMI_MyClass_opContextNotEqualI(ctx);
+                   p.opContext_async(cb);
+                   test(cb.check());
+               }
+               {
+                   test(p.ice_getContext().Count == 0);
+                   AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
+                   p.opContext_async(cb, ctx);
+                   test(cb.check());
+               }
+               Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
+               test(p2.ice_getContext().Equals(ctx));
+               {
+                   AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
+                   p2.opContext_async(cb);
+                   test(cb.check());
+               }
+               {
+                   AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
+                   p2.opContext_async(cb, ctx);
+                   test(cb.check());
+               }
+	    }
+	
 	    {
 		//
 		// Test that default context is obtained correctly from communicator.
 		//
-		Ice.Context dflt = new Ice.Context();
-		dflt["a"] = "b";
-		communicator.setDefaultContext(dflt);
-		{
-		    AMI_MyClass_opContextNotEqualI cb = new AMI_MyClass_opContextNotEqualI(dflt);
-		    p.opContext_async(cb);
-		    test(cb.check());
-		}
+                string[] args = new string[0];
+                Ice.InitializationData initData = new Ice.InitializationData();
+                initData.defaultContext = new Ice.Context();
+                initData.defaultContext["a"] = "b";
+                Ice.Communicator communicator2 = Ice.Util.initialize(ref args, initData);
 
-		p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_context(new Ice.Context()));
-		{
-		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(new Ice.Context());
-		    p2.opContext_async(cb);
-		    test(cb.check());
-		}
-
-		p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_defaultContext());
-		{
-		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(dflt);
-		    p2.opContext_async(cb);
-		    test(cb.check());
-		}
-
-		communicator.setDefaultContext(new Ice.Context());
-		{
-		    AMI_MyClass_opContextNotEqualI cb = new AMI_MyClass_opContextNotEqualI(new Ice.Context());
-		    p2.opContext_async(cb);
-		    test(cb.check());
-		}
-
-		communicator.setDefaultContext(dflt);
 		Test.MyClassPrx c = Test.MyClassPrxHelper.checkedCast(
-						communicator.stringToProxy("test:default -p 12010 -t 10000"));
+						communicator2.stringToProxy("test:default -p 12010 -t 10000"));
 		{
 		    Ice.Context tmp = new Ice.Context();
 		    tmp["a"] = "b";
@@ -1327,8 +1305,9 @@ public class TwowaysAMI
 		    test(cb.check());
 		}
 
-		dflt["a"] = "c";
-		Test.MyClassPrx c2 = Test.MyClassPrxHelper.uncheckedCast(c.ice_context(dflt));
+		Ice.Context ctx = new Ice.Context();
+		ctx["a"] = "c";
+		Test.MyClassPrx c2 = Test.MyClassPrxHelper.uncheckedCast(c.ice_context(ctx));
 		{
 		    Ice.Context tmp = new Ice.Context();
 		    tmp["a"] = "c";
@@ -1337,8 +1316,8 @@ public class TwowaysAMI
 		    test(cb.check());
 		}
 
-		dflt.Clear();
-		Test.MyClassPrx c3 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_context(dflt));
+		ctx.Clear();
+		Test.MyClassPrx c3 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_context(ctx));
 		{
 		    Ice.Context tmp = new Ice.Context();
 		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
@@ -1355,19 +1334,7 @@ public class TwowaysAMI
 		    test(cb.check());
 		}
 
-		dflt["a"] = "d";
-		communicator.setDefaultContext(dflt);
-
-		Test.MyClassPrx c5 = Test.MyClassPrxHelper.uncheckedCast(c.ice_defaultContext());
-		{
-		    Ice.Context tmp = new Ice.Context();
-		    tmp["a"] = "d";
-		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
-		    c5.opContext_async(cb);
-		    test(cb.check());
-		}
-
-		communicator.setDefaultContext(new Ice.Context());
+	        communicator2.destroy();
 	    }
         }
         

@@ -18,6 +18,7 @@ public class Collocated
 	Ice.Identity id = Ice.Util.stringToIdentity("test");
 	adapter.add(new MyDerivedClassI(adapter, id), id);
 	adapter.add(new TestCheckedCastI(), Ice.Util.stringToIdentity("context"));
+	adapter.activate();
 
         AllTests.allTests(communicator, true);
 
@@ -33,6 +34,7 @@ public class Collocated
 	{
 	    Ice.Properties properties = Ice.Util.getDefaultProperties();
 	    properties.setProperty("Ice.ThreadPool.Client.Size", "2"); // For nested AMI.
+	    properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
 	    
 	    communicator = Ice.Util.initialize(ref args);
 	    status = run(args, communicator);

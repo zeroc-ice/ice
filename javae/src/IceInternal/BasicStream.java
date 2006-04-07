@@ -1365,7 +1365,7 @@ public class BasicStream
             if(pos != -1)
             {
                 String topLevelModule = id.substring(2, pos);
-                String pkg = _instance.properties().getProperty("Ice.Package." + topLevelModule);
+                String pkg = _instance.initializationData().properties.getProperty("Ice.Package." + topLevelModule);
                 if(pkg.length() > 0)
                 {
                     c = getConcreteClass(pkg + "." + className);
@@ -1375,7 +1375,7 @@ public class BasicStream
 
         if(c == null)
         {
-            String pkg = _instance.properties().getProperty("Ice.Default.Package");
+            String pkg = _instance.initializationData().properties.getProperty("Ice.Default.Package");
             if(pkg.length() > 0)
             {
                 c = getConcreteClass(pkg + "." + className);

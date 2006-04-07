@@ -25,16 +25,17 @@ public class Client
         try
         {
 	    Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-            Ice.Properties properties = Ice.Util.createProperties(argsH);
-	    properties.setProperty("Ice.Default.Locator", "locator:default -p 12010");
+	    Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = Ice.Util.createProperties(argsH);
+	    initData.properties.setProperty("Ice.Default.Locator", "locator:default -p 12010");
 
-	    if(properties.getPropertyAsInt("Ice.Blocking") > 0)
+	    if(initData.properties.getPropertyAsInt("Ice.Blocking") > 0)
 	    {
-		properties.setProperty("Ice.RetryIntervals", "0 0");
-		properties.setProperty("Ice.Warn.Connections", "0");
+		initData.properties.setProperty("Ice.RetryIntervals", "0 0");
+		initData.properties.setProperty("Ice.Warn.Connections", "0");
 	    }
 
-            communicator = Ice.Util.initializeWithProperties(argsH, properties);
+            communicator = Ice.Util.initialize(argsH, initData);
             status = run(argsH.value, communicator, System.out);
         }
         catch (Ice.LocalException ex)

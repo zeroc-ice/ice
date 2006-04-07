@@ -51,13 +51,14 @@ BOOL CHelloServerApp::InitInstance()
     try
     {
         int argc = 0;
-        Ice::PropertiesPtr properties = Ice::createProperties();
+	Ice::InitializationData initData;
+        initData.properties = Ice::createProperties();
 
 	//
 	// Set a default value for Hello.Endpoints so that the demo
 	// will run without a configuration file.
 	//
-	properties->setProperty("Hello.Endpoints", "tcp -p 10000");
+	initData.properties->setProperty("Hello.Endpoints", "tcp -p 10000");
 
 	//
 	// Now, load the configuration file if present. Under WinCE we
@@ -70,15 +71,16 @@ BOOL CHelloServerApp::InitInstance()
 #endif
 	try
 	{
-	    properties->load(config);
+	    initData.properties->load(config);
 	}
 	catch(const Ice::FileException&)
 	{
 	}
 
-        communicator = Ice::initializeWithProperties(argc, 0, properties);
         log = new LogI;
-        communicator->setLogger(log);
+	initData.logger = log;
+
+        communicator = Ice::initializeWithProperties(argc, 0, initData);
         adapter = communicator->createObjectAdapter("Hello");
     }
     catch(const IceUtil::Exception& ex)

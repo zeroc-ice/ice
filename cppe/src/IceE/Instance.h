@@ -27,6 +27,7 @@
 #endif
 #include <IceE/Shared.h>
 #include <IceE/RecMutex.h>
+#include <IceE/Initialize.h>
 
 namespace IceInternal
 {
@@ -36,9 +37,7 @@ class Instance : public IceUtil::Shared, public IceUtil::RecMutex
 public:
 
     bool destroyed() const;
-    Ice::PropertiesPtr properties() const;
-    Ice::LoggerPtr logger() const;
-    void logger(const Ice::LoggerPtr&);
+    const Ice::InitializationData& initializationData() const { return _initData; }
     TraceLevelsPtr traceLevels() const;
     DefaultsAndOverridesPtr defaultsAndOverrides() const;
 #ifdef ICEE_HAS_ROUTER
@@ -56,8 +55,6 @@ public:
 #ifdef ICEE_HAS_BATCH
     void flushBatchRequests();
 #endif
-    void setDefaultContext(const ::Ice::Context&);
-    ::Ice::Context getDefaultContext() const;
 #ifndef ICEE_PURE_BLOCKING_CLIENT
     size_t threadPerConnectionStackSize() const;
 #endif
@@ -68,7 +65,7 @@ public:
 
 private:
 
-    Instance(const Ice::CommunicatorPtr&, const Ice::PropertiesPtr&);
+    Instance(const Ice::CommunicatorPtr&, const Ice::InitializationData&);
     virtual ~Instance();
 
     void finishSetup(int&, char*[]);
@@ -82,8 +79,7 @@ private:
 	StateDestroyed
     };
     State _state;
-    const Ice::PropertiesPtr _properties; // Immutable, not reset by destroy().
-    Ice::LoggerPtr _logger; // Not reset by destroy().
+    Ice::InitializationData _initData; // Immutable, not reset by destroy().
     const TraceLevelsPtr _traceLevels; // Immutable, not reset by destroy().
     const DefaultsAndOverridesPtr _defaultsAndOverrides; // Immutable, not reset by destroy().
     const size_t _messageSizeMax; // Immutable, not reset by destroy().
@@ -100,7 +96,6 @@ private:
     ProxyFactoryPtr _proxyFactory;
     OutgoingConnectionFactoryPtr _outgoingConnectionFactory;
     EndpointFactoryPtr _endpointFactory;
-    Ice::Context _defaultContext;
 
 #ifndef ICEE_PURE_CLIENT
     ObjectAdapterFactoryPtr _objectAdapterFactory;

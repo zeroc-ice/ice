@@ -208,7 +208,7 @@ public final class IncomingConnectionFactory
         _instance = instance;
         _endpoint = endpoint;
         _adapter = adapter;
-	_warn = _instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
+	_warn = _instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
         _state = StateHolding;
 
 	DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
@@ -401,14 +401,14 @@ public final class IncomingConnectionFactory
     warning(Ice.LocalException ex)
     {
         String s = "connection exception:\n" + ex.toString() + '\n' + _acceptor.toString();
-        _instance.logger().warning(s);
+        _instance.initializationData().logger.warning(s);
     }
 
     public void
     error(String msg, Exception ex)
     {
 	String s = msg + ":\n" + toString() + ex.toString();
-	_instance.logger().error(s);
+	_instance.initializationData().logger.error(s);
     }
 
     public void

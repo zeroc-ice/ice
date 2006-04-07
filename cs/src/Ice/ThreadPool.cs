@@ -45,7 +45,7 @@ namespace IceInternal
 	    inUse_ = 0;
 	    load_ = 1.0;
 	    promote_ = true;
-	    warnUdp_ = instance_.properties().getPropertyAsInt("Ice.Warn.Datagrams") > 0;
+	    warnUdp_ = instance_.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
 
 	    //
 	    // If we are in thread per connection mode, no thread pool should
@@ -53,7 +53,7 @@ namespace IceInternal
 	    //
 	    Debug.Assert(!instance_.threadPerConnection());
 
-	    string programName = instance_.properties().getProperty("Ice.ProgramName");
+	    string programName = instance_.initializationData().properties.getProperty("Ice.ProgramName");
 	    if(programName.Length > 0)
 	    {
 		_programNamePrefix = programName + "-";
@@ -73,19 +73,20 @@ namespace IceInternal
 	    // possible setting, still allows one level of nesting, and
 	    // doesn't require to make the servants thread safe.
 	    //
-	    int size = instance_.properties().getPropertyAsIntWithDefault(_prefix + ".Size", 1);
+	    int size = instance_.initializationData().properties.getPropertyAsIntWithDefault(_prefix + ".Size", 1);
 	    if(size < 1)
 	    {
 		size = 1;
 	    }
 	    
-	    int sizeMax = instance_.properties().getPropertyAsIntWithDefault(_prefix + ".SizeMax", size);
+	    int sizeMax = 
+	        instance_.initializationData().properties.getPropertyAsIntWithDefault(_prefix + ".SizeMax", size);
 	    if(sizeMax < size)
 	    {
 		sizeMax = size;
 	    }
 	    
-	    int sizeWarn = instance_.properties().getPropertyAsIntWithDefault(_prefix + ".SizeWarn",
+	    int sizeWarn = instance_.initializationData().properties.getPropertyAsIntWithDefault(_prefix + ".SizeWarn",
 	                                                                      sizeMax * 80 / 100);
 	    size_ = size;
 	    sizeMax_ = sizeMax;
@@ -106,7 +107,7 @@ namespace IceInternal
 	    catch(System.Exception ex)
 	    {
 		string s = "cannot create thread for `" + _prefix + "':\n" + ex;
-		instance_.logger().error(s);
+		instance_.initializationData().logger.error(s);
 		
 		destroy();
 		joinWithAllThreads();
@@ -198,7 +199,7 @@ namespace IceInternal
 			    string s = "thread pool `" + _prefix + "' is running low on threads\n"
 				       + "Size=" + size_ + ", " + "SizeMax=" + sizeMax_ + ", "
 				       + "SizeWarn=" + sizeWarn_;
-			    instance_.logger().warning(s);
+			    instance_.initializationData().logger.warning(s);
 			}
 			
 			Debug.Assert(inUse_ <= running_);
@@ -215,7 +216,7 @@ namespace IceInternal
 			    catch(System.Exception ex)
 			    {
 				string s = "cannot create thread for `" + _prefix + "':\n" + ex;
-				instance_.logger().error(s);
+				instance_.initializationData().logger.error(s);
 			    }
 			}
 		    }
@@ -531,7 +532,7 @@ namespace IceInternal
 			{
 			    string s = "exception in `" + _prefix + "' while calling finished():\n"
 			               + ex + "\n" + handler.ToString();
-			    instance_.logger().error(s);
+			    instance_.initializationData().logger.error(s);
 			}
 
 			//
@@ -577,9 +578,11 @@ namespace IceInternal
 				{
 				    if(handler.datagram())
 				    {
-				        if(instance_.properties().getPropertyAsInt("Ice.Warn.Connections") > 0)
+				        if(instance_.initializationData().properties.getPropertyAsInt(
+											"Ice.Warn.Connections") > 0)
 					{
-					    instance_.logger().warning("datagram connection exception:\n" + ex + 
+					    instance_.initializationData().logger.warning(
+					    			       "datagram connection exception:\n" + ex + 
 					    			       handler.ToString());
 					}
 				    }
@@ -609,7 +612,7 @@ namespace IceInternal
 			    catch(Ice.LocalException ex)
 			    {
 			        string s = "exception in `" + _prefix + "' while calling message():\n" + ex;
-			    	instance_.logger().error(s);
+			    	instance_.initializationData().logger.error(s);
 			    }
 
 			    //
@@ -805,8 +808,8 @@ namespace IceInternal
 		{
 		    if(warnUdp_)
 		    {
-			instance_.logger().warning("DatagramLimitException: maximum size of " + stream.pos() +
-						   " exceeded");
+			instance_.initializationData().logger.warning("DatagramLimitException: maximum size of " +
+								      stream.pos() + " exceeded");
 		    }
 		    stream.pos(0);
 		    stream.resize(0, true);
@@ -929,13 +932,13 @@ namespace IceInternal
 		catch(Ice.LocalException ex)
 		{
 		    string s = "exception in `" + thread_Pool._prefix + "' thread " + thread_.Name + ":\n" + ex;
-		    thread_Pool.instance_.logger().error(s);
+		    thread_Pool.instance_.initializationData().logger.error(s);
 		    promote = true;
 		}
 		catch(System.Exception ex)
 		{
 		    string s = "unknown exception in `" + thread_Pool._prefix + "' thread " + thread_.Name + ":\n" + ex;
-		    thread_Pool.instance_.logger().error(s);
+		    thread_Pool.instance_.initializationData().logger.error(s);
 		    promote = true;
 		}
 		

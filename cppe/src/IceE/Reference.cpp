@@ -43,7 +43,7 @@ ReferencePtr
 IceInternal::Reference::defaultContext() const
 {
     ReferencePtr r = _instance->referenceFactory()->copy(this);
-    r->_context = _instance->getDefaultContext();
+    r->_context = _instance->initializationData().defaultContext;
     return r;
 }
 
@@ -1004,10 +1004,9 @@ IceInternal::IndirectReference::getConnection() const
 		if(cached)
 		{
 		    TraceLevelsPtr traceLevels = getInstance()->traceLevels();
-		    LoggerPtr logger = getInstance()->logger();
 		    if(traceLevels->retry >= 2)
 		    {
-		        Trace out(logger, traceLevels->retryCat);
+		        Trace out(getInstance()->initializationData().logger, traceLevels->retryCat);
 			out << "connection to cached endpoints failed\n"
 			    << "removing endpoints from cache and trying one more time\n" << ex.toString();
 		    }

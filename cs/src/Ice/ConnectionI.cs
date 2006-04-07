@@ -1071,7 +1071,8 @@ namespace Ice
 	    ConnectionI[] connections = new ConnectionI[1];
 	    connections[0] = this;
 	    IceInternal.Reference @ref = instance_.referenceFactory().create(
-		ident, instance_.getDefaultContext(), "", IceInternal.Reference.Mode.ModeTwoway, connections);
+		ident, instance_.initializationData().defaultContext, "", IceInternal.Reference.Mode.ModeTwoway,
+		connections);
 	    return instance_.proxyFactory().referenceToProxy(@ref);
 	}
 	
@@ -1268,11 +1269,11 @@ namespace Ice
 	    _type = transceiver.type();
 	    _endpoint = endpoint;
 	    _adapter = adapter;
-	    _logger = instance.logger(); // Cached for better performance.
+	    _logger = instance.initializationData().logger; // Cached for better performance.
 	    _traceLevels = instance.traceLevels(); // Cached for better performance.
 	    _registeredWithPool = false;
 	    _finishedCount = 0;
-	    _warn = instance_.properties().getPropertyAsInt("Ice.Warn.Connections") > 0;
+	    _warn = instance_.initializationData().properties.getPropertyAsInt("Ice.Warn.Connections") > 0;
 	    _acmAbsoluteTimeoutMillis = 0;
 	    _nextRequestId = 1;
 	    _batchStream = new IceInternal.BasicStream(instance);
@@ -1299,7 +1300,8 @@ namespace Ice
 		}
 	    }
 
-	    _compressionLevel = instance_.properties().getPropertyAsIntWithDefault("Ice.Compression.Level", 1);
+	    _compressionLevel = 
+	        instance_.initializationData().properties.getPropertyAsIntWithDefault("Ice.Compression.Level", 1);
 	    if(_compressionLevel < 1)
 	    {
 		_compressionLevel = 1;
@@ -1348,11 +1350,11 @@ namespace Ice
 	    {
 		if(instance_.threadPerConnection())
 		{
-		    instance_.logger().error("cannot create thread for connection:\n" + ex);
+		    _logger.error("cannot create thread for connection:\n" + ex);
 		}
 		else
 		{
-		    instance_.logger().error("cannot create thread pool for connection:\n" + ex);
+		    _logger.error("cannot create thread pool for connection:\n" + ex);
 		}
 
 		try
@@ -2000,7 +2002,7 @@ namespace Ice
 		activate();
 	    }
 
-	    bool warnUdp = instance_.properties().getPropertyAsInt("Ice.Warn.Datagrams") > 0;
+	    bool warnUdp = instance_.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
 
 	    bool closed = false;
 
@@ -2239,11 +2241,11 @@ namespace Ice
 	    }
 	    catch(Exception ex)
 	    {
-		instance_.logger().error("exception in thread per connection:\n" + ToString() + "\n" + ex.ToString());
+		_logger.error("exception in thread per connection:\n" + ToString() + "\n" + ex.ToString());
 	    }
 	    catch(System.Exception ex)
 	    {
-		instance_.logger().error("system exception in thread per connection:\n" + ToString() + "\n" +
+		_logger.error("system exception in thread per connection:\n" + ToString() + "\n" +
 					 ex.ToString());
 	    }
 	}

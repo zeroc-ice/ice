@@ -26,11 +26,13 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-	Ice::PropertiesPtr properties = Ice::createProperties();
-	properties->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
+        Ice::InitializationData initData;
+	initData.properties = Ice::createProperties();
+	initData.properties->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
 
-        loadConfig(properties);
-        setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
+        loadConfig(initData.properties);
+	initData.logger = getLogger();
+        setCommunicator(Ice::initialize(argc, argv, initData));
 
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
         Ice::ObjectPtr d = new DI;

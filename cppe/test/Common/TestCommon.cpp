@@ -477,6 +477,12 @@ TestApplication::TestApplication(const std::string& name)
 {
 }
 
+LoggerPtr
+TestApplication::getLogger()
+{
+    return new LoggerI();
+}
+
 void
 TestApplication::setCommunicator(const CommunicatorPtr& communicator)
 {
@@ -487,7 +493,6 @@ TestApplication::setCommunicator(const CommunicatorPtr& communicator)
 	_tprintfp = fopen(("log-" + _name + ".txt").c_str(), "w");
     }
 #endif
-    _communicator->setLogger(new LoggerI);
 
 }
 

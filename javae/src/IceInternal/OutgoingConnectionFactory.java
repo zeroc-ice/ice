@@ -322,7 +322,7 @@ public final class OutgoingConnectionFactory
 		    s.append(" and no more endpoints to try\n");
 		}
 		s.append(exception.toString());
-		_instance.logger().trace(traceLevels.retryCat, s.toString());
+		_instance.initializationData().logger.trace(traceLevels.retryCat, s.toString());
 	    }
 	}
 	

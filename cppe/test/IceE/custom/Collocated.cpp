@@ -27,14 +27,16 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-	Ice::PropertiesPtr properties = Ice::createProperties();
+        Ice::InitializationData initData;
+	initData.properties = Ice::createProperties();
 
-	properties->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
-	//properties->setProperty("Ice.Trace.Network", "5");
-	//properties->setProperty("Ice.Trace.Protocol", "5");
+	initData.properties->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
+	//initData.properties->setProperty("Ice.Trace.Network", "5");
+	//initData.properties->setProperty("Ice.Trace.Protocol", "5");
 
-	loadConfig(properties);
-	setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
+	loadConfig(initData.properties);
+	initData.logger = getLogger();
+	setCommunicator(Ice::initialize(argc, argv, initData));
 
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
         adapter->add(new TestIntfI(communicator()), Ice::stringToIdentity("test"));

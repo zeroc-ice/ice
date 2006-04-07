@@ -64,7 +64,7 @@ namespace IceInternal
 	    _interval = interval * 1000;
 	    _connections = new Set();
 	    
-	    string threadName = instance_.properties().getProperty("Ice.ProgramName");
+	    string threadName = instance_.initializationData().properties.getProperty("Ice.ProgramName");
 	    if(threadName.Length > 0)
 	    {
 		threadName += "-";
@@ -130,7 +130,7 @@ namespace IceInternal
 			    {
 				return;
 			    }
-			    instance_.logger().error("exception in connection monitor thread " + _thread.Name +
+			    instance_.initializationData().logger.error("exception in connection monitor thread " + _thread.Name +
 						     "::\n" + ex);
 			}
 		    }
@@ -142,7 +142,7 @@ namespace IceInternal
 			    {
 				return;
 			    }
-			    instance_.logger().error("unknown exception in connection monitor thread " +
+			    instance_.initializationData().logger.error("unknown exception in connection monitor thread " +
 						     _thread.Name + ":\n" + ex);
 			}
 		    }

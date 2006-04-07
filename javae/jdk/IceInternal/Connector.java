@@ -185,7 +185,7 @@ final class Connector
     {
         _instance = instance;
         _traceLevels = instance.traceLevels();
-        _logger = instance.logger();
+        _logger = instance.initializationData().logger;
 
         _addr = Network.getAddress(host, port);
     }

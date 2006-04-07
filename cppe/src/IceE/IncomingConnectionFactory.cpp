@@ -175,7 +175,7 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
     _instance(instance),
     _endpoint(endpoint),
     _adapter(adapter),
-    _warn(_instance->properties()->getPropertyAsInt("Ice.Warn.Connections") > 0),
+    _warn(_instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Connections") > 0),
     _state(StateHolding)
 {
     if(_instance->defaultsAndOverrides()->overrideTimeout)
@@ -202,7 +202,7 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
     catch(const Ice::Exception& ex)
     {
 	{
-	    Error out(_instance->logger());
+	    Error out(_instance->initializationData().logger);
 	    out << "cannot create thread for incoming connection factory:\n" << ex.toString();
 	}
 	
@@ -321,7 +321,7 @@ IceInternal::IncomingConnectionFactory::run()
 	    // Warn about other Ice local exceptions.
 	    if(_warn)
 	    {
-		Warning out(_instance->logger());
+		Warning out(_instance->initializationData().logger);
 		out << "connection exception:\n" << ex.toString() << "\n" << _acceptor->toString();
 	    }
 	}
@@ -420,17 +420,17 @@ IceInternal::IncomingConnectionFactory::ThreadPerIncomingConnectionFactory::run(
     }
     catch(const Exception& ex)
     {	
-	Error out(_factory->_instance->logger());
+	Error out(_factory->_instance->initializationData().logger);
 	out << "exception in thread per incoming connection factory:\n" << _factory->toString() << ex.toString(); 
     }
     catch(const std::exception& ex)
     {
-	Error out(_factory->_instance->logger());
+	Error out(_factory->_instance->initializationData().logger);
 	out << "std::exception in thread per incoming connection factory:\n" << _factory->toString() << ex.what();
     }
     catch(...)
     {
-	Error out(_factory->_instance->logger());
+	Error out(_factory->_instance->initializationData().logger);
 	out << "unknown exception in thread per incoming connection factory:\n" << _factory->toString();
     }
 

@@ -111,13 +111,14 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
 
     try
     {
-	Ice::PropertiesPtr properties = Ice::createProperties();
+        Ice::InitializationData initData;
+	initData.properties = Ice::createProperties();
 
 	//
 	// Set a default value for Latency.Endpoints so that the demo
 	// will run without a configuration file.
 	//
-	properties->setProperty("Throughput.Endpoints","tcp -p 10000");
+	initData.properties->setProperty("Throughput.Endpoints","tcp -p 10000");
 
 	//
 	// Now, load the configuration file if present. Under WinCE we
@@ -125,13 +126,13 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
 	//
 	try
 	{
-	    properties->load("config.txt");
+	    initData.properties->load("config.txt");
 	}
 	catch(const Ice::FileException&)
 	{
 	}
 
-	communicator = Ice::initializeWithProperties(__argc, __argv, properties);
+	communicator = Ice::initialize(__argc, __argv, initData);
 
 	Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Throughput");
 	Ice::ObjectPtr object = new ThroughputI(100);

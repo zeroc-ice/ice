@@ -19,66 +19,15 @@ namespace IceInternal
 	    return _state == StateDestroyed;
 	}
 
-	public Ice.Properties properties()
+	public Ice.InitializationData initializationData()
 	{
 	    //
 	    // No check for destruction. It must be possible to access the
-	    // properties after destruction.
+	    // initialization data after destruction.
 	    //
 	    // No mutex lock, immutable.
 	    //
-	    return _properties;
-	}
-	
-	public Ice.Logger logger()
-	{
-	    lock(this)
-	    {
-		//
-		// No check for destruction. It must be possible to access the
-		// logger after destruction.
-		//
-		return _logger;
-	    }
-	}
-	
-	public void logger(Ice.Logger logger)
-	{
-	    lock(this)
-	    {
-		//
-		// No check for destruction. It must be possible to set the
-		// logger after destruction (needed by logger plugins for
-		// example to unset the logger).
-		//
-		_logger = logger;
-	    }
-	}
-	
-	public Ice.Stats stats()
-	{
-	    lock(this)
-	    {
-		if(_state == StateDestroyed)
-		{
-		    throw new Ice.CommunicatorDestroyedException();
-		}
-		
-		return _stats;
-	    }
-	}
-	
-	public void stats(Ice.Stats stats)
-	{
-	    lock(this)
-	    {
-		if(_state == StateDestroyed)
-		{
-			throw new Ice.CommunicatorDestroyedException();
-		}
-		
-		_stats = stats;
-	    }
+	    return _initData;
 	}
 	
 	public TraceLevels traceLevels()
@@ -227,7 +176,7 @@ namespace IceInternal
 		if(_serverThreadPool == null)
 		// Lazy initialization.
 		{
-		    int timeout = _properties.getPropertyAsInt("Ice.ServerIdleTime");
+		    int timeout = _initData.properties.getPropertyAsInt("Ice.ServerIdleTime");
 		    _serverThreadPool = new ThreadPool(this, "Ice.ThreadPool.Server", timeout);
 		}
 		
@@ -285,39 +234,6 @@ namespace IceInternal
 	    return _serverACM;
 	}
 	
-        public void setDefaultContext(Ice.Context ctx)
-	{
-	    lock(this)
-	    {
-		if(_state == StateDestroyed)
-		{
-		    throw new Ice.CommunicatorDestroyedException();
-		}
-	
-		if(ctx == null || ctx.Count == 0)
-		{
-		    _defaultContext = _emptyContext;
-		}
-		else
-		{
-		    _defaultContext = (Ice.Context)ctx.Clone();
-		}
-	    }
-	}
-
-	public Ice.Context getDefaultContext()
-	{
-	    lock(this)
-	    {
-		if(_state == StateDestroyed)
-		{
-		    throw new Ice.CommunicatorDestroyedException();
-		}
-		
-		return (Ice.Context)_defaultContext.Clone();
-	    }
-	}
-
 	public void flushBatchRequests()
 	{
 	    OutgoingConnectionFactory connectionFactory;
@@ -341,11 +257,10 @@ namespace IceInternal
 	//
 	// Only for use by Ice.CommunicatorI
 	//
-	public Instance(Ice.Communicator communicator, Ice.Properties properties, Ice.Logger logger)
+	public Instance(Ice.Communicator communicator, Ice.InitializationData initData)
 	{
 	    _state = StateActive;
-	    _properties = properties;
-	    _logger = logger;
+	    _initData = initData;
 	        
 	    try
 	    {
@@ -353,8 +268,8 @@ namespace IceInternal
 		{
 		    if(!_oneOffDone)
 		    {
-			string stdOut = _properties.getProperty("Ice.StdOut");
-			string stdErr = _properties.getProperty("Ice.StdErr");
+			string stdOut = _initData.properties.getProperty("Ice.StdOut");
+			string stdErr = _initData.properties.getProperty("Ice.StdErr");
 			
 			System.IO.StreamWriter outStream = null;
 			
@@ -403,28 +318,27 @@ namespace IceInternal
 		    }
 		}
 		
-    	    	if(_logger == null)
+    	    	if(_initData.logger == null)
 		{
-		    if(_properties.getPropertyAsInt("Ice.UseSyslog") > 0)
+		    if(_initData.properties.getPropertyAsInt("Ice.UseSyslog") > 0)
 		    {
-			_logger = new Ice.SysLoggerI(_properties.getProperty("Ice.ProgramName"));
+			_initData.logger = new Ice.SysLoggerI(_initData.properties.getProperty("Ice.ProgramName"));
 		    }
 		    else
 		    {
-			_logger = new Ice.LoggerI(_properties.getProperty("Ice.ProgramName"),
-						  _properties.getPropertyAsInt("Ice.Logger.Timestamp") > 0);
+			_initData.logger = new Ice.LoggerI(_initData.properties.getProperty("Ice.ProgramName"),
+						  _initData.properties.getPropertyAsInt("Ice.Logger.Timestamp") > 0);
 		    }
 		}
 		
-		_stats = null; // There is no default statistics callback object.
+		_traceLevels = new TraceLevels(_initData.properties);
 		
-		_traceLevels = new TraceLevels(_properties);
-		
-		_defaultsAndOverrides = new DefaultsAndOverrides(_properties);
+		_defaultsAndOverrides = new DefaultsAndOverrides(_initData.properties);
 		
 		{
 		    const int defaultMessageSizeMax = 1024;
-		    int num = _properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
+		    int num = 
+		        _initData.properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
 		    if(num < 1)
 		    {
 			_messageSizeMax = defaultMessageSizeMax * 1024; // Ignore stupid values.
@@ -442,10 +356,10 @@ namespace IceInternal
 		//
 		// Client ACM enabled by default. Server ACM disabled by default.
 		//
-		_clientACM = _properties.getPropertyAsIntWithDefault("Ice.ACM.Client", 60);
-		_serverACM = _properties.getPropertyAsInt("Ice.ACM.Server");
+		_clientACM = _initData.properties.getPropertyAsIntWithDefault("Ice.ACM.Client", 60);
+		_serverACM = _initData.properties.getPropertyAsInt("Ice.ACM.Server");
 
-		_threadPerConnection = _properties.getPropertyAsInt("Ice.ThreadPerConnection") > 0;
+		_threadPerConnection = _initData.properties.getPropertyAsInt("Ice.ThreadPerConnection") > 0;
 
 		_routerManager = new RouterManager();
 		
@@ -463,7 +377,10 @@ namespace IceInternal
 		
 		_pluginManager = new Ice.PluginManagerI(communicator);
 
-		_defaultContext = _emptyContext;
+		if(_initData.defaultContext == null)
+		{
+		    _initData.defaultContext = _emptyContext;
+		}
 		
 		_outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 		
@@ -530,7 +447,7 @@ namespace IceInternal
 	    //
 	    lock(this)
 	    {
-		if(!_printProcessIdDone && _properties.getPropertyAsInt("Ice.PrintProcessId") > 0)
+		if(!_printProcessIdDone && _initData.properties.getPropertyAsInt("Ice.PrintProcessId") > 0)
 		{
 		    using(Process p = Process.GetCurrentProcess())
 		    {
@@ -563,7 +480,7 @@ namespace IceInternal
 	    {
 		interval = _serverACM;
 	    }
-	    interval = _properties.getPropertyAsIntWithDefault("Ice.MonitorConnections", interval);
+	    interval = _initData.properties.getPropertyAsIntWithDefault("Ice.MonitorConnections", interval);
 	    if(interval > 0)
 	    {
 		_connectionMonitor = new ConnectionMonitor(this, interval);
@@ -712,9 +629,7 @@ namespace IceInternal
 	private const int StateDestroyInProgress = 1;
 	private const int StateDestroyed = 2;
 	private int _state;
-	private Ice.Properties _properties; // Immutable, not reset by destroy().
-	private Ice.Logger _logger; // Not reset by destroy().
-	private Ice.Stats _stats; // Not reset by destroy().
+	private Ice.InitializationData _initData; // Immutable, not reset by destroy().
 	private TraceLevels _traceLevels; // Immutable, not reset by destroy().
 	private DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
 	private int _messageSizeMax; // Immutable, not reset by destroy().
@@ -733,7 +648,6 @@ namespace IceInternal
 	private bool _threadPerConnection;
 	private EndpointFactoryManager _endpointFactoryManager;
 	private Ice.PluginManager _pluginManager;
-	private Ice.Context _defaultContext;
 	private static Ice.Context _emptyContext = new Ice.Context();
 	private static bool _printProcessIdDone = false;
 

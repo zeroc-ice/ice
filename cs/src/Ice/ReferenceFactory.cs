@@ -401,8 +401,8 @@ namespace IceInternal
 
 	    if(beg == -1)
 	    {
-		return create(ident, instance_.getDefaultContext(), facet, mode, secure, "", routerInfo, locatorInfo,
-			      instance_.defaultsAndOverrides().defaultCollocationOptimization,
+		return create(ident, instance_.initializationData().defaultContext, facet, mode, secure, "",
+			      routerInfo, locatorInfo, instance_.defaultsAndOverrides().defaultCollocationOptimization,
 			      instance_.defaultsAndOverrides().defaultLocatorCacheTimeout);
 	    }
 
@@ -442,7 +442,8 @@ namespace IceInternal
 		    throw e2;
 		}
 		else if(unknownEndpoints.Count != 0 &&
-		        instance_.properties().getPropertyAsIntWithDefault("Ice.Warn.Endpoints", 1) > 0)
+		        instance_.initializationData().properties.getPropertyAsIntWithDefault(
+										"Ice.Warn.Endpoints", 1) > 0)
 		{
 		    string msg = "Proxy contains unknown endpoints:";
 		    int sz = unknownEndpoints.Count;
@@ -450,11 +451,11 @@ namespace IceInternal
 		    {
 		        msg += " `" + (string)unknownEndpoints[idx] + "'";
 		    }
-		    instance_.logger().warning(msg);
+		    instance_.initializationData().logger.warning(msg);
 		}
 
 		EndpointI[] ep = (EndpointI[])endpoints.ToArray(typeof(EndpointI));
-		return create(ident, instance_.getDefaultContext(), facet, mode, secure, ep, routerInfo,
+		return create(ident, instance_.initializationData().defaultContext, facet, mode, secure, ep, routerInfo,
 			      instance_.defaultsAndOverrides().defaultCollocationOptimization);
 	    }
 	    else if(s[beg] == '@')
@@ -493,8 +494,8 @@ namespace IceInternal
 		    e.str = s;
 		    throw e;
 		}
-		return create(ident, instance_.getDefaultContext(), facet, mode, secure, adapter, routerInfo, 
-			      locatorInfo, instance_.defaultsAndOverrides().defaultCollocationOptimization,
+		return create(ident, instance_.initializationData().defaultContext, facet, mode, secure, adapter,
+			      routerInfo, locatorInfo, instance_.defaultsAndOverrides().defaultCollocationOptimization,
 			      instance_.defaultsAndOverrides().defaultLocatorCacheTimeout);
 	    }
 
@@ -555,15 +556,16 @@ namespace IceInternal
 		{
 		    endpoints[i] = instance_.endpointFactoryManager().read(s);
 		}
-		return create(ident, instance_.getDefaultContext(), facet, (Reference.Mode)mode, secure, endpoints, 
-			      routerInfo, instance_.defaultsAndOverrides().defaultCollocationOptimization);
+		return create(ident, instance_.initializationData().defaultContext, facet, (Reference.Mode)mode,
+			      secure, endpoints, routerInfo,
+			      instance_.defaultsAndOverrides().defaultCollocationOptimization);
 	    }
 	    else
 	    {
 		endpoints = new EndpointI[0];
 		adapterId = s.readString();
-		return create(ident, instance_.getDefaultContext(), facet, (Reference.Mode)mode, secure, adapterId, 
-			      routerInfo, locatorInfo,
+		return create(ident, instance_.initializationData().defaultContext, facet, (Reference.Mode)mode,
+			      secure, adapterId, routerInfo, locatorInfo,
 			      instance_.defaultsAndOverrides().defaultCollocationOptimization,
 			      instance_.defaultsAndOverrides().defaultLocatorCacheTimeout);
 	    }

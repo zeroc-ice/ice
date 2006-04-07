@@ -37,6 +37,8 @@ public:
 
     virtual int run(int, char*[]) = 0;
 
+    Ice::LoggerPtr getLogger();
+
     void setCommunicator(const Ice::CommunicatorPtr&);
     Ice::CommunicatorPtr communicator();
 

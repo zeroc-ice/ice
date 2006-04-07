@@ -35,9 +35,10 @@ public class ClientMIDlet
     startApp()
     {
 	java.io.InputStream is = getClass().getResourceAsStream("config");
-	Ice.Properties properties = Ice.Util.createProperties();
-	properties.load(is);
-	_communicator = Ice.Util.initializeWithProperties(new String[0], properties);
+	Ice.InitializationData initData = new Ice.InitializationData();
+	initData.properties = Ice.Util.createProperties();
+	initData.properties.load(is);
+	_communicator = Ice.Util.initialize(new String[0], initData);
 
 	if(_display == null)
 	{

@@ -864,7 +864,7 @@ Ice::Connection::createProxy(const Identity& ident) const
     //
     vector<ConnectionPtr> connections;
     connections.push_back(const_cast<Connection*>(this));
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->getDefaultContext(), "",
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->initializationData().defaultContext, "",
     							     Reference::ModeTwoway, connections);
     return _instance->proxyFactory()->referenceToProxy(ref);
 }
@@ -905,9 +905,9 @@ Ice::Connection::Connection(const InstancePtr& instance,
 	_desc(transceiver->toString()),
 	_type(transceiver->type()),
 	_endpoint(endpoint),
-	_logger(_instance->logger()), // Cached for better performance.
+	_logger(_instance->initializationData().logger), // Cached for better performance.
 	_traceLevels(_instance->traceLevels()), // Cached for better performance.
-	_warn(_instance->properties()->getPropertyAsInt("Ice.Warn.Connections") > 0),
+	_warn(_instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Connections") > 0),
 #ifndef ICEE_PURE_CLIENT
 	_in(_instance.get(), this, _stream, adapter),
 #endif
@@ -929,9 +929,9 @@ Ice::Connection::Connection(const InstancePtr& instance,
 {
 #ifndef ICEE_PURE_BLOCKING_CLIENT
 #  ifdef ICEE_PURE_CLIENT
-    _blocking = _instance->properties()->getPropertyAsInt("Ice.Blocking") > 0;
+    _blocking = _instance->initializationData().properties->getPropertyAsInt("Ice.Blocking") > 0;
 #  else
-    _blocking = _instance->properties()->getPropertyAsInt("Ice.Blocking") > 0 && !adapter;
+    _blocking = _instance->initializationData().properties->getPropertyAsInt("Ice.Blocking") > 0 && !adapter;
 #  endif
     if(_blocking)
     {
@@ -1815,17 +1815,17 @@ Ice::Connection::ThreadPerConnection::run()
     }
     catch(const Exception& ex)
     {	
-	Error out(_connection->_instance->logger());
+	Error out(_connection->_logger);
 	out << "exception in thread per connection:\n" << _connection->toString() << ex.toString(); 
     }
     catch(const std::exception& ex)
     {
-	Error out(_connection->_instance->logger());
+	Error out(_connection->_logger);
 	out << "std::exception in thread per connection:\n" << _connection->toString() << ex.what();
     }
     catch(...)
     {
-	Error out(_connection->_instance->logger());
+	Error out(_connection->_logger);
 	out << "unknown exception in thread per connection:\n" << _connection->toString();
     }
 

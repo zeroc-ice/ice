@@ -57,16 +57,14 @@ namespace Ice
 	    
 	    try
 	    {
+	    	InitializationData initData = new InitializationData();
+		initData.logger = logger;
 		if(configFile != null)
 		{
-		    Properties properties = Util.createProperties();
-		    properties.load(configFile);
-		    _communicator = Util.initializeWithPropertiesAndLogger(ref args, properties, logger);
+		    initData.properties = Util.createProperties();
+		    initData.properties.load(configFile);
 		}
-		else
-		{
-		    _communicator = Util.initializeWithLogger(ref args, logger);
-		}
+		_communicator = Util.initialize(ref args, initData);
 		
 		Properties props = _communicator.getProperties();
 		_nohup = props.getPropertyAsInt("Ice.Nohup") != 0;

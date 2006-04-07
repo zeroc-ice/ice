@@ -11,37 +11,16 @@ package IceInternal;
 
 public class Instance
 {
-    public Ice.Properties
-    properties()
+    public Ice.InitializationData
+    initializationData()
     {
 	//
 	// No check for destruction. It must be possible to access the
-	// properties after destruction.
+	// initialization data after destruction.
 	//
 	// No mutex lock, immutable.
 	//
-        return _properties;
-    }
-
-    public synchronized Ice.Logger
-    logger()
-    {
-	//
-	// No check for destruction. It must be possible to access the
-	// logger after destruction.
-	//
-        return _logger;
-    }
-
-    public synchronized void
-    logger(Ice.Logger logger)
-    {
-	//
-	// No check for destruction. It must be possible to set the
-	// logger after destruction (needed by logger plugins for
-	// example to unset the logger).
-	//
-        _logger = logger;
+        return _initData;
     }
 
     public TraceLevels
@@ -149,49 +128,6 @@ public class Instance
     }
 
     public void
-    setDefaultContext(java.util.Hashtable ctx)
-    {
-	if(ctx == null || ctx.isEmpty())
-	{
-	    _defaultContext = _emptyContext;
-	}
-	else
-	{
-	    _defaultContext = new java.util.Hashtable(ctx.size());
-	    java.util.Enumeration e = ctx.keys();
-	    while(e.hasMoreElements())
-	    {
-		java.lang.Object key = e.nextElement();
-		_defaultContext.put(key, ctx.get(key));
-	    }
-	}
-    }
-
-    public java.util.Hashtable
-    getDefaultContext()
-    {
-	//
-	// JDK 1.1 raises IllegalArgumentException if we pass 0 as the initial capacity.
-	//
-	if(_defaultContext.isEmpty())
-	{
-	    return new java.util.Hashtable();
-	}
-	else
-	{
-	    java.util.Hashtable result = new java.util.Hashtable(_defaultContext.size());
-	    java.util.Enumeration e = _defaultContext.keys();
-	    while(e.hasMoreElements())
-	    {
-		java.lang.Object key = e.nextElement();
-		java.lang.Object value = _defaultContext.get(key);
-		result.put(key, value);
-	    }
-	    return result;
-	}
-    }
-
-    public void
     flushBatchRequests()
     {
 	OutgoingConnectionFactory connectionFactory;
@@ -216,25 +152,28 @@ public class Instance
     // Only for use by Ice.Communicator
     //
     public
-    Instance(Ice.Communicator communicator, Ice.Properties properties)
+    Instance(Ice.Communicator communicator, Ice.InitializationData initData)
     {
         _state = StateActive;
-        _properties = properties;
+        _initData = initData;
 
         try
         {
-	    _logger = new Ice.LoggerI(_properties.getProperty("Ice.ProgramName"),
-				      _properties.getPropertyAsInt("Ice.Logger.Timestamp") > 0);
+	    if(_initData.logger == null)
+	    {
+	        _initData.logger = new Ice.LoggerI(_initData.properties.getProperty("Ice.ProgramName"),
+				          	   _initData.properties.getPropertyAsInt("Ice.Logger.Timestamp") > 0);
+	    }
 
             validatePackages();
 
-            _traceLevels = new TraceLevels(_properties);
+            _traceLevels = new TraceLevels(_initData.properties);
 
-            _defaultsAndOverrides = new DefaultsAndOverrides(_properties);
+            _defaultsAndOverrides = new DefaultsAndOverrides(_initData.properties);
 
 	    {
 		final int defaultMessageSizeMax = 1024;
-		int num = _properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
+		int num = _initData.properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
 		if(num < 1)
 		{
 		    _messageSizeMax = defaultMessageSizeMax * 1024; // Ignore stupid values.
@@ -250,7 +189,7 @@ public class Instance
 	    }
 
 	    {
-		int stackSize = _properties.getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
+		int stackSize = _initData.properties.getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
 		if(stackSize < 0)
 		{
 		    stackSize = 0;
@@ -268,7 +207,10 @@ public class Instance
 
             _endpointFactory = new EndpointFactory(this);
 
-	    _defaultContext = _emptyContext;
+	    if(_initData.defaultContext == null)
+	    {
+	        _initData.defaultContext = _emptyContext;
+	    }
 
             _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
@@ -406,7 +348,7 @@ public class Instance
     validatePackages()
     {
         final String prefix = "Ice.Package.";
-        java.util.Hashtable map = _properties.getPropertiesForPrefix(prefix);
+        java.util.Hashtable map = _initData.properties.getPropertiesForPrefix(prefix);
         java.util.Enumeration p = map.keys();
         while(p.hasMoreElements())
         {
@@ -414,7 +356,7 @@ public class Instance
             String pkg = (String)map.get(key);
             if(key.length() == prefix.length())
             {
-                _logger.warning("ignoring invalid property: " + key + "=" + pkg);
+                _initData.logger.warning("ignoring invalid property: " + key + "=" + pkg);
             }
             String module = key.substring(prefix.length());
             String className = pkg + "." + module + "._Marker";
@@ -424,7 +366,7 @@ public class Instance
             }
             catch(java.lang.Exception ex)
             {
-                _logger.warning("unable to validate package: " + key + "=" + pkg);
+                _initData.logger.warning("unable to validate package: " + key + "=" + pkg);
             }
         }
     }
@@ -434,8 +376,7 @@ public class Instance
     private static final int StateDestroyed = 2;
     private int _state;
 
-    private final Ice.Properties _properties; // Immutable, not reset by destroy().
-    private Ice.Logger _logger; // Not reset by destroy().
+    private final Ice.InitializationData _initData; // Immutable, not reset by destroy().
     private final TraceLevels _traceLevels; // Immutable, not reset by destroy().
     private final DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
     private final int _messageSizeMax; // Immutable, not reset by destroy().
@@ -447,7 +388,6 @@ public class Instance
     private ObjectAdapterFactory _objectAdapterFactory;
     private final int _threadPerConnectionStackSize;
     private EndpointFactory _endpointFactory;
-    private java.util.Hashtable _defaultContext;
     private static java.util.Hashtable _emptyContext = new java.util.Hashtable();
 
     private static boolean _oneOffDone = false;

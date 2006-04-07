@@ -353,7 +353,7 @@ IceInternal::LocatorInfo::getEndpoints(const IndirectReferencePtr& ref, bool& ca
     {
 	if(ref->getInstance()->traceLevels()->location >= 1)
 	{
-	    Trace out(ref->getInstance()->logger(), ref->getInstance()->traceLevels()->locationCat);
+	    Trace out(ref->getInstance()->initializationData().logger, ref->getInstance()->traceLevels()->locationCat);
 	    out << "couldn't contact the locator to retrieve adapter endpoints\n";
 	    if(!ref)
 	    {
@@ -451,7 +451,7 @@ IceInternal::LocatorInfo::trace(const string& msg,
 	                        const IndirectReferencePtr& ref,
 				const vector<EndpointPtr>& endpoints)
 {
-    Trace out(ref->getInstance()->logger(), ref->getInstance()->traceLevels()->locationCat);
+    Trace out(ref->getInstance()->initializationData().logger, ref->getInstance()->traceLevels()->locationCat);
     out << msg << "\n";
     if(!ref->getAdapterId().empty())
     {
