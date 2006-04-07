@@ -123,8 +123,6 @@ RegistryI::start(bool nowarn)
 
     TraceLevelsPtr traceLevels = new TraceLevels(properties, _communicator->getLogger(), false);
 
-    _communicator->setDefaultLocator(0);
-
     //
     // Create the object adapters.
     //
@@ -175,13 +173,6 @@ RegistryI::start(bool nowarn)
     Ice::Identity registryId = stringToIdentity(instanceName + "/Registry");
     registryAdapter->add(this, registryId);
     registryAdapter->activate();
-
-    //
-    // Setup a internal locator to be used by the IceGrid registry itself. This locator is 
-    // registered with the registry object adapter which is using its own threadpool.
-    //
-//    obj = registryAdapter->addWithUUID(new LocatorI(_communicator, _database, locatorRegistryPrx));
-//    _communicator->setDefaultLocator(LocatorPrx::uncheckedCast(obj->ice_collocationOptimization(false)));
 
     //
     // Create the internal IceStorm service and the registry and node topics.
