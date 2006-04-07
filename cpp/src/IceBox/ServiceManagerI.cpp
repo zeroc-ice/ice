@@ -334,7 +334,9 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	    }
 	    argv[argc] = 0;
 
-	    info.communicator = initializeWithProperties(argc, argv, serviceProperties);
+	    InitializationData initData;
+	    initData.properties = serviceProperties;
+	    info.communicator = initialize(argc, argv, initData);
 
 	    for(i = 0; i < argc + 1; ++i)
 	    {

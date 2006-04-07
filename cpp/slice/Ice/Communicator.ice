@@ -246,18 +246,6 @@ local interface Communicator
 
     /**
      *
-     * Set a default context on this communicator. Once set,
-     * all proxies that do not explicitly override the context
-     * on a per-proxy or per-invocation basis send this context
-     * with every invocation. To clear a context, call
-     * [setContext] with an empty context.
-     *
-     * @param ctx The default context to be set.
-     **/
-    void setDefaultContext(Context ctx);
-
-    /**
-     *
      * Get the currently-set default context.
      *
      * @return The currently established default context. If no
@@ -292,18 +280,6 @@ local interface Communicator
 
     /**
      *
-     * Set the logger for this communicator.
-     *
-     * @param log The logger to use for this communicator.
-     *
-     * @see getLogger
-     * @see Logger
-     *
-     **/
-    void setLogger(Logger log);
-
-    /**
-     *
      * Get the statistics callback object for this communicator.
      *
      * @return This communicator's statistics callback object.
@@ -313,19 +289,6 @@ local interface Communicator
      *
      **/
     nonmutating Stats getStats();
-
-    /**
-     *
-     * Set the statistics callback object for this communicator.
-     *
-     * @param st The statistics callback object to use for this
-     * communicator.
-     *
-     * @see getStats
-     * @see Stats
-     *
-     **/
-    void setStats(Stats st);
 
     /**
      *

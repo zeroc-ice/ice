@@ -29,15 +29,16 @@ ServerI::destroy()
 Test::ServerPrx
 ServerFactoryI::createServer(const Test::Properties& props, const Current& current)
 {
-    PropertiesPtr properties = createProperties();
+    InitializationData initData;
+    initData.properties = createProperties();
     for(Test::Properties::const_iterator p = props.begin(); p != props.end(); ++p)
     {
-	properties->setProperty(p->first, p->second);
+	initData.properties->setProperty(p->first, p->second);
     }
 
     int argc = 0;
     char* argv[] = { "" };
-    CommunicatorPtr communicator = initializeWithProperties(argc, argv, properties);
+    CommunicatorPtr communicator = initialize(argc, argv, initData);
     ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
     ServerIPtr server = new ServerI(communicator);
     ObjectPrx obj = adapter->addWithUUID(server);

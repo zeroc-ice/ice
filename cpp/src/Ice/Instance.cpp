@@ -76,67 +76,6 @@ IceInternal::Instance::destroyed() const
     return _state == StateDestroyed;
 }
 
-PropertiesPtr
-IceInternal::Instance::properties() const
-{
-    //
-    // No check for destruction. It must be possible to access the
-    // properties after destruction.
-    //
-    // No mutex lock, immutable.
-    //
-    return _properties;
-}
-
-LoggerPtr
-IceInternal::Instance::logger() const
-{
-    //
-    // No check for destruction. It must be possible to access the
-    // logger after destruction.
-    //
-    IceUtil::RecMutex::Lock sync(*this);
-    return _logger;
-}
-
-void
-IceInternal::Instance::logger(const LoggerPtr& logger)
-{
-    //
-    // No check for destruction. It must be possible to set the logger
-    // after destruction (needed by logger plugins for example to
-    // unset the logger).
-    //
-    IceUtil::RecMutex::Lock sync(*this);
-    _logger = logger;
-}
-
-StatsPtr
-IceInternal::Instance::stats() const
-{
-    IceUtil::RecMutex::Lock sync(*this);
-
-    if(_state == StateDestroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
-    return _stats;
-}
-
-void
-IceInternal::Instance::stats(const StatsPtr& stats)
-{
-    IceUtil::RecMutex::Lock sync(*this);
-
-    if(_state == StateDestroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
-    _stats = stats;
-}
-
 TraceLevelsPtr
 IceInternal::Instance::traceLevels() const
 {
@@ -285,7 +224,7 @@ IceInternal::Instance::serverThreadPool()
     
     if(!_serverThreadPool) // Lazy initialization.
     {
-	int timeout = _properties->getPropertyAsInt("Ice.ServerIdleTime");
+	int timeout = _initData.properties->getPropertyAsInt("Ice.ServerIdleTime");
 	_serverThreadPool = new ThreadPool(this, "Ice.ThreadPool.Server", timeout);
     }
 
@@ -381,6 +320,7 @@ IceInternal::Instance::flushBatchRequests()
     adapterFactory->flushBatchRequests();
 }
 
+/*
 void
 IceInternal::Instance::setDefaultContext(const Context& ctx)
 {
@@ -406,13 +346,12 @@ IceInternal::Instance::getDefaultContext() const
 
     return _defaultContext;
 }
+*/
 
 
-IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const PropertiesPtr& properties,
-				const LoggerPtr& logger) :
+IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const InitializationData& initData) :
     _state(StateActive),
-    _properties(properties),
-    _logger(logger),
+    _initData(initData),
     _messageSizeMax(0),
     _clientACM(0),
     _serverACM(0),
@@ -431,8 +370,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	    //
 	    // StdOut and StdErr redirection
 	    //
-	    string stdOutFilename = _properties->getProperty("Ice.StdOut");
-	    string stdErrFilename = _properties->getProperty("Ice.StdErr");
+	    string stdOutFilename = _initData.properties->getProperty("Ice.StdOut");
+	    string stdErrFilename = _initData.properties->getProperty("Ice.StdErr");
 	    
 	    if(stdOutFilename != "")
 	    {
@@ -458,13 +397,13 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 		}
 	    }
 	    
-	    if(_properties->getPropertyAsInt("Ice.NullHandleAbort") > 0)
+	    if(_initData.properties->getPropertyAsInt("Ice.NullHandleAbort") > 0)
 	    {
 		IceUtil::nullHandleAbort = true;
 	    }
 	    
 #ifndef _WIN32
-	    string newUser = _properties->getProperty("Ice.ChangeUser");
+	    string newUser = _initData.properties->getProperty("Ice.ChangeUser");
 	    if(!newUser.empty())
 	    {
 		struct passwd* pw = getpwnam(newUser.c_str());
@@ -514,9 +453,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	    action.sa_flags = 0;
 	    sigaction(SIGPIPE, &action, 0);
 	    
-	    if(_properties->getPropertyAsInt("Ice.UseSyslog") > 0)
+	    if(_initData.properties->getPropertyAsInt("Ice.UseSyslog") > 0)
 	    {
-		identForOpenlog = _properties->getProperty("Ice.ProgramName");
+		identForOpenlog = _initData.properties->getProperty("Ice.ProgramName");
 		if(identForOpenlog.empty())
 		{
 		    identForOpenlog = "<Unknown Ice Program>";
@@ -529,40 +468,38 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	sync.release();
 	
 
-	if(!_logger)
+	if(!_initData.logger)
 	{
 #ifdef _WIN32
-	    if(_properties->getPropertyAsInt("Ice.UseEventLog") > 0)
+	    if(_initData.properties->getPropertyAsInt("Ice.UseEventLog") > 0)
 	    {
-		_logger = new EventLoggerI(_properties->getProperty("Ice.ProgramName"));
+		_initData.logger = new EventLoggerI(_initData.properties->getProperty("Ice.ProgramName"));
 	    }
 	    else
 	    {
-		_logger = new LoggerI(_properties->getProperty("Ice.ProgramName"), 
-				      _properties->getPropertyAsInt("Ice.Logger.Timestamp") > 0);
+		_initData.logger = new LoggerI(_initData.properties->getProperty("Ice.ProgramName"), 
+				      _initData.properties->getPropertyAsInt("Ice.Logger.Timestamp") > 0);
 	    }
 #else
-	    if(_properties->getPropertyAsInt("Ice.UseSyslog") > 0)
+	    if(_initData.properties->getPropertyAsInt("Ice.UseSyslog") > 0)
 	    {
-		_logger = new SysLoggerI;
+		_initData.logger = new SysLoggerI;
 	    }
 	    else
 	    {
-		_logger = new LoggerI(_properties->getProperty("Ice.ProgramName"), 
-				      _properties->getPropertyAsInt("Ice.Logger.Timestamp") > 0);
+		_initData.logger = new LoggerI(_initData.properties->getProperty("Ice.ProgramName"), 
+				      _initData.properties->getPropertyAsInt("Ice.Logger.Timestamp") > 0);
 	    }
 #endif
 	}
 
-	_stats = 0; // There is no default statistics callback object.
+	const_cast<TraceLevelsPtr&>(_traceLevels) = new TraceLevels(_initData.properties);
 
-	const_cast<TraceLevelsPtr&>(_traceLevels) = new TraceLevels(_properties);
-
-	const_cast<DefaultsAndOverridesPtr&>(_defaultsAndOverrides) = new DefaultsAndOverrides(_properties);
+	const_cast<DefaultsAndOverridesPtr&>(_defaultsAndOverrides) = new DefaultsAndOverrides(_initData.properties);
 
 	{
 	    static const int defaultMessageSizeMax = 1024;
-	    Int num = _properties->getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
+	    Int num = _initData.properties->getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
 	    if(num < 1)
 	    {
 		const_cast<size_t&>(_messageSizeMax) = defaultMessageSizeMax * 1024; // Ignore stupid values.
@@ -581,13 +518,13 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	//
 	// Client ACM enabled by default. Server ACM disabled by default.
 	//
-	const_cast<Int&>(_clientACM) = _properties->getPropertyAsIntWithDefault("Ice.ACM.Client", 60);
-	const_cast<Int&>(_serverACM) = _properties->getPropertyAsInt("Ice.ACM.Server");
+	const_cast<Int&>(_clientACM) = _initData.properties->getPropertyAsIntWithDefault("Ice.ACM.Client", 60);
+	const_cast<Int&>(_serverACM) = _initData.properties->getPropertyAsInt("Ice.ACM.Server");
 
-	const_cast<bool&>(_threadPerConnection) = _properties->getPropertyAsInt("Ice.ThreadPerConnection") > 0;
+	const_cast<bool&>(_threadPerConnection) = _initData.properties->getPropertyAsInt("Ice.ThreadPerConnection") > 0;
 
 	{
-	    Int stackSize = _properties->getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
+	    Int stackSize = _initData.properties->getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
 	    if(stackSize < 0)
 	    {
 		stackSize = 0;
@@ -704,7 +641,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     // Show process id if requested (but only once).
     //
     bool printProcessId = false;
-    if(!printProcessIdDone && _properties->getPropertyAsInt("Ice.PrintProcessId") > 0)
+    if(!printProcessIdDone && _initData.properties->getPropertyAsInt("Ice.PrintProcessId") > 0)
     {
 	//
 	// Safe double-check locking (no dependent variable!)
@@ -743,7 +680,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     {
 	interval = _serverACM;
     }
-    interval = _properties->getPropertyAsIntWithDefault("Ice.MonitorConnections", interval);
+    interval = _initData.properties->getPropertyAsIntWithDefault("Ice.MonitorConnections", interval);
     if(interval > 0)
     {
 	_connectionMonitor = new ConnectionMonitor(this, interval);

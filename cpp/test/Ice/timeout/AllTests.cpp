@@ -301,9 +301,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	//
 	int argc = 0;
 	char* argv[] = { "" };
-	Ice::PropertiesPtr props = communicator->getProperties()->clone();
-	props->setProperty("Ice.Override.Timeout", "500");
-	Ice::CommunicatorPtr comm = Ice::initializeWithProperties(argc, argv, props);
+	Ice::InitializationData initData;
+	initData.properties = communicator->getProperties()->clone();
+	initData.properties->setProperty("Ice.Override.Timeout", "500");
+	Ice::CommunicatorPtr comm = Ice::initialize(argc, argv, initData);
 	TimeoutPrx to = TimeoutPrx::checkedCast(comm->stringToProxy(sref));
 	try
 	{
@@ -336,9 +337,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	//
 	int argc = 0;
 	char* argv[] = { "" };
-	Ice::PropertiesPtr props = communicator->getProperties()->clone();
-	props->setProperty("Ice.Override.ConnectTimeout", "500");
-	Ice::CommunicatorPtr comm = Ice::initializeWithProperties(argc, argv, props);
+	Ice::InitializationData initData;
+	initData.properties = communicator->getProperties()->clone();
+	initData.properties->setProperty("Ice.Override.ConnectTimeout", "500");
+	Ice::CommunicatorPtr comm = Ice::initialize(argc, argv, initData);
 	timeout->holdAdapter(750);
 	TimeoutPrx to = TimeoutPrx::uncheckedCast(comm->stringToProxy(sref));
 	try

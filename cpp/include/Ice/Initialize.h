@@ -15,6 +15,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/StreamF.h>
+#include <Ice/StatsF.h>
 #include <Ice/BuiltinSequences.h>
 
 namespace Ice
@@ -35,11 +36,23 @@ ICE_API PropertiesPtr createProperties();
 ICE_API PropertiesPtr createProperties(StringSeq&);
 ICE_API PropertiesPtr createProperties(int&, char*[]);
 
-ICE_API CommunicatorPtr initialize(int&, char*[], Int = ICE_INT_VERSION);
-ICE_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&, Int = ICE_INT_VERSION);
-ICE_API CommunicatorPtr initializeWithLogger(int&, char*[], const Ice::LoggerPtr&, Int = ICE_INT_VERSION);
-ICE_API CommunicatorPtr initializeWithPropertiesAndLogger(int&, char*[], const PropertiesPtr&,
-							  const Ice::LoggerPtr&, Int = ICE_INT_VERSION);
+struct InitializationData
+{
+    PropertiesPtr properties;
+    LoggerPtr logger;
+    StatsPtr stats;
+    Context defaultContext;
+};
+
+ICE_API CommunicatorPtr initialize(int&, char*[], InitializationData = InitializationData(),
+				   Int = ICE_INT_VERSION);
+ICE_API ICE_DEPRECATED_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&,
+								    Int = ICE_INT_VERSION);
+ICE_API ICE_DEPRECATED_API CommunicatorPtr initializeWithLogger(int&, char*[], const Ice::LoggerPtr&,
+								Int = ICE_INT_VERSION);
+ICE_API ICE_DEPRECATED_API CommunicatorPtr initializeWithPropertiesAndLogger(int&, char*[], const PropertiesPtr&,
+							                     const Ice::LoggerPtr&, 
+									     Int = ICE_INT_VERSION);
 
 ICE_API PropertiesPtr getDefaultProperties();
 ICE_API PropertiesPtr getDefaultProperties(StringSeq&);

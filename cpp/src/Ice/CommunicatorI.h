@@ -38,16 +38,10 @@ public:
     virtual void removeObjectFactory(const std::string&);
     virtual ObjectFactoryPtr findObjectFactory(const std::string&) const;
 
-    virtual void setDefaultContext(const Context&);
     virtual Context getDefaultContext() const;
-
     virtual PropertiesPtr getProperties() const;
-
     virtual LoggerPtr getLogger() const;
-    virtual void setLogger(const LoggerPtr&);
-
     virtual StatsPtr getStats() const;
-    virtual void setStats(const StatsPtr&);
 
     virtual RouterPrx getDefaultRouter() const;
     virtual void setDefaultRouter(const RouterPrx&);
@@ -61,7 +55,7 @@ public:
 
 private:
 
-    CommunicatorI(const PropertiesPtr&, const LoggerPtr&);
+    CommunicatorI(const InitializationData&);
     virtual ~CommunicatorI();
 
     //
@@ -70,8 +64,7 @@ private:
     //
     void finishSetup(int&, char*[]);
 
-    friend ICE_API CommunicatorPtr initializeWithPropertiesAndLogger(int&, char*[], const PropertiesPtr&,
-								     const LoggerPtr&, Int);
+    friend ICE_API CommunicatorPtr initialize(int&, char*[], InitializationData, Int);
     friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
 
     const ::IceInternal::InstancePtr _instance;

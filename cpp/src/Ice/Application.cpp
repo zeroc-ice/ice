@@ -249,16 +249,14 @@ Ice::Application::main(int argc, char* argv[], const char* configFile, const Log
 	    _appName = argv[0];
 	  	
 	
+	    InitializationData initData;
+	    initData.logger = logger;
 	    if(configFile)
 	    {
-		PropertiesPtr properties = createProperties();
-		properties->load(configFile);
-		_communicator = initializeWithPropertiesAndLogger(argc, argv, properties, logger);
+		initData.properties = createProperties();
+		initData.properties->load(configFile);
 	    }
-	    else
-	    {
-		_communicator = initializeWithLogger(argc, argv, logger);
-	    }
+	    _communicator = initialize(argc, argv, initData);
 	    _destroyed = false;
 
 	    //

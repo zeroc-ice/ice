@@ -337,11 +337,11 @@ IceInternal::UdpTransceiver::effectivePort() const
 
 IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const string& host, int port) :
     _traceLevels(instance->traceLevels()),
-    _logger(instance->logger()),
-    _stats(instance->stats()),
+    _logger(instance->initializationData().logger),
+    _stats(instance->initializationData().stats),
     _incoming(false),
     _connect(true),
-    _warn(instance->properties()->getPropertyAsInt("Ice.Warn.Datagrams") > 0),
+    _warn(instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Datagrams") > 0),
     _shutdownReadWrite(false)
 {
     try
@@ -371,11 +371,11 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
 
 IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const string& host, int port, bool connect) :
     _traceLevels(instance->traceLevels()),
-    _logger(instance->logger()),
-    _stats(instance->stats()),
+    _logger(instance->initializationData().logger),
+    _stats(instance->initializationData().stats),
     _incoming(true),
     _connect(connect),
-    _warn(instance->properties()->getPropertyAsInt("Ice.Warn.Datagrams") > 0),
+    _warn(instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Datagrams") > 0),
     _shutdownReadWrite(false)
 {
     try
@@ -447,7 +447,7 @@ IceInternal::UdpTransceiver::setBufSize(const InstancePtr& instance)
 	//
 	// Get property for buffer size and check for sanity.
 	//
-	Int sizeRequested = instance->properties()->getPropertyAsIntWithDefault(prop, dfltSize);
+	Int sizeRequested = instance->initializationData().properties->getPropertyAsIntWithDefault(prop, dfltSize);
 	if(sizeRequested < _udpOverhead)
 	{
 	    Warning out(_logger);

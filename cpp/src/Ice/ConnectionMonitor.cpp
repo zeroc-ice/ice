@@ -104,7 +104,7 @@ IceInternal::ConnectionMonitor::run()
 		    return;
 		}
 
-		Error out(_instance->logger());
+		Error out(_instance->initializationData().logger);
 		out << "exception in connection monitor:\n" << ex;
 	    }
 	    catch(...)
@@ -115,7 +115,7 @@ IceInternal::ConnectionMonitor::run()
 		    return;
 		}
 
-		Error out(_instance->logger());
+		Error out(_instance->initializationData().logger);
 		out << "unknown exception in connection monitor";
 	    }
 	}

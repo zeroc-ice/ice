@@ -1570,7 +1570,7 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
                 }
                 if(_traceSlicing > 0)
                 {
-                    traceSlicing("class", id, _slicingCat, _instance->logger());
+                    traceSlicing("class", id, _slicingCat, _instance->initializationData().logger);
                 }
                 skipSlice(); // Slice off this derived part -- we don't understand it.
 		readTypeId(id); // Read next id for next iteration.
@@ -1670,7 +1670,7 @@ IceInternal::BasicStream::throwException()
 	    }
 	    if(_traceSlicing > 0)
 	    {
-		traceSlicing("exception", id, _slicingCat, _instance->logger());
+		traceSlicing("exception", id, _slicingCat, _instance->initializationData().logger);
 	    }
 	    skipSlice(); // Slice off what we don't understand.
 	    read(id); // Read type id for next slice.
@@ -1754,17 +1754,17 @@ IceInternal::BasicStream::readPendingObjects()
             }
             catch(const Ice::Exception& ex)
             {
-                Ice::Warning out(_instance->logger());
+                Ice::Warning out(_instance->initializationData().logger);
                 out << "Ice::Exception raised by ice_postUnmarshal:\n" << ex;
             }
             catch(const std::exception& ex)
             {
-                Ice::Warning out(_instance->logger());
+                Ice::Warning out(_instance->initializationData().logger);
                 out << "std::exception raised by ice_postUnmarshal:\n" << ex.what();
             }
             catch(...)
             {
-                Ice::Warning out(_instance->logger());
+                Ice::Warning out(_instance->initializationData().logger);
                 out << "unknown exception raised by ice_postUnmarshal";
             }
         }
@@ -1816,17 +1816,17 @@ IceInternal::BasicStream::writeInstance(const ObjectPtr& v, Int index)
     }
     catch(const Ice::Exception& ex)
     {
-        Ice::Warning out(_instance->logger());
+        Ice::Warning out(_instance->initializationData().logger);
         out << "Ice::Exception raised by ice_preMarshal:\n" << ex;
     }
     catch(const std::exception& ex)
     {
-        Ice::Warning out(_instance->logger());
+        Ice::Warning out(_instance->initializationData().logger);
         out << "std::exception raised by ice_preMarshal:\n" << ex.what();
     }
     catch(...)
     {
-        Ice::Warning out(_instance->logger());
+        Ice::Warning out(_instance->initializationData().logger);
         out << "unknown exception raised by ice_preMarshal";
     }
     v->__write(this);

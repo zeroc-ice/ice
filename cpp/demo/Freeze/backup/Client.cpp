@@ -26,10 +26,11 @@ testFailed(const char* expr, const char* file, unsigned int line)
 int
 main(int argc, char* argv[])
 {
-    Ice::PropertiesPtr properties = Ice::createProperties();
-    properties->load("config");
+    Ice::InitializationData initData;
+    initData.properties = Ice::createProperties();
+    initData.properties->load("config");
 
-    Ice::CommunicatorPtr communicator = Ice::initializeWithProperties(argc, argv, properties);
+    Ice::CommunicatorPtr communicator = Ice::initialize(argc, argv, initData);
 
     Freeze::ConnectionPtr connection = Freeze::createConnection(communicator, "backup");
     IntLongMap m(connection, "IntLongMap", true);

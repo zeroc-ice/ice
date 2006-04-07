@@ -410,8 +410,8 @@ IceInternal::ReferenceFactory::create(const string& str)
 
     if(beg == string::npos)
     {
-	return create(ident, _instance->getDefaultContext(), facet, mode, secure, "", routerInfo, locatorInfo,
-		      _instance->defaultsAndOverrides()->defaultCollocationOptimization, 
+	return create(ident, _instance->initializationData().defaultContext, facet, mode, secure, "", routerInfo,
+		      locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization, 
 		      _instance->defaultsAndOverrides()->defaultLocatorCacheTimeout);
     }
 
@@ -452,10 +452,11 @@ IceInternal::ReferenceFactory::create(const string& str)
 		ex.str = unknownEndpoints.front();
 		throw ex;
 	    }
-	    else if(unknownEndpoints.size() != 0 && 
-	    	    _instance->properties()->getPropertyAsIntWithDefault("Ice.Warn.Endpoints", 1) > 0)
+	    else if(unknownEndpoints.size() != 0 &&
+	    	    _instance->initializationData().properties->
+		    		getPropertyAsIntWithDefault("Ice.Warn.Endpoints", 1) > 0)
 	    {
-		Warning out(_instance->logger());
+		Warning out(_instance->initializationData().logger);
 	        out << "Proxy contains unknown endpoints:";
 	        for(unsigned int idx = 0; idx < unknownEndpoints.size(); ++idx)
 		{
@@ -463,8 +464,8 @@ IceInternal::ReferenceFactory::create(const string& str)
 		}
 	    }
 
-	    return create(ident, _instance->getDefaultContext(), facet, mode, secure, endpoints, routerInfo,
-			  _instance->defaultsAndOverrides()->defaultCollocationOptimization);
+	    return create(ident, _instance->initializationData().defaultContext, facet, mode, secure, endpoints, 
+	    		  routerInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization);
 	    break;
 	}
 	case '@':
@@ -503,8 +504,8 @@ IceInternal::ReferenceFactory::create(const string& str)
 		ex.str = str;
 		throw ex;
 	    }
-	    return create(ident, _instance->getDefaultContext(), facet, mode, secure, adapter, routerInfo,
-			  locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization,
+	    return create(ident, _instance->initializationData().defaultContext, facet, mode, secure, adapter,
+	    		  routerInfo, locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization,
 			  _instance->defaultsAndOverrides()->defaultLocatorCacheTimeout);
 	    break;
 	}
@@ -575,14 +576,14 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 	    EndpointIPtr endpoint = _instance->endpointFactoryManager()->read(s);
 	    endpoints.push_back(endpoint);
 	}
-	return create(ident, _instance->getDefaultContext(), facet, mode, secure, endpoints, routerInfo,
-		      _instance->defaultsAndOverrides()->defaultCollocationOptimization);
+	return create(ident, _instance->initializationData().defaultContext, facet, mode, secure, endpoints, 
+		      routerInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization);
     }
     else
     {
 	s->read(adapterId);
-	return create(ident, _instance->getDefaultContext(), facet, mode, secure, adapterId, routerInfo,
-		      locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization,
+	return create(ident, _instance->initializationData().defaultContext, facet, mode, secure, adapterId,
+	  	      routerInfo, locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization,
 		      _instance->defaultsAndOverrides()->defaultLocatorCacheTimeout);
     }
 }

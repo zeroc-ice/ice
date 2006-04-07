@@ -148,28 +148,7 @@ Ice::getDefaultProperties(int& argc, char* argv[])
 }
 
 CommunicatorPtr
-Ice::initialize(int& argc, char* argv[], Int version)
-{
-    PropertiesPtr properties = getDefaultProperties(argc, argv);
-    return initializeWithPropertiesAndLogger(argc, argv, properties, 0, version);
-}
-
-CommunicatorPtr
-Ice::initializeWithProperties(int& argc, char* argv[], const PropertiesPtr& properties, Int version)
-{
-    return initializeWithPropertiesAndLogger(argc, argv, properties, 0, version);
-}
-
-CommunicatorPtr
-Ice::initializeWithLogger(int& argc, char* argv[], const LoggerPtr& logger, Int version)
-{
-    PropertiesPtr properties = getDefaultProperties(argc, argv);
-    return initializeWithPropertiesAndLogger(argc, argv, properties, logger, version);
-}
-
-CommunicatorPtr
-Ice::initializeWithPropertiesAndLogger(int& argc, char* argv[], const PropertiesPtr& properties,
-				       const LoggerPtr& logger, Int version)
+Ice::initialize(int& argc, char* argv[], InitializationData initData, Int version)
 {
 #ifndef ICE_IGNORE_VERSION
     //
@@ -189,14 +168,44 @@ Ice::initializeWithPropertiesAndLogger(int& argc, char* argv[], const Properties
     }
 #endif
 
+    if(initData.properties == 0)
+    {
+        initData.properties = getDefaultProperties(argc, argv);
+    }
     StringSeq args = argsToStringSeq(argc, argv);
-    args = properties->parseIceCommandLineOptions(args);
+    args = initData.properties->parseIceCommandLineOptions(args);
     stringSeqToArgs(args, argc, argv);
 
-    CommunicatorI* communicatorI = new CommunicatorI(properties, logger);
+    CommunicatorI* communicatorI = new CommunicatorI(initData);
     CommunicatorPtr result = communicatorI; // For exception safety.
     communicatorI->finishSetup(argc, argv);
     return result;
+}
+
+CommunicatorPtr
+Ice::initializeWithProperties(int& argc, char* argv[], const PropertiesPtr& properties, Int version)
+{
+    InitializationData initData;
+    initData.properties = properties;
+    return initialize(argc, argv, initData, version);
+}
+
+CommunicatorPtr
+Ice::initializeWithLogger(int& argc, char* argv[], const LoggerPtr& logger, Int version)
+{
+    InitializationData initData;
+    initData.logger = logger;
+    return initialize(argc, argv, initData, version);
+}
+
+CommunicatorPtr
+Ice::initializeWithPropertiesAndLogger(int& argc, char* argv[], const PropertiesPtr& properties,
+				       const LoggerPtr& logger, Int version)
+{
+    InitializationData initData;
+    initData.properties = properties;
+    initData.logger = logger;
+    return initialize(argc, argv, initData, version);
 }
 
 InputStreamPtr

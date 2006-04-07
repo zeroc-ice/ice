@@ -75,9 +75,11 @@ Ice::ObjectAdapterI::activate()
 	if(!_printAdapterReadyDone)
 	{
 	    locatorInfo = _locatorInfo;
-            registerProcess = _instance->properties()->getPropertyAsInt(_name + ".RegisterProcess") > 0;
-            serverId = _instance->properties()->getProperty("Ice.ServerId");
-	    printAdapterReady = _instance->properties()->getPropertyAsInt("Ice.PrintAdapterReady") > 0;
+            registerProcess = 
+	        _instance->initializationData().properties->getPropertyAsInt(_name + ".RegisterProcess") > 0;
+            serverId = _instance->initializationData().properties->getProperty("Ice.ServerId");
+	    printAdapterReady =
+	        _instance->initializationData().properties->getPropertyAsInt("Ice.PrintAdapterReady") > 0;
             communicator = _communicator;
 	    _printAdapterReadyDone = true;
 	}
@@ -509,8 +511,8 @@ Ice::ObjectAdapterI::createReverseProxy(const Identity& ident) const
     // Create a reference and return a reverse proxy for this
     // reference.
     //
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->getDefaultContext(), "",
-							     Reference::ModeTwoway, connections);
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->initializationData().defaultContext, 
+    							     "", Reference::ModeTwoway, connections);
     return _instance->proxyFactory()->referenceToProxy(ref);
 }
 
@@ -781,8 +783,8 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     _servantManager(new ServantManager(instance, name)),
     _printAdapterReadyDone(false),
     _name(name),
-    _id(instance->properties()->getProperty(name + ".AdapterId")),
-    _replicaGroupId(instance->properties()->getProperty(name + ".ReplicaGroupId")),
+    _id(instance->initializationData().properties->getProperty(name + ".AdapterId")),
+    _replicaGroupId(instance->initializationData().properties->getProperty(name + ".ReplicaGroupId")),
     _directCount(0),
     _waitForDeactivate(false)
 {
@@ -804,7 +806,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 	// Parse published endpoints. If set, these are used in proxies
 	// instead of the connection factory endpoints. 
 	//
-	string endpts = _instance->properties()->getProperty(name + ".PublishedEndpoints");
+	string endpts = _instance->initializationData().properties->getProperty(name + ".PublishedEndpoints");
 	_publishedEndpoints = parseEndpoints(endpts);
 	if(_publishedEndpoints.empty())
 	{
@@ -818,13 +820,13 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 	_publishedEndpoints.erase(remove_if(_publishedEndpoints.begin(), _publishedEndpoints.end(),
 				  not1(Ice::constMemFun(&EndpointI::publish))), _publishedEndpoints.end());
 
-	string router = _instance->properties()->getProperty(_name + ".Router");
+	string router = _instance->initializationData().properties->getProperty(_name + ".Router");
 	if(!router.empty())
 	{
 	    addRouter(RouterPrx::uncheckedCast(_instance->proxyFactory()->stringToProxy(router)));
 	}
 	
-	string locator = _instance->properties()->getProperty(_name + ".Locator");
+	string locator = _instance->initializationData().properties->getProperty(_name + ".Locator");
 	if(!locator.empty())
 	{
 	    setLocator(LocatorPrx::uncheckedCast(_instance->proxyFactory()->stringToProxy(locator)));
@@ -836,8 +838,8 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 
 	if(!_instance->threadPerConnection())
 	{
-	    int size = _instance->properties()->getPropertyAsInt(_name + ".ThreadPool.Size");
-	    int sizeMax = _instance->properties()->getPropertyAsInt(_name + ".ThreadPool.SizeMax");
+	    int size = _instance->initializationData().properties->getPropertyAsInt(_name + ".ThreadPool.Size");
+	    int sizeMax = _instance->initializationData().properties->getPropertyAsInt(_name + ".ThreadPool.SizeMax");
 	    if(size > 0 || sizeMax > 0)
 	    {
 		_threadPool = new ThreadPool(_instance, _name + ".ThreadPool", 0);
@@ -858,12 +860,12 @@ Ice::ObjectAdapterI::~ObjectAdapterI()
 {
     if(!_deactivated)
     {
-	Warning out(_instance->logger());
+	Warning out(_instance->initializationData().logger);
 	out << "object adapter `" << _name << "' has not been deactivated";
     }
     else if(_instance)
     {
-	Warning out(_instance->logger());
+	Warning out(_instance->initializationData().logger);
 	out << "object adapter `" << _name << "' deactivation had not been waited for";
     }
     else
@@ -910,7 +912,7 @@ Ice::ObjectAdapterI::newDirectProxy(const Identity& ident, const string& facet) 
     // Create a reference and return a proxy for this reference.
     //
     ReferencePtr ref = _instance->referenceFactory()->create(
-	ident, _instance->getDefaultContext(), facet, Reference::ModeTwoway, false, endpoints, 0,
+	ident, _instance->initializationData().defaultContext, facet, Reference::ModeTwoway, false, endpoints, 0,
 	_instance->defaultsAndOverrides()->defaultCollocationOptimization);
     return _instance->proxyFactory()->referenceToProxy(ref);
 
@@ -923,8 +925,8 @@ Ice::ObjectAdapterI::newIndirectProxy(const Identity& ident, const string& facet
     // Create an indirect reference with the given adapter id.
     //
     ReferencePtr ref = _instance->referenceFactory()->create(
-	ident, _instance->getDefaultContext(), facet, Reference::ModeTwoway, false, id, 0, _locatorInfo, 
-	_instance->defaultsAndOverrides()->defaultCollocationOptimization,
+	ident, _instance->initializationData().defaultContext, facet, Reference::ModeTwoway, false, id, 0, 
+	_locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization,
 	_instance->defaultsAndOverrides()->defaultLocatorCacheTimeout);
     
     //

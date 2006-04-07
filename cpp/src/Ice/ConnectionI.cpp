@@ -1215,8 +1215,8 @@ Ice::ConnectionI::createProxy(const Identity& ident) const
     //
     vector<ConnectionIPtr> connections;
     connections.push_back(const_cast<ConnectionI*>(this));
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->getDefaultContext(), "",
-							     Reference::ModeTwoway, connections);
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->initializationData().defaultContext,
+    							     "", Reference::ModeTwoway, connections);
     return _instance->proxyFactory()->referenceToProxy(ref);
 }
 
@@ -1401,11 +1401,11 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
     _type(transceiver->type()),
     _endpoint(endpoint),
     _adapter(adapter),
-    _logger(_instance->logger()), // Cached for better performance.
+    _logger(_instance->initializationData().logger), // Cached for better performance.
     _traceLevels(_instance->traceLevels()), // Cached for better performance.
     _registeredWithPool(false),
     _finishedCount(0),
-    _warn(_instance->properties()->getPropertyAsInt("Ice.Warn.Connections") > 0),
+    _warn(_instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Connections") > 0),
     _acmTimeout(0),
     _compressionLevel(1),
     _nextRequestId(1),
@@ -1437,7 +1437,8 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
     }
 
     int& compressionLevel = const_cast<int&>(_compressionLevel);
-    compressionLevel = _instance->properties()->getPropertyAsIntWithDefault("Ice.Compression.Level", 1);
+    compressionLevel = 
+        _instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Compression.Level", 1);
     if(compressionLevel < 1)
     {
 	compressionLevel = 1;
@@ -2176,7 +2177,7 @@ Ice::ConnectionI::parseMessage(BasicStream& stream, Int& invokeNum, Int& request
 	{
 	    if(_warn)
 	    {
-	        Warning out(_instance->logger());
+	        Warning out(_logger);
 	        out << "datagram connection exception:\n" << ex << '\n' << _desc;
 	    }
 	}
@@ -2319,7 +2320,7 @@ Ice::ConnectionI::run()
 	activate();
     }
 
-    const bool warnUdp = _instance->properties()->getPropertyAsInt("Ice.Warn.Datagrams") > 0;
+    const bool warnUdp = _instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Datagrams") > 0;
 
     bool closed = false;
 
@@ -2397,7 +2398,7 @@ Ice::ConnectionI::run()
 		{
 		    if(warnUdp)
 		    {
-			Warning out(_instance->logger());
+			Warning out(_logger);
 			out << "DatagramLimitException: maximum size of " << pos << " exceeded";
 		    }
 		    throw DatagramLimitException(__FILE__, __LINE__);
@@ -2423,7 +2424,7 @@ Ice::ConnectionI::run()
 	    {
 	        if(_warn)
 	        {
-	            Warning out(_instance->logger());
+	            Warning out(_logger);
 	            out << "datagram connection exception:\n" << ex << '\n' << _desc;
 	        }
 		continue;
@@ -2549,17 +2550,17 @@ Ice::ConnectionI::ThreadPerConnection::run()
     }
     catch(const Exception& ex)
     {	
-	Error out(_connection->_instance->logger());
+	Error out(_connection->_logger);
 	out << "exception in thread per connection:\n" << _connection->toString() << ex; 
     }
     catch(const std::exception& ex)
     {
-	Error out(_connection->_instance->logger());
+	Error out(_connection->_logger);
 	out << "std::exception in thread per connection:\n" << _connection->toString() << ex.what();
     }
     catch(...)
     {
-	Error out(_connection->_instance->logger());
+	Error out(_connection->_logger);
 	out << "unknown exception in thread per connection:\n" << _connection->toString();
     }
 

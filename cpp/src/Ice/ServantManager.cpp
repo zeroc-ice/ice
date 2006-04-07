@@ -325,7 +325,7 @@ IceInternal::ServantManager::destroy()
 	    }
 	    catch(const Exception& ex)
 	    {
-		Error out(_instance->logger());
+		Error out(_instance->initializationData().logger);
 		out << "exception during locator deactivation:\n"
 		    << "object adapter: `" << _adapterName << "'\n"
 		    << "locator category: `" << p->first << "'\n"
@@ -333,7 +333,7 @@ IceInternal::ServantManager::destroy()
 	    }
 	    catch(...)
 	    {
-		Error out(_instance->logger());
+		Error out(_instance->initializationData().logger);
 		out << "unknown exception during locator deactivation:\n"
 		    << "object adapter: `" << _adapterName << "'\n"
 		    << "locator category: `" << p->first << "'";

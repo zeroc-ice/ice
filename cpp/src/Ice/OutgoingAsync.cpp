@@ -371,9 +371,10 @@ IceInternal::OutgoingAsync::warning(const Exception& ex) const
     if(__os) // Don't print anything if cleanup() was already called.
     {
 	ReferencePtr ref = _proxy->__reference();
-	if(ref->getInstance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+	if(ref->getInstance()->initializationData().properties->
+		getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
 	{
-	    Warning out(ref->getInstance()->logger());
+	    Warning out(ref->getInstance()->initializationData().logger);
 	    out << "Ice::Exception raised by AMI callback:\n" << ex;
 	}
     }
@@ -385,9 +386,10 @@ IceInternal::OutgoingAsync::warning(const std::exception& ex) const
     if(__os) // Don't print anything if cleanup() was already called.
     {
 	ReferencePtr ref = _proxy->__reference();
-	if(ref->getInstance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+	if(ref->getInstance()->initializationData().properties->
+		getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
 	{
-	    Warning out(ref->getInstance()->logger());
+	    Warning out(ref->getInstance()->initializationData().logger);
 	    out << "std::exception raised by AMI callback:\n" << ex.what();
 	}
     }
@@ -399,9 +401,10 @@ IceInternal::OutgoingAsync::warning() const
     if(__os) // Don't print anything if cleanup() was already called.
     {
 	ReferencePtr ref = _proxy->__reference();
-	if(ref->getInstance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+	if(ref->getInstance()->initializationData().properties->
+		getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
 	{
-	    Warning out(ref->getInstance()->logger());
+	    Warning out(ref->getInstance()->initializationData().logger);
 	    out << "unknown exception raised by AMI callback";
 	}
     }

@@ -164,31 +164,19 @@ Ice::CommunicatorI::findObjectFactory(const string& id) const
 PropertiesPtr
 Ice::CommunicatorI::getProperties() const
 {
-    return _instance->properties();
+    return _instance->initializationData().properties;
 }
 
 LoggerPtr
 Ice::CommunicatorI::getLogger() const
 {
-    return _instance->logger();
-}
-
-void
-Ice::CommunicatorI::setLogger(const LoggerPtr& logger)
-{
-    _instance->logger(logger);
+    return _instance->initializationData().logger;
 }
 
 StatsPtr
 Ice::CommunicatorI::getStats() const
 {
-    return _instance->stats();
-}
-
-void
-Ice::CommunicatorI::setStats(const StatsPtr& stats)
-{
-    _instance->stats(stats);
+    return _instance->initializationData().stats;
 }
 
 RouterPrx
@@ -215,16 +203,10 @@ Ice::CommunicatorI::setDefaultLocator(const LocatorPrx& locator)
     _instance->referenceFactory()->setDefaultLocator(locator);
 }
 
-void
-Ice::CommunicatorI::setDefaultContext(const Context& ctx)
-{
-    _instance->setDefaultContext(ctx);
-}
-
 Ice::Context
 Ice::CommunicatorI::getDefaultContext() const
 {
-    return _instance->getDefaultContext();
+    return _instance->initializationData().defaultContext;
 }
 
 PluginManagerPtr
@@ -239,12 +221,12 @@ Ice::CommunicatorI::flushBatchRequests()
     _instance->flushBatchRequests();
 }
 
-Ice::CommunicatorI::CommunicatorI(const PropertiesPtr& properties, const LoggerPtr& logger)
+Ice::CommunicatorI::CommunicatorI(const InitializationData& initData)
 {
     __setNoDelete(true);
     try
     {
-	const_cast<InstancePtr&>(_instance) = new Instance(this, properties, logger);
+	const_cast<InstancePtr&>(_instance) = new Instance(this, initData);
 
         //
         // Keep a reference to the dynamic library list to ensure
@@ -274,8 +256,8 @@ Ice::CommunicatorI::CommunicatorI(const PropertiesPtr& properties, const LoggerP
 	{
 	    gcTraceLevel = _instance->traceLevels()->gc;
 	    gcTraceCat = _instance->traceLevels()->gcCat;
-	    gcLogger = _instance->logger();
-	    gcInterval = properties->getPropertyAsInt("Ice.GC.Interval");
+	    gcLogger = _instance->initializationData().logger;
+	    gcInterval = initData.properties->getPropertyAsInt("Ice.GC.Interval");
 	    gcOnce = false;
 	}
 	if(++communicatorCount == 1)
@@ -293,7 +275,7 @@ Ice::CommunicatorI::~CommunicatorI()
 {
     if(!_instance->destroyed())
     {
-	Warning out(_instance->logger());
+	Warning out(_instance->initializationData().logger);
 	out << "Ice::Communicator::destroy() has not been called";
     }
 }

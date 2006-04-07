@@ -333,8 +333,8 @@ IceInternal::TcpTransceiver::initialize(int)
 
 IceInternal::TcpTransceiver::TcpTransceiver(const InstancePtr& instance, SOCKET fd) :
     _traceLevels(instance->traceLevels()),
-    _logger(instance->logger()),
-    _stats(instance->stats()),
+    _logger(instance->initializationData().logger),
+    _stats(instance->initializationData().stats),
     _fd(fd),
     _desc(fdToString(fd))
 #ifdef _WIN32

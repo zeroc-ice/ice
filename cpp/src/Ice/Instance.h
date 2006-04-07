@@ -32,6 +32,7 @@
 #include <Ice/EndpointFactoryManagerF.h>
 #include <Ice/DynamicLibraryF.h>
 #include <Ice/PluginF.h>
+#include <Ice/Initialize.h>
 #include <list>
 
 namespace Ice
@@ -49,10 +50,7 @@ class Instance : public IceUtil::Shared, public IceUtil::RecMutex
 public:
 
     bool destroyed() const;
-    Ice::PropertiesPtr properties() const;
-    Ice::LoggerPtr logger() const;
-    void logger(const Ice::LoggerPtr&);
-    Ice::StatsPtr stats() const;
+    const Ice::InitializationData& initializationData() const { return _initData; }
     void stats(const Ice::StatsPtr&);
     TraceLevelsPtr traceLevels() const;
     DefaultsAndOverridesPtr defaultsAndOverrides() const;
@@ -75,12 +73,10 @@ public:
     Ice::Int clientACM() const;
     Ice::Int serverACM() const;
     void flushBatchRequests();
-    void setDefaultContext(const ::Ice::Context&);
-    ::Ice::Context getDefaultContext() const;
     
 private:
 
-    Instance(const Ice::CommunicatorPtr&, const Ice::PropertiesPtr&, const Ice::LoggerPtr&);
+    Instance(const Ice::CommunicatorPtr&, const Ice::InitializationData&);
     virtual ~Instance();
     void finishSetup(int&, char*[]);
     bool destroy();
@@ -93,9 +89,7 @@ private:
 	StateDestroyed
     };
     State _state;
-    const Ice::PropertiesPtr _properties; // Immutable, not reset by destroy().
-    Ice::LoggerPtr _logger; // Not reset by destroy().
-    Ice::StatsPtr _stats; // Not reset by destroy().
+    Ice::InitializationData _initData;
     const TraceLevelsPtr _traceLevels; // Immutable, not reset by destroy().
     const DefaultsAndOverridesPtr _defaultsAndOverrides; // Immutable, not reset by destroy().
     const size_t _messageSizeMax; // Immutable, not reset by destroy().
@@ -116,7 +110,6 @@ private:
     EndpointFactoryManagerPtr _endpointFactoryManager;
     DynamicLibraryListPtr _dynamicLibraryList;
     Ice::PluginManagerPtr _pluginManager;
-    Ice::Context _defaultContext;
 };
 
 }

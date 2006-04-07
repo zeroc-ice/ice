@@ -29,9 +29,10 @@ main(int argc, char* argv[])
 
     try
     {
-	Ice::PropertiesPtr properties = Ice::createProperties(argc, argv);
-	properties->setProperty("Ice.Default.Locator", "locator:default -p 12010");
-	communicator = Ice::initializeWithProperties(argc, argv, properties);
+        Ice::InitializationData initData;
+	initData.properties = Ice::createProperties(argc, argv);
+	initData.properties->setProperty("Ice.Default.Locator", "locator:default -p 12010");
+	communicator = Ice::initialize(argc, argv, initData);
 	status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

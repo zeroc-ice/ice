@@ -40,7 +40,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     _inUse(0),
     _load(1.0),
     _promote(true),
-    _warnUdp(_instance->properties()->getPropertyAsInt("Ice.Warn.Datagrams") > 0)
+    _warnUdp(_instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Datagrams") > 0)
 {
     //
     // If we are in thread per connection mode, no thread pool should
@@ -64,25 +64,27 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     // possible setting, still allows one level of nesting, and
     // doesn't require to make the servants thread safe.
     //
-    int size = _instance->properties()->getPropertyAsIntWithDefault(_prefix + ".Size", 1);
+    int size = _instance->initializationData().properties->getPropertyAsIntWithDefault(_prefix + ".Size", 1);
     if(size < 1)
     {
 	size = 1;
     }
     
-    int sizeMax = _instance->properties()->getPropertyAsIntWithDefault(_prefix + ".SizeMax", size);
+    int sizeMax = 
+        _instance->initializationData().properties->getPropertyAsIntWithDefault(_prefix + ".SizeMax", size);
     if(sizeMax < size)
     {
 	sizeMax = size;
     }		
     
-    int sizeWarn = _instance->properties()->getPropertyAsIntWithDefault(_prefix + ".SizeWarn", sizeMax * 80 / 100);
+    int sizeWarn = _instance->initializationData().properties->
+    			getPropertyAsIntWithDefault(_prefix + ".SizeWarn", sizeMax * 80 / 100);
 
     const_cast<int&>(_size) = size;
     const_cast<int&>(_sizeMax) = sizeMax;
     const_cast<int&>(_sizeWarn) = sizeWarn;
 
-    int stackSize = _instance->properties()->getPropertyAsInt(_prefix + ".StackSize");
+    int stackSize = _instance->initializationData().properties->getPropertyAsInt(_prefix + ".StackSize");
     if(stackSize < 0)
     {
 	stackSize = 0;
@@ -103,7 +105,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     catch(const IceUtil::Exception& ex)
     {
 	{
-	    Error out(_instance->logger());
+	    Error out(_instance->initializationData().logger);
 	    out << "cannot create thread for `" << _prefix << "':\n" << ex;
 	}
 
@@ -130,7 +132,7 @@ IceInternal::ThreadPool::~ThreadPool()
     }
     catch(const LocalException& ex)
     {
-	Error out(_instance->logger());
+	Error out(_instance->initializationData().logger);
 	out << "exception in `" << _prefix << "' while calling closeSocket():\n" << ex;
     }
 
@@ -140,7 +142,7 @@ IceInternal::ThreadPool::~ThreadPool()
     }
     catch(const LocalException& ex)
     {
-	Error out(_instance->logger());
+	Error out(_instance->initializationData().logger);
 	out << "exception in `" << _prefix << "' while calling closeSocket():\n" << ex;
     }
 }
@@ -192,7 +194,7 @@ IceInternal::ThreadPool::promoteFollower()
 	    
 	    if(_inUse == _sizeWarn)
 	    {
-		Warning out(_instance->logger());
+		Warning out(_instance->initializationData().logger);
 		out << "thread pool `" << _prefix << "' is running low on threads\n"
 		    << "Size=" << _size << ", " << "SizeMax=" << _sizeMax << ", " << "SizeWarn=" << _sizeWarn;
 	    }
@@ -209,7 +211,7 @@ IceInternal::ThreadPool::promoteFollower()
 		}
 		catch(const IceUtil::Exception& ex)
 		{
-		    Error out(_instance->logger());
+		    Error out(_instance->initializationData().logger);
 		    out << "cannot create thread for `" << _prefix << "':\n" << ex;
 		}
 	    }
@@ -351,7 +353,7 @@ IceInternal::ThreadPool::run()
 	    SocketException ex(__FILE__, __LINE__);
 	    ex.error = getSocketErrno();
 	    //throw ex;
-	    Error out(_instance->logger());
+	    Error out(_instance->initializationData().logger);
 	    out << "exception in `" << _prefix << "':\n" << ex; 
 	    continue;
 	}
@@ -443,7 +445,7 @@ IceInternal::ThreadPool::run()
 		    //
 		    if(fdSet.fd_count == 0)
 		    {
-			Error out(_instance->logger());
+			Error out(_instance->initializationData().logger);
 			out << "select() in `" << _prefix << "' returned " << ret
 			    << " but no filedescriptor is readable";
 			continue;
@@ -496,7 +498,7 @@ IceInternal::ThreadPool::run()
 		    
 		    if(loops > 1)
 		    {
-			Error out(_instance->logger());
+			Error out(_instance->initializationData().logger);
 			out << "select() in `" << _prefix << "' returned " << ret
 			    << " but no filedescriptor is readable";
 			continue;
@@ -508,7 +510,7 @@ IceInternal::ThreadPool::run()
 		    map<SOCKET, EventHandlerPtr>::iterator p = _handlerMap.find(_lastFd);
 		    if(p == _handlerMap.end())
 		    {
-			Error out(_instance->logger());
+			Error out(_instance->initializationData().logger);
 			out << "filedescriptor " << _lastFd << " not registered with `" << _prefix << "'";
 			continue;
 		    }
@@ -566,7 +568,7 @@ IceInternal::ThreadPool::run()
 		}
 		catch(const LocalException& ex)
 		{
-		    Error out(_instance->logger());
+		    Error out(_instance->initializationData().logger);
 		    out << "exception in `" << _prefix << "' while calling finished():\n"
 			<< ex << '\n' << handler->toString();
 		}
@@ -608,9 +610,10 @@ IceInternal::ThreadPool::run()
 		    {
 		        if(handler->datagram())
 			{
-			    if(_instance->properties()->getPropertyAsInt("Ice.Warn.Connections") > 0)
+			    if(_instance->initializationData().properties->
+			    		getPropertyAsInt("Ice.Warn.Connections") > 0)
 			    {
-			        Warning out(_instance->logger());
+			        Warning out(_instance->initializationData().logger);
 			        out << "datagram connection exception:\n" << ex << '\n' << handler->toString();
 			    }
 			}
@@ -638,7 +641,7 @@ IceInternal::ThreadPool::run()
 		}
 		catch(const LocalException& ex)
 		{
-		    Error out(_instance->logger());
+		    Error out(_instance->initializationData().logger);
 		    out << "exception in `" << _prefix << "' while calling message():\n"
 			<< ex << '\n' << handler->toString();
 		}
@@ -825,7 +828,7 @@ IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
 	{
 	    if(_warnUdp)
 	    {
-		Warning out(_instance->logger());
+		Warning out(_instance->initializationData().logger);
 		out << "DatagramLimitException: maximum size of " << pos << " exceeded";
 		stream.resize(0);
 		stream.i = stream.b.begin();
@@ -856,19 +859,19 @@ IceInternal::ThreadPool::EventHandlerThread::run()
     }
     catch(const Exception& ex)
     {	
-	Error out(_pool->_instance->logger());
+	Error out(_pool->_instance->initializationData().logger);
 	out << "exception in `" << _pool->_prefix << "':\n" << ex; 
 	promote = true;
     }
     catch(const std::exception& ex)
     {
-	Error out(_pool->_instance->logger());
+	Error out(_pool->_instance->initializationData().logger);
 	out << "std::exception in `" << _pool->_prefix << "':\n" << ex.what();
 	promote = true;
     }
     catch(...)
     {
-	Error out(_pool->_instance->logger());
+	Error out(_pool->_instance->initializationData().logger);
 	out << "unknown exception in `" << _pool->_prefix << "'"; 
 	promote = true;
     }
