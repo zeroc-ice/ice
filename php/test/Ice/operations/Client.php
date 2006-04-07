@@ -1,13 +1,13 @@
-<!-- ********************************************************************** -->
-<!--                                                                        -->
-<!-- Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.               -->
-<!--                                                                        -->
-<!-- This copy of Ice is licensed to you under the terms described in the   -->
-<!-- ICE_LICENSE file included in this distribution.                        -->
-<!--                                                                        -->
-<!-- ********************************************************************** -->
-
 <?
+// **********************************************************************
+//
+// Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
 error_reporting(E_ALL | E_STRICT);
 
 Ice_loadProfileWithArgs($argv);
@@ -402,52 +402,6 @@ function twoways($communicator, $p)
             $r = $p2->opContext($ctx);
             test($r == $ctx);
         }
-	/*
-	{
-	    //
-	    // Test that default context is obtained correctly from communicator.
-	    //
-	    $dflt = array("a" => "b");
-	    $communicator->setDefaultContext($dflt);
-	    test($p->opContext() != $dflt);
-
-	    $p2 = $p->ice_context(array())->ice_uncheckedCast("::Test::MyClass");
-	    test(count($p2->opContext()) == 0);
-
-	    $p2 = $p->ice_defaultContext()->ice_uncheckedCast("::Test::MyClass");
-	    test($p2->opContext() == $dflt);
-
-	    $communicator->setDefaultContext(array());
-	    test(count($p2->opContext()) > 0);
-
-	    $communicator->setDefaultContext($dflt);
-	    $c = $communicator->stringToProxy("test:default -p 12010 -t 10000")->ice_checkedCast("::Test::MyClass");
-	    test($c->opContext() == $dflt);
-
-	    $dflt["a"] = "c";
-	    $c2 = $c->ice_context($dflt)->ice_uncheckedCast("::Test::MyClass");
-	    $tmp = $c2->opContext();
-	    test($tmp["a"] == "c");
-
-	    $dflt = array();
-	    $c3 = $c2->ice_context($dflt)->ice_uncheckedCast("::Test::MyClass");
-	    $tmp = $c3->opContext();
-	    test(!isset($tmp["a"]));
-
-	    $c4 = $c2->ice_defaultContext()->ice_uncheckedCast("::Test::MyClass");
-	    $tmp = $c4->opContext();
-	    test($tmp["a"] == "b");
-
-	    $dflt["a"] = "d";
-	    $communicator->setDefaultContext($dflt);
-
-	    $c5 = $c->ice_defaultContext()->ice_uncheckedCast("::Test::MyClass");
-	    $tmp = $c5->opContext();
-	    test($tmp["a"] == "d");
-
-	    $communicator->setDefaultContext(array());
-	}
-	*/
     }
 }
 
