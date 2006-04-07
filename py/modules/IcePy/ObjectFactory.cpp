@@ -89,6 +89,12 @@ IcePy::ObjectFactory::destroy()
 {
     Lock sync(*this);
 
+    //
+    // We release the GIL before calling communicator->destroy(), so we must
+    // reacquire it before calling back into Python.
+    //
+    AdoptThread adoptThread;
+
     for(FactoryMap::iterator p = _factoryMap.begin(); p != _factoryMap.end(); ++p)
     {
         //

@@ -81,9 +81,9 @@ static int
 communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 {
     PyObject* arglist = NULL;
-    PyObject* arg2 = NULL;
-    PyObject* arg3 = NULL;
-    if(!PyArg_ParseTuple(args, STRCAST("|O!OO"), &PyList_Type, &arglist, &arg2, &arg3))
+    PyObject* initDataType = lookupType("Ice.InitializationData");
+    PyObject* initData = NULL;
+    if(!PyArg_ParseTuple(args, STRCAST("|O!O!"), &PyList_Type, &arglist, initDataType, &initData))
     {
         return -1;
     }
@@ -94,48 +94,40 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         return -1;
     }
 
-    PyObject* properties = NULL;
-    PyObject* logger = NULL;
-
-    PyObject* loggerType = lookupType("Ice.Logger");
-    assert(loggerType != NULL);
-
-    if(arg2 && arg2 != Py_None)
+    Ice::InitializationData data;
+    if(initData)
     {
-	if(PyObject_IsInstance(arg2, (PyObject*)&PropertiesType))
+	PyObjectHandle properties = PyObject_GetAttrString(initData, STRCAST("properties"));
+	PyObjectHandle logger = PyObject_GetAttrString(initData, STRCAST("logger"));
+	PyObjectHandle defaultContext = PyObject_GetAttrString(initData, STRCAST("defaultContext"));
+
+	if(properties.get() && properties.get() != Py_None)
 	{
-	    properties = arg2;
+	    //
+	    // Get the properties implementation.
+	    //
+	    PyObjectHandle impl = PyObject_GetAttrString(properties.get(), STRCAST("_impl"));
+	    assert(impl.get() != NULL);
+	    data.properties = getProperties(impl.get());
 	}
-	else if(PyObject_IsInstance(arg2, loggerType))
+
+	if(logger.get() && logger.get() != Py_None)
 	{
-	    logger = arg2;
+	    data.logger = new LoggerWrapper(logger.get());
 	}
-    }
 
-    if(arg3 && arg3 != Py_None)
-    {
-	if(logger || !PyObject_IsInstance(arg3, loggerType))
+	if(defaultContext.get() && defaultContext.get() != Py_None)
 	{
-	    PyErr_Format(PyExc_RuntimeError, STRCAST("Expected Ice.Logger as the third argument"));
-	    return -1;
+	    if(!dictionaryToContext(defaultContext.get(), data.defaultContext))
+	    {
+		return -1;
+	    }
 	}
-	logger = arg3;
     }
 
-    Ice::PropertiesPtr props;
-    if(properties)
+    if(!data.properties)
     {
-        props = getProperties(properties);
-    }
-    else
-    {
-        props = Ice::getDefaultProperties(seq);
-    }
-
-    Ice::LoggerPtr log;
-    if(logger)
-    {
-	log = new LoggerWrapper(logger);
+	data.properties = Ice::getDefaultProperties(seq);
     }
 
     //
@@ -145,7 +137,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     //
     seq.push_back("--Ice.Default.CollocationOptimization=0");
 
-    seq = props->parseIceCommandLineOptions(seq);
+    seq = data.properties->parseIceCommandLineOptions(seq);
 
     //
     // Remaining command line options are passed to the communicator
@@ -163,10 +155,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     Ice::CommunicatorPtr communicator;
     try
     {
-        Ice::InitializationData initData;
-	initData.properties = props;
-	initData.logger = log;
-	communicator = Ice::initialize(argc, argv, initData);
+	communicator = Ice::initialize(argc, argv, data);
     }
     catch(const Ice::Exception& ex)
     {
@@ -249,6 +238,7 @@ communicatorDestroy(CommunicatorObject* self)
     assert(self->communicator);
     try
     {
+	AllowThreads allowThreads; // Release Python's global interpreter lock to avoid a potential deadlock.
         (*self->communicator)->destroy();
     }
     catch(const Ice::Exception& ex)
