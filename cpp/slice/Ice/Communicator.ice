@@ -272,7 +272,6 @@ local interface Communicator
      *
      * @return This communicator's logger.
      *
-     * @see setLogger
      * @see Logger
      *
      **/
@@ -284,7 +283,6 @@ local interface Communicator
      *
      * @return This communicator's statistics callback object.
      *
-     * @see setStats
      * @see Stats
      *
      **/
