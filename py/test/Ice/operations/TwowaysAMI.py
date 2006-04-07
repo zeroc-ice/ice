@@ -792,59 +792,33 @@ def twowaysAMI(communicator, p):
     #
     # Test that default context is obtained correctly from communicator.
     #
-#    dflt = {'a': 'b'}
-#    communicator.setDefaultContext(dflt)
-#    cb = AMI_MyClass_opContextNotEqualI(dflt)
-#    p.opContext_async(cb)
-#    test(cb.check())
+    initData = Ice.InitializationData()
+    initData.defaultContext = {'a': 'b'}
+    communicator2 = Ice.initialize([], initData)
 
-#    p2 = Test.MyClassPrx.uncheckedCast(p.ice_context({}))
-#    cb = AMI_MyClass_opContextEqualI({})
-#    p2.opContext_async(cb)
-#    test(cb.check())
+    c = Test.MyClassPrx.checkedCast(communicator2.stringToProxy("test:default -p 12010 -t 10000"))
+    cb = AMI_MyClass_opContextEqualI({'a': 'b'})
+    c.opContext_async(cb)
+    test(cb.check())
 
-#    p2 = Test.MyClassPrx.uncheckedCast(p.ice_defaultContext())
-#    cb = AMI_MyClass_opContextEqualI(dflt)
-#    p2.opContext_async(cb)
-#    test(cb.check())
+    ctx = {'a': 'c'}
+    c2 = Test.MyClassPrx.uncheckedCast(c.ice_context(ctx))
+    cb = AMI_MyClass_opContextEqualI({'a': 'c'})
+    c2.opContext_async(cb)
+    test(cb.check())
 
-#    communicator.setDefaultContext({})
-#    cb = AMI_MyClass_opContextNotEqualI({})
-#    p2.opContext_async(cb)
-#    test(cb.check())
+    ctx = {}
+    c3 = Test.MyClassPrx.uncheckedCast(c2.ice_context(ctx))
+    cb = AMI_MyClass_opContextEqualI({})
+    c3.opContext_async(cb)
+    test(cb.check())
 
-#    communicator.setDefaultContext(dflt)
-#    c = Test.MyClassPrx.checkedCast(communicator.stringToProxy("test:default -p 12010 -t 10000"))
-#    cb = AMI_MyClass_opContextEqualI({'a': 'b'})
-#    c.opContext_async(cb)
-#    test(cb.check())
+    c4 = Test.MyClassPrx.uncheckedCast(c2.ice_defaultContext())
+    cb = AMI_MyClass_opContextEqualI({'a': 'b'})
+    c4.opContext_async(cb)
+    test(cb.check())
 
-#    dflt['a'] = 'c'
-#    c2 = Test.MyClassPrx.uncheckedCast(c.ice_context(dflt))
-#    cb = AMI_MyClass_opContextEqualI({'a': 'c'})
-#    c2.opContext_async(cb)
-#    test(cb.check())
-
-#    dflt = {}
-#    c3 = Test.MyClassPrx.uncheckedCast(c2.ice_context(dflt))
-#    cb = AMI_MyClass_opContextEqualI({})
-#    c3.opContext_async(cb)
-#    test(cb.check())
-
-#    c4 = Test.MyClassPrx.uncheckedCast(c2.ice_defaultContext())
-#    cb = AMI_MyClass_opContextEqualI({'a': 'b'})
-#    c4.opContext_async(cb)
-#    test(cb.check())
-
-#    dflt['a'] = 'd'
-#    communicator.setDefaultContext(dflt)
-
-#    c5 = Test.MyClassPrx.uncheckedCast(c.ice_defaultContext())
-#    cb = AMI_MyClass_opContextEqualI({'a': 'd'})
-#    c5.opContext_async(cb)
-#    test(cb.check())
-
-#    communicator.setDefaultContext({})
+    communicator2.destroy()
 
     derived = Test.MyDerivedClassPrx.checkedCast(p)
     test(derived)

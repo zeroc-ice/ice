@@ -44,9 +44,10 @@ def run(args, communicator):
     return True
 
 try:
-    properties = Ice.createProperties(sys.argv)
-    properties.setProperty("Ice.Default.Locator", "locator:default -p 12010")
-    communicator = Ice.initializeWithProperties(sys.argv, properties)
+    data = Ice.InitializationData()
+    data.properties = Ice.createProperties(sys.argv)
+    data.properties.setProperty("Ice.Default.Locator", "locator:default -p 12010")
+    communicator = Ice.initialize(sys.argv, data)
     status = run(sys.argv, communicator)
 except:
     traceback.print_exc()

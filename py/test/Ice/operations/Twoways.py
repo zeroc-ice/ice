@@ -460,39 +460,22 @@ def twoways(communicator, p):
     #
     # Test that default context is obtained correctly from communicator.
     #
-#    dflt = {'a': 'b'}
-#    communicator.setDefaultContext(dflt)
-#    test(p.opContext() != dflt)
+    initData = Ice.InitializationData()
+    initData.defaultContext = {'a': 'b'}
+    communicator2 = Ice.initialize([], initData)
 
-#    p2 = Test.MyClassPrx.uncheckedCast(p.ice_context({}))
-#    test(len(p2.opContext()) == 0)
+    c = Test.MyClassPrx.checkedCast(communicator2.stringToProxy("test:default -p 12010 -t 10000"))
+    test(c.opContext() == initData.defaultContext)
 
-#    p2 = Test.MyClassPrx.uncheckedCast(p.ice_defaultContext())
-#    test(p2.opContext() == dflt)
+    ctx = {'a': 'c'}
+    c2 = Test.MyClassPrx.uncheckedCast(c.ice_context(ctx))
+    test(c2.opContext()['a'] == 'c')
 
-#    communicator.setDefaultContext({})
-#    test(len(p2.opContext()) > 0)
+    ctx = {}
+    c3 = Test.MyClassPrx.uncheckedCast(c2.ice_context(ctx))
+    test(not c3.opContext().has_key('a'))
 
-#    communicator.setDefaultContext(dflt)
-#    c = Test.MyClassPrx.checkedCast(communicator.stringToProxy("test:default -p 12010 -t 10000"))
-#    test(c.opContext() == dflt)
+    c4 = Test.MyClassPrx.uncheckedCast(c2.ice_defaultContext())
+    test(c4.opContext()['a'] == 'b')
 
-#    dflt['a'] = 'c'
-#    c2 = Test.MyClassPrx.uncheckedCast(c.ice_context(dflt))
-#    test(c2.opContext()['a'] == 'c')
-
-#    dflt = {}
-#    c3 = Test.MyClassPrx.uncheckedCast(c2.ice_context(dflt))
-#    tmp = c3.opContext()
-#    test(not tmp.has_key('a'))
-
-#    c4 = Test.MyClassPrx.uncheckedCast(c2.ice_defaultContext())
-#    test(c4.opContext()['a'] == 'b')
-
-#    dflt['a'] = 'd'
-#    communicator.setDefaultContext(dflt)
-
-#    c5 = Test.MyClassPrx.uncheckedCast(c.ice_defaultContext())
-#    test(c5.opContext()['a'] == 'd')
-
-#    communicator.setDefaultContext({})
+    communicator2.destroy()

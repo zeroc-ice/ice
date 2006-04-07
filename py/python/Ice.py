@@ -12,7 +12,7 @@
 Ice module
 """
 
-import sys, exceptions, string, imp, os, threading, dl
+import sys, exceptions, string, imp, os, threading, dl, warnings
 
 #
 # This is necessary for proper operation of Ice plug-ins.
@@ -148,6 +148,16 @@ del Endpoint
 Endpoint =  IcePy.Endpoint
 
 #
+# Initialization data.
+#
+class InitializationData(object):
+    def __init__(self):
+	self.properties = None
+	self.logger = None
+	#self.stats = None # Stats not currently supported in Python.
+	self.defaultContext = {}
+
+#
 # Communicator wrapper.
 #
 class CommunicatorI(Communicator):
@@ -193,9 +203,6 @@ class CommunicatorI(Communicator):
     def findObjectFactory(self, id):
         return self._impl.findObjectFactory(id)
 
-    def setDefaultContext(self, ctx):
-        return self._impl.setDefaultContext(ctx)
-
     def getDefaultContext(self):
         return self._impl.getDefaultContext()
 
@@ -210,14 +217,8 @@ class CommunicatorI(Communicator):
 	else:
 	    return LoggerI(logger)
 
-    def setLogger(self, log):
-        self._impl.setLogger(log)
-
     def getStats(self):
         raise RuntimeError("operation `getStats' not implemented")
-
-    def setStats(self, st):
-        raise RuntimeError("operation `setStats' not implemented")
 
     def getDefaultRouter(self):
         return self._impl.getDefaultRouter()
@@ -240,36 +241,38 @@ class CommunicatorI(Communicator):
 #
 # Ice.initialize()
 #
-def initialize(args=[]):
-    communicator = IcePy.Communicator(args)
+def initialize(args=[], data=InitializationData()):
+    communicator = IcePy.Communicator(args, data)
     return CommunicatorI(communicator)
 
 #
 # Ice.initializeWithProperties()
 #
 def initializeWithProperties(args, properties):
-    propImpl = None
-    if properties:
-	propImpl = properties._impl
-    communicator = IcePy.Communicator(args, propImpl)
-    return CommunicatorI(communicator)
+    warnings.warn("initializeWithProperties has been deprecated, use initialize instead", DeprecationWarning, 2)
+    data = InitializationData()
+    data.properties = properties
+    return initialize(args, data)
 
 #
 # Ice.initializeWithLogger()
 #
 def initializeWithLogger(args, logger):
-    communicator = IcePy.Communicator(args, logger)
-    return CommunicatorI(communicator)
+    warnings.warn("initializeWithLogger has been deprecated, use initialize instead", DeprecationWarning, 2)
+    data = InitializationData()
+    data.logger = logger
+    return initialize(args, data)
 
 #
 # Ice.initializeWithPropertiesAndLogger()
 #
 def initializeWithPropertiesAndLogger(args, properties, logger):
-    propImpl = None
-    if properties:
-	propImpl = properties._impl
-    communicator = IcePy.Communicator(args, propImpl, logger)
-    return CommunicatorI(communicator)
+    warnings.warn("initializeWithPropertiesAndLogger has been deprecated, use initialize instead",
+		  DeprecationWarning, 2)
+    data = InitializationData()
+    data.properties = properties
+    data.logger = logger
+    return initialize(args, data)
 
 #
 # ObjectAdapter wrapper.
@@ -484,12 +487,12 @@ class Application(object):
         status = 0
 
         try:
+	    initData = InitializationData()
+	    initData.logger = logger
             if configFile:
-                properties = createProperties()
-                properties.load(configFile)
-                Application._communicator = initializeWithPropertiesAndLogger(args, properties, logger)
-            else:
-                Application._communicator = initializeWithLogger(args, logger)
+                initData.properties = createProperties()
+                initData.properties.load(configFile)
+	    Application._communicator = initialize(args, initData)
 
             #
             # Used by destroyOnInterruptCallback and shutdownOnInterruptCallback.
