@@ -1,6 +1,8 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Removed setDefaultContext operation on Communicator.
+
 - Eliminated the source of deprecation warnings when E_STRICT is
   enabled.
 
