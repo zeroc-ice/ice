@@ -60,7 +60,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		    
 		    return;
 		}
-		
+
 		//
 		// The connection might already be closed (e.g.: the communicator 
 		// was destroyed or object adapter deactivated.)
@@ -212,12 +212,34 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     public synchronized void
     activate()
     {
+	while(_state == StateNotValidated)
+	{
+	    try
+	    {
+		wait();
+	    }
+	    catch(InterruptedException ex)
+	    {
+	    }
+	}
+
 	setState(StateActive);
     }
 
     public synchronized void
     hold()
     {
+	while(_state == StateNotValidated)
+	{
+	    try
+	    {
+		wait();
+	    }
+	    catch(InterruptedException ex)
+	    {
+	    }
+	}
+
 	setState(StateHolding);
     }
 

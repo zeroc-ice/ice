@@ -232,6 +232,12 @@ void
 Ice::ConnectionI::activate()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+    while(_state == StateNotValidated)
+    {
+	wait();
+    }
+
     setState(StateActive);
 }
 
@@ -239,6 +245,12 @@ void
 Ice::ConnectionI::hold()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+    while(_state == StateNotValidated)
+    {
+	wait();
+    }
+
     setState(StateHolding);
 }
 

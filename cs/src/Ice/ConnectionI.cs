@@ -204,6 +204,11 @@ namespace Ice
 	{
 	    lock(this)
 	    {
+		while(_state == StateNotValidated)
+		{
+		    Monitor.Wait(this);
+		}
+
 		setState(StateActive);
 	    }
 	}
@@ -212,6 +217,11 @@ namespace Ice
 	{
 	    lock(this)
 	    {
+		while(_state == StateNotValidated)
+		{
+		    Monitor.Wait(this);
+		}
+
 		setState(StateHolding);
 	    }
 	}
