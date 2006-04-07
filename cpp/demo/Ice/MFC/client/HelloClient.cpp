@@ -48,9 +48,10 @@ CHelloClientApp::InitInstance()
     try
     {
         int argc = 0;
-	Ice::PropertiesPtr properties = Ice::createProperties();
-	properties->load("config");
-        communicator = Ice::initializeWithProperties(argc, 0, properties);
+	Ice::InitializationData initData;
+	initData.properties = Ice::createProperties();
+	initData.properties->load("config");
+        communicator = Ice::initialize(argc, 0, initData);
     }
     catch(const IceUtil::Exception& ex)
     {
