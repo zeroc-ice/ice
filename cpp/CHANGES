@@ -6,7 +6,7 @@ Changes since version 3.0.1
   to be set during communicator creation. Currently included are
   Properties, Logger, Stats and default context. The initializeWith 
   communicator initialization functions have been deprecated and the 
-  setLogge()r, setStats() and setDefaultContext() methods have been 
+  setLogger(), setStats() and setDefaultContext() methods have been 
   removed.
 
 - Added the new slice metadata, "deprecate" which can be used to

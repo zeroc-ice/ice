@@ -16,6 +16,8 @@
 #include <Ice/RouterF.h>
 #include <Ice/ProxyF.h>
 
+#include <set>
+
 namespace IceInternal
 {
 
@@ -67,7 +69,7 @@ private:
     Ice::ObjectPrx _clientProxy;
     Ice::ObjectPrx _serverProxy;
     Ice::ObjectAdapterPtr _adapter;
-    std::map<Ice::Identity, int> _map;
+    std::set<Ice::Identity> _identities;
 };
 
 }

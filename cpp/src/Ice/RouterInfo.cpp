@@ -123,7 +123,7 @@ IceInternal::RouterInfo::destroy()
     _clientProxy = 0;
     _serverProxy = 0;
     _adapter = 0;
-    _map.clear();
+    _identities.clear();
 }
 
 bool
@@ -241,9 +241,9 @@ IceInternal::RouterInfo::addProxy(const ObjectPrx& proxy)
 
     IceUtil::Mutex::Lock sync(*this);
 
-    map<Identity, int>::iterator p = _map.find(proxy->ice_getIdentity());
+    set<Identity>::iterator p = _identities.find(proxy->ice_getIdentity());
 
-    if(p == _map.end())
+    if(p == _identities.end())
     {
 	//
 	// Only add the proxy to the router if it's not already in our local map.
@@ -255,14 +255,14 @@ IceInternal::RouterInfo::addProxy(const ObjectPrx& proxy)
 	//
 	// If we successfully added the proxy to the router, we add it to our local map.
 	//
-	_map.insert(_map.begin(), pair<const Identity, int>(proxy->ice_getIdentity(), 0));
+	_identities.insert(_identities.begin(), proxy->ice_getIdentity());
 
 	//
 	// We also must remove whatever proxies the router evicted.
 	//
 	for(ObjectProxySeq::iterator q = evictedProxies.begin(); q != evictedProxies.end(); ++q)
 	{
-	    _map.erase((*q)->ice_getIdentity());
+	    _identities.erase((*q)->ice_getIdentity());
 	}
     }
 }
