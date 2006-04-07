@@ -174,16 +174,24 @@ else:
 if protocol == "ssl":
     plugin		 = " --Ice.Plugin.IceSSL=IceSSL:create"
     clientProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Client.CertPath=" + os.path.join(ice_home, "certs") + \
-                           " --IceSSL.Client.Config=client_sslconfig.xml"
+                           " --IceSSL.Client.DefaultDir=" + os.path.join(ice_home, "certs") + \
+                           " --IceSSL.Client.CertFile=c_rsa1024_pub.pem" + \
+                           " --IceSSL.Client.KeyFile=c_rsa1024_priv.pem" + \
+                           " --IceSSL.Client.CertAuthFile=cacert.pem"
     serverProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Server.CertPath=" + os.path.join(ice_home, "certs") + \
-                           " --IceSSL.Server.Config=server_sslconfig.xml"
+                           " --IceSSL.Server.DefaultDir=" + os.path.join(ice_home, "certs") + \
+                           " --IceSSL.Server.CertFile=s_rsa1024_pub.pem" + \
+                           " --IceSSL.Server.KeyFile=s_rsa1024_priv.pem" + \
+                           " --IceSSL.Server.CertAuthFile=cacert.pem"
     clientServerProtocol = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Client.CertPath=" + os.path.join(ice_home, "certs") + \
-                           " --IceSSL.Client.Config=sslconfig.xml" + \
-                           " --IceSSL.Server.CertPath=" + os.path.join(ice_home, "certs") + \
-                           " --IceSSL.Server.Config=sslconfig.xml"
+                           " --IceSSL.Client.DefaultDir=" + os.path.join(ice_home, "certs") + \
+                           " --IceSSL.Client.CertFile=c_rsa1024_pub.pem" + \
+                           " --IceSSL.Client.KeyFile=c_rsa1024_priv.pem" + \
+                           " --IceSSL.Client.CertAuthFile=cacert.pem" + \
+                           " --IceSSL.Server.DefaultDir=" + os.path.join(ice_home, "certs") + \
+                           " --IceSSL.Server.CertFile=s_rsa1024_pub.pem" + \
+                           " --IceSSL.Server.KeyFile=s_rsa1024_priv.pem" + \
+                           " --IceSSL.Server.CertAuthFile=cacert.pem"
 else:
     clientProtocol = ""
     serverProtocol = ""

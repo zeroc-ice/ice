@@ -50,13 +50,14 @@ Ice.Trace.Protocol=0
 IceSSL.Trace.Security=0
 
 #
-# SSL Configuration File
-#
-# An XML based file that specifies the certificates, keys, SSL version
-# and other pertinent information for creating an SSL connection.
+# SSL Configuration
 #
 Ice.Plugin.IceSSL=IceSSL:create
-IceSSL.Client.CertPath=../../../certs
-IceSSL.Client.Config=sslconfig.xml
-IceSSL.Server.CertPath=../../../certs
-IceSSL.Server.Config=sslconfig.xml
+IceSSL.Client.DefaultDir=../../../certs
+IceSSL.Client.CertAuthFile=cacert.pem
+IceSSL.Client.CertFile=c_rsa1024_pub.pem
+IceSSL.Client.KeyFile=c_rsa1024_priv.pem
+IceSSL.Server.DefaultDir=../../../certs
+IceSSL.Server.CertAuthFile=cacert.pem
+IceSSL.Server.CertFile=s_rsa1024_pub.pem
+IceSSL.Server.KeyFile=s_rsa1024_priv.pem
