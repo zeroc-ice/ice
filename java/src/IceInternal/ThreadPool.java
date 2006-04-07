@@ -31,7 +31,7 @@ public final class ThreadPool
 	_inUse = 0;
 	_load = 1.0;
 	_promote = true;
-	_warnUdp = _instance.properties().getPropertyAsInt("Ice.Warn.Datagrams") > 0;
+	_warnUdp = _instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
 
 	//
 	// If we are in thread per connection mode, no thread pool should
@@ -39,7 +39,7 @@ public final class ThreadPool
 	//
 	assert(!_instance.threadPerConnection());
 
-	String programName = _instance.properties().getProperty("Ice.ProgramName");
+	String programName = _instance.initializationData().properties.getProperty("Ice.ProgramName");
         if(programName.length() > 0)
         {
             _programNamePrefix = programName + "-";
@@ -77,19 +77,21 @@ public final class ThreadPool
 	// psossible setting, still allows one level of nesting, and
 	// doesn't require to make the servants thread safe.
 	//
-	int size = _instance.properties().getPropertyAsIntWithDefault(_prefix + ".Size", 1);
+	int size = _instance.initializationData().properties.getPropertyAsIntWithDefault(_prefix + ".Size", 1);
 	if(size < 1)
 	{
 	    size = 1;
 	}		
 
-	int sizeMax = _instance.properties().getPropertyAsIntWithDefault(_prefix + ".SizeMax", size);
+	int sizeMax = 
+	    _instance.initializationData().properties.getPropertyAsIntWithDefault(_prefix + ".SizeMax", size);
 	if(sizeMax < size)
 	{
 	    sizeMax = size;
 	}
 		
-	int sizeWarn = _instance.properties().getPropertyAsIntWithDefault(_prefix + ".SizeWarn", sizeMax * 80 / 100);
+	int sizeWarn = _instance.initializationData().properties.getPropertyAsIntWithDefault(
+								_prefix + ".SizeWarn", sizeMax * 80 / 100);
 
 	_size = size;
 	_sizeMax = sizeMax;
@@ -114,7 +116,7 @@ public final class ThreadPool
 	    ex.printStackTrace(pw);
 	    pw.flush();
 	    String s = "cannot create thread for `" + _prefix + "':\n" + sw.toString();
-	    _instance.logger().error(s);
+	    _instance.initializationData().logger.error(s);
 
             destroy();
 	    joinWithAllThreads();
@@ -207,7 +209,7 @@ public final class ThreadPool
 		    {
 			String s = "thread pool `" + _prefix + "' is running low on threads\n"
 			    + "Size=" + _size + ", " + "SizeMax=" + _sizeMax + ", " + "SizeWarn=" + _sizeWarn;
-			_instance.logger().warning(s);
+			_instance.initializationData().logger.warning(s);
 		    }
 		    
 		    assert(_inUse <= _running);
@@ -228,7 +230,7 @@ public final class ThreadPool
 			    ex.printStackTrace(pw);
 			    pw.flush();
 			    String s = "cannot create thread for `" + _prefix + "':\n" + sw.toString();
-			    _instance.logger().error(s);
+			    _instance.initializationData().logger.error(s);
 			}
 		    }
 		}
@@ -321,7 +323,7 @@ public final class ThreadPool
 	    ex.printStackTrace(pw);
 	    pw.flush();
 	    String s = "exception in `" + _prefix + "' while calling close():\n" + sw.toString();
-	    _instance.logger().error(s);
+	    _instance.initializationData().logger.error(s);
 	}
     }
 
@@ -673,7 +675,7 @@ public final class ThreadPool
 			pw.flush();
 			String s = "exception in `" + _prefix + "' while calling finished():\n" +
 			    sw.toString() + "\n" + handler.toString();
-			_instance.logger().error(s);
+			_instance.initializationData().logger.error(s);
 		    }
 
 		    //
@@ -721,10 +723,11 @@ public final class ThreadPool
 			    {
 			        if(handler.datagram())
 				{
-				    if(_instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0)
+				    if(_instance.initializationData().properties.getPropertyAsInt(
+				    						"Ice.Warn.Connections") > 0)
 				    {
-				        _instance.logger().warning("datagram connection exception:\n" + ex + "\n" +
-								   handler.toString());
+				        _instance.initializationData().logger.warning(
+					    "datagram connection exception:\n" + ex + "\n" + handler.toString());
 				    }
 				}
 				else
@@ -760,7 +763,7 @@ public final class ThreadPool
 			    pw.flush();
 			    String s = "exception in `" + _prefix + "' while calling message():\n" +
 				sw.toString() + "\n" + handler.toString();
-			    _instance.logger().error(s);
+			    _instance.initializationData().logger.error(s);
 			}
 
 			//
@@ -968,8 +971,8 @@ public final class ThreadPool
 	    {
 		if(_warnUdp)
 		{
-		    _instance.logger().warning("DatagramLimitException: maximum size of "
-		                               + stream.pos() + " exceeded");
+		    _instance.initializationData().logger.warning("DatagramLimitException: maximum size of "
+		                               			  + stream.pos() + " exceeded");
 		}
 		stream.pos(0);
 		stream.resize(0, true);
@@ -1042,7 +1045,7 @@ public final class ThreadPool
 		se.printStackTrace(pw);
 		pw.flush();
 		String s = "exception in `" + _prefix + "':\n" + sw.toString();
-		_instance.logger().error(s);
+		_instance.initializationData().logger.error(s);
 		continue;
             }
         }
@@ -1097,7 +1100,7 @@ public final class ThreadPool
 		se.printStackTrace(pw);
 		pw.flush();
 		String s = "exception in `" + _prefix + "':\n" + sw.toString();
-		_instance.logger().error(s);
+		_instance.initializationData().logger.error(s);
 		continue;
             }
 
@@ -1206,7 +1209,7 @@ public final class ThreadPool
                 ex.printStackTrace(pw);
                 pw.flush();
                 String s = "exception in `" + _prefix + "' thread " + getName() + ":\n" + sw.toString();
-                _instance.logger().error(s);
+                _instance.initializationData().logger.error(s);
 		promote = true;
             }
             catch(java.lang.Exception ex)
@@ -1216,7 +1219,7 @@ public final class ThreadPool
                 ex.printStackTrace(pw);
                 pw.flush();
                 String s = "unknown exception in `" + _prefix + "' thread " + getName() + ":\n" + sw.toString();
-                _instance.logger().error(s);
+                _instance.initializationData().logger.error(s);
 		promote = true;
             }
 

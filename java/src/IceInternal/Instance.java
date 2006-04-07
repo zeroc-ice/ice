@@ -11,59 +11,16 @@ package IceInternal;
 
 public final class Instance
 {
-    public Ice.Properties
-    properties()
+    public Ice.InitializationData
+    initializationData()
     {
 	//
 	// No check for destruction. It must be possible to access the
-	// properties after destruction.
+	// initialization data after destruction.
 	//
 	// No mutex lock, immutable.
 	//
-        return _properties;
-    }
-
-    public synchronized Ice.Logger
-    logger()
-    {
-	//
-	// No check for destruction. It must be possible to access the
-	// logger after destruction.
-	//
-        return _logger;
-    }
-
-    public synchronized void
-    logger(Ice.Logger logger)
-    {
-	//
-	// No check for destruction. It must be possible to set the
-	// logger after destruction (needed by logger plugins for
-	// example to unset the logger).
-	//
-        _logger = logger;
-    }
-
-    public synchronized Ice.Stats
-    stats()
-    {
-	if(_state == StateDestroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
-
-        return _stats;
-    }
-
-    public synchronized void
-    stats(Ice.Stats stats)
-    {
-	if(_state == StateDestroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
-
-        _stats = stats;
+        return _initData;
     }
 
     public TraceLevels
@@ -194,7 +151,7 @@ public final class Instance
 	
 	if(_serverThreadPool == null) // Lazy initialization.
 	{
-	    int timeout = _properties.getPropertyAsInt("Ice.ServerIdleTime");
+	    int timeout = _initData.properties.getPropertyAsInt("Ice.ServerIdleTime");
 	    _serverThreadPool = new ThreadPool(this, "Ice.ThreadPool.Server", timeout);
 	}
 
@@ -256,35 +213,6 @@ public final class Instance
 	return _serverACM;
     }
 
-    public synchronized void
-    setDefaultContext(java.util.Map ctx)
-    {
-	if(_state == StateDestroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
-
-	if(ctx == null || ctx.isEmpty())
-	{
-	    _defaultContext = _emptyContext;
-	}
-	else
-	{
-	    _defaultContext = new java.util.HashMap(ctx);
-	}
-    }
-
-    public synchronized java.util.Map
-    getDefaultContext()
-    {
-	if(_state == StateDestroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
-
-        return new java.util.HashMap(_defaultContext);
-    }
-
     public void
     flushBatchRequests()
     {
@@ -310,11 +238,10 @@ public final class Instance
     // Only for use by Ice.CommunicatorI
     //
     public
-    Instance(Ice.Communicator communicator, Ice.Properties properties, Ice.Logger logger)
+    Instance(Ice.Communicator communicator, Ice.InitializationData initData)
     {
         _state = StateActive;
-        _properties = properties;
-    	_logger = logger;
+	_initData = initData;
 
         try
         {
@@ -322,8 +249,8 @@ public final class Instance
 	    {
 		if(!_oneOffDone)
 		{
-		    String stdOut = _properties.getProperty("Ice.StdOut");
-		    String stdErr = _properties.getProperty("Ice.StdErr");
+		    String stdOut = _initData.properties.getProperty("Ice.StdOut");
+		    String stdErr = _initData.properties.getProperty("Ice.StdErr");
 		    
 		    java.io.PrintStream outStream = null;
 		    
@@ -380,30 +307,28 @@ public final class Instance
 		}
 	    }
 
-    	    if(_logger == null)
+    	    if(_initData.logger == null)
 	    {
-		if(_properties.getPropertyAsInt("Ice.UseSyslog") > 0)
+		if(_initData.properties.getPropertyAsInt("Ice.UseSyslog") > 0)
 		{
-		    _logger = new Ice.SysLoggerI(_properties.getProperty("Ice.ProgramName"));
+		    _initData.logger = new Ice.SysLoggerI(_initData.properties.getProperty("Ice.ProgramName"));
 		}
 		else
 		{
-		    _logger = new Ice.LoggerI(_properties.getProperty("Ice.ProgramName"),
-					      _properties.getPropertyAsInt("Ice.Logger.Timestamp") > 0);
+		    _initData.logger = new Ice.LoggerI(_initData.properties.getProperty("Ice.ProgramName"),
+					      _initData.properties.getPropertyAsInt("Ice.Logger.Timestamp") > 0);
 		}
 	    }
 
-	    _stats = null; // There is no default statistics callback object.
-
             validatePackages();
 
-            _traceLevels = new TraceLevels(_properties);
+            _traceLevels = new TraceLevels(_initData.properties);
 
-            _defaultsAndOverrides = new DefaultsAndOverrides(_properties);
+            _defaultsAndOverrides = new DefaultsAndOverrides(_initData.properties);
 
 	    {
 		final int defaultMessageSizeMax = 1024;
-		int num = _properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
+		int num = _initData.properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
 		if(num < 1)
 		{
 		    _messageSizeMax = defaultMessageSizeMax * 1024; // Ignore stupid values.
@@ -421,13 +346,13 @@ public final class Instance
 	    //
 	    // Client ACM enabled by default. Server ACM disabled by default.
 	    //
-	    _clientACM = _properties.getPropertyAsIntWithDefault("Ice.ACM.Client", 60);
-	    _serverACM = _properties.getPropertyAsInt("Ice.ACM.Server");
+	    _clientACM = _initData.properties.getPropertyAsIntWithDefault("Ice.ACM.Client", 60);
+	    _serverACM = _initData.properties.getPropertyAsInt("Ice.ACM.Server");
 
-	    _threadPerConnection = _properties.getPropertyAsInt("Ice.ThreadPerConnection") > 0;
+	    _threadPerConnection = _initData.properties.getPropertyAsInt("Ice.ThreadPerConnection") > 0;
 
 	    {
-		int stackSize = _properties.getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
+		int stackSize = _initData.properties.getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
 		if(stackSize < 0)
 		{
 		    stackSize = 0;
@@ -451,7 +376,10 @@ public final class Instance
 
             _pluginManager = new Ice.PluginManagerI(communicator);
 
-	    _defaultContext = _emptyContext;
+	    if(_initData.defaultContext == null)
+	    {
+	        _initData.defaultContext = _emptyContext;
+	    }
 
             _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
@@ -536,7 +464,7 @@ public final class Instance
 	{
 	    interval = _serverACM;
 	}
-	interval = _properties.getPropertyAsIntWithDefault("Ice.MonitorConnections", interval);
+	interval = _initData.properties.getPropertyAsIntWithDefault("Ice.MonitorConnections", interval);
 	if(interval > 0)
 	{
 	    _connectionMonitor = new ConnectionMonitor(this, interval);
@@ -684,7 +612,7 @@ public final class Instance
     validatePackages()
     {
         final String prefix = "Ice.Package.";
-        java.util.Map map = _properties.getPropertiesForPrefix(prefix);
+        java.util.Map map = _initData.properties.getPropertiesForPrefix(prefix);
         java.util.Iterator p = map.entrySet().iterator();
         while(p.hasNext())
         {
@@ -693,7 +621,7 @@ public final class Instance
             String pkg = (String)e.getValue();
             if(key.length() == prefix.length())
             {
-                _logger.warning("ignoring invalid property: " + key + "=" + pkg);
+                _initData.logger.warning("ignoring invalid property: " + key + "=" + pkg);
             }
             String module = key.substring(prefix.length());
             String className = pkg + "." + module + "._Marker";
@@ -703,7 +631,7 @@ public final class Instance
             }
             catch(java.lang.Exception ex)
             {
-                _logger.warning("unable to validate package: " + key + "=" + pkg);
+                _initData.logger.warning("unable to validate package: " + key + "=" + pkg);
             }
         }
     }
@@ -713,9 +641,7 @@ public final class Instance
     private static final int StateDestroyed = 2;
     private int _state;
 
-    private final Ice.Properties _properties; // Immutable, not reset by destroy().
-    private Ice.Logger _logger; // Not reset by destroy().
-    private Ice.Stats _stats; // Not reset by destroy().
+    private final Ice.InitializationData _initData; // Immutable, not reset by destroy().
     private final TraceLevels _traceLevels; // Immutable, not reset by destroy().
     private final DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
     private final int _messageSizeMax; // Immutable, not reset by destroy().
@@ -735,7 +661,6 @@ public final class Instance
     private final int _threadPerConnectionStackSize;
     private EndpointFactoryManager _endpointFactoryManager;
     private Ice.PluginManager _pluginManager;
-    private java.util.Map _defaultContext;
     private static java.util.Map _emptyContext = new java.util.HashMap();
 
     private static boolean _oneOffDone = false;

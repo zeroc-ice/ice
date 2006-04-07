@@ -173,7 +173,8 @@ public final class LocatorInfo
 		    s.append("object = " + Ice.Util.identityToString(identity) + "\n");
 		}
 		s.append("reason = " + ex);
-		ref.getInstance().logger().trace(ref.getInstance().traceLevels().locationCat, s.toString());
+		ref.getInstance().initializationData().logger.trace(
+		    ref.getInstance().traceLevels().locationCat, s.toString());
 	    }
 	    throw ex;
 	}
@@ -281,7 +282,7 @@ public final class LocatorInfo
 		s.append(":");
 	}
 
-	ref.getInstance().logger().trace(ref.getInstance().traceLevels().locationCat, s.toString());
+	ref.getInstance().initializationData().logger.trace(ref.getInstance().traceLevels().locationCat, s.toString());
     }
 
     private final Ice.LocatorPrx _locator;

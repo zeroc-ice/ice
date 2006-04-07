@@ -125,7 +125,7 @@ public class IncomingBase
 	out.print("\n");
 	ex.printStackTrace(pw);
 	pw.flush();
-	_os.instance().logger().warning(sw.toString());
+	_os.instance().initializationData().logger.warning(sw.toString());
     }
 
     protected Ice.Current _current;

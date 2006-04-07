@@ -66,8 +66,8 @@ public final class Util
     public static Communicator
     initialize(StringSeqHolder args)
     {
-        Properties properties = getDefaultProperties(args);
-	return initializeWithPropertiesAndLogger(args, properties, null);
+    	InitializationData initData = new InitializationData();
+	return initialize(args, initData);
     }
 
     public static Communicator
@@ -78,47 +78,92 @@ public final class Util
     }
 
     public static Communicator
-    initializeWithLogger(StringSeqHolder args, Logger logger)
+    initialize(StringSeqHolder args, InitializationData initData)
     {
-        Properties properties = getDefaultProperties(args);
-	return initializeWithPropertiesAndLogger(args, properties, logger);
-    }
+    	if(initData.properties == null)
+	{
+	    initData.properties = getDefaultProperties(args);
+	}
+	args.value = initData.properties.parseIceCommandLineOptions(args.value);
 
-    public static Communicator
-    initializeWithLogger(String[] args, Logger logger)
-    {
-        StringSeqHolder argsH = new StringSeqHolder(args);
-	return initializeWithLogger(argsH, logger);
-    }
-
-    public static Communicator
-    initializeWithProperties(StringSeqHolder args, Properties properties)
-    {
-    	return initializeWithPropertiesAndLogger(args, properties, null);
-    }
-
-    public static Communicator
-    initializeWithProperties(String[] args, Properties properties)
-    {
-        StringSeqHolder argsH = new StringSeqHolder(args);
-	return initializeWithProperties(argsH, properties);
-    }
-
-    public static Communicator
-    initializeWithPropertiesAndLogger(StringSeqHolder args, Properties properties, Logger logger)
-    {
-	args.value = properties.parseIceCommandLineOptions(args.value);
-
-        CommunicatorI result = new CommunicatorI(properties, logger);
+        CommunicatorI result = new CommunicatorI(initData);
         result.finishSetup(args);
         return result;
     }
 
     public static Communicator
-    initializeWithPropertiesAndLogger(String[] args, Properties properties, Logger logger)
+    initialize(String[] args, InitializationData initData)
     {
         StringSeqHolder argsH = new StringSeqHolder(args);
-	return initializeWithPropertiesAndLogger(argsH, properties, logger);
+	return initialize(argsH, initData);
+    }
+
+    /**
+     * @deprecated This method has been deprecated, use initialize instead.
+     **/
+    public static Communicator
+    initializeWithLogger(StringSeqHolder args, Logger logger)
+    {
+    	InitializationData initData = new InitializationData();
+	initData.logger = logger;
+	return initialize(args, initData);
+    }
+
+    /**
+     * @deprecated This method has been deprecated, use initialize instead.
+     **/
+    public static Communicator
+    initializeWithLogger(String[] args, Logger logger)
+    {
+    	InitializationData initData = new InitializationData();
+	initData.logger = logger;
+	return initialize(args, initData);
+    }
+
+    /**
+     * @deprecated This method has been deprecated, use initialize instead.
+     **/
+    public static Communicator
+    initializeWithProperties(StringSeqHolder args, Properties properties)
+    {
+    	InitializationData initData = new InitializationData();
+	initData.properties = properties;
+	return initialize(args, initData);
+    }
+
+    /**
+     * @deprecated This method has been deprecated, use initialize instead.
+     **/
+    public static Communicator
+    initializeWithProperties(String[] args, Properties properties)
+    {
+    	InitializationData initData = new InitializationData();
+	initData.properties = properties;
+	return initialize(args, initData);
+    }
+
+    /**
+     * @deprecated This method has been deprecated, use initialize instead.
+     **/
+    public static Communicator
+    initializeWithPropertiesAndLogger(StringSeqHolder args, Properties properties, Logger logger)
+    {
+    	InitializationData initData = new InitializationData();
+	initData.properties = properties;
+	initData.logger = logger;
+	return initialize(args, initData);
+    }
+
+    /**
+     * @deprecated This method has been deprecated, use initialize instead.
+     **/
+    public static Communicator
+    initializeWithPropertiesAndLogger(String[] args, Properties properties, Logger logger)
+    {
+    	InitializationData initData = new InitializationData();
+	initData.properties = properties;
+	initData.logger = logger;
+	return initialize(args, initData);
     }
 
     public static IceInternal.Instance

@@ -356,7 +356,7 @@ public final class IncomingConnectionFactory extends EventHandler
         _adapter = adapter;
 	_registeredWithPool = false;
 	_finishedCount = 0;
-	_warn = _instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
+	_warn = _instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
         _state = StateHolding;
 
 	DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
@@ -603,7 +603,7 @@ public final class IncomingConnectionFactory extends EventHandler
         ex.printStackTrace(pw);
         pw.flush();
         String s = "connection exception:\n" + sw.toString() + '\n' + _acceptor.toString();
-        _instance.logger().warning(s);
+        _instance.initializationData().logger.warning(s);
     }
 
     private void
@@ -614,7 +614,7 @@ public final class IncomingConnectionFactory extends EventHandler
 	ex.printStackTrace(pw);
 	pw.flush();
 	String s = msg + ":\n" + toString() + "\n" + sw.toString();
-	_instance.logger().error(s);
+	_instance.initializationData().logger.error(s);
     }
 
     private void

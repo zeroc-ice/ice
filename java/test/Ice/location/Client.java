@@ -24,9 +24,10 @@ public class Client
 
         try
         {
-            Ice.Properties properties = Ice.Util.createProperties(args);
-	    properties.setProperty("Ice.Default.Locator", "locator:default -p 12010");
-            communicator = Ice.Util.initializeWithProperties(args, properties);
+	    Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = Ice.Util.createProperties(args);
+	    initData.properties.setProperty("Ice.Default.Locator", "locator:default -p 12010");
+            communicator = Ice.Util.initialize(args, initData);
             status = run(args, communicator);
         }
         catch (Ice.LocalException ex)

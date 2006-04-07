@@ -383,7 +383,8 @@ public abstract class OutgoingAsync
 	if(__os != null) // Don't print anything if cleanup() was already called.
 	{
 	    Reference ref = ((Ice.ObjectPrxHelperBase)_proxy).__reference();
-	    if(ref.getInstance().properties().getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+	    if(ref.getInstance().initializationData().properties.getPropertyAsIntWithDefault(
+	    								"Ice.Warn.AMICallback", 1) > 0)
 	    {
 		java.io.StringWriter sw = new java.io.StringWriter();
 		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -392,7 +393,7 @@ public abstract class OutgoingAsync
 		out.print("exception raised by AMI callback:\n");
 		ex.printStackTrace(pw);
 		pw.flush();
-		ref.getInstance().logger().warning(sw.toString());
+		ref.getInstance().initializationData().logger.warning(sw.toString());
 	    }
 	}
     }

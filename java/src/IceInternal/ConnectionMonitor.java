@@ -64,7 +64,7 @@ public final class ConnectionMonitor extends Thread
 	_instance = instance;
 	_interval = interval;
 
-        String threadName = _instance.properties().getProperty("Ice.ProgramName");
+        String threadName = _instance.initializationData().properties.getProperty("Ice.ProgramName");
         if(threadName.length() > 0)
         {
             threadName += "-";
@@ -144,7 +144,7 @@ public final class ConnectionMonitor extends Thread
 			pw.flush();
 			String s = "exception in connection monitor thread " + getName() + ":\n" +
 			    sw.toString();
-			_instance.logger().error(s);
+			_instance.initializationData().logger.error(s);
 		    }
 		}
 		catch(java.lang.Exception ex)
@@ -161,7 +161,7 @@ public final class ConnectionMonitor extends Thread
 			pw.flush();
 			String s = "unknown exception in connection monitor thread " + getName() + ":\n" +
 			    sw.toString();
-			_instance.logger().error(s);
+			_instance.initializationData().logger.error(s);
 		    }
 		}
 	    }

@@ -342,8 +342,8 @@ final class TcpTransceiver implements Transceiver
     {
         _fd = fd;
         _traceLevels = instance.traceLevels();
-        _logger = instance.logger();
-        _stats = instance.stats();
+        _logger = instance.initializationData().logger;
+        _stats = instance.initializationData().stats;
         _desc = Network.fdToString(_fd);
     }
 

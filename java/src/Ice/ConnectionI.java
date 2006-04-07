@@ -1020,8 +1020,9 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         //
         ConnectionI[] connections = new ConnectionI[1];
         connections[0] = this;
-        IceInternal.Reference ref = _instance.referenceFactory().create(ident, _instance.getDefaultContext(), "",
-                                                                        IceInternal.Reference.ModeTwoway, connections);
+        IceInternal.Reference ref = 
+	    _instance.referenceFactory().create(ident, _instance.initializationData().defaultContext, "",
+                                                IceInternal.Reference.ModeTwoway, connections);
         return _instance.proxyFactory().referenceToProxy(ref);
     }
 
@@ -1220,11 +1221,11 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         _type = transceiver.type();
         _endpoint = endpoint;
         _adapter = adapter;
-        _logger = instance.logger(); // Cached for better performance.
+        _logger = instance.initializationData().logger; // Cached for better performance.
         _traceLevels = instance.traceLevels(); // Cached for better performance.
 	_registeredWithPool = false;
 	_finishedCount = 0;
-	_warn = _instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
+	_warn = _instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
 	_acmAbsoluteTimeoutMillis = 0;
         _nextRequestId = 1;
         _batchStream = new IceInternal.BasicStream(instance);
@@ -1251,7 +1252,8 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	    }
 	}
 
-	int compressionLevel = _instance.properties().getPropertyAsIntWithDefault("Ice.Compression.Level", 1);
+	int compressionLevel =
+	    _instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Compression.Level", 1);
 	if(compressionLevel < 1)
 	{
 	    compressionLevel = 1;
@@ -1318,7 +1320,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		s = "cannot create thread pool for connection:\n";
 	    }
 	    s += sw.toString();
-	    _instance.logger().error(s);
+	    _logger.error(s);
 	    
 	    try
 	    {
@@ -2049,7 +2051,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	    activate();
 	}
 
-	boolean warnUdp = _instance.properties().getPropertyAsInt("Ice.Warn.Datagrams") > 0;
+	boolean warnUdp = _instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
 
 	boolean closed = false;
 

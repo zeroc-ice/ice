@@ -390,8 +390,8 @@ public final class ReferenceFactory
 
 	if(beg == -1)
 	{
-	    return create(ident, _instance.getDefaultContext(), facet, mode, secure, "", routerInfo, locatorInfo,
-			  _instance.defaultsAndOverrides().defaultCollocationOptimization,
+	    return create(ident, _instance.initializationData().defaultContext, facet, mode, secure, "", routerInfo,
+	    		  locatorInfo, _instance.defaultsAndOverrides().defaultCollocationOptimization,
 			  _instance.defaultsAndOverrides().defaultLocatorCacheTimeout);
 	}
 
@@ -431,7 +431,7 @@ public final class ReferenceFactory
 		throw e;
 	    }
 	    else if(unknownEndpoints.size() != 0 &&
-	           _instance.properties().getPropertyAsIntWithDefault("Ice.Warn.Endpoints", 1) > 0)
+	           _instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Endpoints", 1) > 0)
 	    {
 	        String msg = "Proxy contains unknown endpoints:";
 		java.util.Iterator iter = unknownEndpoints.iterator();
@@ -439,12 +439,12 @@ public final class ReferenceFactory
 		{
 		    msg += " `" + (String)iter.next() + "'";
 		}
-		_instance.logger().warning(msg);
+		_instance.initializationData().logger.warning(msg);
 	    }
 
 	    EndpointI[] endp = new EndpointI[endpoints.size()];
 	    endpoints.toArray(endp);
-	    return create(ident, _instance.getDefaultContext(), facet, mode, secure, endp, routerInfo,
+	    return create(ident, _instance.initializationData().defaultContext, facet, mode, secure, endp, routerInfo,
 			  _instance.defaultsAndOverrides().defaultCollocationOptimization);
 	}
 	else if(s.charAt(beg) == '@')
@@ -485,8 +485,8 @@ public final class ReferenceFactory
 		throw e;
 	    }
 	    adapter = token.value;
-	    return create(ident, _instance.getDefaultContext(), facet, mode, secure, adapter, routerInfo, locatorInfo,
-			  _instance.defaultsAndOverrides().defaultCollocationOptimization,
+	    return create(ident, _instance.initializationData().defaultContext, facet, mode, secure, adapter,
+	    		  routerInfo, locatorInfo, _instance.defaultsAndOverrides().defaultCollocationOptimization,
 			  _instance.defaultsAndOverrides().defaultLocatorCacheTimeout);
 	}
 
@@ -548,14 +548,14 @@ public final class ReferenceFactory
 	    {
 		endpoints[i] = _instance.endpointFactoryManager().read(s);
 	    }
-	    return create(ident, _instance.getDefaultContext(), facet, mode, secure, endpoints, routerInfo,
-			  _instance.defaultsAndOverrides().defaultCollocationOptimization);
+	    return create(ident, _instance.initializationData().defaultContext, facet, mode, secure, endpoints,
+	    		  routerInfo, _instance.defaultsAndOverrides().defaultCollocationOptimization);
 	}
 	else
 	{
 	    endpoints = new EndpointI[0];
 	    adapterId = s.readString();
-	    return create(ident, _instance.getDefaultContext(), facet, mode, secure,
+	    return create(ident, _instance.initializationData().defaultContext, facet, mode, secure,
 	                  adapterId, routerInfo, locatorInfo,
 			  _instance.defaultsAndOverrides().defaultCollocationOptimization,
 			  _instance.defaultsAndOverrides().defaultLocatorCacheTimeout);

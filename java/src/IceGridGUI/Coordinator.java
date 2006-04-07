@@ -1194,7 +1194,9 @@ public class Coordinator
         // For now we retry to work-around bug #574:
 	// properties.setProperty("Ice.RetryIntervals", "-1");
 
-	return Ice.Util.initializeWithProperties(argSeq, properties);
+	Ice.InitializationData initData = new Ice.InitializationData();
+	initData.properties = properties;
+	return Ice.Util.initialize(argSeq, initData);
     }
 
     Coordinator(JFrame mainFrame, String[] args, Preferences prefs)

@@ -51,17 +51,15 @@ public abstract class Application
 
         try
         {
+	    InitializationData initData = new InitializationData();
+	    initData.logger = logger;
 	    StringSeqHolder argHolder = new StringSeqHolder(args);
             if(configFile != null)
             {
-                Properties properties = Util.createProperties();
-                properties.load(configFile);
-                _communicator = Util.initializeWithPropertiesAndLogger(argHolder, properties, logger);
+                initData.properties = Util.createProperties();
+                initData.properties.load(configFile);
             }
-            else
-            {
-                _communicator = Util.initializeWithLogger(argHolder, logger);
-            }
+            _communicator = Util.initialize(argHolder, initData);
 
             //
             // The default is to destroy when a signal is received.

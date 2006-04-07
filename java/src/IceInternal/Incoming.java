@@ -174,7 +174,7 @@ final public class Incoming extends IncomingBase
 		ex.operation = _current.operation;
 	    }
 
-	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
 	    {
 		__warning(ex);
 	    }
@@ -229,7 +229,7 @@ final public class Incoming extends IncomingBase
         {
 	    _is.endReadEncaps();
 
-	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	    {
 		__warning(ex);
 	    }
@@ -253,7 +253,7 @@ final public class Incoming extends IncomingBase
         {
 	    _is.endReadEncaps();
 
-	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	    {
 		__warning(ex);
 	    }
@@ -277,7 +277,7 @@ final public class Incoming extends IncomingBase
         {
 	    _is.endReadEncaps();
 
-	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	    {
 		__warning(ex);
 	    }
@@ -301,7 +301,7 @@ final public class Incoming extends IncomingBase
         {
 	    _is.endReadEncaps();
 
-	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	    {
 		__warning(ex);
 	    }
@@ -336,7 +336,7 @@ final public class Incoming extends IncomingBase
         {
 	    _is.endReadEncaps();
 
-	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	    {
 		__warning(ex);
 	    }

@@ -222,7 +222,7 @@ public final class ServantManager
 		pw.flush();
 		String s = "exception during locator deactivation:\n" + "object adapter: `" + _adapterName + "'\n" +
 		    "locator category: `" + e.getKey() + "'\n" + sw.toString();
-		_instance.logger().error(s);
+		_instance.initializationData().logger.error(s);
 	    }
 	}
 

@@ -74,31 +74,19 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
     public Properties
     getProperties()
     {
-        return _instance.properties();
+        return _instance.initializationData().properties;
     }
 
     public Logger
     getLogger()
     {
-        return _instance.logger();
-    }
-
-    public void
-    setLogger(Logger logger)
-    {
-        _instance.logger(logger);
+        return _instance.initializationData().logger;
     }
 
     public Stats
     getStats()
     {
-        return _instance.stats();
-    }
-
-    public void
-    setStats(Stats stats)
-    {
-        _instance.stats(stats);
+        return _instance.initializationData().stats;
     }
 
     public RouterPrx
@@ -128,13 +116,7 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
     public java.util.Map
     getDefaultContext()
     {
-	return _instance.getDefaultContext();
-    }
-
-    public void
-    setDefaultContext(java.util.Map ctx)
-    {
-	_instance.setDefaultContext(ctx);
+	return _instance.initializationData().defaultContext;
     }
 
     public PluginManager
@@ -149,9 +131,9 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
         _instance.flushBatchRequests();
     }
 
-    CommunicatorI(Properties properties, Logger logger)
+    CommunicatorI(InitializationData initData)
     {
-        _instance = new IceInternal.Instance(this, properties, logger);
+        _instance = new IceInternal.Instance(this, initData);
     }
 
     /**

@@ -1333,7 +1333,7 @@ public class BasicStream
                     }
                     if(_traceSlicing > 0)
                     {
-                        TraceUtil.traceSlicing("class", id, _slicingCat, _instance.logger());
+                        TraceUtil.traceSlicing("class", id, _slicingCat, _instance.initializationData().logger);
                     }
                     skipSlice(); // Slice off this derived part -- we don't understand it.
 		    id = readTypeId(); // Read next id for next iteration.
@@ -1427,7 +1427,7 @@ public class BasicStream
 		}
 		if(_traceSlicing > 0)
 		{
-		    TraceUtil.traceSlicing("exception", id, _slicingCat, _instance.logger());
+		    TraceUtil.traceSlicing("exception", id, _slicingCat, _instance.initializationData().logger);
 		}
 	        skipSlice(); // Slice off what we don't understand.
 		id = readString(); // Read type id for next slice.
@@ -1520,7 +1520,7 @@ public class BasicStream
                     out.print("exception raised by ice_postUnmarshal:\n");
                     ex.printStackTrace(pw);
                     pw.flush();
-                    _instance.logger().warning(sw.toString());
+                    _instance.initializationData().logger.warning(sw.toString());
                 }
             }
         }
@@ -1549,7 +1549,7 @@ public class BasicStream
             out.print("exception raised by ice_preMarshal:\n");
             ex.printStackTrace(pw);
             pw.flush();
-            _instance.logger().warning(sw.toString());
+            _instance.initializationData().logger.warning(sw.toString());
         }
         v.__write(this);
     }
@@ -2085,7 +2085,7 @@ public class BasicStream
             if(pos != -1)
             {
                 String topLevelModule = id.substring(2, pos);
-                String pkg = _instance.properties().getProperty("Ice.Package." + topLevelModule);
+                String pkg = _instance.initializationData().properties.getProperty("Ice.Package." + topLevelModule);
                 if(pkg.length() > 0)
                 {
                     c = getConcreteClass(pkg + "." + className);
@@ -2095,7 +2095,7 @@ public class BasicStream
 
         if(c == null)
         {
-            String pkg = _instance.properties().getProperty("Ice.Default.Package");
+            String pkg = _instance.initializationData().properties.getProperty("Ice.Default.Package");
             if(pkg.length() > 0)
             {
                 c = getConcreteClass(pkg + "." + className);

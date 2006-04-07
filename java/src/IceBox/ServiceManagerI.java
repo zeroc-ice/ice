@@ -345,7 +345,9 @@ public class ServiceManagerI extends _ServiceManagerDisp
 		// communicator with argc/argv. This is necessary for Ice
 		// plugin properties (e.g.: IceSSL).
 		//
-		info.communicator = Ice.Util.initializeWithProperties(serviceArgs, serviceProperties);
+		Ice.InitializationData initData = new Ice.InitializationData();
+		initData.properties = serviceProperties;
+		info.communicator = Ice.Util.initialize(serviceArgs, initData);
 	    }
 	
 	    Ice.Communicator communicator = info.communicator != null ? info.communicator : _server.communicator();

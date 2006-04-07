@@ -7,18 +7,17 @@
 //
 // **********************************************************************
 
-#ifndef HELLO_ICE
-#define HELLO_ICE
+package Ice;
 
-module Demo
+public final class InitializationData
 {
+    public
+    InitializationData()
+    {
+    }
 
-interface Hello
-{
-    ["deprecate:Do not use this method"] nonmutating void sayHello();
-    idempotent void shutdown();
-};
-
-};
-
-#endif
+    public Properties properties;
+    public Logger logger;
+    public Stats stats;
+    public java.util.Map defaultContext;
+}

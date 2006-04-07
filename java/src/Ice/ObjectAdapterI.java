@@ -44,9 +44,11 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    if(!_printAdapterReadyDone)
 	    {
 		locatorInfo = _locatorInfo;
-                registerProcess = _instance.properties().getPropertyAsInt(_name + ".RegisterProcess") > 0;
-                serverId = _instance.properties().getProperty("Ice.ServerId");
-		printAdapterReady = _instance.properties().getPropertyAsInt("Ice.PrintAdapterReady") > 0;
+                registerProcess =
+		    _instance.initializationData().properties.getPropertyAsInt(_name + ".RegisterProcess") > 0;
+                serverId = _instance.initializationData().properties.getProperty("Ice.ServerId");
+		printAdapterReady =
+		    _instance.initializationData().properties.getPropertyAsInt("Ice.PrintAdapterReady") > 0;
                 communicator = _communicator;
 		_printAdapterReadyDone = true;
 	    }
@@ -511,8 +513,9 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         IceInternal.EndpointI[] endpoints = new IceInternal.EndpointI[0];
         ConnectionI[] arr = new ConnectionI[connections.size()];
         connections.toArray(arr);
-        IceInternal.Reference ref = _instance.referenceFactory().create(ident, _instance.getDefaultContext(), "",
-                                                                        IceInternal.Reference.ModeTwoway, arr);
+        IceInternal.Reference ref =
+	    _instance.referenceFactory().create(ident, _instance.initializationData().defaultContext, "",
+                                                IceInternal.Reference.ModeTwoway, arr);
         return _instance.proxyFactory().referenceToProxy(ref);
     }
 
@@ -814,8 +817,8 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	_servantManager = new IceInternal.ServantManager(instance, name);
 	_printAdapterReadyDone = false;
         _name = name;
-	_id = instance.properties().getProperty(name + ".AdapterId");
-	_replicaGroupId = instance.properties().getProperty(name + ".ReplicaGroupId");
+	_id = instance.initializationData().properties.getProperty(name + ".AdapterId");
+	_replicaGroupId = instance.initializationData().properties.getProperty(name + ".ReplicaGroupId");
 	_directCount = 0;
 	_waitForDeactivate = false;
 	
@@ -837,7 +840,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    // Parse published endpoints. If set, these are used in proxies
 	    // instead of the connection factory Endpoints.
 	    //
-	    String endpts = _instance.properties().getProperty(name + ".PublishedEndpoints");
+	    String endpts = _instance.initializationData().properties.getProperty(name + ".PublishedEndpoints");
 	    _publishedEndpoints = parseEndpoints(endpts);
 	    if(_publishedEndpoints.size() == 0)
 	    {
@@ -862,13 +865,13 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 		}
 	    }
 
-	    String router = _instance.properties().getProperty(name + ".Router");
+	    String router = _instance.initializationData().properties.getProperty(name + ".Router");
 	    if(router.length() > 0)
 	    {
 		addRouter(RouterPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(router)));
 	    }
 
-	    String locator = _instance.properties().getProperty(name + ".Locator");
+	    String locator = _instance.initializationData().properties.getProperty(name + ".Locator");
 	    if(locator.length() > 0)
 	    {
 		setLocator(LocatorPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(locator)));
@@ -880,8 +883,8 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 
 	    if(!_instance.threadPerConnection())
 	    {
-		int size = _instance.properties().getPropertyAsInt(_name + ".ThreadPool.Size");
-		int sizeMax = _instance.properties().getPropertyAsInt(_name + ".ThreadPool.SizeMax");
+		int size = _instance.initializationData().properties.getPropertyAsInt(_name + ".ThreadPool.Size");
+		int sizeMax = _instance.initializationData().properties.getPropertyAsInt(_name + ".ThreadPool.SizeMax");
 		if(size > 0 || sizeMax > 0)
 		{
 		    _threadPool = new IceInternal.ThreadPool(_instance, _name + ".ThreadPool", 0);
@@ -906,7 +909,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    // For compatibility with C#, we do not invoke methods on other objects
 	    // in a finalizer.
 	    //
-            //_instance.logger().warning("object adapter `" + _name + "' has not been deactivated");
+            //_instance.initializationData().logger.warning("object adapter `" + _name + "' has not been deactivated");
         }
         else if(_instance != null)
         {
@@ -914,7 +917,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    // For compatibility with C#, we do not invoke methods on other objects
 	    // in a finalizer.
 	    //
-            //_instance.logger().warning("object adapter `" + _name + "' deactivation had not been waited for");
+            //_instance.initializationData().logger.warning("object adapter `" + _name + "' deactivation had not been waited for");
         }
 	else
 	{

@@ -251,11 +251,11 @@ final class UdpTransceiver implements Transceiver
     UdpTransceiver(Instance instance, String host, int port)
     {
         _traceLevels = instance.traceLevels();
-        _logger = instance.logger();
-        _stats = instance.stats();
+        _logger = instance.initializationData().logger;
+        _stats = instance.initializationData().stats;
         _incoming = false;
         _connect = true;
-	_warn = instance.properties().getPropertyAsInt("Ice.Warn.Datagrams") > 0;
+	_warn = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
 
         try
         {
@@ -288,11 +288,11 @@ final class UdpTransceiver implements Transceiver
     UdpTransceiver(Instance instance, String host, int port, boolean connect)
     {
         _traceLevels = instance.traceLevels();
-        _logger = instance.logger();
-        _stats = instance.stats();
+        _logger = instance.initializationData().logger;
+        _stats = instance.initializationData().stats;
         _incoming = true;
         _connect = connect;
-	_warn = instance.properties().getPropertyAsInt("Ice.Warn.Datagrams") > 0;
+	_warn = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
 
         try
         {
@@ -351,7 +351,7 @@ final class UdpTransceiver implements Transceiver
 	    //
 	    // Get property for buffer size and check for sanity.
 	    //
-	    int sizeRequested = instance.properties().getPropertyAsIntWithDefault(prop, dfltSize);
+	    int sizeRequested = instance.initializationData().properties.getPropertyAsIntWithDefault(prop, dfltSize);
 	    if(sizeRequested < _udpOverhead)
 	    {
 		_logger.warning("Invalid " + prop + " value of " + sizeRequested + " adjusted to " + dfltSize);

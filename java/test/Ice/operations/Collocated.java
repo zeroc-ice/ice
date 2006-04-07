@@ -17,6 +17,7 @@ public class Collocated
         Ice.Identity id = Ice.Util.stringToIdentity("test");
         adapter.add(new MyDerivedClassI(adapter, id), id);
         adapter.add(new TestCheckedCastI(), Ice.Util.stringToIdentity("context"));
+	adapter.activate();
 
         AllTests.allTests(communicator, true);
 

@@ -100,7 +100,8 @@ public class IncomingAsync extends IncomingBase
 		    ex.operation = _current.operation;
 		}
 
-		if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+		if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault(
+										"Ice.Warn.Dispatch", 1) > 1)
 		{
 		    __warning(ex);
 		}
@@ -151,7 +152,8 @@ public class IncomingAsync extends IncomingBase
 	    }
 	    catch(Ice.UnknownLocalException ex)
 	    {
-		if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault(
+										"Ice.Warn.Dispatch", 1) > 0)
 		{
 		    __warning(ex);
 		}
@@ -171,7 +173,8 @@ public class IncomingAsync extends IncomingBase
 	    }
 	    catch(Ice.UnknownUserException ex)
 	    {
-		if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault(
+										"Ice.Warn.Dispatch", 1) > 0)
 		{
 		    __warning(ex);
 		}
@@ -191,7 +194,8 @@ public class IncomingAsync extends IncomingBase
 	    }
 	    catch(Ice.UnknownException ex)
 	    {
-		if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault(
+										"Ice.Warn.Dispatch", 1) > 0)
 		{
 		    __warning(ex);
 		}
@@ -211,7 +215,8 @@ public class IncomingAsync extends IncomingBase
 	    }
 	    catch(Ice.LocalException ex)
 	    {
-		if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault(
+										"Ice.Warn.Dispatch", 1) > 0)
 		{
 		    __warning(ex);
 		}
@@ -236,7 +241,8 @@ public class IncomingAsync extends IncomingBase
 	    }
 	    catch(Ice.UserException ex)
 	    {
-		if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault(
+										"Ice.Warn.Dispatch", 1) > 0)
 		{
 		    __warning(ex);
 		}
@@ -261,7 +267,8 @@ public class IncomingAsync extends IncomingBase
 	    }
 	    catch(java.lang.Exception ex)
 	    {
-		if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault(
+										"Ice.Warn.Dispatch", 1) > 0)
 		{
 		    __warning(ex);
 		}
