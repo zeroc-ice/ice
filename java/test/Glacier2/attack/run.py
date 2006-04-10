@@ -42,6 +42,8 @@ TestUtil.getAdapterReady(starterPipe)
 print "ok"
 
 name = os.path.join("Glacier2", "attack")
+testdir = os.path.join(toplevel, "test", name)
+os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.getenv("CLASSPATH", "")
 
 TestUtil.clientServerTest()
 
