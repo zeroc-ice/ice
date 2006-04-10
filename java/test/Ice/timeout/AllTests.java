@@ -340,9 +340,10 @@ public class AllTests
 	    // endpoint timeouts.
 	    //
 	    String[] args = new String[0];
-	    Ice.Properties props = communicator.getProperties()._clone();
-	    props.setProperty("Ice.Override.Timeout", "500");
-	    Ice.Communicator comm = Ice.Util.initializeWithProperties(args, props);
+	    Ice.InitializationData initData = new Ice.InitializationData();
+	    initData.properties = communicator.getProperties()._clone();
+	    initData.properties.setProperty("Ice.Override.Timeout", "500");
+	    Ice.Communicator comm = Ice.Util.initialize(args, initData);
 	    TimeoutPrx to = TimeoutPrxHelper.checkedCast(comm.stringToProxy(sref));
 	    try
 	    {
@@ -374,9 +375,10 @@ public class AllTests
 	    // Test Ice.Override.ConnectTimeout.
 	    //
 	    String[] args = new String[0];
-	    Ice.Properties props = communicator.getProperties()._clone();
-	    props.setProperty("Ice.Override.ConnectTimeout", "500");
-	    Ice.Communicator comm = Ice.Util.initializeWithProperties(args, props);
+	    Ice.InitializationData initData = new Ice.InitializationData();
+	    initData.properties = communicator.getProperties()._clone();
+	    initData.properties.setProperty("Ice.Override.ConnectTimeout", "500");
+	    Ice.Communicator comm = Ice.Util.initialize(args, initData);
 	    timeout.holdAdapter(750);
 	    TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(comm.stringToProxy(sref));
 	    try
