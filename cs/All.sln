@@ -1,5 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual C# Express 2005
+# Visual Studio 2005
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ice", "src\Ice\Ice.csproj", "{C3630502-8F67-42BF-B4CA-A21D2EA8049E}"
 	ProjectSection(ProjectDependencies) = postProject
 		{6851468D-426E-4260-986C-244F278F3526} = {6851468D-426E-4260-986C-244F278F3526}
@@ -317,6 +317,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "routerS", "test\Glacier2\ro
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "routerC", "test\Glacier2\router\routerC.csproj", "{587F6F0A-EDCC-43D8-B428-38C5E901B378}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "attackS", "test\Glacier2\attack\attackS.csproj", "{D84E78B1-4B80-4C47-9D84-BA6B9A6DA667}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "attackC", "test\Glacier2\attack\attackC.csproj", "{D84E6F0A-EDCC-43D8-B428-38C5E901B378}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "clockC", "demo\IceStorm\clock\clockC.csproj", "{298D6EED-3E48-4C56-B61A-E3D9EA7B2E12}"
 EndProject
@@ -669,6 +673,14 @@ Global
 		{587F6F0A-EDCC-43D8-B428-38C5E901B378}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{587F6F0A-EDCC-43D8-B428-38C5E901B378}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{587F6F0A-EDCC-43D8-B428-38C5E901B378}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D84E78B1-4B80-4C47-9D84-BA6B9A6DA667}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D84E78B1-4B80-4C47-9D84-BA6B9A6DA667}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D84E78B1-4B80-4C47-9D84-BA6B9A6DA667}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D84E78B1-4B80-4C47-9D84-BA6B9A6DA667}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D84E6F0A-EDCC-43D8-B428-38C5E901B378}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D84E6F0A-EDCC-43D8-B428-38C5E901B378}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D84E6F0A-EDCC-43D8-B428-38C5E901B378}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D84E6F0A-EDCC-43D8-B428-38C5E901B378}.Release|Any CPU.Build.0 = Release|Any CPU
 		{298D6EED-3E48-4C56-B61A-E3D9EA7B2E12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{298D6EED-3E48-4C56-B61A-E3D9EA7B2E12}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{298D6EED-3E48-4C56-B61A-E3D9EA7B2E12}.Release|Any CPU.ActiveCfg = Release|Any CPU

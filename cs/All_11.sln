@@ -357,6 +357,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "routerC_11", "test\Glacier2
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "attackS_11", "test\Glacier2\attack\attackS_11.csproj", "{D8E478B1-4B80-4C47-9D84-BA6B9A6DA667}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "attackC_11", "test\Glacier2\attack\attackC_11.csproj", "{D8E46F0A-EDCC-43D8-B428-38C5E901B378}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "clockC_11", "demo\IceStorm\clock\clockC_11.csproj", "{298D6EED-3E48-4C56-B61A-E3D9EA7B2E12}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
@@ -712,6 +720,14 @@ Global
 		{587F6F0A-EDCC-43D8-B428-38C5E901B378}.Debug.Build.0 = Debug|.NET
 		{587F6F0A-EDCC-43D8-B428-38C5E901B378}.Release.ActiveCfg = Release|.NET
 		{587F6F0A-EDCC-43D8-B428-38C5E901B378}.Release.Build.0 = Release|.NET
+		{D8E478B1-4B80-4C47-9D84-BA6B9A6DA667}.Debug.ActiveCfg = Debug|.NET
+		{D8E478B1-4B80-4C47-9D84-BA6B9A6DA667}.Debug.Build.0 = Debug|.NET
+		{D8E478B1-4B80-4C47-9D84-BA6B9A6DA667}.Release.ActiveCfg = Release|.NET
+		{D8E478B1-4B80-4C47-9D84-BA6B9A6DA667}.Release.Build.0 = Release|.NET
+		{D8E46F0A-EDCC-43D8-B428-38C5E901B378}.Debug.ActiveCfg = Debug|.NET
+		{D8E46F0A-EDCC-43D8-B428-38C5E901B378}.Debug.Build.0 = Debug|.NET
+		{D8E46F0A-EDCC-43D8-B428-38C5E901B378}.Release.ActiveCfg = Release|.NET
+		{D8E46F0A-EDCC-43D8-B428-38C5E901B378}.Release.Build.0 = Release|.NET
 		{298D6EED-3E48-4C56-B61A-E3D9EA7B2E12}.Debug.ActiveCfg = Debug|.NET
 		{298D6EED-3E48-4C56-B61A-E3D9EA7B2E12}.Debug.Build.0 = Debug|.NET
 		{298D6EED-3E48-4C56-B61A-E3D9EA7B2E12}.Release.ActiveCfg = Release|.NET

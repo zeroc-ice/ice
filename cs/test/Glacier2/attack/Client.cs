@@ -103,7 +103,7 @@ public class Client : Ice.Application
 	   admin.ice_ping();
 	   test(false);
 	}
-	catch(Ice.LocalException ex)
+	catch(Ice.LocalException)
 	{
 	    Console.Out.WriteLine("ok");
 	}

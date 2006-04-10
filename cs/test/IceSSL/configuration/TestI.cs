@@ -38,14 +38,15 @@ internal sealed class ServerFactoryI : ServerFactoryDisp_
 
     public override ServerPrx createServer(Properties props, Ice.Current current)
     {
-	Ice.Properties properties = Ice.Util.createProperties();
+    	Ice.InitializationData initData = new Ice.InitializationData();
+	initData.properties = Ice.Util.createProperties();
 	foreach(string key in props.Keys)
 	{
-	    properties.setProperty(key, props[key]);
+	    initData.properties.setProperty(key, props[key]);
 	}
 
 	string[] args = new string[0];
-	Ice.Communicator communicator = Ice.Util.initializeWithProperties(ref args, properties);
+	Ice.Communicator communicator = Ice.Util.initialize(ref args, initData);
 	Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
 	ServerI server = new ServerI(communicator);
 	Ice.ObjectPrx obj = adapter.addWithUUID(server);

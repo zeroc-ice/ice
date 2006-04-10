@@ -143,9 +143,10 @@ public class AllTests
 	    Console.Out.Write("testing manual initialization... ");
 	    Console.Out.Flush();
 	    {
-		Ice.Properties props = createClientProps(testDir, defaultHost);
-		props.setProperty("IceSSL.DelayInit", "1");
-		Ice.Communicator comm = Ice.Util.initializeWithProperties(ref args, props);
+	    	Ice.InitializationData initData = new Ice.InitializationData();
+		initData.properties = createClientProps(testDir, defaultHost);
+		initData.properties.setProperty("IceSSL.DelayInit", "1");
+		Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 		Ice.ObjectPrx p = comm.stringToProxy("dummy:ssl -p 9999");
 		try
 		{
@@ -163,11 +164,12 @@ public class AllTests
 		comm.destroy();
 	    }
 	    {
-		Ice.Properties props = createClientProps(testDir, defaultHost);
-		props.setProperty("IceSSL.DelayInit", "1");
-		props.setProperty("IceSSL.Client.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
-		props.setProperty("IceSSL.Client.Password", "password");
-		Ice.Communicator comm = Ice.Util.initializeWithProperties(ref args, props);
+	    	Ice.InitializationData initData = new Ice.InitializationData();
+		initData.properties = createClientProps(testDir, defaultHost);
+		initData.properties.setProperty("IceSSL.DelayInit", "1");
+		initData.properties.setProperty("IceSSL.Client.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
+		initData.properties.setProperty("IceSSL.Client.Password", "password");
+		Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 		IceSSL.Plugin plugin = (IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
 		test(plugin != null);
 		plugin.initialize(null, null);
@@ -198,9 +200,10 @@ public class AllTests
 		X509Certificate2 cert = new X509Certificate2(defaultDir + "/c_rsa_nopass_ca1.pfx", "password");
 		X509Certificate2Collection coll = new X509Certificate2Collection();
 		coll.Add(cert);
-		Ice.Properties props = createClientProps(testDir, defaultHost);
-		props.setProperty("IceSSL.DelayInit", "1");
-		Ice.Communicator comm = Ice.Util.initializeWithProperties(ref args, props);
+	    	Ice.InitializationData initData = new Ice.InitializationData();
+		initData.properties = createClientProps(testDir, defaultHost);
+		initData.properties.setProperty("IceSSL.DelayInit", "1");
+		Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 		IceSSL.Plugin plugin = (IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
 		test(plugin != null);
 		plugin.initialize(coll, null);
@@ -233,8 +236,9 @@ public class AllTests
 		//
 		// Test IceSSL.Server.VerifyPeer=1. Client does not have a certificate.
 		//
-		Ice.Properties props = createClientProps(testDir, defaultHost);
-		Ice.Communicator comm = Ice.Util.initializeWithProperties(ref args, props);
+	    	Ice.InitializationData initData = new Ice.InitializationData();
+		initData.properties = createClientProps(testDir, defaultHost);
+		Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 		Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
 		test(fact != null);
 		Test.Properties d = createServerProps(testDir, defaultHost);
@@ -285,9 +289,9 @@ public class AllTests
 		//
 		// Test IceSSL.Server.VerifyPeer=1. Client has a certificate.
 		//
-		props.setProperty("IceSSL.Client.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
-		props.setProperty("IceSSL.Client.Password", "password");
-		comm = Ice.Util.initializeWithProperties(ref args, props);
+		initData.properties.setProperty("IceSSL.Client.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
+		initData.properties.setProperty("IceSSL.Client.Password", "password");
+		comm = Ice.Util.initialize(ref args, initData);
 		fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
 		test(fact != null);
 		d = createServerProps(testDir, defaultHost);
@@ -333,8 +337,8 @@ public class AllTests
 		// Test IceSSL.Server.VerifyPeer=1. This should fail because the
 		// client doesn't trust the server's CA.
 		//
-		props = createClientProps(testDir, defaultHost);
-		comm = Ice.Util.initializeWithProperties(ref args, props);
+		initData.properties = createClientProps(testDir, defaultHost);
+		comm = Ice.Util.initialize(ref args, initData);
 		fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
 		test(fact != null);
 		d = createServerProps(testDir, defaultHost);
@@ -368,10 +372,11 @@ public class AllTests
 		//
 		// Verify that a certificate is present.
 		//
-		Ice.Properties props = createClientProps(testDir, defaultHost);
-		props.setProperty("IceSSL.Client.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
-		props.setProperty("IceSSL.Client.Password", "password");
-		Ice.Communicator comm = Ice.Util.initializeWithProperties(ref args, props);
+	    	Ice.InitializationData initData = new Ice.InitializationData();
+		initData.properties = createClientProps(testDir, defaultHost);
+		initData.properties.setProperty("IceSSL.Client.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
+		initData.properties.setProperty("IceSSL.Client.Password", "password");
+		Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 		IceSSL.Plugin plugin = (IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
 		test(plugin != null);
 		CertificateVerifierI verifier = new CertificateVerifierI();
@@ -434,11 +439,12 @@ public class AllTests
 		// This should fail because the client and server have no protocol
 		// in common.
 		//
-		Ice.Properties props = createClientProps(testDir, defaultHost);
-		props.setProperty("IceSSL.Client.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
-		props.setProperty("IceSSL.Client.Password", "password");
-		props.setProperty("IceSSL.Client.Protocols", "ssl3");
-		Ice.Communicator comm = Ice.Util.initializeWithProperties(ref args, props);
+	    	Ice.InitializationData initData = new Ice.InitializationData();
+		initData.properties = createClientProps(testDir, defaultHost);
+		initData.properties.setProperty("IceSSL.Client.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
+		initData.properties.setProperty("IceSSL.Client.Password", "password");
+		initData.properties.setProperty("IceSSL.Client.Protocols", "ssl3");
+		Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 		Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
 		test(fact != null);
 		Test.Properties d = createServerProps(testDir, defaultHost);
@@ -468,7 +474,7 @@ public class AllTests
 		//
 		// This should succeed.
 		//
-		comm = Ice.Util.initializeWithProperties(ref args, props);
+		comm = Ice.Util.initialize(ref args, initData);
 		fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
 		test(fact != null);
 		d = createServerProps(testDir, defaultHost);
@@ -498,10 +504,11 @@ public class AllTests
 		//
 		// This should fail because the server's certificate is expired.
 		//
-		Ice.Properties props = createClientProps(testDir, defaultHost);
-		props.setProperty("IceSSL.Client.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
-		props.setProperty("IceSSL.Client.Password", "password");
-		Ice.Communicator comm = Ice.Util.initializeWithProperties(ref args, props);
+	    	Ice.InitializationData initData = new Ice.InitializationData();
+		initData.properties = createClientProps(testDir, defaultHost);
+		initData.properties.setProperty("IceSSL.Client.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
+		initData.properties.setProperty("IceSSL.Client.Password", "password");
+		Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 		Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
 		test(fact != null);
 		Test.Properties d = createServerProps(testDir, defaultHost);
@@ -530,9 +537,9 @@ public class AllTests
 		//
 		// This should fail because the client's certificate is expired.
 		//
-		props.setProperty("IceSSL.Client.CertFile", defaultDir + "/c_rsa_nopass_ca1_exp.pfx");
-		props.setProperty("IceSSL.Client.Password", "password");
-		comm = Ice.Util.initializeWithProperties(ref args, props);
+		initData.properties.setProperty("IceSSL.Client.CertFile", defaultDir + "/c_rsa_nopass_ca1_exp.pfx");
+		initData.properties.setProperty("IceSSL.Client.Password", "password");
+		comm = Ice.Util.initialize(ref args, initData);
 		fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
 		test(fact != null);
 		d = createServerProps(testDir, defaultHost);
@@ -563,10 +570,11 @@ public class AllTests
 	    Console.Out.Write("testing multiple CA certificates... ");
 	    Console.Out.Flush();
 	    {
-		Ice.Properties props = createClientProps(testDir, defaultHost);
-		props.setProperty("IceSSL.Client.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
-		props.setProperty("IceSSL.Client.Password", "password");
-		Ice.Communicator comm = Ice.Util.initializeWithProperties(ref args, props);
+	    	Ice.InitializationData initData = new Ice.InitializationData();
+		initData.properties = createClientProps(testDir, defaultHost);
+		initData.properties.setProperty("IceSSL.Client.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
+		initData.properties.setProperty("IceSSL.Client.Password", "password");
+		Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 		Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
 		test(fact != null);
 		Test.Properties d = createServerProps(testDir, defaultHost);
@@ -594,13 +602,14 @@ public class AllTests
 	    Console.Out.Write("testing password failure... ");
 	    Console.Out.Flush();
 	    {
-		Ice.Properties props = createClientProps(testDir, defaultHost);
-		props.setProperty("IceSSL.Client.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
+	    	Ice.InitializationData initData = new Ice.InitializationData();
+		initData.properties = createClientProps(testDir, defaultHost);
+		initData.properties.setProperty("IceSSL.Client.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
 		// Don't specify the password.
 		//props.setProperty("IceSSL.Client.Password", "password");
 		try
 		{
-		    Ice.Util.initializeWithProperties(ref args, props);
+		    Ice.Util.initialize(ref args, initData);
 		    test(false);
 		}
 		catch(Ice.PluginInitializationException)
