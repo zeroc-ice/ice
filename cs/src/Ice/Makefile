@@ -70,7 +70,6 @@ SRCS		= Acceptor.cs \
 		  Reference.cs \
 		  ReferenceFactory.cs \
 		  RouterInfo.cs \
-		  RoutingTable.cs \
 		  ServantManager.cs \
 		  Set.cs \
 		  SliceChecksums.cs \

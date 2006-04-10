@@ -76,19 +76,46 @@ namespace IceInternal
 	
 	public int checkRetryAfterException(Ice.LocalException ex, Reference @ref, int cnt)
 	{
-	    //
-	    // We retry ObjectNotExistException if the reference is
-	    // indirect. Otherwise, we don't retry other *NotExistException,
-	    // which are all derived from RequestFailedException.
-	    //
+	    TraceLevels traceLevels = instance_.traceLevels();
+	    Ice.Logger logger = instance_.initializationData().logger;
+
 	    if(ex is Ice.ObjectNotExistException)
 	    {
+	        Ice.ObjectNotExistException one = (Ice.ObjectNotExistException)ex;
+
 		LocatorInfo li = @ref.getLocatorInfo();
-		if(li == null)
+		if(li != null)
 		{
+		    //
+		    // We retry ObjectNotExistException if the reference is
+		    // indirect.
+		    //
+		    li.clearObjectCache((IndirectReference)@ref);
+		}
+		else if(@ref.getRouterInfo() != null && one.operation.Equals("ice_add_proxy"))
+		{
+		    //
+		    // If we have a router, an ObjectNotExistException with an
+		    // operation name "ice_add_proxy" indicates to the client
+		    // that the router isn't aware of the proxy (for example,
+		    // because it was evicted by the router). In this case, we
+		    // must *always* retry, so that the missing proxy is added
+		    // to the router.
+		    //
+		    if(traceLevels.retry >= 1)
+		    {
+		        string s = "retrying operation call to add proxy to router\n" + ex;
+			logger.trace(traceLevels.retryCat, s);
+		    }
+		    return cnt; // We must always retry, so we don't look at the retry count.
+		}
+		else
+		{
+		    //
+		    // For all other cases, we don't retry ObjectNotExistException.
+		    //
 		    throw ex;
 		}
-		li.clearObjectCache((IndirectReference)@ref);
 	    }
 	    else if(ex is Ice.RequestFailedException)
 	    {
@@ -124,9 +151,6 @@ namespace IceInternal
 	    ++cnt;
 	    Debug.Assert(cnt > 0);
 
-	    TraceLevels traceLevels = instance_.traceLevels();
-	    Ice.Logger logger = instance_.initializationData().logger;
-
 	    if(cnt > _retryIntervals.Length)
 	    {
 	        if(traceLevels.retry >= 1)
@@ -141,7 +165,7 @@ namespace IceInternal
 
 	    if(traceLevels.retry >= 1)
 	    {
-	        string s = "re-trying operation call";
+	        string s = "retrying operation call";
 	        if(interval > 0)
 	        {
 	    	    s += " in " + interval + "ms";

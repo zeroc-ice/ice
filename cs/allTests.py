@@ -70,6 +70,7 @@ tests = [ \
     "Ice/retry", \
     "Ice/timeout", \
     "Glacier2/router", \
+    "Glacier2/attack", \
     "IceGrid/simple", \
     ]
 if os.path.exists(os.path.join(toplevel, "bin", "icesslcs.dll")):

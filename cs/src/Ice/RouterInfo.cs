@@ -19,7 +19,6 @@ namespace IceInternal
 	internal RouterInfo(Ice.RouterPrx router)
 	{
 	    _router = router;
-	    _routingTable = new RoutingTable();
 	    
 	    Debug.Assert(_router != null);
 	}
@@ -31,7 +30,7 @@ namespace IceInternal
 		_clientProxy = null;
 		_serverProxy = null;
 		_adapter = null;
-		_routingTable.clear();
+		_identities.Clear();
 	    }
 	}
 	
@@ -137,14 +136,32 @@ namespace IceInternal
 
 	public void addProxy(Ice.ObjectPrx proxy)
 	{
-	    //
-	    // No mutex lock necessary, _routingTable is immutable, and
-	    // RoutingTable is mutex protected.
-	    //
-	    if(_routingTable.add(proxy))
-	    // Only add the proxy to the router if it's not already in the routing table.
+	    Debug.Assert(proxy != null);
+
+	    lock(this)
 	    {
-		_router.addProxy(proxy);
+	        if(!_identities.Contains(proxy.ice_getIdentity()))
+		{
+		    //
+		    // Only add the proxy to the router if it's not already in our local map.
+		    //
+		    Ice.ObjectPrx[] proxies = new Ice.ObjectPrx[1];
+		    proxies[0] = proxy;
+		    Ice.ObjectPrx[] evictedProxies = _router.addProxies(proxies);
+
+		    //
+		    // If we successfully added the proxy to the router, we add it to our local map.
+		    //
+		    _identities.Add(proxy.ice_getIdentity());
+
+		    //
+		    // We also must remove whatever proxies the router evicted.
+		    //
+		    for(int i = 0; i < evictedProxies.Length; ++i)
+		    {
+		        _identities.Remove(evictedProxies[i].ice_getIdentity());
+		    }
+		}
 	    }
 	}
 
@@ -167,7 +184,7 @@ namespace IceInternal
 	private readonly Ice.RouterPrx _router;
 	private Ice.ObjectPrx _clientProxy;
 	private Ice.ObjectPrx _serverProxy;
-	private readonly RoutingTable _routingTable;
+	private IceUtil.Set _identities = new IceUtil.Set();
 	private Ice.ObjectAdapter _adapter;
     }
 

@@ -342,9 +342,6 @@
     <Compile Include="RouterInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="RoutingTable.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="ServantManager.cs">
       <SubType>Code</SubType>
     </Compile>

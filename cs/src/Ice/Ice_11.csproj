@@ -359,11 +359,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "RoutingTable.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "ServantManager.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

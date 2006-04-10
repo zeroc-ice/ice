@@ -1,6 +1,11 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Added a new method addProxies() to Ice::Router, which can return
+  evicted proxies. The old method addProxy() is now deprecated. Note
+  that this is an internal interface for communications between
+  clients and routers (such as Glacier2).
+
 - Added communicator initialize method which takes a InitializationData
   structure containing communicator members which are only allowed
   to be set during communicator creation. Currently included are
