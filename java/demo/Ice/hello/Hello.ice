@@ -15,7 +15,7 @@ module Demo
 
 interface Hello
 {
-    ["deprecate:Do not use this method"] nonmutating void sayHello();
+    nonmutating void sayHello();
     idempotent void shutdown();
 };
 
