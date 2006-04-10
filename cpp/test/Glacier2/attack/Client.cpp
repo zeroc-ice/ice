@@ -108,7 +108,6 @@ AttackClient::run(int argc, char* argv[])
 	backend->ice_ping();
     }
     cout << string(msg.size(), '\b') << string(msg.size(), ' ') << string(msg.size(), '\b');
-    cout << ' ';
     cout << "ok" << endl;
     
     cout << "testing server and router shutdown... " << flush;
