@@ -27,10 +27,13 @@ class TcpAcceptor implements Acceptor
         }
 
         java.nio.channels.ServerSocketChannel fd;
+        java.nio.channels.Selector selector;
 	synchronized(this)
 	{
 	    fd = _fd;
+	    selector = _selector;
 	    _fd = null;
+	    _selector = null;
 	}
         if(fd != null)
         {
@@ -43,6 +46,17 @@ class TcpAcceptor implements Acceptor
                 // Ignore.
             }
         }
+	if(selector != null)
+	{
+	    try
+	    {
+		selector.close();
+	    }
+	    catch(java.io.IOException ex)
+	    {
+		// Ignore.
+	    }
+	}
     }
 
     public void
@@ -60,7 +74,84 @@ class TcpAcceptor implements Acceptor
     public Transceiver
     accept(int timeout)
     {
-        java.nio.channels.SocketChannel fd = Network.doAccept(_fd, timeout);
+	java.nio.channels.SocketChannel fd = null;
+	while(fd == null)
+	{
+	    try
+	    {
+		fd = _fd.accept();
+		if(fd == null)
+		{
+		    if(_selector == null)
+		    {
+			_selector = java.nio.channels.Selector.open();
+		    }
+
+		    while(true)
+		    {
+			try
+			{
+			    java.nio.channels.SelectionKey key =
+				_fd.register(_selector, java.nio.channels.SelectionKey.OP_ACCEPT);
+			    if(timeout > 0)
+			    {
+				if(_selector.select(timeout) == 0)
+				{
+				    throw new Ice.TimeoutException();
+				}
+			    }
+			    else if(timeout == 0)
+			    {
+				if(_selector.selectNow() == 0)
+				{
+				    throw new Ice.TimeoutException();
+				}
+			    }
+			    else
+			    {
+				_selector.select();
+			    }
+
+			    break;
+			}
+			catch(java.io.IOException ex)
+			{
+			    if(Network.interrupted(ex))
+			    {
+				continue;
+			    }
+			    Ice.SocketException se = new Ice.SocketException();
+			    se.initCause(ex);
+			    throw se;
+			}
+		    }
+		}
+	    }
+	    catch(java.io.IOException ex)
+	    {
+		if(Network.interrupted(ex))
+		{
+		    continue;
+		}
+		Ice.SocketException se = new Ice.SocketException();
+		se.initCause(ex);
+		throw se;
+	    }
+	}
+
+	try
+	{
+	    java.net.Socket socket = fd.socket();
+	    socket.setTcpNoDelay(true);
+	    socket.setKeepAlive(true);
+	}
+	catch(java.io.IOException ex)
+	{
+	    Ice.SocketException se = new Ice.SocketException();
+	    se.initCause(ex);
+	    throw se;
+	}
+
 	if(!_instance.threadPerConnection())
 	{
 	    Network.setBlock(fd, false);
@@ -149,4 +240,5 @@ class TcpAcceptor implements Acceptor
     private java.nio.channels.ServerSocketChannel _fd;
     private int _backlog;
     private java.net.InetSocketAddress _addr;
+    private java.nio.channels.Selector _selector;
 }
