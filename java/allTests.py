@@ -73,6 +73,7 @@ tests = [ \
     "Freeze/complex", \
     "Freeze/evictor", \
     "Glacier2/router", \
+    "Glacier2/attack", \
     "IceGrid/simple", \
     ]
 

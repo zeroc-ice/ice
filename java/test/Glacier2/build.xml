@@ -12,10 +12,12 @@
 <project name="test_Glacier2" default="all" basedir=".">
 
     <target name="all">
+        <ant dir="attack"/>
         <ant dir="router"/>
     </target>
 
     <target name="clean">
+        <ant dir="attack" target="clean"/>
         <ant dir="router" target="clean"/>
     </target>
 
