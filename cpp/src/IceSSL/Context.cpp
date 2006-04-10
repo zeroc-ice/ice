@@ -93,14 +93,8 @@ IceSSL::Context::Context(const InstancePtr& instance, const string& propPrefix, 
     _ctx = SSL_CTX_new(SSLv23_method());
     if(!_ctx)
     {
-	string err = _instance->sslErrors();
-	string msg = "IceSSL: unable to create SSL context:\n" + err;
-	if(_instance->securityTraceLevel() >= 1)
-	{
-	    _logger->trace(_instance->securityTraceCategory(), msg);
-	}
 	PluginInitializationException ex(__FILE__, __LINE__);
-	ex.reason = msg;
+	ex.reason = "IceSSL: unable to create SSL context:\n" + _instance->sslErrors();
 	throw ex;
     }
 
@@ -151,13 +145,8 @@ IceSSL::Context::Context(const InstancePtr& instance, const string& propPrefix, 
 		break;
 	    default:
 	    {
-		string msg = "IceSSL: invalid value for " + propPrefix + "VerifyPeer";
-		if(_instance->securityTraceLevel() >= 1)
-		{
-		    _logger->trace(_instance->securityTraceCategory(), msg);
-		}
 		PluginInitializationException ex(__FILE__, __LINE__);
-		ex.reason = msg;
+		ex.reason = "IceSSL: invalid value for " + propPrefix + "VerifyPeer";
 		throw ex;
 	    }
 	    }
@@ -194,13 +183,8 @@ IceSSL::Context::Context(const InstancePtr& instance, const string& propPrefix, 
 	    {
 		if(!checkPath(caFile, false))
 		{
-		    string msg = "IceSSL: CA certificate file not found:\n" + caFile;
-		    if(_instance->securityTraceLevel() >= 1)
-		    {
-			_logger->trace(_instance->securityTraceCategory(), msg);
-		    }
 		    PluginInitializationException ex(__FILE__, __LINE__);
-		    ex.reason = msg;
+		    ex.reason = "IceSSL: CA certificate file not found:\n" + caFile;
 		    throw ex;
 		}
 		file = caFile.c_str();
@@ -209,13 +193,8 @@ IceSSL::Context::Context(const InstancePtr& instance, const string& propPrefix, 
 	    {
 		if(!checkPath(caDir, true))
 		{
-		    string msg = "IceSSL: CA certificate directory not found:\n" + caDir;
-		    if(_instance->securityTraceLevel() >= 1)
-		    {
-			_logger->trace(_instance->securityTraceCategory(), msg);
-		    }
 		    PluginInitializationException ex(__FILE__, __LINE__);
-		    ex.reason = msg;
+		    ex.reason = "IceSSL: CA certificate directory not found:\n" + caDir;
 		    throw ex;
 		}
 		dir = caDir.c_str();
@@ -253,10 +232,6 @@ IceSSL::Context::Context(const InstancePtr& instance, const string& propPrefix, 
 			    msg += ":\n" + err;
 			}
 		    }
-		    if(_instance->securityTraceLevel() >= 1)
-		    {
-			_logger->trace(_instance->securityTraceCategory(), msg);
-		    }
 		    PluginInitializationException ex(__FILE__, __LINE__);
 		    ex.reason = msg;
 		    throw ex;
@@ -282,13 +257,8 @@ IceSSL::Context::Context(const InstancePtr& instance, const string& propPrefix, 
 		vector<string> files;
 		if(!splitString(certFile, sep, false, files) || files.size() > 2)
 		{
-		    string msg = "IceSSL: invalid value for " + propPrefix + "CertFile:\n" + certFile;
-		    if(_instance->securityTraceLevel() >= 1)
-		    {
-			_logger->trace(_instance->securityTraceCategory(), msg);
-		    }
 		    PluginInitializationException ex(__FILE__, __LINE__);
-		    ex.reason = msg;
+		    ex.reason = "IceSSL: invalid value for " + propPrefix + "CertFile:\n" + certFile;
 		    throw ex;
 		}
 		numCerts = files.size();
@@ -297,13 +267,8 @@ IceSSL::Context::Context(const InstancePtr& instance, const string& propPrefix, 
 		    string file = *p;
 		    if(!checkPath(file, false))
 		    {
-			string msg = "IceSSL: certificate file not found:\n" + file;
-			if(_instance->securityTraceLevel() >= 1)
-			{
-			    _logger->trace(_instance->securityTraceCategory(), msg);
-			}
 			PluginInitializationException ex(__FILE__, __LINE__);
-			ex.reason = msg;
+			ex.reason = "IceSSL: certificate file not found:\n" + file;
 			throw ex;
 		    }
 		    //
@@ -337,10 +302,6 @@ IceSSL::Context::Context(const InstancePtr& instance, const string& propPrefix, 
 				msg += ":\n" + err;
 			    }
 			}
-			if(_instance->securityTraceLevel() >= 1)
-			{
-			    _logger->trace(_instance->securityTraceCategory(), msg);
-			}
 			PluginInitializationException ex(__FILE__, __LINE__);
 			ex.reason = msg;
 			throw ex;
@@ -356,24 +317,14 @@ IceSSL::Context::Context(const InstancePtr& instance, const string& propPrefix, 
 		vector<string> files;
 		if(!splitString(keyFile, sep, false, files) || files.size() > 2)
 		{
-		    string msg = "IceSSL: invalid value for " + propPrefix + "KeyFile:\n" + keyFile;
-		    if(_instance->securityTraceLevel() >= 1)
-		    {
-			_logger->trace(_instance->securityTraceCategory(), msg);
-		    }
 		    PluginInitializationException ex(__FILE__, __LINE__);
-		    ex.reason = msg;
+		    ex.reason = "IceSSL: invalid value for " + propPrefix + "KeyFile:\n" + keyFile;
 		    throw ex;
 		}
 		if(files.size() != numCerts)
 		{
-		    string msg = "IceSSL: " + propPrefix + "KeyFile does not agree with " + propPrefix + "CertFile";
-		    if(_instance->securityTraceLevel() >= 1)
-		    {
-			_logger->trace(_instance->securityTraceCategory(), msg);
-		    }
 		    PluginInitializationException ex(__FILE__, __LINE__);
-		    ex.reason = msg;
+		    ex.reason = "IceSSL: " + propPrefix + "KeyFile does not agree with " + propPrefix + "CertFile";
 		    throw ex;
 		}
 		for(vector<string>::iterator p = files.begin(); p != files.end(); ++p)
@@ -381,13 +332,8 @@ IceSSL::Context::Context(const InstancePtr& instance, const string& propPrefix, 
 		    string file = *p;
 		    if(!checkPath(file, false))
 		    {
-			string msg = "IceSSL: key file not found:\n" + file;
-			if(_instance->securityTraceLevel() >= 1)
-			{
-			    _logger->trace(_instance->securityTraceCategory(), msg);
-			}
 			PluginInitializationException ex(__FILE__, __LINE__);
-			ex.reason = msg;
+			ex.reason = "IceSSL: key file not found:\n" + file;
 			throw ex;
 		    }
 		    //
@@ -421,10 +367,6 @@ IceSSL::Context::Context(const InstancePtr& instance, const string& propPrefix, 
 				msg += ":\n" + err;
 			    }
 			}
-			if(_instance->securityTraceLevel() >= 1)
-			{
-			    _logger->trace(_instance->securityTraceCategory(), msg);
-			}
 			PluginInitializationException ex(__FILE__, __LINE__);
 			ex.reason = msg;
 			throw ex;
@@ -432,14 +374,8 @@ IceSSL::Context::Context(const InstancePtr& instance, const string& propPrefix, 
 		}
 		if(!SSL_CTX_check_private_key(_ctx))
 		{
-		    string err = _instance->sslErrors();
-		    string msg = "IceSSL: unable to validate private key(s):\n" + err;
-		    if(_instance->securityTraceLevel() >= 1)
-		    {
-			_logger->trace(_instance->securityTraceCategory(), msg);
-		    }
 		    PluginInitializationException ex(__FILE__, __LINE__);
-		    ex.reason = msg;
+		    ex.reason = "IceSSL: unable to validate private key(s):\n" + _instance->sslErrors();
 		    throw ex;
 		}
 	    }
@@ -454,14 +390,8 @@ IceSSL::Context::Context(const InstancePtr& instance, const string& propPrefix, 
 	    {
 		if(!SSL_CTX_set_cipher_list(_ctx, ciphers.c_str()))
 		{
-		    string err = _instance->sslErrors();
-		    string msg = "IceSSL: unable to set ciphers using `" + ciphers + "':\n" + err;
-		    if(_instance->securityTraceLevel() >= 1)
-		    {
-			_logger->trace(_instance->securityTraceCategory(), msg);
-		    }
 		    PluginInitializationException ex(__FILE__, __LINE__);
-		    ex.reason = msg;
+		    ex.reason = "IceSSL: unable to set ciphers using `" + ciphers + "':\n" + _instance->sslErrors();
 		    throw ex;
 		}
 	    }
@@ -508,24 +438,14 @@ IceSSL::Context::Context(const InstancePtr& instance, const string& propPrefix, 
 			string file = p->second;
 			if(!checkPath(file, false))
 			{
-			    string msg = "IceSSL: DH parameter file not found:\n" + file;
-			    if(_instance->securityTraceLevel() >= 1)
-			    {
-				_logger->trace(_instance->securityTraceCategory(), msg);
-			    }
 			    PluginInitializationException ex(__FILE__, __LINE__);
-			    ex.reason = msg;
+			    ex.reason = "IceSSL: DH parameter file not found:\n" + file;
 			    throw ex;
 			}
 			if(!_dhParams->add(keyLength, file))
 			{
-			    string msg = "IceSSL: unable to read DH parameter file " + file;
-			    if(_instance->securityTraceLevel() >= 1)
-			    {
-				_logger->trace(_instance->securityTraceCategory(), msg);
-			    }
 			    PluginInitializationException ex(__FILE__, __LINE__);
-			    ex.reason = msg;
+			    ex.reason = "IceSSL: unable to read DH parameter file " + file;
 			    throw ex;
 			}
 		    }
@@ -881,13 +801,8 @@ IceSSL::Context::parseProtocols(const string& val)
 	}
 	else
 	{
-	    string msg = "IceSSL: unrecognized protocol `" + prot + "'";
-	    if(_instance->securityTraceLevel() >= 1)
-	    {
-		_logger->trace(_instance->securityTraceCategory(), msg);
-	    }
 	    PluginInitializationException ex(__FILE__, __LINE__);
-	    ex.reason = msg;
+	    ex.reason = "IceSSL: unrecognized protocol `" + prot + "'";
 	    throw ex;
 	}
     }
