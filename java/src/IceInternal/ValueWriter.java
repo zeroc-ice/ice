@@ -36,10 +36,26 @@ public final class ValueWriter
             }
             else if(c.equals(String.class))
             {
+		//
+		// Indent the lines of a string value.
+		//
                 writeName(name, out);
                 out.print("\"");
-                out.print(value.toString());
+		out.useCurrentPosAsIndent();
+                String str = value.toString();
+		int start = 0, pos;
+		while(start < str.length() && (pos = str.indexOf('\n', start)) != -1)
+		{
+		    out.print(str.substring(start, pos));
+		    out.nl();
+		    start = pos + 1;
+		}
+		if(start < str.length())
+		{
+		    out.print(str.substring(start));
+		}
                 out.print("\"");
+		out.restoreIndent();
             }
             else if(c.isArray())
             {
