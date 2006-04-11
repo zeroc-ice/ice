@@ -23,7 +23,7 @@ class GCShared;
 typedef std::set<GCShared*> GCObjectSet;
 extern ICE_API GCObjectSet gcObjects; // Set of pointers to all existing classes with class data members.
 
-typedef std::multiset<GCShared*> GCObjectMultiSet;
+typedef std::map<GCShared*, int> GCCountMap;
 
 class ICE_API GCShared
 {
@@ -40,13 +40,13 @@ public:
 
     virtual void __incRef(); // First derived class with class data members overrides this.
     virtual void __decRef(); // Ditto.
-    virtual void __addObject(GCObjectMultiSet&) {} // Ditto.
+    virtual void __addObject(GCCountMap&) {} // Ditto.
     virtual bool __usesClasses() { return false; } // Ditto.
 
     virtual int __getRef() const;
     virtual void __setNoDelete(bool);
 
-    virtual void __gcReachable(GCObjectMultiSet&) const = 0;
+    virtual void __gcReachable(GCCountMap&) const = 0;
     virtual void __gcClear() = 0;
 
     int __getRefUnsafe() const

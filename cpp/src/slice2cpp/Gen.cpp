@@ -3449,11 +3449,19 @@ Slice::Gen::ObjectVisitor::emitGCFunctions(const ClassDefPtr& p)
 	C << eb;
 	C << eb;
 
-	H << nl << "virtual void __addObject(::IceInternal::GCObjectMultiSet&);";
+	H << nl << "virtual void __addObject(::IceInternal::GCCountMap&);";
 
-	C << sp << nl << "void" << nl << scoped.substr(2) << "::__addObject(::IceInternal::GCObjectMultiSet& _c)";
+	C << sp << nl << "void" << nl << scoped.substr(2) << "::__addObject(::IceInternal::GCCountMap& _c)";
 	C << sb;
-	C << nl << "_c.insert(this);";
+	C << nl << "::IceInternal::GCCountMap::iterator pos = _c.find(this);";
+	C << nl << "if(pos == _c.end())";
+	C << sb;
+	C << nl << "_c[this] = 1;";
+	C << eb;
+	C << nl << "else";
+	C << sb;
+	C << nl << "++pos->second;";
+	C << eb;
 	C << eb;
 
 	H << nl << "virtual bool __usesClasses();";
@@ -3470,9 +3478,9 @@ Slice::Gen::ObjectVisitor::emitGCFunctions(const ClassDefPtr& p)
     //
     if(canBeCyclic)
     {
-	H << nl << "virtual void __gcReachable(::IceInternal::GCObjectMultiSet&) const;";
+	H << nl << "virtual void __gcReachable(::IceInternal::GCCountMap&) const;";
 
-	C << sp << nl << "void" << nl << scoped.substr(2) << "::__gcReachable(::IceInternal::GCObjectMultiSet& _c) const";
+	C << sp << nl << "void" << nl << scoped.substr(2) << "::__gcReachable(::IceInternal::GCCountMap& _c) const";
 	C << sb;
 
 	string vc6Prefix;

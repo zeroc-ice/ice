@@ -87,7 +87,7 @@ public:
     virtual void __write(const OutputStreamPtr&) const;
     virtual void __read(const InputStreamPtr&, bool);
 
-    virtual void __gcReachable(IceInternal::GCObjectMultiSet&) const {}
+    virtual void __gcReachable(IceInternal::GCCountMap&) const {}
     virtual void __gcClear() {}
 
 protected:
