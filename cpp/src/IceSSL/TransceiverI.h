@@ -44,6 +44,8 @@ private:
     friend class ConnectorI;
     friend class AcceptorI;
 
+    void shutdown();
+
     const InstancePtr _instance;
     const Ice::LoggerPtr _logger;
     const Ice::StatsPtr _stats;

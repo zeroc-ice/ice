@@ -39,6 +39,8 @@ IceSSL::TransceiverI::close()
 	out << "closing ssl connection\n" << toString();
     }
 
+    shutdown();
+
     assert(_fd != INVALID_SOCKET);
     SSL_free(_ssl);
     _ssl = 0;
@@ -54,13 +56,7 @@ IceSSL::TransceiverI::shutdownWrite()
 	out << "shutting down ssl connection for writing\n" << toString();
     }
 
-    int err = SSL_shutdown(_ssl);
-    if(err < 0)
-    {
-	Warning out(_logger);
-	out << "IceSSL: failure while performing SSL shutdown:\n" << _instance->sslErrors();
-    }
-    ERR_clear_error();
+    shutdown();
 
     assert(_fd != INVALID_SOCKET);
     IceInternal::shutdownSocketWrite(_fd);
@@ -75,13 +71,7 @@ IceSSL::TransceiverI::shutdownReadWrite()
 	out << "shutting down ssl connection for reading and writing\n" << toString();
     }
 
-    int err = SSL_shutdown(_ssl);
-    if(err < 0)
-    {
-	Warning out(_logger);
-	out << "IceSSL: failure while performing SSL shutdown:\n" << _instance->sslErrors();
-    }
-    ERR_clear_error();
+    shutdown();
 
     assert(_fd != INVALID_SOCKET);
     IceInternal::shutdownSocketReadWrite(_fd);
@@ -395,4 +385,24 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SSL* ssl, SOCKET
 IceSSL::TransceiverI::~TransceiverI()
 {
     assert(_fd == INVALID_SOCKET);
+}
+
+void
+IceSSL::TransceiverI::shutdown()
+{
+    int err = SSL_shutdown(_ssl);
+
+    //
+    // The man page for SSL_shutdown claims that it can return -1, but
+    // in fact it never does.
+    //
+    assert(err >= 0);
+
+    //
+    // Call it one more time if it returned 0.
+    //
+    if(err == 0)
+    {
+	SSL_shutdown(_ssl);
+    }
 }
