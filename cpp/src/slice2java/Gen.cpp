@@ -1701,7 +1701,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << sb;
 	out << nl << "if(__rid)";
 	out << sb;
-	out << nl << "String myId = __is.readTypeId();";
+	out << nl << "__is.readTypeId();";
 	out << eb;
 	out << nl << "__is.startReadSlice();";
         iter = 0;
@@ -1747,7 +1747,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << sb;
             out << nl << "if(__rid)";
             out << sb;
-            out << nl << "String myId = __inS.readTypeId();";
+            out << nl << "__inS.readTypeId();";
             out << eb;
             out << nl << "__inS.startSlice();";
             iter = 0;
@@ -2027,7 +2027,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         out << sb;
 	out << nl << "if(__rid)";
 	out << sb;
-	out << nl << "String myId = __is.readString();";
+	out << nl << "__is.readString();";
 	out << eb;
 	out << nl << "__is.startReadSlice();";
         iter = 0;
@@ -2079,7 +2079,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             out << sb;
             out << nl << "if(__rid)";
             out << sb;
-            out << nl << "String myId = __inS.readString();";
+            out << nl << "__inS.readString();";
             out << eb;
             out << nl << "__inS.startSlice();";
             iter = 0;

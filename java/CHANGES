@@ -1,6 +1,8 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Modified the generated code to avoid a warning from Eclipse.
+
 - Added a new method addProxies() to Ice::Router, which can return
   evicted proxies. The old method addProxy() is now deprecated. Note
   that this is an internal interface for communications between
