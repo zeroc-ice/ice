@@ -116,7 +116,7 @@ public final class ObjectAdapterFactory
     }
     
     public synchronized Ice.ObjectAdapter
-    createObjectAdapter(String name, String endpoints)
+    createObjectAdapter(String name, String endpoints, Ice.RouterPrx router)
     {
 	if(_instance == null)
 	{
@@ -129,9 +129,20 @@ public final class ObjectAdapterFactory
 	    throw new Ice.AlreadyRegisteredException("object adapter", name);
         }
 
-        adapter = new Ice.ObjectAdapter(_instance, _communicator, name, endpoints);
+        adapter = new Ice.ObjectAdapter(_instance, _communicator, this, name, endpoints, router);
         _adapters.put(name, adapter);
         return adapter;
+    }
+
+    synchronized public void
+    removeObjectAdapter(String name)
+    {
+        if(_waitForShutdown)
+	{
+	    return;
+	}
+
+	_adapters.remove(name);
     }
 
     public void

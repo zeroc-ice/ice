@@ -140,7 +140,13 @@ Ice::CommunicatorI::createObjectAdapter(const string& name)
 ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const string& endpoints)
 {
-    return _instance->objectAdapterFactory()->createObjectAdapter(name, endpoints);
+    return _instance->objectAdapterFactory()->createObjectAdapter(name, endpoints, 0);
+}
+
+ObjectAdapterPtr
+Ice::CommunicatorI::createObjectAdapterWithRouter(const string& name, const RouterPrx& router)
+{
+    return _instance->objectAdapterFactory()->createObjectAdapter(name, "", router);
 }
 
 void

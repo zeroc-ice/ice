@@ -4,7 +4,7 @@ ConvertUTF.o: ConvertUTF.cpp ../IceUtil/ConvertUTF.h ../../include/IceUtil/Unico
 CountDownLatch.o: CountDownLatch.cpp ../../include/IceUtil/CountDownLatch.h ../../include/IceUtil/Config.h ../../include/IceUtil/ThreadException.h ../../include/IceUtil/Exception.h
 CtrlCHandler.o: CtrlCHandler.cpp ../../include/IceUtil/CtrlCHandler.h ../../include/IceUtil/Config.h ../../include/IceUtil/Exception.h ../../include/IceUtil/StaticMutex.h ../../include/IceUtil/Lock.h ../../include/IceUtil/ThreadException.h
 Exception.o: Exception.cpp ../../include/IceUtil/Exception.h ../../include/IceUtil/Config.h
-Shared.o: Shared.cpp ../../include/IceUtil/Shared.h ../../include/IceUtil/Config.h ../../include/IceUtil/Mutex.h ../../include/IceUtil/Lock.h ../../include/IceUtil/ThreadException.h ../../include/IceUtil/Exception.h
+Shared.o: Shared.cpp ../../include/IceUtil/Shared.h ../../include/IceUtil/Config.h
 InputUtil.o: InputUtil.cpp ../../include/IceUtil/InputUtil.h ../../include/IceUtil/Config.h
 MD5.o: MD5.cpp ../../include/IceUtil/MD5.h ../../include/IceUtil/Config.h ../IceUtil/MD5I.h
 MD5I.o: MD5I.cpp ../IceUtil/MD5I.h
@@ -15,7 +15,7 @@ RWRecMutex.o: RWRecMutex.cpp ../../include/IceUtil/RWRecMutex.h ../../include/Ic
 RecMutex.o: RecMutex.cpp ../../include/IceUtil/RecMutex.h ../../include/IceUtil/Config.h ../../include/IceUtil/Lock.h ../../include/IceUtil/ThreadException.h ../../include/IceUtil/Exception.h
 StaticMutex.o: StaticMutex.cpp ../../include/IceUtil/StaticMutex.h ../../include/IceUtil/Config.h ../../include/IceUtil/Lock.h ../../include/IceUtil/ThreadException.h ../../include/IceUtil/Exception.h
 StringUtil.o: StringUtil.cpp ../../include/IceUtil/StringUtil.h ../../include/IceUtil/Config.h ../../include/IceUtil/Unicode.h ../../include/IceUtil/Exception.h
-Thread.o: Thread.cpp ../../include/IceUtil/Thread.h ../../include/IceUtil/Shared.h ../../include/IceUtil/Config.h ../../include/IceUtil/Mutex.h ../../include/IceUtil/Lock.h ../../include/IceUtil/ThreadException.h ../../include/IceUtil/Exception.h ../../include/IceUtil/Handle.h ../../include/IceUtil/Time.h
+Thread.o: Thread.cpp ../../include/IceUtil/Thread.h ../../include/IceUtil/Shared.h ../../include/IceUtil/Config.h ../../include/IceUtil/Handle.h ../../include/IceUtil/Exception.h ../../include/IceUtil/Mutex.h ../../include/IceUtil/Lock.h ../../include/IceUtil/ThreadException.h ../../include/IceUtil/Time.h
 ThreadException.o: ThreadException.cpp ../../include/IceUtil/ThreadException.h ../../include/IceUtil/Exception.h ../../include/IceUtil/Config.h
 Time.o: Time.cpp ../../include/IceUtil/DisableWarnings.h ../../include/IceUtil/Time.h ../../include/IceUtil/Config.h
 UUID.o: UUID.cpp ../../include/IceUtil/UUID.h ../../include/IceUtil/Config.h ../../include/IceUtil/Random.h ../../include/IceUtil/Exception.h

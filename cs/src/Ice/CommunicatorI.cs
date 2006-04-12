@@ -44,7 +44,12 @@ namespace Ice
 	
 	public ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints)
 	{
-	    return instance_.objectAdapterFactory().createObjectAdapter(name, endpoints);
+	    return instance_.objectAdapterFactory().createObjectAdapter(name, endpoints, null);
+	}
+	
+	public ObjectAdapter createObjectAdapterWithRouter(string name, RouterPrx router)
+	{
+	    return instance_.objectAdapterFactory().createObjectAdapter(name, "", router);
 	}
 	
 	public void addObjectFactory(ObjectFactory factory, string id)

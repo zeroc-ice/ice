@@ -34,6 +34,9 @@ public:
 
     ObjectAdapterPtr createObjectAdapter(const std::string&);
     ObjectAdapterPtr createObjectAdapterWithEndpoints(const std::string&, const std::string&);
+#ifdef ICEE_HAS_ROUTER
+    ObjectAdapterPtr createObjectAdapterWithRouter(const std::string&, const RouterPrx&);
+#endif
 
     Context getDefaultContext() const;
     PropertiesPtr getProperties() const;

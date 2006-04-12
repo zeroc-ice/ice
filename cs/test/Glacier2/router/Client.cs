@@ -15,20 +15,6 @@ public class Client : Ice.Application
 {
     public override int run(string[] args)
     {
-        Ice.ObjectAdapter adapter;
-
-        {
-            adapter = communicator().createObjectAdapter("CallbackReceiverAdapter");
-            adapter.activate();
-            // Put the print statement after activate(), so that if
-            // Ice.PrintAdapterReady is set, the "ready" is the first
-            // output from the client, and not the print statement
-            // below. Otherwise the Python test scripts will be confused,
-            // as they expect the "ready" from the Object Adapter to be
-            // the first thing that is printed.
-            Console.Out.WriteLine("creating and activating callback receiver adapter... ok");
-        }
-
         Ice.ObjectPrx routerBase;
 
         {
@@ -168,10 +154,14 @@ public class Client : Ice.Application
             Console.Out.WriteLine("ok");
         }
 
+        Ice.ObjectAdapter adapter;
+
         {
-            Console.Out.Write("installing router with object adapter... ");
-            Console.Out.Flush();
-            adapter.addRouter(router);
+            Console.Out.Write("creating and activating callback receiver adapter... ");
+	    Console.Out.Flush();
+	    communicator().getProperties().setProperty("Ice.PrintAdapterReady", "0");
+            adapter = communicator().createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
+            adapter.activate();
             Console.Out.WriteLine("ok");
         }
 
@@ -346,13 +336,6 @@ public class Client : Ice.Application
             Console.Out.WriteLine("ok");
         }
 
-        {
-            Console.Out.Write("removing router from object adapter... ");
-            Console.Out.Flush();
-            adapter.removeRouter(router);
-            Console.Out.WriteLine("ok");
-        }
-        
         {
             Console.Out.Write("trying to ping server after session destruction... ");
             Console.Out.Flush();

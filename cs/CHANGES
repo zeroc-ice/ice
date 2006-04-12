@@ -1,6 +1,17 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Added new method Ice::ObjectAdapter::destroy(). After this method
+  has been called it is now permissible to recreate a new object
+  adapter with the same name as the destroyed adapter.
+
+- Added new method Ice::Communicator::createObjectAdapterWithRouter()
+  which creates a routed object adapter. A object adapter can now only
+  have one router associated with it, which is set with using this 
+  method or by setting the <AdapterName>.Router property.  Also 
+  as a result of this the Ice::ObjectAdapter::addRouter() and
+  Ice::ObjectAdapter::removeRouter() methods have been removed.
+
 - Added a new method addProxies() to Ice::Router, which can return
   evicted proxies. The old method addProxy() is now deprecated. Note
   that this is an internal interface for communications between

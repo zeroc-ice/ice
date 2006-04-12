@@ -170,6 +170,24 @@ local interface Communicator
 
     /**
      *
+     * Create a new object adapter with router. This method
+     * creates a routed object adapter.
+     * 
+     * @param name The object adapter name.
+     *
+     * @param router The router.
+     *
+     * @return The new object adapter.
+     *
+     * @see createObjectAdapter
+     * @see ObjectAdapter
+     * @see Properties
+     *
+     **/
+    ObjectAdapter createObjectAdapterWithRouter(string name, Router* rtr);
+
+    /**
+     *
      * Add a servant factory to this communicator. Installing a
      * factory with an id for which a factory is already registered
      * throws [AlreadyRegisteredException].</para>

@@ -216,6 +216,24 @@ namespace Ice
 		{
 		    return;
 		}
+
+		if(_routerInfo != null)
+		{
+		    //
+		    // Remove entry from the router manager.
+		    //
+		    instance_.routerManager().erase(_routerInfo.getRouter());
+
+		    //
+		    // Clear this object adapter with the router.
+		    //
+		    _routerInfo.setAdapter(null);
+
+		    //
+		    // Update all existing outgoing connections.
+		    //
+		    instance_.outgoingConnectionFactory().setRouterInfo(_routerInfo);
+		}
 		
 		incomingConnectionFactories = new ArrayList(_incomingConnectionFactories);
 		outgoingConnectionFactory = instance_.outgoingConnectionFactory();
@@ -304,6 +322,8 @@ namespace Ice
 		_threadPool.destroy();
 		_threadPool.joinWithAllThreads();
 	    }
+
+	    IceInternal.ObjectAdapterFactory objectAdapterFactory;
 	    
 	    lock(this)
 	    {
@@ -331,10 +351,24 @@ namespace Ice
 		_communicator = null;
 		_incomingConnectionFactories = null;
 		_routerEndpoints = null;
-		_routerInfos = null;
+		_routerInfo = null;
 		_publishedEndpoints = null;
 		_locatorInfo = null;
+
+		objectAdapterFactory = _objectAdapterFactory;
+		_objectAdapterFactory = null;
 	    }
+
+	    if(objectAdapterFactory != null)
+	    {
+	        objectAdapterFactory.removeObjectAdapter(_name);
+	    }
+	}
+
+	public void destroy()
+	{
+	    deactivate();
+	    waitForDeactivate();
 	}
 	
 	public ObjectPrx add(Ice.Object obj, Identity ident)
@@ -534,125 +568,6 @@ namespace Ice
 	    }
 	}
 	
-	public void addRouter(RouterPrx router)
-	{
-	    lock(this)
-	    {
-		checkForDeactivation();
-		
-		IceInternal.RouterInfo routerInfo = instance_.routerManager().get(router);
-		if(routerInfo != null)
-		{
-		    _routerInfos.Add(routerInfo);
-
-		    //
-		    // Add the router's server proxy endpoints to this object
-		    // adapter.
-		    //
-		    ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)routerInfo.getServerProxy();
-		    IceInternal.EndpointI[] endpoints = proxy.reference__().getEndpoints();
-		    for(int i = 0; i < endpoints.Length; ++i)
-		    {
-			_routerEndpoints.Add(endpoints[i]);
-		    }
-		    _routerEndpoints.Sort(); // Must be sorted.
-
-		    //
-		    // Remove duplicate endpoints, so we have a list of unique endpoints.
-		    //
-		    for(int i = 0; i < _routerEndpoints.Count-1;)
-		    {
-			System.Object o1 = _routerEndpoints[i];
-			System.Object o2 = _routerEndpoints[i + 1];
-			if(o1.Equals(o2))
-			{
-			    _routerEndpoints.RemoveAt(i);
-			}
-			else
-			{
-				++i;
-			}
-		    }
-
-		    //
-		    // Associate this object adapter with the router. This way,
-		    // new outgoing connections to the router's client proxy will
-		    // use this object adapter for callbacks.
-		    //
-		    routerInfo.setAdapter(this);
-		    
-		    //
-		    // Also modify all existing outgoing connections to the
-		    // router's client proxy to use this object adapter for
-		    // callbacks.
-		    //      
-		    instance_.outgoingConnectionFactory().setRouterInfo(routerInfo);
-		}
-	    }
-	}
-
-	public void removeRouter(RouterPrx router)
-	{
-	    lock(this)
-	    {
-		checkForDeactivation();
-
-		IceInternal.RouterInfo routerInfo = instance_.routerManager().erase(router);
-		if(routerInfo != null)
-		{
-		    //
-		    // Rebuild the router endpoints from our set of router infos.
-		    //
-		    _routerEndpoints.Clear();
-		    for(int p = 0; p < _routerInfos.Count;)
-		    {
-			if(_routerInfos[p] == routerInfo)
-			{
-			    _routerInfos.RemoveAt(p);
-			    continue;
-			}
-			ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)routerInfo.getServerProxy();
-			IceInternal.EndpointI[] endpoints = proxy.reference__().getEndpoints();
-			for(int i = 0; i < endpoints.Length; ++i)
-			{
-			    _routerEndpoints.Add(endpoints[i]);
-			}
-			++p;
-		    }
-
-		    _routerEndpoints.Sort(); // Must be sorted.
-		    //
-		    // Remove duplicate endpoints, so we have a list of unique endpoints.
-		    //
-		    for(int i = 0; i < _routerEndpoints.Count-1;)
-		    {
-			System.Object o1 = _routerEndpoints[i];
-			System.Object o2 = _routerEndpoints[i + 1];
-			if(o1.Equals(o2))
-			{
-			    _routerEndpoints.RemoveAt(i);
-			}
-			else
-			{
-				++i;
-			}
-		    }
-
-		    //
-		    // Clear this object adapter with the router.
-		    //
-		    routerInfo.setAdapter(null);
-
-		    //
-		    // Also modify all existing outgoing connections to the
-		    // router's client proxy to use this object adapter for
-		    // callbacks.
-		    //	
-		    instance_.outgoingConnectionFactory().setRouterInfo(routerInfo);
-		}
-	    }
-	}
-	
 	public void setLocator(LocatorPrx locator)
 	{
 	    lock(this)
@@ -660,23 +575,6 @@ namespace Ice
 		checkForDeactivation();
 		
 		_locatorInfo = instance_.locatorManager().get(locator);
-	    }
-	}
-
-	public LocatorPrx getLocator()
-	{
-	    lock(this)
-	    {
-		checkForDeactivation();
-
-		LocatorPrx locator = null;
-
-		if(_locatorInfo != null)
-		{
-		    locator = _locatorInfo.getLocator();
-		}
-
-		return locator;
 	    }
 	}
 
@@ -740,11 +638,14 @@ namespace Ice
 		// router's server proxy endpoints (if any), are also considered
 		// local.
 		//
-		for(int i = 0; i < endpoints.Length; ++i)
+		if(_routerInfo != null && _routerInfo.getRouter().Equals(proxy.ice_getRouter()))
 		{
-		    if(_routerEndpoints.BinarySearch(endpoints[i]) >= 0) // _routerEndpoints is sorted.
+		    for(int i = 0; i < endpoints.Length; ++i)
 		    {
-			return true;
+		        if(_routerEndpoints.BinarySearch(endpoints[i]) >= 0) // _routerEndpoints is sorted.
+		        {
+			    return true;
+		        }
 		    }
 		}
 		
@@ -830,70 +731,127 @@ namespace Ice
 	//
 	// Only for use by IceInternal.ObjectAdapterFactory
 	//
-	public ObjectAdapterI(IceInternal.Instance instance, Communicator communicator, string name, 
-			      string endpointInfo)
+	public ObjectAdapterI(IceInternal.Instance instance, Communicator communicator,
+			      IceInternal.ObjectAdapterFactory objectAdapterFactory, string name, 
+			      string endpointInfo, RouterPrx router)
 	{
 	    _deactivated = false;
 	    instance_ = instance;
 	    _communicator = communicator;
+	    _objectAdapterFactory = objectAdapterFactory;
 	    _servantManager = new IceInternal.ServantManager(instance, name);
 	    _printAdapterReadyDone = false;
 	    _name = name;
 	    _id = instance.initializationData().properties.getProperty(name + ".AdapterId");
 	    _replicaGroupId = instance.initializationData().properties.getProperty(name + ".ReplicaGroupId");
 	    _incomingConnectionFactories = new ArrayList();
+	    _publishedEndpoints = new ArrayList();
 	    _routerEndpoints = new ArrayList();
-	    _routerInfos = new ArrayList();
+	    _routerInfo = null;
 	    _directCount = 0;
 	    _waitForDeactivate = false;
 	    
 	    try
 	    {
-		//
-		// Parse the endpoints, but don't store them in the adapter.
-		// The connection factory might change it, for example, to
-		// fill in the real port number.
-		//
-		ArrayList endpoints = parseEndpoints(endpointInfo);
-		for(int i = 0; i < endpoints.Count; ++i)
+	        if(router == null)
 		{
-		    IceInternal.EndpointI endp = (IceInternal.EndpointI)endpoints[i];
-		    _incomingConnectionFactories.Add(new IceInternal.IncomingConnectionFactory(instance, endp, this));
-		}
-		
-		//
-		// Parse published endpoints. If set, these are used in proxies
-		// instead of the connection factory endpoints.
-		//
-		string endpts = instance_.initializationData().properties.getProperty(name + ".PublishedEndpoints");
-		_publishedEndpoints = parseEndpoints(endpts);
-		if(_publishedEndpoints.Count == 0)
-		{
-		    foreach(IceInternal.IncomingConnectionFactory factory in _incomingConnectionFactories)
+		    string routerStr = instance_.initializationData().properties.getProperty(name + ".Router");
+		    if(routerStr.Length > 0)
 		    {
-		        _publishedEndpoints.Add(factory.endpoint());
+		        router = RouterPrxHelper.uncheckedCast(instance_.proxyFactory().stringToProxy(routerStr));
 		    }
 		}
-
-		//
-		// Filter out any endpoints that are not meant to be published.
-		//
-		ArrayList tmp = new ArrayList();
-		foreach(IceInternal.EndpointI endpoint in _publishedEndpoints)
+		if(router != null)
 		{
-		    if(endpoint.publish())
+		    _routerInfo = instance_.routerManager().get(router);
+		    if(_routerInfo != null)
 		    {
-		        tmp.Add(endpoint);
+		        //
+		        // Add the router's server proxy endpoints to this object
+		        // adapter.
+		        //
+		        ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)_routerInfo.getServerProxy();
+		        IceInternal.EndpointI[] endpoints = proxy.reference__().getEndpoints();
+		        for(int i = 0; i < endpoints.Length; ++i)
+		        {
+			    _routerEndpoints.Add(endpoints[i]);
+		        }
+		        _routerEndpoints.Sort(); // Must be sorted.
+
+		        //
+		        // Remove duplicate endpoints, so we have a list of unique endpoints.
+		        //
+		        for(int i = 0; i < _routerEndpoints.Count-1;)
+		        {
+			    System.Object o1 = _routerEndpoints[i];
+			    System.Object o2 = _routerEndpoints[i + 1];
+			    if(o1.Equals(o2))
+			    {
+			        _routerEndpoints.RemoveAt(i);
+			    }
+			    else
+			    {
+				++i;
+			    }
+		        }
+
+		        //
+		        // Associate this object adapter with the router. This way,
+		        // new outgoing connections to the router's client proxy will
+		        // use this object adapter for callbacks.
+		        //
+		        _routerInfo.setAdapter(this);
+		    
+		        //
+		        // Also modify all existing outgoing connections to the
+		        // router's client proxy to use this object adapter for
+		        // callbacks.
+		        //      
+		        instance_.outgoingConnectionFactory().setRouterInfo(_routerInfo);
 		    }
 		}
-		_publishedEndpoints = tmp;
-
-		string router = instance_.initializationData().properties.getProperty(name + ".Router");
-		if(router.Length > 0)
+		else
 		{
-		    addRouter(RouterPrxHelper.uncheckedCast(instance_.proxyFactory().stringToProxy(router)));
-		}
+		    //
+		    // Parse the endpoints, but don't store them in the adapter.
+		    // The connection factory might change it, for example, to
+		    // fill in the real port number.
+		    //
+		    ArrayList endpoints = parseEndpoints(endpointInfo);
+		    for(int i = 0; i < endpoints.Count; ++i)
+		    {
+		        IceInternal.EndpointI endp = (IceInternal.EndpointI)endpoints[i];
+		        _incomingConnectionFactories.Add(new IceInternal.IncomingConnectionFactory(instance, endp, this));
+		    }
 		
+		    //
+		    // Parse published endpoints. If set, these are used in proxies
+		    // instead of the connection factory endpoints.
+		    //
+		    string endpts = instance_.initializationData().properties.getProperty(name + ".PublishedEndpoints");
+		    _publishedEndpoints = parseEndpoints(endpts);
+		    if(_publishedEndpoints.Count == 0)
+		    {
+		        foreach(IceInternal.IncomingConnectionFactory factory in _incomingConnectionFactories)
+		        {
+		            _publishedEndpoints.Add(factory.endpoint());
+		        }
+		    }
+
+		    //
+		    // Filter out any endpoints that are not meant to be published.
+		    //
+		    ArrayList tmp = new ArrayList();
+		    foreach(IceInternal.EndpointI endpoint in _publishedEndpoints)
+		    {
+		        if(endpoint.publish())
+		        {
+		            tmp.Add(endpoint);
+		        }
+		    }
+		    _publishedEndpoints = tmp;
+		}
+
 		string locator = instance_.initializationData().properties.getProperty(name + ".Locator");
 		if(locator.Length > 0)
 		{
@@ -1140,6 +1098,7 @@ namespace Ice
 	private bool _deactivated;
 	private IceInternal.Instance instance_;
 	private Communicator _communicator;
+	private IceInternal.ObjectAdapterFactory _objectAdapterFactory;
 	private IceInternal.ThreadPool _threadPool;
 	private IceInternal.ServantManager _servantManager;
 	private bool _printAdapterReadyDone;
@@ -1148,7 +1107,7 @@ namespace Ice
 	private readonly string _replicaGroupId;
 	private ArrayList _incomingConnectionFactories;
 	private ArrayList _routerEndpoints;
-	private ArrayList _routerInfos;
+	private IceInternal.RouterInfo _routerInfo;
 	private ArrayList _publishedEndpoints;
 	private IceInternal.LocatorInfo _locatorInfo;
 	private int _directCount;

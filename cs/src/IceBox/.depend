@@ -1,1 +1,1 @@
-IceBox.cs: ../../../ice/slice/IceBox/IceBox.ice ../../../ice/slice/Ice/BuiltinSequences.ice ../../../ice/slice/Ice/CommunicatorF.ice ../../../ice/slice/Ice/PropertiesF.ice ../../../ice/slice/Ice/SliceChecksumDict.ice
+IceBox.cs:

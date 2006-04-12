@@ -33,6 +33,7 @@ public:
 
     virtual ObjectAdapterPtr createObjectAdapter(const std::string&);
     virtual ObjectAdapterPtr createObjectAdapterWithEndpoints(const std::string&, const std::string&);
+    virtual ObjectAdapterPtr createObjectAdapterWithRouter(const std::string&, const RouterPrx&);
 
     virtual void addObjectFactory(const ObjectFactoryPtr&, const std::string&);
     virtual void removeObjectFactory(const std::string&);

@@ -8586,7 +8586,6 @@ DEP_CPP_INSTA=\
 NODEP_CPP_INSTA=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -8686,7 +8685,6 @@ DEP_CPP_INSTA=\
 NODEP_CPP_INSTA=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -8808,7 +8806,6 @@ DEP_CPP_INSTA=\
 NODEP_CPP_INSTA=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -8930,7 +8927,6 @@ DEP_CPP_INSTA=\
 	
 NODEP_CPP_INSTA=\
 	"..\..\..\..\usr\include\pthread.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -9030,7 +9026,6 @@ DEP_CPP_INSTA=\
 NODEP_CPP_INSTA=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -9122,7 +9117,6 @@ DEP_CPP_INSTA=\
 	"..\IceE\ReferenceFactory.h"\
 	"..\IceE\ReferenceFactoryF.h"\
 	"..\IceE\RouterInfo.h"\
-	"..\IceE\RoutingTableF.h"\
 	"..\IceE\TraceLevels.h"\
 	
 NODEP_CPP_INSTA=\
@@ -9183,7 +9177,6 @@ DEP_CPP_INSTA=\
 NODEP_CPP_INSTA=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -9301,7 +9294,6 @@ DEP_CPP_INSTA=\
 	"..\IceE\ReferenceFactory.h"\
 	"..\IceE\ReferenceFactoryF.h"\
 	"..\IceE\RouterInfo.h"\
-	"..\IceE\RoutingTableF.h"\
 	"..\IceE\TraceLevels.h"\
 	
 NODEP_CPP_INSTA=\
@@ -14015,7 +14007,6 @@ DEP_CPP_OUTGOI=\
 NODEP_CPP_OUTGOI=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -14120,7 +14111,6 @@ DEP_CPP_OUTGOI=\
 NODEP_CPP_OUTGOI=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -14232,7 +14222,6 @@ DEP_CPP_OUTGOI=\
 NODEP_CPP_OUTGOI=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -14344,7 +14333,6 @@ DEP_CPP_OUTGOI=\
 	
 NODEP_CPP_OUTGOI=\
 	"..\..\..\..\usr\include\pthread.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -14449,7 +14437,6 @@ DEP_CPP_OUTGOI=\
 NODEP_CPP_OUTGOI=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -14546,7 +14533,6 @@ DEP_CPP_OUTGOI=\
 	"..\IceE\Reference.h"\
 	"..\IceE\ReferenceFactoryF.h"\
 	"..\IceE\RouterInfo.h"\
-	"..\IceE\RoutingTableF.h"\
 	"..\IceE\TraceLevels.h"\
 	
 NODEP_CPP_OUTGOI=\
@@ -14612,7 +14598,6 @@ DEP_CPP_OUTGOI=\
 NODEP_CPP_OUTGOI=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -14720,7 +14705,6 @@ DEP_CPP_OUTGOI=\
 	"..\IceE\Reference.h"\
 	"..\IceE\ReferenceFactoryF.h"\
 	"..\IceE\RouterInfo.h"\
-	"..\IceE\RoutingTableF.h"\
 	"..\IceE\TraceLevels.h"\
 	
 NODEP_CPP_OUTGOI=\
@@ -15322,7 +15306,6 @@ DEP_CPP_PROXY=\
 NODEP_CPP_PROXY=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -15417,7 +15400,6 @@ DEP_CPP_PROXY=\
 NODEP_CPP_PROXY=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -15517,7 +15499,6 @@ DEP_CPP_PROXY=\
 NODEP_CPP_PROXY=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -15617,7 +15598,6 @@ DEP_CPP_PROXY=\
 	
 NODEP_CPP_PROXY=\
 	"..\..\..\..\usr\include\pthread.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -15712,7 +15692,6 @@ DEP_CPP_PROXY=\
 NODEP_CPP_PROXY=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -15800,7 +15779,6 @@ DEP_CPP_PROXY=\
 	"..\IceE\Reference.h"\
 	"..\IceE\ReferenceFactoryF.h"\
 	"..\IceE\RouterInfo.h"\
-	"..\IceE\RoutingTableF.h"\
 	
 NODEP_CPP_PROXY=\
 	"..\IceE\RouterInfoF.h"\
@@ -15855,7 +15833,6 @@ DEP_CPP_PROXY=\
 NODEP_CPP_PROXY=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -15952,7 +15929,6 @@ DEP_CPP_PROXY=\
 	"..\IceE\Reference.h"\
 	"..\IceE\ReferenceFactoryF.h"\
 	"..\IceE\RouterInfo.h"\
-	"..\IceE\RoutingTableF.h"\
 	
 NODEP_CPP_PROXY=\
 	"..\IceE\RouterInfoF.h"\
@@ -17083,7 +17059,6 @@ DEP_CPP_REFER=\
 NODEP_CPP_REFER=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -17190,7 +17165,6 @@ DEP_CPP_REFER=\
 NODEP_CPP_REFER=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -17316,7 +17290,6 @@ DEP_CPP_REFER=\
 NODEP_CPP_REFER=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -17442,7 +17415,6 @@ DEP_CPP_REFER=\
 	
 NODEP_CPP_REFER=\
 	"..\..\..\..\usr\include\pthread.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -17549,7 +17521,6 @@ DEP_CPP_REFER=\
 NODEP_CPP_REFER=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -17648,7 +17619,6 @@ DEP_CPP_REFER=\
 	"..\IceE\ReferenceFactory.h"\
 	"..\IceE\ReferenceFactoryF.h"\
 	"..\IceE\RouterInfo.h"\
-	"..\IceE\RoutingTableF.h"\
 	"..\IceE\TraceLevels.h"\
 	
 NODEP_CPP_REFER=\
@@ -17716,7 +17686,6 @@ DEP_CPP_REFER=\
 NODEP_CPP_REFER=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -17838,7 +17807,6 @@ DEP_CPP_REFER=\
 	"..\IceE\ReferenceFactory.h"\
 	"..\IceE\ReferenceFactoryF.h"\
 	"..\IceE\RouterInfo.h"\
-	"..\IceE\RoutingTableF.h"\
 	"..\IceE\TraceLevels.h"\
 	
 NODEP_CPP_REFER=\
@@ -17901,7 +17869,6 @@ DEP_CPP_REFERE=\
 NODEP_CPP_REFERE=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -17996,7 +17963,6 @@ DEP_CPP_REFERE=\
 NODEP_CPP_REFERE=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -18098,7 +18064,6 @@ DEP_CPP_REFERE=\
 NODEP_CPP_REFERE=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -18200,7 +18165,6 @@ DEP_CPP_REFERE=\
 	
 NODEP_CPP_REFERE=\
 	"..\..\..\..\usr\include\pthread.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -18295,7 +18259,6 @@ DEP_CPP_REFERE=\
 NODEP_CPP_REFERE=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -18383,7 +18346,6 @@ DEP_CPP_REFERE=\
 	"..\IceE\ReferenceFactory.h"\
 	"..\IceE\ReferenceFactoryF.h"\
 	"..\IceE\RouterInfo.h"\
-	"..\IceE\RoutingTableF.h"\
 	
 NODEP_CPP_REFERE=\
 	"..\IceE\RouterInfoF.h"\
@@ -18438,7 +18400,6 @@ DEP_CPP_REFERE=\
 NODEP_CPP_REFERE=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -18537,7 +18498,6 @@ DEP_CPP_REFERE=\
 	"..\IceE\ReferenceFactory.h"\
 	"..\IceE\ReferenceFactoryF.h"\
 	"..\IceE\RouterInfo.h"\
-	"..\IceE\RoutingTableF.h"\
 	
 NODEP_CPP_REFERE=\
 	"..\IceE\RouterInfoF.h"\
@@ -19198,8 +19158,6 @@ DEP_CPP_ROUTER=\
 NODEP_CPP_ROUTER=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTable.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -19284,8 +19242,6 @@ DEP_CPP_ROUTER=\
 NODEP_CPP_ROUTER=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTable.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -19385,8 +19341,6 @@ DEP_CPP_ROUTER=\
 NODEP_CPP_ROUTER=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTable.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -19486,8 +19440,6 @@ DEP_CPP_ROUTER=\
 	
 NODEP_CPP_ROUTER=\
 	"..\..\..\..\usr\include\pthread.h"\
-	"..\..\include\IceE\RoutingTable.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -19572,8 +19524,6 @@ DEP_CPP_ROUTER=\
 NODEP_CPP_ROUTER=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTable.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -19651,8 +19601,6 @@ DEP_CPP_ROUTER=\
 	"..\..\include\IceE\TraceLevelsF.h"\
 	"..\..\include\IceE\TransceiverF.h"\
 	"..\IceE\RouterInfo.h"\
-	"..\IceE\RoutingTable.h"\
-	"..\IceE\RoutingTableF.h"\
 	
 NODEP_CPP_ROUTER=\
 	"..\IceE\RouterInfoF.h"\
@@ -19697,8 +19645,6 @@ DEP_CPP_ROUTER=\
 NODEP_CPP_ROUTER=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\..\include\IceE\LocalExceptions.h"\
-	"..\..\include\IceE\RoutingTable.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
 	"..\IceE\RouterInfoF.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -19795,499 +19741,9 @@ DEP_CPP_ROUTER=\
 	"..\..\include\IceE\TransceiverF.h"\
 	"..\..\include\IceE\UndefSysMacros.h"\
 	"..\IceE\RouterInfo.h"\
-	"..\IceE\RoutingTable.h"\
-	"..\IceE\RoutingTableF.h"\
 	
 NODEP_CPP_ROUTER=\
 	"..\IceE\RouterInfoF.h"\
-	
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\IceE\RoutingTable.cpp
-
-!IF  "$(CFG)" == "icec - Win32 (WCE emulator) Release"
-
-DEP_CPP_ROUTI=\
-	"..\..\include\IceE\Config.h"\
-	"..\..\include\IceE\ConnectionF.h"\
-	"..\..\include\IceE\Exception.h"\
-	"..\..\include\IceE\ExceptionBase.h"\
-	"..\..\include\IceE\Handle.h"\
-	"..\..\include\IceE\LocalObject.h"\
-	"..\..\include\IceE\LocalObjectF.h"\
-	"..\..\include\IceE\Lock.h"\
-	"..\..\include\IceE\Mutex.h"\
-	"..\..\include\IceE\ObjectF.h"\
-	"..\..\include\IceE\OperationMode.h"\
-	"..\..\include\IceE\Proxy.h"\
-	"..\..\include\IceE\ProxyF.h"\
-	"..\..\include\IceE\ProxyFactoryF.h"\
-	"..\..\include\IceE\ProxyHandle.h"\
-	"..\..\include\IceE\ReferenceF.h"\
-	"..\..\include\IceE\Shared.h"\
-	"..\..\include\IceE\ThreadException.h"\
-	"..\..\include\IceE\UndefSysMacros.h"\
-	
-NODEP_CPP_ROUTI=\
-	"..\..\..\..\usr\include\pthread.h"\
-	"..\..\include\IceE\RoutingTable.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
-	".\onfig\_epilog.h"\
-	".\onfig\_msvc_warnings_off.h"\
-	".\onfig\_prolog.h"\
-	".\onfig\stl_apcc.h"\
-	".\onfig\stl_apple.h"\
-	".\onfig\stl_as400.h"\
-	".\onfig\stl_bc.h"\
-	".\onfig\stl_como.h"\
-	".\onfig\stl_confix.h"\
-	".\onfig\stl_cray.h"\
-	".\onfig\stl_dec.h"\
-	".\onfig\stl_dec_vms.h"\
-	".\onfig\stl_dm.h"\
-	".\onfig\stl_evc.h"\
-	".\onfig\stl_fujitsu.h"\
-	".\onfig\stl_gcc.h"\
-	".\onfig\stl_hpacc.h"\
-	".\onfig\stl_ibm.h"\
-	".\onfig\stl_icc.h"\
-	".\onfig\stl_intel.h"\
-	".\onfig\stl_kai.h"\
-	".\onfig\stl_msvc.h"\
-	".\onfig\stl_mwerks.h"\
-	".\onfig\stl_mycomp.h"\
-	".\onfig\stl_sco.h"\
-	".\onfig\stl_sgi.h"\
-	".\onfig\stl_solaris.h"\
-	".\onfig\stl_sunpro.h"\
-	".\onfig\stl_symantec.h"\
-	".\onfig\stl_watcom.h"\
-	".\onfig\stl_wince.h"\
-	".\onfig\stlcomp.h"\
-	".\thread.h"\
-	".\tl\_abbrevs.h"\
-	".\tl\_config.h"\
-	".\tl\_config_compat.h"\
-	".\tl\_config_compat_post.h"\
-	".\tl\_epilog.h"\
-	".\tl\_prolog.h"\
-	".\tl\_site_config.h"\
-	".\tl\_stlport_version.h"\
-	".\tl_user_config.h"\
-	
-
-!ELSEIF  "$(CFG)" == "icec - Win32 (WCE emulator) Debug"
-
-DEP_CPP_ROUTI=\
-	"..\..\include\IceE\Config.h"\
-	"..\..\include\IceE\ConnectionF.h"\
-	"..\..\include\IceE\Exception.h"\
-	"..\..\include\IceE\ExceptionBase.h"\
-	"..\..\include\IceE\Handle.h"\
-	"..\..\include\IceE\LocalObject.h"\
-	"..\..\include\IceE\LocalObjectF.h"\
-	"..\..\include\IceE\Lock.h"\
-	"..\..\include\IceE\Mutex.h"\
-	"..\..\include\IceE\ObjectF.h"\
-	"..\..\include\IceE\OperationMode.h"\
-	"..\..\include\IceE\Proxy.h"\
-	"..\..\include\IceE\ProxyF.h"\
-	"..\..\include\IceE\ProxyFactoryF.h"\
-	"..\..\include\IceE\ProxyHandle.h"\
-	"..\..\include\IceE\ReferenceF.h"\
-	"..\..\include\IceE\Shared.h"\
-	"..\..\include\IceE\ThreadException.h"\
-	"..\..\include\IceE\UndefSysMacros.h"\
-	
-NODEP_CPP_ROUTI=\
-	"..\..\..\..\usr\include\pthread.h"\
-	"..\..\include\IceE\RoutingTable.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
-	".\onfig\_epilog.h"\
-	".\onfig\_msvc_warnings_off.h"\
-	".\onfig\_prolog.h"\
-	".\onfig\stl_apcc.h"\
-	".\onfig\stl_apple.h"\
-	".\onfig\stl_as400.h"\
-	".\onfig\stl_bc.h"\
-	".\onfig\stl_como.h"\
-	".\onfig\stl_confix.h"\
-	".\onfig\stl_cray.h"\
-	".\onfig\stl_dec.h"\
-	".\onfig\stl_dec_vms.h"\
-	".\onfig\stl_dm.h"\
-	".\onfig\stl_evc.h"\
-	".\onfig\stl_fujitsu.h"\
-	".\onfig\stl_gcc.h"\
-	".\onfig\stl_hpacc.h"\
-	".\onfig\stl_ibm.h"\
-	".\onfig\stl_icc.h"\
-	".\onfig\stl_intel.h"\
-	".\onfig\stl_kai.h"\
-	".\onfig\stl_msvc.h"\
-	".\onfig\stl_mwerks.h"\
-	".\onfig\stl_mycomp.h"\
-	".\onfig\stl_sco.h"\
-	".\onfig\stl_sgi.h"\
-	".\onfig\stl_solaris.h"\
-	".\onfig\stl_sunpro.h"\
-	".\onfig\stl_symantec.h"\
-	".\onfig\stl_watcom.h"\
-	".\onfig\stl_wince.h"\
-	".\onfig\stlcomp.h"\
-	".\thread.h"\
-	".\tl\_abbrevs.h"\
-	".\tl\_config.h"\
-	".\tl\_config_compat.h"\
-	".\tl\_config_compat_post.h"\
-	".\tl\_epilog.h"\
-	".\tl\_prolog.h"\
-	".\tl\_site_config.h"\
-	".\tl\_stlport_version.h"\
-	".\tl_user_config.h"\
-	
-
-!ELSEIF  "$(CFG)" == "icec - Win32 (WCE ARMV4) Release"
-
-DEP_CPP_ROUTI=\
-	"..\..\include\IceE\CommunicatorF.h"\
-	"..\..\include\IceE\Config.h"\
-	"..\..\include\IceE\ConnectionF.h"\
-	"..\..\include\IceE\Exception.h"\
-	"..\..\include\IceE\ExceptionBase.h"\
-	"..\..\include\IceE\Handle.h"\
-	"..\..\include\IceE\Identity.h"\
-	"..\..\include\IceE\LocalObject.h"\
-	"..\..\include\IceE\LocalObjectF.h"\
-	"..\..\include\IceE\Lock.h"\
-	"..\..\include\IceE\Mutex.h"\
-	"..\..\include\IceE\ObjectF.h"\
-	"..\..\include\IceE\OperationMode.h"\
-	"..\..\include\IceE\Proxy.h"\
-	"..\..\include\IceE\ProxyF.h"\
-	"..\..\include\IceE\ProxyFactoryF.h"\
-	"..\..\include\IceE\ProxyHandle.h"\
-	"..\..\include\IceE\ReferenceF.h"\
-	"..\..\include\IceE\Shared.h"\
-	"..\..\include\IceE\ThreadException.h"\
-	"..\..\include\IceE\UndefSysMacros.h"\
-	
-NODEP_CPP_ROUTI=\
-	"..\..\..\..\usr\include\pthread.h"\
-	"..\..\include\IceE\RoutingTable.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
-	".\onfig\_epilog.h"\
-	".\onfig\_msvc_warnings_off.h"\
-	".\onfig\_prolog.h"\
-	".\onfig\stl_apcc.h"\
-	".\onfig\stl_apple.h"\
-	".\onfig\stl_as400.h"\
-	".\onfig\stl_bc.h"\
-	".\onfig\stl_como.h"\
-	".\onfig\stl_confix.h"\
-	".\onfig\stl_cray.h"\
-	".\onfig\stl_dec.h"\
-	".\onfig\stl_dec_vms.h"\
-	".\onfig\stl_dm.h"\
-	".\onfig\stl_evc.h"\
-	".\onfig\stl_fujitsu.h"\
-	".\onfig\stl_gcc.h"\
-	".\onfig\stl_hpacc.h"\
-	".\onfig\stl_ibm.h"\
-	".\onfig\stl_icc.h"\
-	".\onfig\stl_intel.h"\
-	".\onfig\stl_kai.h"\
-	".\onfig\stl_msvc.h"\
-	".\onfig\stl_mwerks.h"\
-	".\onfig\stl_mycomp.h"\
-	".\onfig\stl_sco.h"\
-	".\onfig\stl_sgi.h"\
-	".\onfig\stl_solaris.h"\
-	".\onfig\stl_sunpro.h"\
-	".\onfig\stl_symantec.h"\
-	".\onfig\stl_watcom.h"\
-	".\onfig\stl_wince.h"\
-	".\onfig\stlcomp.h"\
-	".\thread.h"\
-	".\tl\_abbrevs.h"\
-	".\tl\_config.h"\
-	".\tl\_config_compat.h"\
-	".\tl\_config_compat_post.h"\
-	".\tl\_epilog.h"\
-	".\tl\_prolog.h"\
-	".\tl\_site_config.h"\
-	".\tl\_stlport_version.h"\
-	".\tl_user_config.h"\
-	
-
-!ELSEIF  "$(CFG)" == "icec - Win32 (WCE ARMV4) Debug"
-
-DEP_CPP_ROUTI=\
-	"..\..\include\IceE\CommunicatorF.h"\
-	"..\..\include\IceE\Config.h"\
-	"..\..\include\IceE\ConnectionF.h"\
-	"..\..\include\IceE\Exception.h"\
-	"..\..\include\IceE\ExceptionBase.h"\
-	"..\..\include\IceE\Handle.h"\
-	"..\..\include\IceE\Identity.h"\
-	"..\..\include\IceE\LocalObject.h"\
-	"..\..\include\IceE\LocalObjectF.h"\
-	"..\..\include\IceE\Lock.h"\
-	"..\..\include\IceE\Mutex.h"\
-	"..\..\include\IceE\ObjectF.h"\
-	"..\..\include\IceE\OperationMode.h"\
-	"..\..\include\IceE\Proxy.h"\
-	"..\..\include\IceE\ProxyF.h"\
-	"..\..\include\IceE\ProxyFactoryF.h"\
-	"..\..\include\IceE\ProxyHandle.h"\
-	"..\..\include\IceE\ReferenceF.h"\
-	"..\..\include\IceE\Shared.h"\
-	"..\..\include\IceE\ThreadException.h"\
-	"..\..\include\IceE\UndefSysMacros.h"\
-	
-NODEP_CPP_ROUTI=\
-	"..\..\..\..\usr\include\pthread.h"\
-	"..\..\include\IceE\RoutingTable.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
-	".\onfig\_epilog.h"\
-	".\onfig\_msvc_warnings_off.h"\
-	".\onfig\_prolog.h"\
-	".\onfig\stl_apcc.h"\
-	".\onfig\stl_apple.h"\
-	".\onfig\stl_as400.h"\
-	".\onfig\stl_bc.h"\
-	".\onfig\stl_como.h"\
-	".\onfig\stl_confix.h"\
-	".\onfig\stl_cray.h"\
-	".\onfig\stl_dec.h"\
-	".\onfig\stl_dec_vms.h"\
-	".\onfig\stl_dm.h"\
-	".\onfig\stl_evc.h"\
-	".\onfig\stl_fujitsu.h"\
-	".\onfig\stl_gcc.h"\
-	".\onfig\stl_hpacc.h"\
-	".\onfig\stl_ibm.h"\
-	".\onfig\stl_icc.h"\
-	".\onfig\stl_intel.h"\
-	".\onfig\stl_kai.h"\
-	".\onfig\stl_msvc.h"\
-	".\onfig\stl_mwerks.h"\
-	".\onfig\stl_mycomp.h"\
-	".\onfig\stl_sco.h"\
-	".\onfig\stl_sgi.h"\
-	".\onfig\stl_solaris.h"\
-	".\onfig\stl_sunpro.h"\
-	".\onfig\stl_symantec.h"\
-	".\onfig\stl_watcom.h"\
-	".\onfig\stl_wince.h"\
-	".\onfig\stlcomp.h"\
-	".\thread.h"\
-	".\tl\_abbrevs.h"\
-	".\tl\_config.h"\
-	".\tl\_config_compat.h"\
-	".\tl\_config_compat_post.h"\
-	".\tl\_epilog.h"\
-	".\tl\_prolog.h"\
-	".\tl\_site_config.h"\
-	".\tl\_stlport_version.h"\
-	".\tl_user_config.h"\
-	
-
-!ELSEIF  "$(CFG)" == "icec - Win32 (WCE ARMV4) Debug Static"
-
-DEP_CPP_ROUTI=\
-	"..\..\include\IceE\Config.h"\
-	"..\..\include\IceE\ConnectionF.h"\
-	"..\..\include\IceE\Exception.h"\
-	"..\..\include\IceE\ExceptionBase.h"\
-	"..\..\include\IceE\Handle.h"\
-	"..\..\include\IceE\LocalObject.h"\
-	"..\..\include\IceE\LocalObjectF.h"\
-	"..\..\include\IceE\Lock.h"\
-	"..\..\include\IceE\Mutex.h"\
-	"..\..\include\IceE\ObjectF.h"\
-	"..\..\include\IceE\OperationMode.h"\
-	"..\..\include\IceE\Proxy.h"\
-	"..\..\include\IceE\ProxyF.h"\
-	"..\..\include\IceE\ProxyFactoryF.h"\
-	"..\..\include\IceE\ProxyHandle.h"\
-	"..\..\include\IceE\ReferenceF.h"\
-	"..\..\include\IceE\Shared.h"\
-	"..\..\include\IceE\ThreadException.h"\
-	"..\..\include\IceE\UndefSysMacros.h"\
-	
-NODEP_CPP_ROUTI=\
-	"..\..\..\..\usr\include\pthread.h"\
-	"..\..\include\IceE\RoutingTable.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
-	".\onfig\_epilog.h"\
-	".\onfig\_msvc_warnings_off.h"\
-	".\onfig\_prolog.h"\
-	".\onfig\stl_apcc.h"\
-	".\onfig\stl_apple.h"\
-	".\onfig\stl_as400.h"\
-	".\onfig\stl_bc.h"\
-	".\onfig\stl_como.h"\
-	".\onfig\stl_confix.h"\
-	".\onfig\stl_cray.h"\
-	".\onfig\stl_dec.h"\
-	".\onfig\stl_dec_vms.h"\
-	".\onfig\stl_dm.h"\
-	".\onfig\stl_evc.h"\
-	".\onfig\stl_fujitsu.h"\
-	".\onfig\stl_gcc.h"\
-	".\onfig\stl_hpacc.h"\
-	".\onfig\stl_ibm.h"\
-	".\onfig\stl_icc.h"\
-	".\onfig\stl_intel.h"\
-	".\onfig\stl_kai.h"\
-	".\onfig\stl_msvc.h"\
-	".\onfig\stl_mwerks.h"\
-	".\onfig\stl_mycomp.h"\
-	".\onfig\stl_sco.h"\
-	".\onfig\stl_sgi.h"\
-	".\onfig\stl_solaris.h"\
-	".\onfig\stl_sunpro.h"\
-	".\onfig\stl_symantec.h"\
-	".\onfig\stl_watcom.h"\
-	".\onfig\stl_wince.h"\
-	".\onfig\stlcomp.h"\
-	".\thread.h"\
-	".\tl\_abbrevs.h"\
-	".\tl\_config.h"\
-	".\tl\_config_compat.h"\
-	".\tl\_config_compat_post.h"\
-	".\tl\_epilog.h"\
-	".\tl\_prolog.h"\
-	".\tl\_site_config.h"\
-	".\tl\_stlport_version.h"\
-	".\tl_user_config.h"\
-	
-
-!ELSEIF  "$(CFG)" == "icec - Win32 (WCE ARMV4) Release Static"
-
-DEP_CPP_ROUTI=\
-	"..\..\include\IceE\CommunicatorF.h"\
-	"..\..\include\IceE\Config.h"\
-	"..\..\include\IceE\ConnectionF.h"\
-	"..\..\include\IceE\Exception.h"\
-	"..\..\include\IceE\ExceptionBase.h"\
-	"..\..\include\IceE\Handle.h"\
-	"..\..\include\IceE\Lock.h"\
-	"..\..\include\IceE\Mutex.h"\
-	"..\..\include\IceE\OperationMode.h"\
-	"..\..\include\IceE\Proxy.h"\
-	"..\..\include\IceE\ProxyF.h"\
-	"..\..\include\IceE\ProxyFactoryF.h"\
-	"..\..\include\IceE\ProxyHandle.h"\
-	"..\..\include\IceE\ReferenceF.h"\
-	"..\..\include\IceE\Shared.h"\
-	"..\..\include\IceE\ThreadException.h"\
-	"..\IceE\RoutingTable.h"\
-	"..\IceE\RoutingTableF.h"\
-	
-
-!ELSEIF  "$(CFG)" == "icec - Win32 (WCE emulator) Debug Static"
-
-DEP_CPP_ROUTI=\
-	"..\..\include\IceE\Config.h"\
-	"..\..\include\IceE\ConnectionF.h"\
-	"..\..\include\IceE\Exception.h"\
-	"..\..\include\IceE\ExceptionBase.h"\
-	"..\..\include\IceE\Handle.h"\
-	"..\..\include\IceE\LocalObject.h"\
-	"..\..\include\IceE\LocalObjectF.h"\
-	"..\..\include\IceE\Lock.h"\
-	"..\..\include\IceE\Mutex.h"\
-	"..\..\include\IceE\ObjectF.h"\
-	"..\..\include\IceE\OperationMode.h"\
-	"..\..\include\IceE\Proxy.h"\
-	"..\..\include\IceE\ProxyF.h"\
-	"..\..\include\IceE\ProxyFactoryF.h"\
-	"..\..\include\IceE\ProxyHandle.h"\
-	"..\..\include\IceE\ReferenceF.h"\
-	"..\..\include\IceE\Shared.h"\
-	"..\..\include\IceE\ThreadException.h"\
-	"..\..\include\IceE\UndefSysMacros.h"\
-	
-NODEP_CPP_ROUTI=\
-	"..\..\..\..\usr\include\pthread.h"\
-	"..\..\include\IceE\RoutingTable.h"\
-	"..\..\include\IceE\RoutingTableF.h"\
-	".\onfig\_epilog.h"\
-	".\onfig\_msvc_warnings_off.h"\
-	".\onfig\_prolog.h"\
-	".\onfig\stl_apcc.h"\
-	".\onfig\stl_apple.h"\
-	".\onfig\stl_as400.h"\
-	".\onfig\stl_bc.h"\
-	".\onfig\stl_como.h"\
-	".\onfig\stl_confix.h"\
-	".\onfig\stl_cray.h"\
-	".\onfig\stl_dec.h"\
-	".\onfig\stl_dec_vms.h"\
-	".\onfig\stl_dm.h"\
-	".\onfig\stl_evc.h"\
-	".\onfig\stl_fujitsu.h"\
-	".\onfig\stl_gcc.h"\
-	".\onfig\stl_hpacc.h"\
-	".\onfig\stl_ibm.h"\
-	".\onfig\stl_icc.h"\
-	".\onfig\stl_intel.h"\
-	".\onfig\stl_kai.h"\
-	".\onfig\stl_msvc.h"\
-	".\onfig\stl_mwerks.h"\
-	".\onfig\stl_mycomp.h"\
-	".\onfig\stl_sco.h"\
-	".\onfig\stl_sgi.h"\
-	".\onfig\stl_solaris.h"\
-	".\onfig\stl_sunpro.h"\
-	".\onfig\stl_symantec.h"\
-	".\onfig\stl_watcom.h"\
-	".\onfig\stl_wince.h"\
-	".\onfig\stlcomp.h"\
-	".\thread.h"\
-	".\tl\_abbrevs.h"\
-	".\tl\_config.h"\
-	".\tl\_config_compat.h"\
-	".\tl\_config_compat_post.h"\
-	".\tl\_epilog.h"\
-	".\tl\_prolog.h"\
-	".\tl\_site_config.h"\
-	".\tl\_stlport_version.h"\
-	".\tl_user_config.h"\
-	
-
-!ELSEIF  "$(CFG)" == "icec - Win32 (WCE emulator) Release Static"
-
-DEP_CPP_ROUTI=\
-	"..\..\include\IceE\CommunicatorF.h"\
-	"..\..\include\IceE\Config.h"\
-	"..\..\include\IceE\ConnectionF.h"\
-	"..\..\include\IceE\Exception.h"\
-	"..\..\include\IceE\ExceptionBase.h"\
-	"..\..\include\IceE\Handle.h"\
-	"..\..\include\IceE\Identity.h"\
-	"..\..\include\IceE\LocalObject.h"\
-	"..\..\include\IceE\LocalObjectF.h"\
-	"..\..\include\IceE\Lock.h"\
-	"..\..\include\IceE\Mutex.h"\
-	"..\..\include\IceE\ObjectF.h"\
-	"..\..\include\IceE\OperationMode.h"\
-	"..\..\include\IceE\Proxy.h"\
-	"..\..\include\IceE\ProxyF.h"\
-	"..\..\include\IceE\ProxyFactoryF.h"\
-	"..\..\include\IceE\ProxyHandle.h"\
-	"..\..\include\IceE\ReferenceF.h"\
-	"..\..\include\IceE\Shared.h"\
-	"..\..\include\IceE\ThreadException.h"\
-	"..\..\include\IceE\UndefSysMacros.h"\
-	"..\IceE\RoutingTable.h"\
-	"..\IceE\RoutingTableF.h"\
 	
 
 !ENDIF 
@@ -26837,14 +26293,6 @@ SOURCE=.\RouterInfo.h
 # Begin Source File
 
 SOURCE=.\RouterInfoF.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\IceE\RoutingTable.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\IceE\RoutingTableF.h
 # End Source File
 # Begin Source File
 

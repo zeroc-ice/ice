@@ -56,12 +56,6 @@ CChatClientDlg::CChatClientDlg(const Ice::CommunicatorPtr& communicator, const L
     _port("10005")
 {
     _hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
-
-    //
-    // Create the OA.
-    //
-    _adapter = _communicator->createObjectAdapterWithEndpoints("Chat.Client", "");
-    _adapter->activate();
 }
 
 CChatClientDlg::~CChatClientDlg()
@@ -349,10 +343,12 @@ CChatClientDlg::OnLogin()
 		//
 		_chat = ChatSessionPrx::uncheckedCast(_router->createSession(user, password)->ice_router(_router));
 
-		//
-		// Add the new router to the object adapter.
-		//
-		_adapter->addRouter(_router);
+
+    		//
+    		// Create the OA.
+    		//
+    		_adapter = _communicator->createObjectAdapterWithRouter("Chat.Client", _router);
+    		_adapter->activate();
 
 		//
 		// Create the callback object. This must have the
@@ -416,7 +412,7 @@ CChatClientDlg::OnLogin()
 	    AfxMessageBox(CString(ex.toString().c_str()), MB_OK|MB_ICONEXCLAMATION);
 	}
 
-	_adapter->removeRouter(_router);
+	_adapter->destroy();
 	_router = 0;
     }
 

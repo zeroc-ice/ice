@@ -1,5 +1,5 @@
-Admin.cs: ../../../ice/slice/IceGrid/Admin.ice ../../../ice/slice/Ice/Identity.ice ../../../ice/slice/Ice/BuiltinSequences.ice ../../../ice/slice/Ice/SliceChecksumDict.ice ../../../ice/slice/IceGrid/Exception.ice ../../../ice/slice/IceGrid/Descriptor.ice
-Observer.cs: ../../../ice/slice/IceGrid/Observer.ice ../../../ice/slice/Glacier2/Session.ice ../../../ice/slice/IceGrid/Exception.ice ../../../ice/slice/Ice/Identity.ice ../../../ice/slice/IceGrid/Descriptor.ice ../../../ice/slice/Ice/BuiltinSequences.ice ../../../ice/slice/IceGrid/Admin.ice ../../../ice/slice/Ice/SliceChecksumDict.ice
-Descriptor.cs: ../../../ice/slice/IceGrid/Descriptor.ice ../../../ice/slice/Ice/Identity.ice ../../../ice/slice/Ice/BuiltinSequences.ice
-Exception.cs: ../../../ice/slice/IceGrid/Exception.ice ../../../ice/slice/Ice/Identity.ice
-Query.cs: ../../../ice/slice/IceGrid/Query.ice ../../../ice/slice/Ice/Identity.ice ../../../ice/slice/Ice/BuiltinSequences.ice ../../../ice/slice/IceGrid/Exception.ice
+Admin.cs:
+Observer.cs:
+Descriptor.cs:
+Exception.cs:
+Query.cs:

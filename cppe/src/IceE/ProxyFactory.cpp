@@ -91,25 +91,60 @@ IceInternal::ProxyFactory::referenceToProxy(const ReferencePtr& ref) const
 void
 IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, const ReferencePtr& ref, int& cnt) const
 {
-    //
-    // We retry ObjectNotExistException if the reference is
-    // indirect. Otherwise, we don't retry other *NotExistException,
-    // which are all derived from RequestFailedException.
-    //
-#ifdef ICEE_HAS_LOCATOR
-    if(dynamic_cast<const ObjectNotExistException*>(&ex))
+    TraceLevelsPtr traceLevels = _instance->traceLevels();
+    LoggerPtr logger = _instance->initializationData().logger;
+
+    const ObjectNotExistException* one = dynamic_cast<const ObjectNotExistException*>(&ex);
+
+#if defined(ICEE_HAS_LOCATOR) || defined(ICEE_HAS_ROUTER)
+    if(one)
     {
+#ifdef ICEE_HAS_LOCATOR
 	LocatorInfoPtr li = ref->getLocatorInfo();
-	if(!li)
+	if(li)
 	{
+	   //
+	   // We retry ObjectNotExistException if the reference is indirect.
+	   //
+	   li->clearObjectCache(IndirectReferencePtr::dynamicCast(ref));
+	}
+	else
+#endif
+#ifdef ICEE_HAS_ROUTER
+             if(ref->getRouterInfo() && one->operation == "ice_add_proxy")
+        {
+            //
+            // If we have a router, an ObjectNotExistException with an
+            // operation name "ice_add_proxy" indicates to the client
+            // that the router isn't aware of the proxy (for example,
+            // because it was evicted by the router). In this case, we
+            // must *always* retry, so that the missing proxy is added
+            // to the router.
+            //
+            if(traceLevels->retry >= 1)
+            {
+                Trace out(logger, traceLevels->retryCat);
+                out << "retrying operation call to add proxy to router\n" << ex.toString();
+            }
+            return; // We must always retry, so we don't look at the retry count.
+        }
+	else
+#endif
+	{
+	    //
+	    // For all other cases, we don't retry  ObjectNotExistException
+	    //
 	    ex.ice_throw();
 	}
-	li->clearObjectCache(IndirectReferencePtr::dynamicCast(ref));
     }
-    else
+    else 
 #endif
-    if(dynamic_cast<const RequestFailedException*>(&ex))
+         if(dynamic_cast<const RequestFailedException*>(&ex))
     {
+        //
+        // We don't retry other *NotExistException, which are all
+        // derived from RequestFailedException.
+        //
 	ex.ice_throw();
     }
 
@@ -143,9 +178,6 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
     ++cnt;
     assert(cnt > 0);
     
-    TraceLevelsPtr traceLevels = _instance->traceLevels();
-    LoggerPtr logger = _instance->initializationData().logger;
-    
     if(cnt > static_cast<int>(_retryIntervals.size()))
     {
         if(traceLevels->retry >= 1)
@@ -161,7 +193,7 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
     if(traceLevels->retry >= 1)
     {
         Trace out(logger, traceLevels->retryCat);
-        out << "re-trying operation call";
+        out << "retrying operation call";
         if(interval > 0)
         {
             out << Ice::printfToString(" in %dms", interval);

@@ -1,1 +1,1 @@
-Client.o: Client.cpp ../../../include/IceUtil/Unicode.h ../../../include/IceUtil/Config.h ../../include/TestCommon.h
+Client.o: Client.cpp ../../../include/IceUtil/Unicode.h ../../../include/IceUtil/Config.h ../../../include/IceUtil/Exception.h ../../include/TestCommon.h

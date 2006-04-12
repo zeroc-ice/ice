@@ -35,6 +35,25 @@ public class AllTests
         test(obj != null);
         test(obj.Equals(@base));
         Console.Out.WriteLine("ok");
+
+	{
+	    Console.Out.Write("creating/destroying/recreating object adapter... ");
+	    Console.Out.Flush();
+	    Ice.ObjectAdapter adapter =
+	        communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9999");
+	    try
+	    {
+	        communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9998");
+		test(false);
+	    }
+	    catch(Ice.AlreadyRegisteredException ex)
+	    {
+	    }
+	    adapter.destroy();
+	    adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9999");
+	    adapter.destroy();
+	    Console.Out.WriteLine("ok");
+	}
         
 	Console.Out.Write("creating/activating/deactivating object adapter in one operation... ");
 	Console.Out.Flush();

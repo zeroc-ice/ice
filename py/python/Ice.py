@@ -194,6 +194,10 @@ class CommunicatorI(Communicator):
         adapter = self._impl.createObjectAdapterWithEndpoints(name, endpoints)
         return ObjectAdapterI(adapter)
 
+    def createObjectAdapterWithRouter(self, name, router):
+        adapter = self._impl.createObjectAdapterWithRouter(name, router)
+        return ObjectAdapterI(adapter)
+
     def addObjectFactory(self, factory, id):
         self._impl.addObjectFactory(factory, id)
 
@@ -315,6 +319,10 @@ class ObjectAdapterI(ObjectAdapter):
         while not self._impl.waitForDeactivate(1000):
             pass
 
+    def destroy(self):
+        self.deactivate()
+        self.waitForDeactivate()
+
     def add(self, servant, id):
         return self._impl.add(servant, id)
 
@@ -362,9 +370,6 @@ class ObjectAdapterI(ObjectAdapter):
 
     def createReverseProxy(self, id):
         return self._impl.createReverseProxy(id)
-
-    def addRouter(self, rtr):
-        self._impl.addRouter(rtr)
 
     def setLocator(self, loc):
         self._impl.setLocator(loc)

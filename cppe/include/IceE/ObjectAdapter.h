@@ -54,6 +54,7 @@ public:
     void waitForHold();
     void deactivate();
     void waitForDeactivate();
+    void destroy();
 
     ObjectPrx add(const ObjectPtr&, const Identity&);
     ObjectPrx addFacet(const ObjectPtr&, const Identity&, const std::string&);
@@ -74,10 +75,6 @@ public:
 #endif
     ObjectPrx createReverseProxy(const Identity&) const;
 
-#ifdef ICEE_HAS_ROUTER
-    void addRouter(const RouterPrx&);
-    void removeRouter(const RouterPrx&);
-#endif
 #ifdef ICEE_HAS_LOCATOR
     void setLocator(const LocatorPrx&);
 #endif
@@ -91,7 +88,12 @@ public:
 
 private:
 
-    ObjectAdapter(const IceInternal::InstancePtr&, const CommunicatorPtr&, const std::string&, const std::string&);
+    ObjectAdapter(const IceInternal::InstancePtr&, const CommunicatorPtr&, const IceInternal::ObjectAdapterFactoryPtr&, 
+    		  const std::string&, const std::string&
+#ifdef ICEE_HAS_ROUTER
+		  , const RouterPrx&
+#endif
+		  );
     ~ObjectAdapter();
     friend class IceInternal::ObjectAdapterFactory;
     
@@ -107,6 +109,7 @@ private:
     bool _deactivated;
     IceInternal::InstancePtr _instance;
     CommunicatorPtr _communicator;
+    IceInternal::ObjectAdapterFactoryPtr _objectAdapterFactory;
     IceInternal::ServantManagerPtr _servantManager;
     bool _printAdapterReadyDone;
     const std::string _name;
@@ -117,7 +120,7 @@ private:
     std::vector<IceInternal::IncomingConnectionFactoryPtr> _incomingConnectionFactories;
 #ifdef ICEE_HAS_ROUTER
     std::vector<IceInternal::EndpointPtr> _routerEndpoints;
-    std::vector<IceInternal::RouterInfoPtr> _routerInfos;
+    IceInternal::RouterInfoPtr _routerInfo;
 #endif
     std::vector<IceInternal::EndpointPtr> _publishedEndpoints;
 #ifdef ICEE_HAS_LOCATOR

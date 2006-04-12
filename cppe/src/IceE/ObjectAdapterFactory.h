@@ -11,6 +11,9 @@
 #define ICEE_OBJECT_ADAPTER_FACTORY_H
 
 #include <IceE/ObjectAdapterF.h>
+#ifdef ICEE_HAS_ROUTER
+# include <IceE/RouterF.h>
+#endif
 #include <IceE/ProxyF.h>
 #include <IceE/CommunicatorF.h>
 #include <IceE/InstanceF.h>
@@ -29,7 +32,12 @@ public:
     void shutdown();
     void waitForShutdown();
 
-    ::Ice::ObjectAdapterPtr createObjectAdapter(const std::string&, const std::string&);
+    ::Ice::ObjectAdapterPtr createObjectAdapter(const std::string&, const std::string&
+#ifdef ICEE_HAS_ROUTER
+						, const ::Ice::RouterPrx&
+#endif
+    					        );
+    void removeObjectAdapter(const std::string&);
     void flushBatchRequests() const;
 
 private:

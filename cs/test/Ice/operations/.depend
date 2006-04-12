@@ -1,2 +1,2 @@
-Test.cs: ./Test.ice ../../../../ice/slice/Ice/Current.ice ../../../../ice/slice/Ice/ObjectAdapterF.ice ../../../../ice/slice/Ice/ConnectionF.ice ../../../../ice/slice/Ice/Identity.ice
-TestAMD.cs: ./TestAMD.ice ../../../../ice/slice/Ice/Current.ice ../../../../ice/slice/Ice/ObjectAdapterF.ice ../../../../ice/slice/Ice/ConnectionF.ice ../../../../ice/slice/Ice/Identity.ice
+Test.cs: ./Test.ice
+TestAMD.cs: ./TestAMD.ice

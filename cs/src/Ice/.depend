@@ -1,31 +1,31 @@
-BuiltinSequences.cs: ../../../ice/slice/Ice/BuiltinSequences.ice
-CommunicatorF.cs: ../../../ice/slice/Ice/CommunicatorF.ice
-Communicator.cs: ../../../ice/slice/Ice/Communicator.ice ../../../ice/slice/Ice/LoggerF.ice ../../../ice/slice/Ice/StatsF.ice ../../../ice/slice/Ice/ObjectAdapterF.ice ../../../ice/slice/Ice/PropertiesF.ice ../../../ice/slice/Ice/ObjectFactoryF.ice ../../../ice/slice/Ice/RouterF.ice ../../../ice/slice/Ice/LocatorF.ice ../../../ice/slice/Ice/PluginF.ice ../../../ice/slice/Ice/Current.ice ../../../ice/slice/Ice/ConnectionF.ice ../../../ice/slice/Ice/Identity.ice
-Connection.cs: ../../../ice/slice/Ice/Connection.ice ../../../ice/slice/Ice/ObjectAdapterF.ice ../../../ice/slice/Ice/Identity.ice
-ConnectionF.cs: ../../../ice/slice/Ice/ConnectionF.ice
-Current.cs: ../../../ice/slice/Ice/Current.ice ../../../ice/slice/Ice/ObjectAdapterF.ice ../../../ice/slice/Ice/ConnectionF.ice ../../../ice/slice/Ice/Identity.ice
-Endpoint.cs: ../../../ice/slice/Ice/Endpoint.ice
-FacetMap.cs: ../../../ice/slice/Ice/FacetMap.ice
-Identity.cs: ../../../ice/slice/Ice/Identity.ice
-LocalException.cs: ../../../ice/slice/Ice/LocalException.ice ../../../ice/slice/Ice/Identity.ice ../../../ice/slice/Ice/BuiltinSequences.ice
-LocatorF.cs: ../../../ice/slice/Ice/LocatorF.ice
-Locator.cs: ../../../ice/slice/Ice/Locator.ice ../../../ice/slice/Ice/Identity.ice ../../../ice/slice/Ice/ProcessF.ice
-LoggerF.cs: ../../../ice/slice/Ice/LoggerF.ice
-Logger.cs: ../../../ice/slice/Ice/Logger.ice
-ObjectAdapterF.cs: ../../../ice/slice/Ice/ObjectAdapterF.ice
-ObjectAdapter.cs: ../../../ice/slice/Ice/ObjectAdapter.ice ../../../ice/slice/Ice/CommunicatorF.ice ../../../ice/slice/Ice/ServantLocatorF.ice ../../../ice/slice/Ice/RouterF.ice ../../../ice/slice/Ice/LocatorF.ice ../../../ice/slice/Ice/Identity.ice ../../../ice/slice/Ice/FacetMap.ice ../../../ice/slice/Ice/Locator.ice ../../../ice/slice/Ice/ProcessF.ice
-ObjectFactoryF.cs: ../../../ice/slice/Ice/ObjectFactoryF.ice
-ObjectFactory.cs: ../../../ice/slice/Ice/ObjectFactory.ice
-PluginF.cs: ../../../ice/slice/Ice/PluginF.ice
-Plugin.cs: ../../../ice/slice/Ice/Plugin.ice
-ProcessF.cs: ../../../ice/slice/Ice/ProcessF.ice
-Process.cs: ../../../ice/slice/Ice/Process.ice
-PropertiesF.cs: ../../../ice/slice/Ice/PropertiesF.ice
-Properties.cs: ../../../ice/slice/Ice/Properties.ice ../../../ice/slice/Ice/BuiltinSequences.ice
-RouterF.cs: ../../../ice/slice/Ice/RouterF.ice
-Router.cs: ../../../ice/slice/Ice/Router.ice
-ServantLocatorF.cs: ../../../ice/slice/Ice/ServantLocatorF.ice
-ServantLocator.cs: ../../../ice/slice/Ice/ServantLocator.ice ../../../ice/slice/Ice/ObjectAdapterF.ice ../../../ice/slice/Ice/Current.ice ../../../ice/slice/Ice/ConnectionF.ice ../../../ice/slice/Ice/Identity.ice
-SliceChecksumDict.cs: ../../../ice/slice/Ice/SliceChecksumDict.ice
-StatsF.cs: ../../../ice/slice/Ice/StatsF.ice
-Stats.cs: ../../../ice/slice/Ice/Stats.ice
+BuiltinSequences.cs:
+CommunicatorF.cs:
+Communicator.cs:
+Connection.cs:
+ConnectionF.cs:
+Current.cs:
+Endpoint.cs:
+FacetMap.cs:
+Identity.cs:
+LocalException.cs:
+LocatorF.cs:
+Locator.cs:
+LoggerF.cs:
+Logger.cs:
+ObjectAdapterF.cs:
+ObjectAdapter.cs:
+ObjectFactoryF.cs:
+ObjectFactory.cs:
+PluginF.cs:
+Plugin.cs:
+ProcessF.cs:
+Process.cs:
+PropertiesF.cs:
+Properties.cs:
+RouterF.cs:
+Router.cs:
+ServantLocatorF.cs:
+ServantLocator.cs:
+SliceChecksumDict.cs:
+StatsF.cs:
+Stats.cs:

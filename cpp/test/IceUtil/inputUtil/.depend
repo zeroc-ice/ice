@@ -1,1 +1,1 @@
-Client.o: Client.cpp ../../../include/IceUtil/Unicode.h ../../../include/IceUtil/Config.h ../../../include/IceUtil/InputUtil.h ../../include/TestCommon.h
+Client.o: Client.cpp ../../../include/IceUtil/Unicode.h ../../../include/IceUtil/Config.h ../../../include/IceUtil/Exception.h ../../../include/IceUtil/InputUtil.h ../../../include/IceUtil/Options.h ../../../include/IceUtil/RecMutex.h ../../../include/IceUtil/Lock.h ../../../include/IceUtil/ThreadException.h ../../include/TestCommon.h

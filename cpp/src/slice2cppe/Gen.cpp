@@ -1440,7 +1440,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     H << fixKwd(name) << spar << args << "__defaultContext()" << epar << ';';
     H << eb;
-    H << nl << deprecateSymbol << retS << ' ' << fixKwd(name) << spar << params << "const ::Ice::Context&" << epar
+    H << nl << retS << ' ' << fixKwd(name) << spar << params << "const ::Ice::Context&" << epar
       << ';';
 
     C << sp << nl << retS << nl << "IceProxy" << scoped << spar << paramsDecl << "const ::Ice::Context& __ctx" << epar;

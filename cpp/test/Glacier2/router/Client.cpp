@@ -93,9 +93,8 @@ public:
 	os << "userid-" << _id;
 	Glacier2::SessionPrx session = router->createSession(os.str(), "abc123");
 	communicator->getProperties()->setProperty("Ice.PrintAdapterReady", "");
-	ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("CallbackReceiverAdapter", "");
+	ObjectAdapterPtr adapter = communicator->createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
 	adapter->activate();
-	adapter->addRouter(router);
 	
 	string category = router->getCategoryForClient();
 	{
@@ -203,9 +202,8 @@ public:
 	os << "userid-" << _id;
 	Glacier2::SessionPrx session = _router->createSession(os.str(), "abc123");
 	communicator->getProperties()->setProperty("Ice.PrintAdapterReady", "");
-	ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("CallbackReceiverAdapter", "");
+	ObjectAdapterPtr adapter = communicator->createObjectAdapterWithRouter("CallbackReceiverAdapter", _router);
 	adapter->activate();
-	adapter->addRouter(_router);
 	
 	string category = _router->getCategoryForClient();
 	_callbackReceiver = new CallbackReceiverI;
@@ -397,21 +395,6 @@ main(int argc, char* argv[])
 int
 CallbackClient::run(int argc, char* argv[])
 {
-    ObjectAdapterPtr adapter;
-
-    {
-	adapter = communicator()->createObjectAdapterWithEndpoints("CallbackReceiverAdapter", "");
-	adapter->activate();
-	// Put the print statement after activate(), so that if
-	// Ice.PrintAdapterReady is set, the "ready" is the first
-	// output from the client, and not the print statement
-	// below. Otherwise the Python test scripts will be confused,
-	// as they expect the "ready" from the Object Adapter to be
-	// the first thing that is printed.
-	cout << "creating and activating callback receiver adapter... " << flush;
-	cout << "ok" << endl;
-    }
-
     ObjectPrx routerBase;
 
     {
@@ -518,9 +501,13 @@ CallbackClient::run(int argc, char* argv[])
 	cout << "ok" << endl;
     }
 
+    ObjectAdapterPtr adapter;
+
     {
-	cout << "installing router with object adapter... " << flush;
-	adapter->addRouter(router);
+	cout << "creating and activating callback receiver adapter with router... " << flush;
+    	communicator()->getProperties()->setProperty("Ice.PrintAdapterReady", "0");
+	adapter = communicator()->createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
+	adapter->activate();
 	cout << "ok" << endl;
     }
 
@@ -809,12 +796,6 @@ CallbackClient::run(int argc, char* argv[])
 	cout << "ok" << endl;
     }
 
-    {
-	cout << "removing router from object adapter... " << flush;
-	adapter->removeRouter(router);
-	cout << "ok" << endl;
-    }
-    
     {
 	cout << "trying to ping server after session destruction... " << flush;
 	try

@@ -13,7 +13,6 @@
 
 #include <IceE/RouterInfo.h>
 #include <IceE/Router.h>
-#include <IceE/RoutingTable.h>
 #include <IceE/LocalException.h>
 #include <IceE/Connection.h> // For ice_connection()->timeout().
 #include <IceE/Functional.h>
@@ -115,8 +114,7 @@ IceInternal::RouterManager::erase(const RouterPrx& rtr)
 }
 
 IceInternal::RouterInfo::RouterInfo(const RouterPrx& router) :
-    _router(router),
-    _routingTable(new RoutingTable)
+    _router(router)
 {
     assert(_router);
 }
@@ -131,7 +129,7 @@ IceInternal::RouterInfo::destroy()
 #ifndef ICEE_PURE_CLIENT
     _adapter = 0;
 #endif
-    _routingTable->clear();
+    _identities.clear();
 }
 
 bool
@@ -231,13 +229,33 @@ IceInternal::RouterInfo::setServerProxy(const ObjectPrx& serverProxy)
 void
 IceInternal::RouterInfo::addProxy(const ObjectPrx& proxy)
 {
-    //
-    // No mutex lock necessary, _routingTable is immutable, and
-    // RoutingTable is mutex protected.
-    //
-    if(_routingTable->add(proxy)) // Only add the proxy to the router if it's not already in the routing table.
+    assert(proxy); // Must not be called for null proxies.
+
+    IceUtil::Mutex::Lock sync(*this);
+
+    set<Identity>::iterator p = _identities.find(proxy->ice_getIdentity());
+
+    if(p == _identities.end())
     {
-	_router->addProxy(proxy);
+        //
+        // Only add the proxy to the router if it's not already in our local map.
+        //
+        ObjectProxySeq proxies;
+        proxies.push_back(proxy);
+        ObjectProxySeq evictedProxies = _router->addProxies(proxies);
+
+        //
+        // If we successfully added the proxy to the router, we add it to our local map.
+        //
+        _identities.insert(_identities.begin(), proxy->ice_getIdentity());
+
+        //
+        // We also must remove whatever proxies the router evicted.
+        //
+        for(ObjectProxySeq::iterator q = evictedProxies.begin(); q != evictedProxies.end(); ++q)
+        {
+            _identities.erase((*q)->ice_getIdentity());
+        }
     }
 }
 

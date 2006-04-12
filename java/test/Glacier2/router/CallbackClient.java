@@ -14,22 +14,6 @@ class CallbackClient extends Ice.Application
     public int
     run(String[] args)
     {
-        Ice.ObjectAdapter adapter;
-
-        {
-            adapter = communicator().createObjectAdapter("CallbackReceiverAdapter");
-            adapter.activate();
-            // Put the print statement after activate(), so that if
-            // Ice.PrintAdapterReady is set, the "ready" is the first
-            // output from the client, and not the print statement
-            // below. Otherwise the Python test scripts will be confused,
-            // as they expect the "ready" from the Object Adapter to be
-            // the first thing that is printed.
-            System.out.print("creating and activating callback receiver adapter... ");
-            System.out.flush();
-            System.out.println("ok");
-        }
-
         Ice.ObjectPrx routerBase;
 
         {
@@ -182,10 +166,14 @@ class CallbackClient extends Ice.Application
             System.out.println("ok");
         }
 
+        Ice.ObjectAdapter adapter;
+
         {
-            System.out.print("installing router with object adapter... ");
+            System.out.print("creating and activating callback receiver adapter... ");
             System.out.flush();
-            adapter.addRouter(router);
+	    communicator().getProperties().setProperty("Ice.PrintAdapterReady", "0");
+            adapter = communicator().createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
+            adapter.activate();
             System.out.println("ok");
         }
 
@@ -360,13 +348,6 @@ class CallbackClient extends Ice.Application
 	    {
 		test(false);
 	    }
-            System.out.println("ok");
-        }
-
-        {
-            System.out.print("removing router from object adapter... ");
-            System.out.flush();
-            adapter.removeRouter(router);
             System.out.println("ok");
         }
         

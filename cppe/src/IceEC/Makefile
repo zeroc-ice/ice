@@ -55,7 +55,6 @@ ICE_OBJS	= BasicStream.o \
 		  Reference.o \
 		  ReferenceFactory.o \
 		  RouterInfo.o \
-		  RoutingTable.o \
 		  RWRecMutex.o \
 		  SafeStdio.o \
 		  Shared.o \

@@ -334,10 +334,6 @@ SOURCE=..\IceE\RouterInfo.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\IceE\RoutingTable.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\IceE\RWRecMutex.cpp
 # End Source File
 # Begin Source File
@@ -683,10 +679,6 @@ SOURCE=..\IceE\ReferenceFactory.h
 # Begin Source File
 
 SOURCE=..\IceE\ReferenceFactoryF.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\IceE\RoutingTable.h
 # End Source File
 # Begin Source File
 

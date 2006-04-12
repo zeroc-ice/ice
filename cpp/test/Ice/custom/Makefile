@@ -46,6 +46,7 @@ COLOBJS		= Test.o \
 
 SRCS		= $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp) \
+		  $(SAMDOBJS:.o=.cpp) \
 		  $(COLOBJS:.o=.cpp)
 
 SLICE_SRCS	= Test.ice TestAMD.ice Wstring.ice

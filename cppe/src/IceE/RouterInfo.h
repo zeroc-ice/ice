@@ -16,12 +16,13 @@
 
 #include <IceE/RouterInfoF.h>
 #include <IceE/RouterF.h>
-#include <IceE/RoutingTableF.h>
 #ifndef ICEE_PURE_CLIENT
 #    include <IceE/ObjectAdapterF.h>
 #endif
 #include <IceE/Shared.h>
 #include <IceE/Mutex.h>
+
+#include <set>
 
 namespace IceInternal
 {
@@ -75,10 +76,10 @@ private:
     const Ice::RouterPrx _router;
     Ice::ObjectPrx _clientProxy;
     Ice::ObjectPrx _serverProxy;
-    const RoutingTablePtr _routingTable;
 #ifndef ICEE_PURE_CLIENT
     Ice::ObjectAdapterPtr _adapter;
 #endif
+    std::set<Ice::Identity> _identities;
 };
 
 }

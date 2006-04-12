@@ -72,7 +72,6 @@ LOCAL_OBJS	= BasicStream.o \
 		  Router.o \
 		  RouterF.o \
 		  RouterInfo.o \
-		  RoutingTable.o \
 		  RWRecMutex.o \
 		  SafeStdio.o \
 		  ServantManager.o \

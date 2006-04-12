@@ -14,7 +14,7 @@ public final class RouterInfo
     RouterInfo(Ice.RouterPrx router)
     {
         _router = router;
-        _routingTable = new Ice.RoutingTable();
+        _identities = new java.util.Hashtable();
 
 	if(IceUtil.Debug.ASSERT)
 	{
@@ -28,7 +28,7 @@ public final class RouterInfo
 	_clientProxy = null;
 	_serverProxy = null;
 	_adapter = null;
-	_routingTable.clear();
+	_identities.clear();
     }
 
     public boolean
@@ -119,14 +119,31 @@ public final class RouterInfo
     public void
     addProxy(Ice.ObjectPrx proxy)
     {
-        //
-        // No mutex lock necessary, _routingTable is immutable, and
-        // RoutingTable is mutex protected.
-        //
-        if(_routingTable.add(proxy)) // Only add the proxy to the router if it's not already in the routing table.
+        IceUtil.Debug.Assert(proxy != null);
+
+        if(!_identities.containsKey(proxy.ice_getIdentity()))
         {
-            _router.addProxy(proxy);
+            //
+            // Only add the proxy to the router if it's not already in our local map.
+            //
+            Ice.ObjectPrx[] proxies = new Ice.ObjectPrx[1];
+            proxies[0] = proxy;
+            Ice.ObjectPrx[] evictedProxies = _router.addProxies(proxies);
+
+            //
+            // If we successfully added the proxy to the router, we add it to our local map.
+            //
+            _identities.put(proxy.ice_getIdentity(), new java.lang.Integer(0));
+
+            //
+            // We also must remove whatever proxies the router evicted.
+            //
+            for(int i = 0; i < evictedProxies.length; ++i)
+            {
+                _identities.remove(evictedProxies[i].ice_getIdentity());
+            }
         }
+
     }
 
     public synchronized void
@@ -144,6 +161,6 @@ public final class RouterInfo
     private /*final*/ Ice.RouterPrx _router;
     private Ice.ObjectPrx _clientProxy;
     private Ice.ObjectPrx _serverProxy;
-    private /*final*/ Ice.RoutingTable _routingTable;
     private Ice.ObjectAdapter _adapter;
+    private java.util.Hashtable _identities;
 }

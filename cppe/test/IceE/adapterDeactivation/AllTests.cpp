@@ -30,6 +30,24 @@ allTests(const CommunicatorPtr& communicator)
     test(obj == base);
     printf("ok\n");
 
+    {
+        printf("creating/destroying/recreating object adapter...");
+        ObjectAdapterPtr adapter =
+            communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9999");
+        try
+        {
+            communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9998");
+	    test(false);
+        }
+        catch(const AlreadyRegisteredException&)
+        {
+        }
+        adapter->destroy();
+        adapter = communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9999");
+        adapter->destroy();
+        printf("ok\n");
+    }
+
     printf("creating/activating/deactivating object adapter in one operation...");
     obj->transient();
     printf("ok\n");

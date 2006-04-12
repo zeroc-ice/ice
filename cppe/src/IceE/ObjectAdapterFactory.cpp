@@ -109,7 +109,11 @@ IceInternal::ObjectAdapterFactory::waitForShutdown()
 }
 
 ObjectAdapterPtr
-IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const string& endpoints)
+IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const string& endpoints
+#ifdef ICEE_HAS_ROUTER
+						       , const RouterPrx& router
+#endif
+						      )
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
@@ -124,9 +128,26 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
 	throw AlreadyRegisteredException(__FILE__, __LINE__, "object adapter", name);
     }
 
-    ObjectAdapterPtr adapter = new ObjectAdapter(_instance, _communicator, name, endpoints);
+    ObjectAdapterPtr adapter = new ObjectAdapter(_instance, _communicator, this, name, endpoints
+#ifdef ICEE_HAS_ROUTER
+						 , router
+#endif
+    						);
     _adapters.insert(make_pair(name, adapter));
     return adapter;
+}
+
+void
+IceInternal::ObjectAdapterFactory::removeObjectAdapter(const string& name)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+    if(_waitForShutdown)
+    {
+        return;
+    }
+
+    _adapters.erase(name);
 }
 
 namespace IceInternal {

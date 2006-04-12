@@ -1,6 +1,6 @@
-PermissionsVerifier.cs: ../../../ice/slice/Glacier2/PermissionsVerifier.ice
-PermissionsVerifierF.cs: ../../../ice/slice/Glacier2/PermissionsVerifierF.ice
-Router.cs: ../../../ice/slice/Glacier2/Router.ice ../../../ice/slice/Ice/Router.ice ../../../ice/slice/Glacier2/Session.ice
-RouterF.cs: ../../../ice/slice/Glacier2/RouterF.ice
-Session.cs: ../../../ice/slice/Glacier2/Session.ice
-SessionF.cs: ../../../ice/slice/Glacier2/SessionF.ice
+PermissionsVerifier.cs:
+PermissionsVerifierF.cs:
+Router.cs:
+RouterF.cs:
+Session.cs:
+SessionF.cs:

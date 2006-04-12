@@ -50,7 +50,13 @@ public final class Communicator
     public ObjectAdapter
     createObjectAdapterWithEndpoints(String name, String endpoints)
     {
-	return _instance.objectAdapterFactory().createObjectAdapter(name, endpoints);
+	return _instance.objectAdapterFactory().createObjectAdapter(name, endpoints, null);
+    }
+
+    public ObjectAdapter
+    createObjectAdapterWithRouter(String name, RouterPrx router)
+    {
+	return _instance.objectAdapterFactory().createObjectAdapter(name, "", router);
     }
 
     public Properties

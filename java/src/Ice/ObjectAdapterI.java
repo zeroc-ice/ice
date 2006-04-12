@@ -210,6 +210,24 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    {
 		return;
 	    }
+
+	    if(_routerInfo != null)
+	    {
+                //
+                // Remove entry from the router manager.
+                //
+                _instance.routerManager().erase(_routerInfo.getRouter());
+
+                //
+                //  Clear this object adapter with the router.
+                //
+                _routerInfo.setAdapter(null);
+
+                //
+                // Update all existing outgoing connections.
+                //
+                _instance.outgoingConnectionFactory().setRouterInfo(_routerInfo);
+	    }
 	    
 	    incomingConnectionFactories = new java.util.ArrayList(_incomingConnectionFactories);
 	    outgoingConnectionFactory = _instance.outgoingConnectionFactory();
@@ -312,6 +330,8 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    _threadPool.joinWithAllThreads();
 	}
 
+	IceInternal.ObjectAdapterFactory objectAdapterFactory;
+
 	synchronized(this)
 	{
 	    //
@@ -337,10 +357,25 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    _servantManager = null;
 	    _communicator = null;
 	    _routerEndpoints = null;
-	    _routerInfos = null;
+	    _routerInfo = null;
 	    _publishedEndpoints = null;
 	    _locatorInfo = null;
+
+	    objectAdapterFactory = _objectAdapterFactory;
+	    _objectAdapterFactory = null;
 	}
+
+	if(objectAdapterFactory != null)
+	{
+	    objectAdapterFactory.removeObjectAdapter(_name);
+	}
+    }
+
+    public void
+    destroy()
+    {
+        deactivate();
+	waitForDeactivate();
     }
 
     public ObjectPrx
@@ -520,142 +555,11 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     }
 
     public synchronized void
-    addRouter(RouterPrx router)
-    {
-	checkForDeactivation();
-
-        IceInternal.RouterInfo routerInfo = _instance.routerManager().get(router);
-        if(routerInfo != null)
-        {
-	    _routerInfos.add(routerInfo);
-
-            //
-            // Add the router's server proxy endpoints to this object
-            // adapter.
-            //
-            ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)routerInfo.getServerProxy();
-            IceInternal.EndpointI[] endpoints = proxy.__reference().getEndpoints();
-            for(int i = 0; i < endpoints.length; ++i)
-            {
-                _routerEndpoints.add(endpoints[i]);
-            }
-            java.util.Collections.sort(_routerEndpoints); // Must be sorted.
-	    //
-	    // Remove duplicate endpoints, so we have a list of unique
-	    // endpoints.
-	    //
-	    for(int i = 0; i < _routerEndpoints.size()-1;)
-	    {
-                java.lang.Object o1 = _routerEndpoints.get(i);
-                java.lang.Object o2 = _routerEndpoints.get(i + 1);
-                if(o1.equals(o2))
-                {
-                    _routerEndpoints.remove(i);
-                }
-		else
-		{
-		    ++i;
-		}
-	    }
-
-            //
-            // Associate this object adapter with the router. This way,
-            // new outgoing connections to the router's client proxy will
-            // use this object adapter for callbacks.
-            //
-            routerInfo.setAdapter(this);
-
-            //
-            // Also modify all existing outgoing connections to the
-            // router's client proxy to use this object adapter for
-            // callbacks.
-            //      
-            _instance.outgoingConnectionFactory().setRouterInfo(routerInfo);
-        }
-    }
-
-    public synchronized void
-    removeRouter(RouterPrx router)
-    {
-	checkForDeactivation();
-
-	IceInternal.RouterInfo routerInfo = _instance.routerManager().erase(router);
-	if(routerInfo != null)
-	{
-	    //
-	    // Rebuild the router endpoints from our set of router infos.
-	    //
-	    _routerEndpoints.clear();
-	    for(java.util.Iterator p = _routerInfos.iterator(); p.hasNext();)
-	    {
-		IceInternal.RouterInfo curr = (IceInternal.RouterInfo)p.next();
-		if(curr == routerInfo)
-		{
-		    p.remove();
-		    continue;
-		}
-		ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)routerInfo.getServerProxy();
-		IceInternal.EndpointI[] endpoints = proxy.__reference().getEndpoints();
-		for(int i = 0; i < endpoints.length; ++i)
-		{
-		    _routerEndpoints.add(endpoints[i]);
-		}
-	    }
-
-            java.util.Collections.sort(_routerEndpoints); // Must be sorted.
-	    //
-	    // Remove duplicate endpoints, so we have a list of unique
-	    // endpoints.
-	    //
-	    for(int i = 0; i < _routerEndpoints.size()-1;)
-	    {
-                java.lang.Object o1 = _routerEndpoints.get(i);
-                java.lang.Object o2 = _routerEndpoints.get(i + 1);
-                if(o1.equals(o2))
-                {
-                    _routerEndpoints.remove(i);
-                }
-		else
-		{
-		    ++i;
-		}
-	    }
-
-	    //
-	    // Clear this object adapter with the router.
-	    //
-	    routerInfo.setAdapter(null);
-
-	    //
-	    // Also modify all existing outgoing connections to the
-	    // router's client proxy to use this object adapter for
-	    // callbacks.
-	    //	
-	    _instance.outgoingConnectionFactory().setRouterInfo(routerInfo);
-	}
-    }
-
-    public synchronized void
     setLocator(LocatorPrx locator)
     {
 	checkForDeactivation();
 
 	_locatorInfo = _instance.locatorManager().get(locator);
-    }
-
-    public synchronized LocatorPrx
-    getLocator()
-    {
-        checkForDeactivation();
-
-        LocatorPrx locator = null;
-
-        if(_locatorInfo != null)
-        {
-            locator = _locatorInfo.getLocator();
-        }
-
-        return locator;
     }
 
     public boolean
@@ -719,13 +623,16 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    // router's server proxy endpoints (if any), are also considered
 	    // local.
 	    //
-	    for(int i = 0; i < endpoints.length; ++i)
+	    if(_routerInfo != null && _routerInfo.getRouter().equals(proxy.ice_getRouter()))
 	    {
-		// _routerEndpoints is sorted.
-		if(java.util.Collections.binarySearch(_routerEndpoints, endpoints[i]) >= 0)
-		{
-		    return true;
-		}
+	        for(int i = 0; i < endpoints.length; ++i)
+	        {
+		    // _routerEndpoints is sorted.
+		    if(java.util.Collections.binarySearch(_routerEndpoints, endpoints[i]) >= 0)
+		    {
+		        return true;
+		    }
+	        }
 	    }
 	    
 	    return false;
@@ -809,11 +716,14 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     // Only for use by IceInternal.ObjectAdapterFactory
     //
     public
-    ObjectAdapterI(IceInternal.Instance instance, Communicator communicator, String name, String endpointInfo)
+    ObjectAdapterI(IceInternal.Instance instance, Communicator communicator, 
+    		   IceInternal.ObjectAdapterFactory objectAdapterFactory, String name, String endpointInfo,
+		   RouterPrx router)
     {
 	_deactivated = false;
         _instance = instance;
 	_communicator = communicator;
+	_objectAdapterFactory = objectAdapterFactory;
 	_servantManager = new IceInternal.ServantManager(instance, name);
 	_printAdapterReadyDone = false;
         _name = name;
@@ -824,51 +734,106 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	
         try
         {
-	    //
-	    // Parse the endpoints, but don't store them in the adapter.
-	    // The connection factory might change it, for example, to
-	    // fill in the real port number.
-	    //
-	    java.util.ArrayList endpoints = parseEndpoints(endpointInfo);
-	    for(int i = 0; i < endpoints.size(); ++i)
+	    if(router == null)
 	    {
-		IceInternal.EndpointI endp = (IceInternal.EndpointI)endpoints.get(i);
-                _incomingConnectionFactories.add(new IceInternal.IncomingConnectionFactory(instance, endp, this));
-            }
-
-	    //
-	    // Parse published endpoints. If set, these are used in proxies
-	    // instead of the connection factory Endpoints.
-	    //
-	    String endpts = _instance.initializationData().properties.getProperty(name + ".PublishedEndpoints");
-	    _publishedEndpoints = parseEndpoints(endpts);
-	    if(_publishedEndpoints.size() == 0)
-	    {
-	        for(int i = 0; i < _incomingConnectionFactories.size(); ++i)
-		{
-		    IceInternal.IncomingConnectionFactory factory =
-		        (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
-		    _publishedEndpoints.add(factory.endpoint());
-		}
+	        String routerStr = _instance.initializationData().properties.getProperty(name + ".Router");
+	        if(routerStr.length() > 0)
+	        {
+		    router = RouterPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(routerStr));
+	        }
 	    }
-
-	    //
-	    // Filter out any endpoints that are not meant to be published.
-	    //
-	    java.util.Iterator p = _publishedEndpoints.iterator();
-	    while(p.hasNext())
+	    if(router != null)
 	    {
-	        IceInternal.EndpointI endpoint = (IceInternal.EndpointI)p.next();
-		if(!endpoint.publish())
-		{
-		    p.remove();
-		}
+                _routerInfo = _instance.routerManager().get(router);
+                if(_routerInfo != null)
+                {
+                    //
+                    // Add the router's server proxy endpoints to this object
+                    // adapter.
+                    //
+                    ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)_routerInfo.getServerProxy();
+                    IceInternal.EndpointI[] endpoints = proxy.__reference().getEndpoints();
+                    for(int i = 0; i < endpoints.length; ++i)
+                    {
+                        _routerEndpoints.add(endpoints[i]);
+                    }
+                    java.util.Collections.sort(_routerEndpoints); // Must be sorted.
+
+	            //
+	            // Remove duplicate endpoints, so we have a list of unique
+	            // endpoints.
+	            //
+	            for(int i = 0; i < _routerEndpoints.size()-1;)
+	            {
+                        java.lang.Object o1 = _routerEndpoints.get(i);
+                        java.lang.Object o2 = _routerEndpoints.get(i + 1);
+                        if(o1.equals(o2))
+                        {
+                            _routerEndpoints.remove(i);
+                        }
+		        else
+		        {
+		            ++i;
+		        }
+	            }
+
+                    //
+                    // Associate this object adapter with the router. This way,
+                    // new outgoing connections to the router's client proxy will
+                    // use this object adapter for callbacks.
+                    //
+                    _routerInfo.setAdapter(this);
+
+                    //
+                    // Also modify all existing outgoing connections to the
+                    // router's client proxy to use this object adapter for
+                    // callbacks.
+                    //      
+                    _instance.outgoingConnectionFactory().setRouterInfo(_routerInfo);
+                }
 	    }
-
-	    String router = _instance.initializationData().properties.getProperty(name + ".Router");
-	    if(router.length() > 0)
+	    else
 	    {
-		addRouter(RouterPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(router)));
+	        //
+	        // Parse the endpoints, but don't store them in the adapter.
+	        // The connection factory might change it, for example, to
+	        // fill in the real port number.
+	        //
+	        java.util.ArrayList endpoints = parseEndpoints(endpointInfo);
+	        for(int i = 0; i < endpoints.size(); ++i)
+	        {
+		    IceInternal.EndpointI endp = (IceInternal.EndpointI)endpoints.get(i);
+                    _incomingConnectionFactories.add(new IceInternal.IncomingConnectionFactory(instance, endp, this));
+                }
+
+	        //
+	        // Parse published endpoints. If set, these are used in proxies
+	        // instead of the connection factory Endpoints.
+	        //
+	        String endpts = _instance.initializationData().properties.getProperty(name + ".PublishedEndpoints");
+	        _publishedEndpoints = parseEndpoints(endpts);
+	        if(_publishedEndpoints.size() == 0)
+	        {
+	            for(int i = 0; i < _incomingConnectionFactories.size(); ++i)
+		    {
+		        IceInternal.IncomingConnectionFactory factory =
+		            (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
+		        _publishedEndpoints.add(factory.endpoint());
+		    }
+	        }
+
+	        //
+	        // Filter out any endpoints that are not meant to be published.
+	        //
+	        java.util.Iterator p = _publishedEndpoints.iterator();
+	        while(p.hasNext())
+	        {
+	            IceInternal.EndpointI endpoint = (IceInternal.EndpointI)p.next();
+		    if(!endpoint.publish())
+		    {
+		        p.remove();
+		    }
+	        }
 	    }
 
 	    String locator = _instance.initializationData().properties.getProperty(name + ".Locator");
@@ -1108,6 +1073,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     private boolean _deactivated;
     private IceInternal.Instance _instance;
     private Communicator _communicator;
+    private IceInternal.ObjectAdapterFactory _objectAdapterFactory;
     private IceInternal.ThreadPool _threadPool;
     private IceInternal.ServantManager _servantManager;
     private boolean _printAdapterReadyDone;
@@ -1116,8 +1082,8 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     final private String _replicaGroupId;
     private java.util.ArrayList _incomingConnectionFactories = new java.util.ArrayList();
     private java.util.ArrayList _routerEndpoints = new java.util.ArrayList();
-    private java.util.ArrayList _routerInfos = new java.util.ArrayList();
-    private java.util.ArrayList _publishedEndpoints;
+    private IceInternal.RouterInfo _routerInfo = null;
+    private java.util.ArrayList _publishedEndpoints = new java.util.ArrayList();
     private IceInternal.LocatorInfo _locatorInfo;
     private int _directCount;
     private boolean _waitForDeactivate;

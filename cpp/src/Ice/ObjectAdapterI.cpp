@@ -9,6 +9,7 @@
 
 #include <IceUtil/UUID.h>
 #include <Ice/ObjectAdapterI.h>
+#include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Instance.h>
 #include <Ice/Proxy.h>
 #include <Ice/ProxyFactory.h>
@@ -231,9 +232,27 @@ Ice::ObjectAdapterI::deactivate()
 	    return;
 	}
 
+	if(_routerInfo)
+	{
+	    //
+	    // Remove entry from the router manager.
+	    //
+	    _instance->routerManager()->erase(_routerInfo->getRouter());
+
+	    //
+	    //  Clear this object adapter with the router.
+	    //
+	    _routerInfo->setAdapter(0);
+
+	    //
+	    // Update all existing outgoing connections.
+	    //
+	    _instance->outgoingConnectionFactory()->setRouterInfo(_routerInfo);
+	}
+
         incomingConnectionFactories = _incomingConnectionFactories;
 	outgoingConnectionFactory = _instance->outgoingConnectionFactory();
-    
+
 	_deactivated = true;
 	
 	notifyAll();
@@ -306,6 +325,8 @@ Ice::ObjectAdapterI::waitForDeactivate()
 	_threadPool->joinWithAllThreads();
     }
 
+    ObjectAdapterFactoryPtr objectAdapterFactory;
+
     {
 	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
@@ -329,10 +350,25 @@ Ice::ObjectAdapterI::waitForDeactivate()
 	_servantManager = 0;
 	_communicator = 0;
 	_routerEndpoints.clear();
-	_routerInfos.clear();
+	_routerInfo = 0;
 	_publishedEndpoints.clear();
 	_locatorInfo = 0;
+
+	objectAdapterFactory = _objectAdapterFactory;
+	_objectAdapterFactory = 0;
     }
+
+    if(objectAdapterFactory)
+    {
+        objectAdapterFactory->removeObjectAdapter(_name);
+    }
+}
+
+void
+Ice::ObjectAdapterI::destroy()
+{
+    deactivate();
+    waitForDeactivate();
 }
 
 ObjectPrx
@@ -517,89 +553,6 @@ Ice::ObjectAdapterI::createReverseProxy(const Identity& ident) const
 }
 
 void
-Ice::ObjectAdapterI::addRouter(const RouterPrx& router)
-{
-    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-    
-    checkForDeactivation();
-
-    RouterInfoPtr routerInfo = _instance->routerManager()->get(router);
-    if(routerInfo)
-    {
-	_routerInfos.push_back(routerInfo);
-
-	//
-	// Add the router's server proxy endpoints to this object
-	// adapter.
-	//
-	ObjectPrx proxy = routerInfo->getServerProxy();
-	vector<EndpointIPtr> endpoints = proxy->__reference()->getEndpoints();
-	copy(endpoints.begin(), endpoints.end(), back_inserter(_routerEndpoints));
-	sort(_routerEndpoints.begin(), _routerEndpoints.end()); // Must be sorted.
-	_routerEndpoints.erase(unique(_routerEndpoints.begin(), _routerEndpoints.end()), _routerEndpoints.end());
-
-	//
-	// Associate this object adapter with the router. This way,
-	// new outgoing connections to the router's client proxy will
-	// use this object adapter for callbacks.
-	//
-	routerInfo->setAdapter(this);
-
-	//
-	// Also modify all existing outgoing connections to the
-	// router's client proxy to use this object adapter for
-	// callbacks.
-	//	
-	_instance->outgoingConnectionFactory()->setRouterInfo(routerInfo);
-    }
-}
-
-void
-Ice::ObjectAdapterI::removeRouter(const RouterPrx& router)
-{
-    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-    
-    checkForDeactivation();
-
-    RouterInfoPtr routerInfo = _instance->routerManager()->erase(router);
-    if(routerInfo)
-    {
-	//
-	// Rebuild the router endpoints from our set of router infos.
-	//
-	_routerEndpoints.clear();
-	vector<RouterInfoPtr>::iterator p = _routerInfos.begin();
-	while(p != _routerInfos.end())
-	{
-	    if(*p == routerInfo)
-	    {
-		p = _routerInfos.erase(p);
-		continue;
-	    }
-	    ObjectPrx proxy = (*p)->getServerProxy();
-	    vector<EndpointIPtr> endpoints = proxy->__reference()->getEndpoints();
-	    copy(endpoints.begin(), endpoints.end(), back_inserter(_routerEndpoints));
-	    ++p;
-	}
-
-	sort(_routerEndpoints.begin(), _routerEndpoints.end()); // Must be sorted.
-	_routerEndpoints.erase(unique(_routerEndpoints.begin(), _routerEndpoints.end()), _routerEndpoints.end());
-
-	//
-	// Clear this object adapter with the router.
-	//
-	routerInfo->setAdapter(0);
-
-	//
-	// Also modify all existing outgoing connections to the
-	// router's client proxy to use this object adapter for
-	// callbacks.
-	//	
-	_instance->outgoingConnectionFactory()->setRouterInfo(routerInfo);
-    }
-}
-
-void
 Ice::ObjectAdapterI::setLocator(const LocatorPrx& locator)
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
@@ -608,25 +561,6 @@ Ice::ObjectAdapterI::setLocator(const LocatorPrx& locator)
 
     _locatorInfo = _instance->locatorManager()->get(locator);
 }
-
-/*
-LocatorPrx
-Ice::ObjectAdapterI::getLocator() const
-{
-    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-
-    checkForDeactivation();
-
-    LocatorPrx locator;
-
-    if(_locatorInfo)
-    {
-        locator = _locatorInfo->getLocator();
-    }
-
-    return locator;
-}
-*/
 
 bool
 Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
@@ -691,12 +625,15 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
     // router's server proxy endpoints (if any), are also considered
     // local.
     //
-    for(p = endpoints.begin(); p != endpoints.end(); ++p)
+    if(_routerInfo && _routerInfo->getRouter() == proxy->ice_getRouter())
     {
-	if(binary_search(_routerEndpoints.begin(), _routerEndpoints.end(), *p)) // _routerEndpoints is sorted.
-	{
-	    return true;
-	}
+        for(p = endpoints.begin(); p != endpoints.end(); ++p)
+        {
+	    if(binary_search(_routerEndpoints.begin(), _routerEndpoints.end(), *p)) // _routerEndpoints is sorted.
+	    {
+	        return true;
+	    }
+        }
     }
 	
     return false;
@@ -776,10 +713,12 @@ Ice::ObjectAdapterI::getServantManager() const
 }
 
 Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const CommunicatorPtr& communicator,
-				    const string& name, const string& endpointInfo) :
+				    const ObjectAdapterFactoryPtr& objectAdapterFactory, const string& name,
+				    const string& endpointInfo, const RouterPrx& router) :
     _deactivated(false),
     _instance(instance),
     _communicator(communicator),
+    _objectAdapterFactory(objectAdapterFactory),
     _servantManager(new ServantManager(instance, name)),
     _printAdapterReadyDone(false),
     _name(name),
@@ -791,41 +730,78 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     __setNoDelete(true);
     try
     {
-	//
-	// Parse the endpoints, but don't store them in the adapter.
-	// The connection factory might change it, for example, to
-	// fill in the real port number.
-	//
-	vector<EndpointIPtr> endpoints = parseEndpoints(endpointInfo);
-	for(vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+    	if(!router)
 	{
-	    _incomingConnectionFactories.push_back(new IncomingConnectionFactory(instance, *p, this));
+	    string routerStr = _instance->initializationData().properties->getProperty(_name + ".Router");
+	    if(!routerStr.empty())
+	    {
+	        const_cast<RouterPrx&>(router) =
+		    RouterPrx::uncheckedCast(_instance->proxyFactory()->stringToProxy(routerStr));
+	    }
+	}
+	if(router)
+	{
+            _routerInfo = _instance->routerManager()->get(router);
+            if(_routerInfo)
+            {
+	        //
+	        // Add the router's server proxy endpoints to this object
+	        // adapter.
+	        //
+	        ObjectPrx proxy = _routerInfo->getServerProxy();
+	        vector<EndpointIPtr> endpoints = proxy->__reference()->getEndpoints();
+	        copy(endpoints.begin(), endpoints.end(), back_inserter(_routerEndpoints));
+	        sort(_routerEndpoints.begin(), _routerEndpoints.end()); // Must be sorted.
+	        _routerEndpoints.erase(unique(_routerEndpoints.begin(), _routerEndpoints.end()),
+				       _routerEndpoints.end());
+
+	        //
+	        // Associate this object adapter with the router. This way,
+	        // new outgoing connections to the router's client proxy will
+	        // use this object adapter for callbacks.
+	        //
+	        _routerInfo->setAdapter(this);
+
+	        //
+	        // Also modify all existing outgoing connections to the
+	        // router's client proxy to use this object adapter for
+	        // callbacks.
+	        //	
+	        _instance->outgoingConnectionFactory()->setRouterInfo(_routerInfo);
+            }
+	}
+	else
+	{
+	    //
+	    // Parse the endpoints, but don't store them in the adapter.
+	    // The connection factory might change it, for example, to
+	    // fill in the real port number.
+	    //
+	    vector<EndpointIPtr> endpoints = parseEndpoints(endpointInfo);
+	    for(vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+    	    {
+	        _incomingConnectionFactories.push_back(new IncomingConnectionFactory(instance, *p, this));
+	    }
+
+	    //
+	    // Parse published endpoints. If set, these are used in proxies
+	    // instead of the connection factory endpoints. 
+	    //
+	    string endpts = _instance->initializationData().properties->getProperty(name + ".PublishedEndpoints");
+	    _publishedEndpoints = parseEndpoints(endpts);
+	    if(_publishedEndpoints.empty())
+    	    {
+	        transform(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(), 
+	    	          back_inserter(_publishedEndpoints), Ice::constMemFun(&IncomingConnectionFactory::endpoint));
+	    }
+
+	    //
+	    // Filter out any endpoints that are not meant to be published.
+	    //
+	    _publishedEndpoints.erase(remove_if(_publishedEndpoints.begin(), _publishedEndpoints.end(),
+				      not1(Ice::constMemFun(&EndpointI::publish))), _publishedEndpoints.end());
 	}
 
-	//
-	// Parse published endpoints. If set, these are used in proxies
-	// instead of the connection factory endpoints. 
-	//
-	string endpts = _instance->initializationData().properties->getProperty(name + ".PublishedEndpoints");
-	_publishedEndpoints = parseEndpoints(endpts);
-	if(_publishedEndpoints.empty())
-	{
-	    transform(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(), 
-	    	      back_inserter(_publishedEndpoints), Ice::constMemFun(&IncomingConnectionFactory::endpoint));
-	}
-
-	//
-	// Filter out any endpoints that are not meant to be published.
-	//
-	_publishedEndpoints.erase(remove_if(_publishedEndpoints.begin(), _publishedEndpoints.end(),
-				  not1(Ice::constMemFun(&EndpointI::publish))), _publishedEndpoints.end());
-
-	string router = _instance->initializationData().properties->getProperty(_name + ".Router");
-	if(!router.empty())
-	{
-	    addRouter(RouterPrx::uncheckedCast(_instance->proxyFactory()->stringToProxy(router)));
-	}
-	
 	string locator = _instance->initializationData().properties->getProperty(_name + ".Locator");
 	if(!locator.empty())
 	{

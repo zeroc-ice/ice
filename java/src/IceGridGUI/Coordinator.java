@@ -695,7 +695,6 @@ public class Coordinator
 	    //
 	    // Clean it up!
 	    //
-	    _routedAdapter.removeRouter(_communicator.getDefaultRouter());
 	    _routedAdapter.deactivate();
 	    _routedAdapter.waitForDeactivate();
 	    _routedAdapter = null;
@@ -862,9 +861,7 @@ public class Coordinator
 		//
 		String name = "RoutedAdapter-" + Ice.Util.generateUUID();
 
-		_routedAdapter =
-		    _communicator.createObjectAdapter(name);
-		_routedAdapter.addRouter(router);
+		_routedAdapter = _communicator.createObjectAdapterWithRouter(name, router);
 		_routedAdapter.activate();
 	    }
 	    return _routedAdapter;

@@ -737,6 +737,59 @@ communicatorCreateObjectAdapterWithEndpoints(CommunicatorObject* self, PyObject*
 extern "C"
 #endif
 static PyObject*
+communicatorCreateObjectAdapterWithRouter(CommunicatorObject* self, PyObject* args)
+{
+    char* name;
+    PyObject* proxy;
+    if(!PyArg_ParseTuple(args, STRCAST("sO"), &name, &proxy))
+    {
+	return NULL;
+    }
+
+    PyObject* routerProxyType = lookupType("Ice.RouterPrx");
+    assert(routerProxyType != NULL);
+    Ice::RouterPrx router;
+    if(PyObject_IsInstance(proxy, routerProxyType))
+    {
+	router = Ice::RouterPrx::uncheckedCast(getProxy(proxy));
+    }
+    else if(proxy != Py_None)
+    {
+	PyErr_Format(PyExc_ValueError, STRCAST("ice_createObjectAdapterWithRouter requires None or Ice.RouterPrx"));
+	return NULL;
+    }
+
+    assert(self->communicator);
+    Ice::ObjectAdapterPtr adapter;
+    try
+    {
+        adapter = (*self->communicator)->createObjectAdapterWithRouter(name, router);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    PyObject* obj = createObjectAdapter(adapter);
+    if(obj == NULL)
+    {
+        try
+        {
+            adapter->deactivate();
+        }
+        catch(const Ice::Exception&)
+        {
+        }
+    }
+
+    return obj;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 communicatorGetDefaultRouter(CommunicatorObject* self)
 {
     assert(self->communicator);
@@ -888,6 +941,9 @@ static PyMethodDef CommunicatorMethods[] =
     { STRCAST("createObjectAdapterWithEndpoints"), (PyCFunction)communicatorCreateObjectAdapterWithEndpoints,
 	METH_VARARGS,
 	PyDoc_STR(STRCAST("createObjectAdapterWithEndpoints(name, endpoints) -> Ice.ObjectAdapter")) },
+    { STRCAST("createObjectAdapterWithRouter"), (PyCFunction)communicatorCreateObjectAdapterWithRouter,
+	METH_VARARGS,
+	PyDoc_STR(STRCAST("createObjectAdapterWithRouter(name, router) -> Ice.ObjectAdapter")) },
     { STRCAST("addObjectFactory"), (PyCFunction)communicatorAddObjectFactory, METH_VARARGS,
         PyDoc_STR(STRCAST("addObjectFactory(factory, id) -> None")) },
     { STRCAST("removeObjectFactory"), (PyCFunction)communicatorRemoveObjectFactory, METH_VARARGS,

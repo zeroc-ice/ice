@@ -101,7 +101,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public Ice.ObjectAdapter createObjectAdapter(string name, string endpoints)
+	public Ice.ObjectAdapter createObjectAdapter(string name, string endpoints, Ice.RouterPrx router)
 	{
 	    lock(this)
 	    {
@@ -119,7 +119,7 @@ namespace IceInternal
 		    throw ex;
 		}
 		
-		adapter = new Ice.ObjectAdapterI(instance_, _communicator, name, endpoints);
+		adapter = new Ice.ObjectAdapterI(instance_, _communicator, this, name, endpoints, router);
 		_adapters[name] = adapter;
 		return adapter;
 	    }
@@ -152,6 +152,19 @@ namespace IceInternal
 		}
 		
 		return null;
+	    }
+	}
+
+	public void removeObjectAdapter(string name)
+	{
+	    lock(this)
+	    {
+	        if(_waitForShutdown)
+		{
+		    return;
+		}
+
+		_adapters.Remove(name);
 	    }
 	}
 	
