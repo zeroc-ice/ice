@@ -95,6 +95,7 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf, int timeout)
 
     while(buf.i != buf.b.end())
     {
+	ERR_clear_error(); // Clear any spurious errors.
 	assert(_fd != INVALID_SOCKET);
 	int ret = SSL_write(_ssl, reinterpret_cast<const void*>(&*buf.i), packetSize);
 
@@ -218,6 +219,7 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, int timeout)
     
     while(buf.i != buf.b.end())
     {
+	ERR_clear_error(); // Clear any spurious errors.
 	assert(_fd != INVALID_SOCKET);
 	int ret = SSL_read(_ssl, reinterpret_cast<void*>(&*buf.i), packetSize);
 
