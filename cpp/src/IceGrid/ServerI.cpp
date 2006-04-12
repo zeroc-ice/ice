@@ -1952,7 +1952,7 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
     PropertyDescriptorSeq props;
     if(ServerDescriptorPtr::dynamicCast(descriptor))
     {
-	ServerDescriptorPtr serverDesc = ServerDescriptorPtr::dynamicCast(descriptor);
+	ServerDescriptorPtr svrDesc = ServerDescriptorPtr::dynamicCast(descriptor);
 
 	configFilePath = serverDir + "/config/config";
 
@@ -1960,8 +1960,8 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
 	// Add server properties.
 	//
 	props.push_back(createProperty("# Server configuration"));
-	props.push_back(createProperty("Ice.ProgramName", serverDesc->id));
-	copy(descriptor->properties.begin(), descriptor->properties.end(), back_inserter(props));
+	props.push_back(createProperty("Ice.ProgramName", svrDesc->id));
+	copy(svrDesc->propertySet.properties.begin(), svrDesc->propertySet.properties.end(), back_inserter(props));
 
 	//
 	// Add service properties.
@@ -1984,11 +1984,11 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
     }
     else
     {
-	ServiceDescriptorPtr serviceDesc = ServiceDescriptorPtr::dynamicCast(descriptor);
-	assert(serviceDesc);
-	configFilePath = serverDir + "/config/config_" + serviceDesc->name;
+	ServiceDescriptorPtr svcDesc = ServiceDescriptorPtr::dynamicCast(descriptor);
+	assert(svcDesc);
+	configFilePath = serverDir + "/config/config_" + svcDesc->name;
 	props.push_back(createProperty("# Service configuration"));
-	copy(descriptor->properties.begin(), descriptor->properties.end(), back_inserter(props));
+	copy(svcDesc->propertySet.properties.begin(), svcDesc->propertySet.properties.end(), back_inserter(props));
     }
 
     //

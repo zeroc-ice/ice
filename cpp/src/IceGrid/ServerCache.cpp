@@ -157,7 +157,7 @@ ServerCache::addCommunicator(const CommunicatorDescriptorPtr& comm, const Server
 
 	for(ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
 	{
-	    const string edpts = IceGrid::getProperty(comm->properties, q->name + ".Endpoints");
+	    const string edpts = IceGrid::getProperty(comm->propertySet, q->name + ".Endpoints");
 	    _objectCache.add(application, q->id, edpts, *r);
 	}
     }

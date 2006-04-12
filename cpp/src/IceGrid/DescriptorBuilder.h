@@ -43,12 +43,38 @@ private:
     mutable std::set<std::string> _used;
 };
 
+class PropertySetDescriptorBuilder;
+
 class DescriptorBuilder
 {
 public:
 
     virtual ~DescriptorBuilder() {  }
+
     virtual void addVariable(const XmlAttributesHelper&);
+    virtual PropertySetDescriptorBuilder* createPropertySet(const XmlAttributesHelper&) const;
+    virtual PropertySetDescriptorBuilder* createPropertySet() const;
+};
+
+class PropertySetDescriptorBuilder : DescriptorBuilder
+{
+public:
+    
+    PropertySetDescriptorBuilder(const XmlAttributesHelper&);
+    PropertySetDescriptorBuilder();
+    
+    const std::string& getId() const;
+    const PropertySetDescriptor& getDescriptor() const;
+    
+    void addProperty(const XmlAttributesHelper&);
+    void addPropertySet(const XmlAttributesHelper&);
+    bool finish();
+
+private:
+
+    std::string _id;
+    PropertySetDescriptor _descriptor;
+    bool _inPropertySetRef;
 };
 
 class NodeDescriptorBuilder;
@@ -79,9 +105,11 @@ public:
     void addNode(const std::string&, const NodeDescriptor&);
     void addServerTemplate(const std::string&, const TemplateDescriptor&);
     void addServiceTemplate(const std::string&, const TemplateDescriptor&);
+    void addPropertySet(const std::string&, const PropertySetDescriptor&);
     
     void addDistribution(const XmlAttributesHelper&);
     void addDistributionDirectory(const std::string&);
+
 
     bool isOverride(const std::string&);
 
@@ -94,6 +122,20 @@ private:
 class ServerDescriptorBuilder;
 class IceBoxDescriptorBuilder;
 
+class ServerInstanceDescriptorBuilder : public DescriptorBuilder
+{
+public:
+
+    ServerInstanceDescriptorBuilder(const XmlAttributesHelper&);
+    const ServerInstanceDescriptor& getDescriptor() const { return _descriptor; }
+
+    virtual void addPropertySet(const PropertySetDescriptor&);
+    
+private:
+
+    ServerInstanceDescriptor _descriptor;
+};
+
 class NodeDescriptorBuilder : public DescriptorBuilder
 {
 public:
@@ -102,10 +144,12 @@ public:
 
     virtual ServerDescriptorBuilder* createServer(const XmlAttributesHelper&);
     virtual ServerDescriptorBuilder* createIceBox(const XmlAttributesHelper&);
+    virtual ServerInstanceDescriptorBuilder* createServerInstance(const XmlAttributesHelper&);
 
     void addVariable(const XmlAttributesHelper&);
-    void addServerInstance(const XmlAttributesHelper&);
     void addServer(const ServerDescriptorPtr&);
+    void addServerInstance(const ServerInstanceDescriptor&);
+    void addPropertySet(const std::string&, const PropertySetDescriptor&);
     void setDescription(const std::string&);
 
     const std::string& getName() const { return _name; }
@@ -126,12 +170,13 @@ public:
 
     TemplateDescriptorBuilder(ApplicationDescriptorBuilder&, const XmlAttributesHelper&, bool);
 
-    void addParameter(const XmlAttributesHelper&);
-    void setDescriptor(const CommunicatorDescriptorPtr&);
-
     virtual ServerDescriptorBuilder* createServer(const XmlAttributesHelper&);
     virtual ServerDescriptorBuilder* createIceBox(const XmlAttributesHelper&);    
     virtual ServiceDescriptorBuilder* createService(const XmlAttributesHelper&);    
+
+    void addParameter(const XmlAttributesHelper&);
+    void setDescriptor(const CommunicatorDescriptorPtr&);
+    void addPropertySet(const std::string&, const PropertySetDescriptor&);
 
     const std::string& getId() const { return _id; }
     const TemplateDescriptor& getDescriptor() const { return _descriptor; }
@@ -152,6 +197,7 @@ public:
 
     virtual void setDescription(const std::string&);
     virtual void addProperty(const XmlAttributesHelper&);
+    virtual void addPropertySet(const PropertySetDescriptor&);
     virtual void addAdapter(const XmlAttributesHelper&);
     virtual void setAdapterDescription(const std::string&);
     virtual void addObject(const XmlAttributesHelper&);
@@ -159,9 +205,27 @@ public:
     virtual void addDbEnvProperty(const XmlAttributesHelper&);
     virtual void setDbEnvDescription(const std::string&);
 
+protected:
+
+    void addProperty(const std::string&, const std::string&);
+
 private:
 
     CommunicatorDescriptorPtr _descriptor;
+};
+
+class ServiceInstanceDescriptorBuilder : public DescriptorBuilder
+{
+public:
+
+    ServiceInstanceDescriptorBuilder(const XmlAttributesHelper&);
+    const ServiceInstanceDescriptor& getDescriptor() const { return _descriptor; }
+    
+    virtual void addPropertySet(const PropertySetDescriptor&);
+
+private:
+
+    ServiceInstanceDescriptor _descriptor;
 };
 
 class ServerDescriptorBuilder : public CommunicatorDescriptorBuilder
@@ -174,11 +238,12 @@ public:
     void init(const ServerDescriptorPtr&, const XmlAttributesHelper&);
 
     virtual ServiceDescriptorBuilder* createService(const XmlAttributesHelper&);
+    virtual ServiceInstanceDescriptorBuilder* createServiceInstance(const XmlAttributesHelper&);
 
     virtual void addOption(const std::string&);
     virtual void addEnv(const std::string&);
     virtual void addService(const ServiceDescriptorPtr&);
-    virtual void addServiceInstance(const XmlAttributesHelper&);
+    virtual void addServiceInstance(const ServiceInstanceDescriptor&);
     virtual void addDistribution(const XmlAttributesHelper&);
     virtual void addDistributionDirectory(const std::string&);
 
@@ -198,10 +263,11 @@ public:
     void init(const IceBoxDescriptorPtr&, const XmlAttributesHelper&);
 
     virtual ServiceDescriptorBuilder* createService(const XmlAttributesHelper&);
+    virtual ServiceInstanceDescriptorBuilder* createServiceInstance(const XmlAttributesHelper&);
 
     virtual void addAdapter(const XmlAttributesHelper&);
     virtual void addDbEnv(const XmlAttributesHelper&);
-    virtual void addServiceInstance(const XmlAttributesHelper&);
+    virtual void addServiceInstance(const ServiceInstanceDescriptor&);
     virtual void addService(const ServiceDescriptorPtr&);
 
 private:

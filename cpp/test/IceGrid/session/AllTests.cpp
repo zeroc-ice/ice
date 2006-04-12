@@ -17,6 +17,15 @@
 using namespace std;
 using namespace IceGrid;
 
+void 
+addProperty(const CommunicatorDescriptorPtr& communicator, const string& name, const string& value)
+{
+    PropertyDescriptor prop;
+    prop.name = name;
+    prop.value = value;
+    communicator->propertySet.properties.push_back(prop);
+}
+
 class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
@@ -784,16 +793,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	adapter.registerProcess = true;
 	adapter.waitForActivation = false;
 	server->adapters.push_back(adapter);
-	PropertyDescriptor prop;
-	prop.name = "IceGrid.Node.Name";
-	prop.value = "node-1";
-	server->properties.push_back(prop);
-	prop.name = "IceGrid.Node.Data";
-	prop.value = properties->getProperty("TestDir") + "/db/node-1";
-	server->properties.push_back(prop);
-	prop.name = "IceGrid.Node.Endpoints";
-	prop.value = "default";
-	server->properties.push_back(prop);
+	addProperty(server, "IceGrid.Node.Name", "node-1");
+	addProperty(server, "IceGrid.Node.Data", properties->getProperty("TestDir") + "/db/node-1");
+	addProperty(server, "IceGrid.Node.Endpoints", "default");
 	NodeDescriptor node;
 	node.servers.push_back(server);
 	nodeApp.nodes["localnode"] = node;
@@ -913,16 +915,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	adapter.registerProcess = true;
 	adapter.waitForActivation = false;
 	server->adapters.push_back(adapter);
-	PropertyDescriptor prop;
-	prop.name = "IceGrid.Node.Name";
-	prop.value = "node-1";
-	server->properties.push_back(prop);
-	prop.name = "IceGrid.Node.Data";
-	prop.value = properties->getProperty("TestDir") + "/db/node-1";
-	server->properties.push_back(prop);	
-	prop.name = "IceGrid.Node.Endpoints";
-	prop.value = "default";
-	server->properties.push_back(prop);	
+	addProperty(server, "IceGrid.Node.Name", "node-1");
+	addProperty(server, "IceGrid.Node.Data", properties->getProperty("TestDir") + "/db/node-1");
+	addProperty(server, "IceGrid.Node.Endpoints", "default");
 	NodeDescriptor node;
 	node.servers.push_back(server);
 	nodeApp.nodes["localnode"] = node;
@@ -968,9 +963,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	adapter.registerProcess = true;
 	adapter.waitForActivation = true;
 	server->adapters.push_back(adapter);
-	prop.name = "Server.Endpoints";
-	prop.value = "default";
-	server->properties.push_back(prop);
+	addProperty(server, "Server.Endpoints", "default");
 	node = NodeDescriptor();
 	node.servers.push_back(server);
 	testApp.nodes["localnode"] = node;

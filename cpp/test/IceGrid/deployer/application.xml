@@ -4,6 +4,16 @@
 
     <description>APP ${AppVar}</description>
 
+    <properties id="AppProperties2">
+      <property name="AppProperty2" value="${AppVarOverrided}"/>
+      <property name="AppProperty21" value="${RecursiveAppVar}"/>
+    </properties>
+
+    <properties id="AppProperties">
+      <properties refid="AppProperties2"/>
+      <property name="AppProperty" value="${AppVar}"/>
+    </properties>
+
     <!-- Include server templates -->
     <include file="icebox.xml"/>
     <include file="server.xml"/>    
@@ -37,6 +47,11 @@
 
     <node name="localnode">
       <description>NODE ${NodeVar}</description>
+
+      <properties id="NodeProperties">
+        <property name="NodeProperty" value="${NodeVar}"/>
+        <property name="AppProperty21" value="Override"/>
+      </properties>
  
       <!-- Variables for variable test -->
       <variable name="NodeVar" value="NodeVar"/>
@@ -50,7 +65,12 @@
       <variable name="varpde" value="$$${escaped}"/>
 
       <server-instance template="IceBoxTemplate" name="IceBox1" AppVarOverridedByParam="Overrided"/>
-      <server-instance template="IceBoxTemplate" name="IceBox2" AppVarOverridedByParam="Overrided"/>
+      <server-instance template="IceBoxTemplate" name="IceBox2" AppVarOverridedByParam="Overrided">
+        <properties>
+          <properties refid="IceBoxProperties"/>
+          <property name="IceBoxInstanceProperty" value="${name}"/>
+        </properties>
+      </server-instance>
 
       <server-instance template="ServerTemplate" name="Server1"
         AppVarOverridedByParam="Overrided" Param1="Param1"
@@ -58,7 +78,12 @@
       <server-instance template="ServerTemplate" name="Server2"
         AppVarOverridedByParam="Overrided" Param1="Param12"
         Param2="${AppVarOverrided}" ParamEscaped="${varpe}"
-        ParamDoubleEscaped="${varpde}" DefaultParam="OTHERVALUE"/>
+        ParamDoubleEscaped="${varpde}" DefaultParam="OTHERVALUE">
+        <properties>
+          <properties refid="ServerProperties"/>
+          <property name="ServerInstanceProperty" value="${name}"/>
+        </properties>
+      </server-instance>
 
       <server id="SimpleServer" exe="${test.dir}/server" activation="on-demand" pwd=".">
         <description>SERVER ${NodeVar}</description>
@@ -78,6 +103,10 @@
         <option>--Test.Test=2</option>
         <include file="varproperties.xml"/>
         <env>MY_ENV_VARIABLE=12</env>
+        <properties>
+          <properties refid="AppProperties"/>
+          <properties refid="NodeProperties"/>
+        </properties>
       </server>
 
       <icebox id="SimpleIceBox" exe="${icebox.exe}" activation="on-demand" pwd=".">

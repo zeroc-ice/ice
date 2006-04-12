@@ -452,11 +452,11 @@ NodeEntry::getServerDescriptor(const ServerInfo& server)
 	IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(server.descriptor);
 	if(iceBox)
 	{
-	    return IceBoxHelper(iceBox).instantiate(resolve);
+	    return IceBoxHelper(iceBox).instantiate(resolve, PropertySetDescriptor());
 	}
 	else
 	{
-	    return ServerHelper(server.descriptor).instantiate(resolve);
+	    return ServerHelper(server.descriptor).instantiate(resolve, PropertySetDescriptor());
 	}
     }
     catch(const DeploymentException& ex)

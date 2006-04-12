@@ -3,18 +3,33 @@
   <service-template id="FreezeServiceTemplate">
 
     <parameter name="name"/>
+
+    <properties id="ServiceProperties">
+      <property name="ServiceProperty" value="${name}"/>
+    </properties>
+
+    <properties id="TemplateProperties">
+      <property name="TemplateProperty" value="test-service"/>
+    </properties>
+
     <service name="${name}" entry="TestService:create">
       <adapter name="${name}" endpoints="default" id="${server}${name}Adapter">
 	<object identity="${server}-${name}" type="::Test"/>
       </adapter>
 
-      <property name="${name}.Identity" value="${server}-${name}"/>
-      <property name="${name}.Type" value="freeze"/>
-      <property name="${name}.ServiceName" value="${name}"/>
-      <property name="${name}.Freeze" value="1"/>
+      <properties>
+        <properties refid="TemplateProperties"/>
+        <property name="AppVarOverridedByParamProp" value="${AppVarOverridedByParam}"/>
+        <property name="NodeVarOverridedByParamProp" value="${NodeVarOverridedByParam}"/>
 
-      <property name="AppVarOverridedByParamProp" value="${AppVarOverridedByParam}"/>
-      <property name="NodeVarOverridedByParamProp" value="${NodeVarOverridedByParam}"/>
+        <property name="${name}.Identity" value="${server}-${name}"/>
+        <property name="${name}.Type" value="freeze"/>
+        <property name="${name}.ServiceName" value="${name}"/>
+        <property name="${name}.Freeze" value="1"/>
+
+        <property name="AppVarOverridedByParamProp" value="${AppVarOverridedByParam}"/>
+        <property name="NodeVarOverridedByParamProp" value="${NodeVarOverridedByParam}"/>
+      </properties>
 
       <dbenv name="${name}">
 	<dbproperty name="set_cachesize" value="0 52428800 1"/>

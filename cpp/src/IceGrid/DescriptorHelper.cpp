@@ -44,6 +44,11 @@ struct TemplateDescriptorEqual : std::binary_function<TemplateDescriptor&, Templ
 	    return false;
 	}
 
+	if(lhs.propertySets != rhs.propertySets)
+	{
+	    return false;
+	}
+
 	{
 	    IceBoxDescriptorPtr slhs = IceBoxDescriptorPtr::dynamicCast(lhs.descriptor);
 	    IceBoxDescriptorPtr srhs = IceBoxDescriptorPtr::dynamicCast(rhs.descriptor);
@@ -249,18 +254,19 @@ updateDictElts(const Dict& dict, const Dict& update, const Ice::StringSeq& remov
 
 }
 
-Resolver::Resolver(const ApplicationHelper& app, const string& name, const map<string, string>& variables) : 
+Resolver::Resolver(const ApplicationHelper& app) : 
     _application(&app),
     _escape(false),
-    _context("application `" + name + "'"),
-    _variables(variables),
+    _context("application `" + app.getDescriptor().name + "'"),
+    _variables(app.getDescriptor().variables),
+    _propertySets(app.getDescriptor().propertySets),
     _reserved(getReserved())
 {
     //
     // Make sure the variables don't override reserved variables.
     //
     checkReserved("variable", _variables);
-    setReserved("application", name);
+    setReserved("application", app.getDescriptor().name);
 
     //
     // Some reserved variables which are ignored for now and will be
@@ -274,12 +280,16 @@ Resolver::Resolver(const ApplicationHelper& app, const string& name, const map<s
     _ignore.insert("node.datadir");
 }
 
-Resolver::Resolver(const Resolver& resolve, const map<string, string>& values, bool params) :
+Resolver::Resolver(const Resolver& resolve, 
+		   const map<string, string>& values, 
+		   bool params, 
+		   const PropertySetDescriptorDict& propertySets) :
     _application(resolve._application),
     _escape(resolve._escape),
     _context(resolve._context),
     _variables(params ? resolve._variables : values),
     _parameters(!params ? resolve._parameters : values),
+    _propertySets(propertySets),
     _reserved(resolve._reserved),
     _ignore(resolve._ignore)
 {
@@ -292,6 +302,7 @@ Resolver::Resolver(const Resolver& resolve, const map<string, string>& values, b
 	_variables.insert(resolve._variables.begin(), resolve._variables.end());
 	checkReserved("variable", values);
     }
+    _propertySets.insert(resolve._propertySets.begin(), resolve._propertySets.end());
 }
 
 Resolver::Resolver(const string& context, const map<string, string>& values) :
@@ -413,6 +424,24 @@ Resolver::setContext(const string& context)
     {
 	exception(reason);
     }
+}
+
+const PropertySetDescriptor&
+Resolver::getPropertySet(const string& id) const
+{
+    PropertySetDescriptorDict::const_iterator p = _propertySets.find(id);
+    if(p == _propertySets.end())
+    {
+	exception("invalid reference to property set, property set `" + id + "' doesn't exist");
+    }
+    return p->second;
+}
+
+PropertyDescriptorSeq
+Resolver::getProperties(const Ice::StringSeq& references) const
+{
+    set<string> resolved;
+    return getProperties(references, resolved);
 }
 
 void
@@ -556,6 +585,35 @@ Resolver::getVariable(const string& name, bool checkParams, bool& param) const
     return ""; // To keep the compiler happy.
 }
 
+PropertyDescriptorSeq
+Resolver::getProperties(const Ice::StringSeq& references, set<string>& resolved) const
+{
+    PropertyDescriptorSeq properties;
+    for(Ice::StringSeq::const_iterator p = references.begin(); p != references.end(); ++p)
+    {
+	if(resolved.find(*p) != resolved.end())
+	{
+	    exception("detected circular dependency with property reference `" + *p + "'");
+	}
+
+	PropertySetDescriptor desc = getPropertySet(operator()(*p));
+	if(!desc.references.empty())
+	{
+	    resolved.insert(*p);
+	    PropertyDescriptorSeq p = getProperties(desc.references, resolved);
+	    properties.insert(properties.end(), p.begin(), p.end());
+	}
+	for(PropertyDescriptorSeq::const_iterator rp = desc.properties.begin(); rp != desc.properties.end(); ++rp)
+	{
+	    PropertyDescriptor prop;
+	    prop.name = operator()(rp->name, "property name");
+	    prop.value = operator()(rp->value, "property value");
+	    properties.push_back(prop);
+	}
+    }
+    return properties;
+}
+
 map<string, string>
 Resolver::getReserved()
 {
@@ -616,8 +674,7 @@ CommunicatorHelper::operator==(const CommunicatorHelper& helper) const
 	return false;
     }
 
-    if(set<PropertyDescriptor>(_desc->properties.begin(), _desc->properties.end()) != 
-       set<PropertyDescriptor>(helper._desc->properties.begin(), helper._desc->properties.end()))
+    if(_desc->propertySet != helper._desc->propertySet)
     {
 	return false;
     }
@@ -683,13 +740,17 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
 	}
 	instance->adapters.push_back(adapter);
     }
-    for(PropertyDescriptorSeq::const_iterator r = _desc->properties.begin(); r != _desc->properties.end(); ++r)
+    PropertyDescriptorSeq props = resolve.getProperties(_desc->propertySet.references);
+    PropertyDescriptorSeq::const_iterator rp;
+    for(rp = _desc->propertySet.properties.begin(); rp != _desc->propertySet.properties.end(); ++rp)
     {
 	PropertyDescriptor prop;
-	prop.name = resolve(r->name, "property name");
-	prop.value = resolve(r->value, "property value");
-	instance->properties.push_back(prop);
+	prop.name = resolve(rp->name, "property name");
+	prop.value = resolve(rp->value, "property value");
+	props.push_back(prop);
     }
+    instance->propertySet.references.clear();
+    instance->propertySet.properties = props;
     for(DbEnvDescriptorSeq::const_iterator s = _desc->dbEnvs.begin(); s != _desc->dbEnvs.end(); ++s)
     {
 	DbEnvDescriptor dbEnv;
@@ -717,10 +778,7 @@ CommunicatorHelper::print(Output& out) const
 	out << nl << _desc->description;
 	out << eb;
     }
-    if(!_desc->properties.empty())
-    {
-	printProperties(out, _desc->properties);
-    }
+    printPropertySet(out, _desc->propertySet);
     {
 	for(DbEnvDescriptorSeq::const_iterator p = _desc->dbEnvs.begin(); p != _desc->dbEnvs.end(); ++p)
 	{
@@ -804,13 +862,23 @@ CommunicatorHelper::printObjectAdapter(Output& out, const AdapterDescriptor& ada
 }
 
 void
-CommunicatorHelper::printProperties(Output& out, const PropertyDescriptorSeq& properties) const
+CommunicatorHelper::printPropertySet(Output& out, const PropertySetDescriptor& propertySet) const
 {
+    if(propertySet.properties.empty() && propertySet.references.empty())
+    {
+	return;
+    }
+
     out << nl << "properties";
     out << sb;
-    for(PropertyDescriptorSeq::const_iterator p = properties.begin(); p != properties.end(); ++p)
+    if(!propertySet.references.empty())
     {
-	out << nl << p->name << " = `" << p->value << "'";
+	out << nl << "references = " << toString(propertySet.references);
+    }
+    PropertyDescriptorSeq::const_iterator q;
+    for(q = propertySet.properties.begin(); q != propertySet.properties.end(); ++q)
+    {
+	out << nl << q->name << " = `" << q->value << "'";
     }
     out << eb;
 }
@@ -818,7 +886,7 @@ CommunicatorHelper::printProperties(Output& out, const PropertyDescriptorSeq& pr
 string
 CommunicatorHelper::getProperty(const string& name) const
 {
-    return IceGrid::getProperty(_desc->properties, name);
+    return IceGrid::getProperty(_desc->propertySet, name);
 }
 
 ServiceHelper::ServiceHelper(const ServiceDescriptorPtr& descriptor) :
@@ -864,19 +932,24 @@ ServiceHelper::getDescriptor() const
 }
 
 ServiceDescriptorPtr
-ServiceHelper::instantiate(const Resolver& resolver) const
+ServiceHelper::instantiate(const Resolver& resolver, const PropertySetDescriptor& propertySet) const
 {
     ServiceDescriptorPtr service = new ServiceDescriptor();
-    instantiateImpl(service, resolver);
+    instantiateImpl(service, resolver, propertySet);
     return service;
 }
 
 void
-ServiceHelper::instantiateImpl(const ServiceDescriptorPtr& instance, const Resolver& resolve) const
+ServiceHelper::instantiateImpl(const ServiceDescriptorPtr& instance, const Resolver& resolve, 
+			       const PropertySetDescriptor& propertySet) const
 {
     CommunicatorHelper::instantiateImpl(instance, resolve);
     instance->name = resolve(_desc->name, "name", false);
     instance->entry = resolve(_desc->entry, "entry", false);
+
+    assert(propertySet.references.empty());
+    instance->propertySet.properties.insert(instance->propertySet.properties.end(),
+					    propertySet.properties.begin(), propertySet.properties.end());
 }
 
 void
@@ -960,7 +1033,9 @@ ServerHelper::operator!=(const ServerHelper& helper) const
 }
 
 void
-ServerHelper::instantiateImpl(const ServerDescriptorPtr& instance, const Resolver& resolve) const
+ServerHelper::instantiateImpl(const ServerDescriptorPtr& instance, 
+			      const Resolver& resolve, 
+			      const PropertySetDescriptor& propertySet) const
 {
     CommunicatorHelper::instantiateImpl(instance, resolve);
 
@@ -990,6 +1065,10 @@ ServerHelper::instantiateImpl(const ServerDescriptorPtr& instance, const Resolve
     {
 	instance->distrib.directories.push_back(resolve(*p, "distribution source directory"));
     }
+
+    assert(propertySet.references.empty());
+    instance->propertySet.properties.insert(instance->propertySet.properties.end(),
+					    propertySet.properties.begin(), propertySet.properties.end());
 }
 
 ServerDescriptorPtr
@@ -999,10 +1078,10 @@ ServerHelper::getDescriptor() const
 }
 
 ServerDescriptorPtr
-ServerHelper::instantiate(const Resolver& resolver) const
+ServerHelper::instantiate(const Resolver& resolver, const PropertySetDescriptor& propertySet) const
 {
     ServerDescriptorPtr server = new ServerDescriptor();
-    instantiateImpl(server, resolver);
+    instantiateImpl(server, resolver, propertySet);
     return server;
 }
 
@@ -1109,10 +1188,10 @@ IceBoxHelper::operator!=(const IceBoxHelper& helper) const
 }
 
 ServerDescriptorPtr
-IceBoxHelper::instantiate(const Resolver& resolver) const
+IceBoxHelper::instantiate(const Resolver& resolver, const PropertySetDescriptor& propertySet) const
 {
     IceBoxDescriptorPtr iceBox = new IceBoxDescriptor();
-    instantiateImpl(iceBox, resolver);
+    instantiateImpl(iceBox, resolver, propertySet);
     return iceBox;
 }
 
@@ -1127,9 +1206,11 @@ IceBoxHelper::getIds(multiset<string>& adapterIds, multiset<Ice::Identity>& obje
 }
 
 void
-IceBoxHelper::instantiateImpl(const IceBoxDescriptorPtr& instance, const Resolver& resolver) const
+IceBoxHelper::instantiateImpl(const IceBoxDescriptorPtr& instance, 
+			      const Resolver& resolver, 
+			      const PropertySetDescriptor& propertySet) const
 {
-    ServerHelper::instantiateImpl(instance, resolver);
+    ServerHelper::instantiateImpl(instance, resolver, propertySet);
     for(vector<ServiceInstanceHelper>::const_iterator p = _services.begin(); p != _services.end(); ++p)
     {
 	instance->services.push_back(p->instantiate(resolver));
@@ -1212,34 +1293,35 @@ InstanceHelper::instantiateParams(const Resolver& resolve,
 }
 
 ServiceInstanceHelper::ServiceInstanceHelper(const ServiceInstanceDescriptor& desc) :
-    _template(desc._cpp_template), 
-    _parameters(desc.parameterValues)
+    _definition(desc)
 {
     //
     // If the service instance is not a template instance, its
     // descriptor must be set and contain the definition of the
     // service.
     //
-    if(_template.empty() && !desc.descriptor)
+    if(_definition._cpp_template.empty() && !_definition.descriptor)
     {
 	throw DeploymentException("invalid service instance: no template defined");
     }
-    if(desc.descriptor)
+    if(_definition.descriptor)
     {
-	_service = ServiceHelper(desc.descriptor);
+	_service = ServiceHelper(_definition.descriptor);
     }
 }
 
 bool
 ServiceInstanceHelper::operator==(const ServiceInstanceHelper& helper) const
 {
-    if(_template.empty())
+    if(_definition._cpp_template.empty())
     {
 	return _service == helper._service;
     }
     else
     {
-	return _template == helper._template && _parameters == helper._parameters;
+	return _definition._cpp_template == helper._definition._cpp_template && 
+	    _definition.parameterValues == helper._definition.parameterValues &&
+	    _definition.propertySet == helper._definition.propertySet;
     }
 }
 
@@ -1253,21 +1335,44 @@ ServiceInstanceDescriptor
 ServiceInstanceHelper::instantiate(const Resolver& resolve) const
 { 
     ServiceHelper def = _service;
-    map<string, string> params;
+    PropertySetDescriptorDict templatePropertySets;
+    std::map<std::string, std::string> parameterValues;
     if(!def.getDescriptor())
     {
-	assert(!_template.empty());
-	TemplateDescriptor tmpl = resolve.getServiceTemplate(_template);
+	assert(!_definition._cpp_template.empty());
+	TemplateDescriptor tmpl = resolve.getServiceTemplate(_definition._cpp_template);
 	def = ServiceHelper(ServiceDescriptorPtr::dynamicCast(tmpl.descriptor));
-	params = instantiateParams(resolve, _template, _parameters, tmpl.parameters, tmpl.parameterDefaults);
+	templatePropertySets = tmpl.propertySets;
+	parameterValues = instantiateParams(resolve, 
+					    _definition._cpp_template, 
+					    _definition.parameterValues,
+					    tmpl.parameters, 
+					    tmpl.parameterDefaults);
     }
 
-    Resolver svcResolve(resolve, params, !_service.getDescriptor());
+    //
+    // Setup the resolver.
+    //
+    Resolver svcResolve(resolve, parameterValues, !_service.getDescriptor(), templatePropertySets);
     svcResolve.setReserved("service", svcResolve(def.getDescriptor()->name, "service name", false));
     svcResolve.setContext("service `${service}' from server `${server}'");
-    
+
+    //
+    // Instantiate the service instance.
+    //
     ServiceInstanceDescriptor desc;
-    desc.descriptor = def.instantiate(svcResolve);
+    PropertySetDescriptor propertySet;
+    propertySet.properties = svcResolve.getProperties(_definition.propertySet.references);
+    PropertyDescriptorSeq::const_iterator rp;
+    for(rp = _definition.propertySet.properties.begin(); rp != _definition.propertySet.properties.end(); ++rp)
+    {
+	PropertyDescriptor prop;
+	prop.name = svcResolve(rp->name, "property name");
+	prop.value = svcResolve(rp->value, "property value");
+	propertySet.properties.push_back(prop);
+    }
+    desc.descriptor = def.instantiate(svcResolve, propertySet);    
+
     //
     // NOTE: We can't keep the following attributes in the service
     // instance otherwise the instance comparison would be based on
@@ -1295,13 +1400,14 @@ ServiceInstanceHelper::print(Output& out) const
     }
     else
     {
-	assert(!_template.empty());
+	assert(!_definition._cpp_template.empty());
 	out << "service instance";
 	out << sb;
-	out << nl << "template = `" << _template << "'";
+	out << nl << "template = `" << _definition._cpp_template << "'";
 	out << nl << "parameters";
 	out << sb;
-	for(StringStringDict::const_iterator p = _parameters.begin(); p != _parameters.end(); ++p)
+	for(StringStringDict::const_iterator p = _definition.parameterValues.begin(); 
+	    p != _definition.parameterValues.end(); ++p)
 	{
 	    out << nl << p->first << " = `" << p->second << "'";
 	}
@@ -1311,7 +1417,7 @@ ServiceInstanceHelper::print(Output& out) const
 }
 
 ServerInstanceHelper::ServerInstanceHelper(const ServerInstanceDescriptor& desc, const Resolver& resolve) :
-    _template(desc._cpp_template), _parameters(desc.parameterValues)
+    _definition(desc)
 {
     //
     // TODO: Add validation
@@ -1333,54 +1439,94 @@ void
 ServerInstanceHelper::init(const ServerDescriptorPtr& definition, const Resolver& resolve)
 {
     //
-    // Get the server definition if it's not set.
+    // Get the server definition if it's not provided.
     //
     ServerDescriptorPtr def = definition;
+    PropertySetDescriptorDict templatePropertySets;
+    std::map<std::string, std::string> parameterValues;
     if(!def)
     {
-	if(_template.empty())
+	if(_definition._cpp_template.empty())
 	{
 	    resolve.exception("invalid server instance: template is not defined");
 	}
 	
-	TemplateDescriptor tmpl = resolve.getServerTemplate(_template);
+	//
+	// Get the server definition and the template property sets.
+	//
+	TemplateDescriptor tmpl = resolve.getServerTemplate(_definition._cpp_template);
 	def = ServerDescriptorPtr::dynamicCast(tmpl.descriptor);
-	_instanceParams = instantiateParams(resolve, _template, _parameters, tmpl.parameters, tmpl.parameterDefaults);
+	templatePropertySets = tmpl.propertySets;
+	parameterValues = instantiateParams(resolve, 
+					    _definition._cpp_template, 
+					    _definition.parameterValues, 
+					    tmpl.parameters, 
+					    tmpl.parameterDefaults);
     }
     assert(def);
+
+    //
+    // Setup the resolver.
+    //
+    Resolver svrResolve(resolve, parameterValues, true, templatePropertySets);
+    svrResolve.setReserved("server", svrResolve(def->id, "server id", false));
+    svrResolve.setContext("server `${server}'");
+
+    //
+    // Instantiate the server instance definition (we use the server
+    // resolver above, so using parameters in properties is possible).
+    //
+    _instance._cpp_template = _definition._cpp_template;
+    _instance.parameterValues = parameterValues;
+    _instance.propertySet.properties = svrResolve.getProperties(_definition.propertySet.references);
+    PropertyDescriptorSeq::const_iterator rp;
+    for(rp = _definition.propertySet.properties.begin(); rp != _definition.propertySet.properties.end(); ++rp)
+    {
+	PropertyDescriptor prop;
+	prop.name = svrResolve(rp->name, "property name");
+	prop.value = svrResolve(rp->value, "property value");
+	_instance.propertySet.properties.push_back(prop);
+    }
+
+    //
+    // Set the server definition.
+    //
     IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(def);
     if(iceBox)
     {
-	_definition = new IceBoxHelper(iceBox);
+	_serverDefinition = new IceBoxHelper(iceBox);
     }
     else
     {
-	_definition = new ServerHelper(def);
+	_serverDefinition = new ServerHelper(def);
     }
 
-    Resolver svrResolve(resolve, _instanceParams, true);
-    svrResolve.setReserved("server", svrResolve(def->id, "server id", false));
-    svrResolve.setContext("server `${server}'");
+    //
+    // Instantiate the server definition.
+    //
     if(iceBox)
     {
-	_instance = new IceBoxHelper(IceBoxDescriptorPtr::dynamicCast(_definition->instantiate(svrResolve)));
+	iceBox = IceBoxDescriptorPtr::dynamicCast(_serverDefinition->instantiate(svrResolve, _instance.propertySet));
+	_serverInstance = new IceBoxHelper(iceBox);
     }
     else
     {
-	_instance = new ServerHelper(_definition->instantiate(svrResolve));
+	_serverInstance = new ServerHelper(_serverDefinition->instantiate(svrResolve, _instance.propertySet));
     }
 }
 
 bool
 ServerInstanceHelper::operator==(const ServerInstanceHelper& helper) const
 {
-    if(_template.empty())
+    if(_definition._cpp_template.empty())
     {
-	return *_definition == *helper._definition;
+	return *_serverDefinition == *helper._serverDefinition;
     }
     else
     {
-	return _template == helper._template && _parameters == helper._parameters;
+	return _definition._cpp_template == helper._definition._cpp_template && 
+	    _definition.parameterValues == helper._definition.parameterValues &&
+	    _definition.propertySet == helper._definition.propertySet;
     }
 }
 
@@ -1393,46 +1539,40 @@ ServerInstanceHelper::operator!=(const ServerInstanceHelper& helper) const
 string
 ServerInstanceHelper::getId() const
 {
-    assert(_instance);
-    return _instance->getDescriptor()->id;
+    assert(_serverInstance);
+    return _serverInstance->getDescriptor()->id;
 }
 
 ServerInstanceDescriptor
 ServerInstanceHelper::getDefinition() const
 {
-    ServerInstanceDescriptor desc;
-    desc._cpp_template = _template;
-    desc.parameterValues = _parameters;
-    return desc;
+    return _definition;
 }
 
 ServerInstanceDescriptor
 ServerInstanceHelper::getInstance() const
 {
-    ServerInstanceDescriptor desc;
-    desc._cpp_template = _template;
-    desc.parameterValues = _instanceParams;
-    return desc;
+    return _instance;
 }
 
 ServerDescriptorPtr
 ServerInstanceHelper::getServerDefinition() const
 {
-    return _definition->getDescriptor();
+    return _serverDefinition->getDescriptor();
 }
 
-ServerDescriptorPtr 
+ServerDescriptorPtr
 ServerInstanceHelper::getServerInstance() const
 {
-    assert(_instance);
-    return _instance->getDescriptor();
+    assert(_serverInstance);
+    return _serverInstance->getDescriptor();
 }
 
 void
 ServerInstanceHelper::getIds(multiset<string>& adapterIds, multiset<Ice::Identity>& objectIds) const
 {
-    assert(_instance);
-    _instance->getIds(adapterIds, objectIds);
+    assert(_serverInstance);
+    _serverInstance->getIds(adapterIds, objectIds);
 }
 
 NodeHelper::NodeHelper(const string& name, const NodeDescriptor& descriptor, const Resolver& appResolve) : 
@@ -1444,7 +1584,7 @@ NodeHelper::NodeHelper(const string& name, const NodeDescriptor& descriptor, con
 	appResolve.exception("invalid node: empty name");
     }
 
-    Resolver resolve(appResolve, _definition.variables, false);
+    Resolver resolve(appResolve, _definition.variables, false, _definition.propertySets);
     resolve.setReserved("node", _name);
     resolve.setContext("node `" + _name + "'");
 
@@ -1501,6 +1641,11 @@ NodeHelper::operator==(const NodeHelper& helper) const
 	return false;
     }
 
+    if(_instance.propertySets != helper._instance.propertySets)
+    {
+	return false;
+    }
+
     return true;
 }
 
@@ -1517,6 +1662,8 @@ NodeHelper::instantiate(const Resolver& resolve) const
     desc.variables = _definition.variables;
     desc.loadFactor = resolve.asFloat(_definition.loadFactor, "load factor");
     desc.description = resolve(_definition.description, "description");
+    desc.propertySets = _definition.propertySets;
+
     ServerInstanceHelperDict::const_iterator r;
     for(r = _serverInstances.begin(); r != _serverInstances.end(); ++r)
     {
@@ -1549,6 +1696,9 @@ NodeHelper::diff(const NodeHelper& helper) const
 
     update.variables = getDictUpdatedElts(helper._definition.variables, _definition.variables);
     update.removeVariables = getDictRemovedElts(helper._definition.variables, _definition.variables);
+
+    update.propertySets = getDictUpdatedElts(helper._definition.propertySets, _definition.propertySets);
+    update.removePropertySets = getDictRemovedElts(helper._definition.propertySets, _definition.propertySets);
     
     ServerInstanceHelperDict updated = getDictUpdatedElts(helper._serverInstances, _serverInstances);
     for(ServerInstanceHelperDict::const_iterator p = updated.begin(); p != updated.end(); ++p)
@@ -1573,9 +1723,11 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
     assert(update.name == _name);
 
     //
-    // Update the variables.
+    // Update the variables, property sets, load factor, description.
     //
     _definition.variables = updateDictElts(_definition.variables, update.variables, update.removeVariables);
+    _definition.propertySets = 
+	updateDictElts(_definition.propertySets, update.propertySets, update.removePropertySets);
 
     if(update.loadFactor)
     {
@@ -1586,7 +1738,7 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
     {
 	_definition.description = update.description->value;
     }
-
+    
     //
     // Remove the servers and server instances.
     //
@@ -1605,7 +1757,7 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
     // NOTE: It's important to create the resolver *after* updating
     // the node variables!
     //
-    Resolver resolve(appResolve, _definition.variables, false);
+    Resolver resolve(appResolve, _definition.variables, false, _definition.propertySets);
     resolve.setReserved("node", _name);
     resolve.setContext("node `" + _name + "'");
 
@@ -1697,7 +1849,7 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
 void
 NodeHelper::instantiateServer(const ServerInstanceDescriptor& instance, const Resolver& appResolve)
 {
-    Resolver resolve(appResolve, _definition.variables, false);
+    Resolver resolve(appResolve, _definition.variables, false, _definition.propertySets);
     resolve.setReserved("node", _name);
     resolve.setContext("node `" + _name + "'");
 
@@ -1852,6 +2004,25 @@ NodeHelper::print(Output& out) const
 	}
 	out << eb;
     }
+    if(!_instance.propertySets.empty())
+    {
+	PropertySetDescriptorDict::const_iterator q;
+	for(q = _instance.propertySets.begin(); q != _instance.propertySets.end(); ++q)
+	{
+	    out << nl << "properties `" << q->first << "'";
+	    out << sb;
+	    if(!q->second.references.empty())
+	    {
+		out << nl << "references = " << toString(q->second.references);
+	    }
+	    PropertyDescriptorSeq::const_iterator r;
+	    for(r = q->second.properties.begin(); r != q->second.properties.end(); ++r)
+	    {
+		out << nl << r->name << " = `" << r->value << "'";
+	    }
+	    out << eb;
+	}
+    }
 
     if(_serverInstances.empty() && _servers.empty())
     {
@@ -1891,8 +2062,12 @@ NodeHelper::printDiff(Output& out, const NodeHelper& helper) const
     map<string, string> variables = getDictUpdatedElts(helper._instance.variables, _instance.variables);
     Ice::StringSeq removeVariables = getDictRemovedElts(helper._instance.variables, _instance.variables);
 
+    PropertySetDescriptorDict updatedPs = getDictUpdatedElts(helper._instance.propertySets, _instance.propertySets);
+    Ice::StringSeq removedPs = getDictRemovedElts(helper._instance.propertySets, _instance.propertySets);
+
     if(updated.empty() && removed.empty() &&
        variables.empty() && removeVariables.empty() &&
+       updatedPs.empty() && removedPs.empty() &&
        _instance.loadFactor == helper._instance.loadFactor &&
        _instance.description == helper._instance.description)
     {
@@ -1913,6 +2088,10 @@ NodeHelper::printDiff(Output& out, const NodeHelper& helper) const
     if(_instance.description != helper._instance.description)
     {
 	out << nl << "description udpated";
+    }
+    if(!updatedPs.empty() || !removedPs.empty())
+    {
+	out << nl << "property sets udpated";
     }
     if(!variables.empty() || !removeVariables.empty())
     {
@@ -1951,7 +2130,7 @@ NodeHelper::printDiff(Output& out, const NodeHelper& helper) const
 void
 NodeHelper::validate(const Resolver& appResolve) const
 {
-    Resolver resolve(appResolve, _definition.variables, false);
+    Resolver resolve(appResolve, _definition.variables, false, _definition.propertySets);
     resolve.setReserved("node", _name);
     resolve.setContext("node `" + _name + "'");
 
@@ -1972,7 +2151,7 @@ ApplicationHelper::ApplicationHelper(const ApplicationDescriptor& desc) :
 	throw DeploymentException("invalid application: empty name");
     }
 
-    Resolver resolve(*this, _definition.name, desc.variables);
+    Resolver resolve(*this);
     for(NodeDescriptorDict::const_iterator p = _definition.nodes.begin(); p != _definition.nodes.end(); ++p)
     {
 	_nodes.insert(make_pair(p->first, NodeHelper(p->first, p->second, resolve)));
@@ -1989,6 +2168,8 @@ ApplicationHelper::instantiate(const Resolver& resolve) const
     ApplicationDescriptor desc = _definition;
 
     desc.description = resolve(_definition.description, "description");
+    desc.propertySets = _definition.propertySets;
+
     desc.distrib.icepatch = resolve(desc.distrib.icepatch, "IcePatch2 server proxy");
     Ice::StringSeq::const_iterator p;
     desc.distrib.directories.clear();
@@ -2050,6 +2231,9 @@ ApplicationHelper::diff(const ApplicationHelper& helper)
     update.variables = getDictUpdatedElts(helper._definition.variables, _definition.variables);
     update.removeVariables = getDictRemovedElts(helper._definition.variables, _definition.variables);
 
+    update.propertySets = getDictUpdatedElts(helper._definition.propertySets, _definition.propertySets);
+    update.removePropertySets = getDictRemovedElts(helper._definition.propertySets, _definition.propertySets);
+
     if(_definition.distrib != helper._definition.distrib)
     {
 	update.distrib = new BoxedDistributionDescriptor(_definition.distrib);
@@ -2110,6 +2294,8 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& update)
 					      update.removeReplicaGroups, GetReplicaGroupId());
     
     _definition.variables = updateDictElts(_definition.variables, update.variables, update.removeVariables);
+    _definition.propertySets = 
+	updateDictElts(_definition.propertySets, update.propertySets, update.removePropertySets);
 
     if(update.distrib)
     {
@@ -2131,7 +2317,7 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& update)
     // NOTE: It's important to create the resolver *after* updating
     // the application variables!
     //
-    Resolver resolve(*this, _definition.name, _definition.variables);
+    Resolver resolve(*this);
 
     //
     // We first update or add the nodes from the update descriptor and
@@ -2147,6 +2333,7 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& update)
 	{
 	    NodeDescriptor desc;
 	    desc.variables = p->variables;
+	    desc.propertySets = p->propertySets;
 	    desc.servers = p->servers;
 	    desc.serverInstances = p->serverInstances;
 	    desc.loadFactor = p->loadFactor ? p->loadFactor->value : "";
@@ -2189,7 +2376,7 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& update)
 void
 ApplicationHelper::instantiateServer(const string& node, const ServerInstanceDescriptor& instance)
 {
-    Resolver resolve(*this, _definition.name, _definition.variables);
+    Resolver resolve(*this);
 
     //
     // Get the node helper (add it if it doesn't exist.)
@@ -2332,6 +2519,25 @@ ApplicationHelper::print(Output& out) const
 	}
 	out << eb;
     }
+    if(!_instance.propertySets.empty())
+    {
+	PropertySetDescriptorDict::const_iterator q;
+	for(q = _instance.propertySets.begin(); q != _instance.propertySets.end(); ++q)
+	{
+	    out << nl << "properties `" << q->first << "'";
+	    out << sb;
+	    if(!q->second.references.empty())
+	    {
+		out << nl << "references = " << toString(q->second.references);
+	    }
+	    PropertyDescriptorSeq::const_iterator r;
+	    for(r = q->second.properties.begin(); r != q->second.properties.end(); ++r)
+	    {
+		out << nl << r->name << " = `" << r->value << "'";
+	    }
+	    out << eb;
+	}
+    }
     if(!_instance.distrib.icepatch.empty())
     {
 	out << nl << "distribution";
@@ -2425,6 +2631,14 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
 	if(_definition.distrib != helper._definition.distrib)
 	{
 	    out << nl << "distribution updated";
+	}
+    }
+    {
+	PropertySetDescriptorDict updated = getDictUpdatedElts(helper._instance.propertySets, _instance.propertySets);
+	Ice::StringSeq removed = getDictRemovedElts(helper._instance.propertySets, _instance.propertySets);
+	if(!updated.empty() || !removed.empty())
+	{
+	    out << nl << "property sets udpated";
 	}
     }
     {

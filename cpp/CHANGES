@@ -1,6 +1,16 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Added property sets to IceGrid descriptors. Property sets allow to
+  define set of properties in applications, nodes and templates
+  descriptors. These property sets can then be referenced from the
+  server, service and instance descriptors. See the IceGrid chapter in
+  the Ice manual for more information.
+
+- Changed the IceGrid::Admin::getApplicationDescriptor method to
+  return the application descriptor without any variable
+  substitutions done.
+
 - Added communicator initialize method which takes a InitializationData
   structure containing communicator members which are only allowed
   to be set during communicator creation. Currently included are

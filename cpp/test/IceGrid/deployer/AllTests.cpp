@@ -222,17 +222,74 @@ allTests(const Ice::CommunicatorPtr& comm)
     cout << "ok" << endl;
 
     cout << "testing descriptions... " << flush;
-    ApplicationDescriptor desc = admin->getApplicationDescriptor("test");
-    test(desc.description == "APP AppVar");
-    test(desc.nodes["localnode"].description == "NODE NodeVar");
-    test(desc.replicaGroups[0].description == "REPLICA GROUP AppVar");
-    test(desc.nodes["localnode"].servers.size() == 2);
-    const int idx = desc.nodes["localnode"].servers[0]->id == "SimpleServer" ? 0 : 1;
-    test(desc.nodes["localnode"].servers[idx]);
-    test(desc.nodes["localnode"].servers[idx]->id == "SimpleServer");
-    test(desc.nodes["localnode"].servers[idx]->description == "SERVER NodeVar");
-    test(desc.nodes["localnode"].servers[idx]->adapters[0].description == "ADAPTER NodeVar");
-    test(desc.nodes["localnode"].servers[idx]->dbEnvs[0].description == "DBENV NodeVar");
+    //
+    // NOTE: We can't test the following since
+    // getApplicationDescriptor doesn't return the instantiated
+    // application descriptor...
+    //
+//     ApplicationDescriptor desc = admin->getApplicationDescriptor("test");
+//     test(desc.description == "APP AppVar");
+//     test(desc.nodes["localnode"].description == "NODE NodeVar");
+//     test(desc.replicaGroups[0].description == "REPLICA GROUP AppVar");
+//     test(desc.nodes["localnode"].servers.size() == 2);
+//    const int idx = desc.nodes["localnode"].servers[0]->id == "SimpleServer" ? 0 : 1;
+    ServerInfo info = admin->getServerInfo("SimpleServer");
+    test(info.descriptor->id == "SimpleServer");
+    test(info.descriptor->description == "SERVER NodeVar");
+    test(info.descriptor->adapters[0].description == "ADAPTER NodeVar");
+    test(info.descriptor->dbEnvs[0].description == "DBENV NodeVar");
+    cout << "ok" << endl;
+    
+    cout << "testing property sets..." << flush;
+    obj = TestIntfPrx::checkedCast(comm->stringToProxy("Server1@Server1.Server"));
+    test(obj->getProperty("AppProperty") == "AppVar");
+    test(obj->getProperty("AppProperty2") == "OverridedInNode");
+    test(obj->getProperty("AppProperty21") == "Override");
+    test(obj->getProperty("NodeProperty") == "NodeVar");
+    test(obj->getProperty("TemplateProperty") == "test");
+
+    obj = TestIntfPrx::checkedCast(comm->stringToProxy("Server2@Server2.Server"));
+    test(obj->getProperty("AppProperty") == "AppVar");
+    test(obj->getProperty("AppProperty2") == "OverridedInNode");
+    test(obj->getProperty("AppProperty21") == "Override");
+    test(obj->getProperty("NodeProperty") == "NodeVar");
+    test(obj->getProperty("TemplateProperty") == "test");
+    test(obj->getProperty("ServerProperty") == "Server2");
+    test(obj->getProperty("ServerInstanceProperty") == "Server2");
+
+    obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
+    test(obj->getProperty("AppProperty") == "AppVar");
+    test(obj->getProperty("AppProperty2") == "OverridedInNode");
+    test(obj->getProperty("AppProperty21") == "Override");
+    test(obj->getProperty("NodeProperty") == "NodeVar");
+    test(obj->getProperty("TemplateProperty") == "test");
+
+    obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox2-Service1@IceBox2.Service1.Service1"));
+    test(obj->getProperty("AppProperty") == "AppVar");
+    test(obj->getProperty("AppProperty2") == "OverridedInNode");
+    test(obj->getProperty("AppProperty21") == "Override");
+    test(obj->getProperty("NodeProperty") == "NodeVar");
+    test(obj->getProperty("TemplateProperty") == "test");
+    test(obj->getProperty("IceBoxProperty") == "IceBox2");
+    test(obj->getProperty("IceBoxInstanceProperty") == "IceBox2");
+
+    obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));    
+    test(obj->getProperty("AppProperty") == "AppVar");
+    test(obj->getProperty("AppProperty2") == "OverridedInNode");
+    test(obj->getProperty("AppProperty21") == "Override");
+    test(obj->getProperty("NodeProperty") == "NodeVar");
+    test(obj->getProperty("IceBoxProperty") == "IceBox2");
+    test(obj->getProperty("IceBoxInstanceProperty") == "IceBox2");
+    test(obj->getProperty("ServiceProperty") == "Service2");
+    test(obj->getProperty("ServiceInstanceProperty") == "Service2");
+    test(obj->getProperty("TemplateProperty") == "test-service");    
+
+    obj = TestIntfPrx::checkedCast(comm->stringToProxy("SimpleServer@SimpleServer.Server"));
+    test(obj->getProperty("AppProperty") == "AppVar");
+    test(obj->getProperty("AppProperty2") == "OverridedInNode");
+    test(obj->getProperty("AppProperty21") == "Override");
+    test(obj->getProperty("NodeProperty") == "NodeVar");
+
     cout << "ok" << endl;
 }
 

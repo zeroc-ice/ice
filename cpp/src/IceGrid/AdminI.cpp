@@ -345,7 +345,7 @@ AdminI::patchApplication_async(const AMD_Admin_patchApplicationPtr& amdCB,
 ApplicationDescriptor
 AdminI::getApplicationDescriptor(const string& name, const Current&) const
 {
-    return ApplicationHelper(_database->getApplicationDescriptor(name)).getInstance();
+    return _database->getApplicationDescriptor(name);
 }
 
 ApplicationDescriptor

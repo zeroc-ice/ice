@@ -32,6 +32,19 @@ struct PropertyDescriptor
 
 /**
  *
+ * A property set descriptor. A property set contains references on
+ * other property sets and a list of properties.
+ *
+ **/
+struct PropertySetDescriptor
+{
+    Ice::StringSeq references;
+    PropertyDescriptorSeq properties;
+};
+dictionary<string, PropertySetDescriptor> PropertySetDescriptorDict;
+
+/**
+ *
  * An &Ice; object descriptor.
  * 
  **/
@@ -186,10 +199,10 @@ class CommunicatorDescriptor
 
     /**
      *
-     * The configuration properties.
+     * The property set.
      *
      **/
-    PropertyDescriptorSeq properties;
+    PropertySetDescriptor propertySet;
 
     /**
      *
@@ -354,6 +367,13 @@ struct ServerInstanceDescriptor
      *
      **/
     StringStringDict parameterValues;
+
+    /**
+     *
+     * The property set.
+     *
+     **/
+    PropertySetDescriptor propertySet;
 };
 
 /**
@@ -385,6 +405,13 @@ struct TemplateDescriptor
      *
      **/
     StringStringDict parameterDefaults;
+
+    /**
+     *
+     * Property set descriptors.
+     *
+     **/
+    PropertySetDescriptorDict propertySets;
 };
 dictionary<string, TemplateDescriptor> TemplateDescriptorDict;
 
@@ -411,6 +438,13 @@ struct ServiceInstanceDescriptor
      *
      **/
     ServiceDescriptor descriptor;
+
+    /**
+     *
+     * The property set.
+     *
+     **/
+    PropertySetDescriptor propertySet;
 };
 ["java:type:java.util.LinkedList"] sequence<ServiceInstanceDescriptor> ServiceInstanceDescriptorSeq;
 
@@ -465,6 +499,13 @@ struct NodeDescriptor
      *
      **/
     string description;
+
+    /**
+     *
+     * Property set descriptors.
+     *
+     **/
+    PropertySetDescriptorDict propertySets;
 };
 dictionary<string, NodeDescriptor> NodeDescriptorDict;
 
@@ -605,6 +646,13 @@ struct ApplicationDescriptor
      *
      **/ 
     string description;
+
+    /**
+     *
+     * Property set descriptors.
+     *
+     **/
+    PropertySetDescriptorDict propertySets;
 };
 
 /**
@@ -654,6 +702,20 @@ struct NodeUpdateDescriptor
      *
      **/
     Ice::StringSeq removeVariables;
+
+    /**
+     *
+     * The property sets to update.
+     *
+     **/
+    PropertySetDescriptorDict propertySets;
+
+    /**
+     *
+     * The property sets to remove.
+     *
+     **/
+    Ice::StringSeq removePropertySets;
 
     /**
      *
@@ -728,6 +790,20 @@ struct ApplicationUpdateDescriptor
      *
      **/
     Ice::StringSeq removeVariables;
+
+    /**
+     *
+     * The property sets to update.
+     *
+     **/
+    PropertySetDescriptorDict propertySets;
+
+    /**
+     *
+     * The property sets to remove.
+     *
+     **/
+    Ice::StringSeq removePropertySets;
 
     /**
      *

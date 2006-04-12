@@ -22,8 +22,8 @@ class Resolver
 {
 public:
 
-    Resolver(const ApplicationHelper&, const std::string&, const std::map<std::string, std::string>&);
-    Resolver(const Resolver&, const std::map<std::string, std::string>&, bool);
+    Resolver(const ApplicationHelper&);
+    Resolver(const Resolver&, const std::map<std::string, std::string>&, bool, const PropertySetDescriptorDict&);
     Resolver(const std::string&, const std::map<std::string, std::string>&);
 
     std::string operator()(const std::string&, const std::string& = std::string(), bool = true, bool = true) const;
@@ -31,6 +31,8 @@ public:
     std::string asFloat(const std::string&, const std::string& = std::string()) const;
     void setReserved(const std::string&, const std::string&);
     void setContext(const std::string&);
+    const PropertySetDescriptor& getPropertySet(const std::string&) const;
+    PropertyDescriptorSeq getProperties(const Ice::StringSeq&) const;
 
     void exception(const std::string&) const;
 
@@ -42,6 +44,7 @@ private:
 
     std::string substitute(const std::string&, bool = false) const;
     std::string getVariable(const std::string&, bool, bool&) const;
+    PropertyDescriptorSeq getProperties(const Ice::StringSeq&, std::set<std::string>&) const;
 
     static std::map<std::string, std::string> getReserved();
     void checkReserved(const std::string&, const std::map<std::string, std::string>&) const;
@@ -51,6 +54,7 @@ private:
     std::string _context;
     std::map<std::string, std::string> _variables;
     std::map<std::string, std::string> _parameters;
+    PropertySetDescriptorDict _propertySets;
     std::map<std::string, std::string> _reserved;
     std::set<std::string> _ignore;
 };
@@ -74,7 +78,7 @@ protected:
 
     void printDbEnv(IceUtil::Output&, const DbEnvDescriptor&) const;
     void printObjectAdapter(IceUtil::Output&, const AdapterDescriptor&) const;
-    void printProperties(IceUtil::Output&, const PropertyDescriptorSeq&) const;
+    void printPropertySet(IceUtil::Output&, const PropertySetDescriptor&) const;
     virtual std::string getProperty(const std::string&) const;
 
     void instantiateImpl(const CommunicatorDescriptorPtr&, const Resolver&) const;
@@ -95,13 +99,13 @@ public:
     bool operator!=(const ServiceHelper&) const;    
 
     ServiceDescriptorPtr getDescriptor() const;
-    ServiceDescriptorPtr instantiate(const Resolver&) const;
+    ServiceDescriptorPtr instantiate(const Resolver&, const PropertySetDescriptor&) const;
 
     void print(IceUtil::Output&) const;
 
 protected:
 
-    void instantiateImpl(const ServiceDescriptorPtr&, const Resolver&) const;
+    void instantiateImpl(const ServiceDescriptorPtr&, const Resolver&, const PropertySetDescriptor&) const;
 
 private:
     
@@ -119,7 +123,7 @@ public:
     bool operator!=(const ServerHelper&) const;    
 
     ServerDescriptorPtr getDescriptor() const;
-    virtual ServerDescriptorPtr instantiate(const Resolver&) const;
+    virtual ServerDescriptorPtr instantiate(const Resolver&, const PropertySetDescriptor&) const;
 
     void print(IceUtil::Output&) const;
     void print(IceUtil::Output&, const std::string&, const std::string&) const;
@@ -127,7 +131,7 @@ public:
 protected:
 
     void printImpl(IceUtil::Output&, const std::string&, const std::string&) const;
-    void instantiateImpl(const ServerDescriptorPtr&, const Resolver&) const;
+    void instantiateImpl(const ServerDescriptorPtr&, const Resolver&, const PropertySetDescriptor&) const;
 
 private:
     
@@ -164,8 +168,7 @@ public:
 
 private:
     
-    std::string _template;
-    std::map<std::string, std::string> _parameters;
+    ServiceInstanceDescriptor _definition;
     mutable ServiceHelper _service;
 };
 
@@ -180,7 +183,7 @@ public:
     bool operator==(const IceBoxHelper&) const;
     bool operator!=(const IceBoxHelper&) const;    
 
-    virtual ServerDescriptorPtr instantiate(const Resolver&) const;
+    virtual ServerDescriptorPtr instantiate(const Resolver&, const PropertySetDescriptor&) const;
 
     virtual void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
 
@@ -189,7 +192,7 @@ public:
 
 protected:
 
-    void instantiateImpl(const IceBoxDescriptorPtr&, const Resolver&) const;
+    void instantiateImpl(const IceBoxDescriptorPtr&, const Resolver&, const PropertySetDescriptor&) const;
 
 private:
     
@@ -223,11 +226,11 @@ private:
 
     void init(const ServerDescriptorPtr&, const Resolver&);
 
-    const std::string _template;
-    const std::map<std::string, std::string> _parameters;
-    std::map<std::string, std::string> _instanceParams;
-    ServerHelperPtr _definition;
-    ServerHelperPtr _instance;
+    const ServerInstanceDescriptor _definition;
+    ServerInstanceDescriptor _instance;
+
+    ServerHelperPtr _serverDefinition;
+    ServerHelperPtr _serverInstance;
 };
 
 class NodeHelper

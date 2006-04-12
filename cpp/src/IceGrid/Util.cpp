@@ -35,13 +35,14 @@ IceGrid::toString(const vector<string>& v, const string& sep)
 }
 
 string
-IceGrid::getProperty(const PropertyDescriptorSeq& properties, const string& name, const string& def)
-{
-    for(PropertyDescriptorSeq::const_iterator p = properties.begin(); p != properties.end(); ++p)
+IceGrid::getProperty(const PropertySetDescriptor& propertySet, const string& name, const string& def)
+{    
+    for(PropertyDescriptorSeq::const_iterator q = propertySet.properties.begin(); 
+	q != propertySet.properties.end(); ++q)
     {
-	if(p->name == name)
+	if(q->name == name)
 	{
-	    return p->value;
+	    return q->value;
 	}
     }
     return def;

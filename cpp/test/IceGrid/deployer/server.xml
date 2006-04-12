@@ -10,6 +10,16 @@
     <parameter name="ParamDoubleEscaped"/>
     <parameter name="DefaultParam" default="VALUE"/>
 
+    <properties id="ServerProperties">
+      <property name="ServerProperty" value="${name}"/>
+    </properties>
+
+    <properties id="TemplateProperties">
+      <properties refid="AppProperties"/>
+      <properties refid="NodeProperties"/>
+      <property name="TemplateProperty" value="test"/>
+    </properties>
+
     <server id="${name}" exe="${test.dir}/server" activation="on-demand" pwd=".">
 
       <option>--Test.Test=2</option>
@@ -20,24 +30,29 @@
       </adapter>
       <adapter name="ReplicatedAdapter" endpoints="default" replica-group="ReplicatedAdapter"/>
 
-      <property name="Type" value="Server"/>
-      <property name="Name" value="${name}"/>
-      <property name="NameName" value="${name}${name}"/>
-      <property name="NameEscaped" value="$${name}"/>
-      <property name="NameEscapeEscaped" value="$$${name}"/> 
-      <property name="NameEscapedEscapeEscaped" value="$$$${name}"/> 
-      <property name="ManyEscape" value="$$$$$$$${name}"/>
-      <property name="Ice.Warn.Connections" value="1"/>
+      <properties>
+        <properties refid="TemplateProperties"/>
+        <property name="Ice.Warn.Connections" value="1"/>
 
-      <include file="varproperties.xml"/>
+	<property name="Type" value="Server"/>
+	<property name="Name" value="${name}"/>
+	<property name="NameName" value="${name}${name}"/>
+	<property name="NameEscaped" value="$${name}"/>
+	<property name="NameEscapeEscaped" value="$$${name}"/> 
+	<property name="NameEscapedEscapeEscaped" value="$$$${name}"/> 
+	<property name="ManyEscape" value="$$$$$$$${name}"/>
+	<property name="Ice.Warn.Connections" value="1"/>
 
-      <property name="Param1Prop" value="${Param1}"/>
-      <property name="Param2Prop" value="${Param2}"/>
-      <property name="ParamEscapedProp" value="${ParamEscaped}"/>
-      <property name="ParamDoubleEscapedProp" value="${ParamDoubleEscaped}"/>
-      <property name="AppVarOverridedByParamProp" value="${AppVarOverridedByParam}"/>
-      <property name="NodeVarOverridedByParamProp" value="${NodeVarOverridedByParam}"/>
-      <property name="DefaultParamProp" value="${DefaultParam}"/>
+	<include file="varproperties.xml"/>
+
+	<property name="Param1Prop" value="${Param1}"/>
+	<property name="Param2Prop" value="${Param2}"/>
+	<property name="ParamEscapedProp" value="${ParamEscaped}"/>
+	<property name="ParamDoubleEscapedProp" value="${ParamDoubleEscaped}"/>
+	<property name="AppVarOverridedByParamProp" value="${AppVarOverridedByParam}"/>
+	<property name="NodeVarOverridedByParamProp" value="${NodeVarOverridedByParam}"/>
+	<property name="DefaultParamProp" value="${DefaultParam}"/>
+      </properties>
 
       <env>MY_ENV_VARIABLE=12</env>
 

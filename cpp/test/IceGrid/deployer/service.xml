@@ -3,6 +3,7 @@
   <service-template id="ServiceTemplate">
     <parameter name="name"/>
     <parameter name="NodeVarOverridedByParam"/>
+
     <service name="${name}" entry="TestService:create">
 
       <adapter name="${service}" endpoints="default">
@@ -16,7 +17,7 @@
 
       <property name="AppVarOverridedByParamProp" value="${AppVarOverridedByParam}"/>
       <property name="NodeVarOverridedByParamProp" value="${NodeVarOverridedByParam}"/>
-     
+
     </service>
   </service-template>
 
