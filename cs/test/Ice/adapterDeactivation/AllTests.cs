@@ -46,7 +46,7 @@ public class AllTests
 	        communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9998");
 		test(false);
 	    }
-	    catch(Ice.AlreadyRegisteredException ex)
+	    catch(Ice.AlreadyRegisteredException)
 	    {
 	    }
 	    adapter.destroy();
