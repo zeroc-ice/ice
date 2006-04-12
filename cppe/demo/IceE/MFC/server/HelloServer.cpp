@@ -80,7 +80,7 @@ BOOL CHelloServerApp::InitInstance()
         log = new LogI;
 	initData.logger = log;
 
-        communicator = Ice::initializeWithProperties(argc, 0, initData);
+        communicator = Ice::initialize(argc, 0, initData);
         adapter = communicator->createObjectAdapter("Hello");
     }
     catch(const IceUtil::Exception& ex)
