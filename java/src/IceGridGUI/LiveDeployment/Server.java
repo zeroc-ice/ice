@@ -585,7 +585,10 @@ class Server extends ListArrayTreeNode
 
     String getProperty(String name)
     {
-	java.util.Iterator p = _serverDescriptor.properties.iterator();
+	//
+	// TODO: BENOIT: Add support for property set.
+	//
+	java.util.Iterator p = _serverDescriptor.propertySet.properties.iterator();
 	while(p.hasNext())
 	{
 	    PropertyDescriptor pd = (PropertyDescriptor)p.next();

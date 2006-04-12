@@ -68,14 +68,14 @@ class ServiceTemplates extends Templates
     {
 	ServiceDescriptor sd = new ServiceDescriptor(
 	    new java.util.LinkedList(),
-	    new java.util.LinkedList(),
+	    new PropertySetDescriptor(new String[0], new java.util.LinkedList()),
 	    new java.util.LinkedList(),
 	    "",
 	    "",
 	    "");
 	    
 	newServiceTemplate(new TemplateDescriptor(
-			       sd, new java.util.LinkedList(), new java.util.TreeMap()));
+			       sd, new java.util.LinkedList(), new java.util.TreeMap(), new java.util.HashMap()));
 
     }
     public void paste()

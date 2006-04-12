@@ -73,8 +73,8 @@ class Nodes extends ListTreeNode
 		    new java.util.LinkedList(),
 		    new java.util.LinkedList(),
 		    "",
-		    ""
-		    ));
+		    "",
+		    new java.util.HashMap()));
     }
     
     Nodes(TreeNode parent, java.util.Map descriptors)
@@ -221,11 +221,15 @@ class Nodes extends ListTreeNode
 
 	    if(node == null)
 	    {
+		//
+		// TODO: BENOIT: Add support for property sets
+		//
 		NodeDescriptor nodeDescriptor = new NodeDescriptor(update.variables,
 								   update.serverInstances,
 								   update.servers,
 								   update.loadFactor.value,
-								   update.description.value);
+								   update.description.value,
+								   new java.util.HashMap());
 		_descriptors.put(update.name, nodeDescriptor);
 		node = new Node(false, this, update.name, nodeDescriptor);
 		newChildren.add(node);

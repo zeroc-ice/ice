@@ -121,7 +121,8 @@ class Node extends ListTreeNode
     {
 	ServerInstanceDescriptor descriptor = 
 	    new ServerInstanceDescriptor("",
-					 new java.util.HashMap());
+					 new java.util.HashMap(),
+					 new PropertySetDescriptor(new String[0], new java.util.LinkedList()));
 
 	newServer(descriptor);
     }

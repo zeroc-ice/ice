@@ -41,7 +41,9 @@ class Server extends Communicator implements TemplateInstance
 	// Update to properties is not atomic because of Adapter endpoints
 	// (and possibly other properties set through a PropertiesHolder)
 	//
-	copy.properties = (java.util.LinkedList)copy.properties.clone();
+	copy.propertySet = (PropertySetDescriptor)copy.propertySet.clone();
+	copy.propertySet.references = (String[])copy.propertySet.references.clone();
+	copy.propertySet.properties = (java.util.LinkedList)copy.propertySet.properties.clone();
 	copy.distrib = (DistributionDescriptor)copy.distrib.clone();
 
 	if(copy instanceof IceBoxDescriptor)
@@ -63,7 +65,7 @@ class Server extends Communicator implements TemplateInstance
 	//
 	// When editing a server or server template, if we update properties, 
 	// we replace the entire field
-	into.properties = from.properties;
+	into.propertySet = from.propertySet;
 
 	into.description = from.description;
 	into.id = from.id;
@@ -82,7 +84,7 @@ class Server extends Communicator implements TemplateInstance
     {
 	return new ServerDescriptor(
 	    new java.util.LinkedList(),
-	    new java.util.LinkedList(),
+	    new PropertySetDescriptor(new String[0], new java.util.LinkedList()),
 	    new java.util.LinkedList(),
 	    "",
 	    "NewServer",
@@ -120,7 +122,7 @@ class Server extends Communicator implements TemplateInstance
 
 	return new IceBoxDescriptor(
 	    adapterList,
-	    properties,
+	    new PropertySetDescriptor(new String[0], properties),
 	    new java.util.LinkedList(),
 	    "",
 	    "NewIceBox",
@@ -452,7 +454,10 @@ class Server extends Communicator implements TemplateInstance
 		}
 		writeOptions(writer, _serverDescriptor.options);
 		writeEnvs(writer, _serverDescriptor.envs);
-		writeProperties(writer, _serverDescriptor.properties);
+		//
+		// TODO: BENOIT: Add refernces
+		//
+		writeProperties(writer, _serverDescriptor.propertySet.properties);
 		writeDistribution(writer, _serverDescriptor.distrib);
 
 		_adapters.write(writer);
@@ -470,7 +475,10 @@ class Server extends Communicator implements TemplateInstance
 		
 		writeOptions(writer, _serverDescriptor.options);
 		writeEnvs(writer, _serverDescriptor.envs);
-		writeProperties(writer, _serverDescriptor.properties);
+		//
+		// TODO: BENOIT: Add references
+		//
+		writeProperties(writer, _serverDescriptor.propertySet.properties);
 		writeDistribution(writer, _serverDescriptor.distrib);
 
 		_adapters.write(writer);

@@ -175,12 +175,16 @@ class Node extends ListTreeNode
     {
 	super(parent, update.name);
 
+	//
+	// TODO: BENOIT: Add support for property sets.
+	//
 	NodeDescriptor nodeDesc = new NodeDescriptor(
 	    update.variables,
 	    update.serverInstances,
 	    update.servers,
 	    update.loadFactor.value,
-	    update.description.value);
+	    update.description.value,
+	    new java.util.HashMap());
 	    
 	appDesc.nodes.put(_id, nodeDesc);
 	add(appDesc, nodeDesc);

@@ -85,7 +85,10 @@ class CommunicatorSubEditor
 
     void writeDescriptor(CommunicatorDescriptor descriptor)
     {
-	descriptor.properties = Editor.mapToProperties(_propertiesMap);
+	//
+	// TODO: BENOIT: Add support for property set.
+	//
+	descriptor.propertySet = new PropertySetDescriptor(new String[0], Editor.mapToProperties(_propertiesMap));
 	descriptor.description = _description.getText();
     }
 
@@ -94,7 +97,10 @@ class CommunicatorSubEditor
 	Utils.Resolver detailResolver = _mainEditor.getDetailResolver();
 	isEditable = isEditable && (detailResolver == null);
 
-	_propertiesMap = Editor.propertiesToMap(descriptor.properties, detailResolver);
+	//
+	// TODO: BENOIT: Add support for property set.
+	//
+	_propertiesMap = Editor.propertiesToMap(descriptor.propertySet.properties, detailResolver);
 	setPropertiesField();
 	_propertiesButton.setEnabled(isEditable);
 	

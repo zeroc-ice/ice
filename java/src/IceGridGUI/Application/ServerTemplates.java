@@ -67,14 +67,16 @@ class ServerTemplates extends Templates
 	newServerTemplate(new TemplateDescriptor(
 			      Server.newServerDescriptor(), 
 			      new java.util.LinkedList(),
-			      new java.util.TreeMap()));
+			      new java.util.TreeMap(),
+			      new java.util.HashMap()));
     }
     public void newTemplateServerIceBox()
     {
 	newServerTemplate(new TemplateDescriptor(
 			      Server.newIceBoxDescriptor(), 
 			      new java.util.LinkedList(),
-			      new java.util.TreeMap()));
+			      new java.util.TreeMap(),
+			      new java.util.HashMap()));
     }
     public void paste()
     {

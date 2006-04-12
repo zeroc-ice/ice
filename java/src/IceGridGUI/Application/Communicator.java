@@ -674,7 +674,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 	{
 	    ServiceDescriptor sd = 
 		new ServiceDescriptor(new java.util.LinkedList(),
-				      new java.util.LinkedList(),
+				      new PropertySetDescriptor(new String[0], new java.util.LinkedList()),
 				      new java.util.LinkedList(),
 				      "",
 				      "NewService",
@@ -683,7 +683,8 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 	    ServiceInstanceDescriptor descriptor = 
 		new ServiceInstanceDescriptor("",
 					      new java.util.TreeMap(),
-					      sd);
+					      sd,
+					      new PropertySetDescriptor(new String[0], new java.util.LinkedList()));
 	    newService(descriptor);
 	}
 
@@ -692,7 +693,8 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 	    ServiceInstanceDescriptor descriptor = 
 		new ServiceInstanceDescriptor("",
 					      new java.util.HashMap(),
-					      null);
+					      null,
+					      new PropertySetDescriptor(new String[0], new java.util.LinkedList()));
 	    newService(descriptor);
 	}
 	
@@ -959,7 +961,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
     String getProperty(String key)
     {
 	CommunicatorDescriptor descriptor = getCommunicatorDescriptor();
-	java.util.Iterator p = descriptor.properties.iterator();
+	java.util.Iterator p = descriptor.propertySet.properties.iterator();
 	while(p.hasNext())
 	{
 	    PropertyDescriptor pd = (PropertyDescriptor)p.next();
@@ -975,13 +977,13 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
     {
 	CommunicatorDescriptor descriptor = getCommunicatorDescriptor();
 	removeProperty(key);
-	descriptor.properties.add(new PropertyDescriptor(key, newValue));
+	descriptor.propertySet.properties.add(new PropertyDescriptor(key, newValue));
     }
 
     void removeProperty(String key)
     {
 	CommunicatorDescriptor descriptor = getCommunicatorDescriptor();
-	java.util.Iterator p = descriptor.properties.iterator();
+	java.util.Iterator p = descriptor.propertySet.properties.iterator();
 	while(p.hasNext())
 	{
 	    PropertyDescriptor pd = (PropertyDescriptor)p.next();

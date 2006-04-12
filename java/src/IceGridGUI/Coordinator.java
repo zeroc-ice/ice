@@ -1555,7 +1555,8 @@ public class Coordinator
 								 new java.util.HashMap(),
 								 new IceGrid.DistributionDescriptor(
 								     "", new java.util.LinkedList()),
-								"");
+								"",
+								new java.util.HashMap());
 	IceGridGUI.Application.Root root = new IceGridGUI.Application.Root(this, desc);
 	ApplicationPane app = new ApplicationPane(root);
 	_mainPane.addApplication(app);

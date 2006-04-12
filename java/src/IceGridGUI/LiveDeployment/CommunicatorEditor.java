@@ -48,8 +48,11 @@ class CommunicatorEditor extends Editor
     protected void show(CommunicatorDescriptor descriptor, Utils.Resolver resolver)
     {
 	_description.setText(resolver.substitute(descriptor.description));
+	//
+	// TODO: BENOIT: Add support for property set.
+	//
 	_propertiesModel.setDataVector(
-	    mapToVector(propertiesToMap(descriptor.properties, resolver)),
+	    mapToVector(propertiesToMap(descriptor.propertySet.properties, resolver)),
 	    _columnNames);
 
 	DefaultTableCellRenderer cr = (DefaultTableCellRenderer)

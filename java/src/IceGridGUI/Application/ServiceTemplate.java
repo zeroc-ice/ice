@@ -146,7 +146,10 @@ class ServiceTemplate extends Communicator
 	    {
 		writer.writeElement("description", descriptor.description);
 	    }
-	    writeProperties(writer, descriptor.properties);
+	    //
+	    // TODO: BENOIT: Add references
+	    //
+	    writeProperties(writer, descriptor.propertySet.properties);
 	    _adapters.write(writer);
 	    _dbEnvs.write(writer);
 	    writer.writeEndTag("service");
@@ -248,7 +251,10 @@ class ServiceTemplate extends Communicator
 	ServiceDescriptor sd = (ServiceDescriptor)_templateDescriptor.descriptor;
 	ServiceDescriptor csd = (ServiceDescriptor)clone.descriptor;
 
-	sd.properties = csd.properties;
+	//
+	// TODO: BENOIT: Add references
+	//
+	sd.propertySet.properties = csd.propertySet.properties;
 	sd.description = csd.description;
 	sd.name = csd.name;
 	sd.entry = csd.entry;

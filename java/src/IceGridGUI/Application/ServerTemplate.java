@@ -252,7 +252,10 @@ class ServerTemplate extends Communicator
 		}
 		Server.writeOptions(writer, descriptor.options);
 		Server.writeEnvs(writer, descriptor.envs);
-		writeProperties(writer, descriptor.properties);
+		//
+		// TODO: BENOIT: add references
+		//
+		writeProperties(writer, descriptor.propertySet.properties);
 		writeDistribution(writer, descriptor.distrib);
 
 		_adapters.write(writer);
@@ -272,7 +275,10 @@ class ServerTemplate extends Communicator
 		}
 		Server.writeOptions(writer, descriptor.options);
 		Server.writeEnvs(writer, descriptor.envs);
-		writeProperties(writer, descriptor.properties);
+		//
+		// TODO: BENOIT: Add references
+		//
+		writeProperties(writer, descriptor.propertySet.properties);
 		writeDistribution(writer, descriptor.distrib);
 
 		_adapters.write(writer);
