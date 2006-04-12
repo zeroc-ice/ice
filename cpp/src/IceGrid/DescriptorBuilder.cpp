@@ -156,19 +156,14 @@ DescriptorBuilder::createPropertySet(const XmlAttributesHelper& attrs) const
     return new PropertySetDescriptorBuilder(attrs);
 }
 
-PropertySetDescriptorBuilder*
-DescriptorBuilder::createPropertySet() const
-{
-    return new PropertySetDescriptorBuilder();
-}
-
 PropertySetDescriptorBuilder::PropertySetDescriptorBuilder(const XmlAttributesHelper& attrs) : 
     _id(attrs("id")),
     _inPropertySetRef(false)
 {
 }
 
-PropertySetDescriptorBuilder::PropertySetDescriptorBuilder() :
+PropertySetDescriptorBuilder::PropertySetDescriptorBuilder(const PropertySetDescriptor& desc) :
+    _descriptor(desc),
     _inPropertySetRef(false)
 {
 }
@@ -410,16 +405,16 @@ ServerInstanceDescriptorBuilder::ServerInstanceDescriptorBuilder(const XmlAttrib
     _descriptor.parameterValues.erase("template");
 }
 
+PropertySetDescriptorBuilder*
+ServerInstanceDescriptorBuilder::createPropertySet() const
+{
+    return new PropertySetDescriptorBuilder(_descriptor.propertySet);
+}
+
 void
 ServerInstanceDescriptorBuilder::addPropertySet(const PropertySetDescriptor& desc)
 {
-    //
-    // Merge with existing property set.
-    //
-    _descriptor.propertySet.properties.insert(_descriptor.propertySet.properties.end(), 
-					      desc.properties.begin(), desc.properties.end());
-    _descriptor.propertySet.references.insert(_descriptor.propertySet.references.end(), 
-					      desc.references.begin(), desc.references.end());
+    _descriptor.propertySet = desc;
 }
 
 NodeDescriptorBuilder::NodeDescriptorBuilder(ApplicationDescriptorBuilder& app, const XmlAttributesHelper& attrs) :
@@ -558,6 +553,19 @@ CommunicatorDescriptorBuilder::init(const CommunicatorDescriptorPtr& desc, const
 }
 
 void
+CommunicatorDescriptorBuilder::finish()
+{
+    //
+    // Add the hidden properties at the begining of the communicator
+    // properties. These properties are not added directly to the
+    // property set because it's not allowed to define properties
+    // before references to property sets.
+    //
+    _descriptor->propertySet.properties.insert(_descriptor->propertySet.properties.begin(),
+					       _hiddenProperties.begin(), _hiddenProperties.end());
+}
+
+void
 CommunicatorDescriptorBuilder::setDescription(const string& desc)
 {
     _descriptor->description = desc;
@@ -566,19 +574,19 @@ CommunicatorDescriptorBuilder::setDescription(const string& desc)
 void
 CommunicatorDescriptorBuilder::addProperty(const XmlAttributesHelper& attrs)
 {
-    addProperty(attrs("name"), attrs("value", ""));
+    addProperty(_descriptor->propertySet.properties, attrs("name"), attrs("value", ""));
+}
+
+PropertySetDescriptorBuilder*
+CommunicatorDescriptorBuilder::createPropertySet() const
+{
+    return new PropertySetDescriptorBuilder(_descriptor->propertySet);
 }
 
 void
 CommunicatorDescriptorBuilder::addPropertySet(const PropertySetDescriptor& desc)
 {
-    //
-    // Merge with existing property set.
-    //
-    _descriptor->propertySet.properties.insert(_descriptor->propertySet.properties.end(), 
-					       desc.properties.begin(), desc.properties.end());
-    _descriptor->propertySet.references.insert(_descriptor->propertySet.references.end(), 
-					       desc.references.begin(), desc.references.end());
+    _descriptor->propertySet = desc;
 }
 
 void
@@ -613,7 +621,7 @@ CommunicatorDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
 
     if(attrs.contains("endpoints"))
     {
-	addProperty(desc.name + ".Endpoints", attrs("endpoints"));
+	addProperty(_hiddenProperties, desc.name + ".Endpoints", attrs("endpoints"));
     }
 }
 
@@ -685,12 +693,12 @@ CommunicatorDescriptorBuilder::setDbEnvDescription(const string& value)
 }
 
 void
-CommunicatorDescriptorBuilder::addProperty(const string& name, const string& value)
+CommunicatorDescriptorBuilder::addProperty(PropertyDescriptorSeq& properties, const string& name, const string& value)
 {
     PropertyDescriptor prop;
     prop.name = name;
     prop.value = value;
-    _descriptor->propertySet.properties.push_back(prop);
+    properties.push_back(prop);
 }
 
 ServiceInstanceDescriptorBuilder::ServiceInstanceDescriptorBuilder(const XmlAttributesHelper& attrs)
@@ -700,16 +708,16 @@ ServiceInstanceDescriptorBuilder::ServiceInstanceDescriptorBuilder(const XmlAttr
     _descriptor.parameterValues.erase("template");
 }
 
+PropertySetDescriptorBuilder*
+ServiceInstanceDescriptorBuilder::createPropertySet() const
+{
+    return new PropertySetDescriptorBuilder(_descriptor.propertySet);
+}
+
 void
 ServiceInstanceDescriptorBuilder::addPropertySet(const PropertySetDescriptor& desc)
 {
-    //
-    // Merge with existing property set.
-    //
-    _descriptor.propertySet.properties.insert(_descriptor.propertySet.properties.end(), 
-					      desc.properties.begin(), desc.properties.end());
-    _descriptor.propertySet.references.insert(_descriptor.propertySet.references.end(), 
-					      desc.references.begin(), desc.references.end());
+    _descriptor.propertySet = desc;
 }
 
 ServerDescriptorBuilder::ServerDescriptorBuilder(const XmlAttributesHelper& attrs)
@@ -796,7 +804,7 @@ IceBoxDescriptorBuilder::init(const IceBoxDescriptorPtr& desc, const XmlAttribut
     ServerDescriptorBuilder::init(desc, attrs);
     _descriptor = desc;
 
-    addProperty("IceBox.InstanceName", _descriptor->id);
+    addProperty(_hiddenProperties, "IceBox.InstanceName", _descriptor->id);
     
     AdapterDescriptor adapter;
     adapter.name = "IceBox.ServiceManager";
@@ -805,7 +813,7 @@ IceBoxDescriptorBuilder::init(const IceBoxDescriptorPtr& desc, const XmlAttribut
     adapter.waitForActivation = true;
     _descriptor->adapters.push_back(adapter);
 
-    addProperty("IceBox.ServiceManager.Endpoints", "tcp -h 127.0.0.1");
+    addProperty(_hiddenProperties, "IceBox.ServiceManager.Endpoints", "tcp -h 127.0.0.1");
 }
 
 ServiceDescriptorBuilder*

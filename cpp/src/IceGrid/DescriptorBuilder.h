@@ -53,7 +53,6 @@ public:
 
     virtual void addVariable(const XmlAttributesHelper&);
     virtual PropertySetDescriptorBuilder* createPropertySet(const XmlAttributesHelper&) const;
-    virtual PropertySetDescriptorBuilder* createPropertySet() const;
 };
 
 class PropertySetDescriptorBuilder : DescriptorBuilder
@@ -61,7 +60,7 @@ class PropertySetDescriptorBuilder : DescriptorBuilder
 public:
     
     PropertySetDescriptorBuilder(const XmlAttributesHelper&);
-    PropertySetDescriptorBuilder();
+    PropertySetDescriptorBuilder(const PropertySetDescriptor&);
     
     const std::string& getId() const;
     const PropertySetDescriptor& getDescriptor() const;
@@ -129,6 +128,7 @@ public:
     ServerInstanceDescriptorBuilder(const XmlAttributesHelper&);
     const ServerInstanceDescriptor& getDescriptor() const { return _descriptor; }
 
+    virtual PropertySetDescriptorBuilder* createPropertySet() const;
     virtual void addPropertySet(const PropertySetDescriptor&);
     
 private:
@@ -194,6 +194,7 @@ class CommunicatorDescriptorBuilder : public DescriptorBuilder
 public:
 
     void init(const CommunicatorDescriptorPtr&, const XmlAttributesHelper&);
+    virtual void finish();
 
     virtual void setDescription(const std::string&);
     virtual void addProperty(const XmlAttributesHelper&);
@@ -205,9 +206,13 @@ public:
     virtual void addDbEnvProperty(const XmlAttributesHelper&);
     virtual void setDbEnvDescription(const std::string&);
 
+    virtual PropertySetDescriptorBuilder* createPropertySet() const;
+
 protected:
 
-    void addProperty(const std::string&, const std::string&);
+    void addProperty(PropertyDescriptorSeq&, const std::string&, const std::string&);
+
+    PropertyDescriptorSeq _hiddenProperties;
 
 private:
 
@@ -221,6 +226,7 @@ public:
     ServiceInstanceDescriptorBuilder(const XmlAttributesHelper&);
     const ServiceInstanceDescriptor& getDescriptor() const { return _descriptor; }
     
+    virtual PropertySetDescriptorBuilder* createPropertySet() const;
     virtual void addPropertySet(const PropertySetDescriptor&);
 
 private:

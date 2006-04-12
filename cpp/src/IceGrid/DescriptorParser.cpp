@@ -502,6 +502,7 @@ DescriptorHandler::endElement(const string& name, int line, int column)
 		assert(_currentNode.get());
 		_currentNode->addServer(_currentServer->getDescriptor());
 	    }
+	    _currentServer->finish();
 	    _currentServer.reset(0);
 	    _currentCommunicator = 0;
 	}
@@ -522,6 +523,7 @@ DescriptorHandler::endElement(const string& name, int line, int column)
 	    {
 		_currentTemplate->setDescriptor(_currentService->getDescriptor());
 	    }
+	    _currentService->finish();
 	    _currentService.reset(0);
 	    _currentCommunicator = _currentServer.get();
 	}
