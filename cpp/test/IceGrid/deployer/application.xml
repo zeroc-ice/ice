@@ -101,11 +101,11 @@
           <description>DBENV ${NodeVar}</description>
         </dbenv>
         <option>--Test.Test=2</option>
-        <include file="varproperties.xml"/>
         <env>MY_ENV_VARIABLE=12</env>
         <properties>
           <properties refid="AppProperties"/>
           <properties refid="NodeProperties"/>
+          <include file="varproperties.xml"/>
         </properties>
       </server>
 
