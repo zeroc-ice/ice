@@ -194,9 +194,14 @@ USERDEP__FILEP="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"
 # Begin Custom Build
 InputPath=..\..\slice\IceGrid\FileParser.ice
 
-"FileParser.h FileParser.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+BuildCmds= \
 	..\..\bin\slice2cpp.exe --ice --include-dir IceGrid -I../../slice $(InputPath)
 
+"FileParser.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"FileParser.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
 # End Custom Build
 
 !ENDIF 
