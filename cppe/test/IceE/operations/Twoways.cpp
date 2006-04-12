@@ -648,12 +648,13 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
             int argc = 0;
             char* argv[] = { "" };
             Ice::InitializationData initData;
+	    initData.properties = communicator->getProperties();
             initData.defaultContext["a"] = "b";
             Ice::CommunicatorPtr communicator2 = Ice::initialize(argc, argv, initData);
 
-	    string ref = communicator->getProperties()->getPropertyWithDefault(
+	    string ref = communicator2->getProperties()->getPropertyWithDefault(
 		"Operations.Proxy", "test:default -p 12010 -t 10000");
-	    Test::MyClassPrx c = Test::MyClassPrx::checkedCast(communicator->stringToProxy(ref));
+	    Test::MyClassPrx c = Test::MyClassPrx::checkedCast(communicator2->stringToProxy(ref));
 	    test(c->opContext() == initData.defaultContext);
 
 	    Ice::Context ctx;
