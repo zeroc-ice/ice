@@ -803,7 +803,7 @@ IceSSL::Context::parseProtocols(const string& val)
 	{
 	    sslv3 = true;
 	}
-	else if(prot == "tls1" || prot == "tlsv1")
+	else if(prot == "tls" || prot == "tls1" || prot == "tlsv1")
 	{
 	    tlsv1 = true;
 	}
