@@ -213,6 +213,9 @@ Glacier2::RouterService::start(int argc, char* argv[])
 	    error("session manager `" + sessionManagerProperty + "' is invalid");
 	    return false;
 	}
+	sessionManager = 
+	    SessionManagerPrx::uncheckedCast(sessionManager->ice_cacheConnection(false)->ice_locatorCacheTimeout(
+	        properties->getPropertyAsIntWithDefault("Glacier2.SessionManager.LocatorCacheTimeout", 600)));
     }
 
     //

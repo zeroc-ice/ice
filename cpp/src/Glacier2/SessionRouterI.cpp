@@ -90,8 +90,6 @@ Glacier2::SessionRouterI::SessionRouterI(const ObjectAdapterPtr& clientAdapter,
     _serverAdapter(serverAdapter),
     _verifier(verifier),
     _sessionManager(sessionManager),
-    _sessionCloseCountDefault(_properties->getPropertyAsIntWithDefault("Glacier2.SessionManager.CloseCount", 0)),
-    _sessionCloseCount(0),
     _sessionTimeout(IceUtil::Time::seconds(_properties->getPropertyAsInt("Glacier2.SessionTimeout"))),
     _sessionThread(_sessionTimeout > IceUtil::Time() ? new SessionThread(this, _sessionTimeout) : 0),
     _routersByConnectionHint(_routersByConnection.end()),
@@ -111,18 +109,6 @@ Glacier2::SessionRouterI::SessionRouterI(const ObjectAdapterPtr& clientAdapter,
     }
     Identity id = stringToIdentity(routerId);
     _clientAdapter->add(this, id);
-
-    //
-    // If we have a session manager configured, and a the property to
-    // close the connection set then we want to set a unique
-    // connection on the session manager so that we don't close the
-    // connections to the sessions all the time.
-    //
-    if(_sessionManager && _sessionCloseCountDefault > 0)
-    {
-	_sessionCloseCount = _sessionCloseCountDefault;
-	_sessionManager = SessionManagerPrx::uncheckedCast(_sessionManager->ice_connectionId(IceUtil::generateUUID()));
-    }
 
     //
     // All other calls on the client object adapter are dispatched to
@@ -425,32 +411,6 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 
-	//
-	// Determine whether we should close the connection to the
-	// session manager.
-	//
-	if(_sessionCloseCount > 0)
-	{
-	    assert(_sessionManager);
-	    --_sessionCloseCount;
-	    if(_sessionCloseCount == 0)
-	    {
-		_sessionCloseCount = _sessionCloseCountDefault;
-		try
-		{
-		    Ice::ConnectionPtr connection = _sessionManager->ice_connection();
-		    if(connection)
-		    {
-			connection->close(false);
-		    }
-		}
-		catch(const Exception&)
-		{
-		    // Ignore all exceptions here.
-		}
-	    }
-	}
-	
 	//
 	// Signal other threads that we are done with trying to
 	// establish a session for our connection;

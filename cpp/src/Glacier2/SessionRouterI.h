@@ -58,8 +58,6 @@ private:
     const Ice::ObjectAdapterPtr _serverAdapter;
     const PermissionsVerifierPrx _verifier;
     /*const*/ SessionManagerPrx _sessionManager;
-    const int _sessionCloseCountDefault;
-    int _sessionCloseCount;
     const IceUtil::Time _sessionTimeout;
 
     class SessionThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>

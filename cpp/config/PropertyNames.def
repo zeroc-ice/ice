@@ -393,7 +393,7 @@ Glacier2:
     Server.Trace.Override
     Server.Trace.Request
     SessionManager
-    SessionManager.CloseCount
+    SessionManager.LocatorCacheTimeout
     SessionTimeout
     Trace.RoutingTable
     Trace.Session
