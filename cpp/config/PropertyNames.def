@@ -321,15 +321,25 @@ IceSSL:
     Server.VerifyDepthMax
     Server.VerifyPeer
     Trace.Security
+    Client.Alias
     Client.Certs
     Client.CertsPassword
     Client.Keystore
     Client.KeystorePassword
+    Client.KeystoreType
+    Client.Truststore
+    Client.TruststorePassword
+    Client.TruststoreType
+    Server.Alias
     Server.Certs
     Server.CertsPassword
     Server.ClientAuth
     Server.Keystore
     Server.KeystorePassword
+    Server.KeystoreType
+    Server.Truststore
+    Server.TruststorePassword
+    Server.TruststoreType
 
 IceStorm:
     Flush.Timeout
