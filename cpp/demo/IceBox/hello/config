@@ -47,10 +47,7 @@ Ice.Warn.Connections=1
 #Ice.Trace.Protocol=1
 
 #
-# SSL Configuration File
-#
-# An XML based file that specifies the certificates, keys, SSL version
-# and other pertinent information for creating an SSL connection.
+# SSL Configuration
 #
 Ice.Plugin.IceSSL=IceSSL:create
 IceSSL.Client.DefaultDir=../../../certs
@@ -66,7 +63,6 @@ IceSSL.Server.KeyFile=s_rsa1024_priv.pem
 # Security Tracing
 #
 # 0 = no security tracing
-# 1 = trace warning messages
-# 2 = config file parsing warnings
+# 1 = trace messages
 #
 #IceSSL.Trace.Security=2
