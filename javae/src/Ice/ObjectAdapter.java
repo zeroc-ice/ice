@@ -607,6 +607,15 @@ public final class ObjectAdapter
                 if(_routerInfo != null)
                 {
                     //
+                    // Make sure this router is not already registered with another adapter.
+                    //
+                    if(_routerInfo.getAdapter() != null)
+                    {
+                        throw new AlreadyRegisteredException("object adapter with router",
+                                                             Ice.Util.identityToString(router.ice_getIdentity()));
+                    }
+
+                    //
                     // Add the router's server proxy endpoints to this object
                     // adapter.
                     //
