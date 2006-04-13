@@ -31,7 +31,8 @@ public final class Network
                 "cannot send after transport endpoint shutdown", // ESHUTDOWN (Linux)
                 "software caused connection abort", // ECONNABORTED
                 "an existing connection was forcibly closed", // unknown
-	        "connection closed by remote host" // unknown
+	        "connection closed by remote host", // unknown
+	        "broken pipe" // EPIPE
             };
 
             for(int i = 0; i < msgs.length; i++)
