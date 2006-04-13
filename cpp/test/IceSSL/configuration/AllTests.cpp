@@ -473,8 +473,50 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	test(!verifier->incoming());
 	test(!verifier->hadCert());
 	verifier->throwException(false);
-	fact->destroyServer(server);
 
+	fact->destroyServer(server);
+	comm->destroy();
+    }
+    {
+	//
+	// Verify that a server certificate is present.
+	//
+        InitializationData initData;
+	initData.properties = createClientProps(defaultHost);
+	initData.properties->setProperty("IceSSL.Client.DefaultDir", defaultDir);
+	initData.properties->setProperty("IceSSL.Client.CertAuthFile", "cacert1.pem");
+	initData.properties->setProperty("IceSSL.Client.CertFile", "c_rsa_nopass_ca1_pub.pem");
+	initData.properties->setProperty("IceSSL.Client.KeyFile", "c_rsa_nopass_ca1_priv.pem");
+	initData.properties->setProperty("IceSSL.Client.VerifyPeer", "0");
+	CommunicatorPtr comm = initialize(argc, argv, initData);
+	IceSSL::PluginPtr plugin =
+	    IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
+	test(plugin);
+	CertificateVerifierIPtr verifier = new CertificateVerifierI;
+	plugin->setCertificateVerifier(verifier);
+
+	Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+	test(fact);
+	Test::Properties d = createServerProps(defaultHost);
+	d["IceSSL.Server.DefaultDir"] = defaultDir;
+	d["IceSSL.Server.CertAuthFile"] = "cacert1.pem";
+	d["IceSSL.Server.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
+	d["IceSSL.Server.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
+	d["IceSSL.Server.VerifyPeer"] = "2";
+	Test::ServerPrx server = fact->createServer(d);
+	try
+	{
+	    server->ice_ping();
+	}
+	catch(const LocalException&)
+	{
+	    test(false);
+	}
+	test(verifier->invoked());
+	test(!verifier->incoming());
+	test(verifier->hadCert());
+	verifier->throwException(false);
+	fact->destroyServer(server);
 	comm->destroy();
     }
     cout << "ok" << endl;
