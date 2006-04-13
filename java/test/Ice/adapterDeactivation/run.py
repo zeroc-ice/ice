@@ -24,6 +24,11 @@ name = os.path.join("Ice", "adapterDeactivation")
 testdir = os.path.join(toplevel, "test", name)
 os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.getenv("CLASSPATH", "")
 
-TestUtil.clientServerTest()
+#
+# We need to use mixedClientServerTest so that, when using SSL, the
+# server-side SSL configuration properties are defined. This is
+# necessary because the client creates object adapters.
+#
+TestUtil.mixedClientServerTest()
 TestUtil.collocatedTest()
 sys.exit(0)
