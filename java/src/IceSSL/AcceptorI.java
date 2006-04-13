@@ -73,25 +73,160 @@ class AcceptorI implements IceInternal.Acceptor
 	    }
 	    _fd.setSoTimeout(timeout);
 	    fd = (javax.net.ssl.SSLSocket)_fd.accept();
+
+	    //
+	    // Check whether this socket is the result of a call to connectToSelf.
+	    // Despite the fact that connectToSelf immediately closes the socket,
+	    // the server-side handshake process does not raise an exception.
+	    // Furthermore, we can't simply proceed with the regular handshake
+	    // process because we don't want to pass such a socket to the
+	    // certificate verifier (if any).
+	    //
+	    // In order to detect a call to connectToSelf, we compare the remote
+	    // address of the newly-accepted socket to that in _connectToSelfAddr.
+	    //
+	    java.net.SocketAddress remoteAddr = fd.getRemoteSocketAddress();
+	    synchronized(this)
+	    {
+		if(remoteAddr.equals(_connectToSelfAddr))
+		{
+		    try
+		    {
+			fd.close();
+		    }
+		    catch(java.io.IOException e)
+		    {
+		    }
+		    return null;
+		}
+	    }
+
 	    fd.setUseClientMode(false);
+
+	    //
+	    // getSession blocks until the initial handshake completes.
+	    //
+	    if(timeout == 0)
+	    {
+		fd.getSession();
+	    }
+	    else
+	    {
+		HandshakeThread ht = new HandshakeThread(fd);
+		ht.start();
+		if(!ht.waitForHandshake(timeout))
+		{
+		    throw new Ice.TimeoutException();
+		}
+	    }
+
+	    if(!_ctx.verifyPeer(fd, "", true))
+	    {
+		try
+		{
+		    fd.close();
+		}
+		catch(java.io.IOException e)
+		{
+		}
+		return null;
+	    }
 	}
 	catch(java.net.SocketTimeoutException ex)
 	{
+	    if(fd != null)
+	    {
+		try
+		{
+		    fd.close();
+		}
+		catch(java.io.IOException e)
+		{
+		}
+	    }
 	    Ice.TimeoutException e = new Ice.TimeoutException();
+	    e.initCause(ex);
+	    throw e;
+	}
+	catch(javax.net.ssl.SSLException ex)
+	{
+	    if(fd != null)
+	    {
+		try
+		{
+		    fd.close();
+		}
+		catch(java.io.IOException e)
+		{
+		}
+	    }
+
+	    //
+	    // Unfortunately, the situation where the cipher suite does not match
+	    // the certificates is not detected until accept is called. If we were
+	    // to throw a LocalException, the IncomingConnectionFactory would
+	    // simply log it and call accept again, resulting in an infinite loop.
+	    // To avoid this problem, we check for the special case and throw
+	    // an exception that IncomingConnectionFactory doesn't trap.
+	    //
+	    if(ex.getMessage().toLowerCase().startsWith("no available certificate corresponds to the ssl cipher " +
+							"suites which are enabled"))
+	    {
+		RuntimeException e = new RuntimeException();
+		e.initCause(ex);
+		throw e;
+	    }
+
+	    Ice.SecurityException e = new Ice.SecurityException();
 	    e.initCause(ex);
 	    throw e;
 	}
 	catch(java.io.IOException ex)
 	{
+	    if(fd != null)
+	    {
+		try
+		{
+		    fd.close();
+		}
+		catch(java.io.IOException e)
+		{
+		}
+	    }
+
+	    if(IceInternal.Network.connectionLost(ex))
+	    {
+		throw new Ice.ConnectionLostException();
+	    }
+
 	    Ice.SocketException e = new Ice.SocketException();
 	    e.initCause(ex);
 	    throw e;
+	}
+	catch(RuntimeException ex)
+	{
+	    if(fd != null)
+	    {
+		try
+		{
+		    fd.close();
+		}
+		catch(java.io.IOException e)
+		{
+		}
+	    }
+	    throw ex;
 	}
 
 	if(_instance.networkTraceLevel() >= 1)
 	{
 	    String s = "accepted ssl connection\n" + IceInternal.Network.fdToString(fd);
 	    _logger.trace(_instance.networkTraceCategory(), s);
+	}
+
+	if(_instance.securityTraceLevel() > 0)
+	{
+	    _ctx.traceConnection(fd, true);
 	}
 
 	return new TransceiverI(_instance, fd);
@@ -102,7 +237,16 @@ class AcceptorI implements IceInternal.Acceptor
     {
 	java.nio.channels.SocketChannel fd = IceInternal.Network.createTcpSocket();
 	IceInternal.Network.setBlock(fd, false);
-	IceInternal.Network.doConnect(fd, _addr, -1);
+	synchronized(this)
+	{
+	    //
+	    // connectToSelf is called to wake up the thread blocked in
+	    // accept. We remember the originating address for use in
+	    // accept. See accept for details.
+	    //
+	    IceInternal.Network.doConnect(fd, _addr, -1);
+	    _connectToSelfAddr = (java.net.InetSocketAddress)fd.socket().getLocalSocketAddress();
+	}
 	IceInternal.Network.closeSocket(fd);
     }
 
@@ -175,6 +319,17 @@ class AcceptorI implements IceInternal.Acceptor
 	    }
 
 	    String[] cipherSuites = _ctx.filterCiphers(_fd.getSupportedCipherSuites(), _fd.getEnabledCipherSuites());
+	    try
+	    {
+		_fd.setEnabledCipherSuites(cipherSuites);
+	    }
+	    catch(IllegalArgumentException ex)
+	    {
+		Ice.SecurityException e = new Ice.SecurityException();
+		e.reason = "invalid ciphersuite";
+		e.initCause(ex);
+		throw e;
+	    }
 	    if(_instance.securityTraceLevel() > 0)
 	    {
 		StringBuffer s = new StringBuffer();
@@ -185,7 +340,22 @@ class AcceptorI implements IceInternal.Acceptor
 		}
 		_logger.trace(_instance.securityTraceCategory(), s.toString());
 	    }
-	    _fd.setEnabledCipherSuites(cipherSuites);
+
+	    String[] protocols = _ctx.getProtocols();
+	    if(protocols != null)
+	    {
+		try
+		{
+		    _fd.setEnabledProtocols(protocols);
+		}
+		catch(IllegalArgumentException ex)
+		{
+		    Ice.SecurityException e = new Ice.SecurityException();
+		    e.reason = "invalid protocol";
+		    e.initCause(ex);
+		    throw e;
+		}
+	    }
 	}
 	catch(java.io.IOException ex)
 	{
@@ -215,10 +385,78 @@ class AcceptorI implements IceInternal.Acceptor
 	super.finalize();
     }
 
+    private static class HandshakeThread extends Thread
+    {
+	HandshakeThread(javax.net.ssl.SSLSocket fd)
+	{
+	    _fd = fd;
+	    _ok = false;
+	}
+
+	public void
+	run()
+	{
+	    try
+	    {
+		_fd.getSession();
+		synchronized(this)
+		{
+		    _ok = true;
+		    notifyAll();
+		}
+
+	    }
+	    catch(RuntimeException ex)
+	    {
+		synchronized(this)
+		{
+		    _ex = ex;
+		    notifyAll();
+		}
+	    }
+	}
+
+	boolean
+	waitForHandshake(int timeout)
+	{
+	    boolean result = false;
+
+	    synchronized(this)
+	    {
+		while(!_ok && _ex == null)
+		{
+		    try
+		    {
+			wait(timeout);
+			break;
+		    }
+		    catch(InterruptedException ex)
+		    {
+			continue;
+		    }
+		}
+
+		if(_ex != null)
+		{
+		    throw _ex;
+		}
+
+		result = _ok;
+	    }
+
+	    return result;
+	}
+
+	private javax.net.ssl.SSLSocket _fd;
+	private boolean _ok;
+	private RuntimeException _ex;
+    }
+
     private Instance _instance;
     private Context _ctx;
     private Ice.Logger _logger;
     private javax.net.ssl.SSLServerSocket _fd;
     private int _backlog;
     private java.net.InetSocketAddress _addr;
+    private java.net.InetSocketAddress _connectToSelfAddr;
 }

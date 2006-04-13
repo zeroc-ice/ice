@@ -9,7 +9,7 @@
 
 package IceSSL;
 
-public class PluginI extends Ice.LocalObjectImpl implements Ice.Plugin
+class PluginI extends Ice.LocalObjectImpl implements Plugin
 {
     public
     PluginI(Ice.Communicator communicator)
@@ -20,6 +20,18 @@ public class PluginI extends Ice.LocalObjectImpl implements Ice.Plugin
     public void
     destroy()
     {
+    }
+
+    public void
+    initialize(javax.net.ssl.SSLContext clientContext, javax.net.ssl.SSLContext serverContext)
+    {
+	_instance.initialize(clientContext, serverContext);
+    }
+
+    public void
+    setCertificateVerifier(CertificateVerifier verifier)
+    {
+	_instance.setCertificateVerifier(verifier);
     }
 
     private Instance _instance;
