@@ -54,9 +54,11 @@ IceSSL.Trace.Security=0
 #
 Ice.Plugin.IceSSL=IceSSL.PluginFactory
 Ice.ThreadPerConnection=1
-IceSSL.Client.Keystore=../../../certs/client.jks
+IceSSL.Client.DefaultDir=../../../certs
+IceSSL.Client.Keystore=client.jks
 IceSSL.Client.Password=password
-IceSSL.Client.Certs=../../../certs/certs.jks
-IceSSL.Server.Keystore=../../../certs/server.jks
+IceSSL.Client.Truststore=certs.jks
+IceSSL.Server.DefaultDir=../../../certs
+IceSSL.Server.Keystore=server.jks
 IceSSL.Server.Password=password
-IceSSL.Server.Certs=../../../certs/certs.jks
+IceSSL.Server.Truststore=certs.jks
