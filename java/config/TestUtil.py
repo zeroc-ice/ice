@@ -174,32 +174,44 @@ os.environ["CLASSPATH"] = os.path.join(toplevel, "lib") + sep + os.getenv("CLASS
 if protocol == "ssl":
     plugin		 = " --Ice.Plugin.IceSSL=IceSSL.PluginFactory"
     clientProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Client.Keystore=" + os.path.join(toplevel, "certs", "client.jks") + \
-                           " --IceSSL.Client.Certs=" + os.path.join(toplevel, "certs", "certs.jks") + \
+			   " --IceSSL.Client.DefaultDir=" + os.path.join(toplevel, "certs") + \
+                           " --IceSSL.Client.Keystore=client.jks" + \
+                           " --IceSSL.Client.Truststore=certs.jks" + \
                            " --IceSSL.Client.Password=password"
     serverProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Server.Keystore=" + os.path.join(toplevel, "certs", "server.jks") + \
-                           " --IceSSL.Server.Certs=" + os.path.join(toplevel, "certs", "certs.jks") + \
+			   " --IceSSL.Server.DefaultDir=" + os.path.join(toplevel, "certs") + \
+                           " --IceSSL.Server.Keystore=server.jks" + \
+                           " --IceSSL.Server.Truststore=certs.jks" + \
                            " --IceSSL.Server.Password=password"
     clientServerProtocol = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Client.Keystore=" + os.path.join(toplevel, "certs", "client.jks") + \
-                           " --IceSSL.Client.Certs=" + os.path.join(toplevel, "certs", "certs.jks") + \
+			   " --IceSSL.Client.DefaultDir=" + os.path.join(toplevel, "certs") + \
+                           " --IceSSL.Client.Keystore=client.jks" + \
+                           " --IceSSL.Client.Truststore=certs.jks" + \
                            " --IceSSL.Client.Password=password" + \
-                           " --IceSSL.Server.Keystore=" + os.path.join(toplevel, "certs", "server.jks") + \
-                           " --IceSSL.Server.Certs=" + os.path.join(toplevel, "certs", "certs.jks") + \
+			   " --IceSSL.Server.DefaultDir=" + os.path.join(toplevel, "certs") + \
+                           " --IceSSL.Server.Keystore=server.jks" + \
+                           " --IceSSL.Server.Truststore=certs.jks" + \
                            " --IceSSL.Server.Password=password"
     cppPlugin		    = " --Ice.Plugin.IceSSL=IceSSL:create"
     cppClientProtocol       = cppPlugin + " --Ice.Default.Protocol=ssl" + \
-                              " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
-                              " --IceSSL.Client.Config=client_sslconfig.xml"
+			      " --IceSSL.Client.DefaultDir=" + os.path.join(toplevel, "certs") + \
+			      " --IceSSL.Client.CertFile=c_rsa1024_pub.pem" + \
+			      " --IceSSL.Client.KeyFile=c_rsa1024_priv.pem" + \
+			      " --IceSSL.Client.CertAuthFile=cacert.pem"
     cppServerProtocol       = cppPlugin + " --Ice.Default.Protocol=ssl" + \
-                              " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs") + \
-                              " --IceSSL.Server.Config=server_sslconfig.xml"
+			      " --IceSSL.Server.DefaultDir=" + os.path.join(toplevel, "certs") + \
+			      " --IceSSL.Server.CertFile=s_rsa1024_pub.pem" + \
+			      " --IceSSL.Server.KeyFile=s_rsa1024_priv.pem" + \
+			      " --IceSSL.Server.CertAuthFile=cacert.pem"
     cppClientServerProtocol = cppPlugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
-                           " --IceSSL.Client.Config=sslconfig.xml" + \
-                           " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs") + \
-                           " --IceSSL.Server.Config=sslconfig.xml"
+			      " --IceSSL.Client.DefaultDir=" + os.path.join(toplevel, "certs") + \
+			      " --IceSSL.Client.CertFile=c_rsa1024_pub.pem" + \
+			      " --IceSSL.Client.KeyFile=c_rsa1024_priv.pem" + \
+			      " --IceSSL.Client.CertAuthFile=cacert.pem" + \
+			      " --IceSSL.Server.DefaultDir=" + os.path.join(toplevel, "certs") + \
+			      " --IceSSL.Server.CertFile=s_rsa1024_pub.pem" + \
+			      " --IceSSL.Server.KeyFile=s_rsa1024_priv.pem" + \
+			      " --IceSSL.Server.CertAuthFile=cacert.pem"
 else:
     clientProtocol = ""
     serverProtocol = ""
@@ -231,12 +243,16 @@ else:
 
 commonClientOptions = " --Ice.Warn.Connections"
 
-commonServerOptions = " --Ice.PrintAdapterReady" + \
-                      " --Ice.Warn.Connections --Ice.ServerIdleTime=30" + \
-                      " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3" + \
-                      " --Ice.ThreadPool.Server.SizeWarn=0"
+commonServerOptions = " --Ice.PrintAdapterReady --Ice.Warn.Connections"
 
-securityFileOptions = " -Djava.security.egd=file:/dev/urandom"
+if not threadPerConnection:
+    commonServerOptions += " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3" + \
+			   " --Ice.ThreadPool.Server.SizeWarn=0 --Ice.ServerIdleTime=30"
+
+if protocol == "ssl":
+    securityFileOptions = " -Djava.security.egd=file:/dev/urandom"
+else:
+    securityFileOptions = ""
 
 clientOptions = clientProtocol + defaultHost + commonClientOptions
 serverOptions = serverProtocol + defaultHost + commonServerOptions
@@ -260,12 +276,16 @@ def clientServerTestWithOptions(additionalServerOptions, additionalClientOptions
     client = "java " + securityFileOptions + " -ea Client --Ice.ProgramName=Client "
 
     print "starting server...",
-    serverPipe = os.popen(server + serverOptions + additionalServerOptions  + " 2>&1")
+    serverCmd = server + serverOptions + additionalServerOptions + " 2>&1"
+    #print serverCmd
+    serverPipe = os.popen(serverCmd)
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
-    clientPipe = os.popen(client + clientOptions + additionalClientOptions + " 2>&1")
+    clientCmd = client + clientOptions + additionalClientOptions + " 2>&1"
+    #print clientCmd
+    clientPipe = os.popen(clientCmd)
     print "ok"
 
     printOutputFromPipe(clientPipe)
@@ -319,12 +339,16 @@ def mixedClientServerTestWithOptions(additionalServerOptions, additionalClientOp
     client = "java " + securityFileOptions + " -ea Client --Ice.ProgramName=Client "
 
     print "starting server...",
-    serverPipe = os.popen(server + clientServerOptions + additionalServerOptions + " 2>&1")
+    serverCmd = server + clientServerOptions + additionalServerOptions
+    #print serverCmd
+    serverPipe = os.popen(serverCmd + " 2>&1")
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
-    clientPipe = os.popen(client + clientServerOptions + additionalClientOptions + " 2>&1")
+    clientCmd = client + clientServerOptions + additionalClientOptions
+    #print clientCmd
+    clientPipe = os.popen(clientCmd + " 2>&1")
     print "ok"
 
     printOutputFromPipe(clientPipe)
