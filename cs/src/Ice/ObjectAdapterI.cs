@@ -766,6 +766,17 @@ namespace Ice
 		    _routerInfo = instance_.routerManager().get(router);
 		    if(_routerInfo != null)
 		    {
+                        //
+                        // Make sure this router is not already registered with another adapter.
+                        //
+                        if(_routerInfo.getAdapter() != null)
+                        {
+			    Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
+			    ex.kindOfObject = "object adapter with router";
+			    ex.id = Ice.Util.identityToString(router.ice_getIdentity());
+			    throw ex;
+                        }
+
 		        //
 		        // Add the router's server proxy endpoints to this object
 		        // adapter.

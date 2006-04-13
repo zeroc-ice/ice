@@ -28,6 +28,7 @@
 #include <Ice/ThreadPool.h>
 #include <Ice/Communicator.h>
 #include <Ice/Router.h>
+#include <Ice/IdentityUtil.h>
 #include <Ice/DefaultsAndOverrides.h>
 
 #ifdef _WIN32
@@ -744,6 +745,15 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
             _routerInfo = _instance->routerManager()->get(router);
             if(_routerInfo)
             {
+	        //
+		// Make sure this router is not already registered with another adapter.
+		//
+	        if(_routerInfo->getAdapter())
+		{
+		    throw AlreadyRegisteredException(__FILE__, __LINE__, "object adapter with router", 
+		    				     identityToString(router->ice_getIdentity()));
+		}
+
 	        //
 	        // Add the router's server proxy endpoints to this object
 	        // adapter.
