@@ -17,6 +17,7 @@
         <ant dir="Freeze"/>
         <ant dir="Glacier2"/>
         <ant dir="IceGrid"/>
+        <ant dir="IceSSL"/>
     </target>
 
     <target name="clean">
@@ -25,6 +26,7 @@
         <ant dir="Freeze" target="clean"/>
         <ant dir="Glacier2" target="clean"/>
         <ant dir="IceGrid" target="clean"/>
+        <ant dir="IceSSL" target="clean"/>
     </target>
 
 </project>
