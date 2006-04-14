@@ -26,7 +26,7 @@ public:
 
     SSL_CTX* ctx() const;
 
-    void validatePeer(SSL*, const std::string&, bool);
+    void verifyPeer(SSL*, const std::string&, bool);
 
     std::string password(bool);
 

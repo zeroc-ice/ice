@@ -205,7 +205,7 @@ IceSSL::AcceptorI::accept(int timeout)
 	}
 	while(!SSL_is_init_finished(ssl));
 
-	_instance->serverContext()->validatePeer(ssl, "", true);
+	_instance->serverContext()->verifyPeer(ssl, "", true);
     }
     catch(...)
     {

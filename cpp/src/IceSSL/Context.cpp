@@ -484,7 +484,7 @@ IceSSL::Context::ctx() const
 }
 
 void
-IceSSL::Context::validatePeer(SSL* ssl, const string& address, bool incoming)
+IceSSL::Context::verifyPeer(SSL* ssl, const string& address, bool incoming)
 {
     long result = SSL_get_verify_result(ssl);
     if(result != X509_V_OK)
@@ -642,7 +642,19 @@ IceSSL::Context::validatePeer(SSL* ssl, const string& address, bool incoming)
 	    const_cast<string&>(info.address) = address;
 	    const_cast<vector<string>&>(info.dnsNames) = dnsNames;
 	    const_cast<vector<string>&>(info.ipAddresses) = ipAddresses;
-	    verifier->verify(info);
+	    if(!verifier->verify(info))
+	    {
+		string msg = string(incoming ? "incoming" : "outgoing") +
+		    " connection rejected by certificate verifier";
+		if(_instance->securityTraceLevel() >= 1)
+		{
+		    _logger->trace(_instance->securityTraceCategory(), msg + "\n" +
+				   IceInternal::fdToString(SSL_get_fd(ssl)));
+		}
+		SecurityException ex(__FILE__, __LINE__);
+		ex.reason = msg;
+		throw ex;
+	    }
 	}
     }
     catch(...)

@@ -50,7 +50,7 @@ public:
 	reset();
     }
 
-    virtual void verify(IceSSL::VerifyInfo& info)
+    virtual bool verify(IceSSL::VerifyInfo& info)
     {
 	if(info.cert)
 	{
@@ -61,24 +61,20 @@ public:
 	_incoming = info.incoming;
 	_hadCert = info.cert != 0;
 	_invoked = true;
-
-	if(_throwException)
-	{
-	    throw SecurityException(__FILE__, __LINE__);
-	}
+	return _returnValue;
     }
 
     void reset()
     {
-	_throwException = false;
+	_returnValue = true;
        	_invoked = false;
 	_incoming = false;
 	_hadCert = false;
     }
 
-    void throwException(bool b)
+    void returnValue(bool b)
     {
-	_throwException = b;
+	_returnValue = b;
     }
 
     bool invoked() const
@@ -98,7 +94,7 @@ public:
 
 private:
 
-    bool _throwException;
+    bool _returnValue;
     bool _invoked;
     bool _incoming;
     bool _hadCert;
@@ -450,11 +446,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	test(!verifier->hadCert());
 
 	//
-	// Have the verifier raise an exception. Close the connection explicitly
+	// Have the verifier return false. Close the connection explicitly
 	// to force a new connection to be established.
 	//
 	verifier->reset();
-	verifier->throwException(true);
+	verifier->returnValue(false);
 	server->ice_connection()->close(false);
 	try
 	{
@@ -472,7 +468,6 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	test(verifier->invoked());
 	test(!verifier->incoming());
 	test(!verifier->hadCert());
-	verifier->throwException(false);
 
 	fact->destroyServer(server);
 	comm->destroy();
@@ -515,7 +510,6 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	test(verifier->invoked());
 	test(!verifier->incoming());
 	test(verifier->hadCert());
-	verifier->throwException(false);
 	fact->destroyServer(server);
 	comm->destroy();
     }

@@ -86,10 +86,10 @@ class CertificateVerifier : public IceUtil::Shared
 public:
 
     //
-    // Raise Ice::SecurityException with an appropriate value for
-    // its reason member if the connection should be rejected.
+    // Return false if the connection should be rejected, or
+    // true to allow it.
     //
-    virtual void verify(VerifyInfo&) = 0;
+    virtual bool verify(VerifyInfo&) = 0;
 };
 typedef IceUtil::Handle<CertificateVerifier> CertificateVerifierPtr;
 
