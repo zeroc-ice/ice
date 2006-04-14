@@ -539,7 +539,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	    server->ice_ping();
 	    test(false);
 	}
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__APPLE__)
 	catch(const ProtocolException&)
 	{
 	    // Expected.
@@ -550,7 +550,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	    // Expected.
 	}
 #endif
-	catch(const LocalException&)
+	catch(const LocalException& ex)
 	{
 	    test(false);
 	}
