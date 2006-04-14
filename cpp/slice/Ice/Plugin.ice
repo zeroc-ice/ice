@@ -15,7 +15,7 @@ module Ice
 
 /**
  *
- * A communicator plug-in. A plug-in generally adds a feature to a
+ * A communicator plugin. A plugin generally adds a feature to a
  * communicator, such as support for a protocol.
  *
  **/
@@ -32,29 +32,33 @@ local interface Plugin
 /**
  *
  * Each communicator has a plugin manager to administer the set of
- * plug-ins.
+ * plugins.
  *
  **/
 local interface PluginManager
 {
     /**
      *
-     * Obtain a plug-in by name.
+     * Obtain a plugin by name.
      *
-     * @param name The plug-in's name.
+     * @param name The plugin's name.
      *
-     * @return The plug-in.
+     * @return The plugin.
+     *
+     * @throws NotRegisteredException Raised if no plugin is found with the given name.
      *
      **/
     Plugin getPlugin(string name);
 
     /**
      *
-     * Install a new plug-in.
+     * Install a new plugin.
      *
-     * @param name The plug-in's name.
+     * @param name The plugin's name.
      *
-     * @param pi The plug-in.
+     * @param pi The plugin.
+     *
+     * @throws AlreadyRegisteredException Raised if a plugin already exists with the given name.
      *
      **/
     void addPlugin(string name, Plugin pi);
