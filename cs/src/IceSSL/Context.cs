@@ -39,7 +39,7 @@ namespace IceSSL
 			{
 			    result |= SslProtocols.Ssl3;
 			}
-			else if(s.Equals("tls1") || s.Equals("tlsv1"))
+			else if(s.Equals("tls") || s.Equals("tls1") || s.Equals("tlsv1"))
 			{
 			    result |= SslProtocols.Tls;
 			}
