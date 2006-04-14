@@ -42,7 +42,10 @@ allTests(const CommunicatorPtr& communicator)
 	{
 	}
 	adapter->destroy();
-	adapter = communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9999");
+	//
+	// Use a different port than the first adapter to avoid an "address already in use" error.
+	//
+	adapter = communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9998");
 	adapter->destroy();
         cout << "ok" << endl;
     }
