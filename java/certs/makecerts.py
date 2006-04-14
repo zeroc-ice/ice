@@ -49,6 +49,8 @@ if not os.environ.has_key("ICE_HOME"):
 #
 target = "client.jks"
 if force or not os.path.exists(target):
+    if os.path.exists(target):
+	os.remove(target)
     os.system("openssl pkcs12 -in c_rsa1024_pub.pem -inkey c_rsa1024_priv.pem -export -out client.p12" \
 	      " -name rsakey -passout pass:password -certfile cacert.pem")
     os.system("java -classpath . ImportKey client.p12 rsakey cacert.pem " + target + " password")
@@ -56,6 +58,8 @@ if force or not os.path.exists(target):
     print "Created " + target
 target = "server.jks"
 if force or not os.path.exists(target):
+    if os.path.exists(target):
+	os.remove(target)
     os.system("openssl pkcs12 -in s_rsa1024_pub.pem -inkey s_rsa1024_priv.pem -export -out server.p12" \
 	      " -name rsakey -passout pass:password -certfile cacert.pem")
     os.system("java -classpath . ImportKey server.p12 rsakey cacert.pem " + target + " password")
