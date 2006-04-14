@@ -639,7 +639,7 @@ to be used.
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>&Ice; Plug-in Properties</title>
+<section><title>&Ice; Plugin Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>Ice.Plugin.<replaceable>name</replaceable></title>
@@ -651,7 +651,7 @@ Ice.Plugin.<replaceable>name</replaceable>=<replaceable>entry_point [args]</repl
 <section>
 <title>Description</title>
 <para>
-Defines a plug-in to be installed during communicator initialization.
+Defines a plugin to be installed during communicator initialization.
 </para>
 <para>
 In C++, <replaceable>entry_point</replaceable> has the form
@@ -679,6 +679,25 @@ or an assembly DLL name such as <literal>myplugin.dll</literal>. The specified
 class must implement the <literal>Ice.PluginFactory</literal> interface. Any
 arguments that follow the class name are passed to the <literal>create</literal>
 method.
+</para>
+</section>
+</section>
+
+<section><title>Ice.PluginLoadOrder</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.PluginLoadOrder=<replaceable>names</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Determines the order in which plugins are loaded. The Ice run time
+loads the plugins in the order they appear in
+<replaceable>names</replaceable>, where each plugin name is separated
+by a comma or whitespace. Any plugins not mentioned in
+<replaceable>names</replaceable> are loaded afterward, in an undefined
+order.
 </para>
 </section>
 </section>
