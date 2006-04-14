@@ -170,7 +170,7 @@ depend:: $(SLICE_SRCS) $(SLICE_C_SRCS) $(SLICE_S_SRCS) $(SLICE_AMD_SRCS) $(SLICE
 	fi
 
 clean::
-	-rm -f $(TARGETS) *.bak *.dll *.pdb
+	-rm -f $(TARGETS) *.bak *.dll *.pdb *.mdb
 
 ifneq ($(SLICE_SRCS),)
 clean::
