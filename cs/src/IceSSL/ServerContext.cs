@@ -25,7 +25,8 @@ namespace IceSSL
 	internal SslStream authenticate(Socket fd, int timeout)
 	{
 	    NetworkStream ns = new NetworkStream(fd, true);
-	    SslStream stream = new SslStream(ns, false, new RemoteCertificateValidationCallback(validationCallback),
+	    ServerValidationCallback cb = new ServerValidationCallback(this, fd);
+	    SslStream stream = new SslStream(ns, false, new RemoteCertificateValidationCallback(cb.validationCallback),
 					     null);
 
 	    try
@@ -198,11 +199,9 @@ namespace IceSSL
 	    }
 	}
 
-	private bool validationCallback(object sender, X509Certificate certificate, X509Chain chain,
-					SslPolicyErrors sslPolicyErrors)
+	internal bool validationCallback(SslStream stream, Socket fd, X509Certificate certificate, X509Chain chain,
+					 SslPolicyErrors sslPolicyErrors)
 	{
-	    SslStream stream = (SslStream)sender;
-
 	    string message = "";
 	    int errors = (int)sslPolicyErrors;
 	    if((errors & (int)SslPolicyErrors.RemoteCertificateNotAvailable) > 0)
@@ -248,13 +247,14 @@ namespace IceSSL
 		info.address = "";
 		if(!verifier.verify(info))
 		{
+		    if(instance_.securityTraceLevel() >= 1)
+		    {
+			logger_.trace(instance_.securityTraceCategory(),
+				      "incoming connection rejected by certificate verifier\n" +
+				      IceInternal.Network.fdToString(fd));
+		    }
 		    return false;
 		}
-	    }
-
-	    if(instance_.securityTraceLevel() >= 1)
-	    {
-		logger_.trace(instance_.securityTraceCategory(), "SSL certificate validation succeeded" + message);
 	    }
 
 	    return true;
@@ -264,5 +264,27 @@ namespace IceSSL
 	private int verifyPeer_;
 	private SslProtocols protocols_;
 	private bool checkCRL_;
+    }
+
+    //
+    // We need to pass some additional information to the certificate validation callback.
+    //
+    internal class ServerValidationCallback
+    {
+	internal ServerValidationCallback(ServerContext context, Socket fd)
+	{
+	    context_ = context;
+	    fd_ = fd;
+	}
+
+	internal bool validationCallback(object sender, X509Certificate certificate, X509Chain chain,
+					 SslPolicyErrors sslPolicyErrors)
+	{
+	    SslStream stream = (SslStream)sender;
+	    return context_.validationCallback(stream, fd_, certificate, chain, sslPolicyErrors);
+	}
+
+	private ServerContext context_;
+	private Socket fd_;
     }
 }

@@ -24,7 +24,7 @@ namespace IceSSL
 	internal SslStream authenticate(Socket fd, string host, int timeout)
 	{
 	    NetworkStream ns = new NetworkStream(fd, true);
-	    ClientValidationCallback cb = new ClientValidationCallback(this, host);
+	    ClientValidationCallback cb = new ClientValidationCallback(this, fd, host);
 	    SslStream stream = new SslStream(ns, false, new RemoteCertificateValidationCallback(cb.validationCallback),
 					     null);
 
@@ -183,8 +183,8 @@ namespace IceSSL
 	    }
 	}
 
-	internal bool validationCallback(SslStream stream, string host, X509Certificate certificate, X509Chain chain,
-					 SslPolicyErrors sslPolicyErrors)
+	internal bool validationCallback(SslStream stream, Socket fd, string host, X509Certificate certificate,
+					 X509Chain chain, SslPolicyErrors sslPolicyErrors)
 	{
 	    string message = "";
 	    int errors = (int)sslPolicyErrors;
@@ -226,13 +226,14 @@ namespace IceSSL
 		info.address = host;
 		if(!verifier.verify(info))
 		{
+		    if(instance_.securityTraceLevel() >= 1)
+		    {
+			logger_.trace(instance_.securityTraceCategory(),
+				      "outgoing connection rejected by certificate verifier\n" +
+				      IceInternal.Network.fdToString(fd));
+		    }
 		    return false;
 		}
-	    }
-
-	    if(instance_.securityTraceLevel() >= 1)
-	    {
-		logger_.trace(instance_.securityTraceCategory(), "SSL certificate validation succeeded" + message);
 	    }
 
 	    return true;
@@ -249,9 +250,10 @@ namespace IceSSL
     //
     internal class ClientValidationCallback
     {
-	internal ClientValidationCallback(ClientContext context, string host)
+	internal ClientValidationCallback(ClientContext context, Socket fd, string host)
 	{
 	    context_ = context;
+	    fd_ = fd;
 	    host_ = host;
 	}
 
@@ -259,10 +261,11 @@ namespace IceSSL
 					 SslPolicyErrors sslPolicyErrors)
 	{
 	    SslStream stream = (SslStream)sender;
-	    return context_.validationCallback(stream, host_, certificate, chain, sslPolicyErrors);
+	    return context_.validationCallback(stream, fd_, host_, certificate, chain, sslPolicyErrors);
 	}
 
 	private ClientContext context_;
+	private Socket fd_;
 	private string host_;
     }
 }
