@@ -84,57 +84,94 @@ public final class PluginManagerI extends LocalObjectImpl implements PluginManag
         //
         // Ice.Plugin.name=entry_point [args]
         //
+	// If the Ice.PluginLoadOrder property is defined, load the
+	// specified plugins in the specified order, then load any
+	// remaining plugins.
+	//
         final String prefix = "Ice.Plugin.";
-        Ice.Properties properties = _communicator.getProperties();
+	Properties properties = _communicator.getProperties();
         java.util.Map plugins = properties.getPropertiesForPrefix(prefix);
+
+	final String loadOrder = properties.getProperty("Ice.PluginLoadOrder");
+	if(loadOrder.length() > 0)
+	{
+	    String[] names = loadOrder.split("[, \t\n]+");
+	    for(int i = 0; i < names.length; ++i)
+	    {
+		if(_plugins.containsKey(names[i]))
+		{
+		    PluginInitializationException ex = new PluginInitializationException();
+		    ex.reason = "plugin `" + names[i] + "' already loaded";
+		    throw ex;
+		}
+
+		final String key = "Ice.Plugin." + names[i];
+		if(plugins.containsKey(key))
+		{
+		    final String value = (String)plugins.get(key);
+		    loadPlugin(names[i], value, cmdArgs);
+		    plugins.remove(key);
+		}
+		else
+		{
+		    PluginInitializationException ex = new PluginInitializationException();
+		    ex.reason = "plugin `" + names[i] + "' not defined";
+		    throw ex;
+		}
+	    }
+	}
+
+	//
+	// Load any remaining plugins that weren't specified in PluginLoadOrder.
+	//
         java.util.Iterator p = plugins.entrySet().iterator();
         while(p.hasNext())
         {
 	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
             String name = ((String)entry.getKey()).substring(prefix.length());
             String value = (String)entry.getValue();
-
-            //
-            // Separate the entry point from the arguments.
-            //
-            String className;
-            String[] args;
-            int pos = value.indexOf(' ');
-            if(pos == -1)
-            {
-                pos = value.indexOf('\t');
-            }
-            if(pos == -1)
-            {
-                pos = value.indexOf('\n');
-            }
-            if(pos == -1)
-            {
-                className = value;
-                args = new String[0];
-            }
-            else
-            {
-                className = value.substring(0, pos);
-                args = value.substring(pos).trim().split("[ \t\n]+", pos);
-            }
-
-            //
-            // Convert command-line options into properties. First we
-            // convert the options from the plug-in configuration, then
-            // we convert the options from the application command-line.
-            //
-            args = properties.parseCommandLineOptions(name, args);
-            cmdArgs.value = properties.parseCommandLineOptions(name, cmdArgs.value);
-
-            loadPlugin(name, className, args);
+            loadPlugin(name, value, cmdArgs);
         }
     }
 
     private void
-    loadPlugin(String name, String className, String[] args)
+    loadPlugin(String name, String pluginSpec, StringSeqHolder cmdArgs)
     {
 	assert(_communicator != null);
+
+	//
+	// Separate the entry point from the arguments.
+	//
+	String className;
+	String[] args;
+	int pos = pluginSpec.indexOf(' ');
+	if(pos == -1)
+	{
+	    pos = pluginSpec.indexOf('\t');
+	}
+	if(pos == -1)
+	{
+	    pos = pluginSpec.indexOf('\n');
+	}
+	if(pos == -1)
+	{
+	    className = pluginSpec;
+	    args = new String[0];
+	}
+	else
+	{
+	    className = pluginSpec.substring(0, pos);
+	    args = pluginSpec.substring(pos).trim().split("[ \t\n]+", pos);
+	}
+
+	//
+	// Convert command-line options into properties. First we
+	// convert the options from the plug-in configuration, then
+	// we convert the options from the application command-line.
+	//
+	Properties properties = _communicator.getProperties();
+	args = properties.parseCommandLineOptions(name, args);
+	cmdArgs.value = properties.parseCommandLineOptions(name, cmdArgs.value);
 
         //
         // Instantiate the class.

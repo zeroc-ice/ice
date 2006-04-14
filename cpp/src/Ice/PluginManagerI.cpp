@@ -106,63 +106,114 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
     //
     // Ice.Plugin.name=entry_point [args]
     //
+    // If the Ice.PluginLoadOrder property is defined, load the
+    // specified plugins in the specified order, then load any
+    // remaining plugins.
+    //
     const string prefix = "Ice.Plugin.";
     PropertiesPtr properties = _communicator->getProperties();
     PropertyDict plugins = properties->getPropertiesForPrefix(prefix);
+
+    string loadOrder = properties->getProperty("Ice.PluginLoadOrder");
+    if(!loadOrder.empty())
+    {
+	const string delim = ", \t\n";
+	string::size_type beg = loadOrder.find_first_not_of(delim, beg);
+	while(beg != string::npos)
+	{
+	    string name;
+	    string::size_type end = loadOrder.find_first_of(delim, beg);
+	    if(end == string::npos)
+	    {
+		name = loadOrder.substr(beg);
+		beg = end;
+	    }
+	    else
+	    {
+		name = loadOrder.substr(beg, end - beg);
+		beg = loadOrder.find_first_not_of(delim, end);
+	    }
+
+	    map<string, PluginPtr>::iterator p = _plugins.find(name);
+	    if(p != _plugins.end())
+	    {
+		PluginInitializationException ex(__FILE__, __LINE__);
+		ex.reason = "plugin `" + name + "' already loaded";
+		throw ex;
+	    }
+
+	    PropertyDict::iterator q = plugins.find("Ice.Plugin." + name);
+	    if(q != plugins.end())
+	    {
+		loadPlugin(name, q->second, cmdArgs);
+		plugins.erase(q);
+	    }
+	    else
+	    {
+		PluginInitializationException ex(__FILE__, __LINE__);
+		ex.reason = "plugin `" + name + "' not defined";
+		throw ex;
+	    }
+	}
+    }
+
+    //
+    // Load any remaining plugins that weren't specified in PluginLoadOrder.
+    //
     PropertyDict::const_iterator p;
     for(p = plugins.begin(); p != plugins.end(); ++p)
     {
         string name = p->first.substr(prefix.size());
-        const string& value = p->second;
-
-        //
-        // Separate the entry point from the arguments.
-        //
-        string entryPoint;
-        StringSeq args;
-        string::size_type pos = value.find_first_of(" \t\n");
-        if(pos == string::npos)
-        {
-            entryPoint = value;
-        }
-        else
-        {
-            entryPoint = value.substr(0, pos);
-            string::size_type beg = value.find_first_not_of(" \t\n", pos);
-            while(beg != string::npos)
-            {
-                string::size_type end = value.find_first_of(" \t\n", beg);
-                if(end == string::npos)
-                {
-                    args.push_back(value.substr(beg));
-                    beg = end;
-                }
-                else
-                {
-                    args.push_back(value.substr(beg, end - beg));
-                    beg = value.find_first_not_of(" \t\n", end);
-                }
-            }
-        }
-
-        //
-        // Convert command-line options into properties. First we
-        // convert the options from the plug-in configuration, then
-        // we convert the options from the application command-line.
-        //
-        args = properties->parseCommandLineOptions(name, args);
-        cmdArgs = properties->parseCommandLineOptions(name, cmdArgs);
-
-        loadPlugin(name, entryPoint, args);
+	loadPlugin(name, p->second, cmdArgs);
     }
 
     stringSeqToArgs(cmdArgs, argc, argv);
 }
 
 void
-Ice::PluginManagerI::loadPlugin(const string& name, const string& entryPoint, const StringSeq& args)
+Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, StringSeq& cmdArgs)
 {
     assert(_communicator);
+
+    //
+    // Separate the entry point from the arguments.
+    //
+    string entryPoint;
+    StringSeq args;
+    const string delim = " \t\n";
+    string::size_type pos = pluginSpec.find_first_of(delim);
+    if(pos == string::npos)
+    {
+	entryPoint = pluginSpec;
+    }
+    else
+    {
+	entryPoint = pluginSpec.substr(0, pos);
+	string::size_type beg = pluginSpec.find_first_not_of(delim, pos);
+	while(beg != string::npos)
+	{
+	    string::size_type end = pluginSpec.find_first_of(delim, beg);
+	    if(end == string::npos)
+	    {
+		args.push_back(pluginSpec.substr(beg));
+		beg = end;
+	    }
+	    else
+	    {
+		args.push_back(pluginSpec.substr(beg, end - beg));
+		beg = pluginSpec.find_first_not_of(delim, end);
+	    }
+	}
+    }
+
+    //
+    // Convert command-line options into properties. First we
+    // convert the options from the plug-in configuration, then
+    // we convert the options from the application command-line.
+    //
+    PropertiesPtr properties = _communicator->getProperties();
+    args = properties->parseCommandLineOptions(name, args);
+    cmdArgs = properties->parseCommandLineOptions(name, cmdArgs);
 
     //
     // Load the entry point symbol.

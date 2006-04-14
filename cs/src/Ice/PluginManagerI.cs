@@ -100,65 +100,107 @@ namespace Ice
 	    // because C# must support full assembly names such as:
 	    //
 	    // Ice.Plugin.Logger=logger, Version=0.0.0.0, Culture=neutral:LoginPluginFactory
-
+	    //
+	    // If the Ice.PluginLoadOrder property is defined, load the
+	    // specified plugins in the specified order, then load any
+	    // remaining plugins.
 	    //
 	    string prefix = "Ice.Plugin.";
-	    Ice.Properties properties = _communicator.getProperties();
+	    Properties properties = _communicator.getProperties();
 	    PropertyDict plugins = properties.getPropertiesForPrefix(prefix);
+
+	    string loadOrder = properties.getProperty("Ice.PluginLoadOrder");
+	    if(loadOrder.Length > 0)
+	    {
+		char[] delims = { ',', ' ', '\t', '\n' };
+		string[] names = loadOrder.Split(delims);
+		for(int i = 0; i < names.Length; ++i)
+		{
+		    if(names[i].Length == 0)
+		    {
+			continue;
+		    }
+
+		    if(_plugins.Contains(names[i]))
+		    {
+			PluginInitializationException e = new PluginInitializationException();
+			e.reason = "plugin `" + names[i] + "' already loaded";
+			throw e;
+		    }
+
+		    string key = "Ice.Plugin." + names[i];
+		    if(plugins.Contains(key))
+		    {
+			string value = (string)plugins[key];
+			loadPlugin(names[i], value, ref cmdArgs);
+			plugins.Remove(key);
+		    }
+		    else
+		    {
+			PluginInitializationException e = new PluginInitializationException();
+			e.reason = "plugin `" + names[i] + "' not defined";
+			throw e;
+		    }
+		}
+	    }
+
+	    //
+	    // Load any remaining plugins that weren't specified in PluginLoadOrder.
+	    //
 	    foreach(DictionaryEntry entry in plugins)
 	    {
 		string name = ((string)entry.Key).Substring(prefix.Length);
 		string val = (string)entry.Value;
-		
-		//
-		// Separate the entry point from the arguments. First
-		// look for the :, then for the next whitespace. This
-		// represents the end of the entry point.
-		//
-		// The remainder of the configuration line represents
-		// the arguments.
-		//
-		string entryPoint = val;
-		string[] args = new string[0];
-		int start = val.IndexOf(':');
-		if(start != -1)
-		{
-		    //
-		    // Find the whitespace.
-		    //
-		    int pos = val.IndexOf(' ', start);
-		    if(pos == -1)
-		    {
-			pos = val.IndexOf('\t', start);
-		    }
-		    if(pos == -1)
-		    {
-			pos = val.IndexOf('\n', start);
-		    }
-		    if(pos != -1)
-		    {
-			entryPoint = val.Substring(0, pos);
-			char[] delims = { ' ', '\t', '\n' };
-			args = val.Substring(pos).Trim().Split(delims, pos);
-		    }
-		}
-		
-		//
-		// Convert command-line options into properties. First
-		// we convert the options from the plug-in
-		// configuration, then we convert the options from the
-		// application command-line.
-		//
-		args = properties.parseCommandLineOptions(name, args);
-		cmdArgs = properties.parseCommandLineOptions(name, cmdArgs);
-		
-		loadPlugin(name, entryPoint, args);
+		loadPlugin(name, val, ref cmdArgs);
 	    }
 	}
 	
-	private void loadPlugin(string name, string entryPoint, string[] args)
+	private void loadPlugin(string name, string pluginSpec, ref string[] cmdArgs)
 	{
 	    Debug.Assert(_communicator != null);
+
+	    //
+	    // Separate the entry point from the arguments. First
+	    // look for the :, then for the next whitespace. This
+	    // represents the end of the entry point.
+	    //
+	    // The remainder of the configuration line represents
+	    // the arguments.
+	    //
+	    string entryPoint = pluginSpec;
+	    string[] args = new string[0];
+	    int start = pluginSpec.IndexOf(':');
+	    if(start != -1)
+	    {
+		//
+		// Find the whitespace.
+		//
+		int pos = pluginSpec.IndexOf(' ', start);
+		if(pos == -1)
+		{
+		    pos = pluginSpec.IndexOf('\t', start);
+		}
+		if(pos == -1)
+		{
+		    pos = pluginSpec.IndexOf('\n', start);
+		}
+		if(pos != -1)
+		{
+		    entryPoint = pluginSpec.Substring(0, pos);
+		    char[] delims = { ' ', '\t', '\n' };
+		    args = pluginSpec.Substring(pos).Trim().Split(delims, pos);
+		}
+	    }
+	    
+	    //
+	    // Convert command-line options into properties. First
+	    // we convert the options from the plug-in
+	    // configuration, then we convert the options from the
+	    // application command-line.
+	    //
+	    Properties properties = _communicator.getProperties();
+	    args = properties.parseCommandLineOptions(name, args);
+	    cmdArgs = properties.parseCommandLineOptions(name, cmdArgs);
 	    
 	    //
 	    // Retrieve the assembly name and the type.
@@ -207,7 +249,6 @@ namespace Ice
 
 	    try
 	    {
-
 		factory = (PluginFactory)IceInternal.AssemblyUtil.createInstance(c);
 	    }
 	    catch(System.InvalidCastException ex)
