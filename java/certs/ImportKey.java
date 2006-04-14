@@ -27,7 +27,8 @@ public class ImportKey
 	    //
 	    // cert-file	The CA certificate file in DER format.
 	    //
-	    // keystore-file	The name of the keystore file to create.
+	    // keystore-file	The name of the keystore file to update or
+	    //			create.
 	    //
 	    // password		The password to use for the key and keystore.
 	    //
@@ -48,7 +49,15 @@ public class ImportKey
 	    src.load(new java.io.FileInputStream(pkcs12File), password);
 
 	    KeyStore dest = KeyStore.getInstance("JKS");
-	    dest.load(null, null);
+	    java.io.File f = new java.io.File(keystoreFile);
+	    if(f.exists())
+	    {
+		dest.load(new java.io.FileInputStream(f), password);
+	    }
+	    else
+	    {
+		dest.load(null, null);
+	    }
 	    Certificate[] chain = src.getCertificateChain(alias);
 	    Key key = src.getKey(alias, password);
 
