@@ -24,6 +24,7 @@ Module HelloC
             Console.WriteLine("D: send greeting as batch datagram")
             Console.WriteLine("f: flush all batch requests")
             Console.WriteLine("T: set a timeout")
+            Console.WriteLine("S: switch secure mode on/off")
             Console.WriteLine("s: shutdown server")
             Console.WriteLine("x: exit")
             Console.WriteLine("?: help")
@@ -48,6 +49,7 @@ Module HelloC
             Dim datagram As HelloPrx = HelloPrxHelper.uncheckedCast(twoway.ice_datagram())
             Dim batchDatagram As HelloPrx = HelloPrxHelper.uncheckedCast(twoway.ice_batchDatagram())
 
+            Dim secure As Boolean = False
             Dim timeout As Integer = -1
 
             menu()
@@ -68,9 +70,17 @@ Module HelloC
                     ElseIf line.Equals("O") Then
                         batchOneway.sayHello()
                     ElseIf line.Equals("d") Then
-                        datagram.sayHello()
+			If secure Then
+                            Console.WriteLine("secure datagrams are not supported")
+			Else
+			    datagram.sayHello()
+			End If
                     ElseIf line.Equals("D") Then
-                        batchDatagram.sayHello()
+			If secure Then
+                            Console.WriteLine("secure datagrams are not supported")
+			Else
+			    batchDatagram.sayHello()
+			End If
                     ElseIf line.Equals("f") Then
                         communicator.flushBatchRequests()
                     ElseIf line.Equals("T") Then
@@ -88,6 +98,20 @@ Module HelloC
                             Console.WriteLine("timeout is now switched off")
                         Else
                             Console.WriteLine("timeout is now set to 2000ms")
+                        End If
+                    ElseIf line.Equals("S") Then
+                        secure = Not secure
+
+                        twoway = HelloPrxHelper.uncheckedCast(twoway.ice_secure(secure))
+                        oneway = HelloPrxHelper.uncheckedCast(oneway.ice_secure(secure))
+                        batchOneway = HelloPrxHelper.uncheckedCast(batchOneway.ice_secure(secure))
+                        datagram = HelloPrxHelper.uncheckedCast(datagram.ice_secure(secure))
+                        batchDatagram = HelloPrxHelper.uncheckedCast(batchDatagram.ice_secure(secure))
+
+                        If secure Then
+                            Console.WriteLine("secure mode is now on")
+                        Else
+                            Console.WriteLine("secure mode is now off")
                         End If
                     ElseIf line.Equals("s") Then
                         twoway.shutdown()

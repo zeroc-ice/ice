@@ -21,6 +21,7 @@ Module CallbackC
             Console.Out.WriteLine("d: send callback as datagram")
             Console.Out.WriteLine("D: send callback as batch datagram")
             Console.Out.WriteLine("f: flush all batch requests")
+            Console.Out.WriteLine("S: switch secure mode on/off")
             Console.Out.WriteLine("s: shutdown server")
             Console.Out.WriteLine("x: exit")
             Console.Out.WriteLine("?: help")
@@ -55,6 +56,8 @@ Module CallbackC
                 twowayR.ice_oneway())
             Dim datagramR As CallbackReceiverPrx = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_datagram())
 
+	    Dim secure As Boolean = False
+
             menu()
 
             Dim line As String = Nothing
@@ -73,11 +76,37 @@ Module CallbackC
                     ElseIf line.Equals("O") Then
                         batchOneway.initiateCallback(onewayR)
                     ElseIf line.Equals("d") Then
-                        datagram.initiateCallback(datagramR)
+			If secure Then
+                            Console.WriteLine("secure datagrams are not supported")
+			Else
+			    datagram.initiateCallback(datagramR)
+			End If
                     ElseIf line.Equals("D") Then
-                        batchDatagram.initiateCallback(datagramR)
+			If secure Then
+                            Console.WriteLine("secure datagrams are not supported")
+			Else
+			    batchDatagram.initiateCallback(datagramR)
+			End If
                     ElseIf line.Equals("f") Then
                         communicator().flushBatchRequests()
+                    ElseIf line.Equals("S") Then
+			secure = Not secure
+
+			twoway = CallbackSenderPrxHelper.uncheckedCast(twoway.ice_secure(secure))
+			oneway = CallbackSenderPrxHelper.uncheckedCast(oneway.ice_secure(secure))
+			batchOneway = CallbackSenderPrxHelper.uncheckedCast(batchOneway.ice_secure(secure))
+			datagram = CallbackSenderPrxHelper.uncheckedCast(datagram.ice_secure(secure))
+			batchDatagram = CallbackSenderPrxHelper.uncheckedCast(batchDatagram.ice_secure(secure))
+
+			twowayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_secure(secure))
+			onewayR = CallbackReceiverPrxHelper.uncheckedCast(onewayR.ice_secure(secure))
+			datagramR = CallbackReceiverPrxHelper.uncheckedCast(datagramR.ice_secure(secure))
+
+			If secure Then
+			    Console.Out.WriteLine("secure mode is now on")
+			Else
+			    Console.Out.WriteLine("secure mode is now off")
+			End If
                     ElseIf line.Equals("s") Then
                         twoway.shutdown()
                     ElseIf line.Equals("x") Then
