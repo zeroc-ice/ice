@@ -370,7 +370,7 @@ public class AllTests
 	    Console.Out.Flush();
 	    {
 		//
-		// Verify that a certificate is present.
+		// Verify that a server certificate is present.
 		//
 	    	Ice.InitializationData initData = new Ice.InitializationData();
 		initData.properties = createClientProps(testDir, defaultHost);
