@@ -550,7 +550,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	    // Expected.
 	}
 #endif
-	catch(const LocalException& ex)
+	catch(const LocalException&)
 	{
 	    test(false);
 	}
