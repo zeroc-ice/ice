@@ -115,10 +115,11 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
     PropertyDict plugins = properties->getPropertiesForPrefix(prefix);
 
     string loadOrder = properties->getProperty("Ice.PluginLoadOrder");
+    string::size_type beg = 0;
     if(!loadOrder.empty())
     {
 	const string delim = ", \t\n";
-	string::size_type beg = loadOrder.find_first_not_of(delim, beg);
+	beg = loadOrder.find_first_not_of(delim, beg);
 	while(beg != string::npos)
 	{
 	    string name;
