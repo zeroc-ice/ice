@@ -12,7 +12,8 @@ top_srcdir	= ../..
 include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= router \
-		  attack
+		  attack \
+		  regex
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

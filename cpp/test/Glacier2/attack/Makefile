@@ -12,7 +12,7 @@ top_srcdir	= ../../..
 CLIENT		= client
 SERVER		= server
 
-TARGETS		= $(CLIENT) $(SERVER) $(RULETESTER)
+TARGETS		= $(CLIENT) $(SERVER) 
 
 OBJS		= Backend.o \
 		  BackendI.o
