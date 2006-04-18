@@ -1,12 +1,3 @@
-<!-- ********************************************************************** -->
-<!--                                                                        -->
-<!-- Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.               -->
-<!--                                                                        -->
-<!-- This copy of Ice is licensed to you under the terms described in the   -->
-<!-- ICE_LICENSE file included in this distribution.                        -->
-<!--                                                                        -->
-<!-- ********************************************************************** -->
-
 <HTML>
 <HEAD>
     <TITLE>Hello Demo</TITLE>
@@ -16,6 +7,15 @@
     <H1>Hello Demo</H1>
 
 <?php
+// **********************************************************************
+//
+// Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
 Ice_loadProfile();
 
 //
