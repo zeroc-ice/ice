@@ -142,7 +142,7 @@ Glacier2::RouterI::addProxies(const ObjectProxySeq& proxies, const Current& curr
 
     _timestamp = IceUtil::Time::now();
 
-    return _routingTable->add(proxies);
+    return _routingTable->add(proxies, current);
 }
 
 string
