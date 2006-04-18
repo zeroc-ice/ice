@@ -226,6 +226,9 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
+    /**
+     * @deprecated This method has been replaced with ice_identity.
+     **/
     public final ObjectPrx
     ice_newIdentity(Identity newIdentity)
     {
@@ -246,6 +249,9 @@ public class ObjectPrxHelperBase implements ObjectPrx
 	return proxy;
     }
 
+    /**
+     * @deprecated This method has been replaced with ice_context.
+     **/
     public final ObjectPrx
     ice_newContext(java.util.Map newContext)
     {
@@ -286,6 +292,9 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
+    /**
+     * @deprecated This method has been replaced with ice_facet.
+     **/
     public final ObjectPrx
     ice_newFacet(String newFacet)
     {
@@ -313,6 +322,9 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
+    /**
+     * @deprecated This method has been replaced with ice_adapterId.
+     **/
     public final ObjectPrx
     ice_newAdapterId(String newAdapterId)
     {
@@ -342,6 +354,9 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
+    /**
+     * @deprecated This method has been replaced with ice_endpoints.
+     **/
     public final ObjectPrx
     ice_newEndpoints(Endpoint[] newEndpoints)
     {

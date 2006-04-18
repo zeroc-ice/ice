@@ -584,9 +584,9 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	}
     }
 
-    //
-    // Deprecated
-    //
+    /**
+     * @deprecated
+     **/
     public void
     createObject(Ice.Identity ident, Ice.Object servant)
     {
@@ -845,9 +845,9 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	}
     }
 
-    //
-    // Deprecated
-    //
+    /**
+     * @deprecated
+     **/
     public void
     destroyObject(Ice.Identity ident)
     {
