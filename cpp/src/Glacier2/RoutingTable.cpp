@@ -25,16 +25,14 @@ ObjectProxySeq
 Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Ice::Current& current)
 {
     IceUtil::Mutex::Lock sync(*this);
-   
-    ObjectProxySeq::const_iterator prx;
-
-    ObjectProxySeq proxies; 
 
     //
     // We 'pre-scan' the list, applying our validation rules. The
     // ensures that our state is not modified if this operation results
     // in a rejection.
     //
+    ObjectProxySeq proxies; 
+    ObjectProxySeq::const_iterator prx;
     for(prx = unfiltered.begin(); prx != unfiltered.end(); ++prx)
     {
 	if(!*prx) // We ignore null proxies.
