@@ -22,18 +22,20 @@ Glacier2::RoutingTable::RoutingTable(const CommunicatorPtr& communicator) :
 }
 
 ObjectProxySeq
-Glacier2::RoutingTable::add(const ObjectProxySeq& proxies, const Ice::Current& current)
+Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Ice::Current& current)
 {
     IceUtil::Mutex::Lock sync(*this);
    
     ObjectProxySeq::const_iterator prx;
+
+    ObjectProxySeq proxies; 
 
     //
     // We 'pre-scan' the list, applying our validation rules. The
     // ensures that our state is not modified if this operation results
     // in a rejection.
     //
-    for(prx = proxies.begin(); prx != proxies.end(); ++prx)
+    for(prx = unfiltered.begin(); prx != unfiltered.end(); ++prx)
     {
 	if(!*prx) // We ignore null proxies.
 	{
@@ -45,18 +47,14 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& proxies, const Ice::Current& c
 	    current.con->close(true);
 	    throw ObjectNotExistException(__FILE__, __LINE__);
 	}
+	ObjectPrx proxy = (*prx)->ice_twoway()->ice_secure(false); // We add proxies in default form.
+	proxies.push_back(proxy);
     }
 
     ObjectProxySeq evictedProxies;
     for(prx = proxies.begin(); prx != proxies.end(); ++prx)
     {
-	if(!*prx) // We ignore null proxies.
-	{
-	    continue;
-	}
-
-	ObjectPrx proxy = (*prx)->ice_twoway()->ice_secure(false); // We add proxies in default form.
-
+	ObjectPrx proxy = *prx;
 	EvictorMap::iterator p = _map.find(proxy->ice_getIdentity());
 	
 	if(p == _map.end())

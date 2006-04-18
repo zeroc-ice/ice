@@ -54,6 +54,7 @@ def runTests(tests, num = 0):
 tests = [ \
     "IceUtil/thread", \
 #    "IceUtil/unicode", \
+    "Glacier2/regex", \
     "IceUtil/inputUtil", \
     "IceUtil/uuid", \
     "Slice/errorDetection", \
@@ -92,7 +93,6 @@ tests = [ \
     "IceGrid/replication", \
     "Glacier2/router", \
     "Glacier2/attack", \
-    "Glacier2/regex", \
     ]
 
 #
