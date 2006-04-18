@@ -20,6 +20,7 @@
 #include <list>
 #include <vector>
 #include <deque>
+#include <IceUtil/DisableWarnings.h>
 
 
 namespace Freeze

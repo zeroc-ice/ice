@@ -16,6 +16,7 @@
 #include <Glacier2/PermissionsVerifierF.h>
 #include <Glacier2/Router.h>
 #include <set>
+#include <IceUtil/DisableWarnings.h>
 
 namespace Glacier2
 {

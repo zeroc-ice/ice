@@ -31,7 +31,8 @@ public:
 	const std::string&,
         bool,
         bool,
-        bool);
+        bool,
+	bool);
     ~Gen();
 
     bool operator!() const; // Returns true if there was a constructor error
@@ -61,6 +62,7 @@ private:
     bool _impl;
     bool _checksum;
     bool _stream;
+    bool _ice;
 
     class GlobalIncludeVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {

@@ -14,6 +14,7 @@
 #include <Glacier2/Router.h>
 #include <Glacier2/ClientBlobject.h>
 #include <Glacier2/ServerBlobject.h>
+#include <IceUtil/DisableWarnings.h>
 
 namespace Glacier2
 {
