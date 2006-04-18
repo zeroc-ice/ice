@@ -1,13 +1,13 @@
-<!-- ********************************************************************** -->
-<!--                                                                        -->
-<!-- Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.               -->
-<!--                                                                        -->
-<!-- This copy of Ice is licensed to you under the terms described in the   -->
-<!-- ICE_LICENSE file included in this distribution.                        -->
-<!--                                                                        -->
-<!-- ********************************************************************** -->
-
 <?php
+// **********************************************************************
+//
+// Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
 Ice_loadProfile();
 
 class PrinterI extends Demo_Printer
@@ -178,6 +178,8 @@ try
 
     echo "\n";
     echo "That's it for this demo. Have fun with Ice!\n";
+
+    $initial->shutdown();
 }
 catch(Ice_LocalException $ex)
 {
