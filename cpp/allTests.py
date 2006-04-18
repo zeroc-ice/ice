@@ -92,6 +92,7 @@ tests = [ \
     "IceGrid/replication", \
     "Glacier2/router", \
     "Glacier2/attack", \
+    "Glacier2/regex", \
     ]
 
 #
