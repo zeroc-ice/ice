@@ -81,7 +81,7 @@ Module ClockS
 
     Public Sub Main(ByVal args() As String)
         Dim app As Subscriber = New Subscriber
-        Dim status As Integer = app.Main(args, "config")
+        Dim status As Integer = app.Main(args, "config.sub")
         System.Environment.Exit(status)
     End Sub
 End Module

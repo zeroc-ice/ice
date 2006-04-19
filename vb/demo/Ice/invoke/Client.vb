@@ -244,7 +244,7 @@ Module InvokeC
 
     Public Sub Main(ByVal args() As String)
         Dim app As Client = New Client
-        Dim status As Integer = app.Main(args, "config")
+        Dim status As Integer = app.Main(args, "config.client")
         System.Environment.Exit(status)
     End Sub
 

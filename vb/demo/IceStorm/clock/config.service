@@ -1,11 +1,5 @@
 #
-# This property is used to configure the endpoints of the clock
-# subscriber adapter.
-#
-Clock.Subscriber.Endpoints=tcp
-
-#
-# This property is used by the clients to connect to IceStorm.
+# This property is used by the administrative client to connect to IceStorm.
 #
 IceStorm.TopicManager.Proxy=DemoIceStorm/TopicManager:default -p 10000
 
@@ -14,6 +8,11 @@ IceStorm.TopicManager.Proxy=DemoIceStorm/TopicManager:default -p 10000
 # TopicManager listens.
 #
 IceStorm.TopicManager.Endpoints=default -p 10000
+
+#
+# The IceStorm service instance name.
+#
+IceStorm.InstanceName=DemoIceStorm
 
 #
 # This property defines the endpoints on which the topic
@@ -56,6 +55,12 @@ IceStorm.Trace.Subscriber=1
 IceStorm.Trace.Flush=1
 
 #
+# Amount of time in milliseconds between flushes for batch mode
+# transfer. The minimum allowable value is 100ms.
+#
+IceStorm.Flush.Timeout=2000
+
+#
 # Network Tracing
 #
 # 0 = no network tracing
@@ -66,7 +71,7 @@ IceStorm.Trace.Flush=1
 Ice.Trace.Network=0
 
 #
-# Amount of time in milliseconds between flushes for batch mode
-# transfer. The minimum allowable value is 100ms.
+# This property defines the home directory of the Freeze 
+# database environment for the IceStorm service.
 #
-IceStorm.Flush.Timeout = 2000
+Freeze.DbEnv.IceStorm.DbHome=db

@@ -1,4 +1,9 @@
 #
+# To use SSL you must use it in the following endpoints and enable
+# Ice.Plugin.IceSSL below.
+#
+
+#
 # The proxy to the Glacier2 router for all outgoing connections. This
 # must match the value of Glacier2.Client.Endpoints in config.glacier2.
 #
@@ -29,7 +34,6 @@ Callback.Proxy=callback:tcp -h 127.0.0.1 -p 10000
 # Connections must remain established.
 #
 Ice.ACM.Client=0
-Ice.ACM.Server=0
 
 #
 # Ice.MonitorConnections defaults to the smaller of Ice.ACM.Client or
@@ -58,9 +62,7 @@ Ice.Warn.Connections=1
 #
 #Ice.Plugin.IceSSL=../../../bin/icesslcs.dll:IceSSL.PluginFactory
 IceSSL.ImportCert.LocalMachine.AuthRoot=../../../certs/cacert.pem
-IceSSL.Server.CertFile=../../../certs/s_rsa1024.pfx
-IceSSL.Server.Password=password
-IceSSL.Client.CertFile=../../../certs/c_rsa1024.pfx
-IceSSL.Client.Password=password
-IceSSL.Trace.Security=2
+IceSSL.CertFile=../../../certs/c_rsa1024.pfx
+IceSSL.Password=password
+IceSSL.Trace.Security=0
 Ice.ThreadPerConnection=1

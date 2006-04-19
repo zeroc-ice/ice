@@ -23,7 +23,7 @@ Module ThroughputS
 
     Public Sub Main(ByVal args() As String)
         Dim app As Server = New Server
-        Dim status As Integer = app.Main(args, "config")
+        Dim status As Integer = app.Main(args, "config.server")
         System.Environment.Exit(status)
     End Sub
 

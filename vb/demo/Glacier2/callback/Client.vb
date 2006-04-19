@@ -172,7 +172,7 @@ Module Glacier2callbackC
 
     Public Sub Main(ByVal args() As String)
         Dim app As Client = New Client
-        Dim status As Integer = app.main(args, "config")
+        Dim status As Integer = app.main(args, "config.client")
         System.Environment.Exit(status)
     End Sub
 

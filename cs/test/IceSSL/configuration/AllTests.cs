@@ -167,18 +167,18 @@ public class AllTests
 	    	Ice.InitializationData initData = new Ice.InitializationData();
 		initData.properties = createClientProps(testDir, defaultHost);
 		initData.properties.setProperty("IceSSL.DelayInit", "1");
-		initData.properties.setProperty("IceSSL.Client.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
-		initData.properties.setProperty("IceSSL.Client.Password", "password");
+		initData.properties.setProperty("IceSSL.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
+		initData.properties.setProperty("IceSSL.Password", "password");
 		Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 		IceSSL.Plugin plugin = (IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
 		test(plugin != null);
-		plugin.initialize(null, null);
+		plugin.initialize(null);
 		Ice.ObjectPrx obj = comm.stringToProxy(factoryRef);
 		test(obj != null);
 		Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(obj);
 		Test.Properties d = createServerProps(testDir, defaultHost);
-		d["IceSSL.Server.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
-		d["IceSSL.Server.Password"] = "password";
+		d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
+		d["IceSSL.Password"] = "password";
 		store.Add(caCert1);
 		Test.ServerPrx server = fact.createServer(d);
 		try
@@ -206,14 +206,14 @@ public class AllTests
 		Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 		IceSSL.Plugin plugin = (IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
 		test(plugin != null);
-		plugin.initialize(coll, null);
+		plugin.initialize(coll);
 		Ice.ObjectPrx obj = comm.stringToProxy(factoryRef);
 		test(obj != null);
 		Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(obj);
 		Test.Properties d = createServerProps(testDir, defaultHost);
-		d["IceSSL.Server.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
-		d["IceSSL.Server.Password"] = "password";
-		d["IceSSL.Server.VerifyPeer"] = "2";
+		d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
+		d["IceSSL.Password"] = "password";
+		d["IceSSL.VerifyPeer"] = "2";
 		store.Add(caCert1);
 		Test.ServerPrx server = fact.createServer(d);
 		try
@@ -234,7 +234,7 @@ public class AllTests
 	    Console.Out.Flush();
 	    {
 		//
-		// Test IceSSL.Server.VerifyPeer=1. Client does not have a certificate.
+		// Test IceSSL.VerifyPeer=1. Client does not have a certificate.
 		//
 	    	Ice.InitializationData initData = new Ice.InitializationData();
 		initData.properties = createClientProps(testDir, defaultHost);
@@ -242,9 +242,9 @@ public class AllTests
 		Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
 		test(fact != null);
 		Test.Properties d = createServerProps(testDir, defaultHost);
-		d["IceSSL.Server.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
-		d["IceSSL.Server.Password"] = "password";
-		d["IceSSL.Server.VerifyPeer"] = "1";
+		d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
+		d["IceSSL.Password"] = "password";
+		d["IceSSL.VerifyPeer"] = "1";
 		store.Add(caCert1);
 		Test.ServerPrx server = fact.createServer(d);
 		try
@@ -259,13 +259,13 @@ public class AllTests
 		store.Remove(caCert1);
 
 		//
-		// Test IceSSL.Server.VerifyPeer=2. This should fail because the client
+		// Test IceSSL.VerifyPeer=2. This should fail because the client
 		// does not supply a certificate.
 		//
 		d = createServerProps(testDir, defaultHost);
-		d["IceSSL.Server.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
-		d["IceSSL.Server.Password"] = "password";
-		d["IceSSL.Server.VerifyPeer"] = "2";
+		d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
+		d["IceSSL.Password"] = "password";
+		d["IceSSL.VerifyPeer"] = "2";
 		store.Add(caCert1);
 		server = fact.createServer(d);
 		try
@@ -287,17 +287,17 @@ public class AllTests
 		comm.destroy();
 
 		//
-		// Test IceSSL.Server.VerifyPeer=1. Client has a certificate.
+		// Test IceSSL.VerifyPeer=1. Client has a certificate.
 		//
-		initData.properties.setProperty("IceSSL.Client.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
-		initData.properties.setProperty("IceSSL.Client.Password", "password");
+		initData.properties.setProperty("IceSSL.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
+		initData.properties.setProperty("IceSSL.Password", "password");
 		comm = Ice.Util.initialize(ref args, initData);
 		fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
 		test(fact != null);
 		d = createServerProps(testDir, defaultHost);
-		d["IceSSL.Server.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
-		d["IceSSL.Server.Password"] = "password";
-		d["IceSSL.Server.VerifyPeer"] = "1";
+		d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
+		d["IceSSL.Password"] = "password";
+		d["IceSSL.VerifyPeer"] = "1";
 		store.Add(caCert1);
 		server = fact.createServer(d);
 		try
@@ -312,12 +312,12 @@ public class AllTests
 		store.Remove(caCert1);
 
 		//
-		// Test IceSSL.Server.VerifyPeer=2. Client has a certificate.
+		// Test IceSSL.VerifyPeer=2. Client has a certificate.
 		//
 		d = createServerProps(testDir, defaultHost);
-		d["IceSSL.Server.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
-		d["IceSSL.Server.Password"] = "password";
-		d["IceSSL.Server.VerifyPeer"] = "2";
+		d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
+		d["IceSSL.Password"] = "password";
+		d["IceSSL.VerifyPeer"] = "2";
 		store.Add(caCert1);
 		server = fact.createServer(d);
 		try
@@ -334,7 +334,7 @@ public class AllTests
 		comm.destroy();
 
 		//
-		// Test IceSSL.Server.VerifyPeer=1. This should fail because the
+		// Test IceSSL.VerifyPeer=1. This should fail because the
 		// client doesn't trust the server's CA.
 		//
 		initData.properties = createClientProps(testDir, defaultHost);
@@ -342,9 +342,9 @@ public class AllTests
 		fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
 		test(fact != null);
 		d = createServerProps(testDir, defaultHost);
-		d["IceSSL.Server.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
-		d["IceSSL.Server.Password"] = "password";
-		d["IceSSL.Server.VerifyPeer"] = "1";
+		d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
+		d["IceSSL.Password"] = "password";
+		d["IceSSL.VerifyPeer"] = "1";
 		// Don't add the CA certificate.
 		//store.Add(caCert1);
 		server = fact.createServer(d);
@@ -374,8 +374,8 @@ public class AllTests
 		//
 	    	Ice.InitializationData initData = new Ice.InitializationData();
 		initData.properties = createClientProps(testDir, defaultHost);
-		initData.properties.setProperty("IceSSL.Client.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
-		initData.properties.setProperty("IceSSL.Client.Password", "password");
+		initData.properties.setProperty("IceSSL.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
+		initData.properties.setProperty("IceSSL.Password", "password");
 		Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 		IceSSL.Plugin plugin = (IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
 		test(plugin != null);
@@ -385,9 +385,9 @@ public class AllTests
 		Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
 		test(fact != null);
 		Test.Properties d = createServerProps(testDir, defaultHost);
-		d["IceSSL.Server.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
-		d["IceSSL.Server.Password"] = "password";
-		d["IceSSL.Server.VerifyPeer"] = "2";
+		d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
+		d["IceSSL.Password"] = "password";
+		d["IceSSL.VerifyPeer"] = "2";
 		store.Add(caCert1);
 		Test.ServerPrx server = fact.createServer(d);
 		try
@@ -441,17 +441,17 @@ public class AllTests
 		//
 	    	Ice.InitializationData initData = new Ice.InitializationData();
 		initData.properties = createClientProps(testDir, defaultHost);
-		initData.properties.setProperty("IceSSL.Client.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
-		initData.properties.setProperty("IceSSL.Client.Password", "password");
-		initData.properties.setProperty("IceSSL.Client.Protocols", "ssl3");
+		initData.properties.setProperty("IceSSL.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
+		initData.properties.setProperty("IceSSL.Password", "password");
+		initData.properties.setProperty("IceSSL.Protocols", "ssl3");
 		Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 		Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
 		test(fact != null);
 		Test.Properties d = createServerProps(testDir, defaultHost);
-		d["IceSSL.Server.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
-		d["IceSSL.Server.Password"] = "password";
-		d["IceSSL.Server.VerifyPeer"] = "2";
-		d["IceSSL.Server.Protocols"] = "tls1";
+		d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
+		d["IceSSL.Password"] = "password";
+		d["IceSSL.VerifyPeer"] = "2";
+		d["IceSSL.Protocols"] = "tls1";
 		store.Add(caCert1);
 		Test.ServerPrx server = fact.createServer(d);
 		try
@@ -478,10 +478,10 @@ public class AllTests
 		fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
 		test(fact != null);
 		d = createServerProps(testDir, defaultHost);
-		d["IceSSL.Server.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
-		d["IceSSL.Server.Password"] = "password";
-		d["IceSSL.Server.VerifyPeer"] = "2";
-		d["IceSSL.Server.Protocols"] = "tls1, ssl3";
+		d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
+		d["IceSSL.Password"] = "password";
+		d["IceSSL.VerifyPeer"] = "2";
+		d["IceSSL.Protocols"] = "tls1, ssl3";
 		store.Add(caCert1);
 		server = fact.createServer(d);
 		try
@@ -506,15 +506,15 @@ public class AllTests
 		//
 	    	Ice.InitializationData initData = new Ice.InitializationData();
 		initData.properties = createClientProps(testDir, defaultHost);
-		initData.properties.setProperty("IceSSL.Client.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
-		initData.properties.setProperty("IceSSL.Client.Password", "password");
+		initData.properties.setProperty("IceSSL.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
+		initData.properties.setProperty("IceSSL.Password", "password");
 		Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 		Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
 		test(fact != null);
 		Test.Properties d = createServerProps(testDir, defaultHost);
-		d["IceSSL.Server.CertFile"] = defaultDir + "/s_rsa_nopass_ca1_exp.pfx";
-		d["IceSSL.Server.Password"] = "password";
-		d["IceSSL.Server.VerifyPeer"] = "2";
+		d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca1_exp.pfx";
+		d["IceSSL.Password"] = "password";
+		d["IceSSL.VerifyPeer"] = "2";
 		store.Add(caCert1);
 		Test.ServerPrx server = fact.createServer(d);
 		try
@@ -537,15 +537,15 @@ public class AllTests
 		//
 		// This should fail because the client's certificate is expired.
 		//
-		initData.properties.setProperty("IceSSL.Client.CertFile", defaultDir + "/c_rsa_nopass_ca1_exp.pfx");
-		initData.properties.setProperty("IceSSL.Client.Password", "password");
+		initData.properties.setProperty("IceSSL.CertFile", defaultDir + "/c_rsa_nopass_ca1_exp.pfx");
+		initData.properties.setProperty("IceSSL.Password", "password");
 		comm = Ice.Util.initialize(ref args, initData);
 		fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
 		test(fact != null);
 		d = createServerProps(testDir, defaultHost);
-		d["IceSSL.Server.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
-		d["IceSSL.Server.Password"] = "password";
-		d["IceSSL.Server.VerifyPeer"] = "2";
+		d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
+		d["IceSSL.Password"] = "password";
+		d["IceSSL.VerifyPeer"] = "2";
 		store.Add(caCert1);
 		server = fact.createServer(d);
 		try
@@ -572,15 +572,15 @@ public class AllTests
 	    {
 	    	Ice.InitializationData initData = new Ice.InitializationData();
 		initData.properties = createClientProps(testDir, defaultHost);
-		initData.properties.setProperty("IceSSL.Client.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
-		initData.properties.setProperty("IceSSL.Client.Password", "password");
+		initData.properties.setProperty("IceSSL.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
+		initData.properties.setProperty("IceSSL.Password", "password");
 		Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 		Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
 		test(fact != null);
 		Test.Properties d = createServerProps(testDir, defaultHost);
-		d["IceSSL.Server.CertFile"] = defaultDir + "/s_rsa_nopass_ca2.pfx";
-		d["IceSSL.Server.Password"] = "password";
-		d["IceSSL.Server.VerifyPeer"] = "2";
+		d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca2.pfx";
+		d["IceSSL.Password"] = "password";
+		d["IceSSL.VerifyPeer"] = "2";
 		store.Add(caCert1);
 		store.Add(caCert2);
 		Test.ServerPrx server = fact.createServer(d);
@@ -604,9 +604,9 @@ public class AllTests
 	    {
 	    	Ice.InitializationData initData = new Ice.InitializationData();
 		initData.properties = createClientProps(testDir, defaultHost);
-		initData.properties.setProperty("IceSSL.Client.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
+		initData.properties.setProperty("IceSSL.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
 		// Don't specify the password.
-		//props.setProperty("IceSSL.Client.Password", "password");
+		//props.setProperty("IceSSL.Password", "password");
 		try
 		{
 		    Ice.Util.initialize(ref args, initData);

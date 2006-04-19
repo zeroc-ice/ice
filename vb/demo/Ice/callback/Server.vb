@@ -23,7 +23,7 @@ Module CallbackS
     End Class
     Sub Main(ByVal args() As String)
         Dim app As Server = New Server
-        Dim status As Integer = app.main(args, "config")
+        Dim status As Integer = app.main(args, "config.server")
         System.Environment.Exit(status)
     End Sub
 

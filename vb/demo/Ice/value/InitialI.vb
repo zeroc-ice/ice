@@ -45,6 +45,10 @@ Public Class InitialI
         Throw ex
     End Sub
 
+    Public Overloads Overrides Sub shutdown(ByVal current As Ice.Current)
+	current.adapter.getCommunicator().shutdown()
+    End Sub
+
     Private _simple As Simple
     Private _printer As Printer
     Private _printerProxy As PrinterPrx

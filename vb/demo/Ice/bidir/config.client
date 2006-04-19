@@ -1,6 +1,5 @@
 Callback.Client.CallbackServer=sender:tcp -p 10000
 Callback.Client.Endpoints=
-Callback.Server.Endpoints=tcp -p 10000
 
 #Ice.Trace.Network=1
 #Ice.Trace.Protocol=1

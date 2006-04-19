@@ -1,10 +1,4 @@
 #
-# The client reads this property to create the reference to the
-# "hello" object in the server.
-#
-Printer.Proxy=printer:tcp -p 10000:udp -p 10000
-
-#
 # The server creates one single object adapter with the name
 # "helloadapater". The following line sets the endpoints for this
 # adapter
@@ -33,12 +27,3 @@ Ice.Trace.Network=0
 # 1 = trace protocol messages
 #
 Ice.Trace.Protocol=0
-
-#
-# Security Tracing
-#
-# 0 = no security tracing
-# 1 = trace warning messages
-# 2 = config file parsing warnings
-#
-#Ice.Trace.Security=2

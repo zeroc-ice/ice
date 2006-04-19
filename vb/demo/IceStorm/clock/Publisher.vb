@@ -56,7 +56,7 @@ Module ClockC
 
     Public Sub Main(ByVal args() As String)
         Dim app As Publisher = New Publisher
-        Dim status As Integer = app.Main(args, "config")
+        Dim status As Integer = app.Main(args, "config.pub")
         System.Environment.Exit(status)
     End Sub
 End Module
