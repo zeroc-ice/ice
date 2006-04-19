@@ -68,15 +68,12 @@ class Context
 	    //
 	    // The truststore holds the certificates of trusted CAs.
 	    //
-	    Ice.StringHolder truststorePath = new Ice.StringHolder(
-		properties.getPropertyWithDefault(prefix + "Truststore", properties.getProperty(prefix + "Certs")));
+	    Ice.StringHolder truststorePath = new Ice.StringHolder(properties.getProperty(prefix + "Truststore"));
 
 	    //
 	    // The password for the truststore.
 	    //
-	    final String truststorePassword =
-		properties.getPropertyWithDefault(prefix + "TruststorePassword",
-						  properties.getProperty(prefix + "CertsPassword"));
+	    final String truststorePassword = properties.getProperty(prefix + "TruststorePassword");
 
 	    //
 	    // The truststore type defaults to "JKS", but it can also be "PKCS12".
