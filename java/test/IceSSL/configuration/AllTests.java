@@ -244,6 +244,10 @@ public class AllTests
 	    {
 		// Expected.
 	    }
+	    catch(Ice.ConnectionLostException ex)
+	    {
+		// Expected.
+	    }
 	    catch(Ice.LocalException ex)
 	    {
 		test(false);
@@ -364,6 +368,10 @@ public class AllTests
 		test(false);
 	    }
 	    catch(Ice.SecurityException ex)
+	    {
+		// Expected.
+	    }
+	    catch(Ice.ConnectionLostException ex)
 	    {
 		// Expected.
 	    }
