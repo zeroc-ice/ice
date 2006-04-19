@@ -28,7 +28,7 @@ IceSSL::ConnectorI::connect(int timeout)
     //
     // The plugin may not be fully initialized.
     //
-    ContextPtr ctx = _instance->clientContext();
+    ContextPtr ctx = _instance->context();
 
     if(_instance->networkTraceLevel() >= 2)
     {
@@ -145,7 +145,7 @@ IceSSL::ConnectorI::connect(int timeout)
 	}
 	while(!SSL_is_init_finished(ssl));
 
-	_instance->clientContext()->verifyPeer(ssl, _host, false);
+	_instance->context()->verifyPeer(ssl, _host, false);
     }
     catch(...)
     {
@@ -161,7 +161,7 @@ IceSSL::ConnectorI::connect(int timeout)
 
     if(_instance->securityTraceLevel() >= 1)
     {
-	_instance->clientContext()->traceConnection(ssl, false);
+	_instance->context()->traceConnection(ssl, false);
     }
 
     return new TransceiverI(_instance, ssl, fd);

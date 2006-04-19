@@ -174,44 +174,28 @@ os.environ["CLASSPATH"] = os.path.join(toplevel, "lib") + sep + os.getenv("CLASS
 if protocol == "ssl":
     plugin		 = " --Ice.Plugin.IceSSL=IceSSL.PluginFactory"
     clientProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
-			   " --IceSSL.Client.DefaultDir=" + os.path.join(toplevel, "certs") + \
-                           " --IceSSL.Client.Keystore=client.jks" + \
-                           " --IceSSL.Client.Truststore=certs.jks" + \
-                           " --IceSSL.Client.Password=password"
+			   " --IceSSL.DefaultDir=" + os.path.join(toplevel, "certs") + \
+                           " --IceSSL.Keystore=client.jks" + \
+                           " --IceSSL.Truststore=certs.jks" + \
+                           " --IceSSL.Password=password"
     serverProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
-			   " --IceSSL.Server.DefaultDir=" + os.path.join(toplevel, "certs") + \
-                           " --IceSSL.Server.Keystore=server.jks" + \
-                           " --IceSSL.Server.Truststore=certs.jks" + \
-                           " --IceSSL.Server.Password=password"
-    clientServerProtocol = plugin + " --Ice.Default.Protocol=ssl" + \
-			   " --IceSSL.Client.DefaultDir=" + os.path.join(toplevel, "certs") + \
-                           " --IceSSL.Client.Keystore=client.jks" + \
-                           " --IceSSL.Client.Truststore=certs.jks" + \
-                           " --IceSSL.Client.Password=password" + \
-			   " --IceSSL.Server.DefaultDir=" + os.path.join(toplevel, "certs") + \
-                           " --IceSSL.Server.Keystore=server.jks" + \
-                           " --IceSSL.Server.Truststore=certs.jks" + \
-                           " --IceSSL.Server.Password=password"
+			   " --IceSSL.DefaultDir=" + os.path.join(toplevel, "certs") + \
+                           " --IceSSL.Keystore=server.jks" + \
+                           " --IceSSL.Truststore=certs.jks" + \
+                           " --IceSSL.Password=password"
+    clientServerProtocol = clientProtocol
     cppPlugin		    = " --Ice.Plugin.IceSSL=IceSSL:create"
     cppClientProtocol       = cppPlugin + " --Ice.Default.Protocol=ssl" + \
-			      " --IceSSL.Client.DefaultDir=" + os.path.join(toplevel, "certs") + \
-			      " --IceSSL.Client.CertFile=c_rsa1024_pub.pem" + \
-			      " --IceSSL.Client.KeyFile=c_rsa1024_priv.pem" + \
-			      " --IceSSL.Client.CertAuthFile=cacert.pem"
+			      " --IceSSL.DefaultDir=" + os.path.join(toplevel, "certs") + \
+			      " --IceSSL.CertFile=c_rsa1024_pub.pem" + \
+			      " --IceSSL.KeyFile=c_rsa1024_priv.pem" + \
+			      " --IceSSL.CertAuthFile=cacert.pem"
     cppServerProtocol       = cppPlugin + " --Ice.Default.Protocol=ssl" + \
-			      " --IceSSL.Server.DefaultDir=" + os.path.join(toplevel, "certs") + \
-			      " --IceSSL.Server.CertFile=s_rsa1024_pub.pem" + \
-			      " --IceSSL.Server.KeyFile=s_rsa1024_priv.pem" + \
-			      " --IceSSL.Server.CertAuthFile=cacert.pem"
-    cppClientServerProtocol = cppPlugin + " --Ice.Default.Protocol=ssl" + \
-			      " --IceSSL.Client.DefaultDir=" + os.path.join(toplevel, "certs") + \
-			      " --IceSSL.Client.CertFile=c_rsa1024_pub.pem" + \
-			      " --IceSSL.Client.KeyFile=c_rsa1024_priv.pem" + \
-			      " --IceSSL.Client.CertAuthFile=cacert.pem" + \
-			      " --IceSSL.Server.DefaultDir=" + os.path.join(toplevel, "certs") + \
-			      " --IceSSL.Server.CertFile=s_rsa1024_pub.pem" + \
-			      " --IceSSL.Server.KeyFile=s_rsa1024_priv.pem" + \
-			      " --IceSSL.Server.CertAuthFile=cacert.pem"
+			      " --IceSSL.DefaultDir=" + os.path.join(toplevel, "certs") + \
+			      " --IceSSL.CertFile=s_rsa1024_pub.pem" + \
+			      " --IceSSL.KeyFile=s_rsa1024_priv.pem" + \
+			      " --IceSSL.CertAuthFile=cacert.pem"
+    cppClientServerProtocol = cppClientProtocol
 else:
     clientProtocol = ""
     serverProtocol = ""

@@ -35,16 +35,14 @@ IceSSL::Instance::Instance(const CommunicatorPtr& communicator)
     _securityTraceCategory = "Security";
 
     //
-    // Create the client and server contexts. We always create both, even
-    // if only one is used.
+    // Create the context.
     //
-    // If IceSSL.DelayInit=1, postpone the creation of the contexts until
+    // If IceSSL.DelayInit=1, postpone the creation of the context until
     // the application manually initializes the plugin.
     //
     if(properties->getPropertyAsInt("IceSSL.DelayInit") == 0)
     {
-	_clientContext = new ClientContext(this, 0);
-	_serverContext = new ServerContext(this, 0);
+	_context = new Context(this, 0);
     }
 
     //
@@ -56,9 +54,9 @@ IceSSL::Instance::Instance(const CommunicatorPtr& communicator)
 }
 
 void
-IceSSL::Instance::initialize(SSL_CTX* clientContext, SSL_CTX* serverContext)
+IceSSL::Instance::initialize(SSL_CTX* context)
 {
-    if(_clientContext)
+    if(_context)
     {
 	SecurityException ex(__FILE__, __LINE__);
 	ex.reason = "plugin is already initialized";
@@ -66,8 +64,7 @@ IceSSL::Instance::initialize(SSL_CTX* clientContext, SSL_CTX* serverContext)
     }
     else
     {
-	_clientContext = new ClientContext(this, clientContext);
-	_serverContext = new ServerContext(this, serverContext);
+	_context = new Context(this, context);
     }
 }
 
@@ -119,28 +116,16 @@ IceSSL::Instance::securityTraceCategory() const
     return _securityTraceCategory;
 }
 
-ClientContextPtr
-IceSSL::Instance::clientContext() const
+ContextPtr
+IceSSL::Instance::context() const
 {
-    if(!_clientContext)
+    if(!_context)
     {
 	PluginInitializationException ex(__FILE__, __LINE__);
 	ex.reason = "IceSSL: plugin is not fully initialized";
 	throw ex;
     }
-    return _clientContext;
-}
-
-ServerContextPtr
-IceSSL::Instance::serverContext() const
-{
-    if(!_serverContext)
-    {
-	PluginInitializationException ex(__FILE__, __LINE__);
-	ex.reason = "IceSSL: plugin is not fully initialized";
-	throw ex;
-    }
-    return _serverContext;
+    return _context;
 }
 
 CertificateVerifierPtr
@@ -217,6 +202,5 @@ void
 IceSSL::Instance::destroy()
 {
     _facade = 0;
-    _clientContext = 0;
-    _serverContext = 0;
+    _context = 0;
 }

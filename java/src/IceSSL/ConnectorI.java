@@ -17,7 +17,7 @@ final class ConnectorI implements IceInternal.Connector
 	//
 	// The plugin may not be fully initialized.
 	//
-	Context ctx = _instance.clientContext();
+	Context ctx = _instance.context();
 
 	if(_instance.networkTraceLevel() >= 2)
 	{

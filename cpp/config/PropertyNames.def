@@ -136,6 +136,7 @@ Ice:
     Override.Timeout
     Package.<any>
     Plugin.<any>
+    PluginLoadOrder
     PrintAdapterReady
     PrintProcessId
     ProgramName
@@ -289,57 +290,34 @@ IcePatch2:
     ThreadPool.StackSize
 
 IceSSL:
-    Client.CertAuthDir
-    Client.CertAuthFile
-    Client.CertFile
-    Client.CheckCertName
-    Client.CheckCRL
-    Client.Ciphers
-    Client.DefaultDir
-    Client.DH.*
-    Client.KeyFile
-    Client.Password
-    Client.PasswordRetryMax
-    Client.Protocols
-    Client.VerifyDepthMax
-    Client.VerifyPeer
+    Alias
+    CertAuthDir
+    CertAuthFile
+    CertFile
+    Certs
+    CertsPassword
+    CheckCertName
+    CheckCRL
+    Ciphers
+    DefaultDir
     DelayInit
+    DH.<any>
     EntropyDaemon
     ImportCert.<any>.<any>
+    KeyFile
+    Keystore
+    KeystorePassword
+    KeystoreType
+    Password
+    PasswordRetryMax
+    Protocols
     Random
-    Server.CertAuthDir
-    Server.CertAuthFile
-    Server.CertFile
-    Server.CheckCRL
-    Server.Ciphers
-    Server.DefaultDir
-    Server.DH.<any>
-    Server.KeyFile
-    Server.Password
-    Server.PasswordRetryMax
-    Server.Protocols
-    Server.VerifyDepthMax
-    Server.VerifyPeer
     Trace.Security
-    Client.Alias
-    Client.Certs
-    Client.CertsPassword
-    Client.Keystore
-    Client.KeystorePassword
-    Client.KeystoreType
-    Client.Truststore
-    Client.TruststorePassword
-    Client.TruststoreType
-    Server.Alias
-    Server.Certs
-    Server.CertsPassword
-    Server.ClientAuth
-    Server.Keystore
-    Server.KeystorePassword
-    Server.KeystoreType
-    Server.Truststore
-    Server.TruststorePassword
-    Server.TruststoreType
+    Truststore
+    TruststorePassword
+    TruststoreType
+    VerifyDepthMax
+    VerifyPeer
 
 IceStorm:
     Flush.Timeout

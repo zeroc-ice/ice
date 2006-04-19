@@ -132,8 +132,7 @@ public:
     // is nonzero, the plugin skips its normal property-based
     // configuration.
     // 
-    virtual void initialize(SSL_CTX* clientContext = 0,
-			    SSL_CTX* serverContext = 0) = 0;
+    virtual void initialize(SSL_CTX* context = 0) = 0;
 
     //
     // Establish the certificate verifier object. This should be
@@ -148,12 +147,10 @@ public:
     virtual void setPasswordPrompt(const PasswordPromptPtr&) = 0;
 
     //
-    // Obtain the client and server SSL contexts. If you need to
-    // customize a context, you should do it before any SSL
-    // connections are established.
+    // Obtain the SSL context. If you need to customize the context,
+    // you should do it before any SSL connections are established.
     //
-    virtual SSL_CTX* clientContext() = 0;
-    virtual SSL_CTX* serverContext() = 0;
+    virtual SSL_CTX* context() = 0;
 };
 typedef IceUtil::Handle<Plugin> PluginPtr;
 

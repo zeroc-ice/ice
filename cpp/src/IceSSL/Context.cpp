@@ -80,7 +80,7 @@ passwordError()
 //
 // Context.
 //
-IceSSL::Context::Context(const InstancePtr& instance, const string& propPrefix, SSL_CTX* ctx) :
+IceSSL::Context::Context(const InstancePtr& instance, SSL_CTX* ctx) :
     _instance(instance),
     _logger(instance->communicator()->getLogger()),
     _ctx(ctx)
@@ -114,6 +114,7 @@ IceSSL::Context::Context(const InstancePtr& instance, const string& propPrefix, 
 	SSL_CTX_set_session_cache_mode(_ctx, SSL_SESS_CACHE_OFF);
 
 	PropertiesPtr properties = _instance->communicator()->getProperties();
+	const string propPrefix = "IceSSL.";
 
 	//
 	// Check for a default directory. We look in this directory for
@@ -132,6 +133,14 @@ IceSSL::Context::Context(const InstancePtr& instance, const string& propPrefix, 
 	    {
 		parseProtocols(protocols);
 	    }
+	}
+
+	//
+	// CheckCertName determines whether we compare the name in a peer's
+	// certificate against its hostname.
+	//
+	{
+	    _checkCertName = properties->getPropertyAsIntWithDefault(propPrefix + "CheckCertName", 0) > 0;
 	}
 
 	//
@@ -551,6 +560,7 @@ IceSSL::Context::verifyPeer(SSL* ssl, const string& address, bool incoming)
 
 	//
 	// Compare the peer's address against the dnsName and ipAddress values.
+	// This is only relevant for an outgoing connection.
 	//
 	if(!address.empty())
 	{
@@ -837,30 +847,4 @@ IceSSL::Context::parseProtocols(const string& val)
 	opts |= SSL_OP_NO_TLSv1;
     }
     SSL_CTX_set_options(_ctx, opts);
-}
-
-//
-// ClientContext.
-//
-IceSSL::ClientContext::ClientContext(const InstancePtr& instance, SSL_CTX* ctx) :
-    Context(instance, "IceSSL.Client.", ctx)
-{
-    PropertiesPtr properties = _instance->communicator()->getProperties();
-
-    //
-    // CheckCertName determines whether we compare the name in a peer's
-    // certificate against its hostname.
-    //
-    {
-	_checkCertName = properties->getPropertyAsIntWithDefault("IceSSL.Client.CheckCertName", 0) > 0;
-    }
-}
-
-//
-// ServerContext.
-//
-IceSSL::ServerContext::ServerContext(const InstancePtr& instance, SSL_CTX* ctx) :
-    Context(instance, "IceSSL.Server.", ctx)
-{
-    _checkCertName = false;
 }

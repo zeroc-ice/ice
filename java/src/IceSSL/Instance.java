@@ -22,7 +22,7 @@ class Instance
 	//
 	if(communicator.getProperties().getPropertyAsInt("IceSSL.DelayInit") == 0)
 	{   
-	    initialize(null, null);
+	    initialize(null);
 	}
 
 	// 
@@ -32,9 +32,9 @@ class Instance
     }
 
     void
-    initialize(javax.net.ssl.SSLContext clientContext, javax.net.ssl.SSLContext serverContext)
+    initialize(javax.net.ssl.SSLContext context)
     {
-	if(_clientContext != null)
+	if(_context != null)
 	{   
 	    Ice.PluginInitializationException e = new Ice.PluginInitializationException();
 	    e.reason = "plugin is already initialized";
@@ -45,7 +45,7 @@ class Instance
 	// If we have to initialize an SSLContext, we'll need a SecureRandom object.
 	//
 	java.security.SecureRandom rand = null;
-	if(clientContext == null || serverContext == null)
+	if(context == null)
 	{
 	    try
 	    {
@@ -67,29 +67,16 @@ class Instance
 	}
 
 	//
-	// Create the client and server contexts. We always create both, even
-	// if only one is used.
+	// Create the context.
 	//
 	try
 	{
-	    _clientContext = new Context(this, true, clientContext, rand);
+	    _context = new Context(this, context, rand);
 	}
 	catch(java.security.GeneralSecurityException ex)
 	{
 	    Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-	    e.reason = "IceSSL: unable to initialize client context";
-	    e.initCause(ex);
-	    throw e;
-	}
-
-	try
-	{
-	    _serverContext = new Context(this, false, serverContext, rand);
-	}
-	catch(java.security.GeneralSecurityException ex)
-	{
-	    Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-	    e.reason = "IceSSL: unable to initialize server context";
+	    e.reason = "IceSSL: unable to initialize context";
 	    e.initCause(ex);
 	    throw e;
 	}
@@ -138,27 +125,15 @@ class Instance
     }
 
     Context
-    clientContext()
+    context()
     {
-	if(_clientContext == null)
+	if(_context == null)
 	{
 	    Ice.PluginInitializationException e = new Ice.PluginInitializationException();
 	    e.reason = "IceSSL: plugin is not fully initialized";
 	    throw e;
 	}
-	return _clientContext;
-    }
-
-    Context
-    serverContext()
-    {
-	if(_serverContext == null)
-	{
-	    Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-	    e.reason = "IceSSL: plugin is not fully initialized";
-	    throw e;
-	}
-	return _serverContext;
+	return _context;
     }
 
     CertificateVerifier
@@ -170,7 +145,6 @@ class Instance
     private IceInternal.ProtocolPluginFacade _facade;
     private int _securityTraceLevel;
     private String _securityTraceCategory;
-    private Context _clientContext;
-    private Context _serverContext;
+    private Context _context;
     private CertificateVerifier _verifier;
 }

@@ -11,37 +11,22 @@ package IceSSL;
 
 final class KeyManagerI implements javax.net.ssl.X509KeyManager
 {
-    KeyManagerI(javax.net.ssl.X509KeyManager del, String alias, boolean client)
+    KeyManagerI(javax.net.ssl.X509KeyManager del, String alias)
     {
         _delegate = del;
         _alias = alias;
-	_client = client;
     }
 
     public String
     chooseClientAlias(String[] keyType, java.security.Principal[] issuers, java.net.Socket socket)
     {
-	if(_client)
-	{
-	    return _alias;
-	}
-	else
-	{
-	    return _delegate.chooseClientAlias(keyType, issuers, socket);
-	}
+	return _alias;
     }
 
     public String
     chooseServerAlias(String keyType, java.security.Principal[] issuers, java.net.Socket socket)
     {
-	if(!_client)
-	{
-	    return _alias;
-	}
-	else
-	{
-	    return _delegate.chooseServerAlias(keyType, issuers, socket);
-	}
+	return _alias;
     }
 
     public java.security.cert.X509Certificate[]
@@ -70,5 +55,4 @@ final class KeyManagerI implements javax.net.ssl.X509KeyManager
 
     private javax.net.ssl.X509KeyManager _delegate;
     private String _alias;
-    private boolean _client;
 }

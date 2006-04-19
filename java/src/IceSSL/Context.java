@@ -11,13 +11,13 @@ package IceSSL;
 
 class Context
 {
-    Context(Instance instance, boolean client, javax.net.ssl.SSLContext context, java.security.SecureRandom rand)
+    Context(Instance instance, javax.net.ssl.SSLContext context, java.security.SecureRandom rand)
 	throws java.security.GeneralSecurityException
     {
 	_instance = instance;
 	_logger = instance.communicator().getLogger();
 
-	final String prefix = client ? "IceSSL.Client." : "IceSSL.Server.";
+	final String prefix = "IceSSL.";
 	Ice.Properties properties = instance.communicator().getProperties();
 	String ciphers = properties.getProperty(prefix + "Ciphers");
 
@@ -167,7 +167,7 @@ class Context
 
 		    for(int i = 0; i < keyManagers.length; ++i)
 		    {
-			keyManagers[i] = new KeyManagerI((javax.net.ssl.X509KeyManager)keyManagers[i], alias, client);
+			keyManagers[i] = new KeyManagerI((javax.net.ssl.X509KeyManager)keyManagers[i], alias);
 		    }
 		}
 	    }

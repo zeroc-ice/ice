@@ -21,7 +21,7 @@ class Context : public IceUtil::Shared
 {
 public:
 
-    Context(const InstancePtr&, const std::string&, SSL_CTX*);
+    Context(const InstancePtr&, SSL_CTX*);
     ~Context();
 
     SSL_CTX* ctx() const;
@@ -54,22 +54,6 @@ protected:
 #endif
 };
 typedef IceUtil::Handle<Context> ContextPtr;
-
-class ClientContext : public Context
-{
-public:
-
-    ClientContext(const InstancePtr&, SSL_CTX*);
-};
-typedef IceUtil::Handle<ClientContext> ClientContextPtr;
-
-class ServerContext : public Context
-{
-public:
-
-    ServerContext(const InstancePtr&, SSL_CTX*);
-};
-typedef IceUtil::Handle<ServerContext> ServerContextPtr;
 
 }
 

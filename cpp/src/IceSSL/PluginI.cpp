@@ -114,9 +114,9 @@ IceSSL::PluginI::destroy()
 }
 
 void
-IceSSL::PluginI::initialize(SSL_CTX* clientContext, SSL_CTX* serverContext)
+IceSSL::PluginI::initialize(SSL_CTX* context)
 {
-    _instance->initialize(clientContext, serverContext);
+    _instance->initialize(context);
 }
 
 void
@@ -132,15 +132,9 @@ IceSSL::PluginI::setPasswordPrompt(const PasswordPromptPtr& prompt)
 }
 
 SSL_CTX*
-IceSSL::PluginI::clientContext()
+IceSSL::PluginI::context()
 {
-    return _instance->clientContext()->ctx();
-}
-
-SSL_CTX*
-IceSSL::PluginI::serverContext()
-{
-    return _instance->serverContext()->ctx();
+    return _instance->context()->ctx();
 }
 
 void

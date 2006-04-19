@@ -272,7 +272,7 @@ class AcceptorI implements IceInternal.Acceptor
     AcceptorI(Instance instance, String host, int port)
     {
 	_instance = instance;
-	_ctx = instance.serverContext();
+	_ctx = instance.context();
 	_logger = instance.communicator().getLogger();
 	_backlog = 0;
 
@@ -294,16 +294,8 @@ class AcceptorI implements IceInternal.Acceptor
 	    _fd = (javax.net.ssl.SSLServerSocket)factory.createServerSocket(port, _backlog, iface);
 	    _addr = (java.net.InetSocketAddress)_fd.getLocalSocketAddress();
 
-	    int verifyPeer = _instance.communicator().getProperties().getPropertyAsIntWithDefault(
-		"IceSSL.Server.VerifyPeer", -1);
-	    if(verifyPeer == -1)
-	    {
-		//
-		// Check deprecated ClientAuth property.
-		//
-		verifyPeer = _instance.communicator().getProperties().getPropertyAsIntWithDefault(
-		    "IceSSL.Server.ClientAuth", 2);
-	    }
+	    int verifyPeer =
+		_instance.communicator().getProperties().getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
 	    if(verifyPeer == 0)
 	    {
 		_fd.setWantClientAuth(false);

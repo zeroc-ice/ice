@@ -170,8 +170,8 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);
 	initData.properties->setProperty("IceSSL.DelayInit", "1");
-	initData.properties->setProperty("IceSSL.Client.Ciphers", "ADH");
-	initData.properties->setProperty("IceSSL.Client.VerifyPeer", "0");
+	initData.properties->setProperty("IceSSL.Ciphers", "ADH");
+	initData.properties->setProperty("IceSSL.VerifyPeer", "0");
 	CommunicatorPtr comm = initialize(argc, argv, initData);
 	IceSSL::PluginPtr plugin =
 	    IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
@@ -181,8 +181,8 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	test(obj);
 	Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(obj);
 	Test::Properties d = createServerProps(defaultHost);
-	d["IceSSL.Server.Ciphers"] = "ADH";
-	d["IceSSL.Server.VerifyPeer"] = "0";
+	d["IceSSL.Ciphers"] = "ADH";
+	d["IceSSL.VerifyPeer"] = "0";
 	Test::ServerPrx server = fact->createServer(d);
 	try
 	{
@@ -200,23 +200,23 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
     cout << "testing certificate verification... " << flush;
     {
 	//
-	// Test IceSSL.Server.VerifyPeer=0. Client does not have a certificate,
+	// Test IceSSL.VerifyPeer=0. Client does not have a certificate,
 	// but it still verifies the server's.
 	//
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);
-	initData.properties->setProperty("IceSSL.Client.VerifyPeer", "0");
-	initData.properties->setProperty("IceSSL.Client.CertAuthFile", "cacert1.pem");
-	initData.properties->setProperty("IceSSL.Client.DefaultDir", defaultDir);
+	initData.properties->setProperty("IceSSL.VerifyPeer", "0");
+	initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
+	initData.properties->setProperty("IceSSL.DefaultDir", defaultDir);
 	CommunicatorPtr comm = initialize(argc, argv, initData);
 	Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	Test::Properties d = createServerProps(defaultHost);
-	d["IceSSL.Server.DefaultDir"] = defaultDir;
-	d["IceSSL.Server.CertAuthFile"] = "cacert1.pem";
-	d["IceSSL.Server.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
-	d["IceSSL.Server.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
-	d["IceSSL.Server.VerifyPeer"] = "0";
+	d["IceSSL.DefaultDir"] = defaultDir;
+	d["IceSSL.CertAuthFile"] = "cacert1.pem";
+	d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
+	d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
+	d["IceSSL.VerifyPeer"] = "0";
 	Test::ServerPrx server = fact->createServer(d);
 	try
 	{
@@ -229,14 +229,14 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	fact->destroyServer(server);
 
 	//
-	// Test IceSSL.Server.VerifyPeer=1. Client does not have a certificate.
+	// Test IceSSL.VerifyPeer=1. Client does not have a certificate.
 	//
 	d = createServerProps(defaultHost);
-	d["IceSSL.Server.DefaultDir"] = defaultDir;
-	d["IceSSL.Server.CertAuthFile"] = "cacert1.pem";
-	d["IceSSL.Server.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
-	d["IceSSL.Server.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
-	d["IceSSL.Server.VerifyPeer"] = "1";
+	d["IceSSL.DefaultDir"] = defaultDir;
+	d["IceSSL.CertAuthFile"] = "cacert1.pem";
+	d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
+	d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
+	d["IceSSL.VerifyPeer"] = "1";
 	server = fact->createServer(d);
 	try
 	{
@@ -249,15 +249,15 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	fact->destroyServer(server);
 
 	//
-	// Test IceSSL.Server.VerifyPeer=2. This should fail because the client
+	// Test IceSSL.VerifyPeer=2. This should fail because the client
 	// does not supply a certificate.
 	//
 	d = createServerProps(defaultHost);
-	d["IceSSL.Server.DefaultDir"] = defaultDir;
-	d["IceSSL.Server.CertAuthFile"] = "cacert1.pem";
-	d["IceSSL.Server.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
-	d["IceSSL.Server.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
-	d["IceSSL.Server.VerifyPeer"] = "2";
+	d["IceSSL.DefaultDir"] = defaultDir;
+	d["IceSSL.CertAuthFile"] = "cacert1.pem";
+	d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
+	d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
+	d["IceSSL.VerifyPeer"] = "2";
 	server = fact->createServer(d);
 	try
 	{
@@ -283,19 +283,19 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	comm->destroy();
 
 	//
-	// Test IceSSL.Server.VerifyPeer=1. Client has a certificate.
+	// Test IceSSL.VerifyPeer=1. Client has a certificate.
 	//
-	initData.properties->setProperty("IceSSL.Client.CertFile", "c_rsa_nopass_ca1_pub.pem");
-	initData.properties->setProperty("IceSSL.Client.KeyFile", "c_rsa_nopass_ca1_priv.pem");
+	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
+	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
 	comm = initialize(argc, argv, initData);
 	fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	d = createServerProps(defaultHost);
-	d["IceSSL.Server.DefaultDir"] = defaultDir;
-	d["IceSSL.Server.CertAuthFile"] = "cacert1.pem";
-	d["IceSSL.Server.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
-	d["IceSSL.Server.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
-	d["IceSSL.Server.VerifyPeer"] = "1";
+	d["IceSSL.DefaultDir"] = defaultDir;
+	d["IceSSL.CertAuthFile"] = "cacert1.pem";
+	d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
+	d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
+	d["IceSSL.VerifyPeer"] = "1";
 	server = fact->createServer(d);
 	try
 	{
@@ -308,14 +308,14 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	fact->destroyServer(server);
 
 	//
-	// Test IceSSL.Server.VerifyPeer=2. Client has a certificate.
+	// Test IceSSL.VerifyPeer=2. Client has a certificate.
 	//
 	d = createServerProps(defaultHost);
-	d["IceSSL.Server.DefaultDir"] = defaultDir;
-	d["IceSSL.Server.CertAuthFile"] = "cacert1.pem";
-	d["IceSSL.Server.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
-	d["IceSSL.Server.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
-	d["IceSSL.Server.VerifyPeer"] = "2";
+	d["IceSSL.DefaultDir"] = defaultDir;
+	d["IceSSL.CertAuthFile"] = "cacert1.pem";
+	d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
+	d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
+	d["IceSSL.VerifyPeer"] = "2";
 	server = fact->createServer(d);
 	try
 	{
@@ -330,21 +330,21 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	comm->destroy();
 
 	//
-	// Test IceSSL.Server.VerifyPeer=1. This should fail because the
+	// Test IceSSL.VerifyPeer=1. This should fail because the
 	// client doesn't trust the server's CA.
 	//
-	initData.properties->setProperty("IceSSL.Client.CertAuthFile", "cacert2.pem");
-	initData.properties->setProperty("IceSSL.Client.CertFile", "c_rsa_nopass_ca2_pub.pem");
-	initData.properties->setProperty("IceSSL.Client.KeyFile", "c_rsa_nopass_ca2_priv.pem");
+	initData.properties->setProperty("IceSSL.CertAuthFile", "cacert2.pem");
+	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca2_pub.pem");
+	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca2_priv.pem");
 	comm = initialize(argc, argv, initData);
 	fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	d = createServerProps(defaultHost);
-	d["IceSSL.Server.DefaultDir"] = defaultDir;
-	d["IceSSL.Server.CertAuthFile"] = "cacert1.pem";
-	d["IceSSL.Server.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
-	d["IceSSL.Server.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
-	d["IceSSL.Server.VerifyPeer"] = "1";
+	d["IceSSL.DefaultDir"] = defaultDir;
+	d["IceSSL.CertAuthFile"] = "cacert1.pem";
+	d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
+	d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
+	d["IceSSL.VerifyPeer"] = "1";
 	server = fact->createServer(d);
 	try
 	{
@@ -370,21 +370,21 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	comm->destroy();
 
 	//
-	// Test IceSSL.Server.VerifyPeer=1. This should fail because the
+	// Test IceSSL.VerifyPeer=1. This should fail because the
 	// server doesn't trust the client's CA.
 	//
-	initData.properties->setProperty("IceSSL.Client.CertAuthFile", "cacert1.pem");
-	initData.properties->setProperty("IceSSL.Client.CertFile", "c_rsa_nopass_ca2_pub.pem");
-	initData.properties->setProperty("IceSSL.Client.KeyFile", "c_rsa_nopass_ca2_priv.pem");
+	initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
+	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca2_pub.pem");
+	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca2_priv.pem");
 	comm = initialize(argc, argv, initData);
 	fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	d = createServerProps(defaultHost);
-	d["IceSSL.Server.DefaultDir"] = defaultDir;
-	d["IceSSL.Server.CertAuthFile"] = "cacert1.pem";
-	d["IceSSL.Server.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
-	d["IceSSL.Server.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
-	d["IceSSL.Server.VerifyPeer"] = "1";
+	d["IceSSL.DefaultDir"] = defaultDir;
+	d["IceSSL.CertAuthFile"] = "cacert1.pem";
+	d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
+	d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
+	d["IceSSL.VerifyPeer"] = "1";
 	server = fact->createServer(d);
 	try
 	{
@@ -418,8 +418,8 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	//
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);
-	initData.properties->setProperty("IceSSL.Client.Ciphers", "ADH");
-	initData.properties->setProperty("IceSSL.Client.VerifyPeer", "0");
+	initData.properties->setProperty("IceSSL.Ciphers", "ADH");
+	initData.properties->setProperty("IceSSL.VerifyPeer", "0");
 	CommunicatorPtr comm = initialize(argc, argv, initData);
 	IceSSL::PluginPtr plugin =
 	    IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
@@ -430,8 +430,8 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	Test::Properties d = createServerProps(defaultHost);
-	d["IceSSL.Server.Ciphers"] = "ADH";
-	d["IceSSL.Server.VerifyPeer"] = "0";
+	d["IceSSL.Ciphers"] = "ADH";
+	d["IceSSL.VerifyPeer"] = "0";
 	Test::ServerPrx server = fact->createServer(d);
 	try
 	{
@@ -478,11 +478,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	//
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);
-	initData.properties->setProperty("IceSSL.Client.DefaultDir", defaultDir);
-	initData.properties->setProperty("IceSSL.Client.CertAuthFile", "cacert1.pem");
-	initData.properties->setProperty("IceSSL.Client.CertFile", "c_rsa_nopass_ca1_pub.pem");
-	initData.properties->setProperty("IceSSL.Client.KeyFile", "c_rsa_nopass_ca1_priv.pem");
-	initData.properties->setProperty("IceSSL.Client.VerifyPeer", "0");
+	initData.properties->setProperty("IceSSL.DefaultDir", defaultDir);
+	initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
+	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
+	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
+	initData.properties->setProperty("IceSSL.VerifyPeer", "0");
 	CommunicatorPtr comm = initialize(argc, argv, initData);
 	IceSSL::PluginPtr plugin =
 	    IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
@@ -493,11 +493,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	Test::Properties d = createServerProps(defaultHost);
-	d["IceSSL.Server.DefaultDir"] = defaultDir;
-	d["IceSSL.Server.CertAuthFile"] = "cacert1.pem";
-	d["IceSSL.Server.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
-	d["IceSSL.Server.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
-	d["IceSSL.Server.VerifyPeer"] = "2";
+	d["IceSSL.DefaultDir"] = defaultDir;
+	d["IceSSL.CertAuthFile"] = "cacert1.pem";
+	d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
+	d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
+	d["IceSSL.VerifyPeer"] = "2";
 	Test::ServerPrx server = fact->createServer(d);
 	try
 	{
@@ -523,16 +523,16 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	//
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);
-	initData.properties->setProperty("IceSSL.Client.Ciphers", "ADH");
-	initData.properties->setProperty("IceSSL.Client.VerifyPeer", "0");
-	initData.properties->setProperty("IceSSL.Client.Protocols", "ssl3");
+	initData.properties->setProperty("IceSSL.Ciphers", "ADH");
+	initData.properties->setProperty("IceSSL.VerifyPeer", "0");
+	initData.properties->setProperty("IceSSL.Protocols", "ssl3");
 	CommunicatorPtr comm = initialize(argc, argv, initData);
 	Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	Test::Properties d = createServerProps(defaultHost);
-	d["IceSSL.Server.Ciphers"] = "ADH";
-	d["IceSSL.Server.VerifyPeer"] = "0";
-	d["IceSSL.Server.Protocols"] = "tls1";
+	d["IceSSL.Ciphers"] = "ADH";
+	d["IceSSL.VerifyPeer"] = "0";
+	d["IceSSL.Protocols"] = "tls1";
 	Test::ServerPrx server = fact->createServer(d);
 	try
 	{
@@ -564,9 +564,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	d = createServerProps(defaultHost);
-	d["IceSSL.Server.Ciphers"] = "ADH";
-	d["IceSSL.Server.VerifyPeer"] = "0";
-	d["IceSSL.Server.Protocols"] = "tls1, ssl3";
+	d["IceSSL.Ciphers"] = "ADH";
+	d["IceSSL.VerifyPeer"] = "0";
+	d["IceSSL.Protocols"] = "tls1, ssl3";
 	server = fact->createServer(d);
 	try
 	{
@@ -588,18 +588,18 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	//
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);
-	initData.properties->setProperty("IceSSL.Client.DefaultDir", defaultDir);
-	initData.properties->setProperty("IceSSL.Client.CertAuthFile", "cacert1.pem");
-	initData.properties->setProperty("IceSSL.Client.CertFile", "c_rsa_nopass_ca1_pub.pem");
-	initData.properties->setProperty("IceSSL.Client.KeyFile", "c_rsa_nopass_ca1_priv.pem");
+	initData.properties->setProperty("IceSSL.DefaultDir", defaultDir);
+	initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
+	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
+	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
 	CommunicatorPtr comm = initialize(argc, argv, initData);
 	Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	Test::Properties d = createServerProps(defaultHost);
-	d["IceSSL.Server.DefaultDir"] = defaultDir;
-	d["IceSSL.Server.CertAuthFile"] = "cacert1.pem";
-	d["IceSSL.Server.CertFile"] = "s_rsa_nopass_ca1_exp_pub.pem";
-	d["IceSSL.Server.KeyFile"] = "s_rsa_nopass_ca1_exp_priv.pem";
+	d["IceSSL.DefaultDir"] = defaultDir;
+	d["IceSSL.CertAuthFile"] = "cacert1.pem";
+	d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_exp_pub.pem";
+	d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_exp_priv.pem";
 	Test::ServerPrx server = fact->createServer(d);
 	try
 	{
@@ -627,16 +627,16 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	//
 	// This should fail because the client's certificate is expired.
 	//
-	initData.properties->setProperty("IceSSL.Client.CertFile", "c_rsa_nopass_ca1_exp_pub.pem");
-	initData.properties->setProperty("IceSSL.Client.KeyFile", "c_rsa_nopass_ca1_exp_priv.pem");
+	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_exp_pub.pem");
+	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_exp_priv.pem");
 	comm = initialize(argc, argv, initData);
 	fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	d = createServerProps(defaultHost);
-	d["IceSSL.Server.DefaultDir"] = defaultDir;
-	d["IceSSL.Server.CertAuthFile"] = "cacert1.pem";
-	d["IceSSL.Server.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
-	d["IceSSL.Server.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
+	d["IceSSL.DefaultDir"] = defaultDir;
+	d["IceSSL.CertAuthFile"] = "cacert1.pem";
+	d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
+	d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
 	server = fact->createServer(d);
 	try
 	{
@@ -671,16 +671,16 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	//
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);
-	initData.properties->setProperty("IceSSL.Client.DefaultDir", defaultDir);
-	initData.properties->setProperty("IceSSL.Client.CertFile", "c_rsa_nopass_ca1_pub.pem");
-	initData.properties->setProperty("IceSSL.Client.KeyFile", "c_rsa_nopass_ca1_priv.pem");
+	initData.properties->setProperty("IceSSL.DefaultDir", defaultDir);
+	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
+	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
 	CommunicatorPtr comm = initialize(argc, argv, initData);
 	Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	Test::Properties d = createServerProps(defaultHost);
-	d["IceSSL.Server.DefaultDir"] = defaultDir;
-	d["IceSSL.Server.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
-	d["IceSSL.Server.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
+	d["IceSSL.DefaultDir"] = defaultDir;
+	d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
+	d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
 	Test::ServerPrx server = fact->createServer(d);
 	try
 	{
@@ -703,9 +703,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	//
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);
-	initData.properties->setProperty("IceSSL.Client.DefaultDir", defaultDir);
-	initData.properties->setProperty("IceSSL.Client.CertFile", "c_rsa_pass_ca1_pub.pem");
-	initData.properties->setProperty("IceSSL.Client.KeyFile", "c_rsa_pass_ca1_priv.pem");
+	initData.properties->setProperty("IceSSL.DefaultDir", defaultDir);
+	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_pass_ca1_pub.pem");
+	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_pass_ca1_priv.pem");
 	initData.properties->setProperty("IceSSL.DelayInit", "1");
 	CommunicatorPtr comm = initialize(argc, argv, initData);
 	IceSSL::PluginPtr plugin =
@@ -718,9 +718,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	Test::Properties d = createServerProps(defaultHost);
-	d["IceSSL.Server.DefaultDir"] = defaultDir;
-	d["IceSSL.Server.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
-	d["IceSSL.Server.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
+	d["IceSSL.DefaultDir"] = defaultDir;
+	d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
+	d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
 	Test::ServerPrx server = fact->createServer(d);
 	try
 	{
@@ -738,10 +738,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	// Use an incorrect password and check that retries are attempted.
 	//
 	initData.properties = createClientProps(defaultHost);
-	initData.properties->setProperty("IceSSL.Client.DefaultDir", defaultDir);
-	initData.properties->setProperty("IceSSL.Client.CertFile", "c_rsa_pass_ca1_pub.pem");
-	initData.properties->setProperty("IceSSL.Client.KeyFile", "c_rsa_pass_ca1_priv.pem");
-	initData.properties->setProperty("IceSSL.Client.PasswordRetryMax", "4");
+	initData.properties->setProperty("IceSSL.DefaultDir", defaultDir);
+	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_pass_ca1_pub.pem");
+	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_pass_ca1_priv.pem");
+	initData.properties->setProperty("IceSSL.PasswordRetryMax", "4");
 	initData.properties->setProperty("IceSSL.DelayInit", "1");
 	comm = initialize(argc, argv, initData);
 	plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
@@ -774,16 +774,16 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	//
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);
-	initData.properties->setProperty("IceSSL.Client.Ciphers", "ADH");
+	initData.properties->setProperty("IceSSL.Ciphers", "ADH");
 	CommunicatorPtr comm = initialize(argc, argv, initData);
 	Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	Test::Properties d = createServerProps(defaultHost);
-	d["IceSSL.Server.DefaultDir"] = defaultDir;
-	d["IceSSL.Server.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
-	d["IceSSL.Server.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
-	d["IceSSL.Server.Ciphers"] = "RSA:ADH";
-	d["IceSSL.Server.VerifyPeer"] = "1";
+	d["IceSSL.DefaultDir"] = defaultDir;
+	d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
+	d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
+	d["IceSSL.Ciphers"] = "RSA:ADH";
+	d["IceSSL.VerifyPeer"] = "1";
 	Test::ServerPrx server = fact->createServer(d);
 	try
 	{
@@ -804,19 +804,19 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	//
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);
-	initData.properties->setProperty("IceSSL.Client.DefaultDir", defaultDir);
-	initData.properties->setProperty("IceSSL.Client.CertFile", "c_dsa_nopass_ca1_pub.pem");
-	initData.properties->setProperty("IceSSL.Client.KeyFile", "c_dsa_nopass_ca1_priv.pem");
-	initData.properties->setProperty("IceSSL.Client.Ciphers", "DEFAULT:DSS");
+	initData.properties->setProperty("IceSSL.DefaultDir", defaultDir);
+	initData.properties->setProperty("IceSSL.CertFile", "c_dsa_nopass_ca1_pub.pem");
+	initData.properties->setProperty("IceSSL.KeyFile", "c_dsa_nopass_ca1_priv.pem");
+	initData.properties->setProperty("IceSSL.Ciphers", "DEFAULT:DSS");
 	CommunicatorPtr comm = initialize(argc, argv, initData);
 	Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	Test::Properties d = createServerProps(defaultHost);
-	d["IceSSL.Server.DefaultDir"] = defaultDir;
-	d["IceSSL.Server.CertFile"] = "s_rsa_nopass_ca1_pub.pem" + sep + "s_dsa_nopass_ca1_pub.pem";
-	d["IceSSL.Server.KeyFile"] = "s_rsa_nopass_ca1_priv.pem" + sep + "s_dsa_nopass_ca1_priv.pem";
-	d["IceSSL.Server.Ciphers"] = "DEFAULT:DSS";
-	d["IceSSL.Server.VerifyPeer"] = "1";
+	d["IceSSL.DefaultDir"] = defaultDir;
+	d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem" + sep + "s_dsa_nopass_ca1_pub.pem";
+	d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem" + sep + "s_dsa_nopass_ca1_priv.pem";
+	d["IceSSL.Ciphers"] = "DEFAULT:DSS";
+	d["IceSSL.VerifyPeer"] = "1";
 	Test::ServerPrx server = fact->createServer(d);
 	try
 	{
@@ -833,18 +833,18 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	// Next try a client with an RSA certificate.
 	//
 	initData.properties = createClientProps(defaultHost);
-	initData.properties->setProperty("IceSSL.Client.DefaultDir", defaultDir);
-	initData.properties->setProperty("IceSSL.Client.CertFile", "c_rsa_nopass_ca1_pub.pem");
-	initData.properties->setProperty("IceSSL.Client.KeyFile", "c_rsa_nopass_ca1_priv.pem");
+	initData.properties->setProperty("IceSSL.DefaultDir", defaultDir);
+	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
+	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
 	comm = initialize(argc, argv, initData);
 	fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	d = createServerProps(defaultHost);
-	d["IceSSL.Server.DefaultDir"] = defaultDir;
-	d["IceSSL.Server.CertFile"] = "s_rsa_nopass_ca1_pub.pem" + sep + "s_dsa_nopass_ca1_pub.pem";
-	d["IceSSL.Server.KeyFile"] = "s_rsa_nopass_ca1_priv.pem" + sep + "s_dsa_nopass_ca1_priv.pem";
-	d["IceSSL.Server.Ciphers"] = "DEFAULT:DSS";
-	d["IceSSL.Server.VerifyPeer"] = "1";
+	d["IceSSL.DefaultDir"] = defaultDir;
+	d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem" + sep + "s_dsa_nopass_ca1_pub.pem";
+	d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem" + sep + "s_dsa_nopass_ca1_priv.pem";
+	d["IceSSL.Ciphers"] = "DEFAULT:DSS";
+	d["IceSSL.VerifyPeer"] = "1";
 	server = fact->createServer(d);
 	try
 	{
@@ -861,16 +861,16 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	// Next try a client with ADH. This should fail.
 	//
 	initData.properties = createClientProps(defaultHost);
-	initData.properties->setProperty("IceSSL.Client.Ciphers", "ADH");
+	initData.properties->setProperty("IceSSL.Ciphers", "ADH");
 	comm = initialize(argc, argv, initData);
 	fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	d = createServerProps(defaultHost);
-	d["IceSSL.Server.DefaultDir"] = defaultDir;
-	d["IceSSL.Server.CertFile"] = "s_rsa_nopass_ca1_pub.pem" + sep + "s_dsa_nopass_ca1_pub.pem";
-	d["IceSSL.Server.KeyFile"] = "s_rsa_nopass_ca1_priv.pem" + sep + "s_dsa_nopass_ca1_priv.pem";
-	d["IceSSL.Server.Ciphers"] = "DEFAULT:DSS";
-	d["IceSSL.Server.VerifyPeer"] = "1";
+	d["IceSSL.DefaultDir"] = defaultDir;
+	d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem" + sep + "s_dsa_nopass_ca1_pub.pem";
+	d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem" + sep + "s_dsa_nopass_ca1_priv.pem";
+	d["IceSSL.Ciphers"] = "DEFAULT:DSS";
+	d["IceSSL.VerifyPeer"] = "1";
 	server = fact->createServer(d);
 	try
 	{
@@ -894,17 +894,17 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	//
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);
-	initData.properties->setProperty("IceSSL.Client.DefaultDir", defaultDir);
-	initData.properties->setProperty("IceSSL.Client.CertFile", "c_dsa_nopass_ca1_pub.pem");
-	initData.properties->setProperty("IceSSL.Client.KeyFile", "c_dsa_nopass_ca1_priv.pem");
-	initData.properties->setProperty("IceSSL.Client.Ciphers", "DSS");
+	initData.properties->setProperty("IceSSL.DefaultDir", defaultDir);
+	initData.properties->setProperty("IceSSL.CertFile", "c_dsa_nopass_ca1_pub.pem");
+	initData.properties->setProperty("IceSSL.KeyFile", "c_dsa_nopass_ca1_priv.pem");
+	initData.properties->setProperty("IceSSL.Ciphers", "DSS");
 	CommunicatorPtr comm = initialize(argc, argv, initData);
 	Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	Test::Properties d = createServerProps(defaultHost);
-	d["IceSSL.Server.DefaultDir"] = defaultDir;
-	d["IceSSL.Server.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
-	d["IceSSL.Server.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
+	d["IceSSL.DefaultDir"] = defaultDir;
+	d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
+	d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
 	Test::ServerPrx server = fact->createServer(d);
 	try
 	{

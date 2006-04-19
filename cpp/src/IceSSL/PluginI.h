@@ -26,12 +26,11 @@ public:
 
     virtual void destroy();
 
-    virtual void initialize(SSL_CTX* = 0, SSL_CTX* = 0);
+    virtual void initialize(SSL_CTX* = 0);
     virtual void setCertificateVerifier(const CertificateVerifierPtr&);
     virtual void setPasswordPrompt(const PasswordPromptPtr&);
 
-    virtual SSL_CTX* clientContext();
-    virtual SSL_CTX* serverContext();
+    virtual SSL_CTX* context();
 
 private:
 

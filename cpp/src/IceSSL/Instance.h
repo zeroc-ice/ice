@@ -25,7 +25,7 @@ public:
 
     Instance(const Ice::CommunicatorPtr&);
 
-    void initialize(SSL_CTX*, SSL_CTX*);
+    void initialize(SSL_CTX*);
     void setCertificateVerifier(const CertificateVerifierPtr&);
     void setPasswordPrompt(const PasswordPromptPtr&);
 
@@ -36,8 +36,7 @@ public:
     int securityTraceLevel() const;
     std::string securityTraceCategory() const;
 
-    ClientContextPtr clientContext() const;
-    ServerContextPtr serverContext() const;
+    ContextPtr context() const;
 
     CertificateVerifierPtr certificateVerifier() const;
     PasswordPromptPtr passwordPrompt() const;
@@ -51,8 +50,7 @@ private:
     IceInternal::ProtocolPluginFacadePtr _facade;
     int _securityTraceLevel;
     std::string _securityTraceCategory;
-    ClientContextPtr _clientContext;
-    ServerContextPtr _serverContext;
+    ContextPtr _context;
     CertificateVerifierPtr _verifier;
     PasswordPromptPtr _prompt;
 };

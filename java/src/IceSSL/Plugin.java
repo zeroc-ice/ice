@@ -15,10 +15,10 @@ public interface Plugin extends Ice.Plugin
     // Manually initialize the plugin. The application must set the property
     // IceSSL.DelayInit=1 in order to use this method.
     //
-    // It is legal to pass null as either argument, in which case the plugin
-    // obtains its certificates as directed by configuration properties.
+    // It is legal to pass null as the argument, in which case the plugin
+    // obtains its configuration via properties.
     //
-    void initialize(javax.net.ssl.SSLContext clientContext, javax.net.ssl.SSLContext serverContext);
+    void initialize(javax.net.ssl.SSLContext context);
 
     // 
     // Establish the certificate verifier object. This should be
