@@ -62,7 +62,7 @@ SessionControlClient::run(int argc, char* argv[])
         session->ice_ping();
 	test(false);
     }
-    catch(const ObjectNotExistException& ex)
+    catch(const ObjectNotExistException&)
     {
     }
     cout << "ok" << endl;
