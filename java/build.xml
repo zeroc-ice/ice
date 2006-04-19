@@ -119,6 +119,7 @@
                 <include name="Exception.ice" />
                 <include name="PerfTypes.ice" />
                 <include name="Observer.ice" />
+                <include name="Session.ice" />
                 <include name="Descriptor.ice" />
             </fileset>
         </slice2java>

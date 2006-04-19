@@ -586,7 +586,7 @@ class SessionKeeper
     }
     
 
-    SessionPrx getSession()
+    AdminSessionPrx getSession()
     {
 	return _session;
     }
@@ -598,7 +598,7 @@ class SessionKeeper
     private Preferences _loginPrefs;
   
     private Pinger _thread;
-    private SessionPrx _session;
+    private AdminSessionPrx _session;
 
     private Ice.Identity _registryObserverIdentity = new Ice.Identity();
     private Ice.Identity _nodeObserverIdentity = new Ice.Identity();

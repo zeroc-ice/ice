@@ -684,11 +684,11 @@ public class Coordinator
 	_saveToRegistry.setEnabled(false);
     }
     
-    SessionPrx login(SessionKeeper.LoginInfo info, Component parent)
+    AdminSessionPrx login(SessionKeeper.LoginInfo info, Component parent)
     {	
 	_liveDeploymentRoot.clear();
 
-	SessionPrx session = null;
+	AdminSessionPrx session = null;
 	
 	if(_routedAdapter != null)
 	{
@@ -729,7 +729,7 @@ public class Coordinator
 		    router.createSession(
 			info.routerUsername, new String(info.routerPassword));
 		
-		session = SessionPrxHelper.uncheckedCast(s);
+		session = AdminSessionPrxHelper.uncheckedCast(s);
 	    }
 	    catch(Glacier2.PermissionDeniedException e)
 	    {
@@ -796,7 +796,8 @@ public class Coordinator
 	    
 	    try
 	    {
-		session = sessionManager.createLocalSession(info.registryUsername);
+		session = AdminSessionPrxHelper.uncheckedCast(
+		    sessionManager.createLocalSession(info.registryUsername));
 	    }
 	    catch(Ice.LocalException e)
 	    {
@@ -869,7 +870,7 @@ public class Coordinator
     }
 
 
-    void destroySession(SessionPrx session)
+    void destroySession(AdminSessionPrx session)
     {
 	Ice.RouterPrx router = _communicator.getDefaultRouter();
 
@@ -1774,7 +1775,7 @@ public class Coordinator
     }
 
 
-    public SessionPrx getSession()
+    public AdminSessionPrx getSession()
     {
 	return _sessionKeeper.getSession();
     }
