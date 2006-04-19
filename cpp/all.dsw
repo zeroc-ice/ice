@@ -614,6 +614,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name sessionControlS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name regexC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name regexS
+    End Project Dependency
 }}}
 
 ###############################################################################
