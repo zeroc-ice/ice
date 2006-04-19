@@ -12,12 +12,6 @@
       <property name="IceBoxProperty" value="${name}"/>
     </properties>
 
-    <properties id="TemplateProperties">
-      <properties refid="AppProperties"/>
-      <properties refid="NodeProperties"/>
-      <property name="TemplateProperty" value="test"/>
-    </properties>
-
     <icebox id="${name}" exe="${icebox.exe}" activation="on-demand" pwd=".">  
       <service-instance template="ServiceTemplate" name="Service1" NodeVarOverridedByParam="Overrided"/>
       <service-instance template="FreezeServiceTemplate" name="Service2">
@@ -31,7 +25,8 @@
       </target>
 
       <properties>
-        <properties refid="TemplateProperties"/>
+        <properties refid="AppProperties"/>
+        <properties refid="NodeProperties"/>
         <property name="Ice.Warn.Connections" value="1"/>
       </properties>
 

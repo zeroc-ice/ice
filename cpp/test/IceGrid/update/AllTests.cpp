@@ -758,14 +758,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	ServiceDescriptorPtr service = new ServiceDescriptor();
 	service->name = "${name}";
 	service->entry = "dummy";
-	service->propertySet.references.push_back("TemplatePropertySet");
 	addProperty(service, "ServiceProp", "test");
 	
 	TemplateDescriptor svcTempl;
 	svcTempl.parameters.push_back("name");
 	svcTempl.descriptor = service;
-	svcTempl.propertySets["TemplatePropertySet"].properties.push_back(
-	    createProperty("ServiceTemplateProp", "test"));
 
 	ServiceInstanceDescriptor serviceInstance;
 	serviceInstance._cpp_template = "ServiceTemplate";
@@ -778,14 +775,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	server->pwd = ".";
 	server->propertySet.references.push_back("ApplicationPropertySet");
 	server->propertySet.references.push_back("NodePropertySet");
-	server->propertySet.references.push_back("TemplatePropertySet");
 	addProperty(server, "ServerProp", "test");
 	server->services.push_back(serviceInstance);
 
 	TemplateDescriptor templ;
 	templ.parameters.push_back("name");
 	templ.descriptor = server;
-	templ.propertySets["TemplatePropertySet"].properties.push_back(createProperty("ServerTemplateProp", "test"));
 
 	ApplicationDescriptor testApp;
 	testApp.name = "TestApp";
@@ -827,32 +822,24 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(hasProperty(info.descriptor, "ServerProp", "test"));
 	test(hasProperty(info.descriptor, "NodeProp", "test"));
 	test(hasProperty(info.descriptor, "ApplicationProp", "test"));
-	test(hasProperty(info.descriptor, "ServerTemplateProp", "test"));
 	test(hasProperty(info.descriptor, "ServerInstanceProp", "test"));
 
 	ServiceDescriptorPtr svc = IceBoxDescriptorPtr::dynamicCast(info.descriptor)->services[0].descriptor;
 	test(hasProperty(svc, "ServiceProp", "test"));
-	test(hasProperty(svc, "ServiceTemplateProp", "test"));
-
 
 	ApplicationUpdateDescriptor empty;
 	empty.name = "TestApp";
 	ApplicationUpdateDescriptor update;
 
 	update = empty;
-	service->propertySet.references.push_back("TemplatePropertySet");
 	service->propertySet.properties.clear();
 	addProperty(service, "ServiceProp", "updated");
 	svcTempl.descriptor = service;
-	svcTempl.propertySets["TemplatePropertySet"].properties.clear();
-	svcTempl.propertySets["TemplatePropertySet"].properties.push_back(
-	    createProperty("ServiceTemplateProp", "updated"));
 	update.serviceTemplates["ServiceTemplate"] = svcTempl;
 	admin->updateApplication(update);
 	info = admin->getServerInfo("Server");
 	svc = IceBoxDescriptorPtr::dynamicCast(info.descriptor)->services[0].descriptor;
 	test(hasProperty(svc, "ServiceProp", "updated"));
-	test(hasProperty(svc, "ServiceTemplateProp", "updated"));
 
 	update = empty;
 	serviceInstance.propertySet.properties.clear();
@@ -867,18 +854,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(hasProperty(svc, "ServiceInstanceProp", "updated"));
 
 	update = empty;
-	server->propertySet.references.push_back("TemplatePropertySet");
 	server->propertySet.properties.clear();
 	addProperty(server, "ServerProp", "updated");
 	templ.descriptor = server;
-	templ.propertySets["TemplatePropertySet"].properties.clear();
-	templ.propertySets["TemplatePropertySet"].properties.push_back(
-	    createProperty("ServerTemplateProp", "updated"));
 	update.serverTemplates["ServerTemplate"] = templ;
 	admin->updateApplication(update);
 	info = admin->getServerInfo("Server");
 	test(hasProperty(info.descriptor, "ServerProp", "updated"));
-	test(hasProperty(info.descriptor, "ServerTemplateProp", "updated"));
 
 	update = empty;
 	serverInstance.propertySet.properties.clear();

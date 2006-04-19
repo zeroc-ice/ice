@@ -33,7 +33,7 @@ typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 class NodeSessionI;
 typedef IceUtil::Handle<NodeSessionI> NodeSessionIPtr;
 
-class ObserverSessionI;
+class AdminSessionI;
 
 class ServerEntry;
 typedef IceUtil::Handle<ServerEntry> ServerEntryPtr;
@@ -53,13 +53,13 @@ public:
 
     void setObservers(const RegistryObserverPrx&, const NodeObserverPrx&);
 
-    int lock(ObserverSessionI*, const std::string&);
-    void unlock(ObserverSessionI*);
+    int lock(AdminSessionI*, const std::string&);
+    void unlock(AdminSessionI*);
 
-    void addApplicationDescriptor(ObserverSessionI*, const ApplicationDescriptor&);
-    void updateApplicationDescriptor(ObserverSessionI*, const ApplicationUpdateDescriptor&);
-    void syncApplicationDescriptor(ObserverSessionI*, const ApplicationDescriptor&);
-    void removeApplicationDescriptor(ObserverSessionI*, const std::string&);
+    void addApplicationDescriptor(AdminSessionI*, const ApplicationDescriptor&);
+    void updateApplicationDescriptor(AdminSessionI*, const ApplicationUpdateDescriptor&);
+    void syncApplicationDescriptor(AdminSessionI*, const ApplicationDescriptor&);
+    void removeApplicationDescriptor(AdminSessionI*, const std::string&);
     void instantiateServer(const std::string&, const std::string&, const ServerInstanceDescriptor&);
 
     ApplicationDescriptor getApplicationDescriptor(const std::string&);
@@ -109,7 +109,7 @@ private:
     void unload(const ApplicationHelper&, ServerEntrySeq&);
     void reload(const ApplicationHelper&, const ApplicationHelper&, ServerEntrySeq&);
 
-    void checkSessionLock(ObserverSessionI*);
+    void checkSessionLock(AdminSessionI*);
 
     friend struct AddComponent;
 
@@ -140,7 +140,7 @@ private:
     IdentityObjectInfoDict _objects;
     StringAdapterInfoDict _adapters;
     
-    ObserverSessionI* _lock;
+    AdminSessionI* _lock;
     std::string _lockUserId;
     int _serial;
 };

@@ -244,7 +244,7 @@ exception NodeActiveException
 {
 };
 
-interface NodeSession extends Glacier2::Session
+interface NodeSession
 {
     /**
      *
@@ -259,6 +259,13 @@ interface NodeSession extends Glacier2::Session
      *
      **/
     Ice::StringSeq getServers();
+
+    /**
+     *
+     * Destroy the session.
+     *
+     **/
+    void destroy();
 };
 
 interface Registry

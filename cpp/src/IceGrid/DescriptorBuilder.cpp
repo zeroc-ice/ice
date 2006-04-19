@@ -507,15 +507,6 @@ TemplateDescriptorBuilder::setDescriptor(const CommunicatorDescriptorPtr& desc)
     _descriptor.descriptor = desc;
 }
 
-void
-TemplateDescriptorBuilder::addPropertySet(const string& id, const PropertySetDescriptor& desc)
-{
-    if(!_descriptor.propertySets.insert(make_pair(id, desc)).second)
-    {
-	throw "duplicate property set `" + id + "'";
-    }
-}
-
 ServerDescriptorBuilder*
 TemplateDescriptorBuilder::createServer(const XmlAttributesHelper& attrs)
 {

@@ -423,23 +423,6 @@ Parser::describeServerTemplate(const list<string>& args)
 	    out << nl << "parameters = `" << toString(q->second.parameters) << "'";
 	    out << nl;
 
-	    if(!q->second.propertySets.empty())
-	    {
-		PropertySetDescriptorDict::const_iterator s;
-		for(s = q->second.propertySets.begin(); s != q->second.propertySets.end(); ++s)
-		{
-		    out << nl << "properties `" << s->first << "'";
-		    out << sb;
-		    out << nl << "references = " << toString(s->second.references);
-		    PropertyDescriptorSeq::const_iterator r;
-		    for(r = s->second.properties.begin(); r != s->second.properties.end(); ++r)
-		    {
-			out << nl << r->name << " = `" << r->value << "'";
-		    }
-		    out << eb;
-		}
-	    }
-
 	    ServerDescriptorPtr server = ServerDescriptorPtr::dynamicCast(q->second.descriptor);
 	    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(server);
 	    if(iceBox)
@@ -528,23 +511,6 @@ Parser::describeServiceTemplate(const list<string>& args)
 
 	    out << nl << "parameters = `" << toString(q->second.parameters) << "'";
 	    out << nl;
-
-	    if(!q->second.propertySets.empty())
-	    {
-		PropertySetDescriptorDict::const_iterator s;
-		for(s = q->second.propertySets.begin(); s != q->second.propertySets.end(); ++s)
-		{
-		    out << nl << "properties `" << s->first << "'";
-		    out << sb;
-		    out << nl << "references = " << toString(s->second.references);
-		    PropertyDescriptorSeq::const_iterator r;
-		    for(r = s->second.properties.begin(); r != s->second.properties.end(); ++r)
-		    {
-			out << nl << r->name << " = `" << r->value << "'";
-		    }
-		    out << eb;
-		}
-	    }
 
 	    ServiceDescriptorPtr desc = ServiceDescriptorPtr::dynamicCast(q->second.descriptor);
 	    ServiceHelper(desc).print(out);

@@ -44,11 +44,6 @@ struct TemplateDescriptorEqual : std::binary_function<TemplateDescriptor&, Templ
 	    return false;
 	}
 
-	if(lhs.propertySets != rhs.propertySets)
-	{
-	    return false;
-	}
-
 	{
 	    IceBoxDescriptorPtr slhs = IceBoxDescriptorPtr::dynamicCast(lhs.descriptor);
 	    IceBoxDescriptorPtr srhs = IceBoxDescriptorPtr::dynamicCast(rhs.descriptor);
@@ -301,6 +296,14 @@ Resolver::Resolver(const Resolver& resolve,
     {
 	_variables.insert(resolve._variables.begin(), resolve._variables.end());
 	checkReserved("variable", values);
+    }
+    for(PropertySetDescriptorDict::const_iterator p = resolve._propertySets.begin();
+	p != resolve._propertySets.end(); ++p)
+    {
+	if(!_propertySets.insert(*p).second)
+	{
+	    exception("property set with id `" + p->first + "' is already defined");
+	}
     }
     _propertySets.insert(resolve._propertySets.begin(), resolve._propertySets.end());
 }
@@ -1335,14 +1338,12 @@ ServiceInstanceDescriptor
 ServiceInstanceHelper::instantiate(const Resolver& resolve) const
 { 
     ServiceHelper def = _service;
-    PropertySetDescriptorDict templatePropertySets;
     std::map<std::string, std::string> parameterValues;
     if(!def.getDescriptor())
     {
 	assert(!_definition._cpp_template.empty());
 	TemplateDescriptor tmpl = resolve.getServiceTemplate(_definition._cpp_template);
 	def = ServiceHelper(ServiceDescriptorPtr::dynamicCast(tmpl.descriptor));
-	templatePropertySets = tmpl.propertySets;
 	parameterValues = instantiateParams(resolve, 
 					    _definition._cpp_template, 
 					    _definition.parameterValues,
@@ -1353,7 +1354,7 @@ ServiceInstanceHelper::instantiate(const Resolver& resolve) const
     //
     // Setup the resolver.
     //
-    Resolver svcResolve(resolve, parameterValues, !_service.getDescriptor(), templatePropertySets);
+    Resolver svcResolve(resolve, parameterValues, !_service.getDescriptor());
     svcResolve.setReserved("service", svcResolve(def.getDescriptor()->name, "service name", false));
     svcResolve.setContext("service `${service}' from server `${server}'");
 
@@ -1442,7 +1443,6 @@ ServerInstanceHelper::init(const ServerDescriptorPtr& definition, const Resolver
     // Get the server definition if it's not provided.
     //
     ServerDescriptorPtr def = definition;
-    PropertySetDescriptorDict templatePropertySets;
     std::map<std::string, std::string> parameterValues;
     if(!def)
     {
@@ -1456,7 +1456,6 @@ ServerInstanceHelper::init(const ServerDescriptorPtr& definition, const Resolver
 	//
 	TemplateDescriptor tmpl = resolve.getServerTemplate(_definition._cpp_template);
 	def = ServerDescriptorPtr::dynamicCast(tmpl.descriptor);
-	templatePropertySets = tmpl.propertySets;
 	parameterValues = instantiateParams(resolve, 
 					    _definition._cpp_template, 
 					    _definition.parameterValues, 
@@ -1468,7 +1467,7 @@ ServerInstanceHelper::init(const ServerDescriptorPtr& definition, const Resolver
     //
     // Setup the resolver.
     //
-    Resolver svrResolve(resolve, parameterValues, true, templatePropertySets);
+    Resolver svrResolve(resolve, parameterValues, true);
     svrResolve.setReserved("server", svrResolve(def->id, "server id", false));
     svrResolve.setContext("server `${server}'");
 

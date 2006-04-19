@@ -40,7 +40,7 @@
       <parameter name="client-endpoints"/>   
       <parameter name="server-endpoints"/>
       <parameter name="session-timeout"/>
-
+  
       <!-- All the following parameters correspond to properties with a default value -->
      
       <parameter name="session-manager" default=""/>

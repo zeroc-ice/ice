@@ -19,7 +19,7 @@
 #include <IceGrid/Database.h>
 #include <IceGrid/NodeSessionI.h>
 #include <IceGrid/ReapThread.h>
-#include <IceGrid/SessionManagerI.h>
+#include <IceGrid/AdminSessionI.h>
 #include <IceGrid/Topics.h>
 
 #include <IceStorm/Service.h>
@@ -38,6 +38,43 @@
 using namespace std;
 using namespace Ice;
 using namespace IceGrid;
+
+namespace IceGrid
+{
+
+class NodeSessionReapable : public Reapable
+{
+public:
+
+    NodeSessionReapable(const NodeSessionIPtr& session, const NodeSessionPrx& proxy) : 
+	_session(session),
+	_proxy(proxy)
+    {
+    }
+
+    virtual ~NodeSessionReapable()
+    {
+    }
+	
+    virtual IceUtil::Time
+    timestamp() const
+    {
+	return _session->timestamp();
+    }
+
+    virtual void
+    destroy()
+    {
+	_proxy->destroy();
+    }
+
+private:
+
+    const NodeSessionIPtr _session;
+    const NodeSessionPrx _proxy;
+};
+
+};
 
 RegistryI::RegistryI(const CommunicatorPtr& communicator) : _communicator(communicator)
 {
@@ -163,7 +200,8 @@ RegistryI::start(bool nowarn)
     //
     bool dynamicReg = properties->getPropertyAsInt("IceGrid.Registry.DynamicRegistration") > 0;
     ObjectPtr locatorRegistry = new LocatorRegistryI(_database, dynamicReg);
-    ObjectPrx obj = serverAdapter->add(locatorRegistry, stringToIdentity(instanceName + "/"+ IceUtil::generateUUID()));
+    ObjectPrx obj = serverAdapter->add(locatorRegistry, 
+				       stringToIdentity(instanceName + "/" + IceUtil::generateUUID()));
     LocatorRegistryPrx locatorRegistryPrx = LocatorRegistryPrx::uncheckedCast(obj);
     ObjectPtr locator = new LocatorI(_communicator, _database, locatorRegistryPrx); 
     Identity locatorId = stringToIdentity(instanceName + "/Locator");
@@ -193,7 +231,7 @@ RegistryI::start(bool nowarn)
     _database->setObservers(_registryObserver, _nodeObserver);
 
     //
-    // Create the query, admin, session manager interfaces;
+    // Create the query, admin, session manager interfaces
     //
     Identity queryId = stringToIdentity(instanceName + "/Query");
     clientAdapter->add(new QueryI(_communicator, _database), queryId);
@@ -203,8 +241,8 @@ RegistryI::start(bool nowarn)
 
     Identity sessionManagerId = stringToIdentity(instanceName + "/SessionManager");
     ReapThreadPtr reaper = _adminReaper ? _adminReaper : _reaper;
-    ObjectPtr sessionManager = new SessionManagerI(*regTopic, *nodeTopic, _database, reaper, adminSessionTimeout);
-    adminAdapter->add(sessionManager, sessionManagerId);
+    ObjectPtr sessionMgr = new AdminSessionManagerI(*regTopic, *nodeTopic, _database, reaper, adminSessionTimeout);
+    adminAdapter->add(sessionMgr, sessionManagerId);
 
     //
     // Register well known objects with the object registry.
@@ -252,7 +290,7 @@ RegistryI::registerNode(const std::string& name, const NodePrx& node, const Node
     NodePrx n = NodePrx::uncheckedCast(node->ice_timeout(_nodeSessionTimeout * 1000));
     NodeSessionIPtr session = new NodeSessionI(_database, name, n, info);
     NodeSessionPrx proxy = NodeSessionPrx::uncheckedCast(c.adapter->addWithUUID(session));
-    _reaper->add(proxy, session);
+    _reaper->add(new NodeSessionReapable(session, proxy));
     obs = _nodeObserver;
     return proxy;
 }

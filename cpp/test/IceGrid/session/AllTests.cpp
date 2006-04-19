@@ -9,7 +9,7 @@
 
 #include <IceUtil/Thread.h>
 #include <Ice/Ice.h>
-#include <IceGrid/Observer.h>
+#include <IceGrid/Session.h>
 #include <IceGrid/Query.h>
 #include <IceGrid/Admin.h>
 #include <TestCommon.h>
@@ -371,8 +371,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
 	cout << "testing sessions... " << flush;
-	SessionPrx session1 = manager->createLocalSession("Observer1");
-	SessionPrx session2 = manager->createLocalSession("Observer2");
+	AdminSessionPrx session1 = AdminSessionPrx::uncheckedCast(manager->createLocalSession("Observer1"));
+	AdminSessionPrx session2 = AdminSessionPrx::uncheckedCast(manager->createLocalSession("Observer2"));
 	
 	keepAlive->add(session1);
 	keepAlive->add(session2);	
@@ -586,7 +586,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
 	cout << "testing registry observer... " << flush;
-	SessionPrx session1 = manager->createLocalSession("Observer1");
+	AdminSessionPrx session1 = AdminSessionPrx::uncheckedCast(manager->createLocalSession("Observer1"));
 	
 	keepAlive->add(session1);
 	
@@ -884,7 +884,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
 	cout << "testing node observer... " << flush;
-	SessionPrx session1 = manager->createLocalSession("Observer1");
+	AdminSessionPrx session1 = AdminSessionPrx::uncheckedCast(manager->createLocalSession("Observer1"));
 	
 	keepAlive->add(session1);
 	

@@ -23,7 +23,8 @@ class Resolver
 public:
 
     Resolver(const ApplicationHelper&);
-    Resolver(const Resolver&, const std::map<std::string, std::string>&, bool, const PropertySetDescriptorDict&);
+    Resolver(const Resolver&, const std::map<std::string, std::string>&, bool, 
+	     const PropertySetDescriptorDict& = PropertySetDescriptorDict());
     Resolver(const std::string&, const std::map<std::string, std::string>&);
 
     std::string operator()(const std::string&, const std::string& = std::string(), bool = true, bool = true) const;

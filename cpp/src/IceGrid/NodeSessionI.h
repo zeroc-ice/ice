@@ -11,7 +11,6 @@
 #define ICEGRID_NODE_SESSION_H
 
 #include <IceGrid/Internal.h>
-#include <IceGrid/SessionI.h>
 
 namespace IceGrid
 {
@@ -22,7 +21,7 @@ typedef IceUtil::Handle<Database> DatabasePtr;
 class TraceLevels;
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
-class NodeSessionI : public NodeSession, public SessionI,  public IceUtil::Mutex
+class NodeSessionI : public NodeSession, public IceUtil::Mutex
 {
 public:
 

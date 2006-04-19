@@ -24,7 +24,8 @@ LIB_OBJS	= Admin.o \
 		  Query.o \
 	 	  Exception.o \
 		  Descriptor.o \
-		  Observer.o
+		  Observer.o \
+		  Session.o
 
 ADMIN_OBJS	= Grammar.o \
 		  Scanner.o \
@@ -66,8 +67,8 @@ REGISTRY_OBJS   = RegistryI.o \
 		  DescriptorHelper.o \
 		  NodeSessionI.o \
 		  ReapThread.o \
-		  ObserverSessionI.o \
-		  SessionManagerI.o \
+		  SessionI.o \
+		  AdminSessionI.o \
 		  Topics.o \
 		  QueryI.o
 
@@ -93,6 +94,7 @@ SLICE_SRCS	= $(SDIR)/Admin.ice \
                   $(SDIR)/Exception.ice \
                   $(SDIR)/FileParser.ice \
                   $(SDIR)/Query.ice \
+		  $(SDIR)/Session.ice \
 		  $(SDIR)/Observer.ice \
 		  $(SDIR)/Descriptor.ice \
 		  Internal.ice

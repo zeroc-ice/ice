@@ -217,7 +217,7 @@ Database::setObservers(const RegistryObserverPrx& registryObserver, const NodeOb
 }
 
 void
-Database::checkSessionLock(ObserverSessionI* session)
+Database::checkSessionLock(AdminSessionI* session)
 {
     if(_lock != 0 && session != _lock)
     {
@@ -228,7 +228,7 @@ Database::checkSessionLock(ObserverSessionI* session)
 }
 
 int
-Database::lock(ObserverSessionI* session, const string& userId)
+Database::lock(AdminSessionI* session, const string& userId)
 {
     Lock sync(*this);
     checkSessionLock(session);
@@ -240,7 +240,7 @@ Database::lock(ObserverSessionI* session, const string& userId)
 }
 
 void
-Database::unlock(ObserverSessionI* session)
+Database::unlock(AdminSessionI* session)
 {
     Lock sync(*this);
     assert(_lock == session);
@@ -249,7 +249,7 @@ Database::unlock(ObserverSessionI* session)
 }
 
 void
-Database::addApplicationDescriptor(ObserverSessionI* session, const ApplicationDescriptor& desc)
+Database::addApplicationDescriptor(AdminSessionI* session, const ApplicationDescriptor& desc)
 {
     ServerEntrySeq entries;
     int serial;
@@ -309,7 +309,7 @@ Database::addApplicationDescriptor(ObserverSessionI* session, const ApplicationD
 }
 
 void
-Database::updateApplicationDescriptor(ObserverSessionI* session, const ApplicationUpdateDescriptor& update)
+Database::updateApplicationDescriptor(AdminSessionI* session, const ApplicationUpdateDescriptor& update)
 {
     ServerEntrySeq entries;
     int serial;
@@ -351,7 +351,7 @@ Database::updateApplicationDescriptor(ObserverSessionI* session, const Applicati
 }
 
 void
-Database::syncApplicationDescriptor(ObserverSessionI* session, const ApplicationDescriptor& newDesc)
+Database::syncApplicationDescriptor(AdminSessionI* session, const ApplicationDescriptor& newDesc)
 {
     ServerEntrySeq entries;
     int serial;
@@ -394,7 +394,7 @@ Database::syncApplicationDescriptor(ObserverSessionI* session, const Application
 }
 
 void
-Database::removeApplicationDescriptor(ObserverSessionI* session, const std::string& name)
+Database::removeApplicationDescriptor(AdminSessionI* session, const std::string& name)
 {
     ServerEntrySeq entries;
     int serial;

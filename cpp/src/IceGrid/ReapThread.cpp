@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <Glacier2/Session.h>
 #include <IceGrid/ReapThread.h>
 
 using namespace std;
@@ -27,16 +26,16 @@ ReapThread::run()
 
     while(!_terminated)
     {
-	list<pair<SessionIPtr, Glacier2::SessionPrx> >::iterator p = _sessions.begin();
+	list<ReapablePtr>::iterator p = _sessions.begin();
 	while(p != _sessions.end())
 	{
 	    try
 	    {
-		if((IceUtil::Time::now() - p->first->timestamp()) > _timeout)
+		if((IceUtil::Time::now() - (*p)->timestamp()) > _timeout)
 		{
 		    try
 		    {
-			p->second->destroy();
+			(*p)->destroy();
 		    }
 		    catch(const Ice::LocalException&)
 		    {
@@ -66,13 +65,13 @@ ReapThread::terminate()
     _terminated = true;
     notify();
 
-    for(list<pair<SessionIPtr, Glacier2::SessionPrx> >::const_iterator p = _sessions.begin(); p != _sessions.end(); ++p)
+    for(list<ReapablePtr>::const_iterator p = _sessions.begin(); p != _sessions.end(); ++p)
     {
 	try
 	{
-	    p->second->destroy();
+	    (*p)->destroy();
 	}
-	catch(const Ice::Exception&)
+	catch(const Ice::LocalException&)
 	{
 	    // Ignore.
 	}
@@ -82,9 +81,9 @@ ReapThread::terminate()
 }
 
 void
-ReapThread::add(const Glacier2::SessionPrx& proxy, const SessionIPtr& session)
+ReapThread::add(const ReapablePtr& reapable)
 {
     Lock sync(*this);
-    _sessions.push_back(make_pair(session, proxy));
+    _sessions.push_back(reapable);
 }
 

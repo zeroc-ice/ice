@@ -246,14 +246,12 @@ allTests(const Ice::CommunicatorPtr& comm)
     test(obj->getProperty("AppProperty2") == "OverridedInNode");
     test(obj->getProperty("AppProperty21") == "Override");
     test(obj->getProperty("NodeProperty") == "NodeVar");
-    test(obj->getProperty("TemplateProperty") == "test");
 
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("Server2@Server2.Server"));
     test(obj->getProperty("AppProperty") == "AppVar");
     test(obj->getProperty("AppProperty2") == "OverridedInNode");
     test(obj->getProperty("AppProperty21") == "Override");
     test(obj->getProperty("NodeProperty") == "NodeVar");
-    test(obj->getProperty("TemplateProperty") == "test");
     test(obj->getProperty("ServerProperty") == "Server2");
     test(obj->getProperty("ServerInstanceProperty") == "Server2");
 
@@ -262,14 +260,12 @@ allTests(const Ice::CommunicatorPtr& comm)
     test(obj->getProperty("AppProperty2") == "OverridedInNode");
     test(obj->getProperty("AppProperty21") == "Override");
     test(obj->getProperty("NodeProperty") == "NodeVar");
-    test(obj->getProperty("TemplateProperty") == "test");
 
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox2-Service1@IceBox2.Service1.Service1"));
     test(obj->getProperty("AppProperty") == "AppVar");
     test(obj->getProperty("AppProperty2") == "OverridedInNode");
     test(obj->getProperty("AppProperty21") == "Override");
     test(obj->getProperty("NodeProperty") == "NodeVar");
-    test(obj->getProperty("TemplateProperty") == "test");
     test(obj->getProperty("IceBoxProperty") == "IceBox2");
     test(obj->getProperty("IceBoxInstanceProperty") == "IceBox2");
 
@@ -282,7 +278,6 @@ allTests(const Ice::CommunicatorPtr& comm)
     test(obj->getProperty("IceBoxInstanceProperty") == "IceBox2");
     test(obj->getProperty("ServiceProperty") == "Service2");
     test(obj->getProperty("ServiceInstanceProperty") == "Service2");
-    test(obj->getProperty("TemplateProperty") == "test-service");    
 
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("SimpleServer@SimpleServer.Server"));
     test(obj->getProperty("AppProperty") == "AppVar");

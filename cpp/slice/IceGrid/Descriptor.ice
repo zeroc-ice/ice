@@ -32,13 +32,23 @@ struct PropertyDescriptor
 
 /**
  *
- * A property set descriptor. A property set contains references on
- * other property sets and a list of properties.
+ * A property set descriptor.
  *
  **/
 struct PropertySetDescriptor
 {
+    /**
+     *
+     * References to named property sets.
+     * 
+     **/
     Ice::StringSeq references;
+
+    /**
+     *
+     * The property set properties.
+     *
+     **/
     PropertyDescriptorSeq properties;
 };
 dictionary<string, PropertySetDescriptor> PropertySetDescriptorDict;
@@ -405,13 +415,6 @@ struct TemplateDescriptor
      *
      **/
     StringStringDict parameterDefaults;
-
-    /**
-     *
-     * Property set descriptors.
-     *
-     **/
-    PropertySetDescriptorDict propertySets;
 };
 dictionary<string, TemplateDescriptor> TemplateDescriptorDict;
 

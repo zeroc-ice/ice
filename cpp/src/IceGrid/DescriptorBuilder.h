@@ -176,7 +176,6 @@ public:
 
     void addParameter(const XmlAttributesHelper&);
     void setDescriptor(const CommunicatorDescriptorPtr&);
-    void addPropertySet(const std::string&, const PropertySetDescriptor&);
 
     const std::string& getId() const { return _id; }
     const TemplateDescriptor& getDescriptor() const { return _descriptor; }

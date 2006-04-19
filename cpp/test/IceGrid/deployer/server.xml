@@ -14,12 +14,6 @@
       <property name="ServerProperty" value="${name}"/>
     </properties>
 
-    <properties id="TemplateProperties">
-      <properties refid="AppProperties"/>
-      <properties refid="NodeProperties"/>
-      <property name="TemplateProperty" value="test"/>
-    </properties>
-
     <server id="${name}" exe="${test.dir}/server" activation="on-demand" pwd=".">
 
       <option>--Test.Test=2</option>
@@ -31,7 +25,8 @@
       <adapter name="ReplicatedAdapter" endpoints="default" replica-group="ReplicatedAdapter"/>
 
       <properties>
-        <properties refid="TemplateProperties"/>
+        <properties refid="AppProperties"/>
+        <properties refid="NodeProperties"/>
         <property name="Ice.Warn.Connections" value="1"/>
 
 	<property name="Type" value="Server"/>
