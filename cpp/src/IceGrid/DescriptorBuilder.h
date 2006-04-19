@@ -141,6 +141,7 @@ class NodeDescriptorBuilder : public DescriptorBuilder
 public:
 
     NodeDescriptorBuilder(ApplicationDescriptorBuilder&, const XmlAttributesHelper&);
+    NodeDescriptorBuilder(ApplicationDescriptorBuilder&, const NodeDescriptor&, const XmlAttributesHelper&);
 
     virtual ServerDescriptorBuilder* createServer(const XmlAttributesHelper&);
     virtual ServerDescriptorBuilder* createIceBox(const XmlAttributesHelper&);

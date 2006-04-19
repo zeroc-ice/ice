@@ -11,16 +11,12 @@
 
 <icegrid>
   <application name="Simple">
-  <properties id="test"/>
 
     <server-template id="SimpleServer">
       <parameter name="index"/>
       <server id="SimpleServer-${index}" exe="./server" activation="on-demand">
         <adapter name="Hello" endpoints="tcp" register-process="true" replica-group="ReplicatedHelloAdapter"/>
         <property name="Identity" value="hello"/>
-        <properties>
-          <properties refid="test"/>
-        </properties>
       </server>
     </server-template>
 

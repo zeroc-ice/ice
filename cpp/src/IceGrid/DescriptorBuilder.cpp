@@ -312,7 +312,7 @@ ApplicationDescriptorBuilder::addVariable(const XmlAttributesHelper& attrs)
 NodeDescriptorBuilder*
 ApplicationDescriptorBuilder::createNode(const XmlAttributesHelper& attrs)
 {
-    return new NodeDescriptorBuilder(*this, attrs);
+    return new NodeDescriptorBuilder(*this, _descriptor.nodes[attrs("name")], attrs);
 }
 
 TemplateDescriptorBuilder*
@@ -330,27 +330,7 @@ ApplicationDescriptorBuilder::createServiceTemplate(const XmlAttributesHelper& a
 void
 ApplicationDescriptorBuilder::addNode(const string& name, const NodeDescriptor& desc)
 {
-    NodeDescriptorDict::iterator p = _descriptor.nodes.find(name);
-    if(p != _descriptor.nodes.end())
-    {
-	NodeDescriptor& n = p->second;
-
-	if(!desc.loadFactor.empty())
-	{
-	    n.loadFactor = desc.loadFactor;
-	}
-
-	map<string, string> variables(desc.variables.begin(), desc.variables.end());
-	n.variables.swap(variables);
-	n.variables.insert(variables.begin(), variables.end());
-
-	n.serverInstances.insert(n.serverInstances.end(), desc.serverInstances.begin(), desc.serverInstances.end());
-	n.servers.insert(n.servers.end(), desc.servers.begin(), desc.servers.end());
-    }
-    else
-    {
-	_descriptor.nodes.insert(make_pair(name, desc));
-    }
+    _descriptor.nodes[name] = desc;
 }
 
 void
@@ -417,8 +397,11 @@ ServerInstanceDescriptorBuilder::addPropertySet(const PropertySetDescriptor& des
     _descriptor.propertySet = desc;
 }
 
-NodeDescriptorBuilder::NodeDescriptorBuilder(ApplicationDescriptorBuilder& app, const XmlAttributesHelper& attrs) :
-    _application(app)
+NodeDescriptorBuilder::NodeDescriptorBuilder(ApplicationDescriptorBuilder& app, 
+					     const NodeDescriptor& desc,
+					     const XmlAttributesHelper& attrs) :
+    _application(app),
+    _descriptor(desc)
 {
     _name = attrs("name");
     _descriptor.loadFactor = attrs("load-factor", "");
