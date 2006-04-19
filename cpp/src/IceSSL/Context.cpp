@@ -16,16 +16,6 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/Properties.h>
 
-#ifdef _WIN32
-#   include <direct.h>
-#   include <sys/types.h>
-#   include <sys/stat.h>
-#   define S_ISDIR(mode) ((mode) & _S_IFDIR)
-#   define S_ISREG(mode) ((mode) & _S_IFREG)
-#else
-#   include <sys/stat.h>
-#endif
-
 #include <openssl/x509v3.h>
 #include <openssl/err.h>
 
@@ -198,7 +188,7 @@ IceSSL::Context::Context(const InstancePtr& instance, SSL_CTX* ctx) :
 	    const char* dir = 0;
 	    if(!caFile.empty())
 	    {
-		if(!checkPath(caFile, false))
+		if(!checkPath(caFile, _defaultDir, false))
 		{
 		    PluginInitializationException ex(__FILE__, __LINE__);
 		    ex.reason = "IceSSL: CA certificate file not found:\n" + caFile;
@@ -208,7 +198,7 @@ IceSSL::Context::Context(const InstancePtr& instance, SSL_CTX* ctx) :
 	    }
 	    if(!caDir.empty())
 	    {
-		if(!checkPath(caDir, true))
+		if(!checkPath(caDir, _defaultDir, true))
 		{
 		    PluginInitializationException ex(__FILE__, __LINE__);
 		    ex.reason = "IceSSL: CA certificate directory not found:\n" + caDir;
@@ -282,7 +272,7 @@ IceSSL::Context::Context(const InstancePtr& instance, SSL_CTX* ctx) :
 		for(vector<string>::iterator p = files.begin(); p != files.end(); ++p)
 		{
 		    string file = *p;
-		    if(!checkPath(file, false))
+		    if(!checkPath(file, _defaultDir, false))
 		    {
 			PluginInitializationException ex(__FILE__, __LINE__);
 			ex.reason = "IceSSL: certificate file not found:\n" + file;
@@ -347,7 +337,7 @@ IceSSL::Context::Context(const InstancePtr& instance, SSL_CTX* ctx) :
 		for(vector<string>::iterator p = files.begin(); p != files.end(); ++p)
 		{
 		    string file = *p;
-		    if(!checkPath(file, false))
+		    if(!checkPath(file, _defaultDir, false))
 		    {
 			PluginInitializationException ex(__FILE__, __LINE__);
 			ex.reason = "IceSSL: key file not found:\n" + file;
@@ -453,7 +443,7 @@ IceSSL::Context::Context(const InstancePtr& instance, SSL_CTX* ctx) :
 		    if(keyLength > 0)
 		    {
 			string file = p->second;
-			if(!checkPath(file, false))
+			if(!checkPath(file, _defaultDir, false))
 			{
 			    PluginInitializationException ex(__FILE__, __LINE__);
 			    ex.reason = "IceSSL: DH parameter file not found:\n" + file;
@@ -753,46 +743,6 @@ IceSSL::Context::traceConnection(SSL* ssl, bool incoming)
 	out << "protocol = " << SSL_get_version(ssl) << "\n";
     }
     out << IceInternal::fdToString(SSL_get_fd(ssl));
-}
-
-bool
-IceSSL::Context::checkPath(string& path, bool dir)
-{
-    //
-    // Check if file exists. If not, try prepending the default
-    // directory and check again. If the file is found, the
-    // string argument is modified and true is returned. Otherwise
-    // false is returned.
-    //
-#ifdef _WIN32
-    struct _stat st;
-    int err = ::_stat(path.c_str(), &st);
-#else
-    struct stat st;
-    int err = ::stat(path.c_str(), &st);
-#endif
-    if(err == 0)
-    {
-	return dir ? S_ISDIR(st.st_mode) != 0 : S_ISREG(st.st_mode) != 0;
-    }
-
-    if(!_defaultDir.empty())
-    {
-#ifdef _WIN32
-	string s = _defaultDir + "\\" + path;
-	err = ::_stat(s.c_str(), &st);
-#else
-	string s = _defaultDir + "/" + path;
-	err = ::stat(s.c_str(), &st);
-#endif
-	if(err == 0 && ((!dir && S_ISREG(st.st_mode)) || (dir && S_ISDIR(st.st_mode))))
-	{
-	    path = s;
-	    return true;
-	}
-    }
-
-    return false;
 }
 
 void

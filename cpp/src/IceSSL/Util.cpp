@@ -10,6 +10,16 @@
 #include <Util.h>
 #include <Ice/LocalException.h>
 
+#ifdef _WIN32
+#   include <direct.h>
+#   include <sys/types.h>
+#   include <sys/stat.h>
+#   define S_ISDIR(mode) ((mode) & _S_IFDIR)
+#   define S_ISREG(mode) ((mode) & _S_IFREG)
+#else
+#   include <sys/stat.h>
+#endif
+
 #include <IceUtil/DisableWarnings.h>
 
 using namespace std;
@@ -376,4 +386,44 @@ IceSSL::splitString(const string& str, const string& delim, bool handleQuotes, v
     }
 
     return true;
+}
+
+bool
+IceSSL::checkPath(string& path, const string& defaultDir, bool dir)
+{
+    //
+    // Check if file exists. If not, try prepending the default
+    // directory and check again. If the file is found, the
+    // string argument is modified and true is returned. Otherwise
+    // false is returned.
+    //
+#ifdef _WIN32
+    struct _stat st;
+    int err = ::_stat(path.c_str(), &st);
+#else
+    struct stat st;
+    int err = ::stat(path.c_str(), &st);
+#endif
+    if(err == 0)
+    {
+	return dir ? S_ISDIR(st.st_mode) != 0 : S_ISREG(st.st_mode) != 0;
+    }
+
+    if(!defaultDir.empty())
+    {
+#ifdef _WIN32
+	string s = defaultDir + "\\" + path;
+	err = ::_stat(s.c_str(), &st);
+#else
+	string s = defaultDir + "/" + path;
+	err = ::stat(s.c_str(), &st);
+#endif
+	if(err == 0 && ((!dir && S_ISREG(st.st_mode)) || (dir && S_ISDIR(st.st_mode))))
+	{
+	    path = s;
+	    return true;
+	}
+    }
+
+    return false;
 }

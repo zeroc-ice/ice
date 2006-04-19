@@ -187,6 +187,7 @@ IceSSL::PluginI::setupSSL(const CommunicatorPtr& communicator)
 #else
 	    const string sep = ":";
 #endif
+	    string defaultDir = properties->getProperty("IceSSL.DefaultDir");
 	    if(!splitString(randFiles, sep, false, files))
 	    {
 		PluginInitializationException ex(__FILE__, __LINE__);
@@ -195,10 +196,17 @@ IceSSL::PluginI::setupSSL(const CommunicatorPtr& communicator)
 	    }
 	    for(vector<string>::iterator p = files.begin(); p != files.end(); ++p)
 	    {
-		if(!RAND_load_file(p->c_str(), 1024))
+		string file = *p;
+		if(!checkPath(file, defaultDir, false))
 		{
 		    PluginInitializationException ex(__FILE__, __LINE__);
-		    ex.reason = "IceSSL: unable to load entropy data from " + *p;
+		    ex.reason = "IceSSL: entropy data file not found:\n" + file;
+		    throw ex;
+		}
+		if(!RAND_load_file(file.c_str(), 1024))
+		{
+		    PluginInitializationException ex(__FILE__, __LINE__);
+		    ex.reason = "IceSSL: unable to load entropy data from " + file;
 		    throw ex;
 		}
 	    }

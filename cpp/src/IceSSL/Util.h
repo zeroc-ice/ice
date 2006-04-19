@@ -55,7 +55,15 @@ bool selectRead(SOCKET, int);
 //
 bool selectWrite(SOCKET, int);
 
+//
+// Split a string using the given delimiters.
+//
 bool splitString(const std::string&, const std::string&, bool, std::vector<std::string>&);
+
+//
+// Determine if a file or directory exists, with an optional default directory.
+//
+bool checkPath(std::string&, const std::string&, bool);
 
 }
 

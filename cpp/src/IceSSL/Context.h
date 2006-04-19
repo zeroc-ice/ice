@@ -40,7 +40,6 @@ public:
 
 protected:
 
-    bool checkPath(std::string&, bool);
     void parseProtocols(const std::string&);
 
     InstancePtr _instance;
