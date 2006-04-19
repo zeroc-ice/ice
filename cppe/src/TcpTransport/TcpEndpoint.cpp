@@ -231,7 +231,10 @@ bool
 IceInternal::TcpEndpoint::operator==(const Endpoint& r) const
 {
     const TcpEndpoint* p = dynamic_cast<const TcpEndpoint*>(&r);
-    assert(p);
+    if(!p)
+    {
+	return false;
+    }
 
     if(this == p)
     {
@@ -281,7 +284,10 @@ bool
 IceInternal::TcpEndpoint::operator<(const Endpoint& r) const
 {
     const TcpEndpoint* p = dynamic_cast<const TcpEndpoint*>(&r);
-    assert(p);
+    if(!p)
+    {
+        return type() < r.type();	
+    }
 
     if(this == p)
     {

@@ -1,6 +1,9 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Fixed an assert which could occur with proxies received over
+  the wire and containing unknown endpoints.
+
 - Added new method Ice::ObjectAdapter::destroy(). After this method
   has been called it is now permissible to recreate a new object
   adapter with the same name as the destroyed adapter.
