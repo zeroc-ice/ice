@@ -159,7 +159,11 @@ SOURCE=.\ObjectCache.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ObserverSessionI.cpp
+SOURCE=.\SessionI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\AdminSessionI.cpp
 # End Source File
 # Begin Source File
 
@@ -176,10 +180,6 @@ SOURCE=.\RegistryI.cpp
 # Begin Source File
 
 SOURCE=.\ServerCache.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SessionManagerI.cpp
 # End Source File
 # Begin Source File
 
