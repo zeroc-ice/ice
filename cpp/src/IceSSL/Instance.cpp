@@ -160,7 +160,7 @@ IceSSL::Instance::sslErrors() const
 	    ostr << endl;
 	}
 
-	if(_securityTraceLevel > 0)
+	if(_securityTraceLevel >= 1)
 	{
 	    if(count > 0)
 	    {
