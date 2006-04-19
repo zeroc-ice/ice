@@ -108,9 +108,19 @@ MonitorMutexTest::run()
     {
 	Monitor<Mutex>::Lock lock(monitor);
 	
-	Monitor<Mutex>::TryLock tlock(monitor);
-	test(!tlock.acquired());
-	
+	try
+	{
+	    Monitor<Mutex>::TryLock tlock(monitor);
+	    test(!tlock.acquired());
+	}
+	catch(const ThreadLockedException&)
+	{
+	    //
+	    // pthread_mutex_trylock returns EDEADLK in FreeBSD's new threading implementation
+	    // as well as in Fedora Core 5.
+	    //
+	}
+
 	// TEST: Start thread, try to acquire the mutex.
 	t = new MonitorMutexTestThread(monitor);
 	control = t->start();
