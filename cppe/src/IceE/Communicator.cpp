@@ -8,6 +8,12 @@
 // **********************************************************************
 
 #include <IceE/Communicator.h>
+#ifdef ICEE_HAS_ROUTER
+#  include <IceE/Router.h>
+#endif
+#ifdef ICEE_HAS_LOCATOR
+#  include <IceE/Locator.h>
+#endif
 #include <IceE/Instance.h>
 #include <IceE/Properties.h>
 #include <IceE/ReferenceFactory.h>

@@ -108,8 +108,14 @@ MonitorMutexTest::run()
     {
 	Monitor<Mutex>::Lock lock(monitor);
 	
-	Monitor<Mutex>::TryLock tlock(monitor);
-	test(!tlock.acquired());
+	try
+	{
+	    Monitor<Mutex>::TryLock tlock(monitor);
+	    test(!tlock.acquired());
+	}
+	catch(const ThreadLockedException&)
+	{
+	}
 	
 	// TEST: Start thread, try to acquire the mutex.
 	t = new MonitorMutexTestThread(monitor);

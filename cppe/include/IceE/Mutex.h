@@ -315,7 +315,14 @@ Mutex::tryLock() const
     int rc = pthread_mutex_trylock(&_mutex);
     if(rc != 0 && rc != EBUSY)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        if(rc == EDEADLOCK)
+        {
+            throw ThreadLockedException(__FILE__, __LINE__);
+        }
+        else
+        {
+            throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        }
     }
     return (rc == 0);
 }

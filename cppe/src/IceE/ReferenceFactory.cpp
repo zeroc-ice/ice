@@ -15,9 +15,11 @@
 #include <IceE/EndpointFactory.h>
 #ifdef ICEE_HAS_ROUTER
 #   include <IceE/RouterInfo.h>
+#   include <IceE/Router.h>
 #endif
 #ifdef ICEE_HAS_LOCATOR
 #   include <IceE/LocatorInfo.h>
+#   include <IceE/Locator.h>
 #endif
 #include <IceE/BasicStream.h>
 #include <IceE/StringUtil.h>

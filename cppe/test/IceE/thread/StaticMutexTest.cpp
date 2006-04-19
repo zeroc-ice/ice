@@ -123,17 +123,17 @@ StaticMutexTest::run()
 	// Under WinCE tryAcquire() does not do recursion checks.
 	//
 #ifndef _WIN32_WCE
-#ifdef __FreeBSD__
+#if defined(__FreeBSD__) || defined(__linux)
 	try
 	{
 	    test(lock.tryAcquire() == false);
 	}
-	catch(const IceUtil::ThreadSyscallException& ex)
+	catch(const IceUtil::ThreadLockedException&)
 	{
 	    //
-	    // pthread_mutex_trylock returns EDEADLK in FreeBSD's new threading implementation.
+	    // pthread_mutex_trylock returns EDEADLK in FreeBSD's new threading implementation
+	    // as well as Fedora Core 5.
 	    //
-	    test(ex.error() == EDEADLK);
 	}
 #else
 	test(lock.tryAcquire() == false);

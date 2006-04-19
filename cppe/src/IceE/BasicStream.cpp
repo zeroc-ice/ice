@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceE/DisableWarnings.h>
+#include <IceE/Properties.h>
 #include <IceE/BasicStream.h>
 #include <IceE/Instance.h>
 #include <IceE/ProxyFactory.h>
