@@ -1,0 +1,17 @@
+#
+# To use SSL you must enable it in the following endpoints and enable
+# Ice.Plugin.IceSSL below.
+#
+Callback.Server.Endpoints=tcp -p 10000:udp -p 10000#:ssl -p 10001
+
+#Ice.Trace.Network=1
+#Ice.Trace.Protocol=1
+Ice.Warn.Connections=1
+
+#Ice.Plugin.IceSSL=../../../bin/icesslcs.dll:IceSSL.PluginFactory
+IceSSL.DefaultDir=../../../certs
+IceSSL.ImportCert.LocalMachine.AuthRoot=cacert.pem
+IceSSL.CertFile=s_rsa1024.pfx
+IceSSL.Password=password
+IceSSL.Trace.Security=0
+Ice.ThreadPerConnection=1

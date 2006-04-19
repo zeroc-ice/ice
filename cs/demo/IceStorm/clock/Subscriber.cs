@@ -131,7 +131,7 @@ public class Subscriber : Ice.Application
     public static void Main(string[] args)
     {
         Subscriber app = new Subscriber();
-        int status = app.main(args, "config");
+        int status = app.main(args, "config.sub");
         System.Environment.Exit(status);
     }
 }

@@ -71,7 +71,7 @@ public class Publisher : Ice.Application
     public static void Main(string[] args)
     {
         Publisher app = new Publisher();
-        int status = app.main(args, "config");
+        int status = app.main(args, "config.pub");
         System.Environment.Exit(status);
     }
 }

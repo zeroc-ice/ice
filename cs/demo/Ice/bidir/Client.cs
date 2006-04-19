@@ -45,7 +45,7 @@ public class Client : Ice.Application
     public static void Main(string[] args)
     {
         Client app = new Client();
-        int status = app.main(args, "config");
+        int status = app.main(args, "config.client");
         System.Environment.Exit(status);
     }
 }

@@ -38,7 +38,7 @@ public class Server : Ice.Application
     public static void Main(string[] args)
     {
         Server app = new Server();
-        int status = app.main(args, "config");
+        int status = app.main(args, "config.server");
         System.Environment.Exit(status);
     }
 }

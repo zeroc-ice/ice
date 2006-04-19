@@ -10,13 +10,6 @@
 Hello.Proxy=hello:tcp -p 10000:udp -p 10000#:ssl -p 10001
 
 #
-# The server creates one single object adapter with the name
-# "Hello". The following line sets the endpoints for this
-# adapter.
-#
-Hello.Endpoints=tcp -p 10000:udp -c -p 10000#:ssl -p 10001
-
-#
 # Warn about connection exceptions.
 #
 Ice.Warn.Connections=1
@@ -25,7 +18,6 @@ Ice.Warn.Connections=1
 # We want a faster ACM for this demo.
 #
 Ice.ACM.Client=10
-Ice.ACM.Server=10
 
 #
 # Network Tracing
@@ -49,10 +41,9 @@ Ice.Trace.Protocol=0
 # SSL plugin configuration
 #
 #Ice.Plugin.IceSSL=../../../bin/icesslcs.dll:IceSSL.PluginFactory
-IceSSL.ImportCert.LocalMachine.AuthRoot=../../../certs/cacert.pem
-IceSSL.Server.CertFile=../../../certs/s_rsa1024.pfx
-IceSSL.Server.Password=password
-IceSSL.Client.CertFile=../../../certs/c_rsa1024.pfx
-IceSSL.Client.Password=password
-IceSSL.Trace.Security=2
+IceSSL.DefaultDir=../../../certs
+IceSSL.ImportCert.LocalMachine.AuthRoot=cacert.pem
+IceSSL.CertFile=c_rsa1024.pfx
+IceSSL.Password=password
+IceSSL.Trace.Security=0
 Ice.ThreadPerConnection=1

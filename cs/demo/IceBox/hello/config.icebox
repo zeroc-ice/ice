@@ -16,12 +16,6 @@ IceBox.ServiceManager.Endpoints=tcp -p 9998#:ssl -p 9999
 IceBox.Service.Hello=helloservice.dll:HelloServiceI
 
 #
-# The client reads this property to create the reference to the
-# "hello" object in the server.
-#
-Hello.Proxy=hello:tcp -p 10000:udp -p 10000#:ssl -p 10001
-
-#
 # The server creates one single object adapter with the name of
 # the service. The following line sets the endpoints for this
 # adapter.
@@ -55,10 +49,9 @@ Ice.Warn.Connections=1
 # SSL plugin configuration
 #
 #Ice.Plugin.IceSSL=../../../bin/icesslcs.dll:IceSSL.PluginFactory
-IceSSL.ImportCert.LocalMachine.AuthRoot=../../../certs/cacert.pem
-IceSSL.Server.CertFile=../../../certs/s_rsa1024.pfx
-IceSSL.Server.Password=password
-IceSSL.Client.CertFile=../../../certs/c_rsa1024.pfx
-IceSSL.Client.Password=password
-IceSSL.Trace.Security=2
+IceSSL.DefaultDir=../../../certs
+IceSSL.ImportCert.LocalMachine.AuthRoot=cacert.pem
+IceSSL.CertFile=s_rsa1024.pfx
+IceSSL.Password=password
+IceSSL.Trace.Security=0
 Ice.ThreadPerConnection=1

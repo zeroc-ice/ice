@@ -49,6 +49,11 @@ class InitialI : Initial
         throw ex;
     }
     
+    public override void shutdown(Ice.Current current)
+    {
+	current.adapter.getCommunicator().shutdown();
+    }
+    
     private Simple _simple;
     private Printer _printer;
     private PrinterPrx _printerProxy;

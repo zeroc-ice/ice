@@ -154,13 +154,15 @@ public class Client : Ice.Application
         Console.Out.WriteLine();
         Console.Out.WriteLine("That's it for this demo. Have fun with Ice!");
         
+	initial.shutdown();
+
         return 0;
     }
     
     public static void Main(string[] args)
     {
         Client app = new Client();
-        int status = app.main(args, "config");
+        int status = app.main(args, "config.client");
         System.Environment.Exit(status);
     }
 }
