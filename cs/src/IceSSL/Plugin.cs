@@ -74,8 +74,7 @@ namespace IceSSL
 	// It is legal to pass null as either argument, in which case the plugin
 	// obtains its certificates as directed by configuration properties.
 	//
-	abstract public void initialize(X509Certificate2Collection clientCerts,
-					X509Certificate2 serverCert);
+	abstract public void initialize(X509Certificate2Collection certs);
 
 	//
 	// Establish the certificate verifier object. This should be

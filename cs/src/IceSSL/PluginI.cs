@@ -39,9 +39,9 @@ namespace IceSSL
 	{
 	}
 
-	public override void initialize(X509Certificate2Collection clientCerts, X509Certificate2 serverCert)
+	public override void initialize(X509Certificate2Collection certs)
 	{
-	    instance_.initialize(clientCerts, serverCert);
+	    instance_.initialize(certs);
 	}
 
 	public override void setCertificateVerifier(CertificateVerifier verifier)

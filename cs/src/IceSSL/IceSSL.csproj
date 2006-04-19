@@ -55,14 +55,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AcceptorI.cs" />
-    <Compile Include="ClientContext.cs" />
     <Compile Include="ConnectorI.cs" />
     <Compile Include="Context.cs" />
     <Compile Include="EndpointI.cs" />
     <Compile Include="Instance.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="PluginI.cs" />
-    <Compile Include="ServerContext.cs" />
     <Compile Include="TransceiverI.cs" />
   </ItemGroup>
   <PropertyGroup>

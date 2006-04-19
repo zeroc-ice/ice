@@ -7,13 +7,13 @@
 //
 // **********************************************************************
 
-using System;
-using System.Collections;
-using System.Diagnostics;
-using System.Security.Cryptography.X509Certificates;
-
 namespace IceSSL
 {
+    using System;
+    using System.Collections;
+    using System.IO;
+    using System.Security.Cryptography.X509Certificates;
+
     internal class Instance
     {
 	internal Instance(Ice.Communicator communicator)
@@ -23,6 +23,12 @@ namespace IceSSL
 	    facade_ = Ice.Util.getProtocolPluginFacade(communicator);
 	    securityTraceLevel_ = properties.getPropertyAsIntWithDefault("IceSSL.Trace.Security", 0);
 	    securityTraceCategory_ = "Security";
+
+	    //
+	    // Check for a default directory. We look in this directory for
+	    // files mentioned in the configuration.
+	    //
+	    defaultDir_ = properties.getProperty("IceSSL.DefaultDir");
 
 	    //
 	    // Process IceSSL.ImportCert.* properties.
@@ -39,16 +45,14 @@ namespace IceSSL
 	    }
 
 	    //
-	    // Create the client and server contexts. We always create both, even
-	    // if only one is used.
+	    // Create the context.
 	    //
-	    // If IceSSL.DelayInit=1, postpone the creation of the contexts until
+	    // If IceSSL.DelayInit=1, postpone the creation of the context until
 	    // the application manually initializes the plugin.
 	    //
 	    if(properties.getPropertyAsInt("IceSSL.DelayInit") == 0)
 	    {
-		clientContext_ = new ClientContext(this, null);
-		serverContext_ = new ServerContext(this, null);
+		context_ = new Context(this, null);
 	    }
 
 	    //
@@ -57,9 +61,9 @@ namespace IceSSL
 	    facade_.addEndpointFactory(new EndpointFactoryI(this));
 	}
 
-	internal void initialize(X509Certificate2Collection clientCerts, X509Certificate2 serverCert)
+	internal void initialize(X509Certificate2Collection certs)
 	{
-	    if(clientContext_ != null)
+	    if(context_ != null)
 	    {
 		Ice.PluginInitializationException e = new Ice.PluginInitializationException();
 		e.reason = "plugin is already initialized";
@@ -67,8 +71,7 @@ namespace IceSSL
 	    }
 	    else
 	    {
-		clientContext_ = new ClientContext(this, clientCerts);
-		serverContext_ = new ServerContext(this, serverCert);
+		context_ = new Context(this, certs);
 	    }
 	}
 
@@ -107,26 +110,15 @@ namespace IceSSL
 	    return securityTraceCategory_;
 	}
 
-	internal ClientContext clientContext()
+	internal Context context()
 	{
-	    if(clientContext_ == null)
+	    if(context_ == null)
 	    {
 		Ice.PluginInitializationException e = new Ice.PluginInitializationException();
 		e.reason = "IceSSL: plugin is not fully initialized";
 		throw e;
 	    }
-	    return clientContext_;
-	}
-
-	internal ServerContext serverContext()
-	{
-	    if(serverContext_ == null)
-	    {
-		Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-		e.reason = "IceSSL: plugin is not fully initialized";
-		throw e;
-	    }
-	    return serverContext_;
+	    return context_;
 	}
 
 	internal CertificateVerifier certificateVerifier()
@@ -205,6 +197,26 @@ namespace IceSSL
 	    }
 	}
 
+	internal bool checkPath(ref string path)
+	{
+	    if(File.Exists(path))
+	    {
+		return true;
+	    }
+
+	    if(defaultDir_.Length > 0)
+	    {
+		string s = defaultDir_ + Path.DirectorySeparatorChar + path;
+		if(File.Exists(s))
+		{
+		    path = s;
+		    return true;
+		}
+	    }
+
+	    return false;
+	}
+
 	private void importCertificate(string propName, string propValue)
 	{
 	    //
@@ -262,6 +274,13 @@ namespace IceSSL
 		throw e;
 	    }
 
+	    if(!checkPath(ref file))
+	    {
+		Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+		e.reason = "IceSSL: certificate file not found:\n" + file;
+		throw e;
+	    }
+
 	    //
 	    // Add the certificate to the store.
 	    //
@@ -281,7 +300,7 @@ namespace IceSSL
 	    catch(Exception ex)
 	    {
 		Ice.PluginInitializationException e = new Ice.PluginInitializationException(ex);
-		e.reason = "IceSSL: failure while adding certificate `" + file + "'";
+		e.reason = "IceSSL: failure while adding certificate file:\n" + file;
 		throw e;
 	    }
 	    finally
@@ -360,8 +379,8 @@ namespace IceSSL
 	private IceInternal.ProtocolPluginFacade facade_;
 	private int securityTraceLevel_;
 	private string securityTraceCategory_;
-	private ClientContext clientContext_;
-	private ServerContext serverContext_;
+	private Context context_;
 	private CertificateVerifier verifier_;
+	private string defaultDir_;
     }
 }

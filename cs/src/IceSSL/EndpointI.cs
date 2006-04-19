@@ -344,7 +344,7 @@ namespace IceSSL
 	}
 
 	//
-	// Return an acceptor for this endpoint, or null if no acceptors
+	// Return an acceptor for this endpoint, or null if no acceptor
 	// is available. In case an acceptor is created, this operation
 	// also returns a new "effective" endpoint, which might differ
 	// from this endpoint, for example, if a dynamic port number is
@@ -352,15 +352,8 @@ namespace IceSSL
 	//
 	public override IceInternal.Acceptor acceptor(ref IceInternal.EndpointI endpoint)
 	{
-	    if(!instance_.serverContext().initialized())
-	    {
-		Ice.SecurityException e = new Ice.SecurityException();
-		e.reason = "IceSSL: plug-in is not configured for server activities";
-		throw e;
-	    }
 	    AcceptorI p = new AcceptorI(instance_, host_, port_);
-	    endpoint = new EndpointI(instance_, host_, p.effectivePort(), timeout_, connectionId_,
-					compress_, publish_);
+	    endpoint = new EndpointI(instance_, host_, p.effectivePort(), timeout_, connectionId_, compress_, publish_);
 	    return p;
 	}
 
