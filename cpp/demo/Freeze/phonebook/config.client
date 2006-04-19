@@ -1,0 +1,5 @@
+Ice.Warn.Connections=1
+#Ice.Trace.Network=3
+#Ice.Trace.Protocol=1
+
+PhoneBook.Proxy=phonebook:default -p 10000

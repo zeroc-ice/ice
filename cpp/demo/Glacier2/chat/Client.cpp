@@ -218,5 +218,5 @@ int
 main(int argc, char* argv[])
 {
     ChatClient app;
-    return app.main(argc, argv, "config");
+    return app.main(argc, argv, "config.client");
 }

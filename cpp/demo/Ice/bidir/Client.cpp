@@ -36,7 +36,7 @@ int
 main(int argc, char* argv[])
 {
     CallbackClient app;
-    return app.main(argc, argv, "config");
+    return app.main(argc, argv, "config.client");
 }
 
 int

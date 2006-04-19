@@ -138,7 +138,7 @@ public class Subscriber extends Ice.Application
     main(String[] args)
     {
         Subscriber app = new Subscriber();
-        int status = app.main("Subscriber", args, "config");
+        int status = app.main("Subscriber", args, "config.sub");
         System.exit(status);
     }
 }

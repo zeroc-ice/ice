@@ -53,4 +53,4 @@ class Client(Ice.Application):
         return 0
 
 app = Client()
-sys.exit(app.main(sys.argv, "config"))
+sys.exit(app.main(sys.argv, "config.client"))

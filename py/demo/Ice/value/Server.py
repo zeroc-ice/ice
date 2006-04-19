@@ -41,6 +41,9 @@ class InitialI(Demo.Initial):
         ex.derived = self._derivedPrinter
         raise ex
 
+    def shutdown(self, current=None):
+        current.adapter.getCommunicator().shutdown()
+
 class Server(Ice.Application):
     def run(self, argv):
 	adapter = self.communicator().createObjectAdapter("Value")
@@ -50,4 +53,4 @@ class Server(Ice.Application):
 	return True
 
 app = Server()
-sys.exit(app.main(sys.argv, "config"))
+sys.exit(app.main(sys.argv, "config.server"))

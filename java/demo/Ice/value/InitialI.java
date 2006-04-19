@@ -51,6 +51,12 @@ class InitialI extends Initial
         throw ex;
     }
 
+    public void
+    shutdown(Ice.Current current)
+    {
+	current.adapter.getCommunicator().shutdown();
+    }
+
     private Simple _simple = new Simple();
     private Printer _printer = new PrinterI();
     private PrinterPrx _printerProxy;

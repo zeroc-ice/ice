@@ -23,7 +23,7 @@ int
 main(int argc, char* argv[])
 {
     SessionServer app;
-    return app.main(argc, argv, "config");
+    return app.main(argc, argv, "config.server");
 }
 
 int

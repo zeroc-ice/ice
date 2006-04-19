@@ -169,6 +169,8 @@ public class Client extends Ice.Application
         System.out.println();
         System.out.println("That's it for this demo. Have fun with Ice!");
 
+	initial.shutdown();
+
         return 0;
     }
 
@@ -176,7 +178,7 @@ public class Client extends Ice.Application
     main(String[] args)
     {
         Client app = new Client();
-        int status = app.main("Client", args, "config");
+        int status = app.main("Client", args, "config.client");
         System.exit(status);
     }
 }

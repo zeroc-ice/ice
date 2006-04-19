@@ -409,7 +409,7 @@ public class Client extends Ice.Application
     main(String[] args)
     {
         Client app = new Client();
-        int status = app.main("Client", args, "config");
+        int status = app.main("Client", args, "config.client");
         System.exit(status);
     }
 }

@@ -70,6 +70,6 @@ public class Server
     main(String[] args)
     {
 	LibraryServer app = new LibraryServer("db");
-	app.main("demo.Freeze.library.Server", args, "config");
+	app.main("demo.Freeze.library.Server", args, "config.server");
     }
 }

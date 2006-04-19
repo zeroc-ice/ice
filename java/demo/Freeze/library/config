@@ -1,9 +1,0 @@
-
-Library.Endpoints=default -p 10000
-Ice.Warn.Connections=1
-#Ice.Trace.Network=3
-#Ice.Trace.Protocol=1
-Library.Proxy=library:default -p 10000
-Library.EvictorSize=3
-Freeze.Trace.Map=1
-Freeze.Trace.Evictor=2

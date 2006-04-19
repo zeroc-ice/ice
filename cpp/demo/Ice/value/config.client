@@ -1,0 +1,4 @@
+#
+# The client's proxy.
+#
+Value.Initial=initial:tcp -p 10000

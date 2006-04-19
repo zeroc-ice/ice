@@ -28,18 +28,11 @@ Ice.Trace.Network=0
 Ice.Trace.Protocol=0
 
 #
-# Security Tracing
-#
-# 0 = no security tracing
-# 1 = trace messages
-#
-IceSSL.Trace.Security=0
-
-#
 # SSL Configuration
 #
 Ice.Plugin.IceSSL=IceSSL:create
-IceSSL.Client.DefaultDir=../../../../certs
-IceSSL.Client.CertAuthFile=cacert.pem
-IceSSL.Client.CertFile=c_rsa1024_pub.pem
-IceSSL.Client.KeyFile=c_rsa1024_priv.pem
+IceSSL.DefaultDir=../../../../certs
+IceSSL.CertAuthFile=cacert.pem
+IceSSL.CertFile=c_rsa1024_pub.pem
+IceSSL.KeyFile=c_rsa1024_priv.pem
+IceSSL.Trace.Security=0

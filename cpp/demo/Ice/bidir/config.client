@@ -1,0 +1,10 @@
+Callback.Client.CallbackServer=sender:tcp -p 10000
+Callback.Client.Endpoints=
+
+Ice.Trace.Network=0
+#Ice.Trace.Protocol=1
+Ice.Warn.Connections=1
+
+# Active connection management must be disabled when using
+# bidirectional connections.
+Ice.ACM.Client=0

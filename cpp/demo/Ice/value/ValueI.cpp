@@ -53,6 +53,12 @@ InitialI::throwDerivedPrinter(const Ice::Current&)
 }
 
 void
+InitialI::shutdown(const Ice::Current& current)
+{
+    current.adapter->getCommunicator()->shutdown();
+}
+
+void
 PrinterI::printBackwards(const Ice::Current&)
 {
     string s;

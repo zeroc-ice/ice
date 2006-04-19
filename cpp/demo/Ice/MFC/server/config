@@ -16,7 +16,7 @@ Ice.Warn.Connections=1
 # 2 = like 1, but more detailed
 # 3 = like 2, but also trace data transfer
 #
-Ice.Trace.Network=1
+Ice.Trace.Network=0
 
 #
 # Protocol Tracing
@@ -27,18 +27,11 @@ Ice.Trace.Network=1
 Ice.Trace.Protocol=0
 
 #
-# Security Tracing
-#
-# 0 = no security tracing
-# 1 = trace messages
-#
-IceSSL.Trace.Security=0
-
-#
 # SSL Configuration
 #
 Ice.Plugin.IceSSL=IceSSL:create
-IceSSL.Server.DefaultDir=../../../../certs
-IceSSL.Server.CertAuthFile=cacert.pem
-IceSSL.Server.CertFile=s_rsa1024_pub.pem
-IceSSL.Server.KeyFile=s_rsa1024_priv.pem
+IceSSL.DefaultDir=../../../../certs
+IceSSL.CertAuthFile=cacert.pem
+IceSSL.CertFile=s_rsa1024_pub.pem
+IceSSL.KeyFile=s_rsa1024_priv.pem
+IceSSL.Trace.Security=0

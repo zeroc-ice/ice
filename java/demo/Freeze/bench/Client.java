@@ -601,6 +601,6 @@ public class Client
     main(String[] args)
     {
 	TestApp app = new TestApp("db");
-	app.main("test.Freeze.bench.Client", args, "config");
+	app.main("test.Freeze.bench.Client", args);
     }
 }

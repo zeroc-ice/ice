@@ -90,4 +90,4 @@ class Server(Ice.Application):
         return 0
 
 app = Server()
-sys.exit(app.main(sys.argv, "config"))
+sys.exit(app.main(sys.argv, "config.server"))

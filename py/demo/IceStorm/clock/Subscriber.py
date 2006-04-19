@@ -94,4 +94,4 @@ class Subscriber(Ice.Application):
 	return True
 
 app = Subscriber()
-sys.exit(app.main(sys.argv, "config"))
+sys.exit(app.main(sys.argv, "config.sub"))

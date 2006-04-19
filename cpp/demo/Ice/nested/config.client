@@ -1,0 +1,15 @@
+Nested.Client.NestedServer=nestedServer:default -p 10000 -t 10000
+Nested.Client.Endpoints=default -t 10000
+
+Ice.ThreadPool.Server.Size=5
+Ice.ThreadPool.Server.SizeWarn=5
+Ice.ThreadPool.Server.SizeMax=10
+#Ice.Trace.Network=1
+#Ice.Trace.Protocol=1
+#Ice.Warn.Connections=1
+
+Ice.Plugin.IceSSL=IceSSL:create
+IceSSL.DefaultDir=../../../certs
+IceSSL.CertAuthFile=cacert.pem
+IceSSL.CertFile=c_rsa1024_pub.pem
+IceSSL.KeyFile=c_rsa1024_priv.pem

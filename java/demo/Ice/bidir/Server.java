@@ -45,7 +45,7 @@ public class Server extends Ice.Application
     main(String[] args)
     {
         Server app = new Server();
-        int status = app.main("Server", args, "config");
+        int status = app.main("Server", args, "config.server");
         System.exit(status);
     }
 }

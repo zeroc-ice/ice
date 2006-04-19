@@ -1,0 +1,9 @@
+Throughput.Endpoints=default -p 10000
+
+#Ice.Plugin.IceSSL=IceSSL:create
+IceSSL.DefaultDir=../../../certs
+IceSSL.CertAuthFile=cacert.pem
+IceSSL.CertFile=s_rsa1024_pub.pem
+IceSSL.KeyFile=s_rsa1024_priv.pem
+
+Ice.MonitorConnections=0

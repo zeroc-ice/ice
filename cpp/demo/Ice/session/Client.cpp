@@ -82,7 +82,7 @@ int
 main(int argc, char* argv[])
 {
     SessionClient app;
-    return app.main(argc, argv, "config");
+    return app.main(argc, argv, "config.client");
 }
 
 int

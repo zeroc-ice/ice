@@ -153,7 +153,9 @@ class Client(Ice.Application):
 	print '\n'\
 	      "That's it for this demo. Have fun with Ice!"
 
+	initial.shutdown()
+
 	return True
 
 app = Client()
-sys.exit(app.main(sys.argv, "config"))
+sys.exit(app.main(sys.argv, "config.client"))

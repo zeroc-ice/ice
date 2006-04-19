@@ -90,6 +90,6 @@ public class Server
     main(String[] args)
     {
 	PhoneBookServer app = new PhoneBookServer("db");
-	app.main("demo.Freeze.phonebook.Server", args, "config");
+	app.main("demo.Freeze.phonebook.Server", args, "config.server");
     }
 }

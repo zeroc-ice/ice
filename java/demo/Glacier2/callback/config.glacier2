@@ -109,10 +109,10 @@ Glacier2.Trace.RoutingTable=1
 #Ice.Trace.Network=1
 #Ice.Trace.Protocol=1
 Ice.Warn.Connections=1
-#IceSSL.Trace.Security=3
 
 Ice.Plugin.IceSSL=IceSSL:create
-IceSSL.Server.CertPath=../../../certs
-IceSSL.Server.Config=sslconfig.xml
-IceSSL.Client.CertPath=../../../certs
-IceSSL.Client.Config=sslconfig.xml
+IceSSL.DefaultDir=../../../certs
+IceSSL.CertAuthFile=cacert.pem
+IceSSL.CertFile=s_rsa1024_pub.pem
+IceSSL.KeyFile=s_rsa1024_priv.pem
+#IceSSL.Trace.Security=1

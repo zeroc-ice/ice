@@ -1,0 +1,3 @@
+Latency.Ping=ping:default -p 10000
+
+Ice.ACM.Client=0

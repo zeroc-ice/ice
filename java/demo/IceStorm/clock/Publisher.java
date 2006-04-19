@@ -71,7 +71,7 @@ public class Publisher extends Ice.Application
     main(String[] args)
     {
         Publisher app = new Publisher();
-        int status = app.main("Publisher", args, "config");
+        int status = app.main("Publisher", args, "config.pub");
         System.exit(status);
     }
 }

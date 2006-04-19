@@ -121,11 +121,11 @@ class Client(Ice.Application):
 		    fake = not fake
 
 		    if fake:
-		        twowayR = Demo.CallbackReceiverPrx.uncheckedCast(twowayR.ice_newIdentity(callbackReceiverFakeIdent))
-		        onewayR = Demo.CallbackReceiverPrx.uncheckedCast(onewayR.ice_newIdentity(callbackReceiverFakeIdent))
+		        twowayR = Demo.CallbackReceiverPrx.uncheckedCast(twowayR.ice_identity(callbackReceiverFakeIdent))
+		        onewayR = Demo.CallbackReceiverPrx.uncheckedCast(onewayR.ice_identity(callbackReceiverFakeIdent))
 		    else:
-		        twowayR = Demo.CallbackReceiverPrx.uncheckedCast(twowayR.ice_newIdentity(callbackReceiverIdent))
-		        onewayR = Demo.CallbackReceiverPrx.uncheckedCast(twowayR.ice_newIdentity(callbackReceiverIdent))
+		        twowayR = Demo.CallbackReceiverPrx.uncheckedCast(twowayR.ice_identity(callbackReceiverIdent))
+		        onewayR = Demo.CallbackReceiverPrx.uncheckedCast(twowayR.ice_identity(callbackReceiverIdent))
                 elif c == 's':
                     twoway.shutdown()
                 elif c == 'x':
@@ -141,4 +141,4 @@ class Client(Ice.Application):
         return 0
 
 app = Client()
-sys.exit(app.main(sys.argv, "config"))
+sys.exit(app.main(sys.argv, "config.client"))

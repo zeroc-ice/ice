@@ -55,4 +55,4 @@ class Publisher(Ice.Application):
 	return True
 
 app = Publisher()
-sys.exit(app.main(sys.argv, "config"))
+sys.exit(app.main(sys.argv, "config.pub"))

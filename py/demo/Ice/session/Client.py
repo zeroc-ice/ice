@@ -144,4 +144,4 @@ t:     exit without destroying the session
 
 
 app = Client()
-sys.exit(app.main(sys.argv, "config"))
+sys.exit(app.main(sys.argv, "config.client"))

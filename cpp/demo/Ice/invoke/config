@@ -1,2 +1,0 @@
-Printer.Proxy=printer:tcp -p 10000
-Printer.Endpoints=tcp -p 10000

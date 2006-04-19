@@ -1,0 +1,11 @@
+Value.Initial=initial:default -p 10000
+
+#
+# SSL Configuration
+#
+Ice.Plugin.IceSSL=IceSSL.PluginFactory
+Ice.ThreadPerConnection=1
+IceSSL.DefaultDir=../../../certs
+IceSSL.Keystore=client.jks
+IceSSL.Password=password
+IceSSL.Truststore=certs.jks

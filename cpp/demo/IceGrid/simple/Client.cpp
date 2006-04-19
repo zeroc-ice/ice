@@ -29,7 +29,7 @@ int
 main(int argc, char* argv[])
 {
     HelloClient app;
-    return app.main(argc, argv, "config");
+    return app.main(argc, argv, "config.client");
 }
 
 void

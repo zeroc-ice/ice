@@ -814,5 +814,5 @@ int
 main(int argc, char* argv[])
 {
     TestApp app("db");
-    return app.main(argc, argv, "config");
+    return app.main(argc, argv);
 }

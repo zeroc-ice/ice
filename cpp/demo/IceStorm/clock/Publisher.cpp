@@ -26,7 +26,7 @@ int
 main(int argc, char* argv[])
 {
     Publisher app;
-    return app.main(argc, argv, "config");
+    return app.main(argc, argv, "config.pub");
 }
 
 int
