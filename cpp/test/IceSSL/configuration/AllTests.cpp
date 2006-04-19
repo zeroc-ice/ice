@@ -539,17 +539,14 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	    server->ice_ping();
 	    test(false);
 	}
-#if defined(_WIN32) || defined(__APPLE__)
 	catch(const ProtocolException&)
 	{
-	    // Expected.
+	    // Expected on some platforms.
 	}
-#else
 	catch(const ConnectionLostException&)
 	{
-	    // Expected.
+	    // Expected on some platforms.
 	}
-#endif
 	catch(const LocalException&)
 	{
 	    test(false);
