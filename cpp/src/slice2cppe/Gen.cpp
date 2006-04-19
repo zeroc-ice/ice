@@ -43,7 +43,8 @@ getIds(const ClassDefPtr& p, StringList& ids)
 
 Slice::Gen::Gen(const string& name, const string& base,	const string& headerExtension,
 	        const string& sourceExtension, const vector<string>& extraHeaders, const string& include,
-		const vector<string>& includePaths, const string& dllExport, const string& dir, bool imp) :
+		const vector<string>& includePaths, const string& dllExport, const string& dir, bool imp, 
+		bool ice) :
     _base(base),
     _headerExtension(headerExtension),
     _sourceExtension(sourceExtension),
@@ -51,7 +52,8 @@ Slice::Gen::Gen(const string& name, const string& base,	const string& headerExte
     _include(include),
     _includePaths(includePaths),
     _dllExport(dllExport),
-    _impl(imp)
+    _impl(imp),
+    _ice(ice)
 {
     for(vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
     {
@@ -249,6 +251,11 @@ Slice::Gen::generate(const UnitPtr& p)
     }
 
     H << "\n#include <IceE/UndefSysMacros.h>";
+
+    if(_ice)
+    {
+        C << "\n#include <IceE/DisableWarnings.h>";
+    }
 
     GlobalIncludeVisitor globalIncludeVisitor(H);
     p->visit(&globalIncludeVisitor, false);

@@ -33,7 +33,7 @@ SessionI::destroy(const Ice::Current& current)
 }
 
 Glacier2::SessionPrx
-SessionManagerI::create(const string& userId, const Ice::Current& current)
+SessionManagerI::create(const string& userId, const Glacier2::SessionControlPrx&, const Ice::Current& current)
 {
     cout << "creating session for user `" << userId << "'" << endl;
     Glacier2::SessionPtr session = new SessionI(userId);

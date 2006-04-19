@@ -17,13 +17,16 @@ using namespace Ice;
 using namespace Glacier2;
 
 Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAdapterPtr& serverAdapter,
-			   const ConnectionPtr& connection, const string& userId, const SessionPrx& session) :
+			   const ObjectAdapterPtr& adminAdapter, const ConnectionPtr& connection, 
+			   const string& userId, const SessionPrx& session, const Identity& controlId) :
     _communicator(clientAdapter->getCommunicator()),
     _routingTable(new RoutingTable(_communicator)),
     _clientProxy(clientAdapter->createProxy(stringToIdentity("dummy"))),
+    _adminAdapter(adminAdapter),
     _connection(connection),
     _userId(userId),
     _session(session),
+    _controlId(controlId),
     _timestamp(IceUtil::Time::now()),
     _destroy(false)
 {
@@ -103,6 +106,20 @@ Glacier2::RouterI::destroy()
 
     if(_session)
     {
+        if(_adminAdapter)
+	{
+	    //
+	    // Remove the session control object.
+	    //
+	    try
+	    {
+	        _adminAdapter->remove(_controlId);
+	    }
+	    catch(const NotRegisteredException&)
+	    {
+	    }
+	}
+
 	//
 	// This can raise an exception, therefore it must be the last
 	// statement in this destroy() function.

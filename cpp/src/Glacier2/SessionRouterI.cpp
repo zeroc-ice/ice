@@ -18,6 +18,28 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
+class SessionControlI : public SessionControl
+{
+public:
+
+    SessionControlI(const SessionRouterIPtr& sessionRouter, const ConnectionPtr& connection) :
+        _sessionRouter(sessionRouter),
+	_connection(connection)
+    {
+    }
+
+    virtual void
+    destroy(const Current&)
+    {
+        _sessionRouter->destroySession(_connection);
+    }
+
+private:
+
+    SessionRouterIPtr _sessionRouter;
+    ConnectionPtr _connection;
+};
+
 class ClientLocator : public ServantLocator
 {
 public:
@@ -80,6 +102,7 @@ private:
 
 Glacier2::SessionRouterI::SessionRouterI(const ObjectAdapterPtr& clientAdapter,
 					 const ObjectAdapterPtr& serverAdapter,
+					 const ObjectAdapterPtr& adminAdapter,
 					 const PermissionsVerifierPrx& verifier,
 					 const SessionManagerPrx& sessionManager) :
     _properties(clientAdapter->getCommunicator()->getProperties()),
@@ -88,6 +111,7 @@ Glacier2::SessionRouterI::SessionRouterI(const ObjectAdapterPtr& clientAdapter,
     _rejectTraceLevel(_properties->getPropertyAsInt("Glacier2.Client.Trace.Reject")),
     _clientAdapter(clientAdapter),
     _serverAdapter(serverAdapter),
+    _adminAdapter(adminAdapter),
     _verifier(verifier),
     _sessionManager(sessionManager),
     _sessionTimeout(IceUtil::Time::seconds(_properties->getPropertyAsInt("Glacier2.SessionTimeout"))),
@@ -362,6 +386,7 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
 
 
     SessionPrx session;
+    Identity controlId;
     RouterIPtr router;
 
     try
@@ -372,13 +397,20 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
 	//
 	if(_sessionManager)
 	{
-	    session = _sessionManager->create(userId, current.ctx);
+	    SessionControlPrx control;
+	    if(_adminAdapter)
+	    {
+	        control = SessionControlPrx::uncheckedCast(_adminAdapter->addWithUUID(
+								new SessionControlI(this, current.con)));
+		controlId = control->ice_getIdentity();
+	    }
+	    session = _sessionManager->create(userId, control, current.ctx);
 	}
     
 	//
 	// Add a new per-client router.
 	//
-	router = new RouterI(_clientAdapter, _serverAdapter, current.con, userId, session);
+	router = new RouterI(_clientAdapter, _serverAdapter, _adminAdapter, current.con, userId, session, controlId);
     }
     catch(const Exception& ex)
     {
@@ -461,6 +493,12 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
 void
 Glacier2::SessionRouterI::destroySession(const Current& current)
 {
+    destroySession(current.con);
+}
+
+void
+Glacier2::SessionRouterI::destroySession(const ConnectionPtr& connection)
+{
     RouterIPtr router;
 
     {
@@ -468,19 +506,19 @@ Glacier2::SessionRouterI::destroySession(const Current& current)
 	
 	if(_destroy)
 	{
-	    current.con->close(true);
+	    connection->close(true);
 	    throw ObjectNotExistException(__FILE__, __LINE__);
 	}
 	
 	map<ConnectionPtr, RouterIPtr>::iterator p;    
 	
-	if(_routersByConnectionHint != _routersByConnection.end() && _routersByConnectionHint->first == current.con)
+	if(_routersByConnectionHint != _routersByConnection.end() && _routersByConnectionHint->first == connection)
 	{
 	    p = _routersByConnectionHint;
 	}
 	else
 	{
-	    p = _routersByConnection.find(current.con);
+	    p = _routersByConnection.find(connection);
 	}
 	
 	if(p == _routersByConnection.end())

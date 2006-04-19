@@ -35,7 +35,8 @@ public:
 	const std::vector<std::string>&,
 	const std::string&,
 	const std::string&,
-        bool);
+        bool,
+	bool);
     ~Gen();
 
     bool operator!() const; // Returns true if there was a constructor error
@@ -62,6 +63,7 @@ private:
     std::vector<std::string> _includePaths;
     std::string _dllExport;
     bool _impl;
+    bool _ice;
 
     class GlobalIncludeVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {

@@ -31,7 +31,7 @@ SessionManagerI::SessionManagerI(RegistryObserverTopic& regTopic,
 }
 
 Glacier2::SessionPrx
-SessionManagerI::create(const string& userId, const Ice::Current& current)
+SessionManagerI::create(const string& userId, const Glacier2::SessionControlPrx&, const Ice::Current& current)
 {
     SessionIPtr session =
 	new Glacier2ObserverSessionI(userId, _database, _registryObserverTopic, _nodeObserverTopic, _sessionTimeout);

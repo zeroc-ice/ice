@@ -31,7 +31,7 @@ class SessionRouterI : public Router, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    SessionRouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&,
+    SessionRouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&,
 		   const PermissionsVerifierPrx&, const SessionManagerPrx&);
     virtual ~SessionRouterI();
     void destroy();
@@ -46,8 +46,10 @@ public:
 
     RouterIPtr getRouter(const Ice::ConnectionPtr&, const Ice::Identity&) const;    
     RouterIPtr getRouter(const std::string&) const;    
-
+    
     void expireSessions();
+
+    void destroySession(const ::Ice::ConnectionPtr&);
 
 private:
 
@@ -57,6 +59,7 @@ private:
     const int _rejectTraceLevel;
     const Ice::ObjectAdapterPtr _clientAdapter;
     const Ice::ObjectAdapterPtr _serverAdapter;
+    const Ice::ObjectAdapterPtr _adminAdapter;
     const PermissionsVerifierPrx _verifier;
     /*const*/ SessionManagerPrx _sessionManager;
     const IceUtil::Time _sessionTimeout;

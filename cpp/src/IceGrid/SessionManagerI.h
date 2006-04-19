@@ -33,7 +33,7 @@ public:
 
     SessionManagerI(RegistryObserverTopic&, NodeObserverTopic&, const  DatabasePtr&, const ReapThreadPtr&, int);
     
-    virtual Glacier2::SessionPrx create(const std::string&, const Ice::Current&);
+    virtual Glacier2::SessionPrx create(const std::string&, const Glacier2::SessionControlPrx&, const Ice::Current&);
     virtual SessionPrx createLocalSession(const std::string&, const Ice::Current&);
 
 private:

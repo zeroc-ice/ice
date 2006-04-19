@@ -53,7 +53,7 @@ def runTests(tests, num = 0):
 #
 tests = [ \
     "IceUtil/thread", \
-#    "IceUtil/unicode", \
+    #"IceUtil/unicode", \
     "IceUtil/inputUtil", \
     "IceUtil/uuid", \
     "Slice/errorDetection", \
@@ -93,6 +93,7 @@ tests = [ \
     "Glacier2/router", \
     "Glacier2/attack", \
     "Glacier2/regex", \
+    "Glacier2/sessionControl", \
     ]
 
 #

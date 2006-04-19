@@ -54,6 +54,24 @@ interface Session
 
 /**
  *
+ * A administrative session control object, which is tied to the
+ * lifecycle of a [Session].
+ *
+ * @see Session
+ *
+ **/
+interface SessionControl
+{
+    /**
+     *
+     * Destroy the associated session.
+     *
+     **/
+    void destroy();
+};
+
+/**
+ *
  * The session manager, which is responsible for managing [Session]
  * objects. New session objects are created by the [Router] object
  * calling on an application-provided session manager. If no session
@@ -78,7 +96,7 @@ interface SessionManager
      * cannot be created.
      *
      **/
-    Session* create(string userId)
+    Session* create(string userId, SessionControl* control)
 	throws CannotCreateSessionException;
 };
 

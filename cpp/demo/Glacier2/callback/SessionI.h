@@ -38,7 +38,7 @@ class SessionManagerI : public Glacier2::SessionManager
 {
 public:
 
-    virtual Glacier2::SessionPrx create(const std::string&, const Ice::Current&);
+    virtual Glacier2::SessionPrx create(const std::string&, const Glacier2::SessionControlPrx&, const Ice::Current&);
 };
 
 #endif
