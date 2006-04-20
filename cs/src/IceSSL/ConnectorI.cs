@@ -212,6 +212,13 @@ namespace IceSSL
 		}
 	    }
 
+	    //
+	    // The RemoteCertificateNotAvailable case does not appear to be possible
+	    // for an outgoing connection. Since .NET requires an authenticated
+	    // connection, the remote peer closes the socket if it does not have a
+	    // certificate to provide.
+	    //
+
 	    if(errors > 0)
 	    {
 		if(instance_.securityTraceLevel() >= 1)
