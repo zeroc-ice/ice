@@ -144,6 +144,7 @@ public class AllTests
 	    Ice.InitializationData initData = createClientProps(testDir, defaultHost);
 	    initData.properties.setProperty("IceSSL.DelayInit", "1");
 	    initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*)");
+	    initData.properties.setProperty("IceSSL.VerifyPeer", "0");
 	    Ice.Communicator comm = Ice.Util.initialize(args, initData);
 	    IceSSL.Plugin plugin = (IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
 	    test(plugin != null);
@@ -257,8 +258,39 @@ public class AllTests
 	    comm.destroy();
 
 	    //
+	    // Test IceSSL.VerifyPeer=1. This should fail because the server
+	    // does not supply a certificate.
+	    //
+	    initData = createClientProps(testDir, defaultHost);
+	    initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*)");
+	    initData.properties.setProperty("IceSSL.VerifyPeer", "1");
+	    comm = Ice.Util.initialize(args, initData);
+	    fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+	    test(fact != null);
+	    d = createServerProps(testDir, defaultHost);
+	    d.put("IceSSL.Ciphers", "NONE (.*DH_anon.*)");
+	    d.put("IceSSL.VerifyPeer", "0");
+	    server = fact.createServer(d);
+	    try
+	    {
+		server.ice_ping();
+		test(false);
+	    }
+	    catch(Ice.SecurityException ex)
+	    {
+		// Expected.
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		test(false);
+	    }
+	    fact.destroyServer(server);
+	    comm.destroy();
+
+	    //
 	    // Test IceSSL.VerifyPeer=1. Client has a certificate.
 	    //
+	    initData = createClientProps(testDir, defaultHost);
 	    initData.properties.setProperty("IceSSL.DefaultDir", defaultDir);
 	    initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
 	    initData.properties.setProperty("IceSSL.Password", "password");
@@ -392,6 +424,7 @@ public class AllTests
 	    //
 	    Ice.InitializationData initData = createClientProps(testDir, defaultHost);
 	    initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*)");
+	    initData.properties.setProperty("IceSSL.VerifyPeer", "0");
 	    Ice.Communicator comm = Ice.Util.initialize(args, initData);
 	    IceSSL.Plugin plugin = (IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
 	    test(plugin != null);
@@ -690,6 +723,7 @@ public class AllTests
 	    //
 	    Ice.InitializationData initData = createClientProps(testDir, defaultHost);
 	    initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*)");
+	    initData.properties.setProperty("IceSSL.VerifyPeer", "0");
 	    Ice.Communicator comm = Ice.Util.initialize(args, initData);
 	    Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
 	    test(fact != null);
