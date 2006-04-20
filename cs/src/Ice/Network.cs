@@ -104,9 +104,11 @@ namespace IceInternal
 
 	public static bool connectionLost(System.IO.IOException ex)
 	{
-	    return ex.Message.IndexOf("connection was forcibly closed") >= 0 ||
-		   ex.Message.IndexOf("remote party has closed the transport stream") >= 0 ||
-		   ex.Message.IndexOf("established connection was aborted") >= 0;
+	    string msg = ex.Message.ToLower();
+	    return msg.IndexOf("connection was forcibly closed") >= 0 ||
+		   msg.IndexOf("remote party has closed the transport stream") >= 0 ||
+		   msg.IndexOf("established connection was aborted") >= 0 ||
+		   msg.IndexOf("received an unexpected eof or 0 bytes from the transport stream") >= 0;
 	}
 
 	public static bool connectionRefused(Win32Exception ex)
