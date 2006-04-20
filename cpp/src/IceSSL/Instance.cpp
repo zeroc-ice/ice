@@ -170,14 +170,14 @@ IceSSL::Instance::sslErrors() const
 	    char buf[200];
 	    ERR_error_string_n(err, buf, sizeof(buf));
 
-	    ostr << "Thread ID: " << threadId << endl;
-	    ostr << "Error #:   " << err << endl;
-	    ostr << "Message:   " << buf << endl;
-	    ostr << "Location:  " << file << ", " << line;
+	    ostr << "thread id = " << threadId << endl;
+	    ostr << "error # = " << err << endl;
+	    ostr << "message = " << buf << endl;
+	    ostr << "location = " << file << ", " << line;
 	    if(flags & ERR_TXT_STRING)
 	    {
 		ostr << endl;
-		ostr << "Data:      " << data;
+		ostr << "data = " << data;
 	    }
 	}
 	else
