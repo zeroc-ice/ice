@@ -1,7 +1,7 @@
 <!--
  **********************************************************************
 
- Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+ Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
 
  This copy of Ice is licensed to you under the terms described in the
  ICE_LICENSE file included in this distribution.
@@ -1490,300 +1490,201 @@ over lower levels. If not specified, the default value is 1.
 <section><title>&IceSSL; Properties</title>
 <!-- ********************************************************************** -->
 
-<section><title>IceSSL.Trace.Security</title>
+<section id="IceSSL.Alias"><title>IceSSL.Alias</title>
 <section><title>Synopsis</title>
 <synopsis>
-IceSSL.Trace.Security=<replaceable>num</replaceable>
+IceSSL.Alias=<replaceable>alias</replaceable> (Java)
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-The SSL plug-in trace level:
+Selects a particular certificate from the keystore specified by
+<link linkend="IceSSL.Keystore">IceSSL.Keystore</link>.
+The certificate identified by <replaceable>alias</replaceable> is
+presented to the peer upon request during authentication.
+</para>
+</section>
+</section>
+
+<section id="IceSSL.CertAuthDir"><title>IceSSL.CertAuthDir</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.CertAuthDir=<replaceable>path</replaceable> (C++)
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the directory containing the certificates of trusted Certificate
+Authorities. The directory must be prepared in advance using the OpenSSL
+utility <literal>c_rehash</literal>.
+The pathname may be specified relative to the default directory defined by
+<link linkend="IceSSL.DefaultDir">IceSSL.DefaultDir</link>.
+</para>
+</section>
+</section>
+
+<section id="IceSSL.CertAuthFile"><title>IceSSL.CertAuthFile</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.CertAuthFile=<replaceable>file</replaceable> (C++)
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies a file containing the certificate of a trusted Certificate
+Authority. The filename may be specified relative to the default directory defined
+by <link linkend="IceSSL.DefaultDir">IceSSL.DefaultDir</link>.
+The certificate must be encoded using the PEM format.
+</para>
+</section>
+</section>
+
+<section id="IceSSL.CertFile"><title>IceSSL.CertFile</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.CertFile=<replaceable>file</replaceable> (C++, .NET)
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies a file that contains the program's certificate, and may also contain
+the corresponding private key.
+The filename may be specified relative to the default directory defined by
+<link linkend="IceSSL.DefaultDir">IceSSL.DefaultDir</link>.
+<variablelist><title>Platform Notes</title>
+<varlistentry><term>C++</term>
+<listitem>
+<para>
+The private key is optional; if not present, the file containing the private key
+must be identified by <link linkend="IceSSL.KeyFile">IceSSL.KeyFile</link>.
+If a password is required, OpenSSL will prompt the user at the terminal unless the
+application has installed a password handler or supplied the password using
+<link linkend="IceSSL.Password">IceSSL.Password</link>.
+The certificate must be encoded using the PEM format.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry><term>.NET</term>
+<listitem>
+<para>
+The file must use the PFX (PKCS#12) format and contain the certificate and its
+private key. The password for the file must be supplied using
+<link linkend="IceSSL.Password">IceSSL.Password</link>.
+</para>
+</listitem>
+</varlistentry>
+</variablelist>
+</para>
+</section>
+</section>
+
+<section id="IceSSL.CheckCertName"><title>IceSSL.CheckCertName</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.CheckCertName=<replaceable>num</replaceable> (C++, .NET)
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is a value greater than zero, IceSSL
+compares the server's hostname as specified in the proxy against the 
+DNS or IP address fields of the server's certificate. If no match is
+found, IceSSL aborts the connection attempt and raises an exception.
+</para>
+</section>
+</section>
+
+<section id="IceSSL.CheckCRL"><title>IceSSL.CheckCRL</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.CheckCRL=<replaceable>num</replaceable> (.NET)
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is a value greater than zero, IceSSL
+checks the certificate revocation list to determine if the peer's
+certificate has been revoked. If so, IceSSL aborts the connection
+and raises an exception.
+</para>
+</section>
+</section>
+
+<section id="IceSSL.Ciphers"><title>IceSSL.Ciphers</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.Ciphers=<replaceable>ciphers</replaceable> (C++, Java)
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the ciphersuites that IceSSL is allowed to negotiate. A ciphersuite
+is a set of algorithms that satisfies the four requirements for establishing
+a secure connection: signing and authentication, key exchange, secure hashing,
+and encryption. Some algorithms satisfy more than one requirement, and there
+are many possible combinations.
+<variablelist><title>Platform Notes</title>
+<varlistentry><term>C++</term>
+<listitem>
+<para>
+The value of this attribute is given directly to the OpenSSL library and is
+dependent on how OpenSSL was compiled. You can obtain a complete list of the
+supported cipher suites using the command <literal>openssl ciphers</literal>.
+This command will likely generate a long list. To simplify the selection
+process, OpenSSL supports several classes of ciphers:
 <informaltable>
 <tgroup cols=2>
 <tbody>
 <row>
-<entry>0</entry>
-<entry>No security trace. (default)</entry>
-</row>
-<row>
-<entry>1</entry>
-<entry>Trace security warnings (C++), and display the list of selected ciphersuites (Java).</entry>
-</row>
-<row>
-<entry>2</entry>
-<entry>Like 1, but more verbose, including warnings during
-configuration file parsing (C++).
+<entry><literal>ALL</literal></entry>
+<entry>
+Enables all supported ciphersuites. This class should be used with caution,
+as it may enable low-security ciphersuites.
 </entry>
+</row>
+<row>
+<entry><literal>ADH</literal></entry>
+<entry>Anonymous ciphers.</entry>
+</row>
+<row>
+<entry><literal>LOW</literal></entry>
+<entry>Low bit-strength ciphers.</entry>
+</row>
+<row>
+<entry><literal>EXP</literal></entry>
+<entry>Export-crippled ciphers.</entry>
 </row>
 </tbody>
 </tgroup>
 </informaltable>
-</para>
-</section>
-</section>
-
-<section><title>IceSSL.Client.CertPath, IceSSL.Server.CertPath</title>
-<section><title>Synopsis</title>
-<synopsis>
-IceSSL.Client.CertPath=<replaceable>path</replaceable>
-IceSSL.Server.CertPath=<replaceable>path</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-Defines the path (relative or absolute) where the SSL plug-in can
-find PEM format certificate files (RSA and DSA) and Diffie-Hellman group
-parameter files. (C++ only)
+Classes and ciphers can be excluded by prefixing them with an exclamation point.
+The special keyword <literal>@STRENGTH</literal> sorts the cipher list in order
+of their strength, so that SSL gives preference to the more secure ciphers when
+negotiating a ciphersuite. The <literal>@STRENGTH</literal> keyword must be the
+last element in the list. For example, here is a good value for the property:
 </para>
 <para>
-If <literal>IceSSL.Client.Config</literal> or
-<literal>IceSSL.Server.Config</literal> specify a relative path, that path
-is relative to the value of <literal>IceSSL.Client.CertPath</literal>
-and <literal>IceSSL.Server.CertPath</literal>, respectively.
+<literal>ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH</literal>
 </para>
 <para>
-If not specified, the application uses the current working directory
-as the certificate path.
+This value excludes the ciphers with low bit-strength and known problems, and
+orders the remaining ciphers according to their strength. Note that no warning
+is given if an unrecognized cipher is specified.
 </para>
-</section>
-</section>
-
-<section><title>IceSSL.Client.Config, IceSSL.Server.Config</title>
-<section><title>Synopsis</title>
-<synopsis>
-IceSSL.Client.Config=<replaceable>config_file</replaceable>
-IceSSL.Server.Config=<replaceable>config_file</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-Defines the XML-based configuration file from which the SSL plug-in
-loads initialization information and certificates. (C++ only)
-</para>
-<para>
-If the property specifies a relative path, the path is interpreted
-relative to the certificate path defined by <literal>IceSSL.Client.CertPath</literal>
-and <literal>IceSSL.Server.CertPath</literal>, respectively.
-</para>
-<para>
-The XML parser looks for the DTD file in the same directory in which
-it finds the XML configuration file.
-</para>
-<para>
-Depending on whether the application is running in client mode, server mode or
-both modes, a valid value for one or both of these parameters must be specified
-for the proper operation of the &IceSSL; plug-in.
-</para>
-</section>
-</section>
-
-<section><title>IceSSL.Client.Passphrase.Retries, IceSSL.Server.Passphrase.Retries</title>
-<section><title>Synopsis</title>
-<synopsis>
-IceSSL.Client.Passphrase.Retries=<replaceable>num</replaceable>
-IceSSL.Server.Passphrase.Retries=<replaceable>num</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-When &IceSSL; is directed to use a private key in a PEM file that has
-been encrypted, a prompt is displayed <literal>Enter PEM pass
-phrase:</literal>. If the passphrase is entered incorrectly, these
-properties determine how many retries the user is allowed before
-&IceSSL; shuts down. (C++ only)
-</para>
-<para>
-If not specified, the default value for these properties is 5 retries.
-</para>
-</section>
-</section>
-
-<section><title>IceSSL.Server.Overrides.RSA.PrivateKey, IceSSL.Server.Overrides.RSA.Certificate</title>
-<section><title>Synopsis</title>
-<synopsis>
-IceSSL.Server.Overrides.RSA.PrivateKey=<replaceable>Base64 encoded DER string</replaceable>
-IceSSL.Server.Overrides.RSA.Certificate=<replaceable>Base64 encoded DER string</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-These properties override the RSA private key and public key (certificate)
-specified in the config file (<literal>IceSSL.Server.Config</literal>) for
-the Server context. The value must be the DER representation of the private
-and public keys, base64 encoded. (C++ only)
-</para>
-<para>
-There are no default values for these properties.
-</para>
-</section>
-</section>
-
-<section><title>IceSSL.Server.Overrides.DSA.PrivateKey, IceSSL.Server.Overrides.DSA.Certificate</title>
-<section><title>Synopsis</title>
-<synopsis>
-IceSSL.Server.Overrides.DSA.PrivateKey=<replaceable>Base64 encoded DER string</replaceable>
-IceSSL.Server.Overrides.DSA.Certificate=<replaceable>Base64 encoded DER string</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-These properties override the DSA private key and public key (certificate)
-specified in the config file (<literal>IceSSL.Server.Config</literal>) for
-the Server context. The value must be the DER representation of the private
-and public keys, base64 encoded. (C++ only)
-</para>
-<para>
-There are no default values for these properties.
-</para>
-</section>
-</section>
-
-<section><title>IceSSL.Client.Overrides.RSA.PrivateKey, IceSSL.Client.Overrides.RSA.Certificate</title>
-<section><title>Synopsis</title>
-<synopsis>
-IceSSL.Client.Overrides.RSA.PrivateKey=<replaceable>Base64 encoded DER string</replaceable>
-IceSSL.Client.Overrides.RSA.Certificate=<replaceable>Base64 encoded DER string</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-These properties override the RSA private key and public key (certificate)
-specified in the config file (<literal>IceSSL.Client.Config</literal>) for
-the Client context. The value must be the DER representation of the private
-and public keys, base64 encoded. (C++ only)
-</para>
-<para>
-There are no default values for these properties.
-</para>
-</section>
-</section>
-
-<section><title>IceSSL.Client.Overrides.DSA.PrivateKey, IceSSL.Client.Overrides.DSA.Certificate</title>
-<section><title>Synopsis</title>
-<synopsis>
-IceSSL.Client.Overrides.DSA.PrivateKey=<replaceable>Base64 encoded DER string</replaceable>
-IceSSL.Client.Overrides.DSA.Certificate=<replaceable>Base64 encoded DER string</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-These properties override the DSA private key and public key (certificate)
-specified in the config file (<literal>IceSSL.Client.Config</literal>) for
-the Client context. The value must be the DER representation of the private
-and public keys, base64 encoded. (C++ only)
-</para>
-<para>
-There are no default values for these properties.
-</para>
-</section>
-</section>
-
-<section><title>IceSSL.Client.Overrides.CACertificate, IceSSL.Server.Overrides.CACertificate</title>
-<section><title>Synopsis</title>
-<synopsis>
-IceSSL.Client.Overrides.CACertificate=<replaceable>Base64 encoded DER string</replaceable>
-IceSSL.Server.Overrides.CACertificate=<replaceable>Base64 encoded DER string</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-These properties override any trusted Certificate Authority (CA) certificates
-specified in <literal>IceSSL.Server.Config</literal> or
-<literal>IceSSL.Client.Config</literal>. The new certificate is represented
-as the base64 encoding of the DER binary representation of the certificate. (C++ only)
-</para>
-<para>
-There are no default values for these properties.
-</para>
-</section>
-</section>
-
-<section><title>IceSSL.Client.IgnoreValidPeriod, IceSSL.Server.IgnoreValidPeriod</title>
-<section><title>Synopsis</title>
-<synopsis>
-IceSSL.Client.IgnoreValidPeriod=<replaceable>num</replaceable>
-IceSSL.Server.IgnoreValidPeriod=<replaceable>num</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-If set to 1, these properties cause the default certificate verifier to ignore the
-certificate validity period on peer certificates. The default value for these
-properties is 0, meaning that the certificate validity period is not ignored. (C++ only)
-</para>
-</section>
-</section>
-
-<section><title>IceSSL.Client.Certs, IceSSL.Server.Certs</title>
-<section><title>Synopsis</title>
-<synopsis>
-IceSSL.Client.Certs=<replaceable>keystore</replaceable>
-IceSSL.Server.Certs=<replaceable>keystore</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-Defines the filename of a Java keystore containing trusted certificates.
-If <replaceable>keystore</replaceable> is a relative pathname, it is
-relative to the program's current working directory.
-</para>
-<para>
-If a password is provided in <literal>IceSSL.Client.CertsPassword</literal>
-or <literal>IceSSL.Server.CertsPassword</literal>, it is used to verify the
-integrity of the keystore.
-</para>
-<para>
-If not specified, the plug-in uses an empty keystore.
-</para>
-</section>
-</section>
-
-<section><title>IceSSL.Client.CertsPassword, IceSSL.Server.CertsPassword</title>
-<section><title>Synopsis</title>
-<synopsis>
-IceSSL.Client.CertsPassword=<replaceable>password</replaceable>
-IceSSL.Server.CertsPassword=<replaceable>password</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-Defines the password used to verify the integrity of the Java keystore provided
-by <literal>IceSSL.Client.Certs</literal> or <literal>IceSSL.Server.Certs</literal>.
-</para>
-<para>
-If not specified, the plug-in does not verify the keystore's integrity.
-</para>
-</section>
-</section>
-
-<section><title>IceSSL.Client.Ciphers, IceSSL.Server.Ciphers</title>
-<section><title>Synopsis</title>
-<synopsis>
-IceSSL.Client.Ciphers=<replaceable>cipher-list</replaceable>
-IceSSL.Server.Ciphers=<replaceable>cipher-list</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-Defines the ciphersuites enabled by the Java plug-in.
-</para>
+</listitem>
+</varlistentry>
+<varlistentry><term>Java</term>
+<listitem>
 <para>
 The property value is interpreted as a list of tokens delimited by whitespace.
-The plug-in executes the tokens in the order of appearance in order to assemble
+The plugin executes the tokens in the order of appearance in order to assemble
 the list of enabled ciphersuites. The table below describes the tokens:
 <informaltable>
 <tgroup cols=2>
@@ -1813,117 +1714,497 @@ ciphersuites.
 <row>
 <entry><literal>(<replaceable>EXP</replaceable>)</literal></entry>
 <entry>Enables ciphersuites whose names contain the regular expression
-<replaceable>EXP</replaceable>.</entry>
+<replaceable>EXP</replaceable>. For example, the value
+<literal>NONE (.*DH_anon.*)</literal> selects only ciphersuites that
+use anonymous Diffie-Hellman authentication.</entry>
 </row>
 <row>
 <entry><literal>!(<replaceable>EXP</replaceable>)</literal></entry>
 <entry>Disables ciphersuites whose names contain the regular expression
-<replaceable>EXP</replaceable>.</entry>
+<replaceable>EXP</replaceable>. For example, the value
+<literal>ALL !(.*DH_anon.*)</literal> enables all ciphersuites except
+those that use anonymous Diffie-Hellman authentication.</entry>
 </row>
 </tbody>
 </tgroup>
 </informaltable>
 </para>
 <para>
-If not specified, the plug-in uses the security provider's default ciphersuites.
+If not specified, the plugin uses the security provider's default ciphersuites.
+Set <literal>IceSSL.Trace.Security=1</literal> to determine which ciphersuites
+are enabled by default, or to verify your ciphersuite configuration.
+</para>
+</listitem>
+</varlistentry>
+</variablelist>
 </para>
 </section>
 </section>
 
-<section><title>IceSSL.Client.Keystore, IceSSL.Server.Keystore</title>
+<section id="IceSSL.DefaultDir"><title>IceSSL.DefaultDir</title>
 <section><title>Synopsis</title>
 <synopsis>
-IceSSL.Client.Keystore=<replaceable>keystore</replaceable>
-IceSSL.Server.Keystore=<replaceable>keystore</replaceable>
+IceSSL.DefaultDir=<replaceable>path</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the filename of a Java keystore containing the private key(s)
-and corresponding certificate(s). If <replaceable>keystore</replaceable>
-is a relative pathname, it is relative to the program's current working
-directory.
-</para>
-<para>
-A password for the private key is defined by <literal>IceSSL.Client.Password</literal>
-or <literal>IceSSL.Server.Password</literal>. A password used to verify
-the integrity of the keystore is defined by <literal>IceSSL.Client.KeystorePassword</literal>
-or <literal>IceSSL.Server.KeystorePassword</literal>.
-</para>
-<para>
-If not specified, the plug-in uses an empty keystore.
+Specifies the default directory in which to look for certificate, key, and
+keystore files. See the descriptions of the relevant properties for more
+information.
 </para>
 </section>
 </section>
 
-<section><title>IceSSL.Client.KeystorePassword, IceSSL.Server.KeystorePassword</title>
+<section id="IceSSL.DelayInit"><title>IceSSL.DelayInit</title>
 <section><title>Synopsis</title>
 <synopsis>
-IceSSL.Client.KeystorePassword=<replaceable>password</replaceable>
-IceSSL.Server.KeystorePassword=<replaceable>password</replaceable>
+IceSSL.DelayInit=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the password used to verify the integrity of the Java keystore provided
-by <literal>IceSSL.Client.Keystore</literal> or <literal>IceSSL.Server.Keystore</literal>.
-</para>
-<para>
-If not specified, the plug-in does not verify the keystore's integrity.
+If <replaceable>num</replaceable> is a value greater than zero, IceSSL
+delays its initialization and waits for the application to indicate
+when initialization should proceed. This provides the application with
+an opportunity to install callbacks or perform other pre-initialization
+steps, such as prompting the user for a password. See the Ice manual
+for more information.
 </para>
 </section>
 </section>
 
-<section><title>IceSSL.Client.Password, IceSSL.Server.Password</title>
+<section id="IceSSL.DH"><title>IceSSL.DH.<replaceable>bits</replaceable></title>
 <section><title>Synopsis</title>
 <synopsis>
-IceSSL.Client.Password=<replaceable>password</replaceable>
-IceSSL.Server.Password=<replaceable>password</replaceable>
+IceSSL.DH.<replaceable>bits</replaceable>=<replaceable>file</replaceable> (C++)
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the password of the private key in the Java keystore specified
-by <literal>IceSSL.Client.Keystore</literal> or <literal>IceSSL.Server.Keystore</literal>.
+Specifies a file containing Diffie Hellman parameters whose key length
+is <replaceable>bits</replaceable>, as shown in the following example:
 </para>
-<note><para> All of the keys in the keystore must use the same password. </para></note>
 <para>
-If not specified, the plug-in uses an empty string.
+<literal>IceSSL.DH.1024=dhparams1024.pem</literal>
+</para>
+<para>
+IceSSL supplies default parameters for key lengths of 512, 1024, 2048
+and 4096 bits, which are used if no user-defined parameters of the desired
+key length are specified. The filename may be specified relative to the
+default directory defined by <link linkend="IceSSL.DefaultDir">IceSSL.DefaultDir</link>.
+The parameters must be encoded using the PEM format.
 </para>
 </section>
 </section>
 
-<section><title>IceSSL.Server.ClientAuth</title>
+<section id="IceSSL.EntropyDaemon"><title>IceSSL.EntropyDaemon</title>
 <section><title>Synopsis</title>
 <synopsis>
-IceSSL.Server.ClientAuth=<replaceable>num</replaceable>
+IceSSL.EntropyDaemon=<replaceable>file</replaceable> (C++)
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines how a Java server authenticates a client:
+Specifies a Unix domain socket for the Entropy Gathering Daemon, from
+which OpenSSL gathers entropy data to initialize its random number
+generator.
+</para>
+</section>
+</section>
+
+<section id="IceSSL.ImportCert"><title>IceSSL.ImportCert.<replaceable>location</replaceable>.<replaceable>name</replaceable></title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.ImportCert.<replaceable>location</replaceable>.<replaceable>name</replaceable>=<replaceable>file</replaceable>[;<replaceable>password</replaceable>] (.NET)
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Imports the certificate in <replaceable>file</replaceable> into the specified certificate store.
+The value for <replaceable>location</replaceable> must be <literal>LocalMachine</literal> or
+<literal>CurrentUser</literal>. The <replaceable>name</replaceable> corresponds to the .NET enumeration
+<literal>StoreName</literal> and may be one of the following values:
+<literal>AddressBook</literal>,
+<literal>AuthRoot</literal>,
+<literal>CertificateAuthority</literal>,
+<literal>Disallowed</literal>,
+<literal>My</literal>,
+<literal>Root</literal>,
+<literal>TrustedPeople</literal>,
+<literal>TrustedPublisher</literal>.
+It is also possible to use an arbitrary value for <replaceable>name</replaceable>, which adds a
+new store to the repository. If you are importing a trusted CA certificate, it must be added to
+<literal>AuthRoot</literal> or <literal>Root</literal>.
+</para>
+<para>
+The password is optional; it is only necessary if the certificate file also contains a private
+key or uses a secure storage format such as PFX.
+</para>
+<para>
+The filename and password may be enclosed in single or double quotes if necessary.
+The filename may be specified relative to the default directory defined by
+<link linkend="IceSSL.DefaultDir">IceSSL.DefaultDir</link>.
+</para>
+<note>
+<para>
+Importing a certificate into <literal>LocalMachine</literal> requires administrator privileges,
+while importing into <literal>CurrentUser</literal> may cause the platform to prompt the user for
+confirmation.
+</para>
+</note>
+</section>
+</section>
+
+<section id="IceSSL.KeyFile"><title>IceSSL.KeyFile</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.KeyFile=<replaceable>file</replaceable> (C++)
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies a file containing the private key associated with the certificate
+identified by <link linkend="IceSSL.CertFile">IceSSL.CertFile</link>.
+The filename may be specified relative to the default directory defined
+by <link linkend="IceSSL.DefaultDir">IceSSL.DefaultDir</link>.
+The key must be encoded using the PEM format.
+</para>
+</section>
+</section>
+
+<section id="IceSSL.Keystore"><title>IceSSL.Keystore</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.Keystore=<replaceable>file</replaceable> (Java)
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies a keystore file containing certificates and their private
+keys. If the keystore contains multiple certificates, you should
+specify a particular one to use for authentication using
+<link linkend="IceSSL.Alias">IceSSL.Alias</link>.
+The filename may be specified relative to the default directory defined
+by <link linkend="IceSSL.DefaultDir">IceSSL.DefaultDir</link>.
+The format of the file is determined by
+<link linkend="IceSSL.KeystoreType">IceSSL.KeystoreType</link>.
+</para>
+<para>
+If this property is not defined, the application will not be able to supply a
+certificate during SSL handshaking. As a result, the application may not
+be able to negotiate a secure connection, or might be required to use an
+anonymous ciphersuite.
+</para>
+</section>
+</section>
+
+<section id="IceSSL.KeystorePassword"><title>IceSSL.KeystorePassword</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.KeystorePassword=<replaceable>password</replaceable> (Java)
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the password used to verify the integrity of the keystore defined
+by <link linkend="IceSSL.Keystore">IceSSL.Keystore</link>. The integrity
+check is skipped if this property is not defined.
+</para>
+<note>
+<para>
+It is a security risk to use a plain-text password in a configuration file.
+</para>
+</note>
+</section>
+</section>
+
+<section id="IceSSL.KeystoreType"><title>IceSSL.KeystoreType</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.KeystoreType=<replaceable>type</replaceable> (Java)
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the format of the keystore file defined by
+<link linkend="IceSSL.Keystore">IceSSL.Keystore</link>. Legal values are
+<literal>JKS</literal> and <literal>PKCS12</literal>. If not defined,
+the default value is <literal>JKS</literal>.
+</para>
+</section>
+</section>
+
+<section id="IceSSL.Password"><title>IceSSL.Password</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.Password=<replaceable>password</replaceable> (Java)
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the password necessary to decrypt the private key.
+<variablelist><title>Platform Notes</title>
+<varlistentry><term>C++</term>
+<listitem>
+<para>
+This property supplies the password that was used to secure the private key
+contained in the file defined by <link linkend="IceSSL.CertFile">IceSSL.CertFile</link>
+or <link linkend="IceSSL.KeyFile">IceSSL.KeyFile</link>.
+If this property is not defined and you have not installed a password
+callback object, OpenSSL will prompt the user for a password if one
+is necessary.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry><term>Java</term>
+<listitem>
+<para>
+This property supplies the password that was used to secure the private key
+contained in the keystore defined by
+<link linkend="IceSSL.Keystore">IceSSL.Keystore</link>.
+All of the keys in the keystore must use the same password.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry><term>.NET</term>
+<listitem>
+<para>
+This property supplies the password that was used to secure the file defined by
+<link linkend="IceSSL.CertFile">IceSSL.CertFile</link>.
+</para>
+</listitem>
+</varlistentry>
+</variablelist>
+</para>
+<note>
+<para>
+It is a security risk to use a plain-text password in a configuration file.
+</para>
+</note>
+</section>
+</section>
+
+<section id="IceSSL.PasswordRetryMax"><title>IceSSL.PasswordRetryMax</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.PasswordRetryMax=<replaceable>num</replaceable> (C++)
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the number of attempts IceSSL should allow the user to make
+when entering a password. If not defined, the default value is 3.
+</para>
+</section>
+</section>
+
+<section id="IceSSL.Protocols"><title>IceSSL.Protocols</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.Protocols=<replaceable>list</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the protocols to allow during SSL handshaking. Legal values
+are <literal>SSL3</literal> and <literal>TLS1</literal>. You may also
+specify both values, separate by commas or whitespace. If this property
+is not defined, the platform's default is used.
+</para>
+</section>
+</section>
+
+<section id="IceSSL.Random"><title>IceSSL.Random</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.Random=<replaceable>filelist</replaceable> (C++)
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies one or more files containing data to use when seeding the random number
+generator. The filenames should be separated using the platform's path separator
+(a colon on Unix and a semicolon on Windows).
+The filenames may be specified relative to the default directory defined
+by <link linkend="IceSSL.DefaultDir">IceSSL.DefaultDir</link>.
+</para>
+</section>
+</section>
+
+<section><title>IceSSL.Trace.Security</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.Trace.Security=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The SSL plugin trace level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No certificate is requested from the client. (default)</entry>
+<entry>No security tracing. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
-<entry>A certificate is requested but is not required.</entry>
-</row>
-<row>
-<entry>2</entry>
-<entry>A certificate is required.</entry>
+<entry>Display diagnostic information about SSL connections.</entry>
 </row>
 </tbody>
 </tgroup>
 </informaltable>
+</para>
+</section>
+</section>
+
+<section id="IceSSL.Truststore"><title>IceSSL.Truststore</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.Truststore=<replaceable>file</replaceable> (Java)
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies a keystore file containing the certificates of trusted certificate
+authorities.
+The filename may be specified relative to the default directory defined
+by <link linkend="IceSSL.DefaultDir">IceSSL.DefaultDir</link>.
+The format of the file is determined by
+<link linkend="IceSSL.TruststoreType">IceSSL.TruststoreType</link>.
+</para>
+<para>
+If this property is not defined, the application will not be able to authenticate
+the peer's certificate during SSL handshaking. As a result, the application may not
+be able to negotiate a secure connection, or might be required to use an
+anonymous ciphersuite.
+</para>
+</section>
+</section>
+
+<section id="IceSSL.TruststorePassword"><title>IceSSL.TruststorePassword</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.TruststorePassword=<replaceable>password</replaceable> (Java)
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the password used to verify the integrity of the keystore defined
+by <link linkend="IceSSL.Truststore">IceSSL.Truststore</link>. The integrity
+check is skipped if this property is not defined.
+</para>
+<note>
+<para>
+It is a security risk to use a plain-text password in a configuration file.
+</para>
+</note>
+</section>
+</section>
+
+<section id="IceSSL.TruststoreType"><title>IceSSL.TruststoreType</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.TruststoreType=<replaceable>type</replaceable> (Java)
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the format of the keystore file defined by
+<link linkend="IceSSL.Truststore">IceSSL.Truststore</link>. Legal values are
+<literal>JKS</literal> and <literal>PKCS12</literal>. If not defined,
+the default value is <literal>JKS</literal>.
+</para>
+</section>
+</section>
+
+<section id="IceSSL.VerifyDepthMax"><title>IceSSL.VerifyDepthMax</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.VerifyDepthMax=<replaceable>num</replaceable> (C++)
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the maximum depth of a trusted CA certificate chain during
+verification. If not defined, the default value is 2.
+</para>
+</section>
+</section>
+
+<section id="IceSSL.VerifyPeer"><title>IceSSL.VerifyPeer</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.VerifyPeer=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the verification requirements to use during SSL handshaking. The legal values
+are shown in the table below:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>
+For an outgoing connection, the client verifies the server's certificate (if
+an anonymous cipher is not used) but does not abort the connection if verification
+fails. For an incoming connection, the server does not request a certificate from
+the client.</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>
+For an outgoing connection, the client verifies the server's certificate (if
+an anonymous cipher is not used) and aborts the connection if verification fails.
+For an incoming connection, the server requests a certificate from the client and
+verifies it if one is provided, aborting the connection if verification fails.
+</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>
+For an outgoing connection, the semantics are the same as for value 1.
+For an incoming connection, the server requires a certificate from the client and
+aborts the connection if verification fails.
+</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+If this property is not defined, the default value is 2.
+<variablelist><title>Platform Notes</title>
+<varlistentry><term>.NET</term>
+<listitem>
+<para>
+This property has no effect on outgoing connections, since .NET always
+uses the semantics of value 2. For an incoming connection, value 0 has
+the same semantics as value 1.
+</para>
+</listitem>
+</varlistentry>
+</variablelist>
 </para>
 </section>
 </section>
