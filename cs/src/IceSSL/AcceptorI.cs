@@ -233,7 +233,18 @@ namespace IceSSL
 	    instance_ = instance;
 	    logger_ = instance.communicator().getLogger();
 	    backlog_ = 0;
-	    
+
+	    //
+	    // .NET requires that a certificate be supplied.
+	    //
+	    X509Certificate2Collection certs = instance.context().certs();
+	    if(certs.Count == 0)
+	    {
+		Ice.SecurityException ex = new Ice.SecurityException();
+		ex.reason = "IceSSL: certificate required for server endpoint";
+		throw ex;
+	    }
+
 	    if(backlog_ <= 0)
 	    {
 		backlog_ = 5;
