@@ -502,6 +502,7 @@ FreezeScript::TransformVisitor::transformObject(const ObjectDataPtr& dest, const
     assert(p->second == 0);
     objectDataMap.erase(p);
     objectDataMap.insert(ObjectDataMap::value_type(src.get(), dest));
+    p = objectDataMap.find(src.get());
 
     try
     {
