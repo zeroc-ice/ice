@@ -295,7 +295,7 @@ StaticMutex::tryLock() const
     int rc = pthread_mutex_trylock(&_mutex);
     if(rc != 0 && rc != EBUSY)
     {
-        if(rc == EDEADLOCK)
+        if(rc == EDEADLK)
 	{
 	    throw ThreadLockedException(__FILE__, __LINE__);
 	}
