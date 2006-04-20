@@ -57,7 +57,7 @@ final class ConnectorI implements IceInternal.Connector
 	    catch(IllegalArgumentException ex)
 	    {
 		Ice.SecurityException e = new Ice.SecurityException();
-		e.reason = "invalid ciphersuite";
+		e.reason = "IceSSL: invalid ciphersuite";
 		e.initCause(ex);
 		throw e;
 	    }
@@ -82,7 +82,7 @@ final class ConnectorI implements IceInternal.Connector
 		catch(IllegalArgumentException ex)
 		{
 		    Ice.SecurityException e = new Ice.SecurityException();
-		    e.reason = "invalid protocol";
+		    e.reason = "IceSSL: invalid protocol";
 		    e.initCause(ex);
 		    throw e;
 		}
@@ -105,10 +105,30 @@ final class ConnectorI implements IceInternal.Connector
 		fd.startHandshake();
 	    }
 
+	    //
+	    // Check IceSSL.VerifyPeer.
+	    //
+	    int verifyPeer =
+		_instance.communicator().getProperties().getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
+	    if(verifyPeer > 0)
+	    {
+		try
+		{
+		    fd.getSession().getPeerCertificates();
+		}
+		catch(javax.net.ssl.SSLPeerUnverifiedException ex)
+		{
+		    Ice.SecurityException e = new Ice.SecurityException();
+		    e.reason = "IceSSL: server did not supply a certificate";
+		    e.initCause(ex);
+		    throw e;
+		}
+	    }
+
 	    if(!ctx.verifyPeer(fd, _host, false))
 	    {
 		Ice.SecurityException ex = new Ice.SecurityException();
-		ex.reason = "outgoing connection rejected by certificate verifier";
+		ex.reason = "IceSSL: outgoing connection rejected by certificate verifier";
 		throw ex;
 	    }
 	}
