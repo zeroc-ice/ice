@@ -10,7 +10,7 @@
 public final class SessionManagerI extends Glacier2._SessionManagerDisp
 {
     public Glacier2.SessionPrx
-    create(String userId, Ice.Current current)
+    create(String userId, Glacier2.SessionControlPrx control, Ice.Current current)
     {
 	System.out.println("creating session for user `" + userId + "'");
 	Glacier2.Session session = new SessionI(userId);
