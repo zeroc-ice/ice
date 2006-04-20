@@ -408,7 +408,7 @@ IceSSL::Context::Context(const InstancePtr& instance, SSL_CTX* ctx) :
 	// Establish the maximum verify depth.
 	//
 	{
-	    int depth = properties->getPropertyAsIntWithDefault(propPrefix + "VerifyDepthMax", -1);
+	    int depth = properties->getPropertyAsIntWithDefault(propPrefix + "VerifyDepthMax", 2);
 	    if(depth >= 0)
 	    {
 		SSL_CTX_set_verify_depth(_ctx, depth);
