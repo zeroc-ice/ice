@@ -149,5 +149,9 @@ BuildCmds= \
 
 # End Source File
 # End Group
+# Begin Source File
+
+SOURCE=.\README
+# End Source File
 # End Target
 # End Project

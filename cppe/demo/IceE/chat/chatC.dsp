@@ -45,7 +45,7 @@ RSC=rc.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /WX /GR /GX /O1 /I "." /I "../../../include" /D "NDEBUG" /D "WIN32_LEAN_AND_MEAN" /D "_CONSOLE" /FD /c
-# SUBTRACT CPP /Z<none> /Fr /YX
+# SUBTRACT CPP /Fr /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -128,7 +128,7 @@ LINK32=link.exe
 # ADD BASE CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../../include" /I "../../../include/stlport" /D "NDEBUG" /D "_CONSOLE" /FD /c
 # SUBTRACT BASE CPP /Fr /YX
 # ADD CPP /nologo /MD /W3 /WX /GR /GX /O1 /I "." /I "../../../include" /D "NDEBUG" /D "ICEE_STATIC_LIBS" /D "WIN32_LEAN_AND_MEAN" /D "_CONSOLE" /FD /c
-# SUBTRACT CPP /Z<none> /Fr /YX
+# SUBTRACT CPP /Fr /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -397,5 +397,9 @@ BuildCmds= \
 
 # End Source File
 # End Group
+# Begin Source File
+
+SOURCE=.\README
+# End Source File
 # End Target
 # End Project
