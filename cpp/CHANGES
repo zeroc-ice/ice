@@ -1,6 +1,12 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Added operators <=, > and >= for slice classes, proxies and
+  structures.
+
+- Added method to allow a Glacier2 session to be destroyed from a 
+  backend server.
+
 - Added new method Ice::ObjectAdapter::destroy(). After this method
   has been called it is now permissible to recreate a new object
   adapter with the same name as the destroyed adapter.

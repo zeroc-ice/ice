@@ -857,6 +857,18 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     H << nl << _dllExport << "bool operator==(const " << name << "&) const;";
     H << nl << _dllExport << "bool operator!=(const " << name << "&) const;";
     H << nl << _dllExport << "bool operator<(const " << name << "&) const;";
+    H << nl << _dllExport << "bool operator<=(const " << name << "& __rhs) const";
+    H << sb;
+    H << nl << "return operator<(__rhs) || operator==(__rhs);";
+    H << eb;
+    H << nl << _dllExport << "bool operator>(const " << name << "& __rhs) const";
+    H << sb;
+    H << nl << "return !operator<(__rhs) && !operator==(__rhs);";
+    H << eb;
+    H << nl << _dllExport << "bool operator>=(const " << name << "& __rhs) const";
+    H << sb;
+    H << nl << "return !operator<(__rhs);";
+    H << eb;
     
     C << sp << nl << "bool" << nl << scoped.substr(2) << "::operator==(const " << name << "& __rhs) const";
     C << sb;
@@ -1555,6 +1567,9 @@ Slice::Gen::ProxyDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     H << nl << _dllExport << "bool operator==(const " << name << "&, const " << name << "&);";
     H << nl << _dllExport << "bool operator!=(const " << name << "&, const " << name << "&);";
     H << nl << _dllExport << "bool operator<(const " << name << "&, const " << name << "&);";
+    H << nl << _dllExport << "bool operator<=(const " << name << "&, const " << name << "&);";
+    H << nl << _dllExport << "bool operator>(const " << name << "&, const " << name << "&);";
+    H << nl << _dllExport << "bool operator>=(const " << name << "&, const " << name << "&);";
 }
 
 Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, const string& dllExport) :
@@ -1700,6 +1715,24 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << sb;
     C << nl << "return static_cast<const ::IceProxy::Ice::Object&>(l) < "
       << "static_cast<const ::IceProxy::Ice::Object&>(r);";
+    C << eb;
+    C << sp;
+    C << nl << "bool" << nl << "IceProxy" << scope << "operator<=(const ::IceProxy" << scoped
+      << "& l, const ::IceProxy" << scoped << "& r)";
+    C << sb;
+    C << nl << "return l < r || l == r;";
+    C << eb;
+    C << sp;
+    C << nl << "bool" << nl << "IceProxy" << scope << "operator>(const ::IceProxy" << scoped
+      << "& l, const ::IceProxy" << scoped << "& r)";
+    C << sb;
+    C << nl << "return !(l < r) && !(l == r);";
+    C << eb;
+    C << sp;
+    C << nl << "bool" << nl << "IceProxy" << scope << "operator>=(const ::IceProxy" << scoped
+      << "& l, const ::IceProxy" << scoped << "& r)";
+    C << sb;
+    C << nl << "return !(l < r);";
     C << eb;
 
     _useWstring = resetUseWstring(_useWstringHist);
@@ -2463,6 +2496,9 @@ Slice::Gen::ObjectDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     H << nl << _dllExport << "bool operator==(const " << name << "&, const " << name << "&);";
     H << nl << _dllExport << "bool operator!=(const " << name << "&, const " << name << "&);";
     H << nl << _dllExport << "bool operator<(const " << name << "&, const " << name << "&);";
+    H << nl << _dllExport << "bool operator<=(const " << name << "&, const " << name << "&);";
+    H << nl << _dllExport << "bool operator>(const " << name << "&, const " << name << "&);";
+    H << nl << _dllExport << "bool operator>=(const " << name << "&, const " << name << "&);";
 }
 
 void
@@ -3121,6 +3157,22 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	C << nl << "return static_cast<const ::Ice::Object&>(l) < static_cast<const ::Ice::Object&>(r);";
 	C << eb;
     }
+
+    C << sp;
+    C << nl << "bool" << nl << scope.substr(2) << "operator<=(const " << scoped << "& l, const " << scoped << "& r)";
+    C << sb;
+    C << nl << "return l < r || l == r;";
+    C << eb;
+    C << sp;
+    C << nl << "bool" << nl << scope.substr(2) << "operator>(const " << scoped << "& l, const " << scoped << "& r)";
+    C << sb;
+    C << nl << "return !(l < r) && !(l == r);";
+    C << eb;
+    C << sp;
+    C << nl << "bool" << nl << scope.substr(2) << "operator>=(const " << scoped << "& l, const " << scoped << "& r)";
+    C << sb;
+    C << nl << "return !(l < r);";
+    C << eb;
 
     _useWstring = resetUseWstring(_useWstringHist);
 }
