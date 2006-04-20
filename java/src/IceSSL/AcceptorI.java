@@ -318,7 +318,7 @@ class AcceptorI implements IceInternal.Acceptor
 	    catch(IllegalArgumentException ex)
 	    {
 		Ice.SecurityException e = new Ice.SecurityException();
-		e.reason = "invalid ciphersuite";
+		e.reason = "IceSSL: invalid ciphersuite";
 		e.initCause(ex);
 		throw e;
 	    }
@@ -343,7 +343,7 @@ class AcceptorI implements IceInternal.Acceptor
 		catch(IllegalArgumentException ex)
 		{
 		    Ice.SecurityException e = new Ice.SecurityException();
-		    e.reason = "invalid protocol";
+		    e.reason = "IceSSL: invalid protocol";
 		    e.initCause(ex);
 		    throw e;
 		}
