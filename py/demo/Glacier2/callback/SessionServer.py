@@ -24,7 +24,7 @@ class SessionI(Glacier2.Session):
 	current.adapter.remove(current.id)
 
 class SessionManagerI(Glacier2.SessionManager):
-    def create(self, userId, current=None):
+    def create(self, userId, control, current=None):
         print "creating session for user `" + userId + "'"
 	session = SessionI(userId)
 	return Glacier2.SessionPrx.uncheckedCast(current.adapter.addWithUUID(session))
