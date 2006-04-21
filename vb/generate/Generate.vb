@@ -169,34 +169,36 @@ Module Generate
             Const slicePat As String = "*.ice"
             Dim sliceFiles() As String = Directory.GetFiles(currentDir, slicePat)
             For Each sliceFile As String In sliceFiles
-                Dim vbFile As String = Path.GetFileName(Path.ChangeExtension(sliceFile, ".vb"))
-                vbFile = Path.Combine(outputDir, vbFile)
-                Select Case _action
-                    Case BuildAction.build
-                        Dim sliceTime As DateTime = File.GetLastWriteTime(sliceFile)
-                        Dim needCompile As Boolean = Not File.Exists(vbFile)
-                        If Not needCompile Then
-                            needCompile = sliceTime > File.GetLastWriteTime(vbFile)
-                        End If
-                        If needCompile Then
+	        If sliceFile.EndsWith(".ice") Then
+                    Dim vbFile As String = Path.GetFileName(Path.ChangeExtension(sliceFile, ".vb"))
+                    vbFile = Path.Combine(outputDir, vbFile)
+                    Select Case _action
+                        Case BuildAction.build
+                            Dim sliceTime As DateTime = File.GetLastWriteTime(sliceFile)
+                            Dim needCompile As Boolean = Not File.Exists(vbFile)
+                            If Not needCompile Then
+                                needCompile = sliceTime > File.GetLastWriteTime(vbFile)
+                            End If
+                            If needCompile Then
+                                Console.WriteLine(Path.GetFileName(sliceFile))
+                                Dim exitCode As Integer = doCompile(sliceFile, outputDir)
+                                If rc = 0 Then
+                                    rc = exitCode
+                                End If
+                            End If
+                        Case BuildAction.rebuild
                             Console.WriteLine(Path.GetFileName(sliceFile))
                             Dim exitCode As Integer = doCompile(sliceFile, outputDir)
                             If rc = 0 Then
                                 rc = exitCode
                             End If
-                        End If
-                    Case BuildAction.rebuild
-                        Console.WriteLine(Path.GetFileName(sliceFile))
-                        Dim exitCode As Integer = doCompile(sliceFile, outputDir)
-                        If rc = 0 Then
-                            rc = exitCode
-                        End If
-                    Case BuildAction.clean
-                        If File.Exists(vbFile) Then
-                            File.Delete(vbFile)
-                            Console.WriteLine(vbFile & ": deleted")
-                        End If
-                End Select
+                        Case BuildAction.clean
+                            If File.Exists(vbFile) Then
+                                File.Delete(vbFile)
+                                Console.WriteLine(vbFile & ": deleted")
+                            End If
+                    End Select
+		End If
             Next
 
             '
