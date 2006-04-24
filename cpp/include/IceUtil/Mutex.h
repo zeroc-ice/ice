@@ -145,7 +145,7 @@ Mutex::tryLock() const
     if(_mutex.RecursionCount > 1)
     {
 	LeaveCriticalSection(&_mutex);
-	return false;
+	throw ThreadLockedException(__FILE__, __LINE__);
     }
     return true;
 }
@@ -222,7 +222,7 @@ Mutex::tryLock() const
     {
 	_recursionCount++;
 	unlock();
-	return false;
+	throw ThreadLockedException(__FILE__, __LINE__);
     }
     else
     {
