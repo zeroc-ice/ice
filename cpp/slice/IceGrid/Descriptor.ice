@@ -73,6 +73,13 @@ struct ObjectDescriptor
      *
      **/
     string type;
+
+    /**
+     *
+     * Specifies if the object is allocatable.
+     *
+     **/
+    bool allocatable;
 };
 
 /**

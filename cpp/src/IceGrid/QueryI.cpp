@@ -10,14 +10,39 @@
 #include <IceGrid/Internal.h>
 #include <IceGrid/QueryI.h>
 #include <IceGrid/Database.h>
+#include <IceGrid/ObjectCache.h>
+#include <IceGrid/SessionI.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceGrid;
 
-QueryI::QueryI(const CommunicatorPtr& communicator, const DatabasePtr& database) :
+class GetObjectProxy : public ObjectAllocationRequest
+{
+public:
+
+    GetObjectProxy(const SessionIPtr& session, const AMD_Query_findObjectByIdPtr& cb) :
+	ObjectAllocationRequest(session), _cb(cb)
+    {
+    }
+
+    virtual void
+    response(const Ice::ObjectPrx& proxy)
+    {
+	assert(_cb);
+	_cb->ice_response(proxy);
+	_cb = 0;
+    }
+
+private:
+
+    AMD_Query_findObjectByIdPtr _cb;
+};
+
+QueryI::QueryI(const CommunicatorPtr& communicator, const DatabasePtr& database, const SessionIPtr& session) :
     _communicator(communicator),
-    _database(database)
+    _database(database),
+    _session(session)
 {
 }
 
@@ -25,55 +50,67 @@ QueryI::~QueryI()
 {
 }
 
-Ice::ObjectPrx
-QueryI::findObjectById(const Ice::Identity& id, const Ice::Current&) const
+void
+QueryI::findObjectById_async(const AMD_Query_findObjectByIdPtr& cb, const Ice::Identity& id, const Ice::Current&) const
 {
     try
     {
-	return _database->getObjectProxy(id);
+	if(_session)
+	{
+	    _database->allocateObject(id, new GetObjectProxy(_session, cb), false);
+	}
+	else
+	{
+	    cb->ice_response(_database->getObjectProxy(id));
+	}
     }
     catch(const ObjectNotRegisteredException&)
     {
-	return 0;
+	cb->ice_response(0);
     }
 }
 
-Ice::ObjectPrx 
-QueryI::findObjectByType(const string& type, const Ice::Current&) const
+void
+QueryI::findObjectByType_async(const AMD_Query_findObjectByTypePtr& cb, const string& type, const Ice::Current&) const
 {
     try
     {
-	return _database->getObjectByType(type);
+	cb->ice_response(_database->getObjectByType(type));
     }
     catch(const ObjectNotRegisteredException&)
     {
-	return 0;
+	cb->ice_response(0);
     }
 }
 
-Ice::ObjectPrx 
-QueryI::findObjectByTypeOnLeastLoadedNode(const string& type, LoadSample sample, const Ice::Current&) const
+void
+QueryI::findObjectByTypeOnLeastLoadedNode_async(const AMD_Query_findObjectByTypeOnLeastLoadedNodePtr& cb, 
+						const string& type,
+						LoadSample sample, 
+						const Ice::Current&) const
 {
     try
     {
-	return _database->getObjectByTypeOnLeastLoadedNode(type, sample);
+	cb->ice_response(_database->getObjectByTypeOnLeastLoadedNode(type, sample));
     }
     catch(const ObjectNotRegisteredException&)
     {
-	return 0;
+	cb->ice_response(0);
     }
 }
 
-Ice::ObjectProxySeq 
-QueryI::findAllObjectsByType(const string& type, const Ice::Current&) const
+void
+QueryI::findAllObjectsByType_async(const AMD_Query_findAllObjectsByTypePtr& cb,
+				   const string& type, 
+				   const Ice::Current&) const
 {
     try
     {
-	return _database->getObjectsByType(type);
+	cb->ice_response(_database->getObjectsByType(type));
     }
     catch(const ObjectNotRegisteredException&)
     {
-	return Ice::ObjectProxySeq();
+	cb->ice_response(Ice::ObjectProxySeq());
     }
 }
 

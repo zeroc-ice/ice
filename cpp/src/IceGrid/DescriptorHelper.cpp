@@ -735,6 +735,7 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
 	    ObjectDescriptor obj;
 	    obj.type = resolve(q->type, "object type");
 	    obj.id = Ice::stringToIdentity(resolve(Ice::identityToString(q->id), "object identity", false));
+	    obj.allocatable = q->allocatable;
 	    if(obj.id.name.empty())
 	    {
 		resolve.exception("invalid object identity `" + Ice::identityToString(q->id) + "': name empty");

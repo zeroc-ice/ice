@@ -19,23 +19,34 @@ namespace IceGrid
 class Database;
 typedef IceUtil::Handle<Database> DatabasePtr;
 
+class SessionI;
+typedef IceUtil::Handle<SessionI> SessionIPtr;
+
 class QueryI : public Query, public IceUtil::Mutex
 {
 public:
 
-    QueryI(const Ice::CommunicatorPtr&, const DatabasePtr&);
+    QueryI(const Ice::CommunicatorPtr&, const DatabasePtr&, const SessionIPtr&);
     virtual ~QueryI();
 
-    virtual ::Ice::ObjectPrx findObjectById(const ::Ice::Identity&, const ::Ice::Current&) const;
-    virtual ::Ice::ObjectPrx findObjectByType(const ::std::string&, const ::Ice::Current&) const;
-    virtual ::Ice::ObjectPrx findObjectByTypeOnLeastLoadedNode(const ::std::string&, LoadSample, 
-							       const ::Ice::Current&) const;
-    virtual ::Ice::ObjectProxySeq findAllObjectsByType(const ::std::string&, const ::Ice::Current&) const;
+    virtual void findObjectById_async(const AMD_Query_findObjectByIdPtr&, const ::Ice::Identity&, 
+				      const ::Ice::Current&) const;
+
+    virtual void findObjectByType_async(const AMD_Query_findObjectByTypePtr&, const ::std::string&, 
+					const ::Ice::Current&) const;
+
+    virtual void findObjectByTypeOnLeastLoadedNode_async(const AMD_Query_findObjectByTypeOnLeastLoadedNodePtr&, 
+							 const ::std::string&, LoadSample, 
+							 const ::Ice::Current&) const;
+
+    virtual void findAllObjectsByType_async(const AMD_Query_findAllObjectsByTypePtr&, const ::std::string&, 
+					    const ::Ice::Current&) const;
 
 private:
 
-    Ice::CommunicatorPtr _communicator;
-    DatabasePtr _database;
+    const Ice::CommunicatorPtr _communicator;
+    const DatabasePtr _database;
+    const SessionIPtr _session;
 };
 
 }

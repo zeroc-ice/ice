@@ -20,7 +20,8 @@ class AdminSessionI : public SessionI, public AdminSession
 {
 public:
 
-    AdminSessionI(const std::string&, const DatabasePtr&, RegistryObserverTopic&, NodeObserverTopic&, int);
+    AdminSessionI(const std::string&, const DatabasePtr&, const Ice::ObjectAdapterPtr&, RegistryObserverTopic&, 
+		  NodeObserverTopic&, int);
     virtual ~AdminSessionI();
 
     virtual AdminPrx getAdmin(const Ice::Current&) const;

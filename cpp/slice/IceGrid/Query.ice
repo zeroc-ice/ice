@@ -38,7 +38,7 @@ enum LoadSample
  * &Ice; clients who wish to lookup objects.
  *
  **/
-interface Query
+["ami", "amd"] interface Query
 {
     /**
      *

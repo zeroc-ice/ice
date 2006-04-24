@@ -950,12 +950,53 @@ Database::updateObject(const Ice::ObjectPrx& proxy)
     }
 }
 
+void
+Database::allocateObject(const Ice::Identity& id, const ObjectAllocationRequestPtr& request, bool allocateOnce)
+{
+    try
+    {
+	_objectCache.get(id)->allocate(request, allocateOnce);
+	return;
+    }
+    catch(ObjectNotRegisteredException&)
+    {
+    }
+
+    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
+    IdentityObjectInfoDict objects(connection, _objectDbName);
+    IdentityObjectInfoDict::const_iterator p = objects.find(id);
+    if(p == objects.end())
+    {
+	ObjectNotRegisteredException ex;
+	ex.id = id;
+	throw ex;
+    }
+    request->response(p->second.proxy);
+}
+
+void
+Database::releaseObject(const Ice::Identity& id, const SessionIPtr& session)
+{
+    try
+    {
+	_objectCache.get(id)->release(session);
+	return;
+    }
+    catch(ObjectNotRegisteredException&)
+    {
+    }
+}
+
 Ice::ObjectPrx
 Database::getObjectProxy(const Ice::Identity& id)
 {
     try
     {
-	return _objectCache.get(id)->getProxy();
+	//
+	// Only return proxies for non allocatable objects.
+	//
+	ObjectEntryPtr entry = _objectCache.get(id);
+	return entry->allocatable() ? Ice::ObjectPrx() : entry->getProxy();
     }
     catch(ObjectNotRegisteredException&)
     {

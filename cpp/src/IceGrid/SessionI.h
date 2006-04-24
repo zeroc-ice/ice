@@ -24,6 +24,9 @@ typedef IceUtil::Handle<Database> DatabasePtr;
 class TraceLevels;
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
+class AllocationRequest;
+typedef IceUtil::Handle<AllocationRequest> AllocationRequestPtr;
+
 class SessionI;
 typedef IceUtil::Handle<SessionI> SessionIPtr;
 
@@ -53,31 +56,39 @@ public:
     virtual int getTimeout(const Ice::Current&) const;
     virtual QueryPrx getQuery(const Ice::Current&) const;
     virtual Ice::LocatorPrx getLocator(const Ice::Current&) const;
-    virtual void allocateObject(const Ice::ObjectPrx&, const Ice::Current&);
+    virtual void allocateObject_async(const AMD_Session_allocateObjectPtr&, const Ice::ObjectPrx&,const Ice::Current&);
     virtual void releaseObject(const Ice::ObjectPrx&, const Ice::Current&);
     virtual void setAllocationTimeout(int, const Ice::Current&);
     virtual void destroy(const Ice::Current&);
 
     virtual IceUtil::Time timestamp() const;
+    virtual int getAllocationTimeout() const;
+
+    void addAllocationRequest(const AllocationRequestPtr&);
+    void removeAllocationRequest(const AllocationRequestPtr&);
 
 protected:
 
-    SessionI(const std::string&, const std::string&, const DatabasePtr&, int);
+    SessionI(const std::string&, const std::string&, const DatabasePtr&, const Ice::ObjectAdapterPtr&, int);
 
     const std::string _userId;
     const std::string _prefix;
     const int _timeout;
     const TraceLevelsPtr _traceLevels;
     const DatabasePtr _database;
+    IceGrid::QueryPrx _query;
+    Ice::LocatorPrx _locator;
     bool _destroyed;
     IceUtil::Time _timestamp;
+    int _allocationTimeout;
+    std::set<AllocationRequestPtr> _allocations;
 };
 
 class ClientSessionI : public SessionI
 {
 public:
 
-    ClientSessionI(const std::string&, const DatabasePtr&, int);
+    ClientSessionI(const std::string&, const DatabasePtr&, const Ice::ObjectAdapterPtr&, int);
 };
 
 class ClientSessionManagerI : virtual public SessionManager

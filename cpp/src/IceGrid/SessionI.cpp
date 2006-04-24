@@ -9,10 +9,43 @@
 
 #include <Ice/Ice.h>
 #include <IceGrid/SessionI.h>
+#include <IceGrid/QueryI.h>
 #include <IceGrid/Database.h>
 
 using namespace std;
 using namespace IceGrid;
+
+class AllocateObject : public ObjectAllocationRequest
+{
+public:
+
+    AllocateObject(const SessionIPtr& session, const AMD_Session_allocateObjectPtr& cb) :
+	ObjectAllocationRequest(session), _cb(cb)
+    {
+    }
+
+    virtual void response(const Ice::ObjectPrx& proxy)
+    {
+	assert(_cb);
+	if(proxy)
+	{
+	    _cb->ice_response();
+	}
+	else
+	{
+	    //
+	    // TODO: The request might also have been canceled!
+	    //
+
+	    _cb->ice_exception(AllocationTimeoutException());
+	}
+	_cb = 0;
+    }
+
+private:
+
+    AMD_Session_allocateObjectPtr _cb;
+};
 
 SessionReapable::SessionReapable(const SessionIPtr& session, const SessionPrx& proxy) : 
     _session(session),
@@ -36,19 +69,30 @@ SessionReapable::destroy()
     _proxy->destroy();
 }
 
-SessionI::SessionI(const string& userId, const string& prefix, const DatabasePtr& database, int timeout) :
+SessionI::SessionI(const string& userId, 
+		   const string& prefix, 
+		   const DatabasePtr& database,
+		   const Ice::ObjectAdapterPtr& adapter,
+		   int timeout) :
     _userId(userId), 
     _prefix(prefix),
     _timeout(timeout),
     _traceLevels(database->getTraceLevels()),
     _database(database),
-    _destroyed(false)
+    _destroyed(false),
+    _allocationTimeout(-1)
 {
     if(_traceLevels && _traceLevels->session > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->sessionCat);
 	out << _prefix << " session `" << _userId << "' created";
     }
+
+    //
+    // Register session based query and locator interfaces
+    //
+    _query = QueryPrx::uncheckedCast(adapter->addWithUUID(new QueryI(adapter->getCommunicator(), _database, this)));
+    //_locator = adapter->addWithUUID(new LocatorI());
 }
 
 SessionI::~SessionI()
@@ -84,45 +128,46 @@ SessionI::getTimeout(const Ice::Current&) const
 QueryPrx
 SessionI::getQuery(const Ice::Current& current) const
 {
-    //
-    // TODO: XXX
-    //
-    return QueryPrx::uncheckedCast(
-	current.adapter->getCommunicator()->stringToProxy(_database->getInstanceName() + "/Query")); 
+    return _query;
 }
 
 Ice::LocatorPrx
 SessionI::getLocator(const Ice::Current& current) const
 {
-    //
-    // TODO: XXX
-    //
-    return Ice::LocatorPrx::uncheckedCast(
-	current.adapter->getCommunicator()->stringToProxy(_database->getInstanceName() + "/Locator")); 
+    return _locator;
 }
 
 void
-SessionI::allocateObject(const Ice::ObjectPrx& proxy, const Ice::Current&)
+SessionI::allocateObject_async(const AMD_Session_allocateObjectPtr& cb, const Ice::ObjectPrx& prx, const Ice::Current&)
 {
     //
-    // TODO: XXX
+    // TODO: Check if the proxy points to a replicated object and eventually throw if that's the case.
     //
+    if(!prx)
+    {
+	throw AllocationException("proxy is null");
+    }
+    _database->allocateObject(prx->ice_getIdentity(), new AllocateObject(this, cb), true);
 }
 
 void
-SessionI::releaseObject(const Ice::ObjectPrx& proxy, const Ice::Current&)
+SessionI::releaseObject(const Ice::ObjectPrx& prx, const Ice::Current&)
 {
     //
-    // TODO: XXX
+    // TODO: Check if the proxy points to a replicated object and eventually throw if that's the case.
     //
+    if(!prx)
+    {
+	throw AllocationException("proxy is null");
+    }
+    _database->releaseObject(prx->ice_getIdentity(), this);
 }
 
 void
 SessionI::setAllocationTimeout(int timeout, const Ice::Current&)
 {
-    //
-    // TODO: XXX
-    //
+    Lock sync(*this);
+    _allocationTimeout = timeout;
 }
 
 void
@@ -152,8 +197,30 @@ SessionI::timestamp() const
     return _timestamp;
 }
 
-ClientSessionI::ClientSessionI(const string& userId, const DatabasePtr& database, int timeout) :
-    SessionI(userId, "client", database, timeout)
+int
+SessionI::getAllocationTimeout() const
+{
+    Lock sync(*this);
+    return _allocationTimeout;
+}
+
+void
+SessionI::addAllocationRequest(const AllocationRequestPtr& request)
+{
+    Lock sync(*this);
+    _allocations.insert(request);
+}
+
+void
+SessionI::removeAllocationRequest(const AllocationRequestPtr& request)
+{
+    Lock sync(*this);
+    _allocations.erase(request);
+}
+
+ClientSessionI::ClientSessionI(const string& userId, const DatabasePtr& database, const Ice::ObjectAdapterPtr& adapter,
+			       int timeout) :
+    SessionI(userId, "client", database, adapter, timeout)
 {
 }
 
@@ -173,14 +240,14 @@ ClientSessionManagerI::create(const string& userId, const Glacier2::SessionContr
     // We don't add the session to the reaper thread, Glacier2 takes
     // care of reaping the session.
     //
-    SessionIPtr session = new ClientSessionI(userId, _database, _sessionTimeout);
-    return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
+    SessionIPtr session = new ClientSessionI(userId, _database, current.adapter, _sessionTimeout);
+    return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session)); // TODO: XXX: category = userid?
 }
 
 SessionPrx
 ClientSessionManagerI::createLocalSession(const string& userId, const Ice::Current& current)
 {
-    SessionIPtr session = new ClientSessionI(userId, _database, _sessionTimeout);
+    SessionIPtr session = new ClientSessionI(userId, _database, current.adapter, _sessionTimeout);
     SessionPrx proxy = SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
     _reaper->add(new SessionReapable(session, proxy));
     return proxy;

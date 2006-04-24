@@ -310,6 +310,15 @@ LocatorI::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& cb,
     }
 
     //
+    // If the proxy is 0, this means that the object is allocatable.
+    //
+    if(!proxy)
+    {
+	cb->ice_response(0);
+	return;
+    }
+
+    //
     // OPTIMIZATION: If the object is registered with an adapter id,
     // try to get the adapter direct proxy (which might caused the
     // server activation). This will avoid the client to lookup for

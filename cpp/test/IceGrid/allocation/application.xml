@@ -1,0 +1,18 @@
+<icegrid>
+
+  <application name="test" import-default-templates="true">
+
+    <node name="localnode">
+
+      <server id="SimpleServer" exe="${test.dir}/server" activation="on-demand" pwd=".">
+        <adapter name="Server" endpoints="default">
+  	  <object identity="nonallocatable" type="::Test" allocatable="false"/>
+  	  <object identity="allocatable" type="::Test" allocatable="true"/>
+        </adapter>
+      </server>
+
+    </node>
+
+  </application>
+
+</icegrid>

@@ -87,6 +87,10 @@ public:
     void addObject(const ObjectInfo&);
     void removeObject(const Ice::Identity&);
     void updateObject(const Ice::ObjectPrx&);
+
+    void allocateObject(const Ice::Identity&, const ObjectAllocationRequestPtr&, bool);
+    void releaseObject(const Ice::Identity&, const SessionIPtr&);
+
     Ice::ObjectPrx getObjectProxy(const Ice::Identity&);
     Ice::ObjectPrx getObjectByType(const std::string&);
     Ice::ObjectPrx getObjectByTypeOnLeastLoadedNode(const std::string&, LoadSample);

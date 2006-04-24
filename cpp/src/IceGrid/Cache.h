@@ -18,7 +18,6 @@
 namespace IceGrid
 {
 
-
 template<typename Key, typename Value>
 class Cache : public IceUtil::Mutex
 {

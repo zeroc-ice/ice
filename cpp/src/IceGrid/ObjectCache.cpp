@@ -33,6 +33,7 @@ ObjectCache::add(const string& app, const string& adapterId, const string& endpo
 
     ObjectInfo info;
     info.type = desc.type;
+    info.allocatable = desc.allocatable;
     if(adapterId.empty())
     {
 	info.proxy = _communicator->stringToProxy(Ice::identityToString(desc.id) + ":" + endpoints);
@@ -106,7 +107,11 @@ ObjectCache::getObjectsByType(const string& type)
     }
     for(set<Ice::Identity>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
     {
-	proxies.push_back(getImpl(*q)->getProxy());
+	ObjectEntryPtr entry = getImpl(*q);
+	if(!entry->allocatable())
+	{
+	    proxies.push_back(entry->getProxy());
+	}
     }
     return proxies;
 }
@@ -126,7 +131,8 @@ ObjectCache::getAll(const string& expression)
     return infos;
 }
 
-ObjectEntry::ObjectEntry(Cache<Ice::Identity, ObjectEntry>&, const Ice::Identity&)
+ObjectEntry::ObjectEntry(Cache<Ice::Identity, ObjectEntry>&, const Ice::Identity&) :
+    Allocatable(false)
 {
 }
 
@@ -135,6 +141,7 @@ ObjectEntry::set(const string& app, const ObjectInfo& info)
 {
     _application = app;
     _info = info;
+    _allocatable = info.allocatable;
 }
 
 Ice::ObjectPrx

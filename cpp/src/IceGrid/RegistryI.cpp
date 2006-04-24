@@ -234,23 +234,29 @@ RegistryI::start(bool nowarn)
     // Create the query, admin, session manager interfaces
     //
     Identity queryId = stringToIdentity(instanceName + "/Query");
-    clientAdapter->add(new QueryI(_communicator, _database), queryId);
+    clientAdapter->add(new QueryI(_communicator, _database, 0), queryId);
+
+    ReapThreadPtr reaper = _adminReaper ? _adminReaper : _reaper; // TODO: XXX
+
+    Identity sessionMgrId = stringToIdentity(instanceName + "/SessionManager");
+    ObjectPtr sessionMgr = new ClientSessionManagerI(_database, reaper, adminSessionTimeout); // TODO: XXX
+    clientAdapter->add(sessionMgr, sessionMgrId);
 
     Identity adminId = stringToIdentity(instanceName + "/Admin");
     adminAdapter->add(new AdminI(_database, this, traceLevels), adminId);
 
-    Identity sessionManagerId = stringToIdentity(instanceName + "/SessionManager");
-    ReapThreadPtr reaper = _adminReaper ? _adminReaper : _reaper;
-    ObjectPtr sessionMgr = new AdminSessionManagerI(*regTopic, *nodeTopic, _database, reaper, adminSessionTimeout);
-    adminAdapter->add(sessionMgr, sessionManagerId);
+    Identity admSessionMgrId = stringToIdentity(instanceName + "/AdminSessionManager");
+    ObjectPtr admSessionMgr = new AdminSessionManagerI(*regTopic, *nodeTopic, _database, reaper, adminSessionTimeout);
+    adminAdapter->add(admSessionMgr, admSessionMgrId);
 
     //
     // Register well known objects with the object registry.
     //
     addWellKnownObject(registryAdapter->createProxy(registryId), Registry::ice_staticId());
     addWellKnownObject(clientAdapter->createProxy(queryId), Query::ice_staticId());
+    addWellKnownObject(clientAdapter->createProxy(sessionMgrId), SessionManager::ice_staticId());
     addWellKnownObject(adminAdapter->createProxy(adminId), Admin::ice_staticId());
-    addWellKnownObject(adminAdapter->createProxy(sessionManagerId), SessionManager::ice_staticId());
+    addWellKnownObject(adminAdapter->createProxy(admSessionMgrId), SessionManager::ice_staticId());
 
     //
     // We are ready to go!

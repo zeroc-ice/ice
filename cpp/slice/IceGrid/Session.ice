@@ -24,7 +24,7 @@ exception AllocationTimeoutException
 {
 };
 
-exception AllocationFailedException
+exception AllocationException
 {
     string reason;
 };
@@ -67,8 +67,8 @@ interface Session extends Glacier2::Session
      * timeout is reached.
      *
      **/
-    void allocateObject(Object* prx)
-	throws AllocationTimeoutException, AllocationFailedException;
+    ["ami", "amd"] void allocateObject(Object* prx)
+	throws ObjectNotRegisteredException, AllocationTimeoutException, AllocationException;
     
     /**
      *
@@ -76,7 +76,7 @@ interface Session extends Glacier2::Session
      *
      **/
     void releaseObject(Object* prx)
-         throws AllocationFailedException;
+	throws ObjectNotRegisteredException, AllocationException;
     
     /**
      *

@@ -56,6 +56,7 @@ REGISTRY_OBJS   = RegistryI.o \
 		  IdentityObjectInfoDict.o \
 		  StringAdapterInfoDict.o \
 		  Database.o \
+	          Allocatable.o \
 		  AdapterCache.o \
 		  ObjectCache.o \
 		  ServerCache.o \

@@ -57,7 +57,7 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 
 $(SERVER): $(SOBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lIceBox $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lIceStorm -lIceBox $(LIBS)
 
 $(ADMIN): $(AOBJS) $(LIBTARGETS)
 	rm -f $@

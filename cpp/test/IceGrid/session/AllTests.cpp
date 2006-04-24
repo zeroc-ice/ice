@@ -357,7 +357,8 @@ private:
 void 
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    SessionManagerPrx manager = SessionManagerPrx::checkedCast(communicator->stringToProxy("IceGrid/SessionManager"));
+    SessionManagerPrx manager = 
+	SessionManagerPrx::checkedCast(communicator->stringToProxy("IceGrid/AdminSessionManager"));
     test(manager);
 
     AdminPrx admin = AdminPrx::checkedCast(communicator->stringToProxy("IceGrid/Admin"));

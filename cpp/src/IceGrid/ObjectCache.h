@@ -15,6 +15,7 @@
 #include <Ice/CommunicatorF.h>
 #include <IceGrid/Cache.h>
 #include <IceGrid/Internal.h>
+#include <IceGrid/Allocatable.h>
 
 namespace IceGrid
 {
@@ -24,10 +25,7 @@ class ObjectCache;
 class ServerEntry;
 typedef IceUtil::Handle<ServerEntry> ServerEntryPtr;
 
-class ObjectEntry;
-typedef IceUtil::Handle<ObjectEntry> ObjectEntryPtr;
-
-class ObjectEntry : public IceUtil::Shared
+class ObjectEntry : public Allocatable
 {
 public:
     
@@ -66,6 +64,33 @@ private:
     const Ice::CommunicatorPtr _communicator;
     std::map<std::string, std::set<Ice::Identity> > _types;
 };
+
+class ObjectAllocationRequest : public AllocationRequest
+{
+public:
+
+    ObjectAllocationRequest(const SessionIPtr& session) : AllocationRequest(session) { }
+    
+    virtual void response(const Ice::ObjectPrx&) = 0;
+
+private:
+
+    virtual void allocated(const AllocatablePtr& allocatable) 
+    {
+	response(ObjectEntryPtr::dynamicCast(allocatable)->getProxy()); 
+    }
+
+    virtual void timeout() 
+    {
+	response(0); 
+    }
+
+    virtual void canceled() 
+    {
+	response(0); 
+    }
+};
+typedef IceUtil::Handle<ObjectAllocationRequest> ObjectAllocationRequestPtr;
 
 };
 
