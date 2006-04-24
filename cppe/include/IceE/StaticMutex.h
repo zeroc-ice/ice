@@ -164,7 +164,7 @@ StaticMutex::tryLock() const
     if(_mutex->RecursionCount > 1)
     {
 	LeaveCriticalSection(_mutex);
-	return false;
+        throw ThreadLockedException(__FILE__, __LINE__);
     }
 #endif
     return true;
