@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I ".." /I "../../include" /I "dummyinclude" /D "_CONSOLE" /D "NDEBUG" /D "WIN32_LEAN_AND_MEAN" /FD /Zm200 /c
-# SUBTRACT CPP /Z<none> /Fr /YX
+# SUBTRACT CPP /Fr /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -114,6 +114,14 @@ SOURCE=.\AdminI.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\AdminSessionI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Allocatable.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Database.cpp
 # End Source File
 # Begin Source File
@@ -166,14 +174,6 @@ SOURCE=.\ObjectCache.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\SessionI.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\AdminSessionI.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\PlatformInfo.cpp
 # End Source File
 # Begin Source File
@@ -199,6 +199,10 @@ SOURCE=.\ServerCache.cpp
 # Begin Source File
 
 SOURCE=.\ServerI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SessionI.cpp
 # End Source File
 # Begin Source File
 
