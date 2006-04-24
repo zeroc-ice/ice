@@ -118,21 +118,13 @@ StaticMutexTest::run()
 	}
 	
 	StaticMutex::TryLock lock2(staticMutex);
-#if defined(__FreeBSD__) || defined(__linux)
 	try
 	{
 	    test(lock.tryAcquire() == false);
 	}
 	catch(const IceUtil::ThreadLockedException& ex)
 	{
-	    //
-	    // pthread_mutex_trylock returns EDEADLK in FreeBSD's new threading implementation
-	    // as well as in Fedora Core 5.
-	    //
 	}
-#else
-	test(lock.tryAcquire() == false);
-#endif
 	lock2.release();
 	test(lock.tryAcquire() == true);
 	test(lock.acquired());	
