@@ -90,6 +90,8 @@ interface SessionManager
      *
      * @param userId The user id for the session.
      *
+     * @param control A proxy to the session control object.
+     *
      * @return A proxy to the newly created session.
      *
      * @throws CannotCreateSessionException Raised if the session
