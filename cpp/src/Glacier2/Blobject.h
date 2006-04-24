@@ -16,7 +16,7 @@
 namespace Glacier2
 {
 
-class Blobject : public Ice::BlobjectArrayAsync
+class Blobject : public Ice::BlobjectArrayAsync, public IceUtil::Mutex
 {
 public:
     

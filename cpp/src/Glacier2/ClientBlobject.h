@@ -31,11 +31,15 @@ public:
     virtual void ice_invoke_async(const Ice::AMD_Array_Object_ice_invokePtr&,
     				  const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&);
 
+    IceUtil::Time getTimestamp() const;
+    void updateTimestamp();
+
 private:
 
     RoutingTablePtr _routingTable;
     const std::vector<std::string> _allowCategories;
     const int _rejectTraceLevel;
+    mutable IceUtil::Time _timestamp;
 };
 
 }

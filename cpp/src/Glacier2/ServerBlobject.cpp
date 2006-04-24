@@ -27,6 +27,8 @@ Glacier2::ServerBlobject::~ServerBlobject()
 void
 Glacier2::ServerBlobject::destroy()
 {
+    IceUtil::Mutex::Lock lock(*this);
+
     assert(_connection); // Destroyed?
     _connection = 0;
     Blobject::destroy();
@@ -37,7 +39,14 @@ Glacier2::ServerBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
 					   const std::pair<const Byte*, const Byte*>& inParams,
 					   const Current& current)
 {
-    assert(_connection); // Destroyed?
+    IceUtil::Mutex::Lock lock(*this);
+
+    if(!_connection) // Destroyed?
+    {
+        ObjectNotExistException ex(__FILE__, __LINE__);
+        ex.id = current.id;
+        throw ex;
+    }
 
     ObjectPrx proxy = _connection->createProxy(current.id);
     assert(proxy);

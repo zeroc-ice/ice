@@ -20,7 +20,8 @@ Glacier2::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
     Glacier2::Blobject(communicator, false),
     _routingTable(routingTable),
     _allowCategories(allowCategories),
-    _rejectTraceLevel(_properties->getPropertyAsInt("Glacier2.Client.Trace.Reject"))
+    _rejectTraceLevel(_properties->getPropertyAsInt("Glacier2.Client.Trace.Reject")),
+    _timestamp(IceUtil::Time::now())
 {
 }
 
@@ -32,6 +33,8 @@ Glacier2::ClientBlobject::~ClientBlobject()
 void
 Glacier2::ClientBlobject::destroy()
 {
+    IceUtil::Mutex::Lock lock(*this);
+
     assert(_routingTable); // Destroyed?
     _routingTable = 0;
     Blobject::destroy();
@@ -42,7 +45,14 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
 					   const std::pair<const Byte*, const Byte*>& inParams,
 					   const Current& current)
 {
-    assert(_routingTable); // Destroyed?
+    IceUtil::Mutex::Lock lock(*this);
+
+    if(!_routingTable) // Destroyed?
+    {
+        ObjectNotExistException ex(__FILE__, __LINE__);
+        ex.id = current.id;
+        throw ex;
+    }
 
     //
     // If there is an _allowCategories set then enforce it.
@@ -82,4 +92,27 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
     }
 
     invoke(proxy, amdCB, inParams, current);
+}
+
+IceUtil::Time
+Glacier2::ClientBlobject::getTimestamp() const
+{
+    IceUtil::Mutex::TryLock lock(*this);
+
+    if(lock.acquired())
+    {
+        return _timestamp;
+    }
+    else
+    {
+        return IceUtil::Time::now();
+    }
+}
+
+void
+Glacier2::ClientBlobject::updateTimestamp()
+{
+    IceUtil::Mutex::Lock lock(*this);
+
+    _timestamp = IceUtil::Time::now();
 }

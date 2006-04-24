@@ -22,7 +22,7 @@ namespace Glacier2
 class RouterI;
 typedef IceUtil::Handle<RouterI> RouterIPtr;
 
-class RouterI : public Router, public IceUtil::Mutex
+class RouterI : public Router
 {
 public:
 
@@ -61,8 +61,6 @@ private:
     const std::string _userId;
     const SessionPrx _session;
     const Ice::Identity _controlId;
-    mutable IceUtil::Time _timestamp;
-    bool _destroy;
 };
 
 }

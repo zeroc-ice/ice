@@ -26,9 +26,7 @@ Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAd
     _connection(connection),
     _userId(userId),
     _session(session),
-    _controlId(controlId),
-    _timestamp(IceUtil::Time::now()),
-    _destroy(false)
+    _controlId(controlId)
 {
     string allow = _communicator->getProperties()->getProperty("Glacier2.AllowCategories");
     StringSeq allowCategories;
@@ -82,19 +80,11 @@ Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAd
 
 Glacier2::RouterI::~RouterI()
 {
-    IceUtil::Mutex::Lock lock(*this);
-
-    assert(_destroy);
 }
 
 void
 Glacier2::RouterI::destroy()
 {
-    IceUtil::Mutex::Lock lock(*this);
-
-    assert(!_destroy);
-    _destroy = true;
-
     _connection->close(true);
 
     _clientBlobject->destroy();
@@ -153,12 +143,7 @@ Glacier2::RouterI::addProxy(const ObjectPrx& proxy, const Current& current)
 ObjectProxySeq
 Glacier2::RouterI::addProxies(const ObjectProxySeq& proxies, const Current& current)
 {
-    IceUtil::Mutex::Lock lock(*this);
-
-    assert(!_destroy);
-
-    _timestamp = IceUtil::Time::now();
-
+    _clientBlobject->updateTimestamp();
     return _routingTable->add(proxies, current);
 }
 
@@ -185,22 +170,13 @@ Glacier2::RouterI::destroySession(const Current&)
 ClientBlobjectPtr
 Glacier2::RouterI::getClientBlobject() const
 {
-    IceUtil::Mutex::Lock lock(*this);
-
-    assert(!_destroy);
-
-    _timestamp = IceUtil::Time::now();
-
+    _clientBlobject->updateTimestamp();
     return _clientBlobject;
 }
 
 ServerBlobjectPtr
 Glacier2::RouterI::getServerBlobject() const
 {
-    IceUtil::Mutex::Lock lock(*this);
-
-    assert(!_destroy);
-
     //
     // We do not update the timestamp for callbacks from the
     // server. We only update the timestamp for client activity.
@@ -218,16 +194,7 @@ Glacier2::RouterI::getSession() const
 IceUtil::Time
 Glacier2::RouterI::getTimestamp() const
 {
-    IceUtil::Mutex::TryLock lock(*this);
-
-    if(lock.acquired())
-    {
-	return _timestamp;
-    }
-    else
-    {
-	return IceUtil::Time::now();
-    }
+    return _clientBlobject->getTimestamp();
 }
 
 string
