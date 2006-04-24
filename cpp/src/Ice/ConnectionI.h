@@ -39,7 +39,8 @@ namespace Ice
 
 class LocalException;
 
-class ConnectionI : public Connection, public IceInternal::EventHandler, public IceUtil::Monitor<IceUtil::Mutex>
+class ICE_API ConnectionI : public Connection, public IceInternal::EventHandler,
+			    public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -93,6 +94,9 @@ public:
     virtual std::string type() const; // From Connection.
     virtual Ice::Int timeout() const; // From Connection.
     virtual std::string toString() const;  // From Connection and EvantHandler.
+
+    // SSL plug-in needs to be able to get the transceiver.
+    IceInternal::TransceiverPtr getTransceiver() const;
 
 private:
 

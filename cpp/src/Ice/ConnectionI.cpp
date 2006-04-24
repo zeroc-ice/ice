@@ -1403,6 +1403,18 @@ Ice::ConnectionI::toString() const
     return _desc; // No mutex lock, _desc is immutable.
 }
 
+//
+// Only used by the SSL plug-in.
+//
+// The external party has to synchronize the connection, since the
+// connection is the object that protects the transceiver.
+//
+IceInternal::TransceiverPtr
+Ice::ConnectionI::getTransceiver() const
+{
+    return _transceiver;
+}
+
 Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
 			      const TransceiverPtr& transceiver,
 			      const EndpointIPtr& endpoint,

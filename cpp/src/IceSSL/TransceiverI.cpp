@@ -371,6 +371,16 @@ IceSSL::TransceiverI::initialize(int)
 {
 }
 
+ConnectionInfo
+IceSSL::TransceiverI::getConnectionInfo() const
+{
+    //
+    // This can only be called on a open transceiver.
+    //
+    assert(_fd != INVALID_SOCKET);
+    return populateConnectionInfo(_ssl, _fd);
+}
+
 IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SSL* ssl, SOCKET fd) :
     _instance(instance),
     _logger(instance->communicator()->getLogger()),

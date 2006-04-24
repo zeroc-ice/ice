@@ -13,6 +13,7 @@
 #include <InstanceF.h>
 #include <UtilF.h>
 #include <Ice/LoggerF.h>
+#include <Ice/Network.h>
 
 namespace IceSSL
 {
@@ -26,7 +27,7 @@ public:
 
     SSL_CTX* ctx() const;
 
-    void verifyPeer(SSL*, const std::string&, bool);
+    void verifyPeer(SSL*, SOCKET, const std::string&, bool);
 
     std::string password(bool);
 

@@ -16,7 +16,6 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/Properties.h>
 
-#include <openssl/x509v3.h>
 #include <openssl/err.h>
 
 #include <IceUtil/DisableWarnings.h>
@@ -483,7 +482,7 @@ IceSSL::Context::ctx() const
 }
 
 void
-IceSSL::Context::verifyPeer(SSL* ssl, const string& address, bool incoming)
+IceSSL::Context::verifyPeer(SSL* ssl, SOCKET fd, const string& address, bool incoming)
 {
     long result = SSL_get_verify_result(ssl);
     if(result != X509_V_OK)
@@ -500,67 +499,51 @@ IceSSL::Context::verifyPeer(SSL* ssl, const string& address, bool incoming)
 	throw ex;
     }
 
-    X509* cert = SSL_get_peer_certificate(ssl);
-    try
+    X509* rawCert = SSL_get_peer_certificate(ssl);
+    CertificatePtr cert;
+    if(rawCert != 0)
     {
-	//
-	// Collect the dnsName and ipAddress values that appear in the peer's subjectAltName
-        // certificate extension.
-	//
-	vector<string> dnsNames, ipAddresses;
-	if(cert)
+	cert = new Certificate(rawCert);
+    }
+
+    CertificateVerifierPtr verifier = _instance->certificateVerifier();
+
+    //
+    // Extract the ip addresses and the dns names from the subject
+    // alternative names.
+    //
+    if(cert)
+    {
+	vector<pair<int, string> > subjectAltNames = cert->getSubjectAlternativeNames();
+	vector<string> ipAddresses;
+	vector<string> dnsNames;
+	for(vector<pair<int, string> >::const_iterator p = subjectAltNames.begin(); p != subjectAltNames.end(); ++p)
 	{
-	    GENERAL_NAMES* gens = reinterpret_cast<GENERAL_NAMES*>(X509_get_ext_d2i(cert, NID_subject_alt_name, 0, 0));
-	    int i;
-	    for(i = 0; i < sk_GENERAL_NAME_num(gens); ++i)
+	    if(p->first == 7)
 	    {
-		GENERAL_NAME* gen = sk_GENERAL_NAME_value(gens, i);
-		if(gen->type == GEN_DNS)
-		{
-		    ASN1_IA5STRING* str = gen->d.dNSName;
-		    if(str && str->type == V_ASN1_IA5STRING && str->data && str->length > 0)
-		    {
-			string s = reinterpret_cast<const char*>(str->data);
-			dnsNames.push_back(s);
-		    }
-		}
-		else if(gen->type == GEN_IPADD)
-		{
-		    ASN1_OCTET_STRING* addr = gen->d.iPAddress;
-		    // TODO: Support IPv6 someday.
-		    if(addr && addr->type == V_ASN1_OCTET_STRING && addr->data && addr->length == 4)
-		    {
-			ostringstream ostr;
-			for(int j = 0; j < 4; ++j)
-			{
-			    if(j > 0)
-			    {
-				ostr << '.';
-			    }
-			    ostr << static_cast<int>(addr->data[j]);
-			}
-			ipAddresses.push_back(ostr.str());
-		    }
-		}
+		ipAddresses.push_back(p->second);
 	    }
-	    sk_GENERAL_NAME_pop_free(gens, GENERAL_NAME_free);
+	    else if(p->first == 2)
+	    {
+		dnsNames.push_back(p->second);
+	    }
 	}
 
-	CertificateVerifierPtr verifier = _instance->certificateVerifier();
-
 	//
-	// Compare the peer's address against the dnsName and ipAddress values.
-	// This is only relevant for an outgoing connection.
+	// Compare the peer's address against the dnsName and
+	// ipAddress values.  This is only relevant for an outgoing
+	// connection.
 	//
 	if(!address.empty())
 	{
 	    bool certNameOK = false;
 
-	    for(vector<string>::iterator p = ipAddresses.begin(); p != ipAddresses.end() && !certNameOK; ++p)
+	    for(vector<string>::const_iterator p = ipAddresses.begin(); p != ipAddresses.end() && !certNameOK; ++p)
 	    {
 		if(address == *p)
 		{
 		    certNameOK = true;
+		    break;
 		}
 	    }
 
@@ -568,7 +551,7 @@ IceSSL::Context::verifyPeer(SSL* ssl, const string& address, bool incoming)
 	    {
 		string host = address;
 		transform(host.begin(), host.end(), host.begin(), ::tolower);
-		for(vector<string>::iterator p = dnsNames.begin(); p != dnsNames.end() && !certNameOK; ++p)
+		for(vector<string>::const_iterator p = dnsNames.begin(); p != dnsNames.end() && !certNameOK; ++p)
 		{
 		    string s = *p;
 		    transform(s.begin(), s.end(), s.begin(), ::tolower);
@@ -580,9 +563,10 @@ IceSSL::Context::verifyPeer(SSL* ssl, const string& address, bool incoming)
 	    }
 
 	    //
-	    // Log a message if the name comparison fails. If CheckCertName is defined,
-	    // we also raise an exception to abort the connection. Don't log a message
-	    // if CheckCertName is not defined and a verifier is present.
+	    // Log a message if the name comparison fails. If
+	    // CheckCertName is defined, we also raise an exception to
+	    // abort the connection. Don't log a message if
+	    // CheckCertName is not defined and a verifier is present.
 	    //
 	    if(!certNameOK && (_checkCertName || (_instance->securityTraceLevel() >= 1 && !verifier)))
 	    {
@@ -597,7 +581,7 @@ IceSSL::Context::verifyPeer(SSL* ssl, const string& address, bool incoming)
 		if(!dnsNames.empty())
 		{
 		    ostr << "\nDNS names found in certificate: ";
-		    for(vector<string>::iterator p = dnsNames.begin(); p != dnsNames.end(); ++p)
+		    for(vector<string>::const_iterator p = dnsNames.begin(); p != dnsNames.end(); ++p)
 		    {
 			if(p != dnsNames.begin())
 			{
@@ -609,7 +593,7 @@ IceSSL::Context::verifyPeer(SSL* ssl, const string& address, bool incoming)
 		if(!ipAddresses.empty())
 		{
 		    ostr << "\nIP addresses found in certificate: ";
-		    for(vector<string>::iterator p = ipAddresses.begin(); p != ipAddresses.end(); ++p)
+		    for(vector<string>::const_iterator p = ipAddresses.begin(); p != ipAddresses.end(); ++p)
 		    {
 			if(p != ipAddresses.begin())
 			{
@@ -632,42 +616,24 @@ IceSSL::Context::verifyPeer(SSL* ssl, const string& address, bool incoming)
 		}
 	    }
 	}
+    }
 
-	if(verifier)
+    if(verifier)
+    {
+	ConnectionInfo info = populateConnectionInfo(ssl, fd);
+	if(!verifier->verify(info))
 	{
-	    VerifyInfo info;
-	    const_cast<bool&>(info.incoming) = incoming;
-	    info.cert = cert;
-	    info.ssl = ssl;
-	    const_cast<string&>(info.address) = address;
-	    const_cast<vector<string>&>(info.dnsNames) = dnsNames;
-	    const_cast<vector<string>&>(info.ipAddresses) = ipAddresses;
-	    if(!verifier->verify(info))
+	    string msg = string(incoming ? "incoming" : "outgoing") +
+		" connection rejected by certificate verifier";
+	    if(_instance->securityTraceLevel() >= 1)
 	    {
-		string msg = string(incoming ? "incoming" : "outgoing") +
-		    " connection rejected by certificate verifier";
-		if(_instance->securityTraceLevel() >= 1)
-		{
-		    _logger->trace(_instance->securityTraceCategory(), msg + "\n" +
-				   IceInternal::fdToString(SSL_get_fd(ssl)));
-		}
-		SecurityException ex(__FILE__, __LINE__);
-		ex.reason = msg;
-		throw ex;
+		_logger->trace(_instance->securityTraceCategory(), msg + "\n" +
+			       IceInternal::fdToString(SSL_get_fd(ssl)));
 	    }
+	    SecurityException ex(__FILE__, __LINE__);
+	    ex.reason = msg;
+	    throw ex;
 	}
-    }
-    catch(...)
-    {
-	if(cert)
-	{
-	    X509_free(cert);
-	}
-	throw;
-    }
-    if(cert)
-    {
-	X509_free(cert);
     }
 }
 

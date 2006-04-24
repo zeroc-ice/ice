@@ -18,6 +18,10 @@ public:
 
     ServerI(const Ice::CommunicatorPtr&);
 
+    virtual void noCert(const Ice::Current&);
+    virtual void checkCert(const std::string&, const std::string&, const Ice::Current&);
+    virtual void checkCipher(const std::string&, const Ice::Current&);
+
     void destroy();
 
 private:

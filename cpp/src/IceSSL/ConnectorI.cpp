@@ -145,7 +145,7 @@ IceSSL::ConnectorI::connect(int timeout)
 	}
 	while(!SSL_is_init_finished(ssl));
 
-	_instance->context()->verifyPeer(ssl, _host, false);
+	_instance->context()->verifyPeer(ssl, fd, _host, false);
     }
     catch(...)
     {

@@ -14,8 +14,9 @@
 #include <Ice/LoggerF.h>
 #include <Ice/StatsF.h>
 #include <Ice/Transceiver.h>
+#include <IceSSL/Plugin.h>
 
-#include <openssl/ssl.h>
+//#include <openssl/ssl.h>
 
 namespace IceSSL
 {
@@ -36,6 +37,8 @@ public:
     virtual std::string type() const;
     virtual std::string toString() const;
     virtual void initialize(int);
+
+    ConnectionInfo getConnectionInfo() const;
 
 private:
 
@@ -58,6 +61,7 @@ private:
     const bool _isPeerLocal;
 #endif
 };
+typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;
 
 }
 

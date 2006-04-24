@@ -50,16 +50,32 @@ public:
 	reset();
     }
 
-    virtual bool verify(IceSSL::VerifyInfo& info)
+    virtual bool
+    verify(const IceSSL::ConnectionInfo& info)
     {
-	if(info.cert)
+	if(info.certs.size() > 0)
 	{
-	    test(find(info.dnsNames.begin(), info.dnsNames.end(), "server") != info.dnsNames.end());
-	    test(find(info.ipAddresses.begin(), info.ipAddresses.end(), "127.0.0.1") != info.ipAddresses.end());
+	    vector<pair<int, string> > subjectAltNames = info.certs[0]->getSubjectAlternativeNames();
+	    vector<string> ipAddresses;
+	    vector<string> dnsNames;
+	    for(vector<pair<int, string> >::const_iterator p = subjectAltNames.begin();
+		p != subjectAltNames.end(); ++p)
+	    {
+		if(p->first == 7)
+		{
+		    ipAddresses.push_back(p->second);
+		}
+		else if(p->first == 2)
+		{
+		    dnsNames.push_back(p->second);
+		}
+	    }
+
+	    test(find(dnsNames.begin(), dnsNames.end(), "server") != dnsNames.end());
+	    test(find(ipAddresses.begin(), ipAddresses.end(), "127.0.0.1") != ipAddresses.end());
 	}
 
-	_incoming = info.incoming;
-	_hadCert = info.cert != 0;
+	_hadCert = info.certs.size() != 0;
 	_invoked = true;
 	return _returnValue;
     }
@@ -68,7 +84,6 @@ public:
     {
 	_returnValue = true;
        	_invoked = false;
-	_incoming = false;
 	_hadCert = false;
     }
 
@@ -82,11 +97,6 @@ public:
 	return _invoked;
     }
 
-    bool incoming() const
-    {
-	return _incoming;
-    }
-
     bool hadCert() const
     {
 	return _hadCert;
@@ -96,7 +106,6 @@ private:
 
     bool _returnValue;
     bool _invoked;
-    bool _incoming;
     bool _hadCert;
 };
 typedef IceUtil::Handle<CertificateVerifierI> CertificateVerifierIPtr;
@@ -173,8 +182,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.Ciphers", "ADH");
 	initData.properties->setProperty("IceSSL.VerifyPeer", "0");
 	CommunicatorPtr comm = initialize(argc, argv, initData);
-	IceSSL::PluginPtr plugin =
-	    IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
+	IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
 	test(plugin);
 	plugin->initialize();
 	ObjectPrx obj = comm->stringToProxy(factoryRef);
@@ -220,9 +228,21 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	Test::ServerPrx server = fact->createServer(d);
 	try
 	{
-	    server->ice_ping();
+	    server->noCert();
 	}
 	catch(const LocalException&)
+	{
+	    test(false);
+	}
+	//
+	// Validate that we can get the connection info.
+	//
+	try
+	{
+	    IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(server->ice_connection());
+	    test(info.certs.size() == 2);
+	}
+	catch(const IceSSL::ConnectionInvalidException&)
 	{
 	    test(false);
 	}
@@ -240,7 +260,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	server = fact->createServer(d);
 	try
 	{
-	    server->ice_ping();
+	    server->noCert();
 	}
 	catch(const LocalException&)
 	{
@@ -299,7 +319,49 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	server = fact->createServer(d);
 	try
 	{
-	    server->ice_ping();
+	    IceSSL::CertificatePtr clientCert =
+		IceSSL::Certificate::readPEMFile(defaultDir + "/c_rsa_nopass_ca1_pub.pem");
+	    server->checkCert(clientCert->getSubjectDN(), clientCert->getIssuerDN());
+
+	    //
+	    // Validate that we can get the connection info. Validate
+	    // that the certificates have the same DN.
+	    //
+	    // Validate some aspects of the Certificate class.
+	    //
+	    IceSSL::CertificatePtr serverCert =
+		IceSSL::Certificate::readPEMFile(defaultDir + "/s_rsa_nopass_ca1_pub.pem");
+	    test(IceSSL::Certificate::decodePEM(serverCert->getPEMEncoding()) == serverCert);
+	    test(serverCert == serverCert);
+	    test(serverCert->checkValidity());
+	    test(!serverCert->checkValidity(IceUtil::Time::seconds(0)));
+
+	    IceSSL::CertificatePtr caCert = IceSSL::Certificate::readPEMFile(defaultDir + "/cacert1.pem");
+	    test(caCert == caCert);
+	    test(caCert->checkValidity());
+	    test(!caCert->checkValidity(IceUtil::Time::seconds(0)));
+
+	    test(!serverCert->verify(serverCert->getPublicKey()));
+	    test(serverCert->verify(caCert->getPublicKey()));
+	    test(caCert->verify(caCert->getPublicKey()));
+
+	    IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(server->ice_connection());
+
+	    test(info.certs.size() == 2);
+
+	    test(caCert == info.certs[1]);
+	    test(serverCert == info.certs[0]);
+
+	    test(serverCert != info.certs[1]);
+	    test(caCert != info.certs[0]);
+
+	    test(info.certs[0]->checkValidity() && info.certs[1]->checkValidity());
+	    test(!info.certs[0]->checkValidity(IceUtil::Time::seconds(0)) &&
+		 !info.certs[1]->checkValidity(IceUtil::Time::seconds(0)));
+	    test(info.certs[0]->verify(info.certs[1]->getPublicKey()));
+	    test(info.certs.size() == 2 &&
+		 info.certs[0]->getSubjectDN() == serverCert->getSubjectDN() &&
+		 info.certs[0]->getIssuerDN() == serverCert->getIssuerDN());
 	}
 	catch(const LocalException&)
 	{
@@ -319,7 +381,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	server = fact->createServer(d);
 	try
 	{
-	    server->ice_ping();
+	    IceSSL::CertificatePtr clientCert =
+		IceSSL::Certificate::readPEMFile(defaultDir + "/c_rsa_nopass_ca1_pub.pem");
+	    server->checkCert(clientCert->getSubjectDN(), clientCert->getIssuerDN());
+	    IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(server->ice_connection());
 	}
 	catch(const LocalException&)
 	{
@@ -435,14 +500,16 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	Test::ServerPrx server = fact->createServer(d);
 	try
 	{
-	    server->ice_ping();
+	    string cipherSub = "ADH-";
+	    server->checkCipher(cipherSub);
+	    IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(server->ice_connection());
+	    test(info.cipher.compare(0, cipherSub.size(), cipherSub) == 0);
 	}
 	catch(const LocalException&)
 	{
 	    test(false);
 	}
 	test(verifier->invoked());
-	test(!verifier->incoming());
 	test(!verifier->hadCert());
 
 	//
@@ -466,7 +533,6 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	    test(false);
 	}
 	test(verifier->invoked());
-	test(!verifier->incoming());
 	test(!verifier->hadCert());
 
 	fact->destroyServer(server);
@@ -508,7 +574,6 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	    test(false);
 	}
 	test(verifier->invoked());
-	test(!verifier->incoming());
 	test(verifier->hadCert());
 	fact->destroyServer(server);
 	comm->destroy();
@@ -583,6 +648,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	//
 	// This should fail because the server's certificate is expired.
 	//
+	{
+	    IceSSL::CertificatePtr cert =
+		IceSSL::Certificate::readPEMFile(defaultDir + "/s_rsa_nopass_ca1_exp_pub.pem");
+	    test(!cert->checkValidity());
+	}
+
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);
 	initData.properties->setProperty("IceSSL.DefaultDir", defaultDir);
@@ -624,6 +695,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	//
 	// This should fail because the client's certificate is expired.
 	//
+	{
+	    IceSSL::CertificatePtr cert =
+		IceSSL::Certificate::readPEMFile(defaultDir + "/c_rsa_nopass_ca1_exp_pub.pem");
+	    test(!cert->checkValidity());
+	}
 	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_exp_pub.pem");
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_exp_priv.pem");
 	comm = initialize(argc, argv, initData);
@@ -784,7 +860,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	Test::ServerPrx server = fact->createServer(d);
 	try
 	{
-	    server->ice_ping();
+	    string cipherSub = "ADH-";
+	    server->checkCipher(cipherSub);
+	    IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(server->ice_connection());
+	    test(info.cipher.compare(0, cipherSub.size(), cipherSub) == 0);
 	}
 	catch(const LocalException&)
 	{

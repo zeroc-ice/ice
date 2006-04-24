@@ -15,6 +15,8 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Shared.h>
 
+#include <IceSSL/Plugin.h>
+
 #include <list>
 #include <openssl/ssl.h>
 
@@ -64,6 +66,8 @@ bool splitString(const std::string&, const std::string&, bool, std::vector<std::
 // Determine if a file or directory exists, with an optional default directory.
 //
 bool checkPath(std::string&, const std::string&, bool);
+
+ConnectionInfo populateConnectionInfo(SSL*, SOCKET);
 
 }
 

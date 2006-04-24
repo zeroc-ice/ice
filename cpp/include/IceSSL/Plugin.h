@@ -10,7 +10,27 @@
 #ifndef ICE_SSL_PLUGIN_H
 #define ICE_SSL_PLUGIN_H
 
+#include <IceUtil/Time.h>
 #include <Ice/Plugin.h>
+#include <Ice/ConnectionF.h>
+
+#include <vector>
+
+// For struct sockaddr_in
+#ifdef _WIN32
+#   include <winsock2.h>
+typedef int ssize_t;
+#else
+#   include <sys/socket.h>
+#endif
+
+#ifndef ICE_SSL_API
+#   ifdef ICE_SSL_API_EXPORTS
+#       define ICE_SSL_API ICE_DECLSPEC_EXPORT
+#    else
+#       define ICE_SSL_API ICE_DECLSPEC_IMPORT
+#    endif
+#endif
 
 //
 // SSL_CTX is the OpenSSL type that holds configuration settings for
@@ -28,53 +48,224 @@ typedef struct ssl_st SSL;
 //
 typedef struct x509_st X509;
 
+//
+// EVP_PKEY is the OpenSSL type that represents a public key.
+//
+typedef struct evp_pkey_st EVP_PKEY;
+
 namespace IceSSL
 {
 
 //
-// VerifyInfo contains information that may be of use to a
-// CertificateVerifier implementation.
+// This exception is thrown if the certificate cannot be read.
 //
-struct VerifyInfo
+class CertificateReadException : public IceUtil::Exception
 {
-    VerifyInfo();
+public:
+
+    CertificateReadException(const char*, int, const std::string&);
+    virtual const std::string ice_name() const;
+    virtual IceUtil::Exception* ice_clone() const;
+    virtual void ice_throw() const;
+
+    std::string reason;
+
+private:
+
+    static const char* _name;
+};
+
+//
+// This exception is thrown if the certificate cannot be encoded.
+//
+class CertificateEncodingException : public IceUtil::Exception
+{
+public:
+
+    CertificateEncodingException(const char*, int, const std::string&);
+    virtual const std::string ice_name() const;
+    virtual IceUtil::Exception* ice_clone() const;
+    virtual void ice_throw() const;
+
+    std::string reason;
+
+private:
+
+    static const char* _name;
+};
+
+//
+// Forward declaration.
+//
+class Certificate;
+typedef IceUtil::Handle<Certificate> CertificatePtr;
+
+//
+// A representation of a PublicKey.
+//
+class ICE_SSL_API PublicKey : public IceUtil::Shared
+{
+    ~PublicKey();
+
+    EVP_PKEY* key() const;
+
+private:
+
+    PublicKey(EVP_PKEY*);
+    friend class Certificate;
+
+    EVP_PKEY* _key;
+};
+typedef IceUtil::Handle<PublicKey> PublicKeyPtr;
+
+//
+// This class is inspired by java.security.cert.X509Certificate.
+//
+class ICE_SSL_API Certificate : public IceUtil::Shared
+{
+public:
 
     //
-    // A value of true indicates an incoming (server) connection.
+    // Construct a certificate using a X509*. The Certificate assumes
+    // ownership of the X509* struct.
     //
-    const bool incoming;
+    Certificate(X509*);
+    //
+    // The certificate is read from a PEM encoded file.
+    //
+    static CertificatePtr readPEMFile(const std::string&);
+    //
+    // The certificate is decoded from a PEM encoded string.
+    //
+    static CertificatePtr decodePEM(const std::string&);
+    ~Certificate();
+
+    bool operator==(const Certificate&) const;
+    bool operator!=(const Certificate&) const;
 
     //
-    // The peer's certificate. This value may be 0 if the peer
-    // did not supply a certificate.
+    // Gets the certificate public key.
     //
-    X509* cert;
+    PublicKeyPtr getPublicKey() const;
+    //
+    // Validate that this certificate was signed by the given public
+    // key. Returns true if signed, false otherwise.
+    //
+    bool verify(const PublicKeyPtr&) const;
+    //
+    // Return a string encoding of the certificate in PEM form.
+    //
+    std::string getPEMEncoding() const;
+    //
+    // Checks that the certificate is currently valid. That is the current date falls
+    // between the validity period given in the certificate.
+    //
+    bool checkValidity() const;
+    //
+    // Checks that the certificate is valid at the given time.
+    //
+    bool checkValidity(const IceUtil::Time&) const;
+    //
+    // Get the not-after validity time.
+    //
+    IceUtil::Time getNotAfter() const;
+    //
+    // Get the not-before validity time.
+    //
+    IceUtil::Time getNotBefore() const;
+    //
+    // Get the serial number. This is an arbitrarly large number.
+    //
+    std::string getSerialNumber() const;
+    //
+    // Get the signature algorithm name used to sign the the certificate.
+    //
+    //std::string getSigAlgName() const;
+    //
+    // Get the signature algorithm OID string from the certificate.
+    //
+    //std::string getSigAlgOID() const;
+    //
+    // Get the issuer DN.
+    //
+    std::string getIssuerDN() const;
+    //
+    // This retrieves the issuer alternative names extension.
+    //
+    // The returned list contains a pair of int, string.
+    //
+    // otherName                       [0]     OtherName,
+    // rfc822Name                      [1]     IA5String,
+    // dNSName                         [2]     IA5String,
+    // x400Address                     [3]     ORAddress,
+    // directoryName                   [4]     Name,
+    // ediPartyName                    [5]     EDIPartyName,
+    // uniformResourceIdentifier       [6]     IA5String,
+    // iPAddress                       [7]     OCTET STRING,
+    // registeredID                    [8]     OBJECT IDENTIFIER}
+    //
+    // rfc822Name, dNSName, directoryName and
+    // uniformResourceIdentifier data is returned as a string.
+    //
+    // iPAddress is returned as in dotted quad notation. ipv6 is not
+    // currently supported.
+    //
+    // The remainder of the data will result in an empty string. To
+    // retrieve the content use the raw X509* certificate.
+    //
+    std::vector<std::pair<int, std::string> > getIssuerAlternativeNames();
+    //
+    // Get the subject DN.
+    //
+    std::string getSubjectDN() const;
+    //
+    // See the comment for getIssuerAlternativeNames
+    //
+    std::vector<std::pair<int, std::string> > getSubjectAlternativeNames();
+    //
+    // Retrieve the certificate version number.
+    //
+    int getVersion() const;
+    //
+    // Stringify the certificate. This is a human readable version of
+    // the cert, not a DER or PEM encoding.
+    //
+    std::string toString() const;
+    //
+    // Retrieve the actual X509* OpenSSL structure.
+    //
+    X509* getCert() const;
 
-    //
-    // The SSL connection object.
-    //
-    SSL* ssl;
+private:
 
-    //
-    // The address of the server as specified by the proxy's
-    // endpoint. For example, in the following proxy:
-    //
-    // identity:ssl -h www.server.com -p 10000
-    //
-    // the value of address is "www.server.com".
-    //
-    // The value is an empty string for incoming connections.
-    //
-    const std::string address;
+    X509* _cert;
+};
 
+//
+// ConnectionInfo contains information that may be of use to a
+// CertificateVerifier or an application that wants information
+// on its peer in an application call.
+//
+struct ConnectionInfo
+{
     //
-    // The values of all dNSName and iPAddress fields in the peer
-    // certificate's subjectAltName extension. An application may
-    // use this information to restrict connections to peers that
-    // have specific values.
+    // The certificate chain. This may be empty if the peer did not
+    // supply a certificate. The last certificate in the chain is the
+    // peers certificate.
     //
-    const std::vector<std::string> dnsNames;
-    const std::vector<std::string> ipAddresses;
+    std::vector<CertificatePtr> certs;
+    //
+    // The name of the negotiated cipher.
+    //
+    std::string cipher;
+    //
+    // The local TCP/IP host & port.
+    //
+    struct sockaddr_in localAddr;
+    //
+    // The remote TCP/IP host & port.
+    //
+    struct sockaddr_in remoteAddr;
 };
 
 //
@@ -86,25 +277,25 @@ class CertificateVerifier : public IceUtil::Shared
 public:
 
     //
-    // Return false if the connection should be rejected, or
-    // true to allow it.
+    // Return false if the connection should be rejected, or true to
+    // allow it.
     //
-    virtual bool verify(VerifyInfo&) = 0;
+    virtual bool verify(const ConnectionInfo&) = 0;
 };
 typedef IceUtil::Handle<CertificateVerifier> CertificateVerifierPtr;
 
 //
-// In order to read an encrypted file, such as one containing a private
-// key, OpenSSL requests a password from IceSSL. The password can be
-// defined using an IceSSL configuration property, but a plain-text
-// password is a security risk. If a password is not supplied via
-// configuration, IceSSL allows OpenSSL to prompt the user interactively.
-// This may not be desirable (or even possible), so the application can
-// supply an implementation of PasswordPrompt to take responsibility for
-// obtaining the password.
+// In order to read an encrypted file, such as one containing a
+// private key, OpenSSL requests a password from IceSSL. The password
+// can be defined using an IceSSL configuration property, but a
+// plain-text password is a security risk. If a password is not
+// supplied via configuration, IceSSL allows OpenSSL to prompt the
+// user interactively.  This may not be desirable (or even possible),
+// so the application can supply an implementation of PasswordPrompt
+// to take responsibility for obtaining the password.
 //
-// Note that the password is needed during plugin initialization, so in
-// general you will need to delay initialization (by defining
+// Note that the password is needed during plugin initialization, so
+// in general you will need to delay initialization (by defining
 // IceSSL.DelayInit=1), configure the PasswordPrompt, then manually
 // initialize the plugin.
 //
@@ -126,23 +317,23 @@ class Plugin : public Ice::Plugin
 public:
 
     //
-    // Initialize the IceSSL plugin. An application may supply its
-    // own SSL_CTX objects to configure the SSL contexts for client
-    // (outgoing) and server (incoming) connections. If an argument
-    // is nonzero, the plugin skips its normal property-based
+    // Initialize the IceSSL plugin. An application may supply its own
+    // SSL_CTX objects to configure the SSL contexts for client
+    // (outgoing) and server (incoming) connections. If an argument is
+    // nonzero, the plugin skips its normal property-based
     // configuration.
     // 
     virtual void initialize(SSL_CTX* context = 0) = 0;
 
     //
-    // Establish the certificate verifier object. This should be
-    // done before any connections are established.
+    // Establish the certificate verifier object. This should be done
+    // before any connections are established.
     //
     virtual void setCertificateVerifier(const CertificateVerifierPtr&) = 0;
 
     //
-    // Establish the password prompt object. This must be done
-    // before the plugin is initialized.
+    // Establish the password prompt object. This must be done before
+    // the plugin is initialized.
     //
     virtual void setPasswordPrompt(const PasswordPromptPtr&) = 0;
 
@@ -153,6 +344,33 @@ public:
     virtual SSL_CTX* context() = 0;
 };
 typedef IceUtil::Handle<Plugin> PluginPtr;
+
+//
+// Thrown if getConnectionInfo cannot retrieve the ConnectionInfo.
+//
+class ConnectionInvalidException : public IceUtil::Exception
+{
+public:
+
+    ConnectionInvalidException(const char*, int, const std::string&);
+    virtual const std::string ice_name() const;
+    virtual IceUtil::Exception* ice_clone() const;
+    virtual void ice_throw() const;
+
+    std::string reason;
+
+private:
+
+    static const char* _name;
+};
+
+//
+// This method retrieves the ConnectionInfo associated with a
+// particular Connection. If the connection is not an SSL connection,
+// or the connection has been closed a ConnectionInvalidException is
+// thrown.
+//
+ICE_SSL_API ConnectionInfo getConnectionInfo(const ::Ice::ConnectionPtr&);
 
 }
 

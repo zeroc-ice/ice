@@ -44,7 +44,7 @@ RSC=rc.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "LIBRARY_EXPORTS" /Yu"stdafx.h" /FD /c
 # ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I ".." /I "../../include" /D "USE_SOCKETS" /D "_USRDLL" /D "ICE_SSL_API_EXPORTS" /D FD_SETSIZE=1024 /D "_CONSOLE" /D "NDEBUG" /D "WIN32_LEAN_AND_MEAN" /FD /c
-# SUBTRACT CPP /Z<none> /Fr /YX
+# SUBTRACT CPP /Fr /YX
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -110,6 +110,10 @@ SOURCE=.\AcceptorI.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Certificate.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ConnectorI.cpp
 # End Source File
 # Begin Source File
@@ -163,6 +167,10 @@ SOURCE=.\Instance.h
 # Begin Source File
 
 SOURCE=.\InstanceF.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceSSL\Plugin.h
 # End Source File
 # Begin Source File
 

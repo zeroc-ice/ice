@@ -17,6 +17,9 @@
 #include <Ice/Properties.h>
 #include <IceUtil/StaticMutex.h>
 
+#include <Ice/ConnectionI.h> // For implementation of getConnectionInfo.
+#include <IceSSL/TransceiverI.h> // For implementation of getConnectionInfo.
+
 #include <openssl/crypto.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
@@ -49,7 +52,8 @@ static IceUtil::Mutex* locks = 0;
 //
 // OpenSSL mutex callback.
 //
-static void opensslLockCallback(int mode, int n, const char* file, int line)
+static void
+opensslLockCallback(int mode, int n, const char* file, int line)
 {
     if(mode & CRYPTO_LOCK)
     {
@@ -82,16 +86,6 @@ opensslThreadIdCallback()
 #else
 #   error "Unknown platform"
 #endif
-}
-
-//
-// VerifyInfo constructor.
-//
-IceSSL::VerifyInfo::VerifyInfo() :
-    incoming(false),
-    cert(0),
-    ssl(0)
-{
 }
 
 //
@@ -251,4 +245,55 @@ IceSSL::PluginI::cleanupSSL()
 	ERR_free_strings();
 	EVP_cleanup();
     }
+}
+
+const char* IceSSL::ConnectionInvalidException::_name = "IceSSL::ConnectionInvalidException";
+
+ConnectionInvalidException::ConnectionInvalidException(const char* file, int line, const string& r) :
+    Exception(file, line),
+    reason(r)
+{
+}
+const string
+ConnectionInvalidException::ice_name() const
+{
+    return _name;
+}
+Exception* 
+ConnectionInvalidException::ice_clone() const
+{
+    throw new ConnectionInvalidException(*this);
+}
+
+void
+ConnectionInvalidException::ice_throw() const
+{
+    throw *this;
+}
+
+ConnectionInfo
+IceSSL::getConnectionInfo(const ConnectionPtr& connection)
+{
+    Ice::ConnectionIPtr con = Ice::ConnectionIPtr::dynamicCast(connection);
+    assert(con);
+
+    //
+    // Lock the connection directly. This is done because the only
+    // thing that prevents the transceiver from being closed during
+    // the duration of the invocation is the connection.
+    //
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*con.get());
+    IceInternal::TransceiverPtr transceiver = con->getTransceiver();
+    if(!transceiver)
+    {
+	throw ConnectionInvalidException(__FILE__, __LINE__, "connection closed");
+    }
+
+    IceSSL::TransceiverIPtr ssltransceiver = IceSSL::TransceiverIPtr::dynamicCast(con->getTransceiver());
+    if(!ssltransceiver)
+    {
+	throw ConnectionInvalidException(__FILE__, __LINE__, "not ssl connection");
+    }
+
+    return ssltransceiver->getConnectionInfo();
 }

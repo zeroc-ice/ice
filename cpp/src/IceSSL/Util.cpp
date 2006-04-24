@@ -9,6 +9,7 @@
 
 #include <Util.h>
 #include <Ice/LocalException.h>
+#include <Ice/Network.h>
 
 #ifdef _WIN32
 #   include <direct.h>
@@ -426,4 +427,54 @@ IceSSL::checkPath(string& path, const string& defaultDir, bool dir)
     }
 
     return false;
+}
+
+ConnectionInfo
+IceSSL::populateConnectionInfo(SSL* ssl, SOCKET fd)
+{
+    ConnectionInfo info;
+    assert(ssl != 0);
+
+    //
+    // On the client side SSL_get_peer_cert_chain returns the
+    // entire chain of certs. On the server side the peer
+    // certificate must be obtained seperately.
+    //
+    // Since we have no clear idea whether the connection is server or
+    // client side the peer certificate is obtained seperately, and
+    // compared against the first certificate in the chain. If they
+    // are not the same, it is added to the chain.
+    //
+    X509* cert = SSL_get_peer_certificate(ssl);
+    STACK_OF(X509)* chain = SSL_get_peer_cert_chain(ssl);
+    if(cert != 0 && (chain == 0 || sk_X509_num(chain) == 0 || cert != sk_X509_value(chain, 0)))
+    {
+	info.certs.push_back(new Certificate(cert));
+    }
+    else
+    {
+	X509_free(cert);
+    }
+
+    if(chain != 0)
+    {
+	for(int i = 0; i < sk_X509_num(chain); ++i)
+	{
+	    X509* cert = sk_X509_value(chain, i);
+	    //
+	    // This has to duplicate the certificate since the stack
+	    // comes straight from the SSL connection.
+	    //
+	    info.certs.push_back(new Certificate(X509_dup(cert)));
+	}
+    }
+
+    info.cipher = SSL_get_cipher_name(ssl); // Nothing needs to be free'd.
+
+    IceInternal::fdToLocalAddress(fd, info.localAddr);
+
+    bool peerConnected = IceInternal::fdToRemoteAddress(fd, info.remoteAddr);
+    assert(peerConnected);
+
+    return info;
 }
