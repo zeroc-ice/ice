@@ -12,12 +12,11 @@
 
 #include <Session.h>
 
-class SessionManagerI : public Test::SessionManager
+class SessionManagerI : public Glacier2::SessionManager
 {
 public:
 
     virtual Glacier2::SessionPrx create(const std::string&, const Glacier2::SessionControlPrx&, const Ice::Current&);
-    virtual void shutdown(const Ice::Current&);
 };
 
 
@@ -28,6 +27,8 @@ public:
     SessionI(const Glacier2::SessionControlPrx&);
 
     virtual void destroySession(const Ice::Current&);
+    virtual void shutdown(const Ice::Current&);
+
     virtual void destroy(const Ice::Current&);
 
 private:

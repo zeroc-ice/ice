@@ -19,12 +19,6 @@ SessionManagerI::create(const string&, const Glacier2::SessionControlPrx& sessio
     return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(new SessionI(sessionControl)));
 }
 
-void
-SessionManagerI::shutdown(const Ice::Current& current)
-{
-    current.adapter->getCommunicator()->shutdown();
-}
-
 SessionI::SessionI(const Glacier2::SessionControlPrx& sessionControl) :
     _sessionControl(sessionControl)
 {
@@ -35,6 +29,12 @@ void
 SessionI::destroySession(const Ice::Current& current)
 {
     _sessionControl->destroy();
+}
+
+void
+SessionI::shutdown(const Ice::Current& current)
+{
+    current.adapter->getCommunicator()->shutdown();
 }
 
 void

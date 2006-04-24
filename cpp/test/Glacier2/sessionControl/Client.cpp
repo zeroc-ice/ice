@@ -67,15 +67,9 @@ SessionControlClient::run(int argc, char* argv[])
     }
     cout << "ok" << endl;
 
-    cout << "recreating session... " << flush;
-    sessionBase = router->createSession("userid", "abc123");
-    ObjectPrx base = communicator()->stringToProxy("SessionManager:tcp -p 12010 -t 10000");
-    Test::SessionManagerPrx sessionManager = Test::SessionManagerPrx::uncheckedCast(base);
-    sessionManager->ice_ping();
-    cout << "ok" << endl;
-    
     cout << "testing shutdown... " << flush;
-    sessionManager->shutdown();
+    session = Test::SessionPrx::uncheckedCast(router->createSession("userid", "abc123"));
+    session->shutdown();
     communicator()->setDefaultRouter(0);
     ObjectPrx adminBase = communicator()->stringToProxy("Glacier2/admin:tcp -h 127.0.0.1 -p 12348 -t 10000");
     Glacier2::AdminPrx admin = Glacier2::AdminPrx::checkedCast(adminBase);
