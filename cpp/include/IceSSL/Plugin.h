@@ -19,9 +19,8 @@
 // For struct sockaddr_in
 #ifdef _WIN32
 #   include <winsock2.h>
-typedef int ssize_t;
 #else
-#   include <sys/socket.h>
+#   include <netinet/in.h>
 #endif
 
 #ifndef ICE_SSL_API

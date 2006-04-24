@@ -33,10 +33,10 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS) -lIceSSL
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS) -lIceSSL
 
 include .depend

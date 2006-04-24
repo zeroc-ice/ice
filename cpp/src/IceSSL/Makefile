@@ -22,7 +22,8 @@ OBJS		= AcceptorI.o \
                   Instance.o \
                   PluginI.o \
                   TransceiverI.o \
-                  Util.o
+                  Util.o \
+		  Certificate.o
 
 SRCS		= $(OBJS:.o=.cpp)
 

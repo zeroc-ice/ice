@@ -25,11 +25,13 @@ CertificateReadException::CertificateReadException(const char* file, int line, c
     reason(r)
 {
 }
+
 const string
 CertificateReadException::ice_name() const
 {
     return _name;
 }
+
 Exception* 
 CertificateReadException::ice_clone() const
 {
@@ -54,6 +56,7 @@ CertificateEncodingException::ice_name() const
 {
     return _name;
 }
+
 Exception* 
 CertificateEncodingException::ice_clone() const
 {
@@ -105,7 +108,7 @@ ASMUtcTimeToIceUtilTime(const ASN1_UTCTIME* s)
     //
     time_t tzone;
     {
-	static IceUtil::StaticMutex mutex;
+	static IceUtil::StaticMutex mutex = ICE_STATIC_MUTEX_INITIALIZER;
 	IceUtil::StaticMutex::Lock sync(mutex);
 	time_t now = time(0);
 	tzone = mktime(localtime(&now)) - mktime(gmtime(&now));
@@ -128,7 +131,8 @@ BIOErrorToString(BIO* u)
 	ERR_error_string_n(l, buf, sizeof buf);
 
 	char buf2[4096];
-	BIO_snprintf(buf2, sizeof(buf2), "%s:%s:%d:%s\n", buf, file, line, (flags & ERR_TXT_STRING) ? data : "");
+	BIO_snprintf(buf2, sizeof(buf2), "%s:%s:%d:%s\n", buf, file, line,
+		(flags & ERR_TXT_STRING) ? data : "");
 	
 	result += buf;
     }
@@ -391,7 +395,8 @@ Certificate::getIssuerDN() const
 vector<pair<int, string> >
 Certificate::getIssuerAlternativeNames()
 {
-    return convertGeneralNames(reinterpret_cast<GENERAL_NAMES*>(X509_get_ext_d2i(_cert, NID_issuer_alt_name, 0, 0)));
+    return convertGeneralNames(reinterpret_cast<GENERAL_NAMES*>(
+    	X509_get_ext_d2i(_cert, NID_issuer_alt_name, 0, 0)));
 }
 
 string
@@ -408,7 +413,8 @@ Certificate::getSubjectDN() const
 vector<pair<int, string> >
 Certificate::getSubjectAlternativeNames()
 {
-    return convertGeneralNames(reinterpret_cast<GENERAL_NAMES*>(X509_get_ext_d2i(_cert, NID_subject_alt_name, 0, 0)));
+    return convertGeneralNames(
+    	reinterpret_cast<GENERAL_NAMES*>(X509_get_ext_d2i(_cert, NID_subject_alt_name, 0, 0)));
 }
 
 int
