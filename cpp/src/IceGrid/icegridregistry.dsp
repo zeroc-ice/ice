@@ -205,6 +205,10 @@ SOURCE=.\TraceLevels.cpp
 
 SOURCE=.\Util.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\WaitQueue.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 

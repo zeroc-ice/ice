@@ -163,14 +163,14 @@ ObjectCache::allocateByType(const string& type, const ObjectAllocationRequestPtr
 
     Ice::ObjectProxySeq objects = p->second.getObjects();
     random_shuffle(objects.begin(), objects.end(), _rand); // TODO: OPTIMIZE
-    for(Ice::ObjectProxySeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
+    for(Ice::ObjectProxySeq::const_iterator q = objects.begin(); q != objects.end(); ++q)
     {
 	//
 	// If tryAllocate() returns true, either the object was
 	// successfully allocated or the request canceled. In both
 	// cases, we're done!
 	//
-	if(getImpl((*p)->ice_getIdentity())->tryAllocate(request))
+	if(getImpl((*q)->ice_getIdentity())->tryAllocate(request))
 	{
 	    return;
 	}
