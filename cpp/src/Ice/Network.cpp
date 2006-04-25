@@ -34,7 +34,7 @@ using namespace IceInternal;
 static IceUtil::StaticMutex inetMutex = ICE_STATIC_MUTEX_INITIALIZER;
 
 string
-inetAddrToString(const struct in_addr& in)
+IceInternal::inetAddrToString(const struct in_addr& in)
 {
     //
     // inet_ntoa uses static memory on some platforms so we protect

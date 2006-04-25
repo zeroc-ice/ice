@@ -14,6 +14,9 @@
 
 #include <IceUtil/UUID.h>
 
+#include <IceSSL/Plugin.h>
+#include <Ice/Network.h>
+
 using namespace std;
 using namespace Ice;
 using namespace Glacier2;
@@ -338,6 +341,36 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
 	_pending.insert(current.con);
     }
 
+    Ice::Context ctx = current.ctx;
+
+    //
+    // Populate the SSL context information.
+    //
+    try
+    {
+	IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(current.con);
+	ctx["SSL.Active"] = "1";
+	ctx["SSL.Cipher"] = info.cipher;
+	ostringstream os;
+	os << ntohs(info.remoteAddr.sin_port);
+	ctx["SSL.Remote.Port"] = os.str();
+	ctx["SSL.Remote.Host"] = IceInternal::inetAddrToString(info.remoteAddr.sin_addr);
+	os.str("");
+	os << ntohs(info.localAddr.sin_port);
+	ctx["SSL.Local.Port"] = os.str();
+	ctx["SSL.Local.Host"] = IceInternal::inetAddrToString(info.localAddr.sin_addr);
+	try
+	{
+	    ctx["SSL.PeerCert"] = info.certs[0]->getPEMEncoding();
+	}
+	catch(const IceSSL::CertificateEncodingException&)
+	{
+	}
+    }
+    catch(const IceSSL::ConnectionInvalidException&)
+    {
+    }
+
     try
     {
 	//
@@ -345,10 +378,10 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
 	//
 	string reason;
 	bool ok;
-	
+
 	try
 	{
-	    ok = _verifier->checkPermissions(userId, password, reason, current.ctx);
+	    ok = _verifier->checkPermissions(userId, password, reason, ctx);
 	}
 	catch(const Exception& ex)
 	{
@@ -400,11 +433,11 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
 	    SessionControlPrx control;
 	    if(_adminAdapter)
 	    {
-	        control = SessionControlPrx::uncheckedCast(_adminAdapter->addWithUUID(
-								new SessionControlI(this, current.con)));
+	        control = SessionControlPrx::uncheckedCast(
+		    _adminAdapter->addWithUUID(new SessionControlI(this, current.con)));
 		controlId = control->ice_getIdentity();
 	    }
-	    session = _sessionManager->create(userId, control, current.ctx);
+	    session = _sessionManager->create(userId, control, ctx);
 	}
     
 	//

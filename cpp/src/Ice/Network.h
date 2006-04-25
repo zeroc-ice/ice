@@ -121,6 +121,7 @@ ICE_API bool isPeerLocal(SOCKET);
 #endif
 
 ICE_API int getSocketErrno();
+ICE_API std::string inetAddrToString(const struct in_addr&);
 
 }
 
