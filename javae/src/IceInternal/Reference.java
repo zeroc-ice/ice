@@ -236,85 +236,92 @@ public abstract class Reference
     public String
     toString()
     {
-        StringBuffer s = new StringBuffer();
+	//
+	// WARNING: Certain features, such as proxy validation in Glacier2,
+	// depend on the format of proxy strings. Changes to toString() and
+	// methods called to generate parts of the reference string could break
+	// these features. Please review for all features that depend on the
+	// format of proxyToString() before changing this and related code.
+	//
+	StringBuffer s = new StringBuffer();
 
-        //
-        // If the encoded identity string contains characters which
-        // the reference parser uses as separators, then we enclose
-        // the identity string in quotes.
-        //
-        String id = Ice.Util.identityToString(_identity);
-        if(IceUtil.StringUtil.findFirstOf(id, " \t\n\r:@") != -1)
-        {
-            s.append('"');
-            s.append(id);
-            s.append('"');
-        }
-        else
-        {
-            s.append(id);
-        }
+	//
+	// If the encoded identity string contains characters which
+	// the reference parser uses as separators, then we enclose
+	// the identity string in quotes.
+	//
+	String id = Ice.Util.identityToString(_identity);
+	if(IceUtil.StringUtil.findFirstOf(id, " \t\n\r:@") != -1)
+	{
+	    s.append('"');
+	    s.append(id);
+	    s.append('"');
+	}
+	else
+	{
+	    s.append(id);
+	}
 
-        if(_facet.length() > 0)
-        {
-            //
-            // If the encoded facet string contains characters which
-            // the reference parser uses as separators, then we enclose
-            // the facet string in quotes.
-            //
-            s.append(" -f ");
-            String fs = IceUtil.StringUtil.escapeString(_facet, "");
-            if(IceUtil.StringUtil.findFirstOf(fs, " \t\n\r:@") != -1)
-            {
-                s.append('"');
-                s.append(fs);
-                s.append('"');
-            }
-            else
-            {
-                s.append(fs);
-            }
-        }
+	if(_facet.length() > 0)
+	{
+	    //
+	    // If the encoded facet string contains characters which
+	    // the reference parser uses as separators, then we enclose
+	    // the facet string in quotes.
+	    //
+	    s.append(" -f ");
+	    String fs = IceUtil.StringUtil.escapeString(_facet, "");
+	    if(IceUtil.StringUtil.findFirstOf(fs, " \t\n\r:@") != -1)
+	    {
+		s.append('"');
+		s.append(fs);
+		s.append('"');
+	    }
+	    else
+	    {
+		s.append(fs);
+	    }
+	}
 
-        switch(_mode)
-        {
-            case ModeTwoway:
-            {
-                s.append(" -t");
-                break;
-            }
+	switch(_mode)
+	{
+	    case ModeTwoway:
+		{
+		    s.append(" -t");
+		    break;
+		}
 
-            case ModeOneway:
-            {
-                s.append(" -o");
-                break;
-            }
+	    case ModeOneway:
+		{
+		    s.append(" -o");
+		    break;
+		}
 
-            case ModeBatchOneway:
-            {
-                s.append(" -O");
-                break;
-            }
+	    case ModeBatchOneway:
+		{
+		    s.append(" -O");
+		    break;
+		}
 
-            case ModeDatagram:
-            {
-                s.append(" -d");
-                break;
-            }
+	    case ModeDatagram:
+		{
+		    s.append(" -d");
+		    break;
+		}
 
-            case ModeBatchDatagram:
-            {
-                s.append(" -D");
-                break;
-            }
-        }
+	    case ModeBatchDatagram:
+		{
+		    s.append(" -D");
+		    break;
+		}
+	}
 
 	if(getSecure())
 	{
 	    s.append(" -s");
 	}
 
-        return s.toString();
+	return s.toString();
 
 	// Derived class writes the remainder of the string.
     }
