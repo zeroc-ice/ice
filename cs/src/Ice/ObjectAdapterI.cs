@@ -717,15 +717,10 @@ namespace Ice
 
 	public IceInternal.ServantManager getServantManager()
 	{
-	    // No mutex lock necessary, _threadPool and instance_ are
-	    // immutable after creation until they are removed in
-	    // waitForDeactivate().
-	    
-	    // Not check for deactivation here!
-	    
-	    Debug.Assert(instance_ != null); // Must not be called after waitForDeactivate().
-	    
-	    return _servantManager;
+	    lock(this)
+	    {
+	        return _servantManager;
+	    }
 	}
 	
 	//

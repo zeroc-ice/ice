@@ -1199,6 +1199,10 @@ Ice::ConnectionI::setAdapter(const ObjectAdapterPtr& adapter)
     if(_adapter)
     {
 	_servantManager = dynamic_cast<ObjectAdapterI*>(_adapter.get())->getServantManager();
+	if(!_servantManager)
+	{
+	    _adapter = 0;
+	}
     }
     else
     {

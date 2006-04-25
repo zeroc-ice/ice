@@ -702,13 +702,7 @@ Ice::ObjectAdapterI::getThreadPool() const
 ServantManagerPtr
 Ice::ObjectAdapterI::getServantManager() const
 {
-    // No mutex lock necessary, _threadPool and _instance are
-    // immutable after creation until they are removed in
-    // waitForDeactivate().
-
-    // Not check for deactivation here!
-
-    assert(_instance); // Must not be called after waitForDeactivate().
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     return _servantManager;
 }

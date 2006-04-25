@@ -554,20 +554,9 @@ public final class ObjectAdapter
 	}
     }
 
-    public IceInternal.ServantManager
+    public synchronized IceInternal.ServantManager
     getServantManager()
     {	
-	// No mutex lock necessary, _instance is
-	// immutable after creation until it is removed in
-	// waitForDeactivate().
-	
-	// No check for deactivation here!
-	
-	if(IceUtil.Debug.ASSERT)
-	{
-	    IceUtil.Debug.Assert(_instance != null); // Must not be called after waitForDeactivate().
-	}
-
 	return _servantManager;
     }
 

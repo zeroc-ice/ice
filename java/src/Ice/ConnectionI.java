@@ -1014,6 +1014,10 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	if(_adapter != null)
 	{
 	    _servantManager = ((ObjectAdapterI)_adapter).getServantManager();
+	    if(_servantManager == null)
+	    {
+	        _adapter = null;
+	    }
 	}
 	else
 	{

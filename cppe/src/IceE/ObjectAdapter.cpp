@@ -571,13 +571,7 @@ Ice::ObjectAdapter::decDirectCount()
 ServantManagerPtr
 Ice::ObjectAdapter::getServantManager() const
 {
-    // No mutex lock necessary, _instance is
-    // immutable after creation until it is removed in
-    // waitForDeactivate().
-
-    // Not check for deactivation here!
-
-    assert(_instance); // Must not be called after waitForDeactivate().
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     return _servantManager;
 }

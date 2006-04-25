@@ -28,6 +28,10 @@ final public class Incoming
 	if(_adapter != null)
 	{
 	    _servantManager = _adapter.getServantManager();
+	    if(_servantManager == null)
+	    {
+	        _adapter = null;
+	    }
 	}
 	else
 	{

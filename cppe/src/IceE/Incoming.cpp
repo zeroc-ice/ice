@@ -42,6 +42,10 @@ IceInternal::Incoming::setAdapter(const Ice::ObjectAdapterPtr& adapter)
     if(_adapter)
     {
 	_servantManager = _adapter->getServantManager().get();
+	if(!_servantManager)
+	{
+	    _adapter = 0;
+	}
     }
     else
     {
