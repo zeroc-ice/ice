@@ -21,6 +21,8 @@
 #   include <sys/stat.h>
 #endif
 
+#include <openssl/err.h>
+
 #include <IceUtil/DisableWarnings.h>
 
 using namespace std;
@@ -394,8 +396,8 @@ IceSSL::checkPath(string& path, const string& defaultDir, bool dir)
 {
     //
     // Check if file exists. If not, try prepending the default
-    // directory and check again. If the file is found, the
-    // string argument is modified and true is returned. Otherwise
+    // directory and check again. If the path exists, the string
+    // argument is modified and true is returned. Otherwise
     // false is returned.
     //
 #ifdef _WIN32
@@ -436,14 +438,12 @@ IceSSL::populateConnectionInfo(SSL* ssl, SOCKET fd)
     assert(ssl != 0);
 
     //
-    // On the client side SSL_get_peer_cert_chain returns the
-    // entire chain of certs. On the server side the peer
-    // certificate must be obtained seperately.
+    // On the client side, SSL_get_peer_cert_chain returns the entire chain of certs.
+    // On the server side, the peer certificate must be obtained separately.
     //
-    // Since we have no clear idea whether the connection is server or
-    // client side the peer certificate is obtained seperately, and
-    // compared against the first certificate in the chain. If they
-    // are not the same, it is added to the chain.
+    // Since we have no clear idea whether the connection is server or client side,
+    // the peer certificate is obtained separately and compared against the first
+    // certificate in the chain. If they are not the same, it is added to the chain.
     //
     X509* cert = SSL_get_peer_certificate(ssl);
     STACK_OF(X509)* chain = SSL_get_peer_cert_chain(ssl);
@@ -462,8 +462,7 @@ IceSSL::populateConnectionInfo(SSL* ssl, SOCKET fd)
 	{
 	    X509* cert = sk_X509_value(chain, i);
 	    //
-	    // This has to duplicate the certificate since the stack
-	    // comes straight from the SSL connection.
+	    // Duplicate the certificate since the stack comes straight from the SSL connection.
 	    //
 	    info.certs.push_back(new Certificate(X509_dup(cert)));
 	}
@@ -477,4 +476,59 @@ IceSSL::populateConnectionInfo(SSL* ssl, SOCKET fd)
     assert(peerConnected);
 
     return info;
+}
+
+string
+IceSSL::getSslErrors(bool verbose)
+{
+    ostringstream ostr;
+
+    const char* file;
+    const char* data;
+    int line;
+    int flags;
+    unsigned long err;
+    int count = 0;
+    while((err = ERR_get_error_line_data(&file, &line, &data, &flags)) != 0)
+    {
+	if(count > 0)
+	{
+	    ostr << endl;
+	}
+
+	if(verbose)
+	{
+	    if(count > 0)
+	    {
+		ostr << endl;
+	    }
+
+	    char buf[200];
+	    ERR_error_string_n(err, buf, sizeof(buf));
+
+	    ostr << "error # = " << err << endl;
+	    ostr << "message = " << buf << endl;
+	    ostr << "location = " << file << ", " << line;
+	    if(flags & ERR_TXT_STRING)
+	    {
+		ostr << endl;
+		ostr << "data = " << data;
+	    }
+	}
+	else
+	{
+	    const char* reason = ERR_reason_error_string(err);
+	    ostr << (reason == NULL ? "unknown reason" : reason);
+	    if(flags & ERR_TXT_STRING)
+	    {
+		ostr << ": " << data;
+	    }
+	}
+
+	++count;
+    }
+
+    ERR_clear_error();
+
+    return ostr.str();
 }

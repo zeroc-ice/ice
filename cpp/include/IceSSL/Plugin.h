@@ -113,7 +113,8 @@ private:
 typedef IceUtil::Handle<PublicKey> PublicKeyPtr;
 
 //
-// This class is inspired by java.security.cert.X509Certificate.
+// This convenience class is a wrapper around OpenSSL's X509 type.
+// The interface is inspired by java.security.cert.X509Certificate.
 //
 class ICE_SSL_API Certificate : public IceUtil::Shared
 {
@@ -131,13 +132,13 @@ public:
     // PEM encoding format. Raises CertificateReadException if the
     // file cannot be read.
     //
-    static CertificatePtr readPEMFile(const std::string&);
+    static CertificatePtr load(const std::string&);
 
     //
     // Decode a certificate from a string that uses the PEM encoding format.
     // Raises CertificateEncodingException if an error occurs.
     //
-    static CertificatePtr decodePEM(const std::string&);
+    static CertificatePtr decode(const std::string&);
 
     bool operator==(const Certificate&) const;
     bool operator!=(const Certificate&) const;
@@ -154,9 +155,9 @@ public:
     bool verify(const PublicKeyPtr&) const;
 
     //
-    // Return a string encoding of the certificate in PEM form.
+    // Return a string encoding of the certificate in PEM format.
     //
-    std::string getPEMEncoding() const;
+    std::string encode() const;
 
     //
     // Checks that the certificate is currently valid, that is, the current
@@ -247,7 +248,10 @@ public:
     std::string toString() const;
 
     //
-    // Retrieve the actual X509* OpenSSL structure.
+    // Retrieve the X509 value wrapped by this object. The reference count
+    // of the X509 value is not incremented, therefore it is only valid
+    // for the lifetime of this object unless the caller increments its
+    // reference count explicitly using X509_dup.
     //
     X509* getCert() const;
 
@@ -265,8 +269,8 @@ struct ConnectionInfo
 {
     //
     // The certificate chain. This may be empty if the peer did not
-    // supply a certificate. The last certificate in the chain is the
-    // peer's certificate.
+    // supply a certificate. The peer's certificate (if any) is the
+    // first one in the chain.
     //
     std::vector<CertificatePtr> certs;
 

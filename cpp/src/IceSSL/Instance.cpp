@@ -9,13 +9,12 @@
 
 #include <Instance.h>
 #include <EndpointI.h>
+#include <Util.h>
 #include <Ice/Communicator.h>
 #include <Ice/LocalException.h>
 #include <Ice/Logger.h>
 #include <Ice/Properties.h>
 #include <Ice/ProtocolPluginFacade.h>
-
-#include <openssl/err.h>
 
 using namespace std;
 using namespace Ice;
@@ -143,59 +142,7 @@ IceSSL::Instance::passwordPrompt() const
 string
 IceSSL::Instance::sslErrors() const
 {
-    ostringstream ostr;
-
-    const unsigned long threadId = CRYPTO_thread_id();
-
-    const char* file;
-    const char* data;
-    int line;
-    int flags;
-    unsigned long err;
-    int count = 0;
-    while((err = ERR_get_error_line_data(&file, &line, &data, &flags)) != 0)
-    {
-	if(count > 0)
-	{
-	    ostr << endl;
-	}
-
-	if(_securityTraceLevel >= 1)
-	{
-	    if(count > 0)
-	    {
-		ostr << endl;
-	    }
-
-	    char buf[200];
-	    ERR_error_string_n(err, buf, sizeof(buf));
-
-	    ostr << "thread id = " << threadId << endl;
-	    ostr << "error # = " << err << endl;
-	    ostr << "message = " << buf << endl;
-	    ostr << "location = " << file << ", " << line;
-	    if(flags & ERR_TXT_STRING)
-	    {
-		ostr << endl;
-		ostr << "data = " << data;
-	    }
-	}
-	else
-	{
-	    const char* reason = ERR_reason_error_string(err);
-	    ostr << (reason == NULL ? "unknown reason" : reason);
-	    if(flags & ERR_TXT_STRING)
-	    {
-		ostr << ": " << data;
-	    }
-	}
-
-	++count;
-    }
-
-    ERR_clear_error();
-
-    return ostr.str();
+    return getSslErrors(_securityTraceLevel >= 1);
 }
 
 void

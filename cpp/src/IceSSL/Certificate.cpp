@@ -8,11 +8,11 @@
 // **********************************************************************
 
 #include <IceSSL/Plugin.h>
+#include <Util.h>
 #include <IceUtil/StaticMutex.h>
 
 #include <openssl/x509v3.h>
 #include <openssl/pem.h>
-#include <openssl/err.h>
 
 using namespace std;
 using namespace Ice;
@@ -51,6 +51,7 @@ CertificateEncodingException::CertificateEncodingException(const char* file, int
     reason(r)
 {
 }
+
 const string
 CertificateEncodingException::ice_name() const
 {
@@ -75,27 +76,27 @@ ASMUtcTimeToIceUtilTime(const ASN1_UTCTIME* s)
     struct tm tm;
     int offset;
     
-    memset(&tm,'\0',sizeof tm);
+    memset(&tm, '\0', sizeof tm);
     
 #define g2(p) (((p)[0]-'0')*10+(p)[1]-'0')
-    tm.tm_year=g2(s->data);
+    tm.tm_year = g2(s->data);
     if(tm.tm_year < 50)
-	tm.tm_year+=100;
-    tm.tm_mon=g2(s->data+2)-1;
-    tm.tm_mday=g2(s->data+4);
-    tm.tm_hour=g2(s->data+6);
-    tm.tm_min=g2(s->data+8);
-    tm.tm_sec=g2(s->data+10);
+	tm.tm_year += 100;
+    tm.tm_mon = g2(s->data + 2) - 1;
+    tm.tm_mday = g2(s->data + 4);
+    tm.tm_hour = g2(s->data + 6);
+    tm.tm_min = g2(s->data + 8);
+    tm.tm_sec = g2(s->data + 10);
     if(s->data[12] == 'Z')
     {
-	offset=0;
+	offset = 0;
     }
     else
     {
-	offset=g2(s->data+13)*60+g2(s->data+15);
+	offset = g2(s->data + 13) * 60 + g2(s->data + 15);
 	if(s->data[12] == '-')
 	{
-	    offset= -offset;
+	    offset = -offset;
 	}
     }
 #undef g2
@@ -114,29 +115,6 @@ ASMUtcTimeToIceUtilTime(const ASN1_UTCTIME* s)
 	tzone = mktime(localtime(&now)) - mktime(gmtime(&now));
     }
     return IceUtil::Time::seconds(mktime(&tm) - offset*60 + tzone);
-}
-
-static string
-BIOErrorToString(BIO* u)
-{
-    string result;
-
-    unsigned long l;
-    const char *file,*data;
-    int line, flags;
-    
-    while ((l=ERR_get_error_line_data(&file,&line,&data,&flags)) != 0)
-    {
-	char buf[256];
-	ERR_error_string_n(l, buf, sizeof buf);
-
-	char buf2[4096];
-	BIO_snprintf(buf2, sizeof(buf2), "%s:%s:%d:%s\n", buf, file, line,
-		(flags & ERR_TXT_STRING) ? data : "");
-	
-	result += buf;
-    }
-    return result;
 }
 
 static vector<pair<int, string> >
@@ -214,7 +192,7 @@ convertGeneralNames(GENERAL_NAMES* gens)
 	{
 	    //
 	    // TODO: These types are not supported. If the user wants
-	    // them they have to get at the certificate data.  Another
+	    // them, they have to get at the certificate data. Another
 	    // alternative is to DER encode the data (as the Java
 	    // certificate does).
 	    //
@@ -252,8 +230,13 @@ Certificate::Certificate(X509* cert) :
     assert(_cert != 0);
 }
 
+Certificate::~Certificate()
+{
+    X509_free(_cert);
+}
+
 CertificatePtr
-Certificate::readPEMFile(const string& file)
+Certificate::load(const string& file)
 {
     BIO *cert = BIO_new(BIO_s_file());
     if(BIO_read_filename(cert, file.c_str()) <= 0)
@@ -265,32 +248,25 @@ Certificate::readPEMFile(const string& file)
     X509* x = PEM_read_bio_X509_AUX(cert, NULL, NULL, NULL);
     if(x == NULL)
     {
-	string result = BIOErrorToString(cert);
 	BIO_free(cert);
-	throw CertificateReadException(__FILE__, __LINE__, "error reading file: " + result);
+	throw CertificateReadException(__FILE__, __LINE__, "error reading file:\n" + getSslErrors(false));
     }
     BIO_free(cert);
     return new Certificate(x);
 }
 
 CertificatePtr
-Certificate::decodePEM(const string& encoding)
+Certificate::decode(const string& encoding)
 {
     BIO *cert = BIO_new_mem_buf((void*)&encoding[0], encoding.size());
     X509* x = PEM_read_bio_X509_AUX(cert, NULL, NULL, NULL);
     if(x == NULL)
     {
-	string result = BIOErrorToString(cert);
 	BIO_free(cert);
-	throw CertificateReadException(__FILE__, __LINE__, "error reading file: " + result);
+	throw CertificateReadException(__FILE__, __LINE__, "error decoding certificate:\n" + getSslErrors(false));
     }
     BIO_free(cert);
     return new Certificate(x);
-}
-
-Certificate::~Certificate()
-{
-    X509_free(_cert);
 }
 
 bool
@@ -298,6 +274,7 @@ Certificate::operator==(const Certificate& other) const
 {
     return X509_cmp(_cert, other._cert) == 0;
 }
+
 bool
 Certificate::operator!=(const Certificate& other) const
 {
@@ -317,15 +294,14 @@ Certificate::verify(const PublicKeyPtr& key) const
 }
 
 string
-Certificate::getPEMEncoding() const
+Certificate::encode() const
 {
     BIO* out = BIO_new(BIO_s_mem());
     int i = PEM_write_bio_X509_AUX(out, _cert);
     if(i <= 0)
     {
-	string result = BIOErrorToString(out);
 	BIO_free(out);
-	throw CertificateEncodingException(__FILE__, __LINE__, result);
+	throw CertificateEncodingException(__FILE__, __LINE__, getSslErrors(false));
     }
     BUF_MEM* p;
     BIO_get_mem_ptr(out, &p);
@@ -381,7 +357,6 @@ Certificate::getSerialNumber() const
 //{
 //}
 
-
 string
 Certificate::getIssuerDN() const
 {
@@ -409,7 +384,6 @@ Certificate::getSubjectDN() const
     return issuer;
 }
 
-
 vector<pair<int, string> >
 Certificate::getSubjectAlternativeNames()
 {
@@ -431,8 +405,8 @@ Certificate::toString() const
     os << "issuer: " + getIssuerDN() << "\n";
     os << "subject: " + getSubjectDN() << "\n";
     os << "notBefore: " + getNotBefore().toDateTime() << "\n";
-    os << "notAfter: " + getNotAfter().toDateTime() << "\n";
-    
+    os << "notAfter: " + getNotAfter().toDateTime();
+
     return os.str();
 }
 

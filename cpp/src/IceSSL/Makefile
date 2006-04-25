@@ -16,14 +16,14 @@ LIBNAME		= $(call mklibname,IceSSL)
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
 OBJS		= AcceptorI.o \
+		  Certificate.o \
 		  Context.o \
                   ConnectorI.o \
                   EndpointI.o \
                   Instance.o \
                   PluginI.o \
                   TransceiverI.o \
-                  Util.o \
-		  Certificate.o
+                  Util.o
 
 SRCS		= $(OBJS:.o=.cpp)
 

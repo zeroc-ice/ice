@@ -530,9 +530,8 @@ IceSSL::Context::verifyPeer(SSL* ssl, SOCKET fd, const string& address, bool inc
 	}
 
 	//
-	// Compare the peer's address against the dnsName and
-	// ipAddress values.  This is only relevant for an outgoing
-	// connection.
+	// Compare the peer's address against the dnsName and ipAddress values.
+	// This is only relevant for an outgoing connection.
 	//
 	if(!address.empty())
 	{
@@ -563,9 +562,8 @@ IceSSL::Context::verifyPeer(SSL* ssl, SOCKET fd, const string& address, bool inc
 	    }
 
 	    //
-	    // Log a message if the name comparison fails. If
-	    // CheckCertName is defined, we also raise an exception to
-	    // abort the connection. Don't log a message if
+	    // Log a message if the name comparison fails. If CheckCertName is defined,
+	    // we also raise an exception to abort the connection. Don't log a message if
 	    // CheckCertName is not defined and a verifier is present.
 	    //
 	    if(!certNameOK && (_checkCertName || (_instance->securityTraceLevel() >= 1 && !verifier)))
@@ -623,8 +621,7 @@ IceSSL::Context::verifyPeer(SSL* ssl, SOCKET fd, const string& address, bool inc
 	ConnectionInfo info = populateConnectionInfo(ssl, fd);
 	if(!verifier->verify(info))
 	{
-	    string msg = string(incoming ? "incoming" : "outgoing") +
-		" connection rejected by certificate verifier";
+	    string msg = string(incoming ? "incoming" : "outgoing") + " connection rejected by certificate verifier";
 	    if(_instance->securityTraceLevel() >= 1)
 	    {
 		_logger->trace(_instance->securityTraceCategory(), msg + "\n" +

@@ -254,15 +254,17 @@ ConnectionInvalidException::ConnectionInvalidException(const char* file, int lin
     reason(r)
 {
 }
+
 const string
 ConnectionInvalidException::ice_name() const
 {
     return _name;
 }
+
 Exception* 
 ConnectionInvalidException::ice_clone() const
 {
-    throw new ConnectionInvalidException(*this);
+    return new ConnectionInvalidException(*this);
 }
 
 void
@@ -289,7 +291,7 @@ IceSSL::getConnectionInfo(const ConnectionPtr& connection)
 	throw ConnectionInvalidException(__FILE__, __LINE__, "connection closed");
     }
 
-    IceSSL::TransceiverIPtr ssltransceiver = IceSSL::TransceiverIPtr::dynamicCast(con->getTransceiver());
+    TransceiverIPtr ssltransceiver = TransceiverIPtr::dynamicCast(con->getTransceiver());
     if(!ssltransceiver)
     {
 	throw ConnectionInvalidException(__FILE__, __LINE__, "not ssl connection");

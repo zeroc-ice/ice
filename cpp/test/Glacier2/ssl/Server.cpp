@@ -76,7 +76,7 @@ public:
 	    test(current.ctx.find("SSL.Local.Port")->second == "12348");
 	    try
 	    {
-		IceSSL::CertificatePtr cert = IceSSL::Certificate::decodePEM(current.ctx.find("SSL.PeerCert")->second);
+		IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(current.ctx.find("SSL.PeerCert")->second);
 		test(cert->getIssuerDN() ==
 		     "/C=US/ST=Florida/L=Palm Beach Gardens/O=ZeroC, Inc."
 		     "/OU=Ice/CN=ZeroC Test CA/emailAddress=info@zeroc.com");

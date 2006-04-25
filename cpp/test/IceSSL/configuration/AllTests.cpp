@@ -320,7 +320,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	try
 	{
 	    IceSSL::CertificatePtr clientCert =
-		IceSSL::Certificate::readPEMFile(defaultDir + "/c_rsa_nopass_ca1_pub.pem");
+		IceSSL::Certificate::load(defaultDir + "/c_rsa_nopass_ca1_pub.pem");
 	    server->checkCert(clientCert->getSubjectDN(), clientCert->getIssuerDN());
 
 	    //
@@ -330,13 +330,13 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	    // Validate some aspects of the Certificate class.
 	    //
 	    IceSSL::CertificatePtr serverCert =
-		IceSSL::Certificate::readPEMFile(defaultDir + "/s_rsa_nopass_ca1_pub.pem");
-	    test(IceSSL::Certificate::decodePEM(serverCert->getPEMEncoding()) == serverCert);
+		IceSSL::Certificate::load(defaultDir + "/s_rsa_nopass_ca1_pub.pem");
+	    test(IceSSL::Certificate::decode(serverCert->encode()) == serverCert);
 	    test(serverCert == serverCert);
 	    test(serverCert->checkValidity());
 	    test(!serverCert->checkValidity(IceUtil::Time::seconds(0)));
 
-	    IceSSL::CertificatePtr caCert = IceSSL::Certificate::readPEMFile(defaultDir + "/cacert1.pem");
+	    IceSSL::CertificatePtr caCert = IceSSL::Certificate::load(defaultDir + "/cacert1.pem");
 	    test(caCert == caCert);
 	    test(caCert->checkValidity());
 	    test(!caCert->checkValidity(IceUtil::Time::seconds(0)));
@@ -382,7 +382,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	try
 	{
 	    IceSSL::CertificatePtr clientCert =
-		IceSSL::Certificate::readPEMFile(defaultDir + "/c_rsa_nopass_ca1_pub.pem");
+		IceSSL::Certificate::load(defaultDir + "/c_rsa_nopass_ca1_pub.pem");
 	    server->checkCert(clientCert->getSubjectDN(), clientCert->getIssuerDN());
 	    IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(server->ice_connection());
 	}
@@ -650,7 +650,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	//
 	{
 	    IceSSL::CertificatePtr cert =
-		IceSSL::Certificate::readPEMFile(defaultDir + "/s_rsa_nopass_ca1_exp_pub.pem");
+		IceSSL::Certificate::load(defaultDir + "/s_rsa_nopass_ca1_exp_pub.pem");
 	    test(!cert->checkValidity());
 	}
 
@@ -697,7 +697,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	//
 	{
 	    IceSSL::CertificatePtr cert =
-		IceSSL::Certificate::readPEMFile(defaultDir + "/c_rsa_nopass_ca1_exp_pub.pem");
+		IceSSL::Certificate::load(defaultDir + "/c_rsa_nopass_ca1_exp_pub.pem");
 	    test(!cert->checkValidity());
 	}
 	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_exp_pub.pem");

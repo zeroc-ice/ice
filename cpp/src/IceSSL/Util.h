@@ -67,7 +67,15 @@ bool splitString(const std::string&, const std::string&, bool, std::vector<std::
 //
 bool checkPath(std::string&, const std::string&, bool);
 
+//
+// Create a ConnectionInfo value.
+//
 ConnectionInfo populateConnectionInfo(SSL*, SOCKET);
+
+//
+// Accumulate the OpenSSL error stack into a string.
+//
+std::string getSslErrors(bool);
 
 }
 
