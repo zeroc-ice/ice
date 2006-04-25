@@ -309,6 +309,13 @@ final class UdpEndpointI extends EndpointI
     public String
     _toString()
     {
+	//
+	// WARNING: Certain features, such as proxy validation in Glacier2,
+	// depend on the format of proxy strings. Changes to toString() and
+	// methods called to generate parts of the reference string could break
+	// these features. Please review for all features that depend on the
+	// format of proxyToString() before changing this and related code.
+	//
         String s = "udp";
 
 	if((int)_protocolMajor != 1 || (int)_protocolMinor != 0)

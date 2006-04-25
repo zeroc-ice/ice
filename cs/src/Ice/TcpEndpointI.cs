@@ -202,6 +202,13 @@ namespace IceInternal
 	//
 	public override string ice_toString_()
 	{
+	    //
+	    // WARNING: Certain features, such as proxy validation in Glacier2,
+	    // depend on the format of proxy strings. Changes to toString() and
+	    // methods called to generate parts of the reference string could break
+	    // these features. Please review for all features that depend on the
+	    // format of proxyToString() before changing this and related code.
+	    //
 	    string s = "tcp -h " + _host + " -p " + _port;
 	    if(_timeout != -1)
 	    {

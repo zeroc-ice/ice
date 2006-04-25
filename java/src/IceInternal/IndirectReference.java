@@ -157,6 +157,13 @@ public class IndirectReference extends RoutableReference
     public String
     toString()
     {
+	//
+	// WARNING: Certain features, such as proxy validation in Glacier2,
+	// depend on the format of proxy strings. Changes to toString() and
+	// methods called to generate parts of the reference string could break
+	// these features. Please review for all features that depend on the
+	// format of proxyToString() before changing this and related code.
+	//
         String result = super.toString();
 
 	if(_adapterId.length() == 0)

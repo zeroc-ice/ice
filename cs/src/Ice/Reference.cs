@@ -224,6 +224,13 @@ namespace IceInternal
 	//
 	public override string ToString()
 	{
+	    //
+	    // WARNING: Certain features, such as proxy validation in Glacier2,
+	    // depend on the format of proxy strings. Changes to toString() and
+	    // methods called to generate parts of the reference string could break
+	    // these features. Please review for all features that depend on the
+	    // format of proxyToString() before changing this and related code.
+	    //
 	    StringBuilder s = new StringBuilder();
 
 	    //
@@ -266,31 +273,31 @@ namespace IceInternal
 
 	    switch(mode_)
 	    {
-		case Mode.ModeTwoway:
+	    case Mode.ModeTwoway:
 		{
 		    s.Append(" -t");
 		    break;
 		}
 
-		case Mode.ModeOneway:
+	    case Mode.ModeOneway:
 		{
 		    s.Append(" -o");
 		    break;
 		}
 
-		case Mode.ModeBatchOneway:
+	    case Mode.ModeBatchOneway:
 		{
 		    s.Append(" -O");
 		    break;
 		}
 
-		case Mode.ModeDatagram:
+	    case Mode.ModeDatagram:
 		{
 		    s.Append(" -d");
 		    break;
 		}
 
-		case Mode.ModeBatchDatagram:
+	    case Mode.ModeBatchDatagram:
 		{
 		    s.Append(" -D");
 		    break;
@@ -1154,6 +1161,13 @@ namespace IceInternal
 
 	public override string ToString()
 	{
+	    //
+	    // WARNING: Certain features, such as proxy validation in Glacier2,
+	    // depend on the format of proxy strings. Changes to toString() and
+	    // methods called to generate parts of the reference string could break
+	    // these features. Please review for all features that depend on the
+	    // format of proxyToString() before changing this and related code.
+	    //
 	    StringBuilder s = new StringBuilder();
 	    s.Append(base.ToString());
 
@@ -1357,6 +1371,13 @@ namespace IceInternal
 
 	public override string ToString()
 	{
+	    //
+	    // WARNING: Certain features, such as proxy validation in Glacier2,
+	    // depend on the format of proxy strings. Changes to toString() and
+	    // methods called to generate parts of the reference string could break
+	    // these features. Please review for all features that depend on the
+	    // format of proxyToString() before changing this and related code.
+	    //
 	    string result = base.ToString();
 
 	    if(adapterId_.Length == 0)

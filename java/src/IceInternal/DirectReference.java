@@ -146,6 +146,13 @@ public class DirectReference extends RoutableReference
     public String
     toString()
     {
+	//
+	// WARNING: Certain features, such as proxy validation in Glacier2,
+	// depend on the format of proxy strings. Changes to toString() and
+	// methods called to generate parts of the reference string could break
+	// these features. Please review for all features that depend on the
+	// format of proxyToString() before changing this and related code.
+	//
 	StringBuffer s = new StringBuffer();
 	s.append(super.toString());
 

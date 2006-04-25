@@ -341,18 +341,25 @@ namespace IceInternal
 	//
 	public override string ice_toString_()
 	{
+	    //
+	    // WARNING: Certain features, such as proxy validation in Glacier2,
+	    // depend on the format of proxy strings. Changes to toString() and
+	    // methods called to generate parts of the reference string could break
+	    // these features. Please review for all features that depend on the
+	    // format of proxyToString() before changing this and related code.
+	    //
 	    string s = "udp";
 
 	    if((int)_protocolMajor != 1 || (int)_protocolMinor != 0)
 	    {
-	    	s += " -v " + (_protocolMajor < 0 ? (int)_protocolMajor + 255 : _protocolMajor);
-	    	s += "." + (_protocolMinor < 0 ? (int)_protocolMinor + 255 : _protocolMinor);
+		s += " -v " + (_protocolMajor < 0 ? (int)_protocolMajor + 255 : _protocolMajor);
+		s += "." + (_protocolMinor < 0 ? (int)_protocolMinor + 255 : _protocolMinor);
 	    }
 
 	    if((int)_encodingMajor != 1 || (int)_encodingMinor != 0)
 	    {
 		s += " -e " + (_encodingMajor < 0 ? (int)_encodingMajor + 255 : _encodingMajor);
-	    	s += "." + (_encodingMinor < 0 ? (int)_encodingMinor + 255 : _encodingMinor);
+		s += "." + (_encodingMinor < 0 ? (int)_encodingMinor + 255 : _encodingMinor);
 	    }
 
 	    s += " -h " + _host + " -p " + _port;
