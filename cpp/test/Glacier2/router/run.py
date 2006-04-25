@@ -26,6 +26,7 @@ command = router + TestUtil.clientServerOptions + \
           r' --Ice.Warn.Dispatch=0' + \
           r' --Glacier2.AllowCategories="c1 c2"' + \
           r' --Glacier2.AddUserToAllowCategories="2"' + \
+          r' --Glacier2.SessionTimeout="30"' + \
           r' --Glacier2.RouterIdentity="abc/def"' + \
           r' --Glacier2.AdminIdentity="ABC/DEF"' + \
           r' --Glacier2.Client.Endpoints="default -p 12347 -t 10000"' + \

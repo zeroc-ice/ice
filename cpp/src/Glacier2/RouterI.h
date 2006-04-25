@@ -38,6 +38,7 @@ public:
     virtual std::string getCategoryForClient(const Ice::Current&) const;
     virtual SessionPrx createSession(const std::string&, const std::string&, const Ice::Current&);
     virtual void destroySession(const ::Ice::Current&);
+    virtual Ice::Int getSessionTimeout(const ::Ice::Current&) const;
 
     ClientBlobjectPtr getClientBlobject() const;
     ServerBlobjectPtr getServerBlobject() const;

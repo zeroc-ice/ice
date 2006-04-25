@@ -417,6 +417,13 @@ CallbackClient::run(int argc, char* argv[])
 	communicator()->setDefaultRouter(router);
 	cout << "ok" << endl;
     }
+    {
+	cout << "getting the session timeout... " << flush;
+	Ice::Int timeout = router->getSessionTimeout();
+	test(timeout == 30);
+	cout << "ok" << endl;
+    }
+
 
     ObjectPrx base;
 

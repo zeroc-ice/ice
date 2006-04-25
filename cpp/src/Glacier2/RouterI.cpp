@@ -171,6 +171,13 @@ Glacier2::RouterI::destroySession(const Current&)
     assert(false); // Must not be called in this router implementation.
 }
 
+Ice::Int
+Glacier2::RouterI::getSessionTimeout(const Current&) const
+{
+    assert(false); // Must not be called in this router implementation.
+    return 0;
+}
+
 ClientBlobjectPtr
 Glacier2::RouterI::getClientBlobject() const
 {

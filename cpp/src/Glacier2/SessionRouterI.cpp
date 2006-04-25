@@ -599,6 +599,12 @@ Glacier2::SessionRouterI::destroySession(const ConnectionPtr& connection)
     }
 }
 
+Ice::Int
+Glacier2::SessionRouterI::getSessionTimeout(const Ice::Current&) const
+{
+    return _sessionTimeout.toSeconds();
+}
+
 RouterIPtr
 Glacier2::SessionRouterI::getRouter(const ConnectionPtr& connection, const Ice::Identity& id) const
 {
