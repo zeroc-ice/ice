@@ -65,7 +65,7 @@ class SessionManagerI : public Glacier2::SessionManager
 public:
 
     virtual Glacier2::SessionPrx
-    SessionManagerI::create(const string& userId, const Glacier2::SessionControlPrx&, const Ice::Current& current)
+    create(const string& userId, const Glacier2::SessionControlPrx&, const Ice::Current& current)
     {
 	if(userId == "ssl")
 	{
