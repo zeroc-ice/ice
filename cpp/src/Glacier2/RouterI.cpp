@@ -26,7 +26,8 @@ Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAd
     _connection(connection),
     _userId(userId),
     _session(session),
-    _controlId(controlId)
+    _controlId(controlId),
+    _timestamp(IceUtil::Time::now())
 {
     string allow = _communicator->getProperties()->getProperty("Glacier2.AllowCategories");
     StringSeq allowCategories;
@@ -143,7 +144,10 @@ Glacier2::RouterI::addProxy(const ObjectPrx& proxy, const Current& current)
 ObjectProxySeq
 Glacier2::RouterI::addProxies(const ObjectProxySeq& proxies, const Current& current)
 {
-    _clientBlobject->updateTimestamp();
+    IceUtil::Mutex::Lock lock(*this);
+
+    _timestamp = IceUtil::Time::now();
+
     return _routingTable->add(proxies, current);
 }
 
@@ -170,7 +174,10 @@ Glacier2::RouterI::destroySession(const Current&)
 ClientBlobjectPtr
 Glacier2::RouterI::getClientBlobject() const
 {
-    _clientBlobject->updateTimestamp();
+    IceUtil::Mutex::Lock lock(*this);
+
+    _timestamp = IceUtil::Time::now();
+
     return _clientBlobject;
 }
 
@@ -194,7 +201,16 @@ Glacier2::RouterI::getSession() const
 IceUtil::Time
 Glacier2::RouterI::getTimestamp() const
 {
-    return _clientBlobject->getTimestamp();
+    IceUtil::Mutex::TryLock lock(*this);
+
+    if(lock.acquired())
+    {
+        return _timestamp;
+    }
+    else
+    {
+        return IceUtil::Time::now();
+    }
 }
 
 string

@@ -252,7 +252,10 @@ Glacier2::RequestQueue::addRequest(const RequestPtr& request)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
     
-    assert(!_destroy);
+    if(_destroy)
+    {
+        throw ObjectNotExistException(__FILE__, __LINE__);
+    }
 
     for(vector<RequestPtr>::iterator p = _requests.begin(); p != _requests.end(); ++p)
     {

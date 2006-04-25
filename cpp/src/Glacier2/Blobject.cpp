@@ -55,7 +55,7 @@ Glacier2::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) 
 		IceUtil::Time::milliSeconds(_properties->getPropertyAsInt(serverSleepTime)) :
 		IceUtil::Time::milliSeconds(_properties->getPropertyAsInt(clientSleepTime));
 	    
-	    _requestQueue = new RequestQueue(sleepTime);
+	    const_cast<RequestQueuePtr&>(_requestQueue) = new RequestQueue(sleepTime);
 	    
 	    Int threadStackSize = _properties->getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
 	    
@@ -74,11 +74,7 @@ Glacier2::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) 
 		out << "cannot create thread for request queue:\n" << ex;
 	    }
 
-	    if(_requestQueue)
-	    {
-		_requestQueue->destroy();
-		_requestQueue = 0;
-	    }
+	    _requestQueue->destroy();
 	    
 	    throw;
 	}
@@ -87,17 +83,12 @@ Glacier2::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) 
 
 Glacier2::Blobject::~Blobject()
 {
-    assert(!_requestQueue);
 }
 
 void
 Glacier2::Blobject::destroy()
 {
-    if(_requestQueue)
-    {
-	_requestQueue->destroy();
-	_requestQueue = 0;
-    }
+    _requestQueue->destroy();
 }
 
 void
@@ -268,7 +259,16 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Array_Object_ice_invokePt
 	// AMI.
 	//
 
-	bool override = _requestQueue->addRequest(new Request(proxy, inParams, current, _forwardContext, amdCB));
+	bool override;
+	try
+	{
+	    override = _requestQueue->addRequest(new Request(proxy, inParams, current, _forwardContext, amdCB));
+	}
+	catch(const ObjectNotExistException& ex)
+	{
+	    amdCB->ice_exception(ex);
+	    return;
+	}
 
 	if(override && _overrideTraceLevel >= 1)
 	{

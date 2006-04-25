@@ -25,14 +25,12 @@ public:
     ServerBlobject(const Ice::CommunicatorPtr&, const Ice::ConnectionPtr&);
     virtual ~ServerBlobject();
 
-    virtual void destroy();
-
     virtual void ice_invoke_async(const Ice::AMD_Array_Object_ice_invokePtr&,
     				  const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&);
 
 private:
 
-    Ice::ConnectionPtr _connection;
+    const Ice::ConnectionPtr _connection;
 };
 
 }

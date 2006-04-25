@@ -16,7 +16,7 @@
 namespace Glacier2
 {
 
-class Blobject : public Ice::BlobjectArrayAsync, public IceUtil::Mutex
+class Blobject : public Ice::BlobjectArrayAsync
 {
 public:
     
@@ -42,7 +42,7 @@ private:
     const bool _alwaysBatch;
     const int _requestTraceLevel;
     const int _overrideTraceLevel;
-    RequestQueuePtr _requestQueue;
+    const RequestQueuePtr _requestQueue;
 };
 
 }
