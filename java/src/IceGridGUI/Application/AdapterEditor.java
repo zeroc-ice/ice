@@ -549,7 +549,7 @@ class AdapterEditor extends CommunicatorChildEditor
 	    Ice.Identity id = 
 		Ice.Util.stringToIdentity((String)entry.getKey());
 	    String type = (String)entry.getValue();
-	    result.add(new ObjectDescriptor(id, type));
+	    result.add(new ObjectDescriptor(id, type, false));
 	}
 	return result;
     }
