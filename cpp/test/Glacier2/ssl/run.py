@@ -24,7 +24,7 @@ name = os.path.join("Glacier2", "ssl")
 
 testdir = os.path.join(toplevel, "test", name)
 server = os.path.join(testdir, "server")
-command = server + TestUtil.clientServerOptions + " --Ice.Trace.Network=2"
+command = server + TestUtil.clientServerOptions
 
 print "starting server...",
 serverPipe = os.popen(command)
@@ -47,7 +47,7 @@ command = router + TestUtil.clientServerOptions + \
           r" --IceSSL.DefaultDir=" + os.path.join(toplevel, "certs") + \
           r' --IceSSL.CertFile=s_rsa1024_pub.pem' + \
           r' --IceSSL.KeyFile=s_rsa1024_priv.pem' + \
-          r' --IceSSL.CertAuthFile=cacert.pem' + ' --Ice.Trace.Network=2'
+          r' --IceSSL.CertAuthFile=cacert.pem'
 
 print "starting router...",
 starterPipe = os.popen(command)

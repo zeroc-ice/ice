@@ -14,7 +14,8 @@ include $(top_srcdir)/config/Make.rules
 SUBDIRS		= router \
 		  attack \
 		  regex \
-		  sessionControl
+		  sessionControl \
+		  ssl
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
