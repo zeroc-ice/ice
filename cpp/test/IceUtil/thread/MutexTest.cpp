@@ -123,7 +123,7 @@ MutexTest::run()
 	{
 	    test(lock.tryAcquire() == false);
 	}
-	catch(const IceUtil::ThreadLockedException& ex)
+	catch(const ThreadLockedException&)
 	{
 	}
 	lock2.release();
