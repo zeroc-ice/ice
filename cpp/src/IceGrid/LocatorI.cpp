@@ -10,6 +10,7 @@
 #include <Ice/Ice.h>
 #include <IceGrid/LocatorI.h>
 #include <IceGrid/Database.h>
+#include <IceGrid/SessionI.h>
 
 using namespace std;
 using namespace IceGrid;
@@ -149,6 +150,27 @@ private:
     const Ice::ObjectPrx _obj;
 };
 
+class GetObjectProxy : public ObjectAllocationRequest
+{
+public:
+
+    GetObjectProxy(const SessionIPtr& session, const Ice::AMD_Locator_findObjectByIdPtr& cb) :
+	ObjectAllocationRequest(session), _cb(cb)
+    {
+    }
+
+    virtual void
+    response(const Ice::ObjectPrx& proxy)
+    {
+	assert(_cb);
+	_cb->ice_response(proxy);
+	_cb = 0;
+    }
+
+private:
+
+    Ice::AMD_Locator_findObjectByIdPtr _cb;
+};
 }
 
 LocatorI::Request::Request(const Ice::AMD_Locator_findAdapterByIdPtr& amdCB, 
@@ -283,10 +305,12 @@ LocatorI::Request::sendResponse()
 
 LocatorI::LocatorI(const Ice::CommunicatorPtr& communicator, 
 		   const DatabasePtr& database, 
-		   const Ice::LocatorRegistryPrx& locatorRegistry) :
+		   const Ice::LocatorRegistryPrx& locatorRegistry,
+		   const SessionIPtr& session) :
     _communicator(communicator),
     _database(database),
-    _locatorRegistry(Ice::LocatorRegistryPrx::uncheckedCast(locatorRegistry->ice_collocationOptimization(false)))
+    _locatorRegistry(Ice::LocatorRegistryPrx::uncheckedCast(locatorRegistry->ice_collocationOptimization(false))),
+    _session(session)
 {
 }
 
@@ -302,6 +326,17 @@ LocatorI::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& cb,
     Ice::ObjectPrx proxy;
     try
     {
+	if(_session)
+	{
+	    try
+	    {
+		_database->allocateObject(id, new GetObjectProxy(_session, cb), false);
+		return;
+	    }
+	    catch(const AllocationException&)
+	    {
+	    }
+	}
 	proxy = _database->getObjectProxy(id);
     }
     catch(const ObjectNotRegisteredException&)

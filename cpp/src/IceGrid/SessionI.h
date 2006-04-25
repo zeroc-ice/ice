@@ -27,6 +27,9 @@ typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 class AllocationRequest;
 typedef IceUtil::Handle<AllocationRequest> AllocationRequestPtr;
 
+class WaitQueue;
+typedef IceUtil::Handle<WaitQueue> WaitQueuePtr;
+
 class SessionI;
 typedef IceUtil::Handle<SessionI> SessionIPtr;
 
@@ -61,21 +64,24 @@ public:
     virtual void setAllocationTimeout(int, const Ice::Current&);
     virtual void destroy(const Ice::Current&);
 
-    virtual IceUtil::Time timestamp() const;
-    virtual int getAllocationTimeout() const;
+    IceUtil::Time timestamp() const;
+    int getAllocationTimeout() const;
+    const WaitQueuePtr& getWaitQueue() const { return _waitQueue; }
 
     void addAllocationRequest(const AllocationRequestPtr&);
     void removeAllocationRequest(const AllocationRequestPtr&);
 
 protected:
 
-    SessionI(const std::string&, const std::string&, const DatabasePtr&, const Ice::ObjectAdapterPtr&, int);
+    SessionI(const std::string&, const std::string&, const DatabasePtr&, const Ice::ObjectAdapterPtr&,
+	     const WaitQueuePtr&, const Ice::LocatorRegistryPrx&, int);
 
     const std::string _userId;
     const std::string _prefix;
     const int _timeout;
     const TraceLevelsPtr _traceLevels;
     const DatabasePtr _database;
+    const WaitQueuePtr _waitQueue;
     IceGrid::QueryPrx _query;
     Ice::LocatorPrx _locator;
     bool _destroyed;
@@ -88,14 +94,16 @@ class ClientSessionI : public SessionI
 {
 public:
 
-    ClientSessionI(const std::string&, const DatabasePtr&, const Ice::ObjectAdapterPtr&, int);
+    ClientSessionI(const std::string&, const DatabasePtr&, const Ice::ObjectAdapterPtr&, const WaitQueuePtr&, 
+		   const Ice::LocatorRegistryPrx&, int);
 };
 
 class ClientSessionManagerI : virtual public SessionManager
 {
 public:
 
-    ClientSessionManagerI(const  DatabasePtr&, const ReapThreadPtr&, int);
+    ClientSessionManagerI(const  DatabasePtr&, const ReapThreadPtr&, const WaitQueuePtr&, 
+			  const Ice::LocatorRegistryPrx&, int);
     
     virtual Glacier2::SessionPrx create(const std::string&, const Glacier2::SessionControlPrx&, const Ice::Current&);
     virtual SessionPrx createLocalSession(const std::string&, const Ice::Current&);
@@ -104,7 +112,9 @@ private:
 
     const DatabasePtr _database;
     const ReapThreadPtr _reaper;
-    int _sessionTimeout;
+    const WaitQueuePtr _waitQueue;
+    const Ice::LocatorRegistryPrx _registry;
+    int _timeout;
 };
 
 };

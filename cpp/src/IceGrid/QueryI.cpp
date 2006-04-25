@@ -17,11 +17,14 @@ using namespace std;
 using namespace Ice;
 using namespace IceGrid;
 
+template<class T>
 class GetObjectProxy : public ObjectAllocationRequest
 {
+    typedef IceUtil::Handle<T> TPtr;
+
 public:
 
-    GetObjectProxy(const SessionIPtr& session, const AMD_Query_findObjectByIdPtr& cb) :
+    GetObjectProxy(const SessionIPtr& session, const TPtr& cb) :
 	ObjectAllocationRequest(session), _cb(cb)
     {
     }
@@ -36,8 +39,14 @@ public:
 
 private:
 
-    AMD_Query_findObjectByIdPtr _cb;
+    TPtr _cb;
 };
+
+template<class T> static GetObjectProxy<T>*
+newGetObjectProxy(const SessionIPtr& session, const IceUtil::Handle<T>& cb)
+{
+    return new GetObjectProxy<T>(session, cb);
+}
 
 QueryI::QueryI(const CommunicatorPtr& communicator, const DatabasePtr& database, const SessionIPtr& session) :
     _communicator(communicator),
@@ -57,12 +66,16 @@ QueryI::findObjectById_async(const AMD_Query_findObjectByIdPtr& cb, const Ice::I
     {
 	if(_session)
 	{
-	    _database->allocateObject(id, new GetObjectProxy(_session, cb), false);
+	    _database->allocateObject(id, newGetObjectProxy(_session, cb));
 	}
 	else
 	{
 	    cb->ice_response(_database->getObjectProxy(id));
 	}
+    }
+    catch(const AllocationException&)
+    {
+	cb->ice_response(0);
     }
     catch(const ObjectNotRegisteredException&)
     {
@@ -75,7 +88,18 @@ QueryI::findObjectByType_async(const AMD_Query_findObjectByTypePtr& cb, const st
 {
     try
     {
-	cb->ice_response(_database->getObjectByType(type));
+	if(_session)
+	{
+	    _database->allocateObjectByType(type, newGetObjectProxy(_session, cb));
+	}
+	else
+	{
+	    cb->ice_response(_database->getObjectByType(type));
+	}
+    }
+    catch(const AllocationException&)
+    {
+	cb->ice_response(0);
     }
     catch(const ObjectNotRegisteredException&)
     {
@@ -91,7 +115,18 @@ QueryI::findObjectByTypeOnLeastLoadedNode_async(const AMD_Query_findObjectByType
 {
     try
     {
-	cb->ice_response(_database->getObjectByTypeOnLeastLoadedNode(type, sample));
+	if(_session)
+	{
+	    _database->allocateObjectByTypeOnLeastLoadedNode(type, newGetObjectProxy(_session, cb), sample);
+	}
+	else
+	{
+	    cb->ice_response(_database->getObjectByTypeOnLeastLoadedNode(type, sample));
+	}
+    }
+    catch(const AllocationException&)
+    {
+	cb->ice_response(0);
     }
     catch(const ObjectNotRegisteredException&)
     {
@@ -106,7 +141,17 @@ QueryI::findAllObjectsByType_async(const AMD_Query_findAllObjectsByTypePtr& cb,
 {
     try
     {
-	cb->ice_response(_database->getObjectsByType(type));
+	if(_session)
+	{
+	    //
+	    // We don't allow allocating multiple objects.
+	    //
+	    cb->ice_response(Ice::ObjectProxySeq());
+	}
+	else
+	{
+	    cb->ice_response(_database->getObjectsByType(type));
+	}
     }
     catch(const ObjectNotRegisteredException&)
     {

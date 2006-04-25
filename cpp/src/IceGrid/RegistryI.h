@@ -22,6 +22,9 @@ typedef IceUtil::Handle<Database> DatabasePtr;
 class ReapThread;
 typedef IceUtil::Handle<ReapThread> ReapThreadPtr;    
 
+class WaitQueue;
+typedef IceUtil::Handle<WaitQueue> WaitQueuePtr;    
+
 class RegistryI : public Registry
 {
 public:
@@ -48,6 +51,7 @@ private:
     DatabasePtr _database;
     ReapThreadPtr _reaper;
     ReapThreadPtr _adminReaper;
+    WaitQueuePtr _waitQueue;
     int _nodeSessionTimeout;
 
     IceStorm::ServicePtr _iceStorm;

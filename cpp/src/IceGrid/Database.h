@@ -88,7 +88,9 @@ public:
     void removeObject(const Ice::Identity&);
     void updateObject(const Ice::ObjectPrx&);
 
-    void allocateObject(const Ice::Identity&, const ObjectAllocationRequestPtr&, bool);
+    void allocateObject(const Ice::Identity&, const ObjectAllocationRequestPtr&, bool = true);
+    void allocateObjectByType(const std::string&, const ObjectAllocationRequestPtr&);
+    void allocateObjectByTypeOnLeastLoadedNode(const std::string&, const ObjectAllocationRequestPtr&, LoadSample);
     void releaseObject(const Ice::Identity&, const SessionIPtr&);
 
     Ice::ObjectPrx getObjectProxy(const Ice::Identity&);
@@ -130,8 +132,8 @@ private:
     const TraceLevelsPtr _traceLevels;
 
     NodeCache _nodeCache;
-    ObjectCache _objectCache;
     AdapterCache _adapterCache;
+    ObjectCache _objectCache;
     ServerCache _serverCache;
 
     RegistryObserverPrx _registryObserver;

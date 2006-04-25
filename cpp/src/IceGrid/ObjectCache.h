@@ -15,6 +15,7 @@
 #include <Ice/CommunicatorF.h>
 #include <IceGrid/Cache.h>
 #include <IceGrid/Internal.h>
+#include <IceGrid/Query.h>
 #include <IceGrid/Allocatable.h>
 
 namespace IceGrid
@@ -38,32 +39,18 @@ public:
     const ObjectInfo& getObjectInfo() const;
 
     bool canRemove();
+
+    virtual bool release(const SessionIPtr&);
+    virtual void allocated();
+    virtual void released();
     
 private:
 
+    ObjectCache& _cache;
     std::string _application;
     ObjectInfo _info;
 };
 typedef IceUtil::Handle<ObjectEntry> ObjectEntryPtr;
-
-class ObjectCache : public Cache<Ice::Identity, ObjectEntry>
-{
-public:
-
-    ObjectCache(const Ice::CommunicatorPtr&);
-
-    void add(const std::string&, const std::string&, const std::string&, const ObjectDescriptor&);
-    ObjectEntryPtr get(const Ice::Identity&) const;
-    ObjectEntryPtr remove(const Ice::Identity&);
-
-    Ice::ObjectProxySeq getObjectsByType(const std::string&);
-    ObjectInfoSeq getAll(const std::string&);
-
-private:
-    
-    const Ice::CommunicatorPtr _communicator;
-    std::map<std::string, std::set<Ice::Identity> > _types;
-};
 
 class ObjectAllocationRequest : public AllocationRequest
 {
@@ -91,6 +78,58 @@ private:
     }
 };
 typedef IceUtil::Handle<ObjectAllocationRequest> ObjectAllocationRequestPtr;
+
+class AdapterCache;
+
+class ObjectCache : public Cache<Ice::Identity, ObjectEntry>
+{
+public:
+
+    ObjectCache(const Ice::CommunicatorPtr&, AdapterCache&);
+
+    void add(const std::string&, const std::string&, const std::string&, const ObjectDescriptor&);
+    ObjectEntryPtr get(const Ice::Identity&) const;
+    ObjectEntryPtr remove(const Ice::Identity&);
+
+    void allocateByType(const std::string&, const ObjectAllocationRequestPtr&);
+    void allocateByTypeOnLeastLoadedNode(const std::string&, const ObjectAllocationRequestPtr&, LoadSample);
+    void released(const ObjectEntryPtr&);
+
+    Ice::ObjectProxySeq getObjectsByType(const std::string&); 
+    ObjectInfoSeq getAll(const std::string&);
+
+private:
+    
+    class TypeEntry
+    {
+    public:
+
+	TypeEntry(ObjectCache&);
+
+
+	void add(const Ice::ObjectPrx&);
+	bool remove(const Ice::ObjectPrx&);
+	
+	void addAllocationRequest(const ObjectAllocationRequestPtr&);
+	void released(const ObjectEntryPtr&);
+
+	const Ice::ObjectProxySeq& getObjects() const { return _objects; }
+
+    private:
+	
+	ObjectCache& _cache;
+	Ice::ObjectProxySeq _objects;
+	std::list<ObjectAllocationRequestPtr> _requests;
+    };
+
+    const Ice::CommunicatorPtr _communicator;
+    AdapterCache& _adapterCache;
+
+    std::map<std::string, TypeEntry> _types;
+    std::map<std::string, std::vector<Ice::Identity> > _allocatablesByType;
+
+    static std::pointer_to_unary_function<int, int> _rand;
+};
 
 };
 

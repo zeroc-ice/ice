@@ -11,13 +11,14 @@
 #define ICE_GRID_WAIT_QUEUE_H
 
 #include <IceUtil/Thread.h>
+#include <IceUtil/Monitor.h>
 
 #include <list>
 
 namespace IceGrid
 {
 
-class WaitItem : public ::IceUtil::SimpleShared
+class WaitItem : virtual public IceUtil::Shared
 {
 public:
     

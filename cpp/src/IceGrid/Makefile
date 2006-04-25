@@ -48,7 +48,6 @@ NODE_OBJS	= NodeI.o \
 		  ServerI.o \
 		  ServerAdapterI.o \
 	          Activator.o \
-		  WaitQueue.o \
 		  PlatformInfo.o
 
 REGISTRY_OBJS   = RegistryI.o \
@@ -71,7 +70,8 @@ REGISTRY_OBJS   = RegistryI.o \
 		  SessionI.o \
 		  AdminSessionI.o \
 		  Topics.o \
-		  QueryI.o
+		  QueryI.o \
+		  WaitQueue.o
 
 NODE_SVR_OBJS 	= $(COMMON_OBJS) \
 		  $(NODE_OBJS) \

@@ -22,6 +22,9 @@ typedef IceUtil::Handle<Database> DatabasePtr;
 class LocatorI;
 typedef IceUtil::Handle<LocatorI> LocatorIPtr;
 
+class SessionI;
+typedef IceUtil::Handle<SessionI> SessionIPtr;
+
 class LocatorI : public Ice::Locator, public IceUtil::Mutex
 {
     class Request : public IceUtil::Mutex, public IceUtil::Shared
@@ -52,7 +55,7 @@ class LocatorI : public Ice::Locator, public IceUtil::Mutex
 
 public:
 
-    LocatorI(const Ice::CommunicatorPtr&, const DatabasePtr&, const Ice::LocatorRegistryPrx&);
+    LocatorI(const Ice::CommunicatorPtr&, const DatabasePtr&, const Ice::LocatorRegistryPrx&, const SessionIPtr&);
 
     virtual void findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr&, const Ice::Identity&, 
 				      const Ice::Current&) const;
@@ -73,6 +76,7 @@ protected:
     const Ice::CommunicatorPtr _communicator;
     const DatabasePtr _database;
     const Ice::LocatorRegistryPrx _locatorRegistry;
+    const SessionIPtr _session;
 
     typedef std::vector<RequestPtr> PendingRequests;
     typedef std::map<Ice::Identity, PendingRequests> PendingRequestsMap;

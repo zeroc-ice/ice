@@ -1055,6 +1055,9 @@ Parser::findObject(const list<string>& args)
 
     try
     {
+	//
+	// TODO: XXX: This only returns non allocatable objects.
+	//
 	Ice::ObjectProxySeq objects = _query->findAllObjectsByType(*(args.begin()));
 	for (Ice::ObjectProxySeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
 	{

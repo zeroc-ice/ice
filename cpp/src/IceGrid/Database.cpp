@@ -119,7 +119,7 @@ Database::Database(const Ice::ObjectAdapterPtr& adapter,
     _instanceName(instanceName),
     _traceLevels(traceLevels), 
     _nodeCache(nodeSessionTimeout),
-    _objectCache(_communicator),
+    _objectCache(_communicator, _adapterCache),
     _serverCache(_nodeCache, _adapterCache, _objectCache),
     _connection(Freeze::createConnection(adapter->getCommunicator(), envName)),
     _descriptors(_connection, _descriptorDbName),
@@ -951,40 +951,28 @@ Database::updateObject(const Ice::ObjectPrx& proxy)
 }
 
 void
-Database::allocateObject(const Ice::Identity& id, const ObjectAllocationRequestPtr& request, bool allocateOnce)
+Database::allocateObject(const Ice::Identity& id, const ObjectAllocationRequestPtr& request, bool once)
 {
-    try
-    {
-	_objectCache.get(id)->allocate(request, allocateOnce);
-	return;
-    }
-    catch(ObjectNotRegisteredException&)
-    {
-    }
+    _objectCache.get(id)->allocate(request, once);
+}
 
-    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
-    IdentityObjectInfoDict objects(connection, _objectDbName);
-    IdentityObjectInfoDict::const_iterator p = objects.find(id);
-    if(p == objects.end())
-    {
-	ObjectNotRegisteredException ex;
-	ex.id = id;
-	throw ex;
-    }
-    request->response(p->second.proxy);
+void
+Database::allocateObjectByType(const string& type, const ObjectAllocationRequestPtr& request)
+{
+    _objectCache.allocateByType(type, request);
+}
+
+void
+Database::allocateObjectByTypeOnLeastLoadedNode(const string& type, const ObjectAllocationRequestPtr& request, 
+						LoadSample sample)
+{
+    _objectCache.allocateByTypeOnLeastLoadedNode(type, request, sample);
 }
 
 void
 Database::releaseObject(const Ice::Identity& id, const SessionIPtr& session)
 {
-    try
-    {
-	_objectCache.get(id)->release(session);
-	return;
-    }
-    catch(ObjectNotRegisteredException&)
-    {
-    }
+    _objectCache.get(id)->release(session);
 }
 
 Ice::ObjectPrx

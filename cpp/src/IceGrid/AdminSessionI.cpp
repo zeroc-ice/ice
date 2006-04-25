@@ -17,10 +17,12 @@ using namespace IceGrid;
 AdminSessionI::AdminSessionI(const string& userId, 
 			     const DatabasePtr& database,
 			     const Ice::ObjectAdapterPtr& adapter,
+			     const WaitQueuePtr& waitQueue,
+			     const Ice::LocatorRegistryPrx& registry,
 			     RegistryObserverTopic& registryObserverTopic,
 			     NodeObserverTopic& nodeObserverTopic,
 			     int timeout) :
-    SessionI(userId, "admin", database, adapter, timeout),
+    SessionI(userId, "admin", database, adapter, waitQueue, registry, timeout),
     _updating(false),
     _registryObserverTopic(registryObserverTopic),
     _nodeObserverTopic(nodeObserverTopic)
@@ -252,12 +254,16 @@ AdminSessionManagerI::AdminSessionManagerI(RegistryObserverTopic& regTopic,
 					   NodeObserverTopic& nodeTopic,
 					   const DatabasePtr& database,
 					   const ReapThreadPtr& reaper,
+					   const WaitQueuePtr& waitQueue,
+					   const Ice::LocatorRegistryPrx& registry,
 					   int sessionTimeout) :
     _registryObserverTopic(regTopic),
     _nodeObserverTopic(nodeTopic), 
     _database(database), 
     _reaper(reaper),
-    _sessionTimeout(sessionTimeout)
+    _waitQueue(waitQueue),
+    _registry(registry),
+    _timeout(sessionTimeout)
 {
 }
 
@@ -268,16 +274,16 @@ AdminSessionManagerI::create(const string& userId, const Glacier2::SessionContro
     // We don't add the session to the reaper thread, Glacier2 takes
     // care of reaping the session.
     //
-    SessionIPtr session = new AdminSessionI(userId, _database, current.adapter, _registryObserverTopic, 
-					    _nodeObserverTopic, _sessionTimeout);
+    SessionIPtr session = new AdminSessionI(userId, _database, current.adapter, _waitQueue, _registry,
+					    _registryObserverTopic, _nodeObserverTopic, _timeout);
     return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
 }
 
 SessionPrx
 AdminSessionManagerI::createLocalSession(const string& userId, const Ice::Current& current)
 {
-    SessionIPtr session = new AdminSessionI(userId, _database, current.adapter, _registryObserverTopic, 
-					    _nodeObserverTopic, _sessionTimeout);
+    SessionIPtr session = new AdminSessionI(userId, _database, current.adapter, _waitQueue, _registry,
+					    _registryObserverTopic, _nodeObserverTopic, _timeout);
     SessionPrx proxy = SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
     _reaper->add(new SessionReapable(session, proxy));
     return proxy;

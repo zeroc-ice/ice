@@ -183,6 +183,12 @@ RegistryI::start(bool nowarn)
     }
 
     //
+    // Setup the wait queue (used for allocation request timeouts).
+    //
+    _waitQueue = new WaitQueue();
+    _waitQueue->start();
+
+    //
     // Get the instance name
     //
     const string instanceNameProperty = "IceGrid.InstanceName";
@@ -203,7 +209,7 @@ RegistryI::start(bool nowarn)
     ObjectPrx obj = serverAdapter->add(locatorRegistry, 
 				       stringToIdentity(instanceName + "/" + IceUtil::generateUUID()));
     LocatorRegistryPrx locatorRegistryPrx = LocatorRegistryPrx::uncheckedCast(obj);
-    ObjectPtr locator = new LocatorI(_communicator, _database, locatorRegistryPrx); 
+    ObjectPtr locator = new LocatorI(_communicator, _database, locatorRegistryPrx, 0); 
     Identity locatorId = stringToIdentity(instanceName + "/Locator");
     clientAdapter->add(locator, locatorId);
 
@@ -239,14 +245,16 @@ RegistryI::start(bool nowarn)
     ReapThreadPtr reaper = _adminReaper ? _adminReaper : _reaper; // TODO: XXX
 
     Identity sessionMgrId = stringToIdentity(instanceName + "/SessionManager");
-    ObjectPtr sessionMgr = new ClientSessionManagerI(_database, reaper, adminSessionTimeout); // TODO: XXX
+    ObjectPtr sessionMgr = new ClientSessionManagerI(_database, reaper, _waitQueue, locatorRegistryPrx, 
+						     adminSessionTimeout); // TODO: XXX
     clientAdapter->add(sessionMgr, sessionMgrId);
 
     Identity adminId = stringToIdentity(instanceName + "/Admin");
     adminAdapter->add(new AdminI(_database, this, traceLevels), adminId);
 
     Identity admSessionMgrId = stringToIdentity(instanceName + "/AdminSessionManager");
-    ObjectPtr admSessionMgr = new AdminSessionManagerI(*regTopic, *nodeTopic, _database, reaper, adminSessionTimeout);
+    ObjectPtr admSessionMgr = new AdminSessionManagerI(*regTopic, *nodeTopic, _database, reaper, _waitQueue, 
+						       locatorRegistryPrx, adminSessionTimeout);
     adminAdapter->add(admSessionMgr, admSessionMgrId);
 
     //
@@ -281,6 +289,9 @@ RegistryI::stop()
 	_adminReaper->getThreadControl().join();
 	_adminReaper = 0;
     }
+
+    _waitQueue->destroy();
+    _waitQueue = 0;
 
     _iceStorm->stop();
     _iceStorm = 0;

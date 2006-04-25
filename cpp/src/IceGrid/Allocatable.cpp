@@ -20,13 +20,28 @@ AllocationRequest::~AllocationRequest()
 bool
 AllocationRequest::setAllocatable(const AllocatablePtr& allocatable)
 {
+    assert(allocatable);
+
     Lock sync(*this);
-    assert(!_allocatable);
-    if(_canceled)
+    switch(_state)
     {
+    case Initial:
+	break;
+    case Canceled:
 	return false;
+    case Pending:
+	if(_timeout > 0)
+	{
+	    _session->getWaitQueue()->remove(this);
+	}
+	break;
+    case Allocated:
+	assert(false);
+	break;
     }
+
     _allocatable = allocatable;
+    _state = Allocated;
     allocated(_allocatable);
     return true;
 }
@@ -34,53 +49,83 @@ AllocationRequest::setAllocatable(const AllocatablePtr& allocatable)
 void 
 AllocationRequest::cancel() 
 {
-    Lock sync(*this);
-    if(_canceled)
-    {
-	return;
-    }
-    _canceled = true; 
-    canceled();
-}
-
-bool 
-AllocationRequest::checkTimeout(const IceUtil::Time& now) 
-{
-    assert(_timeout > 0);
+    AllocatablePtr allocatable;
     {
 	Lock sync(*this);
-	if(_canceled)
+	switch(_state)
 	{
-	    return true;
+	case Initial:
+	    assert(false);
+	case Canceled:
+	    return;
+	case Pending:
+	    if(_timeout > 0)
+	    {
+		_session->getWaitQueue()->remove(this);
+	    }
+	    canceled();
+	    break;
+	case Allocated:
+	    allocatable = _allocatable;
+	    break;
 	}
-	_canceled = _expiration < now;
-	if(!_canceled)
-	{
-	    return false;
-	}
-	timeout();
+	
+	_state = Canceled;
     }
-    _session->removeAllocationRequest(this);
-    return true;
+
+    if(allocatable)
+    {
+	try
+	{
+	    allocatable->release(_session);
+	}
+	catch(const AllocationException&)
+	{
+	    // Ignore, the allocatable might already have been released.
+	}
+    }
+}
+
+void
+AllocationRequest::expired(bool destroyed)
+{
+    Lock sync(*this);
+    switch(_state)
+    {
+    case Initial:
+	assert(false);
+    case Canceled:
+	return;
+    case Pending:
+	timeout();
+	break;
+    case Allocated:
+	return;
+    }
+    
+    _state = Canceled;
 }
 
 void
 AllocationRequest::allocate()
 {
     _session->addAllocationRequest(this);
+
+    Lock sync(*this);
+    assert(_allocatable || _state == Initial);
+    if(!_allocatable)
+    {
+	if(_timeout > 0)
+	{
+	    _session->getWaitQueue()->add(this, IceUtil::Time::milliSeconds(_timeout));
+	}
+	_state = Pending;
+    }
 }
 
 void 
-AllocationRequest::release(const SessionIPtr& session)
+AllocationRequest::release()
 {
-    //
-    // Check if the session releasing the object is indeed the session 
-    // which initiated the allocation request.
-    //
-    if(_session != session)
-    {
-	throw AllocationException("can't release object which is not allocated");
-    }
     _session->removeAllocationRequest(this);
 }
 
@@ -92,9 +137,8 @@ AllocationRequest::operator<(const AllocationRequest& r) const
 
 AllocationRequest::AllocationRequest(const SessionIPtr& session) :
     _session(session),
-    _timeout(_session->getAllocationTimeout()),
-    _expiration(_timeout > 0 ? (IceUtil::Time::now() + IceUtil::Time::milliSeconds(_timeout)) : IceUtil::Time()),
-    _canceled(false)
+    _timeout(_session->getAllocationTimeout()), // The session timeout can be updated so we need to cache it here.
+    _state(Initial)
 {
 }
 
@@ -107,7 +151,7 @@ Allocatable::~Allocatable()
 }
 
 void 
-Allocatable::allocate(const AllocationRequestPtr& request, bool allocateOnce)
+Allocatable::allocate(const AllocationRequestPtr& request, bool once)
 {
     IceUtil::Mutex::Lock sync(_allocateMutex);
     if(_allocatable)
@@ -116,11 +160,14 @@ Allocatable::allocate(const AllocationRequestPtr& request, bool allocateOnce)
 	{
 	    if(_allocated->getSession() == request->getSession())
 	    {
-		if(allocateOnce)
+		if(once)
 		{
 		    throw AllocationException("object already allocated by the session");
 		}
-		request->setAllocatable(this);
+		else
+		{
+		    request->setAllocatable(this);
+		}
 	    }
 	    else if(request->getTimeout())
 	    {
@@ -136,16 +183,12 @@ Allocatable::allocate(const AllocationRequestPtr& request, bool allocateOnce)
 	{
 	    _allocated = request;
 	    _allocated->allocate();
+	    allocated();
 	}
     }
     else
     {
-	if(allocateOnce)
-	{
-	    throw AllocationException("can't allocate non allocatable object");
-	}
-	bool rc = request->setAllocatable(this);
-	assert(rc);
+	throw AllocationException("can't allocate non allocatable object");
     }
 }
 
@@ -153,35 +196,60 @@ bool
 Allocatable::tryAllocate(const AllocationRequestPtr& request)
 {
     IceUtil::Mutex::Lock sync(_allocateMutex);
-    if(_allocatable && _allocated)
+    if(_allocatable)
+    {
+	if(_allocated)
+	{
+	    if(_allocated->getSession() == request->getSession())
+	    {
+		throw AllocationException("object already allocated by the session");
+	    }
+	    return false;
+	}
+	else if(request->setAllocatable(this))
+	{
+	    _allocated = request;
+	    _allocated->allocate();
+	    allocated();
+	}
+	return true; // The allocatable was allocated or the request was canceled.
+    }
+    else
     {
 	return false;
     }
-    else if(request->setAllocatable(this))
-    {
-	_allocated = request;
-	_allocated->allocate();
-    }
-    return true;
 }
 
-void
+bool
 Allocatable::release(const SessionIPtr& session)
 {
     IceUtil::Mutex::Lock sync(_allocateMutex);
-    if(!_allocated)
+    if(!_allocated || _allocated->getSession() != session)
     {
-	throw AllocationException("object not allocated");
+	throw AllocationException("can't release object which is not allocated");
     }
-    _allocated->release(session);
+    _allocated->release();
+
+    //
+    // Allocate the allocatable to another client.
+    //
     while(!_requests.empty())
     {
 	_allocated = _requests.front();
 	_requests.pop_front();
 	if(_allocated->setAllocatable(this))
 	{
-	    return;
+	    return false;
 	}
     }
+    released();
     _allocated = 0;
+    return true;
+}
+
+bool
+Allocatable::isAllocated() const
+{
+    IceUtil::Mutex::Lock sync(_allocateMutex);
+    return _allocated;
 }

@@ -14,7 +14,11 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Shared.h>
 #include <IceUtil/Time.h>
+
+#include <IceGrid/WaitQueue.h>
+
 #include <list>
+
 
 namespace IceGrid
 {
@@ -25,7 +29,7 @@ typedef IceUtil::Handle<SessionI> SessionIPtr;
 class Allocatable;
 typedef IceUtil::Handle<Allocatable> AllocatablePtr;
 
-class AllocationRequest : public IceUtil::Mutex, public IceUtil::Shared
+class AllocationRequest : public IceUtil::Mutex, public WaitItem
 {
 public:
 
@@ -36,10 +40,11 @@ public:
     virtual void canceled() = 0;
 
     bool setAllocatable(const AllocatablePtr&);
-    bool checkTimeout(const IceUtil::Time&);
     void cancel();
+    virtual void expired(bool);
+
     void allocate();
-    void release(const SessionIPtr&);
+    void release();
 
     int getTimeout() const { return _timeout; }
     const SessionIPtr& getSession() const { return _session; }
@@ -52,10 +57,17 @@ protected:
 
 private:
 
+    enum State
+    {
+	Initial,
+	Pending,
+	Canceled,
+	Allocated
+    };
+
     const SessionIPtr _session;
     const int _timeout;
-    const IceUtil::Time _expiration;
-    bool _canceled;
+    State _state;
     AllocatablePtr _allocatable;
 };
 typedef IceUtil::Handle<AllocationRequest> AllocationRequestPtr;
@@ -67,11 +79,15 @@ public:
     Allocatable(bool);
     virtual ~Allocatable();
 
-    void allocate(const AllocationRequestPtr&, bool);
-    bool tryAllocate(const AllocationRequestPtr&);
-    void release(const SessionIPtr&);
+    virtual void allocate(const AllocationRequestPtr&, bool);
+    virtual bool tryAllocate(const AllocationRequestPtr&);
+    virtual bool release(const SessionIPtr&);
 
     bool allocatable() const { return _allocatable; }
+    bool isAllocated() const;
+
+    virtual void allocated() {  }
+    virtual void released() {  }
 
 protected:
 
