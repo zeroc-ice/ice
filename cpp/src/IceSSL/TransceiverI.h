@@ -16,7 +16,7 @@
 #include <Ice/Transceiver.h>
 #include <IceSSL/Plugin.h>
 
-//#include <openssl/ssl.h>
+typedef struct ssl_st SSL;
 
 namespace IceSSL
 {
