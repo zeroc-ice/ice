@@ -118,10 +118,6 @@ SOURCE=.\ConnectorI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Context.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\EndpointI.cpp
 # End Source File
 # Begin Source File
@@ -151,10 +147,6 @@ SOURCE=.\AcceptorI.h
 # Begin Source File
 
 SOURCE=.\ConnectorI.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\Context.h
 # End Source File
 # Begin Source File
 
