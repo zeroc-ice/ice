@@ -1238,6 +1238,18 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	return _desc; // No mutex lock, _desc is immutable.
     }
 
+    //
+    // Only used by the SSL plug-in.
+    //
+    // The external party has to synchronize the connection, since the
+    // connection is the object that protects the transceiver.
+    //
+    public IceInternal.Transceiver
+    getTransceiver()
+    {
+	return _transceiver;
+    }
+
     public ConnectionI(IceInternal.Instance instance, IceInternal.Transceiver transceiver, 
 		       IceInternal.EndpointI endpoint, ObjectAdapter adapter)
     {

@@ -19,9 +19,42 @@ class CertificateVerifierI implements IceSSL.CertificateVerifier
     }
 
     public boolean
-    verify(IceSSL.VerifyInfo info)
+    verify(IceSSL.ConnectionInfo info)
     {
-	_incoming = info.incoming;
+	if(info.certs != null)
+	{
+	    try
+	    {
+		java.util.Collection subjectAltNames =
+		    ((java.security.cert.X509Certificate)info.certs[0]).getSubjectAlternativeNames();
+		test(subjectAltNames != null);
+		java.util.ArrayList ipAddresses = new java.util.ArrayList();
+		java.util.ArrayList dnsNames = new java.util.ArrayList();
+		java.util.Iterator i = subjectAltNames.iterator();
+		while(i.hasNext())
+		{
+		    java.util.List l = (java.util.List)i.next();
+		    test(!l.isEmpty());
+		    Integer n = (Integer)l.get(0);
+		    if(n.intValue() == 7)
+		    {
+			ipAddresses.add((String)l.get(1));
+		    }
+		    else if(n.intValue() == 2)
+		    {
+			dnsNames.add((String)l.get(1));
+		    }
+		}
+
+		test(dnsNames.contains("server"));
+		test(ipAddresses.contains("127.0.0.1"));
+	    }
+	    catch(java.security.cert.CertificateParsingException ex)
+	    {
+		test(false);
+	    }
+	}
+
 	_hadCert = info.certs != null;
 	_invoked = true;
 	return _returnValue;
@@ -32,7 +65,6 @@ class CertificateVerifierI implements IceSSL.CertificateVerifier
     {
 	_returnValue = true;
        	_invoked = false;
-	_incoming = false;
 	_hadCert = false;
     }
 
@@ -49,20 +81,22 @@ class CertificateVerifierI implements IceSSL.CertificateVerifier
     }
 
     boolean
-    incoming()
-    {
-	return _incoming;
-    }
-
-    boolean
     hadCert()
     {
 	return _hadCert;
     }
 
+    private static void
+    test(boolean b)
+    {
+	if(!b)
+	{
+	    throw new RuntimeException();
+	}
+    }
+
     private boolean _returnValue;
     private boolean _invoked;
-    private boolean _incoming;
     private boolean _hadCert;
 }
 
@@ -190,9 +224,21 @@ public class AllTests
 	    Test.ServerPrx server = fact.createServer(d);
 	    try
 	    {
-		server.ice_ping();
+		server.noCert();
 	    }
 	    catch(Ice.LocalException ex)
+	    {
+		test(false);
+	    }
+	    //
+	    // Validate that we can get the connection info.
+	    //
+	    try
+	    {
+		IceSSL.ConnectionInfo info = IceSSL.Util.getConnectionInfo(server.ice_connection());
+		test(info.certs.length == 2);
+	    }
+	    catch(IceSSL.ConnectionInvalidException ex)
 	    {
 		test(false);
 	    }
@@ -216,7 +262,7 @@ public class AllTests
 	    server = fact.createServer(d);
 	    try
 	    {
-		server.ice_ping();
+		server.noCert();
 	    }
 	    catch(Ice.LocalException ex)
 	    {
@@ -306,9 +352,31 @@ public class AllTests
 	    server = fact.createServer(d);
 	    try
 	    {
-		server.ice_ping();
+		char[] password = "password".toCharArray();
+
+		java.io.FileInputStream fis = new java.io.FileInputStream(defaultDir + "/c_rsa_ca1.jks");
+		java.security.KeyStore clientKeystore = java.security.KeyStore.getInstance("JKS");
+		clientKeystore.load(fis, password);
+		java.security.cert.X509Certificate clientCert =
+		    (java.security.cert.X509Certificate)clientKeystore.getCertificate("cert");
+		server.checkCert(clientCert.getSubjectDN().toString(), clientCert.getIssuerDN().toString());
+
+		fis = new java.io.FileInputStream(defaultDir + "/s_rsa_ca1.jks");
+		java.security.KeyStore serverKeystore = java.security.KeyStore.getInstance("JKS");
+		serverKeystore.load(fis, password);
+		java.security.cert.X509Certificate serverCert =
+		    (java.security.cert.X509Certificate)serverKeystore.getCertificate("cert");
+		java.security.cert.X509Certificate caCert =
+		    (java.security.cert.X509Certificate)serverKeystore.getCertificate("cacert");
+
+		IceSSL.ConnectionInfo info = IceSSL.Util.getConnectionInfo(server.ice_connection());
+
+		test(info.certs.length == 2);
+
+		test(caCert.equals(info.certs[1]));
+		test(serverCert.equals(info.certs[0]));
 	    }
-	    catch(Ice.LocalException ex)
+	    catch(Exception ex)
 	    {
 		test(false);
 	    }
@@ -326,9 +394,16 @@ public class AllTests
 	    server = fact.createServer(d);
 	    try
 	    {
-		server.ice_ping();
+		char[] password = "password".toCharArray();
+
+		java.io.FileInputStream fis = new java.io.FileInputStream(defaultDir + "/c_rsa_ca1.jks");
+		java.security.KeyStore clientKeystore = java.security.KeyStore.getInstance("JKS");
+		clientKeystore.load(fis, password);
+		java.security.cert.X509Certificate clientCert =
+		    (java.security.cert.X509Certificate)clientKeystore.getCertificate("cert");
+		server.checkCert(clientCert.getSubjectDN().toString(), clientCert.getIssuerDN().toString());
 	    }
-	    catch(Ice.LocalException ex)
+	    catch(Exception ex)
 	    {
 		test(false);
 	    }
@@ -438,14 +513,16 @@ public class AllTests
 	    Test.ServerPrx server = fact.createServer(d);
 	    try
 	    {
-		server.ice_ping();
+		String cipherSub = "DH_anon";
+		server.checkCipher(cipherSub);
+		IceSSL.ConnectionInfo info = IceSSL.Util.getConnectionInfo(server.ice_connection());
+		test(info.cipher.indexOf(cipherSub) >= 0);
 	    }
 	    catch(Ice.LocalException ex)
 	    {
 		test(false);
 	    }
 	    test(verifier.invoked());
-	    test(!verifier.incoming());
 	    test(!verifier.hadCert());
 
 	    //
@@ -469,7 +546,6 @@ public class AllTests
 		test(false);
 	    }
 	    test(verifier.invoked());
-	    test(!verifier.incoming());
 	    test(!verifier.hadCert());
 
 	    fact.destroyServer(server);
@@ -508,7 +584,6 @@ public class AllTests
 		test(false);
 	    }
 	    test(verifier.invoked());
-	    test(!verifier.incoming());
 	    test(verifier.hadCert());
 	    fact.destroyServer(server);
 	    comm.destroy();
