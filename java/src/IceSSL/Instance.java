@@ -18,7 +18,9 @@ class Instance
 	_securityTraceCategory = "Security";
 
 	// 
-	// Register the endpoint factory.
+	// Register the endpoint factory. We have to do this now, rather than
+	// in initialize, because the communicator may need to interpret
+	// proxies before the plugin is fully initialized.
 	//
 	_facade.addEndpointFactory(new EndpointFactoryI(this));
     }
