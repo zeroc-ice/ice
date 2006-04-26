@@ -18,14 +18,26 @@ class PluginI extends Ice.LocalObjectImpl implements Plugin
     }
 
     public void
+    initialize()
+    {
+	_instance.initialize();
+    }
+
+    public void
     destroy()
     {
     }
 
     public void
-    initialize(javax.net.ssl.SSLContext context)
+    setContext(javax.net.ssl.SSLContext context)
     {
-	_instance.initialize(context);
+	_instance.setContext(context);
+    }
+
+    public javax.net.ssl.SSLContext
+    getContext()
+    {
+	return _instance.getContext();
     }
 
     public void

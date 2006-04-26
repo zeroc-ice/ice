@@ -654,25 +654,37 @@ Ice.Plugin.<replaceable>name</replaceable>=<replaceable>entry_point [args]</repl
 Defines a plugin to be installed during communicator initialization.
 </para>
 <para>
-In C++, <replaceable>entry_point</replaceable> has the form
+<variablelist><title>Platform Notes</title>
+<varlistentry><term>C++</term>
+<listitem>
+<para>
+The value of <replaceable>entry_point</replaceable> has the form
 <literal>basename[,version]:function</literal>. The <literal>basename</literal>
 and optional <literal>version</literal> components are used to construct
 the name of a DLL or shared library. If no version is supplied, the &Ice; version
 is used. The <literal>function</literal> component is the name of a function with
-C linkage. For example, the entry point <literal>MyPlugin,2.3:create</literal>
-would imply a shared library name of <literal>libMyPlugin.so.2.3</literal>
-on Unix and <literal>MyPlugin23.dll</literal> on Windows. Furthermore,
+C linkage. For example, the entry point <literal>MyPlugin,3.1:create</literal>
+would imply a shared library name of <literal>libMyPlugin.so.3.1</literal>
+on Unix and <literal>MyPlugin31.dll</literal> on Windows. Furthermore,
 if &Ice; is built on Windows with debugging, a <literal>d</literal> is
-automatically appended to the version (e.g., <literal>MyPlugin23d.dll</literal>).
+automatically appended to the version (e.g., <literal>MyPlugin31d.dll</literal>).
 </para>
+</listitem>
+</varlistentry>
+<varlistentry><term>Java</term>
+<listitem>
 <para>
-In Java, <replaceable>entry_point</replaceable> is the name of a class that
+The value of <replaceable>entry_point</replaceable> is the name of a class that
 must implement the <literal>Ice.PluginFactory</literal> interface. Any
 arguments that follow the class name are passed to the <literal>create</literal>
 method.
 </para>
+</listitem>
+</varlistentry>
+<varlistentry><term>.NET</term>
+<listitem>
 <para>
-In C# and Visual Basic, <replaceable>entry_point</replaceable> has the form
+The value of <replaceable>entry_point</replaceable> has the form
 <literal>assembly:class</literal>. The assembly can be the full assembly
 name, such as <literal>myplugin, Version=0.0.0.0, Culture=neutral</literal>,
 or an assembly DLL name such as <literal>myplugin.dll</literal>. The specified
@@ -680,10 +692,14 @@ class must implement the <literal>Ice.PluginFactory</literal> interface. Any
 arguments that follow the class name are passed to the <literal>create</literal>
 method.
 </para>
+</listitem>
+</varlistentry>
+</variablelist>
+</para>
 </section>
 </section>
 
-<section><title>Ice.PluginLoadOrder</title>
+<section id="Ice.PluginLoadOrder"><title>Ice.PluginLoadOrder</title>
 <section><title>Synopsis</title>
 <synopsis>
 Ice.PluginLoadOrder=<replaceable>names</replaceable>
@@ -698,6 +714,28 @@ loads the plugins in the order they appear in
 by a comma or whitespace. Any plugins not mentioned in
 <replaceable>names</replaceable> are loaded afterward, in an undefined
 order.
+</para>
+</section>
+</section>
+
+<section id="Ice.InitPlugins"><title>Ice.InitPlugins</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.InitPlugins=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is a value greater than zero, the
+Ice run time automatically initializes the plugins it has loaded.
+The order in which plugins are loaded and initialized is determined
+by <link linkend="Ice.PluginLoadOrder">Ice.PluginLoadOrder</link>.
+An application may need to set this property to zero in order to
+interact directly with a plugin after it has been loaded but before
+it is initialized. In this case, the application must invoke
+<literal>initializePlugins</literal> on the plugin manager to complete
+the initialization process. If not defined, the default value is 1.
 </para>
 </section>
 </section>
@@ -1753,25 +1791,6 @@ IceSSL.DefaultDir=<replaceable>path</replaceable>
 Specifies the default directory in which to look for certificate, key, and
 keystore files. See the descriptions of the relevant properties for more
 information.
-</para>
-</section>
-</section>
-
-<section id="IceSSL.DelayInit"><title>IceSSL.DelayInit</title>
-<section><title>Synopsis</title>
-<synopsis>
-IceSSL.DelayInit=<replaceable>num</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-If <replaceable>num</replaceable> is a value greater than zero, IceSSL
-delays its initialization and waits for the application to indicate
-when initialization should proceed. This provides the application with
-an opportunity to install callbacks or perform other pre-initialization
-steps, such as prompting the user for a password. See the Ice manual
-for more information.
 </para>
 </section>
 </section>

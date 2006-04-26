@@ -11,7 +11,56 @@ package Ice;
 
 public final class PluginManagerI extends LocalObjectImpl implements PluginManager
 {
-    private static String _kindOfObject = "plug-in";
+    private static String _kindOfObject = "plugin";
+
+    public synchronized void
+    initializePlugins()
+    {
+	if(_initialized)
+	{
+	    InitializationException ex = new InitializationException();
+	    ex.reason = "plugins already initialized";
+	    throw ex;
+	}
+
+	//
+	// Invoke initialize() on the plugins, in the order they were loaded.
+	//
+	java.util.ArrayList initializedPlugins = new java.util.ArrayList();
+	try
+	{
+	    java.util.Iterator i = _initOrder.iterator();
+	    while(i.hasNext())
+	    {
+		Plugin p = (Plugin)i.next();
+		p.initialize();
+		initializedPlugins.add(p);
+	    }
+	}
+	catch(RuntimeException ex)
+	{
+	    //
+	    // Destroy the plugins that have been successfully initialized, in the
+	    // reverse order.
+	    //
+	    java.util.ListIterator i = initializedPlugins.listIterator(initializedPlugins.size());
+	    while(i.hasPrevious())
+	    {
+		Plugin p = (Plugin)i.previous();
+		try
+		{
+		    p.destroy();
+		}
+		catch(RuntimeException e)
+		{
+		    // Ignore.
+		}
+	    }
+	    throw ex;
+	}
+
+	_initialized = true;
+    }
 
     public synchronized Plugin
     getPlugin(String name)
@@ -70,6 +119,7 @@ public final class PluginManagerI extends LocalObjectImpl implements PluginManag
     PluginManagerI(Communicator communicator)
     {
         _communicator = communicator;
+	_initialized = false;
     }
 
     public void
@@ -132,6 +182,16 @@ public final class PluginManagerI extends LocalObjectImpl implements PluginManag
             String value = (String)entry.getValue();
             loadPlugin(name, value, cmdArgs);
         }
+
+	//
+	// An application can set Ice.InitPlugins=0 if it wants to postpone
+	// initialization until after it has interacted directly with the
+	// plugins.
+	//
+	if(properties.getPropertyAsIntWithDefault("Ice.InitPlugins", 1) > 0)
+	{
+	    initializePlugins();
+	}
     }
 
     private void
@@ -243,8 +303,11 @@ public final class PluginManagerI extends LocalObjectImpl implements PluginManag
 	}
 
         _plugins.put(name, plugin);
+	_initOrder.add(plugin);
     }
 
     private Communicator _communicator;
     private java.util.HashMap _plugins = new java.util.HashMap();
+    private java.util.ArrayList _initOrder = new java.util.ArrayList();
+    private boolean _initialized;
 }

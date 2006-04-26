@@ -145,7 +145,7 @@ public class AllTests
 	    {
 	    	Ice.InitializationData initData = new Ice.InitializationData();
 		initData.properties = createClientProps(testDir, defaultHost);
-		initData.properties.setProperty("IceSSL.DelayInit", "1");
+		initData.properties.setProperty("Ice.InitPlugins", "0");
 		Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 		Ice.ObjectPrx p = comm.stringToProxy("dummy:ssl -p 9999");
 		try
@@ -166,13 +166,12 @@ public class AllTests
 	    {
 	    	Ice.InitializationData initData = new Ice.InitializationData();
 		initData.properties = createClientProps(testDir, defaultHost);
-		initData.properties.setProperty("IceSSL.DelayInit", "1");
+		initData.properties.setProperty("Ice.InitPlugins", "0");
 		initData.properties.setProperty("IceSSL.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
 		initData.properties.setProperty("IceSSL.Password", "password");
 		Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
-		IceSSL.Plugin plugin = (IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
-		test(plugin != null);
-		plugin.initialize(null);
+		Ice.PluginManager pm = comm.getPluginManager();
+		pm.initializePlugins();
 		Ice.ObjectPrx obj = comm.stringToProxy(factoryRef);
 		test(obj != null);
 		Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(obj);
@@ -202,11 +201,13 @@ public class AllTests
 		coll.Add(cert);
 	    	Ice.InitializationData initData = new Ice.InitializationData();
 		initData.properties = createClientProps(testDir, defaultHost);
-		initData.properties.setProperty("IceSSL.DelayInit", "1");
+		initData.properties.setProperty("Ice.InitPlugins", "0");
 		Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
-		IceSSL.Plugin plugin = (IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
+		Ice.PluginManager pm = comm.getPluginManager();
+		IceSSL.Plugin plugin = (IceSSL.Plugin)pm.getPlugin("IceSSL");
 		test(plugin != null);
-		plugin.initialize(coll);
+		plugin.setCertificates(coll);
+		pm.initializePlugins();
 		Ice.ObjectPrx obj = comm.stringToProxy(factoryRef);
 		test(obj != null);
 		Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(obj);

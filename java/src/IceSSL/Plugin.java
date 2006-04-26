@@ -11,14 +11,22 @@ package IceSSL;
 
 public interface Plugin extends Ice.Plugin
 {
+    //
+    // Establish the SSL context. This must be done before the
+    // plugin is initialized, therefore the application must define
+    // the property Ice.InitPlugins=0, set the context, and finally
+    // invoke initializePlugins on the PluginManager.
+    //
+    // When the application supplies its own SSL context, the
+    // plugin skips its normal property-based configuration.
     // 
-    // Manually initialize the plugin. The application must set the property
-    // IceSSL.DelayInit=1 in order to use this method.
+    void setContext(javax.net.ssl.SSLContext context);
+
     //
-    // It is legal to pass null as the argument, in which case the plugin
-    // obtains its configuration via properties.
+    // Obtain the SSL context. Use caution when modifying this value.
+    // Changes made to this value have no effect on existing connections.
     //
-    void initialize(javax.net.ssl.SSLContext context);
+    javax.net.ssl.SSLContext getContext();
 
     // 
     // Establish the certificate verifier object. This should be

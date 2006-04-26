@@ -25,6 +25,7 @@ class PluginManagerI : public PluginManager, public IceUtil::Mutex
 {
 public:
 
+    virtual void initializePlugins();
     virtual PluginPtr getPlugin(const std::string&);
     virtual void addPlugin(const std::string&, const PluginPtr&);
     virtual void destroy();
@@ -41,6 +42,8 @@ private:
     IceInternal::DynamicLibraryListPtr _libraries;
 
     std::map<std::string, PluginPtr> _plugins;
+    std::vector<PluginPtr> _initOrder;
+    bool _initialized;
     static const char * const _kindOfObject;
 };
 

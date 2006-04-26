@@ -18,34 +18,24 @@ class Instance
 	_securityTraceCategory = "Security";
 
 	// 
-	// Initialize the plugin, unless IceSSL.DelayInit=1.
-	//
-	if(communicator.getProperties().getPropertyAsInt("IceSSL.DelayInit") == 0)
-	{   
-	    initialize(null);
-	}
-
-	// 
 	// Register the endpoint factory.
 	//
 	_facade.addEndpointFactory(new EndpointFactoryI(this));
     }
 
     void
-    initialize(javax.net.ssl.SSLContext context)
+    initialize()
     {
 	if(_context != null)
 	{   
-	    Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-	    e.reason = "plugin is already initialized";
-	    throw e;
+	    return;
 	}
 
 	//
 	// If we have to initialize an SSLContext, we'll need a SecureRandom object.
 	//
 	java.security.SecureRandom rand = null;
-	if(context == null)
+	if(_ctx == null)
 	{
 	    try
 	    {
@@ -71,7 +61,7 @@ class Instance
 	//
 	try
 	{
-	    _context = new Context(this, context, rand);
+	    _context = new Context(this, _ctx, rand);
 	}
 	catch(java.security.GeneralSecurityException ex)
 	{
@@ -80,6 +70,25 @@ class Instance
 	    e.initCause(ex);
 	    throw e;
 	}
+    }
+
+    void
+    setContext(javax.net.ssl.SSLContext context)
+    {
+	if(_context != null)
+	{
+	    Ice.PluginInitializationException ex = new Ice.PluginInitializationException();
+	    ex.reason = "IceSSL: plugin is already initialized";
+	    throw ex;
+	}
+
+	_ctx = context;
+    }
+
+    javax.net.ssl.SSLContext
+    getContext()
+    {
+	return _ctx;
     }
 
     void
@@ -147,4 +156,5 @@ class Instance
     private String _securityTraceCategory;
     private Context _context;
     private CertificateVerifier _verifier;
+    private javax.net.ssl.SSLContext _ctx;
 }

@@ -19,9 +19,54 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-const char * const Ice::PluginManagerI::_kindOfObject = "plug-in";
+const char * const Ice::PluginManagerI::_kindOfObject = "plugin";
 
 typedef Ice::Plugin* (*PLUGIN_FACTORY)(const CommunicatorPtr&, const string&, const StringSeq&);
+
+void
+Ice::PluginManagerI::initializePlugins()
+{
+    if(_initialized)
+    {
+	InitializationException ex(__FILE__, __LINE__);
+	ex.reason = "plugins already initialized";
+	throw ex;
+    }
+
+    //
+    // Invoke initialize() on the plugins, in the order they were loaded.
+    //
+    vector<PluginPtr> initializedPlugins;
+    try
+    {
+	for(vector<PluginPtr>::iterator p = _initOrder.begin(); p != _initOrder.end(); ++p)
+	{
+	    (*p)->initialize();
+	    initializedPlugins.push_back(*p);
+	}
+    }
+    catch(...)
+    {
+	//
+	// Destroy the plugins that have been successfully initialized, in the
+	// reverse order.
+	//
+	for(vector<PluginPtr>::reverse_iterator p = initializedPlugins.rbegin(); p != initializedPlugins.rend(); ++p)
+	{
+	    try
+	    {
+		(*p)->destroy();
+	    }
+	    catch(...)
+	    {
+		// Ignore.
+	    }
+	}
+	throw;
+    }
+
+    _initialized = true;
+}
 
 PluginPtr
 Ice::PluginManagerI::getPlugin(const string& name)
@@ -88,7 +133,8 @@ Ice::PluginManagerI::destroy()
 
 Ice::PluginManagerI::PluginManagerI(const CommunicatorPtr& communicator, const DynamicLibraryListPtr& libraries) :
     _communicator(communicator),
-    _libraries(libraries)
+    _libraries(libraries),
+    _initialized(false)
 {
 }
 
@@ -169,6 +215,16 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
     }
 
     stringSeqToArgs(cmdArgs, argc, argv);
+
+    //
+    // An application can set Ice.InitPlugins=0 if it wants to postpone
+    // initialization until after it has interacted directly with the
+    // plugins.
+    //
+    if(properties->getPropertyAsIntWithDefault("Ice.InitPlugins", 1) > 0)
+    {
+	initializePlugins();
+    }
 }
 
 void
@@ -253,4 +309,5 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
 
     _libraries->add(library);
     _plugins[name] = plugin;
+    _initOrder.push_back(plugin);
 }

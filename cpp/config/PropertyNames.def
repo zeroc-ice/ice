@@ -126,6 +126,7 @@ Ice:
     Default.Protocol
     Default.Router
     GC.Interval
+    InitPlugins
     Logger.Timestamp
     MessageSizeMax
     MonitorConnections
@@ -294,13 +295,10 @@ IceSSL:
     CertAuthDir
     CertAuthFile
     CertFile
-    Certs
-    CertsPassword
     CheckCertName
     CheckCRL
     Ciphers
     DefaultDir
-    DelayInit
     DH.<any>
     EntropyDaemon
     ImportCert.<any>.<any>

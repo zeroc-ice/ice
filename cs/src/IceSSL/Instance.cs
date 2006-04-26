@@ -61,18 +61,26 @@ namespace IceSSL
 	    facade_.addEndpointFactory(new EndpointFactoryI(this));
 	}
 
-	internal void initialize(X509Certificate2Collection certs)
+	internal void initialize()
+	{
+	    if(context_ != null)
+	    {
+		return;
+	    }
+
+	    context_ = new Context(this, certs_);
+	}
+
+	internal void setCertificates(X509Certificate2Collection certs)
 	{
 	    if(context_ != null)
 	    {
 		Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-		e.reason = "plugin is already initialized";
+		e.reason = "IceSSL: plugin is already initialized";
 		throw e;
 	    }
-	    else
-	    {
-		context_ = new Context(this, certs);
-	    }
+
+	    certs_ = certs;
 	}
 
 	internal void setCertificateVerifier(CertificateVerifier verifier)
@@ -382,5 +390,6 @@ namespace IceSSL
 	private Context context_;
 	private CertificateVerifier verifier_;
 	private string defaultDir_;
+	private X509Certificate2Collection certs_;
     }
 }

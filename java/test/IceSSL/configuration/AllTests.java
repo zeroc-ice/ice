@@ -122,7 +122,7 @@ public class AllTests
 	System.out.flush();
 	{
 	    Ice.InitializationData initData = createClientProps(testDir, defaultHost);
-	    initData.properties.setProperty("IceSSL.DelayInit", "1");
+	    initData.properties.setProperty("Ice.InitPlugins", "0");
 	    Ice.Communicator comm = Ice.Util.initialize(args, initData);
 	    Ice.ObjectPrx p = comm.stringToProxy("dummy:ssl -p 9999");
 	    try
@@ -142,13 +142,12 @@ public class AllTests
 	}
 	{
 	    Ice.InitializationData initData = createClientProps(testDir, defaultHost);
-	    initData.properties.setProperty("IceSSL.DelayInit", "1");
+	    initData.properties.setProperty("Ice.InitPlugins", "0");
 	    initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*)");
 	    initData.properties.setProperty("IceSSL.VerifyPeer", "0");
 	    Ice.Communicator comm = Ice.Util.initialize(args, initData);
-	    IceSSL.Plugin plugin = (IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
-	    test(plugin != null);
-	    plugin.initialize(null);
+	    Ice.PluginManager pm = comm.getPluginManager();
+	    pm.initializePlugins();
 	    Ice.ObjectPrx obj = comm.stringToProxy(factoryRef);
 	    test(obj != null);
 	    Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(obj);

@@ -7,10 +7,10 @@
 //
 // **********************************************************************
 
-using System.Security.Cryptography.X509Certificates;
-
 namespace IceSSL
 {
+    using System.Security.Cryptography.X509Certificates;
+
     //
     // VerifyInfo contains information that may be of use to a
     // CertificateVerifier implementation.
@@ -68,13 +68,16 @@ namespace IceSSL
     abstract public class Plugin : Ice.LocalObjectImpl, Ice.Plugin
     {
 	//
-	// Manually initialize the plugin. The application must set the property
-	// IceSSL.DelayInit=1 in order to use this method.
+	// Specify the certificates to use for SSL connections. This
+	// must be done before the plugin is initialized, therefore
+	// the application must define the property Ice.InitPlugins=0,
+	// set the certificates, and finally invoke initializePlugins
+	// on the PluginManager.
 	//
-	// It is legal to pass null as either argument, in which case the plugin
-	// obtains its certificates as directed by configuration properties.
+	// When the application supplies its own certificates, the
+	// plugin skips its normal property-based configuration.
 	//
-	abstract public void initialize(X509Certificate2Collection certs);
+	abstract public void setCertificates(X509Certificate2Collection certs);
 
 	//
 	// Establish the certificate verifier object. This should be

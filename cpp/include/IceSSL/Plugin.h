@@ -339,13 +339,21 @@ class Plugin : public Ice::Plugin
 public:
 
     //
-    // Initialize the IceSSL plugin. An application may supply its own
-    // SSL_CTX objects to configure the SSL contexts for client
-    // (outgoing) and server (incoming) connections. If an argument is
-    // nonzero, the plugin skips its normal property-based
-    // configuration.
+    // Establish the OpenSSL context. This must be done before the
+    // plugin is initialized, therefore the application must define
+    // the property Ice.InitPlugins=0, set the context, and finally
+    // invoke initializePlugins on the PluginManager.
+    //
+    // When the application supplies its own OpenSSL context, the
+    // plugin skips its normal property-based configuration.
     // 
-    virtual void initialize(SSL_CTX* context = 0) = 0;
+    virtual void setContext(SSL_CTX*) = 0;
+
+    //
+    // Obtain the SSL context. Use caution when modifying this value.
+    // Changes made to this value have no effect on existing connections.
+    //
+    virtual SSL_CTX* getContext() = 0;
 
     //
     // Establish the certificate verifier object. This should be done
@@ -358,12 +366,6 @@ public:
     // the plugin is initialized.
     //
     virtual void setPasswordPrompt(const PasswordPromptPtr&) = 0;
-
-    //
-    // Obtain the SSL context. If you need to customize the context,
-    // you should do it before any SSL connections are established.
-    //
-    virtual SSL_CTX* context() = 0;
 };
 typedef IceUtil::Handle<Plugin> PluginPtr;
 

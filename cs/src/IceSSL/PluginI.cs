@@ -34,14 +34,19 @@ namespace IceSSL
 	    instance_ = new Instance(communicator);
 	}
 
+	public override void initialize()
+	{
+	    instance_.initialize();
+	}
+
 	public override void
 	destroy()
 	{
 	}
 
-	public override void initialize(X509Certificate2Collection certs)
+	public override void setCertificates(X509Certificate2Collection certs)
 	{
-	    instance_.initialize(certs);
+	    instance_.setCertificates(certs);
 	}
 
 	public override void setCertificateVerifier(CertificateVerifier verifier)

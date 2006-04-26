@@ -18,9 +18,20 @@ module Ice
  * A communicator plugin. A plugin generally adds a feature to a
  * communicator, such as support for a protocol.
  *
+ * The communicator loads its plugins in two stages: the first stage
+ * creates the plugins, and the second stage invokes [initialize] on
+ * each one.
+ *
  **/
 local interface Plugin
 {
+    /**
+     *
+     * Perform any necessary initialization steps.
+     *
+     **/
+    void initialize();
+
     /**
      *
      * Called when the communicator is being destroyed.
@@ -37,6 +48,21 @@ local interface Plugin
  **/
 local interface PluginManager
 {
+    /**
+     *
+     * Initialize the configured plugins. The communicator automatically initializes
+     * the plugins by default, but an application may need to interact directly with
+     * a plugin prior to initialization. In this case, the application must set
+     * <literal>Ice.InitPlugins=0</literal> and then invoke [initializePlugins]
+     * manually. The plugins are initialized in the order in which they are loaded.
+     * If a plugin raises an exception during initialization, the communicator
+     * invokes destroy on the plugins that have already been initialized.
+     *
+     * @throws InitializationException Raised if the plugins have already been initialized.
+     *
+     **/
+    void initializePlugins();
+
     /**
      *
      * Obtain a plugin by name.

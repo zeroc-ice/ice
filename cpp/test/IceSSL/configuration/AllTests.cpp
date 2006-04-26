@@ -157,7 +157,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
     {
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);
-	initData.properties->setProperty("IceSSL.DelayInit", "1");
+	initData.properties->setProperty("Ice.InitPlugins", "0");
 	CommunicatorPtr comm = initialize(argc, argv, initData);
 	ObjectPrx p = comm->stringToProxy("dummy:ssl -p 9999");
 	try
@@ -178,13 +178,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
     {
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);
-	initData.properties->setProperty("IceSSL.DelayInit", "1");
+	initData.properties->setProperty("Ice.InitPlugins", "0");
 	initData.properties->setProperty("IceSSL.Ciphers", "ADH");
 	initData.properties->setProperty("IceSSL.VerifyPeer", "0");
 	CommunicatorPtr comm = initialize(argc, argv, initData);
-	IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
-	test(plugin);
-	plugin->initialize();
+	PluginManagerPtr pm = comm->getPluginManager();
+	pm->initializePlugins();
 	ObjectPrx obj = comm->stringToProxy(factoryRef);
 	test(obj);
 	Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(obj);
@@ -486,8 +485,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.Ciphers", "ADH");
 	initData.properties->setProperty("IceSSL.VerifyPeer", "0");
 	CommunicatorPtr comm = initialize(argc, argv, initData);
-	IceSSL::PluginPtr plugin =
-	    IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
+	IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
 	test(plugin);
 	CertificateVerifierIPtr verifier = new CertificateVerifierI;
 	plugin->setCertificateVerifier(verifier);
@@ -550,8 +548,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
 	initData.properties->setProperty("IceSSL.VerifyPeer", "0");
 	CommunicatorPtr comm = initialize(argc, argv, initData);
-	IceSSL::PluginPtr plugin =
-	    IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
+	IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
 	test(plugin);
 	CertificateVerifierIPtr verifier = new CertificateVerifierI;
 	plugin->setCertificateVerifier(verifier);
@@ -779,14 +776,14 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.DefaultDir", defaultDir);
 	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_pass_ca1_pub.pem");
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_pass_ca1_priv.pem");
-	initData.properties->setProperty("IceSSL.DelayInit", "1");
+	initData.properties->setProperty("Ice.InitPlugins", "0");
 	CommunicatorPtr comm = initialize(argc, argv, initData);
-	IceSSL::PluginPtr plugin =
-	    IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
+	PluginManagerPtr pm = comm->getPluginManager();
+	IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(pm->getPlugin("IceSSL"));
 	test(plugin);
 	PasswordPromptIPtr prompt = new PasswordPromptI("client");
 	plugin->setPasswordPrompt(prompt);
-	plugin->initialize();
+	pm->initializePlugins();
 	test(prompt->count() == 1);
 	Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
@@ -815,15 +812,16 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_pass_ca1_pub.pem");
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_pass_ca1_priv.pem");
 	initData.properties->setProperty("IceSSL.PasswordRetryMax", "4");
-	initData.properties->setProperty("IceSSL.DelayInit", "1");
+	initData.properties->setProperty("Ice.InitPlugins", "0");
 	comm = initialize(argc, argv, initData);
-	plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
+	pm = comm->getPluginManager();
+	plugin = IceSSL::PluginPtr::dynamicCast(pm->getPlugin("IceSSL"));
 	test(plugin);
 	prompt = new PasswordPromptI("invalid");
 	plugin->setPasswordPrompt(prompt);
 	try
 	{
-	    plugin->initialize();
+	    pm->initializePlugins();
 	}
 	catch(const PluginInitializationException&)
 	{

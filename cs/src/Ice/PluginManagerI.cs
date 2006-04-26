@@ -9,7 +9,6 @@
 
 namespace Ice
 {
-	
     using System.Collections;
     using System.Diagnostics;
 
@@ -20,7 +19,52 @@ namespace Ice
 
     public sealed class PluginManagerI : LocalObjectImpl, PluginManager
     {
-	private static string _kindOfObject = "plug-in";
+	private static string _kindOfObject = "plugin";
+
+	public void initializePlugins()
+	{
+	    if(_initialized)
+	    {
+		InitializationException ex = new InitializationException();
+		ex.reason = "plugins already initialized";
+		throw ex;
+	    }
+
+	    //
+	    // Invoke initialize() on the plugins, in the order they were loaded.
+	    //
+	    ArrayList initializedPlugins = new ArrayList();
+	    try
+	    {
+		foreach(Plugin p in _initOrder)
+		{
+		    p.initialize();
+		    initializedPlugins.Add(p);
+		}
+	    }
+	    catch(Exception)
+	    {
+		//
+		// Destroy the plugins that have been successfully initialized, in the
+		// reverse order.
+		//
+		initializedPlugins.Reverse();
+		foreach(Plugin p in initializedPlugins)
+		{
+		    try
+		    {
+			p.destroy();
+		    }
+		    catch(Exception)
+		    {
+			// Ignore.
+		    }
+		}
+		throw;
+	    }
+
+	    _initialized = true;
+	}
 
 	public Plugin getPlugin(string name)
 	{
@@ -83,6 +127,8 @@ namespace Ice
 	{
 	    _communicator = communicator;
 	    _plugins = new Hashtable();
+	    _initOrder = new ArrayList();
+	    _initialized = false;
 	}
 
 	public void loadPlugins(ref string[] cmdArgs)
@@ -152,6 +198,16 @@ namespace Ice
 		string name = ((string)entry.Key).Substring(prefix.Length);
 		string val = (string)entry.Value;
 		loadPlugin(name, val, ref cmdArgs);
+	    }
+
+	    //      
+	    // An application can set Ice.InitPlugins=0 if it wants to postpone
+	    // initialization until after it has interacted directly with the
+	    // plugins.
+	    //      
+	    if(properties.getPropertyAsIntWithDefault("Ice.InitPlugins", 1) > 0)
+	    {           
+		initializePlugins();
 	    }
 	}
 	
@@ -298,10 +354,13 @@ namespace Ice
 	    }
 
 	    _plugins[name] = plugin;
+	    _initOrder.Add(plugin);
 	}
 	
 	private Communicator _communicator;
 	private Hashtable _plugins;
+	private ArrayList _initOrder;
+	private bool _initialized;
     }
 
 }
