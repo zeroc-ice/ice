@@ -30,20 +30,6 @@ final class TcpTransceiver implements Transceiver
 	synchronized(this)
 	{
 	    assert(_fd != null);
-	    try
-	    {
-		_fd.close();
-	    }
-	    catch(java.io.IOException ex)
-	    {
-		Ice.SocketException se = new Ice.SocketException();
-		se.initCause(ex);
-		throw se;
-	    }
-	    finally
-	    {
-	        _fd = null;
-	    }
 	    if(_readSelector != null)
 	    {
 		try
@@ -67,6 +53,20 @@ final class TcpTransceiver implements Transceiver
 		    // Ignore.
 		}
 		_writeSelector = null;
+	    }
+	    try
+	    {
+		_fd.close();
+	    }
+	    catch(java.io.IOException ex)
+	    {
+		Ice.SocketException se = new Ice.SocketException();
+		se.initCause(ex);
+		throw se;
+	    }
+	    finally
+	    {
+	        _fd = null;
 	    }
 	}
     }
