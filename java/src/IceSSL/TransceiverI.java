@@ -309,6 +309,16 @@ final class TransceiverI implements IceInternal.Transceiver
 	return _desc;
     }
 
+    ConnectionInfo
+    getConnectionInfo()
+    {
+	//
+	// This can only be called on an open transceiver.
+	//
+	assert(_fd != null);
+	return Util.populateConnectionInfo(_fd);
+    }
+
     //
     // Only for use by ConnectorI, AcceptorI
     //

@@ -9,15 +9,22 @@
 
 package IceSSL;
 
-//
-// An application can customize the certificate verification process
-// by implementing the CertificateVerifier interface.
-//
-public interface CertificateVerifier
+public final class ConnectionInvalidException extends Ice.LocalException
 {
-    //
-    // Return false if the connection should be rejected, or true to
-    // allow it.
-    // 
-    boolean verify(ConnectionInfo info);
+    public ConnectionInvalidException()
+    {
+    }
+
+    public ConnectionInvalidException(String reason)
+    {
+	this.reason = reason;
+    }
+
+    public String
+    ice_name()
+    {
+	return "Ice::ConnectionInvalidException";
+    }
+
+    public String reason;
 }

@@ -424,18 +424,7 @@ class Instance
 	CertificateVerifier verifier = _verifier;
 	if(verifier != null)
 	{
-	    VerifyInfo info = new VerifyInfo();
-	    info.incoming = incoming;
-	    try
-	    {
-		info.certs = fd.getSession().getPeerCertificates();
-	    }
-	    catch(javax.net.ssl.SSLPeerUnverifiedException ex)
-	    {
-		// No peer certificates.
-	    }
-	    info.socket = fd;
-	    info.address = host;
+	    ConnectionInfo info = Util.populateConnectionInfo(fd);
 	    if(!verifier.verify(info))
 	    {
 		if(_securityTraceLevel > 0)
