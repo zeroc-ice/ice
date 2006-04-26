@@ -359,12 +359,15 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
 	os << ntohs(info.localAddr.sin_port);
 	ctx["SSL.Local.Port"] = os.str();
 	ctx["SSL.Local.Host"] = IceInternal::inetAddrToString(info.localAddr.sin_addr);
-	try
+	if(!info.certs.empty())
 	{
-	    ctx["SSL.PeerCert"] = info.certs[0]->encode();
-	}
-	catch(const IceSSL::CertificateEncodingException&)
-	{
+	    try
+	    {
+		ctx["SSL.PeerCert"] = info.certs[0]->encode();
+	    }
+	    catch(const IceSSL::CertificateEncodingException&)
+	    {
+	    }
 	}
     }
     catch(const IceSSL::ConnectionInvalidException&)
