@@ -68,6 +68,11 @@ namespace IceSSL
     abstract public class Plugin : Ice.LocalObjectImpl, Ice.Plugin
     {
 	//
+	// From Ice.Plugin.
+	//
+	abstract public void initialize();
+
+	//
 	// Specify the certificates to use for SSL connections. This
 	// must be done before the plugin is initialized, therefore
 	// the application must define the property Ice.InitPlugins=0,

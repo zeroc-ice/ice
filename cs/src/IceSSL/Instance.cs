@@ -45,18 +45,9 @@ namespace IceSSL
 	    }
 
 	    //
-	    // Create the context.
-	    //
-	    // If IceSSL.DelayInit=1, postpone the creation of the context until
-	    // the application manually initializes the plugin.
-	    //
-	    if(properties.getPropertyAsInt("IceSSL.DelayInit") == 0)
-	    {
-		context_ = new Context(this, null);
-	    }
-
-	    //
-	    // Register the endpoint factory.
+	    // Register the endpoint factory. We have to do this now, rather than
+	    // in initialize, because the communicator may need to interpret
+	    // proxies before the plugin is fully initialized.
 	    //
 	    facade_.addEndpointFactory(new EndpointFactoryI(this));
 	}
