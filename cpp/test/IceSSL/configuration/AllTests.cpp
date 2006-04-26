@@ -383,7 +383,6 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	    IceSSL::CertificatePtr clientCert =
 		IceSSL::Certificate::load(defaultDir + "/c_rsa_nopass_ca1_pub.pem");
 	    server->checkCert(clientCert->getSubjectDN(), clientCert->getIssuerDN());
-	    IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(server->ice_connection());
 	}
 	catch(const LocalException&)
 	{
