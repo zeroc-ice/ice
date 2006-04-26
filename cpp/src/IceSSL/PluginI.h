@@ -24,13 +24,19 @@ public:
 
     PluginI(const Ice::CommunicatorPtr&);
 
+    //
+    // From Ice::Plugin.
+    //
+    virtual void initialize();
     virtual void destroy();
 
-    virtual void initialize(SSL_CTX* = 0);
+    //
+    // From IceSSL::Plugin.
+    //
+    virtual void setContext(SSL_CTX*);
+    virtual SSL_CTX* getContext();
     virtual void setCertificateVerifier(const CertificateVerifierPtr&);
     virtual void setPasswordPrompt(const PasswordPromptPtr&);
-
-    virtual SSL_CTX* context();
 
 private:
 

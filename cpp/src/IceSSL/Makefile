@@ -17,7 +17,6 @@ TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(li
 
 OBJS		= AcceptorI.o \
 		  Certificate.o \
-		  Context.o \
                   ConnectorI.o \
                   EndpointI.o \
                   Instance.o \

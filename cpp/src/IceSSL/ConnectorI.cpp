@@ -16,7 +16,7 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/Network.h>
 
-#include <openssl/err.h>
+//#include <openssl/err.h>
 
 using namespace std;
 using namespace Ice;
@@ -26,9 +26,14 @@ IceInternal::TransceiverPtr
 IceSSL::ConnectorI::connect(int timeout)
 {
     //
-    // The plugin may not be fully initialized.
+    // The plugin may not be initialized.
     //
-    ContextPtr ctx = _instance->context();
+    if(!_instance->context())
+    {
+	PluginInitializationException ex(__FILE__, __LINE__);
+	ex.reason = "IceSSL: plugin is not initialized";
+	throw ex;
+    }
 
     if(_instance->networkTraceLevel() >= 2)
     {
@@ -49,7 +54,7 @@ IceSSL::ConnectorI::connect(int timeout)
 	throw ex;
     }
 
-    SSL* ssl = SSL_new(ctx->ctx());
+    SSL* ssl = SSL_new(_instance->context());
     if(!ssl)
     {
 	BIO_free(bio); // Also closes the socket.
@@ -145,7 +150,7 @@ IceSSL::ConnectorI::connect(int timeout)
 	}
 	while(!SSL_is_init_finished(ssl));
 
-	_instance->context()->verifyPeer(ssl, fd, _host, false);
+	_instance->verifyPeer(ssl, fd, _host, false);
     }
     catch(...)
     {
@@ -161,7 +166,7 @@ IceSSL::ConnectorI::connect(int timeout)
 
     if(_instance->securityTraceLevel() >= 1)
     {
-	_instance->context()->traceConnection(ssl, false);
+	_instance->traceConnection(ssl, false);
     }
 
     return new TransceiverI(_instance, ssl, fd);

@@ -9,6 +9,7 @@
 
 #include <PluginI.h>
 #include <Instance.h>
+#include <TransceiverI.h>
 #include <Util.h>
 #include <Ice/BuiltinSequences.h>
 #include <Ice/Communicator.h>
@@ -18,7 +19,6 @@
 #include <IceUtil/StaticMutex.h>
 
 #include <Ice/ConnectionI.h> // For implementation of getConnectionInfo.
-#include <IceSSL/TransceiverI.h> // For implementation of getConnectionInfo.
 
 #include <openssl/crypto.h>
 #include <openssl/err.h>
@@ -99,6 +99,12 @@ IceSSL::PluginI::PluginI(const Ice::CommunicatorPtr& communicator)
 }
 
 void
+IceSSL::PluginI::initialize()
+{
+    _instance->initialize();
+}
+
+void
 IceSSL::PluginI::destroy()
 {
     _instance->destroy();
@@ -108,9 +114,15 @@ IceSSL::PluginI::destroy()
 }
 
 void
-IceSSL::PluginI::initialize(SSL_CTX* context)
+IceSSL::PluginI::setContext(SSL_CTX* context)
 {
-    _instance->initialize(context);
+    _instance->context(context);
+}
+
+SSL_CTX*
+IceSSL::PluginI::getContext()
+{
+    return _instance->context();
 }
 
 void
@@ -123,12 +135,6 @@ void
 IceSSL::PluginI::setPasswordPrompt(const PasswordPromptPtr& prompt)
 {
     _instance->setPasswordPrompt(prompt);
-}
-
-SSL_CTX*
-IceSSL::PluginI::context()
-{
-    return _instance->context()->ctx();
 }
 
 void

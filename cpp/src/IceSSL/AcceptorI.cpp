@@ -65,9 +65,14 @@ IceInternal::TransceiverPtr
 IceSSL::AcceptorI::accept(int timeout)
 {
     //
-    // The plugin may not be fully initialized.
+    // The plugin may not be initialized.
     //
-    ContextPtr ctx = _instance->context();
+    if(!_instance->context())
+    {
+	PluginInitializationException ex(__FILE__, __LINE__);
+	ex.reason = "IceSSL: plugin is not initialized";
+	throw ex;
+    }
 
     SOCKET fd = IceInternal::doAccept(_fd, timeout);
     IceInternal::setBlock(fd, false);
@@ -91,7 +96,7 @@ IceSSL::AcceptorI::accept(int timeout)
 	throw ex;
     }
 
-    SSL* ssl = SSL_new(ctx->ctx());
+    SSL* ssl = SSL_new(_instance->context());
     if(!ssl)
     {
 	BIO_free(bio); // Also closes the socket.
@@ -205,7 +210,7 @@ IceSSL::AcceptorI::accept(int timeout)
 	}
 	while(!SSL_is_init_finished(ssl));
 
-	_instance->context()->verifyPeer(ssl, fd, "", true);
+	_instance->verifyPeer(ssl, fd, "", true);
     }
     catch(...)
     {
@@ -221,7 +226,7 @@ IceSSL::AcceptorI::accept(int timeout)
 
     if(_instance->securityTraceLevel() >= 1)
     {
-	_instance->context()->traceConnection(ssl, true);
+	_instance->traceConnection(ssl, true);
     }
 
     return new TransceiverI(_instance, ssl, fd);

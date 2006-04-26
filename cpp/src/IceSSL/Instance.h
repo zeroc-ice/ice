@@ -11,8 +11,10 @@
 #define ICE_SSL_INSTANCE_H
 
 #include <InstanceF.h>
-#include <Context.h>
+#include <UtilF.h>
 #include <Ice/CommunicatorF.h>
+#include <Ice/LoggerF.h>
+#include <Ice/Network.h>
 #include <Ice/ProtocolPluginFacadeF.h>
 #include <IceSSL/Plugin.h>
 
@@ -25,7 +27,9 @@ public:
 
     Instance(const Ice::CommunicatorPtr&);
 
-    void initialize(SSL_CTX*);
+    void initialize();
+    void context(SSL_CTX*);
+    SSL_CTX* context() const;
     void setCertificateVerifier(const CertificateVerifierPtr&);
     void setPasswordPrompt(const PasswordPromptPtr&);
 
@@ -36,21 +40,38 @@ public:
     int securityTraceLevel() const;
     std::string securityTraceCategory() const;
 
-    ContextPtr context() const;
-
-    CertificateVerifierPtr certificateVerifier() const;
-    PasswordPromptPtr passwordPrompt() const;
+    void verifyPeer(SSL*, SOCKET, const std::string&, bool);
 
     std::string sslErrors() const;
 
+    void traceConnection(SSL*, bool);
+
     void destroy();
+
+    //
+    // OpenSSL callbacks.
+    //
+    std::string password(bool);
+    int verifyCallback(int, SSL*, X509_STORE_CTX*);
+#ifndef OPENSSL_NO_DH
+    DH* dhParams(int);
+#endif
 
 private:
 
+    void parseProtocols(const std::string&);
+
+    Ice::LoggerPtr _logger;
     IceInternal::ProtocolPluginFacadePtr _facade;
     int _securityTraceLevel;
     std::string _securityTraceCategory;
-    ContextPtr _context;
+    SSL_CTX* _ctx;
+    std::string _defaultDir;
+    bool _checkCertName;
+    std::string _password;
+#ifndef OPENSSL_NO_DH
+    DHParamsPtr _dhParams;
+#endif
     CertificateVerifierPtr _verifier;
     PasswordPromptPtr _prompt;
 };
