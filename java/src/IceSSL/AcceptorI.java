@@ -60,6 +60,16 @@ class AcceptorI implements IceInternal.Acceptor
     public IceInternal.Transceiver
     accept(int timeout)
     {
+	//
+	// The plugin may not be fully initialized.
+	//
+	if(!_instance.initialized())
+	{
+	    Ice.PluginInitializationException ex = new Ice.PluginInitializationException();
+	    ex.reason = "IceSSL: plugin is not initialized";
+	    throw ex;
+	}
+
 	javax.net.ssl.SSLSocket fd = null;
 	try
 	{
@@ -120,7 +130,7 @@ class AcceptorI implements IceInternal.Acceptor
 		}
 	    }
 
-	    if(!_ctx.verifyPeer(fd, "", true))
+	    if(!_instance.verifyPeer(fd, "", true))
 	    {
 		try
 		{
@@ -226,7 +236,7 @@ class AcceptorI implements IceInternal.Acceptor
 
 	if(_instance.securityTraceLevel() > 0)
 	{
-	    _ctx.traceConnection(fd, true);
+	    _instance.traceConnection(fd, true);
 	}
 
 	return new TransceiverI(_instance, fd);
@@ -272,7 +282,6 @@ class AcceptorI implements IceInternal.Acceptor
     AcceptorI(Instance instance, String host, int port)
     {
 	_instance = instance;
-	_ctx = instance.context();
 	_logger = instance.communicator().getLogger();
 	_backlog = 0;
 
@@ -283,7 +292,7 @@ class AcceptorI implements IceInternal.Acceptor
 
 	try
 	{
-	    javax.net.ssl.SSLServerSocketFactory factory = _ctx.sslContext().getServerSocketFactory();
+	    javax.net.ssl.SSLServerSocketFactory factory = _instance.context().getServerSocketFactory();
 	    _addr = new java.net.InetSocketAddress(host, port);
 	    if(_instance.networkTraceLevel() >= 2)
 	    {
@@ -310,7 +319,8 @@ class AcceptorI implements IceInternal.Acceptor
 		_fd.setNeedClientAuth(true);
 	    }
 
-	    String[] cipherSuites = _ctx.filterCiphers(_fd.getSupportedCipherSuites(), _fd.getEnabledCipherSuites());
+	    String[] cipherSuites =
+		_instance.filterCiphers(_fd.getSupportedCipherSuites(), _fd.getEnabledCipherSuites());
 	    try
 	    {
 		_fd.setEnabledCipherSuites(cipherSuites);
@@ -333,7 +343,7 @@ class AcceptorI implements IceInternal.Acceptor
 		_logger.trace(_instance.securityTraceCategory(), s.toString());
 	    }
 
-	    String[] protocols = _ctx.getProtocols();
+	    String[] protocols = _instance.protocols();
 	    if(protocols != null)
 	    {
 		try
@@ -445,7 +455,6 @@ class AcceptorI implements IceInternal.Acceptor
     }
 
     private Instance _instance;
-    private Context _ctx;
     private Ice.Logger _logger;
     private javax.net.ssl.SSLServerSocket _fd;
     private int _backlog;

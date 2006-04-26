@@ -71,7 +71,12 @@ namespace IceSSL
 	    //
 	    // The plugin may not be fully initialized.
 	    //
-	    Context ctx = instance_.context();
+	    if(!instance_.initialized())
+	    {
+		Ice.PluginInitializationException ex = new Ice.PluginInitializationException();
+		ex.reason = "IceSSL: plugin is not initialized";
+		throw ex;
+	    }
 
 	    Socket fd = IceInternal.Network.doAccept(fd_, timeout);
 	    IceInternal.Network.setBlock(fd, true); // SSL requires a blocking socket.
@@ -95,7 +100,7 @@ namespace IceSSL
 		//
 		// Get the certificate collection and select the first one.
 		//
-		X509Certificate2Collection certs = ctx.certs();
+		X509Certificate2Collection certs = instance_.certs();
 		X509Certificate2 cert = null;
 		if(certs.Count > 0)
 		{
@@ -108,9 +113,9 @@ namespace IceSSL
 		AuthInfo info = new AuthInfo();
 		info.stream = stream;
 		info.done = false;
-		IAsyncResult ar = stream.BeginAuthenticateAsServer(cert, ctx.verifyPeer() > 1, ctx.protocols(),
-								   ctx.checkCRL(), new AsyncCallback(authCallback),
-								   info);
+		IAsyncResult ar = stream.BeginAuthenticateAsServer(cert, instance_.verifyPeer() > 1,
+								   instance_.protocols(), instance_.checkCRL(),
+								   new AsyncCallback(authCallback), info);
 		lock(info)
 		{
 		    if(!info.done)
@@ -237,7 +242,7 @@ namespace IceSSL
 	    //
 	    // .NET requires that a certificate be supplied.
 	    //
-	    X509Certificate2Collection certs = instance.context().certs();
+	    X509Certificate2Collection certs = instance.certs();
 	    if(certs.Count == 0)
 	    {
 		Ice.SecurityException ex = new Ice.SecurityException();
@@ -314,7 +319,7 @@ namespace IceSSL
 	    int errors = (int)sslPolicyErrors;
 	    if((errors & (int)SslPolicyErrors.RemoteCertificateNotAvailable) > 0)
 	    {
-		if(instance_.context().verifyPeer() > 1)
+		if(instance_.verifyPeer() > 1)
 		{
 		    if(instance_.securityTraceLevel() >= 1)
 		    {

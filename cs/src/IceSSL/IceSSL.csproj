@@ -56,7 +56,6 @@
   <ItemGroup>
     <Compile Include="AcceptorI.cs" />
     <Compile Include="ConnectorI.cs" />
-    <Compile Include="Context.cs" />
     <Compile Include="EndpointI.cs" />
     <Compile Include="Instance.cs" />
     <Compile Include="Plugin.cs" />

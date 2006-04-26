@@ -31,13 +31,13 @@ class PluginI extends Ice.LocalObjectImpl implements Plugin
     public void
     setContext(javax.net.ssl.SSLContext context)
     {
-	_instance.setContext(context);
+	_instance.context(context);
     }
 
     public javax.net.ssl.SSLContext
     getContext()
     {
-	return _instance.getContext();
+	return _instance.context();
     }
 
     public void

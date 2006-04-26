@@ -17,7 +17,12 @@ final class ConnectorI implements IceInternal.Connector
 	//
 	// The plugin may not be fully initialized.
 	//
-	Context ctx = _instance.context();
+	if(!_instance.initialized())
+	{
+	    Ice.PluginInitializationException ex = new Ice.PluginInitializationException();
+	    ex.reason = "IceSSL: plugin is not initialized";
+	    throw ex;
+	}
 
 	if(_instance.networkTraceLevel() >= 2)
 	{
@@ -33,7 +38,7 @@ final class ConnectorI implements IceInternal.Connector
 	    //
 	    if(timeout >= 0)
 	    {
-		ConnectThread ct = new ConnectThread(ctx.sslContext(), _addr);
+		ConnectThread ct = new ConnectThread(_instance.context(), _addr);
 		ct.start();
 		fd = ct.getFd(timeout == 0 ? 1 : timeout);
 		if(fd == null)
@@ -43,13 +48,13 @@ final class ConnectorI implements IceInternal.Connector
 	    }
 	    else
 	    {
-		javax.net.SocketFactory factory = ctx.sslContext().getSocketFactory();
+		javax.net.SocketFactory factory = _instance.context().getSocketFactory();
 		fd = (javax.net.ssl.SSLSocket)factory.createSocket(_addr.getAddress(), _addr.getPort());
 	    }
 
 	    fd.setUseClientMode(true);
 
-	    String[] cipherSuites = ctx.filterCiphers(fd.getSupportedCipherSuites(), fd.getEnabledCipherSuites());
+	    String[] cipherSuites = _instance.filterCiphers(fd.getSupportedCipherSuites(), fd.getEnabledCipherSuites());
 	    try
 	    {
 		fd.setEnabledCipherSuites(cipherSuites);
@@ -72,7 +77,7 @@ final class ConnectorI implements IceInternal.Connector
 		_logger.trace(_instance.securityTraceCategory(), s.toString());
 	    }
 
-	    String[] protocols = ctx.getProtocols();
+	    String[] protocols = _instance.protocols();
 	    if(protocols != null)
 	    {
 		try
@@ -125,7 +130,7 @@ final class ConnectorI implements IceInternal.Connector
 		}
 	    }
 
-	    if(!ctx.verifyPeer(fd, _host, false))
+	    if(!_instance.verifyPeer(fd, _host, false))
 	    {
 		Ice.SecurityException ex = new Ice.SecurityException();
 		ex.reason = "IceSSL: outgoing connection rejected by certificate verifier";
@@ -217,7 +222,7 @@ final class ConnectorI implements IceInternal.Connector
 
 	if(_instance.securityTraceLevel() > 0)
 	{
-	    ctx.traceConnection(fd, false);
+	    _instance.traceConnection(fd, false);
 	}
 
 	return new TransceiverI(_instance, fd);

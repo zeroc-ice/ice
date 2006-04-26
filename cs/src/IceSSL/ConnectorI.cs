@@ -25,7 +25,12 @@ namespace IceSSL
 	    //
 	    // The plugin may not be fully initialized.
 	    //
-	    Context ctx = instance_.context();
+	    if(!instance_.initialized())
+	    {
+		Ice.PluginInitializationException ex = new Ice.PluginInitializationException();
+		ex.reason = "IceSSL: plugin is not initialized";
+		throw ex;
+	    }
 
 	    if(instance_.networkTraceLevel() >= 2)
 	    {
@@ -53,9 +58,9 @@ namespace IceSSL
 		AuthInfo info = new AuthInfo();
 		info.stream = stream;
 		info.done = false;
-		IAsyncResult ar = stream.BeginAuthenticateAsClient(host_, ctx.certs(), ctx.protocols(),
-								   ctx.checkCRL(), new AsyncCallback(authCallback),
-								   info);
+		IAsyncResult ar = stream.BeginAuthenticateAsClient(host_, instance_.certs(), instance_.protocols(),
+								   instance_.checkCRL(),
+								   new AsyncCallback(authCallback), info);
 		lock(info)
 		{
 		    if(!info.done)
@@ -196,7 +201,7 @@ namespace IceSSL
 	    int errors = (int)sslPolicyErrors;
 	    if((errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0)
 	    {
-		if(!instance_.context().checkCertName())
+		if(!instance_.checkCertName())
 		{
 		    errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
 		    message = message + "\nremote certificate name mismatch (ignored)";
