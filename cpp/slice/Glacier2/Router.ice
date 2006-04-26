@@ -128,7 +128,7 @@ interface Router extends Ice::Router
      * @return The timeout (in seconds).
      *
      **/
-    nonmutating int getSessionTimeout();
+    nonmutating long getSessionTimeout();
 };
 
 /**

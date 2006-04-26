@@ -419,7 +419,7 @@ CallbackClient::run(int argc, char* argv[])
     }
     {
 	cout << "getting the session timeout... " << flush;
-	Ice::Int timeout = router->getSessionTimeout();
+	Ice::Long timeout = router->getSessionTimeout();
 	test(timeout == 30);
 	cout << "ok" << endl;
     }
