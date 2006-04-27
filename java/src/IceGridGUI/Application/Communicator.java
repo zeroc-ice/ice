@@ -582,7 +582,9 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 		"",
 		false,
 		true,
-		new java.util.LinkedList());   
+		new java.util.LinkedList(),
+		false // Allocatable
+		);   
    
 	    newAdapter(descriptor);
 	}

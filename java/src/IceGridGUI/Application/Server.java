@@ -96,7 +96,9 @@ class Server extends Communicator implements TemplateInstance
 	    "",
 	    "",
 	    true,
-	    new DistributionDescriptor("", new java.util.LinkedList()));
+	    new DistributionDescriptor("", new java.util.LinkedList()),
+	    false // Allocatable
+	    );
     }
 
     static public IceBoxDescriptor newIceBoxDescriptor()
@@ -108,7 +110,8 @@ class Server extends Communicator implements TemplateInstance
 	    "",
 	    true,
 	    true,
-	    new java.util.LinkedList()
+	    new java.util.LinkedList(),
+	    false // Allocatable
 	    );
 
 	java.util.LinkedList adapterList = new java.util.LinkedList();
@@ -135,6 +138,7 @@ class Server extends Communicator implements TemplateInstance
 	    "",
 	    true,
 	    new DistributionDescriptor("", new java.util.LinkedList()),
+	    false, // Allocatable
 	    new java.util.LinkedList()
 	    );
     }
