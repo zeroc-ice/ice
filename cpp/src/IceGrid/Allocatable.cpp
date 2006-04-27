@@ -275,6 +275,7 @@ bool
 Allocatable::release(const SessionIPtr&)
 {
     assert(false);
+    return false;
 }
 
 bool

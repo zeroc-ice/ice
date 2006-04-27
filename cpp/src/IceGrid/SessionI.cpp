@@ -209,13 +209,13 @@ SessionI::destroy(const Ice::Current& current)
     {
 	(*p)->cancel(AllocationException("session destroyed"));
     }
-    for(set<AllocatablePtr>::const_iterator p = allocations.begin(); p != allocations.end(); ++p)
+    for(set<AllocatablePtr>::const_iterator q = allocations.begin(); q != allocations.end(); ++q)
     {
 	try
 	{
-	    (*p)->release(this);
+	    (*q)->release(this);
 	}
-	catch(const AllocationException& ex)
+	catch(const AllocationException&)
 	{
 	    assert(false);
 	}
