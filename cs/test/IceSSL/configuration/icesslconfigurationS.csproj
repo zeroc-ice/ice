@@ -78,6 +78,10 @@
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
+    <ProjectReference Include="..\..\..\src\IceSSL\IceSSL.csproj">
+      <Project>{8ACAD9F5-2B05-4521-B1B0-FD5DDF59196E}</Project>
+      <Name>IceSSL</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\src\Ice\Ice.csproj">
       <Name>Ice</Name>
       <Project>{C3630502-8F67-42BF-B4CA-A21D2EA8049E}</Project>

@@ -254,6 +254,26 @@ namespace IceSSL
 	    communicator().getLogger().trace(securityTraceCategory_, s.ToString());
 	}
 
+	internal void verifyPeer(ConnectionInfo info, System.Net.Sockets.Socket fd, bool incoming)
+	{
+	    if(verifier_ != null)
+	    {
+		if(!verifier_.verify(info))
+		{
+		    string msg = (incoming ? "incoming" : "outgoing") +
+			" connection rejected by certificate verifier\n" + IceInternal.Network.fdToString(fd);
+		    if(securityTraceLevel_ >= 1)
+		    {
+			logger_.trace(securityTraceCategory_, msg);
+		    }
+
+		    Ice.SecurityException ex = new Ice.SecurityException();
+		    ex.reason = "IceSSL: " + msg;
+		    throw ex;
+		}
+	    }
+	}
+
 	//
 	// Parse a string of the form "location.name" into two parts.
 	//

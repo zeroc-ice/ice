@@ -21,10 +21,9 @@ internal class CertificateVerifierI : IceSSL.CertificateVerifier
 	reset();
     }
 
-    public bool verify(IceSSL.VerifyInfo info)
+    public bool verify(IceSSL.ConnectionInfo info)
     {
-	incoming_ = info.incoming;
-	hadCert_ = info.cert != null;
+	hadCert_ = info.certs != null;
 	invoked_ = true;
 	return returnValue_;
     }
@@ -33,7 +32,6 @@ internal class CertificateVerifierI : IceSSL.CertificateVerifier
     {
 	returnValue_ = true;
        	invoked_ = false;
-	incoming_ = false;
 	hadCert_ = false;
     }
 
@@ -47,21 +45,23 @@ internal class CertificateVerifierI : IceSSL.CertificateVerifier
 	return invoked_;
     }
 
-    internal bool incoming()
-    {
-	return incoming_;
-    }
-
     internal bool hadCert()
     {
 	return hadCert_;
     }
 
+    private static void test(bool b)
+    {
+	if (!b)
+	{
+	    throw new Exception();
+	}
+    }
+
     private bool returnValue_;
     private bool invoked_;
-    private bool incoming_;
     private bool hadCert_;
-};
+}
 
 public class AllTests
 {
@@ -100,7 +100,7 @@ public class AllTests
     createServerProps(string testDir, string defaultHost)
     {
 	Test.Properties result = new Test.Properties();
-	result["Ice.Plugin.IceSSL"] = testDir + "/../../../bin/icesslcs.dll:IceSSL.PluginFactory";
+	result["Ice.Plugin.IceSSL"] = testDir + "/icesslcs.dll:IceSSL.PluginFactory";
 	result["Ice.ThreadPerConnection"] = "1";
 	if(defaultHost.Length > 0)
 	{
@@ -250,9 +250,21 @@ public class AllTests
 		Test.ServerPrx server = fact.createServer(d);
 		try
 		{
-		    server.ice_ping();
+		    server.noCert();
 		}
 		catch(Ice.LocalException)
+		{
+		    test(false);
+		}
+		//
+		// Validate that we can get the connection info.
+		//
+		try
+		{
+		    IceSSL.ConnectionInfo info = IceSSL.Util.getConnectionInfo(server.ice_connection());
+		    test(info.certs != null);
+		}
+		catch(IceSSL.ConnectionInvalidException)
 		{
 		    test(false);
 		}
@@ -303,9 +315,20 @@ public class AllTests
 		server = fact.createServer(d);
 		try
 		{
-		    server.ice_ping();
+		    X509Certificate2 clientCert =
+			new X509Certificate2(defaultDir + "/c_rsa_nopass_ca1.pfx", "password");
+		    server.checkCert(clientCert.Subject, clientCert.Issuer);
+
+		    X509Certificate2 serverCert =
+			new X509Certificate2(defaultDir + "/s_rsa_nopass_ca1.pfx", "password");
+		    X509Certificate2 caCert = new X509Certificate2(defaultDir + "/cacert1.pem");
+
+		    IceSSL.ConnectionInfo info = IceSSL.Util.getConnectionInfo(server.ice_connection());
+
+		    test(caCert.Equals(info.certs[1]));
+		    test(serverCert.Equals(info.certs[0]));
 		}
-		catch(Ice.LocalException)
+		catch(Exception)
 		{
 		    test(false);
 		}
@@ -323,9 +346,11 @@ public class AllTests
 		server = fact.createServer(d);
 		try
 		{
-		    server.ice_ping();
+		    X509Certificate2 clientCert =
+			new X509Certificate2(defaultDir + "/c_rsa_nopass_ca1.pfx", "password");
+		    server.checkCert(clientCert.Subject, clientCert.Issuer);
 		}
-		catch(Ice.LocalException)
+		catch(Exception)
 		{
 		    test(false);
 		}
@@ -393,14 +418,14 @@ public class AllTests
 		Test.ServerPrx server = fact.createServer(d);
 		try
 		{
-		    server.ice_ping();
+		    IceSSL.ConnectionInfo info = IceSSL.Util.getConnectionInfo(server.ice_connection());
+		    server.checkCipher(info.cipher);
 		}
 		catch(Ice.LocalException)
 		{
 		    test(false);
 		}
 		test(verifier.invoked());
-		test(!verifier.incoming());
 		test(verifier.hadCert());
 
 		//
@@ -424,7 +449,6 @@ public class AllTests
 		    test(false);
 		}
 		test(verifier.invoked());
-		test(!verifier.incoming());
 		test(verifier.hadCert());
 		fact.destroyServer(server);
 		store.Remove(caCert1);

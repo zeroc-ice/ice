@@ -268,14 +268,20 @@ namespace IceSSL
 	    return desc_;
 	}
 
+	public ConnectionInfo getConnectionInfo()
+	{
+	    return info_;
+	}
+
 	//
 	// Only for use by ConnectorI, AcceptorI.
 	//
-	internal TransceiverI(Instance instance, Socket fd, SslStream stream)
+	internal TransceiverI(Instance instance, Socket fd, SslStream stream, ConnectionInfo info)
 	{
 	    instance_ = instance;
 	    fd_ = fd;
 	    stream_ = stream;
+	    info_ = info;
 	    logger_ = instance.communicator().getLogger();
 	    stats_ = instance.communicator().getStats();
 	    desc_ = IceInternal.Network.fdToString(fd_);
@@ -294,6 +300,7 @@ namespace IceSSL
 	private Instance instance_;
 	private Socket fd_;
 	private SslStream stream_;
+	private ConnectionInfo info_;
 	private Ice.Logger logger_;
 	private Ice.Stats stats_;
 	private string desc_;

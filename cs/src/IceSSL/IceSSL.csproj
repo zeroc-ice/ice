@@ -61,6 +61,7 @@
     <Compile Include="Plugin.cs" />
     <Compile Include="PluginI.cs" />
     <Compile Include="TransceiverI.cs" />
+    <Compile Include="Util.cs" />
   </ItemGroup>
   <PropertyGroup>
     <PreBuildEvent>

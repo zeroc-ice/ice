@@ -1268,7 +1268,19 @@ namespace Ice
 	{
 	    return _desc; // No mutex lock, _desc is immutable.
 	}
-	
+
+	//
+	// Only used by the SSL plug-in.
+	//
+	// The external party has to synchronize the connection, since the
+	// connection is the object that protects the transceiver.
+	//
+	public IceInternal.Transceiver
+	getTransceiver()
+	{
+	    return _transceiver;
+	}
+
 	static ConnectionI()
 	{
 	    _compressionSupported = IceInternal.BasicStream.compressible();

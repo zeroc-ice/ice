@@ -88,13 +88,14 @@ namespace IceSSL
 	    }
 
 	    SslStream stream = null;
+	    ConnectionInfo connInfo = null;
 	    try
 	    {
 		//
 		// Create an SslStream.
 		//
 		NetworkStream ns = new NetworkStream(fd, true);
-		AcceptorValidationCallback cb = new AcceptorValidationCallback(this, fd);
+		AcceptorValidationCallback cb = new AcceptorValidationCallback(this);
 		stream = new SslStream(ns, false, new RemoteCertificateValidationCallback(cb.validate), null);
 
 		//
@@ -130,6 +131,9 @@ namespace IceSSL
 			throw info.ex;
 		    }
 		}
+
+		connInfo = Util.populateConnectionInfo(stream, fd, cb.certs);
+		instance_.verifyPeer(connInfo, fd, true);
 	    }
 	    catch(Ice.LocalException ex)
 	    {
@@ -205,7 +209,7 @@ namespace IceSSL
 		instance_.traceStream(stream, IceInternal.Network.fdToString(fd));
 	    }
 
-	    return new TransceiverI(instance_, fd, stream);
+	    return new TransceiverI(instance_, fd, stream, connInfo);
 	}
 
 	public virtual void connectToSelf()
@@ -226,12 +230,12 @@ namespace IceSSL
 	    EndPoint addr = IceInternal.Network.getAddress(host, port);
 	    return addr.Equals(addr_);
 	}
-	
+
 	internal virtual int effectivePort()
 	{
 	    return addr_.Port;
 	}
-	
+
 	internal
 	AcceptorI(Instance instance, string host, int port)
 	{
@@ -312,7 +316,7 @@ namespace IceSSL
 	    }
 	}
 
-	internal bool validate(SslStream stream, Socket fd, X509Certificate certificate, X509Chain chain,
+	internal bool validate(object sender, X509Certificate certificate, X509Chain chain,
 			       SslPolicyErrors sslPolicyErrors)
 	{
 	    string message = "";
@@ -349,27 +353,6 @@ namespace IceSSL
 		return false;
 	    }
 
-	    CertificateVerifier verifier = instance_.certificateVerifier();
-	    if(verifier != null)
-	    {
-		VerifyInfo info = new VerifyInfo();
-		info.incoming = true;
-		info.cert = certificate;
-		info.chain = chain;
-		info.stream = stream;
-		info.address = "";
-		if(!verifier.verify(info))
-		{
-		    if(instance_.securityTraceLevel() >= 1)
-		    {
-			logger_.trace(instance_.securityTraceCategory(),
-				      "incoming connection rejected by certificate verifier\n" +
-				      IceInternal.Network.fdToString(fd));
-		    }
-		    return false;
-		}
-	    }
-
 	    return true;
 	}
 	
@@ -380,25 +363,35 @@ namespace IceSSL
 	private IPEndPoint addr_;
     }
 
-    //
-    // We need to pass some additional information to the certificate validation callback.
-    //
     internal class AcceptorValidationCallback
     {
-	internal AcceptorValidationCallback(AcceptorI acceptor, Socket fd)
+	internal AcceptorValidationCallback(AcceptorI acceptor)
 	{
 	    acceptor_ = acceptor;
-	    fd_ = fd;
+	    certs = null;
 	}
 
 	internal bool validate(object sender, X509Certificate certificate, X509Chain chain,
 			       SslPolicyErrors sslPolicyErrors)
 	{
-	    SslStream stream = (SslStream)sender;
-	    return acceptor_.validate(stream, fd_, certificate, chain, sslPolicyErrors);
+	    //
+	    // The certificate chain is not available via SslStream, and it is destroyed
+	    // after this callback returns, so we keep a reference to each of the
+	    // certificates.
+	    //
+	    if(chain != null)
+	    {
+		certs = new X509Certificate2[chain.ChainElements.Count];
+		int i = 0;
+		foreach(X509ChainElement e in chain.ChainElements)
+		{
+		    certs[i++] = e.Certificate;
+		}
+	    }
+	    return acceptor_.validate(sender, certificate, chain, sslPolicyErrors);
 	}
 
 	private AcceptorI acceptor_;
-	private Socket fd_;
+	internal X509Certificate2[] certs;
     }
 }

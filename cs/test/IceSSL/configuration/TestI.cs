@@ -18,9 +18,61 @@ internal sealed class ServerI : ServerDisp_
 	communicator_ = communicator;
     }
 
+    public override void
+    noCert(Ice.Current current)
+    {
+	try
+	{
+	    IceSSL.ConnectionInfo info = IceSSL.Util.getConnectionInfo(current.con);
+	    test(info.certs == null);
+	}
+	catch(IceSSL.ConnectionInvalidException)
+	{
+	    test(false);
+	}
+    }
+
+    public override void
+    checkCert(string subjectDN, string issuerDN, Ice.Current current)
+    {
+	try
+	{
+	    IceSSL.ConnectionInfo info = IceSSL.Util.getConnectionInfo(current.con);
+	    test(info.certs.Length == 2 &&
+		 info.certs[0].Subject.Equals(subjectDN) &&
+		 info.certs[0].Issuer.Equals(issuerDN));
+	}
+	catch(IceSSL.ConnectionInvalidException)
+	{
+	    test(false);
+	}
+    }
+
+    public override void
+    checkCipher(string cipher, Ice.Current current)
+    {
+	try
+	{
+	    IceSSL.ConnectionInfo info = IceSSL.Util.getConnectionInfo(current.con);
+	    test(info.cipher.Equals(cipher));
+	}
+	catch(IceSSL.ConnectionInvalidException)
+	{
+	    test(false);
+	}
+    }
+
     internal void destroy()
     {
 	communicator_.destroy();
+    }
+
+    private static void test(bool b)
+    {
+	if (!b)
+	{
+	    throw new Exception();
+	}
     }
 
     private Ice.Communicator communicator_;

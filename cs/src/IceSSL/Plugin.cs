@@ -12,47 +12,6 @@ namespace IceSSL
     using System.Security.Cryptography.X509Certificates;
 
     //
-    // VerifyInfo contains information that may be of use to a
-    // CertificateVerifier implementation.
-    //
-    public struct VerifyInfo
-    {
-	//
-	// A value of true indicates an incoming (server) connection.
-	//
-	public bool incoming;
-
-	//
-	// The peer's certificate. This value may be null if the peer
-	// did not supply a certificate.
-	//
-	public System.Security.Cryptography.X509Certificates.X509Certificate cert;
-
-	//
-	// The chain of certificate authorities associated with the peer's
-	// certificate.
-	//
-	public System.Security.Cryptography.X509Certificates.X509Chain chain;
-
-	//
-	// The SSL stream that is being authenticated.
-	//
-	public System.Net.Security.SslStream stream;
-
-	//
-	// The address of the server as specified by the proxy's
-	// endpoint. For example, in the following proxy:
-	//
-	// identity:ssl -h www.server.com -p 10000
-	//
-	// the value of address is "www.server.com".
-	//
-	// The value is an empty string for incoming connections.
-	//
-	public string address;
-    }
-
-    //
     // An application can customize the certificate verification process
     // by implementing the CertificateVerifier interface.
     //
@@ -62,7 +21,7 @@ namespace IceSSL
 	// Return true to allow a connection using the provided certificate
 	// information, or false to reject the connection.
 	//
-	bool verify(VerifyInfo info);
+	bool verify(ConnectionInfo info);
     }
 
     abstract public class Plugin : Ice.LocalObjectImpl, Ice.Plugin
