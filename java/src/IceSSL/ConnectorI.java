@@ -132,12 +132,7 @@ final class ConnectorI implements IceInternal.Connector
 	    }
 
 	    connInfo = Util.populateConnectionInfo(fd);
-	    if(!_instance.verifyPeer(connInfo, fd, _host, false))
-	    {
-		Ice.SecurityException ex = new Ice.SecurityException();
-		ex.reason = "IceSSL: outgoing connection rejected by certificate verifier";
-		throw ex;
-	    }
+	    _instance.verifyPeer(connInfo, fd, _host, false);
 	}
         catch(java.net.ConnectException ex)
         {
