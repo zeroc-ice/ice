@@ -76,11 +76,6 @@ namespace IceSSL
 	    checkCertName_ = properties.getPropertyAsIntWithDefault(prefix + "CheckCertName", 0) > 0;
 
 	    //
-	    // Determine whether a certificate is required from the peer.
-	    //
-	    verifyPeer_ = properties.getPropertyAsIntWithDefault(prefix + "VerifyPeer", 2);
-
-	    //
 	    // CheckCRL determines whether the certificate revocation list is checked.
 	    //
 	    checkCRL_ = properties.getPropertyAsIntWithDefault(prefix + "CheckCRL", 0) > 0;
@@ -212,11 +207,6 @@ namespace IceSSL
 	internal X509Certificate2Collection certs()
 	{
 	    return certs_;
-	}
-
-	internal int verifyPeer()
-	{
-	    return verifyPeer_;
 	}
 
 	internal SslProtocols protocols()
@@ -714,7 +704,6 @@ namespace IceSSL
 	private string defaultDir_;
 	private SslProtocols protocols_;
 	private bool checkCertName_;
-	private int verifyPeer_;
 	private bool checkCRL_;
 	private X509Certificate2Collection certs_;
 	private CertificateVerifier verifier_;

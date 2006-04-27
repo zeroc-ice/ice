@@ -114,8 +114,8 @@ namespace IceSSL
 		AuthInfo info = new AuthInfo();
 		info.stream = stream;
 		info.done = false;
-		IAsyncResult ar = stream.BeginAuthenticateAsServer(cert, instance_.verifyPeer() > 1,
-								   instance_.protocols(), instance_.checkCRL(),
+		IAsyncResult ar = stream.BeginAuthenticateAsServer(cert, verifyPeer_ > 1, instance_.protocols(),
+								   instance_.checkCRL(),
 								   new AsyncCallback(authCallback), info);
 		lock(info)
 		{
@@ -244,6 +244,11 @@ namespace IceSSL
 	    backlog_ = 0;
 
 	    //
+	    // Determine whether a certificate is required from the peer.
+	    //
+	    verifyPeer_ = instance.communicator().getProperties().getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
+
+	    //
 	    // .NET requires that a certificate be supplied.
 	    //
 	    X509Certificate2Collection certs = instance.certs();
@@ -323,7 +328,7 @@ namespace IceSSL
 	    int errors = (int)sslPolicyErrors;
 	    if((errors & (int)SslPolicyErrors.RemoteCertificateNotAvailable) > 0)
 	    {
-		if(instance_.verifyPeer() > 1)
+		if(verifyPeer_ > 1)
 		{
 		    if(instance_.securityTraceLevel() >= 1)
 		    {
@@ -360,6 +365,7 @@ namespace IceSSL
 	private Ice.Logger logger_;
 	private Socket fd_;
 	private int backlog_;
+	private int verifyPeer_;
 	private IPEndPoint addr_;
     }
 
