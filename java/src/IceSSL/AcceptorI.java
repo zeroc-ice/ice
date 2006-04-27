@@ -71,6 +71,7 @@ class AcceptorI implements IceInternal.Acceptor
 	}
 
 	javax.net.ssl.SSLSocket fd = null;
+	ConnectionInfo connInfo = null;
 	try
 	{
 	    if(timeout == -1)
@@ -130,7 +131,8 @@ class AcceptorI implements IceInternal.Acceptor
 		}
 	    }
 
-	    if(!_instance.verifyPeer(fd, "", true))
+	    connInfo = Util.populateConnectionInfo(fd);
+	    if(!_instance.verifyPeer(connInfo, fd, "", true))
 	    {
 		try
 		{
@@ -239,7 +241,7 @@ class AcceptorI implements IceInternal.Acceptor
 	    _instance.traceConnection(fd, true);
 	}
 
-	return new TransceiverI(_instance, fd);
+	return new TransceiverI(_instance, fd, connInfo);
     }
 
     public void

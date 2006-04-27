@@ -316,16 +316,17 @@ final class TransceiverI implements IceInternal.Transceiver
 	// This can only be called on an open transceiver.
 	//
 	assert(_fd != null);
-	return Util.populateConnectionInfo(_fd);
+	return _info;
     }
 
     //
     // Only for use by ConnectorI, AcceptorI
     //
-    TransceiverI(Instance instance, javax.net.ssl.SSLSocket fd)
+    TransceiverI(Instance instance, javax.net.ssl.SSLSocket fd, ConnectionInfo info)
     {
 	_instance = instance;
 	_fd = fd;
+	_info = info;
 	_logger = instance.communicator().getLogger();
 	try
 	{
@@ -369,6 +370,7 @@ final class TransceiverI implements IceInternal.Transceiver
 
     private Instance _instance;
     private javax.net.ssl.SSLSocket _fd;
+    private ConnectionInfo _info;
     private Ice.Logger _logger;
     private Ice.Stats _stats;
     private String _desc;

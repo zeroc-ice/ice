@@ -31,6 +31,7 @@ final class ConnectorI implements IceInternal.Connector
 	}
 
 	javax.net.ssl.SSLSocket fd = null;
+	ConnectionInfo connInfo = null;
 	try
 	{
 	    //
@@ -130,7 +131,8 @@ final class ConnectorI implements IceInternal.Connector
 		}
 	    }
 
-	    if(!_instance.verifyPeer(fd, _host, false))
+	    connInfo = Util.populateConnectionInfo(fd);
+	    if(!_instance.verifyPeer(connInfo, fd, _host, false))
 	    {
 		Ice.SecurityException ex = new Ice.SecurityException();
 		ex.reason = "IceSSL: outgoing connection rejected by certificate verifier";
@@ -225,7 +227,7 @@ final class ConnectorI implements IceInternal.Connector
 	    _instance.traceConnection(fd, false);
 	}
 
-	return new TransceiverI(_instance, fd);
+	return new TransceiverI(_instance, fd, connInfo);
     }
 
     public String

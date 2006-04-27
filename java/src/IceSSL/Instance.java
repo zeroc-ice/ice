@@ -419,12 +419,11 @@ class Instance
     }
 
     boolean
-    verifyPeer(javax.net.ssl.SSLSocket fd, String host, boolean incoming)
+    verifyPeer(ConnectionInfo info, javax.net.ssl.SSLSocket fd, String host, boolean incoming)
     {
 	CertificateVerifier verifier = _verifier;
 	if(verifier != null)
 	{
-	    ConnectionInfo info = Util.populateConnectionInfo(fd);
 	    if(!verifier.verify(info))
 	    {
 		if(_securityTraceLevel > 0)
