@@ -78,6 +78,12 @@ class Instance
 	}
 
 	//
+	// CheckCertName determines whether we compare the name in a peer's
+	// certificate against its hostname.
+	//
+	_checkCertName = properties.getPropertyAsIntWithDefault(prefix + "CheckCertName", 0) > 0;
+
+	//
 	// If the user doesn't supply an SSLContext, we need to create one based
 	// on property settings.
 	//
@@ -418,26 +424,124 @@ class Instance
 	_logger.trace(_securityTraceCategory, msg);
     }
 
-    boolean
-    verifyPeer(ConnectionInfo info, javax.net.ssl.SSLSocket fd, String host, boolean incoming)
+    void
+    verifyPeer(ConnectionInfo info, javax.net.ssl.SSLSocket fd, String address, boolean incoming)
     {
-	CertificateVerifier verifier = _verifier;
-	if(verifier != null)
+	//
+	// Extract the IP addresses and the DNS names from the subject
+	// alternative names.
+	//
+	if(info.certs != null)
 	{
-	    if(!verifier.verify(info))
+	    try
 	    {
-		if(_securityTraceLevel > 0)
+		java.util.Collection subjectAltNames =
+		    ((java.security.cert.X509Certificate)info.certs[0]).getSubjectAlternativeNames();
+		java.util.ArrayList ipAddresses = new java.util.ArrayList();
+		java.util.ArrayList dnsNames = new java.util.ArrayList();
+		java.util.Iterator i = subjectAltNames.iterator();
+		while(i.hasNext())
 		{
-		    _logger.trace(_securityTraceCategory,
-				  (incoming ? "incoming" : "outgoing") +
-				  " connection rejected by certificate verifier\n" +
-				  IceInternal.Network.fdToString(fd));
+		    java.util.List l = (java.util.List)i.next();
+		    assert(!l.isEmpty());
+		    Integer n = (Integer)l.get(0);
+		    if(n.intValue() == 7)
+		    {
+			ipAddresses.add((String)l.get(1));
+		    }
+		    else if(n.intValue() == 2)
+		    {
+			dnsNames.add(((String)l.get(1)).toLowerCase());
+		    }
 		}
-		return false;
+
+		//
+		// Compare the peer's address against the dnsName and ipAddress values.
+		// This is only relevant for an outgoing connection.
+		//
+		if(address.length() > 0)
+		{
+		    boolean certNameOK = ipAddresses.contains(address);
+		    if(!certNameOK)
+		    {
+			certNameOK = dnsNames.contains(address.toLowerCase());
+		    }
+
+		    //
+		    // Log a message if the name comparison fails. If CheckCertName is defined,
+		    // we also raise an exception to abort the connection. Don't log a message if
+		    // CheckCertName is not defined and a verifier is present.
+		    //
+		    if(!certNameOK && (_checkCertName || (_securityTraceLevel >= 1 && _verifier == null)))
+		    {
+			StringBuffer sb = new StringBuffer();
+			sb.append("IceSSL: ");
+			if(!_checkCertName)
+			{
+			    sb.append("ignoring ");
+			}
+			sb.append("certificate validation failure:\npeer certificate does not contain `" +
+				  address + "' in its subjectAltName extension");
+			if(!dnsNames.isEmpty())
+			{
+			    sb.append("\nDNS names found in certificate: ");
+			    for(int j = 0; j < dnsNames.size(); ++j)
+			    {
+				if(j > 0)
+				{
+				    sb.append(", ");
+				}
+				sb.append(dnsNames.get(j).toString());
+			    }
+			}
+			if(!ipAddresses.isEmpty())
+			{
+			    sb.append("\nIP addresses found in certificate: ");
+			    for(int j = 0; j < ipAddresses.size(); ++j)
+			    {
+				if(j > 0)
+				{
+				    sb.append(", ");
+				}
+				sb.append(ipAddresses.get(j).toString());
+			    }
+			}
+			if(_securityTraceLevel >= 1)
+			{
+			    _logger.trace(_securityTraceCategory, sb.toString());
+			}
+			if(_checkCertName)
+			{
+			    Ice.SecurityException ex = new Ice.SecurityException();
+			    ex.reason = sb.toString();
+			    throw ex;
+			}
+		    }
+		}
+	    }
+	    catch(java.security.cert.CertificateParsingException ex)
+	    {
+		assert(false);
 	    }
 	}
 
-	return true;
+	if(_verifier != null)
+	{
+	    if(!_verifier.verify(info))
+	    {
+		String msg = (incoming ? "incoming" : "outgoing") + " connection rejected by certificate verifier\n" +
+		    IceInternal.Network.fdToString(fd);
+
+		if(_securityTraceLevel > 0)
+		{
+		    _logger.trace(_securityTraceCategory, msg);
+		}
+
+		Ice.SecurityException ex = new Ice.SecurityException();
+		ex.reason = msg;
+		throw ex;
+	    }
+	}
     }
 
     private void
@@ -566,5 +670,6 @@ class Instance
     private boolean _allCiphers;
     private boolean _noCiphers;
     private String[] _protocols;
+    private boolean _checkCertName;
     private CertificateVerifier _verifier;
 }
