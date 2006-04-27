@@ -679,6 +679,18 @@ interface Admin
 
     /**
      *
+     * Get the object info of all the registered objects with the
+     * given type.
+     *
+     * @param type The type of the object.
+     *
+     * @return The object infos.
+     *
+     **/
+    nonmutating ObjectInfoSeq getObjectInfosByType(string type);
+
+    /**
+     *
      * Get the object info of all the registered objects whose stringified
      * identities match the given expression.
      *

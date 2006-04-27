@@ -15,6 +15,7 @@
 #include <IceGrid/Cache.h>
 #include <IceGrid/Query.h>
 #include <IceGrid/Internal.h>
+#include <IceGrid/Allocatable.h>
 
 namespace IceGrid
 {
@@ -28,7 +29,7 @@ typedef std::vector<ServerEntryPtr> ServerEntrySeq;
 class AdapterEntry;
 typedef IceUtil::Handle<AdapterEntry> AdapterEntryPtr;
 
-class AdapterEntry : public IceUtil::Shared, public IceUtil::Mutex
+class AdapterEntry : public Allocatable, public IceUtil::Mutex
 {
 public:
     
@@ -57,10 +58,13 @@ public:
     virtual float getLeastLoadedNodeLoad(LoadSample) const;
     virtual std::string getApplication() const;
 
-    void set(const ServerEntryPtr&, const std::string&);
+    void set(const ServerEntryPtr&, const std::string&, bool);
     void destroy();
 
     AdapterPrx getProxy(const std::string& = std::string()) const;
+
+    virtual void allocated(const SessionIPtr&);
+    virtual void released(const SessionIPtr&);
 
 private:
     

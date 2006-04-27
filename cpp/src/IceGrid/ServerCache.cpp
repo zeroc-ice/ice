@@ -13,6 +13,7 @@
 #include <IceGrid/NodeCache.h>
 #include <IceGrid/AdapterCache.h>
 #include <IceGrid/ObjectCache.h>
+#include <IceGrid/SessionI.h>
 
 using namespace std;
 using namespace IceGrid;
@@ -150,15 +151,22 @@ ServerCache::addCommunicator(const CommunicatorDescriptorPtr& comm, const Server
     const string application = entry->getApplication();
     for(AdapterDescriptorSeq::const_iterator q = comm->adapters.begin() ; q != comm->adapters.end(); ++q)
     {
+	AllocatablePtr parent;
 	if(!q->id.empty())
 	{
-	    _adapterCache.getServerAdapter(q->id, true)->set(entry, q->replicaGroupId);
+	    ServerAdapterEntryPtr adpt = _adapterCache.getServerAdapter(q->id, true);
+	    adpt->set(entry, q->replicaGroupId, q->allocatable);
+	    parent = adpt;
+	}
+	else
+	{
+	    parent = entry;
 	}
 
 	for(ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
 	{
 	    const string edpts = IceGrid::getProperty(comm->propertySet, q->name + ".Endpoints");
-	    _objectCache.add(application, q->id, edpts, *r);
+	    _objectCache.add(parent, application, q->id, edpts, *r);
 	}
     }
 }
@@ -225,6 +233,11 @@ ServerEntry::update(const ServerInfo& info)
     _loaded.reset(0);
     _proxy = 0;
     _adapters.clear();
+    
+    //
+    // TODO: XXX REVIEW
+    //
+    _allocatable = info.descriptor->allocatable;
 }
 
 void
@@ -717,3 +730,27 @@ ServerEntry::canRemove()
      Lock sync(*this);
      return !_loaded.get() && !_load.get() && !_destroy.get();
 }
+
+
+void
+ServerEntry::allocated(const SessionIPtr& session)
+{
+    TraceLevelsPtr traceLevels = _cache.getTraceLevels();
+    if(traceLevels && traceLevels->server > 1)
+    {
+	Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
+	out << "server `" << _id << "' allocated by `" << session->getUserId() << "' (" << _count << ")";
+    }    
+}
+
+void
+ServerEntry::released(const SessionIPtr& session)
+{
+    TraceLevelsPtr traceLevels = _cache.getTraceLevels();
+    if(traceLevels && traceLevels->server > 1)
+    {
+	Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
+	out << "server `" << _id << "' released by `" << session->getUserId() << "' (" << _count << ")";
+    }    
+}
+

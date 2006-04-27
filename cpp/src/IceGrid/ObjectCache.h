@@ -32,7 +32,7 @@ public:
     
     ObjectEntry(Cache<Ice::Identity, ObjectEntry>&, const Ice::Identity&);
 
-    void set(const std::string&, const ObjectInfo&);
+    void set(const AllocatablePtr&, const std::string&, const ObjectInfo&);
     Ice::ObjectPrx getProxy() const;
     std::string getType() const;
     std::string getApplication() const;
@@ -41,8 +41,8 @@ public:
     bool canRemove();
 
     virtual bool release(const SessionIPtr&);
-    virtual void allocated();
-    virtual void released();
+    virtual void allocated(const SessionIPtr&);
+    virtual void released(const SessionIPtr&);
     
 private:
 
@@ -59,6 +59,7 @@ public:
     ObjectAllocationRequest(const SessionIPtr& session) : AllocationRequest(session) { }
     
     virtual void response(const Ice::ObjectPrx&) = 0;
+    virtual void exception(const AllocationException&) = 0;
 
 private:
 
@@ -67,14 +68,9 @@ private:
 	response(ObjectEntryPtr::dynamicCast(allocatable)->getProxy()); 
     }
 
-    virtual void timeout() 
+    virtual void canceled(const AllocationException& ex)
     {
-	response(0); 
-    }
-
-    virtual void canceled() 
-    {
-	response(0); 
+	exception(ex);
     }
 };
 typedef IceUtil::Handle<ObjectAllocationRequest> ObjectAllocationRequestPtr;
@@ -87,7 +83,8 @@ public:
 
     ObjectCache(const Ice::CommunicatorPtr&, AdapterCache&);
 
-    void add(const std::string&, const std::string&, const std::string&, const ObjectDescriptor&);
+    void add(const AllocatablePtr&, const std::string&, const std::string&, const std::string&, 
+	     const ObjectDescriptor&);
     ObjectEntryPtr get(const Ice::Identity&) const;
     ObjectEntryPtr remove(const Ice::Identity&);
 
@@ -97,6 +94,7 @@ public:
 
     Ice::ObjectProxySeq getObjectsByType(const std::string&); 
     ObjectInfoSeq getAll(const std::string&);
+    ObjectInfoSeq getAllByType(const std::string&);
 
 private:
     

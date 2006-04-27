@@ -14,6 +14,7 @@
 #include <IceGrid/NodeSessionI.h>
 #include <IceGrid/ServerCache.h>
 #include <IceGrid/NodeCache.h>
+#include <IceGrid/SessionI.h>
 
 using namespace std;
 using namespace IceGrid;
@@ -183,12 +184,21 @@ ServerAdapterEntry::getApplication() const
 }
 
 void
-ServerAdapterEntry::set(const ServerEntryPtr& server, const string& replicaGroupId)
+ServerAdapterEntry::set(const ServerEntryPtr& server, const string& replicaGroupId, bool allocatable)
 {
     {
 	Lock sync(*this);
 	_server = server;
 	_replicaGroupId = replicaGroupId;
+	if(server->allocatable())
+	{
+	    _parent = server;
+	    _allocatable = true;
+	}
+	else
+	{
+	    _allocatable = allocatable;
+	}
     }
     if(!replicaGroupId.empty())
     {
@@ -235,6 +245,28 @@ ServerAdapterEntry::getServer() const
     Lock sync(*this);
     assert(_server);
     return _server;
+}
+
+void
+ServerAdapterEntry::allocated(const SessionIPtr& session)
+{
+    TraceLevelsPtr traceLevels = _cache.getTraceLevels();
+    if(traceLevels && traceLevels->adapter > 1)
+    {
+	Ice::Trace out(traceLevels->logger, traceLevels->adapterCat);
+	out << "adapter `" << _id << "' allocated by `" << session->getUserId() << "' (" << _count << ")";
+    }    
+}
+
+void
+ServerAdapterEntry::released(const SessionIPtr& session)
+{
+    TraceLevelsPtr traceLevels = _cache.getTraceLevels();
+    if(traceLevels && traceLevels->adapter > 1)
+    {
+	Ice::Trace out(traceLevels->logger, traceLevels->adapterCat);
+	out << "adapter `" << _id << "' released by `" << session->getUserId() << "' (" << _count << ")";
+    }    
 }
 
 ReplicaGroupEntry::ReplicaGroupEntry(Cache<string, AdapterEntry>& cache, const std::string& id) : 
@@ -416,3 +448,4 @@ ReplicaGroupEntry::getApplication() const
     Lock sync(*this);
     return _application;
 }
+

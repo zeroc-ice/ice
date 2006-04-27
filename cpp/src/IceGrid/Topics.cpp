@@ -95,7 +95,7 @@ NodeObserverTopic::NodeObserverTopic(const IceStorm::TopicManagerPrx& topicManag
     // which can't be marshalled.
     //
     const_cast<IceStorm::TopicPrx&>(_topic) = IceStorm::TopicPrx::uncheckedCast(t->ice_collocationOptimization(true));
-    const_cast<NodeObserverPrx&>(_publisher) = NodeObserverPrx::uncheckedCast(_topic->getPublisher());
+    const_cast<NodeObserverPrx&>(_publisher) = NodeObserverPrx::uncheckedCast(_topic->getPublisher()->ice_oneway());
 }
 
 void
@@ -263,7 +263,8 @@ RegistryObserverTopic::RegistryObserverTopic(const IceStorm::TopicManagerPrx& to
     // which can't be marshalled.
     //
     const_cast<IceStorm::TopicPrx&>(_topic) = IceStorm::TopicPrx::uncheckedCast(t->ice_collocationOptimization(true));
-    const_cast<RegistryObserverPrx&>(_publisher) = RegistryObserverPrx::uncheckedCast(_topic->getPublisher());
+    const_cast<RegistryObserverPrx&>(_publisher) = 
+	RegistryObserverPrx::uncheckedCast(_topic->getPublisher()->ice_oneway());
 }
 
 void 

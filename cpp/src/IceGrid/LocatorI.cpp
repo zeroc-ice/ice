@@ -167,6 +167,14 @@ public:
 	_cb = 0;
     }
 
+    virtual void
+    exception(const AllocationException& ex)
+    {
+	assert(_cb);
+	_cb->ice_response(0);
+	_cb = 0;
+    }
+
 private:
 
     Ice::AMD_Locator_findObjectByIdPtr _cb;
@@ -330,10 +338,10 @@ LocatorI::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& cb,
 	{
 	    try
 	    {
-		_database->allocateObject(id, new GetObjectProxy(_session, cb), false);
+		_database->allocateObject(id, new GetObjectProxy(_session, cb));
 		return;
 	    }
-	    catch(const AllocationException&)
+	    catch(const NotAllocatableException&)
 	    {
 	    }
 	}

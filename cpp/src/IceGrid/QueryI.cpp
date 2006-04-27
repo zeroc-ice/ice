@@ -37,6 +37,20 @@ public:
 	_cb = 0;
     }
 
+    virtual void
+    exception(const AllocationException& ex)
+    {
+	assert(_cb);
+	_cb->ice_response(0);
+	_cb = 0;
+    }
+
+    virtual bool
+    allocateOnce()
+    {
+	return true; // Only allow one allocation
+    }
+
 private:
 
     TPtr _cb;
@@ -73,7 +87,7 @@ QueryI::findObjectById_async(const AMD_Query_findObjectByIdPtr& cb, const Ice::I
 	    cb->ice_response(_database->getObjectProxy(id));
 	}
     }
-    catch(const AllocationException&)
+    catch(const NotAllocatableException&)
     {
 	cb->ice_response(0);
     }
@@ -97,7 +111,7 @@ QueryI::findObjectByType_async(const AMD_Query_findObjectByTypePtr& cb, const st
 	    cb->ice_response(_database->getObjectByType(type));
 	}
     }
-    catch(const AllocationException&)
+    catch(const NotAllocatableException&)
     {
 	cb->ice_response(0);
     }
@@ -124,7 +138,7 @@ QueryI::findObjectByTypeOnLeastLoadedNode_async(const AMD_Query_findObjectByType
 	    cb->ice_response(_database->getObjectByTypeOnLeastLoadedNode(type, sample));
 	}
     }
-    catch(const AllocationException&)
+    catch(const NotAllocatableException&)
     {
 	cb->ice_response(0);
     }

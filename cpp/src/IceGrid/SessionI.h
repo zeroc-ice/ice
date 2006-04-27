@@ -27,6 +27,9 @@ typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 class AllocationRequest;
 typedef IceUtil::Handle<AllocationRequest> AllocationRequestPtr;
 
+class Allocatable;
+typedef IceUtil::Handle<Allocatable> AllocatablePtr;
+
 class WaitQueue;
 typedef IceUtil::Handle<WaitQueue> WaitQueuePtr;
 
@@ -67,9 +70,12 @@ public:
     IceUtil::Time timestamp() const;
     int getAllocationTimeout() const;
     const WaitQueuePtr& getWaitQueue() const { return _waitQueue; }
+    const std::string& getUserId() const { return _userId; }
 
     void addAllocationRequest(const AllocationRequestPtr&);
     void removeAllocationRequest(const AllocationRequestPtr&);
+    void addAllocation(const AllocatablePtr&);
+    void removeAllocation(const AllocatablePtr&);
 
 protected:
 
@@ -87,7 +93,8 @@ protected:
     bool _destroyed;
     IceUtil::Time _timestamp;
     int _allocationTimeout;
-    std::set<AllocationRequestPtr> _allocations;
+    std::set<AllocationRequestPtr> _requests;
+    std::set<AllocatablePtr> _allocations;
 };
 
 class ClientSessionI : public SessionI

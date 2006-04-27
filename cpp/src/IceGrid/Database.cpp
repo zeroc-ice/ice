@@ -15,6 +15,7 @@
 #include <IceGrid/Util.h>
 #include <IceGrid/DescriptorHelper.h>
 #include <IceGrid/NodeSessionI.h>
+#include <IceGrid/Session.h>
 
 #include <algorithm>
 #include <functional>
@@ -951,9 +952,9 @@ Database::updateObject(const Ice::ObjectPrx& proxy)
 }
 
 void
-Database::allocateObject(const Ice::Identity& id, const ObjectAllocationRequestPtr& request, bool once)
+Database::allocateObject(const Ice::Identity& id, const ObjectAllocationRequestPtr& request)
 {
-    _objectCache.get(id)->allocate(request, once);
+    _objectCache.get(id)->allocate(request);
 }
 
 void
@@ -1092,6 +1093,20 @@ Database::getAllObjectInfos(const string& expression)
     return infos;
 }
 
+ObjectInfoSeq
+Database::getObjectInfosByType(const string& type)
+{
+    ObjectInfoSeq infos = _objectCache.getAllByType(type);
+
+    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
+    IdentityObjectInfoDict objects(connection, _objectDbName);    
+    for(IdentityObjectInfoDict::const_iterator p = objects.findByType(type); p != objects.end(); ++p)
+    {
+	infos.push_back(p->second);
+    }
+    return infos;
+}
+
 const TraceLevelsPtr&
 Database::getTraceLevels() const
 {
@@ -1187,7 +1202,10 @@ Database::load(const ApplicationHelper& app, ServerEntrySeq& entries)
 	_adapterCache.getReplicaGroup(r->id, true)->set(application, r->loadBalancing);
 	for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
 	{
-	    _objectCache.add(application, r->id, "", *o);
+	    //
+	    // TODO: XXX: What about the parent?
+	    //
+	    _objectCache.add(0, application, r->id, "", *o);
 	}
     }
 
@@ -1312,7 +1330,10 @@ Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newAp
 	_adapterCache.getReplicaGroup(r->id, true)->set(application, r->loadBalancing);
 	for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
 	{
-	    _objectCache.add(application, r->id, "", *o);
+	    //
+	    // TODO: XXX: What about the parent?
+	    //
+	    _objectCache.add(0, application, r->id, "", *o);
 	}
     }
 

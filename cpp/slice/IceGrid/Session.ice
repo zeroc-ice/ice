@@ -20,13 +20,17 @@ module IceGrid
 interface Query;
 interface Admin;
 
-exception AllocationTimeoutException
-{
-};
-
 exception AllocationException
 {
     string reason;
+};
+
+exception AllocationTimeoutException extends AllocationException
+{
+};
+
+exception NotAllocatableException extends AllocationException
+{
 };
 
 interface Session extends Glacier2::Session
@@ -68,7 +72,7 @@ interface Session extends Glacier2::Session
      *
      **/
     ["ami", "amd"] void allocateObject(Object* prx)
-	throws ObjectNotRegisteredException, AllocationTimeoutException, AllocationException;
+	throws ObjectNotRegisteredException, AllocationException;
     
     /**
      *

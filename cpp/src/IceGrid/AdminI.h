@@ -61,6 +61,7 @@ public:
     virtual void addObjectWithType(const ::Ice::ObjectPrx&, const ::std::string&, const ::Ice::Current&);
     virtual void removeObject(const ::Ice::Identity&, const ::Ice::Current&);
     virtual ObjectInfo getObjectInfo(const Ice::Identity&, const ::Ice::Current&) const;
+    virtual ObjectInfoSeq getObjectInfosByType(const std::string&, const ::Ice::Current&) const;
     virtual ObjectInfoSeq getAllObjectInfos(const std::string&, const ::Ice::Current&) const;
 
     virtual NodeInfo getNodeInfo(const std::string&, const Ice::Current&) const;

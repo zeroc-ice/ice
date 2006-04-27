@@ -4,10 +4,43 @@
 
     <node name="localnode">
 
-      <server id="SimpleServer" exe="${test.dir}/server" activation="on-demand" pwd=".">
-        <adapter name="Server" endpoints="default">
+      <server id="ObjectAllocation" exe="${test.dir}/server" activation="on-demand" pwd=".">
+        <adapter name="Server" endpoints="default" allocatable="false">
   	  <object identity="nonallocatable" type="::Test" allocatable="false"/>
   	  <object identity="allocatable" type="::Test" allocatable="true"/>
+  	  <object identity="allocatablebis" type="::TestBis" allocatable="true"/>
+        </adapter>
+      </server>
+
+      <server id="AdapterAllocation" exe="${test.dir}/server" activation="on-demand" pwd=".">
+        <adapter name="Server" endpoints="default" allocatable="true">
+  	  <object identity="allocatable1" type="::TestAdapter1"/>
+  	  <object identity="allocatable2" type="::TestAdapter2"/>
+
+  	  <object identity="allocatable11" type="::TestMultipleByAdapter"/>
+  	  <object identity="allocatable21" type="::TestMultipleByAdapter"/>
+        </adapter>
+      </server>
+
+      <server id="ServerAllocation" exe="${test.dir}/server" activation="on-demand" pwd="." allocatable="true">
+        <adapter name="Server" endpoints="default">
+  	  <object identity="allocatable3" type="::TestServer1"/>
+  	  <object identity="allocatable4" type="::TestServer2"/>
+
+  	  <object identity="allocatable31" type="::TestMultipleByServer"/>
+  	  <object identity="allocatable41" type="::TestMultipleByServer"/>
+        </adapter>
+      </server>
+
+      <server id="ServerAllocation-1" exe="${test.dir}/server" activation="on-demand" pwd="." allocatable="true">
+        <adapter name="Server" endpoints="default">
+  	  <object identity="allocatable5" type="::TestMultipleServer"/>
+        </adapter>
+      </server>
+
+      <server id="ServerAllocation-2" exe="${test.dir}/server" activation="on-demand" pwd="." allocatable="true">
+        <adapter name="Server" endpoints="default">
+  	  <object identity="allocatable6" type="::TestMultipleServer"/>
         </adapter>
       </server>
 

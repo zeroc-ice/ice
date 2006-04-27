@@ -14,6 +14,7 @@
 #include <IceUtil/Shared.h>
 #include <IceGrid/Descriptor.h>
 #include <IceGrid/Internal.h>
+#include <IceGrid/Allocatable.h>
 #include <IceGrid/Cache.h>
 #include <IceGrid/AdapterCache.h>
 
@@ -27,7 +28,7 @@ class NodeCache;
 class NodeEntry;
 typedef IceUtil::Handle<NodeEntry> NodeEntryPtr;
 
-class ServerEntry : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
+class ServerEntry : public Allocatable, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
     
@@ -52,6 +53,9 @@ public:
     void loadCallback(const ServerPrx&, const AdapterPrxDict&, int, int);
     void destroyCallback();
     void exception(const Ice::Exception&);
+
+    virtual void allocated(const SessionIPtr&);
+    virtual void released(const SessionIPtr&);
 
 private:
     

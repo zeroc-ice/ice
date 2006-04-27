@@ -16,6 +16,7 @@
 #include <IceGrid/ObjectCache.h>
 #include <IceGrid/NodeSessionI.h>
 #include <IceGrid/ServerCache.h>
+#include <IceGrid/SessionI.h>
 
 using namespace std;
 using namespace IceGrid;
@@ -57,8 +58,10 @@ ObjectCache::TypeEntry::remove(const Ice::ObjectPrx& obj)
 void
 ObjectCache::TypeEntry::addAllocationRequest(const ObjectAllocationRequestPtr& request)
 {
-    _requests.push_back(request);
-    request->allocate(); // TODO: XXX: monitor request timeout if timeout != -1
+    if(request->pending())
+    {
+	_requests.push_back(request);
+    }
 }
 
 void
@@ -80,7 +83,8 @@ ObjectCache::ObjectCache(const Ice::CommunicatorPtr& communicator, AdapterCache&
 }
 
 void
-ObjectCache::add(const string& app, const string& adapterId, const string& endpoints, const ObjectDescriptor& desc)
+ObjectCache::add(const AllocatablePtr& parent, const string& app, const string& adapterId, 
+		 const string& endpoints, const ObjectDescriptor& desc)
 {
     Lock sync(*this);
     assert(!getImpl(desc.id));
@@ -89,7 +93,7 @@ ObjectCache::add(const string& app, const string& adapterId, const string& endpo
 
     ObjectInfo info;
     info.type = desc.type;
-    info.allocatable = desc.allocatable;
+    info.allocatable = desc.allocatable || parent && parent->allocatable();
     if(adapterId.empty())
     {
 	info.proxy = _communicator->stringToProxy(Ice::identityToString(desc.id) + ":" + endpoints);
@@ -98,7 +102,7 @@ ObjectCache::add(const string& app, const string& adapterId, const string& endpo
     {
 	info.proxy = _communicator->stringToProxy(Ice::identityToString(desc.id) + "@" + adapterId);
     }
-    entry->set(app, info);
+    entry->set(parent, app, info);
 
     map<string, TypeEntry>::iterator p = _types.find(entry->getType());
     if(p == _types.end())
@@ -176,14 +180,7 @@ ObjectCache::allocateByType(const string& type, const ObjectAllocationRequestPtr
 	}
     }
     
-    if(request->getTimeout())
-    {
-	p->second.addAllocationRequest(request);
-    }
-    else
-    {
-	request->response(0);
-    }
+    p->second.addAllocationRequest(request);
 }
 
 void
@@ -233,14 +230,7 @@ ObjectCache::allocateByTypeOnLeastLoadedNode(const string& type,
 	}
     }
     
-    if(request->getTimeout())
-    {
-	p->second.addAllocationRequest(request);
-    }
-    else
-    {
-	request->response(0);
-    }
+    p->second.addAllocationRequest(request);
 }
 
 void
@@ -293,18 +283,39 @@ ObjectCache::getAll(const string& expression)
     return infos;
 }
 
+ObjectInfoSeq
+ObjectCache::getAllByType(const string& type)
+{
+    Lock sync(*this);
+    ObjectInfoSeq infos;
+    map<string, TypeEntry>::const_iterator p = _types.find(type);
+    if(p == _types.end())
+    {
+	return infos;
+    }
+    const Ice::ObjectProxySeq& objects = p->second.getObjects();
+    for(Ice::ObjectProxySeq::const_iterator q = objects.begin(); q != objects.end(); ++q)
+    {
+	infos.push_back(getImpl((*q)->ice_getIdentity())->getObjectInfo());
+    }
+    return infos;
+}
+
 ObjectEntry::ObjectEntry(Cache<Ice::Identity, ObjectEntry>& cache, const Ice::Identity&) :
-    Allocatable(false),
     _cache(*dynamic_cast<ObjectCache*>(&cache))
 {
 }
 
 void
-ObjectEntry::set(const string& app, const ObjectInfo& info)
+ObjectEntry::set(const AllocatablePtr& parent, const string& app, const ObjectInfo& info)
 {
     _application = app;
     _info = info;
     _allocatable = info.allocatable;
+    if(parent && parent->allocatable())
+    {
+	_parent = parent;
+    }
 }
 
 Ice::ObjectPrx
@@ -340,7 +351,8 @@ ObjectEntry::canRemove()
 bool
 ObjectEntry::release(const SessionIPtr& session)
 {
-    if(Allocatable::release(session))
+    std::set<AllocatablePtr> releasedAllocatables;
+    if(Allocatable::release(session, true, releasedAllocatables))
     {
 	//
 	// Notify the cache that this entry was released. Note that we
@@ -349,17 +361,53 @@ ObjectEntry::release(const SessionIPtr& session)
 	// mutex locked.
 	//
 	_cache.released(this);
+
+	//
+	// Notify the cache that other entries were released. For
+	// example, if it's the adapter which was allocated, all its
+	// objects are potentially released.
+	//
+	std::set<AllocatablePtr>::const_iterator p;
+	for(p = releasedAllocatables.begin(); p != releasedAllocatables.end(); ++p)
+	{
+	    _cache.released(ObjectEntryPtr::dynamicCast(*p));
+	}
 	return true;
     }
     return false;
 }
 
 void
-ObjectEntry::allocated()
+ObjectEntry::allocated(const SessionIPtr& session)
 {
+    //
+    // Add the object allocation to the session. The object will be
+    // released once the session is destroyed.
+    //
+    session->addAllocation(this);
+
+    TraceLevelsPtr traceLevels = _cache.getTraceLevels();
+    if(traceLevels && traceLevels->object > 1)
+    {
+	Ice::Trace out(traceLevels->logger, traceLevels->objectCat);
+	const Ice::Identity id = _info.proxy->ice_getIdentity();
+	out << "object `" << id << "' allocated by `" << session->getUserId() << "' (" << _count << ")";
+    }    
 }
 
 void
-ObjectEntry::released()
+ObjectEntry::released(const SessionIPtr& session)
 {
+    //
+    // Remove the object allocation from the session.
+    //
+    session->removeAllocation(this);
+
+    TraceLevelsPtr traceLevels = _cache.getTraceLevels();
+    if(traceLevels && traceLevels->object > 1)
+    {
+	Ice::Trace out(traceLevels->logger, traceLevels->objectCat);
+	const Ice::Identity id = _info.proxy->ice_getIdentity();
+	out << "object `" << id << "' released by `" << session->getUserId() << "' (" << _count << ")";
+    }    
 }

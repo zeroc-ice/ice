@@ -645,6 +645,7 @@ AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& type, const
     ObjectInfo info;
     info.proxy = proxy;
     info.type = type;
+    info.allocatable = false;
     _database->addObject(info);
 }
 
@@ -658,6 +659,12 @@ ObjectInfo
 AdminI::getObjectInfo(const Ice::Identity& id, const Ice::Current&) const
 {
     return _database->getObjectInfo(id);
+}
+
+ObjectInfoSeq
+AdminI::getObjectInfosByType(const string& type, const Ice::Current&) const
+{
+    return _database->getObjectInfosByType(type);
 }
 
 ObjectInfoSeq

@@ -1055,13 +1055,10 @@ Parser::findObject(const list<string>& args)
 
     try
     {
-	//
-	// TODO: XXX: This only returns non allocatable objects.
-	//
-	Ice::ObjectProxySeq objects = _query->findAllObjectsByType(*(args.begin()));
-	for (Ice::ObjectProxySeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
+	ObjectInfoSeq objects = _admin->getObjectInfosByType(*(args.begin()));
+	for(ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
 	{
-	    cout << _communicator->proxyToString(*p) << endl;
+	    cout << _communicator->proxyToString(p->proxy) << endl;
 	}	
     }
     catch(const Ice::Exception& ex)

@@ -584,6 +584,7 @@ CommunicatorDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
     }
     desc.replicaGroupId = attrs("replica-group", "");
     desc.registerProcess = attrs.asBool("register-process", false);
+    desc.allocatable = attrs.asBool("allocatable", false);
     if(desc.id == "" && attrs.contains("wait-for-activation"))
     {
 	throw "the attribute `wait-for-activation' can only be set if the adapter has an non empty id";
@@ -717,6 +718,8 @@ ServerDescriptorBuilder::init(const ServerDescriptorPtr& desc, const XmlAttribut
     _descriptor->pwd = attrs("pwd", "");
     _descriptor->activation = attrs("activation", "manual");
     _descriptor->applicationDistrib = attrs.asBool("application-distrib", true);
+    _descriptor->allocatable = attrs.asBool("allocatable", false);
+
 }
 
 ServiceDescriptorBuilder*

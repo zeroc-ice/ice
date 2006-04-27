@@ -11,14 +11,15 @@
 #define ICE_GRID_ALLOCATABLE_H
 
 #include <IceUtil/Handle.h>
-#include <IceUtil/Mutex.h>
+#include <IceUtil/RecMutex.h>
 #include <IceUtil/Shared.h>
 #include <IceUtil/Time.h>
 
 #include <IceGrid/WaitQueue.h>
+#include <IceGrid/Session.h>
 
 #include <list>
-
+#include <set>
 
 namespace IceGrid
 {
@@ -35,16 +36,15 @@ public:
 
     virtual ~AllocationRequest();
     
-    virtual void timeout() = 0;
     virtual void allocated(const AllocatablePtr&) = 0;
-    virtual void canceled() = 0;
+    virtual void canceled(const AllocationException&) = 0;
+    
+    virtual bool allocateOnce() { return false; }
 
-    bool setAllocatable(const AllocatablePtr&);
-    void cancel();
-    virtual void expired(bool);
-
-    void allocate();
-    void release();
+    bool pending();
+    bool finish(const AllocatablePtr&);
+    void cancel(const AllocationException&);
+    void expired(bool);
 
     int getTimeout() const { return _timeout; }
     const SessionIPtr& getSession() const { return _session; }
@@ -68,33 +68,57 @@ private:
     const SessionIPtr _session;
     const int _timeout;
     State _state;
-    AllocatablePtr _allocatable;
 };
 typedef IceUtil::Handle<AllocationRequest> AllocationRequestPtr;
+
+class ParentAllocationRequest : public AllocationRequest
+{
+public:
+
+    ParentAllocationRequest(const AllocationRequestPtr&, const AllocatablePtr&);
+    
+    virtual void allocated(const AllocatablePtr&);
+    virtual void canceled(const AllocationException&);
+
+private:
+    
+    const AllocationRequestPtr _request;
+    const AllocatablePtr _allocatable;
+};
 
 class Allocatable : public IceUtil::Shared
 {
 public:
 
-    Allocatable(bool);
+    Allocatable();
     virtual ~Allocatable();
 
-    virtual void allocate(const AllocationRequestPtr&, bool);
+    virtual void allocate(const AllocationRequestPtr&, bool = true);
     virtual bool tryAllocate(const AllocationRequestPtr&);
     virtual bool release(const SessionIPtr&);
 
     bool allocatable() const { return _allocatable; }
     bool isAllocated() const;
+    SessionIPtr getSession() const;
 
-    virtual void allocated() {  }
-    virtual void released() {  }
+    virtual void allocated(const SessionIPtr&) {  }
+    virtual void released(const SessionIPtr&) {  }
+
+    bool operator<(const Allocatable&) const;
 
 protected:
 
+    bool tryAllocateWithSession(const SessionIPtr&, const AllocatablePtr&);
+    bool release(const SessionIPtr&, bool, std::set<AllocatablePtr>&);
+
     bool _allocatable;
-    IceUtil::Mutex _allocateMutex;
+    AllocatablePtr _parent;
+    
+    IceUtil::RecMutex _allocateMutex;
     std::list<AllocationRequestPtr> _requests;
-    AllocationRequestPtr _allocated;
+    SessionIPtr _session;
+    int _count;
+    std::set<AllocatablePtr> _attempts;
 };
 
 };

@@ -726,6 +726,7 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
 	adapter.registerProcess = p->registerProcess;
 	adapter.waitForActivation = p->waitForActivation;
 	adapter.replicaGroupId = resolve(p->replicaGroupId, "object adapter replica group id");
+	adapter.allocatable = p->allocatable;
 	if(!adapter.replicaGroupId.empty() && !resolve.hasReplicaGroup(adapter.replicaGroupId))
 	{
 	    resolve.exception("unknown replica group `" + adapter.replicaGroupId + "'");
@@ -1027,6 +1028,11 @@ ServerHelper::operator==(const ServerHelper& helper) const
 	return false;
     }
 
+    if(_desc->allocatable != helper._desc->allocatable)
+    {
+	return false;
+    }
+
     return true;
 }
 
@@ -1048,6 +1054,7 @@ ServerHelper::instantiateImpl(const ServerDescriptorPtr& instance,
     instance->pwd = resolve(_desc->pwd, "working directory path");
     instance->activation = resolve(_desc->activation, "activation");
     instance->applicationDistrib = _desc->applicationDistrib;
+    instance->allocatable = _desc->allocatable;
     if(!instance->activation.empty() && 
        instance->activation != "manual" && instance->activation != "on-demand" && instance->activation != "always")
     {

@@ -25,22 +25,26 @@ public:
     {
     }
 
-    virtual void response(const Ice::ObjectPrx& proxy)
+    virtual void 
+    response(const Ice::ObjectPrx& proxy)
     {
 	assert(_cb);
-	if(proxy)
-	{
-	    _cb->ice_response();
-	}
-	else
-	{
-	    //
-	    // TODO: The request might also have been canceled!
-	    //
-
-	    _cb->ice_exception(AllocationTimeoutException());
-	}
+	_cb->ice_response();
 	_cb = 0;
+    }
+
+    virtual void
+    exception(const AllocationException& ex)
+    {
+	assert(_cb);
+	_cb->ice_exception(ex);
+	_cb = 0;
+    }
+
+    virtual bool 
+    allocateOnce() 
+    {
+	return true; // Only allow one allocation
     }
 
 private:
@@ -178,7 +182,8 @@ SessionI::setAllocationTimeout(int timeout, const Ice::Current&)
 void
 SessionI::destroy(const Ice::Current& current)
 {
-    set<AllocationRequestPtr> allocations;
+    set<AllocationRequestPtr> requests;
+    set<AllocatablePtr> allocations;
     {
 	Lock sync(*this);
 	if(_destroyed)
@@ -196,12 +201,24 @@ SessionI::destroy(const Ice::Current& current)
 	    out << _prefix << " session `" << _userId << "' destroyed";
 	}
 
+	requests.swap(_requests);
 	allocations.swap(_allocations);
     }
 
-    for(set<AllocationRequestPtr>::const_iterator p = allocations.begin(); p != allocations.end(); ++p)
+    for(set<AllocationRequestPtr>::const_iterator p = requests.begin(); p != requests.end(); ++p)
     {
-	(*p)->cancel();
+	(*p)->cancel(AllocationException("session destroyed"));
+    }
+    for(set<AllocatablePtr>::const_iterator p = allocations.begin(); p != allocations.end(); ++p)
+    {
+	try
+	{
+	    (*p)->release(this);
+	}
+	catch(const AllocationException& ex)
+	{
+	    assert(false);
+	}
     }
 }
 
@@ -223,14 +240,28 @@ void
 SessionI::addAllocationRequest(const AllocationRequestPtr& request)
 {
     Lock sync(*this);
-    _allocations.insert(request);
+    _requests.insert(request);
 }
 
 void
 SessionI::removeAllocationRequest(const AllocationRequestPtr& request)
 {
     Lock sync(*this);
-    _allocations.erase(request);
+    _requests.erase(request);
+}
+
+void
+SessionI::addAllocation(const AllocatablePtr& allocatable)
+{
+    Lock sync(*this);
+    _allocations.insert(allocatable);
+}
+
+void
+SessionI::removeAllocation(const AllocatablePtr& allocatable)
+{
+    Lock sync(*this);
+    _allocations.erase(allocatable);
 }
 
 ClientSessionI::ClientSessionI(const string& userId, 
