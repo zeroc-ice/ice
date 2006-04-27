@@ -1837,6 +1837,112 @@ generator.
 </section>
 </section>
 
+<section id="IceSSL.FindCert"><title>IceSSL.FindCert.<replaceable>location</replaceable>.<replaceable>name</replaceable></title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.FindCert.<replaceable>location</replaceable>.<replaceable>name</replaceable>=<replaceable>criteria</replaceable> (.NET)
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Queries the certificate repository for matching certificates and adds them to the application's
+collection of certificates that are used for authentication. The value for <replaceable>location</replaceable>
+must be <literal>LocalMachine</literal> or <literal>CurrentUser</literal>. The <replaceable>name</replaceable>
+corresponds to the .NET enumeration <literal>StoreName</literal> and may be one of the following values:
+<literal>AddressBook</literal>, <literal>AuthRoot</literal>, <literal>CertificateAuthority</literal>,
+<literal>Disallowed</literal>, <literal>My</literal>, <literal>Root</literal>, <literal>TrustedPeople</literal>,
+<literal>TrustedPublisher</literal>. It is also possible to use an arbitrary value for
+<replaceable>name</replaceable>.
+</para>
+<para>
+The value for <replaceable>criteria</replaceable> may be <literal>*</literal>, in which case all of the
+certificates in the store are selected. Otherwise, criteria must be one or more
+<replaceable>field</replaceable>:<replaceable>value</replaceable> pairs separated by whitespace. The
+valid field names are described below:
+
+<variablelist>
+<varlistentry><term><literal>Issuer</literal></term>
+<listitem>
+<para>
+Matches a substring of the issuer's name.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><literal>IssuerDN</literal></term>
+<listitem>
+<para>
+Matches the issuer's entire distinguished name.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><literal>Serial</literal></term>
+<listitem>
+<para>
+Matches the certificate's serial number.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><literal>Subject</literal></term>
+<listitem>
+<para>
+Matches a substring of the subject's name.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><literal>SubjectDN</literal></term>
+<listitem>
+<para>
+Matches the subject's entire distinguished name.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><literal>SubjectKeyId</literal></term>
+<listitem>
+<para>
+Matches the certificate's subject key identifier.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><literal>Thumbprint</literal></term>
+<listitem>
+<para>
+Matches the certificate's thumbprint.
+</para>
+</listitem>
+</varlistentry>
+</variablelist>
+</para>
+<para>
+The field names are case-insensitive. If multiple criteria are specified, only certificates that
+match all criteria are selected. Values must be enclosed in single or double quotes to preserve
+whitespace.
+</para>
+<para>
+Multiple occurrences of the property are allowed, but only one query is possible for each
+location/name combination. The certificates from all queries are combined to form the certificate
+collection, including a certificate loaded using <link linkend="IceSSL.CertFile">IceSSL.CertFile</link>.
+</para>
+<para>
+Some sample queries are shown below:
+<itemizedlist>
+<listitem><para><literal>IceSSL.FindCert.LocalMachine.My=issuer:verisign serial:219336</literal></para></listitem>
+<listitem><para><literal>IceSSL.FindCert.CurrentUser.Root=subject:"Joe's Certificate"</literal></para></listitem>
+</itemizedlist>
+</para>
+<note>
+<para>
+A server requires a certificate for authentication purposes, therefore &IceSSL; selects the first
+certificate in the accumulated collection. This is normally the certificate loaded via
+<link linkend="IceSSL.CertFile">IceSSL.CertFile</link>, if that property was defined.
+Otherwise, one of the certificates from <literal>IceSSL.FindCert</literal> is selected. Since
+&IceSSL; does not guarantee the order in which it evaluates <literal>IceSSL.FindCert</literal>
+properties, it is recommended that the criteria select only one certificate.
+</para>
+</note>
+</section>
+</section>
+
 <section id="IceSSL.ImportCert"><title>IceSSL.ImportCert.<replaceable>location</replaceable>.<replaceable>name</replaceable></title>
 <section><title>Synopsis</title>
 <synopsis>
