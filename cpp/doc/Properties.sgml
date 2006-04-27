@@ -1623,7 +1623,7 @@ private key. The password for the file must be supplied using
 <section id="IceSSL.CheckCertName"><title>IceSSL.CheckCertName</title>
 <section><title>Synopsis</title>
 <synopsis>
-IceSSL.CheckCertName=<replaceable>num</replaceable> (C++, .NET)
+IceSSL.CheckCertName=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -1633,6 +1633,7 @@ If <replaceable>num</replaceable> is a value greater than zero, IceSSL
 compares the server's hostname as specified in the proxy against the 
 DNS or IP address fields of the server's certificate. If no match is
 found, IceSSL aborts the connection attempt and raises an exception.
+If not defined, the default value is zero.
 </para>
 </section>
 </section>
