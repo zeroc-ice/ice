@@ -789,7 +789,7 @@ public class Coordinator
 	    //
 	    // Local session
 	    //
-	    str = info.registryInstanceName + "/SessionManager";
+	    str = info.registryInstanceName + "/AdminSessionManager";
 		
 	    SessionManagerPrx sessionManager = SessionManagerPrxHelper.
 		uncheckedCast(_communicator.stringToProxy(str));
