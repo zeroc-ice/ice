@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <IceSSL/Plugin.h>
 #include <Util.h>
 #include <IceUtil/StaticMutex.h>
