@@ -687,10 +687,7 @@ public class Root extends ListTreeNode
 
 	    if(confirm == JOptionPane.YES_OPTION)
 	    {
-		if(_coordinator.removeApplicationFromRegistry(_id))
-		{
-		    _coordinator.getMainPane().removeApplication(this);
-		}
+		_coordinator.removeApplicationFromRegistry(_id);
 	    }
 	}
 	else
@@ -977,6 +974,8 @@ public class Root extends ListTreeNode
     void updated()
     {
 	_updated = true;
+	_registryUpdatesEnabled = false; // can be true before that when updated() is called by destroy()
+
 	_concurrentUpdates.clear();
 	
 	_coordinator.getSaveAction().setEnabled(_live || _file != null);

@@ -519,7 +519,7 @@ public class Coordinator
 	root.setSelectedNode(root);
     }
     
-    public boolean removeApplicationFromRegistry(String name)
+    public void removeApplicationFromRegistry(String name)
     {
 	_mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	
@@ -533,7 +533,6 @@ public class Coordinator
 	catch(AccessDeniedException e)
 	{
 	    accessDenied(e);
-	    return false;
 	}
 	catch(ApplicationNotExistException e)
 	{
@@ -549,9 +548,6 @@ public class Coordinator
 	    }
 	    _mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
-
-	_liveApplications.remove(name);
-	return true;
     }
 
     public void acquireExclusiveWriteAccess(Runnable runnable)
@@ -1341,18 +1337,30 @@ public class Coordinator
 		public void actionPerformed(ActionEvent e) 
 		{
 		    Object[] applicationNames = _liveDeploymentRoot.getApplicationNames();
-
-		    String appName = (String)JOptionPane.showInputDialog(
-			_mainFrame, "Which Application do you want to open?", "Open Application from registry",	 
-			JOptionPane.QUESTION_MESSAGE, null,
-			applicationNames, applicationNames[0]);
 		    
-		    if(appName != null)
+		    if(applicationNames.length == 0)
 		    {
-			IceGridGUI.Application.Root root = openLiveApplication(appName).getRoot();
-			if(root.getSelectedNode() == null)
+			JOptionPane.showMessageDialog(
+			    _mainFrame,
+			    "The registry does not contain any application",
+			    "Empty registry",
+			    JOptionPane.INFORMATION_MESSAGE);
+		    }
+		    else
+		    {
+			String appName = (String)JOptionPane.showInputDialog(
+			    _mainFrame, "Which Application do you want to open?", 
+			    "Open Application from registry",	 
+			    JOptionPane.QUESTION_MESSAGE, null,
+			    applicationNames, applicationNames[0]);
+			
+			if(appName != null)
 			{
-			    root.setSelectedNode(root);
+			    IceGridGUI.Application.Root root = openLiveApplication(appName).getRoot();
+			    if(root.getSelectedNode() == null)
+			    {
+				root.setSelectedNode(root);
+			    }
 			}
 		    }
 		}
