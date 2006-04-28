@@ -38,9 +38,10 @@ public:
     virtual std::vector<std::pair<std::string, AdapterPrx> > getProxies(bool, int&, const SessionIPtr&) 
     {
 	assert(false); 
+	return std::vector<std::pair<std::string, AdapterPrx> >();
     }
-    virtual float getLeastLoadedNodeLoad(LoadSample) const { assert(false); }
-    virtual std::string getApplication() const { assert(false); }
+    virtual float getLeastLoadedNodeLoad(LoadSample) const {  assert(false); return 0.0; }
+    virtual std::string getApplication() const { assert(false); return "";}
     virtual bool canRemove();
     
 protected:
