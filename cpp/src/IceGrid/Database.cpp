@@ -743,7 +743,7 @@ Database::getAdapter(const string& id, const string& replicaGroupId)
 }
 
 vector<pair<string, AdapterPrx> >
-Database::getAdapters(const string& id, bool allRegistered, int& endpointCount)
+Database::getAdapters(const string& id, bool allRegistered, int& endpointCount, const SessionIPtr& session)
 {
     //
     // First we check if the given adapter id is associated to a
@@ -752,7 +752,7 @@ Database::getAdapters(const string& id, bool allRegistered, int& endpointCount)
     //
     try
     {
-	return _adapterCache.get(id)->getProxies(allRegistered, endpointCount);
+	return _adapterCache.get(id)->getProxies(allRegistered, endpointCount, session);
     }
     catch(AdapterNotExistException&)
     {
@@ -977,15 +977,14 @@ Database::releaseObject(const Ice::Identity& id, const SessionIPtr& session)
 }
 
 Ice::ObjectPrx
-Database::getObjectProxy(const Ice::Identity& id)
+Database::getObjectProxy(const Ice::Identity& id, const SessionIPtr& session)
 {
     try
     {
 	//
 	// Only return proxies for non allocatable objects.
 	//
-	ObjectEntryPtr entry = _objectCache.get(id);
-	return entry->allocatable() ? Ice::ObjectPrx() : entry->getProxy();
+	return _objectCache.get(id)->getProxy(session);
     }
     catch(ObjectNotRegisteredException&)
     {

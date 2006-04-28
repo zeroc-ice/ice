@@ -39,7 +39,7 @@ AllocationRequest::pending()
 }
 
 bool
-AllocationRequest::finish(const AllocatablePtr& allocatable)
+AllocationRequest::finish(const AllocatablePtr& allocatable, const SessionIPtr& session)
 {
     Lock sync(*this);
     switch(_state)
@@ -65,7 +65,7 @@ AllocationRequest::finish(const AllocatablePtr& allocatable)
     // and if it's allowed to allocate multiple times the same
     // allocatable.
     //
-    if(allocateOnce() && _session == allocatable->getSession())
+    if(allocateOnce() && _session == session)
     {
 	_state = Canceled;
 	canceled(AllocationException("already allocated by the session"));
@@ -74,7 +74,7 @@ AllocationRequest::finish(const AllocatablePtr& allocatable)
     else
     {
 	_state = Allocated;
-	allocated(allocatable);
+	allocated(allocatable, _session);
 	return true;
     }
 }
@@ -145,7 +145,7 @@ ParentAllocationRequest::ParentAllocationRequest(const AllocationRequestPtr& req
 }
 
 void 
-ParentAllocationRequest::allocated(const AllocatablePtr& allocatable)
+ParentAllocationRequest::allocated(const AllocatablePtr& allocatable, const SessionIPtr& session)
 {
     try
     {
@@ -183,7 +183,7 @@ Allocatable::allocate(const AllocationRequestPtr& request, bool checkParent)
 
     if(_session == request->getSession())
     {
-	if(request->finish(this))
+	if(request->finish(this, _session))
 	{
 	    ++_count;
 	}
@@ -203,7 +203,7 @@ Allocatable::allocate(const AllocationRequestPtr& request, bool checkParent)
 	    _requests.push_back(request);
 	}
     } 
-    else if(request->finish(this))
+    else if(request->finish(this, _session))
     {
 	assert(_count == 0);
 	_session = request->getSession();
@@ -261,7 +261,7 @@ Allocatable::tryAllocate(const AllocationRequestPtr& request)
 	return false;
     }
 
-    if(request->finish(this))
+    if(request->finish(this, _session))
     {
 	assert(_count == 0);
 	_session = request->getSession();
@@ -309,7 +309,7 @@ Allocatable::release(const SessionIPtr& session, bool all, set<AllocatablePtr>& 
 	{
 	    AllocationRequestPtr request = _requests.front();
 	    _requests.pop_front();
-	    if(request->finish(this))
+	    if(request->finish(this, _session))
 	    {
 		_session = request->getSession();
 		++_count;
@@ -324,7 +324,7 @@ Allocatable::release(const SessionIPtr& session, bool all, set<AllocatablePtr>& 
 		{
 		    if((*p)->getSession() == _session)
 		    {
-			if((*p)->finish(this))
+			if((*p)->finish(this, _session))
 			{
 			    ++_count;
 			}

@@ -16,20 +16,26 @@
 using namespace std;
 using namespace IceGrid;
 
+namespace IceGrid
+{
+
+template<class T>
 class AllocateObject : public ObjectAllocationRequest
 {
+    typedef IceUtil::Handle<T> TPtr;
+
 public:
 
-    AllocateObject(const SessionIPtr& session, const AMD_Session_allocateObjectPtr& cb) :
+    AllocateObject(const SessionIPtr& session, const TPtr& cb) :
 	ObjectAllocationRequest(session), _cb(cb)
     {
     }
 
-    virtual void 
+    virtual void
     response(const Ice::ObjectPrx& proxy)
     {
 	assert(_cb);
-	_cb->ice_response();
+	_cb->ice_response(proxy);
 	_cb = 0;
     }
 
@@ -41,15 +47,23 @@ public:
 	_cb = 0;
     }
 
-    virtual bool 
-    allocateOnce() 
+    virtual bool
+    allocateOnce()
     {
 	return true; // Only allow one allocation
     }
 
 private:
 
-    AMD_Session_allocateObjectPtr _cb;
+    TPtr _cb;
+};
+
+template<class T> static AllocateObject<T>*
+newAllocateObject(const SessionIPtr& session, const IceUtil::Handle<T>& cb)
+{
+    return new AllocateObject<T>(session, cb);
+}
+
 };
 
 SessionReapable::SessionReapable(const SessionIPtr& session, const SessionPrx& proxy) : 
@@ -100,7 +114,6 @@ SessionI::SessionI(const string& userId,
     // Register session based query and locator interfaces
     //
     Ice::CommunicatorPtr com = adapter->getCommunicator();
-    _query = QueryPrx::uncheckedCast(adapter->addWithUUID(new QueryI(com, _database, this)));
     _locator = Ice::LocatorPrx::uncheckedCast(adapter->addWithUUID(new LocatorI(com, _database, registry, this)));
 }
 
@@ -134,12 +147,6 @@ SessionI::getTimeout(const Ice::Current&) const
     return _timeout;
 }
 
-QueryPrx
-SessionI::getQuery(const Ice::Current& current) const
-{
-    return _query;
-}
-
 Ice::LocatorPrx
 SessionI::getLocator(const Ice::Current& current) const
 {
@@ -147,29 +154,25 @@ SessionI::getLocator(const Ice::Current& current) const
 }
 
 void
-SessionI::allocateObject_async(const AMD_Session_allocateObjectPtr& cb, const Ice::ObjectPrx& prx, const Ice::Current&)
+SessionI::allocateObjectById_async(const AMD_Session_allocateObjectByIdPtr& cb,
+				   const Ice::Identity& id, 
+				   const Ice::Current&)
 {
-    //
-    // TODO: Check if the proxy points to a replicated object and eventually throw if that's the case.
-    //
-    if(!prx)
-    {
-	throw AllocationException("proxy is null");
-    }
-    _database->allocateObject(prx->ice_getIdentity(), new AllocateObject(this, cb));
+    _database->allocateObject(id, newAllocateObject(this, cb));
 }
 
 void
-SessionI::releaseObject(const Ice::ObjectPrx& prx, const Ice::Current&)
+SessionI::allocateObjectByType_async(const AMD_Session_allocateObjectByTypePtr& cb, 
+				     const string& type,
+				     const Ice::Current&)
 {
-    //
-    // TODO: Check if the proxy points to a replicated object and eventually throw if that's the case.
-    //
-    if(!prx)
-    {
-	throw AllocationException("proxy is null");
-    }
-    _database->releaseObject(prx->ice_getIdentity(), this);
+    _database->allocateObjectByType(type, newAllocateObject(this, cb));
+}
+
+void
+SessionI::releaseObject(const Ice::Identity& id, const Ice::Current&)
+{
+    _database->releaseObject(id, this);
 }
 
 void

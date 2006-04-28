@@ -109,7 +109,7 @@ ObjectCache::add(const AllocatablePtr& parent, const string& app, const string& 
     {
 	p = _types.insert(p, make_pair(entry->getType(), TypeEntry(*this)));
     }
-    p->second.add(entry->getProxy());
+    p->second.add(info.proxy);
 
     if(_traceLevels && _traceLevels->object > 0)
     {
@@ -140,7 +140,7 @@ ObjectCache::remove(const Ice::Identity& id)
 
     map<string, TypeEntry>::iterator p = _types.find(entry->getType());
     assert(p != _types.end());
-    if(p->second.remove(entry->getProxy()))
+    if(p->second.remove(entry->getObjectInfo().proxy))
     {	
 	_types.erase(p);
     }
@@ -262,7 +262,7 @@ ObjectCache::getObjectsByType(const string& type)
 	ObjectEntryPtr entry = getImpl((*q)->ice_getIdentity());
 	if(!entry->allocatable())
 	{
-	    proxies.push_back(entry->getProxy());
+	    proxies.push_back(*q);
 	}
     }
     return proxies;
@@ -319,9 +319,16 @@ ObjectEntry::set(const AllocatablePtr& parent, const string& app, const ObjectIn
 }
 
 Ice::ObjectPrx
-ObjectEntry::getProxy() const
+ObjectEntry::getProxy(const SessionIPtr& session) const
 {
-    return _info.proxy;
+    if(allocatable())
+    {
+	return getSession() == session ? _info.proxy : Ice::ObjectPrx();
+    }
+    else
+    {
+	return _info.proxy;
+    }
 }
 
 string

@@ -403,7 +403,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	try
 	{
-	    session1->getQuery()->ice_ping();
 	    session1->getAdmin()->ice_ping();
 	}
 	catch(const Ice::LocalException&)

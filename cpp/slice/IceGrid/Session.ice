@@ -52,13 +52,6 @@ interface Session extends Glacier2::Session
 
     /**
      *
-     * Get the query interface.
-     *
-     **/
-    nonmutating Query* getQuery();
-
-    /**
-     *
      * Get the session locator.
      *
      **/
@@ -71,15 +64,30 @@ interface Session extends Glacier2::Session
      * timeout is reached.
      *
      **/
-    ["ami", "amd"] void allocateObject(Object* prx)
+    ["ami", "amd"] Object* allocateObjectById(Ice::Identity id)
 	throws ObjectNotRegisteredException, AllocationException;
+    
+    /**
+     *
+     * Allocate an object with the given type. Depending on the
+     * allocation timeout, this method might hang until an object
+     * becomes available or until the timeout is reached.
+     *
+     * @param type The type of the object.
+     *
+     * @return The proxy of the allocated object or null if no objects
+     * with the given type has been found.
+     *
+     **/
+    ["ami", "amd"] Object* allocateObjectByType(string type)
+	throws AllocationException;
     
     /**
      *
      * Release an object.
      *
      **/
-    void releaseObject(Object* prx)
+    void releaseObject(Ice::Identity id)
 	throws ObjectNotRegisteredException, AllocationException;
     
     /**

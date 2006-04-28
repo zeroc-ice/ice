@@ -157,13 +157,23 @@ ServerAdapterEntry::ServerAdapterEntry(Cache<string, AdapterEntry>& cache, const
 }
 
 vector<pair<string, AdapterPrx> >
-ServerAdapterEntry::getProxies(bool, int& nReplicas)
+ServerAdapterEntry::getProxies(bool, int& nReplicas, const SessionIPtr& session)
 {
     vector<pair<string, AdapterPrx> > adapters;
     try
     {
 	nReplicas = 1;
-	adapters.push_back(make_pair(_id, getProxy()));
+	if(allocatable())
+	{
+	    if(session == getSession())
+	    {
+		adapters.push_back(make_pair(_id, getProxy()));
+	    }
+	}
+	else
+	{
+	    adapters.push_back(make_pair(_id, getProxy()));
+	}
     }
     catch(const NodeUnreachableException&)
     {
@@ -342,7 +352,7 @@ ReplicaGroupEntry::removeReplica(const string& replicaId)
 }
 
 vector<pair<string, AdapterPrx> >
-ReplicaGroupEntry::getProxies(bool allRegistered, int& nReplicas)
+ReplicaGroupEntry::getProxies(bool allRegistered, int& nReplicas, const SessionIPtr& session)
 {
     ReplicaSeq replicas;
     bool adaptive = false;
@@ -406,7 +416,17 @@ ReplicaGroupEntry::getProxies(bool allRegistered, int& nReplicas)
     {
 	try
 	{
-	    adapters.push_back(make_pair(p->first, p->second->getProxy()));
+	    if(p->second->allocatable())
+	    {
+		if(session == p->second->getSession())
+		{
+		    adapters.push_back(make_pair(p->first, p->second->getProxy()));
+		}
+	    }
+	    else
+	    {
+		adapters.push_back(make_pair(p->first, p->second->getProxy()));
+	    }
 	}
 	catch(AdapterNotExistException&)
 	{

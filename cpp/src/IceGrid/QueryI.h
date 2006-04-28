@@ -19,14 +19,11 @@ namespace IceGrid
 class Database;
 typedef IceUtil::Handle<Database> DatabasePtr;
 
-class SessionI;
-typedef IceUtil::Handle<SessionI> SessionIPtr;
-
 class QueryI : public Query, public IceUtil::Mutex
 {
 public:
 
-    QueryI(const Ice::CommunicatorPtr&, const DatabasePtr&, const SessionIPtr&);
+    QueryI(const Ice::CommunicatorPtr&, const DatabasePtr&);
     virtual ~QueryI();
 
     virtual void findObjectById_async(const AMD_Query_findObjectByIdPtr&, const ::Ice::Identity&, 
@@ -46,7 +43,6 @@ private:
 
     const Ice::CommunicatorPtr _communicator;
     const DatabasePtr _database;
-    const SessionIPtr _session;
 };
 
 }

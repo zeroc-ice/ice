@@ -60,10 +60,12 @@ public:
 
     virtual void keepAlive(const Ice::Current&);
     virtual int getTimeout(const Ice::Current&) const;
-    virtual QueryPrx getQuery(const Ice::Current&) const;
     virtual Ice::LocatorPrx getLocator(const Ice::Current&) const;
-    virtual void allocateObject_async(const AMD_Session_allocateObjectPtr&, const Ice::ObjectPrx&,const Ice::Current&);
-    virtual void releaseObject(const Ice::ObjectPrx&, const Ice::Current&);
+    virtual void allocateObjectById_async(const AMD_Session_allocateObjectByIdPtr&, const Ice::Identity&,
+					  const Ice::Current&);
+    virtual void allocateObjectByType_async(const AMD_Session_allocateObjectByTypePtr&, const std::string&,
+					    const Ice::Current&);
+    virtual void releaseObject(const Ice::Identity&, const Ice::Current&);
     virtual void setAllocationTimeout(int, const Ice::Current&);
     virtual void destroy(const Ice::Current&);
 

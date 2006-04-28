@@ -80,41 +80,23 @@ private:
     Ice::ObjectPrx _obj;
 };
 
-class AllocateObjectCallback : public AMI_Session_allocateObject, public Callback
-{
-public:
-
-    virtual void ice_response() { response(0); }
-    virtual void ice_exception(const Ice::Exception&) { exception(); }
-};
-typedef IceUtil::Handle<AllocateObjectCallback> AllocateObjectCallbackPtr;
-
-class FindObjectByIdCallback : public AMI_Query_findObjectById, public Callback
+class AllocateObjectByIdCallback : public AMI_Session_allocateObjectById, public Callback
 {
 public:
 
     virtual void ice_response(const Ice::ObjectPrx& obj) { response(obj); }
     virtual void ice_exception(const Ice::Exception&) { exception(); }
 };
-typedef IceUtil::Handle<FindObjectByIdCallback> FindObjectByIdCallbackPtr;
+typedef IceUtil::Handle<AllocateObjectByIdCallback> AllocateObjectByIdCallbackPtr;
 
-class FindObjectByTypeCallback : public AMI_Query_findObjectByType, public Callback
+class AllocateObjectByTypeCallback : public AMI_Session_allocateObjectByType, public Callback
 {
 public:
 
     virtual void ice_response(const Ice::ObjectPrx& obj) { response(obj); }
     virtual void ice_exception(const Ice::Exception&) { exception(); }
 };
-typedef IceUtil::Handle<FindObjectByTypeCallback> FindObjectByTypeCallbackPtr;
-
-class FindObjectByTypeOnLeastLoadedNodeCallback : public AMI_Query_findObjectByTypeOnLeastLoadedNode, public Callback
-{
-public:
-
-    virtual void ice_response(const Ice::ObjectPrx& obj) { response(obj); }
-    virtual void ice_exception(const Ice::Exception&) { exception(); }
-};
-typedef IceUtil::Handle<FindObjectByTypeOnLeastLoadedNodeCallback> FindObjectByTypeOnLeastLoadedNodeCallbackPtr;
+typedef IceUtil::Handle<AllocateObjectByTypeCallback> AllocateObjectByTypeCallbackPtr;
 
 class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 {
@@ -206,21 +188,21 @@ allTests(const Ice::CommunicatorPtr& communicator)
     
 	cout << "ok" << endl;
 
-	cout << "testing allocate object... " << flush;
+	cout << "testing allocate object by identity... " << flush;
 
-	Ice::ObjectPrx allocatable = communicator->stringToProxy("allocatable");
-	Ice::ObjectPrx allocatablebis = communicator->stringToProxy("allocatablebis");
+	Ice::Identity allocatable = Ice::stringToIdentity("allocatable");
+	Ice::Identity allocatablebis = Ice::stringToIdentity("allocatablebis");
 
 	try
 	{
-	    session1->allocateObject(communicator->stringToProxy("dummy"));
+	    session1->allocateObjectById(Ice::stringToIdentity("dummy"));
 	}
 	catch(const ObjectNotRegisteredException&)
 	{
 	}
 	try
 	{
-	    session1->releaseObject(communicator->stringToProxy("dummy"));
+	    session1->releaseObject(Ice::stringToIdentity("dummy"));
 	}
 	catch(const ObjectNotRegisteredException&)
 	{
@@ -228,7 +210,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	try
 	{
-	    session1->allocateObject(communicator->stringToProxy("nonallocatable"));
+	    session1->allocateObjectById(Ice::stringToIdentity("nonallocatable"));
 	    test(false);
 	}
 	catch(const AllocationException& ex)
@@ -236,7 +218,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	try
 	{
-	    session2->allocateObject(communicator->stringToProxy("nonallocatable"));
+	    session2->allocateObjectById(Ice::stringToIdentity("nonallocatable"));
 	    test(false);
 	}
 	catch(const AllocationException& ex)
@@ -244,7 +226,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	try
 	{
-	    session1->releaseObject(communicator->stringToProxy("nonallocatable"));
+	    session1->releaseObject(Ice::stringToIdentity("nonallocatable"));
 	    test(false);
 	}
 	catch(const AllocationException& ex)
@@ -252,17 +234,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	try
 	{
-	    session2->releaseObject(communicator->stringToProxy("nonallocatable"));
+	    session2->releaseObject(Ice::stringToIdentity("nonallocatable"));
 	    test(false);
 	}
 	catch(const AllocationException& ex)
 	{
 	}
 
-	session1->allocateObject(allocatable);
+	session1->allocateObjectById(allocatable);
 	try
 	{
-	    session1->allocateObject(allocatable);
+	    session1->allocateObjectById(allocatable);
 	    test(false);
 	}
 	catch(const AllocationException& ex)
@@ -274,7 +256,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	try
 	{
-	    session2->allocateObject(allocatable);
+	    session2->allocateObjectById(allocatable);
 	    test(false);
 	}
 	catch(const AllocationTimeoutException& ex)
@@ -289,20 +271,20 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	}
 
-	session1->allocateObject(allocatablebis);
+	session1->allocateObjectById(allocatablebis);
 	try
 	{
-	    session2->allocateObject(allocatablebis);
+	    session2->allocateObjectById(allocatablebis);
 	    test(false);
 	}
 	catch(const AllocationTimeoutException&)
 	{
 	}
 	session1->releaseObject(allocatablebis);
-	session2->allocateObject(allocatablebis);
+	session2->allocateObjectById(allocatablebis);
 	try
 	{
-	    session1->allocateObject(allocatablebis);
+	    session1->allocateObjectById(allocatablebis);
 	    test(false);
 	}
 	catch(const AllocationTimeoutException&)
@@ -311,8 +293,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	session2->releaseObject(allocatablebis);
     
 	session2->setAllocationTimeout(_allocationTimeout);
-	AllocateObjectCallbackPtr cb1 = new AllocateObjectCallback();
-	session2->allocateObject_async(cb1, allocatable);
+	AllocateObjectByIdCallbackPtr cb1 = new AllocateObjectByIdCallback();
+	session2->allocateObjectById_async(cb1, allocatable);
 	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
 	test(!cb1->hasResponse(dummy));
 	session1->releaseObject(allocatable);
@@ -322,7 +304,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	session1->setAllocationTimeout(0);
 	try
 	{
-	    session1->allocateObject(allocatable);
+	    session1->allocateObjectById(allocatable);
 	    test(false);
 	}
 	catch(const AllocationTimeoutException& ex)
@@ -338,8 +320,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 
 	session1->setAllocationTimeout(_allocationTimeout);
-	cb1 = new AllocateObjectCallback();
-	session1->allocateObject_async(cb1, allocatable);
+	cb1 = new AllocateObjectByIdCallback();
+	session1->allocateObjectById_async(cb1, allocatable);
 	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
 	test(!cb1->hasResponse(dummy));
 	session2->releaseObject(allocatable);
@@ -348,169 +330,97 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	session1->releaseObject(allocatable);
 
-	//
-	// TODO: XXX test replicated proxy
-	//
-
 	cout << "ok" << endl;
 
-	cout << "testing object allocation with findObjectById... " << flush;
-    
-	IceGrid::QueryPrx query1 = session1->getQuery();
-	IceGrid::QueryPrx query2 = session2->getQuery();
+	cout << "testing allocate object by type... " << flush;
     
 	session1->setAllocationTimeout(0);
-	session2->setAllocationTimeout(0);
+	session2->setAllocationTimeout(obj);
 
-	obj = query1->findObjectById(Ice::stringToIdentity("nonallocatable"));
-	test(!obj);
-	obj = query2->findObjectById(Ice::stringToIdentity("nonallocatable"));
-	test(!obj);
-
-	obj = query1->findObjectById(Ice::stringToIdentity("allocatable")); // Allocate the object
-	test(obj);
-	test(!query1->findObjectById(Ice::stringToIdentity("allocatable")));
-	test(!query2->findObjectById(Ice::stringToIdentity("allocatable")));
+	obj = session1->allocateObjectByType("::Test");
+	test(obj && obj->ice_getIdentity().name == "allocatable");
 	try
 	{
-	    session2->releaseObject(obj);
+	    session1->allocateObjectByType("::Test");
+	    test(false);
+	}
+	catch(const AllocationException&)
+	{
+	}
+	try
+	{
+	    session2->allocateObjectByType("::Test");
+	    test(false);
+	}
+	catch(const AllocationException&)
+	{
+	}
+	try
+	{
+	    session2->releaseObject(obj->ice_getIdentity());
 	}
 	catch(const AllocationException&)
 	{
 	}
 
-	session1->releaseObject(obj);
+	session1->releaseObject(obj->ice_getIdentity());
 	try
 	{
-	    session1->releaseObject(obj);
+	    session1->releaseObject(obj->ice_getIdentity());
 	}
 	catch(const AllocationException&)
 	{
 	}
 
-	obj = query2->findObjectById(Ice::stringToIdentity("allocatable")); // Allocate the object
-	test(!query2->findObjectById(Ice::stringToIdentity("allocatable")));
-	test(!query1->findObjectById(Ice::stringToIdentity("allocatable")));
-
-	query1->findObjectById(allocatablebis->ice_getIdentity());
-	test(!query2->findObjectById(allocatablebis->ice_getIdentity()));
+	obj = session2->allocateObjectByType("::Test"); // Allocate the object
+	test(obj && obj->ice_getIdentity().name == "allocatable");
+	try
+	{
+	    session2->allocateObjectByType("::Test");
+	    test(false);
+	}
+	catch(const AllocationException&)
+	{
+	}
+	try
+	{
+	    session1->allocateObjectByType("::Test");
+	    test(false);
+	}
+	catch(const AllocationException&)
+	{
+	}
+	session1->allocateObjectByType("::TestBis");
+	try
+	{
+	    session2->allocateObjectByType("::TestBis");
+	    test(false);
+	}
+	catch(const AllocationException&)
+	{
+	}
 	session1->releaseObject(allocatablebis);
-	query2->findObjectById(allocatablebis->ice_getIdentity());
-	test(!query1->findObjectById(allocatablebis->ice_getIdentity()));
+	session2->allocateObjectByType("::TestBis");
+	try
+	{
+	    session1->allocateObjectByType("::TestBis");
+	    test(false);
+	}
+	catch(const AllocationException&)
+	{
+	}
 	session2->releaseObject(allocatablebis);
 
 	session1->setAllocationTimeout(_allocationTimeout);
-	FindObjectByIdCallbackPtr cb2 = new FindObjectByIdCallback();
-	query1->findObjectById_async(cb2, Ice::stringToIdentity("allocatable"));
-	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
-	test(!cb2->hasResponse(dummy));
-	session2->releaseObject(allocatable);
-	cb2->waitResponse(__FILE__, __LINE__);
-	test(cb2->hasResponse(dummy));
-
-	session1->releaseObject(allocatable);
-
-	cout << "ok" << endl;
-
-	cout << "testing object allocation with findObjectByType... " << flush;
-    
-	session1->setAllocationTimeout(0);
-	session2->setAllocationTimeout(0);
-
-	obj = query1->findObjectByType("::Test");
-	test(obj && obj->ice_getIdentity().name == "allocatable");
-	test(!query1->findObjectByType("::Test"));
-	test(!query2->findObjectByType("::Test"));
-	try
-	{
-	    session2->releaseObject(obj);
-	}
-	catch(const AllocationException&)
-	{
-	}
-
-	session1->releaseObject(obj);
-	try
-	{
-	    session1->releaseObject(obj);
-	}
-	catch(const AllocationException&)
-	{
-	}
-
-	obj = query2->findObjectByType("::Test"); // Allocate the object
-	test(obj && obj->ice_getIdentity().name == "allocatable");
-	test(!query2->findObjectByType("::Test"));
-	test(!query1->findObjectByType("::Test"));
-
-	query1->findObjectByType("::TestBis");
-	test(!query2->findObjectByType("::TestBis"));
-	session1->releaseObject(allocatablebis);
-	query2->findObjectByType("::TestBis");
-	test(!query1->findObjectByType("::TestBis"));
-	session2->releaseObject(allocatablebis);
-
-	session1->setAllocationTimeout(_allocationTimeout);
-	FindObjectByTypeCallbackPtr cb3 = new FindObjectByTypeCallback();
-	query1->findObjectByType_async(cb3, "::Test");
+	AllocateObjectByTypeCallbackPtr cb3 = new AllocateObjectByTypeCallback();
+	session1->allocateObjectByType_async(cb3, "::Test");
 	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
 	test(!cb3->hasResponse(dummy));
-	session2->releaseObject(obj);
+	session2->releaseObject(obj->ice_getIdentity());
 	cb3->waitResponse(__FILE__, __LINE__);
 	test(cb3->hasResponse(obj));
 
-	session1->releaseObject(obj);
-    
-	cout << "ok" << endl;
-
-	cout << "testing object allocation with findObjectByTypeOnLeastLoadedNode... " << flush;
-    
-	session1->setAllocationTimeout(0);
-	session2->setAllocationTimeout(0);
-
-	obj = query1->findObjectByTypeOnLeastLoadedNode("::Test", LoadSample1);
-	test(obj && obj->ice_getIdentity().name == "allocatable");
-	test(!query1->findObjectByTypeOnLeastLoadedNode("::Test", LoadSample1));
-	test(!query2->findObjectByTypeOnLeastLoadedNode("::Test", LoadSample1));
-	try
-	{
-	    session2->releaseObject(obj);
-	}
-	catch(const AllocationException&)
-	{
-	}
-
-	session1->releaseObject(obj);
-	try
-	{
-	    session1->releaseObject(obj);
-	}
-	catch(const AllocationException&)
-	{
-	}
-
-	obj = query2->findObjectByTypeOnLeastLoadedNode("::Test", LoadSample1); // Allocate the object
-	test(obj && obj->ice_getIdentity().name == "allocatable");
-	test(!query2->findObjectByTypeOnLeastLoadedNode("::Test", LoadSample1));
-	test(!query1->findObjectByTypeOnLeastLoadedNode("::Test", LoadSample1));
-
-	query1->findObjectByTypeOnLeastLoadedNode("::TestBis", LoadSample1);
-	test(!query2->findObjectByTypeOnLeastLoadedNode("::TestBis", LoadSample1));
-	session1->releaseObject(allocatablebis);
-	query2->findObjectByTypeOnLeastLoadedNode("::TestBis", LoadSample1);
-	test(!query1->findObjectByTypeOnLeastLoadedNode("::TestBis", LoadSample1));
-	session2->releaseObject(allocatablebis);
-
-	session1->setAllocationTimeout(_allocationTimeout);
-	FindObjectByTypeOnLeastLoadedNodeCallbackPtr cb4 = new FindObjectByTypeOnLeastLoadedNodeCallback();
-	query1->findObjectByTypeOnLeastLoadedNode_async(cb4, "::Test", LoadSample1);
-	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
-	test(!cb4->hasResponse(dummy));
-	session2->releaseObject(obj);
-	cb4->waitResponse(__FILE__, __LINE__);
-	test(cb4->hasResponse(obj));
-
-	session1->releaseObject(obj);
+	session1->releaseObject(obj->ice_getIdentity());
     
 	cout << "ok" << endl;
 
@@ -519,14 +429,23 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	session1->setAllocationTimeout(0);
 	session2->setAllocationTimeout(0);
 
+	communicator->stringToProxy("nonallocatable")->ice_ping();
+	try
+	{
+	    communicator->stringToProxy("allocatable")->ice_ping();
+	}
+	catch(const Ice::NoEndpointException& ex)
+	{
+	}
+
 	Ice::LocatorPrx locator1 = session1->getLocator();
 	Ice::LocatorPrx locator2 = session2->getLocator();    
 
 	communicator->stringToProxy("nonallocatable")->ice_locator(locator1)->ice_ping();
 	communicator->stringToProxy("nonallocatable")->ice_locator(locator2)->ice_ping();
 
-	Ice::ObjectPrx obj1 = allocatable->ice_locator(locator1);
-	Ice::ObjectPrx obj2 = allocatable->ice_locator(locator2);
+	Ice::ObjectPrx obj1 = communicator->stringToProxy("allocatable")->ice_locator(locator1);
+	Ice::ObjectPrx obj2 = communicator->stringToProxy("allocatable")->ice_locator(locator2);
 
 	obj1->ice_ping(); // Allocate the object
 	obj1->ice_locatorCacheTimeout(0)->ice_ping();
@@ -540,16 +459,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	try
 	{
-	    session2->releaseObject(obj2);
+	    session2->releaseObject(obj2->ice_getIdentity());
 	}
 	catch(const AllocationException&)
 	{
 	}
 
-	session1->releaseObject(obj1);
+	session1->releaseObject(obj1->ice_getIdentity());
 	try
 	{
-	    session1->releaseObject(obj1);
+	    session1->releaseObject(obj1->ice_getIdentity());
 	}
 	catch(const AllocationException&)
 	{
@@ -565,18 +484,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	catch(const Ice::NoEndpointException&)
 	{
 	}
-	session2->releaseObject(obj2);
+	session2->releaseObject(obj2->ice_getIdentity());
 
 	cout << "ok" << endl;
 
 	cout << "testing object allocation timeout... " << flush;    
 
-	session1->allocateObject(allocatable);
+	session1->allocateObjectById(allocatable);
 	IceUtil::Time time = IceUtil::Time::now();
 	session2->setAllocationTimeout(500);
 	try
 	{
-	    session2->allocateObject(allocatable);
+	    session2->allocateObjectById(allocatable);
 	    test(false);
 	}
 	catch(const AllocationTimeoutException& ex)
@@ -584,10 +503,24 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(time + IceUtil::Time::milliSeconds(100) < IceUtil::Time::now());
 	}
 	time = IceUtil::Time::now();
-	test(!query2->findObjectById(Ice::stringToIdentity("allocatable")));
+	try
+	{
+	    session2->allocateObjectById(allocatable);
+	    test(false);
+	}
+	catch(const AllocationException&)
+	{
+	}
 	test(time + IceUtil::Time::milliSeconds(100) < IceUtil::Time::now());
 	time = IceUtil::Time::now();
-	test(!query2->findObjectByType("::Test"));
+	try
+	{
+	    session2->allocateObjectByType("::Test");
+	    test(false);
+	}
+	catch(const AllocationException&)
+	{
+	}
 	test(time + IceUtil::Time::milliSeconds(100) < IceUtil::Time::now());
 
 	session1->releaseObject(allocatable);
@@ -600,13 +533,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	session1->setAllocationTimeout(0);
 	session2->setAllocationTimeout(0);
 
-	Ice::ObjectPrx allocatable1 = communicator->stringToProxy("allocatable1");
-	Ice::ObjectPrx allocatable2 = communicator->stringToProxy("allocatable2");
+	Ice::Identity allocatable1 = Ice::stringToIdentity("allocatable1");
+	Ice::Identity allocatable2 = Ice::stringToIdentity("allocatable2");
 
-	session1->allocateObject(allocatable1);
+	session1->allocateObjectById(allocatable1);
 	try
 	{
-	    session2->allocateObject(allocatable1);
+	    session2->allocateObjectById(allocatable1);
 	    test(false);
 	}
 	catch(const AllocationTimeoutException&)
@@ -614,27 +547,50 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	try
 	{
-	    session2->allocateObject(allocatable2);
+	    session2->allocateObjectById(allocatable2);
 	    test(false);
 	}
 	catch(const AllocationTimeoutException&)
 	{
 	}
-	session1->allocateObject(allocatable2);
+
+	Ice::ObjectPrx session1obj1 = communicator->stringToProxy("allocatable1@AdapterAlloc")->ice_locator(locator1);
+	Ice::ObjectPrx session1obj2 = communicator->stringToProxy("allocatable2@AdapterAlloc")->ice_locator(locator1);
+	Ice::ObjectPrx session2obj1 = communicator->stringToProxy("allocatable1@AdapterAlloc")->ice_locator(locator2);
+	Ice::ObjectPrx session2obj2 = communicator->stringToProxy("allocatable2@AdapterAlloc")->ice_locator(locator2);
+	session1obj1->ice_locatorCacheTimeout(0)->ice_ping();
+	try
+	{
+	    session2obj1->ice_locatorCacheTimeout(0)->ice_ping();
+	    test(false);
+	}
+	catch(const Ice::NoEndpointException&)
+	{
+	}
+	try
+	{
+	    session2obj2->ice_locatorCacheTimeout(0)->ice_ping();
+	    test(false);
+	}
+	catch(const Ice::NoEndpointException&)
+	{
+	}
+
+	session1->allocateObjectById(allocatable2);
 	session1->releaseObject(allocatable1);
 	try
 	{
-	    session2->allocateObject(allocatable1);
+	    session2->allocateObjectById(allocatable1);
 	    test(false);
 	}
 	catch(const AllocationTimeoutException&)
 	{
 	}
 	session1->releaseObject(allocatable2);
-	session2->allocateObject(allocatable1);
+	session2->allocateObjectById(allocatable1);
 	try
 	{
-	    session1->allocateObject(allocatable1);
+	    session1->allocateObjectById(allocatable1);
 	    test(false);
 	}
 	catch(const AllocationTimeoutException&)
@@ -642,36 +598,64 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	try
 	{
-	    session1->allocateObject(allocatable2);
+	    session1->allocateObjectById(allocatable2);
 	    test(false);
 	}
 	catch(const AllocationTimeoutException&)
 	{
 	}
-	session2->allocateObject(allocatable2);
+	session2->allocateObjectById(allocatable2);
 	session2->releaseObject(allocatable1);
 	try
 	{
-	    session1->allocateObject(allocatable1);
+	    session1->allocateObjectById(allocatable1);
 	    test(false);
 	}
 	catch(const AllocationTimeoutException&)
 	{
 	}
-	test(!query1->findObjectByType("::TestAdapter1"));
-	test(!query1->findObjectByType("::TestAdapter2"));
-	test(query2->findObjectByType("::TestAdapter1"));
-	test(!query2->findObjectByType("::TestAdapter1"));
-	test(!query2->findObjectByType("::TestAdapter2"));
+	try
+	{
+	    session1->allocateObjectByType("::TestAdapter1");
+	    test(false);
+	}
+	catch(const AllocationException&)
+	{
+	}
+	try
+	{
+	    session1->allocateObjectByType("::TestAdapter2");
+	    test(false);
+	}
+	catch(AllocationException&)
+	{
+	}
+	test(session2->allocateObjectByType("::TestAdapter1"));
+	try
+	{
+	    session2->allocateObjectByType("::TestAdapter1");
+	    test(false);
+	}
+	catch(AllocationException&)
+	{
+	}
+	try
+	{
+	    session2->allocateObjectByType("::TestAdapter2");
+	    test(false);
+	}
+	catch(AllocationException&)
+	{
+	}
 	session2->releaseObject(allocatable1);
 	session2->releaseObject(allocatable2);
 
-	session1->allocateObject(allocatable1);
-	session1->allocateObject(allocatable2);
+	session1->allocateObjectById(allocatable1);
+	session1->allocateObjectById(allocatable2);
 
 	session2->setAllocationTimeout(_allocationTimeout);
-	cb1 = new AllocateObjectCallback();
-	session2->allocateObject_async(cb1, allocatable1);
+	cb1 = new AllocateObjectByIdCallback();
+	session2->allocateObjectById_async(cb1, allocatable1);
 	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
 	test(!cb1->hasResponse(dummy));
 	session1->releaseObject(allocatable1);
@@ -682,9 +666,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	session2->releaseObject(allocatable1);
 
 	session1->setAllocationTimeout(_allocationTimeout);
-	test(query2->findObjectByType("::TestAdapter1"));
-	cb3 = new FindObjectByTypeCallback();
-	query1->findObjectByType_async(cb3, "::TestAdapter2");
+	test(session2->allocateObjectByType("::TestAdapter1"));
+	cb3 = new AllocateObjectByTypeCallback();
+	session1->allocateObjectByType_async(cb3, "::TestAdapter2");
 	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
 	test(!cb3->hasResponse(dummy));
 	session2->releaseObject(allocatable1);
@@ -694,16 +678,30 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	session1->setAllocationTimeout(0);
 	session2->setAllocationTimeout(0);
-	test(query1->findObjectByType("::TestMultipleByAdapter"));
-	test(!query2->findObjectByType("::TestMultipleByAdapter"));
-	test(query1->findObjectByType("::TestMultipleByAdapter"));
-	session1->releaseObject(communicator->stringToProxy("allocatable11"));
-	session1->releaseObject(communicator->stringToProxy("allocatable21"));
-	test(query2->findObjectByType("::TestMultipleByAdapter"));
-	test(!query1->findObjectByType("::TestMultipleByAdapter"));
-	test(query2->findObjectByType("::TestMultipleByAdapter"));
-	session2->releaseObject(communicator->stringToProxy("allocatable11"));
-	session2->releaseObject(communicator->stringToProxy("allocatable21"));
+	test(session1->allocateObjectByType("::TestMultipleByAdapter"));
+	try
+	{
+	    session2->allocateObjectByType("::TestMultipleByAdapter");
+	    test(false);
+	}
+	catch(AllocationException&)
+	{
+	}
+	test(session1->allocateObjectByType("::TestMultipleByAdapter"));
+	session1->releaseObject(Ice::stringToIdentity("allocatable11"));
+	session1->releaseObject(Ice::stringToIdentity("allocatable21"));
+	test(session2->allocateObjectByType("::TestMultipleByAdapter"));
+	try
+	{
+	    session1->allocateObjectByType("::TestMultipleByAdapter");
+	    test(false);
+	}
+	catch(AllocationException&)
+	{
+	}
+	test(session2->allocateObjectByType("::TestMultipleByAdapter"));
+	session2->releaseObject(Ice::stringToIdentity("allocatable11"));
+	session2->releaseObject(Ice::stringToIdentity("allocatable21"));
 
 	cout << "ok" << endl;
 
@@ -712,13 +710,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	session1->setAllocationTimeout(0);
 	session2->setAllocationTimeout(0);
 
-	Ice::ObjectPrx allocatable3 = communicator->stringToProxy("allocatable3");
-	Ice::ObjectPrx allocatable4 = communicator->stringToProxy("allocatable4");
+	Ice::Identity allocatable3 = Ice::stringToIdentity("allocatable3");
+	Ice::Identity allocatable4 = Ice::stringToIdentity("allocatable4");
 
-	session1->allocateObject(allocatable3);
+	session1->allocateObjectById(allocatable3);
 	try
 	{
-	    session2->allocateObject(allocatable3);
+	    session2->allocateObjectById(allocatable3);
 	    test(false);
 	}
 	catch(const AllocationTimeoutException&)
@@ -726,27 +724,51 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	try
 	{
-	    session2->allocateObject(allocatable4);
+	    session2->allocateObjectById(allocatable4);
 	    test(false);
 	}
 	catch(const AllocationTimeoutException&)
 	{
 	}
-	session1->allocateObject(allocatable4);
+
+	Ice::ObjectPrx session1obj3 = communicator->stringToProxy("allocatable3@ServerAlloc")->ice_locator(locator1);
+	Ice::ObjectPrx session1obj4 = communicator->stringToProxy("allocatable4@ServerAlloc")->ice_locator(locator1);
+	Ice::ObjectPrx session2obj3 = communicator->stringToProxy("allocatable3@ServerAlloc")->ice_locator(locator2);
+	Ice::ObjectPrx session2obj4 = communicator->stringToProxy("allocatable4@ServerAlloc")->ice_locator(locator2);
+	session1obj3->ice_locatorCacheTimeout(0)->ice_ping();
+	try
+	{
+	    session2obj3->ice_locatorCacheTimeout(0)->ice_ping();
+	    test(false);
+	}
+	catch(const Ice::NoEndpointException&)
+	{
+	}
+	try
+	{
+	    session2obj4->ice_locatorCacheTimeout(0)->ice_ping();
+	    test(false);
+	}
+	catch(const Ice::NoEndpointException&)
+	{
+	}
+
+
+	session1->allocateObjectById(allocatable4);
 	session1->releaseObject(allocatable3);
 	try
 	{
-	    session2->allocateObject(allocatable3);
+	    session2->allocateObjectById(allocatable3);
 	    test(false);
 	}
 	catch(const AllocationTimeoutException&)
 	{
 	}
 	session1->releaseObject(allocatable4);
-	session2->allocateObject(allocatable3);
+	session2->allocateObjectById(allocatable3);
 	try
 	{
-	    session1->allocateObject(allocatable3);
+	    session1->allocateObjectById(allocatable3);
 	    test(false);
 	}
 	catch(const AllocationTimeoutException&)
@@ -754,36 +776,64 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	try
 	{
-	    session1->allocateObject(allocatable4);
+	    session1->allocateObjectById(allocatable4);
 	    test(false);
 	}
 	catch(const AllocationTimeoutException&)
 	{
 	}
-	session2->allocateObject(allocatable4);
+	session2->allocateObjectById(allocatable4);
 	session2->releaseObject(allocatable3);
 	try
 	{
-	    session1->allocateObject(allocatable3);
+	    session1->allocateObjectById(allocatable3);
 	    test(false);
 	}
 	catch(const AllocationTimeoutException&)
 	{
 	}
-	test(!query1->findObjectByType("::TestServer1"));
-	test(!query1->findObjectByType("::TestServer2"));
-	test(query2->findObjectByType("::TestServer1"));
-	test(!query2->findObjectByType("::TestServer1"));
-	test(!query2->findObjectByType("::TestServer2"));
+	try
+	{
+	    session1->allocateObjectByType("::TestServer1");
+	    test(false);
+	}
+	catch(AllocationException&)
+	{
+	}
+	try
+	{
+	    session1->allocateObjectByType("::TestServer2");
+	    test(false);
+	}
+	catch(AllocationException&)
+	{
+	}
+	test(session2->allocateObjectByType("::TestServer1"));
+	try
+	{
+	    session2->allocateObjectByType("::TestServer1");
+	    test(false);
+	}
+	catch(AllocationException&)
+	{
+	}
+	try
+	{
+	    session2->allocateObjectByType("::TestServer2");
+	    test(false);
+	}
+	catch(AllocationException&)
+	{
+	}
 	session2->releaseObject(allocatable3);
 	session2->releaseObject(allocatable4);
 
-	session1->allocateObject(allocatable3);
-	session1->allocateObject(allocatable4);
+	session1->allocateObjectById(allocatable3);
+	session1->allocateObjectById(allocatable4);
 
 	session2->setAllocationTimeout(_allocationTimeout);
-	cb1 = new AllocateObjectCallback();
-	session2->allocateObject_async(cb1, allocatable3);
+	cb1 = new AllocateObjectByIdCallback();
+	session2->allocateObjectById_async(cb1, allocatable3);
 	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
 	test(!cb1->hasResponse(dummy));
 	session1->releaseObject(allocatable3);
@@ -794,9 +844,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	session2->releaseObject(allocatable3);
 
 	session1->setAllocationTimeout(_allocationTimeout);
-	test(query2->findObjectByType("::TestServer1"));
-	cb3 = new FindObjectByTypeCallback();
-	query1->findObjectByType_async(cb3, "::TestServer2");
+	test(session2->allocateObjectByType("::TestServer1"));
+	cb3 = new AllocateObjectByTypeCallback();
+	session1->allocateObjectByType_async(cb3, "::TestServer2");
 	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
 	test(!cb3->hasResponse(dummy));
 	session2->releaseObject(allocatable3);
@@ -806,16 +856,30 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	session1->setAllocationTimeout(0);
 	session2->setAllocationTimeout(0);
-	test(query1->findObjectByType("::TestMultipleByServer"));
-	test(!query2->findObjectByType("::TestMultipleByServer"));
-	test(query1->findObjectByType("::TestMultipleByServer"));
-	session1->releaseObject(communicator->stringToProxy("allocatable31"));
-	session1->releaseObject(communicator->stringToProxy("allocatable41"));
-	test(query2->findObjectByType("::TestMultipleByServer"));
-	test(!query1->findObjectByType("::TestMultipleByServer"));
-	test(query2->findObjectByType("::TestMultipleByServer"));
-	session2->releaseObject(communicator->stringToProxy("allocatable31"));
-	session2->releaseObject(communicator->stringToProxy("allocatable41"));
+	test(session1->allocateObjectByType("::TestMultipleByServer"));
+	try
+	{
+	    session2->allocateObjectByType("::TestMultipleByServer");
+	    test(false);
+	}
+	catch(AllocationException&)
+	{
+	}
+	test(session1->allocateObjectByType("::TestMultipleByServer"));
+	session1->releaseObject(Ice::stringToIdentity("allocatable31"));
+	session1->releaseObject(Ice::stringToIdentity("allocatable41"));
+	test(session2->allocateObjectByType("::TestMultipleByServer"));
+	try
+	{
+	    session1->allocateObjectByType("::TestMultipleByServer");
+	    test(false);
+	}
+	catch(AllocationException&)
+	{
+	}
+	test(session2->allocateObjectByType("::TestMultipleByServer"));
+	session2->releaseObject(Ice::stringToIdentity("allocatable31"));
+	session2->releaseObject(Ice::stringToIdentity("allocatable41"));
 
 	cout << "ok" << endl;
 
@@ -824,11 +888,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	session1->setAllocationTimeout(_allocationTimeout);
 	session2->setAllocationTimeout(_allocationTimeout);
 
-	session2->allocateObject(allocatable);
-	AllocateObjectCallbackPtr cb11 = new AllocateObjectCallback();
-	AllocateObjectCallbackPtr cb12 = new AllocateObjectCallback();
-	session1->allocateObject_async(cb11, allocatable);
-	session1->allocateObject_async(cb12, allocatable);
+	session2->allocateObjectById(allocatable);
+	AllocateObjectByIdCallbackPtr cb11 = new AllocateObjectByIdCallback();
+	AllocateObjectByIdCallbackPtr cb12 = new AllocateObjectByIdCallback();
+	session1->allocateObjectById_async(cb11, allocatable);
+	session1->allocateObjectById_async(cb12, allocatable);
 	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
 	test(!cb11->hasResponse(dummy));
 	test(!cb12->hasResponse(dummy));
@@ -839,29 +903,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(cb12->hasResponse(dummy) ? cb11->hasException() : cb11->hasResponse(dummy));
 	session1->releaseObject(allocatable);
 
-	session2->allocateObject(allocatable);
-	FindObjectByIdCallbackPtr cb21 = new FindObjectByIdCallback();
-	FindObjectByIdCallbackPtr cb22 = new FindObjectByIdCallback();
-	query1->findObjectById_async(cb21, Ice::stringToIdentity("allocatable"));
-	query1->findObjectById_async(cb22, Ice::stringToIdentity("allocatable"));
-	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
-	test(!cb21->hasResponse(dummy));
-	test(!cb22->hasResponse(dummy));
-	session2->releaseObject(allocatable);
-	cb21->waitResponse(__FILE__, __LINE__);
-	cb22->waitResponse(__FILE__, __LINE__);
-	Ice::ObjectPrx dummy1;
-	test(cb21->hasResponse(dummy1));
-	Ice::ObjectPrx dummy2;
-	test(cb22->hasResponse(dummy2));
-	test(dummy1 && !dummy2 || dummy2);
-	session1->releaseObject(allocatable);
-
-	session2->allocateObject(allocatable);
-	FindObjectByTypeCallbackPtr cb31 = new FindObjectByTypeCallback();
-	FindObjectByTypeCallbackPtr cb32 = new FindObjectByTypeCallback();
-	query1->findObjectByType_async(cb31, "::Test");
-	query1->findObjectByType_async(cb32, "::Test");
+	session2->allocateObjectById(allocatable);
+	AllocateObjectByTypeCallbackPtr cb31 = new AllocateObjectByTypeCallback();
+	AllocateObjectByTypeCallbackPtr cb32 = new AllocateObjectByTypeCallback();
+	session1->allocateObjectByType_async(cb31, "::Test");
+	session1->allocateObjectByType_async(cb32, "::Test");
 	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
 	test(!cb31->hasResponse(dummy));
 	test(!cb32->hasResponse(dummy));
@@ -876,7 +922,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	     cb32->hasResponse(dummy) && dummy && !cb31->hasResponse(dummy));
 	session1->releaseObject(allocatable);
 	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(300));
-	FindObjectByTypeCallbackPtr cb33 = cb31->hasResponse(dummy) ? cb32 : cb31;
+	AllocateObjectByTypeCallbackPtr cb33 = cb31->hasResponse(dummy) ? cb32 : cb31;
 	cb33->waitResponse(__FILE__, __LINE__);
 	test(cb33->hasResponse(dummy) && dummy);
 	session1->releaseObject(allocatable);
@@ -885,12 +931,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	cout << "testing session destroy... " << flush;
 
-	obj = query2->findObjectByType("::Test"); // Allocate the object
+	obj = session2->allocateObjectByType("::Test"); // Allocate the object
 	test(obj && obj->ice_getIdentity().name == "allocatable");
 
 	session1->setAllocationTimeout(_allocationTimeout);
-	cb3 = new FindObjectByTypeCallback();
-	query1->findObjectByType_async(cb3, "::Test");
+	cb3 = new AllocateObjectByTypeCallback();
+	session1->allocateObjectByType_async(cb3, "::Test");
 	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
 	test(!cb3->hasResponse(dummy));
 	session2->destroy();
@@ -900,7 +946,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	session2 = SessionPrx::uncheckedCast(manager->createLocalSession("Client2"));
 	session2->setAllocationTimeout(0);
-	session2->allocateObject(allocatable);
+	session2->allocateObjectById(allocatable);
 	session2->destroy();
 
 	cout << "ok" << endl;

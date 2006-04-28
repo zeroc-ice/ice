@@ -240,7 +240,7 @@ RegistryI::start(bool nowarn)
     // Create the query, admin, session manager interfaces
     //
     Identity queryId = stringToIdentity(instanceName + "/Query");
-    clientAdapter->add(new QueryI(_communicator, _database, 0), queryId);
+    clientAdapter->add(new QueryI(_communicator, _database), queryId);
 
     ReapThreadPtr reaper = _adminReaper ? _adminReaper : _reaper; // TODO: XXX
 

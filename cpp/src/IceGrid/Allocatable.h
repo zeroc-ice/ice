@@ -36,13 +36,13 @@ public:
 
     virtual ~AllocationRequest();
     
-    virtual void allocated(const AllocatablePtr&) = 0;
+    virtual void allocated(const AllocatablePtr&, const SessionIPtr&) = 0;
     virtual void canceled(const AllocationException&) = 0;
     
     virtual bool allocateOnce() { return false; }
 
     bool pending();
-    bool finish(const AllocatablePtr&);
+    bool finish(const AllocatablePtr&, const SessionIPtr&);
     void cancel(const AllocationException&);
     void expired(bool);
 
@@ -77,7 +77,7 @@ public:
 
     ParentAllocationRequest(const AllocationRequestPtr&, const AllocatablePtr&);
     
-    virtual void allocated(const AllocatablePtr&);
+    virtual void allocated(const AllocatablePtr&, const SessionIPtr&);
     virtual void canceled(const AllocationException&);
 
 private:

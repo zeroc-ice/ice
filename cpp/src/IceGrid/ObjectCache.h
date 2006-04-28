@@ -33,7 +33,7 @@ public:
     ObjectEntry(Cache<Ice::Identity, ObjectEntry>&, const Ice::Identity&);
 
     void set(const AllocatablePtr&, const std::string&, const ObjectInfo&);
-    Ice::ObjectPrx getProxy() const;
+    Ice::ObjectPrx getProxy(const SessionIPtr&) const;
     std::string getType() const;
     std::string getApplication() const;
     const ObjectInfo& getObjectInfo() const;
@@ -63,9 +63,9 @@ public:
 
 private:
 
-    virtual void allocated(const AllocatablePtr& allocatable) 
+    virtual void allocated(const AllocatablePtr& allocatable, const SessionIPtr& session)
     {
-	response(ObjectEntryPtr::dynamicCast(allocatable)->getProxy()); 
+	response(ObjectEntryPtr::dynamicCast(allocatable)->getObjectInfo().proxy);
     }
 
     virtual void canceled(const AllocationException& ex)

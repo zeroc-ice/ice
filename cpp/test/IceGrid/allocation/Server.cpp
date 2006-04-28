@@ -32,11 +32,16 @@ Server::run(int argc, char* argv[])
     string name = properties->getProperty("Ice.ProgramName");
 
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Server");
-    Ice::ObjectPtr object;
-    object = new TestI(adapter, properties);
-    adapter->add(object, Ice::stringToIdentity("allocatable"));
-    object = new TestI(adapter, properties);
-    adapter->add(object, Ice::stringToIdentity("nonallocatable"));
+    adapter->add(new TestI(adapter, properties), Ice::stringToIdentity("allocatable"));
+    adapter->add(new TestI(adapter, properties), Ice::stringToIdentity("nonallocatable"));
+    adapter->add(new TestI(adapter, properties), Ice::stringToIdentity("allocatable1"));
+    adapter->add(new TestI(adapter, properties), Ice::stringToIdentity("allocatable2"));
+    adapter->add(new TestI(adapter, properties), Ice::stringToIdentity("allocatable3"));
+    adapter->add(new TestI(adapter, properties), Ice::stringToIdentity("allocatable4"));
+    adapter->add(new TestI(adapter, properties), Ice::stringToIdentity("allocatable11"));
+    adapter->add(new TestI(adapter, properties), Ice::stringToIdentity("allocatable21"));
+    adapter->add(new TestI(adapter, properties), Ice::stringToIdentity("allocatable31"));
+    adapter->add(new TestI(adapter, properties), Ice::stringToIdentity("allocatable41"));
 
     shutdownOnInterrupt();
     try

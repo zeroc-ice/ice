@@ -345,7 +345,7 @@ LocatorI::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& cb,
 	    {
 	    }
 	}
-	proxy = _database->getObjectProxy(id);
+	proxy = _database->getObjectProxy(id, _session);
     }
     catch(const ObjectNotRegisteredException&)
     {
@@ -391,7 +391,7 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
     try
     {
 	int count;
-	vector<pair<string, AdapterPrx> > adapters = _database->getAdapters(id, false, count);
+	vector<pair<string, AdapterPrx> > adapters = _database->getAdapters(id, false, count, _session);
 	if(adapters.empty())
 	{
 	    cb->ice_response(0);

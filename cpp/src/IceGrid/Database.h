@@ -81,7 +81,7 @@ public:
     Ice::ObjectPrx getAdapterDirectProxy(const std::string&);
     void removeAdapter(const std::string&);
     AdapterPrx getAdapter(const std::string&, const std::string&);
-    std::vector<std::pair<std::string, AdapterPrx> > getAdapters(const std::string&, bool, int&);
+    std::vector<std::pair<std::string, AdapterPrx> > getAdapters(const std::string&, bool, int&, const SessionIPtr&);
     Ice::StringSeq getAllAdapters(const std::string& = std::string());
 
     void addObject(const ObjectInfo&);
@@ -93,7 +93,7 @@ public:
     void allocateObjectByTypeOnLeastLoadedNode(const std::string&, const ObjectAllocationRequestPtr&, LoadSample);
     void releaseObject(const Ice::Identity&, const SessionIPtr&);
 
-    Ice::ObjectPrx getObjectProxy(const Ice::Identity&);
+    Ice::ObjectPrx getObjectProxy(const Ice::Identity&, const SessionIPtr&);
     Ice::ObjectPrx getObjectByType(const std::string&);
     Ice::ObjectPrx getObjectByTypeOnLeastLoadedNode(const std::string&, LoadSample);
     Ice::ObjectProxySeq getObjectsByType(const std::string&);

@@ -13,7 +13,7 @@
       </server>
 
       <server id="AdapterAllocation" exe="${test.dir}/server" activation="on-demand" pwd=".">
-        <adapter name="Server" endpoints="default" allocatable="true">
+        <adapter name="Server" endpoints="default" allocatable="true" id="AdapterAlloc">
   	  <object identity="allocatable1" type="::TestAdapter1"/>
   	  <object identity="allocatable2" type="::TestAdapter2"/>
 
@@ -23,7 +23,7 @@
       </server>
 
       <server id="ServerAllocation" exe="${test.dir}/server" activation="on-demand" pwd="." allocatable="true">
-        <adapter name="Server" endpoints="default">
+        <adapter name="Server" endpoints="default" id="ServerAlloc">
   	  <object identity="allocatable3" type="::TestServer1"/>
   	  <object identity="allocatable4" type="::TestServer2"/>
 
