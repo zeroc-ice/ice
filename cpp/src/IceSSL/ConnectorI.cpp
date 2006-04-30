@@ -16,8 +16,6 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/Network.h>
 
-//#include <openssl/err.h>
-
 using namespace std;
 using namespace Ice;
 using namespace IceSSL;
