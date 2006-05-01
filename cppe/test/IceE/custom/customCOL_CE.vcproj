@@ -1066,6 +1066,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\StringConverterI.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Test.cpp"
 				>
 				<FileConfiguration
@@ -1235,6 +1239,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\StringConverterI.h"
+				>
+			</File>
+			<File
 				RelativePath="Test.h"
 				>
 			</File>
@@ -1339,7 +1347,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe Wstring.ice"
+						CommandLine="slice2cppe Wstring.ice&#x0D;&#x0A;"
 						Outputs="Wstring.cpp;Wstring.h"
 					/>
 				</FileConfiguration>
@@ -1348,7 +1356,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe Wstring.ice"
+						CommandLine="slice2cppe Wstring.ice&#x0D;&#x0A;"
 						Outputs="Wstring.cpp;Wstring.h"
 					/>
 				</FileConfiguration>
@@ -1357,7 +1365,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe Wstring.ice"
+						CommandLine="slice2cppe Wstring.ice&#x0D;&#x0A;"
 						Outputs="Wstring.cpp;Wstring.h"
 					/>
 				</FileConfiguration>
@@ -1366,7 +1374,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe Wstring.ice"
+						CommandLine="slice2cppe Wstring.ice&#x0D;&#x0A;"
 						Outputs="Wstring.cpp;Wstring.h"
 					/>
 				</FileConfiguration>

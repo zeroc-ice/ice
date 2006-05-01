@@ -2176,6 +2176,141 @@ DEP_CPP_MYBYT=\
 # End Source File
 # Begin Source File
 
+SOURCE=.\StringConverterI.cpp
+
+!IF  "$(CFG)" == "customCOL - Win32 (WCE emulator) Release"
+
+DEP_CPP_STRIN=\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StringConverter.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Unicode.h"\
+	".\StringConverterI.h"\
+	
+
+!ELSEIF  "$(CFG)" == "customCOL - Win32 (WCE emulator) Debug"
+
+DEP_CPP_STRIN=\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StringConverter.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Unicode.h"\
+	".\StringConverterI.h"\
+	
+
+!ELSEIF  "$(CFG)" == "customCOL - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_STRIN=\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StringConverter.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Unicode.h"\
+	".\StringConverterI.h"\
+	
+
+!ELSEIF  "$(CFG)" == "customCOL - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_STRIN=\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StringConverter.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Unicode.h"\
+	".\StringConverterI.h"\
+	
+
+!ELSEIF  "$(CFG)" == "customCOL - Win32 (WCE ARMV4) Debug Static"
+
+DEP_CPP_STRIN=\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StringConverter.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Unicode.h"\
+	".\StringConverterI.h"\
+	
+
+!ELSEIF  "$(CFG)" == "customCOL - Win32 (WCE ARMV4) Release Static"
+
+DEP_CPP_STRIN=\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StringConverter.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Unicode.h"\
+	".\StringConverterI.h"\
+	
+
+!ELSEIF  "$(CFG)" == "customCOL - Win32 (WCE emulator) Debug Static"
+
+DEP_CPP_STRIN=\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StringConverter.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Unicode.h"\
+	".\StringConverterI.h"\
+	
+
+!ELSEIF  "$(CFG)" == "customCOL - Win32 (WCE emulator) Release Static"
+
+DEP_CPP_STRIN=\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StringConverter.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Unicode.h"\
+	".\StringConverterI.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=.\Test.cpp
 
 !IF  "$(CFG)" == "customCOL - Win32 (WCE emulator) Release"
@@ -4496,6 +4631,10 @@ DEP_CPP_WSTRIN=\
 # Begin Source File
 
 SOURCE=.\MyByteSeq.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\StringConverterI.h
 # End Source File
 # Begin Source File
 
