@@ -361,9 +361,9 @@ Glacier2:
     Client.Trace.Override
     Client.Trace.Reject
     Client.Trace.Request
-    Client.Filter.Regex.Reject
-    Client.Filter.Regex.Accept
-    Client.Filter.MaxProxyLength
+    Filter.Regex.Reject
+    Filter.Regex.Accept
+    Filter.MaxProxyLength
     CryptPasswords
     InstanceName
     PermissionsVerifier
