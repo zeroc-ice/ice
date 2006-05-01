@@ -1355,14 +1355,14 @@ IceInternal::BasicStream::writeConverted(const string& v)
     	    // Use memmove instead of memcpy since the source and destination typically overlap.
     	    //
     	    resize(b.size() + 4);
-    	    std::memmove(b.begin() + firstIndex + 4, b.begin() + firstIndex, actualSize);
+    	    memmove(b.begin() + firstIndex + 4, b.begin() + firstIndex, actualSize);
         }
         else if(guessedSize > 254 && actualSize <= 254)
         {
     	    //
     	    // Move the UTF-8 sequence 4 bytes back
     	    //
-    	    std::memmove(b.begin() + firstIndex - 4, b.begin() + firstIndex, actualSize);
+    	    memmove(b.begin() + firstIndex - 4, b.begin() + firstIndex, actualSize);
     	    resize(b.size() - 4);
         }
     
@@ -1450,14 +1450,14 @@ IceInternal::BasicStream::writeConverted(const wstring& v)
     	    // Use memmove instead of memcpy since the source and destination typically overlap.
     	    //
     	    resize(b.size() + 4);
-    	    std::memmove(b.begin() + firstIndex + 4, b.begin() + firstIndex, actualSize);
+    	    memmove(b.begin() + firstIndex + 4, b.begin() + firstIndex, actualSize);
         }
         else if(guessedSize > 254 && actualSize <= 254)
         {
     	    //
     	    // Move the UTF-8 sequence 4 bytes back
     	    //
-    	    std::memmove(b.begin() + firstIndex - 4, b.begin() + firstIndex, actualSize);
+    	    memmove(b.begin() + firstIndex - 4, b.begin() + firstIndex, actualSize);
     	    resize(b.size() - 4);
         }
     
