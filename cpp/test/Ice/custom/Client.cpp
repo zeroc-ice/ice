@@ -10,6 +10,7 @@
 #include <Ice/Ice.h>
 #include <TestCommon.h>
 #include <Test.h>
+#include <StringConverterI.h>
 
 using namespace std;
 
@@ -31,7 +32,10 @@ main(int argc, char** argv)
 
     try
     {
-        communicator = Ice::initialize(argc, argv);
+        Ice::InitializationData initData;
+	initData.stringConverter = new Test::StringConverterI();
+	initData.wstringConverter = new Test::WstringConverterI();
+        communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

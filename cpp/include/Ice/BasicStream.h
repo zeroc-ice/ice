@@ -16,6 +16,7 @@
 #include <Ice/ObjectFactoryF.h>
 #include <Ice/Buffer.h>
 #include <Ice/Protocol.h>
+#include <Ice/StringConverter.h>
 #include <IceUtil/AutoArray.h>
 #include <IceUtil/Unicode.h>
 
@@ -32,6 +33,47 @@ namespace IceInternal
 class ICE_API BasicStream : public Buffer
 {
 public:
+
+    class UTF8BufferI : public Ice::UTF8Buffer
+    {
+    public:
+
+        UTF8BufferI(BasicStream& stream) : 
+	    _stream(stream)
+	{
+	}
+
+        Ice::Byte*
+        getMoreBytes(size_t howMany, Ice::Byte* firstUnused)
+        {
+	    assert(howMany > 0);
+
+            if(firstUnused != 0)
+            {
+                //
+                // Return unused bytes
+                //
+                _stream.b.resize(firstUnused - _stream.b.begin());
+            }
+
+            //
+            // Index of first unused byte
+            //
+            Container::size_type pos = _stream.b.size();
+
+            //
+            // Since resize may reallocate the buffer, when firstUnused != 0, the
+            // return value can be != firstUnused
+            //
+            _stream.resize(pos + howMany);
+
+            return &_stream.b[pos];
+        }
+
+    private:
+
+	BasicStream& _stream;
+    };
 
     typedef void (*PatchFunc)(void*, Ice::ObjectPtr&);
 
@@ -241,6 +283,31 @@ public:
             write(static_cast<Ice::Byte>(v));
         }
     }
+    void rewriteSize(Ice::Int v, Container::iterator dest)
+    {
+        assert(v >= 0);
+        if(v > 254)
+        {
+            *dest++ = Ice::Byte(255);
+#ifdef ICE_BIG_ENDIAN
+            const Ice::Byte* src = reinterpret_cast<const Ice::Byte*>(&v) + sizeof(Ice::Int) - 1;
+            *dest++ = *src--;
+            *dest++ = *src--;
+            *dest++ = *src--;
+            *dest = *src;
+#else
+            const Ice::Byte* src = reinterpret_cast<const Ice::Byte*>(&v);
+            *dest++ = *src++;
+            *dest++ = *src++;
+            *dest++ = *src++;
+            *dest = *src;
+#endif
+        }
+        else
+        {
+            *dest = static_cast<Ice::Byte>(v);
+        }
+    }
     void readSize(Ice::Int& v) // Inlined for performance reasons.
     {
         Ice::Byte byte;
@@ -405,16 +472,24 @@ public:
     //
     void write(const char*);
 
+    void writeConverted(const std::string& v);
     void write(const std::string& v)
     {
         Ice::Int sz = static_cast<Ice::Int>(v.size());
-        writeSize(sz);
-        if(sz > 0)
-        {
-            Container::size_type pos = b.size();
-            resize(pos + sz);
-            memcpy(&b[pos], v.c_str(), sz);
-        }
+        if(sz > 0 && _stringConverter)
+	{
+	    writeConverted(v);
+	}
+	else
+	{
+            writeSize(sz);
+            if(sz > 0)
+            {
+                Container::size_type pos = b.size();
+                resize(pos + sz);
+                memcpy(&b[pos], v.data(), sz);
+            }
+	}
     }
     void write(const std::string*, const std::string*);
     void read(std::string& v)
@@ -427,8 +502,15 @@ public:
             {
                 throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
             }
-            std::string(reinterpret_cast<const char*>(&*i), reinterpret_cast<const char*>(&*i) + sz).swap(v);
-//          v.assign(reinterpret_cast<const char*>(&(*i)), sz);
+	    if(_stringConverter)
+	    {
+		_stringConverter->fromUTF8(i, i + sz, v);
+	    }
+	    else
+	    {
+                std::string(reinterpret_cast<const char*>(&*i), reinterpret_cast<const char*>(&*i) + sz).swap(v);
+//              v.assign(reinterpret_cast<const char*>(&(*i)), sz);
+	    }
             i += sz;
         }
         else
@@ -438,17 +520,25 @@ public:
     }
     void read(std::vector<std::string>&);
 
+    void writeConverted(const std::wstring& v);
     void write(const std::wstring& v)
     {
-	std::string s = IceUtil::wstringToString(v);
-        Ice::Int sz = static_cast<Ice::Int>(s.size());
-        writeSize(sz);
-        if(sz > 0)
-        {
-            Container::size_type pos = b.size();
-            resize(pos + sz);
-            memcpy(&b[pos], s.c_str(), sz);
-        }
+        if(v.size() > 0 && _wstringConverter)
+	{
+	    writeConverted(v);
+	}
+	else
+	{
+	    std::string s = IceUtil::wstringToString(v);
+            Ice::Int sz = static_cast<Ice::Int>(s.size());
+            writeSize(sz);
+            if(sz > 0)
+            {
+                Container::size_type pos = b.size();
+                resize(pos + sz);
+                memcpy(&b[pos], s.data(), sz);
+            }
+	}
     }
     void write(const std::wstring*, const std::wstring*);
     void read(std::wstring& v)
@@ -461,8 +551,15 @@ public:
             {
                 throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
             }
-            std::string s(reinterpret_cast<const char*>(&*i), reinterpret_cast<const char*>(&*i) + sz);
-	    IceUtil::stringToWstring(s).swap(v);
+	    if(_wstringConverter)
+	    {
+		_wstringConverter->fromUTF8(i, i + sz, v);
+	    }
+	    else
+	    {
+                std::string s(reinterpret_cast<const char*>(&*i), reinterpret_cast<const char*>(&*i) + sz);
+	        IceUtil::stringToWstring(s).swap(v);
+	    }
             i += sz;
         }
         else
@@ -625,6 +722,8 @@ private:
     bool _sliceObjects;
 
     const Container::size_type _messageSizeMax;
+    const Ice::StringConverterPtr _stringConverter;
+    const Ice::WstringConverterPtr _wstringConverter;
 
     struct SeqData
     {

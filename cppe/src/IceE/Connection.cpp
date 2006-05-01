@@ -578,7 +578,8 @@ Ice::Connection::abortBatchRequest()
     // safe old requests in the batch stream, as they might be
     // corrupted due to incomplete marshaling.
     //
-    BasicStream dummy(_instance.get(), _instance->messageSizeMax());
+    BasicStream dummy(_instance.get(), _instance->messageSizeMax(), _instance->initializationData().stringConverter,
+    		      _instance->initializationData().wstringConverter);
     _batchStream.swap(dummy);
     _batchRequestNum = 0;
 
@@ -697,7 +698,8 @@ Ice::Connection::flushBatchRequests()
 	//
 	// Reset the batch stream, and notify that flushing is over.
 	//
-	BasicStream dummy(_instance.get(), _instance->messageSizeMax());
+	BasicStream dummy(_instance.get(), _instance->messageSizeMax(), _instance->initializationData().stringConverter,
+			  _instance->initializationData().wstringConverter);
 	_batchStream.swap(dummy);
 	_batchRequestNum = 0;
 	_batchStreamInUse = false;
@@ -912,10 +914,12 @@ Ice::Connection::Connection(const InstancePtr& instance,
 	_in(_instance.get(), this, _stream, adapter),
 #endif
 #ifndef ICEE_PURE_BLOCKING_CLIENT
-	_stream(_instance.get(), _instance->messageSizeMax()),
+	_stream(_instance.get(), _instance->messageSizeMax(), _instance->initializationData().stringConverter, 
+	        _instance->initializationData().wstringConverter),
 #endif
 #ifdef ICEE_HAS_BATCH
-	_batchStream(_instance.get(), _instance->messageSizeMax()),
+	_batchStream(_instance.get(), _instance->messageSizeMax(), _instance->initializationData().stringConverter,
+		     _instance->initializationData().wstringConverter),
 	_batchStreamInUse(false),
 	_batchRequestNum(0),
 #endif
@@ -1054,7 +1058,9 @@ Ice::Connection::validate()
 #ifndef ICEE_PURE_CLIENT
         if(active)
         {
-    	    BasicStream os(_instance.get(), _instance->messageSizeMax());
+    	    BasicStream os(_instance.get(), _instance->messageSizeMax(),
+	    		   _instance->initializationData().stringConverter, 
+			   _instance->initializationData().wstringConverter);
 	    os.write(magic[0]);
 	    os.write(magic[1]);
 	    os.write(magic[2]);
@@ -1083,7 +1089,9 @@ Ice::Connection::validate()
         else
 #endif
         {
-    	    BasicStream is(_instance.get(), _instance->messageSizeMax());
+    	    BasicStream is(_instance.get(), _instance->messageSizeMax(), 
+	    		   _instance->initializationData().stringConverter,
+			   _instance->initializationData().wstringConverter);
     	    is.b.resize(headerSize);
     	    is.i = is.b.begin();
     	    try
@@ -1353,7 +1361,8 @@ Ice::Connection::initiateShutdown() const
     //
     // Before we shut down, we send a close connection message.
     //
-    BasicStream os(_instance.get(), _instance->messageSizeMax());
+    BasicStream os(_instance.get(), _instance->messageSizeMax(), _instance->initializationData().stringConverter,
+    		   _instance->initializationData().wstringConverter);
     os.write(magic[0]);
     os.write(magic[1]);
     os.write(magic[2]);

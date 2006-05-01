@@ -25,7 +25,8 @@ using namespace Ice;
 using namespace IceInternal;
 
 IceInternal::Incoming::Incoming(Instance* inst, Connection* con, BasicStream& is, const ObjectAdapterPtr& adapter) :
-    _os(inst, inst->messageSizeMax()),
+    _os(inst, inst->messageSizeMax(), inst->initializationData().stringConverter, 
+        inst->initializationData().wstringConverter),
     _is(is),
     _connection(con)
 {

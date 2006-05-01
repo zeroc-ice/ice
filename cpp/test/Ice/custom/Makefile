@@ -20,21 +20,24 @@ COBJS		= Test.o \
 		  Wstring.o \
 		  Client.o \
 		  AllTests.o \
-		  MyByteSeq.o
+		  MyByteSeq.o \
+		  StringConverterI.o
 
 SOBJS		= Test.o \
 		  Wstring.o \
 		  TestI.o \
 		  WstringI.o \
 		  Server.o \
-		  MyByteSeq.o
+		  MyByteSeq.o \
+		  StringConverterI.o
 
 SAMDOBJS	= TestAMD.o \
 		  TestAMDI.o \
 		  WstringAMD.o \
 		  WstringAMDI.o \
 		  ServerAMD.o \
-		  MyByteSeq.o
+		  MyByteSeq.o \
+		  StringConverterI.o
 
 COLOBJS		= Test.o \
 		  Wstring.o \
@@ -42,7 +45,8 @@ COLOBJS		= Test.o \
 		  WstringI.o \
 		  Collocated.o \
 		  AllTests.o \
-		  MyByteSeq.o
+		  MyByteSeq.o \
+		  StringConverterI.o
 
 SRCS		= $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp) \

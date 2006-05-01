@@ -49,7 +49,9 @@ IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const st
     _connection(connection),
     _reference(ref),
     _state(StateUnsent),
-    _stream(ref->getInstance().get(), ref->getInstance()->messageSizeMax())
+    _stream(ref->getInstance().get(), ref->getInstance()->messageSizeMax(), 
+            ref->getInstance()->initializationData().stringConverter,
+            ref->getInstance()->initializationData().wstringConverter)
 {
     switch(_reference->getMode())
     {

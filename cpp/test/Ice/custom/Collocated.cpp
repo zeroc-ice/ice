@@ -11,6 +11,7 @@
 #include <TestCommon.h>
 #include <TestI.h>
 #include <WstringI.h>
+#include <StringConverterI.h>
 
 using namespace std;
 
@@ -37,10 +38,12 @@ main(int argc, char** argv)
 
     try
     {
-        Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
-	properties->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
-
-        communicator = Ice::initialize(argc, argv);
+        Ice::InitializationData initData;
+	initData.properties = Ice::getDefaultProperties(argc, argv);
+	initData.properties->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
+	initData.stringConverter = new Test::StringConverterI();
+	initData.wstringConverter = new Test::WstringConverterI();
+        communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

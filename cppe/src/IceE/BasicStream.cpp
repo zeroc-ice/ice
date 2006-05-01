@@ -1291,6 +1291,64 @@ IceInternal::BasicStream::write(const char*)
 */
 
 void
+IceInternal::BasicStream::writeConverted(const string& v)
+{
+    //
+    // What is the size of the resulting UTF-8 encoded string?
+    // Impossible to tell, so we guess. If we don't guess correctly,
+    // we'll have to fix the mistake afterwards
+    //
+
+    Int guessedSize = static_cast<Int>(v.size());
+    writeSize(guessedSize); // writeSize() only writes the size; it does not reserve any buffer space.
+
+    size_t firstIndex = b.size();
+    UTF8BufferI buffer(*this);
+
+    Byte* lastByte = _stringConverter->toUTF8(v.data(), v.data() + v.size(), buffer);
+    if(lastByte != b.end())
+    {
+        b.resize(lastByte - b.begin());
+    }
+    size_t lastIndex = b.size();
+
+    Int actualSize = static_cast<Int>(lastIndex - firstIndex);
+
+    //
+    // Check against the guess
+    //
+    if(guessedSize != actualSize)
+    {
+        if(guessedSize <= 254 && actualSize > 254)
+        {
+            //
+            // Move the UTF-8 sequence 4 bytes further
+            // Use memmove instead of memcpy since the source and destination typically overlap.
+            //
+            resize(b.size() + 4);
+            std::memmove(b.begin() + firstIndex + 4, b.begin() + firstIndex, actualSize);
+        }
+        else if(guessedSize > 254 && actualSize <= 254)
+        {
+            //
+            // Move the UTF-8 sequence 4 bytes back
+            //
+            std::memmove(b.begin() + firstIndex - 4, b.begin() + firstIndex, actualSize);
+            resize(b.size() - 4);
+        }
+
+        if(guessedSize <= 254)
+        {
+            rewriteSize(actualSize, b.begin() + firstIndex - 1);
+        }
+        else
+        {
+            rewriteSize(actualSize, b.begin() + firstIndex - 1 - 4);
+        }
+    }
+}
+
+void
 IceInternal::BasicStream::write(const string* begin, const string* end)
 {
     Int sz = static_cast<Int>(end - begin);
@@ -1324,6 +1382,64 @@ IceInternal::BasicStream::read(vector<string>& v)
     else
     {
        v.clear();
+    }
+}
+
+void
+IceInternal::BasicStream::writeConverted(const wstring& v)
+{
+    //
+    // What is the size of the resulting UTF-8 encoded string?
+    // Impossible to tell, so we guess. If we don't guess correctly,
+    // we'll have to fix the mistake afterwards
+    //
+
+    Int guessedSize = static_cast<Int>(v.size());
+    writeSize(guessedSize); // writeSize() only writes the size; it does not reserve any buffer space.
+
+    size_t firstIndex = b.size();
+    UTF8BufferI buffer(*this);
+
+    Byte* lastByte = _wstringConverter->toUTF8(v.data(), v.data() + v.size(), buffer);
+    if(lastByte != b.end())
+    {
+        b.resize(lastByte - b.begin());
+    }
+    size_t lastIndex = b.size();
+
+    Int actualSize = static_cast<Int>(lastIndex - firstIndex);
+
+    //
+    // Check against the guess
+    //
+    if(guessedSize != actualSize)
+    {
+        if(guessedSize <= 254 && actualSize > 254)
+        {
+            //
+            // Move the UTF-8 sequence 4 bytes further
+            // Use memmove instead of memcpy since the source and destination typically overlap.
+            //
+            resize(b.size() + 4);
+            std::memmove(b.begin() + firstIndex + 4, b.begin() + firstIndex, actualSize);
+        }
+        else if(guessedSize > 254 && actualSize <= 254)
+        {
+            //
+            // Move the UTF-8 sequence 4 bytes back
+            //
+            std::memmove(b.begin() + firstIndex - 4, b.begin() + firstIndex, actualSize);
+            resize(b.size() - 4);
+        }
+
+        if(guessedSize <= 254)
+        {
+            rewriteSize(actualSize, b.begin() + firstIndex - 1);
+        }
+        else
+        {
+            rewriteSize(actualSize, b.begin() + firstIndex - 1 - 4);
+        }
     }
 }
 

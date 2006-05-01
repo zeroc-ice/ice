@@ -11,6 +11,7 @@
 #include <TestCommon.h>
 #include <TestApplication.h>
 #include <Test.h>
+#include <StringConverterI.h>
 
 using namespace std;
 
@@ -28,6 +29,8 @@ public:
     {
         Ice::InitializationData initData;
 	initData.properties = Ice::createProperties();
+	initData.stringConverter = new Test::StringConverterI();
+	initData.wstringConverter = new Test::WstringConverterI();
 
 	loadConfig(initData.properties);
 	initData.logger = getLogger();

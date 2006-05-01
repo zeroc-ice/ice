@@ -16,6 +16,7 @@
 #include <Ice/LoggerF.h>
 #include <Ice/StreamF.h>
 #include <Ice/StatsF.h>
+#include <Ice/StringConverter.h>
 #include <Ice/BuiltinSequences.h>
 
 namespace Ice
@@ -42,6 +43,8 @@ struct InitializationData
     LoggerPtr logger;
     StatsPtr stats;
     Context defaultContext;
+    StringConverterPtr stringConverter;
+    WstringConverterPtr wstringConverter;
 };
 
 ICE_API CommunicatorPtr initialize(int&, char*[], InitializationData = InitializationData(),

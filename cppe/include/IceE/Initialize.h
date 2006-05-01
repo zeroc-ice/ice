@@ -14,6 +14,7 @@
 #include <IceE/PropertiesF.h>
 #include <IceE/LoggerF.h>
 #include <IceE/InstanceF.h>
+#include <IceE/StringConverter.h>
 #include <IceE/BuiltinSequences.h>
 
 namespace Ice
@@ -37,6 +38,8 @@ struct InitializationData
     PropertiesPtr properties;
     LoggerPtr logger;
     Context defaultContext;
+    StringConverterPtr stringConverter;
+    WstringConverterPtr wstringConverter;
 };
 
 ICE_API CommunicatorPtr initialize(int&, char*[], InitializationData = InitializationData(), Int = ICEE_INT_VERSION);
