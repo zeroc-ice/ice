@@ -135,19 +135,19 @@ Glacier2::ProxyVerifier::ProxyVerifier(const CommunicatorPtr& communicator, cons
     // Evaluation order is dependant on how the rules are stored to the
     // rules vectors. 
     //
-    string s = communicator->getProperties()->getProperty("Glacier2.Client.AddProxy.Accept");
+    string s = communicator->getProperties()->getProperty("Glacier2.Client.Filter.Regex.Accept");
     if(s != "")
     {
 	_acceptRules.push_back(new RegexRule(communicator, s, _traceLevel));
     }
 
-    s = communicator->getProperties()->getProperty("Glacier2.Client.AddProxy.Reject");
+    s = communicator->getProperties()->getProperty("Glacier2.Client.Filter.Regex.Reject");
     if(s != "")
     {
 	_rejectRules.push_back(new RegexRule(communicator, s, _traceLevel));
     }
 
-    s = communicator->getProperties()->getProperty("Glacier2.Client.AddProxy.MaxEndpoints");
+    s = communicator->getProperties()->getProperty("Glacier2.Client.Filter.MaxProxyLength");
     if(s != "")
     {
 	_rejectRules.push_back(new MaxEndpointsRule(communicator, s, _traceLevel));
