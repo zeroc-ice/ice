@@ -38,6 +38,14 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
     //
     if(!_allowCategories.empty())
     {
+	//
+	// Note: Some filtering will be relying on regular
+	// expressions. A quick performance test revealed that on Linux
+	// using the standard regular expression API to create an
+	// equivalent mechanism was much slower when there were a large
+	// number of categories. It would appear that the simple
+	// mechanism used here is a better choice, at least on Linux.
+	//
 	if(!binary_search(_allowCategories.begin(), _allowCategories.end(), current.id.category))
 	{
 	    if(_rejectTraceLevel >= 1)
