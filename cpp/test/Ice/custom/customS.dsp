@@ -157,6 +157,10 @@ SOURCE=.\Server.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\StringConverterI.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Test.cpp
 # End Source File
 # Begin Source File
@@ -178,6 +182,10 @@ SOURCE=.\WstringI.cpp
 # Begin Source File
 
 SOURCE=.\MyByteSeq.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\StringConverterI.h
 # End Source File
 # Begin Source File
 

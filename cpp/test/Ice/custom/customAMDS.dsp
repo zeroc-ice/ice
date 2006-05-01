@@ -157,6 +157,10 @@ SOURCE=.\ServerAMD.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\StringConverterI.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\TestAMD.cpp
 # End Source File
 # Begin Source File

@@ -45,7 +45,11 @@ Test::StringConverterI::fromUTF8(const Ice::Byte* sourceStart, const Ice::Byte* 
 void 
 Test::StringConverterI::freeTarget(const char* target) const
 {
+#if defined(_MSC_VER) && _MSC_VER < 1300
+    delete[] const_cast<char*>(target);
+#else
     delete[] target;
+#endif
 }
 
 Ice::Byte*
@@ -71,10 +75,11 @@ Test::WstringConverterI::fromUTF8(const Ice::Byte* sourceStart, const Ice::Byte*
 				  const wchar_t*& targetStart, const wchar_t*& targetEnd) const
 {
     size_t size = static_cast<size_t>(sourceEnd - sourceStart);
-    std::string s(sourceStart, sourceEnd);
+    std::string s(reinterpret_cast<const char*>(sourceStart), reinterpret_cast<const char*>(sourceEnd));
 
     Ice::Byte* p = const_cast<Ice::Byte*>(sourceEnd);
-    for(unsigned int i = 0; i < size; ++i)
+    unsigned int i;
+    for(i = 0; i < size; ++i)
     {
         s[i] = *(--p);
     }
@@ -82,7 +87,7 @@ Test::WstringConverterI::fromUTF8(const Ice::Byte* sourceStart, const Ice::Byte*
     std::wstring ws = IceUtil::stringToWstring(s);
     size = ws.size();
     wchar_t* buf = new wchar_t[size];
-    for(unsigned int i = 0; i < size; ++i)
+    for(i = 0; i < size; ++i)
     {
         buf[i] = ws[i];
     }
