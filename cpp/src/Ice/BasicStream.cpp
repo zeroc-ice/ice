@@ -29,13 +29,13 @@ using namespace IceInternal;
 
 IceInternal::BasicStream::BasicStream(Instance* instance) :
     _instance(instance),
-    _stringConverter(instance->initializationData().stringConverter),
-    _wstringConverter(instance->initializationData().wstringConverter),
     _currentReadEncaps(0),
     _currentWriteEncaps(0),
     _traceSlicing(-1),
     _sliceObjects(true),
     _messageSizeMax(_instance->messageSizeMax()), // Cached for efficiency.
+    _stringConverter(instance->initializationData().stringConverter),
+    _wstringConverter(instance->initializationData().wstringConverter),
     _seqDataStack(0),
     _objectList(0)
 {
