@@ -120,6 +120,11 @@ class Service extends ListArrayTreeNode
 	return _serviceDescriptor;
     }
 
+    ServiceInstanceDescriptor getInstanceDescriptor()
+    {
+	return _instanceDescriptor;
+    }
+
     private void createAdapters()
     {
 	java.util.Iterator p = _serviceDescriptor.adapters.iterator();

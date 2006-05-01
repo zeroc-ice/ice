@@ -41,6 +41,8 @@ public abstract class EditorBase
 	return null;
     }
 
+    
+   
     static public java.util.SortedMap propertiesToMap(java.util.List props, 
 						      Utils.Resolver resolver)
     {

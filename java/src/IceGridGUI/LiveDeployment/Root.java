@@ -143,6 +143,10 @@ public class Root extends ListTreeNode
 	//
 	// Update only descriptors (no tree node shown in this view)
 	//
+	appDesc.propertySets.keySet().
+	    removeAll(java.util.Arrays.asList(update.removePropertySets));
+	appDesc.propertySets.putAll(update.propertySets);
+
 	for(int i = 0; i < update.removeReplicaGroups.length; ++i)
 	{
 	    for(int j = 0; j < appDesc.replicaGroups.size(); ++j)
@@ -163,7 +167,6 @@ public class Root extends ListTreeNode
 	appDesc.serverTemplates.keySet().
 	    removeAll(java.util.Arrays.asList(update.removeServerTemplates));
 	appDesc.serverTemplates.putAll(update.serverTemplates);
-
 
 	//
 	// Nodes
@@ -325,6 +328,13 @@ public class Root extends ListTreeNode
     Root getRoot()
     {
 	return this;
+    }
+
+    PropertySetDescriptor findNamedPropertySet(String name, String applicationName)
+    {
+	ApplicationDescriptor descriptor = (ApplicationDescriptor)
+	    _descriptorMap.get(applicationName);
+	return (PropertySetDescriptor)descriptor.propertySets.get(name);
     }
 
     private Node findNode(String nodeName)

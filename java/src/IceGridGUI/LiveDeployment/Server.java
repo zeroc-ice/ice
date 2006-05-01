@@ -468,6 +468,7 @@ class Server extends ListArrayTreeNode
 		_resolver.reset(resolver, _instanceDescriptor.parameterValues,
 				templateDescriptor.parameterDefaults);
 		_resolver.put("server", _id);
+		_serverDescriptor = (ServerDescriptor)templateDescriptor.descriptor;
 	    }
 	    
 	    _adapters.clear();

@@ -190,6 +190,36 @@ class Node extends ListTreeNode
 	add(appDesc, nodeDesc);
     }
 
+    Editor.ExpandedPropertySet expand(PropertySetDescriptor descriptor, 
+				      String applicationName)
+    {
+	Editor.ExpandedPropertySet result = new Editor.ExpandedPropertySet();
+	result.references = new Editor.ExpandedPropertySet[descriptor.references.length];
+	
+	for(int i = 0; i < descriptor.references.length; ++i)
+	{
+	    result.references[i] = expand(
+		findNamedPropertySet(descriptor.references[i], applicationName), applicationName);
+	}
+
+	result.properties = descriptor.properties;
+	return result;
+    }
+    
+    PropertySetDescriptor findNamedPropertySet(String name, String applicationName)
+    {
+	ApplicationData appData = (ApplicationData)_map.get(applicationName);
+	if(appData != null)
+	{
+	    NodeDescriptor descriptor = appData.descriptor;
+	    PropertySetDescriptor result = (PropertySetDescriptor)descriptor.propertySets.get(name);
+	    if(result != null)
+	    {
+		return result;
+	    }
+	}
+	return getRoot().findNamedPropertySet(name, applicationName);
+    }
 
     void add(ApplicationDescriptor appDesc, NodeDescriptor nodeDesc)
     {
@@ -276,6 +306,10 @@ class Node extends ListTreeNode
 		variablesChanged = update.removeVariables.length > 0 ||
 		    !update.variables.isEmpty();
 	    }
+
+	    nodeDesc.propertySets.keySet().removeAll(
+		java.util.Arrays.asList(update.removePropertySets));
+	    nodeDesc.propertySets.putAll(update.propertySets);
 
 	    //
 	    // Remove servers
