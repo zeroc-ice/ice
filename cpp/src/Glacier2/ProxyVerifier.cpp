@@ -167,8 +167,8 @@ Glacier2::ProxyVerifier::ProxyVerifier(const CommunicatorPtr& communicator, cons
     {
 	_rejectRules.push_back(new MaxEndpointsRule(communicator, s, _traceLevel));
     }
-    _rejectOverrides =
-	communicator->getProperties()->getPropertyAsIntWithDefault("Glacier2.Filter.Regex.Order", 0) == 0;
+    _acceptOverrides =
+	communicator->getProperties()->getPropertyAsIntWithDefault("Glacier2.Filter.Regex.AcceptOverride", 0) != 0;
 }
 
 Glacier2::ProxyVerifier::~ProxyVerifier()
@@ -213,15 +213,15 @@ Glacier2::ProxyVerifier::verify(const ObjectPrx& proxy)
     else
     {
 	//
-	// _rejectOverrides indicates that any accept rules can be
+	// _acceptOverrides indicates that any accept rules can be
 	// overriden by a reject rule. This allows the user to refine
 	// the allow filter's without having to specify exclusions in
 	// the accept filter's regular expression. Conversely if
-	// rejectOverrides is not set then accept rules are allowed to
+	// _acceptOverrides is not set then accept rules are allowed to
 	// override any reject rules that match.
 	//
 	// Note that there is implicit additional meaning in the
-	// _rejectOverrides. If true, then the overall evaluation
+	// _acceptOverrides. If true, then the overall evaluation
 	// context is 'default reject'. Otherwise there would be no
 	// point in considering the allow filters and we might as well
 	// just check the reject filters. Conversely, if false then
@@ -229,7 +229,20 @@ Glacier2::ProxyVerifier::verify(const ObjectPrx& proxy)
 	// filters would be meaningless, only the reject filters would
 	// matter.
 	//
-	if(_rejectOverrides)
+	if(_acceptOverrides)
+	{
+	    //
+	    // In this context we are default accept, there is not point
+	    // of running the accept filters if there is no rejection
+	    // match.
+	    //
+	    result = !match(_rejectRules, proxy);
+	    if(!result)
+	    {
+		result = match(_acceptRules, proxy);
+	    }
+	}
+	else
 	{
 	    result = match(_acceptRules, proxy);
 	    
@@ -241,19 +254,6 @@ Glacier2::ProxyVerifier::verify(const ObjectPrx& proxy)
 	    if(result)
 	    {
 		result = !match(_rejectRules, proxy);
-	    }
-	}
-	else
-	{
-	    //
-	    // In this context we are default accept, there is not point
-	    // of running the accept filters if there is no rejection
-	    // match.
-	    //
-	    result = !match(_rejectRules, proxy);
-	    if(!result)
-	    {
-		result = match(_acceptRules, proxy);
 	    }
 	}
     }

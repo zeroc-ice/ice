@@ -363,7 +363,7 @@ Glacier2:
     Client.Trace.Request
     Filter.Regex.Reject
     Filter.Regex.Accept
-    Filter.Regex.Order
+    Filter.Regex.AcceptOverride
     Filter.MaxProxyLength
     CryptPasswords
     InstanceName
