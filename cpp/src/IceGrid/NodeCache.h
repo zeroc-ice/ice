@@ -30,7 +30,7 @@ class NodeEntry : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
     
-    NodeEntry(Cache<std::string, NodeEntry>&, const std::string&);
+    NodeEntry(NodeCache&, const std::string&);
 
     void addDescriptor(const std::string&, const NodeDescriptor&);
     void removeDescriptor(const std::string&);
@@ -54,7 +54,7 @@ private:
     
     ServerDescriptorPtr getServerDescriptor(const ServerInfo&);
 
-    Cache<std::string, NodeEntry>& _cache;
+    NodeCache& _cache;
     const std::string _name;
     NodeSessionIPtr _session;
     std::map<std::string, ServerEntryPtr> _servers;

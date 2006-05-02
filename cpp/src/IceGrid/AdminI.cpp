@@ -577,35 +577,7 @@ AdminI::isServerEnabled(const ::std::string& id, const Ice::Current&) const
 AdapterInfoSeq
 AdminI::getAdapterInfo(const string& id, const Current&) const
 {
-    //
-    // TODO: XXX
-    //
-     AdapterInfoSeq adpts;
-//     int count;
-//     vector<pair<string, AdapterPrx> > adapters = _database->getAdapters(id, true, count, 0);
-//     AdapterInfoSeq adpts;
-//     for(vector<pair<string, AdapterPrx> >::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
-//     {
-// 	AdapterInfo info;
-// 	info.id = p->first;
-// 	info.replicaGroupId = p->first != id ? id : "";
-// 	if(p->second)
-// 	{
-// 	    try
-// 	    {
-// 		info.proxy = p->second->getDirectProxy();
-// 	    }
-// 	    catch(const Ice::ObjectNotExistException&)
-// 	    {
-// 		continue;
-// 	    }
-// 	    catch(const Ice::Exception&)
-// 	    {
-// 	    }
-// 	}
-// 	adpts.push_back(info);
-//     }
-    return adpts;
+    return _database->getAdapterInfo(id);
 }
 
 void
@@ -649,7 +621,6 @@ AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& type, const
     ObjectInfo info;
     info.proxy = proxy;
     info.type = type;
-    info.allocatable = false;
     _database->addObject(info);
 }
 

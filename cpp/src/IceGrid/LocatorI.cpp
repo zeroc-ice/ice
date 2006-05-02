@@ -391,7 +391,7 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
     try
     {
 	int count;
-	vector<pair<string, AdapterPrx> > adapters = _database->getAdapters(id, false, count, _session);
+	vector<pair<string, AdapterPrx> > adapters = _database->getAdapters(id, count, _session);
 	if(adapters.empty())
 	{
 	    cb->ice_response(0);

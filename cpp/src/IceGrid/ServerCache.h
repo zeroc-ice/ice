@@ -32,7 +32,7 @@ class ServerEntry : public Allocatable, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
     
-    ServerEntry(Cache<std::string, ServerEntry>&, const std::string&);
+    ServerEntry(ServerCache&, const std::string&);
 
     void sync();
     void update(const ServerInfo&);
@@ -83,11 +83,11 @@ class ServerCache : public CacheByString<ServerEntry>
 {
 public:
 
-    ServerCache(NodeCache&, AdapterCache&, ObjectCache&);
+    ServerCache(const Ice::CommunicatorPtr&, NodeCache&, AdapterCache&, ObjectCache&);
 
     ServerEntryPtr add(const ServerInfo&);
-    ServerEntryPtr get(const std::string&);
-    bool has(const std::string&);
+    ServerEntryPtr get(const std::string&) const;
+    bool has(const std::string&) const;
     ServerEntryPtr remove(const std::string&, bool = true);
 
     void clear(const std::string&);
@@ -102,6 +102,7 @@ private:
     friend struct AddCommunicator;
     friend struct RemoveCommunicator;
 
+    const Ice::CommunicatorPtr _communicator;
     NodeCache& _nodeCache;
     AdapterCache& _adapterCache;
     ObjectCache& _objectCache;

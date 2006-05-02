@@ -30,9 +30,7 @@ class ObjectEntry : public Allocatable
 {
 public:
     
-    ObjectEntry(Cache<Ice::Identity, ObjectEntry>&, const Ice::Identity&);
-
-    void set(const AllocatablePtr&, const std::string&, const ObjectInfo&);
+    ObjectEntry(ObjectCache&, const ObjectInfo&, const std::string&, bool, const AllocatablePtr&);
     Ice::ObjectPrx getProxy(const SessionIPtr&) const;
     std::string getType() const;
     std::string getApplication() const;
@@ -47,8 +45,8 @@ public:
 private:
 
     ObjectCache& _cache;
-    std::string _application;
-    ObjectInfo _info;
+    const ObjectInfo _info;
+    const std::string _application;
 };
 typedef IceUtil::Handle<ObjectEntry> ObjectEntryPtr;
 
@@ -81,10 +79,9 @@ class ObjectCache : public Cache<Ice::Identity, ObjectEntry>
 {
 public:
 
-    ObjectCache(const Ice::CommunicatorPtr&, AdapterCache&);
+    ObjectCache(AdapterCache&);
 
-    void add(const AllocatablePtr&, const std::string&, const std::string&, const std::string&, 
-	     const ObjectDescriptor&);
+    void add(const ObjectInfo&, const std::string&, bool, const AllocatablePtr&);
     ObjectEntryPtr get(const Ice::Identity&) const;
     ObjectEntryPtr remove(const Ice::Identity&);
 
@@ -120,7 +117,6 @@ private:
 	std::list<ObjectAllocationRequestPtr> _requests;
     };
 
-    const Ice::CommunicatorPtr _communicator;
     AdapterCache& _adapterCache;
 
     std::map<std::string, TypeEntry> _types;

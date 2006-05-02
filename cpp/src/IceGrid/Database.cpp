@@ -120,8 +120,8 @@ Database::Database(const Ice::ObjectAdapterPtr& adapter,
     _instanceName(instanceName),
     _traceLevels(traceLevels), 
     _nodeCache(nodeSessionTimeout),
-    _objectCache(_communicator, _adapterCache),
-    _serverCache(_nodeCache, _adapterCache, _objectCache),
+    _objectCache(_adapterCache),
+    _serverCache(_communicator, _nodeCache, _adapterCache, _objectCache),
     _connection(Freeze::createConnection(adapter->getCommunicator(), envName)),
     _descriptors(_connection, _descriptorDbName),
     _objects(_connection, _objectDbName),
@@ -739,11 +739,11 @@ Database::removeAdapter(const string& adapterId)
 AdapterPrx
 Database::getAdapter(const string& id, const string& replicaGroupId)
 {
-    return _adapterCache.getServerAdapter(id, false)->getProxy(replicaGroupId);
+    return _adapterCache.getServerAdapter(id)->getProxy(replicaGroupId);
 }
 
 vector<pair<string, AdapterPrx> >
-Database::getAdapters(const string& id, bool allRegistered, int& endpointCount, const SessionIPtr& session)
+Database::getAdapters(const string& id, int& endpointCount, const SessionIPtr& session)
 {
     //
     // First we check if the given adapter id is associated to a
@@ -752,7 +752,7 @@ Database::getAdapters(const string& id, bool allRegistered, int& endpointCount, 
     //
     try
     {
-	return _adapterCache.get(id)->getProxies(allRegistered, endpointCount, session);
+	return _adapterCache.get(id)->getProxies(endpointCount, session);
     }
     catch(AdapterNotExistException&)
     {
@@ -801,6 +801,56 @@ Database::getAdapters(const string& id, bool allRegistered, int& endpointCount, 
 
     throw AdapterNotExistException(id);
 }
+
+AdapterInfoSeq
+Database::getAdapterInfo(const string& id)
+{
+    //
+    // First we check if the given adapter id is associated to a
+    // server, if that's the case we get the adapter proxy from the
+    // server.
+    //
+    try
+    {
+	return _adapterCache.get(id)->getAdapterInfo();
+    }
+    catch(AdapterNotExistException&)
+    {
+    }
+
+    //
+    // Otherwise, we check the adapter endpoint table -- if there's an
+    // entry the adapter is managed by the registry itself.
+    //
+    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
+    StringAdapterInfoDict adapters(connection, _adapterDbName); 
+    StringAdapterInfoDict::const_iterator p = adapters.find(id);
+    if(p != adapters.end())
+    {
+	AdapterInfoSeq infos;
+	infos.push_back(p->second);
+	return infos;
+    }
+
+    //
+    // If it's not a regular object adapter, perhaps it's a replica
+    // group...
+    //
+    p = adapters.findByReplicaGroupId(id, true);
+    if(p != adapters.end())
+    {
+	AdapterInfoSeq infos;
+	while(p != adapters.end())
+	{
+	    infos.push_back(p->second);
+	    ++p;
+	}
+	return infos;
+    }
+
+    throw AdapterNotExistException(id);
+}
+
 
 Ice::StringSeq
 Database::getAllAdapters(const string& expression)
@@ -1198,13 +1248,13 @@ Database::load(const ApplicationHelper& app, ServerEntrySeq& entries)
     for(ReplicaGroupDescriptorSeq::const_iterator r = adpts.begin(); r != adpts.end(); ++r)
     {
 	assert(!r->id.empty());
-	_adapterCache.getReplicaGroup(r->id, true)->set(application, r->loadBalancing);
+	_adapterCache.addReplicaGroup(r->id, application, r->loadBalancing);
 	for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
 	{
-	    //
-	    // TODO: XXX: What about the parent?
-	    //
-	    _objectCache.add(0, application, r->id, "", *o);
+	    ObjectInfo info;
+	    info.type = o->type;
+	    info.proxy = _communicator->stringToProxy(Ice::identityToString(o->id) + "@" + r->id);
+	    _objectCache.add(info, application, false, 0); // Not allocatable
 	}
     }
 
@@ -1231,7 +1281,7 @@ Database::unload(const ApplicationHelper& app, ServerEntrySeq& entries)
 	{
 	    _objectCache.remove(o->id);
 	}
-	_adapterCache.remove(r->id);
+	_adapterCache.removeReplicaGroup(r->id);
     }
 
     const NodeDescriptorDict& nodes = app.getInstance().nodes;
@@ -1298,7 +1348,7 @@ Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newAp
 	}
 	if(t == newAdpts.end())
 	{
-	    _adapterCache.remove(r->id);
+	    _adapterCache.removeReplicaGroup(r->id);
 	}
     }
 
@@ -1326,13 +1376,22 @@ Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newAp
     //
     for(r = newAdpts.begin(); r != newAdpts.end(); ++r)
     {
-	_adapterCache.getReplicaGroup(r->id, true)->set(application, r->loadBalancing);
+	try
+	{
+	    ReplicaGroupEntryPtr entry = _adapterCache.getReplicaGroup(r->id);
+	    entry->update(r->loadBalancing);
+	}
+	catch(const AdapterNotExistException&)
+	{
+	    _adapterCache.addReplicaGroup(r->id, application, r->loadBalancing);
+	}
+
 	for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
 	{
-	    //
-	    // TODO: XXX: What about the parent?
-	    //
-	    _objectCache.add(0, application, r->id, "", *o);
+	    ObjectInfo info;
+	    info.type = o->type;
+	    info.proxy = _communicator->stringToProxy(Ice::identityToString(o->id) + "@" + r->id);
+	    _objectCache.add(info, application, false, 0); // Not allocatable
 	}
     }
 

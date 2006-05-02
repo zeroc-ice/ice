@@ -66,12 +66,39 @@ struct ToReplica : public unary_function<const ReplicaLoadComp::ReplicaLoad&, Re
 
 }
 
+ServerAdapterEntryPtr
+AdapterCache::addServerAdapter(const string& id, const string& rgId, bool allocatable, const ServerEntryPtr& server)
+{
+    Lock sync(*this);
+    assert(!getImpl(id));
+    ServerAdapterEntryPtr entry = new ServerAdapterEntry(*this, id, rgId, allocatable, server);
+    addImpl(id, entry);
+
+    if(!rgId.empty())
+    {
+	ReplicaGroupEntryPtr repEntry = ReplicaGroupEntryPtr::dynamicCast(getImpl(rgId));
+	assert(repEntry);
+	repEntry->addReplica(id, entry);
+    }
+
+    return entry;
+}
+
+ReplicaGroupEntryPtr
+AdapterCache::addReplicaGroup(const string& id, const string& app, const LoadBalancingPolicyPtr& loadBalancing)
+{
+    Lock sync(*this);
+    assert(!getImpl(id));
+    ReplicaGroupEntryPtr entry = new ReplicaGroupEntry(*this, id, app, loadBalancing);
+    addImpl(id, entry);
+    return entry;
+}
+
 AdapterEntryPtr
 AdapterCache::get(const string& id) const
 {
     Lock sync(*this);
-    AdapterCache& self = const_cast<AdapterCache&>(*this);
-    AdapterEntryPtr entry = self.getImpl(id);
+    AdapterEntryPtr entry = getImpl(id);
     if(!entry)
     {
 	throw AdapterNotExistException(id);
@@ -79,18 +106,23 @@ AdapterCache::get(const string& id) const
     return entry;
 }
 
-ReplicaGroupEntryPtr
-AdapterCache::getReplicaGroup(const string& id, bool create) const
+ServerAdapterEntryPtr
+AdapterCache::getServerAdapter(const string& id) const
 {
     Lock sync(*this);
-    AdapterCache& self = const_cast<AdapterCache&>(*this);
-    
-    AdapterEntryPtr entry = self.getImpl(id);
-    if(!entry && create)
+    ServerAdapterEntryPtr svrEntry = ServerAdapterEntryPtr::dynamicCast(getImpl(id));
+    if(!svrEntry)
     {
-	return ReplicaGroupEntryPtr::dynamicCast(self.addImpl(id, new ReplicaGroupEntry(self, id)));
+	throw AdapterNotExistException(id);
     }
-    ReplicaGroupEntryPtr repEntry = ReplicaGroupEntryPtr::dynamicCast(entry);
+    return svrEntry;
+}
+
+ReplicaGroupEntryPtr
+AdapterCache::getReplicaGroup(const string& id) const
+{
+    Lock sync(*this);
+    ReplicaGroupEntryPtr repEntry = ReplicaGroupEntryPtr::dynamicCast(getImpl(id));
     if(!repEntry)
     {
 	throw AdapterNotExistException(id);
@@ -98,23 +130,29 @@ AdapterCache::getReplicaGroup(const string& id, bool create) const
     return repEntry;
 }
 
-ServerAdapterEntryPtr
-AdapterCache::getServerAdapter(const string& id, bool create) const
+void
+AdapterCache::removeServerAdapter(const string& id)
 {
     Lock sync(*this);
-    AdapterCache& self = const_cast<AdapterCache&>(*this);
+
+    ServerAdapterEntryPtr entry = ServerAdapterEntryPtr::dynamicCast(removeImpl(id));
+    assert(entry);
     
-    AdapterEntryPtr entry = self.getImpl(id);
-    if(!entry && create)
+    string replicaGroupId = entry->getReplicaGroupId();
+    if(!replicaGroupId.empty())
     {
-	return ServerAdapterEntryPtr::dynamicCast(self.addImpl(id, new ServerAdapterEntry(self, id)));
+	ReplicaGroupEntryPtr repEntry = ReplicaGroupEntryPtr::dynamicCast(getImpl(replicaGroupId));
+	assert(repEntry);
+	repEntry->removeReplica(id);
     }
-    ServerAdapterEntryPtr svrEntry = ServerAdapterEntryPtr::dynamicCast(entry);
-    if(!svrEntry)
-    {
-	throw AdapterNotExistException(id);
-    }
-    return svrEntry;
+}
+
+void
+AdapterCache::removeReplicaGroup(const string& id)
+{
+    Lock sync(*this);
+    ReplicaGroupEntryPtr entry = ReplicaGroupEntryPtr::dynamicCast(removeImpl(id));
+    assert(entry);
 }
 
 AdapterEntryPtr
@@ -139,8 +177,9 @@ AdapterCache::removeImpl(const string& id)
     return Cache<string, AdapterEntry>::removeImpl(id);
 }
 
-AdapterEntry::AdapterEntry(Cache<string, AdapterEntry>& cache, const std::string& id) : 
-    _cache(*dynamic_cast<AdapterCache*>(&cache)),
+AdapterEntry::AdapterEntry(AdapterCache& cache, const string& id, bool allocatable, const AllocatablePtr& parent) :
+    Allocatable(allocatable, parent),
+    _cache(cache),
     _id(id)
 {
 }
@@ -151,13 +190,19 @@ AdapterEntry::canRemove()
     return true;
 }
 
-ServerAdapterEntry::ServerAdapterEntry(Cache<string, AdapterEntry>& cache, const std::string& id) : 
-    AdapterEntry(cache, id)
+ServerAdapterEntry::ServerAdapterEntry(AdapterCache& cache,
+				       const string& id,
+				       const string& replicaGroupId, 
+				       bool allocatable, 
+				       const ServerEntryPtr& server) : 
+    AdapterEntry(cache, id, allocatable, server),
+    _replicaGroupId(replicaGroupId),
+    _server(server)
 {
 }
 
 vector<pair<string, AdapterPrx> >
-ServerAdapterEntry::getProxies(bool, int& nReplicas, const SessionIPtr& session)
+ServerAdapterEntry::getProxies(int& nReplicas, const SessionIPtr& session)
 {
     vector<pair<string, AdapterPrx> > adapters;
     try
@@ -193,42 +238,28 @@ ServerAdapterEntry::getApplication() const
     return getServer()->getApplication();
 }
 
-void
-ServerAdapterEntry::set(const ServerEntryPtr& server, const string& replicaGroupId, bool allocatable)
+AdapterInfoSeq
+ServerAdapterEntry::getAdapterInfo() const
 {
+    AdapterInfo info;
+    info.id = _id;
+    info.replicaGroupId = _replicaGroupId;
+    try
     {
-	Lock sync(*this);
-	_server = server;
-	_replicaGroupId = replicaGroupId;
-	if(server->allocatable())
-	{
-	    _parent = server;
-	    _allocatable = true;
-	}
-	else
-	{
-	    _allocatable = allocatable;
-	}
+	info.proxy = getProxy()->getDirectProxy();
     }
-    if(!replicaGroupId.empty())
+    catch(const NodeUnreachableException&)
     {
-	_cache.getReplicaGroup(replicaGroupId)->addReplica(_id, this);
     }
-}
-
-void
-ServerAdapterEntry::destroy()
-{
-    string replicaGroupId;
+    catch(const AdapterNotExistException&)
     {
-	Lock sync(*this);
-	replicaGroupId = _replicaGroupId;
     }
-    if(!replicaGroupId.empty())
+    catch(const Ice::Exception&)
     {
-	_cache.getReplicaGroup(replicaGroupId)->removeReplica(_id);
     }
-    _cache.remove(_id);
+    AdapterInfoSeq infos;
+    infos.push_back(info);
+    return infos;
 }
 
 AdapterPrx
@@ -279,53 +310,15 @@ ServerAdapterEntry::released(const SessionIPtr& session)
     }    
 }
 
-ReplicaGroupEntry::ReplicaGroupEntry(Cache<string, AdapterEntry>& cache, const std::string& id) : 
-    AdapterEntry(cache, id),
+ReplicaGroupEntry::ReplicaGroupEntry(AdapterCache& cache,
+				     const string& id,
+				     const string& application,
+				     const LoadBalancingPolicyPtr& policy) : 
+    AdapterEntry(cache, id, false, 0),
+    _application(application),
     _lastReplica(0)
 {
-}
-
-void
-ReplicaGroupEntry::set(const string& application, const LoadBalancingPolicyPtr& policy)
-{
-    Lock sync(*this);
-    _application = application;
-    if(policy)
-    {
-	_loadBalancing = policy;
-	istringstream is(policy->nReplicas);
-	is >> _loadBalancingNReplicas;
-	if(_loadBalancingNReplicas < 1)
-	{
-	    _loadBalancingNReplicas = 1;
-	}
-
-	AdaptiveLoadBalancingPolicyPtr alb = AdaptiveLoadBalancingPolicyPtr::dynamicCast(_loadBalancing);
-	if(alb)
-	{
-	    if(alb->loadSample == "1")
-	    {
-		_loadSample = LoadSample1;
-	    }
-	    else if(alb->loadSample == "5")
-	    {
-		_loadSample = LoadSample5;
-	    }
-	    else if(alb->loadSample == "15")
-	    {
-		_loadSample = LoadSample15;
-	    }
-	    else
-	    {
-		_loadSample = LoadSample1;
-	    }
-	}
-    }
-    else
-    {
-	_loadBalancing = 0;
-	_loadBalancingNReplicas = 0;
-    }
+    update(policy);
 }
 
 void
@@ -351,8 +344,42 @@ ReplicaGroupEntry::removeReplica(const string& replicaId)
     }
 }
 
+void
+ReplicaGroupEntry::update(const LoadBalancingPolicyPtr& policy)
+{
+    Lock sync(*this);
+    _loadBalancing = policy;
+    if(_loadBalancing)
+    {
+	istringstream is(_loadBalancing->nReplicas);
+	int nReplicas = 0;
+	is >> nReplicas;
+	_loadBalancingNReplicas = nReplicas < 1 ? 1 : nReplicas;
+	AdaptiveLoadBalancingPolicyPtr alb = AdaptiveLoadBalancingPolicyPtr::dynamicCast(_loadBalancing);
+	if(alb)
+	{
+	    if(alb->loadSample == "1")
+	    {
+		_loadSample = LoadSample1;
+	    }
+	    else if(alb->loadSample == "5")
+	    {
+		_loadSample = LoadSample5;
+	    }
+	    else if(alb->loadSample == "15")
+	    {
+		_loadSample = LoadSample15;
+	    }
+	    else
+	    {
+		_loadSample = LoadSample1;
+	    }
+	}
+    }
+}
+
 vector<pair<string, AdapterPrx> >
-ReplicaGroupEntry::getProxies(bool allRegistered, int& nReplicas, const SessionIPtr& session)
+ReplicaGroupEntry::getProxies(int& nReplicas, const SessionIPtr& session)
 {
     ReplicaSeq replicas;
     bool adaptive = false;
@@ -433,10 +460,6 @@ ReplicaGroupEntry::getProxies(bool allRegistered, int& nReplicas, const SessionI
 	}
 	catch(const NodeUnreachableException&)
 	{
-	    if(allRegistered)
-	    {
-		adapters.push_back(make_pair(p->first, AdapterPrx()));
-	    }
 	}
     }
     return adapters;
@@ -469,3 +492,21 @@ ReplicaGroupEntry::getApplication() const
     return _application;
 }
 
+AdapterInfoSeq
+ReplicaGroupEntry::getAdapterInfo() const
+{
+    ReplicaSeq replicas;
+    {
+	Lock sync(*this);
+	replicas = _replicas;
+    }
+
+    AdapterInfoSeq infos;
+    for(ReplicaSeq::const_iterator p = replicas.begin(); p != replicas.end(); ++p)
+    {
+	AdapterInfoSeq infs = p->second->getAdapterInfo();
+	assert(infs.size() == 1);
+	infos.push_back(infs[0]);
+    }
+    return infos;
+}

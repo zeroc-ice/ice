@@ -173,8 +173,13 @@ NodeEntryPtr
 NodeCache::get(const string& name, bool create) const
 {
     Lock sync(*this);
-    NodeCache& self = const_cast<NodeCache&>(*this);
-    NodeEntryPtr entry = self.getImpl(name, create);
+    NodeEntryPtr entry = getImpl(name);
+    if(!entry && create)
+    {
+	NodeCache& self = const_cast<NodeCache&>(*this);
+	entry = new NodeEntry(self, name);
+	self.addImpl(name, entry);
+    }
     if(!entry)
     {
 	NodeNotExistException ex;
@@ -184,7 +189,7 @@ NodeCache::get(const string& name, bool create) const
     return entry;
 }
 
-NodeEntry::NodeEntry(Cache<string, NodeEntry>& cache, const std::string& name) : 
+NodeEntry::NodeEntry(NodeCache& cache, const std::string& name) : 
     _cache(cache),
     _name(name)
 {

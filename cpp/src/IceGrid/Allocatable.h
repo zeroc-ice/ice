@@ -90,7 +90,7 @@ class Allocatable : public IceUtil::Shared
 {
 public:
 
-    Allocatable();
+    Allocatable(bool, const AllocatablePtr&);
     virtual ~Allocatable();
 
     virtual void allocate(const AllocationRequestPtr&, bool = true);
@@ -111,8 +111,8 @@ protected:
     bool tryAllocateWithSession(const SessionIPtr&, const AllocatablePtr&);
     bool release(const SessionIPtr&, bool, std::set<AllocatablePtr>&);
 
-    bool _allocatable;
-    AllocatablePtr _parent;
+    const bool _allocatable;
+    const AllocatablePtr _parent;
     
     IceUtil::RecMutex _allocateMutex;
     std::list<AllocationRequestPtr> _requests;

@@ -164,8 +164,12 @@ ParentAllocationRequest::canceled(const AllocationException& ex)
     _request->canceled(ex);
 }
 
-Allocatable::Allocatable() : _allocatable(false), _count(0)
+Allocatable::Allocatable(bool allocatable, const AllocatablePtr& parent) : 
+    _allocatable(allocatable || parent && parent->allocatable()),
+    _parent((parent && parent->allocatable()) ? parent : AllocatablePtr()),
+    _count(0)
 {
+    assert(!_parent || _parent->allocatable()); // Parent is only set if it's allocatable.
 }
 
 Allocatable::~Allocatable()

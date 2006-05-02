@@ -97,13 +97,6 @@ struct ObjectInfo
      *
      **/
     string type;
-
-    /**
-     *
-     * Specifies if the object can be allocated.
-     *
-     **/
-    bool allocatable;
 };
 
 /**

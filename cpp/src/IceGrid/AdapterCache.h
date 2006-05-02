@@ -33,15 +33,13 @@ class AdapterEntry : public Allocatable, public IceUtil::Mutex
 {
 public:
     
-    AdapterEntry(Cache<std::string, AdapterEntry>&, const std::string&);
+    AdapterEntry(AdapterCache&, const std::string&, bool, const AllocatablePtr&);
 
-    virtual std::vector<std::pair<std::string, AdapterPrx> > getProxies(bool, int&, const SessionIPtr&) 
-    {
-	assert(false); 
-	return std::vector<std::pair<std::string, AdapterPrx> >();
-    }
-    virtual float getLeastLoadedNodeLoad(LoadSample) const {  assert(false); return 0.0; }
-    virtual std::string getApplication() const { assert(false); return "";}
+    virtual std::vector<std::pair<std::string, AdapterPrx> > getProxies(int&, const SessionIPtr&) = 0;
+    virtual float getLeastLoadedNodeLoad(LoadSample) const = 0;
+    virtual std::string getApplication() const = 0;
+    virtual AdapterInfoSeq getAdapterInfo() const = 0;
+
     virtual bool canRemove();
     
 protected:
@@ -55,14 +53,13 @@ class ServerAdapterEntry : public AdapterEntry
 {
 public:
 
-    ServerAdapterEntry(Cache<std::string, AdapterEntry>&, const std::string&);
+    ServerAdapterEntry(AdapterCache&, const std::string&, const std::string&, bool, const ServerEntryPtr&);
 
-    virtual std::vector<std::pair<std::string, AdapterPrx> > getProxies(bool, int&, const SessionIPtr&);
+    virtual std::vector<std::pair<std::string, AdapterPrx> > getProxies(int&, const SessionIPtr&);
     virtual float getLeastLoadedNodeLoad(LoadSample) const;
     virtual std::string getApplication() const;
-
-    void set(const ServerEntryPtr&, const std::string&, bool);
-    void destroy();
+    virtual AdapterInfoSeq getAdapterInfo() const;
+    virtual const std::string& getReplicaGroupId() const { return _replicaGroupId; }
 
     AdapterPrx getProxy(const std::string& = std::string()) const;
 
@@ -73,8 +70,8 @@ private:
     
     ServerEntryPtr getServer() const;
 
-    ServerEntryPtr _server;
-    std::string _replicaGroupId;
+    const std::string _replicaGroupId;
+    const ServerEntryPtr _server;
 };
 typedef IceUtil::Handle<ServerAdapterEntry> ServerAdapterEntryPtr;
 
@@ -82,24 +79,27 @@ class ReplicaGroupEntry : public AdapterEntry
 {
 public:
 
-    ReplicaGroupEntry(Cache<std::string, AdapterEntry>&, const std::string&);
+    ReplicaGroupEntry(AdapterCache&, const std::string&, const std::string&, const LoadBalancingPolicyPtr&);
 
-    virtual std::vector<std::pair<std::string, AdapterPrx> > getProxies(bool, int&, const SessionIPtr&);
+    virtual std::vector<std::pair<std::string, AdapterPrx> > getProxies(int&, const SessionIPtr&);
     virtual float getLeastLoadedNodeLoad(LoadSample) const;
     virtual std::string getApplication() const;
+    virtual AdapterInfoSeq getAdapterInfo() const;
 
-    void set(const std::string&, const LoadBalancingPolicyPtr&);
     void addReplica(const std::string&, const ServerAdapterEntryPtr&);
     void removeReplica(const std::string&);
+
+    void update(const LoadBalancingPolicyPtr&);
 
     typedef std::vector<std::pair<std::string, ServerAdapterEntryPtr> > ReplicaSeq;
 
 private:
 
+    const std::string _application;
+
     LoadBalancingPolicyPtr _loadBalancing;
     int _loadBalancingNReplicas;
     LoadSample _loadSample;
-    std::string _application;
     ReplicaSeq _replicas;
     int _lastReplica;
 
@@ -111,10 +111,16 @@ class AdapterCache : public CacheByString<AdapterEntry>
 {
 public:
 
+    ServerAdapterEntryPtr addServerAdapter(const std::string&, const std::string&, bool, const ServerEntryPtr&);
+    ReplicaGroupEntryPtr addReplicaGroup(const std::string&, const std::string&, const LoadBalancingPolicyPtr&);
+
     AdapterEntryPtr get(const std::string&) const;
-    ServerAdapterEntryPtr getServerAdapter(const std::string&, bool = false) const;
-    ReplicaGroupEntryPtr getReplicaGroup(const std::string&, bool = false) const;
+    ServerAdapterEntryPtr getServerAdapter(const std::string&) const;
+    ReplicaGroupEntryPtr getReplicaGroup(const std::string&) const;
     
+    void removeServerAdapter(const std::string&);
+    void removeReplicaGroup(const std::string&);
+
 protected:
     
     virtual AdapterEntryPtr addImpl(const std::string&, const AdapterEntryPtr&);

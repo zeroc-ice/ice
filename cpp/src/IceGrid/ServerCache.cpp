@@ -8,7 +8,8 @@
 // **********************************************************************
 
 #include <Ice/LoggerUtil.h>
-
+#include <Ice/IdentityUtil.h>
+#include <Ice/Communicator.h>
 #include <IceGrid/ServerCache.h>
 #include <IceGrid/NodeCache.h>
 #include <IceGrid/AdapterCache.h>
@@ -56,9 +57,11 @@ namespace IceGrid
     };
 }
 
-ServerCache::ServerCache(NodeCache& nodeCache, 
+ServerCache::ServerCache(const Ice::CommunicatorPtr& communicator,
+			 NodeCache& nodeCache, 
 			 AdapterCache& adapterCache, 
 			 ObjectCache& objectCache) :
+    _communicator(communicator),
     _nodeCache(nodeCache), 
     _adapterCache(adapterCache), 
     _objectCache(objectCache)
@@ -70,7 +73,12 @@ ServerCache::add(const ServerInfo& info)
 {
     Lock sync(*this);
 
-    ServerEntryPtr entry = getImpl(info.descriptor->id, true);
+    ServerEntryPtr entry = getImpl(info.descriptor->id);
+    if(!entry)
+    {
+	entry = new ServerEntry(*this, info.descriptor->id);
+	addImpl(info.descriptor->id, entry);
+    }
     entry->update(info);
     _nodeCache.get(info.node, true)->addServer(entry);
 
@@ -86,7 +94,7 @@ ServerCache::add(const ServerInfo& info)
 }
 
 ServerEntryPtr
-ServerCache::get(const string& id)
+ServerCache::get(const string& id) const
 {
     Lock sync(*this);
     ServerEntryPtr entry = getImpl(id);
@@ -100,7 +108,7 @@ ServerCache::get(const string& id)
 }
 
 bool
-ServerCache::has(const string& id)
+ServerCache::has(const string& id) const
 {
     Lock sync(*this);
     ServerEntryPtr entry = getImpl(id);
@@ -146,27 +154,31 @@ ServerCache::getNodeCache() const
 }
 
 void
-ServerCache::addCommunicator(const CommunicatorDescriptorPtr& comm, const ServerEntryPtr& entry)
+ServerCache::addCommunicator(const CommunicatorDescriptorPtr& comm, const ServerEntryPtr& server)
 {
-    const string application = entry->getApplication();
+    const string application = server->getApplication();
     for(AdapterDescriptorSeq::const_iterator q = comm->adapters.begin() ; q != comm->adapters.end(); ++q)
     {
-	AllocatablePtr parent;
+	AllocatablePtr parent = server;
 	if(!q->id.empty())
 	{
-	    ServerAdapterEntryPtr adpt = _adapterCache.getServerAdapter(q->id, true);
-	    adpt->set(entry, q->replicaGroupId, q->allocatable);
-	    parent = adpt;
-	}
-	else
-	{
-	    parent = entry;
+	    parent = _adapterCache.addServerAdapter(q->id, q->replicaGroupId, q->allocatable, server);
 	}
 
 	for(ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
 	{
-	    const string edpts = IceGrid::getProperty(comm->propertySet, q->name + ".Endpoints");
-	    _objectCache.add(parent, application, q->id, edpts, *r);
+	    ObjectInfo info;
+	    info.type = r->type;
+	    if(q->id.empty())
+	    {
+		const string edpts = IceGrid::getProperty(comm->propertySet, q->name + ".Endpoints");
+		info.proxy = _communicator->stringToProxy(Ice::identityToString(r->id) + ":" + edpts);
+	    }
+	    else
+	    {
+		info.proxy = _communicator->stringToProxy(Ice::identityToString(r->id) + "@" + q->id);
+	    }
+	    _objectCache.add(info, application, r->allocatable, parent);
 	}
     }
 }
@@ -176,19 +188,20 @@ ServerCache::removeCommunicator(const CommunicatorDescriptorPtr& comm, const Ser
 {
     for(AdapterDescriptorSeq::const_iterator q = comm->adapters.begin() ; q != comm->adapters.end(); ++q)
     {
-	if(!q->id.empty())
-	{
-	    _adapterCache.getServerAdapter(q->id)->destroy();
-	}
 	for(ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
 	{
 	    _objectCache.remove(r->id);
 	}
+	if(!q->id.empty())
+	{
+	    _adapterCache.removeServerAdapter(q->id);
+	}
     }
 }
 
-ServerEntry::ServerEntry(Cache<string, ServerEntry>& cache, const string& id) :
-    _cache(*dynamic_cast<ServerCache*>(&cache)), 
+ServerEntry::ServerEntry(ServerCache& cache, const string& id) :
+    Allocatable(false, 0),
+    _cache(cache),
     _id(id),
     _synchronizing(false),
     _updated(false)
@@ -237,7 +250,7 @@ ServerEntry::update(const ServerInfo& info)
     //
     // TODO: XXX REVIEW
     //
-    _allocatable = info.descriptor->allocatable;
+    const_cast<bool&>(_allocatable) = info.descriptor->allocatable;
 }
 
 void

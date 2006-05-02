@@ -8,11 +8,8 @@
 // **********************************************************************
 
 #include <IceUtil/Random.h>
-
-#include <Ice/Communicator.h>
 #include <Ice/IdentityUtil.h>
 #include <Ice/LoggerUtil.h>
-
 #include <IceGrid/ObjectCache.h>
 #include <IceGrid/NodeSessionI.h>
 #include <IceGrid/ServerCache.h>
@@ -76,33 +73,21 @@ ObjectCache::TypeEntry::released(const ObjectEntryPtr& entry)
     }
 }
 
-ObjectCache::ObjectCache(const Ice::CommunicatorPtr& communicator, AdapterCache& adapterCache) : 
-    _communicator(communicator),
+ObjectCache::ObjectCache(AdapterCache& adapterCache) : 
     _adapterCache(adapterCache)
 {
 }
 
 void
-ObjectCache::add(const AllocatablePtr& parent, const string& app, const string& adapterId, 
-		 const string& endpoints, const ObjectDescriptor& desc)
+ObjectCache::add(const ObjectInfo& info, const string& application, bool allocatable, const AllocatablePtr& parent)
 {
+    const Ice::Identity& id = info.proxy->ice_getIdentity();
+
     Lock sync(*this);
-    assert(!getImpl(desc.id));
+    assert(!getImpl(id));
 
-    ObjectEntryPtr entry = getImpl(desc.id, true);
-
-    ObjectInfo info;
-    info.type = desc.type;
-    info.allocatable = desc.allocatable || parent && parent->allocatable();
-    if(adapterId.empty())
-    {
-	info.proxy = _communicator->stringToProxy(Ice::identityToString(desc.id) + ":" + endpoints);
-    }
-    else
-    {
-	info.proxy = _communicator->stringToProxy(Ice::identityToString(desc.id) + "@" + adapterId);
-    }
-    entry->set(parent, app, info);
+    ObjectEntryPtr entry = new ObjectEntry(*this, info, application, allocatable, parent);
+    addImpl(id, entry);
 
     map<string, TypeEntry>::iterator p = _types.find(entry->getType());
     if(p == _types.end())
@@ -114,7 +99,7 @@ ObjectCache::add(const AllocatablePtr& parent, const string& app, const string& 
     if(_traceLevels && _traceLevels->object > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-	out << "added object `" << Ice::identityToString(desc.id) << "'";	
+	out << "added object `" << Ice::identityToString(id) << "'";	
     }    
 }
 
@@ -122,8 +107,7 @@ ObjectEntryPtr
 ObjectCache::get(const Ice::Identity& id) const
 {
     Lock sync(*this);
-    ObjectCache& self = const_cast<ObjectCache&>(*this);
-    ObjectEntryPtr entry = self.getImpl(id);
+    ObjectEntryPtr entry = getImpl(id);
     if(!entry)
     {
 	throw ObjectNotRegisteredException(id);
@@ -301,21 +285,16 @@ ObjectCache::getAllByType(const string& type)
     return infos;
 }
 
-ObjectEntry::ObjectEntry(Cache<Ice::Identity, ObjectEntry>& cache, const Ice::Identity&) :
-    _cache(*dynamic_cast<ObjectCache*>(&cache))
+ObjectEntry::ObjectEntry(ObjectCache& cache, 
+			 const ObjectInfo& info, 
+			 const string& application, 
+			 bool allocatable,
+			 const AllocatablePtr& parent) :
+    Allocatable(allocatable, parent),
+    _cache(cache),
+    _info(info),
+    _application(application)
 {
-}
-
-void
-ObjectEntry::set(const AllocatablePtr& parent, const string& app, const ObjectInfo& info)
-{
-    _application = app;
-    _info = info;
-    _allocatable = info.allocatable;
-    if(parent && parent->allocatable())
-    {
-	_parent = parent;
-    }
 }
 
 Ice::ObjectPrx
