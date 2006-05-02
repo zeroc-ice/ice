@@ -331,7 +331,7 @@ IceProxy::Ice::Object::ice_ids(const Context& __context)
 		        throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
 		    }
                 }
-                __is->read(__ret);
+                __is->read(__ret, false);
             }
             catch(const ::Ice::LocalException& __ex)
             {

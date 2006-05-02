@@ -157,11 +157,11 @@ IceInternal::Reference::streamWrite(BasicStream* s) const
     //
     if(_facet.empty())
     {
-	s->write(static_cast<string*>(0), static_cast<string*>(0));
+	s->write(static_cast<string*>(0), static_cast<string*>(0), false);
     }
     else
     {
-	s->write(&_facet, &_facet + 1);
+	s->write(&_facet, &_facet + 1, false);
     }
     
     s->write(static_cast<Byte>(_mode));

@@ -28,11 +28,12 @@ static void
 printIdentityFacetOperation(ostream& s, BasicStream& stream)
 {
     Identity identity;
-    identity.__read(&stream);
+    stream.read(identity.name, false);
+    stream.read(identity.category, false);
     s << "\nidentity = " << identity;
 
     vector<string> facet;
-    stream.read(facet);
+    stream.read(facet, false);
     s << "\nfacet = ";
     if(!facet.empty())
     {
@@ -85,8 +86,8 @@ printRequestHeader(ostream& s, BasicStream& stream)
     while(sz--)
     {
 	pair<string, string> pair;
-	stream.read(pair.first);
-	stream.read(pair.second);
+	stream.read(pair.first, false);
+	stream.read(pair.second, false);
 	s << pair.first << '/' << pair.second;
 	if(sz)
 	{

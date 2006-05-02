@@ -1378,7 +1378,7 @@ IceInternal::BasicStream::writeConverted(const string& v)
 }
 
 void
-IceInternal::BasicStream::write(const string* begin, const string* end)
+IceInternal::BasicStream::write(const string* begin, const string* end, bool convert)
 {
     Int sz = static_cast<Int>(end - begin);
     writeSize(sz);
@@ -1386,13 +1386,13 @@ IceInternal::BasicStream::write(const string* begin, const string* end)
     {
 	for(int i = 0; i < sz; ++i)
 	{
-	    write(begin[i]);
+	    write(begin[i], convert);
 	}
     }
 }
 
 void
-IceInternal::BasicStream::read(vector<string>& v)
+IceInternal::BasicStream::read(vector<string>& v, bool convert)
 {
     Int sz;
     readSize(sz);
@@ -1402,7 +1402,7 @@ IceInternal::BasicStream::read(vector<string>& v)
 	v.resize(sz);
 	for(int j = 0; j < sz; ++j)
 	{
-	    read(v[j]);
+	    read(v[j], convert);
 	    checkSeq();
 	    endElement();
 	}

@@ -579,7 +579,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     // For compatibility with the old FacetPath.
     //
     vector<string> facetPath;
-    s->read(facetPath);
+    s->read(facetPath, false);
     string facet;
     if(!facetPath.empty())
     {

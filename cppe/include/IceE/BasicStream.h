@@ -508,7 +508,7 @@ public:
             }
         }
     }
-    void write(const std::string*, const std::string*);
+    void write(const std::string*, const std::string*, bool = true);
     void read(std::string& v, bool convert = true)
     {
 	Ice::Int sz;
@@ -535,7 +535,7 @@ public:
 	    v.clear();
 	}
     }
-    void read(std::vector<std::string>&);
+    void read(std::vector<std::string>&, bool = true);
 
     void writeConverted(const std::wstring& v);
     void write(const std::wstring& v)
