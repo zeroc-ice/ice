@@ -56,9 +56,10 @@ def findChild(parent, name):
 	    return i
     return None
 
-def printConfig(node, name):
-    prefix = "IceSSL." + name + "."
-    result = "# NOTE: You may need to define " + prefix + "DefaultDir\n"
+def printConfig(node, name, comment=""):
+    prefix = comment + "IceSSL."
+    result = "# These properties were converted from the " + name + " configuration.\n"
+    result = result + "#\n# NOTE: You may need to define IceSSL.DefaultDir\n"
     general = findChild(node, "general")
     if general:
 	if general.attributes.has_key("version"):
@@ -93,7 +94,7 @@ def printConfig(node, name):
 
 	if general.attributes.has_key("randombytes"):
 	    result = result + "# NOTE: You may need to use IceSSL.EntropyDaemon\n"
-	    result = result + "IceSSL.Random=" + general.attributes["randombytes"].nodeValue + "\n"
+	    result = result + prefix + "Random=" + general.attributes["randombytes"].nodeValue + "\n"
 
     ca = findChild(node, "certauthority")
     if ca:
@@ -188,17 +189,13 @@ if not config:
     print sys.argv[0] + ": unable to find element SSLConfig"
     sys.exit(1)
 
-child = findChild(config, "client")
-client = None
-if child:
-    client = printConfig(child, "Client")
-
-child = findChild(config, "server")
-server = None
-if child:
-    server = printConfig(child, "Server")
-
-if client:
-    print client
-if server:
-    print server
+client = findChild(config, "client")
+server = findChild(config, "server")
+output = None
+if client and server:
+    print printConfig(client, "Client")
+    print printConfig(server, "Server", "#")
+elif client:
+    print printConfig(client, "Client")
+elif server:
+    print printConfig(server, "Server")
