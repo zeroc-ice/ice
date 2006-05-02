@@ -26,6 +26,21 @@ using namespace Ice;
 //
 namespace Glacier2
 {
+//
+// Helper function for checking a rule set. 
+//
+static bool
+match(const vector<ProxyRule*>& rules, const ObjectPrx& proxy)
+{
+    for(vector<ProxyRule*>::const_iterator i = rules.begin(); i != rules.end(); ++i)
+    {
+	if((*i)->check(proxy))
+	{
+	    return true;
+	}
+    }
+    return false;
+}
 
 //
 // RegexRule returns true if the proxy matches the configured regular
@@ -152,6 +167,8 @@ Glacier2::ProxyVerifier::ProxyVerifier(const CommunicatorPtr& communicator, cons
     {
 	_rejectRules.push_back(new MaxEndpointsRule(communicator, s, _traceLevel));
     }
+    _rejectOverrides =
+	communicator->getProperties()->getPropertyAsIntWithDefault("Glacier2.Filter.Regex.Order", 0) == 0;
 }
 
 Glacier2::ProxyVerifier::~ProxyVerifier()
@@ -184,51 +201,61 @@ Glacier2::ProxyVerifier::verify(const ObjectPrx& proxy)
 	//
 	// If there are no reject rules, we assume "reject all".
 	//
-	bool matched = false;
-	for(vector<ProxyRule*>::const_iterator i = _acceptRules.begin(); i != _acceptRules.end() && !matched; ++i)
-	{
-	    matched = (*i)->check(proxy);
-	}
-	result = matched;
+	result = match(_acceptRules, proxy);
     }
     else if(_acceptRules.size() == 0)
     {
 	//
 	// If no accept rules are defined we assume accept all.
 	//
-	bool matched = false;
-	for(vector<ProxyRule*>::const_iterator i = _rejectRules.begin(); i != _rejectRules.end() && !matched; ++i)
-	{
-	    matched = (*i)->check(proxy);
-	}
-	result = !matched;
+	result = !match(_rejectRules, proxy);
     }
     else
     {
 	//
-	// Reject first, then accept.
+	// _rejectOverrides indicates that any accept rules can be
+	// overriden by a reject rule. This allows the user to refine
+	// the allow filter's without having to specify exclusions in
+	// the accept filter's regular expression. Conversely if
+	// rejectOverrides is not set then accept rules are allowed to
+	// override any reject rules that match.
 	//
-	bool matched = false;
-	for(vector<ProxyRule*>::const_iterator i = _rejectRules.begin(); i != _rejectRules.end() && !matched; ++i)
+	// Note that there is implicit additional meaning in the
+	// _rejectOverrides. If true, then the overall evaluation
+	// context is 'default reject'. Otherwise there would be no
+	// point in considering the allow filters and we might as well
+	// just check the reject filters. Conversely, if false then
+	// overall context is 'default accept'. Otherwise the accept
+	// filters would be meaningless, only the reject filters would
+	// matter.
+	//
+	if(_rejectOverrides)
 	{
-	    matched = (*i)->check(proxy);
+	    result = match(_acceptRules, proxy);
+	    
+	    //
+	    // In this context we are default reject, there is no point
+	    // of running the reject filters if there is no accept
+	    // match.
+	    //
+	    if(result)
+	    {
+		result = !match(_rejectRules, proxy);
+	    }
 	}
-
-	if(!matched)
+	else
 	{
 	    //
-	    // The proxy wasn't rejected, so there isn't any point in
-	    // running the accept rules.
+	    // In this context we are default accept, there is not point
+	    // of running the accept filters if there is no rejection
+	    // match.
 	    //
-	    return true;
+	    result = !match(_rejectRules, proxy);
+	    if(!result)
+	    {
+		result = match(_acceptRules, proxy);
+	    }
 	}
-
-	matched = false;
-	for(vector<ProxyRule*>::const_iterator j = _acceptRules.begin(); j != _acceptRules.end() && !matched; ++j)
-	{
-	    matched = (*j)->check(proxy);
-	}
-	result = matched;
     }
 
     //

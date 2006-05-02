@@ -50,6 +50,7 @@ private:
 
     std::vector<ProxyRule*> _acceptRules;
     std::vector<ProxyRule*> _rejectRules;
+    bool _rejectOverrides;
 };
 
 }
