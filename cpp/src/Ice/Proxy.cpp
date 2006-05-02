@@ -1091,7 +1091,7 @@ IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context& __context)
     try
     {
 	BasicStream* __os = __og.os();
-	__os->write(__id);
+	__os->write(__id, false);
     }
     catch(const ::Ice::LocalException& __ex)
     {
@@ -1200,7 +1200,7 @@ IceDelegateM::Ice::Object::ice_id(const Context& __context)
 		throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
 	    }
 	}
-	__is->read(__ret);
+	__is->read(__ret, false);
     }
     catch(const ::Ice::LocalException& __ex)
     {

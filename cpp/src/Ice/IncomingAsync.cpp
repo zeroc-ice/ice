@@ -156,7 +156,7 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
 		    _os.write(&ex.facet, &ex.facet + 1);
 		}
 		
-		_os.write(ex.operation);
+		_os.write(ex.operation, false);
 
 		_connection->sendResponse(&_os, _compress);
 	    }
@@ -178,7 +178,7 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
 		_os.endWriteEncaps();
 		_os.b.resize(headerSize + 4); // Dispatch status position.
 		_os.write(static_cast<Byte>(DispatchUnknownLocalException));
-		_os.write(ex.unknown);
+		_os.write(ex.unknown, false);
 		_connection->sendResponse(&_os, _compress);
 	    }
 	    else
@@ -199,7 +199,7 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
 		_os.endWriteEncaps();
 		_os.b.resize(headerSize + 4); // Dispatch status position.
 		_os.write(static_cast<Byte>(DispatchUnknownUserException));
-		_os.write(ex.unknown);
+		_os.write(ex.unknown, false);
 		_connection->sendResponse(&_os, _compress);
 	    }
 	    else
@@ -220,7 +220,7 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
 		_os.endWriteEncaps();
 		_os.b.resize(headerSize + 4); // Dispatch status position.
 		_os.write(static_cast<Byte>(DispatchUnknownException));
-		_os.write(ex.unknown);
+		_os.write(ex.unknown, false);
 		_connection->sendResponse(&_os, _compress);
 	    }
 	    else
@@ -243,7 +243,7 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
 		_os.write(static_cast<Byte>(DispatchUnknownLocalException));
 		ostringstream str;
 		str << ex;
-		_os.write(str.str());
+		_os.write(str.str(), false);
 		_connection->sendResponse(&_os, _compress);
 	    }
 	    else
@@ -266,7 +266,7 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
 		_os.write(static_cast<Byte>(DispatchUnknownUserException));
 		ostringstream str;
 		str << ex;
-		_os.write(str.str());
+		_os.write(str.str(), false);
 		_connection->sendResponse(&_os, _compress);
 	    }
 	    else
@@ -289,7 +289,7 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
 		_os.write(static_cast<Byte>(DispatchUnknownException));
 		ostringstream str;
 		str << ex;
-		_os.write(str.str());
+		_os.write(str.str(), false);
 		_connection->sendResponse(&_os, _compress);
 	    }
 	    else
@@ -334,7 +334,7 @@ IceInternal::IncomingAsync::__exception(const std::exception& ex)
 	    _os.write(static_cast<Byte>(DispatchUnknownException));
 	    ostringstream str;
 	    str << "std::exception: " << ex.what();
-	    _os.write(str.str());
+	    _os.write(str.str(), false);
 	    _connection->sendResponse(&_os, _compress);
 	}
 	else
@@ -377,7 +377,7 @@ IceInternal::IncomingAsync::__exception()
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
 	    _os.write(static_cast<Byte>(DispatchUnknownException));
 	    string reason = "unknown c++ exception";
-	    _os.write(reason);
+	    _os.write(reason, false);
 	    _connection->sendResponse(&_os, _compress);
 	}
 	else

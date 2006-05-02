@@ -729,7 +729,7 @@ IceInternal::DirectReference::streamWrite(BasicStream* s) const
     }
     else
     {
-	s->write(string("")); // Adapter id.
+	s->write(string(""), false); // Adapter id.
     }
 }
 
@@ -914,7 +914,7 @@ IceInternal::IndirectReference::streamWrite(BasicStream* s) const
     Parent::streamWrite(s);
 
     s->writeSize(0);
-    s->write(_adapterId);
+    s->write(_adapterId, false);
 }
 
 string

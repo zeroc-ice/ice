@@ -376,7 +376,7 @@ IceInternal::BasicStream::writeTypeId(const string& id)
     {
 	_currentWriteEncaps->typeIdMap->insert(make_pair(id, ++_currentWriteEncaps->typeIdIndex));
 	write(false);
-	write(id);
+	write(id, false);
     }
 }
 
@@ -398,7 +398,7 @@ IceInternal::BasicStream::readTypeId(string& id)
     }
     else
     {
-	read(id);
+	read(id, false);
 	_currentReadEncaps->typeIdMap->insert(make_pair(++_currentReadEncaps->typeIdIndex, id));
     }
 }
@@ -1747,7 +1747,7 @@ IceInternal::BasicStream::throwException()
     read(usesClasses);
 
     string id;
-    read(id);
+    read(id, false);
     for(;;)
     {
 	//
@@ -1791,7 +1791,7 @@ IceInternal::BasicStream::throwException()
 		traceSlicing("exception", id, _slicingCat, _instance->initializationData().logger);
 	    }
 	    skipSlice(); // Slice off what we don't understand.
-	    read(id); // Read type id for next slice.
+	    read(id, false); // Read type id for next slice.
 	}
     }
 

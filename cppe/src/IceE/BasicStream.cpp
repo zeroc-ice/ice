@@ -1506,7 +1506,7 @@ IceInternal::BasicStream::throwException()
     read(usesClasses);
 
     string id;
-    read(id);
+    read(id, false);
     for(;;)
     {
 	//
@@ -1534,7 +1534,7 @@ IceInternal::BasicStream::throwException()
 	else
 	{
 	    skipSlice(); // Slice off what we don't understand.
-	    read(id); // Read type id for next slice.
+	    read(id, false); // Read type id for next slice.
 	}
     }
 

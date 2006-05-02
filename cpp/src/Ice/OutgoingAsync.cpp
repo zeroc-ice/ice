@@ -93,7 +93,7 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
 		}
 		
 		string operation;
-		__is->read(operation);
+		__is->read(operation, false);
 		
 		auto_ptr<RequestFailedException> ex;
 		switch(static_cast<DispatchStatus>(status))
@@ -134,7 +134,7 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
 	    case DispatchUnknownUserException:
 	    {
 		string unknown;
-		__is->read(unknown);
+		__is->read(unknown, false);
 		
 		auto_ptr<UnknownException> ex;
 		switch(static_cast<DispatchStatus>(status))
@@ -304,7 +304,7 @@ IceInternal::OutgoingAsync::__prepare(const ObjectPrx& prx, const string& operat
 	    __os->write(&facet, &facet + 1);
 	}
 
-	__os->write(operation);
+	__os->write(operation, false);
 
 	__os->write(static_cast<Byte>(_mode));
 

@@ -161,7 +161,7 @@ IceSSL::EndpointI::EndpointI(const InstancePtr& instance, IceInternal::BasicStre
     _publish(true)
 {
     s->startReadEncaps();
-    s->read(const_cast<string&>(_host));
+    s->read(const_cast<string&>(_host), false);
     s->read(const_cast<Int&>(_port));
     s->read(const_cast<Int&>(_timeout));
     s->read(const_cast<bool&>(_compress));
@@ -173,7 +173,7 @@ IceSSL::EndpointI::streamWrite(IceInternal::BasicStream* s) const
 {
     s->write(EndpointType);
     s->startWriteEncaps();
-    s->write(_host);
+    s->write(_host, false);
     s->write(_port);
     s->write(_timeout);
     s->write(_compress);

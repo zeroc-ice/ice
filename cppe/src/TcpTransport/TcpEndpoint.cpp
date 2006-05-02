@@ -155,7 +155,7 @@ IceInternal::TcpEndpoint::TcpEndpoint(BasicStream* s) :
     bool dummy;
 
     s->startReadEncaps();
-    s->read(const_cast<string&>(_host));
+    s->read(const_cast<string&>(_host), false);
     s->read(const_cast<Int&>(_port));
     s->read(const_cast<Int&>(_timeout));
     s->read(const_cast<bool&>(dummy));
@@ -167,7 +167,7 @@ IceInternal::TcpEndpoint::streamWrite(BasicStream* s) const
 {
     s->write(TcpEndpointType);
     s->startWriteEncaps();
-    s->write(_host);
+    s->write(_host, false);
     s->write(_port);
     s->write(_timeout);
     s->write(false);

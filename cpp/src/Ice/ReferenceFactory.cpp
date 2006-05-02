@@ -581,7 +581,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     }
     else
     {
-	s->read(adapterId);
+	s->read(adapterId, false);
 	return create(ident, _instance->initializationData().defaultContext, facet, mode, secure, adapterId,
 	  	      routerInfo, locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization,
 		      _instance->defaultsAndOverrides()->defaultLocatorCacheTimeout);

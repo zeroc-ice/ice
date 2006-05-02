@@ -88,7 +88,7 @@ IceInternal::Outgoing::Outgoing(ConnectionI* connection, Reference* ref, const s
 	    _os.write(&facet, &facet + 1);
 	}
 
-	_os.write(operation);
+	_os.write(operation, false);
 
 	_os.write(static_cast<Byte>(mode));
 
@@ -358,7 +358,7 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	    }
 
 	    string operation;
-	    _is.read(operation);
+	    _is.read(operation, false);
 	    
 	    RequestFailedException* ex;
 	    switch(static_cast<DispatchStatus>(status))
@@ -408,7 +408,7 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	    // exception, you will have a memory leak.
 	    //
 	    string unknown;
-	    _is.read(unknown);
+	    _is.read(unknown, false);
 	    
 	    UnknownException* ex;
 	    switch(static_cast<DispatchStatus>(status))

@@ -104,7 +104,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     }
     _current.facet.swap(facet);
 
-    _is.read(_current.operation);
+    _is.read(_current.operation, false);
 
     Byte b;
     _is.read(b);
@@ -248,7 +248,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 		_os.write(&ex.facet, &ex.facet + 1);
 	    }
 
-	    _os.write(ex.operation);
+	    _os.write(ex.operation, false);
 	    
 	    _connection->sendResponse(&_os, _compress);
 	}
@@ -273,7 +273,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
 	    _os.write(static_cast<Byte>(DispatchUnknownLocalException));
-	    _os.write(ex.unknown);
+	    _os.write(ex.unknown, false);
 	    _connection->sendResponse(&_os, _compress);
 	}
 	else
@@ -297,7 +297,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
 	    _os.write(static_cast<Byte>(DispatchUnknownUserException));
-	    _os.write(ex.unknown);
+	    _os.write(ex.unknown, false);
 	    _connection->sendResponse(&_os, _compress);
 	}
 	else
@@ -321,7 +321,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
 	    _os.write(static_cast<Byte>(DispatchUnknownException));
-	    _os.write(ex.unknown);
+	    _os.write(ex.unknown, false);
 	    _connection->sendResponse(&_os, _compress);
 	}
 	else
@@ -347,7 +347,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    _os.write(static_cast<Byte>(DispatchUnknownLocalException));
 	    ostringstream str;
 	    str << ex;
-	    _os.write(str.str());
+	    _os.write(str.str(), false);
 	    _connection->sendResponse(&_os, _compress);
 	}
 	else
@@ -373,7 +373,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    _os.write(static_cast<Byte>(DispatchUnknownUserException));
 	    ostringstream str;
 	    str << ex;
-	    _os.write(str.str());
+	    _os.write(str.str(), false);
 	    _connection->sendResponse(&_os, _compress);
 	}
 	else
@@ -399,7 +399,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    _os.write(static_cast<Byte>(DispatchUnknownException));
 	    ostringstream str;
 	    str << ex;
-	    _os.write(str.str());
+	    _os.write(str.str(), false);
 	    _connection->sendResponse(&_os, _compress);
 	}
 	else
@@ -425,7 +425,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    _os.write(static_cast<Byte>(DispatchUnknownException));
 	    ostringstream str;
 	    str << "std::exception: " << ex.what();
-	    _os.write(str.str());
+	    _os.write(str.str(), false);
 	    _connection->sendResponse(&_os, _compress);
 	}
 	else
@@ -450,7 +450,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
 	    _os.write(static_cast<Byte>(DispatchUnknownException));
 	    string reason = "unknown c++ exception";
-	    _os.write(reason);
+	    _os.write(reason, false);
 	    _connection->sendResponse(&_os, _compress);
 	}
 	else
@@ -508,7 +508,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 		_os.write(&_current.facet, &_current.facet + 1);
 	    }
 
-	    _os.write(_current.operation);
+	    _os.write(_current.operation, false);
 	}
 	else
 	{

@@ -613,7 +613,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	H << nl << "virtual void __read(::IceInternal::BasicStream*, bool);";
 	C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::BasicStream* __os) const";
 	C << sb;
-	C << nl << "__os->write(::std::string(\"" << p->scoped() << "\"));";
+	C << nl << "__os->write(::std::string(\"" << p->scoped() << "\"), false);";
 	C << nl << "__os->startWriteSlice();";
 	for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
 	{
@@ -631,7 +631,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	C << nl << "if(__rid)";
 	C << sb;
 	C << nl << "::std::string myId;";
-	C << nl << "__is->read(myId);";
+	C << nl << "__is->read(myId, false);";
 	C << eb;
 	C << nl << "__is->startReadSlice();";
 	for(q = dataMembers.begin(); q != dataMembers.end(); ++q)

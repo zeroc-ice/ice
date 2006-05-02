@@ -490,10 +490,10 @@ public:
     void write(const char*);
 
     void writeConverted(const std::string& v);
-    void write(const std::string& v)
+    void write(const std::string& v, bool convert = true)
     {
         Ice::Int sz = static_cast<Ice::Int>(v.size());
-        if(sz > 0 && _stringConverter)
+        if(convert &&sz > 0 && _stringConverter)
         {
             writeConverted(v);
         }
@@ -509,7 +509,7 @@ public:
         }
     }
     void write(const std::string*, const std::string*);
-    void read(std::string& v)
+    void read(std::string& v, bool convert = true)
     {
 	Ice::Int sz;
 	readSize(sz);
@@ -519,7 +519,7 @@ public:
 	    {
 		throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
 	    }
-            if(_stringConverter)
+            if(convert && _stringConverter)
             {
                 _stringConverter->fromUTF8(i, i + sz, v);
             }

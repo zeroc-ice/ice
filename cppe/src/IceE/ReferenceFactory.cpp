@@ -630,7 +630,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     {
 #ifdef ICEE_HAS_LOCATOR
 	LocatorInfoPtr locatorInfo = _instance->locatorManager()->get(getDefaultLocator());
-	s->read(adapterId);
+	s->read(adapterId, false);
 #   ifdef ICEE_HAS_ROUTER
 	return create(ident, _instance->initializationData().defaultContext, facet, mode, secure, adapterId,
 		      routerInfo, locatorInfo);

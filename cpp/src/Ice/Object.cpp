@@ -102,7 +102,7 @@ Ice::Object::___ice_isA(Incoming& __inS, const Current& __current)
     BasicStream* __is = __inS.is();
     BasicStream* __os = __inS.os();
     string __id;
-    __is->read(__id);
+    __is->read(__id, false);
     bool __ret = ice_isA(__id, __current);
     __os->write(__ret);
     return DispatchOK;
@@ -129,7 +129,7 @@ Ice::Object::___ice_id(Incoming& __inS, const Current& __current)
 {
     BasicStream* __os = __inS.os();
     string __ret = ice_id(__current);
-    __os->write(__ret);
+    __os->write(__ret, false);
     return DispatchOK;
 }
 
