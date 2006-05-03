@@ -59,6 +59,7 @@ ICE_OBJS	= BasicStream.o \
 		  SafeStdio.o \
 		  Shared.o \
 		  StaticMutex.o \
+		  StringConverter.o \
 		  StringUtil.o \
 		  Thread.o \
 		  ThreadException.o \

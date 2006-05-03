@@ -409,6 +409,11 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 	_objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 #endif
 
+	if(!_initData.wstringConverter)
+	{
+	    const_cast<WstringConverterPtr&>(_initData.wstringConverter) = new UnicodeWstringConverter();
+	}
+
 	__setNoDelete(false);
     }
     catch(...)

@@ -83,5 +83,25 @@ typedef IceUtil::Handle<StringConverter> StringConverterPtr;
 
 typedef BasicStringConverter<wchar_t> WstringConverter;
 typedef IceUtil::Handle<WstringConverter> WstringConverterPtr;
+
+//
+// Converts to and from UTF-16 or UTF-32 depending on sizeof(wchar_t)
+//
+class ICE_API UnicodeWstringConverter : public WstringConverter
+{
+public:
+
+    virtual Byte* toUTF8(const wchar_t* sourceStart, const wchar_t* sourceEnd,
+                         UTF8Buffer&) const;
+
+    virtual void fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
+                          const wchar_t*& targetStart, const wchar_t*& targetEnd) const;
+
+    virtual void freeTarget(const wchar_t* targetStart) const;
+
+    virtual void fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
+                          std::wstring& target) const;
+};
+
 }
 #endif
