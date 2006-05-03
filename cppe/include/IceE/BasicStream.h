@@ -493,7 +493,7 @@ public:
     void write(const std::string& v, bool convert = true)
     {
         Ice::Int sz = static_cast<Ice::Int>(v.size());
-        if(convert && sz > 0 && _stringConverter)
+        if(convert && sz > 0 && _stringConverter != 0)
         {
             writeConverted(v);
         }
@@ -519,7 +519,7 @@ public:
 	    {
 		throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
 	    }
-            if(convert && _stringConverter)
+            if(convert && _stringConverter != 0)
             {
                 _stringConverter->fromUTF8(i, i + sz, v);
             }

@@ -3738,6 +3738,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\IceE\StringConverter.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\IceE\StringUtil.cpp"
 				>
 				<FileConfiguration

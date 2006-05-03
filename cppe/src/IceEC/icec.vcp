@@ -21251,15 +21251,302 @@ DEP_CPP_STATI=\
 # End Source File
 # Begin Source File
 
-SOURCE=..\IceE\StringUtil.cpp
+SOURCE=..\IceE\StringConverter.cpp
 
 !IF  "$(CFG)" == "icec - Win32 (WCE emulator) Release"
 
 DEP_CPP_STRIN=\
+	"..\..\include\IceE\AutoArray.h"\
+	"..\..\include\IceE\BasicStream.h"\
+	"..\..\include\IceE\Buffer.h"\
+	"..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\include\IceE\CommunicatorF.h"\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\ConnectionF.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\Identity.h"\
+	"..\..\include\IceE\LocalException.h"\
+	"..\..\include\IceE\LocalObject.h"\
+	"..\..\include\IceE\LocalObjectF.h"\
+	"..\..\include\IceE\Lock.h"\
+	"..\..\include\IceE\Mutex.h"\
+	"..\..\include\IceE\ObjectF.h"\
+	"..\..\include\IceE\OperationMode.h"\
+	"..\..\include\IceE\Outgoing.h"\
+	"..\..\include\IceE\Protocol.h"\
+	"..\..\include\IceE\Proxy.h"\
+	"..\..\include\IceE\ProxyF.h"\
+	"..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\include\IceE\ProxyHandle.h"\
+	"..\..\include\IceE\ReferenceF.h"\
+	"..\..\include\IceE\Shared.h"\
+	"..\..\include\IceE\StringConverter.h"\
+	"..\..\include\IceE\ThreadException.h"\
+	"..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\include\IceE\Unicode.h"\
+	
+
+!ELSEIF  "$(CFG)" == "icec - Win32 (WCE emulator) Debug"
+
+DEP_CPP_STRIN=\
+	"..\..\include\IceE\AutoArray.h"\
+	"..\..\include\IceE\BasicStream.h"\
+	"..\..\include\IceE\Buffer.h"\
+	"..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\include\IceE\CommunicatorF.h"\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\ConnectionF.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\Identity.h"\
+	"..\..\include\IceE\LocalException.h"\
+	"..\..\include\IceE\LocalObject.h"\
+	"..\..\include\IceE\LocalObjectF.h"\
+	"..\..\include\IceE\Lock.h"\
+	"..\..\include\IceE\Mutex.h"\
+	"..\..\include\IceE\ObjectF.h"\
+	"..\..\include\IceE\OperationMode.h"\
+	"..\..\include\IceE\Outgoing.h"\
+	"..\..\include\IceE\Protocol.h"\
+	"..\..\include\IceE\Proxy.h"\
+	"..\..\include\IceE\ProxyF.h"\
+	"..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\include\IceE\ProxyHandle.h"\
+	"..\..\include\IceE\ReferenceF.h"\
+	"..\..\include\IceE\Shared.h"\
+	"..\..\include\IceE\StringConverter.h"\
+	"..\..\include\IceE\ThreadException.h"\
+	"..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\include\IceE\Unicode.h"\
+	
+
+!ELSEIF  "$(CFG)" == "icec - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_STRIN=\
+	"..\..\include\IceE\AutoArray.h"\
+	"..\..\include\IceE\BasicStream.h"\
+	"..\..\include\IceE\Buffer.h"\
+	"..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\include\IceE\CommunicatorF.h"\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\ConnectionF.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\Identity.h"\
+	"..\..\include\IceE\LocalException.h"\
+	"..\..\include\IceE\LocalObject.h"\
+	"..\..\include\IceE\LocalObjectF.h"\
+	"..\..\include\IceE\Lock.h"\
+	"..\..\include\IceE\Mutex.h"\
+	"..\..\include\IceE\ObjectF.h"\
+	"..\..\include\IceE\OperationMode.h"\
+	"..\..\include\IceE\Outgoing.h"\
+	"..\..\include\IceE\Protocol.h"\
+	"..\..\include\IceE\Proxy.h"\
+	"..\..\include\IceE\ProxyF.h"\
+	"..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\include\IceE\ProxyHandle.h"\
+	"..\..\include\IceE\ReferenceF.h"\
+	"..\..\include\IceE\Shared.h"\
+	"..\..\include\IceE\StringConverter.h"\
+	"..\..\include\IceE\ThreadException.h"\
+	"..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\include\IceE\Unicode.h"\
+	
+
+!ELSEIF  "$(CFG)" == "icec - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_STRIN=\
+	"..\..\include\IceE\AutoArray.h"\
+	"..\..\include\IceE\BasicStream.h"\
+	"..\..\include\IceE\Buffer.h"\
+	"..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\include\IceE\CommunicatorF.h"\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\ConnectionF.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\Identity.h"\
+	"..\..\include\IceE\LocalException.h"\
+	"..\..\include\IceE\LocalObject.h"\
+	"..\..\include\IceE\LocalObjectF.h"\
+	"..\..\include\IceE\Lock.h"\
+	"..\..\include\IceE\Mutex.h"\
+	"..\..\include\IceE\ObjectF.h"\
+	"..\..\include\IceE\OperationMode.h"\
+	"..\..\include\IceE\Outgoing.h"\
+	"..\..\include\IceE\Protocol.h"\
+	"..\..\include\IceE\Proxy.h"\
+	"..\..\include\IceE\ProxyF.h"\
+	"..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\include\IceE\ProxyHandle.h"\
+	"..\..\include\IceE\ReferenceF.h"\
+	"..\..\include\IceE\Shared.h"\
+	"..\..\include\IceE\StringConverter.h"\
+	"..\..\include\IceE\ThreadException.h"\
+	"..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\include\IceE\Unicode.h"\
+	
+
+!ELSEIF  "$(CFG)" == "icec - Win32 (WCE ARMV4) Debug Static"
+
+DEP_CPP_STRIN=\
+	"..\..\include\IceE\AutoArray.h"\
+	"..\..\include\IceE\BasicStream.h"\
+	"..\..\include\IceE\Buffer.h"\
+	"..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\include\IceE\CommunicatorF.h"\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\ConnectionF.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\Identity.h"\
+	"..\..\include\IceE\LocalException.h"\
+	"..\..\include\IceE\LocalObject.h"\
+	"..\..\include\IceE\LocalObjectF.h"\
+	"..\..\include\IceE\Lock.h"\
+	"..\..\include\IceE\Mutex.h"\
+	"..\..\include\IceE\ObjectF.h"\
+	"..\..\include\IceE\OperationMode.h"\
+	"..\..\include\IceE\Outgoing.h"\
+	"..\..\include\IceE\Protocol.h"\
+	"..\..\include\IceE\Proxy.h"\
+	"..\..\include\IceE\ProxyF.h"\
+	"..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\include\IceE\ProxyHandle.h"\
+	"..\..\include\IceE\ReferenceF.h"\
+	"..\..\include\IceE\Shared.h"\
+	"..\..\include\IceE\StringConverter.h"\
+	"..\..\include\IceE\ThreadException.h"\
+	"..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\include\IceE\Unicode.h"\
+	
+
+!ELSEIF  "$(CFG)" == "icec - Win32 (WCE ARMV4) Release Static"
+
+DEP_CPP_STRIN=\
+	"..\..\include\IceE\AutoArray.h"\
+	"..\..\include\IceE\BasicStream.h"\
+	"..\..\include\IceE\Buffer.h"\
+	"..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\include\IceE\CommunicatorF.h"\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\ConnectionF.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\Identity.h"\
+	"..\..\include\IceE\LocalException.h"\
+	"..\..\include\IceE\LocalObject.h"\
+	"..\..\include\IceE\LocalObjectF.h"\
+	"..\..\include\IceE\Lock.h"\
+	"..\..\include\IceE\Mutex.h"\
+	"..\..\include\IceE\ObjectF.h"\
+	"..\..\include\IceE\OperationMode.h"\
+	"..\..\include\IceE\Outgoing.h"\
+	"..\..\include\IceE\Protocol.h"\
+	"..\..\include\IceE\Proxy.h"\
+	"..\..\include\IceE\ProxyF.h"\
+	"..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\include\IceE\ProxyHandle.h"\
+	"..\..\include\IceE\ReferenceF.h"\
+	"..\..\include\IceE\Shared.h"\
+	"..\..\include\IceE\StringConverter.h"\
+	"..\..\include\IceE\ThreadException.h"\
+	"..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\include\IceE\Unicode.h"\
+	
+
+!ELSEIF  "$(CFG)" == "icec - Win32 (WCE emulator) Debug Static"
+
+DEP_CPP_STRIN=\
+	"..\..\include\IceE\AutoArray.h"\
+	"..\..\include\IceE\BasicStream.h"\
+	"..\..\include\IceE\Buffer.h"\
+	"..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\include\IceE\CommunicatorF.h"\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\ConnectionF.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\Identity.h"\
+	"..\..\include\IceE\LocalException.h"\
+	"..\..\include\IceE\LocalObject.h"\
+	"..\..\include\IceE\LocalObjectF.h"\
+	"..\..\include\IceE\Lock.h"\
+	"..\..\include\IceE\Mutex.h"\
+	"..\..\include\IceE\ObjectF.h"\
+	"..\..\include\IceE\OperationMode.h"\
+	"..\..\include\IceE\Outgoing.h"\
+	"..\..\include\IceE\Protocol.h"\
+	"..\..\include\IceE\Proxy.h"\
+	"..\..\include\IceE\ProxyF.h"\
+	"..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\include\IceE\ProxyHandle.h"\
+	"..\..\include\IceE\ReferenceF.h"\
+	"..\..\include\IceE\Shared.h"\
+	"..\..\include\IceE\StringConverter.h"\
+	"..\..\include\IceE\ThreadException.h"\
+	"..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\include\IceE\Unicode.h"\
+	
+
+!ELSEIF  "$(CFG)" == "icec - Win32 (WCE emulator) Release Static"
+
+DEP_CPP_STRIN=\
+	"..\..\include\IceE\AutoArray.h"\
+	"..\..\include\IceE\BasicStream.h"\
+	"..\..\include\IceE\Buffer.h"\
+	"..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\include\IceE\CommunicatorF.h"\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\ConnectionF.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\Identity.h"\
+	"..\..\include\IceE\LocalException.h"\
+	"..\..\include\IceE\LocalObject.h"\
+	"..\..\include\IceE\LocalObjectF.h"\
+	"..\..\include\IceE\Lock.h"\
+	"..\..\include\IceE\Mutex.h"\
+	"..\..\include\IceE\ObjectF.h"\
+	"..\..\include\IceE\OperationMode.h"\
+	"..\..\include\IceE\Outgoing.h"\
+	"..\..\include\IceE\Protocol.h"\
+	"..\..\include\IceE\Proxy.h"\
+	"..\..\include\IceE\ProxyF.h"\
+	"..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\include\IceE\ProxyHandle.h"\
+	"..\..\include\IceE\ReferenceF.h"\
+	"..\..\include\IceE\Shared.h"\
+	"..\..\include\IceE\StringConverter.h"\
+	"..\..\include\IceE\ThreadException.h"\
+	"..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\include\IceE\Unicode.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\IceE\StringUtil.cpp
+
+!IF  "$(CFG)" == "icec - Win32 (WCE emulator) Release"
+
+DEP_CPP_STRING=\
 	"..\..\include\IceE\Config.h"\
 	"..\..\include\IceE\StringUtil.h"\
 	
-NODEP_CPP_STRIN=\
+NODEP_CPP_STRING=\
 	"..\..\..\..\usr\include\pthread.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -21307,11 +21594,11 @@ NODEP_CPP_STRIN=\
 
 !ELSEIF  "$(CFG)" == "icec - Win32 (WCE emulator) Debug"
 
-DEP_CPP_STRIN=\
+DEP_CPP_STRING=\
 	"..\..\include\IceE\Config.h"\
 	"..\..\include\IceE\StringUtil.h"\
 	
-NODEP_CPP_STRIN=\
+NODEP_CPP_STRING=\
 	"..\..\..\..\usr\include\pthread.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -21359,11 +21646,11 @@ NODEP_CPP_STRIN=\
 
 !ELSEIF  "$(CFG)" == "icec - Win32 (WCE ARMV4) Release"
 
-DEP_CPP_STRIN=\
+DEP_CPP_STRING=\
 	"..\..\include\IceE\Config.h"\
 	"..\..\include\IceE\StringUtil.h"\
 	
-NODEP_CPP_STRIN=\
+NODEP_CPP_STRING=\
 	"..\..\..\..\usr\include\pthread.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -21411,11 +21698,11 @@ NODEP_CPP_STRIN=\
 
 !ELSEIF  "$(CFG)" == "icec - Win32 (WCE ARMV4) Debug"
 
-DEP_CPP_STRIN=\
+DEP_CPP_STRING=\
 	"..\..\include\IceE\Config.h"\
 	"..\..\include\IceE\StringUtil.h"\
 	
-NODEP_CPP_STRIN=\
+NODEP_CPP_STRING=\
 	"..\..\..\..\usr\include\pthread.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -21463,11 +21750,11 @@ NODEP_CPP_STRIN=\
 
 !ELSEIF  "$(CFG)" == "icec - Win32 (WCE ARMV4) Debug Static"
 
-DEP_CPP_STRIN=\
+DEP_CPP_STRING=\
 	"..\..\include\IceE\Config.h"\
 	"..\..\include\IceE\StringUtil.h"\
 	
-NODEP_CPP_STRIN=\
+NODEP_CPP_STRING=\
 	"..\..\..\..\usr\include\pthread.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -21515,18 +21802,18 @@ NODEP_CPP_STRIN=\
 
 !ELSEIF  "$(CFG)" == "icec - Win32 (WCE ARMV4) Release Static"
 
-DEP_CPP_STRIN=\
+DEP_CPP_STRING=\
 	"..\..\include\IceE\Config.h"\
 	"..\..\include\IceE\StringUtil.h"\
 	
 
 !ELSEIF  "$(CFG)" == "icec - Win32 (WCE emulator) Debug Static"
 
-DEP_CPP_STRIN=\
+DEP_CPP_STRING=\
 	"..\..\include\IceE\Config.h"\
 	"..\..\include\IceE\StringUtil.h"\
 	
-NODEP_CPP_STRIN=\
+NODEP_CPP_STRING=\
 	"..\..\..\..\usr\include\pthread.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -21574,7 +21861,7 @@ NODEP_CPP_STRIN=\
 
 !ELSEIF  "$(CFG)" == "icec - Win32 (WCE emulator) Release Static"
 
-DEP_CPP_STRIN=\
+DEP_CPP_STRING=\
 	"..\..\include\IceE\Config.h"\
 	"..\..\include\IceE\StringUtil.h"\
 	
