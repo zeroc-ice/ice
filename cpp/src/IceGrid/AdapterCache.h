@@ -29,11 +29,11 @@ typedef std::vector<ServerEntryPtr> ServerEntrySeq;
 class AdapterEntry;
 typedef IceUtil::Handle<AdapterEntry> AdapterEntryPtr;
 
-class AdapterEntry : public Allocatable, public IceUtil::Mutex
+class AdapterEntry : virtual public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
     
-    AdapterEntry(AdapterCache&, const std::string&, bool, const AllocatablePtr&);
+    AdapterEntry(AdapterCache&, const std::string&);
 
     virtual std::vector<std::pair<std::string, AdapterPrx> > getProxies(int&, const SessionIPtr&) = 0;
     virtual float getLeastLoadedNodeLoad(LoadSample) const = 0;
@@ -49,7 +49,7 @@ protected:
 };
 typedef IceUtil::Handle<AdapterEntry> AdapterEntryPtr;
 
-class ServerAdapterEntry : public AdapterEntry
+class ServerAdapterEntry : public AdapterEntry, public Allocatable
 {
 public:
 
@@ -63,7 +63,7 @@ public:
 
     AdapterPrx getProxy(const std::string& = std::string()) const;
 
-    virtual void allocated(const SessionIPtr&);
+    virtual bool allocated(const SessionIPtr&);
     virtual void released(const SessionIPtr&);
 
 private:

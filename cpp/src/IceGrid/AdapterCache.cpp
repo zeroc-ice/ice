@@ -177,8 +177,7 @@ AdapterCache::removeImpl(const string& id)
     return Cache<string, AdapterEntry>::removeImpl(id);
 }
 
-AdapterEntry::AdapterEntry(AdapterCache& cache, const string& id, bool allocatable, const AllocatablePtr& parent) :
-    Allocatable(allocatable, parent),
+AdapterEntry::AdapterEntry(AdapterCache& cache, const string& id) :
     _cache(cache),
     _id(id)
 {
@@ -195,30 +194,35 @@ ServerAdapterEntry::ServerAdapterEntry(AdapterCache& cache,
 				       const string& replicaGroupId, 
 				       bool allocatable, 
 				       const ServerEntryPtr& server) : 
-    AdapterEntry(cache, id, allocatable, server),
+    AdapterEntry(cache, id),
+    Allocatable(allocatable, server),
     _replicaGroupId(replicaGroupId),
     _server(server)
 {
 }
 
 vector<pair<string, AdapterPrx> >
-ServerAdapterEntry::getProxies(int& nReplicas, const SessionIPtr& session)
+ServerAdapterEntry::getProxies(int& nReplicas, const SessionIPtr&)
 {
     vector<pair<string, AdapterPrx> > adapters;
     try
     {
 	nReplicas = 1;
-	if(allocatable())
-	{
-	    if(session == getSession())
-	    {
-		adapters.push_back(make_pair(_id, getProxy()));
-	    }
-	}
-	else
-	{
+	//
+	// TODO: Remove this code if we really don't want to check the
+	// session for allocatable adapters.
+	//
+// 	if(allocatable())
+// 	{
+// 	    if(session == getSession())
+// 	    {
+// 		adapters.push_back(make_pair(_id, getProxy()));
+// 	    }
+// 	}
+// 	else
+// 	{
 	    adapters.push_back(make_pair(_id, getProxy()));
-	}
+//	}
     }
     catch(const NodeUnreachableException&)
     {
@@ -288,7 +292,7 @@ ServerAdapterEntry::getServer() const
     return _server;
 }
 
-void
+bool
 ServerAdapterEntry::allocated(const SessionIPtr& session)
 {
     TraceLevelsPtr traceLevels = _cache.getTraceLevels();
@@ -297,6 +301,7 @@ ServerAdapterEntry::allocated(const SessionIPtr& session)
 	Ice::Trace out(traceLevels->logger, traceLevels->adapterCat);
 	out << "adapter `" << _id << "' allocated by `" << session->getUserId() << "' (" << _count << ")";
     }    
+    return true;
 }
 
 void
@@ -314,7 +319,7 @@ ReplicaGroupEntry::ReplicaGroupEntry(AdapterCache& cache,
 				     const string& id,
 				     const string& application,
 				     const LoadBalancingPolicyPtr& policy) : 
-    AdapterEntry(cache, id, false, 0),
+    AdapterEntry(cache, id),
     _application(application),
     _lastReplica(0)
 {

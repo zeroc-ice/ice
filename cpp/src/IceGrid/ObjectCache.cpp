@@ -40,12 +40,18 @@ ObjectCache::TypeEntry::TypeEntry(ObjectCache& cache) : _cache(cache)
 void
 ObjectCache::TypeEntry::add(const Ice::ObjectPrx& obj)
 {
+    //
+    // No mutex protection here, this is called with the cache locked.
+    //
     _objects.insert(lower_bound(_objects.begin(), _objects.end(), obj, ::Ice::proxyIdentityLess), obj);
 }
 
 bool
 ObjectCache::TypeEntry::remove(const Ice::ObjectPrx& obj)
 {
+    //
+    // No mutex protection here, this is called with the cache locked.
+    //
     Ice::ObjectProxySeq::iterator q = lower_bound(_objects.begin(), _objects.end(), obj, ::Ice::proxyIdentityLess);
     assert((*q)->ice_getIdentity() == obj->ice_getIdentity());
     _objects.erase(q);
@@ -55,6 +61,9 @@ ObjectCache::TypeEntry::remove(const Ice::ObjectPrx& obj)
 void
 ObjectCache::TypeEntry::addAllocationRequest(const ObjectAllocationRequestPtr& request)
 {
+    //
+    // No mutex protection here, this is called with the cache locked.
+    //
     if(request->pending())
     {
 	_requests.push_back(request);
@@ -64,6 +73,9 @@ ObjectCache::TypeEntry::addAllocationRequest(const ObjectAllocationRequestPtr& r
 void
 ObjectCache::TypeEntry::released(const ObjectEntryPtr& entry)
 {
+    //
+    // No mutex protection here, this is called with the cache locked.
+    //
     while(!_requests.empty() && !entry->isAllocated())
     {
 	if(entry->tryAllocate(_requests.front()))
@@ -220,13 +232,15 @@ ObjectCache::allocateByTypeOnLeastLoadedNode(const string& type,
 void
 ObjectCache::released(const ObjectEntryPtr& entry)
 {
+    //
+    // Notify the type entry that an object was released.
+    //
     Lock sync(*this);
     map<string, TypeEntry>::iterator p = _types.find(entry->getType());
     if(p == _types.end())
     {
 	return;
     }
-
     p->second.released(entry);
 }
 
@@ -244,7 +258,7 @@ ObjectCache::getObjectsByType(const string& type)
     for(Ice::ObjectProxySeq::const_iterator q = objects.begin(); q != objects.end(); ++q)
     {
 	ObjectEntryPtr entry = getImpl((*q)->ice_getIdentity());
-	if(!entry->allocatable())
+	if(!entry->allocatable()) // Only return non-allocatable objects.
 	{
 	    proxies.push_back(*q);
 	}
@@ -298,16 +312,20 @@ ObjectEntry::ObjectEntry(ObjectCache& cache,
 }
 
 Ice::ObjectPrx
-ObjectEntry::getProxy(const SessionIPtr& session) const
+ObjectEntry::getProxy(const SessionIPtr&) const
 {
-    if(allocatable())
-    {
-	return getSession() == session ? _info.proxy : Ice::ObjectPrx();
-    }
-    else
-    {
-	return _info.proxy;
-    }
+    //
+    // TODO: Remove this code if we really don't want to check the
+    // session for allocatable objects.
+    //
+//     if(allocatable())
+//     {
+// 	return getSession() == session ? _info.proxy : Ice::ObjectPrx();
+//     }
+//     else
+//     {
+    return _info.proxy;
+//     }
 }
 
 string
@@ -363,14 +381,17 @@ ObjectEntry::release(const SessionIPtr& session)
     return false;
 }
 
-void
+bool
 ObjectEntry::allocated(const SessionIPtr& session)
 {
     //
     // Add the object allocation to the session. The object will be
     // released once the session is destroyed.
     //
-    session->addAllocation(this);
+    if(!session->addAllocation(this))
+    {
+	return false;
+    }
 
     TraceLevelsPtr traceLevels = _cache.getTraceLevels();
     if(traceLevels && traceLevels->object > 1)
@@ -379,6 +400,8 @@ ObjectEntry::allocated(const SessionIPtr& session)
 	const Ice::Identity id = _info.proxy->ice_getIdentity();
 	out << "object `" << id << "' allocated by `" << session->getUserId() << "' (" << _count << ")";
     }    
+
+    return true;
 }
 
 void

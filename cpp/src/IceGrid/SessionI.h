@@ -74,9 +74,9 @@ public:
     const WaitQueuePtr& getWaitQueue() const { return _waitQueue; }
     const std::string& getUserId() const { return _userId; }
 
-    void addAllocationRequest(const AllocationRequestPtr&);
+    bool addAllocationRequest(const AllocationRequestPtr&);
     void removeAllocationRequest(const AllocationRequestPtr&);
-    void addAllocation(const AllocatablePtr&);
+    bool addAllocation(const AllocatablePtr&);
     void removeAllocation(const AllocatablePtr&);
 
 protected:

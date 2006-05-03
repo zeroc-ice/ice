@@ -39,7 +39,7 @@ public:
     bool canRemove();
 
     virtual bool release(const SessionIPtr&);
-    virtual void allocated(const SessionIPtr&);
+    virtual bool allocated(const SessionIPtr&);
     virtual void released(const SessionIPtr&);
     
 private:
@@ -61,9 +61,10 @@ public:
 
 private:
 
-    virtual void allocated(const AllocatablePtr& allocatable, const SessionIPtr& session)
+    virtual bool allocated(const AllocatablePtr& allocatable, const SessionIPtr& session)
     {
 	response(ObjectEntryPtr::dynamicCast(allocatable)->getObjectInfo().proxy);
+	return true;
     }
 
     virtual void canceled(const AllocationException& ex)

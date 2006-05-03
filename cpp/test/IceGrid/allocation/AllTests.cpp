@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/Thread.h>
+#include <IceUtil/Random.h>
 #include <Ice/Ice.h>
 #include <IceGrid/Session.h>
 #include <IceGrid/Admin.h>
@@ -98,6 +99,162 @@ public:
 };
 typedef IceUtil::Handle<AllocateObjectByTypeCallback> AllocateObjectByTypeCallbackPtr;
 
+class StressClient : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+    
+    StressClient(int id, const SessionManagerPrx& manager, bool destroySession) : 
+	_id(id),
+	_manager(manager),
+	_notified(false),
+	_terminated(false),
+	_destroySession(destroySession)
+    {
+    }
+
+    virtual 
+    void run()
+    {
+	{
+	    Lock sync(*this);
+	    while(!_notified)
+	    {
+		wait();
+	    }
+	}
+	
+	SessionPrx session;
+	while(true)
+	{
+	    {
+		Lock sync(*this);
+		if(_terminated)
+		{
+		    if(session)
+		    {
+			session->destroy();
+		    }
+		    return;
+		}
+	    }
+	    
+	    if(!session)
+	    {
+		ostringstream os;
+		os << "Client-" << _id;
+		session = _manager->createLocalSession(os.str());
+		session->setAllocationTimeout(IceUtil::random(200)); // 200ms timeout
+	    }
+
+	    assert(session);
+	    session->keepAlive();
+
+	    Ice::ObjectPrx object;
+	    switch(IceUtil::random(_destroySession ? 4 : 2))
+	    {
+	    case 0:
+		object = allocate(session);
+		break;
+	    case 1:
+		object = allocateByType(session);
+		break;
+	    case 2:
+		allocateAndDestroy(session);
+		session = 0;
+		break;
+	    case 3:
+		allocateByTypeAndDestroy(session);
+		session = 0;
+		break;
+	    }
+
+	    if(object)
+	    {
+		IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(IceUtil::random(20)));
+		switch(IceUtil::random(_destroySession ? 2 : 1))
+		{
+		case 0:
+		    session->releaseObject(object->ice_getIdentity());
+		    break;
+		case 1:
+		    session->destroy();
+		    session = 0;
+		    break;
+		}
+	    }
+	}
+    }
+
+    Ice::ObjectPrx
+    allocate(const SessionPrx& session)
+    {
+	ostringstream os;
+	os << "stress-" << IceUtil::random(6) + 1;
+	try
+	{
+	    return session->allocateObjectById(Ice::stringToIdentity(os.str()));
+	}
+	catch(const AllocationTimeoutException&)
+	{
+	}
+	return 0;
+    }
+
+    Ice::ObjectPrx
+    allocateByType(const SessionPrx& session)
+    {
+	try
+	{
+	    return session->allocateObjectByType("::StressTest");
+	}
+	catch(const AllocationTimeoutException&)
+	{
+	}
+	return 0;
+    }
+
+    void
+    allocateAndDestroy(const SessionPrx& session)
+    {
+	ostringstream os;
+	os << "stress-" << IceUtil::random(3);
+	session->allocateObjectById_async(new AllocateObjectByIdCallback(), Ice::stringToIdentity(os.str()));
+	session->destroy();
+    }
+
+    void
+    allocateByTypeAndDestroy(const SessionPrx& session)
+    {
+	session->allocateObjectByType_async(new AllocateObjectByTypeCallback(), "::StressTest");
+	session->destroy();
+    }
+
+    void
+    notifyThread()
+    {
+	Lock sync(*this);
+	_notified = true;
+	notify();
+    }
+
+    void
+    terminate()
+    {
+	Lock sync(*this);
+	_terminated = true;
+	notify();
+    }
+
+protected:
+
+    const int _id;
+    const SessionManagerPrx _manager;
+    bool _notified;
+    bool _terminated;
+    const bool _destroySession;
+};
+typedef IceUtil::Handle<StressClient> StressClientPtr;
+
 class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
@@ -180,8 +337,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     try
     {
 	cout << "testing create session... " << flush;
-	SessionPrx session1 = SessionPrx::uncheckedCast(manager->createLocalSession("Client1"));
-	SessionPrx session2 = SessionPrx::uncheckedCast(manager->createLocalSession("Client2"));
+	SessionPrx session1 = manager->createLocalSession("Client1");
+	SessionPrx session2 = manager->createLocalSession("Client2");
 	
 	keepAlive->add(session1);
 	keepAlive->add(session2);
@@ -213,7 +370,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    session1->allocateObjectById(Ice::stringToIdentity("nonallocatable"));
 	    test(false);
 	}
-	catch(const AllocationException& ex)
+	catch(const NotAllocatableException& ex)
 	{
 	}
 	try
@@ -221,7 +378,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    session2->allocateObjectById(Ice::stringToIdentity("nonallocatable"));
 	    test(false);
 	}
-	catch(const AllocationException& ex)
+	catch(const NotAllocatableException& ex)
 	{
 	}
 	try
@@ -229,7 +386,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    session1->releaseObject(Ice::stringToIdentity("nonallocatable"));
 	    test(false);
 	}
-	catch(const AllocationException& ex)
+	catch(const NotAllocatableException& ex)
 	{
 	}
 	try
@@ -237,7 +394,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    session2->releaseObject(Ice::stringToIdentity("nonallocatable"));
 	    test(false);
 	}
-	catch(const AllocationException& ex)
+	catch(const NotAllocatableException& ex)
 	{
 	}
 
@@ -335,7 +492,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	cout << "testing allocate object by type... " << flush;
     
 	session1->setAllocationTimeout(0);
-	session2->setAllocationTimeout(obj);
+	session2->setAllocationTimeout(0);
 
 	obj = session1->allocateObjectByType("::Test");
 	test(obj && obj->ice_getIdentity().name == "allocatable");
@@ -352,7 +509,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    session2->allocateObjectByType("::Test");
 	    test(false);
 	}
-	catch(const AllocationException&)
+	catch(const AllocationTimeoutException&)
 	{
 	}
 	try
@@ -387,7 +544,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    session1->allocateObjectByType("::Test");
 	    test(false);
 	}
-	catch(const AllocationException&)
+	catch(const AllocationTimeoutException&)
 	{
 	}
 	session1->allocateObjectByType("::TestBis");
@@ -396,7 +553,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    session2->allocateObjectByType("::TestBis");
 	    test(false);
 	}
-	catch(const AllocationException&)
+	catch(const AllocationTimeoutException&)
 	{
 	}
 	session1->releaseObject(allocatablebis);
@@ -406,7 +563,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    session1->allocateObjectByType("::TestBis");
 	    test(false);
 	}
-	catch(const AllocationException&)
+	catch(const AllocationTimeoutException&)
 	{
 	}
 	session2->releaseObject(allocatablebis);
@@ -508,7 +665,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    session2->allocateObjectById(allocatable);
 	    test(false);
 	}
-	catch(const AllocationException&)
+	catch(const AllocationTimeoutException&)
 	{
 	}
 	test(time + IceUtil::Time::milliSeconds(100) < IceUtil::Time::now());
@@ -518,7 +675,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    session2->allocateObjectByType("::Test");
 	    test(false);
 	}
-	catch(const AllocationException&)
+	catch(const AllocationTimeoutException&)
 	{
 	}
 	test(time + IceUtil::Time::milliSeconds(100) < IceUtil::Time::now());
@@ -554,27 +711,31 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	}
 
-	Ice::ObjectPrx session1obj1 = communicator->stringToProxy("allocatable1@AdapterAlloc")->ice_locator(locator1);
-	Ice::ObjectPrx session1obj2 = communicator->stringToProxy("allocatable2@AdapterAlloc")->ice_locator(locator1);
-	Ice::ObjectPrx session2obj1 = communicator->stringToProxy("allocatable1@AdapterAlloc")->ice_locator(locator2);
-	Ice::ObjectPrx session2obj2 = communicator->stringToProxy("allocatable2@AdapterAlloc")->ice_locator(locator2);
-	session1obj1->ice_locatorCacheTimeout(0)->ice_ping();
-	try
-	{
-	    session2obj1->ice_locatorCacheTimeout(0)->ice_ping();
-	    test(false);
-	}
-	catch(const Ice::NoEndpointException&)
-	{
-	}
-	try
-	{
-	    session2obj2->ice_locatorCacheTimeout(0)->ice_ping();
-	    test(false);
-	}
-	catch(const Ice::NoEndpointException&)
-	{
-	}
+	//
+	// Remove this code if we're sure we don't want to disallow
+	// resolving endpoints of allocatable objects.
+	//
+// 	Ice::ObjectPrx session1obj1 = communicator->stringToProxy("allocatable1@AdapterAlloc")->ice_locator(locator1);
+// 	Ice::ObjectPrx session1obj2 = communicator->stringToProxy("allocatable2@AdapterAlloc")->ice_locator(locator1);
+// 	Ice::ObjectPrx session2obj1 = communicator->stringToProxy("allocatable1@AdapterAlloc")->ice_locator(locator2);
+// 	Ice::ObjectPrx session2obj2 = communicator->stringToProxy("allocatable2@AdapterAlloc")->ice_locator(locator2);
+// 	session1obj1->ice_locatorCacheTimeout(0)->ice_ping();
+// 	try
+// 	{
+// 	    session2obj1->ice_locatorCacheTimeout(0)->ice_ping();
+// 	    test(false);
+// 	}
+// 	catch(const Ice::NoEndpointException&)
+// 	{
+// 	}
+// 	try
+// 	{
+// 	    session2obj2->ice_locatorCacheTimeout(0)->ice_ping();
+// 	    test(false);
+// 	}
+// 	catch(const Ice::NoEndpointException&)
+// 	{
+// 	}
 
 	session1->allocateObjectById(allocatable2);
 	session1->releaseObject(allocatable1);
@@ -619,7 +780,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    session1->allocateObjectByType("::TestAdapter1");
 	    test(false);
 	}
-	catch(const AllocationException&)
+	catch(const AllocationTimeoutException&)
 	{
 	}
 	try
@@ -627,7 +788,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    session1->allocateObjectByType("::TestAdapter2");
 	    test(false);
 	}
-	catch(AllocationException&)
+	catch(AllocationTimeoutException&)
 	{
 	}
 	test(session2->allocateObjectByType("::TestAdapter1"));
@@ -731,28 +892,31 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	}
 
-	Ice::ObjectPrx session1obj3 = communicator->stringToProxy("allocatable3@ServerAlloc")->ice_locator(locator1);
-	Ice::ObjectPrx session1obj4 = communicator->stringToProxy("allocatable4@ServerAlloc")->ice_locator(locator1);
-	Ice::ObjectPrx session2obj3 = communicator->stringToProxy("allocatable3@ServerAlloc")->ice_locator(locator2);
-	Ice::ObjectPrx session2obj4 = communicator->stringToProxy("allocatable4@ServerAlloc")->ice_locator(locator2);
-	session1obj3->ice_locatorCacheTimeout(0)->ice_ping();
-	try
-	{
-	    session2obj3->ice_locatorCacheTimeout(0)->ice_ping();
-	    test(false);
-	}
-	catch(const Ice::NoEndpointException&)
-	{
-	}
-	try
-	{
-	    session2obj4->ice_locatorCacheTimeout(0)->ice_ping();
-	    test(false);
-	}
-	catch(const Ice::NoEndpointException&)
-	{
-	}
-
+	//
+	// Remove this code if we're sure we don't want to disallow
+	// resolving endpoints of allocatable objects.
+	//
+// 	Ice::ObjectPrx session1obj3 = communicator->stringToProxy("allocatable3@ServerAlloc")->ice_locator(locator1);
+// 	Ice::ObjectPrx session1obj4 = communicator->stringToProxy("allocatable4@ServerAlloc")->ice_locator(locator1);
+// 	Ice::ObjectPrx session2obj3 = communicator->stringToProxy("allocatable3@ServerAlloc")->ice_locator(locator2);
+// 	Ice::ObjectPrx session2obj4 = communicator->stringToProxy("allocatable4@ServerAlloc")->ice_locator(locator2);
+// 	session1obj3->ice_locatorCacheTimeout(0)->ice_ping();
+// 	try
+// 	{
+// 	    session2obj3->ice_locatorCacheTimeout(0)->ice_ping();
+// 	    test(false);
+// 	}
+// 	catch(const Ice::NoEndpointException&)
+// 	{
+// 	}
+// 	try
+// 	{
+// 	    session2obj4->ice_locatorCacheTimeout(0)->ice_ping();
+// 	    test(false);
+// 	}
+// 	catch(const Ice::NoEndpointException&)
+// 	{
+// 	}
 
 	session1->allocateObjectById(allocatable4);
 	session1->releaseObject(allocatable3);
@@ -881,6 +1045,31 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	session2->releaseObject(Ice::stringToIdentity("allocatable31"));
 	session2->releaseObject(Ice::stringToIdentity("allocatable41"));
 
+	obj1 = session1->allocateObjectByType("::TestMultipleServer");
+	test(obj1);
+	obj2 = session2->allocateObjectByType("::TestMultipleServer");
+	test(obj2);
+	try
+	{
+	    session1->allocateObjectByType("::TestMultipleServer");
+	    test(false);
+	}
+	catch(AllocationTimeoutException&)
+	{
+	}
+	try
+	{
+	    session2->allocateObjectByType("::TestMultipleServer");
+	    test(false);
+	}
+	catch(AllocationTimeoutException&)
+	{
+	}	
+	session1->releaseObject(obj1->ice_getIdentity());
+	obj1 = session2->allocateObjectByType("::TestMultipleServer");
+	session2->releaseObject(obj1->ice_getIdentity());
+	session2->releaseObject(obj2->ice_getIdentity());
+
 	cout << "ok" << endl;
 
 	cout << "testing concurrent allocations... " << flush;
@@ -948,6 +1137,41 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	session2->setAllocationTimeout(0);
 	session2->allocateObjectById(allocatable);
 	session2->destroy();
+
+	cout << "ok" << endl;
+
+	cout << "stress test... " << flush;
+	const int nClients = 6;
+	int i;
+	vector<StressClientPtr> clients;
+	for(i = 0; i < nClients - 2; ++i)
+	{
+	    clients.push_back(new StressClient(i, manager, false));
+	    clients.back()->start();
+	}
+	clients.push_back(new StressClient(i++, manager, true));
+	clients.back()->start();
+	clients.push_back(new StressClient(i++, manager, true));
+	clients.back()->start();
+	
+	for(vector<StressClientPtr>::const_iterator p = clients.begin(); p != clients.end(); ++p)
+	{
+	    (*p)->notifyThread();
+	}
+
+	//
+	// Let the stress client run for a bit.
+	//
+	IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(5));
+
+	//
+	// Terminate the stress clients.
+	//
+	for(vector<StressClientPtr>::const_iterator q = clients.begin(); q != clients.end(); ++q)
+	{
+	    (*q)->terminate();
+	    (*q)->getThreadControl().join();
+	}
 
 	cout << "ok" << endl;
     }

@@ -36,7 +36,7 @@ public:
 
     virtual ~AllocationRequest();
     
-    virtual void allocated(const AllocatablePtr&, const SessionIPtr&) = 0;
+    virtual bool allocated(const AllocatablePtr&, const SessionIPtr&) = 0;
     virtual void canceled(const AllocationException&) = 0;
     
     virtual bool allocateOnce() { return false; }
@@ -48,6 +48,7 @@ public:
 
     int getTimeout() const { return _timeout; }
     const SessionIPtr& getSession() const { return _session; }
+    bool isCanceled() const;
 
     bool operator<(const AllocationRequest&) const;
 
@@ -77,7 +78,7 @@ public:
 
     ParentAllocationRequest(const AllocationRequestPtr&, const AllocatablePtr&);
     
-    virtual void allocated(const AllocatablePtr&, const SessionIPtr&);
+    virtual bool allocated(const AllocatablePtr&, const SessionIPtr&);
     virtual void canceled(const AllocationException&);
 
 private:
@@ -86,14 +87,14 @@ private:
     const AllocatablePtr _allocatable;
 };
 
-class Allocatable : public IceUtil::Shared
+class Allocatable : virtual public IceUtil::Shared
 {
 public:
 
     Allocatable(bool, const AllocatablePtr&);
     virtual ~Allocatable();
 
-    virtual void allocate(const AllocationRequestPtr&, bool = true);
+    virtual bool allocate(const AllocationRequestPtr&, bool = true);
     virtual bool tryAllocate(const AllocationRequestPtr&);
     virtual bool release(const SessionIPtr&);
 
@@ -101,8 +102,8 @@ public:
     bool isAllocated() const;
     SessionIPtr getSession() const;
 
-    virtual void allocated(const SessionIPtr&) {  }
-    virtual void released(const SessionIPtr&) {  }
+    virtual bool allocated(const SessionIPtr&) = 0;
+    virtual void released(const SessionIPtr&) = 0;
 
     bool operator<(const Allocatable&) const;
 

@@ -22,49 +22,66 @@ ReapThread::ReapThread(int timeout) :
 void
 ReapThread::run()
 {
-    Lock sync(*this);
-
-    while(!_terminated)
+    vector<ReapablePtr> reap;
+    while(true)
     {
-	list<ReapablePtr>::iterator p = _sessions.begin();
-	while(p != _sessions.end())
 	{
-	    try
+	    Lock sync(*this);
+	    if(_terminated)
 	    {
-		if((IceUtil::Time::now() - (*p)->timestamp()) > _timeout)
+		break;
+	    }
+
+	    timedWait(_timeout);
+	    
+	    list<ReapablePtr>::iterator p = _sessions.begin();
+	    while(p != _sessions.end())
+	    {
+		try
 		{
-		    try
+		    if((IceUtil::Time::now() - (*p)->timestamp()) > _timeout)
 		    {
-			(*p)->destroy();
+			reap.push_back(*p);
+			p = _sessions.erase(p);
 		    }
-		    catch(const Ice::LocalException&)
+		    else
 		    {
+			++p;
 		    }
+		}
+		catch(const Ice::ObjectNotExistException&)
+		{
 		    p = _sessions.erase(p);
 		}
-		else
-		{
-		    ++p;
-		}
-	    }
-	    catch(const Ice::ObjectNotExistException&)
-	    {
-		p = _sessions.erase(p);
 	    }
 	}
 
-	timedWait(_timeout);
+	for(vector<ReapablePtr>::const_iterator p = reap.begin(); p != reap.end(); ++p)
+	{
+	    try
+	    {
+		(*p)->destroy();
+	    }
+	    catch(const Ice::LocalException&)
+	    {
+	    }
+	}
+	reap.clear();
     }
 }
 
 void
 ReapThread::terminate()
 {
-    Lock sync(*this);
+    {
+	Lock sync(*this);
+	_terminated = true;
+	notify();
+    }
 
-    _terminated = true;
-    notify();
-
+    //
+    // _sessions is immutable once the reap thread is terminated.
+    //
     for(list<ReapablePtr>::const_iterator p = _sessions.begin(); p != _sessions.end(); ++p)
     {
 	try
@@ -76,7 +93,6 @@ ReapThread::terminate()
 	    // Ignore.
 	}
     }
-
     _sessions.clear();
 }
 
@@ -84,6 +100,10 @@ void
 ReapThread::add(const ReapablePtr& reapable)
 {
     Lock sync(*this);
+    if(_terminated)
+    {
+	return;
+    }
     _sessions.push_back(reapable);
 }
 

@@ -5,7 +5,7 @@
     <node name="localnode">
 
       <server id="ObjectAllocation" exe="${test.dir}/server" activation="on-demand" pwd=".">
-        <adapter name="Server" endpoints="default" allocatable="false">
+        <adapter name="Server" endpoints="default">
   	  <object identity="nonallocatable" type="::Test" allocatable="false"/>
   	  <object identity="allocatable" type="::Test" allocatable="true"/>
   	  <object identity="allocatablebis" type="::TestBis" allocatable="true"/>
@@ -41,6 +41,27 @@
       <server id="ServerAllocation-2" exe="${test.dir}/server" activation="on-demand" pwd="." allocatable="true">
         <adapter name="Server" endpoints="default">
   	  <object identity="allocatable6" type="::TestMultipleServer"/>
+        </adapter>
+      </server>
+      
+      <server id="ServerStress-1" exe="${test.dir}/server" activation="on-demand" pwd=".">
+        <adapter name="Server" endpoints="default">
+  	  <object identity="stress-1" type="::StressTest" allocatable="true"/>
+  	  <object identity="stress-2" type="::StressTest" allocatable="true"/>
+        </adapter>
+      </server>
+
+      <server id="ServerStress-2" exe="${test.dir}/server" activation="on-demand" pwd=".">
+        <adapter name="Server" endpoints="default" allocatable="true">
+  	  <object identity="stress-3" type="::StressTest"/>
+  	  <object identity="stress-4" type="::StressTest"/>
+        </adapter>
+      </server>
+
+      <server id="ServerStress-3" exe="${test.dir}/server" activation="on-demand" pwd="." allocatable="true">
+        <adapter name="Server" endpoints="default">
+  	  <object identity="stress-5" type="::StressTest"/>
+  	  <object identity="stress-6" type="::StressTest"/>
         </adapter>
       </server>
 

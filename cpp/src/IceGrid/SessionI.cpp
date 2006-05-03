@@ -102,6 +102,7 @@ SessionI::SessionI(const string& userId,
     _database(database),
     _waitQueue(waitQueue),
     _destroyed(false),
+    _timestamp(IceUtil::Time::now()),
     _allocationTimeout(-1)
 {
     if(_traceLevels && _traceLevels->session > 0)
@@ -239,11 +240,16 @@ SessionI::getAllocationTimeout() const
     return _allocationTimeout;
 }
 
-void
+bool
 SessionI::addAllocationRequest(const AllocationRequestPtr& request)
 {
     Lock sync(*this);
+    if(_destroyed)
+    {
+	return false;
+    }
     _requests.insert(request);
+    return true;
 }
 
 void
@@ -253,11 +259,16 @@ SessionI::removeAllocationRequest(const AllocationRequestPtr& request)
     _requests.erase(request);
 }
 
-void
+bool
 SessionI::addAllocation(const AllocatablePtr& allocatable)
 {
     Lock sync(*this);
+    if(_destroyed)
+    {
+	return false;
+    }
     _allocations.insert(allocatable);
+    return true;
 }
 
 void
