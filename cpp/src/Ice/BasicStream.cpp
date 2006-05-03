@@ -1415,8 +1415,14 @@ IceInternal::BasicStream::read(vector<string>& v, bool convert)
 }
 
 void
-IceInternal::BasicStream::writeConverted(const wstring& v)
+IceInternal::BasicStream::write(const wstring& v)
 {
+    if(v.size() == 0)
+    {
+        writeSize(0);
+	return;
+    }
+
     //
     // What is the size of the resulting UTF-8 encoded string?
     // Impossible to tell, so we guess. If we don't guess correctly,

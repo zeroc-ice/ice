@@ -91,7 +91,7 @@ typedef IceUtil::Handle<WstringConverter> WstringConverterPtr;
 class ICE_API UnicodeWstringConverter : public WstringConverter
 {
 public:
-    
+
     virtual Byte* toUTF8(const wchar_t* sourceStart, const wchar_t* sourceEnd,
 			 UTF8Buffer&) const;
 
