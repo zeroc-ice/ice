@@ -42,7 +42,7 @@ public abstract class EvictorBase extends Ice.LocalObjectImpl implements Ice.Ser
 	//
 	// Check if we a servant in the map already.
 	//
-	ec.entry = (EvictorEntry)_map.get(idCopy);
+	ec.entry = (EvictorEntry)_map.get(c.id);
 	boolean newEntry = ec.entry == null;
 	if(!newEntry)
 	{
