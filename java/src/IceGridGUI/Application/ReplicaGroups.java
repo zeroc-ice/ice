@@ -123,14 +123,14 @@ class ReplicaGroups extends ListTreeNode
 	}
     }
 
-    void update(java.util.List descriptors, String[] removeAdapters)
+    void update(java.util.List descriptors, String[] removeReplicaGroups)
     {
 	_descriptors = descriptors;
 
 	//
 	// One big set of removes
 	//
-	removeChildren(removeAdapters);
+	removeChildren(removeReplicaGroups);
 
 	//
 	// Updates and inserts
@@ -167,11 +167,12 @@ class ReplicaGroups extends ListTreeNode
 	childrenChanged(updatedChildren);
     }
 
-
     Object getDescriptor()
     {
 	return _descriptors;
     }
+
+    /*
     Object saveDescriptor()
     {
 	assert false;
@@ -181,6 +182,7 @@ class ReplicaGroups extends ListTreeNode
     {
 	assert false;
     }
+    */
 
     void removeDescriptor(Object descriptor)
     {

@@ -125,6 +125,26 @@ class Service extends ListArrayTreeNode
 	return _instanceDescriptor;
     }
 
+    java.util.Map getProperties()
+    {
+	Utils.ExpandedPropertySet instancePropertySet = null;
+	Node node = (Node)_parent.getParent();
+
+	String applicationName = ((Server)_parent).getApplication().name;
+
+	if(_instanceDescriptor != null)
+	{
+	    instancePropertySet = node.expand(_instanceDescriptor.propertySet, 
+					      applicationName, _resolver);
+	}
+
+	Utils.ExpandedPropertySet propertySet = 
+	    node.expand(_serviceDescriptor.propertySet,
+			applicationName, _resolver);
+
+	return Utils.propertySetToMap(propertySet, instancePropertySet, _resolver);
+    }
+
     private void createAdapters()
     {
 	java.util.Iterator p = _serviceDescriptor.adapters.iterator();

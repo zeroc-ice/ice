@@ -37,13 +37,8 @@ class Server extends Communicator implements TemplateInstance
 	copy.adapters = Adapter.copyDescriptors(copy.adapters);
 	copy.dbEnvs = DbEnv.copyDescriptors(copy.dbEnvs);
 
-	//
-	// Update to properties is not atomic because of Adapter endpoints
-	// (and possibly other properties set through a PropertiesHolder)
-	//
-	copy.propertySet = (PropertySetDescriptor)copy.propertySet.clone();
-	copy.propertySet.references = (String[])copy.propertySet.references.clone();
-	copy.propertySet.properties = (java.util.LinkedList)copy.propertySet.properties.clone();
+	copy.propertySet = PropertySet.copyDescriptor(copy.propertySet);
+	
 	copy.distrib = (DistributionDescriptor)copy.distrib.clone();
 
 	if(copy instanceof IceBoxDescriptor)
@@ -65,8 +60,9 @@ class Server extends Communicator implements TemplateInstance
 	//
 	// When editing a server or server template, if we update properties, 
 	// we replace the entire field
+	//
+	
 	into.propertySet = from.propertySet;
-
 	into.description = from.description;
 	into.id = from.id;
 	into.exe = from.exe;
@@ -282,7 +278,7 @@ class Server extends Communicator implements TemplateInstance
 	
 	if(_ephemeral)
 	{
-	    node.removeChild(this);
+	    node.removeServer(this);
 	}
 	else
 	{
@@ -294,8 +290,8 @@ class Server extends Communicator implements TemplateInstance
 	    {
 		node.removeDescriptor(_serverDescriptor);
 	    }
-	    node.removeChild(this);
-	    node.getEditable().removeElement(_id);
+	    node.removeServer(this);
+	    node.getEditable().removeElement(_id, Server.class);
 	    getRoot().updated();
 	}
     }
@@ -335,6 +331,7 @@ class Server extends Communicator implements TemplateInstance
 
 	    _instanceDescriptor.template = copy.template;
 	    _instanceDescriptor.parameterValues = copy.parameterValues;
+	    _instanceDescriptor.propertySet = copy.propertySet;
 	    
 	    ServerTemplate t = getRoot().findServerTemplate(_instanceDescriptor.template);
 	    _serverDescriptor = (ServerDescriptor)
@@ -458,10 +455,8 @@ class Server extends Communicator implements TemplateInstance
 		}
 		writeOptions(writer, _serverDescriptor.options);
 		writeEnvs(writer, _serverDescriptor.envs);
-		//
-		// TODO: BENOIT: Add refernces
-		//
-		writeProperties(writer, _serverDescriptor.propertySet.properties);
+		
+		writePropertySet(writer, "", _serverDescriptor.propertySet);
 		writeDistribution(writer, _serverDescriptor.distrib);
 
 		_adapters.write(writer);
@@ -479,10 +474,8 @@ class Server extends Communicator implements TemplateInstance
 		
 		writeOptions(writer, _serverDescriptor.options);
 		writeEnvs(writer, _serverDescriptor.envs);
-		//
-		// TODO: BENOIT: Add references
-		//
-		writeProperties(writer, _serverDescriptor.propertySet.properties);
+		
+		writePropertySet(writer, "", _serverDescriptor.propertySet);
 		writeDistribution(writer, _serverDescriptor.distrib);
 
 		_adapters.write(writer);
@@ -545,10 +538,10 @@ class Server extends Communicator implements TemplateInstance
 		newServer.getEditable().markModified();
 	    }
 
-	    node.removeChild(this);	    
+	    node.removeServer(this);	    
 	    try
 	    {
-		node.insertChild(newServer, true);
+		node.insertServer(newServer, true);
 	    }
 	    catch(UpdateFailedException e)
 	    {
@@ -564,11 +557,11 @@ class Server extends Communicator implements TemplateInstance
 	else
 	{
 	    newServer.getEditable().markNew();
-	    node.removeChild(this);
-	    node.getEditable().removeElement(_id);
+	    node.removeServer(this);
+	    node.getEditable().removeElement(_id, Server.class);
 	    try
 	    {
-		node.insertChild(newServer, true);
+		node.insertServer(newServer, true);
 	    }
 	    catch(UpdateFailedException e)
 	    {
@@ -605,12 +598,12 @@ class Server extends Communicator implements TemplateInstance
 	
 	if(badServer != null)
 	{
-	    node.removeChild(badServer);
+	    node.removeServer(badServer);
 	}
 
 	try
 	{
-	    node.insertChild(this, true);
+	    node.insertServer(this, true);
 	}
 	catch(UpdateFailedException e)
 	{

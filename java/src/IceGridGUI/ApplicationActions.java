@@ -82,6 +82,15 @@ public class ApplicationActions
 		}
 	    };
 
+	_array[TreeNode.NEW_PROPERTY_SET] = new AbstractAction(
+	    popup ? "New property set" : "Property set")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _target.newPropertySet();
+		}
+	    };
+
 	_array[TreeNode.NEW_REPLICA_GROUP] = new AbstractAction(
 	    popup ? "New replica group" : "Replica group" )
 	    {

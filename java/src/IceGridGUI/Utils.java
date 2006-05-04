@@ -9,6 +9,7 @@
 package IceGridGUI;
 
 import javax.swing.ImageIcon;
+import IceGrid.*;
 
 public class Utils
 {
@@ -349,6 +350,52 @@ public class Utils
 	else
 	{
 	    return input;
+	}
+    }
+
+    //
+    // An expanded property set (i.e. containing other property sets)
+    //
+    static public class ExpandedPropertySet
+    {
+	public ExpandedPropertySet[] references;
+	public java.util.List properties;       // list of PropertyDescriptor 
+    }
+
+    static public java.util.Map propertySetToMap(
+	ExpandedPropertySet propertySet,
+	ExpandedPropertySet instancePropertySet, // can be null
+	Resolver resolver)
+    {
+	java.util.SortedMap toMap = new java.util.TreeMap();
+	
+	addSet(propertySet, resolver, toMap);
+	if(instancePropertySet != null)
+	{
+	    addSet(instancePropertySet, resolver, toMap);
+	}
+	return toMap;
+    }
+
+    static private void addSet(ExpandedPropertySet set, Resolver resolver,
+			       java.util.SortedMap toMap)
+    {
+	for(int i = 0; i < set.references.length; ++i)
+	{
+	    addSet(set.references[i], resolver, toMap);
+	}
+	
+	java.util.Iterator p = set.properties.iterator();
+	while(p.hasNext())
+	{
+	    PropertyDescriptor pd = (PropertyDescriptor)p.next();
+	    String name = (String)pd.name;
+	    String val = (String)pd.value;
+	   
+	    name = substitute(pd.name, resolver);
+	    val = substitute(pd.value, resolver);
+	   
+	    toMap.put(name, val);
 	}
     }
 }

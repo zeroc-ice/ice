@@ -109,22 +109,7 @@ class ServerEditor extends CommunicatorEditor
 
 	_application.setText(resolver.find("application"));
 
-	Node node = (Node)server.getParent();
-
-	ExpandedPropertySet propertySet = 
-	    node.expand(descriptor.propertySet,
-			server.getApplication().name);	
-
-	ExpandedPropertySet instancePropertySet = null;
-	ServerInstanceDescriptor instanceDescriptor = 
-	    server.getInstanceDescriptor();
-	if(instanceDescriptor != null)
-	{
-	    instancePropertySet = node.expand(instanceDescriptor.propertySet,
-					      server.getApplication().name);	      
-	}
-
-	super.show(descriptor, propertySet, instancePropertySet, resolver);
+	super.show(descriptor, server.getProperties(), resolver);
 	
 	_exe.setText(resolver.substitute(descriptor.exe));
 	_pwd.setText(resolver.substitute(descriptor.pwd));

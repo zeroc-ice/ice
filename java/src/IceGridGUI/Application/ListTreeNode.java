@@ -120,59 +120,14 @@ abstract class ListTreeNode extends TreeNode
     void insertChildren(java.util.List newChildren, boolean fireEvent)
 	throws UpdateFailedException
     {
-	TreeNodeBase[] children = (TreeNodeBase[])newChildren.toArray(new TreeNodeBase[0]);    
-	java.util.Arrays.sort(children, _childComparator);
-	    
-	int[] indices = new int[children.length];
-	    
-	int i = 0;
-	boolean checkInsert = true;
-	for(int j = 0; j < children.length; ++j)
-	{
-	    String id = children[j].getId();
-	    
-	    if(checkInsert)
-	    {
-		while(i < _children.size()) 
-		{
-		    TreeNodeBase existingChild = (TreeNodeBase)_children.get(i);
-		    int cmp = id.compareTo(existingChild.getId());
-		    if(cmp == 0)
-		    {
-			throw new UpdateFailedException(this, id);
-		    }
-		    if(cmp < 0)
-		    {
-			break; // while
-		    }
-		    i++;
-		}
-		
-		if(i < _children.size())
-		{    
-		    // Insert here, and increment i (since children is sorted)
-		    _children.add(i, children[j]);
-		    indices[j] = i;
-		    i++;
-		    continue; // for
-		}
-		else
-		{
-		    checkInsert = false;
-		}
-	    }
-	    
-	    //
-	    // Append
-	    //
-	    _children.add(children[j]);
-	    indices[j] = i;
-	    i++;
-	}
+	DefaultTreeModel treeModel = fireEvent ?
+	    getRoot().getTreeModel() : null;
 	
-	if(fireEvent)
+	String badChildId = insertSortedChildren(newChildren, _children, treeModel);
+	
+	if(badChildId != null)
 	{
-	    getRoot().getTreeModel().nodesWereInserted(this, indices);
+	    throw new UpdateFailedException(this, badChildId);
 	}
     }
 
@@ -201,18 +156,6 @@ abstract class ListTreeNode extends TreeNode
     {
 	return _editable;
     }
-
-    protected String makeNewChildId(String base)
-    {
-	String id = base;
-	int i = 0;
-	while(findChild(id) != null)
-	{
-	    id = base + "-" + (++i);
-	}
-	return id;
-    }
-
 
     javax.swing.ComboBoxModel createComboBoxModel()
     {

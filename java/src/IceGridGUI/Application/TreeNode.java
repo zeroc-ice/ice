@@ -79,7 +79,14 @@ public abstract class TreeNode extends TreeNodeBase
     //
     Utils.Resolver getResolver()
     {
-	return ((TreeNode)_parent).getResolver();
+	if(isEphemeral())
+	{
+	    return null;
+	}
+	else
+	{
+	    return ((TreeNode)_parent).getResolver();
+	}
     }
 
     //
@@ -121,19 +128,33 @@ public abstract class TreeNode extends TreeNodeBase
 	}
     }
 
-    static void writeProperties(XMLWriter writer,
-				java.util.List properties)
+    static void writePropertySet(XMLWriter writer, String id, PropertySetDescriptor psd)
 	throws java.io.IOException
     {
-	java.util.Iterator p = properties.iterator();
+	java.util.List attributes = new java.util.LinkedList();
+	if(id.length() > 0)
+	{
+	    attributes.add(createAttribute("id", id));
+	}
+	writer.writeElement("properties", attributes);
+	
+	for(int i = 0; i < psd.references.length; ++i)
+	{
+	    attributes.clear();
+	    attributes.add(createAttribute("refid", psd.references[i])); 
+	    writer.writeElement("properties", attributes);
+	}
+	
+	java.util.Iterator p = psd.properties.iterator();
 	while(p.hasNext())
 	{
 	    PropertyDescriptor pd = (PropertyDescriptor)p.next();
-	    java.util.List attributes = new java.util.LinkedList();
+	    attributes.clear();
 	    attributes.add(createAttribute("name", pd.name));
 	    attributes.add(createAttribute("value", pd.value));
 	    writer.writeElement("property", attributes);
 	}
+	writer.writeEndTag("properties");
     }
 
     static void writeDistribution(XMLWriter writer, 
@@ -225,27 +246,28 @@ public abstract class TreeNode extends TreeNodeBase
     public static final int NEW_ADAPTER = 0;
     public static final int NEW_DBENV = 1;
     public static final int NEW_NODE = 2;
-    public static final int NEW_REPLICA_GROUP = 3;
-    public static final int NEW_SERVER = 4;
-    public static final int NEW_SERVER_ICEBOX = 5;
-    public static final int NEW_SERVER_FROM_TEMPLATE = 6;
-    public static final int NEW_SERVICE = 7;
-    public static final int NEW_SERVICE_FROM_TEMPLATE = 8;
-    public static final int NEW_TEMPLATE_SERVER = 9;
-    public static final int NEW_TEMPLATE_SERVER_ICEBOX = 10;
-    public static final int NEW_TEMPLATE_SERVICE = 11;
+    public static final int NEW_PROPERTY_SET = 3;
+    public static final int NEW_REPLICA_GROUP = 4;
+    public static final int NEW_SERVER = 5;
+    public static final int NEW_SERVER_ICEBOX = 6;
+    public static final int NEW_SERVER_FROM_TEMPLATE = 7;
+    public static final int NEW_SERVICE = 8;
+    public static final int NEW_SERVICE_FROM_TEMPLATE = 9;
+    public static final int NEW_TEMPLATE_SERVER = 10;
+    public static final int NEW_TEMPLATE_SERVER_ICEBOX = 11;
+    public static final int NEW_TEMPLATE_SERVICE = 12;
   
-    public static final int COPY = 12;
-    public static final int PASTE = 13;
-    public static final int DELETE = 14;
+    public static final int COPY = 13;
+    public static final int PASTE = 14;
+    public static final int DELETE = 15;
 
-    public static final int SHOW_VARS = 15;
-    public static final int SUBSTITUTE_VARS = 16;
+    public static final int SHOW_VARS = 16;
+    public static final int SUBSTITUTE_VARS = 17;
 
-    public static final int MOVE_UP = 17;
-    public static final int MOVE_DOWN = 18;
+    public static final int MOVE_UP = 18;
+    public static final int MOVE_DOWN = 19;
 
-    static public final int ACTION_COUNT = 19;
+    static public final int ACTION_COUNT = 20;
 
     public boolean[] getAvailableActions()
     {
@@ -260,6 +282,10 @@ public abstract class TreeNode extends TreeNodeBase
 	assert false;
     }
     public void newNode()
+    {
+	assert false;
+    }
+    public void newPropertySet()
     {
 	assert false;
     }
@@ -323,6 +349,4 @@ public abstract class TreeNode extends TreeNodeBase
     {
 	assert false;
     }
-
-
 }

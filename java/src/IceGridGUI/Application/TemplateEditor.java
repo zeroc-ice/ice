@@ -135,6 +135,8 @@ class TemplateEditor extends Editor
 		    {
 			assert false;
 		    }
+		    root.setSelectedNode(_target);
+
 		    JOptionPane.showMessageDialog(
 			_target.getCoordinator().getMainFrame(),
 			e.toString(),

@@ -26,22 +26,7 @@ class ServiceEditor extends CommunicatorEditor
 	ServiceDescriptor descriptor = service.getServiceDescriptor();
 	Utils.Resolver resolver = service.getResolver();
 
-	String application = ((Server)service.getParent()).getApplication().name;
-	Node node = (Node)service.getParent().getParent();
-
-	ExpandedPropertySet propertySet = 
-	    node.expand(descriptor.propertySet, application);	
-
-	ExpandedPropertySet instancePropertySet = null;
-	ServiceInstanceDescriptor instanceDescriptor = 
-	    service.getInstanceDescriptor();
-	if(instanceDescriptor != null)
-	{
-	    instancePropertySet = node.expand(instanceDescriptor.propertySet,
-					      application);	      
-	}
-
-	show(descriptor, propertySet, instancePropertySet, resolver);
+	show(descriptor, service.getProperties(), resolver);
 	_entry.setText(resolver.substitute(descriptor.entry));
     }
 

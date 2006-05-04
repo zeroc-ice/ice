@@ -15,12 +15,14 @@ import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
 
 import IceGrid.*;
 import IceGridGUI.*;
@@ -36,17 +38,23 @@ class ServerInstanceEditor extends AbstractServerEditor
 	descriptor.parameterValues = _parameterValuesMap;
 	((Server)_target).setServerDescriptor(
 	    (ServerDescriptor)((TemplateDescriptor)t.getDescriptor()).descriptor);
+
+	descriptor.propertySet.references = 
+	    (String[])_propertySetsList.toArray(new String[0]);
+	descriptor.propertySet.properties = _properties.getProperties();
     }
     
     protected boolean isSimpleUpdate()
     {
-	return false;
+	ServerInstanceDescriptor descriptor = getDescriptor();
+	ServerTemplate t = (ServerTemplate)_template.getSelectedItem();
+
+	return descriptor.template.equals(t.getId())
+	     && descriptor.parameterValues.equals(_parameterValuesMap);
     }
 
     ServerInstanceEditor(JFrame parentFrame)
-    {
-	_subEditor = new ServerSubEditor(this, parentFrame);
-	
+    {	
 	_template.setToolTipText("Server template");
 	_parameterValues.setEditable(false);
 	
@@ -96,6 +104,31 @@ class ServerInstanceEditor extends AbstractServerEditor
 				      "Edit parameters");
 
 	_parametersButton = new JButton(openParametersDialog);
+
+
+	_propertySets.setEditable(false);
+	_properties = new PropertiesField(this);
+
+	_propertySetsDialog = new ListDialog(parentFrame, 
+					     "Property Set References", true);
+
+	Action openPropertySetsDialog = new AbstractAction("...")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    java.util.LinkedList result = _propertySetsDialog.show(
+			_propertySetsList, getProperties());
+		    if(result != null)
+		    {
+			updated();
+			_propertySetsList = result;
+			setPropertySetsField();
+		    }
+		}
+	    };
+	openPropertySetsDialog.putValue(Action.SHORT_DESCRIPTION,
+					"Edit property set references");
+	_propertySetsButton = new JButton(openPropertySetsDialog);
     }
 
     ServerInstanceDescriptor getDescriptor()
@@ -129,18 +162,26 @@ class ServerInstanceEditor extends AbstractServerEditor
 	builder.append(_parametersButton);
 	builder.nextLine();
 	
-	builder.appendSeparator();
+	builder.append("Property Sets");
+	builder.append(_propertySets, _propertySetsButton);
 	builder.nextLine();
-	
-	_subEditor.appendProperties(builder);
-    }
 
-    Object getSubDescriptor()
-    {
-	ServerTemplate template = (ServerTemplate)_template.getSelectedItem();
-	
-	TemplateDescriptor descriptor = (TemplateDescriptor)template.getDescriptor();
-	return descriptor.descriptor;
+	builder.append("Properties");
+	builder.nextLine();
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
+
+	builder.nextLine();
+	builder.append("");
+
+	builder.nextRow(-6);
+	JScrollPane scrollPane = new JScrollPane(_properties);
+	CellConstraints cc = new CellConstraints();
+	builder.add(scrollPane, 
+		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+	builder.nextRow(6);
+	builder.nextLine();
     }
 
     void show(Server server)
@@ -151,7 +192,7 @@ class ServerInstanceEditor extends AbstractServerEditor
 	ServerInstanceDescriptor descriptor = getDescriptor();
 	Root root = server.getRoot();
 	boolean isEditable = !root.getCoordinator().substitute();
-	
+
 	//
 	// Need to make control enabled before changing it
 	//
@@ -183,11 +224,6 @@ class ServerInstanceEditor extends AbstractServerEditor
 		    _parameterValuesMap = makeParameterValues(_parameterValuesMap, 
 							      _parameterList);
 		    setParameterValuesField();
-
-		    //
-		    // Redisplay details
-		    //
-		    _subEditor.show(false);
 		}
 
 		public void intervalAdded(ListDataEvent e)
@@ -205,17 +241,23 @@ class ServerInstanceEditor extends AbstractServerEditor
 	setParameterValuesField();
 	_parametersButton.setEnabled(isEditable);
 	
-	_subEditor.show(false);
+
+	_propertySetsList = java.util.Arrays.asList(descriptor.propertySet.references);
+	setPropertySetsField();
+	_propertySetsButton.setEnabled(isEditable);
+
+	_properties.setProperties(descriptor.propertySet.properties, 
+				  getDetailResolver(), isEditable);
 
 	_applyButton.setEnabled(server.isEphemeral());
 	_discardButton.setEnabled(server.isEphemeral());	  
 	detectUpdates(true);
     }
 
-    void setParameterValuesField()
+    private void setParameterValuesField()
     {
 	final Utils.Resolver resolver = _target.getCoordinator().substitute() ? 
-	   ((Node)_target.getParent()).getResolver() : null;
+	    ((Node)_target.getParent()).getResolver() : null;
 	
 	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
 	Utils.Stringifier stringifier = new Utils.Stringifier()
@@ -240,7 +282,32 @@ class ServerInstanceEditor extends AbstractServerEditor
 	_parameterValues.setToolTipText(toolTipHolder.value);
     }
 
-    private ServerSubEditor _subEditor;
+    private void setPropertySetsField()
+    {
+	final Utils.Resolver resolver = getDetailResolver();
+	
+	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
+	Utils.Stringifier stringifier = new Utils.Stringifier()
+	    {
+		public String toString(Object obj)
+		{
+		    return Utils.substitute((String)obj, resolver);
+		}
+	    };
+	
+	_propertySets.setText(
+	    Utils.stringify(_propertySetsList, 
+			    stringifier, ", ", toolTipHolder));
+
+	String toolTip = "<html>Property Sets";
+
+	if(toolTipHolder.value != null)
+	{
+	    toolTip += ":<br>" + toolTipHolder.value;
+	}
+	toolTip += "</html>";
+	_propertySets.setToolTipText(toolTip);
+    }
 
     private JComboBox _template = new JComboBox();
     private JButton _templateButton;
@@ -250,5 +317,12 @@ class ServerInstanceEditor extends AbstractServerEditor
     private java.util.Map _parameterValuesMap;
 
     private ParametersDialog _parametersDialog;
-    private JButton _parametersButton;   
+    private JButton _parametersButton;
+
+    private JTextField _propertySets = new JTextField(20);
+    private java.util.List _propertySetsList;
+    private ListDialog _propertySetsDialog;
+    private JButton _propertySetsButton;
+ 
+    private PropertiesField _properties;
 }

@@ -15,12 +15,14 @@ import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
 
 import IceGrid.*;
 import IceGridGUI.*;
@@ -29,8 +31,6 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
 {
     ServiceInstanceEditor(JFrame parentFrame)
     {
-	_subEditor = new ServiceSubEditor(this, parentFrame);
-
 	_parameterValues.setEditable(false);
 	
 	//
@@ -78,6 +78,30 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
 	openParametersDialog.putValue(Action.SHORT_DESCRIPTION,
 				      "Edit parameter values");
 	_parametersButton = new JButton(openParametersDialog);
+
+	_propertySets.setEditable(false);
+	_properties = new PropertiesField(this);
+
+	_propertySetsDialog = new ListDialog(parentFrame, 
+					     "Property Set References", true);
+
+	Action openPropertySetsDialog = new AbstractAction("...")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    java.util.LinkedList result = _propertySetsDialog.show(
+			_propertySetsList, getProperties());
+		    if(result != null)
+		    {
+			updated();
+			_propertySetsList = result;
+			setPropertySetsField();
+		    }
+		}
+	    };
+	openPropertySetsDialog.putValue(Action.SHORT_DESCRIPTION,
+					"Edit property set references");
+	_propertySetsButton = new JButton(openPropertySetsDialog);
     }
 
     ServiceInstanceDescriptor getDescriptor()
@@ -106,11 +130,19 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
 	ServiceInstanceDescriptor descriptor = getDescriptor();
 	descriptor.template = ((ServiceTemplate)_template.getSelectedItem()).getId();
 	descriptor.parameterValues = _parameterValuesMap;
+
+	descriptor.propertySet.references = 
+	    (String[])_propertySetsList.toArray(new String[0]);
+	descriptor.propertySet.properties = _properties.getProperties();
     }	    
     
     boolean isSimpleUpdate()
     {
-	return false;
+	ServiceInstanceDescriptor descriptor = getDescriptor();
+	ServiceTemplate t = (ServiceTemplate)_template.getSelectedItem();
+	
+	return descriptor.template.equals(t.getId())
+	    && descriptor.parameterValues.equals(_parameterValuesMap);
     }
 
     Communicator.ChildList getChildList()
@@ -128,10 +160,26 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
 	builder.append(_parametersButton);
 	builder.nextLine();
 	
-	builder.appendSeparator();
+	builder.append("Property Sets");
+	builder.append(_propertySets, _propertySetsButton);
 	builder.nextLine();
-	
-	_subEditor.appendProperties(builder);
+
+	builder.append("Properties");
+	builder.nextLine();
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
+
+	builder.nextLine();
+	builder.append("");
+
+	builder.nextRow(-6);
+	JScrollPane scrollPane = new JScrollPane(_properties);
+	CellConstraints cc = new CellConstraints();
+	builder.add(scrollPane, 
+		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+	builder.nextRow(6);
+	builder.nextLine();
     }
 
     protected void buildPropertiesPanel()
@@ -140,14 +188,6 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
 	_propertiesPanel.setName("Service Properties");
     }
 
-
-    Object getSubDescriptor()
-    {
-	ServiceTemplate template = (ServiceTemplate)_template.getSelectedItem();
-	
-	TemplateDescriptor descriptor = (TemplateDescriptor)template.getDescriptor();
-	return descriptor.descriptor;
-    }
 
     void show(Service service)
     {
@@ -198,11 +238,6 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
 		    _parameterValuesMap = makeParameterValues(_parameterValuesMap, 
 							      _parameterList);
 		    setParameterValuesField();
-
-		    //
-		    // Redisplay details
-		    //
-		    _subEditor.show(false);
 		}
 
 		public void intervalAdded(ListDataEvent e)
@@ -223,7 +258,12 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
 	setParameterValuesField();
 	_parametersButton.setEnabled(isEditable);
 	
-	_subEditor.show(false);
+	_propertySetsList = java.util.Arrays.asList(descriptor.propertySet.references);
+	setPropertySetsField();
+	_propertySetsButton.setEnabled(isEditable);
+
+	_properties.setProperties(descriptor.propertySet.properties, 
+				  getDetailResolver(), isEditable);
 
 	_applyButton.setEnabled(service.isEphemeral());
 	_discardButton.setEnabled(service.isEphemeral());	  
@@ -260,7 +300,32 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
 	_parameterValues.setToolTipText(toolTipHolder.value);
     }
 
-    private ServiceSubEditor _subEditor;
+    private void setPropertySetsField()
+    {
+	final Utils.Resolver resolver = getDetailResolver();
+	
+	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
+	Utils.Stringifier stringifier = new Utils.Stringifier()
+	    {
+		public String toString(Object obj)
+		{
+		    return Utils.substitute((String)obj, resolver);
+		}
+	    };
+	
+	_propertySets.setText(
+	    Utils.stringify(_propertySetsList, 
+			    stringifier, ", ", toolTipHolder));
+
+	String toolTip = "<html>Property Sets";
+
+	if(toolTipHolder.value != null)
+	{
+	    toolTip += ":<br>" + toolTipHolder.value;
+	}
+	toolTip += "</html>";
+	_propertySets.setToolTipText(toolTip);
+    }
 
     private JComboBox _template = new JComboBox();
     private JButton _templateButton;
@@ -270,5 +335,12 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
     private java.util.Map _parameterValuesMap;
 
     private ParametersDialog _parametersDialog;
-    private JButton _parametersButton;   
+    private JButton _parametersButton;
+
+    private JTextField _propertySets = new JTextField(20);
+    private java.util.List _propertySetsList;
+    private ListDialog _propertySetsDialog;
+    private JButton _propertySetsButton;
+ 
+    private PropertiesField _properties;
 }

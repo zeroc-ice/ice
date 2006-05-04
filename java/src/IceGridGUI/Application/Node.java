@@ -9,6 +9,7 @@
 package IceGridGUI.Application;
 
 import java.awt.Component;
+import java.util.Enumeration;
 
 import javax.swing.Icon;
 import javax.swing.JMenuItem;
@@ -17,19 +18,23 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import IceGrid.*;
 import IceGridGUI.*;
 
-class Node extends ListTreeNode
+class Node extends TreeNode implements PropertySetParent
 {  
     static public NodeDescriptor
     copyDescriptor(NodeDescriptor nd)
     {
 	NodeDescriptor copy = (NodeDescriptor)nd.clone();
 	
+	copy.propertySets = PropertySets.copyDescriptors(copy.propertySets);
+	
+
 	copy.serverInstances = new java.util.LinkedList();
 	java.util.Iterator p = nd.serverInstances.iterator();
 	while(p.hasNext())
@@ -48,6 +53,196 @@ class Node extends ListTreeNode
 	
 	return copy;
     }
+    
+    public Enumeration children()
+    {
+	return new Enumeration()
+	    {
+		public boolean hasMoreElements()
+		{
+		    if(!_p.hasNext())
+		    {
+			if(!_iteratingOverServers)
+			{
+			    _p = _servers.iterator();
+			    _iteratingOverServers = true;
+			    return _p.hasNext();
+			}
+			return false;
+		    }
+		    return true;
+		}
+
+		public Object nextElement()
+		{
+		    return _p.next();
+		}
+		
+		private java.util.Iterator _p = _propertySets.iterator();
+		private boolean _iteratingOverServers = false;
+	    };
+    }
+    
+    public boolean getAllowsChildren()
+    {
+	return true;
+    }
+    
+    public javax.swing.tree.TreeNode getChildAt(int childIndex)
+    {
+	if(childIndex < 0)
+	{
+	    throw new ArrayIndexOutOfBoundsException(childIndex);
+	}
+	else if(childIndex < _propertySets.size())
+	{
+	    return (javax.swing.tree.TreeNode)_propertySets.get(childIndex);
+	}
+	else if(childIndex < (_propertySets.size() + _servers.size()))
+	{
+	    return (javax.swing.tree.TreeNode)_servers.get(
+		childIndex - _propertySets.size());
+	}
+	else
+	{
+	    throw new ArrayIndexOutOfBoundsException(childIndex);
+	}
+    }
+   
+    public int getChildCount()
+    {
+	return _propertySets.size() + _servers.size();
+    }
+    
+    public int getIndex(javax.swing.tree.TreeNode node)
+    {
+	if(node instanceof PropertySet)
+	{
+	    return _propertySets.indexOf(node);
+	}
+	else
+	{
+	    int index = _servers.indexOf(node);
+	    if(index != -1)
+	    {
+		index += _propertySets.size();
+	    }
+	    return index;
+	}
+    }
+
+    public boolean isLeaf()
+    {
+	return _propertySets.isEmpty() && _servers.isEmpty();
+    }
+
+    void removeServers(String[] childIds)
+    {
+	removeSortedChildren(childIds, _servers, getRoot().getTreeModel());
+    }
+
+    void removePropertySets(String[] childIds)
+    {
+	removeSortedChildren(childIds, _propertySets, getRoot().getTreeModel());
+    }
+    
+    void childrenChanged(java.util.List children)
+    {
+	childrenChanged(children, getRoot().getTreeModel());
+    }
+
+    Server findServer(String id)
+    {
+	return (Server)find(id, _servers);
+    }
+
+    PropertySet findPropertySet(String id)
+    {
+	return (PropertySet)find(id, _propertySets);
+    }
+
+    void insertPropertySets(java.util.List newChildren, boolean fireEvent)
+	throws UpdateFailedException
+    {
+	DefaultTreeModel treeModel = fireEvent ?
+	    getRoot().getTreeModel() : null;
+	
+	String badChildId = insertSortedChildren(newChildren, _propertySets, treeModel);
+	
+	if(badChildId != null)
+	{
+	    throw new UpdateFailedException(this, badChildId);
+	}
+    }
+        
+
+    void insertServer(TreeNode child, boolean fireEvent)
+	throws UpdateFailedException
+    {
+	DefaultTreeModel treeModel = fireEvent ?
+	    getRoot().getTreeModel() : null;
+	
+	if(!insertSortedChild(child, _servers, treeModel))
+	{
+	    throw new UpdateFailedException(this, child.getId());
+	}
+    }
+
+    void insertServers(java.util.List newChildren, boolean fireEvent)
+	throws UpdateFailedException
+    {
+	DefaultTreeModel treeModel = fireEvent ?
+	    getRoot().getTreeModel() : null;
+	
+	String badChildId = insertSortedChildren(newChildren, _servers, treeModel);
+	
+	if(badChildId != null)
+	{
+	    throw new UpdateFailedException(this, badChildId);
+	}
+    }
+
+    void removeServer(TreeNode child)
+    {
+	int index = getIndex(child);
+	_servers.remove(child);
+	
+	getRoot().getTreeModel().nodesWereRemoved(this,
+						  new int[]{index},
+						  new Object[]{child});
+    }
+
+    public void insertPropertySet(PropertySet child, boolean fireEvent)
+	throws UpdateFailedException
+    {
+	DefaultTreeModel treeModel = fireEvent ?
+	    getRoot().getTreeModel() : null;
+	
+	if(!insertSortedChild(child, _propertySets, treeModel))
+	{
+	    throw new UpdateFailedException(this, child.getId());
+	}
+    }
+
+    public void removePropertySet(PropertySet child)
+    {
+	int index = getIndex(child);
+	_propertySets.remove(child);
+	
+	getRoot().getTreeModel().nodesWereRemoved(this,
+						  new int[]{index},
+						  new Object[]{child});
+    }
+
+    public void removeDescriptor(String id)
+    {
+	_descriptor.propertySets.remove(id);
+    }
+
+    public Editable getEditable()
+    {
+	return _editable;
+    }
 
     public boolean[] getAvailableActions()
     {
@@ -61,13 +256,15 @@ class Node extends ListTreeNode
 	{
 	    actions[PASTE] = descriptor instanceof NodeDescriptor ||
 		descriptor instanceof ServerInstanceDescriptor ||
-		descriptor instanceof ServerDescriptor;
+		descriptor instanceof ServerDescriptor ||
+		descriptor instanceof PropertySetDescriptor;
 	}
 
 	if(!_ephemeral)
 	{
 	    actions[SHOW_VARS] = true;
 	    actions[SUBSTITUTE_VARS] = true;
+	    actions[NEW_PROPERTY_SET] = true;
 	    actions[NEW_SERVER] = true;
 	    actions[NEW_SERVER_ICEBOX] = true;
 	    actions[NEW_SERVER_FROM_TEMPLATE] = true;
@@ -81,6 +278,8 @@ class Node extends ListTreeNode
 	if(_popup == null)
 	{
 	    _popup = new JPopupMenu();
+	    _popup.add(actions.get(NEW_PROPERTY_SET));
+	    _popup.addSeparator();
 	    _popup.add(actions.get(NEW_SERVER));
 	    _popup.add(actions.get(NEW_SERVER_ICEBOX));
 	    _popup.add(actions.get(NEW_SERVER_FROM_TEMPLATE));
@@ -100,6 +299,10 @@ class Node extends ListTreeNode
 	{
 	    ((TreeNode)_parent).paste();
 	}
+	else if(descriptor instanceof PropertySetDescriptor)
+	{
+	    newPropertySet(PropertySet.copyDescriptor((PropertySetDescriptor)descriptor));
+	}
 	else if(descriptor instanceof ServerInstanceDescriptor)
 	{
 	    newServer(Server.copyDescriptor((ServerInstanceDescriptor)descriptor));
@@ -109,6 +312,13 @@ class Node extends ListTreeNode
 	    newServer(Server.copyDescriptor(((ServerDescriptor)descriptor)));
 	}
     }
+    
+    public void newPropertySet()
+    {
+	newPropertySet(new PropertySetDescriptor(
+			   new String[0], new java.util.LinkedList()));
+    }
+
     public void newServer()
     {
 	newServer(Server.newServerDescriptor());
@@ -138,7 +348,7 @@ class Node extends ListTreeNode
 	{
 	    nodes.removeChild(this);
 	    nodes.removeDescriptor(_id);
-	    nodes.getEditable().removeElement(_id);
+	    nodes.getEditable().removeElement(_id, Node.class);
 	    getRoot().updated();
 	}
     }
@@ -226,7 +436,15 @@ class Node extends ListTreeNode
 	    }
 	    writeVariables(writer, _descriptor.variables);
 
-	    java.util.Iterator p = _children.iterator();
+	    
+	    java.util.Iterator p = _propertySets.iterator();
+	    while(p.hasNext())
+	    {
+		PropertySet ps = (PropertySet)p.next();
+		ps.write(writer);
+	    }
+
+	    p = _servers.iterator();
 	    while(p.hasNext())
 	    {
 		Server server = (Server)p.next();
@@ -247,7 +465,10 @@ class Node extends ListTreeNode
     //
     // Try to rebuild this node;
     // returns a backup object if rollback is later necessary
+    // We don't rebuild the property sets since they don't 
+    // depend on the variables.
     //
+
     Backup rebuild(java.util.List editables)
 	throws UpdateFailedException
     {
@@ -262,7 +483,7 @@ class Node extends ListTreeNode
 	_resolver.put("node", _id);
 
 	backup.backupList = new java.util.Vector();
-	backup.servers = (java.util.LinkedList)_children.clone();
+	backup.servers = (java.util.LinkedList)_servers.clone();
 
 	java.util.Iterator p = backup.servers.iterator();
 	while(p.hasNext())
@@ -288,14 +509,20 @@ class Node extends ListTreeNode
 	_origDescription = _descriptor.description;
 	_origLoadFactor = _descriptor.loadFactor;
 
-	java.util.Iterator p = _children.iterator();
+	java.util.Iterator p = _propertySets.iterator();
+	while(p.hasNext())
+	{
+	    PropertySet ps = (PropertySet)p.next();
+	    ps.commit();
+	}
+
+	p = _servers.iterator();
 	while(p.hasNext())
 	{
 	    Server server = (Server)p.next();
 	    server.commit();
 	}
     }
-
     
     void restore(Backup backup)
     {	
@@ -365,7 +592,31 @@ class Node extends ListTreeNode
 	update.name = _id;
 
 	//
-	// First: servers
+	// First: property sets
+	//
+	if(_editable.isNew())
+	{
+	    update.removePropertySets = new String[0];
+	    update.propertySets = _descriptor.propertySets;
+	}
+	else
+	{
+	    update.removePropertySets = _editable.removedElements(PropertySet.class);
+	    update.propertySets = new java.util.HashMap();
+
+	    java.util.Iterator p = _propertySets.iterator();
+	    while(p.hasNext())
+	    {
+		PropertySet ps = (PropertySet)p.next();
+		if(ps.getEditable().isNew() || ps.getEditable().isModified())
+		{
+		    update.propertySets.put(ps.getId(), ps.getDescriptor());
+		}
+	    }
+	}
+
+	//
+	// Then: servers
 	//
 	if(_editable.isNew())
 	{
@@ -373,13 +624,13 @@ class Node extends ListTreeNode
 	}
 	else
 	{
-	    update.removeServers = _editable.removedElements();
+	    update.removeServers = _editable.removedElements(Server.class);
 	}
 
 	update.serverInstances = new java.util.LinkedList();
 	update.servers = new java.util.LinkedList();
 
-	java.util.Iterator p = _children.iterator();
+	java.util.Iterator p = _servers.iterator();
 	while(p.hasNext())
 	{
 	    Server server = (Server)p.next();
@@ -401,7 +652,10 @@ class Node extends ListTreeNode
 	//
 	// Anything in this update?
 	//
-	if(!_editable.isNew() && !_editable.isModified() && update.removeServers.length == 0
+	if(!_editable.isNew() && !_editable.isModified() 
+	   && update.removePropertySets.length == 0
+	   && update.propertySets.size() == 0
+	   && update.removeServers.length == 0
 	   && update.servers.size() == 0
 	   && update.serverInstances.size() == 0)
 	{
@@ -464,8 +718,8 @@ class Node extends ListTreeNode
     {
 	Root root = getRoot();
 
-	java.util.Vector newChildren = new java.util.Vector();
-	java.util.Vector updatedChildren = new java.util.Vector();
+	java.util.Vector newServers = new java.util.Vector();
+	java.util.Vector updatedServers = new java.util.Vector();
 
 	if(update != null)
 	{
@@ -496,25 +750,65 @@ class Node extends ListTreeNode
 	    }
 	    _descriptor.variables.putAll(update.variables);
 	    
+
 	    //
-	    // One big set of removes
+	    // Property Sets
 	    //
-	    removeChildren(update.removeServers);
+	    removePropertySets(update.removePropertySets);
+	    for(int i = 0; i < update.removePropertySets.length; ++i)
+	    {
+		_descriptor.propertySets.remove(update.removePropertySets[i]);
+	    }
 	    
+	    java.util.Vector newPropertySets = new java.util.Vector();
+	    java.util.Vector updatedPropertySets = new java.util.Vector();
+
+	    java.util.Iterator p = update.propertySets.entrySet().iterator();
+	    while(p.hasNext())
+	    {
+		java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+		
+		String id = (String)entry.getKey();
+		PropertySetDescriptor psd = (PropertySetDescriptor)entry.getValue();
+		
+		//
+		// Lookup named property set
+		//
+		PropertySet ps = findPropertySet(id);
+		if(ps != null)
+		{
+		    ps.rebuild(psd);
+		    updatedPropertySets.add(ps);
+		}
+		else
+		{
+		    ps = new PropertySet(false, this, id, psd);
+		    newPropertySets.add(ps);
+		    _descriptor.propertySets.put(id, psd);
+		}
+	    }
+	    childrenChanged(updatedPropertySets);
+	    insertPropertySets(newPropertySets, true);  
+
+	   
 	    //
 	    // Update _descriptor
 	    //
 	    for(int i = 0; i < update.removeServers.length; ++i)
 	    {
-		_descriptor.serverInstances.remove(update.removeServers[i]);
-		_descriptor.servers.remove(update.removeServers[i]);
+		Server server = findServer(update.removeServers[i]);
+		removeDescriptor(server);
 	    } 
+
+	    //
+	    // One big set of removes
+	    //
+	    removeServers(update.removeServers);
 	    
 	    //
 	    // One big set of updates, followed by inserts
 	    //
-	    
-	    java.util.Iterator p = update.serverInstances.iterator();
+	    p = update.serverInstances.iterator();
 	    while(p.hasNext())
 	    {
 		ServerInstanceDescriptor instanceDescriptor = 
@@ -545,19 +839,21 @@ class Node extends ListTreeNode
 		instanceResolver.put("server", serverId);
 		
 		//
-		// Lookup server
+		// Lookup servers
 		//
-		Server server = (Server)findChild(serverId);
+		Server server = findServer(serverId);
 		if(server != null)
 		{
+		    removeDescriptor(server);
 		    server.rebuild(instanceResolver, instanceDescriptor, serverDescriptor);
-		    updatedChildren.add(server);
+		    updatedServers.add(server);
+		    _descriptor.serverInstances.add(instanceDescriptor);
 		}
 		else
 		{
 		    server = new Server(false, this, serverId, instanceResolver, instanceDescriptor, 
 					serverDescriptor);
-		    newChildren.add(server);
+		    newServers.add(server);
 		    _descriptor.serverInstances.add(instanceDescriptor);
 		}
 		
@@ -581,18 +877,20 @@ class Node extends ListTreeNode
 		//
 		// Lookup server
 		//
-		Server server = (Server)findChild(serverId);
+		Server server = findServer(serverId);
 		
 		if(server != null)
 		{
+		    removeDescriptor(server);
 		    server.rebuild(instanceResolver, null, serverDescriptor);
-		    updatedChildren.add(server);
+		    updatedServers.add(server);
+		    _descriptor.servers.add(serverDescriptor);
 		}
 		else
 		{
 		    server = new Server(false, this, serverId, instanceResolver, null, 
 					serverDescriptor);
-		    newChildren.add(server);
+		    newServers.add(server);
 		    _descriptor.servers.add(serverDescriptor);
 		}
 	    }
@@ -612,7 +910,7 @@ class Node extends ListTreeNode
 	    while(q.hasNext())
 	    {
 		Server server = (Server)q.next();
-		if(!updatedChildren.contains(server) && !newChildren.contains(server))
+		if(!updatedServers.contains(server) && !newServers.contains(server))
 		{
 		    serverSet.add(server);
 		}
@@ -629,7 +927,7 @@ class Node extends ListTreeNode
 	    {
 		Service service = (Service)q.next();
 		Server server = (Server)service.getParent().getParent();
-		if(!updatedChildren.contains(server) && !newChildren.contains(server))
+		if(!updatedServers.contains(server) && !newServers.contains(server))
 		{
 		    serverSet.add(server);
 		}
@@ -675,17 +973,19 @@ class Node extends ListTreeNode
 	    assert serverId.equals(server.getId());
 
 	    server.rebuild(instanceResolver, instanceDescriptor, serverDescriptor);
-	    updatedChildren.add(server);
+	    updatedServers.add(server);
 	}
 	
-	childrenChanged(updatedChildren);
-	insertChildren(newChildren, true);  
+	childrenChanged(updatedServers);
+	insertServers(newServers, true);  
     }
 
     Node(boolean brandNew, TreeNode parent, String nodeName, NodeDescriptor descriptor)
 	throws UpdateFailedException
     {
-	super(brandNew, parent, nodeName);
+	super(parent, nodeName);
+	_editable = new Editable(brandNew);
+
 	_ephemeral = false;
 	_descriptor = descriptor;
 
@@ -700,15 +1000,28 @@ class Node extends ListTreeNode
 	_resolver.put("node", _id);
 	
 	//
+	// Property Sets
+	//
+	java.util.Iterator p = _descriptor.propertySets.entrySet().iterator();
+	while(p.hasNext())
+	{
+	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+	    insertPropertySet(new PropertySet(false, this, 
+					      (String)entry.getKey(), 
+					      (PropertySetDescriptor)entry.getValue()),
+			      false);
+	}
+
+	//
 	// Template instances
 	//
-	java.util.Iterator p = _descriptor.serverInstances.iterator();
+	p = _descriptor.serverInstances.iterator();
 	while(p.hasNext())
 	{
 	    ServerInstanceDescriptor instanceDescriptor = 
 		(ServerInstanceDescriptor)p.next();
 	   
-	    insertChild(createServer(false, instanceDescriptor), false);
+	    insertServer(createServer(false, instanceDescriptor), false);
 	}
 
 	//
@@ -718,37 +1031,22 @@ class Node extends ListTreeNode
 	while(p.hasNext())
 	{
 	    ServerDescriptor serverDescriptor = (ServerDescriptor)p.next();
-	    insertChild(createServer(false, serverDescriptor), false);
+	    insertServer(createServer(false, serverDescriptor), false);
 	}
     } 
     
     Node(TreeNode parent, String nodeName, NodeDescriptor descriptor)
     {
-	super(false, parent, nodeName);
+	super(parent, nodeName);
+	_editable = new Editable(false);
 	_ephemeral = true;
 	_descriptor = descriptor;
-    }
-
-    void removeInstanceDescriptor(ServerInstanceDescriptor d)
-    {
-	//
-	// A straight remove uses equals(), which is not the desired behavior
-	//
-	java.util.Iterator p = _descriptor.serverInstances.iterator();
-	while(p.hasNext())
-	{
-	    if(d == p.next())
-	    {
-		p.remove();
-		break;
-	    }
-	}
     }
 
     java.util.List findServerInstances(String template)
     {
 	java.util.List result = new java.util.LinkedList();
-	java.util.Iterator p = _children.iterator();
+	java.util.Iterator p = _servers.iterator();
 	while(p.hasNext())
 	{
 	    Server server = (Server)p.next();
@@ -769,7 +1067,7 @@ class Node extends ListTreeNode
     {
 	java.util.List toRemove = new java.util.LinkedList();
 
-	java.util.Iterator p = _children.iterator();
+	java.util.Iterator p = _servers.iterator();
 	while(p.hasNext())
 	{
 	    Server server = (Server)p.next();
@@ -782,22 +1080,22 @@ class Node extends ListTreeNode
 		//
 		// Remove instance
 		//
-		removeInstanceDescriptor(instanceDescriptor);
-		_editable.removeElement(server.getId());
+		removeDescriptor(instanceDescriptor);
+		_editable.removeElement(server.getId(), Server.class);
 		toRemove.add(server.getId());
 	    }
 	}
 
 	if(toRemove.size() > 0)
 	{
-	    removeChildren((String[])toRemove.toArray(new String[0]));
+	    removeServers((String[])toRemove.toArray(new String[0]));
 	}
     }
-
+    
     java.util.List findServiceInstances(String template)
     {
 	java.util.List result = new java.util.LinkedList();
-	java.util.Iterator p = _children.iterator();
+	java.util.Iterator p = _servers.iterator();
 	while(p.hasNext())
 	{
 	    Server server = (Server)p.next();
@@ -809,7 +1107,7 @@ class Node extends ListTreeNode
 
     void removeServiceInstances(String template)
     {	
-	java.util.Iterator p = _children.iterator();
+	java.util.Iterator p = _servers.iterator();
 	while(p.hasNext())
 	{
 	    Server server = (Server)p.next();
@@ -823,18 +1121,27 @@ class Node extends ListTreeNode
     }
 
 
+    public void tryAdd(String id, PropertySetDescriptor descriptor) 
+	throws UpdateFailedException
+    {
+	insertPropertySet(new PropertySet(true, this, id, descriptor), 
+			  true);
+	_descriptor.propertySets.put(id, descriptor);
+    }
+
+
     void tryAdd(ServerInstanceDescriptor instanceDescriptor,
 		ServerDescriptor serverDescriptor,
 		boolean addDescriptor) throws UpdateFailedException
     {
 	if(instanceDescriptor != null)
 	{
-	    insertChild(createServer(true, instanceDescriptor),
+	    insertServer(createServer(true, instanceDescriptor),
 			true);
 	}
 	else
 	{
-	    insertChild(createServer(true, serverDescriptor),
+	    insertServer(createServer(true, serverDescriptor),
 			true);
 	}
     
@@ -848,6 +1155,20 @@ class Node extends ListTreeNode
 	    {
 		_descriptor.servers.add(serverDescriptor);
 	    }
+	}
+    }
+
+    void removeDescriptor(Server server)
+    {
+	ServerInstanceDescriptor instanceDescriptor = 
+	    server.getInstanceDescriptor();
+	if(instanceDescriptor != null)
+	{
+	    removeDescriptor(instanceDescriptor);
+	}
+	else
+	{
+	    removeDescriptor(server.getServerDescriptor());
 	}
     }
 
@@ -866,6 +1187,7 @@ class Node extends ListTreeNode
 	    }
 	}
     }
+
     void removeDescriptor(ServerInstanceDescriptor sd)
     {
 	//
@@ -882,6 +1204,22 @@ class Node extends ListTreeNode
 	}
     }
 
+    private void newPropertySet(PropertySetDescriptor descriptor)
+    {
+	String id = makeNewChildId("PropertySet");
+	
+	PropertySet ps = new PropertySet(this, id, descriptor);
+	try
+	{
+	    insertPropertySet(ps, true);
+	}
+	catch(UpdateFailedException e)
+	{
+	    assert false;
+	}
+	getRoot().setSelectedNode(ps);
+    }
+
     private void newServer(ServerDescriptor descriptor)
     {
 	descriptor.id = makeNewChildId(descriptor.id);
@@ -889,7 +1227,7 @@ class Node extends ListTreeNode
 	Server server = new Server(this, descriptor.id, null, descriptor);
 	try
 	{
-	    insertChild(server, true);
+	    insertServer(server, true);
 	}
 	catch(UpdateFailedException e)
 	{
@@ -934,7 +1272,7 @@ class Node extends ListTreeNode
 	Server server = new Server(this, id, descriptor, sd);
 	try
 	{
-	    insertChild(server, true);
+	    insertServer(server, true);
 	}
 	catch(UpdateFailedException e)
 	{
@@ -952,6 +1290,11 @@ class Node extends ListTreeNode
 
     private final boolean _ephemeral;
     private NodeEditor _editor;
+
+    private java.util.LinkedList _propertySets = new java.util.LinkedList();
+    private java.util.LinkedList _servers = new java.util.LinkedList();
+   
+    private Editable _editable;
 
     static private DefaultTreeCellRenderer _cellRenderer;   
     static private JPopupMenu _popup;

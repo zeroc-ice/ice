@@ -46,15 +46,12 @@ class CommunicatorEditor extends Editor
     }
 
     protected void show(CommunicatorDescriptor descriptor, 
-			ExpandedPropertySet propertySet,
-			ExpandedPropertySet instancePropertySet,
+			java.util.Map properties,
 			Utils.Resolver resolver)
     {
 	_description.setText(resolver.substitute(descriptor.description));
 
-	_propertiesModel.setDataVector(
-	    propertySetToVector(propertySet, instancePropertySet, resolver),
-	    _columnNames);
+	_propertiesModel.setDataVector(mapToVector(properties), _columnNames);
 
 	DefaultTableCellRenderer cr = (DefaultTableCellRenderer)
 	    _properties.getDefaultRenderer(String.class);

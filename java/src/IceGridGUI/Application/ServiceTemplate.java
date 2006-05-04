@@ -146,10 +146,8 @@ class ServiceTemplate extends Communicator
 	    {
 		writer.writeElement("description", descriptor.description);
 	    }
-	    //
-	    // TODO: BENOIT: Add references
-	    //
-	    writeProperties(writer, descriptor.propertySet.properties);
+	    
+	    writePropertySet(writer, "", descriptor.propertySet);
 	    _adapters.write(writer);
 	    _dbEnvs.write(writer);
 	    writer.writeEndTag("service");
@@ -205,7 +203,8 @@ class ServiceTemplate extends Communicator
 	    serviceTemplates.removeDescriptor(_id);
 	    getRoot().removeServiceInstances(_id);
 	    serviceTemplates.removeChild(this);
-	    serviceTemplates.getEditable().removeElement(_id);
+	    serviceTemplates.getEditable().
+		removeElement(_id, ServiceTemplate.class);
 	    getRoot().updated();
 	}
     }
@@ -251,10 +250,7 @@ class ServiceTemplate extends Communicator
 	ServiceDescriptor sd = (ServiceDescriptor)_templateDescriptor.descriptor;
 	ServiceDescriptor csd = (ServiceDescriptor)clone.descriptor;
 
-	//
-	// TODO: BENOIT: Add references
-	//
-	sd.propertySet.properties = csd.propertySet.properties;
+	sd.propertySet = csd.propertySet;
 	sd.description = csd.description;
 	sd.name = csd.name;
 	sd.entry = csd.entry;

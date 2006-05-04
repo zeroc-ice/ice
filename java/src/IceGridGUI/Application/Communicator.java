@@ -385,7 +385,8 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 		Object descriptor = child.getDescriptor();
 		removeDescriptor(descriptor);
 		getEnclosingEditable().markModified();
-		
+		getRoot().updated();
+
 		java.util.List list = findInstances(true);
 		java.util.Iterator p = list.iterator();
 		while(p.hasNext())
@@ -399,7 +400,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 
 	void addDescriptor(Object descriptor)
 	{
-	    _children.add(descriptor);
+	    _descriptors.add(descriptor);
 	}
 
 	void removeDescriptor(Object descriptor)
@@ -407,7 +408,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 	    //
 	    // A straight remove uses equals(), which is not the desired behavior
 	    //
-	    java.util.Iterator p = _adapters.iterator();
+	    java.util.Iterator p = _descriptors.iterator();
 	    while(p.hasNext())
 	    {
 		if(descriptor == p.next())

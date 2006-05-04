@@ -175,31 +175,30 @@ class Node extends ListTreeNode
     {
 	super(parent, update.name);
 
-	//
-	// TODO: BENOIT: Add support for property sets.
-	//
 	NodeDescriptor nodeDesc = new NodeDescriptor(
 	    update.variables,
 	    update.serverInstances,
 	    update.servers,
 	    update.loadFactor.value,
 	    update.description.value,
-	    new java.util.HashMap());
+	    update.propertySets);
 	    
 	appDesc.nodes.put(_id, nodeDesc);
 	add(appDesc, nodeDesc);
     }
 
-    Editor.ExpandedPropertySet expand(PropertySetDescriptor descriptor, 
-				      String applicationName)
+    Utils.ExpandedPropertySet expand(PropertySetDescriptor descriptor, 
+				     String applicationName, Utils.Resolver resolver)
     {
-	Editor.ExpandedPropertySet result = new Editor.ExpandedPropertySet();
-	result.references = new Editor.ExpandedPropertySet[descriptor.references.length];
+	Utils.ExpandedPropertySet result = new Utils.ExpandedPropertySet();
+	result.references = new Utils.ExpandedPropertySet[descriptor.references.length];
 	
 	for(int i = 0; i < descriptor.references.length; ++i)
 	{
 	    result.references[i] = expand(
-		findNamedPropertySet(descriptor.references[i], applicationName), applicationName);
+		findNamedPropertySet(resolver.substitute(descriptor.references[i]), 
+				     applicationName),
+		applicationName, resolver);
 	}
 
 	result.properties = descriptor.properties;
@@ -317,18 +316,7 @@ class Node extends ListTreeNode
 	    for(int i = 0; i < update.removeServers.length; ++i)
 	    {
 		Server server = findServer(update.removeServers[i]);
-		
-		ServerInstanceDescriptor sid =
-		    server.getInstanceDescriptor();
-		if(sid != null)
-		{
-		    nodeDesc.serverInstances.remove(sid);
-		}
-		else
-		{
-		    nodeDesc.servers.remove(server.getServerDescriptor());
-		}
-
+		removeDescriptor(nodeDesc, server);
 		int index = getIndex(server); 
 		_children.remove(server);
 		getRoot().getTreeModel().nodesWereRemoved(this, new int[]{index}, new Object[]{server});
@@ -348,19 +336,22 @@ class Node extends ListTreeNode
 		{
 		    insertServer(server);
 		    freshServers.add(server);
+		    nodeDesc.serverInstances.add(desc);
 		}
 		else
 		{
+		    removeDescriptor(nodeDesc, oldServer);
 		    oldServer.rebuild(server);
 		    freshServers.add(oldServer);
+		    nodeDesc.serverInstances.add(desc);
 		}
-		nodeDesc.serverInstances.add(desc);
 	    }
 	    
 	    p = update.servers.iterator();
 	    while(p.hasNext())
 	    {
 		ServerDescriptor desc = (ServerDescriptor)p.next();
+		
 		Server server = createServer(appDesc, data.resolver, desc);
 		
 		Server oldServer = findServer(server.getId());
@@ -368,13 +359,15 @@ class Node extends ListTreeNode
 		{
 		    insertServer(server);
 		    freshServers.add(server);
+		    nodeDesc.servers.add(desc);
 		}
 		else
 		{
+		    removeDescriptor(nodeDesc, oldServer);
 		    oldServer.rebuild(server);
 		    freshServers.add(oldServer);
+		    nodeDesc.servers.add(desc);
 		}
-		nodeDesc.servers.add(desc);
 	    }
 	}
 	
@@ -780,6 +773,54 @@ class Node extends ListTreeNode
     {
 	return (Server)find(id, _children);
     }
+
+
+    private void removeDescriptor(NodeDescriptor nodeDesc, Server server)
+    {
+	ServerInstanceDescriptor instanceDescriptor = 
+	    server.getInstanceDescriptor();
+	if(instanceDescriptor != null)
+	{
+	    removeDescriptor(nodeDesc, instanceDescriptor);
+	}
+	else
+	{
+	    removeDescriptor(nodeDesc, server.getServerDescriptor());
+	}
+    }
+
+    private void removeDescriptor(NodeDescriptor nodeDesc, ServerDescriptor sd)
+    {
+	//
+	// A straight remove uses equals(), which is not the desired behavior
+	//
+	java.util.Iterator p = nodeDesc.servers.iterator();
+	while(p.hasNext())
+	{
+	    if(sd == p.next())
+	    {
+		p.remove();
+		break;
+	    }
+	}
+    }
+
+    private void removeDescriptor(NodeDescriptor nodeDesc, ServerInstanceDescriptor sd)
+    {
+	//
+	// A straight remove uses equals(), which is not the desired behavior
+	//
+	java.util.Iterator p = nodeDesc.serverInstances.iterator();
+	while(p.hasNext())
+	{
+	    if(sd == p.next())
+	    {
+		p.remove();
+		break;
+	    }
+	}
+    }
+
  
     static class ApplicationData
     {

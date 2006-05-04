@@ -37,16 +37,7 @@ class Service extends Communicator implements Cloneable, TemplateInstance
 	ServiceDescriptor copy = (ServiceDescriptor)sd.clone();
 	copy.adapters = Adapter.copyDescriptors(copy.adapters);
 	copy.dbEnvs = DbEnv.copyDescriptors(copy.dbEnvs);
-	
-	//
-	// Update to properties is not atomic because of Adapter endpoints
-	// (and possibly other properties set through a PropertiesHolder)
-	//
-	//
-	// TODO: BENOIT: Add support for property set.
-	//
-	copy.propertySet = new PropertySetDescriptor(new String[0], 
-						     (java.util.LinkedList)copy.propertySet.properties.clone());
+	copy.propertySet = PropertySet.copyDescriptor(copy.propertySet);
 	return copy;
     }
     
@@ -175,13 +166,12 @@ class Service extends Communicator implements Cloneable, TemplateInstance
 	ServiceInstanceDescriptor sd = (ServiceInstanceDescriptor)savedDescriptor;
 	_instanceDescriptor.template = sd.template;
 	_instanceDescriptor.parameterValues = sd.parameterValues;
+	_instanceDescriptor.propertySet = sd.propertySet;
+
 	if(_instanceDescriptor.descriptor != null)
 	{
-	    //
-	    // TODO: BENOIT: Add support for property set.
-	    //
 	    _instanceDescriptor.descriptor.propertySet = 
-		new PropertySetDescriptor(new String[0], sd.descriptor.propertySet.properties);
+		sd.descriptor.propertySet;
 	    _instanceDescriptor.descriptor.description = sd.descriptor.description;
 	    
 	    _instanceDescriptor.descriptor.name = sd.descriptor.name;
@@ -448,10 +438,8 @@ class Service extends Communicator implements Cloneable, TemplateInstance
 		{
 		    writer.writeElement("description", _serviceDescriptor.description);
 		}
-		//
-		// TODO: BENOIT: Add support for property set.
-		//
-		writeProperties(writer, _serviceDescriptor.propertySet.properties);
+		
+		writePropertySet(writer, "", _serviceDescriptor.propertySet);
 		_adapters.write(writer);
 		_dbEnvs.write(writer);
 		writer.writeEndTag("service");

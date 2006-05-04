@@ -42,14 +42,28 @@ class Editable implements Cloneable
 	_isNew = true;
     }
 
-    void removeElement(String id)
+    void removeElement(String id, Class forClass)
     {
-	_removedElements.add(id);
+	java.util.TreeSet set = (java.util.TreeSet)_removedElements.get(forClass);
+	if(set == null)
+	{
+	    set = new java.util.TreeSet();
+	    _removedElements.put(forClass, set);
+	}
+	set.add(id);
     }
     
-    String[] removedElements()
+    String[] removedElements(Class forClass)
     {
-	return (String[])_removedElements.toArray(new String[0]);
+	java.util.TreeSet set = (java.util.TreeSet)_removedElements.get(forClass);
+	if(set == null)
+	{
+	    return new String[0];
+	}
+	else
+	{
+	    return (String[])set.toArray(new String[0]);
+	}
     }
 
     Editable save()
@@ -57,7 +71,15 @@ class Editable implements Cloneable
 	try
 	{
 	    Editable result = (Editable)clone();
-	    result._removedElements = (java.util.TreeSet)result._removedElements.clone();
+	    java.util.HashMap removedElements = new java.util.HashMap();
+	    java.util.Iterator p = result._removedElements.entrySet().iterator();
+	    while(p.hasNext())
+	    {
+		java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+		Object val = ((java.util.TreeSet)entry.getValue()).clone();
+		removedElements.put(entry.getKey(), val);
+	    }
+	    result._removedElements = removedElements;
 	    return result;
 	}
 	catch(CloneNotSupportedException e)
@@ -76,5 +98,6 @@ class Editable implements Cloneable
 
     private boolean _isNew = false;
     private boolean _modified = false;
-    private java.util.TreeSet _removedElements = new java.util.TreeSet();
+
+    private java.util.HashMap _removedElements = new java.util.HashMap();
 }

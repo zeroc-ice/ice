@@ -221,9 +221,6 @@ class Nodes extends ListTreeNode
 
 	    if(node == null)
 	    {
-		//
-		// TODO: BENOIT: Add support for property sets
-		//
 		NodeDescriptor nodeDescriptor = new NodeDescriptor(update.variables,
 								   update.serverInstances,
 								   update.servers,

@@ -49,6 +49,7 @@ public class Root extends ListTreeNode
 	    //
 	    // Impossible
 	    //
+	    System.err.println(e.toString());
 	    assert false;
 	}
     }
@@ -88,12 +89,14 @@ public class Root extends ListTreeNode
 	_origDescription = _descriptor.description;
 	_origDistrib = (DistributionDescriptor)_descriptor.distrib.clone();
 
+	_propertySets = new PropertySets(this, _descriptor.propertySets);
 	_replicaGroups = new ReplicaGroups(this, _descriptor.replicaGroups);       
 	_serviceTemplates = new ServiceTemplates(this, _descriptor.serviceTemplates);
 	_serverTemplates = new ServerTemplates(this, _descriptor.serverTemplates);
 	_nodes = new Nodes(this, _descriptor.nodes);
 
 	_children.add(_nodes);
+	_children.add(_propertySets);
 	_children.add(_replicaGroups);
 	_children.add(_serverTemplates);
 	_children.add(_serviceTemplates);
@@ -108,6 +111,8 @@ public class Root extends ListTreeNode
     {
 	ApplicationDescriptor copy = (ApplicationDescriptor)ad.clone();
 	
+	copy.propertySets = PropertySets.copyDescriptors(copy.propertySets);
+
 	copy.replicaGroups = 
 	    ReplicaGroups.copyDescriptors(copy.replicaGroups);
 	
@@ -233,7 +238,7 @@ public class Root extends ListTreeNode
 	    if(node != null)
 	    {
 		target = node;
-		Server server = (Server)target.findChild(serverId);
+		Server server = node.findServer(serverId);
 		if(server != null)
 		{
 		    target = server;
@@ -281,6 +286,7 @@ public class Root extends ListTreeNode
 	actions[SHOW_VARS] = true;
 	actions[SUBSTITUTE_VARS] = true;	
 	actions[NEW_NODE] = true;
+	actions[NEW_PROPERTY_SET] = true;
 	actions[NEW_REPLICA_GROUP] = true;
 	actions[NEW_TEMPLATE_SERVER] = true;
 	actions[NEW_TEMPLATE_SERVER_ICEBOX] = true;
@@ -296,6 +302,7 @@ public class Root extends ListTreeNode
 	{
 	    _popup = new JPopupMenu();
 	    _popup.add(actions.get(NEW_NODE));
+	    _popup.add(actions.get(NEW_PROPERTY_SET));
 	    _popup.add(actions.get(NEW_REPLICA_GROUP));
 	    _popup.addSeparator();
 	    _popup.add(actions.get(NEW_TEMPLATE_SERVER));
@@ -319,6 +326,10 @@ public class Root extends ListTreeNode
     public void newNode()
     {
 	_nodes.newNode();
+    }
+    public void newPropertySet()
+    {
+	_propertySets.newPropertySet();
     }
     public void newReplicaGroup()
     {
@@ -601,27 +612,38 @@ public class Root extends ListTreeNode
 	}
 
 	//
+	// Property sets
+	//
+	update.removePropertySets = _propertySets.getEditable().
+	    removedElements(PropertySet.class);
+	update.propertySets = _propertySets.getUpdates();
+
+	//
 	// Replica Groups
 	//
-	update.removeReplicaGroups = _replicaGroups.getEditable().removedElements();
+	update.removeReplicaGroups = _replicaGroups.getEditable().
+	    removedElements(ReplicaGroup.class);
 	update.replicaGroups = _replicaGroups.getUpdates();
 	
 	//
 	// Server Templates
 	//
-	update.removeServerTemplates = _serverTemplates.getEditable().removedElements();
+	update.removeServerTemplates = _serverTemplates.getEditable().
+	    removedElements(ServerTemplate.class);
 	update.serverTemplates = _serverTemplates.getUpdates();
 
 	//
 	// Service Templates
 	//
-	update.removeServiceTemplates = _serviceTemplates.getEditable().removedElements();
+	update.removeServiceTemplates = _serviceTemplates.getEditable().
+	    removedElements(ServiceTemplate.class);
 	update.serviceTemplates =_serviceTemplates.getUpdates();
 
 	//
 	// Nodes
 	//
-	update.removeNodes = _nodes.getEditable().removedElements();
+	update.removeNodes = _nodes.getEditable().
+	    removedElements(Node.class);
 	update.nodes = _nodes.getUpdates();
 
 
@@ -629,6 +651,8 @@ public class Root extends ListTreeNode
 	// Return null if nothing changed
 	//
 	if(!_editable.isModified() &&
+	   update.removePropertySets.length == 0 &&
+	   update.propertySets.size() == 0 &&
 	   update.removeReplicaGroups.length == 0 &&
 	   update.replicaGroups.size() == 0 &&
 	   update.removeServerTemplates.length == 0 &&
@@ -660,6 +684,7 @@ public class Root extends ListTreeNode
 	_origDistrib = (DistributionDescriptor)_descriptor.distrib.clone();
 	
 	_nodes.commit();
+	_propertySets.commit();
 	_replicaGroups.commit();
 	_serverTemplates.commit();
 	_serviceTemplates.commit();
@@ -763,6 +788,17 @@ public class Root extends ListTreeNode
 		_origDistrib = (DistributionDescriptor)_descriptor.distrib.clone();
 	    }
 	    
+	    //
+	    // Property Sets
+	    //
+	    for(int i = 0; i < desc.removePropertySets.length; ++i)
+	    {
+		_descriptor.propertySets.remove(desc.removePropertySets[i]);
+	    }
+	    _descriptor.propertySets.putAll(desc.propertySets);
+	    _propertySets.update(desc.propertySets, 
+				 desc.removePropertySets);
+
 	    //
 	    // Replica groups
 	    //
@@ -957,6 +993,7 @@ public class Root extends ListTreeNode
 	_serviceTemplates.write(writer);
 	_serverTemplates.write(writer);
 	_replicaGroups.write(writer);
+	_propertySets.write(writer);
 	_nodes.write(writer);
 	
 	writer.writeEndTag("application");
@@ -985,6 +1022,7 @@ public class Root extends ListTreeNode
 	_coordinator.getSaveToFileAction().setEnabled(true);
     }
 
+  
     void rebuild() throws UpdateFailedException
     {
 	Utils.Resolver oldResolver = _resolver;
@@ -1171,6 +1209,7 @@ public class Root extends ListTreeNode
 
 
     private Nodes _nodes;
+    private PropertySets _propertySets;
     private ReplicaGroups _replicaGroups;
     private ServerTemplates _serverTemplates;
     private ServiceTemplates _serviceTemplates;

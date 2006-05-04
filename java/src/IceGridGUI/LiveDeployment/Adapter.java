@@ -90,10 +90,16 @@ class Adapter extends TreeNode
 	return _currentEndpoints;
     }
 
-    String getProperty(String name)
+    java.util.Map getProperties()
     {
-	Server server = (Server)_parent;
-	return server.getProperty(_descriptor.name + "." + name);
+	if(_parent instanceof Server)
+	{
+	    return ((Server)_parent).getProperties();
+	}
+	else
+	{
+	    return ((Service)_parent).getProperties();
+	}
     }
 
     boolean update(AdapterDynamicInfo info)

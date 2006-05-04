@@ -67,7 +67,7 @@ abstract class AbstractServerEditor extends Editor
 		    //
 		    try
 		    {
-			node.insertChild(_target, true);
+			node.insertServer(_target, true);
 		    }
 		    catch(UpdateFailedException die)
 		    {
@@ -117,7 +117,7 @@ abstract class AbstractServerEditor extends Editor
 		ServerDescriptor serverDescriptor = 
 		    server.getServerDescriptor();
 		
-		node.removeChild(_target);
+		node.removeServer(_target);
 		
 		try
 		{
@@ -130,7 +130,7 @@ abstract class AbstractServerEditor extends Editor
 		    //	
 		    try
 		    {
-			node.insertChild(_target, true);
+			node.insertServer(_target, true);
 		    }
 		    catch(UpdateFailedException die)
 		    {
@@ -150,7 +150,8 @@ abstract class AbstractServerEditor extends Editor
 		//
 		// Success
 		//
-		node.getEditable().removeElement(_target.getId()); // replaced by brand new Server
+		node.getEditable().removeElement(_target.getId(), 
+						 Server.class); // replaced by brand new Server
 		
 		if(instanceDescriptor != null)
 		{

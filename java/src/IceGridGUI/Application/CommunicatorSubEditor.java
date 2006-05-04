@@ -30,38 +30,34 @@ class CommunicatorSubEditor
     CommunicatorSubEditor(Editor mainEditor, JFrame parentFrame)
     {
 	_mainEditor = mainEditor;
-	_properties.setEditable(false);
 	
-	//
-	// _propertiesButton
-	//
-	_propertiesDialog = new TableDialog(parentFrame, 
-					    "Properties",
-					    "Name", 
-					    "Value", true);
-	
-	Action openPropertiesDialog = new AbstractAction("...")
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    java.util.Map result = 
-			_propertiesDialog.show(_propertiesMap, 
-					       _mainEditor.getProperties());
-		    if(result != null)
-		    {
-			_mainEditor.updated();
-			_propertiesMap = result;
-			setPropertiesField();
-		    }
-		}
-	    };
-	openPropertiesDialog.putValue(Action.SHORT_DESCRIPTION,
-				      "Edit properties");
-	_propertiesButton = new JButton(openPropertiesDialog);
-
 	_description.getDocument().addDocumentListener(
 	    _mainEditor.getUpdateListener());
 	_description.setToolTipText("An optional description");
+
+	_propertySets.setEditable(false);
+	_properties = new PropertiesField(mainEditor);
+
+	_propertySetsDialog = new ListDialog(parentFrame, 
+					     "Property Set References", true);
+
+	Action openPropertySetsDialog = new AbstractAction("...")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    java.util.LinkedList result = _propertySetsDialog.show(
+			_propertySetsList, _mainEditor.getProperties());
+		    if(result != null)
+		    {
+			_mainEditor.updated();
+			_propertySetsList = result;
+			setPropertySetsField();
+		    }
+		}
+	    };
+	openPropertySetsDialog.putValue(Action.SHORT_DESCRIPTION,
+				       "Edit property set references");
+	_propertySetsButton = new JButton(openPropertySetsDialog);
     }
 
   
@@ -77,18 +73,33 @@ class CommunicatorSubEditor
 		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 3));
 	builder.nextRow(2);
 	builder.nextLine();
+	
+	builder.append("Property Sets");
+	builder.append(_propertySets, _propertySetsButton);
+	builder.nextLine();
 
 	builder.append("Properties");
-	builder.append(_properties, _propertiesButton);
+	builder.nextLine();
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
+
+	builder.nextLine();
+	builder.append("");
+
+	builder.nextRow(-6);
+	scrollPane = new JScrollPane(_properties);
+	builder.add(scrollPane, 
+		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+	builder.nextRow(6);
 	builder.nextLine();
     }
 
     void writeDescriptor(CommunicatorDescriptor descriptor)
     {
-	//
-	// TODO: BENOIT: Add support for property set.
-	//
-	descriptor.propertySet = new PropertySetDescriptor(new String[0], Editor.mapToProperties(_propertiesMap));
+	descriptor.propertySet.references = 
+	    (String[])_propertySetsList.toArray(new String[0]);
+	descriptor.propertySet.properties = _properties.getProperties();
 	descriptor.description = _description.getText();
     }
 
@@ -97,12 +108,12 @@ class CommunicatorSubEditor
 	Utils.Resolver detailResolver = _mainEditor.getDetailResolver();
 	isEditable = isEditable && (detailResolver == null);
 
-	//
-	// TODO: BENOIT: Add support for property set.
-	//
-	_propertiesMap = Editor.propertiesToMap(descriptor.propertySet.properties, detailResolver);
-	setPropertiesField();
-	_propertiesButton.setEnabled(isEditable);
+	_propertySetsList = java.util.Arrays.asList(descriptor.propertySet.references);
+	setPropertySetsField();
+	_propertySetsButton.setEnabled(isEditable);
+
+	_properties.setProperties(descriptor.propertySet.properties, 
+				  detailResolver, isEditable);
 	
 	_description.setText(
 	    Utils.substitute(descriptor.description, detailResolver));
@@ -110,36 +121,42 @@ class CommunicatorSubEditor
 	_description.setOpaque(isEditable);
     }
 
-    private void setPropertiesField()
+  
+    private void setPropertySetsField()
     {
-	final Utils.Resolver detailResolver = _mainEditor.getDetailResolver();
-	
+	final Utils.Resolver resolver = _mainEditor.getDetailResolver();
+
 	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
 	Utils.Stringifier stringifier = new Utils.Stringifier()
 	    {
 		public String toString(Object obj)
 		{
-		    java.util.Map.Entry entry = (java.util.Map.Entry)obj;
-		    
-		    return Utils.substitute((String)entry.getKey(), detailResolver) 
-			+ "="
-			+ Utils.substitute((String)entry.getValue(), detailResolver);
+		    return Utils.substitute((String)obj, resolver);
 		}
 	    };
 	
-	_properties.setText(
-	    Utils.stringify(_propertiesMap.entrySet(), stringifier,
-			    ", ", toolTipHolder));
-	_properties.setToolTipText(toolTipHolder.value);
-    }
+	_propertySets.setText(
+	    Utils.stringify(_propertySetsList, 
+			    stringifier, ", ", toolTipHolder));
 
+	String toolTip = "<html>Property Sets";
+
+	if(toolTipHolder.value != null)
+	{
+	    toolTip += ":<br>" + toolTipHolder.value;
+	}
+	toolTip += "</html>";
+	_propertySets.setToolTipText(toolTip);
+    }
 
     protected Editor _mainEditor;
  
     private JTextArea _description = new JTextArea(3, 20);
 
-    private JTextField _properties = new JTextField(20);
-    private java.util.Map _propertiesMap;
-    private TableDialog _propertiesDialog;
-    private JButton _propertiesButton = new JButton("...");
+    private JTextField _propertySets = new JTextField(20);
+    private java.util.List _propertySetsList;
+    private ListDialog _propertySetsDialog;
+    private JButton _propertySetsButton;
+ 
+    private PropertiesField _properties;
 }

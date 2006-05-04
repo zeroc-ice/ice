@@ -65,9 +65,13 @@ class AdapterEditor extends Editor
 	_description.setText(resolver.substitute(descriptor.description));
 	_id.setText(resolver.substitute(descriptor.id));
 	_replicaGroupId.setText(resolver.substitute(descriptor.replicaGroupId));
-	_endpoints.setText(resolver.substitute(adapter.getProperty("Endpoints")));
+
+	java.util.Map properties = adapter.getProperties();
+	
+	// getId() returns the name of the adapter!
+	_endpoints.setText(resolver.substitute((String)properties.get(adapter.getId() + ".Endpoints")));
 	_publishedEndpoints.setText(
-	    resolver.substitute(adapter.getProperty("PublishedEndpoints")));
+	    resolver.substitute((String)properties.get(adapter.getId() + ".PublishedEndpoints")));
 	
 	_registerProcess.setSelected(descriptor.registerProcess);	
 	_waitForActivation.setSelected(descriptor.waitForActivation);

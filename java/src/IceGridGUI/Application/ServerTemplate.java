@@ -160,7 +160,8 @@ class ServerTemplate extends Communicator
 	    serverTemplates.removeDescriptor(_id);
 	    getRoot().removeServerInstances(_id);
 	    serverTemplates.removeChild(this);
-	    serverTemplates.getEditable().removeElement(_id);
+	    serverTemplates.getEditable().
+		removeElement(_id, ServerTemplate.class);
 	    getRoot().updated();
 	}
     }
@@ -252,10 +253,8 @@ class ServerTemplate extends Communicator
 		}
 		Server.writeOptions(writer, descriptor.options);
 		Server.writeEnvs(writer, descriptor.envs);
-		//
-		// TODO: BENOIT: add references
-		//
-		writeProperties(writer, descriptor.propertySet.properties);
+	
+		writePropertySet(writer, "", descriptor.propertySet);
 		writeDistribution(writer, descriptor.distrib);
 
 		_adapters.write(writer);
@@ -275,10 +274,8 @@ class ServerTemplate extends Communicator
 		}
 		Server.writeOptions(writer, descriptor.options);
 		Server.writeEnvs(writer, descriptor.envs);
-		//
-		// TODO: BENOIT: Add references
-		//
-		writeProperties(writer, descriptor.propertySet.properties);
+		
+		writePropertySet(writer, "", descriptor.propertySet);
 		writeDistribution(writer, descriptor.distrib);
 
 		_adapters.write(writer);

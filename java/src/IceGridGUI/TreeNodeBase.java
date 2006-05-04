@@ -137,6 +137,17 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
 	return null;
     }
 
+    protected String makeNewChildId(String base)
+    {
+	String id = base;
+	int i = 0;
+	while(findChild(id) != null)
+	{
+	    id = base + "-" + (++i);
+	}
+	return id;
+    }
+
     protected TreeNodeBase(TreeNodeBase parent, String id)
     {
 	_parent = parent;
@@ -173,7 +184,78 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
 	}
 	return true;
     }
-    
+
+    protected String insertSortedChildren(java.util.List newChildren, 
+					  java.util.List intoChildren,
+					  DefaultTreeModel treeModel)
+    {
+	TreeNodeBase[] children = (TreeNodeBase[])newChildren.toArray(new TreeNodeBase[0]);    
+	java.util.Arrays.sort(children, _childComparator);
+	    
+	int[] indices = new int[children.length];
+
+	int offset = -1;
+
+	int i = 0;
+	boolean checkInsert = true;
+	for(int j = 0; j < children.length; ++j)
+	{
+	    String id = children[j].getId();
+	    
+	    if(checkInsert)
+	    {
+		while(i < intoChildren.size()) 
+		{
+		    TreeNodeBase existingChild = (TreeNodeBase)intoChildren.get(i);
+		    int cmp = id.compareTo(existingChild.getId());
+		    if(cmp == 0)
+		    {
+			return id;
+		    }
+		    if(cmp < 0)
+		    {
+			break; // while
+		    }
+		    i++;
+		}
+		
+		if(i < intoChildren.size())
+		{    
+		    // Insert here, and increment i (since children is sorted)
+		    intoChildren.add(i, children[j]);
+		    if(offset == -1)
+		    {
+			offset = getIndex((TreeNodeBase)intoChildren.get(0));
+		    }
+
+		    indices[j] = offset + i;
+		    i++;		    continue; // for
+		}
+		else
+		{
+		    checkInsert = false;
+		}
+	    }
+	    
+	    //
+	    // Append
+	    //
+	    intoChildren.add(children[j]);
+	    if(offset == -1)
+	    {
+		offset = getIndex((TreeNodeBase)intoChildren.get(0));
+	    }
+	    indices[j] = offset + i;
+	    i++;
+	}
+	
+	if(treeModel != null)
+	{
+	    treeModel.nodesWereInserted(this, indices);
+	}
+	
+	return null;
+    }
 
     protected void removeSortedChildren(String[] childIds, 
 					java.util.List fromChildren, 

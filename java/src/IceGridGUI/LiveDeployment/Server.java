@@ -448,7 +448,12 @@ class Server extends ListArrayTreeNode
 	_application = server._application;
 	_adapters = server._adapters;
 	_dbEnvs = server._dbEnvs;
+
 	_services = server._services;
+	
+	_childrenArray[0] = _adapters;
+	_childrenArray[1] = _dbEnvs;
+	_childrenArray[2] = _services;
 
 	getRoot().getTreeModel().nodeStructureChanged(this);
     }
@@ -584,21 +589,22 @@ class Server extends ListArrayTreeNode
 	}
     }
 
-    String getProperty(String name)
+    java.util.Map getProperties()
     {
-	//
-	// TODO: BENOIT: Add support for property set.
-	//
-	java.util.Iterator p = _serverDescriptor.propertySet.properties.iterator();
-	while(p.hasNext())
+	Utils.ExpandedPropertySet instancePropertySet = null;
+	Node node = (Node)_parent;
+
+	if(_instanceDescriptor != null)
 	{
-	    PropertyDescriptor pd = (PropertyDescriptor)p.next();
-	    if(pd.name.equals(name))
-	    {
-		return pd.value;
-	    }
+	    instancePropertySet = node.expand(_instanceDescriptor.propertySet, 
+					      _application.name, _resolver);
 	}
-	return "";
+
+	Utils.ExpandedPropertySet propertySet = 
+	    node.expand(_serverDescriptor.propertySet,
+			_application.name, _resolver);
+
+	return Utils.propertySetToMap(propertySet, instancePropertySet, _resolver);
     }
 
     private void createAdapters()

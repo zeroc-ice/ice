@@ -44,35 +44,7 @@ class DbEnvEditor extends CommunicatorChildEditor
 			       + "otherwise, IceGrid does not create this directory"
 			       + "</html>");
 
-
-	_properties.setEditable(false);
-		
-	//
-	// _propertiesButton
-	//
-	_propertiesDialog = new TableDialog(parentFrame, 
-					    "Berkeley DB Configuration Properties",
-					    "Name", 
-					    "Value", true);
-	
-	Action openPropertiesDialog = new AbstractAction("...")
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    java.util.Map result = 
-			_propertiesDialog.show(_propertiesMap, 
-					       getProperties());
-		    if(result != null)
-		    {
-			updated();
-			_propertiesMap = result;
-			setPropertiesField();
-		    }
-		}
-	    };
-	openPropertiesDialog.putValue(Action.SHORT_DESCRIPTION,
-				      "Edit properties");
-	_propertiesButton = new JButton(openPropertiesDialog);
+	_properties = new PropertiesField(this);
     }
 
     void writeDescriptor()
@@ -82,7 +54,7 @@ class DbEnvEditor extends CommunicatorChildEditor
 	descriptor.name = _name.getText();
 	descriptor.description = _description.getText();
 	descriptor.dbHome = getDbHomeAsString();
-	descriptor.properties = Editor.mapToProperties(_propertiesMap);
+	descriptor.properties = _properties.getProperties();
     }	    
     
     boolean isSimpleUpdate()
@@ -119,7 +91,19 @@ class DbEnvEditor extends CommunicatorChildEditor
 	builder.nextLine();
 
 	builder.append("Properties");
-	builder.append(_properties, _propertiesButton);
+	builder.nextLine();
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
+
+	builder.nextLine();
+	builder.append("");
+
+	builder.nextRow(-6);
+	scrollPane = new JScrollPane(_properties);
+	builder.add(scrollPane, 
+		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+	builder.nextRow(6);
 	builder.nextLine();
     }
 
@@ -158,9 +142,8 @@ class DbEnvEditor extends CommunicatorChildEditor
 	_dbHome.setEnabled(isEditable);
 	_dbHome.setEditable(isEditable);
 	
-	_propertiesMap = Editor.propertiesToMap(descriptor.properties, resolver);
-	setPropertiesField();
-	_propertiesButton.setEnabled(isEditable);
+	_properties.setProperties(descriptor.properties, 
+				  resolver, isEditable);
 	
 	_applyButton.setEnabled(dbEnv.isEphemeral());
 	_discardButton.setEnabled(dbEnv.isEphemeral());	  
@@ -197,49 +180,12 @@ class DbEnvEditor extends CommunicatorChildEditor
 	}
     }
     
-
-    private void setPropertiesField()
-    {
-	final Utils.Resolver resolver = getDbEnv().getResolver();
-	
-	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
-	Utils.Stringifier stringifier = new Utils.Stringifier()
-	    {
-		public String toString(Object obj)
-		{
-		    java.util.Map.Entry entry = (java.util.Map.Entry)obj;
-		    
-		    return Utils.substitute((String)entry.getKey(), resolver) 
-			+ "="
-			+ Utils.substitute((String)entry.getValue(), resolver);
-		}
-	    };
-	
-	_properties.setText(
-	    Utils.stringify(_propertiesMap.entrySet(), stringifier,
-			    ", ", toolTipHolder));
-	
-	String toolTip = "<html>Properties used to generate a"
-	    + " DB_CONFIG file in the DB home directory";
-	if(toolTipHolder.value != null)
-	{
-	    toolTip += ":<br>" + toolTipHolder.value;
-	}
-	toolTip += "</html>";
-
-	_properties.setToolTipText(toolTip);
-    }
-
     private JTextField _name = new JTextField(20);
     private JTextArea _description = new JTextArea(3, 20);
 
     private JComboBox _dbHome = new JComboBox(new Object[]{NO_DB_HOME});
-
-    private JTextField _properties = new JTextField(20);
-    private java.util.Map _propertiesMap;
-    private TableDialog _propertiesDialog;
-    private JButton _propertiesButton = new JButton("...");
-    
+    private PropertiesField _properties;
+ 
     static private final Object NO_DB_HOME = new Object()
 	{
 	    public String toString()
