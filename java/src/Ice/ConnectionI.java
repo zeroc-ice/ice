@@ -2334,7 +2334,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         java.io.PrintWriter pw = new java.io.PrintWriter(sw);
 	ex.printStackTrace(pw);
         pw.flush();
-        String s = msg + ":\n" + sw.toString() + _desc;
+        String s = msg + ":\n" + _desc + "\n" + sw.toString();
         _logger.warning(s);
     }
 
@@ -2345,7 +2345,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         java.io.PrintWriter pw = new java.io.PrintWriter(sw);
 	ex.printStackTrace(pw);
         pw.flush();
-        String s = msg + ":\n" + _desc + sw.toString();
+        String s = msg + ":\n" + _desc + "\n" + sw.toString();
         _logger.error(s);
     }
 
