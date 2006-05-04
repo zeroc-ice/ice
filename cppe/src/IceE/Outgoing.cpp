@@ -104,8 +104,8 @@ IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const st
     Context::const_iterator p;
     for(p = context.begin(); p != context.end(); ++p)
     {
-	_stream.write(p->first, false);
-	_stream.write(p->second, false);
+	_stream.write(p->first);
+	_stream.write(p->second);
     }
     
     //
@@ -291,14 +291,13 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	    // exception, you will have a memory leak.
 	    //
 	    Identity ident;
-	    _stream.read(ident.name, false);
-	    _stream.read(ident.category, false);
+	    ident.__read(&_stream);
 
 	    //
 	    // For compatibility with the old FacetPath.
 	    //
 	    vector<string> facetPath;
-	    _stream.read(facetPath, false);
+	    _stream.read(facetPath);
 	    string facet;
 	    if(!facetPath.empty())
 	    {

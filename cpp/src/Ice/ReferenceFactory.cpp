@@ -194,7 +194,6 @@ IceInternal::ReferenceFactory::create(const string& str)
     // Parsing the identity may raise IdentityParseException.
     //
     Identity ident = stringToIdentity(idstr);
-
     if(ident.name.empty())
     {
         //
@@ -498,12 +497,14 @@ IceInternal::ReferenceFactory::create(const string& str)
 		beg++; // Skip leading quote
 	    }
 
+
 	    if(!IceUtil::unescapeString(s, beg, end, adapter) || adapter.size() == 0)
 	    {
 		ProxyParseException ex(__FILE__, __LINE__);
 		ex.str = str;
 		throw ex;
 	    }
+
 	    return create(ident, _instance->initializationData().defaultContext, facet, mode, secure, adapter,
 	    		  routerInfo, locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization,
 			  _instance->defaultsAndOverrides()->defaultLocatorCacheTimeout);
@@ -537,7 +538,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     // For compatibility with the old FacetPath.
     //
     vector<string> facetPath;
-    s->read(facetPath, false);
+    s->read(facetPath);
     string facet;
     if(!facetPath.empty())
     {
@@ -545,7 +546,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 	{
 	    throw ProxyUnmarshalException(__FILE__, __LINE__);
 	}
-	facet.swap(facetPath[0]);
+        facet.swap(facetPath[0]);
     }
 
     Byte modeAsByte;
@@ -581,7 +582,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     }
     else
     {
-	s->read(adapterId, false);
+	s->read(adapterId);
 	return create(ident, _instance->initializationData().defaultContext, facet, mode, secure, adapterId,
 	  	      routerInfo, locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization,
 		      _instance->defaultsAndOverrides()->defaultLocatorCacheTimeout);

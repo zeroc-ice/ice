@@ -73,20 +73,19 @@ IceInternal::Outgoing::Outgoing(ConnectionI* connection, Reference* ref, const s
 
     try
     {
-	_os.write(_reference->getIdentity().name, false);
-	_os.write(_reference->getIdentity().category, false);
+	_reference->getIdentity().__write(&_os);
 
 	//
 	// For compatibility with the old FacetPath.
 	//
 	if(_reference->getFacet().empty())
 	{
-	    _os.write(static_cast<string*>(0), static_cast<string*>(0), false);
+	    _os.write(static_cast<string*>(0), static_cast<string*>(0));
 	}
 	else
 	{
 	    string facet = _reference->getFacet();
-	    _os.write(&facet, &facet + 1, false);
+	    _os.write(&facet, &facet + 1);
 	}
 
 	_os.write(operation, false);
@@ -97,8 +96,8 @@ IceInternal::Outgoing::Outgoing(ConnectionI* connection, Reference* ref, const s
 	Context::const_iterator p;
 	for(p = context.begin(); p != context.end(); ++p)
 	{
-	    _os.write(p->first, false);
-	    _os.write(p->second, false);
+	    _os.write(p->first);
+	    _os.write(p->second);
 	}
 	
 	//
@@ -341,14 +340,13 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	    // exception, you will have a memory leak.
 	    //
 	    Identity ident;
-	    _is.read(ident.name, false);
-	    _is.read(ident.category, false);
+	    ident.__read(&_is);
 
 	    //
 	    // For compatibility with the old FacetPath.
 	    //
 	    vector<string> facetPath;
-	    _is.read(facetPath, false);
+	    _is.read(facetPath);
 	    string facet;
 	    if(!facetPath.empty())
 	    {

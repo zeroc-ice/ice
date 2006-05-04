@@ -142,19 +142,18 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
 		    assert(false);
 		}
 		
-		_os.write(ex.id.name, false);
-		_os.write(ex.id.category, false);
+		ex.id.__write(&_os);
 		
 		//
 		// For compatibility with the old FacetPath.
 		//
 		if(ex.facet.empty())
 		{
-		    _os.write(static_cast<string*>(0), static_cast<string*>(0), false);
+		    _os.write(static_cast<string*>(0), static_cast<string*>(0));
 		}
 		else
 		{
-		    _os.write(&ex.facet, &ex.facet + 1, false);
+		    _os.write(&ex.facet, &ex.facet + 1);
 		}
 		
 		_os.write(ex.operation, false);

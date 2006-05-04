@@ -97,7 +97,7 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 	{
 	    throw MarshalException(__FILE__, __LINE__);
 	}
-	_is.read(_current.facet, false);
+	_is.read(_current.facet);
     }
     else
     {
@@ -114,8 +114,8 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
     while(sz--)
     {
 	pair<const string, string> pr;
-	_is.read(const_cast<string&>(pr.first), false);
-	_is.read(pr.second, false);
+	_is.read(const_cast<string&>(pr.first));
+	_is.read(pr.second);
 	_current.ctx.insert(_current.ctx.end(), pr);
     }
 
@@ -206,19 +206,18 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 		assert(false);
 	    }
 
-	    _os.write(ex.id.name, false);
-	    _os.write(ex.id.category, false);
+	    ex.id.__write(&_os);
 
 	    //
 	    // For compatibility with the old FacetPath.
 	    //
 	    if(ex.facet.empty())
 	    {
-		_os.write(static_cast<string*>(0), static_cast<string*>(0), false);
+		_os.write(static_cast<string*>(0), static_cast<string*>(0));
 	    }
 	    else
 	    {
-		_os.write(&ex.facet, &ex.facet + 1, false);
+		_os.write(&ex.facet, &ex.facet + 1);
 	    }
 
 	    _os.write(ex.operation, false);
@@ -447,19 +446,18 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
 	    _os.write(static_cast<Byte>(status));
 	    
-	    _os.write(_current.id.name, false);
-	    _os.write(_current.id.category, false);
+	    _current.id.__write(&_os);
 
 	    //
 	    // For compatibility with the old FacetPath.
 	    //
 	    if(_current.facet.empty())
 	    {
-		_os.write(static_cast<string*>(0), static_cast<string*>(0), false);
+		_os.write(static_cast<string*>(0), static_cast<string*>(0));
 	    }
 	    else
 	    {
-		_os.write(&_current.facet, &_current.facet + 1, false);
+		_os.write(&_current.facet, &_current.facet + 1);
 	    }
 
 	    _os.write(_current.operation, false);

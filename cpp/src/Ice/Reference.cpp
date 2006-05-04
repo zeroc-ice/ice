@@ -157,11 +157,11 @@ IceInternal::Reference::streamWrite(BasicStream* s) const
     //
     if(_facet.empty())
     {
-	s->write(static_cast<string*>(0), static_cast<string*>(0), false);
+	s->write(static_cast<string*>(0), static_cast<string*>(0));
     }
     else
     {
-	s->write(&_facet, &_facet + 1, false);
+	s->write(&_facet, &_facet + 1);
     }
     
     s->write(static_cast<Byte>(_mode));
@@ -1159,7 +1159,7 @@ IceInternal::DirectReference::streamWrite(BasicStream* s) const
     }
     else
     {
-	s->write(string(""), false); // Adapter id.
+	s->write(string("")); // Adapter id.
     }
 }
 
@@ -1401,7 +1401,7 @@ IceInternal::IndirectReference::streamWrite(BasicStream* s) const
     RoutableReference::streamWrite(s);
 
     s->writeSize(0);
-    s->write(_adapterId, false);
+    s->write(_adapterId);
 }
 
 string

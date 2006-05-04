@@ -1417,7 +1417,7 @@ IceInternal::BasicStream::read(vector<string>& v, bool convert)
 void
 IceInternal::BasicStream::write(const wstring& v)
 {
-    if(v.size() == 0)
+    if(v.empty())
     {
         writeSize(0);
 	return;

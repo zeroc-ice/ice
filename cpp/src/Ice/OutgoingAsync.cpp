@@ -75,14 +75,13 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
 	    case DispatchOperationNotExist:
 	    {
 		Identity ident;
-		__is->read(ident.name, false);
-		__is->read(ident.category, false);
+		ident.__read(__is);
 		
 		//
 		// For compatibility with the old FacetPath.
 		//
 		vector<string> facetPath;
-		__is->read(facetPath, false);
+		__is->read(facetPath);
 		string facet;
 		if(!facetPath.empty())
 		{
@@ -290,20 +289,19 @@ IceInternal::OutgoingAsync::__prepare(const ObjectPrx& prx, const string& operat
 	
 	__os->writeBlob(requestHdr, sizeof(requestHdr));
 
-	__os->write(ref->getIdentity().name, false);
-	__os->write(ref->getIdentity().category, false);
+	ref->getIdentity().__write(__os);
 
 	//
 	// For compatibility with the old FacetPath.
 	//
 	if(ref->getFacet().empty())
 	{
-	    __os->write(static_cast<string*>(0), static_cast<string*>(0), false);
+	    __os->write(static_cast<string*>(0), static_cast<string*>(0));
 	}
 	else
 	{
 	    string facet = ref->getFacet();
-	    __os->write(&facet, &facet + 1, false);
+	    __os->write(&facet, &facet + 1);
 	}
 
 	__os->write(operation, false);
@@ -314,8 +312,8 @@ IceInternal::OutgoingAsync::__prepare(const ObjectPrx& prx, const string& operat
 	Context::const_iterator p;
 	for(p = context.begin(); p != context.end(); ++p)
 	{
-	    __os->write(p->first, false);
-	    __os->write(p->second, false);
+	    __os->write(p->first);
+	    __os->write(p->second);
 	}
 	
 	__os->startWriteEncaps();

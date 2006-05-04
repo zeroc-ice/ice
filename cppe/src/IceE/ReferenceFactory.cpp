@@ -579,7 +579,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     // For compatibility with the old FacetPath.
     //
     vector<string> facetPath;
-    s->read(facetPath, false);
+    s->read(facetPath);
     string facet;
     if(!facetPath.empty())
     {
@@ -630,7 +630,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     {
 #ifdef ICEE_HAS_LOCATOR
 	LocatorInfoPtr locatorInfo = _instance->locatorManager()->get(getDefaultLocator());
-	s->read(adapterId, false);
+	s->read(adapterId);
 #   ifdef ICEE_HAS_ROUTER
 	return create(ident, _instance->initializationData().defaultContext, facet, mode, secure, adapterId,
 		      routerInfo, locatorInfo);

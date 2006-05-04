@@ -26,13 +26,12 @@ static void
 printIdentityFacetOperation(string& s, BasicStream& stream)
 {
     Identity identity;
-    stream.read(identity.name, false);
-    stream.read(identity.category, false);
+    identity.__read(&stream);
     s += "\nidentity = ";
     s += identityToString(identity);
 
     vector<string> facet;
-    stream.read(facet, false);
+    stream.read(facet);
     s += "\nfacet = ";
     if(!facet.empty())
     {

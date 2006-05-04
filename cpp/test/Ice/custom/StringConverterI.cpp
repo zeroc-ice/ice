@@ -22,6 +22,7 @@ Test::StringConverterI::toUTF8(const char* sourceStart, const char* sourceEnd, I
     {
         targetStart[i] = *(--p);
     }
+
     return targetEnd;
 }
 
