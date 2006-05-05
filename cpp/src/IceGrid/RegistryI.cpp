@@ -46,7 +46,10 @@ class NodeSessionReapable : public Reapable
 {
 public:
 
-    NodeSessionReapable(const NodeSessionIPtr& session, const NodeSessionPrx& proxy) : 
+    NodeSessionReapable(const Ice::ObjectAdapterPtr& adapter, 
+			const NodeSessionIPtr& session, 
+			const NodeSessionPrx& proxy) : 
+	_adapter(adapter),
 	_session(session),
 	_proxy(proxy)
     {
@@ -63,13 +66,39 @@ public:
     }
 
     virtual void
-    destroy()
+    destroy(bool destroy)
     {
-	_proxy->destroy();
+	try
+	{
+	    //
+	    // Invoke on the servant directly instead of the
+	    // proxy. Invoking on the proxy might not always work if the
+	    // communicator is being shutdown/destroyed. We have to create
+	    // a fake "current" because the session destroy methods needs
+	    // the adapter and object identity to unregister the servant
+	    // from the adapter.
+	    //
+	    Ice::Current current;
+	    if(!destroy)
+	    {
+		current.adapter = _adapter;
+		current.id = _proxy->ice_getIdentity();
+	    }
+	    _session->destroy(current);
+	}
+	catch(const Ice::ObjectNotExistException& ex)
+	{
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    Ice::Warning out(_proxy->ice_communicator()->getLogger());
+	    out << "unexpected exception while reaping node session:\n" << ex;
+	}
     }
 
 private:
 
+    const Ice::ObjectAdapterPtr _adapter;
     const NodeSessionIPtr _session;
     const NodeSessionPrx _proxy;
 };
@@ -245,16 +274,15 @@ RegistryI::start(bool nowarn)
     ReapThreadPtr reaper = _adminReaper ? _adminReaper : _reaper; // TODO: XXX
 
     Identity sessionMgrId = stringToIdentity(instanceName + "/SessionManager");
-    ObjectPtr sessionMgr = new ClientSessionManagerI(_database, reaper, _waitQueue, locatorRegistryPrx, 
-						     adminSessionTimeout); // TODO: XXX
+    ObjectPtr sessionMgr = new ClientSessionManagerI(_database, reaper, _waitQueue, adminSessionTimeout); // TODO: XXX
     clientAdapter->add(sessionMgr, sessionMgrId);
 
     Identity adminId = stringToIdentity(instanceName + "/Admin");
     adminAdapter->add(new AdminI(_database, this, traceLevels), adminId);
 
     Identity admSessionMgrId = stringToIdentity(instanceName + "/AdminSessionManager");
-    ObjectPtr admSessionMgr = new AdminSessionManagerI(*regTopic, *nodeTopic, _database, reaper, _waitQueue, 
-						       locatorRegistryPrx, adminSessionTimeout);
+    ObjectPtr admSessionMgr = 
+	new AdminSessionManagerI(*regTopic, *nodeTopic, _database, reaper, _waitQueue, adminSessionTimeout);
     adminAdapter->add(admSessionMgr, admSessionMgrId);
 
     //
@@ -307,7 +335,7 @@ RegistryI::registerNode(const std::string& name, const NodePrx& node, const Node
     NodePrx n = NodePrx::uncheckedCast(node->ice_timeout(_nodeSessionTimeout * 1000));
     NodeSessionIPtr session = new NodeSessionI(_database, name, n, info);
     NodeSessionPrx proxy = NodeSessionPrx::uncheckedCast(c.adapter->addWithUUID(session));
-    _reaper->add(new NodeSessionReapable(session, proxy));
+    _reaper->add(new NodeSessionReapable(c.adapter, session, proxy));
     obs = _nodeObserver;
     return proxy;
 }

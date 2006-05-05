@@ -23,7 +23,7 @@ public:
     virtual ~Reapable() { }
 
     virtual IceUtil::Time timestamp() const = 0;
-    virtual void destroy() = 0;
+    virtual void destroy(bool) = 0;
 
 };
 typedef IceUtil::Handle<Reapable> ReapablePtr;
@@ -39,7 +39,7 @@ public:
     void add(const ReapablePtr&);
 
 private:
-
+    
     const IceUtil::Time _timeout;
     bool _terminated;
     std::list<ReapablePtr> _sessions;

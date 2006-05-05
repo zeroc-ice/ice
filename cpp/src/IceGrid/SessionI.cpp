@@ -60,7 +60,10 @@ newAllocateObject(const SessionIPtr& session, const IceUtil::Handle<T>& cb)
 
 };
 
-SessionReapable::SessionReapable(const SessionIPtr& session, const SessionPrx& proxy) : 
+SessionReapable::SessionReapable(const Ice::ObjectAdapterPtr& adapter, 
+				 const SessionIPtr& session, 
+				 const SessionPrx& proxy) : 
+    _adapter(adapter),
     _session(session),
     _proxy(proxy)
 {
@@ -77,9 +80,34 @@ SessionReapable::timestamp() const
 }
 
 void
-SessionReapable::destroy()
+SessionReapable::destroy(bool destroy)
 {
-    _proxy->destroy();
+    try
+    {
+	//
+	// Invoke on the servant directly instead of the
+	// proxy. Invoking on the proxy might not always work if the
+	// communicator is being shutdown/destroyed. We have to create
+	// a fake "current" because the session destroy methods needs
+	// the adapter and object identity to unregister the servant
+	// from the adapter.
+	//
+	Ice::Current current;
+	if(!destroy)
+	{
+	    current.adapter = _adapter;
+	    current.id = _proxy->ice_getIdentity();
+	}
+	_session->destroy(current);
+    }
+    catch(const Ice::ObjectNotExistException& ex)
+    {
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	Ice::Warning out(_proxy->ice_communicator()->getLogger());
+	out << "unexpected exception while reaping session:\n" << ex;
+    }
 }
 
 SessionI::SessionI(const string& userId, 
@@ -87,7 +115,6 @@ SessionI::SessionI(const string& userId,
 		   const DatabasePtr& database,
 		   const Ice::ObjectAdapterPtr& adapter,
 		   const WaitQueuePtr& waitQueue,
-		   const Ice::LocatorRegistryPrx& registry,
 		   int timeout) :
     _userId(userId), 
     _prefix(prefix),
@@ -179,7 +206,17 @@ SessionI::destroy(const Ice::Current& current)
 	    throw ex;
 	}
 	_destroyed = true;
-	current.adapter->remove(current.id);
+
+	if(current.adapter)
+	{
+	    try
+	    {
+		current.adapter->remove(current.id);
+	    }
+	    catch(const Ice::ObjectAdapterDeactivatedException&)
+	    {
+	    }
+	}
 	
 	if(_traceLevels && _traceLevels->session > 0)
 	{
@@ -264,26 +301,20 @@ ClientSessionI::ClientSessionI(const string& userId,
 			       const DatabasePtr& database, 
 			       const Ice::ObjectAdapterPtr& adapter,
 			       const WaitQueuePtr& waitQueue,
-			       const Ice::LocatorRegistryPrx& registry,
 			       int timeout) :
-    SessionI(userId, "client", database, adapter, waitQueue, registry, timeout)
+    SessionI(userId, "client", database, adapter, waitQueue, timeout)
 {
 }
 
 ClientSessionManagerI::ClientSessionManagerI(const DatabasePtr& database,
 					     const ReapThreadPtr& reaper,
 					     const WaitQueuePtr& waitQueue,
-					     const Ice::LocatorRegistryPrx& registry,
 					     int timeout) :
     _database(database), 
     _reaper(reaper),
     _waitQueue(waitQueue),
-    _registry(registry),
     _timeout(timeout)
 {
-    //
-    // TODO: XXX: Remove _registry attribute
-    //
 }
 
 Glacier2::SessionPrx
@@ -293,16 +324,16 @@ ClientSessionManagerI::create(const string& userId, const Glacier2::SessionContr
     // We don't add the session to the reaper thread, Glacier2 takes
     // care of reaping the session.
     //
-    SessionIPtr session = new ClientSessionI(userId, _database, current.adapter, _waitQueue, _registry, _timeout);
+    SessionIPtr session = new ClientSessionI(userId, _database, current.adapter, _waitQueue, _timeout);
     return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session)); // TODO: XXX: category = userid?
 }
 
 SessionPrx
 ClientSessionManagerI::createLocalSession(const string& userId, const Ice::Current& current)
 {
-    SessionIPtr session = new ClientSessionI(userId, _database, current.adapter, _waitQueue, _registry, _timeout);
+    SessionIPtr session = new ClientSessionI(userId, _database, current.adapter, _waitQueue, _timeout);
     SessionPrx proxy = SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
-    _reaper->add(new SessionReapable(session, proxy));
+    _reaper->add(new SessionReapable(current.adapter, session, proxy));
     return proxy;
 }
 

@@ -78,12 +78,15 @@ NodeSessionI::destroy(const Ice::Current& current)
 
     _database->removeNode(_name);
 
-    try
+    if(current.adapter)
     {
-	current.adapter->remove(current.id);
-    }
-    catch(const Ice::ObjectAdapterDeactivatedException&)
-    {
+	try
+	{
+	    current.adapter->remove(current.id);
+	}
+	catch(const Ice::ObjectAdapterDeactivatedException&)
+	{
+	}
     }
 }
 

@@ -58,13 +58,7 @@ ReapThread::run()
 
 	for(vector<ReapablePtr>::const_iterator p = reap.begin(); p != reap.end(); ++p)
 	{
-	    try
-	    {
-		(*p)->destroy();
-	    }
-	    catch(const Ice::LocalException&)
-	    {
-	    }
+	    (*p)->destroy(false);
 	}
 	reap.clear();
     }
@@ -83,14 +77,7 @@ ReapThread::terminate()
 
     for(list<ReapablePtr>::const_iterator p = reap.begin(); p != reap.end(); ++p)
     {
-	try
-	{
-	    (*p)->destroy();
-	}
-	catch(const Ice::LocalException&)
-	{
-	    // Ignore.
-	}
+	(*p)->destroy(true);
     }
 }
 

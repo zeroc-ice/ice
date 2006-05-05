@@ -21,7 +21,7 @@ class AdminSessionI : public SessionI, public AdminSession
 public:
 
     AdminSessionI(const std::string&, const DatabasePtr&, const Ice::ObjectAdapterPtr&, const WaitQueuePtr&,
-		  const Ice::LocatorRegistryPrx&, RegistryObserverTopic&, NodeObserverTopic&, int);
+		  RegistryObserverTopic&, NodeObserverTopic&, int);
     virtual ~AdminSessionI();
 
     virtual AdminPrx getAdmin(const Ice::Current&) const;
@@ -56,7 +56,7 @@ class AdminSessionManagerI : virtual public SessionManager
 public:
 
     AdminSessionManagerI(RegistryObserverTopic&, NodeObserverTopic&, const  DatabasePtr&, const ReapThreadPtr&, 
-			 const WaitQueuePtr&, const Ice::LocatorRegistryPrx&, int);
+			 const WaitQueuePtr&, int);
     
     virtual Glacier2::SessionPrx create(const std::string&, const Glacier2::SessionControlPrx&, const Ice::Current&);
     virtual SessionPrx createLocalSession(const std::string&, const Ice::Current&);
@@ -68,7 +68,6 @@ private:
     const DatabasePtr _database;
     const ReapThreadPtr _reaper;
     const WaitQueuePtr _waitQueue;
-    const Ice::LocatorRegistryPrx _registry;
     int _timeout;
 };
 

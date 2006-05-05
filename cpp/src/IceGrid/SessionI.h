@@ -11,7 +11,6 @@
 #define ICEGRID_SESSIONI_H
 
 #include <IceUtil/Mutex.h>
-#include <Ice/Locator.h>
 #include <IceGrid/Session.h>
 #include <IceGrid/ReapThread.h>
 
@@ -40,14 +39,15 @@ class SessionReapable : public Reapable
 {
 public:
 
-    SessionReapable(const SessionIPtr&, const SessionPrx&);
+    SessionReapable(const Ice::ObjectAdapterPtr&, const SessionIPtr&, const SessionPrx&);
     virtual ~SessionReapable();
 
     virtual IceUtil::Time timestamp() const;
-    virtual void destroy();
+    virtual void destroy(bool);
 
 private:
 
+    const Ice::ObjectAdapterPtr _adapter;
     const SessionIPtr _session;
     const SessionPrx _proxy;
 };
@@ -80,8 +80,8 @@ public:
 
 protected:
 
-    SessionI(const std::string&, const std::string&, const DatabasePtr&, const Ice::ObjectAdapterPtr&,
-	     const WaitQueuePtr&, const Ice::LocatorRegistryPrx&, int);
+    SessionI(const std::string&, const std::string&, const DatabasePtr&, const Ice::ObjectAdapterPtr&, 
+	     const WaitQueuePtr&, int);
 
     const std::string _userId;
     const std::string _prefix;
@@ -100,16 +100,14 @@ class ClientSessionI : public SessionI
 {
 public:
 
-    ClientSessionI(const std::string&, const DatabasePtr&, const Ice::ObjectAdapterPtr&, const WaitQueuePtr&, 
-		   const Ice::LocatorRegistryPrx&, int);
+    ClientSessionI(const std::string&, const DatabasePtr&, const Ice::ObjectAdapterPtr&, const WaitQueuePtr&, int);
 };
 
 class ClientSessionManagerI : virtual public SessionManager
 {
 public:
 
-    ClientSessionManagerI(const  DatabasePtr&, const ReapThreadPtr&, const WaitQueuePtr&, 
-			  const Ice::LocatorRegistryPrx&, int);
+    ClientSessionManagerI(const  DatabasePtr&, const ReapThreadPtr&, const WaitQueuePtr&, int);
     
     virtual Glacier2::SessionPrx create(const std::string&, const Glacier2::SessionControlPrx&, const Ice::Current&);
     virtual SessionPrx createLocalSession(const std::string&, const Ice::Current&);
@@ -119,7 +117,6 @@ private:
     const DatabasePtr _database;
     const ReapThreadPtr _reaper;
     const WaitQueuePtr _waitQueue;
-    const Ice::LocatorRegistryPrx _registry;
     int _timeout;
 };
 
