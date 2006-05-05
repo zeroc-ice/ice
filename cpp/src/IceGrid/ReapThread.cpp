@@ -27,13 +27,13 @@ ReapThread::run()
     {
 	{
 	    Lock sync(*this);
+	    timedWait(_timeout);
+	    
 	    if(_terminated)
 	    {
 		break;
 	    }
 
-	    timedWait(_timeout);
-	    
 	    list<ReapablePtr>::iterator p = _sessions.begin();
 	    while(p != _sessions.end())
 	    {
@@ -73,16 +73,15 @@ ReapThread::run()
 void
 ReapThread::terminate()
 {
+    list<ReapablePtr> reap;
     {
 	Lock sync(*this);
 	_terminated = true;
 	notify();
+	reap.swap(_sessions);
     }
 
-    //
-    // _sessions is immutable once the reap thread is terminated.
-    //
-    for(list<ReapablePtr>::const_iterator p = _sessions.begin(); p != _sessions.end(); ++p)
+    for(list<ReapablePtr>::const_iterator p = reap.begin(); p != reap.end(); ++p)
     {
 	try
 	{
@@ -93,7 +92,6 @@ ReapThread::terminate()
 	    // Ignore.
 	}
     }
-    _sessions.clear();
 }
 
 void

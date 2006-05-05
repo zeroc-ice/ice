@@ -67,11 +67,9 @@ AllocationRequest::finish(const AllocatablePtr& allocatable, const SessionIPtr& 
     }
 
     //
-    // Check if the allocatable is already allocated by the session
-    // and if it's allowed to allocate multiple times the same
-    // allocatable.
+    // Check if the allocatable is already allocated by the session.
     //
-    if(allocateOnce() && _session == session)
+    if(_session == session)
     {
 	_state = Canceled;
 	canceled(AllocationException("already allocated by the session"));
@@ -153,43 +151,11 @@ AllocationRequest::AllocationRequest(const SessionIPtr& session) :
 {
 }
 
-ParentAllocationRequest::ParentAllocationRequest(const AllocationRequestPtr& request, 
-						 const AllocatablePtr& allocatable) :
-    AllocationRequest(request->getSession()),
-    _request(request),
-    _allocatable(allocatable)
-{
-}
-
-bool
-ParentAllocationRequest::allocated(const AllocatablePtr& allocatable, const SessionIPtr& session)
-{
-    try
-    {
-	if(_allocatable->allocate(_request, false))
-	{
-	    assert(_allocatable->getSession() == _request->getSession());
-	    return true;
-	}
-	return false;
-    }
-    catch(const AllocationException& ex)
-    {
-	_request->cancel(ex);
-	return false;
-    }
-}
-
-void 
-ParentAllocationRequest::canceled(const AllocationException& ex)
-{
-    _request->canceled(ex);
-}
-
 Allocatable::Allocatable(bool allocatable, const AllocatablePtr& parent) : 
     _allocatable(allocatable || parent && parent->allocatable()),
     _parent((parent && parent->allocatable()) ? parent : AllocatablePtr()),
-    _count(0)
+    _count(0),
+    _releasing(false)
 {
     assert(!_parent || _parent->allocatable()); // Parent is only set if it's allocatable.
 }
@@ -199,205 +165,119 @@ Allocatable::~Allocatable()
 }
 
 bool
-Allocatable::allocate(const AllocationRequestPtr& request, bool checkParent)
+Allocatable::allocate(const AllocationRequestPtr& request, bool fromRelease)
 {
-    IceUtil::RecMutex::Lock sync(_allocateMutex);
     if(!_allocatable)
     {
 	throw NotAllocatableException("not allocatable");
     }
-    else if(_session == request->getSession())
-    {
-	if(request->finish(this, _session))
-	{
-	    ++_count;
-	    return true; // Allocated
-	}
-	return false;
-    }
 
-    if(_parent && checkParent)
+    try
     {
-	return _parent->allocate(new ParentAllocationRequest(request, this), true);
+	return allocate(request, false, fromRelease);
     }
-
-    if(_session)
+    catch(const AllocationException&)
     {
-	if(request->pending())
-	{
-	    _requests.push_back(request);
-	}
-    } 
-    else if(request->finish(this, _session) && allocated(request->getSession()))
-    {
-	assert(_count == 0);
-	_session = request->getSession();
-	++_count;
-	return true; // Allocated
+	return false; // The session was destroyed
     }
-    return false;
-}
-
-bool 
-Allocatable::tryAllocateWithSession(const SessionIPtr& session, const AllocatablePtr& child)
-{
-    IceUtil::RecMutex::Lock sync(_allocateMutex);
-    assert(_allocatable);
-    if(_session && _session != session)
-    {
-	//
-	// The allocatable is already allocated by another session.
-	//
-	// We keep track of the allocation attempt of a child. E.g.:
-	// if a session tries to allocate an object and it can't be
-	// allocated because the adapter is already allocated, we keep
-	// track of the object here. This will be used by release() to
-	// notify the object cache when the adapter is released that
-	// the object is potentially available.
-	//
-	_attempts.insert(child);
-	return false;
-    }
-    else if(_session == session)
-    {
-	//
-	// The allocatable is allocated by this session, we just 
-	// increment the allocation count and return a true to 
-	// indicate a successfull allocation.
-	//
-	++_count;
-	return true;
-    }
-
-    //
-    // This allocatable isn't allocated, so we now have to check if
-    // the parent is allocated or not. If the allocation of the parent
-    // is succsefull (returns "true"), we allocate this allocatable.
-    //
-    if(_parent && !_parent->tryAllocateWithSession(session, child))
-    {
-	return false;
-    }
-
-    if(allocated(session))
-    {
-	assert(_count == 0);
-	_session = session;
-	++_count;
-	return true; // Successfull allocation
-    }
-    return false;
-}
-
-bool 
-Allocatable::tryAllocate(const AllocationRequestPtr& request)
-{
-    IceUtil::RecMutex::Lock sync(_allocateMutex);
-    
-    //
-    // If not allocatable or already allocated, the allocation attempt
-    // fails.
-    //
-    if(!_allocatable || _session)
-    {
-	return false;
-    }
-    
-    //
-    // Try to allocate the parent. This should succeed if the parent 
-    // is not already allocated or if it's already allocated by the
-    // session.
-    //
-    if(_parent && !_parent->tryAllocateWithSession(request->getSession(), this))
-    {
-	return false;
-    }
-    
-    //
-    // The parent could be allocated, we allocate this allocatable.
-    // 
-    if(request->finish(this, _session) && allocated(request->getSession()))
-    {
-	assert(_count == 0);
-	_session = request->getSession();
-	++_count;
-	return true; // The allocatable was allocated.
-    }
-
-    //
-    // If we reach here, either the request was canceled or the session
-    // destroyed. If that's the case, we need to release the parent.
-    //
-    if(_parent)
-    {
-	set<AllocatablePtr> releasedAllocatables;
-	if(_parent->release(request->getSession(), false, releasedAllocatables))
-	{
-	    assert(releasedAllocatables.empty());
-	}
-    }
-
-    return true; // The request was canceled.
 }
 
 bool
-Allocatable::release(const SessionIPtr&)
+Allocatable::tryAllocate(const AllocationRequestPtr& request, bool fromRelease)
 {
-    assert(false);
-    return false;
+    if(!_allocatable)
+    {
+	return false;
+    }
+
+    return allocate(request, true, fromRelease);
 }
 
-bool
-Allocatable::release(const SessionIPtr& session, bool all, set<AllocatablePtr>& releasedAllocatables)
+void
+Allocatable::release(const SessionIPtr& session, bool fromRelease)
 {
-    IceUtil::RecMutex::Lock sync(_allocateMutex);
     if(!_allocatable)
     {
 	throw NotAllocatableException("not allocatable");
     }
-    else if(!_session || _session != session)
-    {
-	throw AllocationException("can't release object which is not allocated");
-    }
 
-    if(!all && --_count)
+    bool isReleased = false;
+    bool hasRequests = false;
     {
-	return false;
-    }
-    _session = 0;
-    _count = 0;
-
-    released(session); 
-
-    if(_parent)
-    {
-	assert(_requests.empty());
-	_parent->release(session, false, releasedAllocatables);
-    }
-    else
-    {
-	//
-	// Allocate the allocatable to another session.
-	//
-	while(!_requests.empty())
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_allocateMutex);
+	if(!fromRelease)
 	{
-	    AllocationRequestPtr request = _requests.front();
-	    _requests.pop_front();
-	    if(request->finish(this, _session) && allocated(request->getSession()))
+	    while(_releasing)
 	    {
-		_session = request->getSession();
-		++_count;
+		_allocateMutex.wait();
+	    }
+	}
+
+	if(!_session || _session != session)
+	{
+	    throw AllocationException("can't release object which is not allocated");
+	}
+	
+	if(--_count == 0)
+	{
+	    _session = 0;
+
+	    released(session);
+
+	    if(!_releasing)
+	    {
+		if(!_parent && !_requests.empty())
+		{
+		    _releasing = true; // Prevent new allocations.
+		    hasRequests = true;
+		}
+		
+		isReleased = true;
+	    }
+	}
+    }
+
+    if(_parent)
+    {
+	_parent->release(session, fromRelease);
+	return;
+    }
+
+    if(hasRequests)
+    {
+	while(true)
+	{
+	    AllocationRequestPtr request;
+	    AllocatablePtr allocatable = dequeueAllocationAttempt(request);
+	    if(!allocatable)
+	    {
+		IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_allocateMutex);
+		assert(_count == 0 && _requests.empty());
+		_releasing = false;
+		_allocateMutex.notifyAll();
+		return;
+	    }
+	    
+	    //
+	    // Try to allocate the allocatable with the request or if
+	    // there's no request, just notify the allocatable that it can
+	    // be allocated again.
+	    //
+	    if(request && allocatable->allocate(request, true) || !request && allocatable->canTryAllocate())
+	    {
+		IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_allocateMutex);
+		assert(_count);
 		
 		//
 		// Check if there's other requests from the session
 		// waiting to allocate this allocatable.
 		//
-		list<AllocationRequestPtr>::iterator p = _requests.begin();
+		list<pair<AllocatablePtr, AllocationRequestPtr> >::iterator p = _requests.begin();
 		while(p != _requests.end())
 		{
-		    if((*p)->getSession() == _session)
+		    if(p->second && p->second->getSession() == _session)
 		    {
-			if((*p)->finish(this, _session))
+			if(p->second->finish(this, _session))
 			{
 			    ++_count;
 			}
@@ -408,27 +288,22 @@ Allocatable::release(const SessionIPtr& session, bool all, set<AllocatablePtr>& 
 			++p;
 		    }
 		}
-		return false; // Not released yet! 
+		_releasing = false;
+		_allocateMutex.notifyAll();
+		return; // We're done, the allocatable is allocated again!
 	    }
 	}
     }
-
-    releasedAllocatables.insert(_attempts.begin(), _attempts.end());
-    _attempts.clear();
-    return true; // The allocatable is released.
-}
-
-bool
-Allocatable::isAllocated() const
-{
-    IceUtil::RecMutex::Lock sync(_allocateMutex);
-    return _session || _parent && _parent->isAllocated();
+    else if(isReleased)
+    {
+	canTryAllocate(); // Notify that this allocatable can be allocated.
+    }
 }
 
 SessionIPtr
 Allocatable::getSession() const
 {
-    IceUtil::RecMutex::Lock sync(_allocateMutex);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_allocateMutex);
     return _session;
 }
 
@@ -436,5 +311,139 @@ bool
 Allocatable::operator<(const Allocatable& r) const
 {
     return this < &r;
+}
+
+void
+Allocatable::queueAllocationAttempt(const AllocatablePtr& allocatable, 
+				    const AllocationRequestPtr& request, 
+				    bool tryAllocate)
+{
+    assert(!_parent);
+    if(!tryAllocate)
+    {
+	if(request->pending())
+	{
+	    _requests.push_back(make_pair(allocatable, request));
+	}
+    }
+    else
+    {
+	if(_attempts.insert(allocatable).second)
+	{
+	    _requests.push_back(make_pair(allocatable, AllocationRequestPtr()));
+	}
+    }    
+}
+
+AllocatablePtr
+Allocatable::dequeueAllocationAttempt(AllocationRequestPtr& request)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_allocateMutex);
+    if(_requests.empty())
+    {
+	return 0;
+    }
+
+    pair<AllocatablePtr, AllocationRequestPtr> alloc = _requests.front();
+    _requests.pop_front();
+    if(alloc.second)
+    {
+	request = alloc.second;
+    }
+    else
+    {
+	_attempts.erase(alloc.first);
+    }
+    return alloc.first;
+}
+
+bool
+Allocatable::allocate(const AllocationRequestPtr& request, bool tryAllocate, bool fromRelease)
+{
+    if(_parent && !_parent->allocateFromChild(request, this, tryAllocate, fromRelease))
+    {
+	return false;
+    }
+
+    try
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_allocateMutex);
+	if(!_session && (fromRelease || !_releasing))
+	{
+	    if(request->finish(this, _session))
+	    {
+		allocated(request->getSession()); // This might throw.
+		assert(_count == 0);
+		_session = request->getSession();
+		++_count;
+		return true; // Allocated
+	    }
+	}
+	else if(_session == request->getSession())
+	{
+	    if(!tryAllocate && request->finish(this, _session))
+	    {
+		assert(_count > 0);
+		++_count;
+		return true; // Allocated
+	    }
+	}
+	else
+	{
+	    queueAllocationAttempt(this, request, tryAllocate);
+	}
+    }
+    catch(const AllocationException& ex)
+    {
+	if(_parent)
+	{
+	    _parent->release(request->getSession(), fromRelease);
+	}
+	throw ex;
+    }
+    if(_parent)
+    {
+	_parent->release(request->getSession(), fromRelease);
+    }
+    return false;
+}
+
+bool
+Allocatable::allocateFromChild(const AllocationRequestPtr& request, 
+			       const AllocatablePtr& child, 
+			       bool tryAllocate,
+			       bool fromRelease)
+{
+    assert(_allocatable);
+
+    if(_parent && !_parent->allocateFromChild(request, child, tryAllocate, fromRelease))
+    {
+	return false;
+    }
+
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_allocateMutex);
+    if(!_session && (fromRelease || !_releasing) || _session == request->getSession())
+    {
+	if(!_session)
+	{
+	    try
+	    {
+		allocated(request->getSession());
+	    }
+	    catch(const AllocationException&)
+	    {
+		// Ignore
+	    }
+	}
+	_session = request->getSession();
+	++_count;
+	return true; // Allocated	    
+    }
+    else
+    {
+	queueAllocationAttempt(child, request, tryAllocate);
+    }
+
+    return false;
 }
 

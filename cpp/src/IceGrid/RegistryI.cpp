@@ -209,7 +209,7 @@ RegistryI::start(bool nowarn)
     ObjectPrx obj = serverAdapter->add(locatorRegistry, 
 				       stringToIdentity(instanceName + "/" + IceUtil::generateUUID()));
     LocatorRegistryPrx locatorRegistryPrx = LocatorRegistryPrx::uncheckedCast(obj);
-    ObjectPtr locator = new LocatorI(_communicator, _database, locatorRegistryPrx, 0); 
+    ObjectPtr locator = new LocatorI(_communicator, _database, locatorRegistryPrx); 
     Identity locatorId = stringToIdentity(instanceName + "/Locator");
     clientAdapter->add(locator, locatorId);
 

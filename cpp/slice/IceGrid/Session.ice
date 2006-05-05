@@ -10,7 +10,6 @@
 #ifndef ICE_GRID_SESSION_ICE
 #define ICE_GRID_SESSION_ICE
 
-#include <Ice/Locator.ice>
 #include <Glacier2/Session.ice>
 #include <IceGrid/Observer.ice>
 
@@ -49,13 +48,6 @@ interface Session extends Glacier2::Session
      *
      **/
     nonmutating int getTimeout();
-
-    /**
-     *
-     * Get the session locator.
-     *
-     **/
-    nonmutating Ice::Locator* getLocator();
 
     /**
      *

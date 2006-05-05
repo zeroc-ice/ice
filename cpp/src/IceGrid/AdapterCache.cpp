@@ -202,27 +202,13 @@ ServerAdapterEntry::ServerAdapterEntry(AdapterCache& cache,
 }
 
 vector<pair<string, AdapterPrx> >
-ServerAdapterEntry::getProxies(int& nReplicas, const SessionIPtr&)
+ServerAdapterEntry::getProxies(int& nReplicas)
 {
     vector<pair<string, AdapterPrx> > adapters;
     try
     {
 	nReplicas = 1;
-	//
-	// TODO: Remove this code if we really don't want to check the
-	// session for allocatable adapters.
-	//
-// 	if(allocatable())
-// 	{
-// 	    if(session == getSession())
-// 	    {
-// 		adapters.push_back(make_pair(_id, getProxy()));
-// 	    }
-// 	}
-// 	else
-// 	{
-	    adapters.push_back(make_pair(_id, getProxy()));
-//	}
+	adapters.push_back(make_pair(_id, getProxy()));
     }
     catch(const NodeUnreachableException&)
     {
@@ -292,7 +278,7 @@ ServerAdapterEntry::getServer() const
     return _server;
 }
 
-bool
+void
 ServerAdapterEntry::allocated(const SessionIPtr& session)
 {
     TraceLevelsPtr traceLevels = _cache.getTraceLevels();
@@ -301,7 +287,6 @@ ServerAdapterEntry::allocated(const SessionIPtr& session)
 	Ice::Trace out(traceLevels->logger, traceLevels->adapterCat);
 	out << "adapter `" << _id << "' allocated by `" << session->getUserId() << "' (" << _count << ")";
     }    
-    return true;
 }
 
 void
@@ -384,7 +369,7 @@ ReplicaGroupEntry::update(const LoadBalancingPolicyPtr& policy)
 }
 
 vector<pair<string, AdapterPrx> >
-ReplicaGroupEntry::getProxies(int& nReplicas, const SessionIPtr& session)
+ReplicaGroupEntry::getProxies(int& nReplicas)
 {
     ReplicaSeq replicas;
     bool adaptive = false;
@@ -448,17 +433,7 @@ ReplicaGroupEntry::getProxies(int& nReplicas, const SessionIPtr& session)
     {
 	try
 	{
-	    if(p->second->allocatable())
-	    {
-		if(session == p->second->getSession())
-		{
-		    adapters.push_back(make_pair(p->first, p->second->getProxy()));
-		}
-	    }
-	    else
-	    {
-		adapters.push_back(make_pair(p->first, p->second->getProxy()));
-	    }
+	    adapters.push_back(make_pair(p->first, p->second->getProxy()));
 	}
 	catch(AdapterNotExistException&)
 	{

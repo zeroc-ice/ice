@@ -150,35 +150,6 @@ private:
     const Ice::ObjectPrx _obj;
 };
 
-class GetObjectProxy : public ObjectAllocationRequest
-{
-public:
-
-    GetObjectProxy(const SessionIPtr& session, const Ice::AMD_Locator_findObjectByIdPtr& cb) :
-	ObjectAllocationRequest(session), _cb(cb)
-    {
-    }
-
-    virtual void
-    response(const Ice::ObjectPrx& proxy)
-    {
-	assert(_cb);
-	_cb->ice_response(proxy);
-	_cb = 0;
-    }
-
-    virtual void
-    exception(const AllocationException& ex)
-    {
-	assert(_cb);
-	_cb->ice_response(0);
-	_cb = 0;
-    }
-
-private:
-
-    Ice::AMD_Locator_findObjectByIdPtr _cb;
-};
 }
 
 LocatorI::Request::Request(const Ice::AMD_Locator_findAdapterByIdPtr& amdCB, 
@@ -313,12 +284,10 @@ LocatorI::Request::sendResponse()
 
 LocatorI::LocatorI(const Ice::CommunicatorPtr& communicator, 
 		   const DatabasePtr& database, 
-		   const Ice::LocatorRegistryPrx& locatorRegistry,
-		   const SessionIPtr& session) :
+		   const Ice::LocatorRegistryPrx& locatorRegistry) :
     _communicator(communicator),
     _database(database),
-    _locatorRegistry(Ice::LocatorRegistryPrx::uncheckedCast(locatorRegistry->ice_collocationOptimization(false))),
-    _session(session)
+    _locatorRegistry(Ice::LocatorRegistryPrx::uncheckedCast(locatorRegistry->ice_collocationOptimization(false)))
 {
 }
 
@@ -334,32 +303,14 @@ LocatorI::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& cb,
     Ice::ObjectPrx proxy;
     try
     {
-	if(_session)
-	{
-	    try
-	    {
-		_database->allocateObject(id, new GetObjectProxy(_session, cb));
-		return;
-	    }
-	    catch(const NotAllocatableException&)
-	    {
-	    }
-	}
-	proxy = _database->getObjectProxy(id, _session);
+	proxy = _database->getObjectProxy(id);
     }
     catch(const ObjectNotRegisteredException&)
     {
 	throw Ice::ObjectNotFoundException();
     }
 
-    //
-    // If the proxy is 0, this means that the object is allocatable.
-    //
-    if(!proxy)
-    {
-	cb->ice_response(0);
-	return;
-    }
+    assert(proxy);
 
     //
     // OPTIMIZATION: If the object is registered with an adapter id,
@@ -391,7 +342,7 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
     try
     {
 	int count;
-	vector<pair<string, AdapterPrx> > adapters = _database->getAdapters(id, count, _session);
+	vector<pair<string, AdapterPrx> > adapters = _database->getAdapters(id, count);
 	if(adapters.empty())
 	{
 	    cb->ice_response(0);

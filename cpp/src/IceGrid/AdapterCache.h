@@ -35,7 +35,7 @@ public:
     
     AdapterEntry(AdapterCache&, const std::string&);
 
-    virtual std::vector<std::pair<std::string, AdapterPrx> > getProxies(int&, const SessionIPtr&) = 0;
+    virtual std::vector<std::pair<std::string, AdapterPrx> > getProxies(int&) = 0;
     virtual float getLeastLoadedNodeLoad(LoadSample) const = 0;
     virtual std::string getApplication() const = 0;
     virtual AdapterInfoSeq getAdapterInfo() const = 0;
@@ -55,7 +55,7 @@ public:
 
     ServerAdapterEntry(AdapterCache&, const std::string&, const std::string&, bool, const ServerEntryPtr&);
 
-    virtual std::vector<std::pair<std::string, AdapterPrx> > getProxies(int&, const SessionIPtr&);
+    virtual std::vector<std::pair<std::string, AdapterPrx> > getProxies(int&);
     virtual float getLeastLoadedNodeLoad(LoadSample) const;
     virtual std::string getApplication() const;
     virtual AdapterInfoSeq getAdapterInfo() const;
@@ -63,7 +63,7 @@ public:
 
     AdapterPrx getProxy(const std::string& = std::string()) const;
 
-    virtual bool allocated(const SessionIPtr&);
+    virtual void allocated(const SessionIPtr&);
     virtual void released(const SessionIPtr&);
 
 private:
@@ -81,7 +81,7 @@ public:
 
     ReplicaGroupEntry(AdapterCache&, const std::string&, const std::string&, const LoadBalancingPolicyPtr&);
 
-    virtual std::vector<std::pair<std::string, AdapterPrx> > getProxies(int&, const SessionIPtr&);
+    virtual std::vector<std::pair<std::string, AdapterPrx> > getProxies(int&);
     virtual float getLeastLoadedNodeLoad(LoadSample) const;
     virtual std::string getApplication() const;
     virtual AdapterInfoSeq getAdapterInfo() const;

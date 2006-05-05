@@ -31,17 +31,17 @@ class ObjectEntry : public Allocatable
 public:
     
     ObjectEntry(ObjectCache&, const ObjectInfo&, const std::string&, bool, const AllocatablePtr&);
-    Ice::ObjectPrx getProxy(const SessionIPtr&) const;
+    Ice::ObjectPrx getProxy() const;
     std::string getType() const;
     std::string getApplication() const;
     const ObjectInfo& getObjectInfo() const;
 
     bool canRemove();
 
-    virtual bool release(const SessionIPtr&);
-    virtual bool allocated(const SessionIPtr&);
+    virtual void allocated(const SessionIPtr&);
     virtual void released(const SessionIPtr&);
-    
+    virtual bool canTryAllocate();
+
 private:
 
     ObjectCache& _cache;
@@ -88,7 +88,7 @@ public:
 
     void allocateByType(const std::string&, const ObjectAllocationRequestPtr&);
     void allocateByTypeOnLeastLoadedNode(const std::string&, const ObjectAllocationRequestPtr&, LoadSample);
-    void released(const ObjectEntryPtr&);
+    bool canTryAllocate(const ObjectEntryPtr&);
 
     Ice::ObjectProxySeq getObjectsByType(const std::string&); 
     ObjectInfoSeq getAll(const std::string&);
@@ -107,7 +107,7 @@ private:
 	bool remove(const Ice::ObjectPrx&);
 	
 	void addAllocationRequest(const ObjectAllocationRequestPtr&);
-	void released(const ObjectEntryPtr&);
+	bool canTryAllocate(const ObjectEntryPtr&);
 
 	const Ice::ObjectProxySeq& getObjects() const { return _objects; }
 

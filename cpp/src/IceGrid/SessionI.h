@@ -11,7 +11,7 @@
 #define ICEGRID_SESSIONI_H
 
 #include <IceUtil/Mutex.h>
-
+#include <Ice/Locator.h>
 #include <IceGrid/Session.h>
 #include <IceGrid/ReapThread.h>
 
@@ -60,7 +60,6 @@ public:
 
     virtual void keepAlive(const Ice::Current&);
     virtual int getTimeout(const Ice::Current&) const;
-    virtual Ice::LocatorPrx getLocator(const Ice::Current&) const;
     virtual void allocateObjectById_async(const AMD_Session_allocateObjectByIdPtr&, const Ice::Identity&,
 					  const Ice::Current&);
     virtual void allocateObjectByType_async(const AMD_Session_allocateObjectByTypePtr&, const std::string&,
@@ -90,8 +89,6 @@ protected:
     const TraceLevelsPtr _traceLevels;
     const DatabasePtr _database;
     const WaitQueuePtr _waitQueue;
-    IceGrid::QueryPrx _query;
-    Ice::LocatorPrx _locator;
     bool _destroyed;
     IceUtil::Time _timestamp;
     int _allocationTimeout;

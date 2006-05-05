@@ -70,19 +70,39 @@ ObjectCache::TypeEntry::addAllocationRequest(const ObjectAllocationRequestPtr& r
     }
 }
 
-void
-ObjectCache::TypeEntry::released(const ObjectEntryPtr& entry)
+bool
+ObjectCache::TypeEntry::canTryAllocate(const ObjectEntryPtr& entry)
 {
     //
     // No mutex protection here, this is called with the cache locked.
     //
-    while(!_requests.empty() && !entry->isAllocated())
+    list<ObjectAllocationRequestPtr>::iterator p = _requests.begin();
+    while(p != _requests.end())
     {
-	if(entry->tryAllocate(_requests.front()))
+	AllocationRequestPtr request = *p;
+	try
 	{
-	    _requests.pop_front();
+	    if(request->isCanceled()) // If the request has been canceled, we just remove it.
+	    {
+		p = _requests.erase(p);
+	    }
+	    else if(entry->tryAllocate(request, true))
+	    {
+		p = _requests.erase(p);
+		return true; // The request successfully allocated the entry!
+	    }
+	    else if(entry->getSession()) // If entry is allocated, we're done
+	    {
+		return false;
+	    }
+	    ++p;
+	}
+	catch(const AllocationException&)
+	{
+	    p = _requests.erase(p);
 	}
     }
+    return false;
 }
 
 ObjectCache::ObjectCache(AdapterCache& adapterCache) : 
@@ -163,19 +183,25 @@ ObjectCache::allocateByType(const string& type, const ObjectAllocationRequestPtr
 
     Ice::ObjectProxySeq objects = p->second.getObjects();
     random_shuffle(objects.begin(), objects.end(), _rand); // TODO: OPTIMIZE
-    for(Ice::ObjectProxySeq::const_iterator q = objects.begin(); q != objects.end(); ++q)
+    try
     {
-	//
-	// If tryAllocate() returns true, either the object was
-	// successfully allocated or the request canceled. In both
-	// cases, we're done!
-	//
-	if(getImpl((*q)->ice_getIdentity())->tryAllocate(request))
+	for(Ice::ObjectProxySeq::const_iterator q = objects.begin(); q != objects.end(); ++q)
 	{
-	    return;
+	    ObjectEntryPtr entry = getImpl((*q)->ice_getIdentity());
+	    if(entry->tryAllocate(request))
+	    {
+		return;
+	    }
 	}
     }
-    
+    catch(const AllocationException&)
+    {
+	return;
+    }
+
+    //
+    // TODO: XXX Only add the allocation request if there's allocatables for this type!!!
+    //
     p->second.addAllocationRequest(request);
 }
 
@@ -215,22 +241,28 @@ ObjectCache::allocateByTypeOnLeastLoadedNode(const string& type,
 
     for(vector<pair<Ice::ObjectPrx, float> >::const_iterator q = objsWLoad.begin(); q != objsWLoad.end(); ++q)
     {
-	//
-	// If tryAllocate() returns true, either the object was
-	// successfully allocated or the request canceled. In both
-	// cases, we're done!
-	//
-	if(getImpl(q->first->ice_getIdentity())->tryAllocate(request))
+	ObjectEntryPtr entry = getImpl(q->first->ice_getIdentity());
+	if(entry->allocatable())
 	{
-	    return;
+	    if(entry->tryAllocate(request))
+	    {
+		return;
+	    }
+	    else if(request->isCanceled())
+	    {
+		return;
+	    }
 	}
     }
     
+    //
+    // TODO: XXX Only add the allocation request if there's allocatables for this type!!!
+    //
     p->second.addAllocationRequest(request);
 }
 
-void
-ObjectCache::released(const ObjectEntryPtr& entry)
+bool
+ObjectCache::canTryAllocate(const ObjectEntryPtr& entry)
 {
     //
     // Notify the type entry that an object was released.
@@ -239,9 +271,9 @@ ObjectCache::released(const ObjectEntryPtr& entry)
     map<string, TypeEntry>::iterator p = _types.find(entry->getType());
     if(p == _types.end())
     {
-	return;
+	return false;
     }
-    p->second.released(entry);
+    return p->second.canTryAllocate(entry);
 }
 
 Ice::ObjectProxySeq
@@ -312,20 +344,9 @@ ObjectEntry::ObjectEntry(ObjectCache& cache,
 }
 
 Ice::ObjectPrx
-ObjectEntry::getProxy(const SessionIPtr&) const
+ObjectEntry::getProxy() const
 {
-    //
-    // TODO: Remove this code if we really don't want to check the
-    // session for allocatable objects.
-    //
-//     if(allocatable())
-//     {
-// 	return getSession() == session ? _info.proxy : Ice::ObjectPrx();
-//     }
-//     else
-//     {
     return _info.proxy;
-//     }
 }
 
 string
@@ -352,36 +373,7 @@ ObjectEntry::canRemove()
     return true;
 }
 
-bool
-ObjectEntry::release(const SessionIPtr& session)
-{
-    std::set<AllocatablePtr> releasedAllocatables;
-    if(Allocatable::release(session, true, releasedAllocatables))
-    {
-	//
-	// Notify the cache that this entry was released. Note that we
-	// don't use the released callback here. This could lead to
-	// deadlocks since released() is called with the allocation
-	// mutex locked.
-	//
-	_cache.released(this);
-
-	//
-	// Notify the cache that other entries were released. For
-	// example, if it's the adapter which was allocated, all its
-	// objects are potentially released.
-	//
-	std::set<AllocatablePtr>::const_iterator p;
-	for(p = releasedAllocatables.begin(); p != releasedAllocatables.end(); ++p)
-	{
-	    _cache.released(ObjectEntryPtr::dynamicCast(*p));
-	}
-	return true;
-    }
-    return false;
-}
-
-bool
+void
 ObjectEntry::allocated(const SessionIPtr& session)
 {
     //
@@ -390,7 +382,7 @@ ObjectEntry::allocated(const SessionIPtr& session)
     //
     if(!session->addAllocation(this))
     {
-	return false;
+	throw AllocationException("session destroyed");
     }
 
     TraceLevelsPtr traceLevels = _cache.getTraceLevels();
@@ -400,8 +392,6 @@ ObjectEntry::allocated(const SessionIPtr& session)
 	const Ice::Identity id = _info.proxy->ice_getIdentity();
 	out << "object `" << id << "' allocated by `" << session->getUserId() << "' (" << _count << ")";
     }    
-
-    return true;
 }
 
 void
@@ -419,4 +409,10 @@ ObjectEntry::released(const SessionIPtr& session)
 	const Ice::Identity id = _info.proxy->ice_getIdentity();
 	out << "object `" << id << "' released by `" << session->getUserId() << "' (" << _count << ")";
     }    
+}
+
+bool
+ObjectEntry::canTryAllocate()
+{
+    return _cache.canTryAllocate(this);
 }

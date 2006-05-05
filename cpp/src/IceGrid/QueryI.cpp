@@ -10,8 +10,6 @@
 #include <IceGrid/Internal.h>
 #include <IceGrid/QueryI.h>
 #include <IceGrid/Database.h>
-#include <IceGrid/ObjectCache.h>
-#include <IceGrid/SessionI.h>
 
 using namespace std;
 using namespace Ice;
@@ -32,7 +30,7 @@ QueryI::findObjectById_async(const AMD_Query_findObjectByIdPtr& cb, const Ice::I
 {
     try
     {
-	cb->ice_response(_database->getObjectProxy(id, 0));
+	cb->ice_response(_database->getObjectProxy(id));
     }
     catch(const ObjectNotRegisteredException&)
     {

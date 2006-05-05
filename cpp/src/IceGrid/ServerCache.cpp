@@ -745,7 +745,7 @@ ServerEntry::canRemove()
 }
 
 
-bool
+void
 ServerEntry::allocated(const SessionIPtr& session)
 {
     TraceLevelsPtr traceLevels = _cache.getTraceLevels();
@@ -754,7 +754,6 @@ ServerEntry::allocated(const SessionIPtr& session)
 	Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
 	out << "server `" << _id << "' allocated by `" << session->getUserId() << "' (" << _count << ")";
     }
-    return true;
 }
 
 void

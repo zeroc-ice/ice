@@ -581,70 +581,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
     
 	cout << "ok" << endl;
 
-	cout << "testing object allocation with Ice::Locator... " << flush;
-    
-	session1->setAllocationTimeout(0);
-	session2->setAllocationTimeout(0);
-
-	communicator->stringToProxy("nonallocatable")->ice_ping();
-	try
-	{
-	    communicator->stringToProxy("allocatable")->ice_ping();
-	}
-	catch(const Ice::NoEndpointException& ex)
-	{
-	}
-
-	Ice::LocatorPrx locator1 = session1->getLocator();
-	Ice::LocatorPrx locator2 = session2->getLocator();    
-
-	communicator->stringToProxy("nonallocatable")->ice_locator(locator1)->ice_ping();
-	communicator->stringToProxy("nonallocatable")->ice_locator(locator2)->ice_ping();
-
-	Ice::ObjectPrx obj1 = communicator->stringToProxy("allocatable")->ice_locator(locator1);
-	Ice::ObjectPrx obj2 = communicator->stringToProxy("allocatable")->ice_locator(locator2);
-
-	obj1->ice_ping(); // Allocate the object
-	obj1->ice_locatorCacheTimeout(0)->ice_ping();
-	try
-	{
-	    obj2->ice_locatorCacheTimeout(0)->ice_ping();
-	    test(false);
-	}
-	catch(const Ice::NoEndpointException&)
-	{
-	}
-	try
-	{
-	    session2->releaseObject(obj2->ice_getIdentity());
-	}
-	catch(const AllocationException&)
-	{
-	}
-
-	session1->releaseObject(obj1->ice_getIdentity());
-	try
-	{
-	    session1->releaseObject(obj1->ice_getIdentity());
-	}
-	catch(const AllocationException&)
-	{
-	}
-
-	obj2->ice_ping(); // Allocate the object
-	obj2->ice_locatorCacheTimeout(0)->ice_ping();
-	try
-	{
-	    obj1->ice_locatorCacheTimeout(0)->ice_ping();
-	    test(false);
-	}
-	catch(const Ice::NoEndpointException&)
-	{
-	}
-	session2->releaseObject(obj2->ice_getIdentity());
-
-	cout << "ok" << endl;
-
 	cout << "testing object allocation timeout... " << flush;    
 
 	session1->allocateObjectById(allocatable);
@@ -1045,9 +981,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	session2->releaseObject(Ice::stringToIdentity("allocatable31"));
 	session2->releaseObject(Ice::stringToIdentity("allocatable41"));
 
-	obj1 = session1->allocateObjectByType("::TestMultipleServer");
+	Ice::ObjectPrx obj1 = session1->allocateObjectByType("::TestMultipleServer");
 	test(obj1);
-	obj2 = session2->allocateObjectByType("::TestMultipleServer");
+	Ice::ObjectPrx obj2 = session2->allocateObjectByType("::TestMultipleServer");
 	test(obj2);
 	try
 	{

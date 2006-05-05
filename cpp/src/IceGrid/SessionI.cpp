@@ -47,12 +47,6 @@ public:
 	_cb = 0;
     }
 
-    virtual bool
-    allocateOnce()
-    {
-	return true; // Only allow one allocation
-    }
-
 private:
 
     TPtr _cb;
@@ -110,12 +104,6 @@ SessionI::SessionI(const string& userId,
 	Ice::Trace out(_traceLevels->logger, _traceLevels->sessionCat);
 	out << _prefix << " session `" << _userId << "' created";
     }
-
-    //
-    // Register session based query and locator interfaces
-    //
-    Ice::CommunicatorPtr com = adapter->getCommunicator();
-    _locator = Ice::LocatorPrx::uncheckedCast(adapter->addWithUUID(new LocatorI(com, _database, registry, this)));
 }
 
 SessionI::~SessionI()
@@ -146,12 +134,6 @@ int
 SessionI::getTimeout(const Ice::Current&) const
 {
     return _timeout;
-}
-
-Ice::LocatorPrx
-SessionI::getLocator(const Ice::Current& current) const
-{
-    return _locator;
 }
 
 void
@@ -299,6 +281,9 @@ ClientSessionManagerI::ClientSessionManagerI(const DatabasePtr& database,
     _registry(registry),
     _timeout(timeout)
 {
+    //
+    // TODO: XXX: Remove _registry attribute
+    //
 }
 
 Glacier2::SessionPrx

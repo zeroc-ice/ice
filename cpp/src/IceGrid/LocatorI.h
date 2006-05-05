@@ -55,7 +55,7 @@ class LocatorI : public Ice::Locator, public IceUtil::Mutex
 
 public:
 
-    LocatorI(const Ice::CommunicatorPtr&, const DatabasePtr&, const Ice::LocatorRegistryPrx&, const SessionIPtr&);
+    LocatorI(const Ice::CommunicatorPtr&, const DatabasePtr&, const Ice::LocatorRegistryPrx&);
 
     virtual void findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr&, const Ice::Identity&, 
 				      const Ice::Current&) const;
@@ -76,7 +76,6 @@ protected:
     const Ice::CommunicatorPtr _communicator;
     const DatabasePtr _database;
     const Ice::LocatorRegistryPrx _locatorRegistry;
-    const SessionIPtr _session;
 
     typedef std::vector<RequestPtr> PendingRequests;
     typedef std::map<Ice::Identity, PendingRequests> PendingRequestsMap;

@@ -54,7 +54,7 @@ public:
     void destroyCallback();
     void exception(const Ice::Exception&);
 
-    virtual bool allocated(const SessionIPtr&);
+    virtual void allocated(const SessionIPtr&);
     virtual void released(const SessionIPtr&);
 
 private:
