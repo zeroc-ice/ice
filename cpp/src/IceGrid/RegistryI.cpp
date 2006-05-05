@@ -86,7 +86,7 @@ public:
 	    }
 	    _session->destroy(current);
 	}
-	catch(const Ice::ObjectNotExistException& ex)
+	catch(const Ice::ObjectNotExistException&)
 	{
 	}
 	catch(const Ice::LocalException& ex)

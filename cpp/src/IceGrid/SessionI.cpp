@@ -100,7 +100,7 @@ SessionReapable::destroy(bool destroy)
 	}
 	_session->destroy(current);
     }
-    catch(const Ice::ObjectNotExistException& ex)
+    catch(const Ice::ObjectNotExistException&)
     {
     }
     catch(const Ice::LocalException& ex)

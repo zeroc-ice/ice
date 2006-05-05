@@ -95,7 +95,10 @@ ObjectCache::TypeEntry::canTryAllocate(const ObjectEntryPtr& entry)
 	    {
 		return false;
 	    }
-	    ++p;
+	    else
+	    {
+		++p;
+	    }
 	}
 	catch(const AllocationException&)
 	{
