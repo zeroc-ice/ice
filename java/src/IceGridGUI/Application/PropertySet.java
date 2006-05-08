@@ -86,7 +86,7 @@ class PropertySet extends TreeNode
 	if(!_ephemeral)
 	{
 	    parent.removeDescriptor(_id);
-	    parent.getEditable().removeElement(_id, PropertySet.class);
+	    parent.getEditable().removeElement(_id, _editable, PropertySet.class);
 	    getRoot().updated();
 	}
     }

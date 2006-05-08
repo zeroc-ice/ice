@@ -25,7 +25,7 @@ class ServiceTemplate extends Communicator
 	TemplateDescriptor copy = (TemplateDescriptor)
 	    templateDescriptor.clone();
 
-	copy.descriptor = Service.copyDescriptor( 
+	copy.descriptor = PlainService.copyDescriptor( 
 	    (ServiceDescriptor)copy.descriptor);
 	
 	return copy;
@@ -140,7 +140,7 @@ class ServiceTemplate extends Communicator
 	    
 	    ServiceDescriptor descriptor = (ServiceDescriptor)_templateDescriptor.descriptor;
 
-	    writer.writeStartTag("service", Service.createAttributes(descriptor));
+	    writer.writeStartTag("service", PlainService.createAttributes(descriptor));
 
 	    if(descriptor.description.length() > 0)
 	    {
@@ -204,7 +204,7 @@ class ServiceTemplate extends Communicator
 	    getRoot().removeServiceInstances(_id);
 	    serviceTemplates.removeChild(this);
 	    serviceTemplates.getEditable().
-		removeElement(_id, ServiceTemplate.class);
+		removeElement(_id, _editable, ServiceTemplate.class);
 	    getRoot().updated();
 	}
     }

@@ -114,7 +114,7 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
     //
     Utils.Resolver getDetailResolver()
     {
-	Service service = (Service)_target;
+	ServiceInstance service = (ServiceInstance)_target;
 	if(service.getCoordinator().substitute())
 	{
 	    return service.getResolver();
@@ -189,7 +189,7 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
     }
 
 
-    void show(Service service)
+    void show(ServiceInstance service)
     {
 	detectUpdates(false);
 	_target = service;
@@ -204,7 +204,7 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
 	ServiceInstanceDescriptor descriptor = 
 	    (ServiceInstanceDescriptor)service.getDescriptor();
 	Coordinator coordinator = service.getCoordinator();
-	boolean isEditable = service.isEditable() && !coordinator.substitute();
+	boolean isEditable = !coordinator.substitute();
 	
 	//
 	// Need to make control enabled before changing it
@@ -272,7 +272,7 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
 
     private void setParameterValuesField()
     {
-	Service service = (Service)_target;
+	ServiceInstance service = (ServiceInstance)_target;
 
 	final Utils.Resolver resolver = service.getCoordinator().substitute() ? 
 	    ((TreeNode)service.getParent()).getResolver() : null;

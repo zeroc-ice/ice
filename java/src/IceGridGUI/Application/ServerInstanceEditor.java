@@ -36,12 +36,13 @@ class ServerInstanceEditor extends AbstractServerEditor
 	
 	descriptor.template = t.getId();
 	descriptor.parameterValues = _parameterValuesMap;
-	((Server)_target).setServerDescriptor(
-	    (ServerDescriptor)((TemplateDescriptor)t.getDescriptor()).descriptor);
 
 	descriptor.propertySet.references = 
 	    (String[])_propertySetsList.toArray(new String[0]);
 	descriptor.propertySet.properties = _properties.getProperties();
+
+	((ServerInstance)_target).isIceBox(
+	    ((TemplateDescriptor)t.getDescriptor()).descriptor instanceof IceBoxDescriptor);
     }
     
     protected boolean isSimpleUpdate()
@@ -133,7 +134,7 @@ class ServerInstanceEditor extends AbstractServerEditor
 
     ServerInstanceDescriptor getDescriptor()
     {
-	return ((Server)_target).getInstanceDescriptor();
+	return (ServerInstanceDescriptor)_target.getDescriptor();
     }
 
     //
@@ -184,7 +185,7 @@ class ServerInstanceEditor extends AbstractServerEditor
 	builder.nextLine();
     }
 
-    void show(Server server)
+    void show(ServerInstance server)
     {
 	detectUpdates(false);
 	_target = server;

@@ -49,16 +49,19 @@ abstract class AbstractServerEditor extends Editor
 	    {
 		Node node = (Node)_target.getParent();
 		writeDescriptor();
-		ServerInstanceDescriptor instanceDescriptor =
-		    server.getInstanceDescriptor();
-		ServerDescriptor serverDescriptor = 
-		    server.getServerDescriptor();
-		
+
 		_target.destroy(); // just removes the child
-		
+
 		try
 		{
-		    node.tryAdd(instanceDescriptor, serverDescriptor, true);
+		    if(server instanceof PlainServer)
+		    {
+			node.tryAdd((ServerDescriptor)server.getDescriptor(), true);
+		    }
+		    else
+		    {
+			node.tryAdd((ServerInstanceDescriptor)server.getDescriptor(), true);
+		    }
 		}
 		catch(UpdateFailedException e)
 		{
@@ -86,14 +89,8 @@ abstract class AbstractServerEditor extends Editor
 		//
 		// Success
 		//
-		if(instanceDescriptor != null)
-		{
-		    _target = (Server)node.findChildWithDescriptor(instanceDescriptor);
-		}
-		else
-		{
-		    _target = (Server)node.findChildWithDescriptor(serverDescriptor);
-		}
+		_target = (TreeNode)node.findChildWithDescriptor(server.getDescriptor());
+		
 		root.updated();
 		root.setSelectedNode(_target);
 	    }
@@ -108,20 +105,22 @@ abstract class AbstractServerEditor extends Editor
 		//
 		// Save to be able to rollback
 		//
-		Object savedDescriptor = ((Communicator)_target).saveDescriptor();
+		Object savedDescriptor = server.saveDescriptor();
 		Node node = (Node)_target.getParent();
 		writeDescriptor();
-		
-		ServerInstanceDescriptor instanceDescriptor =
-		    server.getInstanceDescriptor();
-		ServerDescriptor serverDescriptor = 
-		    server.getServerDescriptor();
 		
 		node.removeServer(_target);
 		
 		try
 		{
-		    node.tryAdd(instanceDescriptor, serverDescriptor, false);
+		    if(server instanceof PlainServer)
+		    {
+			node.tryAdd((ServerDescriptor)server.getDescriptor(), false);
+		    }
+		    else
+		    {
+			node.tryAdd((ServerInstanceDescriptor)server.getDescriptor(), false);
+		    }
 		}
 		catch(UpdateFailedException e)
 		{
@@ -136,7 +135,7 @@ abstract class AbstractServerEditor extends Editor
 		    {
 			assert false;
 		    }
-		    ((Communicator)_target).restoreDescriptor(savedDescriptor);
+		    server.restoreDescriptor(savedDescriptor);
 		    root.setSelectedNode(_target);
 		    
 		    JOptionPane.showMessageDialog(
@@ -150,17 +149,10 @@ abstract class AbstractServerEditor extends Editor
 		//
 		// Success
 		//
-		node.getEditable().removeElement(_target.getId(), 
+		node.getEditable().removeElement(_target.getId(), server.getEditable(), 
 						 Server.class); // replaced by brand new Server
 		
-		if(instanceDescriptor != null)
-		{
-		    _target = node.findChildWithDescriptor(instanceDescriptor);
-		}
-		else
-		{
-		    _target = node.findChildWithDescriptor(serverDescriptor);
-		}
+		_target = node.findChildWithDescriptor(server.getDescriptor());
 		root.updated();
 		root.setSelectedNode(_target);
 	    }

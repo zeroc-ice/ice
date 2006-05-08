@@ -85,7 +85,7 @@ class ReplicaGroup extends TreeNode
 	{
 	    replicaGroups.removeDescriptor(_descriptor);
 	    replicaGroups.getEditable().
-		removeElement(_id, ReplicaGroup.class);
+		removeElement(_id, _editable, ReplicaGroup.class);
 	    getRoot().updated();
 	}
     }

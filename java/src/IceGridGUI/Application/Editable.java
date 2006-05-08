@@ -42,15 +42,18 @@ class Editable implements Cloneable
 	_isNew = true;
     }
 
-    void removeElement(String id, Class forClass)
+    void removeElement(String id, Editable editable, Class forClass)
     {
-	java.util.TreeSet set = (java.util.TreeSet)_removedElements.get(forClass);
-	if(set == null)
+	if(!editable.isNew())
 	{
-	    set = new java.util.TreeSet();
-	    _removedElements.put(forClass, set);
+	    java.util.TreeSet set = (java.util.TreeSet)_removedElements.get(forClass);
+	    if(set == null)
+	    {
+		set = new java.util.TreeSet();
+		_removedElements.put(forClass, set);
+	    }
+	    set.add(id);
 	}
-	set.add(id);
     }
     
     String[] removedElements(Class forClass)

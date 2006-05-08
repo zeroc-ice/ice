@@ -34,7 +34,7 @@ class ServerTemplate extends Communicator
 	TemplateDescriptor copy = (TemplateDescriptor)
 	    templateDescriptor.clone();
 
-	copy.descriptor = Server.copyDescriptor(
+	copy.descriptor = PlainServer.copyDescriptor(
 	    (ServerDescriptor)copy.descriptor);
 	return copy;
     }
@@ -161,7 +161,7 @@ class ServerTemplate extends Communicator
 	    getRoot().removeServerInstances(_id);
 	    serverTemplates.removeChild(this);
 	    serverTemplates.getEditable().
-		removeElement(_id, ServerTemplate.class);
+		removeElement(_id, _editable, ServerTemplate.class);
 	    getRoot().updated();
 	}
     }
@@ -200,8 +200,8 @@ class ServerTemplate extends Communicator
 	//
 	_templateDescriptor.parameters = clone.parameters;
 
-	Server.shallowRestore((ServerDescriptor)clone.descriptor,
-			      (ServerDescriptor)_templateDescriptor.descriptor);
+	PlainServer.shallowRestore((ServerDescriptor)clone.descriptor,
+				   (ServerDescriptor)_templateDescriptor.descriptor);
     }
 
      //
@@ -245,14 +245,14 @@ class ServerTemplate extends Communicator
 		IceBoxDescriptor descriptor = (IceBoxDescriptor)_templateDescriptor.descriptor;
 
 		writer.writeStartTag("icebox", 
-				     Server.createAttributes(descriptor));
+				     PlainServer.createAttributes(descriptor));
 
 		if(descriptor.description.length() > 0)
 		{
 		    writer.writeElement("description", descriptor.description);
 		}
-		Server.writeOptions(writer, descriptor.options);
-		Server.writeEnvs(writer, descriptor.envs);
+		PlainServer.writeOptions(writer, descriptor.options);
+		PlainServer.writeEnvs(writer, descriptor.envs);
 	
 		writePropertySet(writer, "", descriptor.propertySet);
 		writeDistribution(writer, descriptor.distrib);
@@ -266,14 +266,14 @@ class ServerTemplate extends Communicator
 		ServerDescriptor descriptor = (ServerDescriptor)_templateDescriptor.descriptor;
 
 		writer.writeStartTag("server", 
-				     Server.createAttributes(descriptor));
+				     PlainServer.createAttributes(descriptor));
 
 		if(descriptor.description.length() > 0)
 		{
 		    writer.writeElement("description", descriptor.description);
 		}
-		Server.writeOptions(writer, descriptor.options);
-		Server.writeEnvs(writer, descriptor.envs);
+		PlainServer.writeOptions(writer, descriptor.options);
+		PlainServer.writeEnvs(writer, descriptor.envs);
 		
 		writePropertySet(writer, "", descriptor.propertySet);
 		writeDistribution(writer, descriptor.distrib);

@@ -62,11 +62,7 @@ class DbEnv extends TreeNode implements DescriptorHolder
 	boolean[] parentActions = ((TreeNode)_parent).getAvailableActions();
 	
 	actions[PASTE] = parentActions[PASTE];
-
-	if(isEditable())
-	{
-	    actions[DELETE] = true;
-	}
+	actions[DELETE] = true;
 	
 	if(!_ephemeral)
 	{

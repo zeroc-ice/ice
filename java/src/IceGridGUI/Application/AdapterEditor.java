@@ -423,7 +423,7 @@ class AdapterEditor extends CommunicatorChildEditor
 	final Utils.Resolver resolver = adapter.getCoordinator().substitute() ?  
 	    adapter.getResolver() : null;
 
-	boolean isEditable = adapter.isEditable() && resolver == null;
+	boolean isEditable = resolver == null;
 	boolean inIceBox = adapter.inIceBox();
 	
 	_oldName = descriptor.name;

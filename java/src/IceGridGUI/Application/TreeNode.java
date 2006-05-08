@@ -61,19 +61,6 @@ public abstract class TreeNode extends TreeNodeBase
 	return (TreeNode)findChild(other.getId());
     }
 
-
-    boolean isEditable()
-    {
-	if(_parent == null)
-	{
-	    return true;
-	}
-	else
-	{
-	    return ((TreeNode)_parent).isEditable();
-	}
-    }
-
     //
     // Get variable-resolver
     //

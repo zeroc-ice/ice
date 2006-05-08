@@ -241,7 +241,7 @@ public class Root extends ListTreeNode
 		Server server = node.findServer(serverId);
 		if(server != null)
 		{
-		    target = server;
+		    target = (TreeNode)server;
 		}
 	    }
 	    setSelectedNode(target);

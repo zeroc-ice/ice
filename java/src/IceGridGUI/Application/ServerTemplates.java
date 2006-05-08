@@ -65,14 +65,14 @@ class ServerTemplates extends Templates
     public void newTemplateServer()
     {
 	newServerTemplate(new TemplateDescriptor(
-			      Server.newServerDescriptor(), 
+			      PlainServer.newServerDescriptor(), 
 			      new java.util.LinkedList(),
 			      new java.util.TreeMap()));
     }
     public void newTemplateServerIceBox()
     {
 	newServerTemplate(new TemplateDescriptor(
-			      Server.newIceBoxDescriptor(), 
+			      PlainServer.newIceBoxDescriptor(), 
 			      new java.util.LinkedList(),
 			      new java.util.TreeMap()));
     }
@@ -242,7 +242,7 @@ class ServerTemplates extends Templates
 	    java.util.Iterator q = serviceInstances.iterator();
 	    while(q.hasNext())
 	    {
-		Service service = (Service)q.next();
+		ServiceInstance service = (ServiceInstance)q.next();
 		ServerTemplate serverTemplate = 
 		    (ServerTemplate)service.getParent();
 		

@@ -135,7 +135,8 @@ class ReplicaGroupEditor extends Editor
 
 		// replaced by brand new ReplicaGroup
 		replicaGroups.getEditable().
-		    removeElement(replicaGroup.getId(), ReplicaGroup.class); 
+		    removeElement(replicaGroup.getId(), 
+				  replicaGroup.getEditable(), ReplicaGroup.class); 
 
 		_target = replicaGroups.findChildWithDescriptor(descriptor);
 		root.updated();

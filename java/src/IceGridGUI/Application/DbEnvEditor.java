@@ -125,7 +125,7 @@ class DbEnvEditor extends CommunicatorChildEditor
 	{
 	    resolver = dbEnv.getResolver();
 	}
-	boolean isEditable = dbEnv.isEditable() && resolver == null;
+	boolean isEditable = resolver == null;
 	
 	_name.setText(
 	    Utils.substitute(descriptor.name, resolver));
