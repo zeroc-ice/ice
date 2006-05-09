@@ -45,6 +45,8 @@ main(int, char**)
 	{
 	    string line;
 	    getline(is, line, '\n');
+	    test(isLegalUTF8Sequence(reinterpret_cast<const Byte*>(line.data()), 
+	    			     reinterpret_cast<const Byte*>(line.data() + line.size())));
 	    lineNumber++;
 	    wstring wline = stringToWstring(line);
 	    

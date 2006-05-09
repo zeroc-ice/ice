@@ -233,11 +233,25 @@ static Boolean isLegalUTF8(const UTF8 *source, int length) {
  * This is not used here; it's just exported.
  */
 Boolean isLegalUTF8Sequence(const UTF8 *source, const UTF8 *sourceEnd) {
-    int length = trailingBytesForUTF8[*source]+1;
-    if (source+length > sourceEnd) {
-	return false;
+    if(source == sourceEnd) {
+        return true;
     }
-    return isLegalUTF8(source, length);
+    while(true) {
+        int length = trailingBytesForUTF8[*source]+1;
+        // Is buffer big enough to contain character?
+        if (source+length > sourceEnd) {
+            return false;
+        }
+        // Is character legal UTF8?
+        if(!isLegalUTF8(source, length)) {
+            return false;
+        }
+        // Are we at end of buffer?
+        source += length;
+        if(source == sourceEnd) {
+            return true;
+        }
+    }
 }
 
 /* --------------------------------------------------------------------- */
