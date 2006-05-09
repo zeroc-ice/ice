@@ -91,7 +91,6 @@ public:
 
     void allocateObject(const Ice::Identity&, const ObjectAllocationRequestPtr&);
     void allocateObjectByType(const std::string&, const ObjectAllocationRequestPtr&);
-    void allocateObjectByTypeOnLeastLoadedNode(const std::string&, const ObjectAllocationRequestPtr&, LoadSample);
     void releaseObject(const Ice::Identity&, const SessionIPtr&);
 
     Ice::ObjectPrx getObjectProxy(const Ice::Identity&);

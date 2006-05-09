@@ -9,8 +9,10 @@
   	  <object identity="nonallocatable" type="::Test" allocatable="false"/>
   	  <object identity="allocatable" type="::Test" allocatable="true"/>
   	  <object identity="allocatablebis" type="::TestBis" allocatable="true"/>
+  	  <object identity="nonallocatable2" type="::NotAllocatable"/>
         </adapter>
       </server>
+
 
       <server id="AdapterAllocation" exe="${test.dir}/server" activation="on-demand" pwd=".">
         <adapter name="Server" endpoints="default" allocatable="true" id="AdapterAlloc">

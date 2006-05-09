@@ -325,7 +325,11 @@ ClientSessionManagerI::create(const string& userId, const Glacier2::SessionContr
     // care of reaping the session.
     //
     SessionIPtr session = new ClientSessionI(userId, _database, current.adapter, _waitQueue, _timeout);
-    return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session)); // TODO: XXX: category = userid?
+
+    //
+    // TODO: XXX: Update the Glacier2 allowable table to allow access to this object!
+    //
+    return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
 }
 
 SessionPrx

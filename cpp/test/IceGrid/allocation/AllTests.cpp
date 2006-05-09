@@ -494,6 +494,33 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	session1->setAllocationTimeout(0);
 	session2->setAllocationTimeout(0);
 
+
+	try
+	{
+	    obj = session1->allocateObjectByType("::Unknown");
+	    test(false);
+	}
+	catch(const AllocationTimeoutException&)
+	{
+	    test(false);
+	}
+	catch(const AllocationException&)
+	{
+	}
+
+	try
+	{
+	    obj = session1->allocateObjectByType("::NotAllocatable");
+	    test(false);
+	}
+	catch(const AllocationTimeoutException&)
+	{
+	    test(false);
+	}
+	catch(const AllocationException&)
+	{
+	}
+
 	obj = session1->allocateObjectByType("::Test");
 	test(obj && obj->ice_getIdentity().name == "allocatable");
 	try

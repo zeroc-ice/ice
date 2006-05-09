@@ -1014,13 +1014,6 @@ Database::allocateObjectByType(const string& type, const ObjectAllocationRequest
 }
 
 void
-Database::allocateObjectByTypeOnLeastLoadedNode(const string& type, const ObjectAllocationRequestPtr& request, 
-						LoadSample sample)
-{
-    _objectCache.allocateByTypeOnLeastLoadedNode(type, request, sample);
-}
-
-void
 Database::releaseObject(const Ice::Identity& id, const SessionIPtr& session)
 {
     _objectCache.get(id)->release(session);

@@ -87,7 +87,6 @@ public:
     ObjectEntryPtr remove(const Ice::Identity&);
 
     void allocateByType(const std::string&, const ObjectAllocationRequestPtr&);
-    void allocateByTypeOnLeastLoadedNode(const std::string&, const ObjectAllocationRequestPtr&, LoadSample);
     bool canTryAllocate(const ObjectEntryPtr&);
 
     Ice::ObjectProxySeq getObjectsByType(const std::string&); 
@@ -100,22 +99,22 @@ private:
     {
     public:
 
-	TypeEntry(ObjectCache&);
+	TypeEntry();
 
-
-	void add(const Ice::ObjectPrx&);
-	bool remove(const Ice::ObjectPrx&);
+	void add(const ObjectEntryPtr&);
+	bool remove(const ObjectEntryPtr&);
 	
 	void addAllocationRequest(const ObjectAllocationRequestPtr&);
 	bool canTryAllocate(const ObjectEntryPtr&);
 
-	const Ice::ObjectProxySeq& getObjects() const { return _objects; }
+	const std::vector<ObjectEntryPtr>& getObjects() const { return _objects; }
+	bool hasAllocatables() const;
 
     private:
 	
-	ObjectCache& _cache;
-	Ice::ObjectProxySeq _objects;
+	std::vector<ObjectEntryPtr> _objects;
 	std::list<ObjectAllocationRequestPtr> _requests;
+	int _allocatablesCount;
     };
 
     AdapterCache& _adapterCache;

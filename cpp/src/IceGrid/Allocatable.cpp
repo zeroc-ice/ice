@@ -152,12 +152,12 @@ AllocationRequest::AllocationRequest(const SessionIPtr& session) :
 }
 
 Allocatable::Allocatable(bool allocatable, const AllocatablePtr& parent) : 
-    _allocatable(allocatable || parent && parent->allocatable()),
-    _parent((parent && parent->allocatable()) ? parent : AllocatablePtr()),
+    _allocatable(allocatable || parent && parent->isAllocatable()),
+    _parent((parent && parent->isAllocatable()) ? parent : AllocatablePtr()),
     _count(0),
     _releasing(false)
 {
-    assert(!_parent || _parent->allocatable()); // Parent is only set if it's allocatable.
+    assert(!_parent || _parent->isAllocatable()); // Parent is only set if it's allocatable.
 }
 
 Allocatable::~Allocatable()

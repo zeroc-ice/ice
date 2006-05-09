@@ -248,7 +248,7 @@ ServerEntry::update(const ServerInfo& info)
     _adapters.clear();
     
     //
-    // TODO: XXX REVIEW
+    // Update the allocatable flag.
     //
     const_cast<bool&>(_allocatable) = info.descriptor->allocatable;
 }

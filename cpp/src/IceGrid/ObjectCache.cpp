@@ -23,6 +23,16 @@ pointer_to_unary_function<int, int> ObjectCache::_rand(IceUtil::random);
 namespace IceGrid
 {
 
+struct ObjectEntryCI : binary_function<ObjectEntryPtr&, ObjectEntryPtr&, bool>
+{
+
+    bool
+    operator()(const ObjectEntryPtr& lhs, const ObjectEntryPtr& rhs)
+    {
+	return ::Ice::proxyIdentityLess(lhs->getProxy(), rhs->getProxy());
+    }
+};
+
 struct ObjectLoadCI : binary_function<pair<Ice::ObjectPrx, float>&, pair<Ice::ObjectPrx, float>&, bool>
 {
     bool operator()(const pair<Ice::ObjectPrx, float>& lhs, const pair<Ice::ObjectPrx, float>& rhs)
@@ -33,27 +43,29 @@ struct ObjectLoadCI : binary_function<pair<Ice::ObjectPrx, float>&, pair<Ice::Ob
 
 };
 
-ObjectCache::TypeEntry::TypeEntry(ObjectCache& cache) : _cache(cache)
+ObjectCache::TypeEntry::TypeEntry() : _allocatablesCount(0)
 {
 }
 
 void
-ObjectCache::TypeEntry::add(const Ice::ObjectPrx& obj)
+ObjectCache::TypeEntry::add(const ObjectEntryPtr& obj)
 {
     //
     // No mutex protection here, this is called with the cache locked.
     //
-    _objects.insert(lower_bound(_objects.begin(), _objects.end(), obj, ::Ice::proxyIdentityLess), obj);
+    _objects.insert(lower_bound(_objects.begin(), _objects.end(), obj, ObjectEntryCI()), obj);
+    _allocatablesCount += obj->isAllocatable() ? 1 : 0;
 }
 
 bool
-ObjectCache::TypeEntry::remove(const Ice::ObjectPrx& obj)
+ObjectCache::TypeEntry::remove(const ObjectEntryPtr& obj)
 {
     //
     // No mutex protection here, this is called with the cache locked.
     //
-    Ice::ObjectProxySeq::iterator q = lower_bound(_objects.begin(), _objects.end(), obj, ::Ice::proxyIdentityLess);
-    assert((*q)->ice_getIdentity() == obj->ice_getIdentity());
+    _allocatablesCount -= obj->isAllocatable() ? 1 : 0;
+    vector<ObjectEntryPtr>::iterator q = lower_bound(_objects.begin(), _objects.end(), obj, ObjectEntryCI());
+    assert(q->get() == obj.get());
     _objects.erase(q);
     return _objects.empty();
 }
@@ -108,6 +120,12 @@ ObjectCache::TypeEntry::canTryAllocate(const ObjectEntryPtr& entry)
     return false;
 }
 
+bool
+ObjectCache::TypeEntry::hasAllocatables() const
+{
+    return _allocatablesCount;
+}
+
 ObjectCache::ObjectCache(AdapterCache& adapterCache) : 
     _adapterCache(adapterCache)
 {
@@ -127,9 +145,9 @@ ObjectCache::add(const ObjectInfo& info, const string& application, bool allocat
     map<string, TypeEntry>::iterator p = _types.find(entry->getType());
     if(p == _types.end())
     {
-	p = _types.insert(p, make_pair(entry->getType(), TypeEntry(*this)));
+	p = _types.insert(p, make_pair(entry->getType(), TypeEntry()));
     }
-    p->second.add(info.proxy);
+    p->second.add(entry);
 
     if(_traceLevels && _traceLevels->object > 0)
     {
@@ -159,7 +177,7 @@ ObjectCache::remove(const Ice::Identity& id)
 
     map<string, TypeEntry>::iterator p = _types.find(entry->getType());
     assert(p != _types.end());
-    if(p->second.remove(entry->getObjectInfo().proxy))
+    if(p->second.remove(entry))
     {	
 	_types.erase(p);
     }
@@ -178,20 +196,18 @@ ObjectCache::allocateByType(const string& type, const ObjectAllocationRequestPtr
 {
     Lock sync(*this);
     map<string, TypeEntry>::iterator p = _types.find(type);
-    if(p == _types.end())
+    if(p == _types.end() || !p->second.hasAllocatables())
     {
-	request->response(0);
-	return;
+	throw AllocationException("no allocatable objects with type `" + type + "' registered");
     }
 
-    Ice::ObjectProxySeq objects = p->second.getObjects();
+    vector<ObjectEntryPtr> objects = p->second.getObjects();
     random_shuffle(objects.begin(), objects.end(), _rand); // TODO: OPTIMIZE
     try
     {
-	for(Ice::ObjectProxySeq::const_iterator q = objects.begin(); q != objects.end(); ++q)
+	for(vector<ObjectEntryPtr>::const_iterator q = objects.begin(); q != objects.end(); ++q)
 	{
-	    ObjectEntryPtr entry = getImpl((*q)->ice_getIdentity());
-	    if(entry->tryAllocate(request))
+	    if((*q)->tryAllocate(request))
 	    {
 		return;
 	    }
@@ -202,65 +218,6 @@ ObjectCache::allocateByType(const string& type, const ObjectAllocationRequestPtr
 	return;
     }
 
-    //
-    // TODO: XXX Only add the allocation request if there's allocatables for this type!!!
-    //
-    p->second.addAllocationRequest(request);
-}
-
-void
-ObjectCache::allocateByTypeOnLeastLoadedNode(const string& type, 
-					     const ObjectAllocationRequestPtr& request, 
-					     LoadSample sample)
-{
-    Lock sync(*this);
-    map<string, TypeEntry>::iterator p = _types.find(type);
-    if(p == _types.end())
-    {
-	request->response(0);
-	return;
-    }
-
-    Ice::ObjectProxySeq objects = p->second.getObjects();
-    random_shuffle(objects.begin(), objects.end(), _rand); // TODO: OPTIMIZE
-    vector<pair<Ice::ObjectPrx, float> > objsWLoad;
-    objsWLoad.reserve(objects.size());
-    for(Ice::ObjectProxySeq::const_iterator o = objects.begin(); o != objects.end(); ++o)
-    {
-	float load = 1.0f;
-	if(!(*o)->ice_getAdapterId().empty())
-	{
-	    try
-	    {
-		load = _adapterCache.get((*o)->ice_getAdapterId())->getLeastLoadedNodeLoad(sample);
-	    }
-	    catch(const AdapterNotExistException&)
-	    {
-	    }
-	}
-	objsWLoad.push_back(make_pair(*o, load));
-    }
-    sort(objsWLoad.begin(), objsWLoad.end(), ObjectLoadCI());
-
-    for(vector<pair<Ice::ObjectPrx, float> >::const_iterator q = objsWLoad.begin(); q != objsWLoad.end(); ++q)
-    {
-	ObjectEntryPtr entry = getImpl(q->first->ice_getIdentity());
-	if(entry->allocatable())
-	{
-	    if(entry->tryAllocate(request))
-	    {
-		return;
-	    }
-	    else if(request->isCanceled())
-	    {
-		return;
-	    }
-	}
-    }
-    
-    //
-    // TODO: XXX Only add the allocation request if there's allocatables for this type!!!
-    //
     p->second.addAllocationRequest(request);
 }
 
@@ -289,13 +246,12 @@ ObjectCache::getObjectsByType(const string& type)
     {
 	return proxies;
     }
-    const Ice::ObjectProxySeq& objects = p->second.getObjects();
-    for(Ice::ObjectProxySeq::const_iterator q = objects.begin(); q != objects.end(); ++q)
+    const vector<ObjectEntryPtr>& objects = p->second.getObjects();
+    for(vector<ObjectEntryPtr>::const_iterator q = objects.begin(); q != objects.end(); ++q)
     {
-	ObjectEntryPtr entry = getImpl((*q)->ice_getIdentity());
-	if(!entry->allocatable()) // Only return non-allocatable objects.
+	if((*q)->isAllocatable()) // Only return non-allocatable objects.
 	{
-	    proxies.push_back(*q);
+	    proxies.push_back((*q)->getProxy());
 	}
     }
     return proxies;
@@ -326,10 +282,11 @@ ObjectCache::getAllByType(const string& type)
     {
 	return infos;
     }
-    const Ice::ObjectProxySeq& objects = p->second.getObjects();
-    for(Ice::ObjectProxySeq::const_iterator q = objects.begin(); q != objects.end(); ++q)
+
+    const vector<ObjectEntryPtr>& objects = p->second.getObjects();
+    for(vector<ObjectEntryPtr>::const_iterator q = objects.begin(); q != objects.end(); ++q)
     {
-	infos.push_back(getImpl((*q)->ice_getIdentity())->getObjectInfo());
+	infos.push_back((*q)->getObjectInfo());
     }
     return infos;
 }
