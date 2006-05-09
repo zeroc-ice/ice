@@ -242,6 +242,10 @@ SOURCE=.\Identity.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\IceE\IdentityUtil.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\IceE\Initialize.cpp
 # End Source File
 # Begin Source File
@@ -523,6 +527,10 @@ SOURCE=..\..\include\IceE\IceEUtil.h
 # Begin Source File
 
 SOURCE=..\..\include\IceE\Identity.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceE\IdentityUtil.h
 # End Source File
 # Begin Source File
 

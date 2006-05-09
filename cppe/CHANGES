@@ -2,8 +2,8 @@ Changes since version 1.1.0
 ---------------------------
 
 - Added identityToString and stringToIdentity to the Communicator
-  interface and removed the static functions from the Ice
-  namespace.
+  interface. If a string converter is configured these functions
+  must be used instead of the current static functions.
 
 - Added ability to configure user defined string and wstring
   converters that are used during marshalling/unmarshalling to

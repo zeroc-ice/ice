@@ -34,11 +34,11 @@ class ICE_API BasicStream : public Buffer
 {
 public:
 
-    class UTF8BufferI : public Ice::UTF8Buffer
+    class StreamUTF8BufferI : public Ice::UTF8Buffer
     {
     public:
 
-        UTF8BufferI(BasicStream& stream) :
+        StreamUTF8BufferI(BasicStream& stream) :
             _stream(stream)
         {
         }

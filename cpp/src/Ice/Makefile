@@ -46,6 +46,7 @@ OBJS		= Acceptor.o \
 		  GCRecMutex.o \
 		  GCShared.o \
 		  Identity.o \
+		  IdentityUtil.o \
 		  IncomingAsync.o \
 		  Incoming.o \
 		  Initialize.o \

@@ -1303,7 +1303,7 @@ IceInternal::BasicStream::writeConverted(const string& v)
     writeSize(guessedSize); // writeSize() only writes the size; it does not reserve any buffer space.
 
     size_t firstIndex = b.size();
-    UTF8BufferI buffer(*this);
+    StreamUTF8BufferI buffer(*this);
 
     Byte* lastByte = _stringConverter->toUTF8(v.data(), v.data() + v.size(), buffer);
     if(lastByte != b.end())
@@ -1404,7 +1404,7 @@ IceInternal::BasicStream::write(const wstring& v)
     writeSize(guessedSize); // writeSize() only writes the size; it does not reserve any buffer space.
 
     size_t firstIndex = b.size();
-    UTF8BufferI buffer(*this);
+    StreamUTF8BufferI buffer(*this);
 
     Byte* lastByte = _wstringConverter->toUTF8(v.data(), v.data() + v.size(), buffer);
     if(lastByte != b.end())

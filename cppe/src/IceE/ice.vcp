@@ -3875,6 +3875,109 @@ DEP_CPP_IDENT=\
 # End Source File
 # Begin Source File
 
+SOURCE=.\IdentityUtil.cpp
+
+!IF  "$(CFG)" == "ice - Win32 (WCE emulator) Release"
+
+DEP_CPP_IDENTI=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
+	"..\..\include\IceE\LocalException.h"\
+	"..\..\include\IceE\StringUtil.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE emulator) Debug"
+
+DEP_CPP_IDENTI=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
+	"..\..\include\IceE\LocalException.h"\
+	"..\..\include\IceE\StringUtil.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_IDENTI=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
+	"..\..\include\IceE\LocalException.h"\
+	"..\..\include\IceE\StringUtil.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_IDENTI=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
+	"..\..\include\IceE\LocalException.h"\
+	"..\..\include\IceE\StringUtil.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE ARMV4) Debug Static"
+
+DEP_CPP_IDENTI=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
+	"..\..\include\IceE\LocalException.h"\
+	"..\..\include\IceE\StringUtil.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE ARMV4) Release Static"
+
+DEP_CPP_IDENTI=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
+	"..\..\include\IceE\LocalException.h"\
+	"..\..\include\IceE\StringUtil.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE emulator) Debug Static"
+
+DEP_CPP_IDENTI=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
+	"..\..\include\IceE\LocalException.h"\
+	"..\..\include\IceE\StringUtil.h"\
+	
+
+!ELSEIF  "$(CFG)" == "ice - Win32 (WCE emulator) Release Static"
+
+DEP_CPP_IDENTI=\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
+	"..\..\include\IceE\LocalException.h"\
+	"..\..\include\IceE\StringUtil.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=.\Incoming.cpp
 
 !IF  "$(CFG)" == "ice - Win32 (WCE emulator) Release"
@@ -3894,6 +3997,7 @@ DEP_CPP_INCOM=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\Incoming.h"\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\InstanceF.h"\
@@ -3950,6 +4054,7 @@ DEP_CPP_INCOM=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\Incoming.h"\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\InstanceF.h"\
@@ -4006,6 +4111,7 @@ DEP_CPP_INCOM=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\Incoming.h"\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\InstanceF.h"\
@@ -4062,6 +4168,7 @@ DEP_CPP_INCOM=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\Incoming.h"\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\InstanceF.h"\
@@ -4118,6 +4225,7 @@ DEP_CPP_INCOM=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\Incoming.h"\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\InstanceF.h"\
@@ -4174,6 +4282,7 @@ DEP_CPP_INCOM=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\Incoming.h"\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\InstanceF.h"\
@@ -4230,6 +4339,7 @@ DEP_CPP_INCOM=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\Incoming.h"\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\InstanceF.h"\
@@ -4286,6 +4396,7 @@ DEP_CPP_INCOM=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\Incoming.h"\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\InstanceF.h"\
@@ -5368,6 +5479,7 @@ DEP_CPP_LOCAL=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\SafeStdio.h"\
 	".\Network.h"\
@@ -5380,6 +5492,7 @@ DEP_CPP_LOCAL=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\SafeStdio.h"\
 	".\Network.h"\
@@ -5392,6 +5505,7 @@ DEP_CPP_LOCAL=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\SafeStdio.h"\
 	".\Network.h"\
@@ -5404,6 +5518,7 @@ DEP_CPP_LOCAL=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\SafeStdio.h"\
 	".\Network.h"\
@@ -5416,6 +5531,7 @@ DEP_CPP_LOCAL=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\SafeStdio.h"\
 	".\Network.h"\
@@ -5428,6 +5544,7 @@ DEP_CPP_LOCAL=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\SafeStdio.h"\
 	".\Network.h"\
@@ -5440,6 +5557,7 @@ DEP_CPP_LOCAL=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\SafeStdio.h"\
 	".\Network.h"\
@@ -5452,6 +5570,7 @@ DEP_CPP_LOCAL=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\SafeStdio.h"\
 	".\Network.h"\
@@ -6067,6 +6186,7 @@ DEP_CPP_LOCATO=\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Functional.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\InstanceF.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\Lock.h"\
@@ -6107,6 +6227,7 @@ DEP_CPP_LOCATO=\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Functional.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\InstanceF.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\Lock.h"\
@@ -6147,6 +6268,7 @@ DEP_CPP_LOCATO=\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Functional.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\InstanceF.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\Lock.h"\
@@ -6187,6 +6309,7 @@ DEP_CPP_LOCATO=\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Functional.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\InstanceF.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\Lock.h"\
@@ -6227,6 +6350,7 @@ DEP_CPP_LOCATO=\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Functional.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\InstanceF.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\Lock.h"\
@@ -6267,6 +6391,7 @@ DEP_CPP_LOCATO=\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Functional.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\InstanceF.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\Lock.h"\
@@ -6307,6 +6432,7 @@ DEP_CPP_LOCATO=\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Functional.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\InstanceF.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\Lock.h"\
@@ -6347,6 +6473,7 @@ DEP_CPP_LOCATO=\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Functional.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\InstanceF.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\Lock.h"\
@@ -10041,6 +10168,7 @@ DEP_CPP_REFER=\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Functional.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\Incoming.h"\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\InstanceF.h"\
@@ -10099,6 +10227,7 @@ DEP_CPP_REFER=\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Functional.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\Incoming.h"\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\InstanceF.h"\
@@ -10157,6 +10286,7 @@ DEP_CPP_REFER=\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Functional.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\Incoming.h"\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\InstanceF.h"\
@@ -10215,6 +10345,7 @@ DEP_CPP_REFER=\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Functional.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\Incoming.h"\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\InstanceF.h"\
@@ -10273,6 +10404,7 @@ DEP_CPP_REFER=\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Functional.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\Incoming.h"\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\InstanceF.h"\
@@ -10331,6 +10463,7 @@ DEP_CPP_REFER=\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Functional.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\Incoming.h"\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\InstanceF.h"\
@@ -10389,6 +10522,7 @@ DEP_CPP_REFER=\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Functional.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\Incoming.h"\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\InstanceF.h"\
@@ -10447,6 +10581,7 @@ DEP_CPP_REFER=\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Functional.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\Incoming.h"\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\InstanceF.h"\
@@ -10508,6 +10643,7 @@ DEP_CPP_REFERE=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\InstanceF.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\Lock.h"\
@@ -10555,6 +10691,7 @@ DEP_CPP_REFERE=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\InstanceF.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\Lock.h"\
@@ -10602,6 +10739,7 @@ DEP_CPP_REFERE=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\InstanceF.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\Lock.h"\
@@ -10649,6 +10787,7 @@ DEP_CPP_REFERE=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\InstanceF.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\Lock.h"\
@@ -10696,6 +10835,7 @@ DEP_CPP_REFERE=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\InstanceF.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\Lock.h"\
@@ -10743,6 +10883,7 @@ DEP_CPP_REFERE=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\InstanceF.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\Lock.h"\
@@ -10790,6 +10931,7 @@ DEP_CPP_REFERE=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\InstanceF.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\Lock.h"\
@@ -10837,6 +10979,7 @@ DEP_CPP_REFERE=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\InstanceF.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\Lock.h"\
@@ -11836,6 +11979,7 @@ DEP_CPP_SERVA=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\InstanceF.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\Lock.h"\
@@ -11865,6 +12009,7 @@ DEP_CPP_SERVA=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\InstanceF.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\Lock.h"\
@@ -11894,6 +12039,7 @@ DEP_CPP_SERVA=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\InstanceF.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\Lock.h"\
@@ -11923,6 +12069,7 @@ DEP_CPP_SERVA=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\InstanceF.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\Lock.h"\
@@ -11952,6 +12099,7 @@ DEP_CPP_SERVA=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\InstanceF.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\Lock.h"\
@@ -11981,6 +12129,7 @@ DEP_CPP_SERVA=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\InstanceF.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\Lock.h"\
@@ -12010,6 +12159,7 @@ DEP_CPP_SERVA=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\InstanceF.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\Lock.h"\
@@ -12039,6 +12189,7 @@ DEP_CPP_SERVA=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\InstanceF.h"\
 	"..\..\include\IceE\LocalException.h"\
 	"..\..\include\IceE\Lock.h"\
@@ -13437,6 +13588,7 @@ DEP_CPP_TRACEU=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\Lock.h"\
 	"..\..\include\IceE\Mutex.h"\
 	"..\..\include\IceE\OperationMode.h"\
@@ -13463,6 +13615,7 @@ DEP_CPP_TRACEU=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\Lock.h"\
 	"..\..\include\IceE\Mutex.h"\
 	"..\..\include\IceE\OperationMode.h"\
@@ -13489,6 +13642,7 @@ DEP_CPP_TRACEU=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\Lock.h"\
 	"..\..\include\IceE\Mutex.h"\
 	"..\..\include\IceE\OperationMode.h"\
@@ -13515,6 +13669,7 @@ DEP_CPP_TRACEU=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\Lock.h"\
 	"..\..\include\IceE\Mutex.h"\
 	"..\..\include\IceE\OperationMode.h"\
@@ -13541,6 +13696,7 @@ DEP_CPP_TRACEU=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\Lock.h"\
 	"..\..\include\IceE\Mutex.h"\
 	"..\..\include\IceE\OperationMode.h"\
@@ -13567,6 +13723,7 @@ DEP_CPP_TRACEU=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\Lock.h"\
 	"..\..\include\IceE\Mutex.h"\
 	"..\..\include\IceE\OperationMode.h"\
@@ -13593,6 +13750,7 @@ DEP_CPP_TRACEU=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\Lock.h"\
 	"..\..\include\IceE\Mutex.h"\
 	"..\..\include\IceE\OperationMode.h"\
@@ -13619,6 +13777,7 @@ DEP_CPP_TRACEU=\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
 	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\Lock.h"\
 	"..\..\include\IceE\Mutex.h"\
 	"..\..\include\IceE\OperationMode.h"\
@@ -14560,6 +14719,10 @@ SOURCE=..\..\include\IceUtil\IceUtil.h
 # Begin Source File
 
 SOURCE=..\..\include\IceE\Identity.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceE\IdentityUtil.h
 # End Source File
 # Begin Source File
 

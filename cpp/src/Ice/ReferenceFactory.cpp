@@ -140,7 +140,7 @@ IceInternal::ReferenceFactory::create(const string& str)
         return 0;
     }
 
-    const string delim = " \t\n\r";
+    const string delim = " \t\r\n";
 
     string s(str);
     string::size_type beg;

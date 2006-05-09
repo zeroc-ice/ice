@@ -406,12 +406,12 @@ IceInternal::Instance::identityToString(const Identity& ident) const
         UTF8BufferI buffer;
         Byte* last = _initData.stringConverter->toUTF8(ident.name.data(), ident.name.data() + ident.name.size(),
 						       buffer);
-        name = string(buffer.getBuffer(), last);
+        name = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
 
 	buffer.reset();
         last = _initData.stringConverter->toUTF8(ident.category.data(), ident.category.data() + ident.category.size(),
 						 buffer);
-        category = string(buffer.getBuffer(), last);
+        category = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
     }
 
     if(category.empty())
@@ -924,10 +924,8 @@ IceInternal::UTF8BufferI::getMoreBytes(size_t howMany, Byte* firstUnused)
     }
     else
     {
-        if(firstUnused != 0)
-        {
-            _offset = firstUnused - _buffer;
-        }
+    	assert(firstUnused != 0);
+        _offset = firstUnused - _buffer;
         _buffer = (Byte*)realloc(_buffer, _offset + howMany);
     }
 

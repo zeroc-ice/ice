@@ -35,6 +35,7 @@ ICE_OBJS	= BasicStream.o \
 		  ExceptionBase.o \
 		  FactoryTable.o \
 		  FactoryTableDef.o \
+		  IdentityUtil.o \
 		  Initialize.o \
 		  Instance.o \
 		  LocalException.o \

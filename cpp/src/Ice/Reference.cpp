@@ -188,7 +188,7 @@ IceInternal::Reference::toString() const
     // the identity string in quotes.
     //
     string id = _instance->identityToString(_identity);
-    if(id.find_first_of(" \t\n\r:@") != string::npos)
+    if(id.find_first_of(" :@") != string::npos)
     {
         s << '"' << id << '"';
     }
@@ -212,10 +212,10 @@ IceInternal::Reference::toString() const
             UTF8BufferI buffer;
             Byte* last = 
 	        _instance->initializationData().stringConverter->toUTF8(fs.data(), fs.data() + fs.size(), buffer);
-	    fs = string(buffer.getBuffer(), last);
+	    fs = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
         }
 	fs = IceUtil::escapeString(fs, "");
-	if(fs.find_first_of(" \t\n\r:@") != string::npos)
+	if(fs.find_first_of(" :@") != string::npos)
 	{
 	    s << '"' << fs << '"';
 	}
@@ -1439,10 +1439,10 @@ IceInternal::IndirectReference::toString() const
     {
         UTF8BufferI buffer;
         Byte* last = getInstance()->initializationData().stringConverter->toUTF8(a.data(), a.data() + a.size(), buffer);
-	a = string(buffer.getBuffer(), last);
+	a = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
     }
     a = IceUtil::escapeString(a, "");
-    if(a.find_first_of(" \t\n\r") != string::npos)
+    if(a.find_first_of(" ") != string::npos)
     {
 	result.append("\"");
 	result.append(a);
