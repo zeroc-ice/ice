@@ -41,6 +41,18 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
         return _instance.proxyFactory().proxyToString(proxy);
     }
 
+    public Ice.Identity
+    stringToIdentity(String s)
+    {
+        return Ice.Util.stringToIdentity(s);
+    }
+
+    public String
+    identityToString(Ice.Identity ident)
+    {
+        return Ice.Util.identityToString(ident);
+    }
+
     public ObjectAdapter
     createObjectAdapter(String name)
     {
