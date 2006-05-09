@@ -75,7 +75,7 @@ ObjectCache::TypeEntry::remove(const ObjectEntryPtr& obj)
 
     if(!_requests.empty() && !_allocatablesCount)
     {
-	for(vector<ObjectAllocationRequestPtr>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
+	for(list<ObjectAllocationRequestPtr>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
 	{
 	    (*p)->cancel(AllocationException("no allocatable objects with type `" + obj->getType() + "' registered"));
 	}

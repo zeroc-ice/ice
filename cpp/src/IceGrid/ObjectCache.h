@@ -105,7 +105,7 @@ private:
 	bool remove(const ObjectEntryPtr&);
 	
 	void addAllocationRequest(const ObjectAllocationRequestPtr&);
-	bool canTryAllocate(const ObjectEntryPtr&);
+	bool canTryAllocate(const ObjectEntryPtr&, bool);
 
 	const std::vector<ObjectEntryPtr>& getObjects() const { return _objects; }
 	bool hasAllocatables() const;
