@@ -263,7 +263,7 @@ ObjectCache::getObjectsByType(const string& type)
     const vector<ObjectEntryPtr>& objects = p->second.getObjects();
     for(vector<ObjectEntryPtr>::const_iterator q = objects.begin(); q != objects.end(); ++q)
     {
-	if((*q)->isAllocatable()) // Only return non-allocatable objects.
+	if(!(*q)->isAllocatable()) // Only return non-allocatable objects.
 	{
 	    proxies.push_back((*q)->getProxy());
 	}
