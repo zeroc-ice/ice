@@ -49,8 +49,8 @@ private:
 
     Ice::CommunicatorPtr _communicator;
     DatabasePtr _database;
-    ReapThreadPtr _reaper;
-    ReapThreadPtr _adminReaper;
+    ReapThreadPtr _nodeReaper;
+    ReapThreadPtr _clientReaper;
     WaitQueuePtr _waitQueue;
     int _nodeSessionTimeout;
 

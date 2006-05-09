@@ -201,14 +201,20 @@ RegistryI::start(bool nowarn)
     // Start the reaper thread.
     //
     _nodeSessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.NodeSessionTimeout", 10);
-    _reaper = new ReapThread(_nodeSessionTimeout);
-    _reaper->start();
+    _nodeReaper = new ReapThread(_nodeSessionTimeout);
+    _nodeReaper->start();
 
-    int adminSessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.AdminSessionTimeout", 10);
-    if(adminSessionTimeout != _nodeSessionTimeout)
+    //
+    // TODO: Deprecate AdminSessionTimeout?
+    //
+    int admSessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.AdminSessionTimeout", 10);
+    int sessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.SessionTimeout", admSessionTimeout);
+    ReapThreadPtr clientReaper = _nodeReaper;
+    if(sessionTimeout != _nodeSessionTimeout)
     {
-	_adminReaper = new ReapThread(adminSessionTimeout);
-	_adminReaper->start();
+	_clientReaper = new ReapThread(sessionTimeout);
+	_clientReaper->start();
+	clientReaper = _clientReaper;
     }
 
     //
@@ -271,10 +277,8 @@ RegistryI::start(bool nowarn)
     Identity queryId = stringToIdentity(instanceName + "/Query");
     clientAdapter->add(new QueryI(_communicator, _database), queryId);
 
-    ReapThreadPtr reaper = _adminReaper ? _adminReaper : _reaper; // TODO: XXX
-
     Identity sessionMgrId = stringToIdentity(instanceName + "/SessionManager");
-    ObjectPtr sessionMgr = new ClientSessionManagerI(_database, reaper, _waitQueue, adminSessionTimeout); // TODO: XXX
+    ObjectPtr sessionMgr = new ClientSessionManagerI(_database, clientReaper, _waitQueue, sessionTimeout);
     clientAdapter->add(sessionMgr, sessionMgrId);
 
     Identity adminId = stringToIdentity(instanceName + "/Admin");
@@ -282,7 +286,7 @@ RegistryI::start(bool nowarn)
 
     Identity admSessionMgrId = stringToIdentity(instanceName + "/AdminSessionManager");
     ObjectPtr admSessionMgr = 
-	new AdminSessionManagerI(*regTopic, *nodeTopic, _database, reaper, _waitQueue, adminSessionTimeout);
+	new AdminSessionManagerI(*regTopic, *nodeTopic, _database, clientReaper, _waitQueue, sessionTimeout);
     adminAdapter->add(admSessionMgr, admSessionMgrId);
 
     //
@@ -307,15 +311,15 @@ RegistryI::start(bool nowarn)
 void
 RegistryI::stop()
 {
-    _reaper->terminate();
-    _reaper->getThreadControl().join();
-    _reaper = 0;
+    _nodeReaper->terminate();
+    _nodeReaper->getThreadControl().join();
+    _nodeReaper = 0;
 
-    if(_adminReaper)
+    if(_clientReaper)
     {
-	_adminReaper->terminate();
-	_adminReaper->getThreadControl().join();
-	_adminReaper = 0;
+	_clientReaper->terminate();
+	_clientReaper->getThreadControl().join();
+	_clientReaper = 0;
     }
 
     _waitQueue->destroy();
@@ -335,7 +339,7 @@ RegistryI::registerNode(const std::string& name, const NodePrx& node, const Node
     NodePrx n = NodePrx::uncheckedCast(node->ice_timeout(_nodeSessionTimeout * 1000));
     NodeSessionIPtr session = new NodeSessionI(_database, name, n, info);
     NodeSessionPrx proxy = NodeSessionPrx::uncheckedCast(c.adapter->addWithUUID(session));
-    _reaper->add(new NodeSessionReapable(c.adapter, session, proxy));
+    _nodeReaper->add(new NodeSessionReapable(c.adapter, session, proxy));
     obs = _nodeObserver;
     return proxy;
 }

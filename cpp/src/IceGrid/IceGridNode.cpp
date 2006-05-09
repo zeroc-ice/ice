@@ -193,7 +193,6 @@ bool
 NodeService::start(int argc, char* argv[])
 {
     bool nowarn = false;
-    bool checkdb = false;
     string desc;
     vector<string> targets;
     for(int i = 1; i < argc; ++i)
@@ -228,9 +227,11 @@ NodeService::start(int argc, char* argv[])
                 targets.push_back(argv[i]);
             }
         }
-        else if(strcmp(argv[i], "--checkdb") == 0)
-        {
-	    checkdb = true;
+	else
+	{
+	    error("invalid option: `" + string(argv[i]) + "'");
+	    usage(argv[0]);
+	    return false;
 	}
     }
 
@@ -606,8 +607,7 @@ NodeService::usage(const string& appName)
 	"\n"
 	"--deploy DESCRIPTOR [TARGET1 [TARGET2 ...]]\n"
 	"                     Deploy descriptor in file DESCRIPTOR, with\n"
-	"                     optional targets.\n"
-        "--checkdb            Do a consistency check of the node database.";
+	"                     optional targets.\n";
 #ifdef _WIN32
     if(checkSystem())
     {

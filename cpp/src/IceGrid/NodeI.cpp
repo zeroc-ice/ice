@@ -530,7 +530,6 @@ NodeI::setSession(const NodeSessionPrx& session, const NodeObserverPrx& observer
     }
 }
 
-
 int
 NodeI::keepAlive()
 {
