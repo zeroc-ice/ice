@@ -591,8 +591,11 @@ NodeI::stop()
 	    _session->destroy();
 	    _session = 0;
 	}
-	catch(const Ice::LocalException&)
+	catch(const Ice::LocalException& ex)
 	{
+	    ostringstream os;
+	    os << "couldn't contact the IceGrid registry to destroy the node session:\n" << ex;
+	    _traceLevels->logger->warning(os.str());
 	}
     }
 }

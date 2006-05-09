@@ -121,6 +121,7 @@ private:
     RegistryIPtr _registry;
     NodeIPtr _node;
     KeepAliveThreadPtr _keepAliveThread;
+    Ice::ObjectAdapterPtr _adapter;
 };
 
 class CollocatedRegistry : public RegistryI
@@ -392,7 +393,7 @@ NodeService::start(int argc, char* argv[])
     //
     properties->setProperty("IceGrid.Node.RegisterProcess", "0");
     properties->setProperty("IceGrid.Node.AdapterId", "");
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("IceGrid.Node");
+    _adapter = communicator()->createObjectAdapter("IceGrid.Node");
 
     //
     // Create the wait queue.
@@ -406,9 +407,9 @@ NodeService::start(int argc, char* argv[])
     // evictors and object factories necessary to store these objects.
     //
     Identity id = communicator()->stringToIdentity(IceUtil::generateUUID());
-    NodePrx nodeProxy = NodePrx::uncheckedCast(adapter->createProxy(id));
-    _node = new NodeI(adapter, _activator, _waitQueue, traceLevels, nodeProxy, name);
-    adapter->add(_node, nodeProxy->ice_getIdentity());
+    NodePrx nodeProxy = NodePrx::uncheckedCast(_adapter->createProxy(id));
+    _node = new NodeI(_adapter, _activator, _waitQueue, traceLevels, nodeProxy, name);
+    _adapter->add(_node, nodeProxy->ice_getIdentity());
 
     //
     // Start the keep alive thread. By default we start the thread
@@ -426,7 +427,7 @@ NodeService::start(int argc, char* argv[])
     {
 	try
 	{
-	    ProcessPrx proxy = ProcessPrx::uncheckedCast(adapter->addWithUUID(new ProcessI(_activator)));
+	    ProcessPrx proxy = ProcessPrx::uncheckedCast(_adapter->addWithUUID(new ProcessI(_activator)));
 	    LocatorRegistryPrx locatorRegistry = communicator()->getDefaultLocator()->getRegistry();
 	    locatorRegistry->setServerProcessProxy(properties->getProperty("Ice.ServerId"), proxy);
 	}
@@ -446,7 +447,7 @@ NodeService::start(int argc, char* argv[])
     //
     // Activate the adapter.
     //
-    adapter->activate();
+    _adapter->activate();
 
     //
     // Deploy application if a descriptor is passed as a command-line option.
@@ -551,6 +552,31 @@ NodeService::stop()
 	_keepAliveThread = 0;
     }
 
+    _activator = 0;
+
+    //
+    // Deactivate the node object adapter.
+    //
+    try
+    {
+	_adapter->deactivate();
+	_adapter->waitForDeactivate();
+	_adapter = 0;
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	ostringstream ostr;
+	ostr << "unexpected exception while shutting down node:\n" << ex;
+	warning(ostr.str());
+    }
+
+    //
+    // Stop the node (this unregister the node session with the
+    // registry.)
+    //
+    _node->stop();
+    _node = 0;
+
     //
     // We can now safely shutdown the communicator.
     //
@@ -559,18 +585,15 @@ NodeService::stop()
         communicator()->shutdown();
         communicator()->waitForShutdown();
     }
-    catch(...)
+    catch(const Ice::LocalException& ex)
     {
-	assert(false);
+	ostringstream ostr;
+	ostr << "unexpected exception while shutting down node:\n" << ex;
+	warning(ostr.str());
     }
 
-    _activator = 0;
-
-    _node->stop();
-    _node = 0;
-
     //
-    // Shutdown the collocated registry.
+    // And shutdown the collocated registry.
     //
     if(_registry)
     {

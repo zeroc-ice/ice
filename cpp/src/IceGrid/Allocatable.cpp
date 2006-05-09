@@ -169,7 +169,7 @@ Allocatable::allocate(const AllocationRequestPtr& request, bool fromRelease)
 {
     if(!_allocatable)
     {
-	throw NotAllocatableException("not allocatable");
+	throw AllocationException("not allocatable");
     }
 
     try
@@ -198,7 +198,7 @@ Allocatable::release(const SessionIPtr& session, bool fromRelease)
 {
     if(!_allocatable)
     {
-	throw NotAllocatableException("not allocatable");
+	throw AllocationException("not allocatable");
     }
 
     bool isReleased = false;

@@ -151,6 +151,27 @@ exception AccessDeniedException
     string lockUserId;
 };
 
+/**
+ *
+ * This exception is raised if the allocation of an object failed.
+ *
+ **/
+exception AllocationException
+{
+    /** The reason why the object couldn't be allocated. */
+    string reason;
+};
+
+/**
+ *
+ * This exception is raised if the request to allocate an object times
+ * out.
+ *
+ **/
+exception AllocationTimeoutException extends AllocationException
+{
+};
+
 };
 
 #endif

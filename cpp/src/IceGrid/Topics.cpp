@@ -123,7 +123,6 @@ NodeObserverTopic::nodeDown(const string& name, const Ice::Current&)
     }
 }
 
-
 void 
 NodeObserverTopic::updateServer(const string& node, const ServerDynamicInfo& server, const Ice::Current&)
 {

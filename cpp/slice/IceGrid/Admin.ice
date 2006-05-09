@@ -618,8 +618,8 @@ interface Admin
      *
      * @param obj The object to be updated to the registry.
      *
-     * @throws ObjectNotRegisteredException Raised if the object doesn't
-     * exist.
+     * @throws ObjectNotRegisteredException Raised if the object isn't
+     * registered with the registry.
      *
      **/
     void updateObject(Object* obj)
@@ -648,8 +648,8 @@ interface Admin
      * @param id The identity of the object to be removed from the
      * registry.
      *
-     * @throws ObjectNotRegisteredException Raised if the object doesn't
-     * exist.
+     * @throws ObjectNotRegisteredException Raised if the object isn't
+     * registered with the registry.
      *
      **/
     void removeObject(Ice::Identity id) 
@@ -663,8 +663,8 @@ interface Admin
      *
      * @return The object info.
      *
-     * @throws ObjectNotRegisteredException Raised if the object doesn't
-     * exist.
+     * @throws ObjectNotRegisteredException Raised if the object isn't
+     * registered with the registry.
      *
      **/
     nonmutating ObjectInfo getObjectInfo(Ice::Identity id)

@@ -11,6 +11,7 @@
 #define ICE_GRID_SESSION_ICE
 
 #include <Glacier2/Session.ice>
+#include <IceGrid/Exception.ice>
 #include <IceGrid/Observer.ice>
 
 module IceGrid
@@ -18,19 +19,6 @@ module IceGrid
 
 interface Query;
 interface Admin;
-
-exception AllocationException
-{
-    string reason;
-};
-
-exception AllocationTimeoutException extends AllocationException
-{
-};
-
-exception NotAllocatableException extends AllocationException
-{
-};
 
 interface Session extends Glacier2::Session
 {
@@ -46,6 +34,8 @@ interface Session extends Glacier2::Session
      *
      * Get the session timeout configured for the node.
      *
+     * @return The timeout in milliseconds.
+     *
      **/
     nonmutating int getTimeout();
 
@@ -54,6 +44,16 @@ interface Session extends Glacier2::Session
      * Allocate an object. Depending on the allocation timeout, this
      * method might hang until the object is available or until the
      * timeout is reached.
+     * 
+     * @param id The identity of the object to allocate.
+     *
+     * @return The proxy of the allocated object.
+     *
+     * @throws ObjectNotRegisteredException Raised if the object with
+     * the given identity is not registered with the registry.
+     *
+     * @throws AllocationException Raised if the object can't be
+     * allocated.
      *
      **/
     ["ami", "amd"] Object* allocateObjectById(Ice::Identity id)
@@ -67,8 +67,10 @@ interface Session extends Glacier2::Session
      *
      * @param type The type of the object.
      *
-     * @return The proxy of the allocated object or null if no objects
-     * with the given type has been found.
+     * @return The proxy of the allocated object.
+     *
+     * @throws Raised if no objects with the given type can be
+     * allocated.
      *
      **/
     ["ami", "amd"] Object* allocateObjectByType(string type)
@@ -77,6 +79,15 @@ interface Session extends Glacier2::Session
     /**
      *
      * Release an object.
+     *
+     * @param id The identity of the object to release.
+     *
+     * @throws ObjectNotRegisteredException Raised if the object with
+     * the given identity is not registered with the regitry.
+     *
+     * @throws AllocationException Raised if the given object can't be
+     * released. This might happen if the object isn't allocatable or
+     * allocated by the session.
      *
      **/
     void releaseObject(Ice::Identity id)
@@ -87,6 +98,8 @@ interface Session extends Glacier2::Session
      * Set the allocation timeout. If no objects are available for an
      * allocation request, the request will hang for the duration of 
      * this timeout.
+     *
+     * @param timeout The timeout in milliseconds.
      *
      **/
     void setAllocationTimeout(int timeout);
