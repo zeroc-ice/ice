@@ -17,7 +17,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "tcp -p 12010");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    Ice::Identity id = Ice::stringToIdentity("factory");
+    Ice::Identity id = communicator->stringToIdentity("factory");
     adapter->add(new ServerFactoryI, id);
     adapter->activate();
 

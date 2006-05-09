@@ -33,6 +33,7 @@
 #include <Ice/DynamicLibrary.h>
 #include <Ice/PluginManagerI.h>
 #include <Ice/Initialize.h>
+#include <IceUtil/StringUtil.h>
 
 #include <stdio.h>
 
@@ -320,34 +321,108 @@ IceInternal::Instance::flushBatchRequests()
     adapterFactory->flushBatchRequests();
 }
 
-/*
-void
-IceInternal::Instance::setDefaultContext(const Context& ctx)
+Identity
+IceInternal::Instance::stringToIdentity(const string& s) const
 {
-    IceUtil::RecMutex::Lock sync(*this);
-    
-    if(_state == StateDestroyed)
+    Identity ident;
+
+    //
+    // Find unescaped separator.
+    //
+    string::size_type slash = string::npos, pos = 0;
+    while((pos = s.find('/', pos)) != string::npos)
     {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+        if(pos == 0 || s[pos - 1] != '\\')
+        {
+            if(slash == string::npos)
+            {
+                slash = pos;
+            }
+            else
+            {
+                //
+                // Extra unescaped slash found.
+                //
+                IdentityParseException ex(__FILE__, __LINE__);
+                ex.str = s;
+                throw ex;
+            }
+        }
+        pos++;
     }
 
-    _defaultContext = ctx;
-}
-
-Context
-IceInternal::Instance::getDefaultContext() const
-{
-    IceUtil::RecMutex::Lock sync(*this);
-    
-    if(_state == StateDestroyed)
+    if(slash == string::npos)
     {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+        if(!IceUtil::unescapeString(s, 0, s.size(), ident.name))
+        {
+            IdentityParseException ex(__FILE__, __LINE__);
+            ex.str = s;
+            throw ex;
+        }
+    }
+    else
+    {
+        if(!IceUtil::unescapeString(s, 0, slash, ident.category))
+        {
+            IdentityParseException ex(__FILE__, __LINE__);
+            ex.str = s;
+            throw ex;
+        }
+        if(slash + 1 < s.size())
+        {
+            if(!IceUtil::unescapeString(s, slash + 1, s.size(), ident.name))
+            {
+                IdentityParseException ex(__FILE__, __LINE__);
+                ex.str = s;
+                throw ex;
+            }
+        }
     }
 
-    return _defaultContext;
-}
-*/
+    if(_initData.stringConverter)
+    {
+        string tmpString;
+	_initData.stringConverter->fromUTF8(reinterpret_cast<const Byte*>(ident.name.data()),
+					    reinterpret_cast<const Byte*>(ident.name.data() + ident.name.size()),
+					    tmpString);
+	ident.name = tmpString;
 
+	_initData.stringConverter->fromUTF8(reinterpret_cast<const Byte*>(ident.category.data()),
+					    reinterpret_cast<const Byte*>(ident.category.data() + ident.name.size()),
+					    tmpString);
+	ident.category = tmpString;
+    }
+
+    return ident;
+}
+
+string
+IceInternal::Instance::identityToString(const Identity& ident) const
+{
+    string name = ident.name;
+    string category = ident.category;
+    if(_initData.stringConverter)
+    {
+        UTF8BufferI buffer;
+        Byte* last = _initData.stringConverter->toUTF8(ident.name.data(), ident.name.data() + ident.name.size(),
+						       buffer);
+        name = string(buffer.getBuffer(), last);
+
+	buffer.reset();
+        last = _initData.stringConverter->toUTF8(ident.category.data(), ident.category.data() + ident.category.size(),
+						 buffer);
+        category = string(buffer.getBuffer(), last);
+    }
+
+    if(category.empty())
+    {
+        return IceUtil::escapeString(name, "/");
+    }
+    else
+    {
+        return IceUtil::escapeString(category, "/") + '/' + IceUtil::escapeString(name, "/");
+    }
+}
 
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const InitializationData& initData) :
     _state(StateActive),
@@ -827,4 +902,48 @@ IceInternal::Instance::destroy()
 	serverThreadPool->joinWithAllThreads();
     }
     return true;
+}
+
+IceInternal::UTF8BufferI::UTF8BufferI() :
+    _buffer(0),
+    _offset(0)
+{
+}
+
+IceInternal::UTF8BufferI::~UTF8BufferI()
+{
+    free(_buffer);
+}
+
+Byte* 
+IceInternal::UTF8BufferI::getMoreBytes(size_t howMany, Byte* firstUnused)
+{
+    if(_buffer == 0)
+    {
+        _buffer = (Byte*)malloc(howMany);
+    }
+    else
+    {
+        if(firstUnused != 0)
+        {
+            _offset = firstUnused - _buffer;
+        }
+        _buffer = (Byte*)realloc(_buffer, _offset + howMany);
+    }
+
+    return _buffer + _offset;
+}
+
+Byte* 
+IceInternal::UTF8BufferI::getBuffer()
+{
+    return _buffer;
+}
+
+void
+IceInternal::UTF8BufferI::reset()
+{
+    free(_buffer);
+    _buffer = 0;
+    _offset = 0;
 }

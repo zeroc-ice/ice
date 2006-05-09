@@ -109,6 +109,11 @@ class AMI_Thrower_throwAasAObjectNotExistI : public AMI_Thrower_throwAasA, publi
 {
 public:
 
+    AMI_Thrower_throwAasAObjectNotExistI(const Ice::CommunicatorPtr& communicator) :
+        _communicator(communicator)
+    {
+    }
+
     virtual void ice_response()
     {
 	test(false);
@@ -122,7 +127,7 @@ public:
 	}
 	catch(const Ice::ObjectNotExistException& ex)
 	{
-	    Ice::Identity id = Ice::stringToIdentity("does not exist");
+	    Ice::Identity id = _communicator->stringToIdentity("does not exist");
 	    test(ex.id == id);
 	}
 	catch(...)
@@ -131,6 +136,10 @@ public:
 	}
 	called();
     }
+
+private:
+
+    Ice::CommunicatorPtr _communicator;
 };
 
 typedef IceUtil::Handle<AMI_Thrower_throwAasAObjectNotExistI> AMI_Thrower_throwAasAObjectNotExistIPtr;
@@ -597,20 +606,20 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     {
 	Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter1");
 	Ice::ObjectPtr obj = new EmptyI;
-	adapter->add(obj, Ice::stringToIdentity("x"));
+	adapter->add(obj, communicator->stringToIdentity("x"));
 	try
 	{
-	    adapter->add(obj, Ice::stringToIdentity("x"));
+	    adapter->add(obj, communicator->stringToIdentity("x"));
 	    test(false);
 	}
 	catch(const Ice::AlreadyRegisteredException&)
 	{
 	}
 
-	adapter->remove(Ice::stringToIdentity("x"));
+	adapter->remove(communicator->stringToIdentity("x"));
 	try
 	{
-	    adapter->remove(Ice::stringToIdentity("x"));
+	    adapter->remove(communicator->stringToIdentity("x"));
 	    test(false);
 	}
 	catch(const Ice::NotRegisteredException&)
@@ -986,7 +995,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
     cout << "catching object not exist exception... " << flush;
 
-    Ice::Identity id = Ice::stringToIdentity("does not exist");
+    Ice::Identity id = communicator->stringToIdentity("does not exist");
     try
     {
 	ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower->ice_identity(id));
@@ -1205,9 +1214,9 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	cout << "catching object not exist exception with AMI... " << flush;
 
 	{
-	    id = Ice::stringToIdentity("does not exist");
+	    id = communicator->stringToIdentity("does not exist");
 	    ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower->ice_identity(id));
-	    AMI_Thrower_throwAasAObjectNotExistIPtr cb = new AMI_Thrower_throwAasAObjectNotExistI;
+	    AMI_Thrower_throwAasAObjectNotExistIPtr cb = new AMI_Thrower_throwAasAObjectNotExistI(communicator);
 	    thrower2->throwAasA_async(cb, 1);
 	    test(cb->check());
 	}

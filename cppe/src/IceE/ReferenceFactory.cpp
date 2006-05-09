@@ -10,7 +10,6 @@
 #include <IceE/ReferenceFactory.h>
 #include <IceE/LocalException.h>
 #include <IceE/Instance.h>
-#include <IceE/IdentityUtil.h>
 #include <IceE/Endpoint.h>
 #include <IceE/EndpointFactory.h>
 #ifdef ICEE_HAS_ROUTER
@@ -210,7 +209,7 @@ IceInternal::ReferenceFactory::create(const string& str)
     //
     // Parsing the identity may raise IdentityParseException.
     //
-    Identity ident = stringToIdentity(idstr);
+    Identity ident = _instance->stringToIdentity(idstr);
 
     if(ident.name.empty())
     {
@@ -337,6 +336,15 @@ IceInternal::ReferenceFactory::create(const string& str)
 		    ex.str = str;
 		    throw ex;
 		}
+
+                if(_instance->initializationData().stringConverter)
+                {
+                    string tmpFacet;
+                    _instance->initializationData().stringConverter->fromUTF8(
+                                reinterpret_cast<const Byte*>(facet.data()),
+                                reinterpret_cast<const Byte*>(facet.data() + facet.size()), tmpFacet);
+                    facet = tmpFacet;
+                }
 
 		break;
 	    }
@@ -540,6 +548,15 @@ IceInternal::ReferenceFactory::create(const string& str)
 		ex.str = str;
 		throw ex;
 	    }
+
+            if(_instance->initializationData().stringConverter)
+            {
+                string tmpAdapter;
+                _instance->initializationData().stringConverter->fromUTF8(
+                               reinterpret_cast<const Byte*>(adapter.data()), 
+                               reinterpret_cast<const Byte*>(adapter.data() + adapter.size()), tmpAdapter);
+                adapter = tmpAdapter;
+            }
 
 #ifdef ICEE_HAS_ROUTER
 	    return create(ident, _instance->initializationData().defaultContext, facet, mode, secure, adapter, 

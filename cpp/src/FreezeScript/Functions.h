@@ -15,8 +15,8 @@
 namespace FreezeScript
 {
 
-bool invokeGlobalFunction(const std::string&, const DataList&, DataPtr&, const DataFactoryPtr&,
-                          const ErrorReporterPtr&);
+bool invokeGlobalFunction(const Ice::CommunicatorPtr&, const std::string&, const DataList&, DataPtr&,
+			  const DataFactoryPtr&, const ErrorReporterPtr&);
 
 bool invokeMemberFunction(const std::string&, const DataPtr&, const DataList&, DataPtr&, const DataFactoryPtr&,
                           const ErrorReporterPtr&);

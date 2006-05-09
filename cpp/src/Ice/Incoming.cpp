@@ -16,7 +16,6 @@
 #include <Ice/LocalException.h>
 #include <Ice/Instance.h>
 #include <Ice/Properties.h>
-#include <Ice/IdentityUtil.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Protocol.h>
 #include <IceUtil/StringUtil.h>
@@ -65,7 +64,7 @@ IceInternal::IncomingBase::__warning(const string& msg) const
     Warning out(_os.instance()->initializationData().logger);
     
     out << "dispatch exception: " << msg;
-    out << "\nidentity: " << _current.id;
+    out << "\nidentity: " << _os.instance()->identityToString(_current.id);
     out << "\nfacet: " << IceUtil::escapeString(_current.facet, "");
     out << "\noperation: " << _current.operation;
 }

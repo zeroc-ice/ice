@@ -308,9 +308,9 @@ void
 AdminI::patchApplication_async(const AMD_Admin_patchApplicationPtr& amdCB, 
 			       const string& name, 
 			       bool shutdown, 
-			       const Current&)
+			       const Current& current)
 {
-    ApplicationHelper helper(_database->getApplicationDescriptor(name));    
+    ApplicationHelper helper(current.adapter->getCommunicator(), _database->getApplicationDescriptor(name));    
     DistributionDescriptor appDistrib;
     vector<string> nodes;
     helper.getDistributions(appDistrib, nodes);
@@ -482,10 +482,11 @@ AdminI::stopServer(const string& id, const Current&)
 }
 
 void
-AdminI::patchServer_async(const AMD_Admin_patchServerPtr& amdCB, const string& id, bool shutdown, const Current&)
+AdminI::patchServer_async(const AMD_Admin_patchServerPtr& amdCB, const string& id, bool shutdown,
+			  const Current& current)
 {
     ServerInfo info = _database->getServerInfo(id);
-    ApplicationHelper helper(_database->getApplicationDescriptor(info.application));
+    ApplicationHelper helper(current.adapter->getCommunicator(), _database->getApplicationDescriptor(info.application));
     DistributionDescriptor appDistrib;
     vector<string> nodes;
     helper.getDistributions(appDistrib, nodes, id);

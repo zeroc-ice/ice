@@ -17,8 +17,8 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Callback.Server");
-    CallbackSenderIPtr sender = new CallbackSenderI;
-    adapter->add(sender, Ice::stringToIdentity("sender"));
+    CallbackSenderIPtr sender = new CallbackSenderI(communicator);
+    adapter->add(sender, communicator->stringToIdentity("sender"));
     adapter->activate();
 
     sender->start();

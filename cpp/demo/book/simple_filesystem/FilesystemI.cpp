@@ -25,7 +25,8 @@ Filesystem::NodeI::name(const Ice::Current &) const
 
 // NodeI constructor
 
-Filesystem::NodeI::NodeI(const string & name, const DirectoryIPtr & parent) : _name(name), _parent(parent)
+Filesystem::NodeI::NodeI(const Ice::CommunicatorPtr & ic, const string & name, const DirectoryIPtr & parent) :
+    _name(name), _parent(parent)
 {
     // Create an identity. The parent has the fixed identity "RootDir"
     //
@@ -39,9 +40,9 @@ Filesystem::NodeI::NodeI(const string & name, const DirectoryIPtr & parent) : _n
     //
     Ice::Identity myID;
     if (parent)
-	myID = Ice::stringToIdentity(IceUtil::generateUUID());
+	myID = ic->stringToIdentity(IceUtil::generateUUID());
     else
-	myID = Ice::stringToIdentity("RootDir");
+	myID = ic->stringToIdentity("RootDir");
 
     // Create a proxy for the new node and add it as a child to the parent
     //
@@ -73,7 +74,8 @@ Filesystem::FileI::write(const Filesystem::Lines & text,
 
 // FileI constructor
 
-Filesystem::FileI::FileI(const string & name, const DirectoryIPtr & parent) : NodeI(name, parent)
+Filesystem::FileI::FileI(const Ice::CommunicatorPtr & ic, const string & name, const DirectoryIPtr & parent) : 
+    NodeI(ic, name, parent)
 {
 }
 
@@ -87,7 +89,8 @@ Filesystem::DirectoryI::list(const Ice::Current &) const
 
 // DirectoryI constructor
 
-Filesystem::DirectoryI::DirectoryI(const string & name, const DirectoryIPtr & parent) : NodeI(name, parent)
+Filesystem::DirectoryI::DirectoryI(const Ice::CommunicatorPtr & ic, const string & name, const DirectoryIPtr & parent) :
+    NodeI(ic, name, parent)
 {
 }
 

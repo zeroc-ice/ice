@@ -10,7 +10,6 @@
 #include <Ice/ServantManager.h>
 #include <Ice/ServantLocator.h>
 #include <Ice/LocalException.h>
-#include <Ice/IdentityUtil.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Instance.h>
 #include <IceUtil/StringUtil.h>
@@ -46,7 +45,7 @@ IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity&
 	{
 	    AlreadyRegisteredException ex(__FILE__, __LINE__);
 	    ex.kindOfObject = "servant";
-	    ex.id = identityToString(ident);
+	    ex.id = _instance->identityToString(ident);
 	    if(!facet.empty())
 	    {
 		ex.id += " -f " + IceUtil::escapeString(facet, "");
@@ -86,7 +85,7 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
     {
 	NotRegisteredException ex(__FILE__, __LINE__);
 	ex.kindOfObject = "servant";
-	ex.id = identityToString(ident);
+	ex.id = _instance->identityToString(ident);
 	if(!facet.empty())
 	{
 	    ex.id += " -f " + IceUtil::escapeString(facet, "");
@@ -130,7 +129,7 @@ IceInternal::ServantManager::removeAllFacets(const Identity& ident)
     {
 	NotRegisteredException ex(__FILE__, __LINE__);
 	ex.kindOfObject = "servant";
-	ex.id = identityToString(ident);
+	ex.id = _instance->identityToString(ident);
 	throw ex;
     }
 

@@ -169,7 +169,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
 	communicator = Ice::initialize(__argc, __argv, initData);
 
 	Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Hello");
-	adapter->add(new HelloI(mainWnd), Ice::stringToIdentity("hello"));
+	adapter->add(new HelloI(mainWnd), communicator->stringToIdentity("hello"));
 	adapter->activate();
 
 	//

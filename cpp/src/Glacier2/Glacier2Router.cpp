@@ -237,7 +237,7 @@ Glacier2::RouterService::start(int argc, char* argv[])
 	    const string instanceNameProperty = "Glacier2.InstanceName";
 	    adminId = properties->getPropertyWithDefault(instanceNameProperty, "Glacier2") + "/admin";
 	}
-	Identity id = stringToIdentity(adminId);
+	Identity id = communicator()->stringToIdentity(adminId);
 	adminAdapter->add(new AdminI(communicator()), id);
     }
 

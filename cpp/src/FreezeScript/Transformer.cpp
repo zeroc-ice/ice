@@ -2456,7 +2456,7 @@ FreezeScript::SymbolTableI::invokeFunction(const string& name, const DataPtr& ta
         // Global function.
         //
         DataPtr result;
-        if(invokeGlobalFunction(name, args, result, _info->factory, _info->errorReporter))
+        if(invokeGlobalFunction(_info->communicator, name, args, result, _info->factory, _info->errorReporter))
         {
             return result;
         }

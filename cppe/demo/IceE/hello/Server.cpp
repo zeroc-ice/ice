@@ -17,7 +17,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Hello");
     Ice::ObjectPtr object = new HelloI;
-    adapter->add(object, Ice::stringToIdentity("hello"));
+    adapter->add(object, communicator->stringToIdentity("hello"));
     adapter->activate();
     communicator->waitForShutdown();
     return EXIT_SUCCESS;

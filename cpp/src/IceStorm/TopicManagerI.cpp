@@ -208,7 +208,8 @@ TopicManagerI::installTopic(const string& name, const LinkRecordDict& links, boo
     //
     // Create topic implementation
     //
-    TopicIPtr topicI = new TopicI(_publishAdapter, _traceLevels, name, links, _factory, _envName, _dbName);
+    TopicIPtr topicI =
+        new TopicI(_communicator, _publishAdapter, _traceLevels, name, links, _factory, _envName, _dbName);
     
     //
     // The identity is the name of the Topic.

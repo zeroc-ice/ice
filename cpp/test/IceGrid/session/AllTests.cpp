@@ -754,22 +754,22 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	    admin->addObjectWithType(obj, "::Dummy");
 	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->objects.find(Ice::stringToIdentity("dummy")) != regObs1->objects.end());
-	    test(regObs1->objects[Ice::stringToIdentity("dummy")].type == "::Dummy");
-	    test(regObs1->objects[Ice::stringToIdentity("dummy")].proxy == obj);
+	    test(regObs1->objects.find(communicator->stringToIdentity("dummy")) != regObs1->objects.end());
+	    test(regObs1->objects[communicator->stringToIdentity("dummy")].type == "::Dummy");
+	    test(regObs1->objects[communicator->stringToIdentity("dummy")].proxy == obj);
 	    test(++serial == regObs1->serial);
 	    
 	    obj = communicator->stringToProxy("dummy:tcp -p 10000 -h host");
 	    admin->updateObject(obj);
 	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->objects.find(Ice::stringToIdentity("dummy")) != regObs1->objects.end());
-	    test(regObs1->objects[Ice::stringToIdentity("dummy")].type == "::Dummy");
-	    test(regObs1->objects[Ice::stringToIdentity("dummy")].proxy == obj);
+	    test(regObs1->objects.find(communicator->stringToIdentity("dummy")) != regObs1->objects.end());
+	    test(regObs1->objects[communicator->stringToIdentity("dummy")].type == "::Dummy");
+	    test(regObs1->objects[communicator->stringToIdentity("dummy")].proxy == obj);
 	    test(++serial == regObs1->serial);
 
 	    admin->removeObject(obj->ice_getIdentity());
 	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->objects.find(Ice::stringToIdentity("dummy")) == regObs1->objects.end());
+	    test(regObs1->objects.find(communicator->stringToIdentity("dummy")) == regObs1->objects.end());
 	    test(++serial == regObs1->serial);	    
 	}
 	catch(const Ice::UserException& ex)

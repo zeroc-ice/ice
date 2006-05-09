@@ -18,7 +18,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000:udp");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectPtr object = new HoldI;
-    adapter->add(object, Ice::stringToIdentity("hold"));
+    adapter->add(object, communicator->stringToIdentity("hold"));
     adapter->activate();
     communicator->waitForShutdown();
     return EXIT_SUCCESS;

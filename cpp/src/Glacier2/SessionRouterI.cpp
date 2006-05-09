@@ -134,7 +134,7 @@ Glacier2::SessionRouterI::SessionRouterI(const ObjectAdapterPtr& clientAdapter,
         const char* instanceNameProperty = "Glacier2.InstanceName";
         routerId = _properties->getPropertyWithDefault(instanceNameProperty, "Glacier2") + "/router";
     }
-    Identity id = stringToIdentity(routerId);
+    Identity id = clientAdapter->getCommunicator()->stringToIdentity(routerId);
     _clientAdapter->add(this, id);
 
     //
@@ -639,7 +639,7 @@ Glacier2::SessionRouterI::getRouter(const ConnectionPtr& connection, const Ice::
 	{
 	    Trace out(_logger, "Glacier2");
 	    out << "rejecting request. no session is associated with the connection.\n";
-	    out << "identity: " << identityToString(id);
+	    out << "identity: " << _clientAdapter->getCommunicator()->identityToString(id);
 	}
 	connection->close(true);
 	throw ObjectNotExistException(__FILE__, __LINE__);

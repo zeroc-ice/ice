@@ -28,7 +28,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Throughput");
     Ice::ObjectPtr object = new ThroughputI(reduce);
-    adapter->add(object, Ice::stringToIdentity("throughput"));
+    adapter->add(object, communicator->stringToIdentity("throughput"));
     adapter->activate();
     communicator->waitForShutdown();
     return EXIT_SUCCESS;

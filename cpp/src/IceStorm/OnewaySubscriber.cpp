@@ -15,10 +15,12 @@
 using namespace IceStorm;
 using namespace std;
 
-OnewaySubscriber::OnewaySubscriber(const SubscriberFactoryPtr& factory, const TraceLevelsPtr& traceLevels,
-                                   const QueuedProxyPtr& obj) :
+OnewaySubscriber::OnewaySubscriber(const SubscriberFactoryPtr& factory, const Ice::CommunicatorPtr& communicator,
+				   const TraceLevelsPtr& traceLevels, const QueuedProxyPtr& obj) :
     Subscriber(traceLevels, obj->proxy()->ice_getIdentity()),
-    _factory(factory), _obj(obj)
+    _communicator(communicator),
+    _factory(factory),
+    _obj(obj)
 {
     _factory->incProxyUsageCount(_obj);
 }
@@ -49,7 +51,7 @@ OnewaySubscriber::unsubscribe()
     if(_traceLevels->subscriber > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
-	out << "Unsubscribe " << id();
+	out << "Unsubscribe " << _communicator->identityToString(id());
     }
 }
 
@@ -62,7 +64,7 @@ OnewaySubscriber::replace()
     if(_traceLevels->subscriber > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
-	out << "Replace " << id();
+	out << "Replace " << _communicator->identityToString(id());
     }
 }
 
@@ -87,7 +89,7 @@ OnewaySubscriber::publish(const EventPtr& event)
             if(_traceLevels->subscriber > 0)
             {
                 Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
-                out << id() << ": publish failed: " << e;
+                out << _communicator->identityToString(id()) << ": publish failed: " << e;
             }
             _state = StateError;
         }

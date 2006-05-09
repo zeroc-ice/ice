@@ -28,7 +28,6 @@
 #include <Ice/ThreadPool.h>
 #include <Ice/Communicator.h>
 #include <Ice/Router.h>
-#include <Ice/IdentityUtil.h>
 #include <Ice/DefaultsAndOverrides.h>
 
 #ifdef _WIN32
@@ -745,7 +744,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 	        if(_routerInfo->getAdapter())
 		{
 		    throw AlreadyRegisteredException(__FILE__, __LINE__, "object adapter with router", 
-		    				     identityToString(router->ice_getIdentity()));
+		    				     _instance->identityToString(router->ice_getIdentity()));
 		}
 
 	        //

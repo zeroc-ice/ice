@@ -14,8 +14,9 @@
 using namespace std;
 
 bool
-FreezeScript::invokeGlobalFunction(const string& name, const DataList& args, DataPtr& result,
-                                   const DataFactoryPtr& factory, const ErrorReporterPtr& errorReporter)
+FreezeScript::invokeGlobalFunction(const Ice::CommunicatorPtr& communicator, const string& name, const DataList& args,
+				   DataPtr& result, const DataFactoryPtr& factory, 
+				   const ErrorReporterPtr& errorReporter)
 {
     //
     // Global function.
@@ -57,7 +58,7 @@ FreezeScript::invokeGlobalFunction(const string& name, const DataList& args, Dat
         Ice::Identity id;
         try
         {
-            id = Ice::stringToIdentity(idstr);
+            id = communicator->stringToIdentity(idstr);
         }
         catch(const Ice::IdentityParseException& ex)
         {
@@ -114,7 +115,7 @@ FreezeScript::invokeGlobalFunction(const string& name, const DataList& args, Dat
         assert(member);
         id.category = member->stringValue();
 
-        result = factory->createString(Ice::identityToString(id), false);
+        result = factory->createString(communicator->identityToString(id), false);
         return true;
     }
     else if(name == "stringToProxy")

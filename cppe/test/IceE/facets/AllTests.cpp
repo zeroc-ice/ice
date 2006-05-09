@@ -24,20 +24,20 @@ allTests(const Ice::CommunicatorPtr& communicator)
     tprintf("testing facet registration exceptions...");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("FacetExceptionTestAdapter");
     Ice::ObjectPtr obj = new EmptyI;
-    adapter->add(obj, Ice::stringToIdentity("d"));
-    adapter->addFacet(obj, Ice::stringToIdentity("d"), "facetABCD");
+    adapter->add(obj, communicator->stringToIdentity("d"));
+    adapter->addFacet(obj, communicator->stringToIdentity("d"), "facetABCD");
     try
     {
-	adapter->addFacet(obj, Ice::stringToIdentity("d"), "facetABCD");
+	adapter->addFacet(obj, communicator->stringToIdentity("d"), "facetABCD");
 	test(false);
     }
     catch(Ice::AlreadyRegisteredException&)
     {
     }
-    adapter->removeFacet(Ice::stringToIdentity("d"), "facetABCD");
+    adapter->removeFacet(communicator->stringToIdentity("d"), "facetABCD");
     try
     {
-	adapter->removeFacet(Ice::stringToIdentity("d"), "facetABCD");
+	adapter->removeFacet(communicator->stringToIdentity("d"), "facetABCD");
 	test(false);
     }
     catch(Ice::NotRegisteredException&)
@@ -48,25 +48,25 @@ allTests(const Ice::CommunicatorPtr& communicator)
     tprintf("testing removeAllFacets...");
     Ice::ObjectPtr obj1 = new EmptyI;
     Ice::ObjectPtr obj2 = new EmptyI;
-    adapter->addFacet(obj1, Ice::stringToIdentity("id1"), "f1");
-    adapter->addFacet(obj2, Ice::stringToIdentity("id1"), "f2");
+    adapter->addFacet(obj1, communicator->stringToIdentity("id1"), "f1");
+    adapter->addFacet(obj2, communicator->stringToIdentity("id1"), "f2");
     Ice::ObjectPtr obj3 = new EmptyI;
-    adapter->addFacet(obj1, Ice::stringToIdentity("id2"), "f1");
-    adapter->addFacet(obj2, Ice::stringToIdentity("id2"), "f2");
-    adapter->addFacet(obj3, Ice::stringToIdentity("id2"), "");
-    Ice::FacetMap fm = adapter->removeAllFacets(Ice::stringToIdentity("id1"));
+    adapter->addFacet(obj1, communicator->stringToIdentity("id2"), "f1");
+    adapter->addFacet(obj2, communicator->stringToIdentity("id2"), "f2");
+    adapter->addFacet(obj3, communicator->stringToIdentity("id2"), "");
+    Ice::FacetMap fm = adapter->removeAllFacets(communicator->stringToIdentity("id1"));
     test(fm.size() == 2);
     test(fm["f1"] == obj1);
     test(fm["f2"] == obj2);
     try
     {
-	adapter->removeAllFacets(Ice::stringToIdentity("id1"));
+	adapter->removeAllFacets(communicator->stringToIdentity("id1"));
 	test(false);
     }
     catch(Ice::NotRegisteredException&)
     {
     }
-    fm = adapter->removeAllFacets(Ice::stringToIdentity("id2"));
+    fm = adapter->removeAllFacets(communicator->stringToIdentity("id2"));
     test(fm.size() == 3);
     test(fm["f1"] == obj1);
     test(fm["f2"] == obj2);

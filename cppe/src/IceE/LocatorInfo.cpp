@@ -20,7 +20,6 @@
 #include <IceE/Endpoint.h>
 #include <IceE/Reference.h>
 #include <IceE/Functional.h>
-#include <IceE/IdentityUtil.h>
 #include <iterator>
 
 using namespace std;
@@ -342,7 +341,7 @@ IceInternal::LocatorInfo::getEndpoints(const IndirectReferencePtr& ref, bool& ca
     {
 	NotRegisteredException ex(__FILE__, __LINE__);
 	ex.kindOfObject = "object";
-	ex.id = identityToString(ref->getIdentity());
+	ex.id = ref->getInstance()->identityToString(ref->getIdentity());
 	throw ex;
     }
     catch(const NotRegisteredException&)
@@ -357,7 +356,7 @@ IceInternal::LocatorInfo::getEndpoints(const IndirectReferencePtr& ref, bool& ca
 	    out << "couldn't contact the locator to retrieve adapter endpoints\n";
 	    if(!ref)
 	    {
-		out << "object = " << identityToString(ref->getIdentity()) << "\n";
+		out << "object = " << ref->getInstance()->identityToString(ref->getIdentity()) << "\n";
 	    }
 	    else
 	    {
@@ -459,7 +458,7 @@ IceInternal::LocatorInfo::trace(const string& msg,
     }
     else
     {
-	out << "object = "  << identityToString(ref->getIdentity()) << "\n";
+	out << "object = "  << ref->getInstance()->identityToString(ref->getIdentity()) << "\n";
     }
 
     const char* sep = endpoints.size() > 1 ? ":" : "";

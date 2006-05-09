@@ -70,7 +70,7 @@ public:
         initData.properties->setProperty("TestAdapter.Endpoints", buf);
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
         Ice::ObjectPtr object = new TestI(adapter);
-        adapter->add(object, Ice::stringToIdentity("test"));
+        adapter->add(object, communicator()->stringToIdentity("test"));
         adapter->activate();
         communicator()->waitForShutdown();
         return EXIT_SUCCESS;

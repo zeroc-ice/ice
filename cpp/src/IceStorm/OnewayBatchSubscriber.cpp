@@ -20,8 +20,7 @@ OnewayBatchSubscriber::OnewayBatchSubscriber(const SubscriberFactoryPtr& factory
 					     const TraceLevelsPtr& traceLevels,
                                              const FlusherPtr& flusher,
 					     const QueuedProxyPtr& obj) :
-    OnewaySubscriber(factory, traceLevels, obj),
-    _communicator(communicator),
+    OnewaySubscriber(factory, communicator, traceLevels, obj),
     _flusher(flusher)
 {
 }
@@ -53,7 +52,7 @@ OnewayBatchSubscriber::unsubscribe()
     if(_traceLevels->subscriber > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
-	out << "Unsubscribe " << id();
+	out << "Unsubscribe " << _communicator->identityToString(id());
     }
 
     //
@@ -74,7 +73,7 @@ OnewayBatchSubscriber::replace()
     if(_traceLevels->subscriber > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
-	out << "Replace " << id();
+	out << "Replace " << _communicator->identityToString(id());
     }
 
     //

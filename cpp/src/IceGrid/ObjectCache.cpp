@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/Random.h>
-#include <Ice/IdentityUtil.h>
+#include <Ice/Communicator.h>
 #include <Ice/LoggerUtil.h>
 #include <IceGrid/ObjectCache.h>
 #include <IceGrid/NodeSessionI.h>
@@ -140,7 +140,8 @@ ObjectCache::TypeEntry::hasAllocatables() const
     return _allocatablesCount;
 }
 
-ObjectCache::ObjectCache(AdapterCache& adapterCache) : 
+ObjectCache::ObjectCache(const Ice::CommunicatorPtr& communicator, AdapterCache& adapterCache) : 
+    _communicator(communicator),
     _adapterCache(adapterCache)
 {
 }
@@ -166,7 +167,7 @@ ObjectCache::add(const ObjectInfo& info, const string& application, bool allocat
     if(_traceLevels && _traceLevels->object > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-	out << "added object `" << Ice::identityToString(id) << "'";	
+	out << "added object `" << _communicator->identityToString(id) << "'";	
     }    
 }
 
@@ -199,7 +200,7 @@ ObjectCache::remove(const Ice::Identity& id)
     if(_traceLevels && _traceLevels->object > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-	out << "removed object `" << Ice::identityToString(id) << "'";	
+	out << "removed object `" << _communicator->identityToString(id) << "'";	
     }    
 
     return entry;
@@ -278,7 +279,7 @@ ObjectCache::getAll(const string& expression)
     ObjectInfoSeq infos;
     for(map<Ice::Identity, ObjectEntryPtr>::const_iterator p = _entries.begin(); p != _entries.end(); ++p)
     {
-	if(expression.empty() || IceUtil::match(Ice::identityToString(p->first), expression, true))
+	if(expression.empty() || IceUtil::match(_communicator->identityToString(p->first), expression, true))
 	{
 	    infos.push_back(p->second->getObjectInfo());
 	}
@@ -364,7 +365,8 @@ ObjectEntry::allocated(const SessionIPtr& session)
     {
 	Ice::Trace out(traceLevels->logger, traceLevels->objectCat);
 	const Ice::Identity id = _info.proxy->ice_getIdentity();
-	out << "object `" << id << "' allocated by `" << session->getUserId() << "' (" << _count << ")";
+	out << "object `" << _cache.communicator()->identityToString(id) << "' allocated by `" << session->getUserId()
+	    << "' (" << _count << ")";
     }    
 }
 
@@ -381,7 +383,8 @@ ObjectEntry::released(const SessionIPtr& session)
     {
 	Ice::Trace out(traceLevels->logger, traceLevels->objectCat);
 	const Ice::Identity id = _info.proxy->ice_getIdentity();
-	out << "object `" << id << "' released by `" << session->getUserId() << "' (" << _count << ")";
+	out << "object `" << _cache.communicator()->identityToString(id) << "' released by `" << session->getUserId() 
+	    << "' (" << _count << ")";
     }    
 }
 

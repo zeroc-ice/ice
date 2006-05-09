@@ -140,7 +140,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
 	communicator = Ice::initialize(__argc, __argv, initData);
 
 	Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Latency");
-	adapter->add(new PingI, Ice::stringToIdentity("ping"));
+	adapter->add(new PingI, communicator->stringToIdentity("ping"));
 	adapter->activate();
 
 	//

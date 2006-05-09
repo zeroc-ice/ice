@@ -822,7 +822,7 @@ ServerI::load(const AMD_Node_loadServerPtr& amdCB, const string& application, co
     ServerCommandPtr command;
     {
 	Lock sync(*this);
-	if(_desc && descriptorEqual(_desc, desc))
+	if(_desc && descriptorEqual(_node->getCommunicator(), _desc, desc))
 	{
 	    if(amdCB)
 	    {

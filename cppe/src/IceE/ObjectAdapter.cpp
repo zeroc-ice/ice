@@ -30,7 +30,6 @@
 #endif
 #include <IceE/Endpoint.h>
 #include <IceE/LoggerUtil.h>
-#include <IceE/IdentityUtil.h>
 #include <ctype.h>
 
 using namespace std;
@@ -621,7 +620,7 @@ Ice::ObjectAdapter::ObjectAdapter(const InstancePtr& instance, const Communicato
                 if(_routerInfo->getAdapter())
                 {
                     throw AlreadyRegisteredException(__FILE__, __LINE__, "object adapter with router",
-                                                     identityToString(router->ice_getIdentity()));
+                                                     _instance->identityToString(router->ice_getIdentity()));
                 }
 
                 //

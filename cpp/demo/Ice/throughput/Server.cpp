@@ -30,7 +30,7 @@ int
 ThroughputServer::run(int argc, char* argv[])
 {
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Throughput");
-    adapter->add(new ThroughputI, Ice::stringToIdentity("throughput"));
+    adapter->add(new ThroughputI, communicator()->stringToIdentity("throughput"));
     adapter->activate();
     communicator()->waitForShutdown();
     return EXIT_SUCCESS;

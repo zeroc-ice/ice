@@ -155,7 +155,9 @@ private:
 
 };
 
-NodeCache::NodeCache(int sessionTimeout) : _sessionTimeout(sessionTimeout)
+NodeCache::NodeCache(const Ice::CommunicatorPtr& communicator, int sessionTimeout) :
+    _communicator(communicator),
+    _sessionTimeout(sessionTimeout)
 {
 }
 
@@ -457,11 +459,12 @@ NodeEntry::getServerDescriptor(const ServerInfo& server)
 	IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(server.descriptor);
 	if(iceBox)
 	{
-	    return IceBoxHelper(iceBox).instantiate(resolve, PropertySetDescriptor());
+	    return IceBoxHelper(_cache.getCommunicator(), iceBox).instantiate(resolve, PropertySetDescriptor());
 	}
 	else
 	{
-	    return ServerHelper(server.descriptor).instantiate(resolve, PropertySetDescriptor());
+	    return ServerHelper(_cache.getCommunicator(), server.descriptor).instantiate(resolve, 
+	    										 PropertySetDescriptor());
 	}
     }
     catch(const DeploymentException& ex)

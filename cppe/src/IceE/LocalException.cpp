@@ -9,7 +9,7 @@
 
 #include <IceE/LocalException.h>
 #include <IceE/SafeStdio.h>
-#include <IceE/IdentityUtil.h>
+#include <IceE/StringUtil.h>
 #include <IceE/Network.h>
 
 using namespace std;
@@ -1910,7 +1910,14 @@ Ice::IllegalIdentityException::toString() const
 {
     string out = Exception::toString();
     out += ":\nillegal identity: `";
-    out += identityToString(id);
+    if(id.category.empty())
+    {
+        out += IceUtil::escapeString(id.name, "/");
+    }
+    else
+    {
+        out += IceUtil::escapeString(id.category, "/") + '/' + IceUtil::escapeString(id.name, "/");
+    }
     out += "'";
     return out;
 }
@@ -1919,7 +1926,14 @@ static void
 printFailedRequestData(string& out, const RequestFailedException& ex)
 {
     out += "\nidentity: ";
-    out += identityToString(ex.id);
+    if(ex.id.category.empty())
+    {
+        out += IceUtil::escapeString(ex.id.name, "/");
+    }
+    else
+    {
+        out += IceUtil::escapeString(ex.id.category, "/") + '/' + IceUtil::escapeString(ex.id.name, "/");
+    }
     out += "\nfacet: ";
     out += ex.facet;
     out += "\noperation: ";

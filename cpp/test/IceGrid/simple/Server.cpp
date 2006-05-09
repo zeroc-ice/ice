@@ -29,7 +29,7 @@ Server::run(int argc, char* argv[])
 
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
     Ice::ObjectPtr object = new TestI(adapter);
-    adapter->add(object, Ice::stringToIdentity("test"));
+    adapter->add(object, communicator()->stringToIdentity("test"));
 
     shutdownOnInterrupt();
     try

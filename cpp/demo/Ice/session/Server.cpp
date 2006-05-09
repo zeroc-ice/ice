@@ -34,7 +34,7 @@ SessionServer::run(int argc, char* argv[])
     ReapThreadPtr reaper = new ReapThread();
     reaper->start();
 
-    adapter->add(new SessionFactoryI(reaper), Ice::stringToIdentity("SessionFactory"));
+    adapter->add(new SessionFactoryI(reaper), communicator()->stringToIdentity("SessionFactory"));
     adapter->activate();
     communicator()->waitForShutdown();
 

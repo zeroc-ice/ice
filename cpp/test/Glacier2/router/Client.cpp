@@ -627,7 +627,7 @@ CallbackClient::run(int argc, char* argv[])
 	Context context;
 	context["_fwd"] = "t";
 	CallbackPrx otherCategoryTwoway = CallbackPrx::uncheckedCast(
-	    twoway->ice_identity(stringToIdentity("c2/callback")));
+	    twoway->ice_identity(communicator()->stringToIdentity("c2/callback")));
 	otherCategoryTwoway->initiateCallback(twowayR, context);
 	test(callbackReceiverImpl->callbackOK());
 	cout << "ok" << endl;
@@ -640,7 +640,7 @@ CallbackClient::run(int argc, char* argv[])
 	try
 	{
 	    CallbackPrx otherCategoryTwoway = CallbackPrx::uncheckedCast(
-		twoway->ice_identity(stringToIdentity("c3/callback")));
+		twoway->ice_identity(communicator()->stringToIdentity("c3/callback")));
 	    otherCategoryTwoway->initiateCallback(twowayR, context);
 	    test(false);
 	}
@@ -655,7 +655,7 @@ CallbackClient::run(int argc, char* argv[])
 	Context context;
 	context["_fwd"] = "t";
 	CallbackPrx otherCategoryTwoway = CallbackPrx::uncheckedCast(
-	    twoway->ice_identity(stringToIdentity("_userid/callback")));
+	    twoway->ice_identity(communicator()->stringToIdentity("_userid/callback")));
 	otherCategoryTwoway->initiateCallback(twowayR, context);
 	test(callbackReceiverImpl->callbackOK());
 	cout << "ok" << endl;

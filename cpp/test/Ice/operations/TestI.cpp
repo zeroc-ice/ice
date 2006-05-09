@@ -108,7 +108,8 @@ MyDerivedClassI::opMyClass(const Test::MyClassPrx& p1,
 			   const Ice::Current&)
 {
     p2 = p1;
-    p3 = Test::MyClassPrx::uncheckedCast(_adapter->createProxy(Ice::stringToIdentity("noSuchIdentity")));
+    p3 = Test::MyClassPrx::uncheckedCast(_adapter->createProxy(
+    				_adapter->getCommunicator()->stringToIdentity("noSuchIdentity")));
     return Test::MyClassPrx::uncheckedCast(_adapter->createProxy(_identity));
 }
 

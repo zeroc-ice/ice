@@ -20,7 +20,7 @@ namespace Filesystem {
     class NodeI : virtual public Node {
     public:
 	virtual std::string name(const Ice::Current &) const;
-	NodeI(const std::string &, const DirectoryIPtr & parent);
+	NodeI(const Ice::CommunicatorPtr &, const std::string &, const DirectoryIPtr & parent);
 	static Ice::ObjectAdapterPtr _adapter;
     private:
 	const std::string _name;
@@ -33,7 +33,7 @@ namespace Filesystem {
 	virtual Filesystem::Lines read(const Ice::Current &) const;
 	virtual void write(const Filesystem::Lines &,
 			   const Ice::Current &);
-	FileI(const std::string &, const DirectoryIPtr &);
+	FileI(const Ice::CommunicatorPtr &, const std::string &, const DirectoryIPtr &);
     private:
 	Lines _lines;
     };
@@ -42,7 +42,7 @@ namespace Filesystem {
 		       virtual public Filesystem::NodeI {
     public:
 	virtual Filesystem::NodeSeq list(const Ice::Current &) const;
-        DirectoryI(const std::string &, const DirectoryIPtr &);
+        DirectoryI(const Ice::CommunicatorPtr &, const std::string &, const DirectoryIPtr &);
 	void addChild(NodePrx child);
     private:
 	NodeSeq _contents;

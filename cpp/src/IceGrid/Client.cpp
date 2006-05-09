@@ -96,7 +96,7 @@ Client::run(int argc, char* argv[])
     {
 	ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints("FileParser", "tcp -h localhost");
 	adapter->activate();
-	ObjectPrx proxy = adapter->add(new FileParserI, Ice::stringToIdentity("FileParser"));
+	ObjectPrx proxy = adapter->add(new FileParserI, communicator()->stringToIdentity("FileParser"));
 	cout << proxy << endl;
 
 	communicator()->waitForShutdown();

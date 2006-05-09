@@ -66,7 +66,7 @@ LibraryCollocated::run(int argc, char* argv[])
     // Create the library, and add it to the Object Adapter.
     //
     LibraryIPtr library = new LibraryI(communicator(), _envName, "authors", evictor);
-    adapter->add(library, Ice::stringToIdentity("library"));
+    adapter->add(library, communicator()->stringToIdentity("library"));
     
     //
     // Create and install a factory for books.

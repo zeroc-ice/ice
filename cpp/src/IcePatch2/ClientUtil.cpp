@@ -166,13 +166,13 @@ IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFe
 	const char* instanceProperty = "IcePatch2.InstanceName";
 	idStr = properties->getPropertyWithDefault(instanceProperty, "IcePatch2") + "/server";
     }
-    const Identity id = stringToIdentity(idStr);
+    const Identity id = communicator->stringToIdentity(idStr);
     
-    ObjectPrx serverBase = communicator->stringToProxy(identityToString(id) + ':' + endpoints);
+    ObjectPrx serverBase = communicator->stringToProxy(communicator->identityToString(id) + ':' + endpoints);
     FileServerPrx server = FileServerPrx::checkedCast(serverBase);
     if(!server)
     {
-	throw "proxy `" + identityToString(id) + ':' + endpoints + "' is not a file server.";
+	throw "proxy `" + communicator->identityToString(id) + ':' + endpoints + "' is not a file server.";
     }
 
     init(server);

@@ -30,7 +30,7 @@ int
 ValueServer::run(int argc, char* argv[])
 {
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Value");
-    adapter->add(new InitialI(adapter), Ice::stringToIdentity("initial"));
+    adapter->add(new InitialI(adapter), communicator()->stringToIdentity("initial"));
     adapter->activate();
     communicator()->waitForShutdown();
     return EXIT_SUCCESS;

@@ -14,7 +14,6 @@
 #include <IceE/LocalException.h>
 #include <IceE/Instance.h>
 #include <IceE/Properties.h>
-#include <IceE/IdentityUtil.h>
 #include <IceE/LoggerUtil.h>
 #include <IceE/Protocol.h>
 #include <IceE/StringUtil.h>
@@ -486,7 +485,7 @@ IceInternal::Incoming::__warning(const string& msg) const
 {
     Warning out(_os.instance()->initializationData().logger);
     out << "dispatch exception: " << msg;
-    out << "\nidentity: " << identityToString(_current.id);
+    out << "\nidentity: " << _os.instance()->identityToString(_current.id);
     out << "\nfacet: " << IceUtil::escapeString(_current.facet, "");
     out << "\noperation: " << _current.operation;
 }

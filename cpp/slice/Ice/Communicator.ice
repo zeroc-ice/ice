@@ -132,6 +132,32 @@ local interface Communicator
 
     /**
      *
+     * Convert a string into a identity.
+     *
+     * @param str The string to convert into a identity.
+     *
+     * @return The identity.
+     *
+     * @see identityToString
+     *
+     **/
+    nonmutating Identity stringToIdentity(string str);
+
+    /**
+     *
+     * Convert a identity into a string.
+     *
+     * @param ident The identity to convert into a string.
+     *
+     * @return The "stringified" identity.
+     *
+     * @see stringToIdentity
+     *
+     **/
+    nonmutating string identityToString(Identity ident);
+
+    /**
+     *
      * Create a new object adapter. The endpoints for the object
      * adapter are taken from the property
      * <literal><replaceable>name</replaceable>.Endpoints</literal>.

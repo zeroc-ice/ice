@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <Ice/LoggerUtil.h>
-#include <Ice/IdentityUtil.h>
 #include <Ice/Communicator.h>
 #include <IceGrid/ServerCache.h>
 #include <IceGrid/NodeCache.h>
@@ -172,11 +171,11 @@ ServerCache::addCommunicator(const CommunicatorDescriptorPtr& comm, const Server
 	    if(q->id.empty())
 	    {
 		const string edpts = IceGrid::getProperty(comm->propertySet, q->name + ".Endpoints");
-		info.proxy = _communicator->stringToProxy(Ice::identityToString(r->id) + ":" + edpts);
+		info.proxy = _communicator->stringToProxy(_communicator->identityToString(r->id) + ":" + edpts);
 	    }
 	    else
 	    {
-		info.proxy = _communicator->stringToProxy(Ice::identityToString(r->id) + "@" + q->id);
+		info.proxy = _communicator->stringToProxy(_communicator->identityToString(r->id) + "@" + q->id);
 	    }
 	    _objectCache.add(info, application, r->allocatable, parent);
 	}

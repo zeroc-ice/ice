@@ -9,7 +9,6 @@
 
 #include <Ice/Ice.h>
 #include <Ice/BuiltinSequences.h>
-#include <Ice/IdentityUtil.h>
 #include <IceGrid/Query.h>
 #include <IceGrid/Admin.h>
 #include <TestCommon.h>
@@ -24,11 +23,20 @@ struct ProxyIdentityEqual : public std::binary_function<Ice::ObjectPrx,string,bo
 
 public:
 
+    ProxyIdentityEqual(const Ice::CommunicatorPtr& communicator) :
+        _communicator(communicator)
+    {
+    }
+
     bool 
     operator()(const Ice::ObjectPrx& p1, const string& id) const
     {
-	return p1->ice_getIdentity() == Ice::stringToIdentity(id);
+	return p1->ice_getIdentity() == _communicator->stringToIdentity(id);
     }
+
+private:
+
+    Ice::CommunicatorPtr _communicator;
 };
 
 void
@@ -65,27 +73,27 @@ allTests(const Ice::CommunicatorPtr& comm)
 
     cout << "testing object registration... " << flush;
     Ice::ObjectProxySeq objs = query->findAllObjectsByType("::Test");
-    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(),"Server1")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(),"Server2")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(),"SimpleServer")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(),"IceBox1-Service1")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(),"IceBox1-Service2")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(),"IceBox2-Service1")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(),"IceBox2-Service2")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(),"SimpleIceBox-SimpleService")) != objs.end());
-    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(),"ReplicatedObject")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(comm),"Server1")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(comm),"Server2")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(comm),"SimpleServer")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(comm),"IceBox1-Service1")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(comm),"IceBox1-Service2")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(comm),"IceBox2-Service1")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(comm),"IceBox2-Service2")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(comm),"SimpleIceBox-SimpleService")) != objs.end());
+    test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(comm),"ReplicatedObject")) != objs.end());
 
     {
-	test(Ice::identityToString(query->findObjectByType("::TestId1")->ice_getIdentity()) == "cat/name1");
-	test(Ice::identityToString(query->findObjectByType("::TestId2")->ice_getIdentity()) == "cat1/name1");
-	test(Ice::identityToString(query->findObjectByType("::TestId3")->ice_getIdentity()) == "cat1/name1-bis");
-	test(Ice::identityToString(query->findObjectByType("::TestId4")->ice_getIdentity()) == "c2\\/c2/n2\\/n2");
-	test(Ice::identityToString(query->findObjectByType("::TestId5")->ice_getIdentity()) == "n2\\/n2");
+	test(comm->identityToString(query->findObjectByType("::TestId1")->ice_getIdentity()) == "cat/name1");
+	test(comm->identityToString(query->findObjectByType("::TestId2")->ice_getIdentity()) == "cat1/name1");
+	test(comm->identityToString(query->findObjectByType("::TestId3")->ice_getIdentity()) == "cat1/name1-bis");
+	test(comm->identityToString(query->findObjectByType("::TestId4")->ice_getIdentity()) == "c2\\/c2/n2\\/n2");
+	test(comm->identityToString(query->findObjectByType("::TestId5")->ice_getIdentity()) == "n2\\/n2");
     }
 
     {
 	Ice::ObjectPrx obj = query->findObjectByType("::Test");
-	string id = Ice::identityToString(obj->ice_getIdentity());
+	string id = comm->identityToString(obj->ice_getIdentity());
 	test(id == "Server1" || id == "Server2" || id == "SimpleServer" ||
 	     id == "IceBox1-Service1" || id == "IceBox1-Service2" ||
 	     id == "IceBox2-Service1" || id == "IceBox2-Service2" ||
@@ -94,7 +102,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 
     {
 	Ice::ObjectPrx obj = query->findObjectByTypeOnLeastLoadedNode("::Test", LoadSample5);
-	string id = Ice::identityToString(obj->ice_getIdentity());
+	string id = comm->identityToString(obj->ice_getIdentity());
 	test(id == "Server1" || id == "Server2" || id == "SimpleServer" ||
 	     id == "IceBox1-Service1" || id == "IceBox1-Service2" ||
 	     id == "IceBox2-Service1" || id == "IceBox2-Service2" ||

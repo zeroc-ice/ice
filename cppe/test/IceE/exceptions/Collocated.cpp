@@ -38,7 +38,7 @@ public:
 
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
         Ice::ObjectPtr object = new ThrowerI(adapter);
-        adapter->add(object, Ice::stringToIdentity("thrower"));
+        adapter->add(object, communicator()->stringToIdentity("thrower"));
         adapter->activate();
 
         ThrowerPrx allTests(const Ice::CommunicatorPtr&);

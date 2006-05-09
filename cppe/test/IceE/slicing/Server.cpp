@@ -36,7 +36,7 @@ public:
 
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
         Ice::ObjectPtr object = new TestI(adapter);
-        adapter->add(object, Ice::stringToIdentity("Test"));
+        adapter->add(object, communicator()->stringToIdentity("Test"));
         adapter->activate();
 
 #ifndef _WIN32_WCE

@@ -40,7 +40,7 @@ class TopicSubscribers : public IceUtil::Shared
 {
 public:
 
-    TopicSubscribers(const TraceLevelsPtr&);
+    TopicSubscribers(const Ice::CommunicatorPtr&, const TraceLevelsPtr&);
     virtual ~TopicSubscribers();
 
     void add(const SubscriberPtr&);
@@ -50,6 +50,7 @@ public:
 
 private:
 	
+    Ice::CommunicatorPtr _communicator;
     TraceLevelsPtr _traceLevels;
 
     //
@@ -69,8 +70,8 @@ class TopicI : public TopicInternal, public IceUtil::RecMutex
 {
 public:
 
-    TopicI(const Ice::ObjectAdapterPtr&, const TraceLevelsPtr&, const std::string&, const LinkRecordDict&, 
-	   const SubscriberFactoryPtr&, const std::string&, const std::string&);
+    TopicI(const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&, const TraceLevelsPtr&, const std::string&,
+           const LinkRecordDict&, const SubscriberFactoryPtr&, const std::string&, const std::string&);
     ~TopicI();
 
     virtual std::string getName(const Ice::Current&) const;
@@ -94,6 +95,7 @@ private:
     //
     // Immutable members.
     //
+    Ice::CommunicatorPtr _communicator;
     Ice::ObjectAdapterPtr _adapter;
     TraceLevelsPtr _traceLevels;
     std::string _name; // The topic name

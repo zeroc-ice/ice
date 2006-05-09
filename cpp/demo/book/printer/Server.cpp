@@ -38,7 +38,7 @@ main(int argc, char* argv[])
 		"SimplePrinterAdapter", "default -p 10000");
 	Ice::ObjectPtr object = new PrinterI;
 	adapter->add(object,
-		     Ice::stringToIdentity("SimplePrinter"));
+		     ic->stringToIdentity("SimplePrinter"));
 	adapter->activate();
 	ic->waitForShutdown();
     } catch (const Ice::Exception & e) {

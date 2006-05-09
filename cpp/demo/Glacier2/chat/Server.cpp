@@ -45,8 +45,8 @@ public:
     {
 	Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("ChatServer");
 	
-	adapter->add(new DummyPermissionsVerifierI, Ice::stringToIdentity("verifier"));
-	adapter->add(new ChatSessionManagerI, Ice::stringToIdentity("ChatSessionManager"));
+	adapter->add(new DummyPermissionsVerifierI, communicator()->stringToIdentity("verifier"));
+	adapter->add(new ChatSessionManagerI, communicator()->stringToIdentity("ChatSessionManager"));
 	adapter->activate();
 	communicator()->waitForShutdown();
 	

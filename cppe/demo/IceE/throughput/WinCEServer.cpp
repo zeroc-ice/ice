@@ -136,7 +136,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
 
 	Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Throughput");
 	Ice::ObjectPtr object = new ThroughputI(100);
-	adapter->add(object, Ice::stringToIdentity("throughput"));
+	adapter->add(object, communicator->stringToIdentity("throughput"));
 	adapter->activate();
 
 	//

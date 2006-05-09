@@ -234,10 +234,6 @@ SOURCE=.\Identity.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\IdentityUtil.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Incoming.cpp
 # End Source File
 # Begin Source File
@@ -631,10 +627,6 @@ SOURCE=..\..\include\ice\Ice.h
 # Begin Source File
 
 SOURCE=..\..\include\ice\Identity.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\ice\IdentityUtil.h
 # End Source File
 # Begin Source File
 

@@ -309,7 +309,7 @@ Test::RemoteEvictorI::deactivate(const Current& current)
 {
     _evictorAdapter->deactivate();
     _evictorAdapter->waitForDeactivate();
-    _adapter->remove(stringToIdentity(_category));
+    _adapter->remove(_adapter->getCommunicator()->stringToIdentity(_category));
 }
 
 
@@ -340,7 +340,8 @@ Test::RemoteEvictorFactoryI::RemoteEvictorFactoryI(const ObjectAdapterPtr& adapt
 Test::RemoteEvictorFactoryI::createEvictor(const string& name, const Current& current)
 {
     RemoteEvictorIPtr remoteEvictor = new RemoteEvictorI(_adapter, _envName, name);  
-    return RemoteEvictorPrx::uncheckedCast(_adapter->add(remoteEvictor, stringToIdentity(name)));
+    return RemoteEvictorPrx::uncheckedCast(_adapter->add(remoteEvictor, 
+    						         _adapter->getCommunicator()->stringToIdentity(name)));
 }
 
 void

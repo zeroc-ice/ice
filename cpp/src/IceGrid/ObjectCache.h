@@ -80,7 +80,7 @@ class ObjectCache : public Cache<Ice::Identity, ObjectEntry>
 {
 public:
 
-    ObjectCache(AdapterCache&);
+    ObjectCache(const Ice::CommunicatorPtr&, AdapterCache&);
 
     void add(const ObjectInfo&, const std::string&, bool, const AllocatablePtr&);
     ObjectEntryPtr get(const Ice::Identity&) const;
@@ -92,6 +92,8 @@ public:
     Ice::ObjectProxySeq getObjectsByType(const std::string&); 
     ObjectInfoSeq getAll(const std::string&);
     ObjectInfoSeq getAllByType(const std::string&);
+
+    const Ice::CommunicatorPtr& communicator() const { return _communicator; }
 
 private:
     
@@ -117,6 +119,7 @@ private:
 	int _allocatablesCount;
     };
 
+    Ice::CommunicatorPtr _communicator;
     AdapterCache& _adapterCache;
 
     std::map<std::string, TypeEntry> _types;

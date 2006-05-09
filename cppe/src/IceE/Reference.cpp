@@ -11,7 +11,6 @@
 #include <IceE/ReferenceFactory.h>
 #include <IceE/LocalException.h>
 #include <IceE/Instance.h>
-#include <IceE/IdentityUtil.h>
 #include <IceE/Endpoint.h>
 #include <IceE/BasicStream.h>
 
@@ -184,7 +183,7 @@ IceInternal::Reference::toString() const
     // the reference parser uses as separators, then we enclose
     // the identity string in quotes.
     //
-    string id = identityToString(_identity);
+    string id = _instance->identityToString(_identity);
     if(id.find_first_of(" \t\n\r:@") != string::npos)
     {
         s += "\"";
@@ -205,7 +204,15 @@ IceInternal::Reference::toString() const
 	// the reference parser uses as separators, then we enclose
 	// the facet string in quotes.
 	//
-	string fs = IceUtil::escapeString(_facet, "");
+	string fs = _facet;
+        if(_instance->initializationData().stringConverter)
+        {
+            UTF8BufferI buffer;
+            Byte* last = 
+	        _instance->initializationData().stringConverter->toUTF8(fs.data(), fs.data() + fs.size(), buffer);
+            fs = string(buffer.getBuffer(), last);
+        }
+	fs = IceUtil::escapeString(fs, "");
 	if(fs.find_first_of(" \t\n\r:@") != string::npos)
 	{
             s += "\"";
@@ -933,7 +940,14 @@ IceInternal::IndirectReference::toString() const
     // reference parser uses as separators, then we enclose the
     // adapter id string in quotes.
     //
-    string a = IceUtil::escapeString(_adapterId, "");
+    string a = _adapterId;
+    if(getInstance()->initializationData().stringConverter)
+    {
+        UTF8BufferI buffer;
+        Byte* last = getInstance()->initializationData().stringConverter->toUTF8(a.data(), a.data() + a.size(), buffer);
+      a = string(buffer.getBuffer(), last);
+    }
+    a = IceUtil::escapeString(a, "");
     if(a.find_first_of(" \t\n\r") != string::npos)
     {
 	result.append("\"");

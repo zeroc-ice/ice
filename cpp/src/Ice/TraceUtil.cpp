@@ -17,7 +17,6 @@
 #include <Ice/Logger.h>
 #include <Ice/BasicStream.h>
 #include <Ice/Protocol.h>
-#include <Ice/IdentityUtil.h>
 #include <set>
 
 using namespace std;
@@ -29,7 +28,7 @@ printIdentityFacetOperation(ostream& s, BasicStream& stream)
 {
     Identity identity;
     identity.__read(&stream);
-    s << "\nidentity = " << identity;
+    s << "\nidentity = " << stream.instance()->identityToString(identity);
 
     vector<string> facet;
     stream.read(facet);

@@ -241,11 +241,16 @@ class AMI_MyClass_opMyClassI : public Test::AMI_MyClass_opMyClass, public Callba
 {
 public:
 
+    AMI_MyClass_opMyClassI(const Ice::CommunicatorPtr& communicator) :
+        _communicator(communicator)
+    {
+    }
+
     virtual void ice_response(const ::Test::MyClassPrx& r, const ::Test::MyClassPrx& c1, const ::Test::MyClassPrx& c2)
     {
-	test(c1->ice_getIdentity() == Ice::stringToIdentity("test"));
-	test(c2->ice_getIdentity() == Ice::stringToIdentity("noSuchIdentity"));
-	test(r->ice_getIdentity() == Ice::stringToIdentity("test"));
+	test(c1->ice_getIdentity() == _communicator->stringToIdentity("test"));
+	test(c2->ice_getIdentity() == _communicator->stringToIdentity("noSuchIdentity"));
+	test(r->ice_getIdentity() == _communicator->stringToIdentity("test"));
 	// We can't do the callbacks below in thread per connection mode.
 	if(!Ice::getDefaultProperties()->getPropertyAsInt("Ice.ThreadPerConnection"))
 	{
@@ -267,6 +272,10 @@ public:
     {
 	test(false);
     }
+
+private:
+
+    Ice::CommunicatorPtr _communicator;
 };
 
 typedef IceUtil::Handle<AMI_MyClass_opMyClassI> AMI_MyClass_opMyClassIPtr;
@@ -936,7 +945,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
     }
 
     {
-	AMI_MyClass_opMyClassIPtr cb = new AMI_MyClass_opMyClassI;
+	AMI_MyClass_opMyClassIPtr cb = new AMI_MyClass_opMyClassI(communicator);
 	p->opMyClass_async(cb, p);
 	test(cb->check());
     }

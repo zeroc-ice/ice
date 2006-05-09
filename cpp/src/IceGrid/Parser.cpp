@@ -246,7 +246,7 @@ Parser::describeApplication(const list<string>& args)
 	string name = *p++;
 
 	Output out(cout);
-	ApplicationHelper helper(_admin->getApplicationDescriptor(name));
+	ApplicationHelper helper(_communicator, _admin->getApplicationDescriptor(name));
 	helper.print(out);
 	out << nl;
     }
@@ -289,8 +289,8 @@ Parser::diffApplication(const list<string>& args)
 	ApplicationDescriptor newApp = DescriptorParser::parseDescriptor(desc, targets, vars, _communicator, _admin);
 	ApplicationDescriptor origApp = _admin->getApplicationDescriptor(newApp.name);
 
-	ApplicationHelper newAppHelper(newApp);
-	ApplicationHelper oldAppHelper(origApp);
+	ApplicationHelper newAppHelper(_communicator, newApp);
+	ApplicationHelper oldAppHelper(_communicator, origApp);
 	
 	Output out(cout);
 	newAppHelper.printDiff(out, oldAppHelper);
@@ -427,11 +427,11 @@ Parser::describeServerTemplate(const list<string>& args)
 	    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(server);
 	    if(iceBox)
 	    {
-		IceBoxHelper(iceBox).print(out);
+		IceBoxHelper(_communicator, iceBox).print(out);
 	    }
 	    else
 	    {
-		ServerHelper(server).print(out);
+		ServerHelper(_communicator, server).print(out);
 	    }
 	    out << eb;
 	    out << nl;
@@ -513,7 +513,7 @@ Parser::describeServiceTemplate(const list<string>& args)
 	    out << nl;
 
 	    ServiceDescriptorPtr desc = ServiceDescriptorPtr::dynamicCast(q->second.descriptor);
-	    ServiceHelper(desc).print(out);
+	    ServiceHelper(_communicator, desc).print(out);
 	    out << eb;
 	    out << nl;
 	}
@@ -803,11 +803,11 @@ Parser::describeServer(const list<string>& args)
 	IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(info.descriptor);
 	if(iceBox)
 	{
-	    IceBoxHelper(iceBox).print(out, info.application, info.node);
+	    IceBoxHelper(_communicator, iceBox).print(out, info.application, info.node);
 	}
 	else
 	{
-	    ServerHelper(info.descriptor).print(out, info.application, info.node);
+	    ServerHelper(_communicator, info.descriptor).print(out, info.application, info.node);
 	}
 	out << nl;
     }
@@ -1036,7 +1036,7 @@ Parser::removeObject(const list<string>& args)
 
     try
     {
-	_admin->removeObject(Ice::stringToIdentity((*(args.begin()))));
+	_admin->removeObject(_communicator->stringToIdentity((*(args.begin()))));
     }
     catch(const Ice::Exception& ex)
     {
@@ -1078,7 +1078,7 @@ Parser::describeObject(const list<string>& args)
 	    string arg = *(args.begin());
 	    if(arg.find('*') == string::npos)
 	    {
-		ObjectInfo info = _admin->getObjectInfo(Ice::stringToIdentity(arg));
+		ObjectInfo info = _admin->getObjectInfo(_communicator->stringToIdentity(arg));
 		cout << "proxy = `" << _communicator->proxyToString(info.proxy) << "'" << endl;
 		cout << "type = `" << info.type << "'" << endl;
 		return;
@@ -1122,7 +1122,7 @@ Parser::listObject(const list<string>& args)
 	
 	for(ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
 	{
-	    cout << Ice::identityToString(p->proxy->ice_getIdentity()) << endl;
+	    cout << _communicator->identityToString(p->proxy->ice_getIdentity()) << endl;
 	}	
     }
     catch(const Ice::Exception& ex)
@@ -1492,11 +1492,11 @@ Parser::exception(const Ice::Exception& ex)
     }
     catch(const ObjectExistsException& ex)
     {
-	error("object `" + Ice::identityToString(ex.id) + "' already exists");
+	error("object `" + _communicator->identityToString(ex.id) + "' already exists");
     }
     catch(const ObjectNotExistException& ex)
     {
-	error("couldn't find object `" + Ice::identityToString(ex.id) + "'");
+	error("couldn't find object `" + _communicator->identityToString(ex.id) + "'");
     }
     catch(const DeploymentException& ex)
     {

@@ -55,7 +55,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const stri
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Factory");
 
     Test::RemoteEvictorFactoryPtr factory = new Test::RemoteEvictorFactoryI(adapter, envName);
-    adapter->add(factory, Ice::stringToIdentity("factory"));
+    adapter->add(factory, communicator->stringToIdentity("factory"));
 
     Ice::ObjectFactoryPtr servantFactory = new ServantFactory;
     communicator->addObjectFactory(servantFactory, "::Test::Servant");

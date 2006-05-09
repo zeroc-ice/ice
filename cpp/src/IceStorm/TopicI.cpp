@@ -77,7 +77,9 @@ private:
 
 } // End namespace IceStorm
 
-IceStorm::TopicSubscribers::TopicSubscribers(const TraceLevelsPtr& traceLevels) :
+IceStorm::TopicSubscribers::TopicSubscribers(const Ice::CommunicatorPtr& communicator, 
+					     const TraceLevelsPtr& traceLevels) :
+    _communicator(communicator),
     _traceLevels(traceLevels)
 {
 }
@@ -153,7 +155,7 @@ IceStorm::TopicSubscribers::remove(const Ice::ObjectPrx& obj)
     if(_traceLevels->topic > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
-	out << id << ": not subscribed.";
+	out << _communicator->identityToString(id) << ": not subscribed.";
     }
 }
 
@@ -296,19 +298,20 @@ TopicLinkI::forward(const vector<EventData>& v, const Ice::Current& current)
     }
 }
 
-TopicI::TopicI(const Ice::ObjectAdapterPtr& adapter, const TraceLevelsPtr& traceLevels, const string& name,
-	       const LinkRecordDict& links, const SubscriberFactoryPtr& factory, 
-	       const string& envName, const string& dbName) :
+TopicI::TopicI(const Ice::CommunicatorPtr& communicator, const Ice::ObjectAdapterPtr& adapter, 
+	       const TraceLevelsPtr& traceLevels, const string& name, const LinkRecordDict& links,
+	       const SubscriberFactoryPtr& factory, const string& envName, const string& dbName) :
+    _communicator(communicator),
     _adapter(adapter),
     _traceLevels(traceLevels),
     _name(name),
     _factory(factory),
     _destroyed(false),
-    _connection(Freeze::createConnection(adapter->getCommunicator(), envName)),
+    _connection(Freeze::createConnection(_communicator, envName)),
     _topics(_connection, dbName, false),
     _links(links)
 {
-    _subscribers = new TopicSubscribers(_traceLevels);
+    _subscribers = new TopicSubscribers(_communicator, _traceLevels);
 
     //
     // Create a servant per topic to receive event data. The servant's
@@ -391,7 +394,7 @@ TopicI::destroy(const Ice::Current&)
     if(_traceLevels->topic > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
-	out << "destroying " << id;
+	out << "destroying " << _communicator->identityToString(id);
     }
 
     _adapter->remove(id);
@@ -401,7 +404,7 @@ TopicI::destroy(const Ice::Current&)
     if(_traceLevels->topic > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
-	out << "destroying " << id;
+	out << "destroying " << _communicator->identityToString(id);
     }
 
     _adapter->remove(id);
@@ -421,7 +424,7 @@ TopicI::subscribe(const QoS& qos, const Ice::ObjectPrx& subscriber, const Ice::C
     if(_traceLevels->topic > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
-	out << "Subscribe: " << Ice::identityToString(ident);
+	out << "Subscribe: " << _communicator->identityToString(ident);
 	if(_traceLevels->topic > 1)
 	{
 	    out << " QoS: ";
@@ -472,7 +475,7 @@ TopicI::unsubscribe(const Ice::ObjectPrx& subscriber, const Ice::Current&)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
 
-	out << "Unsubscribe: " << Ice::identityToString(ident);
+	out << "Unsubscribe: " << _communicator->identityToString(ident);
     }
 
     reap();
@@ -654,7 +657,7 @@ TopicI::reap()
 	    if(_traceLevels->topic > 0)
 	    {
 		Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
-		out << "reaping " << subscriber->id();
+		out << "reaping " << _communicator->identityToString(subscriber->id());
 	    }
 	}
 	else
@@ -662,7 +665,7 @@ TopicI::reap()
 	    if(_traceLevels->topic > 0)
 	    {
 		Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
-		out << "reaping " << subscriber->id() << " failed - not in database";
+		out << "reaping " << _communicator->identityToString(subscriber->id()) << " failed - not in database";
 	    }
 	}
     }

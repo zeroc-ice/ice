@@ -19,7 +19,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     InitialPtr initial = new InitialI(adapter);
-    adapter->add(initial, Ice::stringToIdentity("initial"));
+    adapter->add(initial, communicator->stringToIdentity("initial"));
     InitialPrx allTests(const Ice::CommunicatorPtr&, bool);
     allTests(communicator, true);
     // We must call shutdown even in the collocated case for cyclic dependency cleanup

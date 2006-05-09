@@ -21,7 +21,7 @@ Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAd
 			   const string& userId, const SessionPrx& session, const Identity& controlId) :
     _communicator(clientAdapter->getCommunicator()),
     _routingTable(new RoutingTable(_communicator)),
-    _clientProxy(clientAdapter->createProxy(stringToIdentity("dummy"))),
+    _clientProxy(clientAdapter->createProxy(_communicator->stringToIdentity("dummy"))),
     _adminAdapter(adminAdapter),
     _connection(connection),
     _userId(userId),

@@ -39,7 +39,7 @@ public:
 
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
         Ice::ObjectPtr object = new RetryI;
-        adapter->add(object, Ice::stringToIdentity("retry"));
+        adapter->add(object, communicator()->stringToIdentity("retry"));
         adapter->activate();
 
 #ifndef _WIN32_WCE

@@ -152,7 +152,7 @@ SubscriberFactory::createSubscriber(const QoS& qos, const Ice::ObjectPrx& obj)
 	// TODO: rename OnewaySubscriber into something more approriate, ObjectPrxSubscriber
 	// for example (there's also LinkSubscriber).
 	//
-        return new OnewaySubscriber(this, _traceLevels, proxy);
+        return new OnewaySubscriber(this, _communicator, _traceLevels, proxy);
     }
 }
 

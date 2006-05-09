@@ -19,7 +19,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     InitialPtr initial = new InitialI(adapter);
-    adapter->add(initial, Ice::stringToIdentity("initial"));
+    adapter->add(initial, communicator->stringToIdentity("initial"));
     adapter->activate();
     communicator->waitForShutdown();
     return EXIT_SUCCESS;

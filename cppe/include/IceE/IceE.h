@@ -21,7 +21,6 @@
 #   include <IceE/Object.h>
 #endif
 #include <IceE/Proxy.h>
-#include <IceE/IdentityUtil.h>
 #include <IceE/Connection.h>
 #include <IceE/Functional.h>
 

@@ -25,7 +25,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     tprintf("ok\n");
 
     tprintf("testing proxy methods... ");
-    test(Ice::identityToString(base->ice_identity(Ice::stringToIdentity("other"))->ice_getIdentity()) == "other");
+    test(communicator->identityToString(base->ice_identity(communicator->stringToIdentity("other"))->ice_getIdentity())
+    	  == "other");
     test(base->ice_facet("facet")->ice_getFacet() == "facet");
     test(base->ice_twoway()->ice_isTwoway());
     test(base->ice_oneway()->ice_isOneway());

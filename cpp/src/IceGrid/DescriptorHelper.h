@@ -64,7 +64,7 @@ class CommunicatorHelper
 {
 public:
 
-    CommunicatorHelper(const CommunicatorDescriptorPtr&);
+    CommunicatorHelper(const Ice::CommunicatorPtr&, const CommunicatorDescriptorPtr&);
     CommunicatorHelper() { }
     virtual ~CommunicatorHelper() { }
 
@@ -84,6 +84,8 @@ protected:
 
     void instantiateImpl(const CommunicatorDescriptorPtr&, const Resolver&) const;
     
+    Ice::CommunicatorPtr _communicator;
+
 private:
 
     CommunicatorDescriptorPtr _desc;
@@ -93,7 +95,7 @@ class ServiceHelper : public CommunicatorHelper
 {
 public:
 
-    ServiceHelper(const ServiceDescriptorPtr&);
+    ServiceHelper(const Ice::CommunicatorPtr&, const ServiceDescriptorPtr&);
     ServiceHelper() { }
 
     bool operator==(const ServiceHelper&) const;
@@ -117,7 +119,7 @@ class ServerHelper : public CommunicatorHelper, public IceUtil::SimpleShared
 {
 public:
 
-    ServerHelper(const ServerDescriptorPtr&);
+    ServerHelper(const Ice::CommunicatorPtr&, const ServerDescriptorPtr&);
     ServerHelper() { }
 
     bool operator==(const ServerHelper&) const;
@@ -144,11 +146,15 @@ class InstanceHelper
 {
 protected:
 
+    InstanceHelper(const Ice::CommunicatorPtr&);
+
     std::map<std::string, std::string> instantiateParams(const Resolver&, 
 							 const std::string&, 
 							 const std::map<std::string, std::string>&,
 							 const std::vector<std::string>&,
 							 const std::map<std::string, std::string>&) const;
+
+    Ice::CommunicatorPtr _communicator;
 };
 
 
@@ -156,8 +162,8 @@ class ServiceInstanceHelper : public InstanceHelper
 {
 public:
 
-    ServiceInstanceHelper(const ServiceInstanceDescriptor&);
-    ServiceInstanceHelper() { }
+    ServiceInstanceHelper(const Ice::CommunicatorPtr&, const ServiceInstanceDescriptor&);
+    ServiceInstanceHelper(const Ice::CommunicatorPtr&);
 
     bool operator==(const ServiceInstanceHelper&) const;
     bool operator!=(const ServiceInstanceHelper&) const;
@@ -178,7 +184,7 @@ class IceBoxHelper : public ServerHelper
 {
 public:
 
-    IceBoxHelper(const IceBoxDescriptorPtr&);
+    IceBoxHelper(const Ice::CommunicatorPtr&, const IceBoxDescriptorPtr&);
     IceBoxHelper() { }
 
     bool operator==(const IceBoxHelper&) const;
@@ -206,9 +212,9 @@ class ServerInstanceHelper : public InstanceHelper
 {
 public:
 
-    ServerInstanceHelper(const ServerInstanceDescriptor&, const Resolver&);
-    ServerInstanceHelper(const ServerDescriptorPtr&, const Resolver&);
-    ServerInstanceHelper() { }
+    ServerInstanceHelper(const Ice::CommunicatorPtr&, const ServerInstanceDescriptor&, const Resolver&);
+    ServerInstanceHelper(const Ice::CommunicatorPtr&, const ServerDescriptorPtr&, const Resolver&);
+    ServerInstanceHelper(const Ice::CommunicatorPtr&);
     
     void operator=(const ServerInstanceHelper&);
     bool operator==(const ServerInstanceHelper&) const;
@@ -238,8 +244,8 @@ class NodeHelper
 {
 public:
 
-    NodeHelper(const std::string&, const NodeDescriptor&, const Resolver&);
-    NodeHelper() { }
+    NodeHelper(const Ice::CommunicatorPtr&, const std::string&, const NodeDescriptor&, const Resolver&);
+    NodeHelper(const Ice::CommunicatorPtr&);
     virtual ~NodeHelper() { }
 
     bool operator==(const NodeHelper&) const;
@@ -264,6 +270,7 @@ private:
 
     NodeDescriptor instantiate(const Resolver&) const;
 
+    Ice::CommunicatorPtr _communicator;
     std::string _name;
     NodeDescriptor _definition;    
     NodeDescriptor _instance;
@@ -277,7 +284,7 @@ class ApplicationHelper
 {
 public:
 
-    ApplicationHelper(const ApplicationDescriptor&);
+    ApplicationHelper(const Ice::CommunicatorPtr&, const ApplicationDescriptor&);
 
     ApplicationUpdateDescriptor diff(const ApplicationHelper&);
     void update(const ApplicationUpdateDescriptor&);
@@ -299,6 +306,7 @@ private:
     void validate(const Resolver&) const;
     ApplicationDescriptor instantiate(const Resolver&) const;
 
+    Ice::CommunicatorPtr _communicator;
     ApplicationDescriptor _definition;
     ApplicationDescriptor _instance;
 
@@ -306,7 +314,7 @@ private:
     NodeHelperDict _nodes;
 };
 
-bool descriptorEqual(const ServerDescriptorPtr&, const ServerDescriptorPtr&);
+bool descriptorEqual(const Ice::CommunicatorPtr&, const ServerDescriptorPtr&, const ServerDescriptorPtr&);
 
 }
 

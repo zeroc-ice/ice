@@ -38,9 +38,9 @@ public:
 	setCommunicator(Ice::initialize(argc, argv, initData));
 	
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
-	Ice::Identity id = Ice::stringToIdentity("test");
+	Ice::Identity id = communicator()->stringToIdentity("test");
         adapter->add(new MyDerivedClassI(adapter, id), id);
-	adapter->add(new TestCheckedCastI, Ice::stringToIdentity("context"));
+	adapter->add(new TestCheckedCastI, communicator()->stringToIdentity("context"));
         adapter->activate();
 
 #ifndef _WIN32_WCE

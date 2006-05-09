@@ -45,8 +45,8 @@ SessionControlServer::run(int argc, char* argv[])
 {
     communicator()->getProperties()->setProperty("SessionControlAdapter.Endpoints", "tcp -p 12010 -t 10000");
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("SessionControlAdapter");
-    adapter->add(new DummyPermissionsVerifierI, Ice::stringToIdentity("verifier"));
-    adapter->add(new SessionManagerI, Ice::stringToIdentity("SessionManager"));
+    adapter->add(new DummyPermissionsVerifierI, communicator()->stringToIdentity("verifier"));
+    adapter->add(new SessionManagerI, communicator()->stringToIdentity("SessionManager"));
     adapter->activate();
     communicator()->waitForShutdown();
     return EXIT_SUCCESS;

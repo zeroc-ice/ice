@@ -73,6 +73,8 @@ public:
     Ice::Int clientACM() const;
     Ice::Int serverACM() const;
     void flushBatchRequests();
+    Ice::Identity stringToIdentity(const std::string&) const;
+    std::string identityToString(const Ice::Identity&) const;
     
 private:
 
@@ -110,6 +112,23 @@ private:
     EndpointFactoryManagerPtr _endpointFactoryManager;
     DynamicLibraryListPtr _dynamicLibraryList;
     Ice::PluginManagerPtr _pluginManager;
+};
+
+class UTF8BufferI : public Ice::UTF8Buffer
+{
+public:
+
+   UTF8BufferI();
+   ~UTF8BufferI();
+
+   Ice::Byte* getMoreBytes(size_t howMany, Ice::Byte* firstUnused);
+   Ice::Byte* getBuffer();
+   void reset();
+
+private:
+
+    Ice::Byte* _buffer;
+    size_t _offset;
 };
 
 }

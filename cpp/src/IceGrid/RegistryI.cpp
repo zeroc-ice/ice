@@ -242,14 +242,14 @@ RegistryI::start(bool nowarn)
     bool dynamicReg = properties->getPropertyAsInt("IceGrid.Registry.DynamicRegistration") > 0;
     ObjectPtr locatorRegistry = new LocatorRegistryI(_database, dynamicReg);
     ObjectPrx obj = serverAdapter->add(locatorRegistry, 
-				       stringToIdentity(instanceName + "/" + IceUtil::generateUUID()));
+				       _communicator->stringToIdentity(instanceName + "/" + IceUtil::generateUUID()));
     LocatorRegistryPrx locatorRegistryPrx = LocatorRegistryPrx::uncheckedCast(obj);
     ObjectPtr locator = new LocatorI(_communicator, _database, locatorRegistryPrx); 
-    Identity locatorId = stringToIdentity(instanceName + "/Locator");
+    Identity locatorId = _communicator->stringToIdentity(instanceName + "/Locator");
     clientAdapter->add(locator, locatorId);
 
 
-    Ice::Identity registryId = stringToIdentity(instanceName + "/Registry");
+    Ice::Identity registryId = _communicator->stringToIdentity(instanceName + "/Registry");
     registryAdapter->add(this, registryId);
     registryAdapter->activate();
 
@@ -260,7 +260,7 @@ RegistryI::start(bool nowarn)
 					  registryAdapter, 
 					  registryAdapter, 
 					  "IceGrid.Registry", 
- 					  stringToIdentity(instanceName + "/TopicManager"),
+ 					  _communicator->stringToIdentity(instanceName + "/TopicManager"),
 					  "Registry");
 
     NodeObserverTopic* nodeTopic = new NodeObserverTopic(_iceStorm->getTopicManager());
@@ -274,17 +274,17 @@ RegistryI::start(bool nowarn)
     //
     // Create the query, admin, session manager interfaces
     //
-    Identity queryId = stringToIdentity(instanceName + "/Query");
+    Identity queryId = _communicator->stringToIdentity(instanceName + "/Query");
     clientAdapter->add(new QueryI(_communicator, _database), queryId);
 
-    Identity sessionMgrId = stringToIdentity(instanceName + "/SessionManager");
+    Identity sessionMgrId = _communicator->stringToIdentity(instanceName + "/SessionManager");
     ObjectPtr sessionMgr = new ClientSessionManagerI(_database, clientReaper, _waitQueue, sessionTimeout);
     clientAdapter->add(sessionMgr, sessionMgrId);
 
-    Identity adminId = stringToIdentity(instanceName + "/Admin");
+    Identity adminId = _communicator->stringToIdentity(instanceName + "/Admin");
     adminAdapter->add(new AdminI(_database, this, traceLevels), adminId);
 
-    Identity admSessionMgrId = stringToIdentity(instanceName + "/AdminSessionManager");
+    Identity admSessionMgrId = _communicator->stringToIdentity(instanceName + "/AdminSessionManager");
     ObjectPtr admSessionMgr = 
 	new AdminSessionManagerI(*regTopic, *nodeTopic, _database, clientReaper, _waitQueue, sessionTimeout);
     adminAdapter->add(admSessionMgr, admSessionMgrId);

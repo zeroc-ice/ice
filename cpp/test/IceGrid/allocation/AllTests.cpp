@@ -103,7 +103,9 @@ class StressClient : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mu
 {
 public:
     
-    StressClient(int id, const SessionManagerPrx& manager, bool destroySession) : 
+    StressClient(const Ice::CommunicatorPtr& communicator, int id, const SessionManagerPrx& manager, 
+    		 bool destroySession) : 
+        _communicator(communicator),
 	_id(id),
 	_manager(manager),
 	_notified(false),
@@ -192,7 +194,7 @@ public:
 	os << "stress-" << IceUtil::random(6) + 1;
 	try
 	{
-	    return session->allocateObjectById(Ice::stringToIdentity(os.str()));
+	    return session->allocateObjectById(_communicator->stringToIdentity(os.str()));
 	}
 	catch(const AllocationTimeoutException&)
 	{
@@ -218,7 +220,7 @@ public:
     {
 	ostringstream os;
 	os << "stress-" << IceUtil::random(3);
-	session->allocateObjectById_async(new AllocateObjectByIdCallback(), Ice::stringToIdentity(os.str()));
+	session->allocateObjectById_async(new AllocateObjectByIdCallback(), _communicator->stringToIdentity(os.str()));
 	session->destroy();
     }
 
@@ -247,6 +249,7 @@ public:
 
 protected:
 
+    const Ice::CommunicatorPtr _communicator;
     const int _id;
     const SessionManagerPrx _manager;
     bool _notified;
@@ -347,19 +350,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	cout << "testing allocate object by identity... " << flush;
 
-	Ice::Identity allocatable = Ice::stringToIdentity("allocatable");
-	Ice::Identity allocatablebis = Ice::stringToIdentity("allocatablebis");
+	Ice::Identity allocatable = communicator->stringToIdentity("allocatable");
+	Ice::Identity allocatablebis = communicator->stringToIdentity("allocatablebis");
 
 	try
 	{
-	    session1->allocateObjectById(Ice::stringToIdentity("dummy"));
+	    session1->allocateObjectById(communicator->stringToIdentity("dummy"));
 	}
 	catch(const ObjectNotRegisteredException&)
 	{
 	}
 	try
 	{
-	    session1->releaseObject(Ice::stringToIdentity("dummy"));
+	    session1->releaseObject(communicator->stringToIdentity("dummy"));
 	}
 	catch(const ObjectNotRegisteredException&)
 	{
@@ -367,7 +370,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	try
 	{
-	    session1->allocateObjectById(Ice::stringToIdentity("nonallocatable"));
+	    session1->allocateObjectById(communicator->stringToIdentity("nonallocatable"));
 	    test(false);
 	}
 	catch(const NotAllocatableException& ex)
@@ -375,7 +378,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	try
 	{
-	    session2->allocateObjectById(Ice::stringToIdentity("nonallocatable"));
+	    session2->allocateObjectById(communicator->stringToIdentity("nonallocatable"));
 	    test(false);
 	}
 	catch(const NotAllocatableException& ex)
@@ -383,7 +386,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	try
 	{
-	    session1->releaseObject(Ice::stringToIdentity("nonallocatable"));
+	    session1->releaseObject(communicator->stringToIdentity("nonallocatable"));
 	    test(false);
 	}
 	catch(const NotAllocatableException& ex)
@@ -391,7 +394,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	try
 	{
-	    session2->releaseObject(Ice::stringToIdentity("nonallocatable"));
+	    session2->releaseObject(communicator->stringToIdentity("nonallocatable"));
 	    test(false);
 	}
 	catch(const NotAllocatableException& ex)
@@ -653,8 +656,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	session1->setAllocationTimeout(0);
 	session2->setAllocationTimeout(0);
 
-	Ice::Identity allocatable1 = Ice::stringToIdentity("allocatable1");
-	Ice::Identity allocatable2 = Ice::stringToIdentity("allocatable2");
+	Ice::Identity allocatable1 = communicator->stringToIdentity("allocatable1");
+	Ice::Identity allocatable2 = communicator->stringToIdentity("allocatable2");
 
 	session1->allocateObjectById(allocatable1);
 	try
@@ -812,8 +815,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	}
 	test(session1->allocateObjectByType("::TestMultipleByAdapter"));
-	session1->releaseObject(Ice::stringToIdentity("allocatable11"));
-	session1->releaseObject(Ice::stringToIdentity("allocatable21"));
+	session1->releaseObject(communicator->stringToIdentity("allocatable11"));
+	session1->releaseObject(communicator->stringToIdentity("allocatable21"));
 	test(session2->allocateObjectByType("::TestMultipleByAdapter"));
 	try
 	{
@@ -824,8 +827,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	}
 	test(session2->allocateObjectByType("::TestMultipleByAdapter"));
-	session2->releaseObject(Ice::stringToIdentity("allocatable11"));
-	session2->releaseObject(Ice::stringToIdentity("allocatable21"));
+	session2->releaseObject(communicator->stringToIdentity("allocatable11"));
+	session2->releaseObject(communicator->stringToIdentity("allocatable21"));
 
 	cout << "ok" << endl;
 
@@ -834,8 +837,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	session1->setAllocationTimeout(0);
 	session2->setAllocationTimeout(0);
 
-	Ice::Identity allocatable3 = Ice::stringToIdentity("allocatable3");
-	Ice::Identity allocatable4 = Ice::stringToIdentity("allocatable4");
+	Ice::Identity allocatable3 = communicator->stringToIdentity("allocatable3");
+	Ice::Identity allocatable4 = communicator->stringToIdentity("allocatable4");
 
 	session1->allocateObjectById(allocatable3);
 	try
@@ -993,8 +996,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	}
 	test(session1->allocateObjectByType("::TestMultipleByServer"));
-	session1->releaseObject(Ice::stringToIdentity("allocatable31"));
-	session1->releaseObject(Ice::stringToIdentity("allocatable41"));
+	session1->releaseObject(communicator->stringToIdentity("allocatable31"));
+	session1->releaseObject(communicator->stringToIdentity("allocatable41"));
 	test(session2->allocateObjectByType("::TestMultipleByServer"));
 	try
 	{
@@ -1005,8 +1008,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	}
 	test(session2->allocateObjectByType("::TestMultipleByServer"));
-	session2->releaseObject(Ice::stringToIdentity("allocatable31"));
-	session2->releaseObject(Ice::stringToIdentity("allocatable41"));
+	session2->releaseObject(communicator->stringToIdentity("allocatable31"));
+	session2->releaseObject(communicator->stringToIdentity("allocatable41"));
 
 	Ice::ObjectPrx obj1 = session1->allocateObjectByType("::TestMultipleServer");
 	test(obj1);
@@ -1109,12 +1112,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	vector<StressClientPtr> clients;
 	for(i = 0; i < nClients - 2; ++i)
 	{
-	    clients.push_back(new StressClient(i, manager, false));
+	    clients.push_back(new StressClient(communicator, i, manager, false));
 	    clients.back()->start();
 	}
-	clients.push_back(new StressClient(i++, manager, true));
+	clients.push_back(new StressClient(communicator, i++, manager, true));
 	clients.back()->start();
-	clients.push_back(new StressClient(i++, manager, true));
+	clients.push_back(new StressClient(communicator, i++, manager, true));
 	clients.back()->start();
 	
 	for(vector<StressClientPtr>::const_iterator p = clients.begin(); p != clients.end(); ++p)

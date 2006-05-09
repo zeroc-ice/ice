@@ -82,7 +82,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	adapter.id = "ServerAdapter";
 	adapter.registerProcess = true;
 	ObjectDescriptor object;
-	object.id = Ice::stringToIdentity("test");
+	object.id = communicator->stringToIdentity("test");
 	object.type = "::Test::TestIntf";
 	adapter.objects.push_back(object);
 	server->adapters.push_back(adapter);
@@ -121,7 +121,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(false);
 	}
 
-	update.nodes[0].servers[0]->adapters[0].objects[0].id = Ice::stringToIdentity("test2");
+	update.nodes[0].servers[0]->adapters[0].objects[0].id = communicator->stringToIdentity("test2");
 	try
 	{
 	    admin->updateApplication(update);
@@ -144,7 +144,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	adapter.id = "${server}";
 	adapter.registerProcess = true;
 	object = ObjectDescriptor();
-	object.id = Ice::stringToIdentity("${server}");
+	object.id = communicator->stringToIdentity("${server}");
 	object.type = "::Test::TestIntf";
 	adapter.objects.push_back(object);
 	server->adapters.push_back(adapter);
@@ -369,7 +369,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	adapter = AdapterDescriptor();
 	adapter.id = "ServerX";
 	object = ObjectDescriptor();
-	object.id = Ice::stringToIdentity("test");
+	object.id = communicator->stringToIdentity("test");
 	adapter.objects.push_back(object);
 	info.descriptor->adapters.push_back(adapter);
 	update = empty;

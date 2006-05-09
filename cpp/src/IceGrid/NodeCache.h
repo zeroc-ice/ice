@@ -66,7 +66,7 @@ class NodeCache : public CacheByString<NodeEntry>
 {
 public:
 
-    NodeCache(int);
+    NodeCache(const Ice::CommunicatorPtr&, int);
 
     void destroy();
 
@@ -74,8 +74,11 @@ public:
 
     int getSessionTimeout() { return _sessionTimeout; }
 
+    const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
+
 private:
     
+    Ice::CommunicatorPtr _communicator;
     const int _sessionTimeout;
 };
 

@@ -32,6 +32,9 @@ public:
     ObjectPrx stringToProxy(const std::string&) const;
     std::string proxyToString(const ObjectPrx&) const;
 
+    Identity stringToIdentity(const std::string&) const;
+    std::string identityToString(const Identity&) const;
+
     ObjectAdapterPtr createObjectAdapter(const std::string&);
     ObjectAdapterPtr createObjectAdapterWithEndpoints(const std::string&, const std::string&);
 #ifdef ICEE_HAS_ROUTER

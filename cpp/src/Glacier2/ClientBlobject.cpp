@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <Ice/IdentityUtil.h>
 #include <Glacier2/ClientBlobject.h>
 
 using namespace std;
@@ -52,7 +51,7 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
 	    {
 		Trace out(_logger, "Glacier2");
 		out << "rejecting request\n";
-		out << "identity: " << identityToString(current.id);
+		out << "identity: " << _communicator->identityToString(current.id);
 	    }
 	    ObjectNotExistException ex(__FILE__, __LINE__);
 	    ex.id = current.id;

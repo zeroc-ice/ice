@@ -10,8 +10,8 @@
 #include <Ice/Exception.h>
 #include <Ice/LocalException.h>
 #include <Ice/Network.h>
-#include <Ice/IdentityUtil.h>
 #include <Ice/Plugin.h>
+#include <IceUtil/StringUtil.h>
 #include <iomanip>
 
 using namespace std;
@@ -149,13 +149,31 @@ void
 Ice::IllegalIdentityException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nillegal identity: `" << id << "'";
+    out << ":\nillegal identity: `";
+    if(id.category.empty())
+    {
+        out << IceUtil::escapeString(id.name, "/");
+    }
+    else
+    {
+        out << IceUtil::escapeString(id.category, "/") << '/' << IceUtil::escapeString(id.name, "/");
+    }
+    out << "'";
 }
 
 static void
 printFailedRequestData(ostream& out, const RequestFailedException& ex)
 {
-    out << "\nidentity: " << ex.id;
+    out << ":\nidentity: `";
+    if(ex.id.category.empty())
+    {
+        out << IceUtil::escapeString(ex.id.name, "/");
+    }
+    else
+    {
+        out << IceUtil::escapeString(ex.id.category, "/") << '/' << IceUtil::escapeString(ex.id.name, "/");
+    }
+    out << "'";
     out << "\nfacet: " << ex.facet;
     out << "\noperation: " << ex.operation;
 }

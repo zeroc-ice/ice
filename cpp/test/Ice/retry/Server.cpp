@@ -18,7 +18,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000:udp");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectPtr object = new RetryI;
-    adapter->add(object, Ice::stringToIdentity("retry"));
+    adapter->add(object, communicator->stringToIdentity("retry"));
     adapter->activate();
     communicator->waitForShutdown();
     return EXIT_SUCCESS;

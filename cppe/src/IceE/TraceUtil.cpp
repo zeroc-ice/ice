@@ -14,9 +14,10 @@
 #include <IceE/Logger.h>
 #include <IceE/BasicStream.h>
 #include <IceE/Protocol.h>
-#include <IceE/IdentityUtil.h>
 #include <IceE/SafeStdio.h>
 #include <IceE/OperationMode.h>
+#include <IceE/Identity.h>
+#include <IceE/Instance.h>
 
 using namespace std;
 using namespace Ice;
@@ -28,7 +29,7 @@ printIdentityFacetOperation(string& s, BasicStream& stream)
     Identity identity;
     identity.__read(&stream);
     s += "\nidentity = ";
-    s += identityToString(identity);
+    s += stream.instance()->identityToString(identity);
 
     vector<string> facet;
     stream.read(facet);

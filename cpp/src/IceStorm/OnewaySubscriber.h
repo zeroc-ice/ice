@@ -23,7 +23,8 @@ class OnewaySubscriber : public Subscriber
 {
 public:
 
-    OnewaySubscriber(const SubscriberFactoryPtr&, const TraceLevelsPtr&, const QueuedProxyPtr&);
+    OnewaySubscriber(const SubscriberFactoryPtr&, const Ice::CommunicatorPtr&, const TraceLevelsPtr&, 
+    		     const QueuedProxyPtr&);
     ~OnewaySubscriber();
 
     virtual bool persistent() const;
@@ -35,6 +36,7 @@ public:
 protected:
 
     // Immutable
+    Ice::CommunicatorPtr _communicator;
     SubscriberFactoryPtr _factory;
     QueuedProxyPtr _obj;
 };

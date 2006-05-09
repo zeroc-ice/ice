@@ -31,6 +31,9 @@ public:
     virtual ObjectPrx stringToProxy(const std::string&) const;
     virtual std::string proxyToString(const ObjectPrx&) const;
 
+    virtual Identity stringToIdentity(const std::string&) const;
+    virtual std::string identityToString(const Identity&) const;
+
     virtual ObjectAdapterPtr createObjectAdapter(const std::string&);
     virtual ObjectAdapterPtr createObjectAdapterWithEndpoints(const std::string&, const std::string&);
     virtual ObjectAdapterPtr createObjectAdapterWithRouter(const std::string&, const RouterPrx&);

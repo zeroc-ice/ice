@@ -11,7 +11,6 @@
 #include <Ice/ProxyFactory.h>
 #include <Ice/LocalException.h>
 #include <Ice/Instance.h>
-#include <Ice/IdentityUtil.h>
 #include <Ice/EndpointI.h>
 #include <Ice/EndpointFactoryManager.h>
 #include <Ice/RouterInfo.h>
@@ -193,7 +192,7 @@ IceInternal::ReferenceFactory::create(const string& str)
     //
     // Parsing the identity may raise IdentityParseException.
     //
-    Identity ident = stringToIdentity(idstr);
+    Identity ident = _instance->stringToIdentity(idstr);
     if(ident.name.empty())
     {
         //
@@ -319,6 +318,15 @@ IceInternal::ReferenceFactory::create(const string& str)
 		    ex.str = str;
 		    throw ex;
 		}
+
+    	        if(_instance->initializationData().stringConverter)
+    		{
+		    string tmpFacet;
+        	    _instance->initializationData().stringConverter->fromUTF8(
+		    		reinterpret_cast<const Byte*>(facet.data()),
+				reinterpret_cast<const Byte*>(facet.data() + facet.size()), tmpFacet);
+		    facet = tmpFacet;
+    		}
 
 		break;
 	    }
@@ -505,6 +513,15 @@ IceInternal::ReferenceFactory::create(const string& str)
 		throw ex;
 	    }
 
+            if(_instance->initializationData().stringConverter)
+            {
+	        string tmpAdapter;
+                _instance->initializationData().stringConverter->fromUTF8(
+				reinterpret_cast<const Byte*>(adapter.data()), 
+				reinterpret_cast<const Byte*>(adapter.data() + adapter.size()), tmpAdapter);
+		adapter = tmpAdapter;
+            }
+	    
 	    return create(ident, _instance->initializationData().defaultContext, facet, mode, secure, adapter,
 	    		  routerInfo, locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization,
 			  _instance->defaultsAndOverrides()->defaultLocatorCacheTimeout);

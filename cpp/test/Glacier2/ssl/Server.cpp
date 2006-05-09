@@ -113,8 +113,8 @@ SessionServer::run(int argc, char* argv[])
 {
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints(
 	"SessionServer", "tcp -h 127.0.0.1 -p 12350 -t 10000");
-    adapter->add(new PermissionsVerifierI, Ice::stringToIdentity("verifier"));
-    adapter->add(new SessionManagerI, Ice::stringToIdentity("sessionmanager"));
+    adapter->add(new PermissionsVerifierI, communicator()->stringToIdentity("verifier"));
+    adapter->add(new SessionManagerI, communicator()->stringToIdentity("sessionmanager"));
     adapter->activate();
     communicator()->waitForShutdown();
     return EXIT_SUCCESS;

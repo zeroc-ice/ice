@@ -77,7 +77,7 @@ BOOL CHelloServerApp::InitInstance()
     // Instantiate the servant.
     //
     Ice::ObjectPtr servant = new HelloI(log, &dlg);
-    adapter->add(servant, Ice::stringToIdentity("hello"));
+    adapter->add(servant, communicator()->stringToIdentity("hello"));
     adapter->activate();
     log->message("Ready to receive requests.");
 

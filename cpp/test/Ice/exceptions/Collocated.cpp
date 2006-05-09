@@ -19,7 +19,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectPtr object = new ThrowerI(adapter);
-    adapter->add(object, Ice::stringToIdentity("thrower"));
+    adapter->add(object, communicator->stringToIdentity("thrower"));
 
     ThrowerPrx allTests(const Ice::CommunicatorPtr&, bool);
     allTests(communicator, true);

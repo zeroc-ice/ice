@@ -98,7 +98,7 @@ IceStorm::ServiceI::start(const string& name,
     // We use the name of the service for the name of the database environment.
     //
     string topicManagerId = properties->getPropertyWithDefault(name + ".InstanceName", "IceStorm") + "/TopicManager";
-    Ice::Identity id = stringToIdentity(topicManagerId);
+    Ice::Identity id = communicator->stringToIdentity(topicManagerId);
     _manager = new TopicManagerI(communicator, _topicAdapter, _publishAdapter, traceLevels, name, "topics");
     _managerProxy = TopicManagerPrx::uncheckedCast(_topicAdapter->add(_manager, id));
 

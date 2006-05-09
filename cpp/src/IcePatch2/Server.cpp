@@ -166,7 +166,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
     {
 	idStr = instanceName + "/server";
     }
-    Identity id = stringToIdentity(idStr);
+    Identity id = communicator()->stringToIdentity(idStr);
     adapter->add(new FileServerI(dataDir, infoSeq), id);
 
     if(adminAdapter)
@@ -177,7 +177,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
 	{
 	    adminIdStr = instanceName + "/admin";
 	}
-	Identity adminId = stringToIdentity(adminIdStr);
+	Identity adminId = communicator()->stringToIdentity(adminIdStr);
 	adminAdapter->add(new AdminI(communicator()), adminId);
     }
 

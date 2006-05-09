@@ -22,7 +22,7 @@ class CallbackSenderI : public Demo::CallbackSender, public IceUtil::Monitor<Ice
 {
 public:
     
-    CallbackSenderI();
+    CallbackSenderI(const Ice::CommunicatorPtr&);
 
     void destroy();
 
@@ -33,6 +33,7 @@ public:
 
 private:
 
+    Ice::CommunicatorPtr _communicator;
     bool _destroy;
     Ice::Int _num;
     std::set<Demo::CallbackReceiverPrx> _clients;

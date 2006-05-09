@@ -329,7 +329,7 @@ RegistryObserverTopic::applicationUpdated(int serial, const ApplicationUpdateDes
 	map<string, ApplicationDescriptor>::iterator p = _applications.find(desc.name);
 	if(p != _applications.end())
 	{
-	    ApplicationHelper helper(p->second);
+	    ApplicationHelper helper(c.adapter->getCommunicator(), p->second);
 	    helper.update(desc);
 	    p->second = helper.getDescriptor();
 	}

@@ -1,6 +1,15 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Added identityToString and stringToIdentity to the Communicator
+  interface and removed the static functions from the Ice
+  namespace.
+
+- Added ability to configure user defined string and wstring
+  converters that are used during marshalling/unmarshalling to
+  convert between UTF8 as required in the over-the-wire stream
+  and the users character set.
+
 - Added operators <=, > and >= for slice classes, proxies and 
   structures.
 

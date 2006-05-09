@@ -14,7 +14,8 @@ using namespace std;
 using namespace Ice;
 using namespace Demo;
 
-CallbackSenderI::CallbackSenderI() :
+CallbackSenderI::CallbackSenderI(const Ice::CommunicatorPtr& communicator) :
+    _communicator(communicator),
     _destroy(false),
     _num(0),
     _callbackSenderThread(new CallbackSenderThread(this))
@@ -46,7 +47,7 @@ CallbackSenderI::addClient(const Identity& ident, const Current& current)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 
-    cout << "adding client `" << identityToString(ident) << "'"<< endl;
+    cout << "adding client `" << _communicator->identityToString(ident) << "'"<< endl;
 
     CallbackReceiverPrx client = CallbackReceiverPrx::uncheckedCast(current.con->createProxy(ident));
     _clients.insert(client);
@@ -81,7 +82,7 @@ CallbackSenderI::run()
 		}
 		catch(const Exception& ex)
 		{
-		    cerr << "removing client `" << identityToString((*p)->ice_getIdentity()) << "':\n"
+		    cerr << "removing client `" << _communicator->identityToString((*p)->ice_getIdentity()) << "':\n"
 			 << ex << endl;
 		    _clients.erase(p++);
 		}

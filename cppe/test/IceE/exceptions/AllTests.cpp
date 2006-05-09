@@ -99,20 +99,20 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
 	Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter1");
 	Ice::ObjectPtr obj = new EmptyI;
-	adapter->add(obj, Ice::stringToIdentity("x"));
+	adapter->add(obj, communicator->stringToIdentity("x"));
 	try
 	{
-	    adapter->add(obj, Ice::stringToIdentity("x"));
+	    adapter->add(obj, communicator->stringToIdentity("x"));
 	    test(false);
 	}
 	catch(const Ice::AlreadyRegisteredException&)
 	{
 	}
 
-	adapter->remove(Ice::stringToIdentity("x"));
+	adapter->remove(communicator->stringToIdentity("x"));
 	try
 	{
-	    adapter->remove(Ice::stringToIdentity("x"));
+	    adapter->remove(communicator->stringToIdentity("x"));
 	    test(false);
 	}
 	catch(const Ice::NotRegisteredException&)
@@ -401,7 +401,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     tprintf("catching object not exist exception...");
 
-    Ice::Identity id = Ice::stringToIdentity("does not exist");
+    Ice::Identity id = communicator->stringToIdentity("does not exist");
     try
     {
 	ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower->ice_identity(id));

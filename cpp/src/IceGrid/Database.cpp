@@ -119,8 +119,8 @@ Database::Database(const Ice::ObjectAdapterPtr& adapter,
     _envName(envName),
     _instanceName(instanceName),
     _traceLevels(traceLevels), 
-    _nodeCache(nodeSessionTimeout),
-    _objectCache(_adapterCache),
+    _nodeCache(_communicator, nodeSessionTimeout),
+    _objectCache(_communicator, _adapterCache),
     _serverCache(_communicator, _nodeCache, _adapterCache, _objectCache),
     _connection(Freeze::createConnection(adapter->getCommunicator(), envName)),
     _descriptors(_connection, _descriptorDbName),
@@ -137,7 +137,7 @@ Database::Database(const Ice::ObjectAdapterPtr& adapter,
     {
 	try
 	{
-	    load(ApplicationHelper(p->second), entries);
+	    load(ApplicationHelper(_communicator, p->second), entries);
 	}
 	catch(const DeploymentException& ex)
 	{
@@ -271,7 +271,7 @@ Database::addApplicationDescriptor(AdminSessionI* session, const ApplicationDesc
 	    throw DeploymentException("application `" + desc.name + "' already exists");
 	}
 
-	ApplicationHelper helper(desc);
+	ApplicationHelper helper(_communicator, desc);
 	
 	//
 	// Ensure that the application servers, adapters and objects
@@ -324,8 +324,8 @@ Database::updateApplicationDescriptor(AdminSessionI* session, const ApplicationU
 	    throw ApplicationNotExistException(update.name);
 	}
 
-	ApplicationHelper previous(p->second);
-	ApplicationHelper helper(p->second);
+	ApplicationHelper previous(_communicator, p->second);
+	ApplicationHelper helper(_communicator, p->second);
 	helper.update(update);
 	
 	checkForUpdate(previous, helper);
@@ -367,8 +367,8 @@ Database::syncApplicationDescriptor(AdminSessionI* session, const ApplicationDes
 	    throw ApplicationNotExistException(newDesc.name);
 	}
 
-	ApplicationHelper previous(p->second);
-	ApplicationHelper helper(newDesc);
+	ApplicationHelper previous(_communicator, p->second);
+	ApplicationHelper helper(_communicator, newDesc);
 	update = helper.diff(previous);
 	
 	checkForUpdate(previous, helper);
@@ -411,7 +411,7 @@ Database::removeApplicationDescriptor(AdminSessionI* session, const std::string&
 
 	try
 	{
-	    ApplicationHelper helper(p->second);
+	    ApplicationHelper helper(_communicator, p->second);
 	    unload(helper, entries);
 	}
 	catch(const DeploymentException&)
@@ -458,8 +458,8 @@ Database::instantiateServer(const string& application, const string& node, const
 	    throw ApplicationNotExistException(application);
 	}
 
-	ApplicationHelper previous(p->second);
-	ApplicationHelper helper(p->second);
+	ApplicationHelper previous(_communicator, p->second);
+	ApplicationHelper helper(_communicator, p->second);
 	helper.instantiateServer(node, instance);
 	update = helper.diff(previous);
 
@@ -912,7 +912,7 @@ Database::addObject(const ObjectInfo& info)
     if(_traceLevels->object > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-	out << "added object `" << Ice::identityToString(id) << "'";
+	out << "added object `" << _communicator->identityToString(id) << "'";
     }
 }
 
@@ -925,7 +925,7 @@ Database::removeObject(const Ice::Identity& id)
 	if(_objectCache.has(id))
 	{
 	    DeploymentException ex;
-	    ex.reason = "removing object `" + Ice::identityToString(id) + "' is not allowed:\n";
+	    ex.reason = "removing object `" + _communicator->identityToString(id) + "' is not allowed:\n";
 	    ex.reason += "the object was added with the application descriptor `";
 	    ex.reason += _objectCache.get(id)->getApplication();
 	    ex.reason += "'";
@@ -952,7 +952,7 @@ Database::removeObject(const Ice::Identity& id)
     if(_traceLevels->object > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-	out << "removed object `" << Ice::identityToString(id) << "'";
+	out << "removed object `" << _communicator->identityToString(id) << "'";
     }
 }
 
@@ -967,7 +967,7 @@ Database::updateObject(const Ice::ObjectPrx& proxy)
 	if(_objectCache.has(id))
 	{
 	    DeploymentException ex;
-	    ex.reason = "updating object `" + Ice::identityToString(id) + "' is not allowed:\n";
+	    ex.reason = "updating object `" + _communicator->identityToString(id) + "' is not allowed:\n";
 	    ex.reason += "the object was added with the application descriptor `";
 	    ex.reason += _objectCache.get(id)->getApplication();
 	    ex.reason += "'";
@@ -997,7 +997,7 @@ Database::updateObject(const Ice::ObjectPrx& proxy)
     if(_traceLevels->object > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-	out << "updated object `" << Ice::identityToString(id) << "'";
+	out << "updated object `" << _communicator->identityToString(id) << "'";
     }
 }
 
@@ -1127,7 +1127,7 @@ Database::getAllObjectInfos(const string& expression)
     IdentityObjectInfoDict objects(connection, _objectDbName); 
     for(IdentityObjectInfoDict::const_iterator p = objects.begin(); p != objects.end(); ++p)
     {
-	if(expression.empty() || IceUtil::match(Ice::identityToString(p->first), expression, true))
+	if(expression.empty() || IceUtil::match(_communicator->identityToString(p->first), expression, true))
 	{
 	    infos.push_back(p->second);
 	}
@@ -1222,7 +1222,7 @@ Database::checkObjectForAddition(const Ice::Identity& objectId)
     if(_objectCache.has(objectId) || _objects.find(objectId) != _objects.end())
     {
 	DeploymentException ex;
-	ex.reason = "object `" + Ice::identityToString(objectId) + "' is already registered"; 
+	ex.reason = "object `" + _communicator->identityToString(objectId) + "' is already registered"; 
 	throw ex;
     }
 }
@@ -1246,7 +1246,7 @@ Database::load(const ApplicationHelper& app, ServerEntrySeq& entries)
 	{
 	    ObjectInfo info;
 	    info.type = o->type;
-	    info.proxy = _communicator->stringToProxy(Ice::identityToString(o->id) + "@" + r->id);
+	    info.proxy = _communicator->stringToProxy(_communicator->identityToString(o->id) + "@" + r->id);
 	    _objectCache.add(info, application, false, 0); // Not allocatable
 	}
     }
@@ -1304,7 +1304,8 @@ Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newAp
 	{
 	    load.push_back(p->second);
 	} 
-	else if(p->second.node != q->second.node || !descriptorEqual(p->second.descriptor, q->second.descriptor))
+	else if(p->second.node != q->second.node || 
+	        !descriptorEqual(_communicator, p->second.descriptor, q->second.descriptor))
 	{
 	    _serverCache.remove(p->first, false); // Don't destroy the server if it was updated.
 	    load.push_back(p->second);
@@ -1383,7 +1384,7 @@ Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newAp
 	{
 	    ObjectInfo info;
 	    info.type = o->type;
-	    info.proxy = _communicator->stringToProxy(Ice::identityToString(o->id) + "@" + r->id);
+	    info.proxy = _communicator->stringToProxy(_communicator->identityToString(o->id) + "@" + r->id);
 	    _objectCache.add(info, application, false, 0); // Not allocatable
 	}
     }

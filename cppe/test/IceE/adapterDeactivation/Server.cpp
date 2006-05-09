@@ -37,7 +37,7 @@ public:
 
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
         Ice::ObjectPtr object = new TestI;
-        adapter->add(object, Ice::stringToIdentity("test"));
+        adapter->add(object, communicator()->stringToIdentity("test"));
         adapter->activate();
         adapter->waitForDeactivate();
 

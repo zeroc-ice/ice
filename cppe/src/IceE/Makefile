@@ -41,7 +41,6 @@ LOCAL_OBJS	= BasicStream.o \
 		  FactoryTable.o \
 		  FactoryTableDef.o \
 		  Identity.o \
-		  IdentityUtil.o \
 		  Incoming.o \
 		  IncomingConnectionFactory.o \
 		  Initialize.o \

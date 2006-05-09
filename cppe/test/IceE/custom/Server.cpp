@@ -42,9 +42,9 @@ public:
 	setCommunicator(Ice::initialize(argc, argv, initData));
 	
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
-        adapter->add(new TestIntfI(communicator()), Ice::stringToIdentity("test"));
-	adapter->add(new Test1::WstringClassI, Ice::stringToIdentity("wstring1"));
-	adapter->add(new Test2::WstringClassI, Ice::stringToIdentity("wstring2"));
+        adapter->add(new TestIntfI(communicator()), communicator()->stringToIdentity("test"));
+	adapter->add(new Test1::WstringClassI, communicator()->stringToIdentity("wstring1"));
+	adapter->add(new Test2::WstringClassI, communicator()->stringToIdentity("wstring2"));
 	adapter->activate();
 
 #ifndef _WIN32_WCE

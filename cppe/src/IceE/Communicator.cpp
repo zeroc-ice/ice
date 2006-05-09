@@ -74,6 +74,18 @@ Ice::Communicator::proxyToString(const ObjectPrx& proxy) const
     return _instance->proxyFactory()->proxyToString(proxy);
 }
 
+Identity
+Ice::Communicator::stringToIdentity(const string& s) const
+{
+    return _instance->stringToIdentity(s);
+}
+
+string
+Ice::Communicator::identityToString(const Identity& ident) const
+{
+    return _instance->identityToString(ident);
+}
+
 #ifndef ICEE_PURE_CLIENT
 
 ObjectAdapterPtr

@@ -83,8 +83,9 @@ class ApplicationDescriptorBuilder : public DescriptorBuilder
 {
 public:
 
-    ApplicationDescriptorBuilder(const XmlAttributesHelper&, const std::map<std::string, std::string>&);
-    ApplicationDescriptorBuilder(const ApplicationDescriptor&, const XmlAttributesHelper&,
+    ApplicationDescriptorBuilder(const Ice::CommunicatorPtr&, const XmlAttributesHelper&,
+    				 const std::map<std::string, std::string>&);
+    ApplicationDescriptorBuilder(const Ice::CommunicatorPtr&, const ApplicationDescriptor&, const XmlAttributesHelper&,
 				 const std::map<std::string, std::string>&);
 
     const ApplicationDescriptor& getDescriptor() const;
@@ -109,11 +110,13 @@ public:
     void addDistribution(const XmlAttributesHelper&);
     void addDistributionDirectory(const std::string&);
 
-
     bool isOverride(const std::string&);
+
+    const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
 
 private:
 
+    Ice::CommunicatorPtr _communicator;
     ApplicationDescriptor _descriptor;
     std::map<std::string, std::string> _overrides;
 };
@@ -193,6 +196,8 @@ class CommunicatorDescriptorBuilder : public DescriptorBuilder
 {
 public:
 
+    CommunicatorDescriptorBuilder(const Ice::CommunicatorPtr&);
+
     void init(const CommunicatorDescriptorPtr&, const XmlAttributesHelper&);
     virtual void finish();
 
@@ -213,6 +218,7 @@ protected:
     void addProperty(PropertyDescriptorSeq&, const std::string&, const std::string&);
 
     PropertyDescriptorSeq _hiddenProperties;
+    Ice::CommunicatorPtr _communicator;
 
 private:
 
@@ -238,8 +244,8 @@ class ServerDescriptorBuilder : public CommunicatorDescriptorBuilder
 {
 public:
     
-    ServerDescriptorBuilder(const XmlAttributesHelper&);
-    ServerDescriptorBuilder();
+    ServerDescriptorBuilder(const Ice::CommunicatorPtr&, const XmlAttributesHelper&);
+    ServerDescriptorBuilder(const Ice::CommunicatorPtr&);
 
     void init(const ServerDescriptorPtr&, const XmlAttributesHelper&);
 
@@ -264,7 +270,7 @@ class IceBoxDescriptorBuilder : public ServerDescriptorBuilder
 {
 public:
 
-    IceBoxDescriptorBuilder(const XmlAttributesHelper&);
+    IceBoxDescriptorBuilder(const Ice::CommunicatorPtr&, const XmlAttributesHelper&);
 
     void init(const IceBoxDescriptorPtr&, const XmlAttributesHelper&);
 
@@ -285,7 +291,7 @@ class ServiceDescriptorBuilder : public CommunicatorDescriptorBuilder
 {
 public:
 
-    ServiceDescriptorBuilder(const XmlAttributesHelper&);
+    ServiceDescriptorBuilder(const Ice::CommunicatorPtr&, const XmlAttributesHelper&);
     void init(const ServiceDescriptorPtr&, const XmlAttributesHelper&);
 
     const ServiceDescriptorPtr& getDescriptor() const { return _descriptor; }

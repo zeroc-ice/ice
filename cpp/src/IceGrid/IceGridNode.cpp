@@ -405,7 +405,7 @@ NodeService::start(int argc, char* argv[])
     // for the server and server adapter. It also takes care of installing the
     // evictors and object factories necessary to store these objects.
     //
-    Identity id = stringToIdentity(IceUtil::generateUUID());
+    Identity id = communicator()->stringToIdentity(IceUtil::generateUUID());
     NodePrx nodeProxy = NodePrx::uncheckedCast(adapter->createProxy(id));
     _node = new NodeI(adapter, _activator, _waitQueue, traceLevels, nodeProxy, name);
     adapter->add(_node, nodeProxy->ice_getIdentity());

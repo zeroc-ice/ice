@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
+#include <Ice/Communicator.h>
 #include <Ice/LoggerUtil.h>
-#include <Ice/IdentityUtil.h>
 #include <IceGrid/DescriptorBuilder.h>
 #include <IceGrid/Util.h>
 
@@ -216,17 +216,21 @@ PropertySetDescriptorBuilder::finish()
     return true;
 }
 
-ApplicationDescriptorBuilder::ApplicationDescriptorBuilder(const XmlAttributesHelper& attrs, 
+ApplicationDescriptorBuilder::ApplicationDescriptorBuilder(const Ice::CommunicatorPtr& communicator,
+							   const XmlAttributesHelper& attrs, 
 							   const map<string, string>& overrides) :
+    _communicator(communicator),
     _overrides(overrides)
 {
     _descriptor.name = attrs("name");
     _descriptor.variables = overrides;
 }
 
-ApplicationDescriptorBuilder::ApplicationDescriptorBuilder(const ApplicationDescriptor& app,
+ApplicationDescriptorBuilder::ApplicationDescriptorBuilder(const Ice::CommunicatorPtr& communicator,
+							   const ApplicationDescriptor& app,
 							   const XmlAttributesHelper& attrs, 
 							   const map<string, string>& overrides) :
+    _communicator(communicator),
     _descriptor(app),
     _overrides(overrides)
 {
@@ -292,7 +296,7 @@ ApplicationDescriptorBuilder::addObject(const XmlAttributesHelper& attrs)
 {
     ObjectDescriptor object;
     object.type = attrs("type", "");
-    object.id = Ice::stringToIdentity(attrs("identity"));
+    object.id = _communicator->stringToIdentity(attrs("identity"));
     object.allocatable = attrs.asBool("allocatable", false);
     _descriptor.replicaGroups.back().objects.push_back(object);
 }
@@ -411,13 +415,13 @@ NodeDescriptorBuilder::NodeDescriptorBuilder(ApplicationDescriptorBuilder& app,
 ServerDescriptorBuilder*
 NodeDescriptorBuilder::createServer(const XmlAttributesHelper& attrs)
 {
-    return new ServerDescriptorBuilder(attrs);
+    return new ServerDescriptorBuilder(_application.getCommunicator(), attrs);
 }
 
 ServerDescriptorBuilder*
 NodeDescriptorBuilder::createIceBox(const XmlAttributesHelper& attrs)
 {
-    return new IceBoxDescriptorBuilder(attrs);
+    return new IceBoxDescriptorBuilder(_application.getCommunicator(), attrs);
 }
 
 ServerInstanceDescriptorBuilder*
@@ -498,7 +502,7 @@ TemplateDescriptorBuilder::createServer(const XmlAttributesHelper& attrs)
     {
 	throw "<server> element can't be a child of <service-template>";
     }
-    return new ServerDescriptorBuilder(attrs);
+    return new ServerDescriptorBuilder(_application.getCommunicator(), attrs);
 }
 
 ServerDescriptorBuilder*
@@ -508,7 +512,7 @@ TemplateDescriptorBuilder::createIceBox(const XmlAttributesHelper& attrs)
     {
 	throw "<icebox> element can't be a child of <service-template>";
     }
-    return new IceBoxDescriptorBuilder(attrs);
+    return new IceBoxDescriptorBuilder(_application.getCommunicator(), attrs);
 }
 
 ServiceDescriptorBuilder*
@@ -518,7 +522,12 @@ TemplateDescriptorBuilder::createService(const XmlAttributesHelper& attrs)
     {
 	throw "<service> element can't be a child of <server-template>";
     }
-    return new ServiceDescriptorBuilder(attrs);
+    return new ServiceDescriptorBuilder(_application.getCommunicator(), attrs);
+}
+
+CommunicatorDescriptorBuilder::CommunicatorDescriptorBuilder(const Ice::CommunicatorPtr& communicator) :
+    _communicator(communicator)
+{
 }
 
 void
@@ -612,7 +621,7 @@ CommunicatorDescriptorBuilder::addObject(const XmlAttributesHelper& attrs)
 {
     ObjectDescriptor object;
     object.type = attrs("type", "");
-    object.id = Ice::stringToIdentity(attrs("identity"));
+    object.id = _communicator->stringToIdentity(attrs("identity"));
     object.allocatable = attrs.asBool("allocatable", false);
     _descriptor->adapters.back().objects.push_back(object);
 }
@@ -697,12 +706,15 @@ ServiceInstanceDescriptorBuilder::addPropertySet(const PropertySetDescriptor& de
     _descriptor.propertySet = desc;
 }
 
-ServerDescriptorBuilder::ServerDescriptorBuilder(const XmlAttributesHelper& attrs)
+ServerDescriptorBuilder::ServerDescriptorBuilder(const Ice::CommunicatorPtr& communicator,
+						 const XmlAttributesHelper& attrs) :
+    CommunicatorDescriptorBuilder(communicator)
 {
     init(new ServerDescriptor(), attrs);
 }
 
-ServerDescriptorBuilder::ServerDescriptorBuilder()
+ServerDescriptorBuilder::ServerDescriptorBuilder(const Ice::CommunicatorPtr& communicator) :
+    CommunicatorDescriptorBuilder(communicator)
 {
 }
 
@@ -772,7 +784,9 @@ ServerDescriptorBuilder::addDistributionDirectory(const string& directory)
     _descriptor->distrib.directories.push_back(directory);
 }
 
-IceBoxDescriptorBuilder::IceBoxDescriptorBuilder(const XmlAttributesHelper& attrs)
+IceBoxDescriptorBuilder::IceBoxDescriptorBuilder(const Ice::CommunicatorPtr& communicator,
+						 const XmlAttributesHelper& attrs) :
+    ServerDescriptorBuilder(communicator)
 {
     init(new IceBoxDescriptor(), attrs);
 }
@@ -798,7 +812,7 @@ IceBoxDescriptorBuilder::init(const IceBoxDescriptorPtr& desc, const XmlAttribut
 ServiceDescriptorBuilder*
 IceBoxDescriptorBuilder::createService(const XmlAttributesHelper& attrs)
 {
-    return new ServiceDescriptorBuilder(attrs);
+    return new ServiceDescriptorBuilder(_communicator, attrs);
 }
 
 ServiceInstanceDescriptorBuilder*
@@ -864,7 +878,9 @@ IceBoxDescriptorBuilder::addService(const ServiceDescriptorPtr& desc)
     _descriptor->services.push_back(instance);
 }
 
-ServiceDescriptorBuilder::ServiceDescriptorBuilder(const XmlAttributesHelper& attrs)
+ServiceDescriptorBuilder::ServiceDescriptorBuilder(const Ice::CommunicatorPtr& communicator,
+						   const XmlAttributesHelper& attrs) :
+    CommunicatorDescriptorBuilder(communicator)
 {
     init(new ServiceDescriptor(), attrs);
 }

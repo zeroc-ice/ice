@@ -42,7 +42,6 @@ public:
 
 private:
 
-    Ice::CommunicatorPtr _communicator;
     FlusherPtr _flusher;
 };
 

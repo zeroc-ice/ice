@@ -18,7 +18,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000:udp");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectPtr object = new TimeoutI;
-    adapter->add(object, Ice::stringToIdentity("timeout"));
+    adapter->add(object, communicator->stringToIdentity("timeout"));
     adapter->activate();
     communicator->waitForShutdown();
     return EXIT_SUCCESS;

@@ -33,15 +33,15 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     // 'servers' created with the server manager interface.
     //
     ServerLocatorRegistryPtr registry = new ServerLocatorRegistry();
-    registry->addObject(adapter->createProxy(Ice::stringToIdentity("ServerManager")));
+    registry->addObject(adapter->createProxy(communicator->stringToIdentity("ServerManager")));
     Ice::ObjectPtr object = new ServerManagerI(adapter, registry);
-    adapter->add(object, Ice::stringToIdentity("ServerManager"));
+    adapter->add(object, communicator->stringToIdentity("ServerManager"));
 
     Ice::LocatorRegistryPrx registryPrx = 
-	Ice::LocatorRegistryPrx::uncheckedCast(adapter->add(registry, Ice::stringToIdentity("registry")));
+	Ice::LocatorRegistryPrx::uncheckedCast(adapter->add(registry, communicator->stringToIdentity("registry")));
 
     Ice::LocatorPtr locator = new ServerLocator(registry, registryPrx);
-    adapter->add(locator, Ice::stringToIdentity("locator"));
+    adapter->add(locator, communicator->stringToIdentity("locator"));
 
     adapter->activate();
     communicator->waitForShutdown();

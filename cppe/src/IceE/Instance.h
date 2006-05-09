@@ -28,6 +28,7 @@
 #include <IceE/Shared.h>
 #include <IceE/RecMutex.h>
 #include <IceE/Initialize.h>
+#include <IceE/Identity.h>
 
 namespace IceInternal
 {
@@ -62,6 +63,9 @@ public:
 #ifndef ICEE_PURE_CLIENT
     ObjectAdapterFactoryPtr objectAdapterFactory() const;
 #endif
+
+    Ice::Identity stringToIdentity(const std::string&) const;
+    std::string identityToString(const Ice::Identity&) const;
 
 private:
 
@@ -100,6 +104,23 @@ private:
 #ifndef ICEE_PURE_CLIENT
     ObjectAdapterFactoryPtr _objectAdapterFactory;
 #endif
+};
+
+class UTF8BufferI : public Ice::UTF8Buffer
+{
+public:
+
+   UTF8BufferI();
+   ~UTF8BufferI();
+
+   Ice::Byte* getMoreBytes(size_t howMany, Ice::Byte* firstUnused);
+   Ice::Byte* getBuffer();
+   void reset();
+
+private:
+
+    Ice::Byte* _buffer;
+    size_t _offset;
 };
 
 }

@@ -23,7 +23,7 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Latency");
-    adapter->add(new PingI, Ice::stringToIdentity("ping"));
+    adapter->add(new PingI, communicator->stringToIdentity("ping"));
     adapter->activate();
     communicator->waitForShutdown();
     return EXIT_SUCCESS;

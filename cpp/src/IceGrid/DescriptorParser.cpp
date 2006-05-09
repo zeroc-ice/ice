@@ -185,7 +185,8 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 		try
 		{
 		    ApplicationDescriptor application = _admin->getDefaultApplicationDescriptor();
-		    _currentApplication.reset(new ApplicationDescriptorBuilder(application, attributes, _overrides));
+		    _currentApplication.reset(new ApplicationDescriptorBuilder(_communicator, application, 
+		    							       attributes, _overrides));
 		}
 		catch(const DeploymentException& ex)
 		{
@@ -194,7 +195,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    }
 	    else
 	    {
-		_currentApplication.reset(new ApplicationDescriptorBuilder(attributes, _overrides));
+		_currentApplication.reset(new ApplicationDescriptorBuilder(_communicator, attributes, _overrides));
 	    }
 	}
 	else if(name == "node")

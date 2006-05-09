@@ -233,7 +233,7 @@ LocatorI::Request::response(const Ice::ObjectPrx& proxy)
     }
 
     Lock sync(*this);
-    _proxies.push_back(proxy->ice_identity(Ice::stringToIdentity("dummy")));
+    _proxies.push_back(proxy->ice_identity(_locator->getCommunicator()->stringToIdentity("dummy")));
 
     //
     // If we received all the required proxies, it's time to send the
