@@ -1,6 +1,9 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Added identityToString and stringToIdentity to the Communicator
+  interface.
+
 - Removed setDefaultContext operation on Communicator.
 
 - Eliminated the source of deprecation warnings when E_STRICT is

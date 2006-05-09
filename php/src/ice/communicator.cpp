@@ -55,6 +55,8 @@ static function_entry _methods[] =
     {"getProperty",            PHP_FN(Ice_Communicator_getProperty),            NULL},
     {"stringToProxy",          PHP_FN(Ice_Communicator_stringToProxy),          NULL},
     {"proxyToString",          PHP_FN(Ice_Communicator_proxyToString),          NULL},
+    {"stringToIdentity",       PHP_FN(Ice_Communicator_stringToIdentity),          NULL},
+    {"identityToString",       PHP_FN(Ice_Communicator_identityToString),          NULL},
     {"addObjectFactory",       PHP_FN(Ice_Communicator_addObjectFactory),       NULL},
     {"removeObjectFactory",    PHP_FN(Ice_Communicator_removeObjectFactory),    NULL},
     {"findObjectFactory",      PHP_FN(Ice_Communicator_findObjectFactory),      NULL},
@@ -277,6 +279,57 @@ ZEND_FUNCTION(Ice_Communicator_proxyToString)
     {
         throwException(ex TSRMLS_CC);
         RETURN_EMPTY_STRING();
+    }
+}
+
+ZEND_FUNCTION(Ice_Communicator_identityToString)
+{
+    if(ZEND_NUM_ARGS() != 1)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    zend_class_entry* cls = findClass("Ice_Identity" TSRMLS_CC);
+    assert(cls);
+
+    zval *zid;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &zid, cls) == FAILURE)
+    {
+        RETURN_NULL();
+    }
+
+    Ice::Identity id;
+    if(extractIdentity(zid, id TSRMLS_CC))
+    {
+        string s = (*_this)->identityToString(id);
+        RETURN_STRINGL(const_cast<char*>(s.c_str()), s.length(), 1);
+    }
+}
+
+ZEND_FUNCTION(Ice_Communicator_stringToIdentity)
+{
+    if(ZEND_NUM_ARGS() != 1)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    char* str;
+    int len;
+    
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &str, &len) == FAILURE)
+    {
+        RETURN_NULL();
+    }
+
+    try
+    {
+        Ice::Identity id = (*_this)->stringToIdentity(str);
+        createIdentity(return_value, id TSRMLS_CC);
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
     }
 }
 

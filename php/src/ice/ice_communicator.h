@@ -21,6 +21,8 @@ ZEND_FUNCTION(Ice_Communicator___construct);
 ZEND_FUNCTION(Ice_Communicator_getProperty);
 ZEND_FUNCTION(Ice_Communicator_stringToProxy);
 ZEND_FUNCTION(Ice_Communicator_proxyToString);
+ZEND_FUNCTION(Ice_Communicator_stringToIdentity);
+ZEND_FUNCTION(Ice_Communicator_identityToString);
 ZEND_FUNCTION(Ice_Communicator_addObjectFactory);
 ZEND_FUNCTION(Ice_Communicator_removeObjectFactory);
 ZEND_FUNCTION(Ice_Communicator_findObjectFactory);
@@ -33,6 +35,8 @@ ZEND_FUNCTION(Ice_Communicator_flushBatchRequests);
     ZEND_FE(Ice_Communicator_getProperty,            NULL) \
     ZEND_FE(Ice_Communicator_stringToProxy,          NULL) \
     ZEND_FE(Ice_Communicator_proxyToString,          NULL) \
+    ZEND_FE(Ice_Communicator_stringToIdentity,       NULL) \
+    ZEND_FE(Ice_Communicator_identityToString,       NULL) \
     ZEND_FE(Ice_Communicator_addObjectFactory,       NULL) \
     ZEND_FE(Ice_Communicator_removeObjectFactory,    NULL) \
     ZEND_FE(Ice_Communicator_findObjectFactory,      NULL) \

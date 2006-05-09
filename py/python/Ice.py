@@ -186,6 +186,12 @@ class CommunicatorI(Communicator):
     def proxyToString(self, obj):
         return self._impl.proxyToString(obj)
 
+    def stringToIdentity(self, str):
+        return self._impl.stringToIdentity(str)
+
+    def identityToString(self, obj):
+        return self._impl.identityToString(obj)
+
     def createObjectAdapter(self, name):
         adapter = self._impl.createObjectAdapter(name)
         return ObjectAdapterI(adapter)

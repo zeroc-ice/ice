@@ -37,6 +37,16 @@ namespace Ice
 	    return instance_.proxyFactory().proxyToString(proxy);
 	}
 
+	public Ice.Identity stringToIdentity(string s)
+	{
+	    return Ice.Util.stringToIdentity(s);
+	}
+
+	public string identityToString(Ice.Identity ident)
+	{
+	    return Ice.Util.identityToString(ident);
+	}
+
 	public ObjectAdapter createObjectAdapter(string name)
 	{
 	    return createObjectAdapterWithEndpoints(name, getProperties().getProperty(name + ".Endpoints"));

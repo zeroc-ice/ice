@@ -418,6 +418,67 @@ communicatorProxyToString(CommunicatorObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
+communicatorStringToIdentity(CommunicatorObject* self, PyObject* args)
+{
+    char* str;
+    if(!PyArg_ParseTuple(args, STRCAST("s"), &str))
+    {
+        return NULL;
+    }
+
+    assert(self->communicator);
+    Ice::Identity id;
+    try
+    {
+        id = (*self->communicator)->stringToIdentity(str);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    return IcePy::createIdentity(id);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+communicatorIdentityToString(CommunicatorObject* self, PyObject* args)
+{
+    PyObject* identityType = IcePy::lookupType("Ice.Identity");
+    PyObject* obj;
+    if(!PyArg_ParseTuple(args, STRCAST("O!"), identityType, &obj))
+    {
+        return NULL;
+    }
+
+    Ice::Identity id;
+    if(!IcePy::getIdentity(obj, id))
+    {
+        return NULL;
+    }
+    string str;
+
+    assert(self->communicator);
+    try
+    {
+        str = (*self->communicator)->identityToString(id);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    return PyString_FromString(const_cast<char*>(str.c_str()));
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 communicatorFlushBatchRequests(CommunicatorObject* self)
 {
     assert(self->communicator);
@@ -936,6 +997,10 @@ static PyMethodDef CommunicatorMethods[] =
         PyDoc_STR(STRCAST("stringToProxy(str) -> Ice.ObjectPrx")) },
     { STRCAST("proxyToString"), (PyCFunction)communicatorProxyToString, METH_VARARGS,
         PyDoc_STR(STRCAST("proxyToString(Ice.ObjectPrx) -> string")) },
+    { STRCAST("stringToIdentity"), (PyCFunction)communicatorStringToIdentity, METH_VARARGS,
+        PyDoc_STR(STRCAST("stringToIdentity(str) -> Ice.Identity")) },
+    { STRCAST("identityToString"), (PyCFunction)communicatorIdentityToString, METH_VARARGS,
+        PyDoc_STR(STRCAST("identityToString(Ice.Identity) -> string")) },
     { STRCAST("createObjectAdapter"), (PyCFunction)communicatorCreateObjectAdapter, METH_VARARGS,
         PyDoc_STR(STRCAST("createObjectAdapter(name) -> Ice.ObjectAdapter")) },
     { STRCAST("createObjectAdapterWithEndpoints"), (PyCFunction)communicatorCreateObjectAdapterWithEndpoints,
