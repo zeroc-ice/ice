@@ -55,6 +55,11 @@ ObjectCache::TypeEntry::add(const ObjectEntryPtr& obj)
     //
     _objects.insert(lower_bound(_objects.begin(), _objects.end(), obj, ObjectEntryCI()), obj);
     _allocatablesCount += obj->isAllocatable() ? 1 : 0;
+
+    if(!_requests.empty())
+    {
+	canTryAllocate(obj, false);
+    }
 }
 
 bool
@@ -67,6 +72,14 @@ ObjectCache::TypeEntry::remove(const ObjectEntryPtr& obj)
     vector<ObjectEntryPtr>::iterator q = lower_bound(_objects.begin(), _objects.end(), obj, ObjectEntryCI());
     assert(q->get() == obj.get());
     _objects.erase(q);
+
+    if(!_requests.empty() && !_allocatablesCount)
+    {
+	for(vector<ObjectAllocationRequestPtr>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
+	{
+	    (*p)->cancel(AllocationException("no allocatable objects with type `" + obj->getType() + "' registered"));
+	}
+    }
     return _objects.empty();
 }
 
@@ -76,6 +89,7 @@ ObjectCache::TypeEntry::addAllocationRequest(const ObjectAllocationRequestPtr& r
     //
     // No mutex protection here, this is called with the cache locked.
     //
+    assert(_allocatablesCount);
     if(request->pending())
     {
 	_requests.push_back(request);
@@ -83,7 +97,7 @@ ObjectCache::TypeEntry::addAllocationRequest(const ObjectAllocationRequestPtr& r
 }
 
 bool
-ObjectCache::TypeEntry::canTryAllocate(const ObjectEntryPtr& entry)
+ObjectCache::TypeEntry::canTryAllocate(const ObjectEntryPtr& entry, bool fromRelease)
 {
     //
     // No mutex protection here, this is called with the cache locked.
@@ -98,7 +112,7 @@ ObjectCache::TypeEntry::canTryAllocate(const ObjectEntryPtr& entry)
 	    {
 		p = _requests.erase(p);
 	    }
-	    else if(entry->tryAllocate(request, true))
+	    else if(entry->tryAllocate(request, fromRelease))
 	    {
 		p = _requests.erase(p);
 		return true; // The request successfully allocated the entry!
@@ -233,7 +247,7 @@ ObjectCache::canTryAllocate(const ObjectEntryPtr& entry)
     {
 	return false;
     }
-    return p->second.canTryAllocate(entry);
+    return p->second.canTryAllocate(entry, true);
 }
 
 Ice::ObjectProxySeq
