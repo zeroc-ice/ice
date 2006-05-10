@@ -105,6 +105,9 @@ class Adapter extends TreeNode implements DescriptorHolder
 
     public void destroy()
     {
+	removeProperty(_id, "Endpoints");
+	removeProperty(_id, "PublishedEndpoints");
+
 	((Communicator)_parent).getAdapters().destroyChild(this);
     }
   

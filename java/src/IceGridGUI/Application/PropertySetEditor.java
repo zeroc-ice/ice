@@ -215,7 +215,7 @@ class PropertySetEditor extends Editor
 	setPropertySetsField();
 	_propertySetsButton.setEnabled(isEditable);
 
-	_properties.setProperties(descriptor.properties, 
+	_properties.setProperties(descriptor.properties, null, 
 				  getDetailResolver(), isEditable);
 
 	_applyButton.setEnabled(nps.isEphemeral());

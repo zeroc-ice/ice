@@ -142,7 +142,7 @@ class DbEnvEditor extends CommunicatorChildEditor
 	_dbHome.setEnabled(isEditable);
 	_dbHome.setEditable(isEditable);
 	
-	_properties.setProperties(descriptor.properties, 
+	_properties.setProperties(descriptor.properties, null, 
 				  resolver, isEditable);
 	
 	_applyButton.setEnabled(dbEnv.isEphemeral());

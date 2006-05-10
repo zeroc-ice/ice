@@ -161,7 +161,7 @@ class PropertySet extends TreeNode
     {
 	if(!_ephemeral)
 	{
-	    writePropertySet(writer, _id, _descriptor);
+	    writePropertySet(writer, _id, _descriptor, null);
 	}
     }
 

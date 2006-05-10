@@ -977,6 +977,18 @@ public class Coordinator
 		
 		String str = reader.readLine();
 		reader.close();
+
+		if(str == null || str.length() == 0)
+		{
+		    JOptionPane.showMessageDialog(
+			_mainFrame,
+			"The icegridadmin subprocess failed",
+			"Subprocess failure",
+			JOptionPane.ERROR_MESSAGE);
+		    destroyIceGridAdmin();
+		    return null;
+		}
+
 		_fileParser = FileParserPrxHelper.checkedCast(_communicator.stringToProxy(str));
 	    }
 	    catch(java.io.UnsupportedEncodingException e)

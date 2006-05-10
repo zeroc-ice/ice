@@ -24,7 +24,9 @@ class ServerInstance extends TreeNode implements Server
     static public ServerInstanceDescriptor
     copyDescriptor(ServerInstanceDescriptor sid)
     {
-	return (ServerInstanceDescriptor)sid.clone();
+        ServerInstanceDescriptor copy = (ServerInstanceDescriptor)sid.clone();
+	copy.propertySet = PropertySet.copyDescriptor(copy.propertySet);
+	return copy;
     }
     
     //
@@ -173,7 +175,17 @@ class ServerInstance extends TreeNode implements Server
 		_descriptor.parameterValues, templateDescriptor.parameters);
 	    attributes.addFirst(createAttribute("template", _descriptor.template));
 		
-	    writer.writeElement("server-instance", attributes);
+	    if(_descriptor.propertySet.references.length == 0 &&
+	       _descriptor.propertySet.properties.size() == 0)
+	    {
+		writer.writeElement("server-instance", attributes);
+	    }
+	    else
+	    {
+		writer.writeStartTag("server-instance", attributes);
+		writePropertySet(writer, "", _descriptor.propertySet, null);
+		writer.writeEndTag("server-instance");
+	    }
 	}
     }
 

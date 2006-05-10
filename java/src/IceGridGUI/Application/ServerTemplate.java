@@ -254,7 +254,7 @@ class ServerTemplate extends Communicator
 		PlainServer.writeOptions(writer, descriptor.options);
 		PlainServer.writeEnvs(writer, descriptor.envs);
 	
-		writePropertySet(writer, "", descriptor.propertySet);
+		writePropertySet(writer, "", descriptor.propertySet, descriptor.adapters);
 		writeDistribution(writer, descriptor.distrib);
 
 		_adapters.write(writer);
@@ -275,7 +275,7 @@ class ServerTemplate extends Communicator
 		PlainServer.writeOptions(writer, descriptor.options);
 		PlainServer.writeEnvs(writer, descriptor.envs);
 		
-		writePropertySet(writer, "", descriptor.propertySet);
+		writePropertySet(writer, "", descriptor.propertySet, descriptor.adapters);
 		writeDistribution(writer, descriptor.distrib);
 
 		_adapters.write(writer);

@@ -112,7 +112,8 @@ class CommunicatorSubEditor
 	setPropertySetsField();
 	_propertySetsButton.setEnabled(isEditable);
 
-	_properties.setProperties(descriptor.propertySet.properties, 
+	_properties.setProperties(descriptor.propertySet.properties,
+				  descriptor.adapters,
 				  detailResolver, isEditable);
 	
 	_description.setText(

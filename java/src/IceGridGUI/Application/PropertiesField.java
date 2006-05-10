@@ -75,10 +75,29 @@ public class PropertiesField extends JTable
     }
 
 
-    public void setProperties(java.util.List properties, 
+    public void setProperties(java.util.List properties,
+			      java.util.List adapters,
 			      Utils.Resolver resolver, boolean editable)
     {
 	_editable = editable;
+
+	//
+	// We don't show the .Endpoint and .PublishedEndpoints of adapters,
+	// since they already appear in the Adapter pages 
+	//
+	java.util.Set hiddenPropertyNames = new java.util.HashSet();
+	_hiddenProperties.clear();
+
+	if(adapters != null)
+	{
+	    java.util.Iterator p = adapters.iterator();
+	    while(p.hasNext())
+	    {
+		AdapterDescriptor ad = (AdapterDescriptor)p.next();
+		hiddenPropertyNames.add(ad.name + ".Endpoints");
+		hiddenPropertyNames.add(ad.name + ".PublishedEndpoints");
+	    }
+	}
 
 	//
 	// Transform list into vector of vectors
@@ -88,11 +107,28 @@ public class PropertiesField extends JTable
 	while(p.hasNext())
 	{
 	    PropertyDescriptor pd = (PropertyDescriptor)p.next();
+	    if(hiddenPropertyNames.contains(pd.name))
+	    {
+		//
+		// We keep them at the top of the list
+		//
+		if(_editable)
+		{
+		    _hiddenProperties.add(pd);
+		}
 
-	    java.util.Vector row = new java.util.Vector(2);
-	    row.add(Utils.substitute(pd.name, resolver));
-	    row.add(Utils.substitute(pd.value, resolver));
-	    vector.add(row);
+		//
+		// We hide only the first occurence
+		//
+		hiddenPropertyNames.remove(pd.name);
+	    }
+	    else
+	    {
+		java.util.Vector row = new java.util.Vector(2);
+		row.add(Utils.substitute(pd.name, resolver));
+		row.add(Utils.substitute(pd.value, resolver));
+		vector.add(row);
+	    }
 	}
 
 	if(_editable)
@@ -141,17 +177,19 @@ public class PropertiesField extends JTable
 
     public java.util.LinkedList getProperties()
     {
+	assert _editable;
+
 	if(isEditing()) 
 	{
 	    getCellEditor().stopCellEditing();
 	}
 	java.util.Vector vector = _model.getDataVector();
-
-	java.util.LinkedList result = new java.util.LinkedList();
 	
-	 java.util.Iterator p = vector.iterator();
-	 while(p.hasNext())
-	 {
+	java.util.LinkedList result = new java.util.LinkedList(_hiddenProperties);
+
+	java.util.Iterator p = vector.iterator();
+	while(p.hasNext())
+	{
 	     java.util.Vector row = (java.util.Vector)p.next();
 
 	     //
@@ -168,16 +206,19 @@ public class PropertiesField extends JTable
 		     {
 			 val = "";
 		     }
+
 		     result.add(new PropertyDescriptor(key, val));
 		 }
 	     }
-	 }
-	 return result;
+	}
+	return result;
     }
 
     private DefaultTableModel _model;
     private java.util.Vector _columnNames;
     private boolean _editable = false;
+
+    private java.util.LinkedList _hiddenProperties = new java.util.LinkedList();
 
     private Editor _editor;
 }

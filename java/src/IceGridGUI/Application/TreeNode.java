@@ -115,33 +115,72 @@ public abstract class TreeNode extends TreeNodeBase
 	}
     }
 
-    static void writePropertySet(XMLWriter writer, String id, PropertySetDescriptor psd)
+    static void writePropertySet(XMLWriter writer, String id, 
+				 PropertySetDescriptor psd, java.util.List adapters)
 	throws java.io.IOException
     {
+	if(id.length() == 0 && psd.references.length == 0 && psd.properties.size() == 0)
+	{
+	    return;
+	}
+
+	//
+	// We don't show the .Endpoint and .PublishedEndpoints of adapters,
+	// since they already appear in the Adapter descriptors
+	//
+	java.util.Set hiddenPropertyNames = new java.util.HashSet();
+
+	if(adapters != null)
+	{
+	    java.util.Iterator p = adapters.iterator();
+	    while(p.hasNext())
+	    {
+		AdapterDescriptor ad = (AdapterDescriptor)p.next();
+		hiddenPropertyNames.add(ad.name + ".Endpoints");
+	    }
+	}
+
 	java.util.List attributes = new java.util.LinkedList();
 	if(id.length() > 0)
 	{
 	    attributes.add(createAttribute("id", id));
 	}
-	writer.writeElement("properties", attributes);
-	
-	for(int i = 0; i < psd.references.length; ++i)
+	if(psd.references.length == 0 && psd.properties.size() == 0)
 	{
-	    attributes.clear();
-	    attributes.add(createAttribute("refid", psd.references[i])); 
 	    writer.writeElement("properties", attributes);
 	}
-	
-	java.util.Iterator p = psd.properties.iterator();
-	while(p.hasNext())
+	else
 	{
-	    PropertyDescriptor pd = (PropertyDescriptor)p.next();
-	    attributes.clear();
-	    attributes.add(createAttribute("name", pd.name));
-	    attributes.add(createAttribute("value", pd.value));
-	    writer.writeElement("property", attributes);
+	    writer.writeStartTag("properties", attributes);
+	    
+	    for(int i = 0; i < psd.references.length; ++i)
+	    {
+		attributes.clear();
+		attributes.add(createAttribute("refid", psd.references[i])); 
+		writer.writeElement("properties", attributes);
+	    }
+	    
+	    java.util.Iterator p = psd.properties.iterator();
+	    while(p.hasNext())
+	    {
+		PropertyDescriptor pd = (PropertyDescriptor)p.next();
+		if(hiddenPropertyNames.contains(pd.name))
+		{
+		    //
+		    // We hide only the first occurence
+		    //
+		    hiddenPropertyNames.remove(pd.name);
+		}
+		else
+		{
+		    attributes.clear();
+		    attributes.add(createAttribute("name", pd.name));
+		    attributes.add(createAttribute("value", pd.value));
+		    writer.writeElement("property", attributes);
+		}
+	    }
+	    writer.writeEndTag("properties");
 	}
-	writer.writeEndTag("properties");
     }
 
     static void writeDistribution(XMLWriter writer, 

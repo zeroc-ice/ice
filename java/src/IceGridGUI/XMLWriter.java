@@ -105,7 +105,10 @@ public class XMLWriter
 
     private void decreaseIndent()
     {
-	_indent = _indent.substring(3);
+	if(_indent.length() > 0)
+	{
+	    _indent = _indent.substring(3);
+	}
     }
 
     private String
