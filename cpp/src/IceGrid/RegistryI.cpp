@@ -263,10 +263,10 @@ RegistryI::start(bool nowarn)
  					  _communicator->stringToIdentity(instanceName + "/TopicManager"),
 					  "Registry");
 
-    NodeObserverTopic* nodeTopic = new NodeObserverTopic(_iceStorm->getTopicManager());
+    NodeObserverTopicPtr nodeTopic = new NodeObserverTopic(_iceStorm->getTopicManager());
     _nodeObserver = NodeObserverPrx::uncheckedCast(registryAdapter->addWithUUID(nodeTopic));
 
-    RegistryObserverTopic* regTopic = new RegistryObserverTopic(_iceStorm->getTopicManager());
+    RegistryObserverTopicPtr regTopic = new RegistryObserverTopic(_iceStorm->getTopicManager());
     _registryObserver = RegistryObserverPrx::uncheckedCast(registryAdapter->addWithUUID(regTopic));
 
     _database->setObservers(_registryObserver, _nodeObserver);
@@ -286,7 +286,7 @@ RegistryI::start(bool nowarn)
 
     Identity admSessionMgrId = _communicator->stringToIdentity(instanceName + "/AdminSessionManager");
     ObjectPtr admSessionMgr = 
-	new AdminSessionManagerI(*regTopic, *nodeTopic, _database, clientReaper, _waitQueue, sessionTimeout);
+	new AdminSessionManagerI(regTopic, nodeTopic, _database, clientReaper, _waitQueue, sessionTimeout);
     adminAdapter->add(admSessionMgr, admSessionMgrId);
 
     //

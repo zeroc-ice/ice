@@ -18,8 +18,8 @@ AdminSessionI::AdminSessionI(const string& userId,
 			     const DatabasePtr& database,
 			     const Ice::ObjectAdapterPtr& adapter,
 			     const WaitQueuePtr& waitQueue,
-			     RegistryObserverTopic& registryObserverTopic,
-			     NodeObserverTopic& nodeObserverTopic,
+			     const RegistryObserverTopicPtr& registryObserverTopic,
+			     const NodeObserverTopicPtr& nodeObserverTopic,
 			     int timeout) :
     SessionI(userId, "admin", database, adapter, waitQueue, timeout),
     _updating(false),
@@ -64,19 +64,19 @@ AdminSessionI::setObservers(const RegistryObserverPrx& registryObserver,
     {
 	if(_registryObserver)
 	{
-	    _registryObserverTopic.unsubscribe(_registryObserver);
+	    _registryObserverTopic->unsubscribe(_registryObserver);
 	}
 	_registryObserver = RegistryObserverPrx::uncheckedCast(registryObserver->ice_timeout(_timeout * 1000));
-	_registryObserverTopic.subscribe(_registryObserver); 
+	_registryObserverTopic->subscribe(_registryObserver); 
     }
     if(nodeObserver)
     {
 	if(_nodeObserver)
 	{
-	    _nodeObserverTopic.unsubscribe(_nodeObserver);
+	    _nodeObserverTopic->unsubscribe(_nodeObserver);
 	}
 	_nodeObserver = NodeObserverPrx::uncheckedCast(nodeObserver->ice_timeout(_timeout * 1000));
-	_nodeObserverTopic.subscribe(_nodeObserver);
+	_nodeObserverTopic->subscribe(_nodeObserver);
     }
 }
 
@@ -100,19 +100,19 @@ AdminSessionI::setObserversByIdentity(const Ice::Identity& registryObserver,
     {
 	if(_registryObserver)
 	{
-	    _registryObserverTopic.unsubscribe(_registryObserver);
+	    _registryObserverTopic->unsubscribe(_registryObserver);
 	}
 	_registryObserver = RegistryObserverPrx::uncheckedCast(current.con->createProxy(registryObserver));
-	_registryObserverTopic.subscribe(_registryObserver);
+	_registryObserverTopic->subscribe(_registryObserver);
     }
     if(!nodeObserver.name.empty())
     {
 	if(_nodeObserver)
 	{
-	    _nodeObserverTopic.unsubscribe(_nodeObserver);
+	    _nodeObserverTopic->unsubscribe(_nodeObserver);
 	}
 	_nodeObserver = NodeObserverPrx::uncheckedCast(current.con->createProxy(nodeObserver));
-	_nodeObserverTopic.subscribe(_nodeObserver);
+	_nodeObserverTopic->subscribe(_nodeObserver);
     }
 }
 
@@ -237,20 +237,23 @@ AdminSessionI::destroy(const Ice::Current& current)
     //
     // Unsubscribe from the topics.
     //
-    if(_registryObserver) // Immutable once _destroy = true
+    if(current.adapter) // Not shutting down
     {
-	_registryObserverTopic.unsubscribe(_registryObserver);
-	_registryObserver = 0;
-    }
-    if(_nodeObserver)
-    {
-	_nodeObserverTopic.unsubscribe(_nodeObserver);
-	_nodeObserver = 0;
+	if(_registryObserver) // Immutable once _destroy = true
+	{
+	    _registryObserverTopic->unsubscribe(_registryObserver);
+	    _registryObserver = 0;
+	}
+	if(_nodeObserver)
+	{
+	    _nodeObserverTopic->unsubscribe(_nodeObserver);
+	    _nodeObserver = 0;
+	}
     }
 }
 
-AdminSessionManagerI::AdminSessionManagerI(RegistryObserverTopic& regTopic,
-					   NodeObserverTopic& nodeTopic,
+AdminSessionManagerI::AdminSessionManagerI(const RegistryObserverTopicPtr& regTopic,
+					   const NodeObserverTopicPtr& nodeTopic,
 					   const DatabasePtr& database,
 					   const ReapThreadPtr& reaper,
 					   const WaitQueuePtr& waitQueue,

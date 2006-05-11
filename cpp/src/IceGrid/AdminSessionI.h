@@ -21,7 +21,7 @@ class AdminSessionI : public SessionI, public AdminSession
 public:
 
     AdminSessionI(const std::string&, const DatabasePtr&, const Ice::ObjectAdapterPtr&, const WaitQueuePtr&,
-		  RegistryObserverTopic&, NodeObserverTopic&, int);
+		  const RegistryObserverTopicPtr&, const NodeObserverTopicPtr&, int);
     virtual ~AdminSessionI();
 
     virtual AdminPrx getAdmin(const Ice::Current&) const;
@@ -44,8 +44,8 @@ protected:
 
 private:
     
-    RegistryObserverTopic& _registryObserverTopic;
-    NodeObserverTopic& _nodeObserverTopic;
+    const RegistryObserverTopicPtr _registryObserverTopic;
+    const NodeObserverTopicPtr _nodeObserverTopic;
     
     RegistryObserverPrx _registryObserver;
     NodeObserverPrx _nodeObserver;
@@ -55,16 +55,16 @@ class AdminSessionManagerI : virtual public SessionManager
 {
 public:
 
-    AdminSessionManagerI(RegistryObserverTopic&, NodeObserverTopic&, const  DatabasePtr&, const ReapThreadPtr&, 
-			 const WaitQueuePtr&, int);
+    AdminSessionManagerI(const RegistryObserverTopicPtr& , const NodeObserverTopicPtr&, const  DatabasePtr&, 
+			 const ReapThreadPtr&, const WaitQueuePtr&, int);
     
     virtual Glacier2::SessionPrx create(const std::string&, const Glacier2::SessionControlPrx&, const Ice::Current&);
     virtual SessionPrx createLocalSession(const std::string&, const Ice::Current&);
 
 private:
-
-    RegistryObserverTopic& _registryObserverTopic;
-    NodeObserverTopic& _nodeObserverTopic;
+    
+    const RegistryObserverTopicPtr _registryObserverTopic;
+    const NodeObserverTopicPtr _nodeObserverTopic;
     const DatabasePtr _database;
     const ReapThreadPtr _reaper;
     const WaitQueuePtr _waitQueue;
