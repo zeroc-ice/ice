@@ -459,7 +459,7 @@ Activator::activate(const string& name,
 	vector<char> buf(256);
 	buf.resize(256);
 	DWORD size = buf.size();
-	bool success = GetUserName(&buf[0], &size)
+	bool success = GetUserName(&buf[0], &size);
 	if(!success && GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 	{
 	    buf.resize(size);
