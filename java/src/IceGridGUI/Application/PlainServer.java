@@ -79,7 +79,8 @@ class PlainServer extends Communicator implements Server
 	    "",
 	    true,
 	    new DistributionDescriptor("", new java.util.LinkedList()),
-	    false // Allocatable
+	    false, // Allocatable
+	    ""
 	    );
     }
 
@@ -121,6 +122,7 @@ class PlainServer extends Communicator implements Server
 	    true,
 	    new DistributionDescriptor("", new java.util.LinkedList()),
 	    false, // Allocatable
+	    "",
 	    new java.util.LinkedList()
 	    );
     }
