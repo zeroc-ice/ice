@@ -437,7 +437,27 @@ Activator::activate(const string& name,
 	{
 	    out << "\n";
 	    out << "path = " << path << "\n";
-	    out << "pwd = " << pwd << "\n";
+	    if(pwd.empty())
+	    {
+#ifdef _WIN32
+		char cwd[_MAX_PATH];
+		if(_getcwd(cwd, _MAX_PATH) != NULL)
+#else
+		char cwd[PATH_MAX];
+		if(getcwd(cwd, PATH_MAX) != NULL)
+#endif
+		{
+		    out << "pwd = " << string(cwd) << "\n";
+		}
+	    }
+	    else
+	    {
+		out << "pwd = " << pwd << "\n";
+	    }
+	    if(!user.empty())
+	    {
+		out << "user = " << user << "\n";
+	    }
 	    if(!envs.empty())
 	    {
 		out << "envs = " << toString(envs, ", ") << "\n";
