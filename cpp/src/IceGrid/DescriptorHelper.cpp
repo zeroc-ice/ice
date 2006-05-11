@@ -1044,6 +1044,11 @@ ServerHelper::operator==(const ServerHelper& helper) const
 	return false;
     }
 
+    if(_desc->user != helper._desc->user)
+    {
+	return false;
+    }
+
     return true;
 }
 
@@ -1066,6 +1071,7 @@ ServerHelper::instantiateImpl(const ServerDescriptorPtr& instance,
     instance->activation = resolve(_desc->activation, "activation");
     instance->applicationDistrib = _desc->applicationDistrib;
     instance->allocatable = _desc->allocatable;
+    instance->user = resolve(_desc->user, "user");
     if(!instance->activation.empty() && 
        instance->activation != "manual" && instance->activation != "on-demand" && instance->activation != "always")
     {
@@ -1146,6 +1152,10 @@ ServerHelper::printImpl(Output& out, const string& application, const string& no
     if(!_desc->deactivationTimeout.empty() && _desc->deactivationTimeout != "0")
     {
 	out << nl << "deactivationTimeout = `" << _desc->deactivationTimeout << "'";
+    }
+    if(!_desc->user.empty())
+    {
+	out << nl << "user = `" << _desc->user << "'";
     }
     if(!_desc->applicationDistrib)
     {

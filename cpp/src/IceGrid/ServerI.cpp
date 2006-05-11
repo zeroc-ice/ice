@@ -1109,7 +1109,7 @@ ServerI::activate()
     string failure;
     try
     {
-	int pid = _node->getActivator()->activate(desc->id, desc->exe, desc->pwd, options, envs, this);
+	int pid = _node->getActivator()->activate(desc->id, desc->exe, desc->pwd, desc->user, options, envs, this);
 
 	ServerCommandPtr command;
 	{

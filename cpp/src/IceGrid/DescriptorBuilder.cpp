@@ -731,7 +731,7 @@ ServerDescriptorBuilder::init(const ServerDescriptorPtr& desc, const XmlAttribut
     _descriptor->activation = attrs("activation", "manual");
     _descriptor->applicationDistrib = attrs.asBool("application-distrib", true);
     _descriptor->allocatable = attrs.asBool("allocatable", false);
-
+    _descriptor->user = attrs("user", "");
 }
 
 ServiceDescriptorBuilder*

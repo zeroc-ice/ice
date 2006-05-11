@@ -25,6 +25,7 @@
 #ifndef _WIN32
 #   include <sys/wait.h>
 #   include <signal.h>
+#   include <pwd.h> // for getpwnam
 #endif
 
 using namespace std;
@@ -76,8 +77,12 @@ reportChildError(int err, int fd, const char* cannot, const char* name)
     strcpy(msg, cannot);
     strcat(msg, " `");
     strcat(msg, name);
-    strcat(msg, "':  ");
-    strcat(msg, strerror(err));
+    strcat(msg, "'");
+    if(err)
+    {
+	strcat(msg, ": ");
+	strcat(msg, strerror(err));
+    }
     write(fd, msg, strlen(msg));
     close(fd);
 
@@ -339,6 +344,7 @@ int
 Activator::activate(const string& name,
 		    const string& exePath,
 		    const string& pwdPath,
+		    const string& user,
 		    const Ice::StringSeq& options,
 		    const Ice::StringSeq& envs,
 		    const ServerIPtr& server)
@@ -447,6 +453,30 @@ Activator::activate(const string& name,
     // Activate and create.
     //
 #ifdef _WIN32
+
+    if(!user.empty())
+    {
+	vector<char> buf(256);
+	buf.resize(256);
+	DWORD size = buf.size();
+	bool success = GetUserName(&buf[0], &size)
+	if(!success && GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+	{
+	    buf.resize(size);
+	    success = GetUserName(&buf[0], &size);
+	}
+	if(!success)
+	{
+	    SyscallException ex(__FILE__, __LINE__);
+	    ex.error = getSystemErrno();
+	    throw ex;
+	}
+	if(user != string(&buf[0]))
+	{
+	    throw "can't run `" + name + "' under user account `" + user + "'";
+	}
+    }
+
     //
     // Compose command line.
     //
@@ -650,6 +680,29 @@ Activator::activate(const string& name,
 	//
 	// Until exec, we can only use async-signal safe functions
 	//
+
+	//
+	// Change the user under which the process will run if a
+	// specific user is set.
+	//
+	if(!user.empty())
+	{
+	    struct passwd* pw = getpwnam(user.c_str());
+	    if(!pw)
+	    {
+		reportChildError(0, fds[1], "unknown user", user.c_str()); 
+	    }
+	    
+	    if(setgid(pw->pw_gid) == -1)
+	    {
+		reportChildError(getSystemErrno(), fds[1], "cannot set process group id for user", user.c_str()); 
+	    }	    
+
+	    if(setuid(pw->pw_uid) == -1)
+	    {
+		reportChildError(getSystemErrno(), fds[1], "cannot set process user id for user", user.c_str());
+	    }
+	}
 
 	//
 	// Assign a new process group for this process. 
