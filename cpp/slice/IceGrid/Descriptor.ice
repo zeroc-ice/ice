@@ -340,6 +340,13 @@ class ServerDescriptor extends CommunicatorDescriptor
      *
      **/
     bool allocatable;
+
+    /**
+     *
+     * The user account used to run the server.
+     *
+     **/
+    string user;
 };
 
 /**
