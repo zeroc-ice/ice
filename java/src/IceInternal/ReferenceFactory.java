@@ -114,7 +114,7 @@ public final class ReferenceFactory
     public Reference
     create(String s)
     {
-        if(s.length() == 0)
+        if(s == null || s.length() == 0)
         {
             return null;
         }
