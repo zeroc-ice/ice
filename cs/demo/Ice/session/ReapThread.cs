@@ -81,18 +81,6 @@ public class ReapThread
 	    _terminated = true;
 	    System.Threading.Monitor.Pulse(this);
 
-	    foreach(SessionProxyPair p in _sessions)
-	    {
-		try
-		{
-		    p.proxy.destroy();
-		}
-		catch(Ice.Exception)
-		{
-		    // Ignore.
-		}
-	    }
-
 	    _sessions.Clear();
 	}
     }

@@ -72,20 +72,6 @@ class ReapThread extends Thread
 	_terminated = true;
 	notify();
 	
-	java.util.Iterator p = _sessions.iterator();
-	while(p.hasNext())
-	{
-	    SessionProxyPair s = (SessionProxyPair)p.next();
-	    try
-	    {
-		s.proxy.destroy();
-	    }
-	    catch(Ice.LocalException e)
-	    {
-		// Ignore.
-	    }
-	}
-	
 	_sessions.clear();
     }
 
