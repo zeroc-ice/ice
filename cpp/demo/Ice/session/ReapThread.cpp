@@ -68,18 +68,6 @@ ReapThread::terminate()
     _terminated = true;
     notify();
 
-    for(list<SessionProxyPair>::const_iterator p = _sessions.begin(); p != _sessions.end(); ++p)
-    {
-	try
-	{
-	    p->proxy->destroy();
-	}
-	catch(const Ice::Exception&)
-	{
-	    // Ignore.
-	}
-    }
-
     _sessions.clear();
 }
 
