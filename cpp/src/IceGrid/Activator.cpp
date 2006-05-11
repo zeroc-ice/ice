@@ -26,6 +26,8 @@
 #   include <sys/wait.h>
 #   include <signal.h>
 #   include <pwd.h> // for getpwnam
+#else
+#   include <direct.h> // For _getcwd
 #endif
 
 using namespace std;
