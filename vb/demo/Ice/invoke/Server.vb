@@ -17,7 +17,7 @@ Module InvokeS
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
             Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("Printer")
-            adapter.add(New PrinterI, Ice.Util.stringToIdentity("printer"))
+            adapter.add(New PrinterI, communicator().stringToIdentity("printer"))
             adapter.activate()
             communicator.waitForShutdown()
             Return 0

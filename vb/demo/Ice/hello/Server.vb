@@ -14,7 +14,7 @@ Module HelloS
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
             Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("Hello")
-            adapter.add(New HelloI, Ice.Util.stringToIdentity("hello"))
+            adapter.add(New HelloI, communicator().stringToIdentity("hello"))
             adapter.activate()
             communicator.waitForShutdown()
             Return 0

@@ -13,7 +13,7 @@ Module ValueS
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
             Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("Value")
-            adapter.add(New InitialI(adapter), Ice.Util.stringToIdentity("initial"))
+            adapter.add(New InitialI(adapter), communicator().stringToIdentity("initial"))
             adapter.activate()
             communicator().waitForShutdown()
             Return 0

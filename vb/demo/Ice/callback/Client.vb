@@ -47,11 +47,11 @@ Module CallbackC
             Dim batchDatagram As CallbackSenderPrx = CallbackSenderPrxHelper.uncheckedCast(twoway.ice_batchDatagram())
 
             Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("Callback.Client")
-            adapter.add(New CallbackReceiverI, Ice.Util.stringToIdentity("callbackReceiver"))
+            adapter.add(New CallbackReceiverI, communicator().stringToIdentity("callbackReceiver"))
             adapter.activate()
 
             Dim twowayR As CallbackReceiverPrx = CallbackReceiverPrxHelper.uncheckedCast( _
-                adapter.createProxy(Ice.Util.stringToIdentity("callbackReceiver")))
+                adapter.createProxy(communicator().stringToIdentity("callbackReceiver")))
             Dim onewayR As CallbackReceiverPrx = CallbackReceiverPrxHelper.uncheckedCast( _
                 twowayR.ice_oneway())
             Dim datagramR As CallbackReceiverPrx = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_datagram())

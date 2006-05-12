@@ -21,7 +21,7 @@ Module SessionS
             Dim reaperThread As Thread = New Thread(New ThreadStart(AddressOf reaper.run))
             reaperThread.Start()
 
-            adapter.add(New SessionFactoryI(reaper), Ice.Util.stringToIdentity("SessionFactory"))
+            adapter.add(New SessionFactoryI(reaper), communicator().stringToIdentity("SessionFactory"))
             adapter.activate()
             communicator().waitForShutdown()
 

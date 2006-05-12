@@ -18,7 +18,7 @@ Module MinimalS
         Try
             communicator = Ice.Util.initialize(args)
             Dim adapter As Ice.ObjectAdapter = communicator.createObjectAdapterWithEndpoints("Hello", "tcp -p 10000")
-            adapter.add(New HelloI, Ice.Util.stringToIdentity("hello"))
+            adapter.add(New HelloI, communicator.stringToIdentity("hello"))
             adapter.activate()
             communicator.waitForShutdown()
         Catch ex As System.Exception

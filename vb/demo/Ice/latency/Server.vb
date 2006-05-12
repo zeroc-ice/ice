@@ -17,7 +17,7 @@ Module LatencyS
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
             Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("Latency")
-            adapter.add(New Ping, Ice.Util.stringToIdentity("ping"))
+            adapter.add(New Ping, communicator().stringToIdentity("ping"))
             adapter.activate()
             communicator.waitForShutdown()
             Return 0

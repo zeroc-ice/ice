@@ -15,8 +15,8 @@ Module NestedS
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
             Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("Nested.Server")
-            Dim self As NestedPrx = NestedPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("nestedServer")))
-            adapter.add(New NestedI(self), Ice.Util.stringToIdentity("nestedServer"))
+            Dim self As NestedPrx = NestedPrxHelper.uncheckedCast(adapter.createProxy(communicator().stringToIdentity("nestedServer")))
+            adapter.add(New NestedI(self), communicator().stringToIdentity("nestedServer"))
             adapter.activate()
             communicator().waitForShutdown()
             Return 0

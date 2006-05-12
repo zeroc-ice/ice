@@ -14,9 +14,9 @@ Public Class DirectoryI
 	'
 	Dim myId As Ice.Identity
 	If Not _parent Is Nothing Then
-	    myId = Ice.Util.stringToIdentity(Ice.Util.generateUUID())
+	    myId = _adapter.getCommunicator().stringToIdentity(Ice.Util.generateUUID())
 	Else
-	    myId = Ice.Util.stringToIdentity("RootDir")
+	    myId = _adapter.getCommunicator().stringToIdentity("RootDir")
 	End If
 
 	' Add the identity to the object adapter

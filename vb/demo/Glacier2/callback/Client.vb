@@ -149,7 +149,7 @@ Module Glacier2callbackC
                             onewayR = CallbackReceiverPrxHelper.uncheckedCast(onewayR.ice_identity(callbackReceiverIdent))
                         End If
 
-                        Console.WriteLine("callback receiver identity: " & Ice.Util.identityToString(twowayR.ice_getIdentity()))
+                        Console.WriteLine("callback receiver identity: " & communicator().identityToString(twowayR.ice_getIdentity()))
                     ElseIf line.Equals("s") Then
                         twoway.shutdown()
                     ElseIf line.Equals("x") Then

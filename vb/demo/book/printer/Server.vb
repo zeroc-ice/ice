@@ -29,7 +29,7 @@ Module Server
             ic = Ice.Util.initialize(args)
             Dim adapter As Ice.ObjectAdapter = ic.createObjectAdapterWithEndpoints("SimplePrinterAdapter", "default -p 10000")
             Dim obj As Ice.Object = New PrinterI
-            adapter.add(obj, Ice.Util.stringToIdentity("SimplePrinter"))
+            adapter.add(obj, ic.stringToIdentity("SimplePrinter"))
             adapter.activate()
             ic.waitForShutdown()
         Catch e As Exception

@@ -31,8 +31,8 @@ Module NestedC
             End If
 
             Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("Nested.Client")
-            Dim self As NestedPrx = NestedPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("nestedClient")))
-            adapter.add(New NestedI(self), Ice.Util.stringToIdentity("nestedClient"))
+            Dim self As NestedPrx = NestedPrxHelper.uncheckedCast(adapter.createProxy(communicator().stringToIdentity("nestedClient")))
+            adapter.add(New NestedI(self), communicator().stringToIdentity("nestedClient"))
             adapter.activate()
 
             Console.Out.WriteLine("Note: The maximum nesting level is sz * 2, with sz being")

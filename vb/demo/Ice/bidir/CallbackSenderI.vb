@@ -30,7 +30,7 @@ Class CallbackSenderI
 
     Public Overloads Overrides Sub addClient(ByVal ident As Ice.Identity, ByVal current As Ice.Current)
         SyncLock Me
-            System.Console.Out.WriteLine("adding client `" & Ice.Util.identityToString(ident) & "'")
+            System.Console.Out.WriteLine("adding client `" & current.adapter.getCommunicator().identityToString(ident) & "'")
 
             Dim base As Ice.ObjectPrx = current.con.createProxy(ident)
             Dim client As CallbackReceiverPrx = CallbackReceiverPrxHelper.uncheckedCast(base)

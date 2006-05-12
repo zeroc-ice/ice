@@ -16,7 +16,7 @@ Module BidirS
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
             Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("Callback.Server")
             Dim sender As CallbackSenderI = New CallbackSenderI
-            adapter.add(sender, Ice.Util.stringToIdentity("sender"))
+            adapter.add(sender, communicator().stringToIdentity("sender"))
             adapter.activate()
 
             Dim t As Thread = New Thread(New ThreadStart(AddressOf sender.Run))

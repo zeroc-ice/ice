@@ -14,7 +14,7 @@ Module ThroughputS
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
             Dim adapter As Ice.ObjectAdapter = communicator.createObjectAdapter("Throughput")
-            adapter.add(New ThroughputI, Ice.Util.stringToIdentity("throughput"))
+            adapter.add(New ThroughputI, communicator().stringToIdentity("throughput"))
             adapter.activate()
             communicator.waitForShutdown()
             Return 0

@@ -28,8 +28,8 @@ Module Glacier2callbackSS
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
 
             Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("SessionServer")
-            adapter.add(New DummyPermissionVerifierI, Ice.Util.stringToIdentity("verifier"))
-            adapter.add(New SessionManagerI, Ice.Util.stringToIdentity("sessionmanager"))
+            adapter.add(New DummyPermissionVerifierI, communicator().stringToIdentity("verifier"))
+            adapter.add(New SessionManagerI, communicator().stringToIdentity("sessionmanager"))
             adapter.activate()
             communicator().waitForShutdown()
             Return 0
