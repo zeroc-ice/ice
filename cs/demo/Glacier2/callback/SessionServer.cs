@@ -24,8 +24,8 @@ public class SessionServer : Ice.Application
     public override int run(string[] args)
     {
 	Ice.ObjectAdapter adapter = communicator().createObjectAdapter("SessionServer");
-	adapter.add(new DummyPermissionVerifierI(), Ice.Util.stringToIdentity("verifier"));
-	adapter.add(new SessionManagerI(), Ice.Util.stringToIdentity("sessionmanager"));
+	adapter.add(new DummyPermissionVerifierI(), communicator().stringToIdentity("verifier"));
+	adapter.add(new SessionManagerI(), communicator().stringToIdentity("sessionmanager"));
 	adapter.activate();
 	communicator().waitForShutdown();
 	return 0;

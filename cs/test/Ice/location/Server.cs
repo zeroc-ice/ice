@@ -29,13 +29,13 @@ public class Server
         //
         ServerLocatorRegistry registry = new ServerLocatorRegistry();
         Ice.Object @object = new ServerManagerI(adapter, registry);
-        adapter.add(@object, Ice.Util.stringToIdentity("ServerManager"));
-        registry.addObject(adapter.createProxy(Ice.Util.stringToIdentity("ServerManager")));
+        adapter.add(@object, communicator.stringToIdentity("ServerManager"));
+        registry.addObject(adapter.createProxy(communicator.stringToIdentity("ServerManager")));
         Ice.LocatorRegistryPrx registryPrx = Ice.LocatorRegistryPrxHelper.uncheckedCast(
-						adapter.add(registry, Ice.Util.stringToIdentity("registry")));
+						adapter.add(registry, communicator.stringToIdentity("registry")));
         
         ServerLocator locator = new ServerLocator(registry, registryPrx);
-        adapter.add(locator, Ice.Util.stringToIdentity("locator"));
+        adapter.add(locator, communicator.stringToIdentity("locator"));
         
         adapter.activate();
         communicator.waitForShutdown();

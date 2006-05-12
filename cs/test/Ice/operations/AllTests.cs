@@ -33,8 +33,8 @@ public class AllTests
 	Console.Out.WriteLine("ok");
 
 	Console.Out.Write("testing proxy methods... ");
-	test(Ice.Util.identityToString(
-		 baseProxy.ice_identity(Ice.Util.stringToIdentity("other")).ice_getIdentity()).Equals("other"));
+	test(communicator.identityToString(
+		 baseProxy.ice_identity(communicator.stringToIdentity("other")).ice_getIdentity()).Equals("other"));
 	test(baseProxy.ice_facet("facet").ice_getFacet().Equals("facet"));
 	test(baseProxy.ice_adapterId("id").ice_getAdapterId().Equals("id"));
 	test(baseProxy.ice_twoway().ice_isTwoway());

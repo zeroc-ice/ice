@@ -13,8 +13,9 @@ using System.Collections;
 
 class CallbackSenderI : CallbackSenderDisp_
 {
-    public CallbackSenderI()
+    public CallbackSenderI(Ice.Communicator communicator)
     {
+        _communicator = communicator;
 	_destroy = false;
 	_num = 0;
 	_clients = new ArrayList();
@@ -35,7 +36,7 @@ class CallbackSenderI : CallbackSenderDisp_
     {
         lock(this)
 	{
-	    System.Console.Out.WriteLine("adding client `" + Ice.Util.identityToString(ident) + "'");
+	    System.Console.Out.WriteLine("adding client `" + _communicator.identityToString(ident) + "'");
 
 	    Ice.ObjectPrx @base = current.con.createProxy(ident);
 	    CallbackReceiverPrx client = CallbackReceiverPrxHelper.uncheckedCast(@base);
@@ -65,7 +66,7 @@ class CallbackSenderI : CallbackSenderDisp_
 			catch(Ice.LocalException ex)
 			{
 			    Console.Error.WriteLine("removing client `" +
-						    Ice.Util.identityToString(c.ice_getIdentity()) + "':\n" + ex);
+						    _communicator.identityToString(c.ice_getIdentity()) + "':\n" + ex);
 			    toRemove.Add(c);
 			}
 		    }
@@ -78,6 +79,7 @@ class CallbackSenderI : CallbackSenderDisp_
 	}
     }
 
+    private Ice.Communicator _communicator;
     private bool _destroy;
     private int _num;
     private ArrayList _clients;

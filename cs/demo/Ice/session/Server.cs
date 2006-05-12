@@ -21,7 +21,7 @@ public class Server : Ice.Application
 	Thread reaperThread = new Thread(new ThreadStart(reaper.run));
 	reaperThread.Start();
 
-	adapter.add(new SessionFactoryI(reaper), Ice.Util.stringToIdentity("SessionFactory"));
+	adapter.add(new SessionFactoryI(reaper), communicator().stringToIdentity("SessionFactory"));
 	adapter.activate();
 	communicator().waitForShutdown();
 

@@ -14,7 +14,7 @@ class HelloServiceI : Ice.LocalObjectImpl, IceBox.Service
     public void start(string name, Ice.Communicator communicator, string[] args)
     {
         _adapter = communicator.createObjectAdapter(name);
-        _adapter.add(new HelloI(), Ice.Util.stringToIdentity("hello"));
+        _adapter.add(new HelloI(), communicator.stringToIdentity("hello"));
         _adapter.activate();
     }
 

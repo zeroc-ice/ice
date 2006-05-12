@@ -17,7 +17,7 @@ public class Client
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 2000");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Initial initial = new InitialI(adapter);
-        adapter.add(initial, Ice.Util.stringToIdentity("initial"));
+        adapter.add(initial, communicator.stringToIdentity("initial"));
         AllTests.allTests(communicator, true);
 	// We must call shutdown even in the collocated case for cyclic dependency cleanup
 	initial.shutdown();

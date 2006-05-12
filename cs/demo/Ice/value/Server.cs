@@ -13,7 +13,7 @@ public class Server : Ice.Application
     {
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Value");
         Ice.Object @object = new InitialI(adapter);
-        adapter.add(@object, Ice.Util.stringToIdentity("initial"));
+        adapter.add(@object, communicator().stringToIdentity("initial"));
         adapter.activate();
         communicator().waitForShutdown();
         return 0;

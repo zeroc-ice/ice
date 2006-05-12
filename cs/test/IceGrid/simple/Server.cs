@@ -13,7 +13,7 @@ public class Server : Ice.Application
     {
 	args = communicator().getProperties().parseCommandLineOptions("TestAdapter", args);
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        adapter.add(new TestI(adapter), Ice.Util.stringToIdentity("test"));
+        adapter.add(new TestI(adapter), communicator().stringToIdentity("test"));
 	shutdownOnInterrupt();
 	try
 	{

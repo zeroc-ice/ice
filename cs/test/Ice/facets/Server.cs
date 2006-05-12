@@ -14,12 +14,12 @@ public class Server
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 2000");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object d = new DI();
-        adapter.add(d, Ice.Util.stringToIdentity("d"));
-        adapter.addFacet(d, Ice.Util.stringToIdentity("d"), "facetABCD");
+        adapter.add(d, communicator.stringToIdentity("d"));
+        adapter.addFacet(d, communicator.stringToIdentity("d"), "facetABCD");
         Ice.Object f = new FI();
-        adapter.addFacet(f, Ice.Util.stringToIdentity("d"), "facetEF");
+        adapter.addFacet(f, communicator.stringToIdentity("d"), "facetEF");
         Ice.Object h = new HI(communicator);
-        adapter.addFacet(h, Ice.Util.stringToIdentity("d"), "facetGH");
+        adapter.addFacet(h, communicator.stringToIdentity("d"), "facetGH");
         
         adapter.activate();
         communicator.waitForShutdown();

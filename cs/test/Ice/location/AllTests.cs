@@ -327,7 +327,7 @@ public class AllTests
 	try
 	{
 	    HelloPrx helloPrx = HelloPrxHelper.checkedCast(
-		communicator.stringToProxy("\"" + Ice.Util.identityToString(id) + "\""));
+		communicator.stringToProxy("\"" + communicator.identityToString(id) + "\""));
 	    helloPrx.ice_connection();
 	    test(false);
 	}

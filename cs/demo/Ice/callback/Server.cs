@@ -14,7 +14,7 @@ public class Server : Ice.Application
     public override int run(string[] args)
     {
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Callback.Server");
-        adapter.add(new CallbackSenderI(), Ice.Util.stringToIdentity("callback"));
+        adapter.add(new CallbackSenderI(), communicator().stringToIdentity("callback"));
         adapter.activate();
         communicator().waitForShutdown();
         return 0;

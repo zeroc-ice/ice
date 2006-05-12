@@ -14,8 +14,8 @@ public class Server : Ice.Application
     public override int run(string[] args)
     {
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Nested.Server");
-        NestedPrx self = NestedPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("nestedServer")));
-        adapter.add(new NestedI(self), Ice.Util.stringToIdentity("nestedServer"));
+        NestedPrx self = NestedPrxHelper.uncheckedCast(adapter.createProxy(communicator().stringToIdentity("nestedServer")));
+        adapter.add(new NestedI(self), communicator().stringToIdentity("nestedServer"));
         adapter.activate();
         communicator().waitForShutdown();
         return 0;

@@ -258,11 +258,16 @@ public class TwowaysAMI
     
     private class AMI_MyClass_opMyClassI : Test.AMI_MyClass_opMyClass
     {
+        public AMI_MyClass_opMyClassI(Ice.Communicator comunicator)
+	{
+	    _communicator = comunicator;
+	}
+
         public override void ice_response(Test.MyClassPrx r, Test.MyClassPrx c1, Test.MyClassPrx c2)
         {
-            test(c1.ice_getIdentity().Equals(Ice.Util.stringToIdentity("test")));
-            test(c2.ice_getIdentity().Equals(Ice.Util.stringToIdentity("noSuchIdentity")));
-            test(r.ice_getIdentity().Equals(Ice.Util.stringToIdentity("test")));
+            test(c1.ice_getIdentity().Equals(_communicator.stringToIdentity("test")));
+            test(c2.ice_getIdentity().Equals(_communicator.stringToIdentity("noSuchIdentity")));
+            test(r.ice_getIdentity().Equals(_communicator.stringToIdentity("test")));
 	    // We can't do the callbacks below in thread per connection mode.
 	    if(Ice.Util.getDefaultProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0)
 	    {
@@ -291,6 +296,7 @@ public class TwowaysAMI
         }
         
         private Callback callback = new Callback();
+	private Ice.Communicator _communicator;
     }
     
     private class AMI_MyClass_opStructI : Test.AMI_MyClass_opStruct
@@ -1024,7 +1030,7 @@ public class TwowaysAMI
         }
         
         {
-            AMI_MyClass_opMyClassI cb = new AMI_MyClass_opMyClassI();
+            AMI_MyClass_opMyClassI cb = new AMI_MyClass_opMyClassI(communicator);
             p.opMyClass_async(cb, p);
             test(cb.check());
         }

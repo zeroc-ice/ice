@@ -296,7 +296,7 @@ namespace IceInternal
 	    {
 		Ice.Identity identity = new Ice.Identity();
 		identity.read__(stream);
-		o.Write("\nidentity = " + Ice.Util.identityToString(identity));
+		o.Write("\nidentity = " + stream.instance().identityToString(identity));
 		
 		string[] facet = stream.readStringSeq();
 		o.Write("\nfacet = ");

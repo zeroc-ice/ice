@@ -39,12 +39,12 @@ namespace Ice
 
 	public Ice.Identity stringToIdentity(string s)
 	{
-	    return Ice.Util.stringToIdentity(s);
+	    return instance_.stringToIdentity(s);
 	}
 
 	public string identityToString(Ice.Identity ident)
 	{
-	    return Ice.Util.identityToString(ident);
+	    return instance_.identityToString(ident);
 	}
 
 	public ObjectAdapter createObjectAdapter(string name)

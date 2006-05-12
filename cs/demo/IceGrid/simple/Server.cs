@@ -13,7 +13,7 @@ public class Server : Ice.Application
     {
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Hello");
 	Ice.Properties properties = communicator().getProperties();
-	Ice.Identity id = Ice.Util.stringToIdentity(properties.getProperty("Identity"));
+	Ice.Identity id = communicator().stringToIdentity(properties.getProperty("Identity"));
         adapter.add(new HelloI(properties.getProperty("Ice.ServerId")), id);
         adapter.activate();
         communicator().waitForShutdown();

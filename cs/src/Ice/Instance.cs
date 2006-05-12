@@ -253,6 +253,16 @@ namespace IceInternal
 	    connectionFactory.flushBatchRequests();
 	    adapterFactory.flushBatchRequests();
 	}
+
+        public Ice.Identity stringToIdentity(string s)
+        {
+            return Ice.Util.stringToIdentity(s);
+        }
+
+        public string identityToString(Ice.Identity ident)
+        {
+            return Ice.Util.identityToString(ident);
+        }
 	
 	//
 	// Only for use by Ice.CommunicatorI

@@ -214,7 +214,8 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
     public override void opMyClass_async(Test.AMD_MyClass_opMyClass cb, Test.MyClassPrx p1, Ice.Current current)
     {
         Test.MyClassPrx p2 = p1;
-        Test.MyClassPrx p3 = Test.MyClassPrxHelper.uncheckedCast(_adapter.createProxy(Ice.Util.stringToIdentity("noSuchIdentity")));
+        Test.MyClassPrx p3 = Test.MyClassPrxHelper.uncheckedCast(_adapter.createProxy(
+						_adapter.getCommunicator().stringToIdentity("noSuchIdentity")));
         cb.ice_response(Test.MyClassPrxHelper.uncheckedCast(_adapter.createProxy(_identity)), p2, p3);
     }
     

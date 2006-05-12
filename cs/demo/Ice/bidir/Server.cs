@@ -15,8 +15,8 @@ public class Server : Ice.Application
     public override int run(string[] args)
     {
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Callback.Server");
-        CallbackSenderI sender = new CallbackSenderI();
-        adapter.add(sender, Ice.Util.stringToIdentity("sender"));
+        CallbackSenderI sender = new CallbackSenderI(communicator());
+        adapter.add(sender, communicator().stringToIdentity("sender"));
         adapter.activate();
 
 	Thread t = new Thread(new ThreadStart(sender.Run));

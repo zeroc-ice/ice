@@ -170,7 +170,8 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
                                               Ice.Current current)
     {
 	p2 = p1;
-	p3 = Test.MyClassPrxHelper.uncheckedCast(_adapter.createProxy(Ice.Util.stringToIdentity("noSuchIdentity")));
+	p3 = Test.MyClassPrxHelper.uncheckedCast(_adapter.createProxy(
+						_adapter.getCommunicator().stringToIdentity("noSuchIdentity")));
 	return Test.MyClassPrxHelper.uncheckedCast(_adapter.createProxy(_identity));
     }
     

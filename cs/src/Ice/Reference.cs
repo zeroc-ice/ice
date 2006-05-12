@@ -238,7 +238,7 @@ namespace IceInternal
 	    // the reference parser uses as separators, then we enclose
 	    // the identity string in quotes.
 	    //
-	    string id = Ice.Util.identityToString(identity_);
+	    string id = instance_.identityToString(identity_);
 	    if(IceUtil.StringUtil.findFirstOf(id, " \t\n\r:@") != -1)
 	    {
 		s.Append('"');

@@ -102,13 +102,14 @@ public class AllTests
     
     private class AMI_Thrower_throwAasAObjectNotExistI : AMI_Thrower_throwAasA
     {
-	public AMI_Thrower_throwAasAObjectNotExistI()
+	public AMI_Thrower_throwAasAObjectNotExistI(Ice.Communicator comm)
 	{
-	    InitBlock();
+	    InitBlock(comm);
 	}
-	private void InitBlock()
+	private void InitBlock(Ice.Communicator comm)
 	{
 	    callback = new Callback();
+	    communicator = comm;
 	}
 	public override void ice_response()
 	{
@@ -123,7 +124,7 @@ public class AllTests
 	    }
 	    catch(Ice.ObjectNotExistException ex)
 	    {
-		Ice.Identity id = Ice.Util.stringToIdentity("does not exist");
+		Ice.Identity id = communicator.stringToIdentity("does not exist");
 		AllTests.test(ex.id.Equals(id));
 	    }
 	    catch(Exception)
@@ -138,6 +139,7 @@ public class AllTests
 	    return callback.check();
 	}
 	
+	private Ice.Communicator communicator;
 	private Callback callback;
     }
     
@@ -700,20 +702,20 @@ public class AllTests
             Console.Write("testing servant registration exceptions... ");
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");
             Ice.Object obj = new EmptyI();
-            adapter.add(obj, Ice.Util.stringToIdentity("x"));
+            adapter.add(obj, communicator.stringToIdentity("x"));
             try
             {
-                adapter.add(obj, Ice.Util.stringToIdentity("x"));
+                adapter.add(obj, communicator.stringToIdentity("x"));
 		test(false);
             }
             catch(Ice.AlreadyRegisteredException)
             {
             }
             
-            adapter.remove(Ice.Util.stringToIdentity("x"));
+            adapter.remove(communicator.stringToIdentity("x"));
             try
             {
-                adapter.remove(Ice.Util.stringToIdentity("x"));
+                adapter.remove(communicator.stringToIdentity("x"));
 		test(false);
             }
             catch(Ice.NotRegisteredException)
@@ -1040,7 +1042,7 @@ public class AllTests
         Console.Out.Flush();
         
         {
-            Ice.Identity id = Ice.Util.stringToIdentity("does not exist");
+            Ice.Identity id = communicator.stringToIdentity("does not exist");
             try
             {
                 ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
@@ -1250,9 +1252,9 @@ public class AllTests
             Console.Out.Flush();
             
             {
-                Ice.Identity id = Ice.Util.stringToIdentity("does not exist");
+                Ice.Identity id = communicator.stringToIdentity("does not exist");
                 ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
-                AMI_Thrower_throwAasAObjectNotExistI cb = new AMI_Thrower_throwAasAObjectNotExistI();
+                AMI_Thrower_throwAasAObjectNotExistI cb = new AMI_Thrower_throwAasAObjectNotExistI(communicator);
                 thrower2.throwAasA_async(cb, 1);
                 test(cb.check());
             }

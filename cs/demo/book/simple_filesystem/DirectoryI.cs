@@ -21,7 +21,7 @@ public class DirectoryI : DirectoryDisp_
 
 	// Create an identity. The parent has the fixed identity "/"
 	//
-	Ice.Identity myID = Ice.Util.stringToIdentity(_parent != null ? Ice.Util.generateUUID() : "RootDir");
+	Ice.Identity myID = _adapter.getCommunicator().stringToIdentity(_parent != null ? Ice.Util.generateUUID() : "RootDir");
 
 	// Add the identity to the object adapter
 	//

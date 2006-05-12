@@ -31,8 +31,8 @@ public class Client : Ice.Application
         }
         
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Nested.Client");
-        NestedPrx self = NestedPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("nestedClient")));
-        adapter.add(new NestedI(self), Ice.Util.stringToIdentity("nestedClient"));
+        NestedPrx self = NestedPrxHelper.uncheckedCast(adapter.createProxy(communicator().stringToIdentity("nestedClient")));
+        adapter.add(new NestedI(self), communicator().stringToIdentity("nestedClient"));
         adapter.activate();
         
         Console.Out.WriteLine("Note: The maximum nesting level is sz * 2, with sz being");

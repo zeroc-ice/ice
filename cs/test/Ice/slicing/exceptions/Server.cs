@@ -16,7 +16,7 @@ public class Server
         properties.setProperty("TestAdapter.Endpoints", "default -p 12010 -t 2000");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object @object = new TestI(adapter);
-        adapter.add(@object, Ice.Util.stringToIdentity("Test"));
+        adapter.add(@object, communicator.stringToIdentity("Test"));
         adapter.activate();
         communicator.waitForShutdown();
         return 0;

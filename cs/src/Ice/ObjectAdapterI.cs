@@ -768,7 +768,7 @@ namespace Ice
                         {
 			    Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
 			    ex.kindOfObject = "object adapter with router";
-			    ex.id = Ice.Util.identityToString(router.ice_getIdentity());
+			    ex.id = instance_.identityToString(router.ice_getIdentity());
 			    throw ex;
                         }
 

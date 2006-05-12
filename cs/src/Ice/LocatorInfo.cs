@@ -157,7 +157,7 @@ namespace IceInternal
 	    {
 		Ice.NotRegisteredException e = new Ice.NotRegisteredException(ex);
 		e.kindOfObject = "object";
-		e.id = Ice.Util.identityToString(identity);
+		e.id = @ref.getInstance().identityToString(identity);
 		throw e;
 	    }
 	    catch(Ice.NotRegisteredException)
@@ -176,7 +176,7 @@ namespace IceInternal
 		    }
 		    else
 		    {
-			s.Append("object = " + Ice.Util.identityToString(identity) + "\n");
+			s.Append("object = " + @ref.getInstance().identityToString(identity) + "\n");
 		    }
 		    s.Append("reason = " + ex);
 		    @ref.getInstance().initializationData().logger.trace(
@@ -272,7 +272,7 @@ namespace IceInternal
 	    }
 	    else
 	    {
-		s.Append("object = " + Ice.Util.identityToString(r.getIdentity()) + "\n");
+		s.Append("object = " + r.getInstance().identityToString(r.getIdentity()) + "\n");
 	    }
 	    
 	    s.Append("endpoints = ");
