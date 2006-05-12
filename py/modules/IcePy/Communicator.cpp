@@ -447,9 +447,9 @@ extern "C"
 static PyObject*
 communicatorIdentityToString(CommunicatorObject* self, PyObject* args)
 {
-    PyObject* identityType = IcePy::lookupType("Ice.Identity");
+    PyObject* identityType = lookupType("Ice.Identity");
     PyObject* obj;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), &identityType, &obj))
+    if(!PyArg_ParseTuple(args, STRCAST("O!"), identityType, &obj))
     {
         return NULL;
     }
