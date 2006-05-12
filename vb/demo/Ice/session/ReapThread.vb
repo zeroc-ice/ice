@@ -66,14 +66,6 @@ Public Class ReapThread
             _terminated = True
             System.Threading.Monitor.Pulse(Me)
 
-            For Each p As SessionProxyPair In _sessions
-                Try
-                    p.proxy.destroy()
-                Catch e As Ice.Exception
-                    ' Ignore.
-                End Try
-            Next
-
             _sessions.Clear()
         End SyncLock
     End Sub
