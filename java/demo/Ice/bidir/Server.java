@@ -15,7 +15,7 @@ public class Server extends Ice.Application
     run(String[] args)
     {
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Callback.Server");
-        CallbackSenderI sender = new CallbackSenderI();
+        CallbackSenderI sender = new CallbackSenderI(communicator());
         adapter.add(sender, communicator().stringToIdentity("sender"));
         adapter.activate();
 
