@@ -24,8 +24,9 @@ Ice.loadSlice('-I' + slice_dir + '/slice Callback.ice')
 import Demo
 
 class CallbackSenderI(Demo.CallbackSender, threading.Thread):
-    def __init__(self):
+    def __init__(self, communicator):
 	threading.Thread.__init__(self)
+	self._communicator = communicator
 	self._destroy = False
 	self._num = 0
 	self._clients = []
@@ -47,7 +48,7 @@ class CallbackSenderI(Demo.CallbackSender, threading.Thread):
     def addClient(self, ident, current=None):
 	self._cond.acquire()
 
-        print "adding client `" + Ice.identityToString(ident) + "'"
+        print "adding client `" + self._communicator.identityToString(ident) + "'"
 
 	client = Demo.CallbackReceiverPrx.uncheckedCast(current.con.createProxy(ident))
 	self._clients.append(client)
@@ -68,7 +69,7 @@ class CallbackSenderI(Demo.CallbackSender, threading.Thread):
 			try:
 			    p.callback(self._num)
 			except:
-			    print "removing client `" + Ice.identityToString(p.ice_getIdentity()) + "':"
+			    print "removing client `" + self._communicator.identityToString(p.ice_getIdentity()) + "':"
 			    traceback.print_exc()
 			    self._clients.remove(p)
 	finally:
@@ -77,7 +78,7 @@ class CallbackSenderI(Demo.CallbackSender, threading.Thread):
 class Server(Ice.Application):
     def run(self, args):
         adapter = self.communicator().createObjectAdapter("Callback.Server")
-	sender = CallbackSenderI()
+	sender = CallbackSenderI(self.communicator())
         adapter.add(sender, self.communicator().stringToIdentity("sender"))
         adapter.activate()
 
