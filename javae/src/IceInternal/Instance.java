@@ -148,6 +148,18 @@ public class Instance
 	adapterFactory.flushBatchRequests();
     }
 
+    public Ice.Identity
+    stringToIdentity(String s)
+    {
+        return Ice.Util.stringToIdentity(s);
+    }
+
+    public String
+    identityToString(Ice.Identity ident)
+    {
+        return Ice.Util.identityToString(ident);
+    }
+
     //
     // Only for use by Ice.Communicator
     //

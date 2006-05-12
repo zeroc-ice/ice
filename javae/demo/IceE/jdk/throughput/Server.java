@@ -26,7 +26,7 @@ public class Server
 
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("Throughput");
         Ice.Object object = new ThroughputI(reduce);
-        adapter.add(object, Ice.Util.stringToIdentity("throughput"));
+        adapter.add(object, communicator.stringToIdentity("throughput"));
         adapter.activate();
         communicator.waitForShutdown();
         return 0;

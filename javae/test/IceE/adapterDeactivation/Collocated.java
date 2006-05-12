@@ -17,7 +17,7 @@ public class Collocated
 
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
 	Ice.Object object = new TestI();
-	adapter.add(object, Ice.Util.stringToIdentity("test"));
+	adapter.add(object, communicator.stringToIdentity("test"));
 	adapter.activate();
 
         AllTests.allTests(communicator, out);

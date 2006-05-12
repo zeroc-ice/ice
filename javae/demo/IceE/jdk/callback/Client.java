@@ -48,12 +48,12 @@ public class Client
         CallbackSenderPrx batchOneway = CallbackSenderPrxHelper.uncheckedCast(twoway.ice_batchOneway());
 
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("Callback.Client");
-        adapter.add(new CallbackReceiverI(), Ice.Util.stringToIdentity("callbackReceiver"));
+        adapter.add(new CallbackReceiverI(), communicator.stringToIdentity("callbackReceiver"));
         adapter.activate();
 
         CallbackReceiverPrx twowayR = 
 	    CallbackReceiverPrxHelper.uncheckedCast(adapter.createProxy(
-                Ice.Util.stringToIdentity("callbackReceiver")));
+                communicator.stringToIdentity("callbackReceiver")));
         CallbackReceiverPrx onewayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_oneway());
 
         menu();

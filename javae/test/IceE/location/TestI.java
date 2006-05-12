@@ -17,7 +17,7 @@ public class TestI extends _TestIntfDisp
 	_adapter2 = adapter2;
 	_registry = registry;
 
-	_registry.addObject(_adapter1.add(new HelloI(), Ice.Util.stringToIdentity("hello")));
+	_registry.addObject(_adapter1.add(new HelloI(), _adapter1.getCommunicator().stringToIdentity("hello")));
     }
 
     public void
@@ -29,19 +29,19 @@ public class TestI extends _TestIntfDisp
     public HelloPrx
     getHello(Ice.Current current)
     {
-	return HelloPrxHelper.uncheckedCast(_adapter1.createIndirectProxy(Ice.Util.stringToIdentity("hello")));
+	return HelloPrxHelper.uncheckedCast(_adapter1.createIndirectProxy(_adapter1.getCommunicator().stringToIdentity("hello")));
     }
 
     public HelloPrx
     getReplicatedHello(Ice.Current current)
     {
-	return HelloPrxHelper.uncheckedCast(_adapter1.createProxy(Ice.Util.stringToIdentity("hello")));
+	return HelloPrxHelper.uncheckedCast(_adapter1.createProxy(_adapter1.getCommunicator().stringToIdentity("hello")));
     }
 
     public void
     migrateHello(Ice.Current current)
     {
-	final Ice.Identity id = Ice.Util.stringToIdentity("hello");
+	final Ice.Identity id = _adapter1.getCommunicator().stringToIdentity("hello");
 	try
 	{
 	    _registry.addObject(_adapter2.add(_adapter1.remove(id), id));

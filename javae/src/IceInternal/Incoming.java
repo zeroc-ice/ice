@@ -424,7 +424,7 @@ final public class Incoming
 
 	StringBuffer sb = new StringBuffer();
 	sb.append("dispatch exception:");
-	sb.append("\nidentity: " + Ice.Util.identityToString(_current.id));
+	sb.append("\nidentity: " + _os.instance().identityToString(_current.id));
 	sb.append("\nfacet: " + IceUtil.StringUtil.escapeString(_current.facet, ""));
 	sb.append("\noperation: " + _current.operation);
 	sb.append("\n");

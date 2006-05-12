@@ -98,20 +98,20 @@ public class AllTests
 	    out.print("testing servant registration exceptions... ");
 	    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");
 	    Ice.Object obj = new EmptyI();
-	    adapter.add(obj, Ice.Util.stringToIdentity("x"));
+	    adapter.add(obj, communicator.stringToIdentity("x"));
 	    try
             {
-		adapter.add(obj, Ice.Util.stringToIdentity("x"));
+		adapter.add(obj, communicator.stringToIdentity("x"));
 		test(false);
 	    }
 	    catch(Ice.AlreadyRegisteredException ex)
 	    {
 	    }
 
-	    adapter.remove(Ice.Util.stringToIdentity("x"));
+	    adapter.remove(communicator.stringToIdentity("x"));
 	    try
             {
-		adapter.remove(Ice.Util.stringToIdentity("x"));
+		adapter.remove(communicator.stringToIdentity("x"));
 		test(false);
 	    }
 	    catch(Ice.NotRegisteredException ex)
@@ -372,7 +372,7 @@ public class AllTests
 	out.flush();
 
 	{
-	    Ice.Identity id = Ice.Util.stringToIdentity("does not exist");
+	    Ice.Identity id = communicator.stringToIdentity("does not exist");
 	    try
 	    {
 		ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));

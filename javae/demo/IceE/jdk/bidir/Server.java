@@ -15,8 +15,8 @@ public class Server
     run(String[] args, Ice.Communicator communicator)
     {
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("Callback.Server");
-        CallbackSenderI sender = new CallbackSenderI();
-        adapter.add(sender, Ice.Util.stringToIdentity("sender"));
+        CallbackSenderI sender = new CallbackSenderI(communicator);
+        adapter.add(sender, communicator.stringToIdentity("sender"));
         adapter.activate();
 
 	Thread t = new Thread(sender);

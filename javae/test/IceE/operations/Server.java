@@ -23,9 +23,9 @@ public class Server
 	}
 
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-	Ice.Identity id = Ice.Util.stringToIdentity("test");
+	Ice.Identity id = communicator.stringToIdentity("test");
         adapter.add(new MyDerivedClassI(adapter, id), id);
-        adapter.add(new TestCheckedCastI(), Ice.Util.stringToIdentity("context"));
+        adapter.add(new TestCheckedCastI(), communicator.stringToIdentity("context"));
         adapter.activate();
 
         communicator.waitForShutdown();

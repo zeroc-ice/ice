@@ -162,7 +162,7 @@ public final class ReferenceFactory
         //
         // Parsing the identity may raise IdentityParseException.
         //
-        Ice.Identity ident = Ice.Util.stringToIdentity(idstr);
+        Ice.Identity ident = _instance.stringToIdentity(idstr);
 
 	IceUtil.Debug.Assert(ident.name != null);
         if(ident.name.length() == 0)

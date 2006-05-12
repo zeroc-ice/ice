@@ -16,7 +16,7 @@ public class Server
     {
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("Hello");
         Ice.Object object = new HelloI();
-        adapter.add(object, Ice.Util.stringToIdentity("hello"));
+        adapter.add(object, communicator.stringToIdentity("hello"));
         adapter.activate();
         communicator.waitForShutdown();
         return 0;

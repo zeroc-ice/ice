@@ -31,8 +31,8 @@ public class AllTests
 
 	out.print("testing proxy methods... ");
 	out.flush();
-	test(Ice.Util.identityToString(
-		 base.ice_identity(Ice.Util.stringToIdentity("other")).ice_getIdentity()).equals("other"));
+	test(communicator.identityToString(
+		 base.ice_identity(communicator.stringToIdentity("other")).ice_getIdentity()).equals("other"));
 	test(base.ice_facet("facet").ice_getFacet().equals("facet"));
 	test(base.ice_twoway().ice_isTwoway());
 	test(base.ice_oneway().ice_isOneway());

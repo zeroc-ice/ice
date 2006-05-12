@@ -24,7 +24,7 @@ public class Server
 
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object object = new InitialI();
-        adapter.add(object, Ice.Util.stringToIdentity("initial"));
+        adapter.add(object, communicator.stringToIdentity("initial"));
         adapter.activate();
         communicator.waitForShutdown();
         return 0;

@@ -250,7 +250,7 @@ public abstract class Reference
 	// the reference parser uses as separators, then we enclose
 	// the identity string in quotes.
 	//
-	String id = Ice.Util.identityToString(_identity);
+	String id = _instance.identityToString(_identity);
 	if(IceUtil.StringUtil.findFirstOf(id, " \t\n\r:@") != -1)
 	{
 	    s.append('"');

@@ -279,7 +279,7 @@ public final class TraceUtil
     {
 	Ice.Identity identity = new Ice.Identity();
 	identity.__read(stream);
-	out.print("\nidentity = " + Ice.Util.identityToString(identity));
+	out.print("\nidentity = " + stream.instance().identityToString(identity));
 
 	String[] facet = stream.readStringSeq();
 	out.print("\nfacet = ");

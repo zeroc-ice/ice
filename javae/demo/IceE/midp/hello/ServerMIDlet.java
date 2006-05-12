@@ -45,7 +45,7 @@ public class ServerMIDlet
 	    {
 		Ice.ObjectAdapter adapter = _communicator.createObjectAdapter("Hello");
 		Ice.Object object = new HelloI(_msg);
-		adapter.add(object, Ice.Util.stringToIdentity("hello"));
+		adapter.add(object, _communicator.stringToIdentity("hello"));
 		adapter.activate();
 		_msg.setText("Using address " + System.getProperty("microedition.hostname"));
 	    }
