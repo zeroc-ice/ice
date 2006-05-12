@@ -790,7 +790,6 @@ extern "C"
 PyObject*
 IcePy_identityToString(PyObject* /*self*/, PyObject* args)
 {
-    PyErr_Warn(PyExc_DeprecationWarning, STRCAST("Ice.identityToString is deprecated, use Communicator::identityToString instead."));
     PyObject* identityType = IcePy::lookupType("Ice.Identity");
     PyObject* p;
     if(!PyArg_ParseTuple(args, STRCAST("O!"), identityType, &p))
@@ -821,7 +820,6 @@ extern "C"
 PyObject*
 IcePy_stringToIdentity(PyObject* /*self*/, PyObject* args)
 {
-    PyErr_Warn(PyExc_DeprecationWarning, STRCAST("Ice.stringToIdentity is deprecated, use Communicator::stringToIdentity instead."));
     char* str;
     if(!PyArg_ParseTuple(args, STRCAST("s"), &str))
     {
