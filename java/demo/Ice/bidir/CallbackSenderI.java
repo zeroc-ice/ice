@@ -11,6 +11,11 @@ import Demo.*;
 
 class CallbackSenderI extends _CallbackSenderDisp implements java.lang.Runnable
 {
+    CallbackSenderI(Ice.Communicator communicator)
+    {
+        _communicator = communicator;
+    }
+
     synchronized public void
     destroy()
     {
@@ -23,7 +28,7 @@ class CallbackSenderI extends _CallbackSenderDisp implements java.lang.Runnable
     synchronized public void
     addClient(Ice.Identity ident, Ice.Current current)
     {
-	System.out.println("adding client `" + Ice.Util.identityToString(ident) + "'");
+	System.out.println("adding client `" + _communicator.identityToString(ident) + "'");
 
 	Ice.ObjectPrx base = current.con.createProxy(ident);
 	CallbackReceiverPrx client = CallbackReceiverPrxHelper.uncheckedCast(base);
@@ -57,7 +62,7 @@ class CallbackSenderI extends _CallbackSenderDisp implements java.lang.Runnable
 		    }
 		    catch(Exception ex)
 		    {
-			System.out.println("removing client `" + Ice.Util.identityToString(r.ice_getIdentity()) + "':");
+			System.out.println("removing client `" + _communicator.identityToString(r.ice_getIdentity()) + "':");
 			ex.printStackTrace();
 			p.remove();
 		    }
@@ -66,6 +71,7 @@ class CallbackSenderI extends _CallbackSenderDisp implements java.lang.Runnable
 	}
     }
 
+    private Ice.Communicator _communicator;
     private boolean _destroy = false;
     private int _num = 0;
     private java.util.Vector _clients = new java.util.Vector();

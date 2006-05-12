@@ -18,7 +18,7 @@ public class Server extends Ice.Application
 	ReapThread reaper = new ReapThread();
 	reaper.start();
 
-        adapter.add(new SessionFactoryI(reaper), Ice.Util.stringToIdentity("SessionFactory"));
+        adapter.add(new SessionFactoryI(reaper), communicator().stringToIdentity("SessionFactory"));
         adapter.activate();
         communicator().waitForShutdown();
 

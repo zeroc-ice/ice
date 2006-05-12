@@ -15,7 +15,7 @@ public class Server extends Ice.Application
     run(String[] args)
     {
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Printer");
-        adapter.add(new PrinterI(), Ice.Util.stringToIdentity("printer"));
+        adapter.add(new PrinterI(), communicator().stringToIdentity("printer"));
         adapter.activate();
         communicator().waitForShutdown();
         return 0;

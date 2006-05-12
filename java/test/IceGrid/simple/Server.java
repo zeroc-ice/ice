@@ -17,7 +17,7 @@ public class Server extends Ice.Application
 
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         Ice.Object object = new TestI(adapter);
-        adapter.add(object, Ice.Util.stringToIdentity("test"));
+        adapter.add(object, communicator().stringToIdentity("test"));
 	shutdownOnInterrupt();
 	try
 	{

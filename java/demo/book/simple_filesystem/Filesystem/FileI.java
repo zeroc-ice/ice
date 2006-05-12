@@ -23,7 +23,7 @@ public class FileI extends _FileDisp
 
 	// Create an identity
 	//
-	Ice.Identity myID = Ice.Util.stringToIdentity(Ice.Util.generateUUID());
+	Ice.Identity myID = _adapter.getCommunicator().stringToIdentity(Ice.Util.generateUUID());
 
 	// Add the identity to the object adapter
 	//

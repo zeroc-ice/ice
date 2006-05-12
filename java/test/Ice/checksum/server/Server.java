@@ -15,7 +15,7 @@ public class Server
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object object = new ChecksumI(adapter);
-        adapter.add(object, Ice.Util.stringToIdentity("test"));
+        adapter.add(object, communicator.stringToIdentity("test"));
         adapter.activate();
         communicator.waitForShutdown();
         return 0;

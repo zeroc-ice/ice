@@ -115,7 +115,7 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
     {
         _evictorAdapter.deactivate();
         _evictorAdapter.waitForDeactivate();
-        _adapter.remove(Ice.Util.stringToIdentity(_category));
+        _adapter.remove(_adapter.getCommunicator().stringToIdentity(_category));
     }
     
     public void

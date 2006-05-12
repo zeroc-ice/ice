@@ -51,7 +51,7 @@ public class Server
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("Evictor");
     
         RemoteEvictorFactoryI factory = new RemoteEvictorFactoryI(adapter, envName);
-        adapter.add(factory, Ice.Util.stringToIdentity("factory"));
+        adapter.add(factory, communicator.stringToIdentity("factory"));
     
         Ice.ObjectFactory servantFactory = new ServantFactory();
         communicator.addObjectFactory(servantFactory, "::Test::Servant");

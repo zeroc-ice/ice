@@ -13,7 +13,7 @@ public class HelloServiceI extends Ice.LocalObjectImpl implements IceBox.Service
     start(String name, Ice.Communicator communicator, String[] args)
     {
         _adapter = communicator.createObjectAdapter(name);
-        _adapter.add(new HelloI(), Ice.Util.stringToIdentity("hello"));
+        _adapter.add(new HelloI(), communicator.stringToIdentity("hello"));
         _adapter.activate();
     }
 

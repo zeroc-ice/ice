@@ -21,7 +21,7 @@ public class Server {
 	    Ice.Object object = new PrinterI();
 	    adapter.add(
 		    object,
-		    Ice.Util.stringToIdentity("SimplePrinter"));
+		    ic.stringToIdentity("SimplePrinter"));
 	    adapter.activate();
 	    ic.waitForShutdown();
         } catch (Exception e) {

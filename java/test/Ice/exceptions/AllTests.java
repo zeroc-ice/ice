@@ -107,6 +107,11 @@ public class AllTests
 
     private static class AMI_Thrower_throwAasAObjectNotExistI extends AMI_Thrower_throwAasA
     {
+        AMI_Thrower_throwAasAObjectNotExistI(Ice.Communicator communicator)
+	{
+	    _communicator = communicator;
+	}
+
 	public void
 	ice_response()
 	{
@@ -122,7 +127,7 @@ public class AllTests
 	    }
 	    catch(Ice.ObjectNotExistException ex)
 	    {
-		Ice.Identity id = Ice.Util.stringToIdentity("does not exist");
+		Ice.Identity id = _communicator.stringToIdentity("does not exist");
 		test(ex.id.equals(id));
 	    }
 	    catch(Exception ex)
@@ -147,6 +152,7 @@ public class AllTests
 	}
 
 	private Callback callback = new Callback();
+	private Ice.Communicator _communicator;
     }
 
     private static class AMI_Thrower_throwAasAFacetNotExistI extends AMI_Thrower_throwAasA
@@ -744,20 +750,20 @@ public class AllTests
 	    System.out.print("testing servant registration exceptions... ");
 	    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");
 	    Ice.Object obj = new EmptyI();
-	    adapter.add(obj, Ice.Util.stringToIdentity("x"));
+	    adapter.add(obj, communicator.stringToIdentity("x"));
 	    try
             {
-		adapter.add(obj, Ice.Util.stringToIdentity("x"));
+		adapter.add(obj, communicator.stringToIdentity("x"));
 		test(false);
 	    }
 	    catch(Ice.AlreadyRegisteredException ex)
 	    {
 	    }
 
-	    adapter.remove(Ice.Util.stringToIdentity("x"));
+	    adapter.remove(communicator.stringToIdentity("x"));
 	    try
             {
-		adapter.remove(Ice.Util.stringToIdentity("x"));
+		adapter.remove(communicator.stringToIdentity("x"));
 		test(false);
 	    }
 	    catch(Ice.NotRegisteredException ex)
@@ -1081,7 +1087,7 @@ public class AllTests
 	System.out.flush();
 
 	{
-	    Ice.Identity id = Ice.Util.stringToIdentity("does not exist");
+	    Ice.Identity id = communicator.stringToIdentity("does not exist");
 	    try
 	    {
 		ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
@@ -1313,9 +1319,9 @@ public class AllTests
 	    System.out.flush();
 
 	    {
-		Ice.Identity id = Ice.Util.stringToIdentity("does not exist");
+		Ice.Identity id = communicator.stringToIdentity("does not exist");
 		ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
-		AMI_Thrower_throwAasAObjectNotExistI cb = new AMI_Thrower_throwAasAObjectNotExistI();
+		AMI_Thrower_throwAasAObjectNotExistI cb = new AMI_Thrower_throwAasAObjectNotExistI(communicator);
 		thrower2.throwAasA_async(cb, 1);
 		test(cb.check());
 	    }

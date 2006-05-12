@@ -259,7 +259,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     {
         Test.MyClassPrx p2 = p1;
         Test.MyClassPrx p3 = Test.MyClassPrxHelper.uncheckedCast(
-	    _adapter.createProxy(Ice.Util.stringToIdentity("noSuchIdentity")));
+	    _adapter.createProxy(_adapter.getCommunicator().stringToIdentity("noSuchIdentity")));
         cb.ice_response(Test.MyClassPrxHelper.uncheckedCast(_adapter.createProxy(_identity)), p2, p3);
     }
 

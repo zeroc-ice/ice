@@ -35,7 +35,7 @@ class LibraryServer extends Ice.Application
 	// Create the library, and add it to the object adapter.
 	//
 	LibraryI library = new LibraryI(communicator(), _envName, "authors", evictor);
-	adapter.add(library, Ice.Util.stringToIdentity("library"));
+	adapter.add(library, communicator().stringToIdentity("library"));
     
 	//
 	// Create and install a factory for books.

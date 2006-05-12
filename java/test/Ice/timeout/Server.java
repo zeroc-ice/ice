@@ -23,7 +23,7 @@ public class Server
 	}
 
 	Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-	adapter.add(new TimeoutI(), Ice.Util.stringToIdentity("timeout"));
+	adapter.add(new TimeoutI(), communicator.stringToIdentity("timeout"));
 	adapter.activate();
 
 	communicator.waitForShutdown();

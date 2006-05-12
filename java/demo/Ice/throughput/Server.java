@@ -15,7 +15,7 @@ public class Server extends Ice.Application
     run(String[] args)
     {
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Throughput");
-        adapter.add(new ThroughputI(), Ice.Util.stringToIdentity("throughput"));
+        adapter.add(new ThroughputI(), communicator().stringToIdentity("throughput"));
         adapter.activate();
         communicator().waitForShutdown();
         return 0;

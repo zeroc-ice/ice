@@ -170,7 +170,7 @@ public final class ReferenceFactory
         //
         // Parsing the identity may raise IdentityParseException.
         //
-        Ice.Identity ident = Ice.Util.stringToIdentity(idstr);
+        Ice.Identity ident = _communicator.stringToIdentity(idstr);
 
         if(ident.name.length() == 0)
         {

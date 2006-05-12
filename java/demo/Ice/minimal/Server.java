@@ -15,7 +15,7 @@ public class Server
     run(String[] args, Ice.Communicator communicator)
     {
         Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "tcp -p 10000");
-        adapter.add(new HelloI(), Ice.Util.stringToIdentity("hello"));
+        adapter.add(new HelloI(), communicator.stringToIdentity("hello"));
         adapter.activate();
         communicator.waitForShutdown();
         return 0;

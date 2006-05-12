@@ -54,7 +54,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
 	    {
 		identity = properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox") + "/ServiceManager";
 	    }
-	    adapter.add(this, Ice.Util.stringToIdentity(identity));
+	    adapter.add(this, _server.communicator().stringToIdentity(identity));
 
 	    //
 	    // Parse the IceBox.LoadOrder property.

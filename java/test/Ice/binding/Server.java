@@ -14,7 +14,7 @@ public class Server
     {
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.Identity id = Ice.Util.stringToIdentity("communicator");
+        Ice.Identity id = communicator.stringToIdentity("communicator");
         adapter.add(new RemoteCommunicatorI(), id);
         adapter.activate();
 

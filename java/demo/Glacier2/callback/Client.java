@@ -195,7 +195,7 @@ public class Client extends Ice.Application
 		    }
 		    
 		    System.out.println("callback receiver identity: " + 
-				       Ice.Util.identityToString(twowayR.ice_getIdentity()));
+				       communicator().identityToString(twowayR.ice_getIdentity()));
 		}
                 else if(line.equals("s"))
                 {
