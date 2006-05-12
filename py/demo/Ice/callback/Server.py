@@ -31,7 +31,7 @@ class CallbackSenderI(Demo.CallbackSender):
 class Server(Ice.Application):
     def run(self, args):
         adapter = self.communicator().createObjectAdapter("Callback.Server")
-        adapter.add(CallbackSenderI(), Ice.stringToIdentity("callback"))
+        adapter.add(CallbackSenderI(), self.communicator().stringToIdentity("callback"))
         adapter.activate()
         self.communicator().waitForShutdown()
         return 0

@@ -23,7 +23,7 @@ class HelloI(Demo.Hello):
 class Server(Ice.Application):
     def run(self, args):
 	adapter = self.communicator().createObjectAdapter("Hello")
-	adapter.add(HelloI(), Ice.stringToIdentity("hello"))
+	adapter.add(HelloI(), self.communicator().stringToIdentity("hello"))
 	adapter.activate()
 	self.communicator().waitForShutdown()
 	return True

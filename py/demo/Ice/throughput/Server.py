@@ -80,7 +80,7 @@ class ThroughputI(Demo.Throughput):
 class Server(Ice.Application):
     def run(self, args):
 	adapter = self.communicator().createObjectAdapter("Throughput")
-	adapter.add(ThroughputI(), Ice.stringToIdentity("throughput"))
+	adapter.add(ThroughputI(), self.communicator().stringToIdentity("throughput"))
 	adapter.activate()
 	self.communicator().waitForShutdown()
 	return True

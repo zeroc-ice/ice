@@ -47,7 +47,7 @@ class InitialI(Demo.Initial):
 class Server(Ice.Application):
     def run(self, argv):
 	adapter = self.communicator().createObjectAdapter("Value")
-	adapter.add(InitialI(adapter), Ice.stringToIdentity("initial"))
+	adapter.add(InitialI(adapter), self.communicator().stringToIdentity("initial"))
 	adapter.activate()
 	self.communicator().waitForShutdown()
 	return True

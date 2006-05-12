@@ -53,11 +53,11 @@ class Client(Ice.Application):
         batchDatagram = Demo.CallbackSenderPrx.uncheckedCast(twoway.ice_batchDatagram())
 
         adapter = self.communicator().createObjectAdapter("Callback.Client")
-        adapter.add(CallbackReceiverI(), Ice.stringToIdentity("callbackReceiver"))
+        adapter.add(CallbackReceiverI(), self.communicator().stringToIdentity("callbackReceiver"))
         adapter.activate()
 
         twowayR = Demo.CallbackReceiverPrx.uncheckedCast(
-            adapter.createProxy(Ice.stringToIdentity("callbackReceiver")))
+            adapter.createProxy(self.communicator().stringToIdentity("callbackReceiver")))
         onewayR = Demo.CallbackReceiverPrx.uncheckedCast(twowayR.ice_oneway())
         datagramR = Demo.CallbackReceiverPrx.uncheckedCast(twowayR.ice_datagram())
 

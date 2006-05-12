@@ -27,7 +27,7 @@ import Test, TestI
 def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000:udp")
     adapter = communicator.createObjectAdapter("TestAdapter")
-    id = Ice.stringToIdentity("communicator")
+    id = communicator.stringToIdentity("communicator")
     adapter.add(TestI.RemoteCommunicatorI(), id)
     adapter.activate()
 

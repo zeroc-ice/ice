@@ -32,8 +32,8 @@ class SessionManagerI(Glacier2.SessionManager):
 class SessionServer(Ice.Application):
     def run(self, args):
 	adapter = self.communicator().createObjectAdapter("SessionServer")
-	adapter.add(DummyPermissionsVerifierI(), Ice.stringToIdentity("verifier"))
-	adapter.add(SessionManagerI(), Ice.stringToIdentity("sessionmanager"))
+	adapter.add(DummyPermissionsVerifierI(), self.communicator().stringToIdentity("verifier"))
+	adapter.add(SessionManagerI(), self.communicator().stringToIdentity("sessionmanager"))
 	adapter.activate()
 	self.communicator().waitForShutdown()
 	return True

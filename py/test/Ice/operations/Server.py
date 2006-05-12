@@ -38,9 +38,9 @@ import Test, TestI
 def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000:udp")
     adapter = communicator.createObjectAdapter("TestAdapter")
-    id = Ice.stringToIdentity("test")
+    id = communicator.stringToIdentity("test")
     adapter.add(TestI.MyDerivedClassI(adapter, id), id)
-    adapter.add(TestI.TestCheckedCastI(), Ice.stringToIdentity("context"))
+    adapter.add(TestI.TestCheckedCastI(), communicator.stringToIdentity("context"))
     adapter.activate()
     communicator.waitForShutdown()
     return True

@@ -30,7 +30,7 @@ def run(args, communicator):
     properties.setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000:udp")
     adapter = communicator.createObjectAdapter("TestAdapter")
     object = TestI.ThrowerI(adapter)
-    adapter.add(object, Ice.stringToIdentity("thrower"))
+    adapter.add(object, communicator.stringToIdentity("thrower"))
     adapter.activate()
     communicator.waitForShutdown()
     return True

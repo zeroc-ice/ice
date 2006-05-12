@@ -41,7 +41,7 @@ class MyDerivedClassI(Test.MyDerivedClass):
 
     def opMyClass(self, p1, current=None):
         return (Test.MyClassPrx.uncheckedCast(self.adapter.createProxy(self.identity)), p1,
-                Test.MyClassPrx.uncheckedCast(self.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity"))))
+                Test.MyClassPrx.uncheckedCast(self.adapter.createProxy(self.adapter.getCommunicator().stringToIdentity("noSuchIdentity"))))
 
     def opStruct(self, p1, p2, current=None):
         p1.s.s = "a new string"

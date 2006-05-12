@@ -189,8 +189,8 @@ class CommunicatorI(Communicator):
     def stringToIdentity(self, str):
         return self._impl.stringToIdentity(str)
 
-    def identityToString(self, obj):
-        return self._impl.identityToString(obj)
+    def identityToString(self, ident):
+        return self._impl.identityToString(ident)
 
     def createObjectAdapter(self, name):
         adapter = self._impl.createObjectAdapter(name)

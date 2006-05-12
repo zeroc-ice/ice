@@ -89,7 +89,7 @@ class MyDerivedClassI(Test.MyDerivedClass):
 
     def opMyClass_async(self, cb, p1, current=None):
         p2 = p1
-        p3 = Test.MyClassPrx.uncheckedCast(self.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity")))
+        p3 = Test.MyClassPrx.uncheckedCast(self.adapter.createProxy(communicator.stringToIdentity("noSuchIdentity")))
         cb.ice_response(Test.MyClassPrx.uncheckedCast(self.adapter.createProxy(self.identity)), p2, p3)
 
     def opStruct_async(self, cb, p1, p2, current=None):
@@ -230,9 +230,9 @@ class TestCheckedCastI(Test.TestCheckedCast):
 def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000:udp")
     adapter = communicator.createObjectAdapter("TestAdapter")
-    id = Ice.stringToIdentity("test")
+    id = communicator.stringToIdentity("test")
     adapter.add(MyDerivedClassI(adapter, id), id)
-    adapter.add(TestCheckedCastI(), Ice.stringToIdentity("context"))
+    adapter.add(TestCheckedCastI(), communicator.stringToIdentity("context"))
     adapter.activate()
     communicator.waitForShutdown()
     return True

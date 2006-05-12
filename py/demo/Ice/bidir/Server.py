@@ -78,7 +78,7 @@ class Server(Ice.Application):
     def run(self, args):
         adapter = self.communicator().createObjectAdapter("Callback.Server")
 	sender = CallbackSenderI()
-        adapter.add(sender, Ice.stringToIdentity("sender"))
+        adapter.add(sender, self.communicator().stringToIdentity("sender"))
         adapter.activate()
 
 	sender.start()

@@ -146,13 +146,14 @@ class AMI_MyClass_opMyEnumI(CallbackBase):
         test(False)
 
 class AMI_MyClass_opMyClassI(CallbackBase):
-    def __init__(self):
+    def __init__(self, communicator):
         CallbackBase.__init__(self)
+	self._communicator = communicator
 
     def ice_response(self, r, c1, c2):
-        test(c1.ice_getIdentity() == Ice.stringToIdentity("test"))
-        test(c2.ice_getIdentity() == Ice.stringToIdentity("noSuchIdentity"))
-        test(r.ice_getIdentity() == Ice.stringToIdentity("test"))
+        test(c1.ice_getIdentity() == self._communicator.stringToIdentity("test"))
+        test(c2.ice_getIdentity() == self._communicator.stringToIdentity("noSuchIdentity"))
+        test(r.ice_getIdentity() == self._communicator.stringToIdentity("test"))
 	# We can't do the callbacks below in thread per connection mode.
 	if Ice.getDefaultProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0:
 	    r.opVoid()
@@ -597,7 +598,7 @@ def twowaysAMI(communicator, p):
     #
     # opMyClass
     #
-    cb = AMI_MyClass_opMyClassI()
+    cb = AMI_MyClass_opMyClassI(communicator)
     p.opMyClass_async(cb, p)
     test(cb.check())
 

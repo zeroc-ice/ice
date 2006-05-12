@@ -134,12 +134,6 @@ class ReapThread(threading.Thread):
             self._terminated = True
 	    self._cond.notify()
 
-            for p in self._sessions:
-                try:
-                    p.proxy.destroy()
-                except Ice.Exception:
-                    # Ignore.
-                    pass
             self._sessions = []
         finally:
 	    self._cond.release()
@@ -176,7 +170,7 @@ class Server(Ice.Application):
         reaper = ReapThread()
         reaper.start()
         try:
-            adapter.add(SessionFactoryI(reaper), Ice.stringToIdentity("SessionFactory"))
+            adapter.add(SessionFactoryI(reaper), self.communicator().stringToIdentity("SessionFactory"))
             adapter.activate()
             self.communicator().waitForShutdown()
         finally:

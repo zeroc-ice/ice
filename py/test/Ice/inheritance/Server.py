@@ -28,7 +28,7 @@ def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000")
     adapter = communicator.createObjectAdapter("TestAdapter")
     object = TestI.InitialI(adapter)
-    adapter.add(object, Ice.stringToIdentity("initial"))
+    adapter.add(object, communicator.stringToIdentity("initial"))
     adapter.activate()
     communicator.waitForShutdown()
     return True

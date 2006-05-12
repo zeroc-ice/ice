@@ -737,7 +737,7 @@ IcePy::OperationI::dispatch(PyObject* servant, const Ice::AMD_Object_ice_invokeP
     if(method.get() == NULL)
     {
         ostringstream ostr;
-        ostr << "servant for identity " << Ice::identityToString(current.id) << " does not define operation `"
+        ostr << "servant for identity " << communicator->identityToString(current.id) << " does not define operation `"
              << _dispatchName << "'";
         string str = ostr.str();
         PyErr_Warn(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()));

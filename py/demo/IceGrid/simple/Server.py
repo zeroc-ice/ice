@@ -28,7 +28,7 @@ class Server(Ice.Application):
     def run(self, args):
         properties = self.communicator().getProperties()
 	adapter = self.communicator().createObjectAdapter("Hello")
-	id = Ice.stringToIdentity(properties.getProperty("Identity"))
+	id = self.communicator().stringToIdentity(properties.getProperty("Identity"))
 	adapter.add(HelloI(properties.getProperty("Ice.ServerId")), id)
 	adapter.activate()
 	self.communicator().waitForShutdown()

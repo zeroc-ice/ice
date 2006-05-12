@@ -22,7 +22,7 @@ status = 0
 try:
     communicator = Ice.initialize(sys.argv)
     adapter = communicator.createObjectAdapterWithEndpoints("Hello", "tcp -p 10000")
-    adapter.add(HelloI(), Ice.stringToIdentity("hello"))
+    adapter.add(HelloI(), self.communicator().stringToIdentity("hello"))
     adapter.activate()
     communicator.waitForShutdown()
 except:

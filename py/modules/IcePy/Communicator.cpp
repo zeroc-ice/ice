@@ -438,7 +438,7 @@ communicatorStringToIdentity(CommunicatorObject* self, PyObject* args)
         return NULL;
     }
 
-    return IcePy::createIdentity(id);
+    return createIdentity(id);
 }
 
 #ifdef WIN32
@@ -449,13 +449,13 @@ communicatorIdentityToString(CommunicatorObject* self, PyObject* args)
 {
     PyObject* identityType = IcePy::lookupType("Ice.Identity");
     PyObject* obj;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), identityType, &obj))
+    if(!PyArg_ParseTuple(args, STRCAST("O!"), &identityType, &obj))
     {
         return NULL;
     }
 
     Ice::Identity id;
-    if(!IcePy::getIdentity(obj, id))
+    if(!getIdentity(obj, id))
     {
         return NULL;
     }

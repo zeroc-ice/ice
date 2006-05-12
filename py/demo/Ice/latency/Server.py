@@ -16,7 +16,7 @@ import Demo
 class Server(Ice.Application):
     def run(self, args):
 	adapter = self.communicator().createObjectAdapter("Latency")
-	adapter.add(Demo.Ping(), Ice.stringToIdentity("ping"))
+	adapter.add(Demo.Ping(), self.communicator().stringToIdentity("ping"))
 	adapter.activate()
 	self.communicator().waitForShutdown()
 	return True

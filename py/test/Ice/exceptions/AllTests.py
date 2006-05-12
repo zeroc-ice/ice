@@ -72,6 +72,10 @@ class AMI_Thrower_throwAasAI(CallbackBase):
         self.called()
 
 class AMI_Thrower_throwAasAObjectNotExistI(CallbackBase):
+    def __init__(self, communicator):
+        CallbackBase.__init__(self)
+        self._communicator = communicator
+
     def ice_response(self):
         test(False)
 
@@ -79,7 +83,7 @@ class AMI_Thrower_throwAasAObjectNotExistI(CallbackBase):
         try:
             raise ex
         except Ice.ObjectNotExistException, ex:
-            id = Ice.stringToIdentity("does not exist")
+            id = self._communicator.stringToIdentity("does not exist")
             test(ex.id == id)
         except:
             test(False)
@@ -287,16 +291,16 @@ def allTests(communicator):
     print "testing servant registration exceptions... ",
     adapter = communicator.createObjectAdapter("TestAdapter1")
     obj = EmptyI()
-    adapter.add(obj, Ice.stringToIdentity("x"))
+    adapter.add(obj, communicator.stringToIdentity("x"))
     try:
-        adapter.add(obj, Ice.stringToIdentity("x"))
+        adapter.add(obj, communicator.stringToIdentity("x"))
 	test(false)
     except Ice.AlreadyRegisteredException:
         pass
 
-    adapter.remove(Ice.stringToIdentity("x"))
+    adapter.remove(communicator.stringToIdentity("x"))
     try:
-        adapter.remove(Ice.stringToIdentity("x"))
+        adapter.remove(communicator.stringToIdentity("x"))
 	test(false)
     except Ice.NotRegisteredException:
         pass
@@ -532,7 +536,7 @@ def allTests(communicator):
 
     print "catching object not exist exception... ",
 
-    id = Ice.stringToIdentity("does not exist")
+    id = communicator.stringToIdentity("does not exist")
     try:
         thrower2 = Test.ThrowerPrx.uncheckedCast(thrower.ice_identity(id))
         thrower2.throwAasA(1)
@@ -678,9 +682,9 @@ def allTests(communicator):
 
     print "catching object not exist exception with AMI... ",
 
-    id = Ice.stringToIdentity("does not exist")
+    id = communicator.stringToIdentity("does not exist")
     thrower2 = Test.ThrowerPrx.uncheckedCast(thrower.ice_identity(id))
-    cb = AMI_Thrower_throwAasAObjectNotExistI()
+    cb = AMI_Thrower_throwAasAObjectNotExistI(communicator)
     thrower2.throwAasA_async(cb, 1)
     test(cb.check())
 
