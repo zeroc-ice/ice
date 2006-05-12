@@ -745,7 +745,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 		    if(_routerInfo.getAdapter() != null)
 		    {
 		        throw new AlreadyRegisteredException("object adapter with router", 
-							     Ice.Util.identityToString(router.ice_getIdentity()));
+							     _instance.identityToString(router.ice_getIdentity()));
 		    }
 
                     //

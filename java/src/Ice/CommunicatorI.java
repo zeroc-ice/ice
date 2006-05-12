@@ -44,13 +44,13 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
     public Ice.Identity
     stringToIdentity(String s)
     {
-        return Ice.Util.stringToIdentity(s);
+        return _instance.stringToIdentity(s);
     }
 
     public String
     identityToString(Ice.Identity ident)
     {
-        return Ice.Util.identityToString(ident);
+        return _instance.identityToString(ident);
     }
 
     public ObjectAdapter

@@ -151,7 +151,7 @@ public final class LocatorInfo
 	{
 	    Ice.NotRegisteredException e = new Ice.NotRegisteredException();
 	    e.kindOfObject = "object";
-	    e.id = Ice.Util.identityToString(identity);
+	    e.id = ref.getInstance().identityToString(identity);
 	    throw e;
 	}
 	catch(Ice.NotRegisteredException ex)
@@ -170,7 +170,7 @@ public final class LocatorInfo
 		}
 		else
 		{
-		    s.append("object = " + Ice.Util.identityToString(identity) + "\n");
+		    s.append("object = " + ref.getInstance().identityToString(identity) + "\n");
 		}
 		s.append("reason = " + ex);
 		ref.getInstance().initializationData().logger.trace(
@@ -270,7 +270,7 @@ public final class LocatorInfo
 	}
 	else
 	{
-	    s.append("object = " + Ice.Util.identityToString(ref.getIdentity()) + "\n");
+	    s.append("object = " + ref.getInstance().identityToString(ref.getIdentity()) + "\n");
 	}
 
 	s.append("endpoints = ");

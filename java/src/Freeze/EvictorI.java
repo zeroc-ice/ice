@@ -552,7 +552,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    {
 		Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
 		ex.kindOfObject = "servant";
-		ex.id = Ice.Util.identityToString(ident);
+		ex.id = _communicator.identityToString(ident);
 		if(facet.length() > 0)
 		{
 		    ex.id += " -f " + IceUtil.StringUtil.escapeString(facet, "");
@@ -562,7 +562,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    
 	    if(_trace >= 1)
 	    {
-		String objString = "object \"" + Ice.Util.identityToString(ident) + "\"";
+		String objString = "object \"" + _communicator.identityToString(ident) + "\"";
 		if(!facet.equals(""))
 		{
 		    objString += " with facet \"" + facet + "\"";
@@ -688,7 +688,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    
 	    if(_trace >= 1)
 	    {
-		String objString = "object \"" + Ice.Util.identityToString(ident) + "\"";
+		String objString = "object \"" + _communicator.identityToString(ident) + "\"";
 		_communicator.getLogger().trace("Freeze.Evictor", "added or updated " + objString + " in the database");
 	    }
 	}
@@ -819,7 +819,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    {
 		Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
 		ex.kindOfObject = "servant";
-		ex.id = Ice.Util.identityToString(ident);
+		ex.id = _communicator.identityToString(ident);
 		if(facet.length() > 0)
 		{
 		    ex.id += " -f " + IceUtil.StringUtil.escapeString(facet, "");
@@ -829,7 +829,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    
 	    if(_trace >= 1)
 	    {
-		String objString = "object \"" + Ice.Util.identityToString(ident) + "\"";
+		String objString = "object \"" + _communicator.identityToString(ident) + "\"";
 		if(!facet.equals(""))
 		{
 		    objString += " with facet \"" + facet + "\"";
@@ -956,7 +956,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    {
 		Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
 		ex.kindOfObject = "servant";
-		ex.id = Ice.Util.identityToString(ident);
+		ex.id = _communicator.identityToString(ident);
 		if(facet.length() > 0)
 		{
 		    ex.id += " -f " + IceUtil.StringUtil.escapeString(facet, "");
@@ -1029,7 +1029,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    
 	    Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
 	    ex.kindOfObject = "servant";
-	    ex.id = Ice.Util.identityToString(ident);
+	    ex.id = _communicator.identityToString(ident);
 	    if(facet.length() > 0)
 	    {
 		ex.id += " -f " + IceUtil.StringUtil.escapeString(facet, "");
@@ -1206,7 +1206,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    if(_trace >= 3)
 		    {
 			_communicator.getLogger().trace(
-			    "Freeze.Evictor", "ice_ping found \"" + Ice.Util.identityToString(current.id) +
+			    "Freeze.Evictor", "ice_ping found \"" + _communicator.identityToString(current.id) +
 			    "\" with facet \"" + current.facet + "\"");
 		    }
 		    cookie.value = null;
@@ -1218,7 +1218,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    {
 			_communicator.getLogger().trace(
 			    "Freeze.Evictor", "ice_ping raises FacetNotExistException for \"" +
-			    Ice.Util.identityToString(current.id)  + "\" with facet \"" + current.facet + "\"");
+			    _communicator.identityToString(current.id)  + "\" with facet \"" + current.facet + "\"");
 		    }
 		    
 		    throw new Ice.FacetNotExistException();
@@ -1229,7 +1229,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    {
 			_communicator.getLogger().trace(
 			    "Freeze.Evictor", "ice_ping will raise ObjectNotExistException for \"" +
-			    Ice.Util.identityToString(current.id)  + "\" with facet \"" + current.facet + "\"");
+			    _communicator.identityToString(current.id)  + "\" with facet \"" + current.facet + "\"");
 		    }
 		    
 		    return null;
@@ -1284,7 +1284,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		if(_trace >= 2)
 		{
 		    _communicator.getLogger().trace("Freeze.Evictor", "locate could not find \"" +
-						    Ice.Util.identityToString(ident) + "\" in database \"" +
+						    _communicator.identityToString(ident) + "\" in database \"" +
 						    current.facet + "\"");
 		}
 		return null;
@@ -1308,7 +1308,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 			if(_trace >= 2)
 			{
 			    _communicator.getLogger().trace("Freeze.Evictor", "locate found \"" +
-							    Ice.Util.identityToString(ident) +
+							    _communicator.identityToString(ident) +
 							    "\" in the cache for database \"" + current.facet +
 							    "\" but it was dead or destroyed");
 			}
@@ -1322,7 +1322,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    if(_trace >= 2)
 		    {
 			_communicator.getLogger().trace("Freeze.Evictor", "locate found \"" +
-							Ice.Util.identityToString(ident) + "\" in database \"" +
+							_communicator.identityToString(ident) + "\" in database \"" +
 							current.facet + "\"");
 		    }
 
@@ -1938,7 +1938,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 
 		if(_trace >= 2 || (_trace >= 1 && _evictorList.size() % 50 == 0))
 		{
-		    String objString = "object \"" + Ice.Util.identityToString(element.identity) + "\"";
+		    String objString = "object \"" + _communicator.identityToString(element.identity) + "\"";
 		    String facet = element.store.facet();
 		    if(facet.length() > 0)
 		    {
