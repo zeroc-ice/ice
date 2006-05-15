@@ -1558,7 +1558,7 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc)
 	}
 	if(!success)
 	{
-	    SyscallException ex(__FILE__, __LINE__);
+	    Ice::SyscallException ex(__FILE__, __LINE__);
 	    ex.error = getSystemErrno();
 	    throw ex;
 	}
