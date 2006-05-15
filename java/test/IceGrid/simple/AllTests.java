@@ -119,6 +119,10 @@ public class AllTests
 	{
 	    test(false);
 	}
+	catch(IceGrid.DeploymentException ex)
+	{
+	    test(false);
+	}
 
 	System.out.print("testing whether server is still reachable... ");
 	System.out.flush();
@@ -151,6 +155,10 @@ public class AllTests
 	{
 	    test(false);
 	}
+	catch(IceGrid.DeploymentException ex)
+	{
+	    test(false);
+	}
 
 	try
 	{
@@ -179,6 +187,10 @@ public class AllTests
 	    test(false);
 	}
 	catch(IceGrid.NodeUnreachableException ex)
+	{
+	    test(false);
+	}
+	catch(IceGrid.DeploymentException ex)
 	{
 	    test(false);
 	}
