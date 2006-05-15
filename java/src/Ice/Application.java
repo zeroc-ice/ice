@@ -33,11 +33,11 @@ public abstract class Application
     public final int
     main(String appName, String[] args, String configFile)
     {
-    	return main(appName, args, configFile, null);
+    	return main(appName, args, configFile, new InitializationData());
     }
 
     public final int
-    main(String appName, String[] args, String configFile, Logger logger)
+    main(String appName, String[] args, String configFile, InitializationData initData)
     {
         if(_communicator != null)
         {
@@ -51,8 +51,6 @@ public abstract class Application
 
         try
         {
-	    InitializationData initData = new InitializationData();
-	    initData.logger = logger;
 	    StringSeqHolder argHolder = new StringSeqHolder(args);
             if(configFile != null)
             {

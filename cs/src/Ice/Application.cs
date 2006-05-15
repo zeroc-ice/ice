@@ -43,10 +43,10 @@ namespace Ice
 
 	public int main(string[] args, string configFile)
 	{
-	    return main(args, configFile, null);
+	    return main(args, configFile, new InitializationData());
 	}
 	
-	public int main(string[] args, string configFile, Logger logger)
+	public int main(string[] args, string configFile, InitializationData initData)
 	{
 	    if(_communicator != null)
 	    {
@@ -57,8 +57,6 @@ namespace Ice
 	    
 	    try
 	    {
-	    	InitializationData initData = new InitializationData();
-		initData.logger = logger;
 		if(configFile != null)
 		{
 		    initData.properties = Util.createProperties();
