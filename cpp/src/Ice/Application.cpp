@@ -219,7 +219,7 @@ Ice::Application::~Application()
 }
 
 int
-Ice::Application::main(int argc, char* argv[], const char* configFile, const LoggerPtr& logger)
+Ice::Application::main(int argc, char* argv[], const char* configFile, InitializationData initData)
 {
     if(_communicator != 0)
     {
@@ -248,9 +248,6 @@ Ice::Application::main(int argc, char* argv[], const char* configFile, const Log
 	    _interrupted = false;
 	    _appName = argv[0];
 	  	
-	
-	    InitializationData initData;
-	    initData.logger = logger;
 	    if(configFile)
 	    {
 		initData.properties = createProperties();
