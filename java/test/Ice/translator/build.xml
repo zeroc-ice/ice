@@ -77,9 +77,10 @@
 
     <target name="compile" depends="generate">
         <mkdir dir="${class.dir}"/>
-        <javac srcdir="." destdir="${class.dir}" source="1.4" classpath="${lib.dir}" excludes="generated/**"
+	<javac srcdir="." destdir="${class.dir}" source="${jdk.version}" classpath="${lib.dir}" excludes="generated/**"
             debug="${debug}"/>
-        <javac srcdir="${generated.dir}" destdir="${class.dir}" source="1.4" classpath="${lib.dir}:${class_dir}" debug="${debug}"/>
+	<javac srcdir="${generated.dir}" destdir="${class.dir}" source="${jdk.version}"
+	    classpath="${lib.dir}:${class_dir}" debug="${debug}"/>
     </target>
 
     <target name="all" depends="compile"/>

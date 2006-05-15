@@ -14,7 +14,7 @@
 #
 
 protocol = ""
-#protocol = "ssl"
+protocol = "ssl"
 
 #
 # Set compressed to 1 in case you want to run the tests with
@@ -26,14 +26,11 @@ compress = 1
 
 #
 # Set threadPerConnection to 1 in case you want to run the tests in
-# thread per connection mode, or if you are using SSL.
+# thread-per-connection mode.
 #
 
 threadPerConnection = 0
 #threadPerConnection = 1
-
-if protocol == "ssl":
-    threadPerConnection = 1
 
 #
 # If you don't set "host" below, then the Ice library will try to find
@@ -49,6 +46,34 @@ host = "127.0.0.1"
 #
 
 import sys, os, errno
+
+#
+# If we are using SSL as the default protocol, we need to examine
+# the Java version to determine whether thread-per-connection is
+# required.
+#
+javaCmd = "java"
+if protocol == "ssl":
+    javaPipeIn, javaPipeOut = os.popen4("java -version")
+    if not javaPipeIn or not javaPipeOut:
+	print "unable to get Java version!"
+        sys.exit(1)
+    version = javaPipeOut.readline()
+    if not version:
+	print "unable to get Java version!"
+        sys.exit(1)
+    if version.startswith("java version \"1.4"):
+	#
+	# IceSSL requires JDK thread-per-connection when used with JDK 1.4.
+	#
+	threadPerConnection = 1
+	#
+	# To avoid the potential for long delays at startup under JDK 1.4,
+	# we direct the JVM to use /dev/urandom instead of its default.
+	#
+	javaCmd = "java -Djava.security.egd=file:/dev/urandom"
+    javaPipeIn.close()
+    javaPipeOut.close()
 
 def isCygwin():
 
@@ -233,11 +258,6 @@ if not threadPerConnection:
     commonServerOptions += " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3" + \
 			   " --Ice.ThreadPool.Server.SizeWarn=0 --Ice.ServerIdleTime=30"
 
-if protocol == "ssl":
-    securityFileOptions = " -Djava.security.egd=file:/dev/urandom"
-else:
-    securityFileOptions = ""
-
 clientOptions = clientProtocol + defaultHost + commonClientOptions
 serverOptions = serverProtocol + defaultHost + commonServerOptions
 clientServerOptions = clientServerProtocol + defaultHost + commonServerOptions
@@ -256,8 +276,8 @@ cppClientServerOptions = cppClientServerProtocol + defaultHost + cppCommonServer
 
 def clientServerTestWithOptions(additionalServerOptions, additionalClientOptions):
 
-    server = "java " + securityFileOptions + " -ea Server --Ice.ProgramName=Server "
-    client = "java " + securityFileOptions + " -ea Client --Ice.ProgramName=Client "
+    server = javaCmd + " -ea Server --Ice.ProgramName=Server "
+    client = javaCmd + " -ea Client --Ice.ProgramName=Client "
 
     print "starting server...",
     serverCmd = server + serverOptions + additionalServerOptions + " 2>&1"
@@ -283,8 +303,8 @@ def clientServerTestWithOptions(additionalServerOptions, additionalClientOptions
 
 def clientServerTestWithClasspath(serverClasspath, clientClasspath):
 
-    server = "java " + securityFileOptions + " -ea Server --Ice.ProgramName=Server"
-    client = "java " + securityFileOptions + " -ea Client --Ice.ProgramName=Client"
+    server = javaCmd + " -ea Server --Ice.ProgramName=Server"
+    client = javaCmd + " -ea Client --Ice.ProgramName=Client"
 
     classpath = os.getenv("CLASSPATH", "")
     scp = serverClasspath + sep + classpath
@@ -319,8 +339,8 @@ def clientServerTest():
 
 def mixedClientServerTestWithOptions(additionalServerOptions, additionalClientOptions):
 
-    server = "java " + securityFileOptions + " -ea Server --Ice.ProgramName=Server "
-    client = "java " + securityFileOptions + " -ea Client --Ice.ProgramName=Client "
+    server = javaCmd + " -ea Server --Ice.ProgramName=Server "
+    client = javaCmd + " -ea Client --Ice.ProgramName=Client "
 
     print "starting server...",
     serverCmd = server + clientServerOptions + additionalServerOptions
@@ -350,7 +370,7 @@ def mixedClientServerTest():
 
 def collocatedTestWithOptions(additionalOptions):
 
-    collocated = "java " + securityFileOptions + " -ea Collocated --Ice.ProgramName=Collocated "
+    collocated = javaCmd + " -ea Collocated --Ice.ProgramName=Collocated "
 
     print "starting collocated...",
     collocatedPipe = os.popen(collocated + collocatedOptions + additionalOptions + " 2>&1")

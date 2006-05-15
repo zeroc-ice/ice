@@ -92,21 +92,77 @@ class Instance
 	    try
 	    {
 		//
+		// Check for a default directory. We look in this directory for
+		// files mentioned in the configuration.
+		//
+		_defaultDir = properties.getProperty(prefix + "DefaultDir");
+
+		//
 		// We need a SecureRandom object.
 		//
-		java.security.SecureRandom rand = java.security.SecureRandom.getInstance("SHA1PRNG");
+		// NOTE: The JDK recommends obtaining a SecureRandom object like this:
+		//
+		// java.security.SecureRandom rand = java.security.SecureRandom.getInstance("SHA1PRNG");
+		//
+		// However, there is a bug (6202721) which causes it to always use /dev/random,
+		// which can lead to long delays at program startup. The workaround is to use
+		// the default constructor.
+		//
+		java.security.SecureRandom rand = new java.security.SecureRandom();
+
+		//
+		// Check for seed data for the random number generator.
+		//
+		final String seedFiles = properties.getProperty(prefix + "Random");
+		if(seedFiles.length() > 0)
+		{
+		    byte[] seed = null;
+		    int start = 0;
+		    final String[] arr = seedFiles.split(java.io.File.pathSeparator);
+		    for(int i = 0; i < arr.length; ++i)
+		    {
+			Ice.StringHolder seedFile = new Ice.StringHolder(arr[i]);
+			if(!checkPath(seedFile, false))
+			{
+			    Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+			    e.reason = "IceSSL: random seed file not found:\n" + arr[i];
+			    throw e;
+			}
+			java.io.File f = new java.io.File(seedFile.value);
+			int num = (int)f.length();
+			if(seed == null)
+			{
+			    seed = new byte[num];
+			}
+			else
+			{
+			    byte[] tmp = new byte[seed.length + num];
+			    System.arraycopy(seed, 0, tmp, 0, seed.length);
+			    start = seed.length;
+			    seed = tmp;
+			}
+			try
+			{
+			    java.io.FileInputStream in = new java.io.FileInputStream(f);
+			    in.read(seed, start, num);
+			    in.close();
+			}
+			catch(java.io.IOException ex)
+			{
+			    Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+			    e.reason = "IceSSL: error while reading random seed file:\n" + arr[i];
+			    e.initCause(ex);
+			    throw e;
+			}
+		    }
+		    rand.setSeed(seed);
+		}
 
 		//
 		// We call nextInt() in order to force the object to perform any time-consuming
 		// initialization tasks now.
 		//
 		rand.nextInt();
-
-		//
-		// Check for a default directory. We look in this directory for
-		// files mentioned in the configuration.
-		//
-		_defaultDir = properties.getProperty(prefix + "DefaultDir");
 
 		//
 		// The keystore holds private keys and associated certificates.

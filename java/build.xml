@@ -26,8 +26,6 @@
     <property name="generated.dir" value="generated"/>
     <property name="cache.dir" value="depcache"/>
 
-    <property file="config/build.properties"/>
-
     <target name="init" depends="config-init">
         <!-- Create the time stamp -->
         <tstamp/>
@@ -138,9 +136,9 @@
     <target name="ice-compile" depends="generate">
         <mkdir dir="${lib.dir}"/>
         <mkdir dir="${cache.dir}"/>
-        <depend srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}" cache="${cache.dir}"/>
-	<javac srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}"
-	    source="1.4" debug="${debug}" optimize="${optimize}"
+	<depend srcdir="${generated.dir}:${src.dir}:ssl/jdk${jdk.version}" destdir="${lib.dir}" cache="${cache.dir}"/>
+	<javac srcdir="${generated.dir}:${src.dir}:ssl/jdk${jdk.version}" destdir="${lib.dir}"
+	    source="${jdk.version}" debug="${debug}" optimize="${optimize}"
 	    excludes="IceGridGUI/**"
 	    includes="**"
 	    deprecation="on"/>
@@ -156,7 +154,7 @@
 
     <target name="icegridgui-compile" depends="ice-compile">
         <javac srcdir="${src.dir}" destdir="${lib.dir}"
-	    source="1.4" debug="${debug}" optimize="${optimize}"
+	    source="${jdk.version}" debug="${debug}" optimize="${optimize}"
 	    includes="IceGridGUI/**"
 	    deprecation="on"/>
     </target>

@@ -66,13 +66,13 @@
     <target name="compile" depends="generate">
         <mkdir dir="${cclass.dir}"/>
         <javac srcdir="${cgen.dir}" destdir="${cclass.dir}"
-            source="1.4" classpath="${lib.dir}" debug="${debug}"/>
-        <javac srcdir="${csrc.dir}" destdir="${cclass.dir}" source="1.4"
+	    source="${jdk.version}" classpath="${lib.dir}" debug="${debug}"/>
+	<javac srcdir="${csrc.dir}" destdir="${cclass.dir}" source="${jdk.version}"
             classpath="${lib.dir}" excludes="${cgen.dir}/**" debug="${debug}"/>
         <mkdir dir="${sclass.dir}"/>
         <javac srcdir="${sgen.dir}" destdir="${sclass.dir}"
-            source="1.4" classpath="${lib.dir}" debug="${debug}"/>
-        <javac srcdir="${ssrc.dir}" destdir="${sclass.dir}" source="1.4"
+	    source="${jdk.version}" classpath="${lib.dir}" debug="${debug}"/>
+	<javac srcdir="${ssrc.dir}" destdir="${sclass.dir}" source="${jdk.version}"
             classpath="${lib.dir}" excludes="${sgen.dir}/**" debug="${debug}"/>
     </target>
 

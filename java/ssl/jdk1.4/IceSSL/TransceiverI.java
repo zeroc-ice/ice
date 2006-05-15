@@ -198,7 +198,7 @@ final class TransceiverI implements IceInternal.Transceiver
 	}
     }
 
-    public void
+    public boolean
     read(IceInternal.BasicStream stream, int timeout)
     {
 	java.nio.ByteBuffer buf = stream.prepareRead();
@@ -295,6 +295,8 @@ final class TransceiverI implements IceInternal.Transceiver
 	{
 	    throw new Ice.ConnectionLostException();
 	}
+
+	return false;
     }
 
     public String
