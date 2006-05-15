@@ -388,8 +388,8 @@ IceInternal::Instance::stringToIdentity(const string& s) const
 	ident.name = tmpString;
 
 	_initData.stringConverter->fromUTF8(reinterpret_cast<const Byte*>(ident.category.data()),
-					    reinterpret_cast<const Byte*>(ident.category.data() + ident.name.size()),
-					    tmpString);
+					   reinterpret_cast<const Byte*>(ident.category.data() + ident.category.size()),
+					   tmpString);
 	ident.category = tmpString;
     }
 
