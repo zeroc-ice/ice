@@ -2156,7 +2156,7 @@ is not defined, the platform's default is used.
 <section id="IceSSL.Random"><title>IceSSL.Random</title>
 <section><title>Synopsis</title>
 <synopsis>
-IceSSL.Random=<replaceable>filelist</replaceable> (C++)
+IceSSL.Random=<replaceable>filelist</replaceable> (C++, Java)
 </synopsis>
 </section>
 <section>
