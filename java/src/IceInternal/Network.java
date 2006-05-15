@@ -32,6 +32,7 @@ public final class Network
                 "software caused connection abort", // ECONNABORTED
                 "an existing connection was forcibly closed", // unknown
 	        "connection closed by remote host", // unknown
+	        "an established connection was aborted by the software in your host machine", // unknown (Win32)
 	        "broken pipe" // EPIPE
             };
 
