@@ -118,7 +118,7 @@ final class UdpTransceiver implements Transceiver
         }
     }
 
-    public void
+    public boolean
     read(BasicStream stream, int timeout) // NOTE: timeout is not used
     {
 	assert(stream.pos() == 0);
@@ -218,6 +218,8 @@ final class UdpTransceiver implements Transceiver
 
         stream.resize(ret, true);
         stream.pos(ret);
+
+	return false;
     }
 
     public String

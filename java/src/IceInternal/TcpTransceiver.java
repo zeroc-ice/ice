@@ -215,7 +215,7 @@ final class TcpTransceiver implements Transceiver
 	}
     }
 
-    public void
+    public boolean
     read(BasicStream stream, int timeout)
     {
         java.nio.ByteBuffer buf = stream.prepareRead();
@@ -307,6 +307,8 @@ final class TcpTransceiver implements Transceiver
 		throw se;
 	    }
 	}
+
+	return false;
     }
 
     public String

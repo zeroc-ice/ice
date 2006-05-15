@@ -449,7 +449,7 @@ public final class ThreadPool
 	    }
 	}
 
-        while(true)
+	while(true)
         {
 	    if(TRACE_REGISTRATION)
 	    {
@@ -462,160 +462,175 @@ public final class ThreadPool
 		    trace("  " + key.channel());
 		}
 	    }
-	    
-	    select();
 
 	    EventHandler handler = null;
+
+	    //
+	    // Only call select() if there are no pending handlers with additional data
+	    // for us to read.
+	    //
+	    if(!_pendingHandlers.isEmpty())
+	    {
+		handler = (EventHandler)_pendingHandlers.removeFirst();
+	    }
+	    else
+	    {
+		select();
+	    }
+
 	    boolean finished = false;
 	    boolean shutdown = false;
 
-	    synchronized(this)
+	    if(handler == null)
 	    {
-		if(_keys.size() == 0) // We initiate a shutdown if there is a thread pool timeout.
+		synchronized(this)
 		{
-		    if(TRACE_SELECT)
+		    if(_keys.size() == 0) // We initiate a shutdown if there is a thread pool timeout.
 		    {
-			trace("timeout");
-		    }
-		    
-		    assert(_timeout > 0);
-		    _timeout = 0;
-		    shutdown = true;
-		}
-		else
-		{
-		    if(_keys.contains(_fdIntrReadKey) && _fdIntrReadKey.isReadable())
-		    {
-			if(TRACE_SELECT || TRACE_INTERRUPT)
+			if(TRACE_SELECT)
 			{
-			    trace("detected interrupt");
+			    trace("timeout");
 			}
 			
-			//
-			// There are two possiblities for an interrupt:
-			//
-			// 1. The thread pool has been destroyed.
-			//
-			// 2. An event handler was registered or unregistered.
-			//
-			
-			//
-			// Thread pool destroyed?
-			//
-			if(_destroyed)
-			{
-			    if(TRACE_SHUTDOWN)
-			    {
-				trace("destroyed, thread id = " + Thread.currentThread());
-			    }
-			    
-			    //
-			    // Don't clear the interrupt fd if
-			    // destroyed, so that the other threads
-			    // exit as well.
-			    //
-			    return true;
-			}
-			
-			//
-			// Remove the interrupt channel from the
-			// selected key set.
-			//
-			_keys.remove(_fdIntrReadKey);
-			
-			clearInterrupt();
-			
-			//
-			// An event handler must have been registered
-			// or unregistered.
-			//
-			assert(!_changes.isEmpty());
-			FdHandlerPair change = (FdHandlerPair)_changes.removeFirst();
-			
-			if(change.handler != null) // Addition if handler is set.
-			{
-			    int op;
-			    if((change.fd.validOps() & java.nio.channels.SelectionKey.OP_READ) > 0)
-			    {
-				op = java.nio.channels.SelectionKey.OP_READ;
-			    }
-			    else
-			    {
-				op = java.nio.channels.SelectionKey.OP_ACCEPT;
-			    }
-				
-			    java.nio.channels.SelectionKey key = null;
-			    try
-			    {
-				key = change.fd.register(_selector, op, change.handler);
-			    }
-			    catch(java.nio.channels.ClosedChannelException ex)
-			    {
-				assert(false);
-			    }
-			    _handlerMap.put(change.fd, new HandlerKeyPair(change.handler, key));
-				
-			    if(TRACE_REGISTRATION)
-			    {
-				trace("added handler (" + change.handler.getClass().getName() + ") for fd " +
-				      change.fd);
-			    }
-				
-			    continue;
-			}
-			else // Removal if handler is not set.
-			{
-			    HandlerKeyPair pair = (HandlerKeyPair)_handlerMap.remove(change.fd);
-			    assert(pair != null);
-			    handler = pair.handler;
-			    finished = true;
-			    pair.key.cancel();
-				
-			    if(TRACE_REGISTRATION)
-			    {
-				trace("removed handler (" + handler.getClass().getName() + ") for fd " +
-				      change.fd);
-			    }
-				
-			    // Don't continue; we have to call
-			    // finished() on the event handler below,
-			    // outside the thread synchronization.
-			}
+			assert(_timeout > 0);
+			_timeout = 0;
+			shutdown = true;
 		    }
 		    else
 		    {
-			java.nio.channels.SelectionKey key = null;
-			java.util.Iterator iter = _keys.iterator();
-			while(iter.hasNext())
+			if(_keys.contains(_fdIntrReadKey) && _fdIntrReadKey.isReadable())
 			{
+			    if(TRACE_SELECT || TRACE_INTERRUPT)
+			    {
+				trace("detected interrupt");
+			    }
+			    
 			    //
-			    // Ignore selection keys that have been cancelled
+			    // There are two possiblities for an interrupt:
 			    //
-			    java.nio.channels.SelectionKey k = (java.nio.channels.SelectionKey)iter.next();
-			    iter.remove();
-			    if(k.isValid() && key != _fdIntrReadKey)
+			    // 1. The thread pool has been destroyed.
+			    //
+			    // 2. An event handler was registered or unregistered.
+			    //
+			    
+			    //
+			    // Thread pool destroyed?
+			    //
+			    if(_destroyed)
+			    {
+				if(TRACE_SHUTDOWN)
+				{
+				    trace("destroyed, thread id = " + Thread.currentThread());
+				}
+				
+				//
+				// Don't clear the interrupt fd if
+				// destroyed, so that the other threads
+				// exit as well.
+				//
+				return true;
+			    }
+			    
+			    //
+			    // Remove the interrupt channel from the
+			    // selected key set.
+			    //
+			    _keys.remove(_fdIntrReadKey);
+			    
+			    clearInterrupt();
+			    
+			    //
+			    // An event handler must have been registered
+			    // or unregistered.
+			    //
+			    assert(!_changes.isEmpty());
+			    FdHandlerPair change = (FdHandlerPair)_changes.removeFirst();
+			    
+			    if(change.handler != null) // Addition if handler is set.
+			    {
+				int op;
+				if((change.fd.validOps() & java.nio.channels.SelectionKey.OP_READ) > 0)
+				{
+				    op = java.nio.channels.SelectionKey.OP_READ;
+				}
+				else
+				{
+				    op = java.nio.channels.SelectionKey.OP_ACCEPT;
+				}
+				    
+				java.nio.channels.SelectionKey key = null;
+				try
+				{
+				    key = change.fd.register(_selector, op, change.handler);
+				}
+				catch(java.nio.channels.ClosedChannelException ex)
+				{
+				    assert(false);
+				}
+				_handlerMap.put(change.fd, new HandlerKeyPair(change.handler, key));
+				    
+				if(TRACE_REGISTRATION)
+				{
+				    trace("added handler (" + change.handler.getClass().getName() + ") for fd " +
+					  change.fd);
+				}
+				    
+				continue;
+			    }
+			    else // Removal if handler is not set.
+			    {
+				HandlerKeyPair pair = (HandlerKeyPair)_handlerMap.remove(change.fd);
+				assert(pair != null);
+				handler = pair.handler;
+				finished = true;
+				pair.key.cancel();
+				    
+				if(TRACE_REGISTRATION)
+				{
+				    trace("removed handler (" + handler.getClass().getName() + ") for fd " +
+					  change.fd);
+				}
+				    
+				// Don't continue; we have to call
+				// finished() on the event handler below,
+				// outside the thread synchronization.
+			    }
+			}
+			else
+			{
+			    java.nio.channels.SelectionKey key = null;
+			    java.util.Iterator iter = _keys.iterator();
+			    while(iter.hasNext())
+			    {
+				//
+				// Ignore selection keys that have been cancelled
+				//
+				java.nio.channels.SelectionKey k = (java.nio.channels.SelectionKey)iter.next();
+				iter.remove();
+				if(k.isValid() && key != _fdIntrReadKey)
+				{
+				    if(TRACE_SELECT)
+				    {
+					trace("found a key: " + keyToString(k));
+				    }
+				    
+				    key = k;
+				    break;
+				}
+			    }
+			    
+			    if(key == null)
 			    {
 				if(TRACE_SELECT)
 				{
-				    trace("found a key: " + keyToString(k));
+				    trace("didn't find a valid key");
 				}
 				
-				key = k;
-				break;
-			    }
-			}
-			
-			if(key == null)
-			{
-			    if(TRACE_SELECT)
-			    {
-				trace("didn't find a valid key");
+				continue;
 			    }
 			    
-			    continue;
+			    handler = (EventHandler)key.attachment();
 			}
-			
-			handler = (EventHandler)key.attachment();
 		    }
 		}
 	    }
@@ -660,7 +675,7 @@ public final class ThreadPool
 		if(finished)
 		{
 		    //
-		    // Notify a handler about it's removal from
+		    // Notify a handler about its removal from
 		    // the thread pool.
 		    //
 		    try
@@ -697,7 +712,14 @@ public final class ThreadPool
 			{
 			    try
 			    {
-				read(handler);
+				//
+				// If read returns true, the handler has more data for the thread pool
+				// to process.
+				//
+				if(read(handler))
+				{
+				    _pendingHandlers.add(handler);
+				}
 			    }
 			    catch(Ice.TimeoutException ex) // Expected.
 			    {
@@ -705,7 +727,7 @@ public final class ThreadPool
 			    }
 			    catch(Ice.DatagramLimitException ex) // Expected.
 			    {
-			        continue;
+				continue;
 			    }
 			    catch(Ice.SocketException ex)
 			    {
@@ -721,12 +743,12 @@ public final class ThreadPool
 			    }
 			    catch(Ice.LocalException ex)
 			    {
-			        if(handler.datagram())
+				if(handler.datagram())
 				{
 				    if(_instance.initializationData().properties.getPropertyAsInt(
-				    						"Ice.Warn.Connections") > 0)
+										"Ice.Warn.Connections") > 0)
 				    {
-				        _instance.initializationData().logger.warning(
+					_instance.initializationData().logger.warning(
 					    "datagram connection exception:\n" + ex + "\n" + handler.toString());
 				    }
 				}
@@ -734,9 +756,9 @@ public final class ThreadPool
 				{
 				    if(TRACE_EXCEPTION)
 				    {
-				        trace("informing handler (" + handler.getClass().getName() +
+					trace("informing handler (" + handler.getClass().getName() +
 					      ") about exception " + ex);
-				        ex.printStackTrace();
+					ex.printStackTrace();
 				    }
 				    
 				    handler.exception(ex);
@@ -749,7 +771,7 @@ public final class ThreadPool
 			}
 			    
 			//
-			// Provide a new mesage to the handler.
+			// Provide a new message to the handler.
 			//
 			try
 			{
@@ -885,9 +907,11 @@ public final class ThreadPool
         }
     }
 
-    private void
+    private boolean
     read(EventHandler handler)
     {
+	boolean moreData = false;
+
         BasicStream stream = handler._stream;
 
         if(stream.size() == 0)
@@ -898,7 +922,7 @@ public final class ThreadPool
 
         if(stream.pos() != stream.size())
         {
-            handler.read(stream);
+            moreData = handler.read(stream);
             assert(stream.pos() == stream.size());
         }
 
@@ -980,10 +1004,12 @@ public final class ThreadPool
 	    }
 	    else
 	    {
-		handler.read(stream);
+		moreData = handler.read(stream);
 		assert(stream.pos() == stream.size());
 	    }
         }
+
+	return moreData;
     }
 
 /*
@@ -1183,6 +1209,14 @@ public final class ThreadPool
     private java.util.HashMap _handlerMap = new java.util.HashMap();
 
     private int _timeout;
+
+    //
+    // Since the Java5 SSL transceiver can read more data from the socket than is
+    // actually requested, we have to keep a separate list of handlers that need
+    // the thread pool to read more data before it re-enters a blocking call to
+    // select().
+    //
+    private java.util.LinkedList _pendingHandlers = new java.util.LinkedList();
 
     private final class EventHandlerThread extends Thread
     {

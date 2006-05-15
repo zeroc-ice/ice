@@ -16,7 +16,11 @@ public interface Transceiver
     void shutdownWrite();
     void shutdownReadWrite();
     void write(BasicStream stream, int timeout);
-    void read(BasicStream stream, int timeout);
+    //
+    // NOTE: In Java, read() returns a boolean to indicate whether the transceiver
+    //       has read more data than requested.
+    //
+    boolean read(BasicStream stream, int timeout);
     String type();
     String toString();
 }

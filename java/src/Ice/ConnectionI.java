@@ -1070,15 +1070,15 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         return true;
     }
 
-    public void
+    public boolean
     read(IceInternal.BasicStream stream)
     {
 	assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
 
-	_transceiver.read(stream, 0);
+	return _transceiver.read(stream, 0);
 
 	//
-	// Updating _acmAbsoluteTimeoutMillis is to expensive here,
+	// Updating _acmAbsoluteTimeoutMillis is too expensive here,
 	// because we would have to acquire a lock just for this
 	// purpose. Instead, we update _acmAbsoluteTimeoutMillis in
 	// message().

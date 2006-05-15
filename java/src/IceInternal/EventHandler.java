@@ -25,7 +25,10 @@ public abstract class EventHandler
     // Read data via the event handler. May only be called if
     // readable() returns true.
     //
-    abstract public void read(BasicStream is);
+    // NOTE: In Java, read returns true if the handler has more data
+    // data available, and therefore read should be called again.
+    //
+    abstract public boolean read(BasicStream is);
 
     //
     // A complete message has been received.

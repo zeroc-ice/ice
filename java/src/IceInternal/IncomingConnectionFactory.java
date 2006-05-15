@@ -207,11 +207,12 @@ public final class IncomingConnectionFactory extends EventHandler
         return false;
     }
 
-    public void
+    public boolean
     read(BasicStream unused)
     {
 	assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
         assert(false); // Must not be called.
+	return false;
     }
 
     public void
