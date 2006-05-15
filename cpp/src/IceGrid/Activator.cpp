@@ -25,7 +25,6 @@
 #ifndef _WIN32
 #   include <sys/wait.h>
 #   include <signal.h>
-#   include <pwd.h> // for getpwnam
 #else
 #   include <direct.h> // For _getcwd
 #endif
@@ -346,7 +345,10 @@ int
 Activator::activate(const string& name,
 		    const string& exePath,
 		    const string& pwdPath,
-		    const string& user,
+#ifndef _WIN32      
+		    uid_t uid,
+		    gid_t gid,
+#endif
 		    const Ice::StringSeq& options,
 		    const Ice::StringSeq& envs,
 		    const ServerIPtr& server)
@@ -430,7 +432,6 @@ Activator::activate(const string& name,
 	args.push_back("--Ice.StdErr=" + errFile);
     }
 
-
     if(_traceLevels->activator > 1)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
@@ -456,10 +457,9 @@ Activator::activate(const string& name,
 	    {
 		out << "pwd = " << pwd << "\n";
 	    }
-	    if(!user.empty())
-	    {
-		out << "user = " << user << "\n";
-	    }
+#ifndef _WIN32
+	    out << "uid/gid = " << uid << "/" << gid << "\n";
+#endif
 	    if(!envs.empty())
 	    {
 		out << "envs = " << toString(envs, ", ") << "\n";
@@ -475,29 +475,6 @@ Activator::activate(const string& name,
     // Activate and create.
     //
 #ifdef _WIN32
-
-    if(!user.empty())
-    {
-	vector<char> buf(256);
-	buf.resize(256);
-	DWORD size = buf.size();
-	bool success = GetUserName(&buf[0], &size);
-	if(!success && GetLastError() == ERROR_INSUFFICIENT_BUFFER)
-	{
-	    buf.resize(size);
-	    success = GetUserName(&buf[0], &size);
-	}
-	if(!success)
-	{
-	    SyscallException ex(__FILE__, __LINE__);
-	    ex.error = getSystemErrno();
-	    throw ex;
-	}
-	if(user != string(&buf[0]))
-	{
-	    throw "can't run `" + name + "' under user account `" + user + "'";
-	}
-    }
 
     //
     // Compose command line.
@@ -704,26 +681,20 @@ Activator::activate(const string& name,
 	//
 
 	//
-	// Change the user under which the process will run if a
-	// specific user is set.
+	// Change the uid/gid under which the process will run.
 	//
-	if(!user.empty())
+	if(setgid(gid) == -1)
 	{
-	    struct passwd* pw = getpwnam(user.c_str());
-	    if(!pw)
-	    {
-		reportChildError(0, fds[1], "unknown user", user.c_str()); 
-	    }
-	    
-	    if(setgid(pw->pw_gid) == -1)
-	    {
-		reportChildError(getSystemErrno(), fds[1], "cannot set process group id for user", user.c_str()); 
-	    }	    
-
-	    if(setuid(pw->pw_uid) == -1)
-	    {
-		reportChildError(getSystemErrno(), fds[1], "cannot set process user id for user", user.c_str());
-	    }
+	    ostringstream os;
+	    os << gid;
+	    reportChildError(getSystemErrno(), fds[1], "cannot set process group id", os.str().c_str());
+	}	    
+	
+	if(setuid(uid) == -1)
+	{
+	    ostringstream os;
+	    os << uid;
+	    reportChildError(getSystemErrno(), fds[1], "cannot set process user id", os.str().c_str());
 	}
 
 	//

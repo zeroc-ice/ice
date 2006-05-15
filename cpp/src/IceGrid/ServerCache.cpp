@@ -212,7 +212,7 @@ ServerEntry::sync()
 {
     try
     {
-	syncImpl(true);
+	syncImpl(0, true);
     }
     catch(const Ice::Exception&)
     {
@@ -344,7 +344,7 @@ ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& 
 
     while(true)
     {
-	syncImpl(true);
+	syncImpl(0, true);
 
 	{
 	    Lock sync(*this);
@@ -403,7 +403,7 @@ ServerEntry::getAdapter(const string& id)
 
     while(true)
     {    
-	syncImpl(true);
+	syncImpl(0, true);
 
 	{
 	    Lock sync(*this);
@@ -493,7 +493,7 @@ ServerEntry::getLoad(LoadSample sample) const
 }
 
 void
-ServerEntry::syncImpl(bool waitForUpdate)
+ServerEntry::syncImpl(const SessionIPtr& session, bool waitForUpdate)
 {
     ServerInfo load;
     ServerInfo destroy;
@@ -753,11 +753,27 @@ ServerEntry::allocated(const SessionIPtr& session)
 	Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
 	out << "server `" << _id << "' allocated by `" << session->getUserId() << "' (" << _count << ")";
     }
+
+//     try
+//     {
+// 	syncImpl(session, false);
+//     }
+//     catch(const Ice::Exception&)
+//     {
+//     }
 }
 
 void
 ServerEntry::released(const SessionIPtr& session)
 {
+//     try
+//     {
+// 	syncImpl(0, false);
+//     }
+//     catch(const Ice::Exception&)
+//     {
+//     }
+
     TraceLevelsPtr traceLevels = _cache.getTraceLevels();
     if(traceLevels && traceLevels->server > 1)
     {

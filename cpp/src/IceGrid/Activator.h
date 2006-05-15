@@ -13,6 +13,10 @@
 #include <IceUtil/Thread.h>
 #include <IceGrid/Internal.h>
 
+#ifndef _WIN32
+#   include <sys/types.h> // for uid_t, gid_t
+#endif
+
 namespace IceGrid
 {
 
@@ -31,7 +35,10 @@ public:
     Activator(const TraceLevelsPtr&, const Ice::PropertiesPtr&);
     virtual ~Activator();
 
-    virtual int activate(const std::string&, const std::string&, const std::string&, const std::string&, 
+    virtual int activate(const std::string&, const std::string&, const std::string&,
+#ifndef _WIN32
+			 uid_t, gid_t, 
+#endif
 			 const Ice::StringSeq&, const Ice::StringSeq&, const ServerIPtr&);
     virtual void deactivate(const std::string&, const Ice::ProcessPrx&);
     virtual void kill(const std::string&);

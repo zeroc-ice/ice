@@ -183,8 +183,11 @@ interface Node
      * they will be created.
      *
      **/
-    ["amd", "ami"] idempotent Server* loadServer(string application, ServerDescriptor desc, 
-						 out AdapterPrxDict adapters, out int actTimeout, out int deactTimeout)
+    ["amd", "ami"] idempotent Server* loadServer(string application, 
+						 ServerDescriptor desc,
+						 out AdapterPrxDict adapters, 
+						 out int actTimeout, 
+						 out int deactTimeout)
 	throws DeploymentException;
 
     /**

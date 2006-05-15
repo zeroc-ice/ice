@@ -59,7 +59,7 @@ public:
 
 private:
     
-    void syncImpl(bool);
+    void syncImpl(const SessionIPtr&, bool);
 
     ServerCache& _cache;
     const std::string _id;

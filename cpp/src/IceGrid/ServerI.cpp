@@ -27,6 +27,7 @@
 #   include <signal.h>
 #else
 #   include <sys/wait.h>
+#   include <pwd.h> // for getpwnam
 #   include <signal.h>
 #   include <unistd.h>
 #   include <dirent.h>
@@ -36,10 +37,45 @@
 
 using namespace std;
 using namespace IceGrid;
-using namespace IcePatch2;
 
 namespace IceGrid
 {
+
+#ifndef _WIN32
+void
+chownRecursive(const string& path, uid_t uid, gid_t gid)
+{
+    struct dirent **namelist;
+    int n = scandir(path.c_str(), &namelist, 0, alphasort);
+    if(n < 0)
+    {
+	throw "cannot read directory `" + path + "':\n" + IcePatch2::lastError();
+    }
+
+    for(int i = 0; i < n; ++i)
+    {
+	string name = namelist[i]->d_name;
+	assert(!name.empty());
+
+	free(namelist[i]);
+
+	if(name != ".." && name != ".")
+	{
+	    name = path + "/" + name;
+	    if(chown(name.c_str(), uid, gid) != 0)
+	    {
+		throw "can't change permissions on file `" + name + "':\n" + IcePatch2::lastError();
+	    }
+	    if(namelist[i]->d_type == DT_DIR)
+	    {
+		chownRecursive(name, uid, gid);
+	    }
+	}
+    }
+
+    free(namelist);
+}
+#endif
 
 class CommandTimeoutItem : public WaitItem
 {
@@ -527,7 +563,7 @@ ServerI::ServerI(const NodeIPtr& node, const ServerPrx& proxy, const string& ser
     _this(proxy),
     _id(id),
     _waitTime(wt),
-    _serversDir(serversDir),
+    _serverDir(serversDir + "/" + id),
     _disableOnFailure(0),
     _state(ServerI::Inactive),
     _activation(ServerI::Manual),
@@ -699,7 +735,7 @@ ServerI::ServerActivation
 ServerI::getActivationMode() const
 {
     Lock sync(*this);
-    return _desc->activation  == "on-demand" ? OnDemand : Manual;
+    return (_desc->activation  == "on-demand" || _desc->activation == "session") ? OnDemand : Manual;
 }
 
 const string&
@@ -932,6 +968,20 @@ ServerI::waitForPatch()
 void
 ServerI::finishPatch()
 {
+#ifndef _WIN32
+    {
+	Lock sync(*this);
+	try
+	{
+	    chownRecursive(_serverDir + "/distrib", _uid, _gid);
+	}
+	catch(const string& msg)
+	{
+	    Ice::Warning out(_node->getTraceLevels()->logger);
+	    out << msg;
+	}
+    }
+#endif
     setState(Inactive);
 }
 
@@ -1074,11 +1124,19 @@ ServerI::activate()
 {
     ServerDescriptorPtr desc;
     ServerAdapterDict adpts;
+#ifndef _WIN32
+    uid_t uid;
+    gid_t gid;
+#endif
     {
 	Lock sync(*this);
 	assert(_state == Activating);
 	desc = _desc;
 	adpts = _adapters;
+#ifndef _WIN32
+	uid = _uid;
+	gid = _gid;
+#endif
     }
 
     //
@@ -1109,8 +1167,11 @@ ServerI::activate()
     string failure;
     try
     {
-	int pid = _node->getActivator()->activate(desc->id, desc->exe, desc->pwd, desc->user, options, envs, this);
-
+#ifndef _WIN32
+	int pid = _node->getActivator()->activate(desc->id, desc->exe, desc->pwd, uid, gid, options, envs, this);
+#else
+	int pid = _node->getActivator()->activate(desc->id, desc->exe, desc->pwd, options, envs, this);
+#endif
 	ServerCommandPtr command;
 	{
 	    Lock sync(*this);
@@ -1248,7 +1309,7 @@ ServerI::destroy()
 
     try
     {
-	removeRecursive(_serverDir);
+	IcePatch2::removeRecursive(_serverDir);
     }
     catch(const string& msg)
     {
@@ -1371,9 +1432,46 @@ ServerI::update()
 	    return;
 	}
 
+	string oldApp = _application;
+	ServerDescriptorPtr oldDesc = _desc;
 	try
 	{
-	    updateImpl();
+	    assert(_load->getDescriptor()->id == _id);
+
+	    if(_load->clearDir())
+	    {
+		//
+		// The server was explicitely destroyed then updated,
+		// we first need to cleanup the directory to remove
+		// any user created files.
+		//
+		try
+		{
+		    IcePatch2::removeRecursive(_serverDir);
+		}
+		catch(const string&)
+		{
+		}
+	    }
+
+	    try
+	    {
+		updateImpl(_load->getApplication(), _load->getDescriptor());
+	    }
+	    catch(const Ice::Exception& ex)
+	    {
+		ostringstream os;
+		os << ex;
+		throw DeploymentException(os.str());
+	    }
+	    catch(const string& msg)
+	    {
+		throw DeploymentException(msg);
+	    }
+	    catch(const char* msg)
+	    {
+		throw DeploymentException(msg);
+	    }
 
 	    AdapterPrxDict adapters;
 	    for(ServerAdapterDict::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
@@ -1382,18 +1480,33 @@ ServerI::update()
 	    }    
 	    _load->finished(_this, adapters, _activationTimeout, _deactivationTimeout);
 	}
-	catch(const Ice::Exception& ex)
+	catch(const DeploymentException& ex)
 	{
+	    //
+	    // Rollback old descriptor.
+	    //
+	    try
+	    {
+		updateImpl(oldApp, oldDesc);
+	    }
+	    catch(const Ice::Exception& ex)
+	    {
+		Ice::Warning out(_node->getTraceLevels()->logger);
+		out << "update failed and couldn't rollback old descriptor:\n" << ex;
+	    }
+	    catch(const string& msg)
+	    {
+		Ice::Warning out(_node->getTraceLevels()->logger);
+		out << "update failed and couldn't rollback old descriptor:\n" << msg;
+	    }
+	    catch(const char* msg)
+	    {
+		Ice::Warning out(_node->getTraceLevels()->logger);
+		out << "update failed and couldn't rollback old descriptor:\n" << msg;
+	    }
 	    _load->failed(ex);
 	}
-	catch(const string& msg)
-	{
-	    _load->failed(DeploymentException(msg));
-	}
-	catch(const char* msg)
-	{
-	    _load->failed(DeploymentException(msg));
-	}
+
 	setStateNoSync(Inactive);
 	command = nextCommand();
     }
@@ -1404,23 +1517,92 @@ ServerI::update()
 }
 
 void
-ServerI::updateImpl()
+ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc)
 {
     assert(_load);
-    _application = _load->getApplication();
-    _desc = _load->getDescriptor();
-    _serverDir = _serversDir + "/" + _desc->id;
+    _application = application;
+    _desc = desc;
 
-    if(_load->clearDir())
+    string user = _load->getDescriptor()->user;
+
+    //
+    // If the node is running as root and the user for the server
+    // isn't specified we'll run the server as user nobody.
+    //
+#ifndef _WIN32
+    uid_t uid = getuid();
+    if(uid == 0 && user.empty())
     {
-	try
-	{
-	    removeRecursive(_serverDir);
-	}
-	catch(const string&)
-	{
-	}
+	user = "nobody";
     }
+#endif
+
+    if(!user.empty())
+    {
+#ifdef _WIN32
+	//
+	// Windows doesn't support running processes under another
+	// account (at least not easily, see the CreateProcessAsUser
+	// documentation). So if a user is specified, we just check
+	// that the node is running under the same user account as the
+	// one which is specified.
+	//	
+	vector<char> buf(256);
+	buf.resize(256);
+	DWORD size = buf.size();
+	bool success = GetUserName(&buf[0], &size);
+	if(!success && GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+	{
+	    buf.resize(size);
+	    success = GetUserName(&buf[0], &size);
+	}
+	if(!success)
+	{
+	    SyscallException ex(__FILE__, __LINE__);
+	    ex.error = getSystemErrno();
+	    throw ex;
+	}
+	if(user != string(&buf[0]))
+	{
+	    throw "can't deploy `" + _id + "' under user account `" + user + "'";
+	}
+#else
+	//
+	// Get the uid/gid associated with the given user.
+	//
+	struct passwd* pw = getpwnam(user.c_str());
+	if(!pw)
+	{
+	    throw "can't deploy `" + _id + "' on node `" + _node->getName() + "': unknown user `" + user + "'";
+	}
+
+	//
+	// If the node isn't running as root and if the uid of the
+	// configured user is different from the uid of the userr
+	// running the node we throw, a regular user can't run a
+	// process as another user.
+	//
+	if(uid != 0 && _uid != uid)
+	{
+	    throw "can't deploy `" + _id + "' under user account `" + user + "': insufficient privileges";
+	}
+
+	_uid = pw->pw_uid;
+	_gid = pw->pw_gid;
+#endif
+    }
+#ifndef _WIN32
+    else
+    {	 
+	//
+	// If no user is specified, we'll run the process as the
+	// current user.
+	//
+	_uid = getuid();
+	assert(_uid != 0);
+	_gid = getgid();
+    }
+#endif
 
     if(_activation != Disabled || _failureTime != IceUtil::Time())
     {
@@ -1450,7 +1632,7 @@ ServerI::updateImpl()
     //
     try
     {
-	Ice::StringSeq contents = readDirectory(_serverDir);
+	Ice::StringSeq contents = IcePatch2::readDirectory(_serverDir);
 	if(find(contents.begin(), contents.end(), "config") == contents.end())
 	{
 	    throw "can't find `config' directory in `" + _serverDir + "'";
@@ -1477,12 +1659,56 @@ ServerI::updateImpl()
     }
 
     //
+    // Create the object adapter objects if necessary.
+    //
+    _processRegistered = false;
+    ServerAdapterDict oldAdapters;
+    oldAdapters.swap(_adapters);
+    AdapterDescriptorSeq::const_iterator r;
+    for(r = _desc->adapters.begin(); r != _desc->adapters.end(); ++r)
+    {
+	if(!r->id.empty())
+	{
+	    oldAdapters.erase(addAdapter(*r, _desc));
+	}
+	_processRegistered |= r->registerProcess;
+    }
+    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(_desc);
+    if(iceBox)
+    {
+	ServiceInstanceDescriptorSeq::const_iterator s;
+	for(s = iceBox->services.begin(); s != iceBox->services.end(); ++s)
+	{
+	    CommunicatorDescriptorPtr svc = s->descriptor;
+	    for(r = svc->adapters.begin(); r != svc->adapters.end(); ++r)
+	    {
+		if(!r->id.empty())
+		{
+		    oldAdapters.erase(addAdapter(*r, svc));
+		}
+		_processRegistered |= r->registerProcess;
+	    }
+	}
+    }
+    for(ServerAdapterDict::const_iterator t = oldAdapters.begin(); t != oldAdapters.end(); ++t)
+    {
+	try
+	{
+	    t->second->destroy();
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    Ice::Error out(_node->getTraceLevels()->logger);
+	    out << "couldn't destroy adapter `" << t->first << "':\n" << ex;
+	}
+    }
+
+    //
     // Update the configuration file(s) of the server if necessary.
     //
     Ice::StringSeq knownFiles;
     updateConfigFile(_serverDir, _desc);
     knownFiles.push_back("config");
-    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(_desc);
     if(iceBox)
     {
 	ServiceInstanceDescriptorSeq::const_iterator p;
@@ -1494,29 +1720,6 @@ ServerI::updateImpl()
     }
     sort(knownFiles.begin(), knownFiles.end());
     
-    //
-    // Remove old configuration files.
-    //
-    Ice::StringSeq files = readDirectory(_serverDir + "/config");
-    Ice::StringSeq toDel;
-    set_difference(files.begin(), files.end(), knownFiles.begin(), knownFiles.end(), back_inserter(toDel));
-    Ice::StringSeq::const_iterator p;
-    for(p = toDel.begin(); p != toDel.end(); ++p)
-    {
-	if(p->find("config_") == 0)
-	{
-	    try
-	    {
-		remove(_serverDir + "/config/" + *p);
-	    }
-	    catch(const string& msg)
-	    {
-		Ice::Warning out(_node->getTraceLevels()->logger);
-		out << "couldn't remove file `" + _serverDir + "/config/" + *p + "':\n" + msg;
-	    }
-	}
-    }
-
     //
     // Update the database environments if necessary.
     //
@@ -1542,16 +1745,39 @@ ServerI::updateImpl()
     sort(knownDbEnvs.begin(), knownDbEnvs.end());
 
     //
+    // Remove old configuration files.
+    //
+    Ice::StringSeq files = IcePatch2::readDirectory(_serverDir + "/config");
+    Ice::StringSeq toDel;
+    set_difference(files.begin(), files.end(), knownFiles.begin(), knownFiles.end(), back_inserter(toDel));
+    Ice::StringSeq::const_iterator p;
+    for(p = toDel.begin(); p != toDel.end(); ++p)
+    {
+	if(p->find("config_") == 0)
+	{
+	    try
+	    {
+		IcePatch2::remove(_serverDir + "/config/" + *p);
+	    }
+	    catch(const string& msg)
+	    {
+		Ice::Warning out(_node->getTraceLevels()->logger);
+		out << "couldn't remove file `" + _serverDir + "/config/" + *p + "':\n" + msg;
+	    }
+	}
+    }
+
+    //
     // Remove old database environments.
     //
-    Ice::StringSeq dbEnvs = readDirectory(_serverDir + "/dbs");
+    Ice::StringSeq dbEnvs = IcePatch2::readDirectory(_serverDir + "/dbs");
     toDel.clear();
     set_difference(dbEnvs.begin(), dbEnvs.end(), knownDbEnvs.begin(), knownDbEnvs.end(), back_inserter(toDel));
     for(p = toDel.begin(); p != toDel.end(); ++p)
     {
 	try
 	{
-	    removeRecursive(_serverDir + "/dbs/" + *p);
+	    IcePatch2::removeRecursive(_serverDir + "/dbs/" + *p);
 	}
 	catch(const string& msg)
 	{
@@ -1559,49 +1785,6 @@ ServerI::updateImpl()
 	    out << "couldn't remove directory `" + _serverDir + "/dbs/" + *p + "':\n" + msg;
 	}
     }
-
-    //
-    // Create the object adapter objects if necessary.
-    //
-    _processRegistered = false;
-    ServerAdapterDict oldAdapters;
-    oldAdapters.swap(_adapters);
-    AdapterDescriptorSeq::const_iterator r;
-    for(r = _desc->adapters.begin(); r != _desc->adapters.end(); ++r)
-    {
-	if(!r->id.empty())
-	{
-	    oldAdapters.erase(addAdapter(*r, _desc));
-	}
-	_processRegistered |= r->registerProcess;
-    }
-    if(iceBox)
-    {
-	ServiceInstanceDescriptorSeq::const_iterator s;
-	for(s = iceBox->services.begin(); s != iceBox->services.end(); ++s)
-	{
-	    CommunicatorDescriptorPtr svc = s->descriptor;
-	    for(r = svc->adapters.begin(); r != svc->adapters.end(); ++r)
-	    {
-		if(!r->id.empty())
-		{
-		    oldAdapters.erase(addAdapter(*r, svc));
-		}
-		_processRegistered |= r->registerProcess;
-	    }
-	}
-    }
-    for(ServerAdapterDict::const_iterator t = oldAdapters.begin(); t != oldAdapters.end(); ++t)
-    {
-	try
-	{
-	    t->second->destroy();
-	}
-	catch(const Ice::LocalException&)
-	{
-	}
-    }
-
 }
 
 void
@@ -2028,9 +2211,7 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
     configfile.open(configFilePath.c_str(), ios::out);
     if(!configfile)
     {
-	DeploymentException ex;
-	ex.reason = "couldn't create configuration file: " + configFilePath;
-	throw ex;
+	throw "couldn't create configuration file: " + configFilePath;
     }
     for(PropertyDescriptorSeq::const_iterator r = props.begin(); r != props.end(); ++r)
     {
@@ -2044,6 +2225,13 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
 	}
     }
     configfile.close();
+
+#ifndef _WIN32
+    if(chown(configFilePath.c_str(), _uid, _gid) != 0)
+    {
+	throw "can't set permissions on file `" + configFilePath + "'";
+    }
+#endif
 }
 
 void
@@ -2053,40 +2241,40 @@ ServerI::updateDbEnv(const string& serverDir, const DbEnvDescriptor& dbEnv)
     if(dbEnvHome.empty())
     {
 	dbEnvHome = serverDir + "/dbs/" + dbEnv.name;
-	try
-	{
-	    IcePatch2::createDirectory(dbEnvHome);
-	}
-	catch(const string&)
-	{
-	}
+	createDirectory(dbEnvHome);
     }
 
-    //
-    // TODO: only write the configuration file if necessary.
-    //
-
-    string file = dbEnvHome + "/DB_CONFIG";
-    ofstream configfile;
-    configfile.open(file.c_str(), ios::out);
-    if(!configfile)
+    if(!dbEnv.properties.empty())
     {
-	throw DeploymentException("couldn't create configuration file: " + file);
-    }
-
-    for(PropertyDescriptorSeq::const_iterator p = dbEnv.properties.begin(); p != dbEnv.properties.end(); ++p)
-    {
-	if(!p->name.empty())
+	string file = dbEnvHome + "/DB_CONFIG";
+	ofstream configfile;
+	configfile.open(file.c_str(), ios::out);
+	if(!configfile)
 	{
-	    configfile << p->name;
-	    if(!p->value.empty())
+	    throw "couldn't create configuration file `" + file + "'";
+	}
+	
+	for(PropertyDescriptorSeq::const_iterator p = dbEnv.properties.begin(); p != dbEnv.properties.end(); ++p)
+	{
+	    if(!p->name.empty())
 	    {
-		configfile << " " << p->value;
+		configfile << p->name;
+		if(!p->value.empty())
+		{
+		    configfile << " " << p->value;
+		}
+		configfile << endl;
 	    }
-	    configfile << endl;
 	}
+	configfile.close();
+	
+#ifndef _WIN32
+	if(chown(file.c_str(), _uid, _gid) != 0)
+	{
+	    throw "can't set permissions on file `" + file + "'";
+	}
+#endif
     }
-    configfile.close();
 }
 
 PropertyDescriptor
@@ -2096,6 +2284,18 @@ ServerI::createProperty(const string& name, const string& value)
     prop.name = name;
     prop.value = value;
     return prop;
+}
+
+void
+ServerI::createDirectory(const string& dir)
+{
+    IcePatch2::createDirectory(dir);    
+#ifndef _WIN32
+    if(chown(dir.c_str(), _uid, _gid) != 0)
+    {
+	throw "can't set permissions on directory `" + dir + "'";
+    }    
+#endif
 }
 
 ServerState
@@ -2130,6 +2330,10 @@ ServerI::ServerActivation
 ServerI::toServerActivation(const string& activation) const
 {
     if(activation == "on-demand")
+    {
+	return OnDemand;
+    }
+    else if(activation == "session")
     {
 	return OnDemand;
     }

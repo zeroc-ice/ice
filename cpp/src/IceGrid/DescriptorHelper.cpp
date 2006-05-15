@@ -1073,7 +1073,10 @@ ServerHelper::instantiateImpl(const ServerDescriptorPtr& instance,
     instance->allocatable = _desc->allocatable;
     instance->user = resolve(_desc->user, "user");
     if(!instance->activation.empty() && 
-       instance->activation != "manual" && instance->activation != "on-demand" && instance->activation != "always")
+       instance->activation != "manual" &&
+       instance->activation != "on-demand" &&
+       instance->activation != "always" &&
+       instance->activation != "session")
     {
 	resolve.exception("unknown activation `" + instance->activation + "'");
     }

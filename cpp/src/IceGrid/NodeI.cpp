@@ -839,11 +839,11 @@ NodeI::initObserver(const Ice::StringSeq& servers)
 }
 
 void
-NodeI::patch(const FileServerPrx& icepatch, const string& destination, const vector<string>& directories)
+NodeI::patch(const FileServerPrx& icepatch, const string& dest, const vector<string>& directories)
 {
-    PatcherFeedbackPtr feedback = new LogPatcherFeedback(_traceLevels, destination);
-    IcePatch2::createDirectory(_dataDir + "/" + destination);
-    PatcherPtr patcher = new Patcher(icepatch, feedback, _dataDir + "/" + destination, false, 100, 1);
+    PatcherFeedbackPtr feedback = new LogPatcherFeedback(_traceLevels, dest);
+    IcePatch2::createDirectory(_dataDir + "/" + dest);
+    PatcherPtr patcher = new Patcher(icepatch, feedback, _dataDir + "/" + dest, false, 100, 1);
     bool aborted = !patcher->prepare();
     if(!aborted)
     {
@@ -868,6 +868,11 @@ NodeI::patch(const FileServerPrx& icepatch, const string& destination, const vec
     {
 	patcher->finish();
     }
+
+    //
+    // Update the files owner/group
+    //    
+    
 }
 
 void

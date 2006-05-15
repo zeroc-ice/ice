@@ -16,6 +16,10 @@
 #include <IceGrid/WaitQueue.h>
 #include <IceGrid/Internal.h>
 
+#ifndef _WIN32
+#   include <sys/types.h> // for uid_t, gid_t
+#endif
+
 namespace IceGrid
 {
 
@@ -106,7 +110,7 @@ public:
 
 private:
     
-    void updateImpl();
+    void updateImpl(const std::string&, const ServerDescriptorPtr&);
     void checkActivation();
     void checkDestroyed();
     void disableOnFailure();
@@ -120,6 +124,7 @@ private:
     void updateConfigFile(const std::string&, const CommunicatorDescriptorPtr&);
     void updateDbEnv(const std::string&, const DbEnvDescriptor&);
     PropertyDescriptor createProperty(const std::string&, const std::string& = std::string());
+    void createDirectory(const std::string&);
     ServerState toServerState(InternalServerState) const;
     ServerActivation toServerActivation(const std::string&) const;
     ServerDynamicInfo getDynamicInfo() const;
@@ -128,12 +133,15 @@ private:
     const ServerPrx _this;
     const std::string _id;
     const Ice::Int _waitTime;
-    const std::string _serversDir;
+    const std::string _serverDir;
     const int _disableOnFailure;
 
-    std::string _serverDir;
     std::string _application;
     ServerDescriptorPtr _desc;
+#ifndef _WIN32
+    uid_t _uid;
+    gid_t _gid;
+#endif
     InternalServerState _state;
     ServerActivation _activation;
     int _activationTimeout;
