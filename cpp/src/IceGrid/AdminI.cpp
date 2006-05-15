@@ -59,6 +59,10 @@ public:
 	{
 	    ex.ice_throw();
 	}
+	catch(const Ice::UserException&)
+	{
+	    throw;
+	}
 	catch(const Ice::ObjectNotExistException&)
 	{
 	    throw ServerNotExistException(_id);
@@ -452,10 +456,6 @@ AdminI::startServer(const string& id, const Current&)
     try
     {
 	proxy->start();
-    }
-    catch(const ServerStartException&)
-    {
-	throw;
     }
     catch(const Ice::Exception& ex)
     {

@@ -393,9 +393,12 @@ interface Admin
      * @throws NodeUnreachableException Raised if the node could not be
      * reached.
      *
+     * @throws DeploymentException Raised if the server couldn't be
+     * deployed on the node.
+     *
      **/
     nonmutating ServerState getServerState(string id)
-	throws ServerNotExistException, NodeUnreachableException;
+	throws ServerNotExistException, NodeUnreachableException, DeploymentException;
     
     /**
      *
@@ -411,9 +414,12 @@ interface Admin
      * @throws NodeUnreachableException Raised if the node could not be
      * reached.
      *
+     * @throws DeploymentException Raised if the server couldn't be
+     * deployed on the node.
+     *
      **/
     nonmutating int getServerPid(string id)
-	throws ServerNotExistException, NodeUnreachableException;
+	throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
     /**
      *
@@ -431,9 +437,12 @@ interface Admin
      * @throws NodeUnreachableException Raised if the node could not
      * be reached.
      *
+     * @throws DeploymentException Raised if the server couldn't be
+     * deployed on the node.
+     *
      **/
     ["ami"] idempotent void enableServer(string id, bool enabled)
-	throws ServerNotExistException, NodeUnreachableException;
+	throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
     /**
      *
@@ -447,9 +456,12 @@ interface Admin
      * @throws NodeUnreachableException Raised if the node could not
      * be reached.
      * 
+     * @throws DeploymentException Raised if the server couldn't be
+     * deployed on the node.
+     *
      **/
     nonmutating bool isServerEnabled(string id)
-	throws ServerNotExistException, NodeUnreachableException;
+	throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
     /**
      *
@@ -466,9 +478,12 @@ interface Admin
      * @throws NodeUnreachableException Raised if the node could not be
      * reached.
      *
+     * @throws DeploymentException Raised if the server couldn't be
+     * deployed on the node.
+     *
      **/
     ["ami"] void startServer(string id)
-	throws ServerNotExistException, ServerStartException, NodeUnreachableException;
+	throws ServerNotExistException, ServerStartException, NodeUnreachableException, DeploymentException;
 
     /**
      *
@@ -482,9 +497,12 @@ interface Admin
      * @throws NodeUnreachableException Raised if the node could not be
      * reached.
      *
+     * @throws DeploymentException Raised if the server couldn't be
+     * deployed on the node.
+     *
      **/
     ["ami"] void stopServer(string id)
-	throws ServerNotExistException, NodeUnreachableException;
+	throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
     /**
      *
@@ -501,11 +519,14 @@ interface Admin
      * @throws NodeUnreachableException Raised if the node could not be
      * reached.
      *
+     * @throws DeploymentException Raised if the server couldn't be
+     * deployed on the node.
+     *
      * @throws PatchException Raised if the patch failed.
      *
      **/
     ["ami", "amd"] void patchServer(string id, bool shutdown)
-	throws ServerNotExistException, NodeUnreachableException, PatchException;
+	throws ServerNotExistException, NodeUnreachableException, DeploymentException, PatchException;
 
     /**
      *
@@ -521,12 +542,15 @@ interface Admin
      * @throws NodeUnreachableException Raised if the node could not be
      * reached.
      *
+     * @throws DeploymentException Raised if the server couldn't be
+     * deployed on the node.
+     *
      * @throws BadSignalException Raised if the signal is not recognized 
      * by the target server.
      *
      **/
     void sendSignal(string id, string signal)
-	throws ServerNotExistException, NodeUnreachableException, BadSignalException;
+	throws ServerNotExistException, NodeUnreachableException, DeploymentException, BadSignalException;
 
     /**
      *
@@ -544,9 +568,12 @@ interface Admin
      * @throws NodeUnreachableException Raised if the node could not be
      * reached.
      *
+     * @throws DeploymentException Raised if the server couldn't be
+     * deployed on the node.
+     *
      **/
     void writeMessage(string id, string message, int fd)
-	throws ServerNotExistException, NodeUnreachableException;
+	throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
     /**
      *

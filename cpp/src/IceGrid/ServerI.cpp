@@ -1523,7 +1523,12 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc)
     _application = application;
     _desc = desc;
 
-    string user = _load->getDescriptor()->user;
+    if(!_desc)
+    {
+	return;
+    }
+
+    string user = _desc->user;
 
     //
     // If the node is running as root and the user for the server
@@ -1564,7 +1569,7 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc)
 	}
 	if(user != string(&buf[0]))
 	{
-	    throw "can't deploy `" + _id + "' under user account `" + user + "'";
+	    throw "couldn't load server under user account `" + user + "': feature not supported on Windows";
 	}
 #else
 	//
@@ -1573,7 +1578,7 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc)
 	struct passwd* pw = getpwnam(user.c_str());
 	if(!pw)
 	{
-	    throw "can't deploy `" + _id + "' on node `" + _node->getName() + "': unknown user `" + user + "'";
+	    throw "unknown user `" + user + "'";
 	}
 
 	//
@@ -1582,9 +1587,9 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc)
 	// running the node we throw, a regular user can't run a
 	// process as another user.
 	//
-	if(uid != 0 && _uid != uid)
+	if(uid != 0 && pw->pw_uid != uid)
 	{
-	    throw "can't deploy `" + _id + "' under user account `" + user + "': insufficient privileges";
+	    throw "node has insufficient privileges to load server under user account `" + user + "'";
 	}
 
 	_uid = pw->pw_uid;

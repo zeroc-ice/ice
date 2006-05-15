@@ -65,12 +65,10 @@ public:
 		Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
 		out << "couldn't load `" << _id << "' on node `" << _node << "':\n" << ex.reason;
 	    }
-	    
-	    Ice::Warning out(_traceLevels->logger);
-	    out << "failed to load `" + _id + "' on node `" << _node << "':\n" << ex << "\nreason: " << ex.reason;
+
 	    ostringstream os;
-	    os << ex << "\nreason: " << ex.reason;
-	    _server->exception(NodeUnreachableException(_node, os.str()));
+	    os << "couldn't load `" << _id << "' on node `" << _node << "':\n" << ex.reason;
+	    _server->exception(DeploymentException(os.str()));
 	}
 	catch(const Ice::Exception& ex)
 	{

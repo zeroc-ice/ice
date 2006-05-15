@@ -227,7 +227,7 @@ NodeI::loadServer_async(const AMD_Node_loadServerPtr& amdCB,
     }
     else
     {
-	if(server->getDescriptor()->applicationDistrib)
+	if(server->getDescriptor() && server->getDescriptor()->applicationDistrib)
 	{
 	    removeServer(server);
 	}
