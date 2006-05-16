@@ -2360,7 +2360,18 @@ Slice::Gen::ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& p)
     }
     upcall += ")";
 
+    C.zeroIndent();
+    C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug";
+    C.restoreIndent();
     C << nl << fixKwd(p->name()) << upcall;
+    C.zeroIndent();
+    C << nl << "#else";
+    C.restoreIndent();
+    C << nl << fixKwd(p->scoped()) << upcall;
+    C.zeroIndent();
+    C << nl << "#endif";
+    C << nl;
+    C.restoreIndent();
 
     return true;
 }
