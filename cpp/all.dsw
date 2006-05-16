@@ -626,6 +626,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name glaciersslS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name converterC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name converterS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -949,6 +955,48 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name iceutil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "converterC"=.\demo\Ice\converter\converterC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2cpp
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "converterS"=.\demo\Ice\converter\converterS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2cpp
     End Project Dependency
 }}}
 

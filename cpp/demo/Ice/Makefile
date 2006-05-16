@@ -20,7 +20,8 @@ SUBDIRS		= minimal \
 		  nested \
 		  invoke \
 		  bidir \
-		  session
+		  session \
+		  converter
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
