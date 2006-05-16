@@ -1,0 +1,12 @@
+This demo illustrates how to implement and use string converters
+with Ice. In this demo the client represents an application that
+uses ISO-Latin-1 as it's character set and the server, an application
+that just uses plain UTF-8.
+
+To run the demo, first start the server:
+
+$ server
+
+In a separate window, start the client:
+
+$ client
