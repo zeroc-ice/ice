@@ -97,6 +97,10 @@ SOURCE=.\Client.cpp
 
 SOURCE=.\Hello.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\StringConverterI.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -104,6 +108,10 @@ SOURCE=.\Hello.cpp
 # Begin Source File
 
 SOURCE=.\Hello.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\StringConverterI.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
