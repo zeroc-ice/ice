@@ -1640,27 +1640,19 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc)
     if(_desc->activation != "session" || !_sessionId.empty())
     {
 	user = _desc->user;
-
-	uid_t uid = getuid();
-
-	//
-	// If no user is configured and if this server is owned by a
-	// session we set the user to session id if the node is run as
-	// root.
-	//
-	if(user.empty() && !_sessionId.empty())
-	{
-	    user = _sessionId;
-	}
-
 #ifndef _WIN32
 	//
-	// If the node is running as root and we still don't have a user
-	// to run the server, we use "nobody".
+	// Check if the node is running as root, if that's the case we
+	// make sure that a user is set for the process.
 	//
-	if(uid == 0 && user.empty())
+	if(getuid() == 0 && user.empty())
 	{
-	    user = "nobody";
+	    //
+	    // If no user is configured and if this server is owned by
+	    // a session we set the user to the session id, otherwise
+	    // we set it to "nobody".
+	    //
+	    user = !_sessionId.empty() ? _sessionId : "nobody";
 	}
 #endif
     }
@@ -1668,7 +1660,7 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc)
     if(!user.empty())
     {
 	//
-	// TODO: XXX: Map the user id.
+	// TODO: XXX: Map the user id here!?
 	//
 
 #ifdef _WIN32

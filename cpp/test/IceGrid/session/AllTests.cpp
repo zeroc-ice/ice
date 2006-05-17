@@ -239,7 +239,7 @@ public:
 private:
 
     void
-    updated(int serial = -1, const string& update)
+    updated(int serial, const string& update)
     {
 	_stack.push_back(update);
 	if(serial != -1)
