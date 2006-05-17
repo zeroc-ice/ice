@@ -373,11 +373,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    session1->allocateObjectById(communicator->stringToIdentity("nonallocatable"));
 	    test(false);
 	}
-<<<<<<< AllTests.cpp
-	catch(const NotAllocatableException&)
-=======
-	catch(const AllocationException& ex)
->>>>>>> 1.9
+	catch(const AllocationException&)
 	{
 	}
 	try
@@ -385,11 +381,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    session2->allocateObjectById(communicator->stringToIdentity("nonallocatable"));
 	    test(false);
 	}
-<<<<<<< AllTests.cpp
-	catch(const NotAllocatableException&)
-=======
-	catch(const AllocationException& ex)
->>>>>>> 1.9
+	catch(const AllocationException&)
 	{
 	}
 	try
@@ -397,11 +389,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    session1->releaseObject(communicator->stringToIdentity("nonallocatable"));
 	    test(false);
 	}
-<<<<<<< AllTests.cpp
-	catch(const NotAllocatableException&)
-=======
-	catch(const AllocationException& ex)
->>>>>>> 1.9
+	catch(const AllocationException&)
 	{
 	}
 	try
@@ -409,11 +397,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    session2->releaseObject(communicator->stringToIdentity("nonallocatable"));
 	    test(false);
 	}
-<<<<<<< AllTests.cpp
-	catch(const NotAllocatableException&)
-=======
-	catch(const AllocationException& ex)
->>>>>>> 1.9
+	catch(const AllocationException&)
 	{
 	}
 
