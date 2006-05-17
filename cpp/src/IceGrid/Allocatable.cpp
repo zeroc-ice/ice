@@ -190,6 +190,10 @@ Allocatable::tryAllocate(const AllocationRequestPtr& request, bool fromRelease)
 	return false;
     }
 
+    //
+    // NOTE: We let exceptions go through here! The caller is
+    // responsible for catching it.
+    //
     return allocate(request, true, fromRelease);
 }
 
@@ -265,32 +269,42 @@ Allocatable::release(const SessionIPtr& session, bool fromRelease)
 	    //
 	    if(request && allocatable->allocate(request, true) || !request && allocatable->canTryAllocate())
 	    {
-		IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_allocateMutex);
-		assert(_count);
-		
-		//
-		// Check if there's other requests from the session
-		// waiting to allocate this allocatable.
-		//
-		list<pair<AllocatablePtr, AllocationRequestPtr> >::iterator p = _requests.begin();
-		while(p != _requests.end())
+		while(true)
 		{
-		    if(p->second && p->second->getSession() == _session)
 		    {
-			if(p->second->finish(this, _session))
+			IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_allocateMutex);
+			assert(_count);
+			
+			allocatable = 0;
+			request = 0;
+
+			//
+			// Check if there's other requests from the session
+			// waiting to allocate this allocatable.
+			//
+			list<pair<AllocatablePtr, AllocationRequestPtr> >::iterator p = _requests.begin();
+			while(p != _requests.end())
 			{
-			    ++_count;
+			    if(p->second && p->second->getSession() == _session)
+			    {
+				allocatable = p->first;
+				request = p->second;
+				_requests.erase(p);
+				break;
+			    }
+			    ++p;
+			}			
+			if(!allocatable)
+			{
+			    _releasing = false;
+			    _allocateMutex.notifyAll();
+			    return; // We're done, the allocatable is allocated again!
 			}
-			p = _requests.erase(p);
 		    }
-		    else
-		    {
-			++p;
-		    }
+
+		    assert(allocatable && request);
+		    allocatable->allocate(request, true);
 		}
-		_releasing = false;
-		_allocateMutex.notifyAll();
-		return; // We're done, the allocatable is allocated again!
 	    }
 	}
     }
