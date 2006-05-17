@@ -11,7 +11,8 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= simple
+SUBDIRS		= simple \
+		  session
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
