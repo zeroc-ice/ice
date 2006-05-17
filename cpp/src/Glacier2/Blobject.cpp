@@ -47,6 +47,7 @@ Glacier2::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) 
 			_properties->getPropertyAsInt(serverTraceOverride) :
 			_properties->getPropertyAsInt(clientTraceOverride))
 {
+
     if(_buffered)
     {
 	try
@@ -54,7 +55,7 @@ Glacier2::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) 
 	    IceUtil::Time sleepTime = _reverse ?
 		IceUtil::Time::milliSeconds(_properties->getPropertyAsInt(serverSleepTime)) :
 		IceUtil::Time::milliSeconds(_properties->getPropertyAsInt(clientSleepTime));
-	    
+
 	    const_cast<RequestQueuePtr&>(_requestQueue) = new RequestQueue(sleepTime);
 	    
 	    Int threadStackSize = _properties->getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
@@ -74,7 +75,10 @@ Glacier2::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) 
 		out << "cannot create thread for request queue:\n" << ex;
 	    }
 
-	    _requestQueue->destroy();
+	    if(_requestQueue)
+	    {
+	        _requestQueue->destroy();
+	    }
 	    
 	    throw;
 	}
