@@ -4,7 +4,7 @@
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=customCOL - Win32 Debug Static
+CFG=customCOL - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
@@ -13,14 +13,12 @@ CFG=customCOL - Win32 Debug Static
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "customCOL.mak" CFG="customCOL - Win32 Debug Static"
+!MESSAGE NMAKE /f "customCOL.mak" CFG="customCOL - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
 !MESSAGE "customCOL - Win32 Release" (based on "Win32 (x86) Console Application")
 !MESSAGE "customCOL - Win32 Debug" (based on "Win32 (x86) Console Application")
-!MESSAGE "customCOL - Win32 Debug Static" (based on "Win32 (x86) Console Application")
-!MESSAGE "customCOL - Win32 Release Static" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -80,70 +78,12 @@ LINK32=link.exe
 # ADD LINK32 /nologo /subsystem:console /debug /machine:I386 /out:"collocated.exe" /pdbtype:sept /libpath:"../../../lib" /fixed:no
 # SUBTRACT LINK32 /pdb:none
 
-!ELSEIF  "$(CFG)" == "customCOL - Win32 Debug Static"
-
-# PROP BASE Use_MFC 0
-# PROP BASE Use_Debug_Libraries 1
-# PROP BASE Output_Dir "customCOL___Win32_Debug_Static"
-# PROP BASE Intermediate_Dir "customCOL___Win32_Debug_Static"
-# PROP BASE Ignore_Export_Lib 0
-# PROP BASE Target_Dir ""
-# PROP Use_MFC 0
-# PROP Use_Debug_Libraries 1
-# PROP Output_Dir "DebugStatic"
-# PROP Intermediate_Dir "DebugStatic"
-# PROP Ignore_Export_Lib 0
-# PROP Target_Dir ""
-# ADD BASE CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /I "../../include" /D "_DEBUG" /D "_CONSOLE" /FD /GZ /c
-# SUBTRACT BASE CPP /Fr /YX
-# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /I "../../include" /D "_DEBUG" /D "ICEE_STATIC_LIBS" /D "WIN32_LEAN_AND_MEAN" /D "_CONSOLE" /FD /Zm200 /GZ /c
-# ADD BASE RSC /l 0x409 /d "_DEBUG"
-# ADD RSC /l 0x409 /d "_DEBUG"
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
-LINK32=link.exe
-# ADD BASE LINK32 /nologo /subsystem:console /debug /machine:I386 /out:"collocated.exe" /pdbtype:sept /libpath:"../../../lib"
-# SUBTRACT BASE LINK32 /incremental:no /nodefaultlib
-# ADD LINK32 ws2_32.lib rpcrt4.lib /nologo /subsystem:console /debug /machine:I386 /out:"collocated.exe" /pdbtype:sept /libpath:"../../../lib" /fixed:no
-# SUBTRACT LINK32 /pdb:none
-
-!ELSEIF  "$(CFG)" == "customCOL - Win32 Release Static"
-
-# PROP BASE Use_MFC 0
-# PROP BASE Use_Debug_Libraries 0
-# PROP BASE Output_Dir "customCOL___Win32_Release_Static"
-# PROP BASE Intermediate_Dir "customCOL___Win32_Release_Static"
-# PROP BASE Ignore_Export_Lib 0
-# PROP BASE Target_Dir ""
-# PROP Use_MFC 0
-# PROP Use_Debug_Libraries 0
-# PROP Output_Dir "ReleaseStatic"
-# PROP Intermediate_Dir "ReleaseStatic"
-# PROP Ignore_Export_Lib 0
-# PROP Target_Dir ""
-# ADD BASE CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../../include" /I "../../include" /D "NDEBUG" /D "_CONSOLE" /FD /c
-# SUBTRACT BASE CPP /Fr /YX
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /Zi /O1 /I "." /I "../../../include" /I "../../include" /D "NDEBUG" /D "ICEE_STATIC_LIBS" /D "WIN32_LEAN_AND_MEAN" /D "_CONSOLE" /FD /Zm200 /c
-# ADD BASE RSC /l 0x409 /d "NDEBUG"
-# ADD RSC /l 0x409 /d "NDEBUG"
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
-LINK32=link.exe
-# ADD BASE LINK32 /nologo /subsystem:console /incremental:yes /machine:I386 /out:"collocated.exe" /libpath:"../../../lib"
-# SUBTRACT BASE LINK32 /debug /nodefaultlib
-# ADD LINK32 ws2_32.lib rpcrt4.lib /nologo /subsystem:console /debug /machine:I386 /out:"collocated.exe" /libpath:"../../../lib"
-# SUBTRACT LINK32 /incremental:yes /nodefaultlib
-
 !ENDIF 
 
 # Begin Target
 
 # Name "customCOL - Win32 Release"
 # Name "customCOL - Win32 Debug"
-# Name "customCOL - Win32 Debug Static"
-# Name "customCOL - Win32 Release Static"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -245,36 +185,6 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "customCOL - Win32 Debug Static"
-
-# Begin Custom Build
-InputPath=.\Test.ice
-
-BuildCmds= \
-	..\..\..\bin\slice2cpp.exe -I. --stream Test.ice
-
-"Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "customCOL - Win32 Release Static"
-
-# Begin Custom Build
-InputPath=.\Test.ice
-
-BuildCmds= \
-	..\..\..\bin\slice2cpp.exe -I. --stream Test.ice
-
-"Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
 !ENDIF 
 
 # End Source File
@@ -298,36 +208,6 @@ BuildCmds= \
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "customCOL - Win32 Debug"
-
-# Begin Custom Build
-InputPath=.\Wstring.ice
-
-BuildCmds= \
-	..\..\..\bin\slice2cpp.exe -I. --stream Wstring.ice
-
-"Wstring.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Wstring.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "customCOL - Win32 Debug Static"
-
-# Begin Custom Build
-InputPath=.\Wstring.ice
-
-BuildCmds= \
-	..\..\..\bin\slice2cpp.exe -I. --stream Wstring.ice
-
-"Wstring.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Wstring.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "customCOL - Win32 Release Static"
 
 # Begin Custom Build
 InputPath=.\Wstring.ice

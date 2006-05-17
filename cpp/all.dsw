@@ -632,6 +632,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name converterS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icegridsessiondemoC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icegridsessiondemoS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1895,6 +1901,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name iceutil
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name glacier2
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -2197,6 +2206,54 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name iceutil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "icegridsessiondemoC"=.\demo\IceGrid\session\icegridsessiondemoC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icegrid
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2cpp
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "icegridsessiondemoS"=.\demo\IceGrid\session\icegridsessiondemoS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icegrid
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2cpp
     End Project Dependency
 }}}
 
