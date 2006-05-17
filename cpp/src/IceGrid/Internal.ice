@@ -185,6 +185,7 @@ interface Node
      **/
     ["amd", "ami"] idempotent Server* loadServer(string application, 
 						 ServerDescriptor desc,
+						 string sessionId,
 						 out AdapterPrxDict adapters, 
 						 out int actTimeout, 
 						 out int deactTimeout)

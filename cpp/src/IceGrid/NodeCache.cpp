@@ -10,6 +10,7 @@
 #include <IceUtil/Functional.h>
 #include <Ice/LoggerUtil.h>
 #include <IceGrid/NodeCache.h>
+#include <IceGrid/SessionI.h>
 #include <IceGrid/NodeSessionI.h>
 #include <IceGrid/ServerCache.h>
 #include <IceGrid/DescriptorHelper.h>
@@ -375,30 +376,58 @@ NodeEntry::canRemove()
 }
 
 void
-NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server)
+NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, const SessionIPtr& session)
 {
-    NodePrx node;
-    ServerDescriptorPtr desc;
+    try
     {
-	Lock sync(*this);
-	if(!_session)
+	NodePrx node;
+	ServerDescriptorPtr desc;
 	{
-	    entry->exception(NodeUnreachableException(_name, "the node is not active"));
-	    return;
+	    Lock sync(*this);
+	    if(!_session)
+	    {
+		throw NodeUnreachableException(_name, "the node is not active");
+	    }
+	    node = _session->getNode();
+	    try
+	    {
+		desc = getServerDescriptor(server, session);
+	    }
+	    catch(const DeploymentException&)
+	    {
+		//
+		// We ignore the deployment error for now (which can
+		// only be caused in theory by session variables not
+		// being defined because the server isn't
+		// allocated...)
+		//
+		// TODO: Once we have node-bound & not node-bound
+		// servers, we shouldn't ignore errors anymore
+		// (session servers will only be bound to the node if
+		// they are allocated by a session).
+		//
+		desc = server.descriptor;
+	    }
 	}
-	node = _session->getNode();
-	desc = getServerDescriptor(server);
+	assert(desc);
+	
+	if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 2)
+	{
+	    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
+	    out << "loading `" << desc->id << "' on node `" << _name << "'";
+	    if(session)
+	    {
+		out << " for session `" << session->getUserId() << "'";
+	    }
+	}
+	
+	AMI_Node_loadServerPtr amiCB = new LoadCB(_cache.getTraceLevels(), entry, entry->getId(), _name);
+	node->loadServer_async(amiCB, server.application, desc, session ? session->getUserId() : "");
     }
-    assert(desc);
-
-    if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 2)
+    catch(const NodeUnreachableException& ex)
     {
-	Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
-	out << "loading `" << desc->id << "' on node `" << _name << "'";	
+	entry->exception(ex);
     }
-
-    AMI_Node_loadServerPtr amiCB = new LoadCB(_cache.getTraceLevels(), entry, desc->id, _name);
-    node->loadServer_async(amiCB, server.application, desc);
 }
 
 void
@@ -417,12 +446,11 @@ NodeEntry::destroyServer(const ServerEntryPtr& entry, const string& id)
     catch(const NodeUnreachableException& ex)
     {
 	entry->exception(ex);
-	return;
     }
 }
 
 ServerInfo
-NodeEntry::getServerInfo(const ServerInfo& server)
+NodeEntry::getServerInfo(const ServerInfo& server, const SessionIPtr& session)
 {
     Lock sync(*this);
     if(!_session)
@@ -430,45 +458,41 @@ NodeEntry::getServerInfo(const ServerInfo& server)
 	throw NodeUnreachableException(_name, "the node is not active");
     }
     ServerInfo info = server;
-    info.descriptor = getServerDescriptor(server);
+    info.descriptor = getServerDescriptor(server, session);
     assert(info.descriptor);
     return info;
 }
 
 ServerDescriptorPtr
-NodeEntry::getServerDescriptor(const ServerInfo& server)
+NodeEntry::getServerDescriptor(const ServerInfo& server, const SessionIPtr& session)
 {
     assert(_session);
-    try
-    {
-	NodeInfo info = _session->getInfo();
 
-	Resolver resolve("server `" + server.descriptor->id + "'", map<string, string>());
-	resolve.setReserved("application", server.application);
-	resolve.setReserved("node", server.node);
-	resolve.setReserved("server", server.descriptor->id);
-	resolve.setReserved("node.os", info.os);
-	resolve.setReserved("node.hostname", info.hostname);
-	resolve.setReserved("node.release", info.release);
-	resolve.setReserved("node.version", info.version);
-	resolve.setReserved("node.machine", info.machine);
-	resolve.setReserved("node.datadir", info.dataDir);
-	
-	IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(server.descriptor);
-	if(iceBox)
-	{
-	    return IceBoxHelper(_cache.getCommunicator(), iceBox).instantiate(resolve, PropertySetDescriptor());
-	}
-	else
-	{
-	    return ServerHelper(_cache.getCommunicator(), server.descriptor).instantiate(resolve, 
-	    										 PropertySetDescriptor());
-	}
-    }
-    catch(const DeploymentException& ex)
+    NodeInfo info = _session->getInfo();
+    
+    Resolver resolve("server `" + server.descriptor->id + "'", map<string, string>());
+    resolve.setReserved("application", server.application);
+    resolve.setReserved("node", server.node);
+    resolve.setReserved("server", server.descriptor->id);
+    resolve.setReserved("node.os", info.os);
+    resolve.setReserved("node.hostname", info.hostname);
+    resolve.setReserved("node.release", info.release);
+    resolve.setReserved("node.version", info.version);
+    resolve.setReserved("node.machine", info.machine);
+    resolve.setReserved("node.datadir", info.dataDir);
+
+    if(session)
     {
-	Ice::Warning out(_cache.getTraceLevels()->logger);
-	out << "couldn't instantiate `" + server.descriptor->id + "':\n" << ex.reason;
-	return server.descriptor;
+	resolve.setReserved("session.userid", session->getUserId());
+    }
+
+    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(server.descriptor);
+    if(iceBox)
+    {
+	return IceBoxHelper(_cache.getCommunicator(), iceBox).instantiate(resolve, PropertySetDescriptor());
+    }
+    else
+    {
+	return ServerHelper(_cache.getCommunicator(), server.descriptor).instantiate(resolve, PropertySetDescriptor());
     }
 }

@@ -112,7 +112,7 @@ public:
 	{
 	    this->objects.insert(make_pair(r->proxy->ice_getIdentity(), *r));
 	}
-	updated(serial);
+	updated(serial, "init update");
     }
 
     virtual void
@@ -120,7 +120,7 @@ public:
     {
 	Lock sync(*this);
 	this->applications.insert(make_pair(app.name, app));
-	updated(serial);
+	updated(serial, "application added `" + app.name + "'");
     }
 
     virtual void 
@@ -128,7 +128,7 @@ public:
     {
 	Lock sync(*this);
 	this->applications.erase(name);
-	updated(serial);
+	updated(serial, "application removed `" + name + "'");
     }
 
     virtual void 
@@ -143,7 +143,7 @@ public:
 	{
 	    this->applications[desc.name].variables[p->first] = p->second;
 	}
-	updated(serial);
+	updated(serial, "application updated `" + desc.name + "'");
     }
 
     void
@@ -151,7 +151,7 @@ public:
     {
 	Lock sync(*this);
 	this->adapters.insert(make_pair(info.id, info));
-	updated(serial);
+	updated(serial, "adapter added `" + info.id + "'");
     }
 
     void
@@ -159,7 +159,7 @@ public:
     {
 	Lock sync(*this);
 	this->adapters[info.id] = info;
-	updated(serial);
+	updated(serial, "adapter updated `" + info.id + "'");
     }
 
     void
@@ -167,7 +167,7 @@ public:
     {
 	Lock sync(*this);
 	this->adapters.erase(id);
-	updated(serial);
+	updated(serial, "adapter removed `" + id + "'");
     }
 
     void
@@ -175,7 +175,7 @@ public:
     {
 	Lock sync(*this);
 	this->objects.insert(make_pair(info.proxy->ice_getIdentity(), info));
-	updated(serial);
+	updated(serial, "object added `" + info.proxy->ice_toString() + "'");
     }
 
     void
@@ -183,21 +183,26 @@ public:
     {
 	Lock sync(*this);
 	this->objects[info.proxy->ice_getIdentity()] = info;
-	updated(serial);
+	updated(serial, "object updated `" + info.proxy->ice_toString() + "'");
     }
 
     void
-    objectRemoved(int serial, const Ice::Identity& id, const Ice::Current&)
+    objectRemoved(int serial, const Ice::Identity& id, const Ice::Current& current)
     {
 	Lock sync(*this);
 	this->objects.erase(id);
-	updated(serial);
+	updated(serial, "object removed `" + current.adapter->getCommunicator()->identityToString(id) + "'");
     }
 
     void
     waitForUpdate(const char* file, int line)
     {
 	Lock sync(*this);
+
+	ostringstream os;
+	os << "wait for update from line " << line;
+	_stack.push_back(os.str());
+
 	while(!_updated)
 	{
 	    if(!timedWait(IceUtil::Time::seconds(10)))
@@ -209,6 +214,23 @@ public:
 	--_updated;
     }
 
+    void
+    printStack()
+    {
+	Lock sync(*this);
+	vector<string>::const_iterator p = _stack.begin();
+	if(_stack.size() > 10)
+	{
+	    p = _stack.begin() + _stack.size() - 10;
+	}
+	cerr << "Last 10 updates:" << endl;
+	for(; p != _stack.end(); ++p)
+	{
+	    cerr << "  " << *p << endl;
+	}
+	_stack.clear();
+    }
+
     int serial;
     map<string, ApplicationDescriptor> applications;
     map<string, AdapterInfo> adapters;
@@ -217,8 +239,9 @@ public:
 private:
 
     void
-    updated(int serial = -1)
+    updated(int serial = -1, const string& update)
     {
+	_stack.push_back(update);
 	if(serial != -1)
 	{
 	    this->serial = serial;
@@ -228,6 +251,7 @@ private:
     }
 
     int _updated;
+    vector<string> _stack;
 };
 
 class NodeObserverI : public NodeObserver, public IceUtil::Monitor<IceUtil::Mutex>

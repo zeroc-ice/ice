@@ -279,7 +279,7 @@ RegistryI::start(bool nowarn)
 
     Identity sessionMgrId = _communicator->stringToIdentity(instanceName + "/SessionManager");
     ObjectPtr sessionMgr = new ClientSessionManagerI(_database, clientReaper, _waitQueue, sessionTimeout);
-    clientAdapter->add(sessionMgr, sessionMgrId);
+    adminAdapter->add(sessionMgr, sessionMgrId);
 
     Identity adminId = _communicator->stringToIdentity(instanceName + "/Admin");
     adminAdapter->add(new AdminI(_database, this, traceLevels), adminId);
@@ -294,7 +294,7 @@ RegistryI::start(bool nowarn)
     //
     addWellKnownObject(registryAdapter->createProxy(registryId), Registry::ice_staticId());
     addWellKnownObject(clientAdapter->createProxy(queryId), Query::ice_staticId());
-    addWellKnownObject(clientAdapter->createProxy(sessionMgrId), SessionManager::ice_staticId());
+    addWellKnownObject(adminAdapter->createProxy(sessionMgrId), SessionManager::ice_staticId());
     addWellKnownObject(adminAdapter->createProxy(adminId), Admin::ice_staticId());
     addWellKnownObject(adminAdapter->createProxy(admSessionMgrId), SessionManager::ice_staticId());
 

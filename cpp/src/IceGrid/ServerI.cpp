@@ -124,17 +124,24 @@ public:
     }
 
     void
-    setUpdate(const string& application, const ServerDescriptorPtr& desc, bool clearDir)
+    setUpdate(const string& application, const ServerDescriptorPtr& desc, const std::string& sessionId, bool clearDir)
     {
 	_clearDir = clearDir;
 	_application = application;
 	_desc = desc;
+	_sessionId = sessionId;
     }
 
     bool 
     clearDir() const
     {
 	return _clearDir;
+    }
+
+    string
+    sessionId() const
+    {
+	return _sessionId;
     }
 
     string
@@ -179,6 +186,7 @@ private:
     bool _clearDir;
     string _application;
     ServerDescriptorPtr _desc;
+    string _sessionId;
     auto_ptr<DeploymentException> _exception;
 };
 
@@ -566,7 +574,8 @@ ServerI::ServerI(const NodeIPtr& node, const ServerPrx& proxy, const string& ser
     _serverDir(serversDir + "/" + id),
     _disableOnFailure(0),
     _state(ServerI::Inactive),
-    _activation(ServerI::Manual),
+    _activation(ServerI::Disabled),
+    _failureTime(IceUtil::Time::now()), // Ensure that _activation gets initialized in updateImpl().
     _pid(0)
 {
     assert(_node->getActivator());
@@ -656,7 +665,8 @@ ServerI::setEnabled(bool enabled, const ::Ice::Current&)
     bool activate = false;
     {
 	Lock sync(*this);
-	if(enabled && _activation < Disabled || 
+	if(!_desc ||
+	   enabled && _activation != Disabled || 
 	   !enabled && _activation == Disabled && _failureTime == IceUtil::Time())
 	{
 	    return;
@@ -698,7 +708,7 @@ bool
 ServerI::isEnabled(const ::Ice::Current&) const
 {
     Lock sync(*this);
-    return _activation < Disabled;
+    return _activation != Disabled;
 }
 
 void
@@ -717,13 +727,6 @@ ServerI::setProcess_async(const AMD_Server_setProcessPtr& amdCB, const Ice::Proc
     }
 }
 
-ServerDescriptorPtr
-ServerI::getDescriptor() const
-{
-    Lock sync(*this);
-    return _desc;
-}
-
 string
 ServerI::getApplication() const
 {
@@ -731,11 +734,15 @@ ServerI::getApplication() const
     return _application;
 }
 
-ServerI::ServerActivation
-ServerI::getActivationMode() const
+bool
+ServerI::canActivateOnDemand() const
 {
     Lock sync(*this);
-    return (_desc->activation  == "on-demand" || _desc->activation == "session") ? OnDemand : Manual;
+    if(!_desc)
+    {
+	return false;
+    }
+    return _desc->activation  == "on-demand" || (!_sessionId.empty() && _desc->activation == "session");
 }
 
 const string&
@@ -748,7 +755,14 @@ DistributionDescriptor
 ServerI::getDistribution() const
 {
     Lock sync(*this);
-    return _desc->distrib;
+    return _desc ? _desc->distrib : DistributionDescriptor();
+}
+
+bool
+ServerI::hasApplicationDistribution() const
+{
+    Lock sync(*this);
+    return _desc ? _desc->applicationDistrib : false;
 }
 
 void
@@ -814,6 +828,10 @@ ServerI::start(ServerActivation activation, const AMD_Server_startPtr& amdCB)
 	{
 	    throw ServerStartException(_id, "The server activation doesn't allow this activation mode.");
 	}
+	else if(_activation == Session && _sessionId.empty())
+	{
+	    throw ServerStartException(_id, "The server is not owned by a session.");
+	}	
 	else if(_activation != Always && activation == Always)
 	{
 	    assert(!amdCB);
@@ -853,12 +871,14 @@ ServerI::start(ServerActivation activation, const AMD_Server_startPtr& amdCB)
 }
 
 void
-ServerI::load(const AMD_Node_loadServerPtr& amdCB, const string& application, const ServerDescriptorPtr& desc)
+ServerI::load(const AMD_Node_loadServerPtr& amdCB, const string& app, const ServerDescriptorPtr& desc, 
+	      const std::string& sessionId)
 {
     ServerCommandPtr command;
     {
 	Lock sync(*this);
-	if(_desc && descriptorEqual(_node->getCommunicator(), _desc, desc))
+	bool descEqual = _desc && descriptorEqual(_node->getCommunicator(), _desc, desc);
+	if(descEqual && _sessionId == sessionId)
 	{
 	    if(amdCB)
 	    {
@@ -879,7 +899,7 @@ ServerI::load(const AMD_Node_loadServerPtr& amdCB, const string& application, co
 	{
 	    _load = new LoadCommand(this);
 	}
-	_load->setUpdate(application, desc, _destroy);
+	_load->setUpdate(app, descEqual ? ServerDescriptorPtr() : desc, sessionId, _destroy);
 	if(_destroy && _state != Destroying)
 	{
 	    _destroy->finished();
@@ -1130,7 +1150,7 @@ ServerI::activate()
 #endif
     {
 	Lock sync(*this);
-	assert(_state == Activating);
+	assert(_state == Activating && _desc);
 	desc = _desc;
 	adpts = _adapters;
 #ifndef _WIN32
@@ -1257,7 +1277,17 @@ ServerI::deactivate()
 	{
 	    return;
 	}
-	if(_processRegistered && !_process)
+
+	//
+	// If a process object is supposed to be registered and it's
+	// not set yet, we wait for the server to set this process
+	// object before attempting to deactivate the server again.
+	//
+	// NOTE: we only wait if there's no load command. If there's a
+	// load command, the registry is updating the server and the
+	// call to set the process proxy will never make it here.
+	//
+	if(_processRegistered && !_process && !_load)
 	{
 	    setStateNoSync(ServerI::DeactivatingWaitForProcess);
 	    return;
@@ -1434,10 +1464,9 @@ ServerI::update()
 
 	string oldApp = _application;
 	ServerDescriptorPtr oldDesc = _desc;
+	string oldSessionId = _sessionId;
 	try
 	{
-	    assert(_load->getDescriptor()->id == _id);
-
 	    if(_load->clearDir())
 	    {
 		//
@@ -1454,23 +1483,28 @@ ServerI::update()
 		}
 	    }
 
-	    try
+	    _sessionId = _load->sessionId();
+	    
+	    if(_load->getDescriptor())
 	    {
-		updateImpl(_load->getApplication(), _load->getDescriptor());
-	    }
-	    catch(const Ice::Exception& ex)
-	    {
-		ostringstream os;
-		os << ex;
-		throw DeploymentException(os.str());
-	    }
-	    catch(const string& msg)
-	    {
-		throw DeploymentException(msg);
-	    }
-	    catch(const char* msg)
-	    {
-		throw DeploymentException(msg);
+		try
+		{
+		    updateImpl(_load->getApplication(), _load->getDescriptor());
+		}
+		catch(const Ice::Exception& ex)
+		{
+		    ostringstream os;
+		    os << ex;
+		    throw DeploymentException(os.str());
+		}
+		catch(const string& msg)
+		{
+		    throw DeploymentException(msg);
+		}
+		catch(const char* msg)
+		{
+		    throw DeploymentException(msg);
+		}
 	    }
 
 	    AdapterPrxDict adapters;
@@ -1485,6 +1519,7 @@ ServerI::update()
 	    //
 	    // Rollback old descriptor.
 	    //
+	    _sessionId = oldSessionId;
 	    try
 	    {
 		updateImpl(oldApp, oldDesc);
@@ -1520,6 +1555,7 @@ void
 ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc)
 {
     assert(_load);
+
     _application = application;
     _desc = desc;
 
@@ -1528,22 +1564,113 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc)
 	return;
     }
 
-    string user = _desc->user;
+    //
+    // Create the object adapter objects if necessary.
+    //
+    _processRegistered = false;
+    ServerAdapterDict oldAdapters;
+    oldAdapters.swap(_adapters);
+    AdapterDescriptorSeq::const_iterator r;
+    for(r = _desc->adapters.begin(); r != _desc->adapters.end(); ++r)
+    {
+	if(!r->id.empty())
+	{
+	    oldAdapters.erase(addAdapter(*r, _desc));
+	}
+	_processRegistered |= r->registerProcess;
+    }
+    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(_desc);
+    if(iceBox)
+    {
+	ServiceInstanceDescriptorSeq::const_iterator s;
+	for(s = iceBox->services.begin(); s != iceBox->services.end(); ++s)
+	{
+	    CommunicatorDescriptorPtr svc = s->descriptor;
+	    for(r = svc->adapters.begin(); r != svc->adapters.end(); ++r)
+	    {
+		if(!r->id.empty())
+		{
+		    oldAdapters.erase(addAdapter(*r, svc));
+		}
+		_processRegistered |= r->registerProcess;
+	    }
+	}
+    }
 
     //
-    // If the node is running as root and the user for the server
-    // isn't specified we'll run the server as user nobody.
+    // Remove old object adapters.
     //
-#ifndef _WIN32
-    uid_t uid = getuid();
-    if(uid == 0 && user.empty())
+    for(ServerAdapterDict::const_iterator t = oldAdapters.begin(); t != oldAdapters.end(); ++t)
     {
-	user = "nobody";
+	try
+	{
+	    t->second->destroy();
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    Ice::Error out(_node->getTraceLevels()->logger);
+	    out << "couldn't destroy adapter `" << t->first << "':\n" << ex;
+	}
     }
+
+    //
+    // If the server was disabled because it failed (or because it's
+    // the first time it's being updated). Set the activation mode
+    // based on the descriptor activation. Otherwise, if the server is
+    // disabled and failure time isn't set, we don't change the
+    // activation since the user explicitely disabled the server.
+    //
+    if(_activation != Disabled || _failureTime != IceUtil::Time())
+    {
+	_activation = toServerActivation(_desc->activation);
+	_failureTime = IceUtil::Time();
+    }
+
+    if(_timer)
+    {
+	_node->getWaitQueue()->remove(_timer);
+	_timer = 0;
+    }	
+
+    //
+    // Don't change the user if the server has the session activation
+    // mode and if it's not currently owned by a session.
+    //
+    string user;
+    if(_desc->activation != "session" || !_sessionId.empty())
+    {
+	user = _desc->user;
+
+	uid_t uid = getuid();
+
+	//
+	// If no user is configured and if this server is owned by a
+	// session we set the user to session id if the node is run as
+	// root.
+	//
+	if(user.empty() && !_sessionId.empty())
+	{
+	    user = _sessionId;
+	}
+
+#ifndef _WIN32
+	//
+	// If the node is running as root and we still don't have a user
+	// to run the server, we use "nobody".
+	//
+	if(uid == 0 && user.empty())
+	{
+	    user = "nobody";
+	}
 #endif
+    }
 
     if(!user.empty())
     {
+	//
+	// TODO: XXX: Map the user id.
+	//
+
 #ifdef _WIN32
 	//
 	// Windows doesn't support running processes under another
@@ -1587,6 +1714,7 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc)
 	// running the node we throw, a regular user can't run a
 	// process as another user.
 	//
+	uid_t uid = getuid();
 	if(uid != 0 && pw->pw_uid != uid)
 	{
 	    throw "node has insufficient privileges to load server under user account `" + user + "'";
@@ -1609,18 +1737,6 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc)
     }
 #endif
 
-    if(_activation != Disabled || _failureTime != IceUtil::Time())
-    {
-	_activation = toServerActivation(_desc->activation);
-	_failureTime = IceUtil::Time();
-    }
-
-    if(_timer)
-    {
-	_node->getWaitQueue()->remove(_timer);
-	_timer = 0;
-    }
-	
     istringstream at(_desc->activationTimeout);
     if(!(at >> _activationTimeout) || !at.eof() || _activationTimeout == 0)
     {
@@ -1633,80 +1749,12 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc)
     }
 
     //
-    // Make sure the server directories exists.
+    // Create or update the server directories exists.
     //
-    try
-    {
-	Ice::StringSeq contents = IcePatch2::readDirectory(_serverDir);
-	if(find(contents.begin(), contents.end(), "config") == contents.end())
-	{
-	    throw "can't find `config' directory in `" + _serverDir + "'";
-	}
-	if(find(contents.begin(), contents.end(), "dbs") == contents.end())
-	{
-	    throw "can't find `dbs' directory in `" + _serverDir + "'";
-	}
-	if(find(contents.begin(), contents.end(), "ditrib") == contents.end())
-	{
-	    throw "can't find `distrib' directory in `" + _serverDir + "'";
-	}
-    }
-    catch(const string&)
-    {
-	//
-	// TODO: log message?
-	//
-
-	createDirectory(_serverDir);
-	createDirectory(_serverDir + "/config");
-	createDirectory(_serverDir + "/dbs");
-	createDirectory(_serverDir + "/distrib");
-    }
-
-    //
-    // Create the object adapter objects if necessary.
-    //
-    _processRegistered = false;
-    ServerAdapterDict oldAdapters;
-    oldAdapters.swap(_adapters);
-    AdapterDescriptorSeq::const_iterator r;
-    for(r = _desc->adapters.begin(); r != _desc->adapters.end(); ++r)
-    {
-	if(!r->id.empty())
-	{
-	    oldAdapters.erase(addAdapter(*r, _desc));
-	}
-	_processRegistered |= r->registerProcess;
-    }
-    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(_desc);
-    if(iceBox)
-    {
-	ServiceInstanceDescriptorSeq::const_iterator s;
-	for(s = iceBox->services.begin(); s != iceBox->services.end(); ++s)
-	{
-	    CommunicatorDescriptorPtr svc = s->descriptor;
-	    for(r = svc->adapters.begin(); r != svc->adapters.end(); ++r)
-	    {
-		if(!r->id.empty())
-		{
-		    oldAdapters.erase(addAdapter(*r, svc));
-		}
-		_processRegistered |= r->registerProcess;
-	    }
-	}
-    }
-    for(ServerAdapterDict::const_iterator t = oldAdapters.begin(); t != oldAdapters.end(); ++t)
-    {
-	try
-	{
-	    t->second->destroy();
-	}
-	catch(const Ice::LocalException& ex)
-	{
-	    Ice::Error out(_node->getTraceLevels()->logger);
-	    out << "couldn't destroy adapter `" << t->first << "':\n" << ex;
-	}
-    }
+    createOrUpdateDirectory(_serverDir);
+    createOrUpdateDirectory(_serverDir + "/config");
+    createOrUpdateDirectory(_serverDir + "/dbs");
+    createOrUpdateDirectory(_serverDir + "/distrib");
 
     //
     // Update the configuration file(s) of the server if necessary.
@@ -1724,7 +1772,10 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc)
 	}
     }
     sort(knownFiles.begin(), knownFiles.end());
-    
+#ifndef _WIN32
+    chownRecursive(_serverDir + "/config", _uid, _gid);
+#endif
+
     //
     // Update the database environments if necessary.
     //
@@ -1748,6 +1799,9 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc)
 	}
     }
     sort(knownDbEnvs.begin(), knownDbEnvs.end());
+#ifndef _WIN32
+    chownRecursive(_serverDir + "/dbs", _uid, _gid);
+#endif
 
     //
     // Remove old configuration files.
@@ -2120,12 +2174,12 @@ ServerI::addAdapter(const AdapterDescriptor& desc, const CommunicatorDescriptorP
 
     Ice::Identity id;
     id.category = _this->ice_getIdentity().category + "Adapter";
-    id.name = _desc->id + "-" + desc.id;
+    id.name = _id + "-" + desc.id;
     AdapterPrx proxy = AdapterPrx::uncheckedCast(_node->getAdapter()->createProxy(id));
     ServerAdapterIPtr servant = ServerAdapterIPtr::dynamicCast(_node->getAdapter()->find(id));
     if(!servant)
     {
-	servant = new ServerAdapterI(_node, this, _desc->id, proxy, desc.id, _waitTime);
+	servant = new ServerAdapterI(_node, this, _id, proxy, desc.id, _waitTime);
 	_node->getAdapter()->add(servant, id);
     }
     _adapters.insert(make_pair(desc.id, servant));
@@ -2148,7 +2202,10 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
 	// Add server properties.
 	//
 	props.push_back(createProperty("# Server configuration"));
-	props.push_back(createProperty("Ice.ProgramName", svrDesc->id));
+	props.push_back(createProperty("Ice.ServerId", _id));
+	props.push_back(createProperty("Ice.Default.Locator",
+				       _node->getCommunicator()->getProperties()->getProperty("Ice.Default.Locator")));
+	props.push_back(createProperty("Ice.ProgramName", _id));
 	copy(svrDesc->propertySet.properties.begin(), svrDesc->propertySet.properties.end(), back_inserter(props));
 
 	//
@@ -2230,13 +2287,6 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
 	}
     }
     configfile.close();
-
-#ifndef _WIN32
-    if(chown(configFilePath.c_str(), _uid, _gid) != 0)
-    {
-	throw "can't set permissions on file `" + configFilePath + "'";
-    }
-#endif
 }
 
 void
@@ -2246,7 +2296,7 @@ ServerI::updateDbEnv(const string& serverDir, const DbEnvDescriptor& dbEnv)
     if(dbEnvHome.empty())
     {
 	dbEnvHome = serverDir + "/dbs/" + dbEnv.name;
-	createDirectory(dbEnvHome);
+	createOrUpdateDirectory(dbEnvHome);
     }
 
     if(!dbEnv.properties.empty())
@@ -2272,13 +2322,6 @@ ServerI::updateDbEnv(const string& serverDir, const DbEnvDescriptor& dbEnv)
 	    }
 	}
 	configfile.close();
-	
-#ifndef _WIN32
-	if(chown(file.c_str(), _uid, _gid) != 0)
-	{
-	    throw "can't set permissions on file `" + file + "'";
-	}
-#endif
     }
 }
 
@@ -2292,9 +2335,15 @@ ServerI::createProperty(const string& name, const string& value)
 }
 
 void
-ServerI::createDirectory(const string& dir)
+ServerI::createOrUpdateDirectory(const string& dir)
 {
-    IcePatch2::createDirectory(dir);    
+    try
+    {
+	IcePatch2::createDirectory(dir);
+    }
+    catch(const string&)
+    {
+    }
 #ifndef _WIN32
     if(chown(dir.c_str(), _uid, _gid) != 0)
     {
@@ -2340,7 +2389,7 @@ ServerI::toServerActivation(const string& activation) const
     }
     else if(activation == "session")
     {
-	return OnDemand;
+	return Session;
     }
     else if(activation == "always")
     {
@@ -2371,6 +2420,6 @@ ServerI::getDynamicInfo() const
     // be called from the activator locked.
     //
     info.pid = _pid;
-    info.enabled = _activation < Disabled;
+    info.enabled = _activation != Disabled;
     return info;
 }

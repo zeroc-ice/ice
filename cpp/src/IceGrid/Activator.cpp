@@ -421,8 +421,6 @@ Activator::activate(const string& name,
     args.push_back(path);
     args.insert(args.end(), options.begin(), options.end());
     args.insert(args.end(), _propertiesOverride.begin(), _propertiesOverride.end());
-    args.push_back("--Ice.Default.Locator=" + _properties->getProperty("Ice.Default.Locator"));
-    args.push_back("--Ice.ServerId=" + name);
     
     if(_outputDir.size() > 0)
     {

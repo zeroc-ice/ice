@@ -158,10 +158,9 @@ ServerCache::addCommunicator(const CommunicatorDescriptorPtr& comm, const Server
     const string application = server->getApplication();
     for(AdapterDescriptorSeq::const_iterator q = comm->adapters.begin() ; q != comm->adapters.end(); ++q)
     {
-	AllocatablePtr parent = server;
 	if(!q->id.empty())
 	{
-	    parent = _adapterCache.addServerAdapter(q->id, q->replicaGroupId, q->allocatable, server);
+	    _adapterCache.addServerAdapter(q->id, q->replicaGroupId, server);
 	}
 
 	for(ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
@@ -177,7 +176,7 @@ ServerCache::addCommunicator(const CommunicatorDescriptorPtr& comm, const Server
 	    {
 		info.proxy = _communicator->stringToProxy(_communicator->identityToString(r->id) + "@" + q->id);
 	    }
-	    _objectCache.add(info, application, r->allocatable, parent);
+	    _objectCache.add(info, application, r->allocatable, server);
 	}
     }
 }
@@ -212,7 +211,7 @@ ServerEntry::sync()
 {
     try
     {
-	syncImpl(0, true);
+	syncImpl(true);
     }
     catch(const Ice::Exception&)
     {
@@ -249,7 +248,7 @@ ServerEntry::update(const ServerInfo& info)
     //
     // Update the allocatable flag.
     //
-    const_cast<bool&>(_allocatable) = info.descriptor->allocatable;
+    const_cast<bool&>(_allocatable) = info.descriptor->allocatable || info.descriptor->activation == "session";
 }
 
 void
@@ -284,6 +283,7 @@ ServerInfo
 ServerEntry::getServerInfo(bool resolve) const
 {
     ServerInfo info;
+    SessionIPtr session;
     {
 	Lock sync(*this);
 	if(!_loaded.get() && !_load.get())
@@ -291,13 +291,17 @@ ServerEntry::getServerInfo(bool resolve) const
 	    throw ServerNotExistException();
 	}
 	info = _proxy ? *_loaded : *_load;
+	session = _session;
     }
     assert(info.descriptor);
     if(resolve)
     {
 	try
 	{
-	    return _cache.getNodeCache().get(info.node)->getServerInfo(info);
+	    return _cache.getNodeCache().get(info.node)->getServerInfo(info, session);
+	}
+	catch(const DeploymentException&)
+	{
 	}
 	catch(const NodeNotExistException&)
 	{
@@ -344,7 +348,7 @@ ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& 
 
     while(true)
     {
-	syncImpl(0, true);
+	syncImpl(true);
 
 	{
 	    Lock sync(*this);
@@ -403,7 +407,7 @@ ServerEntry::getAdapter(const string& id)
 
     while(true)
     {    
-	syncImpl(0, true);
+	syncImpl(true);
 
 	{
 	    Lock sync(*this);
@@ -493,9 +497,10 @@ ServerEntry::getLoad(LoadSample sample) const
 }
 
 void
-ServerEntry::syncImpl(const SessionIPtr& session, bool waitForUpdate)
+ServerEntry::syncImpl(bool waitForUpdate)
 {
     ServerInfo load;
+    SessionIPtr session;
     ServerInfo destroy;
 
     {
@@ -532,6 +537,7 @@ ServerEntry::syncImpl(const SessionIPtr& session, bool waitForUpdate)
 	else if(_load.get())
 	{
 	    load = *_load;
+	    session = _session;
 	}
 	else
 	{
@@ -556,7 +562,7 @@ ServerEntry::syncImpl(const SessionIPtr& session, bool waitForUpdate)
     {
 	try
 	{
-	    _cache.getNodeCache().get(load.node)->loadServer(this, load);
+	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session);
 	}
 	catch(NodeNotExistException&)
 	{
@@ -582,6 +588,7 @@ void
 ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, int at, int dt)
 {
     ServerInfo load;
+    SessionIPtr session;
     ServerInfo destroy;
     {
 	Lock sync(*this);
@@ -622,6 +629,7 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
 	    else if(_load.get())
 	    {
 		load = *_load;
+		session = _session;
 	    }
 	}
     }
@@ -642,7 +650,7 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
     {
 	try
 	{
-	    _cache.getNodeCache().get(load.node)->loadServer(this, load);
+	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session);
 	}
 	catch(NodeNotExistException&)
 	{
@@ -655,6 +663,7 @@ void
 ServerEntry::destroyCallback()
 {
     ServerInfo load;
+    SessionIPtr session;
     {
 	Lock sync(*this);
 	_destroy.reset(0);
@@ -669,6 +678,7 @@ ServerEntry::destroyCallback()
 	{
 	    _updated = false;
 	    load = *_load;
+	    session = _session;
 	}
     }
 
@@ -676,7 +686,7 @@ ServerEntry::destroyCallback()
     {
 	try
 	{
-	    _cache.getNodeCache().get(load.node)->loadServer(this, load);
+	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session);
 	}
 	catch(NodeNotExistException&)
 	{
@@ -693,6 +703,7 @@ void
 ServerEntry::exception(const Ice::Exception& ex)
 {
     ServerInfo load;
+    SessionIPtr session;
     bool remove = false;
     {
 	Lock sync(*this);
@@ -709,6 +720,7 @@ ServerEntry::exception(const Ice::Exception& ex)
 	    _destroy.reset(0);
 	    _updated = false;
 	    load = *_load.get();
+	    session = _session;
 	}
     }
 
@@ -716,7 +728,7 @@ ServerEntry::exception(const Ice::Exception& ex)
     {
 	try
 	{
-	    _cache.getNodeCache().get(load.node)->loadServer(this, load);
+	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session);
 	}
 	catch(NodeNotExistException&)
 	{
@@ -754,25 +766,39 @@ ServerEntry::allocated(const SessionIPtr& session)
 	out << "server `" << _id << "' allocated by `" << session->getUserId() << "' (" << _count << ")";
     }
 
-//     try
-//     {
-// 	syncImpl(session, false);
-//     }
-//     catch(const Ice::Exception&)
-//     {
-//     }
+    {
+	Lock sync(*this);
+	if(_loaded.get() || _load.get())
+	{
+	    _updated = true;
+	    if(!_load.get())
+	    {
+		_load = _loaded;
+	    }
+	    _proxy = 0;
+	    _adapters.clear();
+	    _session = session;
+	}
+    }
 }
 
 void
 ServerEntry::released(const SessionIPtr& session)
 {
-//     try
-//     {
-// 	syncImpl(0, false);
-//     }
-//     catch(const Ice::Exception&)
-//     {
-//     }
+    {
+	Lock sync(*this);
+	if(_loaded.get() || _load.get())
+	{
+	    _updated = true;
+	    if(!_load.get())
+	    {
+		_load = _loaded;
+	    }
+	    _proxy = 0;
+	    _adapters.clear();
+	    _session = 0;
+	}
+    }
 
     TraceLevelsPtr traceLevels = _cache.getTraceLevels();
     if(traceLevels && traceLevels->server > 1)
@@ -780,5 +806,7 @@ ServerEntry::released(const SessionIPtr& session)
 	Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
 	out << "server `" << _id << "' released by `" << session->getUserId() << "' (" << _count << ")";
     }    
+
+    syncImpl(false); // We sync here to ensure the server will be shutdown.
 }
 

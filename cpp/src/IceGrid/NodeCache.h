@@ -20,6 +20,9 @@ namespace IceGrid
 
 class NodeCache;
 
+class SessionI;
+typedef IceUtil::Handle<SessionI> SessionIPtr;
+
 class NodeSessionI;
 typedef IceUtil::Handle<NodeSessionI> NodeSessionIPtr;
 
@@ -46,13 +49,13 @@ public:
 
     bool canRemove();
     
-    void loadServer(const ServerEntryPtr&, const ServerInfo&);
+    void loadServer(const ServerEntryPtr&, const ServerInfo&, const SessionIPtr&);
     void destroyServer(const ServerEntryPtr&, const std::string&);
-    ServerInfo getServerInfo(const ServerInfo&);
+    ServerInfo getServerInfo(const ServerInfo&, const SessionIPtr&);
 
 private:
     
-    ServerDescriptorPtr getServerDescriptor(const ServerInfo&);
+    ServerDescriptorPtr getServerDescriptor(const ServerInfo&, const SessionIPtr&);
 
     NodeCache& _cache;
     const std::string _name;

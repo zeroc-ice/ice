@@ -206,6 +206,7 @@ void
 NodeI::loadServer_async(const AMD_Node_loadServerPtr& amdCB,
 			const string& application,
 			const ServerDescriptorPtr& desc,
+			const string& sessionId,
 			const Ice::Current& current)
 {
     Lock sync(*this);
@@ -227,7 +228,7 @@ NodeI::loadServer_async(const AMD_Node_loadServerPtr& amdCB,
     }
     else
     {
-	if(server->getDescriptor() && server->getDescriptor()->applicationDistrib)
+	if(server->hasApplicationDistribution())
 	{
 	    removeServer(server);
 	}
@@ -241,16 +242,16 @@ NodeI::loadServer_async(const AMD_Node_loadServerPtr& amdCB,
     //
     // Update the server with the new descriptor information.
     //
-    server->load(amdCB, application, desc);
+    server->load(amdCB, application, desc, sessionId);
 }
 
 void
-NodeI::destroyServer_async(const AMD_Node_destroyServerPtr& amdCB, const string& name, const Ice::Current& current)
+NodeI::destroyServer_async(const AMD_Node_destroyServerPtr& amdCB, const string& serverId, const Ice::Current& current)
 {
     Lock sync(*this);
     ++_serial;
 
-    Ice::Identity id = createServerIdentity(name);
+    Ice::Identity id = createServerIdentity(serverId);
     ServerIPtr server = ServerIPtr::dynamicCast(_adapter->find(id));
     if(server)
     {
@@ -267,7 +268,7 @@ NodeI::destroyServer_async(const AMD_Node_destroyServerPtr& amdCB, const string&
 	//
 	try
 	{
-	    removeRecursive(_serversDir + "/" + name);
+	    removeRecursive(_serversDir + "/" + serverId);
 	}
 	catch(const string&)
 	{

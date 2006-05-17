@@ -15,7 +15,6 @@
 #include <IceGrid/Cache.h>
 #include <IceGrid/Query.h>
 #include <IceGrid/Internal.h>
-#include <IceGrid/Allocatable.h>
 
 namespace IceGrid
 {
@@ -49,11 +48,11 @@ protected:
 };
 typedef IceUtil::Handle<AdapterEntry> AdapterEntryPtr;
 
-class ServerAdapterEntry : public AdapterEntry, public Allocatable
+class ServerAdapterEntry : public AdapterEntry
 {
 public:
 
-    ServerAdapterEntry(AdapterCache&, const std::string&, const std::string&, bool, const ServerEntryPtr&);
+    ServerAdapterEntry(AdapterCache&, const std::string&, const std::string&, const ServerEntryPtr&);
 
     virtual std::vector<std::pair<std::string, AdapterPrx> > getProxies(int&);
     virtual float getLeastLoadedNodeLoad(LoadSample) const;
@@ -62,9 +61,6 @@ public:
     virtual const std::string& getReplicaGroupId() const { return _replicaGroupId; }
 
     AdapterPrx getProxy(const std::string& = std::string()) const;
-
-    virtual void allocated(const SessionIPtr&);
-    virtual void released(const SessionIPtr&);
 
 private:
     
@@ -111,7 +107,7 @@ class AdapterCache : public CacheByString<AdapterEntry>
 {
 public:
 
-    ServerAdapterEntryPtr addServerAdapter(const std::string&, const std::string&, bool, const ServerEntryPtr&);
+    ServerAdapterEntryPtr addServerAdapter(const std::string&, const std::string&, const ServerEntryPtr&);
     ReplicaGroupEntryPtr addReplicaGroup(const std::string&, const std::string&, const LoadBalancingPolicyPtr&);
 
     AdapterEntryPtr get(const std::string&) const;

@@ -14,16 +14,6 @@
       </server>
 
 
-      <server id="AdapterAllocation" exe="${test.dir}/server" activation="on-demand" pwd=".">
-        <adapter name="Server" endpoints="default" allocatable="true" id="AdapterAlloc">
-  	  <object identity="allocatable1" type="::TestAdapter1"/>
-  	  <object identity="allocatable2" type="::TestAdapter2"/>
-
-  	  <object identity="allocatable11" type="::TestMultipleByAdapter"/>
-  	  <object identity="allocatable21" type="::TestMultipleByAdapter"/>
-        </adapter>
-      </server>
-
       <server id="ServerAllocation" exe="${test.dir}/server" activation="on-demand" pwd="." allocatable="true">
         <adapter name="Server" endpoints="default" id="ServerAlloc">
   	  <object identity="allocatable3" type="::TestServer1"/>
@@ -53,8 +43,8 @@
         </adapter>
       </server>
 
-      <server id="ServerStress-2" exe="${test.dir}/server" activation="on-demand" pwd=".">
-        <adapter name="Server" endpoints="default" allocatable="true">
+      <server id="ServerStress-2" exe="${test.dir}/server" activation="on-demand" pwd="." allocatable="true">
+        <adapter name="Server" endpoints="default">
   	  <object identity="stress-3" type="::StressTest"/>
   	  <object identity="stress-4" type="::StressTest"/>
         </adapter>

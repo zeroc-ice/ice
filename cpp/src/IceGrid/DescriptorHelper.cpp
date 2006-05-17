@@ -280,6 +280,7 @@ Resolver::Resolver(const ApplicationHelper& app) :
     _ignore.insert("node.version");
     _ignore.insert("node.machine");
     _ignore.insert("node.datadir");
+    _ignore.insert("session.userid");
 }
 
 Resolver::Resolver(const Resolver& resolve, 
@@ -641,6 +642,7 @@ Resolver::getReserved()
     reserved["node.version"] = "";
     reserved["node.machine"] = "";
     reserved["node.datadir"] = "";
+    reserved["session.userid"] = "";
     reserved["application.distrib"] = "${node.datadir}/distrib/${application}";
     reserved["server.distrib"] = "${node.datadir}/servers/${server}/distrib";
     reserved["server"] = "";
@@ -735,7 +737,6 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
 	adapter.registerProcess = p->registerProcess;
 	adapter.waitForActivation = p->waitForActivation;
 	adapter.replicaGroupId = resolve(p->replicaGroupId, "object adapter replica group id");
-	adapter.allocatable = p->allocatable;
 	if(!adapter.replicaGroupId.empty() && !resolve.hasReplicaGroup(adapter.replicaGroupId))
 	{
 	    resolve.exception("unknown replica group `" + adapter.replicaGroupId + "'");

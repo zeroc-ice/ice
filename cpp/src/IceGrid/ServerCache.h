@@ -59,7 +59,7 @@ public:
 
 private:
     
-    void syncImpl(const SessionIPtr&, bool);
+    void syncImpl(bool);
 
     ServerCache& _cache;
     const std::string _id;
@@ -75,6 +75,8 @@ private:
     bool _synchronizing;
     bool _updated;
     std::auto_ptr<Ice::Exception> _exception;
+
+    SessionIPtr _session;
 };
 typedef IceUtil::Handle<ServerEntry> ServerEntryPtr;
 typedef std::vector<ServerEntryPtr> ServerEntrySeq;

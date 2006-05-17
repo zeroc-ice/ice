@@ -37,7 +37,7 @@ public:
     virtual ~NodeI();
 
     virtual void loadServer_async(const AMD_Node_loadServerPtr&, const std::string&, const ServerDescriptorPtr&, 
-				  const Ice::Current&);
+				  const std::string&, const Ice::Current&);
     virtual void destroyServer_async(const AMD_Node_destroyServerPtr&, const std::string&, const Ice::Current&);
     virtual void patch(const std::string&, const std::string&, const DistributionDescriptor&, bool,
 		       const Ice::Current&);

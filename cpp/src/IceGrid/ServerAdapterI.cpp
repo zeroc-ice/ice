@@ -105,7 +105,7 @@ ServerAdapterI::getDirectProxy(const Ice::Current& current) const
     {
 	AdapterNotActiveException ex;
 	ServerState state = _server->getState();
-	ex.activatable = _server->getActivationMode() == ServerI::OnDemand || state == Activating || state == Active;
+	ex.activatable = _server->canActivateOnDemand() || state == Activating || state == Active;
 	ex.timeout = static_cast<int>(_waitTime.toMilliSeconds());
 	throw ex;
     }

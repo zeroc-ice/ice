@@ -67,11 +67,11 @@ struct ToReplica : public unary_function<const ReplicaLoadComp::ReplicaLoad&, Re
 }
 
 ServerAdapterEntryPtr
-AdapterCache::addServerAdapter(const string& id, const string& rgId, bool allocatable, const ServerEntryPtr& server)
+AdapterCache::addServerAdapter(const string& id, const string& rgId, const ServerEntryPtr& server)
 {
     Lock sync(*this);
     assert(!getImpl(id));
-    ServerAdapterEntryPtr entry = new ServerAdapterEntry(*this, id, rgId, allocatable, server);
+    ServerAdapterEntryPtr entry = new ServerAdapterEntry(*this, id, rgId, server);
     addImpl(id, entry);
 
     if(!rgId.empty())
@@ -192,10 +192,8 @@ AdapterEntry::canRemove()
 ServerAdapterEntry::ServerAdapterEntry(AdapterCache& cache,
 				       const string& id,
 				       const string& replicaGroupId, 
-				       bool allocatable, 
 				       const ServerEntryPtr& server) : 
     AdapterEntry(cache, id),
-    Allocatable(allocatable, server),
     _replicaGroupId(replicaGroupId),
     _server(server)
 {
@@ -276,28 +274,6 @@ ServerAdapterEntry::getServer() const
     Lock sync(*this);
     assert(_server);
     return _server;
-}
-
-void
-ServerAdapterEntry::allocated(const SessionIPtr& session)
-{
-    TraceLevelsPtr traceLevels = _cache.getTraceLevels();
-    if(traceLevels && traceLevels->adapter > 1)
-    {
-	Ice::Trace out(traceLevels->logger, traceLevels->adapterCat);
-	out << "adapter `" << _id << "' allocated by `" << session->getUserId() << "' (" << _count << ")";
-    }    
-}
-
-void
-ServerAdapterEntry::released(const SessionIPtr& session)
-{
-    TraceLevelsPtr traceLevels = _cache.getTraceLevels();
-    if(traceLevels && traceLevels->adapter > 1)
-    {
-	Ice::Trace out(traceLevels->logger, traceLevels->adapterCat);
-	out << "adapter `" << _id << "' released by `" << session->getUserId() << "' (" << _count << ")";
-    }    
 }
 
 ReplicaGroupEntry::ReplicaGroupEntry(AdapterCache& cache,

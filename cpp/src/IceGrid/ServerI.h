@@ -62,6 +62,7 @@ public:
     enum ServerActivation
     {
 	Always,
+	Session,
 	OnDemand,
 	Manual,
 	Disabled
@@ -82,15 +83,15 @@ public:
     virtual bool isEnabled(const ::Ice::Current& = Ice::Current()) const;
     virtual void setProcess_async(const AMD_Server_setProcessPtr&, const ::Ice::ProcessPrx&, const ::Ice::Current&);
 
-    ServerDescriptorPtr getDescriptor() const;
     std::string getApplication() const;
-    ServerActivation getActivationMode() const;
+    bool canActivateOnDemand() const;
     const std::string& getId() const;
     DistributionDescriptor getDistribution() const;
+    bool hasApplicationDistribution() const;
     void getDynamicInfo(ServerDynamicInfoSeq&, AdapterDynamicInfoSeq&) const;
 
     void start(ServerActivation, const AMD_Server_startPtr& = AMD_Server_startPtr());
-    void load(const AMD_Node_loadServerPtr&, const std::string&, const ServerDescriptorPtr&);
+    void load(const AMD_Node_loadServerPtr&, const std::string&, const ServerDescriptorPtr&, const std::string&);
     void destroy(const AMD_Node_destroyServerPtr&);
     bool startPatch(bool);
     bool waitForPatch();
@@ -124,7 +125,7 @@ private:
     void updateConfigFile(const std::string&, const CommunicatorDescriptorPtr&);
     void updateDbEnv(const std::string&, const DbEnvDescriptor&);
     PropertyDescriptor createProperty(const std::string&, const std::string& = std::string());
-    void createDirectory(const std::string&);
+    void createOrUpdateDirectory(const std::string&);
     ServerState toServerState(InternalServerState) const;
     ServerActivation toServerActivation(const std::string&) const;
     ServerDynamicInfo getDynamicInfo() const;
@@ -138,6 +139,7 @@ private:
 
     std::string _application;
     ServerDescriptorPtr _desc;
+    std::string _sessionId;
 #ifndef _WIN32
     uid_t _uid;
     gid_t _gid;

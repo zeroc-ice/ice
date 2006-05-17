@@ -145,13 +145,6 @@ struct AdapterDescriptor
      *
      **/
     ObjectDescriptorSeq objects;
-
-    /**
-     *
-     * Specifies if the object is allocatable.
-     *
-     **/
-    bool allocatable;
 };
 
 /**
@@ -336,7 +329,7 @@ class ServerDescriptor extends CommunicatorDescriptor
 
     /**
      *
-     * Specifies if the object is allocatable.
+     * Specifies if the server is allocatable.
      *
      **/
     bool allocatable;
