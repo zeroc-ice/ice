@@ -13,10 +13,12 @@
 
     <target name="all">
         <ant dir="simple"/>
+        <ant dir="sessionActivation"/>
     </target>
 
     <target name="clean">
         <ant dir="simple" target="clean"/>
+        <ant dir="sessionActivation" target="clean"/>
     </target>
 
 </project>
