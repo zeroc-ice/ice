@@ -17,7 +17,7 @@ string
 HelloI::sayHello(const std::string& uber, const Ice::Current&) const
 {
     cout << "Received (UTF-8): \"" << IceUtil::escapeString(uber, "") << '\"' << endl;
-    return "\303\274ber";
+    return "Bonne journ\303\251e";
 }
 
 void

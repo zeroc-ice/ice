@@ -55,7 +55,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator1, const Ice
 
     menu();
 
-    string uber = "\374ber";
+    string greeting = "Bonne journ\351e";
 
     char c;
     do
@@ -66,12 +66,12 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator1, const Ice
 	    cin >> c;
 	    if(c == 't')
 	    {
-		string ret = hello1->sayHello(uber);
+		string ret = hello1->sayHello(greeting);
 		cout << "Received (LATIN-1): \"" << IceUtil::escapeString(ret, "") << '\"' << endl;
 	    }
 	    else if(c == 'u')
 	    {
-		string ret = hello2->sayHello(uber);
+		string ret = hello2->sayHello(greeting);
 		cout << "Received (LATIN-1): \"" << IceUtil::escapeString(ret, "") << '\"' << endl;
 	    }
 	    else if(c == 's')
