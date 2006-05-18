@@ -12,6 +12,8 @@
 
 #include <Glacier2/RoutingTable.h>
 #include <Glacier2/Blobject.h>
+#include <Glacier2/Session.h>
+#include <Glacier2/FilterI.h>
 
 namespace Glacier2
 {
@@ -23,7 +25,8 @@ class ClientBlobject : public Glacier2::Blobject
 {
 public:
 
-    ClientBlobject(const Ice::CommunicatorPtr&, const RoutingTablePtr&, const Ice::StringSeq&);
+    ClientBlobject(const Ice::CommunicatorPtr&, const RoutingTablePtr&, const StringFilterIPtr&,
+		   const StringFilterIPtr&, const IdentityFilterIPtr&);
     virtual ~ClientBlobject();
 
     virtual void ice_invoke_async(const Ice::AMD_Array_Object_ice_invokePtr&,
@@ -32,10 +35,11 @@ public:
 private:
 
     const RoutingTablePtr _routingTable;
-    const std::vector<std::string> _allowCategories;
+    const StringFilterIPtr _categoryFilter;
+    const StringFilterIPtr _adapterIdFilter;
+    const IdentityFilterIPtr _objectIdFilter;
     const int _rejectTraceLevel;
 };
-
 }
 
 #endif

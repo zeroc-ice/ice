@@ -34,6 +34,29 @@ public:
     {
     }
 
+    virtual StringFilterPrx
+    categoryFilter(const Current& current)
+    {
+	return _sessionRouter->getRouter(_connection,
+					 current.adapter->getCommunicator()->
+					 stringToIdentity("dummy"))->getCategoryFilter();
+    }
+
+    virtual StringFilterPrx
+    adapterIdFilter(const Current& current)
+    {
+	return _sessionRouter->getRouter(_connection,
+					 current.adapter->getCommunicator()->
+					 stringToIdentity("dummy"))->getAdapterIdFilter();
+    }
+
+    virtual IdFilterPrx
+    objectIdFilter(const Current& current)
+    {
+	return _sessionRouter->getRouter(_connection, current.adapter->getCommunicator()->
+					 stringToIdentity("dummy"))->getObjectIdFilter();
+    }
+    
     virtual void
     destroy(const Current&)
     {

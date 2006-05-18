@@ -365,6 +365,12 @@ Glacier2:
     Filter.Regex.Accept
     Filter.Regex.AcceptOverride
     Filter.MaxProxyLength
+    Filter.Category.Accept
+    Filter.Category.Reject
+    Filter.Category.AcceptOverride
+    Filter.AdapterId.Accept
+    Filter.AdapterId.Reject
+    Filter.AdapterId.AcceptOverride
     CryptPasswords
     InstanceName
     PermissionsVerifier

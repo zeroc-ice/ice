@@ -244,13 +244,12 @@ Glacier2::ProxyVerifier::verify(const ObjectPrx& proxy)
 	}
 	else
 	{
-	    result = match(_acceptRules, proxy);
-	    
 	    //
 	    // In this context we are default reject, there is no point
 	    // of running the reject filters if there is no accept
 	    // match.
 	    //
+	    result = match(_acceptRules, proxy);
 	    if(result)
 	    {
 		result = !match(_rejectRules, proxy);

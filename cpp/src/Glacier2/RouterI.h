@@ -43,6 +43,9 @@ public:
 
     ClientBlobjectPtr getClientBlobject() const;
     ServerBlobjectPtr getServerBlobject() const;
+    StringFilterPrx getCategoryFilter() const;
+    StringFilterPrx getAdapterIdFilter() const;
+    IdFilterPrx getObjectIdFilter() const;
 
     SessionPrx getSession() const;
 
@@ -56,6 +59,9 @@ private:
     const RoutingTablePtr _routingTable;
     const Ice::ObjectPrx _clientProxy;
     const Ice::ObjectPrx _serverProxy;
+    const StringFilterPrx _categoryFilter;
+    const StringFilterPrx _adapterIdFilter;
+    const IdFilterPrx _objectIdFilter;
     const ClientBlobjectPtr _clientBlobject;
     const ServerBlobjectPtr _serverBlobject;
     const Ice::ObjectAdapterPtr _adminAdapter;

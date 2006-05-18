@@ -11,10 +11,28 @@
 
 #include <Glacier2/RouterI.h>
 #include <Glacier2/Session.h>
+#include <Glacier2/FilterI.h>
 
 using namespace std;
 using namespace Ice;
 using namespace Glacier2;
+
+//
+// Parse a space delimited string into a sequence of strings.
+//
+static void
+stringToSeq(const string& str, vector<string>& seq)
+{
+    string const ws = " \t";
+    string::size_type current = str.find_first_not_of(ws, 0);
+    while(current != string::npos)
+    {
+	string::size_type pos = str.find_first_of(ws, current);
+	string::size_type len = (pos == string::npos) ? string::npos : pos - current;
+	seq.push_back(str.substr(current, len));
+	current = str.find_first_not_of(ws, pos);
+    }
+}
 
 Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAdapterPtr& serverAdapter,
 			   const ObjectAdapterPtr& adminAdapter, const ConnectionPtr& connection, 
@@ -30,38 +48,70 @@ Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAd
     _controlId(controlId),
     _timestamp(IceUtil::Time::now())
 {
-    string allow = _communicator->getProperties()->getProperty("Glacier2.AllowCategories");
-    StringSeq allowCategories;
-    
-    const string ws = " \t";
-    string::size_type current = allow.find_first_not_of(ws, 0);
-    while(current != string::npos)
+    PropertiesPtr props = _communicator->getProperties();
+    //
+    // DEPRECATED PROPERTY: Glacier2.AllowCategories is to be deprecated
+    // and superseded by Glacier2.Filter.Categories.Allow.
+    //
+    string allow = props->getProperty("Glacier2.AllowCategories");
+    if(allow.empty())
     {
-	string::size_type pos = allow.find_first_of(ws, current);
-	string::size_type len = (pos == string::npos) ? string::npos : pos - current;
-	string category = allow.substr(current, len);
-	allowCategories.push_back(category);
-	current = allow.find_first_not_of(ws, pos);
+	allow = props->getProperty("Glacier2.Filter.Category.Accept");
     }
 
-    if(allowAddUserMode && !_userId.empty())
+    string reject = props->getProperty("Glacier2.Filter.Category.Reject");
+    bool acceptOverride = props->getPropertyAsIntWithDefault("Glacier2.Filter.Category.AcceptOverride", 0) == 1;
+
+    vector<string> allowSeq;
+    vector<string> rejectSeq;
+    stringToSeq(allow, allowSeq);
+    stringToSeq(reject, rejectSeq);
+
+    int addUserMode = props->getPropertyAsInt("Glacier2.AddUserToAllowCategories");
+    if(addUserMode == 0)
     {
-	int addUserMode = _communicator->getProperties()->getPropertyAsInt("Glacier2.AddUserToAllowCategories");
+	addUserMode = props->getPropertyAsInt("Glacier2.Filter.Category.AddUser");
+    }
+   
+    if(addUserMode > 0 && !_userId.empty())
+    {
 	if(addUserMode == 1)
 	{
-	    allowCategories.push_back(_userId); // Add user id to allowed categories.
+	    allowSeq.push_back(_userId); // Add user id to allowed categories.
 	}
 	else if(addUserMode == 2)
 	{
-	    allowCategories.push_back('_' + _userId); // Add user id with prepended underscore to allowed categories.
+	    allowSeq.push_back('_' + _userId); // Add user id with prepended underscore to allowed categories.
 	}
-    }
+    }	
+    StringFilterIPtr categoryFilter = new StringFilterI(allowSeq, rejectSeq, acceptOverride);
 
-    sort(allowCategories.begin(), allowCategories.end()); // Must be sorted.
-    allowCategories.erase(unique(allowCategories.begin(), allowCategories.end()), allowCategories.end());
+    //
+    // TODO: refactor initialization of filters.
+    //
+    allow = props->getProperty("Glacier2.Filter.AdapterId.Accept");
+    reject = props->getProperty("Glacier2.Filter.AdapterId.Reject");
+    acceptOverride = props->getPropertyAsIntWithDefault("Glacier2.Filter.AdapterId.AcceptOverride", 0) == 1;
+    stringToSeq(allow, allowSeq);
+    stringToSeq(reject, rejectSeq);
+    StringFilterIPtr adapterIdFilter = new StringFilterI(allowSeq, rejectSeq, acceptOverride);
 
+    //
+    // TODO: Object id's from configurations?
+    // 
+    IdentitySeq allowIdSeq;
+    IdentitySeq rejectIdSeq;
+    IdentityFilterIPtr objectIdFilter = new IdentityFilterI(allowIdSeq, rejectIdSeq, false);
+    
+    const_cast<StringFilterPrx&>(_categoryFilter) =
+	StringFilterPrx::uncheckedCast(_adminAdapter->addWithUUID(categoryFilter));
+    const_cast<StringFilterPrx&>(_adapterIdFilter) =
+	StringFilterPrx::uncheckedCast(_adminAdapter->addWithUUID(adapterIdFilter));
+    const_cast<IdFilterPrx&>(_objectIdFilter) =
+	IdFilterPrx::uncheckedCast(_adminAdapter->addWithUUID(objectIdFilter));
     const_cast<ClientBlobjectPtr&>(_clientBlobject) = new ClientBlobject(_communicator, _routingTable,
-									 allowCategories);
+									 categoryFilter, adapterIdFilter,
+									 objectIdFilter);
 
     if(serverAdapter)
     {
@@ -109,6 +159,13 @@ Glacier2::RouterI::destroy()
 	    try
 	    {
 	        _adminAdapter->remove(_controlId);
+
+		//
+		// Remove filter objects.
+		//
+		_adminAdapter->remove(_objectIdFilter->ice_getIdentity());
+		_adminAdapter->remove(_adapterIdFilter->ice_getIdentity());
+		_adminAdapter->remove(_categoryFilter->ice_getIdentity());
 	    }
 	    catch(const NotRegisteredException&)
 	    {
@@ -208,6 +265,24 @@ Glacier2::RouterI::getServerBlobject() const
     //
 
     return _serverBlobject;
+}
+
+StringFilterPrx
+Glacier2::RouterI::getCategoryFilter() const
+{
+    return _categoryFilter;
+}
+
+StringFilterPrx
+Glacier2::RouterI::getAdapterIdFilter() const
+{
+    return _adapterIdFilter;
+}
+
+IdFilterPrx
+Glacier2::RouterI::getObjectIdFilter() const
+{
+    return _objectIdFilter;
 }
 
 SessionPrx

@@ -15,10 +15,14 @@ using namespace Glacier2;
 
 Glacier2::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
 					 const RoutingTablePtr& routingTable,
-					 const StringSeq& allowCategories) :
+					 const StringFilterIPtr& categoryFilter,
+					 const StringFilterIPtr& adapterIdFilter,
+					 const IdentityFilterIPtr& objectIdFilter): 
     Glacier2::Blobject(communicator, false),
     _routingTable(routingTable),
-    _allowCategories(allowCategories),
+    _categoryFilter(categoryFilter),
+    _adapterIdFilter(adapterIdFilter),
+    _objectIdFilter(objectIdFilter),
     _rejectTraceLevel(_properties->getPropertyAsInt("Glacier2.Client.Trace.Reject"))
 {
 }
@@ -32,31 +36,30 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
 					   const std::pair<const Byte*, const Byte*>& inParams,
 					   const Current& current)
 {
-    //
-    // If there is an _allowCategories set then enforce it.
-    //
-    if(!_allowCategories.empty())
+    if(!_categoryFilter->match(current.id.category))
     {
-	//
-	// Note: Some filtering will be relying on regular
-	// expressions. A quick performance test revealed that on Linux
-	// using the standard regular expression API to create an
-	// equivalent mechanism was much slower when there were a large
-	// number of categories. It would appear that the simple
-	// mechanism used here is a better choice, at least on Linux.
-	//
-	if(!binary_search(_allowCategories.begin(), _allowCategories.end(), current.id.category))
+	if(_rejectTraceLevel >= 1)
 	{
-	    if(_rejectTraceLevel >= 1)
-	    {
-		Trace out(_logger, "Glacier2");
-		out << "rejecting request\n";
-		out << "identity: " << _communicator->identityToString(current.id);
-	    }
-	    ObjectNotExistException ex(__FILE__, __LINE__);
-	    ex.id = current.id;
-	    throw ex;
+	    Trace out(_logger, "Glacier2");
+	    out << "rejecting request\n";
+	    out << "identity: " << _communicator->identityToString(current.id);
 	}
+	ObjectNotExistException ex(__FILE__, __LINE__);
+	ex.id = current.id;
+	throw ex;
+    }
+
+    if(!_objectIdFilter->match(current.id))
+    {
+	if(_rejectTraceLevel >= 1)
+	{
+	    Trace out(_logger, "Glacier2");
+	    out << "rejecting request\n";
+	    out << "identity: " << _communicator->identityToString(current.id);
+	}
+	ObjectNotExistException ex(__FILE__, __LINE__);
+	ex.id = current.id;
+	throw ex;
     }
 
     ObjectPrx proxy = _routingTable->get(current.id);
@@ -74,6 +77,20 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
 	ex.facet = current.facet;
 	//ex.operation = current.operation;
 	ex.operation = "ice_add_proxy";
+	throw ex;
+    }
+
+    string adapterId = proxy->ice_getAdapterId();
+    if(!adapterId.empty() && !_adapterIdFilter->match(adapterId))
+    {
+	if(_rejectTraceLevel >= 1)
+	{
+	    Trace out(_logger, "Glacier2");
+	    out << "rejecting request\n";
+	    out << "identity: " << _communicator->identityToString(current.id);
+	}
+	ObjectNotExistException ex(__FILE__, __LINE__);
+	ex.id = current.id;
 	throw ex;
     }
 

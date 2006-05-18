@@ -638,6 +638,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name sessionActivationS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name filtersC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name filtersS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1396,6 +1402,48 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name iceStorm
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "filtersC"=.\test\Glacier2\filters\filtersC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name glacier2
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "filtersS"=.\test\Glacier2\filters\filtersS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name glacier2
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ice
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name iceutil
