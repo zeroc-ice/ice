@@ -44,7 +44,7 @@ RSC=rc.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "LIBRARY_EXPORTS" /Yu"stdafx.h" /FD /c
 # ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I ".." /I "../../include" /D "_USRDLL" /D "GLACIER2_API_EXPORTS" /D "_CONSOLE" /D "NDEBUG" /D "WIN32_LEAN_AND_MEAN" /FD /c
-# SUBTRACT CPP /Z<none> /Fr /YX
+# SUBTRACT CPP /Fr /YX
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -116,6 +116,10 @@ SOURCE=.\Router.cpp
 
 SOURCE=.\Session.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\SSLInfo.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -143,6 +147,10 @@ SOURCE=..\..\include\glacier2\Session.h
 # Begin Source File
 
 SOURCE=..\..\include\glacier2\SessionF.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Glacier2\SSLInfo.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -371,6 +379,47 @@ InputPath=..\..\slice\glacier2\SessionF.ice
 	move SessionF.h ..\..\include\glacier2 
 	del SessionF.cpp 
 	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Glacier2\SSLInfo.ice
+
+!IF  "$(CFG)" == "glacier2 - Win32 Release"
+
+# Begin Custom Build
+InputPath=..\..\slice\Glacier2\SSLInfo.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/SSLInfo.ice \
+	move SSLInfo.h ..\..\include\glacier2 \
+	
+
+"SSLInfo.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"SSLInfo.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "glacier2 - Win32 Debug"
+
+# Begin Custom Build
+InputPath=..\..\slice\Glacier2\SSLInfo.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/SSLInfo.ice \
+	move SSLInfo.h ..\..\include\glacier2 \
+	
+
+"SSLInfo.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"SSLInfo.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
 # End Custom Build
 
 !ENDIF 
