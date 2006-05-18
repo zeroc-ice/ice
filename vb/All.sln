@@ -227,6 +227,18 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleIceGridS", "demo\IceG
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionActivationC", "demo\IceGrid\sessionActivation\sessionActivationC.vbproj", "{22677E13-5CF8-4D93-B98D-6952963A367D}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionActivationCommon", "demo\IceGrid\sessionActivation\sessionActivationCommon.vbproj", "{22673C0C-0A58-471C-991A-119620F8B67D}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionActivationS", "demo\IceGrid\sessionActivation\sessionActivationS.vbproj", "{22670041-44DD-4675-A71F-8CAFE1C7B696}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "helloIceBoxC", "demo\IceBox\hello\helloIceBoxC.vbproj", "{C171B655-CA3B-4684-844E-91994711369B}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
@@ -438,6 +450,18 @@ Global
 		{9DF60041-44DD-4675-A71F-8CAFE1C7B696}.Debug.Build.0 = Debug|.NET
 		{9DF60041-44DD-4675-A71F-8CAFE1C7B696}.Release.ActiveCfg = Release|.NET
 		{9DF60041-44DD-4675-A71F-8CAFE1C7B696}.Release.Build.0 = Release|.NET
+		{22677E13-5CF8-4D93-B98D-6952963A367D}.Debug.ActiveCfg = Debug|.NET
+		{22677E13-5CF8-4D93-B98D-6952963A367D}.Debug.Build.0 = Debug|.NET
+		{22677E13-5CF8-4D93-B98D-6952963A367D}.Release.ActiveCfg = Release|.NET
+		{22677E13-5CF8-4D93-B98D-6952963A367D}.Release.Build.0 = Release|.NET
+		{22673C0C-0A58-471C-991A-119620F8B67D}.Debug.ActiveCfg = Debug|.NET
+		{22673C0C-0A58-471C-991A-119620F8B67D}.Debug.Build.0 = Debug|.NET
+		{22673C0C-0A58-471C-991A-119620F8B67D}.Release.ActiveCfg = Release|.NET
+		{22673C0C-0A58-471C-991A-119620F8B67D}.Release.Build.0 = Release|.NET
+		{22670041-44DD-4675-A71F-8CAFE1C7B696}.Debug.ActiveCfg = Debug|.NET
+		{22670041-44DD-4675-A71F-8CAFE1C7B696}.Debug.Build.0 = Debug|.NET
+		{22670041-44DD-4675-A71F-8CAFE1C7B696}.Release.ActiveCfg = Release|.NET
+		{22670041-44DD-4675-A71F-8CAFE1C7B696}.Release.Build.0 = Release|.NET
 		{C171B655-CA3B-4684-844E-91994711369B}.Debug.ActiveCfg = Debug|.NET
 		{C171B655-CA3B-4684-844E-91994711369B}.Debug.Build.0 = Debug|.NET
 		{C171B655-CA3B-4684-844E-91994711369B}.Release.ActiveCfg = Release|.NET
