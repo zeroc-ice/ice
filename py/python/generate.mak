@@ -67,7 +67,8 @@ ICEGRID_SRCS	= IceGrid_Admin_ice.py \
 		  IceGrid_Descriptor_ice.py \
 		  IceGrid_Exception_ice.py \
 		  IceGrid_Observer_ice.py \
-		  IceGrid_Query_ice.py
+		  IceGrid_Query_ice.py \
+		  IceGrid_Session_ice.py
 
 ICEPATCH2_SRCS	= IcePatch2_FileInfo_ice.py \
 		  IcePatch2_FileServer_ice.py
@@ -235,6 +236,8 @@ IceGrid_Observer_ice.py: $(slicedir)/IceGrid/Observer.ice
 IceGrid_Query_ice.py: $(slicedir)/IceGrid/Query.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/Query.ice
 
+IceGrid_Session_ice.py: $(slicedir)/IceGrid/Session.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/Session.ice
 
 IcePatch2_FileInfo_ice.py: $(slicedir)/IcePatch2/FileInfo.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IcePatch2_ $(slicedir)/IcePatch2/FileInfo.ice
