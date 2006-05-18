@@ -126,10 +126,10 @@ HelloClient::run(int argc, char* argv[])
     SessionKeepAliveThreadPtr keepAlive = new SessionKeepAliveThread(session);
     keepAlive->start();
 
-    HelloPrx hello = HelloPrx::uncheckedCast(communicator()->stringToProxy("hello"));;
+    HelloPrx hello;
     try
     {
-        session->allocateObjectById(hello->ice_getIdentity());
+        hello = HelloPrx::checkedCast(session->allocateObjectById(communicator()->stringToIdentity("hello")));
     }
     catch(const IceGrid::AllocationException& ex)
     {
