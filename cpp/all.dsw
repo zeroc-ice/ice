@@ -633,10 +633,10 @@ Package=<4>
     Project_Dep_Name converterS
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name icegridsessiondemoC
+    Project_Dep_Name sessionActivationC
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name icegridsessiondemoS
+    Project_Dep_Name sessionActivationS
     End Project Dependency
 }}}
 
@@ -2211,54 +2211,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "icegridsessiondemoC"=.\demo\IceGrid\session\icegridsessiondemoC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icegrid
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2cpp
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "icegridsessiondemoS"=.\demo\IceGrid\session\icegridsessiondemoS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icegrid
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2cpp
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "icegridsimpleC"=.\test\IceGrid\simple\icegridsimpleC.dsp - Package Owner=<4>
 
 Package=<5>
@@ -3427,6 +3379,54 @@ Package=<4>
 ###############################################################################
 
 Project: "routerS"=.\test\glacier2\router\routerS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2cpp
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sessionActivationC"=.\demo\IceGrid\sessionActivation\sessionActivationC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name glacier2
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icegrid
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2cpp
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sessionActivationS"=.\demo\IceGrid\sessionActivation\sessionActivationS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
