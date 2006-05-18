@@ -15,6 +15,7 @@ module Glacier2
 
 interface Session;
 interface SessionManager;
+interface SSLSessionManager;
 
 };
 

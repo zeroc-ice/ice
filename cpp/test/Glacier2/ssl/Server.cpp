@@ -15,24 +15,33 @@
 
 using namespace std;
 
+class SSLPermissionsVerifierI : public Glacier2::SSLPermissionsVerifier
+{
+public:
+
+    virtual bool
+    authorize(const Glacier2::SSLInfo& info, string&, const Ice::Current& current) const
+    {
+	IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
+	test(cert->getIssuerDN() ==
+	     "/C=US/ST=Florida/L=Palm Beach Gardens/O=ZeroC, Inc."
+	     "/OU=Ice/CN=ZeroC Test CA/emailAddress=info@zeroc.com");
+	test(cert->getSubjectDN() ==
+	     "/C=US/ST=Florida/O=ZeroC, Inc./OU=Ice/emailAddress=info@zeroc.com/CN=Client");
+	test(cert->checkValidity());
+
+	return true;
+    }
+};
+
 class PermissionsVerifierI : public Glacier2::PermissionsVerifier
 {
 public:
 
     virtual bool
-    checkPermissions(const string& userId, const string&, string&, const Ice::Current& current) const
+    checkPermissions(const string&, const string&, string&, const Ice::Current& current) const
     {
-	map<string, string>::const_iterator p = current.ctx.find("SSL.Active");
-	
-	if(userId == "nossl")
-	{
-	    return p == current.ctx.end();
-	}
-	else if(userId == "ssl")
-	{
-	    return p != current.ctx.end();
-	}
-	return false;
+	return true;
     }
 };
 
@@ -40,8 +49,7 @@ class SessionI : public Glacier2::Session
 {
 public:
 
-    SessionI(const string& userId) :
-	_userId(userId)
+    SessionI(bool shutdown) : _shutdown(shutdown)
     {
     }
 
@@ -49,15 +57,13 @@ public:
     destroy(const Ice::Current& current)
     {
 	current.adapter->remove(current.id);
-	if(_userId == "ssl")
+	if(_shutdown)
 	{
 	    current.adapter->getCommunicator()->shutdown();
 	}
     }
-    
 private:
-
-    const string _userId;
+    const bool _shutdown;
 };
 
 class SessionManagerI : public Glacier2::SessionManager
@@ -67,29 +73,37 @@ public:
     virtual Glacier2::SessionPrx
     create(const string& userId, const Glacier2::SessionControlPrx&, const Ice::Current& current)
     {
-	if(userId == "ssl")
+	Glacier2::SessionPtr session = new SessionI(false);
+	return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
+    }
+};
+
+class SSLSessionManagerI : public Glacier2::SSLSessionManager
+{
+public:
+
+    virtual Glacier2::SessionPrx
+    create(const Glacier2::SSLInfo& info, const Glacier2::SessionControlPrx&, const Ice::Current& current)
+    {
+	test(info.remoteHost == "127.0.0.1");
+	test(info.localHost == "127.0.0.1");
+	test(info.localPort == 12348);
+	try
 	{
-	    test(current.ctx.find("SSL.Active")->second == "1");
-	    test(current.ctx.find("SSL.Cipher") != current.ctx.end());
-	    test(current.ctx.find("SSL.Remote.Host")->second == "127.0.0.1");
-	    test(current.ctx.find("SSL.Local.Host")->second == "127.0.0.1");
-	    test(current.ctx.find("SSL.Local.Port")->second == "12348");
-	    try
-	    {
-		IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(current.ctx.find("SSL.PeerCert")->second);
-		test(cert->getIssuerDN() ==
-		     "/C=US/ST=Florida/L=Palm Beach Gardens/O=ZeroC, Inc."
-		     "/OU=Ice/CN=ZeroC Test CA/emailAddress=info@zeroc.com");
-		test(cert->getSubjectDN() ==
-		     "/C=US/ST=Florida/O=ZeroC, Inc./OU=Ice/emailAddress=info@zeroc.com/CN=Client");
-		test(cert->checkValidity());
-	    }
-	    catch(const IceSSL::CertificateReadException&)
-	    {
-		test(false);
-	    }
+	    IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
+	    test(cert->getIssuerDN() ==
+		 "/C=US/ST=Florida/L=Palm Beach Gardens/O=ZeroC, Inc."
+		 "/OU=Ice/CN=ZeroC Test CA/emailAddress=info@zeroc.com");
+	    test(cert->getSubjectDN() ==
+		 "/C=US/ST=Florida/O=ZeroC, Inc./OU=Ice/emailAddress=info@zeroc.com/CN=Client");
+	    test(cert->checkValidity());
 	}
-	Glacier2::SessionPtr session = new SessionI(userId);
+	catch(const IceSSL::CertificateReadException&)
+	{
+	    test(false);
+	}
+
+	Glacier2::SessionPtr session = new SessionI(true);
 	return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
     }
 };
@@ -114,7 +128,9 @@ SessionServer::run(int argc, char* argv[])
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints(
 	"SessionServer", "tcp -h 127.0.0.1 -p 12350 -t 10000");
     adapter->add(new PermissionsVerifierI, communicator()->stringToIdentity("verifier"));
+    adapter->add(new SSLPermissionsVerifierI, communicator()->stringToIdentity("sslverifier"));
     adapter->add(new SessionManagerI, communicator()->stringToIdentity("sessionmanager"));
+    adapter->add(new SSLSessionManagerI, communicator()->stringToIdentity("sslsessionmanager"));
     adapter->activate();
     communicator()->waitForShutdown();
     return EXIT_SUCCESS;

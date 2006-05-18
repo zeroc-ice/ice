@@ -61,10 +61,11 @@ CallbackClient::run(int argc, char* argv[])
 	test(false);
     }
     cout << "ok" << endl;
+
     cout << "creating ssl session with tcp connection... ";
     try
     {
-	Glacier2::SessionPrx session = router->createSession("ssl", "");
+	Glacier2::SessionPrx session = router->createSessionFromSecureConnection();
 	test(false);
     }
     catch(const Glacier2::PermissionDeniedException&)
@@ -88,17 +89,21 @@ CallbackClient::run(int argc, char* argv[])
     try
     {
 	Glacier2::SessionPrx session = router->createSession("nossl", "");
-	test(false);
+	router->destroySession();
+    }
+    catch(const Ice::ConnectionLostException&)
+    {
     }
     catch(const Glacier2::PermissionDeniedException&)
     {
+	test(false);
     }
     cout << "ok" << endl;
 
     cout << "creating ssl session with ssl connection... ";
     try
     {
-	Glacier2::SessionPrx session = router->createSession("ssl", "");
+	Glacier2::SessionPrx session = router->createSessionFromSecureConnection();
 	router->destroySession();
     }
     catch(const Ice::ConnectionLostException&)

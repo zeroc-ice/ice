@@ -10,12 +10,17 @@
 #ifndef GLACIER2_PERMISSIONS_VERIFIER_ICE
 #define GLACIER2_PERMISSIONS_VERIFIER_ICE
 
+#include <Glacier2/SSLInfo.ice>
+
 module Glacier2
 {
 
 /**
  *
- * The &Glacier2; permissions verifier.
+ * The &Glacier2; permissions verifier. This is called through the
+ * process of establishing a session.
+ *
+ * @see Router
  *
  **/
 interface PermissionsVerifier
@@ -34,6 +39,32 @@ interface PermissionsVerifier
      *
      **/
     nonmutating bool checkPermissions(string userId, string password, out string reason);
+};
+
+/**
+ *
+ * The SSL &Glacier2; permissions verifier. This is called through the
+ * process of establishing a session.
+ *
+ * @see Router
+ *
+ **/
+interface SSLPermissionsVerifier
+{
+    /**
+     *
+     * Check whether a user has permission to access the router.
+     *
+     * @param info The SSL information.
+     *
+     * @param reason The reason why access was denied.
+     *
+     * @return True if access is granted, or false otherwise.
+     *
+     * @see SSLInfo
+     *
+     **/
+    nonmutating bool authorize(SSLInfo info, out string reason);
 };
 
 };

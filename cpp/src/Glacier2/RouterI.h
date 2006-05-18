@@ -27,7 +27,7 @@ class RouterI : public Router, public IceUtil::Mutex
 public:
 
     RouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&,
-    	    const Ice::ConnectionPtr&, const std::string&, const SessionPrx&, const Ice::Identity&);
+    	    const Ice::ConnectionPtr&, const std::string&, bool, const SessionPrx&, const Ice::Identity&);
     virtual ~RouterI();
     void destroy();
 
@@ -37,6 +37,7 @@ public:
     virtual Ice::ObjectProxySeq addProxies(const Ice::ObjectProxySeq&, const Ice::Current&);
     virtual std::string getCategoryForClient(const Ice::Current&) const;
     virtual SessionPrx createSession(const std::string&, const std::string&, const Ice::Current&);
+    virtual SessionPrx createSessionFromSecureConnection(const Ice::Current&);
     virtual void destroySession(const ::Ice::Current&);
     virtual Ice::Long getSessionTimeout(const ::Ice::Current&) const;
 

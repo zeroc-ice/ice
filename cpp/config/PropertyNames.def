@@ -368,6 +368,7 @@ Glacier2:
     CryptPasswords
     InstanceName
     PermissionsVerifier
+    SSLPermissionsVerifier
     RouterIdentity
     RoutingTable.MaxSize
     Server.AlwaysBatch
@@ -381,6 +382,8 @@ Glacier2:
     Server.Trace.Request
     SessionManager
     SessionManager.LocatorCacheTimeout
+    SSLSessionManager
+    SSLSessionManager.LocatorCacheTimeout
     SessionTimeout
     Trace.RoutingTable
     Trace.Session

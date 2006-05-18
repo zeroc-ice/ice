@@ -18,7 +18,8 @@ using namespace Glacier2;
 
 Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAdapterPtr& serverAdapter,
 			   const ObjectAdapterPtr& adminAdapter, const ConnectionPtr& connection, 
-			   const string& userId, const SessionPrx& session, const Identity& controlId) :
+			   const string& userId, bool allowAddUserMode, const SessionPrx& session,
+			   const Identity& controlId) :
     _communicator(clientAdapter->getCommunicator()),
     _routingTable(new RoutingTable(_communicator)),
     _clientProxy(clientAdapter->createProxy(_communicator->stringToIdentity("dummy"))),
@@ -43,14 +44,17 @@ Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAd
 	current = allow.find_first_not_of(ws, pos);
     }
 
-    int addUserMode = _communicator->getProperties()->getPropertyAsInt("Glacier2.AddUserToAllowCategories");
-    if(addUserMode == 1)
+    if(allowAddUserMode && !_userId.empty())
     {
-	allowCategories.push_back(_userId); // Add user id to allowed categories.
-    }
-    else if(addUserMode == 2)
-    {
-	allowCategories.push_back('_' + _userId); // Add user id with prepended underscore to allowed categories.
+	int addUserMode = _communicator->getProperties()->getPropertyAsInt("Glacier2.AddUserToAllowCategories");
+	if(addUserMode == 1)
+	{
+	    allowCategories.push_back(_userId); // Add user id to allowed categories.
+	}
+	else if(addUserMode == 2)
+	{
+	    allowCategories.push_back('_' + _userId); // Add user id with prepended underscore to allowed categories.
+	}
     }
 
     sort(allowCategories.begin(), allowCategories.end()); // Must be sorted.
@@ -165,6 +169,13 @@ Glacier2::RouterI::createSession(const std::string&, const std::string&, const C
     return 0;
 }
 
+SessionPrx
+Glacier2::RouterI::createSessionFromSecureConnection(const Current&)
+{
+    assert(false); // Must not be called in this router implementation.
+    return 0;
+}
+
 void
 Glacier2::RouterI::destroySession(const Current&)
 {
@@ -225,7 +236,7 @@ Glacier2::RouterI::toString() const
 {
     ostringstream out;
 
-    out << "user-id = " << _userId << '\n';
+    out << "id = " << _userId << '\n';
     if(_serverProxy)
     {
 	out << "category = " << _serverProxy->ice_getIdentity().category << '\n';

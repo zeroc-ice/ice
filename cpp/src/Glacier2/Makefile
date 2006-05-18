@@ -22,6 +22,7 @@ OBJS		= PermissionsVerifierF.o \
 		  PermissionsVerifier.o \
 		  RouterF.o \
 		  Router.o \
+		  SSLInfo.o \
 		  SessionF.o \
 		  Session.o
 
@@ -45,7 +46,8 @@ SLICE_SRCS	= $(SDIR)/PermissionsVerifierF.ice \
 		  $(SDIR)/Router.ice \
 		  $(SDIR)/RouterF.ice \
 		  $(SDIR)/Session.ice \
-		  $(SDIR)/SessionF.ice
+		  $(SDIR)/SessionF.ice \
+		  $(SDIR)/SSLInfo.ice
 
 HDIR		= $(includedir)/Glacier2
 SDIR		= $(slicedir)/Glacier2

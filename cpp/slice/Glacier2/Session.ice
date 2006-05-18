@@ -10,6 +10,8 @@
 #ifndef GLACIER2_SESSION_ICE
 #define GLACIER2_SESSION_ICE
 
+#include <Glacier2/SSLInfo.ice>
+
 module Glacier2
 {
 
@@ -72,11 +74,12 @@ interface SessionControl
 
 /**
  *
- * The session manager, which is responsible for managing [Session]
- * objects. New session objects are created by the [Router] object
- * calling on an application-provided session manager. If no session
- * manager is provided by the application, no client-visible sessions
- * are passed to the client.
+ * The session manager for username/password authenticated users which
+ * is responsible for managing [Session] objects. New session objects
+ * are created by the [Router] object calling on an
+ * application-provided session manager. If no session manager is
+ * provided by the application, no client-visible sessions are passed
+ * to the client.
  *
  * @see Router
  * @see Session
@@ -99,6 +102,38 @@ interface SessionManager
      *
      **/
     Session* create(string userId, SessionControl* control)
+	throws CannotCreateSessionException;
+};
+
+/**
+ *
+ * The session manager for SSL authenticated users which is
+ * responsible for managing [Session] objects. New session objects are
+ * created by the [Router] object calling on an application-provided
+ * session manager. If no session manager is provided by the
+ * application, no client-visible sessions are passed to the client.
+ *
+ * @see Router
+ * @see Session
+ *
+ **/
+interface SSLSessionManager
+{
+    /**
+     *
+     * Create a new session.
+     *
+     * @param info The SSL info.
+     *
+     * @param control A proxy to the session control object.
+     *
+     * @return A proxy to the newly created session.
+     *
+     * @throws CannotCreateSessionException Raised if the session
+     * cannot be created.
+     *
+     **/
+    Session* create(SSLInfo info, SessionControl* control)
 	throws CannotCreateSessionException;
 };
 

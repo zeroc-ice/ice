@@ -1,6 +1,12 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Added SSL authorization as an alternative to username/password
+  for Glacier2.  To authorize with SSL call
+  Glacier2::Router::createSessionFromSecureConnection().  On the
+  server side Glacier2::SSLPermissionsVerifier and
+  Glacier2::SSLSessionManager must be implemented.
+
 - Added identityToString and stringToIdentity to the Communicator
   interface. If a string converter is configured these functions
   must be used instead of the current static functions.

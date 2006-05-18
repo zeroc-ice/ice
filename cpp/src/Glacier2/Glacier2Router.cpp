@@ -219,11 +219,46 @@ Glacier2::RouterService::start(int argc, char* argv[])
     }
 
     //
+    // Get the permissions verifier, or create a default one if no
+    // verifier is specified.
+    //
+    string sslVerifierProperty = properties->getProperty("Glacier2.SSLPermissionsVerifier");
+    SSLPermissionsVerifierPrx sslVerifier;
+    if(!sslVerifierProperty.empty())
+    {
+	sslVerifier = SSLPermissionsVerifierPrx::checkedCast(communicator()->stringToProxy(sslVerifierProperty));
+	if(!sslVerifier)
+	{
+	    error("ssl permissions verifier `" + sslVerifierProperty + "' is invalid");
+	    return false;
+	}
+    }
+
+    //
+    // Get the session manager if specified.
+    //
+    string sslSessionManagerProperty = properties->getProperty("Glacier2.SSLSessionManager");
+    SSLSessionManagerPrx sslSessionManager;
+    if(!sslSessionManagerProperty.empty())
+    {
+	sslSessionManager = SSLSessionManagerPrx::checkedCast(communicator()->stringToProxy(sslSessionManagerProperty));
+	if(!sslSessionManager)
+	{
+	    error("ssl session manager `" + sslSessionManagerProperty + "' is invalid");
+	    return false;
+	}
+	sslSessionManager = 
+	    SSLSessionManagerPrx::uncheckedCast(sslSessionManager->ice_cacheConnection(false)->ice_locatorCacheTimeout(
+	        properties->getPropertyAsIntWithDefault("Glacier2.SSLSessionManager.LocatorCacheTimeout", 600)));
+    }
+
+    //
     // Create the session router. The session router registers itself
     // and all required servant locators, so no registration has to be
     // done here.
     //
-    _sessionRouter = new SessionRouterI(clientAdapter, serverAdapter, adminAdapter, verifier, sessionManager);
+    _sessionRouter = new SessionRouterI(clientAdapter, serverAdapter, adminAdapter, verifier, sessionManager,
+					sslVerifier, sslSessionManager);
 
     //
     // If we have an admin adapter, we add an admin object.

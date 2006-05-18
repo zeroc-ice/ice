@@ -27,12 +27,29 @@ typedef IceUtil::Handle<RouterI> RouterIPtr;
 class SessionRouterI;
 typedef IceUtil::Handle<SessionRouterI> SessionRouterIPtr;
 
+class Authorizer : public IceUtil::Shared
+{
+public:
+
+    virtual bool authorize(std::string&, const Ice::Context&) = 0;
+};
+typedef IceUtil::Handle<Authorizer> AuthorizerPtr;
+
+class SessionFactory : public IceUtil::Shared
+{
+public:
+
+    virtual SessionPrx create(const SessionControlPrx&, const Ice::Context&) = 0;
+};
+typedef IceUtil::Handle<SessionFactory> SessionFactoryPtr;
+
 class SessionRouterI : public Router, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
     SessionRouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&,
-		   const PermissionsVerifierPrx&, const SessionManagerPrx&);
+		   const PermissionsVerifierPrx&, const SessionManagerPrx&,
+		   const SSLPermissionsVerifierPrx&, const SSLSessionManagerPrx&);
     virtual ~SessionRouterI();
     void destroy();
 
@@ -42,6 +59,7 @@ public:
     virtual Ice::ObjectProxySeq addProxies(const Ice::ObjectProxySeq&, const Ice::Current&);
     virtual std::string getCategoryForClient(const Ice::Current&) const;
     virtual SessionPrx createSession(const std::string&, const std::string&, const Ice::Current&);
+    virtual SessionPrx createSessionFromSecureConnection(const Ice::Current&);
     virtual void destroySession(const ::Ice::Current&);
     virtual Ice::Long getSessionTimeout(const ::Ice::Current&) const;
 
@@ -54,6 +72,9 @@ public:
 
 private:
 
+    SessionPrx createSessionInternal(const std::string&, bool, const AuthorizerPtr&, const SessionFactoryPtr&,
+				     const Ice::Current&);
+
     const Ice::PropertiesPtr _properties;
     const Ice::LoggerPtr _logger;
     const int _sessionTraceLevel;
@@ -62,7 +83,9 @@ private:
     const Ice::ObjectAdapterPtr _serverAdapter;
     const Ice::ObjectAdapterPtr _adminAdapter;
     const PermissionsVerifierPrx _verifier;
-    /*const*/ SessionManagerPrx _sessionManager;
+    const SessionManagerPrx _sessionManager;
+    const SSLPermissionsVerifierPrx _sslVerifier;
+    const SSLSessionManagerPrx _sslSessionManager;
     const IceUtil::Time _sessionTimeout;
 
     class SessionThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
