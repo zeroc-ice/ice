@@ -38,7 +38,7 @@ public class Client : Ice.Application
                     {
                         _session.keepAlive();
                     }
-                    catch(Ice.LocalException ex)
+                    catch(Ice.LocalException)
                     {
 		        break;
                     }
@@ -110,7 +110,7 @@ public class Client : Ice.Application
 	    Console.WriteLine(": could not allocate object: " + ex.reason);
 	    return 1;
 	}
-	catch(IceGrid.ObjectNotRegisteredException ex)
+	catch(IceGrid.ObjectNotRegisteredException)
 	{
 	    Console.WriteLine(": object not registered with registry");
 	    return 1;
@@ -168,7 +168,7 @@ public class Client : Ice.Application
 	    Console.WriteLine(": could not release object: " + ex.reason);
 	    return 1;
 	}
-	catch(IceGrid.ObjectNotRegisteredException ex)
+	catch(IceGrid.ObjectNotRegisteredException)
 	{
 	    Console.WriteLine(": object not registered with registry");
 	    return 1;

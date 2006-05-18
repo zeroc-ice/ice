@@ -3,7 +3,7 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{E50ACFB0-D945-4ED0-9E1D-6053A86BA43E}"
+        ProjectGuid = "{2267CFB0-D945-4ED0-9E1D-6053A86BA43E}"
     >
         <Build>
             <Settings
@@ -78,6 +78,11 @@
                     Name = "icegridcs"
                     AssemblyName = "icegridcs"
                     HintPath = "..\..\..\bin\icegridcs.dll"
+                />
+                <Reference
+                    Name = "glacier2cs"
+                    AssemblyName = "glacier2cs"
+                    HintPath = "..\..\bin\glacier2cs.dll"
                 />
             </References>
         </Build>

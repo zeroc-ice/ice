@@ -336,6 +336,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "simpleIceGridS_11", "demo\I
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sessionActivationC_11", "demo\IceGrid\sessionActivation\sessionActivationC_11.csproj", "{2267CA1E-464B-4BF8-B556-528C521D4FD9}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sessionActivationS_11", "demo\IceGrid\sessionActivation\sessionActivationS_11.csproj", "{22671377-E93B-4496-87D7-EEBE5C0704C0}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "holdS_11", "test\Ice\hold\holdS_11.csproj", "{5BC31123-AD81-4D27-A5CC-7C8F67AA962F}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
@@ -700,6 +708,14 @@ Global
 		{A98E1377-E93B-4496-87D7-EEBE5C0704C0}.Debug.Build.0 = Debug|.NET
 		{A98E1377-E93B-4496-87D7-EEBE5C0704C0}.Release.ActiveCfg = Release|.NET
 		{A98E1377-E93B-4496-87D7-EEBE5C0704C0}.Release.Build.0 = Release|.NET
+		{2267CA1E-464B-4BF8-B556-528C521D4FD9}.Debug.ActiveCfg = Debug|.NET
+		{2267CA1E-464B-4BF8-B556-528C521D4FD9}.Debug.Build.0 = Debug|.NET
+		{2267CA1E-464B-4BF8-B556-528C521D4FD9}.Release.ActiveCfg = Release|.NET
+		{2267CA1E-464B-4BF8-B556-528C521D4FD9}.Release.Build.0 = Release|.NET
+		{22671377-E93B-4496-87D7-EEBE5C0704C0}.Debug.ActiveCfg = Debug|.NET
+		{22671377-E93B-4496-87D7-EEBE5C0704C0}.Debug.Build.0 = Debug|.NET
+		{22671377-E93B-4496-87D7-EEBE5C0704C0}.Release.ActiveCfg = Release|.NET
+		{22671377-E93B-4496-87D7-EEBE5C0704C0}.Release.Build.0 = Release|.NET
 		{5BC31123-AD81-4D27-A5CC-7C8F67AA962F}.Debug.ActiveCfg = Debug|.NET
 		{5BC31123-AD81-4D27-A5CC-7C8F67AA962F}.Debug.Build.0 = Debug|.NET
 		{5BC31123-AD81-4D27-A5CC-7C8F67AA962F}.Release.ActiveCfg = Release|.NET

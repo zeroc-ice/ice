@@ -3,7 +3,7 @@
     <ProjectType>Local</ProjectType>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{5186CA1E-464B-4BF8-B556-528C521D4FD9}</ProjectGuid>
+    <ProjectGuid>{2267CA1E-464B-4BF8-B556-528C521D4FD9}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ApplicationIcon>
@@ -81,6 +81,11 @@
     <ProjectReference Include="..\..\..\src\IceGrid\IceGrid.csproj">
       <Name>IceGrid</Name>
       <Project>{08BA06BB-1803-4EF5-81A1-467DF5464A9E}</Project>
+      <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\src\Glacier2\Glacier2.csproj">
+      <Name>Glacier2</Name>
+      <Project>{F6EAFA67-FF43-4C8B-BF7F-86F79DCCDA1A}</Project>
       <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
     </ProjectReference>
     <ProjectReference Include="..\..\..\src\Ice\Ice.csproj">
