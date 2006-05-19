@@ -76,7 +76,7 @@ public class Client extends Ice.Application
 	    IceGrid.RegistryPrxHelper.checkedCast(communicator().stringToProxy("DemoIceGrid/Registry"));
 	if(registry == null)
 	{
-            System.err.println(": cound not contact session manager");
+            System.err.println(": cound not contact registry");
 	    return 1;
 	}
 
