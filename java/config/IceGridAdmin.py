@@ -31,12 +31,15 @@ nodeOptions = r' --Ice.Warn.Connections=0' + \
               r' --Ice.ThreadPool.Server.Size=0';
 
 registryOptions = r' --Ice.Warn.Connections=0' + \
+                  r' --IceGrid.Registry.PermissionsVerifier=IceGrid/NullPermissionsVerifier' + \
+                  r' --IceGrid.Registry.AdminPermissionsVerifier=IceGrid/NullPermissionsVerifier' + \
                   r' --IceGrid.Registry.Server.Endpoints=default' + \
                   r' --IceGrid.Registry.Internal.Endpoints=default' + \
                   r' --IceGrid.Registry.Admin.Endpoints=default' + \
                   r' --IceGrid.Registry.Server.Endpoints=default' + \
                   r' --IceGrid.Registry.Internal.Endpoints=default' + \
                   r' --IceGrid.Registry.Admin.Endpoints=default' + \
+                  r' --IceGrid.Registry.Trace.Session=0' + \
                   r' --IceGrid.Registry.Trace.Application=0' + \
                   r' --IceGrid.Registry.Trace.Adapter=0' + \
                   r' --IceGrid.Registry.Trace.Object=0' + \

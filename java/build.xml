@@ -90,6 +90,7 @@
             </includepath>
             <fileset dir="${slice.dir}/Glacier2">
                 <include name="PermissionsVerifier.ice" />
+                <include name="SSLInfo.ice" />
                 <include name="Router.ice" />
                 <include name="Session.ice" />
             </fileset>
@@ -118,6 +119,7 @@
                 <include name="PerfTypes.ice" />
                 <include name="Observer.ice" />
                 <include name="Session.ice" />
+                <include name="Registry.ice" />
                 <include name="Descriptor.ice" />
             </fileset>
         </slice2java>

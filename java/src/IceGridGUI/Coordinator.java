@@ -785,15 +785,25 @@ public class Coordinator
 	    //
 	    // Local session
 	    //
-	    str = info.registryInstanceName + "/AdminSessionManager";
+	    str = info.registryInstanceName + "/Registry";
 		
-	    SessionManagerPrx sessionManager = SessionManagerPrxHelper.
+	    RegistryPrx registry = RegistryPrxHelper.
 		uncheckedCast(_communicator.stringToProxy(str));
 	    
+	    // TODO: XXX: If we decide to keep this method, we should pass a password!
 	    try
 	    {
 		session = AdminSessionPrxHelper.uncheckedCast(
-		    sessionManager.createLocalSession(info.registryUsername));
+		    registry.createAdminSession(info.registryUsername, ""));
+	    }
+	    catch(IceGrid.PermissionDeniedException e)
+	    {
+		JOptionPane.showMessageDialog(parent,
+					      "Permission denied: "
+					      + e.reason,
+					      "Login failed",
+					      JOptionPane.ERROR_MESSAGE);
+		return null;
 	    }
 	    catch(Ice.LocalException e)
 	    {

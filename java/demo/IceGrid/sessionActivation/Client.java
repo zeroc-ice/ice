@@ -72,32 +72,47 @@ public class Client extends Ice.Application
     public int
     run(String[] args)
     {
-        IceGrid.SessionManagerPrx sessionManager = 
-	    IceGrid.SessionManagerPrxHelper.checkedCast(communicator().stringToProxy("DemoIceGrid/SessionManager"));
-	if(sessionManager == null)
+        IceGrid.RegistryPrx registry = 
+	    IceGrid.RegistryPrxHelper.checkedCast(communicator().stringToProxy("DemoIceGrid/Registry"));
+	if(registry == null)
 	{
             System.err.println(": cound not contact session manager");
 	    return 1;
 	}
 
         java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
-
-	String id = null;
-
-	try
+	IceGrid.SessionPrx session;
+	while(true)
 	{
-	    System.out.print("user id: ");
-	    System.out.flush();
-	    id = in.readLine();
-	    id = id.trim();
-	}
-	catch(java.io.IOException ex)
-	{
-	    ex.printStackTrace();
-	    return 1;
-	}
+	    System.out.println("This demo accepts any user-id / password combination.");
 
-	IceGrid.SessionPrx session = sessionManager.createLocalSession(id);
+	    try
+	    {
+		String id;
+		System.out.print("user id: ");
+		System.out.flush();
+		id = in.readLine();
+		
+		String pw;
+		System.out.print("password: ");
+		System.out.flush();
+		pw = in.readLine();
+		
+		try
+		{
+		    session = registry.createSession(id, pw);
+		    break;
+		}
+		catch(IceGrid.PermissionDeniedException ex)
+		{
+		    System.out.println("permission denied:\n" + ex.reason);
+		}
+	    }
+            catch(java.io.IOException ex)
+            {
+                ex.printStackTrace();
+            }
+	}
 
 	SessionKeepAliveThread keepAlive = new SessionKeepAliveThread(session);
 	keepAlive.start();
