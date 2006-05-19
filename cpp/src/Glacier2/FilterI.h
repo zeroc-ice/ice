@@ -24,6 +24,10 @@ class FilterT : public P, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
+    typedef typename std::vector<T>::const_iterator const_iterator;
+    typedef typename std::vector<T>::iterator iterator;
+    typedef typename std::list<iterator>::iterator literator;
+
     FilterT(const std::vector<T>&, const std::vector<T>&, const bool);
 
     //
@@ -152,13 +156,13 @@ private:
 	// iterator types apparently resolve to a 'void' in GCC type
 	// causing compiler errors.
 	// 
-	typename std::vector<T>::const_iterator r = toRemove.begin();
-	typename std::vector<T>::iterator mark = dest.begin();
-	typename std::list<typename std::vector<T>::iterator> deleteList;
+	const_iterator r = toRemove.begin();
+	iterator mark = dest.begin();
+	std::list<iterator> deleteList;
 
 	while(r != toRemove.end())
 	{
-	    typename std::vector<T>::iterator i = mark;
+	    iterator i = mark;
 	    while(i != dest.end() && r != toRemove.end())
 	    {
 		if(*r == *i)
@@ -184,8 +188,7 @@ private:
 	    ++r;
 	}
 
-	for(typename std::list<typename std::vector<T>::iterator>::const_iterator i = deleteList.begin(); 
-	    i != deleteList.end(); ++i)
+	for(literator i = deleteList.begin(); i != deleteList.end(); ++i)
 	{
 	    dest.erase(*i);
 	}
