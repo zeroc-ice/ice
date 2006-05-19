@@ -15,16 +15,18 @@ SERVER		= server
 TARGETS		= $(CLIENT) $(SERVER) 
 
 COBJS		= Client.o \
-		  Session.o
+		  Test.o
 
 SOBJS		= Server.o \
-		  Session.o \
-		  SessionI.o
+		  Test.o \
+		  SessionI.o \
+		  BackendI.o \
+		  TestControllerI.o
 
 SRCS		= $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp)
 
-SLICE_SRCS	= Session.ice
+SLICE_SRCS	= Test.ice
 
 include $(top_srcdir)/config/Make.rules
 

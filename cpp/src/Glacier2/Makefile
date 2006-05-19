@@ -34,6 +34,7 @@ ROBJS		= Blobject.o \
 		  RequestQueue.o \
 		  RouterI.o \
 		  RoutingTable.o \
+		  FilterI.o \
 		  ServerBlobject.o \
 		  SessionRouterI.o
 
