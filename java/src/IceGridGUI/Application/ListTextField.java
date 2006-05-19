@@ -25,42 +25,17 @@ public class ListTextField extends JTextField
 	super(columns);
     }
 
-    public void setList(java.util.List list, Utils.Resolver resolver)
+    public void setList(java.util.List list, final Utils.Resolver resolver)
     {
-	java.util.Iterator p = list.iterator();
-	String text = null;
+	Utils.Stringifier stringifier =  new Utils.Stringifier()
+	    {
+		public String toString(Object obj)
+		{
+		    return Utils.substitute((String)obj, resolver);
+		}
+	    };
 	
-	while(p.hasNext())
-	{
-	    if(text == null)
-	    {
-		text = "";
-	    }
-	    else
-	    {
-		text += " ";
-	    }
-
-	    String str = (String)p.next();
-	    str = Utils.substitute(str, resolver);
-
-	    if(str.length() == 0)
-	    {
-		text += "\"\"";
-	    }
-	    else if(str.matches("\\S*"))
-	    {
-		//
-		// Only non-whitespace characters
-		//
-		text += str;
-	    }
-	    else
-	    {
-		text += '"' + str + '"';
-	    }
-	}
-	setText(text);
+	setText(Utils.stringify(list, stringifier, " ", null));
     }
 
     public java.util.LinkedList getList()

@@ -75,6 +75,8 @@ class AdapterEditor extends Editor
 	
 	_registerProcess.setSelected(descriptor.registerProcess);	
 	_waitForActivation.setSelected(descriptor.waitForActivation);
+
+	_objects.setObjects(descriptor.objects, resolver);
     }
 
     protected void appendProperties(DefaultFormBuilder builder)
@@ -110,17 +112,31 @@ class AdapterEditor extends Editor
 	builder.append(_replicaGroupId, 3);
 	builder.nextLine();
 
-	builder.append("", _registerProcess);
-	builder.nextLine();
-	builder.append("", _waitForActivation);
-	builder.nextLine();
-
 	builder.append("Endpoints");
 	builder.append(_endpoints, 3);
 	builder.nextLine();
 
 	builder.append("Published Endpoints");
 	builder.append(_publishedEndpoints, 3);
+	builder.nextLine();
+
+	builder.append("", _registerProcess);
+	builder.nextLine();
+	builder.append("", _waitForActivation);
+	builder.nextLine();
+
+	builder.append("Registered Objects");
+	builder.nextLine();
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
+	builder.nextRow(-6);
+	scrollPane = new JScrollPane(_objects);
+	builder.add(scrollPane, 
+		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+	builder.nextRow(6);
 	builder.nextLine();
     }
 
@@ -141,4 +157,6 @@ class AdapterEditor extends Editor
 
     private JCheckBox _registerProcess = new JCheckBox("Register Process");
     private JCheckBox _waitForActivation = new JCheckBox("Wait for Activation");
+    
+    private TableField _objects = new TableField("Identity", "Type");
 }

@@ -125,7 +125,7 @@ class Service extends ListArrayTreeNode
 	return _instanceDescriptor;
     }
 
-    java.util.Map getProperties()
+    java.util.SortedMap getProperties()
     {
 	Utils.ExpandedPropertySet instancePropertySet = null;
 	Node node = (Node)_parent.getParent();

@@ -29,22 +29,6 @@ class DbEnvEditor extends Editor
 	_description.setEditable(false);
 	_description.setOpaque(false);
 	_dbHome.setEditable(false);
-	
-	_propertiesModel = new DefaultTableModel()
-	    {
-		public boolean isCellEditable(int row, int column)
-		{
-		    return false;
-		}
-	    };
-
-	_properties = new JTable(_propertiesModel);
-	_properties.setCellSelectionEnabled(false);
-	_properties.setOpaque(false);
-	_properties.setPreferredScrollableViewportSize(_properties.getPreferredSize());
-
-	_columnNames.add("Name");
-	_columnNames.add("Value");
     }
 
     void show(DbEnv dbEnv)
@@ -62,13 +46,7 @@ class DbEnvEditor extends Editor
 	    _dbHome.setText(resolver.substitute(descriptor.dbHome));
 	}
 
-	_propertiesModel.setDataVector(
-	    mapToVector(propertiesToMap(descriptor.properties, resolver)),
-	    _columnNames);
-
-	DefaultTableCellRenderer cr = (DefaultTableCellRenderer)
-	    _properties.getDefaultRenderer(String.class);
-	cr.setOpaque(false);
+	_properties.setProperties(descriptor.properties, resolver);
     }
 
     protected void appendProperties(DefaultFormBuilder builder)
@@ -114,8 +92,5 @@ class DbEnvEditor extends Editor
 
     private JTextArea _description = new JTextArea(3, 20);
     private JTextField _dbHome = new JTextField(20);
-
-    private JTable _properties;
-    private DefaultTableModel _propertiesModel;
-    private java.util.Vector _columnNames = new java.util.Vector(2);
+    private TableField _properties = new TableField("Name", "Value");
 }

@@ -589,7 +589,7 @@ class Server extends ListArrayTreeNode
 	}
     }
 
-    java.util.Map getProperties()
+    java.util.SortedMap getProperties()
     {
 	Utils.ExpandedPropertySet instancePropertySet = null;
 	Node node = (Node)_parent;

@@ -47,24 +47,6 @@ class NodeEditor extends Editor
 	refresh.putValue(Action.SHORT_DESCRIPTION, 
 			"Fetch the latest values from this IceGrid Node");
 	_refreshButton = new JButton(refresh);
-
-	_loadFactorModel = new DefaultTableModel()
-	    {
-		public boolean isCellEditable(int row, int column)
-		{
-		    return false;
-		}
-	    };
-
-	_loadFactorTable = new JTable(_loadFactorModel);
-	_loadFactorTable.setCellSelectionEnabled(false);
-	_loadFactorTable.setOpaque(false);
-	_loadFactorTable.setPreferredScrollableViewportSize(
-	    _loadFactorTable.getPreferredSize());
-
-	_columnNames.add("Application");
-	_columnNames.add("Value");
-
     }
 
     void show(Node node)
@@ -106,14 +88,7 @@ class NodeEditor extends Editor
 	    node.showLoad();
 	}
 
-	_loadFactorModel.setDataVector(
-	    mapToVector(node.getLoadFactors()),
-	    _columnNames);
-
-	DefaultTableCellRenderer cr = (DefaultTableCellRenderer)
-	    _loadFactorTable.getDefaultRenderer(String.class);
-	cr.setOpaque(false);
-	
+	_loadFactor.setSortedMap(node.getLoadFactors());	
     }
     
     void setLoad(String load, Node node)
@@ -157,7 +132,7 @@ class NodeEditor extends Editor
 	builder.append("");
 	builder.nextRow(-6);
 	CellConstraints cc = new CellConstraints();
-	JScrollPane scrollPane = new JScrollPane(_loadFactorTable);
+	JScrollPane scrollPane = new JScrollPane(_loadFactor);
 	builder.add(scrollPane, 
 		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
 	builder.nextRow(6);
@@ -177,9 +152,7 @@ class NodeEditor extends Editor
     private JTextField _loadAverage = new JTextField(20);
     private JButton _refreshButton;
 
-    private JTable _loadFactorTable;
-    private DefaultTableModel _loadFactorModel;
-    private java.util.Vector _columnNames = new java.util.Vector(2);
+    private TableField _loadFactor = new TableField("Application", "Value");
 
     private Node _target;
 }

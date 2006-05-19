@@ -14,13 +14,13 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
 
 import com.jgoodies.looks.Options;
 import com.jgoodies.looks.HeaderStyle;
@@ -127,6 +127,8 @@ class ServerEditor extends CommunicatorEditor
 	    Utils.stringify(descriptor.options, stringifier, " ", toolTipHolder));
 	_options.setToolTipText(toolTipHolder.value);
 
+	_envs.setEnvs(descriptor.envs, resolver);
+
 	_activation.setText(resolver.substitute(descriptor.activation));
 	_activationTimeout.setText(resolver.substitute(descriptor.activationTimeout));
 	_deactivationTimeout.setText(resolver.substitute(descriptor.deactivationTimeout));
@@ -188,9 +190,22 @@ class ServerEditor extends CommunicatorEditor
 	builder.append("Command Arguments");
 	builder.append(_options, 3);
 	builder.nextLine();
-//	builder.append("Environment Variables");
-//	builder.append(_envs, _envButton);
-//	builder.nextLine();
+	
+	builder.append("Environment Variables");
+	builder.nextLine();
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
+	builder.nextRow(-6);
+	CellConstraints cc = new CellConstraints();
+	JScrollPane scrollPane = new JScrollPane(_envs);
+	builder.add(scrollPane, 
+		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+	builder.nextRow(6);
+	builder.nextLine();
+
 	builder.append("Activation Mode");
 	builder.append(_activation, 3);
 	builder.nextLine();
@@ -258,7 +273,7 @@ class ServerEditor extends CommunicatorEditor
     private JTextField _activationTimeout = new JTextField(20);
     private JTextField _deactivationTimeout = new JTextField(20);
     
-    // private JTextField _envs = new JTextField(20);  
+    private TableField _envs = new TableField("Name", "Value");  
    
     private JTextField _options = new JTextField(20);
     private JCheckBox _applicationDistrib = new JCheckBox("Depends on the application distribution");

@@ -9,11 +9,7 @@
 package IceGridGUI.LiveDeployment;
 
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
-
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.DefaultTableCellRenderer;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -27,38 +23,14 @@ class CommunicatorEditor extends Editor
     {
 	_description.setEditable(false);
 	_description.setOpaque(false);
-
-	_propertiesModel = new DefaultTableModel()
-	    {
-		public boolean isCellEditable(int row, int column)
-		{
-		    return false;
-		}
-	    };
-
-	_properties = new JTable(_propertiesModel);
-	_properties.setCellSelectionEnabled(false);
-	_properties.setOpaque(false);
-	_properties.setPreferredScrollableViewportSize(_properties.getPreferredSize());
-	
-	_columnNames.add("Name");
-	_columnNames.add("Value");
     }
 
     protected void show(CommunicatorDescriptor descriptor, 
-			java.util.Map properties,
+			java.util.SortedMap properties,
 			Utils.Resolver resolver)
     {
 	_description.setText(resolver.substitute(descriptor.description));
-
-	_propertiesModel.setDataVector(mapToVector(properties), _columnNames);
-
-	DefaultTableCellRenderer cr = (DefaultTableCellRenderer)
-	    _properties.getDefaultRenderer(String.class);
-	cr.setOpaque(false);
-	
-	// _properties.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-	// _properties.doLayout();
+	_properties.setSortedMap(properties);
     }
 
     protected void appendProperties(DefaultFormBuilder builder)
@@ -92,8 +64,6 @@ class CommunicatorEditor extends Editor
     }
 
     private JTextArea _description = new JTextArea(3, 20);
-    private JTable _properties;
-    private DefaultTableModel _propertiesModel;
-    private java.util.Vector _columnNames = new java.util.Vector(2);
+    private TableField _properties = new TableField("Name", "Value");
 }
 

@@ -70,8 +70,23 @@ public class Utils
 			toolTipHolder.value += "<br>";
 		    }
 		}
+		
+		if(elt.length() == 0)
+		{
+		    result += "\"\"";
+		}
+		else if(elt.matches("\\S*"))
+		{
+		    //
+		    // Only non-whitespace characters
+		    //
+		    result += elt;
+		}
+		else
+		{
+		    result += '"' + elt + '"';
+		}
 
-		result += elt;
 		if(toolTipHolder != null)
 		{
 		    toolTipHolder.value += elt;
@@ -362,7 +377,7 @@ public class Utils
 	public java.util.List properties;       // list of PropertyDescriptor 
     }
 
-    static public java.util.Map propertySetToMap(
+    static public java.util.SortedMap propertySetToMap(
 	ExpandedPropertySet propertySet,
 	ExpandedPropertySet instancePropertySet, // can be null
 	Resolver resolver)

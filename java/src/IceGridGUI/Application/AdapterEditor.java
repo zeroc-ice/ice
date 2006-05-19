@@ -228,6 +228,19 @@ class AdapterEditor extends CommunicatorChildEditor
 	builder.append(_replicaGroupButton);
 	builder.nextLine();
 
+	builder.append("Endpoints" );
+	builder.append(_endpoints, 3);
+	builder.nextLine();
+
+	builder.append("Published Endpoints" );
+	builder.append(_publishedEndpoints, 3);
+	builder.nextLine();
+
+	builder.append("", _registerProcess);
+	builder.nextLine();
+	builder.append("", _waitForActivation);
+	builder.nextLine();
+
 	builder.append("Registered Objects");
 	builder.nextLine();
 	builder.append("");
@@ -240,19 +253,6 @@ class AdapterEditor extends CommunicatorChildEditor
 	builder.add(scrollPane, 
 		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
 	builder.nextRow(6);
-	builder.nextLine();
-	
-	builder.append("", _registerProcess);
-	builder.nextLine();
-	builder.append("", _waitForActivation);
-	builder.nextLine();
-
-	builder.append("Endpoints" );
-	builder.append(_endpoints, 3);
-	builder.nextLine();
-
-	builder.append("Published Endpoints" );
-	builder.append(_publishedEndpoints, 3);
 	builder.nextLine();
     }
 
@@ -481,12 +481,13 @@ class AdapterEditor extends CommunicatorChildEditor
 
     static java.util.Map objectDescriptorSeqToMap(java.util.List objects)
     {
-	java.util.Map result = new java.util.HashMap(objects.size());
+	java.util.Map result = new java.util.TreeMap();
 	java.util.Iterator p = objects.iterator();
 	while(p.hasNext())
 	{
 	    ObjectDescriptor od = (ObjectDescriptor)p.next();
-	    result.put(Ice.Util.identityToString(od.id), od.type);
+	    result.put(Ice.Util.identityToString(od.id), 
+		       od.type);
 	}
 	return result;
     }
