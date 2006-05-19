@@ -280,7 +280,7 @@ Resolver::Resolver(const ApplicationHelper& app) :
     _ignore.insert("node.version");
     _ignore.insert("node.machine");
     _ignore.insert("node.datadir");
-    _ignore.insert("session.userid");
+    _ignore.insert("session.id");
 }
 
 Resolver::Resolver(const Resolver& resolve, 
@@ -642,7 +642,7 @@ Resolver::getReserved()
     reserved["node.version"] = "";
     reserved["node.machine"] = "";
     reserved["node.datadir"] = "";
-    reserved["session.userid"] = "";
+    reserved["session.id"] = "";
     reserved["application.distrib"] = "${node.datadir}/distrib/${application}";
     reserved["server.distrib"] = "${node.datadir}/servers/${server}/distrib";
     reserved["server"] = "";
