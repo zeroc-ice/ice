@@ -763,7 +763,7 @@ ServerEntry::allocated(const SessionIPtr& session)
     if(traceLevels && traceLevels->server > 1)
     {
 	Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
-	out << "server `" << _id << "' allocated by `" << session->getUserId() << "' (" << _count << ")";
+	out << "server `" << _id << "' allocated by `" << session->getId() << "' (" << _count << ")";
     }
 
     {
@@ -804,7 +804,7 @@ ServerEntry::released(const SessionIPtr& session)
     if(traceLevels && traceLevels->server > 1)
     {
 	Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
-	out << "server `" << _id << "' released by `" << session->getUserId() << "' (" << _count << ")";
+	out << "server `" << _id << "' released by `" << session->getId() << "' (" << _count << ")";
     }    
 
     syncImpl(false); // We sync here to ensure the server will be shutdown.

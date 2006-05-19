@@ -225,6 +225,7 @@ IceGrid:
     Registry.Admin.ThreadPool.StackSize
     Registry.AdminCryptPasswords
     Registry.AdminPermissionsVerifier
+    Registry.AdminSSLPermissionsVerifier
     Registry.AdminSessionTimeout
     Registry.Client.AdapterId
     Registry.Client.ReplicaGroupId
@@ -259,6 +260,7 @@ IceGrid:
     Registry.Server.ThreadPool.SizeMax
     Registry.Server.ThreadPool.SizeWarn
     Registry.Server.ThreadPool.StackSize
+    Registry.SSLPermissionsVerifier
     Registry.Trace.Application
     Registry.Trace.Adapter
     Registry.Trace.Node

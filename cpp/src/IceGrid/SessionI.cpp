@@ -13,6 +13,8 @@
 #include <IceGrid/LocatorI.h>
 #include <IceGrid/Database.h>
 
+#include <IceSSL/Plugin.h>
+
 using namespace std;
 using namespace IceGrid;
 
@@ -60,11 +62,11 @@ newAllocateObject(const SessionIPtr& session, const IceUtil::Handle<T>& cb)
 
 };
 
-BaseSessionI::BaseSessionI(const string& userId, 
+BaseSessionI::BaseSessionI(const string& id, 
 			   const string& prefix, 
 			   const DatabasePtr& database,
 			   int timeout) :
-    _userId(userId), 
+    _id(id), 
     _prefix(prefix),
     _timeout(timeout),
     _traceLevels(database->getTraceLevels()),
@@ -75,7 +77,7 @@ BaseSessionI::BaseSessionI(const string& userId,
     if(_traceLevels && _traceLevels->session > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->sessionCat);
-	out << _prefix << " session `" << _userId << "' created";
+	out << _prefix << " session `" << _id << "' created";
     }
 }
 
@@ -99,7 +101,7 @@ BaseSessionI::keepAlive(const Ice::Current& current)
     if(_traceLevels->session > 1)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->sessionCat);
-	out << _prefix << " session `" << _userId << "' keep alive";
+	out << _prefix << " session `" << _id << "' keep alive";
     }
 }
 
@@ -135,7 +137,7 @@ BaseSessionI::destroy(const Ice::Current& current)
     if(_traceLevels && _traceLevels->session > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->sessionCat);
-	out << _prefix << " session `" << _userId << "' destroyed";
+	out << _prefix << " session `" << _id << "' destroyed";
     }
 }
 
@@ -146,12 +148,12 @@ BaseSessionI::timestamp() const
     return _timestamp;
 }
 
-SessionI::SessionI(const string& userId, 
+SessionI::SessionI(const string& id, 
 		   const DatabasePtr& database, 
 		   int timeout,
 		   const WaitQueuePtr& waitQueue,
 		   const Glacier2::SessionControlPrx& sessionControl) :
-    BaseSessionI(userId, "client", database, timeout),
+    BaseSessionI(id, "client", database, timeout),
     _waitQueue(waitQueue),
     _sessionControl(sessionControl),
     _allocationTimeout(-1)
@@ -285,9 +287,6 @@ ClientSessionManagerI::ClientSessionManagerI(const DatabasePtr& database, int ti
 Glacier2::SessionPrx
 ClientSessionManagerI::create(const string& user, const Glacier2::SessionControlPrx& ctl, const Ice::Current& current)
 {
-    //
-    // TODO: XXX: Update the Glacier2 allowable table to allow access to this object!
-    //
     return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(create(user, ctl)));
 }
 
@@ -295,4 +294,20 @@ SessionIPtr
 ClientSessionManagerI::create(const string& userId, const Glacier2::SessionControlPrx& ctl)
 {
     return new SessionI(userId, _database, _timeout, _waitQueue, ctl);
+}
+
+ClientSSLSessionManagerI::ClientSSLSessionManagerI(const DatabasePtr& db, int timeout, const WaitQueuePtr& waitQueue) :
+    _database(db), 
+    _timeout(timeout),
+    _waitQueue(waitQueue)
+{
+}
+
+Glacier2::SessionPrx
+ClientSSLSessionManagerI::create(const Glacier2::SSLInfo& info, const Glacier2::SessionControlPrx& ctl, 
+				 const Ice::Current& current)
+{
+    IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
+    SessionIPtr session = new SessionI(cert->getSubjectDN(), _database, _timeout, _waitQueue, ctl);
+    return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
 }

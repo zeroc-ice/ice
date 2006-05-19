@@ -58,6 +58,44 @@ interface Registry
      **/
     AdminSession* createAdminSession(string userId, string password)
 	throws PermissionDeniedException;
+
+    /**
+     *
+     * Create a client session.
+     *
+     * @see Session
+     * @see Glacier2::PermissionsVerifier
+     *
+     * @return A proxy for the newly created session.
+     *
+     * @param userId The user id for which to check the password.
+     *
+     * @param password The password for the given user id.
+     *
+     * @throws PermissionDeniedException Raised if the password for
+     * the given user id is not correct, or if the user is not allowed
+     * access.
+     *
+     **/
+    Session* createSessionFromSecureConnection()
+	throws PermissionDeniedException;
+
+    /**
+     *
+     * Create an administrative session.
+     *
+     * @see Session
+     * @see Glacier2::PermissionsVerifier
+     *
+     * @return A proxy for the newly created session.
+     *
+     * @throws PermissionDeniedException Raised if the password for
+     * the given user id is not correct, or if the user is not allowed
+     * access.
+     *
+     **/
+    AdminSession* createAdminSessionFromSecureConnection()
+	throws PermissionDeniedException;
 };
 
 };

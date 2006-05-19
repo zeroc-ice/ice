@@ -67,6 +67,24 @@ private:
 };
 typedef IceUtil::Handle<AdminSessionManagerI> AdminSessionManagerIPtr;
 
+class AdminSSLSessionManagerI : virtual public Glacier2::SSLSessionManager
+{
+public:
+
+    AdminSSLSessionManagerI(const  DatabasePtr&, int, const RegistryObserverTopicPtr& , const NodeObserverTopicPtr&);
+    
+    virtual Glacier2::SessionPrx create(const Glacier2::SSLInfo&, const Glacier2::SessionControlPrx&, 
+					const Ice::Current&);
+
+private:
+    
+    const DatabasePtr _database;
+    const int _timeout;
+    const RegistryObserverTopicPtr _registryObserverTopic;
+    const NodeObserverTopicPtr _nodeObserverTopic;
+};
+typedef IceUtil::Handle<AdminSSLSessionManagerI> AdminSSLSessionManagerIPtr;
+
 };
 
 #endif

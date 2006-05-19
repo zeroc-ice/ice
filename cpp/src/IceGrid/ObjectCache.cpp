@@ -365,7 +365,7 @@ ObjectEntry::allocated(const SessionIPtr& session)
     {
 	Ice::Trace out(traceLevels->logger, traceLevels->objectCat);
 	const Ice::Identity id = _info.proxy->ice_getIdentity();
-	out << "object `" << _cache.communicator()->identityToString(id) << "' allocated by `" << session->getUserId()
+	out << "object `" << _cache.communicator()->identityToString(id) << "' allocated by `" << session->getId()
 	    << "' (" << _count << ")";
     }    
 }
@@ -383,7 +383,7 @@ ObjectEntry::released(const SessionIPtr& session)
     {
 	Ice::Trace out(traceLevels->logger, traceLevels->objectCat);
 	const Ice::Identity id = _info.proxy->ice_getIdentity();
-	out << "object `" << _cache.communicator()->identityToString(id) << "' released by `" << session->getUserId() 
+	out << "object `" << _cache.communicator()->identityToString(id) << "' released by `" << session->getId() 
 	    << "' (" << _count << ")";
     }    
 }

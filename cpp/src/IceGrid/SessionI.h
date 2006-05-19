@@ -53,7 +53,7 @@ protected:
 
     BaseSessionI(const std::string&, const std::string&, const DatabasePtr&, int);
 
-    const std::string _userId;
+    const std::string _id;
     const std::string _prefix;
     const int _timeout;
     const TraceLevelsPtr _traceLevels;
@@ -80,7 +80,7 @@ public:
 
     int getAllocationTimeout() const;
     const WaitQueuePtr& getWaitQueue() const { return _waitQueue; }
-    const std::string& getUserId() const { return _userId; }
+    const std::string& getId() const { return _id; }
 
     bool addAllocationRequest(const AllocationRequestPtr&);
     void removeAllocationRequest(const AllocationRequestPtr&);
@@ -114,6 +114,23 @@ private:
     const WaitQueuePtr _waitQueue;
 };
 typedef IceUtil::Handle<ClientSessionManagerI> ClientSessionManagerIPtr;
+
+class ClientSSLSessionManagerI : virtual public Glacier2::SSLSessionManager
+{
+public:
+
+    ClientSSLSessionManagerI(const  DatabasePtr&, int, const WaitQueuePtr&);
+    
+    virtual Glacier2::SessionPrx create(const Glacier2::SSLInfo&, const Glacier2::SessionControlPrx&, 
+					const Ice::Current&);
+
+private:
+
+    const DatabasePtr _database;
+    const int _timeout;
+    const WaitQueuePtr _waitQueue;
+};
+typedef IceUtil::Handle<ClientSSLSessionManagerI> ClientSSLSessionManagerIPtr;
 
 };
 

@@ -49,6 +49,9 @@ public:
     virtual SessionPrx createSession(const std::string&, const std::string&, const Ice::Current&);
     virtual AdminSessionPrx createAdminSession(const std::string&, const std::string&, const Ice::Current&);
 
+    virtual SessionPrx createSessionFromSecureConnection(const Ice::Current&);
+    virtual AdminSessionPrx createAdminSessionFromSecureConnection(const Ice::Current&);
+
     virtual void shutdown();
     
 private:
@@ -58,6 +61,9 @@ private:
     Glacier2::PermissionsVerifierPrx getPermissionsVerifier(const Ice::ObjectAdapterPtr&, const Ice::LocatorPrx&,
 							    const std::string&, const std::string&);
 
+    Glacier2::SSLPermissionsVerifierPrx getSSLPermissionsVerifier(const Ice::LocatorPrx&, const std::string&);
+    Glacier2::SSLInfo getSSLInfo(const Ice::ConnectionPtr&);
+
     Ice::CommunicatorPtr _communicator;
     DatabasePtr _database;
     TraceLevelsPtr _traceLevels;
@@ -66,8 +72,10 @@ private:
     WaitQueuePtr _waitQueue;
     ClientSessionManagerIPtr _clientSessionManager;
     Glacier2::PermissionsVerifierPrx _clientVerifier;
+    Glacier2::SSLPermissionsVerifierPrx _sslClientVerifier;
     AdminSessionManagerIPtr _adminSessionManager;
     Glacier2::PermissionsVerifierPrx _adminVerifier;
+    Glacier2::SSLPermissionsVerifierPrx _sslAdminVerifier;
 
     IceStorm::ServicePtr _iceStorm;
 };

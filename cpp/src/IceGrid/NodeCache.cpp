@@ -417,12 +417,12 @@ NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, con
 	    out << "loading `" << desc->id << "' on node `" << _name << "'";
 	    if(session)
 	    {
-		out << " for session `" << session->getUserId() << "'";
+		out << " for session `" << session->getId() << "'";
 	    }
 	}
 	
 	AMI_Node_loadServerPtr amiCB = new LoadCB(_cache.getTraceLevels(), entry, entry->getId(), _name);
-	node->loadServer_async(amiCB, server.application, desc, session ? session->getUserId() : "");
+	node->loadServer_async(amiCB, server.application, desc, session ? session->getId() : "");
     }
     catch(const NodeUnreachableException& ex)
     {
@@ -483,7 +483,7 @@ NodeEntry::getServerDescriptor(const ServerInfo& server, const SessionIPtr& sess
 
     if(session)
     {
-	resolve.setReserved("session.userid", session->getUserId());
+	resolve.setReserved("session.id", session->getId());
     }
 
     IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(server.descriptor);

@@ -11,15 +11,17 @@
 #include <IceGrid/AdminSessionI.h>
 #include <IceGrid/Database.h>
 
+#include <IceSSL/Plugin.h>
+
 using namespace std;
 using namespace IceGrid;
 
-AdminSessionI::AdminSessionI(const string& userId, 
+AdminSessionI::AdminSessionI(const string& id, 
 			     const DatabasePtr& database,
 			     int timeout,
 			     const RegistryObserverTopicPtr& registryObserverTopic,
 			     const NodeObserverTopicPtr& nodeObserverTopic) :
-    BaseSessionI(userId, "admin", database, timeout),
+    BaseSessionI(id, "admin", database, timeout),
     _registryObserverTopic(registryObserverTopic),
     _nodeObserverTopic(nodeObserverTopic),
     _updating(false)
@@ -120,7 +122,7 @@ AdminSessionI::startUpdate(const Ice::Current& current)
 	throw ex;
     }
 
-    int serial = _database->lock(this, _userId);
+    int serial = _database->lock(this, _id);
     _updating = true;
     return serial;
 }
@@ -257,16 +259,35 @@ AdminSessionManagerI::AdminSessionManagerI(const DatabasePtr& database,
 }
 
 Glacier2::SessionPrx
-AdminSessionManagerI::create(const string& userId, const Glacier2::SessionControlPrx&, const Ice::Current& current)
+AdminSessionManagerI::create(const string& id, const Glacier2::SessionControlPrx&, const Ice::Current& current)
 {
-    //
-    // TODO: XXX: Update the Glacier2 allowable table to allow access to this object!
-    //
-    return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(create(userId)));
+    return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(create(id)));
 }
 
 AdminSessionIPtr
-AdminSessionManagerI::create(const string& userId)
+AdminSessionManagerI::create(const string& id)
 {
-    return new AdminSessionI(userId, _database, _timeout, _registryObserverTopic, _nodeObserverTopic);
+    return new AdminSessionI(id, _database, _timeout, _registryObserverTopic, _nodeObserverTopic);
 }
+
+AdminSSLSessionManagerI::AdminSSLSessionManagerI(const DatabasePtr& database,
+						 int sessionTimeout,
+						 const RegistryObserverTopicPtr& regTopic,
+						 const NodeObserverTopicPtr& nodeTopic) :
+    _database(database), 
+    _timeout(sessionTimeout),
+    _registryObserverTopic(regTopic),
+    _nodeObserverTopic(nodeTopic)
+{
+}
+
+Glacier2::SessionPrx
+AdminSSLSessionManagerI::create(const Glacier2::SSLInfo& info, const Glacier2::SessionControlPrx&, 
+				const Ice::Current& current)
+{
+    IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
+    string id = cert->getSubjectDN();
+    AdminSessionIPtr session = new AdminSessionI(id, _database, _timeout, _registryObserverTopic, _nodeObserverTopic);
+    return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
+}
+

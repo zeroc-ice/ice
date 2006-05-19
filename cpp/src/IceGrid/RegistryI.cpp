@@ -9,9 +9,10 @@
 
 #include <IceUtil/UUID.h>
 #include <Ice/Ice.h>
+#include <Ice/Network.h>
 
 #include <IceStorm/Service.h>
-
+#include <IceSSL/Plugin.h>
 #include <Glacier2/PermissionsVerifier.h>
 
 #include <IceGrid/TraceLevels.h>
@@ -357,6 +358,12 @@ RegistryI::start(bool nowarn)
     _adminSessionManager = new AdminSessionManagerI(_database, sessionTimeout, regTopic, nodeTopic);
     adminAdapter->add(_adminSessionManager, adminSessionMgrId);
 
+    Identity sslClientSessionMgrId = _communicator->stringToIdentity(instanceName + "/SSLSessionManager");
+    adminAdapter->add(new ClientSSLSessionManagerI(_database, sessionTimeout, _waitQueue), sslClientSessionMgrId);
+
+    Identity sslAdmSessionMgrId = _communicator->stringToIdentity(instanceName + "/AdminSSLSessionManager");
+    adminAdapter->add(new AdminSSLSessionManagerI(_database, sessionTimeout, regTopic, nodeTopic), sslAdmSessionMgrId);
+
     //
     // Setup null permissions verifier object, client and admin permissions verifiers.
     //
@@ -373,6 +380,7 @@ RegistryI::start(bool nowarn)
     {
 	return false;
     }
+
     _adminVerifier = getPermissionsVerifier(registryAdapter,
 					    internalLocatorPrx,
 					    properties->getProperty("IceGrid.Registry.AdminPermissionsVerifier"),
@@ -383,6 +391,11 @@ RegistryI::start(bool nowarn)
 	return false;
     }
 
+    _sslClientVerifier = getSSLPermissionsVerifier(
+	internalLocatorPrx, properties->getProperty("IceGrid.Registry.SSLPermissionsVerifier"));
+    _sslAdminVerifier = getSSLPermissionsVerifier(
+	internalLocatorPrx, properties->getProperty("IceGrid.Registry.AdminSSLPermissionsVerifier"));
+
     //
     // Register well known objects with the object registry.
     //
@@ -392,6 +405,8 @@ RegistryI::start(bool nowarn)
     addWellKnownObject(adminAdapter->createProxy(adminId), Admin::ice_staticId());
     addWellKnownObject(adminAdapter->createProxy(clientSessionMgrId), Glacier2::SessionManager::ice_staticId());
     addWellKnownObject(adminAdapter->createProxy(adminSessionMgrId), Glacier2::SessionManager::ice_staticId());
+    addWellKnownObject(adminAdapter->createProxy(sslClientSessionMgrId), Glacier2::SSLSessionManager::ice_staticId());
+    addWellKnownObject(adminAdapter->createProxy(sslAdmSessionMgrId), Glacier2::SSLSessionManager::ice_staticId());
 
     addWellKnownObject(registryAdapter->createProxy(internalRegistryId), InternalRegistry::ice_staticId());
 
@@ -489,6 +504,88 @@ RegistryI::createAdminSession(const string& user, const string& password, const 
     }
 
     AdminSessionIPtr session = _adminSessionManager->create(user);
+    AdminSessionPrx proxy = AdminSessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
+    _clientReaper->add(new SessionReapable(current.adapter, session, proxy));
+    return proxy;    
+}
+
+SessionPrx
+RegistryI::createSessionFromSecureConnection(const Ice::Current& current)
+{
+    if(!_sslClientVerifier)
+    {
+	PermissionDeniedException exc;
+	exc.reason = "no configured ssl permissions verifier";
+	throw exc;
+    }
+
+    Glacier2::SSLInfo info = getSSLInfo(current.con);
+    try
+    {
+	string reason;
+	if(!_sslClientVerifier->authorize(info, reason, current.ctx))
+	{
+	    PermissionDeniedException exc;
+	    exc.reason = reason;
+	    throw exc;
+	}
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	if(_traceLevels && _traceLevels->session > 0)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+	    out << "exception while verifying password with SSL client permission verifier:\n" << ex;
+	}
+
+	PermissionDeniedException exc;
+	exc.reason = "internal server error";
+	throw exc;
+    }
+
+    IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
+    SessionIPtr session = _clientSessionManager->create(cert->getSubjectDN(), 0);
+    SessionPrx proxy = SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
+    _clientReaper->add(new SessionReapable(current.adapter, session, proxy));
+    return proxy;    
+}
+
+AdminSessionPrx
+RegistryI::createAdminSessionFromSecureConnection(const Ice::Current& current)
+{
+    if(!_sslAdminVerifier)
+    {
+	PermissionDeniedException exc;
+	exc.reason = "no configured ssl permissions verifier";
+	throw exc;
+    }
+
+    Glacier2::SSLInfo info = getSSLInfo(current.con);
+    try
+    {
+	string reason;
+	if(!_sslAdminVerifier->authorize(info, reason, current.ctx))
+	{
+	    PermissionDeniedException exc;
+	    exc.reason = reason;
+	    throw exc;
+	}
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	if(_traceLevels && _traceLevels->session > 0)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+	    out << "exception while verifying password with SSL admin permission verifier:\n" << ex;
+	}
+
+	PermissionDeniedException exc;
+	exc.reason = "internal server error";
+	throw exc;
+    }
+
+    IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
+    AdminSessionIPtr session = _adminSessionManager->create(cert->getSubjectDN());
     AdminSessionPrx proxy = AdminSessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
     _clientReaper->add(new SessionReapable(current.adapter, session, proxy));
     return proxy;    
@@ -629,4 +726,92 @@ RegistryI::getPermissionsVerifier(const Ice::ObjectAdapterPtr& adapter,
 	out << "couldn't contact permissions verifier `" + verifierProperty + "':" << ex;	
     }
     return verifierPrx;
+}
+
+Glacier2::SSLPermissionsVerifierPrx
+RegistryI::getSSLPermissionsVerifier(const Ice::LocatorPrx& locator, const string& verifierProperty)
+{
+    //
+    // Get the permissions verifier, or create a default one if no
+    // verifier is specified.
+    //
+    if(verifierProperty.empty())
+    {
+	return 0;
+    }
+    
+    Ice::ObjectPrx verifier;
+    try
+    {
+	verifier = _communicator->stringToProxy(verifierProperty);
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	Error out(_communicator->getLogger());
+	out << "permissions verifier `" + verifierProperty + "' is invalid:\n" << ex;
+	return 0;
+    }
+
+    Glacier2::SSLPermissionsVerifierPrx verifierPrx;
+    try
+    {
+	//
+	// Set the permission verifier proxy locator to the internal
+	// locator. We can't use the "public" locator, this could lead
+	// to deadlocks if there's not enough threads in the client
+	// thread pool anymore.
+	//
+	verifierPrx = Glacier2::SSLPermissionsVerifierPrx::checkedCast(verifier->ice_locator(locator));
+	if(!verifierPrx)
+	{
+	    Error out(_communicator->getLogger());
+	    out << "permissions verifier `" + verifierProperty + "' is invalid";
+	    return 0;
+	}    
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	Warning out(_communicator->getLogger());
+	out << "couldn't contact permissions verifier `" + verifierProperty + "':" << ex;	
+    }
+    return verifierPrx;
+}
+
+Glacier2::SSLInfo
+RegistryI::getSSLInfo(const Ice::ConnectionPtr& connection)
+{
+    Glacier2::SSLInfo sslinfo;
+    try
+    {
+	IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(connection);
+	sslinfo.remotePort = ntohs(info.remoteAddr.sin_port);
+	sslinfo.remoteHost = IceInternal::inetAddrToString(info.remoteAddr.sin_addr);
+	sslinfo.localPort = ntohs(info.localAddr.sin_port);
+	sslinfo.localHost = IceInternal::inetAddrToString(info.localAddr.sin_addr);
+
+	sslinfo.cipher = info.cipher;
+
+	if(info.certs.size() > 0)
+	{
+	    sslinfo.certs.resize(info.certs.size());
+	    for(unsigned int i = 0; i < info.certs.size(); ++i)
+	    {
+		sslinfo.certs[i] = info.certs[i]->encode();
+	    }
+	}
+    }
+    catch(const IceSSL::ConnectionInvalidException&)
+    {
+	PermissionDeniedException exc;
+	exc.reason = "not ssl connection";
+	throw exc;
+    }
+    catch(const IceSSL::CertificateEncodingException&)
+    {
+	PermissionDeniedException exc;
+	exc.reason = "certificate encoding exception";
+	throw exc;
+    }
+
+    return sslinfo;
 }
