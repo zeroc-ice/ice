@@ -60,25 +60,31 @@ Module SessionActivationC
 	End Sub
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
-	    Dim sessionManager As IceGrid.SessionManagerPrx
-	    sessionManager = IceGrid.SessionManagerPrxHelper.checkedCast(communicator().stringToProxy("DemoIceGrid/SessionManager"))
- 	    If sessionManager Is Nothing Then
-	        Console.Error.WriteLine(": cound not contact session manager")
+	    Dim registry As IceGrid.RegistryPrx
+	    registry = IceGrid.RegistryPrxHelper.checkedCast(communicator().stringToProxy("DemoIceGrid/Registry"))
+ 	    If registry Is Nothing Then
+	        Console.Error.WriteLine(": cound not contact registry")
 	    End If
 
-            Dim id As String = Nothing
-            Do
+	    Dim session As IceGrid.SessionPrx = Nothing	    
+            While True
+	        Console.Out.Write("This demo accepts any user-id / password combination.")
+
                 Console.Out.Write("user id: ")
                 Console.Out.Flush()
+                Dim id As String = Console.In.ReadLine()
 
-                id = Console.In.ReadLine()
-                If id Is Nothing Then
-                    Return 1
-                End If
-                id = id.Trim()
-            Loop While id.Length = 0
+                Console.Out.Write("password: ")
+                Console.Out.Flush()
+                Dim pw As String = Console.In.ReadLine()
 
-	    Dim session As IceGrid.SessionPrx = sessionManager.createLocalSession(id)
+		Try
+		    session = registry.createSession(id, pw)
+		    Exit While
+		Catch ex As IceGrid.PermissionDeniedException
+		    Console.Error.WriteLine("permission denied:\n" + ex.reason)
+		End Try
+            End While
 
             Dim keepAlive As SessionKeepAliveThread = New SessionKeepAliveThread(session)
             Dim keepAliveThread As Thread = New Thread(New ThreadStart(AddressOf keepAlive.run))
@@ -126,6 +132,7 @@ Module SessionActivationC
             keepAlive = Nothing
 
 	    session.releaseObject(hello.ice_getIdentity())
+	    session.destroy()
 
             Return 0
         End Function
