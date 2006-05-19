@@ -204,10 +204,7 @@ HelloClient::run(int argc, char* argv[])
     keepAlive->getThreadControl().join();
 
     session->releaseObject(hello->ice_getIdentity());
-
-    //
-    // TODO: XXX: We should destroy the session.
-    //
+    session->destroy();
 
     return EXIT_SUCCESS;
 }

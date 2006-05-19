@@ -193,6 +193,8 @@ public class Client extends Ice.Application
 	    return 1;
 	}
 
+	session.destroy();
+
         return 0;
     }
 
