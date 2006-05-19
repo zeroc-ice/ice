@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <IceUtil/UUID.h>
 #include <Ice/Ice.h>
 #include <Ice/Network.h>
