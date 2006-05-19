@@ -103,12 +103,16 @@ Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAd
     IdentitySeq rejectIdSeq;
     IdentityFilterIPtr objectIdFilter = new IdentityFilterI(allowIdSeq, rejectIdSeq, false);
     
-    const_cast<StringFilterPrx&>(_categoryFilter) =
-	StringFilterPrx::uncheckedCast(_adminAdapter->addWithUUID(categoryFilter));
-    const_cast<StringFilterPrx&>(_adapterIdFilter) =
-	StringFilterPrx::uncheckedCast(_adminAdapter->addWithUUID(adapterIdFilter));
-    const_cast<IdFilterPrx&>(_objectIdFilter) =
-	IdFilterPrx::uncheckedCast(_adminAdapter->addWithUUID(objectIdFilter));
+    if(adminAdapter)
+    {
+        const_cast<StringFilterPrx&>(_categoryFilter) =
+	    StringFilterPrx::uncheckedCast(_adminAdapter->addWithUUID(categoryFilter));
+        const_cast<StringFilterPrx&>(_adapterIdFilter) =
+	    StringFilterPrx::uncheckedCast(_adminAdapter->addWithUUID(adapterIdFilter));
+        const_cast<IdFilterPrx&>(_objectIdFilter) =
+	    IdFilterPrx::uncheckedCast(_adminAdapter->addWithUUID(objectIdFilter));
+    }
+
     const_cast<ClientBlobjectPtr&>(_clientBlobject) = new ClientBlobject(_communicator, _routingTable,
 									 categoryFilter, adapterIdFilter,
 									 objectIdFilter);
@@ -270,18 +274,21 @@ Glacier2::RouterI::getServerBlobject() const
 StringFilterPrx
 Glacier2::RouterI::getCategoryFilter() const
 {
+    assert(_adminAdapter);
     return _categoryFilter;
 }
 
 StringFilterPrx
 Glacier2::RouterI::getAdapterIdFilter() const
 {
+    assert(_adminAdapter);
     return _adapterIdFilter;
 }
 
 IdFilterPrx
 Glacier2::RouterI::getObjectIdFilter() const
 {
+    assert(_adminAdapter);
     return _objectIdFilter;
 }
 

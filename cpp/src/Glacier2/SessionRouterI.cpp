@@ -846,9 +846,9 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 		{
 	            _adminAdapter->remove(controlId);
 		}
-		catch(const NotRegisteredException&)
+		catch(const Exception&)
 		{
-		    // Ignore
+		    // Ignore all exceptions here.
 		}
 	    }
 	    try
@@ -860,8 +860,13 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 		// Ignore all exceptions here.
 	    }
 	}
-
-	ex.ice_throw();
+	
+	//
+	// We throw ConnectionLostException here rather than the exception that
+	// was raised by the session creation as the client should not receive
+	// that information.
+	//
+	throw ConnectionLostException(__FILE__, __LINE__, 0);
     }
 
     {
