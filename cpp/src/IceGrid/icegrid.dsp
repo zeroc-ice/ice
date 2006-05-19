@@ -44,7 +44,7 @@ RSC=rc.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "LIBRARY_EXPORTS" /Yu"stdafx.h" /FD /c
 # ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I ".." /I "../../include" /D "_USRDLL" /D "ICE_GRID_API_EXPORTS" /D "_CONSOLE" /D "NDEBUG" /D "WIN32_LEAN_AND_MEAN" /FD /c
-# SUBTRACT CPP /Z<none> /Fr /YX
+# SUBTRACT CPP /Fr /YX
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -122,11 +122,15 @@ SOURCE=.\Observer.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Session.cpp
+SOURCE=.\Query.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Query.cpp
+SOURCE=.\Registry.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Session.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -322,49 +326,6 @@ BuildCmds= \
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\slice\icegrid\Session.ice
-
-!IF  "$(CFG)" == "icegrid - Win32 Release"
-
-USERDEP__OBSER="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
-# Begin Custom Build
-InputPath=..\..\slice\icegrid\Session.ice
-
-BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_GRID_API --include-dir icegrid -I../../slice ../../slice/IceGrid/Session.ice \
-	move Session.h ..\..\include\icegrid \
-	
-
-"..\..\include\icegrid\Session.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Session.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "icegrid - Win32 Debug"
-
-USERDEP__OBSER="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
-# Begin Custom Build
-InputPath=..\..\slice\icegrid\Session.ice
-
-BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_GRID_API --include-dir icegrid -I../../slice ../../slice/IceGrid/Session.ice \
-	move Session.h ..\..\include\icegrid \
-	
-
-"..\..\include\icegrid\Session.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Session.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\slice\icegrid\Query.ice
 
 !IF  "$(CFG)" == "icegrid - Win32 Release"
@@ -400,6 +361,92 @@ BuildCmds= \
    $(BuildCmds)
 
 "Query.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\icegrid\Registry.ice
+
+!IF  "$(CFG)" == "icegrid - Win32 Release"
+
+USERDEP__REGIS="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\icegrid\Registry.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_GRID_API --include-dir icegrid -I../../slice ../../slice/IceGrid/Registry.ice \
+	move Registry.h ..\..\include\icegrid \
+	
+
+"..\..\include\icegrid\Registry.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Registry.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "icegrid - Win32 Debug"
+
+USERDEP__REGIS="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\icegrid\Registry.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_GRID_API --include-dir icegrid -I../../slice ../../slice/IceGrid/Registry.ice \
+	move Registry.h ..\..\include\icegrid \
+	
+
+"..\..\include\icegrid\Registry.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Registry.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\icegrid\Session.ice
+
+!IF  "$(CFG)" == "icegrid - Win32 Release"
+
+USERDEP__SESSI="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\icegrid\Session.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_GRID_API --include-dir icegrid -I../../slice ../../slice/IceGrid/Session.ice \
+	move Session.h ..\..\include\icegrid \
+	
+
+"..\..\include\icegrid\Session.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Session.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "icegrid - Win32 Debug"
+
+USERDEP__SESSI="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\icegrid\Session.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_GRID_API --include-dir icegrid -I../../slice ../../slice/IceGrid/Session.ice \
+	move Session.h ..\..\include\icegrid \
+	
+
+"..\..\include\icegrid\Session.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Session.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
