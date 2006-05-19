@@ -99,7 +99,7 @@ class Adapter extends TreeNode implements DescriptorHolder
 
     protected Editor createEditor()
     {
-	return new AdapterEditor(getCoordinator().getMainFrame());
+	return new AdapterEditor();
     }
 
 

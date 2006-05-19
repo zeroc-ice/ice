@@ -790,11 +790,11 @@ public class Coordinator
 	    RegistryPrx registry = RegistryPrxHelper.
 		uncheckedCast(_communicator.stringToProxy(str));
 	    
-	    // TODO: XXX: If we decide to keep this method, we should pass a password!
 	    try
 	    {
 		session = AdminSessionPrxHelper.uncheckedCast(
-		    registry.createAdminSession(info.registryUsername, ""));
+		    registry.createAdminSession(info.registryUsername, 
+						new String(info.registryPassword)));
 	    }
 	    catch(IceGrid.PermissionDeniedException e)
 	    {
@@ -1762,6 +1762,7 @@ public class Coordinator
 	{
 	    System.err.println("_communicator.destroy() raised "
 			       + e.toString());
+	    e.printStackTrace();
 	}
     }
 

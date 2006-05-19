@@ -145,7 +145,7 @@ class PlainService extends Communicator implements Service, Cloneable
 
     protected Editor createEditor()
     {
-	return new PlainServiceEditor(getCoordinator().getMainFrame());
+	return new PlainServiceEditor();
     }
     
     Editable getEnclosingEditable()

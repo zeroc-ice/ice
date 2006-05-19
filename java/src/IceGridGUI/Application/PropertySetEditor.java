@@ -18,7 +18,6 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -115,7 +114,7 @@ class PropertySetEditor extends Editor
 	}
     }
 
-    PropertySetEditor(JFrame parentFrame)
+    PropertySetEditor()
     {
 	//
 	// Associate updateListener with various fields
@@ -123,29 +122,9 @@ class PropertySetEditor extends Editor
 	_id.getDocument().addDocumentListener(_updateListener);
 	_id.setToolTipText("The id of this Property Set");
 	
-	_propertySets.setEditable(false);
+	_propertySets.getDocument().addDocumentListener(_updateListener);
+	_propertySets.setToolTipText("Property Set References");
 	_properties = new PropertiesField(this);
-
-	_propertySetsDialog = new ListDialog(parentFrame, 
-					     "Property Set References", true);
-
-	Action openPropertySetsDialog = new AbstractAction("...")
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    java.util.LinkedList result = _propertySetsDialog.show(
-			_propertySetsList, getProperties());
-		    if(result != null)
-		    {
-			updated();
-			_propertySetsList = result;
-			setPropertySetsField();
-		    }
-		}
-	    };
-	openPropertySetsDialog.putValue(Action.SHORT_DESCRIPTION,
-					"Edit property set references");
-	_propertySetsButton = new JButton(openPropertySetsDialog);
     }
     
     void writeDescriptor()
@@ -154,7 +133,7 @@ class PropertySetEditor extends Editor
 	    (PropertySetDescriptor)getPropertySet().getDescriptor();
 
 	descriptor.references = 
-	    (String[])_propertySetsList.toArray(new String[0]);
+	    (String[])_propertySets.getList().toArray(new String[0]);
 	descriptor.properties = _properties.getProperties();
     }	    
     
@@ -170,7 +149,7 @@ class PropertySetEditor extends Editor
 	builder.nextLine();
 	
 	builder.append("Property Sets");
-	builder.append(_propertySets, _propertySetsButton);
+	builder.append(_propertySets, 3);
 	builder.nextLine();
 
 	builder.append("Properties");
@@ -178,7 +157,6 @@ class PropertySetEditor extends Editor
 	builder.append("");
 	builder.nextLine();
 	builder.append("");
-
 	builder.nextLine();
 	builder.append("");
 
@@ -211,9 +189,9 @@ class PropertySetEditor extends Editor
 	_id.setText(_target.getId());
 	_id.setEditable(_target.isEphemeral());
 	
-	_propertySetsList = java.util.Arrays.asList(descriptor.references);
-	setPropertySetsField();
-	_propertySetsButton.setEnabled(isEditable);
+	_propertySets.setList(java.util.Arrays.asList(descriptor.references),
+			      resolver);
+	_propertySets.setEditable(isEditable);
 
 	_properties.setProperties(descriptor.properties, null, 
 				  getDetailResolver(), isEditable);
@@ -228,39 +206,8 @@ class PropertySetEditor extends Editor
 	return (PropertySet)_target;
     }
 
-    private void setPropertySetsField()
-    {
-	final Utils.Resolver resolver = getDetailResolver();
-	
-	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
-	Utils.Stringifier stringifier = new Utils.Stringifier()
-	    {
-		public String toString(Object obj)
-		{
-		    return Utils.substitute((String)obj, resolver);
-		}
-	    };
-	
-	_propertySets.setText(
-	    Utils.stringify(_propertySetsList, 
-			    stringifier, ", ", toolTipHolder));
-
-	String toolTip = "<html>Property Sets";
-
-	if(toolTipHolder.value != null)
-	{
-	    toolTip += ":<br>" + toolTipHolder.value;
-	}
-	toolTip += "</html>";
-	_propertySets.setToolTipText(toolTip);
-    }
-
     private JTextField _id = new JTextField(20);
     
-    private JTextField _propertySets = new JTextField(20);
-    private java.util.List _propertySetsList;
-    private ListDialog _propertySetsDialog;
-    private JButton _propertySetsButton;
- 
+    private ListTextField _propertySets = new ListTextField(20);
     private PropertiesField _properties;  
 }

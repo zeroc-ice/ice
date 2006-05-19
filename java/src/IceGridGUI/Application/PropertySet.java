@@ -104,7 +104,7 @@ class PropertySet extends TreeNode
 
     protected Editor createEditor()
     {
-	return new PropertySetEditor(getCoordinator().getMainFrame());
+	return new PropertySetEditor();
     }
 
     public boolean isEphemeral()

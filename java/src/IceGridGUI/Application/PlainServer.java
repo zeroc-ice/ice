@@ -149,9 +149,9 @@ class PlainServer extends Communicator implements Server
 	}
 	
 	actions[NEW_ADAPTER] = !_services.initialized();
-	actions[NEW_SERVICE] = _services.initialized();
 	actions[NEW_DBENV] = !_services.initialized();
-
+	actions[NEW_SERVICE] = _services.initialized();
+	actions[NEW_SERVICE_FROM_TEMPLATE] = _services.initialized();
 	return actions;
     }
     public JPopupMenu getPopupMenu()
@@ -186,7 +186,7 @@ class PlainServer extends Communicator implements Server
 
     protected Editor createEditor()
     {
-	return new PlainServerEditor(getCoordinator().getMainFrame());
+	return new PlainServerEditor();
     }
 	
     public Component getTreeCellRendererComponent(

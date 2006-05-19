@@ -162,7 +162,7 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
 
     protected Editor createEditor()
     {
-	return new ServiceInstanceEditor(getCoordinator().getMainFrame());
+	return new ServiceInstanceEditor();
     }
 
     public String toString()

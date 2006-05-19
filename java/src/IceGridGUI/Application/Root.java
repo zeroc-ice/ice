@@ -141,7 +141,7 @@ public class Root extends ListTreeNode
 
     protected Editor createEditor()
     {
-	return new ApplicationEditor(_coordinator.getMainFrame());
+	return new ApplicationEditor();
     }
 
     public TreeNode findNodeLike(TreePath path, boolean exactMatch)

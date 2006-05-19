@@ -15,7 +15,6 @@ import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -85,35 +84,15 @@ class ApplicationEditor extends Editor
 	}
     }
 
-    ApplicationEditor(JFrame parentFrame)
+    ApplicationEditor()
     {
 	_name.getDocument().addDocumentListener(_updateListener);
 	_description.getDocument().addDocumentListener(_updateListener);
-	_variables.setEditable(false);
 	
 	//
 	// Variables
 	//
-	_variablesDialog = new TableDialog(parentFrame, 
-					   "Variables", "Name", "Value", true);
-	
-	Action openVariablesDialog = new AbstractAction("...")
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    java.util.TreeMap result = _variablesDialog.show(_variablesMap, 
-								     getProperties());
-		    if(result != null)
-		    {
-			updated();
-			_variablesMap = result;
-			setVariablesField();
-		    }
-		}
-	    };
-	openVariablesDialog.putValue(Action.SHORT_DESCRIPTION, 
-				     "Edit variables");
-	_variablesButton = new JButton(openVariablesDialog);
+	_variables = new MapField(this, "Name", "Value", false);
 
 	//
 	// Distrib
@@ -127,27 +106,10 @@ class ApplicationEditor extends Editor
 	distribTextField.getDocument().addDocumentListener(
 	    _updateListener);
 
-	_distribDirs.setEditable(false);
-	_distribDirsDialog = new ListDialog(parentFrame, 
-					    "Directories", true);
-
-	Action openDistribDirsDialog = new AbstractAction("...")
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    java.util.LinkedList result = _distribDirsDialog.show(
-			_distribDirsList, getProperties());
-		    if(result != null)
-		    {
-			updated();
-			_distribDirsList = result;
-			setDistribDirsField();
-		    }
-		}
-	    };
-	openDistribDirsDialog.putValue(Action.SHORT_DESCRIPTION, 
-				       "Edit directory list");
-	_distribDirsButton = new JButton(openDistribDirsDialog);
+	_distribDirs.getDocument().addDocumentListener(_updateListener);
+	_distribDirs.setToolTipText(
+	    "<html>Include only these directories when patching.<br>"
+	    + "Use whitespace as separator; use double-quotes around directories containing whitespaces</html>");
 
     }
  
@@ -167,8 +129,18 @@ class ApplicationEditor extends Editor
 	builder.nextRow(2);
 	builder.nextLine();
 
-	builder.append("Variables", _variables);
-	builder.append(_variablesButton);
+	builder.append("Variables");
+	builder.nextLine();
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
+	builder.nextRow(-6);
+	scrollPane = new JScrollPane(_variables);
+	builder.add(scrollPane, 
+		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+	builder.nextRow(6);
 	builder.nextLine();
 
 	JComponent c = builder.appendSeparator("Distribution");
@@ -177,7 +149,7 @@ class ApplicationEditor extends Editor
 	builder.append(_distrib, 3);
 	builder.nextLine();
 	builder.append("Directories");
-	builder.append(_distribDirs, _distribDirsButton);
+	builder.append(_distribDirs, 3);
 	builder.nextLine();
     }
     
@@ -190,14 +162,14 @@ class ApplicationEditor extends Editor
     boolean isSimpleUpdate()
     {
 	ApplicationDescriptor descriptor = (ApplicationDescriptor)_target.getDescriptor();
-	return descriptor.name.equals(_name.getText()) && _variablesMap.equals(descriptor.variables);
+	return descriptor.name.equals(_name.getText()) && _variables.get().equals(descriptor.variables);
     }
 
     void writeDescriptor()
     {
 	ApplicationDescriptor descriptor = (ApplicationDescriptor)_target.getDescriptor();
 	descriptor.name = _name.getText();
-	descriptor.variables = _variablesMap;
+	descriptor.variables = _variables.get();
 	descriptor.description = _description.getText();
 
 	if(_distrib.getSelectedItem() == NO_DISTRIB)
@@ -208,7 +180,7 @@ class ApplicationEditor extends Editor
 	{
 	    descriptor.distrib.icepatch = _distrib.getSelectedItem().toString();
 	}
-	descriptor.distrib.directories = _distribDirsList;
+	descriptor.distrib.directories = _distribDirs.getList();
     }	    
     
 
@@ -232,10 +204,8 @@ class ApplicationEditor extends Editor
 	_description.setOpaque(isEditable);
 	_description.setToolTipText("An optional description for this application");
 	
-	_variablesMap = descriptor.variables;
-	setVariablesField();
-	_variablesButton.setEnabled(isEditable);
-
+	_variables.set(descriptor.variables, resolver, isEditable);
+	
 	_distrib.setEnabled(true);
 	_distrib.setEditable(true);
 	String icepatch = 
@@ -251,62 +221,12 @@ class ApplicationEditor extends Editor
 	_distrib.setEnabled(isEditable);
 	_distrib.setEditable(isEditable);
 
-	_distribDirsList = new java.util.LinkedList(descriptor.distrib.directories);
-	setDistribDirsField();
-	_distribDirsButton.setEnabled(isEditable);
+	_distribDirs.setList(descriptor.distrib.directories, resolver);
+	_distribDirs.setEditable(isEditable);
 
 	_applyButton.setEnabled(false);
 	_discardButton.setEnabled(false);	  
 	detectUpdates(true);
-    }
-    
-    private void setDistribDirsField()
-    {
-	final Utils.Resolver resolver = getDetailResolver();
-
-	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
-	Utils.Stringifier stringifier = new Utils.Stringifier()
-	    {
-		public String toString(Object obj)
-		{
-		    return Utils.substitute((String)obj, resolver);
-		}
-	    };
-	
-	_distribDirs.setText(
-	    Utils.stringify(_distribDirsList, stringifier, ", ", 
-			    toolTipHolder));
-
-	String toolTip = "<html>Include only these directories";
-
-	if(toolTipHolder.value != null)
-	{
-	    toolTip += ":<br>" + toolTipHolder.value;
-	}
-	toolTip += "</html>";
-	_distribDirs.setToolTipText(toolTip);
-    }
-
-    private void setVariablesField()
-    {
-	final Utils.Resolver resolver = getDetailResolver();
-
-	Utils.Stringifier stringifier = new Utils.Stringifier()
-	    {
-		public String toString(Object obj)
-		{
-		    java.util.Map.Entry entry = (java.util.Map.Entry)obj;
-		    
-		    return (String)entry.getKey() + "="
-			+ Utils.substitute((String)entry.getValue(), resolver);
-		}
-	    };
-
-	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
-	_variables.setText(
-	    Utils.stringify(_variablesMap.entrySet(), stringifier, 
-			    ", ", toolTipHolder));
-	_variables.setToolTipText(toolTipHolder.value);
     }
     
     static private final Object NO_DISTRIB = new Object()
@@ -320,15 +240,7 @@ class ApplicationEditor extends Editor
 
     private JTextField _name = new JTextField(20);
     private JTextArea _description = new JTextArea(3, 20);
-
-    private JTextField _variables = new JTextField(20);
-    private JButton _variablesButton;
-    private TableDialog _variablesDialog;
-    private java.util.TreeMap _variablesMap;
-    
+    private MapField _variables;
     private JComboBox _distrib;
-    private JTextField _distribDirs = new JTextField(20);
-    private java.util.LinkedList _distribDirsList;
-    private ListDialog _distribDirsDialog;
-    private JButton _distribDirsButton;
+    private ListTextField _distribDirs = new ListTextField(20);
 }

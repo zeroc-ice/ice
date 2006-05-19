@@ -12,7 +12,6 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.JFrame;
 import javax.swing.JTextField;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -22,9 +21,9 @@ import IceGridGUI.*;
 
 class ServiceSubEditor extends CommunicatorSubEditor
 {
-    ServiceSubEditor(Editor mainEditor, JFrame parentFrame)
+    ServiceSubEditor(Editor mainEditor)
     {
-	super(mainEditor, parentFrame);
+	super(mainEditor);
 
 	_name.getDocument().addDocumentListener(
 	    _mainEditor.getUpdateListener());

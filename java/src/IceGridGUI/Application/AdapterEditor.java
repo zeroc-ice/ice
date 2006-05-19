@@ -19,7 +19,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -34,9 +33,9 @@ import IceGridGUI.*;
 
 class AdapterEditor extends CommunicatorChildEditor
 {
-    AdapterEditor(JFrame parentFrame)
+    AdapterEditor()
     {
-	_objects.setEditable(false);
+	_objects = new MapField(this, "Identity", "Type", true);
 	
 	//
 	// Create buttons
@@ -78,33 +77,6 @@ class AdapterEditor extends CommunicatorChildEditor
 	gotoReplicaGroup.putValue(Action.SHORT_DESCRIPTION, 
 				  "Goto the definition of this replica group");
 	_replicaGroupButton = new JButton(gotoReplicaGroup);
-	
-	//
-	// _objectsButton
-	//
-	_objectsDialog = new TableDialog(parentFrame, 
-					 "Registered Objects",
-					 "Object Identity", 
-					 "Type", true);
-	
-	Action openObjectsDialog = new AbstractAction("...")
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    java.util.Map result = _objectsDialog.show(_objectsMap, 
-							       getProperties());
-		    if(result != null)
-		    {
-			updated();
-			_objectsMap = result;
-			setObjectsField();
-		    }
-		}
-	    };
-	openObjectsDialog.putValue(Action.SHORT_DESCRIPTION, 
-				   "Edit registered objects");
-	_objectsButton = new JButton(openObjectsDialog);
-	
 	
 	Action checkRegisterProcess = new AbstractAction("Register Process")
 	    {
@@ -215,7 +187,7 @@ class AdapterEditor extends CommunicatorChildEditor
 	descriptor.replicaGroupId = getReplicaGroupIdAsString();
 	descriptor.registerProcess = _registerProcess.isSelected();
 	descriptor.waitForActivation = _waitForActivation.isSelected();
-	descriptor.objects = mapToObjectDescriptorSeq(_objectsMap);
+	descriptor.objects = mapToObjectDescriptorSeq(_objects.get());
     }	    
     
     boolean isSimpleUpdate()
@@ -257,7 +229,17 @@ class AdapterEditor extends CommunicatorChildEditor
 	builder.nextLine();
 
 	builder.append("Registered Objects");
-	builder.append(_objects, _objectsButton);
+	builder.nextLine();
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
+	builder.nextRow(-6);
+	scrollPane = new JScrollPane(_objects);
+	builder.add(scrollPane, 
+		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+	builder.nextRow(6);
 	builder.nextLine();
 	
 	builder.append("", _registerProcess);
@@ -309,35 +291,7 @@ class AdapterEditor extends CommunicatorChildEditor
 
 	}
     }
-    
-    private void setObjectsField()
-    {
-	Adapter adapter = getAdapter();
-
-	final Utils.Resolver resolver = adapter.getCoordinator().substitute() ? 
-	    adapter.getResolver() : null;
-	
-	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
-	Utils.Stringifier stringifier = new Utils.Stringifier()
-	    {
-		public String toString(Object obj)
-		{
-		    java.util.Map.Entry entry = (java.util.Map.Entry)obj;
-		    
-		    return Utils.substitute((String)entry.getKey(), resolver) 
-			+ " as '"
-			+ Utils.substitute((String)entry.getValue(), resolver)
-			+ "'";
-		}
-	    };
-	
-	_objects.setText(
-	    Utils.stringify(_objectsMap.entrySet(), stringifier,
-			    ", ", toolTipHolder));
-
-	_objects.setToolTipText(toolTipHolder.value);
-    }
-    
+      
     private void setId(String id)
     {
 	if(id.equals(""))
@@ -507,9 +461,7 @@ class AdapterEditor extends CommunicatorChildEditor
 	//
 	// Objects
 	//
-	_objectsMap = objectDescriptorSeqToMap(descriptor.objects);
-	setObjectsField();
-	_objectsButton.setEnabled(isEditable);
+	_objects.set(objectDescriptorSeqToMap(descriptor.objects), resolver, isEditable);
 	
 	_registerProcess.setSelected(descriptor.registerProcess);
 	_registerProcess.setEnabled(isEditable);
@@ -584,10 +536,7 @@ class AdapterEditor extends CommunicatorChildEditor
     private JCheckBox _registerProcess;
     private JCheckBox _waitForActivation;
 
-    private JTextField _objects = new JTextField(20);
-    private java.util.Map _objectsMap;
-    private TableDialog _objectsDialog;
-    private JButton _objectsButton;
+    private MapField _objects;
 
     static private final Object PUBLISH_ACTUAL = new Object()
 	{

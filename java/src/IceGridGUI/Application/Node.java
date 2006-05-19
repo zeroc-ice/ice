@@ -389,7 +389,7 @@ class Node extends TreeNode implements PropertySetParent
 
     protected Editor createEditor()
     {
-	return new NodeEditor(getCoordinator().getMainFrame());
+	return new NodeEditor();
     }
 
     public boolean isEphemeral()

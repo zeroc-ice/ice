@@ -144,7 +144,7 @@ class ServerTemplate extends Communicator
 
     protected Editor createEditor()
     {
-	return new ServerTemplateEditor(getCoordinator().getMainFrame());
+	return new ServerTemplateEditor();
     }
     
     public void destroy()

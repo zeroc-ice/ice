@@ -8,8 +8,6 @@
 // **********************************************************************
 package IceGridGUI.Application;
 
-import javax.swing.JFrame;
-
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 
 import IceGrid.*;
@@ -27,9 +25,9 @@ class PlainServerEditor extends AbstractServerEditor
 	return _subEditor.isSimpleUpdate(); 
     }
 
-    PlainServerEditor(JFrame parentFrame)
+    PlainServerEditor()
     {
-	_subEditor = new ServerSubEditor(this, parentFrame);
+	_subEditor = new ServerSubEditor(this);
     }
  
     //

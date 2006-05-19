@@ -14,48 +14,23 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
-import javax.swing.JFrame;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
 
 import IceGrid.*;
 import IceGridGUI.*;
 
 class TemplateEditor extends Editor
 {
-    TemplateEditor(JFrame parentFrame)
+    TemplateEditor()
     {
 	_template.getDocument().addDocumentListener(_updateListener);
 	_template.setToolTipText("Must be unique within the enclosing application");
-	_parameters.setEditable(false);
 
-	//
-	// Parameters
-	//
-	_parametersDialog = new ParametersDialog(parentFrame, 
-						 "Parameters",
-						 "Default value", true, "No default");
-	
-	Action openParametersDialog = new AbstractAction("...")
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    if(_parametersDialog.show(_parameterList, _parameterValuesMap, 
-					      getProperties()))
-		    {
-			updated();
-			setParametersField();
-			//
-			// No need to redisplay details: since it's editable,
-			// we're not substituting variables or parameters
-			//
-		    }
-		}
-	    };
-	openParametersDialog.putValue(Action.SHORT_DESCRIPTION,
-				      "Edit parameters");
-	_parametersButton = new JButton(openParametersDialog);
+	_parameters = new ParametersField(this, "Default value", true, "No default");
     }
 
     TemplateDescriptor getDescriptor()
@@ -71,15 +46,19 @@ class TemplateEditor extends Editor
     void writeDescriptor()
     {
 	TemplateDescriptor descriptor = getDescriptor();
-	descriptor.parameters = _parameterList;
-	descriptor.parameterDefaults = _parameterValuesMap;
+	java.util.LinkedList parameters = new java.util.LinkedList();
+	descriptor.parameterDefaults = _parameters.get(parameters);
+	descriptor.parameters = parameters;
     }	    
     
     boolean isSimpleUpdate()
     {
 	TemplateDescriptor descriptor = getDescriptor();
-	return descriptor.parameters.equals(_parameterList)
-	    && descriptor.parameterDefaults.equals(_parameterValuesMap);
+	java.util.List parameters = new java.util.LinkedList();
+	java.util.Map defaultValues = _parameters.get(parameters);
+
+	return descriptor.parameters.equals(parameters)
+	    && descriptor.parameterDefaults.equals(defaultValues);
     }
 
     protected void appendProperties(DefaultFormBuilder builder)
@@ -88,8 +67,20 @@ class TemplateEditor extends Editor
 	builder.append(_template, 3);
 	builder.nextLine();
 	
-	builder.append("Parameters", _parameters);
-	builder.append(_parametersButton);
+	builder.append("Parameters");
+	builder.nextLine();
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
+
+	builder.nextRow(-6);
+	JScrollPane scrollPane = new JScrollPane(_parameters);
+	CellConstraints cc = new CellConstraints();
+	builder.add(scrollPane, 
+		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+	builder.nextRow(6);
 	builder.nextLine();
     }
 
@@ -99,9 +90,7 @@ class TemplateEditor extends Editor
 	_template.setText(_target.getId());
 	_template.setEditable(_target.isEphemeral());
 
-	_parameterList = new java.util.LinkedList(descriptor.parameters);
-	_parameterValuesMap = new java.util.HashMap(descriptor.parameterDefaults);
-	setParametersField();
+	_parameters.set(descriptor.parameters, descriptor.parameterDefaults, null, true);
     }
 
     protected void applyUpdate()
@@ -207,38 +196,7 @@ class TemplateEditor extends Editor
 	    root.enableSelectionListener();
 	}
     }
-
-    private void setParametersField()
-    {	
-	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
-	Utils.Stringifier stringifier = new Utils.Stringifier()
-	    {
-		public String toString(Object obj)
-		{
-		    String name = (String)obj;
-		    String val = (String)_parameterValuesMap.get(name);
-		    if(val != null)
-		    {
-			return name + "=" + val;
-		    }
-		    else
-		    {
-			return name;
-		    }
-		}
-	    };
-	
-	_parameters.setText(
-	    Utils.stringify(_parameterList, stringifier, ", ", toolTipHolder));
-	_parameters.setToolTipText(toolTipHolder.value);
-    }
-
-    private JTextField _template = new JTextField(20);
-    private JTextField _parameters = new JTextField(20);
     
-    private java.util.LinkedList _parameterList;
-    private java.util.Map _parameterValuesMap;
-
-    private ParametersDialog _parametersDialog;
-    private JButton _parametersButton;   
+    private JTextField _template = new JTextField(20);
+    private ParametersField _parameters;
 }

@@ -102,7 +102,7 @@ class ReplicaGroup extends TreeNode
 
     protected Editor createEditor()
     {
-	return new ReplicaGroupEditor(getCoordinator().getMainFrame());
+	return new ReplicaGroupEditor();
     }
 
     public boolean isEphemeral()

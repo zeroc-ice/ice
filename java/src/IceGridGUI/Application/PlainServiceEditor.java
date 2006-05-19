@@ -8,8 +8,6 @@
 // **********************************************************************
 package IceGridGUI.Application;
 
-import javax.swing.JFrame;
-
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 
 import IceGrid.*;
@@ -17,9 +15,9 @@ import IceGridGUI.*;
 
 class PlainServiceEditor extends CommunicatorChildEditor
 {
-    PlainServiceEditor(JFrame parentFrame)
+    PlainServiceEditor()
     {
-	_subEditor = new ServiceSubEditor(this, parentFrame);
+	_subEditor = new ServiceSubEditor(this);
     }
  
     //

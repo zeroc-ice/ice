@@ -8,5 +8,5 @@
 // **********************************************************************
 package IceGridGUI.Application;
 
-interface Service extends TemplateInstance
+interface Service extends TemplateInstance, DescriptorHolder
 {}

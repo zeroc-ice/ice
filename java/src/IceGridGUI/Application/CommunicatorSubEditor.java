@@ -13,8 +13,6 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
-
-import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -27,7 +25,7 @@ import IceGridGUI.*;
 
 class CommunicatorSubEditor
 {
-    CommunicatorSubEditor(Editor mainEditor, JFrame parentFrame)
+    CommunicatorSubEditor(Editor mainEditor)
     {
 	_mainEditor = mainEditor;
 	
@@ -35,29 +33,10 @@ class CommunicatorSubEditor
 	    _mainEditor.getUpdateListener());
 	_description.setToolTipText("An optional description");
 
-	_propertySets.setEditable(false);
+	_propertySets.getDocument().addDocumentListener(
+	    _mainEditor.getUpdateListener());
 	_properties = new PropertiesField(mainEditor);
-
-	_propertySetsDialog = new ListDialog(parentFrame, 
-					     "Property Set References", true);
-
-	Action openPropertySetsDialog = new AbstractAction("...")
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    java.util.LinkedList result = _propertySetsDialog.show(
-			_propertySetsList, _mainEditor.getProperties());
-		    if(result != null)
-		    {
-			_mainEditor.updated();
-			_propertySetsList = result;
-			setPropertySetsField();
-		    }
-		}
-	    };
-	openPropertySetsDialog.putValue(Action.SHORT_DESCRIPTION,
-				       "Edit property set references");
-	_propertySetsButton = new JButton(openPropertySetsDialog);
+	_description.setToolTipText("Property Set References");
     }
 
   
@@ -75,7 +54,7 @@ class CommunicatorSubEditor
 	builder.nextLine();
 	
 	builder.append("Property Sets");
-	builder.append(_propertySets, _propertySetsButton);
+	builder.append(_propertySets, 3);
 	builder.nextLine();
 
 	builder.append("Properties");
@@ -98,7 +77,7 @@ class CommunicatorSubEditor
     void writeDescriptor(CommunicatorDescriptor descriptor)
     {
 	descriptor.propertySet.references = 
-	    (String[])_propertySetsList.toArray(new String[0]);
+	    (String[])_propertySets.getList().toArray(new String[0]);
 	descriptor.propertySet.properties = _properties.getProperties();
 	descriptor.description = _description.getText();
     }
@@ -108,56 +87,23 @@ class CommunicatorSubEditor
 	Utils.Resolver detailResolver = _mainEditor.getDetailResolver();
 	isEditable = isEditable && (detailResolver == null);
 
-	_propertySetsList = java.util.Arrays.asList(descriptor.propertySet.references);
-	setPropertySetsField();
-	_propertySetsButton.setEnabled(isEditable);
-
+	_propertySets.setList(java.util.Arrays.asList(descriptor.propertySet.references),
+			      detailResolver);
+	_propertySets.setEditable(isEditable);
+	
 	_properties.setProperties(descriptor.propertySet.properties,
 				  descriptor.adapters,
 				  detailResolver, isEditable);
-	
+
 	_description.setText(
 	    Utils.substitute(descriptor.description, detailResolver));
 	_description.setEditable(isEditable);
 	_description.setOpaque(isEditable);
     }
 
-  
-    private void setPropertySetsField()
-    {
-	final Utils.Resolver resolver = _mainEditor.getDetailResolver();
-
-	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
-	Utils.Stringifier stringifier = new Utils.Stringifier()
-	    {
-		public String toString(Object obj)
-		{
-		    return Utils.substitute((String)obj, resolver);
-		}
-	    };
-	
-	_propertySets.setText(
-	    Utils.stringify(_propertySetsList, 
-			    stringifier, ", ", toolTipHolder));
-
-	String toolTip = "<html>Property Sets";
-
-	if(toolTipHolder.value != null)
-	{
-	    toolTip += ":<br>" + toolTipHolder.value;
-	}
-	toolTip += "</html>";
-	_propertySets.setToolTipText(toolTip);
-    }
-
     protected Editor _mainEditor;
  
     private JTextArea _description = new JTextArea(3, 20);
-
-    private JTextField _propertySets = new JTextField(20);
-    private java.util.List _propertySetsList;
-    private ListDialog _propertySetsDialog;
-    private JButton _propertySetsButton;
- 
+    private ListTextField _propertySets = new ListTextField(20); 
     private PropertiesField _properties;
 }

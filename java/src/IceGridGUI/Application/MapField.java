@@ -26,16 +26,18 @@ import javax.swing.table.DefaultTableModel;
 
 
 //
-// A special field used to show/edit properties
+// A special field used to show/edit a map 
 //
 
-public class PropertiesField extends JTable
+public class MapField extends JTable
 {
-    public PropertiesField(Editor editor)
+    public MapField(Editor editor, String headKey, String headValue, boolean substituteKey)
     {
+	_substituteKey = substituteKey;
+
 	_columnNames = new java.util.Vector(2);
-	_columnNames.add("Name");
-	_columnNames.add("Value");
+	_columnNames.add(headKey);
+	_columnNames.add(headValue);
 
 	_editor = editor;
 
@@ -69,66 +71,33 @@ public class PropertiesField extends JTable
 	getInputMap().put(
 	    KeyStroke.getKeyStroke("DELETE"), "delete");
 
-
-	
-
     }
 
-
-    public void setProperties(java.util.List properties,
-			      java.util.List adapters,
-			      Utils.Resolver resolver, boolean editable)
+    public void set(java.util.Map map, Utils.Resolver resolver, 
+		    boolean editable)
     {
 	_editable = editable;
 
 	//
-	// We don't show the .Endpoint and .PublishedEndpoints of adapters,
-	// since they already appear in the Adapter pages 
+	// Transform map into vector of vectors
 	//
-	java.util.Set hiddenPropertyNames = new java.util.HashSet();
-	_hiddenProperties.clear();
-
-	if(adapters != null)
-	{
-	    java.util.Iterator p = adapters.iterator();
-	    while(p.hasNext())
-	    {
-		AdapterDescriptor ad = (AdapterDescriptor)p.next();
-		hiddenPropertyNames.add(ad.name + ".Endpoints");
-		hiddenPropertyNames.add(ad.name + ".PublishedEndpoints");
-	    }
-	}
-
-	//
-	// Transform list into vector of vectors
-	//
-	java.util.Vector vector = new java.util.Vector(properties.size());
-	java.util.Iterator p = properties.iterator();
+	java.util.Vector vector = new java.util.Vector(map.size());
+	java.util.Iterator p = map.entrySet().iterator();
 	while(p.hasNext())
 	{
-	    PropertyDescriptor pd = (PropertyDescriptor)p.next();
-	    if(hiddenPropertyNames.contains(pd.name))
+	    java.util.Vector row = new java.util.Vector(2);
+	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+	    
+	    if(_substituteKey)
 	    {
-		//
-		// We keep them at the top of the list
-		//
-		if(_editable)
-		{
-		    _hiddenProperties.add(pd);
-		}
-
-		//
-		// We hide only the first occurence
-		//
-		hiddenPropertyNames.remove(pd.name);
+		row.add(Utils.substitute((String)entry.getKey(), resolver));
 	    }
 	    else
 	    {
-		java.util.Vector row = new java.util.Vector(2);
-		row.add(Utils.substitute(pd.name, resolver));
-		row.add(Utils.substitute(pd.value, resolver));
-		vector.add(row);
+		row.add((String)entry.getKey());
 	    }
+	    row.add(Utils.substitute((String)entry.getValue(), resolver));
+	    vector.add(row);
 	}
 
 	if(_editable)
@@ -175,7 +144,7 @@ public class PropertiesField extends JTable
     }
 
 
-    public java.util.LinkedList getProperties()
+    public java.util.TreeMap get()
     {
 	assert _editable;
 
@@ -185,7 +154,7 @@ public class PropertiesField extends JTable
 	}
 	java.util.Vector vector = _model.getDataVector();
 	
-	java.util.LinkedList result = new java.util.LinkedList(_hiddenProperties);
+	java.util.TreeMap result = new java.util.TreeMap();
 
 	java.util.Iterator p = vector.iterator();
 	while(p.hasNext())
@@ -193,7 +162,7 @@ public class PropertiesField extends JTable
 	     java.util.Vector row = (java.util.Vector)p.next();
 
 	     //
-	     // Eliminate rows with null or empty keys
+	     // Eliminate rows with null or empty keys 
 	     //
 	     String key = (String)row.elementAt(0);
 	     if(key != null)
@@ -206,8 +175,7 @@ public class PropertiesField extends JTable
 		     {
 			 val = "";
 		     }
-
-		     result.add(new PropertyDescriptor(key, val));
+		     result.put(key, val);
 		 }
 	     }
 	}
@@ -218,7 +186,7 @@ public class PropertiesField extends JTable
     private java.util.Vector _columnNames;
     private boolean _editable = false;
 
-    private java.util.LinkedList _hiddenProperties = new java.util.LinkedList();
+    private boolean _substituteKey;
 
     private Editor _editor;
 }

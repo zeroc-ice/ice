@@ -74,7 +74,7 @@ class ServerInstance extends TreeNode implements Server
 
     protected Editor createEditor()
     {
-	return new ServerInstanceEditor(getCoordinator().getMainFrame());
+	return new ServerInstanceEditor();
     }
 	
     public Component getTreeCellRendererComponent(

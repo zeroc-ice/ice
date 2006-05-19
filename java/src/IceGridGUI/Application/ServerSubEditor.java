@@ -16,7 +16,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -27,9 +27,9 @@ import IceGridGUI.*;
 
 class ServerSubEditor extends CommunicatorSubEditor
 {
-    ServerSubEditor(Editor mainEditor, JFrame parentFrame)
+    ServerSubEditor(Editor mainEditor)
     {
-	super(mainEditor, parentFrame);
+	super(mainEditor);
 
 	_id.getDocument().addDocumentListener(
 	    _mainEditor.getUpdateListener());
@@ -51,8 +51,13 @@ class ServerSubEditor extends CommunicatorSubEditor
 	    + "relative directories are relative to the current directory"
 	    + " of the icegridnode process.</html>");
 
-	_options.setEditable(false);
-	_envs.setEditable(false);
+	_options.getDocument().addDocumentListener(
+	    _mainEditor.getUpdateListener());
+	_options.setToolTipText(
+	    "<html>Command-line arguments for this server.<br>"
+	    + "Use whitespace as separator; use double-quotes around arguments containing whitespaces</html>");
+	
+	_envs = new MapField(mainEditor, "Name", "Value", true);
 
 	_activation = new JComboBox(new Object[]{ON_DEMAND, MANUAL});
 	_activation.setToolTipText("Select 'on-demand' to have IceGrid start your server on-demand");
@@ -72,49 +77,7 @@ class ServerSubEditor extends CommunicatorSubEditor
 	_deactivationTimeout.setToolTipText("<html>Number of seconds; if not set or set to 0, " 
 					     + "the IceGrid Node<br> uses the value of its "
 					     + "IceGrid.Node.WaitTime property</html>");
-
 	
-	_envDialog = new TableDialog(parentFrame, "Environment Variables",
-				     "Name", "Value", true);
-	Action openEnvDialog = new AbstractAction("...")
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    java.util.Map result = _envDialog.show(
-			_envMap, _mainEditor.getProperties());
-		    if(result != null)
-		    {
-			_mainEditor.updated();
-			_envMap = result;
-			setEnvsField();
-		    }
-		}
-	    };
-	openEnvDialog.putValue(Action.SHORT_DESCRIPTION,
-			       "Edit environment variables");
-	_envButton = new JButton(openEnvDialog);
-	
-	_optionDialog = new ListDialog(parentFrame, 
-				       "Command Arguments", false);
-	Action openOptionDialog = new AbstractAction("...")
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    java.util.LinkedList result = _optionDialog.show(
-			_optionList, _mainEditor.getProperties());
-		    if(result != null)
-		    {
-			_mainEditor.updated();
-			_optionList = result;
-			setOptionsField();
-		    }
-		}
-	    };
-	openOptionDialog.putValue(Action.SHORT_DESCRIPTION,
-				  "Edit command-line arguments");
-	_optionButton = new JButton(openOptionDialog);
-
-
 	Action appDistrib = new AbstractAction("Depends on the application distribution")
 	    {
 		public void actionPerformed(ActionEvent e)
@@ -137,27 +100,12 @@ class ServerSubEditor extends CommunicatorSubEditor
 	distribTextField.getDocument().addDocumentListener(
 	    _mainEditor.getUpdateListener());
 
-	_distribDirs.setEditable(false);
-	_distribDirsDialog = new ListDialog(parentFrame, 
-					    "Directories", true);
-
-	Action openDistribDirsDialog = new AbstractAction("...")
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    java.util.LinkedList result = _distribDirsDialog.show(
-			_distribDirsList, _mainEditor.getProperties());
-		    if(result != null)
-		    {
-			_mainEditor.updated();
-			_distribDirsList = result;
-			setDistribDirsField();
-		    }
-		}
-	    };
-	openDistribDirsDialog.putValue(Action.SHORT_DESCRIPTION,
-				       "Edit directory list");
-	_distribDirsButton = new JButton(openDistribDirsDialog);
+	_distribDirs.getDocument().addDocumentListener(
+	    _mainEditor.getUpdateListener());
+	_distribDirs.setToolTipText(
+	    "<html>Include only these directories when patching.<br>"
+	    + "Use whitespace as separator; use double-quotes around directories containing whitespaces</html>");
+	
     }
  
     ServerDescriptor getServerDescriptor()
@@ -177,7 +125,6 @@ class ServerSubEditor extends CommunicatorSubEditor
 	//
 	super.appendProperties(builder);
 
-	
 	builder.appendSeparator("Activation");
 	builder.append("Path to Executable");
 	builder.append(_exe, 3);
@@ -186,11 +133,25 @@ class ServerSubEditor extends CommunicatorSubEditor
 	builder.append(_pwd, 3);
 	builder.nextLine();
 	builder.append("Command Arguments");
-	builder.append(_options, _optionButton);
+	builder.append(_options, 3);
 	builder.nextLine();
+
 	builder.append("Environment Variables");
-	builder.append(_envs, _envButton);
 	builder.nextLine();
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
+	builder.nextRow(-6);
+	CellConstraints cc = new CellConstraints();
+	JScrollPane scrollPane = new JScrollPane(_envs);
+	builder.add(scrollPane, 
+		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+	builder.nextRow(6);
+	builder.nextLine();
+
+
 	builder.append("Activation Mode");
 	builder.append(_activation, 3);
 	builder.nextLine();
@@ -210,7 +171,7 @@ class ServerSubEditor extends CommunicatorSubEditor
 	builder.append(_distrib, 3);
 	builder.nextLine();
 	builder.append("Directories");
-	builder.append(_distribDirs, _distribDirsButton);
+	builder.append(_distribDirs, 3);
 	builder.nextLine();
     }
     
@@ -221,10 +182,10 @@ class ServerSubEditor extends CommunicatorSubEditor
 	descriptor.exe = _exe.getText();
 	descriptor.pwd = _pwd.getText();
 
-	descriptor.options = _optionList;
+	descriptor.options = _options.getList();
 	
 	descriptor.envs = new java.util.LinkedList();
-	java.util.Iterator p = _envMap.entrySet().iterator();
+	java.util.Iterator p = _envs.get().entrySet().iterator();
 	while(p.hasNext())
 	{
 	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
@@ -246,7 +207,7 @@ class ServerSubEditor extends CommunicatorSubEditor
 	{
 	    descriptor.distrib.icepatch = _distrib.getSelectedItem().toString();
 	}
-	descriptor.distrib.directories = _distribDirsList;
+	descriptor.distrib.directories = _distribDirs.getList();
 
 	super.writeDescriptor(descriptor);
     }	    
@@ -280,11 +241,10 @@ class ServerSubEditor extends CommunicatorSubEditor
 	    Utils.substitute(descriptor.pwd, detailResolver));
 	_pwd.setEditable(isEditable);
 
-	_optionList = descriptor.options;
-	setOptionsField();
-	_optionButton.setEnabled(isEditable);
+	_options.setList(descriptor.options, detailResolver);
+	_options.setEditable(isEditable);
 
-	_envMap = new java.util.TreeMap();
+	java.util.Map envMap = new java.util.TreeMap();
 	java.util.Iterator p = descriptor.envs.iterator();
 	while(p.hasNext())
 	{
@@ -292,16 +252,15 @@ class ServerSubEditor extends CommunicatorSubEditor
 	    int equal = env.indexOf('=');
 	    if(equal == -1 || equal == env.length() - 1)
 	    {
-		_envMap.put(env, "");
+		envMap.put(env, "");
 	    }
 	    else
 	    {
-		_envMap.put(env.substring(0, equal),
-			    env.substring(equal + 1));
+		envMap.put(env.substring(0, equal),
+			   env.substring(equal + 1));
 	    }
 	}
-	setEnvsField();
-	_envButton.setEnabled(isEditable);
+	_envs.set(envMap, detailResolver, isEditable);
 
 	String activation = Utils.substitute(descriptor.activation,
 					     detailResolver);
@@ -349,81 +308,12 @@ class ServerSubEditor extends CommunicatorSubEditor
 	_distrib.setEnabled(isEditable);
 	_distrib.setEditable(isEditable);
 
-	_distribDirsList = new java.util.LinkedList(descriptor.distrib.directories);
-	setDistribDirsField();
-	_distribDirsButton.setEnabled(isEditable);
+	_distribDirs.setList(descriptor.distrib.directories, detailResolver);
+	_distribDirs.setEditable(isEditable);
 
 	show(descriptor, isEditable);
     }
 
-    private void setEnvsField()
-    {
-	final Utils.Resolver resolver = _mainEditor.getDetailResolver();
-	
-	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
-	Utils.Stringifier stringifier = new Utils.Stringifier()
-	    {
-		public String toString(Object obj)
-		{
-		    java.util.Map.Entry entry = (java.util.Map.Entry)obj;
-		    
-		    return Utils.substitute((String)entry.getKey(), resolver) 
-			+ "="
-			+ Utils.substitute((String)entry.getValue(), resolver);
-		}
-	    };
-	
-	_envs.setText(
-	    Utils.stringify(_envMap.entrySet(), stringifier,
-			    ", ", toolTipHolder));
-	_envs.setToolTipText(toolTipHolder.value);
-    }
-
-    private void setOptionsField()
-    {
-	final Utils.Resolver resolver = _mainEditor.getDetailResolver();
-
-	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
-	Utils.Stringifier stringifier = new Utils.Stringifier()
-	    {
-		public String toString(Object obj)
-		{
-		    return Utils.substitute((String)obj, resolver);
-		}
-	    };
-	
-	_options.setText(
-	    Utils.stringify(_optionList, stringifier, " ", toolTipHolder));
-	_options.setToolTipText(toolTipHolder.value);
-    }
-    
-    private void setDistribDirsField()
-    {
-	final Utils.Resolver resolver = _mainEditor.getDetailResolver();
-
-	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
-	Utils.Stringifier stringifier = new Utils.Stringifier()
-	    {
-		public String toString(Object obj)
-		{
-		    return Utils.substitute((String)obj, resolver);
-		}
-	    };
-	
-	_distribDirs.setText(
-	    Utils.stringify(_distribDirsList, stringifier, ", ", 
-			    toolTipHolder));
-
-	String toolTip = "<html>Include only these directories";
-
-	if(toolTipHolder.value != null)
-	{
-	    toolTip += ":<br>" + toolTipHolder.value;
-	}
-	toolTip += "</html>";
-	_distribDirs.setToolTipText(toolTip);
-    }
-   
     static private final String ON_DEMAND = "on-demand";
     static private final String MANUAL = "manual";
     static private final Object NO_DISTRIB = new Object()
@@ -444,22 +334,12 @@ class ServerSubEditor extends CommunicatorSubEditor
     private JTextField _activationTimeout = new JTextField(20);
     private JTextField _deactivationTimeout = new JTextField(20);
     
-    private JTextField _envs = new JTextField(20);
-    private java.util.Map _envMap;
-    private TableDialog _envDialog;
-    private JButton _envButton;
+    private MapField _envs;
 
-    private JTextField _options = new JTextField(20);
-    private java.util.LinkedList _optionList;
-    private ListDialog _optionDialog;
-    private JButton _optionButton;
-    
+    private ListTextField _options = new ListTextField(20);
+  
     private JCheckBox _applicationDistrib;
 
     private JComboBox _distrib;
-
-    private JTextField _distribDirs = new JTextField(20);
-    private java.util.LinkedList _distribDirsList;
-    private ListDialog _distribDirsDialog;
-    private JButton _distribDirsButton;
+    private ListTextField _distribDirs = new ListTextField(20);
 }

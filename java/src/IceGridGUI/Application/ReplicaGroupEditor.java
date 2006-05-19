@@ -18,7 +18,6 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -166,35 +165,9 @@ class ReplicaGroupEditor extends Editor
 	}
     }
 
-    ReplicaGroupEditor(JFrame parentFrame)
+    ReplicaGroupEditor()
     {
-	_objects.setEditable(false);
-	
-	//
-	// _objectsButton
-	//
-	_objectsDialog = new TableDialog(parentFrame, 
-					 "Registered Objects",
-					 "Object Identity", 
-					 "Type", true);
-	
-	Action openObjectsDialog = new AbstractAction("...")
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    java.util.Map result = _objectsDialog.show(_objectsMap, 
-							       getProperties());
-		    if(result != null)
-		    {
-			updated();
-			_objectsMap = result;
-			setObjectsField();
-		    }
-		}
-	    };
-	openObjectsDialog.putValue(Action.SHORT_DESCRIPTION,
-				   "Edit registered objects");
-	_objectsButton = new JButton(openObjectsDialog);
+	_objects = new MapField(this, "Identity", "Type", true);
 	
 	//
 	// load balancing
@@ -250,7 +223,7 @@ class ReplicaGroupEditor extends Editor
 
 	descriptor.id = _id.getText();
 	descriptor.description = _description.getText();
-	descriptor.objects = AdapterEditor.mapToObjectDescriptorSeq(_objectsMap);
+	descriptor.objects = AdapterEditor.mapToObjectDescriptorSeq(_objects.get());
 	
 	Object loadBalancing = _loadBalancing.getSelectedItem();
 	if(loadBalancing == RETURN_ALL)
@@ -304,7 +277,17 @@ class ReplicaGroupEditor extends Editor
 	builder.nextLine();
 
 	builder.append("Registered Objects");
-	builder.append(_objects, _objectsButton);
+	builder.nextLine();
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
+	builder.nextRow(-6);
+	scrollPane = new JScrollPane(_objects);
+	builder.add(scrollPane, 
+		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+	builder.nextRow(6);
 	builder.nextLine();
 
 	builder.append("Load Balancing Policy");
@@ -324,31 +307,6 @@ class ReplicaGroupEditor extends Editor
 	_propertiesPanel.setName("Replica Group Properties");
     }
 
-    void setObjectsField()
-    {
-	final Utils.Resolver resolver = getDetailResolver();
-	
-	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
-	Utils.Stringifier stringifier = new Utils.Stringifier()
-	    {
-		public String toString(Object obj)
-		{
-		    java.util.Map.Entry entry = (java.util.Map.Entry)obj;
-		    
-		    return Utils.substitute((String)entry.getKey(), resolver) 
-			+ " as '"
-			+ Utils.substitute((String)entry.getValue(), resolver)
-			+ "'";
-		}
-	    };
-	
-	_objects.setText(
-	    Utils.stringify(_objectsMap.entrySet(), stringifier,
-			    ", ", toolTipHolder));
-	_objects.setToolTipText(toolTipHolder.value);
-    }
-    
-    
     void show(ReplicaGroup replicaGroup)
     {
 	//
@@ -373,9 +331,7 @@ class ReplicaGroupEditor extends Editor
 	_description.setEditable(isEditable);
 	_description.setOpaque(isEditable);
 
-	_objectsMap = AdapterEditor.objectDescriptorSeqToMap(descriptor.objects);
-	setObjectsField();
-	_objectsButton.setEnabled(isEditable);
+	_objects.set(AdapterEditor.objectDescriptorSeqToMap(descriptor.objects), resolver, isEditable);
 
 	_loadBalancing.setEnabled(true);
 
@@ -446,8 +402,5 @@ class ReplicaGroupEditor extends Editor
     private JComboBox _loadSample = new JComboBox(new Object[]
 	{"1", "5", "15"});
     
-    private JTextField _objects = new JTextField(20);
-    private java.util.Map _objectsMap;
-    private TableDialog _objectsDialog;
-    private JButton _objectsButton;
+    private MapField _objects;
 }

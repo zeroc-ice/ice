@@ -14,7 +14,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -27,7 +26,7 @@ import IceGridGUI.*;
 
 class DbEnvEditor extends CommunicatorChildEditor
 {
-    DbEnvEditor(JFrame parentFrame)
+    DbEnvEditor()
     {
 	_name.getDocument().addDocumentListener(_updateListener);
 	_name.setToolTipText(

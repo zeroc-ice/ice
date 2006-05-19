@@ -16,6 +16,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.DefaultCellEditor;
+import javax.swing.JComboBox;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
@@ -23,27 +24,43 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableColumn;
 
 //
-// A special field used to show/edit properties
+// A special field used to show/edit parameters
 //
 
-public class PropertiesField extends JTable
+public class ParametersField extends JTable
 {
-    public PropertiesField(Editor editor)
+    public ParametersField(Editor editor, String valHeading,
+			   boolean editNames, final String nullLabel)
     {
+	_editNames = editNames;
+	_editor = editor;
+
+	_nullObject = new Object()
+	    {
+		public String toString()
+		{
+		    return nullLabel;
+		}
+	    };
+
 	_columnNames = new java.util.Vector(2);
 	_columnNames.add("Name");
-	_columnNames.add("Value");
+	_columnNames.add(valHeading);
 
-	_editor = editor;
+	JComboBox comboBox = new JComboBox();
+	comboBox.setEditable(true);
+	comboBox.addItem(_nullObject);
+	_cellEditor = new DefaultCellEditor(comboBox);
 
 	Action deleteRow = new AbstractAction("Delete selected row(s)")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    if(_editable)
+		    if(_editable && _editNames)
 		    {
 			if(isEditing()) 
 			{
@@ -69,73 +86,43 @@ public class PropertiesField extends JTable
 	getInputMap().put(
 	    KeyStroke.getKeyStroke("DELETE"), "delete");
 
-
-	
-
     }
 
-
-    public void setProperties(java.util.List properties,
-			      java.util.List adapters,
-			      Utils.Resolver resolver, boolean editable)
+    public void set(java.util.List names,
+		    java.util.Map values, 
+		    Utils.Resolver resolver, boolean editable)
     {
 	_editable = editable;
 
 	//
-	// We don't show the .Endpoint and .PublishedEndpoints of adapters,
-	// since they already appear in the Adapter pages 
+	// Transform map into vector of vectors
 	//
-	java.util.Set hiddenPropertyNames = new java.util.HashSet();
-	_hiddenProperties.clear();
-
-	if(adapters != null)
-	{
-	    java.util.Iterator p = adapters.iterator();
-	    while(p.hasNext())
-	    {
-		AdapterDescriptor ad = (AdapterDescriptor)p.next();
-		hiddenPropertyNames.add(ad.name + ".Endpoints");
-		hiddenPropertyNames.add(ad.name + ".PublishedEndpoints");
-	    }
-	}
-
-	//
-	// Transform list into vector of vectors
-	//
-	java.util.Vector vector = new java.util.Vector(properties.size());
-	java.util.Iterator p = properties.iterator();
+	java.util.Vector vector = new java.util.Vector(names.size());
+	java.util.Iterator p = names.iterator();
 	while(p.hasNext())
 	{
-	    PropertyDescriptor pd = (PropertyDescriptor)p.next();
-	    if(hiddenPropertyNames.contains(pd.name))
+	    java.util.Vector row = new java.util.Vector(2);
+	    String name = (String)p.next();
+	    
+	    row.add(name);
+	    
+	    Object val = values.get(name);
+	    if(val == null)
 	    {
-		//
-		// We keep them at the top of the list
-		//
-		if(_editable)
-		{
-		    _hiddenProperties.add(pd);
-		}
-
-		//
-		// We hide only the first occurence
-		//
-		hiddenPropertyNames.remove(pd.name);
+		row.add(_nullObject);
 	    }
 	    else
 	    {
-		java.util.Vector row = new java.util.Vector(2);
-		row.add(Utils.substitute(pd.name, resolver));
-		row.add(Utils.substitute(pd.value, resolver));
-		vector.add(row);
+		row.add(Utils.substitute((String)val, resolver));
 	    }
+	    vector.add(row);
 	}
 
-	if(_editable)
+	if(_editable && _editNames)
 	{
 	    java.util.Vector newRow = new java.util.Vector(2);
 	    newRow.add("");
-	    newRow.add("");
+	    newRow.add(_nullObject);
 	    vector.add(newRow);
 	}
 
@@ -143,7 +130,21 @@ public class PropertiesField extends JTable
 	    {
 		public boolean isCellEditable(int row, int column)
 		{
-		    return _editable;
+		    if(_editable)
+		    {
+			if(column == 0)
+			{
+			    return _editNames;
+			}
+			else
+			{
+			    return true;
+			}
+		    }
+		    else
+		    {
+			return false;
+		    }
 		}
 	    };
 	
@@ -153,17 +154,23 @@ public class PropertiesField extends JTable
 		{
 		    if(_editable)
 		    {
-			Object lastKey = _model.getValueAt(
-			    _model.getRowCount() - 1 , 0);
-			if(lastKey != null && !lastKey.equals(""))
+			if(_editNames)
 			{
-			    _model.addRow(new Object[]{"", ""});
+			    Object lastKey = _model.getValueAt(
+				_model.getRowCount() - 1 , 0);
+			    if(lastKey != null && !lastKey.equals(""))
+			    {
+				_model.addRow(new Object[]{"", _nullObject});
+			    }
 			}
 			_editor.updated();
 		    }
 		}
 	    });
 	setModel(_model);
+
+	TableColumn valColumn = getColumnModel().getColumn(1);
+	valColumn.setCellEditor(_cellEditor);
 
 	setCellSelectionEnabled(_editable);
 	setOpaque(_editable);
@@ -175,9 +182,17 @@ public class PropertiesField extends JTable
     }
 
 
-    public java.util.LinkedList getProperties()
+    public java.util.Map get(java.util.List names)
     {
 	assert _editable;
+	
+	if(_editNames)
+	{
+	    assert names != null;
+	}
+
+
+	java.util.Map values = new java.util.HashMap();
 
 	if(isEditing()) 
 	{
@@ -185,42 +200,52 @@ public class PropertiesField extends JTable
 	}
 	java.util.Vector vector = _model.getDataVector();
 	
-	java.util.LinkedList result = new java.util.LinkedList(_hiddenProperties);
-
 	java.util.Iterator p = vector.iterator();
 	while(p.hasNext())
 	{
-	     java.util.Vector row = (java.util.Vector)p.next();
-
-	     //
-	     // Eliminate rows with null or empty keys
-	     //
-	     String key = (String)row.elementAt(0);
-	     if(key != null)
-	     {
-		 key = key.trim(); 
-		 if(!key.equals(""))
-		 {
-		     String val = (String) row.elementAt(1);
-		     if(val == null)
-		     {
-			 val = "";
-		     }
-
-		     result.add(new PropertyDescriptor(key, val));
-		 }
-	     }
+	    java.util.Vector row = (java.util.Vector)p.next();
+	    
+	    //
+	    // Eliminate rows with null or empty names
+	    //
+	    String name = (String)row.elementAt(0);
+	    if(name != null)
+	    {
+		if(_editNames)
+		{
+		    name = name.trim();
+		}
+		
+		if(!name.equals(""))
+		{
+		    if(_editNames)
+		    {
+			names.add(name);
+		    }
+		    
+		    Object val = row.elementAt(1);
+		    
+		    //
+		    // Eliminate entries with "default" value
+		    //
+		    if(val != _nullObject)
+		    {
+			assert val != null;
+			values.put(name, val);
+		    }
+		}
+	    }
 	}
-	return result;
+	return values;
     }
 
+    private final boolean _editNames;
+    private final Object _nullObject;
     private DefaultTableModel _model;
     private java.util.Vector _columnNames;
     private boolean _editable = false;
-
-    private java.util.LinkedList _hiddenProperties = new java.util.LinkedList();
-
     private Editor _editor;
+    private TableCellEditor _cellEditor;
 }
 
 

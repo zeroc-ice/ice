@@ -107,7 +107,7 @@ class ServiceTemplate extends Communicator
 
     protected Editor createEditor()
     {
-	return new ServiceTemplateEditor(getCoordinator().getMainFrame());
+	return new ServiceTemplateEditor();
     }
 
     ServiceTemplate(boolean brandNew, ServiceTemplates parent,

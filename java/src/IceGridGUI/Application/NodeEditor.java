@@ -15,7 +15,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -152,38 +151,17 @@ class NodeEditor extends Editor
 	}
     }
 
-    NodeEditor(JFrame parentFrame)
+    NodeEditor()
     {
 	_name.getDocument().addDocumentListener(_updateListener);
 	_name.setToolTipText("Must match the IceGrid.Node.Name property of the desired icegridnode process");
 	_description.getDocument().addDocumentListener(_updateListener);
 	_description.setToolTipText("An optional description for this node");
-	_variables.setEditable(false);
-
-
+	
 	//
 	// Variables
 	//
-	_variablesDialog = new TableDialog(parentFrame, 
-					   "Variables", "Name", "Value", true);
-	
-	Action openVariablesDialog = new AbstractAction("...")
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    java.util.TreeMap result = _variablesDialog.show(_variablesMap, 
-								     getProperties());
-		    if(result != null)
-		    {
-			updated();
-			_variablesMap = result;
-			setVariablesField();
-		    }
-		}
-	    };
-	openVariablesDialog.putValue(Action.SHORT_DESCRIPTION, 
-				     "Edit variables"); 
-	_variablesButton = new JButton(openVariablesDialog);
+	_variables = new MapField(this, "Name", "Value", false);
 
 	_loadFactor.getDocument().addDocumentListener(_updateListener);
 	_loadFactor.setToolTipText("<html>A floating point value.<br>"
@@ -208,9 +186,20 @@ class NodeEditor extends Editor
 	builder.nextRow(2);
 	builder.nextLine();
 
-	builder.append("Variables", _variables);
-	builder.append(_variablesButton);
+	builder.append("Variables");
 	builder.nextLine();
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
+	builder.nextRow(-6);
+	scrollPane = new JScrollPane(_variables);
+	builder.add(scrollPane, 
+		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+	builder.nextRow(6);
+	builder.nextLine();
+
 	builder.append("Load Factor");
 	builder.append(_loadFactor, 3);
 	builder.nextLine();
@@ -219,14 +208,14 @@ class NodeEditor extends Editor
     boolean isSimpleUpdate()
     {
 	NodeDescriptor descriptor = (NodeDescriptor)_target.getDescriptor();
-	return (_variablesMap.equals(descriptor.variables));
+	return (_variables.get().equals(descriptor.variables));
     }
 
     void writeDescriptor()
     {
 	NodeDescriptor descriptor = (NodeDescriptor)_target.getDescriptor();
 	descriptor.description = _description.getText();
-	descriptor.variables = _variablesMap;
+	descriptor.variables = _variables.get();
 	descriptor.loadFactor = _loadFactor.getText();
     }	    
     
@@ -248,9 +237,7 @@ class NodeEditor extends Editor
 	_description.setEditable(isEditable);
 	_description.setOpaque(isEditable);
 
-	_variablesMap = descriptor.variables;
-	setVariablesField();
-	_variablesButton.setEnabled(isEditable);
+	_variables.set(descriptor.variables, resolver, isEditable);
 
 	_loadFactor.setText(
 	    Utils.substitute(descriptor.loadFactor, resolver));
@@ -260,34 +247,9 @@ class NodeEditor extends Editor
 	_discardButton.setEnabled(node.isEphemeral());
 	detectUpdates(true);
     }
-    
-    private void setVariablesField()
-    {
-	Utils.Stringifier stringifier = new Utils.Stringifier()
-	    {
-		final Utils.Resolver resolver = getDetailResolver();
-
-		public String toString(Object obj)
-		{
-		    java.util.Map.Entry entry = (java.util.Map.Entry)obj;
-		    
-		    return (String)entry.getKey() + "="
-			+ Utils.substitute((String)entry.getValue(), resolver);
-		}
-	    };
-
-	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
-	_variables.setText(
-	    Utils.stringify(_variablesMap.entrySet(), stringifier, 
-			    ", ", toolTipHolder));
-	_variables.setToolTipText(toolTipHolder.value);
-    }
 
     private JTextField _name = new JTextField(20);
     private JTextArea _description = new JTextArea(3, 20);
-    private JTextField _variables = new JTextField(20);
-    private JButton _variablesButton;
-    private TableDialog _variablesDialog;
-    private java.util.TreeMap _variablesMap;
+    private MapField _variables;
     private JTextField _loadFactor = new JTextField(20);
 }

@@ -155,6 +155,7 @@ class SessionKeeper
 	boolean routed = false;
 
 	String registryUsername = System.getProperty("user.name");
+	char[] registryPassword;
 	String registryInstanceName = "IceGrid";
 	String registryEndpoints = "";
 
@@ -216,6 +217,8 @@ class SessionKeeper
 		builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
 		
 		builder.append("Username", _registryUsername);
+		builder.nextLine();
+		builder.append("Password", _registryPassword);
 		builder.nextLine();
 		builder.append("IceGrid Instance Name", _registryInstanceName);
 		builder.nextLine();
@@ -293,6 +296,7 @@ class SessionKeeper
 	    _loginInfo.routed = (_tabbedPane.getSelectedIndex() == 1);
 
 	    _loginInfo.registryUsername = _registryUsername.getText();
+	    _loginInfo.registryPassword = _registryPassword.getPassword();
 	    _loginInfo.registryInstanceName = _registryInstanceName.getText();
 	    _loginInfo.registryEndpoints = _registryEndpoints.getText();
 	 
@@ -304,7 +308,7 @@ class SessionKeeper
 
 	private JTabbedPane _tabbedPane = new JTabbedPane();
 	private JTextField _registryUsername = new JTextField(30);
-
+	private JPasswordField _registryPassword = new JPasswordField(30);
 	private JTextField _registryInstanceName = new JTextField(30);
 	private JTextField _registryEndpoints = new JTextField(30);
 	

@@ -8,16 +8,13 @@
 // **********************************************************************
 package IceGridGUI.Application;
 
-import javax.swing.JFrame;
-
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 
 class ServiceTemplateEditor extends TemplateEditor
 {
-    ServiceTemplateEditor(JFrame parentFrame)
+    ServiceTemplateEditor()
     {
-	super(parentFrame);
-	_subEditor = new ServiceSubEditor(this, parentFrame);
+	_subEditor = new ServiceSubEditor(this);
     }
     
     void writeDescriptor()

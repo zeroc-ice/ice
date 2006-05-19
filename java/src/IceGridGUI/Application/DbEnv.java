@@ -97,7 +97,7 @@ class DbEnv extends TreeNode implements DescriptorHolder
 
     protected Editor createEditor()
     {
-	return new DbEnvEditor(getCoordinator().getMainFrame());
+	return new DbEnvEditor();
     }
 
     public Object getDescriptor()
