@@ -398,10 +398,10 @@ BuildCmds= \
 	move SSLInfo.h ..\..\include\glacier2 \
 	
 
-"SSLInfo.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\glacier2\SSLInfo.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"SSLInfo.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"SSLInfo.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -415,10 +415,10 @@ BuildCmds= \
 	move SSLInfo.h ..\..\include\glacier2 \
 	
 
-"SSLInfo.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\glacier2\SSLInfo.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"SSLInfo.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"SSLInfo.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

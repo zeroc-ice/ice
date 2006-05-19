@@ -112,6 +112,39 @@ SOURCE=.\Test.h
 # Begin Source File
 
 SOURCE=.\Test.ice
+
+!IF  "$(CFG)" == "filtersC - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\Test.ice
+
+BuildCmds= \
+	..\..\..\bin\slice2cpp.exe -I../../../slice Test.ice
+
+"Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "filtersC - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\Test.ice
+
+BuildCmds= \
+	..\..\..\bin\slice2cpp.exe -I../../../slice Test.ice
+
+"Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
 # End Source File
 # End Group
 # End Target
