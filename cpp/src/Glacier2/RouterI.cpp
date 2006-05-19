@@ -153,11 +153,11 @@ Glacier2::RouterI::destroy()
     {
         if(_adminAdapter)
 	{
-	    //
-	    // Remove the session control object.
-	    //
 	    try
 	    {
+	        //
+	        // Remove the session control object.
+	        //
 	        _adminAdapter->remove(_controlId);
 
 		//

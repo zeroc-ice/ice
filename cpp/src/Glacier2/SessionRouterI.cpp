@@ -840,6 +840,17 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 	
 	if(session)
 	{
+	    if(_adminAdapter)
+	    {
+	        try
+		{
+	            _adminAdapter->remove(controlId);
+		}
+		catch(const NotRegisteredException&)
+		{
+		    // Ignore
+		}
+	    }
 	    try
 	    {
 		session->destroy();
