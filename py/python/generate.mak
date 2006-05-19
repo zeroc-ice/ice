@@ -59,7 +59,8 @@ GLACIER2_SRCS	= Glacier2_RouterF_ice.py \
 		  Glacier2_SessionF_ice.py \
 		  Glacier2_Session_ice.py \
 		  Glacier2_PermissionsVerifierF_ice.py \
-		  Glacier2_PermissionsVerifier_ice.py
+		  Glacier2_PermissionsVerifier_ice.py \
+		  Glacier2_SSLInfo_ice.py
 
 ICEBOX_SRCS	= IceBox_IceBox_ice.py
 
@@ -68,7 +69,8 @@ ICEGRID_SRCS	= IceGrid_Admin_ice.py \
 		  IceGrid_Exception_ice.py \
 		  IceGrid_Observer_ice.py \
 		  IceGrid_Query_ice.py \
-		  IceGrid_Session_ice.py
+		  IceGrid_Session_ice.py \
+		  IceGrid_Registry_ice.py
 
 ICEPATCH2_SRCS	= IcePatch2_FileInfo_ice.py \
 		  IcePatch2_FileServer_ice.py
@@ -179,25 +181,6 @@ Ice_SliceChecksumDict_ice.py: $(slicedir)/Ice/SliceChecksumDict.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/SliceChecksumDict.ice
 
 
-Glacier_Router_ice.py: $(slicedir)/Glacier/Router.ice
-	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier_ $(slicedir)/Glacier/Router.ice
-
-Glacier_SessionF_ice.py: $(slicedir)/Glacier/SessionF.ice
-	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier_ $(slicedir)/Glacier/SessionF.ice
-
-Glacier_Session_ice.py: $(slicedir)/Glacier/Session.ice
-	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier_ $(slicedir)/Glacier/Session.ice
-
-Glacier_SessionManagerF_ice.py: $(slicedir)/Glacier/SessionManagerF.ice
-	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier_ $(slicedir)/Glacier/SessionManagerF.ice
-
-Glacier_SessionManager_ice.py: $(slicedir)/Glacier/SessionManager.ice
-	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier_ $(slicedir)/Glacier/SessionManager.ice
-
-Glacier_Starter_ice.py: $(slicedir)/Glacier/Starter.ice
-	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier_ $(slicedir)/Glacier/Starter.ice
-
-
 Glacier2_RouterF_ice.py: $(slicedir)/Glacier2/RouterF.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ $(slicedir)/Glacier2/RouterF.ice
 
@@ -215,6 +198,9 @@ Glacier2_PermissionsVerifierF_ice.py: $(slicedir)/Glacier2/PermissionsVerifierF.
 
 Glacier2_PermissionsVerifier_ice.py: $(slicedir)/Glacier2/PermissionsVerifier.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ $(slicedir)/Glacier2/PermissionsVerifier.ice
+
+Glacier2_SSLInfo_ice.py: $(slicedir)/Glacier2/SSLInfo.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ $(slicedir)/Glacier2/SSLInfo.ice
 
 
 IceBox_IceBox_ice.py: $(slicedir)/IceBox/IceBox.ice
@@ -238,6 +224,10 @@ IceGrid_Query_ice.py: $(slicedir)/IceGrid/Query.ice
 
 IceGrid_Session_ice.py: $(slicedir)/IceGrid/Session.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/Session.ice
+
+IceGrid_Registry_ice.py: $(slicedir)/IceGrid/Registry.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/Registry.ice
+
 
 IcePatch2_FileInfo_ice.py: $(slicedir)/IcePatch2/FileInfo.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IcePatch2_ $(slicedir)/IcePatch2/FileInfo.ice

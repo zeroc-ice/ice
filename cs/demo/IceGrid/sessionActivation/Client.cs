@@ -71,30 +71,40 @@ public class Client : Ice.Application
 
     public override int run(string[] args)
     {
-        IceGrid.SessionManagerPrx sessionManager = 
-	    IceGrid.SessionManagerPrxHelper.checkedCast(communicator().stringToProxy("DemoIceGrid/SessionManager"));
-	if(sessionManager == null)
+        IceGrid.RegistryPrx registry = 
+	    IceGrid.RegistryPrxHelper.checkedCast(communicator().stringToProxy("DemoIceGrid/Registry"));
+	if(registry == null)
 	{
-            Console.WriteLine(": cound not contact session manager");
+            Console.WriteLine(": cound not contact registry");
 	    return 1;
 	}
 
-	string id;
-	do
+	
+	IceGrid.SessionPrx session = null;
+	while(true)
 	{
+	    Console.Out.WriteLine("This demo accepts any user-id / password combination.");
+
+	    string id;
 	    Console.Out.Write("user id: ");
 	    Console.Out.Flush();
-
 	    id = Console.In.ReadLine();
-	    if(id == null)
-	    {
-	        return 1;
-	    }
-	    id = id.Trim();
-	}
-	while(id.Length == 0);
 
-	IceGrid.SessionPrx session = sessionManager.createLocalSession(id);
+	    string pw;
+	    Console.Out.Write("password: ");
+	    Console.Out.Flush();
+	    pw = Console.In.ReadLine();
+
+	    try
+	    {
+	        session = registry.createSession(id, pw);
+		break;
+	    }
+	    catch(IceGrid.PermissionDeniedException ex)
+	    {
+	        Console.WriteLine("permission denied:\n" + ex.reason);
+	    }
+	}
 
 	SessionKeepAliveThread keepAlive = new SessionKeepAliveThread(session);
 	Thread keepAliveThread = new Thread(new ThreadStart(keepAlive.run));
@@ -173,6 +183,8 @@ public class Client : Ice.Application
 	    Console.WriteLine(": object not registered with registry");
 	    return 1;
 	}
+
+	session.destroy();
 
         return 0;
     }

@@ -53,18 +53,20 @@ class SessionKeepAliveThread(threading.Thread):
 
 class Client(Ice.Application):
     def run(self, args):
-	proxyStr = "DemoIceGrid/SessionManager"
-	sessionManager = IceGrid.SessionManagerPrx.checkedCast(self.communicator().stringToProxy(proxyStr))
-	if sessionManager == None:
-	    print self.appName() + ": cound not contact session manager"
+	registry = IceGrid.RegistryPrx.checkedCast(self.communicator().stringToProxy("DemoIceGrid/Registry"))
+	if registry == None:
+	    print self.appName() + ": cound not contact registry"
 	    return False
 
 	while True:
+	    print "This demo accepts any user-id / password combination."
 	    id = raw_input("user id: ").strip()
-	    if len(id) != 0:
-	        break
-
-	session = sessionManager.createLocalSession(id)
+	    pw = raw_input("password: ").strip()
+	    try:
+	        session = registry.createSession(id, pw)
+		break
+	    except IceGrid.PermissionDeniedException, ex:
+	        print "permission denied:\n" + ex.reason
 
 	keepAlive = SessionKeepAliveThread(session)
 	keepAlive.start()
@@ -101,6 +103,7 @@ class Client(Ice.Application):
 	keepAlive.join()
 
 	session.releaseObject(hello.ice_getIdentity())
+	session.destroy();
 
 	return True
 

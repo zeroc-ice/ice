@@ -111,6 +111,9 @@
     <Compile Include="generated\Session.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="generated\Registry.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

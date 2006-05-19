@@ -48,7 +48,8 @@ GLACIER2_SRCS	= Glacier2_RouterF_ice.py \
 		  Glacier2_SessionF_ice.py \
 		  Glacier2_Session_ice.py \
 		  Glacier2_PermissionsVerifierF_ice.py \
-		  Glacier2_PermissionsVerifier_ice.py
+		  Glacier2_PermissionsVerifier_ice.py \
+		  Glacier2_SSLInfo_ice.py
 
 ICEBOX_SRCS	= IceBox_IceBox_ice.py
 
@@ -57,7 +58,8 @@ ICEGRID_SRCS	= IceGrid_Admin_ice.py \
 		  IceGrid_Exception_ice.py \
 		  IceGrid_Observer_ice.py \
 		  IceGrid_Query_ice.py \
-		  IceGrid_Session_ice.py
+		  IceGrid_Session_ice.py \
+		  IceGrid_Registry_ice.py
 
 ICEPATCH2_SRCS	= IcePatch2_FileInfo_ice.py \
 		  IcePatch2_FileServer_ice.py

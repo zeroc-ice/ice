@@ -104,6 +104,9 @@
     <Compile Include="generated\SessionF.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="generated\SSLInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
