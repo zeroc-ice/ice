@@ -12,7 +12,6 @@
 
 #include <IceUtil/Mutex.h>
 #include <IceGrid/Session.h>
-#include <IceGrid/ReapThread.h>
 
 namespace IceGrid
 {
@@ -32,34 +31,45 @@ typedef IceUtil::Handle<Allocatable> AllocatablePtr;
 class WaitQueue;
 typedef IceUtil::Handle<WaitQueue> WaitQueuePtr;
 
+class BaseSessionI;
+typedef IceUtil::Handle<BaseSessionI> BaseSessionIPtr;
+
 class SessionI;
 typedef IceUtil::Handle<SessionI> SessionIPtr;
 
-class SessionReapable : public Reapable
+class BaseSessionI : virtual public BaseSession, public IceUtil::Mutex
 {
 public:
 
-    SessionReapable(const Ice::ObjectAdapterPtr&, const SessionIPtr&, const SessionPrx&);
-    virtual ~SessionReapable();
-
-    virtual IceUtil::Time timestamp() const;
-    virtual void destroy(bool);
-
-private:
-
-    const Ice::ObjectAdapterPtr _adapter;
-    const SessionIPtr _session;
-    const SessionPrx _proxy;
-};
-
-class SessionI : virtual public Session, public IceUtil::Mutex
-{
-public:
-
-    virtual ~SessionI();
+    virtual ~BaseSessionI();
 
     virtual void keepAlive(const Ice::Current&);
     virtual int getTimeout(const Ice::Current&) const;
+    virtual void destroy(const Ice::Current&);
+
+    IceUtil::Time timestamp() const;
+
+protected:
+
+    BaseSessionI(const std::string&, const std::string&, const DatabasePtr&, int);
+
+    const std::string _userId;
+    const std::string _prefix;
+    const int _timeout;
+    const TraceLevelsPtr _traceLevels;
+    const DatabasePtr _database;
+    bool _destroyed;
+    IceUtil::Time _timestamp;
+};
+
+class SessionI : virtual public Session, public BaseSessionI
+{
+public:
+
+    SessionI(const std::string&, const DatabasePtr&, int, const WaitQueuePtr&, const Glacier2::SessionControlPrx&);
+    SessionI(const std::string&, const DatabasePtr&, int, const WaitQueuePtr&, const Ice::ConnectionPtr&);
+    virtual ~SessionI();
+
     virtual void allocateObjectById_async(const AMD_Session_allocateObjectByIdPtr&, const Ice::Identity&,
 					  const Ice::Current&);
     virtual void allocateObjectByType_async(const AMD_Session_allocateObjectByTypePtr&, const std::string&,
@@ -68,7 +78,6 @@ public:
     virtual void setAllocationTimeout(int, const Ice::Current&);
     virtual void destroy(const Ice::Current&);
 
-    IceUtil::Time timestamp() const;
     int getAllocationTimeout() const;
     const WaitQueuePtr& getWaitQueue() const { return _waitQueue; }
     const std::string& getUserId() const { return _userId; }
@@ -80,45 +89,31 @@ public:
 
 protected:
 
-    SessionI(const std::string&, const std::string&, const DatabasePtr&, const Ice::ObjectAdapterPtr&, 
-	     const WaitQueuePtr&, int);
-
-    const std::string _userId;
-    const std::string _prefix;
-    const int _timeout;
-    const TraceLevelsPtr _traceLevels;
-    const DatabasePtr _database;
     const WaitQueuePtr _waitQueue;
-    bool _destroyed;
-    IceUtil::Time _timestamp;
+    const Glacier2::SessionControlPrx _sessionControl;
+    const Ice::ConnectionPtr _connection;
     int _allocationTimeout;
     std::set<AllocationRequestPtr> _requests;
     std::set<AllocatablePtr> _allocations;
 };
 
-class ClientSessionI : public SessionI
+class ClientSessionManagerI : virtual public Glacier2::SessionManager
 {
 public:
 
-    ClientSessionI(const std::string&, const DatabasePtr&, const Ice::ObjectAdapterPtr&, const WaitQueuePtr&, int);
-};
-
-class ClientSessionManagerI : virtual public SessionManager
-{
-public:
-
-    ClientSessionManagerI(const  DatabasePtr&, const ReapThreadPtr&, const WaitQueuePtr&, int);
+    ClientSessionManagerI(const  DatabasePtr&, int, const WaitQueuePtr&);
     
     virtual Glacier2::SessionPrx create(const std::string&, const Glacier2::SessionControlPrx&, const Ice::Current&);
-    virtual SessionPrx createLocalSession(const std::string&, const Ice::Current&);
+
+    SessionIPtr create(const std::string&, const Glacier2::SessionControlPrx&);
 
 private:
 
     const DatabasePtr _database;
-    const ReapThreadPtr _reaper;
+    const int _timeout;
     const WaitQueuePtr _waitQueue;
-    int _timeout;
 };
+typedef IceUtil::Handle<ClientSessionManagerI> ClientSessionManagerIPtr;
 
 };
 

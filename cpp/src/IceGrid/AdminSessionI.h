@@ -16,12 +16,12 @@
 namespace IceGrid
 {
 
-class AdminSessionI : public SessionI, public AdminSession
+class AdminSessionI : public BaseSessionI, public AdminSession
 {
 public:
 
-    AdminSessionI(const std::string&, const DatabasePtr&, const Ice::ObjectAdapterPtr&, const WaitQueuePtr&,
-		  const RegistryObserverTopicPtr&, const NodeObserverTopicPtr&, int);
+    AdminSessionI(const std::string&, const DatabasePtr&, int, const RegistryObserverTopicPtr&, 
+		  const NodeObserverTopicPtr&);
     virtual ~AdminSessionI();
 
     virtual AdminPrx getAdmin(const Ice::Current&) const;
@@ -38,10 +38,6 @@ public:
 
     virtual void destroy(const Ice::Current&);
 
-protected:
-
-    bool _updating;
-
 private:
     
     const RegistryObserverTopicPtr _registryObserverTopic;
@@ -49,27 +45,27 @@ private:
     
     RegistryObserverPrx _registryObserver;
     NodeObserverPrx _nodeObserver;
+    bool _updating;
 };
+typedef IceUtil::Handle<AdminSessionI> AdminSessionIPtr;
 
-class AdminSessionManagerI : virtual public SessionManager
+class AdminSessionManagerI : virtual public Glacier2::SessionManager
 {
 public:
 
-    AdminSessionManagerI(const RegistryObserverTopicPtr& , const NodeObserverTopicPtr&, const  DatabasePtr&, 
-			 const ReapThreadPtr&, const WaitQueuePtr&, int);
+    AdminSessionManagerI(const  DatabasePtr&, int, const RegistryObserverTopicPtr& , const NodeObserverTopicPtr&);
     
     virtual Glacier2::SessionPrx create(const std::string&, const Glacier2::SessionControlPrx&, const Ice::Current&);
-    virtual SessionPrx createLocalSession(const std::string&, const Ice::Current&);
+    AdminSessionIPtr create(const std::string&);
 
 private:
     
+    const DatabasePtr _database;
+    const int _timeout;
     const RegistryObserverTopicPtr _registryObserverTopic;
     const NodeObserverTopicPtr _nodeObserverTopic;
-    const DatabasePtr _database;
-    const ReapThreadPtr _reaper;
-    const WaitQueuePtr _waitQueue;
-    int _timeout;
 };
+typedef IceUtil::Handle<AdminSessionManagerI> AdminSessionManagerIPtr;
 
 };
 

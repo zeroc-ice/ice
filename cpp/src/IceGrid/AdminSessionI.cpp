@@ -16,21 +16,14 @@ using namespace IceGrid;
 
 AdminSessionI::AdminSessionI(const string& userId, 
 			     const DatabasePtr& database,
-			     const Ice::ObjectAdapterPtr& adapter,
-			     const WaitQueuePtr& waitQueue,
+			     int timeout,
 			     const RegistryObserverTopicPtr& registryObserverTopic,
-			     const NodeObserverTopicPtr& nodeObserverTopic,
-			     int timeout) :
-    SessionI(userId, "admin", database, adapter, waitQueue, timeout),
-    _updating(false),
+			     const NodeObserverTopicPtr& nodeObserverTopic) :
+    BaseSessionI(userId, "admin", database, timeout),
     _registryObserverTopic(registryObserverTopic),
-    _nodeObserverTopic(nodeObserverTopic)
+    _nodeObserverTopic(nodeObserverTopic),
+    _updating(false)
 {
-    if(_traceLevels && _traceLevels->session > 0)
-    {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->sessionCat);
-	out << "admin session `" << _userId << "' created";
-    }
 }
 
 AdminSessionI::~AdminSessionI()
@@ -226,7 +219,7 @@ AdminSessionI::finishUpdate(const Ice::Current& current)
 void
 AdminSessionI::destroy(const Ice::Current& current)
 {
-    SessionI::destroy(current);
+    BaseSessionI::destroy(current);
     
     if(_updating) // Immutable once _destroy = true
     {
@@ -252,18 +245,14 @@ AdminSessionI::destroy(const Ice::Current& current)
     }
 }
 
-AdminSessionManagerI::AdminSessionManagerI(const RegistryObserverTopicPtr& regTopic,
-					   const NodeObserverTopicPtr& nodeTopic,
-					   const DatabasePtr& database,
-					   const ReapThreadPtr& reaper,
-					   const WaitQueuePtr& waitQueue,
-					   int sessionTimeout) :
-    _registryObserverTopic(regTopic),
-    _nodeObserverTopic(nodeTopic), 
+AdminSessionManagerI::AdminSessionManagerI(const DatabasePtr& database,
+					   int sessionTimeout,
+					   const RegistryObserverTopicPtr& regTopic,
+					   const NodeObserverTopicPtr& nodeTopic) :
     _database(database), 
-    _reaper(reaper),
-    _waitQueue(waitQueue),
-    _timeout(sessionTimeout)
+    _timeout(sessionTimeout),
+    _registryObserverTopic(regTopic),
+    _nodeObserverTopic(nodeTopic)
 {
 }
 
@@ -271,21 +260,13 @@ Glacier2::SessionPrx
 AdminSessionManagerI::create(const string& userId, const Glacier2::SessionControlPrx&, const Ice::Current& current)
 {
     //
-    // We don't add the session to the reaper thread, Glacier2 takes
-    // care of reaping the session.
+    // TODO: XXX: Update the Glacier2 allowable table to allow access to this object!
     //
-    SessionIPtr session = new AdminSessionI(userId, _database, current.adapter, _waitQueue, _registryObserverTopic, 
-					    _nodeObserverTopic, _timeout);
-    return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
+    return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(create(userId)));
 }
 
-SessionPrx
-AdminSessionManagerI::createLocalSession(const string& userId, const Ice::Current& current)
+AdminSessionIPtr
+AdminSessionManagerI::create(const string& userId)
 {
-    SessionIPtr session = new AdminSessionI(userId, _database, current.adapter, _waitQueue, _registryObserverTopic, 
-					    _nodeObserverTopic, _timeout);
-    SessionPrx proxy = SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
-    _reaper->add(new SessionReapable(current.adapter, session, proxy));
-    return proxy;
+    return new AdminSessionI(userId, _database, _timeout, _registryObserverTopic, _nodeObserverTopic);
 }
-

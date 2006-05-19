@@ -25,7 +25,8 @@ LIB_OBJS	= Admin.o \
 	 	  Exception.o \
 		  Descriptor.o \
 		  Observer.o \
-		  Session.o
+		  Session.o \
+		  Registry.o
 
 ADMIN_OBJS	= Grammar.o \
 		  Scanner.o \
@@ -51,6 +52,7 @@ NODE_OBJS	= NodeI.o \
 		  PlatformInfo.o
 
 REGISTRY_OBJS   = RegistryI.o \
+	  	  InternalRegistryI.o \
 		  StringApplicationDescriptorDict.o \
 		  IdentityObjectInfoDict.o \
 		  StringAdapterInfoDict.o \
@@ -109,7 +111,7 @@ SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IceGrid $(ICECPPFLAGS)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= $(CPPFLAGS) -I.. -DICE_GRID_API_EXPORTS $(READLINE_FLAGS)
+CPPFLAGS	:= $(CPPFLAGS) -I.. -DICE_GRID_API_EXPORTS $(OPENSSL_FLAGS) $(READLINE_FLAGS)
 ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS 	:= --checksum --ice --include-dir IceGrid --dll-export ICE_GRID_API $(SLICE2CPPFLAGS)
 LINKWITH        := -lGlacier2 $(BZIP2_RPATH_LINK) -lIce -lIceUtil
@@ -133,12 +135,12 @@ $(ADMIN): $(ADMIN_OBJS) $(LIBTARGETS)
 $(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS) $(LIBTARGETS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(REGISTRY_SVR_OBJS) -lIceGrid -lIceStormService -lGlacier2 $(DB_RPATH_LINK) -lFreeze \
-	-lIceBox $(EXPAT_RPATH_LINK) -lIceXML $(LIBS)
+	-lIceBox $(EXPAT_RPATH_LINK) -lIceXML  $(OPENSSL_LIBS) $(LIBS)
 
 $(NODE_SERVER): $(NODE_SVR_OBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) -lIceGrid -lIceStormService -lIceBox -lGlacier2 $(OPENSSL_RPATH_LINK) -lIcePatch2 $(DB_RPATH_LINK) -lFreeze $(EXPAT_RPATH_LINK) -lIceXML \
-	$(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) -lIceGrid -lIceStormService -lIceBox -lGlacier2 -lIcePatch2 \
+	$(DB_RPATH_LINK) -lFreeze $(EXPAT_RPATH_LINK) -lIceXML $(OPENSSL_LIBS) $(LIBS)
 
 $(LOCAL_HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP)
 	rm -f $(HDIR)/$(*F).h $(*F).cpp

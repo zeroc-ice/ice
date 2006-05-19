@@ -70,6 +70,10 @@ ReapThread::terminate()
     list<ReapablePtr> reap;
     {
 	Lock sync(*this);
+	if(_terminated)
+	{
+	    return;
+	}
 	_terminated = true;
 	notify();
 	reap.swap(_sessions);

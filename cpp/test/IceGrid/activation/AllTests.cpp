@@ -9,7 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <IceGrid/Admin.h>
-#include <IceGrid/Session.h>
+#include <IceGrid/Registry.h>
 #include <TestCommon.h>
 #include <Test.h>
 
@@ -84,8 +84,7 @@ void
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     IceGrid::AdminPrx admin = IceGrid::AdminPrx::checkedCast(communicator->stringToProxy("IceGrid/Admin"));
-    IceGrid::SessionManagerPrx sessionManager =
-	IceGrid::SessionManagerPrx::checkedCast(communicator->stringToProxy("IceGrid/SessionManager"));
+    IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(communicator->stringToProxy("IceGrid/Registry"));
 
     cout << "testing on-demand activation... " << flush;
     try
@@ -150,7 +149,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "testing session activation... " << flush;
     try
     {
-	IceGrid::SessionPrx session = sessionManager->createLocalSession("test");
+	IceGrid::SessionPrx session = registry->createSession("test", "");
 
 	test(admin->getServerState("server-session") == IceGrid::Inactive);
 	TestIntfPrx obj = TestIntfPrx::uncheckedCast(communicator->stringToProxy("server-session"));

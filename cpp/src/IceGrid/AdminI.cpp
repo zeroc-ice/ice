@@ -267,7 +267,7 @@ private:
 
 }
 
-AdminI::AdminI(const DatabasePtr& database, const RegistryPtr& registry, const TraceLevelsPtr& traceLevels) :
+AdminI::AdminI(const DatabasePtr& database, const RegistryIPtr& registry, const TraceLevelsPtr& traceLevels) :
     _database(database),
     _registry(registry),
     _traceLevels(traceLevels)

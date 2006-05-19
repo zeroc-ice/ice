@@ -223,6 +223,8 @@ IceGrid:
     Registry.Admin.ThreadPool.SizeMax
     Registry.Admin.ThreadPool.SizeWarn
     Registry.Admin.ThreadPool.StackSize
+    Registry.AdminCryptPasswords
+    Registry.AdminPermissionsVerifier
     Registry.AdminSessionTimeout
     Registry.Client.AdapterId
     Registry.Client.ReplicaGroupId
@@ -233,6 +235,7 @@ IceGrid:
     Registry.Client.ThreadPool.SizeMax
     Registry.Client.ThreadPool.SizeWarn
     Registry.Client.ThreadPool.StackSize
+    Registry.CryptPasswords
     Registry.Data
     Registry.DefaultTemplates
     Registry.DynamicRegistration
@@ -246,6 +249,7 @@ IceGrid:
     Registry.Internal.ThreadPool.SizeWarn
     Registry.Internal.ThreadPool.StackSize
     Registry.NodeSessionTimeout
+    Registry.PermissionsVerifier
     Registry.Server.AdapterId
     Registry.Server.ReplicaGroupId
     Registry.Server.Endpoints

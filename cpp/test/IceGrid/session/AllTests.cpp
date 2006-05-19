@@ -9,7 +9,7 @@
 
 #include <IceUtil/Thread.h>
 #include <Ice/Ice.h>
-#include <IceGrid/Session.h>
+#include <IceGrid/Registry.h>
 #include <IceGrid/Query.h>
 #include <IceGrid/Admin.h>
 #include <TestCommon.h>
@@ -46,7 +46,7 @@ public:
 	    timedWait(_timeout);
 	    if(!_terminated)
 	    {
-		vector<SessionPrx>::iterator p = _sessions.begin();
+		vector<BaseSessionPrx>::iterator p = _sessions.begin();
 		while(p != _sessions.end())
 		{
 		    try
@@ -64,7 +64,7 @@ public:
     }
 
     void 
-    add(const SessionPrx& session)
+    add(const BaseSessionPrx& session)
     {
 	Lock sync(*this);
 	_sessions.push_back(session);
@@ -81,7 +81,7 @@ public:
 private:
 
     const Ice::LoggerPtr _logger;
-    vector<SessionPrx> _sessions;
+    vector<BaseSessionPrx> _sessions;
     const IceUtil::Time _timeout;
     bool _terminated;
 };
@@ -381,9 +381,8 @@ private:
 void 
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    SessionManagerPrx manager = 
-	SessionManagerPrx::checkedCast(communicator->stringToProxy("IceGrid/AdminSessionManager"));
-    test(manager);
+    RegistryPrx registry = RegistryPrx::checkedCast(communicator->stringToProxy("IceGrid/Registry"));
+    test(registry);
 
     AdminPrx admin = AdminPrx::checkedCast(communicator->stringToProxy("IceGrid/Admin"));
     test(admin);
@@ -396,8 +395,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
 	cout << "testing sessions... " << flush;
-	AdminSessionPrx session1 = AdminSessionPrx::uncheckedCast(manager->createLocalSession("Observer1"));
-	AdminSessionPrx session2 = AdminSessionPrx::uncheckedCast(manager->createLocalSession("Observer2"));
+	AdminSessionPrx session1 = AdminSessionPrx::uncheckedCast(registry->createAdminSession("Observer1", ""));
+	AdminSessionPrx session2 = AdminSessionPrx::uncheckedCast(registry->createAdminSession("Observer2", ""));
 	
 	keepAlive->add(session1);
 	keepAlive->add(session2);	
@@ -408,7 +407,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	NodeObserverI* nodeObs1 = new NodeObserverI();
 	Ice::ObjectPrx no1 = adpt1->addWithUUID(nodeObs1);
 	adpt1->activate();
-	manager->ice_connection()->setAdapter(adpt1);	
+	registry->ice_connection()->setAdapter(adpt1);	
 	session1->setObserversByIdentity(ro1->ice_getIdentity(), no1->ice_getIdentity());
 	
 	Ice::ObjectAdapterPtr adpt2 = communicator->createObjectAdapterWithEndpoints("Observer2", "default");
@@ -610,7 +609,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
 	cout << "testing registry observer... " << flush;
-	AdminSessionPrx session1 = AdminSessionPrx::uncheckedCast(manager->createLocalSession("Observer1"));
+	AdminSessionPrx session1 = AdminSessionPrx::uncheckedCast(registry->createAdminSession("Observer1", ""));
 	
 	keepAlive->add(session1);
 	
@@ -620,7 +619,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	NodeObserverI* nodeObs1 = new NodeObserverI();
 	Ice::ObjectPrx no1 = adpt1->addWithUUID(nodeObs1);
 	adpt1->activate();
-	manager->ice_connection()->setAdapter(adpt1);	
+	registry->ice_connection()->setAdapter(adpt1);	
 	session1->setObserversByIdentity(ro1->ice_getIdentity(), no1->ice_getIdentity());
 	
 	regObs1->waitForUpdate(__FILE__, __LINE__);
@@ -908,7 +907,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
 	cout << "testing node observer... " << flush;
-	AdminSessionPrx session1 = AdminSessionPrx::uncheckedCast(manager->createLocalSession("Observer1"));
+	AdminSessionPrx session1 = AdminSessionPrx::uncheckedCast(registry->createAdminSession("Observer1", ""));
 	
 	keepAlive->add(session1);
 	
@@ -918,7 +917,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	NodeObserverI* nodeObs1 = new NodeObserverI();
 	Ice::ObjectPrx no1 = adpt1->addWithUUID(nodeObs1);
 	adpt1->activate();
-	manager->ice_connection()->setAdapter(adpt1);	
+	registry->ice_connection()->setAdapter(adpt1);	
 	session1->setObserversByIdentity(ro1->ice_getIdentity(), no1->ice_getIdentity());
 	
 	regObs1->waitForUpdate(__FILE__, __LINE__);

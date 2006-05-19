@@ -60,71 +60,17 @@ newAllocateObject(const SessionIPtr& session, const IceUtil::Handle<T>& cb)
 
 };
 
-SessionReapable::SessionReapable(const Ice::ObjectAdapterPtr& adapter, 
-				 const SessionIPtr& session, 
-				 const SessionPrx& proxy) : 
-    _adapter(adapter),
-    _session(session),
-    _proxy(proxy)
-{
-}
-
-SessionReapable::~SessionReapable()
-{
-}
-
-IceUtil::Time
-SessionReapable::timestamp() const
-{
-    return _session->timestamp();
-}
-
-void
-SessionReapable::destroy(bool destroy)
-{
-    try
-    {
-	//
-	// Invoke on the servant directly instead of the
-	// proxy. Invoking on the proxy might not always work if the
-	// communicator is being shutdown/destroyed. We have to create
-	// a fake "current" because the session destroy methods needs
-	// the adapter and object identity to unregister the servant
-	// from the adapter.
-	//
-	Ice::Current current;
-	if(!destroy)
-	{
-	    current.adapter = _adapter;
-	    current.id = _proxy->ice_getIdentity();
-	}
-	_session->destroy(current);
-    }
-    catch(const Ice::ObjectNotExistException&)
-    {
-    }
-    catch(const Ice::LocalException& ex)
-    {
-	Ice::Warning out(_proxy->ice_communicator()->getLogger());
-	out << "unexpected exception while reaping session:\n" << ex;
-    }
-}
-
-SessionI::SessionI(const string& userId, 
-		   const string& prefix, 
-		   const DatabasePtr& database,
-		   const Ice::ObjectAdapterPtr& adapter,
-		   const WaitQueuePtr& waitQueue,
-		   int timeout) :
+BaseSessionI::BaseSessionI(const string& userId, 
+			   const string& prefix, 
+			   const DatabasePtr& database,
+			   int timeout) :
     _userId(userId), 
     _prefix(prefix),
     _timeout(timeout),
     _traceLevels(database->getTraceLevels()),
     _database(database),
-    _waitQueue(waitQueue),
     _destroyed(false),
-    _timestamp(IceUtil::Time::now()),
-    _allocationTimeout(-1)
+    _timestamp(IceUtil::Time::now())
 {
     if(_traceLevels && _traceLevels->session > 0)
     {
@@ -133,12 +79,12 @@ SessionI::SessionI(const string& userId,
     }
 }
 
-SessionI::~SessionI()
+BaseSessionI::~BaseSessionI()
 {
 }
 
 void
-SessionI::keepAlive(const Ice::Current& current)
+BaseSessionI::keepAlive(const Ice::Current& current)
 {
     Lock sync(*this);
     if(_destroyed)
@@ -158,9 +104,62 @@ SessionI::keepAlive(const Ice::Current& current)
 }
 
 int
-SessionI::getTimeout(const Ice::Current&) const
+BaseSessionI::getTimeout(const Ice::Current&) const
 {
     return _timeout;
+}
+
+void
+BaseSessionI::destroy(const Ice::Current& current)
+{
+    Lock sync(*this);
+    if(_destroyed)
+    {
+	Ice::ObjectNotExistException ex(__FILE__, __LINE__);
+	ex.id = current.id;
+	throw ex;
+    }
+    _destroyed = true;
+
+    if(current.adapter)
+    {
+	try
+	{
+	    current.adapter->remove(current.id);
+	}
+	catch(const Ice::ObjectAdapterDeactivatedException&)
+	{
+	}
+    }
+	
+    if(_traceLevels && _traceLevels->session > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+	out << _prefix << " session `" << _userId << "' destroyed";
+    }
+}
+
+IceUtil::Time
+BaseSessionI::timestamp() const
+{
+    Lock sync(*this);
+    return _timestamp;
+}
+
+SessionI::SessionI(const string& userId, 
+		   const DatabasePtr& database, 
+		   int timeout,
+		   const WaitQueuePtr& waitQueue,
+		   const Glacier2::SessionControlPrx& sessionControl) :
+    BaseSessionI(userId, "client", database, timeout),
+    _waitQueue(waitQueue),
+    _sessionControl(sessionControl),
+    _allocationTimeout(-1)
+{
+}
+
+SessionI::~SessionI()
+{
 }
 
 void
@@ -195,44 +194,21 @@ SessionI::setAllocationTimeout(int timeout, const Ice::Current&)
 void
 SessionI::destroy(const Ice::Current& current)
 {
-    set<AllocationRequestPtr> requests;
-    set<AllocatablePtr> allocations;
-    {
-	Lock sync(*this);
-	if(_destroyed)
-	{
-	    Ice::ObjectNotExistException ex(__FILE__, __LINE__);
-	    ex.id = current.id;
-	    throw ex;
-	}
-	_destroyed = true;
+    BaseSessionI::destroy(current);
 
-	if(current.adapter)
-	{
-	    try
-	    {
-		current.adapter->remove(current.id);
-	    }
-	    catch(const Ice::ObjectAdapterDeactivatedException&)
-	    {
-	    }
-	}
-	
-	if(_traceLevels && _traceLevels->session > 0)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->sessionCat);
-	    out << _prefix << " session `" << _userId << "' destroyed";
-	}
+    //
+    // NOTE: The _requests and _allocations attributes are immutable
+    // once the session is destroyed so we don't need mutex protection
+    // here to access them.
+    //
 
-	requests.swap(_requests);
-	allocations.swap(_allocations);
-    }
-
-    for(set<AllocationRequestPtr>::const_iterator p = requests.begin(); p != requests.end(); ++p)
+    for(set<AllocationRequestPtr>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
     {
 	(*p)->cancel(AllocationException("session destroyed"));
     }
-    for(set<AllocatablePtr>::const_iterator q = allocations.begin(); q != allocations.end(); ++q)
+    _requests.clear();
+
+    for(set<AllocatablePtr>::const_iterator q = _allocations.begin(); q != _allocations.end(); ++q)
     {
 	try
 	{
@@ -243,13 +219,7 @@ SessionI::destroy(const Ice::Current& current)
 	    assert(false);
 	}
     }
-}
-
-IceUtil::Time
-SessionI::timestamp() const
-{
-    Lock sync(*this);
-    return _timestamp;
+    _allocations.clear();
 }
 
 int
@@ -275,6 +245,10 @@ void
 SessionI::removeAllocationRequest(const AllocationRequestPtr& request)
 {
     Lock sync(*this);
+    if(_destroyed)
+    {
+	return;
+    }
     _requests.erase(request);
 }
 
@@ -294,50 +268,31 @@ void
 SessionI::removeAllocation(const AllocatablePtr& allocatable)
 {
     Lock sync(*this);
+    if(_destroyed)
+    {
+	return;
+    }
     _allocations.erase(allocatable);
 }
 
-ClientSessionI::ClientSessionI(const string& userId, 
-			       const DatabasePtr& database, 
-			       const Ice::ObjectAdapterPtr& adapter,
-			       const WaitQueuePtr& waitQueue,
-			       int timeout) :
-    SessionI(userId, "client", database, adapter, waitQueue, timeout)
-{
-}
-
-ClientSessionManagerI::ClientSessionManagerI(const DatabasePtr& database,
-					     const ReapThreadPtr& reaper,
-					     const WaitQueuePtr& waitQueue,
-					     int timeout) :
+ClientSessionManagerI::ClientSessionManagerI(const DatabasePtr& database, int timeout, const WaitQueuePtr& waitQueue) :
     _database(database), 
-    _reaper(reaper),
-    _waitQueue(waitQueue),
-    _timeout(timeout)
+    _timeout(timeout),
+    _waitQueue(waitQueue)
 {
 }
 
 Glacier2::SessionPrx
-ClientSessionManagerI::create(const string& userId, const Glacier2::SessionControlPrx&, const Ice::Current& current)
+ClientSessionManagerI::create(const string& user, const Glacier2::SessionControlPrx& ctl, const Ice::Current& current)
 {
-    //
-    // We don't add the session to the reaper thread, Glacier2 takes
-    // care of reaping the session.
-    //
-    SessionIPtr session = new ClientSessionI(userId, _database, current.adapter, _waitQueue, _timeout);
-
     //
     // TODO: XXX: Update the Glacier2 allowable table to allow access to this object!
     //
-    return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
+    return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(create(user, ctl)));
 }
 
-SessionPrx
-ClientSessionManagerI::createLocalSession(const string& userId, const Ice::Current& current)
+SessionIPtr
+ClientSessionManagerI::create(const string& userId, const Glacier2::SessionControlPrx& ctl)
 {
-    SessionIPtr session = new ClientSessionI(userId, _database, current.adapter, _waitQueue, _timeout);
-    SessionPrx proxy = SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
-    _reaper->add(new SessionReapable(current.adapter, session, proxy));
-    return proxy;
+    return new SessionI(userId, _database, _timeout, _waitQueue, ctl);
 }
-

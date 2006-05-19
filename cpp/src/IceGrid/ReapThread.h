@@ -11,6 +11,8 @@
 #define ICEGRID_REAPER_THREAD_H
 
 #include <IceUtil/Thread.h>
+#include <IceUtil/Mutex.h>
+#include <IceUtil/Monitor.h>
 #include <list>
 
 namespace IceGrid

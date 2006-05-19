@@ -15,15 +15,20 @@
 using namespace std;
 using namespace IceGrid;
 
-NodeSessionI::NodeSessionI(const DatabasePtr& database, const string& name, const NodePrx& node, 
-			   const NodeInfo& info) : 
+NodeSessionI::NodeSessionI(const DatabasePtr& database, 
+			   const string& name, 
+			   const NodePrx& node, 
+			   const NodeInfo& info,
+			   const NodeObserverPrx& observer,
+			   int timeout) : 
     _database(database),
     _traceLevels(database->getTraceLevels()),
     _name(name),
-    _node(node),
+    _node(NodePrx::uncheckedCast(node->ice_timeout(timeout * 1000))),
     _info(info),
-    _startTime(IceUtil::Time::now()),
-    _timestamp(_startTime),
+    _observer(observer),
+    _timeout(timeout),
+    _timestamp(IceUtil::Time::now()),
     _destroy(false)
 {
     __setNoDelete(true);
@@ -57,6 +62,13 @@ NodeSessionI::keepAlive(const LoadInfo& load, const Ice::Current& current)
 	out << "node `" << _name << "' keep alive ";
 	out << "(load = " << _load.avg1 << ", " << _load.avg5 << ", " << _load.avg15 << ")";
     }
+}
+
+int
+NodeSessionI::getTimeoutAndObserver(NodeObserverPrx& observer, const Ice::Current& current) const
+{
+    observer = _observer;
+    return _timeout;
 }
 
 Ice::StringSeq

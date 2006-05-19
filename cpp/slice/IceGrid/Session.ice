@@ -20,25 +20,52 @@ module IceGrid
 interface Query;
 interface Admin;
 
-interface Session extends Glacier2::Session
+/**
+ *
+ * This exception is raised if a client is denied the ability to create
+ * a session with IceGrid.
+ *
+ * @see SessionFactory::createSession
+ *
+ **/
+exception PermissionDeniedException
+{
+    /**
+     *
+     * The reason why permission was denied.
+     *
+     **/
+    string reason;
+};
+
+interface BaseSession extends Glacier2::Session
 {
     /**
      *
      * Keep the session alive. Clients should call this method
      * regularly to prevent the server from reaping the session.
      *
+     * @see getTimeout
+     *
      **/
     void keepAlive();
 
     /**
      *
-     * Get the session timeout configured for the node.
+     * Get the session timeout. If a client doesn't call keepAlive in
+     * the time interval defined by this timeout, IceGrid might reap
+     * the session.
+     *
+     * @see keepAlive
      *
      * @return The timeout in milliseconds.
      *
      **/
     nonmutating int getTimeout();
+};
 
+interface Session extends BaseSession
+{
     /**
      *
      * Allocate an object. Depending on the allocation timeout, this
@@ -105,7 +132,7 @@ interface Session extends Glacier2::Session
     void setAllocationTimeout(int timeout);
 };
 
-interface AdminSession extends Session
+interface AdminSession extends BaseSession
 {
     /**
      *
@@ -214,20 +241,6 @@ interface AdminSession extends Session
      **/
     void finishUpdate()
 	throws AccessDeniedException;
-};
-
-interface SessionManager extends Glacier2::SessionManager
-{
-    /**
-     *
-     * Create a local session.
-     *
-     * @param userId Identifies the session user.
-     *
-     * @return The proxy of the local session.
-     *
-     **/
-    Session* createLocalSession(string userId);
 };
 
 };

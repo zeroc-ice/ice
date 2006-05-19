@@ -10,7 +10,7 @@
 #include <IceUtil/Thread.h>
 #include <IceUtil/Random.h>
 #include <Ice/Ice.h>
-#include <IceGrid/Session.h>
+#include <IceGrid/Registry.h>
 #include <IceGrid/Admin.h>
 #include <IceGrid/Query.h>
 #include <TestCommon.h>
@@ -103,11 +103,11 @@ class StressClient : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mu
 {
 public:
     
-    StressClient(const Ice::CommunicatorPtr& communicator, int id, const SessionManagerPrx& manager, 
+    StressClient(const Ice::CommunicatorPtr& communicator, int id, const RegistryPrx& registry, 
     		 bool destroySession) : 
         _communicator(communicator),
 	_id(id),
-	_manager(manager),
+	_registry(registry),
 	_notified(false),
 	_terminated(false),
 	_destroySession(destroySession)
@@ -144,7 +144,7 @@ public:
 	    {
 		ostringstream os;
 		os << "Client-" << _id;
-		session = _manager->createLocalSession(os.str());
+		session = _registry->createSession(os.str(), "");
 		session->setAllocationTimeout(IceUtil::random(200)); // 200ms timeout
 	    }
 
@@ -251,7 +251,7 @@ protected:
 
     const Ice::CommunicatorPtr _communicator;
     const int _id;
-    const SessionManagerPrx _manager;
+    const RegistryPrx _registry;
     bool _notified;
     bool _terminated;
     const bool _destroySession;
@@ -325,8 +325,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     AdminPrx admin = AdminPrx::checkedCast(communicator->stringToProxy("IceGrid/Admin"));
     test(admin);
 
-    SessionManagerPrx manager = SessionManagerPrx::checkedCast(communicator->stringToProxy("IceGrid/SessionManager"));
-    test(manager);
+    RegistryPrx registry = RegistryPrx::checkedCast(communicator->stringToProxy("IceGrid/Registry"));
+    test(registry);
 
     SessionKeepAliveThreadPtr keepAlive;
     keepAlive = new SessionKeepAliveThread(communicator->getLogger(), IceUtil::Time::seconds(5));
@@ -340,8 +340,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     try
     {
 	cout << "testing create session... " << flush;
-	SessionPrx session1 = manager->createLocalSession("Client1");
-	SessionPrx session2 = manager->createLocalSession("Client2");
+	SessionPrx session1 = registry->createSession("Client1", "");
+	SessionPrx session2 = registry->createSession("Client2", "");
 	
 	keepAlive->add(session1);
 	keepAlive->add(session2);
@@ -918,7 +918,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(cb3->hasResponse(obj));
 	session1->destroy();
 
-	session2 = SessionPrx::uncheckedCast(manager->createLocalSession("Client2"));
+	session2 = SessionPrx::uncheckedCast(registry->createSession("Client2", ""));
 	session2->setAllocationTimeout(0);
 	session2->allocateObjectById(allocatable);
 	session2->destroy();
@@ -926,17 +926,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	cout << "ok" << endl;
 
 	cout << "stress test... " << flush;
-	const int nClients = 6;
+	const int nClients = 3;
 	int i;
 	vector<StressClientPtr> clients;
 	for(i = 0; i < nClients - 2; ++i)
 	{
-	    clients.push_back(new StressClient(communicator, i, manager, false));
+	    clients.push_back(new StressClient(communicator, i, registry, false));
 	    clients.back()->start();
 	}
-	clients.push_back(new StressClient(communicator, i++, manager, true));
+	clients.push_back(new StressClient(communicator, i++, registry, true));
 	clients.back()->start();
-	clients.push_back(new StressClient(communicator, i++, manager, true));
+	clients.push_back(new StressClient(communicator, i++, registry, true));
 	clients.back()->start();
 	
 	for(vector<StressClientPtr>::const_iterator p = clients.begin(); p != clients.end(); ++p)
@@ -947,7 +947,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	//
 	// Let the stress client run for a bit.
 	//
-	IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(5));
+	IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(30));
 
 	//
 	// Terminate the stress clients.

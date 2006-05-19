@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <IceGrid/Session.h>
+#include <IceGrid/Registry.h>
 #include <Hello.h>
 
 using namespace std;
@@ -108,20 +108,39 @@ HelloClient::trim(const string& s)
 int
 HelloClient::run(int argc, char* argv[])
 {
-    IceGrid::SessionManagerPrx sessionManager =
-        IceGrid::SessionManagerPrx::checkedCast(communicator()->stringToProxy("DemoIceGrid/SessionManager"));
-    if(!sessionManager)
+    IceGrid::RegistryPrx registry = 
+	IceGrid::RegistryPrx::checkedCast(communicator()->stringToProxy("DemoIceGrid/Registry"));
+    if(!registry)
     {
-        cerr << argv[0] << ": cound not contact session manager" << endl;
+        cerr << argv[0] << ": cound not contact registry" << endl;
         return EXIT_FAILURE;
     }
 
-    string id;
-    cout << "user id: " << flush;
-    getline(cin, id);
-    id = trim(id);
+    IceGrid::SessionPrx session;
+    while(true)
+    {
+	cout << "This demo accepts any user-id / password combination.\n";
 
-    IceGrid::SessionPrx session = sessionManager->createLocalSession(id);
+	string id;
+	cout << "user id: " << flush;
+	getline(cin, id);
+	id = trim(id);
+
+	string password;
+	cout << "password: " << flush;
+	getline(cin, password);
+	password = trim(password);
+
+	try
+	{
+	    session = registry->createSession(id, password);
+ 	    break;
+	}
+	catch(const IceGrid::PermissionDeniedException& ex)
+	{
+	    cout << "permission denied:\n" << ex.reason << endl;
+	}
+    }
 
     SessionKeepAliveThreadPtr keepAlive = new SessionKeepAliveThread(session);
     keepAlive->start();
@@ -185,6 +204,10 @@ HelloClient::run(int argc, char* argv[])
     keepAlive->getThreadControl().join();
 
     session->releaseObject(hello->ice_getIdentity());
+
+    //
+    // TODO: XXX: We should destroy the session.
+    //
 
     return EXIT_SUCCESS;
 }

@@ -10,7 +10,7 @@
 #ifndef ICE_GRID_ADMIN_I_H
 #define ICE_GRID_ADMIN_I_H
 
-#include <IceGrid/Internal.h>
+#include <IceGrid/Admin.h>
 
 namespace IceGrid
 {
@@ -21,11 +21,14 @@ typedef IceUtil::Handle<Database> DatabasePtr;
 class TraceLevels;
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
+class RegistryI;
+typedef IceUtil::Handle<RegistryI> RegistryIPtr;
+
 class AdminI : public Admin, public IceUtil::Mutex
 {
 public:
 
-    AdminI(const DatabasePtr&, const RegistryPtr&, const TraceLevelsPtr&);
+    AdminI(const DatabasePtr&, const RegistryIPtr&, const TraceLevelsPtr&);
     virtual ~AdminI();
 
     virtual void addApplication(const ApplicationDescriptor&, const Ice::Current&);
@@ -78,7 +81,7 @@ public:
 private:
 
     const DatabasePtr _database;
-    const RegistryPtr _registry;
+    const RegistryIPtr _registry;
     const TraceLevelsPtr _traceLevels;
 };
 

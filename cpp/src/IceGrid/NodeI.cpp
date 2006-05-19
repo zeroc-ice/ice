@@ -550,12 +550,14 @@ NodeI::keepAlive()
     {
 	try
 	{
-	    Ice::ObjectPrx obj = getCommunicator()->stringToProxy(_instName + "/Registry");
-	    RegistryPrx registry = RegistryPrx::uncheckedCast(obj);
+	    Ice::ObjectPrx obj = getCommunicator()->stringToProxy(_instName + "/InternalRegistry");
+	    InternalRegistryPrx registry = InternalRegistryPrx::uncheckedCast(obj);
+	    NodeSessionPrx session = registry->registerNode(_name, _proxy, _platform.getNodeInfo());
 	    NodeObserverPrx observer;
-	    setSession(registry->registerNode(_name, _proxy, _platform.getNodeInfo(), observer), observer);
+	    int timeout = session->getTimeoutAndObserver(observer);
+	    setSession(session, observer);
 	    checkConsistency();
-	    return registry->getTimeout() / 2;
+	    return timeout / 2;
 	}
 	catch(const NodeActiveException&)
 	{

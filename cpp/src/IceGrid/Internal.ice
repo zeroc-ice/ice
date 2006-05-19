@@ -259,6 +259,13 @@ interface NodeSession
 
     /**
      *
+     * Return the node session timeout.
+     *
+     **/ 
+    nonmutating int getTimeoutAndObserver(out NodeObserver* observer);
+
+    /**
+     *
      * Get the name of the servers deployed on the node.
      *
      **/
@@ -272,7 +279,7 @@ interface NodeSession
     void destroy();
 };
 
-interface Registry
+interface InternalRegistry
 {
     /**
      *
@@ -292,22 +299,8 @@ interface Registry
      * registered and currently active.
      *
      **/
-    NodeSession* registerNode(string name, Node* nd, NodeInfo info, out NodeObserver* observer)
+    NodeSession* registerNode(string name, Node* nd, NodeInfo info)
 	throws NodeActiveException;
-
-    /**
-     *
-     * Return the node session timeout.
-     *
-     **/ 
-    nonmutating int getTimeout();
-
-    /**
-     *
-     * Shutdown the registry.
-     *
-     **/
-    void shutdown();
 };
 
 };
