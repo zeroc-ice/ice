@@ -747,7 +747,6 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
 	    obj.type = resolve(q->type, "object type");
 	    obj.id = _communicator->stringToIdentity(resolve(_communicator->identityToString(q->id),
 	    					             "object identity", false));
-	    obj.allocatable = q->allocatable;
 	    if(obj.id.name.empty())
 	    {
 		resolve.exception("invalid object identity `" + _communicator->identityToString(q->id) +

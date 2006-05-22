@@ -2,14 +2,17 @@
 
   <application name="test" import-default-templates="true">
 
+    <replica-group id="Test">
+      <object identity="nonallocatable" type="::Test"/>
+      <object identity="nonallocatable2" type="::NotAllocatable"/>
+    </replica-group>
+
     <node name="localnode">
 
       <server id="ObjectAllocation" exe="${test.dir}/server" activation="on-demand" pwd=".">
         <adapter name="Server" endpoints="default">
-  	  <object identity="nonallocatable" type="::Test" allocatable="false"/>
-  	  <object identity="allocatable" type="::Test" allocatable="true"/>
-  	  <object identity="allocatablebis" type="::TestBis" allocatable="true"/>
-  	  <object identity="nonallocatable2" type="::NotAllocatable"/>
+  	  <object identity="allocatable" type="::Test"/>
+  	  <object identity="allocatablebis" type="::TestBis"/>
         </adapter>
       </server>
 
@@ -38,8 +41,8 @@
       
       <server id="ServerStress-1" exe="${test.dir}/server" activation="on-demand" pwd=".">
         <adapter name="Server" endpoints="default">
-  	  <object identity="stress-1" type="::StressTest" allocatable="true"/>
-  	  <object identity="stress-2" type="::StressTest" allocatable="true"/>
+  	  <object identity="stress-1" type="::StressTest"/>
+  	  <object identity="stress-2" type="::StressTest"/>
         </adapter>
       </server>
 

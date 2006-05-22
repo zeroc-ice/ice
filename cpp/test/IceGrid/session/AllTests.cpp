@@ -518,6 +518,24 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	}
 
+	adminSession1->getAdmin()->ice_connectionId("reg1")->ice_ping();
+	adminSession2->getAdmin()->ice_connectionId("reg2")->ice_ping();
+
+	try
+	{
+	    adminSession1->getAdmin()->ice_connectionId("reg2")->ice_ping();
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	}
+	try
+	{
+	    adminSession2->getAdmin()->ice_connectionId("reg1")->ice_ping();
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	}
+
 	adminSession1->destroy();
 	adminSession2->destroy();
 	

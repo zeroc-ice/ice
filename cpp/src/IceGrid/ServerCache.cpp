@@ -176,7 +176,7 @@ ServerCache::addCommunicator(const CommunicatorDescriptorPtr& comm, const Server
 	    {
 		info.proxy = _communicator->stringToProxy(_communicator->identityToString(r->id) + "@" + q->id);
 	    }
-	    _objectCache.add(info, application, r->allocatable, server);
+	    _objectCache.add(info, application, true, server);
 	}
     }
 }

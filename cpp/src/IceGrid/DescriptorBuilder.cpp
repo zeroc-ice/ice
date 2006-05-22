@@ -297,7 +297,6 @@ ApplicationDescriptorBuilder::addObject(const XmlAttributesHelper& attrs)
     ObjectDescriptor object;
     object.type = attrs("type", "");
     object.id = _communicator->stringToIdentity(attrs("identity"));
-    object.allocatable = attrs.asBool("allocatable", false);
     _descriptor.replicaGroups.back().objects.push_back(object);
 }
 
@@ -621,7 +620,6 @@ CommunicatorDescriptorBuilder::addObject(const XmlAttributesHelper& attrs)
     ObjectDescriptor object;
     object.type = attrs("type", "");
     object.id = _communicator->stringToIdentity(attrs("identity"));
-    object.allocatable = attrs.asBool("allocatable", false);
     _descriptor->adapters.back().objects.push_back(object);
 }
 

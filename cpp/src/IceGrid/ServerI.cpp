@@ -18,6 +18,7 @@
 #include <IceGrid/DescriptorHelper.h>
 
 #include <IcePatch2/Util.h>
+#include <IcePatch2/OS.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -62,9 +63,16 @@ chownRecursive(const string& path, uid_t uid, gid_t gid)
 	    name = path + "/" + name;
 	    if(chown(name.c_str(), uid, gid) != 0)
 	    {
-		throw "can't change permissions on file `" + name + "':\n" + IcePatch2::lastError();
+		throw "can't change permissions on `" + name + "':\n" + IcePatch2::lastError();
 	    }
-	    if(namelist[i]->d_type == DT_DIR)
+
+	    OS::structstat buf;
+	    if(OS::osstat(name, &buf) == -1)
+	    {
+		throw "cannot stat `" + name + "':\n" + IcePatch2::lastError();
+	    }
+	    
+	    if(S_ISDIR(buf.st_mode))
 	    {
 		chownRecursive(name, uid, gid);
 	    }

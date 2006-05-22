@@ -926,7 +926,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	cout << "ok" << endl;
 
 	cout << "stress test... " << flush;
-	const int nClients = 3;
+	const int nClients = 4;
 	int i;
 	vector<StressClientPtr> clients;
 	for(i = 0; i < nClients - 2; ++i)
@@ -947,7 +947,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	//
 	// Let the stress client run for a bit.
 	//
-	IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(30));
+	IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(6));
 
 	//
 	// Terminate the stress clients.
