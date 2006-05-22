@@ -40,7 +40,9 @@ public abstract class TreeNode extends TreeNodeBase
     public static final int SHUTDOWN_NODE = 4;
     public static final int SERVER_INSTALL_DISTRIBUTION = 5;
 
-    static public final int ACTION_COUNT = 6;
+    public static final int ADD_OBJECT = 6;
+
+    static public final int ACTION_COUNT = 7;
     
     public boolean[] getAvailableActions()
     {
@@ -68,6 +70,10 @@ public abstract class TreeNode extends TreeNodeBase
 	assert false;
     }
     public void serverInstallDistribution()
+    {
+	assert false;
+    }
+    public void addObject()
     {
 	assert false;
     }
@@ -128,6 +134,11 @@ public abstract class TreeNode extends TreeNodeBase
 		(IceGrid.NodeUnreachableException)e;
 	    amiFailure(prefix, title, "Node '" +
 		       nue.name + "' is unreachable: " + nue.reason);
+	}
+	else if(e instanceof IceGrid.DeploymentException)
+	{
+	    IceGrid.DeploymentException de = (IceGrid.DeploymentException)e;
+	    amiFailure(prefix, title, "Deployment exception: " + de.reason);
 	}
 	else
 	{

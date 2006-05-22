@@ -49,7 +49,7 @@ class RegistryObserverI extends _RegistryObserverDisp
 	
 	if(_initialized)
 	{
-	    _coordinator.registryInit(_serial, _applications);
+	    _coordinator.registryInit(_serial, _applications, _adapters, _objects);
 	}
 	else
 	{
@@ -58,12 +58,14 @@ class RegistryObserverI extends _RegistryObserverDisp
     }
 
 
-    public synchronized void init(int serial, java.util.LinkedList applications, AdapterInfo[] adpts, 
+    public synchronized void init(int serial, java.util.LinkedList applications, AdapterInfo[] adapters, 
 				  ObjectInfo[] objects, Ice.Current current)
     {
 	_initialized = true;
 	_serial = serial;
 	_applications = applications;
+	_adapters = adapters;
+	_objects = objects;
 	notify();
     }
 
@@ -105,26 +107,68 @@ class RegistryObserverI extends _RegistryObserverDisp
 
     public void adapterAdded(final int serial, final AdapterInfo info, Ice.Current current)
     {
+	SwingUtilities.invokeLater(new Runnable() 
+	    {
+		public void run() 
+		{
+		    _coordinator.adapterAdded(serial, info);
+		}
+	    });
     }    
 
     public void adapterUpdated(final int serial, final AdapterInfo info, Ice.Current current)
     {
+	SwingUtilities.invokeLater(new Runnable() 
+	    {
+		public void run() 
+		{
+		    _coordinator.adapterUpdated(serial, info);
+		}
+	    });
     }    
 
     public void adapterRemoved(final int serial, final String id, Ice.Current current)
     {
+	SwingUtilities.invokeLater(new Runnable() 
+	    {
+		public void run() 
+		{
+		    _coordinator.adapterRemoved(serial, id);
+		}
+	    });
     }    
 
     public void objectAdded(final int serial, final ObjectInfo info, Ice.Current current)
     {
+	SwingUtilities.invokeLater(new Runnable() 
+	    {
+		public void run() 
+		{
+		    _coordinator.objectAdded(serial, info);
+		}
+	    });
     }    
 
     public void objectUpdated(final int serial, final ObjectInfo info, Ice.Current current)
     {
+	SwingUtilities.invokeLater(new Runnable() 
+	    {
+		public void run() 
+		{
+		    _coordinator.objectUpdated(serial, info);
+		}
+	    });
     }    
 
     public void objectRemoved(final int serial, final Ice.Identity id, Ice.Current current)
     {
+	SwingUtilities.invokeLater(new Runnable() 
+	    {
+		public void run() 
+		{
+		    _coordinator.objectRemoved(serial, id);
+		}
+	    });
     }    
 
     private Coordinator _coordinator;
@@ -136,4 +180,6 @@ class RegistryObserverI extends _RegistryObserverDisp
     //
     private int _serial;
     private java.util.LinkedList _applications;
+    private AdapterInfo[] _adapters;
+    private ObjectInfo[] _objects;
 };

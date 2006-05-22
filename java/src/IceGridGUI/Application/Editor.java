@@ -37,6 +37,26 @@ import IceGridGUI.*;
 
 public class Editor extends EditorBase
 {      
+    static public java.util.Map makeParameterValues(
+	java.util.Map oldParameterValues,
+	java.util.List newParameters)
+    {
+	java.util.Map result = new java.util.HashMap();
+
+	java.util.Iterator p = newParameters.iterator();
+	while(p.hasNext())
+	{
+	    Object name =  p.next();
+	    Object value = oldParameterValues.get(name);
+	    if(value != null)
+	    {
+		result.put(name, value);
+	    } 
+	}
+	return result;
+    }
+
+
     protected void applyUpdate()
     {
 	assert false;

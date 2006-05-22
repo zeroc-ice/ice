@@ -36,7 +36,20 @@ public class TableField extends JTable
 	_columnNames = new java.util.Vector(2);
 	_columnNames.add(headKey);
 	_columnNames.add(headValue);
+	init();
+    }
 
+    public TableField(String headKey, String headValue1, String headValue2)
+    {	
+	_columnNames = new java.util.Vector(3);
+	_columnNames.add(headKey);
+	_columnNames.add(headValue1);
+	_columnNames.add(headValue2);
+	init();
+    }
+
+    private void init()
+    {
 	_model = new DefaultTableModel()
 	    {
 		public boolean isCellEditable(int row, int column)
@@ -49,7 +62,6 @@ public class TableField extends JTable
 	setCellSelectionEnabled(false);
 	setOpaque(false);
 	setPreferredScrollableViewportSize(getPreferredSize());
-
     }
 
     public void setProperties(java.util.List properties, Utils.Resolver resolver)
@@ -80,6 +92,18 @@ public class TableField extends JTable
 	setSortedMap(map);
     }
 
+    public void setObjects(java.util.SortedMap objects)
+    {
+	java.util.SortedMap map = new java.util.TreeMap();
+	java.util.Iterator p = objects.values().iterator();
+	while(p.hasNext())
+	{
+	    ObjectInfo oi = (ObjectInfo)p.next();
+	    map.put(oi.proxy.toString(), oi.type);
+	}
+	setSortedMap(map);
+    }
+
     public void setEnvs(java.util.List envs, Utils.Resolver resolver)
     {
 	java.util.SortedMap map = new java.util.TreeMap();
@@ -101,6 +125,47 @@ public class TableField extends JTable
 	    }
 	}
 	setSortedMap(map);
+    }
+
+    public void setAdapters(java.util.SortedMap adapters)
+    {
+	java.util.Vector vector = new java.util.Vector(adapters.size());
+	java.util.Iterator p = adapters.entrySet().iterator();
+	while(p.hasNext())
+	{
+	    java.util.Vector row = new java.util.Vector(3);
+	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+	    row.add((String)entry.getKey());
+
+	    AdapterInfo ai = (AdapterInfo)entry.getValue();
+	    
+	    if(ai.proxy == null)
+	    {
+		row.add("");
+	    }
+	    else
+	    {
+		String str = ai.proxy.toString();
+		int index = str.indexOf(':');
+		if(index == -1 || index == str.length() - 1)
+		{
+		    row.add("");
+		}
+		else
+		{
+		    row.add(str.substring(index + 1));
+		}
+	    }
+
+	    row.add(ai.replicaGroupId);
+	    vector.add(row);
+	}
+
+	_model.setDataVector(vector, _columnNames);
+
+	DefaultTableCellRenderer cr = (DefaultTableCellRenderer)
+	    getDefaultRenderer(String.class);
+	cr.setOpaque(false);	
     }
 
 

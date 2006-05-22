@@ -223,7 +223,7 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
 	    if(!parameters.equals(_descriptor.parameterValues.keySet()))
 	    {
 		backup.parameterValues = _descriptor.parameterValues;
-		_descriptor.parameterValues = EditorBase.makeParameterValues(
+		_descriptor.parameterValues = Editor.makeParameterValues(
 		    _descriptor.parameterValues, templateDescriptor.parameters);
 		editables.add(getEnclosingEditable());
 	    }

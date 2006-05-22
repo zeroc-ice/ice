@@ -104,11 +104,20 @@ public class LiveActions
 	    };
 	
 	_array[TreeNode.SERVER_INSTALL_DISTRIBUTION] = 
-	    new AbstractAction("Patch")
+	    new AbstractAction("Patch distribution")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
 		    _target.serverInstallDistribution();
+		}
+	    };
+
+	_array[TreeNode.ADD_OBJECT] = 
+	    new AbstractAction("Add well-known object")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _target.addObject();
 		}
 	    };
     }

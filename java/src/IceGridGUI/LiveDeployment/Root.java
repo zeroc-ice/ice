@@ -8,6 +8,10 @@
 // **********************************************************************
 package IceGridGUI.LiveDeployment;
 
+import java.awt.Cursor;
+
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -29,6 +33,14 @@ public class Root extends ListTreeNode
 
 	_tree = new JTree(this, true);
 	_treeModel = (DefaultTreeModel)_tree.getModel();
+	_objectDialog = new ObjectDialog(this);
+    }
+
+    public boolean[] getAvailableActions()
+    {
+	boolean[] actions = new boolean[ACTION_COUNT];
+	actions[ADD_OBJECT] = true;
+	return actions;
     }
 
     public ApplicationDescriptor getApplicationDescriptor(String name)
@@ -47,13 +59,26 @@ public class Root extends ListTreeNode
 	{
 	    _editor = new RegistryEditor();
 	}
+	_editor.show(this);
 	return _editor;
     }
 
-    public void init(String instanceName, java.util.List applications)
+    public void init(String instanceName, java.util.List applications,
+		     AdapterInfo[] adapters, ObjectInfo[] objects)
     {
 	_label = instanceName;
 	_tree.setRootVisible(true);
+	
+	for(int i = 0; i < adapters.length; ++i)
+	{
+	    _adapters.put(adapters[i].id, adapters[i]);
+	}
+
+	for(int i = 0; i < objects.length; ++i)
+	{
+	    _objects.put(Ice.Util.identityToString(objects[i].proxy.ice_getIdentity()), 
+			 objects[i]);
+	}
 	
 	java.util.Iterator p = applications.iterator();
 	while(p.hasNext())
@@ -67,6 +92,9 @@ public class Root extends ListTreeNode
     //
     public void clear()
     {
+	_adapters.clear();
+	_objects.clear();
+
 	_descriptorMap.clear();
 	_children.clear();
 	_treeModel.nodeStructureChanged(this);
@@ -231,6 +259,37 @@ public class Root extends ListTreeNode
 	}
     }
 
+    public void adapterAdded(AdapterInfo info)
+    {
+	_adapters.put(info.id, info);
+    }    
+
+    public void adapterUpdated(AdapterInfo info)
+    {
+	_adapters.put(info.id, info);
+    }    
+
+    public void adapterRemoved(String id)
+    {
+	_adapters.remove(id);
+    }    
+    
+    public void objectAdded(ObjectInfo info)
+    {
+	_objects.put(Ice.Util.identityToString(info.proxy.ice_getIdentity()), info);
+    }    
+
+    public void objectUpdated(ObjectInfo info)
+    {
+	_objects.put(Ice.Util.identityToString(info.proxy.ice_getIdentity()), info);
+    }    
+
+    public void objectRemoved(Ice.Identity id)
+    {
+	_objects.remove(Ice.Util.identityToString(id));
+    } 
+
+
     //
     // From the Node Observer:
     //
@@ -279,6 +338,20 @@ public class Root extends ListTreeNode
 	}
     }
 
+    public JPopupMenu getPopupMenu()
+    {
+	LiveActions la = getCoordinator().getLiveActionsForPopup();
+
+	if(_popup == null)
+	{
+	    _popup = new JPopupMenu();
+	    _popup.add(la.get(ADD_OBJECT));
+	}
+	
+	la.setTarget(this);
+	return _popup;
+    }
+
     public void setSelectedNode(TreeNode node)
     {
 	_tree.setSelectionPath(node.getPath());
@@ -324,11 +397,207 @@ public class Root extends ListTreeNode
 	return true;
     }
 
+    public void addObject()
+    {
+	_objectDialog.showDialog();
+    }
+
 
     Root getRoot()
     {
 	return this;
     }
+
+    java.util.SortedMap getObjects()
+    {
+	return _objects;
+    }
+
+    java.util.SortedMap getAdapters()
+    {
+	return _adapters;
+    }
+   
+
+    boolean addObject(String strProxy, String type)
+    {
+	Ice.ObjectPrx proxy = null;
+
+	try
+	{
+	    proxy = _coordinator.getCommunicator().stringToProxy(strProxy);
+	}
+	catch(Ice.LocalException e)
+	{
+	    JOptionPane.showMessageDialog(
+		_coordinator.getMainFrame(),
+		"Cannot parse proxy '" + strProxy + "'",
+		"addObject failed",
+		JOptionPane.ERROR_MESSAGE);
+	    return false;
+	}
+
+	if(proxy == null)
+	{
+	    JOptionPane.showMessageDialog(
+		_coordinator.getMainFrame(),
+		"You must provide a non-null proxy",
+		"addObject failed",
+		JOptionPane.ERROR_MESSAGE);
+	    return false;
+	}
+
+	String strIdentity = Ice.Util.identityToString(proxy.ice_getIdentity());
+
+	String prefix = "Adding well-known object '" + strIdentity + "'...";
+	try
+	{   
+	    _coordinator.getStatusBar().setText(prefix);
+	    _coordinator.getMainFrame().setCursor(
+		Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+	    if(type == null)
+	    {
+		_coordinator.getAdmin().addObject(proxy);
+	    }
+	    else
+	    {
+		_coordinator.getAdmin().addObjectWithType(proxy, type);
+	    }
+	}
+	catch(ObjectExistsException e)
+	{
+	    _coordinator.getStatusBar().setText(prefix + "failed.");
+	    JOptionPane.showMessageDialog(
+		_coordinator.getMainFrame(),
+		"An object with this identity is already registered as a well-known object",
+		"addObject failed",
+		JOptionPane.ERROR_MESSAGE);
+	    return false;
+	}
+	catch(DeploymentException e)
+	{
+	    _coordinator.getStatusBar().setText(prefix + "failed.");
+	    JOptionPane.showMessageDialog(
+		_coordinator.getMainFrame(),
+		"Deployment exception: " + e.reason,
+		"addObject failed",
+		JOptionPane.ERROR_MESSAGE);
+	    return false;
+	}
+	catch(Ice.LocalException e)
+	{
+	    _coordinator.getStatusBar().setText(prefix + "failed.");
+	    JOptionPane.showMessageDialog(
+		_coordinator.getMainFrame(),
+		e.toString(),
+		"addObject failed",
+		JOptionPane.ERROR_MESSAGE);
+	    return false;
+	}
+	finally
+	{
+	    _coordinator.getMainFrame().setCursor(
+		Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	}
+	_coordinator.getStatusBar().setText(prefix + "done.");
+	return true;
+    }
+
+
+    void removeObject(String strProxy)
+    {
+	Ice.ObjectPrx proxy = _coordinator.getCommunicator().stringToProxy(strProxy);
+	Ice.Identity identity = proxy.ice_getIdentity();
+	final String strIdentity = Ice.Util.identityToString(identity);
+
+	final String prefix = "Removing well-known object '" + strIdentity + "'...";
+	_coordinator.getStatusBar().setText(prefix);
+	
+	AMI_Admin_removeObject cb = new AMI_Admin_removeObject()
+	    {
+		//
+		// Called by another thread!
+		//
+		public void ice_response()
+		{
+		    amiSuccess(prefix);
+		}
+		
+		public void ice_exception(Ice.UserException e)
+		{
+		    amiFailure(prefix, "Failed to remove object '" + strIdentity + "'", e);
+		}
+		
+		public void ice_exception(Ice.LocalException e)
+		{
+		    amiFailure(prefix, "Failed to remove object '" + strIdentity + "'",
+			       e.toString());
+		}
+	    };
+	
+	try
+	{   
+	    _coordinator.getMainFrame().setCursor(
+		Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+	    _coordinator.getAdmin().removeObject_async(cb, identity);
+	}
+	catch(Ice.LocalException e)
+	{
+	    failure(prefix, "Failed to remove object '" + strIdentity + "'",
+		    e.toString());
+	}
+	finally
+	{
+	    _coordinator.getMainFrame().setCursor(
+		Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	}
+    }
+
+    void removeAdapter(final String adapterId)
+    {
+	final String prefix = "Removing adapter '" + adapterId + "'...";
+	_coordinator.getStatusBar().setText(prefix);
+	
+	AMI_Admin_removeAdapter cb = new AMI_Admin_removeAdapter()
+	    {
+		//
+		// Called by another thread!
+		//
+		public void ice_response()
+		{
+		    amiSuccess(prefix);
+		}
+		
+		public void ice_exception(Ice.UserException e)
+		{
+		    amiFailure(prefix, "Failed to remove adapter '" + adapterId + "'", e);
+		}
+		
+		public void ice_exception(Ice.LocalException e)
+		{
+		    amiFailure(prefix, "Failed to remove adapter '" + adapterId + "'", 
+			       e.toString());
+		}
+	    };
+	
+	try
+	{   
+	    _coordinator.getMainFrame().setCursor(
+		Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+	    _coordinator.getAdmin().removeAdapter_async(cb, adapterId);
+	}
+	catch(Ice.LocalException e)
+	{
+	    failure(prefix, "Failed to remove adapter '" + adapterId + "'", e.toString());
+	}
+	finally
+	{
+	    _coordinator.getMainFrame().setCursor(
+		Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	}
+    }
+
 
     PropertySetDescriptor findNamedPropertySet(String name, String applicationName)
     {
@@ -376,6 +645,16 @@ public class Root extends ListTreeNode
     private final java.util.Map _descriptorMap = new java.util.TreeMap();
 
     //
+    // Map AdapterId => AdapterInfo
+    //
+    private java.util.SortedMap _adapters = new java.util.TreeMap();
+
+    //
+    // Map stringified identity => ObjectInfo
+    //
+    private java.util.SortedMap _objects = new java.util.TreeMap();
+
+    //
     // 'this' is the root of the tree
     //
     private final JTree _tree;
@@ -383,5 +662,8 @@ public class Root extends ListTreeNode
     
     private String _label;
 
+    private ObjectDialog _objectDialog;
+
     static private RegistryEditor _editor;
+    static private JPopupMenu _popup;
 }

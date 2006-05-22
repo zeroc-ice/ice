@@ -145,7 +145,7 @@ class Adapter extends TreeNode
 	}
 	else
 	{
-	    String str = getCoordinator().getCommunicator().proxyToString(proxy);
+	    String str = proxy.toString();
 	    int index = str.indexOf(':');
 	    if(index == -1 || index == str.length() - 1)
 	    {

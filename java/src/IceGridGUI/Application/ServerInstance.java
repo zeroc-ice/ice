@@ -223,7 +223,7 @@ class ServerInstance extends TreeNode implements Server
 	if(!parameters.equals(_descriptor.parameterValues.keySet()))
 	{
 	    backup.parameterValues = _descriptor.parameterValues;
-	    _descriptor.parameterValues = EditorBase.makeParameterValues(
+	    _descriptor.parameterValues = Editor.makeParameterValues(
 		_descriptor.parameterValues, templateDescriptor.parameters);
 	}
 	ServerInstance newServer = node.createServer(false, _descriptor);

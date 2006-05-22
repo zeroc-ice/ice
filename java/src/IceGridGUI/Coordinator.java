@@ -236,6 +236,14 @@ public class Coordinator
 	    _nodeMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.SHUTDOWN_NODE));
 
 	    //
+	    // Registry sub-menu
+	    //
+	    _registryMenu = new JMenu("Registry");
+	    _registryMenu.setEnabled(false);
+	    toolsMenu.add(_registryMenu);
+	    _registryMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.ADD_OBJECT));
+
+	    //
 	    // Server sub-menu
 	    //
 	    _serverMenu = new JMenu("Server");
@@ -438,12 +446,14 @@ public class Coordinator
     //
     // From the Registry observer:
     //
-    void registryInit(int serial, final java.util.List applications)
+    void registryInit(int serial, java.util.List applications,
+		      AdapterInfo[] adapters, ObjectInfo[] objects)
     {	
 	assert _latestSerial == -1;
 	_latestSerial = serial;
 
-	_liveDeploymentRoot.init(_admin.ice_getIdentity().category, applications);
+	_liveDeploymentRoot.init(_admin.ice_getIdentity().category, 
+				 applications, adapters, objects);
 	//
 	// When we get this init, we can't have any live Application yet.
 	//
@@ -493,6 +503,48 @@ public class Coordinator
 	}
 	updateSerial(serial);
     }
+
+    void adapterAdded(int serial, AdapterInfo info)
+    {
+	_liveDeploymentRoot.adapterAdded(info);
+	_liveDeploymentPane.refresh();
+	updateSerial(serial);
+    }    
+
+    void adapterUpdated(int serial, AdapterInfo info)
+    {
+	_liveDeploymentRoot.adapterUpdated(info);
+	_liveDeploymentPane.refresh();
+	updateSerial(serial);
+    }    
+
+    void adapterRemoved(int serial, String id)
+    {
+	_liveDeploymentRoot.adapterRemoved(id);
+	_liveDeploymentPane.refresh();
+	updateSerial(serial);
+    }    
+    
+    void objectAdded(int serial, ObjectInfo info)
+    {
+	_liveDeploymentRoot.objectAdded(info);
+	_liveDeploymentPane.refresh();
+	updateSerial(serial);
+    }    
+
+    void objectUpdated(int serial, ObjectInfo info)
+    {
+	_liveDeploymentRoot.objectUpdated(info);
+	_liveDeploymentPane.refresh();
+	updateSerial(serial);
+    }    
+
+    void objectRemoved(int serial, Ice.Identity id)
+    {
+	_liveDeploymentRoot.objectRemoved(id);
+	_liveDeploymentPane.refresh();
+	updateSerial(serial);
+    } 
     
     public void accessDenied(AccessDeniedException e)
     {
@@ -1513,7 +1565,7 @@ public class Coordinator
 		}
 	    };
 	
-	_installDistribution = new AbstractAction("Install distribution")
+	_installDistribution = new AbstractAction("Patch distribution")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1523,7 +1575,6 @@ public class Coordinator
 		}
 	    };
 	_installDistribution.setEnabled(false);
-
 
 	_showVarsMenuItem = new
 	    JCheckBoxMenuItem(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.SHOW_VARS));
@@ -1855,6 +1906,9 @@ public class Coordinator
 	_nodeMenu.setEnabled(
 	    availableActions[IceGridGUI.LiveDeployment.TreeNode.SHUTDOWN_NODE]);
 
+	_registryMenu.setEnabled(
+	    availableActions[IceGridGUI.LiveDeployment.TreeNode.ADD_OBJECT]);
+
 	_serverMenu.setEnabled(
 	    availableActions[IceGridGUI.LiveDeployment.TreeNode.START] ||
 	    availableActions[IceGridGUI.LiveDeployment.TreeNode.STOP] ||
@@ -1886,6 +1940,7 @@ public class Coordinator
 
 	_appMenu.setEnabled(false);
 	_nodeMenu.setEnabled(false);
+	_registryMenu.setEnabled(false);
 	_serverMenu.setEnabled(false);
 	_serviceMenu.setEnabled(
 	    availableActions[IceGridGUI.Application.TreeNode.MOVE_UP] ||
@@ -1982,6 +2037,7 @@ public class Coordinator
     private JMenu _newTemplateMenu;
     private JMenu _appMenu;
     private JMenu _nodeMenu;
+    private JMenu _registryMenu;
     private JMenu _serverMenu;
     private JMenu _serviceMenu;
 

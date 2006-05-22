@@ -184,8 +184,9 @@ class Server extends ListArrayTreeNode
 	{   
 	    getCoordinator().getMainFrame().setCursor(
 		Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-	   getCoordinator().getAdmin().patchServer_async(cb, _id, 
-					       shutdown == JOptionPane.YES_OPTION);
+	   getCoordinator().getAdmin().
+	       patchServer_async(cb, _id, 
+				 shutdown == JOptionPane.YES_OPTION);
 	}
 	catch(Ice.LocalException e)
 	{
