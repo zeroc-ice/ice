@@ -825,7 +825,7 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 	router = new RouterI(_clientAdapter, _serverAdapter, _adminAdapter, current.con, userId, allowAddUserMode,
 			     session, controlId);
     }
-    catch(const Exception& ex)
+    catch(const Exception&)
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 
