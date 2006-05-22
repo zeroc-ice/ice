@@ -332,7 +332,7 @@ ClientSSLSessionManagerI::create(const Glacier2::SSLInfo& info, const Glacier2::
 	{
 	    // This shouldn't happen, the SSLInfo is supposed to be encoded by Glacier2.
 	    Ice::Error out(_database->getTraceLevels()->logger);
-	    out << "SSL session manager couldn't decode SSL certificates";
+	    out << "SSL session manager couldn't decode SSL certificates:\n" << ex;
 	    return 0;
 	}
     }

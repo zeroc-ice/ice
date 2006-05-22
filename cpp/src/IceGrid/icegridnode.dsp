@@ -210,6 +210,10 @@ SOURCE=.\SessionI.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\SessionServantLocatorI.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\StringAdapterInfoDict.cpp
 # End Source File
 # Begin Source File
