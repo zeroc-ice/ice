@@ -32,6 +32,12 @@ client = os.path.join(testdir, "client")
 additionalOptions = " --Ice.Default.Locator=\"IceGrid/Locator:default -p 12010\" " + \
     "--Ice.PrintAdapterReady=0 --Ice.PrintProcessId=0 --IceDir=\"" + toplevel + "\" --TestDir=\"" + testdir + "\""
 
+IceGridAdmin.registryOptions += \
+                             r' --IceGrid.Registry.PermissionsVerifier="ClientPermissionsVerifier"' + \
+                             r' --IceGrid.Registry.AdminPermissionsVerifier="AdminPermissionsVerifier"' + \
+                             r' --IceGrid.Registry.SSLPermissionsVerifier="SSLPermissionsVerifier"' + \
+                             r' --IceGrid.Registry.AdminSSLPermissionsVerifier="SSLPermissionsVerifier"'
+
 IceGridAdmin.cleanDbDir(os.path.join(testdir, "db"))
 iceGridRegistryThread = IceGridAdmin.startIceGridRegistry("12010", testdir, 1)
 iceGridNodeThread = IceGridAdmin.startIceGridNode(testdir)

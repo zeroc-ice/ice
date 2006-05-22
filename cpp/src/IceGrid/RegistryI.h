@@ -30,6 +30,9 @@ typedef IceUtil::Handle<ReapThread> ReapThreadPtr;
 class WaitQueue;
 typedef IceUtil::Handle<WaitQueue> WaitQueuePtr;    
 
+class SessionServantLocatorI;
+typedef IceUtil::Handle<SessionServantLocatorI> SessionServantLocatorIPtr;    
+
 class ClientSessionManagerI;
 typedef IceUtil::Handle<ClientSessionManagerI> ClientSessionManagerIPtr;    
 
@@ -59,10 +62,10 @@ private:
     void addWellKnownObject(const Ice::ObjectPrx&, const std::string&);
     void setupThreadPool(const Ice::PropertiesPtr&, const std::string&, int, int = 0);
     Glacier2::PermissionsVerifierPrx getPermissionsVerifier(const Ice::ObjectAdapterPtr&, const Ice::LocatorPrx&,
-							    const std::string&, const std::string&);
+							    const std::string&, const std::string&, bool);
 
-    Glacier2::SSLPermissionsVerifierPrx getSSLPermissionsVerifier(const Ice::LocatorPrx&, const std::string&);
-    Glacier2::SSLInfo getSSLInfo(const Ice::ConnectionPtr&);
+    Glacier2::SSLPermissionsVerifierPrx getSSLPermissionsVerifier(const Ice::LocatorPrx&, const std::string&, bool);
+    Glacier2::SSLInfo getSSLInfo(const Ice::ConnectionPtr&, std::string&);
 
     Ice::CommunicatorPtr _communicator;
     DatabasePtr _database;
@@ -70,9 +73,12 @@ private:
     ReapThreadPtr _nodeReaper;
     ReapThreadPtr _clientReaper;
     WaitQueuePtr _waitQueue;
+    SessionServantLocatorIPtr _sessionServantLocator;
+
     ClientSessionManagerIPtr _clientSessionManager;
     Glacier2::PermissionsVerifierPrx _clientVerifier;
     Glacier2::SSLPermissionsVerifierPrx _sslClientVerifier;
+
     AdminSessionManagerIPtr _adminSessionManager;
     Glacier2::PermissionsVerifierPrx _adminVerifier;
     Glacier2::SSLPermissionsVerifierPrx _sslAdminVerifier;

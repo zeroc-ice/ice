@@ -123,7 +123,11 @@ BaseSessionI::destroy(const Ice::Current& current)
     }
     _destroyed = true;
 
-    if(current.adapter)
+    if(_servantLocator)
+    {
+	_servantLocator->remove(current.id);
+    }
+    else if(current.adapter)
     {
 	try
 	{
@@ -146,6 +150,15 @@ BaseSessionI::timestamp() const
 {
     Lock sync(*this);
     return _timestamp;
+}
+
+void
+BaseSessionI::setServantLocator(const SessionServantLocatorIPtr& servantLocator)
+{
+    //
+    // This is supposed to be called after creation only.
+    //
+    const_cast<SessionServantLocatorIPtr&>(_servantLocator) = servantLocator;
 }
 
 SessionI::SessionI(const string& id, 
@@ -307,7 +320,23 @@ Glacier2::SessionPrx
 ClientSSLSessionManagerI::create(const Glacier2::SSLInfo& info, const Glacier2::SessionControlPrx& ctl, 
 				 const Ice::Current& current)
 {
-    IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
-    SessionIPtr session = new SessionI(cert->getSubjectDN(), _database, _timeout, _waitQueue, ctl);
+    string userDN;
+    if(!info.certs.empty()) // TODO: Require userDN?
+    {
+	try
+	{
+	    IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
+	    userDN = cert->getSubjectDN();
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    // This shouldn't happen, the SSLInfo is supposed to be encoded by Glacier2.
+	    Ice::Error out(_database->getTraceLevels()->logger);
+	    out << "SSL session manager couldn't decode SSL certificates";
+	    return 0;
+	}
+    }
+	
+    SessionIPtr session = new SessionI(userDN, _database, _timeout, _waitQueue, ctl);
     return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
 }

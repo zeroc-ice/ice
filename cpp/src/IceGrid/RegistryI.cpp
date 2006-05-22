@@ -29,6 +29,7 @@
 #include <IceGrid/SessionI.h>
 #include <IceGrid/AdminSessionI.h>
 #include <IceGrid/InternalRegistryI.h>
+#include <IceGrid/SessionServantLocatorI.h>
 
 #include <fstream>
 
@@ -255,6 +256,15 @@ RegistryI::start(bool nowarn)
     registryAdapter->activate();
 
     //
+    // Add a default servant locator to the client object adapter. The
+    // default servant ensure that request on session objects are from
+    // the same connection as the connection that created the session.
+    //
+    _sessionServantLocator = new SessionServantLocatorI(clientAdapter);
+    clientAdapter->addServantLocator(_sessionServantLocator, "");
+    
+
+    //
     // Start the reaper threads.
     //
     int nodeSessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.NodeSessionTimeout", 10);
@@ -376,7 +386,8 @@ RegistryI::start(bool nowarn)
 					     internalLocatorPrx,
 					     properties->getProperty("IceGrid.Registry.PermissionsVerifier"),
 					     properties->getPropertyWithDefault("IceGrid.Registry.CryptPasswords", 
-										"passwords"));
+										"passwords"),
+					     nowarn);
     if(!_clientVerifier)
     {
 	return false;
@@ -386,16 +397,17 @@ RegistryI::start(bool nowarn)
 					    internalLocatorPrx,
 					    properties->getProperty("IceGrid.Registry.AdminPermissionsVerifier"),
 					    properties->getPropertyWithDefault("IceGrid.Registry.AdminCryptPasswords", 
-									       "admin-passwords"));
+									       "admin-passwords"),
+					    nowarn);
     if(!_adminVerifier)
     {
 	return false;
     }
 
     _sslClientVerifier = getSSLPermissionsVerifier(
-	internalLocatorPrx, properties->getProperty("IceGrid.Registry.SSLPermissionsVerifier"));
+	internalLocatorPrx, properties->getProperty("IceGrid.Registry.SSLPermissionsVerifier"), nowarn);
     _sslAdminVerifier = getSSLPermissionsVerifier(
-	internalLocatorPrx, properties->getProperty("IceGrid.Registry.AdminSSLPermissionsVerifier"));
+	internalLocatorPrx, properties->getProperty("IceGrid.Registry.AdminSSLPermissionsVerifier"), nowarn);
 
     //
     // Register well known objects with the object registry.
@@ -473,7 +485,8 @@ RegistryI::createSession(const string& user, const string& password, const Ice::
     }
 
     SessionIPtr session = _clientSessionManager->create(user, 0);
-    SessionPrx proxy = SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
+    session->setServantLocator(_sessionServantLocator);
+    SessionPrx proxy = SessionPrx::uncheckedCast(_sessionServantLocator->add(session, current.con));
     _clientReaper->add(new SessionReapable(current.adapter, session, proxy));
     return proxy;    
 }
@@ -505,7 +518,8 @@ RegistryI::createAdminSession(const string& user, const string& password, const 
     }
 
     AdminSessionIPtr session = _adminSessionManager->create(user);
-    AdminSessionPrx proxy = AdminSessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
+    session->setServantLocator(_sessionServantLocator);
+    AdminSessionPrx proxy = AdminSessionPrx::uncheckedCast(_sessionServantLocator->add(session, current.con));
     _clientReaper->add(new SessionReapable(current.adapter, session, proxy));
     return proxy;    
 }
@@ -520,7 +534,8 @@ RegistryI::createSessionFromSecureConnection(const Ice::Current& current)
 	throw exc;
     }
 
-    Glacier2::SSLInfo info = getSSLInfo(current.con);
+    string userDN;
+    Glacier2::SSLInfo info = getSSLInfo(current.con, userDN);
     try
     {
 	string reason;
@@ -544,11 +559,11 @@ RegistryI::createSessionFromSecureConnection(const Ice::Current& current)
 	throw exc;
     }
 
-    IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
-    SessionIPtr session = _clientSessionManager->create(cert->getSubjectDN(), 0);
-    SessionPrx proxy = SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
+    SessionIPtr session = _clientSessionManager->create(userDN, 0);
+    session->setServantLocator(_sessionServantLocator);
+    SessionPrx proxy = SessionPrx::uncheckedCast(_sessionServantLocator->add(session, current.con));
     _clientReaper->add(new SessionReapable(current.adapter, session, proxy));
-    return proxy;    
+    return proxy;
 }
 
 AdminSessionPrx
@@ -561,7 +576,8 @@ RegistryI::createAdminSessionFromSecureConnection(const Ice::Current& current)
 	throw exc;
     }
 
-    Glacier2::SSLInfo info = getSSLInfo(current.con);
+    string userDN;
+    Glacier2::SSLInfo info = getSSLInfo(current.con, userDN);
     try
     {
 	string reason;
@@ -584,10 +600,10 @@ RegistryI::createAdminSessionFromSecureConnection(const Ice::Current& current)
 	exc.reason = "internal server error";
 	throw exc;
     }
-
-    IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
-    AdminSessionIPtr session = _adminSessionManager->create(cert->getSubjectDN());
-    AdminSessionPrx proxy = AdminSessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
+    
+    AdminSessionIPtr session = _adminSessionManager->create(userDN);
+    session->setServantLocator(_sessionServantLocator);
+    AdminSessionPrx proxy = AdminSessionPrx::uncheckedCast(_sessionServantLocator->add(session, current.con));
     _clientReaper->add(new SessionReapable(current.adapter, session, proxy));
     return proxy;    
 }
@@ -646,7 +662,8 @@ Glacier2::PermissionsVerifierPrx
 RegistryI::getPermissionsVerifier(const Ice::ObjectAdapterPtr& adapter, 
 				  const Ice::LocatorPrx& locator,
 				  const string& verifierProperty,
-				  const string& passwordsProperty)
+				  const string& passwordsProperty,
+				  bool nowarn)
 {
     //
     // Get the permissions verifier, or create a default one if no
@@ -723,14 +740,18 @@ RegistryI::getPermissionsVerifier(const Ice::ObjectAdapterPtr& adapter,
     }
     catch(const Ice::LocalException& ex)
     {
-	Warning out(_communicator->getLogger());
-	out << "couldn't contact permissions verifier `" + verifierProperty + "':" << ex;	
+	if(!nowarn)
+	{
+	    Warning out(_communicator->getLogger());
+	    out << "couldn't contact permissions verifier `" + verifierProperty + "':\n" << ex;
+	}
+	verifierPrx = Glacier2::PermissionsVerifierPrx::uncheckedCast(verifier->ice_locator(locator));
     }
     return verifierPrx;
 }
 
 Glacier2::SSLPermissionsVerifierPrx
-RegistryI::getSSLPermissionsVerifier(const Ice::LocatorPrx& locator, const string& verifierProperty)
+RegistryI::getSSLPermissionsVerifier(const Ice::LocatorPrx& locator, const string& verifierProperty, bool nowarn)
 {
     //
     // Get the permissions verifier, or create a default one if no
@@ -772,14 +793,18 @@ RegistryI::getSSLPermissionsVerifier(const Ice::LocatorPrx& locator, const strin
     }
     catch(const Ice::LocalException& ex)
     {
-	Warning out(_communicator->getLogger());
-	out << "couldn't contact permissions verifier `" + verifierProperty + "':" << ex;	
+	if(!nowarn)
+	{
+	    Warning out(_communicator->getLogger());
+	    out << "couldn't contact permissions verifier `" + verifierProperty + "':\n" << ex;	
+	}
+	verifierPrx = Glacier2::SSLPermissionsVerifierPrx::uncheckedCast(verifier->ice_locator(locator));
     }
     return verifierPrx;
 }
 
 Glacier2::SSLInfo
-RegistryI::getSSLInfo(const Ice::ConnectionPtr& connection)
+RegistryI::getSSLInfo(const Ice::ConnectionPtr& connection, string& userDN)
 {
     Glacier2::SSLInfo sslinfo;
     try
@@ -792,13 +817,14 @@ RegistryI::getSSLInfo(const Ice::ConnectionPtr& connection)
 
 	sslinfo.cipher = info.cipher;
 
-	if(info.certs.size() > 0)
+	if(!info.certs.empty())
 	{
 	    sslinfo.certs.resize(info.certs.size());
 	    for(unsigned int i = 0; i < info.certs.size(); ++i)
 	    {
 		sslinfo.certs[i] = info.certs[i]->encode();
 	    }
+	    userDN = info.certs[0]->getSubjectDN();
 	}
     }
     catch(const IceSSL::ConnectionInvalidException&)

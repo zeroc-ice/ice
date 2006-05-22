@@ -12,6 +12,7 @@
 
 #include <IceUtil/Mutex.h>
 #include <IceGrid/Session.h>
+#include <IceGrid/SessionServantLocatorI.h>
 
 namespace IceGrid
 {
@@ -48,6 +49,7 @@ public:
     virtual void destroy(const Ice::Current&);
 
     IceUtil::Time timestamp() const;
+    void setServantLocator(const SessionServantLocatorIPtr&);
 
 protected:
 
@@ -58,6 +60,7 @@ protected:
     const int _timeout;
     const TraceLevelsPtr _traceLevels;
     const DatabasePtr _database;
+    const SessionServantLocatorIPtr _servantLocator;
     bool _destroyed;
     IceUtil::Time _timestamp;
 };

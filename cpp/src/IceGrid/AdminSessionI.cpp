@@ -285,9 +285,23 @@ Glacier2::SessionPrx
 AdminSSLSessionManagerI::create(const Glacier2::SSLInfo& info, const Glacier2::SessionControlPrx&, 
 				const Ice::Current& current)
 {
-    IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
-    string id = cert->getSubjectDN();
-    AdminSessionIPtr session = new AdminSessionI(id, _database, _timeout, _registryObserverTopic, _nodeObserverTopic);
-    return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
-}
+    string userDN;
+    if(!info.certs.empty()) // TODO: Require userDN?
+    {
+	try
+	{
+	    IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
+	    userDN = cert->getSubjectDN();
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    // This shouldn't happen, the SSLInfo is supposed to be encoded by Glacier2.
+	    Ice::Error out(_database->getTraceLevels()->logger);
+	    out << "SSL session manager couldn't decode SSL certificates";
+	    return 0;
+	}
+    }
 
+    AdminSessionIPtr s = new AdminSessionI(userDN, _database, _timeout, _registryObserverTopic, _nodeObserverTopic);
+    return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(s));
+}

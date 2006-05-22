@@ -71,6 +71,7 @@ REGISTRY_OBJS   = RegistryI.o \
 		  ReapThread.o \
 		  SessionI.o \
 		  AdminSessionI.o \
+		  SessionServantLocatorI.o \
 		  Topics.o \
 		  QueryI.o \
 		  WaitQueue.o

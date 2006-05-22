@@ -12,10 +12,53 @@
 #include <IceGrid/Registry.h>
 #include <IceGrid/Query.h>
 #include <IceGrid/Admin.h>
+#include <Glacier2/PermissionsVerifier.h>
+#include <IceSSL/Plugin.h>
 #include <TestCommon.h>
 
 using namespace std;
 using namespace IceGrid;
+
+class ClientPermissionsVerifierI : public Glacier2::PermissionsVerifier
+{
+public:
+
+    virtual bool
+    checkPermissions(const string& userId, const string& passwd, string&, const Ice::Current&) const
+    {
+	return userId == "client1" && passwd == "test1" || userId == "client2" && passwd == "test2";
+    }
+};
+
+class AdminPermissionsVerifierI : public Glacier2::PermissionsVerifier
+{
+public:
+
+    virtual bool
+    checkPermissions(const string& userId, const string& passwd, string&, const Ice::Current&) const
+    {
+	return userId == "admin1" && passwd == "test1" || userId == "admin2" && passwd == "test2";
+    }
+};
+
+class SSLPermissionsVerifierI : public Glacier2::SSLPermissionsVerifier
+{
+public:
+
+    virtual bool
+    authorize(const Glacier2::SSLInfo& info, string&, const Ice::Current& current) const
+    {
+	IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
+	test(cert->getIssuerDN() ==
+	     "/C=US/ST=Florida/L=Palm Beach Gardens/O=ZeroC, Inc."
+	     "/OU=Ice/CN=ZeroC Test CA/emailAddress=info@zeroc.com");
+	test(cert->getSubjectDN() ==
+	     "/C=US/ST=Florida/O=ZeroC, Inc./OU=Ice/emailAddress=info@zeroc.com/CN=Client");
+	test(cert->checkValidity());
+
+	return true;
+    }
+};
 
 void 
 addProperty(const CommunicatorDescriptorPtr& communicator, const string& name, const string& value)
@@ -387,16 +430,202 @@ allTests(const Ice::CommunicatorPtr& communicator)
     AdminPrx admin = AdminPrx::checkedCast(communicator->stringToProxy("IceGrid/Admin"));
     test(admin);
 
+    communicator->getProperties()->setProperty("VerifierAdapter.Endpoints", "default -t 10000");
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("VerifierAdapter");
+    Ice::ObjectPrx obj;
+    obj = adapter->add(new ClientPermissionsVerifierI(), communicator->stringToIdentity("ClientPermissionsVerifier"));
+    admin->addObjectWithType(obj, Glacier2::PermissionsVerifier::ice_staticId());
+    obj = adapter->add(new AdminPermissionsVerifierI(), communicator->stringToIdentity("AdminPermissionsVerifier"));
+    admin->addObjectWithType(obj, Glacier2::PermissionsVerifier::ice_staticId());
+    obj = adapter->add(new SSLPermissionsVerifierI(), communicator->stringToIdentity("SSLPermissionsVerifier"));
+    admin->addObjectWithType(obj, Glacier2::PermissionsVerifier::ice_staticId());
+    adapter->activate();
+
     Ice::PropertiesPtr properties = communicator->getProperties();
 
     SessionKeepAliveThreadPtr keepAlive;
     keepAlive = new SessionKeepAliveThread(communicator->getLogger(), IceUtil::Time::seconds(5));
     keepAlive->start();
 
+    IceGrid::RegistryPrx registry1 = IceGrid::RegistryPrx::uncheckedCast(registry->ice_connectionId("reg1"));
+    IceGrid::RegistryPrx registry2 = IceGrid::RegistryPrx::uncheckedCast(registry->ice_connectionId("reg2"));
+
+    { 
+	cout << "testing username/password sessions... " << flush;
+
+	SessionPrx session1, session2;
+
+	session1 = SessionPrx::uncheckedCast(registry1->createSession("client1", "test1")->ice_connectionId("reg1"));
+	session2 = SessionPrx::uncheckedCast(registry2->createSession("client2", "test2")->ice_connectionId("reg2"));
+	try
+	{
+	    registry1->createSession("client3", "test1");
+	}
+	catch(const IceGrid::PermissionDeniedException&)
+	{
+	}
+
+	session1->ice_ping();
+	session2->ice_ping();
+
+	try
+	{
+	    session1->ice_connectionId("")->ice_ping();
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	}
+	try
+	{
+	    session2->ice_connectionId("")->ice_ping();
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	}
+
+	session1->destroy();
+	session2->destroy();
+
+	AdminSessionPrx adminSession1, adminSession2;
+
+	adminSession1 = AdminSessionPrx::uncheckedCast(
+	    registry1->createAdminSession("admin1", "test1")->ice_connectionId("reg1"));
+	adminSession2 = AdminSessionPrx::uncheckedCast(
+	    registry2->createAdminSession("admin2", "test2")->ice_connectionId("reg2"));
+	try
+	{
+	    registry1->createAdminSession("admin3", "test1");
+	}
+	catch(const IceGrid::PermissionDeniedException&)
+	{
+	}
+
+	adminSession1->ice_ping();
+	adminSession2->ice_ping();
+
+	try
+	{
+	    adminSession1->ice_connectionId("")->ice_ping();
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	}
+	try
+	{
+	    adminSession2->ice_connectionId("")->ice_ping();
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	}
+
+	adminSession1->destroy();
+	adminSession2->destroy();
+	
+	cout << "ok" << endl;
+    }
+
     {
-	cout << "testing sessions... " << flush;
-	AdminSessionPrx session1 = AdminSessionPrx::uncheckedCast(registry->createAdminSession("Observer1", ""));
-	AdminSessionPrx session2 = AdminSessionPrx::uncheckedCast(registry->createAdminSession("Observer2", ""));
+	cout << "testing Glacier2 session managers... " << flush;
+
+	Glacier2::SessionManagerPrx manager;
+
+	manager = Glacier2::SessionManagerPrx::checkedCast(communicator->stringToProxy("IceGrid/SessionManager"));
+	test(manager);
+	IceGrid::SessionPrx session = IceGrid::SessionPrx::checkedCast(manager->create("userid", 0));
+	test(session);
+	session->destroy();
+
+	manager = 
+	    Glacier2::SessionManagerPrx::checkedCast(communicator->stringToProxy("IceGrid/AdminSessionManager"));
+	test(manager);
+	IceGrid::AdminSessionPrx adminSession = IceGrid::AdminSessionPrx::checkedCast(manager->create("userid", 0));
+	test(adminSession);
+	adminSession->destroy();
+
+	Glacier2::SSLSessionManagerPrx sslManager;
+	
+	sslManager = 
+	    Glacier2::SSLSessionManagerPrx::checkedCast(communicator->stringToProxy("IceGrid/SSLSessionManager"));
+	test(sslManager);
+	session = IceGrid::SessionPrx::checkedCast(sslManager->create(Glacier2::SSLInfo(), 0));
+	test(session);
+	session->destroy();
+
+	sslManager = 
+	    Glacier2::SSLSessionManagerPrx::checkedCast(communicator->stringToProxy("IceGrid/AdminSSLSessionManager"));
+	test(sslManager);
+	adminSession = IceGrid::AdminSessionPrx::checkedCast(sslManager->create(Glacier2::SSLInfo(), 0));
+	test(adminSession);
+	adminSession->destroy();
+
+	cout << "ok" << endl;
+    }
+
+    if(properties->getProperty("Ice.Default.Protocol") == "ssl")
+    { 
+	cout << "testing sessions from secure connection... " << flush;
+
+	SessionPrx session1, session2;
+
+	session1 = SessionPrx::uncheckedCast(registry1->createSessionFromSecureConnection()->ice_connectionId("reg1"));
+	session2 = SessionPrx::uncheckedCast(registry2->createSessionFromSecureConnection()->ice_connectionId("reg2"));
+
+	session1->ice_ping();
+	session2->ice_ping();
+
+	try
+	{
+	    session1->ice_connectionId("")->ice_ping();
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	}
+	try
+	{
+	    session2->ice_connectionId("")->ice_ping();
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	}
+
+	session1->destroy();
+	session2->destroy();
+	
+	AdminSessionPrx adminSession1, adminSession2;
+
+	adminSession1 = AdminSessionPrx::uncheckedCast(
+	    registry1->createAdminSession("admin1", "test1")->ice_connectionId("reg1"));
+	adminSession2 = AdminSessionPrx::uncheckedCast(
+	    registry2->createAdminSession("admin2", "test2")->ice_connectionId("reg2"));
+
+	adminSession1->ice_ping();
+	adminSession2->ice_ping();
+
+	try
+	{
+	    adminSession1->ice_connectionId("")->ice_ping();
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	}
+	try
+	{
+	    adminSession2->ice_connectionId("")->ice_ping();
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	}
+
+	adminSession1->destroy();
+	adminSession2->destroy();
+
+	cout << "ok" << endl;
+    }
+
+    {
+	cout << "testing updates with admin sessions... " << flush;
+	AdminSessionPrx session1 = AdminSessionPrx::uncheckedCast(registry->createAdminSession("admin1", "test1"));
+	AdminSessionPrx session2 = AdminSessionPrx::uncheckedCast(registry->createAdminSession("admin2", "test2"));
 	
 	keepAlive->add(session1);
 	keepAlive->add(session2);	
@@ -460,7 +689,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	catch(const AccessDeniedException& ex)
 	{
-	    test(ex.lockUserId == "Observer1");
+	    test(ex.lockUserId == "admin1");
 	}
 
 	try
@@ -609,7 +838,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
 	cout << "testing registry observer... " << flush;
-	AdminSessionPrx session1 = AdminSessionPrx::uncheckedCast(registry->createAdminSession("Observer1", ""));
+	AdminSessionPrx session1 = AdminSessionPrx::uncheckedCast(registry->createAdminSession("admin1", "test1"));
 	
 	keepAlive->add(session1);
 	
@@ -907,7 +1136,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
 	cout << "testing node observer... " << flush;
-	AdminSessionPrx session1 = AdminSessionPrx::uncheckedCast(registry->createAdminSession("Observer1", ""));
+	AdminSessionPrx session1 = AdminSessionPrx::uncheckedCast(registry->createAdminSession("admin1", "test1"));
 	
 	keepAlive->add(session1);
 	
