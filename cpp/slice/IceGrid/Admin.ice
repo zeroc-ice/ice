@@ -612,7 +612,7 @@ interface Admin
      * exist.
      *
      **/
-    idempotent void removeAdapter(string adapterId)
+    ["ami"] void removeAdapter(string adapterId)
 	throws AdapterNotExistException, DeploymentException;
 
     /**
@@ -679,7 +679,7 @@ interface Admin
      * registered with the registry.
      *
      **/
-    void removeObject(Ice::Identity id) 
+    ["ami"] void removeObject(Ice::Identity id) 
 	throws ObjectNotRegisteredException, DeploymentException;
 
     /**
