@@ -1149,12 +1149,6 @@ Database::getObjectInfosByType(const string& type)
     return infos;
 }
 
-const TraceLevelsPtr&
-Database::getTraceLevels() const
-{
-    return _traceLevels;
-}
-
 void
 Database::checkForAddition(const ApplicationHelper& app)
 {

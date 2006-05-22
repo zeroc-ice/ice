@@ -359,7 +359,8 @@ RegistryI::start(bool nowarn)
     clientAdapter->add(new QueryI(_communicator, _database), queryId);
 
     Identity adminId = _communicator->stringToIdentity(instanceName + "/Admin");
-    adminAdapter->add(new AdminI(_database, this, _traceLevels), adminId);
+    _adminServant = new AdminI(_database, this, _traceLevels);
+    adminAdapter->add(_adminServant, adminId);
 
     Identity clientSessionMgrId = _communicator->stringToIdentity(instanceName + "/SessionManager");
     _clientSessionManager = new ClientSessionManagerI(_database, sessionTimeout, _waitQueue);
@@ -517,8 +518,13 @@ RegistryI::createAdminSession(const string& user, const string& password, const 
 	throw exc;
     }
 
+    //
+    // We let the connection access the administrative interface.
+    //
+    AdminPrx admin = AdminPrx::uncheckedCast(_sessionServantLocator->add(_adminServant, current.con));
+
     AdminSessionIPtr session = _adminSessionManager->create(user);
-    session->setServantLocator(_sessionServantLocator);
+    session->setServantLocator(_sessionServantLocator, admin);
     AdminSessionPrx proxy = AdminSessionPrx::uncheckedCast(_sessionServantLocator->add(session, current.con));
     _clientReaper->add(new SessionReapable(current.adapter, session, proxy));
     return proxy;    
@@ -601,8 +607,13 @@ RegistryI::createAdminSessionFromSecureConnection(const Ice::Current& current)
 	throw exc;
     }
     
+    //
+    // We let the connection access the administrative interface.
+    //
+    AdminPrx admin = AdminPrx::uncheckedCast(_sessionServantLocator->add(_adminServant, current.con));
+
     AdminSessionIPtr session = _adminSessionManager->create(userDN);
-    session->setServantLocator(_sessionServantLocator);
+    session->setServantLocator(_sessionServantLocator, admin);
     AdminSessionPrx proxy = AdminSessionPrx::uncheckedCast(_sessionServantLocator->add(session, current.con));
     _clientReaper->add(new SessionReapable(current.adapter, session, proxy));
     return proxy;    

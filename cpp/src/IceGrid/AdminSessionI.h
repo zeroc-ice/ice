@@ -38,11 +38,14 @@ public:
 
     virtual void destroy(const Ice::Current&);
 
+    void setServantLocator(const SessionServantLocatorIPtr&, const AdminPrx&);
+
 private:
     
     const RegistryObserverTopicPtr _registryObserverTopic;
     const NodeObserverTopicPtr _nodeObserverTopic;
-    
+    const AdminPrx _admin;
+
     RegistryObserverPrx _registryObserver;
     NodeObserverPrx _nodeObserver;
     bool _updating;
@@ -72,7 +75,6 @@ class AdminSSLSessionManagerI : virtual public Glacier2::SSLSessionManager
 public:
 
     AdminSSLSessionManagerI(const  DatabasePtr&, int, const RegistryObserverTopicPtr& , const NodeObserverTopicPtr&);
-    
     virtual Glacier2::SessionPrx create(const Glacier2::SSLInfo&, const Glacier2::SessionControlPrx&, 
 					const Ice::Current&);
 

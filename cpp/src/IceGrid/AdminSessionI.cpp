@@ -17,13 +17,14 @@ using namespace std;
 using namespace IceGrid;
 
 AdminSessionI::AdminSessionI(const string& id, 
-			     const DatabasePtr& database,
+			     const DatabasePtr& db,
 			     int timeout,
 			     const RegistryObserverTopicPtr& registryObserverTopic,
 			     const NodeObserverTopicPtr& nodeObserverTopic) :
-    BaseSessionI(id, "admin", database, timeout),
+    BaseSessionI(id, "admin", db, timeout),
     _registryObserverTopic(registryObserverTopic),
     _nodeObserverTopic(nodeObserverTopic),
+    _admin(AdminPrx::uncheckedCast(db->getCommunicator()->stringToProxy(db->getInstanceName() + "/Admin"))),
     _updating(false)
 {
 }
@@ -35,8 +36,7 @@ AdminSessionI::~AdminSessionI()
 AdminPrx
 AdminSessionI::getAdmin(const Ice::Current& current) const
 {
-    return AdminPrx::uncheckedCast(
-	current.adapter->getCommunicator()->stringToProxy(_database->getInstanceName() + "/Admin"));
+    return _admin;
 }
 
 void
@@ -247,6 +247,13 @@ AdminSessionI::destroy(const Ice::Current& current)
     }
 }
 
+void
+AdminSessionI::setServantLocator(const SessionServantLocatorIPtr& servantLocator, const AdminPrx& admin)
+{
+    BaseSessionI::setServantLocator(servantLocator);
+    const_cast<AdminPrx&>(_admin) = admin;
+}
+
 AdminSessionManagerI::AdminSessionManagerI(const DatabasePtr& database,
 					   int sessionTimeout,
 					   const RegistryObserverTopicPtr& regTopic,
@@ -302,6 +309,7 @@ AdminSSLSessionManagerI::create(const Glacier2::SSLInfo& info, const Glacier2::S
 	}
     }
 
-    AdminSessionIPtr s = new AdminSessionI(userDN, _database, _timeout, _registryObserverTopic, _nodeObserverTopic);
-    return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(s));
+    AdminSessionIPtr session;
+    session = new AdminSessionI(userDN, _database, _timeout, _registryObserverTopic, _nodeObserverTopic);
+    return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
 }

@@ -101,7 +101,8 @@ public:
     ObjectInfoSeq getObjectInfosByType(const std::string&);
     ObjectInfoSeq getAllObjectInfos(const std::string& = std::string());
 
-    const TraceLevelsPtr& getTraceLevels() const;
+    const TraceLevelsPtr& getTraceLevels() const { return _traceLevels; }
+    const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
 
 private:
 
