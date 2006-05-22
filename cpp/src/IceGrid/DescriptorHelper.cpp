@@ -280,7 +280,6 @@ Resolver::Resolver(const ApplicationHelper& app) :
     _ignore.insert("node.version");
     _ignore.insert("node.machine");
     _ignore.insert("node.datadir");
-    _ignore.insert("session.id");
 }
 
 Resolver::Resolver(const Resolver& resolve, 
@@ -453,6 +452,12 @@ Resolver::getProperties(const Ice::StringSeq& references) const
 {
     set<string> resolved;
     return getProperties(references, resolved);
+}
+
+void
+Resolver::addIgnored(const string& name)
+{
+    _ignore.insert(name);
 }
 
 void
@@ -1524,6 +1529,12 @@ ServerInstanceHelper::init(const ServerDescriptorPtr& definition, const Resolver
     Resolver svrResolve(resolve, parameterValues, true);
     svrResolve.setReserved("server", svrResolve(def->id, "server id", false));
     svrResolve.setContext("server `${server}'");
+    if(svrResolve(def->activation, "server activation", true) == "session")
+    {
+	// Ignore undefined session.id variables, it will get defined
+	// when the server is allocated.
+ 	svrResolve.addIgnored("session.id"); 
+    }
 
     //
     // Instantiate the server instance definition (we use the server

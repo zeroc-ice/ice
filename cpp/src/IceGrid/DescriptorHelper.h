@@ -35,6 +35,8 @@ public:
     const PropertySetDescriptor& getPropertySet(const std::string&) const;
     PropertyDescriptorSeq getProperties(const Ice::StringSeq&) const;
 
+    void addIgnored(const std::string&);
+
     void exception(const std::string&) const;
 
     TemplateDescriptor getServerTemplate(const std::string&) const;

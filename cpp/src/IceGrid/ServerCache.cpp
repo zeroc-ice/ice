@@ -766,9 +766,16 @@ ServerEntry::allocated(const SessionIPtr& session)
 	out << "server `" << _id << "' allocated by `" << session->getId() << "' (" << _count << ")";
     }
 
+    //
+    // If the server has the session activation mode, we re-load the
+    // server on the node as its deployment might have changed (it's
+    // possible to use ${session.*} variable with server with the
+    // session activation mode.
+    //
     {
 	Lock sync(*this);
-	if(_loaded.get() || _load.get())
+	if(_loaded.get() && _loaded->descriptor->activation == "session" || 
+	   _load.get() && _load->descriptor->activation == "session")
 	{
 	    _updated = true;
 	    if(!_load.get())
@@ -785,9 +792,18 @@ ServerEntry::allocated(const SessionIPtr& session)
 void
 ServerEntry::released(const SessionIPtr& session)
 {
+    //
+    // If the server has the session activation mode, we re-load the
+    // server on the node as its deployment might have changed (it's
+    // possible to use ${session.*} variable with server with the
+    // session activation mode. Synchronizing the server will also 
+    // shutdown the server on the node.
+    //
+    bool syncNow = false;
     {
 	Lock sync(*this);
-	if(_loaded.get() || _load.get())
+	if(_loaded.get() && _loaded->descriptor->activation == "session" || 
+	   _load.get() && _load->descriptor->activation == "session")
 	{
 	    _updated = true;
 	    if(!_load.get())
@@ -797,6 +813,7 @@ ServerEntry::released(const SessionIPtr& session)
 	    _proxy = 0;
 	    _adapters.clear();
 	    _session = 0;
+	    syncNow = true;
 	}
     }
 
@@ -807,6 +824,9 @@ ServerEntry::released(const SessionIPtr& session)
 	out << "server `" << _id << "' released by `" << session->getId() << "' (" << _count << ")";
     }    
 
-    syncImpl(false); // We sync here to ensure the server will be shutdown.
+    if(syncNow)
+    {
+	syncImpl(false); // We sync here to ensure the server will be shutdown.
+    }
 }
 
