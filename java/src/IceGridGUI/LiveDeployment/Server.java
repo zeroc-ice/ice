@@ -34,7 +34,9 @@ class Server extends ListArrayTreeNode
 
 	if(_state != null)
 	{
-	    actions[START] = _state == ServerState.Inactive && _enabled;
+	    actions[START] = _state == ServerState.Inactive && _enabled
+		&& !_resolver.substitute(_serverDescriptor.activation).equals("session");
+
 	    actions[STOP] = _state != ServerState.Inactive;
 	    actions[ENABLE] = !_enabled;
 	    actions[DISABLE] = _enabled;
