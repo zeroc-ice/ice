@@ -102,38 +102,66 @@ Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAd
     IdentitySeq allowIdSeq;
     IdentitySeq rejectIdSeq;
     IdentityFilterIPtr objectIdFilter = new IdentityFilterI(allowIdSeq, rejectIdSeq, false);
-    
-    if(adminAdapter)
-    {
-        const_cast<StringFilterPrx&>(_categoryFilter) =
+  
+    if(_adminAdapter)
+    {	
+	const_cast<StringFilterPrx&>(_categoryFilter) =
 	    StringFilterPrx::uncheckedCast(_adminAdapter->addWithUUID(categoryFilter));
-        const_cast<StringFilterPrx&>(_adapterIdFilter) =
+	const_cast<StringFilterPrx&>(_adapterIdFilter) =
 	    StringFilterPrx::uncheckedCast(_adminAdapter->addWithUUID(adapterIdFilter));
-        const_cast<IdFilterPrx&>(_objectIdFilter) =
+	const_cast<IdFilterPrx&>(_objectIdFilter) =
 	    IdFilterPrx::uncheckedCast(_adminAdapter->addWithUUID(objectIdFilter));
     }
 
-    const_cast<ClientBlobjectPtr&>(_clientBlobject) = new ClientBlobject(_communicator, _routingTable,
-									 categoryFilter, adapterIdFilter,
-									 objectIdFilter);
-
-    if(serverAdapter)
+    try
     {
-	ObjectPrx& serverProxy = const_cast<ObjectPrx&>(_serverProxy);
-	Identity ident;
-	ident.name = "dummy";
-	ident.category.resize(20);
-	char buf[20];
-	IceUtil::generateRandom(buf, sizeof(buf));
-	for(unsigned int i = 0; i < sizeof(buf); ++i)
+	const_cast<ClientBlobjectPtr&>(_clientBlobject) = new ClientBlobject(_communicator, _routingTable,
+									     categoryFilter, adapterIdFilter,
+									     objectIdFilter);
+
+	if(serverAdapter)
 	{
-	    const unsigned char c = static_cast<unsigned char>(buf[i]); // A value between 0-255
-	    ident.category[i] = 33 + c % (127-33); // We use ASCII 33-126 (from ! to ~, w/o space).
+	    ObjectPrx& serverProxy = const_cast<ObjectPrx&>(_serverProxy);
+	    Identity ident;
+	    ident.name = "dummy";
+	    ident.category.resize(20);
+	    char buf[20];
+	    IceUtil::generateRandom(buf, sizeof(buf));
+	    for(unsigned int i = 0; i < sizeof(buf); ++i)
+	    {
+		const unsigned char c = static_cast<unsigned char>(buf[i]); // A value between 0-255
+		ident.category[i] = 33 + c % (127-33); // We use ASCII 33-126 (from ! to ~, w/o space).
+	    }
+	    serverProxy = serverAdapter->createProxy(ident);
+
+	    ServerBlobjectPtr& serverBlobject = const_cast<ServerBlobjectPtr&>(_serverBlobject);
+	    serverBlobject = new ServerBlobject(_communicator, _connection);
 	}
-	serverProxy = serverAdapter->createProxy(ident);
-	
-	ServerBlobjectPtr& serverBlobject = const_cast<ServerBlobjectPtr&>(_serverBlobject);
-	serverBlobject = new ServerBlobject(_communicator, _connection);
+    }
+    catch(...)
+    {
+	//
+	// Remove filters from adapter in the event of an exception.
+	//
+	try
+	{
+	    if(_categoryFilter)
+	    {
+		_adminAdapter->remove(_categoryFilter->ice_getIdentity());
+	    }
+	    if(_objectIdFilter)
+	    {
+		_adminAdapter->remove(_objectIdFilter->ice_getIdentity());
+	    }
+	    if(_adapterIdFilter)
+	    {
+		_adminAdapter->remove(_adapterIdFilter->ice_getIdentity());
+	    }
+	}
+	catch(const NotRegisteredException&)
+	{
+	}
+	throw;
     }
 }
 

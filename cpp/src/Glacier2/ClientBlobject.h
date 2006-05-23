@@ -38,6 +38,7 @@ private:
     const StringFilterIPtr _categoryFilter;
     const StringFilterIPtr _adapterIdFilter;
     const IdentityFilterIPtr _objectIdFilter;
+    const bool _filtersEnabled;
     const int _rejectTraceLevel;
 };
 }

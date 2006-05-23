@@ -24,6 +24,10 @@ class FilterT : public P, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
+    //
+    // These typedefs are a compiler workaround for GCC and iterators
+    // depending on nested templates.
+    //
     typedef typename std::vector<T>::const_iterator const_iterator;
     typedef typename std::vector<T>::iterator iterator;
     typedef typename std::list<iterator>::iterator literator;
