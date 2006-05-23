@@ -10,6 +10,7 @@
 #include <IceUtil/Random.h>
 #include <Ice/Communicator.h>
 #include <Ice/LoggerUtil.h>
+#include <Ice/LocalException.h>
 #include <IceGrid/ObjectCache.h>
 #include <IceGrid/NodeSessionI.h>
 #include <IceGrid/ServerCache.h>
@@ -365,6 +366,20 @@ ObjectEntry::allocated(const SessionIPtr& session)
 	out << "object `" << _cache.communicator()->identityToString(id) << "' allocated by `" << session->getId()
 	    << "' (" << _count << ")";
     }    
+
+    Glacier2::SessionControlPrx ctl = session->getSessionControl();
+    if(ctl)
+    {
+	try
+	{
+	    Ice::IdentitySeq seq(1);
+	    seq.push_back(_info.proxy->ice_getIdentity());
+	    ctl->objectIdFilter()->addAccept(seq);
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	}
+    }    
 }
 
 void
@@ -374,6 +389,20 @@ ObjectEntry::released(const SessionIPtr& session)
     // Remove the object allocation from the session.
     //
     session->removeAllocation(this);
+
+    Glacier2::SessionControlPrx ctl = session->getSessionControl();
+    if(ctl)
+    {
+	try
+	{
+	    Ice::IdentitySeq seq(1);
+	    seq.push_back(_info.proxy->ice_getIdentity());
+	    ctl->objectIdFilter()->removeAccept(seq);
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	}
+    }
 
     TraceLevelsPtr traceLevels = _cache.getTraceLevels();
     if(traceLevels && traceLevels->object > 1)

@@ -13,6 +13,7 @@
 #include <IceGrid/Registry.h>
 #include <IceGrid/Admin.h>
 #include <IceGrid/Query.h>
+#include <Glacier2/Router.h>
 #include <TestCommon.h>
 #include <Test.h>
 
@@ -324,6 +325,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
 {
     AdminPrx admin = AdminPrx::checkedCast(communicator->stringToProxy("IceGrid/Admin"));
     test(admin);
+
+    cout << "starting router... " << flush;
+    try
+    {
+	admin->startServer("Glacier2");
+    }
+    catch(const ServerStartException& ex)
+    {
+	cerr << ex.reason << endl;
+	test(false);
+    }
+    cout << "ok" << endl;
 
     RegistryPrx registry = RegistryPrx::checkedCast(communicator->stringToProxy("IceGrid/Registry"));
     test(registry);
@@ -925,6 +938,27 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	cout << "ok" << endl;
 
+// 	cout << "testing allocation with Glacier2 router... " << flush;
+// 	Ice::ObjectPrx routerBase = communicator->stringToProxy("Glacier2/router:default -p 12347");
+// 	Glacier2::RouterPrx router1 = Glacier2::RouterPrx::checkedCast(routerBase->ice_connectionId("client1"));
+// 	test(router1);
+	
+// 	Glacier2::SessionPrx sessionBase = router1->createSession("test1", "abc123");
+// 	try
+// 	{
+// 	    session1 = IceGrid::SessionPrx::checkedCast(sessionBase->ice_connectionId("client1")->ice_router(router1));
+//  	    test(session1);
+// 	    session1->ice_ping();
+
+// 	    session1->destroy();
+// 	}
+// 	catch(const Ice::LocalException& ex)
+// 	{
+// 	    cerr << ex << endl;
+// 	    test(false);
+// 	}
+// 	cout << "ok" << endl;
+
 	cout << "stress test... " << flush;
 	const int nClients = 4;
 	int i;
@@ -970,4 +1004,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	cerr << ex.reason << endl;
 	test(false);
     }
+
+    cout << "shutting down router... " << flush;
+    admin->stopServer("Glacier2");
+    cout << "ok" << endl;
 }

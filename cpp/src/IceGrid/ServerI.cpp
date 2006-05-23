@@ -57,6 +57,7 @@ chownRecursive(const string& path, uid_t uid, gid_t gid)
     {
 	string name = namelist[i]->d_name;
 	assert(!name.empty());
+	free(namelist[i]);
 
 	if(name != ".." && name != ".")
 	{
@@ -77,8 +78,6 @@ chownRecursive(const string& path, uid_t uid, gid_t gid)
 		chownRecursive(name, uid, gid);
 	    }
 	}
-
-	free(namelist[i]);
     }
 
     free(namelist);

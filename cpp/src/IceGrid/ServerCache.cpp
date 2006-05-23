@@ -9,6 +9,7 @@
 
 #include <Ice/LoggerUtil.h>
 #include <Ice/Communicator.h>
+#include <Ice/LocalException.h>
 #include <IceGrid/ServerCache.h>
 #include <IceGrid/NodeCache.h>
 #include <IceGrid/AdapterCache.h>
@@ -787,6 +788,23 @@ ServerEntry::allocated(const SessionIPtr& session)
 	    _session = session;
 	}
     }
+
+    Glacier2::SessionControlPrx ctl = session->getSessionControl();
+    if(ctl)
+    {
+	try
+	{
+	    Ice::StringSeq seq(_adapters.size());
+	    for(AdapterPrxDict::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
+	    {
+		seq.push_back(p->first);
+	    }
+	    ctl->adapterIdFilter()->addAccept(seq);
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	}
+    }
 }
 
 void
@@ -814,6 +832,23 @@ ServerEntry::released(const SessionIPtr& session)
 	    _adapters.clear();
 	    _session = 0;
 	    syncNow = true;
+	}
+    }
+
+    Glacier2::SessionControlPrx ctl = session->getSessionControl();
+    if(ctl)
+    {
+	try
+	{
+	    Ice::StringSeq seq(_adapters.size());
+	    for(AdapterPrxDict::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
+	    {
+		seq.push_back(p->first);
+	    }
+	    ctl->adapterIdFilter()->removeAccept(seq);
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
 	}
     }
 

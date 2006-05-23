@@ -55,7 +55,7 @@ except:
 clientStatus = TestUtil.closePipe(clientPipe)
 
 print "removing application...",
-IceGridAdmin.removeApplication("test")
+IceGridAdmin.removeApplication("Test")
 print "ok"
 
 IceGridAdmin.shutdownIceGridNode()

@@ -300,7 +300,32 @@ ClientSessionManagerI::ClientSessionManagerI(const DatabasePtr& database, int ti
 Glacier2::SessionPrx
 ClientSessionManagerI::create(const string& user, const Glacier2::SessionControlPrx& ctl, const Ice::Current& current)
 {
-    return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(create(user, ctl)));
+    Glacier2::SessionPrx s = Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(create(user, ctl)));
+    if(ctl)
+    {
+	try
+	{
+	    //
+	    // Restrict the objects the session is allowed to access to the session object itself,
+	    // the query and registry objects.
+	    //
+	    Ice::IdentitySeq ids;
+	    Ice::Identity id;
+	    id.category = "IceGrid";
+	    id.name = "Query";
+	    ids.push_back(id);
+	    id.name = "Registry";
+	    ids.push_back(id);
+	    ids.push_back(s->ice_getIdentity());
+	    ctl->objectIdFilter()->addAccept(ids);
+	}
+	catch(const Ice::LocalException&)
+	{
+	    s->destroy();
+	    return 0;
+	}
+    }
+    return s;
 }
 
 SessionIPtr
@@ -338,5 +363,30 @@ ClientSSLSessionManagerI::create(const Glacier2::SSLInfo& info, const Glacier2::
     }
 	
     SessionIPtr session = new SessionI(userDN, _database, _timeout, _waitQueue, ctl);
-    return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
+    Glacier2::SessionPrx s = Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
+    if(ctl)
+    {
+	try
+	{
+	    //
+	    // Restrict the objects the session is allowed to access to the session object itself,
+	    // the query and registry objects.
+	    //
+	    Ice::IdentitySeq ids;
+	    Ice::Identity id;
+	    id.category = "IceGrid";
+	    id.name = "Query";
+	    ids.push_back(id);
+	    id.name = "Registry";
+	    ids.push_back(id);
+	    ids.push_back(s->ice_getIdentity());
+	    ctl->objectIdFilter()->addAccept(ids);
+	}
+	catch(const Ice::LocalException&)
+	{
+	    s->destroy();
+	    return 0;
+	}
+    }
+    return s;
 }

@@ -84,6 +84,7 @@ public:
     int getAllocationTimeout() const;
     const WaitQueuePtr& getWaitQueue() const { return _waitQueue; }
     const std::string& getId() const { return _id; }
+    Glacier2::SessionControlPrx getSessionControl() const { return _sessionControl; }
 
     bool addAllocationRequest(const AllocationRequestPtr&);
     void removeAllocationRequest(const AllocationRequestPtr&);
