@@ -572,7 +572,7 @@ public class Root extends ListTreeNode
 	    //
 	    // Diff variables
 	    //
-	    update.variables = (java.util.TreeMap)_descriptor.variables.clone();
+	    update.variables = new java.util.TreeMap(_descriptor.variables);
 	    java.util.List removeVariables = new java.util.LinkedList();
 
 	    java.util.Iterator p = _origVariables.entrySet().iterator();
@@ -1174,7 +1174,7 @@ public class Root extends ListTreeNode
     // Keeps original version (as shallow copies) to be able to build 
     // ApplicationUpdateDescriptor. Only used when _live == true
     //
-    private java.util.TreeMap _origVariables;
+    private java.util.Map _origVariables;
     private String _origDescription;
     private DistributionDescriptor _origDistrib;
 

@@ -685,7 +685,7 @@ class Node extends TreeNode implements PropertySetParent
 	    //
 	    // Diff variables (TODO: avoid duplication with same code in Root)
 	    //
-	    update.variables = (java.util.TreeMap)_descriptor.variables.clone();
+	    update.variables = new java.util.TreeMap(_descriptor.variables);
 	    java.util.List removeVariables = new java.util.LinkedList();
 
 	    p = _origVariables.entrySet().iterator();

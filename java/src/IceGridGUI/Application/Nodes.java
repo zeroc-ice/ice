@@ -19,10 +19,10 @@ import IceGridGUI.*;
 
 class Nodes extends ListTreeNode
 {
-    static public java.util.HashMap
+    static public java.util.Map
     copyDescriptors(java.util.Map descriptors)
     {
-	java.util.HashMap copy = new java.util.HashMap();
+	java.util.Map copy = new java.util.HashMap();
 	java.util.Iterator p = descriptors.entrySet().iterator();
 	while(p.hasNext())
 	{

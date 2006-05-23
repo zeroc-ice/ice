@@ -985,7 +985,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
     {
 	CommunicatorDescriptor descriptor = getCommunicatorDescriptor();
 	removeProperty(key);
-	descriptor.propertySet.properties.addFirst(new PropertyDescriptor(key, newValue));
+	((java.util.LinkedList)descriptor.propertySet.properties).addFirst(new PropertyDescriptor(key, newValue));
     }
 
     void removeProperty(String key)

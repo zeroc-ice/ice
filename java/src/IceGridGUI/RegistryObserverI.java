@@ -58,7 +58,7 @@ class RegistryObserverI extends _RegistryObserverDisp
     }
 
 
-    public synchronized void init(int serial, java.util.LinkedList applications, AdapterInfo[] adapters, 
+    public synchronized void init(int serial, java.util.List applications, AdapterInfo[] adapters, 
 				  ObjectInfo[] objects, Ice.Current current)
     {
 	_initialized = true;
@@ -179,7 +179,7 @@ class RegistryObserverI extends _RegistryObserverDisp
     // Values given to init
     //
     private int _serial;
-    private java.util.LinkedList _applications;
+    private java.util.List _applications;
     private AdapterInfo[] _adapters;
     private ObjectInfo[] _objects;
 };

@@ -33,10 +33,10 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
 	return copy;
     }
     
-    static public java.util.LinkedList
-    copyDescriptors(java.util.LinkedList descriptors)
+    static public java.util.List
+    copyDescriptors(java.util.List descriptors)
     {
-	java.util.LinkedList copy = new java.util.LinkedList();
+	java.util.List copy = new java.util.LinkedList();
 	java.util.Iterator p = descriptors.iterator();
 	while(p.hasNext())
 	{

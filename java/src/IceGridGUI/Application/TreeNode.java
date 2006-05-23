@@ -99,7 +99,7 @@ public abstract class TreeNode extends TreeNodeBase
     }
 
     static void writeVariables(XMLWriter writer, 
-			       java.util.SortedMap variables)
+			       java.util.Map variables)
 	throws java.io.IOException
     {
 	java.util.Iterator p = variables.entrySet().iterator();

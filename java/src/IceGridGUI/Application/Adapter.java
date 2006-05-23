@@ -22,10 +22,10 @@ class Adapter extends TreeNode implements DescriptorHolder
 	return (AdapterDescriptor)d.clone();
     }
 
-    static public java.util.LinkedList
-    copyDescriptors(java.util.LinkedList descriptors)
+    static public java.util.List
+    copyDescriptors(java.util.List descriptors)
     {
-	java.util.LinkedList copy = new java.util.LinkedList();
+	java.util.List copy = new java.util.LinkedList();
 	java.util.Iterator p = descriptors.iterator();
 	while(p.hasNext())
 	{

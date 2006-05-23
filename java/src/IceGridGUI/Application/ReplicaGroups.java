@@ -17,10 +17,10 @@ import IceGridGUI.*;
 
 class ReplicaGroups extends ListTreeNode
 {
-    static public java.util.LinkedList
+    static public java.util.List
     copyDescriptors(java.util.List descriptors)
     {
-	java.util.LinkedList copy = new java.util.LinkedList();
+	java.util.List copy = new java.util.LinkedList();
 	java.util.Iterator p = descriptors.iterator();
 	while(p.hasNext())
 	{
