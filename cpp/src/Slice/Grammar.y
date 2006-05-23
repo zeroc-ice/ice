@@ -136,7 +136,7 @@ definitions
     StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
     if(!metaData->v.empty())
     {
-        unit->setGlobalMetaData(metaData->v);
+        unit->addGlobalMetaData(metaData->v);
     }
 }
 definitions

@@ -19,6 +19,7 @@
 #include <stack>
 #include <map>
 #include <set>
+//#include <deque>
 
 #ifndef SLICE_API
 #   ifdef SLICE_API_EXPORTS
@@ -201,7 +202,7 @@ class SLICE_API DefinitionContext : public ::IceUtil::SimpleShared
 {
 public:
 
-    DefinitionContext(int);
+    DefinitionContext(int, const StringList&);
 
     std::string filename() const;
     int includeLevel() const;
@@ -218,9 +219,9 @@ public:
 private:
 
     int _includeLevel;
+    StringList _metaData;
     std::string _filename;
     bool _seenDefinition;
-    StringList _metaData;
 };
 typedef ::IceUtil::Handle<DefinitionContext> DefinitionContextPtr;
 
@@ -905,7 +906,7 @@ class SLICE_API Unit : virtual public Container
 {
 public:
 
-    static UnitPtr createUnit(bool, bool, bool, bool);
+    static UnitPtr createUnit(bool, bool, bool, bool, const StringList& = StringList());
 
     bool ignRedefs() const;
 
@@ -921,7 +922,7 @@ public:
     void scanPosition(const char*);
     int currentIncludeLevel() const;
 
-    void setGlobalMetaData(const StringList&);
+    void addGlobalMetaData(const StringList&);
     void setSeenDefinition();
 
     void error(const char*); // Not const, because error count is increased.
@@ -962,13 +963,14 @@ public:
 
 private:
 
-    Unit(bool, bool, bool, bool);
+    Unit(bool, bool, bool, bool, const StringList&);
     static void eraseWhiteSpace(::std::string&);
 
     bool _ignRedefs;
     bool _all;
     bool _allowIcePrefix;
     bool _caseSensitive;
+    StringList _defaultGlobalMetadata;
     int _errors;
     std::string _currentComment;
     int _currentLine;

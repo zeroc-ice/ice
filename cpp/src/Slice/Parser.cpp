@@ -38,8 +38,8 @@ toLower(string& s)
 // DefinitionContext
 // ----------------------------------------------------------------------
 
-Slice::DefinitionContext::DefinitionContext(int includeLevel) :
-    _includeLevel(includeLevel), _seenDefinition(false)
+Slice::DefinitionContext::DefinitionContext(int includeLevel, const StringList& metaData) :
+    _includeLevel(includeLevel), _metaData(metaData), _seenDefinition(false)
 {
 }
 
@@ -82,7 +82,7 @@ Slice::DefinitionContext::hasMetaData() const
 void
 Slice::DefinitionContext::setMetaData(const StringList& metaData)
 {
-    _metaData= metaData;
+    _metaData = metaData;
 }
 
 string
@@ -4693,9 +4693,10 @@ Slice::DataMember::DataMember(const ContainerPtr& container, const string& name,
 // ----------------------------------------------------------------------
 
 UnitPtr
-Slice::Unit::createUnit(bool ignRedefs, bool all, bool allowIcePrefix, bool caseSensitive)
+Slice::Unit::createUnit(bool ignRedefs, bool all, bool allowIcePrefix, bool caseSensitive,
+			const StringList& defaultGlobalMetadata)
 {
-    return new Unit(ignRedefs, all, allowIcePrefix, caseSensitive);
+    return new Unit(ignRedefs, all, allowIcePrefix, caseSensitive, defaultGlobalMetadata);
 }
 
 bool
@@ -4902,21 +4903,19 @@ Slice::Unit::currentIncludeLevel() const
 }
 
 void
-Slice::Unit::setGlobalMetaData(const StringList& metaData)
+Slice::Unit::addGlobalMetaData(const StringList& metaData)
 {
     DefinitionContextPtr dc = currentDefinitionContext();
     assert(dc);
-    if(dc->hasMetaData())
-    {
-        error("global metadata can only be set once per file");
-    }
-    else if(dc->seenDefinition())
+    if(dc->seenDefinition())
     {
         error("global metadata must appear before any definitions");
     }
     else
     {
-        dc->setMetaData(metaData);
+	StringList l = dc->getMetaData();
+	copy(metaData.begin(), metaData.end(), back_inserter(l));
+        dc->setMetaData(l);
     }
 }
 
@@ -4997,7 +4996,7 @@ Slice::Unit::currentDefinitionContext() const
 void
 Slice::Unit::pushDefinitionContext()
 {
-    _definitionContextStack.push(new DefinitionContext(_currentIncludeLevel));
+    _definitionContextStack.push(new DefinitionContext(_currentIncludeLevel, _defaultGlobalMetadata));
 }
 
 void
@@ -5293,13 +5292,15 @@ Slice::Unit::builtin(Builtin::Kind kind)
     return builtin;
 }
 
-Slice::Unit::Unit(bool ignRedefs, bool all, bool allowIcePrefix, bool caseSensitive) :
+Slice::Unit::Unit(bool ignRedefs, bool all, bool allowIcePrefix, bool caseSensitive,
+		  const StringList& defaultGlobalMetadata) :
     SyntaxTreeBase(0),
     Container(0),
     _ignRedefs(ignRedefs),
     _all(all),
     _allowIcePrefix(allowIcePrefix),
     _caseSensitive(caseSensitive),
+    _defaultGlobalMetadata(defaultGlobalMetadata),
     _errors(0)
 {
     _unit = this;
