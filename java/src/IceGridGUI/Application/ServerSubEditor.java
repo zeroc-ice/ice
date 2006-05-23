@@ -57,10 +57,19 @@ class ServerSubEditor extends CommunicatorSubEditor
 	    "<html>Command-line arguments for this server.<br>"
 	    + "Use whitespace as separator; use double-quotes around arguments containing whitespaces</html>");
 	
+	_user.getDocument().addDocumentListener(
+	    _mainEditor.getUpdateListener());
+	_user.setToolTipText(
+	    "<html>Run the server using this user account.<br>"
+	    + "This feature is only available on Unix/Linux, when the IceGrid node runs as root.</html>");
+
 	_envs = new MapField(mainEditor, "Name", "Value", true);
 
-	_activation = new JComboBox(new Object[]{ON_DEMAND, MANUAL});
-	_activation.setToolTipText("Select 'on-demand' to have IceGrid start your server on-demand");
+	_activation = new JComboBox(new Object[]{ALWAYS, MANUAL, ON_DEMAND, SESSION});
+	_activation.setToolTipText("<html>always: IceGrid starts and keeps the server up all the time<br>"
+				   + "manual: you start the server yourself<br>"
+				   + "on-demand: IceGrid starts the server when a client needs it<br>"
+				   + "session: IceGrid starts and shuts down the server for each session</html>");
 
 	JTextField activationTextField = (JTextField)
 	    _activation.getEditor().getEditorComponent();
@@ -78,6 +87,19 @@ class ServerSubEditor extends CommunicatorSubEditor
 					     + "the IceGrid Node<br> uses the value of its "
 					     + "IceGrid.Node.WaitTime property</html>");
 	
+	Action allocatable = new AbstractAction("Allocatable")
+	    {
+		public void actionPerformed(ActionEvent e)
+		{
+		    _mainEditor.updated();
+		}
+	    };
+	allocatable.putValue(Action.SHORT_DESCRIPTION,
+			     "<html>Check this box to ensure that the well-known objects<br>"
+			     + "of this server can only be allocated by one session at a time.</html>");
+	_allocatable = new JCheckBox(allocatable);
+	
+
 	Action appDistrib = new AbstractAction("Depends on the application distribution")
 	    {
 		public void actionPerformed(ActionEvent e)
@@ -135,7 +157,9 @@ class ServerSubEditor extends CommunicatorSubEditor
 	builder.append("Command Arguments");
 	builder.append(_options, 3);
 	builder.nextLine();
-
+	builder.append("Run as");
+	builder.append(_user, 3);
+	builder.nextLine();
 	builder.append("Environment Variables");
 	builder.nextLine();
 	builder.append("");
@@ -150,8 +174,7 @@ class ServerSubEditor extends CommunicatorSubEditor
 		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
 	builder.nextRow(6);
 	builder.nextLine();
-
-
+	
 	builder.append("Activation Mode");
 	builder.append(_activation, 3);
 	builder.nextLine();
@@ -160,6 +183,8 @@ class ServerSubEditor extends CommunicatorSubEditor
 	builder.nextLine();
 	builder.append("Deactivation Timeout");
 	builder.append(_deactivationTimeout, 3);
+	builder.nextLine();
+	builder.append("", _allocatable);
 	builder.nextLine();
 	
 	JComponent c = builder.appendSeparator("Distribution");
@@ -183,7 +208,8 @@ class ServerSubEditor extends CommunicatorSubEditor
 	descriptor.pwd = _pwd.getText();
 
 	descriptor.options = _options.getList();
-	
+	descriptor.user = _user.getText();
+
 	descriptor.envs = new java.util.LinkedList();
 	java.util.Iterator p = _envs.get().entrySet().iterator();
 	while(p.hasNext())
@@ -196,6 +222,8 @@ class ServerSubEditor extends CommunicatorSubEditor
 	descriptor.activation = _activation.getSelectedItem().toString();
 	descriptor.activationTimeout = _activationTimeout.getText();
 	descriptor.deactivationTimeout = _deactivationTimeout.getText();
+
+	descriptor.allocatable = _allocatable.isSelected();
 
 	descriptor.applicationDistrib = _applicationDistrib.isSelected();
 
@@ -244,6 +272,10 @@ class ServerSubEditor extends CommunicatorSubEditor
 	_options.setList(descriptor.options, detailResolver);
 	_options.setEditable(isEditable);
 
+	_user.setText(
+	    Utils.substitute(descriptor.user, detailResolver));
+	_user.setEditable(isEditable);
+
 	java.util.Map envMap = new java.util.TreeMap();
 	java.util.Iterator p = descriptor.envs.iterator();
 	while(p.hasNext())
@@ -267,13 +299,21 @@ class ServerSubEditor extends CommunicatorSubEditor
 	
 	_activation.setEnabled(true);
 	_activation.setEditable(true);
-	if(activation.equals(ON_DEMAND))
+	if(activation.equals(ALWAYS))
 	{
-	    _activation.setSelectedItem(ON_DEMAND);
+	    _activation.setSelectedItem(ALWAYS);
 	}
 	else if(activation.equals(MANUAL))
 	{
 	    _activation.setSelectedItem(MANUAL);
+	}
+	else if(activation.equals(ON_DEMAND))
+	{
+	    _activation.setSelectedItem(ON_DEMAND);
+	}
+	else if(activation.equals(SESSION))
+	{
+	    _activation.setSelectedItem(SESSION);
 	}
 	else
 	{
@@ -289,6 +329,9 @@ class ServerSubEditor extends CommunicatorSubEditor
 	_deactivationTimeout.setText(
 	    Utils.substitute(descriptor.deactivationTimeout, detailResolver));
 	_deactivationTimeout.setEditable(isEditable);
+
+	_allocatable.setSelected(descriptor.allocatable);
+	_allocatable.setEnabled(isEditable);
 
 	_applicationDistrib.setSelected(descriptor.applicationDistrib);
 	_applicationDistrib.setEnabled(isEditable);
@@ -314,8 +357,11 @@ class ServerSubEditor extends CommunicatorSubEditor
 	show(descriptor, isEditable);
     }
 
-    static private final String ON_DEMAND = "on-demand";
+    static private final String ALWAYS = "always";
     static private final String MANUAL = "manual";
+    static private final String ON_DEMAND = "on-demand";
+    static private final String SESSION = "session";
+
     static private final Object NO_DISTRIB = new Object()
 	{
 	    public String toString()
@@ -329,17 +375,15 @@ class ServerSubEditor extends CommunicatorSubEditor
     private JTextField _id = new JTextField(20);
     private JTextField _exe = new JTextField(20);
     private JTextField _pwd = new JTextField(20);
-   
+    private ListTextField _options = new ListTextField(20);
+    private JTextField _user = new JTextField(20);
+    private MapField _envs;
+
     private JComboBox _activation;
     private JTextField _activationTimeout = new JTextField(20);
     private JTextField _deactivationTimeout = new JTextField(20);
-    
-    private MapField _envs;
-
-    private ListTextField _options = new ListTextField(20);
-  
+    private JCheckBox _allocatable;
     private JCheckBox _applicationDistrib;
-
     private JComboBox _distrib;
     private ListTextField _distribDirs = new ListTextField(20);
 }

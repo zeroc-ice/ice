@@ -58,7 +58,9 @@ class ServerEditor extends CommunicatorEditor
 	_deactivationTimeout.setEditable(false);
 
 	_options.setEditable(false);
+	_user.setEditable(false);
 	
+	_allocatable.setEnabled(false);
 	_applicationDistrib.setEnabled(false);
 	_icepatch.setEditable(false);
 	_directories.setEditable(false);
@@ -129,10 +131,14 @@ class ServerEditor extends CommunicatorEditor
 
 	_envs.setEnvs(descriptor.envs, resolver);
 
+	_user.setText(resolver.substitute(descriptor.user));
+
 	_activation.setText(resolver.substitute(descriptor.activation));
 	_activationTimeout.setText(resolver.substitute(descriptor.activationTimeout));
 	_deactivationTimeout.setText(resolver.substitute(descriptor.deactivationTimeout));
 	
+	_allocatable.setSelected(descriptor.allocatable);
+
 	_applicationDistrib.setSelected(descriptor.applicationDistrib);
 	_icepatch.setText(resolver.substitute(resolver.substitute(descriptor.distrib.icepatch)));
 
@@ -190,7 +196,9 @@ class ServerEditor extends CommunicatorEditor
 	builder.append("Command Arguments");
 	builder.append(_options, 3);
 	builder.nextLine();
-	
+	builder.append("Run as");
+	builder.append(_user, 3);
+	builder.nextLine();
 	builder.append("Environment Variables");
 	builder.nextLine();
 	builder.append("");
@@ -215,7 +223,9 @@ class ServerEditor extends CommunicatorEditor
 	builder.append("Deactivation Timeout");
 	builder.append(_deactivationTimeout, 3);
 	builder.nextLine();
-	
+	builder.append("", _allocatable);
+	builder.nextLine();
+
 	JComponent c = builder.appendSeparator("Distribution");
 	c.setToolTipText("Files specific to this server");
 
@@ -268,11 +278,14 @@ class ServerEditor extends CommunicatorEditor
 
     private JTextField _exe = new JTextField(20);
     private JTextField _pwd = new JTextField(20);
+    private JTextField _user = new JTextField(20);
    
     private JTextField _activation = new JTextField(20);
     private JTextField _activationTimeout = new JTextField(20);
     private JTextField _deactivationTimeout = new JTextField(20);
-    
+    private JCheckBox _allocatable = new JCheckBox("Allocatable");
+
+
     private TableField _envs = new TableField("Name", "Value");  
    
     private JTextField _options = new JTextField(20);
