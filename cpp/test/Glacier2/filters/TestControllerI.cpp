@@ -178,7 +178,7 @@ TestControllerI::step(const Glacier2::SessionPrx& currentSession, const TestToke
 		adapterFilter->setReject(config.adapterIdFiltersReject);
 		adapterFilter->setAcceptOverride(config.adapterIdAcceptOverride);
 			
-		Glacier2::IdFilterPrx idFilter = session.sessionControl->objectIdFilter();
+		Glacier2::IdentityFilterPrx idFilter = session.sessionControl->objectIdFilter();
 		idFilter->setAccept(config.objectIdFiltersAccept);
 		idFilter->setReject(config.objectIdFiltersReject);
 		idFilter->setAcceptOverride(config.objectIdAcceptOverride);
