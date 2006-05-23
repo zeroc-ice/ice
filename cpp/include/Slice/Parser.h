@@ -19,7 +19,6 @@
 #include <stack>
 #include <map>
 #include <set>
-//#include <deque>
 
 #ifndef SLICE_API
 #   ifdef SLICE_API_EXPORTS
