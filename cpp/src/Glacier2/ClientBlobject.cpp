@@ -23,7 +23,6 @@ Glacier2::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
     _categoryFilter(categoryFilter),
     _adapterIdFilter(adapterIdFilter),
     _objectIdFilter(objectIdFilter),
-    _filtersEnabled((categoryFilter && adapterIdFilter && objectIdFilter)),
     _rejectTraceLevel(_properties->getPropertyAsInt("Glacier2.Client.Trace.Reject"))
 {
 }
@@ -37,40 +36,30 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
 					   const std::pair<const Byte*, const Byte*>& inParams,
 					   const Current& current)
 {
-    //
-    // The filter matching could all be grouped together after the routing
-    // table search. However, in the event that this is going to be
-    // filtered out it might be better to avoid the lookup. We have to do
-    // the adapter id match after the lookup because we don't know what the
-    // adapter id is until we lookup the proxy.
-    //
-    if(_filtersEnabled)
+    if(!_categoryFilter->match(current.id.category))
     {
-	if(!_categoryFilter->match(current.id.category))
+	if(_rejectTraceLevel >= 1)
 	{
-	    if(_rejectTraceLevel >= 1)
-	    {
-		Trace out(_logger, "Glacier2");
-		out << "rejecting request\n";
-		out << "identity: " << _communicator->identityToString(current.id);
-	    }
-	    ObjectNotExistException ex(__FILE__, __LINE__);
-	    ex.id = current.id;
-	    throw ex;
+	    Trace out(_logger, "Glacier2");
+	    out << "rejecting request\n";
+	    out << "identity: " << _communicator->identityToString(current.id);
 	}
+	ObjectNotExistException ex(__FILE__, __LINE__);
+	ex.id = current.id;
+	throw ex;
+    }
 
-	if(!_objectIdFilter->match(current.id))
+    if(!_objectIdFilter->match(current.id))
+    {
+	if(_rejectTraceLevel >= 1)
 	{
-	    if(_rejectTraceLevel >= 1)
-	    {
-		Trace out(_logger, "Glacier2");
-		out << "rejecting request\n";
-		out << "identity: " << _communicator->identityToString(current.id);
-	    }
-	    ObjectNotExistException ex(__FILE__, __LINE__);
-	    ex.id = current.id;
-	    throw ex;
+	    Trace out(_logger, "Glacier2");
+	    out << "rejecting request\n";
+	    out << "identity: " << _communicator->identityToString(current.id);
 	}
+	ObjectNotExistException ex(__FILE__, __LINE__);
+	ex.id = current.id;
+	throw ex;
     }
 
     ObjectPrx proxy = _routingTable->get(current.id);
@@ -91,21 +80,18 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
 	throw ex;
     }
 
-    if(_filtersEnabled)
+    string adapterId = proxy->ice_getAdapterId();
+    if(!adapterId.empty() && !_adapterIdFilter->match(adapterId))
     {
-	string adapterId = proxy->ice_getAdapterId();
-	if(!adapterId.empty() && !_adapterIdFilter->match(adapterId))
+	if(_rejectTraceLevel >= 1)
 	{
-	    if(_rejectTraceLevel >= 1)
-	    {
-		Trace out(_logger, "Glacier2");
-		out << "rejecting request\n";
-		out << "identity: " << _communicator->identityToString(current.id);
-	    }
-	    ObjectNotExistException ex(__FILE__, __LINE__);
-	    ex.id = current.id;
-	    throw ex;
+	    Trace out(_logger, "Glacier2");
+	    out << "rejecting request\n";
+	    out << "identity: " << _communicator->identityToString(current.id);
 	}
+	ObjectNotExistException ex(__FILE__, __LINE__);
+	ex.id = current.id;
+	throw ex;
     }
     invoke(proxy, amdCB, inParams, current);
 }
