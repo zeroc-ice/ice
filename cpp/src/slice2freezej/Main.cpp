@@ -1061,6 +1061,7 @@ usage(const char* n)
 	"--depend                  Generate Makefile dependencies.\n"
         "-d, --debug               Print debug messages.\n"
         "--ice                     Permit `Ice' prefix (for building Ice source code only)\n"
+        "--meta META               Define global metadata directive META.\n"
         ;
     // Note: --case-sensitive is intentionally not shown here!
 }
@@ -1078,6 +1079,7 @@ main(int argc, char* argv[])
     bool depend;
     bool debug;
     bool ice;
+    StringList globalMetadata;
     bool caseSensitive;
 
     IceUtil::Options opts;
@@ -1095,6 +1097,7 @@ main(int argc, char* argv[])
     opts.addOpt("", "depend");
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
+    opts.addOpt("", "meta", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("", "case-sensitive");
      
     vector<string> args;
@@ -1355,6 +1358,11 @@ main(int argc, char* argv[])
     depend = opts.isSet("depend");
     debug = opts.isSet("d") || opts.isSet("debug");
     ice = opts.isSet("ice");
+    if(opts.isSet("meta"))
+    {
+	vector<string> v = opts.argVec("meta");
+	copy(v.begin(), v.end(), back_inserter(globalMetadata));
+    }
     caseSensitive = opts.isSet("case-sensitive");
 
     if(dicts.empty() && indices.empty())
@@ -1364,7 +1372,7 @@ main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    UnitPtr u = Unit::createUnit(true, false, ice, caseSensitive);
+    UnitPtr u = Unit::createUnit(true, false, ice, caseSensitive, globalMetadata);
 
     int status = EXIT_SUCCESS;
 

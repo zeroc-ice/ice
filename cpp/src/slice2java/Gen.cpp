@@ -327,16 +327,11 @@ Slice::JavaVisitor::writeHashCode(Output& out, const TypePtr& type, const string
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        string listType = findMetaData(metaData);
-        if(listType.empty())
-        {
-            StringList l = seq->getMetaData();
-            listType = findMetaData(l);
-        }
+	bool customType = hasTypeMetaData(seq, metaData);
 
         out << nl << "if(" << name << " != null)";
         out << sb;
-        if(!listType.empty())
+        if(customType)
         {
             out << nl << "__h = 5 * __h + " << name << ".hashCode();";
         }
@@ -971,7 +966,7 @@ Slice::Gen::generateImplTie(const UnitPtr& p)
 }
 
 void
-Slice::Gen::writeChecksumClass(const string& checksumClass, const string& dir, const ChecksumMap& m)
+Slice::Gen::writeChecksumClass(const string& checksumClass, const string& dir, const ChecksumMap& m, bool java5)
 {
     //
     // Attempt to open the source file for the checksum class.
@@ -1006,10 +1001,24 @@ Slice::Gen::writeChecksumClass(const string& checksumClass, const string& dir, c
     //
     // Use a static initializer to populate the checksum map.
     //
-    out << sp << nl << "public static java.util.Map checksums;";
+    if(java5)
+    {
+	out << sp << nl << "public static java.util.Map<String, String> checksums;";
+    }
+    else
+    {
+	out << sp << nl << "public static java.util.Map checksums;";
+    }
     out << sp << nl << "static";
     out << sb;
-    out << nl << "java.util.Map map = new java.util.HashMap();";
+    if(java5)
+    {
+	out << nl << "java.util.Map<String, String> map = new java.util.HashMap<String, String>();";
+    }
+    else
+    {
+	out << nl << "java.util.Map map = new java.util.HashMap();";
+    }
     for(ChecksumMap::const_iterator p = m.begin(); p != m.end(); ++p)
     {
         out << nl << "map.put(\"" << p->first << "\", \"";
@@ -2277,14 +2286,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             SequencePtr seq = SequencePtr::dynamicCast((*d)->type());
             if(seq)
             {
-                StringList metaData = (*d)->getMetaData();
-                string listType = findMetaData(metaData);
-                if(listType.empty())
-                {
-                    StringList l = seq->getMetaData();
-                    listType = findMetaData(l);
-                }
-                if(!listType.empty())
+		if(hasTypeMetaData(seq, (*d)->getMetaData()))
                 {
                     out << nl << "if(" << memberName << " != _r." << memberName << " && " << memberName
                         << " != null && !" << memberName << ".equals(_r." << memberName << "))";
@@ -2612,13 +2614,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 	SequencePtr seq = SequencePtr::dynamicCast(type);
 	if(seq)
 	{
-	    string md = findMetaData(metaData);
-	    if(md.empty())
-	    {
-		StringList l = seq->getMetaData();
-		md = findMetaData(l);
-	    }
-	    if(md.empty())
+	    if(!hasTypeMetaData(seq, metaData))
 	    {
 		if(cls &&
 		   (!validateGetterSetter(ops, "get" + capName, 1, file, line) ||
@@ -2695,18 +2691,64 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 	out << nl << " * @deprecated " << deprecateReason;
 	out << nl << " **/";
     }
-    out << nl << "public final class " << name;
-    out << sb;
-    out << nl << "private static " << name << "[] __values = new " << name << "[" << sz << "];";
-    out << nl << "private int __value;";
-    out << sp;
-    int n;
-    for(en = enumerators.begin(), n = 0; en != enumerators.end(); ++en, ++n)
+
+    bool java5 = p->definitionContext()->findMetaData("java:java5") == "java:java5";
+
+    if(java5)
     {
-        string member = fixKwd((*en)->name());
-        out << nl << "public static final int _" << member << " = " << n << ';';
-        out << nl << "public static final " << name << ' ' << fixKwd(member)
-	    << " = new " << name << "(_" << member << ");";
+	out << nl << "public enum " << name;
+    }
+    else
+    {
+	out << nl << "public final class " << name;
+    }
+    out << sb;
+
+    if(java5)
+    {
+	int n;
+	for(en = enumerators.begin(), n = 0; en != enumerators.end(); ++en, ++n)
+	{
+	    if(en != enumerators.begin())
+	    {
+		out << ',';
+	    }
+	    out << nl << fixKwd((*en)->name()) << '(' << n << ')';
+	}
+	out << ';';
+	out << sp;
+    }
+
+    out << nl << "private static " << name << "[] __values = new " << name << "[" << sz << "];";
+    if(java5)
+    {
+	out << nl << "static";
+	out << sb;
+	int n;
+	for(en = enumerators.begin(), n = 0; en != enumerators.end(); ++en, ++n)
+	{
+	    out << nl << "__values[" << n << "] = " << fixKwd((*en)->name()) << ';';
+	}
+	out << eb;
+    }
+    out << nl << "private int __value;";
+
+    //
+    // For backward compatibility, we keep the integer member in the Java5 mapping.
+    //
+    {
+	out << sp;
+	int n;
+	for(en = enumerators.begin(), n = 0; en != enumerators.end(); ++en, ++n)
+	{
+	    string member = fixKwd((*en)->name());
+	    out << nl << "public static final int _" << member << " = " << n << ';';
+	    if(!java5)
+	    {
+		out << nl << "public static final " << name << ' ' << fixKwd(member)
+		    << " = new " << name << "(_" << member << ");";
+	    }
+	}
     }
 
     out << sp << nl << "public static " << name << nl << "convert(int val)";
@@ -2717,9 +2759,9 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     out << sp << nl << "public static " << name << nl << "convert(String val)";
     out << sb;
-    out << nl << "for(int __i = 0; __i < __T.length; ++__i)";
+    out << nl << "for(int __i = 0; __i < __values.length; ++__i)";
     out << sb;
-    out << nl << "if(__T[__i].equals(val))";
+    out << nl << "if(__values[__i].toString().equals(val))";
     out << sb;
     out << nl << "return __values[__i];";
     out << eb;
@@ -2733,15 +2775,21 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "return __value;";
     out << eb;
 
-    out << sp << nl << "public String" << nl << "toString()";
-    out << sb;
-    out << nl << "return __T[__value];";
-    out << eb;
+    if(!java5)
+    {
+	out << sp << nl << "public String" << nl << "toString()";
+	out << sb;
+	out << nl << "return __T[__value];";
+	out << eb;
+    }
 
     out << sp << nl << "private" << nl << name << "(int val)";
     out << sb;
     out << nl << "__value = val;";
-    out << nl << "__values[val] = this;";
+    if(!java5)
+    {
+	out << nl << "__values[val] = this;";
+    }
     out << eb;
 
     if(!p->isLocal())
@@ -2824,18 +2872,21 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         }
     }
 
-    out << sp << nl << "final static private String[] __T =";
-    out << sb;
-    en = enumerators.begin();
-    while(en != enumerators.end())
+    if(!java5)
     {
-        out << nl << "\"" << (*en)->name() << "\"";
-        if(++en != enumerators.end())
-        {
-            out << ',';
-        }
+	out << sp << nl << "final static private String[] __T =";
+	out << sb;
+	en = enumerators.begin();
+	while(en != enumerators.end())
+	{
+	    out << nl << "\"" << (*en)->name() << "\"";
+	    if(++en != enumerators.end())
+	    {
+		out << ',';
+	    }
+	}
+	out << eb << ';';
     }
-    out << eb << ';';
 
     out << eb;
     close();
@@ -3152,6 +3203,10 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sb;
 
+    bool java5 = p->definitionContext()->findMetaData("java:java5") == "java:java5";
+    string contextType = java5 ? "java.util.Map<String, String>" : "java.util.Map";
+    string contextParam = contextType + " __ctx";
+
     OperationList ops = p->allOperations();
 
     OperationList::const_iterator r;
@@ -3176,6 +3231,17 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         // context parameter
         //
         out << sp;
+	//
+	// TODO: If we eventually drop support for Java2, we can remove this
+	// SupressWarnings annotation. Meanwhile, it is necessary to prevent
+	// a compiler warning about an unchecked conversion. This is caused
+	// by the fact that __defaultContext() returns the unchecked type
+	// java.util.Map but Ice.Context is mapped to Map<String, String>.
+	//
+	if(java5)
+	{
+	    out << nl << "@SuppressWarnings(\"unchecked\")";
+	}
         out << nl << "public " << retS << nl << opName << spar << params << epar;
         writeThrowsClause(package, throws);
         out << sb;
@@ -3184,11 +3250,11 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << "return ";
         }
-        out << opName << spar << args << "__defaultContext()" << epar << ';';
+	out << opName << spar << args << "__defaultContext()" << epar << ';';
         out << eb;
 
         out << sp;
-        out << nl << "public " << retS << nl << opName << spar << params << "java.util.Map __ctx" << epar;
+        out << nl << "public " << retS << nl << opName << spar << params << contextParam << epar;
         writeThrowsClause(package, throws);
         out << sb;
         out << nl << "int __cnt = 0;";
@@ -3241,132 +3307,143 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    // context parameter
 	    //
 	    out << sp;
+	    //
+	    // TODO: If we eventually drop support for Java2, we can remove this
+	    // SupressWarnings annotation. Meanwhile, it is necessary to prevent
+	    // a compiler warning about an unchecked conversion. This is caused
+	    // by the fact that __defaultContext() returns the unchecked type
+	    // java.util.Map but Ice.Context is mapped to Map<String, String>.
+	    //
+	    if(java5)
+	    {
+		out << nl << "@SuppressWarnings(\"unchecked\")";
+	    }
 	    out << nl << "public void" << nl << op->name() << "_async" << spar << paramsAMI << epar;
 	    out << sb;
 	    out << nl << op->name() << "_async" << spar << argsAMI << "__defaultContext()" << epar << ';';
 	    out << eb;
 
 	    out << sp;
-	    out << nl << "public void" << nl << op->name() << "_async" << spar << paramsAMI << "java.util.Map __ctx"
-		<< epar;
+	    out << nl << "public void" << nl << op->name() << "_async" << spar << paramsAMI << contextParam << epar;
 	    out << sb;
 	    out << nl << "__cb.__invoke" << spar << "this" << argsAMI << "__ctx" << epar << ';';
 	    out << eb;
 	}
     }
 
-    out << sp << nl << "public static " << name << "Prx" << nl << "checkedCast(Ice.ObjectPrx b)";
+    out << sp << nl << "public static " << name << "Prx" << nl << "checkedCast(Ice.ObjectPrx __obj)";
     out << sb;
-    out << nl << name << "Prx d = null;";
-    out << nl << "if(b != null)";
+    out << nl << name << "Prx __d = null;";
+    out << nl << "if(__obj != null)";
     out << sb;
     out << nl << "try";
     out << sb;
-    out << nl << "d = (" << name << "Prx)b;";
+    out << nl << "__d = (" << name << "Prx)__obj;";
     out << eb;
     out << nl << "catch(ClassCastException ex)";
     out << sb;
-    out << nl << "if(b.ice_isA(\"" << scoped << "\"))";
+    out << nl << "if(__obj.ice_isA(\"" << scoped << "\"))";
     out << sb;
-    out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    out << nl << "h.__copyFrom(b);";
-    out << nl << "d = h;";
+    out << nl << name << "PrxHelper __h = new " << name << "PrxHelper();";
+    out << nl << "__h.__copyFrom(__obj);";
+    out << nl << "__d = __h;";
     out << eb;
     out << eb;
     out << eb;
-    out << nl << "return d;";
+    out << nl << "return __d;";
     out << eb;
 
-    out << sp << nl << "public static " << name << "Prx" << nl << "checkedCast(Ice.ObjectPrx b, java.util.Map ctx)";
+    out << sp << nl << "public static " << name << "Prx" << nl << "checkedCast(Ice.ObjectPrx __obj, " << contextParam
+	<< ')';
     out << sb;
-    out << nl << name << "Prx d = null;";
-    out << nl << "if(b != null)";
+    out << nl << name << "Prx __d = null;";
+    out << nl << "if(__obj != null)";
     out << sb;
     out << nl << "try";
     out << sb;
-    out << nl << "d = (" << name << "Prx)b;";
+    out << nl << "__d = (" << name << "Prx)__obj;";
     out << eb;
     out << nl << "catch(ClassCastException ex)";
     out << sb;
-    out << nl << "if(b.ice_isA(\"" << scoped << "\", ctx))";
+    out << nl << "if(__obj.ice_isA(\"" << scoped << "\", __ctx))";
     out << sb;
-    out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    out << nl << "h.__copyFrom(b);";
-    out << nl << "d = h;";
+    out << nl << name << "PrxHelper __h = new " << name << "PrxHelper();";
+    out << nl << "__h.__copyFrom(__obj);";
+    out << nl << "__d = __h;";
     out << eb;
     out << eb;
     out << eb;
-    out << nl << "return d;";
+    out << nl << "return __d;";
     out << eb;
 
-    out << sp << nl << "public static " << name << "Prx" << nl << "checkedCast(Ice.ObjectPrx b, String f)";
+    out << sp << nl << "public static " << name << "Prx" << nl << "checkedCast(Ice.ObjectPrx __obj, String __facet)";
     out << sb;
-    out << nl << name << "Prx d = null;";
-    out << nl << "if(b != null)";
+    out << nl << name << "Prx __d = null;";
+    out << nl << "if(__obj != null)";
     out << sb;
-    out << nl << "Ice.ObjectPrx bb = b.ice_facet(f);";
+    out << nl << "Ice.ObjectPrx __bb = __obj.ice_facet(__facet);";
     out << nl << "try";
     out << sb;
-    out << nl << "if(bb.ice_isA(\"" << scoped << "\"))";
+    out << nl << "if(__bb.ice_isA(\"" << scoped << "\"))";
     out << sb;
-    out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    out << nl << "h.__copyFrom(bb);";
-    out << nl << "d = h;";
+    out << nl << name << "PrxHelper __h = new " << name << "PrxHelper();";
+    out << nl << "__h.__copyFrom(__bb);";
+    out << nl << "__d = __h;";
     out << eb;
     out << eb;
     out << nl << "catch(Ice.FacetNotExistException ex)";
     out << sb;
     out << eb;
     out << eb;
-    out << nl << "return d;";
+    out << nl << "return __d;";
     out << eb;
 
     out << sp << nl << "public static " << name << "Prx"
-        << nl << "checkedCast(Ice.ObjectPrx b, String f, java.util.Map ctx)";
+        << nl << "checkedCast(Ice.ObjectPrx __obj, String __facet, " << contextParam << ')';
     out << sb;
-    out << nl << name << "Prx d = null;";
-    out << nl << "if(b != null)";
+    out << nl << name << "Prx __d = null;";
+    out << nl << "if(__obj != null)";
     out << sb;
-    out << nl << "Ice.ObjectPrx bb = b.ice_facet(f);";
+    out << nl << "Ice.ObjectPrx __bb = __obj.ice_facet(__facet);";
     out << nl << "try";
     out << sb;
-    out << nl << "if(bb.ice_isA(\"" << scoped << "\", ctx))";
+    out << nl << "if(__bb.ice_isA(\"" << scoped << "\", __ctx))";
     out << sb;
-    out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    out << nl << "h.__copyFrom(bb);";
-    out << nl << "d = h;";
+    out << nl << name << "PrxHelper __h = new " << name << "PrxHelper();";
+    out << nl << "__h.__copyFrom(__bb);";
+    out << nl << "__d = __h;";
     out << eb;
     out << eb;
     out << nl << "catch(Ice.FacetNotExistException ex)";
     out << sb;
     out << eb;
     out << eb;
-    out << nl << "return d;";
+    out << nl << "return __d;";
     out << eb;
 
-    out << sp << nl << "public static " << name << "Prx" << nl << "uncheckedCast(Ice.ObjectPrx b)";
+    out << sp << nl << "public static " << name << "Prx" << nl << "uncheckedCast(Ice.ObjectPrx __obj)";
     out << sb;
-    out << nl << name << "Prx d = null;";
-    out << nl << "if(b != null)";
+    out << nl << name << "Prx __d = null;";
+    out << nl << "if(__obj != null)";
     out << sb;
-    out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    out << nl << "h.__copyFrom(b);";
-    out << nl << "d = h;";
+    out << nl << name << "PrxHelper __h = new " << name << "PrxHelper();";
+    out << nl << "__h.__copyFrom(__obj);";
+    out << nl << "__d = __h;";
     out << eb;
-    out << nl << "return d;";
+    out << nl << "return __d;";
     out << eb;
 
-    out << sp << nl << "public static " << name << "Prx" << nl << "uncheckedCast(Ice.ObjectPrx b, String f)";
+    out << sp << nl << "public static " << name << "Prx" << nl << "uncheckedCast(Ice.ObjectPrx __obj, String __facet)";
     out << sb;
-    out << nl << name << "Prx d = null;";
-    out << nl << "if(b != null)";
+    out << nl << name << "Prx __d = null;";
+    out << nl << "if(__obj != null)";
     out << sb;
-    out << nl << "Ice.ObjectPrx bb = b.ice_facet(f);";
-    out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    out << nl << "h.__copyFrom(bb);";
-    out << nl << "d = h;";
+    out << nl << "Ice.ObjectPrx __bb = __obj.ice_facet(__facet);";
+    out << nl << name << "PrxHelper __h = new " << name << "PrxHelper();";
+    out << nl << "__h.__copyFrom(__bb);";
+    out << nl << "__d = __h;";
     out << eb;
-    out << nl << "return d;";
+    out << nl << "return __d;";
     out << eb;
 
     out << sp << nl << "protected Ice._ObjectDelM" << nl << "__createDelegateM()";
@@ -3568,18 +3645,8 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     string helper = getAbsolute(p, "", "", "Helper");
     string package = getPackage(p);
     StringList metaData = p->getMetaData();
-    string mapType = findMetaData(metaData);
-    string formalType, actualType;
-    if(mapType.empty())
-    {
-	formalType = "java.util.Map";
-	actualType = "java.util.HashMap";
-    }
-    else
-    {
-	formalType = mapType;
-	actualType = mapType;
-    }
+    string concreteType = typeToString(p, TypeModeIn, package, StringList(), false);
+    string abstractType = typeToString(p, TypeModeIn, package, StringList(), true);
 
     if(open(helper))
     {
@@ -3589,49 +3656,38 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         out << sp << nl << "public final class " << name << "Helper";
         out << sb;
 
-        out << nl << "public static void" << nl << "write(IceInternal.BasicStream __os, java.util.Map __v)";
+        out << nl << "public static void" << nl << "write(IceInternal.BasicStream __os, " << abstractType << " __v)";
         out << sb;
 	iter = 0;
         writeDictionaryMarshalUnmarshalCode(out, package, p, "__v", true, iter, false);
 	out << eb;
 
-	out << sp << nl << "public static " << formalType
+	out << sp << nl << "public static " << abstractType
 	    << nl << "read(IceInternal.BasicStream __is)";
 	out << sb;
-	out << nl << actualType << " __v = new " << actualType << "();";
-	out << nl << "read(__is, __v);";
-	out << nl << "return __v;";
-	out << eb;
-
-	out << sp << nl << "public static void"
-	    << nl << "read(IceInternal.BasicStream __is, java.util.Map __v)";
-	out << sb;
+	out << nl << abstractType << " __v = new " << concreteType << "();";
 	iter = 0;
 	writeDictionaryMarshalUnmarshalCode(out, package, p, "__v", false, iter, false);
+	out << nl << "return __v;";
 	out << eb;
 
         if(_stream)
         {
-            out << sp << nl << "public static void" << nl << "write(Ice.OutputStream __outS, java.util.Map __v)";
+            out << sp << nl << "public static void" << nl << "write(Ice.OutputStream __outS, " << abstractType
+		<< " __v)";
             out << sb;
 	    iter = 0;
 	    writeStreamDictionaryMarshalUnmarshalCode(out, package, p, "__v", true, iter, false);
             out << eb;
 
-	    out << sp << nl << "public static " << formalType
+	    out << sp << nl << "public static " << abstractType
                 << nl << "read(Ice.InputStream __inS)";
             out << sb;
-	    out << nl << actualType << " __v = new " << actualType << "();";
-	    out << nl << "read(__inS, __v);";
-	    out << nl << "return __v;";
-            out << eb;
-
-	    out << sp << nl << "public static void"
-		<< nl << "read(Ice.InputStream __inS, java.util.Map __v)";
-	    out << sb;
+	    out << nl << abstractType << " __v = new " << concreteType << "();";
 	    iter = 0;
 	    writeStreamDictionaryMarshalUnmarshalCode(out, package, p, "__v", false, iter, false);
-	    out << eb;
+	    out << nl << "return __v;";
+            out << eb;
         }
 
         out << eb;
@@ -3780,7 +3836,11 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	out << nl << " * @deprecated " << deprecateReason;
 	out << nl << " **/";
     }
-    out << nl << "public " << retS << ' ' << name << spar << params << "java.util.Map __ctx" << epar;
+
+    bool java5 = p->definitionContext()->findMetaData("java:java5") == "java:java5";
+    string contextParam = java5 ? "java.util.Map<String, String> __ctx" : "java.util.Map __ctx";
+
+    out << nl << "public " << retS << ' ' << name << spar << params << contextParam << epar;
     writeThrowsClause(package, throws);
     out << ';';
 
@@ -3806,8 +3866,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	    out << nl << " * @deprecated " << deprecateReason;
 	    out << nl << " **/";
 	}
-	out << nl << "public void " << p->name() << "_async" << spar << paramsAMI << "java.util.Map __ctx"
-	    << epar << ';';
+	out << nl << "public void " << p->name() << "_async" << spar << paramsAMI << contextParam << epar << ';';
     }
 }
 
@@ -3858,6 +3917,9 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sb;
 
+    bool java5 = p->definitionContext()->findMetaData("java:java5") == "java:java5";
+    string contextParam = java5 ? "java.util.Map<String, String> __ctx" : "java.util.Map __ctx";
+
     OperationList ops = p->operations();
 
     OperationList::const_iterator r;
@@ -3875,7 +3937,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
         throws.unique();
 
         out << sp;
-        out << nl << retS << ' ' << opName << spar << params << "java.util.Map __ctx" << epar;
+        out << nl << retS << ' ' << opName << spar << params << contextParam << epar;
         writeDelegateThrowsClause(package, throws);
         out << ';';
     }
@@ -3914,6 +3976,9 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp << nl << "public final class _" << name << "DelM extends Ice._ObjectDelM implements _" << name << "Del";
     out << sb;
 
+    bool java5 = p->definitionContext()->findMetaData("java:java5") == "java:java5";
+    string contextParam = java5 ? "java.util.Map<String, String> __ctx" : "java.util.Map __ctx";
+
     OperationList ops = p->allOperations();
 
     OperationList::const_iterator r;
@@ -3924,7 +3989,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         string opName = fixKwd(op->name());
         TypePtr ret = op->returnType();
         string retS = typeToString(ret, TypeModeReturn, package, opMetaData);
-        int iter;
+        int iter = 0;
 
         ParamDeclList inParams;
         ParamDeclList outParams;
@@ -3961,7 +4026,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         vector<string> params = getParams(op, package);
 
         out << sp;
-        out << nl << "public " << retS << nl << opName << spar << params << "java.util.Map __ctx" << epar;
+        out << nl << "public " << retS << nl << opName << spar << params << contextParam << epar;
         writeDelegateThrowsClause(package, throws);
         out << sb;
 
@@ -3974,7 +4039,6 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    out << nl << "try";
 	    out << sb;
             out << nl << "IceInternal.BasicStream __os = __og.os();";
-	    iter = 0;
 	    for(pli = inParams.begin(); pli != inParams.end(); ++pli)
 	    {
 		writeMarshalUnmarshalCode(out, package, (*pli)->type(), fixKwd((*pli)->name()), true, iter, false,
@@ -4094,6 +4158,9 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp << nl << "public final class _" << name << "DelD extends Ice._ObjectDelD implements _" << name << "Del";
     out << sb;
 
+    bool java5 = p->definitionContext()->findMetaData("java:java5") == "java:java5";
+    string contextParam = java5 ? "java.util.Map<String, String> __ctx" : "java.util.Map __ctx";
+
     OperationList ops = p->allOperations();
 
     OperationList::const_iterator r;
@@ -4114,7 +4181,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         vector<string> args = getArgs(op);
 
 	out << sp;
-        out << nl << "public " << retS << nl << opName << spar << params << "java.util.Map __ctx" << epar;
+        out << nl << "public " << retS << nl << opName << spar << params << contextParam << epar;
         writeDelegateThrowsClause(package, throws);
         out << sb;
 	if(cl->hasMetaData("amd") || op->hasMetaData("amd"))
@@ -4702,8 +4769,11 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    out << nl << "public abstract void ice_exception(Ice.UserException ex);";
 	}
 	
+	bool java5 = p->definitionContext()->findMetaData("java:java5") == "java:java5";
+	string contextParam = java5 ? "java.util.Map<String, String> __ctx" : "java.util.Map __ctx";
+
 	out << sp << nl << "public final void" << nl << "__invoke" << spar << "Ice.ObjectPrx __prx"
-	    << paramsInvoke << "java.util.Map __ctx" << epar;
+	    << paramsInvoke << contextParam << epar;
 	out << sb;
 	out << nl << "try";
 	out << sb;

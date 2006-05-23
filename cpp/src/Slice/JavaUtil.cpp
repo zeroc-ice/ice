@@ -135,7 +135,7 @@ Slice::JavaOutput::printHeader()
     static const char* header =
 "// **********************************************************************\n"
 "//\n"
-"// Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.\n"
+"// Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.\n"
 "//\n"
 "// This copy of Ice is licensed to you under the terms described in the\n"
 "// ICE_LICENSE file included in this distribution.\n"
@@ -149,6 +149,7 @@ Slice::JavaOutput::printHeader()
 }
 
 const string Slice::JavaGenerator::_getSetMetaData = "java:getset";
+const string Slice::JavaGenerator::_java5MetaData = "java:java5";
 
 Slice::JavaGenerator::JavaGenerator(const string& dir) :
     _featureProfile(Slice::Ice),
@@ -400,7 +401,8 @@ string
 Slice::JavaGenerator::typeToString(const TypePtr& type,
                                    TypeMode mode,
                                    const string& package,
-                                   const StringList& metaData) const
+                                   const StringList& metaData,
+				   bool abstract) const
 {
     static const char* builtinTable[] =
     {
@@ -467,75 +469,109 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
     {
         if(mode == TypeModeOut)
         {
-            return getAbsolute(dict, package, "", "Holder");
+	    if(_featureProfile == Slice::IceE)
+	    {
+		return getAbsolute(dict, package, "", "Holder");
+	    }
+	    else
+	    {
+		//
+		// Only use the type's generated holder if the concrete and
+		// abstract types match.
+		//
+		string concreteType, abstractType;
+		getDictionaryTypes(dict, "", metaData, concreteType, abstractType);
+		string origConcreteType, origAbstractType;
+		getDictionaryTypes(dict, "", StringList(), origConcreteType, origAbstractType);
+		if(abstractType == origAbstractType && concreteType == origConcreteType)
+		{
+		    return getAbsolute(dict, package, "", "Holder");
+		}
+
+		bool java5 = dict->definitionContext()->findMetaData(_java5MetaData) == _java5MetaData;
+
+		//
+		// The custom type may or may not be compatible with the type used
+		// in the generated holder. For Java5, we can use a generic holder
+		// that holds a value of the abstract custom type. Otherwise, we
+		// use MapHolder.
+		//
+		if(java5)
+		{
+		    return string("Ice.Holder<") + abstractType + " >";
+		}
+		else
+		{
+		    return "Ice.MapHolder";
+		}
+	    }
         }
         else
         {
-	    if(_featureProfile == Slice::IceE)
-	    {
-		return "java.util.Hashtable";
-	    }
-	    
-	    string dictType = findMetaData(metaData);
-            if(dictType.empty())
-            {
-                StringList l = dict->getMetaData();
-                dictType = findMetaData(l);
-            }
-            if(!dictType.empty())
-            {
-                return dictType;
-            }
-            else
-            {
-		return "java.util.Map";
-	    }
+	    string concreteType, abstractType;
+	    getDictionaryTypes(dict, package, metaData, concreteType, abstractType);
+	    return abstract ? abstractType : concreteType;
         }
     }
 
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        string listType = findMetaData(metaData);
         if(mode == TypeModeOut)
-        {
-            if(listType.empty() || _featureProfile == Slice::IceE)
-            {
-                return getAbsolute(seq, package, "", "Holder");
-            }
-            else if(listType == "java.util.ArrayList")
-            {
-                return "Ice.ArrayListHolder";
-            }
-            else if(listType == "java.util.LinkedList")
-            {
-                return "Ice.LinkedListHolder";
-            }
-            else
-            {
-                return "Ice.ListHolder";
-            }
-        }
-        else
         {
 	    if(_featureProfile == Slice::IceE)
 	    {
-                return typeToString(seq->type(), mode, package) + "[]";
+		return getAbsolute(seq, package, "", "Holder");
 	    }
-	    
-            if(listType.empty())
-            {
-                StringList l = seq->getMetaData();
-                listType = findMetaData(l);
-            }
-            if(!listType.empty())
-            {
-                return listType;
-            }
-            else
-            {
-                return typeToString(seq->type(), mode, package) + "[]";
-            }
+	    else
+	    {
+		//
+		// Only use the type's generated holder if the concrete and
+		// abstract types match.
+		//
+		string concreteType, abstractType;
+		getSequenceTypes(seq, "", metaData, concreteType, abstractType);
+		string origConcreteType, origAbstractType;
+		getSequenceTypes(seq, "", StringList(), origConcreteType, origAbstractType);
+		if(abstractType == origAbstractType && concreteType == origConcreteType)
+		{
+		    return getAbsolute(seq, package, "", "Holder");
+		}
+
+		bool java5 = seq->definitionContext()->findMetaData(_java5MetaData) == _java5MetaData;
+
+		//
+		// The custom type may or may not be compatible with the type used
+		// in the generated holder. For Java5, we can use a generic holder
+		// that holds a value of the abstract custom type. Otherwise, we
+		// choose a predefined holder class.
+		//
+		if(java5)
+		{
+		    return string("Ice.Holder<") + abstractType + " >";
+		}
+		else
+		{
+		    if(abstractType == "java.util.ArrayList")
+		    {
+			return "Ice.ArrayListHolder";
+		    }
+		    else if(abstractType == "java.util.LinkedList")
+		    {
+			return "Ice.LinkedListHolder";
+		    }
+		    else
+		    {
+			return "Ice.ListHolder";
+		    }
+		}
+	    }
+        }
+        else
+        {
+	    string concreteType, abstractType;
+	    getSequenceTypes(seq, package, metaData, concreteType, abstractType);
+	    return abstract ? abstractType : concreteType;
         }
     }
 
@@ -553,6 +589,37 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
     }
 
     return "???";
+}
+
+string
+Slice::JavaGenerator::typeToObjectString(const TypePtr& type,
+				         TypeMode mode,
+				         const string& package,
+				         const StringList& metaData,
+				         bool abstract) const
+{
+    static const char* builtinTable[] =
+    {
+        "java.lang.Byte",
+        "java.lang.Boolean",
+        "java.lang.Short",
+        "java.lang.Integer",
+        "java.lang.Long",
+        "java.lang.Float",
+        "java.lang.Double",
+        "java.lang.String",
+        "Ice.Object",
+        "Ice.ObjectPrx",
+        "Ice.LocalObject"
+    };
+
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    if(builtin && mode != TypeModeOut)
+    {
+	return builtinTable[builtin->kind()];
+    }
+
+    return typeToString(type, mode, package, metaData, abstract);
 }
 
 void
@@ -846,72 +913,58 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
     string stream = marshal ? "__os" : "__is";
     string v = param;
 
-    //
-    // Marshalling does not require any special checks if
-    // allowed to use helper.
-    //
-    if(useHelper && marshal)
-    {
-        string typeS = getAbsolute(dict, package);
-        out << nl << typeS << "Helper.write(" << stream << ", " << v << ");";
-	return;
-    }
+    bool java5 = false;
+    string concreteType;
 
-    //
-    // Check for metadata that overrides the default dictionary
-    // mapping. If metadata is found, the value of the metadata
-    // must be the name of a class which implements the
-    // java.util.Map interface.
-    //
-    // There are two sources of metadata - that passed into
-    // this function (which most likely comes from a data
-    // member definition), and that associated with the type
-    // itself. If data member metadata is found, and it does
-    // not match the type's metadata, then we have to allocate
-    // the map ourselves and use a different overloading
-    // of the Helper class' read method for unmarshalling.
-    //
-    string mapType;
     if(_featureProfile != Slice::IceE)
     {
-	mapType = findMetaData(metaData);
-	StringList typeMetaData = dict->getMetaData();
-	if(mapType.empty())
+	java5 = dict->definitionContext()->findMetaData(_java5MetaData) == _java5MetaData;
+
+	//
+	// We have to determine whether it's possible to use the
+	// type's generated helper class for this marshal/unmarshal
+	// task. Since the user may have specified a custom type in
+	// metadata, it's possible that the helper class is not
+	// compatible and therefore we'll need to generate the code
+	// in-line instead.
+	//
+	// Specifically, there may be "local" metadata (i.e., from
+	// a data member or parameter definition) that overrides the
+	// original type. We'll compare the mapped types with and
+	// without local metadata to determine whether we can use
+	// the helper.
+	//
+	string abstractType;
+	getDictionaryTypes(dict, "", metaData, concreteType, abstractType);
+	string origConcreteType, origAbstractType;
+	getDictionaryTypes(dict, "", StringList(), origConcreteType, origAbstractType);
+	if((abstractType != origAbstractType) || (!marshal && concreteType != origConcreteType))
 	{
-	    mapType = findMetaData(typeMetaData);
-	}
-	else if(useHelper)
-	{
-	    string s = findMetaData(typeMetaData);
-	    if(mapType != s)
-	    {
-		//
-		// Data member metadata is defined, and it does not match the
-		// type's metadata (which might also be empty), therefore we
-		// allocate the custom type directly and then use the helper
-		// to unmarshal the dictionary.
-		//
-		string typeS = getAbsolute(dict, package);
-		out << nl << v << " = new " << mapType << "();";
-		out << nl << typeS << "Helper.read(" << stream << ", " << v << ");";
-		return;
-	    }
+	    useHelper = false;
 	}
     }
 
     //
-    // If we can use the map's helper, it's easy.
+    // If we can use the helper, it's easy.
     //
     if(useHelper)
     {
-        string typeS = getAbsolute(dict, package);
-        out << nl << v << " = " << typeS << "Helper.read(" << stream << ");";
-        return;
+	string typeS = getAbsolute(dict, package);
+	if(marshal)
+	{
+	    out << nl << typeS << "Helper.write(" << stream << ", " << v << ");";
+	}
+	else
+	{
+	    out << nl << v << " = " << typeS << "Helper.read(" << stream << ");";
+	}
+	return;
     }
 
     TypePtr key = dict->keyType();
     TypePtr value = dict->valueType();
 
+    string keyS = typeToString(key, TypeModeIn, package);
     string valueS = typeToString(value, TypeModeIn, package);
     int i;
 
@@ -929,10 +982,21 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
         out << nl << "else";
         out << sb;
         out << nl << "__os.writeSize(" << v << ".size());";
-        out << nl << "java.util.Iterator __i" << iterS << " = " << v << ".entrySet().iterator();";
-        out << nl << "while(__i" << iterS << ".hasNext())";
-        out << sb;
-        out << nl << "java.util.Map.Entry __e = (java.util.Map.Entry)" << "__i" << iterS << ".next();";
+	if(java5)
+	{
+	    string keyObjectS = typeToObjectString(key, TypeModeIn, package);
+	    string valueObjectS = typeToObjectString(value, TypeModeIn, package);
+	    out << nl << "for(java.util.Map.Entry<" << keyObjectS << ", " << valueObjectS << "> __e : " << v
+		<< ".entrySet())";
+	    out << sb;
+	}
+	else
+	{
+	    out << nl << "java.util.Iterator __i" << iterS << " = " << v << ".entrySet().iterator();";
+	    out << nl << "while(__i" << iterS << ".hasNext())";
+	    out << sb;
+	    out << nl << "java.util.Map.Entry __e = (java.util.Map.Entry)" << "__i" << iterS << ".next();";
+	}
         for(i = 0; i < 2; i++)
         {
             string val;
@@ -949,64 +1013,74 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
                 type = value;
             }
 
-            BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-            if(b)
-            {
-                switch(b->kind())
-                {
-                    case Builtin::KindByte:
-                    {
-                        val = "((java.lang.Byte)" + arg + ").byteValue()";
-                        break;
-                    }
-                    case Builtin::KindBool:
-                    {
-                        val = "((java.lang.Boolean)" + arg + ").booleanValue()";
-                        break;
-                    }
-                    case Builtin::KindShort:
-                    {
-                        val = "((java.lang.Short)" + arg + ").shortValue()";
-                        break;
-                    }
-                    case Builtin::KindInt:
-                    {
-                        val = "((java.lang.Integer)" + arg + ").intValue()";
-                        break;
-                    }
-                    case Builtin::KindLong:
-                    {
-                        val = "((java.lang.Long)" + arg + ").longValue()";
-                        break;
-                    }
-                    case Builtin::KindFloat:
-                    {
-                        val = "((java.lang.Float)" + arg + ").floatValue()";
-                        break;
-                    }
-                    case Builtin::KindDouble:
-                    {
-                        val = "((java.lang.Double)" + arg + ").doubleValue()";
-                        break;
-                    }
-                    case Builtin::KindString:
-                    case Builtin::KindObject:
-                    case Builtin::KindObjectProxy:
-                    {
-                        break;
-                    }
-                    case Builtin::KindLocalObject:
-                    {
-                        assert(false);
-                        break;
-                    }
-                }
-            }
+	    //
+	    // We have to downcast unless we're using Java5.
+	    //
+	    if(java5)
+	    {
+		val = arg;
+	    }
+	    else
+	    {
+		BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+		if(b)
+		{
+		    switch(b->kind())
+		    {
+			case Builtin::KindByte:
+			{
+			    val = "((java.lang.Byte)" + arg + ").byteValue()";
+			    break;
+			}
+			case Builtin::KindBool:
+			{
+			    val = "((java.lang.Boolean)" + arg + ").booleanValue()";
+			    break;
+			}
+			case Builtin::KindShort:
+			{
+			    val = "((java.lang.Short)" + arg + ").shortValue()";
+			    break;
+			}
+			case Builtin::KindInt:
+			{
+			    val = "((java.lang.Integer)" + arg + ").intValue()";
+			    break;
+			}
+			case Builtin::KindLong:
+			{
+			    val = "((java.lang.Long)" + arg + ").longValue()";
+			    break;
+			}
+			case Builtin::KindFloat:
+			{
+			    val = "((java.lang.Float)" + arg + ").floatValue()";
+			    break;
+			}
+			case Builtin::KindDouble:
+			{
+			    val = "((java.lang.Double)" + arg + ").doubleValue()";
+			    break;
+			}
+			case Builtin::KindString:
+			case Builtin::KindObject:
+			case Builtin::KindObjectProxy:
+			{
+			    break;
+			}
+			case Builtin::KindLocalObject:
+			{
+			    assert(false);
+			    break;
+			}
+		    }
+		}
 
-            if(val.empty())
-            {
-                val = "((" + typeToString(type, TypeModeIn, package) + ')' + arg + ')';
-            }
+		if(val.empty())
+		{
+		    val = "((" + typeToString(type, TypeModeIn, package) + ')' + arg + ')';
+		}
+	    }
             writeMarshalUnmarshalCode(out, package, type, val, true, iter, false);
         }
         out << eb;
@@ -1014,6 +1088,7 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
     }
     else
     {
+	out << nl << v << " = new " << concreteType << "();";
         out << nl << "int __sz" << iterS << " = __is.readSize();";
         out << nl << "for(int __i" << iterS << " = 0; __i" << iterS << " < __sz" << iterS << "; __i" << iterS << "++)";
         out << sb;
@@ -1021,55 +1096,58 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
         {
             string arg;
             TypePtr type;
+	    string typeS;
             if(i == 0)
             {
                 arg = "__key";
                 type = key;
+		typeS = keyS;
             }
             else
             {
                 arg = "__value";
                 type = value;
+		typeS = valueS;
             }
 
             BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-            if(b)
+            if(b && !java5)
             {
                 switch(b->kind())
                 {
                     case Builtin::KindByte:
                     {
-                        out << nl << "java.lang.Byte " << arg << " = new java.lang.Byte(__is.readByte());";
+			out << nl << "java.lang.Byte " << arg << " = new java.lang.Byte(__is.readByte());";
                         break;
                     }
                     case Builtin::KindBool:
                     {
-                        out << nl << "java.lang.Boolean " << arg << " = new java.lang.Boolean(__is.readBool());";
+			out << nl << "java.lang.Boolean " << arg << " = new java.lang.Boolean(__is.readBool());";
                         break;
                     }
                     case Builtin::KindShort:
                     {
-                        out << nl << "java.lang.Short " << arg << " = new java.lang.Short(__is.readShort());";
+			out << nl << "java.lang.Short " << arg << " = new java.lang.Short(__is.readShort());";
                         break;
                     }
                     case Builtin::KindInt:
                     {
-                        out << nl << "java.lang.Integer " << arg << " = new java.lang.Integer(__is.readInt());";
+			out << nl << "java.lang.Integer " << arg << " = new java.lang.Integer(__is.readInt());";
                         break;
                     }
                     case Builtin::KindLong:
                     {
-                        out << nl << "java.lang.Long " << arg << " = new java.lang.Long(__is.readLong());";
+			out << nl << "java.lang.Long " << arg << " = new java.lang.Long(__is.readLong());";
                         break;
                     }
                     case Builtin::KindFloat:
                     {
-                        out << nl << "java.lang.Float " << arg << " = new java.lang.Float(__is.readFloat());";
+			out << nl << "java.lang.Float " << arg << " = new java.lang.Float(__is.readFloat());";
                         break;
                     }
                     case Builtin::KindDouble:
                     {
-                        out << nl << "java.lang.Double " << arg << " = new java.lang.Double(__is.readDouble());";
+			out << nl << "java.lang.Double " << arg << " = new java.lang.Double(__is.readDouble());";
                         break;
                     }
                     case Builtin::KindString:
@@ -1079,8 +1157,9 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
                     }
                     case Builtin::KindObject:
                     {
+			assert(i == 1); // Must be the element value, since an object cannot be a key.
                         out << nl << "__is.readObject(new IceInternal.DictionaryPatcher(" << v << ", " 
-			    << valueS <<".class, \"" << value->typeId() << "\", __key));";
+			    << valueS << ".class, \"" << value->typeId() << "\", __key));";
                         break;
                     }
                     case Builtin::KindObjectProxy:
@@ -1097,16 +1176,15 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
             }
             else
             {
-                string s = typeToString(type, TypeModeIn, package);
-		if(ClassDeclPtr::dynamicCast(type))
+		if(ClassDeclPtr::dynamicCast(type) || (b && b->kind() == Builtin::KindObject))
 		{
 		    writeMarshalUnmarshalCode(out, package, type, arg, false, iter, false, StringList(),
-					      "new IceInternal.DictionaryPatcher(" + v + ", " + s + ".class, \"" +
+					      "new IceInternal.DictionaryPatcher(" + v + ", " + typeS + ".class, \"" +
 					      type->typeId() + "\", __key)");
 		}
 		else
 		{
-		    out << nl << s << ' ' << arg << ';';
+		    out << nl << typeS << ' ' << arg << ';';
 		    writeMarshalUnmarshalCode(out, package, type, arg, false, iter, false);
 		}
             }
@@ -1133,42 +1211,40 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     string stream = marshal ? "__os" : "__is";
     string v = param;
 
-    //
-    // Check for metadata that overrides the default sequence
-    // mapping. If no metadata is found, we use a regular Java
-    // array. If metadata is found, the value of the metadata
-    // must be the name of a class which implements the
-    // java.util.List interface.
-    //
-    // There are two sources of metadata - that passed into
-    // this function (which most likely comes from a data
-    // member definition), and that associated with the type
-    // itself. If data member metadata is found, and does
-    // not match the type's metadata, then we cannot use
-    // the type's Helper class for marshalling - we must
-    // generate marshalling code inline.
-    //
-    string listType;
+    bool java5 = false;
+    bool customType = false;
+    string concreteType;
+
     if(_featureProfile != Slice::IceE)
     {
-	listType = findMetaData(metaData);
-	StringList typeMetaData = seq->getMetaData();
-	if(listType.empty())
+	java5 = seq->definitionContext()->findMetaData(_java5MetaData) == _java5MetaData;
+
+	//
+	// We have to determine whether it's possible to use the
+	// type's generated helper class for this marshal/unmarshal
+	// task. Since the user may have specified a custom type in
+	// metadata, it's possible that the helper class is not
+	// compatible and therefore we'll need to generate the code
+	// in-line instead.
+	//
+	// Specifically, there may be "local" metadata (i.e., from
+	// a data member or parameter definition) that overrides the
+	// original type. We'll compare the mapped types with and
+	// without local metadata to determine whether we can use
+	// the helper.
+	//
+	string abstractType;
+	customType = getSequenceTypes(seq, "", metaData, concreteType, abstractType);
+	string origConcreteType, origAbstractType;
+	getSequenceTypes(seq, "", StringList(), origConcreteType, origAbstractType);
+	if((abstractType != origAbstractType) || (!marshal && concreteType != origConcreteType))
 	{
-	    listType = findMetaData(typeMetaData);
-	}
-	else
-	{
-	    string s = findMetaData(typeMetaData);
-	    if(listType != s)
-	    {
-		useHelper = false;
-	    }
+	    useHelper = false;
 	}
     }
 
     //
-    // If we can use the sequence's helper, it's easy.
+    // If we can use the helper, it's easy.
     //
     if(useHelper)
     {
@@ -1185,7 +1261,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     }
 
     //
-    // Determine sequence depth
+    // Determine sequence depth.
     //
     int depth = 0;
     TypePtr origContent = seq->type();
@@ -1193,13 +1269,12 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     while(s)
     {
         //
-        // Stop if the inner sequence type has metadata.
+        // Stop if the inner sequence type has a custom type.
         //
-        string m = findMetaData(s->getMetaData());
-        if(!m.empty() && _featureProfile != Slice::IceE)
-        {
-            break;
-        }
+	if(hasTypeMetaData(s) && _featureProfile != Slice::IceE)
+	{
+	    break;
+	}
         depth++;
         origContent = s->type();
         s = SequencePtr::dynamicCast(origContent);
@@ -1208,13 +1283,13 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 
     TypePtr type = seq->type();
 
-    if(!listType.empty())
+    if(customType)
     {
         //
-        // Marshal/unmarshal a custom sequence type
+        // Marshal/unmarshal a custom sequence type.
         //
         BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-        if(b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy)
+        if(b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy && !java5)
         {
             if(marshal)
             {
@@ -1225,12 +1300,12 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 out << nl << "else";
                 out << sb;
                 out << nl << stream << ".writeSize(" << v << ".size());";
-                ostringstream o;
-                o << "__i" << iter;
-                string it = o.str();
-                iter++;
-                out << nl << "java.util.Iterator " << it << " = " << v << ".iterator();";
-                out << nl << "while(" << it << ".hasNext())";
+		ostringstream o;
+		o << "__i" << iter;
+		string it = o.str();
+		iter++;
+		out << nl << "java.util.Iterator " << it << " = " << v << ".iterator();";
+		out << nl << "while(" << it << ".hasNext())";
                 out << sb;
 
                 switch(b->kind())
@@ -1296,7 +1371,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             }
             else
             {
-                out << nl << v << " = new " << listType << "();";
+                out << nl << v << " = new " << concreteType << "();";
                 ostringstream o;
                 o << origContentS << "[]";
                 int d = depth;
@@ -1425,16 +1500,27 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 out << nl << "else";
                 out << sb;
                 out << nl << stream << ".writeSize(" << v << ".size());";
-                ostringstream oit;
-                oit << "__i" << iter;
-                iter++;
-                string it = oit.str();
-                out << nl << "java.util.Iterator " << it << " = " << v << ".iterator();";
-                out << nl << "while(" << it << ".hasNext())";
-                out << sb;
-                out << nl << cont << " __elem = (" << cont << ")" << it << ".next();";
-                writeMarshalUnmarshalCode(out, package, type, "__elem", true, iter, false);
-                out << eb; // while
+		if(java5)
+		{
+		    string typeS = typeToString(type, TypeModeIn, package);
+		    out << nl << "for(" << typeS << " __elem : " << v << ')';
+		    out << sb;
+		    writeMarshalUnmarshalCode(out, package, type, "__elem", true, iter, false);
+		    out << eb;
+		}
+		else
+		{
+		    ostringstream oit;
+		    oit << "__i" << iter;
+		    iter++;
+		    string it = oit.str();
+		    out << nl << "java.util.Iterator " << it << " = " << v << ".iterator();";
+		    out << nl << "while(" << it << ".hasNext())";
+		    out << sb;
+		    out << nl << cont << " __elem = (" << cont << ")" << it << ".next();";
+		    writeMarshalUnmarshalCode(out, package, type, "__elem", true, iter, false);
+		    out << eb;
+		}
                 out << eb; // else
             }
             else
@@ -1445,7 +1531,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 {
                     isObject = true;
                 }
-                out << nl << v << " = new " << listType << "();";
+		out << nl << v << " = new " << concreteType << "();";
                 out << nl << "final int __len" << iter << " = " << stream << ".readSize();";
 		if(type->isVariableLength())
 		{
@@ -2048,68 +2134,52 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
     string stream = marshal ? "__outS" : "__inS";
     string v = param;
 
+    bool java5 = dict->definitionContext()->findMetaData(_java5MetaData) == _java5MetaData;
+
     //
-    // Marshalling does not require any special checks if
-    // allowed to use helper.
+    // We have to determine whether it's possible to use the
+    // type's generated helper class for this marshal/unmarshal
+    // task. Since the user may have specified a custom type in
+    // metadata, it's possible that the helper class is not
+    // compatible and therefore we'll need to generate the code
+    // in-line instead.
     //
-    if(useHelper && marshal)
+    // Specifically, there may be "local" metadata (i.e., from
+    // a data member or parameter definition) that overrides the
+    // original type. We'll compare the mapped types with and
+    // without local metadata to determine whether we can use
+    // the helper.
+    //
+    string concreteType, abstractType;
+    getDictionaryTypes(dict, "", metaData, concreteType, abstractType);
+    string origConcreteType, origAbstractType;
+    getDictionaryTypes(dict, "", StringList(), origConcreteType, origAbstractType);
+    if((abstractType != origAbstractType) || (!marshal && concreteType != origConcreteType))
     {
-        string typeS = getAbsolute(dict, package);
-        out << nl << typeS << "Helper.write(" << stream << ", " << v << ");";
-	return;
+	useHelper = false;
     }
 
     //
-    // Check for metadata that overrides the default dictionary
-    // mapping. If metadata is found, the value of the metadata
-    // must be the name of a class which implements the
-    // java.util.Map interface.
-    //
-    // There are two sources of metadata - that passed into
-    // this function (which most likely comes from a data
-    // member definition), and that associated with the type
-    // itself. If data member metadata is found, and it does
-    // not match the type's metadata, then we have to allocate
-    // the map ourselves and use a different overloading
-    // of the Helper class' read method for unmarshalling.
-    //
-    string mapType = findMetaData(metaData);
-    StringList typeMetaData = dict->getMetaData();
-    if(mapType.empty())
-    {
-	mapType = findMetaData(typeMetaData);
-    }
-    else if(useHelper)
-    {
-	string s = findMetaData(typeMetaData);
-	if(mapType != s)
-	{
-	    //
-	    // Data member metadata is defined, and it does not match the
-	    // type's metadata (which might also be empty), therefore we
-	    // allocate the custom type directly and then use the helper
-	    // to unmarshal the dictionary.
-	    //
-	    string typeS = getAbsolute(dict, package);
-	    out << nl << v << " = new " << mapType << "();";
-	    out << nl << typeS << "Helper.read(" << stream << ", " << v << ");";
-	    return;
-	}
-    }
-
-    //
-    // If we can use the sequence's helper, it's easy.
+    // If we can use the helper, it's easy.
     //
     if(useHelper)
     {
-        string typeS = getAbsolute(dict, package);
-        out << nl << v << " = " << typeS << "Helper.read(" << stream << ");";
-        return;
+	string typeS = getAbsolute(dict, package);
+	if(marshal)
+	{
+	    out << nl << typeS << "Helper.write(" << stream << ", " << v << ");";
+	}
+	else
+	{
+	    out << nl << v << " = " << typeS << "Helper.read(" << stream << ");";
+	}
+	return;
     }
 
     TypePtr key = dict->keyType();
     TypePtr value = dict->valueType();
 
+    string keyS = typeToString(key, TypeModeIn, package);
     string valueS = typeToString(value, TypeModeIn, package);
     int i;
 
@@ -2127,10 +2197,21 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
         out << nl << "else";
         out << sb;
         out << nl << "__outS.writeSize(" << v << ".size());";
-        out << nl << "java.util.Iterator __i" << iterS << " = " << v << ".entrySet().iterator();";
-        out << nl << "while(__i" << iterS << ".hasNext())";
-        out << sb;
-        out << nl << "java.util.Map.Entry __e = (java.util.Map.Entry)" << "__i" << iterS << ".next();";
+	if(java5)
+	{
+	    string keyObjectS = typeToObjectString(key, TypeModeIn, package);
+	    string valueObjectS = typeToObjectString(value, TypeModeIn, package);
+	    out << nl << "for(java.util.Map.Entry<" << keyObjectS << ", " << valueObjectS << "> __e : " << v
+		<< ".entrySet())";
+	    out << sb;
+	}
+	else
+	{
+	    out << nl << "java.util.Iterator __i" << iterS << " = " << v << ".entrySet().iterator();";
+	    out << nl << "while(__i" << iterS << ".hasNext())";
+	    out << sb;
+	    out << nl << "java.util.Map.Entry __e = (java.util.Map.Entry)" << "__i" << iterS << ".next();";
+	}
         for(i = 0; i < 2; i++)
         {
             string val;
@@ -2147,71 +2228,82 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
                 type = value;
             }
 
-            BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-            if(b)
-            {
-                switch(b->kind())
-                {
-                    case Builtin::KindByte:
-                    {
-                        val = "((java.lang.Byte)" + arg + ").byteValue()";
-                        break;
-                    }
-                    case Builtin::KindBool:
-                    {
-                        val = "((java.lang.Boolean)" + arg + ").booleanValue()";
-                        break;
-                    }
-                    case Builtin::KindShort:
-                    {
-                        val = "((java.lang.Short)" + arg + ").shortValue()";
-                        break;
-                    }
-                    case Builtin::KindInt:
-                    {
-                        val = "((java.lang.Integer)" + arg + ").intValue()";
-                        break;
-                    }
-                    case Builtin::KindLong:
-                    {
-                        val = "((java.lang.Long)" + arg + ").longValue()";
-                        break;
-                    }
-                    case Builtin::KindFloat:
-                    {
-                        val = "((java.lang.Float)" + arg + ").floatValue()";
-                        break;
-                    }
-                    case Builtin::KindDouble:
-                    {
-                        val = "((java.lang.Double)" + arg + ").doubleValue()";
-                        break;
-                    }
-                    case Builtin::KindString:
-                    case Builtin::KindObject:
-                    case Builtin::KindObjectProxy:
-                    {
-                        break;
-                    }
-                    case Builtin::KindLocalObject:
-                    {
-                        assert(false);
-                        break;
-                    }
-                }
-            }
+	    //
+	    // We have to downcast unless we're using Java5.
+	    //
+	    if(java5)
+	    {
+		val = arg;
+	    }
+	    else
+	    {
+		BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+		if(b)
+		{
+		    switch(b->kind())
+		    {
+			case Builtin::KindByte:
+			{
+			    val = "((java.lang.Byte)" + arg + ").byteValue()";
+			    break;
+			}
+			case Builtin::KindBool:
+			{
+			    val = "((java.lang.Boolean)" + arg + ").booleanValue()";
+			    break;
+			}
+			case Builtin::KindShort:
+			{
+			    val = "((java.lang.Short)" + arg + ").shortValue()";
+			    break;
+			}
+			case Builtin::KindInt:
+			{
+			    val = "((java.lang.Integer)" + arg + ").intValue()";
+			    break;
+			}
+			case Builtin::KindLong:
+			{
+			    val = "((java.lang.Long)" + arg + ").longValue()";
+			    break;
+			}
+			case Builtin::KindFloat:
+			{
+			    val = "((java.lang.Float)" + arg + ").floatValue()";
+			    break;
+			}
+			case Builtin::KindDouble:
+			{
+			    val = "((java.lang.Double)" + arg + ").doubleValue()";
+			    break;
+			}
+			case Builtin::KindString:
+			case Builtin::KindObject:
+			case Builtin::KindObjectProxy:
+			{
+			    break;
+			}
+			case Builtin::KindLocalObject:
+			{
+			    assert(false);
+			    break;
+			}
+		    }
+		}
 
-            if(val.empty())
-            {
-                val = "((" + typeToString(type, TypeModeIn, package) + ')' + arg + ')';
-            }
+		if(val.empty())
+		{
+		    val = "((" + typeToString(type, TypeModeIn, package) + ')' + arg + ')';
+		}
+	    }
             writeStreamMarshalUnmarshalCode(out, package, type, val, true, iter, false);
         }
         out << eb;
         out << eb;
-     }
-     else
-     {
+    }
+    else
+    {
+	out << nl << v << " = new " << concreteType << "();";
         out << nl << "int __sz" << iterS << " = __inS.readSize();";
         out << nl << "for(int __i" << iterS << " = 0; __i" << iterS << " < __sz" << iterS << "; __i" << iterS << "++)";
         out << sb;
@@ -2219,19 +2311,22 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
         {
             string arg;
             TypePtr type;
+	    string typeS;
             if(i == 0)
             {
                 arg = "__key";
                 type = key;
+		typeS = keyS;
             }
             else
             {
                 arg = "__value";
                 type = value;
+		typeS = valueS;
             }
 
             BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-            if(b)
+            if(b && !java5)
             {
                 switch(b->kind())
                 {
@@ -2296,7 +2391,7 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
             else
             {
                 string s = typeToString(type, TypeModeIn, package);
-                if(ClassDeclPtr::dynamicCast(type))
+		if(ClassDeclPtr::dynamicCast(type) || (b && b->kind() == Builtin::KindObject))
                 {
                     writeStreamMarshalUnmarshalCode(out, package, type, arg, false, iter, false, StringList(),
                                                     "new IceInternal.DictionaryPatcher(" + v + ", " + s +
@@ -2331,38 +2426,33 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
     string stream = marshal ? "__outS" : "__inS";
     string v = param;
 
+    bool java5 = seq->definitionContext()->findMetaData(_java5MetaData) == _java5MetaData;
+
     //
-    // Check for metadata that overrides the default sequence
-    // mapping. If no metadata is found, we use a regular Java
-    // array. If metadata is found, the value of the metadata
-    // must be the name of a class which implements the
-    // java.util.List interface.
+    // We have to determine whether it's possible to use the
+    // type's generated helper class for this marshal/unmarshal
+    // task. Since the user may have specified a custom type in
+    // metadata, it's possible that the helper class is not
+    // compatible and therefore we'll need to generate the code
+    // in-line instead.
     //
-    // There are two sources of metadata - that passed into
-    // this function (which most likely comes from a data
-    // member definition), and that associated with the type
-    // itself. If data member metadata is found, and does
-    // not match the type's metadata, then we cannot use
-    // the type's Helper class for marshalling - we must
-    // generate marshalling code inline.
+    // Specifically, there may be "local" metadata (i.e., from
+    // a data member or parameter definition) that overrides the
+    // original type. We'll compare the mapped types with and
+    // without local metadata to determine whether we can use
+    // the helper.
     //
-    string listType = findMetaData(metaData);
-    StringList typeMetaData = seq->getMetaData();
-    if(listType.empty())
+    string concreteType, abstractType;
+    bool customType = getSequenceTypes(seq, "", metaData, concreteType, abstractType);
+    string origConcreteType, origAbstractType;
+    getSequenceTypes(seq, "", StringList(), origConcreteType, origAbstractType);
+    if((abstractType != origAbstractType) || (!marshal && concreteType != origConcreteType))
     {
-        listType = findMetaData(typeMetaData);
-    }
-    else
-    {
-        string s = findMetaData(typeMetaData);
-        if(listType != s)
-        {
-            useHelper = false;
-        }
+	useHelper = false;
     }
 
     //
-    // If we can use the sequence's helper, it's easy.
+    // If we can use the helper, it's easy.
     //
     if(useHelper)
     {
@@ -2387,13 +2477,12 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
     while(s)
     {
         //
-        // Stop if the inner sequence type has metadata.
+        // Stop if the inner sequence type has a custom type.
         //
-        string m = findMetaData(s->getMetaData());
-        if(!m.empty())
-        {
-            break;
-        }
+	if(hasTypeMetaData(s))
+	{
+	    break;
+	}
         depth++;
         origContent = s->type();
         s = SequencePtr::dynamicCast(origContent);
@@ -2402,13 +2491,13 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
 
     TypePtr type = seq->type();
 
-    if(!listType.empty())
+    if(customType)
     {
         //
-        // Marshal/unmarshal a custom sequence type
+        // Marshal/unmarshal a custom sequence type.
         //
         BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-        if(b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy)
+        if(b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy && !java5)
         {
             if(marshal)
             {
@@ -2490,7 +2579,7 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
             }
             else
             {
-                out << nl << v << " = new " << listType << "();";
+                out << nl << v << " = new " << concreteType << "();";
                 ostringstream o;
                 o << origContentS << "[]";
                 int d = depth;
@@ -2619,16 +2708,27 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
                 out << nl << "else";
                 out << sb;
                 out << nl << stream << ".writeSize(" << v << ".size());";
-                ostringstream oit;
-                oit << "__i" << iter;
-                iter++;
-                string it = oit.str();
-                out << nl << "java.util.Iterator " << it << " = " << v << ".iterator();";
-                out << nl << "while(" << it << ".hasNext())";
-                out << sb;
-                out << nl << cont << " __elem = (" << cont << ")" << it << ".next();";
-                writeStreamMarshalUnmarshalCode(out, package, type, "__elem", true, iter, false);
-                out << eb; // while
+		if(java5)
+		{
+		    string typeS = typeToString(type, TypeModeIn, package);
+		    out << nl << "for(" << typeS << " __elem : " << v << ')';
+		    out << sb;
+		    writeStreamMarshalUnmarshalCode(out, package, type, "__elem", true, iter, false);
+		    out << eb;
+		}
+		else
+		{
+		    ostringstream oit;
+		    oit << "__i" << iter;
+		    iter++;
+		    string it = oit.str();
+		    out << nl << "java.util.Iterator " << it << " = " << v << ".iterator();";
+		    out << nl << "while(" << it << ".hasNext())";
+		    out << sb;
+		    out << nl << cont << " __elem = (" << cont << ")" << it << ".next();";
+		    writeStreamMarshalUnmarshalCode(out, package, type, "__elem", true, iter, false);
+		    out << eb;
+		}
                 out << eb; // else
             }
             else
@@ -2639,7 +2739,7 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
                 {
                     isObject = true;
                 }
-                out << nl << v << " = new " << listType << "();";
+                out << nl << v << " = new " << concreteType << "();";
                 out << nl << "final int __len" << iter << " = " << stream << ".readSize();";
                 if(isObject)
                 {
@@ -2883,37 +2983,294 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
     }
 }
 
-string
-Slice::JavaGenerator::findMetaData(const StringList& metaData)
+bool
+Slice::JavaGenerator::getTypeMetaData(const StringList& metaData, string& concreteType, string& abstractType)
 {
-    static const string prefix = "java:";
+    //
+    // Extract the concrete type and an optional abstract type.
+    // The correct syntax is "java:type:concrete-type[:abstract-type]".
+    //
+    static const string prefix = "java:type:";
     for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
     {
-        string str = *q;
-        if(str.find(prefix) == 0 && str != _getSetMetaData)
-        {
-            string::size_type pos = str.find(':', prefix.size());
-            if(pos != string::npos)
-            {
-                //
-                // Correct syntax is "java:type:java.util.LinkedList".
-                //
-                if(str.substr(prefix.size(), pos - prefix.size()) == "type")
-                {
-                    return str.substr(pos + 1);
-                }
-            }
-            else
-            {
-                //
-                // Deprecated "java:java.util.LinkedList" syntax.
-                //
-                return str.substr(prefix.size());
-            }
-        }
+	string str = *q;
+	if(str.find(prefix) == 0)
+	{
+	    string::size_type pos = str.find(':', prefix.size());
+	    if(pos != string::npos)
+	    {
+		concreteType = str.substr(prefix.size(), pos - prefix.size());
+		abstractType = str.substr(pos + 1);
+	    }
+	    else
+	    {
+		concreteType = str.substr(prefix.size());
+		abstractType.clear();
+	    }
+	    return true;
+	}
     }
 
-    return "";
+    return false;
+}
+
+bool
+Slice::JavaGenerator::hasTypeMetaData(const TypePtr& type, const StringList& localMetaData)
+{
+    ContainedPtr cont = ContainedPtr::dynamicCast(type);
+    if(cont)
+    {
+	static const string prefix = "java:type:";
+
+	StringList::const_iterator q;
+	for(q = localMetaData.begin(); q != localMetaData.end(); ++q)
+	{
+	    string str = *q;
+	    if(str.find(prefix) == 0)
+	    {
+		return true;
+	    }
+	}
+
+	StringList metaData = cont->getMetaData();
+	for(q = metaData.begin(); q != metaData.end(); ++q)
+	{
+	    string str = *q;
+	    if(str.find(prefix) == 0)
+	    {
+		return true;
+	    }
+	}
+    }
+
+    return false;
+}
+
+bool
+Slice::JavaGenerator::getDictionaryTypes(const DictionaryPtr& dict,
+				         const string& package,
+				         const StringList& metaData,
+				         string& concreteType,
+					 string& abstractType) const
+{
+    bool customType = false;
+
+    if(_featureProfile == Slice::IceE)
+    {
+	concreteType = abstractType = "java.util.Hashtable";
+	return customType;
+    }
+
+    bool java5 = dict->definitionContext()->findMetaData(_java5MetaData) == _java5MetaData;
+
+    //
+    // Collect metadata for a custom type.
+    //
+    string ct, at;
+    customType = getTypeMetaData(metaData, ct, at);
+    if(!customType)
+    {
+	customType = getTypeMetaData(dict->getMetaData(), ct, at);
+    }
+
+    //
+    // Get the types of the key and value.
+    //
+    string keyTypeStr;
+    string valueTypeStr;
+    if(java5)
+    {
+	keyTypeStr = typeToObjectString(dict->keyType(), TypeModeIn, package);
+	valueTypeStr = typeToObjectString(dict->valueType(), TypeModeIn, package);
+    }
+
+    //
+    // Handle a custom type.
+    //
+    if(customType)
+    {
+	assert(!ct.empty());
+
+	//
+	// Check for portable syntax. Convert {type} to type<key, value> for Java5.
+	//
+	if(ct[0] == '{')
+	{
+	    string::size_type pos = ct.find('}');
+	    if(pos != string::npos)
+	    {
+		concreteType = ct.substr(1, pos - 1);
+		if(java5)
+		{
+		    concreteType += "<" + keyTypeStr + ", " + valueTypeStr + ">";
+		}
+	    }
+	}
+	else
+	{
+	    concreteType = ct;
+	}
+
+	if(!at.empty())
+	{
+	    if(at[0] == '{')
+	    {
+		string::size_type pos = at.find('}');
+		if(pos != string::npos)
+		{
+		    abstractType = at.substr(1, pos - 1);
+		    if(java5)
+		    {
+			abstractType += "<" + keyTypeStr + ", " + valueTypeStr + ">";
+		    }
+		}
+	    }
+	    else
+	    {
+		abstractType = at;
+	    }
+	}
+    }
+
+    //
+    // Return a default type for the platform.
+    //
+    if(concreteType.empty())
+    {
+	concreteType = "java.util.HashMap";
+	if(java5)
+	{
+	    concreteType += "<" + keyTypeStr + ", " + valueTypeStr + ">";
+	}
+    }
+
+    //
+    // If an abstract type is not defined, we use the concrete type as the default.
+    // If instead we chose a default abstract type, such as Map<K, V>, then we
+    // might inadvertently generate uncompilable code. The Java5 compiler does not
+    // allow polymorphic assignment between generic types if it can weaken the
+    // compile-time type safety rules.
+    //
+    if(abstractType.empty())
+    {
+	abstractType = "java.util.Map";
+	if(java5)
+	{
+	    abstractType += "<" + keyTypeStr + ", " + valueTypeStr + ">";
+	}
+    }
+
+    return customType;
+}
+
+bool
+Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
+				       const string& package,
+				       const StringList& metaData,
+				       string& concreteType,
+				       string& abstractType) const
+{
+    bool customType = false;
+
+    if(_featureProfile == Slice::IceE)
+    {
+	concreteType = abstractType = typeToString(seq->type(), TypeModeIn, package) + "[]";
+	return customType;
+    }
+
+    bool java5 = seq->definitionContext()->findMetaData(_java5MetaData) == _java5MetaData;
+
+    //
+    // Collect metadata for a custom type.
+    //
+    string ct, at;
+    customType = getTypeMetaData(metaData, ct, at);
+    if(!customType)
+    {
+	customType = getTypeMetaData(seq->getMetaData(), ct, at);
+    }
+
+    //
+    // Get the inner type.
+    //
+    string typeStr;
+    if(java5)
+    {
+	typeStr = typeToObjectString(seq->type(), TypeModeIn, package);
+    }
+
+    //
+    // Handle a custom type.
+    //
+    if(customType)
+    {
+	assert(!ct.empty());
+
+	//
+	// Check for portable syntax. Convert {type} to type<key, value> for Java5.
+	//
+	if(ct[0] == '{')
+	{
+	    string::size_type pos = ct.find('}');
+	    if(pos != string::npos)
+	    {
+		concreteType = ct.substr(1, pos - 1);
+		if(java5)
+		{
+		    concreteType += "<" + typeStr + ">";
+		}
+	    }
+	}
+	else
+	{
+	    concreteType = ct;
+	}
+
+	if(!at.empty())
+	{
+	    if(at[0] == '{')
+	    {
+		string::size_type pos = at.find('}');
+		if(pos != string::npos)
+		{
+		    abstractType = at.substr(1, pos - 1);
+		    if(java5)
+		    {
+			abstractType += "<" + typeStr + ">";
+		    }
+		}
+	    }
+	    else
+	    {
+		abstractType = at;
+	    }
+	}
+	else
+	{
+	    //
+	    // If an abstract type is not defined, we use the concrete type as the default.
+	    // If instead we chose a default abstract type, such as List<T>, then we
+	    // might inadvertently generate uncompilable code. The Java5 compiler does not
+	    // allow polymorphic assignment between generic types if it can weaken the
+	    // compile-time type safety rules.
+	    //
+	    abstractType = "java.util.List";
+	    if(java5)
+	    {
+		abstractType += "<" + typeStr + ">";
+	    }
+	}
+    }
+
+    //
+    // The default mapping is a native array.
+    //
+    if(concreteType.empty())
+    {
+	concreteType = abstractType = typeToString(seq->type(), TypeModeIn, package) + "[]";
+    }
+
+    return customType;
 }
 
 JavaOutput*
@@ -2947,11 +3304,22 @@ Slice::JavaGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
         {
             if(s.find(prefix) == 0)
             {
-                static const string packagePrefix = "java:package:";
-                if(s.find(packagePrefix) != 0 || s.size() == packagePrefix.size())
-                {
-                    cout << file << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
-                }
+		bool ok = false;
+
+		static const string packagePrefix = "java:package:";
+		if(s.find(packagePrefix) == 0 && s.size() > packagePrefix.size())
+		{
+		    ok = true;
+		}
+		else if(s == _java5MetaData)
+		{
+		    ok = true;
+		}
+
+		if(!ok)
+		{
+		    cout << file << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
+		}
             }
             _history.insert(s);
         }
@@ -3047,6 +3415,29 @@ Slice::JavaGenerator::MetaDataVisitor::visitSequence(const SequencePtr& p)
     StringList metaData = getMetaData(p);
     validateType(p, metaData, p->definitionContext()->filename(), p->line());
     validateGetSet(p, metaData, p->definitionContext()->filename(), p->line());
+
+    //
+    // Java5 does not allow the creation of an array of a generic type.
+    // We check for the situation where an unmodified sequence contains
+    // a modified sequence or dictionary type. Since we can't be sure whether
+    // the inner sequence actually maps to a generic type, we only issue a
+    // warning.
+    //
+    if(p->definitionContext()->findMetaData(_java5MetaData) == _java5MetaData && !hasTypeMetaData(p))
+    {
+	SequencePtr innerSeq = SequencePtr::dynamicCast(p->type());
+	DictionaryPtr innerDict = DictionaryPtr::dynamicCast(p->type());
+	if((innerSeq && hasTypeMetaData(innerSeq)) || (innerDict && hasTypeMetaData(innerDict)))
+	{
+	    string file = p->file();
+	    string line = p->line();
+	    if(!file.empty())
+	    {
+		cout << file << ':' << line << ": ";
+	    }
+	    cout << "warning: Java5 forbids arrays of generic types";
+	}
+    }
 }
 
 void
@@ -3100,15 +3491,6 @@ Slice::JavaGenerator::MetaDataVisitor::getMetaData(const ContainedPtr& cont)
 			if(rest == "getset")
 			{
 			    result.push_back(s);
-			}
-			else
-			{
-			    cout << file << ":" << cont->line() << ": warning: metadata `" << s
-				 << "' uses deprecated syntax" << endl;
-			    //
-			    // Translate java:X into java:type:X.
-			    //
-			    result.push_back(prefix + "type:" + rest);
 			}
 			continue;
 		    }

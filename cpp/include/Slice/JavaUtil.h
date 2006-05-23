@@ -107,7 +107,15 @@ protected:
         TypeModeReturn
     };
     std::string typeToString(const TypePtr&, TypeMode, const std::string& = std::string(),
-                             const StringList& = StringList()) const;
+                             const StringList& = StringList(), bool = true) const;
+
+    //
+    // Get the Java object name for a type. For primitive types, this returns the
+    // Java class type (e.g., Integer). For all other types, this function delegates
+    // to typeToString.
+    //
+    std::string typeToObjectString(const TypePtr&, TypeMode, const std::string& = std::string(),
+				   const StringList& = StringList(), bool = true) const;
 
     //
     // Generate code to marshal or unmarshal a type.
@@ -152,17 +160,35 @@ protected:
                                                  const StringList& = StringList());
 
     //
-    // Find custom type metadata.
+    // Get custom type metadata. If metadata is found, the abstract and
+    // concrete types are extracted and the function returns true. If an
+    // abstract type is not specified, it is set to an empty string.
     //
-    // TODO: Rename to findTypeMetaData.
+    static bool getTypeMetaData(const StringList&, std::string&, std::string&);
+
     //
-    static std::string findMetaData(const StringList&);
+    // Determine whether a custom type is defined. The function checks the
+    // metadata of the type's original definition, as well as any optional
+    // metadata that typically represents a data member or parameter.
+    //
+    static bool hasTypeMetaData(const TypePtr&, const StringList& = StringList());
+
+    //
+    // Obtain the concrete and abstract types for a dictionary or sequence type.
+    // The functions return true if a custom type was defined and false to indicate
+    // the default mapping was used.
+    //
+    bool getDictionaryTypes(const DictionaryPtr&, const std::string&, const StringList&,
+			    std::string&, std::string&) const;
+    bool getSequenceTypes(const SequencePtr&, const std::string&, const StringList&,
+			  std::string&, std::string&) const;
 
     virtual JavaOutput* createOutput();
 
     Slice::FeatureProfile _featureProfile;
 
     static const std::string _getSetMetaData;
+    static const std::string _java5MetaData;
 
 private:
 

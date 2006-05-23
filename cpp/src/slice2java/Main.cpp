@@ -36,6 +36,7 @@ usage(const char* n)
         "--ice                   Permit `Ice' prefix (for building Ice source code only)\n"
         "--checksum CLASS        Generate checksums for Slice definitions into CLASS.\n"
         "--stream                Generate marshaling support for public stream API.\n"
+        "--meta META             Define global metadata directive META.\n"
         ;
     // Note: --case-sensitive is intentionally not shown here!
 }
@@ -55,6 +56,7 @@ main(int argc, char* argv[])
     bool ice;
     string checksumClass;
     bool stream;
+    StringList globalMetadata;
     bool caseSensitive;
 
     IceUtil::Options opts;
@@ -73,6 +75,7 @@ main(int argc, char* argv[])
     opts.addOpt("", "ice");
     opts.addOpt("", "checksum", IceUtil::Options::NeedArg);
     opts.addOpt("", "stream");
+    opts.addOpt("", "meta", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("", "case-sensitive");
 
     vector<string>args;
@@ -137,6 +140,11 @@ main(int argc, char* argv[])
 	checksumClass = opts.optArg("checksum");
     }
     stream = opts.isSet("stream");
+    if(opts.isSet("meta"))
+    {
+	vector<string> v = opts.argVec("meta");
+	copy(v.begin(), v.end(), back_inserter(globalMetadata));
+    }
     caseSensitive = opts.isSet("case-sensitive");
 
     if(args.empty())
@@ -191,8 +199,8 @@ main(int argc, char* argv[])
 	    }
 	    else
 	    {
-		UnitPtr p = Unit::createUnit(false, false, ice, caseSensitive);
-		int parseStatus = p->parse(cppHandle, debug);
+		UnitPtr p = Unit::createUnit(false, false, ice, caseSensitive, globalMetadata);
+		int parseStatus = p->parse(cppHandle, debug, Ice);
 
 		if(!icecpp.close())
 		{
@@ -241,7 +249,19 @@ main(int argc, char* argv[])
 
     if(!checksumClass.empty())
     {
-        Gen::writeChecksumClass(checksumClass, output, checksums);
+	//
+	// Look for the Java5 metadata.
+	//
+	bool java5 = false;
+	for(StringList::iterator p = globalMetadata.begin(); p != globalMetadata.end(); ++p)
+	{
+	    if((*p) == "java:java5")
+	    {
+		java5 = true;
+		break;
+	    }
+	}
+	Gen::writeChecksumClass(checksumClass, output, checksums, java5);
     }
 
     return status;

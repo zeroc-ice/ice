@@ -8,6 +8,7 @@
 // **********************************************************************
 
 import Test.*;
+import java.util.*;
 
 public class AllTests
 {
@@ -66,9 +67,9 @@ public class AllTests
                 test(seqR[i] == seqH.value[i]);
             }
 
-            java.util.ArrayList arr = new java.util.ArrayList(java.util.Arrays.asList(seq));
+            ArrayList arr = new ArrayList(Arrays.asList(seq));
             CArrayHolder arrH = new CArrayHolder();
-            java.util.ArrayList arrR = t.opCArray(arr, arrH);
+            List arrR = t.opCArray(arr, arrH);
             test(arrR.size() == arr.size());
             test(arrH.value.size() == arr.size());
             for(int i = 1; i < arr.size(); i++)
@@ -78,9 +79,9 @@ public class AllTests
                 test(arrR.get(i) == arrH.value.get(i));
             }
 
-            java.util.LinkedList list = new java.util.LinkedList(java.util.Arrays.asList(seq));
+            LinkedList list = new LinkedList(Arrays.asList(seq));
             CListHolder listH = new CListHolder();
-            java.util.LinkedList listR = t.opCList(list, listH);
+            List listR = t.opCList(list, listH);
             test(listR.size() == list.size());
             test(listH.value.size() == list.size());
             for(int i = 1; i < list.size(); i++)
@@ -93,81 +94,81 @@ public class AllTests
 
         {
             final Boolean[] seq = { Boolean.TRUE, Boolean.FALSE, Boolean.TRUE, Boolean.FALSE, Boolean.TRUE };
-            java.util.ArrayList list = new java.util.ArrayList(java.util.Arrays.asList(seq));
+            ArrayList list = new ArrayList(Arrays.asList(seq));
             BoolSeqHolder listH = new BoolSeqHolder();
-            java.util.ArrayList listR = t.opBoolSeq(list, listH);
+            List listR = t.opBoolSeq(list, listH);
             test(listH.value.equals(listR));
             test(listH.value.equals(list));
         }
 
         {
             final Byte[] seq = { new Byte((byte)0), new Byte((byte)1), new Byte((byte)2), new Byte((byte)3) };
-            java.util.ArrayList list = new java.util.ArrayList(java.util.Arrays.asList(seq));
+            ArrayList list = new ArrayList(Arrays.asList(seq));
             ByteSeqHolder listH = new ByteSeqHolder();
-            java.util.ArrayList listR = t.opByteSeq(list, listH);
+            List listR = t.opByteSeq(list, listH);
             test(listH.value.equals(listR));
             test(listH.value.equals(list));
         }
 
         {
             final Short[] seq = { new Short((short)0), new Short((short)1), new Short((short)2), new Short((short)3) };
-            java.util.ArrayList list = new java.util.ArrayList(java.util.Arrays.asList(seq));
+            ArrayList list = new ArrayList(Arrays.asList(seq));
             ShortSeqHolder listH = new ShortSeqHolder();
-            java.util.ArrayList listR = t.opShortSeq(list, listH);
+            List listR = t.opShortSeq(list, listH);
             test(listH.value.equals(listR));
             test(listH.value.equals(list));
         }
 
         {
             final Integer[] seq = { new Integer(0), new Integer(1), new Integer(2), new Integer(3) };
-            java.util.ArrayList list = new java.util.ArrayList(java.util.Arrays.asList(seq));
+            ArrayList list = new ArrayList(Arrays.asList(seq));
             IntSeqHolder listH = new IntSeqHolder();
-            java.util.ArrayList listR = t.opIntSeq(list, listH);
+            List listR = t.opIntSeq(list, listH);
             test(listH.value.equals(listR));
             test(listH.value.equals(list));
         }
 
         {
             final Long[] seq = { new Long(0), new Long(1), new Long(2), new Long(3) };
-            java.util.ArrayList list = new java.util.ArrayList(java.util.Arrays.asList(seq));
+            ArrayList list = new ArrayList(Arrays.asList(seq));
             LongSeqHolder listH = new LongSeqHolder();
-            java.util.ArrayList listR = t.opLongSeq(list, listH);
+            List listR = t.opLongSeq(list, listH);
             test(listH.value.equals(listR));
             test(listH.value.equals(list));
         }
 
         {
             final Float[] seq = { new Float(0), new Float(1), new Float(2), new Float(3) };
-            java.util.ArrayList list = new java.util.ArrayList(java.util.Arrays.asList(seq));
+            ArrayList list = new ArrayList(Arrays.asList(seq));
             FloatSeqHolder listH = new FloatSeqHolder();
-            java.util.ArrayList listR = t.opFloatSeq(list, listH);
+            List listR = t.opFloatSeq(list, listH);
             test(listH.value.equals(listR));
             test(listH.value.equals(list));
         }
 
         {
             final Double[] seq = { new Double(0), new Double(1), new Double(2), new Double(3) };
-            java.util.ArrayList list = new java.util.ArrayList(java.util.Arrays.asList(seq));
+            ArrayList list = new ArrayList(Arrays.asList(seq));
             DoubleSeqHolder listH = new DoubleSeqHolder();
-            java.util.ArrayList listR = t.opDoubleSeq(list, listH);
+            List listR = t.opDoubleSeq(list, listH);
             test(listH.value.equals(listR));
             test(listH.value.equals(list));
         }
 
         {
             final String[] seq = { "0", "1", "2", "3", "4" };
-            java.util.ArrayList list = new java.util.ArrayList(java.util.Arrays.asList(seq));
+            ArrayList list = new ArrayList(Arrays.asList(seq));
             StringSeqHolder listH = new StringSeqHolder();
-            java.util.ArrayList listR = t.opStringSeq(list, listH);
+            List listR = t.opStringSeq(list, listH);
             test(listH.value.equals(listR));
             test(listH.value.equals(list));
         }
 
         {
             final E[] seq = { E.E1, E.E2, E.E3 };
-            java.util.ArrayList list = new java.util.ArrayList(java.util.Arrays.asList(seq));
+            ArrayList list = new ArrayList(Arrays.asList(seq));
             ESeqHolder listH = new ESeqHolder();
-            java.util.ArrayList listR = t.opESeq(list, listH);
+            List listR = t.opESeq(list, listH);
             test(listH.value.equals(listR));
             test(listH.value.equals(list));
         }
@@ -179,18 +180,18 @@ public class AllTests
                 seq[i] = new S();
                 seq[i].en = E.convert(i % 3);
             }
-            java.util.ArrayList list = new java.util.ArrayList(java.util.Arrays.asList(seq));
+            ArrayList list = new ArrayList(Arrays.asList(seq));
             SSeqHolder listH = new SSeqHolder();
-            java.util.ArrayList listR = t.opSSeq(list, listH);
+            List listR = t.opSSeq(list, listH);
             test(listH.value.equals(listR));
             test(listH.value.equals(list));
         }
 
         {
-            java.util.ArrayList list = new java.util.ArrayList();
+            ArrayList list = new ArrayList();
             for(int i = 0; i < 5; i++)
             {
-                java.util.HashMap m = new java.util.HashMap();
+                HashMap m = new HashMap();
                 for(int j = 0; j < 4; j++)
                 {
                     m.put(new Integer(j), "" + j);
@@ -198,22 +199,22 @@ public class AllTests
                 list.add(m);
             }
             DSeqHolder listH = new DSeqHolder();
-            java.util.ArrayList listR = t.opDSeq(list, listH);
+            List listR = t.opDSeq(list, listH);
             test(listH.value.equals(listR));
             test(listH.value.equals(list));
         }
 
         {
-            java.util.ArrayList[] seq = new java.util.ArrayList[5];
+            ArrayList[] seq = new ArrayList[5];
             for(int i = 0; i < 5; i++)
             {
                 final String[] arr = { "0", "1", "2", "3", "4" };
-                seq[i] = new java.util.ArrayList(java.util.Arrays.asList(arr));
+                seq[i] = new ArrayList(Arrays.asList(arr));
             }
             StringSeqSeqHolder listH = new StringSeqSeqHolder();
-            java.util.ArrayList[] listR = t.opStringSeqSeq(seq, listH);
-            test(java.util.Arrays.equals(listH.value, listR));
-            test(java.util.Arrays.equals(listH.value, seq));
+            List[] listR = t.opStringSeqSeq(seq, listH);
+            test(Arrays.equals(listH.value, listR));
+            test(Arrays.equals(listH.value, seq));
         }
 
         System.out.println("ok");
@@ -221,5 +222,3 @@ public class AllTests
         return t;
     }
 }
-
-

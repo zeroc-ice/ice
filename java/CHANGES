@@ -4,6 +4,49 @@ Changes since version 3.0.1
 - Added an SSL plugin for Java5 that supports the thread pool
   concurrency model.
 
+- Added support for specifying an alternate abstract type in
+  metadata using the following syntax:
+
+  ["java:type:concrete-type:abstract-type"] ...
+
+  The abstract type is optional; if not specified, the translator
+  selects a suitable default. Consider this example:
+
+  ["java:type:java.util.LinkedList:java.util.List"]
+  sequence<string> StringSeq;
+
+  The translator maps StringSeq to the abstract type java.util.List
+  except when the value must be instantiated, in which case the
+  translator uses the concrete type java.util.LinkedList.
+
+  Existing applications that use custom type metadata may require
+  modification to comply with the new abstract type semantics.
+
+- Added a Java5 mapping. When enabled, a Slice enum is mapped to a
+  native Java enum and a dictionary is mapped to a generic type.
+  The mapping is enabled using the new global metadata "java:java5".
+  This metadata can also be defined on the translator command line
+  using the new --meta option, which applies the metadata to every
+  Slice file processed by the translator.
+
+  The default Java5 mapping for a dictionary is java.util.Map<K,V>
+  (abstract) and java.util.HashMap<K,V> (concrete). A custom
+  type specified via metadata must implement java.util.Map<K,V>.
+
+  The default Java5 mapping for a sequence remains unchanged.
+  However, if a custom type is defined for a sequence, it must
+  implement java.util.List<E>. If an abstract type is not defined,
+  the translator uses java.util.List<E> by default.
+
+  It is not possible to use the Java5 mapping selectively. If you
+  elect to use the mapping, you must use it for all of your Slice
+  definitions, and the resulting generated code can no longer be
+  compiled with JDK 1.4. Furthermore, all custom type metadata must
+  be converted to use Java5 generic types.
+
+- Removed support for the deprecated "java:CustomType" metadata
+  syntax. The required format is "java:type:CustomType".
+
 - Added identityToString and stringToIdentity to the Communicator
   interface.
 

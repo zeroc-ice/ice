@@ -79,6 +79,10 @@ module MetadataTest
         opObjectList2(["java:type:java.util.ArrayList"] ObjectList inArg,
                       out ["java:type:Test.CustomList"] ObjectList outArg);
 
+	["java:type:java.util.IdentityHashMap"] StringMap
+	opStringMap2(["java:type:java.util.IdentityHashMap"] StringMap inArg,
+		     out ["java:type:java.util.IdentityHashMap"] StringMap outArg);
+
         ["ami", "java:type:java.util.LinkedList"] IntSeq
         opIntSeq2AMI(["java:type:java.util.ArrayList"] IntSeq inArg,
                      out ["java:type:Test.CustomList"] IntSeq outArg);
