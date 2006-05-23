@@ -22,24 +22,46 @@ FileUserAccountMapperI::FileUserAccountMapperI(const string& filename)
 	throw "cannot open `" + filename + "' for reading: " + strerror(errno);
     }
 	    
+    const string delim = " \t\r\n";
     while(true)
     {
-	string user;
-	file >> user;
+	string line;
+	getline(file, line);
 	if(!file)
 	{
 	    break;
 	}
-		
-	string account;
-	file >> account;
-	if(!file)
+
+	string::size_type idx = line.find('#');
+	if(idx != string::npos)
 	{
-	    break;
+	    line.erase(idx);
 	}
 		
+	idx = line.find_last_not_of(delim);
+	if(idx != string::npos && idx + 1 < line.length())
+	{
+	    line.erase(idx + 1);
+	}
+    
+	string::size_type beg = line.find_first_not_of(delim);
+	if(beg == string::npos)
+	{
+	    continue;
+	}
+
+	string::size_type end = line.find_last_of(delim);
+	if(end == string::npos || end <= beg)
+	{
+	    continue;
+	}
+    
+	string user = line.substr(beg, end - beg);
+	string account = line.substr(end + 1);
+
 	assert(!user.empty());
 	assert(!account.empty());
+
 	_accounts.insert(make_pair(user, account));
     }
 }
