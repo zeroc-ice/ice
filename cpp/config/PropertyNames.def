@@ -213,6 +213,8 @@ IceGrid:
     Node.Trace.Adapter
     Node.Trace.Server
     Node.Trace.Patch
+    Node.UserAccounts
+    Node.UserAccountMapper
     Node.WaitTime
     Registry.Admin.AdapterId
     Registry.Admin.ReplicaGroupId
@@ -268,6 +270,7 @@ IceGrid:
     Registry.Trace.Patch
     Registry.Trace.Server
     Registry.Trace.Session
+    Registry.UserAccounts
     
 IcePatch2:
     AdapterId

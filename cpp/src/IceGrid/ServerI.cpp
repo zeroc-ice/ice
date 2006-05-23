@@ -1666,9 +1666,24 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc)
 
     if(!user.empty())
     {
-	//
-	// TODO: XXX: Map the user id here!?
-	//
+	UserAccountMapperPrx mapper = _node->getUserAccountMapper();
+	if(mapper)
+	{
+	    try
+	    {
+		user = mapper->getUserAccount(user);
+	    }
+	    catch(const UserAccountNotFoundException&)
+	    {
+		throw "couldn't find user account for user `" + user + "'";
+	    }
+	    catch(const Ice::LocalException& ex)
+	    {
+		ostringstream os;
+		os << "unexpected exception while trying to find user account for user `" << user << "':" << ex;
+		throw os.str();
+	    }
+	}
 
 #ifdef _WIN32
 	//
@@ -1704,7 +1719,7 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc)
 	struct passwd* pw = getpwnam(user.c_str());
 	if(!pw)
 	{
-	    throw "unknown user `" + user + "'";
+	    throw "unknown user account `" + user + "'";
 	}
 
 	//

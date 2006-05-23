@@ -215,6 +215,10 @@ SOURCE=.\Util.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\FileUserAccountMapperI.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\WaitQueue.cpp
 # End Source File
 # End Group

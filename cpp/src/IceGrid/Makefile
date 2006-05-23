@@ -26,7 +26,8 @@ LIB_OBJS	= Admin.o \
 		  Descriptor.o \
 		  Observer.o \
 		  Session.o \
-		  Registry.o
+		  Registry.o \
+		  UserAccountMapper.o
 
 ADMIN_OBJS	= Grammar.o \
 		  Scanner.o \
@@ -74,7 +75,8 @@ REGISTRY_OBJS   = RegistryI.o \
 		  SessionServantLocatorI.o \
 		  Topics.o \
 		  QueryI.o \
-		  WaitQueue.o
+		  WaitQueue.o \
+		  FileUserAccountMapperI.o 
 
 NODE_SVR_OBJS 	= $(COMMON_OBJS) \
 		  $(NODE_OBJS) \
@@ -101,6 +103,7 @@ SLICE_SRCS	= $(SDIR)/Admin.ice \
 		  $(SDIR)/Session.ice \
 		  $(SDIR)/Observer.ice \
 		  $(SDIR)/Descriptor.ice \
+		  $(SDIR)/UserAccountMapper.ice \
 		  Internal.ice
 
 HDIR		= $(includedir)/IceGrid

@@ -15,6 +15,7 @@
 #include <IceGrid/Activator.h>
 #include <IceGrid/WaitQueue.h>
 #include <IceGrid/RegistryI.h>
+#include <IceGrid/FileUserAccountMapperI.h>
 #include <IceGrid/NodeI.h>
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/DescriptorParser.h>
@@ -396,6 +397,44 @@ NodeService::start(int argc, char* argv[])
     _adapter = communicator()->createObjectAdapter("IceGrid.Node");
 
     //
+    // Setup the user account mapper if configured.
+    //
+    string mapperProperty = properties->getProperty("IceGrid.Node.UserAccountMapper");
+    UserAccountMapperPrx mapper;
+    if(!mapperProperty.empty())
+    {
+	try
+	{
+	    mapper = UserAccountMapperPrx::uncheckedCast(communicator()->stringToProxy(mapperProperty));
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    ostringstream os;
+	    os << "user account mapper `" << mapperProperty << "' is invalid:\n" << ex;
+	    error(os.str());
+	    return false;
+	}
+    }
+    else
+    {
+	string userAccountFileProperty = properties->getProperty("IceGrid.Node.UserAccounts");
+	if(!userAccountFileProperty.empty())
+	{
+	    try
+	    {
+		Ice::ObjectPrx object = _adapter->addWithUUID(new FileUserAccountMapperI(userAccountFileProperty));
+		object = object->ice_collocationOptimization(true);
+		mapper = UserAccountMapperPrx::uncheckedCast(object);
+	    }
+	    catch(const std::string& msg)
+	    {
+		error(msg);
+		return false;
+	    }
+	}
+    }
+
+    //
     // Create the wait queue.
     //
     _waitQueue = new WaitQueue();
@@ -408,7 +447,7 @@ NodeService::start(int argc, char* argv[])
     //
     Identity id = communicator()->stringToIdentity(IceUtil::generateUUID());
     NodePrx nodeProxy = NodePrx::uncheckedCast(_adapter->createProxy(id));
-    _node = new NodeI(_adapter, _activator, _waitQueue, traceLevels, nodeProxy, name);
+    _node = new NodeI(_adapter, _activator, _waitQueue, traceLevels, nodeProxy, name, mapper);
     _adapter->add(_node, nodeProxy->ice_getIdentity());
 
     //
@@ -473,8 +512,17 @@ NodeService::start(int argc, char* argv[])
             try
             {
 		map<string, string> vars;
-		admin->addApplication(DescriptorParser::parseDescriptor(desc, targets, vars, communicator(), admin));
-            }
+		ApplicationDescriptor app;
+		app = DescriptorParser::parseDescriptor(desc, targets, vars, communicator(), admin);
+		try
+		{
+		    admin->syncApplication(app);
+		}
+		catch(const ApplicationNotExistException&)
+		{
+		    admin->addApplication(app);
+		}
+	    }
             catch(const DeploymentException& ex)
             {
                 ostringstream ostr;
@@ -629,7 +677,7 @@ NodeService::usage(const string& appName)
 	"--nowarn             Don't print any security warnings.\n"
 	"\n"
 	"--deploy DESCRIPTOR [TARGET1 [TARGET2 ...]]\n"
-	"                     Deploy descriptor in file DESCRIPTOR, with\n"
+	"                     Add or update descriptor in file DESCRIPTOR, with\n"
 	"                     optional targets.\n";
 #ifdef _WIN32
     if(checkSystem())

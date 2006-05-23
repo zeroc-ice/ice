@@ -130,6 +130,10 @@ SOURCE=.\Registry.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\UserAccountMapper.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Session.cpp
 # End Source File
 # End Group
@@ -447,6 +451,49 @@ BuildCmds= \
    $(BuildCmds)
 
 "Session.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\icegrid\UserAccountMapper.ice
+
+!IF  "$(CFG)" == "icegrid - Win32 Release"
+
+USERDEP__USERA="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\icegrid\UserAccountMapper.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_GRID_API --include-dir icegrid -I../../slice ../../slice/IceGrid/UserAccountMapper.ice \
+	move UserAccountMapper.h ..\..\include\icegrid \
+	
+
+"..\..\include\icegrid\UserAccountMapper.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"UserAccountMapper.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "icegrid - Win32 Debug"
+
+USERDEP__USERA="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\icegrid\UserAccountMapper.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_GRID_API --include-dir icegrid -I../../slice ../../slice/IceGrid/UserAccountMapper.ice \
+	move UserAccountMapper.h ..\..\include\icegrid \
+	
+
+"..\..\include\icegrid\UserAccountMapper.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"UserAccountMapper.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

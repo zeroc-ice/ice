@@ -13,6 +13,7 @@
 #include <IceGrid/Internal.h>
 #include <IceGrid/WaitQueue.h>
 #include <IceGrid/PlatformInfo.h>
+#include <IceGrid/UserAccountMapper.h>
 
 #include <IcePatch2/FileServer.h>
 
@@ -33,7 +34,7 @@ class NodeI : public Node, public IceUtil::Monitor<IceUtil::Mutex>
 public:
 
     NodeI(const Ice::ObjectAdapterPtr&, const ActivatorPtr&, const WaitQueuePtr&, const TraceLevelsPtr&, 
-	  const NodePrx&, const std::string&);
+	  const NodePrx&, const std::string&, const UserAccountMapperPrx&);
     virtual ~NodeI();
 
     virtual void loadServer_async(const AMD_Node_loadServerPtr&, const std::string&, const ServerDescriptorPtr&, 
@@ -53,6 +54,7 @@ public:
     ActivatorPtr getActivator() const;
     TraceLevelsPtr getTraceLevels() const;
     NodeObserverPrx getObserver() const;
+    UserAccountMapperPrx getUserAccountMapper() const;
 
     NodeSessionPrx getSession() const;
     void setSession(const NodeSessionPrx&, const NodeObserverPrx&);
@@ -80,7 +82,8 @@ private:
     const std::string _name;
     const NodePrx _proxy;
     const Ice::Int _waitTime;
-    const std::string _instName;
+    const std::string _instanceName;
+    const UserAccountMapperPrx _userAccountMapper;
     std::string _dataDir;
     std::string _serversDir;
     std::string _tmpDir;

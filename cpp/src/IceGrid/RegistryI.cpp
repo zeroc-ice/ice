@@ -30,6 +30,7 @@
 #include <IceGrid/AdminSessionI.h>
 #include <IceGrid/InternalRegistryI.h>
 #include <IceGrid/SessionServantLocatorI.h>
+#include <IceGrid/FileUserAccountMapperI.h>
 
 #include <fstream>
 
@@ -409,6 +410,26 @@ RegistryI::start(bool nowarn)
 	internalLocatorPrx, properties->getProperty("IceGrid.Registry.SSLPermissionsVerifier"), nowarn);
     _sslAdminVerifier = getSSLPermissionsVerifier(
 	internalLocatorPrx, properties->getProperty("IceGrid.Registry.AdminSSLPermissionsVerifier"), nowarn);
+
+    //
+    // Setup file user account mapper object if the property is set.
+    //
+    string userAccountFileProperty = properties->getProperty("IceGrid.Registry.UserAccounts");
+    if(!userAccountFileProperty.empty())
+    {
+	try
+	{
+	    Ice::Identity mapperId = _communicator->stringToIdentity(instanceName + "/RegistryUserAccountMapper");
+	    registryAdapter->add(new FileUserAccountMapperI(userAccountFileProperty), mapperId);
+	    addWellKnownObject(registryAdapter->createProxy(mapperId), UserAccountMapper::ice_staticId());
+	}
+	catch(const std::string& msg)
+	{
+	    Error out(_communicator->getLogger());
+	    out << msg;
+	    return false;
+	}
+    }
 
     //
     // Register well known objects with the object registry.

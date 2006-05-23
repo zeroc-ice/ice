@@ -355,6 +355,16 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
 	cb->ice_exception(Ice::AdapterNotFoundException());
 	return;
     }
+    catch(const NodeUnreachableException&)
+    {
+	cb->ice_response(0);
+	return;
+    }
+    catch(const DeploymentException&)
+    {
+	cb->ice_response(0);
+	return;
+    }
 }
 
 Ice::LocatorRegistryPrx

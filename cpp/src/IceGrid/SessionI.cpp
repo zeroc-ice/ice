@@ -231,7 +231,6 @@ SessionI::destroy(const Ice::Current& current)
 	}
 	catch(const AllocationException&)
 	{
-	    assert(false);
 	}
     }
     _allocations.clear();

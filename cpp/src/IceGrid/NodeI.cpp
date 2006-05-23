@@ -177,7 +177,8 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
 	     const WaitQueuePtr& waitQueue,
 	     const TraceLevelsPtr& traceLevels,
 	     const NodePrx& proxy,
-	     const string& name) :
+	     const string& name,
+	     const UserAccountMapperPrx& mapper) :
     _adapter(adapter),
     _activator(activator),
     _waitQueue(waitQueue),
@@ -185,6 +186,7 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     _name(name),
     _proxy(proxy),
     _waitTime(0),
+    _userAccountMapper(mapper),
     _serial(1),
     _platform(adapter->getCommunicator(), _traceLevels)
 {
@@ -194,7 +196,7 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
 
     Ice::PropertiesPtr properties = getCommunicator()->getProperties();
     const string instanceNameProperty = "IceGrid.InstanceName";
-    const_cast<string&>(_instName) = properties->getPropertyWithDefault(instanceNameProperty, "IceGrid");
+    const_cast<string&>(_instanceName) = properties->getPropertyWithDefault(instanceNameProperty, "IceGrid");
     const_cast<Ice::Int&>(_waitTime) = properties->getPropertyAsIntWithDefault("IceGrid.Node.WaitTime", 60);
 }
 
@@ -512,6 +514,12 @@ NodeI::getObserver() const
     return _observer;
 }
 
+UserAccountMapperPrx
+NodeI::getUserAccountMapper() const
+{
+    return _userAccountMapper;
+}
+
 NodeSessionPrx
 NodeI::getSession() const
 {
@@ -550,7 +558,7 @@ NodeI::keepAlive()
     {
 	try
 	{
-	    Ice::ObjectPrx obj = getCommunicator()->stringToProxy(_instName + "/InternalRegistry");
+	    Ice::ObjectPrx obj = getCommunicator()->stringToProxy(_instanceName + "/InternalRegistry");
 	    InternalRegistryPrx registry = InternalRegistryPrx::uncheckedCast(obj);
 	    NodeSessionPrx session = registry->registerNode(_name, _proxy, _platform.getNodeInfo());
 	    NodeObserverPrx observer;
@@ -920,7 +928,7 @@ Ice::Identity
 NodeI::createServerIdentity(const string& name)
 {
     Ice::Identity id;
-    id.category = _instName + "-Server";
+    id.category = _instanceName + "-Server";
     id.name = name;
     return id;
 }
