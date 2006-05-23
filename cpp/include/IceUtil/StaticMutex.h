@@ -285,7 +285,14 @@ StaticMutex::lock() const
     int rc = pthread_mutex_lock(&_mutex);
     if(rc != 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        if(rc == EDEADLK)
+	{
+	    throw ThreadLockedException(__FILE__, __LINE__);
+	}
+	else
+	{
+	    throw ThreadSyscallException(__FILE__, __LINE__, rc);
+	}
     }
 }
 

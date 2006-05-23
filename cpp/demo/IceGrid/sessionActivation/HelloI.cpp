@@ -21,10 +21,3 @@ HelloI::sayHello(const Ice::Current&) const
 {
     cout << _name << " says Hello World!" << endl;
 }
-
-void
-HelloI::shutdown(const Ice::Current& c)
-{
-    cout << _name << " shutting down..." << endl;
-    c.adapter->getCommunicator()->shutdown();
-}

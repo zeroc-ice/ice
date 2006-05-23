@@ -19,7 +19,6 @@ public:
     HelloI(const std::string&);
 
     virtual void sayHello(const Ice::Current&) const;
-    virtual void shutdown(const Ice::Current&);
 
 private:
     
