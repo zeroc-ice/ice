@@ -9,7 +9,7 @@
  **********************************************************************
 -->
 
-<project name="test_slicing" default="all" basedir=".">
+<project name="test_Ice_slicing" default="all" basedir=".">
 
     <target name="all">
         <ant dir="exceptions"/>

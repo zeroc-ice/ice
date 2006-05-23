@@ -9,32 +9,22 @@
  **********************************************************************
 -->
 
-<!DOCTYPE project [
-<!ENTITY common SYSTEM "file:config/common.xml">
-]>
-
 <project name="main" default="all" basedir=".">
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="."/>
-
-    <!-- Include common definitions -->
-    &common;
-
-    <!-- set global properties for this build -->
     <property name="src.dir" value="src"/>
     <property name="generated.dir" value="generated"/>
     <property name="cache.dir" value="depcache"/>
 
-    <target name="init" depends="config-init">
-        <!-- Create the time stamp -->
-        <tstamp/>
-    </target>
+    <!-- import common definitions -->
+    <import file="config/common.xml"/>
 
     <target name="generate" depends="init">
         <!-- Create the output directory for generated code -->
         <mkdir dir="${generated.dir}"/>
         <slice2java ice="on" outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.Ice">
+	    <meta value="${java5metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -74,6 +64,7 @@
         </slice2java>
 
         <slice2freezej outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.Freeze">
+	    <meta value="${java5metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -85,6 +76,7 @@
 
         <slice2java ice="on" outputdir="${generated.dir}" checksum="Glacier2.SliceChecksums"
             dependencyfile="${generated.dir}/.depend.Glacier2">
+	    <meta value="${java5metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -98,6 +90,7 @@
 
         <slice2java ice="on" outputdir="${generated.dir}" checksum="IceBox.SliceChecksums"
             dependencyfile="${generated.dir}/.depend.IceBox">
+	    <meta value="${java5metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -108,6 +101,7 @@
 
         <slice2java ice="on" outputdir="${generated.dir}" checksum="IceGrid.SliceChecksums"
             dependencyfile="${generated.dir}/.depend.IceGrid">
+	    <meta value="${java5metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -126,6 +120,7 @@
 
         <slice2java ice="on" outputdir="${generated.dir}" checksum="IceStorm.SliceChecksums"
             dependencyfile="${generated.dir}/.depend.IceStorm">
+	    <meta value="${java5metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -143,7 +138,10 @@
 	    source="${jdk.version}" debug="${debug}" optimize="${optimize}"
 	    excludes="IceGridGUI/**"
 	    includes="**"
-	    deprecation="on"/>
+	    deprecation="on">
+	    <exclude name="Ice/Holder*" unless="java5"/>
+	    <compilerarg value="${javac.lint}" compiler="${javac.lint.compiler}"/>
+	</javac>
     </target>
 
     <target name="ice-jar" depends="ice-compile">
@@ -154,14 +152,14 @@
 	</jar>
     </target>
 
-    <target name="icegridgui-compile" depends="ice-compile">
+    <target name="icegridgui-compile" depends="ice-compile" unless="java5">
         <javac srcdir="${src.dir}" destdir="${lib.dir}"
 	    source="${jdk.version}" debug="${debug}" optimize="${optimize}"
 	    includes="IceGridGUI/**"
 	    deprecation="on"/>
     </target>
 
-    <target name="icegridgui-jar" depends="icegridgui-compile">
+    <target name="icegridgui-jar" depends="icegridgui-compile" unless="java5">
 	<manifest file="${lib.dir}/icegridgui.mf">
 	    <attribute name="Main-Class" value="IceGridGUI.Main"/>
 	    <attribute name="Class-Path" value="Ice.jar looks-1.3.2.jar forms-1.0.5.jar"/>

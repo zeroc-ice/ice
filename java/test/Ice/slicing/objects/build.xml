@@ -13,7 +13,10 @@
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../../.."/>
-    <property name="lib.dir" value="${top.dir}/lib"/>
+
+    <!-- import common definitions -->
+    <import file="${top.dir}/config/common.xml"/>
+
     <property name="cclass.dir" value="cclasses"/>
     <property name="sclass.dir" value="sclasses"/>
     <property name="cgen.dir" value="cgenerated"/>
@@ -21,28 +24,18 @@
     <property name="csrc.dir" value="csrc"/>
     <property name="ssrc.dir" value="ssrc"/>
 
-    <!-- set common build properties for this build -->
-    <property file="${top.dir}/config/build.properties"/>
-
-    <!-- install slice2java task -->
-    <taskdef name="slice2java" classpath="${top.dir}/ant"
-        classname="Slice2JavaTask" />
-
-    <target name="init">
-        <!-- Create the time stamp -->
-        <tstamp/>
-    </target>
-
     <target name="generate" depends="init">
         <!-- Create the output directory for generated code -->
         <mkdir dir="${cgen.dir}"/>
         <slice2java outputdir="${cgen.dir}">
+	    <meta value="${java5metadata}"/>
 	    <includepath>
 		<pathelement path="."/>
 	    </includepath>
             <fileset dir="." includes="Test.ice Forward.ice"/>
         </slice2java>
         <slice2java outputdir="${cgen.dir}">
+	    <meta value="${java5metadata}"/>
 	    <includepath>
 		<pathelement path="."/>
 	    </includepath>
@@ -50,12 +43,14 @@
         </slice2java>
         <mkdir dir="${sgen.dir}"/>
         <slice2java outputdir="${sgen.dir}">
+	    <meta value="${java5metadata}"/>
 	    <includepath>
 		<pathelement path="."/>
 	    </includepath>
             <fileset dir="." includes="Test.ice Forward.ice"/>
         </slice2java>
         <slice2java outputdir="${sgen.dir}">
+	    <meta value="${java5metadata}"/>
 	    <includepath>
 		<pathelement path="."/>
 	    </includepath>
@@ -66,14 +61,22 @@
     <target name="compile" depends="generate">
         <mkdir dir="${cclass.dir}"/>
         <javac srcdir="${cgen.dir}" destdir="${cclass.dir}"
-	    source="${jdk.version}" classpath="${lib.dir}" debug="${debug}"/>
+	    source="${jdk.version}" classpath="${lib.dir}" debug="${debug}">
+	    <compilerarg value="${javac.lint}" compiler="${javac.lint.compiler}"/>
+	</javac>
 	<javac srcdir="${csrc.dir}" destdir="${cclass.dir}" source="${jdk.version}"
-            classpath="${lib.dir}" excludes="${cgen.dir}/**" debug="${debug}"/>
+	    classpath="${lib.dir}" excludes="${cgen.dir}/**" debug="${debug}">
+	    <compilerarg value="${javac.lint}" compiler="${javac.lint.compiler}"/>
+	</javac>
         <mkdir dir="${sclass.dir}"/>
         <javac srcdir="${sgen.dir}" destdir="${sclass.dir}"
-	    source="${jdk.version}" classpath="${lib.dir}" debug="${debug}"/>
+	    source="${jdk.version}" classpath="${lib.dir}" debug="${debug}">
+	    <compilerarg value="${javac.lint}" compiler="${javac.lint.compiler}"/>
+	</javac>
 	<javac srcdir="${ssrc.dir}" destdir="${sclass.dir}" source="${jdk.version}"
-            classpath="${lib.dir}" excludes="${sgen.dir}/**" debug="${debug}"/>
+	    classpath="${lib.dir}" excludes="${sgen.dir}/**" debug="${debug}">
+	    <compilerarg value="${javac.lint}" compiler="${javac.lint.compiler}"/>
+	</javac>
     </target>
 
     <target name="all" depends="compile"/>

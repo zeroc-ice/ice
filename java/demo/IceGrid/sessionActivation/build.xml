@@ -9,25 +9,13 @@
  **********************************************************************
 -->
 
-<!DOCTYPE project [
-<!ENTITY common SYSTEM "file:../../../config/common.xml">
-]>
-
 <project name="demo_IceGrid_sessionActivation" default="all" basedir=".">
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../.."/>
     
-    <!-- Include common definitions -->
-    &common;
-
-    <property name="class.dir" value="classes"/>
-    <property name="generated.dir" value="generated"/>
-
-    <target name="init" depends="config-init">
-        <!-- Create the time stamp -->
-        <tstamp/>
-    </target>
+    <!-- import common definitions -->
+    <import file="${top.dir}/config/common.xml"/>
 
     <target name="generate" depends="init">
         <!-- Create the output directory for generated code -->
@@ -42,10 +30,12 @@
         <javac srcdir="${generated.dir}" destdir="${class.dir}"
 	    source="${jdk.version}" debug="${debug}">
             <classpath refid="ice.classpath"/>
+	    <compilerarg value="${javac.lint}" compiler="${javac.lint.compiler}"/>
         </javac>
 	<javac srcdir="." destdir="${class.dir}" source="${jdk.version}"
             excludes="generated/**" debug="${debug}">
             <classpath refid="ice.classpath"/>
+	    <compilerarg value="${javac.lint}" compiler="${javac.lint.compiler}"/>
         </javac>
     </target>
 

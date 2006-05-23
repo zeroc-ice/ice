@@ -1,7 +1,7 @@
 <!--
  **********************************************************************
 
- Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+ Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
 
  This copy of Ice is licensed to you under the terms described in the
  ICE_LICENSE file included in this distribution.
@@ -9,7 +9,63 @@
  **********************************************************************
 -->
 
+<project name="common" basedir=".">
+
     <property environment="env"/>
+
+    <target name="init" depends="config-init">
+        <!-- Create the time stamp -->
+        <tstamp/>
+    </target>
+
+    <!-- Load build configuration properties -->
+    <property file="${top.dir}/config/build.properties"/>
+
+    <!-- Determine whether we are using JDK 1.5 -->
+    <condition property="java5">
+	<equals arg1="${jdk.version}" arg2="1.5"/>
+    </condition>
+
+    <!-- Use the global metadata "java:java5" when using JDK 1.5 -->
+    <condition property="java5metadata" value="java:java5">
+	<isset property="java5"/>
+    </condition>
+    <condition property="java5metadata" value="">
+	<not>
+	    <isset property="java5"/>
+	</not>
+    </condition>
+
+    <!-- Use -Xlint:unchecked when using JDK 1.5 -->
+    <condition property="javac.lint" value="-Xlint:unchecked">
+	<and>
+	    <isset property="java5"/>
+	    <istrue value="${lint.unchecked}"/>
+	</and>
+    </condition>
+    <condition property="javac.lint" value="">
+	<or>
+	    <isfalse value="${lint.unchecked}"/>
+	    <not>
+		<isset property="java5"/>
+	    </not>
+	</or>
+    </condition>
+
+    <!-- javac doesn't like an empty argument, so we have to disable the use
+         of javac.lint when the property is empty -->
+    <condition property="javac.lint.compiler" value="bogus">
+	<equals arg1="${javac.lint}" arg2=""/>
+    </condition>
+    <condition property="javac.lint.compiler" value="javac1.5">
+	<not>
+	    <equals arg1="${javac.lint}" arg2=""/>
+	</not>
+    </condition>
+
+    <!-- Commonly needed properties -->
+    <property name="class.dir" value="classes"/>
+    <property name="generated.dir" value="generated"/>
 
     <!-- Figure out install type -->
 
@@ -159,4 +215,4 @@
     <target name="config-init" depends="properties-cvs,properties-opt,properties-src,properties-rpm">
     </target>
 
-    <property file="${top.dir}/config/build.properties"/>
+</project>
