@@ -50,7 +50,7 @@ public:
 					 stringToIdentity("dummy"))->getAdapterIdFilter();
     }
 
-    virtual IdFilterPrx
+    virtual IdentityFilterPrx
     objectIdFilter(const Current& current)
     {
 	return _sessionRouter->getRouter(_connection, current.adapter->getCommunicator()->

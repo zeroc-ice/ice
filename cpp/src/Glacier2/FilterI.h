@@ -283,8 +283,8 @@ FilterT<T, P>::setAcceptOverride(bool value, const Ice::Current&)
     _acceptOverride = value;
 }
 
-typedef FilterT<Ice::Identity, Glacier2::IdFilter> IdentityFilterI;
-typedef IceUtil::Handle< FilterT<Ice::Identity, Glacier2::IdFilter> > IdentityFilterIPtr;
+typedef FilterT<Ice::Identity, Glacier2::IdentityFilter> IdentityFilterI;
+typedef IceUtil::Handle< FilterT<Ice::Identity, Glacier2::IdentityFilter> > IdentityFilterIPtr;
 
 typedef FilterT<std::string, Glacier2::StringFilter> StringFilterI;
 typedef IceUtil::Handle< FilterT<std::string, Glacier2::StringFilter> > StringFilterIPtr;

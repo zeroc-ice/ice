@@ -109,8 +109,8 @@ Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAd
 	    StringFilterPrx::uncheckedCast(_adminAdapter->addWithUUID(categoryFilter));
 	const_cast<StringFilterPrx&>(_adapterIdFilter) =
 	    StringFilterPrx::uncheckedCast(_adminAdapter->addWithUUID(adapterIdFilter));
-	const_cast<IdFilterPrx&>(_objectIdFilter) =
-	    IdFilterPrx::uncheckedCast(_adminAdapter->addWithUUID(objectIdFilter));
+	const_cast<IdentityFilterPrx&>(_objectIdFilter) =
+	    IdentityFilterPrx::uncheckedCast(_adminAdapter->addWithUUID(objectIdFilter));
     }
 
     try
@@ -140,26 +140,29 @@ Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAd
     }
     catch(...)
     {
-	//
-	// Remove filters from adapter in the event of an exception.
-	//
-	try
+	if(_adminAdapter)
 	{
-	    if(_categoryFilter)
+	    //
+	    // Remove filters from adapter in the event of an exception.
+	    //
+	    try
 	    {
-		_adminAdapter->remove(_categoryFilter->ice_getIdentity());
+		if(_categoryFilter)
+		{
+		    _adminAdapter->remove(_categoryFilter->ice_getIdentity());
+		}
+		if(_objectIdFilter)
+		{
+		    _adminAdapter->remove(_objectIdFilter->ice_getIdentity());
+		}
+		if(_adapterIdFilter)
+		{
+		    _adminAdapter->remove(_adapterIdFilter->ice_getIdentity());
+		}
 	    }
-	    if(_objectIdFilter)
+	    catch(const NotRegisteredException&)
 	    {
-		_adminAdapter->remove(_objectIdFilter->ice_getIdentity());
 	    }
-	    if(_adapterIdFilter)
-	    {
-		_adminAdapter->remove(_adapterIdFilter->ice_getIdentity());
-	    }
-	}
-	catch(const NotRegisteredException&)
-	{
 	}
 	throw;
     }
@@ -313,7 +316,7 @@ Glacier2::RouterI::getAdapterIdFilter() const
     return _adapterIdFilter;
 }
 
-IdFilterPrx
+IdentityFilterPrx
 Glacier2::RouterI::getObjectIdFilter() const
 {
     assert(_adminAdapter);

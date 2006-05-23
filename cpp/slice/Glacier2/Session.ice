@@ -151,7 +151,7 @@ interface StringFilter
      
 };
 
-interface IdFilter
+interface IdentityFilter
 {
     /**
      *
@@ -272,7 +272,7 @@ interface SessionControl
      * @return A proxy for the object id filter object.
      *
      **/
-    IdFilter* objectIdFilter();
+    IdentityFilter* objectIdFilter();
     
     /**
      *
