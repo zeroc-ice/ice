@@ -123,12 +123,12 @@ public class Slice2FreezeJTask extends SliceTask
 	{
 	    FileSet fileset = (FileSet)p.next();
 
-	    DirectoryScanner scanner = fileset.getDirectoryScanner(project);
+	    DirectoryScanner scanner = fileset.getDirectoryScanner(getProject());
 	    String[] files = scanner.getIncludedFiles();
 	    
 	    for(int i = 0; i < files.length; i++)
 	    {
-		File slice = new File(fileset.getDir(project), files[i]);
+		File slice = new File(fileset.getDir(getProject()), files[i]);
 		sliceFiles.add(slice);
 
 		if(!build)
@@ -149,7 +149,7 @@ public class Slice2FreezeJTask extends SliceTask
 	if(!build)
 	{
 	    //
-	    // Check that each dictionnary has been built at least
+	    // Check that each dictionary has been built at least
 	    // once.
 	    //
 	    p = _dicts.iterator();
@@ -228,8 +228,6 @@ public class Slice2FreezeJTask extends SliceTask
 		indexString.append("," + "case-insensitive");
 	    }
 	}
-
-
 
 	if(!build)
 	{
@@ -323,6 +321,19 @@ public class Slice2FreezeJTask extends SliceTask
 	cmd.append(indexString);
 
 	//
+	// Add the --meta options.
+	//
+	if(!_meta.isEmpty())
+	{
+	    java.util.Iterator i = _meta.iterator();
+	    while(i.hasNext())
+	    {
+		SliceMeta m = (SliceMeta)i.next();
+		cmd.append(" --meta " + m.getValue());
+	    }
+	}
+
+	//
 	// Add the slice files.
 	//
 	p = sliceFiles.iterator();
@@ -362,7 +373,7 @@ public class Slice2FreezeJTask extends SliceTask
 	// Execute.
 	//
 	log(translator + " " + cmd);
-	ExecTask task = (ExecTask)project.createTask("exec");
+	ExecTask task = (ExecTask)getProject().createTask("exec");
 	task.setFailonerror(true);
 	Argument arg = task.createArg();
 	arg.setLine(cmd.toString());
@@ -437,7 +448,7 @@ public class Slice2FreezeJTask extends SliceTask
 	    //
 	    final String outputProperty = "slice2freezej.depend." + System.currentTimeMillis();
 
-	    task = (ExecTask)project.createTask("exec");
+	    task = (ExecTask)getProject().createTask("exec");
 	    task.setFailonerror(true);
 	    arg = task.createArg();
 	    arg.setLine(cmd.toString());
@@ -448,7 +459,7 @@ public class Slice2FreezeJTask extends SliceTask
 	    //
 	    // Update dependency file.
 	    //
-	    java.util.List newDependencies = parseDependencies(project.getProperty(outputProperty));
+	    java.util.List newDependencies = parseDependencies(getProject().getProperty(outputProperty));
 	    p = newDependencies.iterator();
 	    while(p.hasNext())
 	    {

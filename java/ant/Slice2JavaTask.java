@@ -123,12 +123,12 @@ public class Slice2JavaTask extends SliceTask
         {
             FileSet fileset = (FileSet)p.next();
 
-            DirectoryScanner scanner = fileset.getDirectoryScanner(project);
+            DirectoryScanner scanner = fileset.getDirectoryScanner(getProject());
             scanner.scan();
             String[] files = scanner.getIncludedFiles();
             for(int i = 0; i < files.length; i++)
             {
-                File slice = new File(fileset.getDir(project), files[i]);
+                File slice = new File(fileset.getDir(getProject()), files[i]);
 
 		SliceDependency depend = (SliceDependency)dependencies.get(getTargetKey(slice.toString()));
 		if(depend == null || !depend.isUpToDate())
@@ -231,10 +231,26 @@ public class Slice2JavaTask extends SliceTask
                 cmd.append(" --checksum " + _checksum);
             }
 
+	    //
+	    // Add --stream
+	    //
             if(_stream)
             {
                 cmd.append(" --stream");
             }
+
+	    //
+	    // Add --meta
+	    //
+	    if(!_meta.isEmpty())
+	    {
+		java.util.Iterator i = _meta.iterator();
+		while(i.hasNext())
+		{
+		    SliceMeta m = (SliceMeta)i.next();
+		    cmd.append(" --meta " + m.getValue());
+		}
+	    }
 
 	    //
 	    // Add --ice
@@ -274,7 +290,7 @@ public class Slice2JavaTask extends SliceTask
             // Execute
             //
             log(translator + " " + cmd);
-            ExecTask task = (ExecTask)project.createTask("exec");
+            ExecTask task = (ExecTask)getProject().createTask("exec");
             task.setFailonerror(true);
             Argument arg = task.createArg();
             arg.setLine(cmd.toString());
@@ -330,7 +346,7 @@ public class Slice2JavaTask extends SliceTask
 	    //
 	    final String outputProperty = "slice2java.depend." + System.currentTimeMillis();
 
-	    task = (ExecTask)project.createTask("exec");
+	    task = (ExecTask)getProject().createTask("exec");
             task.setFailonerror(true);
 	    arg = task.createArg();
             arg.setLine(cmd.toString());
@@ -341,7 +357,7 @@ public class Slice2JavaTask extends SliceTask
 	    //
 	    // Update dependency file.
 	    //
-	    java.util.List newDependencies = parseDependencies(project.getProperty(outputProperty));
+	    java.util.List newDependencies = parseDependencies(getProject().getProperty(outputProperty));
 	    p = newDependencies.iterator();
 	    while(p.hasNext())
 	    {
@@ -371,6 +387,6 @@ public class Slice2JavaTask extends SliceTask
 
     private File _translator;
     private boolean _tie;
-    private boolean _stream;
     private String _checksum;
+    private boolean _stream;
 }

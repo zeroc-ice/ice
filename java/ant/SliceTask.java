@@ -112,7 +112,7 @@ public class SliceTask extends org.apache.tools.ant.Task
     {
         if(_includePath == null) 
         {
-            _includePath = new Path(project);
+            _includePath = new Path(getProject());
         }
         return _includePath.createPath();
     }
@@ -155,6 +155,15 @@ public class SliceTask extends org.apache.tools.ant.Task
         }
 
         _defines.add(define);
+    }
+
+    public void
+    addConfiguredMeta(SliceMeta meta)
+    {
+	if(meta.getValue().length() > 0)
+	{
+	    _meta.add(meta);
+	}
     }
 
     //
@@ -370,5 +379,6 @@ public class SliceTask extends org.apache.tools.ant.Task
     protected Path _includePath;
     protected java.util.List _fileSets = new java.util.LinkedList();
     protected java.util.List _defines = new java.util.LinkedList();
+    protected java.util.List _meta = new java.util.LinkedList();
     protected String _iceHome;
 }
