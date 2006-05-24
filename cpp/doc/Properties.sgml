@@ -2065,7 +2065,7 @@ IceSSL.KeystoreType=<replaceable>type</replaceable> (Java)
 Specifies the format of the keystore file defined by
 <link linkend="IceSSL.Keystore">IceSSL.Keystore</link>. Legal values are
 <literal>JKS</literal> and <literal>PKCS12</literal>. If not defined,
-the default value is <literal>JKS</literal>.
+the JVM's default value is used (normally <literal>JKS</literal>).
 </para>
 </section>
 </section>
