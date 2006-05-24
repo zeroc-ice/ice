@@ -301,8 +301,8 @@ public:
 
 }
 
-template<class OStream, class Y>
-OStream& operator<<(OStream& os, ::IceInternal::ProxyHandle<Y> p)
+template<class Y>
+std::ostream& operator<<(std::ostream& os, ::IceInternal::ProxyHandle<Y> p)
 {
     return os << (p ? p->ice_toString() : "");
 }

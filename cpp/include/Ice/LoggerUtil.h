@@ -40,6 +40,12 @@ operator<<(Print& out, const T& val)
     return out;
 }
 
+template<class Y>
+::Ice::Print& operator<<(::Ice::Print& os, ::IceInternal::ProxyHandle<Y> p)
+{
+    return os << (p ? p->ice_toString() : "");
+}
+
 ICE_API Print& operator<<(Print&, std::ios_base& (*)(std::ios_base&));
 
 class ICE_API Warning : private IceUtil::noncopyable
@@ -65,6 +71,12 @@ operator<<(Warning& out, const T& val)
 {
     out.__str() << val;
     return out;
+}
+
+template<class Y>
+::Ice::Warning& operator<<(::Ice::Warning& os, ::IceInternal::ProxyHandle<Y> p)
+{
+    return os << (p ? p->ice_toString() : "");
 }
 
 ICE_API Warning& operator<<(Warning&, std::ios_base& (*)(std::ios_base&));
@@ -94,6 +106,11 @@ operator<<(Error& out, const T& val)
     return out;
 }
 
+template<class Y>
+::Ice::Error& operator<<(::Ice::Error& os, ::IceInternal::ProxyHandle<Y> p)
+{
+    return os << (p ? p->ice_toString() : "");
+}
 ICE_API Error& operator<<(Error&, std::ios_base& (*)(std::ios_base&));
 
 class ICE_API Trace : private IceUtil::noncopyable
@@ -120,6 +137,12 @@ operator<<(Trace& out, const T& val)
 {
     out.__str() << val;
     return out;
+}
+
+template<class Y>
+::Ice::Trace& operator<<(::Ice::Trace& os, ::IceInternal::ProxyHandle<Y> p)
+{
+    return os << (p ? p->ice_toString() : "");
 }
 
 ICE_API Trace& operator<<(Trace&, std::ios_base& (*)(std::ios_base&));
