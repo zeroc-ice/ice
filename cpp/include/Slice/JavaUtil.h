@@ -217,6 +217,8 @@ private:
         StringSet _history;
     };
 
+    friend class JavaGenerator::MetaDataVisitor;
+
     std::string _dir;
     ::IceUtil::Output* _out;
 };

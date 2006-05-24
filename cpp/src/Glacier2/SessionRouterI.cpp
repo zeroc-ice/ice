@@ -10,6 +10,7 @@
 #include <Glacier2/PermissionsVerifier.h>
 #include <Glacier2/Session.h>
 #include <Glacier2/SessionRouterI.h>
+#include <Glacier2/ClientBlobject.h>
 #include <Glacier2/RouterI.h>
 
 #include <IceUtil/UUID.h>
@@ -28,33 +29,33 @@ class SessionControlI : public SessionControl
 {
 public:
 
-    SessionControlI(const SessionRouterIPtr& sessionRouter, const ConnectionPtr& connection) :
+    SessionControlI(const SessionRouterIPtr& sessionRouter, const ConnectionPtr& connection,
+		    const StringFilterPrx& categoryFilter, const StringFilterPrx& adapterIdFilter,
+		    const IdentityFilterPrx& objectIdFilter) :
         _sessionRouter(sessionRouter),
-	_connection(connection)
+	_connection(connection),
+	_categoryFilter(categoryFilter),
+	_objectIdFilter(objectIdFilter),
+	_adapterIdFilter(adapterIdFilter)
     {
     }
 
     virtual StringFilterPrx
     categoryFilter(const Current& current)
     {
-	return _sessionRouter->getRouter(_connection,
-					 current.adapter->getCommunicator()->
-					 stringToIdentity("dummy"))->getCategoryFilter();
+	return _categoryFilter;
     }
 
     virtual StringFilterPrx
     adapterIdFilter(const Current& current)
     {
-	return _sessionRouter->getRouter(_connection,
-					 current.adapter->getCommunicator()->
-					 stringToIdentity("dummy"))->getAdapterIdFilter();
+	return _adapterIdFilter;
     }
 
     virtual IdentityFilterPrx
     objectIdFilter(const Current& current)
     {
-	return _sessionRouter->getRouter(_connection, current.adapter->getCommunicator()->
-					 stringToIdentity("dummy"))->getObjectIdFilter();
+	return _objectIdFilter; 
     }
     
     virtual void
@@ -67,6 +68,9 @@ private:
 
     const SessionRouterIPtr _sessionRouter;
     const ConnectionPtr _connection;
+    const StringFilterPrx _categoryFilter;
+    const IdentityFilterPrx _objectIdFilter;
+    const StringFilterPrx _adapterIdFilter;
 };
 
 class ClientLocator : public ServantLocator
@@ -799,10 +803,25 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 
     SessionPrx session;
     Identity controlId;
+    Identity categoryFilterId;
+    Identity objectIdFilterId;
+    Identity adapterIdFilterId;
     RouterIPtr router;
 
     try
     {
+	//
+	// The client blobject requires direct access to the full filter
+	// servant, but proliferating the implementation of the servant
+	// throughout the router code is undesirable. To avoid lots of
+	// physical interdependencies, we create the filters and
+	// clientblobject together and pass the clientblobject to the
+	// router. We create the clientblobject here since it is
+	// responsible for creating the filters and we want them to be
+	// accessible during session creation.
+	//
+	ClientBlobjectPtr clientBlobject = ClientBlobject::create(_clientAdapter->getCommunicator(), userId);
+
         //
 	// If we have a session manager configured, we create a
 	// client-visible session object.
@@ -812,8 +831,19 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 	    SessionControlPrx control;
 	    if(_adminAdapter)
 	    {
+		StringFilterPrx catFilterPrx = StringFilterPrx::uncheckedCast(
+		    _adminAdapter->addWithUUID(clientBlobject->categoryFilter()));
+		categoryFilterId = catFilterPrx->ice_getIdentity();
+		StringFilterPrx adapterFilterPrx = StringFilterPrx::uncheckedCast(
+		    _adminAdapter->addWithUUID(clientBlobject->adapterIdFilter()));
+		adapterIdFilterId = adapterFilterPrx->ice_getIdentity();
+		IdentityFilterPrx idFilterPrx = IdentityFilterPrx::uncheckedCast(
+		    _adminAdapter->addWithUUID(clientBlobject->objectIdFilter()));
+		objectIdFilterId = idFilterPrx->ice_getIdentity();
+
 	        control = SessionControlPrx::uncheckedCast(
-		    _adminAdapter->addWithUUID(new SessionControlI(this, current.con)));
+		    _adminAdapter->addWithUUID(new SessionControlI(this, current.con, catFilterPrx, 
+								   adapterFilterPrx, idFilterPrx)));
 		controlId = control->ice_getIdentity();
 	    }
 	    session = factory->create(control, current.ctx);
@@ -823,7 +853,7 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 	// Add a new per-client router.
 	//
 	router = new RouterI(_clientAdapter, _serverAdapter, _adminAdapter, current.con, userId, allowAddUserMode,
-			     session, controlId);
+			     session, controlId, clientBlobject);
     }
     catch(const Exception&)
     {
@@ -844,6 +874,9 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 	    {
 	        try
 		{
+		    _adminAdapter->remove(categoryFilterId);
+		    _adminAdapter->remove(adapterIdFilterId);
+		    _adminAdapter->remove(objectIdFilterId);
 	            _adminAdapter->remove(controlId);
 		}
 		catch(const Exception&)

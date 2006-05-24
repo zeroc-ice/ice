@@ -289,6 +289,7 @@ typedef IceUtil::Handle< FilterT<Ice::Identity, Glacier2::IdentityFilter> > Iden
 typedef FilterT<std::string, Glacier2::StringFilter> StringFilterI;
 typedef IceUtil::Handle< FilterT<std::string, Glacier2::StringFilter> > StringFilterIPtr;
 
+
 };
 
 #endif

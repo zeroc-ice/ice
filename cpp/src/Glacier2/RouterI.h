@@ -27,7 +27,9 @@ class RouterI : public Router, public IceUtil::Mutex
 public:
 
     RouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&,
-    	    const Ice::ConnectionPtr&, const std::string&, bool, const SessionPrx&, const Ice::Identity&);
+    	    const Ice::ConnectionPtr&, const std::string&, bool allowAddUserMode, const SessionPrx&, 
+	    const Ice::Identity&, const ClientBlobjectPtr&);
+	    
     virtual ~RouterI();
     void destroy();
 
@@ -43,9 +45,6 @@ public:
 
     ClientBlobjectPtr getClientBlobject() const;
     ServerBlobjectPtr getServerBlobject() const;
-    StringFilterPrx getCategoryFilter() const;
-    StringFilterPrx getAdapterIdFilter() const;
-    IdentityFilterPrx getObjectIdFilter() const;
 
     SessionPrx getSession() const;
 
@@ -56,12 +55,8 @@ public:
 private:
 
     const Ice::CommunicatorPtr _communicator;
-    const RoutingTablePtr _routingTable;
     const Ice::ObjectPrx _clientProxy;
     const Ice::ObjectPrx _serverProxy;
-    const StringFilterPrx _categoryFilter;
-    const StringFilterPrx _adapterIdFilter;
-    const IdentityFilterPrx _objectIdFilter;
     const ClientBlobjectPtr _clientBlobject;
     const ServerBlobjectPtr _serverBlobject;
     const Ice::ObjectAdapterPtr _adminAdapter;
