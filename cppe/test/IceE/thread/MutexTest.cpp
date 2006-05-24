@@ -139,10 +139,8 @@ MutexTest::run()
 	    Mutex::Lock lock3(mutex);
 	    test(false);
 	}
-	catch(const ThreadSyscallException& e)
+	catch(const ThreadLockedException&)
 	{    
-	    // Expected
-	    test(e.error() == EDEADLK);
 	}
 #endif
 
