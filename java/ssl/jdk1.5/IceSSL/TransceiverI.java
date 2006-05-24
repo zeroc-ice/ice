@@ -266,7 +266,7 @@ final class TransceiverI implements IceInternal.Transceiver
 
 	if(_instance.networkTraceLevel() >= 3 && buf.position() > pos)
 	{
-	    String s = "X received " + (buf.position() - pos) + " of " + rem + " bytes via ssl\n" + toString();
+	    String s = "received " + (buf.position() - pos) + " of " + rem + " bytes via ssl\n" + toString();
 	    _logger.trace(_instance.networkTraceCategory(), s);
 	}
 
