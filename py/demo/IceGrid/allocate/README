@@ -1,0 +1,30 @@
+To run the demo, first start the IceGrid service:
+
+$ icegridnode --Ice.Config=config.grid
+
+This demo contains two application descriptor files. The first descriptor,
+application-single.xml, contains a single server and object. This object is
+allocated by the client by using allocateById. Only one client can access this
+object at a time. All other clients will hang until object is released. To 
+deploy this descriptor use:
+
+$ icegridadmin --Ice.Config=config.grid -e "application add 'application-single.xml'"
+
+The second descriptor, application-multiple.xml, contains servers, each with an 
+object. The clients retrieve these objects using allocateByType. Since there are two
+objects available, two clients can get access simulaneously. Extra clients will hang
+until one of the clients with an object allocated releases it. To deploy this
+descriptor use:
+
+$ icegridadmin --Ice.Config=config.grid -e "application add 'application-multiple.xml'"
+
+To run the client type:
+
+$ python Client
+
+If you have already deployed the application, you can update it to try
+a different set of descriptors, for example:
+
+$ icegridadmin --Ice.Config=config.grid -e "application update 'application-multiple.xml'"
+
+Messages will be displayed in the IceGrid service window.

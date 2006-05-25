@@ -16,6 +16,7 @@ module Demo
 interface Hello
 {
     nonmutating void sayHello();
+    idempotent void shutdown();
 };
 
 };

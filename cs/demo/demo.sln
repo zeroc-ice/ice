@@ -127,6 +127,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sessionActivationSD", "IceG
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "allocateCD", "IceGrid\allocate\allocateCD.csproj", "{1970CFB0-D945-4ED0-9E1D-6053A86BA43E}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "allocateSD", "IceGrid\allocate\allocateSD.csproj", "{197090B7-88D5-47EB-B8FD-2BEF5A08E0D9}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "clockCD", "IceStorm\clock\clockCD.csproj", "{E76D1D8E-7154-461D-BAFA-A3BB2E5D6D7A}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
@@ -273,6 +281,14 @@ Global
 		{226790B7-88D5-47EB-B8FD-2BEF5A08E0D9}.Debug.Build.0 = Debug|.NET
 		{226790B7-88D5-47EB-B8FD-2BEF5A08E0D9}.Release.ActiveCfg = Release|.NET
 		{226790B7-88D5-47EB-B8FD-2BEF5A08E0D9}.Release.Build.0 = Release|.NET
+		{1970CFB0-D945-4ED0-9E1D-6053A86BA43E}.Debug.ActiveCfg = Debug|.NET
+		{1970CFB0-D945-4ED0-9E1D-6053A86BA43E}.Debug.Build.0 = Debug|.NET
+		{1970CFB0-D945-4ED0-9E1D-6053A86BA43E}.Release.ActiveCfg = Release|.NET
+		{1970CFB0-D945-4ED0-9E1D-6053A86BA43E}.Release.Build.0 = Release|.NET
+		{197090B7-88D5-47EB-B8FD-2BEF5A08E0D9}.Debug.ActiveCfg = Debug|.NET
+		{197090B7-88D5-47EB-B8FD-2BEF5A08E0D9}.Debug.Build.0 = Debug|.NET
+		{197090B7-88D5-47EB-B8FD-2BEF5A08E0D9}.Release.ActiveCfg = Release|.NET
+		{197090B7-88D5-47EB-B8FD-2BEF5A08E0D9}.Release.Build.0 = Release|.NET
 		{E76D1D8E-7154-461D-BAFA-A3BB2E5D6D7A}.Debug.ActiveCfg = Debug|.NET
 		{E76D1D8E-7154-461D-BAFA-A3BB2E5D6D7A}.Debug.Build.0 = Debug|.NET
 		{E76D1D8E-7154-461D-BAFA-A3BB2E5D6D7A}.Release.ActiveCfg = Release|.NET

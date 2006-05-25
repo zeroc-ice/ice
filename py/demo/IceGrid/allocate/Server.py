@@ -20,6 +20,10 @@ class HelloI(Demo.Hello):
     def sayHello(self, current=None):
         print self.name + " says Hello World!"
 
+    def shutdown(self, current=None):
+        print self.name + " shutting down..."
+        current.adapter.getCommunicator().shutdown()
+
 class Server(Ice.Application):
     def run(self, args):
         properties = self.communicator().getProperties()
