@@ -139,6 +139,7 @@ protected:
     pthread_t _thread;
 #endif
 
+private:
     Thread(const Thread&);		// Copying is forbidden
     void operator=(const Thread&);	// Assignment is forbidden
 };

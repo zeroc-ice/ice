@@ -106,7 +106,7 @@ if TestUtil.isCygwin() == 0:
       ]
 
 def usage():
-    print "usage: " + sys.argv[0] + " [-l] [-r <regex>"
+    print "usage: " + sys.argv[0] + " [-l] [-r <regex>]"
     sys.exit(2)
 
 try:
