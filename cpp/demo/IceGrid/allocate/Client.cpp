@@ -156,7 +156,7 @@ HelloClient::run(int argc, char* argv[])
     {
         hello = HelloPrx::checkedCast(session->allocateObjectById(communicator()->stringToIdentity("hello")));
     }
-    catch(const IceGrid::AllocationException& ex)
+    catch(const IceGrid::AllocationException&)
     {
     }
     catch(const IceGrid::ObjectNotRegisteredException&)
