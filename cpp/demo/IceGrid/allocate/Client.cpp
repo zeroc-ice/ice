@@ -173,11 +173,6 @@ HelloClient::run(int argc, char* argv[])
 	    cerr << argv[0] << ": could not allocate object: " << ex.reason << endl;
 	    return EXIT_FAILURE;
         }
-        catch(const IceGrid::ObjectNotRegisteredException&)
-        {
-	    cerr << argv[0] << ": object not registered with registry" << endl;
-	    return EXIT_FAILURE;
-        }
     }
 
     menu();
@@ -214,11 +209,6 @@ HelloClient::run(int argc, char* argv[])
 	catch(const Ice::Exception& ex)
 	{
 	    cerr << ex << endl;
-
-	    keepAlive->destroy();
-	    keepAlive->getThreadControl().join();
-
-	    return EXIT_FAILURE;
 	}
     }
     while(cin.good() && c != 'x');

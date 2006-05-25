@@ -191,11 +191,6 @@ HelloClient::run(int argc, char* argv[])
 	catch(const Ice::Exception& ex)
 	{
 	    cerr << ex << endl;
-
-	    keepAlive->destroy();
-	    keepAlive->getThreadControl().join();
-
-	    return EXIT_FAILURE;
 	}
     }
     while(cin.good() && c != 'x');
