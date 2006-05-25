@@ -7,11 +7,11 @@
 '
 ' **********************************************************************
 
-Imports SessionActivation.Demo
+Imports Allocate.Demo
 Imports System
 Imports System.Threading
 
-Module SessionActivationC
+Module AllocateC
 
     Class Client
         Inherits Ice.Application
@@ -94,12 +94,17 @@ Module SessionActivationC
 	    Try
 	        hello = HelloPrxHelper.checkedCast(session.allocateObjectById(communicator().stringToIdentity("hello")))
 	    Catch ex As Icegrid.AllocationException
-	        Console.Error.WriteLine(": could not allocate object: " + ex.reason)
-	        Return 1
 	    Catch ex As Icegrid.ObjectNotRegisteredException
-	        Console.Error.WriteLine(": object not registered with registry")
-	        Return 1
 	    End Try
+
+	    If hello Is Nothing
+	        Try
+	            hello = HelloPrxHelper.checkedCast(session.allocateObjectByType("::Demo::Hello"))
+	        Catch ex As Icegrid.AllocationException
+	            Console.Error.WriteLine(": could not allocate object: " + ex.reason)
+	            Return 1
+		End Try
+	    End If
 
 	    menu()
 

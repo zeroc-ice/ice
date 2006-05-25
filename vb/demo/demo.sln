@@ -233,6 +233,20 @@ EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionActivationSD", "IceGrid\sessionActivation\sessionActivationSD.vbproj", "{22672542-A745-4752-8D53-565BC7A93696}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "allocateCD", "IceGrid\allocate\allocateCD.vbproj", "{19705E43-F8B3-492F-B6A5-26527AB13696}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "allocateCommonD", "IceGrid\allocate\allocateCommonD.vbproj", "{1970E9BD-6EF1-47AD-AB67-E5357AE83696}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "allocateSD", "IceGrid\allocate\allocateSD.vbproj", "{19702542-A745-4752-8D53-565BC7A93696}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "clockCD", "IceStorm\clock\clockCD.vbproj", "{E76D1D8E-7154-461D-BAFA-A3BB2E5D6D7A}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
@@ -452,6 +466,18 @@ Global
 		{22672542-A745-4752-8D53-565BC7A93696}.Debug.Build.0 = Debug|.NET
 		{22672542-A745-4752-8D53-565BC7A93696}.Release.ActiveCfg = Release|.NET
 		{22672542-A745-4752-8D53-565BC7A93696}.Release.Build.0 = Release|.NET
+		{19705E43-F8B3-492F-B6A5-26527AB13696}.Debug.ActiveCfg = Debug|.NET
+		{19705E43-F8B3-492F-B6A5-26527AB13696}.Debug.Build.0 = Debug|.NET
+		{19705E43-F8B3-492F-B6A5-26527AB13696}.Release.ActiveCfg = Release|.NET
+		{19705E43-F8B3-492F-B6A5-26527AB13696}.Release.Build.0 = Release|.NET
+		{1970E9BD-6EF1-47AD-AB67-E5357AE83696}.Debug.ActiveCfg = Debug|.NET
+		{1970E9BD-6EF1-47AD-AB67-E5357AE83696}.Debug.Build.0 = Debug|.NET
+		{1970E9BD-6EF1-47AD-AB67-E5357AE83696}.Release.ActiveCfg = Release|.NET
+		{1970E9BD-6EF1-47AD-AB67-E5357AE83696}.Release.Build.0 = Release|.NET
+		{19702542-A745-4752-8D53-565BC7A93696}.Debug.ActiveCfg = Debug|.NET
+		{19702542-A745-4752-8D53-565BC7A93696}.Debug.Build.0 = Debug|.NET
+		{19702542-A745-4752-8D53-565BC7A93696}.Release.ActiveCfg = Release|.NET
+		{19702542-A745-4752-8D53-565BC7A93696}.Release.Build.0 = Release|.NET
 		{E76D1D8E-7154-461D-BAFA-A3BB2E5D6D7A}.Debug.ActiveCfg = Debug|.NET
 		{E76D1D8E-7154-461D-BAFA-A3BB2E5D6D7A}.Debug.Build.0 = Debug|.NET
 		{E76D1D8E-7154-461D-BAFA-A3BB2E5D6D7A}.Release.ActiveCfg = Release|.NET
