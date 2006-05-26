@@ -243,7 +243,7 @@ public class AllTests
 	    //
 	    try
 	    {
-		IceSSL.ConnectionInfo info = IceSSL.Util.getConnectionInfo(server.ice_connection());
+		IceSSL.ConnectionInfo info = IceSSL.Util.getConnectionInfo(server.ice_getConnection());
 		test(info.certs.length == 2);
 	    }
 	    catch(IceSSL.ConnectionInvalidException ex)
@@ -372,7 +372,7 @@ public class AllTests
 		java.security.cert.X509Certificate caCert =
 		    (java.security.cert.X509Certificate)serverKeystore.getCertificate("cacert");
 
-		IceSSL.ConnectionInfo info = IceSSL.Util.getConnectionInfo(server.ice_connection());
+		IceSSL.ConnectionInfo info = IceSSL.Util.getConnectionInfo(server.ice_getConnection());
 
 		test(info.certs.length == 2);
 
@@ -513,7 +513,7 @@ public class AllTests
 	    {
 		String cipherSub = "DH_anon";
 		server.checkCipher(cipherSub);
-		IceSSL.ConnectionInfo info = IceSSL.Util.getConnectionInfo(server.ice_connection());
+		IceSSL.ConnectionInfo info = IceSSL.Util.getConnectionInfo(server.ice_getConnection());
 		test(info.cipher.indexOf(cipherSub) >= 0);
 	    }
 	    catch(Ice.LocalException ex)
@@ -529,7 +529,7 @@ public class AllTests
 	    //
 	    verifier.reset();
 	    verifier.returnValue(false);
-	    server.ice_connection().close(false);
+	    server.ice_getConnection().close(false);
 	    try
 	    {
 		server.ice_ping();

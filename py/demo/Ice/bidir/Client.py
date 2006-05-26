@@ -46,7 +46,7 @@ class Client(Ice.Application):
 	ident.category = ""
         adapter.add(CallbackReceiverI(), ident)
         adapter.activate()
-	server.ice_connection().setAdapter(adapter)
+	server.ice_getConnection().setAdapter(adapter)
 	server.addClient(ident)
 	self.communicator().waitForShutdown()
 

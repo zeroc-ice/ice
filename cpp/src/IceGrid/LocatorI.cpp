@@ -287,7 +287,7 @@ LocatorI::LocatorI(const Ice::CommunicatorPtr& communicator,
 		   const Ice::LocatorRegistryPrx& locatorRegistry) :
     _communicator(communicator),
     _database(database),
-    _locatorRegistry(Ice::LocatorRegistryPrx::uncheckedCast(locatorRegistry->ice_collocationOptimization(false)))
+    _locatorRegistry(Ice::LocatorRegistryPrx::uncheckedCast(locatorRegistry->ice_collocationOptimized(false)))
 {
 }
 

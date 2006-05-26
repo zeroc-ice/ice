@@ -16,9 +16,13 @@ namespace Ice
 {
     public interface ObjectPrx
     {
+	[Obsolete("This method has been deprecated, use ice_getHash instead.")]
         int ice_hash();
+        int ice_getHash();
 
+	[Obsolete("This method has been deprecated, use ice_getCommunicator instead.")]
 	Communicator ice_communicator();
+	Communicator ice_getCommunicator();
 
 	string ice_toString();
 
@@ -87,8 +91,10 @@ namespace Ice
 	Ice.LocatorPrx ice_getLocator();
         ObjectPrx ice_locator(Ice.LocatorPrx locator);
 
-	bool ice_getCollocationOptimization();
+	bool ice_isCollocationOptimized();
+	[Obsolete("This method has been deprecated, use ice_collocationOptimized instead.")]
         ObjectPrx ice_collocationOptimization(bool b);
+        ObjectPrx ice_collocationOptimized(bool b);
 
         ObjectPrx ice_twoway();
         bool ice_isTwoway();
@@ -105,7 +111,9 @@ namespace Ice
         ObjectPrx ice_timeout(int t);
         ObjectPrx ice_connectionId(string connectionId);
 
+	[Obsolete("This method has been deprecated, use ice_getConnection instead.")]
         Connection ice_connection();
+        Connection ice_getConnection();
     }
 
     public class ObjectPrxHelperBase : ObjectPrx
@@ -117,10 +125,20 @@ namespace Ice
 
         public int ice_hash()
         {
+            return ice_getHash();
+        }
+
+        public int ice_getHash()
+        {
             return _reference.GetHashCode();
         }
 
         public Communicator ice_communicator()
+	{
+	    return ice_getCommunicator();
+	}
+
+        public Communicator ice_getCommunicator()
 	{
 	    return _reference.getCommunicator();
 	}
@@ -540,12 +558,17 @@ namespace Ice
             }
         }
 
-        public bool ice_getCollocationOptimization()
+        public bool ice_isCollocationOptimized()
         {
             return _reference.getCollocationOptimization();
         }
 
         public ObjectPrx ice_collocationOptimization(bool b)
+        {
+	    return ice_collocationOptimized(b);
+	}
+
+        public ObjectPrx ice_collocationOptimized(bool b)
         {
             if(b == _reference.getCollocationOptimization())
             {
@@ -700,6 +723,11 @@ namespace Ice
         }
 
         public Connection ice_connection()
+        {
+	    return ice_getConnection();
+	}
+
+        public Connection ice_getConnection()
         {
             int cnt__ = 0;
             while(true)

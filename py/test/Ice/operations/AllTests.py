@@ -21,8 +21,8 @@ def allTests(communicator):
     test(base)
     print "ok"
 
-    print "testing ice_communicator...",
-    test(base.ice_communicator() == communicator)
+    print "testing ice_getCommunicator...",
+    test(base.ice_getCommunicator() == communicator)
     print "ok"
 
     print "testing proxy methods... ",

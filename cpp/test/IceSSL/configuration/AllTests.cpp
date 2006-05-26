@@ -238,7 +238,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	//
 	try
 	{
-	    IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(server->ice_connection());
+	    IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(server->ice_getConnection());
 	    test(info.certs.size() == 2);
 	}
 	catch(const IceSSL::ConnectionInvalidException&)
@@ -344,7 +344,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	    test(serverCert->verify(caCert->getPublicKey()));
 	    test(caCert->verify(caCert->getPublicKey()));
 
-	    IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(server->ice_connection());
+	    IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(server->ice_getConnection());
 
 	    test(info.certs.size() == 2);
 
@@ -499,7 +499,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	{
 	    string cipherSub = "ADH-";
 	    server->checkCipher(cipherSub);
-	    IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(server->ice_connection());
+	    IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(server->ice_getConnection());
 	    test(info.cipher.compare(0, cipherSub.size(), cipherSub) == 0);
 	}
 	catch(const LocalException&)
@@ -515,7 +515,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	//
 	verifier->reset();
 	verifier->returnValue(false);
-	server->ice_connection()->close(false);
+	server->ice_getConnection()->close(false);
 	try
 	{
 	    server->ice_ping();
@@ -859,7 +859,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	{
 	    string cipherSub = "ADH-";
 	    server->checkCipher(cipherSub);
-	    IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(server->ice_connection());
+	    IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(server->ice_getConnection());
 	    test(info.cipher.compare(0, cipherSub.size(), cipherSub) == 0);
 	}
 	catch(const LocalException&)

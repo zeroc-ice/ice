@@ -131,11 +131,23 @@ IceProxy::Ice::Object::operator<(const Object& r) const
 Int
 IceProxy::Ice::Object::ice_hash() const
 {
+    return ice_getHash();
+}
+
+Int
+IceProxy::Ice::Object::ice_getHash() const
+{
     return _reference->hash();
 }
 
 CommunicatorPtr
 IceProxy::Ice::Object::ice_communicator() const
+{
+    return ice_getCommunicator();
+}
+
+CommunicatorPtr
+IceProxy::Ice::Object::ice_getCommunicator() const
 {
     return _reference->getCommunicator();
 }
@@ -651,13 +663,19 @@ IceProxy::Ice::Object::ice_locator(const LocatorPrx& locator) const
 }
 
 bool
-IceProxy::Ice::Object::ice_getCollocationOptimization() const
+IceProxy::Ice::Object::ice_isCollocationOptimized() const
 {
     return _reference->getCollocationOptimization();
 }
 
 ObjectPrx
 IceProxy::Ice::Object::ice_collocationOptimization(bool b) const
+{
+    return ice_collocationOptimized(b);
+}
+
+ObjectPrx
+IceProxy::Ice::Object::ice_collocationOptimized(bool b) const
 {
     if(b == _reference->getCollocationOptimization())
     {
@@ -826,6 +844,12 @@ IceProxy::Ice::Object::ice_connectionId(const string& id) const
 
 ConnectionPtr
 IceProxy::Ice::Object::ice_connection()
+{
+    return ice_getConnection();
+}
+
+ConnectionPtr
+IceProxy::Ice::Object::ice_getConnection()
 {
     int __cnt = 0;
     while(true)

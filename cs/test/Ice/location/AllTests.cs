@@ -328,7 +328,7 @@ public class AllTests
 	{
 	    HelloPrx helloPrx = HelloPrxHelper.checkedCast(
 		communicator.stringToProxy("\"" + communicator.identityToString(id) + "\""));
-	    helloPrx.ice_connection();
+	    helloPrx.ice_getConnection();
 	    test(false);
 	}
 	catch(Ice.CollocationOptimizationException)

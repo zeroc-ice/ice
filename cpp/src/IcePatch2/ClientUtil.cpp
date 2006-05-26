@@ -591,7 +591,8 @@ IcePatch2::Patcher::init(const FileServerPrx& server)
     // Make sure that _chunkSize doesn't exceed MessageSizeMax, otherwise
     // it won't work at all.
     //
-    int sizeMax = server->ice_communicator()->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024);
+    int sizeMax = 
+        server->ice_getCommunicator()->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024);
     if(_chunkSize < 1)
     {
 	const_cast<Int&>(_chunkSize) = 1;

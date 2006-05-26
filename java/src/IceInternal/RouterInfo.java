@@ -72,7 +72,7 @@ public final class RouterInfo
 	    //
 	    try
 	    {
-	        _clientProxy = _clientProxy.ice_timeout(_router.ice_connection().timeout());
+	        _clientProxy = _clientProxy.ice_timeout(_router.ice_getConnection().timeout());
 	    }
 	    catch(Ice.CollocationOptimizationException ex)
 	    {
@@ -95,7 +95,7 @@ public final class RouterInfo
 	//
 	try
 	{
-	    _clientProxy = _clientProxy.ice_timeout(_router.ice_connection().timeout());
+	    _clientProxy = _clientProxy.ice_timeout(_router.ice_getConnection().timeout());
 	}
 	catch(Ice.CollocationOptimizationException ex)
 	{

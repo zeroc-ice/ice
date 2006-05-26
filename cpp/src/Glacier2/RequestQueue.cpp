@@ -170,7 +170,7 @@ Glacier2::Request::isBatch() const
 ConnectionPtr
 Glacier2::Request::getConnection() const
 {
-    return _proxy->ice_connection();
+    return _proxy->ice_getConnection();
 }
 
 Glacier2::Response::Response(const AMD_Array_Object_ice_invokePtr& amdCB, bool ok, 

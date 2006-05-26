@@ -363,7 +363,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     try
     {
 	HelloPrx helloPrx = HelloPrx::checkedCast(communicator->stringToProxy(communicator->identityToString(id)));
-	Ice::ConnectionPtr connection = helloPrx->ice_connection();
+	Ice::ConnectionPtr connection = helloPrx->ice_getConnection();
 	test(false);
     }
     catch(const Ice::CollocationOptimizationException&)

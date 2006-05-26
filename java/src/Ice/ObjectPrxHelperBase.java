@@ -17,13 +17,30 @@ public class ObjectPrxHelperBase implements ObjectPrx
         return _reference.hashCode();
     }
 
+    /**
+     * @deprecated This method has been replaced with ice_getHash.
+     **/
     public final int
     ice_hash()
+    {
+        return ice_getHash();
+    }
+
+    public final int
+    ice_getHash()
     {
         return _reference.hashCode();
     }
 
+    /**
+     * @deprecated This method has been replaced with ice_getCommunicator.
+     **/
     public final Communicator ice_communicator()
+    {
+        return ice_getCommunicator();
+    }
+
+    public final Communicator ice_getCommunicator()
     {
         return _reference.getCommunicator();
     }
@@ -494,13 +511,22 @@ public class ObjectPrxHelperBase implements ObjectPrx
     }
 
     public final boolean
-    ice_getCollocationOptimization()
+    ice_isCollocationOptimized()
     {
 	return _reference.getCollocationOptimization();
     }
 
+    /**
+     * @deprecated This method has been replaced with ice_collocationOptimized.
+     **/
     public final ObjectPrx
     ice_collocationOptimization(boolean b)
+    {
+        return ice_collocationOptimized(b);
+    }
+
+    public final ObjectPrx
+    ice_collocationOptimized(boolean b)
     {
         if(b == _reference.getCollocationOptimization())
         {
@@ -667,8 +693,17 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
+    /**
+     * @deprecated This method has been replaced with ice_collocationOptimized.
+     **/
     public final Connection
     ice_connection()
+    {
+        return ice_getConnection();
+    }
+
+    public final Connection
+    ice_getConnection()
     {
         int __cnt = 0;
         while(true)

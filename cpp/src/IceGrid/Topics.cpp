@@ -34,7 +34,7 @@ public:
     void
     ice_exception(const Ice::Exception& ex)
     {
-	Ice::Warning out(_observer->ice_communicator()->getLogger());
+	Ice::Warning out(_observer->ice_getCommunicator()->getLogger());
 	out << "couldn't initialize registry observer:\n" << ex;    
     }
 
@@ -65,7 +65,7 @@ public:
     void
     ice_exception(const Ice::Exception& ex)
     {
-	Ice::Warning out(_observer->ice_communicator()->getLogger());
+	Ice::Warning out(_observer->ice_getCommunicator()->getLogger());
 	out << "couldn't initialize node observer:\n" << ex;    
     }
     
@@ -94,7 +94,7 @@ NodeObserverTopic::NodeObserverTopic(const IceStorm::TopicManagerPrx& topicManag
     // topic because the subscribe() method is given a fixed proxy
     // which can't be marshalled.
     //
-    const_cast<IceStorm::TopicPrx&>(_topic) = IceStorm::TopicPrx::uncheckedCast(t->ice_collocationOptimization(true));
+    const_cast<IceStorm::TopicPrx&>(_topic) = IceStorm::TopicPrx::uncheckedCast(t->ice_collocationOptimized(true));
     const_cast<NodeObserverPrx&>(_publisher) = NodeObserverPrx::uncheckedCast(_topic->getPublisher()->ice_oneway());
 }
 
@@ -261,7 +261,7 @@ RegistryObserverTopic::RegistryObserverTopic(const IceStorm::TopicManagerPrx& to
     // topic because the subscribe() method is given a fixed proxy
     // which can't be marshalled.
     //
-    const_cast<IceStorm::TopicPrx&>(_topic) = IceStorm::TopicPrx::uncheckedCast(t->ice_collocationOptimization(true));
+    const_cast<IceStorm::TopicPrx&>(_topic) = IceStorm::TopicPrx::uncheckedCast(t->ice_collocationOptimized(true));
     const_cast<RegistryObserverPrx&>(_publisher) = 
 	RegistryObserverPrx::uncheckedCast(_topic->getPublisher()->ice_oneway());
 }

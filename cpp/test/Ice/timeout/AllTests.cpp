@@ -139,7 +139,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	//
 	TimeoutPrx to = TimeoutPrx::uncheckedCast(obj->ice_timeout(500));
 	to->holdAdapter(750);
-	to->ice_connection()->close(true); // Force a reconnect.
+	to->ice_getConnection()->close(true); // Force a reconnect.
 	try
 	{
 	    to->op();
@@ -157,7 +157,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	timeout->op(); // Ensure adapter is active.
 	TimeoutPrx to = TimeoutPrx::uncheckedCast(obj->ice_timeout(1000));
 	to->holdAdapter(500);
-	to->ice_connection()->close(true); // Force a reconnect.
+	to->ice_getConnection()->close(true); // Force a reconnect.
 	try
 	{
 	    to->op();

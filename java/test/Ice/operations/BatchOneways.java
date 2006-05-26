@@ -69,7 +69,7 @@ class BatchOneways
 		test(false);
 	    }
 
-	    batch.ice_connection().flushBatchRequests();
+	    batch.ice_getConnection().flushBatchRequests();
 	}
 
 	for(int i = 0 ; i < 10 ; ++i)
@@ -97,7 +97,7 @@ class BatchOneways
 		test(false);
 	    }
 
-	    batch.ice_connection().flushBatchRequests();
+	    batch.ice_getConnection().flushBatchRequests();
 	}
     }
 }

@@ -605,11 +605,11 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
 	    _loaded = _load;
 	    assert(_loaded.get());
 	    int timeout = _cache.getNodeCache().getSessionTimeout() * 1000; // sec to ms
-	    _proxy = ServerPrx::uncheckedCast(proxy->ice_timeout(timeout)->ice_collocationOptimization(false));
+	    _proxy = ServerPrx::uncheckedCast(proxy->ice_timeout(timeout)->ice_collocationOptimized(false));
 	    _adapters.clear();
 	    for(AdapterPrxDict::const_iterator p = adpts.begin(); p != adpts.end(); ++p)
 	    {
-		Ice::ObjectPrx adapter = p->second->ice_timeout(timeout)->ice_collocationOptimization(false);
+		Ice::ObjectPrx adapter = p->second->ice_timeout(timeout)->ice_collocationOptimized(false);
 		_adapters.insert(make_pair(p->first, AdapterPrx::uncheckedCast(adapter)));
 	    }
 	    _activationTimeout = at + timeout;

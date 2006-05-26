@@ -103,7 +103,7 @@ public:
 	}
 	catch(const Ice::LocalException& ex)
 	{
-	    Ice::Warning out(_proxy->ice_communicator()->getLogger());
+	    Ice::Warning out(_proxy->ice_getCommunicator()->getLogger());
 	    out << "unexpected exception while reaping node session:\n" << ex;
 	}
     }

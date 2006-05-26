@@ -654,7 +654,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	NodeObserverI* nodeObs1 = new NodeObserverI();
 	Ice::ObjectPrx no1 = adpt1->addWithUUID(nodeObs1);
 	adpt1->activate();
-	registry->ice_connection()->setAdapter(adpt1);	
+	registry->ice_getConnection()->setAdapter(adpt1);	
 	session1->setObserversByIdentity(ro1->ice_getIdentity(), no1->ice_getIdentity());
 	
 	Ice::ObjectAdapterPtr adpt2 = communicator->createObjectAdapterWithEndpoints("Observer2", "default");
@@ -866,7 +866,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	NodeObserverI* nodeObs1 = new NodeObserverI();
 	Ice::ObjectPrx no1 = adpt1->addWithUUID(nodeObs1);
 	adpt1->activate();
-	registry->ice_connection()->setAdapter(adpt1);	
+	registry->ice_getConnection()->setAdapter(adpt1);	
 	session1->setObserversByIdentity(ro1->ice_getIdentity(), no1->ice_getIdentity());
 	
 	regObs1->waitForUpdate(__FILE__, __LINE__);
@@ -1164,7 +1164,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	NodeObserverI* nodeObs1 = new NodeObserverI();
 	Ice::ObjectPrx no1 = adpt1->addWithUUID(nodeObs1);
 	adpt1->activate();
-	registry->ice_connection()->setAdapter(adpt1);	
+	registry->ice_getConnection()->setAdapter(adpt1);	
 	session1->setObserversByIdentity(ro1->ice_getIdentity(), no1->ice_getIdentity());
 	
 	regObs1->waitForUpdate(__FILE__, __LINE__);

@@ -11,9 +11,17 @@ package Ice;
 
 public interface ObjectPrx
 {
+    /**
+     * @deprecated This method has been replaced with ice_getHash.
+     **/
     int ice_hash();
+    int ice_getHash();
 
+    /**
+     * @deprecated This method has been replaced with ice_getCommunicator.
+     **/
     Communicator ice_communicator();
+    Communicator ice_getCommunicator();
 
     String ice_toString();
 
@@ -92,8 +100,12 @@ public interface ObjectPrx
     Ice.LocatorPrx ice_getLocator();
     ObjectPrx ice_locator(Ice.LocatorPrx locator);
 
-    boolean ice_getCollocationOptimization();
+    boolean ice_isCollocationOptimized();
+    /**
+     * @deprecated This method has been replaced with ice_collocationOptimized.
+     **/
     ObjectPrx ice_collocationOptimization(boolean b);
+    ObjectPrx ice_collocationOptimized(boolean b);
 
     ObjectPrx ice_twoway();
     boolean ice_isTwoway();
@@ -110,7 +122,11 @@ public interface ObjectPrx
     ObjectPrx ice_timeout(int t);
     ObjectPrx ice_connectionId(String connectionId);
 
+    /**
+     * @deprecated This method has been replaced with ice_getConnection.
+     **/
     Connection ice_connection();
+    Connection ice_getConnection();
 
     boolean equals(java.lang.Object r);
 }

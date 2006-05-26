@@ -174,7 +174,7 @@ public class AllTests
 	    //
 	    TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(500));
 	    to.holdAdapter(750);
-	    to.ice_connection().close(true); // Force a reconnect.
+	    to.ice_getConnection().close(true); // Force a reconnect.
 	    try
 	    {
 		to.op();
@@ -192,7 +192,7 @@ public class AllTests
 	    timeout.op(); // Ensure adapter is active.
 	    TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(1000));
 	    to.holdAdapter(500);
-	    to.ice_connection().close(true); // Force a reconnect.
+	    to.ice_getConnection().close(true); // Force a reconnect.
 	    try
 	    {
 		to.op();

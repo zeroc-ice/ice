@@ -124,7 +124,7 @@ allocateProxy(const Ice::ObjectPrx& proxy, const Ice::CommunicatorPtr& communica
     //
     //if(proxy)
     //{
-    //    p->proxy = new Ice::ObjectPrx(proxy->ice_collocationOptimization(false));
+    //    p->proxy = new Ice::ObjectPrx(proxy->ice_collocationOptimized(false));
     //}
     //
     p->proxy = new Ice::ObjectPrx(proxy);
@@ -189,6 +189,16 @@ extern "C"
 #endif
 static PyObject*
 proxyIceCommunicator(ProxyObject* self)
+{
+    PyErr_Warn(PyExc_DeprecationWarning, STRCAST("ice_communicator is deprecated, use ice_getCommunicator instead."));
+    return getCommunicatorWrapper(*self->communicator);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceGetCommunicator(ProxyObject* self)
 {
     return getCommunicatorWrapper(*self->communicator);
 }
@@ -1420,7 +1430,7 @@ proxyIceTimeout(ProxyObject* self, PyObject* args)
     return createProxy(newProxy, *self->communicator);
 }
 
-// NOTE: ice_collocationOptimization is not currently supported.
+// NOTE: ice_collocationOptimized is not currently supported.
 
 #ifdef WIN32
 extern "C"
@@ -1454,14 +1464,14 @@ proxyIceConnectionId(ProxyObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-proxyIceConnection(ProxyObject* self)
+proxyIceGetConnection(ProxyObject* self)
 {
     assert(self->proxy);
 
     Ice::ConnectionPtr con;
     try
     {
-        con = (*self->proxy)->ice_connection();
+        con = (*self->proxy)->ice_getConnection();
     }
     catch(const Ice::Exception& ex)
     {
@@ -1478,6 +1488,16 @@ proxyIceConnection(ProxyObject* self)
 	Py_INCREF(Py_None);
 	return Py_None;
     }
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceConnection(ProxyObject* self)
+{
+    PyErr_Warn(PyExc_DeprecationWarning, STRCAST("ice_connection is deprecated, use ice_getConnection instead."));
+    return proxyIceGetConnection(self);
 }
 
 static PyObject*
@@ -1797,7 +1817,9 @@ static PyMethodDef EndpointMethods[] =
 static PyMethodDef ProxyMethods[] =
 {
     { STRCAST("ice_communicator"), (PyCFunction)proxyIceCommunicator, METH_NOARGS,
-        PyDoc_STR(STRCAST("ice_communicator() -> Ice.Communicator")) },
+        PyDoc_STR(STRCAST("ice_communicator() -> Ice.Communicator")) }, // Deprecated
+    { STRCAST("ice_getCommunicator"), (PyCFunction)proxyIceGetCommunicator, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_getCommunicator() -> Ice.Communicator")) },
     { STRCAST("ice_toString"), (PyCFunction)proxyRepr, METH_NOARGS,
         PyDoc_STR(STRCAST("ice_toString() -> string")) },
     { STRCAST("ice_isA"), (PyCFunction)proxyIceIsA, METH_VARARGS,
@@ -1891,7 +1913,9 @@ static PyMethodDef ProxyMethods[] =
     { STRCAST("ice_connectionId"), (PyCFunction)proxyIceConnectionId, METH_VARARGS,
         PyDoc_STR(STRCAST("ice_connectionId(string) -> Ice.ObjectPrx")) },
     { STRCAST("ice_connection"), (PyCFunction)proxyIceConnection, METH_NOARGS,
-        PyDoc_STR(STRCAST("ice_connection() -> Ice.Connection")) },
+        PyDoc_STR(STRCAST("ice_connection() -> Ice.Connection")) }, // Deprecated
+    { STRCAST("ice_getConnection"), (PyCFunction)proxyIceGetConnection, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_getConnection() -> Ice.Connection")) },
     { STRCAST("ice_checkedCast"), (PyCFunction)proxyIceCheckedCast, METH_VARARGS | METH_CLASS,
         PyDoc_STR(STRCAST("ice_checkedCast(proxy, id[, facetOrCtx[, ctx]]) -> proxy")) },
     { STRCAST("ice_uncheckedCast"), (PyCFunction)proxyIceUncheckedCast, METH_VARARGS | METH_CLASS,

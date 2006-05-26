@@ -423,7 +423,7 @@ NodeService::start(int argc, char* argv[])
 	    try
 	    {
 		Ice::ObjectPrx object = _adapter->addWithUUID(new FileUserAccountMapperI(userAccountFileProperty));
-		object = object->ice_collocationOptimization(true);
+		object = object->ice_collocationOptimized(true);
 		mapper = UserAccountMapperPrx::uncheckedCast(object);
 	    }
 	    catch(const std::string& msg)

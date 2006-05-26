@@ -96,7 +96,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	TestIntfPrx test1 = adapter->getTestIntf();
 	TestIntfPrx test2 = adapter->getTestIntf();
-	test(test1->ice_connection() == test2->ice_connection());
+	test(test1->ice_getConnection() == test2->ice_getConnection());
 
 	test1->ice_ping();
 	test2->ice_ping();
@@ -104,8 +104,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	com->deactivateObjectAdapter(adapter);
 	
 	TestIntfPrx test3 = TestIntfPrx::uncheckedCast(test1);
-	test(test3->ice_connection() == test1->ice_connection());
-	test(test3->ice_connection() == test2->ice_connection());
+	test(test3->ice_getConnection() == test1->ice_getConnection());
+	test(test3->ice_getConnection() == test2->ice_getConnection());
 	
 	try
 	{
@@ -143,11 +143,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    random_shuffle(adpts.begin(), adpts.end(), randomGenerator);
 	    TestIntfPrx test3 = createTestIntfPrx(adpts);
 
-	    test(test1->ice_connection() == test2->ice_connection());
-	    test(test2->ice_connection() == test3->ice_connection());
+	    test(test1->ice_getConnection() == test2->ice_getConnection());
+	    test(test2->ice_getConnection() == test3->ice_getConnection());
 	    
 	    names.erase(test1->getAdapterName());
-	    test1->ice_connection()->close(false);
+	    test1->ice_getConnection()->close(false);
 	}
 
 	//
@@ -169,7 +169,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	    for(vector<RemoteObjectAdapterPrx>::const_iterator q = adapters.begin(); q != adapters.end(); ++q)
 	    {
-		(*q)->getTestIntf()->ice_connection()->close(false);
+		(*q)->getTestIntf()->ice_getConnection()->close(false);
 	    }
 	}	    
 
@@ -190,11 +190,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    random_shuffle(adpts.begin(), adpts.end(), randomGenerator);
 	    TestIntfPrx test3 = createTestIntfPrx(adpts);
 	    
-	    test(test1->ice_connection() == test2->ice_connection());
-	    test(test2->ice_connection() == test3->ice_connection());
+	    test(test1->ice_getConnection() == test2->ice_getConnection());
+	    test(test2->ice_getConnection() == test3->ice_getConnection());
 
 	    names.erase(test1->getAdapterName());
-	    test1->ice_connection()->close(false);
+	    test1->ice_getConnection()->close(false);
 	}
 	
 	//
@@ -234,11 +234,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    random_shuffle(adpts.begin(), adpts.end(), randomGenerator);
 	    TestIntfPrx test3 = createTestIntfPrx(adpts);
 
-	    test(test1->ice_connection() == test2->ice_connection());
-	    test(test2->ice_connection() == test3->ice_connection());
+	    test(test1->ice_getConnection() == test2->ice_getConnection());
+	    test(test2->ice_getConnection() == test3->ice_getConnection());
 	    
 	    names.erase(getAdapterNameWithAMI(test1));
-	    test1->ice_connection()->close(false);
+	    test1->ice_getConnection()->close(false);
 	}
 
 	//
@@ -260,7 +260,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	    for(vector<RemoteObjectAdapterPrx>::const_iterator q = adapters.begin(); q != adapters.end(); ++q)
 	    {
-		(*q)->getTestIntf()->ice_connection()->close(false);
+		(*q)->getTestIntf()->ice_getConnection()->close(false);
 	    }
 	}	    
 
@@ -281,11 +281,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    random_shuffle(adpts.begin(), adpts.end(), randomGenerator);
 	    TestIntfPrx test3 = createTestIntfPrx(adpts);
 	    
-	    test(test1->ice_connection() == test2->ice_connection());
-	    test(test2->ice_connection() == test3->ice_connection());
+	    test(test1->ice_getConnection() == test2->ice_getConnection());
+	    test(test2->ice_getConnection() == test3->ice_getConnection());
 
 	    names.erase(test1->getAdapterName());
-	    test1->ice_connection()->close(false);
+	    test1->ice_getConnection()->close(false);
 	}
 	
 	//
@@ -317,7 +317,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	while(!names.empty())
 	{
 	    names.erase(test->getAdapterName());
-	    test->ice_connection()->close(false);
+	    test->ice_getConnection()->close(false);
 	}
 
 	test = TestIntfPrx::uncheckedCast(test->ice_endpointSelection(Ice::Random));
@@ -329,7 +329,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	while(!names.empty())
 	{
 	    names.erase(test->getAdapterName());
-	    test->ice_connection()->close(false);
+	    test->ice_getConnection()->close(false);
 	}
 
 	deactivate(com, adapters);
@@ -382,11 +382,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	adapters.push_back(com->createObjectAdapter("Adapter36", endpoints[2]->toString()));
 	for(i = 0; i < nRetry && test->getAdapterName() == "Adapter36"; i++);
 	test(i == nRetry);
-	test->ice_connection()->close(false);
+	test->ice_getConnection()->close(false);
 	adapters.push_back(com->createObjectAdapter("Adapter35", endpoints[1]->toString()));
 	for(i = 0; i < nRetry && test->getAdapterName() == "Adapter35"; i++);
 	test(i == nRetry);
-	test->ice_connection()->close(false);
+	test->ice_getConnection()->close(false);
 	adapters.push_back(com->createObjectAdapter("Adapter34", endpoints[0]->toString()));
 	for(i = 0; i < nRetry && test->getAdapterName() == "Adapter34"; i++);
 	test(i == nRetry);
@@ -403,7 +403,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	TestIntfPrx test2 = TestIntfPrx::uncheckedCast(adapter->getTestIntf()->ice_cacheConnection(false));
 	test(!test1->ice_getCacheConnection());
 	test(!test2->ice_getCacheConnection());
-	test(test1->ice_connection() == test2->ice_connection());
+	test(test1->ice_getConnection() == test2->ice_getConnection());
 
 	test1->ice_ping();
 	
@@ -412,7 +412,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	TestIntfPrx test3 = TestIntfPrx::uncheckedCast(test1);
 	try
 	{
-	    test(test3->ice_connection() == test1->ice_connection());
+	    test(test3->ice_getConnection() == test1->ice_getConnection());
 	    test(false);
 	}
 	catch(const Ice::ConnectionRefusedException&)
@@ -622,7 +622,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(test->getAdapterName() == "Adapter71");
 	
 	TestIntfPrx testUDP = TestIntfPrx::uncheckedCast(test->ice_datagram());
-	test(test->ice_connection() != testUDP->ice_connection());
+	test(test->ice_getConnection() != testUDP->ice_getConnection());
 	try
 	{
 	    testUDP->getAdapterName();
@@ -646,7 +646,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    for(i = 0; i < 5; i++)
 	    {
 		test(test->getAdapterName() == "Adapter82");
-		test->ice_connection()->close(false);
+		test->ice_getConnection()->close(false);
 	    }
 	    
 	    TestIntfPrx testSecure = TestIntfPrx::uncheckedCast(test->ice_secure(true));
@@ -655,14 +655,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(!testSecure->ice_getSecure());
 	    testSecure = TestIntfPrx::uncheckedCast(test->ice_secure(true));
 	    test(testSecure->ice_getSecure());
-	    test(test->ice_connection() != testSecure->ice_connection());
+	    test(test->ice_getConnection() != testSecure->ice_getConnection());
 
 	    com->deactivateObjectAdapter(adapters[1]);
 	    
 	    for(i = 0; i < 5; i++)
 	    {
 		test(test->getAdapterName() == "Adapter81");
-		test->ice_connection()->close(false);
+		test->ice_getConnection()->close(false);
 	    }
 
 	    com->createObjectAdapter("Adapter83", (test->ice_getEndpoints()[1])->toString()); // Reactive tcp OA.
@@ -670,7 +670,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    for(i = 0; i < 5; i++)
 	    {
 		test(test->getAdapterName() == "Adapter83");
-		test->ice_connection()->close(false);
+		test->ice_getConnection()->close(false);
 	    }
 
 	    com->deactivateObjectAdapter(adapters[0]);

@@ -27,9 +27,9 @@ public class AllTests
 	Ice.ObjectPrx baseProxy = communicator.stringToProxy(rf);
 	test(baseProxy != null);
 	Console.Out.WriteLine("ok");
-    	Console.Out.Write("testing ice_communicator... ");
+    	Console.Out.Write("testing ice_getCommunicator... ");
 	Console.Out.Flush();
-	test(baseProxy.ice_communicator() == communicator);
+	test(baseProxy.ice_getCommunicator() == communicator);
 	Console.Out.WriteLine("ok");
 
 	Console.Out.Write("testing proxy methods... ");
@@ -44,8 +44,8 @@ public class AllTests
 	test(baseProxy.ice_batchDatagram().ice_isBatchDatagram());
 	test(baseProxy.ice_secure(true).ice_getSecure());
 	test(!baseProxy.ice_secure(false).ice_getSecure());
-	test(baseProxy.ice_collocationOptimization(true).ice_getCollocationOptimization());
-	test(!baseProxy.ice_collocationOptimization(false).ice_getCollocationOptimization());
+	test(baseProxy.ice_collocationOptimized(true).ice_isCollocationOptimized());
+	test(!baseProxy.ice_collocationOptimized(false).ice_isCollocationOptimized());
 	Console.Out.WriteLine("ok");
 
 	Console.Out.Write("testing checked cast... ");

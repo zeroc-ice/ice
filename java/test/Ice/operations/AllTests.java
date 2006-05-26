@@ -28,9 +28,9 @@ public class AllTests
         test(base != null);
         System.out.println("ok");
 
-    	System.out.print("testing ice_communicator... ");
+    	System.out.print("testing ice_getCommunicator... ");
 	System.out.flush();
-	test(base.ice_communicator() == communicator);
+	test(base.ice_getCommunicator() == communicator);
 	System.out.println("ok");
 
 	System.out.print("testing proxy methods... ");
@@ -46,8 +46,8 @@ public class AllTests
 	test(base.ice_batchDatagram().ice_isBatchDatagram());
 	test(base.ice_secure(true).ice_getSecure());
 	test(!base.ice_secure(false).ice_getSecure());
-	test(base.ice_collocationOptimization(true).ice_getCollocationOptimization());
-	test(!base.ice_collocationOptimization(false).ice_getCollocationOptimization());
+	test(base.ice_collocationOptimized(true).ice_isCollocationOptimized());
+	test(!base.ice_collocationOptimized(false).ice_isCollocationOptimized());
 	System.out.println("ok");
 
         System.out.print("testing checked cast... ");

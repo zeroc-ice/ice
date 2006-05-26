@@ -38,7 +38,7 @@ public:
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
 	    out << "loaded `" << _id << "' on node `" << _node << "'";	
 	}
-	_server->loadCallback(ServerPrx::uncheckedCast(proxy->ice_collocationOptimization(false)), adapters, at, dt);
+	_server->loadCallback(ServerPrx::uncheckedCast(proxy->ice_collocationOptimized(false)), adapters, at, dt);
     }
 
     void

@@ -175,7 +175,7 @@ IceInternal::RouterInfo::getClientProxy()
 	//
 	try
 	{
-	    _clientProxy = _clientProxy->ice_timeout(_router->ice_connection()->timeout());
+	    _clientProxy = _clientProxy->ice_timeout(_router->ice_getConnection()->timeout());
 	}
 	catch(const Ice::CollocationOptimizationException&)
 	{
@@ -199,7 +199,7 @@ IceInternal::RouterInfo::setClientProxy(const ObjectPrx& clientProxy)
     //
     try
     {
-        _clientProxy = _clientProxy->ice_timeout(_router->ice_connection()->timeout());
+        _clientProxy = _clientProxy->ice_timeout(_router->ice_getConnection()->timeout());
     }
     catch(const Ice::CollocationOptimizationException&)
     {
