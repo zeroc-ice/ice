@@ -39,9 +39,9 @@ public class AllTests
 	test(base.ice_batchOneway().ice_isBatchOneway());
 	out.println("ok");
 
-    	out.print("testing ice_communicator... ");
+    	out.print("testing ice_getCommunicator... ");
 	out.flush();
-	test(base.ice_communicator() == communicator);
+	test(base.ice_getCommunicator() == communicator);
 	out.println("ok");
 
         out.print("testing checked cast... ");

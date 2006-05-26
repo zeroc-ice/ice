@@ -106,9 +106,12 @@ public:
     bool operator==(const Object&) const;
     bool operator!=(const Object&) const;
     bool operator<(const Object&) const;
-    ::Ice::Int ice_hash() const;
 
-    ::Ice::CommunicatorPtr ice_communicator() const;
+    ICE_DEPRECATED_API ::Ice::Int ice_hash() const;
+    ::Ice::Int ice_getHash() const;
+
+    ICE_DEPRECATED_API ::Ice::CommunicatorPtr ice_communicator() const;
+    ::Ice::CommunicatorPtr ice_getCommunicator() const;
 
     ::std::string ice_toString() const;
 
@@ -154,7 +157,8 @@ public:
 
     ::Ice::ObjectPrx ice_timeout(int) const;
 
-    ::Ice::ConnectionPtr ice_connection();
+    ICE_DEPRECATED_API ::Ice::ConnectionPtr ice_connection();
+    ::Ice::ConnectionPtr ice_getConnection();
 
     ::IceInternal::ReferencePtr __reference() const;
     void __copyFrom(const ::Ice::ObjectPrx&);

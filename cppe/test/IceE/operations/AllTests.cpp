@@ -33,8 +33,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(base->ice_batchOneway()->ice_isBatchOneway());
     tprintf("ok\n");
 
-    tprintf("testing ice_communicator... ");
-    test(base->ice_communicator().get() == communicator.get());
+    tprintf("testing ice_getCommunicator... ");
+    test(base->ice_getCommunicator().get() == communicator.get());
     tprintf("ok\n");
 
     tprintf("testing checked cast... ");

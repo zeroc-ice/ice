@@ -147,11 +147,23 @@ IceProxy::Ice::Object::operator<(const Object& r) const
 Int
 IceProxy::Ice::Object::ice_hash() const
 {
+    return ice_getHash();
+}
+
+Int
+IceProxy::Ice::Object::ice_getHash() const
+{
     return _reference->hash();
 }
 
 CommunicatorPtr
 IceProxy::Ice::Object::ice_communicator() const
+{
+    return ice_getCommunicator();
+}
+
+CommunicatorPtr
+IceProxy::Ice::Object::ice_getCommunicator() const
 {
     return _reference->getCommunicator();
 }
@@ -178,7 +190,7 @@ IceProxy::Ice::Object::ice_isA(const string& __id, const Context& __context)
 	{
 	    __checkTwowayOnly("ice_isA");
 	    static const string __operation("ice_isA");
-	    ConnectionPtr __connection = ice_connection();
+	    ConnectionPtr __connection = ice_getConnection();
             Outgoing __og(__connection.get(), _reference.get(), __operation, ::Ice::Nonmutating, __context);
             BasicStream* __stream = __og.stream();
             try
@@ -250,7 +262,7 @@ IceProxy::Ice::Object::ice_ping(const Context& __context)
 	try
 	{
             static const string __operation("ice_ping");
-	    ConnectionPtr __connection = ice_connection();
+	    ConnectionPtr __connection = ice_getConnection();
             Outgoing __og(__connection.get(), _reference.get(), __operation, ::Ice::Nonmutating, __context);
             bool __ok = __og.invoke();
             try
@@ -313,7 +325,7 @@ IceProxy::Ice::Object::ice_ids(const Context& __context)
 	{
 	    __checkTwowayOnly("ice_ids");
             static const string __operation("ice_ids");
-	    ConnectionPtr __connection = ice_connection();
+	    ConnectionPtr __connection = ice_getConnection();
             Outgoing __og(__connection.get(), _reference.get(), __operation, ::Ice::Nonmutating, __context);
             vector<string> __ret;
             bool __ok = __og.invoke();
@@ -378,7 +390,7 @@ IceProxy::Ice::Object::ice_id(const Context& __context)
 	{
 	    __checkTwowayOnly("ice_id");
             static const string __operation("ice_id");
-	    ConnectionPtr __connection = ice_connection();
+	    ConnectionPtr __connection = ice_getConnection();
             Outgoing __og(__connection.get(), _reference.get(), __operation, ::Ice::Nonmutating, __context);
             string __ret;
             bool __ok = __og.invoke();
@@ -646,6 +658,12 @@ IceProxy::Ice::Object::ice_timeout(int t) const
 
 ConnectionPtr
 IceProxy::Ice::Object::ice_connection()
+{
+    return ice_getConnection();
+}
+
+ConnectionPtr
+IceProxy::Ice::Object::ice_getConnection()
 {
     ::IceUtil::Mutex::Lock sync(*this);
 

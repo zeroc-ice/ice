@@ -66,7 +66,7 @@ batchOneways(const Test::MyClassPrx& p)
 	    test(false);
 	}
 	
-	batch->ice_connection()->flushBatchRequests();
+	batch->ice_getConnection()->flushBatchRequests();
     }
     
     for(i = 0 ; i < 10 ; ++i)
@@ -94,6 +94,6 @@ batchOneways(const Test::MyClassPrx& p)
 	    test(false);
 	}
 	
-	batch->ice_connection()->flushBatchRequests();
+	batch->ice_getConnection()->flushBatchRequests();
     }
 }

@@ -20,10 +20,21 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final int
     ice_hash()
     {
+        return ice_getHash();
+    }
+
+    public final int
+    ice_getHash()
+    {
         return _reference.hashCode();
     }
 
     public final Communicator ice_communicator()
+    {
+        return ice_getCommunicator();
+    }
+
+    public final Communicator ice_getCommunicator()
     {
         return _reference.getCommunicator();
     }
@@ -53,7 +64,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
             try
             {
 	        __checkTwowayOnly("ice_isA");
-		Connection __connection = ice_connection();
+		Connection __connection = ice_getConnection();
                 IceInternal.Outgoing __og = __connection.getOutgoing(_reference, "ice_isA", OperationMode.Nonmutating,
                                                                      __context);
                 try
@@ -120,7 +131,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
             try
             {
 	        __checkTwowayOnly("ice_ping");
-		Connection __connection = ice_connection();
+		Connection __connection = ice_getConnection();
                 IceInternal.Outgoing __og = __connection.getOutgoing(_reference, "ice_ping", OperationMode.Nonmutating,
                                                                     __context);
                 try
@@ -178,7 +189,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
             try
             {
 	        __checkTwowayOnly("ice_ids");
-	        Connection __connection = ice_connection();
+	        Connection __connection = ice_getConnection();
                 IceInternal.Outgoing __og = __connection.getOutgoing(_reference, "ice_ids", OperationMode.Nonmutating,
                                                                     __context);
                 try
@@ -236,7 +247,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
             try
             {
 	        __checkTwowayOnly("ice_id");
-	        Connection __connection = ice_connection();
+	        Connection __connection = ice_getConnection();
                 IceInternal.Outgoing __og = __connection.getOutgoing(_reference, "ice_id", OperationMode.Nonmutating,
                                                                     __context);
                 try
@@ -496,6 +507,12 @@ public class ObjectPrxHelperBase implements ObjectPrx
 
     public synchronized final Connection
     ice_connection()
+    {
+        return ice_getConnection();
+    }
+
+    public synchronized final Connection
+    ice_getConnection()
     {
 	if(_connection == null)
 	{

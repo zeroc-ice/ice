@@ -14,7 +14,7 @@
 #include <IceE/RouterInfo.h>
 #include <IceE/Router.h>
 #include <IceE/LocalException.h>
-#include <IceE/Connection.h> // For ice_connection()->timeout().
+#include <IceE/Connection.h> // For ice_getConnection()->timeout().
 #include <IceE/Functional.h>
 
 using namespace std;
@@ -179,7 +179,7 @@ IceInternal::RouterInfo::getClientProxy()
 	// we must use the same timeout as the already existing
 	// connection.
 	//
-	_clientProxy = _clientProxy->ice_timeout(_router->ice_connection()->timeout());
+	_clientProxy = _clientProxy->ice_timeout(_router->ice_getConnection()->timeout());
     }
 
     return _clientProxy;
@@ -196,7 +196,7 @@ IceInternal::RouterInfo::setClientProxy(const ObjectPrx& clientProxy)
     // In order to avoid creating a new connection to the router, we
     // must use the same timeout as the already existing connection.
     //
-    _clientProxy = _clientProxy->ice_timeout(_router->ice_connection()->timeout());
+    _clientProxy = _clientProxy->ice_timeout(_router->ice_getConnection()->timeout());
 }
 
 ObjectPrx

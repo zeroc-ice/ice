@@ -2271,7 +2271,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	{
 	    out << nl << "__checkTwowayOnly(\"" << opName << "\");";
 	}
-	out << nl << "Ice.Connection __connection = ice_connection();";
+	out << nl << "Ice.Connection __connection = ice_getConnection();";
         out << nl << "IceInternal.Outgoing __og = __connection.getOutgoing(_reference, \"" << op->name() << "\", "
             << sliceModeToIceMode(op) << ", __ctx);";
         out << nl << "try";

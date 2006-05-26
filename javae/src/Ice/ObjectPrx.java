@@ -11,9 +11,17 @@ package Ice;
 
 public interface ObjectPrx
 {
+    /**
+     * @deprecated This method has been replaced with ice_getHash.
+     **/
     int ice_hash();
+    int ice_getHash();
 
+    /**
+     * @deprecated This method has been replaced with ice_getCommunicator.
+     **/
     Communicator ice_communicator();
+    Communicator ice_getCommunicator();
 
     String ice_toString();
 
@@ -66,7 +74,11 @@ public interface ObjectPrx
 
     ObjectPrx ice_timeout(int t);
 
+    /**
+     * @deprecated This method has been replaced with ice_getConnection.
+     **/
     Connection ice_connection();
+    Connection ice_getConnection();
 
     //
     // javac 1.1 emits a bogus error about this method causing ambiguity with

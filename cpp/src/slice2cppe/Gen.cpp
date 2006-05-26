@@ -1495,7 +1495,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << nl << "__checkTwowayOnly(\"" << name << "\");";
     }
     C << nl << "static const ::std::string __operation(\"" << p->name() << "\");";
-    C << nl << "::Ice::ConnectionPtr __connection = ice_connection();";
+    C << nl << "::Ice::ConnectionPtr __connection = ice_getConnection();";
     C << nl << "::IceInternal::Outgoing __outS(__connection.get(), _reference.get(), __operation, "
       << "static_cast< ::Ice::OperationMode>(" << p->mode() << "), __ctx);";
     if(!inParams.empty())

@@ -50,7 +50,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     ident.category = "";
     adapter->add(new CallbackReceiverI, ident);
     adapter->activate();
-    server->ice_connection()->setAdapter(adapter);
+    server->ice_getConnection()->setAdapter(adapter);
     server->addClient(ident);
     communicator->waitForShutdown();
 
