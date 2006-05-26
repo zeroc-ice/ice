@@ -158,7 +158,7 @@ static function_entry _proxyMethods[] =
 {
     {"__construct",                PHP_FN(Ice_ObjectPrx___construct),                NULL},
     {"__tostring",                 PHP_FN(Ice_ObjectPrx___tostring),                 NULL},
-    {"ice_communicator",           PHP_FN(Ice_ObjectPrx_ice_communicator),           NULL},
+    {"ice_getCommunicator",        PHP_FN(Ice_ObjectPrx_ice_getCommunicator),        NULL},
     {"ice_toString",               PHP_FN(Ice_ObjectPrx_ice_toString),               NULL},
     {"ice_isA",                    PHP_FN(Ice_ObjectPrx_ice_isA),                    NULL},
     {"ice_ping",                   PHP_FN(Ice_ObjectPrx_ice_ping),                   NULL},
@@ -201,7 +201,7 @@ static function_entry _proxyMethods[] =
     {"ice_compress",               PHP_FN(Ice_ObjectPrx_ice_compress),               NULL},
     {"ice_timeout",                PHP_FN(Ice_ObjectPrx_ice_timeout),                NULL},
     {"ice_connectionId",           PHP_FN(Ice_ObjectPrx_ice_connectionId),           NULL},
-    {"ice_connection",             PHP_FN(Ice_ObjectPrx_ice_connection),             NULL},
+    {"ice_getConnection",          PHP_FN(Ice_ObjectPrx_ice_getConnection),          NULL},
     {"ice_uncheckedCast",          PHP_FN(Ice_ObjectPrx_ice_uncheckedCast),          NULL},
     {"ice_checkedCast",            PHP_FN(Ice_ObjectPrx_ice_checkedCast),            NULL},
     {NULL, NULL, NULL}
@@ -399,7 +399,7 @@ ZEND_FUNCTION(Ice_ObjectPrx___tostring)
     }
 }
 
-ZEND_FUNCTION(Ice_ObjectPrx_ice_communicator)
+ZEND_FUNCTION(Ice_ObjectPrx_ice_getCommunicator)
 {
     zval* zc = getCommunicatorZval(TSRMLS_C);
 
@@ -1520,7 +1520,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_connectionId)
     }
 }
 
-ZEND_FUNCTION(Ice_ObjectPrx_ice_connection)
+ZEND_FUNCTION(Ice_ObjectPrx_ice_getConnection)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
@@ -1533,7 +1533,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_connection)
 
     try
     {
-	Ice::ConnectionPtr con = _this->getProxy()->ice_connection();
+	Ice::ConnectionPtr con = _this->getProxy()->ice_getConnection();
 	if(!createConnection(return_value, con TSRMLS_CC))
 	{
 	    RETURN_NULL();

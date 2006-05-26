@@ -19,7 +19,7 @@ extern "C"
 {
 ZEND_FUNCTION(Ice_ObjectPrx___construct);
 ZEND_FUNCTION(Ice_ObjectPrx___tostring);
-ZEND_FUNCTION(Ice_ObjectPrx_ice_communicator);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_getCommunicator);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_toString);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_isA);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_ping);
@@ -57,7 +57,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isBatchDatagram);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_compress);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_timeout);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_connectionId);
-ZEND_FUNCTION(Ice_ObjectPrx_ice_connection);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_getConnection);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_uncheckedCast);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_checkedCast);
 
@@ -77,7 +77,7 @@ ZEND_FUNCTION(Ice_Connection_toString);
 #define ICE_PHP_PROXY_FUNCTIONS \
     ZEND_FE(Ice_ObjectPrx___construct,           NULL) \
     ZEND_FE(Ice_ObjectPrx___tostring,            NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_communicator,      NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_getCommunicator,   NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_toString,          NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_isA,               NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_ping,              NULL) \
@@ -108,7 +108,7 @@ ZEND_FUNCTION(Ice_Connection_toString);
     ZEND_FE(Ice_ObjectPrx_ice_compress,          NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_timeout,           NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_connectionId,      NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_connection,        NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_getConnection,     NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_uncheckedCast,     NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_checkedCast,       NULL)
 

@@ -430,9 +430,9 @@ function allTests()
     test(!$base->ice_secure(false)->ice_getSecure());
     echo "ok\n";
 
-    echo "testing ice_communicator... ";
+    echo "testing ice_getCommunicator... ";
     flush();
-    test($base->ice_communicator() === $ICE);
+    test($base->ice_getCommunicator() === $ICE);
     echo "ok\n";
 
     echo "testing checked cast... ";
