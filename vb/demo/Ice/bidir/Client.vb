@@ -35,7 +35,7 @@ Module BidirC
             ident.category = ""
             adapter.add(New CallbackReceiverI, ident)
             adapter.activate()
-            server.ice_connection().setAdapter(adapter)
+            server.ice_getConnection().setAdapter(adapter)
             server.addClient(ident)
             communicator().waitForShutdown()
 
