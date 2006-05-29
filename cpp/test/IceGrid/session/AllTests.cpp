@@ -130,14 +130,64 @@ private:
 };
 typedef IceUtil::Handle<SessionKeepAliveThread> SessionKeepAliveThreadPtr;
 
-class RegistryObserverI : public RegistryObserver, public IceUtil::Monitor<IceUtil::Mutex>
+class ObserverStackTracer
 {
 public:
 
-    RegistryObserverI() : _updated(0)
+    ObserverStackTracer(const string& name) : _name(name)
     {
+	_observers.insert(make_pair(name, this));
     }
 
+    virtual ~ObserverStackTracer()
+    {
+	_observers.erase(_name);
+    }
+
+    static void
+    printStack()
+    {
+	map<string, ObserverStackTracer*>::const_iterator p;
+	int i = 0;
+	for(p = _observers.begin(); p != _observers.end(); ++p)
+	{
+	    vector<string>::const_iterator q = p->second->_stack.begin();
+	    if(p->second->_stack.size() > 10)
+	    {
+		q = p->second->_stack.begin() + p->second->_stack.size() - 10;
+	    }
+	    cerr << "Last 10 updates of observer `" << p->second->_name << "':" << endl;
+	    for(; q != p->second->_stack.end(); ++q)
+	    {
+		cerr << "  " << *q << endl;
+	    }
+	    p->second->_stack.clear();
+	}
+    }
+
+    void
+    trace(const string& msg)
+    {
+	_stack.push_back(msg);
+    }
+
+private:
+
+    string _name;
+    vector<string> _stack;
+    
+    static map<string, ObserverStackTracer*> _observers;
+};
+map<string, ObserverStackTracer*> ObserverStackTracer::_observers;
+
+class RegistryObserverI : public RegistryObserver, public ObserverStackTracer, public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    RegistryObserverI(const string& name) : ObserverStackTracer(name), _updated(0)
+    {
+    }
+    
     virtual void 
     init(int serial, const ApplicationDescriptorSeq& apps, const AdapterInfoSeq& adapters, 
 	 const ObjectInfoSeq& objects, const Ice::Current&)
@@ -243,8 +293,8 @@ public:
 	Lock sync(*this);
 
 	ostringstream os;
-	os << "wait for update from line " << line;
-	_stack.push_back(os.str());
+	os << "wait for update from line " << line << " (serial = " << serial << ")";
+	trace(os.str());
 
 	while(!_updated)
 	{
@@ -257,23 +307,6 @@ public:
 	--_updated;
     }
 
-    void
-    printStack()
-    {
-	Lock sync(*this);
-	vector<string>::const_iterator p = _stack.begin();
-	if(_stack.size() > 10)
-	{
-	    p = _stack.begin() + _stack.size() - 10;
-	}
-	cerr << "Last 10 updates:" << endl;
-	for(; p != _stack.end(); ++p)
-	{
-	    cerr << "  " << *p << endl;
-	}
-	_stack.clear();
-    }
-
     int serial;
     map<string, ApplicationDescriptor> applications;
     map<string, AdapterInfo> adapters;
@@ -284,7 +317,10 @@ private:
     void
     updated(int serial, const string& update)
     {
-	_stack.push_back(update);
+	ostringstream os;
+	os  << update << " (serial = " << serial << ")";
+	trace(os.str());
+
 	if(serial != -1)
 	{
 	    this->serial = serial;
@@ -294,14 +330,14 @@ private:
     }
 
     int _updated;
-    vector<string> _stack;
 };
+typedef IceUtil::Handle<RegistryObserverI> RegistryObserverIPtr;
 
-class NodeObserverI : public NodeObserver, public IceUtil::Monitor<IceUtil::Mutex>
+class NodeObserverI : public NodeObserver, public ObserverStackTracer, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    NodeObserverI() : _updated(0)
+    NodeObserverI(const string& name) : ObserverStackTracer(name), _updated(0)
     {
     }
 
@@ -313,7 +349,7 @@ public:
 	{
 	    this->nodes[p->name] = *p;
 	}
-	updated(current);
+	updated(current, "init");
     }
 
     virtual void
@@ -321,7 +357,7 @@ public:
     {
 	Lock sync(*this);
 	this->nodes[info.name] = info;
-	updated(current);
+	updated(current, "node `" + info.name + "' up");
     }
 
     virtual void
@@ -329,7 +365,7 @@ public:
     {
 	Lock sync(*this);
 	this->nodes.erase(name);
-	updated(current);
+	updated(current, "node `" + name + "' down");
     }
 
     virtual void
@@ -358,7 +394,11 @@ public:
 	{
 	    servers.push_back(info);
 	}
-	updated(current);
+
+	ostringstream os;
+	os << "server `" << info.id << "' on node `" << node << "' state updated: " << info.state
+	   << " (pid = " << info.pid << ")";
+	updated(current, os.str());
     }
 
     virtual void
@@ -388,13 +428,21 @@ public:
 	    adapters.push_back(info);
 	}
 
-	updated(current);
+	ostringstream os;
+	os << "adapter `" << info.id << " on node `" << node << "' state updated: " 
+	   << (info.proxy ? "active" : "inactive");
+	updated(current, os.str());
     }
 
     void
     waitForUpdate(const char* file, int line)
     {
 	Lock sync(*this);
+
+	ostringstream os;
+	os << "wait for update from line " << line;
+	trace(os.str());
+
 	while(!_updated)
 	{
 	    if(!timedWait(IceUtil::Time::seconds(10)))
@@ -411,8 +459,9 @@ public:
 private:
 
     void
-    updated(const Ice::Current& current)
+    updated(const Ice::Current& current, const string& update)
     {
+	trace(update);
 	++_updated;
 	//cerr << "updated: " << current.operation << " " << _updated << endl;
 	notifyAll();
@@ -420,6 +469,17 @@ private:
 
     int _updated;
 };
+typedef IceUtil::Handle<NodeObserverI> NodeObserverIPtr;
+
+void
+testFailedAndPrintObservers(const char* expr, const char* file, unsigned int line)
+{
+    ObserverStackTracer::printStack();
+    testFailed(expr, file, line);
+}
+
+#undef test
+#define test(ex) ((ex) ? ((void)0) : testFailedAndPrintObservers(#ex, __FILE__, __LINE__))
 
 void 
 allTests(const Ice::CommunicatorPtr& communicator)
@@ -649,18 +709,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	keepAlive->add(session2);	
 	
 	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("Observer1");
-	RegistryObserverI* regObs1 = new RegistryObserverI();
+	RegistryObserverIPtr regObs1 = new RegistryObserverI("regObs1");
 	Ice::ObjectPrx ro1 = adpt1->addWithUUID(regObs1);
-	NodeObserverI* nodeObs1 = new NodeObserverI();
+	NodeObserverIPtr nodeObs1 = new NodeObserverI("nodeObs1");
 	Ice::ObjectPrx no1 = adpt1->addWithUUID(nodeObs1);
 	adpt1->activate();
 	registry->ice_getConnection()->setAdapter(adpt1);	
 	session1->setObserversByIdentity(ro1->ice_getIdentity(), no1->ice_getIdentity());
 	
 	Ice::ObjectAdapterPtr adpt2 = communicator->createObjectAdapterWithEndpoints("Observer2", "default");
-	RegistryObserverI* regObs2 = new RegistryObserverI();
+	RegistryObserverIPtr regObs2 = new RegistryObserverI("regObs2");
  	Ice::ObjectPrx ro2 = adpt2->addWithUUID(regObs2);
- 	NodeObserverI* nodeObs2 = new NodeObserverI();
+ 	NodeObserverIPtr nodeObs2 = new NodeObserverI("nodeObs1");
  	Ice::ObjectPrx no2 = adpt2->addWithUUID(nodeObs2);
  	adpt2->activate();
  	session2->setObservers(RegistryObserverPrx::uncheckedCast(ro2), NodeObserverPrx::uncheckedCast(no2));
@@ -861,9 +921,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	keepAlive->add(session1);
 	
 	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("Observer1.1");
-	RegistryObserverI* regObs1 = new RegistryObserverI();
+	RegistryObserverIPtr regObs1 = new RegistryObserverI("regObs1");
 	Ice::ObjectPrx ro1 = adpt1->addWithUUID(regObs1);
-	NodeObserverI* nodeObs1 = new NodeObserverI();
+	NodeObserverIPtr nodeObs1 = new NodeObserverI("nodeObs1");
 	Ice::ObjectPrx no1 = adpt1->addWithUUID(nodeObs1);
 	adpt1->activate();
 	registry->ice_getConnection()->setAdapter(adpt1);	
@@ -1007,7 +1067,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    locatorRegistry->setAdapterDirectProxy("DummyAdapter", 0);
 	    regObs1->waitForUpdate(__FILE__, __LINE__);
 	    test(regObs1->adapters.find("DummyAdapter") == regObs1->adapters.end());
-	    test(++serial == regObs1->serial);	    
+	    test(++serial == regObs1->serial);
 	}
 	catch(const Ice::UserException& ex)
 	{
@@ -1159,9 +1219,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	keepAlive->add(session1);
 	
 	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("Observer1.2");
-	RegistryObserverI* regObs1 = new RegistryObserverI();
+	RegistryObserverIPtr regObs1 = new RegistryObserverI("regObs1");
 	Ice::ObjectPrx ro1 = adpt1->addWithUUID(regObs1);
-	NodeObserverI* nodeObs1 = new NodeObserverI();
+	NodeObserverIPtr nodeObs1 = new NodeObserverI("nodeObs1");
 	Ice::ObjectPrx no1 = adpt1->addWithUUID(nodeObs1);
 	adpt1->activate();
 	registry->ice_getConnection()->setAdapter(adpt1);	
