@@ -124,17 +124,17 @@ template <typename GetKeyFunc, typename Seq> Seq
 getSeqUpdatedElts(const Seq& lseq, const Seq& rseq, GetKeyFunc func)
 {
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
-   return getSeqUpdatedElts(lseq, rseq, func, equal_to<Seq::value_type>());
+   return getSeqUpdatedEltsWithEq(lseq, rseq, func, equal_to<Seq::value_type>());
 #else
-   return getSeqUpdatedElts(lseq, rseq, func, equal_to<typename Seq::value_type>());
+   return getSeqUpdatedEltsWithEq(lseq, rseq, func, equal_to<typename Seq::value_type>());
 #endif
 }
 
 template <typename GetKeyFunc, typename EqFunc, typename Seq> Seq
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
-getSeqUpdatedElts(const Seq& lseq, const Seq& rseq, GetKeyFunc func, EqFunc eq)
+getSeqUpdatedEltsWithEq(const Seq& lseq, const Seq& rseq, GetKeyFunc func, EqFunc eq)
 #else
-getSeqUpdatedElts(const Seq& lseq, const Seq& rseq, GetKeyFunc func, EqFunc eq)
+getSeqUpdatedEltsWithEq(const Seq& lseq, const Seq& rseq, GetKeyFunc func, EqFunc eq)
 #endif
 {
     Seq result;
@@ -208,14 +208,14 @@ template<typename Dict> Dict
 getDictUpdatedElts(const Dict& ldict, const Dict& rdict)
 {
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
-    return getDictUpdatedElts(ldict, rdict, equal_to<Dict::mapped_type>());
+    return getDictUpdatedEltsWithEq(ldict, rdict, equal_to<Dict::mapped_type>());
 #else
-    return getDictUpdatedElts(ldict, rdict, equal_to<typename Dict::mapped_type>());
+    return getDictUpdatedEltsWithEq(ldict, rdict, equal_to<typename Dict::mapped_type>());
 #endif
 }
 
 template<typename EqFunc, typename Dict> Dict
-getDictUpdatedElts(const Dict& ldict, const Dict& rdict, EqFunc eq)
+getDictUpdatedEltsWithEq(const Dict& ldict, const Dict& rdict, EqFunc eq)
 {
     Dict result;
     for(typename Dict::const_iterator p = rdict.begin(); p != rdict.end(); ++p)
@@ -2378,13 +2378,13 @@ ApplicationHelper::diff(const ApplicationHelper& helper) const
 
     GetReplicaGroupId rk;
     ReplicaGroupEq req;
-    updt.replicaGroups = getSeqUpdatedElts(helper._def.replicaGroups, _def.replicaGroups, rk, req);
+    updt.replicaGroups = getSeqUpdatedEltsWithEq(helper._def.replicaGroups, _def.replicaGroups, rk, req);
     updt.removeReplicaGroups = getSeqRemovedElts(helper._def.replicaGroups, _def.replicaGroups, rk);
 
     TemplateDescriptorEqual eq(_communicator);
-    updt.serverTemplates = getDictUpdatedElts(helper._def.serverTemplates, _def.serverTemplates, eq);
+    updt.serverTemplates = getDictUpdatedEltsWithEq(helper._def.serverTemplates, _def.serverTemplates, eq);
     updt.removeServerTemplates = getDictRemovedElts(helper._def.serverTemplates, _def.serverTemplates);
-    updt.serviceTemplates = getDictUpdatedElts(helper._def.serviceTemplates, _def.serviceTemplates, eq);
+    updt.serviceTemplates = getDictUpdatedEltsWithEq(helper._def.serviceTemplates, _def.serviceTemplates, eq);
     updt.removeServiceTemplates = getDictRemovedElts(helper._def.serviceTemplates, _def.serviceTemplates);
 
     NodeHelperDict updated = getDictUpdatedElts(helper._nodes, _nodes);
@@ -2705,7 +2705,7 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
 	GetReplicaGroupId rk;
 	ReplicaGroupEq req;
 	ReplicaGroupDescriptorSeq updated = 
-	    getSeqUpdatedElts(helper._def.replicaGroups, _def.replicaGroups, rk, req);
+	    getSeqUpdatedEltsWithEq(helper._def.replicaGroups, _def.replicaGroups, rk, req);
 	Ice::StringSeq removed = getSeqRemovedElts(helper._def.replicaGroups, _def.replicaGroups, rk);
 	if(!updated.empty() || !removed.empty())
 	{
@@ -2745,7 +2745,7 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
     {
 	TemplateDescriptorEqual eq(_communicator);
 	TemplateDescriptorDict updated;
-	updated = getDictUpdatedElts(helper._def.serverTemplates, _def.serverTemplates, eq);
+	updated = getDictUpdatedEltsWithEq(helper._def.serverTemplates, _def.serverTemplates, eq);
 	Ice::StringSeq removed = getDictRemovedElts(helper._def.serverTemplates, _def.serverTemplates);
 	if(!updated.empty() || !removed.empty())
 	{
@@ -2775,7 +2775,7 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
     {
 	TemplateDescriptorEqual eq(_communicator);
 	TemplateDescriptorDict updated;
-	updated = getDictUpdatedElts(helper._def.serviceTemplates, _def.serviceTemplates, eq);
+	updated = getDictUpdatedEltsWithEq(helper._def.serviceTemplates, _def.serviceTemplates, eq);
 	Ice::StringSeq removed = getDictRemovedElts(helper._def.serviceTemplates, _def.serviceTemplates);
 	if(!updated.empty() || !removed.empty())
 	{
