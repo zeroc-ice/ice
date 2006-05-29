@@ -148,7 +148,6 @@ public:
     printStack()
     {
 	map<string, ObserverStackTracer*>::const_iterator p;
-	int i = 0;
 	for(p = _observers.begin(); p != _observers.end(); ++p)
 	{
 	    vector<string>::const_iterator q = p->second->_stack.begin();

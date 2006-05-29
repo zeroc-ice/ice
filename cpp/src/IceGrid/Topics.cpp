@@ -328,8 +328,7 @@ RegistryObserverTopic::applicationUpdated(int serial, const ApplicationUpdateDes
 	if(p != _applications.end())
 	{
 	    ApplicationHelper helper(c.adapter->getCommunicator(), p->second);
-	    helper.update(desc);
-	    p->second = helper.getDescriptor();
+	    p->second = helper.update(desc);
 	}
     }
     catch(const DeploymentException& ex)

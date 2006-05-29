@@ -130,7 +130,7 @@ class CollocatedRegistry : public RegistryI
 public:
 
     CollocatedRegistry(const CommunicatorPtr&, const ActivatorPtr&);
-    virtual void shutdown(const Current&);
+    virtual void shutdown();
 
 private:
 
@@ -146,7 +146,7 @@ CollocatedRegistry::CollocatedRegistry(const CommunicatorPtr& communicator, cons
 }
 
 void
-CollocatedRegistry::shutdown(const Current&)
+CollocatedRegistry::shutdown()
 {
     _activator->shutdown();
 }

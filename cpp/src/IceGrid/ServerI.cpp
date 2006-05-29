@@ -1351,7 +1351,7 @@ ServerI::destroy()
     catch(const string& msg)
     {
 	Ice::Warning out(_node->getTraceLevels()->logger);
-	out << "removing server directory `" << _serverDir << "' failed:" << msg;
+	out << "removing server directory `" << _serverDir << "' failed: " << msg;
     }
     
     //
@@ -1680,7 +1680,7 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc)
 	    catch(const Ice::LocalException& ex)
 	    {
 		ostringstream os;
-		os << "unexpected exception while trying to find user account for user `" << user << "':" << ex;
+		os << "unexpected exception while trying to find user account for user `" << user << "':\n" << ex;
 		throw os.str();
 	    }
 	}

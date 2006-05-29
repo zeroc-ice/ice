@@ -2253,6 +2253,7 @@ ApplicationHelper::ApplicationHelper(const Ice::CommunicatorPtr& communicator, c
     //
     // Instantiate the application definition.
     //
+    _instance.name = _def.name;
     _instance.variables = _def.variables;
     _instance.serverTemplates = _def.serverTemplates;
     _instance.serviceTemplates = _def.serviceTemplates;
