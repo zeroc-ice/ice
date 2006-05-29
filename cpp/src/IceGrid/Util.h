@@ -26,7 +26,7 @@ inline set_inserter(T& container)
 std::string toString(const std::vector<std::string>&, const std::string& = std::string(" "));
 std::string toString(const Ice::Exception&);
 
-std::string getProperty(const PropertySetDescriptor&, const std::string&, const std::string& = std::string());
+std::string getProperty(const PropertyDescriptorSeq&, const std::string&, const std::string& = std::string());
 
 template<class Function>
 struct ForEachCommunicator : std::unary_function<CommunicatorDescriptorPtr&, void>

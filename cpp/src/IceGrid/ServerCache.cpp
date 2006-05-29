@@ -170,7 +170,7 @@ ServerCache::addCommunicator(const CommunicatorDescriptorPtr& comm, const Server
 	    info.type = r->type;
 	    if(q->id.empty())
 	    {
-		const string edpts = IceGrid::getProperty(comm->propertySet, q->name + ".Endpoints");
+		const string edpts = IceGrid::getProperty(comm->propertySet.properties, q->name + ".Endpoints");
 		info.proxy = _communicator->stringToProxy(_communicator->identityToString(r->id) + ":" + edpts);
 	    }
 	    else

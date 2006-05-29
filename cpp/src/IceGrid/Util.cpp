@@ -61,10 +61,9 @@ IceGrid::toString(const Ice::Exception& exception)
 }
 
 string
-IceGrid::getProperty(const PropertySetDescriptor& propertySet, const string& name, const string& def)
+IceGrid::getProperty(const PropertyDescriptorSeq& properties, const string& name, const string& def)
 {    
-    for(PropertyDescriptorSeq::const_iterator q = propertySet.properties.begin(); 
-	q != propertySet.properties.end(); ++q)
+    for(PropertyDescriptorSeq::const_iterator q = properties.begin(); q != properties.end(); ++q)
     {
 	if(q->name == name)
 	{

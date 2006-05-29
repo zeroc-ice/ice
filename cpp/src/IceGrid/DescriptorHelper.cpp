@@ -906,6 +906,15 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
 	}
 	adapter.objects = resolve(p->objects);
 	instance->adapters.push_back(adapter);
+
+	//
+	// Make sure the endpoints are defined.
+	//
+	string endpoints = IceGrid::getProperty(instance->propertySet.properties, adapter.name + ".Endpoints");
+	if(endpoints.empty())
+	{
+	    resolve.exception("invalid endpoints for adapter `" + adapter.name + "': empty string");
+	}
     }
 
     for(DbEnvDescriptorSeq::const_iterator s = _desc->dbEnvs.begin(); s != _desc->dbEnvs.end(); ++s)
@@ -1037,7 +1046,7 @@ CommunicatorHelper::printPropertySet(Output& out, const PropertySetDescriptor& p
 string
 CommunicatorHelper::getProperty(const string& name) const
 {
-    return IceGrid::getProperty(_desc->propertySet, name);
+    return IceGrid::getProperty(_desc->propertySet.properties, name);
 }
 
 ServiceHelper::ServiceHelper(const Ice::CommunicatorPtr& communicator, const ServiceDescriptorPtr& descriptor) :
