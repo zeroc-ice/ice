@@ -4,21 +4,12 @@
 
     <parameter name="name"/>
 
-    <properties id="ServiceProperties">
-      <property name="ServiceProperty" value="${name}"/>
-    </properties>
-
-    <properties id="TemplateProperties">
-      <property name="TemplateProperty" value="test-service"/>
-    </properties>
-
     <service name="${name}" entry="TestService:create">
       <adapter name="${name}" endpoints="default" id="${server}${name}Adapter">
 	<object identity="${server}-${name}" type="::Test"/>
       </adapter>
 
       <properties>
-        <properties refid="TemplateProperties"/>
         <property name="AppVarOverridedByParamProp" value="${AppVarOverridedByParam}"/>
         <property name="NodeVarOverridedByParamProp" value="${NodeVarOverridedByParam}"/>
 

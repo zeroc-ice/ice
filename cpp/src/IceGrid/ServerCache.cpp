@@ -580,7 +580,24 @@ ServerEntry::syncImpl(bool waitForUpdate)
 	}
 	if(_exception.get())
 	{
-	    _exception->ice_throw();
+	    try
+	    {
+		_exception->ice_throw();
+	    }
+	    catch(const DeploymentException&)
+	    {
+		throw;
+	    }
+	    catch(const NodeUnreachableException&)
+	    {
+		throw;
+	    }
+	    catch(const Ice::Exception& ex)
+	    {
+		ostringstream os;
+		os << "unexpected exception while synchronizing server `" + _id + "':\n" << ex;
+		throw DeploymentException(os.str());
+	    }
 	}
     }
 }

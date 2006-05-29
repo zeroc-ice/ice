@@ -602,10 +602,7 @@ CommunicatorDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
     }
     _descriptor->adapters.push_back(desc);
 
-    if(attrs.contains("endpoints"))
-    {
-	addProperty(_hiddenProperties, desc.name + ".Endpoints", attrs("endpoints"));
-    }
+    addProperty(_hiddenProperties, desc.name + ".Endpoints", attrs("endpoints", "default"));
 }
 
 void

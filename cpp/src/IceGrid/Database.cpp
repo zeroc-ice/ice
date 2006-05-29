@@ -325,8 +325,7 @@ Database::updateApplicationDescriptor(AdminSessionI* session, const ApplicationU
 	}
 
 	ApplicationHelper previous(_communicator, p->second);
-	ApplicationHelper helper(_communicator, p->second);
-	helper.update(update);
+	ApplicationHelper helper(_communicator, previous.update(update));
 	
 	checkForUpdate(previous, helper);
 	
@@ -459,8 +458,7 @@ Database::instantiateServer(const string& application, const string& node, const
 	}
 
 	ApplicationHelper previous(_communicator, p->second);
-	ApplicationHelper helper(_communicator, p->second);
-	helper.instantiateServer(node, instance);
+	ApplicationHelper helper(_communicator, previous.instantiateServer(node, instance));
 	update = helper.diff(previous);
 
 	checkForUpdate(previous, helper);
@@ -743,7 +741,7 @@ Database::getAdapter(const string& id, const string& replicaGroupId)
 }
 
 vector<pair<string, AdapterPrx> >
-Database::getAdapters(const string& id, int& endpointCount)
+Database::getAdapters(const string& id, int& endpointCount, bool& replicaGroup)
 {
     //
     // First we check if the given adapter id is associated to a
@@ -752,7 +750,7 @@ Database::getAdapters(const string& id, int& endpointCount)
     //
     try
     {
-	return _adapterCache.get(id)->getProxies(endpointCount);
+	return _adapterCache.get(id)->getProxies(endpointCount, replicaGroup);
     }
     catch(AdapterNotExistException&)
     {
@@ -773,6 +771,7 @@ Database::getAdapters(const string& id, int& endpointCount)
 	identity.name = id;
 	Ice::ObjectPrx adpt = _internalAdapter->createDirectProxy(identity);
 	adpts.push_back(make_pair(id, AdapterPrx::uncheckedCast(adpt)));
+	replicaGroup = false;
 	endpointCount = 1;
 	return adpts;
     }
@@ -795,6 +794,7 @@ Database::getAdapters(const string& id, int& endpointCount)
 	    ++p;
 	}
 	random_shuffle(adpts.begin(), adpts.end(), _rand);
+	replicaGroup = true;
 	endpointCount = static_cast<int>(adpts.size());
 	return adpts;
     }

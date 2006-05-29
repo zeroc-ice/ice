@@ -35,6 +35,32 @@ IceGrid::toString(const vector<string>& v, const string& sep)
 }
 
 string
+IceGrid::toString(const Ice::Exception& exception)
+{
+    std::ostringstream os;
+    try
+    {
+	exception.ice_throw();
+    }
+    catch(const NodeUnreachableException& ex)
+    {
+	os << ex << ":";
+	os << "\nnode: " << ex.name;
+	os << "\nreason: " << ex.reason;
+    }
+    catch(const DeploymentException& ex)
+    {
+	os << ex << ":";
+	os << "\nreason: " << ex.reason;
+    }
+    catch(const Ice::Exception& ex)
+    {
+	os << ex;
+    }
+    return os.str();
+}
+
+string
 IceGrid::getProperty(const PropertySetDescriptor& propertySet, const string& name, const string& def)
 {    
     for(PropertyDescriptorSeq::const_iterator q = propertySet.properties.begin(); 

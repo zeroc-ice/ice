@@ -45,6 +45,9 @@ public:
     const int patch;
     const char* patchCat;
 
+    const int locator;
+    const char* locatorCat;
+
     const int session;
     const char* sessionCat;
 

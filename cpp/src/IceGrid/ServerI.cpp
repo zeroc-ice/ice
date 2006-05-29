@@ -2217,9 +2217,9 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
 	//
 	props.push_back(createProperty("# Server configuration"));
 	props.push_back(createProperty("Ice.ServerId", _id));
+	props.push_back(createProperty("Ice.ProgramName", _id));
 	props.push_back(createProperty("Ice.Default.Locator",
 				       _node->getCommunicator()->getProperties()->getProperty("Ice.Default.Locator")));
-	props.push_back(createProperty("Ice.ProgramName", _id));
 	copy(svrDesc->propertySet.properties.begin(), svrDesc->propertySet.properties.end(), back_inserter(props));
 
 	//

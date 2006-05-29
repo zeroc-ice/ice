@@ -12,6 +12,7 @@
 
 #include <IceGrid/Descriptor.h>
 #include <IceUtil/StringUtil.h>
+#include <IceGrid/Exception.h>
 
 namespace IceGrid
 {
@@ -23,6 +24,7 @@ inline set_inserter(T& container)
 }
 
 std::string toString(const std::vector<std::string>&, const std::string& = std::string(" "));
+std::string toString(const Ice::Exception&);
 
 std::string getProperty(const PropertySetDescriptor&, const std::string&, const std::string& = std::string());
 

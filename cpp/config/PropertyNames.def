@@ -265,6 +265,7 @@ IceGrid:
     Registry.SSLPermissionsVerifier
     Registry.Trace.Application
     Registry.Trace.Adapter
+    Registry.Trace.Locator
     Registry.Trace.Node
     Registry.Trace.Object
     Registry.Trace.Patch

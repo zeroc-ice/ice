@@ -8,15 +8,10 @@
     <parameter name="name"/>
     <parameter name="AppVarOverridedByParam"/>
 
-    <properties id="IceBoxProperties">
-      <property name="IceBoxProperty" value="${name}"/>
-    </properties>
-
     <icebox id="${name}" exe="${icebox.exe}" activation="on-demand" pwd=".">  
       <service-instance template="ServiceTemplate" name="Service1" NodeVarOverridedByParam="Overrided"/>
       <service-instance template="FreezeServiceTemplate" name="Service2">
         <properties>
-          <properties refid="ServiceProperties"/>
           <property name="ServiceInstanceProperty" value="${name}"/>
         </properties>
       </service-instance>

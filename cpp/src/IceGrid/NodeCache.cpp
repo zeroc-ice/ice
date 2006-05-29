@@ -470,7 +470,7 @@ NodeEntry::getServerDescriptor(const ServerInfo& server, const SessionIPtr& sess
 
     NodeInfo info = _session->getInfo();
     
-    Resolver resolve("server `" + server.descriptor->id + "'", map<string, string>());
+    Resolver resolve("server `" + server.descriptor->id + "'", map<string, string>(), _cache.getCommunicator());
     resolve.setReserved("application", server.application);
     resolve.setReserved("node", server.node);
     resolve.setReserved("server", server.descriptor->id);
@@ -489,10 +489,10 @@ NodeEntry::getServerDescriptor(const ServerInfo& server, const SessionIPtr& sess
     IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(server.descriptor);
     if(iceBox)
     {
-	return IceBoxHelper(_cache.getCommunicator(), iceBox).instantiate(resolve, PropertySetDescriptor());
+	return IceBoxHelper(_cache.getCommunicator(), iceBox).instantiate(resolve, PropertyDescriptorSeq());
     }
     else
     {
-	return ServerHelper(_cache.getCommunicator(), server.descriptor).instantiate(resolve, PropertySetDescriptor());
+	return ServerHelper(_cache.getCommunicator(), server.descriptor).instantiate(resolve, PropertyDescriptorSeq());
     }
 }

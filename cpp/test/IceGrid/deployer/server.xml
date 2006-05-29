@@ -10,10 +10,6 @@
     <parameter name="ParamDoubleEscaped"/>
     <parameter name="DefaultParam" default="VALUE"/>
 
-    <properties id="ServerProperties">
-      <property name="ServerProperty" value="${name}"/>
-    </properties>
-
     <server id="${name}" exe="${test.dir}/server" activation="on-demand" pwd=".">
 
       <option>--Test.Test=2</option>

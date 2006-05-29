@@ -67,7 +67,6 @@
       <server-instance template="IceBoxTemplate" name="IceBox1" AppVarOverridedByParam="Overrided"/>
       <server-instance template="IceBoxTemplate" name="IceBox2" AppVarOverridedByParam="Overrided">
         <properties>
-          <properties refid="IceBoxProperties"/>
           <property name="IceBoxInstanceProperty" value="${name}"/>
         </properties>
       </server-instance>
@@ -80,7 +79,6 @@
         Param2="${AppVarOverrided}" ParamEscaped="${varpe}"
         ParamDoubleEscaped="${varpde}" DefaultParam="OTHERVALUE">
         <properties>
-          <properties refid="ServerProperties"/>
           <property name="ServerInstanceProperty" value="${name}"/>
         </properties>
       </server-instance>

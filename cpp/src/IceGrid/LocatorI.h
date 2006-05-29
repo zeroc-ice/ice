@@ -22,8 +22,8 @@ typedef IceUtil::Handle<Database> DatabasePtr;
 class LocatorI;
 typedef IceUtil::Handle<LocatorI> LocatorIPtr;
 
-class SessionI;
-typedef IceUtil::Handle<SessionI> SessionIPtr;
+class TraceLevels;
+typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
 class LocatorI : public Ice::Locator, public IceUtil::Mutex
 {
@@ -31,12 +31,12 @@ class LocatorI : public Ice::Locator, public IceUtil::Mutex
     {
     public:
 
-	Request(const Ice::AMD_Locator_findAdapterByIdPtr&, const LocatorIPtr&, const std::string&,
-		const std::vector<std::pair<std::string, AdapterPrx> >&, int);
+	Request(const Ice::AMD_Locator_findAdapterByIdPtr&, const LocatorIPtr&, const std::string&, bool,
+		const std::vector<std::pair<std::string, AdapterPrx> >&, int, const TraceLevelsPtr&);
 
 	void execute();
 	void response(const Ice::ObjectPrx&);
-	void exception(); 
+	void exception(const Ice::Exception&); 
 
     private:
 
@@ -46,10 +46,13 @@ class LocatorI : public Ice::Locator, public IceUtil::Mutex
 	const Ice::AMD_Locator_findAdapterByIdPtr _amdCB;
 	const LocatorIPtr _locator;
 	const std::string _id;
+	const bool _replicaGroup;
 	const std::vector<std::pair<std::string, AdapterPrx> > _adapters;
+	const TraceLevelsPtr _traceLevels;
 	unsigned int _count;
 	std::vector<std::pair<std::string, AdapterPrx> >::const_iterator _lastAdapter;
 	std::vector<Ice::ObjectPrx> _proxies;
+	std::auto_ptr<Ice::Exception> _exception;
     };
     typedef IceUtil::Handle<Request> RequestPtr;
 

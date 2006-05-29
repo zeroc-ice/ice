@@ -200,17 +200,12 @@ ServerAdapterEntry::ServerAdapterEntry(AdapterCache& cache,
 }
 
 vector<pair<string, AdapterPrx> >
-ServerAdapterEntry::getProxies(int& nReplicas)
+ServerAdapterEntry::getProxies(int& nReplicas, bool& replicaGroup)
 {
     vector<pair<string, AdapterPrx> > adapters;
-    try
-    {
-	nReplicas = 1;
-	adapters.push_back(make_pair(_id, getProxy()));
-    }
-    catch(const NodeUnreachableException&)
-    {
-    }
+    nReplicas = 1;
+    replicaGroup = false;
+    adapters.push_back(make_pair(_id, getProxy("")));
     return adapters;
 }
 
@@ -234,13 +229,7 @@ ServerAdapterEntry::getAdapterInfo() const
     info.replicaGroupId = _replicaGroupId;
     try
     {
-	info.proxy = getProxy()->getDirectProxy();
-    }
-    catch(const NodeUnreachableException&)
-    {
-    }
-    catch(const AdapterNotExistException&)
-    {
+	info.proxy = getProxy("")->getDirectProxy();
     }
     catch(const Ice::Exception&)
     {
@@ -345,13 +334,15 @@ ReplicaGroupEntry::update(const LoadBalancingPolicyPtr& policy)
 }
 
 vector<pair<string, AdapterPrx> >
-ReplicaGroupEntry::getProxies(int& nReplicas)
+ReplicaGroupEntry::getProxies(int& nReplicas, bool& replicaGroup)
 {
     ReplicaSeq replicas;
     bool adaptive = false;
     LoadSample loadSample = LoadSample1;
     {
 	Lock sync(*this);
+	replicaGroup = true;
+	
 	if(_replicas.empty())
 	{
 	    return vector<pair<string, AdapterPrx> >();
@@ -405,19 +396,33 @@ ReplicaGroupEntry::getProxies(int& nReplicas)
     // reachable.
     //
     vector<pair<string, AdapterPrx> > adapters;
+    auto_ptr<Ice::Exception> exception;
     for(ReplicaSeq::const_iterator p = replicas.begin(); p != replicas.end(); ++p)
     {
 	try
 	{
-	    adapters.push_back(make_pair(p->first, p->second->getProxy()));
+	    adapters.push_back(make_pair(p->first, p->second->getProxy(_id)));
 	}
-	catch(AdapterNotExistException&)
+	catch(const AdapterNotExistException&)
 	{
 	}
-	catch(const NodeUnreachableException&)
+	catch(const Ice::InvalidReplicaGroupIdException&)
 	{
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    if(!exception.get())
+	    {
+		exception.reset(ex.ice_clone());
+	    }
 	}
     }
+
+    if(exception.get())
+    {
+	exception->ice_throw();
+    }
+
     return adapters;
 }
 

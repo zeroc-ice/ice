@@ -350,7 +350,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    {
 		_currentPropertySet.reset(_currentNode->createPropertySet(attributes));
 	    }
-	    else if(_currentApplication.get())
+	    else if(_currentApplication.get() && !_currentTemplate.get())
 	    {
 		_currentPropertySet.reset(_currentApplication->createPropertySet(attributes));
 	    }

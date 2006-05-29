@@ -10,6 +10,7 @@
 #include <Ice/Ice.h>
 #include <IceGrid/LocatorRegistryI.h>
 #include <IceGrid/Database.h>
+#include <IceGrid/Util.h>
 
 using namespace std;
 using namespace IceGrid;
@@ -160,6 +161,13 @@ LocatorRegistryI::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_set
 	    //
 	    AMI_Adapter_setDirectProxyPtr amiCB = new SetDirectProxyCB(cb);
 	    _database->getAdapter(adapterId, "")->setDirectProxy_async(amiCB, proxy);
+	    const TraceLevelsPtr traceLevels = _database->getTraceLevels();
+	    if(traceLevels->locator > 1)
+	    {
+		Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
+		out << "registered adapter `" << adapterId << "' endpoints: `" 
+		    << (proxy ? proxy->ice_toString() : "") << "'";
+	    }
 	    return;
 	}
 	catch(const AdapterNotExistException&)
@@ -169,14 +177,15 @@ LocatorRegistryI::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_set
 		throw Ice::AdapterNotFoundException();
 	    }
 	}
-	catch(const NodeUnreachableException&)
+	catch(const Ice::Exception& ex)
 	{
-	    cb->ice_response(); // TODO: print a warning?
-	    return;
-	}
-	catch(const Ice::LocalException&)
-	{
-	    cb->ice_response(); // TODO: print a warning?
+	    const TraceLevelsPtr traceLevels = _database->getTraceLevels();
+	    if(traceLevels->locator > 0)
+	    {
+		Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
+		out << "couldn't register adapter `" << adapterId << "' endpoints:\n" << toString(ex);
+	    }
+	    cb->ice_response();
 	    return;
 	}
 	
@@ -206,6 +215,13 @@ LocatorRegistryI::setReplicatedAdapterDirectProxy_async(
 	    //
 	    AMI_Adapter_setDirectProxyPtr amiCB = new SetDirectProxyForReplicatedAdapterCB(cb);
 	    _database->getAdapter(adapterId, replicaGroupId)->setDirectProxy_async(amiCB, proxy);
+	    const TraceLevelsPtr traceLevels = _database->getTraceLevels();
+	    if(traceLevels->locator > 1)
+	    {
+		Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
+		out << "registered replicated adapter `" << adapterId << "' endpoints: `" 
+		    << (proxy ? proxy->ice_toString() : "") << "'";
+	    }
 	    return;
 	}
 	catch(const AdapterNotExistException&)
@@ -215,14 +231,15 @@ LocatorRegistryI::setReplicatedAdapterDirectProxy_async(
 		throw Ice::AdapterNotFoundException();
 	    }
 	}
-	catch(const NodeUnreachableException&)
+	catch(const Ice::Exception& ex)
 	{
-	    cb->ice_response(); // TODO: print a warning?
-	    return;
-	}
-	catch(const Ice::LocalException&)
-	{
-	    cb->ice_response(); // TODO: print a warning?
+	    const TraceLevelsPtr traceLevels = _database->getTraceLevels();
+	    if(traceLevels->locator > 0)
+	    {
+		Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
+		out << "couldn't register replicated adapter `" << adapterId << "' endpoints:\n" << toString(ex);
+	    }	    
+	    cb->ice_response();
 	    return;
 	}
 	
@@ -237,7 +254,7 @@ LocatorRegistryI::setReplicatedAdapterDirectProxy_async(
 
 void
 LocatorRegistryI::setServerProcessProxy_async(const Ice::AMD_LocatorRegistry_setServerProcessProxyPtr& cb,
-					      const string& name,
+					      const string& id,
 					      const Ice::ProcessPrx& proxy, 
 					      const Ice::Current&)
 {
@@ -247,24 +264,27 @@ LocatorRegistryI::setServerProcessProxy_async(const Ice::AMD_LocatorRegistry_set
         // Get the server from the registry and set its process proxy.
         //
 	AMI_Server_setProcessPtr amiCB = new AMI_Server_setProcessI(cb);
-        _database->getServer(name)->setProcess_async(amiCB, proxy);
+        _database->getServer(id)->setProcess_async(amiCB, proxy);
+
+	const TraceLevelsPtr traceLevels = _database->getTraceLevels();
+	if(traceLevels->locator > 1)
+	{
+	    Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
+	    out << "registered server `" << id << "' process proxy: `" << (proxy ? proxy->ice_toString() : "") << "'";
+	}
         return;
     }
     catch(const ServerNotExistException&)
     {
     }
-    catch(const NodeUnreachableException&)
+    catch(const Ice::Exception& ex)
     {
-	cb->ice_response(); // TODO: print a warning?
-	return;
-    }
-    catch(const Ice::LocalException&)
-    {
-        //
-        // TODO: We couldn't contact the server object. This is possibly because the IceGrid node is down and
-        // the server is started manually for example. We should probably throw here to prevent the server
-        // from starting?
-        //
+	const TraceLevelsPtr traceLevels = _database->getTraceLevels();
+	if(traceLevels->locator > 0)
+	{
+	    Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
+	    out << "couldn't register server `" << id << "' process proxy:\n" << toString(ex);
+	}
 	cb->ice_response();
 	return;
     }
