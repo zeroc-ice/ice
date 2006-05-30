@@ -331,7 +331,7 @@ Database::updateApplicationDescriptor(AdminSessionI* session, const ApplicationU
 	
 	reload(previous, helper, entries);
 	
-	_descriptors.put(StringApplicationDescriptorDict::value_type(update.name, helper.getDescriptor()));
+	_descriptors.put(StringApplicationDescriptorDict::value_type(update.name, helper.getDefinition()));
 
 	serial = ++_serial;
     }    
@@ -465,7 +465,7 @@ Database::instantiateServer(const string& application, const string& node, const
 	
 	reload(previous, helper, entries);
 	
-	_descriptors.put(StringApplicationDescriptorDict::value_type(application, helper.getDescriptor()));
+	_descriptors.put(StringApplicationDescriptorDict::value_type(application, helper.getDefinition()));
 
 	serial = ++_serial;
     }    

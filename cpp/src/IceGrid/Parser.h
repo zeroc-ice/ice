@@ -124,7 +124,7 @@ public:
 
     void invalidCommand(const char*);
     void invalidCommand(const std::string&);
-
+    void patchFailed(const Ice::StringSeq&);
     void error(const char*);
     void error(const std::string&);
 

@@ -119,19 +119,13 @@ public:
 	    }
 
 	    ++_nFailure;
-	    _lastFailure = failure;
+	    _reasons.push_back(failure);
 	}
 
 	if((_nSuccess + _nFailure) == _count)
 	{
-	    if(_nSuccess > 0)
-	    {
-		_cb->ice_response();
-	    }
-	    else
-	    {
-		_cb->ice_exception(PatchException(_lastFailure));
-	    }
+	    sort(_reasons.begin(), _reasons.end());
+	    _cb->ice_response(!_nFailure, _reasons);
 	}
     }
 
@@ -143,7 +137,7 @@ private:
     const int _count;
     int _nSuccess;
     int _nFailure;
-    string _lastFailure;
+    Ice::StringSeq _reasons;    
 };
 typedef IceUtil::Handle<PatchAggregator> PatchAggregatorPtr;
 
@@ -176,11 +170,11 @@ public:
 	}
 	catch(const NodeNotExistException&)
 	{
-	    reason = "node doesn't exist";
+	    reason = "patch on node `" + _node + "' failed: node doesn't exist";
 	}
 	catch(const NodeUnreachableException&)
 	{
-	    reason = "node is not active";
+	    reason = "patch on node `" + _node + "' failed: node is not active";
 	}
 	catch(const Ice::Exception& ex)
 	{
@@ -235,11 +229,11 @@ public:
 	}
 	catch(const NodeNotExistException&)
 	{
-	    reason = "node `" + _node + "' doesn't exist";
+	    reason = "patch on node `" + _node + "' failed: node doesn't exist";
 	}
 	catch(const NodeUnreachableException&)
 	{
-	    reason = "node `" + _node + "' is not active";
+	    reason = "patch on node `" + _node + "' failed: node is not active";
 	}
 	catch(const Ice::Exception& ex)
 	{
@@ -321,7 +315,7 @@ AdminI::patchApplication_async(const AMD_Admin_patchApplicationPtr& amdCB,
 
     if(nodes.empty())
     {
-	amdCB->ice_response();
+	amdCB->ice_response(true, Ice::StringSeq());
 	return;
     }
 

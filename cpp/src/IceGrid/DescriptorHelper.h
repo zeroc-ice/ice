@@ -262,7 +262,7 @@ public:
     NodeDescriptor update(const NodeUpdateDescriptor&, const Resolver&) const;
 
     void getIds(std::multiset<std::string>&, std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
-    const NodeDescriptor& getDescriptor() const;
+    const NodeDescriptor& getDefinition() const;
     const NodeDescriptor& getInstance() const;
     void getServerInfos(const std::string&, std::map<std::string, ServerInfo>&) const;
     bool hasDistributions(const std::string&) const;
@@ -295,7 +295,7 @@ public:
     ApplicationDescriptor instantiateServer(const std::string&, const ServerInstanceDescriptor&) const;
 
     void getIds(std::set<std::string>&, std::set<std::string>&, std::set<Ice::Identity>&) const;
-    const ApplicationDescriptor& getDescriptor() const;
+    const ApplicationDescriptor& getDefinition() const;
     const ApplicationDescriptor& getInstance() const;
     void getDistributions(DistributionDescriptor&, std::vector<std::string>&,const std::string& = std::string()) const;
 

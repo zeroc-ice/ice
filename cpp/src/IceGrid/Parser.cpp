@@ -189,15 +189,10 @@ Parser::addApplication(const list<string>& origArgs)
 	    //
 	    // Patch the application.
 	    //
-	    try
+	    Ice::StringSeq reasons;
+	    if(!_admin->patchApplication(app.name, true, reasons))
 	    {
-		_admin->patchApplication(app.name, true);
-	    }
-	    catch(const PatchException& ex)
-	    {
-		ostringstream s;
-		s << ex << ":\n" << ex.reason;
-		warning("the application was successfully added but the patch failed:\n" + s.str());
+		patchFailed(reasons);
 	    }
 	}
     }
@@ -373,7 +368,11 @@ Parser::patchApplication(const list<string>& origArgs)
     {
 	vector<string>::const_iterator p = args.begin();
 	string name = *p++;
-	_admin->patchApplication(name, opts.isSet("f") || opts.isSet("force"));
+	Ice::StringSeq reasons;
+	if(!_admin->patchApplication(name, opts.isSet("f") || opts.isSet("force"), reasons))
+	{
+	    patchFailed(reasons);
+	}
     }
     catch(const Ice::Exception& ex)
     {
@@ -1363,6 +1362,44 @@ void
 Parser::invalidCommand(const string& s)
 {
     invalidCommand(s.c_str());
+}
+
+void
+Parser::patchFailed(const Ice::StringSeq& reasons)
+{
+    ostringstream os;
+    IceUtil::Output out(os);
+    out.setIndent(2);
+    out << "the patch failed on some nodes:\n";
+    for(Ice::StringSeq::const_iterator p = reasons.begin(); p != reasons.end(); ++p)
+    {
+	string reason = *p;
+	string::size_type beg = 0;
+	string::size_type end = reason.find_first_of("\n");
+	if(end == string::npos)
+	{
+	    end = reason.size();
+	}
+	out << "- " << reason.substr(beg, end - beg);
+	out.inc();
+	while(end < reason.size())
+	{
+	    beg = end + 1;
+	    end = reason.find_first_of("\n", beg);
+	    if(end == string::npos)
+	    {
+		end = reason.size();
+	    }
+	    out.nl();
+	    out << reason.substr(beg, end - beg);
+	}
+	out.dec();
+	if(p + 1 != reasons.end())
+	{
+	    out.nl();
+	}
+    }
+    warning(os.str());
 }
 
 void

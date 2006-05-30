@@ -1460,6 +1460,7 @@ ServiceInstanceHelper::ServiceInstanceHelper(const Ice::CommunicatorPtr& com, co
     {
 	throw DeploymentException("invalid service instance: no template defined");
     }
+
     if(_def.descriptor)
     {
 	_service = ServiceHelper(com, _def.descriptor);
@@ -1550,8 +1551,7 @@ ServiceInstanceHelper::print(Output& out) const
 	out << nl << "template = `" << _def._cpp_template << "'";
 	out << nl << "parameters";
 	out << sb;
-	for(StringStringDict::const_iterator p = _def.parameterValues.begin(); 
-	    p != _def.parameterValues.end(); ++p)
+	for(StringStringDict::const_iterator p = _def.parameterValues.begin(); p != _def.parameterValues.end(); ++p)
 	{
 	    out << nl << p->first << " = `" << p->second << "'";
 	}
@@ -1779,10 +1779,6 @@ NodeHelper::NodeHelper(const string& name, const NodeDescriptor& descriptor, con
     }
 
     //
-    // Other misc. validation...
-    //
-
-    //
     // Validate each property set references.
     //
     PropertySetDescriptorDict::const_iterator ps;
@@ -1878,22 +1874,16 @@ NodeHelper::diff(const NodeHelper& helper) const
 NodeDescriptor
 NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolve) const
 {
-    NodeDescriptor def = _def; // TODO: XXX deep copy ?!
+    NodeDescriptor def;
     assert(update.name == _name);
 
     //
     // Update the variables, property sets, load factor, description.
     //
-    def.variables = updateDictElts(def.variables, update.variables, update.removeVariables);
-    def.propertySets = updateDictElts(def.propertySets, update.propertySets, update.removePropertySets);
-    if(update.loadFactor)
-    {
-	def.loadFactor = update.loadFactor->value;
-    }    
-    if(update.description)
-    {
-	def.description = update.description->value;
-    }
+    def.variables = updateDictElts(_def.variables, update.variables, update.removeVariables);
+    def.propertySets = updateDictElts(_def.propertySets, update.propertySets, update.removePropertySets);
+    def.loadFactor = update.loadFactor ? update.loadFactor->value : _def.loadFactor;
+    def.description = update.description ? update.description->value : _def.description;
     
     //
     // NOTE: It's important to create the resolver *after* updating
@@ -1915,7 +1905,7 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
     ServerInstanceHelperDict::const_iterator r;
     ServerInstanceDescriptorSeq::const_iterator q;
 
-    set<string> removeServers(update.removeServers.begin(), update.removeServers.end());
+    set<string> removedServers(update.removeServers.begin(), update.removeServers.end());
 
     for(q = update.serverInstances.begin(); q != update.serverInstances.end(); ++q)
     {
@@ -1927,7 +1917,7 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
     }
     for(r = _serverInstances.begin(); r != _serverInstances.end(); ++r)
     {
-	if(removeServers.find(r->first) != removeServers.end() ||
+	if(removedServers.find(r->first) != removedServers.end() ||
 	   serverInstances.find(r->first) != serverInstances.end())
 	{
 	    continue;
@@ -1957,7 +1947,7 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
     }    
     for(r = _servers.begin(); r != _servers.end(); ++r)
     {
-	if(removeServers.find(r->first) != removeServers.end() ||
+	if(removedServers.find(r->first) != removedServers.end() ||
 	   serverInstances.find(r->first) != serverInstances.end())
 	{
 	    continue;
@@ -1977,13 +1967,10 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
 	servers.insert(make_pair(helper.getId(), helper));
     }
 
-    def.serverInstances.clear();
     for(r = serverInstances.begin(); r != serverInstances.end(); ++r)
     {
 	def.serverInstances.push_back(r->second.getDefinition());
     }
-
-    def.servers.clear();
     for(r = servers.begin(); r != servers.end(); ++r)
     {
 	def.servers.push_back(r->second.getServerDefinition());
@@ -2009,7 +1996,7 @@ NodeHelper::getIds(multiset<string>& serverIds, multiset<string>& adapterIds, mu
 }
 
 const NodeDescriptor&
-NodeHelper::getDescriptor() const
+NodeHelper::getDefinition() const
 {
     return _def;
 }
@@ -2305,7 +2292,6 @@ ApplicationHelper::ApplicationHelper(const Ice::CommunicatorPtr& communicator, c
     //
     // Instantiate the nodes.
     //
-    _instance.nodes.clear();
     NodeHelperDict::const_iterator n;
     for(NodeDescriptorDict::const_iterator p = _def.nodes.begin(); p != _def.nodes.end(); ++p)
     {
@@ -2404,7 +2390,7 @@ ApplicationHelper::diff(const ApplicationHelper& helper) const
 	if(q == helper._nodes.end())
 	{
 	    NodeUpdateDescriptor nodeUpdate;
-	    const NodeDescriptor& node = p->second.getDescriptor();
+	    const NodeDescriptor& node = p->second.getDefinition();
 	    nodeUpdate.name = p->first;
 	    nodeUpdate.variables = node.variables;
 	    nodeUpdate.servers = node.servers;
@@ -2426,53 +2412,58 @@ ApplicationHelper::diff(const ApplicationHelper& helper) const
 ApplicationDescriptor
 ApplicationHelper::update(const ApplicationUpdateDescriptor& updt) const
 {
-    ApplicationDescriptor def = _def; // TODO: Deep copy??? XXX
+    ApplicationDescriptor def;
+    GetReplicaGroupId rg;
 
-    if(updt.description)
-    {
-	def.description = updt.description->value;
-    }
-
-    def.replicaGroups =
-	updateSeqElts(def.replicaGroups, updt.replicaGroups, updt.removeReplicaGroups, GetReplicaGroupId());
-    
-    def.variables = updateDictElts(def.variables, updt.variables, updt.removeVariables);
-    def.propertySets = updateDictElts(def.propertySets, updt.propertySets, updt.removePropertySets);
-
-    if(updt.distrib)
-    {
-	def.distrib = updt.distrib->value;
-    }
-
-    def.serverTemplates = updateDictElts(def.serverTemplates, updt.serverTemplates, updt.removeServerTemplates);
-    def.serviceTemplates = updateDictElts(def.serviceTemplates, updt.serviceTemplates, updt.removeServiceTemplates);
-
-    for(Ice::StringSeq::const_iterator r = updt.removeNodes.begin(); r != updt.removeNodes.end(); ++r)
-    {
- 	def.nodes.erase(*r);
-    }
+    def.name = _def.name;
+    def.description = updt.description ? updt.description->value : _def.description;
+    def.distrib = updt.distrib ? updt.distrib->value : _def.distrib;
+    def.replicaGroups = updateSeqElts(_def.replicaGroups, updt.replicaGroups, updt.removeReplicaGroups, rg);    
+    def.variables = updateDictElts(_def.variables, updt.variables, updt.removeVariables);
+    def.propertySets = updateDictElts(_def.propertySets, updt.propertySets, updt.removePropertySets);
+    def.serverTemplates = updateDictElts(_def.serverTemplates, updt.serverTemplates, updt.removeServerTemplates);
+    def.serviceTemplates = updateDictElts(_def.serviceTemplates, updt.serviceTemplates, updt.removeServiceTemplates);
 
     Resolver resolve(def, _communicator); // A resolver based on the *updated* application descriptor.
     for(NodeUpdateDescriptorSeq::const_iterator p = updt.nodes.begin(); p != updt.nodes.end(); ++p)
     {
-	NodeDescriptorDict::iterator q = def.nodes.find(p->name);
-	if(q == def.nodes.end())
+	NodeHelperDict::const_iterator q = _nodes.find(p->name);
+	if(q != _nodes.end()) // Updated node
+	{
+	    def.nodes.insert(make_pair(p->name, q->second.update(*p, resolve)));
+	}
+	else // New node
 	{
 	    NodeDescriptor desc;
 	    desc.variables = p->variables;
+	    if(!p->removeVariables.empty())
+	    {
+		resolve.exception("can't remove variables for node `" + p->name + "': node doesn't exist");
+	    }
 	    desc.propertySets = p->propertySets;
+	    if(!p->removePropertySets.empty())
+	    {
+		resolve.exception("can't remove property sets for node `" + p->name + "': node doesn't exist");
+	    }
 	    desc.servers = p->servers;
 	    desc.serverInstances = p->serverInstances;
+	    if(!p->removeServers.empty())
+	    {
+		resolve.exception("can't remove servers for node `" + p->name + "': node doesn't exist");
+	    }
 	    desc.loadFactor = p->loadFactor ? p->loadFactor->value : "";
 	    desc.description = p->description ? p->description->value : "";
 	    def.nodes.insert(make_pair(p->name, desc));
 	}
-	else
+    }
+    set<string> removedNodes(updt.removeNodes.begin(), updt.removeNodes.end());
+    for(NodeHelperDict::const_iterator n = _nodes.begin(); n != _nodes.end(); ++n)
+    {
+	if(removedNodes.find(n->first) != removedNodes.end() || def.nodes.find(n->first) != def.nodes.end())
 	{
-	    NodeHelperDict::const_iterator n = _nodes.find(q->first);
-	    assert(n != _nodes.end());
-	    q->second = n->second.update(*p, resolve); // The resolver is required to compute server IDs.
+	    continue; // Node was removed or updated.
 	}
+	def.nodes.insert(make_pair(n->first, n->second.getDefinition()));
     }
 
     return def;
@@ -2481,7 +2472,13 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& updt) const
 ApplicationDescriptor
 ApplicationHelper::instantiateServer(const string& node, const ServerInstanceDescriptor& instance) const
 {
-    ApplicationDescriptor def = _def; // TODO: Deep copy??? XXX
+    //
+    // Copy this application descriptor definition and add a server
+    // instance to the given node. The caller should then construct
+    // an application helper with the new application definition to
+    // ensure it's valid.
+    //
+    ApplicationDescriptor def = _def;
     NodeDescriptorDict::iterator q = def.nodes.find(node);
     if(q == def.nodes.end())
     {
@@ -2492,7 +2489,7 @@ ApplicationHelper::instantiateServer(const string& node, const ServerInstanceDes
     else
     {
 	q->second.serverInstances.push_back(instance);
-    }    
+    }
     return def;
 }
 
@@ -2523,7 +2520,7 @@ ApplicationHelper::getIds(set<string>& serverIds, set<string>& adapterIds, set<I
 }
 
 const ApplicationDescriptor&
-ApplicationHelper::getDescriptor() const
+ApplicationHelper::getDefinition() const
 {
     return _def;
 }
@@ -2846,7 +2843,8 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
 }
 
 bool
-IceGrid::descriptorEqual(const Ice::CommunicatorPtr& com, const ServerDescriptorPtr& lhs, 
+IceGrid::descriptorEqual(const Ice::CommunicatorPtr& com, 
+			 const ServerDescriptorPtr& lhs, 
 			 const ServerDescriptorPtr& rhs)
 {
     IceBoxDescriptorPtr lhsIceBox = IceBoxDescriptorPtr::dynamicCast(lhs);
