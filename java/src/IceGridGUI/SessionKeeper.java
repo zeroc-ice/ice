@@ -191,7 +191,7 @@ class SessionKeeper
 	    if(router == null)
 	    {
 		category = "observer";
-		
+
 		_adapter = 
 		    _coordinator.getCommunicator().createObjectAdapter("IceGrid.AdminGUI");
 		_adapter.activate();
@@ -460,7 +460,7 @@ class SessionKeeper
 	    _keystoreType = 
 		_coordinator.getProperties().getPropertyWithDefault("IceSSL.KeystoreType", 
 								    java.security.KeyStore.getDefaultType());
-	      
+	   
 	    JButton okButton = new JButton("OK");
 	    ActionListener okListener = new ActionListener()
 		{
@@ -586,6 +586,33 @@ class SessionKeeper
 		    private JFileChooser _fileChooser = new JFileChooser(); 
 		};
 
+	    
+	    _registryUsername.setToolTipText("Your username");
+	    _registryPassword.setToolTipText("Your password in this IceGrid registry");
+	    _registryUseSSL.setToolTipText("Do you want to use SSL instead of username/password for authentication?");
+	    _registryInstanceName.setToolTipText("The instance name of your IceGrid registry. For example: DemoIceGrid");
+	    _registryEndpoints.setToolTipText("<html>Corresponds to the client endpoints of this IceGrid registry.<br>"
+					      + "For example: tcp -h registry.domain.com -p 12000</html>");
+	    
+	    _routerUsername.setToolTipText("Your username");
+	    _routerUsername.setToolTipText("Your password in this Glacier2 router");
+	    _routerUseSSL.setToolTipText("Do you want to use SSL instead of username/password for authentication?");
+	    _routerInstanceName.setToolTipText("The instance name of your Glacier2 router. For example: DemoGlacier2");
+	    _routerEndpoints.setToolTipText("<html>Corresponds to client endpoints of this Glacier2 router.<br>"
+					      + "For example: ssl -h glacier2router.domain.com -p 11000</html>");
+
+	    _keystore.setToolTipText("SSL keystore file");
+	    _keyPassword.setToolTipText("Password for keys in the selected keystore file");
+	    _advancedKeystore.setToolTipText("SSL keystore file");
+	    _advancedKeyPassword.setToolTipText("Password for keys in the selected keystore file");
+
+	    _keystorePassword.setToolTipText("Password used to check the integrity of the keystore");
+	    _alias.setToolTipText("Use this alias when authenticating IceGrid Admin with the IceGrid registry or Glacier2 router");
+	    
+	    _truststore.setToolTipText("SSL truststore file");
+	    _truststorePassword.setToolTipText("Password used to check the integrity of the truststore");
+	      
+
 	    JPanel directPanel = null;
 	    {
 		FormLayout layout = new FormLayout("right:pref, 3dlu, pref", "");
@@ -633,8 +660,8 @@ class SessionKeeper
 		routedPanel = builder.getPanel();
 	    }
 	    
-	    _mainPane.addTab("Direct", directPanel);
-	    _mainPane.addTab("Routed", routedPanel);
+	    _mainPane.addTab("Direct", null, directPanel, "Log directly into the IceGrid registry");
+	    _mainPane.addTab("Routed", null, routedPanel, "Log into the IceGrid registry through a Glacier2 router");
 	    _mainPane.setBorder(Borders.DIALOG_BORDER);
 
 	    JPanel basicSSLPanel = null;
