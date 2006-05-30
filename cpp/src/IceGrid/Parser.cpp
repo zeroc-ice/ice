@@ -878,7 +878,15 @@ Parser::pidServer(const list<string>& args)
 
     try
     {
-	cout << _admin->getServerPid(args.front()) << endl;
+	int pid = _admin->getServerPid(args.front());
+	if(pid > 0)
+	{
+	    cout << pid << endl;
+	}
+	else
+	{
+	    error("server is not running"); 
+	}
     }
     catch(const Ice::Exception& ex)
     {
