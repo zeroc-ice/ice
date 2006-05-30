@@ -781,8 +781,8 @@ Resolver::getProperties(const Ice::StringSeq& references, set<string>& resolved)
 	    properties.insert(properties.end(), p.begin(), p.end());
 	}
 	
-	PropertyDescriptorSeq p = operator()(desc.properties);
-	properties.insert(properties.end(), p.begin(), p.end());
+	PropertyDescriptorSeq pds = operator()(desc.properties);
+	properties.insert(properties.end(), pds.begin(), pds.end());
     }
     return properties;
 }

@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <IceGrid/FileUserAccountMapperI.h>
 
 #include <fstream>
