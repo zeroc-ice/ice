@@ -172,7 +172,7 @@ int
 stringToSignal(const string& str)
 {
 #ifdef _WIN32
-    throw BadSignalException();
+    throw BadSignalException("signals are not supported on Windows");
 #else
 
     if(str == ICE_STRING(SIGHUP))
@@ -246,7 +246,7 @@ stringToSignal(const string& str)
 		return static_cast<int>(signal);
 	    }
 	}
-	throw BadSignalException();
+	throw BadSignalException("unknown signal `" + str + "'");
     }
 }
 #endif
@@ -900,7 +900,7 @@ Activator::sendSignal(const string& name, int signal)
     //
     // TODO: Win32 implementation?
     //
-    throw BadSignalException();
+    throw BadSignalException("signals are not supported on Windows");
 
 #else
     Ice::Int pid = getServerPid(name);
@@ -1044,6 +1044,10 @@ Activator::deactivateAll()
 	try
 	{
 	    p->second.server->stop_async(0);
+	}
+	catch(const ServerStopException&)
+	{
+	    // Server already stopped or destroyed.
 	}
 	catch(const ObjectNotExistException&)
 	{

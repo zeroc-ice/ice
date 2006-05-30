@@ -114,7 +114,8 @@ interface Server
      * amount of time, it will be killed.
      *
      **/
-    ["amd"] void stop();
+    ["amd"] void stop()
+	throws ServerStopException;
     
     /**
      *

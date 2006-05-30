@@ -698,6 +698,10 @@ Parser::stopServer(const list<string>& args)
     {
 	_admin->stopServer(args.front());
     }
+    catch(const ServerStopException& ex)
+    {
+	error("the server didn't stop successfully:\n" + ex.reason);
+    }
     catch(const Ice::Exception& ex)
     {
 	exception(ex);
@@ -850,6 +854,11 @@ Parser::stateServer(const list<string>& args)
 	case Deactivating:
 	{
 	    cout << "deactivating (" << enabled << ")" << endl;
+	    break;
+	}
+	case Destroying:
+	{
+	    cout << "destroying (" << enabled << ")" << endl;
 	    break;
 	}
 	case Destroyed:
@@ -1558,7 +1567,7 @@ Parser::exception(const Ice::Exception& ex)
     catch(const BadSignalException& ex)
     {
 	ostringstream s;
-	s << ex;
+	s << ex.reason;
 	error(s.str());
     }
     catch(const NodeUnreachableException& ex)

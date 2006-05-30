@@ -476,8 +476,11 @@ interface Admin
      * @throws ServerNotExistException Raised if the server doesn't
      * exist.
      *
-     * @throws NodeUnreachableException Raised if the node could not be
-     * reached.
+     * @throws ServerStartException Raised if the server couldn't be
+     * started.
+     *
+     * @throws NodeUnreachableException Raised if the node could not
+     * be reached.
      *
      * @throws DeploymentException Raised if the server couldn't be
      * deployed on the node.
@@ -495,6 +498,9 @@ interface Admin
      * @throws ServerNotExistException Raised if the server doesn't
      * exist.
      *
+     * @throws ServerStopException Raised if the server couldn't be
+     * stopped.
+     *
      * @throws NodeUnreachableException Raised if the node could not be
      * reached.
      *
@@ -503,7 +509,7 @@ interface Admin
      *
      **/
     ["ami"] void stopServer(string id)
-	throws ServerNotExistException, NodeUnreachableException, DeploymentException;
+	throws ServerNotExistException, ServerStopException, NodeUnreachableException, DeploymentException;
 
     /**
      *

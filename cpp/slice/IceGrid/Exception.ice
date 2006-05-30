@@ -50,6 +50,15 @@ exception ServerStartException
     string reason;
 };
 
+exception ServerStopException
+{
+    /** The identifier of the server. */
+    string id;
+
+    /** The reason of the failure. */
+    string reason;
+};
+
 /**
  *
  * This exception is raised if an adapter does not exist.
@@ -128,6 +137,7 @@ exception NodeUnreachableException
  **/
 exception BadSignalException
 {
+    string reason;
 };
 
 /**

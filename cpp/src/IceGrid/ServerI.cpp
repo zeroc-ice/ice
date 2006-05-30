@@ -329,12 +329,6 @@ public:
     {
     }
 
-    static bool 
-    isStarted(ServerI::InternalServerState state)
-    {
-	return state == ServerI::ActivationTimeout || state == ServerI::Active;
-    }
-
     virtual bool
     canExecute(ServerI::InternalServerState state)
     {
@@ -438,6 +432,18 @@ public:
     addCallback(const AMD_Server_stopPtr& amdCB)
     {
 	_stopCB.push_back(amdCB);
+    }
+
+    void
+    failed(const string& reason)
+    {
+	stopTimer();
+	ServerStopException ex(_server->getId(), reason);
+	for(vector<AMD_Server_stopPtr>::const_iterator p = _stopCB.begin(); p != _stopCB.end(); ++p)
+	{
+	    (*p)->ice_exception(ex);
+	}	
+	_stopCB.clear();
     }
 
     void
@@ -607,14 +613,16 @@ ServerI::stop_async(const AMD_Server_stopPtr& amdCB, const Ice::Current&)
     {
 	Lock sync(*this);
 	checkDestroyed();
+
 	if(StopCommand::isStopped(_state))
 	{
-	    if(amdCB)
-	    {
-		amdCB->ice_response();
-	    }
-	    return;
+	    throw ServerStopException(_id, "The server is already inactive.");
 	}
+	else if(_state == Destroying)
+	{
+	    throw ServerStopException(_id, "The server is being destroyed.");
+	}
+
 	if(!_stop)
 	{
 	    _stop = new StopCommand(this, _node->getWaitQueue(), _deactivationTimeout);
@@ -2044,13 +2052,13 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
 	    _start->failed("The server is being destroyed.");
 	    _start = 0;
 	}
-	break;
-    case Destroyed:
 	if(_stop)
 	{
-	    _stop->finished();
+	    _stop->failed("The server is being destroyed.");
 	    _stop = 0;
 	}
+	break;
+    case Destroyed:
 	if(_destroy)
 	{
 	    _destroy->finished();
