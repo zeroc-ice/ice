@@ -316,16 +316,17 @@ interface Admin
 
     /**
      *
-     * Patch the given application data. If the patch argument is an
-     * empty string, all of the application's servers that depend on patch
-     * data will be patched.
+     * Patch the given application data.
      *
      * @param name The application name.
      *
      * @param shutdown If true, the servers depending on the data to
      * patch will be shutdown if necessary.
+     * 
+     * @param reasons The reasons why the patch failed on some nodes.
      *
-     * @throws PatchException Raised if the patch failed.
+     * @returns True if the patch succeeded on all the nodes, false
+     * otherwise.
      *
      * @throws ApplicationNotExistException Raised if the application
      * doesn't exist.
