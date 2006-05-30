@@ -27,6 +27,19 @@ addProperty(const CommunicatorDescriptorPtr& communicator, const string& name, c
     communicator->propertySet.properties.push_back(prop);
 }
 
+string
+getProperty(const PropertyDescriptorSeq& properties, const string& name)
+{
+    for(PropertyDescriptorSeq::const_iterator q = properties.begin(); q != properties.end(); ++q)
+    {
+	if(q->name == name)
+	{
+	    return q->value;
+	}
+    }
+    return "";
+}
+
 PropertyDescriptor
 createProperty(const string& name, const string& value)
 {
@@ -81,6 +94,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	adapter.name = "Server";
 	adapter.id = "ServerAdapter";
 	adapter.registerProcess = true;
+	addProperty(server, "Server.Endpoints", "default");
 	ObjectDescriptor object;
 	object.id = communicator->stringToIdentity("test");
 	object.type = "::Test::TestIntf";
@@ -143,6 +157,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	adapter.name = "Server";
 	adapter.id = "${server}";
 	adapter.registerProcess = true;
+	addProperty(server, "Server.Endpoints", "default");
 	object = ObjectDescriptor();
 	object.id = communicator->stringToIdentity("${server}");
 	object.type = "::Test::TestIntf";
@@ -304,8 +319,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
  	info = admin->getServerInfo("Server");
 	test(info.descriptor);
- 	test(info.descriptor->propertySet.properties[0].name == "test" && 
-	     info.descriptor->propertySet.properties[0].value == "test");
+ 	test(getProperty(info.descriptor->propertySet.properties, "test") == "test");
 
 	update = empty;
 	update.serverTemplates["ServerTemplate"] = templ;
@@ -339,8 +353,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
  	info = admin->getServerInfo("Server1");
 	test(info.descriptor);
- 	test(info.descriptor->propertySet.properties[0].name == "test" && 
-	     info.descriptor->propertySet.properties[0].value == "test");
+ 	test(getProperty(info.descriptor->propertySet.properties, "test") == "test");
 
 	info = admin->getServerInfo("Server");
 	test(info.descriptor);
@@ -416,6 +429,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	adapter.name = "${service}";
 	adapter.id = "${server}.${service}";
 	adapter.registerProcess = true;
+	addProperty(service, "${service}.Endpoints", "default");
 	service->adapters.push_back(adapter);
  	
 	IceBoxDescriptorPtr server = new IceBoxDescriptor();
@@ -729,25 +743,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	serverAfter = admin->getServerInfo("Server");
 	PropertyDescriptorSeq newProps = serverAfter.descriptor->propertySet.properties;
-	for(PropertyDescriptorSeq::const_iterator p = newProps.begin(); p != newProps.end(); ++p)
-	{
-	    if(p->name == "ApplicationVar")
-	    {
-		test(p->value == "nodeoverride");
-	    }
-	    else if(p->name == "NodeVar")
-	    {
-		test(p->value == "NodeValue");
-	    }	    
-	    else if(p->name == "ServerParamVar")
-	    {
-		test(p->value == "ServerParamValue");
-	    }
-	    else
-	    {
-		test(false);
-	    }
-	}
+	test(getProperty(serverAfter.descriptor->propertySet.properties, "ApplicationVar") == "nodeoverride");
+	test(getProperty(serverAfter.descriptor->propertySet.properties, "NodeVar") == "NodeValue");
+	test(getProperty(serverAfter.descriptor->propertySet.properties, "ServerParamVar") == "ServerParamValue");
 	admin->removeApplication("TestApp");
 	cout << "ok" << endl;
     }
@@ -1080,6 +1078,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	update.nodes.push_back(nodeUpdate);
 	nodeUpdate.name = "node-2";
 	nodeUpdate.servers.push_back(server);
+	nodeUpdate.removeServers.clear();
 	update.nodes.push_back(nodeUpdate);
 
 	try
