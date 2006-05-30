@@ -42,6 +42,7 @@ private:
     typedef std::map<Ice::Identity, EvictorEntryPtr> EvictorMap;
     typedef std::list<EvictorMap::iterator> EvictorQueue;
 
+    friend struct EvictorEntry;
     struct EvictorEntry : public IceUtil::Shared
     {
 	Ice::ObjectPrx proxy;

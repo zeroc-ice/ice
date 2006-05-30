@@ -64,6 +64,7 @@ scandir(const char* dir, struct dirent*** namelist,
 	    *namelist = (struct dirent**)realloc((void*)(*namelist), (size_t)((i + 1) * sizeof(struct dirent*)));
 	    if(*namelist == 0)
 	    {
+		closedir(d);
 		return -1;
 	    }
 
@@ -71,6 +72,7 @@ scandir(const char* dir, struct dirent*** namelist,
 	    (*namelist)[i] = (struct dirent*)malloc(entrysize);
 	    if((*namelist)[i] == 0)
 	    {
+		closedir(d);
 		return -1;
 	    }
 	    memcpy((*namelist)[i], entry, entrysize);

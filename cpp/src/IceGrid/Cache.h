@@ -63,7 +63,7 @@ protected:
     getImpl(const Key& key) const
     {
 	typename ValueMap::iterator p = const_cast<ValueMap&>(_entries).end();
-	if(_entriesHint != _entries.end())
+	if(_entriesHint != p)
 	{
 	    if(_entriesHint->first == key)
 	    {
@@ -71,12 +71,12 @@ protected:
 	    }
 	}
 	
-	if(p == _entries.end())
+	if(p == const_cast<ValueMap&>(_entries).end())
 	{
 	    p = const_cast<ValueMap&>(_entries).find(key);
 	}
 	
-	if(p != _entries.end())
+	if(p != const_cast<ValueMap&>(_entries).end())
 	{
 	    const_cast<typename ValueMap::iterator&>(_entriesHint) = p;
 	    return p->second;

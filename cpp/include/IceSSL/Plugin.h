@@ -26,9 +26,9 @@
 #ifndef ICE_SSL_API
 #   ifdef ICE_SSL_API_EXPORTS
 #       define ICE_SSL_API ICE_DECLSPEC_EXPORT
-#    else
+#   else
 #       define ICE_SSL_API ICE_DECLSPEC_IMPORT
-#    endif
+#   endif
 #endif
 
 //
@@ -53,7 +53,7 @@ namespace IceSSL
 //
 // This exception is thrown if the certificate cannot be read.
 //
-class CertificateReadException : public IceUtil::Exception
+class ICE_SSL_API CertificateReadException : public IceUtil::Exception
 {
 public:
 
@@ -72,7 +72,7 @@ private:
 //
 // This exception is thrown if the certificate cannot be encoded.
 //
-class CertificateEncodingException : public IceUtil::Exception
+class ICE_SSL_API CertificateEncodingException : public IceUtil::Exception
 {
 public:
 
@@ -372,7 +372,7 @@ typedef IceUtil::Handle<Plugin> PluginPtr;
 //
 // Thrown if getConnectionInfo cannot retrieve the ConnectionInfo.
 //
-class ConnectionInvalidException : public IceUtil::Exception
+class ICE_SSL_API ConnectionInvalidException : public IceUtil::Exception
 {
 public:
 

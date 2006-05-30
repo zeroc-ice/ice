@@ -161,7 +161,7 @@ ObjectCache::add(const ObjectInfo& info, const string& application, bool allocat
     map<string, TypeEntry>::iterator p = _types.find(entry->getType());
     if(p == _types.end())
     {
-	p = _types.insert(p, make_pair(entry->getType(), TypeEntry()));
+	p = _types.insert(p, map<string, TypeEntry>::value_type(entry->getType(), TypeEntry()));
     }
     p->second.add(entry);
 

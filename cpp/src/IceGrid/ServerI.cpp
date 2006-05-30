@@ -24,14 +24,14 @@
 #include <sys/stat.h>
 
 #ifdef _WIN32
-#   include <direct.h>
-#   include <signal.h>
+#  include <direct.h>
+#  include <signal.h>
 #else
-#   include <sys/wait.h>
-#   include <pwd.h> // for getpwnam
-#   include <signal.h>
-#   include <unistd.h>
-#   include <dirent.h>
+#  include <sys/wait.h>
+#  include <pwd.h> // for getpwnam
+#  include <signal.h>
+#  include <unistd.h>
+#  include <dirent.h>
 #endif
 
 #include <fstream>
@@ -46,9 +46,36 @@ namespace IceGrid
 void
 chownRecursive(const string& path, uid_t uid, gid_t gid)
 {
-    struct dirent **namelist;
-    int n = scandir(path.c_str(), &namelist, 0, alphasort);
-    if(n < 0)
+    struct dirent **namelist = 0;
+    DIR* d;
+    if((d = opendir(path.c_str())) == 0)
+    {
+	throw "cannot read directory `" + path + "':\n" + IcePatch2::lastError();
+    }
+
+    struct dirent* entry;
+    int n = 0;
+    while((entry = readdir(d)) != 0)
+    {
+        namelist = (struct dirent**)realloc((void*)namelist, (size_t)((n + 1) * sizeof(struct dirent*)));
+        if(namelist == 0)
+        {
+	    closedir(d);
+	    throw "cannot read directory `" + path + "':\n" + IcePatch2::lastError();
+        }
+
+        size_t entrysize = sizeof(struct dirent) - sizeof(entry->d_name) + strlen(entry->d_name) + 1;
+        namelist[n] = (struct dirent*)malloc(entrysize);
+        if(namelist[n] == 0)
+        {
+	    closedir(d);
+	    throw "cannot read directory `" + path + "':\n" + IcePatch2::lastError();
+        }
+        memcpy(namelist[n], entry, entrysize);
+        ++n;
+    }
+
+    if(closedir(d))
     {
 	throw "cannot read directory `" + path + "':\n" + IcePatch2::lastError();
     }
