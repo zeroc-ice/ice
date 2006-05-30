@@ -43,7 +43,7 @@ public:
 private:
     
     bool isCurrentTargetDeployable() const;
-    string elementValue() const;
+    string elementValue();
     vector<string> getTargets(const string&) const;
     void error(const string&) const;
     bool isTargetDeployable(const string&) const;
@@ -54,6 +54,7 @@ private:
     map<string, string> _overrides; 
     vector<string> _targets;
     string _data;
+    string _previousElementName;
     int _targetCounter;
     bool _isCurrentTargetDeployable;
     int _line;
@@ -453,8 +454,17 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
     {
 	error(reason);
     }
-    
-    _data = "";
+
+    //
+    // Check if the previous element value has been consumed and if not make
+    // sure it's "empty".
+    //
+    string value = elementValue();
+    if(!value.empty() && value.find_first_not_of(" \t\r\n") != string::npos)
+    {
+	error("invalid element value for element `" + _previousElementName + "'");
+    }
+    _previousElementName = name;
 }
 
 void 
@@ -667,6 +677,16 @@ DescriptorHandler::endElement(const string& name, int line, int column)
     {
 	error(reason);
     }
+
+    //
+    // Check if the element value has been consumed and if not make
+    // sure it's "empty".
+    //
+    string value = elementValue();
+    if(!value.empty() && value.find_first_not_of(" \t\r\n") != string::npos)
+    {
+	error("invalid element value for element `" + name + "'");
+    }
 }
 
 void 
@@ -741,9 +761,12 @@ DescriptorHandler::error(const string& msg) const
 }
 
 string
-DescriptorHandler::elementValue() const
+DescriptorHandler::elementValue()
 {
-    return _data;
+    string tmp;
+    tmp = _data;
+    _data = "";
+    return tmp;
 }
 
 bool
