@@ -115,6 +115,10 @@ public class AllTests
 	{
 	    test(false);
 	}
+	catch(IceGrid.ServerStopException ex)
+	{
+	    test(false);
+	}
 	catch(IceGrid.NodeUnreachableException ex)
 	{
 	    test(false);
@@ -183,6 +187,10 @@ public class AllTests
 	    admin.stopServer("server");
 	}
 	catch(IceGrid.ServerNotExistException ex)
+	{
+	    test(false);
+	}
+	catch(IceGrid.ServerStopException ex)
 	{
 	    test(false);
 	}
