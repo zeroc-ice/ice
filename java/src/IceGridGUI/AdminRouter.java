@@ -46,10 +46,10 @@ class AdminRouter extends Ice.Blobject
 	}
     }
 
-    synchronized void setAdmin(AdminPrx admin)
+    AdminRouter(AdminPrx admin)
     {
 	_admin = admin;
     }
 
-    private AdminPrx _admin;
+    private final AdminPrx _admin;
 }

@@ -8,11 +8,15 @@
 // **********************************************************************
 package IceGridGUI.LiveDeployment;
 
+import java.awt.Component;
 import java.awt.Cursor;
 
+import javax.swing.Icon;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
+
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
@@ -62,6 +66,32 @@ public class Root extends ListTreeNode
 	_editor.show(this);
 	return _editor;
     }
+
+    public Component getTreeCellRendererComponent(
+	    JTree tree,
+	    Object value,
+	    boolean sel,
+	    boolean expanded,
+	    boolean leaf,
+	    int row,
+	    boolean hasFocus) 
+    {
+	if(_cellRenderer == null)
+	{
+	    //
+	    // Initialization
+	    //
+	    _cellRenderer = new DefaultTreeCellRenderer();
+	 
+	    Icon icon = Utils.getIcon("/icons/16x16/registry.png");
+	    _cellRenderer.setOpenIcon(icon);
+	    _cellRenderer.setClosedIcon(icon);
+	}
+	
+	return _cellRenderer.getTreeCellRendererComponent(
+	    tree, value, sel, expanded, leaf, row, hasFocus);
+    }
+
 
     public void init(String instanceName, java.util.List applications,
 		     AdapterInfo[] adapters, ObjectInfo[] objects)
@@ -666,4 +696,6 @@ public class Root extends ListTreeNode
 
     static private RegistryEditor _editor;
     static private JPopupMenu _popup;
+    static private DefaultTreeCellRenderer _cellRenderer;  
+
 }

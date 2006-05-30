@@ -14,8 +14,9 @@ import IceGrid.*;
 class RegistryObserverI extends _RegistryObserverDisp
 {
 
-    RegistryObserverI(Coordinator coordinator)
+    RegistryObserverI(String instanceName, Coordinator coordinator)
     {
+	_instanceName = instanceName;
 	_coordinator = coordinator;
     }
 
@@ -49,7 +50,8 @@ class RegistryObserverI extends _RegistryObserverDisp
 	
 	if(_initialized)
 	{
-	    _coordinator.registryInit(_serial, _applications, _adapters, _objects);
+	    _coordinator.registryInit(_instanceName,
+				      _serial, _applications, _adapters, _objects);
 	}
 	else
 	{
@@ -171,13 +173,14 @@ class RegistryObserverI extends _RegistryObserverDisp
 	    });
     }    
 
-    private Coordinator _coordinator;
+    private final Coordinator _coordinator;
  
     private boolean _initialized = false;
     
     //
     // Values given to init
     //
+    private final String _instanceName;
     private int _serial;
     private java.util.List _applications;
     private AdapterInfo[] _adapters;

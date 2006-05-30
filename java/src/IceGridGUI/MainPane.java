@@ -100,10 +100,12 @@ public class MainPane extends JTabbedPane
 		}
 	    });
 
-	_liveIcon = Utils.getIcon("/icons/16x16/grid.png");
-	_fileIcon = Utils.getIcon("/icons/16x16/folder_open.png");
+	_registryIcon = Utils.getIcon("/icons/16x16/registry_bound_application.png");
+	_fileIcon = Utils.getIcon("/icons/16x16/file_bound_application.png");
 	    
-	addTab("Live Deployment", _liveIcon, _coordinator.getLiveDeploymentPane());
+	addTab("Live Deployment", 
+	       Utils.getIcon("/icons/16x16/live_deployment.png"),
+	       _coordinator.getLiveDeploymentPane());
     }
 
    
@@ -135,7 +137,7 @@ public class MainPane extends JTabbedPane
     {
 	if(root.isLive())
 	{
-	    return _liveIcon;
+	    return _registryIcon;
 	}
 	else if(root.hasFile())
 	{
@@ -149,6 +151,6 @@ public class MainPane extends JTabbedPane
 
 
     private Coordinator _coordinator;
-    private ImageIcon _liveIcon;
+    private ImageIcon _registryIcon;
     private ImageIcon _fileIcon;
 }

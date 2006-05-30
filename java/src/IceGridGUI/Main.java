@@ -56,7 +56,8 @@ public class Main extends JFrame
 	    });
 
 	_coordinator = 
-	    new Coordinator(this, args, Preferences.userNodeForPackage(getClass()));
+	    new Coordinator(this, new Ice.StringSeqHolder(args), 
+			    Preferences.userNodeForPackage(getClass()));
 	
 	_coordinator.showMainFrame();
     }

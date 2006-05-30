@@ -300,6 +300,10 @@ public class Coordinator
 	    button.setText(null);
 	    button.setIcon(Utils.getIcon("/icons/24x24/login.png"));
 	    add(button);
+	    button = new JButton(_logout);
+	    button.setText(null);
+	    button.setIcon(Utils.getIcon("/icons/24x24/logout.png"));
+	    add(button);
 
 	    addSeparator();
 	   	    
@@ -314,9 +318,28 @@ public class Coordinator
 
 	    addSeparator();
 	    
+	    button = new JButton(_openApplicationFromRegistry);
+	    button.setText(null);
+	    button.setIcon(Utils.getIcon("/icons/24x24/open_from_registry.png"));
+	    add(button);
+	    button = new JButton(_openApplicationFromFile);
+	    button.setText(null);
+	    button.setIcon(Utils.getIcon("/icons/24x24/open_from_file.png"));
+	    add(button);
+
+	    addSeparator();
+
 	    button = new JButton(_save);
 	    button.setText(null);
 	    button.setIcon(Utils.getIcon("/icons/24x24/save.png"));
+	    add(button);
+	    button = new JButton(_saveToRegistry);
+	    button.setText(null);
+	    button.setIcon(Utils.getIcon("/icons/24x24/save_to_registry.png"));
+	    add(button);
+	    button = new JButton(_saveToFile);
+	    button.setText(null);
+	    button.setIcon(Utils.getIcon("/icons/24x24/save_to_file.png"));
 	    add(button);
 	    button = new JButton(_discardUpdates);
 	    button.setText(null);
@@ -350,7 +373,16 @@ public class Coordinator
     //
     public Ice.Communicator getCommunicator()
     {
+	if(_communicator == null)
+	{
+	    _communicator = createCommunicator(_properties);
+	}
 	return _communicator;
+    }
+
+    public Ice.Properties getProperties()
+    {
+	return _properties;
     }
 
     public Tab getCurrentTab()
@@ -446,14 +478,13 @@ public class Coordinator
     //
     // From the Registry observer:
     //
-    void registryInit(int serial, java.util.List applications,
+    void registryInit(String instanceName, int serial, java.util.List applications,
 		      AdapterInfo[] adapters, ObjectInfo[] objects)
     {	
 	assert _latestSerial == -1;
 	_latestSerial = serial;
 
-	_liveDeploymentRoot.init(_admin.ice_getIdentity().category, 
-				 applications, adapters, objects);
+	_liveDeploymentRoot.init(instanceName, applications, adapters, objects);
 	//
 	// When we get this init, we can't have any live Application yet.
 	//
@@ -592,6 +623,15 @@ public class Coordinator
 	    // Somebody else deleted this application at about the same time
 	    //
 	}
+	catch(Ice.LocalException e)
+	{
+	    JOptionPane.showMessageDialog(
+		_mainFrame,
+		"Could not remove application '" + name + 
+		"' from IceGrid registry:\n" + e.toString(),
+		"Trouble with IceGrid registry",
+		JOptionPane.ERROR_MESSAGE);
+	}
 	finally
 	{
 	    if(acquired)
@@ -655,6 +695,21 @@ public class Coordinator
 	    {
 		accessDenied(e);
 	    }
+	    catch(Ice.ObjectNotExistException e)
+	    {
+		//
+		// Ignored, the session is gone, and so is the exclusive access.
+		//
+	    }
+	    catch(Ice.LocalException e)
+	    {
+		JOptionPane.showMessageDialog(
+		    _mainFrame,
+		    "Could not release exclusive write access on the IceGrid registry:\n"
+		    + e.toString(),
+		    "Trouble with IceGrid registry",
+		    JOptionPane.ERROR_MESSAGE);
+	    }
 	}
     }
 
@@ -669,8 +724,8 @@ public class Coordinator
 	{
 	    Runnable runnable = _onExclusiveWrite;
 	    _onExclusiveWrite = null;
-	    _mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	    runnable.run();
+	    _mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
     }
   
@@ -707,7 +762,6 @@ public class Coordinator
 	_writeSerial = -1;
 	_writeAccessCount = 0;
 	_onExclusiveWrite = null;
-	setAdmin(null);
 	_liveDeploymentRoot.clear();
 
 	//
@@ -738,18 +792,18 @@ public class Coordinator
 
 	AdminSessionPrx session = null;
 	
-	if(_routedAdapter != null)
-	{
-	    //
-	    // Clean it up!
-	    //
-	    _routedAdapter.deactivate();
-	    _routedAdapter.waitForDeactivate();
-	    _routedAdapter = null;
-	}
-
-	_communicator.setDefaultRouter(null);
-	_communicator.setDefaultLocator(null);
+	destroyCommunicator();
+	//
+	// Transform SSL info into properties
+	//
+	Ice.Properties properties = _properties._clone();
+	properties.setProperty("IceSSL.Keystore", info.keystore);
+	properties.setProperty("IceSSL.Password", new String(info.keyPassword));
+	properties.setProperty("IceSSL.KeystorePassword", new String(info.keystorePassword));
+	properties.setProperty("IceSSL.Alias", info.alias);
+	properties.setProperty("IceSSL.Truststore", info.truststore);
+	properties.setProperty("IceSSL.TruststorePassword", new String(info.truststorePassword));
+	_communicator = createCommunicator(properties);
 
 	if(info.routed)
 	{
@@ -773,9 +827,16 @@ public class Coordinator
 		//
 		_communicator.setDefaultRouter(router);
 
-		Glacier2.SessionPrx s =
-		    router.createSession(
+		Glacier2.SessionPrx s;
+		if(info.routerUseSSL)
+		{
+		    s = router.createSessionFromSecureConnection();
+		}
+		else
+		{
+		    s = router.createSession(
 			info.routerUsername, new String(info.routerPassword));
+		}
 		
 		session = AdminSessionPrxHelper.uncheckedCast(s);
 	    }
@@ -844,9 +905,17 @@ public class Coordinator
 	    
 	    try
 	    {
-		session = AdminSessionPrxHelper.uncheckedCast(
-		    registry.createAdminSession(info.registryUsername, 
-						new String(info.registryPassword)));
+		if(info.registryUseSSL)
+		{
+		    session = AdminSessionPrxHelper.uncheckedCast(
+			registry.createAdminSessionFromSecureConnection());
+		}
+		else
+		{
+		    session = AdminSessionPrxHelper.uncheckedCast(
+			registry.createAdminSession(info.registryUsername, 
+						    new String(info.registryPassword)));
+		}
 	    }
 	    catch(IceGrid.PermissionDeniedException e)
 	    {
@@ -867,25 +936,7 @@ public class Coordinator
 		return null;
 	    }
 	}
-	    
-	//
-	// Admin
-	//
-	try
-	{
-	    setAdmin(session.getAdmin());
-	}
-	catch(Ice.LocalException e)
-	{
-	    JOptionPane.showMessageDialog(
-		parent,
-		"Could not retrieve Admin proxy: " + e.toString(),
-		"Login failed",
-		JOptionPane.ERROR_MESSAGE);
-	    destroySession(session);
-	    return null;
-	}
-  
+	
 	_logout.setEnabled(true);
 	_openApplicationFromRegistry.setEnabled(true);
 	_newApplicationWithDefaultTemplates.setEnabled(true);
@@ -896,38 +947,7 @@ public class Coordinator
 	return session;
     }
 
-    Ice.ObjectAdapter getObjectAdapter()
-    {
-	Ice.RouterPrx router = _communicator.getDefaultRouter();
-	
-	if(router == null)
-	{
-	    if(_localAdapter == null)
-	    {
-		_localAdapter = 
-		    _communicator.createObjectAdapter("IceGrid.AdminGUI");
-		_localAdapter.activate();
-	    }
-	    return _localAdapter;
-	}
-	else
-	{
-	    if(_routedAdapter == null)
-	    {
-		//
-		// Needs a unique name since we destroy this adapter at
-		// each new login
-		//
-		String name = "RoutedAdapter-" + Ice.Util.generateUUID();
-
-		_routedAdapter = _communicator.createObjectAdapterWithRouter(name, router);
-		_routedAdapter.activate();
-	    }
-	    return _routedAdapter;
-	}
-    }
-
-
+    
     void destroySession(AdminSessionPrx session)
     {
 	Ice.RouterPrx router = _communicator.getDefaultRouter();
@@ -992,7 +1012,7 @@ public class Coordinator
 
     public AdminPrx getAdmin()
     {
-	return _admin;
+	return _sessionKeeper.getAdmin();
     }
 
     public StatusBar getStatusBar()
@@ -1050,8 +1070,7 @@ public class Coordinator
 		    destroyIceGridAdmin();
 		    return null;
 		}
-
-		_fileParser = FileParserPrxHelper.checkedCast(_communicator.stringToProxy(str));
+		_fileParser = str;
 	    }
 	    catch(java.io.UnsupportedEncodingException e)
 	    {
@@ -1069,22 +1088,14 @@ public class Coordinator
 		return null;
 
 	    }
-	    catch(Ice.LocalException e)
-	    {
-		JOptionPane.showMessageDialog(
-		    _mainFrame,
-		    "Failed to retrieve FileParser from icegridadmin subprocess: " + e.toString(),
-		    "Communication error",
-		    JOptionPane.ERROR_MESSAGE);
-
-		destroyIceGridAdmin();
-		return null;
-	    }
 	}
 
 	try
 	{
-	    return _fileParser.parse(file.getAbsolutePath(), getRoutedAdmin());
+	    FileParserPrx fileParser = FileParserPrxHelper.checkedCast(
+		getCommunicator().stringToProxy(_fileParser));
+	    return fileParser.parse(file.getAbsolutePath(), 
+				    _sessionKeeper.getRoutedAdmin());
 	}
 	catch(ParseException e)
 	{
@@ -1119,47 +1130,6 @@ public class Coordinator
 	    {}
 	    _icegridadminProcess = null;
 	    _fileParser = null;
-	}
-    }
-
-    private AdminPrx getRoutedAdmin()
-    {
-	if(_admin == null)
-	{
-	    return null;
-	}
-	else
-	{
-	    if(_routedAdmin == null)
-	    {
-		//
-		// Create a local Admin object used to route some operations to the real
-		// Admin.
-		// Routing admin calls is even necessary when we don't through Glacier
-		// since the Admin object provided by the registry is a well-known object
-		// (indirect, locator-dependent).
-		//
-		_adminRouterAdapter = _communicator.
-		    createObjectAdapterWithEndpoints("IceGrid.AdminRouter", "tcp -h localhost");
-		
-		_adminRouter = new AdminRouter();
-		_adminRouter.setAdmin(_admin);
-		
-		_routedAdmin = AdminPrxHelper.uncheckedCast(
-		    _adminRouterAdapter.addWithUUID(_adminRouter));
-		
-		_adminRouterAdapter.activate();
-	    }
-	}
-	return _routedAdmin;
-    }
-
-    private void setAdmin(AdminPrx admin)
-    {
-	_admin = admin;
-	if(_adminRouter != null)
-	{
-	    _adminRouter.setAdmin(admin);
 	}
     }
 
@@ -1216,11 +1186,10 @@ public class Coordinator
 	return file;
     }
 
-    static private Ice.Communicator createCommunicator(String[] args)
+    
+    static private Ice.Properties createProperties(Ice.StringSeqHolder args)
     {
-	Ice.StringSeqHolder argSeq = new Ice.StringSeqHolder(args);
-
-	Ice.Properties properties = Ice.Util.createProperties(argSeq);
+	Ice.Properties properties = Ice.Util.createProperties(args);
 
 	//
 	// Set various default values
@@ -1236,7 +1205,7 @@ public class Coordinator
 	}
 	   
         //
-        // For SSL
+        // For SSL with JDK 1.4
         //
 	if(properties.getProperty("Ice.ThreadPerConnection").equals(""))
 	{
@@ -1256,22 +1225,36 @@ public class Coordinator
 	}
 	
 	//
-	// Retries are not useful when using Glacier2, however
-	// they are not harmful either. 
+	// Disable retries
 	//
-        // For now we retry to work-around bug #574:
-	// properties.setProperty("Ice.RetryIntervals", "-1");
-
-	Ice.InitializationData initData = new Ice.InitializationData();
-	initData.properties = properties;
-	return Ice.Util.initialize(argSeq, initData);
+	properties.setProperty("Ice.RetryIntervals", "-1");
+	return properties;
     }
 
-    Coordinator(JFrame mainFrame, String[] args, Preferences prefs)
+    static private Ice.Communicator createCommunicator(Ice.Properties properties)
+    {
+	Ice.InitializationData initData = new Ice.InitializationData();
+	initData.properties = properties;
+	return Ice.Util.initialize(new String[0], initData);
+    }
+
+    Coordinator(JFrame mainFrame, Ice.StringSeqHolder args, Preferences prefs)
     {	
 	_mainFrame = mainFrame;
 	_prefs = prefs;
-	_communicator = createCommunicator(args);
+	_properties = createProperties(args);
+	
+	if(args.value.length > 0)
+	{
+	    //
+	    // TODO: use proper logging
+	    //
+	    System.err.println("WARNING: extra command-line arguments");
+	    for(int i = 0; i < args.value.length; ++i)
+	    {
+		System.err.println(args.value[i]);
+	    }
+	}
 
 	_liveDeploymentRoot = new IceGridGUI.LiveDeployment.Root(this);
 
@@ -1283,6 +1266,7 @@ public class Coordinator
 	    {
 		public void run()
 		{
+		    destroyIceGridAdmin();
 		    destroyCommunicator();
 		}
 	    };
@@ -1330,7 +1314,7 @@ public class Coordinator
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    login();
+		    _sessionKeeper.relog(true);
 		}
 	    };
 	_login.putValue(Action.SHORT_DESCRIPTION, 
@@ -1340,7 +1324,7 @@ public class Coordinator
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    logout();
+		    _sessionKeeper.logout(true);
 		}
 	    };
 	_logout.putValue(Action.SHORT_DESCRIPTION, "Logout");
@@ -1648,7 +1632,7 @@ public class Coordinator
 	_mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	try
 	{
-	    ApplicationDescriptor descriptor = _admin.getDefaultApplicationDescriptor();
+	    ApplicationDescriptor descriptor = getAdmin().getDefaultApplicationDescriptor();
 	    descriptor.name = "NewApplication";
 	    IceGridGUI.Application.Root root = new IceGridGUI.Application.Root(this, descriptor);
 	    ApplicationPane app = new ApplicationPane(root);
@@ -1680,76 +1664,6 @@ public class Coordinator
 	}
     }
 
-    //
-    // Login and logout action
-    //
-    private void login()
-    {
-	if(_latestSerial != -1 && _latestSerial == _writeSerial)
-	{
-	    int saveFirst = JOptionPane.showConfirmDialog(
-		_mainFrame,
-		"Do you want to save your updates?", 
-		"Save Confirmation",
-		JOptionPane.YES_NO_CANCEL_OPTION);
-
-	    switch(saveFirst)
-	    {
-		case JOptionPane.YES_OPTION:
-		    /*if(saveUpdates())
-		    {
-			_sessionKeeper.relog(true);
-			}*/
-		    break;
-		case JOptionPane.NO_OPTION:
-		    _sessionKeeper.relog(true);
-		    break;
-		case JOptionPane.CANCEL_OPTION:
-		    break;
-		default:
-		    assert false;
-	    }
-	}
-	else
-	{
-	    _sessionKeeper.relog(true);
-	}
-    }
-
-    private void logout()
-    {
-	if(_latestSerial != -1 && _latestSerial == _writeSerial)
-	{
-	    int saveFirst = JOptionPane.showConfirmDialog(
-		_mainFrame,
-		"Do you want to save your updates?", 
-		"Save Confirmation",
-		JOptionPane.YES_NO_CANCEL_OPTION);
-
-	    switch(saveFirst)
-	    {
-		case JOptionPane.YES_OPTION:
-		    /* if(saveUpdates())
-		    {
-			_sessionKeeper.logout(true);
-			}*/
-		    break;
-		case JOptionPane.NO_OPTION:
-		    _sessionKeeper.logout(true);
-		    break;
-		case JOptionPane.CANCEL_OPTION:
-		    break;
-		default:
-		    assert false;
-	    }
-	}
-	else
-	{
-	    _sessionKeeper.logout(true);
-	}
-    }
-    
-    
     private void helpContents()
     {
 	BareBonesBrowserLaunch.openURL(
@@ -1760,7 +1674,7 @@ public class Coordinator
     {
 	String text = "IceGrid Admin version " 
 	    + IceUtil.Version.ICE_STRING_VERSION + "\n"
-	    + "Copyright \u00A9 2005 ZeroC, Inc. All rights reserved.\n";
+	    + "Copyright \u00A9 2005-2006 ZeroC, Inc. All rights reserved.\n";
 	    
 	JOptionPane.showMessageDialog(
 	    _mainFrame,
@@ -1792,9 +1706,10 @@ public class Coordinator
     void exit(int status)
     {
 	storeWindowPrefs();
+	destroyIceGridAdmin();
 	destroyCommunicator();
-	_mainFrame.dispose();
 	Runtime.getRuntime().removeShutdownHook(_shutdownHook);
+	_mainFrame.dispose();
 	Runtime.getRuntime().exit(status);
     }
     
@@ -1803,17 +1718,19 @@ public class Coordinator
     //
     private void destroyCommunicator()
     {
-	destroyIceGridAdmin();
-
-	try	   
+	if(_communicator != null)
 	{
-	    _communicator.destroy();
-	}
-	catch(Ice.LocalException e)
-	{
-	    System.err.println("_communicator.destroy() raised "
-			       + e.toString());
-	    e.printStackTrace();
+	    try	   
+	    {
+		_communicator.destroy();
+	    }
+	    catch(Ice.LocalException e)
+	    {
+		System.err.println("_communicator.destroy() raised "
+				   + e.toString());
+		e.printStackTrace();
+	    }
+	    _communicator = null;
 	}
     }
 
@@ -1948,18 +1865,12 @@ public class Coordinator
     }	
 
 
-    private final Ice.Communicator _communicator;
+    private final Ice.Properties _properties;
+    private Ice.Communicator _communicator;
+
     private Preferences _prefs;
     private StatusBarI _statusBar = new StatusBarI();
-    private AdminPrx _admin;
     
-    private Ice.ObjectAdapter _localAdapter;
-    private Ice.ObjectAdapter _routedAdapter;
-    private Ice.ObjectAdapter _adminRouterAdapter;
-    private AdminPrx _routedAdmin;
-    private AdminRouter _adminRouter;
-  
-
     private IceGridGUI.LiveDeployment.Root _liveDeploymentRoot;
     private LiveDeploymentPane _liveDeploymentPane;
 
@@ -2046,7 +1957,7 @@ public class Coordinator
     private JFileChooser _fileChooser;
     
     private Process _icegridadminProcess;
-    private FileParserPrx _fileParser;
+    private String _fileParser;
 
     static private final int HISTORY_MAX_SIZE = 20;
 

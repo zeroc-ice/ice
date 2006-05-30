@@ -38,7 +38,7 @@ class PropertySet extends TreeNode
 	{
 	    _cellRenderer = new DefaultTreeCellRenderer();
 	    _cellRenderer.setLeafIcon(
-		Utils.getIcon("/icons/16x16/grid.png"));
+		Utils.getIcon("/icons/16x16/property_set.png"));
 	}
 
 	return _cellRenderer.getTreeCellRendererComponent(
