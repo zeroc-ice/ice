@@ -13,6 +13,7 @@
 #include <Ice/CommunicatorF.h>
 #include <IceSSL/TrustManagerF.h>
 #include <IceSSL/Plugin.h>
+#include <IceSSL/RFC2253.h>
 #include <list>
 
 namespace IceSSL
@@ -28,16 +29,15 @@ public:
 
 private:
 
-    bool match(const std::list< std::list< std::pair<std::string, std::string> > >&,
-	       const std::list< std::pair<std::string, std::string> >&) const;
+    bool match(const RFC2253::RDNSeqSeq&, const RFC2253::RDNSeq&) const;
 
     const Ice::CommunicatorPtr _communicator;
     int _traceLevel;
 
-    std::list<std::list< std::pair<std::string, std::string> > > _all;
-    std::list<std::list< std::pair<std::string, std::string> > > _client;
-    std::list<std::list< std::pair<std::string, std::string> > > _allServer;
-    std::map<std::string, std::list< std::list< std::pair<std::string, std::string> > > > _server;
+    RFC2253::RDNSeqSeq _all;
+    RFC2253::RDNSeqSeq _client;
+    RFC2253::RDNSeqSeq _allServer;
+    std::map<std::string, RFC2253::RDNSeqSeq > _server;
 };
 
 }

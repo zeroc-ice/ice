@@ -48,7 +48,9 @@ private:
 // This method returns a list of list of RDNs. Any failure in parsing
 // results in a ParseException being thrown.
 //
-std::list< std::list<std::pair<std::string, std::string> > > parse(const std::string&);
+typedef std::list< std::pair<std::string, std::string> > RDNSeq;
+typedef std::list<RDNSeq> RDNSeqSeq;
+RDNSeqSeq parse(const std::string&);
 
 }
 

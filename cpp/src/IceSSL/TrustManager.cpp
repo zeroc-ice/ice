@@ -26,7 +26,7 @@ TrustManager::TrustManager(const Ice::CommunicatorPtr& communicator) :
     _communicator(communicator)
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
-    _traceLevel = properties->getPropertyAsIntWithDefault("IceSSL.TrustOnly.Trace", 0);
+    _traceLevel = properties->getPropertyAsInt("IceSSL.Trace.Security");
     string key;
     try
     {
@@ -55,7 +55,7 @@ TrustManager::TrustManager(const Ice::CommunicatorPtr& communicator) :
 bool
 TrustManager::verify(const ConnectionInfo& info)
 {
-    list< list< list< pair<string, string> > > > trustset;
+    std::list<RFC2253::RDNSeqSeq> trustset;
     if(_all.size() > 0)
     {
 	trustset.push_back(_all);
@@ -69,8 +69,7 @@ TrustManager::verify(const ConnectionInfo& info)
 	}
 	if(info.adapterName.size() > 0)
 	{
-	    map<string, list< list< pair<string, string> > > >::
-		const_iterator p = _server.find(info.adapterName);
+	    map<string, RFC2253::RDNSeqSeq>::const_iterator p = _server.find(info.adapterName);
 	    if(p != _server.end())
 	    {
 		trustset.push_back(p->second);
@@ -105,23 +104,22 @@ TrustManager::verify(const ConnectionInfo& info)
 	    //
 	    if(_traceLevel > 0)
 	    {
-		Ice::Trace trace(_communicator->getLogger(), "TrustManager");
-		trace << "peer DN: " << info.certs[0]->getSubjectDN();
+		Ice::Trace trace(_communicator->getLogger(), "Security");
+		trace << "trust manager evaluating peer DN:\n" << info.certs[0]->getSubjectDN();
 	    }
-	    list< list<pair<string, string> > > alldn = RFC2253::parse(info.certs[0]->getSubjectDN());
+	    RFC2253::RDNSeqSeq alldn = RFC2253::parse(info.certs[0]->getSubjectDN());
 	    if(alldn.size() != 1)
 	    {
 		Ice::Warning warn(_communicator->getLogger());
 		warn << "IceSSL: certificate contains more than one DN:\n" + info.certs[0]->getSubjectDN();
 		return false;
 	    }
-	    list<pair<string, string> > dn = alldn.front();
+	    RFC2253::RDNSeq dn = alldn.front();
 
 	    //
 	    // Try matching against everything in the trust set.
 	    //
-	    for(list< list< list<pair<string, string> > > >::const_iterator p = trustset.begin();
-		p != trustset.end(); ++p)
+	    for(std::list<RFC2253::RDNSeqSeq>::const_iterator p = trustset.begin(); p != trustset.end(); ++p)
 	    {
 		if(match(*p, dn))
 		{
@@ -141,12 +139,11 @@ TrustManager::verify(const ConnectionInfo& info)
 }
 
 bool
-TrustManager::match(const list< list< pair<string, string> > >& matchRDNset,
-		    const list< pair<string, string> >& subjectRDNs) const
+TrustManager::match(const RFC2253::RDNSeqSeq& matchRDNset, const RFC2253::RDNSeq& subjectRDNs) const
 {
-    for(list< list< pair<string, string> > >::const_iterator r = matchRDNset.begin(); r != matchRDNset.end(); ++r)
+    for(RFC2253::RDNSeqSeq::const_iterator r = matchRDNset.begin(); r != matchRDNset.end(); ++r)
     {
-	for(list< pair<string, string> >::const_iterator p = r->begin(); p != r->end(); ++p)
+	for(RFC2253::RDNSeq::const_iterator p = r->begin(); p != r->end(); ++p)
 	{
 	    bool found = false;
 	    for(list< pair<string, string> >::const_iterator q = subjectRDNs.begin(); q != subjectRDNs.end(); ++q)

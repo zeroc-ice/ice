@@ -54,11 +54,11 @@ static string parsePair(const string&, size_t&);
 static string parseHexPair(const string&, size_t&, bool);
 static void eatWhite(const string&, size_t&);
 
-list< list<pair<string, string> > >
+RDNSeqSeq
 parse(const string& data)
 {
-    list< list<pair<string, string > > > results;
-    list<pair<string, string> > current;
+    RDNSeqSeq results;
+    RDNSeq current;
     size_t pos = 0;
     while(pos < data.size())
     {
