@@ -1570,7 +1570,8 @@ ServerInstanceHelper::ServerInstanceHelper(const ServerInstanceDescriptor& desc,
 
 ServerInstanceHelper::ServerInstanceHelper(const ServerDescriptorPtr& definition, 
 					   const Resolver& resolve,
-					   bool instantiate)
+					   bool instantiate) :
+    _def(ServerInstanceDescriptor())
 {
     init(definition, resolve, instantiate);
 }

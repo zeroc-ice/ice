@@ -2318,9 +2318,8 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
 	}
     }
 
-    ofstream configfile;
-    configfile.open(configFilePath.c_str(), ios::out);
-    if(!configfile)
+    ofstream configfile(configFilePath.c_str());
+    if(!configfile.good())
     {
 	throw "couldn't create configuration file: " + configFilePath;
     }
@@ -2351,9 +2350,8 @@ ServerI::updateDbEnv(const string& serverDir, const DbEnvDescriptor& dbEnv)
     if(!dbEnv.properties.empty())
     {
 	string file = dbEnvHome + "/DB_CONFIG";
-	ofstream configfile;
-	configfile.open(file.c_str(), ios::out);
-	if(!configfile)
+	ofstream configfile(file.c_str());
+	if(!configfile.good())
 	{
 	    throw "couldn't create configuration file `" + file + "'";
 	}
