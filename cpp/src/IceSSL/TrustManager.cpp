@@ -146,7 +146,7 @@ TrustManager::match(const RFC2253::RDNSeqSeq& matchRDNset, const RFC2253::RDNSeq
 	for(RFC2253::RDNSeq::const_iterator p = r->begin(); p != r->end(); ++p)
 	{
 	    bool found = false;
-	    for(list< pair<string, string> >::const_iterator q = subjectRDNs.begin(); q != subjectRDNs.end(); ++q)
+	    for(RFC2253::RDNSeq::const_iterator q = subjectRDNs.begin(); q != subjectRDNs.end(); ++q)
 	    {
 		if(p->first == q->first)
 		{
