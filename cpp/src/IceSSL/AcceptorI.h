@@ -13,7 +13,7 @@
 #include <Ice/LoggerF.h>
 #include <Ice/TransceiverF.h>
 #include <Ice/Acceptor.h>
-#include <InstanceF.h>
+#include <IceSSL/InstanceF.h>
 
 #ifndef _WIN32
 #   include <netinet/in.h> // For struct sockaddr_in
@@ -40,11 +40,12 @@ public:
 
 private:
 
-    AcceptorI(const InstancePtr&, const std::string&, int);
+    AcceptorI(const InstancePtr&, const std::string&, const std::string&, int);
     virtual ~AcceptorI();
     friend class EndpointI;
 
-    InstancePtr _instance;
+    const InstancePtr _instance;
+    const std::string _adapterName;
     Ice::LoggerPtr _logger;
     SOCKET _fd;
     int _backlog;

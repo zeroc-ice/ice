@@ -821,7 +821,8 @@ IceInternal::IncomingConnectionFactory::toString() const
 
 IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const InstancePtr& instance,
 								  const EndpointIPtr& endpoint,
-								  const ObjectAdapterPtr& adapter) :
+								  const ObjectAdapterPtr& adapter,
+								  const string& adapterName) :
     EventHandler(instance),
     _endpoint(endpoint),
     _adapter(adapter),
@@ -870,7 +871,7 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
     }
     else
     {
-	_acceptor = _endpoint->acceptor(const_cast<EndpointIPtr&>(_endpoint));
+	_acceptor = _endpoint->acceptor(const_cast<EndpointIPtr&>(_endpoint), adapterName);
 	assert(_acceptor);
 	_acceptor->listen();
 

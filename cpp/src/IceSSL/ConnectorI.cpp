@@ -7,10 +7,10 @@
 //
 // **********************************************************************
 
-#include <ConnectorI.h>
-#include <Instance.h>
-#include <TransceiverI.h>
-#include <Util.h>
+#include <IceSSL/ConnectorI.h>
+#include <IceSSL/Instance.h>
+#include <IceSSL/TransceiverI.h>
+#include <IceSSL/Util.h>
 #include <Ice/Communicator.h>
 #include <Ice/LocalException.h>
 #include <Ice/LoggerUtil.h>
@@ -148,7 +148,7 @@ IceSSL::ConnectorI::connect(int timeout)
 	}
 	while(!SSL_is_init_finished(ssl));
 
-	_instance->verifyPeer(ssl, fd, _host, false);
+	_instance->verifyPeer(ssl, fd, _host, "", false);
     }
     catch(...)
     {
@@ -167,7 +167,7 @@ IceSSL::ConnectorI::connect(int timeout)
 	_instance->traceConnection(ssl, false);
     }
 
-    return new TransceiverI(_instance, ssl, fd);
+    return new TransceiverI(_instance, ssl, fd, false);
 }
 
 string

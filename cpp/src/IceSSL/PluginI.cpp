@@ -7,10 +7,10 @@
 //
 // **********************************************************************
 
-#include <PluginI.h>
-#include <Instance.h>
-#include <TransceiverI.h>
-#include <Util.h>
+#include <IceSSL/PluginI.h>
+#include <IceSSL/Instance.h>
+#include <IceSSL/TransceiverI.h>
+#include <IceSSL/Util.h>
 #include <Ice/BuiltinSequences.h>
 #include <Ice/Communicator.h>
 #include <Ice/LocalException.h>

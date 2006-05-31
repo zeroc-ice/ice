@@ -111,7 +111,7 @@ public:
     // from this endpoint, for example, if a dynamic port number is
     // assigned.
     //
-    virtual AcceptorPtr acceptor(EndpointIPtr&) const = 0;
+    virtual AcceptorPtr acceptor(EndpointIPtr&, const std::string&) const = 0;
 
     //
     // Expand endpoint out in to separate endpoints for each local

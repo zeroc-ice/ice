@@ -10,11 +10,12 @@
 #ifndef ICE_SSL_TRANSCEIVER_I_H
 #define ICE_SSL_TRANSCEIVER_I_H
 
-#include <InstanceF.h>
+#include <IceSSL/InstanceF.h>
+#include <IceSSL/Plugin.h>
+
 #include <Ice/LoggerF.h>
 #include <Ice/StatsF.h>
 #include <Ice/Transceiver.h>
-#include <IceSSL/Plugin.h>
 
 typedef struct ssl_st SSL;
 
@@ -42,7 +43,7 @@ public:
 
 private:
 
-    TransceiverI(const InstancePtr&, SSL*, SOCKET);
+    TransceiverI(const InstancePtr&, SSL*, SOCKET, bool, const std::string& = "");
     virtual ~TransceiverI();
     friend class ConnectorI;
     friend class AcceptorI;
@@ -55,6 +56,9 @@ private:
     
     SSL* _ssl;
     SOCKET _fd;
+
+    const std::string _adapterName;
+    const bool _incoming;
 
     const std::string _desc;
 #ifdef _WIN32

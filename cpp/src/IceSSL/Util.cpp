@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <Util.h>
+#include <IceSSL/Util.h>
 #include <Ice/LocalException.h>
 #include <Ice/Network.h>
 
@@ -432,9 +432,12 @@ IceSSL::checkPath(string& path, const string& defaultDir, bool dir)
 }
 
 ConnectionInfo
-IceSSL::populateConnectionInfo(SSL* ssl, SOCKET fd)
+IceSSL::populateConnectionInfo(SSL* ssl, SOCKET fd, const string& adapterName, bool incoming)
 {
     ConnectionInfo info;
+    info.adapterName = adapterName;
+    info.incoming = incoming;
+
     assert(ssl != 0);
 
     //

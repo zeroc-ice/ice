@@ -11,7 +11,7 @@
 #define ICE_SSL_PLUGIN_I_H
 
 #include <IceSSL/Plugin.h>
-#include <InstanceF.h>
+#include <IceSSL/InstanceF.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/Plugin.h>
 

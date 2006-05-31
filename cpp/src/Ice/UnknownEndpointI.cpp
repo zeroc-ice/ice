@@ -115,7 +115,7 @@ IceInternal::UnknownEndpointI::connector() const
 }
 
 AcceptorPtr
-IceInternal::UnknownEndpointI::acceptor(EndpointIPtr& endp) const
+IceInternal::UnknownEndpointI::acceptor(EndpointIPtr& endp, const string&) const
 {
     endp = const_cast<UnknownEndpointI*>(this);
     return 0;

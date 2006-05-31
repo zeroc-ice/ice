@@ -783,7 +783,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 	    vector<EndpointIPtr> endpoints = parseEndpoints(endpointInfo);
 	    for(vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
     	    {
-	        _incomingConnectionFactories.push_back(new IncomingConnectionFactory(instance, *p, this));
+	        _incomingConnectionFactories.push_back(new IncomingConnectionFactory(instance, *p, this, _name));
 	    }
 
 	    //

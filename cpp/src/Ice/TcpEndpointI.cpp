@@ -298,7 +298,7 @@ IceInternal::TcpEndpointI::connector() const
 }
 
 AcceptorPtr
-IceInternal::TcpEndpointI::acceptor(EndpointIPtr& endp) const
+IceInternal::TcpEndpointI::acceptor(EndpointIPtr& endp, const string&) const
 {
     TcpAcceptor* p = new TcpAcceptor(_instance, _host, _port);
     endp = new TcpEndpointI(_instance, _host, p->effectivePort(), _timeout, _connectionId, _compress, _publish);

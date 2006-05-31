@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_INSTANCE_F_H
-#define ICE_SSL_INSTANCE_F_H
+#ifndef TRUST_MANAGER_F_H
+#define TRUST_MANAGER_F_H
 
 #include <Ice/Handle.h>
 
@@ -24,22 +24,22 @@
 namespace IceSSL
 {
 
-class Instance;
+class TrustManager;
 
 }
 
 namespace IceInternal
 {
 
-ICE_SSL_API void incRef(IceSSL::Instance*);
-ICE_SSL_API void decRef(IceSSL::Instance*);
+ICE_SSL_API void incRef(IceSSL::TrustManager*);
+ICE_SSL_API void decRef(IceSSL::TrustManager*);
 
 }
 
 namespace IceSSL
 {
 
-typedef IceInternal::Handle<Instance> InstancePtr;
+typedef IceInternal::Handle<TrustManager> TrustManagerPtr;
 
 }
 

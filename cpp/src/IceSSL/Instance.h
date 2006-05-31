@@ -10,13 +10,14 @@
 #ifndef ICE_SSL_INSTANCE_H
 #define ICE_SSL_INSTANCE_H
 
-#include <InstanceF.h>
-#include <UtilF.h>
+#include <IceSSL/InstanceF.h>
+#include <IceSSL/UtilF.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/Network.h>
 #include <Ice/ProtocolPluginFacadeF.h>
 #include <IceSSL/Plugin.h>
+#include <IceSSL/TrustManagerF.h>
 
 namespace IceSSL
 {
@@ -40,7 +41,7 @@ public:
     int securityTraceLevel() const;
     std::string securityTraceCategory() const;
 
-    void verifyPeer(SSL*, SOCKET, const std::string&, bool);
+    void verifyPeer(SSL*, SOCKET, const std::string&, const std::string&, bool);
 
     std::string sslErrors() const;
 
@@ -74,6 +75,7 @@ private:
 #endif
     CertificateVerifierPtr _verifier;
     PasswordPromptPtr _prompt;
+    TrustManagerPtr _trustManager;
 };
 
 }

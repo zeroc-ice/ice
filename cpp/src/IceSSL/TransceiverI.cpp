@@ -7,9 +7,9 @@
 //
 // **********************************************************************
 
-#include <TransceiverI.h>
-#include <Instance.h>
-#include <Util.h>
+#include <IceSSL/TransceiverI.h>
+#include <IceSSL/Instance.h>
+#include <IceSSL/Util.h>
 #include <Ice/Communicator.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Stats.h>
@@ -378,15 +378,18 @@ IceSSL::TransceiverI::getConnectionInfo() const
     // This can only be called on a open transceiver.
     //
     assert(_fd != INVALID_SOCKET);
-    return populateConnectionInfo(_ssl, _fd);
+    return populateConnectionInfo(_ssl, _fd, _adapterName, _incoming);
 }
 
-IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SSL* ssl, SOCKET fd) :
+IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SSL* ssl, SOCKET fd,
+				   bool incoming, const string& adapterName) :
     _instance(instance),
     _logger(instance->communicator()->getLogger()),
     _stats(instance->communicator()->getStats()),
     _ssl(ssl),
     _fd(fd),
+    _adapterName(adapterName),
+    _incoming(incoming),
     _desc(IceInternal::fdToString(fd))
 #ifdef _WIN32
     , _isPeerLocal(IceInternal::isPeerLocal(fd))

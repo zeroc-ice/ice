@@ -22,7 +22,9 @@ OBJS		= AcceptorI.o \
                   Instance.o \
                   PluginI.o \
                   TransceiverI.o \
-                  Util.o
+                  Util.o \
+		  RFC2253.o \
+		  TrustManager.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
@@ -30,7 +32,7 @@ HDIR		= $(includedir)/IceSSL
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. -I.. $(CPPFLAGS) -DICE_SSL_API_EXPORTS $(OPENSSL_FLAGS)
+CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_SSL_API_EXPORTS $(OPENSSL_FLAGS)
 
 LINKWITH        := $(BZIP2_RPATH_LINK) -lIce -lIceUtil $(OPENSSL_LIBS) $(CXXLIBS)
 

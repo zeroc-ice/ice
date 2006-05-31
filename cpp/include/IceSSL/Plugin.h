@@ -196,7 +196,7 @@ public:
     //std::string getSigAlgOID() const;
 
     //
-    // Get the issuer's distinguished name (DN).
+    // Get the issuer's distinguished name (DN) in RFC2253 format.
     //
     std::string getIssuerDN() const;
 
@@ -221,13 +221,15 @@ public:
     // iPAddress is returned in dotted quad notation. IPv6 is not
     // currently supported.
     //
+    // All distinguished names are encoded in RFC2253 format.
+    //
     // The remainder of the data will result in an empty string. Use the raw
     // X509* certificate to obtain these values.
     //
     std::vector<std::pair<int, std::string> > getIssuerAlternativeNames();
 
     //
-    // Get the subject's distinguished name (DN).
+    // Get the subject's distinguished name (DN) in RFC2553 format.
     //
     std::string getSubjectDN() const;
 
@@ -288,6 +290,18 @@ struct ConnectionInfo
     // The remote TCP/IP host & port.
     //
     struct sockaddr_in remoteAddr;
+
+    //
+    // If the connection is incoming this bool is true, false
+    // otherwise.
+    //
+    bool incoming;
+
+    //
+    // The name of the object adapter that hosts this endpoint, if
+    // any.
+    //
+    std::string adapterName;
 };
 
 //

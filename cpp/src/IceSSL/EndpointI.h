@@ -12,7 +12,7 @@
 
 #include <Ice/EndpointI.h>
 #include <Ice/EndpointFactory.h>
-#include <InstanceF.h>
+#include <IceSSL/InstanceF.h>
 
 namespace IceSSL
 {
@@ -41,7 +41,7 @@ public:
     virtual IceInternal::TransceiverPtr clientTransceiver() const;
     virtual IceInternal::TransceiverPtr serverTransceiver(IceInternal::EndpointIPtr&) const;
     virtual IceInternal::ConnectorPtr connector() const;
-    virtual IceInternal::AcceptorPtr acceptor(IceInternal::EndpointIPtr&) const;
+    virtual IceInternal::AcceptorPtr acceptor(IceInternal::EndpointIPtr&, const std::string&) const;
     virtual std::vector<IceInternal::EndpointIPtr> expand(bool) const;
     virtual bool publish() const;
     virtual bool equivalent(const IceInternal::TransceiverPtr&) const;

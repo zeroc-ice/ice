@@ -326,6 +326,10 @@ IceSSL:
     TruststoreType
     VerifyDepthMax
     VerifyPeer
+    TrustOnly
+    TrustOnly.Client
+    TrustOnly.Server
+    TrustOnly.Server.<any>
 
 IceStorm:
     Flush.Timeout

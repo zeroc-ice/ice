@@ -464,7 +464,7 @@ IceInternal::UdpEndpointI::connector() const
 }
 
 AcceptorPtr
-IceInternal::UdpEndpointI::acceptor(EndpointIPtr& endp) const
+IceInternal::UdpEndpointI::acceptor(EndpointIPtr& endp, const string&) const
 {
     endp = const_cast<UdpEndpointI*>(this);
     return 0;

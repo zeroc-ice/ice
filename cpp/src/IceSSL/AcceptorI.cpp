@@ -7,10 +7,11 @@
 //
 // **********************************************************************
 
-#include <AcceptorI.h>
-#include <Instance.h>
-#include <TransceiverI.h>
-#include <Util.h>
+#include <IceSSL/AcceptorI.h>
+#include <IceSSL/Instance.h>
+#include <IceSSL/TransceiverI.h>
+#include <IceSSL/Util.h>
+
 #include <Ice/Communicator.h>
 #include <Ice/Exception.h>
 #include <Ice/LocalException.h>
@@ -210,7 +211,7 @@ IceSSL::AcceptorI::accept(int timeout)
 	}
 	while(!SSL_is_init_finished(ssl));
 
-	_instance->verifyPeer(ssl, fd, "", true);
+	_instance->verifyPeer(ssl, fd, "", _adapterName, true);
     }
     catch(...)
     {
@@ -229,7 +230,7 @@ IceSSL::AcceptorI::accept(int timeout)
 	_instance->traceConnection(ssl, true);
     }
 
-    return new TransceiverI(_instance, ssl, fd);
+    return new TransceiverI(_instance, ssl, fd, true, _adapterName);
 }
 
 void
@@ -261,8 +262,9 @@ IceSSL::AcceptorI::effectivePort()
     return ntohs(_addr.sin_port);
 }
 
-IceSSL::AcceptorI::AcceptorI(const InstancePtr& instance, const string& host, int port) :
+IceSSL::AcceptorI::AcceptorI(const InstancePtr& instance, const string& adapterName, const string& host, int port) :
     _instance(instance),
+    _adapterName(adapterName),
     _logger(instance->communicator()->getLogger()),
     _backlog(0)
 {

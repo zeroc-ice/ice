@@ -7,11 +7,11 @@
 //
 // **********************************************************************
 
-#include <EndpointI.h>
-#include <AcceptorI.h>
-#include <ConnectorI.h>
-#include <TransceiverI.h>
-#include <Instance.h>
+#include <IceSSL/EndpointI.h>
+#include <IceSSL/AcceptorI.h>
+#include <IceSSL/ConnectorI.h>
+#include <IceSSL/TransceiverI.h>
+#include <IceSSL/Instance.h>
 #include <Ice/Network.h>
 #include <Ice/BasicStream.h>
 #include <Ice/LocalException.h>
@@ -298,9 +298,9 @@ IceSSL::EndpointI::connector() const
 }
 
 IceInternal::AcceptorPtr
-IceSSL::EndpointI::acceptor(IceInternal::EndpointIPtr& endp) const
+IceSSL::EndpointI::acceptor(IceInternal::EndpointIPtr& endp, const string& adapterName) const
 {
-    AcceptorI* p = new AcceptorI(_instance, _host, _port);
+    AcceptorI* p = new AcceptorI(_instance, adapterName, _host, _port);
     endp = new EndpointI(_instance, _host, p->effectivePort(), _timeout, _connectionId, _compress, _publish);
     return p;
 }

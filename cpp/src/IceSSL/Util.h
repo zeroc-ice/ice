@@ -10,7 +10,7 @@
 #ifndef ICE_SSL_UTIL_H
 #define ICE_SSL_UTIL_H
 
-#include <UtilF.h>
+#include <IceSSL/UtilF.h>
 #include <Ice/Network.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Shared.h>
@@ -70,7 +70,7 @@ bool checkPath(std::string&, const std::string&, bool);
 //
 // Create a ConnectionInfo value.
 //
-ConnectionInfo populateConnectionInfo(SSL*, SOCKET);
+ConnectionInfo populateConnectionInfo(SSL*, SOCKET, const std::string&, bool);
 
 //
 // Accumulate the OpenSSL error stack into a string.

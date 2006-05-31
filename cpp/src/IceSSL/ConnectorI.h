@@ -13,7 +13,7 @@
 #include <Ice/LoggerF.h>
 #include <Ice/TransceiverF.h>
 #include <Ice/Connector.h>
-#include <InstanceF.h>
+#include <IceSSL/InstanceF.h>
 
 #ifdef _WIN32
 #   include <winsock2.h>

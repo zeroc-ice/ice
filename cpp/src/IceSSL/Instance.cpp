@@ -7,9 +7,11 @@
 //
 // **********************************************************************
 
-#include <Instance.h>
-#include <EndpointI.h>
-#include <Util.h>
+#include <IceSSL/Instance.h>
+#include <IceSSL/EndpointI.h>
+#include <IceSSL/Util.h>
+#include <IceSSL/TrustManager.h>
+
 #include <Ice/Communicator.h>
 #include <Ice/LocalException.h>
 #include <Ice/Logger.h>
@@ -20,7 +22,6 @@
 #include <openssl/err.h>
 
 #include <IceUtil/DisableWarnings.h>
-
 
 using namespace std;
 using namespace Ice;
@@ -80,7 +81,8 @@ IceSSL::Instance::Instance(const CommunicatorPtr& communicator) :
     _facade = IceInternal::getProtocolPluginFacade(communicator);
     _securityTraceLevel = communicator->getProperties()->getPropertyAsInt("IceSSL.Trace.Security");
     _securityTraceCategory = "Security";
-
+    _trustManager = new TrustManager(communicator);
+    
     //
     // Register the endpoint factory. We have to do this now, rather than
     // in initialize, because the communicator may need to interpret
@@ -556,7 +558,7 @@ IceSSL::Instance::securityTraceCategory() const
 }
 
 void
-IceSSL::Instance::verifyPeer(SSL* ssl, SOCKET fd, const string& address, bool incoming)
+IceSSL::Instance::verifyPeer(SSL* ssl, SOCKET fd, const string& address, const std::string& adapterName, bool incoming)
 {
     long result = SSL_get_verify_result(ssl);
     if(result != X509_V_OK)
@@ -688,20 +690,29 @@ IceSSL::Instance::verifyPeer(SSL* ssl, SOCKET fd, const string& address, bool in
 	}
     }
 
-    if(_verifier)
+    ConnectionInfo info = populateConnectionInfo(ssl, fd, adapterName, incoming);
+    if(!_trustManager->verify(info))
     {
-	ConnectionInfo info = populateConnectionInfo(ssl, fd);
-	if(!_verifier->verify(info))
+	string msg = string(incoming ? "incoming" : "outgoing") + " connection rejected by trust manager";
+	if(_securityTraceLevel >= 1)
 	{
-	    string msg = string(incoming ? "incoming" : "outgoing") + " connection rejected by certificate verifier";
-	    if(_securityTraceLevel >= 1)
-	    {
-		_logger->trace(_securityTraceCategory, msg + "\n" + IceInternal::fdToString(SSL_get_fd(ssl)));
-	    }
-	    SecurityException ex(__FILE__, __LINE__);
-	    ex.reason = msg;
-	    throw ex;
+	    _logger->trace(_securityTraceCategory, msg + "\n" + IceInternal::fdToString(SSL_get_fd(ssl)));
 	}
+	SecurityException ex(__FILE__, __LINE__);
+	ex.reason = msg;
+	throw ex;
+    }
+
+    if(_verifier && !_verifier->verify(info))
+    {
+	string msg = string(incoming ? "incoming" : "outgoing") + " connection rejected by certificate verifier";
+	if(_securityTraceLevel >= 1)
+	{
+	    _logger->trace(_securityTraceCategory, msg + "\n" + IceInternal::fdToString(SSL_get_fd(ssl)));
+	}
+	SecurityException ex(__FILE__, __LINE__);
+	ex.reason = msg;
+	throw ex;
     }
 }
 

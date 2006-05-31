@@ -9,7 +9,7 @@
 
 #include <IceUtil/DisableWarnings.h>
 #include <IceSSL/Plugin.h>
-#include <Util.h>
+#include <IceSSL/Util.h>
 #include <IceUtil/StaticMutex.h>
 
 #include <openssl/x509v3.h>
@@ -118,6 +118,18 @@ ASMUtcTimeToIceUtilTime(const ASN1_UTCTIME* s)
     return IceUtil::Time::seconds(mktime(&tm) - offset*60 + tzone);
 }
 
+static string
+convertX509NameToString(X509_NAME* name)
+{
+    BIO* out = BIO_new(BIO_s_mem());
+    X509_NAME_print_ex(out, name, 0, XN_FLAG_RFC2253);
+    BUF_MEM* p;
+    BIO_get_mem_ptr(out, &p);
+    string result = string(p->data, p->length);
+    BIO_free(out);
+    return result;
+}
+
 static vector<pair<int, string> >
 convertGeneralNames(GENERAL_NAMES* gens)
 {
@@ -153,9 +165,7 @@ convertGeneralNames(GENERAL_NAMES* gens)
 	}
 	case GEN_DIRNAME:
 	{
-	    char* dir = X509_NAME_oneline(gen->d.directoryName, NULL, 0);
-	    p.second = dir;
-	    OPENSSL_free(dir);
+	    p.second = convertX509NameToString(gen->d.directoryName);
 	    break;
 	}
 	case GEN_URI:
@@ -361,11 +371,7 @@ Certificate::getSerialNumber() const
 string
 Certificate::getIssuerDN() const
 {
-    string issuer;
-    char* c = X509_NAME_oneline(X509_get_issuer_name(_cert), NULL, 0);
-    issuer = c;
-    OPENSSL_free(c);
-    return issuer;
+    return convertX509NameToString(X509_get_issuer_name(_cert));
 }
 
 vector<pair<int, string> >
@@ -378,11 +384,7 @@ Certificate::getIssuerAlternativeNames()
 string
 Certificate::getSubjectDN() const
 {
-    string issuer;
-    char* c = X509_NAME_oneline(X509_get_subject_name(_cert), NULL, 0);
-    issuer = c;
-    OPENSSL_free(c);
-    return issuer;
+    return convertX509NameToString(X509_get_subject_name(_cert));
 }
 
 vector<pair<int, string> >

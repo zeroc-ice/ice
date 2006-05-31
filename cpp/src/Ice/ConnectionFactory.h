@@ -90,7 +90,8 @@ public:
     
 private:
 
-    IncomingConnectionFactory(const InstancePtr&, const EndpointIPtr&, const Ice::ObjectAdapterPtr&);
+    IncomingConnectionFactory(const InstancePtr&, const EndpointIPtr&, const Ice::ObjectAdapterPtr&,
+			      const std::string&);
     virtual ~IncomingConnectionFactory();
     friend class Ice::ObjectAdapterI;
 
