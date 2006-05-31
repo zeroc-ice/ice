@@ -340,14 +340,9 @@ class ServerTemplate extends Communicator
 	return _editable;
     }
 
-    java.util.List findInstances(boolean includeTemplate)
+    java.util.List findInstances()
     {
-	java.util.List result = getRoot().findServerInstances(_id);
-	if(includeTemplate)
-	{
-	    result.add(0, this);
-	}
-	return result;
+	return getRoot().findServerInstances(_id);
     }
 
     private TemplateDescriptor _templateDescriptor;

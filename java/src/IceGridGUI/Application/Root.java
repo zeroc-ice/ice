@@ -442,6 +442,7 @@ public class Root extends ListTreeNode
 			if(isSelected())
 			{
 			    _coordinator.getSaveAction().setEnabled(false);
+			    _coordinator.getSaveToRegistryAction().setEnabled(false);
 			    _coordinator.getDiscardUpdatesAction().setEnabled(false);
 			}
 		    }

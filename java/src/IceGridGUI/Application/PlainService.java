@@ -171,28 +171,6 @@ class PlainService extends Communicator implements Service, Cloneable
 	((Communicator)_parent).getServices().move(this, up);
     }
     
-    
-    java.util.List findInstances(boolean includeTemplate)
-    {
-	java.util.List result = new java.util.LinkedList();
-
-	//
-	// First find all instances of the enclosing Communicator, including
-	// the ServerTemplate itself (if that's my parent)
-	//
-	java.util.List communicatorList = ((Communicator)_parent).findInstances(true);
-	
-	java.util.Iterator p = communicatorList.iterator();
-	while(p.hasNext())
-	{
-	    Services services = ((Communicator)p.next()).getServices();
-	    Service service = (Service)services.findChildWithDescriptor(_descriptor);
-	    assert service != null;
-	    result.add(service);
-	}
-	return result;
-    }
-    
     public Object rebuild(java.util.List editables) 
 	throws UpdateFailedException
     {

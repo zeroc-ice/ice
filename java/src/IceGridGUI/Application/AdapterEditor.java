@@ -439,8 +439,14 @@ class AdapterEditor extends CommunicatorChildEditor
 	_replicaGroupId.setEnabled(isEditable);
 	_replicaGroupId.setEditable(isEditable);
 
-	_endpoints.setText(
-	    Utils.substitute(adapter.getProperty("Endpoints"), resolver));
+	if(adapter.isEphemeral())
+	{
+	    _endpoints.setText("default");
+	}
+	else
+	{
+	    _endpoints.setText(Utils.substitute(adapter.getProperty("Endpoints"), resolver));
+	}
 	_endpoints.setEditable(isEditable);
 	
 	_publishedEndpoints.setEnabled(true);

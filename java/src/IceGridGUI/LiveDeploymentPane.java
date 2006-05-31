@@ -59,6 +59,23 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
 	c.showActions(_currentNode);
     }
 
+    public void refresh()
+    {
+	if(_currentNode != null)
+	{
+	    _currentNode.getEditor();
+
+	    if(_root.getCoordinator().getCurrentTab() == this)
+	    {
+		//
+		// Refresh actions as well
+		//
+		_root.getCoordinator().showActions(_currentNode);
+	    }
+	}
+    }
+
+
     public void showNode(TreeNodeBase node)
     {
 	TreeNode newNode = (TreeNode)node;
@@ -92,15 +109,6 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
 	    refresh();
 	}
 
-    }
-
-    public void refresh()
-    {
-	if(_currentNode != null)
-	{
-	    _root.getCoordinator().showActions(_currentNode);
-	    _currentNode.getEditor();
-	}
     }
 
     public void back()

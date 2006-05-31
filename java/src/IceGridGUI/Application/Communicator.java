@@ -183,12 +183,15 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
     abstract Editable getEnclosingEditable();
 
     //
-    // Returns all instances of 'this'. When 'this' is a template,
-    // includeTemplate determines whether the template itself is or is not
-    // included in the list. Otherwise, the list contain 'this' instance
-    // in any number of enclosing instances ... often simply 'this'.
+    // When 'this' is a template, returns all instances of this template.
+    // Otherwise, return just 'this'
     //
-    abstract java.util.List findInstances(boolean includeTemplate);
+    java.util.List findInstances()
+    {
+	java.util.List result = new java.util.LinkedList();
+	result.add(this);
+	return result;
+    }
   
     
     TreeNode findChildLike(TreeNode other)
@@ -224,7 +227,6 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
     abstract class ChildList
     {
 	abstract TreeNode createChild(Object descriptor) throws UpdateFailedException;
-	abstract ChildList getMyChildList(Communicator communicator);
 	abstract void newChild();
 
 	protected ChildList(boolean sorted)
@@ -386,15 +388,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 		removeDescriptor(descriptor);
 		getEnclosingEditable().markModified();
 		getRoot().updated();
-
-		java.util.List list = findInstances(true);
-		java.util.Iterator p = list.iterator();
-		while(p.hasNext())
-		{
-		    Communicator communicator = (Communicator)p.next();
-		    ChildList container = getMyChildList(communicator);
-		    container.removeChild(container.findChildWithDescriptor(descriptor));
-		}
+		removeChild(child);
 	    }
 	}
 
@@ -453,36 +447,14 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 	void tryAdd(Object descriptor) throws UpdateFailedException
 	{
 	    addDescriptor(descriptor);
-
-	    java.util.List newChildren = new java.util.LinkedList();
-	    java.util.List list = findInstances(true);
-	    
-	    java.util.Iterator p = list.iterator();
-	    while(p.hasNext())
+	    try
 	    {
-		Communicator communicator = (Communicator)p.next();
-		ChildList container = getMyChildList(communicator);
-
-		try
-		{
-		    newChildren.add(container.addNewChild(descriptor));
-		}
-		catch(UpdateFailedException e)
-		{
-		    //
-		    // Rollback
-		    //
-		    java.util.Iterator q = newChildren.iterator();
-		    p = list.iterator();
-		    while(q.hasNext())
-		    {
-			communicator = (Communicator)p.next();
-			container = getMyChildList(communicator);
-			container.removeChild((TreeNode)q.next());
-		    }
-		    removeDescriptor(descriptor);
-		    throw e;
-		}
+		addNewChild(descriptor);
+	    }
+	    catch(UpdateFailedException e)
+	    {
+		removeDescriptor(descriptor);
+		throw e;
 	    }
 	    getEnclosingEditable().markModified();
 	}
@@ -494,52 +466,16 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 	    //
 	    assert _sorted;
 
-	    java.util.List list = findInstances(true);
 	    Object descriptor = child.getDescriptor();
-	    
-	    java.util.List children = new java.util.Vector();
-
-	    java.util.Iterator p = list.iterator();
-	    while(p.hasNext())
+	    removeChild(child);
+	    try
 	    {
-		Communicator communicator = (Communicator)p.next();
-		ChildList container = getMyChildList(communicator);
-
-		try
-		{
-		    child = container.findChildWithDescriptor(descriptor);
-		    removeChild(child);
-		    try
-		    {
-			container.addNewChild(descriptor);
-		    }
-		    catch(UpdateFailedException e)
-		    {
-			addChild(child, true);
-			throw e;
-		    }
-		    children.add(child);
-		}
-		catch(UpdateFailedException e)
-		{
-		    for(int i = children.size() - 1; i >= 0; --i)
-		    {
-			communicator = (Communicator)list.get(i);
-			container = getMyChildList(communicator);
-			child = (TreeNode)children.get(i);
-			TreeNode badChild = container.findChildWithDescriptor(descriptor);
-			container.removeChild(badChild);
-			try
-			{
-			    container.addChild(child, true);
-			}
-			catch(UpdateFailedException ufe)
-			{
-			    assert false; // impossible
-			}
-		    }
-		    throw e;
-		}
+		addNewChild(descriptor);
+	    }
+	    catch(UpdateFailedException e)
+	    {
+		addChild(child, true);
+		throw e;
 	    }
 	    getEnclosingEditable().markModified();
 	}
@@ -589,11 +525,6 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 	    return new Adapter(Communicator.this, name, ad, false);
 	}
 	
-	ChildList getMyChildList(Communicator communicator)
-	{
-	    return communicator.getAdapters();
-	}
-	
 	private void newAdapter(AdapterDescriptor descriptor)
 	{
 	    descriptor.name = makeNewChildId(descriptor.name);
@@ -634,11 +565,6 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 	    DbEnvDescriptor dd = (DbEnvDescriptor)descriptor;
 	    String name =  Utils.substitute(dd.name, getResolver());
 	    return new DbEnv(Communicator.this, name, dd, false);
-	}
-	
-	ChildList getMyChildList(Communicator communicator)
-	{
-	    return communicator.getDbEnvs();
 	}
 
 	private void newDbEnv(DbEnvDescriptor descriptor)
@@ -794,42 +720,14 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 	    // trigger an UpdateFailedException
 	    //
 	    Object descriptor = child.getDescriptor();
-	    
-	    java.util.List list = findInstances(true);
-	    java.util.List children = new java.util.Vector();
 	    int listIndex = _children.indexOf(child);
 	    assert listIndex != -1;
-
-	    java.util.Iterator p = list.iterator();
-	    while(p.hasNext())
-	    {
-		Communicator communicator = (Communicator)p.next();
-		ChildList container = getMyChildList(communicator);
-
-		try
-		{
-		    TreeNode newChild = container.createChild(descriptor);
-		    children.add(container._children.set(listIndex, newChild));
-		    getRoot().getTreeModel().nodeChanged(newChild);
-		}
-		catch(UpdateFailedException e)
-		{
-		    for(int i = children.size() - 1; i >= 0; --i)
-		    {
-			communicator = (Communicator)list.get(i);
-			container = getMyChildList(communicator);
-			container._children.set(listIndex, children.get(i));
-			getRoot().getTreeModel().nodeChanged(child);
-		    }
-		    throw e;
-		}
-	    }
+	    
+	    TreeNode newChild = createChild(descriptor);
+	    _children.set(listIndex, newChild);
+	    getRoot().getTreeModel().nodeChanged(newChild);
+	    
 	    getEnclosingEditable().markModified();
-	}
-       
-	ChildList getMyChildList(Communicator communicator)
-	{
-	    return communicator.getServices();
 	}
 
 	private void newService(ServiceInstanceDescriptor descriptor)

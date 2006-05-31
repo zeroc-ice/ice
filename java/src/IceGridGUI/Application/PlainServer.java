@@ -529,13 +529,6 @@ class PlainServer extends Communicator implements Server
 	return _editable;
     }
 
-    java.util.List findInstances(boolean includeTemplate)
-    {
-	java.util.List result = new java.util.LinkedList();
-	result.add(this);
-	return result;
-    }
-
     public boolean isEphemeral()
     {
 	return _ephemeral;

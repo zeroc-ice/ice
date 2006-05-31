@@ -70,6 +70,23 @@ public class ApplicationPane extends JSplitPane implements Tab
 	c.showActions(_currentNode);
     }
 
+    public void refresh()
+    {
+	_root.cancelEdit();
+
+	if(_currentNode != null)
+	{
+	    _currentEditor = _currentNode.getEditor();
+	    if(_root.getCoordinator().getCurrentTab() == this)
+	    {
+		//
+		// Refresh actions as well
+		//
+		_root.getCoordinator().showActions(_currentNode);
+	    }
+	}
+    }
+
     public void showNode(TreeNodeBase node)
     {
 	TreeNode newNode = (TreeNode)node;
@@ -108,17 +125,6 @@ public class ApplicationPane extends JSplitPane implements Tab
 	else
 	{
 	    refresh();
-	}
-    }
-
-    public void refresh()
-    {
-	_root.cancelEdit();
-
-	if(_currentNode != null)
-	{
-	    _root.getCoordinator().showActions(_currentNode);
-	    _currentEditor = _currentNode.getEditor();
 	}
     }
 

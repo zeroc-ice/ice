@@ -209,14 +209,9 @@ class ServiceTemplate extends Communicator
 	}
     }
 
-    java.util.List findInstances(boolean includeTemplate)
+    java.util.List findInstances()
     {
-	java.util.List result = getRoot().findServiceInstances(_id);
-	if(includeTemplate)
-	{
-	    result.add(0, this);
-	}
-	return result;
+	return getRoot().findServiceInstances(_id);
     }
 
     Editable getEditable()

@@ -26,7 +26,7 @@ abstract class Templates extends ListTreeNode
     void tryUpdate(Communicator child)
 	throws UpdateFailedException
     {
-	java.util.List instanceList = child.findInstances(false);
+	java.util.List instanceList = child.findInstances();
 	java.util.List backupList = new java.util.Vector();
 
 	java.util.List editables = new java.util.LinkedList();
