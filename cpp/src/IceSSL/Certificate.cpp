@@ -37,6 +37,7 @@ Exception*
 CertificateReadException::ice_clone() const
 {
     throw new CertificateReadException(*this);
+    return 0; // For compiler warnings.
 }
 
 void
@@ -63,6 +64,7 @@ Exception*
 CertificateEncodingException::ice_clone() const
 {
     throw new CertificateEncodingException(*this);
+    return 0; // For compiler warnings.
 }
 
 void

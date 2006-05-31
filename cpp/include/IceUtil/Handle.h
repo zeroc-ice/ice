@@ -83,7 +83,7 @@ private:
     void throwNullHandleException(const char *, int) const;
 };
 
-template<typename T> void
+template<typename T> inline void 
 HandleBase<T>::throwNullHandleException(const char* file, int line) const
 {
     throw NullHandleException(file, line);
