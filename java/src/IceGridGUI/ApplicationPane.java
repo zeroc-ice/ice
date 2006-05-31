@@ -118,7 +118,7 @@ public class ApplicationPane extends JSplitPane implements Tab
 	if(_currentNode != null)
 	{
 	    _root.getCoordinator().showActions(_currentNode);
-	    _currentNode.getEditor();
+	    _currentEditor = _currentNode.getEditor();
 	}
     }
 
@@ -242,15 +242,24 @@ public class ApplicationPane extends JSplitPane implements Tab
 
     public void save()
     {
-	_root.save();
+	if(_currentEditor == null || _currentEditor.save())
+	{
+	    _root.save();
+	}
     }
     public void saveToRegistry()
     {
-	_root.saveToRegistry();
+	if(_currentEditor == null || _currentEditor.save())
+	{
+	    _root.saveToRegistry();
+	}
     }
     public void saveToFile()
     {
-	_root.saveToFile();
+	if(_currentEditor == null || _currentEditor.save())
+	{
+	    _root.saveToFile();
+	}
     }
     public void discardUpdates()
     {
@@ -295,14 +304,15 @@ public class ApplicationPane extends JSplitPane implements Tab
 	    }
 	    _propertiesFrame.setTitle("Properties");
 	    _propertiesFrame.setToolBar(null);
+	    _currentEditor = null;
 	}
 	else
 	{
-	    Editor editor = _currentNode.getEditor();
-	    Component currentProperties = editor.getProperties();
+	    _currentEditor = _currentNode.getEditor();
+	    Component currentProperties = _currentEditor.getProperties();
 	    _propertiesFrame.setContent(currentProperties);
 	    _propertiesFrame.setTitle(currentProperties.getName());
-	    _propertiesFrame.setToolBar(editor.getToolBar());
+	    _propertiesFrame.setToolBar(_currentEditor.getToolBar());
 	}
 	_propertiesFrame.validate();
 	_propertiesFrame.repaint();
@@ -387,7 +397,9 @@ public class ApplicationPane extends JSplitPane implements Tab
     //
     private java.util.LinkedList _previousNodes = new java.util.LinkedList();
     private java.util.LinkedList _nextNodes = new java.util.LinkedList();
+
     private TreeNode _currentNode;
+    private Editor _currentEditor;
 
     static private final int HISTORY_MAX_SIZE = 20;
 }

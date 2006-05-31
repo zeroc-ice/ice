@@ -36,7 +36,7 @@ class NodeEditor extends Editor
 	_propertiesPanel.setName("Node Properties");
     }
 
-    protected void applyUpdate()
+    protected boolean applyUpdate()
     {
 	Root root = _target.getRoot();
 
@@ -73,7 +73,7 @@ class NodeEditor extends Editor
 			e.toString(),
 			"Apply failed",
 			JOptionPane.ERROR_MESSAGE);
-		    return;
+		    return false;
 		}
 		
 		//
@@ -115,7 +115,7 @@ class NodeEditor extends Editor
 			e.toString(),
 			"Apply failed",
 			JOptionPane.ERROR_MESSAGE);
-		    return;
+		    return false;
 		}
 		
 		java.util.Iterator p = editables.iterator();
@@ -132,6 +132,7 @@ class NodeEditor extends Editor
 	    root.getCoordinator().getCurrentTab().showNode(_target);
 	    _applyButton.setEnabled(false);
 	    _discardButton.setEnabled(false);
+	    return true;
 	}
 	finally
 	{

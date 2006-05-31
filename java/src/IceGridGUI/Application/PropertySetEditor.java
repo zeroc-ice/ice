@@ -32,7 +32,7 @@ import IceGridGUI.*;
 
 class PropertySetEditor extends Editor
 {
-    protected void applyUpdate()
+    protected boolean applyUpdate()
     {
 	PropertySet nps = (PropertySet)_target;
 	Root root = nps.getRoot();
@@ -72,7 +72,7 @@ class PropertySetEditor extends Editor
 			e.toString(),
 			"Apply failed",
 			JOptionPane.ERROR_MESSAGE);
-		    return;
+		    return false;
 		}
 
 		//
@@ -93,6 +93,7 @@ class PropertySetEditor extends Editor
 	    root.getCoordinator().getCurrentTab().showNode(_target);
 	    _applyButton.setEnabled(false);
 	    _discardButton.setEnabled(false);
+	    return true;
 	}
 	finally
 	{

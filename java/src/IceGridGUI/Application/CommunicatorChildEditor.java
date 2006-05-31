@@ -21,7 +21,7 @@ abstract class CommunicatorChildEditor extends Editor
 
     void postUpdate() {}
     
-    protected void applyUpdate()
+    protected boolean applyUpdate()
     {
 	Root root = _target.getRoot();
 	root.disableSelectionListener();
@@ -60,7 +60,7 @@ abstract class CommunicatorChildEditor extends Editor
 			JOptionPane.ERROR_MESSAGE);
 		    
 		    root.setSelectedNode(_target);
-		    return;
+		    return false;
 		}
 		
 		//
@@ -96,7 +96,7 @@ abstract class CommunicatorChildEditor extends Editor
 			e.toString(),
 			"Apply failed",
 			JOptionPane.ERROR_MESSAGE);
-		    return;
+		    return false;
 		}
 		
 		//
@@ -112,6 +112,7 @@ abstract class CommunicatorChildEditor extends Editor
 	    root.getCoordinator().getCurrentTab().showNode(_target);
 	    _applyButton.setEnabled(false);
 	    _discardButton.setEnabled(false);
+	    return true;
 	}
 	finally
 	{

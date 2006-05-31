@@ -28,7 +28,7 @@ import IceGridGUI.*;
 
 class ApplicationEditor extends Editor
 {
-    protected void applyUpdate()
+    protected boolean applyUpdate()
     {
 	Root root = (Root)_target;
 	MainPane mainPane = _target.getCoordinator().getMainPane();
@@ -61,7 +61,7 @@ class ApplicationEditor extends Editor
 			e.toString(),
 			"Apply failed",
 			JOptionPane.ERROR_MESSAGE);
-		    return;
+		    return false;
 		}
 		//
 		// Success
@@ -77,6 +77,7 @@ class ApplicationEditor extends Editor
 	      
 	    _applyButton.setEnabled(false);
 	    _discardButton.setEnabled(false);
+	    return true;
 	}
 	finally
 	{

@@ -93,7 +93,7 @@ class TemplateEditor extends Editor
 	_parameters.set(descriptor.parameters, descriptor.parameterDefaults, null, true);
     }
 
-    protected void applyUpdate()
+    protected boolean applyUpdate()
     {
 	Root root = _target.getRoot();
 	root.disableSelectionListener();
@@ -131,7 +131,7 @@ class TemplateEditor extends Editor
 			e.toString(),
 			"Apply failed",
 			JOptionPane.ERROR_MESSAGE);
-		    return;
+		    return false; 
 		}
 		
 		//
@@ -174,7 +174,7 @@ class TemplateEditor extends Editor
 		    //
 		    // Everything was restored, user must deal with error
 		    //
-		    return;
+		    return false;
 		}
 		
 		//
@@ -190,6 +190,7 @@ class TemplateEditor extends Editor
 	    root.getCoordinator().getCurrentTab().showNode(_target);
 	    _applyButton.setEnabled(false);
 	    _discardButton.setEnabled(false);
+	    return true;
 	}
 	finally
 	{

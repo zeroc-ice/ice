@@ -56,10 +56,22 @@ public class Editor extends EditorBase
 	return result;
     }
 
+    public boolean save()
+    {
+	if(_applyButton.isEnabled())
+	{
+	    return applyUpdate();
+	}
+	else
+	{
+	    return true;
+	}
+    }
 
-    protected void applyUpdate()
+    protected boolean applyUpdate()
     {
 	assert false;
+	return false;
     }
     
     protected void detectUpdates(boolean val)

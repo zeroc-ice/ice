@@ -32,7 +32,7 @@ import IceGridGUI.*;
 
 class ReplicaGroupEditor extends Editor
 {
-    protected void applyUpdate()
+    protected boolean applyUpdate()
     {
 	ReplicaGroup replicaGroup = (ReplicaGroup)_target;
 	Root root = replicaGroup.getRoot();
@@ -72,7 +72,7 @@ class ReplicaGroupEditor extends Editor
 			e.toString(),
 			"Apply failed",
 			JOptionPane.ERROR_MESSAGE);
-		    return;
+		    return false;
 		}
 
 		//
@@ -124,7 +124,7 @@ class ReplicaGroupEditor extends Editor
 			e.toString(),
 			"Apply failed",
 			JOptionPane.ERROR_MESSAGE);
-		    return;
+		    return false;
 		}
 		    
 		//
@@ -144,6 +144,7 @@ class ReplicaGroupEditor extends Editor
 	    root.getCoordinator().getCurrentTab().showNode(_target);
 	    _applyButton.setEnabled(false);
 	    _discardButton.setEnabled(false);
+	    return true;
 	}
 	finally
 	{
