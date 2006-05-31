@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <IceUtil/UUID.h>
 #include <IceGrid/RegistryI.h>
 #include <IceGrid/AdminSessionI.h>
 #include <IceGrid/AdminI.h>
@@ -204,12 +205,20 @@ AdminSessionManagerI::AdminSessionManagerI(const DatabasePtr& database,
 }
 
 Glacier2::SessionPrx
-AdminSessionManagerI::create(const string& id, const Glacier2::SessionControlPrx&, const Ice::Current& current)
+AdminSessionManagerI::create(const string& userId, const Glacier2::SessionControlPrx&, const Ice::Current& current)
 {
-    AdminSessionIPtr session = create(id);
-    AdminPrx admin = AdminPrx::uncheckedCast(current.adapter->addWithUUID(new AdminI(_database, _registry, session)));
+    //
+    // TODO: XXX: Modify filtering?
+    //
+
+    AdminSessionIPtr session = create(userId);
+    Ice::Identity id;
+    id.name = IceUtil::generateUUID();
+    id.category = current.id.category;
+    AdminPrx admin = AdminPrx::uncheckedCast(current.adapter->add(new AdminI(_database, _registry, session), id));
     session->setAdmin(admin);
-    return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
+    id.name = IceUtil::generateUUID();
+    return Glacier2::SessionPrx::uncheckedCast(current.adapter->add(session, id));
 }
 
 AdminSessionIPtr
@@ -253,9 +262,18 @@ AdminSSLSessionManagerI::create(const Glacier2::SSLInfo& info,
 	}
     }
 
+
+    //
+    // TODO: XXX: Modify filtering?
+    //
+
     AdminSessionIPtr session;
     session = new AdminSessionI(userDN, _database, _timeout, _registryObserverTopic, _nodeObserverTopic);
-    AdminPrx admin = AdminPrx::uncheckedCast(current.adapter->addWithUUID(new AdminI(_database, _registry, session)));
+    Ice::Identity id;
+    id.name = IceUtil::generateUUID();
+    id.category = current.id.category;
+    AdminPrx admin = AdminPrx::uncheckedCast(current.adapter->add(new AdminI(_database, _registry, session), id));
     session->setAdmin(admin);
-    return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
+    id.name = IceUtil::generateUUID();
+    return Glacier2::SessionPrx::uncheckedCast(current.adapter->add(session, id));
 }

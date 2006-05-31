@@ -15,7 +15,9 @@
 using namespace std;
 using namespace IceGrid;
 
-SessionServantLocatorI::SessionServantLocatorI(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter)
+SessionServantLocatorI::SessionServantLocatorI(const Ice::ObjectAdapterPtr& adapter, const string& instanceName) : 
+    _adapter(adapter),
+    _instanceName(instanceName)
 {
 }
 
@@ -47,6 +49,7 @@ SessionServantLocatorI::add(const Ice::ObjectPtr& servant, const Ice::Connection
     Lock sync(*this);
     Ice::Identity id;
     id.name = IceUtil::generateUUID();
+    id.category = _instanceName;
     if(!_servants.insert(make_pair(id, SessionServant(servant, con))).second)
     {
 	throw Ice::AlreadyRegisteredException(__FILE__, __LINE__, "servant", id.name);

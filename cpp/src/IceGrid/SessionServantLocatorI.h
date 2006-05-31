@@ -20,7 +20,7 @@ class SessionServantLocatorI : public Ice::ServantLocator, public IceUtil::Mutex
 {
 public:
 
-    SessionServantLocatorI(const Ice::ObjectAdapterPtr&);
+    SessionServantLocatorI(const Ice::ObjectAdapterPtr&, const std::string&);
 
     Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&);
     void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
@@ -40,6 +40,7 @@ private:
     };
 
     const Ice::ObjectAdapterPtr _adapter;
+    const std::string _instanceName;
     std::map<Ice::Identity, SessionServant> _servants;
 };
 typedef IceUtil::Handle<SessionServantLocatorI> SessionServantLocatorIPtr;

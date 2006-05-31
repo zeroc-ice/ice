@@ -259,13 +259,19 @@ RegistryI::start(bool nowarn)
     registryAdapter->activate();
 
     //
+    // Get the instance name
+    //
+    const string instanceNameProperty = "IceGrid.InstanceName";
+    string instanceName = properties->getPropertyWithDefault(instanceNameProperty, "IceGrid");
+    
+
+    //
     // Add a default servant locator to the client object adapter. The
     // default servant ensure that request on session objects are from
     // the same connection as the connection that created the session.
     //
-    _sessionServantLocator = new SessionServantLocatorI(clientAdapter);
-    clientAdapter->addServantLocator(_sessionServantLocator, "");
-    
+    _sessionServantLocator = new SessionServantLocatorI(clientAdapter, instanceName);
+    clientAdapter->addServantLocator(_sessionServantLocator, "");    
 
     //
     // Start the reaper threads.
@@ -294,12 +300,6 @@ RegistryI::start(bool nowarn)
     //
     _waitQueue = new WaitQueue();
     _waitQueue->start();
-    
-    //
-    // Get the instance name
-    //
-    const string instanceNameProperty = "IceGrid.InstanceName";
-    string instanceName = properties->getPropertyWithDefault(instanceNameProperty, "IceGrid");
     
     //
     // Create the internal registries (node, server, adapter, object).

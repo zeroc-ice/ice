@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <IceUtil/UUID.h>
 #include <IceGrid/SessionI.h>
 #include <IceGrid/QueryI.h>
 #include <IceGrid/LocatorI.h>
@@ -299,7 +300,10 @@ ClientSessionManagerI::ClientSessionManagerI(const DatabasePtr& database, int ti
 Glacier2::SessionPrx
 ClientSessionManagerI::create(const string& user, const Glacier2::SessionControlPrx& ctl, const Ice::Current& current)
 {
-    Glacier2::SessionPrx s = Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(create(user, ctl)));
+    Ice::Identity id;
+    id.name = IceUtil::generateUUID();
+    id.category = current.id.category;
+    Glacier2::SessionPrx s = Glacier2::SessionPrx::uncheckedCast(current.adapter->add(create(user, ctl), id));
     if(ctl)
     {
 	try
@@ -362,7 +366,10 @@ ClientSSLSessionManagerI::create(const Glacier2::SSLInfo& info, const Glacier2::
     }
 	
     SessionIPtr session = new SessionI(userDN, _database, _timeout, _waitQueue, ctl);
-    Glacier2::SessionPrx s = Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
+    Ice::Identity id;
+    id.name = IceUtil::generateUUID();
+    id.category = current.id.category;
+    Glacier2::SessionPrx s = Glacier2::SessionPrx::uncheckedCast(current.adapter->add(session, id));
     if(ctl)
     {
 	try
