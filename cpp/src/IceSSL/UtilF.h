@@ -14,14 +14,6 @@
 
 #include <openssl/ssl.h>
 
-#ifndef ICE_SSL_API
-#   ifdef ICE_SSL_API_EXPORTS
-#       define ICE_SSL_API ICE_DECLSPEC_EXPORT
-#    else
-#       define ICE_SSL_API ICE_DECLSPEC_IMPORT
-#    endif
-#endif
-
 #ifndef OPENSSL_NO_DH
 namespace IceSSL
 {
@@ -33,8 +25,8 @@ class DHParams;
 namespace IceInternal
 {
 
-ICE_SSL_API void incRef(IceSSL::DHParams*);
-ICE_SSL_API void decRef(IceSSL::DHParams*);
+void incRef(IceSSL::DHParams*);
+void decRef(IceSSL::DHParams*);
 
 }
 

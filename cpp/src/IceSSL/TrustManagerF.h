@@ -12,15 +12,6 @@
 
 #include <Ice/Handle.h>
 
-// XXX: This does not need to be exported.
-#ifndef ICE_SSL_API
-#   ifdef ICE_SSL_API_EXPORTS
-#       define ICE_SSL_API ICE_DECLSPEC_EXPORT
-#    else
-#       define ICE_SSL_API ICE_DECLSPEC_IMPORT
-#    endif
-#endif
-
 namespace IceSSL
 {
 
@@ -31,8 +22,8 @@ class TrustManager;
 namespace IceInternal
 {
 
-ICE_SSL_API void incRef(IceSSL::TrustManager*);
-ICE_SSL_API void decRef(IceSSL::TrustManager*);
+void incRef(IceSSL::TrustManager*);
+void decRef(IceSSL::TrustManager*);
 
 }
 
