@@ -8,15 +8,17 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <Ice/LoggerUtil.h>
+#include <Ice/TraceUtil.h>
+#include <Ice/SliceChecksums.h>
+
 #include <IceGrid/AdminI.h>
 #include <IceGrid/RegistryI.h>
 #include <IceGrid/Database.h>
 #include <IceGrid/Util.h>
 #include <IceGrid/DescriptorParser.h>
 #include <IceGrid/DescriptorHelper.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/TraceUtil.h>
-#include <Ice/SliceChecksums.h>
+#include <IceGrid/AdminSessionI.h>
 
 using namespace std;
 using namespace Ice;
@@ -261,10 +263,11 @@ private:
 
 }
 
-AdminI::AdminI(const DatabasePtr& database, const RegistryIPtr& registry, const TraceLevelsPtr& traceLevels) :
+AdminI::AdminI(const DatabasePtr& database, const RegistryIPtr& registry, const AdminSessionIPtr& session) :
     _database(database),
     _registry(registry),
-    _traceLevels(traceLevels)
+    _traceLevels(_database->getTraceLevels()),
+    _session(session)
 {
 }
 
@@ -275,31 +278,31 @@ AdminI::~AdminI()
 void
 AdminI::addApplication(const ApplicationDescriptor& descriptor, const Current&)
 {
-    _database->addApplicationDescriptor(0, descriptor);
+    _database->addApplicationDescriptor(_session.get(), descriptor);
 }
 
 void
 AdminI::syncApplication(const ApplicationDescriptor& descriptor, const Current&)
 {
-    _database->syncApplicationDescriptor(0, descriptor);
+    _database->syncApplicationDescriptor(_session.get(), descriptor);
 }
 
 void
 AdminI::updateApplication(const ApplicationUpdateDescriptor& descriptor, const Current&)
 {
-    _database->updateApplicationDescriptor(0, descriptor);
+    _database->updateApplicationDescriptor(_session.get(), descriptor);
 }
 
 void
 AdminI::removeApplication(const string& name, const Current&)
 {
-    _database->removeApplicationDescriptor(0, name);
+    _database->removeApplicationDescriptor(_session.get(), name);
 }
 
 void
 AdminI::instantiateServer(const string& app, const string& node, const ServerInstanceDescriptor& desc, const Current&)
 {
-    _database->instantiateServer(app, node, desc);
+    _database->instantiateServer(_session.get(), app, node, desc);
 }
 
 void

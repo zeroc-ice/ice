@@ -220,11 +220,13 @@ Database::setObservers(const RegistryObserverPrx& registryObserver, const NodeOb
 void
 Database::checkSessionLock(AdminSessionI* session)
 {
-    if(_lock != 0 && session != _lock)
+    if(_lock == 0 && session)
     {
-	AccessDeniedException ex;
-	ex.lockUserId = _lockUserId;
-	throw ex;
+	throw AccessDeniedException(); // Sessions must first acquire the lock!
+    }
+    else if(_lock != 0 && session != _lock)
+    {
+	throw AccessDeniedException(_lockUserId); // Lock held by another session.
     }
 }
 
@@ -232,7 +234,12 @@ int
 Database::lock(AdminSessionI* session, const string& userId)
 {
     Lock sync(*this);
-    checkSessionLock(session);
+
+    if(_lock != 0 && session != _lock)
+    {
+	throw AccessDeniedException(_lockUserId); // Lock held by another session.
+    }
+    assert(_lock == 0 || _lock == session);
 
     _lock = session;
     _lockUserId = userId;
@@ -244,7 +251,11 @@ void
 Database::unlock(AdminSessionI* session)
 {
     Lock sync(*this);
-    assert(_lock == session);
+    if(_lock != session)
+    {
+	throw AccessDeniedException();
+    }
+
     _lock = 0;
     _lockUserId.clear();
 }
@@ -442,14 +453,17 @@ Database::removeApplicationDescriptor(AdminSessionI* session, const std::string&
 }
 
 void
-Database::instantiateServer(const string& application, const string& node, const ServerInstanceDescriptor& instance)
+Database::instantiateServer(AdminSessionI* session, 
+			    const string& application, 
+			    const string& node, 
+			    const ServerInstanceDescriptor& instance)
 {
     ServerEntrySeq entries;
     int serial;
     ApplicationUpdateDescriptor update;
     {
 	Lock sync(*this);	
-	checkSessionLock(0);
+	checkSessionLock(session);
 
 	StringApplicationDescriptorDict::const_iterator p = _descriptors.find(application);
 	if(p == _descriptors.end())

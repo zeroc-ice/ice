@@ -10,7 +10,9 @@
 #ifndef ICE_GRID_REGISTRY_ICE
 #define ICE_GRID_REGISTRY_ICE
 
+#include <IceGrid/Exception.ice>
 #include <IceGrid/Session.ice>
+#include <IceGrid/Admin.ice>
 
 module IceGrid
 {

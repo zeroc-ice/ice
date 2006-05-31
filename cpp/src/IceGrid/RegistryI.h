@@ -74,7 +74,6 @@ private:
     ReapThreadPtr _clientReaper;
     WaitQueuePtr _waitQueue;
     SessionServantLocatorIPtr _sessionServantLocator;
-    Ice::ObjectPtr _adminServant;
 
     ClientSessionManagerIPtr _clientSessionManager;
     Glacier2::PermissionsVerifierPrx _clientVerifier;

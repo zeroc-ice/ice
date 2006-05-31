@@ -24,11 +24,14 @@ typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 class RegistryI;
 typedef IceUtil::Handle<RegistryI> RegistryIPtr;
 
+class AdminSessionI;
+typedef IceUtil::Handle<AdminSessionI> AdminSessionIPtr;
+
 class AdminI : public Admin, public IceUtil::Mutex
 {
 public:
 
-    AdminI(const DatabasePtr&, const RegistryIPtr&, const TraceLevelsPtr&);
+    AdminI(const DatabasePtr&, const RegistryIPtr&, const AdminSessionIPtr&);
     virtual ~AdminI();
 
     virtual void addApplication(const ApplicationDescriptor&, const Ice::Current&);
@@ -83,6 +86,7 @@ private:
     const DatabasePtr _database;
     const RegistryIPtr _registry;
     const TraceLevelsPtr _traceLevels;
+    const AdminSessionIPtr _session;
 };
 
 }

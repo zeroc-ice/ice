@@ -611,7 +611,7 @@ public class Coordinator
 	{
 	    acquireExclusiveWriteAccess(null);
 	    acquired = true;
-	    _sessionKeeper.getSession().removeApplication(name);
+	    _sessionKeeper.getAdmin().removeApplication(name);
 	}
 	catch(AccessDeniedException e)
 	{

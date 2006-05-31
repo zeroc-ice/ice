@@ -8,7 +8,9 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <IceGrid/RegistryI.h>
 #include <IceGrid/AdminSessionI.h>
+#include <IceGrid/AdminI.h>
 #include <IceGrid/Database.h>
 
 #include <IceSSL/Plugin.h>
@@ -23,14 +25,18 @@ AdminSessionI::AdminSessionI(const string& id,
 			     const NodeObserverTopicPtr& nodeObserverTopic) :
     BaseSessionI(id, "admin", db, timeout),
     _registryObserverTopic(registryObserverTopic),
-    _nodeObserverTopic(nodeObserverTopic),
-    _admin(AdminPrx::uncheckedCast(db->getCommunicator()->stringToProxy(db->getInstanceName() + "/Admin"))),
-    _updating(false)
+    _nodeObserverTopic(nodeObserverTopic)
 {
 }
 
 AdminSessionI::~AdminSessionI()
 {
+}
+
+void
+AdminSessionI::setAdmin(const AdminPrx& admin)
+{
+    const_cast<AdminPrx&>(_admin) = admin;
 }
 
 AdminPrx
@@ -123,80 +129,7 @@ AdminSessionI::startUpdate(const Ice::Current& current)
     }
 
     int serial = _database->lock(this, _id);
-    _updating = true;
     return serial;
-}
-
-void
-AdminSessionI::addApplication(const ApplicationDescriptor& app, const Ice::Current& current)
-{
-    Lock sync(*this);
-    if(_destroyed)
-    {
-	Ice::ObjectNotExistException ex(__FILE__, __LINE__);
-	ex.id = current.id;
-	throw ex;
-    }
-
-    if(!_updating)
-    {
-	throw AccessDeniedException();
-    }
-    _database->addApplicationDescriptor(this, app);
-}
-
-void
-AdminSessionI::updateApplication(const ApplicationUpdateDescriptor& update, const Ice::Current& current)
-{
-    Lock sync(*this);
-    if(_destroyed)
-    {
-	Ice::ObjectNotExistException ex(__FILE__, __LINE__);
-	ex.id = current.id;
-	throw ex;
-    }
-
-    if(!_updating)
-    {
-	throw AccessDeniedException();
-    }
-    _database->updateApplicationDescriptor(this, update);
-}
-
-void
-AdminSessionI::syncApplication(const ApplicationDescriptor& app, const Ice::Current& current)
-{
-    Lock sync(*this);
-    if(_destroyed)
-    {
-	Ice::ObjectNotExistException ex(__FILE__, __LINE__);
-	ex.id = current.id;
-	throw ex;
-    }
-
-    if(!_updating)
-    {
-	throw AccessDeniedException();
-    }
-    _database->syncApplicationDescriptor(this, app);
-}
-
-void
-AdminSessionI::removeApplication(const string& name, const Ice::Current& current)
-{
-    Lock sync(*this);
-    if(_destroyed)
-    {
-	Ice::ObjectNotExistException ex(__FILE__, __LINE__);
-	ex.id = current.id;
-	throw ex;
-    }
-
-    if(!_updating)
-    {
-	throw AccessDeniedException();
-    }
-    _database->removeApplicationDescriptor(this, name);
 }
 
 void
@@ -210,12 +143,7 @@ AdminSessionI::finishUpdate(const Ice::Current& current)
 	throw ex;
     }
 
-    if(!_updating)
-    {
-	throw AccessDeniedException();
-    }
     _database->unlock(this);
-    _updating = false;
 }
 
 void
@@ -223,10 +151,25 @@ AdminSessionI::destroy(const Ice::Current& current)
 {
     BaseSessionI::destroy(current);
     
-    if(_updating) // Immutable once _destroy = true
+    try
     {
 	_database->unlock(this);
-	_updating = false;
+    }
+    catch(AccessDeniedException&)
+    {
+    }
+
+    //
+    // Unregister the admin servant from the session servant locator
+    // or object adapter.
+    //
+    if(_servantLocator)
+    {
+	_servantLocator->remove(_admin->ice_getIdentity());
+    }
+    else if(current.adapter)
+    {
+	current.adapter->remove(_admin->ice_getIdentity());
     }
 
     //
@@ -247,28 +190,26 @@ AdminSessionI::destroy(const Ice::Current& current)
     }
 }
 
-void
-AdminSessionI::setServantLocator(const SessionServantLocatorIPtr& servantLocator, const AdminPrx& admin)
-{
-    BaseSessionI::setServantLocator(servantLocator);
-    const_cast<AdminPrx&>(_admin) = admin;
-}
-
 AdminSessionManagerI::AdminSessionManagerI(const DatabasePtr& database,
 					   int sessionTimeout,
 					   const RegistryObserverTopicPtr& regTopic,
-					   const NodeObserverTopicPtr& nodeTopic) :
+					   const NodeObserverTopicPtr& nodeTopic,
+					   const RegistryIPtr& registry) :
     _database(database), 
     _timeout(sessionTimeout),
     _registryObserverTopic(regTopic),
-    _nodeObserverTopic(nodeTopic)
+    _nodeObserverTopic(nodeTopic),
+    _registry(registry)
 {
 }
 
 Glacier2::SessionPrx
 AdminSessionManagerI::create(const string& id, const Glacier2::SessionControlPrx&, const Ice::Current& current)
 {
-    return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(create(id)));
+    AdminSessionIPtr session = create(id);
+    AdminPrx admin = AdminPrx::uncheckedCast(current.adapter->addWithUUID(new AdminI(_database, _registry, session)));
+    session->setAdmin(admin);
+    return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
 }
 
 AdminSessionIPtr
@@ -280,16 +221,19 @@ AdminSessionManagerI::create(const string& id)
 AdminSSLSessionManagerI::AdminSSLSessionManagerI(const DatabasePtr& database,
 						 int sessionTimeout,
 						 const RegistryObserverTopicPtr& regTopic,
-						 const NodeObserverTopicPtr& nodeTopic) :
+						 const NodeObserverTopicPtr& nodeTopic,
+						 const RegistryIPtr& registry) :
     _database(database), 
     _timeout(sessionTimeout),
     _registryObserverTopic(regTopic),
-    _nodeObserverTopic(nodeTopic)
+    _nodeObserverTopic(nodeTopic),
+    _registry(registry)
 {
 }
 
 Glacier2::SessionPrx
-AdminSSLSessionManagerI::create(const Glacier2::SSLInfo& info, const Glacier2::SessionControlPrx&, 
+AdminSSLSessionManagerI::create(const Glacier2::SSLInfo& info, 
+				const Glacier2::SessionControlPrx&, 
 				const Ice::Current& current)
 {
     string userDN;
@@ -311,5 +255,7 @@ AdminSSLSessionManagerI::create(const Glacier2::SSLInfo& info, const Glacier2::S
 
     AdminSessionIPtr session;
     session = new AdminSessionI(userDN, _database, _timeout, _registryObserverTopic, _nodeObserverTopic);
+    AdminPrx admin = AdminPrx::uncheckedCast(current.adapter->addWithUUID(new AdminI(_database, _registry, session)));
+    session->setAdmin(admin);
     return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
 }

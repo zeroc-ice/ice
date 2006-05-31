@@ -49,7 +49,10 @@ removeServer(const AdminPrx& admin, const string& id)
     {
 	admin->stopServer(id);
     }
-    catch(Ice::UserException& ex)
+    catch(const ServerStopException&)
+    {
+    }
+    catch(const Ice::UserException& ex)
     {
 	cerr << ex << endl;
 	test(false);

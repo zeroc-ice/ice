@@ -11,7 +11,9 @@
 #include <Ice/Ice.h>
 #include <IceGrid/Registry.h>
 #include <IceGrid/Query.h>
+#include <IceGrid/Session.h>
 #include <IceGrid/Admin.h>
+#include <IceGrid/Observer.h>
 #include <Glacier2/PermissionsVerifier.h>
 #include <IceSSL/Plugin.h>
 #include <TestCommon.h>
@@ -88,7 +90,7 @@ public:
 	    timedWait(_timeout);
 	    if(!_terminated)
 	    {
-		vector<BaseSessionPrx>::iterator p = _sessions.begin();
+		vector<AdminSessionPrx>::iterator p = _sessions.begin();
 		while(p != _sessions.end())
 		{
 		    try
@@ -106,7 +108,7 @@ public:
     }
 
     void 
-    add(const BaseSessionPrx& session)
+    add(const AdminSessionPrx& session)
     {
 	Lock sync(*this);
 	_sessions.push_back(session);
@@ -123,7 +125,7 @@ public:
 private:
 
     const Ice::LoggerPtr _logger;
-    vector<BaseSessionPrx> _sessions;
+    vector<AdminSessionPrx> _sessions;
     const IceUtil::Time _timeout;
     bool _terminated;
 };
@@ -705,6 +707,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	
 	keepAlive->add(session1);
 	keepAlive->add(session2);	
+
+	AdminPrx admin1 = session1->getAdmin();
+	AdminPrx admin2 = session2->getAdmin();
 	
 	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("Observer1");
 	RegistryObserverIPtr regObs1 = new RegistryObserverI("regObs1");
@@ -791,7 +796,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    ApplicationDescriptor app;
 	    app.name = "Application";
-	    session2->addApplication(app);
+	    admin2->addApplication(app);
 	}
 	catch(const Ice::UserException&)
 	{
@@ -800,7 +805,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	try
 	{
-	    session1->addApplication(ApplicationDescriptor());
+	    admin1->addApplication(ApplicationDescriptor());
 	    test(false);
 	}
 	catch(const AccessDeniedException&)
@@ -830,7 +835,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    ApplicationUpdateDescriptor update;
 	    update.name = "Application";
 	    update.variables.insert(make_pair(string("test"), string("test")));
-	    session1->updateApplication(update);
+	    admin1->updateApplication(update);
 	    session1->finishUpdate();
 	}
 	catch(const Ice::UserException& ex)
@@ -850,7 +855,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    ApplicationUpdateDescriptor update;
 	    update.name = "Application";
-	    session1->updateApplication(update);
+	    admin1->updateApplication(update);
 	    test(false);
 	}
 	catch(const AccessDeniedException&)
@@ -861,7 +866,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    int s = session2->startUpdate();
 	    test(s == serial);
-	    session2->removeApplication("Application");
+	    admin2->removeApplication("Application");
 	    session2->finishUpdate();
 	}
 	catch(const Ice::UserException&)
@@ -915,7 +920,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
 	cout << "testing registry observer... " << flush;
 	AdminSessionPrx session1 = AdminSessionPrx::uncheckedCast(registry->createAdminSession("admin1", "test1"));
-	
+	AdminPrx admin1 = session1->getAdmin();
+
 	keepAlive->add(session1);
 	
 	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("Observer1.1");
@@ -944,7 +950,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    app.name = "Application";
 	    int s = session1->startUpdate();
 	    test(s == serial);
-	    session1->addApplication(app);
+	    admin1->addApplication(app);
 	    regObs1->waitForUpdate(__FILE__, __LINE__);
 	    test(regObs1->applications.find("Application") != regObs1->applications.end());
 	    test(++serial == regObs1->serial);
@@ -960,7 +966,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    ApplicationUpdateDescriptor update;
 	    update.name = "Application";
 	    update.variables.insert(make_pair(string("test"), string("test")));
-	    session1->updateApplication(update);
+	    admin1->updateApplication(update);
 	    regObs1->waitForUpdate(__FILE__, __LINE__);
 	    test(regObs1->applications.find("Application") != regObs1->applications.end());
 	    test(regObs1->applications["Application"].variables["test"] == "test");
@@ -978,7 +984,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    app = regObs1->applications["Application"];
 	    app.variables.clear();
 	    app.variables["test1"] = "test";
-	    session1->syncApplication(app);
+	    admin1->syncApplication(app);
 	    regObs1->waitForUpdate(__FILE__, __LINE__);
 	    test(regObs1->applications.find("Application") != regObs1->applications.end());
 	    test(regObs1->applications["Application"].variables.size() == 1);
@@ -993,7 +999,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	try
 	{
-	    session1->removeApplication("Application");
+	    admin1->removeApplication("Application");
 	    regObs1->waitForUpdate(__FILE__, __LINE__);
 	    test(regObs1->applications.empty());
 	    test(++serial == regObs1->serial);
@@ -1132,7 +1138,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    int s = session1->startUpdate();
 	    test(s == serial);
-	    session1->addApplication(nodeApp);
+	    admin1->addApplication(nodeApp);
 	    regObs1->waitForUpdate(__FILE__, __LINE__);
 	    test(regObs1->applications.find("NodeApp") != regObs1->applications.end());
 	    test(++serial == regObs1->serial);
@@ -1184,7 +1190,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	try
 	{
-	    session1->removeApplication("NodeApp");
+	    admin1->removeApplication("NodeApp");
 	    regObs1->waitForUpdate(__FILE__, __LINE__);
 	    test(regObs1->applications.empty());
 	    test(++serial == regObs1->serial);

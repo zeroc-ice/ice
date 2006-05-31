@@ -13,6 +13,7 @@
 #include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/SliceChecksumDict.ice>
+#include <Glacier2/Session.ice>
 #include <IceGrid/Exception.ice>
 #include <IceGrid/Descriptor.ice>
 
@@ -251,12 +252,16 @@ interface Admin
      *
      * @param descriptor The application descriptor.
      *
+     * @throws AccessDeniedException Raised if the session doesn't
+     * hold the exclusive lock or if another session is holding the
+     * lock.
+     *
      * @throws DeploymentException Raised if application deployment
      * failed.
      *
      **/
     void addApplication(ApplicationDescriptor descriptor)
-	throws DeploymentException;
+	throws AccessDeniedException, DeploymentException;
 
     /**
      *
@@ -266,6 +271,10 @@ interface Admin
      *
      * @param descriptor The application descriptor.
      *
+     * @throws AccessDeniedException Raised if the session doesn't
+     * hold the exclusive lock or if another session is holding the
+     * lock.
+     *
      * @throws DeploymentException Raised if application deployment
      * failed.
      *
@@ -274,7 +283,7 @@ interface Admin
      *
      **/
     void syncApplication(ApplicationDescriptor descriptor)
-	throws DeploymentException, ApplicationNotExistException;
+	throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
 
     /**
      *
@@ -282,6 +291,10 @@ interface Admin
      * descriptor.
      *
      * @param descriptor The update descriptor.
+     *
+     * @throws AccessDeniedException Raised if the session doesn't
+     * hold the exclusive lock or if another session is holding the
+     * lock.
      *
      * @throws DeploymentException Raised if application deployment
      * failed.
@@ -291,7 +304,7 @@ interface Admin
      *
      **/
     void updateApplication(ApplicationUpdateDescriptor descriptor)
-	throws DeploymentException, ApplicationNotExistException;
+	throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
 
     /**
      *
@@ -299,20 +312,34 @@ interface Admin
      *
      * @param name The application name.
      *
+     * @throws AccessDeniedException Raised if the session doesn't
+     * hold the exclusive lock or if another session is holding the
+     * lock.
+     *
      * @throws ApplicationNotExistException Raised if the application
      * doesn't exist.
      *
      **/
     void removeApplication(string name)
-	throws ApplicationNotExistException;
+	throws AccessDeniedException, ApplicationNotExistException;
 
     /**
      *
      * Instantiate a server template from an application.
      *
+     * @throws AccessDeniedException Raised if the session doesn't
+     * hold the exclusive lock or if another session is holding the
+     * lock.
+     *
+     * @throws DeploymentException Raised if server instantiation
+     * failed.
+     *
+     * @throws ApplicationNotExistException Raised if the application
+     * doesn't exist.
+     *
      **/
     void instantiateServer(string application, string node, ServerInstanceDescriptor desc)
-	throws ApplicationNotExistException, DeploymentException;
+	throws AccessDeniedException, ApplicationNotExistException, DeploymentException;
 
     /**
      *
@@ -833,6 +860,95 @@ interface Admin
      *
      **/
     nonmutating Ice::SliceChecksumDict getSliceChecksums();
+};
+
+interface RegistryObserver;
+interface NodeObserver;
+
+interface AdminSession extends Glacier2::Session
+{
+    /**
+     *
+     * Keep the session alive. Clients should call this method
+     * regularly to prevent the server from reaping the session.
+     *
+     * @see getTimeout
+     *
+     **/
+    void keepAlive();
+
+    /**
+     *
+     * Get the session timeout. If a client doesn't call keepAlive in
+     * the time interval defined by this timeout, IceGrid might reap
+     * the session.
+     *
+     * @see keepAlive
+     *
+     * @return The timeout in milliseconds.
+     *
+     **/
+    nonmutating int getTimeout();
+
+    /**
+     *
+     * Get the admin interface.
+     *
+     **/
+    nonmutating Admin* getAdmin();
+
+    /**
+     *
+     * Set the proxies of the observer objects that will receive
+     * notifications from the servers when the state of the registry
+     * or nodes changes.
+     *
+     * @param registryObs The registry observer.
+     *
+     * @param nodeObs The node observer.
+     *
+     **/
+    void setObservers(RegistryObserver* registryObs, NodeObserver* nodeObs);
+
+    /**
+     *
+     * Set the identities of the observer objects that will receive
+     * notifications from the servers when the state of the registry
+     * or nodes changes. This method should be used by clients which
+     * are using a bidirectional connection to communicate with the
+     * session.
+     *
+     * @param registryObs The registry observer identity.
+     *
+     * @param nodeObs The node observer identity.
+     *
+     **/
+    void setObserversByIdentity(Ice::Identity registryObs, Ice::Identity nodeObs);
+
+    /**
+     *
+     * Acquires an exclusive lock to start updating the registry applications.
+     *
+     * @return The current serial.
+     * 
+     * @throws AccessDeniedException Raised if the exclusive lock can't be
+     * acquired. This might be because it's already acquired by
+     * another session.
+     *
+     **/
+    int startUpdate()
+	throws AccessDeniedException;
+    
+    /**
+     *
+     * Finish updating the registry and release the exclusive lock.
+     *
+     * @throws AccessDeniedException Raised if the session doesn't hold the
+     * exclusive lock.
+     *
+     **/
+    void finishUpdate()
+	throws AccessDeniedException;
 };
 
 };

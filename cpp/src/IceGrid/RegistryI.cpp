@@ -58,12 +58,13 @@ class SessionReapable : public Reapable
 {
 public:
 
-    SessionReapable(const Ice::ObjectAdapterPtr& adapter, 
-		    const BaseSessionIPtr& session, 
-		    const BaseSessionPrx& proxy) : 
+    SessionReapable(const ObjectAdapterPtr& adapter, 
+		    const ObjectPtr& session, 
+		    const Identity& id) : 
 	_adapter(adapter),
-	_session(session),
-	_proxy(proxy)
+	_servant(session),
+	_session(dynamic_cast<BaseSessionI*>(_servant.get())),
+	_id(id)
     {
     }
 
@@ -90,36 +91,37 @@ public:
 	    // the adapter and object identity to unregister the servant
 	    // from the adapter.
 	    //
-	    Ice::Current current;
+	    Current current;
 	    if(!destroy)
 	    {
 		current.adapter = _adapter;
-		current.id = _proxy->ice_getIdentity();
+		current.id = _id;
 	    }
 	    _session->destroy(current);
 	}
-	catch(const Ice::ObjectNotExistException&)
+	catch(const ObjectNotExistException&)
 	{
 	}
-	catch(const Ice::LocalException& ex)
+	catch(const LocalException& ex)
 	{
-	    Ice::Warning out(_proxy->ice_getCommunicator()->getLogger());
+	    Warning out(_adapter->getCommunicator()->getLogger());
 	    out << "unexpected exception while reaping node session:\n" << ex;
 	}
     }
 
 private:
 
-    const Ice::ObjectAdapterPtr _adapter;
-    const BaseSessionIPtr _session;
-    const BaseSessionPrx _proxy;
+    const ObjectAdapterPtr _adapter;
+    const ObjectPtr _servant;
+    BaseSessionI* _session;
+    const Identity _id;
 };
 
 class NullPermissionsVerifierI : public Glacier2::PermissionsVerifier
 {
 public:
 
-    bool checkPermissions(const string& userId, const string& password, string&, const Ice::Current&) const
+    bool checkPermissions(const string& userId, const string& password, string&, const Current&) const
     {
 	return true;
     }
@@ -133,7 +135,7 @@ public:
     {
     }
 
-    bool checkPermissions(const string& userId, const string& password, string&, const Ice::Current&) const 
+    bool checkPermissions(const string& userId, const string& password, string&, const Current&) const 
     {
 	map<string, string>::const_iterator p = _passwords.find(userId);
 	if(p == _passwords.end())
@@ -316,7 +318,7 @@ RegistryI::start(bool nowarn)
     Identity locatorId = _communicator->stringToIdentity(instanceName + "/Locator");
     clientAdapter->add(new LocatorI(_communicator, _database, LocatorRegistryPrx::uncheckedCast(regPrx)), locatorId);
 
-    Ice::LocatorPrx internalLocatorPrx = Ice::LocatorPrx::uncheckedCast(
+    LocatorPrx internalLocatorPrx = LocatorPrx::uncheckedCast(
 	registryAdapter->addWithUUID(new LocatorI(_communicator, _database, 
 						  LocatorRegistryPrx::uncheckedCast(regPrx))));
 
@@ -360,27 +362,28 @@ RegistryI::start(bool nowarn)
     clientAdapter->add(new QueryI(_communicator, _database), queryId);
 
     Identity adminId = _communicator->stringToIdentity(instanceName + "/Admin");
-    _adminServant = new AdminI(_database, this, _traceLevels);
-    adminAdapter->add(_adminServant, adminId);
+    ObjectPtr admin = new AdminI(_database, this, 0);
+    adminAdapter->add(admin, adminId);
 
     Identity clientSessionMgrId = _communicator->stringToIdentity(instanceName + "/SessionManager");
     _clientSessionManager = new ClientSessionManagerI(_database, sessionTimeout, _waitQueue);
     adminAdapter->add(_clientSessionManager, clientSessionMgrId);
 
     Identity adminSessionMgrId = _communicator->stringToIdentity(instanceName + "/AdminSessionManager");
-    _adminSessionManager = new AdminSessionManagerI(_database, sessionTimeout, regTopic, nodeTopic);
+    _adminSessionManager = new AdminSessionManagerI(_database, sessionTimeout, regTopic, nodeTopic, this);
     adminAdapter->add(_adminSessionManager, adminSessionMgrId);
 
     Identity sslClientSessionMgrId = _communicator->stringToIdentity(instanceName + "/SSLSessionManager");
     adminAdapter->add(new ClientSSLSessionManagerI(_database, sessionTimeout, _waitQueue), sslClientSessionMgrId);
 
     Identity sslAdmSessionMgrId = _communicator->stringToIdentity(instanceName + "/AdminSSLSessionManager");
-    adminAdapter->add(new AdminSSLSessionManagerI(_database, sessionTimeout, regTopic, nodeTopic), sslAdmSessionMgrId);
+    AdminSSLSessionManagerIPtr ai = new AdminSSLSessionManagerI(_database, sessionTimeout, regTopic, nodeTopic, this);
+    adminAdapter->add(ai, sslAdmSessionMgrId);
 
     //
     // Setup null permissions verifier object, client and admin permissions verifiers.
     //
-    Ice::Identity nullPermVerifId = _communicator->stringToIdentity(instanceName + "/NullPermissionsVerifier");
+    Identity nullPermVerifId = _communicator->stringToIdentity(instanceName + "/NullPermissionsVerifier");
     registryAdapter->add(new NullPermissionsVerifierI(), nullPermVerifId);
     addWellKnownObject(registryAdapter->createProxy(nullPermVerifId), Glacier2::PermissionsVerifier::ice_staticId());
 
@@ -419,7 +422,7 @@ RegistryI::start(bool nowarn)
     {
 	try
 	{
-	    Ice::Identity mapperId = _communicator->stringToIdentity(instanceName + "/RegistryUserAccountMapper");
+	    Identity mapperId = _communicator->stringToIdentity(instanceName + "/RegistryUserAccountMapper");
 	    registryAdapter->add(new FileUserAccountMapperI(userAccountFileProperty), mapperId);
 	    addWellKnownObject(registryAdapter->createProxy(mapperId), UserAccountMapper::ice_staticId());
 	}
@@ -481,7 +484,7 @@ RegistryI::stop()
 }
 
 SessionPrx
-RegistryI::createSession(const string& user, const string& password, const Ice::Current& current)
+RegistryI::createSession(const string& user, const string& password, const Current& current)
 {
     try
     {
@@ -493,11 +496,11 @@ RegistryI::createSession(const string& user, const string& password, const Ice::
 	    throw exc;
 	}
     }
-    catch(const Ice::LocalException& ex)
+    catch(const LocalException& ex)
     {
 	if(_traceLevels && _traceLevels->session > 0)
 	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+	    Trace out(_traceLevels->logger, _traceLevels->sessionCat);
 	    out << "exception while verifying password with client permission verifier:\n" << ex;
 	}
 
@@ -509,12 +512,12 @@ RegistryI::createSession(const string& user, const string& password, const Ice::
     SessionIPtr session = _clientSessionManager->create(user, 0);
     session->setServantLocator(_sessionServantLocator);
     SessionPrx proxy = SessionPrx::uncheckedCast(_sessionServantLocator->add(session, current.con));
-    _clientReaper->add(new SessionReapable(current.adapter, session, proxy));
+    _clientReaper->add(new SessionReapable(current.adapter, session, proxy->ice_getIdentity()));
     return proxy;    
 }
 
 AdminSessionPrx
-RegistryI::createAdminSession(const string& user, const string& password, const Ice::Current& current)
+RegistryI::createAdminSession(const string& user, const string& password, const Current& current)
 {
     try
     {
@@ -526,11 +529,11 @@ RegistryI::createAdminSession(const string& user, const string& password, const 
 	    throw exc;
 	}
     }
-    catch(const Ice::LocalException& ex)
+    catch(const LocalException& ex)
     {
 	if(_traceLevels && _traceLevels->session > 0)
 	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+	    Trace out(_traceLevels->logger, _traceLevels->sessionCat);
 	    out << "exception while verifying password with admin permission verifier:\n" << ex;
 	}
 
@@ -539,20 +542,17 @@ RegistryI::createAdminSession(const string& user, const string& password, const 
 	throw exc;
     }
 
-    //
-    // We let the connection access the administrative interface.
-    //
-    AdminPrx admin = AdminPrx::uncheckedCast(_sessionServantLocator->add(_adminServant, current.con));
-
     AdminSessionIPtr session = _adminSessionManager->create(user);
-    session->setServantLocator(_sessionServantLocator, admin);
+    ObjectPrx admin = _sessionServantLocator->add(new AdminI(_database, this, session), current.con);
+    session->setAdmin(AdminPrx::uncheckedCast(admin));
+    session->setServantLocator(_sessionServantLocator);
     AdminSessionPrx proxy = AdminSessionPrx::uncheckedCast(_sessionServantLocator->add(session, current.con));
-    _clientReaper->add(new SessionReapable(current.adapter, session, proxy));
+    _clientReaper->add(new SessionReapable(current.adapter, session, proxy->ice_getIdentity()));
     return proxy;    
 }
 
 SessionPrx
-RegistryI::createSessionFromSecureConnection(const Ice::Current& current)
+RegistryI::createSessionFromSecureConnection(const Current& current)
 {
     if(!_sslClientVerifier)
     {
@@ -573,11 +573,11 @@ RegistryI::createSessionFromSecureConnection(const Ice::Current& current)
 	    throw exc;
 	}
     }
-    catch(const Ice::LocalException& ex)
+    catch(const LocalException& ex)
     {
 	if(_traceLevels && _traceLevels->session > 0)
 	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+	    Trace out(_traceLevels->logger, _traceLevels->sessionCat);
 	    out << "exception while verifying password with SSL client permission verifier:\n" << ex;
 	}
 
@@ -589,12 +589,12 @@ RegistryI::createSessionFromSecureConnection(const Ice::Current& current)
     SessionIPtr session = _clientSessionManager->create(userDN, 0);
     session->setServantLocator(_sessionServantLocator);
     SessionPrx proxy = SessionPrx::uncheckedCast(_sessionServantLocator->add(session, current.con));
-    _clientReaper->add(new SessionReapable(current.adapter, session, proxy));
+    _clientReaper->add(new SessionReapable(current.adapter, session, proxy->ice_getIdentity()));
     return proxy;
 }
 
 AdminSessionPrx
-RegistryI::createAdminSessionFromSecureConnection(const Ice::Current& current)
+RegistryI::createAdminSessionFromSecureConnection(const Current& current)
 {
     if(!_sslAdminVerifier)
     {
@@ -615,11 +615,11 @@ RegistryI::createAdminSessionFromSecureConnection(const Ice::Current& current)
 	    throw exc;
 	}
     }
-    catch(const Ice::LocalException& ex)
+    catch(const LocalException& ex)
     {
 	if(_traceLevels && _traceLevels->session > 0)
 	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+	    Trace out(_traceLevels->logger, _traceLevels->sessionCat);
 	    out << "exception while verifying password with SSL admin permission verifier:\n" << ex;
 	}
 
@@ -631,12 +631,12 @@ RegistryI::createAdminSessionFromSecureConnection(const Ice::Current& current)
     //
     // We let the connection access the administrative interface.
     //
-    AdminPrx admin = AdminPrx::uncheckedCast(_sessionServantLocator->add(_adminServant, current.con));
-
     AdminSessionIPtr session = _adminSessionManager->create(userDN);
-    session->setServantLocator(_sessionServantLocator, admin);
+    ObjectPrx admin = _sessionServantLocator->add(new AdminI(_database, this, session), current.con);
+    session->setAdmin(AdminPrx::uncheckedCast(admin));
+    session->setServantLocator(_sessionServantLocator);
     AdminSessionPrx proxy = AdminSessionPrx::uncheckedCast(_sessionServantLocator->add(session, current.con));
-    _clientReaper->add(new SessionReapable(current.adapter, session, proxy));
+    _clientReaper->add(new SessionReapable(current.adapter, session, proxy->ice_getIdentity()));
     return proxy;    
 }
 
@@ -647,7 +647,7 @@ RegistryI::shutdown()
 }
 
 void
-RegistryI::addWellKnownObject(const Ice::ObjectPrx& proxy, const string& type)
+RegistryI::addWellKnownObject(const ObjectPrx& proxy, const string& type)
 {
     assert(_database);
     try
@@ -664,7 +664,7 @@ RegistryI::addWellKnownObject(const Ice::ObjectPrx& proxy, const string& type)
 }
 
 void
-RegistryI::setupThreadPool(const Ice::PropertiesPtr& properties, const string& name, int size, int sizeMax)
+RegistryI::setupThreadPool(const PropertiesPtr& properties, const string& name, int size, int sizeMax)
 {
     if(properties->getPropertyAsIntWithDefault(name + ".Size", 0) < size)
     {
@@ -691,8 +691,8 @@ RegistryI::setupThreadPool(const Ice::PropertiesPtr& properties, const string& n
 }
 
 Glacier2::PermissionsVerifierPrx
-RegistryI::getPermissionsVerifier(const Ice::ObjectAdapterPtr& adapter, 
-				  const Ice::LocatorPrx& locator,
+RegistryI::getPermissionsVerifier(const ObjectAdapterPtr& adapter, 
+				  const LocatorPrx& locator,
 				  const string& verifierProperty,
 				  const string& passwordsProperty,
 				  bool nowarn)
@@ -702,14 +702,14 @@ RegistryI::getPermissionsVerifier(const Ice::ObjectAdapterPtr& adapter,
     // verifier is specified.
     //
 
-    Ice::ObjectPrx verifier;
+    ObjectPrx verifier;
     if(!verifierProperty.empty())
     {
 	try
 	{
 	    verifier = _communicator->stringToProxy(verifierProperty);
 	}
-	catch(const Ice::LocalException& ex)
+	catch(const LocalException& ex)
 	{
 	    Error out(_communicator->getLogger());
 	    out << "permissions verifier `" + verifierProperty + "' is invalid:\n" << ex;
@@ -770,7 +770,7 @@ RegistryI::getPermissionsVerifier(const Ice::ObjectAdapterPtr& adapter,
 	    return 0;
 	}    
     }
-    catch(const Ice::LocalException& ex)
+    catch(const LocalException& ex)
     {
 	if(!nowarn)
 	{
@@ -783,7 +783,7 @@ RegistryI::getPermissionsVerifier(const Ice::ObjectAdapterPtr& adapter,
 }
 
 Glacier2::SSLPermissionsVerifierPrx
-RegistryI::getSSLPermissionsVerifier(const Ice::LocatorPrx& locator, const string& verifierProperty, bool nowarn)
+RegistryI::getSSLPermissionsVerifier(const LocatorPrx& locator, const string& verifierProperty, bool nowarn)
 {
     //
     // Get the permissions verifier, or create a default one if no
@@ -794,12 +794,12 @@ RegistryI::getSSLPermissionsVerifier(const Ice::LocatorPrx& locator, const strin
 	return 0;
     }
     
-    Ice::ObjectPrx verifier;
+    ObjectPrx verifier;
     try
     {
 	verifier = _communicator->stringToProxy(verifierProperty);
     }
-    catch(const Ice::LocalException& ex)
+    catch(const LocalException& ex)
     {
 	Error out(_communicator->getLogger());
 	out << "permissions verifier `" + verifierProperty + "' is invalid:\n" << ex;
@@ -823,7 +823,7 @@ RegistryI::getSSLPermissionsVerifier(const Ice::LocatorPrx& locator, const strin
 	    return 0;
 	}    
     }
-    catch(const Ice::LocalException& ex)
+    catch(const LocalException& ex)
     {
 	if(!nowarn)
 	{
@@ -836,7 +836,7 @@ RegistryI::getSSLPermissionsVerifier(const Ice::LocatorPrx& locator, const strin
 }
 
 Glacier2::SSLInfo
-RegistryI::getSSLInfo(const Ice::ConnectionPtr& connection, string& userDN)
+RegistryI::getSSLInfo(const ConnectionPtr& connection, string& userDN)
 {
     Glacier2::SSLInfo sslinfo;
     try

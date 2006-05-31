@@ -1410,7 +1410,6 @@ void
 ServerI::terminated(const string& msg, int status)
 {
     ServerAdapterDict adpts;
-    bool destroying = false;
     {
 	Lock sync(*this);
 	adpts = _adapters;
@@ -1442,11 +1441,9 @@ ServerI::terminated(const string& msg, int status)
 	    wait(); // Wait for activate() to set the state to WaitForActivation
 	}
 
-	if(_state == ServerI::Destroying)
-	{
-	    destroying = true;
-	}
-	else if(_state != ServerI::Deactivating && _state != ServerI::DeactivatingWaitForProcess)
+	if(_state != ServerI::Deactivating && 
+	   _state != ServerI::DeactivatingWaitForProcess && 
+	   _state != ServerI::Destroying)
 	{
 	    ostringstream os;
 	    os << "The server terminated unexpectedly";
@@ -1483,13 +1480,27 @@ ServerI::terminated(const string& msg, int status)
 	}
     }
 
-    if(destroying)
+    bool doDestroy = false;
+    ServerCommandPtr command;
+    {
+	Lock sync(*this);
+	if(_state == ServerI::Destroying)
+	{
+	    doDestroy = true;
+	}
+	else
+	{
+	    setStateNoSync(ServerI::Inactive);
+	    command = nextCommand();
+	}
+    }
+    if(doDestroy)
     {
 	destroy();
     }
-    else
+    else if(command)
     {
-	setState(ServerI::Inactive);
+	command->execute();
     }
 }
 

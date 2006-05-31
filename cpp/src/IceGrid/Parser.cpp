@@ -858,7 +858,7 @@ Parser::stateServer(const list<string>& args)
 	}
 	case Destroying:
 	{
-	    cout << "destroying (" << enabled << ")" << endl;
+ 	    cout << "destroying (" << enabled << ")" << endl;
 	    break;
 	}
 	case Destroyed:
@@ -1573,6 +1573,10 @@ Parser::exception(const Ice::Exception& ex)
     catch(const NodeUnreachableException& ex)
     {
 	error("node `" + ex.name + "' couldn't be reached:\n" + ex.reason);
+    }
+    catch(const AccessDeniedException& ex)
+    {
+	error("couldn't update the registry, the session from + `" + ex.lockUserId + "' is updating the registry");
     }
     catch(const IceXML::ParserException& ex)
     {

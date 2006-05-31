@@ -32,13 +32,10 @@ typedef IceUtil::Handle<Allocatable> AllocatablePtr;
 class WaitQueue;
 typedef IceUtil::Handle<WaitQueue> WaitQueuePtr;
 
-class BaseSessionI;
-typedef IceUtil::Handle<BaseSessionI> BaseSessionIPtr;
-
 class SessionI;
 typedef IceUtil::Handle<SessionI> SessionIPtr;
 
-class BaseSessionI : virtual public BaseSession, public IceUtil::Mutex
+class BaseSessionI : public IceUtil::Mutex
 {
 public:
 
@@ -72,6 +69,9 @@ public:
     SessionI(const std::string&, const DatabasePtr&, int, const WaitQueuePtr&, const Glacier2::SessionControlPrx&);
     SessionI(const std::string&, const DatabasePtr&, int, const WaitQueuePtr&, const Ice::ConnectionPtr&);
     virtual ~SessionI();
+
+    virtual void keepAlive(const Ice::Current& current) { BaseSessionI::keepAlive(current); }
+    virtual int getTimeout(const Ice::Current& current) const { return BaseSessionI::getTimeout(current); }
 
     virtual void allocateObjectById_async(const AMD_Session_allocateObjectByIdPtr&, const Ice::Identity&,
 					  const Ice::Current&);

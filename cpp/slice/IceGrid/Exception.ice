@@ -182,6 +182,24 @@ exception AllocationTimeoutException extends AllocationException
 {
 };
 
+/**
+ *
+ * This exception is raised if a client is denied the ability to create
+ * a session with IceGrid.
+ *
+ * @see SessionFactory::createSession
+ *
+ **/
+exception PermissionDeniedException
+{
+    /**
+     *
+     * The reason why permission was denied.
+     *
+     **/
+    string reason;
+};
+
 };
 
 #endif

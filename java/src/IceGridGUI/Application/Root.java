@@ -388,7 +388,7 @@ public class Root extends ListTreeNode
 			    ApplicationUpdateDescriptor updateDescriptor = createUpdateDescriptor();
 			    if(updateDescriptor != null)
 			    {
-				_coordinator.getSession().updateApplication(updateDescriptor);
+				_coordinator.getAdmin().updateApplication(updateDescriptor);
 				commit();
 				_skipUpdates++;
 			    }
@@ -401,14 +401,14 @@ public class Root extends ListTreeNode
 			    if(_coordinator.getLiveDeploymentRoot().getApplicationDescriptor(_id) == null)
 			    {
 				assert _live == false;
-				_coordinator.getSession().addApplication(_descriptor);
+				_coordinator.getAdmin().addApplication(_descriptor);
 				commit();
 				liveReset();
 				_coordinator.addLiveApplication(Root.this);
 			    }
 			    else
 			    {
-				_coordinator.getSession().syncApplication(_descriptor);
+				_coordinator.getAdmin().syncApplication(_descriptor);
 				commit();
 
 				if(_live)
