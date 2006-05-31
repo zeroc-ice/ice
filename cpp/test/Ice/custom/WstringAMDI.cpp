@@ -10,7 +10,7 @@
 #include <WstringAMDI.h>
 
 void
-::Test1::WstringClassI::opString_async(const ::Test1::AMD_WstringClass_opStringPtr& opStringCB,
+Test1::WstringClassI::opString_async(const ::Test1::AMD_WstringClass_opStringPtr& opStringCB,
 				       const ::std::wstring& s1,
 				       const Ice::Current& current)
 {
@@ -18,7 +18,7 @@ void
 }
 
 void
-::Test1::WstringClassI::opStruct_async(const ::Test1::AMD_WstringClass_opStructPtr& opStructCB,
+Test1::WstringClassI::opStruct_async(const ::Test1::AMD_WstringClass_opStructPtr& opStructCB,
 				       const ::Test1::WstringStruct& s1,
 				       const Ice::Current& current)
 {
@@ -26,7 +26,7 @@ void
 }
 
 void
-::Test1::WstringClassI::throwExcept_async(const ::Test1::AMD_WstringClass_throwExceptPtr& throwExceptCB,
+Test1::WstringClassI::throwExcept_async(const ::Test1::AMD_WstringClass_throwExceptPtr& throwExceptCB,
 					  const ::std::wstring& reason,
 					  const Ice::Current& current)
 {
@@ -36,7 +36,7 @@ void
 }
 
 void
-::Test2::WstringClassI::opString_async(const ::Test2::AMD_WstringClass_opStringPtr& opStringCB,
+Test2::WstringClassI::opString_async(const ::Test2::AMD_WstringClass_opStringPtr& opStringCB,
 				       const ::std::wstring& s1,
 				       const Ice::Current& current)
 {
@@ -44,7 +44,7 @@ void
 }
 
 void
-::Test2::WstringClassI::opStruct_async(const ::Test2::AMD_WstringClass_opStructPtr& opStructCB,
+Test2::WstringClassI::opStruct_async(const ::Test2::AMD_WstringClass_opStructPtr& opStructCB,
 				       const ::Test2::WstringStruct& s1,
 				       const Ice::Current& current)
 {
@@ -52,7 +52,7 @@ void
 }
 
 void
-::Test2::WstringClassI::throwExcept_async(const ::Test2::AMD_WstringClass_throwExceptPtr& throwExceptCB,
+Test2::WstringClassI::throwExcept_async(const ::Test2::AMD_WstringClass_throwExceptPtr& throwExceptCB,
 					  const ::std::wstring& reason,
 					  const Ice::Current& current)
 {
