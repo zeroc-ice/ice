@@ -1004,7 +1004,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
     }
     cout << "ok" << endl;
 
-    cout << "Testing IceSSL.TrustOnly... ";
+    cout << "testing IceSSL.TrustOnly... " << flush;
     {
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);
@@ -1070,7 +1070,6 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	fact->destroyServer(server);
 	comm->destroy();
     }
-
     {
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);
@@ -1134,7 +1133,6 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	fact->destroyServer(server);
 	comm->destroy();
     }
-
     {
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);
@@ -1262,7 +1260,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
     }
     cout << "ok" << endl;
 
-    cout << "Testing IceSSL.TrustOnly.Client ... ";
+    cout << "testing IceSSL.TrustOnly.Client... " << flush;
     {
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);
@@ -1331,7 +1329,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
     }
     cout << "ok" << endl;
 
-    cout << "Testing IceSSL.TrustOnly.Server ... ";
+    cout << "testing IceSSL.TrustOnly.Server... " << flush;
     {
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);
@@ -1400,7 +1398,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
     }
     cout << "ok" << endl;
 
-    cout << "Testing IceSSL.TrustOnly.Server.<AdapterName> ... ";
+    cout << "testing IceSSL.TrustOnly.Server.<AdapterName>... " << flush;
     {
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);

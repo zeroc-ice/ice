@@ -522,7 +522,7 @@ IceSSL::EndpointFactoryI::protocol() const
 }
 
 IceInternal::EndpointIPtr
-IceSSL::EndpointFactoryI::create(const std::string& str) const
+IceSSL::EndpointFactoryI::create(const string& str) const
 {
     return new EndpointI(_instance, str);
 }

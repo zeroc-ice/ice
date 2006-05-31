@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef RFC_2253_H
-#define RFC_2253_H
+#ifndef ICE_SSL_RFC_2253_H
+#define ICE_SSL_RFC_2253_H
 
 #include <IceUtil/Exception.h>
 #include <list>
@@ -43,13 +43,13 @@ private:
 // O=Sue\, Grabit and Runn will result in ("O","Sue\, Grabit and
 // Runn") not ("O","Sue, Grabit and Runn").
 //
-// Unique DNs can be seperated by a ';' character.
+// Unique DNs can be separated by a ';' character.
 //
 // This method returns a list of list of RDNs. Any failure in parsing
 // results in a ParseException being thrown.
 //
 std::list< std::list<std::pair<std::string, std::string> > > parse(const std::string&);
 
-};
+}
 
 #endif

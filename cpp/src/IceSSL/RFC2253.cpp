@@ -12,8 +12,7 @@
 using namespace std;
 
 //
-// The source for these grammar for parsing this stuff is RFC 2253 and
-// RFC 1779.
+// See RFC 2253 and RFC 1779.
 //
 namespace RFC2253
 {
@@ -77,7 +76,7 @@ parse(const string& data)
 	}
 	else if(pos < data.size())
 	{
-	    throw ParseException(__FILE__, __LINE__, "parse error. expected ',' or ';' at " + data.substr(pos));
+	    throw ParseException(__FILE__, __LINE__, "expected ',' or ';' at `" + data.substr(pos) + "'");
 	}
     }
     if(!current.empty())
@@ -325,8 +324,7 @@ parsePair(const string& data, size_t& pos)
 	throw ParseException(__FILE__, __LINE__, "invalid escape format (unexpected end of data)");
     }
 
-    if(special.find(data[pos]) != string::npos || data[pos] != '\\' ||
-       data[pos] != '"')
+    if(special.find(data[pos]) != string::npos || data[pos] != '\\' || data[pos] != '"')
     {
 	result += data[pos];
 	++pos;

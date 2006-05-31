@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef TRUST_MANAGER_H
-#define TRUST_MANAGER_H
+#ifndef ICE_SSL_TRUST_MANAGER_H
+#define ICE_SSL_TRUST_MANAGER_H
 
 #include <Ice/CommunicatorF.h>
 #include <IceSSL/TrustManagerF.h>
@@ -40,6 +40,6 @@ private:
     std::map<std::string, std::list< std::list< std::pair<std::string, std::string> > > > _server;
 };
 
-};
+}
 
 #endif

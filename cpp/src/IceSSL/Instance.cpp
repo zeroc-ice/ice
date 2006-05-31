@@ -558,7 +558,7 @@ IceSSL::Instance::securityTraceCategory() const
 }
 
 void
-IceSSL::Instance::verifyPeer(SSL* ssl, SOCKET fd, const string& address, const std::string& adapterName, bool incoming)
+IceSSL::Instance::verifyPeer(SSL* ssl, SOCKET fd, const string& address, const string& adapterName, bool incoming)
 {
     long result = SSL_get_verify_result(ssl);
     if(result != X509_V_OK)

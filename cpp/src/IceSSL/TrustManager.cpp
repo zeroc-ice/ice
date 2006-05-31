@@ -47,7 +47,7 @@ TrustManager::TrustManager(const Ice::CommunicatorPtr& communicator) :
     catch(const RFC2253::ParseException& e)
     {
 	Ice::PluginInitializationException ex(__FILE__, __LINE__);
-	ex.reason = "IceSSL: unable to initialize. property: " + key  + " reason: " + e.reason;
+	ex.reason = "IceSSL: invalid property " + key  + ":\n" + e.reason;
 	throw ex;
     }
 }
@@ -85,7 +85,6 @@ TrustManager::verify(const ConnectionInfo& info)
 	}
     }
 
-
     //
     // If there is nothing to match against, then we accept the cert.
     //
@@ -113,7 +112,7 @@ TrustManager::verify(const ConnectionInfo& info)
 	    if(alldn.size() != 1)
 	    {
 		Ice::Warning warn(_communicator->getLogger());
-		warn << "certificate DN parsed more than one DN. dn: " + info.certs[0]->getSubjectDN();
+		warn << "IceSSL: certificate contains more than one DN:\n" + info.certs[0]->getSubjectDN();
 		return false;
 	    }
 	    list<pair<string, string> > dn = alldn.front();
@@ -133,9 +132,11 @@ TrustManager::verify(const ConnectionInfo& info)
 	catch(const RFC2253::ParseException& e)
 	{
 	    Ice::Warning warn(_communicator->getLogger());
-	    warn << "certificate DN failed to parse. DN: " + info.certs[0]->getSubjectDN() + " reason: " + e.reason;
+	    warn << "IceSSL: unable to parse certificate DN `" + info.certs[0]->getSubjectDN() + "'\nreason: " +
+		e.reason;
 	}
     }
+
     return false;
 }
 
