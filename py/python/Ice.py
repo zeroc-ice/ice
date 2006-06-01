@@ -478,7 +478,7 @@ class Application(object):
         if type(self) == Application:
             raise RuntimeError("Ice.Application is an abstract class")
 
-    def main(self, args, configFile=None, logger=None):
+    def main(self, args, configFile=None, initData=None):
         if Application._communicator:
             print args[0] + ": only one instance of the Application class can be used"
             return False
@@ -498,8 +498,8 @@ class Application(object):
         status = 0
 
         try:
-	    initData = InitializationData()
-	    initData.logger = logger
+	    if not initData:
+	        initData = InitializationData()
             if configFile:
                 initData.properties = createProperties()
                 initData.properties.load(configFile)
