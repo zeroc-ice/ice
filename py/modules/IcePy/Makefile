@@ -26,6 +26,7 @@ OBJS		= Communicator.o \
 		  Properties.o \
 		  Proxy.o \
 		  Slice.o \
+		  ThreadNotification.o \
 		  Types.o \
 		  Util.o
 

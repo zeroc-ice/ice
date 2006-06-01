@@ -471,7 +471,7 @@ IcePy::OperationI::OperationI(const char* name, PyObject* mode, int amd, PyObjec
 PyObject*
 IcePy::OperationI::invoke(const Ice::ObjectPrx& proxy, PyObject* args, PyObject* pyctx)
 {
-    Ice::CommunicatorPtr communicator = proxy->ice_communicator();
+    Ice::CommunicatorPtr communicator = proxy->ice_getCommunicator();
 
     //
     // Marshal the input parameters to a byte sequence.
@@ -584,7 +584,7 @@ IcePy::OperationI::invoke(const Ice::ObjectPrx& proxy, PyObject* args, PyObject*
 PyObject*
 IcePy::OperationI::invokeAsync(const Ice::ObjectPrx& proxy, PyObject* callback, PyObject* args, PyObject* pyctx)
 {
-    Ice::CommunicatorPtr communicator = proxy->ice_communicator();
+    Ice::CommunicatorPtr communicator = proxy->ice_getCommunicator();
 
     //
     // Marshal the input parameters to a byte sequence.

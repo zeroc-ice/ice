@@ -16,6 +16,7 @@
 #include <ObjectFactory.h>
 #include <Properties.h>
 #include <Proxy.h>
+#include <ThreadNotification.h>
 #include <Util.h>
 #include <Ice/Initialize.h>
 #include <Ice/Communicator.h>
@@ -100,6 +101,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 	PyObjectHandle properties = PyObject_GetAttrString(initData, STRCAST("properties"));
 	PyObjectHandle logger = PyObject_GetAttrString(initData, STRCAST("logger"));
 	PyObjectHandle defaultContext = PyObject_GetAttrString(initData, STRCAST("defaultContext"));
+	PyObjectHandle threadHook = PyObject_GetAttrString(initData, STRCAST("threadHook"));
 
 	if(properties.get() && properties.get() != Py_None)
 	{
@@ -123,6 +125,12 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 		return -1;
 	    }
 	}
+
+	if(threadHook.get() && threadHook.get() != Py_None)
+	{
+	    data.threadHook = new ThreadNotificationWrapper(threadHook.get());
+	}
+
     }
 
     if(!data.properties)

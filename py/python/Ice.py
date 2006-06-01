@@ -147,6 +147,17 @@ import Ice_ServantLocator_ice
 del Endpoint
 Endpoint =  IcePy.Endpoint
 
+
+class ThreadNotification(object):
+    def __init__(self):
+        pass
+
+    #
+    # Operation signatures
+    #
+    # def start():
+    # def stop():
+
 #
 # Initialization data.
 #
@@ -156,6 +167,7 @@ class InitializationData(object):
 	self.logger = None
 	#self.stats = None # Stats not currently supported in Python.
 	self.defaultContext = {}
+	self.threadHook = None
 
 #
 # Communicator wrapper.
