@@ -132,6 +132,7 @@ public class Coordinator
 	    _newMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.NEW_ADAPTER));
 	    _newMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.NEW_DBENV));
 	    _newMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.NEW_NODE));
+	    _newMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.NEW_PROPERTY_SET));
 	    _newMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.NEW_REPLICA_GROUP));
 	    
 
@@ -226,6 +227,7 @@ public class Coordinator
 	    _appMenu.setEnabled(false);
 	    toolsMenu.add(_appMenu);
 	    _appMenu.add(_patchApplication);
+	    _appMenu.setEnabled(false);
 	 
 	    //
 	    // Node sub-menu
@@ -781,6 +783,7 @@ public class Coordinator
 	_logout.setEnabled(false);
 	_openApplicationFromRegistry.setEnabled(false);
 	_patchApplication.setEnabled(false);
+	_appMenu.setEnabled(false);
 	_newApplicationWithDefaultTemplates.setEnabled(false);
 	_acquireExclusiveWriteAccess.setEnabled(false);
 	_releaseExclusiveWriteAccess.setEnabled(false);
@@ -941,6 +944,7 @@ public class Coordinator
 	_logout.setEnabled(true);
 	_openApplicationFromRegistry.setEnabled(true);
 	_patchApplication.setEnabled(true);
+	_appMenu.setEnabled(true);
 	_newApplicationWithDefaultTemplates.setEnabled(true);
 	_acquireExclusiveWriteAccess.setEnabled(true);
 
