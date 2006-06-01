@@ -203,12 +203,12 @@ class ServerSubEditor extends CommunicatorSubEditor
     void writeDescriptor()
     {
 	ServerDescriptor descriptor = getServerDescriptor();
-	descriptor.id = _id.getText();
-	descriptor.exe = _exe.getText();
-	descriptor.pwd = _pwd.getText();
+	descriptor.id = _id.getText().trim();
+	descriptor.exe = _exe.getText().trim();
+	descriptor.pwd = _pwd.getText().trim();
 
 	descriptor.options = _options.getList();
-	descriptor.user = _user.getText();
+	descriptor.user = _user.getText().trim();
 
 	descriptor.envs = new java.util.LinkedList();
 	java.util.Iterator p = _envs.get().entrySet().iterator();
@@ -219,9 +219,9 @@ class ServerSubEditor extends CommunicatorSubEditor
 				 + "=" + entry.getValue().toString());
 	}
      
-	descriptor.activation = _activation.getSelectedItem().toString();
-	descriptor.activationTimeout = _activationTimeout.getText();
-	descriptor.deactivationTimeout = _deactivationTimeout.getText();
+	descriptor.activation = _activation.getSelectedItem().toString().trim();
+	descriptor.activationTimeout = _activationTimeout.getText().trim();
+	descriptor.deactivationTimeout = _deactivationTimeout.getText().trim();
 
 	descriptor.allocatable = _allocatable.isSelected();
 
@@ -233,7 +233,7 @@ class ServerSubEditor extends CommunicatorSubEditor
 	}
 	else
 	{
-	    descriptor.distrib.icepatch = _distrib.getSelectedItem().toString();
+	    descriptor.distrib.icepatch = _distrib.getSelectedItem().toString().trim();
 	}
 	descriptor.distrib.directories = _distribDirs.getList();
 
@@ -242,7 +242,7 @@ class ServerSubEditor extends CommunicatorSubEditor
     
     boolean isSimpleUpdate()
     {
-	return getServerDescriptor().id.equals(_id.getText()); 
+	return getServerDescriptor().id.equals(_id.getText().trim()); 
     }
 
     void show(boolean isEditable)

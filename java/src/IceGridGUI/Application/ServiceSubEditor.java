@@ -64,14 +64,14 @@ class ServiceSubEditor extends CommunicatorSubEditor
     void writeDescriptor()
     {
 	ServiceDescriptor descriptor = getServiceDescriptor();
-	descriptor.name = _name.getText();
-	descriptor.entry = _entry.getText();
+	descriptor.name = _name.getText().trim();
+	descriptor.entry = _entry.getText().trim();
 	super.writeDescriptor(descriptor);
     }	    
     
     boolean isSimpleUpdate()
     {
-	return getServiceDescriptor().name.equals(_name.getText()); 
+	return getServiceDescriptor().name.equals(_name.getText().trim()); 
     }
 
     void show(boolean isEditable)

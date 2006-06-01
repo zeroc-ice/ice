@@ -51,7 +51,7 @@ class NodeEditor extends Editor
 		_target.destroy(); // just removes the child
 		try
 		{
-		    nodes.tryAdd(_name.getText(), descriptor);
+		    nodes.tryAdd(_name.getText().trim(), descriptor);
 		}
 		catch(UpdateFailedException e)
 		{
@@ -217,7 +217,7 @@ class NodeEditor extends Editor
 	NodeDescriptor descriptor = (NodeDescriptor)_target.getDescriptor();
 	descriptor.description = _description.getText();
 	descriptor.variables = _variables.get();
-	descriptor.loadFactor = _loadFactor.getText();
+	descriptor.loadFactor = _loadFactor.getText().trim();
     }	    
     
     void show(Node node)

@@ -50,7 +50,7 @@ class PropertySetEditor extends Editor
 		
 		try
 		{
-		    parent.tryAdd(_id.getText(), descriptor);
+		    parent.tryAdd(_id.getText().trim(), descriptor);
 		}
 		catch(UpdateFailedException e)
 		{

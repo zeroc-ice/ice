@@ -163,13 +163,14 @@ class ApplicationEditor extends Editor
     boolean isSimpleUpdate()
     {
 	ApplicationDescriptor descriptor = (ApplicationDescriptor)_target.getDescriptor();
-	return descriptor.name.equals(_name.getText()) && _variables.get().equals(descriptor.variables);
+	return descriptor.name.equals(_name.getText().trim()) 
+	    && _variables.get().equals(descriptor.variables);
     }
 
     void writeDescriptor()
     {
 	ApplicationDescriptor descriptor = (ApplicationDescriptor)_target.getDescriptor();
-	descriptor.name = _name.getText();
+	descriptor.name = _name.getText().trim();
 	descriptor.variables = _variables.get();
 	descriptor.description = _description.getText();
 
@@ -179,12 +180,11 @@ class ApplicationEditor extends Editor
 	}
 	else
 	{
-	    descriptor.distrib.icepatch = _distrib.getSelectedItem().toString();
+	    descriptor.distrib.icepatch = _distrib.getSelectedItem().toString().trim();
 	}
 	descriptor.distrib.directories = _distribDirs.getList();
     }	    
     
-
     void show(Root root)
     {
 	detectUpdates(false);

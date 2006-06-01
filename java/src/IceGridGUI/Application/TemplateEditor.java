@@ -109,7 +109,7 @@ class TemplateEditor extends Editor
 
 		try
 		{
-		    parent.tryAdd(_template.getText(), descriptor);
+		    parent.tryAdd(_template.getText().trim(), descriptor);
 		}
 		catch(UpdateFailedException e)
 		{

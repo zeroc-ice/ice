@@ -50,7 +50,7 @@ class DbEnvEditor extends CommunicatorChildEditor
     {
 	DbEnvDescriptor descriptor = 
 	    (DbEnvDescriptor)getDbEnv().getDescriptor();
-	descriptor.name = _name.getText();
+	descriptor.name = _name.getText().trim();
 	descriptor.description = _description.getText();
 	descriptor.dbHome = getDbHomeAsString();
 	descriptor.properties = _properties.getProperties();
@@ -60,7 +60,7 @@ class DbEnvEditor extends CommunicatorChildEditor
     {
 	DbEnvDescriptor descriptor = 
 	    (DbEnvDescriptor)getDbEnv().getDescriptor();
-	return descriptor.name.equals(_name.getText()); 
+	return descriptor.name.equals(_name.getText().trim()); 
     }
 
     Communicator.ChildList getChildList()
@@ -175,7 +175,7 @@ class DbEnvEditor extends CommunicatorChildEditor
 	}
 	else
 	{
-	    return obj.toString();
+	    return obj.toString().trim();
 	}
     }
     

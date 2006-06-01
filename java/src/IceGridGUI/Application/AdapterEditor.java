@@ -131,7 +131,7 @@ class AdapterEditor extends CommunicatorChildEditor
 		    //
 		    // Recompute default id
 		    //
-		    _defaultAdapterId = getAdapter().getDefaultAdapterId(_name.getText());
+		    _defaultAdapterId = getAdapter().getDefaultAdapterId(_name.getText().trim());
 		    refreshId();
 		}
 	    });
@@ -181,7 +181,7 @@ class AdapterEditor extends CommunicatorChildEditor
     {
 	AdapterDescriptor descriptor = 
 	    (AdapterDescriptor)getAdapter().getDescriptor();
-	descriptor.name = _name.getText();
+	descriptor.name = _name.getText().trim();
 	descriptor.description = _description.getText();
 	descriptor.id = getIdAsString();
 	descriptor.replicaGroupId = getReplicaGroupIdAsString();
@@ -195,7 +195,7 @@ class AdapterEditor extends CommunicatorChildEditor
 	AdapterDescriptor descriptor = 
 	    (AdapterDescriptor)getAdapter().getDescriptor();
 
-	return descriptor.name.equals(_name.getText()); 
+	return descriptor.name.equals(_name.getText().trim()); 
     }
 
     Communicator.ChildList getChildList()
@@ -268,7 +268,7 @@ class AdapterEditor extends CommunicatorChildEditor
 	//
 	// Change enclosing properties after successful update
 	//
-	String name = _name.getText();
+	String name = _name.getText().trim();
 	Adapter adapter = getAdapter();
 	if(!name.equals(_oldName))
 	{
@@ -277,7 +277,7 @@ class AdapterEditor extends CommunicatorChildEditor
 	    _oldName = name;
 	}
 	
-	adapter.setProperty(name, "Endpoints", _endpoints.getText());
+	adapter.setProperty(name, "Endpoints", _endpoints.getText().trim());
 	
 	Object published = _publishedEndpoints.getSelectedItem();
 	if(published == PUBLISH_ACTUAL)
@@ -287,7 +287,7 @@ class AdapterEditor extends CommunicatorChildEditor
 	else
 	{
 	    adapter.setProperty(name, "PublishedEndpoints",
-				published.toString());
+				published.toString().trim());
 
 	}
     }
@@ -325,7 +325,7 @@ class AdapterEditor extends CommunicatorChildEditor
 	}
 	else 
 	{
-	    return obj.toString();
+	    return obj.toString().trim();
 	}
     }
 
@@ -363,7 +363,7 @@ class AdapterEditor extends CommunicatorChildEditor
 	}
 	else
 	{
-	    return obj.toString();
+	    return obj.toString().trim();
 	}
     }
 
@@ -426,7 +426,7 @@ class AdapterEditor extends CommunicatorChildEditor
 			    if(resolver != null)
 			    {
 				String replicaGroupId = 
-				    resolver.substitute(item.toString());
+				    resolver.substitute(item.toString().trim());
 				enabled = (replicaGroups.findChild(replicaGroupId) != null);
 			    }
 			}

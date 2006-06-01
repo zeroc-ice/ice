@@ -222,7 +222,7 @@ class ReplicaGroupEditor extends Editor
 	ReplicaGroupDescriptor descriptor = 
 	    (ReplicaGroupDescriptor)getReplicaGroup().getDescriptor();
 
-	descriptor.id = _id.getText();
+	descriptor.id = _id.getText().trim();
 	descriptor.description = _description.getText();
 	descriptor.objects = AdapterEditor.mapToObjectDescriptorSeq(_objects.get());
 	
@@ -234,18 +234,18 @@ class ReplicaGroupEditor extends Editor
 	else if(loadBalancing == RANDOM)
 	{
 	    descriptor.loadBalancing = new RandomLoadBalancingPolicy(
-		_nReplicas.getText());
+		_nReplicas.getText().trim());
 	}
 	else if(loadBalancing == ROUND_ROBIN)
 	{
 	    descriptor.loadBalancing = new RoundRobinLoadBalancingPolicy(
-		_nReplicas.getText());
+		_nReplicas.getText().trim());
 	}
 	else if(loadBalancing == ADAPTIVE)
 	{
 	    descriptor.loadBalancing = new AdaptiveLoadBalancingPolicy(
-		_nReplicas.getText(), 
-		_loadSample.getSelectedItem().toString());
+		_nReplicas.getText().trim(), 
+		_loadSample.getSelectedItem().toString().trim());
 	}
 	else
 	{
@@ -257,7 +257,7 @@ class ReplicaGroupEditor extends Editor
     {
 	ReplicaGroupDescriptor descriptor = 
 	    (ReplicaGroupDescriptor)getReplicaGroup().getDescriptor();
-	return descriptor.id.equals(_id.getText());
+	return descriptor.id.equals(_id.getText().trim());
     }
 
     protected void appendProperties(DefaultFormBuilder builder)
