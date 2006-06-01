@@ -2261,6 +2261,11 @@ namespace Ice
 
 	public void ThreadPerConnection()
 	{
+	    if(instance_.initializationData().threadHook != null)
+	    {
+	        instance_.initializationData().threadHook.start();
+	    }
+
 	    try
 	    {
 		run();
@@ -2273,6 +2278,13 @@ namespace Ice
 	    {
 		_logger.error("system exception in thread per connection:\n" + ToString() + "\n" +
 					 ex.ToString());
+	    }
+	    finally
+	    {
+	        if(instance_.initializationData().threadHook != null)
+	        {
+	            instance_.initializationData().threadHook.stop();
+	        }
 	    }
 	}
 

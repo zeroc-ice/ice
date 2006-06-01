@@ -2572,6 +2572,11 @@ Ice::ConnectionI::ThreadPerConnection::ThreadPerConnection(const ConnectionIPtr&
 void
 Ice::ConnectionI::ThreadPerConnection::run()
 {
+    if(_connection->_instance->initializationData().threadHook)
+    {
+        _connection->_instance->initializationData().threadHook->start();
+    }
+
     try
     {
 	_connection->run();
@@ -2590,6 +2595,11 @@ Ice::ConnectionI::ThreadPerConnection::run()
     {
 	Error out(_connection->_logger);
 	out << "unknown exception in thread per connection:\n" << _connection->toString();
+    }
+
+    if(_connection->_instance->initializationData().threadHook)
+    {
+        _connection->_instance->initializationData().threadHook->stop();
     }
 
     _connection = 0; // Resolve cyclic dependency.

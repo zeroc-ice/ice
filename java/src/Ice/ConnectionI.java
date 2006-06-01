@@ -2431,6 +2431,11 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	public void
 	run()
 	{
+	    if(ConnectionI.this._instance.initializationData().threadHook != null)
+	    {
+	        ConnectionI.this._instance.initializationData().threadHook.start();
+	    }
+	    
 	    try
 	    {
 		ConnectionI.this.run();
@@ -2438,6 +2443,13 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	    catch(Exception ex)
 	    {
 		ConnectionI.this.error("exception in thread per connection", ex);
+	    }
+	    finally
+	    {
+	        if(ConnectionI.this._instance.initializationData().threadHook != null)
+	        {
+	            ConnectionI.this._instance.initializationData().threadHook.stop();
+	        }
 	    }
 	}
     }

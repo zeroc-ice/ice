@@ -921,6 +921,11 @@ namespace IceInternal
 
 	    public void Run()
 	    {
+	        if(thread_Pool.instance_.initializationData().threadHook != null)
+		{
+		    thread_Pool.instance_.initializationData().threadHook.start();
+		}
+
 		BasicStream stream = new BasicStream(thread_Pool.instance_);
 		
 		bool promote;
@@ -954,6 +959,11 @@ namespace IceInternal
 			thread_Pool.promote_ = true;
 			System.Threading.Monitor.Pulse(thread_Pool);
 		    }
+		}
+
+	        if(thread_Pool.instance_.initializationData().threadHook != null)
+		{
+		    thread_Pool.instance_.initializationData().threadHook.stop();
 		}
 		
 		#if TRACE_THREAD

@@ -851,6 +851,11 @@ IceInternal::ThreadPool::EventHandlerThread::EventHandlerThread(const ThreadPool
 void
 IceInternal::ThreadPool::EventHandlerThread::run()
 {
+    if(_pool->_instance->initializationData().threadHook)
+    {
+        _pool->_instance->initializationData().threadHook->start();
+    }
+
     bool promote;
 
     try
@@ -888,6 +893,11 @@ IceInternal::ThreadPool::EventHandlerThread::run()
 	    _pool->_promote = true;
 	    _pool->notify();
 	}
+    }
+
+    if(_pool->_instance->initializationData().threadHook)
+    {
+        _pool->_instance->initializationData().threadHook->stop();
     }
 
     _pool = 0; // Break cyclic dependency.

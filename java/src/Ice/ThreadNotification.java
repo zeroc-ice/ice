@@ -9,16 +9,8 @@
 
 package Ice;
 
-public final class InitializationData
+public interface ThreadNotification
 {
-    public
-    InitializationData()
-    {
-    }
-
-    public Properties properties;
-    public Logger logger;
-    public Stats stats;
-    public java.util.Map defaultContext;
-    public ThreadNotification threadHook;
+    void start();
+    void stop();
 }

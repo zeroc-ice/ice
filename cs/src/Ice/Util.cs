@@ -18,6 +18,11 @@ namespace Ice
     using System.Text;
     using System.Globalization;
 
+    public interface ThreadNotification
+    {
+        void start();
+        void stop();
+    }
 
     public class InitializationData
     {
@@ -25,6 +30,7 @@ namespace Ice
 	public Logger logger;
 	public Stats stats;
 	public Context defaultContext;
+	public ThreadNotification threadHook;
     }
 
     public sealed class Util

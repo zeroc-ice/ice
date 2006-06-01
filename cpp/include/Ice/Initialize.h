@@ -37,6 +37,23 @@ ICE_API PropertiesPtr createProperties();
 ICE_API PropertiesPtr createProperties(StringSeq&);
 ICE_API PropertiesPtr createProperties(int&, char*[]);
 
+//
+// This class is used to notify user of when Ice threads
+// are started and stopped.
+//
+class ThreadNotification : public IceUtil::Shared
+{
+public:
+
+    virtual void start() = 0;
+    virtual void stop() = 0;
+};
+
+typedef IceUtil::Handle<ThreadNotification> ThreadNotificationPtr;
+
+//
+// Communicator initialization info
+//
 struct InitializationData
 {
     PropertiesPtr properties;
@@ -45,6 +62,7 @@ struct InitializationData
     Context defaultContext;
     StringConverterPtr stringConverter;
     WstringConverterPtr wstringConverter;
+    ThreadNotificationPtr threadHook;
 };
 
 ICE_API CommunicatorPtr initialize(int&, char*[], InitializationData = InitializationData(),

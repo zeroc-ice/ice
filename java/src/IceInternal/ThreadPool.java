@@ -1228,6 +1228,11 @@ public final class ThreadPool
         public void
         run()
         {
+	    if(_instance.initializationData().threadHook != null)
+	    {
+	        _instance.initializationData().threadHook.start();
+	    }
+
             BasicStream stream = new BasicStream(_instance);
 
 	    boolean promote;
@@ -1275,6 +1280,11 @@ public final class ThreadPool
             {
                 trace("run() terminated");
             }
+
+	    if(_instance.initializationData().threadHook != null)
+	    {
+	        _instance.initializationData().threadHook.stop();
+	    }
         }
     }
 
