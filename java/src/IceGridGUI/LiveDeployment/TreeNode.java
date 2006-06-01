@@ -38,7 +38,7 @@ public abstract class TreeNode extends TreeNodeBase
     public static final int DISABLE = 3;
 
     public static final int SHUTDOWN_NODE = 4;
-    public static final int SERVER_INSTALL_DISTRIBUTION = 5;
+    public static final int PATCH_SERVER = 5;
 
     public static final int ADD_OBJECT = 6;
 
@@ -69,7 +69,7 @@ public abstract class TreeNode extends TreeNodeBase
     {
 	assert false;
     }
-    public void serverInstallDistribution()
+    public void patchServer()
     {
 	assert false;
     }

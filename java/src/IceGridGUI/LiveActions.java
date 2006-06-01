@@ -103,12 +103,12 @@ public class LiveActions
 		}
 	    };
 	
-	_array[TreeNode.SERVER_INSTALL_DISTRIBUTION] = 
+	_array[TreeNode.PATCH_SERVER] = 
 	    new AbstractAction("Patch distribution")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    _target.serverInstallDistribution();
+		    _target.patchServer();
 		}
 	    };
 

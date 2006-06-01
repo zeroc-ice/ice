@@ -40,7 +40,7 @@ class Server extends ListArrayTreeNode
 	    actions[STOP] = _state != ServerState.Inactive;
 	    actions[ENABLE] = !_enabled;
 	    actions[DISABLE] = _enabled;
-	    actions[SERVER_INSTALL_DISTRIBUTION] = 
+	    actions[PATCH_SERVER] = 
 		!_serverDescriptor.distrib.icepatch.equals("");
 	}
 
@@ -143,7 +143,7 @@ class Server extends ListArrayTreeNode
 	enableServer(false);
     }
 
-    public void serverInstallDistribution()
+    public void patchServer()
     {
 	int shutdown = JOptionPane.showConfirmDialog(
 	    getCoordinator().getMainFrame(),
@@ -262,7 +262,7 @@ class Server extends ListArrayTreeNode
 	    _popup.add(la.get(ENABLE));
 	    _popup.add(la.get(DISABLE));
 	    _popup.addSeparator();
-	    _popup.add(la.get(SERVER_INSTALL_DISTRIBUTION));
+	    _popup.add(la.get(PATCH_SERVER));
 	}
 	
 	la.setTarget(this);

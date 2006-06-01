@@ -225,7 +225,7 @@ public class Coordinator
 	    _appMenu = new JMenu("Application");
 	    _appMenu.setEnabled(false);
 	    toolsMenu.add(_appMenu);
-	    _appMenu.add(_installDistribution);
+	    _appMenu.add(_patchApplication);
 	 
 	    //
 	    // Node sub-menu
@@ -256,7 +256,7 @@ public class Coordinator
 	    _serverMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.DISABLE));
 	    _serverMenu.addSeparator();
 	    _serverMenu.add(_liveActionsForMenu.get(
-				IceGridGUI.LiveDeployment.TreeNode.SERVER_INSTALL_DISTRIBUTION));
+				IceGridGUI.LiveDeployment.TreeNode.PATCH_SERVER));
 
 	    //
 	    // Service sub-menu
@@ -780,6 +780,7 @@ public class Coordinator
 	
 	_logout.setEnabled(false);
 	_openApplicationFromRegistry.setEnabled(false);
+	_patchApplication.setEnabled(false);
 	_newApplicationWithDefaultTemplates.setEnabled(false);
 	_acquireExclusiveWriteAccess.setEnabled(false);
 	_releaseExclusiveWriteAccess.setEnabled(false);
@@ -939,6 +940,7 @@ public class Coordinator
 	
 	_logout.setEnabled(true);
 	_openApplicationFromRegistry.setEnabled(true);
+	_patchApplication.setEnabled(true);
 	_newApplicationWithDefaultTemplates.setEnabled(true);
 	_acquireExclusiveWriteAccess.setEnabled(true);
 
@@ -1549,16 +1551,36 @@ public class Coordinator
 		}
 	    };
 	
-	_installDistribution = new AbstractAction("Patch distribution")
+	_patchApplication = new AbstractAction("Patch distribution")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    //
-		    // TODO: select a live application
-		    //
+		    Object[] applicationNames = _liveDeploymentRoot.getPatchableApplicationNames();
+		    
+		    if(applicationNames.length == 0)
+		    {
+			JOptionPane.showMessageDialog(
+			    _mainFrame,
+			    "No application in this IceGrid registry can be patched",
+			    "No application",
+			    JOptionPane.INFORMATION_MESSAGE);
+		    }
+		    else
+		    {
+			String appName = (String)JOptionPane.showInputDialog(
+			    _mainFrame, "Which Application do you want to patch?", 
+			    "Patch application",	 
+			    JOptionPane.QUESTION_MESSAGE, null,
+			    applicationNames, applicationNames[0]);
+			
+			if(appName != null)
+			{
+			    _liveDeploymentRoot.patch(appName);
+			}
+		    }
 		}
 	    };
-	_installDistribution.setEnabled(false);
+	_patchApplication.setEnabled(false);
 
 	_showVarsMenuItem = new
 	    JCheckBoxMenuItem(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.SHOW_VARS));
@@ -1831,7 +1853,7 @@ public class Coordinator
 	    availableActions[IceGridGUI.LiveDeployment.TreeNode.STOP] ||
 	    availableActions[IceGridGUI.LiveDeployment.TreeNode.ENABLE] ||
 	    availableActions[IceGridGUI.LiveDeployment.TreeNode.DISABLE] ||
-	    availableActions[IceGridGUI.LiveDeployment.TreeNode.SERVER_INSTALL_DISTRIBUTION]);
+	    availableActions[IceGridGUI.LiveDeployment.TreeNode.PATCH_SERVER]);
 
 	_serviceMenu.setEnabled(false);
     }
@@ -1924,7 +1946,7 @@ public class Coordinator
     private Action _copying;
     private Action _warranty;
     private Action _about;
-    private Action _installDistribution;
+    private Action _patchApplication;
 
     //
     // Two sets of actions because the popup's target and the menu/toolbar's target

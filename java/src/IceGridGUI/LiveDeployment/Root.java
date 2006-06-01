@@ -56,6 +56,25 @@ public class Root extends ListTreeNode
     {
 	return _descriptorMap.keySet().toArray();
     }
+
+    public Object[] getPatchableApplicationNames()
+    {
+	java.util.List result = new java.util.ArrayList();
+
+	java.util.Iterator p = _descriptorMap.entrySet().iterator();
+	while(p.hasNext())
+	{
+	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+
+	    ApplicationDescriptor app = (ApplicationDescriptor)entry.getValue();
+	    if(app.distrib.icepatch.length() > 0)
+	    {
+		result.add(entry.getKey());
+	    }
+	}
+	return result.toArray();
+    }
+
     
     public Editor getEditor()
     {
@@ -130,6 +149,74 @@ public class Root extends ListTreeNode
 	_treeModel.nodeStructureChanged(this);
 	_tree.setRootVisible(false);
     }
+
+    public void patch(final String applicationName)
+    {
+	int shutdown = JOptionPane.showConfirmDialog(
+	    getCoordinator().getMainFrame(),
+	    "You are about to install or refresh your" 
+	    + " application distribution.\n"
+	    + " Do you want shut down all servers affected by this update?", 
+	    "Patch Confirmation",
+	    JOptionPane.YES_NO_CANCEL_OPTION);
+       
+	if(shutdown == JOptionPane.CANCEL_OPTION)
+	{
+	    return;
+	}
+
+	final String prefix = "Patching application '" + applicationName + "'...";
+
+
+	System.err.println("Not yet implemented!");
+
+	// TODO: implement once patchApplication is fixed!
+
+	/*
+	  _coordinator.getStatusBar().setText(prefix);
+	AMI_Admin_patchApplication cb = new AMI_Admin_patchApplication()
+	    {
+		//
+		// Called by another thread!
+		//
+		public void ice_response()
+		{
+		    amiSuccess(prefix);
+		}
+		
+		public void ice_exception(Ice.UserException e)
+		{
+		    amiFailure(prefix, "Failed to patch '" 
+			       + applicationName + "'", e);
+		}
+
+		public void ice_exception(Ice.LocalException e)
+		{
+		    amiFailure(prefix, "Failed to patch '" +
+			       applicationName + "'", e.toString());
+		}
+	    };
+	
+	try
+	{   
+	    _coordinator.getMainFrame().setCursor(
+		Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+	   _coordinator.getAdmin().
+	       patchApplication_async(cb, applicationName, 
+				      shutdown == JOptionPane.YES_OPTION);
+	}
+	catch(Ice.LocalException e)
+	{
+	    failure(prefix, "Failed to patch " + _id, e.toString());
+	}
+	finally
+	{
+	    _coordinator.getMainFrame().setCursor(
+		Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	}
+	*/
+    }
+
 
     //
     // From the Registry Observer:
@@ -370,7 +457,7 @@ public class Root extends ListTreeNode
 
     public JPopupMenu getPopupMenu()
     {
-	LiveActions la = getCoordinator().getLiveActionsForPopup();
+	LiveActions la = _coordinator.getLiveActionsForPopup();
 
 	if(_popup == null)
 	{
