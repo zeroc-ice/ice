@@ -509,11 +509,14 @@ public class Coordinator
 	ApplicationPane app = 
 	    (ApplicationPane)_liveApplications.get(name);
 	
-	if(app.getRoot().kill())
+	if(app != null)
 	{
-	    _mainPane.remove(app);
+	    if(app.getRoot().kill())
+	    {
+		_mainPane.remove(app);
+	    }
+	    _liveApplications.remove(name);
 	}
-	_liveApplications.remove(name);
 	updateSerial(serial);
     }
 
