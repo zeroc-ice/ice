@@ -1,6 +1,9 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Added ability to configure Ice thread start/stop hooks through
+  InitializationData.
+
 - Added an SSL plugin for Java5 that supports the thread pool
   concurrency model.
 

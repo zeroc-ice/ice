@@ -1,6 +1,9 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Added ability to configure Ice thread start/stop hooks through
+  InitializationData.
+
 - Added SSL authorization as an alternative to username/password
   for Glacier2.  To authorize with SSL call
   Glacier2::Router::createSessionFromSecureConnection().  On the
