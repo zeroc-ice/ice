@@ -30,8 +30,21 @@ class Client extends Ice.Application
             return 1;
         }
 
-        // Initial ping to setup the connection.
-        ping.ice_ping();
+	//
+	// A method needs to be invoked thousands of times before the JIT compiler
+	// will convert it to native code. To ensure an accurate latency measurement,
+	// we need to "warm up" the JIT compiler.
+	//
+	{
+	    final int repetitions = 20000;
+	    System.out.print("warming up the JIT compiler...");
+	    System.out.flush();
+	    for(int i = 0; i < repetitions; i++)
+	    {
+		ping.ice_ping();
+	    }
+	    System.out.println(" ok");
+	}
 
         long tv1 = System.currentTimeMillis();
         final int repetitions = 100000;
