@@ -420,30 +420,6 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 	    return (up && i > 0) || (!up && i < _children.size() - 1);
 	}
 
-	void move(int listIndex, int index, boolean up)
-	{
-	    Object child = _children.remove(listIndex);
-	    assert child != null;
-
-	    getRoot().getTreeModel().nodesWereRemoved(Communicator.this, 
-						      new int[]{index},
-						      new Object[]{child});
-	    if(up)
-	    {
-		_children.add(listIndex - 1, child);
-		getRoot().getTreeModel().nodesWereInserted(Communicator.this, 
-							   new int[]{index - 1});
-		
-	    }
-	    else
-	    {
-		_children.add(listIndex + 1, child);
-		getRoot().getTreeModel().nodesWereInserted(Communicator.this, 
-							   new int[]{index + 1});
-		
-	    }
-	}
-
 	void tryAdd(Object descriptor) throws UpdateFailedException
 	{
 	    addDescriptor(descriptor);
@@ -628,6 +604,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 	    Object descriptor = child.getDescriptor();
 
 	    getEnclosingEditable().markModified();
+	    getRoot().updated();
 	
 	    _descriptors.remove(listIndex);
 	    if(up)
@@ -639,7 +616,25 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 		_descriptors.add(listIndex + 1, descriptor);
 	    }
 	    
-	    move(listIndex, index, up);
+	    _children.remove(listIndex);
+	    getRoot().getTreeModel().nodesWereRemoved(Communicator.this, 
+						      new int[]{index},
+						      new Object[]{child});
+	    if(up)
+	    {
+		_children.add(listIndex - 1, child);
+		getRoot().getTreeModel().nodesWereInserted(Communicator.this, 
+							   new int[]{index - 1});
+		
+	    }
+	    else
+	    {
+		_children.add(listIndex + 1, child);
+		getRoot().getTreeModel().nodesWereInserted(Communicator.this, 
+							   new int[]{index + 1});
+		
+	    }
+	    getRoot().setSelectedNode(child);
 	    getCoordinator().showActions(child);
 	}
 

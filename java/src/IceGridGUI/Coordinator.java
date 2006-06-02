@@ -200,6 +200,9 @@ public class Coordinator
 	    editMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.PASTE));
 	    editMenu.addSeparator();
 	    editMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.DELETE));
+	    editMenu.addSeparator();
+	    editMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.MOVE_UP));
+	    editMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.MOVE_DOWN));
 
 	    //
 	    // View menu
@@ -259,15 +262,6 @@ public class Coordinator
 	    _serverMenu.addSeparator();
 	    _serverMenu.add(_liveActionsForMenu.get(
 				IceGridGUI.LiveDeployment.TreeNode.PATCH_SERVER));
-
-	    //
-	    // Service sub-menu
-	    //
-	    _serviceMenu = new JMenu("Service");
-	    _serviceMenu.setEnabled(false);
-	    toolsMenu.add(_serviceMenu);
-	    _serviceMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.MOVE_UP));
-	    _serviceMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.MOVE_DOWN));
 
 	    //
 	    // Help menu
@@ -1861,8 +1855,6 @@ public class Coordinator
 	    availableActions[IceGridGUI.LiveDeployment.TreeNode.ENABLE] ||
 	    availableActions[IceGridGUI.LiveDeployment.TreeNode.DISABLE] ||
 	    availableActions[IceGridGUI.LiveDeployment.TreeNode.PATCH_SERVER]);
-
-	_serviceMenu.setEnabled(false);
     }
 	
     public void showActions(IceGridGUI.Application.TreeNode node)
@@ -1888,9 +1880,6 @@ public class Coordinator
 	_nodeMenu.setEnabled(false);
 	_registryMenu.setEnabled(false);
 	_serverMenu.setEnabled(false);
-	_serviceMenu.setEnabled(
-	    availableActions[IceGridGUI.Application.TreeNode.MOVE_UP] ||
-	    availableActions[IceGridGUI.Application.TreeNode.MOVE_DOWN]);
     }	
 
 
@@ -1979,7 +1968,6 @@ public class Coordinator
     private JMenu _nodeMenu;
     private JMenu _registryMenu;
     private JMenu _serverMenu;
-    private JMenu _serviceMenu;
 
     private final Thread _shutdownHook;
 

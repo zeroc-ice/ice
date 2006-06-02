@@ -167,13 +167,7 @@ public class Root extends ListTreeNode
 
 	final String prefix = "Patching application '" + applicationName + "'...";
 
-
-	System.err.println("Not yet implemented!");
-
-	// TODO: implement once patchApplication is fixed!
-
-	/*
-	  _coordinator.getStatusBar().setText(prefix);
+	_coordinator.getStatusBar().setText(prefix);
 	AMI_Admin_patchApplication cb = new AMI_Admin_patchApplication()
 	    {
 		//
@@ -214,7 +208,6 @@ public class Root extends ListTreeNode
 	    _coordinator.getMainFrame().setCursor(
 		Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
-	*/
     }
 
 

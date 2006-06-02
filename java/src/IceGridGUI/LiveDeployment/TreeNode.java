@@ -117,10 +117,17 @@ public abstract class TreeNode extends TreeNodeBase
 	else if(e instanceof IceGrid.PatchException)
 	{
 	    IceGrid.PatchException pe = (IceGrid.PatchException)e;
-	    //
-	    // TODO: XXX: FIXME PatchException now contains a list of reasons
-	    //
-	    amiFailure(prefix, title, "");
+
+	    String message = "";
+	    for(int i = 0; i < pe.reasons.length; ++i)
+	    {
+		if(message.length() == 0)
+		{
+		    message += "\n";
+		    message += pe.reasons[i];
+		}
+	    }
+	    amiFailure(prefix, title, message);
 	}
 	else if(e instanceof IceGrid.NodeNotExistException)
 	{
