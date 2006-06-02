@@ -126,10 +126,9 @@ public:
 	SessionPingThreadPtr ping = new SessionPingThread(session);
 	ping->start();
 
-	string category = router->getCategoryForClient();
 	Ice::Identity callbackReceiverIdent;
 	callbackReceiverIdent.name = "callbackReceiver";
-	callbackReceiverIdent.category = category;
+	callbackReceiverIdent.category = router->getCategoryForClient();
 
 	Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Chat.Client");
 	ChatCallbackPrx callback = ChatCallbackPrx::uncheckedCast(

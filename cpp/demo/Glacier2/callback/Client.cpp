@@ -84,10 +84,9 @@ CallbackClient::run(int argc, char* argv[])
 	}
     }
 
-    string category = router->getCategoryForClient();
     Ice::Identity callbackReceiverIdent;
     callbackReceiverIdent.name = "callbackReceiver";
-    callbackReceiverIdent.category = category;
+    callbackReceiverIdent.category = router->getCategoryForClient();
     Ice::Identity callbackReceiverFakeIdent;
     callbackReceiverFakeIdent.name = "callbackReceiver";
     callbackReceiverFakeIdent.category = "fake";
