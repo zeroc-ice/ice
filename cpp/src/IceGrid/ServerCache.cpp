@@ -790,20 +790,17 @@ ServerEntry::allocated(const SessionIPtr& session)
     // possible to use ${session.*} variable with server with the
     // session activation mode.
     //
+    if(_loaded.get() && _loaded->descriptor->activation == "session" || 
+       _load.get() && _load->descriptor->activation == "session")
     {
-	Lock sync(*this);
-	if(_loaded.get() && _loaded->descriptor->activation == "session" || 
-	   _load.get() && _load->descriptor->activation == "session")
+	_updated = true;
+	if(!_load.get())
 	{
-	    _updated = true;
-	    if(!_load.get())
-	    {
-		_load = _loaded;
-	    }
-	    _proxy = 0;
-	    _adapters.clear();
-	    _session = session;
+	    _load = _loaded;
 	}
+	_proxy = 0;
+	_adapters.clear();
+	_session = session;
     }
 
     Glacier2::SessionControlPrx ctl = session->getSessionControl();
@@ -834,22 +831,17 @@ ServerEntry::released(const SessionIPtr& session)
     // session activation mode. Synchronizing the server will also 
     // shutdown the server on the node.
     //
-    bool syncNow = false;
+    if(_loaded.get() && _loaded->descriptor->activation == "session" || 
+       _load.get() && _load->descriptor->activation == "session")
     {
-	Lock sync(*this);
-	if(_loaded.get() && _loaded->descriptor->activation == "session" || 
-	   _load.get() && _load->descriptor->activation == "session")
+	_updated = true;
+	if(!_load.get())
 	{
-	    _updated = true;
-	    if(!_load.get())
-	    {
-		_load = _loaded;
-	    }
-	    _proxy = 0;
-	    _adapters.clear();
-	    _session = 0;
-	    syncNow = true;
+	    _load = _loaded;
 	}
+	_proxy = 0;
+	_adapters.clear();
+	_session = 0;
     }
 
     Glacier2::SessionControlPrx ctl = session->getSessionControl();
@@ -874,11 +866,32 @@ ServerEntry::released(const SessionIPtr& session)
     {
 	Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
 	out << "server `" << _id << "' released by `" << session->getId() << "' (" << _count << ")";
-    }    
-
-    if(syncNow)
-    {
-	syncImpl(false); // We sync here to ensure the server will be shutdown.
     }
 }
 
+bool
+ServerEntry::release(const SessionIPtr& session, bool fromRelease)
+{
+    bool released = Allocatable::release(session, fromRelease);
+    
+    //
+    // If this server was released (and not from another release
+    // call), we check if it needs to be synced.
+    //
+    if(released && !fromRelease)
+    {
+	{
+	    Lock sync(*this);
+	    if(!_updated || 
+	       _loaded.get() && _loaded->descriptor->activation != "session" || 
+	       _load.get() && _load->descriptor->activation != "session")
+	    {
+		return true;
+	    }
+	}
+
+	syncImpl(false); // We sync here to ensure the "session" server will be shutdown.
+    }
+
+    return released;
+}

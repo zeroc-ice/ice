@@ -11,7 +11,7 @@
 #define ICE_GRID_ALLOCATABLE_H
 
 #include <IceUtil/Handle.h>
-#include <IceUtil/RecMutex.h>
+#include <IceUtil/Mutex.h>
 #include <IceUtil/Shared.h>
 #include <IceUtil/Time.h>
 
@@ -70,7 +70,7 @@ private:
 };
 typedef IceUtil::Handle<AllocationRequest> AllocationRequestPtr;
 
-class Allocatable : virtual public IceUtil::Shared
+class Allocatable : virtual public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -79,7 +79,7 @@ public:
 
     virtual bool allocate(const AllocationRequestPtr&, bool = false);
     virtual bool tryAllocate(const AllocationRequestPtr&, bool = false);
-    virtual void release(const SessionIPtr&, bool = false);
+    virtual bool release(const SessionIPtr&, bool = false);
 
     bool isAllocatable() const { return _allocatable; }
     SessionIPtr getSession() const;
@@ -101,7 +101,6 @@ protected:
     const bool _allocatable;
     const AllocatablePtr _parent;
     
-    IceUtil::Monitor<IceUtil::Mutex> _allocateMutex;
     std::list<std::pair<AllocatablePtr, AllocationRequestPtr> > _requests;
     std::set<AllocatablePtr> _attempts;
     SessionIPtr _session;

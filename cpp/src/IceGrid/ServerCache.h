@@ -28,7 +28,7 @@ class NodeCache;
 class NodeEntry;
 typedef IceUtil::Handle<NodeEntry> NodeEntryPtr;
 
-class ServerEntry : public Allocatable, public IceUtil::Monitor<IceUtil::Mutex>
+class ServerEntry : public Allocatable
 {
 public:
     
@@ -56,6 +56,7 @@ public:
 
     virtual void allocated(const SessionIPtr&);
     virtual void released(const SessionIPtr&);
+    virtual bool release(const SessionIPtr&, bool);
 
 private:
     

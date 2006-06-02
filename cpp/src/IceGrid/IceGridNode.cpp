@@ -264,6 +264,7 @@ NodeService::start(int argc, char* argv[])
     if(size <= 0)
     {
 	properties->setProperty("IceGrid.Node.ThreadPool.Size", "1");
+	size = 1;
     }
     int sizeMax = properties->getPropertyAsIntWithDefault("IceGrid.Node.ThreadPool.SizeMax", 0);
     if(sizeMax <= 0)
@@ -277,7 +278,6 @@ NodeService::start(int argc, char* argv[])
 	os << sizeMax;
 	properties->setProperty("IceGrid.Node.ThreadPool.SizeMax", os.str());
     }
-
 
     //
     // Create the activator.

@@ -262,7 +262,6 @@ AdminSSLSessionManagerI::create(const Glacier2::SSLInfo& info,
 	}
     }
 
-
     //
     // TODO: XXX: Modify filtering?
     //

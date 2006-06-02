@@ -189,10 +189,13 @@ Parser::addApplication(const list<string>& origArgs)
 	    //
 	    // Patch the application.
 	    //
-	    Ice::StringSeq reasons;
-	    if(!_admin->patchApplication(app.name, true, reasons))
+	    try
 	    {
-		patchFailed(reasons);
+		_admin->patchApplication(app.name, true);
+	    }
+	    catch(const PatchException& ex)
+	    {
+		patchFailed(ex.reasons);
 	    }
 	}
     }
@@ -368,11 +371,7 @@ Parser::patchApplication(const list<string>& origArgs)
     {
 	vector<string>::const_iterator p = args.begin();
 	string name = *p++;
-	Ice::StringSeq reasons;
-	if(!_admin->patchApplication(name, opts.isSet("f") || opts.isSet("force"), reasons))
-	{
-	    patchFailed(reasons);
-	}
+	_admin->patchApplication(name, opts.isSet("f") || opts.isSet("force"));
     }
     catch(const Ice::Exception& ex)
     {
@@ -1560,9 +1559,16 @@ Parser::exception(const Ice::Exception& ex)
     }
     catch(const PatchException& ex)
     {
-	ostringstream s;
-	s << ex << ":\n" << ex.reason;
-	error(s.str());
+	if(ex.reasons.size() == 1)
+	{
+	    ostringstream s;
+	    s << ex << ":\n" << ex.reasons[0];
+	    error(s.str());
+	}
+	else
+	{
+	    patchFailed(ex.reasons);
+	}
     }
     catch(const BadSignalException& ex)
     {

@@ -126,8 +126,17 @@ public:
 
 	if((_nSuccess + _nFailure) == _count)
 	{
-	    sort(_reasons.begin(), _reasons.end());
-	    _cb->ice_response(!_nFailure, _reasons);
+	    if(_nFailure)
+	    {
+		sort(_reasons.begin(), _reasons.end());
+		PatchException ex;
+		ex.reasons = _reasons;
+		_cb->ice_exception(ex);
+	    }
+	    else
+	    {
+		_cb->ice_response();
+	    }
 	}
     }
 
@@ -168,21 +177,24 @@ public:
 	}
 	catch(const PatchException& ex)
 	{
-	    reason = ex.reason;
+	    if(!ex.reasons.empty())
+	    {
+		reason = ex.reasons[0];
+	    }
 	}
 	catch(const NodeNotExistException&)
 	{
 	    reason = "patch on node `" + _node + "' failed: node doesn't exist";
 	}
-	catch(const NodeUnreachableException&)
+	catch(const NodeUnreachableException& e)
 	{
-	    reason = "patch on node `" + _node + "' failed: node is not active";
+	    reason = "patch on node `" + _node + "' failed: node is unreachable:\n" + e.reason;
 	}
-	catch(const Ice::Exception& ex)
+	catch(const Ice::Exception& e)
 	{
 	    ostringstream os;
-	    os << ex;
-	    reason = os.str();
+	    os << e;
+	    reason = "patch on node `" + _node + "' failed: node is unreachable:\n" + os.str();
 	}	
 	_cb->finished(_node, reason);
     }
@@ -227,21 +239,24 @@ public:
 	}
 	catch(const PatchException& ex)
 	{
-	    reason = ex.reason;
+	    if(!ex.reasons.empty())
+	    {
+		reason = ex.reasons[0];
+	    }
 	}
 	catch(const NodeNotExistException&)
 	{
 	    reason = "patch on node `" + _node + "' failed: node doesn't exist";
 	}
-	catch(const NodeUnreachableException&)
+	catch(const NodeUnreachableException& e)
 	{
-	    reason = "patch on node `" + _node + "' failed: node is not active";
+	    reason = "patch on node `" + _node + "' failed: node is unreachable:\n" + e.reason;
 	}
 	catch(const Ice::Exception& ex)
 	{
 	    ostringstream os;
 	    os << ex;
-	    reason = os.str();
+	    reason = "patch on node `" + _node + "' failed: node is unreachable:\n" + os.str();
 	}
 
 	if(_traceLevels->patch > 0)
@@ -250,7 +265,9 @@ public:
 	    out << "patching of server `" << _server << "' on node `" << _node << "' failed:\n" << reason;
 	}
 
-	_cb->ice_exception(PatchException(reason));
+	PatchException e;
+	e.reasons.push_back(reason);
+	_cb->ice_exception(e);
     }
 
 private:
@@ -318,7 +335,7 @@ AdminI::patchApplication_async(const AMD_Admin_patchApplicationPtr& amdCB,
 
     if(nodes.empty())
     {
-	amdCB->ice_response(true, Ice::StringSeq());
+	amdCB->ice_response();
 	return;
     }
 

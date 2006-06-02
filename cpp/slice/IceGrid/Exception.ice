@@ -11,6 +11,7 @@
 #define ICE_GRID_EXCEPTION_ICE
 
 #include <Ice/Identity.ice>
+#include <Ice/BuiltinSequences.ice>
 
 module IceGrid
 {
@@ -147,7 +148,8 @@ exception BadSignalException
  **/
 exception PatchException
 {
-    string reason;
+    /** The reasons why the patch failed. */
+    Ice::StringSeq reasons;
 };
 
 /**

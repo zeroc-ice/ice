@@ -359,8 +359,8 @@ interface Admin
      * doesn't exist.
      *
      **/
-    ["ami", "amd"] bool patchApplication(string name, bool shutdown, out Ice::StringSeq reasons)
-	throws ApplicationNotExistException;
+    ["ami", "amd"] void patchApplication(string name, bool shutdown)
+	throws ApplicationNotExistException, PatchException;
 
     /**
      *

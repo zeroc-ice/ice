@@ -358,15 +358,16 @@ NodeI::patch(const string& application,
 	if((servers.empty() || !appDistrib.icepatch.empty()) && !running.empty())
 	{
 	    PatchException ex;
-	    ex.reason = "patch on node `" + _name + "' failed:\n";
+	    string reason = "patch on node `" + _name + "' failed:\n";
 	    if(running.size() == 1)
 	    {
-		ex.reason += "server `" + toString(running) + "' is active";
+		reason += "server `" + toString(running) + "' is active";
 	    }
 	    else
 	    {
-		ex.reason += "servers `" + toString(running, ", ") + "' are active";
+		reason += "servers `" + toString(running, ", ") + "' are active";
 	    }
+	    ex.reasons.push_back(reason);
 	    throw ex;
 	}
 
@@ -415,17 +416,19 @@ NodeI::patch(const string& application,
 		}
 	    }
 	}
-	catch(const Ice::LocalException& ex)
+	catch(const Ice::LocalException& e)
 	{
 	    ostringstream os;
-	    os << "patch on node `" + _name + "' failed:\n";
-	    os << ex;
-	    throw PatchException(os.str());
+	    os << "patch on node `" + _name + "' failed:\n" << e;
+	    PatchException ex;
+	    ex.reasons.push_back(os.str());
+	    throw ex;
 	}
-	catch(const string& ex)
+	catch(const string& e)
 	{
-	    string msg = "patch on node `" + _name + "' failed:\n" + ex;
-	    throw PatchException(msg);
+	    PatchException ex;
+	    ex.reasons.push_back("patch on node `" + _name + "' failed:\n" + e);
+	    throw ex;
 	}
 
 	for(s = servers.begin(); s != servers.end(); ++s)

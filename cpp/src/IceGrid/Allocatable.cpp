@@ -197,7 +197,7 @@ Allocatable::tryAllocate(const AllocationRequestPtr& request, bool fromRelease)
     return allocate(request, true, fromRelease);
 }
 
-void
+bool
 Allocatable::release(const SessionIPtr& session, bool fromRelease)
 {
     if(!_allocatable)
@@ -208,12 +208,12 @@ Allocatable::release(const SessionIPtr& session, bool fromRelease)
     bool isReleased = false;
     bool hasRequests = false;
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_allocateMutex);
+	Lock sync(*this);
 	if(!fromRelease)
 	{
 	    while(_releasing)
 	    {
-		_allocateMutex.wait();
+		wait();
 	    }
 	}
 
@@ -230,8 +230,9 @@ Allocatable::release(const SessionIPtr& session, bool fromRelease)
 
 	    if(!_releasing)
 	    {
-		if(!_parent && !_requests.empty())
+		if(!_requests.empty())
 		{
+		    assert(!_parent);
 		    _releasing = true; // Prevent new allocations.
 		    hasRequests = true;
 		}
@@ -243,8 +244,7 @@ Allocatable::release(const SessionIPtr& session, bool fromRelease)
 
     if(_parent)
     {
-	_parent->release(session, fromRelease);
-	return;
+	return _parent->release(session, fromRelease);
     }
 
     if(hasRequests)
@@ -255,11 +255,11 @@ Allocatable::release(const SessionIPtr& session, bool fromRelease)
 	    AllocatablePtr allocatable = dequeueAllocationAttempt(request);
 	    if(!allocatable)
 	    {
-		IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_allocateMutex);
+		Lock sync(*this);
 		assert(_count == 0 && _requests.empty());
 		_releasing = false;
-		_allocateMutex.notifyAll();
-		return;
+		notifyAll();
+		return true;
 	    }
 	    
 	    //
@@ -272,7 +272,7 @@ Allocatable::release(const SessionIPtr& session, bool fromRelease)
 		while(true)
 		{
 		    {
-			IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_allocateMutex);
+			Lock sync(*this);
 			assert(_count);
 			
 			allocatable = 0;
@@ -297,8 +297,8 @@ Allocatable::release(const SessionIPtr& session, bool fromRelease)
 			if(!allocatable)
 			{
 			    _releasing = false;
-			    _allocateMutex.notifyAll();
-			    return; // We're done, the allocatable is allocated again!
+			    notifyAll();
+			    return true; // We're done, the allocatable was released (but is allocated again)!
 			}
 		    }
 
@@ -311,13 +311,15 @@ Allocatable::release(const SessionIPtr& session, bool fromRelease)
     else if(isReleased)
     {
 	canTryAllocate(); // Notify that this allocatable can be allocated.
+	return true; // The allocatable was released.
     }
+    return false;
 }
 
 SessionIPtr
 Allocatable::getSession() const
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_allocateMutex);
+    Lock sync(*this);
     return _session;
 }
 
@@ -352,7 +354,7 @@ Allocatable::queueAllocationAttempt(const AllocatablePtr& allocatable,
 AllocatablePtr
 Allocatable::dequeueAllocationAttempt(AllocationRequestPtr& request)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_allocateMutex);
+    Lock sync(*this);
     if(_requests.empty())
     {
 	return 0;
@@ -381,7 +383,7 @@ Allocatable::allocate(const AllocationRequestPtr& request, bool tryAllocate, boo
 
     try
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_allocateMutex);
+	Lock sync(*this);
 	if(!_session && (fromRelease || !_releasing))
 	{
 	    if(request->finish(this, _session))
@@ -435,7 +437,7 @@ Allocatable::allocateFromChild(const AllocationRequestPtr& request,
 	return false;
     }
 
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_allocateMutex);
+    Lock sync(*this);
     if(!_session && (fromRelease || !_releasing) || _session == request->getSession())
     {
 	if(!_session)
