@@ -30,7 +30,7 @@ class TemplateEditor extends Editor
 	_template.getDocument().addDocumentListener(_updateListener);
 	_template.setToolTipText("Must be unique within the enclosing application");
 
-	_parameters = new ParametersField(this, "Default value", true, "No default");
+	_parameters = new ParametersField(this);
     }
 
     TemplateDescriptor getDescriptor()
@@ -90,7 +90,7 @@ class TemplateEditor extends Editor
 	_template.setText(_target.getId());
 	_template.setEditable(_target.isEphemeral());
 
-	_parameters.set(descriptor.parameters, descriptor.parameterDefaults, null, true);
+	_parameters.set(descriptor.parameters, descriptor.parameterDefaults);
     }
 
     protected boolean applyUpdate()

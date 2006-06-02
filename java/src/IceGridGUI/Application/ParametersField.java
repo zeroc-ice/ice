@@ -33,51 +33,38 @@ import javax.swing.table.TableColumn;
 
 public class ParametersField extends JTable
 {
-    public ParametersField(Editor editor, String valHeading,
-			   boolean editNames, final String nullLabel)
+    public ParametersField(Editor editor)
     {
-	_editNames = editNames;
 	_editor = editor;
-
-	_nullObject = new Object()
-	    {
-		public String toString()
-		{
-		    return nullLabel;
-		}
-	    };
 
 	_columnNames = new java.util.Vector(2);
 	_columnNames.add("Name");
-	_columnNames.add(valHeading);
+	_columnNames.add("Default value");
 
-	JComboBox comboBox = new JComboBox();
+	JComboBox comboBox = new JComboBox(
+	    new Object[]{_noDefault});
 	comboBox.setEditable(true);
-	comboBox.addItem(_nullObject);
 	_cellEditor = new DefaultCellEditor(comboBox);
 
 	Action deleteRow = new AbstractAction("Delete selected row(s)")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    if(_editable && _editNames)
+		    if(isEditing()) 
 		    {
-			if(isEditing()) 
+			getCellEditor().stopCellEditing();
+		    }
+		    
+		    for(;;)
+		    {
+			int selectedRow = getSelectedRow();
+			if(selectedRow == -1)
 			{
-			    getCellEditor().stopCellEditing();
+			    break;
 			}
-			
-			for(;;)
+			else
 			{
-			    int selectedRow = getSelectedRow();
-			    if(selectedRow == -1)
-			    {
-				break;
-			    }
-			    else
-			    {
-				_model.removeRow(selectedRow);
-			    }
+			    _model.removeRow(selectedRow);
 			}
 		    }
 		}
@@ -88,12 +75,8 @@ public class ParametersField extends JTable
 
     }
 
-    public void set(java.util.List names,
-		    java.util.Map values, 
-		    Utils.Resolver resolver, boolean editable)
+    public void set(java.util.List names, java.util.Map values)
     {
-	_editable = editable;
-
 	//
 	// Transform map into vector of vectors
 	//
@@ -109,62 +92,35 @@ public class ParametersField extends JTable
 	    Object val = values.get(name);
 	    if(val == null)
 	    {
-		row.add(_nullObject);
+		row.add(_noDefault);
 	    }
 	    else
 	    {
-		row.add(Utils.substitute((String)val, resolver));
+		row.add(val);
 	    }
 	    vector.add(row);
 	}
 
-	if(_editable && _editNames)
-	{
-	    java.util.Vector newRow = new java.util.Vector(2);
-	    newRow.add("");
-	    newRow.add(_nullObject);
-	    vector.add(newRow);
-	}
 
-	_model = new DefaultTableModel(vector, _columnNames)
-	    {
-		public boolean isCellEditable(int row, int column)
-		{
-		    if(_editable)
-		    {
-			if(column == 0)
-			{
-			    return _editNames;
-			}
-			else
-			{
-			    return true;
-			}
-		    }
-		    else
-		    {
-			return false;
-		    }
-		}
-	    };
+	java.util.Vector newRow = new java.util.Vector(2);
+	newRow.add("");
+	newRow.add(_noDefault);
+	vector.add(newRow);
+
+	_model = new DefaultTableModel(vector, _columnNames);
 	
 	_model.addTableModelListener(new TableModelListener()
 	    {
 		public void tableChanged(TableModelEvent e)
 		{
-		    if(_editable)
+		    Object lastKey = _model.getValueAt(
+			_model.getRowCount() - 1 , 0);
+		    if(lastKey != null && !lastKey.equals(""))
 		    {
-			if(_editNames)
-			{
-			    Object lastKey = _model.getValueAt(
-				_model.getRowCount() - 1 , 0);
-			    if(lastKey != null && !lastKey.equals(""))
-			    {
-				_model.addRow(new Object[]{"", _nullObject});
-			    }
-			}
-			_editor.updated();
+			_model.addRow(new Object[]{"", _noDefault});
 		    }
+		    
+		    _editor.updated();
 		}
 	    });
 	setModel(_model);
@@ -172,25 +128,13 @@ public class ParametersField extends JTable
 	TableColumn valColumn = getColumnModel().getColumn(1);
 	valColumn.setCellEditor(_cellEditor);
 
-	setCellSelectionEnabled(_editable);
-	setOpaque(_editable);
-	setPreferredScrollableViewportSize(getPreferredSize());
-
-	DefaultTableCellRenderer cr = (DefaultTableCellRenderer)
-	    getDefaultRenderer(String.class);
-	cr.setOpaque(_editable);	
+	setPreferredScrollableViewportSize(getPreferredSize());	
     }
 
 
     public java.util.Map get(java.util.List names)
     {
-	assert _editable;
-	
-	if(_editNames)
-	{
-	    assert names != null;
-	}
-
+	assert names != null;
 
 	java.util.Map values = new java.util.HashMap();
 
@@ -211,24 +155,18 @@ public class ParametersField extends JTable
 	    String name = (String)row.elementAt(0);
 	    if(name != null)
 	    {
-		if(_editNames)
-		{
-		    name = name.trim();
-		}
+		name = name.trim();
 		
 		if(!name.equals(""))
 		{
-		    if(_editNames)
-		    {
-			names.add(name);
-		    }
-		    
+		    names.add(name);
+		     
 		    Object val = row.elementAt(1);
 		    
 		    //
 		    // Eliminate entries with "default" value
 		    //
-		    if(val != _nullObject)
+		    if(val != _noDefault)
 		    {
 			assert val != null;
 			values.put(name, val);
@@ -239,11 +177,16 @@ public class ParametersField extends JTable
 	return values;
     }
 
-    private final boolean _editNames;
-    private final Object _nullObject;
+    private final Object _noDefault = new Object()
+	{
+	    public String toString()
+	    {
+		return "No default";
+	    }
+	};
+
     private DefaultTableModel _model;
     private java.util.Vector _columnNames;
-    private boolean _editable = false;
     private Editor _editor;
     private TableCellEditor _cellEditor;
 }

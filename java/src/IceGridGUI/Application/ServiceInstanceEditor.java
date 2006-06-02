@@ -49,7 +49,7 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
 			      "Goto this service template");
 	_templateButton = new JButton(gotoTemplate);
 
-	_parameters = new ParametersField(this, "Value", false, "Use default");
+	_parameters = new ParameterValuesField(this);
 
 	_propertySets.getDocument().addDocumentListener(_updateListener);
 	_propertySets.setToolTipText("Property Set References");
@@ -81,7 +81,7 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
     {
 	ServiceInstanceDescriptor descriptor = getDescriptor();
 	descriptor.template = ((ServiceTemplate)_template.getSelectedItem()).getId();
-	descriptor.parameterValues = _parameters.get(null);
+	descriptor.parameterValues = _parameters.getValues();
 
 	descriptor.propertySet.references = 
 	    (String[])_propertySets.getList().toArray(new String[0]);
@@ -94,7 +94,7 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
 	ServiceTemplate t = (ServiceTemplate)_template.getSelectedItem();
 	
 	return descriptor.template.equals(t.getId())
-	    && descriptor.parameterValues.equals(_parameters.get(null));
+	    && descriptor.parameterValues.equals(_parameters.getValues());
     }
 
     Communicator.ChildList getChildList()
@@ -201,8 +201,8 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
 		    // Replace parameters but keep existing values
 		    //
 		    _parameters.set(td.parameters,
-				    makeParameterValues(_parameters.get(null), td.parameters),
-				    null, true);
+				    makeParameterValues(_parameters.getValues(), td.parameters),
+				    td.parameterDefaults, null);
 		}
 
 		public void intervalAdded(ListDataEvent e)
@@ -215,8 +215,9 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
 	_template.getModel().addListDataListener(templateListener);
 	_template.setEnabled(isEditable);
 	
-	_parameters.set(((TemplateDescriptor)t.getDescriptor()).parameters,
-			descriptor.parameterValues, resolver, isEditable);
+	TemplateDescriptor td = (TemplateDescriptor)t.getDescriptor();
+	_parameters.set(td.parameters, descriptor.parameterValues, 
+			td.parameterDefaults, resolver);
 	
 	_propertySets.setList(java.util.Arrays.asList(descriptor.propertySet.references),
 			      getDetailResolver());
@@ -232,7 +233,7 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
 
     private JComboBox _template = new JComboBox();
     private JButton _templateButton;
-    private ParametersField _parameters;
+    private ParameterValuesField _parameters;
     private ListTextField _propertySets = new ListTextField(20);
     private PropertiesField _properties;
 }
