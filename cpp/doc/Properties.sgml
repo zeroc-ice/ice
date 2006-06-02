@@ -4583,6 +4583,34 @@ The default value is 0.
 </section>
 </section>
 
+<section><title>Glacier2.RoutingTable.MaxSize</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.RoutingTable.MaxSize=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+This property sets the size of router's routing table to
+<replaceable>num</replaceable> entries. If more proxies are
+added to the table than this value, proxies are evicted from
+the table on a least-recently used basis.
+</para>
+<para>
+Clients based on Ice version 3.1 and later automatically retry operation calls
+on evicted proxies and transparently re-add such proxies to the table.
+Clients based on Ice versions earlier than 3.1 receive an
+<literal>ObjectNotExistException</literal> for invocations on evicted
+proxies. For such older clients, <replaceable>num</replaceable> must
+be set to a sufficiently large value to prevent these clients from failing.
+</para>
+<para>
+The default size of the routing table is 1000.
+</para>
+</section>
+</section>
+
 <section><title>Glacier2.Trace.Session</title>
 <section><title>Synopsis</title>
 <synopsis>
