@@ -193,7 +193,7 @@ Allocatable::tryAllocate(const AllocationRequestPtr& request, bool fromRelease)
     {
 	return allocate(request, true, fromRelease);
     }
-    catch(const AllocationException& ex)
+    catch(const AllocationException&)
     {
 	return false; // Not allocatable
     }

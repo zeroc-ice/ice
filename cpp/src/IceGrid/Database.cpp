@@ -303,7 +303,7 @@ Database::addApplicationDescriptor(AdminSessionI* session, const ApplicationDesc
 	{
 	    for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
 	}
-	catch(const DeploymentException& ex)
+	catch(const DeploymentException&)
 	{
 	    // TODO: warning?
 	}
@@ -1437,7 +1437,7 @@ Database::finishUpdate(ServerEntrySeq& entries,
 	{
 	    for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
 	}
-	catch(const DeploymentException& ex)
+	catch(const DeploymentException&)
 	{
 	    // TODO: warning?
 	}
