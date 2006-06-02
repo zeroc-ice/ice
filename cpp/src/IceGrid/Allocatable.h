@@ -77,6 +77,7 @@ public:
     Allocatable(bool, const AllocatablePtr&);
     virtual ~Allocatable();
 
+    virtual void checkAllocatable();
     virtual bool allocate(const AllocationRequestPtr&, bool = false);
     virtual bool tryAllocate(const AllocationRequestPtr&, bool = false);
     virtual bool release(const SessionIPtr&, bool = false);

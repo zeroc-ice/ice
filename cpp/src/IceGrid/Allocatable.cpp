@@ -164,19 +164,23 @@ Allocatable::~Allocatable()
 {
 }
 
-bool
-Allocatable::allocate(const AllocationRequestPtr& request, bool fromRelease)
+void
+Allocatable::checkAllocatable()
 {
-    if(!_allocatable)
+    if(!isAllocatable())
     {
 	throw AllocationException("not allocatable");
     }
+}
 
+bool
+Allocatable::allocate(const AllocationRequestPtr& request, bool fromRelease)
+{
     try
     {
 	return allocate(request, false, fromRelease);
     }
-    catch(const AllocationException&)
+    catch(const SessionDestroyedException&)
     {
 	return false; // The session was destroyed
     }
@@ -185,26 +189,19 @@ Allocatable::allocate(const AllocationRequestPtr& request, bool fromRelease)
 bool
 Allocatable::tryAllocate(const AllocationRequestPtr& request, bool fromRelease)
 {
-    if(!_allocatable)
+    try
     {
-	return false;
+	return allocate(request, true, fromRelease);
     }
-
-    //
-    // NOTE: We let exceptions go through here! The caller is
-    // responsible for catching it.
-    //
-    return allocate(request, true, fromRelease);
+    catch(const AllocationException& ex)
+    {
+	return false; // Not allocatable
+    }
 }
 
 bool
 Allocatable::release(const SessionIPtr& session, bool fromRelease)
 {
-    if(!_allocatable)
-    {
-	throw AllocationException("not allocatable");
-    }
-
     bool isReleased = false;
     bool hasRequests = false;
     {
@@ -384,11 +381,13 @@ Allocatable::allocate(const AllocationRequestPtr& request, bool tryAllocate, boo
     try
     {
 	Lock sync(*this);
+	checkAllocatable();
+
 	if(!_session && (fromRelease || !_releasing))
 	{
 	    if(request->finish(this, _session))
 	    {
-		allocated(request->getSession()); // This might throw.
+		allocated(request->getSession()); // This might throw SessionDestroyedException
 		assert(_count == 0);
 		_session = request->getSession();
 		++_count;
@@ -409,6 +408,14 @@ Allocatable::allocate(const AllocationRequestPtr& request, bool tryAllocate, boo
 	    queueAllocationAttempt(this, request, tryAllocate);
 	}
     }
+    catch(const SessionDestroyedException& ex)
+    {
+	if(_parent)
+	{
+	    _parent->release(request->getSession(), fromRelease);
+	}
+	throw ex;
+    }
     catch(const AllocationException& ex)
     {
 	if(_parent)
@@ -417,6 +424,7 @@ Allocatable::allocate(const AllocationRequestPtr& request, bool tryAllocate, boo
 	}
 	throw ex;
     }
+    
     if(_parent)
     {
 	_parent->release(request->getSession(), fromRelease);
@@ -446,7 +454,7 @@ Allocatable::allocateFromChild(const AllocationRequestPtr& request,
 	    {
 		allocated(request->getSession());
 	    }
-	    catch(const AllocationException&)
+	    catch(const SessionDestroyedException&)
 	    {
 		// Ignore
 	    }

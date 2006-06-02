@@ -214,8 +214,9 @@ ServerEntry::sync()
     {
 	syncImpl(true);
     }
-    catch(const Ice::Exception&)
+    catch(const NodeUnreachableException&)
     {
+	// Ignore
     }
 }
 

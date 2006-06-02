@@ -40,7 +40,7 @@ typedef IceUtil::Handle<ServerEntry> ServerEntryPtr;
 
 class ApplicationHelper;
 
-class Database : public IceUtil::Shared, public IceUtil::Mutex
+class Database : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
     
@@ -59,8 +59,8 @@ public:
     void addApplicationDescriptor(AdminSessionI*, const ApplicationDescriptor&);
     void updateApplicationDescriptor(AdminSessionI*, const ApplicationUpdateDescriptor&);
     void syncApplicationDescriptor(AdminSessionI*, const ApplicationDescriptor&);
-    void removeApplicationDescriptor(AdminSessionI*, const std::string&);
     void instantiateServer(AdminSessionI*, const std::string&, const std::string&, const ServerInstanceDescriptor&);
+    void removeApplicationDescriptor(AdminSessionI*, const std::string&);
 
     ApplicationDescriptor getApplicationDescriptor(const std::string&);
     Ice::StringSeq getAllApplications(const std::string& = std::string());
@@ -116,6 +116,8 @@ private:
     void load(const ApplicationHelper&, ServerEntrySeq&);
     void unload(const ApplicationHelper&, ServerEntrySeq&);
     void reload(const ApplicationHelper&, const ApplicationHelper&, ServerEntrySeq&);
+    void finishUpdate(ServerEntrySeq&, const ApplicationUpdateDescriptor&, const ApplicationDescriptor&, 
+		      const ApplicationDescriptor&);
 
     void checkSessionLock(AdminSessionI*);
 
@@ -151,6 +153,7 @@ private:
     AdminSessionI* _lock;
     std::string _lockUserId;
     int _serial;
+    std::set<std::string> _updating;
 };
 typedef IceUtil::Handle<Database> DatabasePtr;
 

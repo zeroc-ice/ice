@@ -919,8 +919,7 @@ ServerI::load(const AMD_Node_loadServerPtr& amdCB, const string& app, const Serv
     ServerCommandPtr command;
     {
 	Lock sync(*this);
-	bool descEqual = _desc && descriptorEqual(_node->getCommunicator(), _desc, desc);
-	if(descEqual && _sessionId == sessionId)
+	if(_desc && descriptorEqual(_node->getCommunicator(), _desc, desc) && _sessionId == sessionId)
 	{
 	    if(amdCB)
 	    {
@@ -941,7 +940,7 @@ ServerI::load(const AMD_Node_loadServerPtr& amdCB, const string& app, const Serv
 	{
 	    _load = new LoadCommand(this);
 	}
-	_load->setUpdate(app, descEqual ? ServerDescriptorPtr() : desc, sessionId, _destroy);
+	_load->setUpdate(app, desc, sessionId, _destroy);
 	if(_destroy && _state != Destroying)
 	{
 	    _destroy->finished();
@@ -1536,28 +1535,23 @@ ServerI::update()
 		}
 	    }
 
-	    _sessionId = _load->sessionId();
-	    
-	    if(_load->getDescriptor())
+	    try
 	    {
-		try
-		{
-		    updateImpl(_load->getApplication(), _load->getDescriptor());
-		}
-		catch(const Ice::Exception& ex)
-		{
-		    ostringstream os;
-		    os << ex;
-		    throw DeploymentException(os.str());
-		}
-		catch(const string& msg)
-		{
-		    throw DeploymentException(msg);
-		}
-		catch(const char* msg)
-		{
-		    throw DeploymentException(msg);
-		}
+		updateImpl(_load->getApplication(), _load->getDescriptor(), _load->sessionId());
+	    }
+	    catch(const Ice::Exception& ex)
+	    {
+		ostringstream os;
+		os << ex;
+		throw DeploymentException(os.str());
+	    }
+	    catch(const string& msg)
+	    {
+		throw DeploymentException(msg);
+	    }
+	    catch(const char* msg)
+	    {
+		throw DeploymentException(msg);
 	    }
 
 	    AdapterPrxDict adapters;
@@ -1572,25 +1566,24 @@ ServerI::update()
 	    //
 	    // Rollback old descriptor.
 	    //
-	    _sessionId = oldSessionId;
 	    try
 	    {
-		updateImpl(oldApp, oldDesc);
+		updateImpl(oldApp, oldDesc, oldSessionId);
 	    }
-	    catch(const Ice::Exception& ex)
+	    catch(const Ice::Exception& e)
 	    {
 		Ice::Warning out(_node->getTraceLevels()->logger);
-		out << "update failed and couldn't rollback old descriptor:\n" << ex;
+		out << "update failed:\n" << ex.reason << "\nand couldn't rollback old descriptor:\n" << e;
 	    }
 	    catch(const string& msg)
 	    {
 		Ice::Warning out(_node->getTraceLevels()->logger);
-		out << "update failed and couldn't rollback old descriptor:\n" << msg;
+		out << "update failed:\n" << ex.reason << "\nand couldn't rollback old descriptor:\n" << msg;
 	    }
 	    catch(const char* msg)
 	    {
 		Ice::Warning out(_node->getTraceLevels()->logger);
-		out << "update failed and couldn't rollback old descriptor:\n" << msg;
+		out << "update failed:\n" << ex.reason << "\nand couldn't rollback old descriptor:\n" << msg;
 	    }
 	    _load->failed(ex);
 	}
@@ -1605,12 +1598,13 @@ ServerI::update()
 }
 
 void
-ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc)
+ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc, const string& sessionId)
 {
     assert(_load);
 
     _application = application;
     _desc = desc;
+    _sessionId = sessionId;
 
     if(!_desc)
     {
@@ -1710,6 +1704,10 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc)
 #endif
     }
 
+#ifndef _WIN32
+    bool newUser = false;
+#endif
+
     if(!user.empty())
     {
 	UserAccountMapperPrx mapper = _node->getUserAccountMapper();
@@ -1780,6 +1778,12 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc)
 	    throw "node has insufficient privileges to load server under user account `" + user + "'";
 	}
 
+	if(pw->pw_uid == 0) // Don't allow running proccesses as "root"
+	{
+	    throw "running server as `root' is not allowed";
+	}
+
+	newUser = _uid != pw->pw_uid || _gid != pw->pw_gid;
 	_uid = pw->pw_uid;
 	_gid = pw->pw_gid;
 #endif
@@ -1791,9 +1795,11 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc)
 	// If no user is specified, we'll run the process as the
 	// current user.
 	//
-	_uid = getuid();
-	assert(_uid != 0);
-	_gid = getgid();
+	uid_t uid = getuid();
+	uid_t gid = getgid();
+	newUser = _uid != uid || _gid != gid;
+	_uid = uid;
+	_gid = gid;
     }
 #endif
 
@@ -1832,9 +1838,6 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc)
 	}
     }
     sort(knownFiles.begin(), knownFiles.end());
-#ifndef _WIN32
-    chownRecursive(_serverDir + "/config", _uid, _gid);
-#endif
 
     //
     // Update the database environments if necessary.
@@ -1859,9 +1862,6 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc)
 	}
     }
     sort(knownDbEnvs.begin(), knownDbEnvs.end());
-#ifndef _WIN32
-    chownRecursive(_serverDir + "/dbs", _uid, _gid);
-#endif
 
     //
     // Remove old configuration files.
@@ -1904,6 +1904,15 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc)
 	    out << "couldn't remove directory `" + _serverDir + "/dbs/" + *p + "':\n" + msg;
 	}
     }
+
+#ifndef _WIN32
+    if(newUser)
+    {
+	chownRecursive(_serverDir + "/config", _uid, _gid);
+	chownRecursive(_serverDir + "/dbs", _uid, _gid);
+	chownRecursive(_serverDir + "/distrib", _uid, _gid);
+    }
+#endif
 }
 
 void

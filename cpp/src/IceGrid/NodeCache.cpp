@@ -270,7 +270,14 @@ NodeEntry::setSession(const NodeSessionIPtr& session)
 		entries.push_back(q->second);
 	    }
 	}
-	for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
+
+	try
+	{
+	    for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
+	}
+	catch(const DeploymentException&)
+	{
+	}
     }
     else
     {

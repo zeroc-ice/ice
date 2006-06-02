@@ -111,7 +111,7 @@ public:
 
 private:
     
-    void updateImpl(const std::string&, const ServerDescriptorPtr&);
+    void updateImpl(const std::string&, const ServerDescriptorPtr&, const std::string&);
     void checkActivation();
     void checkDestroyed();
     void disableOnFailure();

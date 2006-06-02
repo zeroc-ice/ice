@@ -627,6 +627,12 @@ AdminI::addObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
 void 
 AdminI::updateObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
 {
+    const Ice::Identity id = proxy->ice_getIdentity();
+    if(id.category == _database->getInstanceName())
+    {
+	throw DeploymentException("updating object `" + current.adapter->getCommunicator()->identityToString(id) + 
+				  "' is not allowed");
+    }
     _database->updateObject(proxy);
 }
 
@@ -640,8 +646,13 @@ AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& type, const
 }
 
 void 
-AdminI::removeObject(const Ice::Identity& id, const Ice::Current&)
+AdminI::removeObject(const Ice::Identity& id, const Ice::Current& current)
 {
+    if(id.category == _database->getInstanceName())
+    {
+	throw DeploymentException("removing object `" + current.adapter->getCommunicator()->identityToString(id) +
+				  "' is not allowed");
+    }
     _database->removeObject(id);
 }
 

@@ -127,7 +127,7 @@ ObjectCache::TypeEntry::canTryAllocate(const ObjectEntryPtr& entry, bool fromRel
 		++p;
 	    }
 	}
-	catch(const AllocationException&)
+	catch(const SessionDestroyedException&)
 	{
 	    p = _requests.erase(p);
 	}
@@ -229,7 +229,7 @@ ObjectCache::allocateByType(const string& type, const ObjectAllocationRequestPtr
 	    }
 	}
     }
-    catch(const AllocationException&)
+    catch(const SessionDestroyedException&)
     {
 	return;
     }
@@ -312,7 +312,8 @@ ObjectEntry::ObjectEntry(ObjectCache& cache,
     Allocatable(allocatable, parent),
     _cache(cache),
     _info(info),
-    _application(application)
+    _application(application),
+    _destroyed(false)
 {
 }
 
@@ -353,10 +354,7 @@ ObjectEntry::allocated(const SessionIPtr& session)
     // Add the object allocation to the session. The object will be
     // released once the session is destroyed.
     //
-    if(!session->addAllocation(this))
-    {
-	throw AllocationException("session destroyed");
-    }
+    session->addAllocation(this);
 
     TraceLevelsPtr traceLevels = _cache.getTraceLevels();
     if(traceLevels && traceLevels->object > 1)
@@ -414,8 +412,32 @@ ObjectEntry::released(const SessionIPtr& session)
     }    
 }
 
+void
+ObjectEntry::destroy()
+{
+    SessionIPtr session;
+    {
+	Lock sync(*this);
+	_destroyed = true;
+	session = _session;
+    }
+    release(session);
+}
+
+void
+ObjectEntry::checkAllocatable()
+{
+    if(_destroyed)
+    {
+	throw ObjectNotRegisteredException(_info.proxy->ice_getIdentity());
+    }
+
+    Allocatable::checkAllocatable();
+}
+
 bool
 ObjectEntry::canTryAllocate()
 {
     return _cache.canTryAllocate(this);
 }
+

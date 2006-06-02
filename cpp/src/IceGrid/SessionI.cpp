@@ -267,16 +267,15 @@ SessionI::removeAllocationRequest(const AllocationRequestPtr& request)
     _requests.erase(request);
 }
 
-bool
+void
 SessionI::addAllocation(const AllocatablePtr& allocatable)
 {
     Lock sync(*this);
     if(_destroyed)
     {
-	return false;
+	throw SessionDestroyedException();
     }
     _allocations.insert(allocatable);
-    return true;
 }
 
 void

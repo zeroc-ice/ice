@@ -42,11 +42,15 @@ public:
     virtual void released(const SessionIPtr&);
     virtual bool canTryAllocate();
 
+    void  destroy();
+    virtual void checkAllocatable();
+
 private:
 
     ObjectCache& _cache;
     const ObjectInfo _info;
     const std::string _application;
+    bool _destroyed;
 };
 typedef IceUtil::Handle<ObjectEntry> ObjectEntryPtr;
 

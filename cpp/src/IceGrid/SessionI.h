@@ -62,6 +62,10 @@ protected:
     IceUtil::Time _timestamp;
 };
 
+class SessionDestroyedException
+{
+};
+
 class SessionI : virtual public Session, public BaseSessionI
 {
 public:
@@ -88,7 +92,7 @@ public:
 
     bool addAllocationRequest(const AllocationRequestPtr&);
     void removeAllocationRequest(const AllocationRequestPtr&);
-    bool addAllocation(const AllocatablePtr&);
+    void addAllocation(const AllocatablePtr&);
     void removeAllocation(const AllocatablePtr&);
 
 protected:
