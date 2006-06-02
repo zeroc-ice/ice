@@ -348,15 +348,12 @@ interface Admin
      * @param name The application name.
      *
      * @param shutdown If true, the servers depending on the data to
-     * patch will be shutdown if necessary.
-     * 
-     * @param reasons The reasons why the patch failed on some nodes.
-     *
-     * @returns True if the patch succeeded on all the nodes, false
-     * otherwise.
+     * patch will be shutdown if necessary.     * 
      *
      * @throws ApplicationNotExistException Raised if the application
      * doesn't exist.
+     *
+     * @throws PatchException Raised if the patch failed.
      *
      **/
     ["ami", "amd"] void patchApplication(string name, bool shutdown)
