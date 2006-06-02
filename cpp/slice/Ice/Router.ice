@@ -21,11 +21,6 @@ module Ice
  * [Communicator::setDefaultRouter], or with [ice_router] on specific
  * proxies.
  *
- * <note><para> The router interface is intended to be used by &Ice;
- * internals and by router implementations. Regular user code should
- * not attempt to use any functionality of this interface
- * directly.</para></note>
- *
  **/
 interface Router
 {
