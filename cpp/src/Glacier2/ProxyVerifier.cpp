@@ -546,19 +546,22 @@ public:
     check(const ObjectPrx& prx) const
     {
 	EndpointSeq endpoints = prx->ice_getEndpoints();
+	if(endpoints.size() == 0)
+	{
+	    return false;
+	}
+
 	for(EndpointSeq::const_iterator i = endpoints.begin(); i != endpoints.end(); ++i)
 	{
 	    string info = (*i)->toString();
 	    string host;
 	    if(!extractPart("-h ", info, host))
 	    {
-		assert(false);
 		return false;
 	    }
 	    string port;
 	    if(!extractPart("-p ", info, port))
 	    {
-		assert(false);
 		return false;
 	    }
 	    string::size_type pos = 0;
@@ -569,7 +572,6 @@ public:
 		{
 		    if(!(*i)->match(host, pos))
 		    {
-			cerr << "XXX- failed to match on " << (*i)->toString() << endl;
 			dump();
 			return false;
 		    }
@@ -708,7 +710,6 @@ parseProperty(const string& property, vector<ProxyRule*>& rules)
 		// Special case. Match everything.
 		//
 		currentRuleSet.push_back(new MatchesAny);
-		allRules.push_back(new AddressRule(currentRuleSet, portMatch));
 	    }
 	    else
 	    {
@@ -897,7 +898,7 @@ Glacier2::ProxyVerifier::~ProxyVerifier()
     for(vector<ProxyRule*>::const_iterator j = _rejectRules.begin(); j != _rejectRules.end(); ++j)
     {
 	delete (*j);
-    }
+   }
 }
 
 bool

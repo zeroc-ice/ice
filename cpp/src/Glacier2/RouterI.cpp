@@ -19,9 +19,9 @@ using namespace Glacier2;
 Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAdapterPtr& serverAdapter,
 			   const ObjectAdapterPtr& adminAdapter, const ConnectionPtr& connection, 
 			   const string& userId, bool allowAddUserMode, const SessionPrx& session,
-			   const Identity& controlId, const ClientBlobjectPtr& clientBlobject) :
+			   const Identity& controlId, const FilterManagerPtr& filters) :
     _communicator(clientAdapter->getCommunicator()),
-    _clientBlobject(clientBlobject),
+    _clientBlobject(new ClientBlobject(_communicator, filters)),
     _clientProxy(clientAdapter->createProxy(_communicator->stringToIdentity("dummy"))),
     _adminAdapter(adminAdapter),
     _connection(connection),

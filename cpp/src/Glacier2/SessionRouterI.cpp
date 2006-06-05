@@ -10,7 +10,7 @@
 #include <Glacier2/PermissionsVerifier.h>
 #include <Glacier2/Session.h>
 #include <Glacier2/SessionRouterI.h>
-#include <Glacier2/ClientBlobject.h>
+#include <Glacier2/FilterManager.h>
 #include <Glacier2/RouterI.h>
 
 #include <IceUtil/UUID.h>
@@ -30,47 +30,43 @@ class SessionControlI : public SessionControl
 public:
 
     SessionControlI(const SessionRouterIPtr& sessionRouter, const ConnectionPtr& connection,
-		    const StringSetPrx& categories, const StringSetPrx& adapterIds,
-		    const IdentitySetPrx& identities) :
+		    const FilterManagerPtr& filterManager) :
         _sessionRouter(sessionRouter),
 	_connection(connection),
-	_categories(categories),
-	_identities(identities),
-	_adapterIds(adapterIds)
+	_filters(filterManager)
     {
     }
 
     virtual StringSetPrx
     categories(const Current& current)
     {
-	return _categories;
+	return _filters->categoriesPrx();
     }
 
     virtual StringSetPrx
     adapterIds(const Current& current)
     {
-	return _adapterIds;
+	return _filters->adapterIdsPrx();
     }
 
     virtual IdentitySetPrx
     identities(const Current& current)
     {
-	return _identities; 
+	return _filters->identitiesPrx(); 
     }
     
     virtual void
     destroy(const Current&)
     {
         _sessionRouter->destroySession(_connection);
+	_filters->destroy();
     }
 
 private:
 
     const SessionRouterIPtr _sessionRouter;
     const ConnectionPtr _connection;
-    const StringSetPrx _categories;
-    const IdentitySetPrx _identities;
-    const StringSetPrx _adapterIds;
+    const FilterManagerPtr _filters;
 };
 
 class ClientLocator : public ServantLocator
@@ -808,9 +804,6 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 
     SessionPrx session;
     Identity controlId;
-    Identity categoryFilterId;
-    Identity identityFilterId;
-    Identity adapterIdFilterId;
     RouterIPtr router;
 
     try
@@ -825,7 +818,7 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 	// responsible for creating the filters and we want them to be
 	// accessible during session creation.
 	//
-	ClientBlobjectPtr clientBlobject = ClientBlobject::create(_clientAdapter->getCommunicator(), userId);
+	FilterManagerPtr filterManager = FilterManager::create(_clientAdapter->getCommunicator(), _adminAdapter, userId);
 
         //
 	// If we have a session manager configured, we create a
@@ -836,19 +829,8 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 	    SessionControlPrx control;
 	    if(_adminAdapter)
 	    {
-		StringSetPrx catFilterPrx = StringSetPrx::uncheckedCast(
-		    _adminAdapter->addWithUUID(clientBlobject->categories()));
-		categoryFilterId = catFilterPrx->ice_getIdentity();
-		StringSetPrx adapterFilterPrx = StringSetPrx::uncheckedCast(
-		    _adminAdapter->addWithUUID(clientBlobject->adapterIds()));
-		adapterIdFilterId = adapterFilterPrx->ice_getIdentity();
-		IdentitySetPrx idFilterPrx = IdentitySetPrx::uncheckedCast(
-		    _adminAdapter->addWithUUID(clientBlobject->identities()));
-		identityFilterId = idFilterPrx->ice_getIdentity();
-
 	        control = SessionControlPrx::uncheckedCast(
-		    _adminAdapter->addWithUUID(new SessionControlI(this, current.con, catFilterPrx, 
-								   adapterFilterPrx, idFilterPrx)));
+		    _adminAdapter->addWithUUID(new SessionControlI(this, current.con, filterManager))); 
 		controlId = control->ice_getIdentity();
 	    }
 	    session = factory->create(control, current.ctx);
@@ -858,7 +840,7 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 	// Add a new per-client router.
 	//
 	router = new RouterI(_clientAdapter, _serverAdapter, _adminAdapter, current.con, userId, allowAddUserMode,
-			     session, controlId, clientBlobject);
+			     session, controlId, filterManager);
     }
     catch(const Exception&)
     {
@@ -879,9 +861,6 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 	    {
 	        try
 		{
-		    _adminAdapter->remove(categoryFilterId);
-		    _adminAdapter->remove(adapterIdFilterId);
-		    _adminAdapter->remove(identityFilterId);
 	            _adminAdapter->remove(controlId);
 		}
 		catch(const Exception&)

@@ -80,6 +80,12 @@ testcases = [
 
 if not limitedTests:
     testcases.extend([
+	    ('Testing reject all',
+             (r'', r'*', r''),
+             [(False, 'helloA:tcp -h %s -p 12010' % fqdn),
+              (False, 'helloB:tcp -h %s -p 12010' % hostname),
+	      (False, 'helloC:tcp -h 127.0.0.1 -p 12010'),
+	      (True, 'bar @ foo')], []),
 	    ('Testing loopback only rule',
              (r'127.0.0.1 localhost', r'', r''),
              [(False, 'hello:tcp -h %s -p 12010' % fqdn),
@@ -107,7 +113,7 @@ if not limitedTests:
             ('Testing domain filter rule (accept override)',
              (fqdn, "127.0.0.1", r''),
              [(True, 'hello:tcp -h %s -p 12010' % fqdn),
-              (False, 'bar:tcp -h 127.0.0.1 -p 12010')], ["Glacier2.Filter.Address.AcceptOverride=1"])
+              (False, 'bar:tcp -h 127.0.0.1 -p 12010')], ["Glacier2.Filter.Address.AcceptOverride=1"]),
 	    ])
 else:
     print "Warning! This host's network configuration does not allow for all tests."
@@ -171,7 +177,7 @@ for testcase in testcases:
     routerCmd = router + serverOptions + " --Ice.Config=%s" % os.path.join(testdir, "router.cfg") + \
           r' --Glacier2.Client.Endpoints="default -p 12347 -t 10000"' + \
           r' --Glacier2.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348 -t 10000"' + \
-          r' --Glacier2.CryptPasswords="' + toplevel + r'/test/Glacier2/regex/passwords"' 
+          r' --Glacier2.CryptPasswords="' + toplevel + r'/test/Glacier2/addressFilter/passwords"' 
 
     routerConfig = file(os.path.join(testdir, "router.cfg"), "w")
 

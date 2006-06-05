@@ -22,6 +22,9 @@ typedef IceUtil::Handle<RoutingTable> RoutingTablePtr;
 class ClientBlobject;
 typedef IceUtil::Handle<ClientBlobject> ClientBlobjectPtr;
 
+class FilterManager;
+typedef IceUtil::Handle<FilterManager> FilterManagerPtr;
+
 class ClientBlobjectImpl;
 
 class ClientBlobject : public Glacier2::Blobject
@@ -35,7 +38,7 @@ public:
 
     Ice::ObjectProxySeq add(const Ice::ObjectProxySeq&, const Ice::Current&); // Returns evicted proxies.
 
-    static ClientBlobjectPtr create(const Ice::CommunicatorPtr&, const std::string&);
+    ClientBlobject(const Ice::CommunicatorPtr&, const FilterManagerPtr& _filterManager); 
 
     StringSetPtr categories();
     StringSetPtr adapterIds();
@@ -44,11 +47,10 @@ public:
 private:
     const RoutingTablePtr _routingTable;
 
-    ClientBlobjectImpl* _impl;
+    FilterManagerPtr _filters;
 
     const int _rejectTraceLevel;
 
-    ClientBlobject(const Ice::CommunicatorPtr&, ClientBlobjectImpl*); 
 };
 }
 

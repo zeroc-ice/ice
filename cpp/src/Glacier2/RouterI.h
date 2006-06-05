@@ -22,13 +22,16 @@ namespace Glacier2
 class RouterI;
 typedef IceUtil::Handle<RouterI> RouterIPtr;
 
+class FilterManager;
+typedef IceUtil::Handle<FilterManager> FilterManagerPtr;
+
 class RouterI : public Router, public IceUtil::Mutex
 {
 public:
 
     RouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&,
     	    const Ice::ConnectionPtr&, const std::string&, bool allowAddUserMode, const SessionPrx&, 
-	    const Ice::Identity&, const ClientBlobjectPtr&);
+	    const Ice::Identity&, const FilterManagerPtr&);
 	    
     virtual ~RouterI();
     void destroy();
