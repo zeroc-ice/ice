@@ -158,7 +158,7 @@ Glacier2::FilterManager::create(const CommunicatorPtr& communicator, const Objec
     // 
     IdentitySeq allowIdSeq;
     allow = props->getProperty("Glacier2.Filter.Identity.Accept");
-    stringToSeq(allow, allowSeq);
+    stringToSeq(communicator, allow, allowIdSeq);
     Glacier2::IdentitySetIPtr identityFilter = new Glacier2::IdentitySetI(allowIdSeq);
 
     return new Glacier2::FilterManager(adapter, categoryFilter, adapterIdFilter, identityFilter);

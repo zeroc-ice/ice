@@ -20,7 +20,6 @@
 
 using namespace std;
 using namespace Ice;
-using namespace Glacier2;
 
 namespace Glacier2
 {
@@ -215,6 +214,8 @@ private:
 };
 
 }
+
+using namespace Glacier2;
 
 Glacier2::SessionRouterI::SessionRouterI(const ObjectAdapterPtr& clientAdapter,
 					 const ObjectAdapterPtr& serverAdapter,
