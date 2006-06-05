@@ -96,7 +96,7 @@ Changes since version 3.0.1
   ice_connection, ice_newIdentity, ice_newFacet, ice_newContext,
   ice_newAdapterId and ice_newEndpoints methods proxy. You should now
   use the ice_getHash, ice_getCommunicator, ice_collocationOptimized,
-  ice_sgetCconnection, ice_identity, ice_facet, ice_context,
+  ice_getConnection, ice_identity, ice_facet, ice_context,
   ice_adapterId and ice_endpoints proxy methods. The former methods
   will be removed from the next major release.
 
