@@ -52,13 +52,13 @@
 	<summary>
 		<codepage>1252</codepage>
 		<title>Installation Database</title>
-		<subject>Ice 3.0.1 Third Party Packages for Visual Studio 6.0</subject>
+		<subject>Ice 3.1.0 Third Party Packages for Visual Studio 6.0</subject>
 		<author>##COMPANY_NAME##</author>
 		<keywords>Installer,MSI,Database</keywords>
 		<comments>##ID_STRING5##</comments>
 		<template>Intel;1033</template>
 		<lastauthor>Administrator</lastauthor>
-		<revnumber>{15FECAFC-3E2A-4965-A42E-480DEDF09283}</revnumber>
+		<revnumber>{48FC3CB9-51F9-421C-9BF4-AA6E67141617}</revnumber>
 		<lastprinted/>
 		<createdtm>06/21/1999 04:30</createdtm>
 		<lastsavedtm>07/14/2000 08:20</lastsavedtm>
@@ -1139,7 +1139,7 @@
 		<row><td>FavoritesFolder</td><td>TARGETDIR</td><td>.:FAVORI~1|Favorites</td><td/><td>0</td><td/></row>
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
-		<row><td>ICE_TP_INSTALL_DIR</td><td>WindowsVolume</td><td>ICE-3_~0|Ice-3.0.0-ThirdParty-VC60</td><td/><td>0</td><td/></row>
+		<row><td>ICE_TP_INSTALL_DIR</td><td>WindowsVolume</td><td>ICE-3_~0|Ice-3.1.0-ThirdParty-VC60</td><td/><td>0</td><td/></row>
 		<row><td>INSTALLDIR</td><td>ICE_TP_INSTALL_DIR</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
@@ -1597,7 +1597,6 @@
 		<row><td>packages</td><td>JGoodies.VC60.4E2D2725_3AFF_413E_8BF4_D0B39DDAB4EE</td><td>0</td></row>
 		<row><td>packages</td><td>OpenSSLDevKit.VC60.50663C31_D47C_49EE_B7EF_303D541A08DE</td><td>0</td></row>
 		<row><td>packages</td><td>OpenSSLRuntime.VC60.80A6164B_103B_4318_9AB0_4C6DE95AC097</td><td>0</td></row>
-		<row><td>packages</td><td>PCREDevKit.VC60.CE03BD68_4C33_4DBE_9DFB_B076455443D7</td><td>0</td></row>
 		<row><td>packages</td><td>STLPortDevKit.VC60.3FCE994D_E327_4276_A95A_3C928E7A52D4</td><td>0</td></row>
 		<row><td>packages</td><td>STLPortRuntime.VC60.A9A58AC6_551C_4FFF_B9B5_3D503E8CC4C0</td><td>0</td></row>
 	</table>
@@ -1693,7 +1692,6 @@
 		<row><td>JGoodies.VC60.4E2D2725_3AFF_413E_8BF4_D0B39DDAB4EE</td><td>0</td><td>JGoodies Runtime for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>OpenSSLDevKit.VC60.50663C31_D47C_49EE_B7EF_303D541A08DE</td><td>0</td><td>OpenSSL Dev Kit for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>OpenSSLRuntime.VC60.80A6164B_103B_4318_9AB0_4C6DE95AC097</td><td>0</td><td>OpenSSL Runtime for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>PCREDevKit.VC60.CE03BD68_4C33_4DBE_9DFB_B076455443D7</td><td>0</td><td>PCRE Dev Kit for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>STLPortDevKit.VC60.3FCE994D_E327_4276_A95A_3C928E7A52D4</td><td>0</td><td>STLPort Dev Kit for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>STLPortRuntime.VC60.A9A58AC6_551C_4FFF_B9B5_3D503E8CC4C0</td><td>0</td><td>STLPort Runtime for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
 	</table>
@@ -1800,7 +1798,7 @@
 		<col key="yes" def="s72">ISProductConfiguration_</col>
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
-		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>ThirdParty-3.0.0-VC60</td></row>
+		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>ThirdParty-3.1.0-VC60</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
 	</table>
 
@@ -2437,7 +2435,7 @@
 		<row><td>IDS__TargetReq_DESC_PROCESSOR</td><td>1033</td><td>The processor is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDS__TargetReq_DESC_RAM</td><td>1033</td><td>The amount of RAM is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDS__TargetReq_DESC_RESOLUTION</td><td>1033</td><td>The screen resolution is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
-		<row><td>ID_STRING1</td><td>1033</td><td>Ice 3.0.1 Third Party Packages</td><td>0</td><td/><td>622421519</td></row>
+		<row><td>ID_STRING1</td><td>1033</td><td>Ice 3.1.0 Third Party Packages</td><td>0</td><td/><td>622421519</td></row>
 		<row><td>ID_STRING10</td><td>1033</td><td>Dialog Normal Description</td><td>0</td><td/><td>1033470955</td></row>
 		<row><td>ID_STRING11</td><td>1033</td><td>[ProductName] - InstallShield Wizard</td><td>0</td><td/><td>1033470955</td></row>
 		<row><td>ID_STRING12</td><td>1033</td><td>{&amp;MSSWhiteSerif8}InstallShield</td><td>0</td><td/><td>1033470955</td></row>
@@ -2470,7 +2468,7 @@
 		<row><td>ID_STRING37</td><td>1033</td><td>{&amp;Tahoma8}InstallShield</td><td>0</td><td/><td>1033487467</td></row>
 		<row><td>ID_STRING38</td><td>1033</td><td>&amp;Next &gt;</td><td>0</td><td/><td>1033477259</td></row>
 		<row><td>ID_STRING39</td><td>1033</td><td>&lt; &amp;Back</td><td>0</td><td/><td>1033477259</td></row>
-		<row><td>ID_STRING4</td><td>1033</td><td>Ice 3.0.1 Third Party Packages for Visual Studio 6.0</td><td>0</td><td/><td>622429711</td></row>
+		<row><td>ID_STRING4</td><td>1033</td><td>Ice 3.1.0 Third Party Packages for Visual Studio 6.0</td><td>0</td><td/><td>622429711</td></row>
 		<row><td>ID_STRING40</td><td>1033</td><td>Cancel</td><td>0</td><td/><td>1033477259</td></row>
 		<row><td>ID_STRING41</td><td>1033</td><td>{&amp;MSSansBold8}Dialog Bold Title</td><td>0</td><td/><td>1033477259</td></row>
 		<row><td>ID_STRING42</td><td>1033</td><td>Dialog Normal Description</td><td>0</td><td/><td>1033477259</td></row>
@@ -2916,11 +2914,11 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>NewProperty2111</td><td>0</td><td/></row>
 		<row><td>NewProperty2112</td><td>0</td><td/></row>
 		<row><td>PIDTemplate</td><td>12345&lt;###-%%%%%%%&gt;@@@@@</td><td/></row>
-		<row><td>ProductCode</td><td>{06922e96-804f-4a8c-ae80-b9b1689a1ffe}</td><td/></row>
+		<row><td>ProductCode</td><td>{9F9731EA-DF88-4333-A799-6E03A4C4ED80}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 3.0.0 Third Party Packages for Visual Studio 6.0</td><td/></row>
-		<row><td>ProductVersion</td><td>3.0.0</td><td/></row>
+		<row><td>ProductName</td><td>Ice 3.1.0 Third Party Packages for Visual Studio 6.0</td><td/></row>
+		<row><td>ProductVersion</td><td>3.1.0</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -2929,7 +2927,7 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>ReinstallModeText</td><td>omus</td><td/></row>
 		<row><td>SHOWLAUNCHPROGRAM</td><td>0</td><td/></row>
 		<row><td>SetupType</td><td>Typical</td><td/></row>
-		<row><td>UpgradeCode</td><td>{4b24c062-588e-4c8d-b060-cf8d122ca3fb}</td><td/></row>
+		<row><td>UpgradeCode</td><td>{4D183D21-A249-4B59-A14C-BFF2ADC1A1DD}</td><td/></row>
 		<row><td>_IsMaintenance</td><td>Change</td><td/></row>
 		<row><td>_IsSetupTypeMin</td><td>Typical</td><td/></row>
 	</table>

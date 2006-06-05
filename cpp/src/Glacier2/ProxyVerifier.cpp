@@ -119,6 +119,22 @@ public:
     virtual const char* toString() const = 0;
 };
 
+class MatchesAny : public AddressMatcher
+{
+public:
+    bool
+    match(const string&, string::size_type&)
+    {
+	return true;
+    }
+
+    const char*
+    toString() const
+    {
+	return "(ANY)";
+    }
+};
+
 //
 // Match the start of a string (i.e. position == 0). Occurs when filter
 // string starts with a set of characters followed by a wildcard or
@@ -145,7 +161,7 @@ public:
 	return result;
     }
 
-    virtual const char*
+    const char*
     toString() const
     {
 	return _description.c_str();
@@ -420,6 +436,7 @@ public:
     }
 };
 
+
 //
 // AddressMatcher factories abstract away the logic of which matching
 // objects need to be created depending on the state of the filter
@@ -685,73 +702,84 @@ parseProperty(const string& property, vector<ProxyRule*>& rules)
 	    bool inGroup = false;
 	    AddressMatcherFactory* currentFactory = &startsWithFactory;
 
-	    for(current = 0; current < addr.size(); ++current)
+	    if(addr == "*")
 	    {
-		if(addr[current] == '*')
+		//
+		// Special case. Match everything.
+		//
+		currentRuleSet.push_back(new MatchesAny);
+		allRules.push_back(new AddressRule(currentRuleSet, portMatch));
+	    }
+	    else
+	    {
+		for(current = 0; current < addr.size(); ++current)
 		{
-		    if(inGroup)
+		    if(addr[current] == '*')
 		    {
-			InitializationException ex(__FILE__, __LINE__);
-			ex.reason = "wildcards not permitted in groups";
-			throw ex;
+			if(inGroup)
+			{
+			    InitializationException ex(__FILE__, __LINE__);
+			    ex.reason = "wildcards not permitted in groups";
+			    throw ex;
+			}
+			//
+			// current == mark when the wildcard is at the head of a
+			// string or directly after a group.
+			//
+			if(current != mark)
+			{
+			    currentRuleSet.push_back(currentFactory->create(addr.substr(mark, current-mark)));
+			}
+			currentFactory = &wildCardFactory;
+			mark = current + 1;
 		    }
-		    //
-		    // current == mark when the wildcard is at the head of a
-		    // string or directly after a group.
-		    //
-		    if(current != mark)
+		    else if(addr[current] == '[')
 		    {
-			currentRuleSet.push_back(currentFactory->create(addr.substr(mark, current-mark)));
+			// ??? what does it mean if current == mark?
+			if(current != mark)
+			{
+			    currentRuleSet.push_back(currentFactory->create(addr.substr(mark, current-mark)));
+			    currentFactory = &followingFactory;
+			}
+			inGroup = true;
+			mark = current + 1;
 		    }
-		    currentFactory = &wildCardFactory;
-		    mark = current + 1;
-		}
-		else if(addr[current] == '[')
-		{
-		    // ??? what does it mean if current == mark?
-		    if(current != mark)
+		    else if(addr[current] == ']')
 		    {
-			currentRuleSet.push_back(currentFactory->create(addr.substr(mark, current-mark)));
+			if(!inGroup)
+			{
+			    InitializationException ex(__FILE__, __LINE__);
+			    ex.reason = "group close without group start";
+			    throw ex;
+			}
+			inGroup = false;
+			if(mark == current)
+			{
+			    InitializationException ex(__FILE__, __LINE__);
+			    ex.reason = "empty group";
+			    throw ex;
+			}
+			string group = addr.substr(mark, current - mark);
+			vector<int> numbers;
+			vector<Range> ranges;
+			parseGroup(group, numbers, ranges);
+			currentRuleSet.push_back(currentFactory->create(numbers, ranges));
 			currentFactory = &followingFactory;
+			mark = current + 1;
 		    }
-		    inGroup = true;
-		    mark = current + 1;
 		}
-		else if(addr[current] == ']')
-		{
-		    if(!inGroup)
-		    {
-			InitializationException ex(__FILE__, __LINE__);
-			ex.reason = "group close without group start";
-			throw ex;
-		    }
-		    inGroup = false;
-		    if(mark == current)
-		    {
-			InitializationException ex(__FILE__, __LINE__);
-			ex.reason = "empty group";
-			throw ex;
-		    }
-		    string group = addr.substr(mark, current - mark);
-		    vector<int> numbers;
-		    vector<Range> ranges;
-		    parseGroup(group, numbers, ranges);
-		    currentRuleSet.push_back(currentFactory->create(numbers, ranges));
-		    currentFactory = &followingFactory;
-		    mark = current + 1;
-		}
-	    }
-	    currentFactory = &endsWithFactory;
+		currentFactory = &endsWithFactory;
 
-	    if(inGroup)
-	    {
-		InitializationException ex(__FILE__, __LINE__);
-		ex.reason = "unclosed group";
-		throw ex;
-	    }
-	    if(mark != current)
-	    {
-		currentRuleSet.push_back(currentFactory->create(addr.substr(mark, current - mark)));
+		if(inGroup)
+		{
+		    InitializationException ex(__FILE__, __LINE__);
+		    ex.reason = "unclosed group";
+		    throw ex;
+		}
+		if(mark != current)
+		{
+		    currentRuleSet.push_back(currentFactory->create(addr.substr(mark, current - mark)));
+		}
 	    }
 	    allRules.push_back(new AddressRule(currentRuleSet, portMatch));
 	}

@@ -372,7 +372,7 @@ ObjectEntry::allocated(const SessionIPtr& session)
 	{
 	    Ice::IdentitySeq seq(1);
 	    seq.push_back(_info.proxy->ice_getIdentity());
-	    ctl->identityFilter()->addAccept(seq);
+	    ctl->identities()->add(seq);
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{
@@ -395,7 +395,7 @@ ObjectEntry::released(const SessionIPtr& session)
 	{
 	    Ice::IdentitySeq seq(1);
 	    seq.push_back(_info.proxy->ice_getIdentity());
-	    ctl->identityFilter()->removeAccept(seq);
+	    ctl->identities()->remove(seq);
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{

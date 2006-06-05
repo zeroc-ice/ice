@@ -21,36 +21,36 @@ class ClientBlobjectImpl
 {
 public:
 
-    ClientBlobjectImpl(const StringFilterManagerIPtr& categoryFilter, const StringFilterManagerIPtr& adapterFilter,
-		       const IdentityFilterManagerIPtr& idFilter) :
-	_categoryFilter(categoryFilter),
-	_adapterIdFilter(adapterFilter),
-	_identityFilter(idFilter)
+    ClientBlobjectImpl(const StringSetIPtr& categories, const StringSetIPtr& adapters,
+		       const IdentitySetIPtr& identities) :
+	_categories(categories),
+	_adapters(adapters),
+	_identities(identities)
     {
     }
 
-    StringFilterManagerIPtr 
-    categoryFilter()
+    StringSetIPtr 
+    categories()
     {
-	return _categoryFilter;
+	return _categories;
     }
 
-    StringFilterManagerIPtr 
-    adapterIdFilter()
+    StringSetIPtr 
+    adapterIds()
     {
-	return _adapterIdFilter;
+	return _adapters;
     }
 
-    IdentityFilterManagerIPtr 
-    identityFilter()
+    IdentitySetIPtr 
+    identities()
     {
-	return _identityFilter;
+	return _identities;
     }
 
 private:
-    const StringFilterManagerIPtr _categoryFilter;
-    const StringFilterManagerIPtr _adapterIdFilter;
-    const IdentityFilterManagerIPtr _identityFilter;
+    const StringSetIPtr _categories;
+    const StringSetIPtr _adapters;
+    const IdentitySetIPtr _identities;
 };
 
 }
@@ -113,30 +113,38 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
 					   const std::pair<const Byte*, const Byte*>& inParams,
 					   const Current& current)
 {
-    if(!_impl->categoryFilter()->match(current.id.category))
+    bool rejected = false;
+ 
+    if(!_impl->categories()->empty())
     {
-	if(_rejectTraceLevel >= 1)
+	if(!_impl->categories()->match(current.id.category))
 	{
-	    Trace out(_logger, "Glacier2");
-	    out << "rejecting request\n";
-	    out << "identity: " << _communicator->identityToString(current.id);
+	    if(_rejectTraceLevel >= 1)
+	    {
+		Trace out(_logger, "Glacier2");
+		out << "rejecting request\n";
+		out << "identity: " << _communicator->identityToString(current.id);
+	    }
+	    rejected = true;
 	}
-	ObjectNotExistException ex(__FILE__, __LINE__);
-	ex.id = current.id;
-	throw ex;
     }
 
-    if(!_impl->identityFilter()->match(current.id))
+    if(!_impl->identities()->empty())
     {
-	if(_rejectTraceLevel >= 1)
+	if(_impl->identities()->match(current.id))
 	{
-	    Trace out(_logger, "Glacier2");
-	    out << "rejecting request\n";
-	    out << "identity: " << _communicator->identityToString(current.id);
+	    rejected = false;
 	}
-	ObjectNotExistException ex(__FILE__, __LINE__);
-	ex.id = current.id;
-	throw ex;
+	else
+	{
+	    if(_rejectTraceLevel >= 1)
+	    {
+		Trace out(_logger, "Glacier2");
+		out << "rejecting request\n";
+		out << "identity: " << _communicator->identityToString(current.id);
+	    }
+	    rejected = true;
+	}
     }
 
     ObjectPrx proxy = _routingTable->get(current.id);
@@ -158,14 +166,26 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
     }
 
     string adapterId = proxy->ice_getAdapterId();
-    if(!adapterId.empty() && !_impl->adapterIdFilter()->match(adapterId))
+
+    if(!adapterId.empty() && !_impl->adapterIds()->empty())
     {
-	if(_rejectTraceLevel >= 1)
+	if(_impl->adapterIds()->match(adapterId))
 	{
-	    Trace out(_logger, "Glacier2");
-	    out << "rejecting request\n";
-	    out << "identity: " << _communicator->identityToString(current.id);
+	    rejected  = false;
 	}
+	else
+	{
+	    if(_rejectTraceLevel >= 1)
+	    {
+		Trace out(_logger, "Glacier2");
+		out << "rejecting request\n";
+		out << "identity: " << _communicator->identityToString(current.id);
+	    }
+	}
+    }
+
+    if(rejected)
+    {
 	ObjectNotExistException ex(__FILE__, __LINE__);
 	ex.id = current.id;
 	throw ex;
@@ -193,13 +213,8 @@ Glacier2::ClientBlobject::create(const CommunicatorPtr& communicator, const stri
 	allow = props->getProperty("Glacier2.Filter.Category.Accept");
     }
 
-    string reject = props->getProperty("Glacier2.Filter.Category.Reject");
-    bool acceptOverride = props->getPropertyAsIntWithDefault("Glacier2.Filter.Category.AcceptOverride", 0) == 1;
-
     vector<string> allowSeq;
-    vector<string> rejectSeq;
     stringToSeq(allow, allowSeq);
-    stringToSeq(reject, rejectSeq);
 
     int addUserMode = props->getPropertyAsInt("Glacier2.AddUserToAllowCategories");
     if(addUserMode == 0)
@@ -218,47 +233,40 @@ Glacier2::ClientBlobject::create(const CommunicatorPtr& communicator, const stri
 	    allowSeq.push_back('_' + userId); // Add user id with prepended underscore to allowed categories.
 	}
     }	
-    StringFilterManagerIPtr categoryFilter = new StringFilterManagerI(allowSeq, rejectSeq, acceptOverride);
+    StringSetIPtr categoryFilter = new StringSetI(allowSeq);
 
     //
     // TODO: refactor initialization of filters.
     //
     allow = props->getProperty("Glacier2.Filter.AdapterId.Accept");
-    reject = props->getProperty("Glacier2.Filter.AdapterId.Reject");
-    acceptOverride = props->getPropertyAsIntWithDefault("Glacier2.Filter.AdapterId.AcceptOverride", 0) == 1;
     stringToSeq(allow, allowSeq);
-    stringToSeq(reject, rejectSeq);
-    StringFilterManagerIPtr adapterIdFilter = new StringFilterManagerI(allowSeq, rejectSeq, acceptOverride);
+    StringSetIPtr adapterIdFilter = new StringSetI(allowSeq);
 
     //
     // TODO: Object id's from configurations?
     // 
     IdentitySeq allowIdSeq;
-    IdentitySeq rejectIdSeq;
-    allow = props->getProperty("Glacier2.Filter.AdapterId.Accept");
-    reject = props->getProperty("Glacier2.Filter.AdapterId.Reject");
-    acceptOverride = props->getPropertyAsIntWithDefault("Glacier2.Filter.AdapterId.AcceptOverride", 0) == 1;
+    allow = props->getProperty("Glacier2.Filter.Identity.Accept");
     stringToSeq(allow, allowSeq);
-    stringToSeq(reject, rejectSeq);
-    IdentityFilterManagerIPtr identityFilter = new IdentityFilterManagerI(allowIdSeq, rejectIdSeq, false);
+    IdentitySetIPtr identityFilter = new IdentitySetI(allowIdSeq);
 
     return new ClientBlobject(communicator, new ClientBlobjectImpl(categoryFilter, adapterIdFilter, identityFilter));
 }
 
-StringFilterManagerPtr 
-ClientBlobject::categoryFilter()
+StringSetPtr 
+ClientBlobject::categories()
 {
-    return _impl->categoryFilter();
+    return _impl->categories();
 }
 
-StringFilterManagerPtr 
-ClientBlobject::adapterIdFilter()
+StringSetPtr 
+ClientBlobject::adapterIds()
 {
-    return _impl->adapterIdFilter();
+    return _impl->adapterIds();
 }
 
-IdentityFilterManagerPtr
-ClientBlobject::identityFilter()
+IdentitySetPtr
+ClientBlobject::identities()
 {
-    return _impl->identityFilter();
+    return _impl->identities();
 }

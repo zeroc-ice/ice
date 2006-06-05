@@ -16,6 +16,10 @@ using namespace Ice;
 using namespace Test;
 using namespace std;
 
+//
+// TODO: More test cases.
+//
+
 TestControllerI::TestControllerI()
 {
     TestConfiguration current;
@@ -25,72 +29,27 @@ TestControllerI::TestControllerI()
     _configurations.push_back(current);
 
     current = TestConfiguration();
-    current.description = "Category filter (accept)";
-    current.cases.push_back(TestCase("foo/bar:default -h 127.0.0.1 -p 12012", true));
-    current.cases.push_back(TestCase("bar/foo:default -h 127.0.0.1 -p 12012", false));
+    current.description = "Category filter";
+    current.cases.push_back(TestCase("foo/barA:default -h 127.0.0.1 -p 12012", true));
+    current.cases.push_back(TestCase("bar/fooA:default -h 127.0.0.1 -p 12012", false));
     current.categoryFiltersAccept.push_back("foo");
     _configurations.push_back(current);
  
     current = TestConfiguration();
-    current.description = "Category filter (reject)";
-    current.cases.push_back(TestCase("bar/foo:default -h 127.0.0.1 -p 12012", true));
-    current.cases.push_back(TestCase("foo/bar:default -h 127.0.0.1 -p 12012", false));
-    current.categoryFiltersReject.push_back("foo");
-    _configurations.push_back(current);
-
-    current = TestConfiguration();
-    current.description = "Adapter id filter (accept)";
-    current.cases.push_back(TestCase("foo @ bar", true));
-    current.cases.push_back(TestCase("baz @ baz", false));
+    current.description = "Adapter id filter";
+    current.cases.push_back(TestCase("fooB @ bar", true));
+    current.cases.push_back(TestCase("bazB @ baz", false));
     current.adapterIdFiltersAccept.push_back("bar");
     _configurations.push_back(current);
 
     current = TestConfiguration();
-    current.description = "Adapter id filter (reject)";
-    current.cases.push_back(TestCase("foo @ bar", true));
-    current.cases.push_back(TestCase("baz @ baz", false));
-    current.adapterIdFiltersReject.push_back("baz");
-    _configurations.push_back(current);
-
-    current = TestConfiguration();
-    current.description = "Object id filter (accept)";
-    current.cases.push_back(TestCase("foo/bar:default -h 127.0.0.1 -p 12012", true));
-    current.cases.push_back(TestCase("bar/foo:default -h 127.0.0.1 -p 12012", false));
+    current.description = "Object id filter";
+    current.cases.push_back(TestCase("foo/barC:default -h 127.0.0.1 -p 12012", true));
+    current.cases.push_back(TestCase("bar/fooC:default -h 127.0.0.1 -p 12012", false));
     Identity id;
     id.category = "foo";
-    id.name = "bar";
+    id.name = "barC";
     current.objectIdFiltersAccept.push_back(id);
-    _configurations.push_back(current);
-
-    current = TestConfiguration();
-    current.description = "Object id filter (accept)";
-    current.cases.push_back(TestCase("bar/foo:default -h 127.0.0.1 -p 12012", true));
-    current.cases.push_back(TestCase("foo/bar:default -h 127.0.0.1 -p 12012", false));
-    current.objectIdFiltersReject.push_back(id);
-    _configurations.push_back(current);
-
-    //
-    // TODO: 
-    // Exhaustive combination of accept override flags.
-    //
-    current = TestConfiguration();
-    current.description = "Category filter (accept override == true)";
-    current.cases.push_back(TestCase("foo/bar:default -h 127.0.0.1 -p 12012", true));
-    current.cases.push_back(TestCase("bar/foo:default -h 127.0.0.1 -p 12012", false));
-    current.categoryFiltersReject.push_back("foo");
-    current.categoryFiltersReject.push_back("bar");
-    current.categoryFiltersAccept.push_back("foo");
-    current.categoryFilterAcceptOverride = true;
-    _configurations.push_back(current);
-
-    current = TestConfiguration();
-    current.description = "Mixed filters (category + adapter id)";
-    current.cases.push_back(TestCase("foo/bar:default -h 127.0.0.1 -p 12012", false));
-    current.cases.push_back(TestCase("bar/tide:default -h 127.0.0.1 -p 12012", true));
-    current.cases.push_back(TestCase("cat/manx @ baz", false));
-    current.cases.push_back(TestCase("bar/siamese @ other", true));
-    current.categoryFiltersAccept.push_back("bar");
-    current.adapterIdFiltersReject.push_back("baz");
     _configurations.push_back(current);
 };
 
@@ -128,7 +87,7 @@ TestControllerI::step(const Glacier2::SessionPrx& currentSession, const TestToke
 	    //
 	    // New sessions force configuration step.
 	    //
-	    bool reconfigure = session.configured;
+	    bool reconfigure = !session.configured;
 
 	    //
 	    // We start with the previous known state.
@@ -168,20 +127,14 @@ TestControllerI::step(const Glacier2::SessionPrx& currentSession, const TestToke
 
 	    if(reconfigure)
 	    {
-		Glacier2::StringFilterManagerPrx catFilter = session.sessionControl->categoryFilter();
-		catFilter->setAccept(config.categoryFiltersAccept);
-		catFilter->setReject(config.categoryFiltersReject);
-		catFilter->setAcceptOverride(config.categoryFilterAcceptOverride);
+		Glacier2::StringSetPrx categories = session.sessionControl->categories();
+		categories->add(config.categoryFiltersAccept);
 
-		Glacier2::StringFilterManagerPrx adapterFilter = session.sessionControl->adapterIdFilter();
-		adapterFilter->setAccept(config.adapterIdFiltersAccept);
-		adapterFilter->setReject(config.adapterIdFiltersReject);
-		adapterFilter->setAcceptOverride(config.adapterIdAcceptOverride);
+		Glacier2::StringSetPrx adapterIds = session.sessionControl->adapterIds();
+		adapterIds->add(config.adapterIdFiltersAccept);
 			
-		Glacier2::IdentityFilterManagerPrx idFilter = session.sessionControl->identityFilter();
-		idFilter->setAccept(config.objectIdFiltersAccept);
-		idFilter->setReject(config.objectIdFiltersReject);
-		idFilter->setAcceptOverride(config.objectIdAcceptOverride);
+		Glacier2::IdentitySetPrx ids = session.sessionControl->identities();
+		ids->add(config.objectIdFiltersAccept);
 		session.configured = true;
 	    }
 	    break;

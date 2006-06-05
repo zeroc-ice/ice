@@ -30,32 +30,32 @@ class SessionControlI : public SessionControl
 public:
 
     SessionControlI(const SessionRouterIPtr& sessionRouter, const ConnectionPtr& connection,
-		    const StringFilterManagerPrx& categoryFilter, const StringFilterManagerPrx& adapterIdFilter,
-		    const IdentityFilterManagerPrx& identityFilter) :
+		    const StringSetPrx& categories, const StringSetPrx& adapterIds,
+		    const IdentitySetPrx& identities) :
         _sessionRouter(sessionRouter),
 	_connection(connection),
-	_categoryFilter(categoryFilter),
-	_identityFilter(identityFilter),
-	_adapterIdFilter(adapterIdFilter)
+	_categories(categories),
+	_identities(identities),
+	_adapterIds(adapterIds)
     {
     }
 
-    virtual StringFilterManagerPrx
-    categoryFilter(const Current& current)
+    virtual StringSetPrx
+    categories(const Current& current)
     {
-	return _categoryFilter;
+	return _categories;
     }
 
-    virtual StringFilterManagerPrx
-    adapterIdFilter(const Current& current)
+    virtual StringSetPrx
+    adapterIds(const Current& current)
     {
-	return _adapterIdFilter;
+	return _adapterIds;
     }
 
-    virtual IdentityFilterManagerPrx
-    identityFilter(const Current& current)
+    virtual IdentitySetPrx
+    identities(const Current& current)
     {
-	return _identityFilter; 
+	return _identities; 
     }
     
     virtual void
@@ -68,9 +68,9 @@ private:
 
     const SessionRouterIPtr _sessionRouter;
     const ConnectionPtr _connection;
-    const StringFilterManagerPrx _categoryFilter;
-    const IdentityFilterManagerPrx _identityFilter;
-    const StringFilterManagerPrx _adapterIdFilter;
+    const StringSetPrx _categories;
+    const IdentitySetPrx _identities;
+    const StringSetPrx _adapterIds;
 };
 
 class ClientLocator : public ServantLocator
@@ -836,14 +836,14 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 	    SessionControlPrx control;
 	    if(_adminAdapter)
 	    {
-		StringFilterManagerPrx catFilterPrx = StringFilterManagerPrx::uncheckedCast(
-		    _adminAdapter->addWithUUID(clientBlobject->categoryFilter()));
+		StringSetPrx catFilterPrx = StringSetPrx::uncheckedCast(
+		    _adminAdapter->addWithUUID(clientBlobject->categories()));
 		categoryFilterId = catFilterPrx->ice_getIdentity();
-		StringFilterManagerPrx adapterFilterPrx = StringFilterManagerPrx::uncheckedCast(
-		    _adminAdapter->addWithUUID(clientBlobject->adapterIdFilter()));
+		StringSetPrx adapterFilterPrx = StringSetPrx::uncheckedCast(
+		    _adminAdapter->addWithUUID(clientBlobject->adapterIds()));
 		adapterIdFilterId = adapterFilterPrx->ice_getIdentity();
-		IdentityFilterManagerPrx idFilterPrx = IdentityFilterManagerPrx::uncheckedCast(
-		    _adminAdapter->addWithUUID(clientBlobject->identityFilter()));
+		IdentitySetPrx idFilterPrx = IdentitySetPrx::uncheckedCast(
+		    _adminAdapter->addWithUUID(clientBlobject->identities()));
 		identityFilterId = idFilterPrx->ice_getIdentity();
 
 	        control = SessionControlPrx::uncheckedCast(

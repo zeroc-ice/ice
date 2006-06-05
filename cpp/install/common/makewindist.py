@@ -73,7 +73,7 @@ def usage():
 
 def environmentCheck(target):
     """Warning: uses global environment."""
-    required = ["SOURCES", "BUILD_DIR", "DB_HOME", "PCRE_HOME", "BZIP2_HOME", "EXPAT_HOME", "OPENSSL_HOME"]
+    required = ["SOURCES", "BUILD_DIR", "DB_HOME", "BZIP2_HOME", "EXPAT_HOME", "OPENSSL_HOME"]
     if target == "vc60":
 	required.append("STLPORT_HOME")
     elif target == "vc71":
@@ -186,7 +186,6 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 	os.path.join(stageDir, "bzip2", "dev", "lib"),
 	os.path.join(stageDir, "expat", "dev", "lib"),
 	os.path.join(stageDir, "openssl", "dev", "lib"),
-	os.path.join(stageDir, "pcre", "dev", "lib")
     ]
     if installVersion == "vc60":
 	lib.append(os.path.join(stageDir, "stlport", "dev", "lib"))
@@ -197,7 +196,6 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 	os.path.join(stageDir, "bzip2", "dev", "include"),
 	os.path.join(stageDir, "expat", "dev", "include"),
 	os.path.join(stageDir, "openssl", "dev", "include"),
-	os.path.join(stageDir, "pcre", "dev", "include")
     ]
     if installVersion == "vc60":
 	include.append(os.path.join(stageDir, "stlport", "dev", "include", "stlport"))
@@ -307,9 +305,6 @@ def convertLicensesToRTF(toolDir, installTarget):
     #
     # The license file isn't quite right for this.
     #
-    pcre = (os.path.join(os.environ["PCRE_HOME"]), "AUTHORS", "Perl Compatible Regular Expressions (PCRE)", 
-	    "PCRE_LICENSE.rtf")
-
     section_header = "License agreement for %s:\n"
     line_string = "-------------------------------------------------------------------------------------------"
     rtfhdr = file(os.path.join(toolDir, "docs", "rtf.hdr")).readlines()
@@ -430,7 +425,6 @@ def buildMergeModules(startDir, stageDir, sourcesVersion, installVersion):
 	("ExpatRuntime", "EXPAT_RUNTIME"),
 	("OpenSSLDevKit", "OPENSSL_DEV_KIT"),
 	("OpenSSLRuntime", "OPENSSL_RUNTIME"),
-	("PCREDevKit", "PCRE_DEV_KIT"),
 	("JGoodies", "JGOODIES_RUNTIME"),
 	("BerkeleyDBJava", "BERKELEYDB_JAVA")
     ]

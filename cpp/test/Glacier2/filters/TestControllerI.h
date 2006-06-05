@@ -61,21 +61,8 @@ struct TestConfiguration
     std::string description;
     std::vector<TestCase> cases;
     std::vector<std::string> categoryFiltersAccept;
-    std::vector<std::string> categoryFiltersReject;
-    bool categoryFilterAcceptOverride;
     std::vector<std::string> adapterIdFiltersAccept;
-    std::vector<std::string> adapterIdFiltersReject;
-    bool adapterIdAcceptOverride;
     std::vector<Ice::Identity> objectIdFiltersAccept;
-    std::vector<Ice::Identity> objectIdFiltersReject;
-    bool objectIdAcceptOverride;
-
-    TestConfiguration():
-	categoryFilterAcceptOverride(false),
-	adapterIdAcceptOverride(false),
-	objectIdAcceptOverride(false)
-    {
-    }
 };
 
 //

@@ -92,6 +92,7 @@ tests = [ \
     "IceGrid/replication", \
     "Glacier2/router", \
     "Glacier2/attack", \
+    "Glacier2/addressFilter", \
     "Glacier2/sessionControl", \
     "Glacier2/ssl", \
     "Glacier2/filters", \

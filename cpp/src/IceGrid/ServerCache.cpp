@@ -814,7 +814,7 @@ ServerEntry::allocated(const SessionIPtr& session)
 	    {
 		seq.push_back(p->first);
 	    }
-	    ctl->adapterIdFilter()->addAccept(seq);
+	    ctl->adapterIds()->add(seq);
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{
@@ -855,7 +855,7 @@ ServerEntry::released(const SessionIPtr& session)
 	    {
 		seq.push_back(p->first);
 	    }
-	    ctl->adapterIdFilter()->removeAccept(seq);
+	    ctl->adapterIds()->remove(seq);
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{

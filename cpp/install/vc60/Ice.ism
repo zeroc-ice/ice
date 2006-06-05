@@ -52,7 +52,7 @@
 	<summary>
 		<codepage>1252</codepage>
 		<title>Installation Database</title>
-		<subject>Ice 3.0.1 for Visual Studio 6.0</subject>
+		<subject>Ice 3.1.0 for Visual Studio 6.0</subject>
 		<author>##COMPANY_NAME##</author>
 		<keywords>Installer,MSI,Database</keywords>
 		<comments>##ID_STRING18##</comments>
@@ -1039,11 +1039,11 @@
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
 		<row><td>ICE</td><td>WindowsVolume</td><td>ICE-2_~1|Ice-2.1.0-VC60</td><td/><td>0</td><td/></row>
 		<row><td>ICE_2.1.0_THIRD_PARTY_PACKAGES</td><td>WindowsVolume</td><td>ICE-2_~1|Ice-2.1.0-ThirdParty</td><td/><td>0</td><td/></row>
-		<row><td>ICE_3.0.1_VC60</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.0.1-VC60</td><td/><td>0</td><td/></row>
+		<row><td>ICE_3.0.1_VC60</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.1.0-VC60</td><td/><td>0</td><td/></row>
 		<row><td>INSTALLDIR</td><td>ICE_3.0.1_VC60</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
-		<row><td>ISMyProductDir</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.0.1</td><td/><td>0</td><td/></row>
+		<row><td>ISMyProductDir</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.1.0</td><td/><td>0</td><td/></row>
 		<row><td>ISUpdateServiceFolder</td><td>ISCommonFilesFolder</td><td>UPDATE~1|UpdateService</td><td/><td>0</td><td/></row>
 		<row><td>LocalAppDataFolder</td><td>TARGETDIR</td><td>.:LocalA~1|LocalAppData</td><td/><td>0</td><td/></row>
 		<row><td>MyPicturesFolder</td><td>TARGETDIR</td><td>.:MyPict~1|MyPictures</td><td/><td>0</td><td/></row>
@@ -1706,7 +1706,7 @@
 		<col key="yes" def="s72">ISProductConfiguration_</col>
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
-		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.0.0-VC60</td></row>
+		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.1.0-VC60</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
 	</table>
 
@@ -2351,7 +2351,7 @@
 		<row><td>ID_STRING16</td><td>1033</td><td>HTML Documentation</td><td>0</td><td/><td>161047826</td></row>
 		<row><td>ID_STRING17</td><td>1033</td><td>Third Party Packages for C++ Development</td><td>0</td><td/><td>966353073</td></row>
 		<row><td>ID_STRING18</td><td>1033</td><td>The Internet Communications Engine (Ice) runtimes, tools, files and libraries for developing Ice applications.</td><td>0</td><td/><td>1234788180</td></row>
-		<row><td>ID_STRING19</td><td>1033</td><td>Ice 3.0.1 for Visual Studio 6.0</td><td>0</td><td/><td>622401801</td></row>
+		<row><td>ID_STRING19</td><td>1033</td><td>Ice 3.1.0 for Visual Studio 6.0</td><td>0</td><td/><td>622401801</td></row>
 		<row><td>ID_STRING2</td><td>1033</td><td>Ice Runtime</td><td>0</td><td/><td>1100550255</td></row>
 		<row><td>ID_STRING20</td><td>1033</td><td>Ice for C++</td><td>0</td><td/><td>1234775635</td></row>
 		<row><td>ID_STRING3</td><td>1033</td><td>C++ Development</td><td>0</td><td/><td>-1457951318</td></row>
@@ -2762,8 +2762,8 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>ProductCode</td><td>{c1e6ab0c-8577-4df5-b83e-2a3361d9e4ad}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 3.0.0 for Visual Studio 6.0</td><td/></row>
-		<row><td>ProductVersion</td><td>3.0.0</td><td/></row>
+		<row><td>ProductName</td><td>Ice 3.1.0 for Visual Studio 6.0</td><td/></row>
+		<row><td>ProductVersion</td><td>3.1.0</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>

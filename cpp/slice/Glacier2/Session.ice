@@ -56,218 +56,22 @@ interface Session
     void destroy();
 };
 
-exception DuplicateStringConstraintsException
-{
-    Ice::StringSeq duplicates;
-};
-
-exception StringConstraintsDoNotExistException
-{
-    Ice::StringSeq missing;
-};
-
 /**
  *
- * A filter object that can be applied to [Session]. Accessible through
- * the session's [SessionControl] object.
- *
- * @see SessionControl
+ * TODO: comments!
  *
  **/
-interface StringFilterManager
+
+interface StringSet
 {
-    /**
-     *
-     * Add allowable strings to the filter.
-     *
-     **/
-    idempotent void addAccept(Ice::StringSeq additions)
-    	throws DuplicateStringConstraintsException;
-
-    /**
-     *
-     * Remove allowable strings the filter.
-     *
-     **/
-    idempotent void removeAccept(Ice::StringSeq deletions)
-	throws StringConstraintsDoNotExistException;
-
-    /**
-     *
-     * Replace the set of allowable strings in the filter.
-     *
-     **/
-    idempotent void setAccept(Ice::StringSeq acceptStrings)
-    	throws DuplicateStringConstraintsException;
-    
-    /**
-     *
-     * Obtain the filter's acceptance criteria.
-     *
-     * @return A sequence of strings that the filter will permit.
-     *
-     **/
-    nonmutating Ice::StringSeq getAccept();
-
-    /**
-     *
-     * Add prohibited strings to the filter.
-     *
-     **/
-    idempotent void addReject(Ice::StringSeq additions)
-    	throws DuplicateStringConstraintsException;
-
-    /**
-     *
-     * Remove prohibited strings from the filter.
-     *
-     **/
-    idempotent void removeReject(Ice::StringSeq deletions)
-	throws StringConstraintsDoNotExistException;
-
-    /**
-     *
-     * Replace the set of prohibited srings in the filter.
-     *
-     **/
-    idempotent void setReject(Ice::StringSeq rejectStrings)
-    	throws DuplicateStringConstraintsException;
-
-    /**
-     *
-     * Obtain a filter's rejection criteria.
-     *
-     * @return A sequence of strings that the filter will reject.
-     *
-     **/
-    nonmutating Ice::StringSeq getReject()
-	throws StringConstraintsDoNotExistException;
-
-    /**
-     *
-     * Query the filter's accept override flag. If accept overrides is
-     * enabled, the filter is by default allows anything in except those
-     * items that match reject criteria. If an item does match the
-     * rejection criteria, it may be overridden by a acceptance
-     * criteria. If this flag is unset, then the filter rejects
-     * everything by default except those items that match acceptance
-     * criteria. If an item does match acceptance criteria it may be
-     * overridden by rejection criteria.
-     *
-     * @return True if accept override is set, otherwise.
-     *
-     **/
-    nonmutating bool getAcceptOverride();
-
-    /**
-     *
-     * Sets the accept override flag. See [getAcceptOverride].
-     *
-     **/
-    idempotent void setAcceptOverride(bool value);
-     
+    idempotent void add(Ice::StringSeq additions);
+    idempotent void remove(Ice::StringSeq deletions);
 };
 
-exception DuplicateIdentityConstraintsException
+interface IdentitySet
 {
-    Ice::IdentitySeq duplicates;
-};
-
-exception IdentityConstraintsDoNotExistException
-{
-    Ice::IdentitySeq missing;
-};
-
-interface IdentityFilterManager
-{
-    /**
-     *
-     * Add allowable strings to the filter.
-     *
-     **/
-    idempotent void addAccept(Ice::IdentitySeq additions)
-	throws DuplicateIdentityConstraintsException;
-
-    /**
-     *
-     * Remove allowable strings the filter.
-     *
-     **/
-    idempotent void removeAccept(Ice::IdentitySeq deletions)
-    	throws IdentityConstraintsDoNotExistException;
-
-    /**
-     *
-     * Replace the set of allowable strings in the filter.
-     *
-     **/
-    idempotent void setAccept(Ice::IdentitySeq acceptStrings)
-	throws DuplicateIdentityConstraintsException;
-    
-    /**
-     *
-     * Obtain the filter's acceptance criteria.
-     *
-     * @return A sequence of strings that the filter will permit.
-     *
-     **/
-    nonmutating Ice::IdentitySeq getAccept();
-
-    /**
-     *
-     * Add prohibited strings to the filter.
-     *
-     **/
-    idempotent void addReject(Ice::IdentitySeq additions)
-	throws DuplicateIdentityConstraintsException;
-
-    /**
-     *
-     * Remove prohibited strings from the filter.
-     *
-     **/
-    idempotent void removeReject(Ice::IdentitySeq deletions)
-    	throws IdentityConstraintsDoNotExistException;
-
-    /**
-     *
-     * Replace the set of prohibited srings in the filter.
-     *
-     **/
-    idempotent void setReject(Ice::IdentitySeq rejectStrings)
-	throws DuplicateIdentityConstraintsException;
-
-    /**
-     *
-     * Obtain a filter's rejection criteria.
-     *
-     * @return A sequence of strings that the filter will reject.
-     *
-     **/
-    nonmutating Ice::IdentitySeq getReject();
-
-    /**
-     *
-     * Query the filter's accept override flag. If accept overrides is
-     * enabled, the filter is by default allows anything in except those
-     * items that match reject criteria. If an item does match the
-     * rejection criteria, it may be overridden by a acceptance
-     * criteria. If this flag is unset, then the filter rejects
-     * everything by default except those items that match acceptance
-     * criteria. If an item does match acceptance criteria it may be
-     * overridden by rejection criteria.
-     *
-     * @return True if accept override is set, otherwise.
-     *
-     **/
-    nonmutating bool getAcceptOverride();
-
-    /**
-     *
-     * Sets the accept override flag. See [getAcceptOverride].
-     *
-     **/
-    idempotent void setAcceptOverride(bool value);
+    idempotent void add(Ice::IdentitySeq additions);
+    idempotent void remove(Ice::IdentitySeq deletions);
 };
 
 /**
@@ -282,30 +86,14 @@ interface SessionControl
 {
     /**
      *
-     * Obtain a proxy for the category filter.
-     *
-     * @return A proxy for the category filter object.
+     * TODO: comments! 
      *
      **/
-    StringFilterManager* categoryFilter();
+    StringSet* categories();
 
-    /**
-     *
-     * Obtain a proxy for the adapter id  filter.
-     *
-     * @return A proxy for the adapter id filter object.
-     *
-     **/
-    StringFilterManager* adapterIdFilter();
+    StringSet* adapterIds();
 
-    /**    
-     *
-     * Obtain a proxy for the identity filter.
-     *
-     * @return A proxy for the identity filter object.
-     *
-     **/
-    IdentityFilterManager* identityFilter();
+    IdentitySet* identities();
     
     /**
      *
