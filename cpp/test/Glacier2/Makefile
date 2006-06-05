@@ -13,7 +13,7 @@ include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= router \
 		  attack \
-		  regex \
+		  addressFilter \
 		  sessionControl \
 		  ssl
 
