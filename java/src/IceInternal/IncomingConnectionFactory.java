@@ -350,7 +350,8 @@ public final class IncomingConnectionFactory extends EventHandler
     }
 
     public
-    IncomingConnectionFactory(Instance instance, EndpointI endpoint, Ice.ObjectAdapter adapter)
+    IncomingConnectionFactory(Instance instance, EndpointI endpoint, Ice.ObjectAdapter adapter,
+			      String adapterName)
     {
         super(instance);
         _endpoint = endpoint;
@@ -407,7 +408,7 @@ public final class IncomingConnectionFactory extends EventHandler
 	    else
 	    {
 		h.value = _endpoint;
-		_acceptor = _endpoint.acceptor(h);
+		_acceptor = _endpoint.acceptor(h, adapterName);
 		_endpoint = h.value;
 		assert(_acceptor != null);
 		_acceptor.listen();

@@ -353,7 +353,7 @@ final class TcpEndpointI extends EndpointI
     // assigned.
     //
     public Acceptor
-    acceptor(EndpointIHolder endpoint)
+    acceptor(EndpointIHolder endpoint, String adapterName)
     {
         TcpAcceptor p = new TcpAcceptor(_instance, _host, _port);
         endpoint.value = new TcpEndpointI(_instance, _host, p.effectivePort(), _timeout, _connectionId,

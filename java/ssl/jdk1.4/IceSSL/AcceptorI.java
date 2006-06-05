@@ -131,8 +131,8 @@ class AcceptorI implements IceInternal.Acceptor
 		}
 	    }
 
-	    connInfo = Util.populateConnectionInfo(fd);
-	    _instance.verifyPeer(connInfo, fd, "", true);
+	    connInfo = Util.populateConnectionInfo(fd, _adapterName, true);
+	    _instance.verifyPeer(connInfo, fd, _adapterName, true);
 	}
 	catch(java.net.SocketTimeoutException ex)
 	{
@@ -271,9 +271,10 @@ class AcceptorI implements IceInternal.Acceptor
 	return _addr.getPort();
     }
 
-    AcceptorI(Instance instance, String host, int port)
+    AcceptorI(Instance instance, String adapterName, String host, int port)
     {
 	_instance = instance;
+	_adapterName = adapterName;
 	_logger = instance.communicator().getLogger();
 	_backlog = 0;
 
@@ -447,6 +448,7 @@ class AcceptorI implements IceInternal.Acceptor
     }
 
     private Instance _instance;
+    private String _adapterName;
     private Ice.Logger _logger;
     private javax.net.ssl.SSLServerSocket _fd;
     private int _backlog;

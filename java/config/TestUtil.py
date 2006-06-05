@@ -21,8 +21,8 @@ protocol = "ssl"
 # protocol compression.
 #
 
-#compress = 0
-compress = 1
+compress = 0
+#compress = 1
 
 #
 # Set threadPerConnection to 1 in case you want to run the tests in
@@ -46,6 +46,7 @@ host = "127.0.0.1"
 #
 
 import sys, os, errno
+from threading import Thread
 
 #
 # If we are using SSL as the default protocol, we need to examine
@@ -180,6 +181,29 @@ def closePipe(pipe):
 
     return status
 
+class ReaderThread(Thread):
+    def __init__(self, pipe, token):
+        self.pipe = pipe
+        self.token = token
+        Thread.__init__(self)
+
+    def run(self):
+
+        try:
+            while 1:
+                line = self.pipe.readline()
+                if not line: break
+		# supress object adapter ready messages.
+    	    	if line[len(line)-7:len(line)] != " ready\n":
+		    print self.token + ": " + line,
+        except IOError:
+            pass
+
+	self.status = closePipe(self.pipe)
+
+    def getStatus(self):
+	return self.status
+
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
@@ -292,10 +316,13 @@ def clientServerTestWithOptions(additionalServerOptions, additionalClientOptions
     clientPipe = os.popen(clientCmd)
     print "ok"
 
+    serverThread = ReaderThread(serverPipe, "Server")
+    serverThread.start()
     printOutputFromPipe(clientPipe)
 
     clientStatus = closePipe(clientPipe)
-    serverStatus = closePipe(serverPipe)
+    serverThread.join()
+    serverStatus = serverThread.getStatus()
 
     if clientStatus or serverStatus:
 	killServers()
@@ -323,10 +350,13 @@ def clientServerTestWithClasspath(serverClasspath, clientClasspath):
     os.environ["CLASSPATH"] = classpath
     print "ok"
 
+    serverThread = ReaderThread(serverPipe, "Server")
+    serverThread.start()
     printOutputFromPipe(clientPipe)
 
     clientStatus = closePipe(clientPipe)
-    serverStatus = closePipe(serverPipe)
+    serverThread.join()
+    serverStatus = serverThread.getStatus()
 
     if clientStatus or serverStatus:
 	killServers()
@@ -355,10 +385,13 @@ def mixedClientServerTestWithOptions(additionalServerOptions, additionalClientOp
     clientPipe = os.popen(clientCmd + " 2>&1")
     print "ok"
 
+    serverThread = ReaderThread(serverPipe, "Server")
+    serverThread.start()
     printOutputFromPipe(clientPipe)
 
     clientStatus = closePipe(clientPipe)
-    serverStatus = closePipe(serverPipe)
+    serverThread.join()
+    serverStatus = serverThread.getStatus()
 
     if clientStatus or serverStatus:
 	killServers()

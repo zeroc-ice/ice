@@ -37,4 +37,16 @@ public class ConnectionInfo
     // The remote TCP/IP host & port.
     //
     public java.net.InetSocketAddress remoteAddr;
+
+    //
+    // If the connection is incoming this bool is true, false
+    // otherwise.
+    //
+    boolean incoming;
+
+    //
+    // The name of the object adapter that hosts this endpoint, if
+    // any.
+    //
+    String adapterName;
 }

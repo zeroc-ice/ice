@@ -984,6 +984,394 @@ public class AllTests
 	}
 	System.out.println("ok");
 
+	System.out.print("Testing IceSSL.TrustOnly... ");
+	{
+	    Ice.InitializationData initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
+	    initData.properties.setProperty("IceSSL.Password", "password");
+	    initData.properties.setProperty("IceSSL.Truststore", "cacert1.jks");
+	    initData.properties.setProperty("IceSSL.TrustOnly",
+		"C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+	    Ice.Communicator comm = Ice.Util.initialize(args, initData);
+	    Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+	    test(fact != null);
+	    java.util.Map d = createServerProps(defaultDir, defaultHost, threadPool);
+	    d.put("IceSSL.Keystore", "s_rsa_dsa_ca1.jks");
+	    d.put("IceSSL.Password", "password");
+	    d.put("IceSSL.Truststore", "cacert1.jks");
+	    Test.ServerPrx server = fact.createServer(d);
+	    try
+	    {
+		server.ice_ping();
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		test(false);
+	    }
+	    fact.destroyServer(server);
+	    comm.destroy();
+	}
+	{
+	    Ice.InitializationData initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
+	    initData.properties.setProperty("IceSSL.Password", "password");
+	    initData.properties.setProperty("IceSSL.Truststore", "cacert1.jks");
+	    Ice.Communicator comm = Ice.Util.initialize(args, initData);
+	    Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+	    test(fact != null);
+	    java.util.Map d = createServerProps(defaultDir, defaultHost, threadPool);
+	    d.put("IceSSL.Keystore", "s_rsa_dsa_ca1.jks");
+	    d.put("IceSSL.Password", "password");
+	    d.put("IceSSL.Truststore", "cacert1.jks");
+	    d.put("IceSSL.TrustOnly",
+		  "C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client");
+	    Test.ServerPrx server = fact.createServer(d);
+	    try
+	    {
+		server.ice_ping();
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		test(false);
+	    }
+	    fact.destroyServer(server);
+	    comm.destroy();
+	}
+	{
+	    Ice.InitializationData initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
+	    initData.properties.setProperty("IceSSL.Password", "password");
+	    initData.properties.setProperty("IceSSL.Truststore", "cacert1.jks");
+	    initData.properties.setProperty("IceSSL.TrustOnly", "CN=Server");
+	    Ice.Communicator comm = Ice.Util.initialize(args, initData);
+	    Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+	    test(fact != null);
+	    java.util.Map d = createServerProps(defaultDir, defaultHost, threadPool);
+	    d.put("IceSSL.Keystore", "s_rsa_dsa_ca1.jks");
+	    d.put("IceSSL.Password", "password");
+	    d.put("IceSSL.Truststore", "cacert1.jks");
+	    Test.ServerPrx server = fact.createServer(d);
+	    try
+	    {
+		server.ice_ping();
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		test(false);
+	    }
+	    fact.destroyServer(server);
+	    comm.destroy();
+	}
+	{
+	    Ice.InitializationData initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
+	    initData.properties.setProperty("IceSSL.Password", "password");
+	    initData.properties.setProperty("IceSSL.Truststore", "cacert1.jks");
+	    Ice.Communicator comm = Ice.Util.initialize(args, initData);
+	    Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+	    test(fact != null);
+	    java.util.Map d = createServerProps(defaultDir, defaultHost, threadPool);
+	    d.put("IceSSL.Keystore", "s_rsa_dsa_ca1.jks");
+	    d.put("IceSSL.Password", "password");
+	    d.put("IceSSL.Truststore", "cacert1.jks");
+	    d.put("IceSSL.TrustOnly", "CN=Client");
+	    Test.ServerPrx server = fact.createServer(d);
+	    try
+	    {
+		server.ice_ping();
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		test(false);
+	    }
+	    fact.destroyServer(server);
+	    comm.destroy();
+	}
+	{
+	    Ice.InitializationData initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
+	    initData.properties.setProperty("IceSSL.Password", "password");
+	    initData.properties.setProperty("IceSSL.Truststore", "cacert1.jks");
+	    initData.properties.setProperty("IceSSL.TrustOnly", "CN=Client");
+	    Ice.Communicator comm = Ice.Util.initialize(args, initData);
+	    Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+	    test(fact != null);
+	    java.util.Map d = createServerProps(defaultDir, defaultHost, threadPool);
+	    d.put("IceSSL.Keystore", "s_rsa_dsa_ca1.jks");
+	    d.put("IceSSL.Password", "password");
+	    d.put("IceSSL.Truststore", "cacert1.jks");
+	    Test.ServerPrx server = fact.createServer(d);
+	    try
+	    {
+		server.ice_ping();
+		test(false);
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+	    }
+	    fact.destroyServer(server);
+	    comm.destroy();
+	}
+	{
+	    Ice.InitializationData initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
+	    initData.properties.setProperty("IceSSL.Password", "password");
+	    initData.properties.setProperty("IceSSL.Truststore", "cacert1.jks");
+	    Ice.Communicator comm = Ice.Util.initialize(args, initData);
+	    Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+	    test(fact != null);
+	    java.util.Map d = createServerProps(defaultDir, defaultHost, threadPool);
+	    d.put("IceSSL.Keystore", "s_rsa_dsa_ca1.jks");
+	    d.put("IceSSL.Password", "password");
+	    d.put("IceSSL.Truststore", "cacert1.jks");
+	    d.put("IceSSL.TrustOnly", "CN=Server");
+	    Test.ServerPrx server = fact.createServer(d);
+	    try
+	    {
+		server.ice_ping();
+		test(false);
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+	    }
+	    fact.destroyServer(server);
+	    comm.destroy();
+	}
+	{
+	    Ice.InitializationData initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
+	    initData.properties.setProperty("IceSSL.Password", "password");
+	    initData.properties.setProperty("IceSSL.Truststore", "cacert1.jks");
+	    initData.properties.setProperty("IceSSL.TrustOnly", "C=Canada,CN=Server");
+	    Ice.Communicator comm = Ice.Util.initialize(args, initData);
+	    Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+	    test(fact != null);
+	    java.util.Map d = createServerProps(defaultDir, defaultHost, threadPool);
+	    d.put("IceSSL.Keystore", "s_rsa_dsa_ca1.jks");
+	    d.put("IceSSL.Password", "password");
+	    d.put("IceSSL.Truststore", "cacert1.jks");
+	    Test.ServerPrx server = fact.createServer(d);
+	    try
+	    {
+		server.ice_ping();
+		test(false);
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+	    }
+	    fact.destroyServer(server);
+	    comm.destroy();
+	}
+	{
+	    Ice.InitializationData initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
+	    initData.properties.setProperty("IceSSL.Password", "password");
+	    initData.properties.setProperty("IceSSL.Truststore", "cacert1.jks");
+	    initData.properties.setProperty("IceSSL.TrustOnly", "C=Canada;CN=Server");
+	    Ice.Communicator comm = Ice.Util.initialize(args, initData);
+	    Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+	    test(fact != null);
+	    java.util.Map d = createServerProps(defaultDir, defaultHost, threadPool);
+	    d.put("IceSSL.Keystore", "s_rsa_dsa_ca1.jks");
+	    d.put("IceSSL.Password", "password");
+	    d.put("IceSSL.Truststore", "cacert1.jks");
+	    Test.ServerPrx server = fact.createServer(d);
+	    try
+	    {
+		server.ice_ping();
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		test(false);
+	    }
+	    fact.destroyServer(server);
+	    comm.destroy();
+	}
+	System.out.println("ok");
+
+	System.out.print("Testing IceSSL.TrustOnly.Client... ");
+	{
+	    Ice.InitializationData initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
+	    initData.properties.setProperty("IceSSL.Password", "password");
+	    initData.properties.setProperty("IceSSL.Truststore", "cacert1.jks");
+	    initData.properties.setProperty("IceSSL.TrustOnly.Client",
+		"C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+	    Ice.Communicator comm = Ice.Util.initialize(args, initData);
+	    Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+	    test(fact != null);
+	    java.util.Map d = createServerProps(defaultDir, defaultHost, threadPool);
+	    d.put("IceSSL.Keystore", "s_rsa_dsa_ca1.jks");
+	    d.put("IceSSL.Password", "password");
+	    d.put("IceSSL.Truststore", "cacert1.jks");
+	    // Should have no effect.
+	    d.put("IceSSL.TrustOnly.Client",
+		"C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+	    Test.ServerPrx server = fact.createServer(d);
+	    try
+	    {
+		server.ice_ping();
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		test(false);
+	    }
+	    fact.destroyServer(server);
+	    comm.destroy();
+	}
+	{
+	    Ice.InitializationData initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
+	    initData.properties.setProperty("IceSSL.Password", "password");
+	    initData.properties.setProperty("IceSSL.Truststore", "cacert1.jks");
+	    initData.properties.setProperty("IceSSL.TrustOnly.Client", "CN=Client");
+	    Ice.Communicator comm = Ice.Util.initialize(args, initData);
+	    Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+	    test(fact != null);
+	    java.util.Map d = createServerProps(defaultDir, defaultHost, threadPool);
+	    d.put("IceSSL.Keystore", "s_rsa_dsa_ca1.jks");
+	    d.put("IceSSL.Password", "password");
+	    d.put("IceSSL.Truststore", "cacert1.jks");
+	    Test.ServerPrx server = fact.createServer(d);
+	    try
+	    {
+		server.ice_ping();
+		test(false);
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+	    }
+	    fact.destroyServer(server);
+	    comm.destroy();
+	}
+	System.out.println("ok");
+
+	System.out.print("Testing IceSSL.TrustOnly.Server... ");
+	{
+	    Ice.InitializationData initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
+	    initData.properties.setProperty("IceSSL.Password", "password");
+	    initData.properties.setProperty("IceSSL.Truststore", "cacert1.jks");
+	    // Should have no effect.
+	    initData.properties.setProperty("IceSSL.TrustOnly.Server",
+		"C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client");
+	    Ice.Communicator comm = Ice.Util.initialize(args, initData);
+	    Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+	    test(fact != null);
+	    java.util.Map d = createServerProps(defaultDir, defaultHost, threadPool);
+	    d.put("IceSSL.Keystore", "s_rsa_dsa_ca1.jks");
+	    d.put("IceSSL.Password", "password");
+	    d.put("IceSSL.Truststore", "cacert1.jks");
+	    d.put("IceSSL.TrustOnly.Server",
+		"C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client");
+	    Test.ServerPrx server = fact.createServer(d);
+	    try
+	    {
+		server.ice_ping();
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		test(false);
+	    }
+	    fact.destroyServer(server);
+	    comm.destroy();
+	}
+	{
+	    Ice.InitializationData initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
+	    initData.properties.setProperty("IceSSL.Password", "password");
+	    initData.properties.setProperty("IceSSL.Truststore", "cacert1.jks");
+	    Ice.Communicator comm = Ice.Util.initialize(args, initData);
+	    Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+	    test(fact != null);
+	    java.util.Map d = createServerProps(defaultDir, defaultHost, threadPool);
+	    d.put("IceSSL.Keystore", "s_rsa_dsa_ca1.jks");
+	    d.put("IceSSL.Password", "password");
+	    d.put("IceSSL.Truststore", "cacert1.jks");
+	    d.put("IceSSL.TrustOnly.Server", "CN=Server");
+	    Test.ServerPrx server = fact.createServer(d);
+	    try
+	    {
+		server.ice_ping();
+		test(false);
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+	    }
+	    fact.destroyServer(server);
+	    comm.destroy();
+	}
+	System.out.println("ok");
+
+	System.out.print("Testing IceSSL.TrustOnly.Server.<adapterName>.. ");
+	{
+	    Ice.InitializationData initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
+	    initData.properties.setProperty("IceSSL.Password", "password");
+	    initData.properties.setProperty("IceSSL.Truststore", "cacert1.jks");
+	    Ice.Communicator comm = Ice.Util.initialize(args, initData);
+	    Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+	    test(fact != null);
+	    java.util.Map d = createServerProps(defaultDir, defaultHost, threadPool);
+	    d.put("IceSSL.Keystore", "s_rsa_dsa_ca1.jks");
+	    d.put("IceSSL.Password", "password");
+	    d.put("IceSSL.Truststore", "cacert1.jks");
+	    d.put("IceSSL.TrustOnly.Server", "CN=bogus");
+	    d.put("IceSSL.TrustOnly.Server.ServerAdapter",
+		"C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client");
+	    Test.ServerPrx server = fact.createServer(d);
+	    try
+	    {
+		server.ice_ping();
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		test(false);
+	    }
+	    fact.destroyServer(server);
+	    comm.destroy();
+	}
+	{
+	    Ice.InitializationData initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
+	    initData.properties.setProperty("IceSSL.Password", "password");
+	    initData.properties.setProperty("IceSSL.Truststore", "cacert1.jks");
+	    Ice.Communicator comm = Ice.Util.initialize(args, initData);
+	    Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+	    test(fact != null);
+	    java.util.Map d = createServerProps(defaultDir, defaultHost, threadPool);
+	    d.put("IceSSL.Keystore", "s_rsa_dsa_ca1.jks");
+	    d.put("IceSSL.Password", "password");
+	    d.put("IceSSL.Truststore", "cacert1.jks");
+	    d.put("IceSSL.TrustOnly.Server.ServerAdapter", "CN=bogus");
+	    Test.ServerPrx server = fact.createServer(d);
+	    try
+	    {
+		server.ice_ping();
+		test(false);
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+	    }
+	    fact.destroyServer(server);
+	    comm.destroy();
+	}
+	System.out.println("ok");
+
 	return factory;
     }
 }

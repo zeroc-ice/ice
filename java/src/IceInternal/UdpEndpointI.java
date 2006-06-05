@@ -490,7 +490,7 @@ final class UdpEndpointI extends EndpointI
     // assigned.
     //
     public Acceptor
-    acceptor(EndpointIHolder endpoint)
+    acceptor(EndpointIHolder endpoint, String adapterName)
     {
         endpoint.value = this;
         return null;

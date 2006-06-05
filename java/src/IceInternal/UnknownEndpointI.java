@@ -173,7 +173,7 @@ final class UnknownEndpointI extends EndpointI
     // assigned.
     //
     public Acceptor
-    acceptor(EndpointIHolder endpoint)
+    acceptor(EndpointIHolder endpoint, String adapterName)
     {
         endpoint.value = null;
         return null;

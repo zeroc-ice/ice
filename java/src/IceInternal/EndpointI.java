@@ -114,7 +114,7 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable
     // from this endpoint, for example, if a dynamic port number is
     // assigned.
     //
-    public abstract Acceptor acceptor(EndpointIHolder endpoint);
+    public abstract Acceptor acceptor(EndpointIHolder endpoint, String adapterName);
 
     //
     // Expand endpoint out in to separate endpoints for each local

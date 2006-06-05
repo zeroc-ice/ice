@@ -131,7 +131,7 @@ final class ConnectorI implements IceInternal.Connector
 		}
 	    }
 
-	    connInfo = Util.populateConnectionInfo(fd);
+	    connInfo = Util.populateConnectionInfo(fd, "", false);
 	    _instance.verifyPeer(connInfo, fd, _host, false);
 	}
         catch(java.net.ConnectException ex)

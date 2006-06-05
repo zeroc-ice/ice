@@ -356,12 +356,13 @@ final class TransceiverI implements IceInternal.Transceiver
     // Only for use by ConnectorI, AcceptorI.
     //
     TransceiverI(Instance instance, javax.net.ssl.SSLEngine engine, java.nio.channels.SocketChannel fd,
-		 String host, boolean incoming)
+		 String host, boolean incoming, String adapterName)
     {
 	_instance = instance;
 	_engine = engine;
 	_fd = fd;
 	_host = host;
+	_adapterName = adapterName;
 	_incoming = incoming;
 	_logger = instance.communicator().getLogger();
 	try
@@ -741,7 +742,7 @@ final class TransceiverI implements IceInternal.Transceiver
 	//
 	// Additional verification.
 	//
-	_info = Util.populateConnectionInfo(_engine.getSession(), _fd.socket());
+	_info = Util.populateConnectionInfo(_engine.getSession(), _fd.socket(), _adapterName, _incoming);
 	_instance.verifyPeer(_info, _fd, _host, _incoming);
 
 	if(_instance.networkTraceLevel() >= 1)
@@ -768,6 +769,7 @@ final class TransceiverI implements IceInternal.Transceiver
     private java.nio.channels.SocketChannel _fd;
     private javax.net.ssl.SSLEngine _engine;
     private String _host;
+    private String _adapterName;
     private boolean _incoming;
     private Ice.Logger _logger;
     private Ice.Stats _stats;

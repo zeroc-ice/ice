@@ -353,9 +353,9 @@ final class EndpointI extends IceInternal.EndpointI
     // assigned.
     //
     public IceInternal.Acceptor
-    acceptor(IceInternal.EndpointIHolder endpoint)
+    acceptor(IceInternal.EndpointIHolder endpoint, String adapterName)
     {
-	AcceptorI p = new AcceptorI(_instance, _host, _port);
+	AcceptorI p = new AcceptorI(_instance, adapterName, _host, _port);
 	endpoint.value = new EndpointI(_instance, _host, p.effectivePort(), _timeout, _connectionId, _compress,
 				       _publish);
 	return p;

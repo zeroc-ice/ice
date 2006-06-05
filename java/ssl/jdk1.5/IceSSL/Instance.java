@@ -17,6 +17,7 @@ class Instance
 	_facade = Ice.Util.getProtocolPluginFacade(communicator);
 	_securityTraceLevel = communicator.getProperties().getPropertyAsIntWithDefault("IceSSL.Trace.Security", 0);
 	_securityTraceCategory = "Security";
+	_trustManager = new TrustManager(communicator);
 
 	// 
 	// Register the endpoint factory. We have to do this now, rather than
@@ -658,22 +659,32 @@ class Instance
 	    }
 	}
 
-	if(_verifier != null)
+	if(!_trustManager.verify(info))
 	{
-	    if(!_verifier.verify(info))
+	    String msg = (incoming ? "incoming" : "outgoing") + " connection rejected by trust manager\n" +
+		IceInternal.Network.fdToString(fd);
+	    if(_securityTraceLevel >= 1)
 	    {
-		String msg = (incoming ? "incoming" : "outgoing") + " connection rejected by certificate verifier\n" +
-		    IceInternal.Network.fdToString(fd);
-
-		if(_securityTraceLevel > 0)
-		{
-		    _logger.trace(_securityTraceCategory, msg);
-		}
-
-		Ice.SecurityException ex = new Ice.SecurityException();
-		ex.reason = msg;
-		throw ex;
+		_logger.trace(_securityTraceCategory, msg);
 	    }
+	    Ice.SecurityException ex = new Ice.SecurityException();
+	    ex.reason = msg;
+	    throw ex;
+	}
+
+	if(_verifier != null && !_verifier.verify(info))
+	{
+	    String msg = (incoming ? "incoming" : "outgoing") + " connection rejected by certificate verifier\n" +
+	    IceInternal.Network.fdToString(fd);
+	    
+	    if(_securityTraceLevel > 0)
+	    {
+		_logger.trace(_securityTraceCategory, msg);
+	    }
+	    
+	    Ice.SecurityException ex = new Ice.SecurityException();
+	    ex.reason = msg;
+	    throw ex;
 	}
     }
 
@@ -805,4 +816,5 @@ class Instance
     private String[] _protocols;
     private boolean _checkCertName;
     private CertificateVerifier _verifier;
+    private TrustManager _trustManager;
 }

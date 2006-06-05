@@ -39,7 +39,7 @@ final class ConnectorI implements IceInternal.Connector
 	{
 	    javax.net.ssl.SSLEngine engine = _instance.createSSLEngine(false);
 
-	    transceiver = new TransceiverI(_instance, engine, fd, _host, false);
+	    transceiver = new TransceiverI(_instance, engine, fd, _host, false, "");
 /*
 	    transceiver.waitForHandshake(timeout);
 

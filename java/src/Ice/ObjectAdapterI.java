@@ -804,7 +804,8 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	        for(int i = 0; i < endpoints.size(); ++i)
 	        {
 		    IceInternal.EndpointI endp = (IceInternal.EndpointI)endpoints.get(i);
-                    _incomingConnectionFactories.add(new IceInternal.IncomingConnectionFactory(instance, endp, this));
+                    _incomingConnectionFactories.add(new IceInternal.IncomingConnectionFactory(
+							 instance, endp, this, _name));
                 }
 
 	        //

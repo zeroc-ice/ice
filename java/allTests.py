@@ -79,11 +79,11 @@ tests = [ \
     ]
 
 def usage():
-    print "usage: " + sys.argv[0] + " [-l] [-r <regex>]"
+    print "usage: " + sys.argv[0] + " [-l] [-r <regex>] [-R regex]"
     sys.exit(2)
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "lr:")
+    opts, args = getopt.getopt(sys.argv[1:], "lr:R:")
 except getopt.GetoptError:
     usage()
 
@@ -94,11 +94,13 @@ loop = 0
 for o, a in opts:
     if o == "-l":
         loop = 1
-    if o == "-r":
-        import re
+    if o == "-r" or o == '-R':
+	import re
 	regexp = re.compile(a)
-	newtests = []
-	def rematch(x): return regexp.match(x)
+	if o == '-r':
+	    def rematch(x): return regexp.search(x)
+	else:
+	    def rematch(x): return not regexp.search(x)
 	tests = filter(rematch, tests)
     
 if loop:

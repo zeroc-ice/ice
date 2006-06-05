@@ -222,7 +222,7 @@ final class AcceptorI implements IceInternal.Acceptor
 	}
 */
 
-	return new TransceiverI(_instance, engine, fd, "", true);
+	return new TransceiverI(_instance, engine, fd, "", true, _adapterName);
     }
 
     public void
@@ -262,9 +262,10 @@ final class AcceptorI implements IceInternal.Acceptor
 	return _addr.getPort();
     }
 
-    AcceptorI(Instance instance, String host, int port)
+    AcceptorI(Instance instance, String adapterName, String host, int port)
     {
 	_instance = instance;
+	_adapterName = adapterName;
 	_logger = instance.communicator().getLogger();
 	_backlog = 0;
 
@@ -302,6 +303,7 @@ final class AcceptorI implements IceInternal.Acceptor
     }
 
     private Instance _instance;
+    private String _adapterName;
     private Ice.Logger _logger;
     private java.nio.channels.ServerSocketChannel _fd;
     private int _backlog;

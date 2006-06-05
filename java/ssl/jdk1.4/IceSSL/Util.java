@@ -95,7 +95,7 @@ public final class Util
     }
 
     static ConnectionInfo
-    populateConnectionInfo(javax.net.ssl.SSLSocket fd)
+    populateConnectionInfo(javax.net.ssl.SSLSocket fd, String adapterName, boolean incoming)
     {
 	ConnectionInfo info = new ConnectionInfo();
 	javax.net.ssl.SSLSession session = fd.getSession();
@@ -110,6 +110,8 @@ public final class Util
 	info.cipher = session.getCipherSuite();
 	info.localAddr = (java.net.InetSocketAddress)fd.getLocalSocketAddress();
 	info.remoteAddr = (java.net.InetSocketAddress)fd.getRemoteSocketAddress();
+	info.adapterName = adapterName;
+	info.incoming = incoming;
 	return info;
     }
 }
