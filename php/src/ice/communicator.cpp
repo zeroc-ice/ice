@@ -289,6 +289,14 @@ ZEND_FUNCTION(Ice_Communicator_identityToString)
         WRONG_PARAM_COUNT;
     }
 
+    ice_object* obj = getObject(getThis() TSRMLS_CC);
+    if(!obj)
+    {
+	return;
+    }
+    assert(obj->ptr);
+    Ice::CommunicatorPtr* _this = static_cast<Ice::CommunicatorPtr*>(obj->ptr);
+
     zend_class_entry* cls = findClass("Ice_Identity" TSRMLS_CC);
     assert(cls);
 
@@ -313,6 +321,14 @@ ZEND_FUNCTION(Ice_Communicator_stringToIdentity)
     {
         WRONG_PARAM_COUNT;
     }
+
+    ice_object* obj = getObject(getThis() TSRMLS_CC);
+    if(!obj)
+    {
+	return;
+    }
+    assert(obj->ptr);
+    Ice::CommunicatorPtr* _this = static_cast<Ice::CommunicatorPtr*>(obj->ptr);
 
     char* str;
     int len;
