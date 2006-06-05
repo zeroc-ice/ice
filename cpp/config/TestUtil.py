@@ -334,7 +334,6 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
     printOutputFromPipe(clientPipe)
 
     clientStatus = closePipe(clientPipe)
-    #serverStatus = closePipe(serverPipe)
     serverThread.join()
     serverStatus = serverThread.getStatus()
 
@@ -368,10 +367,13 @@ def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalCl
     getAdapterReady(clientPipe)
     print "ok"
 
+    serverThread = ReaderThread(serverPipe, "Server")
+    serverThread.start()
     printOutputFromPipe(clientPipe)
 
     clientStatus = closePipe(clientPipe)
-    serverStatus = closePipe(serverPipe)
+    serverThread.join()
+    serverStatus = serverThread.getStatus()
 
     if clientStatus or serverStatus:
 	killServers()

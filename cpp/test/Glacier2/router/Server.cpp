@@ -24,6 +24,10 @@ public:
 int
 main(int argc, char* argv[])
 {
+    Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
+    properties->setProperty("Ice.Warn.Connections", "0");
+    properties->setProperty("Ice.Warn.Dispatch", "0");
+
     CallbackServer app;
     return app.main(argc, argv);
 }
