@@ -367,6 +367,13 @@ class AdapterEditor extends CommunicatorChildEditor
 	}
     }
 
+    protected boolean validate()
+    {
+	return check(new String[]{
+	    "Adapter Name", _name.getText().trim(),
+	    "Endpoints", _endpoints.getText().trim()});
+    }
+
     void show(Adapter adapter)
     {
 	detectUpdates(false);

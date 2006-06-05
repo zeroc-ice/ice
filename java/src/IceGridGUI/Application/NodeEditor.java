@@ -220,6 +220,11 @@ class NodeEditor extends Editor
 	descriptor.loadFactor = _loadFactor.getText().trim();
     }	    
     
+    protected boolean validate()
+    {
+	return check(new String[]{"Name", _name.getText().trim()});
+    }
+
     void show(Node node)
     {
 	detectUpdates(false);

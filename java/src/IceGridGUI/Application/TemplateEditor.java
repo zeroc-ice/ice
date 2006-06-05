@@ -84,6 +84,11 @@ class TemplateEditor extends Editor
 	builder.nextLine();
     }
 
+    protected boolean validate()
+    {
+	return check(new String[]{"Template ID", _template.getText().trim()});
+    }
+
     void show()
     {
 	TemplateDescriptor descriptor = getDescriptor();

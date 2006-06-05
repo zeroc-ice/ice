@@ -185,6 +185,11 @@ class ApplicationEditor extends Editor
 	descriptor.distrib.directories = _distribDirs.getList();
     }	    
     
+    protected boolean validate()
+    {
+	return check(new String[]{"Name", _name.getText().trim()});
+    }
+
     void show(Root root)
     {
 	detectUpdates(false);

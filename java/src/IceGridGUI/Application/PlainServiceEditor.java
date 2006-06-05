@@ -47,6 +47,11 @@ class PlainServiceEditor extends CommunicatorChildEditor
 	_propertiesPanel.setName("Service Properties");
     }
 
+    protected boolean validate()
+    {
+	return _subEditor.validate();
+    }
+
 
     void writeDescriptor()
     {

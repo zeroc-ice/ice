@@ -245,6 +245,13 @@ class ServerSubEditor extends CommunicatorSubEditor
 	return getServerDescriptor().id.equals(_id.getText().trim()); 
     }
 
+    boolean validate()
+    {
+	return _mainEditor.check(new String[]{
+	    "Server ID", _id.getText().trim(),
+	    "Path to Executable", _exe.getText().trim()});
+    }
+
     void show(boolean isEditable)
     {
 	ServerDescriptor descriptor = getServerDescriptor();

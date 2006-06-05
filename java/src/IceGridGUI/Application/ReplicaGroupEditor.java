@@ -262,7 +262,7 @@ class ReplicaGroupEditor extends Editor
 
     protected void appendProperties(DefaultFormBuilder builder)
     {
-	builder.append("Replica Group ID" );
+	builder.append("Replica Group ID");
 	builder.append(_id, 3);
 	builder.nextLine();
 	
@@ -307,6 +307,12 @@ class ReplicaGroupEditor extends Editor
 	super.buildPropertiesPanel();
 	_propertiesPanel.setName("Replica Group Properties");
     }
+
+    protected boolean validate()
+    {
+	return check(new String[]{"Replica Group ID", _id.getText().trim()});
+    }
+
 
     void show(ReplicaGroup replicaGroup)
     {

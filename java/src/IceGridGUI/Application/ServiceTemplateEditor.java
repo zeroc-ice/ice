@@ -42,6 +42,11 @@ class ServiceTemplateEditor extends TemplateEditor
 	_propertiesPanel.setName("Service Template Properties");
     }
 
+    protected boolean validate()
+    {
+	return super.validate() && _subEditor.validate();
+    }
+
     void show(ServiceTemplate t)
     {
 	detectUpdates(false);

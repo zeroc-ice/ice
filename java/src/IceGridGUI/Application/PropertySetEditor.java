@@ -176,6 +176,11 @@ class PropertySetEditor extends Editor
 	_propertiesPanel.setName("Named Property Set");
     }
   
+    protected boolean validate()
+    {
+	return check(new String[]{"ID", _id.getText()});
+    }
+
     void show(PropertySet nps)
     {
 	detectUpdates(false);

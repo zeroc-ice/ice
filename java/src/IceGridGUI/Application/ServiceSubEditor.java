@@ -74,6 +74,13 @@ class ServiceSubEditor extends CommunicatorSubEditor
 	return getServiceDescriptor().name.equals(_name.getText().trim()); 
     }
 
+    boolean validate()
+    {
+	return _mainEditor.check(new String[]{
+	    "Service Name", _name.getText().trim(),
+	    "Entry Point", _entry.getText().trim()});
+    }
+
     void show(boolean isEditable)
     {
 	ServiceDescriptor descriptor = getServiceDescriptor();

@@ -112,6 +112,11 @@ class DbEnvEditor extends CommunicatorChildEditor
 	_propertiesPanel.setName("Database Environment Properties");
     }
 
+    protected boolean validate()
+    {
+	return check(new String[]{"Name", _name.getText().trim()});
+    }
+
     void show(DbEnv dbEnv)
     {
 	detectUpdates(false);

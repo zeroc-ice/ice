@@ -55,6 +55,11 @@ class PlainServerEditor extends AbstractServerEditor
 	return _target.getDescriptor();
     }
 
+    protected boolean validate()
+    {
+	return _subEditor.validate();
+    }
+
     void show(PlainServer server)
     {
 	detectUpdates(false);

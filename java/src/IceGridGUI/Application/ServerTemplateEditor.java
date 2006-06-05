@@ -42,6 +42,11 @@ class ServerTemplateEditor extends TemplateEditor
 	_propertiesPanel.setName("Server Template Properties");
     }
 
+    protected boolean validate()
+    {
+	return super.validate() && _subEditor.validate();
+    }
+
     void show(ServerTemplate t)
     {
 	detectUpdates(false);

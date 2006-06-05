@@ -16,6 +16,7 @@ import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
@@ -60,12 +61,17 @@ public class Editor extends EditorBase
     {
 	if(_applyButton.isEnabled())
 	{
-	    return applyUpdate();
+	    return validate() && applyUpdate();
 	}
 	else
 	{
 	    return true;
 	}
+    }
+
+    protected boolean validate()
+    {
+	return true;
     }
 
     protected boolean applyUpdate()
@@ -114,7 +120,10 @@ public class Editor extends EditorBase
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    applyUpdate();
+		    if(validate())
+		    {
+			applyUpdate();
+		    }
 		}
 	    };
 	_applyButton = new JButton(apply);
@@ -184,8 +193,44 @@ public class Editor extends EditorBase
     {
 	return _updateListener;
     }
-    
-    
+
+    //
+    // Check that these 'val' are filled in
+    //
+    boolean check(String[] nameValArray)
+    {
+	String emptyFields = "";
+	int errorCount = 0;
+
+	for(int i = 1; i < nameValArray.length; i += 2)
+	{
+	    if(nameValArray[i] == null || nameValArray[i].length() == 0)
+	    {
+		errorCount++;
+		if(emptyFields.length() > 0)
+		{
+		    emptyFields += "\n";
+		}
+		emptyFields += "'" + nameValArray[i - 1] + "'";
+	    }
+	}
+	
+	if(errorCount > 0)
+	{
+	    String message = errorCount == 1 ?
+		emptyFields + " cannot be empty" :
+		"The following fields cannot be empty:\n" + emptyFields;
+
+	    JOptionPane.showMessageDialog(
+		_target.getCoordinator().getMainFrame(),
+		message,
+		"Validation failed",
+		JOptionPane.ERROR_MESSAGE);
+	}
+
+	return errorCount == 0;
+    }
+
     protected JButton _applyButton;
     protected JButton _discardButton;
     protected DocumentListener _updateListener;

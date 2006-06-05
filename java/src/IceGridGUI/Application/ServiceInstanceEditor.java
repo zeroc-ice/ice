@@ -152,7 +152,6 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
 	_propertiesPanel.setName("Service Properties");
     }
 
-
     void show(ServiceInstance service)
     {
 	detectUpdates(false);
