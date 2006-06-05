@@ -21,36 +21,36 @@ class ClientBlobjectImpl
 {
 public:
 
-    ClientBlobjectImpl(const StringFilterIPtr& categoryFilter, const StringFilterIPtr& adapterFilter,
-		       const IdentityFilterIPtr& idFilter) :
+    ClientBlobjectImpl(const StringFilterManagerIPtr& categoryFilter, const StringFilterManagerIPtr& adapterFilter,
+		       const IdentityFilterManagerIPtr& idFilter) :
 	_categoryFilter(categoryFilter),
 	_adapterIdFilter(adapterFilter),
-	_objectIdFilter(idFilter)
+	_identityFilter(idFilter)
     {
     }
 
-    StringFilterIPtr 
+    StringFilterManagerIPtr 
     categoryFilter()
     {
 	return _categoryFilter;
     }
 
-    StringFilterIPtr 
+    StringFilterManagerIPtr 
     adapterIdFilter()
     {
 	return _adapterIdFilter;
     }
 
-    IdentityFilterIPtr 
-    objectIdFilter()
+    IdentityFilterManagerIPtr 
+    identityFilter()
     {
-	return _objectIdFilter;
+	return _identityFilter;
     }
 
 private:
-    const StringFilterIPtr _categoryFilter;
-    const StringFilterIPtr _adapterIdFilter;
-    const IdentityFilterIPtr _objectIdFilter;
+    const StringFilterManagerIPtr _categoryFilter;
+    const StringFilterManagerIPtr _adapterIdFilter;
+    const IdentityFilterManagerIPtr _identityFilter;
 };
 
 }
@@ -126,7 +126,7 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
 	throw ex;
     }
 
-    if(!_impl->objectIdFilter()->match(current.id))
+    if(!_impl->identityFilter()->match(current.id))
     {
 	if(_rejectTraceLevel >= 1)
 	{
@@ -218,7 +218,7 @@ Glacier2::ClientBlobject::create(const CommunicatorPtr& communicator, const stri
 	    allowSeq.push_back('_' + userId); // Add user id with prepended underscore to allowed categories.
 	}
     }	
-    StringFilterIPtr categoryFilter = new StringFilterI(allowSeq, rejectSeq, acceptOverride);
+    StringFilterManagerIPtr categoryFilter = new StringFilterManagerI(allowSeq, rejectSeq, acceptOverride);
 
     //
     // TODO: refactor initialization of filters.
@@ -228,7 +228,7 @@ Glacier2::ClientBlobject::create(const CommunicatorPtr& communicator, const stri
     acceptOverride = props->getPropertyAsIntWithDefault("Glacier2.Filter.AdapterId.AcceptOverride", 0) == 1;
     stringToSeq(allow, allowSeq);
     stringToSeq(reject, rejectSeq);
-    StringFilterIPtr adapterIdFilter = new StringFilterI(allowSeq, rejectSeq, acceptOverride);
+    StringFilterManagerIPtr adapterIdFilter = new StringFilterManagerI(allowSeq, rejectSeq, acceptOverride);
 
     //
     // TODO: Object id's from configurations?
@@ -240,25 +240,25 @@ Glacier2::ClientBlobject::create(const CommunicatorPtr& communicator, const stri
     acceptOverride = props->getPropertyAsIntWithDefault("Glacier2.Filter.AdapterId.AcceptOverride", 0) == 1;
     stringToSeq(allow, allowSeq);
     stringToSeq(reject, rejectSeq);
-    IdentityFilterIPtr objectIdFilter = new IdentityFilterI(allowIdSeq, rejectIdSeq, false);
+    IdentityFilterManagerIPtr identityFilter = new IdentityFilterManagerI(allowIdSeq, rejectIdSeq, false);
 
-    return new ClientBlobject(communicator, new ClientBlobjectImpl(categoryFilter, adapterIdFilter, objectIdFilter));
+    return new ClientBlobject(communicator, new ClientBlobjectImpl(categoryFilter, adapterIdFilter, identityFilter));
 }
 
-StringFilterPtr 
+StringFilterManagerPtr 
 ClientBlobject::categoryFilter()
 {
     return _impl->categoryFilter();
 }
 
-StringFilterPtr 
+StringFilterManagerPtr 
 ClientBlobject::adapterIdFilter()
 {
     return _impl->adapterIdFilter();
 }
 
-IdentityFilterPtr
-ClientBlobject::objectIdFilter()
+IdentityFilterManagerPtr
+ClientBlobject::identityFilter()
 {
-    return _impl->objectIdFilter();
+    return _impl->identityFilter();
 }

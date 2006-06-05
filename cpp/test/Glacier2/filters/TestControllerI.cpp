@@ -168,17 +168,17 @@ TestControllerI::step(const Glacier2::SessionPrx& currentSession, const TestToke
 
 	    if(reconfigure)
 	    {
-		Glacier2::StringFilterPrx catFilter = session.sessionControl->categoryFilter();
+		Glacier2::StringFilterManagerPrx catFilter = session.sessionControl->categoryFilter();
 		catFilter->setAccept(config.categoryFiltersAccept);
 		catFilter->setReject(config.categoryFiltersReject);
 		catFilter->setAcceptOverride(config.categoryFilterAcceptOverride);
 
-		Glacier2::StringFilterPrx adapterFilter = session.sessionControl->adapterIdFilter();
+		Glacier2::StringFilterManagerPrx adapterFilter = session.sessionControl->adapterIdFilter();
 		adapterFilter->setAccept(config.adapterIdFiltersAccept);
 		adapterFilter->setReject(config.adapterIdFiltersReject);
 		adapterFilter->setAcceptOverride(config.adapterIdAcceptOverride);
 			
-		Glacier2::IdentityFilterPrx idFilter = session.sessionControl->objectIdFilter();
+		Glacier2::IdentityFilterManagerPrx idFilter = session.sessionControl->identityFilter();
 		idFilter->setAccept(config.objectIdFiltersAccept);
 		idFilter->setReject(config.objectIdFiltersReject);
 		idFilter->setAcceptOverride(config.objectIdAcceptOverride);

@@ -319,7 +319,7 @@ ClientSessionManagerI::create(const string& user, const Glacier2::SessionControl
 	    id.name = "Registry";
 	    ids.push_back(id);
 	    ids.push_back(s->ice_getIdentity());
-	    ctl->objectIdFilter()->addAccept(ids);
+	    ctl->identityFilter()->addAccept(ids);
 	}
 	catch(const Ice::LocalException&)
 	{
@@ -385,7 +385,7 @@ ClientSSLSessionManagerI::create(const Glacier2::SSLInfo& info, const Glacier2::
 	    id.name = "Registry";
 	    ids.push_back(id);
 	    ids.push_back(s->ice_getIdentity());
-	    ctl->objectIdFilter()->addAccept(ids);
+	    ctl->identityFilter()->addAccept(ids);
 	}
 	catch(const Ice::LocalException&)
 	{

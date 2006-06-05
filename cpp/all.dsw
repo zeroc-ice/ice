@@ -78,6 +78,48 @@ Package=<4>
 
 ###############################################################################
 
+Project: "addressC"=.\test\Glacier2\address\addressC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name glacier2
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "addressS"=.\test\Glacier2\address\addressS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name glacier2
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "all"=.\all.dsp - Package Owner=<4>
 
 Package=<5>
@@ -609,12 +651,6 @@ Package=<4>
     Project_Dep_Name attackS
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name regexC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name regexS
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name sessionControlC
     End Project Dependency
     Begin Project Dependency
@@ -649,6 +685,12 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name allocateS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name addressC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name addressS
     End Project Dependency
 }}}
 
@@ -3391,51 +3433,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name iceutil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "regexC"=.\test\Glacier2\regex\regexC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name glacier2
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2cpp
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "regexS"=.\test\Glacier2\regex\regexS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2cpp
     End Project Dependency
 }}}
 

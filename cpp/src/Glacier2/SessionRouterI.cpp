@@ -30,32 +30,32 @@ class SessionControlI : public SessionControl
 public:
 
     SessionControlI(const SessionRouterIPtr& sessionRouter, const ConnectionPtr& connection,
-		    const StringFilterPrx& categoryFilter, const StringFilterPrx& adapterIdFilter,
-		    const IdentityFilterPrx& objectIdFilter) :
+		    const StringFilterManagerPrx& categoryFilter, const StringFilterManagerPrx& adapterIdFilter,
+		    const IdentityFilterManagerPrx& identityFilter) :
         _sessionRouter(sessionRouter),
 	_connection(connection),
 	_categoryFilter(categoryFilter),
-	_objectIdFilter(objectIdFilter),
+	_identityFilter(identityFilter),
 	_adapterIdFilter(adapterIdFilter)
     {
     }
 
-    virtual StringFilterPrx
+    virtual StringFilterManagerPrx
     categoryFilter(const Current& current)
     {
 	return _categoryFilter;
     }
 
-    virtual StringFilterPrx
+    virtual StringFilterManagerPrx
     adapterIdFilter(const Current& current)
     {
 	return _adapterIdFilter;
     }
 
-    virtual IdentityFilterPrx
-    objectIdFilter(const Current& current)
+    virtual IdentityFilterManagerPrx
+    identityFilter(const Current& current)
     {
-	return _objectIdFilter; 
+	return _identityFilter; 
     }
     
     virtual void
@@ -68,9 +68,9 @@ private:
 
     const SessionRouterIPtr _sessionRouter;
     const ConnectionPtr _connection;
-    const StringFilterPrx _categoryFilter;
-    const IdentityFilterPrx _objectIdFilter;
-    const StringFilterPrx _adapterIdFilter;
+    const StringFilterManagerPrx _categoryFilter;
+    const IdentityFilterManagerPrx _identityFilter;
+    const StringFilterManagerPrx _adapterIdFilter;
 };
 
 class ClientLocator : public ServantLocator
@@ -358,13 +358,18 @@ Glacier2::SessionRouterI::getServerProxy(const Current& current) const
 void
 Glacier2::SessionRouterI::addProxy(const ObjectPrx& proxy, const Current& current)
 {
-    getRouter(current.con, current.id)->addProxy(proxy, current); // Forward to the per-client router.
+    ObjectProxySeq seq;
+    seq.push_back(proxy);
+    addProxies(seq, current);
 }
 
 ObjectProxySeq
 Glacier2::SessionRouterI::addProxies(const ObjectProxySeq& proxies, const Current& current)
 {
-    return getRouter(current.con, current.id)->addProxies(proxies, current); // Forward to the per-client router.
+    //
+    // Forward to the per-client router.
+    //
+    return getRouter(current.con, current.id)->getClientBlobject()->add(proxies, current); 
 }
 
 string
@@ -804,7 +809,7 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
     SessionPrx session;
     Identity controlId;
     Identity categoryFilterId;
-    Identity objectIdFilterId;
+    Identity identityFilterId;
     Identity adapterIdFilterId;
     RouterIPtr router;
 
@@ -831,15 +836,15 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 	    SessionControlPrx control;
 	    if(_adminAdapter)
 	    {
-		StringFilterPrx catFilterPrx = StringFilterPrx::uncheckedCast(
+		StringFilterManagerPrx catFilterPrx = StringFilterManagerPrx::uncheckedCast(
 		    _adminAdapter->addWithUUID(clientBlobject->categoryFilter()));
 		categoryFilterId = catFilterPrx->ice_getIdentity();
-		StringFilterPrx adapterFilterPrx = StringFilterPrx::uncheckedCast(
+		StringFilterManagerPrx adapterFilterPrx = StringFilterManagerPrx::uncheckedCast(
 		    _adminAdapter->addWithUUID(clientBlobject->adapterIdFilter()));
 		adapterIdFilterId = adapterFilterPrx->ice_getIdentity();
-		IdentityFilterPrx idFilterPrx = IdentityFilterPrx::uncheckedCast(
-		    _adminAdapter->addWithUUID(clientBlobject->objectIdFilter()));
-		objectIdFilterId = idFilterPrx->ice_getIdentity();
+		IdentityFilterManagerPrx idFilterPrx = IdentityFilterManagerPrx::uncheckedCast(
+		    _adminAdapter->addWithUUID(clientBlobject->identityFilter()));
+		identityFilterId = idFilterPrx->ice_getIdentity();
 
 	        control = SessionControlPrx::uncheckedCast(
 		    _adminAdapter->addWithUUID(new SessionControlI(this, current.con, catFilterPrx, 
@@ -876,7 +881,7 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 		{
 		    _adminAdapter->remove(categoryFilterId);
 		    _adminAdapter->remove(adapterIdFilterId);
-		    _adminAdapter->remove(objectIdFilterId);
+		    _adminAdapter->remove(identityFilterId);
 	            _adminAdapter->remove(controlId);
 		}
 		catch(const Exception&)

@@ -56,6 +56,16 @@ interface Session
     void destroy();
 };
 
+exception DuplicateStringConstraintsException
+{
+    Ice::StringSeq duplicates;
+};
+
+exception StringConstraintsDoNotExistException
+{
+    Ice::StringSeq missing;
+};
+
 /**
  *
  * A filter object that can be applied to [Session]. Accessible through
@@ -64,28 +74,31 @@ interface Session
  * @see SessionControl
  *
  **/
-interface StringFilter
+interface StringFilterManager
 {
     /**
      *
      * Add allowable strings to the filter.
      *
      **/
-    idempotent void addAccept(Ice::StringSeq additions);
+    idempotent void addAccept(Ice::StringSeq additions)
+    	throws DuplicateStringConstraintsException;
 
     /**
      *
      * Remove allowable strings the filter.
      *
      **/
-    idempotent void removeAccept(Ice::StringSeq deletions);
+    idempotent void removeAccept(Ice::StringSeq deletions)
+	throws StringConstraintsDoNotExistException;
 
     /**
      *
      * Replace the set of allowable strings in the filter.
      *
      **/
-    idempotent void setAccept(Ice::StringSeq acceptStrings);
+    idempotent void setAccept(Ice::StringSeq acceptStrings)
+    	throws DuplicateStringConstraintsException;
     
     /**
      *
@@ -101,21 +114,24 @@ interface StringFilter
      * Add prohibited strings to the filter.
      *
      **/
-    idempotent void addReject(Ice::StringSeq additions);
+    idempotent void addReject(Ice::StringSeq additions)
+    	throws DuplicateStringConstraintsException;
 
     /**
      *
      * Remove prohibited strings from the filter.
      *
      **/
-    idempotent void removeReject(Ice::StringSeq deletions);
+    idempotent void removeReject(Ice::StringSeq deletions)
+	throws StringConstraintsDoNotExistException;
 
     /**
      *
      * Replace the set of prohibited srings in the filter.
      *
      **/
-    idempotent void setReject(Ice::StringSeq rejectStrings);
+    idempotent void setReject(Ice::StringSeq rejectStrings)
+    	throws DuplicateStringConstraintsException;
 
     /**
      *
@@ -124,7 +140,8 @@ interface StringFilter
      * @return A sequence of strings that the filter will reject.
      *
      **/
-    nonmutating Ice::StringSeq getReject();
+    nonmutating Ice::StringSeq getReject()
+	throws StringConstraintsDoNotExistException;
 
     /**
      *
@@ -151,28 +168,41 @@ interface StringFilter
      
 };
 
-interface IdentityFilter
+exception DuplicateIdentityConstraintsException
+{
+    Ice::IdentitySeq duplicates;
+};
+
+exception IdentityConstraintsDoNotExistException
+{
+    Ice::IdentitySeq missing;
+};
+
+interface IdentityFilterManager
 {
     /**
      *
      * Add allowable strings to the filter.
      *
      **/
-    idempotent void addAccept(Ice::IdentitySeq additions);
+    idempotent void addAccept(Ice::IdentitySeq additions)
+	throws DuplicateIdentityConstraintsException;
 
     /**
      *
      * Remove allowable strings the filter.
      *
      **/
-    idempotent void removeAccept(Ice::IdentitySeq deletions);
+    idempotent void removeAccept(Ice::IdentitySeq deletions)
+    	throws IdentityConstraintsDoNotExistException;
 
     /**
      *
      * Replace the set of allowable strings in the filter.
      *
      **/
-    idempotent void setAccept(Ice::IdentitySeq acceptStrings);
+    idempotent void setAccept(Ice::IdentitySeq acceptStrings)
+	throws DuplicateIdentityConstraintsException;
     
     /**
      *
@@ -188,21 +218,24 @@ interface IdentityFilter
      * Add prohibited strings to the filter.
      *
      **/
-    idempotent void addReject(Ice::IdentitySeq additions);
+    idempotent void addReject(Ice::IdentitySeq additions)
+	throws DuplicateIdentityConstraintsException;
 
     /**
      *
      * Remove prohibited strings from the filter.
      *
      **/
-    idempotent void removeReject(Ice::IdentitySeq deletions);
+    idempotent void removeReject(Ice::IdentitySeq deletions)
+    	throws IdentityConstraintsDoNotExistException;
 
     /**
      *
      * Replace the set of prohibited srings in the filter.
      *
      **/
-    idempotent void setReject(Ice::IdentitySeq rejectStrings);
+    idempotent void setReject(Ice::IdentitySeq rejectStrings)
+	throws DuplicateIdentityConstraintsException;
 
     /**
      *
@@ -254,7 +287,7 @@ interface SessionControl
      * @return A proxy for the category filter object.
      *
      **/
-    StringFilter* categoryFilter();
+    StringFilterManager* categoryFilter();
 
     /**
      *
@@ -263,16 +296,16 @@ interface SessionControl
      * @return A proxy for the adapter id filter object.
      *
      **/
-    StringFilter* adapterIdFilter();
+    StringFilterManager* adapterIdFilter();
 
     /**    
      *
-     * Obtain a proxy for the object id filter.
+     * Obtain a proxy for the identity filter.
      *
-     * @return A proxy for the object id filter object.
+     * @return A proxy for the identity filter object.
      *
      **/
-    IdentityFilter* objectIdFilter();
+    IdentityFilterManager* identityFilter();
     
     /**
      *

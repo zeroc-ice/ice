@@ -37,9 +37,9 @@ public:
 
     static ClientBlobjectPtr create(const Ice::CommunicatorPtr&, const std::string&);
 
-    StringFilterPtr categoryFilter();
-    StringFilterPtr adapterIdFilter();
-    IdentityFilterPtr objectIdFilter();
+    StringFilterManagerPtr categoryFilter();
+    StringFilterManagerPtr adapterIdFilter();
+    IdentityFilterManagerPtr identityFilter();
 
 private:
     const RoutingTablePtr _routingTable;

@@ -375,9 +375,9 @@ Glacier2:
     Client.Trace.Override
     Client.Trace.Reject
     Client.Trace.Request
-    Filter.Regex.Reject
-    Filter.Regex.Accept
-    Filter.Regex.AcceptOverride
+    Filter.Address.Reject
+    Filter.Address.Accept
+    Filter.Address.AcceptOverride
     Filter.MaxProxyLength
     Filter.Category.Accept
     Filter.Category.Reject

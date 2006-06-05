@@ -19,7 +19,7 @@
 namespace Glacier2
 {
 
-template <typename T, class P>
+template <typename T, class P, class AlreadyExists, class DoesNotExist>
 class FilterT : public P, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
@@ -130,7 +130,13 @@ private:
 	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 	std::vector<T> merged(dest.size() + newItems.size());
 	merge(newItems.begin(), newItems.end(), dest.begin(), dest.end(), merged.begin());
-	merged.erase(unique(merged.begin(), merged.end()), merged.end());
+	iterator split = unique(merged.begin(), merged.end());
+	if(split != merged.end())
+	{
+	    AlreadyExists e;
+	    copy(split, merged.end(), e.duplicates.begin());
+	    throw e;
+	}
 	swap(dest, merged);
     }
 
@@ -163,10 +169,12 @@ private:
 	const_iterator r = toRemove.begin();
 	iterator mark = dest.begin();
 	std::list<iterator> deleteList;
+	std::vector<T> notFound;
 
 	while(r != toRemove.end())
 	{
 	    iterator i = mark;
+	    bool found = false;
 	    while(i != dest.end() && r != toRemove.end())
 	    {
 		if(*r == *i)
@@ -179,17 +187,37 @@ private:
 		    ++i;
 		    ++r;
 		    mark = i;
+		    found = true;
 		}
 		else
 		{
 		    ++i;
 		}
 	    }
+
+	    //
+	    // If we didn't find the entry in our list of constraints,
+	    // store it and move on. We want the complete list of
+	    // constraints that weren't found to give a meaningful
+	    // exception.
+	    //
+	    if(!found)
+	    {
+		notFound.push_back(*r);	
+	    }
+
 	    if(r == toRemove.end())
 	    {
 		break;
 	    }
 	    ++r;
+	}
+
+	if(notFound.size() > 0)
+	{
+	    DoesNotExist e;
+	    e.missing = notFound;
+	    throw e;
 	}
 
 	for(literator i = deleteList.begin(); i != deleteList.end(); ++i)
@@ -199,8 +227,8 @@ private:
     }
 };
 
-template<class T, class P>
-FilterT<T, P>::FilterT(const std::vector<T>& accept, const std::vector<T>& reject, const bool acceptOverride):
+template<class T, class P, class AlreadyExists, class DoesNotExist>
+FilterT<T, P, AlreadyExists, DoesNotExist>::FilterT(const std::vector<T>& accept, const std::vector<T>& reject, const bool acceptOverride):
     _accept(accept),
     _reject(reject),
     _acceptOverride(acceptOverride)
@@ -211,20 +239,20 @@ FilterT<T, P>::FilterT(const std::vector<T>& accept, const std::vector<T>& rejec
     _reject.erase(unique(_reject.begin(), _reject.end()), _reject.end());
 }
 
-template<class T, class P> void
-FilterT<T, P>::addAccept(const std::vector<T>& additions, const Ice::Current&)
+template<class T, class P, class AlreadyExists, class DoesNotExist> void
+FilterT<T, P, AlreadyExists, DoesNotExist>::addAccept(const std::vector<T>& additions, const Ice::Current&)
 {
     addImpl(_accept, additions);
 }
 
-template<class T, class P> void
-FilterT<T, P>::removeAccept(const std::vector<T>& deletions, const Ice::Current&)
+template<class T, class P, class AlreadyExists, class DoesNotExist> void
+FilterT<T, P, AlreadyExists, DoesNotExist>::removeAccept(const std::vector<T>& deletions, const Ice::Current&)
 {
     removeImpl(_accept, deletions);
 }
 
-template<class T, class P> void
-FilterT<T, P>::setAccept(const std::vector<T>& filterElements, const Ice::Current&)
+template<class T, class P, class AlreadyExists, class DoesNotExist> void
+FilterT<T, P, AlreadyExists, DoesNotExist>::setAccept(const std::vector<T>& filterElements, const Ice::Current&)
 {
     std::vector<T> newItems(filterElements);
     sort(newItems.begin(), newItems.end());
@@ -233,27 +261,27 @@ FilterT<T, P>::setAccept(const std::vector<T>& filterElements, const Ice::Curren
     swap(newItems, _accept);
 }
 
-template<class T, class P> std::vector<T>
-FilterT<T, P>::getAccept(const Ice::Current&) const
+template<class T, class P, class AlreadyExists, class DoesNotExist> std::vector<T>
+FilterT<T, P, AlreadyExists, DoesNotExist>::getAccept(const Ice::Current&) const
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
     return _accept;
 }
 
-template<class T, class P> void
-FilterT<T, P>::addReject(const std::vector<T>& additions, const Ice::Current&)
+template<class T, class P, class AlreadyExists, class DoesNotExist> void
+FilterT<T, P, AlreadyExists, DoesNotExist>::addReject(const std::vector<T>& additions, const Ice::Current&)
 {
     addImpl(_reject, additions);
 }
 
-template<class T, class P> void
-FilterT<T, P>::removeReject(const std::vector<T>& deletions, const Ice::Current&)
+template<class T, class P, class AlreadyExists, class DoesNotExist> void
+FilterT<T, P, AlreadyExists, DoesNotExist>::removeReject(const std::vector<T>& deletions, const Ice::Current&)
 {
     removeImpl(_reject, deletions);
 }
 
-template<class T, class P> void
-FilterT<T, P>::setReject(const std::vector<T>& filterElements, const Ice::Current&)
+template<class T, class P, class AlreadyExists, class DoesNotExist> void
+FilterT<T, P, AlreadyExists, DoesNotExist>::setReject(const std::vector<T>& filterElements, const Ice::Current&)
 {
     std::vector<T> newItems(filterElements);
     sort(newItems.begin(), newItems.end());
@@ -262,32 +290,38 @@ FilterT<T, P>::setReject(const std::vector<T>& filterElements, const Ice::Curren
     swap(newItems, _reject);
 }
 
-template<class T, class P> std::vector<T>
-FilterT<T, P>::getReject(const Ice::Current&) const
+template<class T, class P, class AlreadyExists, class DoesNotExist> std::vector<T>
+FilterT<T, P, AlreadyExists, DoesNotExist>::getReject(const Ice::Current&) const
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
     return _reject;
 }
 
-template<class T, class P> bool
-FilterT<T, P>::getAcceptOverride(const Ice::Current&) const
+template<class T, class P, class AlreadyExists, class DoesNotExist> bool
+FilterT<T, P, AlreadyExists, DoesNotExist>::getAcceptOverride(const Ice::Current&) const
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
     return _acceptOverride;
 }
 
-template<class T, class P> void
-FilterT<T, P>::setAcceptOverride(bool value, const Ice::Current&)
+template<class T, class P, class AlreadyExists, class DoesNotExist> void
+FilterT<T, P, AlreadyExists, DoesNotExist>::setAcceptOverride(bool value, const Ice::Current&)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
     _acceptOverride = value;
 }
 
-typedef FilterT<Ice::Identity, Glacier2::IdentityFilter> IdentityFilterI;
-typedef IceUtil::Handle< FilterT<Ice::Identity, Glacier2::IdentityFilter> > IdentityFilterIPtr;
+typedef FilterT<Ice::Identity, Glacier2::IdentityFilterManager, Glacier2::DuplicateIdentityConstraintsException,
+	Glacier2::IdentityConstraintsDoNotExistException> IdentityFilterManagerI;
+typedef IceUtil::Handle< FilterT<Ice::Identity, Glacier2::IdentityFilterManager, 
+	Glacier2::DuplicateIdentityConstraintsException,
+	Glacier2::IdentityConstraintsDoNotExistException> > IdentityFilterManagerIPtr;
 
-typedef FilterT<std::string, Glacier2::StringFilter> StringFilterI;
-typedef IceUtil::Handle< FilterT<std::string, Glacier2::StringFilter> > StringFilterIPtr;
+typedef FilterT<std::string, Glacier2::StringFilterManager, Glacier2::DuplicateStringConstraintsException,
+    Glacier2::StringConstraintsDoNotExistException> StringFilterManagerI;
+typedef IceUtil::Handle< FilterT<std::string, Glacier2::StringFilterManager, 
+	Glacier2::DuplicateStringConstraintsException, 
+	Glacier2::StringConstraintsDoNotExistException> > StringFilterManagerIPtr;
 
 
 };
