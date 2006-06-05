@@ -78,7 +78,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "addressC"=.\test\Glacier2\address\addressC.dsp - Package Owner=<4>
+Project: "addressFilterC"=.\test\Glacier2\addressFilter\addressFilterC.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -99,7 +99,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "addressS"=.\test\Glacier2\address\addressS.dsp - Package Owner=<4>
+Project: "addressFilterS"=.\test\Glacier2\addressFilter\addressFilterS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
