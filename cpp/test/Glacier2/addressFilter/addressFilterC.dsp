@@ -95,10 +95,6 @@ SOURCE=.\Backend.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\BackendI.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Client.cpp
 # End Source File
 # End Group
@@ -108,10 +104,6 @@ SOURCE=.\Client.cpp
 # Begin Source File
 
 SOURCE=.\Backend.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\BackendI.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
