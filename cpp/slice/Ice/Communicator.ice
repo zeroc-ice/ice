@@ -357,8 +357,8 @@ local interface Communicator
      * @param rtr The default router to use for this communicator.
      *
      * @see getDefaultRouter
+     * @see createObjectAdapterWithRouter
      * @see Router
-     * @see ObjectAdapter::addRouter
      *
      **/
     void setDefaultRouter(Router* rtr);
