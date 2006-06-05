@@ -1004,7 +1004,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
     }
     cout << "ok" << endl;
 
-    cout << "testing IceSSL.TrustOnly... " << flush;
+    cout << "Testing IceSSL.TrustOnly... ";
     {
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);
@@ -1070,6 +1070,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	fact->destroyServer(server);
 	comm->destroy();
     }
+
     {
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);
@@ -1133,6 +1134,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	fact->destroyServer(server);
 	comm->destroy();
     }
+
     {
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);
@@ -1250,17 +1252,17 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	try
 	{
 	    server->ice_ping();
-	    test(false);
 	}
 	catch(const LocalException&)
 	{
+	    test(false);
 	}
 	fact->destroyServer(server);
 	comm->destroy();
     }
     cout << "ok" << endl;
 
-    cout << "testing IceSSL.TrustOnly.Client... " << flush;
+    cout << "Testing IceSSL.TrustOnly.Client ... ";
     {
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);
@@ -1329,7 +1331,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
     }
     cout << "ok" << endl;
 
-    cout << "testing IceSSL.TrustOnly.Server... " << flush;
+    cout << "Testing IceSSL.TrustOnly.Server ... ";
     {
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);
@@ -1398,7 +1400,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
     }
     cout << "ok" << endl;
 
-    cout << "testing IceSSL.TrustOnly.Server.<AdapterName>... " << flush;
+    cout << "Testing IceSSL.TrustOnly.Server.<AdapterName> ... ";
     {
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);

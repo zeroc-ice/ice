@@ -29,15 +29,16 @@ public:
 
 private:
 
-    bool match(const RFC2253::RDNSeqSeq&, const RFC2253::RDNSeq&) const;
+    bool match(const std::list< DistinguishedName> &, const DistinguishedName&) const;
+    std::list<DistinguishedName> parse(const std::string&) const;
 
     const Ice::CommunicatorPtr _communicator;
     int _traceLevel;
 
-    RFC2253::RDNSeqSeq _all;
-    RFC2253::RDNSeqSeq _client;
-    RFC2253::RDNSeqSeq _allServer;
-    std::map<std::string, RFC2253::RDNSeqSeq > _server;
+    std::list<DistinguishedName> _all;
+    std::list<DistinguishedName> _client;
+    std::list<DistinguishedName> _allServer;
+    std::map<std::string, std::list<DistinguishedName> > _server;
 };
 
 }

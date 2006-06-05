@@ -23,10 +23,11 @@ public:
     authorize(const Glacier2::SSLInfo& info, string&, const Ice::Current& current) const
     {
 	IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
-	test(cert->getIssuerDN() == "emailAddress=info@zeroc.com,CN=ZeroC Test CA,OU=Ice,O=ZeroC\\, Inc.,"
-	     "L=Palm Beach Gardens,ST=Florida,C=US");
-	test(cert->getSubjectDN() ==
-	     "CN=Client,emailAddress=info@zeroc.com,OU=Ice,O=ZeroC\\, Inc.,ST=Florida,C=US");
+	test(cert->getIssuerDN() == IceSSL::DistinguishedName(
+	    "emailAddress=info@zeroc.com,CN=ZeroC Test CA,OU=Ice,O=ZeroC\\, Inc.,"
+	     "L=Palm Beach Gardens,ST=Florida,C=US"));
+	test(cert->getSubjectDN() == IceSSL::DistinguishedName(
+	    "CN=Client,emailAddress=info@zeroc.com,OU=Ice,O=ZeroC\\, Inc.,ST=Florida,C=US"));
 	test(cert->checkValidity());
 
 	return true;
@@ -90,10 +91,11 @@ public:
 	try
 	{
 	    IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
-	    test(cert->getIssuerDN() == "emailAddress=info@zeroc.com,CN=ZeroC Test CA,OU=Ice,O=ZeroC\\, Inc.,"
-		 "L=Palm Beach Gardens,ST=Florida,C=US");
-	    test(cert->getSubjectDN() ==
-		 "CN=Client,emailAddress=info@zeroc.com,OU=Ice,O=ZeroC\\, Inc.,ST=Florida,C=US");
+	    test(cert->getIssuerDN() == IceSSL::DistinguishedName(
+		"emailAddress=info@zeroc.com,CN=ZeroC Test CA,OU=Ice,O=ZeroC\\, Inc.,L=Palm Beach Gardens,"
+		"ST=Florida,C=US"));
+	    test(cert->getSubjectDN() == IceSSL::DistinguishedName(
+		"CN=Client,emailAddress=info@zeroc.com,OU=Ice,O=ZeroC\\, Inc.,ST=Florida,C=US"));
 	    test(cert->checkValidity());
 	}
 	catch(const IceSSL::CertificateReadException&)

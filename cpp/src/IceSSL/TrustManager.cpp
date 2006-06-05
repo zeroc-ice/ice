@@ -31,20 +31,20 @@ TrustManager::TrustManager(const Ice::CommunicatorPtr& communicator) :
     try
     {
 	key = "IceSSL.TrustOnly";
-	_all = RFC2253::parse(properties->getProperty(key));
+	_all = parse(properties->getProperty(key));
 	key = "IceSSL.TrustOnly.Client";
-	_client = RFC2253::parse(properties->getProperty(key));
+	_client = parse(properties->getProperty(key));
 	key = "IceSSL.TrustOnly.Server";
-	_allServer = RFC2253::parse(properties->getProperty(key));
+	_allServer = parse(properties->getProperty(key));
 	Ice::PropertyDict dict = properties->getPropertiesForPrefix("IceSSL.TrustOnly.Server.");
 	for(Ice::PropertyDict::const_iterator p = dict.begin(); p != dict.end(); ++p)
 	{
 	    string name = p->first.substr(string("IceSSL.TrustOnly.Server.").size());
 	    key = p->first;
-	    _server[name] = RFC2253::parse(p->second);
+	    _server[name] = parse(p->second);
 	}
     }
-    catch(const RFC2253::ParseException& e)
+    catch(const ParseException& e)
     {
 	Ice::PluginInitializationException ex(__FILE__, __LINE__);
 	ex.reason = "IceSSL: invalid property " + key  + ":\n" + e.reason;
@@ -55,7 +55,7 @@ TrustManager::TrustManager(const Ice::CommunicatorPtr& communicator) :
 bool
 TrustManager::verify(const ConnectionInfo& info)
 {
-    std::list<RFC2253::RDNSeqSeq> trustset;
+    list<list<DistinguishedName> > trustset;
     if(_all.size() > 0)
     {
 	trustset.push_back(_all);
@@ -69,7 +69,7 @@ TrustManager::verify(const ConnectionInfo& info)
 	}
 	if(info.adapterName.size() > 0)
 	{
-	    map<string, RFC2253::RDNSeqSeq>::const_iterator p = _server.find(info.adapterName);
+	    map<string, list<DistinguishedName> >::const_iterator p = _server.find(info.adapterName);
 	    if(p != _server.end())
 	    {
 		trustset.push_back(p->second);
@@ -97,41 +97,22 @@ TrustManager::verify(const ConnectionInfo& info)
     //
     if(info.certs.size() != 0)
     {
-	try
+	DistinguishedName subject = info.certs[0]->getSubjectDN();
+	if(_traceLevel > 0)
 	{
-	    //
-	    // Decompose the subject DN into the RDNs.
-	    //
-	    if(_traceLevel > 0)
-	    {
-		Ice::Trace trace(_communicator->getLogger(), "Security");
-		trace << "trust manager evaluating peer DN:\n" << info.certs[0]->getSubjectDN();
-	    }
-	    RFC2253::RDNSeqSeq alldn = RFC2253::parse(info.certs[0]->getSubjectDN());
-	    if(alldn.size() != 1)
-	    {
-		Ice::Warning warn(_communicator->getLogger());
-		warn << "IceSSL: certificate contains more than one DN:\n" + info.certs[0]->getSubjectDN();
-		return false;
-	    }
-	    RFC2253::RDNSeq dn = alldn.front();
-
-	    //
-	    // Try matching against everything in the trust set.
-	    //
-	    for(std::list<RFC2253::RDNSeqSeq>::const_iterator p = trustset.begin(); p != trustset.end(); ++p)
-	    {
-		if(match(*p, dn))
-		{
-		    return true;
-		}
-	    }
+	    Ice::Trace trace(_communicator->getLogger(), "Security");
+	    trace << "trust manager evaluating peer DN:\n" << string(subject);
 	}
-	catch(const RFC2253::ParseException& e)
+	
+	//
+	// Try matching against everything in the trust set.
+	//
+	for(list<list<DistinguishedName> >::const_iterator p = trustset.begin(); p != trustset.end(); ++p)
 	{
-	    Ice::Warning warn(_communicator->getLogger());
-	    warn << "IceSSL: unable to parse certificate DN `" + info.certs[0]->getSubjectDN() + "'\nreason: " +
-		e.reason;
+	    if(match(*p, subject))
+	    {
+		return true;
+	    }
 	}
     }
 
@@ -139,29 +120,29 @@ TrustManager::verify(const ConnectionInfo& info)
 }
 
 bool
-TrustManager::match(const RFC2253::RDNSeqSeq& matchRDNset, const RFC2253::RDNSeq& subjectRDNs) const
+TrustManager::match(const list< DistinguishedName>& matchSet, const DistinguishedName& subject) const
 {
-    for(RFC2253::RDNSeqSeq::const_iterator r = matchRDNset.begin(); r != matchRDNset.end(); ++r)
+    for(list<DistinguishedName>::const_iterator r = matchSet.begin(); r != matchSet.end(); ++r)
     {
-	for(RFC2253::RDNSeq::const_iterator p = r->begin(); p != r->end(); ++p)
+	if(subject.match(*r))
 	{
-	    bool found = false;
-	    for(RFC2253::RDNSeq::const_iterator q = subjectRDNs.begin(); q != subjectRDNs.end(); ++q)
-	    {
-		if(p->first == q->first)
-		{
-		    found = true;
-		    if(p->second != q->second)
-		    {
-			return false;
-		    }
-		}
-	    }
-	    if(!found)
-	    {
-		return false;
-	    }
+	    return true;
 	}
     }
-    return true;
+    return false;
+}
+
+list<DistinguishedName>
+TrustManager::parse(const string& value) const
+{
+    list<DistinguishedName> result;
+    if(!value.empty())
+    {
+	RFC2253::RDNSeqSeq dns = RFC2253::parse(value);
+	for(RFC2253::RDNSeqSeq::const_iterator p = dns.begin(); p != dns.end(); ++p)
+	{
+	    result.push_back(DistinguishedName(*p));
+	}
+    }
+    return result;
 }

@@ -42,8 +42,8 @@ ServerI::checkCert(const string& subjectDN, const string& issuerDN, const Ice::C
     {
 	IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(c.con);
 	test(info.certs.size() == 2 &&
-	     info.certs[0]->getSubjectDN() == subjectDN &&
-	     info.certs[0]->getIssuerDN() == issuerDN);
+	     info.certs[0]->getSubjectDN() == IceSSL::DistinguishedName(subjectDN) &&
+	     info.certs[0]->getIssuerDN() == IceSSL::DistinguishedName(issuerDN));
     }
     catch(const IceSSL::ConnectionInvalidException&)
     {

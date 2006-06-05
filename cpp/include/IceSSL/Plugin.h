@@ -15,6 +15,7 @@
 #include <Ice/ConnectionF.h>
 
 #include <vector>
+#include <list>
 
 // For struct sockaddr_in
 #ifdef _WIN32
@@ -41,6 +42,7 @@ typedef struct ssl_ctx_st SSL_CTX;
 // X509 is the OpenSSL type that represents a certificate.
 //
 typedef struct x509_st X509;
+typedef struct X509_name_st X509_NAME;
 
 //
 // EVP_PKEY is the OpenSSL type that represents a public key.
@@ -88,6 +90,22 @@ private:
     static const char* _name;
 };
 
+class ICE_SSL_API ParseException : public IceUtil::Exception
+{
+public:
+
+    ParseException(const char*, int, const std::string&);
+    virtual const std::string ice_name() const;
+    virtual IceUtil::Exception* ice_clone() const;
+    virtual void ice_throw() const;
+
+    std::string reason;
+
+private:
+
+    static const char* _name;
+};
+
 //
 // Forward declaration.
 //
@@ -111,6 +129,44 @@ private:
     EVP_PKEY* _key;
 };
 typedef IceUtil::Handle<PublicKey> PublicKeyPtr;
+
+class ICE_SSL_API DistinguishedName
+{
+public:
+
+    //
+    // Construct a certificate using a X509*.
+    //
+    DistinguishedName(X509_NAME*);
+
+    //
+    // Create a DistinguishedName from a RFC2253 encoding. Throws a
+    // ParseException if parsing fails.
+    //
+    DistinguishedName(const std::string&);
+    DistinguishedName(const std::list<std::pair<std::string, std::string> >&);
+
+    // This is an exact match. Order of the RDNs matter.
+    bool operator==(const DistinguishedName&) const;
+    bool operator!=(const DistinguishedName&) const;
+    bool operator<(const DistinguishedName&) const;
+
+    //
+    // This performs a partial match with another DistinguishedName. Each RDN in
+    // the argument is matched against this. If this contains all RDNs and they
+    // contain the same value, then match returns true, false otherwise.
+    //
+    bool match(const DistinguishedName&) const;
+
+    //
+    // Encode the DN in RFC2253 format.
+    //
+    operator std::string() const;
+
+private:
+
+    std::list<std::pair<std::string, std::string> > _rdns;
+};
 
 //
 // This convenience class is a wrapper around OpenSSL's X509 type.
@@ -196,9 +252,9 @@ public:
     //std::string getSigAlgOID() const;
 
     //
-    // Get the issuer's distinguished name (DN) in RFC2253 format.
+    // Get the issuer's distinguished name (DN).
     //
-    std::string getIssuerDN() const;
+    DistinguishedName getIssuerDN() const;
 
     //
     // Get the values in the issuer's alternative names extension.
@@ -229,9 +285,9 @@ public:
     std::vector<std::pair<int, std::string> > getIssuerAlternativeNames();
 
     //
-    // Get the subject's distinguished name (DN) in RFC2553 format.
+    // Get the subject's distinguished name (DN).
     //
-    std::string getSubjectDN() const;
+    DistinguishedName getSubjectDN() const;
 
     //
     // See the comment for getIssuerAlternativeNames.

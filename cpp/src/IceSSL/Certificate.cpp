@@ -8,9 +8,10 @@
 // **********************************************************************
 
 #include <IceUtil/DisableWarnings.h>
+#include <IceUtil/StaticMutex.h>
 #include <IceSSL/Plugin.h>
 #include <IceSSL/Util.h>
-#include <IceUtil/StaticMutex.h>
+#include <IceSSL/RFC2253.h>
 
 #include <openssl/x509v3.h>
 #include <openssl/pem.h>
@@ -218,6 +219,106 @@ convertGeneralNames(GENERAL_NAMES* gens)
     return alt;
 }
 
+const char* ParseException::_name = "IceSSL::ParseException";
+
+ParseException::ParseException(const char* file, int line, const string& r) :
+    Exception(file, line),
+    reason(r)
+{
+}
+
+const string
+ParseException::ice_name() const
+{
+    return _name;
+}
+
+IceUtil::Exception* 
+ParseException::ice_clone() const
+{
+    return new ParseException(*this);
+}
+
+void
+ParseException::ice_throw() const
+{
+    throw *this;
+}
+
+DistinguishedName::DistinguishedName(X509_NAME* name) :
+    _rdns(RFC2253::parseStrict(convertX509NameToString(name)))
+{
+}
+
+DistinguishedName::DistinguishedName(const string& dn) :
+    _rdns(RFC2253::parseStrict(dn))
+{
+}
+
+DistinguishedName::DistinguishedName(const list<pair<string, string> >& rdns) :
+    _rdns(rdns)
+{
+}
+
+bool
+DistinguishedName::operator==(const DistinguishedName& other) const
+{
+    return other._rdns == _rdns;
+}
+
+bool
+DistinguishedName::operator!=(const DistinguishedName& other) const
+{
+    return other._rdns != _rdns;
+}
+
+bool
+DistinguishedName::operator<(const DistinguishedName& other) const
+{
+    return other._rdns < _rdns;
+}
+
+bool
+DistinguishedName::match(const DistinguishedName& other) const
+{
+    for(list< pair<string, string> >::const_iterator p = other._rdns.begin(); p != other._rdns.end(); ++p)
+    {
+	bool found = false;
+	for(list< pair<string, string> >::const_iterator q = _rdns.begin(); q != _rdns.end(); ++q)
+	{
+	    if(p->first == q->first)
+	    {
+		found = true;
+		if(p->second != q->second)
+		{
+		    return false;
+		}
+	    }
+	}
+	if(!found)
+	{
+	    return false;
+	}
+    }
+    return true;
+}
+
+DistinguishedName::operator string() const
+{
+    ostringstream os;
+    bool first = true;
+    for(list< pair<string, string> >::const_iterator p = _rdns.begin(); p != _rdns.end(); ++p)
+    {
+	if(!first)
+	{
+	    os << ",";
+	}
+	first = false;
+	os << p->first << "=" << p->second;
+    }
+    return os.str();
+}
+
 PublicKey::PublicKey(EVP_PKEY* key) :
     _key(key)
 {
@@ -370,10 +471,10 @@ Certificate::getSerialNumber() const
 //{
 //}
 
-string
+DistinguishedName
 Certificate::getIssuerDN() const
 {
-    return convertX509NameToString(X509_get_issuer_name(_cert));
+    return DistinguishedName(X509_get_issuer_name(_cert));
 }
 
 vector<pair<int, string> >
@@ -383,10 +484,10 @@ Certificate::getIssuerAlternativeNames()
     	X509_get_ext_d2i(_cert, NID_issuer_alt_name, 0, 0)));
 }
 
-string
+DistinguishedName
 Certificate::getSubjectDN() const
 {
-    return convertX509NameToString(X509_get_subject_name(_cert));
+    return DistinguishedName(X509_get_subject_name(_cert));
 }
 
 vector<pair<int, string> >
@@ -406,11 +507,11 @@ string
 Certificate::toString() const
 {
     ostringstream os;
-    os << "serial: " + getSerialNumber() << "\n";
-    os << "issuer: " + getIssuerDN() << "\n";
-    os << "subject: " + getSubjectDN() << "\n";
-    os << "notBefore: " + getNotBefore().toDateTime() << "\n";
-    os << "notAfter: " + getNotAfter().toDateTime();
+    os << "serial: " << getSerialNumber() << "\n";
+    os << "issuer: " << string(getIssuerDN()) << "\n";
+    os << "subject: " << string(getSubjectDN()) << "\n";
+    os << "notBefore: " << getNotBefore().toDateTime() << "\n";
+    os << "notAfter: " << getNotAfter().toDateTime();
 
     return os.str();
 }

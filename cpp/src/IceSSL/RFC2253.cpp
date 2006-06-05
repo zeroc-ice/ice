@@ -7,41 +7,17 @@
 //
 // **********************************************************************
 
+#include <IceSSL/Plugin.h>
 #include <IceSSL/RFC2253.h>
 
 using namespace std;
+using namespace IceSSL;
 
 //
 // See RFC 2253 and RFC 1779.
 //
 namespace RFC2253
 {
-
-const char* ParseException::_name = "RFC2253::ParseException";
-
-ParseException::ParseException(const char* file, int line, const string& r) :
-    Exception(file, line),
-    reason(r)
-{
-}
-
-const string
-ParseException::ice_name() const
-{
-    return _name;
-}
-
-IceUtil::Exception* 
-ParseException::ice_clone() const
-{
-    return new ParseException(*this);
-}
-
-void
-ParseException::ice_throw() const
-{
-    throw *this;
-}
 
 static string special = ",=+<>#;";
 string hexvalid = "0123456789abcdefABCDEF";
@@ -84,6 +60,27 @@ parse(const string& data)
 	results.push_back(current);
     }
 
+    return results;
+}
+
+RDNSeq
+parseStrict(const string& data)
+{
+    RDNSeq results;
+    size_t pos = 0;
+    while(pos < data.size())
+    {
+	results.push_back(parseNameComponent(data, pos));
+	eatWhite(data, pos);
+	if(pos < data.size() && (data[pos] == ',' || data[pos] == ';'))
+	{
+	    ++pos;
+	}
+	else if(pos < data.size())
+	{
+	    throw ParseException(__FILE__, __LINE__, "expected ',' or ';' at `" + data.substr(pos) + "'");
+	}
+    }
     return results;
 }
 
