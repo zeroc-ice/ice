@@ -70,6 +70,8 @@ else:
     #
     if fqdn == hostname:
 	hostname = hostname[:dot]
+    if domainname == "":
+	limitedTests = True
 
 testcases = [ 
     ('Testing maximum endpoints rule',
