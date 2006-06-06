@@ -209,7 +209,7 @@ namespace IceSSL
 		instance_.traceStream(stream, IceInternal.Network.fdToString(fd));
 	    }
 
-	    return new TransceiverI(instance_, fd, stream, connInfo, adapterName_);
+	    return new TransceiverI(instance_, fd, stream, connInfo);
 	}
 
 	public virtual void connectToSelf()
