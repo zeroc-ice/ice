@@ -32,7 +32,7 @@ public:
 #ifdef _WIN32
     ThreadControl(HANDLE, DWORD);
 #else
-    ThreadControl(pthread_t);
+    explicit ThreadControl(pthread_t);
 #endif
 
     //
