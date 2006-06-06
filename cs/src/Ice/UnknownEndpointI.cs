@@ -160,7 +160,7 @@ namespace IceInternal
 	// from this endpoint, for example, if a dynamic port number is
 	// assigned.
 	//
-	public override Acceptor acceptor(ref EndpointI endpoint)
+	public override Acceptor acceptor(ref EndpointI endpoint, string adapterName)
 	{
 	    endpoint = null;
 	    return null;

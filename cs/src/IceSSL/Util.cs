@@ -41,6 +41,18 @@ namespace IceSSL
 	// The remote TCP/IP host & port.
 	//
 	public System.Net.IPEndPoint remoteAddr;
+
+	//
+	// If the connection is incoming this bool is true, false
+	// otherwise.
+	//
+	public bool incoming;
+	
+	//
+	// The name of the object adapter that hosts this endpoint, if
+	// any.
+	//
+	public string adapterName;
     }
 
     public class ConnectionInvalidException : Ice.LocalException
@@ -171,13 +183,15 @@ namespace IceSSL
 
 	internal static ConnectionInfo
 	populateConnectionInfo(System.Net.Security.SslStream stream, System.Net.Sockets.Socket fd,
-			       X509Certificate2[] certs)
+			       X509Certificate2[] certs, string adapterName, bool incoming)
 	{
 	    ConnectionInfo info = new ConnectionInfo();
 	    info.certs = certs;
 	    info.cipher = stream.CipherAlgorithm.ToString();
 	    info.localAddr = (System.Net.IPEndPoint)fd.LocalEndPoint;
 	    info.remoteAddr = (System.Net.IPEndPoint)fd.RemoteEndPoint;
+	    info.incoming = incoming;
+	    info.adapterName = adapterName;
 	    return info;
 	}
     }

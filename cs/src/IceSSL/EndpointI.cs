@@ -357,9 +357,9 @@ namespace IceSSL
 	// from this endpoint, for example, if a dynamic port number is
 	// assigned.
 	//
-	public override IceInternal.Acceptor acceptor(ref IceInternal.EndpointI endpoint)
+	public override IceInternal.Acceptor acceptor(ref IceInternal.EndpointI endpoint, string adapterName)
 	{
-	    AcceptorI p = new AcceptorI(instance_, host_, port_);
+	    AcceptorI p = new AcceptorI(instance_, adapterName, host_, port_);
 	    endpoint = new EndpointI(instance_, host_, p.effectivePort(), timeout_, connectionId_, compress_, publish_);
 	    return p;
 	}

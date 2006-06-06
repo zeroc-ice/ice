@@ -855,7 +855,8 @@ namespace IceInternal
 	    return _acceptor.ToString();
 	}
 	
-	public IncomingConnectionFactory(Instance instance, EndpointI endpoint, Ice.ObjectAdapter adapter)
+	public IncomingConnectionFactory(Instance instance, EndpointI endpoint, Ice.ObjectAdapter adapter,
+					 string adapterName)
 	    : base(instance)
 	{
 	    _endpoint = endpoint;
@@ -914,7 +915,7 @@ namespace IceInternal
 		else
 		{
 		    h = _endpoint;
-		    _acceptor = _endpoint.acceptor(ref h);
+		    _acceptor = _endpoint.acceptor(ref h, adapterName);
 		    _endpoint = h;
 		    Debug.Assert(_acceptor != null);
 		    _acceptor.listen();

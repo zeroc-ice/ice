@@ -78,7 +78,7 @@ namespace IceSSL
 		    }
 		}
 
-		connInfo = Util.populateConnectionInfo(stream, fd, cb.certs);
+		connInfo = Util.populateConnectionInfo(stream, fd, cb.certs, "", false);
 		instance_.verifyPeer(connInfo, fd, false);
 	    }
 	    catch(Ice.LocalException ex)

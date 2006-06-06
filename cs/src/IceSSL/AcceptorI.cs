@@ -132,7 +132,7 @@ namespace IceSSL
 		    }
 		}
 
-		connInfo = Util.populateConnectionInfo(stream, fd, cb.certs);
+		connInfo = Util.populateConnectionInfo(stream, fd, cb.certs, adapterName_, true);
 		instance_.verifyPeer(connInfo, fd, true);
 	    }
 	    catch(Ice.LocalException ex)
@@ -209,7 +209,7 @@ namespace IceSSL
 		instance_.traceStream(stream, IceInternal.Network.fdToString(fd));
 	    }
 
-	    return new TransceiverI(instance_, fd, stream, connInfo);
+	    return new TransceiverI(instance_, fd, stream, connInfo, adapterName_);
 	}
 
 	public virtual void connectToSelf()
@@ -237,9 +237,10 @@ namespace IceSSL
 	}
 
 	internal
-	AcceptorI(Instance instance, string host, int port)
+	AcceptorI(Instance instance, string adapterName, string host, int port)
 	{
 	    instance_ = instance;
+	    adapterName_ = adapterName;
 	    logger_ = instance.communicator().getLogger();
 	    backlog_ = 0;
 
@@ -362,6 +363,7 @@ namespace IceSSL
 	}
 	
 	private Instance instance_;
+	private string adapterName_;
 	private Ice.Logger logger_;
 	private Socket fd_;
 	private int backlog_;

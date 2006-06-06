@@ -827,7 +827,8 @@ namespace Ice
 		    for(int i = 0; i < endpoints.Count; ++i)
 		    {
 		        IceInternal.EndpointI endp = (IceInternal.EndpointI)endpoints[i];
-		        _incomingConnectionFactories.Add(new IceInternal.IncomingConnectionFactory(instance, endp, this));
+		        _incomingConnectionFactories.Add(
+			    new IceInternal.IncomingConnectionFactory(instance, endp, this, _name));
 		    }
 		
 		    //

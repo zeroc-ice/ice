@@ -116,7 +116,7 @@ namespace IceInternal
 	// from this endpoint, for example, if a dynamic port number is
 	// assigned.
 	//
-	public abstract Acceptor acceptor(ref EndpointI endpoint);
+	public abstract Acceptor acceptor(ref EndpointI endpoint, string adapterName);
 
 	//
 	// Expand endpoint out in to separate endpoints for each local
