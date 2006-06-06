@@ -315,6 +315,13 @@ public class BasicStream
 	--_seqDataStack.numElements;
     }
 
+    final private static byte[] _encapsBlob =
+    {
+	0, 0, 0, 0, // Placeholder for the encapsulation length.
+	Protocol.encodingMajor,
+	Protocol.encodingMinor
+    };
+
     public void
     startWriteEncaps()
     {
@@ -334,9 +341,7 @@ public class BasicStream
 	}
 
         _writeEncapsStack.start = _buf.position();
-        writeInt(0); // Placeholder for the encapsulation length.
-        writeByte(Protocol.encodingMajor);
-        writeByte(Protocol.encodingMinor);
+	writeBlob(_encapsBlob);
     }
 
     public void
@@ -1014,6 +1019,9 @@ public class BasicStream
         }
     }
 
+    final static java.nio.charset.Charset _utf8 = java.nio.charset.Charset.forName("UTF8");
+    private java.nio.charset.CharsetEncoder _charEncoder = null;
+
     public void
     writeString(String v)
     {
@@ -1026,17 +1034,51 @@ public class BasicStream
             final int len = v.length();
             if(len > 0)
             {
-                try
-                {
-                    byte[] arr = v.getBytes("UTF8");
-                    writeSize(arr.length);
-                    expand(arr.length);
-                    _buf.put(arr);
-                }
-                catch(java.io.UnsupportedEncodingException ex)
-                {
-                    assert(false);
-                }
+		if(_stringBytes == null || len > _stringBytes.length)
+		{
+		    _stringBytes = new byte[len];
+		}
+		if(_stringChars == null || len > _stringChars.length)
+		{
+		    _stringChars = new char[len];
+		}
+		//
+		// If the string contains only 7-bit characters, it's more efficient
+		// to perform the conversion to UTF-8 manually.
+		//
+		v.getChars(0, len, _stringChars, 0);
+		for(int i = 0; i < len; ++i)
+		{
+		    if(_stringChars[i] > (char)127)
+		    {
+			//
+			// Found a multibyte character.
+			//
+			if(_charEncoder == null)
+			{
+			    _charEncoder = _utf8.newEncoder();
+			}
+			java.nio.ByteBuffer b = null;
+			try
+			{
+			    b = _charEncoder.encode(java.nio.CharBuffer.wrap(_stringChars, 0, len));
+			}
+			catch(java.nio.charset.CharacterCodingException ex)
+			{
+			    Ice.MarshalException e = new Ice.MarshalException();
+			    e.initCause(ex);
+			    throw e;
+			}
+			writeSize(b.limit());
+			expand(b.limit());
+			_buf.put(b);
+			return;
+		    }
+		    _stringBytes[i] = (byte)_stringChars[i];
+		}
+		writeSize(len);
+		expand(len);
+		_buf.put(_stringBytes, 0, len);
             }
             else
             {
@@ -1077,11 +1119,14 @@ public class BasicStream
             {
                 //
                 // We reuse the _stringBytes array to avoid creating
-                // excessive garbage
+                // excessive garbage.
                 //
                 if(_stringBytes == null || len > _stringBytes.length)
                 {
                     _stringBytes = new byte[len];
+                }
+                if(_stringChars == null || len > _stringChars.length)
+                {
                     _stringChars = new char[len];
                 }
                 _buf.get(_stringBytes, 0, len);
