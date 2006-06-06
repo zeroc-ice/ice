@@ -230,8 +230,8 @@ class ReaderThread(Thread):
             while 1:
                 line = self.pipe.readline()
                 if not line: break
-		# supress object adapter ready messages.
-    	    	if line[len(line)-7:len(line)] != " ready\n":
+		# supress object adapter ready messages. Under windows the eol isn't \n.
+    	    	if line[len(line)-8:len(line)-2] != " ready":
 		    print self.token + ": " + line,
         except IOError:
             pass
