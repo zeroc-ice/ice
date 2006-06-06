@@ -23,7 +23,7 @@ namespace Glacier2
 class FilterManager;
 typedef IceUtil::Handle<FilterManager> FilterManagerPtr;
 
-class FilterManager : public IceUtil::Shared
+class GLACIER2_API FilterManager : public IceUtil::Shared
 {
 public:
     virtual ~FilterManager();
