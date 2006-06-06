@@ -359,13 +359,6 @@ Ice::ObjectAdapterI::waitForDeactivate()
     }
 }
 
-void
-Ice::ObjectAdapterI::destroy()
-{
-    deactivate();
-    waitForDeactivate();
-}
-
 ObjectPrx
 Ice::ObjectAdapterI::add(const ObjectPtr& object, const Identity& ident)
 {

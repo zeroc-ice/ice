@@ -51,9 +51,11 @@ public class AllTests
             catch(Ice.AlreadyRegisteredException ex)
             {
             }
-            adapter.destroy();
+            adapter.deactivate();
+            adapter.waitForDeactivate();
             adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9999");
-            adapter.destroy();
+            adapter.deactivate();
+            adapter.waitForDeactivate();
             out.println("ok");
         }
 

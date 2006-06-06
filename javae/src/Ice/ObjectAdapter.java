@@ -183,11 +183,6 @@ public final class ObjectAdapter
                 //  Clear this object adapter with the router.
                 //
                 _routerInfo.setAdapter(null);
-
-                //
-                // Update all existing outgoing connections.
-                //
-                _instance.outgoingConnectionFactory().setRouterInfo(_routerInfo);
             }
 	    
 	    //
@@ -326,13 +321,6 @@ public final class ObjectAdapter
         {
             objectAdapterFactory.removeObjectAdapter(_name);
         }
-    }
-
-    public void
-    destroy()
-    {
-        deactivate();
-        waitForDeactivate();
     }
 
     public ObjectPrx

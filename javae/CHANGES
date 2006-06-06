@@ -4,9 +4,9 @@ Changes since version 1.1.0
 - Added identityToString and stringToIdentity to the Communicator
   interface.
 
-- Added new method Ice::ObjectAdapter::destroy(). After this method
-  has been called it is now permissible to recreate a new object
-  adapter with the same name as the destroyed adapter.
+- It is now permissible to recreate a new object adapter with the same 
+  name as an old adapter once waitForDeactivate() has returned on the
+  old adapter.
 
 - Added new method Ice::Communicator::createObjectAdapterWithRouter()
   which creates a routed object adapter. A object adapter can now only

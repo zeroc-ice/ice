@@ -125,7 +125,9 @@ local interface ObjectAdapter
      * Wait until the object adapter has deactivated. Calling
      * [deactivate] initiates object adapter deactivation, and
      * [waitForDeactivate] only returns when deactivation has
-     * been completed.
+     * been completed. Once waitForDeactivate has returned it
+     * is permissable to recreate an object adapter with the
+     * same name.
      *
      * @see deactivate
      * @see waitForHold
@@ -133,16 +135,6 @@ local interface ObjectAdapter
      *
      **/
     void waitForDeactivate();
-
-
-    /**
-     *
-     * Destroy the object adapter. Once destroy has returned it
-     * is permissable to recreate an object adapter with the 
-     * same name.
-     *
-     **/
-    void destroy();
 
     /**
      *

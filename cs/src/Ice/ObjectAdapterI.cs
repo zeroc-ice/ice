@@ -360,12 +360,6 @@ namespace Ice
 	    }
 	}
 
-	public void destroy()
-	{
-	    deactivate();
-	    waitForDeactivate();
-	}
-	
 	public ObjectPrx add(Ice.Object obj, Identity ident)
 	{
 	    return addFacet(obj, ident, "");

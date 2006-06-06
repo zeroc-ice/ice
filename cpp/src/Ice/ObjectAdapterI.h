@@ -48,7 +48,6 @@ public:
     virtual void waitForHold();
     virtual void deactivate();
     virtual void waitForDeactivate();
-    virtual void destroy();
 
     virtual ObjectPrx add(const ObjectPtr&, const Identity&);
     virtual ObjectPrx addFacet(const ObjectPtr&, const Identity&, const std::string&);

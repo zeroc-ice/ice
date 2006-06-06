@@ -41,12 +41,14 @@ allTests(const CommunicatorPtr& communicator)
 	catch(const AlreadyRegisteredException&)
 	{
 	}
-	adapter->destroy();
+	adapter->deactivate();
+	adapter->waitForDeactivate();
 	//
 	// Use a different port than the first adapter to avoid an "address already in use" error.
 	//
 	adapter = communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9998");
-	adapter->destroy();
+	adapter->deactivate();
+	adapter->waitForDeactivate();
         cout << "ok" << endl;
     }
 

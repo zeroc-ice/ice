@@ -366,13 +366,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	}
     }
 
-    public void
-    destroy()
-    {
-        deactivate();
-	waitForDeactivate();
-    }
-
     public ObjectPrx
     add(Ice.Object object, Identity ident)
     {
