@@ -222,11 +222,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
                 //  Clear this object adapter with the router.
                 //
                 _routerInfo.setAdapter(null);
-
-                //
-                // Update all existing outgoing connections.
-                //
-                _instance.outgoingConnectionFactory().setRouterInfo(_routerInfo);
 	    }
 	    
 	    incomingConnectionFactories = new java.util.ArrayList(_incomingConnectionFactories);

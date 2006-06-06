@@ -243,11 +243,6 @@ Ice::ObjectAdapterI::deactivate()
 	    //  Clear this object adapter with the router.
 	    //
 	    _routerInfo->setAdapter(0);
-
-	    //
-	    // Update all existing outgoing connections.
-	    //
-	    _instance->outgoingConnectionFactory()->setRouterInfo(_routerInfo);
 	}
 
         incomingConnectionFactories = _incomingConnectionFactories;

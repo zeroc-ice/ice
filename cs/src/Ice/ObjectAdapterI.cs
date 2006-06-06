@@ -228,11 +228,6 @@ namespace Ice
 		    // Clear this object adapter with the router.
 		    //
 		    _routerInfo.setAdapter(null);
-
-		    //
-		    // Update all existing outgoing connections.
-		    //
-		    instance_.outgoingConnectionFactory().setRouterInfo(_routerInfo);
 		}
 		
 		incomingConnectionFactories = new ArrayList(_incomingConnectionFactories);

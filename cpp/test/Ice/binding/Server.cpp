@@ -21,6 +21,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     adapter->add(new RemoteCommunicatorI(), id);
     adapter->activate();
 
+    // Disable ready print for further adapters.
+    communicator->getProperties()->setProperty("Ice.PrintAdapterReady", "0");
+
     communicator->waitForShutdown();
     return EXIT_SUCCESS;
 }

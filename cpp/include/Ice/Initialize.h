@@ -41,7 +41,7 @@ ICE_API PropertiesPtr createProperties(int&, char*[]);
 // This class is used to notify user of when Ice threads
 // are started and stopped.
 //
-class ThreadNotification : public IceUtil::Shared
+class ICE_API ThreadNotification : public IceUtil::Shared
 {
 public:
 
