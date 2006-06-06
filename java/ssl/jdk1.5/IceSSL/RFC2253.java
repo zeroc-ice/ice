@@ -38,13 +38,13 @@ class RFC2253
     {
 	String key;
 	String value;
-    };
+    }
 
     static private class ParseState
     {
 	String data;
 	int pos;
-    };
+    }
 
     public static java.util.List
     parse(String data)
@@ -217,7 +217,8 @@ class RFC2253
 		}
 	    }
 	}
-	else if(Character.isUpperCase(state.data.charAt(state.pos)) || Character.isLowerCase(state.data.charAt(state.pos)))
+	else if(Character.isUpperCase(state.data.charAt(state.pos)) ||
+		Character.isLowerCase(state.data.charAt(state.pos)))
 	{
 	    //
 	    // The grammar is wrong in this case. It should be ALPHA

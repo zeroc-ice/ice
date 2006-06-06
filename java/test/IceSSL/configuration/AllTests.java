@@ -984,7 +984,8 @@ public class AllTests
 	}
 	System.out.println("ok");
 
-	System.out.print("Testing IceSSL.TrustOnly... ");
+	System.out.print("testing IceSSL.TrustOnly... ");
+	System.out.flush();
 	{
 	    Ice.InitializationData initData = createClientProps(defaultDir, defaultHost, threadPool);
 	    initData = createClientProps(defaultDir, defaultHost, threadPool);
@@ -1197,7 +1198,8 @@ public class AllTests
 	}
 	System.out.println("ok");
 
-	System.out.print("Testing IceSSL.TrustOnly.Client... ");
+	System.out.print("testing IceSSL.TrustOnly.Client... ");
+	System.out.flush();
 	{
 	    Ice.InitializationData initData = createClientProps(defaultDir, defaultHost, threadPool);
 	    initData = createClientProps(defaultDir, defaultHost, threadPool);
@@ -1256,7 +1258,8 @@ public class AllTests
 	}
 	System.out.println("ok");
 
-	System.out.print("Testing IceSSL.TrustOnly.Server... ");
+	System.out.print("testing IceSSL.TrustOnly.Server... ");
+	System.out.flush();
 	{
 	    Ice.InitializationData initData = createClientProps(defaultDir, defaultHost, threadPool);
 	    initData = createClientProps(defaultDir, defaultHost, threadPool);
@@ -1315,7 +1318,8 @@ public class AllTests
 	}
 	System.out.println("ok");
 
-	System.out.print("Testing IceSSL.TrustOnly.Server.<adapterName>.. ");
+	System.out.print("testing IceSSL.TrustOnly.Server.<AdapterName>... ");
+	System.out.flush();
 	{
 	    Ice.InitializationData initData = createClientProps(defaultDir, defaultHost, threadPool);
 	    initData = createClientProps(defaultDir, defaultHost, threadPool);
