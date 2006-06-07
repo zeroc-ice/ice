@@ -1,7 +1,7 @@
 <!--
  **********************************************************************
 
- Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+ Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
 
  This copy of Ice is licensed to you under the terms described in the
  ICE_LICENSE file included in this distribution.
@@ -27,40 +27,22 @@
          <adapter name="IcePatch2.Admin" id=""
                   endpoints="tcp -h 127.0.0.1" register-process="true"/>
 
-         <property name="IcePatch2.InstanceName" value="${instance-name}"/>
-         <property name="IcePatch2.Directory" value="${directory}"/>
-
+         <properties>
+            <property name="IcePatch2.InstanceName" value="${instance-name}"/>
+            <property name="IcePatch2.Directory" value="${directory}"/>
+         </properties>
        </server>
 
     </server-template>
+
 
     <server-template id="Glacier2">
         
       <parameter name="instance-name" default="${application}.Glacier2"/>
       <parameter name="client-endpoints"/>   
       <parameter name="server-endpoints"/>
-      <parameter name="session-timeout"/>
-  
-      <!-- All the following parameters correspond to properties with a default value -->
-     
-      <parameter name="session-manager" default=""/>
-      <parameter name="session-manager-close-count" default="0"/>
-      
-      <parameter name="crypt-passwords" default="passwords"/>      
-      <parameter name="permissions-verifier" default=""/>
-      <parameter name="add-user-to-allow-categories" default="0"/>
-
-      <parameter name="client-buffered" default="1"/>
-      <parameter name="client-sleep-time" default="0"/>
-      <parameter name="server-buffered" default="1"/>
-      <parameter name="server-sleep-time" default="0"/>
+      <parameter name="session-timeout" default="0"/>
     
-      <parameter name="ssl-plugin" default=""/>
-      <parameter name="ssl-client-cert-path" default=""/>
-      <parameter name="ssl-client-config" default="sslconfig.xml"/>
-      <parameter name="ssl-server-cert-path" default=""/>
-      <parameter name="ssl-server-config" default="sslconfig.xml"/>
-
       <server id="${instance-name}" exe="glacier2router">
          <adapter name="Glacier2.Client" id=""
                   endpoints="${client-endpoints}"/>
@@ -71,38 +53,24 @@
          <adapter name="Glacier2.Admin" id=""
                   endpoints="tcp -h 127.0.0.1" register-process="true"/>
 
-         <property name="Glacier2.InstanceName" value="${instance-name}"/>
-         <property name="Glacier2.SessionTimeout" value="${session-timeout}"/>
-         <property name="Glacier2.CryptPasswords" value="${crypt-passwords}"/>
-         <property name="Glacier2.PermissionsVerifier" value="${permissions-verifier}"/>
-         <property name="Glacier2.AddUserToAllowCategories" value="${add-user-to-allow-categories}"/>
-         <property name="Glacier2.SessionManager" value="${session-manager}"/>
-         <property name="Glacier2.SessionManager.CloseCount" value="${session-manager-close-count}"/>
-        
-         <property name="Glacier2.Client.Buffered" value="${client-buffered}"/>
-         <property name="Glacier2.Client.SleepTime" value="${client-sleep-time}"/>
-         <property name="Glacier2.Server.Buffered" value="${server-buffered}"/>
-         <property name="Glacier2.Server.SleepTime" value="${server-sleep-time}"/>
-
-         <!-- Minimal SSL configuration -->
-         <property name="Ice.Plugin.IceSSL" value="${ssl-plugin}"/>
-         <property name="IceSSL.Client.CertPath" value="${ssl-client-cert-path}"/>  
-         <property name="IceSSL.Client.Config" value="${ssl-client-config}"/>
-         <property name="IceSSL.Server.CertPath" value="${ssl-server-cert-path}"/>
-         <property name="IceSSL.Server.Config" value="${ssl-server-config}"/>
-
+         <properties>
+            <property name="Glacier2.InstanceName" value="${instance-name}"/>
+            <property name="Glacier2.SessionTimeout" value="${session-timeout}"/>
+         </properties>
       </server>
 
     </server-template>
 
+
     <service-template id="IceStorm">
 
       <parameter name="instance-name" default="${application}.IceStorm"/>
+      <parameter name="index" default=""/>
       <parameter name="topic-manager-endpoints" default="default"/>
       <parameter name="publish-endpoints" default="default"/>
       <parameter name="flush-timeout" default="1000"/>
 
-      <service name="${instance-name}" entry="IceStormService,30:create">
+      <service name="IceStorm${index}" entry="IceStormService,31:create">
 
         <dbenv name="${service}"/>
 
@@ -116,12 +84,14 @@
 		 id="${instance-name}.Publish" 
 		 endpoints="${publish-endpoints}"/>
 
-        <property name="${service}.InstanceName" value="${instance-name}"/>
-        <property name="${service}.Flush.Timeout" value="${flush-timeout}"/>
-
+        <properties>
+           <property name="${service}.InstanceName" value="${instance-name}"/>
+           <property name="${service}.Flush.Timeout" value="${flush-timeout}"/>
+        </properties>
       </service>
 
     </service-template>
+
    
     <server-template id="IceStorm">
 
