@@ -49,6 +49,7 @@ host = "127.0.0.1"
 #
 
 import sys, os, re, errno
+from threading import Thread
 
 def isCygwin():
 
@@ -71,16 +72,15 @@ def killServers():
 
     global serverPids
 
-    if isCygwin():
-	print "killServers(): not implemented for cygwin python."
-        return;
-
     for pid in serverPids:
         if isWin32():
             try:
                 import win32api
                 handle = win32api.OpenProcess(1, 0, pid)
                 win32api.TerminateProcess(handle, 0)
+            except ImportError, ex:
+                print "Sorry: you must install the win32all package for killServers to work."
+                return
             except:
                 pass # Ignore errors, such as non-existing processes.
         else:
@@ -101,6 +101,15 @@ def getServerPid(serverPipe):
         sys.exit(1)
 
     serverPids.append(int(output))
+
+def ignorePid(serverPipe):
+
+    output = serverPipe.readline().strip()
+
+    if not output:
+        print "failed!"
+        killServers()
+        sys.exit(1)
 
 def getAdapterReady(serverPipe):
 
@@ -143,6 +152,29 @@ def closePipe(pipe):
 	    raise
 
     return status
+
+class ReaderThread(Thread):
+    def __init__(self, pipe, token):
+        self.pipe = pipe
+        self.token = token
+        Thread.__init__(self)
+
+    def run(self):
+
+        try:
+            while 1:
+                line = self.pipe.readline()
+                if not line: break
+		# supress object adapter ready messages.
+    	    	if line[len(line)-7:len(line)] != " ready\n":
+		    print self.token + ": " + line,
+        except IOError:
+            pass
+
+	self.status = closePipe(self.pipe)
+
+    def getStatus(self):
+	return self.status
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -263,7 +295,7 @@ def clientServerTestWithOptionsAndNames(mono, name, additionalServerOptions, add
     client = os.path.join(testdir, clientName)
 
     print createMsg(mono, serverName),
-    serverCmd = createCmd(mono, server) + serverOptions + " " + additionalServerOptions
+    serverCmd = createCmd(mono, server) + serverOptions + " " + additionalServerOptions + " 2>&1"
     #print "serverCmd=" + serverCmd
     serverPipe = os.popen(serverCmd)
     getServerPid(serverPipe)
@@ -271,23 +303,29 @@ def clientServerTestWithOptionsAndNames(mono, name, additionalServerOptions, add
     print "ok"
     
     print createMsg(mono, clientName),
-    clientCmd = createCmd(mono, client) + clientOptions + " " + additionalClientOptions
+    clientCmd = createCmd(mono, client) + clientOptions + " " + additionalClientOptions + " 2>&1"
     #print "clientCmd=" + clientCmd
     clientPipe = os.popen(clientCmd)
     print "ok"
 
+    serverThread = ReaderThread(serverPipe, "Server")
+    serverThread.start()
     printOutputFromPipe(clientPipe)
 
     clientStatus = closePipe(clientPipe)
-    serverStatus = closePipe(serverPipe)
+    if clientStatus:
+	killServers()
+
+    serverThread.join()
+    serverStatus = serverThread.getStatus()
 
     if clientStatus or serverStatus:
-	killServers()
-	sys.exit(1)
+        sys.exit(1)
 
 def clientServerTestWithOptions(mono, name, additionalServerOptions, additionalClientOptions):
 
-    clientServerTestWithOptionsAndNames(mono, name, additionalServerOptions, additionalClientOptions, "server", "client")
+    clientServerTestWithOptionsAndNames(mono, name, additionalServerOptions, additionalClientOptions, "server", \
+                                        "client")
 
 def clientServerTest(mono, name):
 
@@ -300,25 +338,30 @@ def mixedClientServerTestWithOptions(mono, name, additionalServerOptions, additi
     client = os.path.join(testdir, "client")
 
     print createMsg(mono, "server"),
-    serverPipe = os.popen(createCmd(mono, server) + clientServerOptions + " " + additionalServerOptions)
+    serverPipe = os.popen(createCmd(mono, server) + clientServerOptions + " " + additionalServerOptions) + " 2>&1"
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
     print createMsg(mono, "client"),
-    clientPipe = os.popen(createCmd(mono, client) + clientServerOptions + " " + additionalClientOptions)
-    getServerPid(clientPipe)
+    clientPipe = os.popen(createCmd(mono, client) + clientServerOptions + " " + additionalClientOptions) + " 2>&1"
+    ignorePid(clientPipe)
     getAdapterReady(clientPipe)
     print "ok"
 
+    serverThread = ReaderThread(serverPipe, "Server")
+    serverThread.start()
     printOutputFromPipe(clientPipe)
 
     clientStatus = closePipe(clientPipe)
-    serverStatus = closePipe(serverPipe)
+    if clientStatus:
+	killServers()
+
+    serverThread.join()
+    serverStatus = serverThread.getStatus()
 
     if clientStatus or serverStatus:
-	killServers()
-	sys.exit(1)
+        sys.exit(1)
 
 def mixedClientServerTest(mono, name):
 
@@ -330,7 +373,7 @@ def collocatedTestWithOptions(mono, name, additionalOptions):
     collocated = os.path.join(testdir, "collocated")
 
     print createMsg(mono, "collocated"),
-    collocatedPipe = os.popen(createCmd(mono, collocated) + collocatedOptions + " " + additionalOptions)
+    collocatedPipe = os.popen(createCmd(mono, collocated) + collocatedOptions + " " + additionalOptions + " 2>&1")
     print "ok"
 
     printOutputFromPipe(collocatedPipe)
@@ -351,7 +394,7 @@ def clientTestWithOptions(mono, name, additionalOptions):
     client = os.path.join(testdir, "client")
 
     print createMsg(mono, "client"),
-    clientPipe = os.popen(createCmd(mono, client) + clientOptions + " " + additionalOptions)
+    clientPipe = os.popen(createCmd(mono, client) + clientOptions + " " + additionalOptions + " 2>&1")
     print "ok"
 
     printOutputFromPipe(clientPipe)

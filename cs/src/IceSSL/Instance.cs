@@ -25,6 +25,7 @@ namespace IceSSL
 	    securityTraceLevel_ = communicator.getProperties().getPropertyAsIntWithDefault("IceSSL.Trace.Security", 0);
 	    securityTraceCategory_ = "Security";
 	    initialized_ = false;
+            trustManager_ = new TrustManager(communicator);
 
 	    //
 	    // Register the endpoint factory. We have to do this now, rather than
@@ -246,21 +247,30 @@ namespace IceSSL
 
 	internal void verifyPeer(ConnectionInfo info, System.Net.Sockets.Socket fd, bool incoming)
 	{
-	    if(verifier_ != null)
+            if(!trustManager_.verify(info))
+            {
+                string msg = (incoming ? "incoming" : "outgoing") + " connection rejected by trust manager\n" +
+                    IceInternal.Network.fdToString(fd);
+                if(securityTraceLevel_ >= 1)
+                {
+                    logger_.trace(securityTraceCategory_, msg);
+                }
+                Ice.SecurityException ex = new Ice.SecurityException();
+                ex.reason = msg;
+                throw ex;
+            }
+	    if(verifier_ != null && !verifier_.verify(info))
 	    {
-		if(!verifier_.verify(info))
-		{
-		    string msg = (incoming ? "incoming" : "outgoing") +
-			" connection rejected by certificate verifier\n" + IceInternal.Network.fdToString(fd);
-		    if(securityTraceLevel_ >= 1)
-		    {
-			logger_.trace(securityTraceCategory_, msg);
-		    }
+	        string msg = (incoming ? "incoming" : "outgoing") +
+		    " connection rejected by certificate verifier\n" + IceInternal.Network.fdToString(fd);
+	        if(securityTraceLevel_ >= 1)
+	        {
+		    logger_.trace(securityTraceCategory_, msg);
+	        }
 
-		    Ice.SecurityException ex = new Ice.SecurityException();
-		    ex.reason = "IceSSL: " + msg;
-		    throw ex;
-		}
+	        Ice.SecurityException ex = new Ice.SecurityException();
+	        ex.reason = "IceSSL: " + msg;
+	        throw ex;
 	    }
 	}
 
@@ -707,5 +717,6 @@ namespace IceSSL
 	private bool checkCRL_;
 	private X509Certificate2Collection certs_;
 	private CertificateVerifier verifier_;
+        private TrustManager trustManager_;
     }
 }

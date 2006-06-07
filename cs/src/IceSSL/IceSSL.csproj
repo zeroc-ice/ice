@@ -34,6 +34,7 @@
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <BaseAddress>285212672</BaseAddress>
+    <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -60,7 +61,9 @@
     <Compile Include="Instance.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="PluginI.cs" />
+    <Compile Include="RFC2253.cs" />
     <Compile Include="TransceiverI.cs" />
+    <Compile Include="TrustManager.cs" />
     <Compile Include="Util.cs" />
   </ItemGroup>
   <PropertyGroup>
