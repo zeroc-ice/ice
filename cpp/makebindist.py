@@ -713,7 +713,7 @@ def makePHPbinary(sources, buildDir, installDir, version, clean):
 #	runprog('gzip -dc ' + buildDir + '/ice/install/thirdparty/php/configure*.gz > configure', False)
 		
     else:
-	runprog('gzip -dc ' + buildDir + '/IcePHP-' + version + '/configure-5.1.2.gz > configure', False)
+	runprog('gzip -dc ' + buildDir + '/IcePHP-' + version + '/configure.gz > configure', False)
 
     if platform == 'hpux':
 	#
@@ -724,7 +724,7 @@ def makePHPbinary(sources, buildDir, installDir, version, clean):
 	#
 	# Everything else should be dynamic and pretty much basic.
 	#
-	runprog('./configure-5.1.2 --without-pcre-regex --without-pear --with-ice=shared,' + installDir + '/Ice-' + version)
+	runprog('./configure --with-ice=shared,' + installDir + '/Ice-' + version)
 
     # 
     # Need to make some changes to the PHP distribution.
@@ -1240,8 +1240,8 @@ def main():
 	    shutil.copy(installDir + '/Ice-' + version + '-demos.tar.gz', '/usr/src/redhat/SOURCES')
 	    shutil.copy(sources + '/php-5.1.4.tar.bz2', '/usr/src/redhat/SOURCES')
 	    shutil.copy(installFiles + '/thirdparty/php/ice.ini', '/usr/src/redhat/SOURCES')
-#	    shutil.copy(installFiles + '/thirdparty/php/configure.5.0.4.gz', 
-#		    '/usr/src/redhat/SOURCES')
+	    shutil.copy(buildDir + '/IcePHP-' + version + '/configure.gz', 
+		    '/usr/src/redhat/SOURCES')
 	    shutil.copy(installFiles + '/common/iceproject.xml', '/usr/src/redhat/SOURCES')
             iceArchives = glob.glob(sources + '/Ice*' + version + '*.gz')
 	    for f in iceArchives:

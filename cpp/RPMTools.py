@@ -73,7 +73,7 @@ class Package:
 	ofile.write('Source4: http://www.zeroc.com/download/Ice/' + minorVer + '/Ice-%{version}-demos.tar.gz\n')
 	ofile.write('Source5: http://www.zeroc.com/download/Ice/' + minorVer + '/README.Linux-RPM\n')
 	ofile.write('Source6: http://www.zeroc.com/download/Ice/' + minorVer + '/ice.ini\n')
-	ofile.write('Source7: http://www.zeroc.com/download/Ice/' + minorVer + '/configure.5.1.2.gz\n')
+	ofile.write('Source7: http://www.zeroc.com/download/Ice/' + minorVer + '/configure.gz\n')
 	ofile.write('Source8: http://www.zeroc.com/download/Ice/' + minorVer + '/php-5.1.4.tar.bz2\n')
 	ofile.write('Source9: http://www.zeroc.com/download/Ice/' + minorVer + '/IcePHP-%{version}.tar.gz\n')
 	ofile.write('Source10: http://www.zeroc.com/download/Ice/' + minorVer + '/iceproject.xml\n')
@@ -442,7 +442,7 @@ fileLists = [
 		('xdir', 'share/doc/Ice-%version%'),
 	        ('dir', 'share/doc/Ice-%version%/demopy')]),
     Subpackage('php',
-	       'ice = %version%, php = 5.1.14',
+	       'ice = %version%, php = 5.1.4',
 	       'The Ice runtime for PHP applications',
 	       'System Environment/Libraries',
 	       iceDescription,
@@ -450,7 +450,7 @@ fileLists = [
 	       [('lib', '%{icelibdir}/php/modules'), ('cfg', '/etc/php.d/ice.ini')]
 	       ),
     NoarchSubpackage('php-devel',
-	             'ice = %version%, php = 5.1.14, ice-php = %version%',
+	             'ice = %version%, php = 5.1.4, ice-php = %version%',
 		     'Demos for developing Ice applications in PHP',
 		     'Development/Tools',
 		     iceDescription,
@@ -662,11 +662,11 @@ sed -i -e 's/^cvs_build.*$/cvs_build = no/' $RPM_BUILD_DIR/IceCS-%{version}/conf
 %setup -q -n Ice-%{version}-demos -T -D -b 4 
 cd $RPM_BUILD_DIR
 tar xfz $RPM_SOURCE_DIR/IcePHP-%{version}.tar.gz
-tar xfj $RPM_SOURCE_DIR/php-5.1.14.tar.bz2
-rm -f $RPM_BUILD_DIR/php-5.1.14/ext/ice
-ln -s $RPM_BUILD_DIR/IcePHP-%{version}/src/ice $RPM_BUILD_DIR/php-5.1.14/ext
+tar xfj $RPM_SOURCE_DIR/php-5.1.4.tar.bz2
+rm -f $RPM_BUILD_DIR/php-5.1.4/ext/ice
+ln -s $RPM_BUILD_DIR/IcePHP-%{version}/src/ice $RPM_BUILD_DIR/php-5.1.4/ext
 cp $RPM_SOURCE_DIR/ice.ini $RPM_BUILD_DIR/IcePHP-%{version}
-gzip -dc $RPM_SOURCE_DIR/configure.5.1.2.gz > $RPM_BUILD_DIR/php-5.1.14/configure
+gzip -dc $RPM_SOURCE_DIR/configure.gz > $RPM_BUILD_DIR/php-5.1.4/configure
 """)
 
 def writeBuildCommands(ofile, version):
@@ -679,9 +679,9 @@ cd $RPM_BUILD_DIR/IceCS-%{version}
 export PATH=$RPM_BUILD_DIR/Ice-%{version}/bin:$PATH
 export LD_LIBRARY_PATH=$RPM_BUILD_DIR/Ice-%{version}/lib:$LD_LIBRARY_PATH
 gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT
-cd $RPM_BUILD_DIR/php-5.1.14
-./configure --with-ice=shared,$RPM_BUILD_DIR/Ice-%{version}
-sed -i -e 's/^EXTRA_CXXFLAGS.*$/EXTRA_CXXFLAGS = -DCOMPILE_DL_ICE/' $RPM_BUILD_DIR/php-5.1.14/Makefile
+cd $RPM_BUILD_DIR/php-5.1.4
+./configure --with-ice=shared,$RPM_BUILD_DIR/Ice-%{version} --without-pcre-regex --without-pear
+sed -i -e 's/^EXTRA_CXXFLAGS.*$/EXTRA_CXXFLAGS = -DCOMPILE_DL_ICE/' $RPM_BUILD_DIR/php-5.1.4/Makefile
 gmake
 """)
 
@@ -701,7 +701,7 @@ export LD_LIBRARY_PATH=$RPM_BUILD_DIR/Ice-%{version}/lib:$LD_LIBRARY_PATH
 gmake NOGAC=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT install
 cp $RPM_SOURCE_DIR/README.Linux-RPM $RPM_BUILD_ROOT/README
 cp $RPM_SOURCE_DIR/ice.ini $RPM_BUILD_ROOT/ice.ini
-cp $RPM_BUILD_DIR/php-5.1.14/modules/ice.so $RPM_BUILD_ROOT/lib/icephp.so
+cp $RPM_BUILD_DIR/php-5.1.4/modules/ice.so $RPM_BUILD_ROOT/lib/icephp.so
 cp -pR $RPM_BUILD_DIR/Ice-%{version}-demos/config $RPM_BUILD_ROOT
 cp $RPM_SOURCE_DIR/iceproject.xml $RPM_BUILD_ROOT/config
 if test ! -d $RPM_BUILD_ROOT/usr/lib/pkgconfig ; 
