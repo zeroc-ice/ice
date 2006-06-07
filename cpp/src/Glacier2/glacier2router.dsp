@@ -171,6 +171,10 @@ SOURCE=.\FilterI.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\FilterManager.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\RequestQueue.h
 # End Source File
 # Begin Source File
