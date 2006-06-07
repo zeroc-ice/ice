@@ -365,20 +365,21 @@ RegistryI::start(bool nowarn)
     ObjectPtr admin = new AdminI(_database, this, 0);
     adminAdapter->add(admin, adminId);
 
-    Identity clientSessionMgrId = _communicator->stringToIdentity(instanceName + "/SessionManager");
-    _clientSessionManager = new ClientSessionManagerI(_database, sessionTimeout, _waitQueue);
-    adminAdapter->add(_clientSessionManager, clientSessionMgrId);
+    _clientSessionFactory = new ClientSessionFactory(adminAdapter, _database, sessionTimeout, _waitQueue);
 
-    Identity adminSessionMgrId = _communicator->stringToIdentity(instanceName + "/AdminSessionManager");
-    _adminSessionManager = new AdminSessionManagerI(_database, sessionTimeout, regTopic, nodeTopic, this);
-    adminAdapter->add(_adminSessionManager, adminSessionMgrId);
+    Identity clientSessionMgrId = _communicator->stringToIdentity(instanceName + "/SessionManager");
+    adminAdapter->add(new ClientSessionManagerI(_clientSessionFactory), clientSessionMgrId);
 
     Identity sslClientSessionMgrId = _communicator->stringToIdentity(instanceName + "/SSLSessionManager");
-    adminAdapter->add(new ClientSSLSessionManagerI(_database, sessionTimeout, _waitQueue), sslClientSessionMgrId);
+    adminAdapter->add(new ClientSSLSessionManagerI(_clientSessionFactory), sslClientSessionMgrId);
+
+    _adminSessionFactory = new AdminSessionFactory(adminAdapter, _database, sessionTimeout, regTopic, nodeTopic, this);
+
+    Identity adminSessionMgrId = _communicator->stringToIdentity(instanceName + "/AdminSessionManager");
+    adminAdapter->add(new AdminSessionManagerI(_adminSessionFactory), adminSessionMgrId);
 
     Identity sslAdmSessionMgrId = _communicator->stringToIdentity(instanceName + "/AdminSSLSessionManager");
-    AdminSSLSessionManagerIPtr ai = new AdminSSLSessionManagerI(_database, sessionTimeout, regTopic, nodeTopic, this);
-    adminAdapter->add(ai, sslAdmSessionMgrId);
+    adminAdapter->add(new AdminSSLSessionManagerI(_adminSessionFactory), sslAdmSessionMgrId);
 
     //
     // Setup null permissions verifier object, client and admin permissions verifiers.
@@ -509,7 +510,7 @@ RegistryI::createSession(const string& user, const string& password, const Curre
 	throw exc;
     }
 
-    SessionIPtr session = _clientSessionManager->create(user, 0);
+    SessionIPtr session = _clientSessionFactory->createSessionServant(user, 0);
     session->setServantLocator(_sessionServantLocator);
     SessionPrx proxy = SessionPrx::uncheckedCast(_sessionServantLocator->add(session, current.con));
     _clientReaper->add(new SessionReapable(current.adapter, session, proxy->ice_getIdentity()));
@@ -542,7 +543,7 @@ RegistryI::createAdminSession(const string& user, const string& password, const 
 	throw exc;
     }
 
-    AdminSessionIPtr session = _adminSessionManager->create(user);
+    AdminSessionIPtr session = _adminSessionFactory->createSessionServant(user);
     ObjectPrx admin = _sessionServantLocator->add(new AdminI(_database, this, session), current.con);
     session->setAdmin(AdminPrx::uncheckedCast(admin));
     session->setServantLocator(_sessionServantLocator);
@@ -586,7 +587,7 @@ RegistryI::createSessionFromSecureConnection(const Current& current)
 	throw exc;
     }
 
-    SessionIPtr session = _clientSessionManager->create(userDN, 0);
+    SessionIPtr session = _clientSessionFactory->createSessionServant(userDN, 0);
     session->setServantLocator(_sessionServantLocator);
     SessionPrx proxy = SessionPrx::uncheckedCast(_sessionServantLocator->add(session, current.con));
     _clientReaper->add(new SessionReapable(current.adapter, session, proxy->ice_getIdentity()));
@@ -631,7 +632,7 @@ RegistryI::createAdminSessionFromSecureConnection(const Current& current)
     //
     // We let the connection access the administrative interface.
     //
-    AdminSessionIPtr session = _adminSessionManager->create(userDN);
+    AdminSessionIPtr session = _adminSessionFactory->createSessionServant(userDN);
     ObjectPrx admin = _sessionServantLocator->add(new AdminI(_database, this, session), current.con);
     session->setAdmin(AdminPrx::uncheckedCast(admin));
     session->setServantLocator(_sessionServantLocator);

@@ -53,44 +53,55 @@ private:
 };
 typedef IceUtil::Handle<AdminSessionI> AdminSessionIPtr;
 
-class AdminSessionManagerI : virtual public Glacier2::SessionManager
+class AdminSessionFactory : virtual public IceUtil::Shared
 {
 public:
 
-    AdminSessionManagerI(const  DatabasePtr&, int, const RegistryObserverTopicPtr& , const NodeObserverTopicPtr&, 
-			 const RegistryIPtr&);
+    AdminSessionFactory(const Ice::ObjectAdapterPtr&, const DatabasePtr&, int, const RegistryObserverTopicPtr&, 
+			const NodeObserverTopicPtr&, const RegistryIPtr&);
     
-    virtual Glacier2::SessionPrx create(const std::string&, const Glacier2::SessionControlPrx&, const Ice::Current&);
-    AdminSessionIPtr create(const std::string&);
+    Glacier2::SessionPrx createGlacier2Session(const std::string&, const Glacier2::SessionControlPrx&);
+    AdminSessionIPtr createSessionServant(const std::string&);
+
+    const TraceLevelsPtr& getTraceLevels() const;
 
 private:
-    
+
+    const Ice::ObjectAdapterPtr _adapter;
     const DatabasePtr _database;
     const int _timeout;
+    const WaitQueuePtr _waitQueue;
     const RegistryObserverTopicPtr _registryObserverTopic;
     const NodeObserverTopicPtr _nodeObserverTopic;
     const RegistryIPtr _registry;
 };
-typedef IceUtil::Handle<AdminSessionManagerI> AdminSessionManagerIPtr;
+typedef IceUtil::Handle<AdminSessionFactory> AdminSessionFactoryPtr;
+
+class AdminSessionManagerI : virtual public Glacier2::SessionManager
+{
+public:
+
+    AdminSessionManagerI(const AdminSessionFactoryPtr&);
+    
+    virtual Glacier2::SessionPrx create(const std::string&, const Glacier2::SessionControlPrx&, const Ice::Current&);
+
+private:
+    
+    const AdminSessionFactoryPtr _factory;
+};
 
 class AdminSSLSessionManagerI : virtual public Glacier2::SSLSessionManager
 {
 public:
 
-    AdminSSLSessionManagerI(const  DatabasePtr&, int, const RegistryObserverTopicPtr& , const NodeObserverTopicPtr&,
-			    const RegistryIPtr&);
+    AdminSSLSessionManagerI(const AdminSessionFactoryPtr&);
     virtual Glacier2::SessionPrx create(const Glacier2::SSLInfo&, const Glacier2::SessionControlPrx&, 
 					const Ice::Current&);
 
 private:
     
-    const DatabasePtr _database;
-    const int _timeout;
-    const RegistryObserverTopicPtr _registryObserverTopic;
-    const NodeObserverTopicPtr _nodeObserverTopic;
-    const RegistryIPtr _registry;
+    const AdminSessionFactoryPtr _factory;
 };
-typedef IceUtil::Handle<AdminSSLSessionManagerI> AdminSSLSessionManagerIPtr;
 
 };
 

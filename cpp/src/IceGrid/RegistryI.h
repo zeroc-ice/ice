@@ -33,11 +33,11 @@ typedef IceUtil::Handle<WaitQueue> WaitQueuePtr;
 class SessionServantLocatorI;
 typedef IceUtil::Handle<SessionServantLocatorI> SessionServantLocatorIPtr;    
 
-class ClientSessionManagerI;
-typedef IceUtil::Handle<ClientSessionManagerI> ClientSessionManagerIPtr;    
+class ClientSessionFactory;
+typedef IceUtil::Handle<ClientSessionFactory> ClientSessionFactoryPtr;    
 
-class AdminSessionManagerI;
-typedef IceUtil::Handle<AdminSessionManagerI> AdminSessionManagerIPtr;    
+class AdminSessionFactory;
+typedef IceUtil::Handle<AdminSessionFactory> AdminSessionFactoryPtr;    
 
 class RegistryI : public Registry
 {
@@ -75,11 +75,11 @@ private:
     WaitQueuePtr _waitQueue;
     SessionServantLocatorIPtr _sessionServantLocator;
 
-    ClientSessionManagerIPtr _clientSessionManager;
+    ClientSessionFactoryPtr _clientSessionFactory;
     Glacier2::PermissionsVerifierPrx _clientVerifier;
     Glacier2::SSLPermissionsVerifierPrx _sslClientVerifier;
 
-    AdminSessionManagerIPtr _adminSessionManager;
+    AdminSessionFactoryPtr _adminSessionFactory;
     Glacier2::PermissionsVerifierPrx _adminVerifier;
     Glacier2::SSLPermissionsVerifierPrx _sslAdminVerifier;
 

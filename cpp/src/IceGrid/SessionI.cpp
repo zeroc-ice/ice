@@ -289,7 +289,11 @@ SessionI::removeAllocation(const AllocatablePtr& allocatable)
     _allocations.erase(allocatable);
 }
 
-ClientSessionManagerI::ClientSessionManagerI(const DatabasePtr& database, int timeout, const WaitQueuePtr& waitQueue) :
+ClientSessionFactory::ClientSessionFactory(const Ice::ObjectAdapterPtr& adapter,
+					   const DatabasePtr& database, 
+					   int timeout, 
+					   const WaitQueuePtr& waitQueue) :
+    _adapter(adapter),
     _database(database), 
     _timeout(timeout),
     _waitQueue(waitQueue)
@@ -297,28 +301,27 @@ ClientSessionManagerI::ClientSessionManagerI(const DatabasePtr& database, int ti
 }
 
 Glacier2::SessionPrx
-ClientSessionManagerI::create(const string& user, const Glacier2::SessionControlPrx& ctl, const Ice::Current& current)
+ClientSessionFactory::createGlacier2Session(const string& sessionId, const Glacier2::SessionControlPrx& ctl)
 {
+    Ice::IdentitySeq ids; // Identities of the object the session is allowed to access.
+
     Ice::Identity id;
+    id.category = _database->getInstanceName();
+
+    // The session object
     id.name = IceUtil::generateUUID();
-    id.category = current.id.category;
-    Glacier2::SessionPrx s = Glacier2::SessionPrx::uncheckedCast(current.adapter->add(create(user, ctl), id));
+    ids.push_back(id);
+    SessionIPtr session = createSessionServant(sessionId, ctl);
+    Glacier2::SessionPrx s = Glacier2::SessionPrx::uncheckedCast(_adapter->add(session, id));
+
+    // The IceGrid::Query object
+    id.name = "Query";
+    ids.push_back(id);
+
     if(ctl)
     {
 	try
 	{
-	    //
-	    // Restrict the objects the session is allowed to access to the session object itself,
-	    // the query and registry objects.
-	    //
-	    Ice::IdentitySeq ids;
-	    Ice::Identity id;
-	    id.category = "IceGrid";
-	    id.name = "Query";
-	    ids.push_back(id);
-	    id.name = "Registry";
-	    ids.push_back(id);
-	    ids.push_back(s->ice_getIdentity());
 	    ctl->identities()->add(ids);
 	}
 	catch(const Ice::LocalException&)
@@ -327,19 +330,33 @@ ClientSessionManagerI::create(const string& user, const Glacier2::SessionControl
 	    return 0;
 	}
     }
+
     return s;
 }
 
 SessionIPtr
-ClientSessionManagerI::create(const string& userId, const Glacier2::SessionControlPrx& ctl)
+ClientSessionFactory::createSessionServant(const string& userId, const Glacier2::SessionControlPrx& ctl)
 {
     return new SessionI(userId, _database, _timeout, _waitQueue, ctl);
 }
 
-ClientSSLSessionManagerI::ClientSSLSessionManagerI(const DatabasePtr& db, int timeout, const WaitQueuePtr& waitQueue) :
-    _database(db), 
-    _timeout(timeout),
-    _waitQueue(waitQueue)
+const TraceLevelsPtr&
+ClientSessionFactory::getTraceLevels() const
+{
+    return _database->getTraceLevels(); 
+}
+
+ClientSessionManagerI::ClientSessionManagerI(const ClientSessionFactoryPtr& factory) : _factory(factory)
+{
+}
+
+Glacier2::SessionPrx
+ClientSessionManagerI::create(const string& user, const Glacier2::SessionControlPrx& ctl, const Ice::Current& current)
+{
+    return _factory->createGlacier2Session(user, ctl);
+}
+
+ClientSSLSessionManagerI::ClientSSLSessionManagerI(const ClientSessionFactoryPtr& factory) : _factory(factory)
 {
 }
 
@@ -358,40 +375,12 @@ ClientSSLSessionManagerI::create(const Glacier2::SSLInfo& info, const Glacier2::
 	catch(const Ice::Exception& ex)
 	{
 	    // This shouldn't happen, the SSLInfo is supposed to be encoded by Glacier2.
-	    Ice::Error out(_database->getTraceLevels()->logger);
+	    Ice::Error out(_factory->getTraceLevels()->logger);
 	    out << "SSL session manager couldn't decode SSL certificates:\n" << ex;
 	    return 0;
 	}
     }
 	
-    SessionIPtr session = new SessionI(userDN, _database, _timeout, _waitQueue, ctl);
-    Ice::Identity id;
-    id.name = IceUtil::generateUUID();
-    id.category = current.id.category;
-    Glacier2::SessionPrx s = Glacier2::SessionPrx::uncheckedCast(current.adapter->add(session, id));
-    if(ctl)
-    {
-	try
-	{
-	    //
-	    // Restrict the objects the session is allowed to access to the session object itself,
-	    // the query and registry objects.
-	    //
-	    Ice::IdentitySeq ids;
-	    Ice::Identity id;
-	    id.category = "IceGrid";
-	    id.name = "Query";
-	    ids.push_back(id);
-	    id.name = "Registry";
-	    ids.push_back(id);
-	    ids.push_back(s->ice_getIdentity());
-	    ctl->identities()->add(ids);
-	}
-	catch(const Ice::LocalException&)
-	{
-	    s->destroy();
-	    return 0;
-	}
-    }
-    return s;
+    return _factory->createGlacier2Session(userDN, ctl);
 }
+

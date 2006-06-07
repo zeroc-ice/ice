@@ -314,6 +314,7 @@ private:
 };
 
 bool descriptorEqual(const Ice::CommunicatorPtr&, const ServerDescriptorPtr&, const ServerDescriptorPtr&);
+ServerHelperPtr createHelper(const Ice::CommunicatorPtr&, const ServerDescriptorPtr&);
 
 }
 

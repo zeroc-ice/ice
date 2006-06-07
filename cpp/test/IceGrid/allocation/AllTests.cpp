@@ -690,32 +690,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	}
 
-	//
-	// Remove this code if we're sure we don't want to disallow
-	// resolving endpoints of allocatable objects.
-	//
-// 	Ice::ObjectPrx session1obj3 = communicator->stringToProxy("allocatable3@ServerAlloc")->ice_locator(locator1);
-// 	Ice::ObjectPrx session1obj4 = communicator->stringToProxy("allocatable4@ServerAlloc")->ice_locator(locator1);
-// 	Ice::ObjectPrx session2obj3 = communicator->stringToProxy("allocatable3@ServerAlloc")->ice_locator(locator2);
-// 	Ice::ObjectPrx session2obj4 = communicator->stringToProxy("allocatable4@ServerAlloc")->ice_locator(locator2);
-// 	session1obj3->ice_locatorCacheTimeout(0)->ice_ping();
-// 	try
-// 	{
-// 	    session2obj3->ice_locatorCacheTimeout(0)->ice_ping();
-// 	    test(false);
-// 	}
-// 	catch(const Ice::NoEndpointException&)
-// 	{
-// 	}
-// 	try
-// 	{
-// 	    session2obj4->ice_locatorCacheTimeout(0)->ice_ping();
-// 	    test(false);
-// 	}
-// 	catch(const Ice::NoEndpointException&)
-// 	{
-// 	}
-
 	session1->allocateObjectById(allocatable4);
 	session1->releaseObject(allocatable3);
 	try
@@ -938,26 +912,57 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	cout << "ok" << endl;
 
-// 	cout << "testing allocation with Glacier2 router... " << flush;
-// 	Ice::ObjectPrx routerBase = communicator->stringToProxy("Glacier2/router:default -p 12347");
-// 	Glacier2::RouterPrx router1 = Glacier2::RouterPrx::checkedCast(routerBase->ice_connectionId("client1"));
-// 	test(router1);
+	cout << "testing allocation with Glacier2 session... " << flush;
+	Ice::ObjectPrx routerBase = communicator->stringToProxy("Glacier2/router:default -p 12347");
+	Glacier2::RouterPrx router1 = Glacier2::RouterPrx::checkedCast(routerBase->ice_connectionId("client1"));
+	test(router1);
 	
-// 	Glacier2::SessionPrx sessionBase = router1->createSession("test1", "abc123");
-// 	try
-// 	{
-// 	    session1 = IceGrid::SessionPrx::checkedCast(sessionBase->ice_connectionId("client1")->ice_router(router1));
-//  	    test(session1);
-// 	    session1->ice_ping();
+	Glacier2::SessionPrx sessionBase = router1->createSession("test1", "abc123");
+	try
+	{
+	    session1 = IceGrid::SessionPrx::checkedCast(sessionBase->ice_connectionId("client1")->ice_router(router1));
+ 	    test(session1);
+	    session1->ice_ping();
 
-// 	    session1->destroy();
-// 	}
-// 	catch(const Ice::LocalException& ex)
-// 	{
-// 	    cerr << ex << endl;
-// 	    test(false);
-// 	}
-// 	cout << "ok" << endl;
+	    Ice::ObjectPrx obj;
+	    obj = session1->allocateObjectById(allocatable)->ice_connectionId("client1")->ice_router(router1);
+	    obj->ice_ping();
+	    session1->releaseObject(allocatable);
+	    try
+	    {
+		obj->ice_ping();
+	    }
+	    catch(const Ice::ObjectNotExistException&)
+	    {
+	    }
+
+	    obj = session1->allocateObjectById(allocatable3)->ice_connectionId("client1")->ice_router(router1);
+	    obj->ice_ping();
+	    obj2 = communicator->stringToProxy("allocatable4")->ice_connectionId("client1")->ice_router(router1);
+	    obj2->ice_ping();
+	    session1->releaseObject(allocatable3);
+	    try
+	    {
+		obj->ice_ping();
+	    }
+	    catch(const Ice::ObjectNotExistException&)
+	    {
+	    }
+	    try
+	    {
+		obj2->ice_ping();
+	    }
+	    catch(const Ice::ObjectNotExistException&)
+	    {
+	    }
+	    session1->destroy();
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+	cout << "ok" << endl;
 
 	cout << "stress test... " << flush;
 	const int nClients = 4;

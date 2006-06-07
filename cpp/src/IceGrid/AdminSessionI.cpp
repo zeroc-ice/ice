@@ -191,11 +191,13 @@ AdminSessionI::destroy(const Ice::Current& current)
     }
 }
 
-AdminSessionManagerI::AdminSessionManagerI(const DatabasePtr& database,
-					   int sessionTimeout,
-					   const RegistryObserverTopicPtr& regTopic,
-					   const NodeObserverTopicPtr& nodeTopic,
-					   const RegistryIPtr& registry) :
+AdminSessionFactory::AdminSessionFactory(const Ice::ObjectAdapterPtr& adapter,
+					 const DatabasePtr& database,
+					 int sessionTimeout,
+					 const RegistryObserverTopicPtr& regTopic,
+					 const NodeObserverTopicPtr& nodeTopic,
+					 const RegistryIPtr& registry) :
+    _adapter(adapter),
     _database(database), 
     _timeout(sessionTimeout),
     _registryObserverTopic(regTopic),
@@ -205,44 +207,70 @@ AdminSessionManagerI::AdminSessionManagerI(const DatabasePtr& database,
 }
 
 Glacier2::SessionPrx
-AdminSessionManagerI::create(const string& userId, const Glacier2::SessionControlPrx&, const Ice::Current& current)
+AdminSessionFactory::createGlacier2Session(const string& sessionId, const Glacier2::SessionControlPrx& ctl)
 {
-    //
-    // TODO: XXX: Modify filtering?
-    //
+    Ice::IdentitySeq ids; // Identities of the object the session is allowed to access.
 
-    AdminSessionIPtr session = create(userId);
     Ice::Identity id;
+    id.category = _database->getInstanceName();
+
+    // The per-session admin object.
     id.name = IceUtil::generateUUID();
-    id.category = current.id.category;
-    AdminPrx admin = AdminPrx::uncheckedCast(current.adapter->add(new AdminI(_database, _registry, session), id));
+    AdminSessionIPtr session = createSessionServant(sessionId);
+    AdminPrx admin = AdminPrx::uncheckedCast(_adapter->add(new AdminI(_database, _registry, session), id));
     session->setAdmin(admin);
+    ids.push_back(id);
+
+    // The session admin object.
     id.name = IceUtil::generateUUID();
-    return Glacier2::SessionPrx::uncheckedCast(current.adapter->add(session, id));
+    Glacier2::SessionPrx s = Glacier2::SessionPrx::uncheckedCast(_adapter->add(session, id));
+    ids.push_back(id);
+
+    if(ctl)
+    {
+	try
+	{
+	    ctl->identities()->add(ids);
+	}
+	catch(const Ice::LocalException&)
+	{
+	    s->destroy();
+	    return 0;
+	}
+    }
+
+    return s;
 }
 
 AdminSessionIPtr
-AdminSessionManagerI::create(const string& id)
+AdminSessionFactory::createSessionServant(const string& id)
 {
     return new AdminSessionI(id, _database, _timeout, _registryObserverTopic, _nodeObserverTopic);
 }
 
-AdminSSLSessionManagerI::AdminSSLSessionManagerI(const DatabasePtr& database,
-						 int sessionTimeout,
-						 const RegistryObserverTopicPtr& regTopic,
-						 const NodeObserverTopicPtr& nodeTopic,
-						 const RegistryIPtr& registry) :
-    _database(database), 
-    _timeout(sessionTimeout),
-    _registryObserverTopic(regTopic),
-    _nodeObserverTopic(nodeTopic),
-    _registry(registry)
+const TraceLevelsPtr&
+AdminSessionFactory::getTraceLevels() const
+{
+    return _database->getTraceLevels(); 
+}
+
+AdminSessionManagerI::AdminSessionManagerI(const AdminSessionFactoryPtr& factory) : _factory(factory)
+{
+}
+
+Glacier2::SessionPrx
+AdminSessionManagerI::create(const string& userId, const Glacier2::SessionControlPrx& ctl, const Ice::Current& current)
+{
+    return _factory->createGlacier2Session(userId, ctl);
+}
+
+AdminSSLSessionManagerI::AdminSSLSessionManagerI(const AdminSessionFactoryPtr& factory) : _factory(factory)
 {
 }
 
 Glacier2::SessionPrx
 AdminSSLSessionManagerI::create(const Glacier2::SSLInfo& info, 
-				const Glacier2::SessionControlPrx&, 
+				const Glacier2::SessionControlPrx& ctl,
 				const Ice::Current& current)
 {
     string userDN;
@@ -256,23 +284,11 @@ AdminSSLSessionManagerI::create(const Glacier2::SSLInfo& info,
 	catch(const Ice::Exception& ex)
 	{
 	    // This shouldn't happen, the SSLInfo is supposed to be encoded by Glacier2.
-	    Ice::Error out(_database->getTraceLevels()->logger);
+	    Ice::Error out(_factory->getTraceLevels()->logger);
 	    out << "SSL session manager couldn't decode SSL certificates:\n" << ex;
 	    return 0;
 	}
     }
 
-    //
-    // TODO: XXX: Modify filtering?
-    //
-
-    AdminSessionIPtr session;
-    session = new AdminSessionI(userDN, _database, _timeout, _registryObserverTopic, _nodeObserverTopic);
-    Ice::Identity id;
-    id.name = IceUtil::generateUUID();
-    id.category = current.id.category;
-    AdminPrx admin = AdminPrx::uncheckedCast(current.adapter->add(new AdminI(_database, _registry, session), id));
-    session->setAdmin(admin);
-    id.name = IceUtil::generateUUID();
-    return Glacier2::SessionPrx::uncheckedCast(current.adapter->add(session, id));
+    return _factory->createGlacier2Session(userDN, ctl);
 }

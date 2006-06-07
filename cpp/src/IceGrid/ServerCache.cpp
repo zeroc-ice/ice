@@ -15,6 +15,7 @@
 #include <IceGrid/AdapterCache.h>
 #include <IceGrid/ObjectCache.h>
 #include <IceGrid/SessionI.h>
+#include <IceGrid/DescriptorHelper.h>
 
 using namespace std;
 using namespace IceGrid;
@@ -145,12 +146,6 @@ ServerCache::clear(const string& id)
 {
     Lock sync(*this);
     CacheByString<ServerEntry>::removeImpl(id);
-}
-
-NodeCache&
-ServerCache::getNodeCache() const
-{
-    return _nodeCache;
 }
 
 void
@@ -785,14 +780,16 @@ ServerEntry::allocated(const SessionIPtr& session)
 	out << "server `" << _id << "' allocated by `" << session->getId() << "' (" << _count << ")";
     }
 
+    assert(_loaded.get() || _load.get());
+    ServerDescriptorPtr desc = _loaded.get() ? _loaded->descriptor : _load->descriptor;
+
     //
     // If the server has the session activation mode, we re-load the
     // server on the node as its deployment might have changed (it's
     // possible to use ${session.*} variable with server with the
     // session activation mode.
     //
-    if(_loaded.get() && _loaded->descriptor->activation == "session" || 
-       _load.get() && _load->descriptor->activation == "session")
+    if(desc->activation == "session")
     {
 	_updated = true;
 	if(!_load.get())
@@ -807,14 +804,14 @@ ServerEntry::allocated(const SessionIPtr& session)
     Glacier2::SessionControlPrx ctl = session->getSessionControl();
     if(ctl)
     {
+	ServerHelperPtr helper = createHelper(_cache.getCommunicator(), desc);
+	multiset<string> adapterIds;
+	multiset<Ice::Identity> identities;
+	helper->getIds(adapterIds, identities);
 	try
 	{
-	    Ice::StringSeq seq(_adapters.size());
-	    for(AdapterPrxDict::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
-	    {
-		seq.push_back(p->first);
-	    }
-	    ctl->adapterIds()->add(seq);
+	    ctl->adapterIds()->add(Ice::StringSeq(adapterIds.begin(), adapterIds.end()));
+	    ctl->identities()->add(Ice::IdentitySeq(identities.begin(), identities.end()));
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{
@@ -825,6 +822,9 @@ ServerEntry::allocated(const SessionIPtr& session)
 void
 ServerEntry::released(const SessionIPtr& session)
 {
+    assert(_loaded.get() || _load.get());
+    ServerDescriptorPtr desc = _loaded.get() ? _loaded->descriptor : _load->descriptor;
+    
     //
     // If the server has the session activation mode, we re-load the
     // server on the node as its deployment might have changed (it's
@@ -832,8 +832,7 @@ ServerEntry::released(const SessionIPtr& session)
     // session activation mode. Synchronizing the server will also 
     // shutdown the server on the node.
     //
-    if(_loaded.get() && _loaded->descriptor->activation == "session" || 
-       _load.get() && _load->descriptor->activation == "session")
+    if(desc->activation == "session")
     {
 	_updated = true;
 	if(!_load.get())
@@ -848,14 +847,14 @@ ServerEntry::released(const SessionIPtr& session)
     Glacier2::SessionControlPrx ctl = session->getSessionControl();
     if(ctl)
     {
+	ServerHelperPtr helper = createHelper(_cache.getCommunicator(), desc);
+	multiset<string> adapterIds;
+	multiset<Ice::Identity> identities;
+	helper->getIds(adapterIds, identities);
 	try
 	{
-	    Ice::StringSeq seq(_adapters.size());
-	    for(AdapterPrxDict::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
-	    {
-		seq.push_back(p->first);
-	    }
-	    ctl->adapterIds()->remove(seq);
+	    ctl->adapterIds()->remove(Ice::StringSeq(adapterIds.begin(), adapterIds.end()));
+	    ctl->identities()->remove(Ice::IdentitySeq(identities.begin(), identities.end()));
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{

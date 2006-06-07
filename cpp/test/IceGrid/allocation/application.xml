@@ -1,6 +1,6 @@
 <icegrid>
 
-  <application name="Test" import-default-templates="true">
+  <application name="Test">
 
     <replica-group id="Test">
       <object identity="nonallocatable" type="::Test"/>
@@ -15,7 +15,7 @@
          <adapter name="Glacier2.Admin" id="" endpoints="tcp -h 127.0.0.1" register-process="true"/>
          <property name="Glacier2.SessionManager" value="IceGrid/SessionManager"/>
          <property name="Glacier2.PermissionsVerifier" value="IceGrid/NullPermissionsVerifier"/>
-         <property name="Glacier2.Client.Trace.Reject" value="2"/>
+         <property name="Glacier2.Client.Trace.Reject" value="0"/>
       </server>
 
       <server id="ObjectAllocation" exe="${test.dir}/server" activation="on-demand" pwd=".">
@@ -24,7 +24,6 @@
   	  <object identity="allocatablebis" type="::TestBis"/>
         </adapter>
       </server>
-
 
       <server id="ServerAllocation" exe="${test.dir}/server" activation="on-demand" pwd="." allocatable="true">
         <adapter name="Server" endpoints="default" id="ServerAlloc">

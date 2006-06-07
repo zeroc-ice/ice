@@ -95,7 +95,8 @@ public:
 
     void clear(const std::string&);
     
-    NodeCache& getNodeCache() const;
+    NodeCache& getNodeCache() const { return _nodeCache; }
+    Ice::CommunicatorPtr getCommunicator() const { return _communicator; }
     
 private:
     

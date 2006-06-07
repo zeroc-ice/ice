@@ -44,7 +44,13 @@ iceGridNodeThread = IceGridAdmin.startIceGridNode(testdir)
 
 node1Dir = os.path.join(testdir, "db", "node-1")
 os.mkdir(node1Dir)
-    
+
+print "deploying application...",
+IceGridAdmin.addApplication(os.path.join(testdir, "application.xml"),
+                            "ice.dir=" + toplevel + " test.dir=" + testdir + \
+                            " \\\"properties-override=" + TestUtil.clientServerOptions.replace("--", "") + "\\\"")
+print "ok"
+
 print "starting client...",
 clientPipe = os.popen(client + TestUtil.clientServerOptions + additionalOptions + " 2>&1")
 print "ok"
@@ -55,6 +61,10 @@ except:
     pass
     
 clientStatus = TestUtil.closePipe(clientPipe)
+
+print "removing application...",
+IceGridAdmin.removeApplication("Test")
+print "ok"
 
 IceGridAdmin.shutdownIceGridNode()
 iceGridNodeThread.join()

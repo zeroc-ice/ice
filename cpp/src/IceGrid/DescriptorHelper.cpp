@@ -1615,15 +1615,7 @@ ServerInstanceHelper::init(const ServerDescriptorPtr& definition, const Resolver
     //
     // Set the server definition.
     //
-    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(def);
-    if(iceBox)
-    {
-	_serverDefinition = new IceBoxHelper(svrResolve.getCommunicator(), iceBox);
-    }
-    else
-    {
-	_serverDefinition = new ServerHelper(resolve.getCommunicator(), def);
-    }
+    _serverDefinition = createHelper(svrResolve.getCommunicator(), def);
 
     if(!instantiate)
     {
@@ -1654,14 +1646,7 @@ ServerInstanceHelper::init(const ServerDescriptorPtr& definition, const Resolver
     // Instantiate the server definition.
     //
     ServerDescriptorPtr inst = _serverDefinition->instantiate(svrResolve, _instance.propertySet.properties);
-    if(iceBox)
-    {
-	_serverInstance = new IceBoxHelper(svrResolve.getCommunicator(), IceBoxDescriptorPtr::dynamicCast(inst));
-    }
-    else
-    {
-	_serverInstance = new ServerHelper(svrResolve.getCommunicator(), inst);
-    }
+    _serverInstance = createHelper(svrResolve.getCommunicator(), inst);
 }
 
 bool
@@ -1778,15 +1763,6 @@ NodeHelper::NodeHelper(const string& name, const NodeDescriptor& descriptor, con
 	}
 	_instance.servers.push_back(helper.getServerInstance());
     }
-
-    //
-    // Validate each property set references.
-    //
-    PropertySetDescriptorDict::const_iterator ps;
-    for(ps = _def.propertySets.begin(); ps != _def.propertySets.end(); ++ps)
-    {
-	resolve.getProperties(ps->second.references);
-    }
 }
 
 bool
@@ -1901,25 +1877,24 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
     //  * then we add the servers from the node which were not updated or removed.
     //
 
-    ServerInstanceHelperDict serverInstances;
-    ServerInstanceHelperDict servers;
     ServerInstanceHelperDict::const_iterator r;
+
+    set<string> added;
+    set<string> removed(update.removeServers.begin(), update.removeServers.end());
+
     ServerInstanceDescriptorSeq::const_iterator q;
-
-    set<string> removedServers(update.removeServers.begin(), update.removeServers.end());
-
     for(q = update.serverInstances.begin(); q != update.serverInstances.end(); ++q)
     {
 	ServerInstanceHelper helper(*q, resolve, false);
-	if(!serverInstances.insert(make_pair(helper.getId(), helper)).second)
+	if(!added.insert(helper.getId()).second)
 	{
 	    resolve.exception("duplicate server `" + helper.getId() + "' in node `" + _name + "'");
 	}
+	def.serverInstances.push_back(helper.getDefinition());
     }
     for(r = _serverInstances.begin(); r != _serverInstances.end(); ++r)
     {
-	if(removedServers.find(r->first) != removedServers.end() ||
-	   serverInstances.find(r->first) != serverInstances.end())
+	if(removed.find(r->first) != removed.end() || added.find(r->first) != added.end())
 	{
 	    continue;
 	} 
@@ -1935,21 +1910,22 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
 	    resolve.exception("invalid update in node `" + _name + "':\n" + "server instance id `" + r->first +
 			      "' changed to `" + helper.getId() + "'");
 	}
-	serverInstances.insert(make_pair(helper.getId(), helper));
+	def.serverInstances.push_back(helper.getDefinition());
     }
 
+    added.clear();
     for(ServerDescriptorSeq::const_iterator s = update.servers.begin(); s != update.servers.end(); ++s)
     {
 	ServerInstanceHelper helper(*s, resolve, false);
-	if(!servers.insert(make_pair(helper.getId(), helper)).second)
+	if(!added.insert(helper.getId()).second)
 	{
 	    resolve.exception("duplicate server `" + helper.getId() + "' in node `" + _name + "'");
 	}
+	def.servers.push_back(helper.getServerDefinition());
     }    
     for(r = _servers.begin(); r != _servers.end(); ++r)
     {
-	if(removedServers.find(r->first) != removedServers.end() ||
-	   serverInstances.find(r->first) != serverInstances.end())
+	if(removed.find(r->first) != removed.end() || added.find(r->first) != added.end())
 	{
 	    continue;
 	} 
@@ -1965,18 +1941,8 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
 	    resolve.exception("invalid update in node `" + _name + "':\nserver instance id `" + r->first + 
 			      "' changed to `" + helper.getId() + "'");
 	}	
-	servers.insert(make_pair(helper.getId(), helper));
+	def.servers.push_back(helper.getServerDefinition());
     }
-
-    for(r = serverInstances.begin(); r != serverInstances.end(); ++r)
-    {
-	def.serverInstances.push_back(r->second.getDefinition());
-    }
-    for(r = servers.begin(); r != servers.end(); ++r)
-    {
-	def.servers.push_back(r->second.getServerDefinition());
-    }
-
     return def;
 }
 
@@ -2861,5 +2827,19 @@ IceGrid::descriptorEqual(const Ice::CommunicatorPtr& com,
     else
     {
 	return false;
+    }
+}
+
+ServerHelperPtr
+IceGrid::createHelper(const Ice::CommunicatorPtr& communicator, const ServerDescriptorPtr& desc)
+{
+    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(desc);
+    if(iceBox)
+    {
+	return new IceBoxHelper(communicator, iceBox);
+    }
+    else
+    {
+	return new ServerHelper(communicator, desc);
     }
 }

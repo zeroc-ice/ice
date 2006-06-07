@@ -105,40 +105,52 @@ protected:
     std::set<AllocatablePtr> _allocations;
 };
 
-class ClientSessionManagerI : virtual public Glacier2::SessionManager
+class ClientSessionFactory : virtual public IceUtil::Shared
 {
 public:
 
-    ClientSessionManagerI(const  DatabasePtr&, int, const WaitQueuePtr&);
-    
-    virtual Glacier2::SessionPrx create(const std::string&, const Glacier2::SessionControlPrx&, const Ice::Current&);
+    ClientSessionFactory(const Ice::ObjectAdapterPtr&, const DatabasePtr&, int, const WaitQueuePtr&);
 
-    SessionIPtr create(const std::string&, const Glacier2::SessionControlPrx&);
+    Glacier2::SessionPrx createGlacier2Session(const std::string&, const Glacier2::SessionControlPrx&);
+    SessionIPtr createSessionServant(const std::string&, const Glacier2::SessionControlPrx&);
+
+    const TraceLevelsPtr& getTraceLevels() const;
 
 private:
 
+    const Ice::ObjectAdapterPtr _adapter;
     const DatabasePtr _database;
     const int _timeout;
     const WaitQueuePtr _waitQueue;
 };
-typedef IceUtil::Handle<ClientSessionManagerI> ClientSessionManagerIPtr;
+typedef IceUtil::Handle<ClientSessionFactory> ClientSessionFactoryPtr;
+
+class ClientSessionManagerI : virtual public Glacier2::SessionManager
+{
+public:
+
+    ClientSessionManagerI(const ClientSessionFactoryPtr&);
+    
+    virtual Glacier2::SessionPrx create(const std::string&, const Glacier2::SessionControlPrx&, const Ice::Current&);
+
+private:
+
+    const ClientSessionFactoryPtr _factory;
+};
 
 class ClientSSLSessionManagerI : virtual public Glacier2::SSLSessionManager
 {
 public:
 
-    ClientSSLSessionManagerI(const  DatabasePtr&, int, const WaitQueuePtr&);
+    ClientSSLSessionManagerI(const  ClientSessionFactoryPtr&);
     
     virtual Glacier2::SessionPrx create(const Glacier2::SSLInfo&, const Glacier2::SessionControlPrx&, 
 					const Ice::Current&);
 
 private:
 
-    const DatabasePtr _database;
-    const int _timeout;
-    const WaitQueuePtr _waitQueue;
+    const ClientSessionFactoryPtr _factory;
 };
-typedef IceUtil::Handle<ClientSSLSessionManagerI> ClientSSLSessionManagerIPtr;
 
 };
 
