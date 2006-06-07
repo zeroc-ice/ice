@@ -1,6 +1,8 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Fixed a bug in dumpdb so that it handles object graphs correctly.
+
 - Fixed a bug where the proxy timeout, compress flag and connection
   id attributes would be ignored for direct proxies using a router.
 
