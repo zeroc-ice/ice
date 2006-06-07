@@ -117,6 +117,44 @@ public abstract class RoutableReference extends Reference
 	return r;
     }
 
+    public Reference
+    changeCompress(boolean newCompress)
+    {
+	if(_overrideCompress && _compress == newCompress)
+	{
+	    return this;
+	}
+        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+	r._compress = newCompress;
+	r._overrideCompress = true;
+	return r;	
+    }
+
+    public Reference
+    changeTimeout(int newTimeout)
+    {
+	if(_overrideTimeout && _timeout == newTimeout)
+	{
+	    return this;
+	}
+        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+	r._timeout = newTimeout;
+	r._overrideTimeout = true;
+	return r;	
+    }
+
+    public Reference
+    changeConnectionId(String id)
+    {
+	if(_connectionId.equals(id))
+	{
+	    return this;
+	}
+        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+	r._connectionId = id;
+	return r;	
+    }
+
     public synchronized int
     hashCode()
     {
@@ -151,6 +189,26 @@ public abstract class RoutableReference extends Reference
 	{
 	    return false;
 	}
+	if(!_connectionId.equals(rhs._connectionId))
+	{
+	   return false;
+	}
+	if(_overrideCompress != rhs._overrideCompress)
+	{
+	   return false;
+	}
+	if(_overrideCompress && _compress != rhs._compress)
+	{
+	    return false;
+	}
+	if(_overrideTimeout != rhs._overrideTimeout)
+	{
+	   return false;
+	}
+	if(_overrideTimeout && _timeout != rhs._timeout)
+	{
+	    return false;
+	}
 	return _routerInfo == null ? rhs._routerInfo == null : _routerInfo.equals(rhs._routerInfo);
     }
 
@@ -171,6 +229,30 @@ public abstract class RoutableReference extends Reference
 	_collocationOptimization = collocationOpt;
 	_cacheConnection = true;
 	_endpointSelection = Ice.EndpointSelectionType.Random;
+	_overrideCompress = false;
+	_compress = false;
+	_overrideTimeout = false;
+	_timeout = -1;
+    }
+
+    protected void
+    applyOverrides(EndpointI[] endpts)
+    {
+	//
+	// Apply the endpoint overrides to each endpoint.
+	//
+	for(int i = 0; i < endpts.length; ++i)
+	{
+	    endpts[i] = endpts[i].connectionId(_connectionId);
+	    if(_overrideCompress)
+	    {
+		endpts[i] = endpts[i].compress(_compress);		    
+	    }
+	    if(_overrideTimeout)
+	    {
+		endpts[i] = endpts[i].timeout(_timeout);
+	    }
+	}
     }
 
     protected Ice.ConnectionI
@@ -359,4 +441,9 @@ public abstract class RoutableReference extends Reference
     private boolean _collocationOptimization;
     private boolean _cacheConnection;
     private Ice.EndpointSelectionType _endpointSelection;
+    private String _connectionId = "";
+    private boolean _overrideCompress;
+    private boolean _compress; // Only used if _overrideCompress == true
+    private boolean _overrideTimeout;
+    private int _timeout; // Only used if _overrideTimeout == true
 }

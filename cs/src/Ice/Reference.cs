@@ -783,6 +783,43 @@ namespace IceInternal
 	    return r;
 	}	
 
+	public override Reference changeCompress(bool newCompress)
+	{
+	    if(overrideCompress_ && compress_ == newCompress)
+	    {
+		return this;
+	    }
+
+	    RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+	    r.compress_ = newCompress;
+	    r.overrideCompress_ = true;
+	    return r;
+	}
+
+	public override Reference changeTimeout(int newTimeout)
+	{
+	    if(overrideTimeout_ && timeout_ == newTimeout)
+	    {
+		return this;
+	    }
+
+	    RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+	    r.timeout_ = newTimeout;
+	    r.overrideTimeout_ = true;
+	    return r;
+	}
+
+	public override Reference changeConnectionId(string id)
+	{
+	    if(connectionId_.Equals(id))
+	    {
+		return this;
+	    }
+	    RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+	    r.connectionId_ = id;
+	    return r;
+	}
+
 	public override bool Equals(object obj)
 	{
 	    //
@@ -807,6 +844,26 @@ namespace IceInternal
 		return false;
 	    }
 	    if(_endpointSelection != rhs._endpointSelection)
+	    {
+		return false;
+	    }
+	    if(overrideCompress_ != rhs.overrideCompress_)
+	    {
+		return false;
+	    }
+	    if(overrideCompress_ && compress_ != rhs.compress_)
+	    {
+		return false;
+	    }
+	    if(overrideTimeout_ != rhs.overrideTimeout_)
+	    {
+		return false;
+	    }
+	    if(overrideTimeout_ && timeout_ != rhs.timeout_)
+	    {
+		return false;
+	    }
+	    if(!connectionId_.Equals(rhs.connectionId_))
 	    {
 		return false;
 	    }
@@ -837,11 +894,29 @@ namespace IceInternal
 	    _collocationOptimization = collocationOpt;
 	    _cacheConnection = true;
 	    _endpointSelection = Ice.EndpointSelectionType.Random;
+	    overrideCompress_ = false;
+	    compress_ = false;
+	    overrideTimeout_ = false;
+	    timeout_ = -1;
 	}
 
-	//
-	// Filter endpoints based on criteria from this reference.
-	//
+
+	protected void applyOverrides(ref EndpointI[] endpts)
+        {
+	    for(int i = 0; i < endpts.Length; ++i)
+	    {
+		endpts[i] = endpts[i].connectionId(connectionId_);
+		if(overrideCompress_)
+		{
+		    endpts[i] = endpts[i].compress(compress_);
+		}
+		if(overrideTimeout_)
+		{
+		    endpts[i] = endpts[i].timeout(timeout_);
+		}
+	    }
+	}
+
 	protected Ice.ConnectionI createConnection(EndpointI[] allEndpoints, out bool comp)
 	{
 	    ArrayList endpoints = new ArrayList();
@@ -1031,12 +1106,16 @@ namespace IceInternal
 	
 	private static EndpointComparator _endpointComparator = new EndpointComparator();
 
-
 	private bool _secure;
 	private RouterInfo _routerInfo; // Null if no router is used.
 	private bool _collocationOptimization;
 	private bool _cacheConnection;
 	private Ice.EndpointSelectionType _endpointSelection;
+	private string connectionId_ = "";
+	private bool overrideCompress_;
+	private bool compress_;
+	private bool overrideTimeout_;
+	private int timeout_;
     }
 
     public class DirectReference : RoutableReference
@@ -1078,37 +1157,46 @@ namespace IceInternal
 
 	public override Reference changeCompress(bool newCompress)
 	{
-	    DirectReference r = (DirectReference)getInstance().referenceFactory().copy(this);
-	    EndpointI[] newEndpoints = new EndpointI[_endpoints.Length];
-	    for(int i = 0; i < _endpoints.Length; i++)
+	    DirectReference r = (DirectReference)base.changeCompress(newCompress);
+	    if(r != this) // Also override the compress flag on the endpoints if it was updated.
 	    {
-		newEndpoints[i] = _endpoints[i].compress(newCompress);
+		EndpointI[] newEndpoints = new EndpointI[_endpoints.Length];
+		for(int i = 0; i < _endpoints.Length; i++)
+		{
+		    newEndpoints[i] = _endpoints[i].compress(newCompress);
+		}
+		r._endpoints = newEndpoints;
 	    }
-	    r._endpoints = newEndpoints;
 	    return r;
 	}
 
 	public override Reference changeTimeout(int newTimeout)
 	{
-	    DirectReference r = (DirectReference)getInstance().referenceFactory().copy(this);
-	    EndpointI[] newEndpoints = new EndpointI[_endpoints.Length];
-	    for(int i = 0; i < _endpoints.Length; i++)
+	    DirectReference r = (DirectReference)base.changeTimeout(newTimeout);
+	    if(r != this) // Also override the timeout on the endpoints if it was updated.
 	    {
-		newEndpoints[i] = _endpoints[i].timeout(newTimeout);
+		EndpointI[] newEndpoints = new EndpointI[_endpoints.Length];
+		for(int i = 0; i < _endpoints.Length; i++)
+		{
+		    newEndpoints[i] = _endpoints[i].timeout(newTimeout);
+		}
+		r._endpoints = newEndpoints;
 	    }
-	    r._endpoints = newEndpoints;
 	    return r;
 	}
 
 	public override Reference changeConnectionId(string connectionId)
 	{
-	    DirectReference r = (DirectReference)getInstance().referenceFactory().copy(this);
-	    EndpointI[] newEndpoints = new EndpointI[_endpoints.Length];
-	    for(int i = 0; i < _endpoints.Length; i++)
+	    DirectReference r = (DirectReference)base.changeConnectionId(connectionId);
+	    if(r != this) // Also override the connection id on the endpoints if it was updated.
 	    {
-		newEndpoints[i] = _endpoints[i].connectionId(connectionId);
+		EndpointI[] newEndpoints = new EndpointI[_endpoints.Length];
+		for(int i = 0; i < _endpoints.Length; i++)
+		{
+		    newEndpoints[i] = _endpoints[i].connectionId(connectionId);
+		}
+		r._endpoints = newEndpoints;
 	    }
-	    r._endpoints = newEndpoints;
 	    return r;
 	}
 
@@ -1133,6 +1221,7 @@ namespace IceInternal
 	    }
 	    DirectReference r = (DirectReference)getInstance().referenceFactory().copy(this);
 	    r._endpoints = newEndpoints;
+	    r.applyOverrides(ref r._endpoints);
 	    return r;
 	}
 
@@ -1186,9 +1275,11 @@ namespace IceInternal
 	public override Ice.ConnectionI getConnection(out bool comp)
 	{
 	    EndpointI[] endpts = base.getRoutedEndpoints();
+	    applyOverrides(ref endpts);
+
 	    if(endpts.Length == 0)
 	    {
-		endpts =_endpoints;
+		endpts = _endpoints; // Endpoint overrides are already applied on these endpoints.
 	    }
 
 	    Ice.ConnectionI connection = createConnection(endpts, out comp);
@@ -1253,8 +1344,6 @@ namespace IceInternal
 	    : base(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt)
 	{
 	    adapterId_ = adptid;
-	    overrideTimeout_ = false;
-	    timeout_ = 0;
 	    locatorInfo_ = locInfo;
 	    locatorCacheTimeout_ = locatorCacheTimeout;
 	}
@@ -1288,43 +1377,6 @@ namespace IceInternal
 	    }
 	    IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
 	    r.locatorInfo_ = newLocatorInfo;
-	    return r;
-	}
-
-	public override Reference changeCompress(bool newCompress)
-	{
-	    if(overrideCompress_ && compress_ == newCompress)
-	    {
-		return this;
-	    }
-
-	    IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
-	    r.compress_ = newCompress;
-	    r.overrideCompress_ = true;
-	    return r;
-	}
-
-	public override Reference changeTimeout(int newTimeout)
-	{
-	    if(overrideTimeout_ && timeout_ == newTimeout)
-	    {
-		return this;
-	    }
-
-	    IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
-	    r.timeout_ = newTimeout;
-	    r.overrideTimeout_ = true;
-	    return r;
-	}
-
-	public override Reference changeConnectionId(string id)
-	{
-	    if(connectionId_.Equals(id))
-	    {
-		return this;
-	    }
-	    IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
-	    r.connectionId_ = id;
 	    return r;
 	}
 
@@ -1421,21 +1473,7 @@ namespace IceInternal
 		    endpts = locatorInfo_.getEndpoints(this, locatorCacheTimeout_, out cached);
 		}
 
-		//
-		// Apply the endpoint overrides to each endpoint.
-		//
-		for(int i = 0; i < endpts.Length; ++i)
-		{
-		    endpts[i] = endpts[i].connectionId(connectionId_);
-		    if(overrideCompress_)
-		    {
-			endpts[i] = endpts[i].compress(compress_);
-		    }
-		    if(overrideTimeout_)
-		    {
-			endpts[i] = endpts[i].timeout(timeout_);
-		    }
-		}
+		applyOverrides(ref endpts);
 
 		try
 		{
@@ -1507,26 +1545,6 @@ namespace IceInternal
 	    {
 		return false;
 	    }
-	    if(overrideCompress_ != rhs.overrideCompress_)
-	    {
-		return false;
-	    }
-	    if(overrideCompress_ && compress_ != rhs.compress_)
-	    {
-		return false;
-	    }
-	    if(overrideTimeout_ != rhs.overrideTimeout_)
-	    {
-		return false;
-	    }
-	    if(overrideTimeout_ && timeout_ != rhs.timeout_)
-	    {
-		return false;
-	    }
-	    if(!connectionId_.Equals(rhs.connectionId_))
-	    {
-		return false;
-	    }
 	    if(locatorInfo_ == null ? rhs.locatorInfo_ != null : !locatorInfo_.Equals(rhs.locatorInfo_))
 	    {
 		return false;
@@ -1556,12 +1574,7 @@ namespace IceInternal
         }
 
 	private string adapterId_;
-	private string connectionId_ = "";
 	private LocatorInfo locatorInfo_;
-	private bool overrideCompress_;
-	private bool compress_;
-	private bool overrideTimeout_;
-	private int timeout_;
 	private int locatorCacheTimeout_;
     }
 }

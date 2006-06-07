@@ -54,39 +54,48 @@ public class DirectReference extends RoutableReference
     public Reference
     changeCompress(boolean newCompress)
     {
-        DirectReference r = (DirectReference)getInstance().referenceFactory().copy(this);
-        EndpointI[] newEndpoints = new EndpointI[_endpoints.length];
-        for(int i = 0; i < _endpoints.length; i++)
-        {
-            newEndpoints[i] = _endpoints[i].compress(newCompress);
-        }
-	r._endpoints = newEndpoints;
+        DirectReference r = (DirectReference)super.changeCompress(newCompress);
+	if(r != this) // Also override the compress flag on the endpoints if it was updated.
+	{
+	    EndpointI[] newEndpoints = new EndpointI[_endpoints.length];
+	    for(int i = 0; i < _endpoints.length; i++)
+	    {
+		newEndpoints[i] = _endpoints[i].compress(newCompress);
+	    }
+	    r._endpoints = newEndpoints;
+	}
 	return r;
     }
 
     public Reference
     changeTimeout(int newTimeout)
     {
-        DirectReference r = (DirectReference)getInstance().referenceFactory().copy(this);
-        EndpointI[] newEndpoints = new EndpointI[_endpoints.length];
-        for(int i = 0; i < _endpoints.length; i++)
-        {
-            newEndpoints[i] = _endpoints[i].timeout(newTimeout);
-        }
-	r._endpoints = newEndpoints;
+        DirectReference r = (DirectReference)super.changeTimeout(newTimeout);
+	if(r != this) // Also override the timeout on the endpoints if it was updated.
+	{
+	    EndpointI[] newEndpoints = new EndpointI[_endpoints.length];
+	    for(int i = 0; i < _endpoints.length; i++)
+	    {
+		newEndpoints[i] = _endpoints[i].timeout(newTimeout);
+	    }
+	    r._endpoints = newEndpoints;
+	}
 	return r;
     }
 
     public Reference
     changeConnectionId(String connectionId)
     {
-        DirectReference r = (DirectReference)getInstance().referenceFactory().copy(this);
-        EndpointI[] newEndpoints = new EndpointI[_endpoints.length];
-        for(int i = 0; i < _endpoints.length; i++)
-        {
-            newEndpoints[i] = _endpoints[i].connectionId(connectionId);
-        }
-	r._endpoints = newEndpoints;
+        DirectReference r = (DirectReference)super.changeConnectionId(connectionId);
+	if(r != this) // Also override the connection id on the endpoints if it was updated.
+	{
+	    EndpointI[] newEndpoints = new EndpointI[_endpoints.length];
+	    for(int i = 0; i < _endpoints.length; i++)
+	    {
+		newEndpoints[i] = _endpoints[i].connectionId(connectionId);
+	    }
+	    r._endpoints = newEndpoints;
+	}
 	return r;
     }
 
@@ -114,6 +123,7 @@ public class DirectReference extends RoutableReference
 
         DirectReference r = (DirectReference)getInstance().referenceFactory().copy(this);
 	r._endpoints = newEndpoints;
+	r.applyOverrides(r._endpoints);
 	return r;
     }
 
@@ -172,9 +182,11 @@ public class DirectReference extends RoutableReference
     getConnection(Ice.BooleanHolder comp)
     {
         EndpointI[] endpts = super.getRoutedEndpoints();
+	applyOverrides(endpts);
+
 	if(endpts.length == 0)
 	{
-	    endpts = _endpoints;
+	    endpts = _endpoints; // Endpoint overrides are already applied on these endpoints.
 	}
 
 	Ice.ConnectionI connection = createConnection(endpts, comp);
