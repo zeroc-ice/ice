@@ -810,8 +810,24 @@ ServerEntry::allocated(const SessionIPtr& session)
 	helper->getIds(adapterIds, identities);
 	try
 	{
-	    ctl->adapterIds()->add(Ice::StringSeq(adapterIds.begin(), adapterIds.end()));
-	    ctl->identities()->add(Ice::IdentitySeq(identities.begin(), identities.end()));
+	    //
+	    // SunCC won't accept the following:
+	    //
+	    // ctl->adapterIds()->add(Ice::StringSeq(adapterIds.begin(), adapterIds.end()));
+	    // ctl->identities()->add(Ice::IdentitySeq(identities.begin(), identities.end()));
+	    //
+	    Ice::StringSeq adapterIdSeq;
+	    for(multiset<string>::iterator p = adapterIds.begin(); p != adapterIds.end(); ++p)
+	    {
+		adapterIdSeq.push_back(*p);
+	    }
+	    Ice::IdentitySeq identitySeq;
+	    for(multiset<Ice::Identity>::iterator q = identities.begin(); q != identities.end(); ++q)
+	    {
+		identitySeq.push_back(*q);
+	    }
+	    ctl->adapterIds()->add(adapterIdSeq);
+	    ctl->identities()->add(identitySeq);
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{
@@ -853,8 +869,24 @@ ServerEntry::released(const SessionIPtr& session)
 	helper->getIds(adapterIds, identities);
 	try
 	{
-	    ctl->adapterIds()->remove(Ice::StringSeq(adapterIds.begin(), adapterIds.end()));
-	    ctl->identities()->remove(Ice::IdentitySeq(identities.begin(), identities.end()));
+	    //
+	    // SunCC won't accept the following:
+	    //
+	    // ctl->adapterIds()->remove(Ice::StringSeq(adapterIds.begin(), adapterIds.end()));
+	    // ctl->identities()->remove(Ice::IdentitySeq(identities.begin(), identities.end()));
+	    //
+	    Ice::StringSeq adapterIdSeq;
+	    for(multiset<string>::iterator p = adapterIds.begin(); p != adapterIds.end(); ++p)
+	    {
+		adapterIdSeq.push_back(*p);
+	    }
+	    Ice::IdentitySeq identitySeq;
+	    for(multiset<Ice::Identity>::iterator q = identities.begin(); q != identities.end(); ++q)
+	    {
+		identitySeq.push_back(*q);
+	    }
+	    ctl->adapterIds()->remove(adapterIdSeq);
+	    ctl->identities()->remove(identitySeq);
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{
