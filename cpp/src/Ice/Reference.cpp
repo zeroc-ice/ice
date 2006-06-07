@@ -758,6 +758,44 @@ IceInternal::RoutableReference::changeCollocationOptimization(bool newCollocatio
 }
 
 ReferencePtr
+IceInternal::RoutableReference::changeCompress(bool newCompress) const
+{
+    if(_overrideCompress && newCompress == _compress)
+    {
+	return RoutableReferencePtr(const_cast<RoutableReference*>(this));
+    }
+    RoutableReferencePtr r = RoutableReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
+    r->_compress = newCompress;
+    r->_overrideCompress = true;
+    return r;
+}
+
+ReferencePtr
+IceInternal::RoutableReference::changeTimeout(int newTimeout) const
+{
+    if(_overrideTimeout && newTimeout == _timeout)
+    {
+	return RoutableReferencePtr(const_cast<RoutableReference*>(this));
+    }
+    RoutableReferencePtr r = RoutableReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
+    r->_timeout = newTimeout;
+    r->_overrideTimeout = true;
+    return r;
+}
+
+ReferencePtr
+IceInternal::RoutableReference::changeConnectionId(const string& id) const
+{
+    if(id == _connectionId)
+    {
+	return RoutableReferencePtr(const_cast<RoutableReference*>(this));
+    }
+    RoutableReferencePtr r = RoutableReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
+    r->_connectionId = id;
+    return r;
+}
+
+ReferencePtr
 IceInternal::RoutableReference::changeCacheConnection(bool newCache) const
 {
     if(newCache == _cacheConnection)
@@ -812,6 +850,18 @@ IceInternal::RoutableReference::operator==(const Reference& r) const
 	return false;
     }
     if(_endpointSelection != rhs->_endpointSelection)
+    {
+	return false;
+    }
+    if(_connectionId != rhs->_connectionId)
+    {
+	return false;
+    }
+    if(_overrideCompress != rhs->_overrideCompress || _overrideCompress && _compress != rhs->_compress)
+    {
+	return false;
+    }
+    if(_overrideTimeout != rhs->_overrideTimeout || _overrideTimeout && _timeout != rhs->_timeout)
     {
 	return false;
     }
@@ -872,6 +922,53 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
 	    {
 		return false;
 	    }
+            if(_connectionId < rhs->_connectionId)
+            {
+                return true;
+            }
+            else if(rhs->_connectionId < _connectionId)
+            {
+                return false;
+            }
+	    if(!_overrideCompress && rhs->_overrideCompress)
+	    {
+		return true;
+	    }
+	    else if(rhs->_overrideCompress < _overrideCompress)
+	    {
+		return false;
+	    }
+	    else if(_overrideCompress)
+	    {
+		if(!_compress && rhs->_compress)
+		{
+		    return true;
+		}
+		else if(rhs->_compress < _compress)
+		{
+		    return false;
+		}
+	    }
+
+	    if(!_overrideTimeout && rhs->_overrideTimeout)
+	    {
+		return true;
+	    }
+	    else if(rhs->_overrideTimeout < _overrideTimeout)
+	    {
+		return false;
+	    }
+	    else if(_overrideTimeout)
+	    {
+		if(_timeout < rhs->_timeout)
+		{
+		    return true;
+		}
+		else if(rhs->_timeout < _timeout)
+		{
+		    return false;
+		}
+	    }
             return _routerInfo < rhs->_routerInfo;
         }
     }
@@ -886,7 +983,11 @@ IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const
     _routerInfo(rtrInfo),
     _collocationOptimization(collocationOpt),
     _cacheConnection(true),
-    _endpointSelection(Random)
+    _endpointSelection(Random),
+    _overrideCompress(false),
+    _compress(false),
+    _overrideTimeout(false),
+    _timeout(-1)
 {
 }
 
@@ -896,7 +997,12 @@ IceInternal::RoutableReference::RoutableReference(const RoutableReference& r) :
     _routerInfo(r._routerInfo),
     _collocationOptimization(r._collocationOptimization),
     _cacheConnection(r._cacheConnection),
-    _endpointSelection(r._endpointSelection)
+    _endpointSelection(r._endpointSelection),
+    _connectionId(r._connectionId),
+    _overrideCompress(r._overrideCompress),
+    _compress(r._compress),
+    _overrideTimeout(r._overrideTimeout),
+    _timeout(r._timeout)
 {
 }
 
@@ -1036,6 +1142,23 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
     }
 }
 
+void
+IceInternal::RoutableReference::applyOverrides(vector<EndpointIPtr>& endpoints) const
+{
+    for(vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+    {
+	*p = (*p)->connectionId(_connectionId);
+	if(_overrideCompress)
+	{
+	    *p = (*p)->compress(_compress);		
+	}
+	if(_overrideTimeout)
+	{
+	    *p = (*p)->timeout(_timeout);
+	}
+    }
+}
+
 void IceInternal::incRef(IceInternal::DirectReference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::DirectReference* p) { p->__decRef(); }
 
@@ -1075,42 +1198,48 @@ IceInternal::DirectReference::changeLocator(const LocatorPrx& newLocator) const
 ReferencePtr
 IceInternal::DirectReference::changeCompress(bool newCompress) const
 {
-    DirectReferencePtr r = DirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
-    vector<EndpointIPtr> newEndpoints;
-    vector<EndpointIPtr>::const_iterator p;
-    for(p = _endpoints.begin(); p != _endpoints.end(); ++p)
+    DirectReferencePtr r = DirectReferencePtr::dynamicCast(RoutableReference::changeCompress(newCompress));
+    if(r.get() != this) // Also override the compress flag on the endpoints if it was updated.
     {
-	newEndpoints.push_back((*p)->compress(newCompress));
+	vector<EndpointIPtr> newEndpoints;
+	for(vector<EndpointIPtr>::const_iterator p = _endpoints.begin(); p != _endpoints.end(); ++p)
+	{
+	    newEndpoints.push_back((*p)->compress(newCompress));
+	}
+	r->_endpoints = newEndpoints;
     }
-    r->_endpoints = newEndpoints;
     return r;
 }
 
 ReferencePtr
 IceInternal::DirectReference::changeTimeout(int newTimeout) const
 {
-    DirectReferencePtr r = DirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
-    vector<EndpointIPtr> newEndpoints;
-    vector<EndpointIPtr>::const_iterator p;
-    for(p = _endpoints.begin(); p != _endpoints.end(); ++p)
+    DirectReferencePtr r = DirectReferencePtr::dynamicCast(RoutableReference::changeTimeout(newTimeout));
+    if(r.get() != this) // Also override the timeout on the endpoints if it was updated.
     {
-	newEndpoints.push_back((*p)->timeout(newTimeout));
+	vector<EndpointIPtr> newEndpoints;
+	for(vector<EndpointIPtr>::const_iterator p = _endpoints.begin(); p != _endpoints.end(); ++p)
+	{
+	    newEndpoints.push_back((*p)->timeout(newTimeout));
+	}
+	r->_endpoints = newEndpoints;
     }
-    r->_endpoints = newEndpoints;
     return r;
 }
 
 ReferencePtr
-IceInternal::DirectReference::changeConnectionId(const string& id) const
+IceInternal::DirectReference::changeConnectionId(const string& newConnectionId) const
 {
-    DirectReferencePtr r = DirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
-    vector<EndpointIPtr> newEndpoints;
-    vector<EndpointIPtr>::const_iterator p;
-    for(p = _endpoints.begin(); p != _endpoints.end(); ++p)
+    DirectReferencePtr r = DirectReferencePtr::dynamicCast(RoutableReference::changeConnectionId(newConnectionId));
+    if(r.get() != this) // Also override the connection id on the endpoints if it was updated.
     {
-	newEndpoints.push_back((*p)->connectionId(id));
+	vector<EndpointIPtr> newEndpoints;
+	for(vector<EndpointIPtr>::const_iterator p = _endpoints.begin(); p != _endpoints.end(); ++p)
+	{
+	    newEndpoints.push_back((*p)->connectionId(newConnectionId));
+	}
+	r->_endpoints = newEndpoints;
     }
-    r->_endpoints = newEndpoints;
     return r;
 }
 
@@ -1141,6 +1270,7 @@ IceInternal::DirectReference::changeEndpoints(const vector<EndpointIPtr>& newEnd
     }
     DirectReferencePtr r = DirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
     r->_endpoints = newEndpoints;
+    r->applyOverrides(r->_endpoints);
     return r;
 }
 
@@ -1199,9 +1329,11 @@ ConnectionIPtr
 IceInternal::DirectReference::getConnection(bool& comp) const
 {
     vector<EndpointIPtr> endpts = RoutableReference::getRoutedEndpoints();
+    applyOverrides(endpts);
+
     if(endpts.empty())
     {
-	endpts = _endpoints;
+	endpts = _endpoints; // Endpoint overrides are already applied on these endpoints.
     }
 
     ConnectionIPtr connection = createConnection(endpts, comp);
@@ -1285,10 +1417,6 @@ IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const
 						  int locatorCacheTimeout) :
     RoutableReference(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt),
     _adapterId(adptid),
-    _overrideCompress(false),
-    _compress(false),
-    _overrideTimeout(false),
-    _timeout(0),
     _locatorInfo(locInfo),
     _locatorCacheTimeout(locatorCacheTimeout)
 {
@@ -1322,44 +1450,6 @@ IceInternal::IndirectReference::changeLocator(const LocatorPrx& newLocator) cons
     }
     IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
     r->_locatorInfo = newLocatorInfo;
-    return r;
-}
-
-ReferencePtr
-IceInternal::IndirectReference::changeCompress(bool newCompress) const
-{
-    if(_overrideCompress && newCompress == _compress)
-    {
-	return IndirectReferencePtr(const_cast<IndirectReference*>(this));
-    }
-    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
-    r->_compress = newCompress;
-    r->_overrideCompress = true;
-    return r;
-}
-
-ReferencePtr
-IceInternal::IndirectReference::changeTimeout(int newTimeout) const
-{
-    if(_overrideTimeout && newTimeout == _timeout)
-    {
-	return IndirectReferencePtr(const_cast<IndirectReference*>(this));
-    }
-    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
-    r->_timeout = newTimeout;
-    r->_overrideTimeout = true;
-    return r;
-}
-
-ReferencePtr
-IceInternal::IndirectReference::changeConnectionId(const string& id) const
-{
-    if(id == _connectionId)
-    {
-	return IndirectReferencePtr(const_cast<IndirectReference*>(this));
-    }
-    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
-    r->_connectionId = id;
     return r;
 }
 
@@ -1470,21 +1560,7 @@ IceInternal::IndirectReference::getConnection(bool& comp) const
 	    endpts = _locatorInfo->getEndpoints(self, _locatorCacheTimeout, cached);
 	}
 
-	//
-	// Apply the endpoint overrides to each endpoint.
-	//
-	for(vector<EndpointIPtr>::iterator p = endpts.begin(); p != endpts.end(); ++p)
-	{
-	    *p = (*p)->connectionId(_connectionId);
-	    if(_overrideCompress)
-	    {
-		*p = (*p)->compress(_compress);		
-	    }
-	    if(_overrideTimeout)
-	    {
-		*p = (*p)->timeout(_timeout);
-	    }
-	}
+	applyOverrides(endpts);
 
 	try
 	{
@@ -1568,11 +1644,7 @@ IceInternal::IndirectReference::operator==(const Reference& r) const
         return false;
     }
 
-    return _adapterId == rhs->_adapterId && 
-	_connectionId == rhs->_connectionId && 
-	_overrideCompress == rhs->_overrideCompress && (!_overrideCompress || _compress == rhs->_compress) &&
-	_overrideTimeout == rhs->_overrideTimeout && (!_overrideTimeout || _timeout == rhs->_timeout) &&
-	_locatorInfo == rhs->_locatorInfo &&
+    return _adapterId == rhs->_adapterId && _locatorInfo == rhs->_locatorInfo && 
 	_locatorCacheTimeout == rhs->_locatorCacheTimeout;
 }
 
@@ -1607,55 +1679,6 @@ IceInternal::IndirectReference::operator<(const Reference& r) const
                 return false;
             }
 
-            if(_connectionId < rhs->_connectionId)
-            {
-                return true;
-            }
-            else if(rhs->_connectionId < _connectionId)
-            {
-                return false;
-            }
-
-	    if(!_overrideCompress && rhs->_overrideCompress)
-	    {
-		return true;
-	    }
-	    else if(rhs->_overrideCompress < _overrideCompress)
-	    {
-		return false;
-	    }
-	    else if(_overrideCompress)
-	    {
-		if(!_compress && rhs->_compress)
-		{
-		    return true;
-		}
-		else if(rhs->_compress < _compress)
-		{
-		    return false;
-		}
-	    }
-
-	    if(!_overrideTimeout && rhs->_overrideTimeout)
-	    {
-		return true;
-	    }
-	    else if(rhs->_overrideTimeout < _overrideTimeout)
-	    {
-		return false;
-	    }
-	    else if(_overrideTimeout)
-	    {
-		if(_timeout < rhs->_timeout)
-		{
-		    return true;
-		}
-		else if(rhs->_timeout < _timeout)
-		{
-		    return false;
-		}
-	    }
-
             if(_locatorInfo < rhs->_locatorInfo)
 	    {
 		return true;
@@ -1680,11 +1703,6 @@ IceInternal::IndirectReference::clone() const
 IceInternal::IndirectReference::IndirectReference(const IndirectReference& r) :
     RoutableReference(r),
     _adapterId(r._adapterId),
-    _connectionId(r._connectionId),
-    _overrideCompress(r._overrideCompress),
-    _compress(r._compress),
-    _overrideTimeout(r._overrideTimeout),
-    _timeout(r._timeout),
     _locatorInfo(r._locatorInfo),
     _locatorCacheTimeout(r._locatorCacheTimeout)
 {

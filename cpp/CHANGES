@@ -1,6 +1,9 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Fixed a bug where the proxy timeout, compress flag and connection
+  id attributes would be ignored for direct proxies using a router.
+
 - Added ability to configure Ice thread start/stop hooks through
   InitializationData.
 

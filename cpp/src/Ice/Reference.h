@@ -199,6 +199,9 @@ public:
     virtual ReferencePtr changeSecure(bool) const;
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const;
     virtual ReferencePtr changeCollocationOptimization(bool) const;
+    virtual ReferencePtr changeCompress(bool) const;
+    virtual ReferencePtr changeTimeout(int) const;
+    virtual ReferencePtr changeConnectionId(const std::string&) const;
     virtual ReferencePtr changeCacheConnection(bool) const;
     virtual ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const;
 
@@ -219,6 +222,7 @@ protected:
     RoutableReference(const RoutableReference&);
 
     Ice::ConnectionIPtr createConnection(const std::vector<EndpointIPtr>&, bool&) const;
+    void applyOverrides(std::vector<EndpointIPtr>&) const;
 
 private:
 
@@ -227,6 +231,12 @@ private:
     bool _collocationOptimization;
     bool _cacheConnection;
     Ice::EndpointSelectionType _endpointSelection;
+
+    std::string _connectionId;
+    bool _overrideCompress;
+    bool _compress; // Only used if _overrideCompress == true
+    bool _overrideTimeout;
+    int _timeout; // Only used if _overrideTimeout == true
 };
 
 class DirectReference : public RoutableReference
@@ -282,9 +292,6 @@ public:
     virtual std::vector<EndpointIPtr> getEndpoints() const;
 
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const;
-    virtual ReferencePtr changeCompress(bool) const;
-    virtual ReferencePtr changeTimeout(int) const;
-    virtual ReferencePtr changeConnectionId(const std::string&) const;
     virtual ReferencePtr changeLocatorCacheTimeout(int) const;
     virtual ReferencePtr changeAdapterId(const std::string&) const;
     virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const;
@@ -308,11 +315,6 @@ protected:
 private:
 
     std::string _adapterId;
-    std::string _connectionId;
-    bool _overrideCompress;
-    bool _compress; // Only used if _overrideCompress == true
-    bool _overrideTimeout;
-    int _timeout; // Only used if _overrideTimeout == true
     LocatorInfoPtr _locatorInfo;
     int _locatorCacheTimeout;
 };
