@@ -102,6 +102,7 @@ IceGrid/Perf
 IceGrid/UserAccountMapper
 IceGrid/Exception
 IceGrid/Query
+IceGrid/FileParser
 IceGrid/Registry
 IceGrid/Descriptor
 IceGrid/Admin
