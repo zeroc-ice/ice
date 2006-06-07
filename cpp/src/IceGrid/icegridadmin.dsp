@@ -155,7 +155,7 @@ SOURCE=.\Util.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\FileParser.h
+SOURCE=..\..\include\IceGrid\FileParser.h
 # End Source File
 # Begin Source File
 
@@ -183,9 +183,16 @@ USERDEP__FILEP="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"
 # Begin Custom Build
 InputPath=..\..\slice\IceGrid\FileParser.ice
 
-"FileParser.h FileParser.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	..\..\bin\slice2cpp.exe --ice --include-dir IceGrid -I../../slice $(InputPath)
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --ice --include-dir IceGrid -I../../slice $(InputPath) \
+	move FileParser.h ..\..\include\IceGrid \
+	
 
+"..\..\include\IceGrid\FileParser.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"FileParser.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "icegridadmin - Win32 Debug"
@@ -195,9 +202,11 @@ USERDEP__FILEP="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"
 InputPath=..\..\slice\IceGrid\FileParser.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --include-dir IceGrid -I../../slice $(InputPath)
+	..\..\bin\slice2cpp.exe --ice --include-dir IceGrid -I../../slice $(InputPath) \
+	move FileParser.h ..\..\include\IceGrid \
+	
 
-"FileParser.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\IceGrid\FileParser.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "FileParser.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
