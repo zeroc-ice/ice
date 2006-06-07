@@ -427,13 +427,13 @@ public:
 	    filtered.servers.push_back(*p);
 	}
 
-	for(AdapterDynamicInfoSeq::const_iterator p = info.adapters.begin(); p != info.adapters.end(); ++p)
+	for(AdapterDynamicInfoSeq::const_iterator a = info.adapters.begin(); a != info.adapters.end(); ++a)
 	{
-	    if(p->id == "PermissionsVerifierServer.Server")
+	    if(a->id == "PermissionsVerifierServer.Server")
 	    {
 		continue;
 	    }
-	    filtered.adapters.push_back(*p);
+	    filtered.adapters.push_back(*a);
 	}
 
 	return filtered;
@@ -790,14 +790,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    router1->destroySession();
 	}
-	catch(const Ice::ConnectionLostException& ex)
+	catch(const Ice::ConnectionLostException&)
 	{
 	}
 	try
 	{
 	    router2->destroySession();
 	}
-	catch(const Ice::ConnectionLostException& ex)
+	catch(const Ice::ConnectionLostException&)
 	{
 	}
 
@@ -892,14 +892,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    adminRouter1->destroySession();
 	}
-	catch(const Ice::ConnectionLostException& ex)
+	catch(const Ice::ConnectionLostException&)
 	{
 	}
 	try
 	{
 	    adminRouter2->destroySession();
 	}
-	catch(const Ice::ConnectionLostException& ex)
+	catch(const Ice::ConnectionLostException&)
 	{
 	}
 
@@ -968,14 +968,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    router1->destroySession();
 	}
-	catch(const Ice::ConnectionLostException& ex)
+	catch(const Ice::ConnectionLostException&)
 	{
 	}
 	try
 	{
 	    router2->destroySession();
 	}
-	catch(const Ice::ConnectionLostException& ex)
+	catch(const Ice::ConnectionLostException&)
 	{
 	}
 
@@ -1062,14 +1062,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    adminRouter1->destroySession();
 	}
-	catch(const Ice::ConnectionLostException& ex)
+	catch(const Ice::ConnectionLostException&)
 	{
 	}
 	try
 	{
 	    adminRouter2->destroySession();
 	}
-	catch(const Ice::ConnectionLostException& ex)
+	catch(const Ice::ConnectionLostException&)
 	{
 	}
 
