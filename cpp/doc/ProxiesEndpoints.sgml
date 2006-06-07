@@ -35,7 +35,15 @@
 <section><title>Description</title>
 <para>
 A stringified proxy consists of an identity, proxy options, and an
-optional object adapter identifier or endpoint list. A proxy containing
+optional object adapter identifier or endpoint list. White space
+(the space, tab (<literal>\t</literal>), line feed (<literal>\n</literal>),
+and carriage return (<literal>\r</literal>) characters) act as token
+delimiters; if a white space character appears as part of a component
+of a stringified proxy (such as the identity), it must be quoted or
+escaped as described below.
+</para>
+<para>
+A proxy containing
 an identity with no endpoints, or an identity with an object adapter
 identifier, represents an indirect proxy that will be resolved using the
 &Ice; locator (see the <literal>Ice.Default.Locator</literal> property).
@@ -90,34 +98,44 @@ component and slash separator are optional. If
 <replaceable>identity</replaceable> contains white space or either of the
 characters <literal>:</literal> or <literal>@</literal>, it must be enclosed
 in single or double quotes. The <replaceable>category</replaceable> and
-<replaceable>name</replaceable> components are UTF8 strings that use the
+<replaceable>name</replaceable> components are UTF-8 strings that use the
 encoding described below. Any occurrence of a slash (<literal>/</literal>)
 in <replaceable>category</replaceable> or <replaceable>name</replaceable>
 must be escaped with a backslash (i.e., <literal>\/</literal>).
 </para>
 <para>
 The <replaceable>facet</replaceable> argument of the <literal>-f</literal>
-option represents a facet path comprising one or more facets separated by
-a slash (<literal>/</literal>). If <replaceable>facet</replaceable>
-contains white space, it must be enclosed in single or double quotes. Each
-component of the facet path is a UTF8 string that uses the encoding described
-below. Any occurrence of a slash (<literal>/</literal>) in a facet path
-component must be escaped with a backslash (i.e., <literal>\/</literal>).
+option represents a facet name. If <replaceable>facet</replaceable>
+contains white space, it must be enclosed in single or double quotes. A
+facet name is a UTF-8 string that uses the encoding described
+below.
 </para>
 <para>
 The object adapter identifier <replaceable>adapter_id</replaceable>
-is a UTF8 string that uses the encoding described below. If
+is a UTF-8 string that uses the encoding described below. If
 <replaceable>adapter_id</replaceable> contains white space, it must
 be enclosed in single or double quotes.
 </para>
 <para>
-UTF8 strings are encoded using ASCII characters for the ordinal
+Single quotes can be used to prevent white space characters from being interpreted
+as delimiters, and to escape the special meaning of the backslash (<literal>\</literal>)
+character. Within single quotes, the only character that retains its special
+meaning is the single quote itself; a backslash can be used to prevent interpretation
+of a single quote as a closing quote, for example: <literal>'a string with a \' quote'</literal>.
+</para>
+<para>
+Double quotes prevent interpretation of white space characters as delimiters and prevent
+interpretation of a single quote as an opening or closing quote. For example:
+<literal>"a string with a ' quote"</literal>. However, escape sequences such as <literal>\b</literal>
+are interpreted within double quotes.
+</para>
+<para>
+UTF-8 strings are encoded using ASCII characters for the ordinal
 range 32-126 (inclusive). Characters outside this range must be encoded
 using escape sequences (<literal>\b</literal>,
 <literal>\f</literal>, <literal>\n</literal>, <literal>\r</literal>,
 <literal>\t</literal>) or octal notation (e.g., <literal>\007</literal>).
-Quotation marks used to enclose a string can be escaped using a backslash,
-as can the backslash itself (<literal>\\</literal>).
+A double quote can be escaped using a backslash, as can the backslash itself (<literal>\\</literal>).
 </para>
 <para>
 If endpoints are specified, they must be separated with a colon
