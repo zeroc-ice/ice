@@ -476,6 +476,10 @@ IceProxy::Ice::Object::ice_getIdentity() const
 ObjectPrx
 IceProxy::Ice::Object::ice_identity(const Identity& newIdentity) const
 {
+    if(newIdentity.name.empty())
+    {
+        throw IllegalIdentityException(__FILE__, __LINE__);
+    }
     if(newIdentity == _reference->getIdentity())
     {
 	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));

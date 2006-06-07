@@ -315,6 +315,10 @@ namespace Ice
 
         public ObjectPrx ice_identity(Identity newIdentity)
         {
+	    if(newIdentity.name.Equals(""))
+	    {
+	        throw new IllegalIdentityException();
+	    }
             if(newIdentity.Equals(_reference.getIdentity()))
             {
                 return this;

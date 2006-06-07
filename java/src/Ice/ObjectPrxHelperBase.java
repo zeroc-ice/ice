@@ -231,6 +231,10 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final ObjectPrx
     ice_identity(Identity newIdentity)
     {
+        if(newIdentity.name.equals(""))
+	{
+	    throw new IllegalIdentityException();
+	}
         if(newIdentity.equals(_reference.getIdentity()))
         {
             return this;
