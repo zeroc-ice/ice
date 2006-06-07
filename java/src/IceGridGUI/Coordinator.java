@@ -644,12 +644,16 @@ public class Coordinator
     public void acquireExclusiveWriteAccess(Runnable runnable)
 	throws AccessDeniedException
     {
+	System.err.println("acquireExclusiveWriteAccess");
+
 	if(_writeSerial == -1)
 	{
 	    _mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	    try
 	    {
+		System.err.println("startUpdate");
 		_writeSerial = _sessionKeeper.getSession().startUpdate();
+		System.err.println("write serial is now: " + _writeSerial);
 	    }
 	    finally
 	    {
@@ -664,14 +668,20 @@ public class Coordinator
 	//
 	_writeAccessCount++;
 
+	System.err.println("write accsess count is now: " + _writeAccessCount);
+
 	if(runnable != null)
 	{
 	    if(_writeSerial <= _latestSerial)
 	    {
+		System.err.println("run update immediately");
 		runnable.run();
 	    }
 	    else
 	    {
+		System.err.println("latest serial is: " + _latestSerial);
+		System.err.println("waiting ...");
+
 		_onExclusiveWrite = runnable;
 		_mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		//
@@ -716,6 +726,8 @@ public class Coordinator
     {
 	assert serial == _latestSerial + 1;
 	_latestSerial = serial;
+	
+	System.err.println("updateSerial _latestSerial is now " + _latestSerial);
 	
 	if(_writeAccessCount > 0 && 
 	   _writeSerial <= _latestSerial &&

@@ -1047,7 +1047,6 @@ class SessionKeeper
 	    JOptionPane.ERROR_MESSAGE);
 	
 	logout(false);
-	relog(true);
     }
 
     void logout(boolean destroySession)

@@ -48,12 +48,20 @@ class AdapterEditor extends Editor
 	AdapterDescriptor descriptor = adapter.getDescriptor();
 	Utils.Resolver resolver = adapter.getResolver();
 	
+	_id.setText(resolver.substitute(descriptor.id));
+
 	String currentEndpoints = adapter.getCurrentEndpoints();
-	boolean active = (currentEndpoints != null);
 	    
 	if(currentEndpoints == null)
 	{
-	    _currentStatus.setText("Inactive");
+	    if(_id.getText().length() == 0)
+	    {
+		_currentStatus.setText("Direct adapter (does not register with IceGrid at runtime)");
+	    }
+	    else
+	    {
+		_currentStatus.setText("Inactive");
+	    }
 	    _currentEndpoints.setText("");
 	}
 	else
@@ -63,7 +71,6 @@ class AdapterEditor extends Editor
 	}
 	
 	_description.setText(resolver.substitute(descriptor.description));
-	_id.setText(resolver.substitute(descriptor.id));
 	_replicaGroupId.setText(resolver.substitute(descriptor.replicaGroupId));
 
 	java.util.Map properties = adapter.getProperties();

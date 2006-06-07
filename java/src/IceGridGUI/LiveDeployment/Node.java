@@ -179,8 +179,8 @@ class Node extends ListTreeNode
 	    update.variables,
 	    update.serverInstances,
 	    update.servers,
-	    update.loadFactor.value,
-	    update.description.value,
+	    update.loadFactor == null ? "" : update.loadFactor.value,
+	    update.description == null ? "" : update.description.value,
 	    update.propertySets);
 	    
 	appDesc.nodes.put(_id, nodeDesc);
@@ -280,6 +280,29 @@ class Node extends ListTreeNode
 		java.util.Set serverTemplates)
     {
 	ApplicationData data = (ApplicationData)_map.get(appDesc.name);
+	
+	if(data == null)
+	{
+	    if(update != null)
+	    {
+		NodeDescriptor nodeDesc = new NodeDescriptor(
+		    update.variables,
+		    update.serverInstances,
+		    update.servers,
+		    update.loadFactor == null ? "" : update.loadFactor.value,
+		    update.description == null ? "" : update.description.value,
+		    update.propertySets);
+		
+		appDesc.nodes.put(_id, nodeDesc);
+		add(appDesc, nodeDesc);
+	    }
+	    //
+	    // Else, nothing to do.
+	    //
+
+	    return;
+	}
+
 	NodeDescriptor nodeDesc = data.descriptor;
 	java.util.Set freshServers = new java.util.HashSet();
 	

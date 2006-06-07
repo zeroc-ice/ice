@@ -669,12 +669,9 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 		else
 		{
 		    //
-		    // serviceName = TemplateName<unsubstituted param 1, ....>
+		    // Note: service names don't have to be unique
 		    //
-		    serviceName = templateLabel(descriptor.template, 
-						templateDescriptor.parameters,
-						descriptor.parameterValues,
-						templateDescriptor.parameterDefaults);
+		    serviceName = descriptor.template + "<>";
 		}
 
 		return new ServiceInstance(Communicator.this,
@@ -895,40 +892,6 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 	}
     }
     
-    static String templateLabel(String templateName,
-				java.util.List parameters,
-				final java.util.Map parameterValues,
-				final java.util.Map parameterDefaults)
-    {
-	String result = templateName + "<";
-	
-	Utils.Stringifier stringifier = new Utils.Stringifier()
-	    {
-		public String toString(Object obj)
-		{
-		    String name = (String)obj;
-		    String val = (String)parameterValues.get(name);
-		    if(val == null)
-		    {
-			val = (String)parameterDefaults.get(name);
-		    }
-		    if(val != null)
-		    {
-			return val;
-		    }
-		    else
-		    {
-			return "";
-		    }
-		}
-	    };
-
-	result += Utils.stringify(parameters, stringifier, ", ", null);
-	result += ">";
-	return result;
-    }
-
-
     //
     // Children
     //
