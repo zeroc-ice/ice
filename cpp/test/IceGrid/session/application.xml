@@ -1,0 +1,41 @@
+<icegrid>
+
+  <application name="Test">
+
+    <node name="localnode">
+
+      <server id="Glacier2" exe="${ice.dir}/bin/glacier2router">
+         <adapter name="Glacier2.Client" id="" endpoints="default -p 12347 -h 127.0.0.1 -t 10000"/>
+         <adapter name="Glacier2.Server" id="" endpoints="tcp -h 127.0.01"/>
+         <adapter name="Glacier2.Admin" id="" endpoints="tcp -h 127.0.0.1" register-process="true"/>
+         <property name="Glacier2.SessionManager" value="IceGrid/SessionManager"/>
+         <property name="Glacier2.SSLSessionManager" value="IceGrid/SSLSessionManager"/>
+         <property name="Glacier2.PermissionsVerifier" value="ClientPermissionsVerifier"/>
+         <property name="Glacier2.SSLPermissionsVerifier" value="SSLPermissionsVerifier"/>
+         <property name="Glacier2.Client.Trace.Reject" value="0"/>
+      </server>
+
+      <server id="Glacier2Admin" exe="${ice.dir}/bin/glacier2router">
+         <adapter name="Glacier2.Client" id="" endpoints="default -p 12348 -h 127.0.0.1 -t 10000"/>
+         <adapter name="Glacier2.Server" id="" endpoints="tcp -h 127.0.01"/>
+         <adapter name="Glacier2.Admin" id="" endpoints="tcp -h 127.0.0.1" register-process="true"/>
+         <property name="Glacier2.SessionManager" value="IceGrid/AdminSessionManager"/>
+         <property name="Glacier2.SSLSessionManager" value="IceGrid/AdminSSLSessionManager"/>
+         <property name="Glacier2.PermissionsVerifier" value="AdminPermissionsVerifier"/>
+         <property name="Glacier2.SSLPermissionsVerifier" value="SSLPermissionsVerifier"/>
+         <property name="Glacier2.Client.Trace.Reject" value="0"/>
+      </server>
+    
+      <server id="PermissionsVerifierServer" exe="${test.dir}/server" activation="on-demand">
+        <adapter name="Server" register-process="true">
+          <object identity="ClientPermissionsVerifier"/>
+          <object identity="AdminPermissionsVerifier"/>
+          <object identity="SSLPermissionsVerifier"/>
+        </adapter>
+        <property name="AddPermissionsVerifiers" value="1"/>
+      </server>
+
+    </node>
+  </application>
+
+</icegrid>
