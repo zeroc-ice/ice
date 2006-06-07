@@ -14,6 +14,7 @@
 #include <FreezeScript/Exception.h>
 #include <FreezeScript/Util.h>
 #include <db_cxx.h>
+#include <set>
 
 using namespace std;
 
@@ -118,6 +119,7 @@ private:
     Slice::UnitPtr _unit;
     ErrorReporterPtr _errorReporter;
     ExecuteInfo* _info;
+    set<const ObjectData*> _objectHistory;
 };
 
 } // End of namespace FreezeScript
@@ -1867,11 +1869,16 @@ FreezeScript::DumpVisitor::visitObject(const ObjectRefPtr& data)
         ObjectDataPtr value = data->getValue();
         if(value)
         {
-            DataMemberMap& members = value->getMembers();
-            for(DataMemberMap::iterator p = members.begin(); p != members.end(); ++p)
-            {
-                p->second->visit(*this);
-            }
+	    set<const ObjectData*>::iterator p = _objectHistory.find(value.get());
+	    if(p == _objectHistory.end())
+	    {
+		_objectHistory.insert(value.get());
+		DataMemberMap& members = value->getMembers();
+		for(DataMemberMap::iterator q = members.begin(); q != members.end(); ++q)
+		{
+		    q->second->visit(*this);
+		}
+	    }
         }
     }
 }
