@@ -42,8 +42,10 @@ struct InitializationData
     WstringConverterPtr wstringConverter;
 };
 
-ICE_API CommunicatorPtr initialize(int&, char*[], InitializationData = InitializationData(), Int = ICEE_INT_VERSION);
-ICE_API ICE_DEPRECATED_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&, Int = ICEE_INT_VERSION);
+ICE_API CommunicatorPtr initialize(int&, char*[], const InitializationData& = InitializationData(),
+				   Int = ICEE_INT_VERSION);
+ICE_API ICE_DEPRECATED_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&,
+								    Int = ICEE_INT_VERSION);
 
 ICE_API PropertiesPtr getDefaultProperties();
 ICE_API PropertiesPtr getDefaultProperties(StringSeq&);

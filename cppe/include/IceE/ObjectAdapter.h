@@ -54,7 +54,6 @@ public:
     void waitForHold();
     void deactivate();
     void waitForDeactivate();
-    void destroy();
 
     ObjectPrx add(const ObjectPtr&, const Identity&);
     ObjectPrx addFacet(const ObjectPtr&, const Identity&, const std::string&);
