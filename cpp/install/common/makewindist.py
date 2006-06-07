@@ -76,7 +76,7 @@ def environmentCheck(target):
     required = ["SOURCES", "BUILD_DIR", "DB_HOME", "BZIP2_HOME", "EXPAT_HOME", "OPENSSL_HOME"]
     if target == "vc60":
 	required.append("STLPORT_HOME")
-    elif target == "vc71":
+    elif target == "vc80":
 	required.extend(["PHP_BIN_HOME", "PHP_SRC_HOME", "PYTHON_HOME"])
 
     fail = False
@@ -206,7 +206,7 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
     prependEnvPath('LIB', os.path.join(iceHome, "lib"))
     prependEnvPath('INCLUDE', os.path.join(iceHome, "include"))
 
-    if installVersion == "vc71":
+    if installVersion == "vc80":
 	#
 	# Ice for C++ 
 	#
@@ -279,7 +279,7 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 	print "Building in " + os.getcwd() + "..."
 	runprog('msdev all.dsw /useenv /make "all - Win32 Debug"')
 	runprog('msdev all.dsw /useenv /make "all - Win32 Release"')
-    elif installVersion in ["vc80", "vc80_x64"]:
+    elif installVersion in ["vc71", "vc80_x64"]:
 	#
 	# Ice for C++ 
 	#

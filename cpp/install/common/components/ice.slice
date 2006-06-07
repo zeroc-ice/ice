@@ -39,16 +39,15 @@ Freeze/EvictorF
 Freeze/EvictorStorage
 Freeze/DB
 IceGrid/Admin
+IceGrid/FileParser
+IceGrid/UserAccountMapper
+IceGrid/Session
 IceGrid/Query
+IceGrid/Registry
 IceGrid/Exception
 IceGrid/Descriptor
 IceGrid/Observer
 IceBox/IceBox
-IceSSL/Plugin
-IceSSL/CertificateVerifier
-IceSSL/Exception
-IceSSL/PluginF
-IceSSL/CertificateVerifierF
 IcePatch2/FileInfo
 IcePatch2/FileServer
 IceStorm/IceStorm
@@ -56,5 +55,6 @@ Glacier2/RouterF
 Glacier2/Router
 Glacier2/Session
 Glacier2/SessionF
+Glacier2/SSLInfo
 Glacier2/PermissionsVerifier
 Glacier2/PermissionsVerifierF

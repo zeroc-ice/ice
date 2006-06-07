@@ -119,6 +119,10 @@ SOURCE=.\FilterI.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\FilterManager.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\glacier2router.cpp
 # End Source File
 # Begin Source File

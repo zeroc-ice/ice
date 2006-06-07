@@ -50,7 +50,6 @@ demo.sln
 demo.vcproj
 Freeze/bench/bench.vcproj
 Freeze/bench/Client.cpp
-Freeze/bench/config
 Freeze/bench/README
 Freeze/bench/Test.ice
 Freeze/library/BookFactory.cpp

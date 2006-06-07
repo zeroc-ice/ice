@@ -52,13 +52,13 @@
 	<summary>
 		<codepage>1252</codepage>
 		<title>Installation Database</title>
-		<subject>Ice 3.0.0 Third Party Packages for Visual Studio 2005</subject>
+		<subject>##ID_STRING1##</subject>
 		<author>##COMPANY_NAME##</author>
 		<keywords>Installer,MSI,Database</keywords>
 		<comments>##ID_STRING5##</comments>
 		<template>Intel;1033</template>
 		<lastauthor>Administrator</lastauthor>
-		<revnumber>{93E6793D-885E-4826-9662-DCC4D89CEE74}</revnumber>
+		<revnumber>{6962D982-EE55-42D1-B042-7FEE435C4A10}</revnumber>
 		<lastprinted/>
 		<createdtm>06/21/1999 04:30</createdtm>
 		<lastsavedtm>07/14/2000 08:20</lastsavedtm>
@@ -1135,8 +1135,8 @@
 		<row><td>FavoritesFolder</td><td>TARGETDIR</td><td>.:FAVORI~1|Favorites</td><td/><td>0</td><td/></row>
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
-		<row><td>ICE_TP_INSTALL_DIR</td><td>WindowsVolume</td><td>ICE-3_~0|Ice-3.0.0-ThirdParty-VC80</td><td/><td>0</td><td/></row>
-		<row><td>INSTALLDIR</td><td>ICE_TP_INSTALL_DIR</td><td>.</td><td/><td>0</td><td/></row>
+		<row><td>ICE_3.1.0_THIRDPARTY_VC80</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.1.0-ThirdParty-VC80</td><td/><td>0</td><td/></row>
+		<row><td>INSTALLDIR</td><td>ICE_3.1.0_THIRDPARTY_VC80</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
 		<row><td>ISMyProductDir</td><td>ISMyCompanyDir</td><td>MYPROD~1|My Product Name</td><td/><td>0</td><td/></row>
@@ -1594,7 +1594,6 @@
 		<row><td>packages</td><td>JGoodies.VC80.83C3E3FA_8138_46C8_A4DB_E6872C51B032</td><td>0</td></row>
 		<row><td>packages</td><td>OpenSSLDevKit.VC80.57608B33_8C6D_4798_86DF_DBF72F6F3BF1</td><td>0</td></row>
 		<row><td>packages</td><td>OpenSSLRuntime.VC80.D9B20109_6C0A_461C_ABDD_5B86C7169DC4</td><td>0</td></row>
-		<row><td>packages</td><td>PCREDevKit.VC80.63AD5A7C_E999_4441_8710_5FFD47B910B5</td><td>0</td></row>
 	</table>
 
 	<table name="ISInstallScriptAction">
@@ -1688,7 +1687,6 @@
 		<row><td>JGoodies.VC80.83C3E3FA_8138_46C8_A4DB_E6872C51B032</td><td>0</td><td>JGoodies Runtime for Visual Studio .NET 2005</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>OpenSSLDevKit.VC80.57608B33_8C6D_4798_86DF_DBF72F6F3BF1</td><td>0</td><td>OpenSSL Dev Kit for Visual Studio .NET 2005</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>OpenSSLRuntime.VC80.D9B20109_6C0A_461C_ABDD_5B86C7169DC4</td><td>0</td><td>OpenSSL Runtime for Visual Studio .NET 2005</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>PCREDevKit.VC80.63AD5A7C_E999_4441_8710_5FFD47B910B5</td><td>0</td><td>PCRE Dev Kit for Visual Studio 2005</td><td>[INSTALLDIR]</td><td/></row>
 	</table>
 
 	<table name="ISMergeModuleCfgValues">
@@ -1793,7 +1791,7 @@
 		<col key="yes" def="s72">ISProductConfiguration_</col>
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
-		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>ThirdParty-3.0.0-VC80</td></row>
+		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>ThirdParty-3.1.0-VC80</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
 	</table>
 
@@ -2429,6 +2427,7 @@
 		<row><td>IDS__TargetReq_DESC_PROCESSOR</td><td>1033</td><td>The processor is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDS__TargetReq_DESC_RAM</td><td>1033</td><td>The amount of RAM is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDS__TargetReq_DESC_RESOLUTION</td><td>1033</td><td>The screen resolution is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
+		<row><td>ID_STRING1</td><td>1033</td><td>Ice 3.1.0 Third Party Packages for Visual Studio 2005</td><td>0</td><td/><td>857343407</td></row>
 		<row><td>ID_STRING11</td><td>1033</td><td>[ProductName] - InstallShield Wizard</td><td>0</td><td/><td>1033470955</td></row>
 		<row><td>ID_STRING12</td><td>1033</td><td>{&amp;MSSWhiteSerif8}InstallShield</td><td>0</td><td/><td>1033470955</td></row>
 		<row><td>ID_STRING13</td><td>1033</td><td>{&amp;Tahoma8}InstallShield</td><td>0</td><td/><td>1033470955</td></row>
@@ -2894,10 +2893,10 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>NewProperty2111</td><td>0</td><td/></row>
 		<row><td>NewProperty2112</td><td>0</td><td/></row>
 		<row><td>PIDTemplate</td><td>12345&lt;###-%%%%%%%&gt;@@@@@</td><td/></row>
-		<row><td>ProductCode</td><td>{26c3247d-6696-4a8b-9253-f0f122b34436}</td><td/></row>
+		<row><td>ProductCode</td><td>{16888E89-D574-48F5-8241-9CE2BB41CDBF}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice  Third Party Packages for Visual Studio 2005</td><td/></row>
+		<row><td>ProductName</td><td>Ice Third Party Packages for Visual Studio 2005</td><td/></row>
 		<row><td>ProductVersion</td><td/><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
@@ -2907,7 +2906,7 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>ReinstallModeText</td><td>omus</td><td/></row>
 		<row><td>SHOWLAUNCHPROGRAM</td><td>0</td><td/></row>
 		<row><td>SetupType</td><td>Typical</td><td/></row>
-		<row><td>UpgradeCode</td><td>{e8a345ba-0f14-4ab4-ad97-86d49c987000}</td><td/></row>
+		<row><td>UpgradeCode</td><td>{971B4527-FA6E-4681-A185-451FF13233AC}</td><td/></row>
 		<row><td>_IsMaintenance</td><td>Change</td><td/></row>
 		<row><td>_IsSetupTypeMin</td><td>Typical</td><td/></row>
 	</table>
