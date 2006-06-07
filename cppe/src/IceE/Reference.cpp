@@ -96,6 +96,19 @@ IceInternal::Reference::changeFacet(const string& newFacet) const
     return r;
 }
 
+ReferencePtr
+IceInternal::Reference::changeTimeout(int newTimeout) const
+{
+    if(_overrideTimeout && newTimeout == _timeout)
+    {
+	return ReferencePtr(const_cast<Reference*>(this));
+    }
+    ReferencePtr r = getInstance()->referenceFactory()->copy(this);
+    r->_timeout = newTimeout;
+    r->_overrideTimeout = true;
+    return r;
+}
+
 Int
 Reference::hash() const
 {
@@ -300,6 +313,11 @@ IceInternal::Reference::operator==(const Reference& r) const
 	return false;
     }
 
+    if(_overrideTimeout != r._overrideTimeout || _overrideTimeout && _timeout != r._timeout)
+    {
+	return false;
+    }
+
     return true;
 }
 
@@ -361,6 +379,26 @@ IceInternal::Reference::operator<(const Reference& r) const
 	return false;
     }
 
+    if(!_overrideTimeout && r._overrideTimeout)
+    {
+	return true;
+    }
+    else if(r._overrideTimeout < _overrideTimeout)
+    {
+	return false;
+    }
+    else if(_overrideTimeout)
+    {
+	if(_timeout < r._timeout)
+	{
+	    return true;
+	}
+	else if(r._timeout < _timeout)
+	{
+	    return false;
+	}
+    }
+
     return false;
 }
 
@@ -373,7 +411,9 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const CommunicatorPtr
     _secure(sec),
     _identity(ident),
     _context(ctx),
-    _facet(fs)
+    _facet(fs),
+    _overrideTimeout(false),
+    _timeout(-1)
 {
 }
 
@@ -385,8 +425,25 @@ IceInternal::Reference::Reference(const Reference& r) :
     _secure(r._secure),
     _identity(r._identity),
     _context(r._context),
-    _facet(r._facet)
+    _facet(r._facet),
+    _overrideTimeout(r._overrideTimeout),
+    _timeout(r._timeout)
 {
+}
+
+void
+IceInternal::Reference::applyOverrides(vector<EndpointPtr>& endpts) const
+{
+    //
+    // Apply the endpoint overrides to each endpoint.
+    //
+    for(vector<EndpointPtr>::iterator p = endpts.begin(); p != endpts.end(); ++p)
+    {
+	if(_overrideTimeout)
+	{
+		*p = (*p)->timeout(_timeout);
+	}
+    }
 }
 
 void IceInternal::incRef(IceInternal::FixedReference* p) { p->__incRef(); }
@@ -693,6 +750,7 @@ IceInternal::DirectReference::changeEndpoints(const vector<EndpointPtr>& newEndp
     }
     DirectReferencePtr r = DirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
     r->_endpoints = newEndpoints;
+    r->applyOverrides(r->_endpoints);
     return r;
 }
 
@@ -709,14 +767,16 @@ IceInternal::DirectReference::changeLocator(const LocatorPrx& newLocator) const
 ReferencePtr
 IceInternal::DirectReference::changeTimeout(int newTimeout) const
 {
-    DirectReferencePtr r = DirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
-    vector<EndpointPtr> newEndpoints;
-    vector<EndpointPtr>::const_iterator p;
-    for(p = _endpoints.begin(); p != _endpoints.end(); ++p)
+    DirectReferencePtr r = DirectReferencePtr::dynamicCast(Parent::changeTimeout(newTimeout));
+    if(r.get() != this) // Also override the timeout on the endpoints if it was updated.
     {
-	newEndpoints.push_back((*p)->timeout(newTimeout));
+	vector<EndpointPtr> newEndpoints;
+	for(vector<EndpointPtr>::const_iterator p = _endpoints.begin(); p != _endpoints.end(); ++p)
+	{
+	    newEndpoints.push_back((*p)->timeout(newTimeout));
+	}
+	r->_endpoints = newEndpoints;
     }
-    r->_endpoints = newEndpoints;
     return r;
 }
 
@@ -763,9 +823,11 @@ IceInternal::DirectReference::getConnection() const
 {
 #ifdef ICEE_HAS_ROUTER
     vector<EndpointPtr> endpts = Parent::getRoutedEndpoints();
+    applyOverrides(endpts);
+
     if(endpts.empty())
     {
-	endpts = _endpoints;
+	endpts = _endpoints; // Endpoint overrides are already applied on these endpoints.
     }
 #else
     vector<EndpointPtr> endpts = _endpoints;
@@ -864,8 +926,6 @@ IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const
 						  const RouterInfoPtr& rtrInfo, const LocatorInfoPtr& locInfo) :
     RoutableReference(inst, com, ident, ctx, fs, md, sec, rtrInfo),
     _adapterId(adptid),
-    _overrideTimeout(false),
-    _timeout(0),
     _locatorInfo(locInfo)
 {
 }
@@ -876,8 +936,6 @@ IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const
 						  const LocatorInfoPtr& locInfo) :
     Reference(inst, com, ident, ctx, fs, md, sec),
     _adapterId(adptid),
-    _overrideTimeout(false),
-    _timeout(0),
     _locatorInfo(locInfo)
 {
 }
@@ -899,19 +957,6 @@ IceInternal::IndirectReference::changeLocator(const LocatorPrx& newLocator) cons
     }
     IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
     r->_locatorInfo = newLocatorInfo;
-    return r;
-}
-
-ReferencePtr
-IceInternal::IndirectReference::changeTimeout(int newTimeout) const
-{
-    if(_overrideTimeout && newTimeout == _timeout)
-    {
-	return IndirectReferencePtr(const_cast<IndirectReference*>(this));
-    }
-    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
-    r->_timeout = newTimeout;
-    r->_overrideTimeout = true;
     return r;
 }
 
@@ -980,16 +1025,7 @@ IceInternal::IndirectReference::getConnection() const
 	    endpts = _locatorInfo->getEndpoints(self, cached);
 	}
 
-	//
-	// Apply the endpoint overrides to each endpoint.
-	//
-	for(vector<EndpointPtr>::iterator p = endpts.begin(); p != endpts.end(); ++p)
-	{
-	    if(_overrideTimeout)
-	    {
-		*p = (*p)->timeout(_timeout);
-	    }
-	}
+	applyOverrides(endpts);
 
 	vector<EndpointPtr> filteredEndpoints = filterEndpoints(endpts, getMode(), getSecure());
 	if(filteredEndpoints.empty())
@@ -1084,9 +1120,7 @@ IceInternal::IndirectReference::operator==(const Reference& r) const
     {
         return false;
     }
-    return _adapterId == rhs->_adapterId && 
-	_overrideTimeout == rhs->_overrideTimeout && (!_overrideTimeout || _timeout == rhs->_timeout) &&
-	_locatorInfo == rhs->_locatorInfo;
+    return _adapterId == rhs->_adapterId && _locatorInfo == rhs->_locatorInfo;
 }
 
 bool
@@ -1119,27 +1153,6 @@ IceInternal::IndirectReference::operator<(const Reference& r) const
             {
                 return false;
             }
-
-	    if(!_overrideTimeout && rhs->_overrideTimeout)
-	    {
-		return true;
-	    }
-	    else if(rhs->_overrideTimeout < _overrideTimeout)
-	    {
-		return false;
-	    }
-	    else if(_overrideTimeout)
-	    {
-		if(_timeout < rhs->_timeout)
-		{
-		    return true;
-		}
-		else if(rhs->_timeout < _timeout)
-		{
-		    return false;
-		}
-	    }
-
             return _locatorInfo < rhs->_locatorInfo;
         }
     }
@@ -1155,8 +1168,6 @@ IceInternal::IndirectReference::clone() const
 IceInternal::IndirectReference::IndirectReference(const IndirectReference& r)
     : Parent(r), 
       _adapterId(r._adapterId), 
-      _overrideTimeout(r._overrideTimeout),
-      _timeout(r._timeout),
       _locatorInfo(r._locatorInfo)
 {
 }

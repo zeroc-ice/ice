@@ -81,7 +81,7 @@ public:
 #ifdef ICEE_HAS_LOCATOR
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const = 0;
 #endif
-    virtual ReferencePtr changeTimeout(int) const = 0;
+    virtual ReferencePtr changeTimeout(int) const;
 
     int hash() const; // Conceptually const.
 
@@ -112,6 +112,8 @@ protected:
 	      const std::string&, Mode, bool);
     Reference(const Reference&);
 
+    void applyOverrides(std::vector<EndpointPtr>&) const;
+
     IceUtil::RecMutex _hashMutex; // For lazy initialization of hash value.
     mutable Ice::Int _hashValue;
     mutable bool _hashInitialized;
@@ -126,6 +128,16 @@ private:
     Ice::Identity _identity;
     Ice::Context _context;
     std::string _facet;
+
+    //
+    // NOTE: The override timeout should theoritically be in
+    // RoutableReference. However, since RoutableReference is only
+    // defined if the ICEE_HAS_ROUTER macro is defined, it would also
+    // have to be conditionally defined here. To simplify, we just 
+    // define it here.
+    //
+    bool _overrideTimeout;
+    int _timeout; // Only used if _overrideTimeout == true
 };
 
 class FixedReference : public Reference
@@ -275,7 +287,6 @@ public:
     virtual std::vector<EndpointPtr> getEndpoints() const;
 
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const;
-    virtual ReferencePtr changeTimeout(int) const;
 
     virtual void streamWrite(BasicStream*) const;
     virtual std::string toString() const;
@@ -296,8 +307,6 @@ protected:
 private:
 
     std::string _adapterId;
-    bool _overrideTimeout;
-    int _timeout; // Only used if _overrideTimeout == true
     LocatorInfoPtr _locatorInfo;
 #ifdef ICEE_HAS_ROUTER
     typedef RoutableReference Parent;

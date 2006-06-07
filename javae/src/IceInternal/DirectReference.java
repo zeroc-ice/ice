@@ -40,6 +40,7 @@ public class DirectReference extends RoutableReference
 	}
         DirectReference r = (DirectReference)getInstance().referenceFactory().copy(this);
 	r._endpoints = newEndpoints;
+	r.applyOverrides(r._endpoints);
 	return r;
     }
 
@@ -52,13 +53,16 @@ public class DirectReference extends RoutableReference
     public Reference
     changeTimeout(int newTimeout)
     {
-        DirectReference r = (DirectReference)getInstance().referenceFactory().copy(this);
-        Endpoint[] newEndpoints = new Endpoint[_endpoints.length];
-        for(int i = 0; i < _endpoints.length; i++)
-        {
-            newEndpoints[i] = _endpoints[i].timeout(newTimeout);
-        }
-	r._endpoints = newEndpoints;
+        DirectReference r = (DirectReference)super.changeTimeout(newTimeout);
+	if(r != this) // Also override the timeout on the endpoints if it was updated.
+	{
+	    Endpoint[] newEndpoints = new Endpoint[_endpoints.length];
+	    for(int i = 0; i < _endpoints.length; i++)
+	    {
+		newEndpoints[i] = _endpoints[i].timeout(newTimeout);
+	    }
+	    r._endpoints = newEndpoints;
+	}
 	return r;
     }
 
@@ -111,9 +115,11 @@ public class DirectReference extends RoutableReference
     getConnection()
     {
         Endpoint[] endpts = super.getRoutedEndpoints();
+	applyOverrides(endpts);
+
 	if(endpts.length == 0)
 	{
-	    endpts = _endpoints;
+	    endpts = _endpoints; // Endpoint overrides are already applied on these endpoints.
 	}
 	Endpoint[] filteredEndpoints = filterEndpoints(endpts);
 	if(filteredEndpoints.length == 0)

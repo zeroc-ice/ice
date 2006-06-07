@@ -159,9 +159,21 @@ public abstract class Reference
 	return r;
     }
 
+    public Reference
+    changeTimeout(int newTimeout)
+    {
+	if(_overrideTimeout && _timeout == newTimeout)
+	{
+	    return this;
+	}
+        Reference r = getInstance().referenceFactory().copy(this);
+	r._timeout = newTimeout;
+	r._overrideTimeout = true;
+	return r;	
+    }
+
     public abstract Reference changeRouter(Ice.RouterPrx newRouter);
     public abstract Reference changeLocator(Ice.LocatorPrx newLocator);
-    public abstract Reference changeTimeout(int newTimeout);
 
     public synchronized int
     hashCode()
@@ -362,6 +374,15 @@ public abstract class Reference
             return false;
         }
 
+	if(_overrideTimeout != r._overrideTimeout)
+	{
+	   return false;
+	}
+	if(_overrideTimeout && _timeout != r._timeout)
+	{
+	    return false;
+	}	
+
         return true;
     }
 
@@ -374,6 +395,8 @@ public abstract class Reference
 	dest._context = _context;
 	dest._emptyContext = _emptyContext;
 	dest._facet = _facet;
+	dest._timeout = _timeout;
+	dest._overrideTimeout = _overrideTimeout;
 	dest._hashInitialized = false;
     }
 
@@ -396,6 +419,14 @@ public abstract class Reference
     private java.util.Hashtable _context;
     private static java.util.Hashtable _emptyContext = new java.util.Hashtable();
     private String _facet;
+
+    //
+    // NOTE: The override timeout should theoritically be in
+    // RoutableReference. But for consistency with the C++ version we
+    // keep it here (see also comment in src/IceE/Reference.h)
+    //
+    private boolean _overrideTimeout;
+    private int _timeout; // Only used if _overrideTimeout == true
 
     protected int _hashValue;
     protected boolean _hashInitialized;
@@ -434,7 +465,21 @@ public abstract class Reference
         _identity = ident;
 	_context = ctx == null ? _emptyContext : ctx;
         _facet = fac;
+	_overrideTimeout = false;
+	_timeout = -1;
 	_hashInitialized = false;
+    }
+
+    protected void
+    applyOverrides(Endpoint[] endpts)
+    {
+	for(int i = 0; i < endpts.length; ++i)
+	{
+	    if(_overrideTimeout)
+	    {
+		endpts[i] = endpts[i].timeout(_timeout);		    
+	    }
+	}
     }
 
     //

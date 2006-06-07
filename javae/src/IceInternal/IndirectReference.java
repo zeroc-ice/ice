@@ -59,19 +59,6 @@ public class IndirectReference extends RoutableReference
 	return r;
     }
 
-    public Reference
-    changeTimeout(int newTimeout)
-    {
-	if(_overrideTimeout && _timeout == newTimeout)
-	{
-	    return this;
-	}
-        IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
-	r._timeout = newTimeout;
-	r._overrideTimeout = true;
-	return r;	
-    }
-
     public void
     streamWrite(BasicStream s)
 	throws Ice.MarshalException
@@ -136,16 +123,7 @@ public class IndirectReference extends RoutableReference
 	        endpts = _locatorInfo.getEndpoints(this, cached);
 	    }
 
-	    //
-	    // Apply the endpoint overrides to each endpoint.
-	    //
-	    for(int i = 0; i < endpts.length; ++i)
-	    {
-		if(_overrideTimeout)
-		{
-		    endpts[i] = endpts[i].timeout(_timeout);		    
-		}
-	    }
+	    applyOverrides(endpts);
 
 	    Endpoint[] filteredEndpoints = filterEndpoints(endpts);
 	    if(filteredEndpoints.length == 0)
@@ -247,14 +225,6 @@ public class IndirectReference extends RoutableReference
 	{
 	   return false;
 	}
-	if(_overrideTimeout != rhs._overrideTimeout)
-	{
-	   return false;
-	}
-	if(_overrideTimeout && _timeout != rhs._timeout)
-	{
-	    return false;
-	}
 	return _locatorInfo == null ? rhs._locatorInfo == null : _locatorInfo.equals(rhs._locatorInfo);
     }
 
@@ -280,7 +250,5 @@ public class IndirectReference extends RoutableReference
     }
     
     private String _adapterId;
-    private boolean _overrideTimeout;
-    private int _timeout; // Only used if _overrideTimeout == true
     private LocatorInfo _locatorInfo;
 }
