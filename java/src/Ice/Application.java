@@ -27,17 +27,39 @@ public abstract class Application
     public final int
     main(String appName, String[] args)
     {
-        return main(appName, args, null);
+        return main(appName, args, new InitializationData());
     }
 
     public final int
     main(String appName, String[] args, String configFile)
     {
-    	return main(appName, args, configFile, new InitializationData());
+        InitializationData initData = new InitializationData();
+        if(configFile != null)
+        {
+            initData.properties = Util.createProperties();
+            initData.properties.load(configFile);
+        }
+    	return main(appName, args, initData);
+    }
+
+    /**
+     * @deprecated This method has been deprecated.
+     **/
+    public final int
+    main(String appName, String[] args, String configFile, Logger logger)
+    {
+        InitializationData initData = new InitializationData();
+        if(configFile != null)
+        {
+            initData.properties = Util.createProperties();
+            initData.properties.load(configFile);
+        }
+	initData.logger = logger;
+    	return main(appName, args, initData);
     }
 
     public final int
-    main(String appName, String[] args, String configFile, InitializationData initData)
+    main(String appName, String[] args, InitializationData initData)
     {
         if(_communicator != null)
         {
@@ -52,11 +74,6 @@ public abstract class Application
         try
         {
 	    StringSeqHolder argHolder = new StringSeqHolder(args);
-            if(configFile != null)
-            {
-                initData.properties = Util.createProperties();
-                initData.properties.load(configFile);
-            }
             _communicator = Util.initialize(argHolder, initData);
 
             //

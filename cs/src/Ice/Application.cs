@@ -38,15 +38,34 @@ namespace Ice
 	//
 	public int main(string[] args)
 	{
-	    return main(args, null);
+	    return main(args, new InitializationData());
 	}
 
 	public int main(string[] args, string configFile)
 	{
-	    return main(args, configFile, new InitializationData());
+	    InitializationData initData = new InitializationData();
+	    if(configFile != null)
+	    {
+	        initData.properties = Util.createProperties();
+	        initData.properties.load(configFile);
+	    }
+	    return main(args, initData);
+	}
+
+	[Obsolete("This method has been deprecated.")]
+	public int main(string[] args, string configFile, Logger logger)
+	{
+	    InitializationData initData = new InitializationData();
+	    if(configFile != null)
+	    {
+	        initData.properties = Util.createProperties();
+	        initData.properties.load(configFile);
+	    }
+	    initData.logger = logger;
+	    return main(args, initData);
 	}
 	
-	public int main(string[] args, string configFile, InitializationData initData)
+	public int main(string[] args, InitializationData initData)
 	{
 	    if(_communicator != null)
 	    {
@@ -57,11 +76,6 @@ namespace Ice
 	    
 	    try
 	    {
-		if(configFile != null)
-		{
-		    initData.properties = Util.createProperties();
-		    initData.properties.load(configFile);
-		}
 		_communicator = Util.initialize(ref args, initData);
 		
 		Properties props = _communicator.getProperties();

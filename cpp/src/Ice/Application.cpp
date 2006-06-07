@@ -219,7 +219,39 @@ Ice::Application::~Application()
 }
 
 int
-Ice::Application::main(int argc, char* argv[], const char* configFile, InitializationData initData)
+Ice::Application::main(int argc, char* argv[])
+{
+    return main(argc, argv, InitializationData());
+}
+
+int
+Ice::Application::main(int argc, char* argv[], const char* configFile)
+{
+    InitializationData initData;
+    if(configFile)
+    {
+	initData.properties = createProperties();
+	initData.properties->load(configFile);
+    }
+    return main(argc, argv, initData);
+}
+
+
+int
+Ice::Application::main(int argc, char* argv[], const char* configFile, const Ice::LoggerPtr& logger)
+{
+    InitializationData initData;
+    if(configFile)
+    {
+	initData.properties = createProperties();
+	initData.properties->load(configFile);
+    }
+    initData.logger = logger;
+    return main(argc, argv, initData);
+}
+
+int
+Ice::Application::main(int argc, char* argv[], const InitializationData& initData)
 {
     if(_communicator != 0)
     {
@@ -248,11 +280,6 @@ Ice::Application::main(int argc, char* argv[], const char* configFile, Initializ
 	    _interrupted = false;
 	    _appName = argv[0];
 	  	
-	    if(configFile)
-	    {
-		initData.properties = createProperties();
-		initData.properties->load(configFile);
-	    }
 	    _communicator = initialize(argc, argv, initData);
 	    _destroyed = false;
 
