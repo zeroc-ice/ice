@@ -482,13 +482,27 @@ Slice::VbGenerator::writeMarshalUnmarshalCode(Output &out,
     {
         if(marshal)
         {
-            out << nl << param << ".write__(" << stream << ')';
+	    if(streamingAPI)
+	    {
+		out << nl << param << ".ice_write(" << stream << ')';
+	    }
+	    else
+	    {
+		out << nl << param << ".write__(" << stream << ')';
+	    }
         }
         else
         {
             string typeS = typeToString(type);
             out << nl << param << " = New " << typeS;
-            out << nl << param << ".read__(" << stream << ")";
+	    if(streamingAPI)
+	    {
+		out << nl << param << ".ice_read(" << stream << ")";
+	    }
+	    else
+	    {
+		out << nl << param << ".read__(" << stream << ")";
+	    }
         }
         return;
     }
@@ -794,7 +808,14 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out << nl << stream << ".writeSize(" << param << '.' << limitID << ")";
 	    out << nl << "For ix__ As Integer = 0 To " << param << '.' << limitID << " - 1";
 	    out.inc();
-	    out << nl << param << "(ix__).write__(" << stream << ")";
+	    if(streamingAPI)
+	    {
+		out << nl << param << "(ix__).ice_write(" << stream << ")";
+	    }
+	    else
+	    {
+		out << nl << param << "(ix__).write__(" << stream << ")";
+	    }
 	    out.dec();
 	    out << nl << "Next";
 	    out.dec();
@@ -831,12 +852,26 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 		{
 		    out << nl << param << "(ix__) = New " << typeS;
 		}
-  		out << nl << param << "(ix__).read__(" << stream << ")";
+		if(streamingAPI)
+		{
+		    out << nl << param << "(ix__).ice_read(" << stream << ")";
+		}
+		else
+		{
+		    out << nl << param << "(ix__).read__(" << stream << ")";
+		}
 	    }
 	    else
 	    {
 	        out << nl << "Dim val__ As " << typeS << " = New " << typeS;
-		out << nl << "val__.read__(" << stream << ')';
+		if(streamingAPI)
+		{
+		    out << nl << "val__.ice_read(" << stream << ')';
+		}
+		else
+		{
+		    out << nl << "val__.read__(" << stream << ')';
+		}
 		out << nl << param << ".Add(val__)";
 	    }
 	    if(!streamingAPI && type->isVariableLength())

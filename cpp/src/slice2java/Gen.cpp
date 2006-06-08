@@ -2460,7 +2460,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         if(_stream)
         {
-            out << sp << nl << "public void" << nl << "__write(Ice.OutputStream __outS)";
+            out << sp << nl << "public void" << nl << "ice_write(Ice.OutputStream __outS)";
             out << sb;
             iter = 0;
             for(d = members.begin(); d != members.end(); ++d)
@@ -2471,7 +2471,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             }
             out << eb;
 
-            out << sp << nl << "public void" << nl << "__read(Ice.InputStream __inS)";
+            out << sp << nl << "public void" << nl << "ice_read(Ice.InputStream __inS)";
             out << sb;
             iter = 0;
             classMemberCount = 0;
@@ -2833,7 +2833,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
         if(_stream)
         {
-            out << sp << nl << "public void" << nl << "__write(Ice.OutputStream __outS)";
+            out << sp << nl << "public void" << nl << "ice_write(Ice.OutputStream __outS)";
             out << sb;
             if(sz <= 0x7f)
             {
@@ -2849,7 +2849,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
             }
             out << eb;
 
-            out << sp << nl << "public static " << name << nl << "__read(Ice.InputStream __inS)";
+            out << sp << nl << "public static " << name << nl << "ice_read(Ice.InputStream __inS)";
             out << sb;
             if(sz <= 0x7f)
             {
@@ -3548,13 +3548,13 @@ Slice::Gen::HelperVisitor::visitStructStart(const StructPtr& p)
 
         out << sp << nl << "public static void" << nl << "write(Ice.OutputStream __outS, " << fixedName << " __v)";
         out << sb;
-        out << nl << "__v.__write(__outS);";
+        out << nl << "__v.ice_write(__outS);";
         out << eb;
 
         out << sp << nl << "public static " << fixedName << nl << "read(Ice.InputStream __inS)";
         out << sb;
         out << nl << fixedName << " __v = new " << fixedName << "();";
-        out << nl << "__v.__read(__inS);";
+        out << nl << "__v.ice_read(__inS);";
         out << nl << "return __v;";
         out << eb;
 
@@ -3715,12 +3715,12 @@ Slice::Gen::HelperVisitor::visitEnum(const EnumPtr& p)
 
         out << sp << nl << "public static void" << nl << "write(Ice.OutputStream __outS, " << fixedName << " __v)";
         out << sb;
-        out << nl << "__v.__write(__outS);";
+        out << nl << "__v.ice_write(__outS);";
         out << eb;
 
         out << sp << nl << "public static " << fixedName << nl << "read(Ice.InputStream __inS)";
         out << sb;
-        out << nl << "return " << fixedName << ".__read(__inS);";
+        out << nl << "return " << fixedName << ".ice_read(__inS);";
         out << eb;
 
         out << eb;

@@ -2318,13 +2318,13 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
 	_out << sp << nl << "public static void write(Ice.OutputStream outS__, " << name << " v__)";
 	_out << sb;
-	_out << nl << "v__.write__(outS__);";
+	_out << nl << "v__.ice_write(outS__);";
 	_out << eb;
 
 	_out << sp << nl << "public static " << name << " read(Ice.InputStream inS__)";
 	_out << sb;
 	_out << nl << name << " v__ = new " << name << "();";
-	_out << nl << "v__.read__(inS__);";
+	_out << nl << "v__.ice_read(inS__);";
 	_out << nl << "return v__;";
 	_out << eb;
 
@@ -2609,7 +2609,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
 	if(_stream)
 	{
-	    _out << sp << nl << "public void write__(Ice.OutputStream outS__)";
+	    _out << sp << nl << "public void ice_write(Ice.OutputStream outS__)";
 	    _out << sb;
 	    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
 	    {
@@ -2619,7 +2619,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	    }
 	    _out << eb;
 
-	    _out << sp << nl << "public void read__(Ice.InputStream inS__)";
+	    _out << sp << nl << "public void ice_read(Ice.InputStream inS__)";
 	    _out << sb;
 	    classMemberCount = 0;
 	    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)

@@ -919,8 +919,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         if(_stream)
         {
-            H << sp << nl << _dllExport << "void __write(const ::Ice::OutputStreamPtr&) const;";
-            H << nl << _dllExport << "void __read(const ::Ice::InputStreamPtr&);";
+            H << sp << nl << _dllExport << "void ice_write(const ::Ice::OutputStreamPtr&) const;";
+            H << nl << _dllExport << "void ice_read(const ::Ice::InputStreamPtr&);";
         }
 
 	C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::BasicStream* __os) const";
@@ -942,7 +942,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	if(_stream)
 	{
 	    C << sp << nl << "void" << nl << scoped.substr(2)
-	      << "::__write(const ::Ice::OutputStreamPtr& __outS) const";
+	      << "::ice_write(const ::Ice::OutputStreamPtr& __outS) const";
 	    C << sb;
 	    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
 	    {
@@ -951,7 +951,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	    }
 	    C << eb;
 
-	    C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr& __inS)";
+	    C << sp << nl << "void" << nl << scoped.substr(2) << "::ice_read(const ::Ice::InputStreamPtr& __inS)";
 	    C << sb;
 	    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
 	    {
@@ -973,13 +973,13 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         C << sp << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
           << "(const ::Ice::OutputStreamPtr& __outS, const " << scoped << "& __v)";
         C << sb;
-        C << nl << "__v.__write(__outS);";
+        C << nl << "__v.ice_write(__outS);";
         C << eb;
 
         C << sp << nl << "void" << nl << scope.substr(2) << "ice_read" << p->name()
           << "(const ::Ice::InputStreamPtr& __inS, " << scoped << "& __v)";
         C << sb;
-        C << nl << "__v.__read(__inS);";
+        C << nl << "__v.ice_read(__inS);";
         C << eb;
     }
 

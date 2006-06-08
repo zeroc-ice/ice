@@ -2068,13 +2068,13 @@ Slice::JavaGenerator::writeStreamMarshalUnmarshalCode(Output& out,
     {
         if(marshal)
         {
-            out << nl << v << ".__write(" << stream << ");";
+            out << nl << v << ".ice_write(" << stream << ");";
         }
         else
         {
             string typeS = typeToString(type, TypeModeIn, package);
             out << nl << v << " = new " << typeS << "();";
-            out << nl << v << ".__read(" << stream << ");";
+            out << nl << v << ".ice_read(" << stream << ");";
         }
         return;
     }
@@ -2084,12 +2084,12 @@ Slice::JavaGenerator::writeStreamMarshalUnmarshalCode(Output& out,
     {
         if(marshal)
         {
-            out << nl << v << ".__write(" << stream << ");";
+            out << nl << v << ".ice_write(" << stream << ");";
         }
         else
         {
             string typeS = typeToString(type, TypeModeIn, package);
-            out << nl << v << " = " << typeS << ".__read(" << stream << ");";
+            out << nl << v << " = " << typeS << ".ice_read(" << stream << ");";
         }
         return;
     }

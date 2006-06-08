@@ -1,6 +1,10 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Generating new streaming functions for a Slice structure. The
+  ice_write and ice_read member functions replace their internal
+  equivalents (__write and __read).
+
 - Removed getDefaultProperties() functions, and the global default
   properties. If you need global properties, you can easily
   create your own global variable.

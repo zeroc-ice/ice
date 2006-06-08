@@ -2466,14 +2466,14 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
 	_out << sp << nl << "Public Shared Sub write(ByVal outS__ As Ice.OutputStream, ByVal v__ As " << name << ')';
 	_out.inc();
-	_out << nl << "v__.write__(outS__)";
+	_out << nl << "v__.ice_write(outS__)";
 	_out.dec();
 	_out << nl << "End Sub";
 
 	_out << sp << nl << "Public Shared Function read(ByVal inS__ As Ice.InputStream) As " << name;
 	_out.inc();
 	_out << nl << "Dim v__ As " << name << " = New " << name;
-	_out << nl << "v__.read__(inS__)";
+	_out << nl << "v__.ice_read(inS__)";
 	_out << nl << "Return v__";
 	_out.dec();
 	_out << nl << "End Function";
@@ -2788,7 +2788,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
 	if(_stream)
 	{
-	    _out << sp << nl << "Public Sub write__(ByVal outS__ As Ice.OutputStream)";
+	    _out << sp << nl << "Public Sub ice_write(ByVal outS__ As Ice.OutputStream)";
 	    _out.inc();
 	    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
 	    {
@@ -2799,7 +2799,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	    _out.dec();
 	    _out << nl << "End Sub";
 
-	    _out << sp << nl << "Public Sub read__(ByVal inS__ As Ice.InputStream)";
+	    _out << sp << nl << "Public Sub ice_read(ByVal inS__ As Ice.InputStream)";
 	    _out.inc();
 	    classMemberCount = 0;
 	    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
