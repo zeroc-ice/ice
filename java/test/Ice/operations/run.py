@@ -31,26 +31,11 @@ os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + clas
 TestUtil.clientServerTest()
 
 print "tests with AMD server."
-server = "java -ea Server --Ice.ProgramName=Server "
-client = "java -ea Client --Ice.ProgramName=Client "
-print "starting server...",
-classpath = os.getenv("CLASSPATH", "")
-os.environ["CLASSPATH"] = os.path.join(testdirAMD, "classes") + TestUtil.sep + classpath
-serverPipe = os.popen(server + TestUtil.serverOptions + " 2>&1")
-TestUtil.getAdapterReady(serverPipe)
-print "ok"
-print "starting client...",
-classpath = os.getenv("CLASSPATH", "")
-os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + classpath
-clientPipe = os.popen(client + TestUtil.clientOptions + " 2>&1")
-print "ok"
-TestUtil.printOutputFromPipe(clientPipe)
-clientStatus = TestUtil.closePipe(clientPipe)
-serverStatus = TestUtil.closePipe(serverPipe)
-if clientStatus or serverStatus:
-    TestUtil.killServers()
-    sys.exit(1)
+TestUtil.clientServerTestWithClasspath(\
+    os.path.join(testdirAMD, "classes") + TestUtil.sep + classpath,\
+    os.path.join(testdir, "classes") + TestUtil.sep + classpath)
 
 print "tests with collocated server."
 TestUtil.collocatedTest()
+
 sys.exit(0)

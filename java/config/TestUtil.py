@@ -100,73 +100,6 @@ def isWin9x():
         return 1
     else:
         return 0
-        
-# Only used for C++ programs
-serverPids = []
-def killServers():
-
-    global serverPids
-
-    if isCygwin():
-	print "killServers(): not implemented for cygwin python."
-        return;
-
-    for pid in serverPids:
-        if isWin32():
-            try:
-                import win32api
-                handle = win32api.OpenProcess(1, 0, pid)
-                win32api.TerminateProcess(handle, 0)
-            except:
-                pass # Ignore errors, such as non-existing processes.
-        else:
-            try:
-                os.kill(pid, 9)
-            except:
-                pass # Ignore errors, such as non-existing processes.
-
-    serverPids = []
-            
-# Only used for C++ programs
-def getServerPid(serverPipe):
-
-    output = serverPipe.readline().strip()
-
-    if not output:
-        print "failed!"
-        killServers()
-        sys.exit(1)
-
-    serverPids.append(int(output))
-
-def getAdapterReady(serverPipe):
-
-    output = serverPipe.readline()
-    if compress and output.strip() == "warning: bzip2 support not available, Ice.Override.Compress ignored":
-        output = serverPipe.readline()
-
-    if not output:
-        print "failed!"
-        killServers()
-        sys.exit(1)
-
-def waitServiceReady(pipe, token):
-
-    while 1:
-        output = pipe.readline().strip()
-        if not output:
-            print "failed!"
-            sys.exit(1)
-        if output == token + " ready":
-            break
-
-def printOutputFromPipe(pipe):
-
-    while 1:
-        c = pipe.read(1)
-        if c == "":
-            break
-        os.write(1, c)
 
 def closePipe(pipe):
 
@@ -180,11 +113,10 @@ def closePipe(pipe):
 	    raise
 
     return status
-
+        
 class ReaderThread(Thread):
-    def __init__(self, pipe, token):
+    def __init__(self, pipe):
         self.pipe = pipe
-        self.token = token
         Thread.__init__(self)
 
     def run(self):
@@ -193,9 +125,9 @@ class ReaderThread(Thread):
             while 1:
                 line = self.pipe.readline()
                 if not line: break
-		# supress object adapter ready messages.
-    	    	if line[len(line)-7:len(line)] != " ready\n":
-		    print self.token + ": " + line,
+		# Suppress "adapter ready" messages. Under windows the eol isn't \n.
+		if not line.endswith(" ready\n") and not line.endswith(" ready\r\n"):
+		    print line,
         except IOError:
             pass
 
@@ -203,6 +135,121 @@ class ReaderThread(Thread):
 
     def getStatus(self):
 	return self.status
+
+serverPids = []
+serverThreads = []
+allServerThreads = []
+
+def joinServers():
+    global serverThreads
+    global allServerThreads
+    for t in serverThreads:
+	t.join()
+	allServerThreads.append(t)
+    serverThreads = []
+
+def serverStatus():
+    global allServerThreads
+    joinServers()
+    for t in allServerThreads:
+    	status = t.getStatus()
+    	if status:
+	    print "server " + str(t) + " status: " + str(status)
+    	    return status
+    return 0
+
+def killServers():
+
+    global serverPids
+    global serverThreads
+
+    for pid in serverPids:
+
+        if isWin32():
+            try:
+                import win32api
+                handle = win32api.OpenProcess(1, 0, pid)
+                win32api.TerminateProcess(handle, 0)
+            except ImportError, ex:
+                print "Sorry: you must install the win32all package for killServers to work."
+                return
+            except:
+                pass # Ignore errors, such as non-existing processes.
+        else:
+            try:
+                os.kill(pid, 9)
+            except:
+                pass # Ignore errors, such as non-existing processes.
+
+    serverPids = []
+
+    #
+    # Now join with all the threads
+    #
+    joinServers()
+
+def getServerPid(pipe):
+    global serverPids
+    global serverThreads
+
+    output = pipe.readline().strip()
+
+    if not output:
+        print "failed!"
+        killServers()
+        sys.exit(1)
+
+    serverPids.append(int(output))
+
+def ignorePid(pipe):
+
+    output = pipe.readline().strip()
+
+    if not output:
+        print "failed!"
+        killServers()
+        sys.exit(1)
+
+def getAdapterReady(pipe, createThread = True):
+    global serverThreads
+
+    output = pipe.readline().strip()
+
+    if not output:
+        print "failed!"
+        killServers()
+        sys.exit(1)
+
+    # Start a thread for this server.
+    if createThread:
+	serverThread = ReaderThread(pipe)
+	serverThread.start()
+	serverThreads.append(serverThread)
+
+def waitServiceReady(pipe, token, createThread = True):
+    global serverThreads
+
+    while 1:
+        output = pipe.readline().strip()
+        if not output:
+            print "failed!"
+            sys.exit(1)
+        if output == token + " ready":
+            break
+
+    # Start a thread for this server.
+    if createThread:
+	serverThread = ReaderThread(pipe)
+	serverThread.start()
+	serverThreads.append(serverThread)
+
+def printOutputFromPipe(pipe):
+
+    while 1:
+        c = pipe.read(1)
+        if c == "":
+            break
+        os.write(1, c)
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -316,15 +363,11 @@ def clientServerTestWithOptions(additionalServerOptions, additionalClientOptions
     clientPipe = os.popen(clientCmd)
     print "ok"
 
-    serverThread = ReaderThread(serverPipe, "Server")
-    serverThread.start()
     printOutputFromPipe(clientPipe)
 
     clientStatus = closePipe(clientPipe)
-    serverThread.join()
-    serverStatus = serverThread.getStatus()
 
-    if clientStatus or serverStatus:
+    if clientStatus or serverStatus():
 	killServers()
 	sys.exit(1)
 
@@ -350,19 +393,14 @@ def clientServerTestWithClasspath(serverClasspath, clientClasspath):
     os.environ["CLASSPATH"] = classpath
     print "ok"
 
-    serverThread = ReaderThread(serverPipe, "Server")
-    serverThread.start()
     printOutputFromPipe(clientPipe)
 
     clientStatus = closePipe(clientPipe)
-    serverThread.join()
-    serverStatus = serverThread.getStatus()
 
-    if clientStatus or serverStatus:
+    if clientStatus or serverStatus():
 	killServers()
 	sys.exit(1)
     
-
 def clientServerTest():
 
     clientServerTestWithOptions("", "")
@@ -385,15 +423,11 @@ def mixedClientServerTestWithOptions(additionalServerOptions, additionalClientOp
     clientPipe = os.popen(clientCmd + " 2>&1")
     print "ok"
 
-    serverThread = ReaderThread(serverPipe, "Server")
-    serverThread.start()
     printOutputFromPipe(clientPipe)
 
     clientStatus = closePipe(clientPipe)
-    serverThread.join()
-    serverStatus = serverThread.getStatus()
 
-    if clientStatus or serverStatus:
+    if clientStatus or serverStatus():
 	killServers()
 	sys.exit(1)
 

@@ -27,7 +27,11 @@ public class Client
 
         try
         {
-            communicator = Ice.Util.initialize(args);
+	    Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
+	    Ice.Properties properties = Ice.Util.getDefaultProperties(argsH);
+	    properties.setProperty("Ice.Warn.Connections", "0");
+
+            communicator = Ice.Util.initialize(argsH);
             status = run(args, communicator);
         }
         catch(Ice.LocalException ex)

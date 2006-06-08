@@ -30,11 +30,10 @@ client = "java -ea Client"
 num = 12
 base = 12340
 
-serverPipes = { }
 for i in range(0, num):
     print "starting server #%d..." % (i + 1),
-    serverPipes[i] = os.popen(server + TestUtil.serverOptions + " %d" % (base + i) + " 2>&1")
-    TestUtil.getAdapterReady(serverPipes[i])
+    serverPipe = os.popen(server + TestUtil.serverOptions + " %d" % (base + i) + " 2>&1")
+    TestUtil.getAdapterReady(serverPipe)
     print "ok"
 
 ports = ""
@@ -46,15 +45,9 @@ print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)
 
-for i in range(0, num):
-    TestUtil.closePipe(serverPipes[i])
-
 clientStatus = TestUtil.closePipe(clientPipe)
-serverStatus = None
-for i in range(0, num):
-    serverStatus = serverStatus or TestUtil.closePipe(serverPipes[i])
 
-if clientStatus or serverStatus:
+if clientStatus or TestUtil.serverStatus():
     sys.exit(1)
 
 sys.exit(0)

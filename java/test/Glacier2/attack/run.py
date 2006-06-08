@@ -36,7 +36,7 @@ command = router + TestUtil.cppClientServerOptions + \
           r' --Glacier2.CryptPasswords="' + toplevel + r'/test/Glacier2/attack/passwords"'
 
 print "starting router...",
-starterPipe = os.popen(command)
+starterPipe = os.popen(command + " 2>&1")
 TestUtil.getServerPid(starterPipe)
 TestUtil.getAdapterReady(starterPipe)
 print "ok"
@@ -47,9 +47,7 @@ os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.g
 
 TestUtil.clientServerTest()
 
-starterStatus = TestUtil.closePipe(starterPipe)
-
-if starterStatus:
+if TestUtil.serverStatus():
     TestUtil.killServers()
     sys.exit(1)
 

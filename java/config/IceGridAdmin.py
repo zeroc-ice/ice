@@ -89,10 +89,10 @@ def startIceGridRegistry(port, testdir, dynamicRegistration):
         command += ' --IceGrid.Registry.DynamicRegistration'        
 
     (stdin, iceGridPipe) = os.popen4(command)
-    TestUtil.getAdapterReady(iceGridPipe)
-    TestUtil.getAdapterReady(iceGridPipe)
-    TestUtil.getAdapterReady(iceGridPipe)
-    TestUtil.getAdapterReady(iceGridPipe)
+    TestUtil.getAdapterReady(iceGridPipe, False)
+    TestUtil.getAdapterReady(iceGridPipe, False)
+    TestUtil.getAdapterReady(iceGridPipe, False)
+    TestUtil.getAdapterReady(iceGridPipe, False)
     print "ok"
 
     readerThread = ReaderThread(iceGridPipe, "IceGridRegistry")
@@ -119,8 +119,8 @@ def startIceGridNode(testdir):
               r' --IceGrid.Node.PropertiesOverride=' + overrideOptions
     
     (stdin, iceGridPipe) = os.popen4(command)
-    TestUtil.getAdapterReady(iceGridPipe)
-    TestUtil.waitServiceReady(iceGridPipe, 'node')
+    TestUtil.getAdapterReady(iceGridPipe, False)
+    TestUtil.waitServiceReady(iceGridPipe, 'node', False)
     print "ok"
 
     readerThread = ReaderThread(iceGridPipe, "IceGridNode")

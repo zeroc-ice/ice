@@ -212,8 +212,8 @@ class TrustManager
 	// DNs on ';' which cannot be blindly split because of quotes,
 	// \ and such.
 	//
-	java.util.List result = new java.util.LinkedList();
 	java.util.List l = RFC2253.parse(value);
+	java.util.List result = new java.util.LinkedList();
 	java.util.Iterator p = l.iterator();
 	while(p.hasNext())
 	{
@@ -235,9 +235,7 @@ class TrustManager
 	    }
 	    javax.security.auth.x500.X500Principal princ = new javax.security.auth.x500.X500Principal(v);
 	    String subjectName = princ.getName(javax.security.auth.x500.X500Principal.RFC2253);
-	    java.util.List l2 = RFC2253.parse(subjectName);
-	    assert l2.size() == 1;
-	    result.add((java.util.List)l2.get(0));
+	    result.add(RFC2253.parseStrict(subjectName));
 	}
 	return result;
     }
