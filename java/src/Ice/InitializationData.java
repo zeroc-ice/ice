@@ -9,11 +9,28 @@
 
 package Ice;
 
-public final class InitializationData
+public final class InitializationData implements Cloneable
 {
     public
     InitializationData()
     {
+    }
+
+    public java.lang.Object
+    clone()
+    {
+        //
+        // A member-wise copy is safe because the members are immutable.
+        //
+        java.lang.Object o = null;
+        try
+        {
+            o = super.clone();
+        }
+        catch(CloneNotSupportedException ex)
+        {
+        }
+        return o;
     }
 
     public Properties properties;

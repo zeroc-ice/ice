@@ -80,13 +80,14 @@ public final class Util
     public static Communicator
     initialize(StringSeqHolder args, InitializationData initData)
     {
-    	if(initData.properties == null)
+        InitializationData tmpData = (InitializationData)initData.clone();
+    	if(tmpData.properties == null)
 	{
-	    initData.properties = getDefaultProperties(args);
+	    tmpData.properties = getDefaultProperties(args);
 	}
-	args.value = initData.properties.parseIceCommandLineOptions(args.value);
+	args.value = tmpData.properties.parseIceCommandLineOptions(args.value);
 
-        CommunicatorI result = new CommunicatorI(initData);
+        CommunicatorI result = new CommunicatorI(tmpData);
         result.finishSetup(args);
         return result;
     }
