@@ -24,8 +24,16 @@ namespace Ice
         void stop();
     }
 
-    public class InitializationData
+    public class InitializationData : ICloneable
     {
+        public System.Object Clone()
+	{
+	    //
+	    // A member-wise copy is safe because the members are immutable.
+	    //
+	    return MemberwiseClone();
+	}
+
         public Properties properties;
 	public Logger logger;
 	public Stats stats;
@@ -77,13 +85,14 @@ namespace Ice
 
 	public static Communicator initialize(ref string[] args, InitializationData initData)
 	{
-	    if(initData.properties == null)
+	    InitializationData tmpData = (InitializationData)initData.Clone();
+	    if(tmpData.properties == null)
 	    {
-	        initData.properties = getDefaultProperties(ref args);
+	        tmpData.properties = getDefaultProperties(ref args);
 	    }
-	    args = initData.properties.parseIceCommandLineOptions(args);
+	    args = tmpData.properties.parseIceCommandLineOptions(args);
 
-	    CommunicatorI result = new CommunicatorI(initData);
+	    CommunicatorI result = new CommunicatorI(tmpData);
 	    result.finishSetup(ref args);
 	    return result;
 	}
