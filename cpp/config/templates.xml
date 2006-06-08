@@ -24,10 +24,9 @@
            <object identity="${instance-name}/server" type="::IcePatch2::FileServer"/>
          </adapter>
 
-         <adapter name="IcePatch2.Admin" id=""
-                  endpoints="tcp -h 127.0.0.1" register-process="true"/>
-
          <properties>
+            <property name="IcePatch2.Admin.Endpoints" value="tcp -h 127.0.0.1"/>
+            <property name="IcePatch2.Admin.RegisterProcess" value="1"/>
             <property name="IcePatch2.InstanceName" value="${instance-name}"/>
             <property name="IcePatch2.Directory" value="${directory}"/>
          </properties>
@@ -44,16 +43,11 @@
       <parameter name="session-timeout" default="0"/>
     
       <server id="${instance-name}" exe="glacier2router">
-         <adapter name="Glacier2.Client" id=""
-                  endpoints="${client-endpoints}"/>
-
-         <adapter name="Glacier2.Server" id="" 
-		  endpoints="${server-endpoints}"/>
-
-         <adapter name="Glacier2.Admin" id=""
-                  endpoints="tcp -h 127.0.0.1" register-process="true"/>
-
          <properties>
+            <property name="Glacier2.Client.Endpoints" value="${client-endpoints}"/>
+            <property name="Glacier2.Server.Endpoints" value="${server-endpoints}"/>
+            <property name="Glacier2.Admin.Endpoints" value="tcp -h 127.0.0.1"/>
+            <property name="Glacier2.Admin.RegisterProcess" value="1"/>
             <property name="Glacier2.InstanceName" value="${instance-name}"/>
             <property name="Glacier2.SessionTimeout" value="${session-timeout}"/>
          </properties>

@@ -2,32 +2,39 @@
 
   <application name="Test">
 
+    <server-template id="Glacier2">
+      <parameter name="id"/>
+      <parameter name="endpoints"/>
+      <parameter name="verifier"/>
+      <parameter name="manager"/>
+
+      <server id="${id}" exe="${ice.dir}/bin/glacier2router">
+        <property name="Glacier2.Client.Endpoints" value="${endpoints}"/>
+        <property name="Glacier2.Server.Endpoints" value="tcp -h 127.0.0.1"/>
+        <property name="Glacier2.Admin.Endpoints" value="tcp -h 127.0.0.1"/>
+        <property name="Glacier2.Admin.RegisterProcess" value="1"/>
+
+        <property name="Glacier2.SessionManager" value="${manager}"/>
+        <property name="Glacier2.SSLSessionManager" value="IceGrid/SSLSessionManager"/>
+        <property name="Glacier2.PermissionsVerifier" value="${verifier}"/>
+        <property name="Glacier2.SSLPermissionsVerifier" value="SSLPermissionsVerifier"/>
+        <property name="Glacier2.Client.Trace.Reject" value="0"/>
+      </server>
+    </server-template>
+
     <node name="localnode">
 
-      <server id="Glacier2" exe="${ice.dir}/bin/glacier2router">
-         <adapter name="Glacier2.Client" id="" endpoints="default -p 12347 -h 127.0.0.1 -t 10000"/>
-         <adapter name="Glacier2.Server" id="" endpoints="tcp -h 127.0.01"/>
-         <adapter name="Glacier2.Admin" id="" endpoints="tcp -h 127.0.0.1" register-process="true"/>
-         <property name="Glacier2.SessionManager" value="IceGrid/SessionManager"/>
-         <property name="Glacier2.SSLSessionManager" value="IceGrid/SSLSessionManager"/>
-         <property name="Glacier2.PermissionsVerifier" value="ClientPermissionsVerifier"/>
-         <property name="Glacier2.SSLPermissionsVerifier" value="SSLPermissionsVerifier"/>
-         <property name="Glacier2.Client.Trace.Reject" value="0"/>
-      </server>
-
-      <server id="Glacier2Admin" exe="${ice.dir}/bin/glacier2router">
-         <adapter name="Glacier2.Client" id="" endpoints="default -p 12348 -h 127.0.0.1 -t 10000"/>
-         <adapter name="Glacier2.Server" id="" endpoints="tcp -h 127.0.01"/>
-         <adapter name="Glacier2.Admin" id="" endpoints="tcp -h 127.0.0.1" register-process="true"/>
-         <property name="Glacier2.SessionManager" value="IceGrid/AdminSessionManager"/>
-         <property name="Glacier2.SSLSessionManager" value="IceGrid/AdminSSLSessionManager"/>
-         <property name="Glacier2.PermissionsVerifier" value="AdminPermissionsVerifier"/>
-         <property name="Glacier2.SSLPermissionsVerifier" value="SSLPermissionsVerifier"/>
-         <property name="Glacier2.Client.Trace.Reject" value="0"/>
-      </server>
+      <server-instance id="Glacier2" template="Glacier2"
+                       endpoints="default -p 12347 -h 127.0.0.1 -t 10000"
+                       verifier="ClientPermissionsVerifier"
+                       manager="IceGrid/SessionManager"/>
+      <server-instance id="Glacier2Admin" template="Glacier2"
+                       endpoints="default -p 12348 -h 127.0.0.1 -t 10000"
+                       verifier="AdminPermissionsVerifier"
+                       manager="IceGrid/AdminSessionManager"/>
     
       <server id="PermissionsVerifierServer" exe="${test.dir}/server" activation="on-demand">
-        <adapter name="Server" register-process="true">
+        <adapter name="Server" register-process="true" endpoints="default -h 127.0.0.1">
           <object identity="ClientPermissionsVerifier"/>
           <object identity="AdminPermissionsVerifier"/>
           <object identity="SSLPermissionsVerifier"/>

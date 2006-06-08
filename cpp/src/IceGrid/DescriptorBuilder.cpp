@@ -579,7 +579,7 @@ CommunicatorDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
     desc.name = attrs("name");
     if(attrs.contains("id"))
     {
-	desc.id = attrs("id", "");
+	desc.id = attrs("id");
     }
     else
     {
@@ -592,14 +592,11 @@ CommunicatorDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
     }
     desc.replicaGroupId = attrs("replica-group", "");
     desc.registerProcess = attrs.asBool("register-process", false);
-    if(desc.id == "" && attrs.contains("wait-for-activation"))
+    if(desc.id == "")
     {
-	throw "the attribute `wait-for-activation' can only be set if the adapter has an non empty id";
+	throw "empty `id' for adapter `" + desc.name + "'";
     }
-    else
-    {
-	desc.waitForActivation = attrs.asBool("wait-for-activation", true);
-    }
+    desc.waitForActivation = attrs.asBool("wait-for-activation", true);
     _descriptor->adapters.push_back(desc);
 
     addProperty(_hiddenProperties, desc.name + ".Endpoints", attrs("endpoints", "default"));
@@ -791,16 +788,9 @@ IceBoxDescriptorBuilder::init(const IceBoxDescriptorPtr& desc, const XmlAttribut
     ServerDescriptorBuilder::init(desc, attrs);
     _descriptor = desc;
 
-    addProperty(_hiddenProperties, "IceBox.InstanceName", _descriptor->id);
-    
-    AdapterDescriptor adapter;
-    adapter.name = "IceBox.ServiceManager";
-    adapter.id = "";
-    adapter.registerProcess = true;
-    adapter.waitForActivation = true;
-    _descriptor->adapters.push_back(adapter);
-
+    addProperty(_hiddenProperties, "IceBox.InstanceName", _descriptor->id);    
     addProperty(_hiddenProperties, "IceBox.ServiceManager.Endpoints", "tcp -h 127.0.0.1");
+    addProperty(_hiddenProperties, "IceBox.ServiceManager.RegisterProcess", "1");
 }
 
 ServiceDescriptorBuilder*

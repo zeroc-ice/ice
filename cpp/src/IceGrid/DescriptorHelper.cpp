@@ -896,7 +896,7 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
 	AdapterDescriptor adapter;
 	adapter.name = resolve(p->name, "object adapter name", false);
 	adapter.description = resolve(p->description, "object adapter description");
-	adapter.id = resolve(p->id, "object adapter id");
+	adapter.id = resolve(p->id, "object adapter id", false);
 	adapter.registerProcess = p->registerProcess;
 	adapter.waitForActivation = p->waitForActivation;
 	adapter.replicaGroupId = resolve(p->replicaGroupId, "object adapter replica group id");
