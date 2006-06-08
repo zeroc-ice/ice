@@ -240,19 +240,15 @@ for testcase in testcases:
     clientCmd = os.path.join(testdir, 'client') + clientOptions + \
                 " --Ice.Config=" + os.path.join(testdir, 'attack.cfg') + " "
     clientPipe = os.popen(clientCmd)
-    TestUtil.getServerPid(clientPipe)
+    TestUtil.ignorePid(clientPipe)
+
     TestUtil.printOutputFromPipe(clientPipe)
 
     clientStatus = TestUtil.closePipe(clientPipe)
-    serverStatus = TestUtil.closePipe(serverPipe)
-    if clientStatus or serverStatus:
+    if clientStatus:
 	TestUtil.killServers()
+
+    if clientStatus or TestUtil.serverStatus():
 	sys.exit(1)
     
-    starterStatus = TestUtil.closePipe(starterPipe)
-
-    if starterStatus:
-	TestUtil.killServers()
-	sys.exit(1)
-
 sys.exit(0)

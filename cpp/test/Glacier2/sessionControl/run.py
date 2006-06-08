@@ -40,7 +40,7 @@ command = router + TestUtil.clientServerOptions + \
 	  r' --Glacier2.PermissionsVerifier="verifier:tcp -h 127.0.0.1 -p 12010 -t 10000"'
 
 print "starting router...",
-starterPipe = os.popen(command)
+starterPipe = os.popen(command + " 2>&1")
 TestUtil.getServerPid(starterPipe)
 TestUtil.getAdapterReady(starterPipe)
 print "ok"
@@ -53,11 +53,11 @@ TestUtil.getServerPid(clientPipe)
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)
-
-starterStatus = TestUtil.closePipe(starterPipe)
-
-if starterStatus:
+clientStatus = TestUtil.closePipe(clientPipe)
+if clientStatus:
     TestUtil.killServers()
+
+if clientStatus or TestUtil.serverStatus():
     sys.exit(1)
 
 sys.exit(0)

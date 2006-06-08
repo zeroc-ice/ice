@@ -29,7 +29,7 @@ command = router + TestUtil.clientServerOptions + \
           r' --Glacier2.CryptPasswords="' + toplevel + r'/test/Glacier2/attack/passwords"'
 
 print "starting router...",
-starterPipe = os.popen(command)
+starterPipe = os.popen(command + " 2>&1")
 TestUtil.getServerPid(starterPipe)
 TestUtil.getAdapterReady(starterPipe)
 print "ok"
@@ -37,11 +37,5 @@ print "ok"
 name = os.path.join("Glacier2", "attack")
 
 TestUtil.mixedClientServerTest(name)
-
-starterStatus = TestUtil.closePipe(starterPipe)
-
-if starterStatus:
-    TestUtil.killServers()
-    sys.exit(1)
 
 sys.exit(0)

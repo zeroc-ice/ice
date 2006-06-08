@@ -93,10 +93,10 @@ def startIceGridRegistry(port, testdir, dynamicRegistration):
 
     (stdin, iceGridPipe) = os.popen4(command)
     TestUtil.getServerPid(iceGridPipe)
-    TestUtil.getAdapterReady(iceGridPipe)
-    TestUtil.getAdapterReady(iceGridPipe)
-    TestUtil.getAdapterReady(iceGridPipe)
-    TestUtil.getAdapterReady(iceGridPipe)
+    TestUtil.getAdapterReady(iceGridPipe, False)
+    TestUtil.getAdapterReady(iceGridPipe, False)
+    TestUtil.getAdapterReady(iceGridPipe, False)
+    TestUtil.getAdapterReady(iceGridPipe, False)
     print "ok"
 
     readerThread = ReaderThread(iceGridPipe, "IceGridRegistry")
@@ -124,7 +124,7 @@ def startIceGridNode(testdir):
 
     (stdin, iceGridPipe) = os.popen4(command)
     TestUtil.getServerPid(iceGridPipe)
-    TestUtil.getAdapterReady(iceGridPipe)
+    TestUtil.getAdapterReady(iceGridPipe, False)
     TestUtil.waitServiceReady(iceGridPipe, 'node')
         
     print "ok"

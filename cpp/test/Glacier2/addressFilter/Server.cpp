@@ -49,12 +49,13 @@ public:
 class ServerLocatorI : virtual public Locator
 {
 public:
-    ServerLocatorI(BackendPtr backend, ObjectAdapterPtr adapter) :
+    ServerLocatorI(const BackendPtr& backend, const ObjectAdapterPtr& adapter) :
 	_backend(backend),
-	_adapter(adapter)
+	_adapter(adapter),
+	_registryPrx(
+	    LocatorRegistryPrx::uncheckedCast(
+		adapter->add(new ServerLocatorRegistry, _adapter->getCommunicator()->stringToIdentity("registry"))))
     {
-	_registryPrx = LocatorRegistryPrx::uncheckedCast(adapter->add(new ServerLocatorRegistry, 
-							_adapter->getCommunicator()->stringToIdentity("registry")));
     }
 
     virtual void
@@ -76,23 +77,22 @@ public:
     }
 
 private:
-    BackendPtr _backend;
-    ObjectAdapterPtr _adapter;
-    LocatorRegistryPrx _registryPrx;
+    const BackendPtr _backend;
+    const ObjectAdapterPtr _adapter;
+    const LocatorRegistryPrx _registryPrx;
 };
 
 class ServantLocatorI : virtual public ServantLocator
 {
 public:
 
-    ServantLocatorI(BackendPtr backend) :
+    ServantLocatorI(const BackendPtr& backend) :
 	_backend(backend)
     {
     }
 	
     virtual ObjectPtr locate(const Current&, LocalObjectPtr&)
     {
-	cerr << "locate call" << endl;
 	return _backend;
     }
 
@@ -106,7 +106,7 @@ public:
 
 private:
 
-    BackendPtr _backend;
+    const BackendPtr _backend;
 };
 
 class BackendServer : public Application

@@ -44,7 +44,6 @@ print "starting icestorm service...",
 command = iceBox + TestUtil.clientServerOptions + iceBoxEndpoints + iceStormService + iceStormDBEnv + " 2>&1"
 iceBoxPipe = os.popen(command)
 TestUtil.getServerPid(iceBoxPipe)
-#TestUtil.getAdapterReady(iceBoxPipe)
 TestUtil.waitServiceReady(iceBoxPipe, "IceStorm")
 print "ok"
 
@@ -74,7 +73,7 @@ print "starting subscriber...",
 command = subscriber + TestUtil.clientServerOptions + iceStormReference + r' ' + subscriberLockFile + " 2>&1"
 subscriberPipe = os.popen(command)
 TestUtil.getServerPid(subscriberPipe)
-TestUtil.getAdapterReady(subscriberPipe)
+TestUtil.getAdapterReady(subscriberPipe, False)
 print "ok"
 
 print "checking subscriber lockfile creation...",
@@ -133,11 +132,10 @@ if iceBoxAdminStatus:
     sys.exit(1)
 print "ok"
 
-iceStormStatus = TestUtil.closePipe(iceBoxPipe)
 subscriberStatus = TestUtil.closePipe(subscriberPipe)
 publisherStatus = TestUtil.closePipe(publisherPipe)
 
-if iceStormStatus or subscriberStatus or publisherStatus:
+if TestUtil.serverStatus() or subscriberStatus or publisherStatus:
     TestUtil.killServers()
     sys.exit(1)
 

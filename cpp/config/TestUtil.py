@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 # **********************************************************************
 #
 # Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
@@ -112,15 +113,67 @@ def isDarwin():
         return 1
    else:
         return 0
+
+def closePipe(pipe):
+
+    try:
+	status = pipe.close()
+    except IOError, ex:
+	# TODO: There's a waitpid problem on CentOS, so we have to ignore ECHILD.
+	if ex.errno == errno.ECHILD:
+	    status = 0
+	else:
+	    raise
+
+    return status
      
+class ReaderThread(Thread):
+    def __init__(self, pipe):
+        self.pipe = pipe
+        Thread.__init__(self)
+
+    def run(self):
+
+        try:
+            while 1:
+                line = self.pipe.readline()
+                if not line: break
+		# Suppress "adapter ready" messages. Under windows the eol isn't \n.
+		if not line.endswith(" ready\n") and not line.endswith(" ready\r\n"):
+		    print line,
+        except IOError:
+            pass
+
+	self.status = closePipe(self.pipe)
+
+    def getStatus(self):
+	return self.status
+
 serverPids = []
+serverThreads = []
+allServerThreads = []
+
+def joinServers():
+    global serverThreads
+    global allServerThreads
+    for t in serverThreads:
+	t.join()
+	allServerThreads.append(t)
+    serverThreads = []
+
+def serverStatus():
+    global allServerThreads
+    joinServers()
+    for t in allServerThreads:
+    	status = t.getStatus()
+    	if status:
+    	    return status
+    return 0
+
 def killServers():
 
     global serverPids
-
-    if isCygwin():
-	print "killServers(): not implemented for cygwin python."
-	return
+    global serverThreads
 
     for pid in serverPids:
 
@@ -129,6 +182,9 @@ def killServers():
                 import win32api
                 handle = win32api.OpenProcess(1, 0, pid)
                 win32api.TerminateProcess(handle, 0)
+            except ImportError, ex:
+                print "Sorry: you must install the win32all package for killServers to work."
+                return
             except:
                 pass # Ignore errors, such as non-existing processes.
         else:
@@ -139,9 +195,16 @@ def killServers():
 
     serverPids = []
 
-def getServerPid(serverPipe):
+    #
+    # Now join with all the threads
+    #
+    joinServers()
 
-    output = serverPipe.readline().strip()
+def getServerPid(pipe):
+    global serverPids
+    global serverThreads
+
+    output = pipe.readline().strip()
 
     if not output:
         print "failed!"
@@ -150,14 +213,30 @@ def getServerPid(serverPipe):
 
     serverPids.append(int(output))
 
-def getAdapterReady(serverPipe):
+def ignorePid(pipe):
 
-    output = serverPipe.readline().strip()
+    output = pipe.readline().strip()
 
     if not output:
         print "failed!"
         killServers()
         sys.exit(1)
+
+def getAdapterReady(pipe, createThread = True):
+    global serverThreads
+
+    output = pipe.readline().strip()
+
+    if not output:
+        print "failed!"
+        killServers()
+        sys.exit(1)
+
+    # Start a thread for this server.
+    if createThread:
+	serverThread = ReaderThread(pipe)
+	serverThread.start()
+	serverThreads.append(serverThread)
 
 def getIceBox(testdir):
 
@@ -187,7 +266,8 @@ def getIceBox(testdir):
 
     return iceBox;
 
-def waitServiceReady(pipe, token):
+def waitServiceReady(pipe, token, createThread = True):
+    global serverThreads
 
     while 1:
         output = pipe.readline().strip()
@@ -197,6 +277,12 @@ def waitServiceReady(pipe, token):
         if output == token + " ready":
             break
 
+    # Start a thread for this server.
+    if createThread:
+	serverThread = ReaderThread(pipe)
+	serverThread.start()
+	serverThreads.append(serverThread)
+
 def printOutputFromPipe(pipe):
 
     while 1:
@@ -204,42 +290,6 @@ def printOutputFromPipe(pipe):
         if c == "":
             break
         os.write(1, c)
-
-def closePipe(pipe):
-
-    try:
-	status = pipe.close()
-    except IOError, ex:
-	# TODO: There's a waitpid problem on CentOS, so we have to ignore ECHILD.
-	if ex.errno == errno.ECHILD:
-	    status = 0
-	else:
-	    raise
-
-    return status
-
-class ReaderThread(Thread):
-    def __init__(self, pipe, token):
-        self.pipe = pipe
-        self.token = token
-        Thread.__init__(self)
-
-    def run(self):
-
-        try:
-            while 1:
-                line = self.pipe.readline()
-                if not line: break
-		# Suppress "adapter ready" messages. Under windows the eol isn't \n.
-		if not line.endswith(" ready\n") and not line.endswith(" ready\r\n"):
-		    print self.token + ": " + line,
-        except IOError:
-            pass
-
-	self.status = closePipe(self.pipe)
-
-    def getStatus(self):
-	return self.status
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -329,17 +379,16 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
     clientPipe = os.popen(clientCmd)
     print "ok"
 
-    serverThread = ReaderThread(serverPipe, "Server")
-    serverThread.start()
     printOutputFromPipe(clientPipe)
 
     clientStatus = closePipe(clientPipe)
-    serverThread.join()
-    serverStatus = serverThread.getStatus()
-
-    if clientStatus or serverStatus:
+    if clientStatus:
 	killServers()
-	sys.exit(1)
+
+    joinServers()
+
+    if clientStatus or serverStatus():
+        sys.exit(1)
 
 def clientServerTestWithOptions(name, additionalServerOptions, additionalClientOptions):
 
@@ -363,20 +412,20 @@ def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalCl
     
     print "starting client...",
     clientPipe = os.popen(client + clientServerOptions + additionalClientOptions + " 2>&1")
-    getServerPid(clientPipe)
-    getAdapterReady(clientPipe)
+    ignorePid(clientPipe)
+    getAdapterReady(clientPipe, False)
     print "ok"
 
-    serverThread = ReaderThread(serverPipe, "Server")
-    serverThread.start()
     printOutputFromPipe(clientPipe)
 
     clientStatus = closePipe(clientPipe)
-    serverThread.join()
-    serverStatus = serverThread.getStatus()
 
-    if clientStatus or serverStatus:
+    if clientStatus:
 	killServers()
+
+    joinServers()
+
+    if clientStatus or serverStatus():
 	sys.exit(1)
 
 def mixedClientServerTest(name):
@@ -397,7 +446,6 @@ def collocatedTestWithOptions(name, additionalOptions):
     collocatedStatus = closePipe(collocatedPipe)
 
     if collocatedStatus:
-	killServers()
 	sys.exit(1)
 
 def collocatedTest(name):

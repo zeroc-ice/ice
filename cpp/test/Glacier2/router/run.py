@@ -36,10 +36,16 @@ command = router + TestUtil.clientServerOptions + \
           r' --Glacier2.CryptPasswords="' + toplevel + r'/test/Glacier2/router/passwords"'
 
 print "starting router...",
-starterPipe = os.popen(command)
+starterPipe = os.popen(command + " 2>&1")
 TestUtil.getServerPid(starterPipe)
-TestUtil.getAdapterReady(starterPipe)
+#
+# For this test we don't want to add the router to the server threads since
+# we want the the router to run over two calls to mixedClientServerTest
+#
+TestUtil.getAdapterReady(starterPipe, False)
 print "ok"
+starterThread = TestUtil.ReaderThread(starterPipe);
+starterThread.start()
 
 name = os.path.join("Glacier2", "router")
 
@@ -52,10 +58,8 @@ TestUtil.mixedClientServerTest(name)
 #
 TestUtil.mixedClientServerTestWithOptions(name, "", " --shutdown")
 
-starterStatus = TestUtil.closePipe(starterPipe)
-
-if starterStatus:
-    TestUtil.killServers()
+starterThread.join()
+if starterThread.getStatus():
     sys.exit(1)
 
 sys.exit(0)

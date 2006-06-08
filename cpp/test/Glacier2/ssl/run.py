@@ -27,7 +27,7 @@ server = os.path.join(testdir, "server")
 command = server + TestUtil.clientServerOptions
 
 print "starting server...",
-serverPipe = os.popen(command)
+serverPipe = os.popen(command + " 2>&1")
 TestUtil.getServerPid(serverPipe)
 TestUtil.getAdapterReady(serverPipe)
 print "ok"
@@ -52,7 +52,7 @@ command = router + TestUtil.clientServerOptions + \
           r' --IceSSL.CertAuthFile=cacert.pem'
 
 print "starting router...",
-starterPipe = os.popen(command)
+starterPipe = os.popen(command + " 2>&1")
 TestUtil.getServerPid(starterPipe)
 TestUtil.getAdapterReady(starterPipe)
 print "ok"
@@ -65,17 +65,16 @@ command = client + TestUtil.clientOptions + \
            " --IceSSL.CertAuthFile=cacert.pem"
 
 print "starting client...",
-clientPipe = os.popen(command)
+clientPipe = os.popen(command + " 2>&1")
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)
 
 clientStatus = TestUtil.closePipe(clientPipe)
-serverStatus = TestUtil.closePipe(serverPipe)
-starterStatus = TestUtil.closePipe(starterPipe)
-
-if clientStatus or serverStatus or starterStatus:
+if clientStatus:
     TestUtil.killServers()
+
+if clientStatus or TestUtil.serverStatus():
     sys.exit(1)
 
 sys.exit(0)

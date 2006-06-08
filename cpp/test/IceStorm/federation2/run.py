@@ -66,7 +66,7 @@ def doTest(batch):
     command = subscriber + batchOptions + TestUtil.clientServerOptions + iceStormReference + r' ' + subscriberLockFile + " 2>&1"
     subscriberPipe = os.popen(command)
     TestUtil.getServerPid(subscriberPipe)
-    TestUtil.getAdapterReady(subscriberPipe)
+    TestUtil.getAdapterReady(subscriberPipe, False)
     print "ok"
 
     print "checking " + name + " lockfile creation...",
@@ -180,9 +180,7 @@ if iceBoxAdminStatus:
     sys.exit(1)
 print "ok"
 
-iceBoxStatus = TestUtil.closePipe(iceBoxPipe)
-
-if iceBoxStatus or onewayStatus or batchStatus:
+if TestUtil.serverStatus() or onewayStatus or batchStatus:
     TestUtil.killServers()
     sys.exit(1)
 
