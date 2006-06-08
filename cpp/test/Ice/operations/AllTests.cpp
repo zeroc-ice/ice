@@ -15,7 +15,8 @@
 using namespace std;
 
 Test::MyClassPrx
-allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
+allTests(const Ice::CommunicatorPtr& communicator, 
+	 const Ice::InitializationData& initData, bool collocated)
 {
     cout << "testing stringToProxy... " << flush;
     string ref = "test:default -p 12010 -t 10000";
@@ -133,18 +134,18 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
 
     cout << "testing twoway operations... " << flush;
-    void twoways(const Ice::CommunicatorPtr&, const Test::MyClassPrx&);
-    twoways(communicator, cl);
-    twoways(communicator, derived);
+    void twoways(const Ice::CommunicatorPtr&, const Ice::InitializationData&, const Test::MyClassPrx&);
+    twoways(communicator, initData, cl);
+    twoways(communicator, initData, derived);
     derived->opDerived();
     cout << "ok" << endl;
 
     if(!collocated)
     {
 	cout << "testing twoway operations with AMI... " << flush;
-	void twowaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrx&);
-	twowaysAMI(communicator, cl);
-	twowaysAMI(communicator, derived);
+	void twowaysAMI(const Ice::CommunicatorPtr&, const Ice::InitializationData&, const Test::MyClassPrx&);
+	twowaysAMI(communicator, initData, cl);
+	twowaysAMI(communicator, initData, derived);
 	cout << "ok" << endl;
 
 	cout << "testing batch oneway operations... " << flush;

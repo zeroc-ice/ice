@@ -32,14 +32,15 @@ main(int argc, char* argv[])
 
     try
     {
-	Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
+	Ice::InitializationData initData;
+	initData.properties = Ice::createProperties(argc, argv);
 
 	//
 	// This test kills connections, so we don't want warnings.
 	//
-	properties->setProperty("Ice.Warn.Connections", "0");
+	initData.properties->setProperty("Ice.Warn.Connections", "0");
 
-	communicator = Ice::initialize(argc, argv);
+	communicator = Ice::initialize(argc, argv, initData);
 	status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

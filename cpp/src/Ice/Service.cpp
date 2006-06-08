@@ -189,7 +189,7 @@ Ice::Service::interrupt()
 }
 
 int
-Ice::Service::main(int& argc, char* argv[])
+Ice::Service::main(int& argc, char* argv[], const InitializationData& initData)
 {
     _name = argv[0];
 
@@ -449,7 +449,7 @@ Ice::Service::main(int& argc, char* argv[])
     }
 #endif
 
-    return run(argc, argv);
+    return run(argc, argv, initData);
 }
 
 Ice::CommunicatorPtr
@@ -493,14 +493,14 @@ Ice::Service::checkSystem() const
 }
 
 int
-Ice::Service::run(int& argc, char* argv[])
+Ice::Service::run(int& argc, char* argv[], const InitializationData& initData)
 {
     if(_service)
     {
 #ifdef _WIN32
-        return runService(argc, argv);
+        return runService(argc, argv, initData);
 #else
-        return runDaemon(argc, argv);
+        return runDaemon(argc, argv, initData);
 #endif
     }
 
@@ -521,7 +521,7 @@ Ice::Service::run(int& argc, char* argv[])
         //
         // Initialize the communicator.
         //
-        _communicator = initializeCommunicator(argc, argv);
+        _communicator = initializeCommunicator(argc, argv, initData);
 
         //
         // Use the configured logger.
@@ -916,9 +916,9 @@ Ice::Service::stop()
 }
 
 Ice::CommunicatorPtr
-Ice::Service::initializeCommunicator(int& argc, char* argv[])
+Ice::Service::initializeCommunicator(int& argc, char* argv[], const InitializationData& initData)
 {
-    return Ice::initialize(argc, argv);
+    return Ice::initialize(argc, argv, initData);
 }
 
 void
@@ -1045,7 +1045,7 @@ Ice::Service::disableInterrupt()
 #ifdef _WIN32
 
 int
-Ice::Service::runService(int argc, char* argv[])
+Ice::Service::runService(int argc, char* argv[], const InitializationData& initData)
 {
     assert(_service);
 
@@ -1069,6 +1069,8 @@ Ice::Service::runService(int argc, char* argv[])
     {
         _serviceArgs.push_back(argv[idx]);
     }
+
+    _initData = initData;
 
     SERVICE_TABLE_ENTRY ste[] =
     {
@@ -1271,7 +1273,7 @@ Ice::Service::serviceMain(int argc, char* argv[])
     //
     try
     {
-        _communicator = initializeCommunicator(argc, args);
+        _communicator = initializeCommunicator(argc, args, _initData);
     }
     catch(const Ice::Exception& ex)
     {
@@ -1470,7 +1472,7 @@ Ice::ServiceStatusManager::run()
 #else
 
 int
-Ice::Service::runDaemon(int argc, char* argv[])
+Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initData)
 {
     assert(_service);
 
@@ -1650,7 +1652,7 @@ Ice::Service::runDaemon(int argc, char* argv[])
         //
         // Initialize the communicator.
         //
-        _communicator = initializeCommunicator(argc, argv);
+        _communicator = initializeCommunicator(argc, argv, initData);
 
         if(_closeFiles)
         {

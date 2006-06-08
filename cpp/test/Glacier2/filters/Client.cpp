@@ -16,6 +16,8 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
+static Ice::InitializationData initData;
+
 class SessionControlClient : public Application
 {
 public:
@@ -26,17 +28,17 @@ public:
 int
 main(int argc, char* argv[])
 {
-    PropertiesPtr properties = getDefaultProperties(argc, argv);
+    initData.properties = Ice::createProperties(argc, argv);
     
     //
     // We want to check whether the client retries for evicted
     // proxies, even with regular retries disabled.
     //
-    properties->setProperty("Ice.RetryIntervals", "-1");
-    properties->setProperty("Ice.Warn.Connections", "0");
+    initData.properties->setProperty("Ice.RetryIntervals", "-1");
+    initData.properties->setProperty("Ice.Warn.Connections", "0");
 	
     SessionControlClient app;
-    return app.main(argc, argv);
+    return app.main(argc, argv, initData);
 }
 
 int
@@ -47,7 +49,7 @@ SessionControlClient::run(int argc, char* argv[])
     // to bypass the router for test control operations.
     //
     cout << "accessing test controller... " << flush;
-    Ice::CommunicatorPtr controlComm = Ice::initialize(argc, argv);
+    Ice::CommunicatorPtr controlComm = Ice::initialize(argc, argv, initData);
     TestControllerPrx controller = TestControllerPrx::checkedCast(
 	controlComm->stringToProxy("testController:tcp -p 12013"));
     test(controller);

@@ -252,7 +252,7 @@ public:
 	test(c2->ice_getIdentity() == _communicator->stringToIdentity("noSuchIdentity"));
 	test(r->ice_getIdentity() == _communicator->stringToIdentity("test"));
 	// We can't do the callbacks below in thread per connection mode.
-	if(!Ice::getDefaultProperties()->getPropertyAsInt("Ice.ThreadPerConnection"))
+	if(!_communicator->getProperties()->getPropertyAsInt("Ice.ThreadPerConnection"))
 	{
 	    r->opVoid();
 	    c1->opVoid();
@@ -284,6 +284,11 @@ class AMI_MyClass_opStructI : public Test::AMI_MyClass_opStruct, public Callback
 {
 public:
 
+    AMI_MyClass_opStructI(const Ice::CommunicatorPtr& communicator) :
+        _communicator(communicator)
+    {
+    }
+
     virtual void ice_response(const ::Test::Structure& rso, const ::Test::Structure& so)
     {
 	test(rso.p == 0);
@@ -292,7 +297,7 @@ public:
 	test(so.e == Test::enum3);
 	test(so.s.s == "a new string");
 	// We can't do the callbacks below in thread per connection mode.
-	if(!Ice::getDefaultProperties()->getPropertyAsInt("Ice.ThreadPerConnection"))
+	if(!_communicator->getProperties()->getPropertyAsInt("Ice.ThreadPerConnection"))
 	{
 	    so.p->opVoid();
 	}
@@ -303,6 +308,10 @@ public:
     {
 	test(false);
     }
+
+private:
+
+    Ice::CommunicatorPtr _communicator;
 };
 
 typedef IceUtil::Handle<AMI_MyClass_opStructI> AMI_MyClass_opStructIPtr;
@@ -863,7 +872,8 @@ public:
 typedef IceUtil::Handle<AMI_MyClass_opDoubleMarshalingI> AMI_MyClass_opDoubleMarshalingIPtr;
 
 void
-twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
+twowaysAMI(const Ice::CommunicatorPtr& communicator, 
+	   const Ice::InitializationData& initializationData, const Test::MyClassPrx& p)
 {
     {
         // Check that a call to a void operation raises TwowayOnlyException
@@ -960,7 +970,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	si2.e = Test::enum2;
 	si2.s.s = "def";
 	
-	AMI_MyClass_opStructIPtr cb = new AMI_MyClass_opStructI;
+	AMI_MyClass_opStructIPtr cb = new AMI_MyClass_opStructI(communicator);
 	p->opStruct_async(cb, si1, si2);
 	test(cb->check());
     }
@@ -1229,11 +1239,9 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	    //
 	    // Test that default context is obtained correctly from communicator.
 	    //
-	    int argc = 0;
-            char* argv[] = { "" };
-            Ice::InitializationData initData;
+            Ice::InitializationData initData = initializationData;
             initData.defaultContext["a"] = "b";
-            Ice::CommunicatorPtr communicator2 = Ice::initialize(argc, argv, initData);
+            Ice::CommunicatorPtr communicator2 = Ice::initialize(initData);
 
 	    Test::MyClassPrx c = Test::MyClassPrx::checkedCast(
 				    communicator2->stringToProxy("test:default -p 12010 -t 10000"));

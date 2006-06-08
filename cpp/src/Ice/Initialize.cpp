@@ -89,66 +89,21 @@ Ice::createProperties()
 }
 
 PropertiesPtr
-Ice::createProperties(StringSeq& args)
+Ice::createProperties(StringSeq& args, const PropertiesPtr& defaults)
 {
-    return new PropertiesI(args);
+    return new PropertiesI(args, defaults);
 }
 
 PropertiesPtr
-Ice::createProperties(int& argc, char* argv[])
+Ice::createProperties(int& argc, char* argv[], const PropertiesPtr& defaults)
 {
     StringSeq args = argsToStringSeq(argc, argv);
-    PropertiesPtr properties = createProperties(args);
+    PropertiesPtr properties = createProperties(args, defaults);
     stringSeqToArgs(args, argc, argv);
     return properties;
 }
 
-static PropertiesPtr defaultProperties;
-class DefaultPropertiesDestroyer
-{
-public:
-
-    ~DefaultPropertiesDestroyer()
-    {
-	defaultProperties = 0;
-    }
-};
-static DefaultPropertiesDestroyer defaultPropertiesDestroyer;
-static IceUtil::StaticMutex defaultPropMutex = ICE_STATIC_MUTEX_INITIALIZER;
-
-PropertiesPtr
-Ice::getDefaultProperties()
-{
-    IceUtil::StaticMutex::Lock sync(defaultPropMutex);
-    if(!defaultProperties)
-    {
-	defaultProperties = createProperties();
-    }
-    return defaultProperties;
-}
-
-PropertiesPtr
-Ice::getDefaultProperties(StringSeq& args)
-{
-    IceUtil::StaticMutex::Lock sync(defaultPropMutex);
-    if(!defaultProperties)
-    {
-	defaultProperties = createProperties(args);
-    }
-    return defaultProperties;
-}
-
-PropertiesPtr
-Ice::getDefaultProperties(int& argc, char* argv[])
-{
-    StringSeq args = argsToStringSeq(argc, argv);
-    PropertiesPtr properties = getDefaultProperties(args);
-    stringSeqToArgs(args, argc, argv);
-    return properties;
-}
-
-CommunicatorPtr
-Ice::initialize(int& argc, char* argv[], const InitializationData& initData, Int version)
+inline void checkIceVersion(Int version)
 {
 #ifndef ICE_IGNORE_VERSION
     //
@@ -167,21 +122,38 @@ Ice::initialize(int& argc, char* argv[], const InitializationData& initData, Int
 	throw VersionMismatchException(__FILE__, __LINE__);
     }
 #endif
+}
 
-    InitializationData tmpData = initData;
-    if(tmpData.properties == 0)
-    {
-        tmpData.properties = getDefaultProperties(argc, argv);
-    }
-    StringSeq args = argsToStringSeq(argc, argv);
-    args = tmpData.properties->parseIceCommandLineOptions(args);
-    stringSeqToArgs(args, argc, argv);
 
-    CommunicatorI* communicatorI = new CommunicatorI(tmpData);
+CommunicatorPtr
+Ice::initialize(int& argc, char* argv[], const InitializationData& initializationData, Int version)
+{
+    InitializationData initData = initializationData;
+    initData.properties = createProperties(argc, argv, initData.properties);
+
+    CommunicatorI* communicatorI = new CommunicatorI(initData);
     CommunicatorPtr result = communicatorI; // For exception safety.
     communicatorI->finishSetup(argc, argv);
     return result;
 }
+
+CommunicatorPtr
+Ice::initialize(const InitializationData& initData, Int version)
+{
+    //
+    // We can't simply call the other initialize() because this one does NOT read
+    // the config file, while the other one always does.
+    //
+    checkIceVersion(version);
+
+    CommunicatorI* communicatorI = new CommunicatorI(initData);
+    CommunicatorPtr result = communicatorI; // For exception safety.
+    int argc = 0;
+    char* argv[] = { 0 };
+    communicatorI->finishSetup(argc, argv);
+    return result;
+}
+
 
 CommunicatorPtr
 Ice::initializeWithProperties(int& argc, char* argv[], const PropertiesPtr& properties, Int version)

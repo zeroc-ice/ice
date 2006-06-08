@@ -59,7 +59,7 @@ public:
     // The return value is an exit status code: EXIT_FAILURE or
     // EXIT_SUCCESS.
     //
-    int main(int&, char*[]);
+    int main(int&, char*[], const InitializationData& = InitializationData());
 
     //
     // Returns the communicator created by the service.
@@ -101,7 +101,7 @@ public:
     // The return value is an exit status code: EXIT_FAILURE or
     // EXIT_SUCCESS.
     //
-    int run(int&, char*[]);
+    int run(int&, char*[], const InitializationData& = InitializationData());
 
 #ifdef _WIN32
 
@@ -172,7 +172,7 @@ protected:
     //
     // Initialize a communicator.
     //
-    virtual Ice::CommunicatorPtr initializeCommunicator(int&, char*[]);
+    virtual Ice::CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&);
 
     //
     // Log a system error, which includes a description of the
@@ -217,17 +217,19 @@ private:
     bool _nohup;
     bool _service;
     std::string _name;
+  
     static Service* _instance;
 
 #ifdef _WIN32
 
-    int runService(int, char*[]);
+    int runService(int, char*[], const InitializationData&);
     void terminateService(DWORD);
     bool waitForServiceState(SC_HANDLE, DWORD, SERVICE_STATUS&);
     void showServiceStatus(const std::string&, SERVICE_STATUS&);
 
     SERVICE_STATUS_HANDLE _statusHandle;
     std::vector<std::string> _serviceArgs;
+    InitializationData _initData;
 
 public:
 
@@ -236,7 +238,7 @@ public:
 
 #else
 
-    int runDaemon(int, char*[]);
+    int runDaemon(int, char*[], const InitializationData&);
 
     bool _changeDirectory;
     bool _closeFiles;

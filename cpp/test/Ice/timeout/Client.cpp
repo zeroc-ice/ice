@@ -31,24 +31,25 @@ main(int argc, char* argv[])
 
     try
     {
-	Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
+	Ice::InitializationData initData;
+	initData.properties = Ice::createProperties(argc, argv);
 
 	//
 	// For this test, we want to disable retries.
 	//
-	properties->setProperty("Ice.RetryIntervals", "-1");
+	initData.properties->setProperty("Ice.RetryIntervals", "-1");
 
 	//
 	// This test kills connections, so we don't want warnings.
 	//
-	properties->setProperty("Ice.Warn.Connections", "0");
+	initData.properties->setProperty("Ice.Warn.Connections", "0");
 
 	//
 	// Check for AMI timeouts every second.
 	//
-	properties->setProperty("Ice.MonitorConnections", "1");
+	initData.properties->setProperty("Ice.MonitorConnections", "1");
 
-	communicator = Ice::initialize(argc, argv);
+	communicator = Ice::initialize(argc, argv, initData);
 	status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception&)

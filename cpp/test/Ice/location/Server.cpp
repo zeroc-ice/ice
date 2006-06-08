@@ -14,7 +14,8 @@
 using namespace std;
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator,
+    const Ice::InitializationData& initData)
 {
     //
     // Register the server manager. The server manager creates a new
@@ -34,7 +35,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     //
     ServerLocatorRegistryPtr registry = new ServerLocatorRegistry();
     registry->addObject(adapter->createProxy(communicator->stringToIdentity("ServerManager")));
-    Ice::ObjectPtr object = new ServerManagerI(adapter, registry);
+    Ice::ObjectPtr object = new ServerManagerI(adapter, registry, initData);
     adapter->add(object, communicator->stringToIdentity("ServerManager"));
 
     Ice::LocatorRegistryPrx registryPrx = 
@@ -57,8 +58,12 @@ main(int argc, char* argv[])
 
     try
     {
-	communicator = Ice::initialize(argc, argv);
-	status = run(argc, argv, communicator);
+	Ice::InitializationData initData;
+	initData.properties = Ice::createProperties(argc, argv);
+	communicator = Ice::initialize(argc, argv, initData);
+	assert(initData.properties != communicator->getProperties());
+
+	status = run(argc, argv, communicator, initData);
     }
     catch(const Ice::Exception& ex)
     {

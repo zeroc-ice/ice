@@ -34,8 +34,8 @@ ICE_API StringSeq argsToStringSeq(int, char*[]);
 ICE_API void stringSeqToArgs(const StringSeq&, int&, char*[]);
 
 ICE_API PropertiesPtr createProperties();
-ICE_API PropertiesPtr createProperties(StringSeq&);
-ICE_API PropertiesPtr createProperties(int&, char*[]);
+ICE_API PropertiesPtr createProperties(StringSeq&, const PropertiesPtr& = 0);
+ICE_API PropertiesPtr createProperties(int&, char*[], const PropertiesPtr& = 0);
 
 //
 // This class is used to notify user of when Ice threads
@@ -67,6 +67,9 @@ struct InitializationData
 
 ICE_API CommunicatorPtr initialize(int&, char*[], const InitializationData& = InitializationData(),
 				   Int = ICE_INT_VERSION);
+
+ICE_API CommunicatorPtr initialize(const InitializationData&, Int = ICE_INT_VERSION);
+
 ICE_API ICE_DEPRECATED_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&,
 								    Int = ICE_INT_VERSION);
 ICE_API ICE_DEPRECATED_API CommunicatorPtr initializeWithLogger(int&, char*[], const Ice::LoggerPtr&,
@@ -74,10 +77,6 @@ ICE_API ICE_DEPRECATED_API CommunicatorPtr initializeWithLogger(int&, char*[], c
 ICE_API ICE_DEPRECATED_API CommunicatorPtr initializeWithPropertiesAndLogger(int&, char*[], const PropertiesPtr&,
 							                     const Ice::LoggerPtr&, 
 									     Int = ICE_INT_VERSION);
-
-ICE_API PropertiesPtr getDefaultProperties();
-ICE_API PropertiesPtr getDefaultProperties(StringSeq&);
-ICE_API PropertiesPtr getDefaultProperties(int&, char*[]);
 
 ICE_API InputStreamPtr createInputStream(const CommunicatorPtr&, const ::std::vector< Byte >&);
 ICE_API OutputStreamPtr createOutputStream(const CommunicatorPtr&);

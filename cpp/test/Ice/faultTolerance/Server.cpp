@@ -72,10 +72,11 @@ main(int argc, char* argv[])
 	// our test servers may time out before they are used in the
 	// test.
 	//
-	Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
-	properties->setProperty("Ice.ServerIdleTime", "120"); // Two minutes.
+	Ice::InitializationData initData;
+	initData.properties = Ice::createProperties(argc, argv);
+	initData.properties->setProperty("Ice.ServerIdleTime", "120"); // Two minutes.
 
-	communicator = Ice::initialize(argc, argv);
+	communicator = Ice::initialize(argc, argv, initData);
 	status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

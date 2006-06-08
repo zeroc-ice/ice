@@ -24,12 +24,14 @@ public:
 int
 main(int argc, char* argv[])
 {
-    Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
-    properties->setProperty("Ice.Warn.Connections", "0");
-    properties->setProperty("Ice.Warn.Dispatch", "0");
+    Ice::InitializationData initData;
+    initData.properties = Ice::createProperties(argc, argv);
+
+    initData.properties->setProperty("Ice.Warn.Connections", "0");
+    initData.properties->setProperty("Ice.Warn.Dispatch", "0");
 
     CallbackServer app;
-    return app.main(argc, argv);
+    return app.main(argc, argv, initData);
 }
 
 int

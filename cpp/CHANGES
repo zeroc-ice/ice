@@ -1,6 +1,25 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Removed getDefaultProperties() functions, and the global default
+  properties. If you need global properties, you can easily
+  create your own global variable.
+
+- In Ice::Service, main(), run() and initializeCommunicator() take
+  now a third parameter, const InitializationData&. It's defaulted
+  for main() and run().
+
+- The signature of createProperties()-with-parameters is now:
+  PropertiesPtr createProperties(int* argc, char* argv[],
+                                 const PropertiesPtr& defaults = 0);
+  "defaults" represents an optional set of default properties
+  used to initialize the new Properties object. Ice properties 
+  defined on the command-line and properties defined in the Ice
+  config file may override these default properties.
+   
+- Added a new communicator-initialization function:
+  CommunicatorPtr initialize(const InitializationData&);
+
 - Fixed a bug in dumpdb so that it handles object graphs correctly.
 
 - Fixed a bug where the proxy timeout, compress flag and connection

@@ -30,11 +30,12 @@ main(int argc, char* argv[])
     // the router before session establishment, as well as after
     // session destruction. Both will cause a ConnectionLostException.
     //
-    Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
-    properties->setProperty("Ice.Warn.Connections", "0");
+    Ice::InitializationData initData;
+    initData.properties = Ice::createProperties(argc, argv);
+    initData.properties->setProperty("Ice.Warn.Connections", "0");
 
     CallbackClient app;
-    return app.main(argc, argv);
+    return app.main(argc, argv, initData);
 }
 
 int

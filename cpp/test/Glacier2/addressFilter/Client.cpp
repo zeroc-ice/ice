@@ -30,16 +30,17 @@ public:
 int
 main(int argc, char* argv[])
 {
-    PropertiesPtr properties = getDefaultProperties(argc, argv);
-    
+    Ice::InitializationData initData;
+    initData.properties = Ice::createProperties(argc, argv);
+   
     //
     // We want to check whether the client retries for evicted
     // proxies, even with regular retries disabled.
     //
-    properties->setProperty("Ice.RetryIntervals", "-1");
+    initData.properties->setProperty("Ice.RetryIntervals", "-1");
 	
     AttackClient app;
-    return app.main(argc, argv);
+    return app.main(argc, argv, initData);
 }
 
 int
@@ -81,8 +82,10 @@ AttackClient::run(int argc, char* argv[])
 	    // This is also ok.
 	    //
 	}
-	catch(const LocalException&)
+	catch(const LocalException& e)
 	{
+	    cerr << "The exception is: " << e << endl;
+	    cerr << "-----------------------" << endl;
 	    test("Unexpected local exception" == 0);
 	}
     }

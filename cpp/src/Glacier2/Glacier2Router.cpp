@@ -53,7 +53,7 @@ protected:
 
     virtual bool start(int, char*[]);
     virtual bool stop();
-    virtual CommunicatorPtr initializeCommunicator(int&, char*[]);
+    virtual CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&);
 
 private:
 
@@ -304,26 +304,28 @@ Glacier2::RouterService::stop()
 }
 
 CommunicatorPtr
-Glacier2::RouterService::initializeCommunicator(int& argc, char* argv[])
+Glacier2::RouterService::initializeCommunicator(int& argc, char* argv[], 
+						const InitializationData& initializationData)
 {
-    PropertiesPtr defaultProperties = getDefaultProperties(argc, argv);
-    
+    InitializationData initData = initializationData;
+    initData.properties = createProperties(argc, argv, initializationData.properties);
+ 
     //
     // Glacier2 always runs in thread-per-connection mode.
     //
-    defaultProperties->setProperty("Ice.ThreadPerConnection", "1");
+    initData.properties->setProperty("Ice.ThreadPerConnection", "1");
     
     //
     // Make sure that Glacier2 doesn't use a router.
     //
-    defaultProperties->setProperty("Ice.Default.Router", "");
+    initData.properties->setProperty("Ice.Default.Router", "");
     
     //
     // No active connection management is permitted with
     // Glacier2. Connections must remain established.
     //
-    defaultProperties->setProperty("Ice.ACM.Client", "0");
-    defaultProperties->setProperty("Ice.ACM.Server", "0");
+    initData.properties->setProperty("Ice.ACM.Client", "0");
+    initData.properties->setProperty("Ice.ACM.Server", "0");
     
     //
     // Ice.MonitorConnections defaults to the smaller of Ice.ACM.Client
@@ -331,9 +333,9 @@ Glacier2::RouterService::initializeCommunicator(int& argc, char* argv[])
     // the connection monitor thread for AMI timeouts. We only set
     // this value if it hasn't been set explicitly already.
     //
-    if(defaultProperties->getProperty("Ice.MonitorConnections").empty())
+    if(initData.properties->getProperty("Ice.MonitorConnections").empty())
     {
-	defaultProperties->setProperty("Ice.MonitorConnections", "60");
+	initData.properties->setProperty("Ice.MonitorConnections", "60");
     }
 
     //
@@ -344,7 +346,7 @@ Glacier2::RouterService::initializeCommunicator(int& argc, char* argv[])
     // the clients.
     //
 
-    return Service::initializeCommunicator(argc, argv);
+    return Service::initializeCommunicator(argc, argv, initData);
 }
 
 void

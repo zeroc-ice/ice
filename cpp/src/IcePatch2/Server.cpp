@@ -50,7 +50,6 @@ protected:
 
     virtual bool start(int, char*[]);
     virtual bool stop();
-    virtual CommunicatorPtr initializeCommunicator(int&, char*[]);
 
 private:
 
@@ -196,11 +195,6 @@ IcePatch2::PatcherService::stop()
     return true;
 }
 
-CommunicatorPtr
-IcePatch2::PatcherService::initializeCommunicator(int& argc, char* argv[])
-{
-    return Service::initializeCommunicator(argc, argv);
-}
 
 void
 IcePatch2::PatcherService::usage(const string& appName)

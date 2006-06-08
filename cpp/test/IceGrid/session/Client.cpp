@@ -27,9 +27,10 @@ main(int argc, char* argv[])
     Ice::CommunicatorPtr communicator;
     try
     {
-	Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
-	properties->setProperty("Ice.Warn.Connections", "0");
-	communicator = Ice::initialize(argc, argv);
+	Ice::InitializationData initData;
+	initData.properties = Ice::createProperties(argc, argv);
+	initData.properties->setProperty("Ice.Warn.Connections", "0");
+	communicator = Ice::initialize(argc, argv, initData);
 	communicator->getProperties()->parseCommandLineOptions("", Ice::argsToStringSeq(argc, argv));
 	status = run(argc, argv, communicator);
     }

@@ -299,12 +299,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	// Test Ice.Override.Timeout. This property overrides all
 	// endpoint timeouts.
 	//
-	int argc = 0;
-	char* argv[] = { "" };
 	Ice::InitializationData initData;
 	initData.properties = communicator->getProperties()->clone();
 	initData.properties->setProperty("Ice.Override.Timeout", "500");
-	Ice::CommunicatorPtr comm = Ice::initialize(argc, argv, initData);
+	Ice::CommunicatorPtr comm = Ice::initialize(initData);
 	TimeoutPrx to = TimeoutPrx::checkedCast(comm->stringToProxy(sref));
 	try
 	{
@@ -335,12 +333,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	//
 	// Test Ice.Override.ConnectTimeout.
 	//
-	int argc = 0;
-	char* argv[] = { "" };
 	Ice::InitializationData initData;
 	initData.properties = communicator->getProperties()->clone();
 	initData.properties->setProperty("Ice.Override.ConnectTimeout", "500");
-	Ice::CommunicatorPtr comm = Ice::initialize(argc, argv, initData);
+	Ice::CommunicatorPtr comm = Ice::initialize(initData);
 	timeout->holdAdapter(750);
 	TimeoutPrx to = TimeoutPrx::uncheckedCast(comm->stringToProxy(sref));
 	try

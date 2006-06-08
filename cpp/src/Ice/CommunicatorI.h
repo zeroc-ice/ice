@@ -69,6 +69,7 @@ private:
     void finishSetup(int&, char*[]);
 
     friend ICE_API CommunicatorPtr initialize(int&, char*[], const InitializationData&, Int);
+    friend ICE_API CommunicatorPtr initialize(const InitializationData&, Int);
     friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
 
     const ::IceInternal::InstancePtr _instance;

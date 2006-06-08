@@ -17,6 +17,8 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
+static Ice::InitializationData initData;
+
 class AMI_Callback_initiateConcurrentCallbackI : public AMI_Callback_initiateConcurrentCallback,
 						 public IceUtil::Monitor<IceUtil::Mutex>
 {
@@ -82,9 +84,7 @@ public:
     virtual 
     void run()
     {
-	int argc = 0;
-	char** argv = 0;
-	CommunicatorPtr communicator = initialize(argc, argv);
+	CommunicatorPtr communicator = initialize(initData);
 	ObjectPrx routerBase = communicator->stringToProxy("abc/def:default -p 12347 -t 10000");
 	Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(routerBase);
 	communicator->setDefaultRouter(router);
@@ -191,9 +191,7 @@ public:
     virtual 
     void run()
     {
-	int argc = 0;
-	char** argv = 0;
-	CommunicatorPtr communicator = initialize(argc, argv);
+	CommunicatorPtr communicator = initialize(initData);
 	ObjectPrx routerBase = communicator->stringToProxy("abc/def:default -p 12347 -t 10000");
 	_router = Glacier2::RouterPrx::checkedCast(routerBase);
 	communicator->setDefaultRouter(_router);
@@ -385,11 +383,11 @@ main(int argc, char* argv[])
     // the router before session establishment, as well as after
     // session destruction. Both will cause a ConnectionLostException.
     //
-    Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
-    properties->setProperty("Ice.Warn.Connections", "0");
+    initData.properties = Ice::createProperties(argc, argv);
+    initData.properties->setProperty("Ice.Warn.Connections", "0");
 
     CallbackClient app;
-    return app.main(argc, argv);
+    return app.main(argc, argv, initData);
 }
 
 int

@@ -33,14 +33,14 @@ public:
     virtual PropertiesPtr clone();
 
 private:
-
-    PropertiesI(const PropertiesI*);
     PropertiesI();
-    PropertiesI(StringSeq&);
+    PropertiesI(StringSeq&, const PropertiesPtr&);
+    PropertiesI(const PropertiesI*);
 
     friend ICE_API PropertiesPtr createProperties();
-    friend ICE_API PropertiesPtr createProperties(StringSeq&);
-    friend ICE_API PropertiesPtr createProperties(int&, char*[]);
+    friend ICE_API PropertiesPtr createProperties(StringSeq&, const PropertiesPtr&);
+    friend ICE_API PropertiesPtr createProperties(int&, char*[], const PropertiesPtr&);
+
 
     void parseLine(const std::string&);
 

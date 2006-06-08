@@ -38,8 +38,8 @@ main(int argc, char** argv)
 
     try
     {
-        Ice::InitializationData initData;
-	initData.properties = Ice::getDefaultProperties(argc, argv);
+	Ice::InitializationData initData;
+	initData.properties = Ice::createProperties(argc, argv);
 	initData.properties->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
 	initData.stringConverter = new Test::StringConverterI();
 	initData.wstringConverter = new Test::WstringConverterI();

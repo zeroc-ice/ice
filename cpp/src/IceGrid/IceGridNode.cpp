@@ -111,7 +111,7 @@ protected:
     virtual bool start(int, char*[]);
     virtual void waitForShutdown();
     virtual bool stop();
-    virtual CommunicatorPtr initializeCommunicator(int&, char*[]);
+    virtual CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&);
 
 private:
 
@@ -653,18 +653,20 @@ NodeService::stop()
 }
 
 CommunicatorPtr
-NodeService::initializeCommunicator(int& argc, char* argv[])
+NodeService::initializeCommunicator(int& argc, char* argv[], 
+				    const InitializationData& initializationData)
 {
-    PropertiesPtr defaultProperties = getDefaultProperties(argc, argv);
-    
+    InitializationData initData = initializationData;
+    initData.properties = createProperties(argc, argv, initData.properties);
+
     //
     // Make sure that IceGridNode doesn't use thread-per-connection or
     // collocation optimization
     //
-    defaultProperties->setProperty("Ice.ThreadPerConnection", "");
-    defaultProperties->setProperty("Ice.Default.CollocationOptimization", "0");
+    initData.properties->setProperty("Ice.ThreadPerConnection", "");
+    initData.properties->setProperty("Ice.Default.CollocationOptimization", "0");
 
-    return Service::initializeCommunicator(argc, argv);
+    return Service::initializeCommunicator(argc, argv, initData);
 }
 
 void

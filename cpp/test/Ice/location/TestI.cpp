@@ -13,17 +13,24 @@
 
 using namespace Test;
 
-ServerManagerI::ServerManagerI(const Ice::ObjectAdapterPtr& adapter, const ServerLocatorRegistryPtr& registry) :
-    _adapter(adapter), _registry(registry)
+ServerManagerI::ServerManagerI(const Ice::ObjectAdapterPtr& adapter, 
+			       const ServerLocatorRegistryPtr& registry,
+			       const Ice::InitializationData& initData) :
+    _adapter(adapter), _registry(registry), _initData(initData)
 {
+    _initData.properties->setProperty("TestAdapter.Endpoints", "default");
+    _initData.properties->setProperty("TestAdapter.AdapterId", "TestAdapter");
+    _initData.properties->setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
+    
+    _initData.properties->setProperty("TestAdapter2.Endpoints", "default");
+    _initData.properties->setProperty("TestAdapter2.AdapterId", "TestAdapter2");
+
+    _initData.properties->setProperty("Ice.PrintAdapterReady", "0");
 }
 
 void
 ServerManagerI::startServer(const Ice::Current& current)
 {
-    int argc = 0;
-    char** argv = 0;
-
     for(::std::vector<Ice::CommunicatorPtr>::const_iterator i = _communicators.begin(); i != _communicators.end(); ++i)
     {
 	(*i)->waitForShutdown();
@@ -39,15 +46,11 @@ ServerManagerI::startServer(const Ice::Current& current)
     // its endpoints with the locator and create references containing
     // the adapter id instead of the endpoints.
     //
-    Ice::CommunicatorPtr serverCommunicator = Ice::initialize(argc, argv);
+    
+    Ice::CommunicatorPtr serverCommunicator = Ice::initialize(_initData);
     _communicators.push_back(serverCommunicator);
-    serverCommunicator->getProperties()->setProperty("TestAdapter.Endpoints", "default");
-    serverCommunicator->getProperties()->setProperty("TestAdapter.AdapterId", "TestAdapter");
-    serverCommunicator->getProperties()->setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
-    Ice::ObjectAdapterPtr adapter = serverCommunicator->createObjectAdapter("TestAdapter");
 
-    serverCommunicator->getProperties()->setProperty("TestAdapter2.Endpoints", "default");
-    serverCommunicator->getProperties()->setProperty("TestAdapter2.AdapterId", "TestAdapter2");
+    Ice::ObjectAdapterPtr adapter = serverCommunicator->createObjectAdapter("TestAdapter");
     Ice::ObjectAdapterPtr adapter2 = serverCommunicator->createObjectAdapter("TestAdapter2");
 
     Ice::ObjectPrx locator = serverCommunicator->stringToProxy("locator:default -p 12010");
