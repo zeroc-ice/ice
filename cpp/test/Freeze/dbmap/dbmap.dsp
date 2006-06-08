@@ -152,6 +152,7 @@ BuildCmds= \
 	..\..\..\bin\slice2freeze.exe  --ice -I../../../slice --dict Test::IntIdentityMap,int,Ice::Identity IntIdentityMap ../../../slice/Ice/Identity.ice \
 	..\..\..\bin\slice2freeze.exe  --ice -I../../../slice --dict Test::IntIdentityMapWithIndex,int,Ice::Identity IntIdentityMapWithIndex --dict-index Test::IntIdentityMapWithIndex,category ../../../slice/Ice/Identity.ice \
 	..\..\..\bin\slice2freeze.exe  --ice -I../../../slice --dict Test::SortedMap,int,Ice::Identity,sort SortedMap --dict-index "Test::SortedMap,category,sort,std::greater<std::string>" ../../../slice/Ice/Identity.ice \
+	..\..\..\bin\slice2freeze.exe  --dict Test::WstringWstringMap,[\"cpp:type:wstring\"]string,[\"cpp:type:wstring\"]string --dict-index Test::WstringWstringMap WstringWstringMap \
 	
 
 "ByteIntMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -176,6 +177,12 @@ BuildCmds= \
    $(BuildCmds)
 
 "SortedMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"WstringWstringMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"WstringWstringMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
