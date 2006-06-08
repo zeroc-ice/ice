@@ -125,7 +125,7 @@ def startIceGridNode(testdir):
     (stdin, iceGridPipe) = os.popen4(command)
     TestUtil.getServerPid(iceGridPipe)
     TestUtil.getAdapterReady(iceGridPipe, False)
-    TestUtil.waitServiceReady(iceGridPipe, 'node')
+    TestUtil.waitServiceReady(iceGridPipe, 'node', False)
         
     print "ok"
 
