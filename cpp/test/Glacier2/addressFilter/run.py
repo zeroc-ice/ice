@@ -73,12 +73,15 @@ else:
     if domainname == "":
 	limitedTests = True
 
-testcases = [ 
-    ('Testing maximum endpoints rule',
-     (r'', r'', r'1'),
-     [(True, 'hello:tcp -h %s -p 12010' % hostname),
-      (False, 'hello:tcp -h %s -p 12010:ssl -h %s -p 12011' % (hostname, hostname))], [])
-    ]
+testcases = []
+
+if TestUtil.protocol == "ssl":
+    testcases = [ 
+	('Testing maximum endpoints rule',
+	 (r'', r'', r'1'),
+	 [(True, 'hello:tcp -h %s -p 12010' % hostname),
+	  (False, 'hello:tcp -h %s -p 12010:ssl -h %s -p 12011' % (hostname, hostname))], [])
+	]
 
 if not limitedTests:
     testcases.extend([
@@ -117,9 +120,15 @@ if not limitedTests:
              [(True, 'hello:tcp -h %s -p 12010' % fqdn),
               (False, 'bar:tcp -h 127.0.0.1 -p 12010')], ["Glacier2.Filter.Address.AcceptOverride=1"]),
 	    ])
-else:
-    print "Warning! This host's network configuration does not allow for all tests."
-    print "Some tests have been disabled."
+
+if len(testcases) == 0:
+    print "WARNING: You are running this test with SSL disabled and the network "
+    print "         configuration for this host does not permit the other tests "
+    print "         to run correctly."
+    sys.exit(0)
+elif len(testcases) < 4:
+    print "WARNING: The network configuration for this host does not permit all "
+    print "         tests to run correctly, some tests have been disabled."
 
 router = os.path.join(toplevel, "bin", "glacier2router")
 
@@ -208,6 +217,12 @@ for testcase in testcases:
     TestUtil.getServerPid(starterPipe)
     TestUtil.getAdapterReady(starterPipe)
     pingProgress()
+
+    if TestUtil.protocol != "ssl":
+	serverConfig = file(os.path.join(testdir, "server.cfg"), "w")
+	serverOptions = ' --Ice.Config=' + os.path.join(testdir, "server.cfg") + " " + serverOptions
+	serverConfig.write("BackendAdapter.Endpoints=tcp -p 12010 -t 20000\n")
+	serverConfig.close()
 
     serverCmd = os.path.join(testdir, 'server') + serverOptions + " 2>&1"
     serverPipe = os.popen(serverCmd)
