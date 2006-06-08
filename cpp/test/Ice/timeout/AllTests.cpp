@@ -335,9 +335,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	//
 	Ice::InitializationData initData;
 	initData.properties = communicator->getProperties()->clone();
-	initData.properties->setProperty("Ice.Override.ConnectTimeout", "500");
+	initData.properties->setProperty("Ice.Override.ConnectTimeout", "750");
 	Ice::CommunicatorPtr comm = Ice::initialize(initData);
-	timeout->holdAdapter(750);
+	timeout->holdAdapter(1000);
 	TimeoutPrx to = TimeoutPrx::uncheckedCast(comm->stringToProxy(sref));
 	try
 	{
@@ -352,8 +352,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	// Calling ice_timeout() should have no effect on the connect timeout.
 	//
 	timeout->op(); // Ensure adapter is active.
-	timeout->holdAdapter(750);
-	to = TimeoutPrx::uncheckedCast(to->ice_timeout(1000));
+	timeout->holdAdapter(1000);
+	to = TimeoutPrx::uncheckedCast(to->ice_timeout(1250));
 	try
 	{
 	    to->op();
