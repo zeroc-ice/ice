@@ -228,11 +228,11 @@ public class Client
             s.str = "7";
             s.e = Test.MyEnum.enum2;
             s.p = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("test:default"));
-            s.write__(@out);
+            s.ice_write(@out);
             byte[] data = @out.finished();
             @in = Ice.Util.createInputStream(communicator, data);
             Test.SmallStruct s2 = new Test.SmallStruct();
-            s2.read__(@in);
+            s2.ice_read(@in);
             test(s2.Equals(s));
             @out.destroy();
             @in.destroy();

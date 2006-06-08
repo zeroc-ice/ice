@@ -172,10 +172,10 @@ public class Client
 
         {
             out = Ice.Util.createOutputStream(communicator);
-            Test.MyEnum.enum3.__write(out);
+            Test.MyEnum.enum3.ice_write(out);
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(communicator, data);
-            test(Test.MyEnum.__read(in) == Test.MyEnum.enum3);
+            test(Test.MyEnum.ice_read(in) == Test.MyEnum.enum3);
             out.destroy();
             in.destroy();
         }
@@ -193,11 +193,11 @@ public class Client
             s.str = "7";
             s.e = Test.MyEnum.enum2;
             s.p = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("test:default"));
-            s.__write(out);
+            s.ice_write(out);
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(communicator, data);
             Test.SmallStruct s2 = new Test.SmallStruct();
-            s2.__read(in);
+            s2.ice_read(in);
             test(s2.equals(s));
             out.destroy();
             in.destroy();

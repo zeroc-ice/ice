@@ -75,7 +75,7 @@ public class PrinterI : Ice.Blobject
         else if(current.operation.Equals("printStruct"))
         {
             Demo.Structure s = new Demo.Structure();
-            s.read__(inStream);
+            s.ice_read(inStream);
             inStream.destroy();
             Console.WriteLine("Printing struct: name=" + s.name + ", value=" + s.value);
             return true;

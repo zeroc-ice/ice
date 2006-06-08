@@ -65,7 +65,7 @@ public class PrinterI extends Ice.Blobject
         }
         else if(current.operation.equals("printEnum"))
         {
-            Demo.Color c = Demo.Color.__read(in);
+            Demo.Color c = Demo.Color.ice_read(in);
             in.destroy();
             System.out.println("Printing enum " + c);
             return true;
@@ -73,7 +73,7 @@ public class PrinterI extends Ice.Blobject
         else if(current.operation.equals("printStruct"))
         {
             Demo.Structure s = new Demo.Structure();
-            s.__read(in);
+            s.ice_read(in);
             in.destroy();
             System.out.println("Printing struct: name=" + s.name + ", value=" + s.value);
             return true;

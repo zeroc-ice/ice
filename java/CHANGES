@@ -1,6 +1,10 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Generating new streaming functions for Slice struct and enum types.
+  The ice_write and ice_read member functions replace their internal
+  equivalents (__write and __read).
+
 - Added ability to configure Ice thread start/stop hooks through
   InitializationData.
 

@@ -124,7 +124,7 @@ public class Client extends Ice.Application
                     // Marshal the in parameter.
                     //
                     Ice.OutputStream out = Ice.Util.createOutputStream(communicator());
-                    Demo.Color.green.__write(out);
+                    Demo.Color.green.ice_write(out);
 
                     //
                     // Invoke operation.
@@ -145,7 +145,7 @@ public class Client extends Ice.Application
                     Demo.Structure s = new Demo.Structure();
                     s.name = "red";
                     s.value = Demo.Color.red;
-                    s.__write(out);
+                    s.ice_write(out);
 
                     //
                     // Invoke operation.

@@ -146,7 +146,7 @@ public class Client : Ice.Application
                     Demo.Structure s = new Demo.Structure();
                     s.name = "red";
                     s.value = Demo.Color.red;
-                    s.write__(outStream);
+                    s.ice_write(outStream);
 
                     //
                     // Invoke operation.
