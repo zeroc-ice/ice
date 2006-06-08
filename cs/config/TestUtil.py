@@ -67,12 +67,69 @@ def isWin32():
     else:
         return 0
 
+def closePipe(pipe):
+
+    try:
+	status = pipe.close()
+    except IOError, ex:
+	# TODO: There's a waitpid problem on CentOS, so we have to ignore ECHILD.
+	if ex.errno == errno.ECHILD:
+	    status = 0
+	else:
+	    raise
+
+    return status
+     
+class ReaderThread(Thread):
+    def __init__(self, pipe):
+        self.pipe = pipe
+        Thread.__init__(self)
+
+    def run(self):
+
+        try:
+            while 1:
+                line = self.pipe.readline()
+                if not line: break
+		# Suppress "adapter ready" messages. Under windows the eol isn't \n.
+		if not line.endswith(" ready\n") and not line.endswith(" ready\r\n"):
+		    print line,
+        except IOError:
+            pass
+
+	self.status = closePipe(self.pipe)
+
+    def getStatus(self):
+	return self.status
+
 serverPids = []
+serverThreads = []
+allServerThreads = []
+
+def joinServers():
+    global serverThreads
+    global allServerThreads
+    for t in serverThreads:
+	t.join()
+	allServerThreads.append(t)
+    serverThreads = []
+
+def serverStatus():
+    global allServerThreads
+    joinServers()
+    for t in allServerThreads:
+    	status = t.getStatus()
+    	if status:
+    	    return status
+    return 0
+
 def killServers():
 
     global serverPids
+    global serverThreads
 
     for pid in serverPids:
+
         if isWin32():
             try:
                 import win32api
@@ -91,9 +148,16 @@ def killServers():
 
     serverPids = []
 
-def getServerPid(serverPipe):
+    #
+    # Now join with all the threads
+    #
+    joinServers()
 
-    output = serverPipe.readline().strip()
+def getServerPid(pipe):
+    global serverPids
+    global serverThreads
+
+    output = pipe.readline().strip()
 
     if not output:
         print "failed!"
@@ -102,27 +166,33 @@ def getServerPid(serverPipe):
 
     serverPids.append(int(output))
 
-def ignorePid(serverPipe):
+def ignorePid(pipe):
 
-    output = serverPipe.readline().strip()
-
-    if not output:
-        print "failed!"
-        killServers()
-        sys.exit(1)
-
-def getAdapterReady(serverPipe):
-
-    output = serverPipe.readline().strip()
-    if compress and output.strip() == "warning: bzip2 support not available, Ice.Override.Compress ignored":
-        output = serverPipe.readline()
+    output = pipe.readline().strip()
 
     if not output:
         print "failed!"
         killServers()
         sys.exit(1)
 
-def waitServiceReady(pipe, token):
+def getAdapterReady(pipe, createThread = True):
+    global serverThreads
+
+    output = pipe.readline().strip()
+
+    if not output:
+        print "failed!"
+        killServers()
+        sys.exit(1)
+
+    # Start a thread for this server.
+    if createThread:
+	serverThread = ReaderThread(pipe)
+	serverThread.start()
+	serverThreads.append(serverThread)
+
+def waitServiceReady(pipe, token, createThread = True):
+    global serverThreads
 
     while 1:
         output = pipe.readline().strip()
@@ -132,6 +202,12 @@ def waitServiceReady(pipe, token):
         if output == token + " ready":
             break
 
+    # Start a thread for this server.
+    if createThread:
+	serverThread = ReaderThread(pipe)
+	serverThread.start()
+	serverThreads.append(serverThread)
+
 def printOutputFromPipe(pipe):
 
     while 1:
@@ -139,42 +215,6 @@ def printOutputFromPipe(pipe):
         if c == "":
             break
         os.write(1, c)
-
-def closePipe(pipe):
-
-    try:
-	status = pipe.close()
-    except IOError, ex:
-	# TODO: There's a waitpid problem on CentOS, so we have to ignore ECHILD.
-	if ex.errno == errno.ECHILD:
-	    status = 0
-	else:
-	    raise
-
-    return status
-
-class ReaderThread(Thread):
-    def __init__(self, pipe, token):
-        self.pipe = pipe
-        self.token = token
-        Thread.__init__(self)
-
-    def run(self):
-
-        try:
-            while 1:
-                line = self.pipe.readline()
-                if not line: break
-		# supress object adapter ready messages.
-    	    	if line[len(line)-7:len(line)] != " ready\n":
-		    print self.token + ": " + line,
-        except IOError:
-            pass
-
-	self.status = closePipe(self.pipe)
-
-    def getStatus(self):
-	return self.status
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -308,18 +348,13 @@ def clientServerTestWithOptionsAndNames(mono, name, additionalServerOptions, add
     clientPipe = os.popen(clientCmd)
     print "ok"
 
-    serverThread = ReaderThread(serverPipe, "Server")
-    serverThread.start()
     printOutputFromPipe(clientPipe)
 
     clientStatus = closePipe(clientPipe)
     if clientStatus:
 	killServers()
 
-    serverThread.join()
-    serverStatus = serverThread.getStatus()
-
-    if clientStatus or serverStatus:
+    if clientStatus or serverStatus():
         sys.exit(1)
 
 def clientServerTestWithOptions(mono, name, additionalServerOptions, additionalClientOptions):
@@ -350,21 +385,16 @@ def mixedClientServerTestWithOptions(mono, name, additionalServerOptions, additi
     #print "clientCmd = " + clientCmd
     clientPipe = os.popen(clientCmd)
     ignorePid(clientPipe)
-    getAdapterReady(clientPipe)
+    getAdapterReady(clientPipe, False)
     print "ok"
 
-    serverThread = ReaderThread(serverPipe, "Server")
-    serverThread.start()
     printOutputFromPipe(clientPipe)
 
     clientStatus = closePipe(clientPipe)
     if clientStatus:
 	killServers()
 
-    serverThread.join()
-    serverStatus = serverThread.getStatus()
-
-    if clientStatus or serverStatus:
+    if clientStatus or serverStatus():
         sys.exit(1)
 
 def mixedClientServerTest(mono, name):

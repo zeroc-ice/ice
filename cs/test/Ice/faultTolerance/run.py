@@ -50,7 +50,6 @@ if TestUtil.isCygwin():
 num = 12
 base = 12340
 
-serverPipes = { }
 for i in range(0, num):
     msg = "starting "
     if mono:
@@ -60,9 +59,9 @@ for i in range(0, num):
         msg += ".exe"
     msg += " #%d..." % (i + 1)
     print msg,
-    serverPipes[i] = os.popen(TestUtil.createCmd(mono, server) + TestUtil.serverOptions + " %d" % (base + i))
-    TestUtil.getServerPid(serverPipes[i])
-    TestUtil.getAdapterReady(serverPipes[i])
+    serverPipe = os.popen(TestUtil.createCmd(mono, server) + TestUtil.serverOptions + " %d" % (base + i))
+    TestUtil.getServerPid(serverPipe)
+    TestUtil.getAdapterReady(serverPipe)
     print "ok"
 
 ports = ""
@@ -76,43 +75,17 @@ print "ok"
 TestUtil.printOutputFromPipe(clientPipe)
 
 clientStatus = TestUtil.closePipe(clientPipe)
-serverStatus = None
-
-#
-# With ActiveState Python, the close() call raises an IOError if
-# the server has died (whereas with Cygwin Python, no exception
-# is raised. We swallow IOError here to avoid having the test
-# claim that it failed when in fact it succeeded.
-#
-for i in range(0, num):
-    try:
-	serverStatus = serverStatus or TestUtil.closePipe(serverPipes[i])
-    except IOError, error:
-	pass
 
 if clientStatus:
-    TestUtil.killServers()
     sys.exit(1)
 
+
 #
-# Exit with status 0 even though some servers failed to shutdown
-# properly. There's a problem which is occuring on Linux dual-processor
-# machines, when ssl isn't enabled, and which cause some servers to
-# segfault and abort. It's not clear what the problem is, and it's
-# almost impossible to debug with the very poor information we get
-# from the core file (ulimit -c unlimited to enable core files on
-# Linux).
+# We simuluate the abort of the server by calling Process.Kill(). However, this
+# results in a non-zero exit status. Therefore we ignore the status.
 #
-# For C#, we also have the problem that terminating a server with
-# Process.Kill() is the only way to simulate an abort, but the
-# server then returns non-zero exit status.
-#
-if serverStatus:
-    TestUtil.killServers()
-#    sys.exit(1)
-#    if TestUtil.isWin32():
-#        sys.exit(1)
-#    else:
-#        sys.exit(0)
+#if TestUtil.serverStatus():
+    #sys.exit(1)
+TestUtil.joinServers()
 
 sys.exit(0)
