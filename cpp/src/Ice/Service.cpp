@@ -204,40 +204,46 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initData)
         if(strcmp(argv[idx], "--service") == 0)
         {
 	    //
-	    // When running as a service, we need an event logger in order to report
+	    // When running as a service, we need a logger to use for reporting any
 	    // failures that occur prior to initializing a communicator. After we have
-	    // a communicator, we can use the configured logger instead.
+	    // a communicator, we can use the configured logger instead. If a logger
+	    // is defined in InitializationData, we'll use that. Otherwise, we create
+	    // a temporary event logger.
 	    //
 	    // We postpone the initialization of the communicator until serviceMain so
 	    // that we can incorporate the executable's arguments and the service's
 	    // arguments into one vector.
 	    //
-	    try
+	    _logger = initData.logger;
+	    if(!_logger)
 	    {
-		//
-		// Use the executable name as the source for the temporary logger.
-		//
-		string loggerName = _name;
-		transform(loggerName.begin(), loggerName.end(), loggerName.begin(), ::tolower);
-		string::size_type pos = loggerName.find_last_of("\\/");
-		if(pos != string::npos)
+		try
 		{
-		    loggerName.erase(0, pos + 1); // Remove leading path.
-		}
-		pos = loggerName.rfind(".exe");
-		if(pos != string::npos)
-		{
-		    loggerName.erase(pos, loggerName.size() - pos); // Remove .exe extension.
-		}
+		    //
+		    // Use the executable name as the source for the temporary logger.
+		    //
+		    string loggerName = _name;
+		    transform(loggerName.begin(), loggerName.end(), loggerName.begin(), ::tolower);
+		    string::size_type pos = loggerName.find_last_of("\\/");
+		    if(pos != string::npos)
+		    {
+			loggerName.erase(0, pos + 1); // Remove leading path.
+		    }
+		    pos = loggerName.rfind(".exe");
+		    if(pos != string::npos)
+		    {
+			loggerName.erase(pos, loggerName.size() - pos); // Remove .exe extension.
+		    }
 
-		_logger = new EventLoggerI(loggerName);
-	    }
-	    catch(const IceUtil::Exception& ex)
-	    {
-		ostringstream ostr;
-		ostr << ex;
-		error("unable to create EventLogger:\n" + ostr.str());
-		return EXIT_FAILURE;
+		    _logger = new EventLoggerI(loggerName);
+		}
+		catch(const IceUtil::Exception& ex)
+		{
+		    ostringstream ostr;
+		    ostr << ex;
+		    error("unable to create EventLogger:\n" + ostr.str());
+		    return EXIT_FAILURE;
+		}
 	    }
 
             if(idx + 1 >= argc)
