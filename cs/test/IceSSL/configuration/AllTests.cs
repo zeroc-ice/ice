@@ -695,7 +695,8 @@ public class AllTests
                 Test.Properties d = createServerProps(testDir, defaultHost);
                 d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
                 d["IceSSL.Password"] = "password";
-                d["IceSSL.TrustOnly"] = "C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client";
+                d["IceSSL.TrustOnly"] =
+		    "C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client";
                 store.Add(caCert1);
                 Test.ServerPrx server = fact.createServer(d);
                 try
@@ -911,7 +912,8 @@ public class AllTests
                 Test.Properties d = createServerProps(testDir, defaultHost);
                 d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
                 d["IceSSL.Password"] = "password";
-                d["IceSSL.TrustOnly.Client"] = "C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Server";
+                d["IceSSL.TrustOnly.Client"] =
+		    "C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Server";
                 store.Add(caCert1);
                 Test.ServerPrx server = fact.createServer(d);
                 try
@@ -957,6 +959,7 @@ public class AllTests
                 comm.destroy();
             }
             Console.Out.WriteLine("ok");
+
             Console.Out.Write("testing IceSSL.TrustOnly.Server... ");
             Console.Out.Flush();
             {
@@ -976,7 +979,8 @@ public class AllTests
                 Test.Properties d = createServerProps(testDir, defaultHost);
                 d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
                 d["IceSSL.Password"] = "password";
-                d["IceSSL.TrustOnly.Server"] = "C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client";
+                d["IceSSL.TrustOnly.Server"] =
+		    "C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client";
                 store.Add(caCert1);
                 Test.ServerPrx server = fact.createServer(d);
                 try
@@ -1023,7 +1027,7 @@ public class AllTests
             }
             Console.Out.WriteLine("ok");
 
-            Console.Out.Write("testing IceSSL.TrustOnly.Server.<adapterName>... ");
+            Console.Out.Write("testing IceSSL.TrustOnly.Server.<AdapterName>... ");
             Console.Out.Flush();
             {
                 Ice.InitializationData initData = new Ice.InitializationData();
@@ -1041,7 +1045,8 @@ public class AllTests
                 d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
                 d["IceSSL.Password"] = "password";
                 d["IceSSL.TrustOnly.Server"] = "CN=bogus";
-                d["IceSSL.TrustOnly.Server.ServerAdapter"] = "C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client";
+                d["IceSSL.TrustOnly.Server.ServerAdapter"] =
+		    "C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client";
                 store.Add(caCert1);
                 Test.ServerPrx server = fact.createServer(d);
                 try

@@ -102,7 +102,8 @@ namespace IceSSL
 		    //
 		    if(traceLevel_ > 0)
 		    {
-		        communicator_.getLogger().trace("Security", "trust manager evaluating peer DN:\n" + subjectName);
+		        communicator_.getLogger().trace("Security", "trust manager evaluating peer DN:\n" +
+							subjectName);
 		    }
 		    ArrayList dn = RFC2253.parseStrict(subjectName);
                     
@@ -184,9 +185,9 @@ namespace IceSSL
         parse(string value)
         {
 	    //
-            // As with the java implementation the DN that comes from
-            // the X500DistinguishedName do not necessarily match
-            // the users input form. Therefore we need to normalize the
+            // As with the Java implementation, the DN that comes from
+            // the X500DistinguishedName does not necessarily match
+            // the user's input form. Therefore we need to normalize the
             // data to match the C# forms.
             //
             ArrayList l = RFC2253.parse(value);
@@ -221,5 +222,4 @@ namespace IceSSL
         private ArrayList allServer_;
         private Hashtable server_ = new Hashtable();
     }
-
 }
