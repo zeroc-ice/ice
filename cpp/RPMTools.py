@@ -680,7 +680,7 @@ export PATH=$RPM_BUILD_DIR/Ice-%{version}/bin:$PATH
 export LD_LIBRARY_PATH=$RPM_BUILD_DIR/Ice-%{version}/lib:$LD_LIBRARY_PATH
 gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT
 cd $RPM_BUILD_DIR/php-5.1.4
-./configure --with-ice=shared,$RPM_BUILD_DIR/Ice-%{version} --without-pcre-regex --without-pear
+./configure --with-ice=shared,$RPM_BUILD_DIR/Ice-%{version}
 sed -i -e 's/^EXTRA_CXXFLAGS.*$/EXTRA_CXXFLAGS = -DCOMPILE_DL_ICE/' $RPM_BUILD_DIR/php-5.1.4/Makefile
 gmake
 """)

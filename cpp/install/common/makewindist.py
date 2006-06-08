@@ -206,7 +206,7 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
     prependEnvPath('LIB', os.path.join(iceHome, "lib"))
     prependEnvPath('INCLUDE', os.path.join(iceHome, "include"))
 
-    if installVersion == "vc80":
+    if installVersion in ["vc80", "vc71"]:
 	#
 	# Ice for C++ 
 	#
@@ -229,7 +229,19 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 	#
 	os.chdir(os.path.join(sourcesDir, "IceCS-" + sourcesVersion))
 	print "Building in " + os.getcwd() + "..."
+	if installVersion == "vc71":
+	    runprog("devenv all_11.sln /useenv /build Debug")
+	else:
+	    runprog("devenv all.sln /useenv /build Debug")
+
+	#
+	# Ice for Visual Basic
+	#
+	os.chdir(os.path.join(sourcesDir, "IceVB-" + sourcesVersion))
+	print "Building in " + os.getcwd() + "..."
 	runprog("devenv all.sln /useenv /build Debug")
+
+    if installVersion == "vc80":
 
 	#
 	# Ice for PHP
@@ -264,13 +276,6 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 	os.chdir(os.path.join(sourcesDir, "IcePy-" + sourcesVersion))
 	print "Building in " + os.getcwd() + "..."
 	runprog("devenv all.sln /useenv /build Release")
-
-	#
-	# Ice for Visual Basic
-	#
-	os.chdir(os.path.join(sourcesDir, "IceVB-" + sourcesVersion))
-	print "Building in " + os.getcwd() + "..."
-	runprog("devenv all.sln /useenv /build Debug")
     elif installVersion == "vc60":
 	#
 	# Ice for C++ 
@@ -279,7 +284,7 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 	print "Building in " + os.getcwd() + "..."
 	runprog('msdev all.dsw /useenv /make "all - Win32 Debug"')
 	runprog('msdev all.dsw /useenv /make "all - Win32 Release"')
-    elif installVersion in ["vc71", "vc80_x64"]:
+    elif installVersion in ["vc80_x64"]:
 	#
 	# Ice for C++ 
 	#
