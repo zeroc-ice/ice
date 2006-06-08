@@ -244,23 +244,10 @@ Ice::PropertiesI::PropertiesI()
 
 Ice::PropertiesI::PropertiesI(StringSeq& args, const PropertiesPtr& defaults)
 {
-    //
-    // Since there is no way to iterate over all Properties, we
-    // assume that defaults (when not null) points to a PropertiesI
-    //
     if(defaults != 0)
     {
-	PropertiesI* defaultsI = dynamic_cast<PropertiesI*>(defaults.get());
-	if(defaultsI == 0)
-	{
-	    throw InitializationException(__FILE__, __LINE__,
-					  "Invalid Properties implementation");
-	}
-	
-	IceUtil::Mutex::Lock sync(*defaultsI);
-	_properties = defaultsI->_properties;
+	_properties = defaults->getPropertiesForPrefix("");
     }
-
 
     StringSeq::iterator q = args.begin();
     if(q != args.end())
