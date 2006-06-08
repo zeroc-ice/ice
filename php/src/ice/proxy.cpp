@@ -71,11 +71,7 @@ extern "C"
 static zend_object_value handleProxyAlloc(zend_class_entry* TSRMLS_DC);
 static void handleProxyFreeStorage(void* TSRMLS_DC);
 static zend_object_value handleProxyClone(zval* TSRMLS_DC);
-#if PHP_API_VERSION >= 20041225
 static union _zend_function* handleProxyGetMethod(zval**, char*, int TSRMLS_DC);
-#else
-static union _zend_function* handleProxyGetMethod(zval*, char*, int TSRMLS_DC);
-#endif
 static int handleProxyCompare(zval*, zval* TSRMLS_DC);
 ZEND_FUNCTION(Ice_ObjectPrx_call);
 
@@ -1876,7 +1872,6 @@ IcePHP::Operation::Operation(const Ice::ObjectPrx& proxy, const string& name, co
         argInfo[i].name = NULL;
         argInfo[i].class_name = NULL;
         argInfo[i].allow_null = 1;
-#if PHP_API_VERSION >= 20041225
 	Slice::ContainedPtr cont = Slice::ContainedPtr::dynamicCast(paramType);
 	if(cont)
 	{
@@ -1889,7 +1884,6 @@ IcePHP::Operation::Operation(const Ice::ObjectPrx& proxy, const string& name, co
 	}
         argInfo[i].return_reference = 0;
         argInfo[i].required_num_args = static_cast<zend_uint>(params.size());
-#endif
         if((*p)->isOutParam())
         {
             argInfo[i].pass_by_reference = 1;
@@ -1911,10 +1905,8 @@ IcePHP::Operation::Operation(const Ice::ObjectPrx& proxy, const string& name, co
     _zendFunction->num_args = static_cast<zend_uint>(params.size());
     _zendFunction->arg_info = argInfo;
     _zendFunction->pass_rest_by_reference = 0;
-#if PHP_API_VERSION >= 20041225
     _zendFunction->required_num_args = _zendFunction->num_args;
     _zendFunction->return_reference = 0;
-#endif
     _zendFunction->handler = ZEND_FN(Ice_ObjectPrx_call);
 }
 
@@ -2302,13 +2294,8 @@ handleProxyClone(zval* zv TSRMLS_DC)
 #ifdef WIN32
 extern "C"
 #endif
-#if PHP_API_VERSION >= 20041225
 static union _zend_function*
 handleProxyGetMethod(zval** zv, char* method, int len TSRMLS_DC)
-#else
-static union _zend_function*
-handleProxyGetMethod(zval* zv, char* method, int len TSRMLS_DC)
-#endif
 {
     zend_function* result;
 
@@ -2320,11 +2307,7 @@ handleProxyGetMethod(zval* zv, char* method, int len TSRMLS_DC)
     result = zend_get_std_object_handlers()->get_method(zv, method, len TSRMLS_CC);
     if(result == NULL)
     {
-#if PHP_API_VERSION >= 20041225
         ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(*zv TSRMLS_CC));
-#else
-        ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(zv TSRMLS_CC));
-#endif
         assert(obj->ptr);
         Proxy* _this = static_cast<Proxy*>(obj->ptr);
 

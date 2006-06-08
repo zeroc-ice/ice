@@ -37,11 +37,7 @@ static zend_object_value handleAlloc(zend_class_entry* TSRMLS_DC);
 static zend_object_value handleClone(zval* TSRMLS_DC);
 static void handleFreeStorage(void* TSRMLS_DC);
 
-#if PHP_API_VERSION >= 20041225
 static union _zend_function* handleGetMethod(zval**, char*, int TSRMLS_DC);
-#else
-static union _zend_function* handleGetMethod(zval*, char*, int TSRMLS_DC);
-#endif
 }
 
 static void initCommunicator(ice_object* TSRMLS_DC);
@@ -607,13 +603,8 @@ handleFreeStorage(void* p TSRMLS_DC)
 #ifdef WIN32
 extern "C"
 #endif
-#if PHP_API_VERSION >= 20041225
 static union _zend_function*
 handleGetMethod(zval** zv, char* method, int len TSRMLS_DC)
-#else
-static union _zend_function*
-handleGetMethod(zval* zv, char* method, int len TSRMLS_DC)
-#endif
 {
     //
     // Delegate to the standard implementation of get_method. We're simply using this hook
@@ -622,11 +613,7 @@ handleGetMethod(zval* zv, char* method, int len TSRMLS_DC)
     zend_function* result = zend_get_std_object_handlers()->get_method(zv, method, len TSRMLS_CC);
     if(result)
     {
-#if PHP_API_VERSION >= 20041225
         ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(*zv TSRMLS_CC));
-#else
-        ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(zv TSRMLS_CC));
-#endif
         if(!obj->ptr)
         {
 	    if(ICE_G(profile) == NULL)
