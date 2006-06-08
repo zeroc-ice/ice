@@ -43,7 +43,6 @@ book/simple_filesystem/README
 book/simple_filesystem/Server.cs
 book/simple_filesystem/simpleFSCD_11.csproj
 book/simple_filesystem/simpleFSSD_11.csproj
-demo.sln
 demo_11.sln
 Glacier2/callback/Callback.ice
 Glacier2/callback/CallbackI.cs
