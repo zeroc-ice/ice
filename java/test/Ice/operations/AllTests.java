@@ -19,7 +19,7 @@ public class AllTests
     }
 
     public static Test.MyClassPrx
-    allTests(Ice.Communicator communicator, boolean collocated)
+    allTests(Ice.Communicator communicator, Ice.InitializationData initData, boolean collocated)
     {
         System.out.print("testing stringToProxy... ");
         System.out.flush();
@@ -97,8 +97,8 @@ public class AllTests
 
         System.out.print("testing twoway operations... ");
         System.out.flush();
-        Twoways.twoways(communicator, cl);
-        Twoways.twoways(communicator, derived);
+        Twoways.twoways(communicator, initData, cl);
+        Twoways.twoways(communicator, initData, derived);
         derived.opDerived();
         System.out.println("ok");
 
@@ -106,8 +106,8 @@ public class AllTests
 	{
 	    System.out.print("testing twoway operations with AMI... ");
 	    System.out.flush();
-	    TwowaysAMI.twowaysAMI(communicator, cl);
-	    TwowaysAMI.twowaysAMI(communicator, derived);
+	    TwowaysAMI.twowaysAMI(communicator, initData, cl);
+	    TwowaysAMI.twowaysAMI(communicator, initData, derived);
 	    System.out.println("ok");
 
 	    System.out.print("testing batch oneway operations... ");

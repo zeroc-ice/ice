@@ -81,14 +81,15 @@ public class Client
         try
         {
 	    Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-	    Ice.Properties properties = Ice.Util.getDefaultProperties(argsH);
+	    Ice.InitializationData initData = new Ice.InitializationData();
+	    initData.properties = Ice.Util.createProperties(argsH);
 
 	    //
 	    // This test aborts servers, so we don't want warnings.
 	    //
-	    properties.setProperty("Ice.Warn.Connections", "0");
+	   initData. properties.setProperty("Ice.Warn.Connections", "0");
 
-            communicator = Ice.Util.initialize(argsH);
+	   communicator = Ice.Util.initialize(argsH, initData);
             status = run(argsH.value, communicator);
         }
         catch(Ice.LocalException ex)

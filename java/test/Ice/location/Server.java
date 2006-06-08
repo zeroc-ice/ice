@@ -10,7 +10,7 @@
 public class Server
 {
     private static int
-    run(String[] args, Ice.Communicator communicator)
+    run(String[] args, Ice.Communicator communicator, Ice.InitializationData initData)
     {
 	//
 	// Register the server manager. The server manager creates a new
@@ -30,7 +30,7 @@ public class Server
 	//
 	ServerLocatorRegistry registry = new ServerLocatorRegistry();
 	registry.addObject(adapter.createProxy(communicator.stringToIdentity("ServerManager")));
-	Ice.Object object = new ServerManagerI(adapter, registry);
+	Ice.Object object = new ServerManagerI(adapter, registry, initData);
 	adapter.add(object, communicator.stringToIdentity("ServerManager"));
 
 	Ice.LocatorRegistryPrx registryPrx = 
@@ -53,8 +53,11 @@ public class Server
 
         try
         {
-            communicator = Ice.Util.initialize(args);
-            status = run(args, communicator);
+	    Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
+	    Ice.InitializationData initData = new Ice.InitializationData();
+	    initData.properties = Ice.Util.createProperties(argsH);
+            communicator = Ice.Util.initialize(argsH, initData);
+            status = run(argsH.value, communicator, initData);
         }
         catch(Ice.LocalException ex)
         {

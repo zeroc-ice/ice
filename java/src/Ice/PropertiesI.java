@@ -236,11 +236,17 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
 
     PropertiesI()
     {
-        loadConfig();
     }
 
-    PropertiesI(StringSeqHolder args)
+    PropertiesI(StringSeqHolder args, Properties defaults)
     {
+	if(defaults != null)
+	{
+	    _properties.putAll(defaults.getPropertiesForPrefix(""));
+	}
+	
+	boolean loadConfigFiles = false;
+
         for(int i = 0; i < args.value.length; i++)
         {
             if(args.value[i].startsWith("--Ice.Config"))
@@ -251,6 +257,8 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
                     line += "=1";
                 }
                 parseLine(line.substring(2));
+		loadConfigFiles = true;
+
                 String[] arr = new String[args.value.length - 1];
                 System.arraycopy(args.value, 0, arr, 0, i);
                 if(i < args.value.length - 1)
@@ -261,7 +269,10 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
             }
         }
 
-        loadConfig();
+	if(loadConfigFiles)
+	{
+	    loadConfig();
+	}
 
 	args.value = parseIceCommandLineOptions(args.value);
     }

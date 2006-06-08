@@ -26,24 +26,25 @@ public class Client
 	try
 	{
 	    Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-	    Ice.Properties properties = Ice.Util.getDefaultProperties(argsH);
+	    Ice.InitializationData initData = new Ice.InitializationData();
+	    initData.properties = Ice.Util.createProperties(argsH);
 
 	    //
 	    // For this test, we want to disable retries.
 	    //
-	    properties.setProperty("Ice.RetryIntervals", "-1");
+	    initData.properties.setProperty("Ice.RetryIntervals", "-1");
 
 	    //
 	    // This test kills connections, so we don't want warnings.
 	    //
-	    properties.setProperty("Ice.Warn.Connections", "0");
+	    initData.properties.setProperty("Ice.Warn.Connections", "0");
 
 	    //
 	    // Check for AMI timeouts every second.
 	    //
-	    properties.setProperty("Ice.MonitorConnections", "1");
+	    initData.properties.setProperty("Ice.MonitorConnections", "1");
 
-	    communicator = Ice.Util.initialize(argsH);
+	    communicator = Ice.Util.initialize(argsH, initData);
 	    status = run(argsH.value, communicator, System.out);
 	}
 	catch(Ice.LocalException ex)

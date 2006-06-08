@@ -11,17 +11,23 @@ import Test.*;
 
 public class ServerManagerI extends _ServerManagerDisp
 {
-    ServerManagerI(Ice.ObjectAdapter adapter, ServerLocatorRegistry registry)
+    ServerManagerI(Ice.ObjectAdapter adapter, ServerLocatorRegistry registry, Ice.InitializationData initData)
     {
 	_adapter = adapter;
 	_registry = registry;
 	_communicators = new java.util.ArrayList();
+	_initData = initData;
+
+	_initData.properties.setProperty("TestAdapter.Endpoints", "default");
+	_initData.properties.setProperty("TestAdapter.AdapterId", "TestAdapter");
+	_initData.properties.setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
+	_initData.properties.setProperty("TestAdapter2.Endpoints", "default");
+	_initData.properties.setProperty("TestAdapter2.AdapterId", "TestAdapter2");
     }
 
     public void
     startServer(Ice.Current current)
     {
-	String[] argv = new String[0];
         java.util.Iterator i = _communicators.iterator();
 	while(i.hasNext())
 	{
@@ -39,15 +45,11 @@ public class ServerManagerI extends _ServerManagerDisp
 	// its endpoints with the locator and create references containing
 	// the adapter id instead of the endpoints.
 	//
-	Ice.Communicator serverCommunicator = Ice.Util.initialize(argv);
+	Ice.Communicator serverCommunicator = Ice.Util.initialize(_initData);
 	_communicators.add(serverCommunicator);
-	serverCommunicator.getProperties().setProperty("TestAdapter.Endpoints", "default");
-	serverCommunicator.getProperties().setProperty("TestAdapter.AdapterId", "TestAdapter");
-	serverCommunicator.getProperties().setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
+
 	Ice.ObjectAdapter adapter = serverCommunicator.createObjectAdapter("TestAdapter");
 
-	serverCommunicator.getProperties().setProperty("TestAdapter2.Endpoints", "default");
-	serverCommunicator.getProperties().setProperty("TestAdapter2.AdapterId", "TestAdapter2");
 	Ice.ObjectAdapter adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2");
 
 	Ice.ObjectPrx locator = serverCommunicator.stringToProxy("locator:default -p 12010 -t 30000");
@@ -76,4 +78,5 @@ public class ServerManagerI extends _ServerManagerDisp
     private Ice.ObjectAdapter _adapter;
     private ServerLocatorRegistry _registry;
     private java.util.ArrayList _communicators;
+    private Ice.InitializationData _initData;
 }

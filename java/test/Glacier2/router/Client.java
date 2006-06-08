@@ -19,11 +19,12 @@ public class Client
 	// ConnectionLostException.
 	//
 	Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-	Ice.Properties properties = Ice.Util.getDefaultProperties(argsH);
-	properties.setProperty("Ice.Warn.Connections", "0");
+	Ice.InitializationData initData = new Ice.InitializationData();
+	initData.properties = Ice.Util.createProperties(argsH);
+	initData.properties.setProperty("Ice.Warn.Connections", "0");
 
         CallbackClient app = new CallbackClient();
-        int status = app.main("Client", argsH.value);
+        int status = app.main("Client", argsH.value, initData);
 	System.gc();
         System.exit(status);
     }

@@ -32,10 +32,12 @@ public class Server
         try
         {
 	    Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-	    Ice.Properties properties = Ice.Util.getDefaultProperties(argsH);
-	    properties.setProperty("Ice.Warn.Connections", "0");
+	    Ice.InitializationData initData = new Ice.InitializationData();
+	    initData.properties = Ice.Util.createProperties(argsH);
 
-            communicator = Ice.Util.initialize(argsH);
+	    initData.properties.setProperty("Ice.Warn.Connections", "0");
+
+            communicator = Ice.Util.initialize(argsH, initData);
             status = run(args, communicator);
         }
         catch(Ice.LocalException ex)

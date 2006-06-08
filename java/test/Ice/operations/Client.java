@@ -10,9 +10,9 @@
 public class Client
 {
     private static int
-    run(String[] args, Ice.Communicator communicator)
+    run(String[] args, Ice.Communicator communicator, Ice.InitializationData initData)
     {
-        Test.MyClassPrx myClass = AllTests.allTests(communicator, false);
+        Test.MyClassPrx myClass = AllTests.allTests(communicator, initData, false);
 
         System.out.print("testing server shutdown... ");
         System.out.flush();
@@ -43,24 +43,25 @@ public class Client
 	    // client side thread pool for nested AMI.
 	    //
 	    Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-	    Ice.Properties properties = Ice.Util.getDefaultProperties(argsH);
-	    properties.setProperty("Ice.ThreadPool.Client.Size", "2");
-	    properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
+	    Ice.InitializationData initData = new Ice.InitializationData();
+	    initData.properties = Ice.Util.createProperties(argsH);
+	    initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2");
+	    initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
 
 	    //
 	    // We must set MessageSizeMax to an explicit values,
 	    // because we run tests to check whether
 	    // Ice.MemoryLimitException is raised as expected.
 	    //
-	    properties.setProperty("Ice.MessageSizeMax", "100");
+	    initData.properties.setProperty("Ice.MessageSizeMax", "100");
 
 	    //
 	    // We don't want connection warnings because of the timeout test.
 	    //
-	    properties.setProperty("Ice.Warn.Connections", "0");
+	    initData.properties.setProperty("Ice.Warn.Connections", "0");
 	    
-            communicator = Ice.Util.initialize(argsH);
-            status = run(argsH.value, communicator);
+            communicator = Ice.Util.initialize(argsH, initData);
+            status = run(argsH.value, communicator, initData);
         }
         catch(Ice.LocalException ex)
         {
