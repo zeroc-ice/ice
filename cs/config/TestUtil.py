@@ -338,13 +338,17 @@ def mixedClientServerTestWithOptions(mono, name, additionalServerOptions, additi
     client = os.path.join(testdir, "client")
 
     print createMsg(mono, "server"),
-    serverPipe = os.popen(createCmd(mono, server) + clientServerOptions + " " + additionalServerOptions) + " 2>&1"
+    serverCmd = createCmd(mono, server) + clientServerOptions + " " + additionalServerOptions + " 2>&1"
+    #print "serverCmd = " + serverCmd
+    serverPipe = os.popen(serverCmd)
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
     print createMsg(mono, "client"),
-    clientPipe = os.popen(createCmd(mono, client) + clientServerOptions + " " + additionalClientOptions) + " 2>&1"
+    clientCmd = createCmd(mono, client) + clientServerOptions + " " + additionalClientOptions + " 2>&1"
+    #print "clientCmd = " + clientCmd
+    clientPipe = os.popen(clientCmd)
     ignorePid(clientPipe)
     getAdapterReady(clientPipe)
     print "ok"
