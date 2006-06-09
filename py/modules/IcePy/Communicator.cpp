@@ -10,6 +10,7 @@
 #ifdef _WIN32
 #   include <IceUtil/Config.h>
 #endif
+#include <IceUtil/DisableWarnings.h>
 #include <Communicator.h>
 #include <Logger.h>
 #include <ObjectAdapter.h>

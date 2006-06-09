@@ -11,6 +11,7 @@
 #   include <IceUtil/Config.h>
 #endif
 #include <Util.h>
+#include <IceUtil/DisableWarnings.h>
 #include <Ice/IdentityUtil.h>
 #include <Ice/LocalException.h>
 #include <IceUtil/UUID.h>
