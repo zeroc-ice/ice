@@ -458,8 +458,8 @@ class PropertiesI(Properties):
 #
 # Ice.createProperties()
 #
-def createProperties(args=[]):
-    properties = IcePy.createProperties(args)
+def createProperties(args=[], defaults=None):
+    properties = IcePy.createProperties(args, defaults)
     return PropertiesI(properties)
 
 

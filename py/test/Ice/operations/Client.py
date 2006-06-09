@@ -58,6 +58,7 @@ try:
     #
     initData = Ice.InitializationData()
     initData.properties = Ice.createProperties(sys.argv)
+    initData.properties = Ice.createProperties(sys.argv, initData.properties)
     initData.properties.setProperty('Ice.ThreadPool.Client.Size', '2')
     initData.properties.setProperty('Ice.ThreadPool.Client.SizeWarn', '0')
 
