@@ -686,6 +686,37 @@ public class AllTests
                 initData.properties.setProperty("Ice.InitPlugins", "0");
                 initData.properties.setProperty("IceSSL.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
                 initData.properties.setProperty("IceSSL.Password", "password");
+                initData.properties.setProperty("IceSSL.TrustOnly",
+                    "C=US, ST=Florida, O=\"ZeroC, Inc.\",OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.PluginManager pm = comm.getPluginManager();
+                pm.initializePlugins();
+                Ice.ObjectPrx obj = comm.stringToProxy(factoryRef);
+                test(obj != null);
+                Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(obj);
+                Test.Properties d = createServerProps(testDir, defaultHost);
+                d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
+                d["IceSSL.Password"] = "password";
+                store.Add(caCert1);
+                Test.ServerPrx server = fact.createServer(d);
+                try
+                {
+                    server.ice_ping();
+                }
+                catch (Ice.LocalException)
+                {
+                    test(false);
+                }
+                fact.destroyServer(server);
+                store.Remove(caCert1);
+                comm.destroy();
+            }
+            {
+                Ice.InitializationData initData = new Ice.InitializationData();
+                initData.properties = createClientProps(testDir, defaultHost);
+                initData.properties.setProperty("Ice.InitPlugins", "0");
+                initData.properties.setProperty("IceSSL.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
+                initData.properties.setProperty("IceSSL.Password", "password");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
                 Ice.PluginManager pm = comm.getPluginManager();
                 pm.initializePlugins();
