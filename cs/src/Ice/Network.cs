@@ -738,6 +738,13 @@ namespace IceInternal
 #if ICE_DOTNET_1X
 		IPHostEntry e = Dns.GetHostByName(host);
 #else
+                try
+                {
+                    return new IPEndPoint(IPAddress.Parse(host), port);
+                }
+                catch (FormatException)
+                {
+                }
 		IPHostEntry e = Dns.GetHostEntry(host);
 #endif
 		Debug.Assert(e.AddressList.Length != 0);
@@ -844,7 +851,6 @@ namespace IceInternal
 	    {
 		sink = createSocket(false);
 		Socket listener = createSocket(false);
-
 
 		doBind(listener, new IPEndPoint(IPAddress.Parse("127.0.0.1"), 0));
 		doListen(listener, 1);

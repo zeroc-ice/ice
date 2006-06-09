@@ -12,17 +12,22 @@ using Test;
 
 public class ServerManagerI : ServerManagerDisp_
 {
-    internal ServerManagerI(Ice.ObjectAdapter adapter, ServerLocatorRegistry registry)
+    internal ServerManagerI(Ice.ObjectAdapter adapter, ServerLocatorRegistry registry,
+        Ice.InitializationData initData)
     {
         _adapter = adapter;
 	_registry = registry;
 	_communicators = new ArrayList();
+        _initData = initData;
+        _initData.properties.setProperty("TestAdapter.Endpoints", "default");
+        _initData.properties.setProperty("TestAdapter.AdapterId", "TestAdapter");
+        _initData.properties.setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
+        _initData.properties.setProperty("TestAdapter2.Endpoints", "default");
+        _initData.properties.setProperty("TestAdapter2.AdapterId", "TestAdapter2");
     }
     
     public override void startServer(Ice.Current current)
     {
-        string[] argv = new string[0];
-        
 	foreach(Ice.Communicator c in _communicators)
 	{
 	    c.waitForShutdown();
@@ -38,15 +43,10 @@ public class ServerManagerI : ServerManagerDisp_
         // its endpoints with the locator and create references containing
         // the adapter id instead of the endpoints.
         //
-        Ice.Communicator serverCommunicator = Ice.Util.initialize(ref argv);
+        Ice.Communicator serverCommunicator = Ice.Util.initialize(_initData);
 	_communicators.Add(serverCommunicator);
-        serverCommunicator.getProperties().setProperty("TestAdapter.Endpoints", "default");
-        serverCommunicator.getProperties().setProperty("TestAdapter.AdapterId", "TestAdapter");
-        serverCommunicator.getProperties().setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
-        Ice.ObjectAdapter adapter = serverCommunicator.createObjectAdapter("TestAdapter");
 
-        serverCommunicator.getProperties().setProperty("TestAdapter2.Endpoints", "default");
-        serverCommunicator.getProperties().setProperty("TestAdapter2.AdapterId", "TestAdapter2");
+        Ice.ObjectAdapter adapter = serverCommunicator.createObjectAdapter("TestAdapter");
         Ice.ObjectAdapter adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2");
         
         Ice.ObjectPrx locator = serverCommunicator.stringToProxy("locator:default -p 12010 -t 30000");
@@ -74,4 +74,5 @@ public class ServerManagerI : ServerManagerDisp_
     private Ice.ObjectAdapter _adapter;
     private ServerLocatorRegistry _registry;
     private ArrayList _communicators;
+    private Ice.InitializationData _initData;
 }
