@@ -85,9 +85,19 @@ public final class Util
     public static Communicator
     initialize(InitializationData initData)
     {
-	return initialize(new String[0], initData);
-    }
+	if(initData == null)
+	{
+	    initData = new InitializationData();
+	}
+	else
+	{
+	    initData = (InitializationData)initData.clone();
+	}
 
+	CommunicatorI result = new CommunicatorI(initData);
+        result.finishSetup(new StringSeqHolder(new String[0]));
+        return result;
+    }
 
     /**
      * @deprecated This method has been deprecated, use initialize instead.
