@@ -102,6 +102,11 @@ namespace IceSSL
 	public static string
 	unescape(string data)
 	{
+	    if(data.Length == 0)
+	    {
+		return data;
+	    }
+
 	    if(data[0] == '"')
 	    {
 		if(data[data.Length - 1] != '"')
@@ -144,18 +149,15 @@ namespace IceSSL
 			{
 			    throw new ParseException("unescape: invalid escape sequence");
 			}
-			if(pos < data.Length)
+			if(special.IndexOf(data[pos]) != -1 || data[pos] != '\\' || data[pos] != '"')
 			{
-			    if(special.IndexOf(data[pos]) != -1 || data[pos] != '\\' || data[pos] != '"')
-			    {
-				result += data[pos];
-				++pos;
+			    result += data[pos];
+			    ++pos;
 			    }
-			    else
-			    {
-				result += unescapeHex(data, pos);
-				pos += 2;
-			    }
+			else
+			{
+			    result += unescapeHex(data, pos);
+			    pos += 2;
 			}
 		    }
 		}
@@ -164,28 +166,32 @@ namespace IceSSL
 	}
 	
 	private static int
-	hexToI(char v)
+	hexToInt(char v)
 	{
 	    if(v >= '0' && v <= '9')
 	    {
-		return '9' - v;
+		return v - '0';
 	    }
 	    if(v >= 'a' && v <= 'f')
 	    {
-		return 10 + 'f' - v;
+		return 10 + (v - 'a');
 	    }
-	    return 10 + 'F' - v;
+	    if(v >= 'A' && v <= 'F')
+	    {
+		return 10 + (v - 'A');
+	    }
+	    throw new ParseException("unescape: invalid hex pair");
 	}
 	
 	private static char
 	unescapeHex(string data, int pos)
 	{
 	    Debug.Assert(pos < data.Length);
-	    if(pos + 2 >= data.Length || hexvalid.IndexOf(data[pos]) == -1 || hexvalid.IndexOf(data[pos + 1]) == -1)
+	    if(pos + 2 >= data.Length)
 	    {
 		throw new ParseException("unescape: invalid hex pair");
 	    }
-	    return (char)(hexToI(data[pos]) * 16 + hexToI(data[pos + 1]));
+	    return (char)(hexToInt(data[pos]) * 16 + hexToInt(data[pos + 1]));
 	}
 
 	private static RDNPair

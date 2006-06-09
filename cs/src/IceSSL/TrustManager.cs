@@ -105,10 +105,12 @@ namespace IceSSL
 		        communicator_.getLogger().trace("Security", "trust manager evaluating peer DN:\n" +
 							subjectName);
 		    }
+
 		    ArrayList dn = RFC2253.parseStrict(subjectName);
                     
                     //
-                    // Unescape the DN. Note that this isn't done in the parser in order to keep the various RFC2253
+                    // Unescape the DN. Note that this isn't done in
+                    // the parser in order to keep the various RFC2253
                     // implementations as close as possible.
                     //
                     for (int i = 0; i < dn.Count; ++i)
