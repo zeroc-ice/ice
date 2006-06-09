@@ -362,9 +362,9 @@ public class AllTests
 	    string[] args = new string[0];
 	    Ice.InitializationData initData = new Ice.InitializationData();
 	    initData.properties = communicator.getProperties().ice_clone_();
-	    initData.properties.setProperty("Ice.Override.ConnectTimeout", "500");
+	    initData.properties.setProperty("Ice.Override.ConnectTimeout", "750");
 	    Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
-	    timeout.holdAdapter(750);
+	    timeout.holdAdapter(1000);
 	    Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(comm.stringToProxy(sref));
 	    try
 	    {
@@ -379,8 +379,8 @@ public class AllTests
 	    // Calling ice_timeout() should have no effect on the connect timeout.
 	    //
 	    timeout.op(); // Ensure adapter is active.
-	    timeout.holdAdapter(750);
-	    to = Test.TimeoutPrxHelper.uncheckedCast(to.ice_timeout(1000));
+	    timeout.holdAdapter(1000);
+	    to = Test.TimeoutPrxHelper.uncheckedCast(to.ice_timeout(1250));
 	    try
 	    {
 		to.op();
