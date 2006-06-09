@@ -11,6 +11,7 @@
               activation="${activation}" activation-timeout="4" deactivation-timeout="3">
         <adapter name="TestAdapter" endpoints="default" register-process="true">
 	  <object identity="${server}" type="Test"/>
+	  <allocatable identity="${server}" type="Test"/>
 	</adapter>
         <property name="ActivationDelay" value="${activation-delay}"/>
         <property name="DeactivationDelay" value="${deactivation-delay}"/>

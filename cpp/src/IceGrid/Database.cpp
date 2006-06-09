@@ -120,8 +120,9 @@ Database::Database(const Ice::ObjectAdapterPtr& adapter,
     _instanceName(instanceName),
     _traceLevels(traceLevels), 
     _nodeCache(_communicator, nodeSessionTimeout),
-    _objectCache(_communicator, _adapterCache),
-    _serverCache(_communicator, _nodeCache, _adapterCache, _objectCache),
+    _objectCache(_communicator),
+    _allocatableObjectCache(_communicator),
+    _serverCache(_communicator, _nodeCache, _adapterCache, _objectCache, _allocatableObjectCache),
     _connection(Freeze::createConnection(adapter->getCommunicator(), envName)),
     _descriptors(_connection, _descriptorDbName),
     _objects(_connection, _objectDbName),
@@ -150,6 +151,7 @@ Database::Database(const Ice::ObjectAdapterPtr& adapter,
     _nodeCache.setTraceLevels(_traceLevels);
     _adapterCache.setTraceLevels(_traceLevels);
     _objectCache.setTraceLevels(_traceLevels);
+    _allocatableObjectCache.setTraceLevels(_traceLevels);
 
     //
     // Register a default servant to manage manually registered object adapters.
@@ -1019,19 +1021,19 @@ Database::updateObject(const Ice::ObjectPrx& proxy)
 void
 Database::allocateObject(const Ice::Identity& id, const ObjectAllocationRequestPtr& request)
 {
-    _objectCache.get(id)->allocate(request);
+    _allocatableObjectCache.get(id)->allocate(request);
 }
 
 void
 Database::allocateObjectByType(const string& type, const ObjectAllocationRequestPtr& request)
 {
-    _objectCache.allocateByType(type, request);
+    _allocatableObjectCache.allocateByType(type, request);
 }
 
 void
 Database::releaseObject(const Ice::Identity& id, const SessionIPtr& session)
 {
-    _objectCache.get(id)->release(session);
+    _allocatableObjectCache.get(id)->release(session);
 }
 
 Ice::ObjectPrx
@@ -1228,7 +1230,9 @@ Database::checkAdapterForAddition(const string& id)
 void
 Database::checkObjectForAddition(const Ice::Identity& objectId)
 {
-    if(_objectCache.has(objectId) || _objects.find(objectId) != _objects.end())
+    if(_objectCache.has(objectId) 
+       || _allocatableObjectCache.has(objectId) 
+       || _objects.find(objectId) != _objects.end())
     {
 	DeploymentException ex;
 	ex.reason = "object `" + _communicator->identityToString(objectId) + "' is already registered"; 
@@ -1256,7 +1260,7 @@ Database::load(const ApplicationHelper& app, ServerEntrySeq& entries)
 	    ObjectInfo info;
 	    info.type = o->type;
 	    info.proxy = _communicator->stringToProxy(_communicator->identityToString(o->id) + "@" + r->id);
-	    _objectCache.add(info, application, false, 0); // Not allocatable
+	    _objectCache.add(info, application);
 	}
     }
 
@@ -1394,7 +1398,7 @@ Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newAp
 	    ObjectInfo info;
 	    info.type = o->type;
 	    info.proxy = _communicator->stringToProxy(_communicator->identityToString(o->id) + "@" + r->id);
-	    _objectCache.add(info, application, false, 0); // Not allocatable
+	    _objectCache.add(info, application);
 	}
     }
 

@@ -618,6 +618,15 @@ CommunicatorDescriptorBuilder::addObject(const XmlAttributesHelper& attrs)
 }
 
 void
+CommunicatorDescriptorBuilder::addAllocatable(const XmlAttributesHelper& attrs)
+{
+    ObjectDescriptor object;
+    object.type = attrs("type", "");
+    object.id = _communicator->stringToIdentity(attrs("identity"));
+    _descriptor->adapters.back().allocatables.push_back(object);
+}
+
+void
 CommunicatorDescriptorBuilder::addDbEnv(const XmlAttributesHelper& attrs)
 {
     DbEnvDescriptor desc;

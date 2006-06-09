@@ -388,7 +388,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	catch(const AllocationException&)
 	{
+	    test(false);
 	}
+	catch(const ObjectNotRegisteredException&)
+	{
+	}
+
 	try
 	{
 	    session2->allocateObjectById(communicator->stringToIdentity("nonallocatable"));
@@ -396,7 +401,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	catch(const AllocationException&)
 	{
+	    test(false);
 	}
+	catch(const ObjectNotRegisteredException&)
+	{
+	}
+
 	try
 	{
 	    session1->releaseObject(communicator->stringToIdentity("nonallocatable"));
@@ -404,13 +414,22 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	catch(const AllocationException&)
 	{
+	    test(false);
 	}
+	catch(const ObjectNotRegisteredException&)
+	{
+	}
+
 	try
 	{
 	    session2->releaseObject(communicator->stringToIdentity("nonallocatable"));
 	    test(false);
 	}
 	catch(const AllocationException&)
+	{
+	    test(false);
+	}
+	catch(const ObjectNotRegisteredException&)
 	{
 	}
 

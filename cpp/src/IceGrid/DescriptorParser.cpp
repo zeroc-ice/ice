@@ -72,6 +72,7 @@ private:
 
     bool _isTopLevel;
     bool _inAdapter;
+    bool _inReplicaGroup;
     bool _inDbEnv;
     bool _inDistrib;
 };
@@ -85,6 +86,7 @@ DescriptorHandler::DescriptorHandler(const string& filename, const Ice::Communic
     _currentCommunicator(0),
     _isTopLevel(true),
     _inAdapter(false),
+    _inReplicaGroup(false),
     _inDbEnv(false)
 {
 }
@@ -296,11 +298,11 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 		error("the <replica-group> element can only be a child of a <application> element");
 	    }
 	    _currentApplication->addReplicaGroup(attributes);
-	    _inAdapter = true;
+	    _inReplicaGroup = true;
 	}
 	else if(name == "load-balancing")
 	{
-	    if(!_inAdapter || _currentServer.get())
+	    if(!_inReplicaGroup)
 	    {
 		error("the <load-balancing> element can only be a child of a <replica-group> element");
 	    }
@@ -387,11 +389,11 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	}
 	else if(name == "object")
 	{
-	    if(!_inAdapter)
+	    if(!_inAdapter && !_inReplicaGroup)
 	    {
 		error("the <object> element can only be a child of an <adapter> or <replica-group> element");
 	    }
-	    if(!_currentCommunicator)
+	    if(_inReplicaGroup)
 	    {
 		_currentApplication->addObject(attributes);
 	    }
@@ -399,6 +401,14 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    {
 		_currentCommunicator->addObject(attributes);
 	    }
+	}
+	else if(name == "allocatable")
+	{
+	    if(!_inAdapter)
+	    {
+		error("the <allocatable> element can only be a child of an <adapter>");
+	    }
+	    _currentCommunicator->addAllocatable(attributes);
 	}
 	else if(name == "distrib")
 	{
@@ -590,14 +600,11 @@ DescriptorHandler::endElement(const string& name, int line, int column)
 	{
 	    if(_inAdapter)
 	    {
-		if(_currentCommunicator)
-		{
-		    _currentCommunicator->setAdapterDescription(elementValue());
-		}
-		else
-		{
-		    _currentApplication->setReplicaGroupDescription(elementValue());
-		}
+		_currentCommunicator->setAdapterDescription(elementValue());
+	    }
+	    else if(_inReplicaGroup)
+	    {
+		_currentApplication->setReplicaGroupDescription(elementValue());
 	    }
 	    else if(_inDbEnv)
 	    {
@@ -658,7 +665,7 @@ DescriptorHandler::endElement(const string& name, int line, int column)
 	} 
 	else if(name == "replica-group")
 	{
-	    _inAdapter = false;
+	    _inReplicaGroup = false;
 	} 
 	else if(name == "dbenv")
 	{

@@ -31,7 +31,7 @@ public:
     DistributionDescriptor operator()(const DistributionDescriptor&) const;
     PropertyDescriptorSeq operator()(const PropertyDescriptorSeq&, const std::string& = std::string("property")) const;
     PropertySetDescriptorDict operator()(const PropertySetDescriptorDict&) const;
-    ObjectDescriptorSeq operator()(const ObjectDescriptorSeq&) const;
+    ObjectDescriptorSeq operator()(const ObjectDescriptorSeq&, const std::string&) const;
     Ice::Identity operator()(const Ice::Identity&, const std::string&) const;
     PropertySetDescriptor operator()(const PropertySetDescriptor&) const;
 

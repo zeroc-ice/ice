@@ -134,10 +134,17 @@ struct AdapterDescriptor
 
     /**
      *
-     * The object descriptors associated to this object adapter.
+     * The well-known object descriptors associated to this object adapter.
      *
      **/
     ObjectDescriptorSeq objects;
+
+    /**
+     *
+     * The allocatable object descriptors associated to this object adapter.
+     *
+     **/
+    ObjectDescriptorSeq allocatables;
 };
 
 /**

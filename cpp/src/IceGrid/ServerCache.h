@@ -14,15 +14,17 @@
 #include <IceUtil/Shared.h>
 #include <IceGrid/Descriptor.h>
 #include <IceGrid/Internal.h>
+#include <IceGrid/Query.h>
 #include <IceGrid/Allocatable.h>
 #include <IceGrid/Cache.h>
-#include <IceGrid/AdapterCache.h>
 
 namespace IceGrid
 {
 
 class ServerCache;
 class ObjectCache;
+class AdapterCache;
+class AllocatableObjectCache;
 class NodeCache;
 
 class NodeEntry;
@@ -86,7 +88,7 @@ class ServerCache : public CacheByString<ServerEntry>
 {
 public:
 
-    ServerCache(const Ice::CommunicatorPtr&, NodeCache&, AdapterCache&, ObjectCache&);
+    ServerCache(const Ice::CommunicatorPtr&, NodeCache&, AdapterCache&, ObjectCache&, AllocatableObjectCache&);
 
     ServerEntryPtr add(const ServerInfo&);
     ServerEntryPtr get(const std::string&) const;
@@ -110,6 +112,7 @@ private:
     NodeCache& _nodeCache;
     AdapterCache& _adapterCache;
     ObjectCache& _objectCache;
+    AllocatableObjectCache& _allocatableObjectCache;
 };
 
 };

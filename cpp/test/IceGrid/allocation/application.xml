@@ -2,11 +2,6 @@
 
   <application name="Test">
 
-    <replica-group id="Test">
-      <object identity="nonallocatable" type="::Test"/>
-      <object identity="nonallocatable2" type="::NotAllocatable"/>
-    </replica-group>
-
     <server-template id="Glacier2">
       <parameter name="id"/>
       <parameter name="endpoints"/>
@@ -35,51 +30,55 @@
 
       <server id="ObjectAllocation" exe="${test.dir}/server" activation="on-demand" pwd=".">
         <adapter name="Server" endpoints="default">
-  	  <object identity="allocatable" type="::Test"/>
-  	  <object identity="allocatablebis" type="::TestBis"/>
+  	  <allocatable identity="allocatable" type="::Test"/>
+  	  <allocatable identity="allocatablebis" type="::TestBis"/>
+
+          <object identity="nonallocatable" type="::Test"/>
+          <object identity="nonallocatable2" type="::NotAllocatable"/>
         </adapter>
       </server>
 
       <server id="ServerAllocation" exe="${test.dir}/server" activation="on-demand" pwd="." allocatable="true">
         <adapter name="Server" endpoints="default" id="ServerAlloc">
-  	  <object identity="allocatable3" type="::TestServer1"/>
-  	  <object identity="allocatable4" type="::TestServer2"/>
+  	  <allocatable identity="allocatable3" type="::TestServer1"/>
+  	  <allocatable identity="allocatable4" type="::TestServer2"/>
+  	  <object identity="allocatable4"/>
 
-  	  <object identity="allocatable31" type="::TestMultipleByServer"/>
-  	  <object identity="allocatable41" type="::TestMultipleByServer"/>
+  	  <allocatable identity="allocatable31" type="::TestMultipleByServer"/>
+  	  <allocatable identity="allocatable41" type="::TestMultipleByServer"/>
         </adapter>
       </server>
 
       <server id="ServerAllocation-1" exe="${test.dir}/server" activation="on-demand" pwd="." allocatable="true">
         <adapter name="Server" endpoints="default">
-  	  <object identity="allocatable5" type="::TestMultipleServer"/>
+  	  <allocatable identity="allocatable5" type="::TestMultipleServer"/>
         </adapter>
       </server>
 
       <server id="ServerAllocation-2" exe="${test.dir}/server" activation="on-demand" pwd="." allocatable="true">
         <adapter name="Server" endpoints="default">
-  	  <object identity="allocatable6" type="::TestMultipleServer"/>
+  	  <allocatable identity="allocatable6" type="::TestMultipleServer"/>
         </adapter>
       </server>
       
       <server id="ServerStress-1" exe="${test.dir}/server" activation="on-demand" pwd=".">
         <adapter name="Server" endpoints="default">
-  	  <object identity="stress-1" type="::StressTest"/>
-  	  <object identity="stress-2" type="::StressTest"/>
+  	  <allocatable identity="stress-1" type="::StressTest"/>
+  	  <allocatable identity="stress-2" type="::StressTest"/>
         </adapter>
       </server>
 
       <server id="ServerStress-2" exe="${test.dir}/server" activation="on-demand" pwd="." allocatable="true">
         <adapter name="Server" endpoints="default">
-  	  <object identity="stress-3" type="::StressTest"/>
-  	  <object identity="stress-4" type="::StressTest"/>
+  	  <allocatable identity="stress-3" type="::StressTest"/>
+  	  <allocatable identity="stress-4" type="::StressTest"/>
         </adapter>
       </server>
 
       <server id="ServerStress-3" exe="${test.dir}/server" activation="on-demand" pwd="." allocatable="true">
         <adapter name="Server" endpoints="default">
-  	  <object identity="stress-5" type="::StressTest"/>
-  	  <object identity="stress-6" type="::StressTest"/>
+  	  <allocatable identity="stress-5" type="::StressTest"/>
+  	  <allocatable identity="stress-6" type="::StressTest"/>
         </adapter>
       </server>
 

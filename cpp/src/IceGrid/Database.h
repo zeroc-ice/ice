@@ -22,6 +22,7 @@
 #include <IceGrid/ServerCache.h>
 #include <IceGrid/NodeCache.h>
 #include <IceGrid/ObjectCache.h>
+#include <IceGrid/AllocatableObjectCache.h>
 #include <IceGrid/AdapterCache.h>
 
 namespace IceGrid
@@ -138,6 +139,7 @@ private:
     NodeCache _nodeCache;
     AdapterCache _adapterCache;
     ObjectCache _objectCache;
+    AllocatableObjectCache _allocatableObjectCache;
     ServerCache _serverCache;
 
     RegistryObserverPrx _registryObserver;

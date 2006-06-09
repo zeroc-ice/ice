@@ -207,6 +207,7 @@ public:
     virtual void addAdapter(const XmlAttributesHelper&);
     virtual void setAdapterDescription(const std::string&);
     virtual void addObject(const XmlAttributesHelper&);
+    virtual void addAllocatable(const XmlAttributesHelper&);
     virtual void addDbEnv(const XmlAttributesHelper&);
     virtual void addDbEnvProperty(const XmlAttributesHelper&);
     virtual void setDbEnvDescription(const std::string&);

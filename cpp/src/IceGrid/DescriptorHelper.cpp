@@ -454,14 +454,14 @@ Resolver::operator()(const PropertySetDescriptorDict& propertySets) const
 }
 
 ObjectDescriptorSeq
-Resolver::operator()(const ObjectDescriptorSeq& objects) const
+Resolver::operator()(const ObjectDescriptorSeq& objects, const string& type) const
 {
     ObjectDescriptorSeq result;
     for(ObjectDescriptorSeq::const_iterator q = objects.begin(); q != objects.end(); ++q)
     {
 	ObjectDescriptor obj;
-	obj.type = operator()(q->type, "object type");
-	obj.id = operator()(q->id, "object identity");
+	obj.type = operator()(q->type, type + " object type");
+	obj.id = operator()(q->id, type + " object identity");
 	result.push_back(obj);
     }
     return result;
@@ -878,10 +878,18 @@ CommunicatorHelper::getIds(multiset<string>& adapterIds, multiset<Ice::Identity>
 	{
 	    adapterIds.insert(p->id);
 	}
-	for(ObjectDescriptorSeq::const_iterator q = p->objects.begin(); q != p->objects.end(); ++q)
+
+	set<Ice::Identity> ids;
+	ObjectDescriptorSeq::const_iterator q;
+	for(q = p->objects.begin(); q != p->objects.end(); ++q)
 	{
-	    objectIds.insert(q->id);
+	    ids.insert(q->id);
 	}
+	for(q = p->allocatables.begin(); q != p->allocatables.end(); ++q)
+	{
+	    ids.insert(q->id);
+	}
+	objectIds.insert(ids.begin(), ids.end());
     }
 }
 
@@ -904,7 +912,8 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
 	{
 	    resolve.exception("unknown replica group `" + adapter.replicaGroupId + "'");
 	}
-	adapter.objects = resolve(p->objects);
+	adapter.objects = resolve(p->objects, "well-known");
+	adapter.allocatables = resolve(p->allocatables, "allocatable");
 	instance->adapters.push_back(adapter);
 
 	//
@@ -1003,9 +1012,21 @@ CommunicatorHelper::printObjectAdapter(Output& out, const AdapterDescriptor& ada
     }
     out << nl << "register process = `" << (adapter.registerProcess ? "true" : "false") << "'";
     out << nl << "wait for activation = `" << (adapter.waitForActivation ? "true" : "false") << "'";
-    for(ObjectDescriptorSeq::const_iterator p = adapter.objects.begin(); p != adapter.objects.end(); ++p)
+    ObjectDescriptorSeq::const_iterator p;
+    for(p = adapter.objects.begin(); p != adapter.objects.end(); ++p)
     {
-	out << nl << "object";
+	out << nl << "well-known object";
+	if(!p->type.empty())
+	{
+	    out << sb;
+	    out << nl << "identity = `" << _communicator->identityToString(p->id) << "' ";
+	    out << nl << "type = `" << p->type << "'";
+	    out << eb;
+	}
+    }
+    for(p = adapter.allocatables.begin(); p != adapter.allocatables.end(); ++p)
+    {
+	out << nl << "allocatable";
 	if(!p->type.empty())
 	{
 	    out << sb;
@@ -2230,7 +2251,7 @@ ApplicationHelper::ApplicationHelper(const Ice::CommunicatorPtr& communicator, c
 	ReplicaGroupDescriptor desc;
 	desc.id = r->id;
 	desc.description = resolve(r->description, "replica group description");
-	desc.objects = resolve(r->objects);
+	desc.objects = resolve(r->objects, "well-known");
 
 	if(r->loadBalancing)
 	{

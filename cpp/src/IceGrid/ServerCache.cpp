@@ -14,6 +14,7 @@
 #include <IceGrid/NodeCache.h>
 #include <IceGrid/AdapterCache.h>
 #include <IceGrid/ObjectCache.h>
+#include <IceGrid/AllocatableObjectCache.h>
 #include <IceGrid/SessionI.h>
 #include <IceGrid/DescriptorHelper.h>
 
@@ -61,11 +62,13 @@ namespace IceGrid
 ServerCache::ServerCache(const Ice::CommunicatorPtr& communicator,
 			 NodeCache& nodeCache, 
 			 AdapterCache& adapterCache, 
-			 ObjectCache& objectCache) :
+			 ObjectCache& objectCache,
+			 AllocatableObjectCache& allocatableObjectCache) :
     _communicator(communicator),
     _nodeCache(nodeCache), 
     _adapterCache(adapterCache), 
-    _objectCache(objectCache)
+    _objectCache(objectCache),
+    _allocatableObjectCache(allocatableObjectCache)
 {
 }
 
@@ -154,25 +157,24 @@ ServerCache::addCommunicator(const CommunicatorDescriptorPtr& comm, const Server
     const string application = server->getApplication();
     for(AdapterDescriptorSeq::const_iterator q = comm->adapters.begin() ; q != comm->adapters.end(); ++q)
     {
-	if(!q->id.empty())
-	{
-	    _adapterCache.addServerAdapter(q->id, q->replicaGroupId, server);
-	}
+	assert(!q->id.empty());
+	_adapterCache.addServerAdapter(q->id, q->replicaGroupId, server);
 
-	for(ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
+	ObjectDescriptorSeq::const_iterator r;
+	for(r = q->objects.begin(); r != q->objects.end(); ++r)
 	{
 	    ObjectInfo info;
 	    info.type = r->type;
-	    if(q->id.empty())
-	    {
-		const string edpts = IceGrid::getProperty(comm->propertySet.properties, q->name + ".Endpoints");
-		info.proxy = _communicator->stringToProxy(_communicator->identityToString(r->id) + ":" + edpts);
-	    }
-	    else
-	    {
-		info.proxy = _communicator->stringToProxy(_communicator->identityToString(r->id) + "@" + q->id);
-	    }
-	    _objectCache.add(info, application, true, server);
+	    info.proxy = _communicator->stringToProxy(_communicator->identityToString(r->id) + "@" + q->id);
+	    _objectCache.add(info, application);
+	}
+
+	for(r = q->allocatables.begin(); r != q->allocatables.end(); ++r)
+	{
+	    ObjectInfo info;
+	    info.type = r->type;
+	    info.proxy = _communicator->stringToProxy(_communicator->identityToString(r->id) + "@" + q->id);
+	    _allocatableObjectCache.add(info, server);
 	}
     }
 }
@@ -182,14 +184,16 @@ ServerCache::removeCommunicator(const CommunicatorDescriptorPtr& comm, const Ser
 {
     for(AdapterDescriptorSeq::const_iterator q = comm->adapters.begin() ; q != comm->adapters.end(); ++q)
     {
-	for(ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
+	ObjectDescriptorSeq::const_iterator r;
+	for(r = q->objects.begin(); r != q->objects.end(); ++r)
 	{
 	    _objectCache.remove(r->id);
 	}
-	if(!q->id.empty())
+	for(r = q->allocatables.begin(); r != q->allocatables.end(); ++r)
 	{
-	    _adapterCache.removeServerAdapter(q->id);
+	    _allocatableObjectCache.remove(r->id);
 	}
+	_adapterCache.removeServerAdapter(q->id);
     }
 }
 

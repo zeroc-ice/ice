@@ -61,6 +61,7 @@ REGISTRY_OBJS   = RegistryI.o \
 	          Allocatable.o \
 		  AdapterCache.o \
 		  ObjectCache.o \
+		  AllocatableObjectCache.o \
 		  ServerCache.o \
 		  NodeCache.o \
 		  LocatorI.o \
