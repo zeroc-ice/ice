@@ -35,5 +35,5 @@ cat >$1 <<\_CMTFILE
 
 _CMTFILE
 
-find . -name "*" -type f | sed -e '/Debug\|Release\|.dsp$\|.dsw$\|.exe$\|.ilk$\|.plg$\|.depend\|Makefile\|.pdb$\|.ncb$\|.suo$\|\.dummy/d' | sed -e '/^[\.\/]*Freeze\/backup/d' | sed -e 's/^\.\///' >> $1
+find . -name "*" -type f | sed -e '/Debug\|Release\|.dsp$\|.dsw$\|.exe$\|.ilk$\|.plg$\|.depend\|Makefile\|.pdb$\|.ncb$\|.suo$\|\.dummy/d' | sed -e '/^[\.\/]*Freeze\/backup/d' | sed -e '/.*vcproj[.].*/d' | sed -e 's/^\.\///' >> $1
 find . -name "*" -type d | grep \/db |  sed -e 's/^\.\///' | sed -e '/^Freeze\/backup/d'  >> $1
