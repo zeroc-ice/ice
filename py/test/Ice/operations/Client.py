@@ -38,8 +38,8 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-def run(args, communicator):
-    myClass = AllTests.allTests(communicator)
+def run(args, communicator, initData):
+    myClass = AllTests.allTests(communicator, initData)
 
     print "testing server shutdown...",
     myClass.shutdown()
@@ -56,12 +56,13 @@ try:
     # In this test, we need at least two threads in the
     # client side thread pool for nested AMI.
     #
-    properties = Ice.getDefaultProperties(sys.argv)
-    properties.setProperty('Ice.ThreadPool.Client.Size', '2')
-    properties.setProperty('Ice.ThreadPool.Client.SizeWarn', '0')
+    initData = Ice.InitializationData()
+    initData.properties = Ice.createProperties(sys.argv)
+    initData.properties.setProperty('Ice.ThreadPool.Client.Size', '2')
+    initData.properties.setProperty('Ice.ThreadPool.Client.SizeWarn', '0')
 
-    communicator = Ice.initialize(sys.argv)
-    status = run(sys.argv, communicator)
+    communicator = Ice.initialize(sys.argv, initData)
+    status = run(sys.argv, communicator, initData)
 except:
     traceback.print_exc()
     status = False

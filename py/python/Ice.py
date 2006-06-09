@@ -462,12 +462,6 @@ def createProperties(args=[]):
     properties = IcePy.createProperties(args)
     return PropertiesI(properties)
 
-#
-# Ice.getDefaultProperties()
-#
-def getDefaultProperties(args=[]):
-    properties = IcePy.getDefaultProperties(args)
-    return PropertiesI(properties)
 
 #
 # The variables below need to be global in order to properly reference a

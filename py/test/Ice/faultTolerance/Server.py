@@ -81,10 +81,11 @@ try:
     # our test servers may time out before they are used in the
     # test.
     #
-    properties = Ice.getDefaultProperties(sys.argv)
-    properties.setProperty("Ice.ServerIdleTime", "120") # Two minutes.
+    initData = Ice.InitializationData()
+    initData.properties = Ice.createProperties(sys.argv)
+    initData.properties.setProperty("Ice.ServerIdleTime", "120") # Two minutes.
 
-    communicator = Ice.initialize(sys.argv)
+    communicator = Ice.initialize(sys.argv, initData)
     status = run(sys.argv, communicator)
 except:
     traceback.print_exc()

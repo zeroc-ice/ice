@@ -155,7 +155,7 @@ class AMI_MyClass_opMyClassI(CallbackBase):
         test(c2.ice_getIdentity() == self._communicator.stringToIdentity("noSuchIdentity"))
         test(r.ice_getIdentity() == self._communicator.stringToIdentity("test"))
 	# We can't do the callbacks below in thread per connection mode.
-	if Ice.getDefaultProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0:
+	if self._communicator.getProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0:
 	    r.opVoid()
 	    c1.opVoid()
 	    try:
@@ -169,9 +169,11 @@ class AMI_MyClass_opMyClassI(CallbackBase):
         test(False)
 
 class AMI_MyClass_opStructI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
 
+    def __init__(self, communicator):
+        CallbackBase.__init__(self)
+        self._communicator = communicator                      
+    
     def ice_response(self, rso, so):
         test(rso.p == None)
         test(rso.e == Test.MyEnum.enum2)
@@ -179,7 +181,7 @@ class AMI_MyClass_opStructI(CallbackBase):
         test(so.e == Test.MyEnum.enum3)
         test(so.s.s == "a new string")
 	# We can't do the callbacks below in thread per connection mode.
-	if Ice.getDefaultProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0:
+	if self._communicator.getProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0:
 	    so.p.opVoid()
         self.called()
 
@@ -519,7 +521,7 @@ class AMI_MyDerivedClass_opDerivedI(CallbackBase):
     def ice_exception(self, ex):
         test(False)
 
-def twowaysAMI(communicator, p):
+def twowaysAMI(communicator, initData, p):
     # Check that a call to a void operation raises TwowayOnlyException
     # in the ice_exception() callback instead of at the point of call.
     oneway = Test.MyClassPrx.uncheckedCast(p.ice_oneway())
@@ -616,7 +618,7 @@ def twowaysAMI(communicator, p):
     si2.s = Test.AnotherStruct()
     si2.s.s = "def"
 
-    cb = AMI_MyClass_opStructI()
+    cb = AMI_MyClass_opStructI(communicator)
     p.opStruct_async(cb, si1, si2)
     test(cb.check())
 
@@ -793,7 +795,6 @@ def twowaysAMI(communicator, p):
     #
     # Test that default context is obtained correctly from communicator.
     #
-    initData = Ice.InitializationData()
     initData.defaultContext = {'a': 'b'}
     communicator2 = Ice.initialize([], initData)
 

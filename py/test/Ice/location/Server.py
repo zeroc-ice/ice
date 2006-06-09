@@ -80,11 +80,16 @@ class ServerLocator(Ice.Locator):
         return self._registryPrx
 
 class ServerManagerI(Test.ServerManager):
-    def __init__(self, adapter, registry):
+    def __init__(self, adapter, registry, initData):
         self._adapter = adapter
 	self._registry = registry
         self._communicators = []
-    
+        self._initData = initData
+        self._initData.properties.setProperty("TestAdapter.Endpoints", "default")
+        self._initData.properties.setProperty("TestAdapter.AdapterId", "TestAdapter")
+        self._initData.properties.setProperty("TestAdapter2.Endpoints", "default")
+        self._initData.properties.setProperty("TestAdapter2.AdapterId", "TestAdapter2")
+
     def startServer(self, current=None):
         args = []
 
@@ -96,14 +101,10 @@ class ServerManagerI(Test.ServerManager):
         # its endpoints with the locator and create references containing
         # the adapter id instead of the endpoints.
         #
-        serverCommunicator = Ice.initialize(args)
+        serverCommunicator = Ice.initialize(args, initData)
         self._communicators.append(serverCommunicator)
-        serverCommunicator.getProperties().setProperty("TestAdapter.Endpoints", "default")
-        serverCommunicator.getProperties().setProperty("TestAdapter.AdapterId", "TestAdapter")
         adapter = serverCommunicator.createObjectAdapter("TestAdapter")
 
-        serverCommunicator.getProperties().setProperty("TestAdapter2.Endpoints", "default")
-        serverCommunicator.getProperties().setProperty("TestAdapter2.AdapterId", "TestAdapter2")
         adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2")
 
         locator = serverCommunicator.stringToProxy("locator:default -p 12010")
@@ -146,7 +147,7 @@ class TestI(Test.TestIntf):
 	except Ice.NotRegisteredException:
 	    self._registry.addObject(self._adapter1.add(self._adapter2.remove(id), id))
 
-def run(args, communicator):
+def run(args, communicator, initData):
     #
     # Register the server manager. The server manager creates a new
     # 'server' (a server isn't a different process, it's just a new
@@ -165,7 +166,7 @@ def run(args, communicator):
     #
     registry = ServerLocatorRegistry()
     registry.addObject(adapter.createProxy(communicator.stringToIdentity("ServerManager")))
-    object = ServerManagerI(adapter, registry)
+    object = ServerManagerI(adapter, registry, initData)
     adapter.add(object, communicator.stringToIdentity("ServerManager"))
 
     registryPrx = Ice.LocatorRegistryPrx.uncheckedCast(adapter.add(registry, communicator.stringToIdentity("registry")))
@@ -179,8 +180,10 @@ def run(args, communicator):
     return True
 
 try:
-    communicator = Ice.initialize(sys.argv)
-    status = run(sys.argv, communicator)
+    initData = Ice.InitializationData()
+    initData.properties = Ice.createProperties(sys.argv)
+    communicator = Ice.initialize(sys.argv, initData)
+    status = run(sys.argv, communicator, initData)
 except:
     traceback.print_exc()
     status = False

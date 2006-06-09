@@ -48,11 +48,11 @@ try:
     # In this test, we need at least two threads in the
     # client side thread pool for nested AMI.
     #
-    properties = Ice.getDefaultProperties(sys.argv)
-    properties.setProperty('Ice.RetryIntervals', '-1')
-
-    communicator = Ice.initialize(sys.argv)
-    properties.setProperty('Ice.Warn.Connections', '0')
+    initData = Ice.InitializationData()
+    initData.properties = Ice.createProperties(sys.argv)
+    initData.properties.setProperty('Ice.RetryIntervals', '-1')
+    initData.properties.setProperty('Ice.Warn.Connections', '0')
+    communicator = Ice.initialize(sys.argv, initData)
     status = run(sys.argv, communicator)
 except:
     traceback.print_exc()

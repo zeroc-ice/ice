@@ -14,7 +14,7 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-def twoways(communicator, p):
+def twoways(communicator, initData, p):
     #
     # opVoid
     #
@@ -460,7 +460,6 @@ def twoways(communicator, p):
     #
     # Test that default context is obtained correctly from communicator.
     #
-    initData = Ice.InitializationData()
     initData.defaultContext = {'a': 'b'}
     communicator2 = Ice.initialize([], initData)
 
@@ -479,3 +478,4 @@ def twoways(communicator, p):
     test(c4.opContext()['a'] == 'b')
 
     communicator2.destroy()
+    

@@ -34,7 +34,7 @@ import Ice
 Ice.loadSlice('-I' + slice_dir + '/slice Test.ice')
 import Test, TestI, AllTests
 
-def run(args, communicator):
+def run(args, communicator, initData):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000")
     adapter = communicator.createObjectAdapter("TestAdapter")
     id = communicator.stringToIdentity("test")
@@ -42,13 +42,15 @@ def run(args, communicator):
     adapter.add(TestI.TestCheckedCastI(), communicator.stringToIdentity("context"))
     adapter.activate()
 
-    AllTests.allTests(communicator)
+    AllTests.allTests(communicator, initData)
 
     return True
 
 try:
-    communicator = Ice.initialize(sys.argv)
-    status = run(sys.argv, communicator)
+    initData = Ice.InitializationData()
+    initData.properties = Ice.createProperties(sys.argv)
+    communicator = Ice.initialize(sys.argv, initData)
+    status = run(sys.argv, communicator, initData)
 except:
     traceback.print_exc()
     status = False

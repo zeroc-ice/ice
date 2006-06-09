@@ -51,21 +51,52 @@ static int
 propertiesInit(PropertiesObject* self, PyObject* args, PyObject* /*kwds*/)
 {
     PyObject* arglist = NULL;
-    if(!PyArg_ParseTuple(args, STRCAST("|O!"), &PyList_Type, &arglist))
+    PyObject* defaultsObj = NULL;
+
+    if(!PyArg_ParseTuple(args, STRCAST("|OO"), &arglist, &defaultsObj))
     {
         return -1;
+    }
+    
+    Ice::StringSeq seq;
+    if(arglist)
+    {
+	if(PyObject_IsInstance(arglist, (PyObject*)&PyList_Type))
+	{
+	    if(!listToStringSeq(arglist, seq))
+	    {
+		return -1;
+	    }
+	}
+	else if(arglist != Py_None)
+	{
+	    PyErr_Format(PyExc_ValueError, STRCAST("args must be None or a list"));
+	    return -1;
+	}
     }
 
-    Ice::StringSeq seq;
-    if(arglist && !listToStringSeq(arglist, seq))
+    Ice::PropertiesPtr defaults;
+    if(defaultsObj)
     {
-        return -1;
+	PyObject* propType = lookupType("Ice.PropertiesI");
+	assert(propType != NULL);
+	if(PyObject_IsInstance(defaultsObj, propType))
+	{
+	    PyObjectHandle impl = PyObject_GetAttrString(defaultsObj, STRCAST("_impl"));
+	    defaults = getProperties(impl.get());
+	}
+	else if(defaultsObj != Py_None)
+	{
+	    PyErr_Format(PyExc_ValueError, STRCAST("defaults must be None or a Ice.Properties"));
+	    return -1;
+	}
     }
+
 
     Ice::PropertiesPtr props;
     try
     {
-        props = Ice::createProperties(seq);
+        props = Ice::createProperties(seq, defaults);
     }
     catch(const Ice::Exception& ex)
     {
@@ -605,49 +636,4 @@ IcePy_createProperties(PyObject* /*self*/, PyObject* args)
     // Currently the same as "p = Ice.Properties()".
     //
     return PyObject_Call((PyObject*)&PropertiesType, args, NULL);
-}
-
-extern "C"
-PyObject*
-IcePy_getDefaultProperties(PyObject* /*self*/, PyObject* args)
-{
-    PyObject* arglist;
-    if(!PyArg_ParseTuple(args, STRCAST("|O!"), &PyList_Type, &arglist))
-    {
-        return NULL;
-    }
-
-    Ice::StringSeq seq;
-    if(arglist && !listToStringSeq(arglist, seq))
-    {
-        return NULL;
-    }
-
-    Ice::PropertiesPtr defaultProps;
-    try
-    {
-        defaultProps = Ice::getDefaultProperties(seq);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return NULL;
-    }
-
-    //
-    // Replace the contents of the given argument list with the filtered arguments.
-    //
-    if(arglist)
-    {
-        if(PyList_SetSlice(arglist, 0, PyList_Size(arglist), NULL) < 0)
-        {
-            return NULL;
-        }
-        if(!stringSeqToList(seq, arglist))
-        {
-            return NULL;
-        }
-    }
-
-    return createProperties(defaultProps);
 }

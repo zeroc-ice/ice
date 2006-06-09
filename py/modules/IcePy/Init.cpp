@@ -36,8 +36,6 @@ static PyMethodDef methods[] =
         PyDoc_STR(STRCAST("generateUUID() -> string")) },
     { STRCAST("createProperties"), (PyCFunction)IcePy_createProperties, METH_VARARGS,
         PyDoc_STR(STRCAST("createProperties([args]) -> Ice.Properties")) },
-    { STRCAST("getDefaultProperties"), (PyCFunction)IcePy_getDefaultProperties, METH_VARARGS,
-        PyDoc_STR(STRCAST("getDefaultProperties([args]) -> Ice.Properties")) },
     { STRCAST("defineEnum"), (PyCFunction)IcePy_defineEnum, METH_VARARGS,
         PyDoc_STR(STRCAST("internal function")) },
     { STRCAST("defineStruct"), (PyCFunction)IcePy_defineStruct, METH_VARARGS,

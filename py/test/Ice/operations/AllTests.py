@@ -14,7 +14,7 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-def allTests(communicator):
+def allTests(communicator, initData):
     print "testing stringToProxy...",
     ref = "test:default -p 12010 -t 10000"
     base = communicator.stringToProxy(ref)
@@ -81,14 +81,14 @@ def allTests(communicator):
     print "ok"
 
     print "testing twoway operations...",
-    Twoways.twoways(communicator, cl)
-    Twoways.twoways(communicator, derived)
+    Twoways.twoways(communicator, initData, cl)
+    Twoways.twoways(communicator, initData, derived)
     derived.opDerived()
     print "ok"
 
     print "testing twoway operations with AMI...",
-    TwowaysAMI.twowaysAMI(communicator, cl)
-    TwowaysAMI.twowaysAMI(communicator, derived)
+    TwowaysAMI.twowaysAMI(communicator, initData, cl)
+    TwowaysAMI.twowaysAMI(communicator, initData, derived)
     print "ok"
 
     return cl

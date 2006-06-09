@@ -27,6 +27,5 @@ Ice::PropertiesPtr getProperties(PyObject*);
 }
 
 extern "C" PyObject* IcePy_createProperties(PyObject*, PyObject*);
-extern "C" PyObject* IcePy_getDefaultProperties(PyObject*, PyObject*);
 
 #endif

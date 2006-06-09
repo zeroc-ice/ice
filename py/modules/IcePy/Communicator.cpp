@@ -133,20 +133,15 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 
     }
 
-    if(!data.properties)
-    {
-	data.properties = Ice::getDefaultProperties(seq);
-    }
-
+    data.properties = Ice::createProperties(seq, data.properties);
+  
     //
     // Disable collocation optimization, otherwise a Python invocation on
     // a collocated servant results in a CollocationOptimizationException
     // (because Python uses the blobject API).
     //
-    seq.push_back("--Ice.Default.CollocationOptimization=0");
-
-    seq = data.properties->parseIceCommandLineOptions(seq);
-
+    data.properties->setProperty("Ice.Default.CollocationOptimization", "0");
+   
     //
     // Remaining command line options are passed to the communicator
     // as an argument vector in case they contain plugin properties.

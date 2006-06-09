@@ -53,14 +53,15 @@ def run(args, communicator):
     return True
 
 try:
-    properties = Ice.getDefaultProperties(sys.argv)
-
+    initData = Ice.InitializationData()
+    initData.properties = Ice.createProperties(sys.argv)
+    
     #
     # This test aborts servers, so we don't want warnings.
     #
-    properties.setProperty('Ice.Warn.Connections', '0')
+    initData.properties.setProperty('Ice.Warn.Connections', '0')
 
-    communicator = Ice.initialize(sys.argv)
+    communicator = Ice.initialize(sys.argv, initData)
     status = run(sys.argv, communicator)
 except:
     traceback.print_exc()
