@@ -95,6 +95,11 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         return -1;
     }
 
+    //
+    // Use the with-args or the without-args version of initialize()?
+    //
+    bool hasArgs = !seq.empty();
+
     Ice::InitializationData data;
     if(initData)
     {
@@ -158,7 +163,14 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     Ice::CommunicatorPtr communicator;
     try
     {
-	communicator = Ice::initialize(argc, argv, data);
+	if(hasArgs)
+	{
+	    communicator = Ice::initialize(argc, argv, data);
+	}
+	else
+	{
+	    communicator = Ice::initialize(data);
+	}
     }
     catch(const Ice::Exception& ex)
     {
