@@ -50,52 +50,54 @@ namespace Ice
 
 	public static Properties createProperties(ref string[] args)
 	{
-	    return new PropertiesI(ref args);
+	    return new PropertiesI(ref args, null);
 	}
 	
-	public static Properties getDefaultProperties()
+	public static Properties createProperties(ref string[] args, Properties defaults)
 	{
-	    lock(_defaultPropertiesMutex)
-	    {
-		if(_defaultProperties == null)
-		{
-		    _defaultProperties = createProperties();
-		}
-		return _defaultProperties;
-	    }
-	}
-	
-	public static Properties getDefaultProperties(ref string[] args)
-	{
-	    lock(_defaultPropertiesMutex)
-	    {
-		if(_defaultProperties == null)
-		{
-		    _defaultProperties = createProperties(ref args);
-		}
-		return _defaultProperties;
-	    }
+	    return new PropertiesI(ref args, defaults);
 	}
 
 	public static Communicator initialize(ref string[] args)
 	{
-	    InitializationData initData = new InitializationData();
-	    return initialize(ref args, initData);
+	    return initialize(ref args, null);
 	}
 
 	public static Communicator initialize(ref string[] args, InitializationData initData)
 	{
-	    InitializationData tmpData = (InitializationData)initData.Clone();
-	    if(tmpData.properties == null)
+	    if(initData == null)
 	    {
-	        tmpData.properties = getDefaultProperties(ref args);
+		initData = new InitializationData();
 	    }
-	    args = tmpData.properties.parseIceCommandLineOptions(args);
+	    else
+	    {
+		initData = (InitializationData)initData.Clone();
+	    }
 
-	    CommunicatorI result = new CommunicatorI(tmpData);
+	    initData.properties = createProperties(ref args, initData.properties);	    
+
+	    CommunicatorI result = new CommunicatorI(initData);
 	    result.finishSetup(ref args);
 	    return result;
 	}
+
+	public static Communicator initialize(InitializationData initData)
+	{
+	    if(initData == null)
+	    {
+		initData = new InitializationData();
+	    }
+	    else
+	    {
+		initData = (InitializationData)initData.Clone();
+	    }
+
+	    CommunicatorI result = new CommunicatorI(initData);
+	    string[] args = new string[0];
+	    result.finishSetup(ref args);
+	    return result;
+	}
+
 
 	[Obsolete("This method has been deprecated, use initialize instead.")]
 	public static Communicator initializeWithLogger(ref string[] args, Logger logger)
@@ -443,13 +445,6 @@ namespace Ice
         {
             return new OutputStreamI(communicator);
         }
-
-	private static Properties _defaultProperties = null;
-	internal static object _defaultPropertiesMutex;
-	static Util()
-	{
-	    _defaultPropertiesMutex = new object();
-	}
     }
 
 }

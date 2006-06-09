@@ -126,11 +126,12 @@ public class Client : Ice.Application
         // We want to check whether the client retries for evicted
         // proxies, even with regular retries disabled.
         //
-        Ice.Properties properties = Ice.Util.getDefaultProperties(ref args);
-        properties.setProperty("Ice.RetryIntervals", "-1");
+	Ice.InitializationData initData = new Ice.InitializationData();
+	initData.properties = Ice.Util.createProperties(ref args);
+        initData.properties.setProperty("Ice.RetryIntervals", "-1");
 
         Client app = new Client();
-        int status = app.main(args);
+        int status = app.main(args, initData);
 
 	Environment.Exit(status);
     }

@@ -1,6 +1,22 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Removed getDefaultProperties() methods, and the global default
+  properties. If you need global properties, you can easily
+  create your own global variable.
+
+- Added new createProperties() method:
+  public static Properties 
+  createProperties(ref string[] args, Properties defaults)
+ 
+  "defaults" represents an optional set of default properties
+  used to initialize the new Properties object. Ice properties 
+  defined on the command-line and properties defined in the Ice
+  config file may override these default properties.
+   
+- Added a new communicator-initialization method:
+  public static Communicator initialize(InitializationData initData)
+
 - Generating new streaming functions for a Slice structure. The
   ice_write and ice_read member functions replace their internal
   equivalents (__write and __read).

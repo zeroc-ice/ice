@@ -11,9 +11,10 @@ using System;
 
 public class Client
 {
-    private static int run(String[] args, Ice.Communicator communicator)
+    private static int run(String[] args, Ice.Communicator communicator, 
+			   Ice.InitializationData initData)
     {
-	Test.MyClassPrx myClass = AllTests.allTests(communicator, false);
+	Test.MyClassPrx myClass = AllTests.allTests(communicator, initData, false);
 	
 	Console.Out.Write("testing server shutdown... ");
 	Console.Out.Flush();
@@ -38,24 +39,25 @@ public class Client
 	
 	try
 	{
-	    Ice.Properties properties = Ice.Util.getDefaultProperties(ref args);
-	    properties.setProperty("Ice.ThreadPool.Client.Size", "2"); // For nested AMI.
-	    properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
+	    Ice.InitializationData initData = new Ice.InitializationData();
+	    initData.properties = Ice.Util.createProperties(ref args);
+	    initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2"); // For nested AMI.
+	    initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
 
 	    //
 	    // We must set MessageSizeMax to an explicit values,
 	    // because we run tests to check whether
 	    // Ice.MemoryLimitException is raised as expected.
 	    //
-	    properties.setProperty("Ice.MessageSizeMax", "100");
+	    initData.properties.setProperty("Ice.MessageSizeMax", "100");
 
 	    //
 	    // We don't want connection warnings because of the timeout test.
 	    //
-	    properties.setProperty("Ice.Warn.Connections", "0");
+	    initData.properties.setProperty("Ice.Warn.Connections", "0");
 
-	    communicator = Ice.Util.initialize(ref args);
-	    status = run(args, communicator);
+	    communicator = Ice.Util.initialize(ref args, initData);
+	    status = run(args, communicator, initData);
 	}
 	catch(System.Exception ex)
 	{

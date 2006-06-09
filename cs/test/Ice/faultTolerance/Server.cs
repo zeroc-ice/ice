@@ -73,10 +73,11 @@ public class Server
 	    // otherwise our test servers may time out before they are
 	    // used in the test.
 	    //
-	    Ice.Properties properties = Ice.Util.getDefaultProperties(ref args);
-	    properties.setProperty("Ice.ServerIdleTime", "120"); // Two minutes
+	    Ice.InitializationData initData = new Ice.InitializationData();
+	    initData.properties = Ice.Util.createProperties(ref args);
+	    initData.properties.setProperty("Ice.ServerIdleTime", "120"); // Two minutes
 
-            communicator = Ice.Util.initialize(ref args);
+            communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
         }
         catch(System.Exception ex)

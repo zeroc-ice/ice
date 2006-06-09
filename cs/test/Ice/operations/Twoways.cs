@@ -19,7 +19,8 @@ class Twoways
 	}
     }
     
-    internal static void twoways(Ice.Communicator communicator, Test.MyClassPrx p)
+    internal static void twoways(Ice.Communicator communicator, 
+				 Ice.InitializationData initData, Test.MyClassPrx p)
     {
 	{
 	    p.opVoid();
@@ -602,11 +603,9 @@ class Twoways
 		//
 		// Test that default context is obtained correctly from communicator.
 		//
-		string[] args = new string[0];
-		Ice.InitializationData initData = new Ice.InitializationData();
 		initData.defaultContext = new Ice.Context();
 		initData.defaultContext["a"] = "b";
-		Ice.Communicator communicator2 = Ice.Util.initialize(ref args, initData);
+		Ice.Communicator communicator2 = Ice.Util.initialize(initData);
 
 		Test.MyClassPrx c = Test.MyClassPrxHelper.checkedCast(
 					communicator2.stringToProxy("test:default -p 12010 -t 10000"));

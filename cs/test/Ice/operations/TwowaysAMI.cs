@@ -269,7 +269,7 @@ public class TwowaysAMI
             test(c2.ice_getIdentity().Equals(_communicator.stringToIdentity("noSuchIdentity")));
             test(r.ice_getIdentity().Equals(_communicator.stringToIdentity("test")));
 	    // We can't do the callbacks below in thread per connection mode.
-	    if(Ice.Util.getDefaultProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0)
+	    if(_communicator.getProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0)
 	    {
 		r.opVoid();
 		c1.opVoid();
@@ -301,6 +301,11 @@ public class TwowaysAMI
     
     private class AMI_MyClass_opStructI : Test.AMI_MyClass_opStruct
     {
+	public AMI_MyClass_opStructI(Ice.Communicator comunicator)
+	{
+	    _communicator = comunicator;
+	}
+
         public override void ice_response(Test.Structure rso, Test.Structure so)
         {
             test(rso.p == null);
@@ -309,7 +314,7 @@ public class TwowaysAMI
             test(so.e == Test.MyEnum.enum3);
             test(so.s.s.Equals("a new string"));
 	    // We can't do the callbacks below in thread per connection mode.
-	    if(Ice.Util.getDefaultProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0)
+	    if(_communicator.getProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0)
 	    {
 		so.p.opVoid();
 	    }
@@ -327,6 +332,7 @@ public class TwowaysAMI
         }
         
         private Callback callback = new Callback();
+        private Ice.Communicator _communicator;
     }
     
     private class AMI_MyClass_opByteSI : Test.AMI_MyClass_opByteS
@@ -953,7 +959,8 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
     
-    internal static void twowaysAMI(Ice.Communicator communicator, Test.MyClassPrx p)
+    internal static void twowaysAMI(Ice.Communicator communicator, 
+				    Ice.InitializationData initData, Test.MyClassPrx p)
     {
         {
 	    // Check that a call to a void operation raises TwowayOnlyException
@@ -1047,7 +1054,7 @@ public class TwowaysAMI
             si2.s = new Test.AnotherStruct();
             si2.s.s = "def";
             
-            AMI_MyClass_opStructI cb = new AMI_MyClass_opStructI();
+            AMI_MyClass_opStructI cb = new AMI_MyClass_opStructI(communicator);
             p.opStruct_async(cb, si1, si2);
             test(cb.check());
         }
@@ -1295,11 +1302,9 @@ public class TwowaysAMI
 		//
 		// Test that default context is obtained correctly from communicator.
 		//
-                string[] args = new string[0];
-                Ice.InitializationData initData = new Ice.InitializationData();
                 initData.defaultContext = new Ice.Context();
                 initData.defaultContext["a"] = "b";
-                Ice.Communicator communicator2 = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator communicator2 = Ice.Util.initialize(initData);
 
 		Test.MyClassPrx c = Test.MyClassPrxHelper.checkedCast(
 						communicator2.stringToProxy("test:default -p 12010 -t 10000"));

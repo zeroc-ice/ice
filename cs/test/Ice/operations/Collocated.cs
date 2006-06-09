@@ -11,7 +11,8 @@ using System;
 
 public class Collocated
 {
-    private static int run(String[] args, Ice.Communicator communicator)
+    private static int run(String[] args, Ice.Communicator communicator,
+			   Ice.InitializationData initData)
     {
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 2000");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
@@ -20,7 +21,7 @@ public class Collocated
 	adapter.add(new TestCheckedCastI(), communicator.stringToIdentity("context"));
 	adapter.activate();
 
-        AllTests.allTests(communicator, true);
+        AllTests.allTests(communicator, initData, true);
 
         return 0;
     }
@@ -32,12 +33,13 @@ public class Collocated
 	
 	try
 	{
-	    Ice.Properties properties = Ice.Util.getDefaultProperties();
-	    properties.setProperty("Ice.ThreadPool.Client.Size", "2"); // For nested AMI.
-	    properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
+	    Ice.InitializationData initData = new Ice.InitializationData();
+	    initData.properties = Ice.Util.createProperties(ref args);
+	    initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2"); // For nested AMI.
+	    initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
 	    
-	    communicator = Ice.Util.initialize(ref args);
-	    status = run(args, communicator);
+	    communicator = Ice.Util.initialize(ref args, initData);
+	    status = run(args, communicator, initData);
 	}
 	catch(System.Exception ex)
 	{

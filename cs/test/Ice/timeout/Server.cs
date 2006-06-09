@@ -29,14 +29,15 @@ public class Server
 
 	try
 	{
-	    Ice.Properties properties = Ice.Util.getDefaultProperties(ref args);
+	    Ice.InitializationData initData = new Ice.InitializationData();
+	    initData.properties = Ice.Util.createProperties(ref args);
 
 	    //
 	    // This test kills connections, so we don't want warnings.
 	    //
-	    properties.setProperty("Ice.Warn.Connections", "0");
+	    initData.properties.setProperty("Ice.Warn.Connections", "0");
 
-	    communicator = Ice.Util.initialize(ref args);
+	    communicator = Ice.Util.initialize(ref args, initData);
 	    status = run(args, communicator);
 	}
 	catch(Ice.LocalException ex)

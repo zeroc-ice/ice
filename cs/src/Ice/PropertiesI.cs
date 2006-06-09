@@ -231,13 +231,23 @@ namespace Ice
 	internal PropertiesI()
 	{
 	    _properties = new PropertyDict();
-	    loadConfig();
 	}
 	
-	internal PropertiesI(ref string[] args)
+	internal PropertiesI(ref string[] args, Properties defaults)
 	{
-	    _properties = new PropertyDict();
+	    if(defaults == null)
+	    {
+		_properties = new PropertyDict();
+	    }
+	    else
+	    {
+		_properties = defaults.getPropertiesForPrefix("");
+	    }
+	    
 	    setProperty("Ice.ProgramName", System.AppDomain.CurrentDomain.FriendlyName);
+
+	    bool loadConfigFiles = false;
+
 	    for(int i = 0; i < args.Length; i++)
 	    {
 		if(args[i].StartsWith("--Ice.Config"))
@@ -248,6 +258,8 @@ namespace Ice
 			line += "=1";
 		    }
 		    parseLine(line.Substring(2));
+		    loadConfigFiles = true;
+
 		    string[] arr = new string[args.Length - 1];
 		    System.Array.Copy(args, 0, arr, 0, i);
 		    if(i < args.Length - 1)
@@ -257,8 +269,19 @@ namespace Ice
 		    args = arr;
 		}
 	    }
+
+	    if(!loadConfigFiles)
+	    {
+		//
+		// If Ice.Config is not set, load from ICE_CONFIG (if set)
+		//
+		loadConfigFiles = (_properties["Ice.Config"] == null);
+	    }
 	    
-	    loadConfig();
+	    if(loadConfigFiles)
+	    {
+		loadConfig();
+	    }
 	    
 	    args = parseIceCommandLineOptions(args); 
 	}
