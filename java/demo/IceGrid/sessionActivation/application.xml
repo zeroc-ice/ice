@@ -17,7 +17,7 @@
       <server id="SessionServer" exe="java" activation="session">
         <option>Server</option>
 	<adapter name="Hello" endpoints="tcp" register-process="true">
-	  <object identity="hello" type="::Demo::Hello"/>
+	  <allocatable identity="hello"/>
 	</adapter>
 	<property name="Identity" value="hello"/>
       </server>

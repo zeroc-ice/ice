@@ -93,6 +93,7 @@ class PlainServer extends Communicator implements Server
 	    "",
 	    true,
 	    true,
+	    new java.util.LinkedList(),
 	    new java.util.LinkedList());
 
 	java.util.LinkedList adapterList = new java.util.LinkedList();

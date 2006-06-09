@@ -18,7 +18,7 @@
       <server id="AllocateServer-${index}" exe="java" activation="on-demand">
         <option>Server</option>
         <adapter name="Hello" endpoints="tcp" register-process="true">
-	    <object identity="hello-${index}" type="::Demo::Hello"/>
+	    <allocatable identity="hello-${index}" type="::Demo::Hello"/>
 	</adapter>
 	<property name="Identity" value="hello-${index}"/>
       </server>
