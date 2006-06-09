@@ -343,19 +343,13 @@
 		<col def="S0">ISDotNetInstallerArgsUninstall</col>
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
 		<row><td>DummyComponent</td><td>{0A8A414C-E74D-471F-AC64-DEEA8E5E4747}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>GAC_glacier2cs</td><td>{FEC3532C-7323-4158-9E7E-5DF09630AFAE}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;= "2.0"</td><td>glacier2cs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>GAC_glacier2cspolicy</td><td>{E1714C2B-8B5A-4C9D-BDBE-A86BB83313DB}</td><td>GlobalAssemblyCache</td><td>8</td><td/><td>policy.3.0.glacier2cs.dll</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>GAC_iceboxcs</td><td>{FCD8B61A-C27C-4746-8E42-96551103C2A5}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td>iceboxcs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>GAC_iceboxcspolicy</td><td>{CC250EAD-98F7-4DFA-9928-7FB7AFC93E33}</td><td>GlobalAssemblyCache</td><td>8</td><td/><td>policy.3.0.iceboxcs.dll</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>GAC_icecs</td><td>{C3F958D8-5F24-4437-B912-4CCAF3309A55}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td>icecs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>GAC_icecspolicy</td><td>{97B622C4-6D4D-48B6-9012-93FF525153EF}</td><td>GlobalAssemblyCache</td><td>8</td><td/><td>policy.3.0.icecs.dll</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>GAC_icegridcs</td><td>{863B7B37-145C-4BCA-AFD1-0636A71F6B46}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td>icegridcs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>GAC_icegridcspolicy</td><td>{3A68D52E-BE3A-4B4B-B570-463818F94555}</td><td>GlobalAssemblyCache</td><td>8</td><td/><td>policy.3.0.icegridcs.dll</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>GAC_icepatch2cs</td><td>{8F2DE27A-B0F5-4FE0-A27C-A6DD3C9FCA2B}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td>icepatch2cs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>GAC_icepatch2cspolicy</td><td>{64A2AB69-0E29-486A-A401-02E302CB9B4F}</td><td>GlobalAssemblyCache</td><td>8</td><td/><td>policy.3.0.icepatch2cs.dll</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>GAC_icestormcs</td><td>{1E8D7135-C067-4CE8-943C-D21F1760E6C5}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td>icestormcs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>GAC_icestormcspolicy</td><td>{2D568C55-2995-4F4E-A70B-E942CA54CD26}</td><td>GlobalAssemblyCache</td><td>8</td><td/><td>policy.3.0.icestormcs.dll</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>GAC_registry</td><td>{A1BE4221-A631-4347-A8CA-3ED0AE81448A}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>GAC_glacier2cs</td><td>{53C9CFD7-57A7-4C63-8000-938EE2C0EBF6}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;= "2.0"</td><td>glacier2cs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>GAC_iceboxcs</td><td>{8C3C3EFF-B2EA-4C14-B5E8-108527E8F71D}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td>iceboxcs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>GAC_icecs</td><td>{FB8FD85C-EC0E-4A07-BC20-A96EF1F44909}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td>icecs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>GAC_icegridcs</td><td>{56E42CD0-C070-48BE-A5F5-5698330D04D7}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td>icegridcs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>GAC_icepatch2cs</td><td>{7F6E4D01-1F91-4D8B-BA25-8A494FEE18C6}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td>icepatch2cs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>GAC_icestormcs</td><td>{E0F3C7F7-AFDD-41CA-B306-EA539739A9CB}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td>icestormcs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>GAC_registry</td><td>{B945C231-EF78-4737-8C8B-97DB5C086FFD}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceCSharpDemo</td><td>{A4BB2878-87EF-462B-B1D0-EF5A859702FA}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceCSharpDev</td><td>{A7182719-2C34-4246-8C00-C0673BE6EBF4}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceCSharpRuntime</td><td>{4CA76E20-D92E-476E-A858-C93C152AC964}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
@@ -1368,17 +1362,11 @@
 		<row><td>ice_runtime</td><td>IceDoc</td></row>
 		<row><td>ice_runtime_cpp</td><td>DummyComponent</td></row>
 		<row><td>ice_runtime_dotnet</td><td>GAC_glacier2cs</td></row>
-		<row><td>ice_runtime_dotnet</td><td>GAC_glacier2cspolicy</td></row>
 		<row><td>ice_runtime_dotnet</td><td>GAC_iceboxcs</td></row>
-		<row><td>ice_runtime_dotnet</td><td>GAC_iceboxcspolicy</td></row>
 		<row><td>ice_runtime_dotnet</td><td>GAC_icecs</td></row>
-		<row><td>ice_runtime_dotnet</td><td>GAC_icecspolicy</td></row>
 		<row><td>ice_runtime_dotnet</td><td>GAC_icegridcs</td></row>
-		<row><td>ice_runtime_dotnet</td><td>GAC_icegridcspolicy</td></row>
 		<row><td>ice_runtime_dotnet</td><td>GAC_icepatch2cs</td></row>
-		<row><td>ice_runtime_dotnet</td><td>GAC_icepatch2cspolicy</td></row>
 		<row><td>ice_runtime_dotnet</td><td>GAC_icestormcs</td></row>
-		<row><td>ice_runtime_dotnet</td><td>GAC_icestormcspolicy</td></row>
 		<row><td>ice_runtime_dotnet</td><td>GAC_registry</td></row>
 		<row><td>ice_runtime_dotnet</td><td>IceCSharpRuntime</td></row>
 		<row><td>ice_runtime_java</td><td>IceJavaRuntime</td></row>
@@ -1405,18 +1393,6 @@
 		<row><td>icegridcs.dll</td><td>GAC_icegridcs</td><td>ICEGRI~1.DLL|icegridcs.dll</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime\bin\icegridcs.dll</td><td>1</td><td/></row>
 		<row><td>icepatch2cs.dll</td><td>GAC_icepatch2cs</td><td>ICEPAT~1.DLL|icepatch2cs.dll</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime\bin\icepatch2cs.dll</td><td>1</td><td/></row>
 		<row><td>icestormcs.dll</td><td>GAC_icestormcs</td><td>ICESTO~1.DLL|icestormcs.dll</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime\bin\icestormcs.dll</td><td>1</td><td/></row>
-		<row><td>policy.3.0.glacier2cs</td><td>GAC_glacier2cspolicy</td><td>POLICY~1.GLA|policy.3.0.glacier2cs</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime\bin\policy.3.0.glacier2cs</td><td>1</td><td/></row>
-		<row><td>policy.3.0.glacier2cs.dll</td><td>GAC_glacier2cspolicy</td><td>POLICY~1.DLL|policy.3.0.glacier2cs.dll</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime\bin\policy.3.0.glacier2cs.dll</td><td>1</td><td/></row>
-		<row><td>policy.3.0.iceboxcs</td><td>GAC_iceboxcspolicy</td><td>POLICY~1.ICE|policy.3.0.iceboxcs</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime\bin\policy.3.0.iceboxcs</td><td>1</td><td/></row>
-		<row><td>policy.3.0.iceboxcs.dll</td><td>GAC_iceboxcspolicy</td><td>POLICY~1.DLL|policy.3.0.iceboxcs.dll</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime\bin\policy.3.0.iceboxcs.dll</td><td>1</td><td/></row>
-		<row><td>policy.3.0.icecs</td><td>GAC_icecspolicy</td><td>POLICY~1.ICE|policy.3.0.icecs</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime\bin\policy.3.0.icecs</td><td>1</td><td/></row>
-		<row><td>policy.3.0.icecs.dll</td><td>GAC_icecspolicy</td><td>POLICY~1.DLL|policy.3.0.icecs.dll</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime\bin\policy.3.0.icecs.dll</td><td>1</td><td/></row>
-		<row><td>policy.3.0.icegridcs</td><td>GAC_icegridcspolicy</td><td>POLICY~1.ICE|policy.3.0.icegridcs</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime\bin\policy.3.0.icegridcs</td><td>1</td><td/></row>
-		<row><td>policy.3.0.icegridcs.dll</td><td>GAC_icegridcspolicy</td><td>POLICY~1.DLL|policy.3.0.icegridcs.dll</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime\bin\policy.3.0.icegridcs.dll</td><td>1</td><td/></row>
-		<row><td>policy.3.0.icepatch2cs</td><td>GAC_icepatch2cspolicy</td><td>POLICY~1.ICE|policy.3.0.icepatch2cs</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime\bin\policy.3.0.icepatch2cs</td><td>1</td><td/></row>
-		<row><td>policy.3.0.icepatch2cs.dll</td><td>GAC_icepatch2cspolicy</td><td>POLICY~1.DLL|policy.3.0.icepatch2cs.dll</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime\bin\policy.3.0.icepatch2cs.dll</td><td>1</td><td/></row>
-		<row><td>policy.3.0.icestormcs</td><td>GAC_icestormcspolicy</td><td>POLICY~1.ICE|policy.3.0.icestormcs</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime\bin\policy.3.0.icestormcs</td><td>1</td><td/></row>
-		<row><td>policy.3.0.icestormcs.dll</td><td>GAC_icestormcspolicy</td><td>POLICY~1.DLL|policy.3.0.icestormcs.dll</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime\bin\policy.3.0.icestormcs.dll</td><td>1</td><td/></row>
 	</table>
 
 	<table name="FileSFPCatalog">
@@ -1571,17 +1547,11 @@
 		<col def="S0">Miscellaneous</col>
 		<row><td>DummyComponent</td><td/><td/><td>_908B4938_DF02_4FFC_8680_DAC7E8FF46AC_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>GAC_glacier2cs</td><td/><td/><td>_6791A0B1_69E0_496B_BBBB_6DD59B697B46_FILTER</td><td/><td/><td/><td/></row>
-		<row><td>GAC_glacier2cspolicy</td><td/><td/><td>_6CBE1721_27FC_482B_841C_B1A71BEE37D2_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>GAC_iceboxcs</td><td/><td/><td>_103DC124_CCF8_4E14_9DDB_6F0DB7AA434D_FILTER</td><td/><td/><td/><td/></row>
-		<row><td>GAC_iceboxcspolicy</td><td/><td/><td>_95E7FEA3_461E_464B_81C6_EDB71D978889_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>GAC_icecs</td><td/><td/><td>_600A5FAE_4674_435B_8700_897F353856EE_FILTER</td><td/><td/><td/><td/></row>
-		<row><td>GAC_icecspolicy</td><td/><td/><td>_DC9DD52C_65D7_4556_9D30_6D4EE98C2771_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>GAC_icegridcs</td><td/><td/><td>_C97E7F94_F395_4FC5_B575_F7AF91780FBB_FILTER</td><td/><td/><td/><td/></row>
-		<row><td>GAC_icegridcspolicy</td><td/><td/><td>_6467064B_918E_403C_9908_3B10039EB7AB_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>GAC_icepatch2cs</td><td/><td/><td>_4148F83B_B26E_4415_A51D_5580DE431AFC_FILTER</td><td/><td/><td/><td/></row>
-		<row><td>GAC_icepatch2cspolicy</td><td/><td/><td>_C922BAE2_AEDA_4613_9ED7_03A9F633598B_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>GAC_icestormcs</td><td/><td/><td>_74B66A95_80BE_43A1_9A2E_508B6CBB795E_FILTER</td><td/><td/><td/><td/></row>
-		<row><td>GAC_icestormcspolicy</td><td/><td/><td>_467B4A69_917B_40D3_A502_A057744B4F76_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>GAC_registry</td><td/><td/><td>_BD3CFD91_5B86_4986_8C18_2B0C4639FCA8_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceCSharpDemo</td><td/><td/><td>_7DD0A005_2547_4846_B573_62AFE1194756_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceCSharpDev</td><td/><td/><td>_3471DDA3_D6D8_440C_837A_1DF61C7914ED_FILTER</td><td/><td/><td/><td/></row>
