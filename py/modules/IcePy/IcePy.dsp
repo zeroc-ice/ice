@@ -150,6 +150,10 @@ SOURCE=.\Slice.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ThreadNotification.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Types.cpp
 # End Source File
 # Begin Source File
@@ -199,6 +203,10 @@ SOURCE=.\Proxy.h
 # Begin Source File
 
 SOURCE=.\Slice.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ThreadNotification.h
 # End Source File
 # Begin Source File
 
