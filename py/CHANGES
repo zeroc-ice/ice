@@ -1,6 +1,16 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Removed getDefaultProperties(). If you need global properties, 
+  you can easily create your own global variable.
+
+- createProperties() accepts now a third optional parameter,
+  defaults, of type Ice.Properties.
+  "defaults" represents an optional set of default properties
+  used to initialize the new Properties object. Ice properties
+  defined on the command-line and properties defined in the Ice
+  config file may override these default properties.
+
 - Added ability to configure Ice thread start/stop hooks through
   InitializationData.
 
