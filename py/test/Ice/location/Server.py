@@ -91,8 +91,7 @@ class ServerManagerI(Test.ServerManager):
         self._initData.properties.setProperty("TestAdapter2.AdapterId", "TestAdapter2")
 
     def startServer(self, current=None):
-        args = []
-
+      
         #
         # Simulate a server: create a new communicator and object
         # adapter. The object adapter is started on a system allocated
@@ -101,7 +100,7 @@ class ServerManagerI(Test.ServerManager):
         # its endpoints with the locator and create references containing
         # the adapter id instead of the endpoints.
         #
-        serverCommunicator = Ice.initialize(args, initData)
+        serverCommunicator = Ice.initialize(data=initData)
         self._communicators.append(serverCommunicator)
         adapter = serverCommunicator.createObjectAdapter("TestAdapter")
 

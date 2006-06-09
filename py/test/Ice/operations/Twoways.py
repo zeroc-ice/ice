@@ -461,7 +461,7 @@ def twoways(communicator, initData, p):
     # Test that default context is obtained correctly from communicator.
     #
     initData.defaultContext = {'a': 'b'}
-    communicator2 = Ice.initialize([], initData)
+    communicator2 = Ice.initialize(data=initData)
 
     c = Test.MyClassPrx.checkedCast(communicator2.stringToProxy("test:default -p 12010 -t 10000"))
     test(c.opContext() == initData.defaultContext)
