@@ -12,6 +12,7 @@
 #endif
 
 #include "ice_util.h"
+#include <IceUtil/DisableWarnings.h>
 #include <Ice/IdentityUtil.h>
 #include <algorithm>
 #include <ctype.h>
