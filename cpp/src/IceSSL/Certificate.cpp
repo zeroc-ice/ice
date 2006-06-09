@@ -248,43 +248,46 @@ ParseException::ice_throw() const
 DistinguishedName::DistinguishedName(X509_NAME* name) :
     _rdns(RFC2253::parseStrict(convertX509NameToString(name)))
 {
+    unescape();
 }
 
 DistinguishedName::DistinguishedName(const string& dn) :
     _rdns(RFC2253::parseStrict(dn))
 {
+    unescape();
 }
 
 DistinguishedName::DistinguishedName(const list<pair<string, string> >& rdns) :
     _rdns(rdns)
 {
+    unescape();
 }
 
 bool
 DistinguishedName::operator==(const DistinguishedName& other) const
 {
-    return other._rdns == _rdns;
+    return other._unescaped == _unescaped;
 }
 
 bool
 DistinguishedName::operator!=(const DistinguishedName& other) const
 {
-    return other._rdns != _rdns;
+    return other._unescaped != _unescaped;
 }
 
 bool
 DistinguishedName::operator<(const DistinguishedName& other) const
 {
-    return other._rdns < _rdns;
+    return other._unescaped < _unescaped;
 }
 
 bool
 DistinguishedName::match(const DistinguishedName& other) const
 {
-    for(list< pair<string, string> >::const_iterator p = other._rdns.begin(); p != other._rdns.end(); ++p)
+    for(list< pair<string, string> >::const_iterator p = other._unescaped.begin(); p != other._unescaped.end(); ++p)
     {
 	bool found = false;
-	for(list< pair<string, string> >::const_iterator q = _rdns.begin(); q != _rdns.end(); ++q)
+	for(list< pair<string, string> >::const_iterator q = _unescaped.begin(); q != _unescaped.end(); ++q)
 	{
 	    if(p->first == q->first)
 	    {
@@ -303,6 +306,10 @@ DistinguishedName::match(const DistinguishedName& other) const
     return true;
 }
 
+//
+// This always produces the same output as the input DN -- the type of
+// escaping is not changed.
+//
 DistinguishedName::operator string() const
 {
     ostringstream os;
@@ -317,6 +324,17 @@ DistinguishedName::operator string() const
 	os << p->first << "=" << p->second;
     }
     return os.str();
+}
+
+void
+DistinguishedName::unescape()
+{
+    for(list< pair<string, string> >::const_iterator q = _rdns.begin(); q != _rdns.end(); ++q)
+    {
+	pair<string, string> rdn = *q;
+	rdn.second = RFC2253::unescape(rdn.second);
+	_unescaped.push_back(rdn);
+    }
 }
 
 PublicKey::PublicKey(EVP_PKEY* key) :

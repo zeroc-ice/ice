@@ -43,6 +43,11 @@ RDNSeqSeq parse(const std::string&);
 //
 RDNSeq parseStrict(const std::string&);
 
+//
+// Unescape the string.
+//
+std::string unescape(const std::string&);
+
 }
 
 #endif

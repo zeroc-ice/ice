@@ -1044,6 +1044,38 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
 	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
+	initData.properties->setProperty("IceSSL.TrustOnly", "C=US, ST=Florida, O=\"ZeroC, Inc.\","
+					 "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+	CommunicatorPtr comm = initialize(argc, argv, initData);
+	IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
+	test(plugin);
+
+	Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+	test(fact);
+	Test::Properties d = createServerProps(defaultHost);
+	d["IceSSL.DefaultDir"] = defaultDir;
+	d["IceSSL.CertAuthFile"] = "cacert1.pem";
+	d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
+	d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
+	Test::ServerPrx server = fact->createServer(d);
+	try
+	{
+	    server->ice_ping();
+	}
+	catch(const LocalException&)
+	{
+	    test(false);
+	}
+	fact->destroyServer(server);
+	comm->destroy();
+    }
+    {
+        InitializationData initData;
+	initData.properties = createClientProps(defaultHost);
+	initData.properties->setProperty("IceSSL.DefaultDir", defaultDir);
+	initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
+	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
+	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
 
 	CommunicatorPtr comm = initialize(argc, argv, initData);
 	IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));

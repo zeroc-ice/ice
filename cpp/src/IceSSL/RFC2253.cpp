@@ -22,6 +22,7 @@ namespace RFC2253
 static string special = ",=+<>#;";
 string hexvalid = "0123456789abcdefABCDEF";
 
+static char unescapeHex(const string&, size_t);
 static pair<string,string> parseNameComponent(const string&, size_t&);
 static pair<string,string> parseAttributeTypeAndValue(const string&, size_t&);
 static string parseAttributeType(const string&, size_t&);
@@ -82,6 +83,103 @@ parseStrict(const string& data)
 	}
     }
     return results;
+}
+
+string
+unescape(const string& data)
+{
+    if(data.size() == 0)
+    {
+	return data;
+    }
+
+    if(data[0] == '"')
+    {
+	if(data[data.size() - 1] != '"')
+	{
+	    throw ParseException(__FILE__, __LINE__, "unescape: missing \"");
+	}
+
+	//
+	// Return the string without quotes.
+	//
+	return data.substr(1, data.size() - 2);
+    }
+
+    //
+    // Unescape the entire string.
+    //
+    string result;
+    if(data[0] == '#')
+    {
+	size_t pos = 1;
+	while(pos < data.size())
+	{
+	    result += unescapeHex(data, pos);
+	    pos += 2;
+	}
+    }
+    else
+    {
+	size_t pos = 0;
+	while(pos < data.size())
+	{
+	    if(data[pos] != '\\')
+	    {
+		result += data[pos];
+		++pos;
+	    }
+	    else
+	    {
+		++pos;
+		if(pos >= data.size())
+		{
+		    throw ParseException(__FILE__, __LINE__, "unescape: invalid escape sequence");
+		}
+		if(special.find(data[pos]) != string::npos || data[pos] != '\\' || data[pos] != '"')
+		{
+		    result += data[pos];
+		    ++pos;
+		}
+		else
+		{
+		    result += unescapeHex(data, pos);
+		    pos += 2;
+		}
+	    }
+	}
+    }
+
+    return result;
+}
+	
+static int
+hexToInt(char v)
+{
+    if(v >= '0' && v <= '9')
+    {
+	return v - '0';
+    }
+    if(v >= 'a' && v <= 'f')
+    {
+	return 10 + (v - 'a');
+    }
+    if(v >= 'A' && v <= 'F')
+    {
+	return 10 + (v - 'A');
+    }
+    throw ParseException(__FILE__, __LINE__, "unescape: invalid hex pair");
+}
+
+static char
+unescapeHex(const string& data, size_t pos)
+{
+    assert(pos < data.size());
+    if(pos + 2 >= data.size())
+    {
+	throw ParseException(__FILE__, __LINE__, "unescape: invalid hex pair");
+    }
+    return (char)(hexToInt(data[pos]) * 16 + hexToInt(data[pos + 1]));
 }
 
 static pair<string,string>

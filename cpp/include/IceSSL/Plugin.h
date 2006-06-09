@@ -130,6 +130,18 @@ private:
 };
 typedef IceUtil::Handle<PublicKey> PublicKeyPtr;
 
+//
+// This class represents a DistinguishedName, similar to a java
+// X500Principal, or a C# X500DistinguishedName. It, however, also
+// offers a sloppy match.
+//
+// For comparison purposes the value of the RDN is always unescaped
+// before matching. "ZeroC, Inc." will match ZeroC\, Inc.
+//
+// toString() always returns exactly the same information as was
+// provided in the constructor (that is "ZeroC, Inc." will not turn
+// into ZeroC\, Inc.
+//
 class ICE_SSL_API DistinguishedName
 {
 public:
@@ -146,6 +158,7 @@ public:
     DistinguishedName(const std::string&);
     DistinguishedName(const std::list<std::pair<std::string, std::string> >&);
 
+    //
     // This is an exact match. Order of the RDNs matter.
     bool operator==(const DistinguishedName&) const;
     bool operator!=(const DistinguishedName&) const;
@@ -165,7 +178,10 @@ public:
 
 private:
 
+    void unescape();
+
     std::list<std::pair<std::string, std::string> > _rdns;
+    std::list<std::pair<std::string, std::string> > _unescaped;
 };
 
 //
