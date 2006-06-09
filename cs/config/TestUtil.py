@@ -75,6 +75,9 @@ def closePipe(pipe):
 	# TODO: There's a waitpid problem on CentOS, so we have to ignore ECHILD.
 	if ex.errno == errno.ECHILD:
 	    status = 0
+	# This happens with the C# fault tolerance test. Ignore this error.
+	elif ex.errno == 0:
+	    status = 0
 	else:
 	    raise
 
@@ -95,6 +98,7 @@ class ReaderThread(Thread):
 		if not line.endswith(" ready\n") and not line.endswith(" ready\r\n"):
 		    print line,
         except IOError:
+	    print "IOError"
             pass
 
 	self.status = closePipe(self.pipe)
