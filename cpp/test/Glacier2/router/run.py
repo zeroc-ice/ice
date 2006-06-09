@@ -39,8 +39,9 @@ print "starting router...",
 starterPipe = os.popen(command + " 2>&1")
 TestUtil.getServerPid(starterPipe)
 #
-# For this test we don't want to add the router to the server threads since
-# we want the the router to run over two calls to mixedClientServerTest
+# For this test we don't want to add the router to the server threads
+# since we want the the router to run over two calls to
+# mixedClientServerTest
 #
 TestUtil.getAdapterReady(starterPipe, False)
 print "ok"

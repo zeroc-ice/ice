@@ -46,6 +46,7 @@ command = router + TestUtil.clientServerOptions + \
           r' --Glacier2.PermissionsVerifier="verifier:tcp -h 127.0.0.1 -p 12350 -t 10000"' + \
           r' --Glacier2.SSLSessionManager="sslsessionmanager:tcp -h 127.0.0.1 -p 12350 -t 10000"' + \
           r' --Glacier2.SSLPermissionsVerifier="sslverifier:tcp -h 127.0.0.1 -p 12350 -t 10000"' + \
+	  r" --Ice.Plugin.IceSSL=IceSSL:create" + \
           r" --IceSSL.DefaultDir=" + os.path.join(toplevel, "certs") + \
           r' --IceSSL.CertFile=s_rsa1024_pub.pem' + \
           r' --IceSSL.KeyFile=s_rsa1024_priv.pem' + \
@@ -59,6 +60,7 @@ print "ok"
 
 client = os.path.join(testdir, "client")
 command = client + TestUtil.clientOptions + \
+	   " --Ice.Plugin.IceSSL=IceSSL:create" + \
            " --IceSSL.DefaultDir=" + os.path.join(toplevel, "certs") + \
            " --IceSSL.CertFile=c_rsa1024_pub.pem" + \
            " --IceSSL.KeyFile=c_rsa1024_priv.pem" + \
