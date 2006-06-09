@@ -119,6 +119,10 @@ SOURCE=.\Allocatable.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\AllocatableObjectCache.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Database.cpp
 # End Source File
 # Begin Source File
@@ -132,6 +136,10 @@ SOURCE=.\DescriptorHelper.cpp
 # Begin Source File
 
 SOURCE=.\DescriptorParser.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\FileUserAccountMapperI.cpp
 # End Source File
 # Begin Source File
 
@@ -212,10 +220,6 @@ SOURCE=.\TraceLevels.cpp
 # Begin Source File
 
 SOURCE=.\Util.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\FileUserAccountMapperI.cpp
 # End Source File
 # Begin Source File
 

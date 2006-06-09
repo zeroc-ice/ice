@@ -273,7 +273,8 @@ AllocatableObjectEntry::allocated(const SessionIPtr& session)
     if(traceLevels && traceLevels->object > 1)
     {
 	Ice::Trace out(traceLevels->logger, traceLevels->objectCat);
-	out << "object `" << _info.proxy << "' allocated by `" << session->getId() << "' (" << _count << ")";
+	out << "object `" << _info.proxy->ice_toString() << "' allocated by `" << session->getId() << "' (" << _count 
+	    << ")";
     }    
 
     Glacier2::SessionControlPrx ctl = session->getSessionControl();
@@ -317,7 +318,8 @@ AllocatableObjectEntry::released(const SessionIPtr& session)
     if(traceLevels && traceLevels->object > 1)
     {
 	Ice::Trace out(traceLevels->logger, traceLevels->objectCat);
-	out << "object `" << _info.proxy << "' released by `" << session->getId() << "' (" << _count << ")";
+	out << "object `" << _info.proxy->ice_toString() << "' released by `" << session->getId() << "' (" << _count 
+	    << ")";
     }    
 }
 
