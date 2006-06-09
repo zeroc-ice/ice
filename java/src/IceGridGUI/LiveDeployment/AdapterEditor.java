@@ -84,6 +84,7 @@ class AdapterEditor extends Editor
 	_waitForActivation.setSelected(descriptor.waitForActivation);
 
 	_objects.setObjects(descriptor.objects, resolver);
+	_allocatables.setObjects(descriptor.allocatables, resolver);
     }
 
     protected void appendProperties(DefaultFormBuilder builder)
@@ -132,7 +133,7 @@ class AdapterEditor extends Editor
 	builder.append("", _waitForActivation);
 	builder.nextLine();
 
-	builder.append("Registered Objects");
+	builder.append("Well-known Objects");
 	builder.nextLine();
 	builder.append("");
 	builder.nextLine();
@@ -141,6 +142,20 @@ class AdapterEditor extends Editor
 	builder.append("");
 	builder.nextRow(-6);
 	scrollPane = new JScrollPane(_objects);
+	builder.add(scrollPane, 
+		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+	builder.nextRow(6);
+	builder.nextLine();
+
+	builder.append("Allocatable Objects");
+	builder.nextLine();
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
+	builder.nextRow(-6);
+	scrollPane = new JScrollPane(_allocatables);
 	builder.add(scrollPane, 
 		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
 	builder.nextRow(6);
@@ -166,4 +181,5 @@ class AdapterEditor extends Editor
     private JCheckBox _waitForActivation = new JCheckBox("Wait for Activation");
     
     private TableField _objects = new TableField("Identity", "Type");
+    private TableField _allocatables = new TableField("Identity", "Type");
 }

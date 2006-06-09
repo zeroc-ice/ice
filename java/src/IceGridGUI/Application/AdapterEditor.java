@@ -36,7 +36,8 @@ class AdapterEditor extends CommunicatorChildEditor
     AdapterEditor()
     {
 	_objects = new MapField(this, "Identity", "Type", true);
-	
+	_allocatables = new MapField(this, "Identity", "Type", true);
+
 	//
 	// Create buttons
 	//
@@ -188,6 +189,7 @@ class AdapterEditor extends CommunicatorChildEditor
 	descriptor.registerProcess = _registerProcess.isSelected();
 	descriptor.waitForActivation = _waitForActivation.isSelected();
 	descriptor.objects = mapToObjectDescriptorSeq(_objects.get());
+	descriptor.allocatables = mapToObjectDescriptorSeq(_allocatables.get());
     }	    
     
     boolean isSimpleUpdate()
@@ -241,7 +243,7 @@ class AdapterEditor extends CommunicatorChildEditor
 	builder.append("", _waitForActivation);
 	builder.nextLine();
 
-	builder.append("Registered Objects");
+	builder.append("Well-known Objects");
 	builder.nextLine();
 	builder.append("");
 	builder.nextLine();
@@ -250,6 +252,20 @@ class AdapterEditor extends CommunicatorChildEditor
 	builder.append("");
 	builder.nextRow(-6);
 	scrollPane = new JScrollPane(_objects);
+	builder.add(scrollPane, 
+		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+	builder.nextRow(6);
+	builder.nextLine();
+
+	builder.append("Allocatable Objects");
+	builder.nextLine();
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
+	builder.nextRow(-6);
+	scrollPane = new JScrollPane(_allocatables);
 	builder.add(scrollPane, 
 		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
 	builder.nextRow(6);
@@ -475,6 +491,7 @@ class AdapterEditor extends CommunicatorChildEditor
 	// Objects
 	//
 	_objects.set(objectDescriptorSeqToMap(descriptor.objects), resolver, isEditable);
+	_allocatables.set(objectDescriptorSeqToMap(descriptor.allocatables), resolver, isEditable);
 	
 	_registerProcess.setSelected(descriptor.registerProcess);
 	_registerProcess.setEnabled(isEditable);
@@ -551,6 +568,7 @@ class AdapterEditor extends CommunicatorChildEditor
     private JCheckBox _waitForActivation;
 
     private MapField _objects;
+    private MapField _allocatables;
 
     static private final Object PUBLISH_ACTUAL = new Object()
 	{

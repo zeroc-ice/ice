@@ -277,7 +277,7 @@ class ReplicaGroupEditor extends Editor
 	builder.nextRow(2);
 	builder.nextLine();
 
-	builder.append("Registered Objects");
+	builder.append("Well-known Objects");
 	builder.nextLine();
 	builder.append("");
 	builder.nextLine();

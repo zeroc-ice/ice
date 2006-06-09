@@ -164,7 +164,9 @@ class Adapter extends TreeNode implements DescriptorHolder
 		attributes.add(createAttribute("wait-for-activation", "false"));
 	    }
 			   	   
-	    if(_descriptor.description.length() == 0 && _descriptor.objects.isEmpty())
+	    if(_descriptor.description.length() == 0 
+	       && _descriptor.objects.isEmpty()
+	       && _descriptor.allocatables.isEmpty())
 	    {
 		writer.writeElement("adapter", attributes);
 	    }
@@ -176,7 +178,8 @@ class Adapter extends TreeNode implements DescriptorHolder
 		{
 		    writer.writeElement("description", _descriptor.description);
 		}
-		writeObjects(writer, _descriptor.objects);
+		writeObjects("object", writer, _descriptor.objects);
+		writeObjects("allocatable", writer, _descriptor.allocatables);
 		writer.writeEndTag("adapter");
 	    }
 	}

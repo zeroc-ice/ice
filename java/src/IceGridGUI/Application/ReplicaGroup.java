@@ -199,7 +199,7 @@ class ReplicaGroup extends TreeNode
 		    writer.writeElement("load-balancing", attributes);
 		} 
 		
-		writeObjects(writer, _descriptor.objects);
+		writeObjects("object", writer, _descriptor.objects);
 		writer.writeEndTag("replica-group");
 	    }
 	}

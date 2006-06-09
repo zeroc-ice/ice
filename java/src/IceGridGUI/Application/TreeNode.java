@@ -209,7 +209,7 @@ public abstract class TreeNode extends TreeNodeBase
 	}
     }
     
-    static void writeObjects(XMLWriter writer, java.util.List objects)
+    static void writeObjects(String elt, XMLWriter writer, java.util.List objects)
 	throws java.io.IOException
     {
 	java.util.Iterator p = objects.iterator();
@@ -222,7 +222,7 @@ public abstract class TreeNode extends TreeNodeBase
 	    {
 		attributes.add(createAttribute("type", od.type));
 	    }
-	    writer.writeElement("object", attributes);
+	    writer.writeElement(elt, attributes);
 	}
     }	  
 
