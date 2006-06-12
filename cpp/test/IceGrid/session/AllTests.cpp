@@ -263,6 +263,7 @@ public:
 	    if(!timedWait(IceUtil::Time::seconds(10)))
 	    {
 		cerr << "timeout: " << file << ":" << line << endl;
+		ObserverStackTracer::printStack();
 		test(false); // Timeout
 	    }
 	}
@@ -453,6 +454,7 @@ public:
 	    if(!timedWait(IceUtil::Time::seconds(10)))
 	    {
 		cerr << "timeout: " << file << ":" << line << endl;
+		ObserverStackTracer::printStack();
 		test(false); // Timeout
 	    }
 	}

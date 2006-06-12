@@ -90,6 +90,7 @@ tests = [ \
     "IceGrid/update", \
     "IceGrid/activation", \
     "IceGrid/replication", \
+    "IceGrid/allocation", \
     "Glacier2/router", \
     "Glacier2/attack", \
     "Glacier2/addressFilter", \

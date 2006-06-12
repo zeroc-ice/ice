@@ -184,7 +184,7 @@ allTests(const Ice::CommunicatorPtr& comm)
     {
 	test((*p)->getProperty("AppVarProp") == "AppVar");
 	test((*p)->getProperty("NodeVarProp") == "NodeVar");
-	test((*p)->getProperty("RecursiveAppVarProp") == "test");
+	test((*p)->getProperty("RecursiveAppVarProp") == "Test");
 	test((*p)->getProperty("AppVarOverridedProp") == "OverridedInNode");
 	test((*p)->getProperty("AppVarDefinedInNodeProp") == "localnode");
 	test((*p)->getProperty("EscapedAppVarProp") == "${escaped}");

@@ -86,6 +86,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
     IceGrid::AdminPrx admin = IceGrid::AdminPrx::checkedCast(communicator->stringToProxy("IceGrid/Admin"));
     IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(communicator->stringToProxy("IceGrid/Registry"));
 
+    admin->startServer("node-1");
+    admin->startServer("node-2");
+
     cout << "testing on-demand activation... " << flush;
     try
     {
@@ -531,5 +534,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(false);
     }
     cout << "ok" << endl;
+
+    admin->stopServer("node-1");
+    admin->stopServer("node-2");
 }
 

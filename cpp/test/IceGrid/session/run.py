@@ -23,55 +23,21 @@ import IceGridAdmin
 
 name = os.path.join("IceGrid", "session")
 testdir = os.path.join(toplevel, "test", name)
-client = os.path.join(testdir, "client")
 
-#
-# Add locator options for the client and server. Since the server
-# invokes on the locator it's also considered to be a client.
-#
-additionalOptions = " --Ice.Default.Locator=\"IceGrid/Locator:default -p 12010\" " + \
-    "--Ice.PrintAdapterReady=0 --Ice.PrintProcessId=0 --IceDir=\"" + toplevel + "\" --TestDir=\"" + testdir + "\""
+node1Dir = os.path.join(testdir, "db", "node-1")
+if not os.path.exists(node1Dir):
+    os.mkdir(node1Dir)
+else:
+    IceGridAdmin.cleanDbDir(node1Dir)
 
 IceGridAdmin.registryOptions += \
+                             r' --IceGrid.Registry.DynamicRegistration' + \
                              r' --IceGrid.Registry.PermissionsVerifier="ClientPermissionsVerifier"' + \
                              r' --IceGrid.Registry.AdminPermissionsVerifier="AdminPermissionsVerifier"' + \
                              r' --IceGrid.Registry.SSLPermissionsVerifier="SSLPermissionsVerifier"' + \
                              r' --IceGrid.Registry.AdminSSLPermissionsVerifier="SSLPermissionsVerifier"'
 
-IceGridAdmin.cleanDbDir(os.path.join(testdir, "db"))
-iceGridRegistryThread = IceGridAdmin.startIceGridRegistry("12010", testdir, 1)
-iceGridNodeThread = IceGridAdmin.startIceGridNode(testdir)
-
-node1Dir = os.path.join(testdir, "db", "node-1")
-os.mkdir(node1Dir)
-
-print "deploying application...",
-IceGridAdmin.addApplication(os.path.join(testdir, "application.xml"),
-                            "ice.dir=" + toplevel + " test.dir=" + testdir + \
-                            " \\\"properties-override=" + TestUtil.clientServerOptions.replace("--", "") + "\\\"")
-print "ok"
-
-print "starting client...",
-clientPipe = os.popen(client + TestUtil.clientServerOptions + additionalOptions + " 2>&1")
-print "ok"
-
-try:
-    TestUtil.printOutputFromPipe(clientPipe)
-except:
-    pass
-    
-clientStatus = TestUtil.closePipe(clientPipe)
-
-print "removing application...",
-IceGridAdmin.removeApplication("Test")
-print "ok"
-
-IceGridAdmin.shutdownIceGridNode()
-iceGridNodeThread.join()
-IceGridAdmin.shutdownIceGridRegistry()
-iceGridRegistryThread.join()
-
-if clientStatus:
-    sys.exit(1)
-else:
-    sys.exit(0)
+IceGridAdmin.iceGridTest(name, "application.xml", \
+                         "--IceDir=\"" + toplevel + "\" --TestDir=\"" + testdir + "\"", \
+                         '\\"properties-override=' + TestUtil.clientServerOptions.replace("--", "") + '\\"')
+sys.exit(0)

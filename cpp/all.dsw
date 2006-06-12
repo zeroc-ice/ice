@@ -2102,6 +2102,51 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name glacier2
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icepatch2
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "icegridallocationC"=.\test\IceGrid\allocation\icegridallocationC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icegrid
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name glacier2
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "icegridallocationS"=.\test\IceGrid\allocation\icegridallocationS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -2260,6 +2305,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name icessl
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icepatch2
     End Project Dependency
 }}}
 

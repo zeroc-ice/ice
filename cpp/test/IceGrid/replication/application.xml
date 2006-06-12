@@ -1,6 +1,6 @@
 <icegrid>
 
-  <application name="test">
+  <application name="Test">
 
     <replica-group id="Default">
       <object identity="Default" type="::Test::TestIntf"/>

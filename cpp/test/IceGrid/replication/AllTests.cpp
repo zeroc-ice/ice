@@ -29,7 +29,7 @@ instantiateServer(const AdminPrx& admin, const string& templ, const map<string, 
     nodeUpdate.name = "localnode";
     nodeUpdate.serverInstances.push_back(desc);
     ApplicationUpdateDescriptor update;
-    update.name = "test";
+    update.name = "Test";
     update.nodes.push_back(nodeUpdate);
     try
     {
@@ -62,7 +62,7 @@ removeServer(const AdminPrx& admin, const string& id)
     nodeUpdate.name = "localnode";
     nodeUpdate.removeServers.push_back(id);
     ApplicationUpdateDescriptor update;
-    update.name = "test";
+    update.name = "Test";
     update.nodes.push_back(nodeUpdate);
     try
     {

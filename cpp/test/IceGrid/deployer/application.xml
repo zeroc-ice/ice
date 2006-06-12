@@ -1,6 +1,6 @@
 <icegrid>
 
-  <application name="test" import-default-templates="true">
+  <application name="Test" import-default-templates="true">
 
     <description>APP ${AppVar}</description>
 
