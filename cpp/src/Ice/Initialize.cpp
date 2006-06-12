@@ -128,6 +128,8 @@ inline void checkIceVersion(Int version)
 CommunicatorPtr
 Ice::initialize(int& argc, char* argv[], const InitializationData& initializationData, Int version)
 {
+    checkIceVersion(version);
+
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initData.properties);
 
