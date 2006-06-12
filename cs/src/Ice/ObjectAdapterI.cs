@@ -304,7 +304,7 @@ namespace Ice
 	    // Now it's also time to clean up our servants and servant
 	    // locators.
 	    //
-	    if(_servantManager != null)
+	    if(instance_ != null) // Don't destroy twice.
 	    {
 		_servantManager.destroy();
 	    }
@@ -342,7 +342,6 @@ namespace Ice
 		//
 		instance_ = null;
 		_threadPool = null;
-		_servantManager = null;
 		_communicator = null;
 		_incomingConnectionFactories = null;
 		_routerEndpoints = null;
@@ -706,10 +705,10 @@ namespace Ice
 
 	public IceInternal.ServantManager getServantManager()
 	{
-	    lock(this)
-	    {
-	        return _servantManager;
-	    }
+	    //
+	    // No mutex lock necessary, _servantManager is immutable.
+	    //
+	    return _servantManager;
 	}
 	
 	//
@@ -909,7 +908,7 @@ namespace Ice
 		else
 		{
 		    IceUtil.Assert.FinalizerAssert(_threadPool == null);
-		    IceUtil.Assert.FinalizerAssert(_servantManager == null);
+		    //IceUtil.Assert.FinalizerAssert(_servantManager == null); // Not cleared,it needs to be immutable.
 		    IceUtil.Assert.FinalizerAssert(_communicator == null);
 		    IceUtil.Assert.FinalizerAssert(_incomingConnectionFactories == null);
 		    IceUtil.Assert.FinalizerAssert(_directCount == 0);

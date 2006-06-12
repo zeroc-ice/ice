@@ -280,7 +280,7 @@ public final class ObjectAdapter
 	// Now it's also time to clean up our servants and servant
 	// locators.
 	//
-	if(_servantManager != null)
+	if(_instance != null) // Don't destroy twice.
 	{
 	    _servantManager.destroy();
 	}
@@ -305,7 +305,6 @@ public final class ObjectAdapter
 	    // Remove object references (some of them cyclic).
 	    //
 	    _instance = null;
-	    _servantManager = null;
 	    _communicator = null;
             _communicator = null;
             _routerEndpoints = null;
@@ -542,9 +541,12 @@ public final class ObjectAdapter
 	}
     }
 
-    public synchronized IceInternal.ServantManager
+    public IceInternal.ServantManager
     getServantManager()
     {	
+	//
+	// No mutex lock necessary, _servantManager is immutable.
+	//
 	return _servantManager;
     }
 
@@ -693,7 +695,7 @@ public final class ObjectAdapter
 	}
 	else
 	{
-	    IceUtil.Debug.FinalizerAssert(_servantManager == null);
+	    //IceUtil.Debug.FinalizerAssert(_servantManager == null); // Not cleared, it needs to be immutable.
 	    IceUtil.Debug.FinalizerAssert(_communicator == null);
 	    IceUtil.Debug.FinalizerAssert(_incomingConnectionFactories == null);
 	    IceUtil.Debug.FinalizerAssert(_directCount == 0);

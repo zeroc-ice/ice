@@ -297,7 +297,7 @@ Ice::ObjectAdapter::waitForDeactivate()
     // Now it's also time to clean up our servants and servant
     // locators.
     //
-    if(_servantManager)
+    if(_instance) // Don't destroy twice.
     {
 	_servantManager->destroy();
     }
@@ -323,7 +323,6 @@ Ice::ObjectAdapter::waitForDeactivate()
 	// Remove object references (some of them cyclic).
 	//
 	_instance = 0;
-	_servantManager = 0;
 	_communicator = 0;
 #ifdef ICEE_HAS_ROUTER
 	_routerInfo = 0;
@@ -558,8 +557,9 @@ Ice::ObjectAdapter::decDirectCount()
 ServantManagerPtr
 Ice::ObjectAdapter::getServantManager() const
 {
-    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-
+    //
+    // No mutex lock necessary, _servantManager is immutable.
+    //
     return _servantManager;
 }
 
@@ -706,7 +706,7 @@ Ice::ObjectAdapter::~ObjectAdapter()
     }
     else
     {
-	assert(!_servantManager);
+	//assert(!_servantManager); // We don't clear this reference, it needs to be immutable.
 	assert(!_communicator);
 	assert(_incomingConnectionFactories.empty());
 	assert(_directCount == 0);

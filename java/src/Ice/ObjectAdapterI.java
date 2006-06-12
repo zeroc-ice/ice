@@ -311,7 +311,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	// Now it's also time to clean up our servants and servant
 	// locators.
 	//
-	if(_servantManager != null)
+	if(_instance != null) // Don't destroy twice.
 	{
 	    _servantManager.destroy();
 	}
@@ -349,7 +349,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    //
 	    _instance = null;
 	    _threadPool = null;
-	    _servantManager = null;
 	    _communicator = null;
 	    _routerEndpoints = null;
 	    _routerInfo = null;
@@ -686,9 +685,12 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	}
     }
 
-    public synchronized IceInternal.ServantManager
+    public IceInternal.ServantManager
     getServantManager()
     {	
+	//
+	// No mutex lock necessary, _servantManager is immutable.
+	//
 	return _servantManager;
     }
 
@@ -877,7 +879,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	else
 	{
 	    IceUtil.Assert.FinalizerAssert(_threadPool == null);
-	    IceUtil.Assert.FinalizerAssert(_servantManager == null);
+	    //IceUtil.Assert.FinalizerAssert(_servantManager == null); // Not cleared, it needs to be immutable.
 	    IceUtil.Assert.FinalizerAssert(_communicator == null);
 	    IceUtil.Assert.FinalizerAssert(_incomingConnectionFactories == null);
 	    IceUtil.Assert.FinalizerAssert(_directCount == 0);

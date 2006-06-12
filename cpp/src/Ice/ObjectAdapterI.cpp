@@ -306,7 +306,7 @@ Ice::ObjectAdapterI::waitForDeactivate()
     // Now it's also time to clean up our servants and servant
     // locators.
     //
-    if(_servantManager)
+    if(_instance) // Don't destroy twice.
     {
 	_servantManager->destroy();
     }
@@ -342,7 +342,6 @@ Ice::ObjectAdapterI::waitForDeactivate()
 	//
 	_instance = 0;
 	_threadPool = 0;
-	_servantManager = 0;
 	_communicator = 0;
 	_routerEndpoints.clear();
 	_routerInfo = 0;
@@ -689,8 +688,9 @@ Ice::ObjectAdapterI::getThreadPool() const
 ServantManagerPtr
 Ice::ObjectAdapterI::getServantManager() const
 {
-    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-
+    //
+    // No mutex lock necessary, _servantManager is immutable.
+    //
     return _servantManager;
 }
 
@@ -837,8 +837,8 @@ Ice::ObjectAdapterI::~ObjectAdapterI()
     }
     else
     {
+	//assert(!_servantManager); // We don't clear this reference, it needs to be immutable.
 	assert(!_threadPool);
-	assert(!_servantManager);
 	assert(!_communicator);
 	assert(_incomingConnectionFactories.empty());
 	assert(_directCount == 0);
