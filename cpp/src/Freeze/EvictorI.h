@@ -158,6 +158,7 @@ public:
 
     bool deadlockWarning() const;
     Ice::Int trace() const;
+    Ice::Int txTrace() const;
 
 
     void initialize(const Ice::Identity&, const std::string&, const Ice::ObjectPtr&);
@@ -227,6 +228,7 @@ private:
     bool _createDb;
 
     Ice::Int _trace;
+    Ice::Int _txTrace;
 
     //
     // Threads that have requested a "saveNow" and are waiting for

@@ -45,6 +45,7 @@ private:
     cleanup();
 
     ConnectionIPtr _connection;
+    Ice::Int _txTrace;
     DbTxn* _txn;
 };
 

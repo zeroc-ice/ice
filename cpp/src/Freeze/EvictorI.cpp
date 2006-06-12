@@ -288,9 +288,11 @@ Freeze::EvictorI::EvictorI(const ObjectAdapterPtr& adapter,
     _filename(filename),
     _createDb(createDb),
     _trace(0),
+    _txTrace(0),
     _pingObject(new PingObject)
 {
     _trace = _communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Evictor");
+    _txTrace = _communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Transaction");
     _deadlockWarning = (_communicator->getProperties()->getPropertyAsInt("Freeze.Warn.Deadlocks") != 0);
    
     string propertyPrefix = string("Freeze.Evictor.") + envName + '.' + _filename; 
@@ -701,7 +703,7 @@ Freeze::EvictorI::createObject(const Identity& ident, const ObjectPtr& servant)
     if(_trace >= 1)
     {
 	Trace out(_communicator->getLogger(), "Freeze.Evictor");
-	out << "added object \"" << _communicator->identityToString(ident) << "\"";
+	out << "added or updated object \"" << _communicator->identityToString(ident) << "\"";
     }
 }
 
@@ -1190,6 +1192,11 @@ Freeze::EvictorI::locateImpl(const Current& current, LocalObjectPtr& cookie)
     ObjectStore* store = findStore(current.facet);
     if(store == 0)
     {
+        if(_trace >= 2)
+	{
+	    Trace out(_communicator->getLogger(), "Freeze.Evictor");
+	    out << "locate could not find a database for facet \"" << current.facet << "\"";
+	}
 	return 0;
     }
     
@@ -1198,6 +1205,12 @@ Freeze::EvictorI::locateImpl(const Current& current, LocalObjectPtr& cookie)
 	EvictorElementPtr element = store->pin(current.id);
 	if(element == 0)
 	{
+            if(_trace >= 2)
+	    {
+	        Trace out(_communicator->getLogger(), "Freeze.Evictor");
+	        out << "locate could not find \"" << _communicator->identityToString(current.id) << "\" in database \""
+		    << current.facet << "\"";
+	    }
 	    return 0;
 	}
 	
@@ -1215,12 +1228,25 @@ Freeze::EvictorI::locateImpl(const Current& current, LocalObjectPtr& cookie)
 	IceUtil::Mutex::Lock lockElement(element->mutex);
 	if(element->status == EvictorElement::destroyed || element->status == EvictorElement::dead)
 	{
+            if(_trace >= 2)
+	    {
+	        Trace out(_communicator->getLogger(), "Freeze.Evictor");
+	        out << "locate found \"" << _communicator->identityToString(current.id) 
+		    << "\" in the cache for database \"" << current.facet << "\" but it was dead or destroyed";
+	    }
 	    return 0;
 	}
 
 	//
 	// It's a good one!
 	//
+        if(_trace >= 2)
+	{
+	    Trace out(_communicator->getLogger(), "Freeze.Evictor");
+	    out << "locate found \"" << _communicator->identityToString(current.id) << "\" in database \"" 
+	        << current.facet << "\"";
+	}
+
 	fixEvictPosition(element);
 	element->usageCount++;
 	cookie = element;
@@ -1593,6 +1619,15 @@ Freeze::EvictorI::run()
 		    {
 			DbTxn* tx = 0;
 			_dbEnv->getEnv()->txn_begin(0, &tx, 0);
+
+			long txnId;
+			if(_txTrace >= 1)
+			{
+			    txnId = (tx->id() & 0x7FFFFFFF) + 0x80000000L;
+			    Trace out(_communicator->getLogger(), "Freeze.Evictor");
+			    out << "started transaction " << hex << txnId << dec << " in saving thread";
+			}
+
 			try
 			{	
 			    for(size_t i = 0; i < txSize; i++)
@@ -1604,9 +1639,21 @@ Freeze::EvictorI::run()
 			catch(...)
 			{
 			    tx->abort();
+			    if(_txTrace >= 1)
+			    {
+			        Trace out(_communicator->getLogger(), "Freeze.Evictor");
+			        out << "rolled back transaction " << hex << txnId << dec;
+			    }
 			    throw;
 			}
 			tx->commit(0);
+
+			if(_txTrace >= 1)
+			{
+			    Trace out(_communicator->getLogger(), "Freeze.Evictor");
+			    out << "committed transaction " << hex << txnId << dec;
+			}
+
 			streamedObjectQueue.erase
 			    (streamedObjectQueue.begin(), 
 			     streamedObjectQueue.begin() + txSize);

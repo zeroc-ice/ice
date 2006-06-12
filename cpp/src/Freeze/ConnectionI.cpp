@@ -84,6 +84,7 @@ Freeze::ConnectionI::ConnectionI(const CommunicatorPtr& communicator,
     _dbEnv(SharedDbEnv::get(communicator, envName, dbEnv)),
     _envName(envName),
     _trace(communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Map")),
+    _txTrace(communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Transaction")),
     _deadlockWarning(communicator->getProperties()->getPropertyAsInt("Freeze.Warn.Deadlocks") != 0)
 {
 }
