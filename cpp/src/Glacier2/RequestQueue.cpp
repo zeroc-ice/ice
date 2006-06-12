@@ -290,7 +290,7 @@ void
 Glacier2::RequestQueue::run()
 {
     RequestQueuePtr self = this; // This is to avoid creating a temporary Ptr for each call to Request::invoke()
-    int dispatchCount = 0; // The dispatch count keeps track of the number of outstanding twoway requests.
+    ptrdiff_t dispatchCount = 0; // The dispatch count keeps track of the number of outstanding twoway requests.
     while(true)
     {
 	vector<RequestPtr> requests;

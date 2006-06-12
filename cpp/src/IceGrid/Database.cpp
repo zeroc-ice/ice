@@ -728,7 +728,7 @@ Database::removeAdapter(const string& adapterId)
 	else
 	{
 	    serial = _serial;
-	    _serial += infos.size();
+	    _serial += static_cast<int>(static_cast<int>(infos.size()));
 	}
     }
 
@@ -1066,7 +1066,7 @@ Ice::ObjectPrx
 Database::getObjectByType(const string& type)
 {
     Ice::ObjectProxySeq objs = getObjectsByType(type);
-    return objs[IceUtil::random(objs.size())];
+    return objs[IceUtil::random(static_cast<int>(objs.size()))];
 }
 
 Ice::ObjectPrx

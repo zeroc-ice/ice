@@ -43,7 +43,8 @@ IceSSL::ConnectorI::connect(int timeout)
     IceInternal::setBlock(fd, false);
     IceInternal::doConnect(fd, _addr, timeout);
 
-    BIO* bio = BIO_new_socket(fd, BIO_CLOSE);
+    // This static_cast is necessary due to 64bit windows. There SOCKET is a non-int type.
+    BIO* bio = BIO_new_socket(static_cast<int>(fd), BIO_CLOSE);
     if(!bio)
     {
 	IceInternal::closeSocketNoThrow(fd);

@@ -390,7 +390,7 @@ Certificate::load(const string& file)
 CertificatePtr
 Certificate::decode(const string& encoding)
 {
-    BIO *cert = BIO_new_mem_buf((void*)&encoding[0], encoding.size());
+    BIO *cert = BIO_new_mem_buf(static_cast<void*>(const_cast<char*>(&encoding[0])), static_cast<int>(encoding.size()));
     X509* x = PEM_read_bio_X509_AUX(cert, NULL, NULL, NULL);
     if(x == NULL)
     {

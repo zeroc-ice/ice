@@ -1739,7 +1739,7 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc, 
 	//	
 	vector<char> buf(256);
 	buf.resize(256);
-	DWORD size = buf.size();
+	DWORD size = static_cast<DWORD>(buf.size());
 	bool success = GetUserName(&buf[0], &size);
 	if(!success && GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 	{

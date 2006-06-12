@@ -972,11 +972,11 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
     		        }
 		    }
 
-		    int bytesLeft = buf.st_size;
+		    unsigned int bytesLeft = buf.st_size;
 	            while(bytesLeft > 0)
 	            {
 		    	ByteSeq bytes(min(bytesLeft, 1024*1024));
-		        if(read(fd, &bytes[0], bytes.size()) == -1)
+		        if(read(fd, &bytes[0], static_cast<unsigned int>(bytes.size())) == -1)
 		        {
 			    if(doCompress)
 			    {
@@ -985,7 +985,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 		            close(fd);
 		            throw "cannot read from `" + path + "':\n" + lastError();
 		        }
-			bytesLeft -= bytes.size();
+			bytesLeft -= static_cast<unsigned int>(bytes.size());
 
 		        if(doCompress)
 		        {

@@ -41,7 +41,7 @@ public:
 	typedef Ice::Byte& reference;
 	typedef const Ice::Byte& const_reference;
 	typedef Ice::Byte* pointer;
-	typedef int difference_type;
+	typedef ptrdiff_t difference_type;
 	typedef size_t size_type;
 
 #ifdef ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION

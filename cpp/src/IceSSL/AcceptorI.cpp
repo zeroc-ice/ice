@@ -88,7 +88,7 @@ IceSSL::AcceptorI::accept(int timeout)
 	desc = IceInternal::addrToString(remoteAddr);
     }
 
-    BIO* bio = BIO_new_socket(fd, BIO_CLOSE);
+    BIO* bio = BIO_new_socket(static_cast<int>(fd), BIO_CLOSE);
     if(!bio)
     {
 	IceInternal::closeSocketNoThrow(fd);

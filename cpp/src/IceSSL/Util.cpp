@@ -292,11 +292,11 @@ repeatSelect:
 	struct timeval tv;
 	tv.tv_sec = timeout / 1000;
 	tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
-	ret = ::select(fd + 1, &rFdSet, &wFdSet, 0, &tv);
+	ret = ::select(static_cast<int>(fd) + 1, &rFdSet, &wFdSet, 0, &tv);
     }
     else
     {
-	ret = ::select(fd + 1, &rFdSet, &wFdSet, 0, 0);
+	ret = ::select(static_cast<int>(fd) + 1, &rFdSet, &wFdSet, 0, 0);
     }
 
     if(ret == 0)

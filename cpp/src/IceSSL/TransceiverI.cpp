@@ -80,8 +80,8 @@ IceSSL::TransceiverI::shutdownReadWrite()
 void
 IceSSL::TransceiverI::write(IceInternal::Buffer& buf, int timeout)
 {
-    IceInternal::Buffer::Container::difference_type packetSize = 
-        static_cast<IceInternal::Buffer::Container::difference_type>(buf.b.end() - buf.i);
+    // Its impossible for the packetSize to be more than an Int.
+    int packetSize = static_cast<int>(buf.b.end() - buf.i);
     
 #ifdef _WIN32
     //
@@ -206,7 +206,7 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf, int timeout)
 
 	if(packetSize > buf.b.end() - buf.i)
 	{
-	    packetSize = static_cast<IceInternal::Buffer::Container::difference_type>(buf.b.end() - buf.i);
+	    packetSize = static_cast<int>(buf.b.end() - buf.i);
 	}
     }
 }
@@ -214,8 +214,8 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf, int timeout)
 void
 IceSSL::TransceiverI::read(IceInternal::Buffer& buf, int timeout)
 {
-    IceInternal::Buffer::Container::difference_type packetSize = 
-        static_cast<IceInternal::Buffer::Container::difference_type>(buf.b.end() - buf.i);
+    // Its impossible for the packetSize to be more than an Int.
+    int packetSize = static_cast<int>(buf.b.end() - buf.i);
     
     while(buf.i != buf.b.end())
     {
@@ -349,7 +349,7 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, int timeout)
 
 	if(packetSize > buf.b.end() - buf.i)
 	{
-	    packetSize = static_cast<IceInternal::Buffer::Container::difference_type>(buf.b.end() - buf.i);
+	    packetSize = static_cast<int>(buf.b.end() - buf.i);
 	}
     }
 }
