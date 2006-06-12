@@ -74,7 +74,7 @@ public:
         //
         ServerLocatorRegistryPtr registry = new ServerLocatorRegistry();
         registry->addObject(adapter->createProxy(communicator()->stringToIdentity("ServerManager")));
-        Ice::ObjectPtr object = new ServerManagerI(adapter, registry, initData.properties);
+        Ice::ObjectPtr object = new ServerManagerI(adapter, registry, initData);
         adapter->add(object, communicator()->stringToIdentity("ServerManager"));
 
         Ice::LocatorRegistryPrx registryPrx = 

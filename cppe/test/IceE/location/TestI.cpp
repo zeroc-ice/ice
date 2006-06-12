@@ -19,17 +19,17 @@
 using namespace Test;
 
 ServerManagerI::ServerManagerI(const Ice::ObjectAdapterPtr& adapter, const ServerLocatorRegistryPtr& registry,
-			       const Ice::PropertiesPtr& properties) :
-    _adapter(adapter), _registry(registry), _properties(properties)
+			       const Ice::InitializationData& initData) :
+    _adapter(adapter), _registry(registry), _initData(initData)
 {
+
+    
+
 }
 
 void
 ServerManagerI::startServer(const Ice::Current&)
 {
-    int argc = 0;
-    char** argv = 0;
-
     for(::std::vector<Ice::CommunicatorPtr>::const_iterator i = _communicators.begin(); i != _communicators.end(); ++i)
     {
 	(*i)->waitForShutdown();
@@ -45,10 +45,7 @@ ServerManagerI::startServer(const Ice::Current&)
     // its endpoints with the locator and create references containing
     // the adapter id instead of the endpoints.
     //
-    Ice::InitializationData initData;
-    initData.properties = _properties;
-    initData.logger = _adapter->getCommunicator()->getLogger();
-    Ice::CommunicatorPtr serverCommunicator = Ice::initialize(argc, argv, initData);
+    Ice::CommunicatorPtr serverCommunicator = Ice::initialize(_initData);
     _communicators.push_back(serverCommunicator); 
 
     Ice::ObjectAdapterPtr adapter = serverCommunicator->createObjectAdapter("TestAdapter");
