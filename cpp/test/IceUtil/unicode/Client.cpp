@@ -19,8 +19,21 @@ using namespace std;
 // converts these BOMs back and forth.
 //
 int
-main(int, char**)
+main(int argc, char** argv)
 {
+    string dir = "";
+
+    if(argc > 1)
+    {
+	dir = argv[1];
+#ifdef _WIN32
+	dir += "\\";
+#else
+	dir += "/";
+#endif	
+    }
+
+
     ostringstream os;
     os << "utf" << sizeof(wchar_t) * 8;
 #ifdef ICE_LITTLE_ENDIAN
@@ -34,9 +47,9 @@ main(int, char**)
     {
 	cout << "testing UTF-8 to wstring (" << wstringEncoding << ") conversion...";
 	
-	ifstream is("coeur.utf8");
+	ifstream is((dir + "coeur.utf8").c_str());
 	test(is.good());
-	ifstream bis(wcoeurFile.c_str(), ios_base::binary);
+	ifstream bis((dir + wcoeurFile).c_str(), ios_base::binary);
 	test(bis.good());
 	
 	int lineNumber = 0;
@@ -94,7 +107,7 @@ main(int, char**)
     {
 	cout << "wstring (" << wstringEncoding << ") to UTF-8 conversion...";
 
-	ifstream bis(wcoeurFile.c_str(), ios_base::binary);
+	ifstream bis((dir + wcoeurFile).c_str(), ios_base::binary);
 	test(bis.good());
 
 	wstring ws;
@@ -123,7 +136,7 @@ main(int, char**)
 	
 	string s = wstringToString(ws);
 	
-	ifstream nbis("coeur.utf8", ios_base::binary);
+	ifstream nbis((dir + "coeur.utf8").c_str(), ios_base::binary);
 	test(nbis.good());
 	
 	for(size_t i = 0; i < s.size(); ++i)
