@@ -35,7 +35,7 @@ lookupKwd(const string& name, int baseTypes, bool mangleCasts = false)
     static const string keywordList[] = 
     {       
 	"AddHandler", "AddressOf", "Alias", "And", "AndAlso", "Ansi", "As", "Assembly", "Auto",
-	"Boolean", "ByRef", "ByVal", "Byte", "CBool", "CByte", "CChar", "CDate", "CDbl", "CDec",
+	"Boolean", "ByRef", "Byte", "ByVal", "CBool", "CByte", "CChar", "CDate", "CDbl", "CDec",
 	"CInt", "CLng", "CObj", "CShort", "CSng", "CStr", "CType", "Call", "Case", "Catch", "Char",
 	"Class", "Const", "Date", "Decimal", "Declare", "Default", "Delegate", "Dim", "DirectCast",
 	"Do", "Double", "Each", "Else", "ElseIf", "End", "EndIf", "Enum", "Erase", "Error", "Event",
