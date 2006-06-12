@@ -11,10 +11,20 @@ package Ice;
 
 public final class InitializationData
 {
-    public
-    InitializationData()
+    public InitializationData()
     {
     }
+    
+    public java.lang.Object
+    ice_clone()
+    {
+	InitializationData clone = new InitializationData();
+	clone.properties = properties;
+	clone.logger = logger;
+	clone.defaultContext = defaultContext;
+	return clone;
+    }
+    
 
     public Properties properties;
     public Logger logger;

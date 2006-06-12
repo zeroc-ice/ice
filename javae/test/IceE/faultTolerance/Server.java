@@ -77,10 +77,11 @@ public class Server
 	    // used in the test.
 	    //
 	    Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-	    Ice.Properties properties = Ice.Util.getDefaultProperties(argsH);
-	    properties.setProperty("Ice.ServerIdleTime", "120"); // Two minutes.
+	    Ice.InitializationData initData = new Ice.InitializationData();
+	    initData.properties = Ice.Util.createProperties(argsH);
+	    initData.properties.setProperty("Ice.ServerIdleTime", "120"); // Two minutes.
 
-            communicator = Ice.Util.initialize(argsH);
+            communicator = Ice.Util.initialize(argsH, initData);
             status = run(argsH.value, communicator);
         }
         catch(Ice.LocalException ex)

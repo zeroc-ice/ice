@@ -164,11 +164,24 @@ public final class Properties
 
     Properties()
     {
-        loadConfig();
     }
 
-    Properties(StringSeqHolder args)
+    Properties(StringSeqHolder args, Properties defaults)
     {
+	if(defaults != null)
+	{
+	    java.util.Hashtable m = defaults.getPropertiesForPrefix("");
+	    java.util.Enumeration e = m.keys();
+	    while(e.hasMoreElements())
+	    {
+		java.lang.Object key = e.nextElement();
+		java.lang.Object value = m.get(key);
+		_properties.put(key, value);
+	    }
+	}
+
+	boolean loadConfigFiles = false;
+
         for(int i = 0; i < args.value.length; i++)
         {
             if(args.value[i].startsWith("--Ice.Config"))
@@ -179,6 +192,7 @@ public final class Properties
                     line += "=1";
                 }
                 parseLine(line.substring(2));
+		loadConfigFiles = true;
                 String[] arr = new String[args.value.length - 1];
                 System.arraycopy(args.value, 0, arr, 0, i);
                 if(i < args.value.length - 1)
@@ -189,7 +203,10 @@ public final class Properties
             }
         }
 
-        loadConfig();
+	if(loadConfigFiles)
+	{
+	    loadConfig();
+	}
 
 	args.value = parseIceCommandLineOptions(args.value);
     }

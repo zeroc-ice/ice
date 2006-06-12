@@ -26,19 +26,21 @@ public class Client
         try
         {
 	    Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-	    Ice.Properties properties = Ice.Util.getDefaultProperties(argsH);
+	    Ice.InitializationData initData = new Ice.InitializationData();
+	    
+	    initData.properties = Ice.Util.createProperties(argsH);
 
 	    //
 	    // For this test, we want to disable retries.
 	    //
-	    properties.setProperty("Ice.RetryIntervals", "-1");
-
-            communicator = Ice.Util.initialize(argsH);
+	    initData.properties.setProperty("Ice.RetryIntervals", "-1");
 
 	    //
 	    // We don't want connection warnings because of the timeout test.
 	    //
-	    properties.setProperty("Ice.Warn.Connections", "0");
+	    initData.properties.setProperty("Ice.Warn.Connections", "0");
+
+	    communicator = Ice.Util.initialize(argsH, initData);
 	    
             status = run(argsH.value, communicator, System.out);
         }

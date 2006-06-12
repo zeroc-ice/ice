@@ -19,7 +19,7 @@ class Twoways
     }
 
     static void
-    twoways(Ice.Communicator communicator, Test.MyClassPrx p)
+    twoways(Ice.Communicator communicator, Ice.InitializationData initData, Test.MyClassPrx p)
     {
         {
             p.opVoid();
@@ -625,7 +625,7 @@ class Twoways
 		//
 		// Test that default context is obtained correctly from communicator.
 		//
-		Ice.InitializationData initData = new Ice.InitializationData();
+		initData = (Ice.InitializationData)initData.ice_clone();
 		initData.defaultContext = new java.util.Hashtable();
 		initData.defaultContext.put("a", "b");
 		Ice.Communicator communicator2 = Ice.Util.initialize(new String[0], initData);

@@ -19,7 +19,7 @@ public class AllTests
     }
 
     public static Test.MyClassPrx
-    allTests(Ice.Communicator communicator, java.io.PrintStream out)
+    allTests(Ice.Communicator communicator, Ice.InitializationData initData, java.io.PrintStream out)
     {
         out.print("testing stringToProxy... ");
         out.flush();
@@ -89,8 +89,8 @@ public class AllTests
 
         out.print("testing twoway operations... ");
         out.flush();
-        Twoways.twoways(communicator, cl);
-        Twoways.twoways(communicator, derived);
+        Twoways.twoways(communicator, initData, cl);
+        Twoways.twoways(communicator, initData, derived);
         derived.opDerived();
         out.println("ok");
 	out.print("testing batch oneway operations... ");

@@ -20,7 +20,13 @@ public final class Util
     public static Properties
     createProperties(StringSeqHolder args)
     {
-        return new Properties(args);
+        return new Properties(args, null);
+    }
+
+    public static Properties
+    createProperties(StringSeqHolder args, Properties defaults)
+    {
+        return new Properties(args, defaults);
     }
 
     public static Properties
@@ -31,30 +37,10 @@ public final class Util
     }
 
     public static Properties
-    getDefaultProperties()
-    {
-        if(_defaultProperties == null)
-        {
-            _defaultProperties = createProperties();
-        }
-        return _defaultProperties;
-    }
-
-    public static Properties
-    getDefaultProperties(StringSeqHolder args)
-    {
-        if(_defaultProperties == null)
-        {
-            _defaultProperties = createProperties(args);
-        }
-        return _defaultProperties;
-    }
-
-    public static Properties
-    getDefaultProperties(String[] args)
+    createProperties(String[] args, Properties defaults)
     {
 	StringSeqHolder argsH = new StringSeqHolder(args);
-	return getDefaultProperties(argsH);
+        return createProperties(argsH, defaults);
     }
 
     public static Communicator
@@ -74,11 +60,15 @@ public final class Util
     public static Communicator
     initialize(StringSeqHolder args, InitializationData initData)
     {
-        if(initData.properties == null)
+	if(initData == null)
 	{
-           initData.properties = getDefaultProperties(args);
+	    initData = new InitializationData();
 	}
-	args.value = initData.properties.parseIceCommandLineOptions(args.value);
+	else
+	{
+	    initData = (InitializationData)initData.ice_clone();
+	}
+	initData.properties = createProperties(args, initData.properties);
 
         Communicator result = new Communicator(initData);
         result.finishSetup(args);
@@ -91,6 +81,24 @@ public final class Util
         StringSeqHolder argsH = new StringSeqHolder(args);
 	return initialize(argsH, initData);
     }
+
+    public static Communicator
+    initialize(InitializationData initData)
+    {
+	if(initData == null)
+	{
+	    initData = new InitializationData();
+	}
+	else
+	{
+	    initData = (InitializationData)initData.ice_clone();
+	}
+
+	Communicator result = new Communicator(initData);
+        result.finishSetup(new StringSeqHolder(new String[0]));
+        return result;
+    }
+
 
     /**
      * @deprecated This method has been deprecated, use initialize instead.
@@ -301,6 +309,5 @@ public final class Util
 	}
     }
 
-    private static Properties _defaultProperties = null;
     private static String _localAddress = null;
 }

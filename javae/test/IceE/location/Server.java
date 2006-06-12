@@ -10,7 +10,7 @@
 public class Server
 {
     public static int
-    run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
+    run(String[] args, Ice.Communicator communicator, Ice.InitializationData initData, java.io.PrintStream out)
     {
 	//
 	// When running as a MIDlet the properties for the server may be
@@ -47,7 +47,7 @@ public class Server
 	//
 	ServerLocatorRegistry registry = new ServerLocatorRegistry();
 	registry.addObject(adapter.createProxy(communicator.stringToIdentity("ServerManager")));
-	Ice.Object object = new ServerManagerI(adapter, registry);
+	Ice.Object object = new ServerManagerI(adapter, registry, initData);
 	adapter.add(object, communicator.stringToIdentity("ServerManager"));
 
 	Ice.LocatorRegistryPrx registryPrx = 
@@ -70,8 +70,12 @@ public class Server
 
         try
         {
-            communicator = Ice.Util.initialize(args);
-            status = run(args, communicator, System.out);
+	    Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
+	    Ice.InitializationData initData = new Ice.InitializationData();
+	    initData.properties = Ice.Util.createProperties(argsH);
+
+            communicator = Ice.Util.initialize(argsH, initData);
+            status = run(argsH.value, communicator, initData, System.out);
         }
         catch(Ice.LocalException ex)
         {

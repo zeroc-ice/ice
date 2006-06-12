@@ -1,3 +1,4 @@
+
 // **********************************************************************
 //
 // Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
@@ -10,7 +11,8 @@
 public class Collocated
 {
     public static int
-    run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
+    run(String[] args, Ice.Communicator communicator, 
+	Ice.InitializationData initData, java.io.PrintStream out)
     {
 	communicator.getProperties().setProperty("Test.Proxy", "test:default -p 12010 -t 10000");
 	communicator.getProperties().setProperty("Test.ProxyWithContext", "context:default -p 12010 -t 10000");
@@ -21,7 +23,7 @@ public class Collocated
         adapter.add(new TestCheckedCastI(), communicator.stringToIdentity("context"));
         adapter.activate();
 
-        AllTests.allTests(communicator, out);
+        AllTests.allTests(communicator, initData, out);
 
         return 0;
     }
@@ -35,17 +37,18 @@ public class Collocated
         try
         {
             Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-            Ice.Properties properties = Ice.Util.getDefaultProperties(argsH);
+            Ice.InitializationData initData = new Ice.InitializationData();
+	    initData.properties = Ice.Util.createProperties(argsH);
 
             //
             // We must set MessageSizeMax to an explicit values,
             // because we run tests to check whether
             // Ice.MemoryLimitException is raised as expected.
             //
-            properties.setProperty("Ice.MessageSizeMax", "100");
+            initData.properties.setProperty("Ice.MessageSizeMax", "100");
 
-            communicator = Ice.Util.initialize(args);
-            status = run(args, communicator, System.out);
+            communicator = Ice.Util.initialize(args, initData);
+            status = run(args, communicator, initData, System.out);
         }
         catch(Ice.LocalException ex)
         {
