@@ -38,16 +38,22 @@ public:
 	//initData.properties->setProperty("Ice.Trace.Protocol", "5");
 
 	loadConfig(initData.properties);
-	initData.logger = getLogger();
-	setCommunicator(Ice::initialize(argc, argv, initData));
 
+	//
+	// Now parse argc/argv into initData
+	//
+	initData.properties = Ice::createProperties(argc, argv, initData.properties); 
+
+	initData.logger = getLogger();	
+	setCommunicator(Ice::initialize(argc, argv, initData));
+	
 	//
 	// We don't want connection warnings because of the timeout test.
 	//
-	initData.properties->setProperty("Ice.Warn.Connections", "0");
+	communicator()->getProperties()->setProperty("Ice.Warn.Connections", "0");
 
-        Test::MyClassPrx allTests(const Ice::CommunicatorPtr&);
-        Test::MyClassPrx myClass = allTests(communicator());
+        Test::MyClassPrx allTests(const Ice::CommunicatorPtr&, const Ice::InitializationData&);
+        Test::MyClassPrx myClass = allTests(communicator(), initData);
 
         tprintf("testing server shutdown... ");
         myClass->shutdown();

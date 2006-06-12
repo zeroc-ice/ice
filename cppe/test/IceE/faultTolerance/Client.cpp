@@ -34,12 +34,12 @@ public:
     	Ice::InitializationData initData;
 	initData.properties = Ice::createProperties();
         loadConfig(initData.properties);
-        setCommunicator(Ice::initialize(argc, argv, initData));
-
+    
 	//
 	// This test aborts servers, so we don't want warnings.
 	//
-	initData.properties->setProperty("Ice.Warn.Connections", "0");
+	setCommunicator(Ice::initialize(argc, argv, initData));
+	communicator()->getProperties()->setProperty("Ice.Warn.Connections", "0");
 
         vector<int> ports;
         for(int i = 1; i < argc; ++i)

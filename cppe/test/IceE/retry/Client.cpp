@@ -44,7 +44,7 @@ public:
 	//
 	// This test kills connections, so we don't want warnings.
 	//
-	initData.properties->setProperty("Ice.Warn.Connections", "0");
+	communicator()->getProperties()->setProperty("Ice.Warn.Connections", "0");
 
         Test::RetryPrx allTests(const Ice::CommunicatorPtr&);
         Test::RetryPrx retry = allTests(communicator());

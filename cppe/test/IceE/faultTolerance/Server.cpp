@@ -67,7 +67,7 @@ public:
 
         char buf[32];
         sprintf(buf, "default -p %d", port);
-        initData.properties->setProperty("TestAdapter.Endpoints", buf);
+        communicator()->getProperties()->setProperty("TestAdapter.Endpoints", buf);
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
         Ice::ObjectPtr object = new TestI(adapter);
         adapter->add(object, communicator()->stringToIdentity("test"));

@@ -40,6 +40,11 @@ public:
 	//initData.properties->setProperty("Ice.Trace.Protocol", "5");
 
 	loadConfig(initData.properties);
+	//
+	// Now parse argc/argv into initData.properties
+	//
+	initData.properties = Ice::createProperties(argc, argv, initData.properties);
+
 	initData.logger = getLogger();
 	setCommunicator(Ice::initialize(argc, argv, initData));
 
@@ -49,8 +54,8 @@ public:
 	adapter->add(new TestCheckedCastI, communicator()->stringToIdentity("context"));
         adapter->activate();
 
-        Test::MyClassPrx allTests(const Ice::CommunicatorPtr&);
-        allTests(communicator());
+        Test::MyClassPrx allTests(const Ice::CommunicatorPtr&, const Ice::InitializationData&);
+        allTests(communicator(), initData);
 
         return EXIT_SUCCESS;
     }

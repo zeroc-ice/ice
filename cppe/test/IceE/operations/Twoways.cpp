@@ -25,7 +25,8 @@
 using namespace std;
 
 void
-twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
+twoways(const Ice::CommunicatorPtr& communicator, 
+	const Ice::InitializationData& initializationData, const Test::MyClassPrx& p)
 {
     {
 	p->opVoid();
@@ -645,12 +646,9 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	    //
 	    // Test that default context is obtained correctly from communicator.
 	    //
-            int argc = 0;
-            char* argv[] = { "" };
-            Ice::InitializationData initData;
-	    initData.properties = communicator->getProperties();
+            Ice::InitializationData initData = initializationData;
             initData.defaultContext["a"] = "b";
-            Ice::CommunicatorPtr communicator2 = Ice::initialize(argc, argv, initData);
+            Ice::CommunicatorPtr communicator2 = Ice::initialize(initData);
 
 	    string ref = communicator2->getProperties()->getPropertyWithDefault(
 		"Operations.Proxy", "test:default -p 12010 -t 10000");

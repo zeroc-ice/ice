@@ -15,7 +15,7 @@
 using namespace std;
 
 Test::MyClassPrx
-allTests(const Ice::CommunicatorPtr& communicator)
+allTests(const Ice::CommunicatorPtr& communicator, const Ice::InitializationData& initData)
 {
     tprintf("testing stringToProxy... ");
     string ref = communicator->getProperties()->getPropertyWithDefault(
@@ -130,9 +130,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
     tprintf("ok\n");
 
     tprintf("testing twoway operations... ");
-    void twoways(const Ice::CommunicatorPtr&, const Test::MyClassPrx&);
-    twoways(communicator, cl);
-    twoways(communicator, derived);
+    void twoways(const Ice::CommunicatorPtr&, const Ice::InitializationData&, const Test::MyClassPrx&);
+    twoways(communicator, initData, cl);
+    twoways(communicator, initData, derived);
     derived->opDerived();
     tprintf("ok\n");
 

@@ -40,11 +40,10 @@ private:
 
     Properties(const Properties*);
     Properties();
-    Properties(StringSeq&);
+    Properties(StringSeq&, const PropertiesPtr&);
 
     friend ICE_API PropertiesPtr createProperties();
-    friend ICE_API PropertiesPtr createProperties(StringSeq&);
-    friend ICE_API PropertiesPtr createProperties(int&, char*[]);
+    friend ICE_API PropertiesPtr createProperties(StringSeq&, const PropertiesPtr&);
 
     void parseLine(const std::string&);
 

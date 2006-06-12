@@ -1,6 +1,21 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Removed getDefaultProperties() functions, and the global default
+  properties. If you need global properties, you can easily
+  create your own global variable.
+
+- The signature of createProperties()-with-parameters is now:
+  PropertiesPtr createProperties(int* argc, char* argv[],
+                                 const PropertiesPtr& defaults = 0);
+  "defaults" represents an optional set of default properties
+  used to initialize the new Properties object. Ice properties 
+  defined on the command-line and properties defined in the Ice
+  config file may override these default properties.
+   
+- Added a new communicator-initialization function:
+  CommunicatorPtr initialize(const InitializationData&);
+
 - Added identityToString and stringToIdentity to the Communicator
   interface. If a string converter is configured these functions
   must be used instead of the current static functions.

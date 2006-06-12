@@ -209,11 +209,15 @@ Ice::Properties::Properties(const Properties* p) :
 
 Ice::Properties::Properties()
 {
-    loadConfig();
 }
 
-Ice::Properties::Properties(StringSeq& args)
+Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults)
 {
+    if(defaults != 0)
+    {
+	_properties = defaults->getPropertiesForPrefix("");
+    }
+
     StringSeq::iterator q = args.begin();
     if(q != args.end())
     {
@@ -227,6 +231,8 @@ Ice::Properties::Properties(StringSeq& args)
 	setProperty("Ice.ProgramName", name);
     }
     StringSeq tmp;
+
+    bool loadConfigFiles = false;
     while(q != args.end())
     {
         string s = *q;
@@ -237,6 +243,7 @@ Ice::Properties::Properties(StringSeq& args)
                 s += "=1";
             }
             parseLine(s.substr(2));
+	    loadConfigFiles = true;
         }
         else
         {
@@ -246,7 +253,18 @@ Ice::Properties::Properties(StringSeq& args)
     }
     args = tmp;
 
-    loadConfig();
+    if(!loadConfigFiles)
+    {
+	//
+	// If Ice.Config is not set, load from ICE_CONFIG (if set)
+	//
+	loadConfigFiles = (_properties.find("Ice.Config") == _properties.end());
+    }
+
+    if(loadConfigFiles)
+    {
+	loadConfig();
+    }
 
     args = parseIceCommandLineOptions(args);
 }
