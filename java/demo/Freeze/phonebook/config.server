@@ -1,7 +1,3 @@
-Ice.Warn.Connections=1
-#Ice.Trace.Network=3
-#Ice.Trace.Protocol=1
-
 Freeze.Trace.Evictor=1
 Freeze.Trace.DbEnv=1
 Freeze.Evictor.db.contacts.SavePeriod=10000
@@ -10,3 +6,26 @@ Freeze.Evictor.db.contacts.PopulateEmptyIndices=1
 PhoneBook.Endpoints=default -p 10000
 PhoneBook.Proxy=phonebook:default -p 10000
 PhoneBook.EvictorSize=3
+
+#
+# Warn about connection exceptions
+#
+Ice.Warn.Connections=1
+
+#
+# Network Tracing
+#
+# 0 = no network tracing
+# 1 = trace connection establishment and closure
+# 2 = like 1, but more detailed
+# 3 = like 2, but also trace data transfer
+#
+#Ice.Trace.Network=1
+
+#
+# Protocol Tracing
+#
+# 0 = no protocol tracing
+# 1 = trace protocol messages
+#
+#Ice.Trace.Protocol=1

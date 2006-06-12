@@ -46,11 +46,18 @@ Ice.Warn.Connections=1
 #Ice.Trace.Protocol=1
 
 #
+# Security Tracing
+#
+# 0 = no security tracing
+# 1 = trace messages
+#
+#IceSSL.Trace.Security=1
+
+#
 # SSL plugin configuration
 #
 #Ice.Plugin.IceSSL=../../../bin/icesslcs.dll:IceSSL.PluginFactory
 IceSSL.ImportCert.LocalMachine.AuthRoot=../../../certs/cacert.pem
 IceSSL.CertFile=../../../certs/s_rsa1024.pfx
 IceSSL.Password=password
-IceSSL.Trace.Security=0
 Ice.ThreadPerConnection=1

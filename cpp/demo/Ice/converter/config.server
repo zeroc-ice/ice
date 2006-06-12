@@ -11,11 +11,6 @@ Hello.Endpoints=tcp -p 10000
 Ice.Warn.Connections=1
 
 #
-# We want a faster ACM for this demo.
-#
-Ice.ACM.Server=10
-
-#
 # Network Tracing
 #
 # 0 = no network tracing
@@ -23,7 +18,7 @@ Ice.ACM.Server=10
 # 2 = like 1, but more detailed
 # 3 = like 2, but also trace data transfer
 #
-Ice.Trace.Network=0
+#Ice.Trace.Network=1
 
 #
 # Protocol Tracing
@@ -31,7 +26,7 @@ Ice.Trace.Network=0
 # 0 = no protocol tracing
 # 1 = trace protocol messages
 #
-Ice.Trace.Protocol=0
+#Ice.Trace.Protocol=1
 
 #
 # Security Tracing
@@ -39,7 +34,7 @@ Ice.Trace.Protocol=0
 # 0 = no security tracing
 # 1 = trace messages
 #
-IceSSL.Trace.Security=0
+#IceSSL.Trace.Security=1
 
 #
 # SSL Configuration

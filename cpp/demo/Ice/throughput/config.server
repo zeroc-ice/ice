@@ -1,5 +1,8 @@
 Throughput.Endpoints=default -p 10000
 
+#
+# SSL Configuration
+#
 Ice.Plugin.IceSSL=IceSSL:create
 IceSSL.DefaultDir=../../../certs
 IceSSL.CertAuthFile=cacert.pem

@@ -35,11 +35,18 @@ Glacier2.PermissionsVerifier=verifier:tcp -h 127.0.0.1 -p 10001
 Glacier2.SessionTimeout=30
 
 #
-# SSL Settings.
+# Security Tracing
+#
+# 0 = no security tracing
+# 1 = trace messages
+#
+#IceSSL.Trace.Security=1
+
+#
+# SSL Configuration
 #
 Ice.Plugin.IceSSL=IceSSL:create
 IceSSL.DefaultDir=../../../certs
 IceSSL.CertAuthFile=cacert.pem
 IceSSL.CertFile=s_rsa1024_pub.pem
 IceSSL.KeyFile=s_rsa1024_priv.pem
-#IceSSL.Trace.Security=1

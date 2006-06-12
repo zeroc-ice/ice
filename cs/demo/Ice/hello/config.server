@@ -28,7 +28,7 @@ Ice.ACM.Server=10
 # 2 = like 1, but more detailed
 # 3 = like 2, but also trace data transfer
 #
-Ice.Trace.Network=0
+#Ice.Trace.Network=1
 
 #
 # Protocol Tracing
@@ -36,7 +36,15 @@ Ice.Trace.Network=0
 # 0 = no protocol tracing
 # 1 = trace protocol messages
 #
-Ice.Trace.Protocol=0
+#Ice.Trace.Protocol=1
+
+#
+# Security Tracing
+#
+# 0 = no security tracing
+# 1 = trace messages
+#
+#IceSSL.Trace.Security=1
 
 #
 # SSL plugin configuration
@@ -46,5 +54,4 @@ IceSSL.DefaultDir=../../../certs
 IceSSL.ImportCert.LocalMachine.AuthRoot=cacert.pem
 IceSSL.CertFile=s_rsa1024.pfx
 IceSSL.Password=password
-IceSSL.Trace.Security=0
 Ice.ThreadPerConnection=1
