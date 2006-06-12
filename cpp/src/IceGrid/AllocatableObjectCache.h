@@ -57,10 +57,9 @@ public:
 
 private:
 
-    virtual bool allocated(const AllocatablePtr& allocatable, const SessionIPtr& session)
+    virtual void allocated(const AllocatablePtr& allocatable, const SessionIPtr& session)
     {
 	response(AllocatableObjectEntryPtr::dynamicCast(allocatable)->getProxy());
-	return true;
     }
 
     virtual void canceled(const AllocationException& ex)

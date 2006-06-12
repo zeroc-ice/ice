@@ -36,11 +36,11 @@ public:
 
     virtual ~AllocationRequest();
     
-    virtual bool allocated(const AllocatablePtr&, const SessionIPtr&) = 0;
+    virtual void allocated(const AllocatablePtr&, const SessionIPtr&) = 0;
     virtual void canceled(const AllocationException&) = 0;
     
     bool pending();
-    bool finish(const AllocatablePtr&, const SessionIPtr&);
+    bool allocate(const AllocatablePtr&, const SessionIPtr&);
     void cancel(const AllocationException&);
     void expired(bool);
 

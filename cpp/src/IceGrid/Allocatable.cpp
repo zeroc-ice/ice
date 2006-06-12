@@ -45,7 +45,7 @@ AllocationRequest::pending()
 }
 
 bool
-AllocationRequest::finish(const AllocatablePtr& allocatable, const SessionIPtr& session)
+AllocationRequest::allocate(const AllocatablePtr& allocatable, const SessionIPtr& session)
 {
     Lock sync(*this);
     switch(_state)
@@ -75,15 +75,10 @@ AllocationRequest::finish(const AllocatablePtr& allocatable, const SessionIPtr& 
 	canceled(AllocationException("already allocated by the session"));
 	return false;
     }
-    else if(allocated(allocatable, _session))
+    else
     {
 	_state = Allocated;
 	return true;
-    }
-    else
-    {
-	_state = Canceled;
-	return false;
     }
 }
 
@@ -385,9 +380,18 @@ Allocatable::allocate(const AllocationRequestPtr& request, bool tryAllocate, boo
 
 	if(!_session && (fromRelease || !_releasing))
 	{
-	    if(request->finish(this, _session))
+	    if(request->allocate(this, _session))
 	    {
-		allocated(request->getSession()); // This might throw SessionDestroyedException
+		try
+		{
+		    allocated(request->getSession()); // This might throw SessionDestroyedException
+		    request->allocated(this, request->getSession());
+		}
+		catch(const SessionDestroyedException&)
+		{
+		    request->canceled(AllocationException("session destroyed"));
+		    throw;
+		}
 		assert(_count == 0);
 		_session = request->getSession();
 		++_count;
@@ -396,10 +400,11 @@ Allocatable::allocate(const AllocationRequestPtr& request, bool tryAllocate, boo
 	}
 	else if(_session == request->getSession())
 	{
-	    if(!tryAllocate && request->finish(this, _session))
+	    if(!tryAllocate && request->allocate(this, _session))
 	    {
 		assert(_count > 0);
 		++_count;
+		request->allocated(this, _session);
 		return true; // Allocated
 	    }
 	}
