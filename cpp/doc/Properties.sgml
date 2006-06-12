@@ -2073,7 +2073,7 @@ the JVM's default value is used (normally <literal>JKS</literal>).
 <section id="IceSSL.Password"><title>IceSSL.Password</title>
 <section><title>Synopsis</title>
 <synopsis>
-IceSSL.Password=<replaceable>password</replaceable> (Java)
+IceSSL.Password=<replaceable>password</replaceable>
 </synopsis>
 </section>
 <section>
@@ -2171,7 +2171,7 @@ by <link linkend="IceSSL.DefaultDir">IceSSL.DefaultDir</link>.
 </section>
 </section>
 
-<section><title>IceSSL.Trace.Security</title>
+<section id="IceSSL.Trace.Security"><title>IceSSL.Trace.Security</title>
 <section><title>Synopsis</title>
 <synopsis>
 IceSSL.Trace.Security=<replaceable>num</replaceable>
@@ -2195,6 +2195,106 @@ The SSL plugin trace level:
 </tbody>
 </tgroup>
 </informaltable>
+</para>
+</section>
+</section>
+
+<section id="IceSSL.TrustOnly"><title>IceSSL.TrustOnly</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.TrustOnly=<replaceable>DN</replaceable>[;<replaceable>DN</replaceable>;...]
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Identifies trusted peers. This family of properties provides an additional level of
+authentication by restricting connections to trusted peers. After the SSL engine has
+successfully completed its authentication process, IceSSL compares the peer's
+distinguished name (DN) with each <replaceable>DN</replaceable> in the property value
+and allows the connection to succeed if the peer's DN matches any of the specified names.
+<replaceable>DN</replaceable> must contain only those relative distinguished name (RDN)
+components that peers are required to have in their names. IceSSL rejects a connection
+if no match is found for the peer's DN, or if the peer did not supply a certificate.
+</para>
+<para>
+For example, you can limit access to people in the sales and marketing departments
+using the following configuration:
+</para>
+<para>
+<literal>IceSSL.TrustOnly=O="Acme, Inc.",OU="Sales"; O="Acme, Inc.",OU="Marketing"</literal>
+</para>
+<para>
+The peer's name must match one of these DNs in order to communicate with this program.
+</para>
+<para>
+You can specify as many RDN components as you wish, depending on how narrowly you need to
+restrict access. The order of the RDN components is not important. While testing your
+trust configuration, you may find it helpful to set the
+<link linkend="IceSSL.Trace.Security">IceSSL.Trace.Security</link> property to a nonzero
+value, which causes IceSSL to display the DN of each peer during connection establishment.
+</para>
+<para>
+This property affects incoming and outgoing connections. IceSSL also supports similar
+properties that affect only incoming connections or only outgoing connections.
+</para>
+</section>
+</section>
+
+<section id="IceSSL.TrustOnly.Client"><title>IceSSL.TrustOnly.Client</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.TrustOnly.Client=<replaceable>DN</replaceable>[;<replaceable>DN</replaceable>;...]
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Identifies trusted peers for outgoing ("client") connections. For a connection to
+succeed, the peer's distinguished name (DN) must match one of the specified names
+or one of the names defined in <link linkend="IceSSL.TrustOnly">IceSSL.TrustOnly</link>.
+See the description of <link linkend="IceSSL.TrustOnly">IceSSL.TrustOnly</link> for
+more information.
+</para>
+</section>
+</section>
+
+<section id="IceSSL.TrustOnly.Server"><title>IceSSL.TrustOnly.Server</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.TrustOnly.Server=<replaceable>DN</replaceable>[;<replaceable>DN</replaceable>;...]
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Identifies trusted peers for incoming ("server") connections. For a connection to
+succeed, the peer's distinguished name (DN) must match one of the specified names
+or one of the names defined in <link linkend="IceSSL.TrustOnly">IceSSL.TrustOnly</link>.
+See the description of <link linkend="IceSSL.TrustOnly">IceSSL.TrustOnly</link> for
+more information. To configure trusted peers for a particular object adapter, use
+<link linkend="IceSSL.TrustOnly.Server.AdapterName">
+IceSSL.TrustOnly.Server.<replaceable>AdapterName</replaceable></link>.
+</para>
+</section>
+</section>
+
+<section id="IceSSL.TrustOnly.Server.AdapterName"><title>IceSSL.TrustOnly.Server.AdapterName</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.TrustOnly.Server.<replaceable>AdapterName</replaceable>=<replaceable>DN</replaceable>[;<replaceable>DN</replaceable>;...]
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Identifies trusted peers for incoming ("server") connections to the object adapter
+<replaceable>AdapterName</replaceable>. For a connection to
+succeed, the peer's distinguished name (DN) must match one of the specified names,
+or one of the names defined in <link linkend="IceSSL.TrustOnly.Server">IceSSL.TrustOnly.Server</link>,
+or one of the names defined in <link linkend="IceSSL.TrustOnly">IceSSL.TrustOnly</link>.
+See the description of <link linkend="IceSSL.TrustOnly">IceSSL.TrustOnly</link> for
+more information.
 </para>
 </section>
 </section>
