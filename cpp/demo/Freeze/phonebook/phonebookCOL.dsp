@@ -185,7 +185,10 @@ BuildCmds= \
 InputPath=.\Grammar.y
 
 BuildCmds= \
-	bison -dvt -o Grammar.cpp Grammar.y
+	bison -dvt Grammar.y \
+	move Grammar.tab.c Grammar.cpp \
+	move Grammar.tab.h Grammar.h \
+	
 
 "Grammar.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
