@@ -286,8 +286,14 @@ AllocatableObjectEntry::allocated(const SessionIPtr& session)
 	    seq.push_back(_info.proxy->ice_getIdentity());
 	    ctl->identities()->add(seq);
 	}
-	catch(const Ice::ObjectNotExistException&)
+	catch(const Ice::LocalException& ex)
 	{
+	    if(traceLevels && traceLevels->object > 0)
+	    {
+		Ice::Trace out(traceLevels->logger, traceLevels->objectCat);
+		out << "couldn't add Glacier2 filter for object `" << _info.proxy->ice_toString();
+		out << "' allocated by `" << session->getId() << "':\n" << ex;
+	    }    
 	}
     }    
 }
@@ -300,6 +306,8 @@ AllocatableObjectEntry::released(const SessionIPtr& session)
     //
     session->removeAllocation(this);
 
+    TraceLevelsPtr traceLevels = _cache.getTraceLevels();
+
     Glacier2::SessionControlPrx ctl = session->getSessionControl();
     if(ctl)
     {
@@ -309,12 +317,17 @@ AllocatableObjectEntry::released(const SessionIPtr& session)
 	    seq.push_back(_info.proxy->ice_getIdentity());
 	    ctl->identities()->remove(seq);
 	}
-	catch(const Ice::ObjectNotExistException&)
+	catch(const Ice::LocalException& ex)
 	{
+	    if(traceLevels && traceLevels->object > 0)
+	    {
+		Ice::Trace out(traceLevels->logger, traceLevels->objectCat);
+		out << "couldn't remove Glacier2 filter for object `" << _info.proxy->ice_toString();
+		out << "' allocated by `" << session->getId() << "':\n" << ex;
+	    }    
 	}
     }
 
-    TraceLevelsPtr traceLevels = _cache.getTraceLevels();
     if(traceLevels && traceLevels->object > 1)
     {
 	Ice::Trace out(traceLevels->logger, traceLevels->objectCat);

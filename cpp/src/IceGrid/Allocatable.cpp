@@ -451,7 +451,7 @@ Allocatable::allocateFromChild(const AllocationRequestPtr& request,
     }
 
     Lock sync(*this);
-    if(!_session && (fromRelease || !_releasing) || _session == request->getSession())
+    if((!_session || _session == request->getSession()) && (fromRelease || !_releasing))
     {
 	if(!_session)
 	{

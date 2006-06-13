@@ -833,8 +833,14 @@ ServerEntry::allocated(const SessionIPtr& session)
 	    ctl->adapterIds()->add(adapterIdSeq);
 	    ctl->identities()->add(identitySeq);
 	}
-	catch(const Ice::ObjectNotExistException&)
+	catch(const Ice::LocalException& ex)
 	{
+	    if(traceLevels && traceLevels->server > 0)
+	    {
+		Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
+		out << "couldn't add Glacier2 filters for server `" << _id << "' allocated by `" << session->getId();
+		out << ":\n" << ex;
+	    }
 	}
     }
 }
@@ -864,6 +870,8 @@ ServerEntry::released(const SessionIPtr& session)
 	_session = 0;
     }
 
+    TraceLevelsPtr traceLevels = _cache.getTraceLevels();
+
     Glacier2::SessionControlPrx ctl = session->getSessionControl();
     if(ctl)
     {
@@ -892,12 +900,17 @@ ServerEntry::released(const SessionIPtr& session)
 	    ctl->adapterIds()->remove(adapterIdSeq);
 	    ctl->identities()->remove(identitySeq);
 	}
-	catch(const Ice::ObjectNotExistException&)
+	catch(const Ice::LocalException& ex)
 	{
+	    if(traceLevels && traceLevels->server > 0)
+	    {
+		Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
+		out << "couldn't remove Glacier2 filters for server `" << _id << "' allocated by `";
+		out << session->getId() << ":\n" << ex;
+	    }
 	}
     }
 
-    TraceLevelsPtr traceLevels = _cache.getTraceLevels();
     if(traceLevels && traceLevels->server > 1)
     {
 	Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
