@@ -72,6 +72,11 @@ else:
 	hostname = hostname[:dot]
     if domainname == "":
 	limitedTests = True
+try:
+    testaddr = socket.gethostbyname(fqdn)
+    testaddr = socket.gethostbyname(hostname)
+except e:
+    limitedTests = True
 
 testcases = []
 
