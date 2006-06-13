@@ -139,7 +139,7 @@ namespace IceSSL
 		    if(certs_.Count == 0)
 		    {
 			Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-			e.reason = "IceSSL: no client certificates found";
+			e.reason = "IceSSL: no certificates found";
 			throw e;
 		    }
 		}
