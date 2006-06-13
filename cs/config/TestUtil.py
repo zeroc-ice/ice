@@ -56,6 +56,8 @@ try:
 except getopt.GetoptError:
     usage()
 
+mono = 0
+
 for o, a in opts:
     if o in ( "-m", "--mono" ):
 	mono = 1
@@ -341,7 +343,6 @@ clientServerOptions = clientServerProtocol + defaultHost + commonServerOptions
 collocatedOptions = clientServerProtocol + defaultHost
 
 def createMsg(name):
-    
     msg = "starting "
     if mono:
 	msg += "mono "
