@@ -26,19 +26,6 @@ if not os.environ.has_key('ICE_HOME'):
 
 ice_home = os.environ['ICE_HOME']
 
-try:
-    opts, args = getopt.getopt(sys.argv[1:], "m")
-except getopt.GetoptError:
-    usage()
-
-mono = 0
-for o, a in opts:
-    if o == "-m":
-        mono = 1
-
-if not TestUtil.isWin32():
-    mono = 1
-
 router = os.path.join(ice_home, "bin", "glacier2router")
 
 command = router + TestUtil.cppClientServerOptions + \
@@ -69,14 +56,14 @@ starterThread.start()
 name = os.path.join("Glacier2", "router")
 testdir = os.path.join(toplevel, "test", name)
 
-TestUtil.mixedClientServerTest(mono, name)
+TestUtil.mixedClientServerTest(name)
 
 #
 # We run the test again, to check whether the glacier router can
 # handle multiple clients. Also, when we run for the second time, we
 # want the client to shutdown the router after running the tests.
 #
-TestUtil.mixedClientServerTestWithOptions(mono, name, "", " --shutdown")
+TestUtil.mixedClientServerTestWithOptions(name, "", " --shutdown")
 
 starterStatus = TestUtil.closePipe(starterPipe)
 

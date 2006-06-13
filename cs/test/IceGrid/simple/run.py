@@ -25,19 +25,6 @@ sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 import IceGridAdmin
 
-try:
-    opts, args = getopt.getopt(sys.argv[1:], "m")
-except getopt.GetoptError:
-    usage()
-
-mono = 0
-for o, a in opts:
-    if o == "-m":
-        mono = 1
-
-if not TestUtil.isWin32():
-    mono = 1
-
 name = os.path.join("IceGrid", "simple")
 testdir = os.path.join(toplevel, "test", name)
 
@@ -58,7 +45,7 @@ iceGridRegistryThread = IceGridAdmin.startIceGridRegistry("12010", testdir, 1)
 # Test client/server without on demand activation.
 #
 additionalServerOptions=" --TestAdapter.Endpoints=default --TestAdapter.AdapterId=TestAdapter " + additionalOptions
-TestUtil.mixedClientServerTestWithOptions(mono, name, additionalServerOptions, additionalOptions)
+TestUtil.mixedClientServerTestWithOptions(name, additionalServerOptions, additionalOptions)
 
 #
 # Shutdown the registry.
@@ -80,14 +67,14 @@ iceGridNodeThread = IceGridAdmin.startIceGridNode(testdir)
 client = os.path.join(testdir, "client")
 
 print "registering server with icegrid...",
-if mono:
+if TestUtil.mono:
     IceGridAdmin.addApplication(os.path.join(testdir, "simple_mono_server.xml"), "test.dir=" + testdir);
 else:
     IceGridAdmin.addApplication(os.path.join(testdir, "simple_server.xml"), "test.dir=" + testdir);
 print "ok"
 
-print TestUtil.createMsg(mono, "client"),
-clientPipe = os.popen(TestUtil.createCmd(mono, client) + TestUtil.clientOptions + additionalOptions + \
+print TestUtil.createMsg("client"),
+clientPipe = os.popen(TestUtil.createCmd(client) + TestUtil.clientOptions + additionalOptions + \
                       " --with-deploy" + " 2>&1")
 print "ok"
 

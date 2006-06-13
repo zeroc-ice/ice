@@ -18,10 +18,7 @@ for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
 else:
     raise "can't find toplevel directory!"
 
-sys.path.append(os.path.join(toplevel, "config"))
-import TestUtil
-
-def runTests(mono, tests, num = 0):
+def runTests(args, tests, num = 0):
 
     #
     # Run each of the tests.
@@ -37,10 +34,7 @@ def runTests(mono, tests, num = 0):
 	print "*** running tests in " + dir,
 	print
 
-	if mono:
-	    status = os.system(os.path.join(dir, "run.py -m"))
-	else:
-	    status = os.system(os.path.join(dir, "run.py"))
+	status = os.system(os.path.join(dir, "run.py " + args))
 
 	if status:
 	    if(num > 0):
@@ -81,7 +75,8 @@ def usage():
     sys.exit(2)
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "lmr:R:")
+    opts, args = getopt.getopt(sys.argv[1:], "lmr:R:", \
+    	["mono", "protocol=", "compress", "host=", "threadPerConnection"])
 except getopt.GetoptError:
     usage()
 
@@ -89,7 +84,7 @@ if(args):
     usage()
 
 loop = 0
-mono = 0
+args = ""
 for o, a in opts:
     if o == "-l":
         loop = 1
@@ -101,16 +96,15 @@ for o, a in opts:
 	else:
 	    def rematch(x): return not regexp.search(x)
 	tests = filter(rematch, tests)
-    if o == "-m":
-        mono = 1
+    if o in ( "--protocol", "--host" ):
+	args += o + " " + a
+    if o in ( "-m", "--mono", "--compress", "--threadPerConnection" ):
+	args += o
     
-if not TestUtil.isWin32():
-    mono = 1
-
 if loop:
     num = 1
     while 1:
-	runTests(mono, tests, num)
+	runTests(args, tests, num)
 	num += 1
 else:
-    runTests(mono, tests)
+    runTests(args, tests)

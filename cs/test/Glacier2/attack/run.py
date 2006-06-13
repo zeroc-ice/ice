@@ -26,19 +26,6 @@ if not os.environ.has_key('ICE_HOME'):
 
 ice_home = os.environ['ICE_HOME']
 
-try:
-    opts, args = getopt.getopt(sys.argv[1:], "m")
-except getopt.GetoptError:
-    usage()
-
-mono = 0
-for o, a in opts:
-    if o == "-m":
-        mono = 1
-
-if not TestUtil.isWin32():
-    mono = 1
-
 router = os.path.join(ice_home, "bin", "glacier2router")
 
 command = router + TestUtil.cppClientServerOptions + \
@@ -56,7 +43,7 @@ print "ok"
 
 name = os.path.join("Glacier2", "attack")
 
-TestUtil.clientServerTest(mono, name)
+TestUtil.clientServerTest(name)
 
 if TestUtil.serverStatus():
     sys.exit(0)

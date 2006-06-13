@@ -20,25 +20,8 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-def usage():
-    print "usage: " + sys.argv[0] + " [-m]"
-    sys.exit(2)
-
-try:
-    opts, args = getopt.getopt(sys.argv[1:], "m")
-except getopt.GetoptError:
-    usage()
-
-mono = 0
-for o, a in opts:
-    if o == "-m":
-        mono = 1
-
-if not TestUtil.isWin32():
-    mono = 1
-    
 name = os.path.join("IceSSL", "configuration")
 
 testdir = os.path.join(toplevel, "test", name)
-TestUtil.clientServerTestWithOptions(mono, name, "", " " + testdir)
+TestUtil.clientServerTestWithOptions(name, "", " " + testdir)
 sys.exit(0)

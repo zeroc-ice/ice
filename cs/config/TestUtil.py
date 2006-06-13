@@ -8,11 +8,30 @@
 #
 # **********************************************************************
 
+import sys, os, re, errno, getopt
+from threading import Thread
+
+def isCygwin():
+
+    # The substring on sys.platform is required because some cygwin
+    # versions return variations like "cygwin_nt-4.01".
+    if sys.platform[:6] == "cygwin":
+        return 1
+    else:
+        return 0
+
+def isWin32():
+
+    if sys.platform == "win32" or isCygwin():
+        return 1
+    else:
+        return 0
+
+
 #
 # Set protocol to "ssl" in case you want to run the tests with the SSL
 # protocol. Otherwise TCP is used.
 #
-
 protocol = ""
 #protocol = "ssl"
 
@@ -32,6 +51,30 @@ compress = 0
 #threadPerConnection = 0
 threadPerConnection = 1
 
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "m", ["mono", "protocol=", "compress", "host=", "threadPerConnection"])
+except getopt.GetoptError:
+    usage()
+
+for o, a in opts:
+    if o in ( "-m", "--mono" ):
+	mono = 1
+    if o == "--protocol":
+	print "setting protocol: " + a
+	protocol = a
+    if o == "--compress":
+	compress = 1
+    if o == "--threadPerConnection":
+	threadPerConnection = 1
+    if o == "--host":
+	host = a
+
+if protocol == "ssl":
+    threadPerConnection = 1
+
+if not isWin32():
+    mono = 1
+
 if protocol == "ssl":
     threadPerConnection = 1
 
@@ -47,25 +90,6 @@ host = "127.0.0.1"
 #
 # Don't change anything below this line!
 #
-
-import sys, os, re, errno
-from threading import Thread
-
-def isCygwin():
-
-    # The substring on sys.platform is required because some cygwin
-    # versions return variations like "cygwin_nt-4.01".
-    if sys.platform[:6] == "cygwin":
-        return 1
-    else:
-        return 0
-
-def isWin32():
-
-    if sys.platform == "win32" or isCygwin():
-        return 1
-    else:
-        return 0
 
 def closePipe(pipe):
 
@@ -168,7 +192,11 @@ def getServerPid(pipe):
         killServers()
         sys.exit(1)
 
-    serverPids.append(int(output))
+    try:
+	serverPids.append(int(output))
+    except ValueError:
+	print "Output is not a PID: " + output
+	raise
 
 def ignorePid(pipe):
 
@@ -312,7 +340,7 @@ serverOptions = serverProtocol + defaultHost + commonServerOptions
 clientServerOptions = clientServerProtocol + defaultHost + commonServerOptions
 collocatedOptions = clientServerProtocol + defaultHost
 
-def createMsg(mono, name):
+def createMsg(name):
     
     msg = "starting "
     if mono:
@@ -324,30 +352,30 @@ def createMsg(mono, name):
 
     return msg
 
-def createCmd(mono, bin):
+def createCmd(bin):
 
     if mono:
         return "mono --debug " + bin + ".exe"
     else:
         return bin
 
-def clientServerTestWithOptionsAndNames(mono, name, additionalServerOptions, additionalClientOptions, \
+def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additionalClientOptions, \
                                         serverName, clientName):
 
     testdir = os.path.join(toplevel, "test", name)
     server = os.path.join(testdir, serverName)
     client = os.path.join(testdir, clientName)
 
-    print createMsg(mono, serverName),
-    serverCmd = createCmd(mono, server) + serverOptions + " " + additionalServerOptions + " 2>&1"
+    print createMsg(serverName),
+    serverCmd = createCmd(server) + serverOptions + " " + additionalServerOptions + " 2>&1"
     #print "serverCmd=" + serverCmd
     serverPipe = os.popen(serverCmd)
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
-    print createMsg(mono, clientName),
-    clientCmd = createCmd(mono, client) + clientOptions + " " + additionalClientOptions + " 2>&1"
+    print createMsg(clientName),
+    clientCmd = createCmd(client) + clientOptions + " " + additionalClientOptions + " 2>&1"
     #print "clientCmd=" + clientCmd
     clientPipe = os.popen(clientCmd)
     print "ok"
@@ -361,31 +389,31 @@ def clientServerTestWithOptionsAndNames(mono, name, additionalServerOptions, add
     if clientStatus or serverStatus():
         sys.exit(1)
 
-def clientServerTestWithOptions(mono, name, additionalServerOptions, additionalClientOptions):
+def clientServerTestWithOptions(name, additionalServerOptions, additionalClientOptions):
 
-    clientServerTestWithOptionsAndNames(mono, name, additionalServerOptions, additionalClientOptions, "server", \
+    clientServerTestWithOptionsAndNames(name, additionalServerOptions, additionalClientOptions, "server", \
                                         "client")
 
-def clientServerTest(mono, name):
+def clientServerTest(name):
 
-    clientServerTestWithOptions(mono, name, "", "")
+    clientServerTestWithOptions(name, "", "")
 
-def mixedClientServerTestWithOptions(mono, name, additionalServerOptions, additionalClientOptions):
+def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalClientOptions):
 
     testdir = os.path.join(toplevel, "test", name)
     server = os.path.join(testdir, "server")
     client = os.path.join(testdir, "client")
 
-    print createMsg(mono, "server"),
-    serverCmd = createCmd(mono, server) + clientServerOptions + " " + additionalServerOptions + " 2>&1"
+    print createMsg("server"),
+    serverCmd = createCmd(server) + clientServerOptions + " " + additionalServerOptions + " 2>&1"
     #print "serverCmd = " + serverCmd
     serverPipe = os.popen(serverCmd)
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
-    print createMsg(mono, "client"),
-    clientCmd = createCmd(mono, client) + clientServerOptions + " " + additionalClientOptions + " 2>&1"
+    print createMsg("client"),
+    clientCmd = createCmd(client) + clientServerOptions + " " + additionalClientOptions + " 2>&1"
     #print "clientCmd = " + clientCmd
     clientPipe = os.popen(clientCmd)
     ignorePid(clientPipe)
@@ -401,17 +429,17 @@ def mixedClientServerTestWithOptions(mono, name, additionalServerOptions, additi
     if clientStatus or serverStatus():
         sys.exit(1)
 
-def mixedClientServerTest(mono, name):
+def mixedClientServerTest(name):
 
-    mixedClientServerTestWithOptions(mono, name, "", "")
+    mixedClientServerTestWithOptions(name, "", "")
 
-def collocatedTestWithOptions(mono, name, additionalOptions):
+def collocatedTestWithOptions(name, additionalOptions):
 
     testdir = os.path.join(toplevel, "test", name)
     collocated = os.path.join(testdir, "collocated")
 
-    print createMsg(mono, "collocated"),
-    collocatedPipe = os.popen(createCmd(mono, collocated) + collocatedOptions + " " + additionalOptions + " 2>&1")
+    print createMsg("collocated"),
+    collocatedPipe = os.popen(createCmd(collocated) + collocatedOptions + " " + additionalOptions + " 2>&1")
     print "ok"
 
     printOutputFromPipe(collocatedPipe)
@@ -422,17 +450,17 @@ def collocatedTestWithOptions(mono, name, additionalOptions):
 	killServers()
 	sys.exit(1)
 
-def collocatedTest(mono, name):
+def collocatedTest(name):
 
-    collocatedTestWithOptions(mono, name, "")
+    collocatedTestWithOptions(name, "")
 
-def clientTestWithOptions(mono, name, additionalOptions):
+def clientTestWithOptions(name, additionalOptions):
 
     testdir = os.path.join(toplevel, "test", name)
     client = os.path.join(testdir, "client")
 
-    print createMsg(mono, "client"),
-    clientPipe = os.popen(createCmd(mono, client) + clientOptions + " " + additionalOptions + " 2>&1")
+    print createMsg("client"),
+    clientPipe = os.popen(createCmd(client) + clientOptions + " " + additionalOptions + " 2>&1")
     print "ok"
 
     printOutputFromPipe(clientPipe)
@@ -443,9 +471,9 @@ def clientTestWithOptions(mono, name, additionalOptions):
 	killServers()
 	sys.exit(1)
 
-def clientTest(mono, name):
+def clientTest(name):
 
-    clientTestWithOptions(mono, name, "")
+    clientTestWithOptions(name, "")
 
 def cleanDbDir(path):
 

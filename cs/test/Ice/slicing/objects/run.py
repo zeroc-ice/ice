@@ -20,27 +20,10 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-def usage():
-    print "usage: " + sys.argv[0] + " [-m]"
-    sys.exit(2)
-
-try:
-    opts, args = getopt.getopt(sys.argv[1:], "m")
-except getopt.GetoptError:
-    usage()
-
-mono = 0
-for o, a in opts:
-    if o == "-m":
-        mono = 1
-
-if not TestUtil.isWin32():
-    mono = 1
-
 name = os.path.join("Ice", "slicing", "objects")
 
 print "tests with regular server."
-TestUtil.clientServerTest(mono, name)
+TestUtil.clientServerTest(name)
 print "tests with AMD server."
-TestUtil.clientServerTestWithOptionsAndNames(mono, name, "", "", "serveramd", "client")
+TestUtil.clientServerTestWithOptionsAndNames(name, "", "", "serveramd", "client")
 sys.exit(0)
