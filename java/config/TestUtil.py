@@ -14,7 +14,7 @@
 #
 
 protocol = ""
-protocol = "ssl"
+#protocol = "ssl"
 
 #
 # Set compressed to 1 in case you want to run the tests with
@@ -42,11 +42,40 @@ threadPerConnection = 0
 host = "127.0.0.1"
 
 #
+# To print the commands that are being run.
+#
+debug = 0
+#debug = 1
+
+#
 # Don't change anything below this line!
 #
 
-import sys, os, errno
+import sys, os, errno, getopt
 from threading import Thread
+
+#
+# Don't change anything below this line!
+#
+def usage():
+    print "usage: " + sys.argv[0] + " --debug --protocol protocol --compress --host host --threadPerConnection"
+    sys.exit(2)
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "", ["debug", "protocol=", "compress", "host=", "threadPerConnection"])
+except getopt.GetoptError:
+    usage()
+
+for o, a in opts:
+    if o == "--debug":
+    	debug = 1
+    if o == "--protocol":
+	protocol = a
+    if o == "--compress":
+	compress = 1
+    if o == "--threadPerConnection":
+	threadPerConnection = 1
+    if o == "--host":
+	host = a
 
 #
 # If we are using SSL as the default protocol, we need to examine
@@ -192,23 +221,35 @@ def getServerPid(pipe):
     global serverPids
     global serverThreads
 
-    output = pipe.readline().strip()
-
-    if not output:
-        print "failed!"
-        killServers()
-        sys.exit(1)
+    while 1:
+	output = pipe.readline().strip()
+	if not output:
+	    print "failed!"
+	    killServers()
+	    sys.exit(1)
+    	if output.startswith("warning: "):
+    	    continue
+	break
 
     serverPids.append(int(output))
 
+    try:
+	serverPids.append(int(output))
+    except ValueError:
+	print "Output is not a PID: " + output
+	raise
+
 def ignorePid(pipe):
 
-    output = pipe.readline().strip()
-
-    if not output:
-        print "failed!"
-        killServers()
-        sys.exit(1)
+    while 1:
+	output = pipe.readline().strip()
+	if not output:
+	    print "failed!"
+	    killServers()
+	    sys.exit(1)
+    	if output.startswith("warning: "):
+    	    continue
+	break
 
 def getAdapterReady(pipe, createThread = True):
     global serverThreads
@@ -351,16 +392,18 @@ def clientServerTestWithOptions(additionalServerOptions, additionalClientOptions
     client = javaCmd + " -ea Client --Ice.ProgramName=Client "
 
     print "starting server...",
-    serverCmd = server + serverOptions + additionalServerOptions + " 2>&1"
-    #print serverCmd
-    serverPipe = os.popen(serverCmd)
+    serverCmd = server + serverOptions + additionalServerOptions
+    if debug:
+	print "(" + serverCmd + ")",
+    serverPipe = os.popen(serverCmd + " 2>&1")
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
-    clientCmd = client + clientOptions + additionalClientOptions + " 2>&1"
-    #print clientCmd
-    clientPipe = os.popen(clientCmd)
+    clientCmd = client + clientOptions + additionalClientOptions
+    if debug:
+	print "(" + clientCmd + ")",
+    clientPipe = os.popen(clientCmd + " 2>&1")
     print "ok"
 
     printOutputFromPipe(clientPipe)
@@ -382,14 +425,20 @@ def clientServerTestWithClasspath(serverClasspath, clientClasspath):
 
     print "starting server...",
     os.environ["CLASSPATH"] = scp
-    serverPipe = os.popen(server + serverOptions + " 2>&1")
+    serverCmd = server + serverOptions
+    if debug:
+	print "(" + serverCmd + ")",
+    serverPipe = os.popen(serverCmd + " 2>&1")
     os.environ["CLASSPATH"] = classpath
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
     os.environ["CLASSPATH"] = ccp
-    clientPipe = os.popen(client + clientOptions + " 2>&1")
+    clientCmd = client + clientOptions
+    if debug:
+	print "(" + clientCmd + ")",
+    clientPipe = os.popen(clientCmd + " 2>&1")
     os.environ["CLASSPATH"] = classpath
     print "ok"
 
@@ -412,14 +461,16 @@ def mixedClientServerTestWithOptions(additionalServerOptions, additionalClientOp
 
     print "starting server...",
     serverCmd = server + clientServerOptions + additionalServerOptions
-    #print serverCmd
+    if debug:
+	print "(" + serverCmd + ")",
     serverPipe = os.popen(serverCmd + " 2>&1")
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
     clientCmd = client + clientServerOptions + additionalClientOptions
-    #print clientCmd
+    if debug:
+	print "(" + clientCmd + ")",
     clientPipe = os.popen(clientCmd + " 2>&1")
     print "ok"
 
@@ -440,7 +491,10 @@ def collocatedTestWithOptions(additionalOptions):
     collocated = javaCmd + " -ea Collocated --Ice.ProgramName=Collocated "
 
     print "starting collocated...",
-    collocatedPipe = os.popen(collocated + collocatedOptions + additionalOptions + " 2>&1")
+    command = collocated + collocatedOptions + additionalOptions
+    if debug:
+	print "(" + command + ")",
+    collocatedPipe = os.popen(command + " 2>&1")
     print "ok"
 
     printOutputFromPipe(collocatedPipe)

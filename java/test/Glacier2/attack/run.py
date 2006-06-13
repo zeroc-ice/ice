@@ -48,7 +48,6 @@ os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.g
 TestUtil.clientServerTest()
 
 if TestUtil.serverStatus():
-    TestUtil.killServers()
     sys.exit(1)
 
 sys.exit(0)
