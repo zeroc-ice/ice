@@ -438,7 +438,7 @@ local interface Evictor extends Ice::ServantLocator
      * @see destroyObject
      *
      **/
-    ["deprecate:This operation has been deprecated, use add instead."]
+    ["deprecate:createObject() has been deprecated, use add() instead."]
     void createObject(Ice::Identity id, Object servant);
 
 
@@ -462,7 +462,7 @@ local interface Evictor extends Ice::ServantLocator
      * @see createObject
      *
      **/
-    ["deprecate:This operation has been deprecated, use remove instead."]
+    ["deprecate:destroyObject() has been deprecated, use remove() instead."]
     void destroyObject(Ice::Identity id);
 
 };
