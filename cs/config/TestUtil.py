@@ -11,23 +11,6 @@
 import sys, os, re, errno, getopt
 from threading import Thread
 
-def isCygwin():
-
-    # The substring on sys.platform is required because some cygwin
-    # versions return variations like "cygwin_nt-4.01".
-    if sys.platform[:6] == "cygwin":
-        return 1
-    else:
-        return 0
-
-def isWin32():
-
-    if sys.platform == "win32" or isCygwin():
-        return 1
-    else:
-        return 0
-
-
 #
 # Set protocol to "ssl" in case you want to run the tests with the SSL
 # protocol. Otherwise TCP is used.
@@ -51,8 +34,40 @@ compress = 0
 #threadPerConnection = 0
 threadPerConnection = 1
 
+#
+# To print the commands that are being run.
+#
+debug = 0
+#debug = 1
+
+#
+# Don't change anything below this line!
+#
+
+def isCygwin():
+
+    # The substring on sys.platform is required because some cygwin
+    # versions return variations like "cygwin_nt-4.01".
+    if sys.platform[:6] == "cygwin":
+        return 1
+    else:
+        return 0
+
+def isWin32():
+
+    if sys.platform == "win32" or isCygwin():
+        return 1
+    else:
+        return 0
+
+def usage():
+    print "usage: " + sys.argv[0] + " -m|--mono --debug --protocol protocol --compress --host host "\
+	"--threadPerConnection"
+    sys.exit(2)
+
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "m", ["mono", "protocol=", "compress", "host=", "threadPerConnection"])
+    opts, args = getopt.getopt(sys.argv[1:], "m",\
+	 ["mono", "debug", "protocol=", "compress", "host=", "threadPerConnection"])
 except getopt.GetoptError:
     usage()
 
@@ -61,8 +76,9 @@ mono = 0
 for o, a in opts:
     if o in ( "-m", "--mono" ):
 	mono = 1
+    if o == "--debug":
+	debug = 1
     if o == "--protocol":
-	print "setting protocol: " + a
 	protocol = a
     if o == "--compress":
 	compress = 1
@@ -76,9 +92,6 @@ if protocol == "ssl":
 
 if not isWin32():
     mono = 1
-
-if protocol == "ssl":
-    threadPerConnection = 1
 
 #
 # If you don't set "host" below, then the Ice library will try to find
@@ -187,12 +200,15 @@ def getServerPid(pipe):
     global serverPids
     global serverThreads
 
-    output = pipe.readline().strip()
-
-    if not output:
-        print "failed!"
-        killServers()
-        sys.exit(1)
+    while 1:
+	output = pipe.readline().strip()
+	if not output:
+	    print "failed!"
+	    killServers()
+	    sys.exit(1)
+    	if output.startswith("warning: "):
+    	    continue
+	break
 
     try:
 	serverPids.append(int(output))
@@ -368,17 +384,19 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
     client = os.path.join(testdir, clientName)
 
     print createMsg(serverName),
-    serverCmd = createCmd(server) + serverOptions + " " + additionalServerOptions + " 2>&1"
-    #print "serverCmd=" + serverCmd
-    serverPipe = os.popen(serverCmd)
+    serverCmd = createCmd(server) + serverOptions + " " + additionalServerOptions
+    if debug:
+	print "(" + serverCmd + ")",
+    serverPipe = os.popen(serverCmd + " 2>&1")
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
     print createMsg(clientName),
-    clientCmd = createCmd(client) + clientOptions + " " + additionalClientOptions + " 2>&1"
-    #print "clientCmd=" + clientCmd
-    clientPipe = os.popen(clientCmd)
+    clientCmd = createCmd(client) + clientOptions + " " + additionalClientOptions
+    if debug:
+	print "(" + clientCmd + ")",
+    clientPipe = os.popen(clientCmd + " 2>&1")
     print "ok"
 
     printOutputFromPipe(clientPipe)
@@ -406,17 +424,19 @@ def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalCl
     client = os.path.join(testdir, "client")
 
     print createMsg("server"),
-    serverCmd = createCmd(server) + clientServerOptions + " " + additionalServerOptions + " 2>&1"
-    #print "serverCmd = " + serverCmd
-    serverPipe = os.popen(serverCmd)
+    serverCmd = createCmd(server) + clientServerOptions + " " + additionalServerOptions
+    if debug:
+	print "(" + serverCmd + ")",
+    serverPipe = os.popen(serverCmd + " 2>&1")
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
     print createMsg("client"),
-    clientCmd = createCmd(client) + clientServerOptions + " " + additionalClientOptions + " 2>&1"
-    #print "clientCmd = " + clientCmd
-    clientPipe = os.popen(clientCmd)
+    clientCmd = createCmd(client) + clientServerOptions + " " + additionalClientOptions
+    if debug:
+	print "(" + clientCmd + ")",
+    clientPipe = os.popen(clientCmd + " 2>&1")
     ignorePid(clientPipe)
     getAdapterReady(clientPipe, False)
     print "ok"
@@ -440,7 +460,10 @@ def collocatedTestWithOptions(name, additionalOptions):
     collocated = os.path.join(testdir, "collocated")
 
     print createMsg("collocated"),
-    collocatedPipe = os.popen(createCmd(collocated) + collocatedOptions + " " + additionalOptions + " 2>&1")
+    command = createCmd(collocated) + collocatedOptions + " " + additionalOptions
+    if debug:
+	print "(" + command + ")",
+    collocatedPipe = os.popen(command + " 2>&1")
     print "ok"
 
     printOutputFromPipe(collocatedPipe)
@@ -461,7 +484,10 @@ def clientTestWithOptions(name, additionalOptions):
     client = os.path.join(testdir, "client")
 
     print createMsg("client"),
-    clientPipe = os.popen(createCmd(client) + clientOptions + " " + additionalOptions + " 2>&1")
+    command = createCmd(client) + clientOptions + " " + additionalOptions
+    if debug:
+	print "(" + command + ")",
+    clientPipe = os.popen(command + " 2>&1")
     print "ok"
 
     printOutputFromPipe(clientPipe)

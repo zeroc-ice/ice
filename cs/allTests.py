@@ -71,12 +71,12 @@ if os.path.exists(os.path.join(toplevel, "bin", "icesslcs.dll")):
     tests.append("IceSSL/configuration")
 
 def usage():
-    print "usage: " + sys.argv[0] + " [-l][-r <regex>][-R regex]"
+    print "usage: " + sys.argv[0] + " -m|--mono -l -r <regex> -R <regex> --debug --protocol protocol --compress --host host --threadPerConnection"
     sys.exit(2)
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "lmr:R:", \
-    	["mono", "protocol=", "compress", "host=", "threadPerConnection"])
+    	["mono", "debug", "protocol=", "compress", "host=", "threadPerConnection"])
 except getopt.GetoptError:
     usage()
 
@@ -97,9 +97,9 @@ for o, a in opts:
 	    def rematch(x): return not regexp.search(x)
 	tests = filter(rematch, tests)
     if o in ( "--protocol", "--host" ):
-	args += o + " " + a
-    if o in ( "-m", "--mono", "--compress", "--threadPerConnection" ):
-	args += o
+	args += " " + o + " " + a
+    if o in ( "--debug", "-m", "--mono", "--compress", "--threadPerConnection" ):
+	args += " " + o
     
 if loop:
     num = 1
