@@ -311,6 +311,7 @@ IceSSL:
     DefaultDir
     DH.<any>
     EntropyDaemon
+    FindCert.<any>.<any>
     ImportCert.<any>.<any>
     KeyFile
     Keystore
