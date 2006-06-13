@@ -11,6 +11,7 @@
 #include "config.h"
 #endif
 
+#include <IceUtil/DisableWarnings.h>
 #include "ice_proxy.h"
 #include "ice_communicator.h"
 #include "ice_marshal.h"
