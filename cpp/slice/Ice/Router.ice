@@ -48,13 +48,13 @@ interface Router
      *
      * Add new proxy information to the router's routing table.
      *
-     * <note><para>This method is deprecated, and only used for old
+     * <note><para>This operation is deprecated, and only used for old
      * Ice clients (older than version 3.1).</para></note>
      *
      * @param proxy The proxy to add.
      *
      **/
-    ["deprecate:This method has been deprecated, use addProxies instead."]
+    ["deprecate:This operation has been deprecated, use addProxies instead."]
     idempotent void addProxy(Object* proxy);
 
     /**
