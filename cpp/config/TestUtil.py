@@ -9,21 +9,22 @@
 #
 # **********************************************************************
 
+import sys, os, re, errno, getopt
+from threading import Thread
+
 #
 # Set protocol to "ssl" in case you want to run the tests with the SSL
 # protocol. Otherwise TCP is used.
 #
-
+protocol = ""
 #protocol = "ssl"
-protocol = "tcp"
 
 #
 # Set compressed to 1 in case you want to run the tests with
 # protocol compression.
 #
-
-#compress = 0
-compress = 1
+compress = 0
+#compress = 1
 
 #
 # Set threadPerConnection to 1 in case you want to run the tests in
@@ -39,15 +40,36 @@ threadPerConnection = 0
 # to set the IP address explicitly to 127.0.0.1. This avoid problems
 # with incorrect DNS or hostname setups.
 #
-
 host = "127.0.0.1"
+
+#
+# To print the commands that are being run.
+#
+debug = 0
+#debug = 1
 
 #
 # Don't change anything below this line!
 #
+def usage():
+    print "usage: " + sys.argv[0] + " --debug --protocol protocol --compress --host host --threadPerConnection"
+    sys.exit(2)
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "", ["debug", "protocol=", "compress", "host=", "threadPerConnection"])
+except getopt.GetoptError:
+    usage()
 
-import sys, os, re, errno
-from threading import Thread
+for o, a in opts:
+    if o == "--debug":
+    	debug = 1
+    if o == "--protocol":
+	protocol = a
+    if o == "--compress":
+	compress = 1
+    if o == "--threadPerConnection":
+	threadPerConnection = 1
+    if o == "--host":
+	host = a
 
 def getIceVersion():
 
@@ -77,6 +99,7 @@ def isWin32():
         return 1
     else:
         return 0
+
 
 def isWin9x():
 
@@ -204,23 +227,33 @@ def getServerPid(pipe):
     global serverPids
     global serverThreads
 
-    output = pipe.readline().strip()
+    while 1:
+	output = pipe.readline().strip()
+	if not output:
+	    print "failed!"
+	    killServers()
+	    sys.exit(1)
+    	if output.startswith("warning: "):
+    	    continue
+	break
 
-    if not output:
-        print "failed!"
-        killServers()
-        sys.exit(1)
-
-    serverPids.append(int(output))
+    try:
+	serverPids.append(int(output))
+    except ValueError:
+	print "Output is not a PID: " + output
+	raise
 
 def ignorePid(pipe):
 
-    output = pipe.readline().strip()
-
-    if not output:
-        print "failed!"
-        killServers()
-        sys.exit(1)
+    while 1:
+	output = pipe.readline().strip()
+	if not output:
+	    print "failed!"
+	    killServers()
+	    sys.exit(1)
+    	if output.startswith("warning: "):
+    	    continue
+	break
 
 def getAdapterReady(pipe, createThread = True, count = 1):
     global serverThreads
@@ -368,17 +401,19 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
     client = os.path.join(testdir, clientName)
  
     print "starting " + serverName + "...",
-    serverCmd = server + serverOptions + additionalServerOptions + " 2>&1"
-    #print "serverCmd =", serverCmd
-    serverPipe = os.popen(serverCmd)
+    serverCmd = server + serverOptions + additionalServerOptions
+    if debug:
+	print "(" + serverCmd + ")",
+    serverPipe = os.popen(serverCmd + " 2>&1")
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting " + clientName + "...",
-    clientCmd = client + clientOptions + additionalClientOptions + " 2>&1"
-    #print "clientCmd =", clientCmd
-    clientPipe = os.popen(clientCmd)
+    clientCmd = client + clientOptions + additionalClientOptions
+    if debug:
+	print "(" + clientCmd + ")",
+    clientPipe = os.popen(clientCmd + " 2>&1")
     print "ok"
 
     printOutputFromPipe(clientPipe)
@@ -407,13 +442,19 @@ def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalCl
     client = os.path.join(testdir, "client")
 
     print "starting server...",
-    serverPipe = os.popen(server + clientServerOptions + additionalServerOptions + " 2>&1")
+    serverCmd = server + clientServerOptions + additionalServerOptions
+    if debug:
+	print "(" + serverCmd + ")",
+    serverPipe = os.popen(serverCmd + " 2>&1")
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
-    clientPipe = os.popen(client + clientServerOptions + additionalClientOptions + " 2>&1")
+    clientCmd = client + clientServerOptions + additionalClientOptions
+    if debug:
+	print "(" + clientCmd + ")",
+    clientPipe = os.popen(clientCmd + " 2>&1")
     ignorePid(clientPipe)
     getAdapterReady(clientPipe, False)
     print "ok"
@@ -440,7 +481,10 @@ def collocatedTestWithOptions(name, additionalOptions):
     collocated = os.path.join(testdir, "collocated")
 
     print "starting collocated...",
-    collocatedPipe = os.popen(collocated + collocatedOptions + additionalOptions + " 2>&1")
+    command = collocated + collocatedOptions + additionalOptions 
+    if debug:
+	print "(" + command + ")",
+    collocatedPipe = os.popen(command + " 2>&1")
     print "ok"
 
     printOutputFromPipe(collocatedPipe)
