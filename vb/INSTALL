@@ -27,7 +27,7 @@ location of your Ice installation root directory.
 Ice for Visual Basic is a language mapping on top of Ice for C# -- the
 actual run-time support is provided by the Ice for C# assembly
 (icecs.dll). The Ice for Visual Basic build environment expects
-icecs.dll to be installed in $(solutiondir)\..\icecs\bin.
+icecs.dll to be installed in $(solutiondir)\..\IceCS-@ver@\bin.
 Alternatively, you can install icecs.dll in the Global Assembly Cache
 (GAC). If you have installed the Ice binary distribution for Windows,
 the icecs.dll assembly has already been installed in the GAC. If you
