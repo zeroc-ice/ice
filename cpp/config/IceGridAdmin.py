@@ -189,7 +189,7 @@ def iceGridTest(name, application, additionalOptions = "", applicationOptions = 
         print "ok"
 
     print "starting client...",
-    clientPipe = os.popen(client + TestUtil.clientOptions + clientOptions + " 2>&1")
+    clientPipe = os.popen(client + TestUtil.clientOptions + " " + clientOptions + " 2>&1")
     print "ok"
 
     TestUtil.printOutputFromPipe(clientPipe)
