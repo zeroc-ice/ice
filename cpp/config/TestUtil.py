@@ -9,9 +9,6 @@
 #
 # **********************************************************************
 
-import sys, os, re, errno, getopt
-from threading import Thread
-
 #
 # Set protocol to "ssl" in case you want to run the tests with the SSL
 # protocol. Otherwise TCP is used.
@@ -51,6 +48,9 @@ debug = 0
 #
 # Don't change anything below this line!
 #
+import sys, os, re, errno, getopt
+from threading import Thread
+
 def usage():
     print "usage: " + sys.argv[0] + " --debug --protocol protocol --compress --host host --threadPerConnection"
     sys.exit(2)
@@ -465,8 +465,6 @@ def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalCl
 
     if clientStatus:
 	killServers()
-
-    joinServers()
 
     if clientStatus or serverStatus():
 	sys.exit(1)

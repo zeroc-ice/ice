@@ -29,7 +29,6 @@ client = os.path.join(testdir, "client")
 num = 12
 base = 12340
 
-serverThreads = { }
 for i in range(0, num):
     print "starting server #%d..." % (i + 1),
     serverPipe = os.popen(server + TestUtil.serverOptions + " %d" % (base + i) + " 2>&1")
