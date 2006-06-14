@@ -227,10 +227,12 @@ def ignorePid(pipe):
     	    continue
 	break
 
-def getAdapterReady(pipe, createThread = True):
+def getAdapterReady(pipe, createThread = True, count = 1):
     global serverThreads
 
-    output = pipe.readline().strip()
+    while count > 0: 
+        output = pipe.readline().strip()
+        count = count - 1
 
     if not output:
         print "failed!"
