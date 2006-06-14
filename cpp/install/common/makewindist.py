@@ -16,9 +16,9 @@ import textwrap
 # 
 # Current default third party library versions.
 #
-OpenSSLVer = '0.9.8'
+OpenSSLVer = '0.9.8b'
 Bzip2Ver = '1.0.3'
-STLPortVer = '4.6.3'
+STLPortVer = '4.6.2'
 ExpatVer = '1.95.8'
 DBVer = '4.3.29'
 
