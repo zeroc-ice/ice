@@ -91,4 +91,6 @@ iceGridNodeThread.join()
 IceGridAdmin.shutdownIceGridRegistry()
 iceGridRegistryThread.join()
 
+IceGridAdmin.cleanDbDir(os.path.join(testdir, "db"))
+
 sys.exit(0)

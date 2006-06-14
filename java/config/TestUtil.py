@@ -231,8 +231,6 @@ def getServerPid(pipe):
     	    continue
 	break
 
-    serverPids.append(int(output))
-
     try:
 	serverPids.append(int(output))
     except ValueError:
