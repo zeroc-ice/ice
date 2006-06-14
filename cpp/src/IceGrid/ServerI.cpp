@@ -493,8 +493,9 @@ class DelayedStart : public WaitItem
 {
 public:
  
-    DelayedStart(const ServerIPtr& server) : 
-	_server(server)
+    DelayedStart(const ServerIPtr& server, const TraceLevelsPtr& traceLevels) : 
+	_server(server),
+	_traceLevels(traceLevels)
     {
     }
     
@@ -508,8 +509,8 @@ public:
 	    }
 	    catch(const ServerStartException& ex)
 	    {
-		cerr << ex.reason << endl;
-		// TODO: Log?
+		Ice::Error out(_traceLevels->logger);
+		out << "couldn't reactivate server `" + _server->getId() + "' with `always' activation mode after failure:\n" << ex.reason;
 	    }
 	}
     }
@@ -517,6 +518,7 @@ public:
 private:
 
     const ServerIPtr _server;
+    const TraceLevelsPtr _traceLevels;
 };
 
 struct EnvironmentEval : std::unary_function<string, string>
@@ -2136,11 +2138,14 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
 	   _disableOnFailure > 0 && _failureTime != IceUtil::Time())
 	{
 	    //
-	    // If the server was disabled because it failed, we schedule a
-	    // callback to re-enable it.
+	    // If the server was disabled because it failed, we
+	    // schedule a callback to re-enable it. We add 500ms to
+	    // the disable on failure duration to make sure that the
+	    // server will be ready to be reactivated when the
+	    // callback is executed.
 	    //
-	    _timer = new DelayedStart(this);
-	    _node->getWaitQueue()->add(_timer, IceUtil::Time::seconds(_disableOnFailure));
+	    _timer = new DelayedStart(this, _node->getTraceLevels());
+	    _node->getWaitQueue()->add(_timer, IceUtil::Time::seconds(_disableOnFailure) + IceUtil::Time::milliSeconds(500));
 	}
 	else if(_activation == Always)
 	{
