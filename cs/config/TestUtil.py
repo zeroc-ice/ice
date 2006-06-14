@@ -8,9 +8,6 @@
 #
 # **********************************************************************
 
-import sys, os, re, errno, getopt
-from threading import Thread
-
 #
 # Set protocol to "ssl" in case you want to run the tests with the SSL
 # protocol. Otherwise TCP is used.
@@ -43,6 +40,8 @@ debug = 0
 #
 # Don't change anything below this line!
 #
+import sys, os, re, errno, getopt
+from threading import Thread
 
 def isCygwin():
 
@@ -218,12 +217,15 @@ def getServerPid(pipe):
 
 def ignorePid(pipe):
 
-    output = pipe.readline().strip()
-
-    if not output:
-        print "failed!"
-        killServers()
-        sys.exit(1)
+    while 1:
+	output = pipe.readline().strip()
+	if not output:
+	    print "failed!"
+	    killServers()
+	    sys.exit(1)
+    	if output.startswith("warning: "):
+    	    continue
+	break
 
 def getAdapterReady(pipe, createThread = True):
     global serverThreads
