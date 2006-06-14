@@ -25,8 +25,8 @@ class StringConverterI : public Ice::StringConverter
 public:
 
     virtual Ice::Byte* toUTF8(const char*, const char*, Ice::UTF8Buffer&) const;
-    virtual void fromUTF8(const Ice::Byte*, const Ice::Byte*, const char*&, const char*&) const;
-    virtual void freeTarget(const char*) const;
+    virtual void fromUTF8(const Ice::Byte* sourceStart, const Ice::Byte* sourceEnd,
+			  std::string& target) const;
 };
 
 class WstringConverterI : public Ice::WstringConverter
@@ -34,8 +34,9 @@ class WstringConverterI : public Ice::WstringConverter
 public:
 
     virtual Ice::Byte* toUTF8(const wchar_t*, const wchar_t*, Ice::UTF8Buffer&) const;
-    virtual void fromUTF8(const Ice::Byte*, const Ice::Byte*, const wchar_t*&, const wchar_t*&) const;
-    virtual void freeTarget(const wchar_t*) const;
+    virtual void fromUTF8(const Ice::Byte* sourceStart, const Ice::Byte* sourceEnd,
+			  std::wstring& target) const;
+    
 };
 
 }

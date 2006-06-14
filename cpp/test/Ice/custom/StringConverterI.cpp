@@ -10,6 +10,8 @@
 #include <StringConverterI.h>
 #include <IceUtil/Unicode.h>
 
+using namespace std;
+
 Ice::Byte*
 Test::StringConverterI::toUTF8(const char* sourceStart, const char* sourceEnd, Ice::UTF8Buffer& buffer) const
 {
@@ -28,36 +30,24 @@ Test::StringConverterI::toUTF8(const char* sourceStart, const char* sourceEnd, I
 
 void
 Test::StringConverterI::fromUTF8(const Ice::Byte* sourceStart, const Ice::Byte* sourceEnd, 
-				 const char*& targetStart, const char*& targetEnd) const
+				 string& target) const
 {
     size_t size = static_cast<size_t>(sourceEnd - sourceStart);
-    char* buf = new char[size];
+    target.resize(size);
 
     Ice::Byte* p = const_cast<Ice::Byte*>(sourceEnd);
     for(unsigned int i = 0; i < size; ++i)
     {
-        buf[i] = *(--p);
+        target[i] = *(--p);
     }
-
-    targetStart = buf;
-    targetEnd = targetStart + size;
 }
 
-void 
-Test::StringConverterI::freeTarget(const char* target) const
-{
-#if defined(_MSC_VER) && _MSC_VER < 1300
-    delete[] const_cast<char*>(target);
-#else
-    delete[] target;
-#endif
-}
 
 Ice::Byte*
 Test::WstringConverterI::toUTF8(const wchar_t* sourceStart, const wchar_t* sourceEnd, Ice::UTF8Buffer& buffer) const
 {
-    std::wstring ws(sourceStart, sourceEnd);
-    std::string s = IceUtil::wstringToString(ws);
+    wstring ws(sourceStart, sourceEnd);
+    string s = IceUtil::wstringToString(ws);
 
     size_t size = s.size();
     Ice::Byte* targetStart = buffer.getMoreBytes(size, 0);
@@ -73,36 +63,18 @@ Test::WstringConverterI::toUTF8(const wchar_t* sourceStart, const wchar_t* sourc
 
 void
 Test::WstringConverterI::fromUTF8(const Ice::Byte* sourceStart, const Ice::Byte* sourceEnd, 
-				  const wchar_t*& targetStart, const wchar_t*& targetEnd) const
+				  wstring& target) const
 {
     size_t size = static_cast<size_t>(sourceEnd - sourceStart);
-    std::string s(reinterpret_cast<const char*>(sourceStart), reinterpret_cast<const char*>(sourceEnd));
+    string s;
+    s.resize(size);
 
     Ice::Byte* p = const_cast<Ice::Byte*>(sourceEnd);
-    unsigned int i;
-    for(i = 0; i < size; ++i)
+    for(unsigned int i = 0; i < size; ++i)
     {
         s[i] = *(--p);
     }
 
-    std::wstring ws = IceUtil::stringToWstring(s);
-    size = ws.size();
-    wchar_t* buf = new wchar_t[size];
-    for(i = 0; i < size; ++i)
-    {
-        buf[i] = ws[i];
-    }
-
-    targetStart = buf;
-    targetEnd = targetStart + size;
+    target = IceUtil::stringToWstring(s);
 }
 
-void 
-Test::WstringConverterI::freeTarget(const wchar_t* target) const
-{
-#if defined(_MSC_VER) && _MSC_VER < 1300
-    delete[] const_cast<wchar_t*>(target);
-#else
-    delete[] target;
-#endif
-}

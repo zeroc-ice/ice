@@ -61,49 +61,6 @@ UnicodeWstringConverter::toUTF8(const wchar_t* sourceStart,
 
 void 
 UnicodeWstringConverter::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
-				  const wchar_t*& targetStart, const wchar_t*& targetEnd) const
-{
-    size_t size = static_cast<size_t>(sourceEnd - sourceStart);
-	
-    wchar_t* outBuf = new wchar_t[size];
-    wchar_t* tStart = outBuf;
-    
-    ConversionResult result = convertUTF8ToUTFWstring(
-	sourceStart, sourceEnd, tStart, outBuf + size, 
-	lenientConversion);
-
-    switch(result)
-    {
-	case conversionOK:
-	{
-	    targetStart = outBuf;
-	    targetEnd = tStart;
-	    break;
-	}
-	case sourceExhausted:
-	    throw StringConversionException(__FILE__, __LINE__, "UTF-8 string source exhausted");
-	case sourceIllegal:
-	    throw StringConversionException(__FILE__, __LINE__, "UTF-8 string source illegal");
-	default:
-	{
-	    assert(0);
-	    throw StringConversionException(__FILE__, __LINE__);
-	}
-    }
-}
-
-void 
-UnicodeWstringConverter::freeTarget(const wchar_t* targetStart) const
-{
-#if defined(_MSC_VER) && _MSC_VER < 1300
-    delete[] const_cast<wchar_t*>(targetStart);
-#else
-    delete[] targetStart;
-#endif
-}
-
-void 
-UnicodeWstringConverter::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
 				  wstring& target) const
 {
     ConversionResult result = 

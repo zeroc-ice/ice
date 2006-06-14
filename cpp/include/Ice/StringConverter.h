@@ -50,32 +50,10 @@ public:
 			 UTF8Buffer&) const = 0;
 
     //
-    // This fromUTF8 function allocates the result (targetStart and targetEnd are
-    // out parameters); when it succeeds, the caller is responsible to free the 
-    // allocated target with freeTarget.
-    // This way, an implementation of fromUTF8 using iconv() can use a single iconv_t
-    // even when it discovers during conversion that it needs a larger target buffer.
+    // Unmarshals a UTF-8 sequence into a basic_string
     //
     virtual void fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
-			  const charT*& targetStart, const charT*& targetEnd) const = 0;
-
-    virtual void freeTarget(const charT* targetStart) const = 0;
-
-
-    //
-    // You may want to override this fromUTF8 function to provide a more efficient 
-    // implementation, without a temporary charT buffer.
-    //
-    virtual void fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
-			  std::basic_string<charT>& target) const
-    {
-	const charT* targetStart = 0;
-	const charT* targetEnd = 0;
-	fromUTF8(sourceStart, sourceEnd, targetStart, targetEnd);
-	std::basic_string<charT> s(targetStart, static_cast<size_t>(targetEnd - targetStart));
-	freeTarget(targetStart);
-	s.swap(target);
-    } 
+			  std::basic_string<charT>& target) const = 0;
 };
 
 typedef BasicStringConverter<char> StringConverter;
@@ -94,11 +72,6 @@ public:
 
     virtual Byte* toUTF8(const wchar_t* sourceStart, const wchar_t* sourceEnd,
 			 UTF8Buffer&) const;
-
-    virtual void fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
-			  const wchar_t*& targetStart, const wchar_t*& targetEnd) const;
-
-    virtual void freeTarget(const wchar_t* targetStart) const;
 
     virtual void fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
 			  std::wstring& target) const;

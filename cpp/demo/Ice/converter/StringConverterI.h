@@ -26,8 +26,7 @@ public:
     ~StringConverterI();
 
     virtual Ice::Byte* toUTF8(const char*, const char*, Ice::UTF8Buffer&) const;
-    virtual void fromUTF8(const Ice::Byte*, const Ice::Byte*, const char*&, const char*&) const;
-    virtual void freeTarget(const char*) const;
+    virtual void fromUTF8(const Ice::Byte*, const Ice::Byte*, std::string&) const;
 };
 
 }

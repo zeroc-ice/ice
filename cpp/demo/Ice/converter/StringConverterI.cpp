@@ -10,6 +10,8 @@
 #include <StringConverterI.h>
 #include <Ice/LocalException.h>
 
+using namespace std;
+
 Demo::StringConverterI::StringConverterI()
 {
 }
@@ -65,12 +67,12 @@ Demo::StringConverterI::toUTF8(const char* sourceStart, const char* sourceEnd, I
 
 void
 Demo::StringConverterI::fromUTF8(const Ice::Byte* sourceStart, const Ice::Byte* sourceEnd, 
-				 const char*& targetStart, const char*& targetEnd) const
+				 string& target) const
 {
     size_t inSize = static_cast<size_t>(sourceEnd - sourceStart);
-    char* buf = new char[inSize];
+    target.resize(inSize);
 
-    unsigned int offset = 0;
+    unsigned int targetIndex = 0;
     unsigned int i = 0;
     while(i < inSize)
     {
@@ -80,28 +82,17 @@ Demo::StringConverterI::fromUTF8(const Ice::Byte* sourceStart, const Ice::Byte* 
 	    {
 	        throw Ice::StringConversionException(__FILE__, __LINE__, "UTF-8 string source exhausted");
 	    }
-	    buf[offset] = (sourceStart[i] & 0x03) << 6;
-	    buf[offset] = buf[offset] | (sourceStart[i + 1] & 0x3F);
+	    target[targetIndex] = (sourceStart[i] & 0x03) << 6;
+	    target[targetIndex] = target[targetIndex] | (sourceStart[i + 1] & 0x3F);
 	    i += 2;
 	}
 	else
 	{
-	    buf[offset] = sourceStart[i];
+	    target[targetIndex] = sourceStart[i];
 	    ++i;
 	}
-	++offset;
+	++targetIndex;
     }
 
-    targetStart = buf;
-    targetEnd = buf + offset;
-}
-
-void 
-Demo::StringConverterI::freeTarget(const char* target) const
-{
-#if defined(_MSC_VER) && _MSC_VER < 1300
-    delete[] const_cast<char*>(target);
-#else
-    delete[] target;
-#endif
+    target.resize(targetIndex);
 }
