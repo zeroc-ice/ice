@@ -2370,14 +2370,15 @@ the default value is <literal>JKS</literal>.
 <section id="IceSSL.VerifyDepthMax"><title>IceSSL.VerifyDepthMax</title>
 <section><title>Synopsis</title>
 <synopsis>
-IceSSL.VerifyDepthMax=<replaceable>num</replaceable> (C++)
+IceSSL.VerifyDepthMax=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Specifies the maximum depth of a trusted CA certificate chain during
-verification. If not defined, the default value is 2.
+Specifies the maximum depth of a trusted peer's certificate chain, including
+the peer's certificate. A value of zero accepts chains of any length. If not
+defined, the default value is 2.
 </para>
 </section>
 </section>
