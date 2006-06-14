@@ -224,20 +224,12 @@ def cleanDbDir(path):
         if filename != "CVS" and filename != ".dummy":
             fullpath = os.path.join(path, filename);
             if os.path.isdir(fullpath):
-                cleanDir(fullpath)
-                os.rmdir(fullpath)
+                cleanDbDir(fullpath)
+		try:
+		    os.rmdir(fullpath)
+		except OSError:
+		    # This might fail if the directory is empty (because it itself is
+		    # a CVS directory).
+		    pass
             else:
                 os.remove(fullpath)
-
-def cleanDir(path):
-
-    files = os.listdir(path)
-
-    for filename in files:
-        fullpath = os.path.join(path, filename);
-        if os.path.isdir(fullpath):
-            cleanDir(fullpath)
-            os.rmdir(fullpath)
-        else:
-            os.remove(fullpath)
-            
