@@ -10,35 +10,41 @@
 #ifndef ICE_SSL_RFC_2253_H
 #define ICE_SSL_RFC_2253_H
 
-#include <IceUtil/Exception.h>
+#include <IceUtil/Config.h>
 #include <list>
 
+//
+// The methods in the IceSSL::RFC2253 namespace implement a parser
+// for relative distinguished name (RDN) pairs using the parsing
+// rules outlined in sections 3 and 4 of RFC 2253.
+//
+// Note that this parser does not unescape the elements of the RDNs.
+// For example, parsing the following RDN
+//
+// O=Sue\, Grabit and Runn
+//
+// results in the pair ("O","Sue\, Grabit and Runn") and not
+// ("O","Sue, Grabit and Runn").
+//
+namespace IceSSL
+{
 namespace RFC2253
 {
 
-//
-// This returns a list of list of RDN pairs parsed according to the
-// RFC2253 parsing rules as outlined in section 3 and section 4 of the
-// RFC.
-//
-// Note that this parser does not unescape the elements of the RDNs. So:
-//
-// O=Sue\, Grabit and Runn will result in ("O","Sue\, Grabit and
-// Runn") not ("O","Sue, Grabit and Runn").
-//
 typedef std::list< std::pair<std::string, std::string> > RDNSeq;
 typedef std::list<RDNSeq> RDNSeqSeq;
+
 //
-// This method seperates DNs with the ';' character.  
-//
-// This method returns a list of list of DNs. Any failure in parsing
-// results in a ParseException being thrown.
+// This method separates DNs with the ';' character and returns
+// a list of list of RDN pairs. Any failure in parsing results in a
+// ParseException being thrown.
 //
 RDNSeqSeq parse(const std::string&);
+
 //
-// RDNs are seperated with ',' and ';'.
+// RDNs are separated with ',' and ';'.
 //
-// This method returns a list of list of RDNs. Any failure in parsing
+// This method returns a list of RDN pairs. Any failure in parsing
 // results in a ParseException being thrown.
 //
 RDNSeq parseStrict(const std::string&);
@@ -48,6 +54,7 @@ RDNSeq parseStrict(const std::string&);
 //
 std::string unescape(const std::string&);
 
+}
 }
 
 #endif

@@ -90,6 +90,9 @@ private:
     static const char* _name;
 };
 
+//
+// This exception is thrown if a distinguished name cannot be parsed.
+//
 class ICE_SSL_API ParseException : public IceUtil::Exception
 {
 public:
@@ -131,43 +134,54 @@ private:
 typedef IceUtil::Handle<PublicKey> PublicKeyPtr;
 
 //
-// This class represents a DistinguishedName, similar to a java
-// X500Principal, or a C# X500DistinguishedName. It, however, also
-// offers a sloppy match.
+// This class represents a DistinguishedName, similar to the Java
+// type X500Principal and the .NET type X500DistinguishedName.
 //
-// For comparison purposes the value of the RDN is always unescaped
-// before matching. "ZeroC, Inc." will match ZeroC\, Inc.
+// For comparison purposes, the value of a relative distinguished
+// name (RDN) component is always unescaped before matching,
+// therefore "ZeroC, Inc." will match ZeroC\, Inc.
 //
 // toString() always returns exactly the same information as was
-// provided in the constructor (that is "ZeroC, Inc." will not turn
-// into ZeroC\, Inc.
+// provided in the constructor (i.e., "ZeroC, Inc." will not turn
+// into ZeroC\, Inc.).
 //
 class ICE_SSL_API DistinguishedName
 {
 public:
 
     //
-    // Construct a certificate using a X509*.
+    // Create a DistinguishedName using an OpenSSL value.
     //
     DistinguishedName(X509_NAME*);
 
     //
-    // Create a DistinguishedName from a RFC2253 encoding. Throws a
-    // ParseException if parsing fails.
+    // Create a DistinguishedName from a string encoded using
+    // the rules in RFC2253.
+    //
+    // Throws ParseException if parsing fails.
     //
     DistinguishedName(const std::string&);
+
+    //
+    // Create a DistinguishedName from a list of RDN pairs,
+    // where each pair consists of the RDN's type and value.
+    // For example, the RDN "O=ZeroC" is represented by the
+    // pair ("O", "ZeroC").
+    //
     DistinguishedName(const std::list<std::pair<std::string, std::string> >&);
 
     //
-    // This is an exact match. Order of the RDNs matter.
+    // This is an exact match. The order of the RDN components is
+    // important.
+    //
     bool operator==(const DistinguishedName&) const;
     bool operator!=(const DistinguishedName&) const;
     bool operator<(const DistinguishedName&) const;
 
     //
-    // This performs a partial match with another DistinguishedName. Each RDN in
-    // the argument is matched against this. If this contains all RDNs and they
-    // contain the same value, then match returns true, false otherwise.
+    // Perform a partial match with another DistinguishedName. The function
+    // returns true if all of the RDNs in the argument are present in this
+    // DistinguishedName and they have the same values.
     //
     bool match(const DistinguishedName&) const;
 
@@ -228,6 +242,7 @@ public:
 
     //
     // Return a string encoding of the certificate in PEM format.
+    // Raises CertificateEncodingException if an error occurs.
     //
     std::string encode() const;
 

@@ -16,11 +16,9 @@ using namespace IceSSL;
 //
 // See RFC 2253 and RFC 1779.
 //
-namespace RFC2253
-{
 
 static string special = ",=+<>#;";
-string hexvalid = "0123456789abcdefABCDEF";
+static string hexvalid = "0123456789abcdefABCDEF";
 
 static char unescapeHex(const string&, size_t);
 static pair<string,string> parseNameComponent(const string&, size_t&);
@@ -31,8 +29,8 @@ static string parsePair(const string&, size_t&);
 static string parseHexPair(const string&, size_t&, bool);
 static void eatWhite(const string&, size_t&);
 
-RDNSeqSeq
-parse(const string& data)
+IceSSL::RFC2253::RDNSeqSeq
+IceSSL::RFC2253::parse(const string& data)
 {
     RDNSeqSeq results;
     RDNSeq current;
@@ -64,8 +62,8 @@ parse(const string& data)
     return results;
 }
 
-RDNSeq
-parseStrict(const string& data)
+IceSSL::RFC2253::RDNSeq
+IceSSL::RFC2253::parseStrict(const string& data)
 {
     RDNSeq results;
     size_t pos = 0;
@@ -86,7 +84,7 @@ parseStrict(const string& data)
 }
 
 string
-unescape(const string& data)
+IceSSL::RFC2253::unescape(const string& data)
 {
     if(data.size() == 0)
     {
@@ -472,8 +470,6 @@ eatWhite(const string& data, size_t& pos)
     {
 	++pos;
     }
-}
-
 }
 
 #ifdef never
