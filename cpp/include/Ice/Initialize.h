@@ -33,9 +33,9 @@ ICE_API StringSeq argsToStringSeq(int, char*[]);
 //
 ICE_API void stringSeqToArgs(const StringSeq&, int&, char*[]);
 
-ICE_API PropertiesPtr createProperties();
-ICE_API PropertiesPtr createProperties(StringSeq&, const PropertiesPtr& = 0);
-ICE_API PropertiesPtr createProperties(int&, char*[], const PropertiesPtr& = 0);
+ICE_API PropertiesPtr createProperties(const StringConverterPtr& = 0);
+ICE_API PropertiesPtr createProperties(StringSeq&, const PropertiesPtr& = 0, const StringConverterPtr& = 0);
+ICE_API PropertiesPtr createProperties(int&, char*[], const PropertiesPtr& = 0, const StringConverterPtr& = 0);
 
 //
 // This class is used to notify user of when Ice threads

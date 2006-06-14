@@ -55,7 +55,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator1, const Ice
 
     menu();
 
-    string greeting = "Bonne journ\351e";
+    string greeting = properties->getProperty("Send.String");
 
     char c;
     do
@@ -117,7 +117,7 @@ main(int argc, char* argv[])
 	//
         Ice::InitializationData initData;
         initData.stringConverter = new StringConverterI();
-	initData.properties = Ice::createProperties();
+	initData.properties = Ice::createProperties(initData.stringConverter);
 	initData.properties->load("config.client");
         communicator1 = Ice::initialize(argc, argv, initData);
 

@@ -5,6 +5,11 @@
 Hello.Proxy=hello:tcp -p 10000
 
 #
+# The string the demo sends
+#
+Send.String=Bonne journée
+
+#
 # Warn about connection exceptions
 #
 Ice.Warn.Connections=1

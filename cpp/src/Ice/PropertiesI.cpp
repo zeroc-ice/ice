@@ -185,7 +185,7 @@ Ice::PropertiesI::parseCommandLineOptions(const string& prefix, const StringSeq&
                 opt += "=1";
             }
             
-            parseLine(opt.substr(2));
+            parseLine(opt.substr(2), 0);
         }
         else
         {
@@ -222,7 +222,7 @@ Ice::PropertiesI::load(const std::string& file)
     char line[1024];
     while(in.getline(line, 1024))
     {
-	parseLine(line);
+	parseLine(line, _converter);
     }
 }
 
@@ -234,15 +234,18 @@ Ice::PropertiesI::clone()
 }
 
 Ice::PropertiesI::PropertiesI(const PropertiesI* p) :
-    _properties(p->_properties)
+    _properties(p->_properties),
+    _converter(p->_converter)
 {
 }
 
-Ice::PropertiesI::PropertiesI()
+Ice::PropertiesI::PropertiesI(const StringConverterPtr& converter) :
+    _converter(converter)
 {
 }
 
-Ice::PropertiesI::PropertiesI(StringSeq& args, const PropertiesPtr& defaults)
+Ice::PropertiesI::PropertiesI(StringSeq& args, const PropertiesPtr& defaults, const StringConverterPtr& converter) :
+    _converter(converter)
 {
     if(defaults != 0)
     {
@@ -273,7 +276,7 @@ Ice::PropertiesI::PropertiesI(StringSeq& args, const PropertiesPtr& defaults)
             {
                 s += "=1";
             }
-            parseLine(s.substr(2));
+            parseLine(s.substr(2), 0);
 	    loadConfigFiles = true;
         }
         else
@@ -302,7 +305,7 @@ Ice::PropertiesI::PropertiesI(StringSeq& args, const PropertiesPtr& defaults)
 
 
 void
-Ice::PropertiesI::parseLine(const string& line)
+Ice::PropertiesI::parseLine(const string& line, const StringConverterPtr& converter)
 {
     const string delim = " \t\r\n";
     string s = line;
@@ -346,6 +349,18 @@ Ice::PropertiesI::parseLine(const string& line)
     {
 	end = s.length();
 	value = s.substr(beg, end - beg);
+    }
+
+    if(converter)
+    {
+        string tmp;
+	converter->fromUTF8(reinterpret_cast<const Byte*>(key.data()), 
+			    reinterpret_cast<const Byte*>(key.data() + key.size()), tmp);
+	key.swap(tmp);
+
+	converter->fromUTF8(reinterpret_cast<const Byte*>(value.data()), 
+			    reinterpret_cast<const Byte*>(value.data() + value.size()), tmp);
+	value.swap(tmp);
     }
     
     setProperty(key, value);
