@@ -77,6 +77,13 @@ namespace IceSSL
 	    checkCertName_ = properties.getPropertyAsIntWithDefault(prefix + "CheckCertName", 0) > 0;
 
 	    //
+	    // VerifyDepthMax establishes the maximum length of a peer's certificate
+	    // chain, including the peer's certificate. A value of 0 means there is
+	    // no maximum.
+	    //
+	    verifyDepthMax_ = properties.getPropertyAsIntWithDefault(prefix + "VerifyDepthMax", 2);
+
+	    //
 	    // CheckCRL determines whether the certificate revocation list is checked.
 	    //
 	    checkCRL_ = properties.getPropertyAsIntWithDefault(prefix + "CheckCRL", 0) > 0;
@@ -247,6 +254,21 @@ namespace IceSSL
 
 	internal void verifyPeer(ConnectionInfo info, System.Net.Sockets.Socket fd, bool incoming)
 	{
+	    if(verifyDepthMax_ > 0 && info.certs.Length > verifyDepthMax_)
+	    {
+		string msg = (incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
+		    "length of peer's certificate chain (" + info.certs.Length + ") exceeds maximum of " +
+		    verifyDepthMax_ + "\n" +
+		    IceInternal.Network.fdToString(fd);
+		if(securityTraceLevel_ >= 1)
+		{
+		    logger_.trace(securityTraceCategory_, msg);
+		}
+		Ice.SecurityException ex = new Ice.SecurityException();
+		ex.reason = msg;
+		throw ex;
+	    }
+
 	    if(!trustManager_.verify(info))
 	    {
 		string msg = (incoming ? "incoming" : "outgoing") + " connection rejected by trust manager\n" +
@@ -260,6 +282,7 @@ namespace IceSSL
 		ex.reason = "IceSSL: " + msg;
 		throw ex;
 	    }
+
 	    if(verifier_ != null && !verifier_.verify(info))
 	    {
 	        string msg = (incoming ? "incoming" : "outgoing") + " connection rejected by certificate verifier\n" +
@@ -715,6 +738,7 @@ namespace IceSSL
 	private string defaultDir_;
 	private SslProtocols protocols_;
 	private bool checkCertName_;
+	private int verifyDepthMax_;
 	private bool checkCRL_;
 	private X509Certificate2Collection certs_;
 	private CertificateVerifier verifier_;

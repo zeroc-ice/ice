@@ -84,6 +84,13 @@ class Instance
 	_checkCertName = properties.getPropertyAsIntWithDefault(prefix + "CheckCertName", 0) > 0;
 
 	//
+	// VerifyDepthMax establishes the maximum length of a peer's certificate
+	// chain, including the peer's certificate. A value of 0 means there is
+	// no maximum.
+	//
+	_verifyDepthMax = properties.getPropertyAsIntWithDefault(prefix + "VerifyDepthMax", 2);
+
+	//
 	// If the user doesn't supply an SSLContext, we need to create one based
 	// on property settings.
 	//
@@ -561,6 +568,21 @@ class Instance
     void
     verifyPeer(ConnectionInfo info, java.nio.channels.SelectableChannel fd, String address, boolean incoming)
     {
+	if(_verifyDepthMax > 0 && info.certs.length > _verifyDepthMax)
+	{
+	    String msg = (incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
+		"length of peer's certificate chain (" + info.certs.length + ") exceeds maximum of " +
+		_verifyDepthMax + "\n" +
+		IceInternal.Network.fdToString(fd);
+	    if(_securityTraceLevel >= 1)
+	    {
+		_logger.trace(_securityTraceCategory, msg);
+	    }
+	    Ice.SecurityException ex = new Ice.SecurityException();
+	    ex.reason = msg;
+	    throw ex;
+	}
+
 	//
 	// Extract the IP addresses and the DNS names from the subject
 	// alternative names.
@@ -815,6 +837,7 @@ class Instance
     private boolean _noCiphers;
     private String[] _protocols;
     private boolean _checkCertName;
+    private int _verifyDepthMax;
     private CertificateVerifier _verifier;
     private TrustManager _trustManager;
 }
