@@ -155,6 +155,15 @@ IceSSL::Instance::initialize()
 	}
 
 	//
+	// VerifyDepthMax establishes the maximum length of a peer's certificate
+	// chain, including the peer's certificate. A value of 0 means there is
+	// no maximum.
+	//
+	{
+	    _verifyDepthMax = properties->getPropertyAsIntWithDefault(propPrefix + "VerifyDepthMax", 2);
+	}
+
+	//
 	// Determine whether a certificate is required from the peer.
 	//
 	{
@@ -426,17 +435,6 @@ IceSSL::Instance::initialize()
 	}
 
 	//
-	// Establish the maximum verify depth.
-	//
-	{
-	    int depth = properties->getPropertyAsIntWithDefault(propPrefix + "VerifyDepthMax", 2);
-	    if(depth >= 0)
-	    {
-		SSL_CTX_set_verify_depth(_ctx, depth);
-	    }
-	}
-
-	//
 	// Diffie Hellman configuration.
 	//
 	{
@@ -691,12 +689,29 @@ IceSSL::Instance::verifyPeer(SSL* ssl, SOCKET fd, const string& address, const s
     }
 
     ConnectionInfo info = populateConnectionInfo(ssl, fd, adapterName, incoming);
+
+    if(_verifyDepthMax > 0 && static_cast<int>(info.certs.size()) > _verifyDepthMax)
+    {
+	ostringstream ostr;
+	ostr << (incoming ? "incoming" : "outgoing") << " connection rejected:\n"
+	     << "length of peer's certificate chain (" << info.certs.size() << ") exceeds maximum of "
+	     << _verifyDepthMax;
+	string msg = ostr.str();
+	if(_securityTraceLevel >= 1)
+	{
+	    _logger->trace(_securityTraceCategory, msg + "\n" + IceInternal::fdToString(fd));
+	}
+	SecurityException ex(__FILE__, __LINE__);
+	ex.reason = msg;
+	throw ex;
+    }
+
     if(!_trustManager->verify(info))
     {
 	string msg = string(incoming ? "incoming" : "outgoing") + " connection rejected by trust manager";
 	if(_securityTraceLevel >= 1)
 	{
-	    _logger->trace(_securityTraceCategory, msg + "\n" + IceInternal::fdToString(SSL_get_fd(ssl)));
+	    _logger->trace(_securityTraceCategory, msg + "\n" + IceInternal::fdToString(fd));
 	}
 	SecurityException ex(__FILE__, __LINE__);
 	ex.reason = msg;
@@ -708,7 +723,7 @@ IceSSL::Instance::verifyPeer(SSL* ssl, SOCKET fd, const string& address, const s
 	string msg = string(incoming ? "incoming" : "outgoing") + " connection rejected by certificate verifier";
 	if(_securityTraceLevel >= 1)
 	{
-	    _logger->trace(_securityTraceCategory, msg + "\n" + IceInternal::fdToString(SSL_get_fd(ssl)));
+	    _logger->trace(_securityTraceCategory, msg + "\n" + IceInternal::fdToString(fd));
 	}
 	SecurityException ex(__FILE__, __LINE__);
 	ex.reason = msg;
