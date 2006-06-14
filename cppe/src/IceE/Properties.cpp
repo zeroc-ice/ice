@@ -159,7 +159,7 @@ Ice::Properties::parseCommandLineOptions(const string& prefix, const StringSeq& 
                 opt += "=1";
             }
             
-            parseLine(opt.substr(2));
+            parseLine(opt.substr(2), 0);
         }
         else
         {
@@ -190,7 +190,7 @@ Ice::Properties::load(const std::string& file)
     char line[1024];
     while(fgets(line, 1024, in) != NULL)
     {
-	parseLine(line);
+	parseLine(line, _converter);
     }
     fclose(in);
 }
@@ -203,15 +203,18 @@ Ice::Properties::clone()
 }
 
 Ice::Properties::Properties(const Properties* p) :
-    _properties(p->_properties)
+    _properties(p->_properties),
+    _converter(p->_converter)
 {
 }
 
-Ice::Properties::Properties()
+Ice::Properties::Properties(const StringConverterPtr& converter) :
+    _converter(converter)
 {
 }
 
-Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults)
+Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults, const StringConverterPtr& converter) :
+    _converter(converter)
 {
     if(defaults != 0)
     {
@@ -242,7 +245,7 @@ Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults)
             {
                 s += "=1";
             }
-            parseLine(s.substr(2));
+            parseLine(s.substr(2), 0);
 	    loadConfigFiles = true;
         }
         else
@@ -270,7 +273,7 @@ Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults)
 }
 
 void
-Ice::Properties::parseLine(const string& line)
+Ice::Properties::parseLine(const string& line, const StringConverterPtr& converter)
 {
     const string delim = " \t\r\n";
     string s = line;
@@ -314,6 +317,18 @@ Ice::Properties::parseLine(const string& line)
     {
 	end = s.length();
 	value = s.substr(beg, end - beg);
+    }
+
+    if(converter)
+    {
+        string tmp;
+        converter->fromUTF8(reinterpret_cast<const Byte*>(key.data()),
+                            reinterpret_cast<const Byte*>(key.data() + key.size()), tmp);
+        key.swap(tmp);
+
+        converter->fromUTF8(reinterpret_cast<const Byte*>(value.data()),
+                            reinterpret_cast<const Byte*>(value.data() + value.size()), tmp);
+        value.swap(tmp);
     }
     
     setProperty(key, value);
