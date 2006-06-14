@@ -12,6 +12,8 @@ icepatch2cs.pdb
 icestormcs.pdb
 iceboxnet.exe
 iceboxnet.pdb
+icesslcs.dll
+icesslcs.pdb
 #policy.3.0.glacier2cs.dll
 #policy.3.0.iceboxcs.dll
 #policy.3.0.icecs.dll
