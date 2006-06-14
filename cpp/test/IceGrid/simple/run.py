@@ -22,39 +22,11 @@ import TestUtil
 import IceGridAdmin
 
 name = os.path.join("IceGrid", "simple")
-testdir = os.path.join(toplevel, "test", name)
-server = os.path.join(testdir, "server")
-client = os.path.join(testdir, "client")
-
-additionalOptions = " --Ice.Default.Locator=\"IceGrid/Locator:default -p 12010\""
-additionalServerOptions=" --TestAdapter.Endpoints=default --TestAdapter.AdapterId=TestAdapter " + additionalOptions
-
-iceGridRegistryPipe = IceGridAdmin.startIceGridRegistry(testdir, 1)
 
 #
 # Test client/server without on demand activation.
 #
-print "starting sever...",
-serverPipe = os.popen(server + TestUtil.serverOptions + additionalServerOptions + " 2>&1")
-TestUtil.getServerPid(serverPipe)
-TestUtil.getAdapterReady(serverPipe)
-print "ok"
-    
-print "starting client...",
-clientPipe = os.popen(client + TestUtil.clientOptions + additionalOptions + " 2>&1")
-print "ok"
-
-TestUtil.printOutputFromPipe(clientPipe)
-
-clientStatus = TestUtil.closePipe(clientPipe)
-if clientStatus:
-    killServers()    
-
-IceGridAdmin.shutdownIceGridRegistry()
-TestUtil.joinServers()
-
-if clientStatus or TestUtil.serverStatus():
-    sys.exit(1)
+IceGridAdmin.iceGridClientServerTest(name, "", "--TestAdapter.Endpoints=default --TestAdapter.AdapterId=TestAdapter")
 
 #
 # Test client/server with on demand activation.
