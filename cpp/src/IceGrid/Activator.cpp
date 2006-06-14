@@ -430,11 +430,11 @@ Activator::activate(const string& name,
 	args.push_back("--Ice.StdErr=" + errFile);
     }
 
-    if(_traceLevels->activator > 1)
+    if(_traceLevels->activator > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
 	out << "activating server `" << name << "'";
-	if(_traceLevels->activator > 2)
+	if(_traceLevels->activator > 1)
 	{
 	    out << "\n";
 	    out << "path = " << path << "\n";
@@ -621,11 +621,15 @@ Activator::activate(const string& name,
     
     setInterrupt();
 
-    if(_traceLevels->activator > 0)
-    {
-        Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-        out << "activated server `" << name << "' (pid = " << pi.dwProcessId << ")";
-    }
+    //  
+    // Don't print the following trace, this might interfere with the
+    // output of the started process if it fails with an error message.
+    //
+//     if(_traceLevels->activator > 0)
+//     {
+//         Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+//         out << "activated server `" << name << "' (pid = " << pi.dwProcessId << ")";
+//     }
 
     return static_cast<Ice::Int>(process.pid);
 #else
@@ -770,11 +774,15 @@ Activator::activate(const string& name,
 
 	setInterrupt();
 
-	if(_traceLevels->activator > 0)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-	    out << "activated server `" << name << "' (pid = " << pid << ")";
-	}
+    //  
+    // Don't print the following trace, this might interfere with the
+    // output of the started process if it fails with an error message.
+    //
+// 	if(_traceLevels->activator > 0)
+// 	{
+// 	    Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+// 	    out << "activated server `" << name << "' (pid = " << pid << ")";
+// 	}
     }
 
     return pid;
