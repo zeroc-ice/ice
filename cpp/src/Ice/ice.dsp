@@ -1284,7 +1284,7 @@ InputPath=.\EventLoggerMsg.mc
 InputName=EventLoggerMsg
 
 BuildCmds= \
-	mc $(InputPath) \
+	mc "$(InputPath)" \
 	rc -r -fo $(InputName).res $(InputName).rc \
 	
 
@@ -1302,7 +1302,7 @@ InputPath=.\EventLoggerMsg.mc
 InputName=EventLoggerMsg
 
 BuildCmds= \
-	mc $(InputPath) \
+	mc "$(InputPath)" \
 	rc -r -fo $(InputName).res $(InputName).rc \
 	
 

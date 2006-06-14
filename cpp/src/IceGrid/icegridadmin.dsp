@@ -184,7 +184,7 @@ USERDEP__FILEP="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"
 InputPath=..\..\slice\IceGrid\FileParser.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --include-dir IceGrid -I../../slice $(InputPath) \
+	..\..\bin\slice2cpp.exe --ice --include-dir IceGrid -I../../slice "$(InputPath)" \
 	move FileParser.h ..\..\include\IceGrid \
 	
 
@@ -202,7 +202,7 @@ USERDEP__FILEP="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"
 InputPath=..\..\slice\IceGrid\FileParser.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --include-dir IceGrid -I../../slice $(InputPath) \
+	..\..\bin\slice2cpp.exe --ice --include-dir IceGrid -I../../slice "$(InputPath)" \
 	move FileParser.h ..\..\include\IceGrid \
 	
 
