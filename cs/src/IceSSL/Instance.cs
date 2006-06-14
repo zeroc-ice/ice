@@ -254,7 +254,7 @@ namespace IceSSL
 
 	internal void verifyPeer(ConnectionInfo info, System.Net.Sockets.Socket fd, bool incoming)
 	{
-	    if(verifyDepthMax_ > 0 && info.certs.Length > verifyDepthMax_)
+	    if(verifyDepthMax_ > 0 && info.certs != null && info.certs.Length > verifyDepthMax_)
 	    {
 		string msg = (incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
 		    "length of peer's certificate chain (" + info.certs.Length + ") exceeds maximum of " +

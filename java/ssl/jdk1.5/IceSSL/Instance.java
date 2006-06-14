@@ -568,7 +568,7 @@ class Instance
     void
     verifyPeer(ConnectionInfo info, java.nio.channels.SelectableChannel fd, String address, boolean incoming)
     {
-	if(_verifyDepthMax > 0 && info.certs.length > _verifyDepthMax)
+	if(_verifyDepthMax > 0 && info.certs != null && info.certs.length > _verifyDepthMax)
 	{
 	    String msg = (incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
 		"length of peer's certificate chain (" + info.certs.length + ") exceeds maximum of " +
