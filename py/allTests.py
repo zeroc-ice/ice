@@ -18,10 +18,7 @@ for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
 else:
     raise "can't find toplevel directory!"
 
-sys.path.append(os.path.join(toplevel, "config"))
-import TestUtil
-
-def runTests(tests, num = 0):
+def runTests(args, tests, num = 0):
 
     #
     # Run each of the tests.
@@ -37,7 +34,7 @@ def runTests(tests, num = 0):
 	print "*** running tests in " + dir,
 	print
 
-        status = os.system(os.path.join(dir, "run.py"))
+        status = os.system(os.path.join(dir, "run.py " + args))
 
 	if status and not (sys.platform.startswith("aix") and status == 256):
 	    if(num > 0):
@@ -65,11 +62,12 @@ tests = [ \
     ]
 
 def usage():
-    print "usage: " + sys.argv[0] + " [-l][-r <regex>]"
+    print "usage: " + sys.argv[0] + " -l -r <regex> -R <regex> --debug --protocol protocol --compress --host host --threadPerConnection"
     sys.exit(2)
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "lr:")
+    opts, args = getopt.getopt(sys.argv[1:], "lr:R:", \
+    	["debug", "protocol=", "compress", "host=", "threadPerConnection"])
 except getopt.GetoptError:
     usage()
 
@@ -77,20 +75,28 @@ if(args):
     usage()
 
 loop = 0
+args = ""
 for o, a in opts:
     if o == "-l":
         loop = 1
-    if o == "-r":
-        import re
-        regexp = re.compile(a)
-        newtests = []
-        def rematch(x): return regexp.match(x)
-        tests = filter(rematch, tests)
+    if o == "-r" or o == '-R':
+	import re
+	regexp = re.compile(a)
+	if o == '-r':
+	    def rematch(x): return regexp.search(x)
+	else:
+	    def rematch(x): return not regexp.search(x)
+	tests = filter(rematch, tests)
+    if o in ( "--protocol", "--host" ):
+	args += " " + o + " " + a
+    if o in ( "--debug", "--compress", "--threadPerConnection" ):
+	args += " " + o 
     
+
 if loop:
     num = 1
     while 1:
-	runTests(tests, num)
+	runTests(args, tests, num)
 	num += 1
 else:
-    runTests(tests)
+    runTests(args, tests)

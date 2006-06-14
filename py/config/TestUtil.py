@@ -42,10 +42,39 @@ threadPerConnection = 0
 host = "127.0.0.1"
 
 #
+# To print the commands that are being run.
+#
+debug = 0
+#debug = 1
+
+#
 # Don't change anything below this line!
 #
+import sys, os, errno, getopt
+from threading import Thread
 
-import sys, os, errno
+#
+# Don't change anything below this line!
+#
+def usage():
+    print "usage: " + sys.argv[0] + " --debug --protocol protocol --compress --host host --threadPerConnection"
+    sys.exit(2)
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "", ["debug", "protocol=", "compress", "host=", "threadPerConnection"])
+except getopt.GetoptError:
+    usage()
+
+for o, a in opts:
+    if o == "--debug":
+    	debug = 1
+    if o == "--protocol":
+	protocol = a
+    if o == "--compress":
+	compress = 1
+    if o == "--threadPerConnection":
+	threadPerConnection = 1
+    if o == "--host":
+	host = a
 
 def isCygwin():
 
@@ -98,76 +127,6 @@ def isDarwin():
         return 1
    else:
         return 0
-     
-serverPids = []
-def killServers():
-
-    global serverPids
-
-    if isCygwin():
-	print "killServers(): not implemented for cygwin python."
-
-	#
-	# TODO: Michi: Not sure why exit(1) was here. This means that, when
-	# we run the test suite with allTests.py under Cygwin, the first sub-test that
-	# calls killServers will return non-zero exit status and, therefore,
-	# terminate allTests.py, so the subsequent tests are never run.
-	#
-	#sys.exit(1)
-
-    for pid in serverPids:
-        if isWin32():
-            try:
-                import win32api
-                handle = win32api.OpenProcess(1, 0, pid)
-                win32api.TerminateProcess(handle, 0)
-            except:
-                pass # Ignore errors, such as non-existing processes.
-        else:
-            try:
-                os.kill(pid, 9)
-            except:
-                pass # Ignore errors, such as non-existing processes.
-
-    serverPids = []
-
-def getServerPid(serverPipe):
-
-    output = serverPipe.readline().strip()
-
-    if not output:
-        print "failed!"
-        killServers()
-        sys.exit(1)
-
-    serverPids.append(int(output))
-
-def getAdapterReady(serverPipe):
-
-    output = serverPipe.readline().strip()
-
-    if not output:
-        print "failed!"
-        killServers()
-        sys.exit(1)
-
-def waitServiceReady(pipe, token):
-
-    while 1:
-        output = pipe.readline().strip()
-        if not output:
-            print "failed!"
-            sys.exit(1)
-        if output == token + " ready":
-            break
-
-def printOutputFromPipe(pipe):
-
-    while 1:
-        c = pipe.read(1)
-        if c == "":
-            break
-        os.write(1, c)
 
 def closePipe(pipe):
 
@@ -181,6 +140,157 @@ def closePipe(pipe):
 	    raise
 
     return status
+        
+import thread
+
+class ReaderThread(Thread):
+    def __init__(self, pipe):
+        self.pipe = pipe
+        Thread.__init__(self)
+
+    def run(self):
+
+	#print "started: " + str(self) + ": " + str(thread.get_ident())
+        try:
+            while 1:
+                line = self.pipe.readline()
+                if not line: break
+		# Suppress "adapter ready" messages. Under windows the eol isn't \n.
+		if not line.endswith(" ready\n") and not line.endswith(" ready\r\n"):
+		    print "server: " + line,
+        except IOError:
+            pass
+
+	self.status = closePipe(self.pipe)
+	#print "terminating: " + str(self)
+
+    def getStatus(self):
+	return self.status
+
+serverPids = []
+serverThreads = []
+allServerThreads = []
+
+def joinServers():
+    global serverThreads
+    global allServerThreads
+    for t in serverThreads:
+	t.join()
+	allServerThreads.append(t)
+    serverThreads = []
+
+def serverStatus():
+    global allServerThreads
+    joinServers()
+    for t in allServerThreads:
+    	status = t.getStatus()
+    	if status:
+	    print "server " + str(t) + " status: " + str(status)
+    	    return status
+    return 0
+
+def killServers():
+
+    global serverPids
+    global serverThreads
+
+    for pid in serverPids:
+
+        if isWin32():
+            try:
+                import win32api
+                handle = win32api.OpenProcess(1, 0, pid)
+                win32api.TerminateProcess(handle, 0)
+            except ImportError, ex:
+                print "Sorry: you must install the win32all package for killServers to work."
+                return
+            except:
+                pass # Ignore errors, such as non-existing processes.
+        else:
+            try:
+                os.kill(pid, 9)
+            except:
+                pass # Ignore errors, such as non-existing processes.
+
+    serverPids = []
+
+    #
+    # Now join with all the threads
+    #
+    joinServers()
+
+def getServerPid(pipe):
+    global serverPids
+    global serverThreads
+
+    while 1:
+	output = pipe.readline().strip()
+	if not output:
+	    print "failed!"
+	    killServers()
+	    sys.exit(1)
+    	if output.startswith("warning: "):
+    	    continue
+	break
+
+    try:
+	serverPids.append(int(output))
+    except ValueError:
+	print "Output is not a PID: " + output
+	raise
+
+def ignorePid(pipe):
+
+    while 1:
+	output = pipe.readline().strip()
+	if not output:
+	    print "failed!"
+	    killServers()
+	    sys.exit(1)
+    	if output.startswith("warning: "):
+    	    continue
+	break
+
+def getAdapterReady(pipe, createThread = True):
+    global serverThreads
+
+    output = pipe.readline().strip()
+
+    if not output:
+        print "failed!"
+        killServers()
+        sys.exit(1)
+
+    # Start a thread for this server.
+    if createThread:
+	serverThread = ReaderThread(pipe)
+	serverThread.start()
+	serverThreads.append(serverThread)
+
+def waitServiceReady(pipe, token, createThread = True):
+    global serverThreads
+
+    while 1:
+        output = pipe.readline().strip()
+        if not output:
+            print "failed!"
+            sys.exit(1)
+        if output == token + " ready":
+            break
+
+    # Start a thread for this server.
+    if createThread:
+	serverThread = ReaderThread(pipe)
+	serverThread.start()
+	serverThreads.append(serverThread)
+
+def printOutputFromPipe(pipe):
+
+    while 1:
+        c = pipe.read(1)
+        if c == "":
+            break
+        os.write(1, c)
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -264,25 +374,28 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
     os.chdir(testdir)
 
     print "starting " + serverName + "...",
-    serverCmd = "python " + server + serverOptions + additionalServerOptions + " 2>&1"
-    #print serverCmd
-    serverPipe = os.popen(serverCmd)
+    serverCmd = "python " + server + serverOptions + additionalServerOptions
+    if debug:
+	print "(" + serverCmd + ")",
+    serverPipe = os.popen(serverCmd + " 2>&1")
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting " + clientName + "...",
-    clientCmd = "python " + client + clientOptions + additionalClientOptions + " 2>&1"
-    clientPipe = os.popen(clientCmd)
+    clientCmd = "python " + client + clientOptions + additionalClientOptions
+    if debug:
+	print "(" + clientCmd + ")",
+    clientPipe = os.popen(clientCmd + " 2>&1")
     print "ok"
 
     printOutputFromPipe(clientPipe)
 
     clientStatus = closePipe(clientPipe)
-    serverStatus = closePipe(serverPipe)
-
-    if clientStatus or serverStatus:
+    if clientStatus:
 	killServers()
+
+    if clientStatus or serverStatus():
 	sys.exit(1)
 
     os.chdir(cwd)
@@ -306,24 +419,30 @@ def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalCl
     os.chdir(testdir)
 
     print "starting server...",
-    serverPipe = os.popen("python " + server + clientServerOptions + additionalServerOptions + " 2>&1")
+    serverCmd = "python " + server + clientServerOptions + additionalServerOptions
+    if debug:
+	print "(" + serverCmd + ")",
+    serverPipe = os.popen(serverCmd + " 2>&1")
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
-    clientPipe = os.popen("python " + client + clientServerOptions + additionalClientOptions + " 2>&1")
-    getServerPid(clientPipe)
-    getAdapterReady(clientPipe)
+    clientCmd = "python " + client + clientServerOptions + additionalClientOptions
+    if debug:
+	print "(" + clientCmd + ")",
+    clientPipe = os.popen(clientCmd + " 2>&1")
+    ignorePid(clientPipe)
+    getAdapterReady(clientPipe, False)
     print "ok"
 
     printOutputFromPipe(clientPipe)
 
     clientStatus = closePipe(clientPipe)
-    serverStatus = closePipe(serverPipe)
-
-    if clientStatus or serverStatus:
+    if clientStatus:
 	killServers()
+
+    if clientStatus or serverStatus():
 	sys.exit(1)
 
     os.chdir(cwd)
@@ -341,7 +460,10 @@ def collocatedTestWithOptions(name, additionalOptions):
     os.chdir(testdir)
 
     print "starting collocated...",
-    collocatedPipe = os.popen("python " + collocated + collocatedOptions + additionalOptions + " 2>&1")
+    command = "python " + collocated + collocatedOptions + additionalOptions
+    if debug:
+	print "(" + command + ")",
+    collocatedPipe = os.popen(command + " 2>&1")
     print "ok"
 
     printOutputFromPipe(collocatedPipe)

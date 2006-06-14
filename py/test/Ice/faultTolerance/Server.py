@@ -36,13 +36,13 @@ class TestI(Test.TestIntf):
 
     def abort(self, current=None):
         print "aborting..."
-        sys.exit(0)
+        os._exit(0)
 
     def idempotentAbort(self, current=None):
-        sys.exit(0)
+        os._exit(0)
 
     def nonmutatingAbort(self, current=None):
-        sys.exit(0)
+        os._exit(0)
 
     def pid(self, current=None):
         return os.getpid()

@@ -12,13 +12,17 @@
 Ice module
 """
 
-import sys, exceptions, string, imp, os, threading, dl, warnings
+import sys, exceptions, string, imp, os, threading, warnings
 
-#
-# This is necessary for proper operation of Ice plug-ins.
-# Without it, RTTI problems can occur.
-#
-sys.setdlopenflags(dl.RTLD_NOW|dl.RTLD_GLOBAL)
+try:
+    import dl
+    #
+    # This is necessary for proper operation of Ice plug-ins.
+    # Without it, RTTI problems can occur.
+    #
+    sys.setdlopenflags(dl.RTLD_NOW|dl.RTLD_GLOBAL)
+except ImportError:
+    pass
 
 #
 # Import the Python extension.

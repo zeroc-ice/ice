@@ -32,49 +32,33 @@ client = "Client.py"
 num = 12
 base = 12340
 
-serverPipes = { }
 for i in range(0, num):
     print "starting server #%d..." % (i + 1),
     sys.stdout.flush()
-    serverPipes[i] = os.popen("python " + server + TestUtil.serverOptions + " %d" % (base + i) + " 2>&1")
-    TestUtil.getServerPid(serverPipes[i])
-    TestUtil.getAdapterReady(serverPipes[i])
+    command = "python " + server + TestUtil.serverOptions + " %d" % (base + i)
+    if TestUtil.debug:
+	print "(" + command + ")",
+    serverPipe = os.popen(command + " 2>&1")
+    TestUtil.getServerPid(serverPipe)
+    TestUtil.getAdapterReady(serverPipe)
     print "ok"
 
 ports = ""
 for i in range(0, num):
     ports = "%s %d" % (ports, base + i)
 print "starting client...",
-clientPipe = os.popen("python " + client + TestUtil.clientOptions + " " + ports + " 2>&1")
+command = "python " + client + TestUtil.clientOptions + " " + ports
+if TestUtil.debug:
+    print "(" + command + ")",
+clientPipe = os.popen(command + " 2>&1")
 print "ok"
+
 TestUtil.printOutputFromPipe(clientPipe)
-
 clientStatus = TestUtil.closePipe(clientPipe)
-serverStatus = None
-for i in range(0, num):
-    serverStatus = serverStatus or TestUtil.closePipe(serverPipes[i])
-
 if clientStatus:
     TestUtil.killServers()
-    sys.exit(1)
 
-os.chdir(cwd)
-
-#
-# Exit with status 0 even though some servers failed to shutdown
-# properly. There's a problem which is occuring on Linux dual-processor
-# machines, when ssl isn't enabled, and which cause some servers to
-# segfault and abort. It's not clear what the problem is, and it's
-# almost impossible to debug with the very poor information we get
-# from the core file (ulimit -c unlimited to enable core files on
-# Linux).
-#
-if serverStatus:
-    TestUtil.killServers()
+if clientStatus or TestUtil.serverStatus():
     sys.exit(1)
-#    if TestUtil.isWin32():
-#        sys.exit(1)
-#    else:
-#        sys.exit(0)
 
 sys.exit(0)
