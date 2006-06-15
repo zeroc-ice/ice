@@ -39,6 +39,7 @@ public:
     //
     virtual void add(const std::vector<T>&, const Ice::Current&);
     virtual void remove(const std::vector<T>&, const Ice::Current&);
+    virtual std::vector<T> get(const Ice::Current&);
 
     //
     // Internal functions.
@@ -160,6 +161,13 @@ FilterT<T, P>::remove(const std::vector<T>& deletions, const Ice::Current&)
     {
 	_items.erase(*i);
     }
+}
+
+template<class T, class P> std::vector<T> 
+FilterT<T, P>::get(const Ice::Current&)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+    return _items;
 }
 
 typedef FilterT<Ice::Identity, Glacier2::IdentitySet> IdentitySetI;

@@ -66,12 +66,14 @@ interface StringSet
 {
     idempotent void add(Ice::StringSeq additions);
     idempotent void remove(Ice::StringSeq deletions);
+    idempotent Ice::StringSeq get();
 };
 
 interface IdentitySet
 {
     idempotent void add(Ice::IdentitySeq additions);
     idempotent void remove(Ice::IdentitySeq deletions);
+    idempotent Ice::IdentitySeq get();
 };
 
 /**
