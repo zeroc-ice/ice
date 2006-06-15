@@ -13,10 +13,22 @@
 module IceGrid
 {
 
+/**
+ *
+ * This exception is raised if a user account for a given session
+ * identifier can't be found.
+ *
+ **/
 exception UserAccountNotFoundException
 {
 };
 
+/**
+ *
+ * A user account mapper object is used by &IceGrid; nodes to map
+ * session identifiers to user accounts.
+ *
+ **/
 interface UserAccountMapper
 {
     /**

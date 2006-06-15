@@ -136,6 +136,12 @@ struct AdapterInfo
      **/
     string replicaGroupId;
 };
+
+/**
+ *
+ * A sequence of adapter information structures.
+ *
+ **/
 sequence<AdapterInfo> AdapterInfoSeq;
 
 /**
@@ -225,6 +231,11 @@ struct NodeInfo
     string dataDir;
 };
 
+/**
+ *
+ * Information about the load of a node.
+ *
+ **/
 struct LoadInfo
 {
     /** The load average over the past minute. */
@@ -325,8 +336,16 @@ interface Admin
 
     /**
      *
-     * Instantiate a server template from an application.
+     * Instantiate a server template from an application on the given
+     * node.
      *
+     * @param applicaton The application name.
+     * 
+     * @param node The name of the node where the server will be
+     * deployed.
+     *
+     * @param desc The descriptor of the server instance to deploy.
+     * 
      * @throws AccessDeniedException Raised if the session doesn't
      * hold the exclusive lock or if another session is holding the
      * lock.
@@ -348,7 +367,7 @@ interface Admin
      * @param name The application name.
      *
      * @param shutdown If true, the servers depending on the data to
-     * patch will be shutdown if necessary.     * 
+     * patch will be shutdown if necessary.
      *
      * @throws ApplicationNotExistException Raised if the application
      * doesn't exist.
@@ -365,7 +384,7 @@ interface Admin
      *
      * @param name The application name.
      *
-     * @returns The application descriptor.
+     * @return The application descriptor.
      *
      * @throws ApplicationNotExistException Raised if the application
      * doesn't exist.
@@ -377,6 +396,9 @@ interface Admin
     /**
      *
      * Get the default application descriptor.
+     *
+     * @throws DeploymentException Raised if the default application
+     * descriptor can't be accessed or is invalid.
      *
      **/
     nonmutating ApplicationDescriptor getDefaultApplicationDescriptor()
@@ -399,7 +421,7 @@ interface Admin
      *
      * @throws ServerNotExistException Raised if the server doesn't exist.
      *
-     * @returns The server information.
+     * @return The server information.
      *
      **/
     nonmutating ServerInfo getServerInfo(string id)
@@ -624,7 +646,7 @@ interface Admin
      *
      * @return A sequence of adapter information structures. If the
      * given id refers to an adapter, this sequence will contain only
-     * one element. If the given refers to a replica group, the
+     * one element. If the given id refers to a replica group, the
      * sequence will contain the adapter information of each member of
      * the replica group.
      *
@@ -666,18 +688,29 @@ interface Admin
      * @throws ObjectExistsException Raised if the object is already
      * registered.
      *
+     * @throws DeploymentException Raised if the object can't be
+     * added. This might be raised if the invocation on the proxy to
+     * get the object type failed.
+     *
      **/
     void addObject(Object* obj)
 	throws ObjectExistsException, DeploymentException;
 
     /**
      *
-     * Update an object in the object registry.
+     * Update an object in the object registry. Only objects added
+     * with this interface can be updated with this method. Objects
+     * added with deployment descriptors should be updated with the
+     * deployment mechanism.
      *
      * @param obj The object to be updated to the registry.
      *
      * @throws ObjectNotRegisteredException Raised if the object isn't
      * registered with the registry.
+     *
+     * @throws DeploymentException Raised if the object can't be
+     * updated. This might happen if the object was added with a
+     * deployment descriptor.
      *
      **/
     void updateObject(Object* obj)
@@ -697,17 +730,24 @@ interface Admin
      *
      **/
     void addObjectWithType(Object* obj, string type)
-	throws ObjectExistsException, DeploymentException;
+	throws ObjectExistsException;
 
     /**
      *
-     * Remove an object from the object registry.
+     * Remove an object from the object registry. Only objects added
+     * with this interface can be removed with this method. Objects
+     * added with deployment descriptors should be removed with the
+     * deployment mechanism.
      *
      * @param id The identity of the object to be removed from the
      * registry.
      *
      * @throws ObjectNotRegisteredException Raised if the object isn't
      * registered with the registry.
+     *
+     * @throws DeploymentException Raised if the object can't be
+     * removed. This might happen if the object was added with a
+     * deployment descriptor.
      *
      **/
     ["ami"] void removeObject(Ice::Identity id) 
@@ -824,6 +864,8 @@ interface Admin
      *
      * @param name The node name.
      *
+     * @return The node hostname.
+     *
      * @throws NodeNotExistException Raised if the node doesn't exist.
      *
      * @throws NodeUnreachableException Raised if the node could not be
@@ -862,6 +904,17 @@ interface Admin
 interface RegistryObserver;
 interface NodeObserver;
 
+/**
+ *
+ * An admin session object used by administrative clients to view,
+ * update and receive observer updates from the &IceGrid;
+ * registry. Admin sessions are created either with the [Registry]
+ * object or the registry admin [Glacier2::SessionManager] object.
+ * 
+ * @see Registry
+ * @see Glacier2::SessionManager
+ *
+ **/
 interface AdminSession extends Glacier2::Session
 {
     /**
@@ -872,7 +925,7 @@ interface AdminSession extends Glacier2::Session
      * @see getTimeout
      *
      **/
-    void keepAlive();
+    idempotent void keepAlive();
 
     /**
      *
@@ -889,7 +942,10 @@ interface AdminSession extends Glacier2::Session
 
     /**
      *
-     * Get the admin interface.
+     * Get the admin interface. The admin object returned by this
+     * method can only be accessed by the session.
+     *
+     * @return The admin interface proxy.
      *
      **/
     nonmutating Admin* getAdmin();
@@ -905,7 +961,7 @@ interface AdminSession extends Glacier2::Session
      * @param nodeObs The node observer.
      *
      **/
-    void setObservers(RegistryObserver* registryObs, NodeObserver* nodeObs);
+    idempotent void setObservers(RegistryObserver* registryObs, NodeObserver* nodeObs);
 
     /**
      *
@@ -920,7 +976,7 @@ interface AdminSession extends Glacier2::Session
      * @param nodeObs The node observer identity.
      *
      **/
-    void setObserversByIdentity(Ice::Identity registryObs, Ice::Identity nodeObs);
+    idempotent void setObserversByIdentity(Ice::Identity registryObs, Ice::Identity nodeObs);
 
     /**
      *

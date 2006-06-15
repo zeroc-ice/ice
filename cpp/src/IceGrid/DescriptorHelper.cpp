@@ -2023,7 +2023,6 @@ NodeHelper::hasDistributions(const string& server) const
     //
     // Get the server distributions to patch.
     //
-    DistributionDescriptorDict distribs;
     if(server.empty())
     {
 	ServerInstanceHelperDict::const_iterator p;

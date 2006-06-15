@@ -262,6 +262,7 @@ IceGrid:
     Registry.Server.ThreadPool.SizeMax
     Registry.Server.ThreadPool.SizeWarn
     Registry.Server.ThreadPool.StackSize
+    Registry.SessionTimeout
     Registry.SSLPermissionsVerifier
     Registry.Trace.Application
     Registry.Trace.Adapter

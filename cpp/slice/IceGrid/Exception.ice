@@ -51,6 +51,11 @@ exception ServerStartException
     string reason;
 };
 
+/**
+ *
+ * This exception is raised if a server failed to stop.
+ *
+ **/
 exception ServerStopException
 {
     /** The identifier of the server. */

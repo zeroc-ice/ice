@@ -22,27 +22,28 @@ module IceGrid
  **/
 exception ParseException
 {
+    /** The reason of the failure. */
     string reason;
 };
     
 /**
  *
- * icegridadmin provides a FileParser object to transform XML files
- * into ApplicationDescriptor objects (structs).
+ * The icegridadmin command line tool provides a [FileParser] object
+ * to transform XML files into [ApplicationDescriptor] objects
+ * (structs).
  *
  **/
-
 interface FileParser
 {
 
     /**
      *
-     * Parse a file
+     * Parse a file.
      *
-     * @param file Full pathname to the file.
+     * @param xmlFile Full pathname to the file.
      *
-     * @param adminProxy An Admin proxy, used only to retrieve default templates when needed. 
-     *  May be null.
+     * @param adminProxy An Admin proxy, used only to retrieve default
+     * templates when needed. May be null.
      *
      * @returns The application descriptor.
      *

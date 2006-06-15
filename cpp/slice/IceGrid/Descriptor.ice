@@ -16,6 +16,11 @@
 module IceGrid
 {
 
+/**
+ *
+ * A mapping of string to string.
+ *
+ **/
 dictionary<string, string> StringStringDict;
 
 /**
@@ -28,6 +33,12 @@ struct PropertyDescriptor
     string name;
     string value;
 };
+
+/**
+ *
+ * A sequence of property descriptors.
+ * 
+ **/
 ["java:type:{java.util.LinkedList}"] sequence<PropertyDescriptor> PropertyDescriptorSeq;
 
 /**
@@ -51,6 +62,12 @@ struct PropertySetDescriptor
      **/
     PropertyDescriptorSeq properties;
 };
+
+/**
+ *
+ * A mapping of property set name to property set descriptor.
+ *
+ **/
 dictionary<string, PropertySetDescriptor> PropertySetDescriptorDict;
 
 /**
@@ -236,6 +253,12 @@ class CommunicatorDescriptor
     string description;
 };
 
+/**
+ *
+ * A distribution descriptor defines the an &IcePatch2; server and the
+ * directories to retrieve from the patch server.
+ *
+ **/
 struct DistributionDescriptor
 {
     /** The proxy of the IcePatch2 server. */
@@ -244,7 +267,6 @@ struct DistributionDescriptor
     /** The source directories. */
     ["java:type:{java.util.LinkedList}"] Ice::StringSeq directories;
 };
-dictionary<string, DistributionDescriptor> DistributionDescriptorDict;
 
 /**
  *
@@ -414,6 +436,11 @@ struct ServerInstanceDescriptor
  **/
 ["java:type:{java.util.LinkedList}"] sequence<ServerInstanceDescriptor> ServerInstanceDescriptorSeq;
 
+/**
+ *
+ * A template descriptor for server or service templates.
+ * 
+ **/
 struct TemplateDescriptor
 {
     /**
@@ -437,8 +464,19 @@ struct TemplateDescriptor
      **/
     StringStringDict parameterDefaults;
 };
+
+/**
+ *
+ * A mapping of template identifier to template descriptor.
+ *
+ **/
 dictionary<string, TemplateDescriptor> TemplateDescriptorDict;
 
+/** 
+ *
+ * A service template instance descriptor.
+ * 
+ **/
 struct ServiceInstanceDescriptor
 {
     /**
@@ -470,6 +508,12 @@ struct ServiceInstanceDescriptor
      **/
     PropertySetDescriptor propertySet;
 };
+
+/**
+ *
+ * A sequence of service instance descriptors.
+ *
+ **/
 ["java:type:{java.util.LinkedList}"] sequence<ServiceInstanceDescriptor> ServiceInstanceDescriptorSeq;
 
 /**
@@ -487,6 +531,11 @@ class IceBoxDescriptor extends ServerDescriptor
     ServiceInstanceDescriptorSeq services;
 };
 
+/**
+ *
+ * A node descriptor.
+ *
+ **/
 struct NodeDescriptor
 {
     /**
@@ -531,8 +580,19 @@ struct NodeDescriptor
      **/
     PropertySetDescriptorDict propertySets;
 };
+
+/**
+ *
+ * Mapping of node name to node descriptor.
+ *
+ **/
 dictionary<string, NodeDescriptor> NodeDescriptorDict;
 
+/**
+ *
+ * A base class for load balancing policies.
+ *
+ **/
 class LoadBalancingPolicy
 {
     /**
@@ -544,14 +604,29 @@ class LoadBalancingPolicy
     string nReplicas;
 };
 
+/**
+ *
+ * Random load balancing policy.
+ *
+ **/
 class RandomLoadBalancingPolicy extends LoadBalancingPolicy
 {
 };
 
+/**
+ *
+ * Round robin load balancing policy.
+ *
+ **/
 class RoundRobinLoadBalancingPolicy extends LoadBalancingPolicy
 {
 };
 
+/**
+ *
+ * Adaptive load balancing policy.
+ *
+ **/
 class AdaptiveLoadBalancingPolicy extends LoadBalancingPolicy
 {
     /**
@@ -693,9 +768,16 @@ struct ApplicationDescriptor
  **/
 class BoxedString
 {
+    /** The value of the boxed string. */
     string value;
 };
 
+/**
+ *
+ * An node update descriptor to describe the updates to apply to a
+ * node of a deployed application.
+ *
+ **/
 struct NodeUpdateDescriptor
 {
     /**
@@ -770,13 +852,31 @@ struct NodeUpdateDescriptor
      **/
     BoxedString loadFactor;
 };
+
+/**
+ *
+ * A sequence of node update descriptors.
+ *
+ **/
 ["java:type:{java.util.LinkedList}"] sequence<NodeUpdateDescriptor> NodeUpdateDescriptorSeq;
 
+/**
+ *
+ * A "boxed" distribution descriptor.
+ *
+ **/
 class BoxedDistributionDescriptor
 {
+    /** The value of the boxed distribution descriptor. */
     DistributionDescriptor value;
 };
 
+/**
+ *
+ * An application update descriptor to describe the updates to apply
+ * to a deployed application.
+ *
+ **/
 struct ApplicationUpdateDescriptor
 {
     /**

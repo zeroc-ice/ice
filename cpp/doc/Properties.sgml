@@ -2712,9 +2712,15 @@ Specifies an alternate identity category for the &IceGrid; objects.
 If defined, the identities of the &IceGrid; objects become
 <itemizedlist>
 <listitem><para><replaceable>name</replaceable><literal>/Admin</literal></para></listitem>
+<listitem><para><replaceable>name</replaceable><literal>/AdminSessionManager</literal></para></listitem>
+<listitem><para><replaceable>name</replaceable><literal>/AdminSSLSessionManager</literal></para></listitem>
+<listitem><para><replaceable>name</replaceable><literal>/NullPermissionsVerifier</literal></para></listitem>
 <listitem><para><replaceable>name</replaceable><literal>/Locator</literal></para></listitem>
 <listitem><para><replaceable>name</replaceable><literal>/Query</literal></para></listitem>
+<listitem><para><replaceable>name</replaceable><literal>/Registry</literal></para></listitem>
+<listitem><para><replaceable>name</replaceable><literal>/RegistryUserAccountMapper</literal></para></listitem>
 <listitem><para><replaceable>name</replaceable><literal>/SessionManager</literal></para></listitem>
+<listitem><para><replaceable>name</replaceable><literal>/SSLSessionManager</literal></para></listitem>
 </itemizedlist>
 If not specified, the default identity category is <literal>IceGrid</literal>.
 </para>
@@ -2733,7 +2739,9 @@ IceGrid.Registry.Admin.Endpoints=<replaceable>endpoints</replaceable>
 Defines the optional administrative endpoints of the &IceGrid; admin
 interface. The administrative endpoints must be accessible to clients
 which are using the &IceGrid; administrative interface, such as the
-&IceGrid; administrative tools.
+&IceGrid; administrative tools. It should also be accessible to
+&Glacier2; routers using the &IceGrid; client or admin session manager
+objects.
 </para>
 <note><para>Allowing access to the &IceGrid; admin interface is a
 security risk! If this property is not defined, the admin interface
@@ -2753,7 +2761,9 @@ IceGrid.Registry.Admin.PublishedEndpoints=<replaceable>endpoints</replaceable>
 Defines the optional administrative published endpoints of the &IceGrid; admin
 interface. The administrative endpoints must be accessible to clients
 which are using the &IceGrid; administrative interface, such as the
-&IceGrid; administrative tool.
+&IceGrid; administrative tool. It should also be accessible to
+&Glacier2; routers using the &IceGrid; client or admin session manager
+objects.
 Refer to the description of the object adapter property
 <link linkend="adapter.PublishedEndpoints"><replaceable>adapter</replaceable>.PublishedEndpoints</link>
 for more information.
@@ -2811,20 +2821,58 @@ for the object adapter named <literal>IceGrid.Registry.Admin</literal>.
 </section>
 </section>
 
-<section><title>IceGrid.Registry.AdminSessionTimeout</title>
+<section><title>IceGrid.Registry.AdminCryptPasswords</title>
 <section><title>Synopsis</title>
 <synopsis>
-IceGrid.Registry.AdminSessionTimeout=<replaceable>num</replaceable>
+IceGrid.Registry.AdminCryptPasswords=<replaceable>file</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-&IceGrid; administrative clients might establish a session with the registry to
-receive updates on the state of the &IceGrid; registry and nodes. This
-session must be refreshed periodically. If the client does not refresh its
-session within <replaceable>num</replaceable> seconds, the session is destroyed.
-If not specified, the default value is 10 seconds.
+Specifies the filename of an &IceGrid; registry access control list for
+admin clients. Each line of the file must contain a username and a
+password, separated by whitespace. The password must be a
+13-character, crypt-encoded string. If this property is not defined,
+the default value is <literal>admin-passwords</literal>. This property
+is ignored if <literal>IceGrid.Registry.AdminPermissionsVerifier</literal> is
+defined.
+</para>
+</section>
+</section>
+
+<section><title>IceGrid.Registry.AdminPermissionsVerifier</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceGrid.Registry.AdminPermissionsVerifier=<replaceable>proxy</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the proxy of an object that implements the
+<literal>Glacier2::PermissionsVerifier</literal> interface. The
+&IceGrid; registry invokes this proxy to validate each new admin
+session created by a client with the
+<literal>IceGrid::Registry</literal> interface.
+</para>
+</section>
+</section>
+
+<section><title>IceGrid.Registry.AdminSSLPermissionsVerifier</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceGrid.Registry.AdminSSLPermissionsVerifier=<replaceable>proxy</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the proxy of an object that implements the
+<literal>Glacier2::SSLPermissionsVerifier</literal> interface. The
+&IceGrid; registry invokes this proxy to validate each new admin
+session created by a client from a secure connection with the
+<literal>IceGrid::Registry</literal> interface.
 </para>
 </section>
 </section>
@@ -2915,6 +2963,25 @@ for the object adapter named <literal>IceGrid.Registry.Client</literal>.
 </section>
 </section>
 
+<section><title>IceGrid.Registry.CryptPasswords</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceGrid.Registry.CryptPasswords=<replaceable>file</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the filename of an &IceGrid; registry access control
+list. Each line of the file must contain a username and a password,
+separated by whitespace. The password must be a 13-character,
+crypt-encoded string. If this property is not defined, the default
+value is <literal>passwords</literal>. This property is ignored if
+<literal>IceGrid.Registry.PermissionsVerifier</literal> is defined.
+</para>
+</section>
+</section>
+
 <section><title>IceGrid.Registry.Data</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -2941,7 +3008,7 @@ IceGrid.Registry.DefaultTemplates=<replaceable>path</replaceable>
 <para>
 Defines the pathname of an XML file containing default template descriptors.
 A sample file is provided in the Ice distribution named <literal>config/templates.xml</literal>
-that contains convenient server templates for IcePatch2 and Glacier2.
+that contains convenient server templates for Ice services.
 </para>
 </section>
 </section>
@@ -3073,6 +3140,24 @@ new clients. If not specified, the default value is 10 seconds.
 </section>
 </section>
 
+<section><title>IceGrid.Registry.PermissionsVerifier</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceGrid.Registry.PermissionsVerifier=<replaceable>proxy</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the proxy of an object that implements the
+<literal>Glacier2::PermissionsVerifier</literal> interface. The
+&IceGrid; registry invokes this proxy to validate each new client
+session created by a client with the
+<literal>IceGrid::Registry</literal> interface.
+</para>
+</section>
+</section>
+
 <section><title>IceGrid.Registry.Server.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -3156,6 +3241,42 @@ for the object adapter named <literal>IceGrid.Registry.Server</literal>.
 </section>
 </section>
 
+<section><title>IceGrid.Registry.SessionTimeout</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceGrid.Registry.SessionTimeout=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+&IceGrid; clients or administrative clients might establish a session
+with the registry. This session must be refreshed periodically. If the
+client does not refresh its session within
+<replaceable>num</replaceable> seconds, the session is destroyed.  If
+not specified, the default value is 10 seconds.
+</para>
+</section>
+</section>
+
+<section><title>IceGrid.Registry.SSLPermissionsVerifier</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceGrid.Registry.SSLPermissionsVerifier=<replaceable>proxy</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the proxy of an object that implements the
+<literal>Glacier2::SSLPermissionsVerifier</literal> interface. The
+&IceGrid; registry invokes this proxy to validate each new client
+session created by a client from a secure connection with the
+<literal>IceGrid::Registry</literal> interface.
+</para>
+</section>
+</section>
+
 <section><title>IceGrid.Registry.Trace.Adapter</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -3176,6 +3297,68 @@ The object adapter trace level:
 <row>
 <entry>1</entry>
 <entry>Trace object adapter registration, removal, and replication.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
+<section><title>IceGrid.Registry.Trace.Application</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceGrid.Registry.Trace.Adapter=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The application trace level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No application trace. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Trace application addition, update and removal.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
+<section><title>IceGrid.Registry.Trace.Locator</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceGrid.Registry.Trace.Locator=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The locator and locator registry trace level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No locator trace. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Trace failures to locate an adapter, object or failures to
+register adapter endpoints.</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>Like 1, but more verbose, including registration of adapter 
+endpoints.</entry>
 </row>
 </tbody>
 </tgroup>
@@ -3244,6 +3427,34 @@ The object trace level:
 </section>
 </section>
 
+<section><title>IceGrid.Registry.Trace.Patch</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceGrid.Registry.Trace.Patch=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The patch trace level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No patching trace. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Show summary of patch progress.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
 <section><title>IceGrid.Registry.Trace.Server</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -3268,6 +3479,60 @@ The server trace level:
 </tbody>
 </tgroup>
 </informaltable>
+</para>
+</section>
+</section>
+
+<section><title>IceGrid.Registry.Trace.Session</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceGrid.Registry.Trace.Session=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The session trace level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No client or admin session trace. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Trace client or admin session registration, removal.</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>Like 1, but more verbose, includes keep alive messages.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
+<section><title>IceGrid.Registry.UserAccounts</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceGrid.Registry.UserAccounts=<replaceable>file</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the filename of an &IceGrid; registry user account map
+file. Each line of the file must contain an identifier and a user
+account, separated by whitespace. The identifier will be matched
+against the client session identifier (the user id for sessions
+created with a user/password or the distinguished name for sessions
+created from a secure connection). This user account map file is used
+by &IceGrid; nodes to map session identifiers to user accounts if the
+node <literal>IceGrid.Node.UserAccountMapper</literal> property is set
+to the proxy <literal>IceGrid/RegistryUserAccountMapper</literal>.
 </para>
 </section>
 </section>
@@ -3453,6 +3718,46 @@ IceGrid.Node.RedirectErrToOut=<replaceable>num</replaceable>
 If <replaceable>num</replaceable> is set to a value larger than zero,
 the <literal>stderr</literal> of each started server is redirected
 to the server's <literal>stdout</literal>.
+</para>
+</section>
+</section>
+
+<section><title>IceGrid.Node.UserAccountMapper</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceGrid.Node.UserAccountMapper=<replaceable>proxy</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the proxy of an object that implements the
+<literal>IceGrid::UserAccountMapper</literal> interface. The &IceGrid;
+node invokes this proxy to map session identifiers (the user id for
+sessions created with a user/password or the distinguished name for
+sessions created from a secure connection) to user accounts.
+</para>
+</section>
+</section>
+
+<section><title>IceGrid.Node.UserAccounts</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceGrid.Node.UserAccounts=<replaceable>file</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the filename of an &IceGrid; node user account map
+file. Each line of the file must contain an identifier and a user
+account, separated by whitespace. The identifier will be matched
+against the client session identifier (the user id for sessions
+created with a user/password or the distinguished name for sessions
+created from a secure connection). This user account map file is used
+by the node to map session identifiers to user accounts. This property
+is ignored if <literal>IceGrid.Node.UserAccountMapper</literal> is
+defined.
 </para>
 </section>
 </section>

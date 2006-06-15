@@ -25,6 +25,11 @@
 module IceGrid
 {
 
+/**
+ *
+ * Determines which load sampling interval to use.
+ *
+ **/
 enum LoadSample
 {
     LoadSample1,
@@ -35,14 +40,14 @@ enum LoadSample
 /**
  *
  * The &IceGrid; query interface. This interface is accessible to
- * &Ice; clients who wish to lookup objects.
+ * &Ice; clients who wish to lookup well-known objects.
  *
  **/
 ["ami", "amd"] interface Query
 {
     /**
      *
-     * Find an object by identity.
+     * Find a well-known object by identity.
      *
      * @param id The identity.
      *
@@ -53,8 +58,9 @@ enum LoadSample
 
     /**
      *
-     * Find an object by type. If there's several objects registered
-     * for the given type, the object will be randomly selected.
+     * Find a well-known object by type. If there's several objects
+     * registered for the given type, the object will be randomly
+     * selected.
      *
      * @param type The object type.
      *
@@ -66,11 +72,11 @@ enum LoadSample
 
     /**
      *
-     * Find an object by type on the least loaded node. If the
-     * registry can't figure out the node that hosts the object (e.g.,
-     * if the object was registered with a direct proxy), the registry
-     * assumes the object is hosted on a node that has a load average
-     * of 1.0.
+     * Find a well-known object by type on the least loaded node. If
+     * the registry can't figure out the node that hosts the object
+     * (e.g., if the object was registered with a direct proxy), the
+     * registry assumes the object is hosted on a node that has a load
+     * average of 1.0.
      *
      * @param type The object type.
      *
@@ -81,7 +87,7 @@ enum LoadSample
 
     /**
      *
-     * Find all the objects with the given type.
+     * Find all the well-known objects with the given type.
      *
      * @param type The object type.
      *

@@ -331,14 +331,6 @@ LocatorI::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& cb,
 
     assert(proxy);
 
-    const TraceLevelsPtr traceLevels = _database->getTraceLevels();
-    if(traceLevels->locator > 2)
-    {
-	Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
-	out << "resolved object `" << _database->getCommunicator()->identityToString(id) << "' proxy: `"
-	    << proxy->ice_toString() << "'";
-    }
-
     //
     // OPTIMIZATION: If the object is registered with an adapter id,
     // try to get the adapter direct proxy (which might caused the

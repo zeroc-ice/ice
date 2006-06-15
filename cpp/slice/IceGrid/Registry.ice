@@ -17,6 +17,16 @@
 module IceGrid
 {
 
+/**
+ *
+ * The &IceGrid; registry provides a registry object to allow clients
+ * or administrative clients to create sessions directy with the
+ * registry.
+ *
+ * @see Session
+ * @see AdminSession
+ * 
+ **/
 interface Registry
 {
     /**
@@ -63,10 +73,10 @@ interface Registry
 
     /**
      *
-     * Create a client session.
+     * Create a client session from a secure connection.
      *
      * @see Session
-     * @see Glacier2::PermissionsVerifier
+     * @see Glacier2::SSLPermissionsVerifier
      *
      * @return A proxy for the newly created session.
      *
@@ -84,10 +94,10 @@ interface Registry
 
     /**
      *
-     * Create an administrative session.
+     * Create an administrative session from a secure connection.
      *
      * @see Session
-     * @see Glacier2::PermissionsVerifier
+     * @see Glacier2::SSLPermissionsVerifier
      *
      * @return A proxy for the newly created session.
      *
