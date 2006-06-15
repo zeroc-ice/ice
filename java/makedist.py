@@ -233,7 +233,7 @@ for x in filesToRemove:
 #
 # Remove other unnecessary subdirectories.
 #
-shutil.rmtree("admin")
+#shutil.rmtree("admin")
 shutil.rmtree("depcache")
 
 os.chdir(cwd)
