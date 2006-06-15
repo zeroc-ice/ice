@@ -504,7 +504,8 @@ def _transformDirectories(transforms, version, installDir):
 
 	try:
 	    if not os.path.isdir(sourcedir):
-		os.renames(source, dest)
+		if os.path.exists(source):
+		    os.renames(source, dest)
 	    else:
 		# 
 		# This is a special problem.  What this implies is that
@@ -517,7 +518,8 @@ def _transformDirectories(transforms, version, installDir):
 		    os.renames("./tmp/" + sourcedir, destdir)	
 		else:
 		    print 'Renaming ' + source + ' to ' + dest
-		    os.renames(source, dest)
+		    if os.path.exists(source):
+			os.renames(source, dest)
 
 	except OSError:
 	    print "Exception occurred while trying to transform " + source + " to " + dest
