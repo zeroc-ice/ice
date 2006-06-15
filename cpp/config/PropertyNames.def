@@ -379,7 +379,6 @@ Glacier2:
     Client.Trace.Request
     Filter.Address.Reject
     Filter.Address.Accept
-    Filter.Address.AcceptOverride
     Filter.MaxProxyLength
     Filter.Category.Accept
     Filter.AdapterId.Accept

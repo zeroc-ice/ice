@@ -885,8 +885,7 @@ Glacier2::ProxyVerifier::ProxyVerifier(const CommunicatorPtr& communicator, cons
     {
 	_rejectRules.push_back(new MaxEndpointsRule(communicator, s, _traceLevel));
     }
-    _acceptOverrides =
-	communicator->getProperties()->getPropertyAsIntWithDefault("Glacier2.Filter.Address.AcceptOverride", 0) != 0;
+    
 }
 
 Glacier2::ProxyVerifier::~ProxyVerifier()
@@ -930,48 +929,9 @@ Glacier2::ProxyVerifier::verify(const ObjectPrx& proxy)
     }
     else
     {
-	//
-	// _acceptOverrides indicates that any accept rules can be
-	// overriden by a reject rule. This allows the user to refine
-	// the allow filter's without having to specify exclusions in
-	// the accept filter's regular expression. Conversely if
-	// _acceptOverrides is not set then accept rules are allowed to
-	// override any reject rules that match.
-	//
-	// Note that there is implicit additional meaning in the
-	// _acceptOverrides. If true, then the overall evaluation
-	// context is 'default reject'. Otherwise there would be no
-	// point in considering the allow filters and we might as well
-	// just check the reject filters. Conversely, if false then
-	// overall context is 'default accept'. Otherwise the accept
-	// filters would be meaningless, only the reject filters would
-	// matter.
-	//
-	if(_acceptOverrides)
+	if(match(_acceptRules, proxy))
 	{
-	    //
-	    // In this context we are default accept, there is not point
-	    // of running the accept filters if there is no rejection
-	    // match.
-	    //
 	    result = !match(_rejectRules, proxy);
-	    if(!result)
-	    {
-		result = match(_acceptRules, proxy);
-	    }
-	}
-	else
-	{
-	    //
-	    // In this context we are default reject, there is no point
-	    // of running the reject filters if there is no accept
-	    // match.
-	    //
-	    result = match(_acceptRules, proxy);
-	    if(result)
-	    {
-		result = !match(_rejectRules, proxy);
-	    }
 	}
     }
 

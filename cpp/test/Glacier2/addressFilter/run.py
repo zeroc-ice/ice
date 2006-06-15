@@ -116,14 +116,10 @@ if not limitedTests:
              [(False, 'hello:tcp -h %s -p 12010' % fqdn),
               (True, 'hello:tcp -h %s -p 12010' % hostname),
               (True, 'bar:tcp -h 127.0.0.1 -p 12010')], []),
-            ('Testing domain filter rule (reject override)',
+            ('Testing domain filter rule (mixed)',
              ("127.0.0.1", fqdn, r''),
-             [(False, 'hello:tcp -h %s -p 12010' % fqdn),
-              (True, 'bar:tcp -h 127.0.0.1 -p 12010')], ["Glacier2.Filter.Address.AcceptOverride=0"]),
-            ('Testing domain filter rule (accept override)',
-             (fqdn, "127.0.0.1", r''),
-             [(True, 'hello:tcp -h %s -p 12010' % fqdn),
-              (False, 'bar:tcp -h 127.0.0.1 -p 12010')], ["Glacier2.Filter.Address.AcceptOverride=1"]),
+	     [(False, 'hello:tcp -h %s -p 12010:tcp -h 127.0.0.1 -p 12010' % fqdn),
+              (True, 'bar:tcp -h 127.0.0.1 -p 12010')], []),
 	    ])
 
 if len(testcases) == 0:
