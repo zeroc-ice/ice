@@ -1,6 +1,16 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Glacier2.AllowCategories is now deprecated and superseded by
+  Glacier2.Filter.Category.Accept.
+
+- A new address filtering mechanism has been added to the Glacier2 router.
+  See Glacier2.Filter.Address.Accept and Glacier2.Filter.Address.Reject
+  properties in the Ice documentation for details.
+
+- The Glacier2 router's identity based filtering is now modifiable at
+  runtime through the Glacier2::SessionControl interface.
+
 - Generating new streaming functions for a Slice structure. The
   ice_write and ice_read member functions replace their internal
   equivalents (__write and __read).
