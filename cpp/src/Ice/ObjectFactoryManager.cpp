@@ -1,3 +1,4 @@
+
 // **********************************************************************
 //
 // Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
@@ -39,41 +40,50 @@ IceInternal::ObjectFactoryManager::add(const ObjectFactoryPtr& factory, const st
 void
 IceInternal::ObjectFactoryManager::remove(const string& id)
 {
-    IceUtil::Mutex::Lock sync(*this);
-
-    FactoryMap::iterator p = _factoryMap.end();
-    if(_factoryMapHint != _factoryMap.end())
+    ObjectFactoryPtr factory = 0;
     {
-	if(_factoryMapHint->first == id)
+	IceUtil::Mutex::Lock sync(*this);
+	
+	FactoryMap::iterator p = _factoryMap.end();
+	if(_factoryMapHint != _factoryMap.end())
 	{
-	    p = _factoryMapHint;
+	    if(_factoryMapHint->first == id)
+	    {
+		p = _factoryMapHint;
+	    }
 	}
-    }
-    
-    if(p == _factoryMap.end())
-    {
-	p = _factoryMap.find(id);
+	
 	if(p == _factoryMap.end())
 	{
-	    NotRegisteredException ex(__FILE__, __LINE__);
-	    ex.kindOfObject = "object factory";
-	    ex.id = id;
-	    throw ex;
+	    p = _factoryMap.find(id);
+	    if(p == _factoryMap.end())
+	    {
+		NotRegisteredException ex(__FILE__, __LINE__);
+		ex.kindOfObject = "object factory";
+		ex.id = id;
+		throw ex;
+	    }
+	}
+	assert(p != _factoryMap.end());
+	
+	factory = p->second;
+	
+	if(p == _factoryMapHint)
+	{
+	    _factoryMap.erase(p++);
+	    _factoryMapHint = p;
+	}
+	else
+	{
+	    _factoryMap.erase(p);
 	}
     }
-    assert(p != _factoryMap.end());
     
-    p->second->destroy();
-
-    if(p == _factoryMapHint)
-    {
-	_factoryMap.erase(p++);
-	_factoryMapHint = p;
-    }
-    else
-    {
-	_factoryMap.erase(p);
-    }
+    //
+    // Destroy outside the lock
+    //
+    assert(factory != 0);
+    factory->destroy();
 }
 
 ObjectFactoryPtr
@@ -116,10 +126,16 @@ IceInternal::ObjectFactoryManager::ObjectFactoryManager() :
 void
 IceInternal::ObjectFactoryManager::destroy()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    FactoryMap oldMap;
+    {
+	IceUtil::Mutex::Lock sync(*this);
+	oldMap.swap(_factoryMap);
+	_factoryMapHint = _factoryMap.end();
+    }
 
-    for_each(_factoryMap.begin(), _factoryMap.end(),
+    //
+    // Destroy all outside lock
+    //
+    for_each(oldMap.begin(), oldMap.end(),
 	     Ice::secondVoidMemFun<const string, ObjectFactory>(&ObjectFactory::destroy));
-    _factoryMap.clear();
-    _factoryMapHint = _factoryMap.end();
 }

@@ -371,14 +371,14 @@ public class Coordinator
     {
 	if(_communicator == null)
 	{
-	    _communicator = createCommunicator(_properties);
+	    _communicator = Ice.Util.initialize(_initData);
 	}
 	return _communicator;
     }
 
     public Ice.Properties getProperties()
     {
-	return _properties;
+	return _initData.properties;
     }
 
     public Tab getCurrentTab()
@@ -809,14 +809,15 @@ public class Coordinator
 	//
 	// Transform SSL info into properties
 	//
-	Ice.Properties properties = _properties._clone();
-	properties.setProperty("IceSSL.Keystore", info.keystore);
-	properties.setProperty("IceSSL.Password", new String(info.keyPassword));
-	properties.setProperty("IceSSL.KeystorePassword", new String(info.keystorePassword));
-	properties.setProperty("IceSSL.Alias", info.alias);
-	properties.setProperty("IceSSL.Truststore", info.truststore);
-	properties.setProperty("IceSSL.TruststorePassword", new String(info.truststorePassword));
-	_communicator = createCommunicator(properties);
+	Ice.InitializationData initData = (Ice.InitializationData)_initData.clone();
+	initData.properties = initData.properties._clone();
+	initData.properties.setProperty("IceSSL.Keystore", info.keystore);
+	initData.properties.setProperty("IceSSL.Password", new String(info.keyPassword));
+	initData.properties.setProperty("IceSSL.KeystorePassword", new String(info.keystorePassword));
+	initData.properties.setProperty("IceSSL.Alias", info.alias);
+	initData.properties.setProperty("IceSSL.Truststore", info.truststore);
+	initData.properties.setProperty("IceSSL.TruststorePassword", new String(info.truststorePassword));
+	_communicator = Ice.Util.initialize(initData);
 
 	if(info.routed)
 	{
@@ -1204,60 +1205,40 @@ public class Coordinator
     
     static private Ice.Properties createProperties(Ice.StringSeqHolder args)
     {
-	Ice.Properties properties = Ice.Util.createProperties(args);
-
+	Ice.Properties properties = Ice.Util.createProperties();
+	
 	//
 	// Set various default values
 	//
-	if(properties.getProperty("Ice.Override.ConnectTimeout").equals(""))
-	{
-	    properties.setProperty("Ice.Override.ConnectTimeout", "5000");
-	}
-
-	if(properties.getProperty("IceGrid.AdminGUI.Endpoints").equals(""))
-	{
-	    properties.setProperty("IceGrid.AdminGUI.Endpoints", "tcp -t 10000");
-	}
-	   
-        //
+	properties.setProperty("Ice.Override.ConnectTimeout", "5000");
+	properties.setProperty("IceGrid.AdminGUI.Endpoints", "tcp -t 10000");
+	
+	//
         // For SSL with JDK 1.4
         //
-	if(properties.getProperty("Ice.ThreadPerConnection").equals(""))
-	{
-	    properties.setProperty("Ice.ThreadPerConnection", "1");
-	}
+	properties.setProperty("Ice.ThreadPerConnection", "1");
 
 	//
 	// For Glacier
 	//
-	if(properties.getProperty("Ice.ACM.Client").equals(""))
-	{
-	    properties.setProperty("Ice.ACM.Client", "0");
-	}
-	if(properties.getProperty("Ice.MonitorConnections").equals(""))
-	{
-	    properties.setProperty("Ice.MonitorConnections", "5");
-	}
+	properties.setProperty("Ice.ACM.Client", "0");
+	properties.setProperty("Ice.MonitorConnections", "5");
 	
 	//
 	// Disable retries
 	//
 	properties.setProperty("Ice.RetryIntervals", "-1");
-	return properties;
-    }
-
-    static private Ice.Communicator createCommunicator(Ice.Properties properties)
-    {
-	Ice.InitializationData initData = new Ice.InitializationData();
-	initData.properties = properties;
-	return Ice.Util.initialize(new String[0], initData);
+	
+	return Ice.Util.createProperties(args, properties);
     }
 
     Coordinator(JFrame mainFrame, Ice.StringSeqHolder args, Preferences prefs)
     {	
 	_mainFrame = mainFrame;
 	_prefs = prefs;
-	_properties = createProperties(args);
+	_initData = new Ice.InitializationData();
+
+	_initData.properties = createProperties(args);
 	
 	if(args.value.length > 0)
 	{
@@ -1895,7 +1876,7 @@ public class Coordinator
     }	
 
 
-    private final Ice.Properties _properties;
+    private final Ice.InitializationData _initData;
     private Ice.Communicator _communicator;
 
     private Preferences _prefs;
