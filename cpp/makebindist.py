@@ -982,6 +982,15 @@ def main():
         installDir = os.environ.get('HOME') + '/tmp/iceinstall'
 
     #
+    # Primarily for debugging spec file creation.
+    #
+    if printSpecFile:
+	version, soVersion = getVersion(cvsTag, buildDir)
+	RPMTools.createFullSpecFile(sys.stdout, installDir, version, soVersion)
+        sys.exit(0)
+
+
+    #
     # We need to clean the directory out to keep obsolete files from
     # being installed.  This needs to happen whether we are running with
     # noclean or not.
@@ -1028,12 +1037,6 @@ def main():
             print '(RPMs will be built)'
         print
 
-    #
-    # Primarily for debugging spec file creation.
-    #
-    if printSpecFile:
-	createRPMSFromBinaries(sys.stdout, installDir, version, soVersion)
-        sys.exit(0)
 
     if not cvsMode:
 	#

@@ -278,6 +278,7 @@ done
 # NOTE: File transforms should be listed before directory transforms.
 #
 transforms = [ ('file', 'ice.ini', 'etc/php.d/ice.ini'),
+	       ('dir', 'lib', 'usr/lib'),
 	       ('dir', '%{icelibdir}', 'usr/%{icelibdir}'),
 	       ('file', 'usr/%{icelibdir}/icephp.so', 'usr/%{icelibdir}/php/modules/icephp.so'),
 	       ('file', 'usr/lib/Ice.jar', 'usr/lib/Ice-%version%/Ice.jar' ),
@@ -342,7 +343,7 @@ fileLists = [
              ('lib', '%{icelibdir}/libIceXML.so.VERSION'),
              ('lib', '%{icelibdir}/libSlice.so.VERSION'),
              ('lib', '%{icelibdir}/libIceGrid.so.VERSION'),
-	     ('dir', '%{icelibdir}/Ice-%version%/IceGridGUI.jar'),
+	     ('dir', 'lib/Ice-%version%/IceGridGUI.jar'),
              ('dir', 'share/doc/Ice-%version%/doc'),
              ('xdir', 'share/doc/Ice-%version%/certs'),
 	     ('file', 'share/doc/Ice-%version%/certs/cacert.pem'),
@@ -690,6 +691,10 @@ def writeInstallCommands(ofile, version):
 rm -rf $RPM_BUILD_ROOT
 cd $RPM_BUILD_DIR/Ice-%{version}
 gmake RPM_BUILD_ROOT=$RPM_BUILD_ROOT install
+if test ! -d $RPM_BUILD_ROOT/lib;
+then
+    mkdir -p $RPM_BUILD_ROOT/lib
+fi
 cp -p $RPM_BUILD_DIR/IceJ-%{version}/lib/Ice.jar $RPM_BUILD_ROOT/lib/Ice.jar
 cp -p $RPM_BUILD_DIR/IceJ-%{version}/lib/IceGridGUI.jar $RPM_BUILD_ROOT/lib/IceGridGUI.jar
 cp -pR $RPM_BUILD_DIR/IceJ-%{version}/ant $RPM_BUILD_ROOT
@@ -701,18 +706,22 @@ export LD_LIBRARY_PATH=$RPM_BUILD_DIR/Ice-%{version}/lib:$LD_LIBRARY_PATH
 gmake NOGAC=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT install
 cp $RPM_SOURCE_DIR/README.Linux-RPM $RPM_BUILD_ROOT/README
 cp $RPM_SOURCE_DIR/ice.ini $RPM_BUILD_ROOT/ice.ini
-cp $RPM_BUILD_DIR/php-5.1.4/modules/ice.so $RPM_BUILD_ROOT/lib/icephp.so
+if test ! -d $RPM_BUILD_ROOT/%{icelibdir};
+then
+    mkdir -p $RPM_BUILD_ROOT/%{icelibdir}
+fi
+cp $RPM_BUILD_DIR/php-5.1.4/modules/ice.so $RPM_BUILD_ROOT/%{icelibdir}/icephp.so
 cp -pR $RPM_BUILD_DIR/Ice-%{version}-demos/config $RPM_BUILD_ROOT
 cp $RPM_SOURCE_DIR/iceproject.xml $RPM_BUILD_ROOT/config
-if test ! -d $RPM_BUILD_ROOT/usr/lib/pkgconfig ; 
+if test ! -d $RPM_BUILD_ROOT/%{icelibdir}/pkgconfig ; 
 then 
-    mkdir $RPM_BUILD_ROOT/lib/pkgconfig
+    mkdir $RPM_BUILD_ROOT/%{icelibdir}/pkgconfig
 fi
 
 for f in icecs glacier2cs iceboxcs icegridcs icepatch2cs icestormcs; 
 do 
     cp $RPM_BUILD_DIR/IceCS-%{version}/bin/$f.dll $RPM_BUILD_ROOT/bin
-    cp $RPM_BUILD_DIR/IceCS-%{version}/lib/pkgconfig/$f.pc $RPM_BUILD_ROOT/lib/pkgconfig 
+    cp $RPM_BUILD_DIR/IceCS-%{version}/lib/pkgconfig/$f.pc $RPM_BUILD_ROOT/%{icelibdir}/pkgconfig 
 done
 
 """)
@@ -744,8 +753,11 @@ def writeTransformCommands(ofile, version):
 		ofile.write('rm -rf $RPM_BUILD_ROOT/arraftmp\n')
 	    elif os.path.dirname(dest) <> '':
 		ofile.write('# Rule 3\n')
-		ofile.write('mkdir -p $RPM_BUILD_ROOT/' + os.path.dirname(dest) + '\n')
-		ofile.write('mv $RPM_BUILD_ROOT/' + source + ' $RPM_BUILD_ROOT/' + dest + '\n')
+		ofile.write('if test -d $RPM_BUILD_ROOT/' + source + '\n')
+		ofile.write('then\n')
+		ofile.write('    mkdir -p $RPM_BUILD_ROOT/' + os.path.dirname(dest) + '\n')
+		ofile.write('    mv $RPM_BUILD_ROOT/' + source + ' $RPM_BUILD_ROOT/' + dest + '\n')
+		ofile.write('fi\n')
 	    else:
 		ofile.write('# Rule 4\n')
 		ofile.write('mv $RPM_BUILD_ROOT/usr/' + source + ' $RPM_BUILD_ROOT/usr/' + dest + '\n')
