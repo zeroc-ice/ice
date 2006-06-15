@@ -32,9 +32,10 @@ namespace IceInternal
 	
 	public void remove(string id)
 	{
+	    object o = null;
 	    lock(this)
 	    {
-		object o = _factoryMap[id];
+		o = _factoryMap[id];
 		if(o == null)
 		{
 		    Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
@@ -42,11 +43,9 @@ namespace IceInternal
 		    ex.kindOfObject = "object factory";
 		    throw ex;
 		}
-
-		((Ice.ObjectFactory)o).destroy();
-
 		_factoryMap.Remove(id);
 	    }
+	    ((Ice.ObjectFactory)o).destroy();
 	}
 	
 	public Ice.ObjectFactory find(string id)
@@ -67,13 +66,17 @@ namespace IceInternal
 	
 	internal void destroy()
 	{
+	    Hashtable oldMap = null;
+
 	    lock(this)
 	    {
-		foreach(Ice.ObjectFactory factory in _factoryMap.Values)
-		{
-		    factory.destroy();
-		}
-		_factoryMap.Clear();
+		oldMap = _factoryMap;
+		_factoryMap = new Hashtable();
+	    }
+
+	    foreach(Ice.ObjectFactory factory in oldMap.Values)
+	    {
+		factory.destroy();
 	    }
 	}
 	
