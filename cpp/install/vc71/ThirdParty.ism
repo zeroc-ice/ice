@@ -1136,7 +1136,8 @@
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
 		<row><td>ICE_3.0.1_THIRDPARTY</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.1.0-ThirdParty</td><td/><td>0</td><td/></row>
-		<row><td>INSTALLDIR</td><td>ICE_3.0.1_THIRDPARTY</td><td>.</td><td/><td>0</td><td/></row>
+		<row><td>ICE_3.1.0_THIRDPARTY_VC71</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.1.0-ThirdParty-VC71</td><td/><td>0</td><td/></row>
+		<row><td>INSTALLDIR</td><td>ICE_3.1.0_THIRDPARTY_VC71</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
 		<row><td>ISMyProductDir</td><td>ISMyCompanyDir</td><td>MYPROD~1|My Product Name</td><td/><td>0</td><td/></row>
