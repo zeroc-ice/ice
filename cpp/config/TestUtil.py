@@ -326,6 +326,18 @@ def printOutputFromPipe(pipe):
             break
         os.write(1, c)
 
+def addLdPath(path):
+    if isWin32():
+	if isCygwin():
+	    os.environ["PATH"] = path + ":" + os.getenv("PATH", "")
+	else:
+	    os.environ["PATH"] = path + ";" + os.getenv("PATH", "")
+    elif isAIX():
+	os.environ["LIBPATH"] = path + ":" + os.getenv("LIBPATH", "")
+    else:
+	os.environ["LD_LIBRARY_PATH"] = path + ":" + os.getenv("LD_LIBRARY_PATH", "")
+	os.environ["LD_LIBRARY_PATH_64"] = path + ":" + os.getenv("LD_LIBRARY_PATH_64", "")
+
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):

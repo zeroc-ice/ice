@@ -24,13 +24,7 @@ import IceGridAdmin
 name = os.path.join("IceGrid", "deployer")
 testdir = os.path.join(toplevel, "test", name)
 
-if TestUtil.isWin32():
-    os.environ["PATH"] = testdir + ";" + os.getenv("PATH", "")
-elif TestUtil.isAIX():
-    os.environ["LIBPATH"] = testdir + ":" + os.getenv("LIBPATH", "")
-else:
-    os.environ["LD_LIBRARY_PATH"] = testdir + ":" + os.getenv("LD_LIBRARY_PATH", "")
-    os.environ["LD_LIBRARY_PATH_64"] = testdir + ":" + os.getenv("LD_LIBRARY_PATH_64", "")
+TestUtil.addLdPath(testdir)
 
 iceBox = TestUtil.getIceBox(testdir)
 
