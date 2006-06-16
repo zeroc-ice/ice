@@ -572,7 +572,6 @@ public:
 		{
 		    if(!(*i)->match(host, pos))
 		    {
-			dump();
 			return false;
 		    }
 		}

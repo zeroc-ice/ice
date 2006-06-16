@@ -82,7 +82,7 @@ testcases = []
 
 if TestUtil.protocol == "ssl":
     testcases = [ 
-	('Testing maximum endpoints rule',
+	('testing maximum endpoints rule',
 	 (r'', r'', r'1'),
 	 [(True, 'hello:tcp -h %s -p 12010' % hostname),
 	  (False, 'hello:tcp -h %s -p 12010:ssl -h %s -p 12011' % (hostname, hostname))], [])
@@ -90,13 +90,13 @@ if TestUtil.protocol == "ssl":
 
 if not limitedTests:
     testcases.extend([
-	    ('Testing reject all',
+	    ('testing reject all',
              (r'', r'*', r''),
              [(False, 'helloA:tcp -h %s -p 12010' % fqdn),
               (False, 'helloB:tcp -h %s -p 12010' % hostname),
 	      (False, 'helloC:tcp -h 127.0.0.1 -p 12010'),
 	      (True, 'bar @ foo')], []),
-	    ('Testing loopback only rule',
+	    ('testing loopback only rule',
              (r'127.0.0.1 localhost', r'', r''),
              [(False, 'hello:tcp -h %s -p 12010' % fqdn),
               (False, 'hello:tcp -h %s -p 12010' % hostname),
@@ -107,16 +107,16 @@ if not limitedTests:
               (True, 'localhost/127.0.0.1:tcp -h localhost -p 12010'),
               (True, r'hello:tcp -h 127.0.0.1 -p 12010'),
               (True, r'hello/somecat:tcp -h localhost -p 12010')], []),
-	    ('Testing domain filter rule (accept)',
+	    ('testing domain filter rule (accept)',
              ("*" + domainname, r'', r''),
              [(True, 'hello:tcp -h %s -p 12010' % fqdn),
               (False, 'hello:tcp -h %s -p 12010' % hostname)], []),
-	    ('Testing domain filter rule (reject)',
+	    ('testing domain filter rule (reject)',
              (r'', "*" + domainname, r''),
              [(False, 'hello:tcp -h %s -p 12010' % fqdn),
               (True, 'hello:tcp -h %s -p 12010' % hostname),
               (True, 'bar:tcp -h 127.0.0.1 -p 12010')], []),
-            ('Testing domain filter rule (mixed)',
+            ('testing domain filter rule (mixed)',
              ("127.0.0.1", fqdn, r''),
 	     [(False, 'hello:tcp -h %s -p 12010:tcp -h 127.0.0.1 -p 12010' % fqdn),
               (True, 'bar:tcp -h 127.0.0.1 -p 12010')], []),

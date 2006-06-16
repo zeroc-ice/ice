@@ -84,8 +84,6 @@ AttackClient::run(int argc, char* argv[])
 	}
 	catch(const LocalException& e)
 	{
-	    cerr << "The exception is: " << e << endl;
-	    cerr << "-----------------------" << endl;
 	    test("Unexpected local exception" == 0);
 	}
     }
