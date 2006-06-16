@@ -7,17 +7,18 @@
 //
 // **********************************************************************
 
-#ifndef HELLO_I_H
-#define HELLO_I_H
+#ifndef ECHO_ICE
+#define ECHO_ICE
 
-#include <Hello.h>
-
-class HelloI : public Demo::Hello
+module Demo
 {
-public:
 
-    virtual std::string sayHello(const std::string&, const Ice::Current&) const;
-    virtual void shutdown(const Ice::Current&);
+interface Echo
+{
+    nonmutating string echoString(string s);
+    idempotent void shutdown();
+};
+
 };
 
 #endif

@@ -7,12 +7,12 @@
 //
 // **********************************************************************
 
-#include <HelloI.h>
+#include <EchoI.h>
 #include <Ice/Application.h>
 
 using namespace std;
 
-class HelloServer : public Ice::Application
+class EchoServer : public Ice::Application
 {
 public:
 
@@ -22,15 +22,15 @@ public:
 int
 main(int argc, char* argv[])
 {
-    HelloServer app;
+    EchoServer app;
     return app.main(argc, argv, "config.server");
 }
 
 int
-HelloServer::run(int argc, char* argv[])
+EchoServer::run(int argc, char* argv[])
 {
-    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Hello");
-    adapter->add(new HelloI, communicator()->stringToIdentity("hello"));
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Echo");
+    adapter->add(new EchoI, communicator()->stringToIdentity("echo"));
     adapter->activate();
     communicator()->waitForShutdown();
     return EXIT_SUCCESS;

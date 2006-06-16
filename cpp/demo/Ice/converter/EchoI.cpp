@@ -7,21 +7,21 @@
 //
 // **********************************************************************
 
-#include <HelloI.h>
+#include <EchoI.h>
 #include <Ice/Ice.h>
 #include <IceUtil/StringUtil.h>
 
 using namespace std;
 
 string
-HelloI::sayHello(const std::string& uber, const Ice::Current&) const
+EchoI::echoString(const std::string& uber, const Ice::Current&) const
 {
     cout << "Received (UTF-8): \"" << IceUtil::escapeString(uber, "") << '\"' << endl;
     return "Bonne journ\303\251e";
 }
 
 void
-HelloI::shutdown(const Ice::Current& c)
+EchoI::shutdown(const Ice::Current& c)
 {
     cout << "Shutting down..." << endl;
     c.adapter->getCommunicator()->shutdown();

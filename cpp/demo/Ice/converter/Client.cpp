@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Application.h>
-#include <Hello.h>
+#include <Echo.h>
 #include <StringConverterI.h>
 #include <IceUtil/StringUtil.h>
 
@@ -31,7 +31,7 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator1, const Ice::CommunicatorPtr& communicator2)
 {
     Ice::PropertiesPtr properties = communicator1->getProperties();
-    const char* proxyProperty = "Hello.Proxy";
+    const char* proxyProperty = "Echo.Proxy";
     string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
     {
@@ -39,15 +39,15 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator1, const Ice
 	return EXIT_FAILURE;
     }
 
-    HelloPrx hello1 = HelloPrx::checkedCast(communicator1->stringToProxy(proxy));
-    if(!hello1)
+    EchoPrx echo1 = EchoPrx::checkedCast(communicator1->stringToProxy(proxy));
+    if(!echo1)
     {
 	cerr << argv[0] << ": invalid proxy" << endl;
 	return EXIT_FAILURE;
     }
 
-    HelloPrx hello2 = HelloPrx::checkedCast(communicator2->stringToProxy(proxy));
-    if(!hello2)
+    EchoPrx echo2 = EchoPrx::checkedCast(communicator2->stringToProxy(proxy));
+    if(!echo2)
     {
 	cerr << argv[0] << ": invalid proxy" << endl;
 	return EXIT_FAILURE;
@@ -55,7 +55,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator1, const Ice
 
     menu();
 
-    string greeting = properties->getProperty("Send.String");
+    string greeting = "Bonne journ\351e";
 
     char c;
     do
@@ -66,17 +66,17 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator1, const Ice
 	    cin >> c;
 	    if(c == 't')
 	    {
-		string ret = hello1->sayHello(greeting);
+		string ret = echo1->echoString(greeting);
 		cout << "Received (LATIN-1): \"" << IceUtil::escapeString(ret, "") << '\"' << endl;
 	    }
 	    else if(c == 'u')
 	    {
-		string ret = hello2->sayHello(greeting);
+		string ret = echo2->echoString(greeting);
 		cout << "Received (LATIN-1): \"" << IceUtil::escapeString(ret, "") << '\"' << endl;
 	    }
 	    else if(c == 's')
 	    {
-		hello1->shutdown();
+		echo1->shutdown();
 	    }
 	    else if(c == 'x')
 	    {
