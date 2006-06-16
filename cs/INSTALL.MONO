@@ -127,4 +127,6 @@ Known Issues
 - Binary compatibility: Mono currently has issues with forwarding
   requests to load a particular version of the runtime to a different
   version. Until this is resolved in Mono, you cannot run applications
-  compiled with 3.0.0 against the 3.0.1 runtime.
+  compiled with previous minor version of Ice against a newer version of
+  the Ice run time. For example, an application compiled with version
+  x.y.0 of Ice cannot run with the x.y.1 Ice assemblies.
