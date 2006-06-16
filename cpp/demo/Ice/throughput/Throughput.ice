@@ -14,7 +14,7 @@ module Demo
 {
 
 sequence<byte> ByteSeq;
-const int ByteSeqSize = 50000;
+const int ByteSeqSize = 500000;
 
 sequence<string> StringSeq;
 const int StringSeqSize = 50000;
