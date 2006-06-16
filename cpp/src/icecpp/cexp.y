@@ -242,6 +242,16 @@ static void integer_overflow PROTO((void));
 /* `signedp' values */
 #define SIGNED (~0)
 #define UNSIGNED 0
+
+//
+// Required to allow the code to compile with VC 8 with bison 2.1.
+//
+#if _MSC_VER==1400
+#   define __STDC__
+#   define YYMALLOC
+#   define YYFREE
+#endif
+
 %}
 
 %union {
@@ -271,7 +281,6 @@ static void integer_overflow PROTO((void));
 %right UNARY
 
 /* %expect 40 */
-
 %%
 
 start   :	exp1
