@@ -33,138 +33,91 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     {
 	IceInternal.LocatorInfo locatorInfo = null;
         boolean registerProcess = false;
-        String serverId = "";
-        Communicator communicator = null;
 	boolean printAdapterReady = false;
 
 	synchronized(this)
 	{
 	    checkForDeactivation();
 	    
-	    if(!_printAdapterReadyDone)
+	    //
+	    // If the one off initializations of the adapter are already
+	    // done, we just need to activate the incoming connection
+	    // factories and we're done.
+	    //
+	    if(_activateOneOffDone)
 	    {
-		locatorInfo = _locatorInfo;
-                registerProcess =
-		    _instance.initializationData().properties.getPropertyAsInt(_name + ".RegisterProcess") > 0;
-                serverId = _instance.initializationData().properties.getProperty("Ice.ServerId");
-		printAdapterReady =
-		    _instance.initializationData().properties.getPropertyAsInt("Ice.PrintAdapterReady") > 0;
-                communicator = _communicator;
-		_printAdapterReadyDone = true;
+		final int sz = _incomingConnectionFactories.size();
+		for(int i = 0; i < sz; ++i)
+		{
+		    IceInternal.IncomingConnectionFactory factory =
+			(IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
+		    factory.activate();
+		}		
+		return;
 	    }
+
+	    //
+	    // One off initializations of the adapter: update the
+	    // locator registry and print the "adapter ready"
+	    // message. We set the _waitForActivate flag to prevent
+	    // deactivation from other threads while these one off
+	    // initializations are done.
+	    //
+	    _waitForActivate = true;
 	    
-	    final int sz = _incomingConnectionFactories.size();
-	    for(int i = 0; i < sz; ++i)
-	    {
-		IceInternal.IncomingConnectionFactory factory =
-                (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
-		factory.activate();
-	    }
+	    locatorInfo = _locatorInfo;
+	    final Properties properties = _instance.initializationData().properties;
+	    registerProcess = properties.getPropertyAsInt(_name +".RegisterProcess") > 0;
+	    printAdapterReady = properties.getPropertyAsInt("Ice.PrintAdapterReady") > 0;
 	}
 
-	if(registerProcess || _id.length() > 0)
+	try
+	{
+	    Ice.Identity dummy = new Ice.Identity();
+	    dummy.name = "dummy";
+	    updateLocatorRegistry(locatorInfo, createDirectProxy(dummy), registerProcess);
+	}
+	catch(Ice.LocalException ex)
 	{
 	    //
-	    // We must get and call on the locator registry outside the thread
-	    // synchronization to avoid deadlocks. (we can't make remote calls
-	    // within the OA synchronization because the remote call will
-	    // indirectly call isLocal() on this OA with the OA factory
-	    // locked).
+	    // If we couldn't update the locator registry, we let the
+	    // exception go through and don't activate the adapter to
+	    // allow to user code to retry activating the adapter
+	    // later.
 	    //
-
-	    LocatorRegistryPrx locatorRegistry = null;
-	    if(locatorInfo != null)
+	    synchronized(this)
 	    {
-		//
-		// TODO: This might throw if we can't connect to the
-		// locator. Shall we raise a special exception for the
-		// activate operation instead of a non obvious network
-		// exception?
-		//
-		locatorRegistry = _locatorInfo.getLocatorRegistry();
+		_waitForActivate = false;
+		notifyAll();
 	    }
-	    
-	    if(locatorRegistry != null && _id.length() > 0)
-	    {
-		try
-		{
-		    Identity ident = new Identity();
-		    ident.category = "";
-		    ident.name = "dummy";
-		    if(_replicaGroupId.length() == 0)
-		    {
-			locatorRegistry.setAdapterDirectProxy(_id, createDirectProxy(ident));
-		    }
-		    else
-		    {
-			locatorRegistry.setReplicatedAdapterDirectProxy(_id, _replicaGroupId,createDirectProxy(ident));
-		    }
-		}
-		catch(ObjectAdapterDeactivatedException ex)
-		{
-		    // IGNORE: The object adapter is already inactive.
-		}
-		catch(AdapterNotFoundException ex)
-		{
-		    NotRegisteredException ex1 = new NotRegisteredException();
-		    ex1.kindOfObject = "object adapter";
-		    ex1.id = _id;
-		    throw ex1;
-		}
-		catch(InvalidReplicaGroupIdException ex)
-		{
-		    NotRegisteredException ex1 = new NotRegisteredException();
-		    ex1.kindOfObject = "replica group";
-		    ex1.id = _replicaGroupId;
-		    throw ex1;
-		}
-		catch(AdapterAlreadyActiveException ex)
-		{
-		    ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
-		    ex1.id = _id;
-		    throw ex1;
-		}
-	    }
-
-            if(registerProcess)
-            {
-		if(locatorRegistry == null)
-		{
-		    communicator.getLogger().warning("object adapter `" + _name + "' cannot register the process " +
-						     "without a locator registry");
-		}
-		else if(serverId.length() == 0)
-		{
-		    communicator.getLogger().warning("object adapter `" + _name + "' cannot register the process " +
-						     "without a value for Ice.ServerId");
-		}
-		else
-		{
-		    try
-		    {
-			Process servant = new ProcessI(communicator);
-			Ice.ObjectPrx proxy = createDirectProxy(addWithUUID(servant).ice_getIdentity());
-			locatorRegistry.setServerProcessProxy(serverId, ProcessPrxHelper.uncheckedCast(proxy));
-		    }
-		    catch(ObjectAdapterDeactivatedException ex)
-		    {
-			// IGNORE: The object adapter is already inactive.
-		    }
-		    catch(ServerNotFoundException ex)
-		    {
-			NotRegisteredException ex1 = new NotRegisteredException();
-			ex1.id = serverId;
-			ex1.kindOfObject = "server";
-			throw ex1;
-		    }
-		}
-	    }
+	    throw ex;
 	}
 
 	if(printAdapterReady)
 	{
 	    System.out.println(_name + " ready");
 	}
+
+	synchronized(this)
+	{
+	    assert(!_deactivated); // Not possible if _waitForActivate = true;
+	    
+	    //
+	    // Signal threads waiting for the activation.
+	    //
+	    _waitForActivate = false;
+	    notifyAll();
+
+	    _activateOneOffDone = true;
+	    
+	    final int sz = _incomingConnectionFactories.size();
+	    for(int i = 0; i < sz; ++i)
+	    {
+		IceInternal.IncomingConnectionFactory factory =
+		    (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
+		factory.activate();
+	    }
+	}	
     }
 
     public synchronized void
@@ -200,6 +153,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     {
 	IceInternal.OutgoingConnectionFactory outgoingConnectionFactory;
 	java.util.ArrayList incomingConnectionFactories;
+	IceInternal.LocatorInfo locatorInfo;
 	synchronized(this)
 	{
 	    //
@@ -210,6 +164,23 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    {
 		return;
 	    }
+
+	    //
+	    //
+	    // Wait for activation to complete. This is necessary to not 
+	    // get out of order locator updates.
+	    //
+	    while(_waitForActivate)
+	    {
+		try
+		{
+		    wait();
+		}
+		catch(InterruptedException ex)
+		{
+		}
+	    }
+	
 
 	    if(_routerInfo != null)
 	    {
@@ -226,10 +197,23 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    
 	    incomingConnectionFactories = new java.util.ArrayList(_incomingConnectionFactories);
 	    outgoingConnectionFactory = _instance.outgoingConnectionFactory();
-	    
+	    locatorInfo = _locatorInfo;
+
 	    _deactivated = true;
 	    
 	    notifyAll();
+	}
+
+	try
+	{
+	    updateLocatorRegistry(locatorInfo, null, false);
+	}
+	catch(Ice.LocalException ex)
+	{
+	    //
+	    // We can't throw exceptions in deactivate so we ignore
+	    // failures to update the locator registry.
+	    //
 	}
 
 	//
@@ -707,11 +691,12 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	_communicator = communicator;
 	_objectAdapterFactory = objectAdapterFactory;
 	_servantManager = new IceInternal.ServantManager(instance, name);
-	_printAdapterReadyDone = false;
+	_activateOneOffDone = false;
         _name = name;
 	_id = instance.initializationData().properties.getProperty(name + ".AdapterId");
 	_replicaGroupId = instance.initializationData().properties.getProperty(name + ".ReplicaGroupId");
 	_directCount = 0;
+ 	_waitForActivate = false;
 	_waitForDeactivate = false;
 	
         try
@@ -883,6 +868,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    IceUtil.Assert.FinalizerAssert(_communicator == null);
 	    IceUtil.Assert.FinalizerAssert(_incomingConnectionFactories == null);
 	    IceUtil.Assert.FinalizerAssert(_directCount == 0);
+	    IceUtil.Assert.FinalizerAssert(!_waitForActivate);
 	    IceUtil.Assert.FinalizerAssert(!_waitForDeactivate);
 	}
 
@@ -1028,6 +1014,106 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	return endpoints;
     }
 
+    private void
+    updateLocatorRegistry(IceInternal.LocatorInfo locatorInfo, Ice.ObjectPrx proxy, boolean registerProcess)
+    {
+	if(!registerProcess && _id.length() == 0)
+	{
+	    return; // Nothing to update.
+	}
+
+	//
+	// We must get and call on the locator registry outside the
+	// thread synchronization to avoid deadlocks. (we can't make
+	// remote calls within the OA synchronization because the
+	// remote call will indirectly call isLocal() on this OA with
+	// the OA factory locked).
+	//
+	// TODO: This might throw if we can't connect to the
+	// locator. Shall we raise a special exception for the
+	// activate operation instead of a non obvious network
+	// exception?
+	//
+	LocatorRegistryPrx locatorRegistry = locatorInfo != null ? locatorInfo.getLocatorRegistry() : null;
+	String serverId = "";
+	if(registerProcess)
+	{
+	    assert(_instance != null);
+	    serverId = _instance.initializationData().properties.getProperty("Ice.ServerId");
+
+	    if(locatorRegistry == null)
+	    {
+		_instance.initializationData().logger.warning(
+		    "object adapter `" + _name + "' cannot register the process without a locator registry");
+	    }
+	    else if(serverId.length() == 0)
+	    {
+		_instance.initializationData().logger.warning(
+		    "object adapter `" + _name + "' cannot register the process without a value for Ice.ServerId");
+	    }
+	}
+
+	if(locatorRegistry == null)
+	{
+	    return;
+	}
+
+	if(_id.length() > 0)
+	{
+	    try
+	    {
+		Identity ident = new Identity();
+		ident.category = "";
+		ident.name = "dummy";
+		if(_replicaGroupId.length() == 0)
+		{
+		    locatorRegistry.setAdapterDirectProxy(_id, proxy);
+		}
+		else
+		{
+		    locatorRegistry.setReplicatedAdapterDirectProxy(_id, _replicaGroupId, proxy);
+		}
+	    }
+	    catch(AdapterNotFoundException ex)
+	    {
+		NotRegisteredException ex1 = new NotRegisteredException();
+		ex1.kindOfObject = "object adapter";
+		ex1.id = _id;
+		throw ex1;
+	    }
+	    catch(InvalidReplicaGroupIdException ex)
+	    {
+		NotRegisteredException ex1 = new NotRegisteredException();
+		ex1.kindOfObject = "replica group";
+		ex1.id = _replicaGroupId;
+		throw ex1;
+	    }
+	    catch(AdapterAlreadyActiveException ex)
+	    {
+		ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
+		ex1.id = _id;
+		throw ex1;
+	    }
+	}
+	
+	if(registerProcess && serverId.length() > 0)
+	{
+	    try
+	    {
+		Process servant = new ProcessI(_communicator);
+		Ice.ObjectPrx process = createDirectProxy(addWithUUID(servant).ice_getIdentity());
+		locatorRegistry.setServerProcessProxy(serverId, ProcessPrxHelper.uncheckedCast(process));
+	    }
+	    catch(ServerNotFoundException ex)
+	    {
+		NotRegisteredException ex1 = new NotRegisteredException();
+		ex1.id = serverId;
+		ex1.kindOfObject = "server";
+		throw ex1;
+	    }
+	}
+    }    
+
     private static class ProcessI extends _ProcessDisp
     {
         ProcessI(Communicator communicator)
@@ -1068,7 +1154,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     private IceInternal.ObjectAdapterFactory _objectAdapterFactory;
     private IceInternal.ThreadPool _threadPool;
     private IceInternal.ServantManager _servantManager;
-    private boolean _printAdapterReadyDone;
+    private boolean _activateOneOffDone;
     final private String _name;
     final private String _id;
     final private String _replicaGroupId;
@@ -1078,5 +1164,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     private java.util.ArrayList _publishedEndpoints = new java.util.ArrayList();
     private IceInternal.LocatorInfo _locatorInfo;
     private int _directCount;
+    private boolean _waitForActivate;
     private boolean _waitForDeactivate;
 }
