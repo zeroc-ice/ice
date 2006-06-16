@@ -104,13 +104,16 @@ private:
     void checkForDeactivation() const;
     static void checkIdentity(const Identity&);
     std::vector<IceInternal::EndpointPtr> parseEndpoints(const std::string&) const;
+#ifdef ICEE_HAS_LOCATOR
+    void updateLocatorRegistry(const IceInternal::LocatorInfoPtr&, const Ice::ObjectPrx&);
+#endif
 
     bool _deactivated;
     IceInternal::InstancePtr _instance;
     CommunicatorPtr _communicator;
     IceInternal::ObjectAdapterFactoryPtr _objectAdapterFactory;
     IceInternal::ServantManagerPtr _servantManager;
-    bool _printAdapterReadyDone;
+    bool _activateOneOffDone;
     const std::string _name;
 #ifdef ICEE_HAS_LOCATOR
     const std::string _id;
@@ -126,6 +129,7 @@ private:
     IceInternal::LocatorInfoPtr _locatorInfo;
 #endif
     int _directCount; // The number of direct proxies dispatching on this object adapter.
+    bool _waitForActivate;
     bool _waitForDeactivate;
 };
 

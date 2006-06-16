@@ -98,79 +98,53 @@ Ice::ObjectAdapter::activate()
 	
 	checkForDeactivation();
 
-	if(!_printAdapterReadyDone)
+	//
+	// If the one off initializations of the adapter are already
+	// done, we just need to activate the incoming connection
+	// factories and we're done.
+	//
+	if(_activateOneOffDone)
 	{
-#ifdef ICEE_HAS_LOCATOR
-	    locatorInfo = _locatorInfo;
-#endif
-	    printAdapterReady = 
-	        _instance->initializationData().properties->getPropertyAsInt("Ice.PrintAdapterReady") > 0;
-	    _printAdapterReadyDone = true;
+	    for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+		     Ice::voidMemFun(&IncomingConnectionFactory::activate));	
+	    return;
 	}
-	
-	for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-		 Ice::voidMemFun(&IncomingConnectionFactory::activate));	
+
+	//
+	// One off initializations of the adapter: update the locator
+	// registry and print the "adapter ready" message. We set the
+	// _waitForActivate flag to prevent deactivation from other
+	// threads while these one off initializations are done.
+	//
+	_waitForActivate = true;
+
+#ifdef ICEE_HAS_LOCATOR
+	locatorInfo = _locatorInfo;
+#endif
+	printAdapterReady = _instance->initializationData().properties->getPropertyAsInt("Ice.PrintAdapterReady") > 0;
     }
 
 #ifdef ICEE_HAS_LOCATOR
-    if(!_id.empty())
+    try
+    {
+	Ice::Identity dummy;
+	dummy.name = "dummy";
+	updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
+    }
+    catch(const Ice::LocalException&)
     {
 	//
-	// We must call on the locator registry outside the thread
-	// synchronization, to avoid deadlocks.
+	// If we couldn't update the locator registry, we let the
+	// exception go through and don't activate the adapter to
+	// allow to user code to retry activating the adapter
+	// later.
 	//
-	LocatorRegistryPrx locatorRegistry;
-	if(locatorInfo)
 	{
-	    //
-	    // TODO: This might throw if we can't connect to the
-	    // locator. Shall we raise a special exception for the
-	    // activate operation instead of a non obvious network
-	    // exception?
-	    //
-	    locatorRegistry = locatorInfo->getLocatorRegistry();
+	    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+	    _waitForActivate = false;
+	    notifyAll();
 	}
-
-	if(locatorRegistry)
-	{
-	    try
-	    {
-		Identity ident;
-		ident.name = "dummy";
-		if(_replicaGroupId.empty())
-		{
-		    locatorRegistry->setAdapterDirectProxy(_id, createDirectProxy(ident));
-		}
-		else
-		{
-		    locatorRegistry->setReplicatedAdapterDirectProxy(_id, _replicaGroupId, createDirectProxy(ident));
-		}
-	    }
-	    catch(const ObjectAdapterDeactivatedException&)
-	    {
-		// IGNORE: The object adapter is already inactive.
-	    }
-	    catch(const AdapterNotFoundException&)
-	    {
-		NotRegisteredException ex(__FILE__, __LINE__);
-		ex.kindOfObject = "object adapter";
-		ex.id = _id;
-		throw ex;
-	    }
-	    catch(const InvalidReplicaGroupIdException&)
-	    {
-		NotRegisteredException ex(__FILE__, __LINE__);
-		ex.kindOfObject = "replica group";
-		ex.id = _replicaGroupId;
-		throw ex;
-	    }
-	    catch(const AdapterAlreadyActiveException&)
-	    {
-		ObjectAdapterIdInUseException ex(__FILE__, __LINE__);
-		ex.id = _id;
-		throw ex;
-	    }
-	}
+	throw;
     }
 #endif
 
@@ -178,6 +152,22 @@ Ice::ObjectAdapter::activate()
     {
 	printf("%s ready\n", _name.c_str());
 	fflush(stdout);
+    }
+
+    {
+	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+	assert(!_deactivated); // Not possible if _waitForActivate = true;
+
+	//
+	// Signal threads waiting for the activation.
+	//
+	_waitForActivate = false;
+	notifyAll();
+
+	_activateOneOffDone = true;
+
+	for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+		 Ice::voidMemFun(&IncomingConnectionFactory::activate));
     }
 }
 
@@ -208,6 +198,9 @@ Ice::ObjectAdapter::deactivate()
 {
     vector<IncomingConnectionFactoryPtr> incomingConnectionFactories;
     OutgoingConnectionFactoryPtr outgoingConnectionFactory;
+#ifdef ICEE_HAS_LOCATOR
+    LocatorInfoPtr locatorInfo;
+#endif
 
     {
 	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
@@ -220,6 +213,16 @@ Ice::ObjectAdapter::deactivate()
 	{
 	    return;
 	}
+
+	//
+	// Wait for activation to complete. This is necessary to not 
+	// get out of order locator updates.
+	//
+	while(_waitForActivate)
+	{
+	    wait();
+	}
+
 
 #ifdef ICEE_HAS_ROUTER
         if(_routerInfo)
@@ -238,11 +241,28 @@ Ice::ObjectAdapter::deactivate()
 
         incomingConnectionFactories = _incomingConnectionFactories;
 	outgoingConnectionFactory = _instance->outgoingConnectionFactory();
-    
+#ifdef ICEE_HAS_LOCATOR
+	locatorInfo = _locatorInfo;
+#endif
+
 	_deactivated = true;
 	
 	notifyAll();
     }
+
+#ifdef ICEE_HAS_LOCATOR
+    try
+    {
+	updateLocatorRegistry(locatorInfo, 0);
+    }
+    catch(const Ice::LocalException&)
+    {
+	//
+	// We can't throw exceptions in deactivate so we ignore
+	// failures to update the locator registry.
+	//
+    }
+#endif
 
     //
     // Must be called outside the thread synchronization, because
@@ -575,13 +595,14 @@ Ice::ObjectAdapter::ObjectAdapter(const InstancePtr& instance, const Communicato
     _communicator(communicator),
     _objectAdapterFactory(objectAdapterFactory),
     _servantManager(new ServantManager(instance, name)),
-    _printAdapterReadyDone(false),
+    _activateOneOffDone(false),
     _name(name),
 #ifdef ICEE_HAS_LOCATOR
     _id(instance->initializationData().properties->getProperty(name + ".AdapterId")),
     _replicaGroupId(instance->initializationData().properties->getProperty(name + ".ReplicaGroupId")),
 #endif
     _directCount(0),
+    _waitForActivate(false),
     _waitForDeactivate(false)
 {
     __setNoDelete(true);
@@ -710,6 +731,7 @@ Ice::ObjectAdapter::~ObjectAdapter()
 	assert(!_communicator);
 	assert(_incomingConnectionFactories.empty());
 	assert(_directCount == 0);
+	assert(!_waitForActivate);
 	assert(!_waitForDeactivate);
     }
 }
@@ -856,3 +878,66 @@ Ice::ObjectAdapter::parseEndpoints(const string& str) const
 
     return endpoints;
 }
+
+#ifdef ICEE_HAS_LOCATOR
+void
+ObjectAdapter::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locatorInfo, const Ice::ObjectPrx& proxy)
+{
+    if(_id.empty())
+    {
+	return; // Nothing to update.
+    }
+
+    //
+    // We must get and call on the locator registry outside the thread
+    // synchronization to avoid deadlocks. (we can't make remote calls
+    // within the OA synchronization because the remote call will
+    // indirectly call isLocal() on this OA with the OA factory
+    // locked).
+    //
+    // TODO: This might throw if we can't connect to the
+    // locator. Shall we raise a special exception for the activate
+    // operation instead of a non obvious network exception?
+    //
+    LocatorRegistryPrx locatorRegistry = locatorInfo ? locatorInfo->getLocatorRegistry() : LocatorRegistryPrx();
+    if(!locatorRegistry)
+    {
+	return;
+    }
+
+    if(!_id.empty())
+    {
+	try
+	{
+	    if(_replicaGroupId.empty())
+	    {
+		locatorRegistry->setAdapterDirectProxy(_id, proxy);
+	    }
+	    else
+	    {
+		locatorRegistry->setReplicatedAdapterDirectProxy(_id, _replicaGroupId, proxy);
+	    }
+	}
+	catch(const AdapterNotFoundException&)
+	{
+	    NotRegisteredException ex(__FILE__, __LINE__);
+	    ex.kindOfObject = "object adapter";
+	    ex.id = _id;
+	    throw ex;
+	}
+	catch(const InvalidReplicaGroupIdException&)
+	{
+	    NotRegisteredException ex(__FILE__, __LINE__);
+	    ex.kindOfObject = "replica group";
+	    ex.id = _replicaGroupId;
+	    throw ex;
+	}
+	catch(const AdapterAlreadyActiveException&)
+	{
+	    ObjectAdapterIdInUseException ex(__FILE__, __LINE__);
+	    ex.id = _id;
+	    throw ex;
+	}
+    }
+}
+#endif
