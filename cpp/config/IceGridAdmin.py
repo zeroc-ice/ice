@@ -197,6 +197,7 @@ def iceGridClientServerTest(name, additionalClientOptions, additionalServerOptio
 
     print "starting sever...",
     serverPipe = os.popen(server + TestUtil.clientServerOptions + " " + serverOptions + " 2>&1")
+    TestUtil.getServerPid(serverPipe)
     TestUtil.getAdapterReady(serverPipe)
     print "ok"
 

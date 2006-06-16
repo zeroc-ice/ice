@@ -11,10 +11,9 @@
 
 <icegrid>
 
-  <application name="Simple" import-default-templates="true">
+  <application name="Simple">
 
     <node name="localhost">
-      <server-instance template="IcePatch2" directory="."/>
       <server id="SimpleServer" exe="./server" activation="on-demand">
 	<adapter name="Hello" endpoints="tcp" register-process="true">
 	  <object identity="hello" type="::Demo::Hello"/>
