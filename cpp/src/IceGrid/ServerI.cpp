@@ -1326,11 +1326,7 @@ ServerI::deactivate()
 	// not set yet, we wait for the server to set this process
 	// object before attempting to deactivate the server again.
 	//
-	// NOTE: we only wait if there's no load command. If there's a
-	// load command, the registry is updating the server and the
-	// call to set the process proxy will never make it here.
-	//
-	if(_processRegistered && !_process && !_load)
+	if(_processRegistered && !_process)
 	{
 	    setStateNoSync(ServerI::DeactivatingWaitForProcess);
 	    return;

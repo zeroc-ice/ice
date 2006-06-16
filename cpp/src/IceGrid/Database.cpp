@@ -568,17 +568,17 @@ Database::getServerInfo(const std::string& id, bool resolve)
 }
 
 ServerPrx
-Database::getServer(const string& id)
+Database::getServer(const string& id, bool upToDate)
 {
     int activationTimeout, deactivationTimeout;
     string node;
-    return getServerWithTimeouts(id, activationTimeout, deactivationTimeout, node);
+    return getServerWithTimeouts(id, activationTimeout, deactivationTimeout, node, upToDate);
 }
 
 ServerPrx
-Database::getServerWithTimeouts(const string& id, int& activationTimeout, int& deactivationTimeout, string& node)
+Database::getServerWithTimeouts(const string& id, int& actTimeout, int& deactTimeout, string& node, bool upToDate)
 {
-    return _serverCache.get(id)->getProxy(activationTimeout, deactivationTimeout, node);
+    return _serverCache.get(id)->getProxy(actTimeout, deactTimeout, node, upToDate);
 }
 
 Ice::StringSeq
@@ -752,9 +752,9 @@ Database::removeAdapter(const string& adapterId)
 }
 
 AdapterPrx
-Database::getAdapter(const string& id, const string& replicaGroupId)
+Database::getAdapter(const string& id, const string& replicaGroupId, bool upToDate)
 {
-    return _adapterCache.getServerAdapter(id)->getProxy(replicaGroupId);
+    return _adapterCache.getServerAdapter(id)->getProxy(replicaGroupId, upToDate);
 }
 
 vector<pair<string, AdapterPrx> >

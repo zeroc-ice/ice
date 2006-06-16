@@ -1,6 +1,14 @@
 Changes since version 3.0.1
 ---------------------------
 
+- ObjectAdapter::deactivate() will now notify the locator registry
+  that the adapter has been deactivated.
+
+- Fixed ObjectAdapter::activate() to not activate the object adapter
+  if the adapter endpoints or process proxy can't be registered with the
+  locator registry. Calling again activate() will retry the
+  registration.
+
 - Glacier2.AllowCategories is now deprecated and superseded by
   Glacier2.Filter.Category.Accept.
 

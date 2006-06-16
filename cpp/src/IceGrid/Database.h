@@ -73,15 +73,15 @@ public:
     Ice::StringSeq getAllNodes(const std::string& = std::string());
 
     ServerInfo getServerInfo(const std::string&, bool = false);
-    ServerPrx getServer(const std::string&);
-    ServerPrx getServerWithTimeouts(const std::string&, int&, int&, std::string&);
+    ServerPrx getServer(const std::string&, bool = true);
+    ServerPrx getServerWithTimeouts(const std::string&, int&, int&, std::string&, bool = true);
     Ice::StringSeq getAllServers(const std::string& = std::string());
     Ice::StringSeq getAllNodeServers(const std::string&);
 
     bool setAdapterDirectProxy(const std::string&, const std::string&, const Ice::ObjectPrx&);
     Ice::ObjectPrx getAdapterDirectProxy(const std::string&);
     void removeAdapter(const std::string&);
-    AdapterPrx getAdapter(const std::string&, const std::string&);
+    AdapterPrx getAdapter(const std::string&, const std::string&, bool = true);
     std::vector<std::pair<std::string, AdapterPrx> > getAdapters(const std::string&, int&, bool&);
     AdapterInfoSeq getAdapterInfo(const std::string&);
     Ice::StringSeq getAllAdapters(const std::string& = std::string());

@@ -60,7 +60,7 @@ public:
     virtual AdapterInfoSeq getAdapterInfo() const;
     virtual const std::string& getReplicaGroupId() const { return _replicaGroupId; }
 
-    AdapterPrx getProxy(const std::string&) const;
+    AdapterPrx getProxy(const std::string&, bool) const;
 
 private:
     

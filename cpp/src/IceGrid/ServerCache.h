@@ -43,8 +43,8 @@ public:
     ServerInfo getServerInfo(bool = false) const;
     std::string getId() const;
 
-    ServerPrx getProxy(int&, int&, std::string&);
-    AdapterPrx getAdapter(const std::string&);
+    ServerPrx getProxy(int&, int&, std::string&, bool);
+    AdapterPrx getAdapter(const std::string&, bool);
     NodeEntryPtr getNode() const;
     std::string getApplication() const;
     float getLoad(LoadSample) const;

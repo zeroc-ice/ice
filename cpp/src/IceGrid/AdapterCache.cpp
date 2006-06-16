@@ -205,7 +205,7 @@ ServerAdapterEntry::getProxies(int& nReplicas, bool& replicaGroup)
     vector<pair<string, AdapterPrx> > adapters;
     nReplicas = 1;
     replicaGroup = false;
-    adapters.push_back(make_pair(_id, getProxy("")));
+    adapters.push_back(make_pair(_id, getProxy("", true)));
     return adapters;
 }
 
@@ -229,7 +229,7 @@ ServerAdapterEntry::getAdapterInfo() const
     info.replicaGroupId = _replicaGroupId;
     try
     {
-	info.proxy = getProxy("")->getDirectProxy();
+	info.proxy = getProxy("", true)->getDirectProxy();
     }
     catch(const Ice::Exception&)
     {
@@ -240,11 +240,11 @@ ServerAdapterEntry::getAdapterInfo() const
 }
 
 AdapterPrx
-ServerAdapterEntry::getProxy(const string& replicaGroupId) const
+ServerAdapterEntry::getProxy(const string& replicaGroupId, bool upToDate) const
 {
     if(replicaGroupId.empty())
     {
-	return getServer()->getAdapter(_id);
+	return getServer()->getAdapter(_id, upToDate);
     }
     else
     {
@@ -253,7 +253,7 @@ ServerAdapterEntry::getProxy(const string& replicaGroupId) const
 	{
 	    throw Ice::InvalidReplicaGroupIdException();
 	}
-	return _server->getAdapter(_id);
+	return _server->getAdapter(_id, upToDate);
     }
 }
 
@@ -401,7 +401,7 @@ ReplicaGroupEntry::getProxies(int& nReplicas, bool& replicaGroup)
     {
 	try
 	{
-	    adapters.push_back(make_pair(p->first, p->second->getProxy(_id)));
+	    adapters.push_back(make_pair(p->first, p->second->getProxy(_id, true)));
 	}
 	catch(const AdapterNotExistException&)
 	{

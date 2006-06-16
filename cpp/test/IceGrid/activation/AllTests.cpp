@@ -178,7 +178,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	catch(const Ice::NoEndpointException&)
 	{
 	}
-	test(admin->getServerState("server-session") == IceGrid::Inactive);
+	waitForServerState(admin, "server-session", IceGrid::Inactive);
 
 	session->allocateObjectById(obj->ice_getIdentity());
 	obj->ice_ping();
@@ -191,7 +191,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	catch(const Ice::NoEndpointException&)
 	{
 	}
-	test(admin->getServerState("server-session") == IceGrid::Inactive);
+	waitForServerState(admin, "server-session", IceGrid::Inactive);
     }
     catch(const Ice::LocalException& ex)
     {

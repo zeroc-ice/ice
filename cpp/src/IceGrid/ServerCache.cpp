@@ -243,9 +243,9 @@ ServerEntry::update(const ServerInfo& info)
 
     _load = descriptor;
     _loaded.reset(0);
-    _proxy = 0;
-    _adapters.clear();
-    
+//    _proxy = 0;
+//    _adapters.clear();
+
     //
     // Update the allocatable flag.
     //
@@ -276,8 +276,8 @@ ServerEntry::destroy()
     
     _load.reset(0);
     _loaded.reset(0);
-    _proxy = 0;
-    _adapters.clear();
+//    _proxy = 0;
+//    _adapters.clear();
 }
 
 ServerInfo
@@ -291,7 +291,7 @@ ServerEntry::getServerInfo(bool resolve) const
 	{
 	    throw ServerNotExistException();
 	}
-	info = _proxy ? *_loaded : *_load;
+	info = _loaded.get() ? *_loaded : *_load;
 	session = _session;
     }
     assert(info.descriptor);
@@ -321,17 +321,17 @@ ServerEntry::getId() const
 }
 
 ServerPrx
-ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& node)
+ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& node, bool upToDate)
 {
     ServerPrx proxy;
     {
 	Lock sync(*this);
-	if(_proxy) // Synced
+	if(_loaded.get() || _proxy && !upToDate) // Synced or if not up to date is fine
 	{
 	    proxy = _proxy;
 	    activationTimeout = _activationTimeout;
 	    deactivationTimeout = _deactivationTimeout;
-	    node = _loaded->node;
+	    node = _loaded.get() ? _loaded->node : _load->node;
 	}
     }
 
@@ -353,11 +353,11 @@ ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& 
 
 	{
 	    Lock sync(*this);
-	    if(_proxy)
+	    if(_loaded.get() || _proxy && !upToDate) // Synced or if not up to date is fine
 	    {
 		activationTimeout = _activationTimeout;
 		deactivationTimeout = _deactivationTimeout;
-		node = _loaded->node;
+		node = _loaded.get() ? _loaded->node : _load->node;
 		return _proxy;
 	    }
 	    else if(_load.get())
@@ -373,13 +373,13 @@ ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& 
 }
 
 AdapterPrx
-ServerEntry::getAdapter(const string& id)
+ServerEntry::getAdapter(const string& id, bool upToDate)
 {
     AdapterPrx proxy;
 
     {
 	Lock sync(*this);
-	if(_proxy) // Synced
+	if(_loaded.get() || _proxy && !upToDate) // Synced or if not up to date is fine
 	{
 	    AdapterPrxDict::const_iterator p = _adapters.find(id);
 	    if(p != _adapters.end())
@@ -412,7 +412,7 @@ ServerEntry::getAdapter(const string& id)
 
 	{
 	    Lock sync(*this);
-	    if(_proxy) // Synced
+	    if(_loaded.get() || _proxy && !upToDate) // Synced or if not up to date is fine
 	    {
 		AdapterPrxDict::const_iterator p = _adapters.find(id);
 		if(p != _adapters.end())
@@ -444,7 +444,7 @@ ServerEntry::getNode() const
     {
 	throw ServerNotExistException();
     }
-    return _proxy ? _cache.getNodeCache().get(_loaded->node) : _cache.getNodeCache().get(_load->node);
+    return _loaded.get() ? _cache.getNodeCache().get(_loaded->node) : _cache.getNodeCache().get(_load->node);
 }
 
 string
@@ -455,7 +455,7 @@ ServerEntry::getApplication() const
     {
 	throw ServerNotExistException();
     }
-    return _proxy ? _loaded->application : _load->application;
+    return _loaded.get() ? _loaded->application : _load->application;
 }
 
 float
@@ -524,8 +524,8 @@ ServerEntry::syncImpl(bool waitForUpdate)
 	if(!_load.get() && !_destroy.get())
 	{
 	    _load = _loaded; // Re-load the current server.
-	    _proxy = 0;
-	    _adapters.clear();
+//	    _proxy = 0;
+//	    _adapters.clear();
 	}
 
 	_updated = false;
@@ -800,8 +800,8 @@ ServerEntry::allocated(const SessionIPtr& session)
 	{
 	    _load = _loaded;
 	}
-	_proxy = 0;
-	_adapters.clear();
+//	_proxy = 0;
+//	_adapters.clear();
 	_session = session;
     }
 
@@ -865,8 +865,8 @@ ServerEntry::released(const SessionIPtr& session)
 	{
 	    _load = _loaded;
 	}
-	_proxy = 0;
-	_adapters.clear();
+//	_proxy = 0;
+//	_adapters.clear();
 	_session = 0;
     }
 

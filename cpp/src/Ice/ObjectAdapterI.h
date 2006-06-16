@@ -83,8 +83,9 @@ public:
 
 private:
 
-    ObjectAdapterI(const IceInternal::InstancePtr&, const CommunicatorPtr&, const IceInternal::ObjectAdapterFactoryPtr&,
-    		   const std::string&, const std::string&, const RouterPrx&);
+    ObjectAdapterI(const IceInternal::InstancePtr&, const CommunicatorPtr&, 
+		   const IceInternal::ObjectAdapterFactoryPtr&, const std::string&, const std::string&,
+		   const RouterPrx&);
     virtual ~ObjectAdapterI();
     friend class IceInternal::ObjectAdapterFactory;
     
@@ -94,6 +95,7 @@ private:
     void checkForDeactivation() const;
     static void checkIdentity(const Identity&);
     std::vector<IceInternal::EndpointIPtr> parseEndpoints(const std::string&) const;
+    void updateLocatorRegistry(const IceInternal::LocatorInfoPtr&, const Ice::ObjectPrx&, bool);
 
     bool _deactivated;
     IceInternal::InstancePtr _instance;
@@ -101,7 +103,7 @@ private:
     IceInternal::ObjectAdapterFactoryPtr _objectAdapterFactory;
     IceInternal::ThreadPoolPtr _threadPool;
     IceInternal::ServantManagerPtr _servantManager;
-    bool _printAdapterReadyDone;
+    bool _activateOneOffDone;
     const std::string _name;
     const std::string _id;
     const std::string _replicaGroupId;
@@ -111,6 +113,7 @@ private:
     std::vector<IceInternal::EndpointIPtr> _publishedEndpoints;
     IceInternal::LocatorInfoPtr _locatorInfo;
     int _directCount; // The number of direct proxies dispatching on this object adapter.
+    bool _waitForActivate;
     bool _waitForDeactivate;
 
     class ProcessI : public Process

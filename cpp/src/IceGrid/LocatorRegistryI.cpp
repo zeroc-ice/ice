@@ -160,7 +160,7 @@ LocatorRegistryI::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_set
 	    // Get the adapter from the registry and set its direct proxy.
 	    //
 	    AMI_Adapter_setDirectProxyPtr amiCB = new SetDirectProxyCB(cb);
-	    _database->getAdapter(adapterId, "")->setDirectProxy_async(amiCB, proxy);
+	    _database->getAdapter(adapterId, "", false)->setDirectProxy_async(amiCB, proxy);
 	    const TraceLevelsPtr traceLevels = _database->getTraceLevels();
 	    if(traceLevels->locator > 1)
 	    {
@@ -214,7 +214,7 @@ LocatorRegistryI::setReplicatedAdapterDirectProxy_async(
 	    // Get the adapter from the registry and set its direct proxy.
 	    //
 	    AMI_Adapter_setDirectProxyPtr amiCB = new SetDirectProxyForReplicatedAdapterCB(cb);
-	    _database->getAdapter(adapterId, replicaGroupId)->setDirectProxy_async(amiCB, proxy);
+	    _database->getAdapter(adapterId, replicaGroupId, false)->setDirectProxy_async(amiCB, proxy);
 	    const TraceLevelsPtr traceLevels = _database->getTraceLevels();
 	    if(traceLevels->locator > 1)
 	    {
@@ -264,7 +264,7 @@ LocatorRegistryI::setServerProcessProxy_async(const Ice::AMD_LocatorRegistry_set
         // Get the server from the registry and set its process proxy.
         //
 	AMI_Server_setProcessPtr amiCB = new AMI_Server_setProcessI(cb);
-        _database->getServer(id)->setProcess_async(amiCB, proxy);
+        _database->getServer(id, false)->setProcess_async(amiCB, proxy);
 
 	const TraceLevelsPtr traceLevels = _database->getTraceLevels();
 	if(traceLevels->locator > 1)
