@@ -1,0 +1,14 @@
+Demos in this directory:
+
+- simple
+
+  This demo illistrates the basics of using IceGrid, including the 
+  use of templates and replication.
+
+- sessionActivation
+
+  This demo shows the use of the session activation mode.
+
+- allocate
+
+  This demo shows how to use of the allocation feature of IceGrid.
