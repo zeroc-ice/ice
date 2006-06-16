@@ -111,12 +111,12 @@ directory:
 Binary compatibility
 --------------------
 
-Patch releases of Ice are binary compatible. For example, version 3.0.1
-is compatible with 3.0.0, so you can run applications compiled with
-3.0.0 with the 3.0.1 runtime without having to recompile.
+Patch releases of Ice are binary compatible. For example, version <x>.<y>.1
+is compatible with <x>.<y>.0, so you can run applications compiled with
+<x>.<y>.0 with the <x>.<y>.1 Ice assemblies without having to recompile.
 
-If you want to run already deployed 3.0.0 applications with the 3.0.1
-runtime on a machine, follow the steps under (1) or (2) below:
+If you want to run already deployed <x>.<y>.0 applications with the <x>.<y>.1
+run time (or later patch release) on a machine, follow the steps under (1) or (2) below:
 
 1) On a machine with the Ice source tree and Visual Studio installed:
 
@@ -124,14 +124,18 @@ runtime on a machine, follow the steps under (1) or (2) below:
 
    - Run the following commands:
 
-	gacutil /u policy.3.0.icecs
-	gacutil /u policy.3.0.iceboxcs
-	gacutil /u policy.3.0.icegridcs
-	gacutil /u policy.3.0.icepatch2cs
-	gacutil /u policy.3.0.icestormcs
-	gacutil /u policy.3.0.glacier2cs
+	gacutil /u policy.<x>.<y>.icecs
+	gacutil /u policy.<x>.<y>.iceboxcs
+	gacutil /u policy.<x>.<y>.icegridcs
+	gacutil /u policy.<x>.<y>.icepatch2cs
+	gacutil /u policy.<x>.<y>.icesslcs
+	gacutil /u policy.<x>.<y>.icestormcs
+	gacutil /u policy.<x>.<y>.glacier2cs
 
-     These commands uninstall the 3.0.0 Ice runtime. gacutil.exe is
+     Substitute the major and minor version for <x> and <y> in these
+     commands, for example: gacutil /u policy.3.1.icecs
+
+     These commands uninstall the <x>.<y> Ice run time. gacutil.exe is
      installed in C:\WINDOWS\Microsoft.NET\Framework\v1.1.4322
      (assuming that you are running build 4322 of the .NET framework).
 
@@ -142,15 +146,16 @@ runtime on a machine, follow the steps under (1) or (2) below:
 
    - Run the following commands:
 
-	gacutil.exe /i policy.3.0.icecs.dll
-	gacutil.exe /i policy.3.0.iceboxcs.dll
-	gacutil.exe /i policy.3.0.icegridcs.dll
-	gacutil.exe /i policy.3.0.icepatch2.dll
-	gacutil.exe /i policy.3.0.icestormcs.dll
-	gacutil.exe /i policy.3.0.glacier2cs.dll
+	gacutil.exe /i policy.<x>.<y>.icecs.dll
+	gacutil.exe /i policy.<x>.<y>.iceboxcs.dll
+	gacutil.exe /i policy.<x>.<y>.icegridcs.dll
+	gacutil.exe /i policy.<x>.<y>.icepatch2.dll
+	gacutil.exe /i policy.<x>.<y>.icesslcs.dll
+	gacutil.exe /i policy.<x>.<y>.icestormcs.dll
+	gacutil.exe /i policy.<x>.<y>.glacier2cs.dll
 
-     These commands cause applications requesting the 3.0.0 runtime to
-     load the 3.0.1 runtime instead.
+     These commands cause applications requesting the <x>.<y>.<z> run time to
+     load the <x>.<y>.<z or z+n> run time instead.
 
    - From the bin directory, run the commands:
 
@@ -158,10 +163,11 @@ runtime on a machine, follow the steps under (1) or (2) below:
 	gacutil /i iceboxcs.dll
 	gacutil /i icegridcs.dll
 	gacutil /i icepatch2cs.dll
+	gacutil /i icesslcs.dll
 	gacutil /i icestormcs.dll
 	gacutil /i glacier2cs.dll
 
-     These commands install the 3.0.1 dlls into the GAC.
+     These commands install the newer patch version DLLs into the GAC.
 
 2) On a machine without the Ice source tree and without Visual Studio:
 
@@ -174,29 +180,34 @@ runtime on a machine, follow the steps under (1) or (2) below:
 
    - Run the following commands:
 
-	gacutil /u policy.3.0.icecs
-	gacutil /u policy.3.0.iceboxcs
-	gacutil /u policy.3.0.icegridcs
-	gacutil /u policy.3.0.icepatch2cs
-	gacutil /u policy.3.0.icestormcs
-	gacutil /u policy.3.0.glacier2cs
+	gacutil /u policy.<x>.<y>.icecs
+	gacutil /u policy.<x>.<y>.iceboxcs
+	gacutil /u policy.<x>.<y>.icegridcs
+	gacutil /u policy.<x>.<y>.icepatch2cs
+	gacutil /u policy.<x>.<y>.icesslcs
+	gacutil /u policy.<x>.<y>.icestormcs
+	gacutil /u policy.<x>.<y>.glacier2cs
 
-     These commands uninstall the 3.0.0 Ice runtime. gacutil.exe is
+     Substitute the major and minor version for <x> and <y> in these
+     commands, for example: gacutil /u policy.3.1.icecs
+
+     These commands uninstall the <x>.<y>.0 Ice run time. gacutil.exe is
      installed in C:\WINDOWS\Microsoft.NET\Framework\v1.1.4322
      (assuming that you are running build 4322 of the .NET framework).
 
    - Change to the directory containing the policy and .dll files you
      copied previously and run the following commands:
 
-	gacutil.exe /i policy.3.0.icecs.dll
-	gacutil.exe /i policy.3.0.iceboxcs.dll
-	gacutil.exe /i policy.3.0.icegridcs.dll
-	gacutil.exe /i policy.3.0.icepatch2.dll
-	gacutil.exe /i policy.3.0.icestormcs.dll
-	gacutil.exe /i policy.3.0.glacier2cs.dll
+	gacutil.exe /i policy.<x>.<y>.icecs.dll
+	gacutil.exe /i policy.<x>.<y>.iceboxcs.dll
+	gacutil.exe /i policy.<x>.<y>.icegridcs.dll
+	gacutil.exe /i policy.<x>.<y>.icepatch2.dll
+	gacutil.exe /i policy.<x>.<y>.icesslcs.dll
+	gacutil.exe /i policy.<x>.<y>.icestormcs.dll
+	gacutil.exe /i policy.<x>.<y>.glacier2cs.dll
 
-     These commands cause applications requesting the 3.0.0 runtime to
-     load the 3.0.1 runtime instead.
+     These commands cause applications requesting the <x>.<y>.<z> run time to
+     load the <x>.<y>.<z or z+n> run time instead.
 
    - Then run the commands:
 
@@ -204,7 +215,8 @@ runtime on a machine, follow the steps under (1) or (2) below:
 	gacutil /i iceboxcs.dll
 	gacutil /i icegridcs.dll
 	gacutil /i icepatch2cs.dll
+	gacutil /i icesslcs.dll
 	gacutil /i icestormcs.dll
 	gacutil /i glacier2cs.dll
 
-     These commands install the 3.0.1 dlls into the GAC.
+     These commands install the newer patch version DLLs into the GAC.
