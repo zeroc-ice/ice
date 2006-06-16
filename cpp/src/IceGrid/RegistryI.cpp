@@ -391,27 +391,18 @@ RegistryI::start(bool nowarn)
     _clientVerifier = getPermissionsVerifier(registryAdapter,
 					     internalLocatorPrx,
 					     properties->getProperty("IceGrid.Registry.PermissionsVerifier"),
-					     properties->getPropertyWithDefault("IceGrid.Registry.CryptPasswords", 
-										"passwords"),
+					     properties->getProperty("IceGrid.Registry.CryptPasswords"), 
 					     nowarn);
-    if(!_clientVerifier)
-    {
-	return false;
-    }
 
     _adminVerifier = getPermissionsVerifier(registryAdapter,
 					    internalLocatorPrx,
 					    properties->getProperty("IceGrid.Registry.AdminPermissionsVerifier"),
-					    properties->getPropertyWithDefault("IceGrid.Registry.AdminCryptPasswords", 
-									       "admin-passwords"),
+					    properties->getProperty("IceGrid.Registry.AdminCryptPasswords"),
 					    nowarn);
-    if(!_adminVerifier)
-    {
-	return false;
-    }
 
     _sslClientVerifier = getSSLPermissionsVerifier(
 	internalLocatorPrx, properties->getProperty("IceGrid.Registry.SSLPermissionsVerifier"), nowarn);
+
     _sslAdminVerifier = getSSLPermissionsVerifier(
 	internalLocatorPrx, properties->getProperty("IceGrid.Registry.AdminSSLPermissionsVerifier"), nowarn);
 
@@ -487,6 +478,15 @@ RegistryI::stop()
 SessionPrx
 RegistryI::createSession(const string& user, const string& password, const Current& current)
 {
+    if(!_clientVerifier)
+    {
+	PermissionDeniedException ex;
+	ex.reason = "no permissions verifier configured, use the property\n";
+	ex.reason += "`IceGrid.Registry.PermissionsVerifier' to configure\n";
+	ex.reason += "a permissions verifier.";
+	throw ex;
+    }
+
     try
     {
 	string reason;
@@ -520,6 +520,15 @@ RegistryI::createSession(const string& user, const string& password, const Curre
 AdminSessionPrx
 RegistryI::createAdminSession(const string& user, const string& password, const Current& current)
 {
+    if(!_adminVerifier)
+    {
+	PermissionDeniedException ex;
+	ex.reason = "no admin permissions verifier configured, use the property\n";
+	ex.reason += "`IceGrid.Registry.AdminPermissionsVerifier' to configure\n";
+	ex.reason += "a permissions verifier.";
+	throw ex;
+    }
+
     try
     {
 	string reason;
@@ -557,9 +566,11 @@ RegistryI::createSessionFromSecureConnection(const Current& current)
 {
     if(!_sslClientVerifier)
     {
-	PermissionDeniedException exc;
-	exc.reason = "no configured ssl permissions verifier";
-	throw exc;
+	PermissionDeniedException ex;
+	ex.reason = "no ssl permissions verifier configured, use the property\n";
+	ex.reason += "`IceGrid.Registry.SSLPermissionsVerifier' to configure\n";
+	ex.reason += "a permissions verifier.";
+	throw ex;
     }
 
     string userDN;
@@ -599,9 +610,11 @@ RegistryI::createAdminSessionFromSecureConnection(const Current& current)
 {
     if(!_sslAdminVerifier)
     {
-	PermissionDeniedException exc;
-	exc.reason = "no configured ssl permissions verifier";
-	throw exc;
+	PermissionDeniedException ex;
+	ex.reason = "no ssl admin permissions verifier configured, use the property\n";
+	ex.reason += "`IceGrid.Registry.AdminSSLPermissionsVerifier' to configure\n";
+	ex.reason += "a permissions verifier.";
+	throw ex;
     }
 
     string userDN;
@@ -717,7 +730,7 @@ RegistryI::getPermissionsVerifier(const ObjectAdapterPtr& adapter,
 	    return 0;
 	}
     }
-    else
+    else if(!passwordsProperty.empty())
     {
 	ifstream passwordFile(passwordsProperty.c_str());
 	if(!passwordFile)
@@ -753,6 +766,12 @@ RegistryI::getPermissionsVerifier(const ObjectAdapterPtr& adapter,
 
 	verifier = adapter->addWithUUID(new CryptPermissionsVerifierI(passwords));
     }
+    else
+    {
+	return 0;
+    }
+
+    assert(verifier);
 
     Glacier2::PermissionsVerifierPrx verifierPrx;
     try
