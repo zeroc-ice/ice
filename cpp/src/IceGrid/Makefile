@@ -136,7 +136,7 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 $(ADMIN): $(ADMIN_OBJS) $(LIBTARGETS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(ADMIN_OBJS) -lGlacier2 $(EXPAT_RPATH_LINK) -lIceXML -lIceGrid -lIcePatch2 \
-	$(LIBS) $(READLINE_LIBS)
+	$(LIBS) $(READLINE_LIBS) $(OPENSSL_RPATH_LINK)
 
 $(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS) $(LIBTARGETS)
 	rm -f $@
