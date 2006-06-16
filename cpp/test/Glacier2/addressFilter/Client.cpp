@@ -82,7 +82,7 @@ AttackClient::run(int argc, char* argv[])
 	    // This is also ok.
 	    //
 	}
-	catch(const LocalException& e)
+	catch(const LocalException&)
 	{
 	    test("Unexpected local exception" == 0);
 	}
