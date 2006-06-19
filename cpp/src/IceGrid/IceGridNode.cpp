@@ -608,7 +608,6 @@ NodeService::stop()
     try
     {
 	_adapter->deactivate();
-	_adapter->waitForDeactivate();
 	_adapter = 0;
     }
     catch(const Ice::LocalException& ex)

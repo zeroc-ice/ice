@@ -478,6 +478,12 @@ void
 NodeI::shutdown(const Ice::Current&) const
 {
     _activator->shutdown();
+
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_sessionMonitor);
+    while(_session)
+    {
+	_sessionMonitor.wait();
+    }
 }
 
 Ice::CommunicatorPtr
@@ -536,10 +542,7 @@ NodeI::setSession(const NodeSessionPrx& session, const NodeObserverPrx& observer
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_sessionMonitor);
     _session = session;
     _observer = observer;
-    if(_session)
-    {
-	_sessionMonitor.notifyAll();
-    }
+    _sessionMonitor.notifyAll();
 }
 
 int
@@ -597,13 +600,12 @@ NodeI::waitForSession()
 void
 NodeI::stop()
 {
-    Lock sync(*this);
+    Lock sync(_sessionMonitor);
     if(_session)
     {
 	try
 	{
 	    _session->destroy();
-	    _session = 0;
 	}
 	catch(const Ice::LocalException& ex)
 	{
@@ -611,6 +613,9 @@ NodeI::stop()
 	    os << "couldn't contact the IceGrid registry to destroy the node session:\n" << ex;
 	    _traceLevels->logger->warning(os.str());
 	}
+
+	_session = 0;
+	_sessionMonitor.notifyAll();
     }
 }
 
