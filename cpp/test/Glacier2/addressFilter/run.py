@@ -194,7 +194,7 @@ for testcase in testcases:
     routerConfig = file(os.path.join(testdir, "router.cfg"), "w")
 
     routerConfig.write("Ice.Default.Locator=locator:tcp -h %s -p 12010\n" % hostname)
-    routerConfig.write("Glacier.Client.Trace.Reject=3\n")
+    routerConfig.write("Glacier2.Client.Trace.Reject=0\n")
     routerConfig.write("#\n")
 
     for l in xtraConfig:
