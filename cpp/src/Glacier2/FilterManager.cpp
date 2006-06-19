@@ -99,9 +99,12 @@ Glacier2::FilterManager::FilterManager(const ObjectAdapterPtr& adapter, const Gl
 {
     try
     {
-	_categoriesPrx = Glacier2::StringSetPrx::uncheckedCast(_adapter->addWithUUID(_categories));
-	_adapterIdsPrx = Glacier2::StringSetPrx::uncheckedCast(_adapter->addWithUUID(_adapters));
-	_identitiesPrx = Glacier2::IdentitySetPrx::uncheckedCast(_adapter->addWithUUID(_identities));
+	if(_adapter)
+	{
+	    _categoriesPrx = Glacier2::StringSetPrx::uncheckedCast(_adapter->addWithUUID(_categories));
+	    _adapterIdsPrx = Glacier2::StringSetPrx::uncheckedCast(_adapter->addWithUUID(_adapters));
+	    _identitiesPrx = Glacier2::IdentitySetPrx::uncheckedCast(_adapter->addWithUUID(_identities));
+	}
     }
     catch(...)
     {
