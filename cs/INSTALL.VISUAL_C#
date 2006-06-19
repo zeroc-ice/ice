@@ -1,8 +1,15 @@
 Build instructions
 ------------------
 
-The code has been built and tested with Visual C# Version 7.1.3088 and
-.NET Framework 1.1 Version 1.1.4322.
+The code has been built and tested with:
+
+- Visual C# Version 7.1.3088 and .NET Framework 1.1 Version 1.1.4322.
+
+- Visual C# Express Version 8.0.50727.42 and .NET Framework Version
+  2.0.50727
+
+- Microsoft Visual Studio 2005 Version 8.0.50727.42 and .NET Framework
+  Version 2.0.50727
 
 Unpack the archive. The sources will be contained in the 
 IceCS-@ver@ subdirectory.
@@ -19,8 +26,16 @@ Make sure that the directory containing slice2cs is in your PATH. Note
 that icecpp.exe must be in your path as well, as must be the Ice for
 C++ run-time libraries iceutil and slice.
 
-Open All.sln in Visual C# and build the "All" solution (both debug and
-release builds are supported).
+If you are using Visual C# Version 7.1 then you should open All_11.sln
+and build the "All" solution (both debug and release builds are
+supported). This builds support for .NET 1.1.
+
+If you are using Visual C# Version 8 then you should open All.sln in
+Visual C# and build the "All" solution (both debug and release builds
+are supported). This builds support for .NET 2.
+
+Please note that IceSSL requires .NET 2. It is not build if you are
+using .NET 1.1.
 
 Note: The first time you build, you will most likely find that you get
 errors for the following projects:
@@ -81,10 +96,16 @@ thing:
     gacutil /i "path_to_lib.dll"
 
 You can find gacutil.exe in the SDK\Tools\Bin folder of your Visual C#
-installation. For example, assuming that you have installed Visual C#
-in C:\Program Files, the path to gacutil is
+installation.
+
+For example, assuming that you have installed Visual C# 7.1 in
+C:\Program Files, the path to gacutil is
 
     C:\Program Files\Microsoft Visual Studio .NET 2003\SDK\v1.1\Bin\gacutil.exe
+
+If you have installed Visual C# 8.0 in C:\Program Files, the path to gacutil is
+
+    C:\Program Files\Microsoft Visual Studio 8\SDK\v2.0\Bin\gacutil.exe
 
 Once installed in the cache, the assemblies will always be located
 correctly without having to set environment variables or copy them
@@ -135,9 +156,7 @@ run time (or later patch release) on a machine, follow the steps under (1) or (2
      Substitute the major and minor version for <x> and <y> in these
      commands, for example: gacutil /u policy.3.1.icecs
 
-     These commands uninstall the <x>.<y> Ice run time. gacutil.exe is
-     installed in C:\WINDOWS\Microsoft.NET\Framework\v1.1.4322
-     (assuming that you are running build 4322 of the .NET framework).
+     These commands uninstall the <x>.<y> Ice run time.
 
    - Build the solution.
 
@@ -191,9 +210,7 @@ run time (or later patch release) on a machine, follow the steps under (1) or (2
      Substitute the major and minor version for <x> and <y> in these
      commands, for example: gacutil /u policy.3.1.icecs
 
-     These commands uninstall the <x>.<y>.0 Ice run time. gacutil.exe is
-     installed in C:\WINDOWS\Microsoft.NET\Framework\v1.1.4322
-     (assuming that you are running build 4322 of the .NET framework).
+     These commands uninstall the <x>.<y>.0 Ice run time.
 
    - Change to the directory containing the policy and .dll files you
      copied previously and run the following commands:
