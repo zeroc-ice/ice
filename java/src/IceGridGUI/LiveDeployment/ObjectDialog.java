@@ -105,7 +105,7 @@ class ObjectDialog extends JDialog
 	setVisible(true);
     }
 
-    private JTextField _proxy = new JTextField(30);
+    private JTextField _proxy = new JTextField(60);
     private JComboBox _type = new JComboBox(new Object[]{QUERY_OBJECT});
     private JFrame _mainFrame;
 

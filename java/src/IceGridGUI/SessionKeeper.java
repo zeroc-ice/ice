@@ -595,7 +595,7 @@ class SessionKeeper
 					      + "For example: tcp -h registry.domain.com -p 12000</html>");
 	    
 	    _routerUsername.setToolTipText("Your username");
-	    _routerUsername.setToolTipText("Your password in this Glacier2 router");
+	    _routerPassword.setToolTipText("Your password in this Glacier2 router");
 	    _routerUseSSL.setToolTipText("Do you want to use SSL instead of username/password for authentication?");
 	    _routerInstanceName.setToolTipText("The instance name of your Glacier2 router. For example: DemoGlacier2");
 	    _routerEndpoints.setToolTipText("<html>Corresponds to client endpoints of this Glacier2 router.<br>"

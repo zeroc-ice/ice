@@ -142,7 +142,7 @@ class AdapterEditor extends CommunicatorChildEditor
 
 	_endpoints.getDocument().addDocumentListener(_updateListener);
 	_endpoints.setToolTipText(
-	    "<html>The network interfaces on which this adapter receives requests;<br>"
+	    "<html>The network interface(s) on which this object adapter receives requests;<br>"
 	    + "for example:<br>" 
 	    + " tcp (listen on all local interfaces using a random port)<br>"
 	    + " tcp -h venus.foo.com (listen on just one interface)<br>"
@@ -157,7 +157,7 @@ class AdapterEditor extends CommunicatorChildEditor
 	JTextField idTextField = (JTextField)
 	    _id.getEditor().getEditorComponent();
 	idTextField.getDocument().addDocumentListener(_updateListener);
-	_id.setToolTipText("If set, must be unique within this IceGrid deployment");
+	_id.setToolTipText("Identities this object adapter within an IceGrid deployment");
 
 	JTextField replicaGroupIdTextField = (JTextField)
 	    _replicaGroupId.getEditor().getEditorComponent();
@@ -168,9 +168,7 @@ class AdapterEditor extends CommunicatorChildEditor
 	    _publishedEndpoints.getEditor().getEditorComponent();
 	publishedEndpointsTextField.getDocument().addDocumentListener(_updateListener);
 	_publishedEndpoints.setToolTipText(
-	    "<html>Direct adapter: endpoints included in proxies created using this adapter.<br>"
-	    + "Indirect adapter: endpoints registered with the IceGrid Registry during the activation of this adapter." 
-	    + "</html>");
+	    "Endpoints registered with the IceGrid Registry during the activation of this adapter.");
     }
     
    
@@ -310,11 +308,7 @@ class AdapterEditor extends CommunicatorChildEditor
       
     private void setId(String id)
     {
-	if(id.equals(""))
-	{
-	    _id.setSelectedItem(DIRECT_ADAPTER);
-	}
-	else if(id.equals(_defaultAdapterId))
+	if(id.equals(_defaultAdapterId))
 	{
 	    _id.setSelectedItem(DEFAULT_ADAPTER_ID);
 	}
@@ -328,21 +322,14 @@ class AdapterEditor extends CommunicatorChildEditor
     {
 	Object id = _id.getSelectedItem();
 	_id.setModel(new DefaultComboBoxModel(new Object[]
-	    {DIRECT_ADAPTER, DEFAULT_ADAPTER_ID}));
+	    {DEFAULT_ADAPTER_ID}));
 	_id.setSelectedItem(id);
     }
 
     private String getIdAsString()
     {
 	Object obj = _id.getSelectedItem();
-	if(obj == DIRECT_ADAPTER)
-	{
-	    return "";
-	}
-	else 
-	{
-	    return obj.toString().trim();
-	}
+	return obj.toString().trim();
     }
 
     private void setReplicaGroupId(String replicaGroupId)
@@ -387,7 +374,9 @@ class AdapterEditor extends CommunicatorChildEditor
     {
 	return check(new String[]{
 	    "Adapter Name", _name.getText().trim(),
-	    "Endpoints", _endpoints.getText().trim()});
+	    "Adapter ID", getIdAsString(),
+	    "Endpoints", _endpoints.getText().trim()
+	});
     }
 
     void show(Adapter adapter)
@@ -552,8 +541,7 @@ class AdapterEditor extends CommunicatorChildEditor
     private JTextField _name = new JTextField(20);
     private JTextArea _description = new JTextArea(3, 20);
 
-    private JComboBox _id = new JComboBox(new Object[]
-	{DIRECT_ADAPTER, DEFAULT_ADAPTER_ID});
+    private JComboBox _id = new JComboBox(new Object[] {DEFAULT_ADAPTER_ID});
     private JComboBox _replicaGroupId = new JComboBox();
     private JButton _replicaGroupButton;
 
@@ -575,14 +563,6 @@ class AdapterEditor extends CommunicatorChildEditor
 	    public String toString()
 	    {
 		return "Actual endpoints";
-	    }
-	};
-
-    static private final Object DIRECT_ADAPTER = new Object()
-	{
-	    public String toString()
-	    {
-		return "No ID (a direct adapter)";
 	    }
 	};
     

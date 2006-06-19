@@ -54,14 +54,7 @@ class AdapterEditor extends Editor
 	    
 	if(currentEndpoints == null)
 	{
-	    if(_id.getText().length() == 0)
-	    {
-		_currentStatus.setText("Direct adapter (does not register with IceGrid at runtime)");
-	    }
-	    else
-	    {
-		_currentStatus.setText("Inactive");
-	    }
+	    _currentStatus.setText("Inactive");
 	    _currentEndpoints.setText("");
 	}
 	else

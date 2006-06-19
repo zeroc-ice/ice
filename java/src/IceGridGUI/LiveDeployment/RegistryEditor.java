@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -73,14 +73,17 @@ class RegistryEditor extends Editor
 	_adapters.getActionMap().put("delete", deleteAdapter);
 	_adapters.getInputMap().put(
 	    KeyStroke.getKeyStroke("DELETE"), "delete");
-	_adapters.setToolTipText("<html>Adapters registered dynamically.</html>");
+	_adapters.setToolTipText("<html>Object adapters registered at run time.</html>");
     }
     
     protected void appendProperties(DefaultFormBuilder builder)
     {
 	CellConstraints cc = new CellConstraints();
 
-	builder.append("Dynamic Well-Known Objects");
+	builder.appendSeparator("Dynamic Well-Known Objects");
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
 	builder.nextLine();
 	builder.append("");
 	builder.nextLine();
@@ -103,7 +106,10 @@ class RegistryEditor extends Editor
 	builder.nextRow(14);
 	builder.nextLine();
 
-	builder.append("Dynamic Adapters");
+	builder.appendSeparator("Dynamic Object Adapters");
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
 	builder.nextLine();
 	builder.append("");
 	builder.nextLine();
