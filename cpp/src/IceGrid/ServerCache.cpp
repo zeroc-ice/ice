@@ -276,8 +276,8 @@ ServerEntry::destroy()
     
     _load.reset(0);
     _loaded.reset(0);
-//    _proxy = 0;
-//    _adapters.clear();
+    _proxy = 0;
+    _adapters.clear();
 }
 
 ServerInfo
@@ -328,6 +328,7 @@ ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& 
 	Lock sync(*this);
 	if(_loaded.get() || _proxy && !upToDate) // Synced or if not up to date is fine
 	{
+	    assert(_loaded.get() || _load.get());
 	    proxy = _proxy;
 	    activationTimeout = _activationTimeout;
 	    deactivationTimeout = _deactivationTimeout;
@@ -355,6 +356,7 @@ ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& 
 	    Lock sync(*this);
 	    if(_loaded.get() || _proxy && !upToDate) // Synced or if not up to date is fine
 	    {
+	        assert(_loaded.get() || _load.get());
 		activationTimeout = _activationTimeout;
 		deactivationTimeout = _deactivationTimeout;
 		node = _loaded.get() ? _loaded->node : _load->node;
