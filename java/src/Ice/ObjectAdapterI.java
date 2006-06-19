@@ -180,7 +180,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 		{
 		}
 	    }
-	
 
 	    if(_routerInfo != null)
 	    {
@@ -1062,9 +1061,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	{
 	    try
 	    {
-		Identity ident = new Identity();
-		ident.category = "";
-		ident.name = "dummy";
 		if(_replicaGroupId.length() == 0)
 		{
 		    locatorRegistry.setAdapterDirectProxy(_id, proxy);

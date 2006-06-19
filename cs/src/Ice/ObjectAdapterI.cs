@@ -1078,9 +1078,6 @@ namespace Ice
 	    {
 		try
 		{
-		    Identity ident = new Identity();
-		    ident.category = "";
-		    ident.name = "dummy";
 		    if(_replicaGroupId.Length == 0)
 		    {
 			locatorRegistry.setAdapterDirectProxy(_id, proxy);
