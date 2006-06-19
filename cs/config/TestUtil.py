@@ -301,7 +301,7 @@ if protocol == "ssl":
                            " --IceSSL.CertFile=" + os.path.join(toplevel, "certs", "c_rsa1024.pfx") + \
                            " --IceSSL.Password=password" + \
                            " --IceSSL.CheckCertName=0"
-    cppPlugin		    = " --Ice.Plugin.IceSSL=IceSSL:create"
+    cppPlugin		    = " --Ice.Plugin.IceSSL=IceSSL:createIceSSL"
     cppClientProtocol       = cppPlugin + " --Ice.Default.Protocol=ssl" + \
                               " --IceSSL.DefaultDir=" + os.path.join(toplevel, "certs") + \
                               " --IceSSL.CertAuthFile=cacert.pem" + \

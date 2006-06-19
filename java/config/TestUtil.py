@@ -321,7 +321,7 @@ if protocol == "ssl":
                            " --IceSSL.Truststore=certs.jks" + \
                            " --IceSSL.Password=password"
     clientServerProtocol = clientProtocol
-    cppPlugin		    = " --Ice.Plugin.IceSSL=IceSSL:create"
+    cppPlugin		    = " --Ice.Plugin.IceSSL=IceSSL:createIceSSL"
     cppClientProtocol       = cppPlugin + " --Ice.Default.Protocol=ssl" + \
 			      " --IceSSL.DefaultDir=" + os.path.join(toplevel, "certs") + \
 			      " --IceSSL.CertFile=c_rsa1024_pub.pem" + \

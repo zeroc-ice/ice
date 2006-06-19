@@ -316,7 +316,7 @@ else:
 
 if protocol == "ssl":
     certs		 = os.path.abspath(os.path.join(toplevel, "certs"))
-    plugin		 = " --Ice.Plugin.IceSSL=IceSSL:create"
+    plugin		 = " --Ice.Plugin.IceSSL=IceSSL:createIceSSL"
     clientProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
                            " --IceSSL.DefaultDir=" + certs + \
                            " --IceSSL.CertFile=c_rsa1024_pub.pem" + \

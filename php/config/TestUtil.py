@@ -172,7 +172,7 @@ else:
     os.environ["LD_LIBRARY_PATH_64"] = os.path.join(ice_home, "lib") + ":" + os.getenv("LD_LIBRARY_PATH_64", "")
 
 if protocol == "ssl":
-    plugin		 = " --Ice.Plugin.IceSSL=IceSSL:create"
+    plugin		 = " --Ice.Plugin.IceSSL=IceSSL:createIceSSL"
     clientProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
                            " --IceSSL.DefaultDir=" + os.path.join(ice_home, "certs") + \
                            " --IceSSL.CertFile=c_rsa1024_pub.pem" + \
