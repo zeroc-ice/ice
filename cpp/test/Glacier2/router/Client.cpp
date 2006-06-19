@@ -192,7 +192,7 @@ public:
     void run()
     {
 	CommunicatorPtr communicator = initialize(initData);
-	ObjectPrx routerBase = communicator->stringToProxy("abc/def:default -p 12347 -t 10000");
+	ObjectPrx routerBase = communicator->stringToProxy("abc/def:default -p 12347 -t 30000");
 	_router = Glacier2::RouterPrx::checkedCast(routerBase);
 	communicator->setDefaultRouter(_router);
 
@@ -265,6 +265,9 @@ public:
 	catch(const Ice::ConnectionLostException&)
 	{
 	}
+	catch(const Ice::CommunicatorDestroyedException&)
+	{
+	}
 	catch(const Ice::LocalException& ex)
 	{
 	    cerr << ex << endl;
@@ -304,8 +307,16 @@ public:
 		IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
 	    }
 	}
-	catch(const Ice::Exception&)
+	catch(const Ice::ConnectionLostException&)
 	{
+	}
+	catch(const Ice::CommunicatorDestroyedException&)
+	{
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
 	}
     }
 };
@@ -333,8 +344,16 @@ public:
 		IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
 	    }
 	}
-	catch(const Ice::Exception&)
+	catch(const Ice::ConnectionLostException&)
 	{
+	}
+	catch(const Ice::CommunicatorDestroyedException&)
+	{
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
 	}
     }
 };
@@ -362,8 +381,16 @@ public:
 		IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
 	    }
 	}
-	catch(const Ice::Exception&)
+	catch(const Ice::ConnectionLostException&)
 	{
+	}
+	catch(const Ice::CommunicatorDestroyedException&)
+	{
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
 	}
     }
 };
@@ -746,7 +773,6 @@ CallbackClient::run(int argc, char* argv[])
 	//
 	Context context;
 	context["_fwd"] = "t";
-	twoway->initiateCallbackWithPayload(twowayR, context);
 	twoway->initiateCallback(twowayR);
 	test(callbackReceiverImpl->callbackOK());
 
