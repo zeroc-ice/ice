@@ -610,7 +610,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	    if(seqType == "array" || seqType == "range:array")
 	    {
 	    	//
-		// Use array (pair<const TYPE*, const TYPE*>). In paramters only.
+		// Use array (pair<const TYPE*, const TYPE*>). In parameters only.
 		//
 	    	if(!builtin || builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindObjectProxy)
 		{
@@ -743,7 +743,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	            if(seqType.empty())
 		    {
 	                out << nl << typeToString(type, false) << " ___" << fixedParam << ";";
-	                out << nl << scope << "___" << func << (pointer ? "" : "&") << stream << ", ___"
+	                out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", ___"
 		            << fixedParam << ", " << scope << "__U__" << fixKwd(seq->name()) << "());";
 		    }
 		    else
