@@ -152,9 +152,12 @@ Allocatable::Allocatable(bool allocatable, const AllocatablePtr& parent) :
     _releasing(false)
 {
     //
-    // COMPILERFIX: the initializaton _parent((parent &&
-    // parent->isAllocatable()) ? parent : AllocatablePtr()) doesn't
-    // work on HP-UX. It results in a SEGFAULT at runtime.
+    // COMPILERFIX: the constructor initializaton:
+    //
+    //     _parent((parent && parent->isAllocatable()) ? parent : AllocatablePtr())
+    //
+    // doesn't work on HP-UX (aCC: HP ANSI C++ B3910B A.03.56). It
+    // results in a SEGFAULT at runtime.
     //
     if(parent && parent->isAllocatable())
     {
