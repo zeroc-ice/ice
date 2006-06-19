@@ -117,11 +117,17 @@ public:
     virtual bool match(const string&, string::size_type& pos) = 0;
 
     virtual const char* toString() const = 0;
+
+protected:
 };
 
 class MatchesAny : public AddressMatcher
 {
 public:
+    MatchesAny() 
+    {
+    }
+
     bool
     match(const string&, string::size_type&)
     {
@@ -527,9 +533,12 @@ public:
 class AddressRule : public Glacier2::ProxyRule
 {
 public:
-    AddressRule(const vector<AddressMatcher*>& address, MatchesNumber* port) :
+    AddressRule(const CommunicatorPtr& communicator, const vector<AddressMatcher*>& address, MatchesNumber* port,
+		const int traceLevel) :
+	_communicator(communicator),
 	_addressRules(address),
-	_portMatcher(port)
+	_portMatcher(port),
+	_traceLevel(traceLevel)
     {
     }
 
@@ -572,7 +581,17 @@ public:
 		{
 		    if(!(*i)->match(host, pos))
 		    {
+			if(_traceLevel >= 3)
+			{
+			    Trace out(_communicator->getLogger(), "Glacier2");
+			    out << (*i)->toString() << " failed to match " << host << " at pos=" << pos << "\n";
+			}
 			return false;
+		    }
+		    if(_traceLevel >= 3)
+		    {
+			Trace out(_communicator->getLogger(), "Glacier2");
+			out << (*i)->toString() << " matched " << host << " at pos=" << pos << "\n";
 		    }
 		}
 	    }
@@ -618,12 +637,15 @@ private:
 	return true;
     }
 
+    CommunicatorPtr _communicator;
     vector<AddressMatcher*> _addressRules;
     MatchesNumber* _portMatcher;
+    const int _traceLevel;
 };
 
 static void
-parseProperty(const string& property, vector<ProxyRule*>& rules)
+parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, vector<ProxyRule*>& rules, 
+	      const int traceLevel)
 {
     StartFactory startsWithFactory;
     WildCardFactory wildCardFactory;
@@ -781,7 +803,7 @@ parseProperty(const string& property, vector<ProxyRule*>& rules)
 		    currentRuleSet.push_back(currentFactory->create(addr.substr(mark, current - mark)));
 		}
 	    }
-	    allRules.push_back(new AddressRule(currentRuleSet, portMatch));
+	    allRules.push_back(new AddressRule(communicator, currentRuleSet, portMatch, traceLevel));
 	}
     }
     catch(...)
@@ -842,7 +864,7 @@ public:
     {
 	EndpointSeq endpoints = p->ice_getEndpoints();
 	bool result = (endpoints.size() > _count);
-	if(_traceLevel >= 3)
+	if(_traceLevel >= 1)
 	{
 	    Trace out(_communicator->getLogger(), "Glacier2");
 	    out << _communicator->proxyToString(p) << (result ? " exceeds " : " meets ") 
@@ -861,7 +883,7 @@ private:
 
 Glacier2::ProxyVerifier::ProxyVerifier(const CommunicatorPtr& communicator, const char* ruleSet):
     _communicator(communicator),
-    _traceLevel(communicator->getProperties()->getPropertyAsInt("Glacier2.Trace.Reject"))
+    _traceLevel(communicator->getProperties()->getPropertyAsInt("Glacier2.Client.Trace.Reject"))
 {
     //
     // Evaluation order is dependant on how the rules are stored to the
@@ -870,13 +892,13 @@ Glacier2::ProxyVerifier::ProxyVerifier(const CommunicatorPtr& communicator, cons
     string s = communicator->getProperties()->getProperty("Glacier2.Filter.Address.Accept");
     if(s != "")
     {
-	Glacier2::parseProperty(s, _acceptRules);
+	Glacier2::parseProperty(communicator, s, _acceptRules, _traceLevel);
     }
 
     s = communicator->getProperties()->getProperty("Glacier2.Filter.Address.Reject");
     if(s != "")
     {
-	Glacier2::parseProperty(s, _rejectRules);
+	Glacier2::parseProperty(communicator, s, _rejectRules, _traceLevel);
     }
 
     s = communicator->getProperties()->getProperty("Glacier2.Filter.MaxProxyLength");
