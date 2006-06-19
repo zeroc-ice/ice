@@ -52,7 +52,6 @@ public:
     virtual ~DescriptorBuilder() {  }
 
     virtual void addVariable(const XmlAttributesHelper&);
-    virtual PropertySetDescriptorBuilder* createPropertySet(const XmlAttributesHelper&) const;
 };
 
 class PropertySetDescriptorBuilder : DescriptorBuilder
@@ -101,6 +100,7 @@ public:
     virtual NodeDescriptorBuilder* createNode(const XmlAttributesHelper&);
     virtual TemplateDescriptorBuilder* createServerTemplate(const XmlAttributesHelper&);
     virtual TemplateDescriptorBuilder* createServiceTemplate(const XmlAttributesHelper&);
+    virtual PropertySetDescriptorBuilder* createPropertySet(const XmlAttributesHelper&) const;
 
     void addNode(const std::string&, const NodeDescriptor&);
     void addServerTemplate(const std::string&, const TemplateDescriptor&);
@@ -149,6 +149,7 @@ public:
     virtual ServerDescriptorBuilder* createServer(const XmlAttributesHelper&);
     virtual ServerDescriptorBuilder* createIceBox(const XmlAttributesHelper&);
     virtual ServerInstanceDescriptorBuilder* createServerInstance(const XmlAttributesHelper&);
+    virtual PropertySetDescriptorBuilder* createPropertySet(const XmlAttributesHelper&) const;
 
     void addVariable(const XmlAttributesHelper&);
     void addServer(const ServerDescriptorPtr&);

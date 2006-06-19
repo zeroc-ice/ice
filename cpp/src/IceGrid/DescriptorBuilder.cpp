@@ -150,12 +150,6 @@ DescriptorBuilder::addVariable(const XmlAttributesHelper&)
     throw "the <variable> element can't be a child of this element";
 }
 
-PropertySetDescriptorBuilder*
-DescriptorBuilder::createPropertySet(const XmlAttributesHelper& attrs) const
-{
-    return new PropertySetDescriptorBuilder(attrs);
-}
-
 PropertySetDescriptorBuilder::PropertySetDescriptorBuilder(const XmlAttributesHelper& attrs) : 
     _id(attrs("id")),
     _inPropertySetRef(false)
@@ -331,6 +325,12 @@ ApplicationDescriptorBuilder::createServiceTemplate(const XmlAttributesHelper& a
     return new TemplateDescriptorBuilder(*this, attrs, true);
 }
 
+PropertySetDescriptorBuilder*
+ApplicationDescriptorBuilder::createPropertySet(const XmlAttributesHelper& attrs) const
+{
+    return new PropertySetDescriptorBuilder(attrs);
+}
+
 void
 ApplicationDescriptorBuilder::addNode(const string& name, const NodeDescriptor& desc)
 {
@@ -427,6 +427,12 @@ ServerInstanceDescriptorBuilder*
 NodeDescriptorBuilder::createServerInstance(const XmlAttributesHelper& attrs)
 {
     return new ServerInstanceDescriptorBuilder(attrs);
+}
+
+PropertySetDescriptorBuilder*
+NodeDescriptorBuilder::createPropertySet(const XmlAttributesHelper& attrs) const
+{
+    return new PropertySetDescriptorBuilder(attrs);
 }
 
 void
