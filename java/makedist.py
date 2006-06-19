@@ -181,7 +181,7 @@ if not skipTranslators:
     if TestUtil.isHpUx():
 	os.environ["SHLIB_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("SHLIB_PATH", "")
     elif TestUtil.isDarwin():
-	os.environ["DYLD_LIBRARY_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("DYLD_LIBRRARY_PATH", "")
+	os.environ["DYLD_LIBRARY_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("DYLD_LIBRARY_PATH", "")
     elif TestUtil.isAIX():
 	os.environ["LIBPATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("LIBPATH", "")
     else:
@@ -205,8 +205,32 @@ for x in filesToRemove:
 # Build sources.
 #
 print "Compiling Java sources..."
+
 cwd = os.getcwd()
 os.chdir("icej")
+if os.environ.has_key("JAVA15_HOME"):
+    # 
+    # build with JDK 1.5 first.
+    #
+    oldpath = os.environ["PATH"]
+    if os.environ.has_key("JAVA_HOME"):
+	oldjhome = os.environ["JAVA_HOME"]
+    try:
+	os.environ["PATH"] = os.path.join(os.environ["JAVA15_HOME"], "bin") + os.pathsep + os.environ["PATH"]
+	os.environ["JAVA_HOME"] = os.environ["JAVA15_HOME"]
+
+	if verbose:
+	    quiet = ""
+	else:
+	    quiet = " -q"
+	os.system("ant" + quiet)
+	os.rename(os.path.join("lib", "Ice.jar"), "Ice.jdk15.jar")
+	os.system("ant" + quiet + " clean")
+    
+    finally:
+	os.environ["PATH"] = oldpath
+	os.environ["JAVA_HOME"] = oldjhome
+
 if verbose:
     quiet = ""
 else:
@@ -222,6 +246,13 @@ shutil.rmtree("lib")
 os.mkdir("lib")
 os.rename("Ice.jar", os.path.join("lib", "Ice.jar"))
 os.rename("IceGridGUI.jar", os.path.join("lib", "IceGridGUI.jar"))
+
+if os.environ.has_key("JAVA15_HOME"):
+    os.mkdir(os.path.join("lib", "java5"))
+    os.rename("Ice.jdk15.jar", os.path.join("lib", "java5", "Ice.jar"))
+else:
+    if os.path.exists("Ice.jdk15.jar"):
+	os.remove("Ice.jdk15.jar")
 
 #
 # Remove "generated" subdirectories.
