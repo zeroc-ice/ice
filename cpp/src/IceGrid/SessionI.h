@@ -66,7 +66,7 @@ class SessionDestroyedException
 {
 };
 
-class SessionI : virtual public Session, public BaseSessionI
+class SessionI : public BaseSessionI, public Session
 {
 public:
 
