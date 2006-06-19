@@ -932,7 +932,7 @@ Glacier2::ProxyVerifier::verify(const ObjectPrx& proxy)
 	return true;
     }
 
-    bool result;
+    bool result = false;
 
     if(_rejectRules.size() == 0)
     {
