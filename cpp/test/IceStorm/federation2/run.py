@@ -32,7 +32,7 @@ iceStormAdmin = os.path.join(toplevel, "bin", "icestormadmin")
 
 iceBoxEndpoints = ' --IceBox.ServiceManager.Endpoints="default -p 12010" --Ice.Default.Locator='
 
-iceStormService = " --IceBox.Service.IceStorm=IceStormService," + TestUtil.getIceSoVersion() + ":create" + \
+iceStormService = " --IceBox.Service.IceStorm=IceStormService," + TestUtil.getIceSoVersion() + ":createIceStorm" + \
                   ' --IceStorm.TopicManager.Endpoints="default -p 12011"' + \
                   ' --IceStorm.Publish.Endpoints="default"' + \
 		  " --IceBox.PrintServicesReady=IceStorm"

@@ -64,7 +64,7 @@
       <parameter name="publish-endpoints" default="default"/>
       <parameter name="flush-timeout" default="1000"/>
 
-      <service name="IceStorm${index}" entry="IceStormService,31:create">
+      <service name="IceStorm${index}" entry="IceStormService,31:createIceStorm">
 
         <dbenv name="${service}"/>
 

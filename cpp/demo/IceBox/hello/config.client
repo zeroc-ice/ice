@@ -30,7 +30,7 @@ Ice.Warn.Connections=1
 #
 # SSL Configuration
 #
-Ice.Plugin.IceSSL=IceSSL:create
+Ice.Plugin.IceSSL=IceSSL:createIceSSL
 IceSSL.DefaultDir=../../../certs
 IceSSL.CertAuthFile=cacert.pem
 IceSSL.CertFile=c_rsa1024_pub.pem

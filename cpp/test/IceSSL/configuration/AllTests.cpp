@@ -114,7 +114,7 @@ static PropertiesPtr
 createClientProps(const string& defaultHost)
 {
     PropertiesPtr result = createProperties();
-    result->setProperty("Ice.Plugin.IceSSL", "IceSSL:create");
+    result->setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL");
     if(!defaultHost.empty())
     {
 	result->setProperty("Ice.Default.Host", defaultHost);
@@ -126,7 +126,7 @@ static Test::Properties
 createServerProps(const string& defaultHost)
 {
     Test::Properties result;
-    result["Ice.Plugin.IceSSL"] = "IceSSL:create";
+    result["Ice.Plugin.IceSSL"] = "IceSSL:createIceSSL";
     if(!defaultHost.empty())
     {
 	result["Ice.Default.Host"] = defaultHost;

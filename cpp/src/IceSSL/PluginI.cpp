@@ -37,7 +37,7 @@ extern "C"
 {
 
 ICE_SSL_API Ice::Plugin*
-create(const CommunicatorPtr& communicator, const string& name, const StringSeq& args)
+createIceSSL(const CommunicatorPtr& communicator, const string& name, const StringSeq& args)
 {
     PluginI* plugin = new PluginI(communicator);
     return plugin;
