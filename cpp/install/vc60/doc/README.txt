@@ -22,31 +22,11 @@ See doc/README.html for information on the documentation included with
 this distribution.
 
 
-Binary compatibility
---------------------
-
-Patch releases of Ice are binary compatible. For example, version <x>.<y>.1
-is compatible with <x>.<y>.0, so you can run applications compiled with
-<x>.<y>.0 with <x>.<y>.1 (or later) assemblies without having to recompile.
-
-With the binary installers, simply uninstall the previous version of
-Ice and install the new one. Already deployed applications that were
-compiled against the <x>.<y>.<z> run time will automatically use the
-<x>.<y>.<z or z+n> assemblies.
-
-Note: Under Mono, binary compatibility currently does not work due to
-      issues with Mono. Until this problem in Mono is fixed, you cannot
-      run applications compiled with previous minor versions of Ice
-      against a newer version of the Ice assemblies. For example, an
-      application compiled with version x.y.0 of Ice cannot run with
-      the x.y.1 Ice assemblies.
-
-
 Visual Studio Requirements
 --------------------------
 
-Ice requires Visual Studio 6.0 Service Pack 5 or later. We recommend
-using the most recent update, Service Pack 6.
+This release requires Visual Studio 6.0 Service Pack 5 or later. We
+recommend using the most recent update, Service Pack 6.
 
 
 Setting up Visual Studio 6.0
@@ -98,3 +78,25 @@ window, type 'client' to start the client.
 
 Some demo directories contain README files if additional requirements
 are necessary.
+
+
+Binary compatibility
+--------------------
+
+Patch releases of Ice are binary compatible. For example, version <x>.<y>.1
+is compatible with <x>.<y>.0, so you can run applications compiled with
+<x>.<y>.0 with <x>.<y>.1 (or later) assemblies without having to recompile.
+
+With the binary installers, simply uninstall the previous version of
+Ice and install the new one. Already deployed applications that were
+compiled against the <x>.<y>.<z> run time will automatically use the
+<x>.<y>.<z or z+n> assemblies.
+
+Note: Under Mono, binary compatibility currently does not work due to
+      issues with Mono. Until this problem in Mono is fixed, you cannot
+      run applications compiled with previous minor versions of Ice
+      against a newer version of the Ice assemblies. For example, an
+      application compiled with version x.y.0 of Ice cannot run with
+      the x.y.1 Ice assemblies.
+
+

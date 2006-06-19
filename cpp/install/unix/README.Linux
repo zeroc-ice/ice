@@ -34,42 +34,24 @@ includes the following components:
 
 
 ======================================================================
-Binary compatibility
-======================================================================
-
-Patch releases of Ice are binary compatible. For example, version 3.0.1
-is compatible with 3.0.0, so you can run applications compiled with
-3.0.0 with the 3.0.1 runtime without having to recompile.
-
-With the binary installers, simply uninstall the previous version of
-Ice and install the new one. Already deployed applications that were
-compiled against the 3.0.0 runtime will automatically use the 3.0.1
-runtime.
-
-Note: Under Mono, binary compatibility currently does not work due to
-      issues with Mono. Until this problem in Mono is fixed, you cannot
-      run 3.0.0 applications against the 3.0.1 runtime.
-
-
-======================================================================
 Requirements
 ======================================================================
 
-This binary distribution was compiled on Linux Fedora Core 4 (FC4)
-using FC4's default current C++ compiler, GCC 4.0.1.
+This binary distribution was compiled on Linux Fedora Core 5 (FC5)
+using FC5's default current C++ compiler, GCC 4.1.1.
 
 This distribution depends on a number of third-party libraries:
 
-- Berkeley DB 4.3.27
-- expat 1.95
-- OpenSSL 0.9.7
-- bzip2 1.0.2
-- readline 5.0
-- ncurses 5.4
-- libgcc 4.0.1
-- libstdc++ 4.0.1 
+- Berkeley DB 4.3.29
+- expat 1.95.8
+- OpenSSL 0.9.8a
+- bzip2 1.0.3
+- readline 5.0.3
+- ncurses 5.5
+- libgcc 4.1.1
+- libstdc++ 4.1.1 
 
-All of these libraries are included with your FC4 distribution in the
+All of these libraries are included with your FC5 distribution in the
 following RPMs:
 
 Berkeley DB    db4, db4-utils, db4-java
@@ -89,6 +71,8 @@ that Berkeley DB must be configured with --enable-cxx and
 Java
 ----
 
+XXX: Brent
+
 Ice for Java requires J2SE 1.4.2 or 1.5.0. RPMs can be obtained from
 JavaSoft at http://www.javasoft.com/j2se.
 
@@ -97,28 +81,21 @@ Python
 ------
 
 The Ice extension for Python included in this distribution requires
-Python 2.4.1. The Python runtime RPM is python-2.4.1-2. If you prefer
-to use a different version of Python, you can download the Ice for
-Python source code from the ZeroC web site at
-
-http://www.zeroc.com/download.html
+Python 2.4.3. The Python runtime RPM is python-2.4.3-2.
 
 
 C#
 --
 
-Ice for C# requires Mono 1.1.9 or later. The following RPM can be
-downloaded at http://www.mono-project.com/Downloads:
-
-mono-core-1.1.9-1.novell.i586.rpm
+Ice for C# requires Mono 1.1.13.7 or later. The mono RPM is
+mono-core-1.13.7-1.
 
 
 PHP
 ---
 
 The Ice extension for PHP included in this distribution requires
-PHP 5.0.4. You can obtain a PHP source code distribution from
-http://www.php.net.
+PHP 5.1.4. The PHP RPM is php-5.1.4-1.
 
 
 ======================================================================
@@ -272,3 +249,26 @@ more information.
 
 See doc/README.html for information on the documentation included with
 this distribution.
+
+
+======================================================================
+Binary compatibility
+======================================================================
+
+Patch releases of Ice are binary compatible. For example, version
+<x>.<y>.1 is compatible with <x>.<y>.0, so you can run applications
+compiled with <x>.<y>.0 with the <x>.<y>.1 runtime without having to
+recompile.
+
+With the binary installers, simply uninstall the previous version of
+Ice and install the new one. Already deployed applications that were
+compiled against the <x>.<y>.0 runtime will automatically use the
+<x>.<y>.1 runtime.
+
+Note: Under Mono, binary compatibility currently does not work due to
+      issues with Mono. Until this problem in Mono is fixed, you cannot
+      run applications compiled with previous minor versions of Ice
+      against a newer version of the Ice assemblies. For example, an
+      application compiled with version <x>.<y>.0 of Ice cannot run with
+      the <x>.<y>.1 Ice assemblies.
+

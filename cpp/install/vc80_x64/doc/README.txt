@@ -22,24 +22,11 @@ See doc/README.html for information on the documentation included with
 this distribution.
 
 
-Binary compatibility
---------------------
+Visual Studio Requirements
+--------------------------
 
-Patch releases of Ice are binary compatible. For example, version <x>.<y>.1
-is compatible with <x>.<y>.0, so you can run applications compiled with
-<x>.<y>.0 with <x>.<y>.1 (or later) assemblies without having to recompile.
-
-With the binary installers, simply uninstall the previous version of
-Ice and install the new one. Already deployed applications that were
-compiled against the <x>.<y>.<z> run time will automatically use the
-<x>.<y>.<z or z+n> assemblies.
-
-Note: Under Mono, binary compatibility currently does not work due to
-      issues with Mono. Until this problem in Mono is fixed, you cannot
-      run applications compiled with previous minor versions of Ice
-      against a newer version of the Ice assemblies. For example, an
-      application compiled with version x.y.0 of Ice cannot run with
-      the x.y.1 Ice assemblies.
+This release requires Visual Studio 2005 version 8.0.50727.42 or
+later.
 
 
 Setting up Visual Studio 2005 
@@ -101,3 +88,24 @@ window, type 'client' to start the client.
 
 Some demo directories contain README files if additional requirements
 are necessary.
+
+
+Binary compatibility
+--------------------
+
+Patch releases of Ice are binary compatible. For example, version <x>.<y>.1
+is compatible with <x>.<y>.0, so you can run applications compiled with
+<x>.<y>.0 with <x>.<y>.1 (or later) assemblies without having to recompile.
+
+With the binary installers, simply uninstall the previous version of
+Ice and install the new one. Already deployed applications that were
+compiled against the <x>.<y>.<z> run time will automatically use the
+<x>.<y>.<z or z+n> assemblies.
+
+Note: Under Mono, binary compatibility currently does not work due to
+      issues with Mono. Until this problem in Mono is fixed, you cannot
+      run applications compiled with previous minor versions of Ice
+      against a newer version of the Ice assemblies. For example, an
+      application compiled with version <x>.<y>.0 of Ice cannot run with
+      the <x>.<y>.1 Ice assemblies.
+

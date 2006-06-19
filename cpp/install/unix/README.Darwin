@@ -37,12 +37,14 @@ includes the following components:
 Requirements
 ======================================================================
 
-This binary distribution was compiled on Mac OS X 10.3.9 using the
-default C++ compiler, GCC 3.3.
+This binary distribution was compiled on Mac OS X 10.4.6 using the
+default C++ compiler, GCC 4.0.1.
 
 
 Java
 ----
+
+XXX: Brent
 
 Ice for Java requires J2SE 1.4.2 which is included with Mac OS X
 10.3.4 and later.
@@ -52,7 +54,7 @@ Python
 ------
 
 The Ice extension for Python included in this distribution requires
-Python 2.3 installed with Mac OS X 10.3. If you prefer to use Python
+Python 2.3 installed with Mac OS X 10.4. If you prefer to use Python
 2.4, you can download the Ice for Python source code from the ZeroC
 web site at http://www.zeroc.com/download.html.
 
@@ -63,7 +65,7 @@ Berkeley DB and Expat
 
 This distribution includes the C++ and Java runtime for Berkeley DB
 4.3.29 and the Expat 1.95.8 library. The Berkeley DB C++ runtime was
-built using GCC 3.3. The Berkeley DB and Expat licenses are provided
+built using GCC 4.0.1. The Berkeley DB and Expat licenses are provided
 in the file THIRD_PARTY_LICENSE.
 
 
@@ -102,6 +104,8 @@ such as IceGrid or Glacier2.
 
 Java
 ----
+
+XXX: Brent
 
 To use Ice for Java, you must add $ICE_HOME/lib/Ice.jar to your
 CLASSPATH, as shown below:
@@ -158,3 +162,26 @@ more information.
 
 See doc/README.html for information on the documentation included with
 this distribution.
+
+
+======================================================================
+Binary compatibility
+======================================================================
+
+Patch releases of Ice are binary compatible. For example, version
+<x>.<y>.1 is compatible with <x>.<y>.0, so you can run applications
+compiled with <x>.<y>.0 with the <x>.<y>.1 runtime without having to
+recompile.
+
+With the binary installers, simply uninstall the previous version of
+Ice and install the new one. Already deployed applications that were
+compiled against the <x>.<y>.0 runtime will automatically use the
+<x>.<y>.1 runtime.
+
+Note: Under Mono, binary compatibility currently does not work due to
+      issues with Mono. Until this problem in Mono is fixed, you cannot
+      run applications compiled with previous minor versions of Ice
+      against a newer version of the Ice assemblies. For example, an
+      application compiled with version <x>.<y>.0 of Ice cannot run with
+      the <x>.<y>.1 Ice assemblies.
+

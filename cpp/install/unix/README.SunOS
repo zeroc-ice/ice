@@ -38,13 +38,13 @@ Requirements
 ======================================================================
 
 This binary distribution was compiled on Solaris 9 using Sun CC
-version 5.4.
+version 5.5.
 
 The following Solaris 9 binary packages, available from
 http://www.sunfreeware.com, are required to use this distribution:
 
 - expat 1.95.5
-- openssl 0.9.7e
+- openssl 0.9.8b
 - libgcc 3.3
 
 You also need the bzip2 library version 1.0.2:
@@ -56,6 +56,8 @@ You also need the bzip2 library version 1.0.2:
 
 Java
 ----
+
+XXX: Brent
 
 Ice for Java requires J2SE 1.4.2 or 1.5.0. RPMs can be obtained from
 JavaSoft at http://www.javasoft.com/j2se
@@ -181,3 +183,26 @@ more information.
 
 See doc/README.html for information on the documentation included with
 this distribution.
+
+
+======================================================================
+Binary compatibility
+======================================================================
+
+Patch releases of Ice are binary compatible. For example, version
+<x>.<y>.1 is compatible with <x>.<y>.0, so you can run applications
+compiled with <x>.<y>.0 with the <x>.<y>.1 runtime without having to
+recompile.
+
+With the binary installers, simply uninstall the previous version of
+Ice and install the new one. Already deployed applications that were
+compiled against the <x>.<y>.0 runtime will automatically use the
+<x>.<y>.1 runtime.
+
+Note: Under Mono, binary compatibility currently does not work due to
+      issues with Mono. Until this problem in Mono is fixed, you cannot
+      run applications compiled with previous minor versions of Ice
+      against a newer version of the Ice assemblies. For example, an
+      application compiled with version <x>.<y>.0 of Ice cannot run with
+      the <x>.<y>.1 Ice assemblies.
+
