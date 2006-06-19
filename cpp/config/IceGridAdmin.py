@@ -173,8 +173,12 @@ def iceGridTest(name, application, additionalOptions = "", applicationOptions = 
         iceGridAdmin("application remove Test")
         print "ok"
 
+    print "shutting down icegrid node...",
     iceGridAdmin("node shutdown localnode")
+    print "ok"
+    print "shutting down icegrid registry...",
     iceGridAdmin("shutdown")
+    print "ok"
 
     TestUtil.joinServers()
 
@@ -212,7 +216,9 @@ def iceGridClientServerTest(name, additionalClientOptions, additionalServerOptio
         TestUtil.killServers()
         sys.exit(1)
 
+    print "shutting down icegrid registry...",
     iceGridAdmin("shutdown")
+    print "ok"
 
     TestUtil.joinServers()
 
