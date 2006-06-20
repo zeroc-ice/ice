@@ -54,8 +54,6 @@ http://www.ibm.com/servers/aix/products/aixos/linux/ezinstall.html
 Java
 ----
 
-XXX: Brent
-
 Ice for Java requires J2SE 1.4.2 or 1.5.0. Java for AIX is available
 from IBM at
 
@@ -122,6 +120,11 @@ CLASSPATH, as shown below:
 
 $ export CLASSPATH=$ICE_HOME/lib/Ice.jar:$CLASSPATH
 
+To use the Java5 version of Ice instead, modify your CLASSPATH as
+follows:
+
+$ export CLASSPATH=$ICE_HOME/lib/java5/Ice.jar:$CLASSPATH
+
 If you plan to use Freeze for persistence, you must also add the
 Berkeley DB JAR file (db.jar) to your CLASSPATH:
 
@@ -162,6 +165,7 @@ more information.
 
 See doc/README.html for information on the documentation included with
 this distribution.
+
 
 ======================================================================
 Binary compatibility

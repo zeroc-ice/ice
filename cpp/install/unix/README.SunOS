@@ -57,8 +57,6 @@ You also need the bzip2 library version 1.0.2:
 Java
 ----
 
-XXX: Brent
-
 Ice for Java requires J2SE 1.4.2 or 1.5.0. RPMs can be obtained from
 JavaSoft at http://www.javasoft.com/j2se
 
@@ -67,7 +65,7 @@ Python
 ------
 
 The Ice extension for Python included in this distribution requires
-Python 2.4.2. It was compiled against a source distribution from
+Python 2.4.3. It was compiled against a source distribution from
 http://www.python.org. If you prefer to use Python 2.3, you can
 download the Ice for Python source code from the ZeroC web site at
 http://www.zeroc.com/download.html.
@@ -132,6 +130,11 @@ To use Ice for Java, you must add $ICE_HOME/lib/Ice.jar to your
 CLASSPATH, as shown below:
 
 $ export CLASSPATH=$ICE_HOME/lib/Ice.jar:$CLASSPATH
+
+To use the Java5 version of Ice instead, modify your CLASSPATH as
+follows:
+
+$ export CLASSPATH=$ICE_HOME/lib/java5/Ice.jar:$CLASSPATH
 
 If you plan to use Freeze for persistence, you must also add the
 Berkeley DB JAR file (db.jar) to your CLASSPATH:

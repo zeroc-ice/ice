@@ -55,9 +55,6 @@ libraries, and executables.
 Using the IceGrid Administrative Console
 ----------------------------------------
 
-XXX: Brent!
-
-
 A Java-based graphical tool for administering IceGrid applications
 is included in this distribution. The Java archive (JAR) file is
 installed as
@@ -93,6 +90,7 @@ window, type 'client' to start the client.
 Some demo directories contain README files if additional requirements
 are necessary.
 
+
 Building and running the C# demos
 ---------------------------------
 
@@ -108,6 +106,11 @@ Command Prompt window, type 'client.exe' to run the client.
 
 Some demo directories contain README files if additional requirements
 are necessary.
+
+For backward compatibility with .NET 1.1 users, support for SSL is
+disabled by default in the demos. To enable SSL, edit the config.*
+files in each demo directory and follow the instructions in the
+comments.
 
 
 Building and running the Visual Basic demos
@@ -132,8 +135,6 @@ Building and running the Java demos
 
 The Java demos are in the demoj directory.
 
-XXX: Brent!
-
 To build the Java demos, you need the Java SDK 1.4.2 or later, and Ant
 1.6.3 or later. They can be downloaded from:
 
@@ -155,6 +156,11 @@ Before running the demos you must modify your CLASSPATH as follows:
 
 set CLASSPATH=%ICE_HOME%\lib\Ice.jar;%ICE_HOME%\lib\db.jar;classes;%CLASSPATH%
 
+If you prefer to use Ice for Java5 instead, modify your CLASSPATH
+as shown below:
+
+set CLASSPATH=%ICE_HOME%\lib\java5\Ice.jar;%ICE_HOME%\lib\db.jar;classes;%CLASSPATH%
+
 In addition, the JVM requires the directory containing the Berkeley DB
 libraries to be listed in java.library.path, therefore the Ice bin
 directory must be in your PATH in order to use the Java demos that
@@ -174,13 +180,12 @@ Some demo directories contain README files if additional requirements
 are necessary.
 
 
-
 Running the Python demos
 ------------------------
 
 The Python demos are in the demopy directory.
 
-You need Python 2.4.2 to run the demos. A binary installer for Python
+You need Python 2.4.3 to run the demos. A binary installer for Python
 can be downloaded from:
 
 http://www.python.org/download

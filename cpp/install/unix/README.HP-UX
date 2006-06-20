@@ -58,7 +58,7 @@ Python
 ------
 
 The Ice extension for Python included in this distribution requires
-Python 2.4.2. We built Python 2.4.2 using the source distribution from
+Python 2.4.3. We built Python 2.4.3 using the source distribution from
 http://www.python.org. If you build Python from source, you need to
 to use the following configure options:
 
@@ -126,6 +126,11 @@ To use Ice for Java, you must add $ICE_HOME/lib/Ice.jar to your
 CLASSPATH, as shown below:
 
 $ export CLASSPATH=$ICE_HOME/lib/Ice.jar:$CLASSPATH
+
+To use the Java5 version of Ice instead, modify your CLASSPATH as
+follows:
+
+$ export CLASSPATH=$ICE_HOME/lib/java5/Ice.jar:$CLASSPATH
 
 If you plan to use Freeze for persistence, you must also add the
 Berkeley DB JAR file (db.jar) to your CLASSPATH:

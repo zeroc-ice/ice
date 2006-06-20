@@ -44,10 +44,8 @@ default C++ compiler, GCC 4.0.1.
 Java
 ----
 
-XXX: Brent
-
-Ice for Java requires J2SE 1.4.2 which is included with Mac OS X
-10.3.4 and later.
+Ice for Java requires J2SE 1.4.2, which is included with Mac OS X
+10.3.4 and later, or J2SE 1.5.0.
 
 
 Python
@@ -105,12 +103,15 @@ such as IceGrid or Glacier2.
 Java
 ----
 
-XXX: Brent
-
 To use Ice for Java, you must add $ICE_HOME/lib/Ice.jar to your
 CLASSPATH, as shown below:
 
 $ export CLASSPATH=$ICE_HOME/lib/Ice.jar:$CLASSPATH
+
+To use the Java5 version of Ice instead, modify your CLASSPATH as
+follows:
+
+$ export CLASSPATH=$ICE_HOME/lib/java5/Ice.jar:$CLASSPATH
 
 If you plan to use Freeze for persistence, you must also add the
 Berkeley DB JAR file (db.jar) to your CLASSPATH:

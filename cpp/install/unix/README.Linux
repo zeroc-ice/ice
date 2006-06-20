@@ -71,8 +71,6 @@ that Berkeley DB must be configured with --enable-cxx and
 Java
 ----
 
-XXX: Brent
-
 Ice for Java requires J2SE 1.4.2 or 1.5.0. RPMs can be obtained from
 JavaSoft at http://www.javasoft.com/j2se.
 
@@ -119,7 +117,9 @@ $ export LD_LIBRARY_PATH=$ICE_HOME/lib:$LD_LIBRARY_PATH
 With the x86_64 distribution, libraries are installed in 
 $ICE_HOME/lib64; if you use this distribution, set your 
 LD_LIBRARY_PATH as follows:
+
 $ export LD_LIBRARY_PATH=$ICE_HOME/lib64:$LD_LIBRARY_PATH
+
 
 C++
 ---
@@ -136,6 +136,7 @@ Use -L$ICE_HOME/lib64 instead of -L$ICE_HOME/lib for 64-bit builds.
 Additional libraries are necessary if you are using an Ice service
 such as IceGrid or Glacier2.
 
+
 Java
 ----
 
@@ -143,6 +144,11 @@ To use Ice for Java, you must add $ICE_HOME/lib/Ice.jar to your
 CLASSPATH, as shown below:
 
 $ export CLASSPATH=$ICE_HOME/lib/Ice.jar:$CLASSPATH
+
+To use the Java5 version of Ice instead, modify your CLASSPATH as
+follows:
+
+$ export CLASSPATH=$ICE_HOME/lib/java5/Ice.jar:$CLASSPATH
 
 If you plan to use Freeze for persistence, you must also add the
 Berkeley DB JAR file (db.jar) to your CLASSPATH:

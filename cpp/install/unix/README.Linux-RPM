@@ -60,6 +60,11 @@ in the following bash command:
 
 $ export CLASSPATH=/usr/lib/Ice-@ver@/Ice.jar:$CLASSPATH
 
+To use the Java5 version of Ice instead, modify your CLASSPATH as
+follows:
+
+$ export CLASSPATH=/usr/lib/Ice-@ver@/java5/Ice.jar:$CLASSPATH
+
 Note that the Freeze component of Ice for Java requires Berkeley DB.
 In order to use Freeze, you must add db.jar to your CLASSPATH. In
 addition, the JVM requires the directory containing the Berkeley DB
