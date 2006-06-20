@@ -42,6 +42,7 @@ registryOptions = r' --Ice.Warn.Connections=0' + \
                   r' --IceGrid.Registry.Admin.Endpoints=default' + \
                   r' --IceGrid.Registry.Trace.Session=0' + \
                   r' --IceGrid.Registry.Trace.Application=0' + \
+                  r' --IceGrid.Registry.Trace.Node=0' + \
                   r' --IceGrid.Registry.Trace.Adapter=0' + \
                   r' --IceGrid.Registry.Trace.Object=0' + \
                   r' --IceGrid.Registry.Trace.Server=0' + \
@@ -119,7 +120,7 @@ def iceGridAdmin(cmd, ignoreFailure = False):
 
     output = iceGridAdminPipe.readlines()
         
-    iceGridAdminStatus = iceGridAdminPipe.close()
+    iceGridAdminStatus = TestUtil.closePipe(iceGridAdminPipe)
     if not ignoreFailure and iceGridAdminStatus:
         print "icegridadmin command failed: " + cmd
         TestUtil.killServers()

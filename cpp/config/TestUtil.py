@@ -145,6 +145,9 @@ def closePipe(pipe):
 	# TODO: There's a waitpid problem on CentOS, so we have to ignore ECHILD.
 	if ex.errno == errno.ECHILD:
 	    status = 0
+        # This happens with the test/IceGrid/simple test on AIX
+        elif ex.errno == 0:
+            status = 0
 	else:
 	    raise
 
