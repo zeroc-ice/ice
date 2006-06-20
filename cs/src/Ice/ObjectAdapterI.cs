@@ -1087,21 +1087,21 @@ namespace Ice
 			locatorRegistry.setReplicatedAdapterDirectProxy(_id, _replicaGroupId, proxy);
 		    }
 		}
-		catch(AdapterNotFoundException ex)
+		catch(AdapterNotFoundException)
 		{
 		    NotRegisteredException ex1 = new NotRegisteredException();
 		    ex1.kindOfObject = "object adapter";
 		    ex1.id = _id;
 		    throw ex1;
 		}
-		catch(InvalidReplicaGroupIdException ex)
+		catch(InvalidReplicaGroupIdException)
 		{
 		    NotRegisteredException ex1 = new NotRegisteredException();
 		    ex1.kindOfObject = "replica group";
 		    ex1.id = _replicaGroupId;
 		    throw ex1;
 		}
-		catch(AdapterAlreadyActiveException ex)
+		catch(AdapterAlreadyActiveException)
 		{
 		    ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
 		    ex1.id = _id;
@@ -1117,7 +1117,7 @@ namespace Ice
 		    Ice.ObjectPrx process = createDirectProxy(addWithUUID(servant).ice_getIdentity());
 		    locatorRegistry.setServerProcessProxy(serverId, ProcessPrxHelper.uncheckedCast(process));
 		}
-		catch(ServerNotFoundException ex)
+		catch(ServerNotFoundException)
 		{
 		    NotRegisteredException ex1 = new NotRegisteredException();
 		    ex1.id = serverId;
