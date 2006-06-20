@@ -63,9 +63,6 @@ IceInternal::UdpTransceiver::shutdownReadWrite()
     IceUtil::Mutex::Lock sync(_shutdownReadWriteMutex);
     _shutdownReadWrite = true;
 
-    assert(_fd != INVALID_SOCKET);
-    shutdownSocketReadWrite(_fd);
-
 #if defined(_WIN32) || defined(__sun) || defined(__hppa) || defined(_AIX)
     //
     // On certain platforms, we have to explicitly wake up a thread blocked in
@@ -73,10 +70,13 @@ IceInternal::UdpTransceiver::shutdownReadWrite()
     //
 
     //
-    // Save the local address before disconnecting.
+    // Save the local address before shutting down or disconnecting.
     //
     struct sockaddr_in localAddr;
     fdToLocalAddress(_fd, localAddr);
+
+    assert(_fd != INVALID_SOCKET);
+    shutdownSocketReadWrite(_fd);
 
     //
     // A connected UDP socket can only receive packets from its associated
@@ -99,6 +99,9 @@ IceInternal::UdpTransceiver::shutdownReadWrite()
     doConnect(fd, localAddr, -1);
     ::send(fd, "", 1, 0);
     closeSocket(fd);
+#else
+    assert(_fd != INVALID_SOCKET);
+    shutdownSocketReadWrite(_fd);
 #endif
 }
 
