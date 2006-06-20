@@ -23,8 +23,9 @@ $ make
 
 in the top-level directory.
 
-You need to set (and export) ICE_HOME to the top-level directory of an Ice for C++
-installation. (The makefiles look there for a bin directory that contains slice2cs.)
+You need to set (and export) ICE_HOME to the top-level directory of
+an Ice for C++ installation. (The makefiles look there for a bin
+directory that contains slice2cs.)
 
 
 Configuring Linux to recognize Mono binaries
@@ -82,16 +83,16 @@ You can also run individual tests in the various test directories with
 "python run.py".
 
 If you have the Mono run time installed under Windows, you can also
-execute the tests using the Mono run time (instead of the .NET run time).
-To do this, add the -m option to allTests.py or run.py.
+execute the tests using the Mono run time (instead of the .NET run
+time). To do this, add the -m option to allTests.py or run.py.
 
 
 Running the demos
 -----------------
 
-To run the demos, you need to have IceCS-@ver@/bin in your MONO_PATH (or
-install the Ice DLLs in the GAC, as for running the tests).  See the
-README file in each demo directory for a description of each demo.
+To run the demos, you need to have IceCS-@ver@/bin in your MONO_PATH
+(or install the Ice DLLs in the GAC, as for running the tests). See
+the README file in each demo directory for a description of each demo.
 
 
 Installation
@@ -129,6 +130,6 @@ Known Issues
 - Binary compatibility: Mono currently has issues with forwarding
   requests to load a particular version of the runtime to a different
   version. Until this is resolved in Mono, you cannot run applications
-  compiled with previous minor versions of Ice against a newer version of
-  the assemblies. For example, an application compiled with version
+  compiled with previous minor versions of Ice against a newer version
+  of the assemblies. For example, an application compiled with version
   x.y.0 of Ice cannot run with the x.y.1 Ice assemblies.
