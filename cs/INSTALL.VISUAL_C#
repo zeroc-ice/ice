@@ -34,7 +34,7 @@ If you are using Visual C# Version 8 then you should open All.sln in
 Visual C# and build the "All" solution (both debug and release builds
 are supported). This builds support for .NET 2.
 
-Please note that IceSSL requires .NET 2. It is not build if you are
+Please note that IceSSL requires .NET 2. It is not built if you are
 using .NET 1.1.
 
 Note: The first time you build, you will most likely find that you get
