@@ -276,6 +276,7 @@ communicatorShutdown(CommunicatorObject* self)
     assert(self->communicator);
     try
     {
+	AllowThreads allowThreads; // Release Python's global interpreter lock to avoid a potential deadlock.
         (*self->communicator)->shutdown();
     }
     catch(const Ice::Exception& ex)
@@ -500,6 +501,7 @@ communicatorFlushBatchRequests(CommunicatorObject* self)
     assert(self->communicator);
     try
     {
+	AllowThreads allowThreads; // Release Python's global interpreter lock to avoid a potential deadlock.
         (*self->communicator)->flushBatchRequests();
     }
     catch(const Ice::Exception& ex)
@@ -714,7 +716,6 @@ communicatorGetDefaultContext(CommunicatorObject* self)
     {
         setPythonException(ex);
         return NULL;
-
     }
 
     PyObjectHandle dict = PyDict_New();
@@ -835,6 +836,8 @@ communicatorCreateObjectAdapterWithRouter(CommunicatorObject* self, PyObject* ar
 	PyErr_Format(PyExc_ValueError, STRCAST("ice_createObjectAdapterWithRouter requires None or Ice.RouterPrx"));
 	return NULL;
     }
+
+    AllowThreads allowThreads; // Release Python's global interpreter lock to avoid a potential deadlock.
 
     assert(self->communicator);
     Ice::ObjectAdapterPtr adapter;
