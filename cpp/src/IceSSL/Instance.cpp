@@ -42,6 +42,9 @@ opensslPasswordCallback(char* buf, int size, int flag, void* userData)
     }
     strncpy(buf, passwd.c_str(), sz);
     buf[sz] = '\0';
+
+    memset(&passwd[0], 0, static_cast<size_t>(passwd.size()));
+
     return sz;
 }
 
