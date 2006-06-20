@@ -1,4 +1,2 @@
-f,slice2cpp/Release/slice2cpp.exe
-f,slice2freeze/Release/slice2freeze.exe
-f,IceBox/Debug/iceboxd.exe
-f,IceBox/Debug/iceboxd.pdb
+slice2cpp
+slice2freeze
