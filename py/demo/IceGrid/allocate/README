@@ -24,7 +24,7 @@ $ icegridadmin --Ice.Config=config.grid -e \
 
 To run the client type:
 
-$ python Client
+$ python Client.py
 
 If you have already deployed the application, you can update it to try
 a different set of descriptors, for example:
