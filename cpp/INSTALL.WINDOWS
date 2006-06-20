@@ -47,7 +47,7 @@ Ice has dependencies on a number of third-party libraries:
 - STLport 4.5 or later (required for Visual C++ 6.0)
 - Berkeley DB 4.3.29
 - expat 1.9x
-- OpenSSL 0.9.6 or later
+- OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
 - bzip2 1.0
 
 If you have downloaded an Ice binary installer, you already have all 
@@ -182,7 +182,7 @@ If you built the tests you can run the test suite, provided that you
 have installed Python. Open a command prompt and change to the top-
 level Ice directory. At the command prompt, execute:
 
-python allTests.py
+  python allTests.py
 
 If everything worked out, you should see lots of "ok" messages. In
 case of a failure, the tests abort with "failed".

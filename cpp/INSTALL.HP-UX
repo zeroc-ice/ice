@@ -15,7 +15,7 @@ for free from http://software.hp.com.
 C++ compiler
 ------------
 
-HP aC++ A.03.37
+HP aC++ A.03.56
 
 More recent versions of aC++ are likely to work as well.
 
@@ -44,6 +44,9 @@ Ice has dependencies on a number of third-party libraries:
   $ ../dist/configure --enable-cxx
   (plus --prefix=<dir> and/or --enable-java if you like)
   $ gmake
+
+  If you intend to use Ice for Java with Berkeley DB, you must also
+  include the option --enable-java.
 
   For 64 bit builds, use:
 

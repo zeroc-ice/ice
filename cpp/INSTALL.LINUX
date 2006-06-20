@@ -28,17 +28,9 @@ Ice has dependencies on a number of third-party libraries:
   You can download the Berkeley DB source distribution from
   http://www.sleepycat.com/download
 
-  On Fedora Core 4, we recommend changing the default optimization
-  level when building Berkeley DB in order to avoid a compiler bug
-  in the FC4 version of GCC. If you are building with Java support
-  this is absolutely necessary. We recommend that you use the
-  following syntax when you run configure:
-
-  $ CFLAGS="-O1" ../dist/configure <your configure options>
-
 - expat 1.9x
 
-- OpenSSL 0.9.7 or later
+- OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
 
 - bzip2 1.0
 
