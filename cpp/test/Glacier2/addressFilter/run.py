@@ -75,7 +75,7 @@ else:
 try:
     testaddr = socket.gethostbyname(fqdn)
     testaddr = socket.gethostbyname(hostname)
-except e:
+except:
     limitedTests = True
 
 testcases = []
@@ -214,6 +214,8 @@ for testcase in testcases:
 
     routerConfig.close()
 
+    if TestUtil.debug:
+	print "(" + routerCmd + ")",
     starterPipe = os.popen(routerCmd + " 2>&1")
     TestUtil.getServerPid(starterPipe)
     TestUtil.getAdapterReady(starterPipe)
@@ -225,8 +227,10 @@ for testcase in testcases:
 	serverConfig.write("BackendAdapter.Endpoints=tcp -p 12010 -t 20000\n")
 	serverConfig.close()
 
-    serverCmd = os.path.join(testdir, 'server') + serverOptions + " 2>&1"
-    serverPipe = os.popen(serverCmd)
+    serverCmd = os.path.join(testdir, 'server') + serverOptions
+    if TestUtil.debug:
+	print "(" + serverCmd + ")",
+    serverPipe = os.popen(serverCmd + " 2>&1")
     TestUtil.getServerPid(serverPipe)
     TestUtil.getAdapterReady(serverPipe)
     pingProgress()
@@ -240,7 +244,9 @@ for testcase in testcases:
     #
     clientCmd = os.path.join(testdir, 'client') + clientOptions + \
                 " --Ice.Config=" + os.path.join(testdir, 'attack.cfg') + " "
-    clientPipe = os.popen(clientCmd)
+    if TestUtil.debug:
+	print "(" + clientCmd + ")",
+    clientPipe = os.popen(clientCmd + " 2>&1")
     TestUtil.ignorePid(clientPipe)
 
     TestUtil.printOutputFromPipe(clientPipe)
