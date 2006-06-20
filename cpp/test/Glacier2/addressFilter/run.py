@@ -77,6 +77,9 @@ try:
     testaddr = socket.gethostbyname(hostname)
 except:
     limitedTests = True
+    hostname = "127.0.0.1"
+    fqdn = ""
+    domainname = ""
 
 testcases = []
 
