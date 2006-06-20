@@ -1,15 +1,18 @@
 Changes since version 3.0.1
 ---------------------------
 
-- Removed getDefaultProperties(). If you need global properties, 
-  you can easily create your own global variable.
+- Removed getDefaultProperties() functions, and the global default
+  properties. If you need global properties, you can easily create
+  your own global variable.
 
-- createProperties() accepts now a third optional parameter,
-  defaults, of type Ice.Properties.
-  "defaults" represents an optional set of default properties
-  used to initialize the new Properties object. Ice properties
-  defined on the command-line and properties defined in the Ice
-  config file may override these default properties.
+- The signature of Ice.createProperties() is now:
+
+  def createProperties(args=[], defaults=None)
+
+  where "defaults" represents an optional set of default properties
+  used to initialize the new Properties object. Ice properties 
+  defined on the command line and properties defined in a
+  configuration file override these default properties.
 
 - Added ability to configure Ice thread start/stop hooks through
   InitializationData.
@@ -17,27 +20,102 @@ Changes since version 3.0.1
 - Added identityToString and stringToIdentity to the Communicator
   interface.
 
-- It is now permissible to recreate a new object adapter with the same 
-  name as an old adapter once waitForDeactivate() has returned on the
+- It is now possible to recreate a new object adapter with the same 
+  name as an old adapter once waitForDeactivate() has completed on the
   old adapter.
 
-- Added new method Ice::Communicator::createObjectAdapterWithRouter()
-  which creates a routed object adapter. A object adapter can now only
-  have one router associated with it, which is set with using this 
-  method or by setting the <AdapterName>.Router property.  Also 
-  as a result of this the Ice::ObjectAdapter::addRouter() and
-  Ice::ObjectAdapter::removeRouter() methods have been removed.
+- Added new operation Communicator::createObjectAdapterWithRouter(),
+  which creates a routed object adapter. An object adapter may now
+  be associated with at most one router, which is defined using this
+  operation or by setting the <AdapterName>.Router property. Also
+  as a result of this change, the ObjectAdapter::addRouter() and
+  ObjectAdapter::removeRouter() operations have been removed.
 
-- Added communicator initialize method which takes a InitializationData
-  structure containing communicator members which are only allowed
-  to be set during communicator creation. Currently included are
-  Properties, Logger, Stats and default context. The initializeWith 
-  communicator initialization functions have been deprecated and the 
-  setLogger(), setStats() and setDefaultContext() methods have been 
-  removed.
+- The Ice.initialize() function now takes an optional argument of type
+  Ice.InitializationData. This class contains containing communicator
+  members that may only be set during communicator initialization.
+  Currently included are Properties, Logger, Stats, default context
+  and the thread hooks. The initializeWithXXX functions have been
+  deprecated and the setLogger(), setStats() and setDefaultContext()
+  operations have been removed.
 
 - Fixed an assertion failure in the object adapter when find is called
   for a non-existent identity.
+
+- Added a new operation addProxies() to Ice::Router, which can return
+  evicted proxies. The old operation addProxy() is now deprecated.
+  Note that this is an internal interface for communications between
+  clients and routers (such as Glacier2).
+
+- The ice_timeout and ice_compress proxy methods now correctly
+  override the timeout and compress flag of indirect proxy endpoints.
+
+- Added proxy methods ice_getSecure, ice_getLocator, ice_getRouter.
+
+- Deprecated the following proxy methods:
+
+  ice_communicator
+  ice_connection
+  ice_newIdentity
+  ice_newFacet
+  ice_newContext
+  ice_newAdapterId
+  ice_newEndpoints
+
+  These methods will be removed in the next major release. You should
+  use the new methods shown below:
+
+  ice_getCommunicator
+  ice_getConnection
+  ice_identity
+  ice_facet
+  ice_context
+  ice_adapterId
+  ice_endpoints
+
+- Added requestId to Current, which allows a servant to determine
+  whether an operation was invoked with oneway or twoway semantics.
+  The requestId member is 0 for oneway invocations.
+
+- AMI invocations will now reuse the connection cached with the
+  proxy instead of always looking up an existing connection for
+  each invocation. As a side effect of this change, AMI invocations 
+  on a proxy with collocation optimization enabled will now raise
+  Ice::CollocationOptimizationException.
+
+- Added the property Ice.Default.LocatorCacheTimeout and the proxy
+  method ice_locatorCacheTimeout(). If a cached endpoint is older
+  than the configured cache timeout, the Ice runtime won't use
+  the cached endpoint. Instead, the Ice runtime will query the
+  Ice locator service to retrieve up-to-date endpoints and then update
+  the locator cache. Please see the Ice manual for more information.
+
+- Added the proxy method ice_endpointSelection, which allows an
+  application to control how endpoints are selected at connection
+  establishment. Two endpoint selection types are currently supported:
+  Random and Ordered.
+
+- Added the proxy method ice_cacheConnection. This method allows you
+  to enable or disable the caching of the connection by the proxy. By
+  default, the proxy will cache the connection to avoid looking it up
+  for each request. Disabling the connection caching is useful to do
+  per-request load balancing: the proxy will select a connection for
+  each request and the request will eventually be sent to different 
+  servers.
+
+- Performance improvements if an AMI callback object is reused with
+  the same proxy.
+
+- If several proxies share the same connection, and an operation call
+  on one of the proxies causes a failure and the shared connection to
+  be closed, then subsequent calls on the other proxies will try to
+  establish a new connection instead of throwing an exception, even if
+  retries are disabled.
+
+- If a proxy is not configured with the -h parameter, Ice will now
+  attempt to connect using all local interfaces. The loopback
+  interface (127.0.0.1) will only be tried if it is the only local
+  interface present.
 
 Changes since version 3.0.0
 ---------------------------

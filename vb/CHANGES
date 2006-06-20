@@ -5,25 +5,12 @@ Changes since version 3.0.1
   ice_write and ice_read member functions replace their internal
   equivalents (__write and __read).
 
-- Fixed bug in identityToString() and proxyToString() that could
-  cause incorrect string values to be returned for identities
-  containing characters outside the ASCII range or for characters
-  that must be escaped, such as '/'.
-
-- Fixed bug in addRouter() and removeRouter() that could cause the
-  run time to get confused about which routers were active installed.
-
-- If a proxy is not configured with a -h parameter, Ice will now
-  attempt to connect using all local interfaces. The loopback interface 
-  (127.0.0.1) will only be tried if it is the only local interface present.
-
 - Added the "clr:property" directive for classes and structures.
   If used, the property causes Slice data members to be mapped
   to properties instead.
 
-- createReverseProxy() did not use the default context established
-  on the communicator and created a proxy with an empty context
-  instead. This has been fixed.
+- For more information on changes in this release, see the CHANGES
+  file for C#.
 
 Changes since version 3.0.0
 ---------------------------

@@ -1,6 +1,8 @@
 Changes since version 3.0.1
 ---------------------------
 
+- PHP 5.1.4 is the required version for this release.
+
 - Added identityToString and stringToIdentity to the Communicator
   interface.
 
@@ -8,6 +10,49 @@ Changes since version 3.0.1
 
 - Eliminated the source of deprecation warnings when E_STRICT is
   enabled.
+
+- Added proxy method ice_getSecure.
+
+- Deprecated the following proxy methods:
+
+  ice_communicator
+  ice_connection
+  ice_newIdentity
+  ice_newFacet
+  ice_newContext
+  ice_newAdapterId
+  ice_newEndpoints
+
+  These methods will be removed in the next major release. You should
+  use the new methods shown below:
+
+  ice_getCommunicator
+  ice_getConnection
+  ice_identity
+  ice_facet
+  ice_context
+  ice_adapterId
+  ice_endpoints
+
+- Added the property Ice.Default.LocatorCacheTimeout and the proxy
+  method ice_locatorCacheTimeout(). If a cached endpoint is older
+  than the configured cache timeout, the Ice runtime won't use
+  the cached endpoint. Instead, the Ice runtime will query the
+  Ice locator service to retrieve up-to-date endpoints and then update
+  the locator cache. Please see the Ice manual for more information.
+
+- Added the proxy method ice_endpointSelection, which allows an
+  application to control how endpoints are selected at connection
+  establishment. Two endpoint selection types are currently supported:
+  Random and Ordered.
+
+- Added the proxy method ice_cacheConnection. This method allows you
+  to enable or disable the caching of the connection by the proxy. By
+  default, the proxy will cache the connection to avoid looking it up
+  for each request. Disabling the connection caching is useful to do
+  per-request load balancing: the proxy will select a connection for
+  each request and the request will eventually be sent to different 
+  servers.
 
 - Added support for the Ice::Connection interface.
 

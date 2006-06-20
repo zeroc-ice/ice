@@ -1,25 +1,36 @@
 Changes since version 3.0.1
 ---------------------------
 
-- Removed getDefaultProperties() methods, and the global default
-  properties. If you need global properties, you can easily
-  create your own global variable.
+- Added an IceSSL plugin for .NET 2.0. See the Ice manual for more
+  information.
 
-- Added new createProperties() method:
-  public static Properties 
-  createProperties(ref string[] args, Properties defaults)
- 
-  "defaults" represents an optional set of default properties
-  used to initialize the new Properties object. Ice properties 
-  defined on the command-line and properties defined in the Ice
-  config file may override these default properties.
-   
-- Added a new communicator-initialization method:
-  public static Communicator initialize(InitializationData initData)
+- ObjectAdapter::deactivate() now notifies the locator registry when
+  the adapter is deactivated.
+
+- Fixed ObjectAdapter::activate() to activate the object adapter
+  only if it is able to register its endpoints and process proxy with
+  the locator. Calling activate() again retries a failed registration.
 
 - Generating new streaming functions for a Slice structure. The
   ice_write and ice_read member functions replace their internal
   equivalents (__write and __read).
+
+- Removed getDefaultProperties() functions, and the global default
+  properties. If you need global properties, you can easily create
+  your own global variable.
+
+- Added new createProperties() method:
+
+  public static Properties 
+  createProperties(ref string[] args, Properties defaults)
+ 
+  where "defaults" represents an optional set of default properties
+  used to initialize the new Properties object. Ice properties 
+  defined on the command line and properties defined in a
+  configuration file override these default properties.
+
+- Fixed a bug where the proxy timeout, compress flag and connection
+  id attributes would be ignored for direct proxies using a router.
 
 - Added ability to configure Ice thread start/stop hooks through
   InitializationData.
@@ -27,34 +38,97 @@ Changes since version 3.0.1
 - Added identityToString and stringToIdentity to the Communicator
   interface.
 
-- It is now permissible to recreate a new object adapter with the same 
-  name as an old adapter once waitForDeactivate() has returned on the
+- It is now possible to recreate a new object adapter with the same 
+  name as an old adapter once waitForDeactivate() has completed on the
   old adapter.
 
-- Added new method Ice::Communicator::createObjectAdapterWithRouter()
-  which creates a routed object adapter. A object adapter can now only
-  have one router associated with it, which is set with using this 
-  method or by setting the <AdapterName>.Router property.  Also 
-  as a result of this the Ice::ObjectAdapter::addRouter() and
-  Ice::ObjectAdapter::removeRouter() methods have been removed.
+- Added new operation Communicator::createObjectAdapterWithRouter(),
+  which creates a routed object adapter. An object adapter may now
+  be associated with at most one router, which is defined using this
+  operation or by setting the <AdapterName>.Router property. Also
+  as a result of this change, the ObjectAdapter::addRouter() and
+  ObjectAdapter::removeRouter() operations have been removed.
 
-- Added a new method addProxies() to Ice::Router, which can return
-  evicted proxies. The old method addProxy() is now deprecated. Note
-  that this is an internal interface for communications between
+- Added communicator initialize functions that take an argument of
+  type Ice.InitializationData. This class contains communicator
+  members that may only be set during communicator initialization.
+  Currently included are Properties, Logger, Stats, default context
+  and the thread hooks. The initializeWithXXX functions have been
+  deprecated and the setLogger(), setStats() and setDefaultContext()
+  operations have been removed.
+
+- Added the new Slice metadata "deprecate" that can be used to
+  qualify operations. The Slice-to-C# compiler translates this
+  into an equivalent attribute in the generated code.
+
+- Added a new operation addProxies() to Ice::Router, which can return
+  evicted proxies. The old operation addProxy() is now deprecated.
+  Note that this is an internal interface for communications between
   clients and routers (such as Glacier2).
-
-- Added communicator initialize method which takes a InitializationData
-  structure containing communicator members which are only allowed
-  to be set during communicator creation. Currently included are
-  Properties, Logger, Stats and default context. The initializeWith 
-  communicator initialization functions have been deprecated and the 
-  setLogger(), setStats() and setDefaultContext() methods have been 
-  removed.
 
 - Fixed a bug where the ice_locator proxy method wouldn't change the
   proxy locator.
 
-- Added requestId to Current.
+- The ice_timeout and ice_compress proxy methods now correctly
+  override the timeout and compress flag of indirect proxy endpoints.
+
+- Added proxy methods ice_getSecure, ice_getLocator, ice_getRouter,
+  ice_isCollocationOptimized.
+
+- Deprecated the following proxy methods:
+
+  ice_hash
+  ice_communicator
+  ice_collocationOptimization
+  ice_connection
+  ice_newIdentity
+  ice_newFacet
+  ice_newContext
+  ice_newAdapterId
+  ice_newEndpoints
+
+  These methods will be removed in the next major release. You should
+  use the new methods shown below:
+
+  ice_getHash
+  ice_getCommunicator
+  ice_collocationOptimized
+  ice_getConnection
+  ice_identity
+  ice_facet
+  ice_context
+  ice_adapterId
+  ice_endpoints
+
+- Added requestId to Current, which allows a servant to determine
+  whether an operation was invoked with oneway or twoway semantics.
+  The requestId member is 0 for oneway invocations.
+
+- AMI invocations will now reuse the connection cached with the
+  proxy instead of always looking up an existing connection for
+  each invocation. As a side effect of this change, AMI invocations 
+  on a proxy with collocation optimization enabled will now raise
+  Ice::CollocationOptimizationException.
+
+- Added the property Ice.Default.LocatorCacheTimeout and the proxy
+  method ice_locatorCacheTimeout(). If a cached endpoint is older
+  than the configured cache timeout, the Ice runtime won't use
+  the cached endpoint. Instead, the Ice runtime will query the
+  Ice locator service to retrieve up-to-date endpoints and then update
+  the locator cache. Please see the Ice manual for more information.
+
+- Added the proxy method ice_endpointSelection, which allows an
+  application to control how endpoints are selected at connection
+  establishment. Two endpoint selection types are currently supported:
+  Random and Ordered.
+
+- Added the proxy method ice_cacheConnection. This method allows you
+  to enable or disable the caching of the connection by the proxy. By
+  default, the proxy will cache the connection to avoid looking it up
+  for each request. Disabling the connection caching is useful to do
+  per-request load balancing: the proxy will select a connection for
+  each request and the request will eventually be sent to different 
+  servers.
 
 - Performance improvements if an AMI callback object is reused with 
   the same proxy.
@@ -75,9 +149,6 @@ Changes since version 3.0.1
   containing characters outside the ASCII range or for characters
   that must be escaped, such as '/'.
 
-- Fixed bug in addRouter() and removeRouter() that could cause the
-  run time to get confused about which routers were active installed.
-  
 - If a proxy is not configured with a -h parameter, Ice will now
   attempt to connect using all local interfaces. The loopback interface 
   (127.0.0.1) will only be tried if it is the only local interface present.
