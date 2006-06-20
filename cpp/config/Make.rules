@@ -23,7 +23,7 @@ prefix			?= /opt/Ice-$(VERSION)
 # Define LP64 as yes or no if you want force a 32 or 64 bit. The
 # default is platform-dependent
 #
-#LP64			?= no
+#LP64			?= yes
 
 #
 # Define GPL_BUILD as yes if you want to build a copy of Ice licensed
