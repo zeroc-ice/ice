@@ -104,6 +104,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "generated\FileParser.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "generated\Observer.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -120,6 +125,11 @@
                 />
                 <File
                     RelPath = "generated\Registry.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "generated\UserAccountMapper.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

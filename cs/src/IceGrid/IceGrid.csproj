@@ -102,6 +102,9 @@
     <Compile Include="generated\Exception.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="generated\FileParser.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="generated\Observer.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -112,6 +115,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="generated\Registry.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\UserAccountMapper.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
