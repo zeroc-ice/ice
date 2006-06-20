@@ -213,7 +213,8 @@ Glacier2::Response::invoke()
 
 Glacier2::RequestQueue::RequestQueue(const IceUtil::Time& sleepTime) :
     _sleepTime(sleepTime),
-    _destroy(false)
+    _destroy(false),
+    _sleep(false)
 {
 }
 
@@ -234,6 +235,7 @@ Glacier2::RequestQueue::destroy()
 	
 	assert(!_destroy);
 	_destroy = true;
+	_sleep = false;
 	notify();
     }
 
@@ -274,7 +276,14 @@ Glacier2::RequestQueue::addRequest(const RequestPtr& request)
     // No override, we add the new request.
     //
     _requests.push_back(request);
-    notify();
+    if(!_sleep)
+    {
+	//
+	// No need to notify if the request queue thread is sleeping,
+	// once it wakes up it will check if there's requests to send.
+	//
+	notify();
+    }
     return false;
 }
 
@@ -305,9 +314,28 @@ Glacier2::RequestQueue::run()
 	    // wait until all the responses for twoway requests are
 	    // received.
 	    //
-            while((!_destroy || dispatchCount != 0) && _requests.empty() && _responses.empty())
-            {		
-		wait();
+            while((!_destroy || dispatchCount != 0) && _responses.empty() && (_requests.empty() || _sleep))
+            {
+		if(_sleep)
+		{
+		    IceUtil::Time now = IceUtil::Time::now();
+		    if(!timedWait(_sleepDuration))
+		    {
+			_sleepDuration = IceUtil::Time();
+		    }
+		    else
+		    {
+			_sleepDuration -= IceUtil::Time::now() - now;
+		    }
+		    if(_sleepDuration <= IceUtil::Time())
+		    {
+			_sleep = false;
+		    }
+		}
+		else
+		{
+		    wait();
+		}
             }
 
 	    //
@@ -320,8 +348,26 @@ Glacier2::RequestQueue::run()
                 return;
             }
 
-	    requests.swap(_requests);
-	    responses.swap(_responses);
+	    //
+	    // If there's requests to sent and we're not sleeping,
+	    // send the requests. If a sleep time is configured, we
+	    // set the sleep duration and set the sleep flag to make
+	    // sure we'll sleep again once we're done sending requests
+	    // and responses.
+	    //
+	    if(!_requests.empty() && !_sleep)
+	    {
+		requests.swap(_requests);
+		if(_sleepTime > IceUtil::Time())
+		{
+		    _sleep = true;
+		    _sleepDuration = _sleepTime;
+		}
+	    }
+	    if(!_responses.empty())
+	    {
+		responses.swap(_responses);
+	    }
 	}
         
         //
@@ -378,14 +424,5 @@ Glacier2::RequestQueue::run()
 	    (*r)->invoke();
 	}
 	dispatchCount -= responses.size();
-	
-	//
-	// In order to avoid flooding, we add a delay, if so
-	// requested.
-	//
-	if(_sleepTime > IceUtil::Time())
-	{
-	    IceUtil::ThreadControl::sleep(_sleepTime);
-	}
     }
 }

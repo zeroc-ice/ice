@@ -84,6 +84,8 @@ private:
     std::vector<RequestPtr> _requests;
     std::vector<ResponsePtr> _responses;
     bool _destroy;
+    bool _sleep;
+    IceUtil::Time _sleepDuration;
 };
 
 }

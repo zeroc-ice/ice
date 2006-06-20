@@ -1259,7 +1259,7 @@ Database::load(const ApplicationHelper& app, ServerEntrySeq& entries)
 	{
 	    ObjectInfo info;
 	    info.type = o->type;
-	    info.proxy = _communicator->stringToProxy(_communicator->identityToString(o->id) + "@" + r->id);
+	    info.proxy = _communicator->stringToProxy("\"" + _communicator->identityToString(o->id) + "\" @ " + r->id);
 	    _objectCache.add(info, application);
 	}
     }

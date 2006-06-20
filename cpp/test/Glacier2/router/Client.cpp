@@ -231,7 +231,6 @@ public:
 	// Stress the router until the connection is closed.
 	//
 	stress(callback, receiver);
-
 	communicator->destroy();
     }
 
@@ -346,9 +345,16 @@ public:
 	}
 	catch(const Ice::ConnectionLostException&)
 	{
+	    // Session was destroyed.
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	    // This might be raised by the CallbackI implementation if it can't invoke on the 
+	    // callback receiver because the session is being destroyed concurrently.
 	}
 	catch(const Ice::CommunicatorDestroyedException&)
 	{
+	    // This might happen if the retry fails because the communicator is destroyed.
 	}
 	catch(const Ice::Exception& ex)
 	{
@@ -383,9 +389,16 @@ public:
 	}
 	catch(const Ice::ConnectionLostException&)
 	{
+	    // Session was destroyed.
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	    // This might be raised by the CallbackI implementation if it can't invoke on the 
+	    // callback receiver because the session is being destroyed concurrently.
 	}
 	catch(const Ice::CommunicatorDestroyedException&)
 	{
+	    // This might happen if the retry fails because the communicator is destroyed.
 	}
 	catch(const Ice::Exception& ex)
 	{
@@ -766,7 +779,7 @@ CallbackClient::run(int argc, char* argv[])
 	//
 	// Let the stress client run for a bit.
 	//
-	IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
+	IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(3));
 
 	//
 	// Send some callbacks.
