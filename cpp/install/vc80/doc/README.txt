@@ -26,8 +26,8 @@ Visual Studio Requirements
 --------------------------
 
 This release requires Visual Studio 2005 version 8.0.50727.42 or
-later. For C# or VB the release requires the .NET Framework Version
-2.0.50727 or later.
+later. For C# or Visual Basic, this release also requires the .NET
+Framework Version 2.0.50727 or later.
 
 
 Setting up Visual Studio 2005
