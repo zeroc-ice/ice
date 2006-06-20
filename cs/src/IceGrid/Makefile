@@ -19,9 +19,11 @@ SLICE_SRCS	= $(SDIR)/Admin.ice \
 		  $(SDIR)/Observer.ice \
 		  $(SDIR)/Descriptor.ice \
 		  $(SDIR)/Exception.ice \
+		  $(SDIR)/FileParser.ice \
 		  $(SDIR)/Query.ice \
+		  $(SDIR)/Registry.ice \
 		  $(SDIR)/Session.ice \
-		  $(SDIR)/Registry.ice
+		  $(SDIR)/UserAccountMapper.ice
 
 SDIR		= $(slicedir)/IceGrid
 GDIR		= generated
