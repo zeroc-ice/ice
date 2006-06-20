@@ -102,12 +102,11 @@ Windows:
 
    Modify your environment to allow Python to find the Ice for Python
    extension. The interpreter must be able to locate the extension DLL
-   as well as the Python source files in the "python"
-   subdirectory. This is normally accomplished by setting the
-   PYTHONPATH environment variable to contain the necessary
-   subdirectories. For example, if the Ice for Python extension is
-   installed in C:\IcePy-@ver@, you could configure your environment
-   as follows:
+   as well as the Python source files in the "python" subdirectory.
+   This is normally accomplished by setting the PYTHONPATH environment
+   variable to contain the necessary subdirectories. For example, if
+   the Ice for Python extension is installed in C:\IcePy-@ver@, you
+   could configure your environment as follows:
 
    set ICEPY_HOME=C:\IcePy-@ver@
    set PYTHONPATH=%ICEPY_HOME%\python
