@@ -31,7 +31,7 @@ interface Session extends Glacier2::Session
 {
     /**
      *
-     * Keep the session alive. Clients should call this method
+     * Keep the session alive. Clients should call this operation
      * regularly to prevent the server from reaping the session.
      *
      * @see getTimeout
