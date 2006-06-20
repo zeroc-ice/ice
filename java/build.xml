@@ -107,14 +107,15 @@
             </includepath>
             <fileset dir="${slice.dir}/IceGrid">
                 <include name="Admin.ice" />
-                <include name="FileParser.ice"/>
-                <include name="Query.ice" />
-                <include name="Exception.ice" />
-                <include name="PerfTypes.ice" />
-                <include name="Observer.ice" />
-                <include name="Session.ice" />
-                <include name="Registry.ice" />
                 <include name="Descriptor.ice" />
+                <include name="Exception.ice" />
+                <include name="FileParser.ice"/>
+                <include name="Observer.ice" />
+                <include name="PerfTypes.ice" />
+                <include name="Query.ice" />
+                <include name="Registry.ice" />
+                <include name="Session.ice" />
+                <include name="UserAccountMapper.ice" />
             </fileset>
         </slice2java>
 
