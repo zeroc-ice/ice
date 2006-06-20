@@ -28,7 +28,7 @@ Module SimpleIceGridC
 	    Try
 	        hello = HelloPrxHelper.checkedCast(communicator().stringToProxy("hello"))
 	    Catch ex As Ice.NotRegisteredException
-	        Dim proxy As String = communicator().getProperties().getProperty("IceGrid.InstanceName") + "/Query"
+	        Dim proxy As String = "DemoIceGrid/Query"
 		Dim query As IceGrid.QueryPrx = IceGrid.QueryPrxHelper.checkedCast(communicator().stringToProxy(proxy))
 		hello = HelloPrxHelper.checkedCast(query.findObjectByType("::Demo::Hello"))
 	    End Try

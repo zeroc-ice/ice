@@ -58,7 +58,7 @@ HelloClient::run(int argc, char* argv[])
     }
     catch(const Ice::NotRegisteredException&)
     {
-	string proxy = communicator()->getProperties()->getProperty("IceGrid.InstanceName") + "/Query";
+	string proxy = "DemoIceGrid/Query";
 	IceGrid::QueryPrx query = IceGrid::QueryPrx::checkedCast(communicator()->stringToProxy(proxy));
 	hello = HelloPrx::checkedCast(query->findObjectByType("::Demo::Hello"));
     }
