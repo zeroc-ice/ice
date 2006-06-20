@@ -19,7 +19,7 @@
  *
  * &IceGrid; is a server activation and deployment tool. &IceGrid;,
  * simplifies the complex task of deploying applications in a
- * heterogenous computer network.
+ * heterogeneous computer network.
  *
  **/
 module IceGrid
@@ -58,7 +58,7 @@ enum LoadSample
 
     /**
      *
-     * Find a well-known object by type. If there's several objects
+     * Find a well-known object by type. If there are several objects
      * registered for the given type, the object will be randomly
      * selected.
      *
@@ -68,7 +68,6 @@ enum LoadSample
      *
      **/
     nonmutating Object* findObjectByType(string type);
-
 
     /**
      *

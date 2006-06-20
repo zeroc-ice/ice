@@ -20,7 +20,7 @@ module IceGrid
 /**
  *
  * The &IceGrid; registry provides a registry object to allow clients
- * or administrative clients to create sessions directy with the
+ * or administrative clients to create sessions directly with the
  * registry.
  *
  * @see Session
@@ -38,7 +38,7 @@ interface Registry
      *
      * @return A proxy for the newly created session.
      *
-     * @param userId The user id for which to check the password.
+     * @param userId The user id.
      *
      * @param password The password for the given user id.
      *
@@ -59,7 +59,7 @@ interface Registry
      *
      * @return A proxy for the newly created session.
      *
-     * @param userId The user id for which to check the password.
+     * @param userId The user id.
      *
      * @param password The password for the given user id.
      *
@@ -80,7 +80,7 @@ interface Registry
      *
      * @return A proxy for the newly created session.
      *
-     * @param userId The user id for which to check the password.
+     * @param userId The user id.
      *
      * @param password The password for the given user id.
      *

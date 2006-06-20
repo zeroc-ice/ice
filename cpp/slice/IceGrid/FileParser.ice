@@ -17,12 +17,12 @@ module IceGrid
 
 /**
  *
- * This exception is raised when a file-parsing fails
+ * This exception is raised if an error occurs during parsing.
  *
  **/
 exception ParseException
 {
-    /** The reason of the failure. */
+    /** The reason for the failure. */
     string reason;
 };
     
@@ -47,7 +47,7 @@ interface FileParser
      *
      * @returns The application descriptor.
      *
-     * @throws ParseException Raised if an error occured during parsing.
+     * @throws ParseException Raised if an error occurred during parsing.
      *
      **/
 

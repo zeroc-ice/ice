@@ -132,9 +132,9 @@ local interface Communicator
 
     /**
      *
-     * Convert a string into a identity.
+     * Convert a string into an identity.
      *
-     * @param str The string to convert into a identity.
+     * @param str The string to convert into an identity.
      *
      * @return The identity.
      *
@@ -145,7 +145,7 @@ local interface Communicator
 
     /**
      *
-     * Convert a identity into a string.
+     * Convert an identity into a string.
      *
      * @param ident The identity to convert into a string.
      *
@@ -175,7 +175,7 @@ local interface Communicator
 
     /**
      *
-     * Create a new object adapter with endpoints. This method sets
+     * Create a new object adapter with endpoints. This operation sets
      * the property
      * <literal><replaceable>name</replaceable>.Endpoints</literal>,
      * and then calls [createObjectAdapter]. It is provided as a
@@ -196,7 +196,7 @@ local interface Communicator
 
     /**
      *
-     * Create a new object adapter with router. This method
+     * Create a new object adapter with a router. This operation
      * creates a routed object adapter.
      * 
      * @param name The object adapter name.

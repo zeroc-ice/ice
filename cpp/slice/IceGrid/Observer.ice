@@ -144,7 +144,7 @@ interface NodeObserver
 {
     /**
      *
-     * The init method is called after the registration of the
+     * The init operation is called after the registration of the
      * observer to communicate the current state of the node to the
      * observer implementation.
      *
@@ -155,7 +155,7 @@ interface NodeObserver
 
     /**
      *
-     * The nodeUp method is called to notify the observer that a node
+     * The nodeUp operation is called to notify the observer that a node
      * came up.
      * 
      * @param node The node state.
@@ -165,7 +165,7 @@ interface NodeObserver
 
     /**
      *
-     * The nodeDown method is called to notify the observer that a node
+     * The nodeDown operation is called to notify the observer that a node
      * went down.
      * 
      * @param name The node name.
@@ -175,7 +175,7 @@ interface NodeObserver
 
     /**
      *
-     * The updateServer method is called to notify the observer that
+     * The updateServer operation is called to notify the observer that
      * the state of a server changed.
      *
      * @param node The node hosting the server.
@@ -187,7 +187,7 @@ interface NodeObserver
 
     /**
      *
-     * The updateAdapter method is called to notify the observer that
+     * The updateAdapter operation is called to notify the observer that
      * the state of an adapter changed.
      * 
      * @param node The node hosting the adapter.
@@ -209,7 +209,7 @@ interface RegistryObserver
 {
     /**
      *
-     * The init method is called after the registration of the
+     * The init operation is called after the registration of the
      * observer to communicate the current state of the registry to the
      * observer implementation.
      *
@@ -220,10 +220,10 @@ interface RegistryObserver
      * @param applications The applications currently registered with
      * the registry.
      *
-     * @param adapters The adapters which were dynamically registered
+     * @param adapters The adapters that were dynamically registered
      * with the registry (not through the deployment mechanism).
      *
-     * @param objects The objects registered with the IceGrid::Admin
+     * @param objects The objects registered with the [Admin]
      * interface (not through the deployment mechanism).
      *
      **/
@@ -231,7 +231,7 @@ interface RegistryObserver
 
     /**
      * 
-     * The applicationAdded method is called to notify the observer
+     * The applicationAdded operation is called to notify the observer
      * that an application was added.
      *
      * @param serial The new serial number of the registry database.
@@ -243,7 +243,7 @@ interface RegistryObserver
 
     /**
      *
-     * The applicationRemoved method is called to notify the observer
+     * The applicationRemoved operation is called to notify the observer
      * that an application was removed.
      *
      * @param serial The new serial number of the registry database.
@@ -255,7 +255,7 @@ interface RegistryObserver
 
     /**
      * 
-     * The applicationUpdated method is called to notify the observer
+     * The applicationUpdated operation is called to notify the observer
      * that an application was updated.
      *
      * @param serial The new serial number of the registry database.
@@ -267,50 +267,48 @@ interface RegistryObserver
 
     /**
      *
-     * The adapterAdded method is called to notify the observer when
-     * an adapter is dynamically registered.
+     * The adapterAdded operation is called to notify the observer when
+     * a dynamically-registered adapter was added.
      *
      **/
     void adapterAdded(int serial, AdapterInfo info);
 
     /**
      *
-     * The adapterUpdated method is called to notify the observer when
-     * an adapter dynamically registered was updated.
+     * The adapterUpdated operation is called to notify the observer when
+     * a dynamically-registered adapter was updated.
      *
      **/
     void adapterUpdated(int serial, AdapterInfo info);
 
     /**
      *
-     * The adapterRemoved method is called to notify the observer when
-     * an adapter dynamically registered was remoevd.
+     * The adapterRemoved operation is called to notify the observer when
+     * a dynamically-registered adapter was removed.
      *
      **/
     void adapterRemoved(int serial, string id);
 
     /**
      *
-     * The objectAdded method is called to notify the observer when an
-     * object was added through the IceGrid::Admin interface.
+     * The objectAdded operation is called to notify the observer when an
+     * object was added through the [Admin] interface.
      *
      **/
     void objectAdded(int serial, ObjectInfo info);
 
     /**
      *
-     * The objectUpdated method is called to notify the observer when
-     * an object registered through the IceGrid::Admin interface was
-     * updated.
+     * The objectUpdated operation is called to notify the observer when
+     * an object registered through the [Admin] interface was updated.
      *
      **/
     void objectUpdated(int serial, ObjectInfo info);
 
     /**
      *
-     * The objectRemoved method is called to notify the observer when
-     * an object registered through the IceGrid::Admin interface was 
-     * removed.
+     * The objectRemoved operation is called to notify the observer when
+     * an object registered through the [Admin] interface was removed.
      *
      **/
     void objectRemoved(int serial, Ice::Identity id);

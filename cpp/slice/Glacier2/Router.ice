@@ -113,7 +113,7 @@ interface Router extends Ice::Router
      *
      * Create a per-client session with the router. The user is
      * authenticated through the SSL certificates that have been
-     * assoicated with the connection. If a [SessionManager] has been
+     * associated with the connection. If a [SessionManager] has been
      * installed, a proxy to a [Session] object is returned to the
      * client. Otherwise, null is returned and only an internal
      * session (i.e., not visible to the client) is created.

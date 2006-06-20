@@ -55,7 +55,7 @@ interface Session extends Glacier2::Session
     /**
      *
      * Allocate an object. Depending on the allocation timeout, this
-     * method might hang until the object is available or until the
+     * operation might hang until the object is available or until the
      * timeout is reached.
      * 
      * @param id The identity of the object to allocate.
@@ -78,7 +78,7 @@ interface Session extends Glacier2::Session
     /**
      *
      * Allocate an object with the given type. Depending on the
-     * allocation timeout, this method might hang until an object
+     * allocation timeout, this operation might hang until an object
      * becomes available or until the timeout is reached.
      *
      * @param type The type of the object.
@@ -102,11 +102,11 @@ interface Session extends Glacier2::Session
      * @param id The identity of the object to release.
      *
      * @throws ObjectNotRegisteredException Raised if the object with
-     * the given identity is not registered with the regitry.
+     * the given identity is not registered with the registry.
      *
      * @throws AllocationException Raised if the given object can't be
      * released. This might happen if the object isn't allocatable or
-     * allocated by the session.
+     * isn't allocated by the session.
      *
      * @see allocateObjectById
      * @see allocateObjectByType

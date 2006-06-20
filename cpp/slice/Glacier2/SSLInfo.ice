@@ -31,10 +31,10 @@ struct SSLInfo
     /** The remote port. */
     int remotePort;
 
-    /** The routers host. */
+    /** The router's host. */
     string localHost;
 
-    /** The routers port. */
+    /** The router's port. */
     int localPort;
 
     /** The negotiated cipher suite. */

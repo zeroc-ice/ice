@@ -78,7 +78,7 @@ interface IdentitySet
 
 /**
  *
- * A administrative session control object, which is tied to the
+ * An administrative session control object, which is tied to the
  * lifecycle of a [Session].
  *
  * @see Session
@@ -107,12 +107,11 @@ interface SessionControl
 
 /**
  *
- * The session manager for username/password authenticated users which
+ * The session manager for username/password authenticated users that
  * is responsible for managing [Session] objects. New session objects
- * are created by the [Router] object calling on an
- * application-provided session manager. If no session manager is
- * provided by the application, no client-visible sessions are passed
- * to the client.
+ * are created by the [Router] object calling on an application-provided
+ * session manager. If no session manager is provided by the application,
+ * no client-visible sessions are passed to the client.
  *
  * @see Router
  * @see Session
@@ -140,7 +139,7 @@ interface SessionManager
 
 /**
  *
- * The session manager for SSL authenticated users which is
+ * The session manager for SSL authenticated users that is
  * responsible for managing [Session] objects. New session objects are
  * created by the [Router] object calling on an application-provided
  * session manager. If no session manager is provided by the

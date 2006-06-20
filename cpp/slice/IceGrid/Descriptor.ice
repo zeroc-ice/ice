@@ -151,14 +151,14 @@ struct AdapterDescriptor
 
     /**
      *
-     * The well-known object descriptors associated to this object adapter.
+     * The well-known object descriptors associated with this object adapter.
      *
      **/
     ObjectDescriptorSeq objects;
 
     /**
      *
-     * The allocatable object descriptors associated to this object adapter.
+     * The allocatable object descriptors associated with this object adapter.
      *
      **/
     ObjectDescriptorSeq allocatables;
@@ -255,7 +255,7 @@ class CommunicatorDescriptor
 
 /**
  *
- * A distribution descriptor defines the an &IcePatch2; server and the
+ * A distribution descriptor defines an &IcePatch2; server and the
  * directories to retrieve from the patch server.
  *
  **/
@@ -663,7 +663,7 @@ struct ReplicaGroupDescriptor
 
     /**
      *
-     * The object descriptors associated to this object adapter.
+     * The object descriptors associated with this object adapter.
      *
      **/
     ObjectDescriptorSeq objects;
@@ -774,7 +774,7 @@ class BoxedString
 
 /**
  *
- * An node update descriptor to describe the updates to apply to a
+ * A node update descriptor to describe the updates to apply to a
  * node of a deployed application.
  *
  **/
@@ -966,7 +966,7 @@ struct ApplicationUpdateDescriptor
 
     /**
      *
-     * The ids of the service tempate to remove.
+     * The ids of the service template to remove.
      *
      **/
     Ice::StringSeq removeServiceTemplates;

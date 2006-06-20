@@ -211,7 +211,7 @@ struct NodeInfo
 
     /**
      *
-     * The machine harware type (as defined in uname()).
+     * The machine hardware type (as defined in uname()).
      *
      **/
     string machine;    
@@ -339,7 +339,7 @@ interface Admin
      * Instantiate a server template from an application on the given
      * node.
      *
-     * @param applicaton The application name.
+     * @param application The application name.
      * 
      * @param node The name of the node where the server will be
      * deployed.
@@ -699,7 +699,7 @@ interface Admin
     /**
      *
      * Update an object in the object registry. Only objects added
-     * with this interface can be updated with this method. Objects
+     * with this interface can be updated with this operation. Objects
      * added with deployment descriptors should be updated with the
      * deployment mechanism.
      *
@@ -735,7 +735,7 @@ interface Admin
     /**
      *
      * Remove an object from the object registry. Only objects added
-     * with this interface can be removed with this method. Objects
+     * with this interface can be removed with this operation. Objects
      * added with deployment descriptors should be removed with the
      * deployment mechanism.
      *
@@ -919,7 +919,7 @@ interface AdminSession extends Glacier2::Session
 {
     /**
      *
-     * Keep the session alive. Clients should call this method
+     * Keep the session alive. Clients should call this operation
      * regularly to prevent the server from reaping the session.
      *
      * @see getTimeout
@@ -943,7 +943,7 @@ interface AdminSession extends Glacier2::Session
     /**
      *
      * Get the admin interface. The admin object returned by this
-     * method can only be accessed by the session.
+     * operation can only be accessed by the session.
      *
      * @return The admin interface proxy.
      *
@@ -967,7 +967,7 @@ interface AdminSession extends Glacier2::Session
      *
      * Set the identities of the observer objects that will receive
      * notifications from the servers when the state of the registry
-     * or nodes changes. This method should be used by clients which
+     * or nodes changes. This operation should be used by clients that
      * are using a bidirectional connection to communicate with the
      * session.
      *
@@ -985,7 +985,7 @@ interface AdminSession extends Glacier2::Session
      * @return The current serial.
      * 
      * @throws AccessDeniedException Raised if the exclusive lock can't be
-     * acquired. This might be because it's already acquired by
+     * acquired. This might happen if the lock is currently acquired by
      * another session.
      *
      **/

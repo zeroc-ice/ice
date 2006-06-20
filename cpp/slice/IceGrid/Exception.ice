@@ -47,7 +47,7 @@ exception ServerStartException
     /** The identifier of the server. */
     string id;
     
-    /** The reason of the failure. */
+    /** The reason for the failure. */
     string reason;
 };
 
@@ -61,7 +61,7 @@ exception ServerStopException
     /** The identifier of the server. */
     string id;
 
-    /** The reason of the failure. */
+    /** The reason for the failure. */
     string reason;
 };
 
@@ -160,7 +160,7 @@ exception PatchException
 /**
  *
  * This exception is raised if an operation can't be performed because
- * the regitry lock wasn't acquired or is already acquired by a session.
+ * the registry lock wasn't acquired or is already acquired by a session.
  *
  **/
 exception AccessDeniedException
