@@ -101,8 +101,9 @@ Changes since version 3.0.1
   ice_endpoints
 
 - Added requestId to Current, which allows a servant to determine
-  whether an operation was invoked with oneway or twoway semantics.
-  The requestId member is 0 for oneway invocations.
+  whether an operation was invoked with collocated, oneway or twoway
+  semantics. The requestId member is 0 for oneway invocations and
+  -1 for collocated invocations.
 
 - AMI invocations will now reuse the connection cached with the
   proxy instead of always looking up an existing connection for

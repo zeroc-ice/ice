@@ -178,8 +178,9 @@ Changes since version 3.0.1
   cryptography API on Windows (CryptGenRandom).
 
 - Added requestId to Current, which allows a servant to determine
-  whether an operation was invoked with oneway or twoway semantics.
-  The requestId member is 0 for oneway invocations.
+  whether an operation was invoked with collocated, oneway or twoway
+  semantics. The requestId member is 0 for oneway invocations and
+  -1 for collocated invocations.
 
 - Added typedefs for ProxyType and PointerType to the generated class 
   for Slice classes and interfaces to allow for easier templating.
