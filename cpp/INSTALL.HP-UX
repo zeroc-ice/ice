@@ -96,9 +96,8 @@ http://hpux.cs.utah.edu.
 Python
 ------
 
-To run the automated test suite, you will need Python 2.2 or a newer
-version. If you have no interest in running the test scripts, Python
-is not required.
+You will need Python to run the automated test suite. If you have no
+interest in running the test scripts, Python is not required.
 
 You can download Python from http://hpux.cs.utah.edu.
 
