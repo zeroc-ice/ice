@@ -107,10 +107,16 @@ public final class ServantManager
     public synchronized Ice.Object
     findServant(Ice.Identity ident, String facet)
     {
-	if(IceUtil.Debug.ASSERT)
-	{
-	    IceUtil.Debug.Assert(_instance != null); // Must not be called after destruction.
-	}
+	//
+	// This assert is not valid if the adapter dispatch incoming
+	// requests from bidir connections. This method might be called if
+	// requests are received over the bidir connection after the
+	// adapter was deactivated.
+	//	
+	//if(IceUtil.Debug.ASSERT)
+	//{
+	//    IceUtil.Debug.Assert(_instance != null); // Must not be called after destruction.
+	//}
 
         if(facet == null)
         {
@@ -155,10 +161,16 @@ public final class ServantManager
     public synchronized boolean
     hasServant(Ice.Identity ident)
     {
-	if(IceUtil.Debug.ASSERT)
-	{
-	    IceUtil.Debug.Assert(_instance != null); // Must not be called after destruction.
-	}
+	//
+	// This assert is not valid if the adapter dispatch incoming
+	// requests from bidir connections. This method might be called if
+	// requests are received over the bidir connection after the
+	// adapter was deactivated.
+	//	
+	//if(IceUtil.Debug.ASSERT)
+	//{
+	//    IceUtil.Debug.Assert(_instance != null); // Must not be called after destruction.
+	//}
 
         java.util.Hashtable m = (java.util.Hashtable)_servantMapMap.get(ident);
         if(m == null)

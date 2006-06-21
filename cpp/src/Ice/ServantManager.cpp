@@ -153,7 +153,13 @@ IceInternal::ServantManager::findServant(const Identity& ident, const string& fa
 {
     IceUtil::Mutex::Lock sync(*this);
     
-    assert(_instance); // Must not be called after destruction.
+    //
+    // This assert is not valid if the adapter dispatch incoming
+    // requests from bidir connections. This method might be called if
+    // requests are received over the bidir connection after the
+    // adapter was deactivated.
+    //
+    //assert(_instance); // Must not be called after destruction.
 
     ServantMapMap::iterator p = _servantMapMapHint;
     FacetMap::iterator q;
@@ -208,7 +214,13 @@ IceInternal::ServantManager::hasServant(const Identity& ident) const
 {
     IceUtil::Mutex::Lock sync(*this);
     
-    assert(_instance); // Must not be called after destruction.
+    //
+    // This assert is not valid if the adapter dispatch incoming
+    // requests from bidir connections. This method might be called if
+    // requests are received over the bidir connection after the
+    // adapter was deactivated.
+    //
+    //assert(_instance); // Must not be called after destruction.
 
     ServantMapMap::iterator p = _servantMapMapHint;
     ServantMapMap& servantMapMap = const_cast<ServantMapMap&>(_servantMapMap);
@@ -254,7 +266,13 @@ IceInternal::ServantManager::findServantLocator(const string& category) const
 {
     IceUtil::Mutex::Lock sync(*this);
     
-    assert(_instance); // Must not be called after destruction.
+    //
+    // This assert is not valid if the adapter dispatch incoming
+    // requests from bidir connections. This method might be called if
+    // requests are received over the bidir connection after the
+    // adapter was deactivated.
+    //
+    //assert(_instance); // Must not be called after destruction.
 
     map<string, ServantLocatorPtr>& locatorMap =
 	const_cast<map<string, ServantLocatorPtr>&>(_locatorMap);

@@ -98,7 +98,13 @@ public final class ServantManager
     public synchronized Ice.Object
     findServant(Ice.Identity ident, String facet)
     {
-	assert(_instance != null); // Must not be called after destruction.
+	//
+	// This assert is not valid if the adapter dispatch incoming
+	// requests from bidir connections. This method might be called if
+	// requests are received over the bidir connection after the
+	// adapter was deactivated.
+	//
+	//assert(_instance != null); // Must not be called after destruction.
 
         if(facet == null)
         {
@@ -132,7 +138,13 @@ public final class ServantManager
     public synchronized boolean
     hasServant(Ice.Identity ident)
     {
-	assert(_instance != null); // Must not be called after destruction.
+	//
+	// This assert is not valid if the adapter dispatch incoming
+	// requests from bidir connections. This method might be called if
+	// requests are received over the bidir connection after the
+	// adapter was deactivated.
+	//
+	//assert(_instance != null); // Must not be called after destruction.
 
         java.util.HashMap m = (java.util.HashMap)_servantMapMap.get(ident);
         if(m == null)
@@ -166,7 +178,13 @@ public final class ServantManager
     public synchronized Ice.ServantLocator
     findServantLocator(String category)
     {
-	assert(_instance != null); // Must not be called after destruction.
+	//
+	// This assert is not valid if the adapter dispatch incoming
+	// requests from bidir connections. This method might be called if
+	// requests are received over the bidir connection after the
+	// adapter was deactivated.
+	//
+	//assert(_instance != null); // Must not be called after destruction.
 
         return (Ice.ServantLocator)_locatorMap.get(category);
     }

@@ -109,7 +109,13 @@ public sealed class ServantManager
     {
 	lock(this)
 	{
-	    Debug.Assert(instance_ != null); // Must not be called after destruction.
+	    //
+	    // This assert is not valid if the adapter dispatch incoming
+	    // requests from bidir connections. This method might be called if
+	    // requests are received over the bidir connection after the
+	    // adapter was deactivated.
+	    //	
+	    //Debug.Assert(instance_ != null); // Must not be called after destruction.
 	    
 	    if(facet == null)
 	    {
@@ -147,7 +153,14 @@ public sealed class ServantManager
     {
         lock(this)
 	{
-	    Debug.Assert(instance_ != null); // Must not be called after destruction.
+	    //
+	    // This assert is not valid if the adapter dispatch incoming
+	    // requests from bidir connections. This method might be called if
+	    // requests are received over the bidir connection after the
+	    // adapter was deactivated.
+	    //	
+	    //
+	    //Debug.Assert(instance_ != null); // Must not be called after destruction.
 
 	    Ice.FacetMap m = (Ice.FacetMap)_servantMapMap[ident];
 	    if(m == null)
@@ -185,7 +198,14 @@ public sealed class ServantManager
     {
 	lock(this)
 	{
-	    Debug.Assert(instance_ != null); // Must not be called after destruction.
+	    //
+	    // This assert is not valid if the adapter dispatch incoming
+	    // requests from bidir connections. This method might be called if
+	    // requests are received over the bidir connection after the
+	    // adapter was deactivated.
+	    //	
+	    //
+	    //Debug.Assert(instance_ != null); // Must not be called after destruction.
 	    
 	    return (Ice.ServantLocator)_locatorMap[category];
 	}
