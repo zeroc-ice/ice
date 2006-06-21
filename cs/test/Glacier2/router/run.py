@@ -41,6 +41,8 @@ command = router + TestUtil.cppClientServerOptions + \
           r' --Glacier2.CryptPasswords="' + toplevel + r'/test/Glacier2/router/passwords"'
 
 print "starting router...",
+if TestUtil.debug:
+    print "(" + command + ")",
 starterPipe = os.popen(command)
 TestUtil.getServerPid(starterPipe)
 #
