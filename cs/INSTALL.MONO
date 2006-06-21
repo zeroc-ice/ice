@@ -124,6 +124,18 @@ Finally, you could also copy the necessary libraries into the
 directory that contains the .exe for your application.
 
 
+Usage Notes
+-----------
+
+To maintain source code compatibility between .NET 1.1 and .NET 2.0,
+the Slice compiler generates code that uses the conditional symbol
+ICE_DOTNET_1X for sequences having the "clr:collection" metadata.
+If your Slice definitions use this metadata for sequences, you must
+define ICE_DOTNET_1X during compilation, as shown below:
+
+mcs -d:ICE_DOTNET_1X ...
+
+
 Known Issues
 ------------
 

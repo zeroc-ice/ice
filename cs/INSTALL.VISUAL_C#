@@ -131,6 +131,21 @@ directory:
     copy <path_to_icecs.pdb> .
 
 
+Usage Notes
+-----------
+
+To maintain source code compatibility between .NET 1.1 and .NET 2.0,
+the Slice compiler generates code that uses the conditional symbol
+ICE_DOTNET_1X for sequences having the "clr:collection" metadata.
+If you use .NET 1.1 and your Slice definitions use this metadata for
+sequences, you must define ICE_DOTNET_1X during compilation.
+
+In Visual Studio .NET, open your project's properties page and choose
+Configuration Properties. Add ICE_DOTNET_1X to Conditional
+Compilation Constants, using a semicolon to separate it from any
+existing values.
+
+
 Binary compatibility
 --------------------
 
