@@ -68,6 +68,6 @@ public class Collocated
     main(String[] args)
     {
 	LibraryCollocated app = new LibraryCollocated("db");
-	app.main("demo.Freeze.library.Collocated", args, "config");
+	app.main("demo.Freeze.library.Collocated", args, "config.collocated");
     }
 }

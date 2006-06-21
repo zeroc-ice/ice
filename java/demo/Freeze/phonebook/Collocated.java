@@ -89,6 +89,6 @@ public class Collocated
     main(String[] args)
     {
 	PhoneBookCollocated app = new PhoneBookCollocated("db");
-	app.main("demo.Freeze.phonebook.Collocated", args, "config");
+	app.main("demo.Freeze.phonebook.Collocated", args, "config.collocated");
     }
 }

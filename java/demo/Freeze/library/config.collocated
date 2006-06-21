@@ -1,4 +1,9 @@
-PhoneBook.Proxy=phonebook:default -p 10000
+Library.Proxy=library:default -p 10000
+Library.Endpoints=default -p 10000
+Library.EvictorSize=3
+
+Freeze.Trace.Map=1
+Freeze.Trace.Evictor=2
 
 #
 # Warn about connection exceptions
