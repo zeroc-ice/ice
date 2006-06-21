@@ -645,6 +645,11 @@ def main():
 	defaults['dbver'] = '43'
 	defaults['version'] = sourcesVersion
 	defaults['dllversion'] = sourcesVersion.replace('.', '')[:2]
+	
+	if target == "vc80_x64":
+	    defaults['OutDir'] = "x64/"
+	else:
+	    defaults['OutDir'] = ''
 
 	if os.path.exists(stageDir):
 	    try:

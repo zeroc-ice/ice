@@ -1,1 +1,1 @@
-f,IceStorm/Release/icestormservice31.dll
+f,IceStorm/%(OutDir)sRelease/icestormservice31.dll

@@ -178,11 +178,11 @@ Ice/converter/config.client
 Ice/converter/config.server
 Ice/converter/converterC.vcproj
 Ice/converter/converterS.vcproj
-Ice/converter/Hello.cpp
-Ice/converter/Hello.h
-Ice/converter/Hello.ice
-Ice/converter/HelloI.cpp
-Ice/converter/HelloI.h
+Ice/converter/Echo.cpp
+Ice/converter/Echo.h
+Ice/converter/Echo.ice
+Ice/converter/EchoI.cpp
+Ice/converter/EchoI.h
 Ice/converter/README
 Ice/converter/Server.cpp
 Ice/converter/StringConverterI.cpp

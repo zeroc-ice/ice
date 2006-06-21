@@ -80,7 +80,7 @@ class FileSpecWorker:
 	else:
 	    raise FileSpecError("Line \'%s\' does not match filespec schema." % filename)
 
-    def execute(self, fake = False):
+    def execute(self, defaults, fake = False):
 	"""Copy all of the specified files."""
 	recursiveIncludes = []
 	recursiveExcludes = []
@@ -206,6 +206,7 @@ class FileSpecWorker:
 	    if f.startswith('f,'):
 		flatten = True
 		current = current[2:]
+	    current = current % defaults
 		
 	    targetDirectory = self.dest 
 	    targetFile = os.path.basename(current)
@@ -294,7 +295,12 @@ def stage(filename, componentdir, stageDirectory, group, defaults):
 				continue
 			    if not template == None:
 				mapping['name'] = current
-				computedName = template % mapping
+				try:
+				    computedName = template % mapping
+				except:
+				    print "Mapping exception occurred with " + template + " and " + current  
+				    raise
+				    
 				logging.log(logging.DEBUG, 'Adding templatized name %s' % computedName)
 				worker.add(computedName)
 			    else:
@@ -312,7 +318,7 @@ def stage(filename, componentdir, stageDirectory, group, defaults):
 			    # XXX- fake is set to true while we are
 			    # debugging.
 			    #
-			    worker.execute(False)
+			    worker.execute(defaults, False)
 
 		    finally:
 			componentFile.close()

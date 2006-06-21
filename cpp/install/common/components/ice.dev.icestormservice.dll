@@ -1,2 +1,2 @@
-f,IceStorm/Debug/icestormservice31d.dll
-f,IceStorm/Debug/icestormservice31d.pdb
+f,IceStorm/%(OutDir)sDebug/icestormservice31d.dll
+f,IceStorm/%(OutDir)sDebug/icestormservice31d.pdb
