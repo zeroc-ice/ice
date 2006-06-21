@@ -2417,7 +2417,14 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& updt) const
 	NodeHelperDict::const_iterator q = _nodes.find(p->name);
 	if(q != _nodes.end()) // Updated node
 	{
-	    def.nodes.insert(make_pair(p->name, q->second.update(*p, resolve)));
+	    //
+	    // COMPILERBUG: AIX xlC (Visual Age 6, 64bit builds)
+	    // requires the `desc' temporary here. We can't do the
+	    // update call in the make_pair call directly (this
+	    // results in a SEGFAULT at runtime).
+	    //
+	    NodeDescriptor desc = q->second.update(*p, resolve);
+	    def.nodes.insert(make_pair(p->name, desc));
 	}
 	else // New node
 	{
