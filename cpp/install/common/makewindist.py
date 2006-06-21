@@ -210,7 +210,7 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 	#
 	# Ice for C++ 
 	#
-	os.chdir(iceHome)
+	os.chdir(os.path.join(sourcesDir, "Ice-" + sourcesVersion))
 	print "Building in " + os.getcwd() + "..."
 	runprog("devenv all.sln /useenv /build Debug")
 	runprog("devenv all.sln /useenv /build Release")
@@ -280,7 +280,7 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 	#
 	# Ice for C++ 
 	#
-	os.chdir(iceHome)
+	os.chdir(os.path.join(sourcesDir, "Ice-" + sourcesVersion))
 	print "Building in " + os.getcwd() + "..."
 	runprog('msdev all.dsw /useenv /make "all - Win32 Debug"')
 	runprog('msdev all.dsw /useenv /make "all - Win32 Release"')
@@ -288,10 +288,10 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 	#
 	# Ice for C++ 
 	#
-	os.chdir(iceHome)
+	os.chdir(os.path.join(sourcesDir, "Ice-" + sourcesVersion))
 	print "Building in " + os.getcwd() + "..."
-	runprog("devenv all.sln /useenv /build Debug")
-	runprog("devenv all.sln /useenv /build Release")
+	runprog('devenv all.sln /useenv /build Debug /project all')
+	runprog('devenv all.sln /useenv /build Release /project all')
 
 def list2english(l):
     if len(l) == 1:
@@ -513,8 +513,8 @@ def main():
 	try:
 	    optionList, args = getopt.getopt(
 		sys.argv[1:], "dhil:", [ "help", "clean", "skip-build", "skip-installer", "info", "debug", 
-		"logfile", "vc60", "vc71", "vc80", "vc80_x64", "sslhome=", "expathome=", "dbhome=", "stlporthome=", "bzip2home=", 
-		"thirdparty="])
+		"logfile", "vc60", "vc71", "vc80", "vc80_x64", "sslhome=", "expathome=", "dbhome=", "stlporthome=", 
+		"bzip2home=", "thirdparty="])
 	except getopt.GetoptError:
 	    usage()
 	    sys.exit(2)

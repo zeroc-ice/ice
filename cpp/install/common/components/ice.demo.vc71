@@ -181,8 +181,8 @@ Ice/converter/converterS.vcproj
 Ice/converter/Echo.cpp
 Ice/converter/Echo.h
 Ice/converter/Echo.ice
-Ice/converter/HelloI.cpp
-Ice/converter/HelloI.h
+Ice/converter/EchoI.cpp
+Ice/converter/EchoI.h
 Ice/converter/README
 Ice/converter/Server.cpp
 Ice/converter/StringConverterI.cpp
