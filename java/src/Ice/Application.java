@@ -36,8 +36,23 @@ public abstract class Application
         InitializationData initData = new InitializationData();
         if(configFile != null)
         {
-            initData.properties = Util.createProperties();
-            initData.properties.load(configFile);
+	    try
+            {
+		initData.properties = Util.createProperties();
+		initData.properties.load(configFile);
+            }
+            catch(LocalException ex)
+            {
+                System.err.println(appName + ": " + ex);
+                ex.printStackTrace();
+                return 1;
+            }
+            catch(java.lang.Exception ex)
+            {
+                System.err.println(appName + ": unknown exception");
+                ex.printStackTrace();
+                return 1;
+            }
         }
     	return main(appName, args, initData);
     }
@@ -51,8 +66,23 @@ public abstract class Application
         InitializationData initData = new InitializationData();
         if(configFile != null)
         {
-            initData.properties = Util.createProperties();
-            initData.properties.load(configFile);
+            try
+            {
+		initData.properties = Util.createProperties();
+		initData.properties.load(configFile);
+            }
+            catch(LocalException ex)
+            {
+                System.err.println(appName + ": " + ex);
+                ex.printStackTrace();
+                return 1;
+            }
+            catch(java.lang.Exception ex)
+            {
+                System.err.println(appName + ": unknown exception");
+                ex.printStackTrace();
+                return 1;
+            }
         }
 	initData.logger = logger;
     	return main(appName, args, initData);

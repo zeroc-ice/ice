@@ -46,8 +46,21 @@ namespace Ice
 	    InitializationData initData = new InitializationData();
 	    if(configFile != null)
 	    {
-	        initData.properties = Util.createProperties();
-	        initData.properties.load(configFile);
+		try
+		{
+		    initData.properties = Util.createProperties();
+		    initData.properties.load(configFile);
+		}
+		catch(Ice.Exception ex)
+		{
+		    Console.Error.WriteLine(_appName + ": " + ex);
+		    return 1;
+		}
+		catch(System.Exception ex)
+		{
+		    Console.Error.WriteLine(_appName + ": unknown exception: " + ex);
+		    return 1;
+		}
 	    }
 	    return main(args, initData);
 	}
@@ -58,8 +71,21 @@ namespace Ice
 	    InitializationData initData = new InitializationData();
 	    if(configFile != null)
 	    {
-	        initData.properties = Util.createProperties();
-	        initData.properties.load(configFile);
+		try
+		{
+		    initData.properties = Util.createProperties();
+		    initData.properties.load(configFile);
+		}
+		catch(Ice.Exception ex)
+		{
+		    Console.Error.WriteLine(_appName + ": " + ex);
+		    return 1;
+		}
+		catch(System.Exception ex)
+		{
+		    Console.Error.WriteLine(_appName + ": unknown exception: " + ex);
+		    return 1;
+		}
 	    }
 	    initData.logger = logger;
 	    return main(args, initData);
