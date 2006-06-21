@@ -227,11 +227,33 @@ Ice::Application::main(int argc, char* argv[])
 int
 Ice::Application::main(int argc, char* argv[], const char* configFile)
 {
+    //
+    // We don't call the main below to avoid a deprecated warning
+    //
+
     InitializationData initData;
     if(configFile)
     {
-	initData.properties = createProperties();
-	initData.properties->load(configFile);
+	try
+	{
+	    initData.properties = createProperties();
+	    initData.properties->load(configFile);
+	}
+	catch(const IceUtil::Exception& ex)
+	{
+	    cerr << argv[0] << ": " << ex << endl;
+	    return EXIT_FAILURE;
+	}
+	catch(const std::exception& ex)
+	{
+	    cerr << argv[0] << ": std::exception: " << ex.what() << endl;
+	    return EXIT_FAILURE;
+	}
+	catch(...)
+	{
+	    cerr << argv[0] << ": unknown exception" << endl;
+	    return EXIT_FAILURE;
+	}
     }
     return main(argc, argv, initData);
 }
@@ -243,8 +265,26 @@ Ice::Application::main(int argc, char* argv[], const char* configFile, const Ice
     InitializationData initData;
     if(configFile)
     {
-	initData.properties = createProperties();
-	initData.properties->load(configFile);
+	try
+	{
+	    initData.properties = createProperties();
+	    initData.properties->load(configFile);
+	}
+	catch(const IceUtil::Exception& ex)
+	{
+	    cerr << argv[0] << ": " << ex << endl;
+	    return EXIT_FAILURE;
+	}
+	catch(const std::exception& ex)
+	{
+	    cerr << argv[0] << ": std::exception: " << ex.what() << endl;
+	    return EXIT_FAILURE;
+	}
+	catch(...)
+	{
+	    cerr << argv[0] << ": unknown exception" << endl;
+	    return EXIT_FAILURE;
+	}
     }
     initData.logger = logger;
     return main(argc, argv, initData);
@@ -258,12 +298,6 @@ Ice::Application::main(int argc, char* argv[], const InitializationData& initDat
 	cerr << argv[0] << ": only one instance of the Application class can be used" << endl;
 	return EXIT_FAILURE;
     }
-
-    if(_condVar.get() == 0)
-    {
-	_condVar.reset(new Cond);
-    }
-
     int status;
 
     try
@@ -277,6 +311,11 @@ Ice::Application::main(int argc, char* argv[], const InitializationData& initDat
 
 	try
 	{
+	    if(_condVar.get() == 0)
+	    {
+		_condVar.reset(new Cond);
+	    }
+
 	    _interrupted = false;
 	    _appName = argv[0];
 	  	
