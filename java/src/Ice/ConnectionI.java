@@ -184,6 +184,15 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		    IceInternal.TraceUtil.traceHeader("received validate connection", is, _logger, _traceLevels);
 		}
 	    }
+	    catch(IceInternal.LocalExceptionWrapper ex) // Java-specific workaround in Transceiver.write().
+	    {
+		synchronized(this)
+		{
+		    setState(StateClosed, ex.get());
+		    assert(_exception != null);
+		    throw _exception;
+		}
+	    }
 	    catch(LocalException ex)
 	    {
 		synchronized(this)
@@ -576,6 +585,44 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		_transceiver.write(stream, _endpoint.timeout());
 	    }
 	}
+	catch(IceInternal.LocalExceptionWrapper ex) // Java-specific workaround in Transceiver.write().
+	{
+	    synchronized(this)
+	    {
+		setState(StateClosed, ex.get());
+		assert(_exception != null);
+		
+		if(out != null)
+		{
+		    //
+		    // If the request has already been removed from
+		    // the request map, we are out of luck. It would
+		    // mean that finished() has been called already,
+		    // and therefore the exception has been set using
+		    // the Outgoing::finished() callback. In this
+		    // case, we cannot throw the exception here,
+		    // because we must not both raise an exception and
+		    // have Outgoing::finished() called with an
+		    // exception. This means that in some rare cases,
+		    // a request will not be retried even though it
+		    // could. But I honestly don't know how I could
+		    // avoid this, without a very elaborate and
+		    // complex design, which would be bad for
+		    // performance.
+		    //
+		    IceInternal.Outgoing o = (IceInternal.Outgoing)_requests.remove(requestId);
+		    if(o != null)
+		    {
+			assert(o == out);
+			throw new IceInternal.LocalExceptionWrapper(_exception, ex.retry());
+		    }
+		}
+		else
+		{
+		    throw new IceInternal.LocalExceptionWrapper(_exception, ex.retry());
+		}
+	    }
+	}
 	catch(LocalException ex)
 	{
 	    synchronized(this)
@@ -684,6 +731,36 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		//
 		IceInternal.TraceUtil.traceRequest("sending asynchronous request", os, _logger, _traceLevels);
 		_transceiver.write(stream, _endpoint.timeout());
+	    }
+	}
+	catch(IceInternal.LocalExceptionWrapper ex) // Java-specific workaround in Transceiver.write().
+	{
+	    synchronized(this)
+	    {
+		setState(StateClosed, ex.get());
+		assert(_exception != null);
+		
+		//
+		// If the request has already been removed from the
+		// async request map, we are out of luck. It would
+		// mean that finished() has been called already, and
+		// therefore the exception has been set using the
+		// OutgoingAsync::__finished() callback. In this case,
+		// we cannot throw the exception here, because we must
+		// not both raise an exception and have
+		// OutgoingAsync::__finished() called with an
+		// exception. This means that in some rare cases, a
+		// request will not be retried even though it
+		// could. But I honestly don't know how I could avoid
+		// this, without a very elaborate and complex design,
+		// which would be bad for performance.
+		//
+		IceInternal.OutgoingAsync o = (IceInternal.OutgoingAsync)_asyncRequests.remove(requestId);
+		if(o != null)
+		{
+		    assert(o == out);
+		    throw new IceInternal.LocalExceptionWrapper(_exception, ex.retry());
+		}
 	    }
 	}
 	catch(LocalException ex)
@@ -882,6 +959,20 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		_transceiver.write(stream, _endpoint.timeout());
 	    }
 	}
+	catch(IceInternal.LocalExceptionWrapper ex) // Java-specific workaround in Transceiver.write().
+	{
+	    synchronized(this)
+	    {
+		setState(StateClosed, ex.get());
+		assert(_exception != null);
+		
+		//
+		// Since batch requests are all oneways (or datagrams), we
+		// must report the exception to the caller.
+		//
+		throw _exception;
+	    }
+	}
 	catch(LocalException ex)
 	{
 	    synchronized(this)
@@ -933,6 +1024,13 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		_transceiver.write(stream, _endpoint.timeout());
 	    }
 	}
+	catch(IceInternal.LocalExceptionWrapper ex) // Java-specific workaround in Transceiver.write().
+	{
+	    synchronized(this)
+	    {
+		setState(StateClosed, ex.get());
+	    }
+	}
 	catch(LocalException ex)
 	{
 	    synchronized(this)
@@ -962,6 +1060,10 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		    _acmAbsoluteTimeoutMillis = System.currentTimeMillis() + _acmTimeout * 1000;
 		}
 	    }
+	    catch(IceInternal.LocalExceptionWrapper ex) // Java-specific workaround in Transceiver.write().
+	    {
+		setState(StateClosed, ex.get());
+	    }
 	    catch(LocalException ex)
 	    {
 		setState(StateClosed, ex);
@@ -985,6 +1087,10 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	    {
 		initiateShutdown();
 	    }
+	}
+	catch(IceInternal.LocalExceptionWrapper ex) // Java-specific workaround in Transceiver.write().
+	{
+	    setState(StateClosed, ex.get());
 	}
 	catch(LocalException ex)
 	{
@@ -1620,6 +1726,10 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             {
                 initiateShutdown();
             }
+            catch(IceInternal.LocalExceptionWrapper ex) // Java-specific workaround in Transceiver.write().
+            {
+                setState(StateClosed, ex.get());
+            }
             catch(LocalException ex)
             {
                 setState(StateClosed, ex);
@@ -1629,6 +1739,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
     private void
     initiateShutdown()
+	throws IceInternal.LocalExceptionWrapper // Java-specific workaround in Transceiver.write().
     {
 	assert(_state == StateClosing);
 	assert(_dispatchCount == 0);

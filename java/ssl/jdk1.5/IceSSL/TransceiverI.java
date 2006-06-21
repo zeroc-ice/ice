@@ -170,6 +170,7 @@ final class TransceiverI implements IceInternal.Transceiver
     //
     public synchronized void
     write(IceInternal.BasicStream stream, int timeout)
+	throws IceInternal.LocalExceptionWrapper
     {
 	//
 	// Complete handshaking first if necessary.

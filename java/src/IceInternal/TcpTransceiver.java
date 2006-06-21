@@ -138,6 +138,7 @@ final class TcpTransceiver implements Transceiver
 
     public void
     write(BasicStream stream, int timeout)
+	throws LocalExceptionWrapper
     {
         java.nio.ByteBuffer buf = stream.prepareWrite();
 

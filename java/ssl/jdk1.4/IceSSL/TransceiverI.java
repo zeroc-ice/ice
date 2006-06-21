@@ -116,6 +116,7 @@ final class TransceiverI implements IceInternal.Transceiver
 
     public void
     write(IceInternal.BasicStream stream, int timeout)
+	throws IceInternal.LocalExceptionWrapper
     {
 	java.nio.ByteBuffer buf = stream.prepareWrite();
 
@@ -181,9 +182,15 @@ final class TransceiverI implements IceInternal.Transceiver
 	    {
 		if(IceInternal.Network.connectionLost(ex))
 		{
+		    //
+		    // Java's SSL implementation might have successfully sent the
+		    // packet but then detected loss of connection and raised an
+		    // exception. As a result, we cannot be sure that it is safe
+		    // to retry in this situation, so we raise LocalExceptionWrapper.
+		    //
 		    Ice.ConnectionLostException se = new Ice.ConnectionLostException();
 		    se.initCause(ex);
-		    throw se;
+		    throw new IceInternal.LocalExceptionWrapper(se, false);
 		}
 		
 		Ice.SocketException se = new Ice.SocketException();

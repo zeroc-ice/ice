@@ -67,6 +67,7 @@ final class UdpTransceiver implements Transceiver
 
     public void
     write(BasicStream stream, int timeout) // NOTE: timeout is not used
+	throws LocalExceptionWrapper
     {
         java.nio.ByteBuffer buf = stream.prepareWrite();
 
