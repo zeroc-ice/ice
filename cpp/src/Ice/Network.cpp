@@ -28,7 +28,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 #ifdef __sun
-#    define INADDR_NONE (unsigned long)-1
+#    define INADDR_NONE (in_addr_t)0xffffffff
 #endif
 
 static IceUtil::StaticMutex inetMutex = ICE_STATIC_MUTEX_INITIALIZER;
