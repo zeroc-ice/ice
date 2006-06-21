@@ -34,7 +34,7 @@ int
 main(int argc, char* argv[])
 {
     LibraryCollocated app("db");
-    return app.main(argc, argv, "config");
+    return app.main(argc, argv, "config.collocated");
 }
 
 int
