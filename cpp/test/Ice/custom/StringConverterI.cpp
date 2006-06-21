@@ -19,8 +19,8 @@ Test::StringConverterI::toUTF8(const char* sourceStart, const char* sourceEnd, I
     Ice::Byte* targetStart = buffer.getMoreBytes(size, 0);
     Ice::Byte* targetEnd = targetStart + size;
 
-    unsigned int j = size;
-    for(unsigned int i = 0; i < size; ++i)
+    size_t j = size;
+    for(size_t i = 0; i < size; ++i)
     {
         targetStart[i] = sourceStart[--j];
     }
@@ -35,8 +35,8 @@ Test::StringConverterI::fromUTF8(const Ice::Byte* sourceStart, const Ice::Byte* 
     size_t size = static_cast<size_t>(sourceEnd - sourceStart);
     target.resize(size);
 
-    unsigned int j = size;
-    for(unsigned int i = 0; i < size; ++i)
+    size_t j = size;
+    for(size_t i = 0; i < size; ++i)
     {
         target[i] = sourceStart[--j];
     }
@@ -53,8 +53,8 @@ Test::WstringConverterI::toUTF8(const wchar_t* sourceStart, const wchar_t* sourc
     Ice::Byte* targetStart = buffer.getMoreBytes(size, 0);
     Ice::Byte* targetEnd = targetStart + size;
 
-    unsigned int j = size;
-    for(unsigned int i = 0; i < size; ++i)
+    size_t j = size;
+    for(size_t i = 0; i < size; ++i)
     {
         targetStart[i] = static_cast<Ice::Byte>(s[--j]);
     }
@@ -69,8 +69,8 @@ Test::WstringConverterI::fromUTF8(const Ice::Byte* sourceStart, const Ice::Byte*
     string s;
     s.resize(size);
 
-    unsigned int j = size;
-    for(unsigned int i = 0; i < size; ++i)
+    size_t j = size;
+    for(size_t i = 0; i < size; ++i)
     {
         s[i] = sourceStart[--j];
     }
