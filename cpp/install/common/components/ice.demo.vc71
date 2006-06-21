@@ -178,9 +178,9 @@ Ice/converter/config.client
 Ice/converter/config.server
 Ice/converter/converterC.vcproj
 Ice/converter/converterS.vcproj
-Ice/converter/Hello.cpp
-Ice/converter/Hello.h
-Ice/converter/Hello.ice
+Ice/converter/Echo.cpp
+Ice/converter/Echo.h
+Ice/converter/Echo.ice
 Ice/converter/HelloI.cpp
 Ice/converter/HelloI.h
 Ice/converter/README
