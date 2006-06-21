@@ -962,7 +962,7 @@ over the network.
 </para>
 <para>
 Collocation optimization is not supported for asynchronous or
-Dynamice Ice invocations, nor is it supported in Ice for Python.
+Dynamic Ice invocations, nor is it supported in Ice for Python.
 </para>
 <para>
 If not specified, the default value is 1. Set the property to 0
@@ -3352,7 +3352,7 @@ The locator and locator registry trace level:
 </row>
 <row>
 <entry>1</entry>
-<entry>Trace failures to locate an adapter, object or failures to
+<entry>Trace failures to locate an adapter or object, and failures to
 register adapter endpoints.</entry>
 </row>
 <row>
@@ -3565,7 +3565,7 @@ IceGrid.Node.Data=<replaceable>path</replaceable>
 <para>
 Defines the path of the &IceGrid; node data directory. The node
 creates <literal>distrib</literal>, <literal>servers</literal> and
-<literal>tmp</literal> subirectories in this directory if they do
+<literal>tmp</literal> subdirectories in this directory if they do
 not already exist. The <literal>distrib</literal> directory contains
 distribution files downloaded by the node from an IcePatch2 server.
 The <literal>servers</literal> directory contains configuration data
@@ -3777,7 +3777,7 @@ activation and deactivation.
 <para>
 If a server is automatically activated and does not register its object
 adapter endpoints within this time interval, the node assumes there is a
-problem with the server and return an emtpy set of endpoints to the client.
+problem with the server and return an empty set of endpoints to the client.
 </para>
 <para>
 If a server is being gracefully deactivated and &IceGrid; does not
@@ -4944,7 +4944,7 @@ Glacier2.SessionManager.CloseCount=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
-it represents the maxmimum number of invocations the router makes on
+it represents the maximum number of invocations the router makes on
 on the session manager proxy over a single connection. After the
 maximum is reached, the router establishes a new connection to the
 session manager. Existing connections remain open and are closed
@@ -5003,7 +5003,7 @@ Glacier2.RoutingTable.MaxSize=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-This property sets the size of router's routing table to
+This property sets the size of the router's routing table to
 <replaceable>num</replaceable> entries. If more proxies are
 added to the table than this value, proxies are evicted from
 the table on a least-recently used basis.
