@@ -55,6 +55,10 @@ libraries, and executables.
 Visual C++ 2005 Express Notes
 -----------------------------
 
+Visual C++ 2005 Express is available for download from:
+
+http://msdn.microsoft.com/vstudio/express/visualc/
+
 In addition to the steps listed above for setting up Visual Studio
 2005, users of Visual C++ 2005 Express must also follow the
 instructions at the link below for installing and configuring the

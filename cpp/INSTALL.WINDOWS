@@ -29,7 +29,7 @@ The following Microsoft Visual C++ compilers are supported:
 
 - Visual C++ .NET 2003 (aka VC++ 7.1)
 
-- Visual C++ 2005 (aka VC++ 8.0)
+- Visual C++ 2005 and Visual C++ 2005 Express (aka VC++ 8.0)
 
 The STL (Standard Template Library) that is included with Visual C++
 6.0 is not supported. You must use STLport 4.5 (or later) with Visual
@@ -37,6 +37,15 @@ C++ 6.0.
 
 For Visual C++ .NET 2003 and Visual C++ 2005, you can use the included
 STL library.
+
+Visual C++ 2005 Express is available for download from:
+
+http://msdn.microsoft.com/vstudio/express/visualc/
+
+Users of Visual C++ 2005 Express must also install Microsoft's
+Platform SDK and follow the instructions at the link below:
+
+http://msdn.microsoft.com/vstudio/express/visualc/usingpsdk/
 
 
 Third-party libraries
@@ -160,11 +169,6 @@ third-party packages (include files, libraries, and DLLs):
 
 - Add the directories that contain DLLs for Berkeley DB, expat,
   OpenSSL and bzip2 (and STLport, if required).
-
-Users of Visual C++ 2005 Express must also follow the instructions
-at the link below to install and configure the Platform SDK:
-
-http://msdn.microsoft.com/vstudio/express/visualc/usingpsdk/
 
 Now you are ready to compile Ice, so open the "all.dsw" workspace. If
 you are using Visual C++ .NET 2003 or Visual C++ 2005, then the 
