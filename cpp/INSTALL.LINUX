@@ -33,9 +33,6 @@ Ice has dependencies on a number of third-party libraries:
   If you intend to use Ice for Java with Berkeley DB, you must also
   include the option --enable-java.
 
-  You can download the Berkeley DB source distribution from
-  http://www.sleepycat.com/download
-
 - expat 1.9x
 
 - OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
@@ -45,10 +42,11 @@ Ice has dependencies on a number of third-party libraries:
 - readline and ncurses (optional, but used unless you set USE_READLINE
   to no in config/Make.rules)
 
-expat, OpenSSL, bzip2, readline and ncurses are usually included with
-your Linux distribution, or you can download them from the following
-locations:
+Berkeley DB, expat, OpenSSL, bzip2, readline and ncurses are usually 
+included with your Linux distribution, or you can download them from 
+the following locations:
 
+Berkeley DB    http://www.sleepycat.com/download            
 expat          http://sourceforge.net/projects/expat/
 OpenSSL        http://www.openssl.org
 bzip2          http://sources.redhat.com/bzip2
