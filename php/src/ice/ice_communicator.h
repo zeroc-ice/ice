@@ -26,7 +26,6 @@ ZEND_FUNCTION(Ice_Communicator_identityToString);
 ZEND_FUNCTION(Ice_Communicator_addObjectFactory);
 ZEND_FUNCTION(Ice_Communicator_removeObjectFactory);
 ZEND_FUNCTION(Ice_Communicator_findObjectFactory);
-ZEND_FUNCTION(Ice_Communicator_getDefaultContext);
 ZEND_FUNCTION(Ice_Communicator_flushBatchRequests);
 }
 
@@ -40,7 +39,6 @@ ZEND_FUNCTION(Ice_Communicator_flushBatchRequests);
     ZEND_FE(Ice_Communicator_addObjectFactory,       NULL) \
     ZEND_FE(Ice_Communicator_removeObjectFactory,    NULL) \
     ZEND_FE(Ice_Communicator_findObjectFactory,      NULL) \
-    ZEND_FE(Ice_Communicator_getDefaultContext,      NULL) \
     ZEND_FE(Ice_Communicator_flushBatchRequests,     NULL)
 
 namespace IcePHP

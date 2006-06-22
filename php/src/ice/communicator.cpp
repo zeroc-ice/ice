@@ -57,7 +57,6 @@ static function_entry _methods[] =
     {"addObjectFactory",       PHP_FN(Ice_Communicator_addObjectFactory),       NULL},
     {"removeObjectFactory",    PHP_FN(Ice_Communicator_removeObjectFactory),    NULL},
     {"findObjectFactory",      PHP_FN(Ice_Communicator_findObjectFactory),      NULL},
-    {"getDefaultContext",      PHP_FN(Ice_Communicator_getDefaultContext),      NULL},
     {"flushBatchRequests",     PHP_FN(Ice_Communicator_flushBatchRequests),     NULL},
     {NULL, NULL, NULL}
 };
@@ -500,24 +499,6 @@ ZEND_FUNCTION(Ice_Communicator_findObjectFactory)
     // Increment the factory's reference count.
     //
     Z_OBJ_HT_P(p->second)->add_ref(p->second TSRMLS_CC);
-}
-
-ZEND_FUNCTION(Ice_Communicator_getDefaultContext)
-{
-    if(ZEND_NUM_ARGS() != 0)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    ice_object* obj = getObject(getThis() TSRMLS_CC);
-    if(!obj)
-    {
-        return;
-    }
-    assert(obj->ptr);
-    Ice::CommunicatorPtr* _this = static_cast<Ice::CommunicatorPtr*>(obj->ptr);
-
-    createContext(return_value, (*_this)->getDefaultContext() TSRMLS_CC);
 }
 
 ZEND_FUNCTION(Ice_Communicator_flushBatchRequests)
