@@ -75,42 +75,49 @@ ZEND_FUNCTION(Ice_Connection_toString);
 }
 
 #define ICE_PHP_PROXY_FUNCTIONS \
-    ZEND_FE(Ice_ObjectPrx___construct,           NULL) \
-    ZEND_FE(Ice_ObjectPrx___tostring,            NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_getCommunicator,   NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_toString,          NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_isA,               NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_ping,              NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_id,                NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_ids,               NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_getIdentity,       NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_identity,          NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_getAdapterId,      NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_adapterId,         NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_getEndpoints,      NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_endpoints,         NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_getContext,        NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_context,           NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_defaultContext,    NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_getFacet,          NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_facet,             NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_twoway,            NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_isTwoway,          NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_oneway,            NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_isOneway,          NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_batchOneway,       NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_isBatchOneway,     NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_datagram,          NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_isDatagram,        NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_batchDatagram,     NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_isBatchDatagram,   NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_secure,            NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_compress,          NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_timeout,           NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_connectionId,      NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_getConnection,     NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_uncheckedCast,     NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_checkedCast,       NULL)
+    ZEND_FE(Ice_ObjectPrx___construct, 			NULL) \
+    ZEND_FE(Ice_ObjectPrx___tostring, 			NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_getCommunicator, 		NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_toString, 		NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_isA, 			NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_ping, 			NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_id, 			NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_ids, 			NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_getIdentity, 		NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_identity, 		NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_getContext, 		NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_context, 			NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_defaultContext, 		NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_getFacet, 		NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_facet, 			NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_getAdapterId, 		NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_adapterId, 		NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_getEndpoints, 		NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_endpoints, 		NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_getLocatorCacheTimeout, 	NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_locatorCacheTimeout, 	NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_isConnectionCached, 	NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_connectionCached, 	NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_getEndpointSelection, 	NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_endpointSelection, 	NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_isSecure, 		NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_secure, 			NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_twoway, 			NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_isTwoway, 		NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_oneway, 			NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_isOneway, 		NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_batchOneway, 		NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_isBatchOneway, 		NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_datagram, 		NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_isDatagram, 		NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_batchDatagram, 		NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_isBatchDatagram, 		NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_compress, 		NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_timeout, 			NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_connectionId, 		NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_getConnection, 		NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_uncheckedCast, 		NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_checkedCast, 		NULL)
 
 #define ICE_PHP_ENDPOINT_FUNCTIONS \
     ZEND_FE(Ice_Endpoint___construct,           NULL) \
