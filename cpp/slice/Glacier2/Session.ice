@@ -112,7 +112,7 @@ interface IdentitySet
 {
     /**
      *
-     * Add a sequence of Ice identiies to this set of constraints. Order is
+     * Add a sequence of Ice identities to this set of constraints. Order is
      * not preserved and duplicates are implicitly removed.
      *
      * @param additions The sequence of Ice identities to be added.
