@@ -52,6 +52,17 @@ libraries, and executables.
 - Add <Ice installation root directory>\bin
 
 
+Visual C++ 2005 Express Notes
+-----------------------------
+
+In addition to the steps listed above for setting up Visual Studio
+2005, users of Visual C++ 2005 Express must also follow the
+instructions at the link below for installing and configuring the
+Platform SDK:
+
+http://msdn.microsoft.com/vstudio/express/visualc/usingpsdk/
+
+
 Using the IceGrid Administrative Console
 ----------------------------------------
 

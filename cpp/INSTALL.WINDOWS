@@ -161,6 +161,11 @@ third-party packages (include files, libraries, and DLLs):
 - Add the directories that contain DLLs for Berkeley DB, expat,
   OpenSSL and bzip2 (and STLport, if required).
 
+Users of Visual C++ 2005 Express must also follow the instructions
+at the link below to install and configure the Platform SDK:
+
+http://msdn.microsoft.com/vstudio/express/visualc/usingpsdk/
+
 Now you are ready to compile Ice, so open the "all.dsw" workspace. If
 you are using Visual C++ .NET 2003 or Visual C++ 2005, then the 
 project files must first be converted from Visual C++ 6.0 to the new
@@ -176,6 +181,10 @@ then use Project->Set as StartUp Project.
 To start the compilation, use Build->Build for Visual C++ 6.0, or
 Build->Build all/minimal for Visual C++ .NET 2003 or Visual C++
 2005.
+
+NOTE: Visual C++ 2005 Express users should expect three demo projects
+      to fail. These projects require the Microsoft Foundation Classes
+      (MFC), which are not included in the Platform SDK.
 
 If you built the tests you can run the test suite, provided that you
 have installed Python. Open a command prompt and change to the top-
