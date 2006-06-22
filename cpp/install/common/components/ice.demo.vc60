@@ -300,6 +300,7 @@ IceGrid/allocate/HelloI.cpp
 IceGrid/allocate/HelloI.h
 IceGrid/allocate/README
 IceGrid/allocate/Server.cpp
+IceGrid/allocate/db
 IceGrid/sessionActivation/application.xml
 IceGrid/sessionActivation/Client.cpp
 IceGrid/sessionActivation/config.client
@@ -311,6 +312,7 @@ IceGrid/sessionActivation/README
 IceGrid/sessionActivation/Server.cpp
 IceGrid/sessionActivation/sessionActivationC.dsp
 IceGrid/sessionActivation/sessionActivationS.dsp
+IceGrid/sessionActivation/db
 IceGrid/simple/application.xml
 IceGrid/simple/application_with_replication.xml
 IceGrid/simple/application_with_template.xml

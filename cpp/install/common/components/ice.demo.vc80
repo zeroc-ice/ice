@@ -332,16 +332,6 @@ IceBox/hello/HelloI.cpp
 IceBox/hello/HelloI.h
 IceBox/hello/helloiceboxC.vcproj
 IceBox/hello/helloiceboxS.vcproj
-IceBox/hello/helloservice.dll
-IceBox/hello/helloservice.dll.intermediate.manifest
-IceBox/hello/helloservice.exp
-IceBox/hello/helloservice.lib
-IceBox/hello/helloserviced.dll
-IceBox/hello/helloserviced.dll.embed.manifest
-IceBox/hello/helloserviced.dll.embed.manifest.res
-IceBox/hello/helloserviced.dll.intermediate.manifest
-IceBox/hello/helloserviced.exp
-IceBox/hello/helloserviced.lib
 IceBox/hello/HelloServiceI.cpp
 IceBox/hello/HelloServiceI.h
 IceBox/hello/README
@@ -360,6 +350,7 @@ IceGrid/allocate/HelloI.cpp
 IceGrid/allocate/HelloI.h
 IceGrid/allocate/README
 IceGrid/allocate/Server.cpp
+IceGrid/allocate/db
 IceGrid/sessionActivation/application.xml
 IceGrid/sessionActivation/Client.cpp
 IceGrid/sessionActivation/config.client
@@ -373,6 +364,7 @@ IceGrid/sessionActivation/README
 IceGrid/sessionActivation/Server.cpp
 IceGrid/sessionActivation/sessionActivationC.vcproj
 IceGrid/sessionActivation/sessionActivationS.vcproj
+IceGrid/sessionActivation/db
 IceGrid/simple/application.xml
 IceGrid/simple/application_with_replication.xml
 IceGrid/simple/application_with_template.xml

@@ -356,7 +356,9 @@ IceGrid/allocate/HelloI.cpp
 IceGrid/allocate/HelloI.h
 IceGrid/allocate/README
 IceGrid/allocate/Server.cpp
+IceGrid/allocate/db
 IceGrid/sessionActivation/application.xml
+IceGrid/sessionActivation/db
 IceGrid/sessionActivation/Client.cpp
 IceGrid/sessionActivation/config.client
 IceGrid/sessionActivation/config.grid
