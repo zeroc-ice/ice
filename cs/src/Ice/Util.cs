@@ -98,6 +98,10 @@ namespace Ice
 	    return result;
 	}
 
+	public static Communicator initialize()
+	{
+	    return initialize(null);
+	}
 
 	[Obsolete("This method has been deprecated, use initialize instead.")]
 	public static Communicator initializeWithLogger(ref string[] args, Logger logger)
