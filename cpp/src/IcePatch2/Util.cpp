@@ -946,9 +946,9 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 	            }
 
 	    	    const string pathBZ2Temp = path + ".bz2temp";
-		    FILE* stdioFile;
-		    int bzError;
-		    BZFILE* bzFile;
+		    FILE* stdioFile = 0;
+		    int bzError = 0;
+		    BZFILE* bzFile = 0;
 		    if(doCompress)
 		    {
     		        stdioFile = OS::fopen(simplify(pathBZ2Temp), "wb");

@@ -1620,7 +1620,7 @@ Freeze::EvictorI::run()
 			DbTxn* tx = 0;
 			_dbEnv->getEnv()->txn_begin(0, &tx, 0);
 
-			long txnId;
+			long txnId = 0;
 			if(_txTrace >= 1)
 			{
 			    txnId = (tx->id() & 0x7FFFFFFF) + 0x80000000L;

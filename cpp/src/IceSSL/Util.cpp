@@ -475,7 +475,10 @@ IceSSL::populateConnectionInfo(SSL* ssl, SOCKET fd, const string& adapterName, b
 
     IceInternal::fdToLocalAddress(fd, info.localAddr);
 
-    bool peerConnected = IceInternal::fdToRemoteAddress(fd, info.remoteAddr);
+#ifndef NDEBUG
+    bool peerConnected = 
+#endif
+	IceInternal::fdToRemoteAddress(fd, info.remoteAddr);
     assert(peerConnected);
 
     return info;

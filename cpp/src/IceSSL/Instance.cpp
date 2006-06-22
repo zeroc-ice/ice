@@ -246,7 +246,7 @@ IceSSL::Instance::initialize()
 		// password retries.
 		//
 		int count = 0;
-		int err;
+		int err = 0;
 		while(count < passwordRetryMax)
 		{
 		    ERR_clear_error();
@@ -316,7 +316,7 @@ IceSSL::Instance::initialize()
 		    // password retries.
 		    //
 		    int count = 0;
-		    int err;
+		    int err = 0;
 		    while(count < passwordRetryMax)
 		    {
 			ERR_clear_error();
@@ -381,7 +381,7 @@ IceSSL::Instance::initialize()
 		    // password retries.
 		    //
 		    int count = 0;
-		    int err;
+		    int err = 0;
 		    while(count < passwordRetryMax)
 		    {
 			ERR_clear_error();
