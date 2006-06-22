@@ -6,11 +6,13 @@ Requirements
 Operating System
 ----------------
 
-Solaris 8 or Solaris 9 on SPARC.
+Ice is expected to build and run properly on Solaris 8, Solaris 9
+and Solaris 10 on SPARC. However, Ice is officially supported
+only on Solaris 9 on SPARC.
 
 You also need to have /dev/urandom installed. This is installed by
-default on Solaris 9; on Solaris 8, you need to install patch
-112438-01.
+default on Solaris 9 and Solaris 10; on Solaris 8, you need to install 
+patch 112438-01.
 
 
 C++ compiler
@@ -18,17 +20,14 @@ C++ compiler
 
 The following Sun compilers are supported:
 
-- Sun C++ 5.4 (part of Sun ONE Studio 7.0 aka Forte Developer 7).
+- Sun C++ 5.5 (part of Sun ONE Studio 8.0).
 
-- Sun C++ 5.5 (part of Sun ONE Studio 8.0). Ice takes advantage of the
-  new linker scoping feature to reduce the number of symbols exported
-  by Ice shared libraries.
+- Sun C++ 5.8 (part of Sun Studio 11)
 
 Builds with the following compilers are expected to succeed, but these
 compilers are not supported at this time:
 
-- Sun C++ 5.6, 5.7 and 5.8 (Sun Studio 9, Sun Studio 10 and Sun Studio
-  11 respectively)
+- Sun C++ 5.6 and 5.7 (Sun Studio 9 and Sun Studio 10 respectively)
 
 - GCC 3.4.2
 
@@ -128,22 +127,6 @@ LD_LIBRARY_PATH environment variable to add the "lib" directory.  For
 $ export PATH=`pwd`/bin:$PATH
 $ export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
 $ export LD_LIBRARY_PATH_64=`pwd`/lib:$LD_LIBRARY_PATH_64
-
-
-CC 5.4 note
------------
-
-The Sun CC 5.4 build produces a large number of warnings about hidden
-functions in the fstream and sstream standard headers, which is a
-known Sun bug (#4852754). You can suppress them by removing the
-corresponding '+w' option in config/Make.rules.SunOS, or by filtering
-your build log file with a sed script such as:
-
-# Workaround for bug 4852754
-/SUNWspro/d
-/While specializing "std::/d
-/Where: Specialized in non-template code./d
-/Warning(s) detected./d
 
 
 ======================================================================
