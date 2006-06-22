@@ -156,6 +156,11 @@ Ice::initialize(const InitializationData& initData, Int version)
     return result;
 }
 
+CommunicatorPtr
+Ice::initialize(Int version)
+{
+    return initialize(InitializationData(), version);
+}
 
 CommunicatorPtr
 Ice::initializeWithProperties(int& argc, char* argv[], const PropertiesPtr& properties, Int version)

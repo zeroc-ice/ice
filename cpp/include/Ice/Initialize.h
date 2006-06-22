@@ -70,6 +70,8 @@ ICE_API CommunicatorPtr initialize(int&, char*[], const InitializationData& = In
 
 ICE_API CommunicatorPtr initialize(const InitializationData&, Int = ICE_INT_VERSION);
 
+ICE_API CommunicatorPtr initialize(Int = ICE_INT_VERSION);
+
 ICE_API ICE_DEPRECATED_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&,
 								    Int = ICE_INT_VERSION);
 ICE_API ICE_DEPRECATED_API CommunicatorPtr initializeWithLogger(int&, char*[], const Ice::LoggerPtr&,
