@@ -76,7 +76,7 @@ Berkeley DB
 ======================================================================
 
 This distribution includes the C++ and Java runtime for Berkeley DB
-4.3.29. The C++ runtime was built using Sun CC version 5.4. The
+4.3.29. The C++ runtime was built using Sun CC version 5.5. The
 Berkeley DB license is provided in the file THIRD_PARTY_LICENSE.
 
 
