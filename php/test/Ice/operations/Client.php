@@ -23,6 +23,8 @@ function test($b)
 
 function twoways($communicator, $p)
 {
+    global $ICE;
+
     {
         $p->opVoid();
     }
@@ -87,9 +89,9 @@ function twoways($communicator, $p)
     {
         $r = $p->opMyClass($p, $c1, $c2);
         // TODO: Identity tests
-        test($c1->ice_getIdentity() == Ice_stringToIdentity("test"));
-        test($c2->ice_getIdentity() == Ice_stringToIdentity("noSuchIdentity"));
-        test($r->ice_getIdentity() == Ice_stringToIdentity("test"));
+	test($c1->ice_getIdentity() == $ICE->stringToIdentity("test"));
+	test($c2->ice_getIdentity() == $ICE->stringToIdentity("noSuchIdentity"));
+	test($r->ice_getIdentity() == $ICE->stringToIdentity("test"));
         $r->opVoid();
         $c1->opVoid();
         try
@@ -418,7 +420,7 @@ function allTests()
 
     echo "testing proxy methods... ";
     flush();
-    test(Ice_identityToString($base->ice_identity(Ice_stringToIdentity("other"))->ice_getIdentity()) == "other");
+    test($ICE->identityToString($base->ice_identity($ICE->stringToIdentity("other"))->ice_getIdentity()) == "other");
     test($base->ice_facet("facet")->ice_getFacet() == "facet");
     test($base->ice_adapterId("id")->ice_getAdapterId() == "id");
     test($base->ice_twoway()->ice_isTwoway());
@@ -426,8 +428,8 @@ function allTests()
     test($base->ice_batchOneway()->ice_isBatchOneway());
     test($base->ice_datagram()->ice_isDatagram());
     test($base->ice_batchDatagram()->ice_isBatchDatagram());
-    test($base->ice_secure(true)->ice_getSecure());
-    test(!$base->ice_secure(false)->ice_getSecure());
+    test($base->ice_secure(true)->ice_isSecure());
+    test(!$base->ice_secure(false)->ice_isSecure());
     echo "ok\n";
 
     echo "testing ice_getCommunicator... ";

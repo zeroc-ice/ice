@@ -249,10 +249,10 @@ function allTests()
     {
 	$adapter = $com->createObjectAdapter("Adapter41", "default");
 
-	$test1 = $adapter->getTestIntf()->ice_cacheConnection(false)->ice_uncheckedCast("::Test::TestIntf");
-	$test2 = $adapter->getTestIntf()->ice_cacheConnection(false)->ice_uncheckedCast("::Test::TestIntf");
-	test(!$test1->ice_getCacheConnection());
-	test(!$test2->ice_getCacheConnection());
+	$test1 = $adapter->getTestIntf()->ice_connectionCached(false)->ice_uncheckedCast("::Test::TestIntf");
+	$test2 = $adapter->getTestIntf()->ice_connectionCached(false)->ice_uncheckedCast("::Test::TestIntf");
+	test(!$test1->ice_isConnectionCached());
+	test(!$test2->ice_isConnectionCached());
 	test($test1->ice_getConnection() == $test2->ice_getConnection());
 
 	$test1->ice_ping();
@@ -279,8 +279,8 @@ function allTests()
 	$adapters[] = $com->createObjectAdapter("Adapter52", "default");
 	$adapters[] = $com->createObjectAdapter("Adapter53", "default");
 
-	$test = createTestIntfPrx($adapters)->ice_cacheConnection(false)->ice_uncheckedCast("::Test::TestIntf");
-	test(!$test->ice_getCacheConnection());
+	$test = createTestIntfPrx($adapters)->ice_connectionCached(false)->ice_uncheckedCast("::Test::TestIntf");
+	test(!$test->ice_isConnectionCached());
 
 	$names = array("Adapter51", "Adapter52", "Adapter53");
 	while(count($names) > 0)
@@ -323,8 +323,8 @@ function allTests()
 	$test = createTestIntfPrx($adapters);
 	$test = $test->ice_endpointSelection(Ice_EndpointSelectionType::Ordered)->ice_uncheckedCast("::Test::TestIntf");
 	test($test->ice_getEndpointSelection() == Ice_EndpointSelectionType::Ordered);
-	$test = $test->ice_cacheConnection(false)->ice_uncheckedCast("::Test::TestIntf");
-	test(!$test->ice_getCacheConnection());
+	$test = $test->ice_connectionCached(false)->ice_uncheckedCast("::Test::TestIntf");
+	test(!$test->ice_isConnectionCached());
 	$nRetry = 5;
 
 	//
