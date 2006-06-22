@@ -149,6 +149,48 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name simpleS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name allocateC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name allocateS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name converterC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name converterS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sessionActivationC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sessionActivationS
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "allocateC"=.\IceGrid\allocate\allocateC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "allocateS"=.\IceGrid\allocate\allocateS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
 }}}
 
 ###############################################################################
@@ -250,6 +292,30 @@ Package=<4>
 ###############################################################################
 
 Project: "clockS"=.\iceStorm\clock\clockS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "converterC"=.\Ice\converter\converterC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "converterS"=.\Ice\converter\converterS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -562,6 +628,30 @@ Package=<4>
 ###############################################################################
 
 Project: "printerS"=.\book\printer\printerS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "sessionActivationC"=.\IceGrid\sessionActivation\sessionActivationC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "sessionActivationS"=.\IceGrid\sessionActivation\sessionActivationS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
