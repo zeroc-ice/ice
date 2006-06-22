@@ -6,14 +6,22 @@ Requirements
 Operating System
 ----------------
 
-A recent Linux distribution for x86 or x86_64.
+Ice is expected to build and run properly on any recent Linux
+distribution for x86 and x86_64. However, Ice is officially supported
+only on:
+
+ - Fedora Core 5 for x86 or x86_64
+ - RedHat Linux Enterprise 4.2 for x86 or x86_64
 
 
 C++ compiler
 ------------
 
-- GCC 3.2, 3.3, 3.4, or 4.0.1 or later
+Ice is expected to build properly with GCC 3.3 or later.  However,
+only the following compilers are officially supported:
 
+ - GCC 4.1.x on Fedora Core 5
+ - GCC 3.4.4 on RedHat Linux Enterprise 4.2
 
 Third-party libraries
 ---------------------
