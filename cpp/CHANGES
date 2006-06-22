@@ -1,6 +1,20 @@
 Changes since version 3.0.1
 ---------------------------
 
+- A new object and server allocation mechanism has been added to
+  IceGrid. See the Ice manual for more information.
+
+- The IceGrid descriptor XML <adapter> element can now only be used to
+  specify indirect adapters. It's not possible anymore to specify an
+  adapter with an empty id. You can use properties to configure direct
+  adapters.
+
+- Fixed a bug where IceGrid would fail to register well-known objects
+  with an identity containing reserved characters for proxies.
+
+- Added "always" and "session" activation mode to IceGrid, see the Ice
+  manual for more information.
+
 - Changed the entry point of the IceSSL plugin to be 
   IceSSL:createIceSSL.
 
@@ -97,6 +111,13 @@ Changes since version 3.0.1
 - Changed the IceGrid::Admin::getApplicationDescriptor operation to
   return the application descriptor without performing any variable
   substitutions.
+
+- Fixed a bug in the adaptive load policy implementation which could
+  cause the registry to crash.
+ 
+- Fixed a deadlock in the IceGrid registry which could occur when
+  using the adaptive load balancing policy or the IceGrid::Query
+  findObjectByTypeOnLeastLoadedNode method.
 
 - Added communicator initialize functions that takes an argument of
   type Ice::InitializationData. This structure contains communicator
