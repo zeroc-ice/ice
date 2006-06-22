@@ -179,11 +179,11 @@ static function_entry _proxyMethods[] =
     {"ice_endpoints",              PHP_FN(Ice_ObjectPrx_ice_endpoints),              NULL},
     {"ice_getLocatorCacheTimeout", PHP_FN(Ice_ObjectPrx_ice_getLocatorCacheTimeout), NULL},
     {"ice_locatorCacheTimeout",    PHP_FN(Ice_ObjectPrx_ice_locatorCacheTimeout),    NULL},
-    {"ice_getCacheConnection",     PHP_FN(Ice_ObjectPrx_ice_getCacheConnection),     NULL},
-    {"ice_cacheConnection",        PHP_FN(Ice_ObjectPrx_ice_cacheConnection),        NULL},
+    {"ice_isConnectionCached",     PHP_FN(Ice_ObjectPrx_ice_isConnectionCached),     NULL},
+    {"ice_connectionCached",       PHP_FN(Ice_ObjectPrx_ice_connectionCached),        NULL},
     {"ice_getEndpointSelection",   PHP_FN(Ice_ObjectPrx_ice_getEndpointSelection),   NULL},
     {"ice_endpointSelection",      PHP_FN(Ice_ObjectPrx_ice_endpointSelection),      NULL},
-    {"ice_getSecure",              PHP_FN(Ice_ObjectPrx_ice_getSecure),              NULL},
+    {"ice_isSecure",               PHP_FN(Ice_ObjectPrx_ice_isSecure),               NULL},
     {"ice_secure",                 PHP_FN(Ice_ObjectPrx_ice_secure),                 NULL},
     {"ice_twoway",                 PHP_FN(Ice_ObjectPrx_ice_twoway),                 NULL},
     {"ice_isTwoway",               PHP_FN(Ice_ObjectPrx_ice_isTwoway),               NULL},
@@ -1006,7 +1006,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_locatorCacheTimeout)
     }
 }
 
-ZEND_FUNCTION(Ice_ObjectPrx_ice_getCacheConnection)
+ZEND_FUNCTION(Ice_ObjectPrx_ice_isConnectionCached)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
@@ -1019,7 +1019,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getCacheConnection)
 
     try
     {
-	bool b = _this->getProxy()->ice_getCacheConnection();
+	bool b = _this->getProxy()->ice_isConnectionCached();
 	ZVAL_BOOL(return_value, b ? 1 : 0);
     }
     catch(const IceUtil::Exception& ex)
@@ -1029,7 +1029,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getCacheConnection)
     }
 }
 
-ZEND_FUNCTION(Ice_ObjectPrx_ice_cacheConnection)
+ZEND_FUNCTION(Ice_ObjectPrx_ice_connectionCached)
 {
     if(ZEND_NUM_ARGS() != 1)
     {
@@ -1048,7 +1048,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_cacheConnection)
 
     try
     {
-	Ice::ObjectPrx prx = _this->getProxy()->ice_cacheConnection(b ? true : false);
+	Ice::ObjectPrx prx = _this->getProxy()->ice_connectionCached(b ? true : false);
 	if(!createProxy(return_value, prx TSRMLS_CC))
 	{
 	    RETURN_NULL();
@@ -1122,7 +1122,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_endpointSelection)
     }
 }
 
-ZEND_FUNCTION(Ice_ObjectPrx_ice_getSecure)
+ZEND_FUNCTION(Ice_ObjectPrx_ice_isSecure)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
@@ -1135,7 +1135,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getSecure)
 
     try
     {
-        bool b = _this->getProxy()->ice_getSecure();
+        bool b = _this->getProxy()->ice_isSecure();
         RETURN_BOOL(b ? 1 : 0);
     }
     catch(const IceUtil::Exception& ex)

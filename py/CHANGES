@@ -50,7 +50,7 @@ Changes since version 3.0.1
 - The ice_timeout and ice_compress proxy methods now correctly
   override the timeout and compress flag of indirect proxy endpoints.
 
-- Added proxy methods ice_getSecure, ice_getLocator, ice_getRouter.
+- Added proxy methods ice_isSecure, ice_getLocator, ice_getRouter.
 
 - Deprecated the following proxy methods:
 
@@ -95,7 +95,7 @@ Changes since version 3.0.1
   establishment. Two endpoint selection types are currently supported:
   Random and Ordered.
 
-- Added the proxy method ice_cacheConnection. This method allows you
+- Added the proxy method ice_connectionCached. This method allows you
   to enable or disable the caching of the connection by the proxy. By
   default, the proxy will cache the connection to avoid looking it up
   for each request. Disabling the connection caching is useful to do

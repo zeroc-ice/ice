@@ -43,8 +43,8 @@ public class AllTests
 	test(baseProxy.ice_batchOneway().ice_isBatchOneway());
 	test(baseProxy.ice_datagram().ice_isDatagram());
 	test(baseProxy.ice_batchDatagram().ice_isBatchDatagram());
-	test(baseProxy.ice_secure(true).ice_getSecure());
-	test(!baseProxy.ice_secure(false).ice_getSecure());
+	test(baseProxy.ice_secure(true).ice_isSecure());
+	test(!baseProxy.ice_secure(false).ice_isSecure());
 	test(baseProxy.ice_collocationOptimized(true).ice_isCollocationOptimized());
 	test(!baseProxy.ice_collocationOptimized(false).ice_isCollocationOptimized());
 	Console.Out.WriteLine("ok");

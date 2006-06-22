@@ -34,8 +34,8 @@ def allTests(communicator, initData):
     test(base.ice_batchOneway().ice_isBatchOneway());
     test(base.ice_datagram().ice_isDatagram());
     test(base.ice_batchDatagram().ice_isBatchDatagram());
-    test(base.ice_secure(True).ice_getSecure());
-    test(not base.ice_secure(False).ice_getSecure());
+    test(base.ice_secure(True).ice_isSecure());
+    test(not base.ice_secure(False).ice_isSecure());
     print "ok"
 
     print "testing checked cast...",

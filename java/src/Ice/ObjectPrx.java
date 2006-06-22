@@ -85,13 +85,13 @@ public interface ObjectPrx
     int ice_getLocatorCacheTimeout();
     ObjectPrx ice_locatorCacheTimeout(int newTimeout);
 
-    boolean ice_getCacheConnection();
-    ObjectPrx ice_cacheConnection(boolean newCache);
+    boolean ice_isConnectionCached();
+    ObjectPrx ice_connectionCached(boolean newCache);
 
     EndpointSelectionType ice_getEndpointSelection();
     ObjectPrx ice_endpointSelection(EndpointSelectionType newType);
 
-    boolean ice_getSecure();
+    boolean ice_isSecure();
     ObjectPrx ice_secure(boolean b);
 
     Ice.RouterPrx ice_getRouter();

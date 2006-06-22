@@ -568,7 +568,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    objString += " with facet \"" + facet + "\"";
 		}
 		
-		_communicator.getLogger().trace("Freeze.Evictor", "added " + objString + " in the database");
+		_communicator.getLogger().trace("Freeze.Evictor", "added " + objString);
 	    }
 	    
 	    Ice.ObjectPrx obj = _adapter.createProxy(ident);
@@ -1876,12 +1876,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	return _errorPrefix;
     }
 
-    final int
-    txTrace()
-    {
-	return _txTrace;
-    }
-    
     final boolean
     deadlockWarning()
     {

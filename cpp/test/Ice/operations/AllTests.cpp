@@ -38,8 +38,8 @@ allTests(const Ice::CommunicatorPtr& communicator,
     test(base->ice_batchOneway()->ice_isBatchOneway());
     test(base->ice_datagram()->ice_isDatagram());
     test(base->ice_batchDatagram()->ice_isBatchDatagram());
-    test(base->ice_secure(true)->ice_getSecure());
-    test(!base->ice_secure(false)->ice_getSecure());
+    test(base->ice_secure(true)->ice_isSecure());
+    test(!base->ice_secure(false)->ice_isSecure());
     test(base->ice_collocationOptimized(true)->ice_isCollocationOptimized());
     test(!base->ice_collocationOptimized(false)->ice_isCollocationOptimized());
     cout << "ok" << endl;

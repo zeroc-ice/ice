@@ -406,13 +406,13 @@ public class ObjectPrxHelperBase implements ObjectPrx
     }
 
     public final boolean
-    ice_getCacheConnection()
+    ice_isConnectionCached()
     {
 	return _reference.getCacheConnection();
     }
 
     public final ObjectPrx
-    ice_cacheConnection(boolean newCache)
+    ice_connectionCached(boolean newCache)
     {
         if(newCache == _reference.getCacheConnection())
         {
@@ -448,7 +448,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     }
 
     public final boolean
-    ice_getSecure()
+    ice_isSecure()
     {
 	return _reference.getSecure();
     }

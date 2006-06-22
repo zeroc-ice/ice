@@ -76,13 +76,13 @@ namespace Ice
 	int ice_getLocatorCacheTimeout();
 	ObjectPrx ice_locatorCacheTimeout(int timeout);
 	
-	bool ice_getCacheConnection();
-	ObjectPrx ice_cacheConnection(bool newCache);
+	bool ice_isConnectionCached();
+	ObjectPrx ice_connectionCached(bool newCache);
 
 	EndpointSelectionType ice_getEndpointSelection();
 	ObjectPrx ice_endpointSelection(EndpointSelectionType newType);
 
-	bool ice_getSecure();
+	bool ice_isSecure();
         ObjectPrx ice_secure(bool b);
 
 	Ice.RouterPrx ice_getRouter();
@@ -463,12 +463,12 @@ namespace Ice
             }
         }
 
-        public bool ice_getCacheConnection()
+        public bool ice_isConnectionCached()
         {
             return _reference.getCacheConnection();
         }
 
-        public ObjectPrx ice_cacheConnection(bool newCache)
+        public ObjectPrx ice_connectionCached(bool newCache)
         {
             if(newCache == _reference.getCacheConnection())
             {
@@ -501,7 +501,7 @@ namespace Ice
             }
         }
 
-        public bool ice_getSecure()
+        public bool ice_isSecure()
         {
             return _reference.getSecure();
         }

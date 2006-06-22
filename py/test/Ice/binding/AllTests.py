@@ -357,10 +357,10 @@ def allTests(communicator):
 
     adapter = com.createObjectAdapter("Adapter41", "default")
 
-    test1 = Test.TestIntfPrx.uncheckedCast(adapter.getTestIntf().ice_cacheConnection(False))
-    test2 = Test.TestIntfPrx.uncheckedCast(adapter.getTestIntf().ice_cacheConnection(False))
-    test(not test1.ice_getCacheConnection())
-    test(not test2.ice_getCacheConnection())
+    test1 = Test.TestIntfPrx.uncheckedCast(adapter.getTestIntf().ice_connectionCached(False))
+    test2 = Test.TestIntfPrx.uncheckedCast(adapter.getTestIntf().ice_connectionCached(False))
+    test(not test1.ice_isConnectionCached())
+    test(not test2.ice_isConnectionCached())
     test(test1.ice_getConnection() == test2.ice_getConnection())
 
     test1.ice_ping()
@@ -383,8 +383,8 @@ def allTests(communicator):
     adapters.append(com.createObjectAdapter("Adapter52", "default"))
     adapters.append(com.createObjectAdapter("Adapter53", "default"))
 
-    t = Test.TestIntfPrx.uncheckedCast(createTestIntfPrx(adapters).ice_cacheConnection(False))
-    test(not t.ice_getCacheConnection())
+    t = Test.TestIntfPrx.uncheckedCast(createTestIntfPrx(adapters).ice_connectionCached(False))
+    test(not t.ice_isConnectionCached())
 
     names = ["Adapter51", "Adapter52", "Adapter53"]
     while len(names) > 0:
@@ -416,8 +416,8 @@ def allTests(communicator):
     adapters.append(com.createObjectAdapter("AdapterAMI52", "default"))
     adapters.append(com.createObjectAdapter("AdapterAMI53", "default"))
 
-    t = Test.TestIntfPrx.uncheckedCast(createTestIntfPrx(adapters).ice_cacheConnection(False))
-    test(not t.ice_getCacheConnection())
+    t = Test.TestIntfPrx.uncheckedCast(createTestIntfPrx(adapters).ice_connectionCached(False))
+    test(not t.ice_isConnectionCached())
 
     names = ["AdapterAMI51", "AdapterAMI52", "AdapterAMI53"]
     while len(names) > 0:
@@ -452,8 +452,8 @@ def allTests(communicator):
     t = createTestIntfPrx(adapters)
     t = Test.TestIntfPrx.uncheckedCast(t.ice_endpointSelection(Ice.EndpointSelectionType.Ordered))
     test(t.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered)
-    t = Test.TestIntfPrx.uncheckedCast(t.ice_cacheConnection(False))
-    test(not t.ice_getCacheConnection())
+    t = Test.TestIntfPrx.uncheckedCast(t.ice_connectionCached(False))
+    test(not t.ice_isConnectionCached())
     nRetry = 5
 
     #
@@ -519,8 +519,8 @@ def allTests(communicator):
     t = createTestIntfPrx(adapters)
     t = Test.TestIntfPrx.uncheckedCast(t.ice_endpointSelection(Ice.EndpointSelectionType.Ordered))
     test(t.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered)
-    t = Test.TestIntfPrx.uncheckedCast(t.ice_cacheConnection(False))
-    test(not t.ice_getCacheConnection())
+    t = Test.TestIntfPrx.uncheckedCast(t.ice_connectionCached(False))
+    test(not t.ice_isConnectionCached())
     nRetry = 5
 
     #
@@ -607,11 +607,11 @@ def allTests(communicator):
 	    t.ice_getConnection().close(False)
 
 	testSecure = Test.TestIntfPrx.uncheckedCast(t.ice_secure(True))
-	test(testSecure.ice_getSecure())
+	test(testSecure.ice_isSecure())
         testSecure = Test.TestIntfPrx.uncheckedCast(t.ice_secure(False))
-        test(not testSecure.ice_getSecure())
+        test(not testSecure.ice_isSecure())
 	testSecure = Test.TestIntfPrx.uncheckedCast(t.ice_secure(True))
-	test(testSecure.ice_getSecure())
+	test(testSecure.ice_isSecure())
 	test(t.ice_getConnection() != testSecure.ice_getConnection())
 
 	com.deactivateObjectAdapter(adapters[1])

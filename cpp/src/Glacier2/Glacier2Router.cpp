@@ -214,7 +214,7 @@ Glacier2::RouterService::start(int argc, char* argv[])
 	    return false;
 	}
 	sessionManager = 
-	    SessionManagerPrx::uncheckedCast(sessionManager->ice_cacheConnection(false)->ice_locatorCacheTimeout(
+	    SessionManagerPrx::uncheckedCast(sessionManager->ice_connectionCached(false)->ice_locatorCacheTimeout(
 	        properties->getPropertyAsIntWithDefault("Glacier2.SessionManager.LocatorCacheTimeout", 600)));
     }
 
@@ -248,7 +248,7 @@ Glacier2::RouterService::start(int argc, char* argv[])
 	    return false;
 	}
 	sslSessionManager = 
-	    SSLSessionManagerPrx::uncheckedCast(sslSessionManager->ice_cacheConnection(false)->ice_locatorCacheTimeout(
+	    SSLSessionManagerPrx::uncheckedCast(sslSessionManager->ice_connectionCached(false)->ice_locatorCacheTimeout(
 	        properties->getPropertyAsIntWithDefault("Glacier2.SSLSessionManager.LocatorCacheTimeout", 600)));
     }
 

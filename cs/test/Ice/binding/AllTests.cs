@@ -427,10 +427,10 @@ public class AllTests
 	{
 	    RemoteObjectAdapterPrx adapter = com.createObjectAdapter("Adapter41", "default");
 
-	    TestIntfPrx test1 = TestIntfPrxHelper.uncheckedCast(adapter.getTestIntf().ice_cacheConnection(false));
-	    TestIntfPrx test2 = TestIntfPrxHelper.uncheckedCast(adapter.getTestIntf().ice_cacheConnection(false));
-	    test(!test1.ice_getCacheConnection());
-	    test(!test2.ice_getCacheConnection());
+	    TestIntfPrx test1 = TestIntfPrxHelper.uncheckedCast(adapter.getTestIntf().ice_connectionCached(false));
+	    TestIntfPrx test2 = TestIntfPrxHelper.uncheckedCast(adapter.getTestIntf().ice_connectionCached(false));
+	    test(!test1.ice_isConnectionCached());
+	    test(!test2.ice_isConnectionCached());
 	    test(test1.ice_getConnection() == test2.ice_getConnection());
 
 	    test1.ice_ping();
@@ -457,8 +457,8 @@ public class AllTests
 	    adapters.Add(com.createObjectAdapter("Adapter52", "default"));
 	    adapters.Add(com.createObjectAdapter("Adapter53", "default"));
 
-	    TestIntfPrx obj = TestIntfPrxHelper.uncheckedCast(createTestIntfPrx(adapters).ice_cacheConnection(false));
-	    test(!obj.ice_getCacheConnection());
+	    TestIntfPrx obj = TestIntfPrxHelper.uncheckedCast(createTestIntfPrx(adapters).ice_connectionCached(false));
+	    test(!obj.ice_isConnectionCached());
 
 	    IceUtil.Set names = new IceUtil.Set();
 	    names.Add("Adapter51");
@@ -495,8 +495,8 @@ public class AllTests
 	    adapters.Add(com.createObjectAdapter("AdapterAMI52", "default"));
 	    adapters.Add(com.createObjectAdapter("AdapterAMI53", "default"));
 
-	    TestIntfPrx obj = TestIntfPrxHelper.uncheckedCast(createTestIntfPrx(adapters).ice_cacheConnection(false));
-	    test(!obj.ice_getCacheConnection());
+	    TestIntfPrx obj = TestIntfPrxHelper.uncheckedCast(createTestIntfPrx(adapters).ice_connectionCached(false));
+	    test(!obj.ice_isConnectionCached());
 
 	    IceUtil.Set names = new IceUtil.Set();
 	    names.Add("AdapterAMI51");
@@ -536,8 +536,8 @@ public class AllTests
 	    TestIntfPrx obj = createTestIntfPrx(adapters);
 	    obj = TestIntfPrxHelper.uncheckedCast(obj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered));
 	    test(obj.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered);
-	    obj = TestIntfPrxHelper.uncheckedCast(obj.ice_cacheConnection(false));
-	    test(!obj.ice_getCacheConnection());
+	    obj = TestIntfPrxHelper.uncheckedCast(obj.ice_connectionCached(false));
+	    test(!obj.ice_isConnectionCached());
 	    int nRetry = 3;
 	    int i;
 
@@ -596,8 +596,8 @@ public class AllTests
 	    TestIntfPrx obj = createTestIntfPrx(adapters);
 	    obj = TestIntfPrxHelper.uncheckedCast(obj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered));
 	    test(obj.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered);
-	    obj = TestIntfPrxHelper.uncheckedCast(obj.ice_cacheConnection(false));
-	    test(!obj.ice_getCacheConnection());
+	    obj = TestIntfPrxHelper.uncheckedCast(obj.ice_connectionCached(false));
+	    test(!obj.ice_isConnectionCached());
 	    int nRetry = 3;
 	    int i;
 
@@ -685,11 +685,11 @@ public class AllTests
 		}
 	    
 		TestIntfPrx testSecure = TestIntfPrxHelper.uncheckedCast(obj.ice_secure(true));
-		test(testSecure.ice_getSecure());
+		test(testSecure.ice_isSecure());
 		testSecure = TestIntfPrxHelper.uncheckedCast(obj.ice_secure(false));
-		test(!testSecure.ice_getSecure());
+		test(!testSecure.ice_isSecure());
 		testSecure = TestIntfPrxHelper.uncheckedCast(obj.ice_secure(true));
-		test(testSecure.ice_getSecure());
+		test(testSecure.ice_isSecure());
 		test(obj.ice_getConnection() != testSecure.ice_getConnection());
 
 		com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[1]);

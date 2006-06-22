@@ -803,14 +803,14 @@ proxyIceLocatorCacheTimeout(ProxyObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-proxyIceGetCacheConnection(ProxyObject* self)
+proxyIceIsConnectionCached(ProxyObject* self)
 {
     assert(self->proxy);
 
     PyObject* b;
     try
     {
-	b = (*self->proxy)->ice_getCacheConnection() ? Py_True : Py_False;
+	b = (*self->proxy)->ice_isConnectionCached() ? Py_True : Py_False;
     }
     catch(const Ice::Exception& ex)
     {
@@ -826,7 +826,7 @@ proxyIceGetCacheConnection(ProxyObject* self)
 extern "C"
 #endif
 static PyObject*
-proxyIceCacheConnection(ProxyObject* self, PyObject* args)
+proxyIceConnectionCached(ProxyObject* self, PyObject* args)
 {
     PyObject* flag;
     if(!PyArg_ParseTuple(args, STRCAST("O"), &flag))
@@ -845,7 +845,7 @@ proxyIceCacheConnection(ProxyObject* self, PyObject* args)
     Ice::ObjectPrx newProxy;
     try
     {
-	newProxy = (*self->proxy)->ice_cacheConnection(n == 1);
+	newProxy = (*self->proxy)->ice_connectionCached(n == 1);
     }
     catch(const Ice::Exception& ex)
     {
@@ -948,14 +948,14 @@ proxyIceEndpointSelection(ProxyObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-proxyIceGetSecure(ProxyObject* self)
+proxyIceIsSecure(ProxyObject* self)
 {
     assert(self->proxy);
 
     PyObject* b;
     try
     {
-        b = (*self->proxy)->ice_getSecure() ? Py_True : Py_False;
+        b = (*self->proxy)->ice_isSecure() ? Py_True : Py_False;
     }
     catch(const Ice::Exception& ex)
     {
@@ -1866,16 +1866,16 @@ static PyMethodDef ProxyMethods[] =
         PyDoc_STR(STRCAST("ice_getLocatorCacheTimeout() -> int")) },
     { STRCAST("ice_locatorCacheTimeout"), (PyCFunction)proxyIceLocatorCacheTimeout, METH_VARARGS,
         PyDoc_STR(STRCAST("ice_locatorCacheTimeout(int) -> Ice.ObjectPrx")) },
-    { STRCAST("ice_getCacheConnection"), (PyCFunction)proxyIceGetCacheConnection, METH_NOARGS,
-        PyDoc_STR(STRCAST("ice_getCacheConnection() -> bool")) },
-    { STRCAST("ice_cacheConnection"), (PyCFunction)proxyIceCacheConnection, METH_VARARGS,
-        PyDoc_STR(STRCAST("ice_cacheConnection(bool) -> Ice.ObjectPrx")) },
+    { STRCAST("ice_isConnectionCached"), (PyCFunction)proxyIceIsConnectionCached, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_isConnectionCached() -> bool")) },
+    { STRCAST("ice_connectionCached"), (PyCFunction)proxyIceConnectionCached, METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_connectionCached(bool) -> Ice.ObjectPrx")) },
     { STRCAST("ice_getEndpointSelection"), (PyCFunction)proxyIceGetEndpointSelection, METH_NOARGS,
         PyDoc_STR(STRCAST("ice_getEndpointSelection() -> bool")) },
     { STRCAST("ice_endpointSelection"), (PyCFunction)proxyIceEndpointSelection, METH_VARARGS,
         PyDoc_STR(STRCAST("ice_endpointSelection(Ice.EndpointSelectionType) -> Ice.ObjectPrx")) },
-    { STRCAST("ice_getSecure"), (PyCFunction)proxyIceGetSecure, METH_NOARGS,
-        PyDoc_STR(STRCAST("ice_getSecure() -> bool")) },
+    { STRCAST("ice_isSecure"), (PyCFunction)proxyIceIsSecure, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_isSecure() -> bool")) },
     { STRCAST("ice_secure"), (PyCFunction)proxyIceSecure, METH_VARARGS,
         PyDoc_STR(STRCAST("ice_secure(bool) -> Ice.ObjectPrx")) },
     { STRCAST("ice_getRouter"), (PyCFunction)proxyIceGetRouter, METH_NOARGS,

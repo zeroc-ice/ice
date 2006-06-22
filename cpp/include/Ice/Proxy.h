@@ -143,13 +143,13 @@ public:
     ::Ice::Int ice_getLocatorCacheTimeout() const;
     ::Ice::ObjectPrx ice_locatorCacheTimeout(::Ice::Int) const;
 
-    bool ice_getCacheConnection() const;
-    ::Ice::ObjectPrx ice_cacheConnection(bool) const;
+    bool ice_isConnectionCached() const;
+    ::Ice::ObjectPrx ice_connectionCached(bool) const;
 
     ::Ice::EndpointSelectionType ice_getEndpointSelection() const;
     ::Ice::ObjectPrx ice_endpointSelection(::Ice::EndpointSelectionType) const;
 
-    bool ice_getSecure() const;
+    bool ice_isSecure() const;
     ::Ice::ObjectPrx ice_secure(bool) const;
 
     ::Ice::RouterPrx ice_getRouter() const;

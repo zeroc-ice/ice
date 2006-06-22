@@ -558,13 +558,13 @@ IceProxy::Ice::Object::ice_locatorCacheTimeout(Int newTimeout) const
 }
 
 bool
-IceProxy::Ice::Object::ice_getCacheConnection() const
+IceProxy::Ice::Object::ice_isConnectionCached() const
 {
     return _reference->getCacheConnection();
 }
 
 ObjectPrx
-IceProxy::Ice::Object::ice_cacheConnection(bool newCache) const
+IceProxy::Ice::Object::ice_connectionCached(bool newCache) const
 {
     if(newCache == _reference->getCacheConnection())
     {
@@ -600,7 +600,7 @@ IceProxy::Ice::Object::ice_endpointSelection(EndpointSelectionType newType) cons
 }
 
 bool
-IceProxy::Ice::Object::ice_getSecure() const
+IceProxy::Ice::Object::ice_isSecure() const
 {
     return _reference->getSecure();
 }
