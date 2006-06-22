@@ -2903,7 +2903,7 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>ProductCode</td><td>{3E05FD23-8F76-4711-941B-22F52479091C}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice</td><td/></row>
+		<row><td>ProductName</td><td>Ice 3.1.0 for Visual Studio 2005</td><td/></row>
 		<row><td>ProductVersion</td><td>3.1.0</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
