@@ -99,6 +99,12 @@ public final class Util
         return result;
     }
 
+    public static Communicator
+    initialize()
+    {
+        return initialize(new InitializationData());
+    }
+
     /**
      * @deprecated This method has been deprecated, use initialize instead.
      **/
