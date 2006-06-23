@@ -1,7 +1,7 @@
 This archive contains binary and architecture-independent RPMs 
 for Fedora Core 5 i386.
 
-iCe-3.1.0-1.i386.rpm
+ice-3.1.0-1.i386.rpm
 
     The Ice run time, including executables for Ice services and
     tools, shared libraries, C++ runtime libraries, HTML
@@ -25,7 +25,6 @@ ice-c++-devel-3.1.0-1.i386.rpm
     dependencies:
 
     * ice
-    * openssl-devel
     * db4-utils
 
 ice-dotnet-3.1.0-1.i386.rpm

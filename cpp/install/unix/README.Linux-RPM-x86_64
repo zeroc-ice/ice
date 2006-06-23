@@ -25,7 +25,6 @@ ice-c++-devel-3.1.0-1.x86_64.rpm
     dependencies:
 
     * ice
-    * openssl-devel
     * db4-utils
 
 ice-dotnet-3.1.0-1.x86_64.rpm

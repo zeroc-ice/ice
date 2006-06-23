@@ -56,7 +56,7 @@ following RPMs:
 
 Berkeley DB    db4, db4-utils, db4-java
 expat 	       expat
-OpenSSL	       openssl, openssl-devel
+OpenSSL	       openssl
 bzip2          bzip2-libs
 readline       readline
 ncurses        ncurses
