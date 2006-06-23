@@ -5054,7 +5054,7 @@ This property specifies a space separated list of address-port pairs. When defin
 </section>
 </section>
 
-<section><title>Glacier2.Filter.Category.Accept</title>
+<section id="Glacier2.Filter.Category.Accept"><title>Glacier2.Filter.Category.Accept</title>
 <section><title>Synopsis</title>
 <synopsis>
 Glacier2.Filter.Category.Accept=<replaceable>string</replaceable>
@@ -5062,6 +5062,18 @@ Glacier2.Filter.Category.Accept=<replaceable>string</replaceable>
 </section>
 <section>
 <title>Description</title>
+<para>
+The <literal>Glacier2.Filter.Category.Accept</literal> property specifies a
+whitespace-separated list of identity categories. If defined, the
+&Glacier2; router only allows requests to &Ice; objects with an identity
+that matches one of the categories in this list. If
+<literal>Glacier2.AddUserToAllowCategories</literal> is defined with a non-zero value, the
+router automatically adds the user id of each session to this list.
+<note><para>This property is deprecated and supported only for
+backward-compatibility. New applications should use
+<link linkend="Glacier2.AllowCategories">Glacier2.AllowCategories</link>.
+</para></note>
+</para>
 </section>
 </section>
 
@@ -5073,17 +5085,29 @@ Glacier2.Filter.AdapterId.Accept=<replaceable>string</replaceable>
 </section>
 <section>
 <title>Description</title>
+<para>
+The <literal>Glacier2.Filter.AdapterId.Accept</literal> property specifies a
+whitespace-separated list of adapter identities. If defined, the
+&Glacier2; router only allows requests to &Ice; objects with an adapter identity
+that matches one of the identities in this list. 
+</para>
 </section>
 </section>
 
 <section><title>Glacier2.Filter.Identity.Accept</title>
 <section><title>Synopsis</title>
 <synopsis>
-Glacier2.Filter.AdapterId.Accept=<replaceable>string</replaceable>
+Glacier2.Filter.Identity.Accept=<replaceable>string</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
+<para>
+The <literal>Glacier2.Filter.Identity.Accept</literal> property specifies a
+whitespace-separated list of identities. If defined, the
+&Glacier2; router only allows requests to &Ice; objects with an identity
+that matches one of the identities in this list. 
+</para>
 </section>
 </section>
 
