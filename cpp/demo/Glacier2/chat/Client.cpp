@@ -18,9 +18,9 @@ class SessionPingThread : public IceUtil::Thread, public IceUtil::Monitor<IceUti
 {
 public:
 
-    SessionPingThread(const Glacier2::SessionPrx& session) :
+    SessionPingThread(const Glacier2::SessionPrx& session, long timeout) :
         _session(session),
-        _timeout(IceUtil::Time::seconds(20)),
+        _timeout(IceUtil::Time::seconds(timeout)),
         _destroy(false)
     {
     }
@@ -123,7 +123,7 @@ public:
 	    }
 	}
 
-	SessionPingThreadPtr ping = new SessionPingThread(session);
+	SessionPingThreadPtr ping = new SessionPingThread(session, router->getSessionTimeout() / 2);
 	ping->start();
 
 	Ice::Identity callbackReceiverIdent;

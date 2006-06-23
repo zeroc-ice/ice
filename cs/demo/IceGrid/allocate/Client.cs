@@ -16,10 +16,10 @@ public class Client : Ice.Application
 {
     class SessionKeepAliveThread 
     {
-        public SessionKeepAliveThread(IceGrid.SessionPrx session)
+        public SessionKeepAliveThread(IceGrid.SessionPrx session, int timeout)
 	{
 	    _session = session;
-	    _timeout = 5000;
+	    _timeout = timeout;
 	    _terminated = false;
 	}
 
@@ -106,7 +106,7 @@ public class Client : Ice.Application
 	    }
 	}
 
-	SessionKeepAliveThread keepAlive = new SessionKeepAliveThread(session);
+	SessionKeepAliveThread keepAlive = new SessionKeepAliveThread(session, (int)registry.getSessionTimeout() / 2);
 	Thread keepAliveThread = new Thread(new ThreadStart(keepAlive.run));
 	keepAliveThread.Start();
 

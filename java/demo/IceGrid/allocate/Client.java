@@ -13,10 +13,10 @@ public class Client extends Ice.Application
 {
     static private class SessionKeepAliveThread extends Thread
     {
-        SessionKeepAliveThread(IceGrid.SessionPrx session)
+        SessionKeepAliveThread(IceGrid.SessionPrx session, long timeout)
 	{
 	    _session = session;
-	    _timeout = 5000;
+	    _timeout = timeout;
 	    _terminated = false;
 	}
 
@@ -115,7 +115,7 @@ public class Client extends Ice.Application
             }
 	}
 
-	SessionKeepAliveThread keepAlive = new SessionKeepAliveThread(session);
+	SessionKeepAliveThread keepAlive = new SessionKeepAliveThread(session, registry.getSessionTimeout() / 2);
 	keepAlive.start();
 
         //

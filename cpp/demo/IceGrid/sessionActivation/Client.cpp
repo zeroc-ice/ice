@@ -18,9 +18,9 @@ class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<I
 {
 public:
 
-    SessionKeepAliveThread(const IceGrid::SessionPrx& session) :
+    SessionKeepAliveThread(const IceGrid::SessionPrx& session, long timeout) :
 	_session(session),
-        _timeout(IceUtil::Time::seconds(5)),
+        _timeout(IceUtil::Time::seconds(timeout)),
         _destroy(false)
     {
     }
@@ -142,7 +142,7 @@ HelloClient::run(int argc, char* argv[])
 	}
     }
 
-    SessionKeepAliveThreadPtr keepAlive = new SessionKeepAliveThread(session);
+    SessionKeepAliveThreadPtr keepAlive = new SessionKeepAliveThread(session, registry->getSessionTimeout() / 2);
     keepAlive->start();
 
     HelloPrx hello;
