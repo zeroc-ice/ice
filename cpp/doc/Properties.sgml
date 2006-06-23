@@ -4539,7 +4539,7 @@ backward-compatibility. New applications should use
 </section>
 </section>
 
-<section id="Glacier2.AllowCategories">><title>Glacier2.AllowCategories</title>
+<section id="Glacier2.AllowCategories"><title>Glacier2.AllowCategories</title>
 <section><title>Synopsis</title>
 <synopsis>
 Glacier2.AllowCategories=<replaceable>list</replaceable>
