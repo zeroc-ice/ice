@@ -241,11 +241,17 @@ os.system("ant" + quiet)
 # Clean out the lib directory but save the jar files.
 #
 os.rename(os.path.join("lib", "Ice.jar"), "Ice.jar")
-os.rename(os.path.join("lib", "IceGridGUI.jar"), "IceGridGUI.jar")
+if os.path.exists(os.path.join("lib", "IceGridGUI.jar")):
+    print "Found IceGridGUI, is this the JDK 1.4 targeted source distro?"
+    os.rename(os.path.join("lib", "IceGridGUI.jar"), "IceGridGUI.jar")
+else:
+    print "No IceGridGUI, is this the JDK 1.5 targeted source distro?"
+
 shutil.rmtree("lib")
 os.mkdir("lib")
 os.rename("Ice.jar", os.path.join("lib", "Ice.jar"))
-os.rename("IceGridGUI.jar", os.path.join("lib", "IceGridGUI.jar"))
+if os.path.exists(os.path.join("IceGridGUI.jar")):
+    os.rename("IceGridGUI.jar", os.path.join("lib", "IceGridGUI.jar"))
 
 if os.environ.has_key("JAVA15_HOME"):
     os.mkdir(os.path.join("lib", "java5"))
