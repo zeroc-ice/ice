@@ -164,6 +164,32 @@ if not skipDocs:
     os.rename(os.path.join("ice", "doc", "images"), os.path.join("icepy", "doc", "images"))
 
 #
+# Taken from ice/config/TestUtil.py
+#
+# If having this duplicated is really a problem we should split these
+# methods out into their own module.
+#
+def isHpUx():
+
+   if sys.platform == "hp-ux11":
+        return 1
+   else:
+        return 0
+
+def isDarwin():
+
+   if sys.platform == "darwin":
+        return 1
+   else:
+        return 0
+
+def isAIX():
+   if sys.platform in ['aix4', 'aix5']:
+        return 1
+   else:
+        return 0
+
+#
 # Build slice2py.
 #
 if not skipTranslator:
@@ -182,16 +208,13 @@ if not skipTranslator:
     os.system("gmake")
     os.chdir(cwd)
 
-    sys.path.append(os.path.join("ice", "config"))
-    import TestUtil
-
     os.environ["PATH"] = os.path.join(cwd, "ice", "bin") + ":" + os.getenv("PATH", "")
 
-    if TestUtil.isHpUx():
+    if isHpUx():
 	os.environ["SHLIB_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("SHLIB_PATH", "")
-    elif TestUtil.isDarwin():
+    elif isDarwin():
 	os.environ["DYLD_LIBRARY_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("DYLD_LIBRRARY_PATH", "")
-    elif TestUtil.isAIX():
+    elif isAIX():
 	os.environ["LIBPATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("LIBPATH", "")
     else:
 	os.environ["LD_LIBRARY_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("LD_LIBRARY_PATH", "")
