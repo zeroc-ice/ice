@@ -282,6 +282,7 @@ transforms = [ ('file', 'ice.ini', 'etc/php.d/ice.ini'),
 	       ('dir', '%{icelibdir}', 'usr/%{icelibdir}'),
 	       ('file', 'usr/%{icelibdir}/icephp.so', 'usr/%{icelibdir}/php/modules/icephp.so'),
 	       ('file', 'usr/lib/Ice.jar', 'usr/lib/Ice-%version%/Ice.jar' ),
+	       ('file', 'usr/lib/java5/Ice.jar', 'usr/lib/Ice-%version%/java5/Ice.jar' ),
 	       ('file', 'usr/lib/IceGridGUI.jar', 'usr/lib/Ice-%version%/IceGridGUI.jar' ),
 	       ('file', 'bin/icecs.dll', 'usr/lib/mono/gac/icecs/%version%.0__1f998c50fec78381/icecs.dll'),
 	       ('file', 'bin/glacier2cs.dll',
@@ -331,6 +332,12 @@ fileLists = [
              ('exe', 'bin/icegridadmin'), 
              ('exe', 'bin/icegridnode'), 
              ('exe', 'bin/icegridregistry'), 
+	     ('exe', 'bin/cautil.py'),
+	     ('exe', 'bin/ImportKey.class'),
+	     ('exe', 'bin/import.py'),
+	     ('exe', 'bin/initca.py'),
+	     ('exe', 'bin/req.py'),
+	     ('exe', 'bin/sign.py'),
              ('lib', '%{icelibdir}/libFreeze.so.VERSION'),
              ('lib', '%{icelibdir}/libGlacier2.so.VERSION'),
              ('lib', '%{icelibdir}/libIceBox.so.VERSION'),
@@ -464,7 +471,8 @@ fileLists = [
 		     iceDescription,
 		     'Requires: ice-%{_arch}',
 		     [ ('xdir', 'lib/Ice-%version%'),
-		     ('dir', 'lib/Ice-%version%/Ice.jar')
+		     ('dir', 'lib/Ice-%version%/Ice.jar'),
+		     ('dir', 'lib/Ice-%version%/java5/Ice.jar')
 		     ]),
     NoarchSubpackage('dotnet',
                      'ice = %version%, mono-core >= 1.1.13',
@@ -698,6 +706,12 @@ then
     mkdir -p $RPM_BUILD_ROOT/lib
 fi
 cp -p $RPM_BUILD_DIR/IceJ-%{version}/lib/Ice.jar $RPM_BUILD_ROOT/lib/Ice.jar
+
+if test ! -d $RPM_BUILD_ROOT/lib/java5;
+then
+    mkdir -p $RPM_BUILD_ROOT/lib/java5
+fi
+cp -p $RPM_BUILD_DIR/IceJ-%{version}/lib/Ice.jar $RPM_BUILD_ROOT/lib/java5/Ice.jar
 cp -p $RPM_BUILD_DIR/IceJ-%{version}/lib/IceGridGUI.jar $RPM_BUILD_ROOT/lib/IceGridGUI.jar
 cp -pR $RPM_BUILD_DIR/IceJ-%{version}/ant $RPM_BUILD_ROOT
 cd $RPM_BUILD_DIR/IcePy-%{version}

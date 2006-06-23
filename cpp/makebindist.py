@@ -451,8 +451,11 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
     if distro.startswith('IceJ'):
 	if not os.path.exists(os.path.join(installDir, 'lib')):
 	    os.mkdir(os.path.join(installDir, 'lib'))
+	if not os.path.exists(os.path.join(installDir, 'lib', 'java5')):
+	    os.mkdir(os.path.join(installDir, 'lib', 'java5'))
 	shutil.copy(buildDir + '/' + distro + '/lib/Ice.jar', installDir + '/lib')
 	shutil.copy(buildDir + '/' + distro + '/lib/IceGridGUI.jar', installDir + '/lib')
+	shutil.copy(buildDir + '/' + distro + '/lib/java5/Ice.jar', installDir + '/lib/java5')
 	#
 	# We really just want to copy the files, not move them.
 	# Shelling out to a copy is easier (and more likely to always
