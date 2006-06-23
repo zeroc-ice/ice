@@ -181,6 +181,17 @@ namespace IceSSL
 	    }
 	}
 
+	public static X509Certificate2 createCertificate(string certPEM)
+	{
+	    char[] chars = certPEM.ToCharArray();
+	    byte[] bytes = new byte[chars.Length];
+	    for(int i = 0; i < chars.Length; ++i)
+	    {
+		bytes[i] = (byte)chars[i];
+	    }
+	    return new X509Certificate2(bytes);
+	}
+
 	internal static ConnectionInfo
 	populateConnectionInfo(System.Net.Security.SslStream stream, System.Net.Sockets.Socket fd,
 			       X509Certificate2[] certs, string adapterName, bool incoming)
