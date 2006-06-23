@@ -14,11 +14,14 @@ generally kept in a file called COPYING or LICENSE. If you do not have a
 copy of the license, write to the Free Software Foundation, 59 Temple 
 Place, Suite 330, Boston, MA 02111 USA.
 
-In addition, as a special exception, ZeroC, Inc. gives permission to link 
-Ice-E with the OpenSSL library (or with modified versions of OpenSSL
-that use the same license as OpenSSL), and distribute linked
-combinations including the two. You must obey the GNU General Public 
-License version 2 in all respects for all of the code used other than 
-OpenSSL. If you modify this copy of Ice-E, you may extend this exception 
-to your version of Ice-E, but you are not obligated to do so. If you do 
-not wish to do so, delete this exception statement from your version.
+In addition, as a special exception, ZeroC, Inc. gives permission to link Ice-E
+with any Orca library (http://orca-robotics.sourceforge.net/) licensed under the
+GNU Lesser General Public License (LGPL), version 2.1
+(http://www.gnu.org/licenses/lgpl.html) and distribute linked combinations of
+Ice with any of these libraries.
+
+You must obey the GNU General Public License version 2 in all respects for all
+of the code used other than these libraries. If you modify this copy of Ice-E, 
+you may extend this exception to your version of Ice, but you are not obligated 
+to do so. If you do not wish to do so, delete this exception statement from your
+version.
