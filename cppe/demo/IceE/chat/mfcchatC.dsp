@@ -394,7 +394,7 @@ SOURCE=.\Session.ice
 InputPath=.\Session.ice
 
 BuildCmds= \
-	slice2cppe.exe Session.ice
+	slice2cppe.exe --ice Session.ice
 
 "Session.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -409,7 +409,7 @@ BuildCmds= \
 InputPath=.\Session.ice
 
 BuildCmds= \
-	slice2cppe.exe Session.ice
+	slice2cppe.exe --ice Session.ice
 
 "Session.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -424,7 +424,7 @@ BuildCmds= \
 InputPath=.\Session.ice
 
 BuildCmds= \
-	slice2cppe.exe Session.ice
+	slice2cppe.exe --ice Session.ice
 
 "Session.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -439,7 +439,7 @@ BuildCmds= \
 InputPath=.\Session.ice
 
 BuildCmds= \
-	slice2cppe.exe Session.ice
+	slice2cppe.exe --ice Session.ice
 
 "Session.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)

@@ -123,7 +123,7 @@ public:
 	    }
 	}
 
-	SessionPingThreadPtr ping = new SessionPingThread(session, router->getSessionTimeout() / 2);
+	SessionPingThreadPtr ping = new SessionPingThread(session, (long)router->getSessionTimeout() / 2);
 	ping->start();
 
 	Ice::Identity callbackReceiverIdent;

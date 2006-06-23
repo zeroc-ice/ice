@@ -1579,7 +1579,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe -I. Chat.ice&#x0D;&#x0A;"
+						CommandLine="slice2cppe.exe -I. --ice Chat.ice&#x0D;&#x0A;"
 						Outputs="Chat.cpp;Chat.h"
 					/>
 				</FileConfiguration>
@@ -1739,7 +1739,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe Session.ice&#x0D;&#x0A;"
+						CommandLine="slice2cppe.exe --ice Session.ice&#x0D;&#x0A;"
 						Outputs="Session.cpp;Session.h"
 					/>
 				</FileConfiguration>
@@ -1748,7 +1748,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe Session.ice&#x0D;&#x0A;"
+						CommandLine="slice2cppe.exe --ice Session.ice&#x0D;&#x0A;"
 						Outputs="Session.cpp;Session.h"
 					/>
 				</FileConfiguration>
@@ -1757,7 +1757,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe Session.ice&#x0D;&#x0A;"
+						CommandLine="slice2cppe.exe --ice Session.ice&#x0D;&#x0A;"
 						Outputs="Session.cpp;Session.h"
 					/>
 				</FileConfiguration>
@@ -1766,7 +1766,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe Session.ice&#x0D;&#x0A;"
+						CommandLine="slice2cppe.exe --ice Session.ice&#x0D;&#x0A;"
 						Outputs="Session.cpp;Session.h"
 					/>
 				</FileConfiguration>
@@ -1775,7 +1775,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe Session.ice&#x0D;&#x0A;"
+						CommandLine="slice2cppe.exe --ice Session.ice&#x0D;&#x0A;"
 						Outputs="Session.cpp;Session.h"
 					/>
 				</FileConfiguration>
@@ -1784,7 +1784,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe Session.ice&#x0D;&#x0A;"
+						CommandLine="slice2cppe.exe --ice Session.ice&#x0D;&#x0A;"
 						Outputs="Session.cpp;Session.h"
 					/>
 				</FileConfiguration>
@@ -1793,7 +1793,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe Session.ice&#x0D;&#x0A;"
+						CommandLine="slice2cppe.exe --ice Session.ice&#x0D;&#x0A;"
 						Outputs="Session.cpp;Session.h"
 					/>
 				</FileConfiguration>
@@ -1802,7 +1802,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe Session.ice&#x0D;&#x0A;"
+						CommandLine="slice2cppe.exe --ice Session.ice&#x0D;&#x0A;"
 						Outputs="Session.cpp;Session.h"
 					/>
 				</FileConfiguration>

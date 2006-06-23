@@ -29,7 +29,7 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
 
-SLICE2CPPEFLAGS	:= -I. $(SLICE2CPPEFLAGS)
+SLICE2CPPEFLAGS	:= -I. --ice $(SLICE2CPPEFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@

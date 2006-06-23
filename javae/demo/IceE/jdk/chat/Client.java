@@ -77,7 +77,7 @@ public class Client
 	    }
 	}
 
-	SessionPingThread ping = new SessionPingThread(session);
+	SessionPingThread ping = new SessionPingThread(session, router.getSessionTimeout() / 2);
 	ping.start();
 
 	String category = router.getServerProxy().ice_getIdentity().category;

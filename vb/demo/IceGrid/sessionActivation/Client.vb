@@ -18,7 +18,7 @@ Module SessionActivationC
 
         Class SessionKeepAliveThread
 
-            Public Sub New(ByVal session As IceGrid.SessionPrx)
+            Public Sub New(ByVal session As IceGrid.SessionPrx, ByVal timeout As Long)
                 _session = session
                 _timeout = 5000
                 _terminated = False
@@ -86,7 +86,7 @@ Module SessionActivationC
 		End Try
             End While
 
-            Dim keepAlive As SessionKeepAliveThread = New SessionKeepAliveThread(session)
+            Dim keepAlive As SessionKeepAliveThread = New SessionKeepAliveThread(session, registry.getSessionTimeout() / 2)
             Dim keepAliveThread As Thread = New Thread(New ThreadStart(AddressOf keepAlive.run))
             keepAliveThread.Start()
 

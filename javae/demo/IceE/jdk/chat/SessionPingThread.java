@@ -11,11 +11,11 @@ import Demo.*;
 
 class SessionPingThread extends Thread
 {
-    SessionPingThread(ChatSessionPrx session)
+    SessionPingThread(ChatSessionPrx session, long timeout)
     {
         _session = session;
 	_destroy = false;
-	_timeout = 20*1000;
+	_timeout = timeout*1000;
     }
 
     synchronized public void
@@ -56,5 +56,5 @@ class SessionPingThread extends Thread
 
     private ChatSessionPrx _session;
     private boolean _destroy;
-    private int _timeout;
+    private long _timeout;
 }

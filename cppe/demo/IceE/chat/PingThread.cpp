@@ -11,9 +11,9 @@
 
 using namespace std;
 
-SessionPingThread::SessionPingThread(const Glacier2::SessionPrx& session) :
+SessionPingThread::SessionPingThread(const Glacier2::SessionPrx& session, long timeout) :
     _session(session),
-    _timeout(IceUtil::Time::seconds(20)),
+    _timeout(IceUtil::Time::seconds(timeout)),
     _destroy(false)
 {
 }

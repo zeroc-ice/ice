@@ -18,7 +18,7 @@ class SessionPingThread : public IceUtil::Thread, public IceUtil::Monitor<IceUti
 {
 public:
 
-    SessionPingThread(const Glacier2::SessionPrx& session);
+    SessionPingThread(const Glacier2::SessionPrx& session, long timeout);
 
     virtual void run();
     void destroy();

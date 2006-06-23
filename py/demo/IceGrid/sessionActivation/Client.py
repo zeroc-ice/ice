@@ -22,10 +22,10 @@ x: exit
 """
 
 class SessionKeepAliveThread(threading.Thread):
-    def __init__(self, session):
+    def __init__(self, session, timeout):
         threading.Thread.__init__(self)
         self._session = session
-        self._timeout = 5
+        self._timeout = timeout
         self._terminated = False
         self._cond = threading.Condition()
 
@@ -68,7 +68,7 @@ class Client(Ice.Application):
 	    except IceGrid.PermissionDeniedException, ex:
 	        print "permission denied:\n" + ex.reason
 
-	keepAlive = SessionKeepAliveThread(session)
+	keepAlive = SessionKeepAliveThread(session, registry.getSessionTimeout() / 2)
 	keepAlive.start()
 
         hello = None

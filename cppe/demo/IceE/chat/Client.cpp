@@ -93,7 +93,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         }
     }
 
-    SessionPingThreadPtr ping = new SessionPingThread(session);
+    SessionPingThreadPtr ping = new SessionPingThread(session, router->getSessionTimeout() / 2);
     ping->start();
 
     string category = router->getServerProxy()->ice_getIdentity().category;
