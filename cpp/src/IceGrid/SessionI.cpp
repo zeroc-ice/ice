@@ -65,11 +65,9 @@ newAllocateObject(const SessionIPtr& session, const IceUtil::Handle<T>& cb)
 
 BaseSessionI::BaseSessionI(const string& id, 
 			   const string& prefix, 
-			   const DatabasePtr& database,
-			   int timeout) :
+			   const DatabasePtr& database) :
     _id(id), 
     _prefix(prefix),
-    _timeout(timeout),
     _traceLevels(database->getTraceLevels()),
     _database(database),
     _destroyed(false),
@@ -104,12 +102,6 @@ BaseSessionI::keepAlive(const Ice::Current& current)
 	Ice::Trace out(_traceLevels->logger, _traceLevels->sessionCat);
 	out << _prefix << " session `" << _id << "' keep alive";
     }
-}
-
-int
-BaseSessionI::getTimeout(const Ice::Current&) const
-{
-    return _timeout;
 }
 
 void
@@ -164,10 +156,9 @@ BaseSessionI::setServantLocator(const SessionServantLocatorIPtr& servantLocator)
 
 SessionI::SessionI(const string& id, 
 		   const DatabasePtr& database, 
-		   int timeout,
 		   const WaitQueuePtr& waitQueue,
 		   const Glacier2::SessionControlPrx& sessionControl) :
-    BaseSessionI(id, "client", database, timeout),
+    BaseSessionI(id, "client", database),
     _waitQueue(waitQueue),
     _sessionControl(sessionControl),
     _allocationTimeout(-1)
@@ -291,11 +282,9 @@ SessionI::removeAllocation(const AllocatablePtr& allocatable)
 
 ClientSessionFactory::ClientSessionFactory(const Ice::ObjectAdapterPtr& adapter,
 					   const DatabasePtr& database, 
-					   int timeout, 
 					   const WaitQueuePtr& waitQueue) :
     _adapter(adapter),
     _database(database), 
-    _timeout(timeout),
     _waitQueue(waitQueue)
 {
 }
@@ -337,7 +326,7 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const Glaci
 SessionIPtr
 ClientSessionFactory::createSessionServant(const string& userId, const Glacier2::SessionControlPrx& ctl)
 {
-    return new SessionI(userId, _database, _timeout, _waitQueue, ctl);
+    return new SessionI(userId, _database, _waitQueue, ctl);
 }
 
 const TraceLevelsPtr&

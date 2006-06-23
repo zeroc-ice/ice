@@ -922,23 +922,10 @@ interface AdminSession extends Glacier2::Session
      * Keep the session alive. Clients should call this operation
      * regularly to prevent the server from reaping the session.
      *
-     * @see getTimeout
+     * @see Registry::getSessionTimeout
      *
      **/
     idempotent void keepAlive();
-
-    /**
-     *
-     * Get the session timeout. If a client doesn't call keepAlive in
-     * the time interval defined by this timeout, IceGrid might reap
-     * the session.
-     *
-     * @see keepAlive
-     *
-     * @return The timeout in milliseconds.
-     *
-     **/
-    nonmutating int getTimeout();
 
     /**
      *

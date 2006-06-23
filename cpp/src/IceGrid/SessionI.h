@@ -42,7 +42,6 @@ public:
     virtual ~BaseSessionI();
 
     virtual void keepAlive(const Ice::Current&);
-    virtual int getTimeout(const Ice::Current&) const;
     virtual void destroy(const Ice::Current&);
 
     IceUtil::Time timestamp() const;
@@ -50,11 +49,10 @@ public:
 
 protected:
 
-    BaseSessionI(const std::string&, const std::string&, const DatabasePtr&, int);
+    BaseSessionI(const std::string&, const std::string&, const DatabasePtr&);
 
     const std::string _id;
     const std::string _prefix;
-    const int _timeout;
     const TraceLevelsPtr _traceLevels;
     const DatabasePtr _database;
     const SessionServantLocatorIPtr _servantLocator;
@@ -70,12 +68,11 @@ class SessionI : public BaseSessionI, public Session
 {
 public:
 
-    SessionI(const std::string&, const DatabasePtr&, int, const WaitQueuePtr&, const Glacier2::SessionControlPrx&);
-    SessionI(const std::string&, const DatabasePtr&, int, const WaitQueuePtr&, const Ice::ConnectionPtr&);
+    SessionI(const std::string&, const DatabasePtr&, const WaitQueuePtr&, const Glacier2::SessionControlPrx&);
+    SessionI(const std::string&, const DatabasePtr&, const WaitQueuePtr&, const Ice::ConnectionPtr&);
     virtual ~SessionI();
 
     virtual void keepAlive(const Ice::Current& current) { BaseSessionI::keepAlive(current); }
-    virtual int getTimeout(const Ice::Current& current) const { return BaseSessionI::getTimeout(current); }
 
     virtual void allocateObjectById_async(const AMD_Session_allocateObjectByIdPtr&, const Ice::Identity&,
 					  const Ice::Current&);
@@ -109,7 +106,7 @@ class ClientSessionFactory : virtual public IceUtil::Shared
 {
 public:
 
-    ClientSessionFactory(const Ice::ObjectAdapterPtr&, const DatabasePtr&, int, const WaitQueuePtr&);
+    ClientSessionFactory(const Ice::ObjectAdapterPtr&, const DatabasePtr&, const WaitQueuePtr&);
 
     Glacier2::SessionPrx createGlacier2Session(const std::string&, const Glacier2::SessionControlPrx&);
     SessionIPtr createSessionServant(const std::string&, const Glacier2::SessionControlPrx&);
@@ -120,7 +117,6 @@ private:
 
     const Ice::ObjectAdapterPtr _adapter;
     const DatabasePtr _database;
-    const int _timeout;
     const WaitQueuePtr _waitQueue;
 };
 typedef IceUtil::Handle<ClientSessionFactory> ClientSessionFactoryPtr;

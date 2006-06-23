@@ -78,7 +78,11 @@ class SessionKeeper
 	    }
 	    else
 	    {
-		period = session.getTimeout() * 1000 / 2;
+		String str = _admin.ice_getIdentity().category + "/Registry";
+		RegistryPrx registry = RegistryPrxHelper.
+		    uncheckedCast(_coordinator.getCommunicator().stringToProxy(str));
+		
+		period = registry.getSessionTimeout() * 1000 / 2;
 	    }
 	    
 	    _thread = new Pinger(_session, period);

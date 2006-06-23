@@ -615,6 +615,7 @@ NodeI::stop()
 	}
 
 	_session = 0;
+	_observer = 0;
 	_sessionMonitor.notifyAll();
     }
 }

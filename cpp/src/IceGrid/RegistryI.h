@@ -55,6 +55,8 @@ public:
     virtual SessionPrx createSessionFromSecureConnection(const Ice::Current&);
     virtual AdminSessionPrx createAdminSessionFromSecureConnection(const Ice::Current&);
 
+    virtual int getSessionTimeout(const Ice::Current&) const;
+
     virtual void shutdown();
     
 private:
@@ -75,6 +77,7 @@ private:
     WaitQueuePtr _waitQueue;
     SessionServantLocatorIPtr _sessionServantLocator;
 
+    int _sessionTimeout;
     ClientSessionFactoryPtr _clientSessionFactory;
     Glacier2::PermissionsVerifierPrx _clientVerifier;
     Glacier2::SSLPermissionsVerifierPrx _sslClientVerifier;

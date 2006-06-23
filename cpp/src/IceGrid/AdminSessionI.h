@@ -30,7 +30,6 @@ public:
     void setAdmin(const AdminPrx&);
 
     virtual void keepAlive(const Ice::Current& current) { BaseSessionI::keepAlive(current); }
-    virtual int getTimeout(const Ice::Current& current) const { return BaseSessionI::getTimeout(current); }
 
     virtual AdminPrx getAdmin(const Ice::Current&) const;
 
@@ -43,7 +42,8 @@ public:
     virtual void destroy(const Ice::Current&);
 
 private:
-    
+
+    const int _timeout;
     const RegistryObserverTopicPtr _registryObserverTopic;
     const NodeObserverTopicPtr _nodeObserverTopic;
     const AdminPrx _admin;

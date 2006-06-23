@@ -284,10 +284,10 @@ RegistryI::start(bool nowarn)
     // TODO: Deprecate AdminSessionTimeout?
     //
     int admSessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.AdminSessionTimeout", 10);
-    int sessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.SessionTimeout", admSessionTimeout);
-    if(sessionTimeout != nodeSessionTimeout)
+    _sessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.SessionTimeout", admSessionTimeout);
+    if(_sessionTimeout != nodeSessionTimeout)
     {
-	_clientReaper = new ReapThread(sessionTimeout);
+	_clientReaper = new ReapThread(_sessionTimeout);
 	_clientReaper->start();
     }
     else
@@ -365,7 +365,7 @@ RegistryI::start(bool nowarn)
     ObjectPtr admin = new AdminI(_database, this, 0);
     adminAdapter->add(admin, adminId);
 
-    _clientSessionFactory = new ClientSessionFactory(adminAdapter, _database, sessionTimeout, _waitQueue);
+    _clientSessionFactory = new ClientSessionFactory(adminAdapter, _database, _waitQueue);
 
     Identity clientSessionMgrId = _communicator->stringToIdentity(instanceName + "/SessionManager");
     adminAdapter->add(new ClientSessionManagerI(_clientSessionFactory), clientSessionMgrId);
@@ -373,7 +373,7 @@ RegistryI::start(bool nowarn)
     Identity sslClientSessionMgrId = _communicator->stringToIdentity(instanceName + "/SSLSessionManager");
     adminAdapter->add(new ClientSSLSessionManagerI(_clientSessionFactory), sslClientSessionMgrId);
 
-    _adminSessionFactory = new AdminSessionFactory(adminAdapter, _database, sessionTimeout, regTopic, nodeTopic, this);
+    _adminSessionFactory = new AdminSessionFactory(adminAdapter, _database, _sessionTimeout,regTopic, nodeTopic, this);
 
     Identity adminSessionMgrId = _communicator->stringToIdentity(instanceName + "/AdminSessionManager");
     adminAdapter->add(new AdminSessionManagerI(_adminSessionFactory), adminSessionMgrId);
@@ -652,6 +652,12 @@ RegistryI::createAdminSessionFromSecureConnection(const Current& current)
     AdminSessionPrx proxy = AdminSessionPrx::uncheckedCast(_sessionServantLocator->add(session, current.con));
     _clientReaper->add(new SessionReapable(current.adapter, session, proxy->ice_getIdentity()));
     return proxy;    
+}
+
+int
+RegistryI::getSessionTimeout(const Ice::Current& current) const
+{
+    return _sessionTimeout;
 }
 
 void

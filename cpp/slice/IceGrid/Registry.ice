@@ -108,6 +108,20 @@ interface Registry
      **/
     AdminSession* createAdminSessionFromSecureConnection()
 	throws PermissionDeniedException;
+
+    /**
+     *
+     * Get the session timeout. If a client or administrative client
+     * doesn't call the session keepAlive method in the time interval
+     * defined by this timeout, IceGrid might reap the session.
+     *
+     * @see Session::keepAlive
+     * @see AdminSession::keepAlive
+     *
+     * @return The timeout in milliseconds.
+     *
+     **/
+    nonmutating int getSessionTimeout();
 };
 
 };

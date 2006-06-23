@@ -24,7 +24,8 @@ AdminSessionI::AdminSessionI(const string& id,
 			     int timeout,
 			     const RegistryObserverTopicPtr& registryObserverTopic,
 			     const NodeObserverTopicPtr& nodeObserverTopic) :
-    BaseSessionI(id, "admin", db, timeout),
+    BaseSessionI(id, "admin", db),
+    _timeout(timeout),
     _registryObserverTopic(registryObserverTopic),
     _nodeObserverTopic(nodeObserverTopic)
 {
