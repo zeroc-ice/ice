@@ -1632,6 +1632,7 @@
 		<row><td>ice_runtime</td><td>BerkeleyDBJava.VC80.E108EC08_BBAD_487E_894D_AC83937057AD</td><td>0</td></row>
 		<row><td>ice_runtime</td><td>BerkeleyDBRuntime.VC80.8B4C6A8F_5ED7_425D_98B7_CB354DC66CFB</td><td>0</td></row>
 		<row><td>ice_runtime</td><td>Bzip2Runtime.VC80.8A1A3328_212D_49E1_B41F_75B30E27102E</td><td>0</td></row>
+		<row><td>ice_runtime</td><td>CRT.98CB24AD_52FB_DB5F_FF1F_C8B3B9A1E18E</td><td>0</td></row>
 		<row><td>ice_runtime</td><td>ExpatRuntime.VC80.6D0446E4_2246_4BE2_841E_248BD4AE3795</td><td>0</td></row>
 		<row><td>ice_runtime</td><td>OpenSSLRuntime.VC80.D9B20109_6C0A_461C_ABDD_5B86C7169DC4</td><td>0</td></row>
 	</table>
@@ -1719,6 +1720,7 @@
 		<row><td>BerkeleyDBJava.VC80.E108EC08_BBAD_487E_894D_AC83937057AD</td><td>0</td><td>BerkeleyDB Java Runtime for Visual Studio 2005</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>BerkeleyDBRuntime.VC80.8B4C6A8F_5ED7_425D_98B7_CB354DC66CFB</td><td>0</td><td>BerkeleyDB Runtime for Visual Studio 2005</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>Bzip2Runtime.VC80.8A1A3328_212D_49E1_B41F_75B30E27102E</td><td>0</td><td>Bzip2 Runtime for Visual Studio 2005</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>CRT.98CB24AD_52FB_DB5F_FF1F_C8B3B9A1E18E</td><td>0</td><td>Visual C++ 8.0 CRT (x86) WinSXS MSM Beta2</td><td/><td/></row>
 		<row><td>ExpatRuntime.VC80.6D0446E4_2246_4BE2_841E_248BD4AE3795</td><td>0</td><td>Expat Runtime for Visual Studio 2005</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>OpenSSLRuntime.VC80.D9B20109_6C0A_461C_ABDD_5B86C7169DC4</td><td>0</td><td>OpenSSL Runtime for Visual Studio 2005</td><td>[INSTALLDIR]</td><td/></row>
 	</table>
