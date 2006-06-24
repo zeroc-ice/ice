@@ -510,8 +510,8 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
     # XXX- Optimizations need to be turned on for the release.
     #
     try:
-	runprog('gmake NOGAC=yes OPTIMIZE=no INSTALL_ROOT=/opt/Ice-%s' % version)
-	runprog('gmake NOGAC=yes OPTIMIZE=no INSTALL_ROOT=%s install' % installDir)
+	runprog('gmake NOGAC=yes OPTIMIZE=yes INSTALL_ROOT=/opt/Ice-%s' % version)
+	runprog('gmake NOGAC=yes OPTIMIZE=yes INSTALL_ROOT=%s install' % installDir)
     except ExtProgramError:
 	print "gmake failed for makeInstall(%s, %s, %s, %s, %s, %s)" % (sources, buildDir, installDir, distro, str(clean), version) 
 	raise
