@@ -44,7 +44,7 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
 	    if(_rejectTraceLevel >= 1)
 	    {
 		Trace out(_logger, "Glacier2");
-		out << "rejecting request\n";
+		out << "rejecting request: category filter\n";
 		out << "identity: " << _communicator->identityToString(current.id);
 	    }
 	    rejected = true;
@@ -62,7 +62,7 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
 	    if(_rejectTraceLevel >= 1)
 	    {
 		Trace out(_logger, "Glacier2");
-		out << "rejecting request\n";
+		out << "rejecting request: identity filter\n";
 		out << "identity: " << _communicator->identityToString(current.id);
 	    }
 	    rejected = true;
@@ -99,7 +99,7 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
 	    if(_rejectTraceLevel >= 1)
 	    {
 		Trace out(_logger, "Glacier2");
-		out << "rejecting request\n";
+		out << "rejecting request: adapter id filter\n";
 		out << "identity: " << _communicator->identityToString(current.id);
 	    }
 	}
