@@ -4556,6 +4556,10 @@ If <literal>Glacier2.AddUserToAllowCategories</literal> is
 defined with a non-zero value, the router automatically adds
 the user id of each session to this list.
 </para>
+<note><para>This property is deprecated and supported only for
+backward-compatibility. New applications should use
+<link linkend="Glacier2.Filter.Category.Accept">Glacier2.Filter.Category.Accept</link>.
+</para></note>
 </section>
 </section>
 
@@ -4673,9 +4677,8 @@ Glacier2.Client.Trace.Reject=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
-the &Glacier2; router logs a trace message whenever it rejects a client's
-request because its identity category did not match one of the entries in
-<literal>Glacier2.AllowCategories</literal>. The default value is 0.
+the &Glacier2; router logs a trace message whenever the router's configured filters rejects a client's
+request. The default value is 0.
 </para>
 </section>
 </section>
@@ -5054,6 +5057,24 @@ This property specifies a space separated list of address-port pairs. When defin
 </section>
 </section>
 
+<section><title>Glacier2.Filter.MaxProxyLength</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Filter.MaxProxyLength=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If set, the &Glacier2; router rejects requests using proxies that
+contain more than <replaceable>num</replaceable> network endpoints. This
+helps secure the system against attack. If unset, &Glacier2; will accept
+requests using proxies that specify any number of legal network
+endpoints.
+</para>
+</section>
+</section>
+
 <section id="Glacier2.Filter.Category.Accept"><title>Glacier2.Filter.Category.Accept</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -5069,10 +5090,6 @@ whitespace-separated list of identity categories. If defined, the
 that matches one of the categories in this list. If
 <literal>Glacier2.AddUserToAllowCategories</literal> is defined with a non-zero value, the
 router automatically adds the user id of each session to this list.
-<note><para>This property is deprecated and supported only for
-backward-compatibility. New applications should use
-<link linkend="Glacier2.AllowCategories">Glacier2.AllowCategories</link>.
-</para></note>
 </para>
 </section>
 </section>
