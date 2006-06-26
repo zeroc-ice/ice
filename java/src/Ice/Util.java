@@ -43,7 +43,6 @@ public final class Util
         return createProperties(argsH, defaults);
     }
 
-
     public static Communicator
     initialize(StringSeqHolder args)
     {
@@ -97,6 +96,12 @@ public final class Util
 	CommunicatorI result = new CommunicatorI(initData);
         result.finishSetup(new StringSeqHolder(new String[0]));
         return result;
+    }
+
+    public static Communicator
+    initialize()
+    {
+        return initialize(new InitializationData());
     }
 
     /**
