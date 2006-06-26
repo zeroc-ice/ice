@@ -4948,7 +4948,7 @@ backward-compatibility. New applications should use
 </section>
 </section>
 
-<section><title>Glacier2.RoutingTable.MaxSize</title>
+<section id="Glacier2.RoutingTable.MaxSize"><title>Glacier2.RoutingTable.MaxSize</title>
 <section><title>Synopsis</title>
 <synopsis>
 Glacier2.RoutingTable.MaxSize=<replaceable>num</replaceable>
@@ -5202,10 +5202,30 @@ Glacier2.Trace.RoutingTable=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-If <replaceable>num</replaceable> is set to a value larger than zero,
-the &Glacier2; router logs a trace message for each new proxy that is
-added to the router's internal routing table.
-The default value is 0.
+The routing table trace level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No routing table trace. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Logs a message for each proxy that is added to the routing table.</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>Logs a message for each proxy that is evicted from the routing table (see
+<link linkend="Glacier2.RoutingTable.MaxSize">Glacier2.RoutingTable.MaxSize</link>).</entry>
+</row>
+<row>
+<entry>3</entry>
+<entry>Combines the output for trace levels 1 and 2.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
 </para>
 </section>
 </section>
