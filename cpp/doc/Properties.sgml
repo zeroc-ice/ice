@@ -4452,6 +4452,10 @@ creation of a new session. The legal values are shown below:
 </tgroup>
 </informaltable>
 </para>
+<note><para>This property is deprecated and supported only for
+backward-compatibility. New applications should use
+<link linkend="Glacier2.Filter.Category.AddUser">Glacier2.Filter.Category.AddUser</link>.
+</para></note>
 </section>
 </section>
 
@@ -4492,31 +4496,6 @@ for more information.
 </para>
 <note><para>Allowing access to the &Glacier2; admin interface is a
 security risk!</para></note>
-</section>
-</section>
-
-<section id="Glacier2.InstanceName"><title>Glacier2.InstanceName</title>
-<section><title>Synopsis</title>
-<synopsis>
-Glacier2.InstanceName=<replaceable>name</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-Specifies a default identity category for the &Glacier2; objects.
-If defined, the identity of the &Glacier2; admin interface becomes
-<replaceable>name</replaceable><literal>/admin</literal> and the
-identity of the &Glacier2; router interface becomes
-<replaceable>name</replaceable><literal>/router</literal>. The
-deprecated properties <literal>Glacier2.AdminIdentity</literal>
-and <literal>Glacier2.RouterIdentity</literal> take precedence.
-</para>
-<para>
-If not otherwise defined, the default identities of the &Glacier2;
-objects are <literal>Glacier2/admin</literal> and
-<literal>Glacier2/router</literal>.
-</para>
 </section>
 </section>
 
@@ -4677,8 +4656,8 @@ Glacier2.Client.Trace.Reject=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
-the &Glacier2; router logs a trace message whenever the router's configured filters rejects a client's
-request. The default value is 0.
+the &Glacier2; router logs a trace message whenever the router's configured
+filters reject a client's request. The default value is 0.
 </para>
 </section>
 </section>
@@ -4735,12 +4714,203 @@ line of the file must contain a username and a password, separated
 by whitespace. The password must be a 13-character, crypt-encoded
 string. If this property is not defined, the default value is
 <literal>passwords</literal>. This property is ignored if
-<literal>Glacier2.PermissionsVerifier</literal> is defined.
+<link linkend="Glacier2.PermissionsVerifier">Glacier2.PermissionsVerifier</link>.
+is defined.
 </para>
 </section>
 </section>
 
-<section><title>Glacier2.PermissionsVerifier</title>
+<section><title>Glacier2.Filter.AdapterId.Accept</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Filter.AdapterId.Accept=<replaceable>string</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies a space-separated list of adapter identifiers. If defined, the
+&Glacier2; router only allows requests to &Ice; objects with an adapter identifier
+that matches one of the entries in this list. 
+</para>
+</section>
+</section>
+
+<section id="Glacier2.Filter.Address.Accept"><title>Glacier2.Filter.Address.Accept</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Filter.Address.Accept=<replaceable>string</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies a space-separated list of address-port pairs.
+When defined, the &Glacier2; router only allows requests to &Ice;
+objects through proxies that contain network endpoint information that
+matches an address-port pair listed in this property. If not defined,
+the value defaults to <literal>*</literal>, which indicates that any
+network address is permitted. Requests accepted by this property may
+be rejected by the
+<link linkend="Glacier2.Filter.Address.Reject">Glacier2.Filter.Address.Reject</link>
+property.
+</para>
+<para>
+Each pair is of the form <replaceable>address:port</replaceable>. The
+address or port number portion can include wildcards ('*') or value ranges
+or groups. Ranges and groups are in the form of [value1, value2, value3...]
+and/or [value1-value2]. Wildcards, ranges and groups may appear anywhere in
+the address-port pair string. 
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.Filter.Address.Reject</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Filter.Address.Reject=<replaceable>string</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies a space-separated list of address-port pairs.
+When defined, the &Glacier2; router rejects requests to &Ice; objects
+through proxies that contain network endpoint information that matches
+an address-port pair listed in this property. If not set, the &Glacier2;
+router allows requests to any network address unless the
+<link linkend="Glacier2.Filter.Address.Accept">Glacier2.Filter.Address.Accept</link>
+property is set, in which case requests will be accepted or rejected based on the
+<link linkend="Glacier2.Filter.Address.Accept">Glacier2.Filter.Address.Accept</link>
+property. If both the
+<link linkend="Glacier2.Filter.Address.Accept">Glacier2.Filter.Address.Accept</link> and
+<literal>Glacier2.Filter.Address.Reject</literal> properties are defined,
+the <literal>Glacier2.Filter.Address.Reject</literal> property takes
+precedence.
+</para>
+<para>
+Each pair is of the form <replaceable>address:port</replaceable>. The
+address or port number portion can include wildcards ('*') or value ranges
+or groups. Ranges and groups are in the form of [value1, value2, value3...]
+and/or [value1-value2]. Wildcards, ranges and groups may appear anywhere
+in the address-port pair string. 
+</para>
+</section>
+</section>
+
+<section id="Glacier2.Filter.Category.Accept"><title>Glacier2.Filter.Category.Accept</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Filter.Category.Accept=<replaceable>string</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies a space-separated list of identity categories. If defined, the
+&Glacier2; router only allows requests to &Ice; objects with an identity
+that matches one of the categories in this list. If
+<link linkend="Glacier2.Filter.Category.AddUser">Glacier2.Filter.Category.AddUser</link>
+is defined with a non-zero value, the router automatically adds the username of each
+session to this list.
+</para>
+</section>
+</section>
+
+<section id="Glacier2.Filter.Category.AddUser"><title>Glacier2.Filter.Category.AddUser</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Filter.Category.AddUser=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies whether to add an authenticated username to the
+<link linkend="Glacier2.Filter.Category.Accept">Glacier2.Filter.Category.Accept</link>
+property upon the creation of a new session. The legal values are shown below:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>Do not add the username. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Add the username.</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>Add the username with a leading underscore.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.Filter.Identity.Accept</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Filter.Identity.Accept=<replaceable>string</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies a space-separated list of identities. If defined, the
+&Glacier2; router only allows requests to &Ice; objects with an identity
+that matches one of the entries in this list. 
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.Filter.MaxProxyLength</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Filter.MaxProxyLength=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If set, the &Glacier2; router rejects requests using proxies that
+contain more than <replaceable>num</replaceable> network endpoints. This
+helps secure the system against attack. If unset, &Glacier2; will accept
+requests using proxies that specify any number of legal network
+endpoints.
+</para>
+</section>
+</section>
+
+<section id="Glacier2.InstanceName"><title>Glacier2.InstanceName</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.InstanceName=<replaceable>name</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies a default identity category for the &Glacier2; objects.
+If defined, the identity of the &Glacier2; admin interface becomes
+<replaceable>name</replaceable><literal>/admin</literal> and the
+identity of the &Glacier2; router interface becomes
+<replaceable>name</replaceable><literal>/router</literal>. The
+deprecated properties <literal>Glacier2.AdminIdentity</literal>
+and <literal>Glacier2.RouterIdentity</literal> take precedence.
+</para>
+<para>
+If not otherwise defined, the default identities of the &Glacier2;
+objects are <literal>Glacier2/admin</literal> and
+<literal>Glacier2/router</literal>.
+</para>
+</section>
+</section>
+
+<section id="Glacier2.PermissionsVerifier"><title>Glacier2.PermissionsVerifier</title>
 <section><title>Synopsis</title>
 <synopsis>
 Glacier2.PermissionsVerifier=<replaceable>proxy</replaceable>
@@ -4751,8 +4921,10 @@ Glacier2.PermissionsVerifier=<replaceable>proxy</replaceable>
 <para>
 Specifies the proxy of an object that implements the
 <literal>Glacier2::PermissionsVerifier</literal> interface.
-The router invokes this proxy to validate each new session
-created by a client.
+The router invokes this proxy to validate the username and
+password of each new session. Sessions created from a secure
+connection are verified by the object specified in
+<link linkend="Glacier2.SSLPermissionsVerifier">Glacier2.SSLPermissionsVerifier</link>.
 </para>
 </section>
 </section>
@@ -4773,6 +4945,34 @@ default value <literal>Glacier2/router</literal> is used.
 backward-compatibility. New applications should use
 <link linkend="Glacier2.InstanceName">Glacier2.InstanceName</link>.
 </para></note>
+</section>
+</section>
+
+<section><title>Glacier2.RoutingTable.MaxSize</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.RoutingTable.MaxSize=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+This property sets the size of the router's routing table to
+<replaceable>num</replaceable> entries. If more proxies are
+added to the table than this value, proxies are evicted from
+the table on a least-recently used basis.
+</para>
+<para>
+Clients based on Ice version 3.1 and later automatically retry operation calls
+on evicted proxies and transparently re-add such proxies to the table.
+Clients based on Ice versions earlier than 3.1 receive an
+<literal>ObjectNotExistException</literal> for invocations on evicted
+proxies. For such older clients, <replaceable>num</replaceable> must
+be set to a sufficiently large value to prevent these clients from failing.
+</para>
+<para>
+The default size of the routing table is 1000.
+</para>
 </section>
 </section>
 
@@ -4937,25 +5137,38 @@ client's username and password.
 </section>
 </section>
 
-<section><title>Glacier2.SessionManager.CloseCount</title>
+<section><title>Glacier2.SSLSessionManager</title>
 <section><title>Synopsis</title>
 <synopsis>
-Glacier2.SessionManager.CloseCount=<replaceable>num</replaceable>
+Glacier2.SSLSessionManager=<replaceable>proxy</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-If <replaceable>num</replaceable> is set to a value larger than zero,
-it represents the maximum number of invocations the router makes on
-on the session manager proxy over a single connection. After the
-maximum is reached, the router establishes a new connection to the
-session manager. Existing connections remain open and are closed
-when no longer in use. This property is useful when the session
-manager is a replicated object because, with each new connection,
-the router might use a session manager in a different server. If not
-defined or set to zero, the router maintains a single connection to
-the session manager indefinitely.
+Specifies the proxy of an object that implements the
+<literal>Glacier2::SSLSessionManager</literal> interface. The router
+invokes this proxy to create a new session for a client that has called
+<literal>createSessionFromSecureConnection</literal>.
+</para>
+</section>
+</section>
+
+<section id="Glacier2.SSLPermissionsVerifier"><title>Glacier2.SSLPermissionsVerifier</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.SSLPermissionsVerifier=<replaceable>proxy</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the proxy of an object that implements the
+<literal>Glacier2::SSLPermissionsVerifier</literal> interface.
+The router invokes this proxy to verify the credentials of clients that
+attempt to create a session from a secure connection. Sessions created
+with a username and password are verified by the object specified in
+<link linkend="Glacier2.PermissionsVerifier">Glacier2.PermissionsVerifier</link>.
 </para>
 </section>
 </section>
@@ -4993,137 +5206,6 @@ If <replaceable>num</replaceable> is set to a value larger than zero,
 the &Glacier2; router logs a trace message for each new proxy that is
 added to the router's internal routing table.
 The default value is 0.
-</para>
-</section>
-</section>
-
-<section><title>Glacier2.RoutingTable.MaxSize</title>
-<section><title>Synopsis</title>
-<synopsis>
-Glacier2.RoutingTable.MaxSize=<replaceable>num</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-This property sets the size of the router's routing table to
-<replaceable>num</replaceable> entries. If more proxies are
-added to the table than this value, proxies are evicted from
-the table on a least-recently used basis.
-</para>
-<para>
-Clients based on Ice version 3.1 and later automatically retry operation calls
-on evicted proxies and transparently re-add such proxies to the table.
-Clients based on Ice versions earlier than 3.1 receive an
-<literal>ObjectNotExistException</literal> for invocations on evicted
-proxies. For such older clients, <replaceable>num</replaceable> must
-be set to a sufficiently large value to prevent these clients from failing.
-</para>
-<para>
-The default size of the routing table is 1000.
-</para>
-</section>
-</section>
-
-<section><title>Glacier2.Filter.Address.Accept</title>
-<section><title>Synopsis</title>
-<synopsis>
-Glacier2.Filter.Address.Accept=<replaceable>string</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-This property specifies a space separated list of address-port pairs. When defined, the &Glacier2; router only allows requests to &Ice; objects through proxies that contain network endpoint information that matches an address-port pair listed in this property. If not defined, the value defaults to <literal>*</literal> which indicates that any network address is permitted. Requests accepted by this property may be rejected by the <literal>Glacier2.Filter.Address.Reject</literal> property.
-</para>
-<para>Each pair is of the form <replaceable>address:port</replaceable>. The address or port number portion can include wildcards '*' or value ranges or groups. Ranges and groups are in the form of [value1, value2, value3...] and/or [value1-value2]. Wildcards, ranges and groups may appear anywhere in the address-port pair string. 
-</para>
-</section>
-</section>
-
-<section><title>Glacier2.Filter.Address.Reject</title>
-<section><title>Synopsis</title>
-<synopsis>
-Glacier2.Filter.Address.Reject=<replaceable>string</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-This property specifies a space separated list of address-port pairs. When defined, the &Glacier2; router rejects requests to &Ice; objects through proxies that contain network endpoint information that matches an address-port pair listed in this property. If not set, the &Glacier2; router allows requests to any network address unless the <literal>Glacier2.Filter.Address.Accept</literal> property is set, in which case requests will be accepted or rejected based on the <literal>Glacier2.Filter.Address.Accept</literal> property. If both the <literal>Glacier2.Filter.Address.Accept</literal> and <literal>Glacier2.Filter.Address.Reject</literal> properties are defined then the <literal>Glacier2.Filter.Address.Reject</literal> property takes precedence over the <literal>Glacier2.Filter.Address.Accept</literal> property. 
-</para>
-<para>Each pair is of the form <replaceable>address:port</replaceable>. The address or port number portion can include wildcards '*' or value ranges or groups. Ranges and groups are in the form of [value1, value2, value3...] and/or [value1-value2]. Wildcards, ranges and groups may appear anywhere in the address-port pair string. 
-</para>
-</section>
-</section>
-
-<section><title>Glacier2.Filter.MaxProxyLength</title>
-<section><title>Synopsis</title>
-<synopsis>
-Glacier2.Filter.MaxProxyLength=<replaceable>num</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-If set, the &Glacier2; router rejects requests using proxies that
-contain more than <replaceable>num</replaceable> network endpoints. This
-helps secure the system against attack. If unset, &Glacier2; will accept
-requests using proxies that specify any number of legal network
-endpoints.
-</para>
-</section>
-</section>
-
-<section id="Glacier2.Filter.Category.Accept"><title>Glacier2.Filter.Category.Accept</title>
-<section><title>Synopsis</title>
-<synopsis>
-Glacier2.Filter.Category.Accept=<replaceable>string</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-The <literal>Glacier2.Filter.Category.Accept</literal> property specifies a
-whitespace-separated list of identity categories. If defined, the
-&Glacier2; router only allows requests to &Ice; objects with an identity
-that matches one of the categories in this list. If
-<literal>Glacier2.AddUserToAllowCategories</literal> is defined with a non-zero value, the
-router automatically adds the user id of each session to this list.
-</para>
-</section>
-</section>
-
-<section><title>Glacier2.Filter.AdapterId.Accept</title>
-<section><title>Synopsis</title>
-<synopsis>
-Glacier2.Filter.AdapterId.Accept=<replaceable>string</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-The <literal>Glacier2.Filter.AdapterId.Accept</literal> property specifies a
-whitespace-separated list of adapter identities. If defined, the
-&Glacier2; router only allows requests to &Ice; objects with an adapter identity
-that matches one of the identities in this list. 
-</para>
-</section>
-</section>
-
-<section><title>Glacier2.Filter.Identity.Accept</title>
-<section><title>Synopsis</title>
-<synopsis>
-Glacier2.Filter.Identity.Accept=<replaceable>string</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-The <literal>Glacier2.Filter.Identity.Accept</literal> property specifies a
-whitespace-separated list of identities. If defined, the
-&Glacier2; router only allows requests to &Ice; objects with an identity
-that matches one of the identities in this list. 
 </para>
 </section>
 </section>
