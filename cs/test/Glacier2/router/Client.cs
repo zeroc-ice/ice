@@ -429,6 +429,9 @@ public class Client : Ice.Application
         Client app = new Client();
         int status = app.main(args, initData);
 
-	Environment.Exit(status);
+	if(status != 0)
+	{
+	    Environment.Exit(status);
+	}
     }
 }

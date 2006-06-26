@@ -115,15 +115,15 @@ namespace IceInternal
 	    }
 	}
 	
+#if DEBUG
 	~ThreadPool()
 	{
-#if DEBUG
 	    lock(this)
 	    {
 		IceUtil.Assert.FinalizerAssert(_destroyed);
 	    }
-#endif
 	}
+#endif
 	
 	public void destroy()
 	{

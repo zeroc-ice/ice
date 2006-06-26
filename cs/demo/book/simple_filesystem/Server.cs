@@ -76,6 +76,10 @@ public class Server : Ice.Application
     public static void Main(string[] args)
     {
         Server app = new Server();
-	Environment.Exit(app.main(args));
+	int status = app.main(args);
+	if(status != 0)
+	{
+	    Environment.Exit(status);
+	}
     }
 }

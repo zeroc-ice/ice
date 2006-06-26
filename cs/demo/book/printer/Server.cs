@@ -49,6 +49,9 @@ public class Server
 		status = 1;
 	    }
 	}
-        Environment.Exit(status);
+        if(status != 0)
+        {
+            System.Environment.Exit(status);
+        }
     }
 }

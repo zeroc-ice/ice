@@ -80,6 +80,9 @@ public class Client
             }
         }
         
-        System.Environment.Exit(status);
+        if(status != 0)
+        {
+            System.Environment.Exit(status);
+        }
     }
 }

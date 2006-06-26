@@ -24,6 +24,9 @@ public class Client
     {
         TestClient app = new TestClient();
         int result = app.main(args);
-        System.Environment.Exit(result);
+	if(result != 0)
+	{
+	    System.Environment.Exit(result);
+	}
     }
 }

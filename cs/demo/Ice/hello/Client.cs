@@ -182,6 +182,9 @@ public class Client : Ice.Application
     {
         Client app = new Client();
         int status = app.main(args, "config.client");
-        System.Environment.Exit(status);
+	if(status != 0)
+	{
+	    System.Environment.Exit(status);
+	}
     }
 }

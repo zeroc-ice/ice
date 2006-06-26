@@ -132,6 +132,9 @@ public class Subscriber : Ice.Application
     {
         Subscriber app = new Subscriber();
         int status = app.main(args, "config.sub");
-        System.Environment.Exit(status);
+        if(status != 0)
+        {
+            System.Environment.Exit(status);
+        }
     }
 }

@@ -30,6 +30,9 @@ public class Server : Ice.Application
     {
 	Server server = new Server();
 	int status = server.main(args);
-	System.Environment.Exit(status);
+        if(status != 0)
+        {
+            System.Environment.Exit(status);
+        }
     }
 }

@@ -35,6 +35,9 @@ public class SessionServer : Ice.Application
     {
 	SessionServer app = new SessionServer();
         int status = app.main(args, "config.sessionserver");
-        Environment.Exit(status);
+        if(status != 0)
+        {
+            System.Environment.Exit(status);
+        }
     }
 }
