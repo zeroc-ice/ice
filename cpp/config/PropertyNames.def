@@ -381,6 +381,7 @@ Glacier2:
     Filter.Address.Accept
     Filter.MaxProxyLength
     Filter.Category.Accept
+    Filter.Category.AddUser
     Filter.AdapterId.Accept
     Filter.Identity.Accept
     CryptPasswords

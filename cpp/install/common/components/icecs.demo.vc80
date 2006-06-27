@@ -44,7 +44,6 @@ book/simple_filesystem/Server.cs
 book/simple_filesystem/simpleFSCD.csproj
 book/simple_filesystem/simpleFSSD.csproj
 demo.sln
-demo_11.sln
 Glacier2/callback/Callback.ice
 Glacier2/callback/CallbackI.cs
 Glacier2/callback/CallbackReceiverI.cs
