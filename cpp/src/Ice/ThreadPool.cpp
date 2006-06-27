@@ -67,6 +67,8 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     int size = _instance->initializationData().properties->getPropertyAsIntWithDefault(_prefix + ".Size", 1);
     if(size < 1)
     {
+        Warning out(_instance->initializationData().logger);
+	out << _prefix << ".Size < 0; Size adjusted to 1";
 	size = 1;
     }
     
@@ -74,11 +76,36 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
         _instance->initializationData().properties->getPropertyAsIntWithDefault(_prefix + ".SizeMax", size);
     if(sizeMax < size)
     {
+        Warning out(_instance->initializationData().logger);
+	out << _prefix << ".SizeMax < " << _prefix << ".Size; SizeMax adjusted to Size (" << size << ")";
 	sizeMax = size;
     }		
     
     int sizeWarn = _instance->initializationData().properties->
     			getPropertyAsIntWithDefault(_prefix + ".SizeWarn", sizeMax * 80 / 100);
+    if(!_instance->initializationData().properties->getProperty(_prefix + ".SizeWarn").empty())
+    {
+        if(sizeWarn < size)
+	{
+	    Warning out(_instance->initializationData().logger);
+	    out << _prefix << ".SizeWarn < " << _prefix << ".Size; adjusted SizeWarn to Size (" << size << ")";
+	}
+	else if(sizeWarn > sizeMax)
+	{
+	    Warning out(_instance->initializationData().logger);
+	    out << _prefix << ".SizeWarn > " << _prefix << ".SizeMax; adjusted SizeWarn to SizeMax (" << sizeMax << ")";
+	}
+    }
+
+    //
+    // We do this deliberately outside the above test, because sizeMax * 80 / 100
+    // can evaluate to something < size, but we want to issue a warning only if
+    // SizeWarn was explicitly set.
+    //
+    if(sizeWarn < size)
+    {
+	sizeWarn = size;
+    }
 
     const_cast<int&>(_size) = size;
     const_cast<int&>(_sizeMax) = sizeMax;
@@ -87,6 +114,8 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     int stackSize = _instance->initializationData().properties->getPropertyAsInt(_prefix + ".StackSize");
     if(stackSize < 0)
     {
+        Warning out(_instance->initializationData().logger);
+	out << _prefix << ".StackSize < 0; Size adjusted to OS default";
 	stackSize = 0;
     }
     const_cast<size_t&>(_stackSize) = static_cast<size_t>(stackSize);
