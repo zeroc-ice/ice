@@ -124,4 +124,7 @@ const byte b2 = 255;			// OK
 const byte b3 = -1;			// underflow
 const byte b4 = 256;			// overflow
 
+const string nullstring1 = "a\000";
+const string nullstring2 = "a\x000";
+
 };

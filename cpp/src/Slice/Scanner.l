@@ -277,6 +277,10 @@ floating_literal	(({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]+{e
 		    {
 		    	unput(next);
 		    }
+		    if(us == 0)
+		    {
+			unit->error("illegal NUL character in string constant");
+		    }
 		    str->v += static_cast<char>(us);
 		    break;
 		}
@@ -300,6 +304,10 @@ floating_literal	(({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]+{e
 			}
 		    }
 		    unput(next);
+		    if(ull == 0)
+		    {
+			unit->error("illegal NUL character in string constant");
+		    }
 		    str->v += static_cast<char>(ull);
 		    break;
 		}
