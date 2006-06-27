@@ -19,10 +19,24 @@
 //
 // Here, we undefine symbols that cause such problems.
 //
+// The #ifdef ... #endif protection is necessary to prevent
+// warnings on some platforms.
+//
 
+#ifdef major
 #undef major
+#endif
+
+#ifdef minor
 #undef minor
+#endif
+
+#ifdef min
 #undef min
+#endif
+
+#ifdef max
 #undef max
+#endif
 
 #endif
