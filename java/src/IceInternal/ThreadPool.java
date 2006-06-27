@@ -1129,10 +1129,6 @@ public final class ThreadPool
 		    ret = _selector.select();
 		}
             }
-            catch(java.io.InterruptedIOException ex)
-            {
-                continue;
-            }
             catch(java.io.IOException ex)
             {
                 //
@@ -1141,7 +1137,7 @@ public final class ThreadPool
                 // for that special case here and ignore it.
                 // Hopefully we're not masking something important!
                 //
-                if(ex.getMessage().indexOf("Interrupted system call") != -1)
+                if(Network.interrupted(ex))
                 {
                     continue;
                 }
