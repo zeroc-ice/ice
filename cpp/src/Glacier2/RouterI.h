@@ -30,7 +30,7 @@ class RouterI : public Router, public IceUtil::Mutex
 public:
 
     RouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&,
-    	    const Ice::ConnectionPtr&, const std::string&, bool allowAddUserMode, const SessionPrx&, 
+    	    const Ice::ConnectionPtr&, const std::string&, const SessionPrx&, 
 	    const Ice::Identity&, const FilterManagerPtr&);
 	    
     virtual ~RouterI();

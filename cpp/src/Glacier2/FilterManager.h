@@ -67,7 +67,7 @@ public:
     }
 
     static FilterManager* 
-    create(const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&, const std::string& userId);
+    create(const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&, const std::string&, const bool);
 
 private:
 

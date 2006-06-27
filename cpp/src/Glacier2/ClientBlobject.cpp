@@ -35,11 +35,17 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
 					   const std::pair<const Byte*, const Byte*>& inParams,
 					   const Current& current)
 {
-    bool rejected = false;
+    bool matched = false;
+    bool hasFilters = false;
  
     if(!_filters->categories()->empty())
     {
-	if(!_filters->categories()->match(current.id.category))
+	hasFilters = true;
+	if(_filters->categories()->match(current.id.category))
+	{
+	    matched = true;
+	}
+	else
 	{
 	    if(_rejectTraceLevel >= 1)
 	    {
@@ -47,15 +53,15 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
 		out << "rejecting request: category filter\n";
 		out << "identity: " << _communicator->identityToString(current.id);
 	    }
-	    rejected = true;
 	}
     }
 
     if(!_filters->identities()->empty())
     {
+	hasFilters = true;
 	if(_filters->identities()->match(current.id))
 	{
-	    rejected = false;
+	    matched = true;
 	}
 	else
 	{
@@ -65,7 +71,6 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
 		out << "rejecting request: identity filter\n";
 		out << "identity: " << _communicator->identityToString(current.id);
 	    }
-	    rejected = true;
 	}
     }
 
@@ -90,9 +95,10 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
 
     if(!adapterId.empty() && !_filters->adapterIds()->empty())
     {
+	hasFilters = true;
 	if(_filters->adapterIds()->match(adapterId))
 	{
-	    rejected  = false;
+	    matched = true;
 	}
 	else
 	{
@@ -105,7 +111,7 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
 	}
     }
 
-    if(rejected)
+    if(hasFilters && !matched)
     {
 	ObjectNotExistException ex(__FILE__, __LINE__);
 	ex.id = current.id;

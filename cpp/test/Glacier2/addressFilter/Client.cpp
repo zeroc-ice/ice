@@ -68,6 +68,7 @@ AttackClient::run(int argc, char* argv[])
 	try
 	{
 	    backend->ice_ping();
+	    cerr << "Test failed on : " << p->second << endl;
 	    test("Expected exception" == 0);
 	}
 	catch(const ConnectionLostException&)
@@ -82,8 +83,22 @@ AttackClient::run(int argc, char* argv[])
 	    // This is also ok.
 	    //
 	}
-	catch(const LocalException&)
+	catch(const ObjectNotExistException&)
 	{
+	    //
+	    // This is ok for non-address filters.
+	    //
+	    try
+	    {
+		router->destroySession();
+	    }
+	    catch(...)
+	    {
+	    }
+	}
+	catch(const LocalException& e)
+	{
+	    cerr << e << endl;
 	    test("Unexpected local exception" == 0);
 	}
     }

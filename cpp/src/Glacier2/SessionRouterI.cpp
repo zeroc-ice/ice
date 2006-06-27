@@ -819,7 +819,8 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 	// responsible for creating the filters and we want them to be
 	// accessible during session creation.
 	//
-	FilterManagerPtr filterManager = FilterManager::create(_clientAdapter->getCommunicator(), _adminAdapter, userId);
+	FilterManagerPtr filterManager = FilterManager::create(_clientAdapter->getCommunicator(), _adminAdapter, userId,
+							       allowAddUserMode);
 
         //
 	// If we have a session manager configured, we create a
@@ -840,7 +841,7 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 	//
 	// Add a new per-client router.
 	//
-	router = new RouterI(_clientAdapter, _serverAdapter, _adminAdapter, current.con, userId, allowAddUserMode,
+	router = new RouterI(_clientAdapter, _serverAdapter, _adminAdapter, current.con, userId, 
 			     session, controlId, filterManager);
     }
     catch(const Exception&)

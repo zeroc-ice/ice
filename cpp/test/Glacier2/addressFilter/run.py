@@ -81,48 +81,110 @@ except:
     fqdn = ""
     domainname = ""
 
-testcases = []
+testcases = [
+	('testing category filter',
+		('', '', '', 'foo "a cat with spaces"', '', ''),
+		[(True, 'foo/helloA:tcp -h 127.0.0.1 -p 12010'),
+		(True, '"a cat with spaces/helloB":tcp -h 127.0.0.1 -p 12010'),
+		(False, 'nocat/helloC:tcp -h 127.0.0.1 -p 12010'), 
+		(False, 'cat/helloD:tcp -h 127.0.0.1 -p 12010')], []),
+	('testing adapter id filter',
+		('', '*', '', '', '', 'foo "an adapter with spaces"'),
+		[(False, 'foo/helloA:tcp -h 127.0.0.1 -p 12010'),
+		(False, '"a cat with spaces/helloB":tcp -h 127.0.0.1 -p 12010'),
+		(False, 'nocat/helloC:tcp -h 127.0.0.1 -p 12010'), 
+		(False, 'cat/helloD:tcp -h 127.0.0.1 -p 12010'),
+		(False, 'helloE @ bar'),
+		(True, 'helloF1 @ "an adapter with spaces"'),
+		(True, 'helloF @ foo')], []),
+	('test identity filters',
+		('', '', '', '', 'myident cata/fooa "a funny id/that might mess it up"', ''),
+		[(False, '"a cat with spaces/helloB":tcp -h 127.0.0.1 -p 12010'),
+		(False, 'nocat/helloC:tcp -h 127.0.0.1 -p 12010'), 
+		(False, 'cat/helloD:tcp -h 127.0.0.1 -p 12010'),
+		(False, 'baz/myident:tcp -h 127.0.0.1 -p 12010'),
+		(False, 'cata/foo:tcp -h 127.0.0.1 -p 12010'),
+		(False, 'cat/fooa:tcp -h 127.0.0.1 -p 12010'),
+		(True, 'myident:tcp -h 127.0.0.1 -p 12010'),
+		(True, 'cata/fooa:tcp -h 127.0.0.1 -p 12010'),
+		(True, '"a funny id/that might mess it up":tcp -h 127.0.0.1 -p 12010')], []),
+	('test mixing filters',
+		('', '', '', 'mycat "a sec cat"', 'myident cata/fooa "a funny id/that might mess it up" "a\\"nother"', 
+		    'myadapter'),
+		[(False, '"a cat with spaces/helloB":tcp -h 127.0.0.1 -p 12010'),
+		(False, 'nocat/helloC:tcp -h 127.0.0.1 -p 12010'), 
+		(False, 'cat/helloD:tcp -h 127.0.0.1 -p 12010'),
+		(False, 'baz/myident:tcp -h 127.0.0.1 -p 12010'),
+		(False, 'cata/foo:tcp -h 127.0.0.1 -p 12010'),
+		(False, 'cat/fooa:tcp -h 127.0.0.1 -p 12010'),
+		(True, 'mycat/fooa:tcp -h 127.0.0.1 -p 12010'),
+		(True, '"a sec cat/fooa":tcp -h 127.0.0.1 -p 12010'),
+		(True, 'mycat/foo @ jimbo'),
+		(False, 'hiscatA @ jimbo'),
+		(True, 'hiscat @ myadapter'),
+		(True, 'a\"nother @ jimbo'),
+		(True, 'myident:tcp -h 127.0.0.1 -p 12010'),
+		(True, 'cata/fooa:tcp -h 127.0.0.1 -p 12010'),
+		(True, '"a funny id/that might mess it up":tcp -h 127.0.0.1 -p 12010')], []),
+	('test mixing filters (indirect only)',
+		('', '*', '', 'mycat "a sec cat"', 'myident cata/fooa "a funny id/that might mess it up"', 'myadapter'),
+		[(False, '"a cat with spaces/helloB":tcp -h 127.0.0.1 -p 12010'),
+		(False, 'nocat/helloC:tcp -h 127.0.0.1 -p 12010'), 
+		(False, 'cat/helloD:tcp -h 127.0.0.1 -p 12010'),
+		(False, 'baz/myident:tcp -h 127.0.0.1 -p 12010'),
+		(False, 'cata/foo:tcp -h 127.0.0.1 -p 12010'),
+		(False, 'cat/fooa:tcp -h 127.0.0.1 -p 12010'),
+		(False, 'mycat/fooa:tcp -h 127.0.0.1 -p 12010'),
+		(False, '"a sec cat/fooa":tcp -h 127.0.0.1 -p 12010'),
+		(True, 'mycat/foo @ jimbo'),
+		(False, 'hiscatA @ jimbo'),
+		(True, 'hiscat @ myadapter'),
+		(False, 'myident:tcp -h 127.0.0.1 -p 12010'),
+		(False, 'cata/fooa:tcp -h 127.0.0.1 -p 12010'),
+		(True, '"a funny id/that might mess it up" @ myadapter'),
+		(False, '"a funny id/that might mess it up":tcp -h 127.0.0.1 -p 12010')], []),
+	]
 
 if TestUtil.protocol == "ssl":
-    testcases = [ 
+    testcases.extend([ 
 	('testing maximum endpoints rule',
-	 (r'', r'', r'1'),
-	 [(True, 'hello:tcp -h %s -p 12010' % hostname),
-	  (False, 'hello:tcp -h %s -p 12010:ssl -h %s -p 12011' % (hostname, hostname))], [])
-	]
+		(r'', r'', r'1', '', '', ''),
+		[(True, 'hello:tcp -h %s -p 12010' % hostname),
+		(False, 'hello:tcp -h %s -p 12010:ssl -h %s -p 12011' % (hostname, hostname))], []),
+	])
 
 if not limitedTests:
     testcases.extend([
 	    ('testing reject all',
-             (r'', r'*', r''),
-             [(False, 'helloA:tcp -h %s -p 12010' % fqdn),
-              (False, 'helloB:tcp -h %s -p 12010' % hostname),
-	      (False, 'helloC:tcp -h 127.0.0.1 -p 12010'),
-	      (True, 'bar @ foo')], []),
+		(r'', r'*', r'', '', '', ''),
+		[(False, 'helloA:tcp -h %s -p 12010' % fqdn),
+		(False, 'helloB:tcp -h %s -p 12010' % hostname),
+		(False, 'helloC:tcp -h 127.0.0.1 -p 12010'),
+		(True, 'bar @ foo')], []),
 	    ('testing loopback only rule',
-             (r'127.0.0.1 localhost', r'', r''),
-             [(False, 'hello:tcp -h %s -p 12010' % fqdn),
-              (False, 'hello:tcp -h %s -p 12010' % hostname),
-              (False, '127.0.0.1:tcp -h %s -p 12010' % hostname),
-              (False, 'localhost:tcp -h %s -p 12010' % hostname),
-              (False, 'localhost/127.0.0.1:tcp -h %s -p 12010' % hostname),
-              (True, 'localhost:tcp -h 127.0.0.1 -p 12010'),
-              (True, 'localhost/127.0.0.1:tcp -h localhost -p 12010'),
-              (True, r'hello:tcp -h 127.0.0.1 -p 12010'),
-              (True, r'hello/somecat:tcp -h localhost -p 12010')], []),
+		(r'127.0.0.1 localhost', r'', r'', '', '', ''),
+		[(False, 'hello:tcp -h %s -p 12010' % fqdn),
+		(False, 'hello:tcp -h %s -p 12010' % hostname),
+		(False, '127.0.0.1:tcp -h %s -p 12010' % hostname),
+		(False, 'localhost:tcp -h %s -p 12010' % hostname),
+		(False, 'localhost/127.0.0.1:tcp -h %s -p 12010' % hostname),
+		(True, 'localhost:tcp -h 127.0.0.1 -p 12010'),
+		(True, 'localhost/127.0.0.1:tcp -h localhost -p 12010'),
+		(True, r'hello:tcp -h 127.0.0.1 -p 12010'),
+		(True, r'hello/somecat:tcp -h localhost -p 12010')], []),
 	    ('testing domain filter rule (accept)',
-             ("*" + domainname, r'', r''),
-             [(True, 'hello:tcp -h %s -p 12010' % fqdn),
-              (False, 'hello:tcp -h %s -p 12010' % hostname)], []),
+		("*" + domainname, r'', r'', '', '', ''),
+		[(True, 'hello:tcp -h %s -p 12010' % fqdn),
+		(False, 'hello:tcp -h %s -p 12010' % hostname)], []),
 	    ('testing domain filter rule (reject)',
-             (r'', "*" + domainname, r''),
-             [(False, 'hello:tcp -h %s -p 12010' % fqdn),
-              (True, 'hello:tcp -h %s -p 12010' % hostname),
-              (True, 'bar:tcp -h 127.0.0.1 -p 12010')], []),
-            ('testing domain filter rule (mixed)',
-             ("127.0.0.1", fqdn, r''),
-	     [(False, 'hello:tcp -h %s -p 12010:tcp -h 127.0.0.1 -p 12010' % fqdn),
-              (True, 'bar:tcp -h 127.0.0.1 -p 12010')], []),
+		(r'', "*" + domainname, r'', '', '', ''),
+		[(False, 'hello:tcp -h %s -p 12010' % fqdn),
+		(True, 'hello:tcp -h %s -p 12010' % hostname),
+		(True, 'bar:tcp -h 127.0.0.1 -p 12010')], []),
+	    ('testing domain filter rule (mixed)',
+		("127.0.0.1", fqdn, r'', '', '', ''),
+		[(False, 'hello:tcp -h %s -p 12010:tcp -h 127.0.0.1 -p 12010' % fqdn),
+		(True, 'bar:tcp -h 127.0.0.1 -p 12010')], []),
 	    ])
 
 if len(testcases) == 0:
@@ -142,7 +204,7 @@ def pingProgress():
 
 for testcase in testcases:
     description, args, attacks, xtraConfig = testcase
-    acceptFilter, rejectFilter, maxEndpoints = args
+    acceptFilter, rejectFilter, maxEndpoints, categoryFilter, idFilter, adapterFilter = args
     testdir = os.path.join(toplevel, 'test', 'Glacier2', 'addressFilter')
 
     #
@@ -214,6 +276,12 @@ for testcase in testcases:
 	routerConfig.write("Glacier2.Filter.Address.Reject=%s\n" % rejectFilter)
     if not len(maxEndpoints) == 0:
 	routerConfig.write("Glacier2.Filter.MaxProxyLength=%s\n" % maxEndpoints)
+    if not len(categoryFilter) == 0:
+	routerConfig.write("Glacier2.Filter.Category.Accept=%s\n" % categoryFilter)
+    if not len(idFilter) == 0:
+	routerConfig.write("Glacier2.Filter.Identity.Accept=%s\n" % idFilter)
+    if not len(adapterFilter) == 0:
+	routerConfig.write("Glacier2.Filter.AdapterId.Accept=%s\n" % adapterFilter)
 
     routerConfig.close()
 
