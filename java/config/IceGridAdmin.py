@@ -95,8 +95,7 @@ def startIceGridNode(testdir):
         cleanDbDir(dataDir)
 
     overrideOptions = '"' + TestUtil.clientServerOptions.replace("--", "") + \
-	              ' Ice.ServerIdleTime=0 Ice.PrintProcessId=0 Ice.PrintAdapterReady=0 ' + \
-                      ' Ice.ThreadPool.Server.Size=0"'
+	              ' Ice.ServerIdleTime=0 Ice.PrintProcessId=0 Ice.PrintAdapterReady=0"'
 
     print "starting icegrid node...",
     command = iceGrid + TestUtil.cppClientServerOptions + ' --nowarn ' + nodeOptions + \
