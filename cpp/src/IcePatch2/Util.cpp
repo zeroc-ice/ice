@@ -34,15 +34,12 @@ const char* IcePatch2::checksumFile = "IcePatch2.sum";
 const char* IcePatch2::logFile = "IcePatch2.log";
 
 //
-// Sun-OS doesn't have scandir() or alphasort().
+// Solaris 9 and before doesn't have scandir() or alphasort().
 //
 #ifdef __sun
 
-extern "C"
-{
-
-static int
-scandir(const char* dir, struct dirent*** namelist,
+extern "C" static int
+ice_scandir(const char* dir, struct dirent*** namelist,
 	int (*select)(const struct dirent*),
 	int (*compar)(const void*, const void*))
 {
@@ -98,14 +95,12 @@ scandir(const char* dir, struct dirent*** namelist,
     return i;
 }
 
-static int
-alphasort(const void* v1, const void* v2)
+extern "C" static int
+ice_alphasort(const void* v1, const void* v2)
 {
     const struct dirent **a = (const struct dirent **)v1;
     const struct dirent **b = (const struct dirent **)v2;
     return(strcmp((*a)->d_name, (*b)->d_name));
-}
-
 }
 
 #endif
@@ -559,7 +554,11 @@ IcePatch2::readDirectory(const string& pa)
 #else
 
     struct dirent **namelist;
+#ifdef __sun
+    int n = ice_scandir(path.c_str(), &namelist, 0, ice_alphasort);
+#else
     int n = scandir(path.c_str(), &namelist, 0, alphasort);
+#endif
     if(n < 0)
     {
 	throw "cannot read directory `" + path + "':\n" + lastError();
