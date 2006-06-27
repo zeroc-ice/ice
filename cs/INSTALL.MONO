@@ -145,3 +145,9 @@ Known Issues
   compiled with previous minor versions of Ice against a newer version
   of the assemblies. For example, an application compiled with version
   x.y.0 of Ice cannot run with the x.y.1 Ice assemblies.
+
+- If a server provides UDP endpoints and calls System.Environment.Exit(),
+  the server appears to shut down correctly, but the Mono interpreter does
+  not exit, so the server process stays around. This appears to be a bug
+  in Mono for Windows. (With Mono running on UNIX systems, this problem
+  does not appear.)
