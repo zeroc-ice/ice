@@ -247,10 +247,6 @@ Glacier2::FilterManager::create(const CommunicatorPtr& communicator, const Objec
     if(allowAddUser)
     {
 	int addUserMode = props->getPropertyAsInt("Glacier2.AddUserToAllowCategories");
-	if(addUserMode == 0)
-	{
-	    addUserMode = props->getPropertyAsInt("Glacier2.Filter.Category.AddUser");
-	}
        
 	if(addUserMode > 0 && !userId.empty())
 	{
