@@ -20,12 +20,9 @@
 // Here, we undefine symbols that cause such problems.
 //
 
-#ifdef major
 #undef major
-#endif
-
-#ifdef minor
 #undef minor
-#endif
+#undef min
+#undef max
 
 #endif
