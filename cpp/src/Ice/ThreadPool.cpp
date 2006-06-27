@@ -68,7 +68,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     if(size < 1)
     {
         Warning out(_instance->initializationData().logger);
-	out << _prefix << ".Size < 0; Size adjusted to 1";
+	out << _prefix << ".Size < 1; Size adjusted to 1";
 	size = 1;
     }
     
@@ -83,28 +83,11 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     
     int sizeWarn = _instance->initializationData().properties->
     			getPropertyAsIntWithDefault(_prefix + ".SizeWarn", sizeMax * 80 / 100);
-    if(!_instance->initializationData().properties->getProperty(_prefix + ".SizeWarn").empty())
+    if(sizeWarn > sizeMax)
     {
-        if(sizeWarn < size)
-	{
-	    Warning out(_instance->initializationData().logger);
-	    out << _prefix << ".SizeWarn < " << _prefix << ".Size; adjusted SizeWarn to Size (" << size << ")";
-	}
-	else if(sizeWarn > sizeMax)
-	{
-	    Warning out(_instance->initializationData().logger);
-	    out << _prefix << ".SizeWarn > " << _prefix << ".SizeMax; adjusted SizeWarn to SizeMax (" << sizeMax << ")";
-	}
-    }
-
-    //
-    // We do this deliberately outside the above test, because sizeMax * 80 / 100
-    // can evaluate to something < size, but we want to issue a warning only if
-    // SizeWarn was explicitly set.
-    //
-    if(sizeWarn < size)
-    {
-	sizeWarn = size;
+	Warning out(_instance->initializationData().logger);
+	out << _prefix << ".SizeWarn > " << _prefix << ".SizeMax; adjusted SizeWarn to SizeMax (" << sizeMax << ")";
+	sizeWarn = sizeMax;
     }
 
     const_cast<int&>(_size) = size;

@@ -27,6 +27,7 @@
       <parameter name="id"/>
       <parameter name="disable-on-failure" default="0"/>
       <server id="${id}" exe="${ice.dir}/bin/icegridnode" activation="manual">
+        <option>--nowarn</option>
         <adapter name="IceGrid.Node" endpoints="default" register-process="true" wait-for-activation="false"/>
         <dbenv name="data"/>
         <property name="IceGrid.Node.Name" value="${server}"/>

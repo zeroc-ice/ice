@@ -1519,6 +1519,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	ServerDescriptorPtr server = new ServerDescriptor();
 	server->id = "node-1";
 	server->exe = properties->getProperty("IceDir") + "/bin/icegridnode";
+	server->options.push_back("--nowarn");
 	server->pwd = ".";
 	AdapterDescriptor adapter;
 	adapter.name = "IceGrid.Node";
@@ -1641,6 +1642,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	ServerDescriptorPtr server = new ServerDescriptor();
 	server->id = "node-1";
 	server->exe = properties->getProperty("IceDir") + "/bin/icegridnode";
+	server->options.push_back("--nowarn");
 	server->pwd = ".";
 	AdapterDescriptor adapter;
 	adapter.name = "IceGrid.Node";

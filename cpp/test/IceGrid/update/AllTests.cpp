@@ -975,6 +975,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	server->id = "node-${index}";
 	server->exe = properties->getProperty("IceDir") + "/bin/icegridnode";
 	server->pwd = ".";
+	server->options.push_back("--nowarn");
 	AdapterDescriptor adapter;
 	adapter.name = "IceGrid.Node";
 	adapter.id = "IceGrid.Node.node-${index}";

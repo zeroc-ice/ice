@@ -253,7 +253,7 @@ NodeService::start(int argc, char* argv[])
     //
     // Warn the user that setting Ice.ThreadPool.Server isn't useful.
     //
-    if(properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 0) > 0)
+    if(!nowarn && properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 0) > 0)
     {
 	Warning out(communicator()->getLogger());
 	out << "setting `Ice.ThreadPool.Server.Size' is not useful,\n";

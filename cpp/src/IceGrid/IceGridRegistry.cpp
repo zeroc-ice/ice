@@ -87,7 +87,7 @@ RegistryService::start(int argc, char* argv[])
     //
     // Warn the user that setting Ice.ThreadPool.Server isn't useful.
     //
-    if(communicator()->getProperties()->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 0) > 0)
+    if(!nowarn && communicator()->getProperties()->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 0) > 0)
     {
 	Warning out(communicator()->getLogger());
 	out << "setting `Ice.ThreadPool.Server.Size' is not useful,\n";

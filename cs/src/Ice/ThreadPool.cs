@@ -76,7 +76,7 @@ namespace IceInternal
 	    int size = instance_.initializationData().properties.getPropertyAsIntWithDefault(_prefix + ".Size", 1);
 	    if(size < 1)
 	    {
-		string s = _prefix + ".Size < 0; Size adjusted to 1";
+		string s = _prefix + ".Size < 1; Size adjusted to 1";
 		instance_.initializationData().logger.warning(s);
 		size = 1;
 	    }
@@ -92,29 +92,12 @@ namespace IceInternal
 	    
 	    int sizeWarn = instance_.initializationData().properties.getPropertyAsIntWithDefault(_prefix + ".SizeWarn",
 	                                                                      sizeMax * 80 / 100);
-	    if(instance_.initializationData().properties.getProperty(_prefix + ".SizeWarn").Length == 0)
+	    if(sizeWarn > sizeMax)
 	    {
-		if(sizeWarn < size)
-		{
-		    string s = _prefix + ".SizeWarn < " + _prefix + ".Size; adjusted SizeWarn to Size (" + size + ")";
-		    instance_.initializationData().logger.warning(s);
-		}
-		else if(sizeWarn > sizeMax)
-		{
-		    string s = _prefix + ".SizeWarn > " + _prefix + ".SizeMax; adjusted SizeWarn to SizeMax ("
-			       + sizeMax + ")";
-		    instance_.initializationData().logger.warning(s);
-		}
-	    }
-
-	    //
-	    // We do this deliberately outside the above test, because sizeMax * 80 / 100
-	    // can evaluate to something < size, but we want to issue a warning only if
-	    // SizeWarn was explicitly set.
-	    //
-	    if(sizeWarn < size)
-	    {
-		sizeWarn = size;
+		string s = _prefix + ".SizeWarn > " + _prefix + ".SizeMax; adjusted SizeWarn to SizeMax ("
+		    + sizeMax + ")";
+		instance_.initializationData().logger.warning(s);
+		sizeWarn = sizeMax;
 	    }
 
 	    size_ = size;
