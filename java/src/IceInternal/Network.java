@@ -64,7 +64,8 @@ public final class Network
         {
             final String[] msgs =
             {
-                "connection refused" // ECONNREFUSED
+                "connection refused", // ECONNREFUSED
+		"remote host refused an attempted connect operation" // ECONNREFUSED (AIX JDK 1.4.2)
             };
 
             for(int i = 0; i < msgs.length; i++)
@@ -799,6 +800,7 @@ public final class Network
     interrupted(java.io.IOException ex)
     {
 	return ex instanceof java.io.InterruptedIOException ||
-	       ex.getMessage().indexOf("Interrupted system call") >= 0;
+	    ex.getMessage().indexOf("Interrupted system call") >= 0 ||
+	    ex.getMessage().indexOf("A system call received an interrupt") >= 0; // AIX JDK 1.4.2
     }
 }
