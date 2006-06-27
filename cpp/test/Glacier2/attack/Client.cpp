@@ -48,11 +48,11 @@ AttackClient::run(int argc, char* argv[])
     ObjectPrx routerBase = communicator()->stringToProxy("Glacier2/router:default -p 12347 -t 10000");
     Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(routerBase);
     test(router);
+    communicator()->setDefaultRouter(router);
     cout << "ok" << endl;
 
     cout << "creating session... " << flush;
     Glacier2::SessionPrx session = router->createSession("userid", "abc123");
-    communicator()->setDefaultRouter(router);
     cout << "ok" << endl;
 
     cout << "making thousands of invocations on proxies... " << flush;
