@@ -32,7 +32,9 @@ TestControllerI::TestControllerI()
     current.description = "Category filter";
     current.cases.push_back(TestCase("foo/barA:default -h 127.0.0.1 -p 12012", true));
     current.cases.push_back(TestCase("bar/fooA:default -h 127.0.0.1 -p 12012", false));
+    current.cases.push_back(TestCase("\"a cat with spaces/fooX\":default -h 127.0.0.1 -p 12012", true));
     current.categoryFiltersAccept.push_back("foo");
+    current.categoryFiltersAccept.push_back("a cat with spaces");
     _configurations.push_back(current);
  
     current = TestConfiguration();
