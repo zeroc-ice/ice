@@ -14,17 +14,17 @@ Public NotInheritable Class ThroughputI
 
     Public Sub New()
 	_byteSeq = New Byte(ByteSeqSize.value) {}
-        _stringSeq = New String(StringSeqSize.value) {}
+        _stringSeq = New String(StringSeqSize.value - 1) {}
         For i As Integer = 0 To StringSeqSize.value - 1
             _stringSeq(i) = "hello"
         Next
-        _structSeq = New StringDouble(StringDoubleSeqSize.value) {}
+        _structSeq = New StringDouble(StringDoubleSeqSize.value - 1) {}
         For i As Integer = 0 To StringDoubleSeqSize.value - 1
 	    _structSeq(i) = New StringDouble
             _structSeq(i).s = "hello"
             _structSeq(i).d = 3.14
         Next
-        _fixedSeq = New Fixed(FixedSeqSize.value) {}
+        _fixedSeq = New Fixed(FixedSeqSize.value - 1) {}
         For i As Integer = 0 To FixedSeqSize.value - 1
             _fixedSeq(i).i = 0
             _fixedSeq(i).j = 0
