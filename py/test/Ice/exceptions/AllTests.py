@@ -321,20 +321,13 @@ def allTests(communicator):
     adapter.deactivate()
     print "ok"
 
-    print "testing object factory registration exceptions... ",
+    print "testing object factory registration exception... ",
     of = ObjectFactoryI()
     communicator.addObjectFactory(of, "x")
     try:
         communicator.addObjectFactory(of, "x")
 	test(false)
     except Ice.AlreadyRegisteredException:
-        pass
-
-    communicator.removeObjectFactory("x")
-    try:
-        communicator.removeObjectFactory("x")
-	test(false)
-    except Ice.NotRegisteredException:
         pass
     print "ok"
 

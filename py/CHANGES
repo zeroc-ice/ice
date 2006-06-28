@@ -1,6 +1,8 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Removed removeObjectFactory() from the communicator interface.
+
 - Removed getDefaultProperties() functions, and the global default
   properties. If you need global properties, you can easily create
   your own global variable.

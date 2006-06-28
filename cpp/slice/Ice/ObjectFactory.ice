@@ -49,7 +49,6 @@ local interface ObjectFactory
      * Called when the factory is removed from the communicator, or if
      * the communicator is destroyed.
      *
-     * @see Communicator::removeObjectFactory
      * @see Communicator::destroy
      *
      **/

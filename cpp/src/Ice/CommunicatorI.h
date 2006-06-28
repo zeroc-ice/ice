@@ -39,7 +39,6 @@ public:
     virtual ObjectAdapterPtr createObjectAdapterWithRouter(const std::string&, const RouterPrx&);
 
     virtual void addObjectFactory(const ObjectFactoryPtr&, const std::string&);
-    virtual void removeObjectFactory(const std::string&);
     virtual ObjectFactoryPtr findObjectFactory(const std::string&) const;
 
     virtual Context getDefaultContext() const;

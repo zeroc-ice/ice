@@ -67,11 +67,6 @@ namespace Ice
 	    instance_.servantFactoryManager().add(factory, id);
 	}
 	
-	public void removeObjectFactory(string id)
-	{
-	    instance_.servantFactoryManager().remove(id);
-	}
-	
 	public ObjectFactory findObjectFactory(string id)
 	{
 	    return instance_.servantFactoryManager().find(id);

@@ -1320,11 +1320,8 @@ FreezeScript::RecordDescriptor::execute(const SymbolTablePtr& sym, ExecuteInfo* 
         {
             dbc->close();
         }
-        info->communicator->removeObjectFactory("");
         throw;
     }
-
-    info->communicator->removeObjectFactory("");
 
     if(dbc)
     {

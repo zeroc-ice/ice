@@ -785,7 +785,6 @@ local exception IllegalIndirectionException extends MarshalException
  *
  * @see ObjectFactory
  * @see Communicator::addObjectFactory
- * @see Communicator::removeObjectFactory
  * @see Communicator::findObjectFactory
  *
  **/

@@ -1,6 +1,8 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Removed removeObjectFactory() from the communicator interface.
+
 - PHP 5.1.4 is the required version for this release.
 
 - Added identityToString and stringToIdentity to the Communicator

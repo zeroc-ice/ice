@@ -55,7 +55,6 @@ static function_entry _methods[] =
     {"stringToIdentity",       PHP_FN(Ice_Communicator_stringToIdentity),          NULL},
     {"identityToString",       PHP_FN(Ice_Communicator_identityToString),          NULL},
     {"addObjectFactory",       PHP_FN(Ice_Communicator_addObjectFactory),       NULL},
-    {"removeObjectFactory",    PHP_FN(Ice_Communicator_removeObjectFactory),    NULL},
     {"findObjectFactory",      PHP_FN(Ice_Communicator_findObjectFactory),      NULL},
     {"flushBatchRequests",     PHP_FN(Ice_Communicator_flushBatchRequests),     NULL},
     {NULL, NULL, NULL}
@@ -412,51 +411,6 @@ ZEND_FUNCTION(Ice_Communicator_addObjectFactory)
     // Update the factory map.
     //
     ofm->insert(ObjectFactoryMap::value_type(id, zv));
-}
-
-ZEND_FUNCTION(Ice_Communicator_removeObjectFactory)
-{
-    if(ZEND_NUM_ARGS() != 1)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    ice_object* obj = getObject(getThis() TSRMLS_CC);
-    if(!obj)
-    {
-        RETURN_NULL();
-    }
-    assert(obj->ptr);
-    Ice::CommunicatorPtr* _this = static_cast<Ice::CommunicatorPtr*>(obj->ptr);
-
-    char* id;
-    int len;
-
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &id, &len) == FAILURE)
-    {
-        RETURN_NULL();
-    }
-
-    ObjectFactoryMap* ofm = static_cast<ObjectFactoryMap*>(ICE_G(objectFactoryMap));
-    ObjectFactoryMap::iterator p = ofm->find(id);
-    if(p == ofm->end())
-    {
-        Ice::NotRegisteredException ex(__FILE__, __LINE__);
-        ex.kindOfObject = "object factory";
-        ex.id = id;
-        throwException(ex TSRMLS_CC);
-        return;
-    }
-
-    //
-    // Destroy the zval.
-    //
-    zval_ptr_dtor(&p->second);
-
-    //
-    // Update the factory map.
-    //
-    ofm->erase(p);
 }
 
 ZEND_FUNCTION(Ice_Communicator_findObjectFactory)

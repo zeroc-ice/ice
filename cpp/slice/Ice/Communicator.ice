@@ -249,27 +249,11 @@ local interface Communicator
      * @param id The type id for which the factory can create instances, or
      * an empty string for the default factory.
      *
-     * @see removeObjectFactory
      * @see findObjectFactory
      * @see ObjectFactory
      *
      **/
     void addObjectFactory(ObjectFactory factory, string id);
-
-    /**
-     *
-     * Remove a servant factory from this communicator. Removing an id
-     * for which no factory is registered throws [NotRegisteredException].
-     *
-     * @param id The type id for which the factory can create instances,
-     * or an empty string for the default factory.
-     *
-     * @see addObjectFactory
-     * @see findObjectFactory
-     * @see ObjectFactory
-     *
-     **/
-    void removeObjectFactory(string id);
 
     /**
      *
@@ -282,7 +266,6 @@ local interface Communicator
      * found for the given id.
      *
      * @see addObjectFactory
-     * @see removeObjectFactory
      * @see ObjectFactory
      *
      **/

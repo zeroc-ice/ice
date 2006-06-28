@@ -167,12 +167,6 @@ Ice::CommunicatorI::addObjectFactory(const ObjectFactoryPtr& factory, const stri
     _instance->servantFactoryManager()->add(factory, id);
 }
 
-void
-Ice::CommunicatorI::removeObjectFactory(const string& id)
-{
-    _instance->servantFactoryManager()->remove(id);
-}
-
 ObjectFactoryPtr
 Ice::CommunicatorI::findObjectFactory(const string& id) const
 {

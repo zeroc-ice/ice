@@ -77,12 +77,6 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
         _instance.servantFactoryManager().add(factory, id);
     }
 
-    public void
-    removeObjectFactory(String id)
-    {
-        _instance.servantFactoryManager().remove(id);
-    }
-
     public ObjectFactory
     findObjectFactory(String id)
     {

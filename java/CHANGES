@@ -1,6 +1,8 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Removed removeObjectFactory() from the communicator interface.
+
 - ObjectAdapter::deactivate() now notifies the locator registry when
   the adapter is deactivated.
 

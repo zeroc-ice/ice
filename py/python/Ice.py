@@ -223,9 +223,6 @@ class CommunicatorI(Communicator):
     def addObjectFactory(self, factory, id):
         self._impl.addObjectFactory(factory, id)
 
-    def removeObjectFactory(self, id):
-        self._impl.removeObjectFactory(id)
-
     def findObjectFactory(self, id):
         return self._impl.findObjectFactory(id)
 

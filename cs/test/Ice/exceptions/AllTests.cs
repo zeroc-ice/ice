@@ -744,7 +744,7 @@ public class AllTests
         }
         
         {
-            Console.Write("testing object factory registration exceptions... ");
+            Console.Write("testing object factory registration exception... ");
             Ice.ObjectFactory of = new ObjectFactoryI();
             communicator.addObjectFactory(of, "::x");
             try
@@ -753,16 +753,6 @@ public class AllTests
 		test(false);
             }
             catch(Ice.AlreadyRegisteredException)
-            {
-            }
-            
-            communicator.removeObjectFactory("::x");
-            try
-            {
-                communicator.removeObjectFactory("::x");
-		test(false);
-            }
-            catch(Ice.NotRegisteredException)
             {
             }
             Console.WriteLine("ok");

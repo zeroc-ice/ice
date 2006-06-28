@@ -792,7 +792,7 @@ public class AllTests
 	}
 
 	{
-	    System.out.print("testing object factory registration exceptions... ");
+	    System.out.print("testing object factory registration exception... ");
 	    Ice.ObjectFactory of = new ObjectFactoryI();
 	    communicator.addObjectFactory(of, "::x");
 	    try
@@ -801,16 +801,6 @@ public class AllTests
 		test(false);
 	    }
 	    catch(Ice.AlreadyRegisteredException ex)
-	    {
-	    }
-
-	    communicator.removeObjectFactory("::x");
-	    try
-            {
-		communicator.removeObjectFactory("::x");
-		test(false);
-	    }
-	    catch(Ice.NotRegisteredException ex)
 	    {
 	    }
 	    System.out.println("ok");

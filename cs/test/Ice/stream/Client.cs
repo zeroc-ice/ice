@@ -461,20 +461,7 @@ public class Client
             @out.writePendingObjects();
             byte[] data = @out.finished();
             test(writer.called);
-            communicator.removeObjectFactory(Test.MyClass.ice_staticId()); // Default factory.
-            communicator.addObjectFactory(new TestObjectFactory(), Test.MyClass.ice_staticId());
-            @in = Ice.Util.createInputStream(communicator, data);
-            TestReadObjectCallback cb = new TestReadObjectCallback();
-            @in.readObject(cb);
-            @in.readPendingObjects();
-            test(cb.obj != null);
-            test(cb.obj is TestObjectReader);
-            TestObjectReader reader = (TestObjectReader)cb.obj;
-            test(reader.called);
-            test(reader.obj != null);
-            test(reader.obj.s.e == Test.MyEnum.enum2);
             @out.destroy();
-            @in.destroy();
         }
 
         Console.WriteLine("ok");

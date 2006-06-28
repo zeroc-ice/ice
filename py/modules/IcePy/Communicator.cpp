@@ -1030,8 +1030,6 @@ static PyMethodDef CommunicatorMethods[] =
 	PyDoc_STR(STRCAST("createObjectAdapterWithRouter(name, router) -> Ice.ObjectAdapter")) },
     { STRCAST("addObjectFactory"), (PyCFunction)communicatorAddObjectFactory, METH_VARARGS,
         PyDoc_STR(STRCAST("addObjectFactory(factory, id) -> None")) },
-    { STRCAST("removeObjectFactory"), (PyCFunction)communicatorRemoveObjectFactory, METH_VARARGS,
-        PyDoc_STR(STRCAST("removeObjectFactory(id) -> None")) },
     { STRCAST("findObjectFactory"), (PyCFunction)communicatorFindObjectFactory, METH_VARARGS,
         PyDoc_STR(STRCAST("findObjectFactory(id) -> Ice.ObjectFactory")) },
     { STRCAST("getDefaultContext"), (PyCFunction)communicatorGetDefaultContext, METH_NOARGS,

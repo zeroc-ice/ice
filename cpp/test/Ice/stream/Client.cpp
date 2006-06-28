@@ -418,17 +418,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->writePendingObjects();
         out->finished(data);
         test(writer->called);
-        communicator->addObjectFactory(new TestObjectFactory, Test::MyClass::ice_staticId());
-        in = Ice::createInputStream(communicator, data);
-        TestReadObjectCallbackPtr cb = new TestReadObjectCallback;
-        in->readObject(cb);
-        in->readPendingObjects();
-        test(cb->obj);
-        TestObjectReaderPtr reader = TestObjectReaderPtr::dynamicCast(cb->obj);
-        test(reader);
-        test(reader->called);
-        test(reader->obj);
-        test(reader->obj->s.e == Test::enum2);
     }
 
     cout << "ok" << endl;

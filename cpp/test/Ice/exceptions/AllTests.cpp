@@ -648,7 +648,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     cout << "ok" << endl;
 
-    cout << "testing object factory registration exceptions... " << flush;
+    cout << "testing object factory registration exception... " << flush;
     {
 	Ice::ObjectFactoryPtr of = new ObjectFactoryI;
 	communicator->addObjectFactory(of, "x");
@@ -658,16 +658,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	    test(false);
 	}
 	catch(const Ice::AlreadyRegisteredException&)
-	{
-	}
-
-	communicator->removeObjectFactory("x");
-	try
-	{
-	    communicator->removeObjectFactory("x");
-	    test(false);
-	}
-	catch(const Ice::NotRegisteredException&)
 	{
 	}
     }
