@@ -459,7 +459,6 @@ public class Client
             TestObjectWriter writer = new TestObjectWriter(obj);
             @out.writeObject(writer);
             @out.writePendingObjects();
-            byte[] data = @out.finished();
             test(writer.called);
             @out.destroy();
         }
