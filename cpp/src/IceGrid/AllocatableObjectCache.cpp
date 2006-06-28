@@ -211,7 +211,7 @@ AllocatableObjectCache::allocateByType(const string& type, const ObjectAllocatio
     }
     catch(const SessionDestroyedException&)
     {
-	return;
+	return; // The request has been answered already, no need to throw here.
     }
 
     p->second.addAllocationRequest(request);
