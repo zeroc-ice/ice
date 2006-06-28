@@ -119,8 +119,6 @@ protected:
     mutable Ice::Int _hashValue;
     mutable bool _hashInitialized;
 
-    static std::pointer_to_unary_function<int, int> _rand;
-
 private:
 
     const InstancePtr _instance;

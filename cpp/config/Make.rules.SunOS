@@ -60,7 +60,9 @@ ifeq ($(CXX),CC)
             # -erroff=hidef is a (bad) work-around for
             # for Sun CC 5.5 bug #4852754
             #
-            CXXWARNFLAGS    = +w -erroff=hidef
+            # wvarhidenmem,wvarhidemem: various name hiding
+            #
+            CXXWARNFLAGS    = +w -erroff=hidef,wvarhidenmem,wvarhidemem
             CXXSCOPEFLAGS   = -xldscope=hidden
         endif
     endif

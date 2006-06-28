@@ -26,6 +26,8 @@
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Random.h>
 
+#include <functional>
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -33,7 +35,16 @@ using namespace IceInternal;
 void IceInternal::incRef(IceInternal::Reference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::Reference* p) { p->__decRef(); }
 
-pointer_to_unary_function<int, int> Reference::_rand(IceUtil::random);
+namespace
+{
+struct RandomNumberGenerator : public std::unary_function<ptrdiff_t, ptrdiff_t>
+{
+    ptrdiff_t operator()(ptrdiff_t d)
+    {
+	return IceUtil::random(static_cast<int>(d));
+    }
+};
+}
 
 CommunicatorPtr
 IceInternal::Reference::getCommunicator() const
@@ -652,7 +663,7 @@ IceInternal::FixedReference::filterConnections(const vector<ConnectionIPtr>& all
     //
     // Randomize the order of connections.
     //
-    random_shuffle(connections.begin(), connections.end(), _rand);
+    random_shuffle(connections.begin(), connections.end(), RandomNumberGenerator());
 
     //
     // If a secure connection is requested, remove all non-secure
@@ -1054,7 +1065,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
     {
 	case Random:
 	{
-	    random_shuffle(endpoints.begin(), endpoints.end(), _rand);
+	    random_shuffle(endpoints.begin(), endpoints.end(), RandomNumberGenerator());
 	    break;
 	}
 	case Ordered:

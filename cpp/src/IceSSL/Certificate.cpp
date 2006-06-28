@@ -518,7 +518,7 @@ Certificate::getSubjectAlternativeNames()
 int
 Certificate::getVersion() const
 {
-    return X509_get_version(_cert);
+    return static_cast<int>(X509_get_version(_cert));
 }
 
 string

@@ -111,8 +111,6 @@ private:
     const Ice::CommunicatorPtr _communicator;
     std::map<std::string, TypeEntry> _types;
     std::map<std::string, std::vector<Ice::Identity> > _allocatablesByType;
-
-    static std::pointer_to_unary_function<int, int> _rand;
 };
 
 };

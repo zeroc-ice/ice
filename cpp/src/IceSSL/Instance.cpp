@@ -786,9 +786,9 @@ IceSSL::Instance::verifyCallback(int ok, SSL* ssl, X509_STORE_CTX* c)
 	Trace out(_logger, _securityTraceCategory);
 	out << "certificate verification failure\n";
 
-	X509_NAME_oneline(X509_get_issuer_name(cert), buf, sizeof(buf));
+	X509_NAME_oneline(X509_get_issuer_name(cert), buf, static_cast<int>(sizeof(buf)));
 	out << "issuer = " << buf << '\n';
-	X509_NAME_oneline(X509_get_subject_name(cert), buf, sizeof(buf));
+	X509_NAME_oneline(X509_get_subject_name(cert), buf, static_cast<int>(sizeof(buf)));
 	out << "subject = " << buf << '\n';
 	out << "depth = " << X509_STORE_CTX_get_error_depth(c) << '\n';
 	out << "error = " << X509_verify_cert_error_string(err) << '\n';

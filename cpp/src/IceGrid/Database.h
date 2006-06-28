@@ -128,8 +128,7 @@ private:
     static const std::string _objectDbName;
     static const std::string _adapterDbName;
     static const std::string _replicaGroupDbName;
-    static std::pointer_to_unary_function<int, int> _rand;
-
+  
     const Ice::CommunicatorPtr _communicator;
     const Ice::ObjectAdapterPtr _internalAdapter;
     const std::string _envName;

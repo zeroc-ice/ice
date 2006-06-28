@@ -27,7 +27,6 @@ using namespace IceGrid;
 const string Database::_descriptorDbName = "applications";
 const string Database::_adapterDbName = "adapters";
 const string Database::_objectDbName = "objects";
-pointer_to_unary_function<int, int> Database::_rand(IceUtil::random);
 
 namespace IceGrid
 {
@@ -810,7 +809,7 @@ Database::getAdapters(const string& id, int& endpointCount, bool& replicaGroup)
 	    adpts.push_back(make_pair(p->first, adpt));
 	    ++p;
 	}
-	random_shuffle(adpts.begin(), adpts.end(), _rand);
+	random_shuffle(adpts.begin(), adpts.end(), RandomNumberGenerator());
 	replicaGroup = true;
 	endpointCount = static_cast<int>(adpts.size());
 	return adpts;
@@ -1073,7 +1072,7 @@ Ice::ObjectPrx
 Database::getObjectByTypeOnLeastLoadedNode(const string& type, LoadSample sample)
 {
     Ice::ObjectProxySeq objs = getObjectsByType(type);
-    random_shuffle(objs.begin(), objs.end(), _rand);
+    random_shuffle(objs.begin(), objs.end(), RandomNumberGenerator());
     vector<pair<Ice::ObjectPrx, float> > objectsWithLoad;
     objectsWithLoad.reserve(objs.size());
     for(Ice::ObjectProxySeq::const_iterator p = objs.begin(); p != objs.end(); ++p)

@@ -98,8 +98,6 @@ private:
     LoadSample _loadSample;
     ReplicaSeq _replicas;
     int _lastReplica;
-
-    static std::pointer_to_unary_function<int, int> _rand;
 };
 typedef IceUtil::Handle<ReplicaGroupEntry> ReplicaGroupEntryPtr;
 

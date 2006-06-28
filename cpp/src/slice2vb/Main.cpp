@@ -172,7 +172,7 @@ main(int argc, char* argv[])
 	    if(preprocess)
 	    {
 	        char buf[4096];
-		while(fgets(buf, sizeof(buf), cppHandle) != NULL)
+		while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
 		{
 		    if(fputs(buf, stdout) == EOF)
 		    {

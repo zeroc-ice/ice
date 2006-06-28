@@ -112,7 +112,7 @@ IceUtil::generateUUID()
     // Randoms by the last 15 bits of the process id.
     //
     char* buffer = reinterpret_cast<char*>(&uuid);
-    generateRandom(buffer, sizeof(UUID));
+    generateRandom(buffer, static_cast<int>(sizeof(UUID)));
 
     //
     // Adjust the bits that say "version 4" UUID

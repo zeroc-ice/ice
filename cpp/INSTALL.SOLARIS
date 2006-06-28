@@ -7,8 +7,8 @@ Operating System
 ----------------
 
 Ice is expected to build and run properly on Solaris 8, Solaris 9
-and Solaris 10 on SPARC. However, Ice is officially supported
-only on Solaris 9 on SPARC.
+and Solaris 10 on SPARC and Intel/AMD64. 
+However, Ice is officially supported only on Solaris 9 on SPARC.
 
 You also need to have /dev/urandom installed. This is installed by
 default on Solaris 9 and Solaris 10; on Solaris 8, you need to install 

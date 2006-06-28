@@ -81,9 +81,7 @@ ServerFactoryI::createServer(const Test::Properties& props, const Current& curre
 	initData.properties->setProperty(p->first, p->second);
     }
 
-    int argc = 0;
-    char* argv[] = { "" };
-    CommunicatorPtr communicator = initialize(argc, argv, initData);
+    CommunicatorPtr communicator = initialize(initData);
     ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
     ServerIPtr server = new ServerI(communicator);
     ObjectPrx obj = adapter->addWithUUID(server);

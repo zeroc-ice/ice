@@ -125,7 +125,7 @@ IcePatch2::readFileInfo(FILE* fp, FileInfo& info)
 {
     string data;
     char buf[BUFSIZ];
-    while(fgets(buf, sizeof(buf), fp) != 0)
+    while(fgets(buf, static_cast<int>(sizeof(buf)), fp) != 0)
     {
 	data += buf;
 
@@ -971,7 +971,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
     		        }
 		    }
 
-		    unsigned int bytesLeft = buf.st_size;
+		    unsigned int bytesLeft = static_cast<unsigned int>(buf.st_size);
 	            while(bytesLeft > 0)
 	            {
 		    	ByteSeq bytes(min(bytesLeft, 1024u*1024));

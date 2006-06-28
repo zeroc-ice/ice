@@ -12,10 +12,18 @@
 #include <TestCommon.h>
 #include <Test.h>
 
+#include <functional>
+
 using namespace std;
 using namespace Test;
 
-static pointer_to_unary_function<int, int> randomGenerator(IceUtil::random);
+struct RandomNumberGenerator : public std::unary_function<ptrdiff_t, ptrdiff_t>
+{
+    ptrdiff_t operator()(ptrdiff_t d)
+    {
+        return IceUtil::random(static_cast<int>(d));
+    }
+};
 
 class GetAdapterNameCB : public AMI_TestIntf_getAdapterName, public IceUtil::Monitor<IceUtil::Mutex>
 {
@@ -138,9 +146,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    vector<RemoteObjectAdapterPrx> adpts = adapters;
 
 	    TestIntfPrx test1 = createTestIntfPrx(adpts);
-	    random_shuffle(adpts.begin(), adpts.end(), randomGenerator);
+	    random_shuffle(adpts.begin(), adpts.end(), RandomNumberGenerator());
 	    TestIntfPrx test2 = createTestIntfPrx(adpts);
-	    random_shuffle(adpts.begin(), adpts.end(), randomGenerator);
+	    random_shuffle(adpts.begin(), adpts.end(), RandomNumberGenerator());
 	    TestIntfPrx test3 = createTestIntfPrx(adpts);
 
 	    test(test1->ice_getConnection() == test2->ice_getConnection());
@@ -185,9 +193,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    vector<RemoteObjectAdapterPrx> adpts = adapters;
 
 	    TestIntfPrx test1 = createTestIntfPrx(adpts);
-	    random_shuffle(adpts.begin(), adpts.end(), randomGenerator);
+	    random_shuffle(adpts.begin(), adpts.end(), RandomNumberGenerator());
 	    TestIntfPrx test2 = createTestIntfPrx(adpts);
-	    random_shuffle(adpts.begin(), adpts.end(), randomGenerator);
+	    random_shuffle(adpts.begin(), adpts.end(), RandomNumberGenerator());
 	    TestIntfPrx test3 = createTestIntfPrx(adpts);
 	    
 	    test(test1->ice_getConnection() == test2->ice_getConnection());
@@ -229,9 +237,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    vector<RemoteObjectAdapterPrx> adpts = adapters;
 
 	    TestIntfPrx test1 = createTestIntfPrx(adpts);
-	    random_shuffle(adpts.begin(), adpts.end(), randomGenerator);
+	    random_shuffle(adpts.begin(), adpts.end(), RandomNumberGenerator());
 	    TestIntfPrx test2 = createTestIntfPrx(adpts);
-	    random_shuffle(adpts.begin(), adpts.end(), randomGenerator);
+	    random_shuffle(adpts.begin(), adpts.end(), RandomNumberGenerator());
 	    TestIntfPrx test3 = createTestIntfPrx(adpts);
 
 	    test(test1->ice_getConnection() == test2->ice_getConnection());
@@ -276,9 +284,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    vector<RemoteObjectAdapterPrx> adpts = adapters;
 
 	    TestIntfPrx test1 = createTestIntfPrx(adpts);
-	    random_shuffle(adpts.begin(), adpts.end(), randomGenerator);
+	    random_shuffle(adpts.begin(), adpts.end(), RandomNumberGenerator());
 	    TestIntfPrx test2 = createTestIntfPrx(adpts);
-	    random_shuffle(adpts.begin(), adpts.end(), randomGenerator);
+	    random_shuffle(adpts.begin(), adpts.end(), RandomNumberGenerator());
 	    TestIntfPrx test3 = createTestIntfPrx(adpts);
 	    
 	    test(test1->ice_getConnection() == test2->ice_getConnection());

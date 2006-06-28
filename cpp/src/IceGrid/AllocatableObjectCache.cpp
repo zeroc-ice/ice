@@ -17,8 +17,6 @@
 using namespace std;
 using namespace IceGrid;
 
-pointer_to_unary_function<int, int> AllocatableObjectCache::_rand(IceUtil::random);
-
 namespace IceGrid
 {
 
@@ -198,7 +196,7 @@ AllocatableObjectCache::allocateByType(const string& type, const ObjectAllocatio
     }
 
     vector<AllocatableObjectEntryPtr> objects = p->second.getObjects();
-    random_shuffle(objects.begin(), objects.end(), _rand); // TODO: OPTIMIZE
+    random_shuffle(objects.begin(), objects.end(), RandomNumberGenerator()); // TODO: OPTIMIZE
     try
     {
 	for(vector<AllocatableObjectEntryPtr>::const_iterator q = objects.begin(); q != objects.end(); ++q)

@@ -218,10 +218,10 @@ IceInternal::GC::collectGarbage()
 	    for(GCObjectSet::const_iterator i = liveObjects.begin(); i != liveObjects.end(); ++i)
 	    {
 #ifndef NDEBUG
-		bool erased =
+		size_t erased =
 #endif
 		    counts.erase(*i);
-		assert(erased);
+		assert(erased != 0);
 	    }
 	}
     }

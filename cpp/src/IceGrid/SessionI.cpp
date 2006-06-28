@@ -55,13 +55,13 @@ private:
     TPtr _cb;
 };
 
-template<class T> static AllocateObject<T>*
+template<class T> AllocateObject<T>*
 newAllocateObject(const SessionIPtr& session, const IceUtil::Handle<T>& cb)
 {
     return new AllocateObject<T>(session, cb);
 }
 
-};
+}
 
 BaseSessionI::BaseSessionI(const string& id, 
 			   const string& prefix, 

@@ -13,9 +13,21 @@
 #include <IceGrid/Descriptor.h>
 #include <IceUtil/StringUtil.h>
 #include <IceGrid/Exception.h>
+#include <IceUtil/Random.h>
+
+#include <functional>
 
 namespace IceGrid
 {
+
+struct RandomNumberGenerator : public std::unary_function<ptrdiff_t, ptrdiff_t>
+{
+    ptrdiff_t operator()(ptrdiff_t d)
+    {
+        return IceUtil::random(static_cast<int>(d));
+    }
+};
+
 
 template<typename T> std::insert_iterator<T>
 inline set_inserter(T& container) 

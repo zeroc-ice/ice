@@ -1315,7 +1315,7 @@ IceInternal::getLocalHosts()
     //
     while(true)
     {
-        int bufsize = numaddrs * sizeof(struct ifreq);
+        int bufsize = numaddrs * static_cast<int>(sizeof(struct ifreq));
         ifc.ifc_len = bufsize;
         ifc.ifc_buf = (char*)malloc(bufsize);
     
@@ -1344,7 +1344,7 @@ IceInternal::getLocalHosts()
         free(ifc.ifc_buf);
     }
 
-    numaddrs = ifc.ifc_len / sizeof(struct ifreq);
+    numaddrs = ifc.ifc_len / static_cast<int>(sizeof(struct ifreq));
     struct ifreq* ifr = ifc.ifc_req;
     for(int i = 0; i < numaddrs; ++i)
     {

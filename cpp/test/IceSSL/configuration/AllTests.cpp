@@ -150,15 +150,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
     string sep = ":";
 #endif
 
-    int argc = 0;
-    char* argv[] = { "" };
-
     cout << "testing manual initialization... " << flush;
     {
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);
 	initData.properties->setProperty("Ice.InitPlugins", "0");
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	ObjectPrx p = comm->stringToProxy("dummy:ssl -p 9999");
 	try
 	{
@@ -181,7 +178,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("Ice.InitPlugins", "0");
 	initData.properties->setProperty("IceSSL.Ciphers", "ADH");
 	initData.properties->setProperty("IceSSL.VerifyPeer", "0");
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	PluginManagerPtr pm = comm->getPluginManager();
 	pm->initializePlugins();
 	ObjectPrx obj = comm->stringToProxy(factoryRef);
@@ -215,7 +212,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.VerifyPeer", "0");
 	initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
 	initData.properties->setProperty("IceSSL.DefaultDir", defaultDir);
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	Test::Properties d = createServerProps(defaultHost);
@@ -306,7 +303,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	//
 	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
-	comm = initialize(argc, argv, initData);
+	comm = initialize(initData);
 	fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	d = createServerProps(defaultHost);
@@ -399,7 +396,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.CertAuthFile", "cacert2.pem");
 	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca2_pub.pem");
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca2_priv.pem");
-	comm = initialize(argc, argv, initData);
+	comm = initialize(initData);
 	fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	d = createServerProps(defaultHost);
@@ -439,7 +436,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
 	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca2_pub.pem");
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca2_priv.pem");
-	comm = initialize(argc, argv, initData);
+	comm = initialize(initData);
 	fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	d = createServerProps(defaultHost);
@@ -483,7 +480,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties = createClientProps(defaultHost);
 	initData.properties->setProperty("IceSSL.Ciphers", "ADH");
 	initData.properties->setProperty("IceSSL.VerifyPeer", "0");
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
 	test(plugin);
 	CertificateVerifierIPtr verifier = new CertificateVerifierI;
@@ -546,7 +543,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
 	initData.properties->setProperty("IceSSL.VerifyPeer", "0");
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
 	test(plugin);
 	CertificateVerifierIPtr verifier = new CertificateVerifierI;
@@ -587,7 +584,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.Ciphers", "ADH");
 	initData.properties->setProperty("IceSSL.VerifyPeer", "0");
 	initData.properties->setProperty("IceSSL.Protocols", "ssl3");
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	Test::Properties d = createServerProps(defaultHost);
@@ -618,7 +615,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	//
 	// This should succeed.
 	//
-	comm = initialize(argc, argv, initData);
+	comm = initialize(initData);
 	fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	d = createServerProps(defaultHost);
@@ -656,7 +653,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
 	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	Test::Properties d = createServerProps(defaultHost);
@@ -698,7 +695,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	}
 	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_exp_pub.pem");
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_exp_priv.pem");
-	comm = initialize(argc, argv, initData);
+	comm = initialize(initData);
 	fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	d = createServerProps(defaultHost);
@@ -743,7 +740,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.DefaultDir", defaultDir);
 	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	Test::Properties d = createServerProps(defaultHost);
@@ -776,7 +773,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_pass_ca1_pub.pem");
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_pass_ca1_priv.pem");
 	initData.properties->setProperty("Ice.InitPlugins", "0");
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	PluginManagerPtr pm = comm->getPluginManager();
 	IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(pm->getPlugin("IceSSL"));
 	test(plugin);
@@ -812,7 +809,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_pass_ca1_priv.pem");
 	initData.properties->setProperty("IceSSL.PasswordRetryMax", "4");
 	initData.properties->setProperty("Ice.InitPlugins", "0");
-	comm = initialize(argc, argv, initData);
+	comm = initialize(initData);
 	pm = comm->getPluginManager();
 	plugin = IceSSL::PluginPtr::dynamicCast(pm->getPlugin("IceSSL"));
 	test(plugin);
@@ -845,7 +842,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         InitializationData initData;
 	initData.properties = createClientProps(defaultHost);
 	initData.properties->setProperty("IceSSL.Ciphers", "ADH");
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	Test::Properties d = createServerProps(defaultHost);
@@ -881,7 +878,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.CertFile", "c_dsa_nopass_ca1_pub.pem");
 	initData.properties->setProperty("IceSSL.KeyFile", "c_dsa_nopass_ca1_priv.pem");
 	initData.properties->setProperty("IceSSL.Ciphers", "DEFAULT:DSS");
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	Test::Properties d = createServerProps(defaultHost);
@@ -909,7 +906,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.DefaultDir", defaultDir);
 	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
-	comm = initialize(argc, argv, initData);
+	comm = initialize(initData);
 	fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	d = createServerProps(defaultHost);
@@ -935,7 +932,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	//
 	initData.properties = createClientProps(defaultHost);
 	initData.properties->setProperty("IceSSL.Ciphers", "ADH");
-	comm = initialize(argc, argv, initData);
+	comm = initialize(initData);
 	fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	d = createServerProps(defaultHost);
@@ -971,7 +968,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.CertFile", "c_dsa_nopass_ca1_pub.pem");
 	initData.properties->setProperty("IceSSL.KeyFile", "c_dsa_nopass_ca1_priv.pem");
 	initData.properties->setProperty("IceSSL.Ciphers", "DSS");
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
 	test(fact);
 	Test::Properties d = createServerProps(defaultHost);
@@ -1014,7 +1011,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
 	initData.properties->setProperty("IceSSL.TrustOnly", "C=US, ST=Florida, O=ZeroC\\, Inc.,"
 					 "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
 	test(plugin);
 
@@ -1046,7 +1043,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
 	initData.properties->setProperty("IceSSL.TrustOnly", "C=US, ST=Florida, O=\"ZeroC, Inc.\","
 					 "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
 	test(plugin);
 
@@ -1077,7 +1074,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
 
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
 	test(plugin);
 
@@ -1110,7 +1107,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
 	initData.properties->setProperty("IceSSL.TrustOnly", "CN=Server");
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
 	test(plugin);
 
@@ -1141,7 +1138,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
 
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
 	test(plugin);
 
@@ -1173,7 +1170,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
 	initData.properties->setProperty("IceSSL.TrustOnly", "CN=Client");
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
 	test(plugin);
 
@@ -1204,7 +1201,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
 
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
 	test(plugin);
 
@@ -1236,7 +1233,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
 	initData.properties->setProperty("IceSSL.TrustOnly", "C=Canada,CN=Server");
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
 	test(plugin);
 
@@ -1267,7 +1264,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
 	initData.properties->setProperty("IceSSL.TrustOnly", "C=Canada;CN=Server");
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
 	test(plugin);
 
@@ -1302,7 +1299,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
 	initData.properties->setProperty("IceSSL.TrustOnly.Client", "C=US, ST=Florida, O=ZeroC\\, Inc.,"
 					 "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
 	test(plugin);
 
@@ -1336,7 +1333,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
 	initData.properties->setProperty("IceSSL.TrustOnly.Client", "CN=Client");
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
 	test(plugin);
 
@@ -1372,7 +1369,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	// Should have no effect.
 	initData.properties->setProperty("IceSSL.TrustOnly.Server", "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice,"
 					 "emailAddress=info@zeroc.com,CN=Client");
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
 	test(plugin);
 
@@ -1404,7 +1401,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
 	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
 	test(plugin);
 
@@ -1438,7 +1435,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
 	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
 	test(plugin);
 
@@ -1471,7 +1468,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 	initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
 	initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
 	initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
-	CommunicatorPtr comm = initialize(argc, argv, initData);
+	CommunicatorPtr comm = initialize(initData);
 	IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
 	test(plugin);
 
