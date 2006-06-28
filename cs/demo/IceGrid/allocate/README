@@ -8,10 +8,11 @@ Note for Mono:
     have installed Ice from RPMs).
 
     Alternatively, if you do not want to reconfigure your kernel, or
-    if you want to run with Mono under Windows, edit application.xml
+    if you want to run with Mono under Windows, edit
+    application-single.xml or application-multiple.xml
     and change the server element to read:
 
-    <server id="SimpleServer" exe="mono" activation="on-demand">
+    <server id="AllocateServer" exe="mono" activation="on-demand">
       <option>./server.exe</option>
 
     Note that the server executable is "mono", and that the actual
