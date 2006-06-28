@@ -1,3 +1,7 @@
+This demo demonstrates the use of the session activation mode where
+the server is activated on demand once it is allocated by the client
+and it is deactivated when the client releases the server.
+
 To run the demo, first start the IceGrid service:
 
 $ icegridnode --Ice.Config=config.grid

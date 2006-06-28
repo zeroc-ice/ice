@@ -11,12 +11,16 @@ Note for Mono:
     if you want to run with Mono under Windows, edit application.xml
     and change the server element to read:
 
-    <server id="SimpleServer" exe="mono" activation="on-demand">
+    <server id="SessionServer" exe="mono" activation="session">
       <option>./server.exe</option>
 
     Note that the server executable is "mono", and that the actual
     server executable is passed as an argument to the Mono
     interpreter.
+
+This demo demonstrates the use of the session activation mode where
+the server is activated on demand once it is allocated by the client
+and it is deactivated when the client releases the server.
 
 To run the demo, first start the IceGrid service:
 
