@@ -53,7 +53,8 @@ class DescriptorHandler : public IceXML::Handler
 {
 public:
 
-    DescriptorHandler(const DataFactoryPtr&, const Slice::UnitPtr&, const ErrorReporterPtr&);
+    DescriptorHandler(const DataFactoryPtr&, const Slice::UnitPtr&, const ErrorReporterPtr&,
+		      const FreezeScript::ObjectFactoryPtr&);
 
     virtual void startElement(const std::string&, const IceXML::Attributes&, int, int);
     virtual void endElement(const std::string&, int, int);
@@ -69,6 +70,7 @@ private:
     ErrorReporterPtr _errorReporter;
     DescriptorPtr _current;
     DumpDBDescriptorPtr _descriptor;
+    FreezeScript::ObjectFactoryPtr _objectFactory;
 };
 
 }
@@ -323,6 +325,8 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         }
         in.close();
     }
+    FreezeScript::ObjectFactoryPtr objectFactory = new FreezeScript::ObjectFactory;
+    communicator->addObjectFactory(objectFactory, "");
 
     DbEnv dbEnv(0);
     DbTxn* txn = 0;
@@ -349,7 +353,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         try
         {
             FreezeScript::DataFactoryPtr factory = new FreezeScript::DataFactory(communicator, unit, errorReporter);
-            FreezeScript::DescriptorHandler dh(factory, unit, errorReporter);
+            FreezeScript::DescriptorHandler dh(factory, unit, errorReporter, objectFactory);
 
             istringstream istr(descriptors);
             IceXML::Parser::parse(istr, dh);
@@ -626,8 +630,9 @@ FreezeScript::SliceVisitor::visitEnum(const Slice::EnumPtr& v)
 // DescriptorHandler
 //
 FreezeScript::DescriptorHandler::DescriptorHandler(const DataFactoryPtr& factory, const Slice::UnitPtr& unit,
-                                                   const ErrorReporterPtr& errorReporter) :
-    _factory(factory), _unit(unit), _errorReporter(errorReporter)
+                                                   const ErrorReporterPtr& errorReporter,
+						   const FreezeScript::ObjectFactoryPtr& objectFactory) :
+    _factory(factory), _unit(unit), _errorReporter(errorReporter), _objectFactory(objectFactory)
 {
 }
 
@@ -663,7 +668,7 @@ FreezeScript::DescriptorHandler::startElement(const string& name, const IceXML::
             _errorReporter->descriptorError("<record> must be a child of <database>", line);
         }
 
-        d = new RecordDescriptor(_current, line, _factory, _errorReporter, attributes, _unit);
+        d = new RecordDescriptor(_current, line, _factory, _errorReporter, attributes, _unit, _objectFactory);
     }
     else if(name == "dump")
     {

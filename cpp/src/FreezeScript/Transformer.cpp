@@ -58,6 +58,7 @@ struct TransformInfoI : public TransformInfo
     virtual ObjectDataMap& getObjectDataMap();
 
     Ice::CommunicatorPtr communicator;
+    FreezeScript::ObjectFactoryPtr objectFactory;
     Slice::UnitPtr oldUnit;
     Slice::UnitPtr newUnit;
     Db* oldDb;
@@ -1877,7 +1878,7 @@ FreezeScript::RecordDescriptor::execute(const SymbolTablePtr& sym)
     //
     // Temporarily add an object factory.
     //
-    _info->communicator->addObjectFactory(new FreezeScript::ObjectFactory(_info->factory, _info->oldUnit), "");
+    _info->objectFactory->activate(_info->factory, _info->oldUnit);
 
     //
     // Iterate over the database.
@@ -1932,6 +1933,7 @@ FreezeScript::RecordDescriptor::execute(const SymbolTablePtr& sym)
         {
             dbc->close();
         }
+	_info->objectFactory->deactivate();
         throw;
     }
 
@@ -1939,6 +1941,7 @@ FreezeScript::RecordDescriptor::execute(const SymbolTablePtr& sym)
     {
         dbc->close();
     }
+    _info->objectFactory->deactivate();
 }
 
 void
@@ -2949,12 +2952,16 @@ FreezeScript::assignOrTransform(const DataPtr& dest, const DataPtr& src, bool co
 
 void
 FreezeScript::transformDatabase(const Ice::CommunicatorPtr& communicator,
+				const FreezeScript::ObjectFactoryPtr& objectFactory,
                                 const Slice::UnitPtr& oldUnit, const Slice::UnitPtr& newUnit,
-                                Db* oldDb, Db* newDb, DbTxn* newDbTxn, Freeze::ConnectionPtr connection, const string& newDbName, 
-				const string& facetName, bool purgeObjects, ostream& errors, bool suppress, istream& is)
+                                Db* oldDb, Db* newDb, DbTxn* newDbTxn, const Freeze::ConnectionPtr& connection,
+				const string& newDbName, const string& facetName, bool purgeObjects, ostream& errors,
+				bool suppress, istream& is)
 {
+
     TransformInfoIPtr info = new TransformInfoI;
     info->communicator = communicator;
+    info->objectFactory = objectFactory;
     info->oldUnit = oldUnit;
     info->newUnit = newUnit;
     info->oldDb = oldDb;

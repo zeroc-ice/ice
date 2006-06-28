@@ -40,6 +40,8 @@ print "creating test database...",
 sys.stdout.flush()
 
 makedb = os.path.join(directory, "makedb") + " " + directory
+if TestUtil.debug:
+    print "(" + makedb + ")",
 if os.system(makedb) != 0:
     sys.exit(1)
 
@@ -54,15 +56,27 @@ print "executing evictor transformations...",
 sys.stdout.flush()
 
 command = transformdb + " -e -p --old " + testold + " --new " + testnew + " -f " + transformxml + " " + dbdir + " evictor.db " + check_dbdir
-stdin, stdout, stderr = os.popen3(command)
-stderr.readlines()
+if TestUtil.debug:
+    print "(" + command + ")",
+#stdin, stdout, stderr = os.popen3(command)
+#stderr.readlines()
 
+pipe = os.popen(command + " 2>&1")
 print "ok"
+
+#TestUtil.printOutputFromPipe(pipe)
+
+clientStatus = TestUtil.closePipe(pipe)
+if clientStatus:
+    print "failed!"
+    sys.exit(1)
 
 print "validating database...",
 sys.stdout.flush()
 
 command = transformdb + " -e --old " + testnew + " --new " + testnew + " -f " + checkxml + " " + check_dbdir + " evictor.db " + tmp_dbdir
+if TestUtil.debug:
+    print "(" + command + ")",
 if os.system(command) != 0:
     sys.exit(1)
 

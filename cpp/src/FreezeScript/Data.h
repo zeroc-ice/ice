@@ -573,16 +573,18 @@ class ObjectFactory : public Ice::ObjectFactory
 {
 public:
 
-    ObjectFactory(const DataFactoryPtr&, const Slice::UnitPtr&);
-
     virtual Ice::ObjectPtr create(const std::string&);
     virtual void destroy();
+
+    void activate(const DataFactoryPtr&, const Slice::UnitPtr&);
+    void deactivate();
 
 private:
 
     DataFactoryPtr _factory;
     Slice::UnitPtr _unit;
 };
+typedef IceUtil::Handle<ObjectFactory> ObjectFactoryPtr;
 
 class ClassNotFoundException
 {

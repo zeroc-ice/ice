@@ -92,7 +92,8 @@ findType(const string& prog, const Slice::UnitPtr& u, const string& type)
 }
 
 static void
-transformDb(bool evictor,  const Ice::CommunicatorPtr& communicator, 
+transformDb(bool evictor,  const Ice::CommunicatorPtr& communicator,
+	    const FreezeScript::ObjectFactoryPtr& objectFactory,
 	    DbEnv& dbEnv, DbEnv& dbEnvNew, const string& dbName, 
 	    const Freeze::ConnectionPtr& connectionNew, vector<Db*>& dbs,
 	    const Slice::UnitPtr& oldUnit, const Slice::UnitPtr& newUnit, 
@@ -152,8 +153,8 @@ transformDb(bool evictor,  const Ice::CommunicatorPtr& communicator,
 	    //
 	    istringstream istr(descriptors);
 	    string facet = (name == "$default" ? "" : name);
-	    FreezeScript::transformDatabase(communicator, oldUnit, newUnit, &db, dbNew, txnNew, 0, dbName,
-					    facet, purgeObjects, cerr, suppress, istr);
+	    FreezeScript::transformDatabase(communicator, objectFactory, oldUnit, newUnit, &db, dbNew, txnNew, 0,
+					    dbName, facet, purgeObjects, cerr, suppress, istr);
 	    
 	    db.close(0);
 	}
@@ -179,8 +180,8 @@ transformDb(bool evictor,  const Ice::CommunicatorPtr& communicator,
 	// Execute the transformation descriptors.
 	//
 	istringstream istr(descriptors);
-	FreezeScript::transformDatabase(communicator, oldUnit, newUnit, &db, dbNew, txnNew, connectionNew, 
-					dbName, "", purgeObjects, cerr, suppress, istr);
+	FreezeScript::transformDatabase(communicator, objectFactory, oldUnit, newUnit, &db, dbNew, txnNew,
+					connectionNew, dbName, "", purgeObjects, cerr, suppress, istr);
 	
 	db.close(0);
     }
@@ -520,6 +521,9 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         return EXIT_FAILURE;
     }
 
+    FreezeScript::ObjectFactoryPtr objectFactory = new FreezeScript::ObjectFactory;
+    communicator->addObjectFactory(objectFactory, "");
+
     //
     // Transform the database.
     //
@@ -632,13 +636,13 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
 		    cout << "Processing database " << p->first << " with descriptor: " << localDescriptor << endl;
 		}
 
-		transformDb(p->second.evictor, communicator, dbEnv, dbEnvNew, p->first, connectionNew, dbs, 
-			oldUnit, newUnit, txnNew, purgeObjects, suppress, localDescriptor);
+		transformDb(p->second.evictor, communicator, objectFactory, dbEnv, dbEnvNew, p->first, connectionNew,
+			    dbs, oldUnit, newUnit, txnNew, purgeObjects, suppress, localDescriptor);
 	    }
 	}
 	else
 	{
-	    transformDb(evictor, communicator, dbEnv, dbEnvNew, dbName, connectionNew, dbs, 
+	    transformDb(evictor, communicator, objectFactory, dbEnv, dbEnvNew, dbName, connectionNew, dbs, 
 			oldUnit, newUnit, txnNew, purgeObjects, suppress, descriptors);
 	}
     }
