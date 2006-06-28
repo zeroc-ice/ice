@@ -19,6 +19,13 @@
 #
 CXX   = CC
 
+# This variable is used to determine the machine type.
+# For SUN UltraSPARC machines: sun4u
+# For x86/x64 machines:        i86pc
+#
+MACHINE_TYPE                := $(shell uname -m)
+
+
 ifeq ($(CXX),CC)
 #
 # Sun CC
@@ -30,7 +37,12 @@ ifeq ($(CXX),CC)
     CCVERSION		    = $(filter 5.%, $(shell CC -V 2>&1))
 
     ifeq ($(LP64),yes)
-        CXXARCHFLAGS	    = -xarch=v9
+        ifeq ($(MACHINE_TYPE),sun4u)
+           CXXARCHFLAGS    = -xarch=v9
+        endif
+        ifeq ($(MACHINE_TYPE),i86pc)
+           CXXARCHFLAGS    = -xarch=amd64
+        endif
     endif
 
     ifeq ($(CCVERSION),5.3)
@@ -81,7 +93,7 @@ ifeq ($(CXX),CC)
 
     mklib		    = $(CXX) -xar -o $(1) $(2)
 
-    LDPLATFORMFLAGS	    = -R $(install_libdir)
+    LDPLATFORMFLAGS	    = -R $(install_libdir) -z text
 
 endif
 
@@ -120,7 +132,12 @@ LIBS			    = $(BZIP2_RPATH_LINK) -lIce $(BASELIBS)
 ICEUTIL_OS_LIBS		    = -lpthread -lrt
 ICE_OS_LIBS		    = -ldl -lsocket
 
-lp64suffix		    = /sparcv9
+ifeq ($(MACHINE_TYPE),sun4u)
+   lp64suffix		    = /sparcv9
+endif
+ifeq ($(MACHINE_TYPE),i86pc)
+    lp64suffix		    = /amd64
+endif
 
 ifeq ($(LP64),yes)
     export LD_LIBRARY_PATH_64	:= $(libdir):$(LD_LIBRARY_PATH_64)
