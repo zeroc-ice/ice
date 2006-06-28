@@ -10,11 +10,11 @@ current working directory.
 In a separate window:
 
 $ icestormadmin --Ice.Config=config.service -e "create time"
-$ subscriber
+$ subscriber --Ice.Config=config.sub
 
 In another window:
 
-$ publisher
+$ publisher --Ice.Config=config.pub
 
 Ten "tick" messages should be displayed in the subscriber window for
 each run of the publisher.
