@@ -4421,7 +4421,7 @@ the &IceStorm; administration tool, and may also be used by applications.
 <section><title>&Glacier2; Properties</title>
 <!-- ********************************************************************** -->
 
-<section><title>Glacier2.AddUserToAllowCategories</title>
+<section id="Glacier2.AddUserToAllowCategories"><title>Glacier2.AddUserToAllowCategories</title>
 <section><title>Synopsis</title>
 <synopsis>
 Glacier2.AddUserToAllowCategories=<replaceable>num</replaceable>
@@ -4452,10 +4452,6 @@ creation of a new session. The legal values are shown below:
 </tgroup>
 </informaltable>
 </para>
-<note><para>This property is deprecated and supported only for
-backward-compatibility. New applications should use
-<link linkend="Glacier2.Filter.Category.AddUser">Glacier2.Filter.Category.AddUser</link>.
-</para></note>
 </section>
 </section>
 
@@ -4810,43 +4806,9 @@ Glacier2.Filter.Category.Accept=<replaceable>string</replaceable>
 Specifies a space-separated list of identity categories. If defined, the
 &Glacier2; router only allows requests to &Ice; objects with an identity
 that matches one of the categories in this list. If
-<link linkend="Glacier2.Filter.Category.AddUser">Glacier2.Filter.Category.AddUser</link>
+<link linkend="Glacier2.AddUserToAllowCategories">Glacier2.AddUserToAllowCategories</link>
 is defined with a non-zero value, the router automatically adds the username of each
 session to this list.
-</para>
-</section>
-</section>
-
-<section id="Glacier2.Filter.Category.AddUser"><title>Glacier2.Filter.Category.AddUser</title>
-<section><title>Synopsis</title>
-<synopsis>
-Glacier2.Filter.Category.AddUser=<replaceable>num</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-Specifies whether to add an authenticated username to the
-<link linkend="Glacier2.Filter.Category.Accept">Glacier2.Filter.Category.Accept</link>
-property upon the creation of a new session. The legal values are shown below:
-<informaltable>
-<tgroup cols=2>
-<tbody>
-<row>
-<entry>0</entry>
-<entry>Do not add the username. (default)</entry>
-</row>
-<row>
-<entry>1</entry>
-<entry>Add the username.</entry>
-</row>
-<row>
-<entry>2</entry>
-<entry>Add the username with a leading underscore.</entry>
-</row>
-</tbody>
-</tgroup>
-</informaltable>
 </para>
 </section>
 </section>
