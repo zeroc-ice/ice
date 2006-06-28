@@ -76,9 +76,39 @@ public class Client
         Ice.Object obj;
     }
 
+    private static class MyClassFactoryWrapper extends Ice.LocalObjectImpl implements Ice.ObjectFactory
+    {
+	MyClassFactoryWrapper()
+	{
+	    _factory = Test.MyClass.ice_factory();
+	}
+
+	public Ice.Object
+	create(String type)
+	{
+	    return _factory.create(type);
+	}
+
+	public void
+	destroy()
+	{
+	}
+
+	void
+	setFactory(Ice.ObjectFactory factory)
+	{
+	    _factory = factory;
+	}
+
+	private Ice.ObjectFactory _factory;
+    }
+
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
+	MyClassFactoryWrapper factoryWrapper = new MyClassFactoryWrapper();
+	communicator.addObjectFactory(factoryWrapper, Test.MyClass.ice_staticId());
+
         Ice.InputStream in;
         Ice.OutputStream out;
 
@@ -426,7 +456,19 @@ public class Client
             out.writePendingObjects();
             byte[] data = out.finished();
             test(writer.called);
+            factoryWrapper.setFactory(new TestObjectFactory());
+            in = Ice.Util.createInputStream(communicator, data);
+            TestReadObjectCallback cb = new TestReadObjectCallback();
+            in.readObject(cb);
+            in.readPendingObjects();
+            test(cb.obj != null);
+            test(cb.obj instanceof TestObjectReader);
+            TestObjectReader reader = (TestObjectReader)cb.obj;
+            test(reader.called);
+            test(reader.obj != null);
+            test(reader.obj.s.e == Test.MyEnum.enum2);
             out.destroy();
+            in.destroy();
         }
 
         System.out.println("ok");

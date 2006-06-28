@@ -112,8 +112,39 @@ public class Client
         internal Ice.Object obj;
     }
 
+    public class MyClassFactoryWrapper : Ice.LocalObjectImpl, Ice.ObjectFactory
+    {
+	public MyClassFactoryWrapper()
+	{
+	    _factory = null;
+	}
+
+        public Ice.Object create(string type)
+        {
+	    if(_factory != null)
+	    {
+		return _factory.create(type);
+	    }
+	    return new Test.MyClass();
+        }
+
+        public void destroy()
+        {
+        }
+
+	public void setFactory(Ice.ObjectFactory factory)
+	{
+	    _factory = factory;
+	}
+
+	private Ice.ObjectFactory _factory;
+    }
+
     private static int run(string[] args, Ice.Communicator communicator)
     {
+	MyClassFactoryWrapper factoryWrapper = new MyClassFactoryWrapper();
+	communicator.addObjectFactory(factoryWrapper, Test.MyClass.ice_staticId());
+
         Ice.InputStream @in;
         Ice.OutputStream @out;
 
@@ -459,8 +490,21 @@ public class Client
             TestObjectWriter writer = new TestObjectWriter(obj);
             @out.writeObject(writer);
             @out.writePendingObjects();
+            byte[] data = @out.finished();
             test(writer.called);
+            factoryWrapper.setFactory(new TestObjectFactory());
+            @in = Ice.Util.createInputStream(communicator, data);
+            TestReadObjectCallback cb = new TestReadObjectCallback();
+            @in.readObject(cb);
+            @in.readPendingObjects();
+            test(cb.obj != null);
+            test(cb.obj is TestObjectReader);
+            TestObjectReader reader = (TestObjectReader)cb.obj;
+            test(reader.called);
+            test(reader.obj != null);
+            test(reader.obj.s.e == Test.MyEnum.enum2);
             @out.destroy();
+            @in.destroy();
         }
 
         Console.WriteLine("ok");

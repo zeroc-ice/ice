@@ -88,9 +88,43 @@ public:
 };
 typedef IceUtil::Handle<TestReadObjectCallback> TestReadObjectCallbackPtr;
 
+class MyClassFactoryWrapper : public Ice::ObjectFactory
+{
+public:
+
+    MyClassFactoryWrapper() : _factory(Test::MyClass::ice_factory())
+    {
+    }
+
+    virtual Ice::ObjectPtr
+    create(const string& type)
+    {
+	return _factory->create(type);
+    }
+
+    virtual void
+    destroy()
+    {
+    }
+
+    void
+    setFactory(const Ice::ObjectFactoryPtr& factory)
+    {
+	_factory = factory;
+    }
+
+private:
+
+    Ice::ObjectFactoryPtr _factory;
+};
+typedef IceUtil::Handle<MyClassFactoryWrapper> MyClassFactoryWrapperPtr;
+
 int
 run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
 {
+    MyClassFactoryWrapperPtr factoryWrapper = new MyClassFactoryWrapper;
+    communicator->addObjectFactory(factoryWrapper, Test::MyClass::ice_staticId());
+
     Ice::InputStreamPtr in;
     Ice::OutputStreamPtr out;
     vector<Ice::Byte> data;
@@ -418,6 +452,28 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->writePendingObjects();
         out->finished(data);
         test(writer->called);
+    }
+
+    {
+        out = Ice::createOutputStream(communicator);
+        Test::MyClassPtr obj = new Test::MyClass;
+        obj->s.e = Test::enum2;
+        TestObjectWriterPtr writer = new TestObjectWriter(obj);
+        out->writeObject(writer);
+        out->writePendingObjects();
+        out->finished(data);
+        test(writer->called);
+        factoryWrapper->setFactory(new TestObjectFactory);
+        in = Ice::createInputStream(communicator, data);
+        TestReadObjectCallbackPtr cb = new TestReadObjectCallback;
+        in->readObject(cb);
+        in->readPendingObjects();
+        test(cb->obj);
+        TestObjectReaderPtr reader = TestObjectReaderPtr::dynamicCast(cb->obj);
+        test(reader);
+        test(reader->called);
+        test(reader->obj);
+        test(reader->obj->s.e == Test::enum2);
     }
 
     cout << "ok" << endl;
