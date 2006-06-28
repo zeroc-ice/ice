@@ -10,11 +10,11 @@ current working directory.
 In a separate window:
 
 $ icestormadmin --Ice.Config=config.service -e "create time"
-$ python Subscriber.py --Ice.Config=config.sub
+$ python Subscriber.py
 
 In another window:
 
-$ python Publisher.py --Ice.Config=config.pub
+$ python Publisher.py
 
 Ten "tick" messages should be displayed in the subscriber window for
 each run of the publisher.
