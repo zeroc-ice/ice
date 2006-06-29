@@ -643,40 +643,6 @@ communicatorAddObjectFactory(CommunicatorObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-communicatorRemoveObjectFactory(CommunicatorObject* self, PyObject* args)
-{
-    char* id;
-    if(!PyArg_ParseTuple(args, STRCAST("s"), &id))
-    {
-        return NULL;
-    }
-
-    ObjectFactoryPtr pof;
-    try
-    {
-        pof = ObjectFactoryPtr::dynamicCast((*self->communicator)->findObjectFactory(""));
-        assert(pof);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return NULL;
-
-    }
-
-    if(!pof->remove(id))
-    {
-        return NULL;
-    }
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
 communicatorFindObjectFactory(CommunicatorObject* self, PyObject* args)
 {
     char* id;
