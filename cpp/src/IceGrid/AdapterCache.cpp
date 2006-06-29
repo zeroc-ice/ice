@@ -365,14 +365,16 @@ ReplicaGroupEntry::getProxies(int& nReplicas, bool& replicaGroup)
 	else if(AdaptiveLoadBalancingPolicyPtr::dynamicCast(_loadBalancing))
 	{
 	    replicas = _replicas;
-	    random_shuffle(replicas.begin(), replicas.end(), RandomNumberGenerator());
+	    RandomNumberGenerator rng;
+	    random_shuffle(replicas.begin(), replicas.end(), rng);
 	    adaptive = true;
 	    loadSample = _loadSample;
 	}
 	else// if(RandomLoadBalancingPolicyPtr::dynamicCast(_loadBalancing))
 	{
 	    replicas = _replicas;
-	    random_shuffle(replicas.begin(), replicas.end(), RandomNumberGenerator());
+	    RandomNumberGenerator rng;
+	    random_shuffle(replicas.begin(), replicas.end(), rng);
 	}
     }
 
@@ -439,7 +441,8 @@ ReplicaGroupEntry::getLeastLoadedNodeLoad(LoadSample loadSample) const
     // This must be done outside the synchronization block since
     // min_element() will call and lock each server entry.
     //
-    random_shuffle(replicas.begin(), replicas.end(), RandomNumberGenerator());
+    RandomNumberGenerator rng;
+    random_shuffle(replicas.begin(), replicas.end(), rng);
     vector<ReplicaLoadComp::ReplicaLoad> rl;
     transform(replicas.begin(), replicas.end(), back_inserter(rl), ToReplicaLoad(loadSample));
     AdapterEntryPtr adpt = min_element(rl.begin(), rl.end(), ReplicaLoadComp())->second.second;

@@ -44,6 +44,7 @@ struct RandomNumberGenerator : public std::unary_function<ptrdiff_t, ptrdiff_t>
 	return IceUtil::random(static_cast<int>(d));
     }
 };
+
 }
 
 CommunicatorPtr
@@ -663,7 +664,8 @@ IceInternal::FixedReference::filterConnections(const vector<ConnectionIPtr>& all
     //
     // Randomize the order of connections.
     //
-    random_shuffle(connections.begin(), connections.end(), RandomNumberGenerator());
+    RandomNumberGenerator rng;
+    random_shuffle(connections.begin(), connections.end(), rng);
 
     //
     // If a secure connection is requested, remove all non-secure
@@ -1065,7 +1067,8 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
     {
 	case Random:
 	{
-	    random_shuffle(endpoints.begin(), endpoints.end(), RandomNumberGenerator());
+	    RandomNumberGenerator rng;
+	    random_shuffle(endpoints.begin(), endpoints.end(), rng);
 	    break;
 	}
 	case Ordered:

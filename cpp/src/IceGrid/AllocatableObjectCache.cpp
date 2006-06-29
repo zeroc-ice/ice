@@ -196,7 +196,8 @@ AllocatableObjectCache::allocateByType(const string& type, const ObjectAllocatio
     }
 
     vector<AllocatableObjectEntryPtr> objects = p->second.getObjects();
-    random_shuffle(objects.begin(), objects.end(), RandomNumberGenerator()); // TODO: OPTIMIZE
+    RandomNumberGenerator rng;
+    random_shuffle(objects.begin(), objects.end(), rng); // TODO: OPTIMIZE
     try
     {
 	for(vector<AllocatableObjectEntryPtr>::const_iterator q = objects.begin(); q != objects.end(); ++q)
