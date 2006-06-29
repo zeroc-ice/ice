@@ -13,7 +13,7 @@ Module HelloS
         Inherits Ice.Application
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
-            Dim endpointProperty As String = ""
+            Dim endpointProperty As String
             Try
                 communicator().getPluginManager().getPlugin("IceSSL")
                 endpointProperty = "EndpointsWithSSL"
