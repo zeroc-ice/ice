@@ -36,7 +36,7 @@ Module HelloC
             Dim properties As Ice.Properties = communicator().getProperties()
             Dim proxyProperty As String
             Try
-                communicator.getPluginManager().getPlugin("IceSSL")
+                communicator().getPluginManager().getPlugin("IceSSL")
                 proxyProperty = "Hello.ProxyWithSSL"
                 _haveSSL = True
             Catch ex As Ice.NotRegisteredException
@@ -93,7 +93,7 @@ Module HelloC
                             batchDatagram.sayHello()
                         End If
                     ElseIf line.Equals("f") Then
-                        communicator.flushBatchRequests()
+                        communicator().flushBatchRequests()
                     ElseIf line.Equals("T") Then
                         If timeout = -1 Then
                             timeout = 2000
