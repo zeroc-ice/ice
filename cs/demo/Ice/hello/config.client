@@ -1,14 +1,11 @@
 #
-# To use SSL you must enable it in the following endpoints and enable
-# Ice.Plugin.IceSSL below.
-#
-
-#
 # The client reads this property to create the reference to the
-# "hello" object in the server.
+# "hello" object in the server. The proxy to be used is selected
+# depending on whether the IceSLL plugin is active. (SSL is supported
+# only with .NET 2.0 and later.)
 #
-Hello.Proxy=hello:tcp -p 10000:udp -p 10000#:ssl -p 10001
-
+Hello.Proxy=hello:tcp -p 10000:udp -p 10000
+Hello.ProxyWithSSL=hello:tcp -p 10000:udp -p 10000:ssl -p 10001
 #
 # Warn about connection exceptions.
 #

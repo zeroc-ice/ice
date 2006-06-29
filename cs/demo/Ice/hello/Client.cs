@@ -22,8 +22,12 @@ public class Client : Ice.Application
 	    "d: send greeting as datagram\n" +
 	    "D: send greeting as batch datagram\n" +
 	    "f: flush all batch requests\n" +
-	    "T: set a timeout\n" +
-	    "S: switch secure mode on/off\n" +
+	    "T: set a timeout\n");
+	if(_haveSSL)
+	{
+            Console.WriteLine("S: switch secure mode on/off\n");
+	}
+        Console.WriteLine(
 	    "s: shutdown server\n" +
 	    "x: exit\n" +
 	    "?: help\n");
@@ -32,14 +36,26 @@ public class Client : Ice.Application
     public override int run(string[] args)
     {
         Ice.Properties properties = communicator().getProperties();
-        string proxyProperty = "Hello.Proxy";
+        string proxyProperty;
+	try
+	{
+	    communicator().getPluginManager().getPlugin("IceSSL");
+	    proxyProperty = "Hello.ProxyWithSSL";
+	    _haveSSL = true;
+	}
+	catch(Ice.NotRegisteredException)
+	{
+	    proxyProperty = "Hello.Proxy";
+	    Console.WriteLine("SSL support not enabled (requires .NET 2.0 or later)");
+	}
+
         string proxy = properties.getProperty(proxyProperty);
         if(proxy.Length == 0)
         {
             Console.Error.WriteLine("property `" + proxyProperty + "' not set");
             return 1;
         }
-        
+
         HelloPrx twoway = HelloPrxHelper.checkedCast(
 	    communicator().stringToProxy(proxy).ice_twoway().ice_timeout(-1).ice_secure(false));
         if(twoway == null)
@@ -187,4 +203,6 @@ public class Client : Ice.Application
 	    System.Environment.Exit(status);
 	}
     }
+
+    private static bool _haveSSL = false;
 }
