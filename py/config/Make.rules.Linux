@@ -1,0 +1,136 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# This file is included by Make.rules when uname is Linux.
+#
+# IcePy requires it's own Make.rules.Linux because using -O3 optimization
+# causes runtime errors.
+#
+
+USE_SPARC_ASM           = irrelevant
+MACHINE                 = $(shell uname -m)
+
+#
+# Default compiler is c++ (aka g++).
+#
+ifeq ($(CXX),)
+   CXX			= c++
+endif
+
+ifeq ($(CXX),g++)
+   CXX			= c++
+endif
+
+#
+# icecpp is built with a C compiler
+#
+CFLAGS = -O2
+
+ifeq ($(MACHINE),x86_64)
+   
+   ifeq ($(LP64),)
+      LP64      = yes
+   endif
+   ifeq ($(LP64),yes)
+      CFLAGS	+= -m64
+   else
+      CFLAGS	+= -m32
+   endif
+endif
+
+ifeq ($(CXX),c++)
+
+   ifeq ($(MACHINE),sparc64)
+      #
+      # We are an ultra, at least, and so have the atomic instructions
+      #
+      USE_SPARC_ASM	= yes
+      CXXARCHFLAGS	= -mcpu=ultrasparc -pipe -Wno-deprecated -DUSE_SPARC_ASM
+   endif
+
+   ifeq ($(MACHINE),sparc)
+      #
+      # We are a sun4m or sun4c
+      # On sun4m, there is a bug in some CPU/kernel/gcc configurations which
+      # prevent us from using '-mcpu=v8'
+      #
+      USE_SPARC_ASM	= no
+      CXXARCHFLAGS	= -mtune=v8 -pipe -Wno-deprecated -DICE_USE_MUTEX_SHARED
+   endif
+
+   ifeq ($(MACHINE),x86_64)
+      ifeq ($(LP64),yes)
+         CXXARCHFLAGS	+= -m64
+      else
+         CXXARCHFLAGS	+= -m32
+      endif
+      lp64suffix	= 64
+   endif
+
+   CXXFLAGS		= $(CXXARCHFLAGS) -fPIC -ftemplate-depth-128 -Wall -D_REENTRANT
+
+   ifeq ($(OPTIMIZE),yes)
+      CXXFLAGS		+= -O2 -DNDEBUG
+   else
+      CXXFLAGS		+= -g
+   endif
+
+   ifeq ($(USE_SPARC_ASM),yes)
+      CFLAGS		= -O2 -fPIC -mcpu=ultrasparc -pipe -DNDEBUG -DUSE_SPARC_ASM
+   endif
+   ifeq ($(USE_SPARC_ASM),no)
+      CFLAGS		= -O2 -fPIC -mcpu=v8 -pipe -DNDEBUG -DICE_USE_MUTEX_SHARED
+   endif
+
+   #
+   # C++ run-time libraries, necessary for linking some shared libraries.
+   #
+   CXXLIBS		=
+
+   mkshlib		= $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4) -lpthread
+
+   mklib		= ar cr $(1) $(2)
+
+   rpathlink            = -Wl,-rpath-link,$(1) 
+
+   LDPLATFORMFLAGS 	= -Wl,--enable-new-dtags -Wl,-rpath,$(install_libdir)
+
+endif
+
+ifeq ($(CXX),icpc)
+
+   CXXFLAGS		= -fPIC -D_REENTRANT    
+
+   ifeq ($(OPTIMIZE),yes)
+      CXXFLAGS		+= -O2 -DNDEBUG
+   else
+      CXXFLAGS		+= -g
+   endif
+
+   #
+   # C++ run-time libraries, necessary for linking some shared libraries.
+   #
+   CXXLIBS		=
+
+   mkshlib		= $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4) -lpthread
+
+   rpathlink            = -Wl,-rpath-link,$(1) 
+
+endif
+
+BASELIBS		= -lIceUtil $(STLPORT_LIBS) -lpthread 
+LIBS			= $(BZIP2_RPATH_LINK) -lIce $(BASELIBS)
+
+ICEUTIL_OS_LIBS         = 
+ICE_OS_LIBS             = -ldl
+
+PLATFORM_HAS_READLINE   = yes
+
+export LD_LIBRARY_PATH	:= $(libdir):$(LD_LIBRARY_PATH)
