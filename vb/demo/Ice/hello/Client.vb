@@ -24,7 +24,9 @@ Module HelloC
             Console.WriteLine("D: send greeting as batch datagram")
             Console.WriteLine("f: flush all batch requests")
             Console.WriteLine("T: set a timeout")
-            Console.WriteLine("S: switch secure mode on/off")
+            If _haveSSL Then
+                Console.WriteLine("S: switch secure mode on/off")
+            End If
             Console.WriteLine("s: shutdown server")
             Console.WriteLine("x: exit")
             Console.WriteLine("?: help")
@@ -32,7 +34,16 @@ Module HelloC
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
             Dim properties As Ice.Properties = communicator().getProperties()
-            Dim proxyProperty As String = "Hello.Proxy"
+            Dim proxyProperty As String
+            Try
+                communicator.getPluginManager().getPlugin("IceSSL")
+                proxyProperty = "Hello.ProxyWithSSL"
+                _haveSSL = True
+            Catch ex As Ice.NotRegisteredException
+                proxyProperty = "Hello.Proxy"
+                Console.WriteLine("SSL support not enabled (requires .NET 2.0 or later)")
+            End Try
+
             Dim proxy As String = properties.getProperty(proxyProperty)
             If proxy.Length = 0 Then
                 Console.Error.WriteLine("property `" & proxyProperty & "' not set")
@@ -70,17 +81,17 @@ Module HelloC
                     ElseIf line.Equals("O") Then
                         batchOneway.sayHello()
                     ElseIf line.Equals("d") Then
-			If secure Then
+                        If secure Then
                             Console.WriteLine("secure datagrams are not supported")
-			Else
-			    datagram.sayHello()
-			End If
+                        Else
+                            datagram.sayHello()
+                        End If
                     ElseIf line.Equals("D") Then
-			If secure Then
+                        If secure Then
                             Console.WriteLine("secure datagrams are not supported")
-			Else
-			    batchDatagram.sayHello()
-			End If
+                        Else
+                            batchDatagram.sayHello()
+                        End If
                     ElseIf line.Equals("f") Then
                         communicator.flushBatchRequests()
                     ElseIf line.Equals("T") Then
@@ -130,6 +141,8 @@ Module HelloC
 
             Return 0
         End Function
+
+        Private _haveSSL As Boolean = False
     End Class
 
     Public Sub Main(ByVal args() As String)
