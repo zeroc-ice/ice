@@ -27,7 +27,7 @@ Freeze::TransactionI::commit()
 {
     assert(_txn != 0);
 
-    long txnId;
+    long txnId = 0;
     try
     {
 	_connection->closeAllIterators();
@@ -79,7 +79,7 @@ Freeze::TransactionI::rollback()
 {
     assert(_txn != 0);
 
-    long txnId;
+    long txnId = 0;
     try
     {
 	_connection->closeAllIterators();
