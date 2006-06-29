@@ -1,9 +1,4 @@
 #
-# To use SSL you must enable it in the following endpoints and enable
-# Ice.Plugin.IceSSL below.
-#
-
-#
 # The server creates one single object adapter with the name
 # "Hello". The following line sets the endpoints for this
 # adapter. The property be used is selected depending on whether
