@@ -51,15 +51,20 @@ FileUserAccountMapperI::FileUserAccountMapperI(const string& filename)
 	    continue;
 	}
 
-	string::size_type end = line.find_last_of(delim);
+	string::size_type end = line.find_first_of(delim, beg);
 	if(end == string::npos || end <= beg)
 	{
 	    continue;
-	}
-    
-	string user = line.substr(beg, end - beg);
-	string account = line.substr(end + 1);
+	}    
+	string account = line.substr(beg, end - beg);
 
+	beg = line.find_first_not_of(delim, end);
+	if(beg == string::npos)
+	{
+	    continue;
+	}    
+	string user = line.substr(beg);
+	
 	assert(!user.empty());
 	assert(!account.empty());
 
