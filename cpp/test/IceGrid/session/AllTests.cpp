@@ -539,6 +539,24 @@ allTests(const Ice::CommunicatorPtr& communicator)
     Glacier2::RouterPrx adminRouter1 = Glacier2::RouterPrx::uncheckedCast(adminRouter->ice_connectionId("admRouter1"));
     Glacier2::RouterPrx adminRouter2 = Glacier2::RouterPrx::uncheckedCast(adminRouter->ice_connectionId("admRouter2"));
 
+    //
+    // TODO: Find a better way to wait for the Glacier2 router to be
+    // fully started...
+    //
+    while(true)
+    {
+	try
+	{
+	    router1->ice_ping();
+	    adminRouter1->ice_ping();
+	    break;
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+	}
+    }
+
     { 
 	cout << "testing username/password sessions... " << flush;
 
