@@ -54,11 +54,7 @@ ifneq ($(PYTHON_HOME),)
     # The Python shared library is installed in $(PYTHON_HOME)/lib on HP-UX
     # rather than $(PYTHON_HOME)/lib/$(PYTHON_VERSION)/config.
     #
-    ifeq ($(shell test -f $(PYTHON_HOME)/lib/lib$(PYTHON_VERSION).sl && echo 0),0)
-	PYTHON_LIB_DIR	= $(PYTHON_HOME)/lib
-    else
-	PYTHON_LIB_DIR	= $(PYTHON_HOME)/lib/$(PYTHON_VERSION)/config
-    endif
+    PYTHON_LIB_DIR	= $(PYTHON_HOME)/lib
 else
     #
     # If multiple versions of Python are installed and you want a specific
