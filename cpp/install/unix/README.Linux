@@ -46,8 +46,6 @@ This distribution depends on a number of third-party libraries:
 - expat 1.95.8
 - OpenSSL 0.9.8a
 - bzip2 1.0.3
-- readline 5.0.3
-- ncurses 5.5
 - libgcc 4.1.1
 - libstdc++ 4.1.1 
 
@@ -58,8 +56,6 @@ Berkeley DB    db4, db4-utils, db4-java
 expat 	       expat
 OpenSSL	       openssl
 bzip2          bzip2-libs
-readline       readline
-ncurses        ncurses
 libgcc         libgcc
 libstdc++      libstdc++
 

@@ -25,12 +25,6 @@ prefix			?= /opt/Ice-$(VERSION)
 #
 #LP64			?= yes
 
-#
-# Define GPL_BUILD as yes if you want to build a copy of Ice licensed
-# to you under the GNU Public License v2. This adds a "no-warranty"
-# notice and accompanying show commands to interactive programs.
-#
-GPL_BUILD		?= yes
 
 #
 # Define USE_READLINE as yes if you want to build parts of Ice using
@@ -45,17 +39,12 @@ GPL_BUILD		?= yes
 # software in any program. In particular the OpenSSL license is
 # GPL-incompatible.
 #
-# On Linux and other free operating systems, readline and OpenSSL are
-# usually distributed with the operating system, which may be a
-# solution to this incompatibility.
-#
 # If you combine Ice with more GPL-incompatible software, or have
 # licensed Ice under a commercial (non-GPL) license, you should ponder
 # the licensing implications of using readline.
 # 
-ifeq ($(GPL_BUILD),yes)
-   USE_READLINE		   ?= yes
-endif
+
+USE_READLINE		?= no
 
 #
 # If you want to use STLport, set STLPORT_HOME to the STLport
@@ -179,14 +168,6 @@ EXPAT_FLAGS             = $(if $(EXPAT_HOME),-I$(EXPAT_HOME)/include)
 EXPAT_LIBS              = $(if $(EXPAT_HOME),-L$(EXPAT_HOME)/$(libsubdir)) -lexpat
 EXPAT_RPATH_LINK        = $(if $(EXPAT_HOME),$(call rpathlink,$(EXPAT_HOME)/$(libsubdir)))
 
-#
-# The GPL_BUILD flag is used only where readline may be
-# used.
-#
-
-ifeq ($(GPL_BUILD),yes)
-    READLINE_FLAGS	= -DGPL_BUILD
-endif
 
 ifeq ($(PLATFORM_HAS_READLINE),yes)
     ifeq ($(USE_READLINE),yes)

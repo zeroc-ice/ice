@@ -13,8 +13,6 @@ ice-3.1.0-1.i386.rpm
     * expat
     * openssl
     * bzip2-libs
-    * readline
-    * ncurses
     * libgcc
     * libstdc++
 

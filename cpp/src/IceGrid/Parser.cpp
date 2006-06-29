@@ -17,10 +17,6 @@
 #include <IceGrid/DescriptorParser.h>
 #include <IceGrid/DescriptorHelper.h>
 
-#ifdef GPL_BUILD
-#   include <IceGrid/GPL.h>
-#endif
-
 #ifdef HAVE_READLINE
 #   include <readline/readline.h>
 #   include <readline/history.h>
@@ -120,11 +116,6 @@ Parser::usage()
 	"                            \"object list Ice*\".\n"
 	"\n"
         "shutdown                    Shut the IceGrid registry down.\n"
-#ifdef GPL_BUILD
-	"show copying                Show conditions for redistributing copies of this\n"
-	"                            program.\n"
-	"show warranty               Show the warranty for this program.\n"
-#endif
 	;
 }
 
@@ -1162,30 +1153,19 @@ Parser::shutdown()
 void
 Parser::showBanner()
 {
-    cout << "Ice " << ICE_STRING_VERSION << "  Copyright 2003-2005 ZeroC, Inc." << endl;
-#ifdef GPL_BUILD
-    cout << gplBanner << endl;
-#endif
+    cout << "Ice " << ICE_STRING_VERSION << "  Copyright 2003-2006 ZeroC, Inc." << endl;
 }
 
 void
 Parser::showCopying()
 {
-#if defined(GPL_BUILD)
-    cout << gplCopying << endl;
-#else
-    cout << "This command is not implemented yet." << endl;
-#endif
+    cout << "This command is not implemented." << endl;
 }
 
 void
 Parser::showWarranty()
 {
-#if defined(GPL_BUILD)
-    cout << gplWarranty << endl;
-#else
-    cout << "This command is not implemented yet." << endl;
-#endif
+    cout << "This command is not implemented." << endl;
 }
 
 

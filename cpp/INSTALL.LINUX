@@ -39,20 +39,14 @@ Ice has dependencies on a number of third-party libraries:
 
 - bzip2 1.0
 
-- readline and ncurses (optional, but used unless you set USE_READLINE
-  to no in config/Make.rules)
-
-Berkeley DB, expat, OpenSSL, bzip2, readline and ncurses are usually 
-included with your Linux distribution, or you can download them from 
-the following locations:
+Berkeley DB, expat, OpenSSL, and bzip2 are usually included with your 
+Linux distribution, or you can download them from the following 
+locations:
 
 Berkeley DB    http://www.sleepycat.com/download            
 expat          http://sourceforge.net/projects/expat/
 OpenSSL        http://www.openssl.org
 bzip2          http://sources.redhat.com/bzip2
-readline       http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html
-ncurses        http://www.gnu.org/software/ncurses/ncurses.html
-
 
 Python
 ------
