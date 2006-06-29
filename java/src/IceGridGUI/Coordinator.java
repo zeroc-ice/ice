@@ -271,13 +271,7 @@ public class Coordinator
 	    add(helpMenu);
 
 	    helpMenu.add(_helpContents);
-	    if(GPL_BUILD)
-	    {
-		helpMenu.addSeparator();
-		helpMenu.add(_copying);
-		helpMenu.add(_warranty);
-	    }
-
+	    
 	    helpMenu.addSeparator();
 	    helpMenu.add(_about);
 	}
@@ -1242,8 +1236,6 @@ public class Coordinator
 
 	_liveDeploymentRoot = new IceGridGUI.LiveDeployment.Root(this);
 
-	_licenseDialog = new LicenseDialog(_mainFrame);
-
 	_sessionKeeper = new SessionKeeper(this);
 
 	_shutdownHook = new Thread("Shutdown hook")
@@ -1508,23 +1500,7 @@ public class Coordinator
 		    helpContents();
 		}	
 	    };
-
-	_copying = new AbstractAction("Copying conditions")
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    _licenseDialog.show("TOP");
-		}
-	    };
-
-	_warranty = new AbstractAction("(Non)Warranty")
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    _licenseDialog.show("WARRANTY");
-		}
-	    };
-		
+	
 	_about = new AbstractAction("About")
 	    {
 		public void actionPerformed(ActionEvent e) 
@@ -1896,8 +1872,6 @@ public class Coordinator
     private SessionKeeper _sessionKeeper;
 
     private Object _clipboard;
-
-    private LicenseDialog _licenseDialog;
     
     //
     // Actions
@@ -1920,8 +1894,6 @@ public class Coordinator
     private Action _back;
     private Action _forward;
     private Action _helpContents;
-    private Action _copying;
-    private Action _warranty;
     private Action _about;
     private Action _patchApplication;
 
@@ -1958,9 +1930,4 @@ public class Coordinator
     private String _fileParser;
 
     static private final int HISTORY_MAX_SIZE = 20;
-
-    //
-    // TODO: should come from build system
-    //
-    static private final boolean GPL_BUILD = true;
 }
