@@ -4729,6 +4729,11 @@ Specifies a space-separated list of adapter identifiers. If defined, the
 &Glacier2; router only allows requests to &Ice; objects with an adapter identifier
 that matches one of the entries in this list. 
 </para>
+<para>
+Identifiers that contain spaces must be enclosed in single or double quotes.
+Single or double quotes that appear within an identifier must be escaped with
+a leading backslash.
+</para>
 </section>
 </section>
 
@@ -4810,6 +4815,11 @@ that matches one of the categories in this list. If
 is defined with a non-zero value, the router automatically adds the username of each
 session to this list.
 </para>
+<para>
+Categories that contain spaces must be enclosed in single or double quotes.
+Single or double quotes that appear within a category must be escaped with
+a leading backslash.
+</para>
 </section>
 </section>
 
@@ -4826,13 +4836,18 @@ Specifies a space-separated list of identities. If defined, the
 &Glacier2; router only allows requests to &Ice; objects with an identity
 that matches one of the entries in this list. 
 </para>
+<para>
+Identities that contain spaces must be enclosed in single or double quotes.
+Single or double quotes that appear within an identity must be escaped with
+a leading backslash.
+</para>
 </section>
 </section>
 
-<section><title>Glacier2.Filter.MaxProxyLength</title>
+<section><title>Glacier2.Filter.ProxyLengthMax</title>
 <section><title>Synopsis</title>
 <synopsis>
-Glacier2.Filter.MaxProxyLength=<replaceable>num</replaceable>
+Glacier2.Filter.ProxyLengthMax=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
