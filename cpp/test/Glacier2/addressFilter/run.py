@@ -275,7 +275,7 @@ for testcase in testcases:
     if not len(rejectFilter) == 0:
 	routerConfig.write("Glacier2.Filter.Address.Reject=%s\n" % rejectFilter)
     if not len(maxEndpoints) == 0:
-	routerConfig.write("Glacier2.Filter.MaxProxyLength=%s\n" % maxEndpoints)
+	routerConfig.write("Glacier2.Filter.ProxyLengthMax=%s\n" % maxEndpoints)
     if not len(categoryFilter) == 0:
 	routerConfig.write("Glacier2.Filter.Category.Accept=%s\n" % categoryFilter)
     if not len(idFilter) == 0:

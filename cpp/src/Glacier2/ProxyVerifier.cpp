@@ -901,12 +901,11 @@ Glacier2::ProxyVerifier::ProxyVerifier(const CommunicatorPtr& communicator, cons
 	Glacier2::parseProperty(communicator, s, _rejectRules, _traceLevel);
     }
 
-    s = communicator->getProperties()->getProperty("Glacier2.Filter.MaxProxyLength");
+    s = communicator->getProperties()->getProperty("Glacier2.Filter.ProxyLengthMax");
     if(s != "")
     {
 	_rejectRules.push_back(new MaxEndpointsRule(communicator, s, _traceLevel));
     }
-    
 }
 
 Glacier2::ProxyVerifier::~ProxyVerifier()
