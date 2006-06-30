@@ -551,7 +551,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    adminRouter1->ice_ping();
 	    break;
 	}
-	catch(const Ice::LocalException& ex)
+	catch(const Ice::LocalException&)
 	{
 	    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
 	}
