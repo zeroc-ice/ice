@@ -23,3 +23,4 @@ install::
 	$(call installdata,Make.rules,$(prefix)/config)
 	$(call installdata,Make.rules.$(UNAME),$(prefix)/config)
 	$(call installdata,templates.xml,$(prefix)/config)
+	$(call installdata,upgradeicegrid.py,$(prefix)/config)
