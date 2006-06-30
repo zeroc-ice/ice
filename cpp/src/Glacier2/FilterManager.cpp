@@ -233,7 +233,7 @@ Glacier2::FilterManager::create(const CommunicatorPtr& communicator, const Objec
     PropertiesPtr props = communicator->getProperties();
     //
     // DEPRECATED PROPERTY: Glacier2.AllowCategories is to be deprecated
-    // and superseded by Glacier2.Filter.Categories.Allow.
+    // and superseded by Glacier2.Filter.Categories.Accept.
     //
     string allow = props->getProperty("Glacier2.AllowCategories");
     if(allow.empty())
