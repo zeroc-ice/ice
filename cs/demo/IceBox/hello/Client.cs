@@ -14,7 +14,7 @@ public class Client : Ice.Application
 {
     private static void menu()
     {
-        Console.WriteLine(
+        Console.Write(
 	    "usage:\n" +
 	    "t: send greeting as twoway\n" +
 	    "o: send greeting as oneway\n" +
@@ -22,14 +22,27 @@ public class Client : Ice.Application
 	    "d: send greeting as datagram\n" +
 	    "D: send greeting as batch datagram\n" +
 	    "f: flush all batch requests\n" +
-	    "T: set a timeout\n" +
-	    "S: switch secure mode on/off\n" +
-	    "x: exit\n" +
+	    "T: set a timeout");
+	if(_haveSSL)
+	{
+	    Console.Write("\nS: switch secure mode on/off");
+	    }
+	Console.WriteLine(
+	    "\nx: exit\n" +
 	    "?: help\n");
     }
     
     public override int run(string[] args)
     {
+	try
+	{
+	    communicator().getPluginManager().getPlugin("IceSSL");
+	    _haveSSL = true;
+	}
+	catch(Ice.NotRegisteredException)
+	{
+	}
+
         Ice.Properties properties = communicator().getProperties();
         string proxyProperty = "Hello.Proxy";
         string proxy = properties.getProperty(proxyProperty);
@@ -182,4 +195,6 @@ public class Client : Ice.Application
             System.Environment.Exit(status);
         }
     }
+
+    private bool _haveSSL = false;
 }

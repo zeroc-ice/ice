@@ -35,20 +35,17 @@ public class Client : Ice.Application
     
     public override int run(string[] args)
     {
-        Ice.Properties properties = communicator().getProperties();
-        string proxyProperty;
 	try
 	{
 	    communicator().getPluginManager().getPlugin("IceSSL");
-	    proxyProperty = "Hello.ProxyWithSSL";
 	    _haveSSL = true;
 	}
 	catch(Ice.NotRegisteredException)
 	{
-	    proxyProperty = "Hello.Proxy";
-	    Console.WriteLine("SSL support not enabled (requires .NET 2.0 or later)");
 	}
 
+        Ice.Properties properties = communicator().getProperties();
+        string proxyProperty = "Hello.Proxy";
         string proxy = properties.getProperty(proxyProperty);
         if(proxy.Length == 0)
         {
@@ -204,5 +201,5 @@ public class Client : Ice.Application
 	}
     }
 
-    private static bool _haveSSL = false;
+    private bool _haveSSL = false;
 }

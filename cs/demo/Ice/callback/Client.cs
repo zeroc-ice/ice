@@ -14,21 +14,33 @@ public class Client : Ice.Application
 {
     private static void menu()
     {
-        Console.Out.WriteLine("usage:\n"
-	                      + "t: send callback as twoway\n"
-			      + "o: send callback as oneway\n"
-			      + "O: send callback as batch oneway\n"
-			      + "d: send callback as datagram\n"
-			      + "D: send callback as batch datagram\n"
-			      + "f: flush all batch requests\n"
-			      + "S: switch secure mode on/off\n"
-			      + "s: shutdown server\n"
+        Console.Out.Write("usage:\n"
+	                  + "t: send callback as twoway\n"
+			  + "o: send callback as oneway\n"
+			  + "O: send callback as batch oneway\n"
+			  + "d: send callback as datagram\n"
+			  + "D: send callback as batch datagram\n"
+			  + "f: flush all batch requests");
+	if(_haveSSL)
+	{
+	    Console.Out.Write("\nS: switch secure mode on/off");
+	}
+	Console.Out.WriteLine("\ns: shutdown server\n"
 			      + "x: exit\n"
 			      + "?: help\n");
     }
     
     public override int run(string[] args)
     {
+	try
+	{
+	    communicator().getPluginManager().getPlugin("IceSSL");
+	    _haveSSL = true;
+	}
+	catch(Ice.NotRegisteredException)
+	{
+	}
+
         Ice.Properties properties = communicator().getProperties();
         string proxyProperty = "Callback.Client.CallbackServer";
         string proxy = properties.getProperty(proxyProperty);
@@ -174,4 +186,6 @@ public class Client : Ice.Application
             System.Environment.Exit(status);
         }
     }
+
+    private bool _haveSSL = false;
 }
