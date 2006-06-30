@@ -272,23 +272,32 @@ namespace Ice
 	    
 	    System.Reflection.Assembly pluginAssembly = null;
 	    string assemblyName = entryPoint.Substring(0, sepPos);
-	    try
-	    {
-		if (System.IO.File.Exists(assemblyName))
-		{
-		    pluginAssembly = System.Reflection.Assembly.LoadFrom(assemblyName);
-		}
-		else
-		{
-		    pluginAssembly = System.Reflection.Assembly.Load(assemblyName);
-		}
-	    }
-	    catch(System.Exception ex)
-	    {
-		PluginInitializationException e = new PluginInitializationException();
-		e.reason = err + "unable to load assembly: '" + assemblyName + "': " + ex.ToString();
-		throw e;
-	    }
+            try
+            {
+                if (System.IO.File.Exists(assemblyName))
+                {
+                    pluginAssembly = System.Reflection.Assembly.LoadFrom(assemblyName);
+                }
+                else
+                {
+                    pluginAssembly = System.Reflection.Assembly.Load(assemblyName);
+                }
+            }
+            catch(System.Exception ex)
+            {
+                //
+                // IceSSL is not supported with .NET 1.1. We avoid throwing an exception in that case,
+                // so the same configuration can be used with .NET 1.1 and .NET 2.0.
+                //
+                if(System.Environment.Version.Major == 1 && name == "IceSSL")
+                {
+                    return;
+                }
+
+                PluginInitializationException e = new PluginInitializationException();
+                e.reason = err + "unable to load assembly: '" + assemblyName + "': " + ex.ToString();
+                throw e;
+            }
 	    
 	    //
 	    // Instantiate the class.
