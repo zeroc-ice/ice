@@ -24,12 +24,20 @@ Module HelloIceBoxC
             Console.WriteLine("D: send greeting as batch datagram")
             Console.WriteLine("f: flush all batch requests")
             Console.WriteLine("T: set a timeout")
-            Console.WriteLine("S: switch secure mode on/off")
+            If _haveSSL Then
+                Console.WriteLine("S: switch secure mode on/off")
+            End If
             Console.WriteLine("x: exit")
             Console.WriteLine("?: help")
         End Sub
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
+            Try
+                communicator().getPluginManager().getPlugin("IceSSL")
+                _haveSSL = True
+            Catch ex As Ice.NotRegisteredException
+            End Try
+
             Dim properties As Ice.Properties = communicator().getProperties()
             Dim proxyProperty As String = "Hello.Proxy"
             Dim proxy As String = properties.getProperty(proxyProperty)
@@ -69,17 +77,17 @@ Module HelloIceBoxC
                     ElseIf line.Equals("O") Then
                         batchOneway.sayHello()
                     ElseIf line.Equals("d") Then
-			If secure Then
+                        If secure Then
                             Console.WriteLine("secure datagrams are not supported")
-			Else
-			    datagram.sayHello()
-			End If
+                        Else
+                            datagram.sayHello()
+                        End If
                     ElseIf line.Equals("D") Then
-			If secure Then
+                        If secure Then
                             Console.WriteLine("secure datagrams are not supported")
-			Else
-			    batchDatagram.sayHello()
-			End If
+                        Else
+                            batchDatagram.sayHello()
+                        End If
                     ElseIf line.Equals("f") Then
                         communicator.flushBatchRequests()
                     ElseIf line.Equals("T") Then
@@ -127,6 +135,8 @@ Module HelloIceBoxC
 
             Return 0
         End Function
+
+        Private _haveSSL As Boolean = False
     End Class
 
     Public Sub Main(ByVal args() As String)

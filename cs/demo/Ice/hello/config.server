@@ -1,11 +1,10 @@
 #
 # The server creates one single object adapter with the name
 # "Hello". The following line sets the endpoints for this
-# adapter. The property be used is selected depending on whether
-# the IceSLL plugin is active. (SSL is supported only with .NET 2.0 and later.)
+# adapter. (The SSL endpoint is ignored with .NET 1.1.)
 #
-Endpoints=tcp -p 10000:udp -c -p 10000
-EndpointsWithSSL=tcp -p 10000:udp -c -p 10000:ssl -p 10001
+Hello.Endpoints=tcp -p 10000:udp -c -p 10000:ssl -p 10001
+
 #
 # Warn about connection exceptions.
 #

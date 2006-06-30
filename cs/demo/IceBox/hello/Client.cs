@@ -196,5 +196,5 @@ public class Client : Ice.Application
         }
     }
 
-    private bool _haveSSL = false;
+    private static bool _haveSSL = false;
 }

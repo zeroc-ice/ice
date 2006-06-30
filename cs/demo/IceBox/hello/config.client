@@ -1,13 +1,9 @@
 #
-# To use SSL you must enable it in the following endpoints and enable
-# Ice.Plugin.IceSSL below.
-#
-
-#
 # The client reads this property to create the reference to the
-# "hello" object in the server.
+# "hello" object in the server. (The SSL endpoint is ignored
+# with .NET 1.1.)
 #
-Hello.Proxy=hello:tcp -p 10000:udp -p 10000#:ssl -p 10001
+Hello.Proxy=hello:tcp -p 10000:udp -p 10000:ssl -p 10001
 
 #
 # Warn about connection exceptions
@@ -35,7 +31,7 @@ Ice.Warn.Connections=1
 #
 # SSL plugin configuration
 #
-#Ice.Plugin.IceSSL=../../../bin/icesslcs.dll:IceSSL.PluginFactory
+Ice.Plugin.IceSSL=../../../bin/icesslcs.dll:IceSSL.PluginFactory
 IceSSL.DefaultDir=../../../certs
 IceSSL.ImportCert.LocalMachine.AuthRoot=cacert.pem
 IceSSL.CertFile=c_rsa1024.pfx

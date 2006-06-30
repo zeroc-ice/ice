@@ -15,7 +15,7 @@ Ice.ThreadPerConnection.StackSize=262144
 # The client-visible endpoint of Glacier2. This should be an endpoint
 # visible from the public Internet, and it should be secure.
 # 
-Glacier2.Client.Endpoints=tcp -p 10005 -h 127.0.0.1
+Glacier2.Client.Endpoints=tcp -p 10006 -h 127.0.0.1:ssl -p 10005 -h 127.0.0.1
 
 #
 # The server-visible endpoint of Glacier2. This endpoint is only
@@ -136,8 +136,9 @@ Ice.Warn.Connections=1
 #
 # SSL Configuration
 #
-Ice.Plugin.IceSSL=IceSSL:createIceSSL
+Ice.Plugin.IceSSL=IceSSL:createIceStorm
 IceSSL.DefaultDir=../../../certs
 IceSSL.CertAuthFile=cacert.pem
 IceSSL.CertFile=s_rsa1024_pub.pem
 IceSSL.KeyFile=s_rsa1024_priv.pem
+Ice.ThreadPerConnection=1

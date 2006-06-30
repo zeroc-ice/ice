@@ -1,14 +1,10 @@
-#
-# To use SSL you must enable it in the following endpoints and enable
-# Ice.Plugin.IceSSL below.
-#
-
 IceBox.InstanceName=DemoIceBox
 
 #
-# The IceBox server endpoint configuration
+# The IceBox server endpoint configuration. (The SSL
+# endpoint is ignored with .NET 1.1.)
 #
-IceBox.ServiceManager.Endpoints=tcp -p 9998#:ssl -p 9999
+IceBox.ServiceManager.Endpoints=tcp -p 9998:ssl -p 9999
 
 #
 # The hello service
@@ -18,9 +14,9 @@ IceBox.Service.Hello=helloservice.dll:HelloServiceI
 #
 # The server creates one single object adapter with the name of
 # the service. The following line sets the endpoints for this
-# adapter.
+# adapter. (The SSL endpoint is ignored with .NET 1.1.)
 #
-Hello.Endpoints=tcp -p 10000:udp -p 10000#:ssl -p 10001
+Hello.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
 
 #
 # Warn about connection exceptions
@@ -48,7 +44,7 @@ Ice.Warn.Connections=1
 #
 # SSL plugin configuration
 #
-#Ice.Plugin.IceSSL=../../../bin/icesslcs.dll:IceSSL.PluginFactory
+Ice.Plugin.IceSSL=../../../bin/icesslcs.dll:IceSSL.PluginFactory
 IceSSL.DefaultDir=../../../certs
 IceSSL.ImportCert.LocalMachine.AuthRoot=cacert.pem
 IceSSL.CertFile=s_rsa1024.pfx

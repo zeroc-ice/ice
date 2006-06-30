@@ -1,11 +1,10 @@
 #
 # The client reads this property to create the reference to the
-# "hello" object in the server. The proxy to be used is selected
-# depending on whether the IceSLL plugin is active. (SSL is supported
-# only with .NET 2.0 and later.)
+# "hello" object in the server. (The SSL endpoint is ignored
+# with .NET 1.1.)
 #
-Hello.Proxy=hello:tcp -p 10000:udp -p 10000
-Hello.ProxyWithSSL=hello:tcp -p 10000:udp -p 10000:ssl -p 10001
+Hello.Proxy=hello:tcp -p 10000:udp -p 10000:ssl -p 10001
+
 #
 # Warn about connection exceptions.
 #

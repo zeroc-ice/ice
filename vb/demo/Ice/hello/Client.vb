@@ -33,17 +33,14 @@ Module HelloC
         End Sub
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
-            Dim properties As Ice.Properties = communicator().getProperties()
-            Dim proxyProperty As String
             Try
                 communicator().getPluginManager().getPlugin("IceSSL")
-                proxyProperty = "Hello.ProxyWithSSL"
                 _haveSSL = True
             Catch ex As Ice.NotRegisteredException
-                proxyProperty = "Hello.Proxy"
-                Console.WriteLine("SSL support not enabled (requires .NET 2.0 or later)")
             End Try
 
+            Dim properties As Ice.Properties = communicator().getProperties()
+            Dim proxyProperty As String = "Hello.Proxy"
             Dim proxy As String = properties.getProperty(proxyProperty)
             If proxy.Length = 0 Then
                 Console.Error.WriteLine("property `" & proxyProperty & "' not set")

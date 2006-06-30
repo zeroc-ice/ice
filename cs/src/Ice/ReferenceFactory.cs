@@ -432,7 +432,7 @@ namespace IceInternal
 		    }
 		    else
 		    {
-		        unknownEndpoints.Add(endp);
+		        unknownEndpoints.Add(es);
 		    }
 		}
 		if(endpoints.Count == 0)

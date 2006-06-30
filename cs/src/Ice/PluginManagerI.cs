@@ -19,259 +19,259 @@ namespace Ice
 
     public sealed class PluginManagerI : LocalObjectImpl, PluginManager
     {
-	private static string _kindOfObject = "plugin";
+        private static string _kindOfObject = "plugin";
 
-	public void initializePlugins()
-	{
-	    if(_initialized)
-	    {
-		InitializationException ex = new InitializationException();
-		ex.reason = "plugins already initialized";
-		throw ex;
-	    }
+        public void initializePlugins()
+        {
+            if(_initialized)
+            {
+                InitializationException ex = new InitializationException();
+                ex.reason = "plugins already initialized";
+                throw ex;
+            }
 
-	    //
-	    // Invoke initialize() on the plugins, in the order they were loaded.
-	    //
-	    ArrayList initializedPlugins = new ArrayList();
-	    try
-	    {
-		foreach(Plugin p in _initOrder)
-		{
-		    p.initialize();
-		    initializedPlugins.Add(p);
-		}
-	    }
-	    catch(Exception)
-	    {
-		//
-		// Destroy the plugins that have been successfully initialized, in the
-		// reverse order.
-		//
-		initializedPlugins.Reverse();
-		foreach(Plugin p in initializedPlugins)
-		{
-		    try
-		    {
-			p.destroy();
-		    }
-		    catch(Exception)
-		    {
-			// Ignore.
-		    }
-		}
-		throw;
-	    }
+            //
+            // Invoke initialize() on the plugins, in the order they were loaded.
+            //
+            ArrayList initializedPlugins = new ArrayList();
+            try
+            {
+                foreach(Plugin p in _initOrder)
+                {
+                    p.initialize();
+                    initializedPlugins.Add(p);
+                }
+            }
+            catch(Exception)
+            {
+                //
+                // Destroy the plugins that have been successfully initialized, in the
+                // reverse order.
+                //
+                initializedPlugins.Reverse();
+                foreach(Plugin p in initializedPlugins)
+                {
+                    try
+                    {
+                        p.destroy();
+                    }
+                    catch(Exception)
+                    {
+                        // Ignore.
+                    }
+                }
+                throw;
+            }
 
-	    _initialized = true;
-	}
+            _initialized = true;
+        }
 
-	public Plugin getPlugin(string name)
-	{
-	    lock(this)
-	    {
-		if(_communicator == null)
-		{
-		    throw new CommunicatorDestroyedException();
-		}
+        public Plugin getPlugin(string name)
+        {
+            lock(this)
+            {
+                if(_communicator == null)
+                {
+                    throw new CommunicatorDestroyedException();
+                }
 	    
-		Plugin p = (Plugin)_plugins[name];
-		if(p != null)
-		{
-		    return p;
-		}
-		NotRegisteredException ex = new NotRegisteredException();
-		ex.id = name;
-		ex.kindOfObject = _kindOfObject;
-		throw ex;
-	    }
-	}
+                Plugin p = (Plugin)_plugins[name];
+                if(p != null)
+                {
+                    return p;
+                }
+                NotRegisteredException ex = new NotRegisteredException();
+                ex.id = name;
+                ex.kindOfObject = _kindOfObject;
+                throw ex;
+            }
+        }
 
-	public void addPlugin(string name, Plugin plugin)
-	{
-	    lock(this)
-	    {
-		if(_communicator == null)
-		{
-		    throw new CommunicatorDestroyedException();
-		}
+        public void addPlugin(string name, Plugin plugin)
+        {
+            lock(this)
+            {
+                if(_communicator == null)
+                {
+                    throw new CommunicatorDestroyedException();
+                }
 	    
-		if(_plugins.Contains(name))
-		{
-		    AlreadyRegisteredException ex = new AlreadyRegisteredException();
-		    ex.id = name;
-		    ex.kindOfObject = _kindOfObject;
-		    throw ex;
-		}
-		_plugins[name] = plugin;
-	    }
-	}
+                if(_plugins.Contains(name))
+                {
+                    AlreadyRegisteredException ex = new AlreadyRegisteredException();
+                    ex.id = name;
+                    ex.kindOfObject = _kindOfObject;
+                    throw ex;
+                }
+                _plugins[name] = plugin;
+            }
+        }
 
-	public void destroy()
-	{
-	    lock(this)
-	    {
-		if(_communicator != null)
-		{
-		    foreach(Plugin plugin in _plugins.Values)
-		    {
-			plugin.destroy();
-		    }
+        public void destroy()
+        {
+            lock(this)
+            {
+                if(_communicator != null)
+                {
+                    foreach(Plugin plugin in _plugins.Values)
+                    {
+                        plugin.destroy();
+                    }
 		
-		    _communicator = null;
-		}
-	    }
-	}
+                    _communicator = null;
+                }
+            }
+        }
 	
-	public PluginManagerI(Communicator communicator)
-	{
-	    _communicator = communicator;
-	    _plugins = new Hashtable();
-	    _initOrder = new ArrayList();
-	    _initialized = false;
-	}
+        public PluginManagerI(Communicator communicator)
+        {
+            _communicator = communicator;
+            _plugins = new Hashtable();
+            _initOrder = new ArrayList();
+            _initialized = false;
+        }
 
-	public void loadPlugins(ref string[] cmdArgs)
-	{
-	    Debug.Assert(_communicator != null);
+        public void loadPlugins(ref string[] cmdArgs)
+        {
+            Debug.Assert(_communicator != null);
 	    
-	    //
-	    // Load and initialize the plug-ins defined in the property set
-	    // with the prefix "Ice.Plugin.". These properties should
-	    // have the following format:
-	    //
-	    // Ice.Plugin.name=entry_point [args]
-	    //
-	    // The code below is different from the Java/C++ algorithm
-	    // because C# must support full assembly names such as:
-	    //
-	    // Ice.Plugin.Logger=logger, Version=0.0.0.0, Culture=neutral:LoginPluginFactory
-	    //
-	    // If the Ice.PluginLoadOrder property is defined, load the
-	    // specified plugins in the specified order, then load any
-	    // remaining plugins.
-	    //
-	    string prefix = "Ice.Plugin.";
-	    Properties properties = _communicator.getProperties();
-	    PropertyDict plugins = properties.getPropertiesForPrefix(prefix);
+            //
+            // Load and initialize the plug-ins defined in the property set
+            // with the prefix "Ice.Plugin.". These properties should
+            // have the following format:
+            //
+            // Ice.Plugin.name=entry_point [args]
+            //
+            // The code below is different from the Java/C++ algorithm
+            // because C# must support full assembly names such as:
+            //
+            // Ice.Plugin.Logger=logger, Version=0.0.0.0, Culture=neutral:LoginPluginFactory
+            //
+            // If the Ice.PluginLoadOrder property is defined, load the
+            // specified plugins in the specified order, then load any
+            // remaining plugins.
+            //
+            string prefix = "Ice.Plugin.";
+            Properties properties = _communicator.getProperties();
+            PropertyDict plugins = properties.getPropertiesForPrefix(prefix);
 
-	    string loadOrder = properties.getProperty("Ice.PluginLoadOrder");
-	    if(loadOrder.Length > 0)
-	    {
-		char[] delims = { ',', ' ', '\t', '\n' };
-		string[] names = loadOrder.Split(delims);
-		for(int i = 0; i < names.Length; ++i)
-		{
-		    if(names[i].Length == 0)
-		    {
-			continue;
-		    }
+            string loadOrder = properties.getProperty("Ice.PluginLoadOrder");
+            if(loadOrder.Length > 0)
+            {
+                char[] delims = { ',', ' ', '\t', '\n' };
+                string[] names = loadOrder.Split(delims);
+                for(int i = 0; i < names.Length; ++i)
+                {
+                    if(names[i].Length == 0)
+                    {
+                        continue;
+                    }
 
-		    if(_plugins.Contains(names[i]))
-		    {
-			PluginInitializationException e = new PluginInitializationException();
-			e.reason = "plugin `" + names[i] + "' already loaded";
-			throw e;
-		    }
+                    if(_plugins.Contains(names[i]))
+                    {
+                        PluginInitializationException e = new PluginInitializationException();
+                        e.reason = "plugin `" + names[i] + "' already loaded";
+                        throw e;
+                    }
 
-		    string key = "Ice.Plugin." + names[i];
-		    if(plugins.Contains(key))
-		    {
-			string value = (string)plugins[key];
-			loadPlugin(names[i], value, ref cmdArgs);
-			plugins.Remove(key);
-		    }
-		    else
-		    {
-			PluginInitializationException e = new PluginInitializationException();
-			e.reason = "plugin `" + names[i] + "' not defined";
-			throw e;
-		    }
-		}
-	    }
+                    string key = "Ice.Plugin." + names[i];
+                    if(plugins.Contains(key))
+                    {
+                        string value = (string)plugins[key];
+                        loadPlugin(names[i], value, ref cmdArgs);
+                        plugins.Remove(key);
+                    }
+                    else
+                    {
+                        PluginInitializationException e = new PluginInitializationException();
+                        e.reason = "plugin `" + names[i] + "' not defined";
+                        throw e;
+                    }
+                }
+            }
 
-	    //
-	    // Load any remaining plugins that weren't specified in PluginLoadOrder.
-	    //
-	    foreach(DictionaryEntry entry in plugins)
-	    {
-		string name = ((string)entry.Key).Substring(prefix.Length);
-		string val = (string)entry.Value;
-		loadPlugin(name, val, ref cmdArgs);
-	    }
+            //
+            // Load any remaining plugins that weren't specified in PluginLoadOrder.
+            //
+            foreach(DictionaryEntry entry in plugins)
+            {
+                string name = ((string)entry.Key).Substring(prefix.Length);
+                string val = (string)entry.Value;
+                loadPlugin(name, val, ref cmdArgs);
+            }
 
-	    //      
-	    // An application can set Ice.InitPlugins=0 if it wants to postpone
-	    // initialization until after it has interacted directly with the
-	    // plugins.
-	    //      
-	    if(properties.getPropertyAsIntWithDefault("Ice.InitPlugins", 1) > 0)
-	    {           
-		initializePlugins();
-	    }
-	}
+            //      
+            // An application can set Ice.InitPlugins=0 if it wants to postpone
+            // initialization until after it has interacted directly with the
+            // plugins.
+            //      
+            if(properties.getPropertyAsIntWithDefault("Ice.InitPlugins", 1) > 0)
+            {           
+                initializePlugins();
+            }
+        }
 	
-	private void loadPlugin(string name, string pluginSpec, ref string[] cmdArgs)
-	{
-	    Debug.Assert(_communicator != null);
+        private void loadPlugin(string name, string pluginSpec, ref string[] cmdArgs)
+        {
+            Debug.Assert(_communicator != null);
 
-	    //
-	    // Separate the entry point from the arguments. First
-	    // look for the :, then for the next whitespace. This
-	    // represents the end of the entry point.
-	    //
-	    // The remainder of the configuration line represents
-	    // the arguments.
-	    //
-	    string entryPoint = pluginSpec;
-	    string[] args = new string[0];
-	    int start = pluginSpec.IndexOf(':');
-	    if(start != -1)
-	    {
-		//
-		// Find the whitespace.
-		//
-		int pos = pluginSpec.IndexOf(' ', start);
-		if(pos == -1)
-		{
-		    pos = pluginSpec.IndexOf('\t', start);
-		}
-		if(pos == -1)
-		{
-		    pos = pluginSpec.IndexOf('\n', start);
-		}
-		if(pos != -1)
-		{
-		    entryPoint = pluginSpec.Substring(0, pos);
-		    char[] delims = { ' ', '\t', '\n' };
-		    args = pluginSpec.Substring(pos).Trim().Split(delims, pos);
-		}
-	    }
+            //
+            // Separate the entry point from the arguments. First
+            // look for the :, then for the next whitespace. This
+            // represents the end of the entry point.
+            //
+            // The remainder of the configuration line represents
+            // the arguments.
+            //
+            string entryPoint = pluginSpec;
+            string[] args = new string[0];
+            int start = pluginSpec.IndexOf(':');
+            if(start != -1)
+            {
+                //
+                // Find the whitespace.
+                //
+                int pos = pluginSpec.IndexOf(' ', start);
+                if(pos == -1)
+                {
+                    pos = pluginSpec.IndexOf('\t', start);
+                }
+                if(pos == -1)
+                {
+                    pos = pluginSpec.IndexOf('\n', start);
+                }
+                if(pos != -1)
+                {
+                    entryPoint = pluginSpec.Substring(0, pos);
+                    char[] delims = { ' ', '\t', '\n' };
+                    args = pluginSpec.Substring(pos).Trim().Split(delims, pos);
+                }
+            }
 	    
-	    //
-	    // Convert command-line options into properties. First
-	    // we convert the options from the plug-in
-	    // configuration, then we convert the options from the
-	    // application command-line.
-	    //
-	    Properties properties = _communicator.getProperties();
-	    args = properties.parseCommandLineOptions(name, args);
-	    cmdArgs = properties.parseCommandLineOptions(name, cmdArgs);
+            //
+            // Convert command-line options into properties. First
+            // we convert the options from the plug-in
+            // configuration, then we convert the options from the
+            // application command-line.
+            //
+            Properties properties = _communicator.getProperties();
+            args = properties.parseCommandLineOptions(name, args);
+            cmdArgs = properties.parseCommandLineOptions(name, cmdArgs);
 	    
-	    //
-	    // Retrieve the assembly name and the type.
-	    //
-	    string err = "unable to load plugin '" + entryPoint + "': ";
-	    int sepPos = entryPoint.IndexOf(':');
-	    if (sepPos == -1)
-	    {
-		PluginInitializationException e = new PluginInitializationException();
-		e.reason = err + "invalid entry point format";
-		throw e;
-	    }
+            //
+            // Retrieve the assembly name and the type.
+            //
+            string err = "unable to load plugin '" + entryPoint + "': ";
+            int sepPos = entryPoint.IndexOf(':');
+            if (sepPos == -1)
+            {
+                PluginInitializationException e = new PluginInitializationException();
+                e.reason = err + "invalid entry point format";
+                throw e;
+            }
 	    
-	    System.Reflection.Assembly pluginAssembly = null;
-	    string assemblyName = entryPoint.Substring(0, sepPos);
+            System.Reflection.Assembly pluginAssembly = null;
+            string assemblyName = entryPoint.Substring(0, sepPos);
             try
             {
                 if (System.IO.File.Exists(assemblyName))
@@ -291,6 +291,12 @@ namespace Ice
                 //
                 if(System.Environment.Version.Major == 1 && name == "IceSSL")
                 {
+                    if(!_sslWarnOnce)
+                    {
+                        _communicator.getLogger().warning(
+                            "IceSSL plugin not loaded: IceSSL is not supported with .NET 1.1");
+                        _sslWarnOnce = true;
+                    }
                     return;
                 }
 
@@ -370,6 +376,7 @@ namespace Ice
 	private Hashtable _plugins;
 	private ArrayList _initOrder;
 	private bool _initialized;
+        private static bool _sslWarnOnce = false;
     }
 
 }

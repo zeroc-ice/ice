@@ -15,7 +15,7 @@ Ice.ThreadPerConnection.StackSize=262144
 # The client-visible endpoint of Glacier2. This should be an endpoint
 # visible from the public Internet, and it should be secure.
 # 
-Glacier2.Client.Endpoints=tcp -p 10005 -h 127.0.0.1
+Glacier2.Client.Endpoints=tcp -p 10006 -h 127.0.0.1:ssl -p 10005 -h 127.0.0.1
 
 #
 # The server-visible endpoint of Glacier2. This endpoint is only
