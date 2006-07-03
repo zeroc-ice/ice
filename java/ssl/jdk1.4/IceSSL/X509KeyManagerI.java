@@ -9,9 +9,9 @@
 
 package IceSSL;
 
-final class KeyManagerI extends javax.net.ssl.X509ExtendedKeyManager
+final class X509KeyManagerI implements javax.net.ssl.X509KeyManager
 {
-    KeyManagerI(javax.net.ssl.X509KeyManager del, String alias)
+    X509KeyManagerI(javax.net.ssl.X509KeyManager del, String alias)
     {
         _delegate = del;
         _alias = alias;
@@ -24,19 +24,7 @@ final class KeyManagerI extends javax.net.ssl.X509ExtendedKeyManager
     }
 
     public String
-    chooseEngineClientAlias(String[] keyType, java.security.Principal[] issuers, javax.net.ssl.SSLEngine engine)
-    {
-	return _alias;
-    }
-
-    public String
     chooseServerAlias(String keyType, java.security.Principal[] issuers, java.net.Socket socket)
-    {
-	return _alias;
-    }
-
-    public String
-    chooseEngineServerAlias(String[] keyType, java.security.Principal[] issuers, javax.net.ssl.SSLEngine engine)
     {
 	return _alias;
     }
