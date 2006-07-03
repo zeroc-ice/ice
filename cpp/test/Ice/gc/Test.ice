@@ -106,6 +106,50 @@ class CTest
     CDictDict theCDictDict;
 };
 
+module AAA
+{
+    class B;
+
+    sequence<B> BSeq;
+    dictionary<int, B> BDict;
+    struct BStruct
+    {
+	B bMem;
+    };
+
+    class C
+    {
+	Object obj1;
+	Object obj2;
+        B b1;
+        B b2;
+        BSeq x;
+	BDict y;
+	BStruct z;
+    };
+};
+
+module AAA
+{
+    sequence<C> CSeq;
+    dictionary<int, C> CDict;
+    struct CStruct
+    {
+	C cMem;
+    };
+
+    class B
+    {
+	Object obj1;
+	Object obj2;
+    	C c1;
+	C c2;
+        CSeq x;
+	CDict y;
+	CStruct z;
+    };
+};
+
 };
 
 #endif

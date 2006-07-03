@@ -1,6 +1,10 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Fixed a bug in slice2cpp that could cause incorrect code to
+  be generated if a class contained a member to another class,
+  but that class was only forward declared.
+
 - Unsupported port to Solaris 10 on Intel/AMD contributed by
   Markus Bernhardt.
 

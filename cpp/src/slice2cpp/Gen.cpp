@@ -439,8 +439,37 @@ Slice::Gen::TypesVisitor::visitModuleEnd(const ModulePtr& p)
 }
 
 bool
-Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr&)
+Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
+    if(!p->isInterface() && !p->isLocal())
+    {
+	string name = fixKwd(p->name());
+	string scope = fixKwd(p->scope());
+
+	C << sp << nl << "void";
+	C << nl << scope.substr(2) << "__addObject(const " << name << "Ptr& p, ::IceInternal::GCCountMap& c)";
+	C << sb;
+	C << nl << "p->__addObject(c);";
+	C << eb;
+
+	C << sp << nl << "bool";
+	C << nl << scope.substr(2) << "__usesClasses(const " << name << "Ptr& p)";
+	C << sb;
+	C << nl << "return p->__usesClasses();";
+	C << eb;
+
+	C << sp << nl << "void";
+	C << nl << scope.substr(2) << "__decRefUnsafe(" << name << "Ptr& p)";
+	C << sb;
+	C << nl << "p->__decRefUnsafe();";
+	C << eb;
+
+	C << sp << nl << "void";
+	C << nl << scope.substr(2) << "__clearHandleUnsafe(" << name << "Ptr& p)";
+	C << sb;
+	C << nl << "p.__clearHandleUnsafe();";
+	C << eb;
+    }
     return false;
 }
 
@@ -3541,9 +3570,6 @@ Slice::Gen::ObjectVisitor::emitGCFunctions(const ClassDefPtr& p)
 	C << sp << nl << "void" << nl << scoped.substr(2) << "::__gcReachable(::IceInternal::GCCountMap& _c) const";
 	C << sb;
 
-	string vc6Prefix;
-	string otherPrefix;
-
 	bool hasCyclicBase = hasBaseClass && bases.front()->canBeCyclic();
 	if(hasCyclicBase)
 	{
@@ -3585,7 +3611,15 @@ Slice::Gen::ObjectVisitor::emitGCInsertCode(const TypePtr& p, const string& pref
     {
 	C << nl << "if(" << prefix << name << ')';
 	C << sb;
-	C << nl << prefix << name << "->__addObject(_c);";
+	ClassDeclPtr decl = ClassDeclPtr::dynamicCast(p);
+	if(decl)
+	{
+	    C << nl << decl->scope() << "__addObject(" << prefix << name << ", _c);";
+	}
+	else
+	{
+	    C << nl << prefix << name << "->__addObject(_c);";
+	}
 	C << eb;
     }
     else if(StructPtr s = StructPtr::dynamicCast(p))
@@ -3637,10 +3671,21 @@ Slice::Gen::ObjectVisitor::emitGCClearCode(const TypePtr& p, const string& prefi
     {
 	C << nl << "if(" << prefix << name << ")";
 	C << sb;
-	C << nl << "if(" << prefix << name << "->__usesClasses())";
-	C << sb;
-	C << nl << prefix << name << "->__decRefUnsafe();";
-	C << nl << prefix << name << ".__clearHandleUnsafe();";
+	ClassDeclPtr decl = ClassDeclPtr::dynamicCast(p);
+	if(decl)
+	{
+	    C << nl << "if(" << decl->scope() << "__usesClasses(" << prefix << name << "))";
+	    C << sb;
+	    C << nl << decl->scope() << "__decRefUnsafe(" << prefix << name << ");";
+	    C << nl << decl->scope() << "__clearHandleUnsafe(" << prefix << name << ");";
+	}
+	else
+	{
+	    C << nl << "if(" << prefix << name << "->__usesClasses())";
+	    C << sb;
+	    C << nl << prefix << name << "->__decRefUnsafe();";
+	    C << nl << prefix << name << ".__clearHandleUnsafe();";
+	}
 	C << eb;
 	C << nl << "else";
 	C << sb;
@@ -3918,6 +3963,7 @@ Slice::Gen::HandleVisitor::visitClassDecl(const ClassDeclPtr& p)
     
     H << sp;
     H << nl << "typedef ::IceInternal::Handle< " << scoped << "> " << name << "Ptr;";
+    
     if(!p->isLocal())
     {
 	H << nl << "typedef ::IceInternal::ProxyHandle< ::IceProxy" << scoped << "> " << name << "Prx;";
@@ -3938,6 +3984,14 @@ Slice::Gen::HandleVisitor::visitClassDecl(const ClassDeclPtr& p)
             H << nl << _dllExport << "void ice_write" << name << "(const ::Ice::OutputStreamPtr&, const "
               << name << "Ptr&);";
             H << nl << _dllExport << "void ice_read" << name << "(const ::Ice::InputStreamPtr&, " << name << "Ptr&);";
+	}
+
+	if(!p->isInterface())
+	{
+	    H << sp << nl << "void __addObject(const " << name << "Ptr&, ::IceInternal::GCCountMap&);";
+	    H << nl << "bool __usesClasses(const " << name << "Ptr&);";
+	    H << nl << "void __decRefUnsafe(" << name << "Ptr&);";
+	    H << nl << "void __clearHandleUnsafe(" << name << "Ptr&);";
 	}
     }
 }
