@@ -28,7 +28,16 @@ SessionI::SessionI(const Glacier2::SessionControlPrx& sessionControl) :
 void
 SessionI::destroyFromClient(const Ice::Current& current)
 {
-    _sessionControl->destroy();
+    //
+    // We need to use a oneway here because the router will callback
+    // on the session to call destroy(). The callback would hang if
+    // the server is using thread per connection because the
+    // connection thread would be still busy dispatching this method
+    // waiting for the reply of SessionControl::destroy().
+    //
+    Glacier2::SessionControlPrx sessionControl = 
+	Glacier2::SessionControlPrx::uncheckedCast(_sessionControl->ice_oneway());
+    sessionControl->destroy();
 }
 
 void
