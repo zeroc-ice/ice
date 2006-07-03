@@ -73,7 +73,7 @@ public:
 #ifdef __xlC__
 
 	//
-	// The xlC compiler synchronize cin and cout; to see the messages
+	// The xlC compiler synchronizes cin and cout; to see the messages
 	// while accepting input through cin, we have to print the messages
 	// with printf
 	//
