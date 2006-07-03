@@ -33,7 +33,9 @@ public final class Network
                 "an existing connection was forcibly closed", // unknown
 	        "connection closed by remote host", // unknown
 	        "an established connection was aborted by the software in your host machine", // unknown (Win32)
-	        "broken pipe" // EPIPE
+	        "broken pipe", // EPIPE
+		"there is no process to read data written to a pipe", // EPIPE? (AIX JDK 1.4.2)
+		"socket is closed" // unknown (AIX JDK 1.4.2)
             };
 
             for(int i = 0; i < msgs.length; i++)
