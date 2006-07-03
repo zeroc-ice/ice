@@ -21,6 +21,7 @@ case $1 in
              echo "====== Data backup ======"
              if [ ! -d $1/data ] ; then mkdir $1/data ; fi
              dd if=db/data/IntLongMap of=$1/data/IntLongMap bs=$pagesize
+             dd if=db/data/__catalog of=$1/data/__catalog bs=$pagesize
           fi
           echo "====== Log backup ====="
           if [ ! -d $1/logs ] ; then mkdir $1/logs ; fi

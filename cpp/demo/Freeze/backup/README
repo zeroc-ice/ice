@@ -55,6 +55,9 @@ the full directory) or an incremental backup (the files in the full
 directory and the files in the incremental directory). Do not run this
 script while the client is running.
 
+If your latest backup was incremental, you should use 'recover 
+incremental'.
+
 Before doing a recover, you can "corrupt" the main database, for
 example by removing the data file (db/data/IntLongMap), or add random
 characters to the latest log file.
