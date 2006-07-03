@@ -140,7 +140,7 @@ Ice::initialize(int& argc, char* argv[], const InitializationData& initializatio
 }
 
 CommunicatorPtr
-Ice::initialize(const InitializationData& initData, Int version)
+Ice::initialize(const InitializationData& initializationData, Int version)
 {
     //
     // We can't simply call the other initialize() because this one does NOT read
@@ -148,10 +148,14 @@ Ice::initialize(const InitializationData& initData, Int version)
     //
     checkIceVersion(version);
 
-    CommunicatorI* communicatorI = new CommunicatorI(initData);
-    CommunicatorPtr result = communicatorI; // For exception safety.
     int argc = 0;
     char* argv[] = { 0 };
+
+    InitializationData initData = initializationData;
+    initData.properties = createProperties(argc, argv, initData.properties, initData.stringConverter);
+
+    CommunicatorI* communicatorI = new CommunicatorI(initData);
+    CommunicatorPtr result = communicatorI; // For exception safety.
     communicatorI->finishSetup(argc, argv);
     return result;
 }
