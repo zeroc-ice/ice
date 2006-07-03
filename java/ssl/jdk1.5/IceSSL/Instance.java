@@ -266,7 +266,7 @@ class Instance
 
 			for(int i = 0; i < keyManagers.length; ++i)
 			{
-			    keyManagers[i] = new KeyManagerI((javax.net.ssl.X509KeyManager)keyManagers[i], alias);
+			    keyManagers[i] = new X509KeyManagerI((javax.net.ssl.X509KeyManager)keyManagers[i], alias);
 			}
 		    }
 		}
@@ -308,6 +308,23 @@ class Instance
 		    javax.net.ssl.TrustManagerFactory tmf = javax.net.ssl.TrustManagerFactory.getInstance(algorithm);
 		    tmf.init(ts);
 		    trustManagers = tmf.getTrustManagers();
+		}
+
+		//
+		// The default TrustManager implementation in IBM's JDK does not accept
+		// anonymous ciphers, so we have to install our own.
+		//
+		if(trustManagers == null)
+		{
+		    trustManagers = new javax.net.ssl.TrustManager[1];
+		    trustManagers[0] = new X509TrustManagerI(null);
+		}
+		else
+		{
+		    for(int i = 0; i < trustManagers.length; ++i)
+		    {
+			trustManagers[i] = new X509TrustManagerI((javax.net.ssl.X509TrustManager)trustManagers[i]);
+		    }
 		}
 
 		//
