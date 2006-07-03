@@ -85,6 +85,11 @@ Changes since version 3.0.1
   server side, the new interfaces Glacier2::SSLPermissionsVerifier and
   Glacier2::SSLSessionManager must be implemented.
 
+- The Glacier2.CryptPasswords property no longer has a default value.
+  To reproduce the router's behavior from previous releases, define
+
+  Glacier2.CryptPasswords=passwords
+
 - Added identityToString and stringToIdentity to the Communicator
   interface. If a string converter is configured, these functions
   must be used instead of the current static functions.

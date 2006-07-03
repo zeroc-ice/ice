@@ -4696,7 +4696,7 @@ serialized, and nested twoway requests are not supported.
 </section>
 </section>
 
-<section><title>Glacier2.CryptPasswords</title>
+<section id="Glacier2CryptPasswords"><title>Glacier2.CryptPasswords</title>
 <section><title>Synopsis</title>
 <synopsis>
 Glacier2.CryptPasswords=<replaceable>file</replaceable>
@@ -4708,9 +4708,8 @@ Glacier2.CryptPasswords=<replaceable>file</replaceable>
 Specifies the filename of a &Glacier2; access control list. Each
 line of the file must contain a username and a password, separated
 by whitespace. The password must be a 13-character, crypt-encoded
-string. If this property is not defined, the default value is
-<literal>passwords</literal>. This property is ignored if
-<link linkend="Glacier2PermissionsVerifier">Glacier2.PermissionsVerifier</link>.
+string. This property is ignored if
+<link linkend="Glacier2PermissionsVerifier">Glacier2.PermissionsVerifier</link>
 is defined.
 </para>
 </section>
@@ -4902,6 +4901,9 @@ The router invokes this proxy to validate the username and
 password of each new session. Sessions created from a secure
 connection are verified by the object specified in
 <link linkend="Glacier2SSLPermissionsVerifier">Glacier2.SSLPermissionsVerifier</link>.
+For simple configurations, you can specify the name of a
+password file using
+<link linkend="Glacier2CryptPasswords">Glacier2.CryptPasswords</link>.
 </para>
 </section>
 </section>

@@ -140,11 +140,11 @@ Glacier2::RouterService::start(int argc, char* argv[])
     }
 
     //
-    // Get the permissions verifier, or create a default one if no
-    // verifier is specified.
+    // Check for a permissions verifier or a password file.
     //
     string verifierProperty = properties->getProperty("Glacier2.PermissionsVerifier");
     PermissionsVerifierPrx verifier;
+    string passwordsProperty = properties->getProperty("Glacier2.CryptPasswords");
     if(!verifierProperty.empty())
     {
 	verifier = PermissionsVerifierPrx::checkedCast(communicator()->stringToProxy(verifierProperty));
@@ -154,10 +154,8 @@ Glacier2::RouterService::start(int argc, char* argv[])
 	    return false;
 	}
     }
-    else
+    else if(!passwordsProperty.empty())
     {
-	string passwordsProperty = properties->getPropertyWithDefault("Glacier2.CryptPasswords", "passwords");
-
 	ifstream passwordFile(passwordsProperty.c_str());
 	if(!passwordFile)
 	{
@@ -219,8 +217,7 @@ Glacier2::RouterService::start(int argc, char* argv[])
     }
 
     //
-    // Get the permissions verifier, or create a default one if no
-    // verifier is specified.
+    // Check for an SSL permissions verifier.
     //
     string sslVerifierProperty = properties->getProperty("Glacier2.SSLPermissionsVerifier");
     SSLPermissionsVerifierPrx sslVerifier;
@@ -235,7 +232,7 @@ Glacier2::RouterService::start(int argc, char* argv[])
     }
 
     //
-    // Get the session manager if specified.
+    // Get the SSL session manager if specified.
     //
     string sslSessionManagerProperty = properties->getProperty("Glacier2.SSLSessionManager");
     SSLSessionManagerPrx sslSessionManager;
@@ -250,6 +247,12 @@ Glacier2::RouterService::start(int argc, char* argv[])
 	sslSessionManager = 
 	    SSLSessionManagerPrx::uncheckedCast(sslSessionManager->ice_connectionCached(false)->ice_locatorCacheTimeout(
 	        properties->getPropertyAsIntWithDefault("Glacier2.SSLSessionManager.LocatorCacheTimeout", 600)));
+    }
+
+    if(!verifier && !sslVerifier)
+    {
+	error("Glacier2 requires a permissions verifier or password file");
+	return false;
     }
 
     //
