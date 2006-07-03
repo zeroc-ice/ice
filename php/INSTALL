@@ -97,8 +97,21 @@ Please refer to the PHP documentation for more information.
 Source patches
 --------------
 
-No source patches are necessary to compile PHP on the supported
-platforms.
+The following changes are necessary on AIX:
+
+- Edit the file <phpdir>/Zend/zend_language_parser.c and remove line
+  2582, indicated below:
+
+  int
+  yyparse ()
+      ;      /* REMOVE THIS LINE */
+
+- Edit the file <phpdir>/Zend/zend_ini_parser.c and remove line 1078,
+  indicated below:
+
+  int
+  yyparse ()
+      ;      /* REMOVE THIS LINE */
 
 
 Platform-specific Issues
@@ -258,20 +271,6 @@ To build the Ice extension in a static configuration:
   - If a Web server module is being built, search for the line
     beginning with "libphp5.la:", and change "$(CC)" to "$(CXX)" in
     that rule, as well as in the rule for "libs/libphp5.bundle" below.
-
-- Edit the file <phpdir>/Zend/zend_language_parser.c and remove line
-  2582, indicated below:
-
-  int
-  yyparse ()
-      ;      /* REMOVE THIS LINE */
-
-- Edit the file <phpdir>/Zend/zend_ini_parser.c and remove line 1078,
-  indicated below:
-
-  int
-  yyparse ()
-      ;      /* REMOVE THIS LINE */
 
 
 =========================================================================
