@@ -43,12 +43,25 @@ link below for more information:
 
 http://www.hp.com/products1/unix/java/java2/sdkrte14/downloads/index_pa-risc.html
 
-When using the Ice for Java SSL plugin, you may experience occasional
-hangs. The most common reason is that your system's entropy pool is
-empty. A workaround is to edit <java.home>/jre/lib/security/java.security
-to use /dev/urandom instead of /dev/random. Alternatively, if you do not have
-permission to modify the security file you can use the 
--Djava.security.egd=file:/dev/urandom java command line option.
+When using the Ice for Java SSL plugin (IceSSL), you may experience
+occasional hangs. The most likely reason is that your system's entropy
+pool is empty. If you have sufficient system privileges, you can solve
+this issue by editing the following file
+
+<java.home>/jre/lib/security/java.security
+
+and changing it to use /dev/urandom instead of /dev/random. If you do
+not have permission to modify the security file, you can also use the
+command line option shown below:
+
+java -Djava.security.egd=file:/dev/urandom MyClass ...
+
+On AIX, IceSSL requires that you use IBMJSSE2 as your security
+provider for Java 2. (Java 5 uses IBMJSSE2 by default.) You must edit
+the java.security file shown above and modify the value of the
+security.provider.1 property as follows:
+
+security.provider.1=com.ibm.jsse2.IBMJSSEProvider2
 
 
 Slice to Java translator
