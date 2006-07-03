@@ -59,6 +59,16 @@ from IBM at
 
 http://www-128.ibm.com/developerworks/java/jdk/aix
 
+The SSL plugin for Ice (IceSSL) requires that you use IBMJSSE2 as your
+security provider for Java 2. (Java 5 uses IBMJSSE2 by default.) You
+must edit the java.security file located at
+
+<java.home>/jre/lib/security/java.security
+
+and modify the value of the security.provider.1 property as follows:
+
+security.provider.1=com.ibm.jsse2.IBMJSSEProvider2
+
 
 ======================================================================
 Berkeley DB
