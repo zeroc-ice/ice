@@ -68,7 +68,7 @@ FileUserAccountMapperI::FileUserAccountMapperI(const string& filename)
 	assert(!user.empty());
 	assert(!account.empty());
 
-	_accounts.insert(make_pair(user, account));
+	_accounts[user] = account;
     }
 }
 
