@@ -78,7 +78,7 @@ public:
 	// with printf
 	//
 
-	printf("%s", data.c_str());
+	printf("%s\n", data.c_str());
 	fflush(0);
 #else
 	cout << data << endl;
