@@ -1,6 +1,8 @@
 Changes since version 3.0.1
 ---------------------------
 
+- IceSSL on AIX requires IBMJSSE2. See the INSTALL file for details.
+
 - Removed removeObjectFactory() from the communicator interface.
 
 - ObjectAdapter::deactivate() now notifies the locator registry when
