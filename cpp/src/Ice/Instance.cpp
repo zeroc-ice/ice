@@ -636,9 +636,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
 	_objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 
-	if(!_initData.wstringConverter)
+	if(_initData.wstringConverter == 0)
 	{
-	    const_cast<WstringConverterPtr&>(_initData.wstringConverter) = new UnicodeWstringConverter();
+	    _initData.wstringConverter = new UnicodeWstringConverter();
 	}
 
 	__setNoDelete(false);
