@@ -440,6 +440,11 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 	IceUtil::StaticMutex::Lock sync(staticMutex);
 	instanceCount++;
 
+	if(!_initData.properties)
+	{
+	    _initData.properties = createProperties();
+	}
+
 	if(!oneOffDone)
 	{
 	    //
@@ -470,11 +475,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 		    ex.error = getSystemErrno();
 		    throw ex;
 		}
-	    }
-
-	    if(!_initData.properties)
-	    {
-		_initData.properties = createProperties();
 	    }
 
 	    if(_initData.properties->getPropertyAsInt("Ice.NullHandleAbort") > 0)
