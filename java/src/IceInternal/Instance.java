@@ -257,6 +257,11 @@ public final class Instance
 
         try
         {
+	    if(_initData.properties == null)
+	    {
+		_initData.properties = Ice.Util.createProperties();
+	    }
+
 	    synchronized(Instance.class)
 	    {
 		if(!_oneOffDone)

@@ -274,6 +274,11 @@ namespace IceInternal
 	        
 	    try
 	    {
+		if(_initData.properties == null)
+		{
+		    _initData.properties = Ice.Util.createProperties();
+		}
+
 		lock(_staticLock)
 		{
 		    if(!_oneOffDone)
