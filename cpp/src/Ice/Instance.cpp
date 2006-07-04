@@ -471,7 +471,12 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 		    throw ex;
 		}
 	    }
-	    
+
+	    if(!_initData.properties)
+	    {
+		_initData.properties = createProperties();
+	    }
+
 	    if(_initData.properties->getPropertyAsInt("Ice.NullHandleAbort") > 0)
 	    {
 		IceUtil::nullHandleAbort = true;
