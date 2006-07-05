@@ -2,20 +2,15 @@
 Requirements
 =========================================================================
 
-- Python 2.3 or 2.4
 - Ice @ver@
+- Python 2.3 or 2.4 built with a C++ compiler compatible with C++
+  compiler used to build Ice for C++.
 
-If you don't have Python 2.3 or Python 2.4 on your system, you can
-download a source distribution from http://www.python.org.
+Depending on your platform, you may need to download the Python source
+distribution from http://www.python.org and make our own Python build.
 
-If you have downloaded a source distribution of Ice for Python, see
-the build instructions below.
-
-If you have downloaded a binary distribution of Ice for Python, you
-have everything you need to use Ice in Python; it is not necessary to
-download and build Ice for C++. See the section "Configuring your
-Environment" below.
-
+You can use the Ice for C++ binary distribution for your platform to
+build the Ice extension for Python.
 
 =========================================================================
 Building the Ice extension for Python (Linux/Solaris/HP-UX/Mac OS X)
@@ -90,8 +85,8 @@ Configuring your Environment
 
 Unix:
 
-   Modify your PYTHONPATH environment variable to include the Ice for
-   Python extension. Assuming you installed the extension in the
+   Modify your PYTHONPATH environment variable to include the Ice 
+   extension for Python. Assuming you installed the extension in the
    default directory (/opt/IcePy-@ver@), you would modify your
    environment as shown below:
 
@@ -100,9 +95,9 @@ Unix:
 
 Windows:
 
-   Modify your environment to allow Python to find the Ice for Python
-   extension. The interpreter must be able to locate the extension DLL
-   as well as the Python source files in the "python" subdirectory.
+   Modify your environment to allow Python to find the Ice extension for 
+   Python. The interpreter must be able to locate the extension DLL as
+   well as the Python source files in the "python" subdirectory.
    This is normally accomplished by setting the PYTHONPATH environment
    variable to contain the necessary subdirectories. For example, if
    the Ice for Python extension is installed in C:\IcePy-@ver@, you
@@ -130,10 +125,20 @@ $ python run.py
 
 
 =========================================================================
-Python Platform Notes (HP-UX)
+HP-UX Notes
 =========================================================================
 
-The Python sources need to be compiled with the following options in
+Python needs to be configured and built with the following options in
 order to successfully load the Ice extension:
 
-./configure --enable-shared --with-cxx="aCC -AA +DAportable" --with-libs="-lxnet" ...
+./configure --enable-shared --with-cxx="aCC -AA +DAportable" \
+--with-libs="-lxnet" ...
+
+=========================================================================
+Solaris Notes
+=========================================================================
+
+Python needs to be configured and built with the following options in
+order to successfully load the Ice extension:
+
+./configure --enable-shared --with-cxx=CC --without-gcc ...
