@@ -27,8 +27,8 @@ SPARC and includes the following components:
 - The Ice runtime, including executables for the Ice services, HTML
   documentation and Slice files.
 
-- Run time libraries for C++, Java, and Python. These libraries enable
-  you to execute Ice applications.
+- Run time libraries for C++ and Java. These libraries enable you to 
+  execute Ice applications.
 
 - Tools and libraries for developing Ice applications.
 
@@ -61,16 +61,6 @@ Ice for Java requires J2SE 1.4.2 or 1.5.0. RPMs can be obtained from
 JavaSoft at http://www.javasoft.com/j2se
 
 
-Python
-------
-
-The Ice extension for Python included in this distribution requires
-Python 2.4.3. It was compiled against a source distribution from
-http://www.python.org. If you prefer to use Python 2.3, you can
-download the Ice for Python source code from the ZeroC web site at
-http://www.zeroc.com/download.html.
-
-
 ======================================================================
 Berkeley DB
 ======================================================================
@@ -79,6 +69,18 @@ This distribution includes the C++ and Java runtime for Berkeley DB
 4.3.29. The C++ runtime was built using Sun CC version 5.5. The
 Berkeley DB license is provided in the file THIRD_PARTY_LICENSE.
 
+======================================================================
+Ice extension for Python
+======================================================================
+
+Ice for Python is fully supported on Solaris. However it is not 
+included in this distribution because there is no suitable binary
+distribution for Python itself available from Sun or 
+www.sunfreeware.com. 
+
+If you want to use Ice for Python on Solaris, you can build Ice for 
+Python using its source distribution, available at 
+http://www.zeroc.com/download.html.
 
 ======================================================================
 64 bit builds
@@ -144,17 +146,6 @@ $ export CLASSPATH=$ICE_HOME/lib/db.jar:$CLASSPATH
 In addition, the JVM requires that the directory containing the
 Berkeley DB libraries be listed in java.library.path, therefore you
 must add this directory to LD_LIBRARY_PATH.
-
-
-Python
-------
-
-To use Ice for Python, the PYTHONPATH environment variable must be
-updated so that the interpreter can load the Ice extension and
-supporting Python files:
-
-$ export PYTHONPATH=$ICE_HOME/python:$PYTHONPATH
-
 
 ======================================================================
 Using the IceGrid Administrative Console

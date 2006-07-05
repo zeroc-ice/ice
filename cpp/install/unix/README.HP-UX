@@ -27,8 +27,8 @@ PA-RISC and includes the following components:
 - The Ice runtime, including executables for the Ice services, HTML
   documentation and Slice files.
 
-- Run time libraries for C++, Java, and Python. These libraries enable
-  you to execute Ice applications.
+- Run time libraries for C++ and Java. These libraries enable you to
+  execute Ice applications.
 
 - Tools and libraries for developing Ice applications.
 
@@ -54,18 +54,6 @@ Ice for Java requires J2SE 1.4.2 or 1.5.0. Java for HP-UX is available
 from HP at http://www.hp.com/products1/unix/java
 
 
-Python
-------
-
-The Ice extension for Python included in this distribution requires
-Python 2.4.3. We built Python 2.4.3 using the source distribution from
-http://www.python.org. If you build Python from source, you need to
-to use the following configure options:
-
-./configure --enable-shared --with-cxx="aCC -AA +DAportable" \
-    --with-libs="-lxnet" ...
-
-
 ======================================================================
 Berkeley DB and OpenSSL
 ======================================================================
@@ -74,6 +62,19 @@ This distribution includes the C++ and Java runtime for Berkeley DB
 4.3.29 and the OpenSSL 0.9.8b libraries. The Berkeley DB C++ runtime
 was built using HP aC++ version A.03.56. The Berkeley DB and OpenSSL
 licenses are provided in the file THIRD_PARTY_LICENSE.
+
+======================================================================
+Ice extension for Python
+======================================================================
+
+Ice for Python is fully supported on HP-UX. However it is not 
+included in this distribution because there is no suitable binary
+distribution for Python itself available from HP and other common
+repositories for HP-UX software.
+
+If you want to use Ice for Python on HP-UX, you can build Ice for 
+Python using its source distribution, available at 
+http://www.zeroc.com/download.html.
 
 
 ======================================================================
@@ -140,16 +141,6 @@ $ export CLASSPATH=$ICE_HOME/lib/db.jar:$CLASSPATH
 In addition, the JVM requires that the directory containing the
 Berkeley DB libraries be listed in java.library.path, therefore you
 must add this directory to SHLIB_PATH.
-
-
-Python
-------
-
-To use Ice for Python, the PYTHONPATH environment variable must be
-updated so that the interpreter can load the Ice extension and
-supporting Python files:
-
-$ export PYTHONPATH=$ICE_HOME/python:$PYTHONPATH
 
 
 ======================================================================
