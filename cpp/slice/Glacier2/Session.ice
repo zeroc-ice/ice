@@ -186,7 +186,7 @@ interface SessionControl
      * Destroy the associated session.
      *
      **/
-    void destroy();
+    ["ami"] void destroy();
 };
 
 /**

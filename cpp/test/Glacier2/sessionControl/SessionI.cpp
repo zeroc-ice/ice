@@ -9,9 +9,35 @@
 
 #include <Ice/Ice.h>
 #include <SessionI.h>
+#include <TestCommon.h>
 
 using namespace std;
 using namespace Test;
+
+class DestroyCB : public Glacier2::AMI_SessionControl_destroy
+{
+public:
+
+    DestroyCB(const Test::AMD_Session_destroyFromClientPtr& cb) : _cb(cb)
+    {
+    }
+
+    void 
+    ice_response()
+    {
+	_cb->ice_response();
+    }
+
+    void
+    ice_exception(const IceUtil::Exception&)
+    {
+	test(false);
+    }
+
+private:
+
+    Test::AMD_Session_destroyFromClientPtr _cb;
+};
 
 Glacier2::SessionPrx
 SessionManagerI::create(const string&, const Glacier2::SessionControlPrx& sessionControl, const Ice::Current& current)
@@ -26,18 +52,9 @@ SessionI::SessionI(const Glacier2::SessionControlPrx& sessionControl) :
 }
 
 void
-SessionI::destroyFromClient(const Ice::Current& current)
+SessionI::destroyFromClient_async(const Test::AMD_Session_destroyFromClientPtr& cb, const Ice::Current& current)
 {
-    //
-    // We need to use a oneway here because the router will callback
-    // on the session to call destroy(). The callback would hang if
-    // the server is using thread per connection because the
-    // connection thread would be still busy dispatching this method
-    // waiting for the reply of SessionControl::destroy().
-    //
-    Glacier2::SessionControlPrx sessionControl = 
-	Glacier2::SessionControlPrx::uncheckedCast(_sessionControl->ice_oneway());
-    sessionControl->destroy();
+    _sessionControl->destroy_async(new DestroyCB(cb));
 }
 
 void

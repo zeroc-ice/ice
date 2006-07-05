@@ -26,7 +26,7 @@ public:
 
     SessionI(const Glacier2::SessionControlPrx&);
 
-    virtual void destroyFromClient(const Ice::Current&);
+    virtual void destroyFromClient_async(const Test::AMD_Session_destroyFromClientPtr&, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
     virtual void destroy(const Ice::Current&);

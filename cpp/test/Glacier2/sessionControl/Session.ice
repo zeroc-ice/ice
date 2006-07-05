@@ -17,8 +17,8 @@ module Test
 
 interface Session extends Glacier2::Session
 {
-    void destroyFromClient();
-
+    ["amd"] void destroyFromClient();
+    
     void shutdown();
 };
 

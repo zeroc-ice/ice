@@ -60,6 +60,7 @@ SessionControlClient::run(int argc, char* argv[])
     try
     {
 	session->destroyFromClient();
+	test(false);
     }
     catch(const Ice::ConnectionLostException&)
     {
