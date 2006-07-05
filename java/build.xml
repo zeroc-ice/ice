@@ -185,13 +185,12 @@
     </condition>
 
 
-    <!--
-      TODO: bernard: get rid of this confusing IceGridAdmin.jar
 
-    <target name="icegrid-pro" depends="icegrid-jar" if="icegrid-pro-precond">
+    <target name="icegrid-pro" depends="icegridgui-jar" if="icegrid-pro-precond">
+	<move file="${lib.dir}/IceGridGUI.jar" tofile="${lib.dir}/guitmp.jar" />
 	<taskdef resource="proguard/ant/task.properties"/>
 	<proguard>
-	    -injars ${lib.dir}/IceGridAdmin.jar
+	    -injars ${lib.dir}/guitmp.jar
 	    -injars ${lib.dir}/Ice.jar(!META-INF/**)
 	    -injars ${jgoodies.looks}(!META-INF/**)
 	    -injars ${jgoodies.forms}(!META-INF/**)
@@ -202,22 +201,13 @@
 
 	    -include config/icegridgui.pro
 	</proguard>
-	<delete file="${lib.dir}/IceGridAdmin.jar" />
+	<delete file="${lib.dir}/guitmp.jar" />
     </target>
-
-    <target name="pseudo-icegrid-pro" unless="icegrid-pro-precond">
-	<move file="${lib.dir}/IceGridAdmin.jar" tofile="${lib.dir}/IceGridGUI.jar" />
-    </target>
-    -->
 
     <target name="compile" depends="ice-compile, icegridgui-compile">
     </target>
 
-    <!--
-    <target name="jar" depends="ice-jar, icegrid-pro, pseudo-icegrid-pro"/>
-    -->
-    <target name="jar" depends="ice-jar, icegridgui-jar"/>
-
+    <target name="jar" depends="ice-jar, icegrid-pro"/>
 
     <target name="all" depends="jar">
         <ant inheritAll="false" dir="demo"/>
