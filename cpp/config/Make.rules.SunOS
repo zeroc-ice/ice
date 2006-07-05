@@ -27,21 +27,26 @@ MACHINE_TYPE                := $(shell uname -m)
 
 
 ifeq ($(CXX),CC)
-#
-# Sun CC
-#
+    #
+    # Sun CC
+    #
 
     #
     # Which version of CC are we using?
     #
     CCVERSION		    = $(filter 5.%, $(shell CC -V 2>&1))
 
-    ifeq ($(LP64),yes)
-        ifeq ($(MACHINE_TYPE),sun4u)
-           CXXARCHFLAGS    = -xarch=v9
+    ifeq ($(MACHINE_TYPE),sun4u)
+        ifeq ($(LP64),yes)
+            CXXARCHFLAGS    = -xarch=v9
+        else
+            CXXARCHFLAGS    = -xarch=v8plus
         endif
-        ifeq ($(MACHINE_TYPE),i86pc)
-           CXXARCHFLAGS    = -xarch=amd64
+    endif
+
+    ifeq ($(MACHINE_TYPE),i86pc)
+        ifeq ($(LP64),yes)
+            CXXARCHFLAGS    = -xarch=amd64
         endif
     endif
 
