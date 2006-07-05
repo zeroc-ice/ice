@@ -193,10 +193,16 @@ def collectSourceDistributions(tag, sourceDir, cvsdir, distro):
     os.chdir(cwd + "/../" + cvsdir)
     if len(tag) > 0:
 	print 'Making disribution ' + cvsdir + ' with tag ' + tag
-    if cvsdir in ['icepy', 'ice', 'icephp']:
+
+    # 
+    # The sources collected by the makebindist.py script are *NOT*
+    # suitable for release as they do not all contain the documentation.
+    #
+    if cvsdir in ["ice", "icephp"]:
         runprog("./makedist.py " + tag)
     else:
-        runprog("./makedist.py " + tag)
+        runprog("./makedist.py -d " + tag)
+	
     shutil.copy("dist/" + distro + ".tar.gz", sourceDir)
     os.chdir(cwd)
 
@@ -339,8 +345,15 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
        Ice"""
     cwd = os.getcwd()
     os.chdir(buildDir + "/demotree")
-    runprog("gzip -dc " + sources + "/" + distro + ".tar.gz | tar xf - " + distro + "/demo " + distro + "/config " + distro +
-	    "/certs", False)
+
+    #
+    # TODO: Some archives don't contain all of these elements. It might
+    # be nicer to make the toExtract list more tailored for each
+    # distribution.
+    #
+    toExtract = "%s/demo %s/config %s/certs" % (distro, distro, distro)
+	
+    runprog("gzip -dc " + sources + "/" + distro + ".tar.gz | tar xf - " + toExtract, False)
 	
     shutil.move(distro + "/demo", buildDir + "/Ice-" + version + "-demos/demo" + demoDir)
 
@@ -1103,15 +1116,16 @@ def main():
 	    toCollect = list(sourceTarBalls)
 	    for cvs, tarball, demoDir in toCollect:
 		extractDemos(sources, buildDir, version, tarball, demoDir)
-		shutil.copy(installFiles + '/unix/README.DEMOS', buildDir + '/Ice-' + version + '-demos/README.DEMOS') 
+		shutil.copy("%s/unix/README.DEMOS" % installFiles, "%s/Ice-%s-demos/README.DEMOS" % (buildDir, version)) 
+		shutil.copy("%s/Ice-%s/ICE_LICENSE" % (buildDir, version), "%s/Ice-%s-demos/ICE_LICENSE" % (buildDir, version))
 	    archiveDemoTree(buildDir, version, installFiles)
-	    shutil.move(buildDir + '/Ice-' + version + '-demos.tar.gz', installDir + '/Ice-' + version + '-demos.tar.gz')
+	    shutil.move("%s/Ice-%s-demos.tar.gz" % (buildDir, version), "%s/Ice-%s-demos.tar.gz" % (installDir, version))
 
 	#
 	# Everything should be set for building stuff up now.
 	#
         for cvs, tarball, demoDir in sourceTarBalls:
-            makeInstall(sources, buildDir, installDir + '/Ice-' + version, tarball, clean, version)	    
+            makeInstall(sources, buildDir, "%s/Ice-%s" % (installDir, version), tarball, clean, version)	    
 
     elif cvsMode:
 	collectSources = False

@@ -834,13 +834,13 @@ match(const vector<ProxyRule*>& rules, const ObjectPrx& proxy)
 }
 
 //
-// MaxEndpointsRule returns 'true' if the proxy exceeds the configured
-// number of endpoints.
+// ProxyLengthRule returns 'true' if the string form of the proxy exceeds the configured
+// length. 
 //
-class MaxEndpointsRule : public ProxyRule
+class ProxyLengthRule : public ProxyRule
 {
 public:
-    MaxEndpointsRule(const CommunicatorPtr communicator, const string& count, int traceLevel) :
+    ProxyLengthRule(const CommunicatorPtr communicator, const string& count, int traceLevel) :
 	_communicator(communicator),
 	_traceLevel(traceLevel)
     {
@@ -848,13 +848,13 @@ public:
 	if(!(s >> _count) || !s.eof())
 	{
 	    InitializationException ex(__FILE__, __LINE__);
-	    ex.reason = "Error parsing MaxEndpoints property";
+	    ex.reason = "Error parsing ProxySizeMax property";
 	    throw ex;
 	}
 	if(_count <= 0)
 	{
 	    InitializationException ex(__FILE__, __LINE__);
-	    ex.reason = "MaxEndpoints must be greater than 1";
+	    ex.reason = "ProxySizeMax must be greater than 1";
 	    throw ex;
 	}
     }
@@ -862,13 +862,13 @@ public:
     bool
     check(const ObjectPrx& p) const
     {
-	EndpointSeq endpoints = p->ice_getEndpoints();
-	bool result = (endpoints.size() > _count);
+	string s = p->ice_toString();
+	bool result = (s.size() > _count);
 	if(_traceLevel >= 1)
 	{
 	    Trace out(_communicator->getLogger(), "Glacier2");
 	    out << _communicator->proxyToString(p) << (result ? " exceeds " : " meets ") 
-		<< "endpoint count restriction\n";
+		<< "proxy size restriction\n";
 	}
 	return result;
     }
@@ -901,10 +901,10 @@ Glacier2::ProxyVerifier::ProxyVerifier(const CommunicatorPtr& communicator, cons
 	Glacier2::parseProperty(communicator, s, _rejectRules, _traceLevel);
     }
 
-    s = communicator->getProperties()->getProperty("Glacier2.Filter.ProxyLengthMax");
+    s = communicator->getProperties()->getProperty("Glacier2.Filter.ProxySizeMax");
     if(s != "")
     {
-	_rejectRules.push_back(new MaxEndpointsRule(communicator, s, _traceLevel));
+	_rejectRules.push_back(new ProxyLengthRule(communicator, s, _traceLevel));
     }
 }
 

@@ -99,8 +99,7 @@ class Package:
 
         for f in ['python >= 2.4.1', 'python-devel >= 2.4.1', 'bzip2-devel >= 1.0.2', 'bzip2-libs >= 1.0.2', 
 		  'expat-devel >= 1.9', 'expat >= 1.9', 'libstdc++ >= 3.2', 'gcc >= 3.2', 'gcc-c++ >= 3.2', 'tar', 
-		  'binutils >= 2.10', 'openssl >= 0.9.7f', 'openssl-devel >= 0.9.7f', 'readline >= 5.0', 
-		  'ncurses >= 5.4']:
+		  'binutils >= 2.10', 'openssl >= 0.9.7f', 'openssl-devel >= 0.9.7f',  'ncurses >= 5.4']:
             ofile.write('BuildRequires: ' + f  + '\n')
 
 	ofile.write('\n')

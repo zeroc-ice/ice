@@ -145,14 +145,6 @@ testcases = [
 		(False, '"a funny id/that might mess it up":tcp -h 127.0.0.1 -p 12010')], []),
 	]
 
-if TestUtil.protocol == "ssl":
-    testcases.extend([ 
-	('testing maximum endpoints rule',
-		(r'', r'', r'1', '', '', ''),
-		[(True, 'hello:tcp -h %s -p 12010' % hostname),
-		(False, 'hello:tcp -h %s -p 12010:ssl -h %s -p 12011' % (hostname, hostname))], []),
-	])
-
 if not limitedTests:
     testcases.extend([
 	    ('testing reject all',
@@ -185,6 +177,10 @@ if not limitedTests:
 		("127.0.0.1", fqdn, r'', '', '', ''),
 		[(False, 'hello:tcp -h %s -p 12010:tcp -h 127.0.0.1 -p 12010' % fqdn),
 		(True, 'bar:tcp -h 127.0.0.1 -p 12010')], []),
+	    ('testing maximum proxy length rule',
+		(r'', r'', r'40', '', '', ''),
+		[(True, 'hello:tcp -h 127.0.0.1 -p 12010'),
+		(False, '012345678901234567890123456789012345678901234567890123456789:tcp -h 127.0.0.1 -p 12010')], []),
 	    ])
 
 if len(testcases) == 0:
@@ -275,7 +271,7 @@ for testcase in testcases:
     if not len(rejectFilter) == 0:
 	routerConfig.write("Glacier2.Filter.Address.Reject=%s\n" % rejectFilter)
     if not len(maxEndpoints) == 0:
-	routerConfig.write("Glacier2.Filter.ProxyLengthMax=%s\n" % maxEndpoints)
+	routerConfig.write("Glacier2.Filter.ProxySizeMax=%s\n" % maxEndpoints)
     if not len(categoryFilter) == 0:
 	routerConfig.write("Glacier2.Filter.Category.Accept=%s\n" % categoryFilter)
     if not len(idFilter) == 0:

@@ -4843,20 +4843,21 @@ a leading backslash.
 </section>
 </section>
 
-<section><title>Glacier2.Filter.ProxyLengthMax</title>
+<section><title>Glacier2.Filter.ProxySizeMax</title>
 <section><title>Synopsis</title>
 <synopsis>
-Glacier2.Filter.ProxyLengthMax=<replaceable>num</replaceable>
+Glacier2.Filter.ProxySizeMax=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-If set, the &Glacier2; router rejects requests using proxies that
-contain more than <replaceable>num</replaceable> network endpoints. This
-helps secure the system against attack. If unset, &Glacier2; will accept
-requests using proxies that specify any number of legal network
-endpoints.
+
+If set, the &Glacier2; router rejects requests whose stringified proxies are
+longer than <replaceable>num</replaceable>. This helps secure the system
+against attack. If unset, &Glacier2; will accept requests using proxies of any
+length.
+
 </para>
 </section>
 </section>
