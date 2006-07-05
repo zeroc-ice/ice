@@ -52,7 +52,8 @@ ICE_SRCS	= Ice_LocalException_ice.py \
 		  Ice_FacetMap_ice.py \
 		  Ice_Connection_ice.py \
 		  Ice_ConnectionF_ice.py \
-		  Ice_SliceChecksumDict_ice.py
+		  Ice_SliceChecksumDict_ice.py \
+		  Ice_Endpoint_ice.py
 
 GLACIER2_SRCS	= Glacier2_RouterF_ice.py \
 		  Glacier2_Router_ice.py \
@@ -67,10 +68,12 @@ ICEBOX_SRCS	= IceBox_IceBox_ice.py
 ICEGRID_SRCS	= IceGrid_Admin_ice.py \
 		  IceGrid_Descriptor_ice.py \
 		  IceGrid_Exception_ice.py \
+		  IceGrid_FileParser_ice.py \
 		  IceGrid_Observer_ice.py \
 		  IceGrid_Query_ice.py \
+		  IceGrid_Registry_ice.py \
 		  IceGrid_Session_ice.py \
-		  IceGrid_Registry_ice.py
+		  IceGrid_UserAccountMapper_ice.py
 
 ICEPATCH2_SRCS	= IcePatch2_FileInfo_ice.py \
 		  IcePatch2_FileServer_ice.py
@@ -180,6 +183,9 @@ Ice_ConnectionF_ice.py: $(slicedir)/Ice/ConnectionF.ice
 Ice_SliceChecksumDict_ice.py: $(slicedir)/Ice/SliceChecksumDict.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/SliceChecksumDict.ice
 
+Ice_Endpoint_ice.py: $(slicedir)/Ice/Endpoint.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/Endpoint.ice
+
 
 Glacier2_RouterF_ice.py: $(slicedir)/Glacier2/RouterF.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ $(slicedir)/Glacier2/RouterF.ice
@@ -216,17 +222,23 @@ IceGrid_Descriptor_ice.py: $(slicedir)/IceGrid/Descriptor.ice
 IceGrid_Exception_ice.py: $(slicedir)/IceGrid/Exception.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/Exception.ice
 
+IceGrid_FileParser_ice.py: $(slicedir)/IceGrid/FileParser.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/FileParser.ice
+
 IceGrid_Observer_ice.py: $(slicedir)/IceGrid/Observer.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/Observer.ice
 
 IceGrid_Query_ice.py: $(slicedir)/IceGrid/Query.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/Query.ice
 
+IceGrid_Registry_ice.py: $(slicedir)/IceGrid/Registry.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/Registry.ice
+
 IceGrid_Session_ice.py: $(slicedir)/IceGrid/Session.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/Session.ice
 
-IceGrid_Registry_ice.py: $(slicedir)/IceGrid/Registry.ice
-	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/Registry.ice
+IceGrid_UserAccountMapper_ice.py: $(slicedir)/IceGrid/UserAccountMapper.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/UserAccountMapper.ice
 
 
 IcePatch2_FileInfo_ice.py: $(slicedir)/IcePatch2/FileInfo.ice
