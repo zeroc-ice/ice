@@ -55,6 +55,7 @@ Module AllocateC
 	Private Sub menu()
 	    Console.WriteLine("usage:")
 	    Console.WriteLine("t: send greeting")
+	    Console.WriteLine("s: shutdown server")
 	    Console.WriteLine("x: exit")
 	    Console.WriteLine("?: help")
 	End Sub
@@ -119,6 +120,8 @@ Module AllocateC
                     End If
                     If line.Equals("t") Then
                         hello.sayHello()
+                    ElseIf line.Equals("s") Then
+                        hello.shutdown()
                     ElseIf line.Equals("x") Then
                         ' Nothing to do
                     ElseIf line.Equals("?") Then

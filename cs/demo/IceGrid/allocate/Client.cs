@@ -65,6 +65,7 @@ public class Client : Ice.Application
         Console.Out.WriteLine(
             "usage:\n" +
             "t: send greeting\n" +
+            "s: shutdown server\n" +
             "x: exit\n" +
             "?: help\n");
     }
@@ -155,6 +156,10 @@ public class Client : Ice.Application
                 if(line.Equals("t"))
                 {
                     hello.sayHello();
+                }
+                else if(line.Equals("s"))
+                {
+                    hello.shutdown();
                 }
                 else if(line.Equals("x"))
                 {
