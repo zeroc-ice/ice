@@ -6,9 +6,9 @@ Requirements
 Windows version
 ---------------
 
-Ice has been extensively tested with Windows XP, Windows 2003 Server,
-Windows 2000 and Windows 98 SE. Ice is also expected to work on 
-Windows 98, Windows ME, Windows NT 3.51 and Windows NT 4.0.
+Ice has been extensively tested with Windows XP, Windows 2003 Server
+and Windows 2000. Ice is also expected to work on  Windows 98, 
+Windows 98 SE, Windows ME, Windows NT 3.51 and Windows NT 4.0.
 
 Ice binary distributions for Visual Studio 6.0, Visual Studio .NET 
 2003 and Visual Studio 2005 are available from:
@@ -16,8 +16,8 @@ Ice binary distributions for Visual Studio 6.0, Visual Studio .NET
   http://www.zeroc.com/download.html
 
 These binary distributions include everything necessary to build Ice 
-applications and require Windows NT 4.0, Windows 2000, Windows XP or 
-Windows Server 2003.
+applications and require Windows 2000, Windows XP or Windows Server 
+2003.
 
 
 C++ compiler
