@@ -54,6 +54,7 @@ SessionControlClient::run(int argc, char* argv[])
     cout << "creating session... " << flush;
     Glacier2::SessionPrx sessionBase = router->createSession("userid", "abc123");
     Test::SessionPrx session = Test::SessionPrx::uncheckedCast(sessionBase);
+    test(session);
     cout << "ok" << endl;
 
     cout << "testing destroy... " << flush;
@@ -74,6 +75,25 @@ SessionControlClient::run(int argc, char* argv[])
     {
     }
     cout << "ok" << endl;
+
+    cout << "testing create exceptions... " << flush;
+    try
+    {
+	router->createSession("rejectme", "abc123");
+	test(false);
+    }
+    catch(const Glacier2::CannotCreateSessionException&)
+    {
+    }
+    try
+    {
+	router->createSession("localexception", "abc123");
+	test(false);
+    }
+    catch(const Glacier2::CannotCreateSessionException&)
+    {
+    }
+    cout << "ok" << endl;    
 
     cout << "testing shutdown... " << flush;
     session = Test::SessionPrx::uncheckedCast(router->createSession("userid", "abc123"));

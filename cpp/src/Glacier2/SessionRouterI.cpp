@@ -773,7 +773,7 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 	    if(_sessionTraceLevel >= 1)
 	    {
 		Trace out(_logger, "Glacier2");
-		out << "exception while verifying password\n" << ex;
+		out << "exception while verifying password:\n" << ex;
 	    }
 	    
 	    PermissionDeniedException exc;
@@ -819,8 +819,8 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 	// responsible for creating the filters and we want them to be
 	// accessible during session creation.
 	//
-	FilterManagerPtr filterManager = FilterManager::create(_clientAdapter->getCommunicator(), _adminAdapter, userId,
-							       allowAddUserMode);
+	FilterManagerPtr filterManager = FilterManager::create(_clientAdapter->getCommunicator(), _adminAdapter, 
+							       userId, allowAddUserMode);
 
         //
 	// If we have a session manager configured, we create a
@@ -844,7 +844,7 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 	router = new RouterI(_clientAdapter, _serverAdapter, _adminAdapter, current.con, userId, 
 			     session, controlId, filterManager);
     }
-    catch(const Exception&)
+    catch(const Exception& ex)
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 
@@ -880,12 +880,26 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 	    }
 	}
 	
-	//
-	// We throw ConnectionLostException here rather than the exception that
-	// was raised by the session creation as the client should not receive
-	// that information.
-	//
-	throw ConnectionLostException(__FILE__, __LINE__, 0);
+	try
+	{
+	    ex.ice_throw();
+	}
+	catch(const Glacier2::CannotCreateSessionException&)
+	{
+	    throw;
+	}
+	catch(const Exception&)
+	{
+	    if(_sessionTraceLevel >= 1)
+	    {
+		Trace out(_logger, "Glacier2");
+		out << "exception while creating session with session manager:\n" << ex;
+	    }
+	    
+	    CannotCreateSessionException exc;
+	    exc.reason = "internal server error";
+	    throw exc;
+	}
     }
 
     {

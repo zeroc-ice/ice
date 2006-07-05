@@ -40,8 +40,17 @@ private:
 };
 
 Glacier2::SessionPrx
-SessionManagerI::create(const string&, const Glacier2::SessionControlPrx& sessionControl, const Ice::Current& current)
+SessionManagerI::create(const string& userId, const Glacier2::SessionControlPrx& sessionControl,
+			const Ice::Current& current)
 {
+    if(userId == "rejectme")
+    {
+	throw Glacier2::CannotCreateSessionException("");
+    }
+    if(userId == "localexception")
+    {
+	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
     return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(new SessionI(sessionControl)));
 }
 
