@@ -325,6 +325,7 @@ def convertLicensesToRTF(toolDir, installTarget):
     if installTarget == "vc60":
 	collection.append((os.path.join(os.environ["STLPORT_HOME"], "doc", "license.html"),  
 	                   "STLport", "STLPORT_LICENSE.rtf"))
+	collection.extend(jgoodies)
     elif installTarget in ["vc71", "vc80", "vc80_x64"]:
 	collection.extend(jgoodies)
 

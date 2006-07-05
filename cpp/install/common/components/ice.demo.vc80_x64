@@ -351,8 +351,12 @@ IceGrid/allocate/HelloI.h
 IceGrid/allocate/README
 IceGrid/allocate/Server.cpp
 IceGrid/allocate/db
+IceGrid/allocate/db/node
+IceGrid/allocate/db/registry
 IceGrid/sessionActivation/application.xml
 IceGrid/sessionActivation/db
+IceGrid/sessionActivation/db/node
+IceGrid/sessionActivation/db/registry
 IceGrid/sessionActivation/Client.cpp
 IceGrid/sessionActivation/config.client
 IceGrid/sessionActivation/config.grid
@@ -380,6 +384,9 @@ IceGrid/simple/README
 IceGrid/simple/Server.cpp
 IceGrid/simple/simpleC.vcproj
 IceGrid/simple/simpleS.vcproj
+IceGrid/simple/db
+IceGrid/simple/db/node
+IceGrid/simple/db/registry
 IcePatch2/MFC/mfcpatchC.vcproj
 IcePatch2/MFC/PatchClient.cpp
 IcePatch2/MFC/PatchClient.h
@@ -415,7 +422,4 @@ README
 Freeze/bench/db
 Freeze/library/db
 Freeze/phonebook/db
-IceGrid/simple/db
-IceGrid/simple/db/node
-IceGrid/simple/db/registry
 IceStorm/clock/db
