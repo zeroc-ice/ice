@@ -19,6 +19,7 @@
 
     <target name="clean">
         <ant dir="simple" target="clean"/>
+        <ant dir="sessionActivation" target="clean"/>
         <ant dir="allocate" target="clean"/>
     </target>
 
