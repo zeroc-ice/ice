@@ -1134,9 +1134,9 @@ def main():
 	# TODO: Sanity check to make sure that the script is being run
 	# from a location that it expects.
 	#
-	cvsDirs = [ 'ice', 'icej', 'icepy', 'icephp' ]
+	cvsDirs = [ 'ice', 'icej', 'icephp' ]
 	if getPlatform() == 'linux':
-	    cvsDirs.append('icecs')
+	    cvsDirs.append('icecs', 'icepy')
 
         os.environ['ICE_HOME'] = os.getcwd()  
         currentLibraryPath = None
