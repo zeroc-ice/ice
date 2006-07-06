@@ -37,7 +37,7 @@ includes the following components:
 Requirements
 ======================================================================
 
-This binary distribution was compiled on Mac OS X 10.4.6 using the
+This binary distribution was compiled on Mac OS X 10.4.7 using the
 default C++ compiler, GCC 4.0.1.
 
 
@@ -178,11 +178,4 @@ With the binary installers, simply uninstall the previous version of
 Ice and install the new one. Already deployed applications that were
 compiled against the <x>.<y>.0 runtime will automatically use the
 <x>.<y>.1 runtime.
-
-Note: Under Mono, binary compatibility currently does not work due to
-      issues with Mono. Until this problem in Mono is fixed, you cannot
-      run applications compiled with previous minor versions of Ice
-      against a newer version of the Ice assemblies. For example, an
-      application compiled with version <x>.<y>.0 of Ice cannot run with
-      the <x>.<y>.1 Ice assemblies.
 
