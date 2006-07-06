@@ -14,6 +14,12 @@
 prefix			?= /opt/Ice-$(VERSION)
 
 #
+# When creating an executable, shall we add install_libdir to the
+# runpath embedded in this executable?
+#
+ADD_LIBDIR_TO_RPATH     ?= yes
+
+#
 # Define OPTIMIZE as yes if you want to build with
 # optimization. Otherwise Ice is build with debug information.
 #

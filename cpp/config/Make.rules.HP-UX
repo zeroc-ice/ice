@@ -45,15 +45,11 @@ endif
 #
 CXXLIBS			= -lCsup_v2 -lstd_v2
 
-#
-# On HP-UX, we need -L for all dependent libraries
-# 
-
-LIBPATH                 =
-
-
-
-LDPLATFORMFLAGS         = -Wl,+s -Wl,+b$(install_libdir) $(LIBPATH)
+ifeq ($(ADD_LIBDIR_TO_RPATH),yes)
+   LDPLATFORMFLAGS      = -Wl,+s -Wl,+b$(install_libdir)
+else
+   LDPLATFORMFLAGS      = -Wl,+s
+endif
 
 mklibfilename           = $(if $(2),lib$(1).$(2),lib$(1).sl)
 mksoname                = $(if $(2),lib$(1).$(2),lib$(1).sl)

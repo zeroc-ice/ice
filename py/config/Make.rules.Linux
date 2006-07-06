@@ -100,8 +100,12 @@ ifeq ($(CXX),c++)
 
    rpathlink            = -Wl,-rpath-link,$(1) 
 
-   LDPLATFORMFLAGS 	= -Wl,--enable-new-dtags -Wl,-rpath,$(install_libdir)
-
+   ifeq ($(ADD_LIBDIR_TO_RPATH),yes)
+      LDPLATFORMFLAGS      = -Wl,--enable-new-dtags -Wl,-rpath,$(install_libdir)
+   else
+      LDPLATFORMFLAGS      = -Wl,--enable-new-dtags
+   endif
+   
 endif
 
 ifeq ($(CXX),icpc)

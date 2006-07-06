@@ -100,8 +100,12 @@ ifeq ($(CXX),CC)
 
     mklib		    = $(CXX) -xar -o $(1) $(2)
 
-    LDPLATFORMFLAGS	    = -R $(install_libdir) -z text
-
+    ifeq ($(ADD_LIBDIR_TO_RPATH),yes)
+         LDPLATFORMFLAGS    = -R $(install_libdir) -z text
+    else
+         LDPLATFORMFLAGS    = -z text
+    endif
+    
 endif
 
 ifeq ($(CXX),gcc)

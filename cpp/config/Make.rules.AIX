@@ -43,8 +43,11 @@ else
      CXXFLAGS		+= -g
 endif
 
-
-LDPLATFORMFLAGS		= -Wl,-blibpath:$(install_libdir):/usr/lpp/xlopt:/usr/lib/threads:/usr/vacpp/lib:/usr/lib:/lib
+ifeq ($(ADD_LIBDIR_TO_RPATH),yes)
+   LDPLATFORMFLAGS      = -Wl,-blibpath:$(install_libdir):/usr/lpp/xlopt:/usr/lib/threads:/usr/vacpp/lib:/usr/lib:/lib
+else
+   LDPLATFORMFLAGS	= -Wl,-blibpath:/usr/lpp/xlopt:/usr/lib/threads:/usr/vacpp/lib:/usr/lib:/lib
+endif
 
 mklibfilename		= lib$(1).a
 
