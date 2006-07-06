@@ -80,6 +80,7 @@ private:
     PyObject* unmarshalResults(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
     PyObject* unmarshalException(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
     bool validateException(PyObject*) const;
+    void checkTwowayOnly(const Ice::ObjectPrx&) const;
 };
 typedef IceUtil::Handle<OperationI> OperationIPtr;
 
@@ -485,10 +486,13 @@ IcePy::OperationI::invoke(const Ice::ObjectPrx& proxy, PyObject* args, PyObject*
     if(!_deprecateMessage.empty())
     {
 	PyErr_Warn(PyExc_DeprecationWarning, const_cast<char*>(_deprecateMessage.c_str()));
+	_deprecateMessage.clear(); // Only show the warning once.
     }
 
     try
     {
+	checkTwowayOnly(proxy);
+
         //
         // Invoke the operation.
         //
@@ -598,11 +602,13 @@ IcePy::OperationI::invokeAsync(const Ice::ObjectPrx& proxy, PyObject* callback, 
     if(!_deprecateMessage.empty())
     {
 	PyErr_Warn(PyExc_DeprecationWarning, const_cast<char*>(_deprecateMessage.c_str()));
+	_deprecateMessage.clear(); // Only show the warning once.
     }
 
+    Ice::AMI_Object_ice_invokePtr cb = new AMICallback(this, communicator, callback);
     try
     {
-        Ice::AMI_Object_ice_invokePtr cb = new AMICallback(this, communicator, callback);
+	checkTwowayOnly(proxy);
 
         //
         // Invoke the operation asynchronously.
@@ -633,8 +639,7 @@ IcePy::OperationI::invokeAsync(const Ice::ObjectPrx& proxy, PyObject* callback, 
     }
     catch(const Ice::Exception& ex)
     {
-        setPythonException(ex);
-        return NULL;
+	cb->ice_exception(ex);
     }
 
     Py_INCREF(Py_None);
@@ -1166,6 +1171,17 @@ IcePy::OperationI::validateException(PyObject* ex) const
     }
 
     return false;
+}
+
+void
+IcePy::OperationI::checkTwowayOnly(const Ice::ObjectPrx& proxy) const
+{
+    if((_returnType != 0 || !_outParams.empty()) && !proxy->ice_isTwoway())
+    {
+	Ice::TwowayOnlyException ex(__FILE__, __LINE__);
+	ex.operation = _name;
+	throw ex;
+    }
 }
 
 static PyMethodDef OperationMethods[] =
