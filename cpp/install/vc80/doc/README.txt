@@ -133,6 +133,12 @@ Building and running the Visual Basic demos
 
 The Visual Basic demos are in the demovb directory.
 
+If you are using Visual Basic 2005 Express, you must execute a
+command-line tool before building any of the demos. Change to the
+demovb directory and run this command:
+
+..\bin\generatevb . build
+
 To build a Visual Basic demo, start Visual Studio 2005 and open the
 solution demovb\demo.sln. Right click on the desired demo in the
 Solution Explorer window and select "Build".
