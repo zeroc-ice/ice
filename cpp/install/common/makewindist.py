@@ -473,6 +473,11 @@ def buildMergeModules(startDir, stageDir, sourcesVersion, installVersion):
 
 def buildInstallers(startDir, stageDir, sourcesVersion, installVersion, installers):
 
+    if installVersion == "vc80_x64":
+	installVersion = "VC80-x64"
+    else:
+	installVersion = installVersion.upper()
+
     #
     # Build and copy to the stage directory root.
     #
