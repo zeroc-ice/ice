@@ -76,7 +76,8 @@ class Client(Ice.Application):
 	try:
 	    hello = Demo.HelloPrx.checkedCast(session.allocateObjectById(self.communicator().stringToIdentity("hello")))
 	except IceGrid.AllocationException, ex:
-	    pass
+            print self.appName() + ": could not allocate object: " + ex.reason
+            return False
 	except IceGrid.ObjectNotRegisteredException:
 	    pass
 	if hello == None:

@@ -130,6 +130,8 @@ public class Client extends Ice.Application
 	}
 	catch(IceGrid.AllocationException ex)
 	{
+	    System.err.println("could not allocate object: " + ex.reason);
+	    return 1;
 	}
 	catch(IceGrid.ObjectNotRegisteredException ex)
 	{

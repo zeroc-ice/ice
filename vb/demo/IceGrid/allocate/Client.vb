@@ -95,6 +95,8 @@ Module AllocateC
 	    Try
 	        hello = HelloPrxHelper.checkedCast(session.allocateObjectById(communicator().stringToIdentity("hello")))
 	    Catch ex As Icegrid.AllocationException
+	        Console.Error.WriteLine("could not allocate object: " + ex.reason)
+	        Return 1
 	    Catch ex As Icegrid.ObjectNotRegisteredException
 	    End Try
 
