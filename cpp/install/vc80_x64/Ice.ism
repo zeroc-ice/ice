@@ -1053,7 +1053,8 @@
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
 		<row><td>ICE_3.1.0_VC80</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.1.0-VC80</td><td/><td>0</td><td/></row>
 		<row><td>ICE_3.1.0_VC80_X64</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.1.0-VC80_x64</td><td/><td>0</td><td/></row>
-		<row><td>INSTALLDIR</td><td>ICE_3.1.0_VC80_X64</td><td>.</td><td/><td>0</td><td/></row>
+		<row><td>ICE_3.1.0_VC80_X641</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.1.0-VC80-x64</td><td/><td>0</td><td/></row>
+		<row><td>INSTALLDIR</td><td>ICE_3.1.0_VC80_X641</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
 		<row><td>ISMyProductDir</td><td>WindowsVolume</td><td>ICE-2_~1|Ice-2.1.0</td><td/><td>0</td><td/></row>
