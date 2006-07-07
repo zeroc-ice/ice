@@ -233,7 +233,7 @@ cwd = os.getcwd()
 os.chdir("icej")
 if os.environ.has_key("JAVA15_HOME"):
     # 
-    # build with JDK 1.5 first.
+    # First create Ice.jar for JDK 1.5.
     #
     oldpath = os.environ["PATH"]
     if os.environ.has_key("JAVA_HOME"):
@@ -246,7 +246,7 @@ if os.environ.has_key("JAVA15_HOME"):
 	    quiet = ""
 	else:
 	    quiet = " -q"
-	os.system("ant" + quiet)
+	os.system("ant" + quiet + " ice-jar")
 	os.rename(os.path.join("lib", "Ice.jar"), "Ice.jdk15.jar")
 	os.system("ant" + quiet + " clean")
     
