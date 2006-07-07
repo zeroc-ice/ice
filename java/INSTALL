@@ -221,7 +221,7 @@ If you want to rebuild the source code, you will need to obtain the
 
 http://ant.apache.org/
 
-Ice requires ant 1.6.2 or later, but we recommend using the most
+Ice requires ant 1.6.3 or later, but we recommend using the most
 recent release.
 
 The third-party dependencies that Ice requires must be in your
@@ -240,11 +240,6 @@ the Ice for Java source code:
 
 $ ant clean
 $ ant
-
-NOTE: If you use cygwin, be aware that ant 1.6.2 has a bug that causes
-it to misinterpret CLASSPATH entries having forward slashes. The
-workaround is to change your CLASSPATH to use backslashes, or revert
-to ant 1.6.1.
 
 
 ======================================================================
