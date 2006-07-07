@@ -293,11 +293,35 @@ public class Root extends ListTreeNode
 		if(rgd.id.equals(update.removeReplicaGroups[i]))
 		{
 		    appDesc.replicaGroups.remove(j);
+		    break; // for
 		}
 	    }
 	}
-	appDesc.replicaGroups.addAll(update.replicaGroups);
-	
+
+	for(int i = 0; i < update.replicaGroups.size(); ++i)
+	{
+	    ReplicaGroupDescriptor newRgd = (ReplicaGroupDescriptor)update.replicaGroups.get(i);
+
+	    boolean replaced = false;
+	    int j = 0;
+	    while(j < appDesc.replicaGroups.size() && !replaced)
+	    {
+		ReplicaGroupDescriptor oldRgd = (ReplicaGroupDescriptor)appDesc.replicaGroups.get(j);
+		
+		if(newRgd.id.equals(oldRgd.id))
+		{
+		    appDesc.replicaGroups.set(j, newRgd);
+		    replaced = true;
+		}
+		j++;
+	    }
+
+	    if(!replaced)
+	    {
+		appDesc.replicaGroups.add(newRgd);
+	    }
+	}
+   
 	appDesc.serviceTemplates.keySet().
 	    removeAll(java.util.Arrays.asList(update.removeServiceTemplates));
 	appDesc.serviceTemplates.putAll(update.serviceTemplates);
