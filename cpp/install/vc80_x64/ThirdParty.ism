@@ -1680,7 +1680,7 @@
 		<row><td>CRT.844EFBA7_1C24_93B2_FF1F_C8B3B9A1E18E</td><td>0</td><td>Visual C++ 8.0 CRT (x86_x64) WinSXS MSM Beta2</td><td/><td/></row>
 		<row><td>ExpatDevKit.VC80_x64.1C73E994_7759_4144_BCEC_AD4CC948FAB9</td><td>0</td><td>Expat Dev Kit for Visual Studio .NET 2005 x64</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>ExpatRuntime.VC80_x64.43F11D65_2523_4074_A74E_81ABA8E7973C</td><td>0</td><td>Expat Runtime for Visual Studio .NET 2005 x64</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>JGoodies.VC80_x64.A7CC487E_3341_4DCF_876F_2F99766B5616</td><td>0</td><td>JGoodies Runtime for Visual Studio 2005 x64</td><td/><td/></row>
+		<row><td>JGoodies.VC80_x64.A7CC487E_3341_4DCF_876F_2F99766B5616</td><td>0</td><td>JGoodies Runtime for Visual Studio 2005 x64</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>OpenSSLDevKit.VC80_x64.9BD4C15D_8957_4268_9B9A_08D77BB8EEFE</td><td>0</td><td>OpenSSL Dev Kit for Visual Studio .NET 2005 x64</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>OpenSSLRuntime.VC80_x64.B97BDA68_334F_4430_A0F1_9299B2EE8DD2</td><td>0</td><td>OpenSSL Runtime for Visual Studio .NET 2005 x64</td><td>[INSTALLDIR]</td><td/></row>
 	</table>

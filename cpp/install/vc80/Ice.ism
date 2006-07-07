@@ -356,6 +356,7 @@
 		<row><td>IceCppDev</td><td>{F40D5465-8797-479E-ACD2-89216631CF7F}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceCppRuntime</td><td>{218943FB-F791-430F-B27E-9E839F0732C1}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceDoc</td><td>{7FBEE10C-DD9F-4525-A1AF-6EDC938DB5FB}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceDotnetPDBs</td><td>{DB8BA03D-603E-4397-813F-585455B24B68}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceDotnetSSL</td><td>{B5D46268-BF84-4EFB-BBE2-757D430DAB67}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceJavaDemo</td><td>{76F76C01-E468-46DC-8989-15EE4BC662F8}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceJavaDev</td><td>{23924FBE-9F6C-4DDD-BB38-4D6431973B01}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
@@ -1336,6 +1337,7 @@
 		<row><td>ice_dev_csharp</td><td>IceCSharpDemo</td></row>
 		<row><td>ice_dev_csharp</td><td>IceCSharpDev</td></row>
 		<row><td>ice_dev_csharp</td><td>IceCSharpRuntime</td></row>
+		<row><td>ice_dev_csharp</td><td>IceDotnetPDBs</td></row>
 		<row><td>ice_dev_java</td><td>IceJavaDemo</td></row>
 		<row><td>ice_dev_java</td><td>IceJavaDev</td></row>
 		<row><td>ice_dev_java</td><td>IceJavaRuntime</td></row>
@@ -1351,6 +1353,7 @@
 		<row><td>ice_dev_vbasic</td><td>GAC_icestormcs</td></row>
 		<row><td>ice_dev_vbasic</td><td>GAC_registry</td></row>
 		<row><td>ice_dev_vbasic</td><td>IceCSharpRuntime</td></row>
+		<row><td>ice_dev_vbasic</td><td>IceDotnetPDBs</td></row>
 		<row><td>ice_dev_vbasic</td><td>IceVBasicDemo</td></row>
 		<row><td>ice_dev_vbasic</td><td>IceVBasicDev</td></row>
 		<row><td>ice_doc</td><td>IceManual</td></row>
@@ -1557,6 +1560,7 @@
 		<row><td>IceCppDev</td><td/><td/><td>_770F5B6A_0687_4BB0_B0D6_E1E5F6EAF0A7_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceCppRuntime</td><td/><td/><td>_DC33EA7A_C8B8_4C51_AA1A_6FA971C84A5F_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceDoc</td><td/><td/><td>_12A3BACF_1B61_45A5_928F_45572487D618_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>IceDotnetPDBs</td><td/><td/><td>_39AF7DA2_D52B_4526_B1B9_B5AF796A59DD_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceDotnetSSL</td><td/><td/><td>_BCDD9CDF_578A_46C1_BFAE_7D8FB023F2ED_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceJavaDemo</td><td/><td/><td>_CDB69F49_081A_4B76_A0E6_FB3312C328F7_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceJavaDev</td><td/><td/><td>_109869C1_DCF5_4B8D_A5FE_B1C4DFDFCF56_FILTER</td><td/><td/><td/><td/></row>
@@ -1604,6 +1608,7 @@
 		<row><td>IceCppDev</td><td>&lt;ISProjectFolder&gt;\install\ice\cpp\dev</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceCppRuntime</td><td>&lt;ISProjectFolder&gt;\install\ice\cpp\runtime</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceDoc</td><td>&lt;ISProjectFolder&gt;\install\ice\common\doc</td><td>4</td><td/><td/><td>0</td></row>
+		<row><td>IceDotnetPDBs</td><td>&lt;ISProjectFolder&gt;\install\ice\dotnet\pdbs</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceDotnetSSL</td><td>&lt;ISProjectFolder&gt;\install\ice\dotnet\ssl</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceJavaDemo</td><td>&lt;ISProjectFolder&gt;\install\ice\java\demo</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceJavaDev</td><td>&lt;ISProjectFolder&gt;\install\ice\java\dev</td><td>4</td><td/><td/><td>2</td></row>
