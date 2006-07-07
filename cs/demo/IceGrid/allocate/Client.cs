@@ -76,7 +76,7 @@ public class Client : Ice.Application
 	    IceGrid.RegistryPrxHelper.checkedCast(communicator().stringToProxy("DemoIceGrid/Registry"));
 	if(registry == null)
 	{
-            Console.WriteLine(": cound not contact registry");
+            Console.WriteLine("could not contact registry");
 	    return 1;
 	}
 
@@ -118,12 +118,12 @@ public class Client : Ice.Application
 	}
 	catch(IceGrid.AllocationException ex)
 	{
-	    Console.WriteLine(": could not allocate object: " + ex.reason);
+	    Console.WriteLine("could not allocate object: " + ex.reason);
 	    return 1;
 	}
 	catch(IceGrid.ObjectNotRegisteredException)
 	{
-	    Console.WriteLine(": object not registered with registry");
+	    Console.WriteLine("object not registered with registry");
 	    return 1;
 	}
 	if(hello == null)
@@ -134,7 +134,7 @@ public class Client : Ice.Application
 	    }
 	    catch(IceGrid.AllocationException ex)
 	    {
-	        Console.WriteLine(": could not allocate object: " + ex.reason);
+	        Console.WriteLine("could not allocate object: " + ex.reason);
 	        return 1;
 	    }
 	}
@@ -192,12 +192,12 @@ public class Client : Ice.Application
 	}
 	catch(IceGrid.AllocationException ex)
 	{
-	    Console.WriteLine(": could not release object: " + ex.reason);
+	    Console.WriteLine("could not release object: " + ex.reason);
 	    return 1;
 	}
 	catch(IceGrid.ObjectNotRegisteredException)
 	{
-	    Console.WriteLine(": object not registered with registry");
+	    Console.WriteLine("object not registered with registry");
 	    return 1;
 	}
 

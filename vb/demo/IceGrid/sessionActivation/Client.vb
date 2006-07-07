@@ -63,7 +63,7 @@ Module SessionActivationC
 	    Dim registry As IceGrid.RegistryPrx
 	    registry = IceGrid.RegistryPrxHelper.checkedCast(communicator().stringToProxy("DemoIceGrid/Registry"))
  	    If registry Is Nothing Then
-	        Console.Error.WriteLine(": cound not contact registry")
+	        Console.Error.WriteLine("could not contact registry")
 	    End If
 
 	    Dim session As IceGrid.SessionPrx = Nothing	    
@@ -94,10 +94,10 @@ Module SessionActivationC
 	    Try
 	        hello = HelloPrxHelper.checkedCast(session.allocateObjectById(communicator().stringToIdentity("hello")))
 	    Catch ex As Icegrid.AllocationException
-	        Console.Error.WriteLine(": could not allocate object: " + ex.reason)
+	        Console.Error.WriteLine("could not allocate object: " + ex.reason)
 	        Return 1
 	    Catch ex As Icegrid.ObjectNotRegisteredException
-	        Console.Error.WriteLine(": object not registered with registry")
+	        Console.Error.WriteLine("object not registered with registry")
 	        Return 1
 	    End Try
 

@@ -43,7 +43,7 @@ public class Client extends Ice.Application
 	}
 	if(hello == null)
 	{
-            System.err.println(": couldn't find a `::Demo::Hello' object");
+            System.err.println("couldn't find a `::Demo::Hello' object");
 	    return 1;
 	}
 

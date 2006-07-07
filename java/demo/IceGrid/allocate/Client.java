@@ -77,7 +77,7 @@ public class Client extends Ice.Application
 	    IceGrid.RegistryPrxHelper.checkedCast(communicator().stringToProxy("DemoIceGrid/Registry"));
 	if(registry == null)
 	{
-            System.err.println(": cound not contact registry");
+            System.err.println("could not contact registry");
 	    return 1;
 	}
 
@@ -142,7 +142,7 @@ public class Client extends Ice.Application
 	    }
 	    catch(IceGrid.AllocationException ex)
 	    {
-	        System.err.println(": could not allocate object: " + ex.reason);
+	        System.err.println("could not allocate object: " + ex.reason);
 	        return 1;
 	    }
 	}
@@ -202,12 +202,12 @@ public class Client extends Ice.Application
 	}
 	catch(IceGrid.AllocationException ex)
 	{
-	    System.err.println(": could not release object: " + ex.reason);
+	    System.err.println("could not release object: " + ex.reason);
 	    return 1;
 	}
 	catch(IceGrid.ObjectNotRegisteredException ex)
 	{
-	    System.err.println(": object not registered with registry");
+	    System.err.println("object not registered with registry");
 	    return 1;
 	}
 

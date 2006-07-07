@@ -56,7 +56,7 @@ class Client(Ice.Application):
     def run(self, args):
 	registry = IceGrid.RegistryPrx.checkedCast(self.communicator().stringToProxy("DemoIceGrid/Registry"))
 	if registry == None:
-	    print self.appName() + ": cound not contact registry"
+	    print self.appName() + ": could not contact registry"
 	    return False
 
 	while True:
