@@ -63,7 +63,7 @@ a replacement script that you can install:
 
 $ cd <phpdir>
 $ cp <icephpdir>/configure.gz .
-$ gunzip configure
+$ gunzip configure.gz
 
 Alternatively, you can regenerate the configure script yourself if you
 have the necessary utilities installed on your system:
