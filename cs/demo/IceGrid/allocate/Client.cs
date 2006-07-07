@@ -123,8 +123,6 @@ public class Client : Ice.Application
 	}
 	catch(IceGrid.ObjectNotRegisteredException)
 	{
-	    Console.WriteLine("object not registered with registry");
-	    return 1;
 	}
 	if(hello == null)
 	{
