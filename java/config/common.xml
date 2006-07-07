@@ -158,7 +158,7 @@
 	<!-- Ice classpath -->
 	<path id="ice.classpath">
 	    <fileset dir="${lib.dir}">
-		<include name="*.jar"/>
+		<include name="Ice.jar"/>
 	    </fileset>
 	</path>
     </target>
@@ -176,7 +176,14 @@
 	<!-- Ice classpath -->
 	<path id="ice.classpath">
 	    <fileset dir="${lib.dir}">
-		<include name="*.jar"/>
+		<or>
+		    <selector if="java5">
+			<filename name="java5/Ice.jar"/>
+		    </selector>
+		    <selector unless="java5">
+			<filename name="Ice.jar"/>
+		    </selector>
+		</or>
 	    </fileset>
 	</path>
     </target>
@@ -190,7 +197,14 @@
 	<!-- Ice classpath -->
 	<path id="ice.classpath">
 	    <fileset dir="${lib.dir}">
-		<include name="*.jar"/>
+		<or>
+		    <selector if="java5">
+			<filename name="java5/Ice.jar"/>
+		    </selector>
+		    <selector unless="java5">
+			<filename name="Ice.jar"/>
+		    </selector>
+		</or>
 	    </fileset>
 	</path>
     </target>
@@ -204,7 +218,14 @@
 	<!-- Ice classpath -->
 	<path id="ice.classpath">
 	    <fileset dir="${lib.dir}">
-		<include name="*.jar"/>
+		<or>
+		    <selector if="java5">
+			<filename name="java5/Ice.jar"/>
+		    </selector>
+		    <selector unless="java5">
+			<filename name="Ice.jar"/>
+		    </selector>
+		</or>
 	    </fileset>
 	    <fileset dir="/usr/share/java">
 		<include name="db.jar"/>
