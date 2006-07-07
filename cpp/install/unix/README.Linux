@@ -149,7 +149,7 @@ $ export CLASSPATH=$ICE_HOME/lib/java5/Ice.jar:$CLASSPATH
 If you plan to use Freeze for persistence, you must also add the
 Berkeley DB JAR file (db.jar) to your CLASSPATH:
 
-$ export CLASSPATH=$DB_HOME/lib/db.jar:$CLASSPATH
+$ export CLASSPATH=/usr/share/java/db.jar:$CLASSPATH
 
 In addition, the JVM requires that the directory containing the
 Berkeley DB libraries be listed in java.library.path, therefore you
