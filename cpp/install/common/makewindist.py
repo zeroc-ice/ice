@@ -336,13 +336,15 @@ def convertLicensesToRTF(toolDir, installTarget):
 
     if not os.path.exists(os.path.join(toolDir, "docs")):
 	os.mkdir(os.path.join(toolDir, "docs"))
+    if not os.path.exists(os.path.join(toolDir, "docs", installTarget)):
+	os.mkdir(os.path.join(toolDir, "docs", installTarget))
     names = []
     for e in collection:
 	names.append(e[1])
 
     text = "The source distributions of " + list2english(names)
     text = text + " used to build this distribution can be downloaded at no cost from http://www.zeroc.com/download.html."
-    licensefile = file(os.path.join(toolDir, "docs", "THIRD_PARTY_SOURCES"), "w")
+    licensefile = file(os.path.join(toolDir, "docs", installTarget, "THIRD_PARTY_SOURCES"), "w")
 
     #
     # textwrap module has got to be one of the coolest things since
@@ -356,9 +358,10 @@ def convertLicensesToRTF(toolDir, installTarget):
     # THIRD_PARTY_SOURCES is the file used by the Ice installer while
     # SOURCES is used by the third party installer.
     #
-    shutil.copy(os.path.join(toolDir, "docs", "THIRD_PARTY_SOURCES"), os.path.join(toolDir, "docs", "SOURCES")) 
+    shutil.copy(os.path.join(toolDir, "docs", installTarget, "THIRD_PARTY_SOURCES"), 
+	    os.path.join(toolDir, "docs", installTarget, "SOURCES")) 
 
-    licensefile = file(os.path.join(toolDir, "docs", "LICENSE"), "w")
+    licensefile = file(os.path.join(toolDir, "docs", installTarget, "LICENSE"), "w")
     for f in collection:
 	contents = None
 	if f[0].endswith(".html"):
@@ -383,7 +386,7 @@ def convertLicensesToRTF(toolDir, installTarget):
 	licensefile.write(line_string[:len(hdr)] + "\n\n")
 	licensefile.writelines(contents)
 	licensefile.write("\n\n")
-	rtffile = file(os.path.join(toolDir, "docs", os.path.basename(f[2])), "w")
+	rtffile = file(os.path.join(toolDir, "docs", installTarget, os.path.basename(f[2])), "w")
 	rtffile.writelines(rtfhdr)
 	rtffile.write(hdr + "\\par")
 	rtffile.write(line_string[:len(hdr)] + "\\par\n")
@@ -401,7 +404,7 @@ def convertLicensesToRTF(toolDir, installTarget):
 	for f in jgoodies:
 	    contents = file(f[0]).readlines()
 	    hdr = section_header % f[1]
-	    rtffile = file(os.path.join(toolDir, "docs", os.path.basename(f[2])), "w")
+	    rtffile = file(os.path.join(toolDir, "docs", installTarget, os.path.basename(f[2])), "w")
 	    rtffile.writelines(rtfhdr)
 	    rtffile.write(hdr + "\\par")
 	    rtffile.write(line_string[:len(hdr)] + "\\par\n")
@@ -411,9 +414,10 @@ def convertLicensesToRTF(toolDir, installTarget):
 	    rtffile.close()
 
     licensefile.close()
-    shutil.copyfile(os.path.join(toolDir, "docs", "LICENSE"), os.path.join(toolDir, "docs", "THIRD_PARTY_LICENSE"))
-    lines = file(os.path.join(toolDir, "docs", "LICENSE")).readlines()
-    rtflicense = file(os.path.join(toolDir, "docs", "LICENSE.rtf"), "w")
+    shutil.copyfile(os.path.join(toolDir, "docs", installTarget, "LICENSE"), \
+	    os.path.join(toolDir, "docs", installTarget, "THIRD_PARTY_LICENSE"))
+    lines = file(os.path.join(toolDir, "docs", installTarget, "LICENSE")).readlines()
+    rtflicense = file(os.path.join(toolDir, "docs", installTarget, "LICENSE.rtf"), "w")
     rtflicense.writelines(rtfhdr)
     for l in lines:
 	rtflicense.write(l.rstrip("\n") + "\\par\n")

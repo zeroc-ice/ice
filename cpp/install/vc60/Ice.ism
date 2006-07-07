@@ -1506,11 +1506,13 @@
 		<col key="yes" def="s38">Feature_</col>
 		<col key="yes" def="s255">ISMergeModule_</col>
 		<col key="yes" def="i2">Language_</col>
-		<row><td>ice_runtime</td><td>Bzip2Runtime.VC60.90D4120C_EE76_471B_B2BD_F0F8288EA104</td><td>0</td></row>
 		<row><td>packages</td><td>BerkeleyDBRuntime.VC60.D5C9196F_ABFE_4664_807F_F216926DAE24</td><td>0</td></row>
+		<row><td>packages</td><td>Bzip2Runtime.VC60.90D4120C_EE76_471B_B2BD_F0F8288EA104</td><td>0</td></row>
 		<row><td>packages</td><td>ExpatRuntime.VC60.5A6DE968_90DB_43FD_8F25_8ECA6C43F554</td><td>0</td></row>
 		<row><td>packages</td><td>OpenSSLRuntime.VC60.80A6164B_103B_4318_9AB0_4C6DE95AC097</td><td>0</td></row>
 		<row><td>packages</td><td>STLPortRuntime.VC60.A9A58AC6_551C_4FFF_B9B5_3D503E8CC4C0</td><td>0</td></row>
+		<row><td>packages_dev_cpp</td><td>BZip2DevKit.VC60.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>0</td></row>
+		<row><td>packages_dev_cpp</td><td>BerkeleyDBDevKit.VC60.9D7EE251_9423_4C69_B4B4_73580837DA18</td><td>0</td></row>
 		<row><td>packages_dev_cpp</td><td>STLPortDevKit.VC60.3FCE994D_E327_4276_A95A_3C928E7A52D4</td><td>0</td></row>
 	</table>
 
@@ -1594,6 +1596,8 @@
 		<col def="s255">Name</col>
 		<col def="S255">Destination</col>
 		<col def="I4">ISAttributes</col>
+		<row><td>BZip2DevKit.VC60.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>0</td><td>BZip2 Dev Kit for Visual Studio 6.0</td><td/><td/></row>
+		<row><td>BerkeleyDBDevKit.VC60.9D7EE251_9423_4C69_B4B4_73580837DA18</td><td>0</td><td>BerkeleyDB Dev Kit for Visual Studio 6.0</td><td/><td/></row>
 		<row><td>BerkeleyDBRuntime.VC60.D5C9196F_ABFE_4664_807F_F216926DAE24</td><td>0</td><td>BerkeleyDB Runtime for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>Bzip2Runtime.VC60.90D4120C_EE76_471B_B2BD_F0F8288EA104</td><td>0</td><td>Bzip2 Runtime for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>ExpatRuntime.VC60.5A6DE968_90DB_43FD_8F25_8ECA6C43F554</td><td>0</td><td>Expat Runtime for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
