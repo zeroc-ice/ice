@@ -350,6 +350,7 @@ fileLists = [
              ('lib', '%{icelibdir}/libSlice.so.VERSION'),
              ('lib', '%{icelibdir}/libIceGrid.so.VERSION'),
 	     ('dir', 'lib/Ice-%version%/IceGridGUI.jar'),
+             ('dir', 'share/slice'),
              ('dir', 'share/doc/Ice-%version%/doc'),
              ('xdir', 'share/doc/Ice-%version%/certs'),
 	     ('file', 'share/doc/Ice-%version%/certs/cacert.pem'),
@@ -682,9 +683,9 @@ gzip -dc $RPM_SOURCE_DIR/configure.gz > $RPM_BUILD_DIR/php-5.1.4/configure
 def writeBuildCommands(ofile, version):
     ofile.write("""
 cd $RPM_BUILD_DIR/Ice-%{version}
-gmake OPTIMIZE=yes RPM_BUILD_ROOT=$RPM_BUILD_ROOT
+gmake OPTIMIZE=yes RPM_BUILD_ROOT=$RPM_BUILD_ROOT ADD_LIBDIR_TO_RPATH=no
 cd $RPM_BUILD_DIR/IcePy-%{version}
-gmake  OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT
+gmake  OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT ADD_LIBDIR_TO_RPATH=no
 cd $RPM_BUILD_DIR/IceCS-%{version}
 export PATH=$RPM_BUILD_DIR/Ice-%{version}/bin:$PATH
 export LD_LIBRARY_PATH=$RPM_BUILD_DIR/Ice-%{version}/lib:$LD_LIBRARY_PATH
