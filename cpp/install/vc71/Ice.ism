@@ -1681,8 +1681,8 @@
 		<col def="s255">Name</col>
 		<col def="S255">Destination</col>
 		<col def="I4">ISAttributes</col>
-		<row><td>BZip2DevKit.VC71.2AF16623_EA4A_40B4_A1BD_E23902A8B1D5</td><td>0</td><td>BZip2 Dev Kit for Visual Studio .NET 2003</td><td/><td/></row>
-		<row><td>BerkeleyDBDevKit.VC71.81F93940_63FD_4AB8_B655_5F66F500C497</td><td>0</td><td>BerkeleyDB Dev Kit for Visual Studio .NET 2003</td><td/><td/></row>
+		<row><td>BZip2DevKit.VC71.2AF16623_EA4A_40B4_A1BD_E23902A8B1D5</td><td>0</td><td>BZip2 Dev Kit for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>BerkeleyDBDevKit.VC71.81F93940_63FD_4AB8_B655_5F66F500C497</td><td>0</td><td>BerkeleyDB Dev Kit for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>BerkeleyDBRuntime.VC71.D4F6A049_6694_4A3A_98BB_FA2BF3B29275</td><td>0</td><td>BerkeleyDB Runtime for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>Bzip2Runtime.VC71.8351B058_8FC6_459D_827A_085BA1CB4990</td><td>0</td><td>Bzip2 Runtime for Visual Studio .Net 2003</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>ExpatRuntime.VC71.682B7E6B_B5A9_4A2C_AA9C_BA4E466D1A9B</td><td>0</td><td>Expat Runtime for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
