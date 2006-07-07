@@ -279,11 +279,25 @@ Building PHP with the Ice extension (Windows)
 
 Compiling PHP from source code on Windows is a tedious process,
 therefore we recommend that you download the precompiled dynamic
-extension for Ice from the ZeroC web site and use the binary PHP
-distribution if possible.
+Ice extension from the ZeroC web site (included in the Ice installer
+for Visual C++ 6.0) and use the binary PHP distribution if possible.
 
-If you prefer to build the dynamic extension yourself, you will need
-to do the following:
+If you prefer to build the Ice extension yourself, you must first
+understand the C run time dependency issues. Specifically, the Ice
+extension must use the same C run time as PHP5. Since the binary
+distribution of PHP5 available from php.net depends on the Visual C++
+6.0 run time DLL (MSVCRT), you must also build the Ice extension using
+Visual C++ 6.0 if you want to use Ice with this PHP distribution. This
+is the reason why the precompiled Ice extension is included in the Ice
+installer for Visual C++ 6.0, as attempting to use an Ice extension
+that was built with a newer compiler together with the binary PHP
+distribution results in undefined behavior.
+
+To use a later version of Visual C++, you must obtain (or build) PHP5
+with the desired compiler, and use the same compiler to build the Ice
+extension.
+
+Follow these instructions to build the Ice extension:
 
 1) Download and extract the PHP5 sources so that the PHP header files
    are available.
@@ -305,7 +319,6 @@ to do the following:
      C:\Ice\include
 
    Library:
-     C:\PHP5-Win32
      C:\PHP5-Win32\dev
      C:\Ice\lib
 
@@ -318,19 +331,6 @@ to do the following:
    itself. If you are linking against the dynamic libraries included
    in the binary PHP distribution, you must use the Release
    configuration when compiling the Ice extension.
-
-NOTE:
-
-  When compiled with Visual C++ 6.0, the Ice extension for PHP is
-  compatible with Apache 1.x. Due to a problem in the C++ run time
-  library, the Ice extension for PHP is not compatible with Apache
-  2.x.
-
-  In order to use the Ice extension for PHP with Apache 2.x, you must
-  obtain a version of the extension that is compiled using Visual C++
-  .NET 2003.
-
-
 
 
 =========================================================================
@@ -374,15 +374,15 @@ libraries must reside in a directory of the user's PATH.
 For Web servers, the libraries may need to reside in a system
 directory. For example, on Linux you can add the directory containing
 the Ice run-time libraries to /etc/ld.so.conf and run ldconfig. On
-Windows, you can copy the DLLs to the C:\WINDOWS\system32 directory.
+Windows, you can copy the DLLs to the C:\WINDOWS\system32 directory,
+or to the Apache installation directory.
 
 You can verify that the Ice extension is installed properly by
 examining the output of the "php -m" command, or by calling the
 phpinfo() function from a script.
 
 Note that if you want to use IceSSL from the Ice extension, then PHP
-will also need access to the shared libraries for IceSSL, IceXML and
-expat.
+will also need access to the shared library for IceSSL.
 
 Finally, the Ice extension will need to execute the Ice preprocessor
 (icecpp), therefore this binary must reside in an accessible directory.
