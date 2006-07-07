@@ -206,6 +206,9 @@
 		    </selector>
 		</or>
 	    </fileset>
+	    <fileset dir="${lib.dir}">
+		<include name="db.jar"/>
+	    </fileset>
 	</path>
     </target>
 
