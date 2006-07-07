@@ -113,7 +113,7 @@ HelloClient::run(int argc, char* argv[])
 	IceGrid::RegistryPrx::checkedCast(communicator()->stringToProxy("DemoIceGrid/Registry"));
     if(!registry)
     {
-        cerr << argv[0] << ": cound not contact registry" << endl;
+        cerr << argv[0] << ": could not contact registry" << endl;
         return EXIT_FAILURE;
     }
 
