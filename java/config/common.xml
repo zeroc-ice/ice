@@ -150,11 +150,11 @@
         <available file="${env.ICE_HOME}/slice" property="is-cvs-valid"/>
 	<fail message="ICE_HOME is not set to a valid directory" unless="is-cvs-valid"/>
 
-	<property name="slice.dir" value="${env.ICE_HOME}/slice"/>
 	<property name="lib.dir" value="${top.dir}/lib" />
+	<property name="slice.dir" value="${env.ICE_HOME}/slice"/>
 	<taskdef name="slice2java" classpath="${top.dir}/ant" classname="Slice2JavaTask"/>
 	<taskdef name="slice2freezej" classpath="${top.dir}/ant" classname="Slice2FreezeJTask" />
-	      
+
 	<!-- Ice classpath -->
 	<path id="ice.classpath">
 	    <fileset dir="${lib.dir}">
@@ -164,27 +164,25 @@
     </target>
 
     <target name="properties-opt" if="is-opt">
+
         <available file="${env.ICE_HOME}/lib" property="opt-lib-avail" />
 	<fail message="ICE_HOME is not set to a valid directory" unless="opt-lib-avail"/>
 
-	 <property name="lib.dir" value="${env.ICE_HOME}/lib" />
-	
-	 <property name="slice.dir" value="${env.ICE_HOME}/slice"/>
-	 <taskdef name="slice2java" classpath="${env.ICE_HOME}/ant" classname="Slice2JavaTask"/>
-	 <taskdef name="slice2freezej" classpath="${env.ICE_HOME}/ant" classname="Slice2FreezeJTask" />
+	<property name="lib.dir" value="${env.ICE_HOME}/lib" />
+	<property name="slice.dir" value="${env.ICE_HOME}/slice"/>
+	<taskdef name="slice2java" classpath="${env.ICE_HOME}/ant" classname="Slice2JavaTask"/>
+	<taskdef name="slice2freezej" classpath="${env.ICE_HOME}/ant" classname="Slice2FreezeJTask" />
+
+	<condition property="ice.jar.file" value="${lib.dir}/java5/Ice.jar" else="${lib.dir}/Ice.jar">
+	    <and>
+		<available file="${lib.dir}/java5/Ice.jar"/>
+		<isset property="java5"/>
+	    </and>
+	</condition>
 		  
 	<!-- Ice classpath -->
 	<path id="ice.classpath">
-	    <fileset dir="${lib.dir}">
-		<or>
-		    <selector if="java5">
-			<filename name="java5/Ice.jar"/>
-		    </selector>
-		    <selector unless="java5">
-			<filename name="Ice.jar"/>
-		    </selector>
-		</or>
-	    </fileset>
+	    <fileset file="${ice.jar.file}"/>
 	</path>
     </target>
 
@@ -193,22 +191,18 @@
 	<property name="slice.dir" value="${top.dir}/slice"/>
 	<taskdef name="slice2java" classpath="${top.dir}/ant" classname="Slice2JavaTask"/>
 	<taskdef name="slice2freezej" classpath="${top.dir}/ant" classname="Slice2FreezeJTask"/>
-	
+
+	<condition property="ice.jar.file" value="${lib.dir}/java5/Ice.jar" else="${lib.dir}/Ice.jar">
+	    <and>
+		<available file="${lib.dir}/java5/Ice.jar"/>
+		<isset property="java5"/>
+	    </and>
+	</condition>
+
 	<!-- Ice classpath -->
 	<path id="ice.classpath">
-	    <fileset dir="${lib.dir}">
-		<or>
-		    <selector if="java5">
-			<filename name="java5/Ice.jar"/>
-		    </selector>
-		    <selector unless="java5">
-			<filename name="Ice.jar"/>
-		    </selector>
-		</or>
-	    </fileset>
-	    <fileset dir="${lib.dir}">
-		<include name="db.jar"/>
-	    </fileset>
+	    <fileset file="${ice.jar.file}"/>
+	    <fileset file="${lib.dir}/db.jar"/>
 	</path>
     </target>
 
@@ -217,22 +211,18 @@
 	<property name="slice.dir" value="/usr/share/slice"/>
 	<taskdef name="slice2java" classpath="${lib.dir}/ant" classname="Slice2JavaTask"/>
 	<taskdef name="slice2freezej" classpath="${lib.dir}/ant" classname="Slice2FreezeJTask"/>
+
+	<condition property="ice.jar.file" value="${lib.dir}/java5/Ice.jar" else="${lib.dir}/Ice.jar">
+	    <and>
+		<available file="${lib.dir}/java5/Ice.jar"/>
+		<isset property="java5"/>
+	    </and>
+	</condition>
 	
 	<!-- Ice classpath -->
 	<path id="ice.classpath">
-	    <fileset dir="${lib.dir}">
-		<or>
-		    <selector if="java5">
-			<filename name="java5/Ice.jar"/>
-		    </selector>
-		    <selector unless="java5">
-			<filename name="Ice.jar"/>
-		    </selector>
-		</or>
-	    </fileset>
-	    <fileset dir="/usr/share/java">
-		<include name="db.jar"/>
-	    </fileset>
+	    <fileset file="${ice.jar.file}"/>
+	    <fileset file="/usr/share/java/db.jar"/>
 	</path>
     </target>
     
