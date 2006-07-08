@@ -220,6 +220,21 @@ You can verify that the Ice extension is installed properly by
 examining the output of the "php -m" command, or by calling the
 phpinfo() function from a script.
 
+SELinux Note:
+
+By default, the security restrictions in "Security Enhanced Linux"
+(SELinux) prevent an IcePHP script from connecting to an Ice server on
+the Web server host. With sufficient privileges, you can modify the
+security policies on your system to relax this restriction for the
+Web server daemon, or you can temporarily change SELinux to
+"permissive" mode with the following command:
+
+# setenforce 0
+
+See this FAQ for more information on SELinux:
+
+http://fedora.redhat.com/docs/selinux-faq/
+
 
 ======================================================================
 Using the IceGrid Administrative Console
