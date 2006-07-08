@@ -38,20 +38,23 @@ if(isset($_POST["submitted"]))
 	    $p = $ICE->stringToProxy("hello:tcp -p 10000:udp -p 10000");
 	}
 
-        if($_POST["mode"] == "oneway")
-        {
-            $p = $p->ice_oneway();
-        }
-        elseif($_POST["mode"] == "datagram")
-        {
-            $p = $p->ice_datagram();
-        }
+	if(isset($_POST["mode"]))
+	{
+	    if($_POST["mode"] == "oneway")
+	    {
+		$p = $p->ice_oneway();
+	    }
+	    elseif($_POST["mode"] == "datagram")
+	    {
+		$p = $p->ice_datagram();
+	    }
+	}
 
-        if($_POST["secure"] == "yes")
+        if(isset($_POST["secure"]) and $_POST["secure"] == "yes")
         {
             $p = $p->ice_secure(true);
         }
-        if($_POST["timeout"] == "yes")
+        if(isset($_POST["timeout"]) and $_POST["timeout"] == "yes")
         {
             $p = $p->ice_timeout(2000);
         }
@@ -94,19 +97,19 @@ if(isset($_POST["submitted"]))
             <?php if(!isset($_POST["mode"]) or $_POST["mode"] == "twoway") echo " checked "; ?>
         > Twoway
         <INPUT type="radio" name="mode" value="oneway"
-            <?php if($_POST["mode"] == "oneway") echo " checked "; ?>
+            <?php if(isset($_POST["mode"]) and $_POST["mode"] == "oneway") echo " checked "; ?>
         > Oneway
         <INPUT type="radio" name="mode" value="datagram"
-            <?php if($_POST["mode"] == "datagram") echo " checked "; ?>
+            <?php if(isset($_POST["mode"]) and $_POST["mode"] == "datagram") echo " checked "; ?>
         > Datagram
         </P>
         <P>Options: 
         <INPUT type="checkbox" name="secure" value="yes"
-            <?php if($_POST["secure"] == "yes") echo " checked "; ?>
+            <?php if(isset($_POST["secure"]) and $_POST["secure"] == "yes") echo " checked "; ?>
             <?php if(!$have_ssl) echo " disabled "; ?>
         > Secure
         <INPUT type="checkbox" name="timeout" value="yes"
-            <?php if($_POST["timeout"] == "yes") echo " checked "; ?>
+            <?php if(isset($_POST["timeout"]) and $_POST["timeout"] == "yes") echo " checked "; ?>
         > Timeout
         </P>
         <P>
