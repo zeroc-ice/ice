@@ -361,7 +361,6 @@ On Windows, use this directive:
 extension = php_ice.dll
 
 
-
 =========================================================================
 Dependencies
 =========================================================================
@@ -387,6 +386,23 @@ will also need access to the shared library for IceSSL.
 Finally, the Ice extension will need to execute the Ice preprocessor
 (icecpp), therefore this binary must reside in an accessible directory.
 
+
+=========================================================================
+SELinux Notes
+=========================================================================
+
+By default, the security restrictions in "Security Enhanced Linux"
+(SELinux) prevent an IcePHP script from connecting to an Ice server on
+the Web server host. With sufficient privileges, you can modify the
+security policies on your system to relax this restriction for the
+Web server daemon, or you can temporarily change SELinux to
+"permissive" mode with the following command:
+
+# setenforce 0
+
+See this FAQ for more information on SELinux:
+
+http://fedora.redhat.com/docs/selinux-faq/
 
 
 =========================================================================
