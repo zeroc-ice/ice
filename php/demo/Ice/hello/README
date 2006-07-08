@@ -22,8 +22,15 @@ For a Linux RPM installation, this directive can be added to
 /etc/php.d/ice.ini.
 
 Finally, start the hello server on the Web server host and try out the
-script.
+script. You can use a hello server from any language mapping.
 
 Note that support for secure invocations via SSL are disabled by
 default. If you have configured SSL for the Ice extension, edit
 hello.php and set the have_ssl variable to true.
+
+On SELinux systems, security restrictions prevent this PHP script from
+connecting to the hello demo server's port on the local host unless
+you execute the following command to temporarily disable enforcing
+mode:
+
+setenforce 0
