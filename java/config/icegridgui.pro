@@ -15,9 +15,9 @@
     public static void main(java.lang.String[]);
 }
 
-# Print out a list of what we're preserving.
-
--printseeds
+# Following options are useful for debugging. 
+# -printseeds
+# -verbose
 
 # Preserve all annotations.
 
@@ -49,9 +49,15 @@
 # Your application may contain more items that need to be preserved; 
 # typically classes that are dynamically created using Class.forName:
 
--keepnames public class Ice.**
--keep public class IceGrid.**
--keep public class IceSSL.**
+-keep public class Ice.** {
+  public *;
+}
+-keep public class IceGrid.** {
+  public *;
+}
+-keep public class IceSSL.** {
+  public *;
+}
 -keep interface IceGrid.**
 -keep class com.jgoodies.looks.plastic.PlasticXPLookAndFeel
 -keep public class javax.**
