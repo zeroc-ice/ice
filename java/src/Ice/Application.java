@@ -125,6 +125,15 @@ public abstract class Application
             ex.printStackTrace();
             status = 1;
         }
+	catch(java.lang.Error err)
+	{
+	    //
+	    // We catch Error to avoid hangs in some non-fatal situations
+	    //
+	    System.err.println(_appName + ": Java error");
+            err.printStackTrace();
+            status = 1;
+	}
 
 	defaultInterrupt();
 
