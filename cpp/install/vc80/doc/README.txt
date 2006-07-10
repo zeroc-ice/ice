@@ -122,11 +122,6 @@ Command Prompt window, type 'client.exe' to run the client.
 Some demo directories contain README files if additional requirements
 are necessary.
 
-For backward compatibility with .NET 1.1 users, support for SSL is
-disabled by default in the demos. To enable SSL, edit the config.*
-files in each demo directory and follow the instructions in the
-comments.
-
 
 Building and running the Visual Basic demos
 -------------------------------------------
