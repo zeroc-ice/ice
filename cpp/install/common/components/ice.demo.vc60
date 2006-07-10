@@ -288,6 +288,7 @@ IceBox/hello/HelloServiceI.cpp
 IceBox/hello/HelloServiceI.h
 IceBox/hello/README
 IceBox/README
+IceGrid/README
 IceGrid/allocate/allocateC.dsp
 IceGrid/allocate/allocateS.dsp
 IceGrid/allocate/application-multiple.xml

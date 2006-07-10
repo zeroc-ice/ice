@@ -167,6 +167,7 @@ IceBox/hello/helloIceBoxSD_11.csproj
 IceBox/hello/HelloServiceI.cs
 IceBox/hello/README
 IceBox/README
+IceGrid/README
 IceGrid/allocate/allocateCD_11.csproj
 IceGrid/allocate/allocateSD_11.csproj
 IceGrid/allocate/application-multiple.xml

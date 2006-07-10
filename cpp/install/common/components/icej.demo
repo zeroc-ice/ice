@@ -201,6 +201,7 @@ IceGrid/allocate/HelloI.java
 IceGrid/allocate/README
 IceGrid/allocate/Server.java
 IceGrid/build.xml
+IceGrid/README
 IceGrid/sessionActivation/application.xml
 IceGrid/sessionActivation/build.xml
 IceGrid/sessionActivation/Client.java

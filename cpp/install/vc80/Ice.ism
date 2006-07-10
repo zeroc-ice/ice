@@ -1613,7 +1613,7 @@
 		<row><td>IceCppRuntime</td><td>&lt;ISProjectFolder&gt;\install\ice\cpp\runtime</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceDoc</td><td>&lt;ISProjectFolder&gt;\install\ice\common\doc</td><td>4</td><td/><td/><td>0</td></row>
 		<row><td>IceDotnetPDBs</td><td>&lt;ISProjectFolder&gt;\install\ice\dotnet\pdbs</td><td>4</td><td/><td/><td>2</td></row>
-		<row><td>IceDotnetSSL</td><td>&lt;ISProjectFolder&gt;\install\ice\dotnet\ssl</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceDotnetSSL</td><td>&lt;ISProjectFolder&gt;\install\ice\dotnet\ssl\runtime</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceDotnetSSLPDB</td><td>&lt;ISProjectFolder&gt;\install\ice\dotnet\ssl\dev</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceJavaDemo</td><td>&lt;ISProjectFolder&gt;\install\ice\java\demo</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceJavaDev</td><td>&lt;ISProjectFolder&gt;\install\ice\java\dev</td><td>4</td><td/><td/><td>2</td></row>
