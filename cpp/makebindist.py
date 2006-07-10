@@ -377,7 +377,7 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
 	for f in os.listdir(srcConfigDir):
 	    src = os.path.join(srcConfigDir, f)
 	    dest = os.path.join(destConfigDir, f)
-	    if not os.path.isdir(f) and not os.path.islink(f):
+	    if not os.path.isdir(src) and not os.path.islink(src):
 		shutil.copy(src, dest)
 
     if demoDir == 'j':
@@ -1078,7 +1078,7 @@ def main():
 	if not getPlatform() in ['aix', 'solaris', 'hpux']:
 	    sourceTarBalls.append(('icepy','IcePy-' + version, 'py'))
 
-	if getPlatform() == "linux":
+	if getPlatform().startswith("linux"):
 	    sourceTarBalls.append(('icecs','IceCS-' + version, 'cs'))
 
         os.environ['ICE_HOME'] = installDir + '/Ice-' + version
