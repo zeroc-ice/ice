@@ -714,6 +714,7 @@ public class Root extends ListTreeNode
 	    if(confirm == JOptionPane.YES_OPTION)
 	    {
 		_coordinator.removeApplicationFromRegistry(_id);
+		_discardMe = true;
 	    }
 	}
 	else
@@ -917,13 +918,15 @@ public class Root extends ListTreeNode
     {
 	_live = false;
 
-	if(_registryUpdatesEnabled)
+	if(_registryUpdatesEnabled || _discardMe)
 	{
 	    return true;
 	}
 	else
 	{
 	    _coordinator.getMainPane().resetIcon(this);
+	    _coordinator.getCurrentTab().selected(); // only needed when 'this' 
+	                                             // corresponds to the current tab
 	    return false;
 	}
     }
@@ -1185,6 +1188,8 @@ public class Root extends ListTreeNode
     // _live == true
     //
     private boolean _registryUpdatesEnabled = true;
+
+    private boolean _discardMe = false;
 
     //
     // True when any update was applies to this application 
