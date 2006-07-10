@@ -230,7 +230,8 @@ public abstract class Application
 	        try
 	        {
 		    Runtime.getRuntime().removeShutdownHook(_shutdownHook);
-                    _shutdownHook = null;
+                    _shutdownHook.done();
+		    _shutdownHook = null;
 	        }
 	        catch(java.lang.IllegalStateException ex)
 	        {
@@ -276,6 +277,7 @@ public abstract class Application
 	        try
 	        {
 		    Runtime.getRuntime().removeShutdownHook(_destroyHook);
+		    _destroyHook.done();
                     _destroyHook = null;
 	        }
 	        catch(java.lang.IllegalStateException ex)
@@ -319,6 +321,7 @@ public abstract class Application
 	        try
 	        {
 		    Runtime.getRuntime().removeShutdownHook(_shutdownHook);
+		    _shutdownHook.done();
                     _shutdownHook = null;
 	        }
 	        catch(java.lang.IllegalStateException ex)
@@ -334,7 +337,8 @@ public abstract class Application
 	        try
 	        {
 		    Runtime.getRuntime().removeShutdownHook(_destroyHook);
-                    _destroyHook = null;
+                    _destroyHook.done();
+		    _destroyHook = null;
 	        }
 	        catch(java.lang.IllegalStateException ex)
 	        {
