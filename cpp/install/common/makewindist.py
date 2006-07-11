@@ -243,6 +243,18 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 
     if installVersion == "vc80":
 
+
+	#
+	# Ice for Python
+	#
+	pythonHome = os.environ['PYTHON_HOME']
+	prependEnvPath('LIB', os.path.join(pythonHome, "libs"))
+	prependEnvPath('INCLUDE', os.path.join(pythonHome, "include"))
+
+	os.chdir(os.path.join(sourcesDir, "IcePy-" + sourcesVersion))
+	print "Building in " + os.getcwd() + "..."
+	runprog("devenv all.sln /useenv /build Release")
+    elif installVersion == "vc60":
 	#
 	# Ice for PHP
 	#
@@ -264,19 +276,7 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 
 	os.chdir(os.path.join(sourcesDir, "IcePHP-" + sourcesVersion))
 	print "Building in " + os.getcwd() + "..."
-	runprog("devenv icephp.sln /useenv /build Release")
-
-	#
-	# Ice for Python
-	#
-	pythonHome = os.environ['PYTHON_HOME']
-	prependEnvPath('LIB', os.path.join(pythonHome, "libs"))
-	prependEnvPath('INCLUDE', os.path.join(pythonHome, "include"))
-
-	os.chdir(os.path.join(sourcesDir, "IcePy-" + sourcesVersion))
-	print "Building in " + os.getcwd() + "..."
-	runprog("devenv all.sln /useenv /build Release")
-    elif installVersion == "vc60":
+	runprog('msdev icephp.dsw /useenv /make "php_ice - Win32 Release"')
 	#
 	# Ice for C++ 
 	#

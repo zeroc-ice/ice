@@ -7,3 +7,4 @@ ca/cautil.py
 ca/import.py
 ca/sign.py
 ca/ImportKey.class
+ca/README

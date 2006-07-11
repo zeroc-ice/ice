@@ -104,6 +104,7 @@ IceStorm/clock/README
 IceStorm/clock/Subscriber.py
 IceStorm/README
 README
+IceGrid/README
 IceGrid/allocate/db
 IceGrid/allocate/db/node
 IceGrid/allocate/db/registry
