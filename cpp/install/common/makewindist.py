@@ -256,6 +256,13 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 	runprog("devenv all.sln /useenv /build Release")
     elif installVersion == "vc60":
 	#
+	# Ice for C++ 
+	#
+	os.chdir(os.path.join(sourcesDir, "Ice-" + sourcesVersion))
+	print "Building in " + os.getcwd() + "..."
+	runprog('msdev all.dsw /useenv /make "all - Win32 Debug"')
+	runprog('msdev all.dsw /useenv /make "all - Win32 Release"')
+	#
 	# Ice for PHP
 	#
 	phpBinHome = os.environ['PHP_BIN_HOME']
@@ -277,13 +284,6 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 	os.chdir(os.path.join(sourcesDir, "IcePHP-" + sourcesVersion))
 	print "Building in " + os.getcwd() + "..."
 	runprog('msdev icephp.dsw /useenv /make "php_ice - Win32 Release"')
-	#
-	# Ice for C++ 
-	#
-	os.chdir(os.path.join(sourcesDir, "Ice-" + sourcesVersion))
-	print "Building in " + os.getcwd() + "..."
-	runprog('msdev all.dsw /useenv /make "all - Win32 Debug"')
-	runprog('msdev all.dsw /useenv /make "all - Win32 Release"')
     elif installVersion in ["vc80_x64"]:
 	#
 	# Ice for C++ 
