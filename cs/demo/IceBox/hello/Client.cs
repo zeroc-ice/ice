@@ -143,7 +143,7 @@ public class Client : Ice.Application
                         Console.WriteLine("timeout is now set to 2000ms");
                     }
                 }
-                else if(line.Equals("S"))
+                else if(_haveSSL && line.Equals("S"))
                 {
 		    secure = !secure;
 

@@ -126,7 +126,7 @@ public class Client : Ice.Application
                 {
                     communicator().flushBatchRequests();
                 }
-                else if(line.Equals("S"))
+                else if(_haveSSL && line.Equals("S"))
                 {
 		    secure = !secure;
 

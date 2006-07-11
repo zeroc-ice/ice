@@ -107,7 +107,7 @@ Module HelloC
                         Else
                             Console.WriteLine("timeout is now set to 2000ms")
                         End If
-                    ElseIf line.Equals("S") Then
+                    ElseIf _haveSSL And line.Equals("S") Then
                         secure = Not secure
 
                         twoway = HelloPrxHelper.uncheckedCast(twoway.ice_secure(secure))

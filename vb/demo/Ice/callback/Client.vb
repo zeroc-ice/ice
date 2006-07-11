@@ -97,7 +97,7 @@ Module CallbackC
                         End If
                     ElseIf line.Equals("f") Then
                         communicator().flushBatchRequests()
-                    ElseIf line.Equals("S") Then
+                    ElseIf _haveSSL And line.Equals("S") Then
                         secure = Not secure
 
                         twoway = CallbackSenderPrxHelper.uncheckedCast(twoway.ice_secure(secure))
