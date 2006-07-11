@@ -11,7 +11,7 @@
     <AssemblyKeyContainerName>
     </AssemblyKeyContainerName>
     <AssemblyName>icecs</AssemblyName>
-    <AssemblyOriginatorKeyFile>../../config/IcecsKey.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\..\config\IcecsKey.snk</AssemblyOriginatorKeyFile>
     <DefaultClientScript>JScript</DefaultClientScript>
     <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
     <DefaultTargetSchema>IE50</DefaultTargetSchema>
@@ -407,7 +407,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-      <None Include="../../config/IcecsKey.snk" />
+      <None Include="..\..\config\IcecsKey.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
