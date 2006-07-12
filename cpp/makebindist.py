@@ -1188,7 +1188,7 @@ def main():
 	ssl = os.environ['OPENSSL_HOME']
 	shutil.copy('%s/bin/openssl' % ssl, 'Ice-%s/bin' % version)
 #	runprog('cp -R ' + ssl + '/include Ice-' + version)
-	runprog('cp ' + ssl + '/lib/lib*.sl.* Ice-' + version)
+	runprog('cp ' + ssl + '/lib/lib*.sl.* Ice-' + version + '/lib')
 	runprog('rm -rf Ice-' + version + '/lib/libfips*')
         runprog('rm -rf Ice-' + version + '/lib/engines')
 	runprog('rm -rf Ice-' + version + '/lib/pkgconfig')
