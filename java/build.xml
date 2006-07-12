@@ -186,7 +186,7 @@
 
 
 
-    <target name="icegrid-pro" depends="icegridgui-jar" if="icegrid-pro-precond">
+    <target name="icegrid-pro" depends="icegridgui-jar" if="icegrid-pro-precond" unless="java5">
 	<move file="${lib.dir}/IceGridGUI.jar" tofile="${lib.dir}/guitmp.jar" />
 	<taskdef resource="proguard/ant/task.properties"/>
 	<proguard>
