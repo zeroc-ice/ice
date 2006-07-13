@@ -3108,7 +3108,10 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C << nl << "extern \"C\" { void " << initfuncname << "() {} }";
 	    C << nl << "#endif";
 	}
+    }
 
+    if(!p->isAbstract())
+    {
 	//
 	// We add a protected destructor to force heap instantiation of the class.
 	//
@@ -3117,7 +3120,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	H.inc();
 	H << sp << nl << "virtual ~" << fixKwd(p->name()) << "() {}";
 
-	if(!p->isAbstract() && !_doneStaticSymbol)
+	if(!_doneStaticSymbol)
 	{
 	    H << sp << nl << "friend class " << p->name() << "__staticInit;";
 	}
@@ -3125,7 +3128,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     H << eb << ';';
 
-    if(!p->isAbstract() && !p->isLocal())
+    if(!p->isAbstract() && !_doneStaticSymbol)
     {
 	//
 	// We need an instance here to trigger initialization if the implementation is in a shared library.
@@ -3134,18 +3137,15 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	// For a Slice class Foo, we instantiate a dummy class Foo__staticInit instead of using a static
 	// Foo instance directly because Foo has a protected destructor.
 	//
-	if(!_doneStaticSymbol)
-	{
-	    H << sp << nl << "class " << p->name() << "__staticInit";
-	    H << sb;
-	    H.dec();
-	    H << nl << "public:";
-	    H.inc();
-	    H << sp << nl << scoped << " _init;";
-	    H << eb << ';';
-	    _doneStaticSymbol = true;
-	    H << sp << nl << "static " << scoped << "__staticInit _" << p->name() << "_init;";
-	}
+	H << sp << nl << "class " << p->name() << "__staticInit";
+	H << sb;
+	H.dec();
+	H << nl << "public:";
+	H.inc();
+	H << sp << nl << scoped << " _init;";
+	H << eb << ';';
+	_doneStaticSymbol = true;
+	H << sp << nl << "static " << scoped << "__staticInit _" << p->name() << "_init;";
     }
 
     if(p->isLocal())
