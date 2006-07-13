@@ -775,8 +775,11 @@ def makePHPbinary(sources, buildDir, installDir, version, clean):
             if line.startswith('EXTRA_CXXFLAGS ='):
                 xtraCXXFlags = False
                 print line.rstrip('\n') + ' -DCOMPILE_DL_ICE'
-	    elif platform == 'linux64' and line.startswith('ICE_SHARED_LIBADD'):
-		print line.rstrip('\n').replace("Ice-%s/lib" % version, "Ice-%s/lib64" % version)
+	    elif line.startswith('ICE_SHARED_LIBADD'):
+		if platform == 'linux64':
+		    print "ICE_SHARED_LIBADD = -Wl,-rpath,/opt/Ice-%s/lib64 -L/opt/Ice-%s/lib64 -lIce -lSlice -lIceUtil" % (version, version)
+		else:
+		    print "ICE_SHARED_LIBADD = -Wl,-rpath,/opt/Ice-%s/lib -L/opt/Ice-%s/lib -lIce -lSlice -lIceUtil" % (version, version)
             else:
                 print line.strip('\n')
 
