@@ -220,21 +220,33 @@ You can verify that the Ice extension is installed properly by
 examining the output of the "php -m" command, or by calling the
 phpinfo() function from a script.
 
-SELinux Note:
+SELinux Notes:
 
-By default, the security restrictions in "Security Enhanced Linux"
-(SELinux) prevent an IcePHP script from connecting to an Ice server on
-the Web server host. With sufficient privileges, you can modify the
-security policies on your system to relax this restriction for the
-Web server daemon, or you can temporarily change SELinux to
-"permissive" mode with the following command:
+On Fedora Linux and a number of other Linux distributions, SELinux 
+augments the traditional Unix permissions with a number of new features. 
+In particular, SELinux can prevent the httpd daemon from opening
+network connections and reading files without the proper SELinux types.
+
+If you suspect that your IcePHP application does not work due to
+SELinux restrictions, we recommend to first try with SELinux disabled.
+As root, run:
 
 # setenforce 0
+
+to disable SELinux until the next reboot of your computer.
+
+If you want to run httpd with IcePHP and SELinux enabled, you need to:
+ - allow httpd to open network connections:
+  # setsebool httpd_can_network_connect=1 
+  (use the -P option to make this setting persistent across reboots)
+ - make sure any .ice file used by your PHP scripts can be read by 
+  httpd. The enclosing directory also needs to be accessible. For
+  example:
+  # chcon -R -t httpd_sys_content_t /opt/MyApp/slice 
 
 See this FAQ for more information on SELinux:
 
 http://fedora.redhat.com/docs/selinux-faq/
-
 
 ======================================================================
 Using the IceGrid Administrative Console
