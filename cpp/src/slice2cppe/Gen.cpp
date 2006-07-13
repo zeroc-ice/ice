@@ -2078,6 +2078,17 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	
     }
 
+    //
+    // We add a protected destructor to force heap instantiation of the class.
+    //
+    if(!p->isAbstract())
+    {
+	H.dec();
+	H << sp << nl << "protected:";
+	H.inc();
+	H << sp << nl << "virtual ~" << fixKwd(p->name()) << "() {}";
+    }
+
     H << eb << ';';
 
     if(!p->isLocal())
