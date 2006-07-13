@@ -695,7 +695,8 @@ cd $RPM_BUILD_DIR/php-5.1.4
 cp Makefile Makefile.tmp
 echo "EXTRA_CXXFLAGS= -DCOMPILE_DL_ICE" > Makefile
 cat Makefile.tmp >> Makefile
-sed -i -e '/^ICE_SHARED_LIBADD/d' Makefile
+escbr=`echo $RPM_BUILD_DIR | sed -e 's/\//\\\\\\\\\//g'`
+sed -i -e "s/^ICE_SHARED_LIBADD.*$/ICE_SHARED_LIBADD = -L$escbr\/Ice-%{version}\/lib -lIce -lSlice -lIceUtil/" Makefile
 if test "$RPM_ARCH" == "x86_64"; 
 then 
     sed -i -e 's/Ice-%{version}\/lib/Ice-%{version}\/lib64/g' Makefile ;  

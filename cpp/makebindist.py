@@ -21,6 +21,8 @@ import RPMTools
 #  pipes or redirections to work properly. Stay tuned.
 #
 
+DEBUGMODE=False
+
 class ExtProgramError:
     def __init__(self, error = None):
 	self.msg = error
@@ -519,12 +521,14 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
     # the working install directory so the archive can be packaged up.
     #
 
-    # 
-    # XXX- Optimizations need to be turned on for the release.
-    #
     try:
-	runprog('gmake NOGAC=yes OPTIMIZE=yes INSTALL_ROOT=/opt/Ice-%s' % version)
-	runprog('gmake NOGAC=yes OPTIMIZE=yes INSTALL_ROOT=%s install' % installDir)
+	if DEBUGMODE:
+	    opts="no"
+	else:
+	    opts="yes"
+
+	runprog('gmake NOGAC=yes OPTIMIZE=%s INSTALL_ROOT=/opt/Ice-%s' % (opts, version))
+	runprog('gmake NOGAC=yes OPTIMIZE=%s INSTALL_ROOT=%s install' % (opts, installDir))
     except ExtProgramError:
 	print "gmake failed for makeInstall(%s, %s, %s, %s, %s, %s)" % (sources, buildDir, installDir, distro, str(clean), version) 
 	raise
@@ -922,7 +926,7 @@ def main():
                                          [ 'build-dir=', 'install-dir=', 'install-root=', 'sources=',
                                            'verbose', 'tag=', 'noclean', 'nobuild', 'specfile',
 					   'stlporthome=', 'bzip2home=', 'dbhome=', 'sslhome=',
-					   'expathome=', 'readlinehome=', 'usecvs', 'offline'])
+					   'expathome=', 'readlinehome=', 'usecvs', 'offline', 'debug'])
                
     except getopt.GetoptError:
         usage()
@@ -966,6 +970,8 @@ def main():
 	    offline = True
 	elif o == '--usecvs':
 	    cvsMode = True
+	elif o == 'debug':
+	    DEBUGMODE = True
 
     if verbose:
 	logging.getLogger().setLevel(logging.DEBUG)
