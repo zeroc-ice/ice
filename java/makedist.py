@@ -25,6 +25,30 @@ def usage():
     print "If no tag is specified, HEAD is used."
 
 #
+# Taken from ice/config/TestUtil.py
+#
+# If having this duplicated is really a problem we should split these
+# methods out into their own module.
+#
+def isHpUx():
+   if sys.platform == "hp-ux11":
+        return 1
+   else:
+        return 0
+
+def isDarwin():
+   if sys.platform == "darwin":
+        return 1
+   else:
+        return 0
+
+def isAIX():
+   if sys.platform in ['aix4', 'aix5']:
+        return 1
+   else:
+        return 0
+
+#
 # Find files matching a pattern.
 #
 def find(path, patt):
@@ -64,19 +88,21 @@ if sys.platform.startswith("win") or sys.platform.startswith("cygwin"):
 # Check arguments
 #
 tag = "-rHEAD"
-skipDocs = 0
-skipTranslators = 0
-verbose = 0
+skipDocs = False 
+skipTranslators = False 
+verbose = False 
 for x in sys.argv[1:]:
     if x == "-h":
         usage()
         sys.exit(0)
     elif x == "-d":
-        skipDocs = 1
+	print "skipping docs"
+        skipDocs = True
     elif x == "-t":
-        skipTranslators = 1
+	print "skipping translators"
+        skipTranslators = True
     elif x == "-v":
-        verbose = 1
+        verbose = True 
     elif x.startswith("-"):
         print sys.argv[0] + ": unknown option `" + x + "'"
         print
@@ -89,6 +115,7 @@ for x in sys.argv[1:]:
 # Remove any existing "dist" directory and create a new one.
 #
 distdir = "dist"
+
 if os.path.exists(distdir):
     shutil.rmtree(distdir)
 os.mkdir(distdir)
@@ -123,59 +150,6 @@ slicedirs = [
 os.mkdir(os.path.join("icej", "slice"))
 for x in slicedirs:
     shutil.copytree(os.path.join("ice", "slice", x), os.path.join("icej", "slice", x), 1)
-
-#
-# Generate HTML documentation. We need to build icecpp
-# and slice2docbook first.
-#
-if not skipDocs:
-    print "Generating documentation..."
-    cwd = os.getcwd()
-    os.chdir(os.path.join("ice", "src", "icecpp"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "IceUtil"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "Slice"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "slice2docbook"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "doc"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.mkdir(os.path.join("icej", "doc"))
-    os.rename(os.path.join("ice", "doc", "reference"), os.path.join("icej", "doc", "reference"))
-    os.rename(os.path.join("ice", "doc", "README.html"), os.path.join("icej", "doc", "README.html"))
-    os.rename(os.path.join("ice", "doc", "images"), os.path.join("icej", "doc", "images"))
-
-#
-# Taken from ice/config/TestUtil.py
-#
-# If having this duplicated is really a problem we should split these
-# methods out into their own module.
-#
-def isHpUx():
-
-   if sys.platform == "hp-ux11":
-        return 1
-   else:
-        return 0
-
-def isDarwin():
-
-   if sys.platform == "darwin":
-        return 1
-   else:
-        return 0
-
-def isAIX():
-   if sys.platform in ['aix4', 'aix5']:
-        return 1
-   else:
-        return 0
 
 #
 # Build slice2java and slice2freezej.
@@ -214,6 +188,34 @@ if not skipTranslators:
 	del os.environ["ICE_HOME"]
 
 #
+# Generate HTML documentation. We need to build icecpp
+# and slice2docbook first.
+#
+if not skipDocs:
+    print "Generating documentation..."
+    cwd = os.getcwd()
+    os.chdir(os.path.join("ice", "src", "icecpp"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.chdir(os.path.join("ice", "src", "IceUtil"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.chdir(os.path.join("ice", "src", "Slice"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.chdir(os.path.join("ice", "src", "slice2docbook"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.chdir(os.path.join("ice", "doc"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.mkdir(os.path.join("icej", "doc"))
+    os.rename(os.path.join("ice", "doc", "reference"), os.path.join("icej", "doc", "reference"))
+    os.rename(os.path.join("ice", "doc", "README.html"), os.path.join("icej", "doc", "README.html"))
+    os.rename(os.path.join("ice", "doc", "images"), os.path.join("icej", "doc", "images"))
+
+
+#
 # Remove files.
 #
 print "Removing unnecessary files..."
@@ -231,28 +233,6 @@ print "Compiling Java sources..."
 
 cwd = os.getcwd()
 os.chdir("icej")
-if os.environ.has_key("JAVA15_HOME"):
-    # 
-    # First create Ice.jar for JDK 1.5.
-    #
-    oldpath = os.environ["PATH"]
-    if os.environ.has_key("JAVA_HOME"):
-	oldjhome = os.environ["JAVA_HOME"]
-    try:
-	os.environ["PATH"] = os.path.join(os.environ["JAVA15_HOME"], "bin") + os.pathsep + os.environ["PATH"]
-	os.environ["JAVA_HOME"] = os.environ["JAVA15_HOME"]
-
-	if verbose:
-	    quiet = ""
-	else:
-	    quiet = " -q"
-	os.system("ant" + quiet + " ice-jar")
-	os.rename(os.path.join("lib", "Ice.jar"), "Ice.jdk15.jar")
-	os.system("ant" + quiet + " clean")
-    
-    finally:
-	os.environ["PATH"] = oldpath
-	os.environ["JAVA_HOME"] = oldjhome
 
 if verbose:
     quiet = ""
@@ -260,28 +240,23 @@ else:
     quiet = " -q"
 os.system("ant" + quiet)
 
+distroSuffix = "java2"
 #
 # Clean out the lib directory but save the jar files.
 #
 os.rename(os.path.join("lib", "Ice.jar"), "Ice.jar")
 if os.path.exists(os.path.join("lib", "IceGridGUI.jar")):
-    print "Found IceGridGUI, is this the JDK 1.4 targeted source distro?"
+    print "Found IceGridGUI, is this the Java 2 targeted source distro?"
     os.rename(os.path.join("lib", "IceGridGUI.jar"), "IceGridGUI.jar")
 else:
-    print "No IceGridGUI, is this the JDK 1.5 targeted source distro?"
+    print "No IceGridGUI, is this the Java 5 targeted source distro?"
+    distroSuffix = "java5"
 
 shutil.rmtree("lib")
 os.mkdir("lib")
 os.rename("Ice.jar", os.path.join("lib", "Ice.jar"))
 if os.path.exists(os.path.join("IceGridGUI.jar")):
     os.rename("IceGridGUI.jar", os.path.join("lib", "IceGridGUI.jar"))
-
-if os.environ.has_key("JAVA15_HOME"):
-    os.mkdir(os.path.join("lib", "java5"))
-    os.rename("Ice.jdk15.jar", os.path.join("lib", "java5", "Ice.jar"))
-else:
-    if os.path.exists("Ice.jdk15.jar"):
-	os.remove("Ice.jdk15.jar")
 
 #
 # Remove "generated" subdirectories.
@@ -312,7 +287,7 @@ fixVersion(find("icej", "INSTALL*"), version)
 # Create source archives.
 #
 print "Creating distribution archives..."
-icever = "IceJ-" + version
+icever = "IceJ-" + version + "-" + distroSuffix
 os.rename("icej", icever)
 if verbose:
     quiet = "v"
