@@ -150,6 +150,19 @@ module AAA
     };
 };
 
+module CCC
+{
+    class Forward;
+    sequence<Forward*> ForwardProxySeq;
+};
+
+module CCC
+{
+    class Forward
+    {
+    };
+};
+
 };
 
 #endif
