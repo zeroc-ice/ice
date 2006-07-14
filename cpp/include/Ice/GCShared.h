@@ -12,6 +12,7 @@
 
 #include <IceUtil/Config.h>
 #include <Ice/GCRecMutex.h>
+#include <Ice/GCCountMap.h>
 #include <set>
 
 namespace IceInternal
@@ -22,8 +23,6 @@ class GCShared;
 
 typedef std::set<GCShared*> GCObjectSet;
 extern ICE_API GCObjectSet gcObjects; // Set of pointers to all existing classes with class data members.
-
-typedef std::map<GCShared*, int> GCCountMap;
 
 class ICE_API GCShared
 {

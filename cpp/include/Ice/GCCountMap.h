@@ -7,33 +7,17 @@
 //
 // **********************************************************************
 
-#ifndef ICE_OBJECT_F_H
-#define ICE_OBJECT_F_H
+#ifndef ICE_GC_COUNTMAP_H
+#define ICE_GC_COUNTMAP_H
 
-#include <Ice/Handle.h>
-#include <Ice/GCCountMap.h>
-
-namespace Ice
-{
-
-class Object;
-
-}
+#include <map>
 
 namespace IceInternal
 {
 
-ICE_API void incRef(::Ice::Object*);
-ICE_API void decRef(::Ice::Object*);
+class GCShared;
 
-}
-
-namespace Ice
-{
-
-typedef IceInternal::Handle< Object > ObjectPtr;
-
-void ICE_API __patch__ObjectPtr(void*, ObjectPtr&);
+typedef ::std::map<GCShared*, int> GCCountMap;
 
 }
 
