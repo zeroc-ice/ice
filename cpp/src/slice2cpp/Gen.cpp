@@ -441,7 +441,7 @@ Slice::Gen::TypesVisitor::visitModuleEnd(const ModulePtr& p)
 bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(!p->isInterface() && !p->isLocal())
+    if(!p->isLocal())
     {
 	string name = fixKwd(p->name());
 	string scope = fixKwd(p->scope());
@@ -459,7 +459,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << eb;
 
 	C << sp << nl << "void";
-	C << nl << scope.substr(2) << "__decRefUnsafe(" << name << "Ptr& p)";
+	C << nl << scope.substr(2) << "__decRefUnsafe(const " << name << "Ptr& p)";
 	C << sb;
 	C << nl << "p->__decRefUnsafe();";
 	C << eb;
@@ -4008,13 +4008,10 @@ Slice::Gen::HandleVisitor::visitClassDecl(const ClassDeclPtr& p)
             H << nl << _dllExport << "void ice_read" << name << "(const ::Ice::InputStreamPtr&, " << name << "Ptr&);";
 	}
 
-	if(!p->isInterface())
-	{
-	    H << sp << nl << "void __addObject(const " << name << "Ptr&, ::IceInternal::GCCountMap&);";
-	    H << nl << "bool __usesClasses(const " << name << "Ptr&);";
-	    H << nl << "void __decRefUnsafe(" << name << "Ptr&);";
-	    H << nl << "void __clearHandleUnsafe(" << name << "Ptr&);";
-	}
+	H << sp << nl << "void __addObject(const " << name << "Ptr&, ::IceInternal::GCCountMap&);";
+	H << nl << "bool __usesClasses(const " << name << "Ptr&);";
+	H << nl << "void __decRefUnsafe(const " << name << "Ptr&);";
+	H << nl << "void __clearHandleUnsafe(" << name << "Ptr&);";
     }
 }
 

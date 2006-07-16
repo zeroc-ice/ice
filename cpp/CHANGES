@@ -1,6 +1,27 @@
 Changes since version 3.1.0
 ---------------------------     
 
+- Fixed a bug in slice2cpp that caused incorrect code to be generated
+  if a class had member that was an interface (not class) by value:
+
+  interface I
+  {
+      void op();
+  };
+
+  class C
+  {
+      void op();
+  };
+
+  class MyClass
+  {
+      I myI;		// Note: I, not I*. Bad code generated for this in 3.1.0.
+      I* myIstar;	// OK, no problem with 3.1.0.
+      C myC;		// OK, no problem with 3.1.0.
+      C myCstar;	// OK, no problem with 3.1.0.
+  };
+
 - For non-abstract Slice classes, the C++ code generated now adds a
   protected destructor. This prevents accidental allocation of
   class instances on the stack or as static variables. For the

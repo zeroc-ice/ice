@@ -163,6 +163,35 @@ module CCC
     };
 };
 
+module DDD
+{     
+    interface I
+    {
+	void op();
+    };
+
+    class C
+    {
+	void op();
+    };
+
+    class C2;
+
+    class U
+    { 
+	I myI;
+	I* myIstar;
+	C myC;
+	C* myCstar;
+	C2 myC2;
+	C2* myC2star;
+    };
+
+    class C2
+    {
+    };
+};
+
 };
 
 #endif
