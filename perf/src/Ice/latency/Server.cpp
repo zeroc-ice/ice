@@ -32,7 +32,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Latency");
     Ice::ObjectPtr object = new LatencyI;
-    adapter->add(object, Ice::stringToIdentity("latency"));
+    adapter->add(object, communicator->stringToIdentity("latency"));
     adapter->activate();
     communicator->waitForShutdown();
     return EXIT_SUCCESS;
@@ -46,9 +46,10 @@ main(int argc, char* argv[])
 
     try
     {
-	Ice::PropertiesPtr properties = Ice::createProperties();
-        properties->load("config");
-	communicator = Ice::initializeWithProperties(argc, argv, properties);
+	Ice::InitializationData initData;
+	initData.properties = Ice::createProperties();
+        initData.properties->load("config");
+	communicator = Ice::initialize(argc, argv, initData);
 	status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)
