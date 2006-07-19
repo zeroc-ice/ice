@@ -1,21 +1,32 @@
-// Supplier.cpp,v 1.4 2003/11/02 23:27:21 dhinton Exp
+// **********************************************************************
+//
+// Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
 
-#include "Supplier.h"
-#include "Worker_Thread.h"
-#include "orbsvcs/CosEventChannelAdminS.h"
-#include "ace/OS_NS_unistd.h"
-#include "ace/Date_Time.h"
-#include "ace/Thread_Semaphore.h"
-#include "PerfC.h"
-#include "PerfS.h"
+#include <Supplier.h>
+#include <WorkerThread.h>
+#include <orbsvcs/CosEventChannelAdminC.h>
+#include <ace/OS_NS_unistd.h>
+#include <ace/Date_Time.h>
+#include <ace/Thread_Semaphore.h>
+#include <PerfS.h>
+#include <SyncS.h>
 
 #include <iostream>
+#include <string>
+
+using namespace std;
 
 class Sync_impl : public POA_Perf::Sync, public PortableServer::RefCountServantBase
 {
 public:
 
-    Sync_impl() : _semaphore(0)
+    Sync_impl() : 
+	_semaphore(0)
     {
     }
     
@@ -37,44 +48,13 @@ private:
     ACE_Thread_Semaphore _semaphore;
 };
 
-//
-// A reference counted implementation
-//
-class Intf_impl : public POA_Perf::Intf, public PortableServer::RefCountServantBase
-{
-public:
-
-    Intf_impl(PortableServer::POA_ptr poa) : 
-	_poa(PortableServer::POA::_duplicate(poa)) 
-    {
-    }
-
-    virtual PortableServer::POA_ptr _default_POA() { return PortableServer::POA::_duplicate(_poa); }
-
-private:
-
-    PortableServer::POA_var _poa;
-
-};
-
 int
-main (int argc, char* argv[])
-{
-    Supplier supplier;
-    return supplier.run (argc, argv);
-}
-
-Supplier::Supplier (void)
-{
-}
-
-int
-Supplier::run (int argc, char* argv[])
+Supplier::run(int argc, char* argv[])
 {
     int period = 0;
     int repetitions = 10000;
     bool payload = false;
-    char* ior = 0;
+    CORBA::String_var ior;
     int nthreads = 1;
     for(int i = 1; i < argc; i++)
     {
@@ -96,84 +76,75 @@ Supplier::run (int argc, char* argv[])
 	}
 	else if(strlen(argv[i]) > 3 && argv[i][0] == 'I' && argv[i][1] == 'O' && argv[i][2] == 'R')
 	{
-	    ior = strdup(argv[i]);
+	    ior = CORBA::string_dup(argv[i]);
 	}
     }
 
     ACE_DECLARE_NEW_CORBA_ENV;
     ACE_TRY
     {
-	CORBA::ORB_var orb = CORBA::ORB_init (argc, argv, "" ACE_ENV_ARG_PARAMETER);
+	CORBA::ORB_var orb = CORBA::ORB_init(argc, argv, "" ACE_ENV_ARG_PARAMETER);
 	ACE_TRY_CHECK;
 	
-	if (argc <= 1)
+	if(argc <= 1)
 	{
 	    ACE_ERROR ((LM_ERROR, "Usage: Supplier <event_channel_ior>\n"));
 	    return 1;
 	}
 	
-	CORBA::Object_var object = orb->resolve_initial_references ("RootPOA" ACE_ENV_ARG_PARAMETER);
+	CORBA::Object_var object = orb->resolve_initial_references("RootPOA" ACE_ENV_ARG_PARAMETER);
 	ACE_TRY_CHECK;
-	PortableServer::POA_var poa = PortableServer::POA::_narrow (object.in () ACE_ENV_ARG_PARAMETER);
+	PortableServer::POA_var poa = PortableServer::POA::_narrow(object.in() ACE_ENV_ARG_PARAMETER);
 	ACE_TRY_CHECK;
-	PortableServer::POAManager_var poa_manager = poa->the_POAManager (ACE_ENV_SINGLE_ARG_PARAMETER);
+	PortableServer::POAManager_var poa_manager = poa->the_POAManager(ACE_ENV_SINGLE_ARG_PARAMETER);
 	ACE_TRY_CHECK;
-	poa_manager->activate (ACE_ENV_SINGLE_ARG_PARAMETER);
+	poa_manager->activate(ACE_ENV_SINGLE_ARG_PARAMETER);
 	ACE_TRY_CHECK;
 
-	object = orb->string_to_object (ior ACE_ENV_ARG_PARAMETER);
+	object = orb->string_to_object(ior.in() ACE_ENV_ARG_PARAMETER);
 	ACE_TRY_CHECK;
 	
 	CosEventChannelAdmin::EventChannel_var event_channel = 
-	    CosEventChannelAdmin::EventChannel::_narrow (object.in () ACE_ENV_ARG_PARAMETER);
+	    CosEventChannelAdmin::EventChannel::_narrow(object.in() ACE_ENV_ARG_PARAMETER);
 	ACE_TRY_CHECK;
 	
 	CosEventChannelAdmin::SupplierAdmin_var supplier_admin =
-	    event_channel->for_suppliers (ACE_ENV_SINGLE_ARG_PARAMETER);
+	    event_channel->for_suppliers(ACE_ENV_SINGLE_ARG_PARAMETER);
 	ACE_TRY_CHECK;
 
 	CosEventChannelAdmin::ProxyPushConsumer_var consumer =
-	    supplier_admin->obtain_push_consumer (ACE_ENV_SINGLE_ARG_PARAMETER);
+	    supplier_admin->obtain_push_consumer(ACE_ENV_SINGLE_ARG_PARAMETER);
 	ACE_TRY_CHECK;
 	
-	CosEventComm::PushSupplier_var supplier = this->_this (ACE_ENV_SINGLE_ARG_PARAMETER);
+	CosEventComm::PushSupplier_var supplier = _this(ACE_ENV_SINGLE_ARG_PARAMETER);
 	ACE_TRY_CHECK;
 	
-	consumer->connect_push_supplier (supplier.in () ACE_ENV_ARG_PARAMETER);
+	consumer->connect_push_supplier(supplier.in() ACE_ENV_ARG_PARAMETER);
 	ACE_TRY_CHECK;
 
-	Worker_Thread worker (orb.in ());
-	worker.activate (THR_NEW_LWP | THR_JOINABLE, nthreads, 1);
-	
 	//
-	// Create a servant to obtain a persistent reference.
+	// Start the ORB.
 	//
-// 	CORBA::PolicyList pl(2);
-// 	pl.length(2);
-// 	pl[0] = poa -> create_lifespan_policy(PortableServer::PERSISTENT);
-// 	pl[1] = poa -> create_id_assignment_policy(PortableServer::USER_ID);
-// 	PortableServer::POA_var intfPOA = poa -> create_POA("intf", poa_manager, pl);
-
-// 	Intf_impl* intfImpl = new Intf_impl(intfPOA);
-// 	PortableServer::ServantBase_var servant = intfImpl;
-
-// 	PortableServer::ObjectId_var oid = PortableServer::string_to_ObjectId("intf");
-// 	intfPOA -> activate_object_with_id(oid, intfImpl);
-// 	CORBA::Object_var obj = intfImpl -> _this();
-// 	Perf::Intf_var intf = Perf::Intf::_narrow(obj);
-
- 	Sync_impl* syncImpl = new Sync_impl();
+	WorkerThread worker(orb.in());
+	worker.activate(THR_NEW_LWP | THR_JOINABLE, nthreads, 1);
+	
+ 	Sync_impl* syncImpl = new Sync_impl;
  	PortableServer::ServantBase_var servant = syncImpl;
- 	CORBA::Object_var obj = syncImpl -> _this();
+
+	//
+	// Note that the Sync servant will be instantiated on the default
+	// ORB and default POA.
+	//
+ 	CORBA::Object_var obj = syncImpl->_this();
  	Perf::Sync_var sync = Perf::Sync::_narrow(obj);
 
 	ACE_Time_Value sleep_time(0, period * 1000);
 	timeval tv;
 
-	CORBA::String_var ior = orb->object_to_string (sync.in () ACE_ENV_ARG_PARAMETER);
+	ior = orb->object_to_string(sync.in() ACE_ENV_ARG_PARAMETER);
 	ACE_TRY_CHECK;
-	std::cout << ior.in() << std::endl;
-	std::cout << "Supplier ready" << std::endl;
+	cout << ior.in() << endl;
+	cout << "Supplier ready" << endl;
 	syncImpl->wait();
 	
 	sched_yield();
@@ -182,25 +153,25 @@ Supplier::run (int argc, char* argv[])
 	    {
 		CORBA::Any event;
 		event <<= CORBA::LongLong(0);
-		consumer->push (event ACE_ENV_ARG_PARAMETER);
+		consumer->push(event ACE_ENV_ARG_PARAMETER);
 	    }
-	    for (int i = 0; i < repetitions; ++i)
+	    for(int i = 0; i < repetitions; ++i)
 	    {
 		CORBA::Any event;
 		gettimeofday(&tv, 0);
 		event <<= CORBA::LongLong(tv.tv_sec * static_cast<long long>(1000000) + tv.tv_usec);
 		
-		consumer->push (event ACE_ENV_ARG_PARAMETER);
+		consumer->push(event ACE_ENV_ARG_PARAMETER);
 		ACE_TRY_CHECK;
 		if(period > 0)
 		{
-		    ACE_OS::sleep (sleep_time);
+		    ACE_OS::sleep(sleep_time);
 		}
 	    }
 	    {
 		CORBA::Any event;
 		event <<= CORBA::LongLong(-1);
-		consumer->push (event ACE_ENV_ARG_PARAMETER);
+		consumer->push(event ACE_ENV_ARG_PARAMETER);
 	    }
 	}
 	else
@@ -210,9 +181,9 @@ Supplier::run (int argc, char* argv[])
 		Perf::Event e;
 		e.time = 0;
 		event <<= e;
-		consumer->push (event ACE_ENV_ARG_PARAMETER);
+		consumer->push(event ACE_ENV_ARG_PARAMETER);
 	    }
-	    for (int i = 0; i < repetitions; ++i)
+	    for(int i = 0; i < repetitions; ++i)
 	    {
 		Perf::Event e;
 		e.e = Perf::A;
@@ -223,11 +194,11 @@ Supplier::run (int argc, char* argv[])
 
 		CORBA::Any event;
 		event <<= e;	
-		consumer->push (event ACE_ENV_ARG_PARAMETER);
+		consumer->push(event ACE_ENV_ARG_PARAMETER);
 		ACE_TRY_CHECK;
 		if(period > 0)
 		{
-		    ACE_OS::sleep (sleep_time);
+		    ACE_OS::sleep(sleep_time);
 		}
 	    }
 	    {
@@ -235,22 +206,22 @@ Supplier::run (int argc, char* argv[])
 		Perf::Event e;
 		e.time = -1;
 		event <<= e;
-		consumer->push (event ACE_ENV_ARG_PARAMETER);
+		consumer->push(event ACE_ENV_ARG_PARAMETER);
 	    }
 	}
 	
 	// Disconnect from the EC
-	consumer->disconnect_push_consumer (ACE_ENV_SINGLE_ARG_PARAMETER);
+	consumer->disconnect_push_consumer(ACE_ENV_SINGLE_ARG_PARAMETER);
 	ACE_TRY_CHECK;
 
 	// Deactivate this object...
-	PortableServer::ObjectId_var id = poa->servant_to_id (this ACE_ENV_ARG_PARAMETER);
+	PortableServer::ObjectId_var id = poa->servant_to_id(this ACE_ENV_ARG_PARAMETER);
 	ACE_TRY_CHECK;
-	poa->deactivate_object (id.in () ACE_ENV_ARG_PARAMETER);
+	poa->deactivate_object(id.in() ACE_ENV_ARG_PARAMETER);
 	ACE_TRY_CHECK;
 	
 	// Destroy the POA
-	poa->destroy (1, 0 ACE_ENV_ARG_PARAMETER);
+	poa->destroy(1, 0 ACE_ENV_ARG_PARAMETER);
 	ACE_TRY_CHECK;
 
 	orb->shutdown(1);
@@ -266,13 +237,14 @@ Supplier::run (int argc, char* argv[])
 }
 
 void
-Supplier::disconnect_push_supplier (ACE_ENV_SINGLE_ARG_DECL_NOT_USED)
+Supplier::disconnect_push_supplier(ACE_ENV_SINGLE_ARG_DECL_NOT_USED)
     ACE_THROW_SPEC ((CORBA::SystemException))
 {
 }
 
-// ****************************************************************
-
-#if defined (ACE_HAS_EXPLICIT_TEMPLATE_INSTANTIATION)
-#elif defined(ACE_HAS_TEMPLATE_INSTANTIATION_PRAGMA)
-#endif /* ACE_HAS_EXPLICIT_TEMPLATE_INSTANTIATION */
+int
+main(int argc, char* argv[])
+{
+    Supplier supplier;
+    return supplier.run(argc, argv);
+}

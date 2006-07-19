@@ -1,27 +1,25 @@
-// Consumer.cpp,v 1.3 2002/01/29 20:20:46 okellogg Exp
+// **********************************************************************
+//
+// Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
 
-#include "Consumer.h"
-#include "Worker_Thread.h"
-#include "orbsvcs/CosEventChannelAdminS.h"
-#include "PerfC.h"
-#include "ace/Date_Time.h"
-#include "ace/Thread_Mutex.h"
+#include <Consumer.h>
+#include <WorkerThread.h>
+#include <ace/Thread_Mutex.h>
+#include <orbsvcs/CosEventChannelAdminC.h>
+#include <PerfC.h>
+#include <ace/Date_Time.h>
 
 #include <iostream>
 #include <math.h>
 
 using namespace std;
 
-int
-main (int argc, char* argv[])
-{
-    Consumer consumer;
-    return consumer.run (argc, argv);
-}
-
-// ****************************************************************
-
-Consumer::Consumer (void) :
+Consumer::Consumer() :
     _payload(false),
     _startTime(0),
     _stopTime(0),
@@ -32,7 +30,7 @@ Consumer::Consumer (void) :
 }
 
 int
-Consumer::run (int argc, char* argv[])
+Consumer::run(int argc, char* argv[])
 {
     int repetitions = 10000;
     int nthreads = 1;
@@ -69,10 +67,10 @@ Consumer::run (int argc, char* argv[])
     ACE_DECLARE_NEW_CORBA_ENV;
     ACE_TRY
     {
-	CORBA::ORB_var orb = CORBA::ORB_init (argc, argv, "" ACE_ENV_ARG_PARAMETER);
+	CORBA::ORB_var orb = CORBA::ORB_init(argc, argv, "" ACE_ENV_ARG_PARAMETER);
 	ACE_TRY_CHECK;
 	
-	this->orb_ = orb.in ();
+	_orb = orb.in();
 	
 	if(argc <= 1)
 	{
@@ -80,38 +78,38 @@ Consumer::run (int argc, char* argv[])
 	    return 1;
 	}
 
-	CORBA::Object_var object = orb->resolve_initial_references ("RootPOA" ACE_ENV_ARG_PARAMETER);
+	CORBA::Object_var object = orb->resolve_initial_references("RootPOA" ACE_ENV_ARG_PARAMETER);
 	ACE_TRY_CHECK;
-	PortableServer::POA_var poa = PortableServer::POA::_narrow (object.in () ACE_ENV_ARG_PARAMETER);
+	PortableServer::POA_var poa = PortableServer::POA::_narrow(object.in() ACE_ENV_ARG_PARAMETER);
 	ACE_TRY_CHECK;
-	PortableServer::POAManager_var poa_manager = poa->the_POAManager (ACE_ENV_SINGLE_ARG_PARAMETER);
-	ACE_TRY_CHECK;
-
-	poa_manager->activate (ACE_ENV_SINGLE_ARG_PARAMETER);
+	PortableServer::POAManager_var poa_manager = poa->the_POAManager(ACE_ENV_SINGLE_ARG_PARAMETER);
 	ACE_TRY_CHECK;
 
-	Worker_Thread worker (orb.in ());
-	worker.activate (THR_NEW_LWP | THR_JOINABLE, nthreads, 1);
+	poa_manager->activate(ACE_ENV_SINGLE_ARG_PARAMETER);
+	ACE_TRY_CHECK;
+
+	WorkerThread worker(orb.in());
+	worker.activate(THR_NEW_LWP | THR_JOINABLE, nthreads, 1);
 	
-	object = orb->string_to_object (ior ACE_ENV_ARG_PARAMETER);
+	object = orb->string_to_object(ior ACE_ENV_ARG_PARAMETER);
 	ACE_TRY_CHECK;
 	    
 	CosEventChannelAdmin::EventChannel_var event_channel = 
-	    CosEventChannelAdmin::EventChannel::_narrow (object.in () ACE_ENV_ARG_PARAMETER);
+	    CosEventChannelAdmin::EventChannel::_narrow(object.in() ACE_ENV_ARG_PARAMETER);
 	ACE_TRY_CHECK;
 
 	CosEventChannelAdmin::ConsumerAdmin_var consumer_admin = 
-	    event_channel->for_consumers (ACE_ENV_SINGLE_ARG_PARAMETER);
+	    event_channel->for_consumers(ACE_ENV_SINGLE_ARG_PARAMETER);
 	ACE_TRY_CHECK;
 
 	CosEventChannelAdmin::ProxyPushSupplier_var supplier =
-	    consumer_admin->obtain_push_supplier (ACE_ENV_SINGLE_ARG_PARAMETER);
+	    consumer_admin->obtain_push_supplier(ACE_ENV_SINGLE_ARG_PARAMETER);
 	ACE_TRY_CHECK;
 
-	CosEventComm::PushConsumer_var consumer = this->_this (ACE_ENV_SINGLE_ARG_PARAMETER);
+	CosEventComm::PushConsumer_var consumer = _this(ACE_ENV_SINGLE_ARG_PARAMETER);
 	ACE_TRY_CHECK;
 
-	supplier->connect_push_consumer (consumer.in () ACE_ENV_ARG_PARAMETER);
+	supplier->connect_push_consumer(consumer.in() ACE_ENV_ARG_PARAMETER);
 	ACE_TRY_CHECK;
 
 	cout << "Consumer ready" << endl;
@@ -157,7 +155,7 @@ Consumer::push(const CORBA::Any& any ACE_ENV_ARG_DECL_NOT_USED)
     {
 	if(stopped())
 	{
-	    this->orb_->shutdown (0 ACE_ENV_ARG_PARAMETER);
+	    _orb->shutdown(0 ACE_ENV_ARG_PARAMETER);
 	}
     }
     else if(time < 0)
@@ -262,8 +260,9 @@ Consumer::calc()
     _nStoppedPublishers = 0;
 }
 
-// ****************************************************************
-
-#if defined (ACE_HAS_EXPLICIT_TEMPLATE_INSTANTIATION)
-#elif defined(ACE_HAS_TEMPLATE_INSTANTIATION_PRAGMA)
-#endif /* ACE_HAS_EXPLICIT_TEMPLATE_INSTANTIATION */
+int
+main(int argc, char* argv[])
+{
+    Consumer consumer;
+    return consumer.run(argc, argv);
+}

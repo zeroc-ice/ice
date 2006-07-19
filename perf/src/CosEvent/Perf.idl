@@ -29,10 +29,6 @@ struct AStruct
 
 typedef sequence<AStruct> AStructSeq;
 
-interface Intf
-{
-};
-
 struct Event
 {
     long long time;
@@ -46,11 +42,6 @@ interface Ping
     void tickVoid(in long long time);
 
     void tick(in long long time, in AEnum e, in long i, in AStruct s);
-};
-
-interface Sync
-{
-    void notify();
 };
 
 };

@@ -1,0 +1,26 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+#ifndef ICEPERF_SYNC_IDL
+#define ICEPERF_SYNC_IDL
+
+module Perf
+{
+
+//
+// XXX- comment.
+//
+interface Sync
+{
+    void notify();
+};
+
+};
+
+#endif /* SYNC_IDL */

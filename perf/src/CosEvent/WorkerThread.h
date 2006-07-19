@@ -7,20 +7,25 @@
 //
 // **********************************************************************
 
-#ifndef ICEPERF_SUPPLIER_H
-#define ICEPERF_SUPPLIER_H
+#ifndef ICEPERF_WORKERTHREAD_H
+#define ICEPERF_WORKERTHREAD_H
 
-#include <orbsvcs/CosEventCommS.h>
+#include <tao/ORB.h>
+#include <ace/Task.h>
 
-class Supplier : public POA_CosEventComm::PushSupplier
+//
+// Worker thread for running the TAO ORB. 
+//
+
+class WorkerThread : public ACE_Task_Base
 {
 public:
-  int run(int argc, char* argv[]);
+    WorkerThread(CORBA::ORB_ptr orb);
 
-  virtual void disconnect_push_supplier(ACE_ENV_SINGLE_ARG_DECL_NOT_USED)
-    ACE_THROW_SPEC ((CORBA::SystemException));
+    virtual int svc();
 
 private:
+    CORBA::ORB_var _orb;
 };
 
-#endif /* SUPPLIER_H */
+#endif /* ICEPERF_WORKERTHREAD_H */ 
