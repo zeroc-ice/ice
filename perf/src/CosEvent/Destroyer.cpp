@@ -25,7 +25,7 @@ main(int argc, char* argv[])
 }
 
 int 
-Destroyer::run(int argc, char* argv[]);
+Destroyer::run(int argc, char* argv[])
 {
     std::string ior;
     for(int i = 1; i < argc; i++)
