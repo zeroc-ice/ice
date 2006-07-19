@@ -269,7 +269,7 @@ Ice::CommunicatorI::CommunicatorI(const InitializationData& initData)
 	    gcTraceLevel = _instance->traceLevels()->gc;
 	    gcTraceCat = _instance->traceLevels()->gcCat;
 	    gcLogger = _instance->initializationData().logger;
-	    gcInterval = initData.properties->getPropertyAsInt("Ice.GC.Interval");
+	    gcInterval = _instance->initializationData().properties->getPropertyAsInt("Ice.GC.Interval");
 	    gcOnce = false;
 	}
 	if(++communicatorCount == 1)

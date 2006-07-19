@@ -22,12 +22,16 @@ Changes since version 3.1.0
       C myCstar;	// OK, no problem with 3.1.0.
   };
 
-- For non-abstract Slice classes, the C++ code generated now adds a
+- For non-abstract Slice classes, the C++ code generator now adds a
   protected destructor. This prevents accidental allocation of
   class instances on the stack or as static variables. For the
-  implementation of abstract Slice classes and for servant classes
+  implementation of abstract Slice classes, and for servant classes,
   applications can do the same thing and add a protected destructor
   to prevent non-heap allocation.
+
+- Fixed a bug in Ice::initialize() that raised a NullHandleException
+  when the function was called without arguments or when the
+  properties member of InitializationData was null.
 
 Changes since version 3.0.1
 ---------------------------
