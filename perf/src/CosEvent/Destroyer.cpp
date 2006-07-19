@@ -9,8 +9,6 @@
 
 #include <orbsvcs/CosEventChannelAdminC.h>
 
-#include <string>
-
 class Destroyer
 {
 public:
@@ -27,12 +25,12 @@ main(int argc, char* argv[])
 int 
 Destroyer::run(int argc, char* argv[])
 {
-    std::string ior;
+    CORBA::String_var ior;
     for(int i = 1; i < argc; i++)
     {
 	if(strlen(argv[i]) > 3 && strncmp(argv[i], "IOR", strlen("IOR")))
 	{
-	    ior = strdup(argv[i]);
+	    ior = CORBA::string_dup(argv[i]);
 	}
     }
 
@@ -48,7 +46,7 @@ Destroyer::run(int argc, char* argv[])
 	    return 1;
 	}
 
-	CORBA::Object_var object = orb->string_to_object(ior.c_str() ACE_ENV_ARG_PARAMETER);
+	CORBA::Object_var object = orb->string_to_object(ior.in() ACE_ENV_ARG_PARAMETER);
 	ACE_TRY_CHECK;
 
 	CosEventChannelAdmin::EventChannel_var event_channel = 

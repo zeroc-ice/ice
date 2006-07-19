@@ -18,7 +18,7 @@ const char *ior_output_file = "ec.ior";
 //
 // Parse command line arguments, returning 0 on success, -1 on failure.
 //
-int 
+static int 
 parse_args(int argc, char *argv[])
 {
     ACE_Get_Opt get_opts(argc, argv, "n:o:");
