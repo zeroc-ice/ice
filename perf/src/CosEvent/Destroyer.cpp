@@ -14,49 +14,7 @@
 class Destroyer
 {
 public:
-    int 
-    run(int argc, char* argv[])
-    {
-	std::string ior;
-	for(int i = 1; i < argc; i++)
-	{
-	    if(strlen(argv[i]) > 3 && strncmp(argv[i], "IOR", strlen("IOR")))
-	    {
-		ior = strdup(argv[i]);
-	    }
-	}
-
-	ACE_DECLARE_NEW_CORBA_ENV;
-	ACE_TRY
-	{
-	    CORBA::ORB_var orb = CORBA::ORB_init(argc, argv, "" ACE_ENV_ARG_PARAMETER);
-	    ACE_TRY_CHECK;
-
-	    if(argc <= 1)
-	    {
-		ACE_ERROR ((LM_ERROR, "Usage: Destroyer <event_channel_ior>\n"));
-		return 1;
-	    }
-
-	    CORBA::Object_var object = orb->string_to_object(ior.c_str() ACE_ENV_ARG_PARAMETER);
-	    ACE_TRY_CHECK;
-
-	    CosEventChannelAdmin::EventChannel_var event_channel = 
-		CosEventChannelAdmin::EventChannel::_narrow(object.in() ACE_ENV_ARG_PARAMETER);
-	    ACE_TRY_CHECK;
-
-	    // Destroy the EC....
-	    event_channel->destroy(ACE_ENV_SINGLE_ARG_PARAMETER);
-	    ACE_TRY_CHECK;	
-	}
-	ACE_CATCHANY
-	{
-	    ACE_PRINT_EXCEPTION (ACE_ANY_EXCEPTION, "Destroyer::run");
-	    return 1;
-	}
-	ACE_ENDTRY;
-	return 0;
-    }
+    int run(int argc, char* argv[]);
 };
 
 int
@@ -64,4 +22,48 @@ main(int argc, char* argv[])
 {
     Destroyer destroyer;
     return destroyer.run(argc, argv);
+}
+
+int 
+Destroyer::run(int argc, char* argv[]);
+{
+    std::string ior;
+    for(int i = 1; i < argc; i++)
+    {
+	if(strlen(argv[i]) > 3 && strncmp(argv[i], "IOR", strlen("IOR")))
+	{
+	    ior = strdup(argv[i]);
+	}
+    }
+
+    ACE_DECLARE_NEW_CORBA_ENV;
+    ACE_TRY
+    {
+	CORBA::ORB_var orb = CORBA::ORB_init(argc, argv, "" ACE_ENV_ARG_PARAMETER);
+	ACE_TRY_CHECK;
+
+	if(argc <= 1)
+	{
+	    ACE_ERROR ((LM_ERROR, "Usage: Destroyer <event_channel_ior>\n"));
+	    return 1;
+	}
+
+	CORBA::Object_var object = orb->string_to_object(ior.c_str() ACE_ENV_ARG_PARAMETER);
+	ACE_TRY_CHECK;
+
+	CosEventChannelAdmin::EventChannel_var event_channel = 
+	    CosEventChannelAdmin::EventChannel::_narrow(object.in() ACE_ENV_ARG_PARAMETER);
+	ACE_TRY_CHECK;
+
+	// Destroy the EC....
+	event_channel->destroy(ACE_ENV_SINGLE_ARG_PARAMETER);
+	ACE_TRY_CHECK;	
+    }
+    ACE_CATCHANY
+    {
+	ACE_PRINT_EXCEPTION (ACE_ANY_EXCEPTION, "Destroyer::run");
+	return 1;
+    }
+    ACE_ENDTRY;
+    return 0;
 }
