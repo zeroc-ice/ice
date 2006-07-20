@@ -128,7 +128,13 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
     public java.util.Map
     getDefaultContext()
     {
-	return _instance.initializationData().defaultContext;
+	return _instance.getDefaultContext();
+    }
+
+    public void
+    setDefaultContext(java.util.Map ctx)
+    {
+	_instance.setDefaultContext(ctx);
     }
 
     public PluginManager

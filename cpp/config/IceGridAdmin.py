@@ -122,6 +122,8 @@ def iceGridAdmin(cmd, ignoreFailure = False):
     iceGridAdminStatus = TestUtil.closePipe(iceGridAdminPipe)
     if not ignoreFailure and iceGridAdminStatus:
         print "icegridadmin command failed: " + cmd
+        for line in output:
+            print line
         TestUtil.killServers()
         sys.exit(1)
 

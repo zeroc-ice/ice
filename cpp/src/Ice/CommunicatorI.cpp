@@ -218,8 +218,16 @@ Ice::CommunicatorI::setDefaultLocator(const LocatorPrx& locator)
 Ice::Context
 Ice::CommunicatorI::getDefaultContext() const
 {
-    return _instance->initializationData().defaultContext;
+    return _instance->getDefaultContext();
 }
+
+
+void
+Ice::CommunicatorI::setDefaultContext(const Context& ctx)
+{
+    _instance->setDefaultContext(ctx);
+}
+
 
 PluginManagerPtr
 Ice::CommunicatorI::getPluginManager() const

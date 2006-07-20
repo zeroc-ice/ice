@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GC_COUNTMAP_H
-#define ICE_GC_COUNTMAP_H
+#ifndef ICE_GCCOUNTMAP_H
+#define ICE_GCCOUNTMAP_H
 
 #include <map>
 

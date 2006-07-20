@@ -42,6 +42,8 @@ public:
     virtual ObjectFactoryPtr findObjectFactory(const std::string&) const;
 
     virtual Context getDefaultContext() const;
+    virtual void setDefaultContext(const Context&);
+
     virtual PropertiesPtr getProperties() const;
     virtual LoggerPtr getLogger() const;
     virtual StatsPtr getStats() const;

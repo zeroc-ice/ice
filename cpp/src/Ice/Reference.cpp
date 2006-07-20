@@ -57,7 +57,7 @@ ReferencePtr
 IceInternal::Reference::defaultContext() const
 {
     ReferencePtr r = _instance->referenceFactory()->copy(this);
-    r->_context = _instance->initializationData().defaultContext;
+    r->_context = _instance->getDefaultContext();
     return r;
 }
 

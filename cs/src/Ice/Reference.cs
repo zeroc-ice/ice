@@ -53,7 +53,7 @@ namespace IceInternal
 	public Reference defaultContext()
 	{
 	    Reference r = instance_.referenceFactory().copy(this);
-	    r.context_ = instance_.initializationData().defaultContext;
+	    r.context_ = instance_.getDefaultContext();
 	    return r;
 	}
 

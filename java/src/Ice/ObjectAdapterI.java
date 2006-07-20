@@ -519,7 +519,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         ConnectionI[] arr = new ConnectionI[connections.size()];
         connections.toArray(arr);
         IceInternal.Reference ref =
-	    _instance.referenceFactory().create(ident, _instance.initializationData().defaultContext, "",
+	    _instance.referenceFactory().create(ident, _instance.getDefaultContext(), "",
                                                 IceInternal.Reference.ModeTwoway, arr);
         return _instance.proxyFactory().referenceToProxy(ref);
     }

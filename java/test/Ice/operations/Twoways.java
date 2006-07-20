@@ -598,56 +598,69 @@ class Twoways
         }
 
 	{
+	    java.util.HashMap ctx = new java.util.HashMap();
+	    ctx.put("one", "ONE");
+	    ctx.put("two", "TWO");
+	    ctx.put("three", "THREE");
 	    {
-	        java.util.HashMap ctx = new java.util.HashMap();
-	        ctx.put("one", "ONE");
-	        ctx.put("two", "TWO");
-	        ctx.put("three", "THREE");
-	        {
-		    test(p.ice_getContext().isEmpty());
-		    java.util.Map r = p.opContext();
-		    test(!r.equals(ctx));
-	        }
-	        {
-		    java.util.Map r = p.opContext(ctx);
-		    test(p.ice_getContext().isEmpty());
-		    test(r.equals(ctx));
-	        }
-	        {
-		    Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
-		    test(p2.ice_getContext().equals(ctx));
-		    java.util.Map r = p2.opContext();
-		    test(r.equals(ctx));
-		    r = p2.opContext(ctx);
-		    test(r.equals(ctx));
-	        }
+		test(p.ice_getContext().isEmpty());
+		java.util.Map r = p.opContext();
+		test(!r.equals(ctx));
+	    }
+	    {
+		java.util.Map r = p.opContext(ctx);
+		test(p.ice_getContext().isEmpty());
+		test(r.equals(ctx));
+	    }
+	    {
+		Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
+		test(p2.ice_getContext().equals(ctx));
+		java.util.Map r = p2.opContext();
+		test(r.equals(ctx));
+		r = p2.opContext(ctx);
+		test(r.equals(ctx));
 	    }
 	    {
 		//
 		// Test that default context is obtained correctly from communicator.
 		//
-		initData =(Ice.InitializationData)initData.clone();;
-		initData.defaultContext = new java.util.HashMap();
-		initData.defaultContext.put("a", "b");
-		Ice.Communicator communicator2 = Ice.Util.initialize(initData);
+		java.util.HashMap dflt = new java.util.HashMap();
+		dflt.put("a", "b");
+		communicator.setDefaultContext(dflt);
+		test(!p.opContext().equals(dflt));
 
+		Test.MyClassPrx p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_context(new java.util.HashMap()));
+		test(p2.opContext().isEmpty());
+
+		p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_defaultContext());
+		test(p2.opContext().equals(dflt));
+
+		communicator.setDefaultContext(new java.util.HashMap());
+		test(!p2.opContext().isEmpty());
+
+		communicator.setDefaultContext(dflt);
 		Test.MyClassPrx c = Test.MyClassPrxHelper.checkedCast(
-					communicator2.stringToProxy("test:default -p 12010 -t 10000"));
-		test(c.opContext().equals(initData.defaultContext));
+					communicator.stringToProxy("test:default -p 12010 -t 10000"));
+		test(c.opContext().equals(dflt));
 
-		java.util.Map ctx = new java.util.HashMap();
-		ctx.put("a", "c");
-		Test.MyClassPrx c2 = Test.MyClassPrxHelper.uncheckedCast(c.ice_context(ctx));
+		dflt.put("a", "c");
+		Test.MyClassPrx c2 = Test.MyClassPrxHelper.uncheckedCast(c.ice_context(dflt));
 		test(c2.opContext().get("a").equals("c"));
 
-		ctx.clear();
-		Test.MyClassPrx c3 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_context(ctx));
+		dflt.clear();
+		Test.MyClassPrx c3 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_context(dflt));
 		test(c3.opContext().get("a") == null);
 
 		Test.MyClassPrx c4 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_defaultContext());
 		test(c4.opContext().get("a").equals("b"));
 
-		communicator2.destroy();
+		dflt.put("a", "d");
+		communicator.setDefaultContext(dflt);
+
+		Test.MyClassPrx c5 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_defaultContext());
+		test(c5.opContext().get("a").equals("d"));
+
+		communicator.setDefaultContext(new java.util.HashMap());
 	    }
 	}
 

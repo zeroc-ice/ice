@@ -522,7 +522,7 @@ namespace Ice
 		    connections.CopyTo(arr, 0);
 		}
                 IceInternal.Reference @ref = instance_.referenceFactory().create(
-		    ident, instance_.initializationData().defaultContext, "", IceInternal.Reference.Mode.ModeTwoway, 
+		    ident, instance_.getDefaultContext(), "", IceInternal.Reference.Mode.ModeTwoway, 
 		    arr);
 		return instance_.proxyFactory().referenceToProxy(@ref);
 	    }
@@ -937,7 +937,7 @@ namespace Ice
 	    // Create a reference and return a proxy for this reference.
 	    //
 	    IceInternal.Reference reference =
-		instance_.referenceFactory().create(ident, instance_.initializationData().defaultContext, facet,
+		instance_.referenceFactory().create(ident, instance_.getDefaultContext(), facet,
 						    IceInternal.Reference.Mode.ModeTwoway, false, endpoints,
 						    null, instance_.defaultsAndOverrides().
 						    defaultCollocationOptimization);
@@ -951,7 +951,7 @@ namespace Ice
 	    // proxy for the reference.
 	    //
 	    IceInternal.Reference reference =
-		instance_.referenceFactory().create(ident, instance_.initializationData().defaultContext, facet,
+		instance_.referenceFactory().create(ident, instance_.getDefaultContext(), facet,
 						    IceInternal.Reference.Mode.ModeTwoway, 
 						    false, id, null, _locatorInfo, 
 						    instance_.defaultsAndOverrides().defaultCollocationOptimization,

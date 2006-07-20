@@ -52,7 +52,7 @@ public abstract class Reference implements Cloneable
     defaultContext()
     {
 	Reference r = _instance.referenceFactory().copy(this);
-	r._context = _instance.initializationData().defaultContext;
+	r._context = _instance.getDefaultContext();
 	return r;
 
     }

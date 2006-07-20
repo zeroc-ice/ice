@@ -213,6 +213,35 @@ public final class Instance
 	return _serverACM;
     }
 
+    public synchronized void
+    setDefaultContext(java.util.Map ctx)
+    {
+	if(_state == StateDestroyed)
+	{
+	    throw new Ice.CommunicatorDestroyedException();
+	}
+
+	if(ctx == null || ctx.isEmpty())
+	{
+	    _defaultContext = _emptyContext;
+	}
+	else
+	{
+	    _defaultContext = new java.util.HashMap(ctx);
+	}
+    }
+
+    public synchronized java.util.Map
+    getDefaultContext()
+    {
+	if(_state == StateDestroyed)
+	{
+	    throw new Ice.CommunicatorDestroyedException();
+	}
+
+        return new java.util.HashMap(_defaultContext);
+    }
+
     public void
     flushBatchRequests()
     {
@@ -395,7 +424,11 @@ public final class Instance
 
 	    if(_initData.defaultContext == null)
 	    {
-	        _initData.defaultContext = _emptyContext;
+	        _defaultContext = _emptyContext;
+	    }
+	    else
+	    {
+		_defaultContext = _initData.defaultContext;
 	    }
 
             _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
@@ -678,6 +711,7 @@ public final class Instance
     private final int _threadPerConnectionStackSize;
     private EndpointFactoryManager _endpointFactoryManager;
     private Ice.PluginManager _pluginManager;
+    private java.util.Map _defaultContext;
     private static java.util.Map _emptyContext = new java.util.HashMap();
 
     private static boolean _oneOffDone = false;

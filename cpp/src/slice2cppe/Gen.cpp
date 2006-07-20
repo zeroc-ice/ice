@@ -2432,7 +2432,7 @@ Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 		C << ',' << nl;
 	    }
 	    string memberName = fixKwd((*q)->name());
-	    C << memberName << '(' << "__ice_" << memberName << ')';
+	    C << memberName << '(' << "__ice_" << (*q)->name() << ')';
 	}
 
 	C.dec();

@@ -109,7 +109,12 @@ namespace Ice
 	
 	public Ice.Context getDefaultContext()
 	{
-	    return instance_.initializationData().defaultContext;
+	    return instance_.getDefaultContext();
+	}
+	
+	public void setDefaultContext(Ice.Context ctx)
+	{
+	    instance_.setDefaultContext(ctx);
 	}
 
 	public PluginManager getPluginManager()

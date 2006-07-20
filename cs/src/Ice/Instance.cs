@@ -234,6 +234,39 @@ namespace IceInternal
 	    return _serverACM;
 	}
 	
+	public void setDefaultContext(Ice.Context ctx)
+	{
+	    lock(this)
+	    {
+		if(_state == StateDestroyed)
+		{
+		    throw new Ice.CommunicatorDestroyedException();
+		}
+	
+		if(ctx == null || ctx.Count == 0)
+		{
+		    _defaultContext = _emptyContext;
+		}
+		else
+		{
+		    _defaultContext = (Ice.Context)ctx.Clone();
+		}
+	    }
+	}
+
+	public Ice.Context getDefaultContext()
+	{
+	    lock(this)
+	    {
+		if(_state == StateDestroyed)
+		{
+		    throw new Ice.CommunicatorDestroyedException();
+		}
+		
+		return (Ice.Context)_defaultContext.Clone();
+	    }
+	}
+
 	public void flushBatchRequests()
 	{
 	    OutgoingConnectionFactory connectionFactory;
@@ -394,7 +427,11 @@ namespace IceInternal
 
 		if(_initData.defaultContext == null)
 		{
-		    _initData.defaultContext = _emptyContext;
+		    _defaultContext = _emptyContext;
+		}
+		else
+		{
+		    _defaultContext = _initData.defaultContext;
 		}
 		
 		_outgoingConnectionFactory = new OutgoingConnectionFactory(this);
@@ -663,6 +700,7 @@ namespace IceInternal
 	private bool _threadPerConnection;
 	private EndpointFactoryManager _endpointFactoryManager;
 	private Ice.PluginManager _pluginManager;
+        private Ice.Context _defaultContext;
 	private static Ice.Context _emptyContext = new Ice.Context();
 	private static bool _printProcessIdDone = false;
 

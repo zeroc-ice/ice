@@ -398,7 +398,6 @@ ReplicaGroupEntry::getProxies(int& nReplicas, bool& replicaGroup)
     // reachable.
     //
     vector<pair<string, AdapterPrx> > adapters;
-    auto_ptr<Ice::Exception> exception;
     for(ReplicaSeq::const_iterator p = replicas.begin(); p != replicas.end(); ++p)
     {
 	try
@@ -411,18 +410,9 @@ ReplicaGroupEntry::getProxies(int& nReplicas, bool& replicaGroup)
 	catch(const Ice::InvalidReplicaGroupIdException&)
 	{
 	}
-	catch(const Ice::Exception& ex)
+	catch(const NodeUnreachableException&)
 	{
-	    if(!exception.get())
-	    {
-		exception.reset(ex.ice_clone());
-	    }
 	}
-    }
-
-    if(exception.get())
-    {
-	exception->ice_throw();
     }
 
     return adapters;

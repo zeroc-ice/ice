@@ -271,6 +271,7 @@ local interface Communicator
      **/
     nonmutating ObjectFactory findObjectFactory(string id);
 
+
     /**
      *
      * Get the currently-set default context.
@@ -279,8 +280,24 @@ local interface Communicator
      * default context is currently set, [getDefaultContext]
      * returns an empty context.
      *
+     * @see setDefaultContext
      **/
     nonmutating Context getDefaultContext();
+
+    /**
+     *
+     * Set a default context on this communicator. All newly
+     * created proxies will use this default context. This operation 
+     * has no effect on existing proxies.
+     *
+     * <note><para> You can also set a context for an individual proxy
+     * by calling the operation [ice_context] on the proxy.</para></note>
+     *
+     * @param ctx The default context to be set.
+     * @see getDefaultContext
+     **/
+    void setDefaultContext(Context ctx);
+
 
     /**
      *

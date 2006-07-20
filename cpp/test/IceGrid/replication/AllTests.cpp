@@ -20,13 +20,13 @@ using namespace Test;
 using namespace IceGrid;
 
 void
-instantiateServer(const AdminPrx& admin, const string& templ, const map<string, string>& params)
+instantiateServer(const AdminPrx& admin, const string& templ, const string& node, const map<string, string>& params)
 {
     ServerInstanceDescriptor desc;
     desc._cpp_template = templ;
     desc.parameterValues = params;
     NodeUpdateDescriptor nodeUpdate;
-    nodeUpdate.name = "localnode";
+    nodeUpdate.name = node;
     nodeUpdate.serverInstances.push_back(desc);
     ApplicationUpdateDescriptor update;
     update.name = "Test";
@@ -50,6 +50,9 @@ removeServer(const AdminPrx& admin, const string& id)
 	admin->stopServer(id);
     }
     catch(const ServerStopException&)
+    {
+    }
+    catch(const NodeUnreachableException&)
     {
     }
     catch(const Ice::UserException& ex)
@@ -95,11 +98,11 @@ allTests(const Ice::CommunicatorPtr& comm)
 	map<string, string> params;
 	params["replicaGroup"] = "Default";
 	params["id"] = "Server1";
-	instantiateServer(admin, "Server", params);
+	instantiateServer(admin, "Server", "localnode", params);
 	params["id"] = "Server2";
-	instantiateServer(admin, "Server", params);
+	instantiateServer(admin, "Server", "localnode", params);
 	params["id"] = "Server3";
-	instantiateServer(admin, "Server", params);
+	instantiateServer(admin, "Server", "localnode", params);
 	set<string> replicaIds = serverReplicaIds;
 	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Default"));
 	try
@@ -121,7 +124,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	map<string, string> params;
 	params["replicaGroup"] = "Default";
 	params["id"] = "IceBox1";
-	instantiateServer(admin, "IceBox", params);
+	instantiateServer(admin, "IceBox", "localnode", params);
 	set<string> replicaIds = svcReplicaIds;
 	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Default"));
 	try
@@ -144,11 +147,11 @@ allTests(const Ice::CommunicatorPtr& comm)
 	map<string, string> params;
 	params["replicaGroup"] = "RoundRobin";
 	params["id"] = "Server1";
-	instantiateServer(admin, "Server", params);
+	instantiateServer(admin, "Server", "localnode", params);
 	params["id"] = "Server2";
-	instantiateServer(admin, "Server", params);
+	instantiateServer(admin, "Server", "localnode", params);
 	params["id"] = "Server3";
-	instantiateServer(admin, "Server", params);
+	instantiateServer(admin, "Server", "localnode", params);
 	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("RoundRobin"));
 	try
 	{
@@ -169,7 +172,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	map<string, string> params;
 	params["replicaGroup"] = "RoundRobin";
 	params["id"] = "IceBox1";
-	instantiateServer(admin, "IceBox", params);
+	instantiateServer(admin, "IceBox", "localnode", params);
 	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("RoundRobin"));
 	try
 	{
@@ -191,11 +194,11 @@ allTests(const Ice::CommunicatorPtr& comm)
 	map<string, string> params;
 	params["replicaGroup"] = "Random";
 	params["id"] = "Server1";
-	instantiateServer(admin, "Server", params);
+	instantiateServer(admin, "Server", "localnode", params);
 	params["id"] = "Server2";
-	instantiateServer(admin, "Server", params);
+	instantiateServer(admin, "Server", "localnode", params);
 	params["id"] = "Server3";
-	instantiateServer(admin, "Server", params);
+	instantiateServer(admin, "Server", "localnode", params);
 	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Random"));
 	set<string> replicaIds = serverReplicaIds;
 	while(!replicaIds.empty())
@@ -218,7 +221,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	map<string, string> params;
 	params["replicaGroup"] = "Random";
 	params["id"] = "IceBox1";
-	instantiateServer(admin, "IceBox", params);
+	instantiateServer(admin, "IceBox", "localnode", params);
 	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Random"));
 	set<string> replicaIds = svcReplicaIds;
 	while(!replicaIds.empty())
@@ -245,11 +248,11 @@ allTests(const Ice::CommunicatorPtr& comm)
 	map<string, string> params;
 	params["replicaGroup"] = "Adaptive";
 	params["id"] = "Server1";
-	instantiateServer(admin, "Server", params);
+	instantiateServer(admin, "Server", "localnode", params);
 	params["id"] = "Server2";
-	instantiateServer(admin, "Server", params);
+	instantiateServer(admin, "Server", "localnode", params);
 	params["id"] = "Server3";
-	instantiateServer(admin, "Server", params);
+	instantiateServer(admin, "Server", "localnode", params);
 	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Adaptive"));
 	set<string> replicaIds = serverReplicaIds;
 	while(!replicaIds.empty())
@@ -272,7 +275,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	map<string, string> params;
 	params["replicaGroup"] = "Adaptive";
 	params["id"] = "IceBox1";
-	instantiateServer(admin, "IceBox", params);
+	instantiateServer(admin, "IceBox", "localnode", params);
 	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Adaptive"));
 	set<string> replicaIds = svcReplicaIds;
 	while(!replicaIds.empty())
@@ -292,5 +295,51 @@ allTests(const Ice::CommunicatorPtr& comm)
 	}
 	removeServer(admin, "IceBox1");
     }
+    cout << "ok" << endl;
+
+    cout << "testing replication with inactive nodes... " << flush;
+    {
+	map<string, string> params;
+
+	params["replicaGroup"] = "Random";
+	params["id"] = "Server1";
+	instantiateServer(admin, "Server", "inactivenode", params);
+	params["id"] = "Server2";
+	instantiateServer(admin, "Server", "localnode", params);
+	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Random"));
+	test(obj->getReplicaIdAndShutdown() == "Server2.ReplicatedAdapter");
+	removeServer(admin, "Server1");
+	removeServer(admin, "Server2");
+
+	params["replicaGroup"] = "RoundRobin";
+	params["id"] = "Server1";
+	instantiateServer(admin, "Server", "inactivenode", params);
+	params["id"] = "Server2";
+	instantiateServer(admin, "Server", "localnode", params);
+	obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("RoundRobin"));
+	test(obj->getReplicaIdAndShutdown() == "Server2.ReplicatedAdapter");
+	removeServer(admin, "Server1");
+	removeServer(admin, "Server2");
+
+	params["replicaGroup"] = "Adaptive";
+	params["id"] = "Server1";
+	instantiateServer(admin, "Server", "inactivenode", params);
+	params["id"] = "Server2";
+	instantiateServer(admin, "Server", "localnode", params);
+	obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Adaptive"));
+	test(obj->getReplicaIdAndShutdown() == "Server2.ReplicatedAdapter");
+	removeServer(admin, "Server1");
+	removeServer(admin, "Server2");
+
+	params["replicaGroup"] = "Random";
+	params["id"] = "IceBox1";
+	instantiateServer(admin, "IceBox", "localnode", params);
+	params["id"] = "Server1";
+	instantiateServer(admin, "Server", "inactivenode", params);
+	obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Random"));
+	test(svcReplicaIds.find(obj->getReplicaIdAndShutdown()) != svcReplicaIds.end());
+	removeServer(admin, "IceBox1");
+	removeServer(admin, "Server1");
+    };
     cout << "ok" << endl;
 }

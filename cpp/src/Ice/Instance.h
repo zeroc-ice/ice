@@ -73,6 +73,8 @@ public:
     Ice::Int clientACM() const;
     Ice::Int serverACM() const;
     void flushBatchRequests();
+    void setDefaultContext(const ::Ice::Context&);
+    ::Ice::Context getDefaultContext() const;
     Ice::Identity stringToIdentity(const std::string&) const;
     std::string identityToString(const Ice::Identity&) const;
     
@@ -112,6 +114,7 @@ private:
     EndpointFactoryManagerPtr _endpointFactoryManager;
     DynamicLibraryListPtr _dynamicLibraryList;
     Ice::PluginManagerPtr _pluginManager;
+    Ice::Context _defaultContext;
 };
 
 class UTF8BufferI : public Ice::UTF8Buffer

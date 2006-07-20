@@ -575,55 +575,69 @@ class Twoways
 	}
 
 	{
+	    Ice.Context ctx = new Ice.Context();
+	    ctx["one"] = "ONE";
+	    ctx["two"] = "TWO";
+	    ctx["three"] = "THREE";
 	    {
-	        Ice.Context ctx = new Ice.Context();
-	        ctx["one"] = "ONE";
-	        ctx["two"] = "TWO";
-	        ctx["three"] = "THREE";
-	        {
-		    test(p.ice_getContext().Count == 0);
-		    Ice.Context r = p.opContext();
-		    test(!r.Equals(ctx));
-	        }
-	        {
-		    Ice.Context r = p.opContext(ctx);
-		    test(p.ice_getContext().Count == 0);
-		    test(r.Equals(ctx));
-	        }
-	        {
-		    Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
-		    test(p2.ice_getContext().Equals(ctx));
-		    Ice.Context r = p2.opContext();
-		    test(r.Equals(ctx));
-		    r = p2.opContext(ctx);
-		    test(r.Equals(ctx));
-	        }
+		test(p.ice_getContext().Count == 0);
+		Ice.Context r = p.opContext();
+		test(!r.Equals(ctx));
+	    }
+	    {
+		Ice.Context r = p.opContext(ctx);
+		test(p.ice_getContext().Count == 0);
+		test(r.Equals(ctx));
+	    }
+	    {
+		Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
+		test(p2.ice_getContext().Equals(ctx));
+		Ice.Context r = p2.opContext();
+		test(r.Equals(ctx));
+		r = p2.opContext(ctx);
+		test(r.Equals(ctx));
 	    }
 	    {
 		//
 		// Test that default context is obtained correctly from communicator.
 		//
-		initData.defaultContext = new Ice.Context();
-		initData.defaultContext["a"] = "b";
-		Ice.Communicator communicator2 = Ice.Util.initialize(initData);
+		Ice.Context dflt = new Ice.Context();
+		dflt["a"] = "b";
+		communicator.setDefaultContext(dflt);
+		test(!p.opContext().Equals(dflt));
 
+		Test.MyClassPrx p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_context(new Ice.Context()));
+		test(p2.opContext().Count == 0);
+
+		p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_defaultContext());
+		test(p2.opContext().Equals(dflt));
+
+		communicator.setDefaultContext(new Ice.Context());
+		test(p2.opContext().Count != 0);
+
+		communicator.setDefaultContext(dflt);
 		Test.MyClassPrx c = Test.MyClassPrxHelper.checkedCast(
-					communicator2.stringToProxy("test:default -p 12010 -t 10000"));
-		test(c.opContext().Equals(initData.defaultContext));
-	
-		Ice.Context ctx = new Ice.Context();
-		ctx["a"] = "c";
-		Test.MyClassPrx c2 = Test.MyClassPrxHelper.uncheckedCast(c.ice_context(ctx));
+					communicator.stringToProxy("test:default -p 12010 -t 10000"));
+		test(c.opContext().Equals(dflt));
+
+		dflt["a"] = "c";
+		Test.MyClassPrx c2 = Test.MyClassPrxHelper.uncheckedCast(c.ice_context(dflt));
 		test(c2.opContext()["a"].Equals("c"));
 
-		ctx.Clear();
-		Test.MyClassPrx c3 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_context(ctx));
+		dflt.Clear();
+		Test.MyClassPrx c3 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_context(dflt));
 		test(c3.opContext()["a"] == null);
 
 		Test.MyClassPrx c4 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_defaultContext());
 		test(c4.opContext()["a"].Equals("b"));
 
-		communicator2.destroy();
+		dflt["a"] = "d";
+		communicator.setDefaultContext(dflt);
+
+		Test.MyClassPrx c5 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_defaultContext());
+		test(c5.opContext()["a"].Equals("d"));
+
+		communicator.setDefaultContext(new Ice.Context());
 	    }
 	}
     }

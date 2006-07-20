@@ -671,6 +671,39 @@ communicatorFindObjectFactory(CommunicatorObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
+communicatorSetDefaultContext(CommunicatorObject* self, PyObject* args)
+{
+    PyObject* dict;
+    if(!PyArg_ParseTuple(args, STRCAST("O!"), &PyDict_Type, &dict))
+    {
+        return NULL;
+    }
+
+    Ice::Context ctx;
+    if(!dictionaryToContext(dict, ctx))
+    {
+	return NULL;
+    }
+
+    try
+    {
+        (*self->communicator)->setDefaultContext(ctx);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 communicatorGetDefaultContext(CommunicatorObject* self)
 {
     Ice::Context ctx;
@@ -998,6 +1031,8 @@ static PyMethodDef CommunicatorMethods[] =
         PyDoc_STR(STRCAST("addObjectFactory(factory, id) -> None")) },
     { STRCAST("findObjectFactory"), (PyCFunction)communicatorFindObjectFactory, METH_VARARGS,
         PyDoc_STR(STRCAST("findObjectFactory(id) -> Ice.ObjectFactory")) },
+    { STRCAST("setDefaultContext"), (PyCFunction)communicatorSetDefaultContext, METH_VARARGS,
+        PyDoc_STR(STRCAST("setDefaultContext(ctx) -> None")) },
     { STRCAST("getDefaultContext"), (PyCFunction)communicatorGetDefaultContext, METH_NOARGS,
         PyDoc_STR(STRCAST("getDefaultContext() -> Ice.Context")) },
     { STRCAST("getProperties"), (PyCFunction)communicatorGetProperties, METH_NOARGS,
