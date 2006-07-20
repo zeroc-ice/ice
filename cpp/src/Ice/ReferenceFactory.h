@@ -31,19 +31,19 @@ public:
     //
     // Create a direct reference.
     //
-    ReferencePtr create(const ::Ice::Identity&, const ::Ice::Context&, const ::std::string&,
+    ReferencePtr create(const ::Ice::Identity&, const SharedContextPtr&, const ::std::string&,
 			Reference::Mode, bool, const ::std::vector<EndpointIPtr>&,
 			const RouterInfoPtr&, bool);
     //
     // Create an indirect reference.
     //
-    ReferencePtr create(const ::Ice::Identity&, const ::Ice::Context&, const ::std::string&,
+    ReferencePtr create(const ::Ice::Identity&, const SharedContextPtr&, const ::std::string&,
 			Reference::Mode, bool, const ::std::string&,
 			const RouterInfoPtr&, const LocatorInfoPtr&, bool, int);
     //
     // Create a fixed reference.
     //
-    ReferencePtr create(const ::Ice::Identity&, const ::Ice::Context&, const ::std::string&,
+    ReferencePtr create(const ::Ice::Identity&, const SharedContextPtr&, const ::std::string&,
 	                Reference::Mode, const ::std::vector< ::Ice::ConnectionIPtr>&);
 
     //

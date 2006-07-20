@@ -161,7 +161,7 @@ IceProxy::Ice::Object::ice_toString() const
 bool
 IceProxy::Ice::Object::ice_isA(const string& __id)
 {
-    return ice_isA(__id, _reference->getContext());
+    return ice_isA(__id, _reference->getContext()->getValue());
 }
 
 bool
@@ -190,7 +190,7 @@ IceProxy::Ice::Object::ice_isA(const string& __id, const Context& __context)
 void
 IceProxy::Ice::Object::ice_ping()
 {
-    ice_ping(_reference->getContext());
+    ice_ping(_reference->getContext()->getValue());
 }
 
 void
@@ -219,7 +219,7 @@ IceProxy::Ice::Object::ice_ping(const Context& __context)
 vector<string>
 IceProxy::Ice::Object::ice_ids()
 {
-    return ice_ids(_reference->getContext());
+    return ice_ids(_reference->getContext()->getValue());
 }
 
 vector<string>
@@ -248,7 +248,7 @@ IceProxy::Ice::Object::ice_ids(const Context& __context)
 string
 IceProxy::Ice::Object::ice_id()
 {
-    return ice_id(_reference->getContext());
+    return ice_id(_reference->getContext()->getValue());
 }
 
 string
@@ -280,7 +280,7 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
 				  const vector<Byte>& inParams,
 				  vector<Byte>& outParams)
 {
-    return ice_invoke(operation, mode, inParams, outParams, _reference->getContext());
+    return ice_invoke(operation, mode, inParams, outParams, _reference->getContext()->getValue());
 }
 
 bool
@@ -309,7 +309,7 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
 				  const pair<const Byte*, const Byte*>& inParams,
 				  vector<Byte>& outParams)
 {
-    return ice_invoke(operation, mode, inParams, outParams, _reference->getContext());
+    return ice_invoke(operation, mode, inParams, outParams, _reference->getContext()->getValue());
 }
 
 bool
@@ -352,7 +352,7 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
 					OperationMode mode,
 					const vector<Byte>& inParams)
 {
-    ice_invoke_async(cb, operation, mode, inParams, _reference->getContext());
+    ice_invoke_async(cb, operation, mode, inParams, _reference->getContext()->getValue());
 }
 
 void
@@ -371,7 +371,7 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Array_Object_ice_invokePtr& cb
 					OperationMode mode,
 					const pair<const Byte*, const Byte*>& inParams)
 {
-    ice_invoke_async(cb, operation, mode, inParams, _reference->getContext());
+    ice_invoke_async(cb, operation, mode, inParams, _reference->getContext()->getValue());
 }
 
 void
@@ -418,7 +418,7 @@ IceProxy::Ice::Object::ice_newIdentity(const Identity& newIdentity) const
 Context
 IceProxy::Ice::Object::ice_getContext() const
 {
-    return _reference->getContext();
+    return _reference->getContext()->getValue();
 }
 
 ObjectPrx
@@ -1090,7 +1090,7 @@ IceProxy::Ice::Object::__createDelegateD()
 const Context&
 IceProxy::Ice::Object::__defaultContext() const
 {
-    return _reference->getContext();
+    return _reference->getContext()->getValue();
 }
 
 void

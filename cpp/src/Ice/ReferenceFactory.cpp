@@ -49,7 +49,7 @@ IceInternal::ReferenceFactory::copy(const Reference* r) const
 
 ReferencePtr
 IceInternal::ReferenceFactory::create(const Identity& ident,
-				      const Context& context,
+				      const SharedContextPtr& context,
 				      const string& facet,
 				      Reference::Mode mode,
 				      bool secure,
@@ -78,7 +78,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 
 ReferencePtr
 IceInternal::ReferenceFactory::create(const Identity& ident,
-				      const Context& context,
+				      const SharedContextPtr& context,
 				      const string& facet,
 				      Reference::Mode mode,
 				      bool secure,
@@ -109,7 +109,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 
 ReferencePtr
 IceInternal::ReferenceFactory::create(const Identity& ident,
-				      const Context& context,
+				      const SharedContextPtr& context,
 				      const string& facet,
 				      Reference::Mode mode,
 				      const vector<Ice::ConnectionIPtr>& fixedConnections)

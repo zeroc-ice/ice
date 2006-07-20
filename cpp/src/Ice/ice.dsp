@@ -894,6 +894,10 @@ SOURCE=..\..\include\ice\Service.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\SharedContext.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\ice\SliceChecksumDict.h
 # End Source File
 # Begin Source File

@@ -21,6 +21,7 @@
 #include <Ice/RouterInfoF.h>
 #include <Ice/LocatorInfoF.h>
 #include <Ice/ConnectionIF.h>
+#include <Ice/SharedContext.h>
 #include <Ice/Identity.h>
 
 namespace IceInternal
@@ -46,7 +47,7 @@ public:
     const Ice::Identity& getIdentity() const { return _identity; }
     const std::string& getFacet() const { return _facet; }
     const InstancePtr& getInstance() const { return _instance; }
-    const Ice::Context& getContext() const { return _context; }
+    const SharedContextPtr& getContext() const { return _context; }
 
     ReferencePtr defaultContext() const;
 
@@ -111,7 +112,7 @@ public:
 
 protected:
 
-    Reference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&,
+    Reference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const SharedContextPtr&,
 	      const std::string&, Mode);
     Reference(const Reference&);
 
@@ -126,7 +127,7 @@ private:
 
     Mode _mode;
     Ice::Identity _identity;
-    Ice::Context _context;
+    SharedContextPtr _context;
     std::string _facet;
 };
 
@@ -134,7 +135,7 @@ class FixedReference : public Reference
 {
 public:
 
-    FixedReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&, 
+    FixedReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const SharedContextPtr&, 
 		   const std::string&, Mode, const std::vector<Ice::ConnectionIPtr>&);
 
     const std::vector<Ice::ConnectionIPtr>& getFixedConnections() const;
@@ -215,7 +216,7 @@ public:
 
 protected:
 
-    RoutableReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&,
+    RoutableReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const SharedContextPtr&,
 		      const std::string&, Mode, bool, const RouterInfoPtr&, bool);
     RoutableReference(const RoutableReference&);
 
@@ -241,7 +242,7 @@ class DirectReference : public RoutableReference
 {
 public:
 
-    DirectReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&,
+    DirectReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const SharedContextPtr&,
 		    const std::string&, Mode, bool, const std::vector<EndpointIPtr>&, const RouterInfoPtr&, bool);
 
     virtual int getLocatorCacheTimeout() const;
@@ -279,7 +280,7 @@ class IndirectReference : public RoutableReference
 {
 public:
 
-    IndirectReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&, 
+    IndirectReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const SharedContextPtr&, 
 		      const std::string&, Mode, bool, const std::string&, const RouterInfoPtr&, const LocatorInfoPtr&,
 		      bool, int);
 

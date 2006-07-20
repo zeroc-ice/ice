@@ -331,10 +331,10 @@ IceInternal::Instance::setDefaultContext(const Context& ctx)
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    _defaultContext = ctx;
+    _defaultContext = new SharedContext(ctx); 
 }
 
-Context
+SharedContextPtr
 IceInternal::Instance::getDefaultContext() const
 {
     IceUtil::RecMutex::Lock sync(*this);
@@ -459,7 +459,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     _serverACM(0),
     _threadPerConnection(false),
     _threadPerConnectionStackSize(0),
-    _defaultContext(initData.defaultContext)
+    _defaultContext(new SharedContext(initData.defaultContext))
 {
     try
     {

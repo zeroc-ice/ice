@@ -218,7 +218,7 @@ Ice::CommunicatorI::setDefaultLocator(const LocatorPrx& locator)
 Ice::Context
 Ice::CommunicatorI::getDefaultContext() const
 {
-    return _instance->getDefaultContext();
+    return _instance->getDefaultContext()->getValue();
 }
 
 

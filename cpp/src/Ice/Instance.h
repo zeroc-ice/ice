@@ -33,6 +33,7 @@
 #include <Ice/DynamicLibraryF.h>
 #include <Ice/PluginF.h>
 #include <Ice/Initialize.h>
+#include <Ice/SharedContext.h>
 #include <list>
 
 namespace Ice
@@ -74,7 +75,7 @@ public:
     Ice::Int serverACM() const;
     void flushBatchRequests();
     void setDefaultContext(const ::Ice::Context&);
-    ::Ice::Context getDefaultContext() const;
+    SharedContextPtr getDefaultContext() const;
     Ice::Identity stringToIdentity(const std::string&) const;
     std::string identityToString(const Ice::Identity&) const;
     
@@ -114,7 +115,7 @@ private:
     EndpointFactoryManagerPtr _endpointFactoryManager;
     DynamicLibraryListPtr _dynamicLibraryList;
     Ice::PluginManagerPtr _pluginManager;
-    Ice::Context _defaultContext;
+    SharedContextPtr _defaultContext;
 };
 
 class UTF8BufferI : public Ice::UTF8Buffer
