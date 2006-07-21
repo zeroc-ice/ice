@@ -191,6 +191,18 @@ SOURCE=.\RegistryI.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ReplicaCache.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ReplicaSessionI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ReplicaSessionManager.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ServerCache.cpp
 # End Source File
 # Begin Source File
@@ -284,6 +296,18 @@ SOURCE=.\QueryI.h
 # Begin Source File
 
 SOURCE=.\Registry.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ReplicaCache.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ReplicaSessionI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ReplicaSessionManager.h
 # End Source File
 # Begin Source File
 

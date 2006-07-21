@@ -182,6 +182,10 @@ SOURCE=.\NodeSessionI.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\NodeSessionManager.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ObjectCache.cpp
 # End Source File
 # Begin Source File
@@ -199,6 +203,18 @@ SOURCE=.\ReapThread.cpp
 # Begin Source File
 
 SOURCE=.\RegistryI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ReplicaCache.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ReplicaSessionI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ReplicaSessionManager.cpp
 # End Source File
 # Begin Source File
 
@@ -303,6 +319,10 @@ SOURCE=.\NodeInfo.h
 # Begin Source File
 
 SOURCE=.\NodeRegistryI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\NodeSessionManager.h
 # End Source File
 # Begin Source File
 

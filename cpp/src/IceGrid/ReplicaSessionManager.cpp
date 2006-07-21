@@ -144,7 +144,7 @@ ReplicaSessionKeepAliveThread::run()
 	{
 	    session->destroy();
 	}
-	catch(const Ice::LocalException& ex)
+	catch(const Ice::LocalException&)
 	{
 	    //
 	    // TODO: XXX: TRACE?
@@ -207,14 +207,14 @@ ReplicaSessionKeepAliveThread::keepAlive(const ReplicaSessionPrx& session)
     {
  	_database->getTraceLevels()->logger->error("a replica with the same name is already registered and active");
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::LocalException&)
     {
 	//
 	// TODO: FIX THIS SHOULD BE A TRACE
 	//
-	ostringstream os;
-	os << "couldn't contact the IceGrid registry:\n" << ex;
-	_database->getTraceLevels()->logger->warning(os.str());
+//	ostringstream os;
+//	os << "couldn't contact the IceGrid registry:\n" << ex;
+//	_database->getTraceLevels()->logger->warning(os.str());
     }
 }
 

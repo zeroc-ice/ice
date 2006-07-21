@@ -88,7 +88,7 @@ ReplicaCache::add(const string& name, const ReplicaSessionIPtr& session, const D
     {
 	_nodes->replicaAdded(session->getProxy());
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::LocalException&)
     {
 	// TODO: XXX
     }
@@ -106,7 +106,7 @@ ReplicaCache::remove(const string& name, const DatabasePtr& database)
     {
 	_nodes->replicaRemoved(entry->getSession()->getProxy());
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::LocalException&)
     {
 	// TODO: XXX
     }
@@ -141,7 +141,7 @@ ReplicaCache::nodeAdded(const NodePrx& node)
     {
 	_topic->subscribe(qos, node);
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::LocalException&)
     {
 	// TODO: XXX
     }
@@ -158,7 +158,7 @@ ReplicaCache::nodeRemoved(const NodePrx& node)
     {
 	// The replica is being shutdown.
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::LocalException&)
     {
 	// TODO: XXX
     }

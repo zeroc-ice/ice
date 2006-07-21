@@ -62,7 +62,7 @@ NodeSessionKeepAliveThread::run()
 	{
 	    session->destroy();
 	}
-	catch(const Ice::LocalException& ex)
+	catch(const Ice::LocalException&)
 	{
 	    //
 	    // TODO: XXX: TRACE?
@@ -125,14 +125,14 @@ NodeSessionKeepAliveThread::keepAlive(const NodeSessionPrx& session)
     {
 	_node->getTraceLevels()->logger->error("a node with the same name is already registered and active");
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::LocalException&)
     {
 	//
 	// TODO: FIX THIS SHOULD BE A TRACE
 	//
-	ostringstream os;
-	os << "couldn't contact the IceGrid registry:\n" << ex;
-	_node->getTraceLevels()->logger->warning(os.str());
+// 	ostringstream os;
+// 	os << "couldn't contact the IceGrid registry:\n" << ex;
+// 	_node->getTraceLevels()->logger->warning(os.str());
     }
 }
 
@@ -180,11 +180,12 @@ void
 NodeSessionManager::destroy()
 {
     Lock sync(*this);
-    for(NodeSessionMap::const_iterator p = _sessions.begin(); p != _sessions.end(); ++p)
+    NodeSessionMap::const_iterator p;
+    for(p = _sessions.begin(); p != _sessions.end(); ++p)
     {
 	p->second->terminate();
     }
-    for(NodeSessionMap::const_iterator p = _sessions.begin(); p != _sessions.end(); ++p)
+    for(p = _sessions.begin(); p != _sessions.end(); ++p)
     {
 	p->second->getThreadControl().join();
     }
