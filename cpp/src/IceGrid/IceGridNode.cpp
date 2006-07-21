@@ -17,6 +17,7 @@
 #include <IceGrid/RegistryI.h>
 #include <IceGrid/FileUserAccountMapperI.h>
 #include <IceGrid/NodeI.h>
+#include <IceGrid/NodeSessionManager.h>
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/DescriptorParser.h>
 #include <IcePatch2/Util.h>
@@ -37,51 +38,6 @@ using namespace IceGrid;
 
 namespace IceGrid
 {
-
-class KeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-
-    KeepAliveThread(const NodeIPtr& node, int timeout) : 
-	_node(node), 
-	_timeout(IceUtil::Time::seconds(timeout)), 
-	_shutdown(false)
-    {
-    }
-
-    virtual void
-    run()
-    {
-	Lock sync(*this);
-	while(!_shutdown)
-	{
-	    int timeout = _node->keepAlive();
-	    if(timeout > 0)
-	    {
-		_timeout = IceUtil::Time::seconds(timeout);
-	    }
-	    if(!_shutdown)
-	    {
-		timedWait(_timeout);
-	    }
-	}
-    }
-
-    virtual void
-    terminate()
-    {
-	Lock sync(*this);
-	_shutdown = true;
-	notifyAll();
-    }
-
-private:
-
-    const NodeIPtr _node;
-    IceUtil::Time _timeout;
-    bool _shutdown;
-};
-typedef IceUtil::Handle<KeepAliveThread> KeepAliveThreadPtr;
 
 class ProcessI : public Process
 {
@@ -121,7 +77,7 @@ private:
     WaitQueuePtr _waitQueue;
     RegistryIPtr _registry;
     NodeIPtr _node;
-    KeepAliveThreadPtr _keepAliveThread;
+    NodeSessionManager _sessions;
     Ice::ObjectAdapterPtr _adapter;
 };
 
@@ -296,6 +252,12 @@ NodeService::start(int argc, char* argv[])
             return false;
         }
 
+	//
+	// TODO: XXX: set communicator->setDefaultLocator() here?! I
+	// believe this is necessary for the NodeSessionManager.
+	//
+
+
         //
         // Set the Ice.Default.Locator property to point to the
         // collocated locator (this property is passed by the
@@ -447,16 +409,13 @@ NodeService::start(int argc, char* argv[])
     //
     Identity id = communicator()->stringToIdentity(IceUtil::generateUUID());
     NodePrx nodeProxy = NodePrx::uncheckedCast(_adapter->createProxy(id));
-    _node = new NodeI(_adapter, _activator, _waitQueue, traceLevels, nodeProxy, name, mapper);
+    _node = new NodeI(_adapter, _sessions, _activator, _waitQueue, traceLevels, nodeProxy, name, mapper);
     _adapter->add(_node, nodeProxy->ice_getIdentity());
 
     //
-    // Start the keep alive thread. By default we start the thread
-    // with a 5s timeout, then we'll use the registry node session
-    // timeout / 2.
+    // Create the node sessions with the registries.
     //
-    _keepAliveThread = new KeepAliveThread(_node, 5);
-    _keepAliveThread->start();
+    _sessions.create(_node);
 
     //
     // Add a process servant to allow shutdown through the process
@@ -545,7 +504,7 @@ NodeService::start(int argc, char* argv[])
 	// We wait for the node to be registered with the registry
 	// before to claim it's ready.
 	//
-	_node->waitForSession();
+	_sessions.waitForCreate();
 	print(bundleName + " ready");
     }
 
@@ -590,16 +549,6 @@ NodeService::stop()
 	assert(false);
     }
 
-    //
-    // Terminate the registration thread if it was started.
-    //
-    if(_keepAliveThread)
-    {
-	_keepAliveThread->terminate();
-	_keepAliveThread->getThreadControl().join();
-	_keepAliveThread = 0;
-    }
-
     _activator = 0;
 
     //
@@ -618,10 +567,9 @@ NodeService::stop()
     }
 
     //
-    // Stop the node (this unregister the node session with the
-    // registry.)
+    // Terminate the node sessions with the registries.
     //
-    _node->stop();
+    _sessions.destroy();
     _node = 0;
 
     //

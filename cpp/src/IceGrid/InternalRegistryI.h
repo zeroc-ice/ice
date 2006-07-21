@@ -26,17 +26,17 @@ class InternalRegistryI : public InternalRegistry
 {
 public:
 
-    InternalRegistryI(const DatabasePtr&, const ReapThreadPtr&, const NodeObserverPrx&, int);
+    InternalRegistryI(const DatabasePtr&, const ReapThreadPtr&);
     virtual ~InternalRegistryI();
 
     virtual NodeSessionPrx registerNode(const std::string&, const NodePrx&, const NodeInfo&, const Ice::Current&);
+    virtual ReplicaSessionPrx registerReplica(const std::string&, const InternalRegistryPrx&, const ReplicaInfo&, 
+					      const Ice::Current&);
 
 private:    
 
     const DatabasePtr _database;
-    const ReapThreadPtr _nodeReaper;
-    const NodeObserverPrx _nodeObserver;
-    const int _nodeSessionTimeout;
+    const ReapThreadPtr _reaper;
 };
     
 };

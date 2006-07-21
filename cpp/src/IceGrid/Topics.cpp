@@ -77,7 +77,9 @@ private:
 };
 
 
-NodeObserverTopic::NodeObserverTopic(const IceStorm::TopicManagerPrx& topicManager) : _serial(0)
+NodeObserverTopic::NodeObserverTopic(const Ice::ObjectAdapterPtr& adapter,
+				     const IceStorm::TopicManagerPrx& topicManager) : 
+    _serial(0)
 {
     IceStorm::TopicPrx t;
     try
@@ -95,7 +97,19 @@ NodeObserverTopic::NodeObserverTopic(const IceStorm::TopicManagerPrx& topicManag
     // which can't be marshalled.
     //
     const_cast<IceStorm::TopicPrx&>(_topic) = IceStorm::TopicPrx::uncheckedCast(t->ice_collocationOptimized(true));
-    const_cast<NodeObserverPrx&>(_publisher) = NodeObserverPrx::uncheckedCast(_topic->getPublisher());
+    const_cast<NodeObserverPrx&>(_internalPublisher) = NodeObserverPrx::uncheckedCast(_topic->getPublisher());
+
+    __setNoDelete(true);
+    try
+    {
+	const_cast<NodeObserverPrx&>(_publisher) = NodeObserverPrx::uncheckedCast(adapter->addWithUUID(this));
+    }
+    catch(...)
+    {
+	__setNoDelete(false);
+	throw;
+    }
+    __setNoDelete(false);
 }
 
 void
@@ -109,7 +123,7 @@ NodeObserverTopic::nodeUp(const NodeDynamicInfo& info, const Ice::Current& curre
 {
     Lock sync(*this);
     _nodes.insert(make_pair(info.name, info));
-    _publisher->nodeUp(info);
+    _internalPublisher->nodeUp(info);
 }
 
 void 
@@ -119,7 +133,7 @@ NodeObserverTopic::nodeDown(const string& name, const Ice::Current&)
     if(_nodes.find(name) != _nodes.end())
     {
 	_nodes.erase(name);
-	_publisher->nodeDown(name);
+	_internalPublisher->nodeDown(name);
     }
 }
 
@@ -160,7 +174,7 @@ NodeObserverTopic::updateServer(const string& node, const ServerDynamicInfo& ser
 	servers.push_back(server);
     }
 
-    _publisher->updateServer(node, server);
+    _internalPublisher->updateServer(node, server);
 }
 
 void 
@@ -200,7 +214,7 @@ NodeObserverTopic::updateAdapter(const string& node, const AdapterDynamicInfo& a
 	adapters.push_back(adapter);
     }
     
-    _publisher->updateAdapter(node, adapter);
+    _internalPublisher->updateAdapter(node, adapter);
 }
 
 void
@@ -244,7 +258,9 @@ NodeObserverTopic::unsubscribe(const NodeObserverPrx& observer)
     _topic->unsubscribe(observer);
 }
 
-RegistryObserverTopic::RegistryObserverTopic(const IceStorm::TopicManagerPrx& topicManager) : _serial(0)
+RegistryObserverTopic::RegistryObserverTopic(const Ice::ObjectAdapterPtr& adapter,
+					     const IceStorm::TopicManagerPrx& topicManager) : 
+    _serial(0)
 {
     IceStorm::TopicPrx t;
     try
@@ -262,7 +278,19 @@ RegistryObserverTopic::RegistryObserverTopic(const IceStorm::TopicManagerPrx& to
     // which can't be marshalled.
     //
     const_cast<IceStorm::TopicPrx&>(_topic) = IceStorm::TopicPrx::uncheckedCast(t->ice_collocationOptimized(true));
-    const_cast<RegistryObserverPrx&>(_publisher) = RegistryObserverPrx::uncheckedCast(_topic->getPublisher());
+    const_cast<RegistryObserverPrx&>(_internalPublisher) = RegistryObserverPrx::uncheckedCast(_topic->getPublisher());
+
+    __setNoDelete(true);
+    try
+    {
+	const_cast<RegistryObserverPrx&>(_publisher) = RegistryObserverPrx::uncheckedCast(adapter->addWithUUID(this));
+    }
+    catch(...)
+    {
+	__setNoDelete(false);
+	throw;
+    }
+    __setNoDelete(false);
 }
 
 void 
@@ -289,7 +317,7 @@ RegistryObserverTopic::init(int serial,
 	_objects.insert(make_pair(r->proxy->ice_getIdentity(), *r));
     }
 
-    _publisher->init(serial, apps, adpts, objects);
+    _internalPublisher->init(serial, apps, adpts, objects);
 }
 
 void 
@@ -301,7 +329,7 @@ RegistryObserverTopic::applicationAdded(int serial, const ApplicationDescriptor&
 
     _applications.insert(make_pair(desc.name, desc));
 
-    _publisher->applicationAdded(serial, desc);
+    _internalPublisher->applicationAdded(serial, desc);
 }
 
 void 
@@ -313,7 +341,7 @@ RegistryObserverTopic::applicationRemoved(int serial, const string& name, const 
 
     _applications.erase(name);
 
-    _publisher->applicationRemoved(serial, name);
+    _internalPublisher->applicationRemoved(serial, name);
 }
 
 void 
@@ -351,7 +379,7 @@ RegistryObserverTopic::applicationUpdated(int serial, const ApplicationUpdateDes
 	assert(false);
     }
 
-    _publisher->applicationUpdated(serial, desc);
+    _internalPublisher->applicationUpdated(serial, desc);
 }
 
 void 
@@ -363,7 +391,7 @@ RegistryObserverTopic::adapterAdded(int serial, const AdapterInfo& info, const I
 
     _adapters.insert(make_pair(info.id, info));
 
-    _publisher->adapterAdded(serial, info);
+    _internalPublisher->adapterAdded(serial, info);
 }
 
 void 
@@ -375,7 +403,7 @@ RegistryObserverTopic::adapterUpdated(int serial, const AdapterInfo& info, const
 
     _adapters[info.id] = info;
 
-    _publisher->adapterUpdated(serial, info);
+    _internalPublisher->adapterUpdated(serial, info);
 }
 
 void
@@ -387,7 +415,7 @@ RegistryObserverTopic::adapterRemoved(int serial, const string& id, const Ice::C
 
     _adapters.erase(id);
 
-    _publisher->adapterRemoved(serial, id);
+    _internalPublisher->adapterRemoved(serial, id);
 }
 
 void 
@@ -399,7 +427,7 @@ RegistryObserverTopic::objectAdded(int serial, const ObjectInfo& info, const Ice
 
     _objects.insert(make_pair(info.proxy->ice_getIdentity(), info));
 
-    _publisher->objectAdded(serial, info);
+    _internalPublisher->objectAdded(serial, info);
 }
 
 void 
@@ -411,7 +439,7 @@ RegistryObserverTopic::objectUpdated(int serial, const ObjectInfo& info, const I
 
     _objects[info.proxy->ice_getIdentity()] = info;
 
-    _publisher->objectUpdated(serial, info);
+    _internalPublisher->objectUpdated(serial, info);
 }
 
 void
@@ -423,7 +451,7 @@ RegistryObserverTopic::objectRemoved(int serial, const Ice::Identity& id, const 
 
     _objects.erase(id);
 
-    _publisher->objectRemoved(serial, id);
+    _internalPublisher->objectRemoved(serial, id);
 }
 
 void 

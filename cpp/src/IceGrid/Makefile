@@ -50,7 +50,8 @@ NODE_OBJS	= NodeI.o \
 		  ServerI.o \
 		  ServerAdapterI.o \
 	          Activator.o \
-		  PlatformInfo.o
+		  PlatformInfo.o \
+		  NodeSessionManager.o
 
 REGISTRY_OBJS   = RegistryI.o \
 	  	  InternalRegistryI.o \
@@ -64,12 +65,14 @@ REGISTRY_OBJS   = RegistryI.o \
 		  AllocatableObjectCache.o \
 		  ServerCache.o \
 		  NodeCache.o \
+		  ReplicaCache.o \
 		  LocatorI.o \
 		  LocatorRegistryI.o \
 		  AdminI.o \
 		  Util.o \
 		  DescriptorHelper.o \
 		  NodeSessionI.o \
+		  ReplicaSessionI.o \
 		  ReapThread.o \
 		  SessionI.o \
 		  AdminSessionI.o \
@@ -77,7 +80,8 @@ REGISTRY_OBJS   = RegistryI.o \
 		  Topics.o \
 		  QueryI.o \
 		  WaitQueue.o \
-		  FileUserAccountMapperI.o 
+		  FileUserAccountMapperI.o \
+		  ReplicaSessionManager.o
 
 NODE_SVR_OBJS 	= $(COMMON_OBJS) \
 		  $(NODE_OBJS) \

@@ -23,8 +23,7 @@ class AdminSessionI : public BaseSessionI, public AdminSession
 {
 public:
 
-    AdminSessionI(const std::string&, const DatabasePtr&, int, const RegistryObserverTopicPtr&, 
-		  const NodeObserverTopicPtr&);
+    AdminSessionI(const std::string&, const DatabasePtr&, int);
     virtual ~AdminSessionI();
 
     void setAdmin(const AdminPrx&);
@@ -44,8 +43,6 @@ public:
 private:
 
     const int _timeout;
-    const RegistryObserverTopicPtr _registryObserverTopic;
-    const NodeObserverTopicPtr _nodeObserverTopic;
     const AdminPrx _admin;
 
     RegistryObserverPrx _registryObserver;
@@ -57,8 +54,7 @@ class AdminSessionFactory : virtual public IceUtil::Shared
 {
 public:
 
-    AdminSessionFactory(const Ice::ObjectAdapterPtr&, const DatabasePtr&, int, const RegistryObserverTopicPtr&, 
-			const NodeObserverTopicPtr&, const RegistryIPtr&);
+    AdminSessionFactory(const Ice::ObjectAdapterPtr&, const DatabasePtr&, const RegistryIPtr&);
     
     Glacier2::SessionPrx createGlacier2Session(const std::string&, const Glacier2::SessionControlPrx&);
     AdminSessionIPtr createSessionServant(const std::string&);
@@ -71,8 +67,6 @@ private:
     const DatabasePtr _database;
     const int _timeout;
     const WaitQueuePtr _waitQueue;
-    const RegistryObserverTopicPtr _registryObserverTopic;
-    const NodeObserverTopicPtr _nodeObserverTopic;
     const RegistryIPtr _registry;
 };
 typedef IceUtil::Handle<AdminSessionFactory> AdminSessionFactoryPtr;

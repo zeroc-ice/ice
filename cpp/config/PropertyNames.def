@@ -253,6 +253,7 @@ IceGrid:
     Registry.Internal.ThreadPool.StackSize
     Registry.NodeSessionTimeout
     Registry.PermissionsVerifier
+    Registry.ReplicaName
     Registry.Server.AdapterId
     Registry.Server.ReplicaGroupId
     Registry.Server.Endpoints
@@ -270,6 +271,7 @@ IceGrid:
     Registry.Trace.Node
     Registry.Trace.Object
     Registry.Trace.Patch
+    Registry.Trace.Replica
     Registry.Trace.Server
     Registry.Trace.Session
     Registry.UserAccounts

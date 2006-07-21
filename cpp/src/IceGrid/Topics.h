@@ -23,7 +23,7 @@ class NodeObserverTopic : public NodeObserver, public IceUtil::Mutex
 {
 public:
 
-    NodeObserverTopic(const IceStorm::TopicManagerPrx&);
+    NodeObserverTopic(const Ice::ObjectAdapterPtr&, const IceStorm::TopicManagerPrx&);
 
     virtual void init(const NodeDynamicInfoSeq&, const Ice::Current&);
     virtual void nodeUp(const NodeDynamicInfo&, const Ice::Current&);
@@ -33,12 +33,14 @@ public:
 
     void subscribe(const NodeObserverPrx&, int serial = -1);
     void unsubscribe(const NodeObserverPrx&);
+    const NodeObserverPrx& getPublisher() { return _publisher; }
 
     void removeNode(const std::string&);
 
 private:
 
     const IceStorm::TopicPrx _topic;
+    const NodeObserverPrx _internalPublisher;
     const NodeObserverPrx _publisher;
 
     int _serial;
@@ -50,7 +52,7 @@ class RegistryObserverTopic : public RegistryObserver, public IceUtil::Monitor<I
 {
 public:
 
-    RegistryObserverTopic(const IceStorm::TopicManagerPrx&);
+    RegistryObserverTopic(const Ice::ObjectAdapterPtr&, const IceStorm::TopicManagerPrx&);
     virtual void init(int, const ApplicationDescriptorSeq&, const AdapterInfoSeq&, const ObjectInfoSeq&,
 		      const Ice::Current&);
 
@@ -68,12 +70,14 @@ public:
 
     void subscribe(const RegistryObserverPrx&, int = -1);
     void unsubscribe(const RegistryObserverPrx&);
+    const RegistryObserverPrx& getPublisher() { return _publisher; }
 
 private:
 
     void updateSerial(int);
 
     const IceStorm::TopicPrx _topic;
+    const RegistryObserverPrx _internalPublisher;
     const RegistryObserverPrx _publisher;
 
     int _serial;

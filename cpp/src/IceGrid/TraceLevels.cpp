@@ -18,6 +18,8 @@ TraceLevels::TraceLevels(const Ice::PropertiesPtr& properties, const Ice::Logger
     applicationCat("Application"),
     node(0),
     nodeCat("Node"),
+    replica(0),
+    replicaCat("Replica"),
     server(0),
     serverCat("Server"),
     adapter(0),
@@ -37,6 +39,7 @@ TraceLevels::TraceLevels(const Ice::PropertiesPtr& properties, const Ice::Logger
     string keyBase = isNode ? "IceGrid.Node.Trace." : "IceGrid.Registry.Trace.";
     const_cast<int&>(application) = properties->getPropertyAsInt(keyBase + applicationCat);
     const_cast<int&>(node) = properties->getPropertyAsInt(keyBase + nodeCat);
+    const_cast<int&>(replica) = properties->getPropertyAsInt(keyBase + replicaCat);
     const_cast<int&>(server) = properties->getPropertyAsInt(keyBase + serverCat);
     const_cast<int&>(adapter) = properties->getPropertyAsInt(keyBase + adapterCat);
     const_cast<int&>(object) = properties->getPropertyAsInt(keyBase + objectCat);

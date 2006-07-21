@@ -175,6 +175,8 @@ interface Server
     ["ami", "amd"] void setProcess(Ice::Process* proc);
 };
 
+interface InternalRegistry;
+
 interface Node
 {
     /**
@@ -209,6 +211,22 @@ interface Node
      **/
     ["ami"] idempotent void patch(string application, string server, DistributionDescriptor appDistrib, bool shutdown)
 	throws  PatchException;
+
+    /**
+     *
+     * Notification that a replica has been added. The node should 
+     * establish a session with this new replica.
+     *
+     **/
+    void replicaAdded(InternalRegistry* replica);
+
+    /**
+     *
+     * Notification that a replica has been removed. The node should
+     * destroy the session to this replica.
+     *
+     **/
+    void replicaRemoved(InternalRegistry* replica);
 
     /**
      *
@@ -263,7 +281,14 @@ interface NodeSession
      * Return the node session timeout.
      *
      **/ 
-    nonmutating int getTimeoutAndObserver(out NodeObserver* observer);
+    nonmutating int getTimeout();
+
+    /**
+     *
+     * Return the registry observer.
+     *
+     **/
+    nonmutating NodeObserver* getObserver();
 
     /**
      *
@@ -271,6 +296,47 @@ interface NodeSession
      *
      **/
     Ice::StringSeq getServers();
+
+    /**
+     *
+     * Destroy the session.
+     *
+     **/
+    void destroy();
+};
+
+/**
+ *
+ * This exception is raised if a replica is already registered and
+ * active.
+ *
+ **/
+exception ReplicaActiveException
+{
+};
+
+struct ReplicaInfo
+{
+    RegistryObserver* observer;
+    Object* clientProxy;
+    Object* serverProxy;
+};
+
+interface ReplicaSession
+{
+    /**
+     *
+     * The replica call this method to keep the session alive.
+     *
+     **/
+    void keepAlive();
+
+    /**
+     *
+     * Return the replica session timeout.
+     *
+     **/ 
+    nonmutating int getTimeout();
 
     /**
      *
@@ -302,7 +368,11 @@ interface InternalRegistry
      **/
     NodeSession* registerNode(string name, Node* nd, NodeInfo info)
 	throws NodeActiveException;
+
+    ReplicaSession* registerReplica(string name, InternalRegistry* prx, ReplicaInfo info)
+	throws ReplicaActiveException;
 };
+
 
 };
 

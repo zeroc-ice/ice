@@ -11,6 +11,7 @@
 
 #include <IceGrid/NodeSessionI.h>
 #include <IceGrid/Database.h>
+#include <IceGrid/Topics.h>
 
 using namespace std;
 using namespace IceGrid;
@@ -18,16 +19,12 @@ using namespace IceGrid;
 NodeSessionI::NodeSessionI(const DatabasePtr& database, 
 			   const string& name, 
 			   const NodePrx& node, 
-			   const NodeInfo& info,
-			   const NodeObserverPrx& observer,
-			   int timeout) : 
+			   const NodeInfo& info) :
     _database(database),
     _traceLevels(database->getTraceLevels()),
     _name(name),
-    _node(NodePrx::uncheckedCast(node->ice_timeout(timeout * 1000))),
+    _node(NodePrx::uncheckedCast(node->ice_timeout(_database->getSessionTimeout() * 1000))),
     _info(info),
-    _observer(observer),
-    _timeout(timeout),
     _timestamp(IceUtil::Time::now()),
     _destroy(false)
 {
@@ -65,10 +62,23 @@ NodeSessionI::keepAlive(const LoadInfo& load, const Ice::Current& current)
 }
 
 int
-NodeSessionI::getTimeoutAndObserver(NodeObserverPrx& observer, const Ice::Current& current) const
+NodeSessionI::getTimeout(const Ice::Current& current) const
 {
-    observer = _observer;
-    return _timeout;
+    return _database->getSessionTimeout();
+}
+
+NodeObserverPrx
+NodeSessionI::getObserver(const Ice::Current& current) const
+{
+    NodeObserverTopicPtr topic = _database->getNodeObserverTopic();
+    if(topic)
+    {
+	return topic->getPublisher();
+    }
+    else
+    {
+	return 0;
+    }
 }
 
 Ice::StringSeq
@@ -96,6 +106,7 @@ NodeSessionI::destroy(const Ice::Current& current)
 	{
 	    current.adapter->remove(current.id);
 	}
+
 	catch(const Ice::ObjectAdapterDeactivatedException&)
 	{
 	}

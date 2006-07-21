@@ -21,6 +21,7 @@
 #include <IceGrid/StringAdapterInfoDict.h>
 #include <IceGrid/ServerCache.h>
 #include <IceGrid/NodeCache.h>
+#include <IceGrid/ReplicaCache.h>
 #include <IceGrid/ObjectCache.h>
 #include <IceGrid/AllocatableObjectCache.h>
 #include <IceGrid/AdapterCache.h>
@@ -34,6 +35,15 @@ typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 class NodeSessionI;
 typedef IceUtil::Handle<NodeSessionI> NodeSessionIPtr;
 
+class RegistryObserverTopic;
+typedef IceUtil::Handle<RegistryObserverTopic> RegistryObserverTopicPtr;
+
+class NodeObserverTopic;
+typedef IceUtil::Handle<NodeObserverTopic> NodeObserverTopicPtr;
+
+class ReplicaSessionI;
+typedef IceUtil::Handle<ReplicaSessionI> ReplicaSessionIPtr;
+
 class AdminSessionI;
 
 class ServerEntry;
@@ -45,23 +55,34 @@ class Database : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
     
-    Database(const Ice::ObjectAdapterPtr&, const std::string&, const std::string&, int, const TraceLevelsPtr&);
+    Database(const Ice::ObjectAdapterPtr&, const IceStorm::TopicManagerPrx&, const Ice::ObjectPrx&, 
+	     const Ice::ObjectPrx&, const std::string&, int, const TraceLevelsPtr&);
     virtual ~Database();
     
     void destroy();
 
     std::string getInstanceName() const;
+    const TraceLevelsPtr& getTraceLevels() const { return _traceLevels; }
+    const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
+    const Ice::ObjectAdapterPtr& getInternalAdapter() { return _internalAdapter; }
 
-    void setObservers(const RegistryObserverPrx&, const NodeObserverPrx&);
+    void clearTopics();
+    RegistryObserverTopicPtr getRegistryObserverTopic() const;
+    NodeObserverTopicPtr getNodeObserverTopic() const;
+    int getSessionTimeout() const;
 
     int lock(AdminSessionI*, const std::string&);
     void unlock(AdminSessionI*);
 
-    void addApplicationDescriptor(AdminSessionI*, const ApplicationDescriptor&);
-    void updateApplicationDescriptor(AdminSessionI*, const ApplicationUpdateDescriptor&);
+    void init(int serial);
+    void initMaster();
+    void initReplica(int, const ApplicationDescriptorSeq&, const AdapterInfoSeq&, const ObjectInfoSeq&);
+
+    void addApplicationDescriptor(AdminSessionI*, const ApplicationDescriptor&, int = -1);
+    void updateApplicationDescriptor(AdminSessionI*, const ApplicationUpdateDescriptor&, int = -1);
     void syncApplicationDescriptor(AdminSessionI*, const ApplicationDescriptor&);
     void instantiateServer(AdminSessionI*, const std::string&, const std::string&, const ServerInstanceDescriptor&);
-    void removeApplicationDescriptor(AdminSessionI*, const std::string&);
+    void removeApplicationDescriptor(AdminSessionI*, const std::string&, int = -1);
 
     ApplicationDescriptor getApplicationDescriptor(const std::string&);
     Ice::StringSeq getAllApplications(const std::string& = std::string());
@@ -72,13 +93,16 @@ public:
     void removeNode(const std::string&);
     Ice::StringSeq getAllNodes(const std::string& = std::string());
 
+    void addReplica(const std::string&, const ReplicaSessionIPtr&);
+    void removeReplica(const std::string&);
+
     ServerInfo getServerInfo(const std::string&, bool = false);
     ServerPrx getServer(const std::string&, bool = true);
     ServerPrx getServerWithTimeouts(const std::string&, int&, int&, std::string&, bool = true);
     Ice::StringSeq getAllServers(const std::string& = std::string());
     Ice::StringSeq getAllNodeServers(const std::string&);
 
-    bool setAdapterDirectProxy(const std::string&, const std::string&, const Ice::ObjectPrx&);
+    bool setAdapterDirectProxy(const std::string&, const std::string&, const Ice::ObjectPrx&, int = -1);
     Ice::ObjectPrx getAdapterDirectProxy(const std::string&);
     void removeAdapter(const std::string&);
     AdapterPrx getAdapter(const std::string&, const std::string&, bool = true);
@@ -86,9 +110,9 @@ public:
     AdapterInfoSeq getAdapterInfo(const std::string&);
     Ice::StringSeq getAllAdapters(const std::string& = std::string());
 
-    void addObject(const ObjectInfo&);
-    void removeObject(const Ice::Identity&);
-    void updateObject(const Ice::ObjectPrx&);
+    void addObject(const ObjectInfo&, bool = false, int = -1);
+    void removeObject(const Ice::Identity&, int = -1);
+    void updateObject(const Ice::ObjectPrx&, int = -1);
 
     void allocateObject(const Ice::Identity&, const ObjectAllocationRequestPtr&);
     void allocateObjectByType(const std::string&, const ObjectAllocationRequestPtr&);
@@ -101,9 +125,6 @@ public:
     ObjectInfo getObjectInfo(const Ice::Identity&);
     ObjectInfoSeq getObjectInfosByType(const std::string&);
     ObjectInfoSeq getAllObjectInfos(const std::string& = std::string());
-
-    const TraceLevelsPtr& getTraceLevels() const { return _traceLevels; }
-    const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
 
 private:
 
@@ -131,18 +152,20 @@ private:
   
     const Ice::CommunicatorPtr _communicator;
     const Ice::ObjectAdapterPtr _internalAdapter;
+    const IceStorm::TopicManagerPrx _topicManager;
     const std::string _envName;
     const std::string _instanceName;
     const TraceLevelsPtr _traceLevels;
 
+    ReplicaCache _replicaCache;
     NodeCache _nodeCache;
     AdapterCache _adapterCache;
     ObjectCache _objectCache;
     AllocatableObjectCache _allocatableObjectCache;
     ServerCache _serverCache;
 
-    RegistryObserverPrx _registryObserver;
-    NodeObserverPrx _nodeObserver;
+    RegistryObserverTopicPtr _registryObserverTopic;
+    NodeObserverTopicPtr _nodeObserverTopic;
 
     std::map<std::string, std::string> _applicationsByServerName;
  

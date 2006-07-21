@@ -33,3 +33,6 @@ IceGrid.Node.Trace.Activator=1
 IceGrid.Node.Trace.Patch=1
 #IceGrid.Node.Trace.Adapter=2
 #IceGrid.Node.Trace.Server=3
+
+IceGrid.Registry.Trace.Node=2
+IceGrid.Registry.Trace.Replica=2

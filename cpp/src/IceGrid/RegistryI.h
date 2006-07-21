@@ -11,7 +11,9 @@
 #define ICE_GRID_REGISTRYI_H
 
 #include <IceGrid/Registry.h>
+#include <IceGrid/Query.h>
 #include <IceGrid/Internal.h>
+#include <IceGrid/ReplicaSessionManager.h>
 #include <Glacier2/PermissionsVerifierF.h>
 #include <IceStorm/Service.h>
 
@@ -55,11 +57,24 @@ public:
     virtual SessionPrx createSessionFromSecureConnection(const Ice::Current&);
     virtual AdminSessionPrx createAdminSessionFromSecureConnection(const Ice::Current&);
 
-    virtual int getSessionTimeout(const Ice::Current&) const;
+    virtual int getSessionTimeout(const Ice::Current& = Ice::Current()) const;
 
     virtual void shutdown();
     
 private:
+
+    Ice::LocatorPrx setupLocator(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, 
+				 const Ice::ObjectAdapterPtr&); 
+    QueryPrx setupQuery(const Ice::ObjectAdapterPtr&);
+    void setupAdmin(const Ice::ObjectAdapterPtr&);
+    void setupRegistry(const Ice::ObjectAdapterPtr&);
+    InternalRegistryPrx setupInternalRegistry(const Ice::ObjectAdapterPtr&, const std::string&);
+    void setupNullPermissionsVerifier(const Ice::ObjectAdapterPtr&);
+    bool setupUserAccountMapper(const Ice::ObjectAdapterPtr&);
+    void setupClientSessionFactory(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::LocatorPrx&,
+				   bool);
+    void setupAdminSessionFactory(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::LocatorPrx&,
+				  bool);
 
     void addWellKnownObject(const Ice::ObjectPrx&, const std::string&);
     void setupThreadPool(const Ice::PropertiesPtr&, const std::string&, int, int = 0);
@@ -69,15 +84,18 @@ private:
     Glacier2::SSLPermissionsVerifierPrx getSSLPermissionsVerifier(const Ice::LocatorPrx&, const std::string&, bool);
     Glacier2::SSLInfo getSSLInfo(const Ice::ConnectionPtr&, std::string&);
 
-    Ice::CommunicatorPtr _communicator;
+    const Ice::CommunicatorPtr _communicator;
+
     DatabasePtr _database;
     TraceLevelsPtr _traceLevels;
-    ReapThreadPtr _nodeReaper;
+    std::string _instanceName;
+    ReapThreadPtr _internalReaper;
     ReapThreadPtr _clientReaper;
     WaitQueuePtr _waitQueue;
     SessionServantLocatorIPtr _sessionServantLocator;
-
     int _sessionTimeout;
+    ReplicaSessionManager _session;
+
     ClientSessionFactoryPtr _clientSessionFactory;
     Glacier2::PermissionsVerifierPrx _clientVerifier;
     Glacier2::SSLPermissionsVerifierPrx _sslClientVerifier;

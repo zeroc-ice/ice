@@ -1,0 +1,20 @@
+IceGrid.InstanceName=DemoIceGrid
+
+#
+# The IceGrid locator proxy.
+#
+Ice.Default.Locator=DemoIceGrid/Locator:default -p 12000
+
+#
+# IceGrid registry configuration.
+#
+IceGrid.Registry.Client.Endpoints=default -p 12001
+IceGrid.Registry.Server.Endpoints=default
+IceGrid.Registry.Internal.Endpoints=default
+IceGrid.Registry.Data=db/replica1
+IceGrid.Registry.ReplicaName=Replica1
+
+#
+# Trace properties.
+#
+IceGrid.Registry.Trace.Node=2

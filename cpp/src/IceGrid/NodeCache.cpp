@@ -13,6 +13,7 @@
 #include <IceGrid/SessionI.h>
 #include <IceGrid/NodeSessionI.h>
 #include <IceGrid/ServerCache.h>
+#include <IceGrid/ReplicaCache.h>
 #include <IceGrid/DescriptorHelper.h>
 
 using namespace std;
@@ -154,8 +155,9 @@ private:
 
 };
 
-NodeCache::NodeCache(const Ice::CommunicatorPtr& communicator, int sessionTimeout) :
+NodeCache::NodeCache(const Ice::CommunicatorPtr& communicator, ReplicaCache& replicaCache, int sessionTimeout) :
     _communicator(communicator),
+    _replicaCache(replicaCache),
     _sessionTimeout(sessionTimeout)
 {
 }
@@ -250,8 +252,23 @@ NodeEntry::setSession(const NodeSessionIPtr& session)
 	{
 	    throw NodeActiveException();
 	}
+	else if(!session && !_session)
+	{
+	    return;
+	}
+
+	if(!session && _session)
+	{
+	    _cache.getReplicaCache().nodeRemoved(_session->getNode());
+	}
+
 	_session = session;
 	remove = _servers.empty() && !_session && _descriptors.empty();
+
+	if(_session)
+	{
+	    _cache.getReplicaCache().nodeAdded(session->getNode());
+	}
     }
     
     if(session)
@@ -379,7 +396,7 @@ bool
 NodeEntry::canRemove()
 {
     Lock sync(*this);
-    return !_session && _servers.empty();
+    return !_session && _servers.empty() && _descriptors.empty();
 }
 
 void

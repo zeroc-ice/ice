@@ -29,6 +29,8 @@ typedef IceUtil::Handle<NodeSessionI> NodeSessionIPtr;
 class ServerEntry;
 typedef IceUtil::Handle<ServerEntry> ServerEntryPtr;
 
+class ReplicaCache;
+
 class NodeEntry : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
@@ -69,19 +71,20 @@ class NodeCache : public CacheByString<NodeEntry>
 {
 public:
 
-    NodeCache(const Ice::CommunicatorPtr&, int);
+    NodeCache(const Ice::CommunicatorPtr&, ReplicaCache&, int);
 
     void destroy();
 
     NodeEntryPtr get(const std::string&, bool = false) const;
 
-    int getSessionTimeout() { return _sessionTimeout; }
-
     const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
+    ReplicaCache& getReplicaCache() const { return _replicaCache; }
+    int getSessionTimeout() const { return _sessionTimeout; }
 
 private:
     
-    Ice::CommunicatorPtr _communicator;
+    const Ice::CommunicatorPtr _communicator;
+    ReplicaCache& _replicaCache;
     const int _sessionTimeout;
 };
 

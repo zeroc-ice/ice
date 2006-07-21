@@ -21,13 +21,9 @@ using namespace IceGrid;
 
 AdminSessionI::AdminSessionI(const string& id, 
 			     const DatabasePtr& db,
-			     int timeout,
-			     const RegistryObserverTopicPtr& registryObserverTopic,
-			     const NodeObserverTopicPtr& nodeObserverTopic) :
+			     int timeout) :
     BaseSessionI(id, "admin", db),
-    _timeout(timeout),
-    _registryObserverTopic(registryObserverTopic),
-    _nodeObserverTopic(nodeObserverTopic)
+    _timeout(timeout)
 {
 }
 
@@ -67,19 +63,19 @@ AdminSessionI::setObservers(const RegistryObserverPrx& registryObserver,
     {
 	if(_registryObserver)
 	{
-	    _registryObserverTopic->unsubscribe(_registryObserver);
+	    _database->getRegistryObserverTopic()->unsubscribe(_registryObserver);
 	}
 	_registryObserver = RegistryObserverPrx::uncheckedCast(registryObserver->ice_timeout(_timeout * 1000));
-	_registryObserverTopic->subscribe(_registryObserver); 
+	_database->getRegistryObserverTopic()->subscribe(_registryObserver); 
     }
     if(nodeObserver)
     {
 	if(_nodeObserver)
 	{
-	    _nodeObserverTopic->unsubscribe(_nodeObserver);
+	    _database->getNodeObserverTopic()->unsubscribe(_nodeObserver);
 	}
 	_nodeObserver = NodeObserverPrx::uncheckedCast(nodeObserver->ice_timeout(_timeout * 1000));
-	_nodeObserverTopic->subscribe(_nodeObserver);
+	_database->getNodeObserverTopic()->subscribe(_nodeObserver);
     }
 }
 
@@ -103,19 +99,19 @@ AdminSessionI::setObserversByIdentity(const Ice::Identity& registryObserver,
     {
 	if(_registryObserver)
 	{
-	    _registryObserverTopic->unsubscribe(_registryObserver);
+	    _database->getRegistryObserverTopic()->unsubscribe(_registryObserver);
 	}
 	_registryObserver = RegistryObserverPrx::uncheckedCast(current.con->createProxy(registryObserver));
-	_registryObserverTopic->subscribe(_registryObserver);
+	_database->getRegistryObserverTopic()->subscribe(_registryObserver);
     }
     if(!nodeObserver.name.empty())
     {
 	if(_nodeObserver)
 	{
-	    _nodeObserverTopic->unsubscribe(_nodeObserver);
+	    _database->getNodeObserverTopic()->unsubscribe(_nodeObserver);
 	}
 	_nodeObserver = NodeObserverPrx::uncheckedCast(current.con->createProxy(nodeObserver));
-	_nodeObserverTopic->subscribe(_nodeObserver);
+	_database->getNodeObserverTopic()->subscribe(_nodeObserver);
     }
 }
 
@@ -181,12 +177,12 @@ AdminSessionI::destroy(const Ice::Current& current)
     {
 	if(_registryObserver) // Immutable once _destroy = true
 	{
-	    _registryObserverTopic->unsubscribe(_registryObserver);
+	    _database->getRegistryObserverTopic()->unsubscribe(_registryObserver);
 	    _registryObserver = 0;
 	}
 	if(_nodeObserver)
 	{
-	    _nodeObserverTopic->unsubscribe(_nodeObserver);
+	    _database->getNodeObserverTopic()->unsubscribe(_nodeObserver);
 	    _nodeObserver = 0;
 	}
     }
@@ -194,15 +190,10 @@ AdminSessionI::destroy(const Ice::Current& current)
 
 AdminSessionFactory::AdminSessionFactory(const Ice::ObjectAdapterPtr& adapter,
 					 const DatabasePtr& database,
-					 int sessionTimeout,
-					 const RegistryObserverTopicPtr& regTopic,
-					 const NodeObserverTopicPtr& nodeTopic,
 					 const RegistryIPtr& registry) :
     _adapter(adapter),
     _database(database), 
-    _timeout(sessionTimeout),
-    _registryObserverTopic(regTopic),
-    _nodeObserverTopic(nodeTopic),
+    _timeout(registry->getSessionTimeout()),
     _registry(registry)
 {
 }
@@ -246,7 +237,7 @@ AdminSessionFactory::createGlacier2Session(const string& sessionId, const Glacie
 AdminSessionIPtr
 AdminSessionFactory::createSessionServant(const string& id)
 {
-    return new AdminSessionI(id, _database, _timeout, _registryObserverTopic, _nodeObserverTopic);
+    return new AdminSessionI(id, _database, _timeout);
 }
 
 const TraceLevelsPtr&

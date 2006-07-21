@@ -30,6 +30,9 @@ public:
     const int node;
     const char* nodeCat;
 
+    const int replica;
+    const char* replicaCat;
+
     const int server;
     const char* serverCat;
 

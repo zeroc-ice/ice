@@ -14,6 +14,7 @@
 #include <IceGrid/ReapThread.h>
 #include <IceGrid/Topics.h>
 #include <IceGrid/NodeSessionI.h>
+#include <IceGrid/ReplicaSessionI.h>
 
 using namespace std;
 using namespace IceGrid;
@@ -21,20 +22,21 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
-class NodeSessionReapable : public Reapable
+template<class T>
+class SessionReapable : public Reapable
 {
+    typedef IceUtil::Handle<T> TPtr;
+    
 public:
-
-    NodeSessionReapable(const Ice::ObjectAdapterPtr& adapter, 
-			const NodeSessionIPtr& session, 
-			const NodeSessionPrx& proxy) : 
+    
+    SessionReapable(const Ice::ObjectAdapterPtr& adapter, const TPtr& session, const Ice::ObjectPrx& proxy) : 
 	_adapter(adapter),
 	_session(session),
 	_proxy(proxy)
     {
     }
 
-    virtual ~NodeSessionReapable()
+    virtual ~SessionReapable()
     {
     }
 	
@@ -71,27 +73,22 @@ public:
 	catch(const Ice::LocalException& ex)
 	{
 	    Ice::Warning out(_proxy->ice_getCommunicator()->getLogger());
-	    out << "unexpected exception while reaping node session:\n" << ex;
+	    out << "unexpected exception while reaping session:\n" << ex;
 	}
     }
 
 private:
 
     const Ice::ObjectAdapterPtr _adapter;
-    const NodeSessionIPtr _session;
-    const NodeSessionPrx _proxy;
+    const TPtr _session;
+    const Ice::ObjectPrx _proxy;
 };
 
 }
 
-InternalRegistryI::InternalRegistryI(const DatabasePtr& database,
-				     const ReapThreadPtr& reaper, 
-				     const NodeObserverPrx& observer,
-				     int timeout) : 
+InternalRegistryI::InternalRegistryI(const DatabasePtr& database, const ReapThreadPtr& reaper) : 
     _database(database), 
-    _nodeReaper(reaper),
-    _nodeObserver(observer),
-    _nodeSessionTimeout(timeout)
+    _reaper(reaper)
 {
 }
 
@@ -105,8 +102,20 @@ InternalRegistryI::registerNode(const std::string& name,
 				const NodeInfo& info,
 				const Ice::Current& current)
 {
-    NodeSessionIPtr session = new NodeSessionI(_database, name, node, info, _nodeObserver, _nodeSessionTimeout);
+    NodeSessionIPtr session = new NodeSessionI(_database, name, node, info);
     NodeSessionPrx proxy = NodeSessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
-    _nodeReaper->add(new NodeSessionReapable(current.adapter, session, proxy));
+    _reaper->add(new SessionReapable<NodeSessionI>(current.adapter, session, proxy));
+    return proxy;
+}
+
+ReplicaSessionPrx
+InternalRegistryI::registerReplica(const std::string& name,
+				   const InternalRegistryPrx& replica, 
+				   const ReplicaInfo& info,
+				   const Ice::Current& current)
+{
+    ReplicaSessionIPtr session = new ReplicaSessionI(_database, name, replica, info);
+    ReplicaSessionPrx proxy = ReplicaSessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
+    _reaper->add(new SessionReapable<ReplicaSessionI>(current.adapter, session, proxy));
     return proxy;
 }

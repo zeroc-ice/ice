@@ -637,8 +637,15 @@ AdminI::updateObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
 }
 
 void 
-AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& type, const ::Ice::Current&)
+AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& type, const ::Ice::Current& current)
 {
+    const Ice::Identity id = proxy->ice_getIdentity();
+    if(id.category == _database->getInstanceName())
+    {
+	throw DeploymentException("adding object `" + current.adapter->getCommunicator()->identityToString(id) + 
+				  "' is not allowed");
+    }
+
     ObjectInfo info;
     info.proxy = proxy;
     info.type = type;
