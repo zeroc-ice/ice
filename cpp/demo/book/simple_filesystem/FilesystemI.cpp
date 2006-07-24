@@ -9,7 +9,6 @@
 
 #include <FilesystemI.h>
 #include <IceUtil/UUID.h>
-#include <time.h>
 
 using namespace std;
 

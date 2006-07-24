@@ -28,10 +28,10 @@ namespace Filesystem {
     };
 
     class FileI : virtual public File,
-		  virtual public Filesystem::NodeI {
+		  virtual public NodeI {
     public:
-	virtual Filesystem::Lines read(const Ice::Current &) const;
-	virtual void write(const Filesystem::Lines &,
+	virtual Lines read(const Ice::Current &) const;
+	virtual void write(const Lines &,
 			   const Ice::Current &);
 	FileI(const Ice::CommunicatorPtr &, const std::string &, const DirectoryIPtr &);
     private:
@@ -39,9 +39,9 @@ namespace Filesystem {
     };
 
     class DirectoryI : virtual public Directory,
-		       virtual public Filesystem::NodeI {
+		       virtual public NodeI {
     public:
-	virtual Filesystem::NodeSeq list(const Ice::Current &) const;
+	virtual NodeSeq list(const Ice::Current &) const;
         DirectoryI(const Ice::CommunicatorPtr &, const std::string &, const DirectoryIPtr &);
 	void addChild(NodePrx child);
     private:
