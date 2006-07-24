@@ -1,6 +1,12 @@
 Changes since version 3.1.0
 ---------------------------     
 
+- Fixed an assert in the IceGrid locator implementation which could
+  occur when using dynamic adapter registration. The assert was
+  triggered when an adapter was removed and a client was requesting
+  at the same time the adapter endpoints through the locator
+  interface.
+
 - Fixed a bug in slice2cpp that caused incorrect code to be generated
   if a class had member that was an interface (not class) by value:
 

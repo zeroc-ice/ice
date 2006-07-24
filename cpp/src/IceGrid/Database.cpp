@@ -50,10 +50,15 @@ public:
 	assert(false);
     }
 
-    virtual Ice::ObjectPrx 
+    virtual Ice::ObjectPrx
     getDirectProxy(const Ice::Current& current) const
     {
-	return _database->getAdapterDirectProxy(current.id.name);
+	Ice::ObjectPrx proxy = _database->getAdapterDirectProxy(current.id.name);
+	if(!proxy)
+	{
+	    throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+	}
+	return proxy;
     }
 
     virtual void 
