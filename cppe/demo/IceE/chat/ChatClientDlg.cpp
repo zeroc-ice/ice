@@ -366,7 +366,7 @@ CChatClientDlg::OnLogin()
 		//
 		// Create a ping thread to keep the session alive.
 		//
-		_ping = new SessionPingThread(_chat, _router->getSessionTimeout() / 2);
+		_ping = new SessionPingThread(_chat, (long)_router->getSessionTimeout() / 2);
 		_ping->start();
 	    }
 	    catch(const Glacier2::CannotCreateSessionException& ex)
@@ -412,7 +412,8 @@ CChatClientDlg::OnLogin()
 	    AfxMessageBox(CString(ex.toString().c_str()), MB_OK|MB_ICONEXCLAMATION);
 	}
 
-	_adapter->destroy();
+	_adapter->deactivate();
+	_adapter->waitForDeactivate();
 	_router = 0;
     }
 
