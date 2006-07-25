@@ -1,6 +1,0 @@
-The Python scripts in this directory are wrappers around OpenSSL's
-tools that simplify the process of setting up a private certificate
-authority and generating certificates.
-
-
-See the IceSSL chapter of the Ice manual for usage instructions.

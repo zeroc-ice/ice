@@ -11,24 +11,13 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-CA_FILES =  initca.py \
-	    req.py \
-	    cautil.py  \
-	    import.py \
-	    sign.py \
+CA_FILES =  iceca \
 	    ImportKey.class
 
 install::
-	@if test ! -d $(prefix)/config/ca ; \
-	then \
-	    echo "Creating $(prefix)/config/ca..." ; \
-	    $(call mkdir,$(prefix)/config/ca) ; \
-	fi
 	@for i in $(CA_FILES) ; \
 	do \
 	    echo "Installing $$i" ; \
-	    $(INSTALL_PROGRAM) $$i $(prefix)/config/ca ;\
-	    chmod a+x $(prefix)/config/ca/$$i ;\
+	    $(INSTALL_PROGRAM) $$i $(install_bindir) ;\
+	    chmod a+x $(install_bindir)/$$i ;\
 	done
-	$(INSTALL_DATA) README $(prefix)/config/ca
-	chmod a+r $(prefix)/config/ca/README

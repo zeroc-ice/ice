@@ -1,0 +1,640 @@
+#!/usr/bin/env python
+# **********************************************************************
+#
+# Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+import os
+import sys
+import getopt
+import tempfile
+import getpass
+import shutil
+import socket
+
+home = os.getenv("ICE_CA_HOME")
+if home is None:
+    # The substring on sys.platform is required because some cygwin
+    # versions return variations like "cygwin_nt-4.01".
+    if sys.platform == "win32" or sys.platform[:6] == "cygwin":
+	home = os.path.dirname(sys.argv[0])
+	home = os.path.join(home, "config", "ca")
+    else:
+	home = os.getenv('HOME')
+	if home is None:
+	    print "Environment variable HOME is not set."
+	    sys.exit(1)
+	home = os.path.join(home, ".iceca")
+home = os.path.normpath(home)
+os.putenv("ICE_CA_HOME", home)
+
+caroot = os.path.join(home, "ca")
+cadb = os.path.join(caroot, "db")
+
+def usage():
+    print "usage: " + sys.argv[0] + " import sign request init"
+    sys.exit(1)
+
+if len(sys.argv) == 1:
+    usage()
+
+if sys.argv[1] == "import":
+    #
+    # dirname handles finding the .py under Windows since it will
+    # contain the location of the script. ICE_HOME handles the case
+    # where the install is in a non-standard location. "." handles
+    # development. "/usr/bin" handles RPM installs and "/opt/..."
+    # handles standard tarball installs.
+    #
+    for bindir in [os.path.dirname(sys.argv[0]), os.path.join(os.getenv("ICE_HOME"), "bin"), ".", "/usr/bin", \
+		   "/opt/Ice-3.2.0/bin"]:
+	bindir = os.path.normpath(bindir)
+	if os.path.exists(os.path.join(bindir, "ImportKey.class")):
+	    break
+    else:
+	raise "can't locate simple CA package"
+
+    def usage():
+	print "usage: " + sys.argv[1] + " [--overwrite] [--java alias cert key keystore] [--cs cert key out-file]"
+	sys.exit(1)
+
+    try:
+	opts, args = getopt.getopt(sys.argv[2:], "", [ "overwrite", "java", "cs"])
+    except getopt.GetoptError:
+	usage()
+
+    java = False
+    cs = False
+    overwrite = False
+    for o, a in opts:
+	if o == "--overwrite":
+	    overwrite = True
+	if o == "--java":
+	    java = True
+	if o == "--cs":
+	    cs = True
+
+    if not java and not cs:
+	print sys.argv[1] + ": one of --java or --cs must be provided"
+	usage()
+
+    if java:
+	if len(args) != 4:
+	    usage()
+
+	alias = args[0]
+	cert = args[1]
+	key = args[2]
+	store = args[3]
+
+	keyPass = getpass.getpass("Enter private key passphrase:")
+
+	storePass = ""
+	while len(storePass) == 0:
+	    storePass = getpass.getpass("Enter keystore password:")
+
+	#
+	# We use secure temporary files to transfer the password to openssl
+	# and the ImportKey java tool. Its necessary to create 2 files for the
+	# key password because openssl craps out if you use the same password
+	# file twice.
+	#
+	keypassfile1 = None
+	keypassfile2 = None
+
+	if len(keyPass) > 0:
+	    temp, keypassfile1 = tempfile.mkstemp("keypass1")
+	    os.write(temp, keyPass)
+	    os.close(temp)
+
+	    temp, keypassfile2 = tempfile.mkstemp("keypass2")
+	    os.write(temp, keyPass)
+	    os.close(temp)
+	else:
+	    # Java can't deal with unencrypted keystores, so we use a
+	    # temporary one.
+	    temp, keypassfile1 = tempfile.mkstemp("keypass1")
+	    os.write(temp, "password")
+	    os.close(temp)
+
+	    # We create a file with an empty password to store the results
+	    # in the keystore.
+	    temp, keypassfile2 = tempfile.mkstemp("keypass2")
+	    os.close(temp)
+
+	temp, storepassfile = tempfile.mkstemp("storepass3")
+	os.write(temp, storePass)
+	os.close(temp)
+
+	temp, pkcs12cert = tempfile.mkstemp(".p12", "pkcs12")
+	os.close(temp)
+
+	if len(keyPass) > 0:
+	    cmd = "openssl pkcs12 -in " + cert + " -inkey " + key + " -export -out " + pkcs12cert + " -name " + \
+	    	alias + " -passin file:" + keypassfile1 + " -passout file:" + keypassfile2 + " -certfile " + \
+		os.path.join(home, "ca_cert.pem")
+	else:
+	    cmd = "openssl pkcs12 -in " + cert + " -inkey " + key + " -export -out " + pkcs12cert + " -name " + \
+	    	alias + " -passout file:" + keypassfile1 + " -certfile " + os.path.join(home, "ca_cert.pem")
+
+	#print cmd
+	print "converting to pkcs12 format... ",
+	status = os.system(cmd)
+	if status != 0:
+	    print "openssl command failed"
+	    os.remove(keypassfile1)
+	    os.remove(keypassfile2)
+	    os.remove(storepassfile)
+	    sys.exit(1)
+	print "ok"
+
+	# Use java to import the cert into the keystore.
+	cmd = "java -classpath " + bindir + " ImportKey " + pkcs12cert + " " + alias + " " \
+		  + os.path.join(home, "ca_cert.pem") + " " + store + " " + storepassfile + " " + keypassfile1
+	if len(keyPass) == 0:
+	    cmd = cmd + " " + keypassfile2
+
+	#print cmd
+	print "importing into the keystore...", 
+	status = os.system(cmd)
+	if status != 0:
+	    print "java command failed"
+	else:
+	    print "ok"
+
+	# Cleanup.
+	os.remove(pkcs12cert)
+	os.remove(keypassfile1)
+	os.remove(keypassfile2)
+	os.remove(storepassfile)
+
+    if cs:
+	if len(args) != 3:
+	    usage()
+
+	cert = args[0]
+	key = args[1]
+	pkcs12cert = args[2]
+	if not overwrite and os.path.exists(pkcs12cert):
+	    print pkcs12cert + ": file exists"
+	    sys.exit(1)
+
+	keyPass = getpass.getpass("Enter private key passphrase:")
+
+	#
+	# We use secure temporary files to transfer the password to
+	# openssl Its necessary to create 2 files for the key password
+	# because openssl craps out if you use the same password file
+	# twice.
+	#
+	keypassfile1 = None
+	keypassfile2 = None
+
+	if len(keyPass) > 0:
+	    temp, keypassfile1 = tempfile.mkstemp("keypass1")
+	    os.write(temp, keyPass)
+	    os.close(temp)
+
+	    temp, keypassfile2 = tempfile.mkstemp("keypass2")
+	    os.write(temp, keyPass)
+	    os.close(temp)
+
+	    cmd = "openssl pkcs12 -in " + cert + " -inkey " + key + " -export -out " + pkcs12cert + \
+		" -passin file:" + keypassfile1 + " -passout file:" + keypassfile2
+	else:
+	    cmd = "openssl pkcs12 -in " + cert + " -inkey " + key + " -export -out " + pkcs12cert + " -passout pass:"
+
+	#print cmd
+	print "converting to pkcs12 format...",
+	status = os.system(cmd)
+	if keypassfile1 != None:
+	    os.remove(keypassfile1)
+	if keypassfile2 != None:
+	    os.remove(keypassfile2)
+	if status != 0:
+	    print "openssl command failed"
+	    sys.exit(1)
+	print "ok"
+
+    sys.exit(0)
+
+if sys.argv[1] == "init":
+    def usage():
+	print "usage: " + sys.argv[1] + " [--no-password] [--overwrite]"
+	sys.exit(1)
+
+    try:
+	opts, args = getopt.getopt(sys.argv[2:], "", [ "no-password", "overwrite"])
+    except getopt.GetoptError:
+	usage()
+
+    if args:
+	usage()
+
+    print "This script will initialize your organization's Certificate Authority (CA)."
+    print "The CA database will be created in " + caroot
+
+    nopassphrase = False
+    for o, a in opts:
+	if o == "--no-password":
+	    nopassphrase = True
+	if o == "--overwrite":
+	    # If the CA exists then destroy it.
+	    if os.path.exists(os.path.join(home, caroot)):
+		print "Warning: running this command will destroy your existing CA setup!"
+		choice = raw_input("Do you want to continue? (y/n)")
+		if choice != 'y' and choice != 'Y':
+		    sys.exit(1)
+		shutil.rmtree(os.path.join(home, caroot))
+
+    #
+    # Check that the caroot isn't already populated.
+    #
+    if os.path.exists(os.path.join(cadb, "ca_key.pem")):
+	print cadb + ": CA has already been initialized."
+	print "Use the --overwrite option to re-initialize the database."
+	sys.exit(1)
+
+    try:
+	os.makedirs(cadb)
+    except OSError:
+	pass
+
+    #
+    # Initialize the CA serial and index.
+    #
+    serial = open(os.path.join(cadb, "serial"), "w" )
+    serial.write("01\n")
+    serial.close()
+
+    index = open(os.path.join(cadb, "index.txt"), "w")
+    index.close()
+	
+    # Construct the DN for the CA certificate.
+    DNelements = { \
+	'C':['countryName', "Country name", "", 'match'], \
+	'ST':['stateOfProviceName', "State or province name", "", 'match'], \
+	'L':['localityName', "Locality", "", 'match'], \
+	'O':['organizationName', "Organization name", "GridCA-" + socket.gethostname(), 'match'], \
+	'OU':['organizationUnitName', "Organization unit name", "", 'optional'], \
+	'CN':['commonName', "Common name", "Grid CA", 'supplied'] \
+    }
+
+    while True:
+	print "The subject name for your CA will be "
+
+	first = True
+	for k,v in DNelements.iteritems():
+	    if len(v[2]) > 0:
+		if not first:
+		    print ", ",
+		print k + "=" + v[2],
+		first = False
+	print
+
+	input = raw_input("Do you want to keep this as the CA subject name? (y/n) [y]")
+	if input == 'n':
+	    for v in DNelements.values():
+		v[2] = raw_input(v[1] + ":")
+	else:
+	    break
+
+    while True:
+	DNelements['emailAddress'] = ['emailAddress', '', raw_input("Enter the email address of the CA: "), 'optional']
+	if DNelements['emailAddress'][2] and len(DNelements['emailAddress'][2]) > 0:
+	    break
+
+    #
+    # Static configuration file data. This avoids locating template files
+    # and such.
+    #
+    config = {\
+"ca.cnf":"\
+# **********************************************************************\n\
+#\n\
+# Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.\n\
+#\n\
+# This copy of Ice is licensed to you under the terms described in the\n\
+# ICE_LICENSE file included in this distribution.\n\
+#\n\
+# **********************************************************************\n\
+\n\
+# Configuration file for the CA. This file is generated by iceca init.\n\
+# DO NOT EDIT!\n\
+\n\
+###############################################################################\n\
+###  Self Signed Root Certificate\n\
+###############################################################################\n\
+\n\
+[ ca ]\n\
+default_ca = ice\n\
+\n\
+[ ice ]\n\
+default_days     = 1825    # How long certs are valid.\n\
+default_md       = md5     # The Message Digest type.\n\
+preserve         = no      # Keep passed DN ordering?\n\
+\n\
+[ req ]\n\
+default_bits        = 2048\n\
+default_keyfile     = $ENV::ICE_CA_HOME/ca/db/ca_key.pem\n\
+default_md          = md5\n\
+prompt              = no\n\
+distinguished_name  = dn\n\
+x509_extensions     = extensions\n\
+\n\
+[ extensions ]\n\
+basicConstraints = CA:true\n\
+\n\
+# PKIX recommendation.\n\
+subjectKeyIdentifier = hash\n\
+authorityKeyIdentifier = keyid:always,issuer:always\n\
+\n\
+[dn]\n\
+",\
+"sign.cnf":"\
+# **********************************************************************\n\
+#\n\
+# Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.\n\
+#\n\
+# This copy of Ice is licensed to you under the terms described in the\n\
+# ICE_LICENSE file included in this distribution.\n\
+#\n\
+# **********************************************************************\n\
+\n\
+# Configuration file to sign a certificate. This file is generated by iceca init.\n\
+# DO NOT EDIT!!\n\
+\n\
+[ ca ]\n\
+default_ca = ice\n\
+\n\
+[ ice ]\n\
+dir              = $ENV::ICE_CA_HOME/ca/db  # Where everything is kept.\n\
+private_key      = $dir/ca_key.pem   # The CA Private Key.\n\
+certificate      = $dir/ca_cert.pem  # The CA Certificate.\n\
+database         = $dir/index.txt           # Database index file.\n\
+new_certs_dir    = $dir                     # Default loc for new certs.\n\
+serial           = $dir/serial              # The current serial number.\n\
+certs            = $dir                     # Where issued certs are kept.\n\
+RANDFILE         = $dir/.rand               # Private random number file.\n\
+default_days     = 1825                     # How long certs are valid.\n\
+default_md       = md5                      # The Message Digest type.\n\
+preserve         = yes                      # Keep passed DN ordering?\n\
+\n\
+policy           = ca_policy\n\
+x509_extensions  = certificate_extensions\n\
+\n\
+[ certificate_extensions ]\n\
+basicConstraints = CA:false\n\
+\n\
+# PKIX recommendation.\n\
+subjectKeyIdentifier = hash\n\
+authorityKeyIdentifier = keyid:always,issuer:always\n\
+\n\
+# ca_policy is generated by the initca script.\n\
+",\
+"req.cnf":"\
+# **********************************************************************\n\
+#\n\
+# Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.\n\
+#\n\
+# This copy of Ice is licensed to you under the terms described in the\n\
+# ICE_LICENSE file included in this distribution.\n\
+#\n\
+# **********************************************************************\n\
+\n\
+# Configuration file to request a node, registry or service\n\
+# certificate. This file is generated by iceca init.\n\
+# DO NOT EDIT!\n\
+\n\
+[ req ]\n\
+default_bits        = 1024\n\
+default_md          = md5\n\
+prompt              = no\n\
+distinguished_name  = dn\n\
+x509_extensions     = extensions\n\
+\n\
+[ extensions ]\n\
+basicConstraints = CA:false\n\
+\n\
+# PKIX recommendation.\n\
+subjectKeyIdentifier = hash\n\
+authorityKeyIdentifier = keyid:always,issuer:always\n\
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment\n\
+\n\
+# The dn section is added by the initca script.\n\
+\n\
+[dn]\n\
+"\
+    }
+
+    #
+    # It is necessary to generate configuration files because the
+    # openssl configuration files do not permit empty values.
+    #
+    print "Generating configuration files... ",
+
+    print "ca.cnf",
+    temp, cacnfname = tempfile.mkstemp(".cnf", "ca")
+    os.write(temp, config["ca.cnf"])
+    for k,v in DNelements.iteritems():
+	if len(v[2]) > 0:
+	    os.write(temp, v[0] + "=" + v[2] + "\n")
+    os.close(temp)
+
+    file = 'sign.cnf'
+    print " " + file,
+    cnf = open(os.path.join(caroot, file), "w")
+    cnf.write(config[file])
+    cnf.write("[ ca_policy ]\n");
+    for k,v in DNelements.iteritems():
+	if len(v[2]) > 0:
+	    cnf.write(v[0] + "=" + v[3] + "\n")
+    cnf.close()
+
+    # Don't want these RDNs in req.cnf
+    del DNelements['emailAddress']
+    del DNelements['CN']
+
+    file = "req.cnf"
+    print file,
+    cnf = open(os.path.join(home, file), "w")
+    cnf.write(config[file])
+    for k,v in DNelements.iteritems():
+	if len(v[2]) > 0:
+	    cnf.write(v[0] + "=" + v[2] + "\n")
+    cnf.close()
+
+    print "ok"
+
+    cmd = "openssl req -config " + cacnfname + " -x509 -days 1825 -newkey rsa:2048 -out " + \
+	    os.path.join(cadb, "ca_cert.pem") + " -outform PEM"
+
+    if nopassphrase:
+	cmd += " -nodes"
+
+    #print cmd
+    status = os.system(cmd)
+    os.remove(cacnfname)
+    if status != 0:
+	print "openssl command failed"
+	sys.exit(1)
+
+    # Copy in the new ca certificate and private key.
+    shutil.copy(os.path.join(cadb, "ca_cert.pem"), os.path.join(home))
+
+    print
+    print "The CA is initialized."
+    print
+    print "You need to distribute the following files to all machines that can"
+    print "request certificates:"
+    print
+    print os.path.join(home, "req.cnf")
+    print os.path.join(home, "ca_cert.pem")
+    print
+    print "These files should be placed in the user's home directory in"
+    print "~/.iceca. On Windows, place these files in <ice-install>/config."
+
+    sys.exit(0)
+
+if sys.argv[1] == "request":
+    def usage():
+	print "usage: " + sys.argv[1] + " [--overwrite] [--node|--registry|--server|--user] [--no-password]"
+	sys.exit(1)
+
+    def setType(type):
+	keyfile = type + "_key.pem"
+	reqfile = type + "_req.pem"
+	if not overwrite:
+	    if os.path.exists(keyfile):
+		print keyfile + ": exists"
+		sys.exit(1)
+	    if os.path.exists(reqfile):
+		print reqfile + ": exists"
+		sys.exit(1)
+	return type, keyfile, reqfile
+
+    try:
+	opts, args = getopt.getopt(sys.argv[2:], "", \
+				   [ "overwrite", "node", "registry", "server", "user", "no-password" ])
+    except getopt.GetoptError:
+	usage()
+
+    if args:
+	usage()
+
+    type = None
+    commonName = None
+    email = None
+    nopassphrase = False
+    overwrite = False
+    for o, a in opts:
+	if o == "--overwrite":
+	    overwrite = True
+	if o == "--node":
+	    if type != None:
+		usage()
+	    type, keyfile, reqfile = setType("node")
+	    while not commonName or len(commonName) == 0:
+		commonName = raw_input("Enter the node name: ")
+	    commonName = "IceGrid Node " + commonName
+	elif o == "--registry":
+	    if type != None:
+		usage()
+	    type, keyfile, reqfile = setType("registry")
+	    commonName = "IceGrid Registry"
+	elif o == "--server":
+	    if type != None:
+		usage()
+	    type, keyfile, reqfile = setType("server")
+	    while not commonName or len(commonName) == 0:
+		commonName = raw_input("Enter the server name: ")
+	    commonName = "Ice Server " + commonName
+	elif o == "--user":
+	    if type != None:
+		usage()
+	    type, keyfile, reqfile = setType("user")
+	    while not commonName or len(commonName) == 0:
+		commonName = raw_input("Enter the user's full name: ")
+	    while not email or len(email) == 0:
+		email = raw_input("Enter the user's email address: ")
+	elif o == "--no-password":
+	    nopassphrase = True
+
+    if not type:
+	usage()
+
+    #
+    # Create a temporary configuration file.
+    #
+    template = open(os.path.join(home, "req.cnf"), "r")
+    if not template:
+	print "cannot open " + os.path.join(home, "req.cnf")
+	sys.exit(1)
+
+    data = template.read()
+    template.close()
+    temp, tempname = tempfile.mkstemp(".cnf", "req")
+    os.write(temp, data)
+    os.write(temp, "commonName=" + commonName + "\n")
+    if email:
+	os.write(temp, "emailAddress=" + email + "\n")
+    os.close(temp)
+
+    cmd = "openssl req -config " + tempname + " -new -keyout '" + keyfile + "' -out '" + reqfile + "'"
+    if nopassphrase:
+	cmd += " -nodes"
+
+    #print cmd
+    status = os.system(cmd)
+    os.remove(tempname)
+    if status != 0:
+	print "openssl command failed"
+	sys.exit(1)
+
+    print
+    print "Created key: " + keyfile
+    print "Created certificate request: " + reqfile
+    print
+    print "The certificate request must be signed by the CA. Send the certificate"
+    print "request file to the CA at the following email address:"
+    os.system("openssl x509 -in " + os.path.join(home, "ca_cert.pem") + " -email -noout")
+
+    sys.exit(0)
+
+if sys.argv[1] == "sign":
+    def usage():
+	print "usage: " + sys.argv[1] + " --in <req> --out <cert>"
+	sys.exit(1)
+
+    try:
+	opts, args = getopt.getopt(sys.argv[2:], "", [ "in=", "out=" ])
+    except getopt.GetoptError:
+	usage()
+
+    if args:
+	usage()
+
+    infile = None
+    outfile = None
+    for o, a in opts:
+	if o == "--in":
+	    infile = a
+	elif o == "--out":
+	    outfile = a
+
+    if infile == None or outfile == None:
+	usage()
+
+    cmd = "openssl ca -config " + os.path.join(caroot, "sign.cnf") + " -in " + infile + " -out " + outfile
+    status = os.system(cmd)
+    if status != 0:
+	print "openssl command failed"
+	sys.exit(1)
+
+    sys.exit(0)
+
+usage()
