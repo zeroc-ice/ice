@@ -340,7 +340,7 @@ NodeSessionManager::run()
 		    }
 		}
 	    }
-	    catch(const Ice::LocalException& ex)
+	    catch(const Ice::LocalException&)
 	    {
 		// IGNORE
 	    }

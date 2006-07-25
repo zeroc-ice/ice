@@ -740,7 +740,7 @@ ServerI::setEnabled(bool enabled, const ::Ice::Current&)
 	{
 	    observer->updateServer(_node->getName(), getDynamicInfo());
 	}
-	catch(const Ice::LocalException& ex)
+	catch(const Ice::LocalException&)
 	{
 	    //
 	    // Expected if the master IceGrid registry is down.
@@ -2169,7 +2169,7 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
 	    {
 		observer->updateServer(_node->getName(), getDynamicInfo());
 	    }
-	    catch(const Ice::LocalException& ex)
+	    catch(const Ice::LocalException&)
 	    {
 		//
 		// Expected if the master IceGrid registry is down.
