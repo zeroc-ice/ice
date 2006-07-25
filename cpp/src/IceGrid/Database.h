@@ -94,6 +94,7 @@ public:
     Ice::StringSeq getAllNodes(const std::string& = std::string());
 
     void addReplica(const std::string&, const ReplicaSessionIPtr&);
+    InternalRegistryPrxSeq getReplicas() const;
     void removeReplica(const std::string&);
 
     ServerInfo getServerInfo(const std::string&, bool = false);

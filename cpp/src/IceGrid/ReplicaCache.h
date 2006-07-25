@@ -57,6 +57,8 @@ public:
     void nodeAdded(const NodePrx&);
     void nodeRemoved(const NodePrx&);
     
+    InternalRegistryPrxSeq getAll() const; 
+
 private:
 
     Ice::ObjectPrx getClientProxy() const;

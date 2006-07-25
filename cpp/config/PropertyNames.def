@@ -211,8 +211,9 @@ IceGrid:
     Node.ThreadPool.StackSize
     Node.Trace.Activator
     Node.Trace.Adapter
-    Node.Trace.Server
     Node.Trace.Patch
+    Node.Trace.Replica
+    Node.Trace.Server
     Node.UserAccounts
     Node.UserAccountMapper
     Node.WaitTime

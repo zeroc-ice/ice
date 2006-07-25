@@ -82,9 +82,15 @@ NodeSessionI::getObserver(const Ice::Current& current) const
 }
 
 Ice::StringSeq
-NodeSessionI::getServers(const Ice::Current& current)
+NodeSessionI::getServers(const Ice::Current& current) const
 {
     return _database->getAllNodeServers(_name);
+}
+
+InternalRegistryPrxSeq
+NodeSessionI::getReplicas(const Ice::Current& current) const
+{
+    return _database->getReplicas();
 }
 
 void

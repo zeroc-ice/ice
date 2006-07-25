@@ -198,8 +198,7 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     _tmpDir = _dataDir + "/tmp";
 
     Ice::PropertiesPtr properties = getCommunicator()->getProperties();
-    const string instanceNameProperty = "IceGrid.InstanceName";
-    const_cast<string&>(_instanceName) = properties->getPropertyWithDefault(instanceNameProperty, "IceGrid");
+    const_cast<string&>(_instanceName) = getCommunicator()->getDefaultLocator()->ice_getIdentity().category;
     const_cast<Ice::Int&>(_waitTime) = properties->getPropertyAsIntWithDefault("IceGrid.Node.WaitTime", 60);
 }
 
@@ -551,15 +550,14 @@ NodeI::getUserAccountMapper() const
 NodeSessionPrx
 NodeI::registerWithRegistry(const InternalRegistryPrx& registry)
 {
-    NodeSessionPrx session = registry->registerNode(_name, _proxy, _platform.getNodeInfo());
-    NodeObserverPrx observer = session->getObserver();
-    if(observer)
-    {
-	IceUtil::Mutex::Lock sync(_observerMutex);
-	_observer = observer;
-    }
-    checkConsistency(session);
-    return session;
+    return registry->registerNode(_name, _proxy, _platform.getNodeInfo());
+}
+
+void
+NodeI::setObserver(const NodeObserverPrx& observer)
+{
+    IceUtil::Mutex::Lock sync(_observerMutex);
+    _observer = observer;
 }
 
 void

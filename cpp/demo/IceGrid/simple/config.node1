@@ -1,0 +1,11 @@
+Ice.ProgramName=Node1
+
+Ice.Default.Locator=DemoIceGrid/Locator:default -p 12000:default -p 12001:default -p 12002
+
+IceGrid.Node.Name=localhost
+IceGrid.Node.Endpoints=default
+IceGrid.Node.Data=db/node1
+#IceGrid.Node.Output=db
+#IceGrid.Node.RedirectErrToOut=1
+
+IceGrid.Node.Trace.Replica=1

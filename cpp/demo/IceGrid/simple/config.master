@@ -1,0 +1,14 @@
+IceGrid.InstanceName=DemoIceGrid
+
+Ice.ProgramName=Master
+
+IceGrid.Registry.Client.Endpoints=default -p 12000
+IceGrid.Registry.Server.Endpoints=default
+IceGrid.Registry.Internal.Endpoints=default
+IceGrid.Registry.Admin.Endpoints=default
+IceGrid.Registry.Data=db/registry
+IceGrid.Registry.PermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
+IceGrid.Registry.AdminPermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
+
+IceGrid.Registry.Trace.Node=1
+IceGrid.Registry.Trace.Replica=1

@@ -32,7 +32,6 @@ public:
 
     virtual void run();
 
-    void waitForCreate();
     void terminate();
 
 private:
@@ -44,8 +43,6 @@ private:
     const InternalRegistryPrx _replica;
     const ReplicaInfo _info;
     const DatabasePtr _database;
-    IceUtil::Time _timeout;
-    ReplicaSessionPrx _session;
     bool _shutdown;
 };
 typedef IceUtil::Handle<ReplicaSessionKeepAliveThread> ReplicaSessionKeepAliveThreadPtr;

@@ -151,6 +151,9 @@ ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Current&)
 	    }
 	    catch(const Ice::LocalException&)
 	    {
+		//
+		// Expected if the master IceGrid registry is down.
+		//
 	    }
 	}
     }

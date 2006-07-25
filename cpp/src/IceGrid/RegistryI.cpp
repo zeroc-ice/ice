@@ -262,8 +262,23 @@ RegistryI::start(bool nowarn)
     //
     // Get the instance name
     //
-    const string instanceNameProperty = "IceGrid.InstanceName";
-    _instanceName = properties->getPropertyWithDefault(instanceNameProperty, "IceGrid");    
+    if(replicaName.empty())
+    {
+	const string instanceNameProperty = "IceGrid.InstanceName";
+	_instanceName = properties->getPropertyWithDefault(instanceNameProperty, "IceGrid");    
+    }
+    else
+    {
+	if(properties->getProperty("Ice.Default.Locator").empty())
+	{
+	    Error out(_communicator->getLogger());
+	    out << "property `Ice.Default.Locator' is not set";
+	    return false;
+	}
+	_instanceName = _communicator->getDefaultLocator()->ice_getIdentity().category;
+    }
+
+
 
     //
     // Add a default servant locator to the client object adapter. The
@@ -326,13 +341,12 @@ RegistryI::start(bool nowarn)
 			     intSessionTimeout, _traceLevels);
 
     InternalRegistryPrx internalRegistry;
-    QueryPrx query;
     if(replicaName.empty())
     {
 	_database->initMaster();
 
 	LocatorPrx internalLocator = setupLocator(clientAdapter, serverAdapter, registryAdapter);
-	query = setupQuery(clientAdapter);
+	setupQuery(clientAdapter);
 	setupAdmin(adminAdapter);
 	setupRegistry(clientAdapter);
 	internalRegistry = setupInternalRegistry(registryAdapter, replicaName);
@@ -353,24 +367,12 @@ RegistryI::start(bool nowarn)
 	// the master.
 	//
 
-	if(properties->getProperty("Ice.Default.Locator").empty())
-	{
-	    Error out(_communicator->getLogger());
-	    out << "property `Ice.Default.Locator' is not set";
-	    return false;
-	}
-
 	setupLocator(clientAdapter, serverAdapter, 0);
 	setupQuery(clientAdapter);
 	internalRegistry = setupInternalRegistry(registryAdapter, replicaName);
     }
 
-    if(replicaName.empty())
-    {
-	addWellKnownObject(internalRegistry, InternalRegistry::ice_staticId());
-	addWellKnownObject(query, Query::ice_staticId());
-    }
-    else
+    if(!replicaName.empty())
     {
 	_session.create(replicaName, _database, internalRegistry, clientAdapter, serverAdapter);
     }
@@ -413,11 +415,12 @@ RegistryI::setupLocator(const Ice::ObjectAdapterPtr& clientAdapter,
     }
 }
 
-QueryPrx
+void
 RegistryI::setupQuery(const Ice::ObjectAdapterPtr& clientAdapter)
 {
     Identity queryId = _communicator->stringToIdentity(_instanceName + "/Query");
-    return QueryPrx::uncheckedCast(clientAdapter->add(new QueryI(_communicator, _database), queryId));
+    clientAdapter->add(new QueryI(_communicator, _database), queryId);
+    addWellKnownObject(clientAdapter->createProxy(queryId), Query::ice_staticId());
 }
 
 void
@@ -446,8 +449,9 @@ RegistryI::setupInternalRegistry(const Ice::ObjectAdapterPtr& registryAdapter, c
 	internalRegistryId.name += "-" + replicaName;
     }
     ObjectPtr internalRegistry = new InternalRegistryI(_database, _internalReaper);
-    registryAdapter->add(internalRegistry, internalRegistryId);
-    return InternalRegistryPrx::uncheckedCast(registryAdapter->createProxy(internalRegistryId));
+    Ice::ObjectPrx proxy = registryAdapter->add(internalRegistry, internalRegistryId);
+    addWellKnownObject(proxy, InternalRegistry::ice_staticId());
+    return InternalRegistryPrx::uncheckedCast(proxy);
 }
 
 void

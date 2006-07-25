@@ -1,15 +1,15 @@
-Ice.ProgramName=Replica1
+Ice.ProgramName=Replica2
 
 Ice.Default.Locator=DemoIceGrid/Locator:default -p 12000
 
 #
 # IceGrid registry configuration.
 #
-IceGrid.Registry.Client.Endpoints=default -p 12001
+IceGrid.Registry.Client.Endpoints=default -p 12002
 IceGrid.Registry.Server.Endpoints=default
 IceGrid.Registry.Internal.Endpoints=default
-IceGrid.Registry.Data=db/replica1
-IceGrid.Registry.ReplicaName=Replica1
+IceGrid.Registry.Data=db/replica2
+IceGrid.Registry.ReplicaName=Replica2
 
 #
 # Trace properties.

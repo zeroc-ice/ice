@@ -139,6 +139,20 @@ Database::Database(const Ice::ObjectAdapterPtr& registryAdapter,
     _lock(0), 
     _serial(-1)
 {
+    ServerEntrySeq entries;
+    for(StringApplicationDescriptorDict::const_iterator p = _descriptors.begin(); p != _descriptors.end(); ++p)
+    {
+	try
+	{
+	    load(ApplicationHelper(_communicator, p->second), entries);
+	}
+	catch(const DeploymentException& ex)
+	{
+	    Ice::Warning warn(_traceLevels->logger);
+	    warn << "invalid application `" << p->first << "':\n" << ex.reason;
+	}
+    }
+
     //
     // Register a default servant to manage manually registered object adapters.
     //
@@ -243,43 +257,9 @@ Database::unlock(AdminSessionI* session)
 }
 
 void
-Database::init(int serial)
+Database::initMaster()
 {
-    ApplicationDescriptorSeq applications;
-    AdapterInfoSeq adapters;
-    ObjectInfoSeq objects;
-
-    //
-    // Cache the servers & adapters.
-    //
-    ServerEntrySeq entries;
-    for(StringApplicationDescriptorDict::const_iterator p = _descriptors.begin(); p != _descriptors.end(); ++p)
-    {
-	applications.push_back(p->second);
-	try
-	{
-	    load(ApplicationHelper(_communicator, p->second), entries);
-	}
-	catch(const DeploymentException& ex)
-	{
-	    Ice::Warning warn(_traceLevels->logger);
-	    warn << "invalid application `" << p->first << "':\n" << ex.reason;
-	}
-    }
-	
-    for(StringAdapterInfoDict::const_iterator q = _adapters.begin(); q != _adapters.end(); ++q)
-    {
-	adapters.push_back(q->second);
-	if(adapters.back().id.empty())
-	{
-	    adapters.back().id = q->first;
-	}
-    }
-    
-    for(IdentityObjectInfoDict::const_iterator r = _objects.begin(); r != _objects.end(); ++r)
-    {
-	objects.push_back(r->second);
-    }
+    Lock sync(*this);
 
     _serverCache.setTraceLevels(_traceLevels);
     _nodeCache.setTraceLevels(_traceLevels);
@@ -288,24 +268,26 @@ Database::init(int serial)
     _objectCache.setTraceLevels(_traceLevels);
     _allocatableObjectCache.setTraceLevels(_traceLevels);
 
-    _serial = serial;
-
-    if(_registryObserverTopic)
-    {
-	//
-	// Initialize the topic cache.
-	//
-	_registryObserverTopic->getPublisher()->init(_serial, applications, adapters, objects);
-    }
-}
-
-void
-Database::initMaster()
-{
-    Lock sync(*this);
     _nodeObserverTopic = new NodeObserverTopic(_internalAdapter, _topicManager);
     _registryObserverTopic = new RegistryObserverTopic(_internalAdapter, _topicManager);
-    init(0);
+    _serial = 0;
+
+    ApplicationDescriptorSeq applications;
+    for(StringApplicationDescriptorDict::const_iterator p = _descriptors.begin(); p != _descriptors.end(); ++p)
+    {
+	applications.push_back(p->second);
+    }	
+    AdapterInfoSeq adapters;
+    for(StringAdapterInfoDict::const_iterator q = _adapters.begin(); q != _adapters.end(); ++q)
+    {
+	adapters.push_back(q->second);
+    }
+    ObjectInfoSeq objects;
+    for(IdentityObjectInfoDict::const_iterator r = _objects.begin(); r != _objects.end(); ++r)
+    {
+	objects.push_back(r->second);
+    }
+    _registryObserverTopic->getPublisher()->init(_serial, applications, adapters, objects);
 }
 
 void
@@ -315,11 +297,58 @@ Database::initReplica(int masterSerial,
 		      const ObjectInfoSeq& objects)
 {
     Lock sync(*this);
-    
-    _descriptors.clear();
+
+    if(_serial < 0)
+    {
+	_serverCache.setTraceLevels(_traceLevels);
+	_nodeCache.setTraceLevels(_traceLevels);
+	_replicaCache.setTraceLevels(_traceLevels);
+	_adapterCache.setTraceLevels(_traceLevels);
+	_objectCache.setTraceLevels(_traceLevels);
+	_allocatableObjectCache.setTraceLevels(_traceLevels);
+    }
+    else
+    {
+//	assert(_serial <= masterSerial); // TODO: Master might have been restarted.
+    }
+    _serial = masterSerial;
+
+    ServerEntrySeq entries;
+    set<string> names;
     for(ApplicationDescriptorSeq::const_iterator p = applications.begin(); p != applications.end(); ++p)
     {
+	try
+	{
+	    StringApplicationDescriptorDict::const_iterator s = _descriptors.find(p->name);
+	    if(s != _descriptors.end())
+	    {
+		reload(ApplicationHelper(_communicator, s->second), ApplicationHelper(_communicator, *p), entries);
+	    }
+	    else
+	    {
+		load(ApplicationHelper(_communicator, *p), entries);
+	    }
+	}
+	catch(const DeploymentException& ex)
+	{
+	    Ice::Warning warn(_traceLevels->logger);
+	    warn << "invalid application `" << p->name << "':\n" << ex.reason;
+	}
 	_descriptors.put(StringApplicationDescriptorDict::value_type(p->name, *p));
+	names.insert(p->name);
+    }
+    StringApplicationDescriptorDict::iterator s = _descriptors.begin();
+    while(s != _descriptors.end())
+    {
+	if(names.find(s->first) == names.end())
+	{
+	    unload(ApplicationHelper(_communicator, s->second), entries);
+	    _descriptors.erase(s++);
+	}
+	else
+	{
+	    ++s;
+	}
     }
     
     _objects.clear();
@@ -333,9 +362,6 @@ Database::initReplica(int masterSerial,
     {
 	_adapters.put(StringAdapterInfoDict::value_type(r->id, *r));
     }
-    
-    init(masterSerial);
-    notifyAll();
 }
 
 void
@@ -613,17 +639,6 @@ Database::getAllApplications(const string& expression)
 void 
 Database::addNode(const string& name, const NodeSessionIPtr& session)
 {
-    {
-	//
-	// Wait for the database to be initialized before to add a
-	// node.
-	//
-	Lock sync(*this);
-	while(_serial < 0)
-	{
-	    wait();
-	}
-    }
     _nodeCache.get(name, true)->setSession(session);
 }
 
@@ -659,6 +674,12 @@ void
 Database::addReplica(const string& name, const ReplicaSessionIPtr& session)
 {
     _replicaCache.add(name, session, this);
+}
+
+InternalRegistryPrxSeq
+Database::getReplicas() const
+{
+    return _replicaCache.getAll();
 }
 
 void

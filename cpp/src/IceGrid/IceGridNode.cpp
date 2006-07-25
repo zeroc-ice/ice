@@ -253,20 +253,19 @@ NodeService::start(int argc, char* argv[])
         }
 
 	//
-	// TODO: XXX: set communicator->setDefaultLocator() here?! I
-	// believe this is necessary for the NodeSessionManager.
-	//
-
-
+	// Set the default locator property to point to the collocated
+	// locator (this property is passed by the activator to each
+	// activated server). The default locator is also needed by
+	// the node session manager.
         //
-        // Set the Ice.Default.Locator property to point to the
-        // collocated locator (this property is passed by the
-        // activator to each activated server).
-        //
-	const string instanceNameProperty = "IceGrid.InstanceName";
-	const string locatorId = properties->getPropertyWithDefault(instanceNameProperty, "IceGrid") + "/Locator";
-	string locatorPrx = locatorId + ":" + properties->getProperty("IceGrid.Registry.Client.Endpoints");
-        properties->setProperty("Ice.Default.Locator", locatorPrx);
+	if(properties->getProperty("Ice.Default.Locator").empty())
+	{
+	    const string instanceNameProperty = "IceGrid.InstanceName";
+	    const string locatorId = properties->getPropertyWithDefault(instanceNameProperty, "IceGrid") + "/Locator";
+	    string locatorPrx = locatorId + ":" + properties->getProperty("IceGrid.Registry.Client.Endpoints");
+	    communicator()->setDefaultLocator(LocatorPrx::uncheckedCast(communicator()->stringToProxy(locatorPrx)));
+	    properties->setProperty("Ice.Default.Locator", locatorPrx);
+	}
     }
     else if(properties->getProperty("Ice.Default.Locator").empty())
     {
@@ -455,8 +454,8 @@ NodeService::start(int argc, char* argv[])
         AdminPrx admin;
         try
         {
-	    const string instanceNameProperty = "IceGrid.InstanceName";
-	    const string adminId = properties->getPropertyWithDefault(instanceNameProperty, "IceGrid") + "/Admin";
+	    const string instanceName = communicator()->getDefaultLocator()->ice_getIdentity().category;
+	    const string adminId = instanceName + "/Admin";
             admin = AdminPrx::checkedCast(communicator()->stringToProxy(adminId));
         }
         catch(const LocalException& ex)

@@ -176,6 +176,7 @@ interface Server
 };
 
 interface InternalRegistry;
+sequence<InternalRegistry*> InternalRegistryPrxSeq;
 
 interface Node
 {
@@ -295,7 +296,14 @@ interface NodeSession
      * Get the name of the servers deployed on the node.
      *
      **/
-    Ice::StringSeq getServers();
+    nonmutating Ice::StringSeq getServers();
+
+    /**
+     *
+     * Get the replicas of the IceGrid registry.
+     *
+     **/
+    nonmutating InternalRegistryPrxSeq getReplicas();
 
     /**
      *

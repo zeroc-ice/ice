@@ -742,8 +742,11 @@ ServerI::setEnabled(bool enabled, const ::Ice::Current&)
 	}
 	catch(const Ice::LocalException& ex)
 	{
-	    Ice::Warning out(_node->getTraceLevels()->logger);
-	    out << "unexpected observer exception:\n" << ex;
+	    //
+	    // Expected if the master IceGrid registry is down.
+	    //
+	    //Ice::Warning out(_node->getTraceLevels()->logger);
+	    //out << "unexpected observer exception:\n" << ex;
 	}
     }
 }
@@ -2168,8 +2171,11 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
 	    }
 	    catch(const Ice::LocalException& ex)
 	    {
-		Ice::Warning out(_node->getTraceLevels()->logger);
-		out << "unexpected observer exception:\n" << ex;
+		//
+		// Expected if the master IceGrid registry is down.
+		//
+		//Ice::Warning out(_node->getTraceLevels()->logger);
+		//out << "unexpected observer exception:\n" << ex;
 	    }
 	}
     }

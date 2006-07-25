@@ -63,10 +63,11 @@ public:
     PlatformInfo& getPlatformInfo() const { return _platform; }
 
     NodeSessionPrx registerWithRegistry(const InternalRegistryPrx&);
+    void setObserver(const NodeObserverPrx&);
+    void checkConsistency(const NodeSessionPrx&);
 
 private:
 
-    void checkConsistency(const NodeSessionPrx&);
     void checkConsistencyNoSync(const Ice::StringSeq&);
     bool canRemoveServerDirectory(const std::string&);
     void initObserver(const Ice::StringSeq&);

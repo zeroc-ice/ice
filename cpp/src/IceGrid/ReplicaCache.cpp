@@ -164,6 +164,19 @@ ReplicaCache::nodeRemoved(const NodePrx& node)
     }
 }
 
+InternalRegistryPrxSeq
+ReplicaCache::getAll() const
+{
+    Lock sync(*this);
+    InternalRegistryPrxSeq replicas;
+    replicas.reserve(_entries.size());
+    for(map<string, ReplicaEntryPtr>::const_iterator p = _entries.begin(); p != _entries.end(); ++p)
+    {
+	replicas.push_back(p->second->getSession()->getProxy());
+    }
+    return replicas;
+}
+
 Ice::ObjectPrx
 ReplicaCache::getClientProxy() const
 {

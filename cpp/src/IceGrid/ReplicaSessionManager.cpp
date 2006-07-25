@@ -102,7 +102,6 @@ ReplicaSessionKeepAliveThread::ReplicaSessionKeepAliveThread(const std::string& 
     _replica(replica),
     _info(info),
     _database(database),
-    _timeout(IceUtil::Time::seconds(5)), 
     _shutdown(false)
 {
 }
@@ -114,20 +113,91 @@ ReplicaSessionKeepAliveThread::run()
     // Keep alive the session.
     //
     ReplicaSessionPrx session;
+    IceUtil::Time timeout = IceUtil::Time::seconds(5); 
+    TraceLevelsPtr traceLevels = _database->getTraceLevels();
     while(true)
     {
-	keepAlive(session);
+	if(session)
+	{
+	    try
+	    {
+		if(traceLevels && traceLevels->replica > 2)
+		{
+		    Ice::Trace out(traceLevels->logger, traceLevels->replicaCat);
+		    out << "sending keep alive message to master replica";
+		}
+
+		session->keepAlive();
+	    }
+	    catch(const Ice::LocalException& ex)
+	    {
+		if(traceLevels && traceLevels->replica > 0)
+		{
+		    Ice::Trace out(traceLevels->logger, traceLevels->replicaCat);
+		    out << "lost session with master replica:\n" << ex;
+		}
+		session = 0;
+	    }
+	}
+
+	if(!session)
+	{
+	    try
+	    {
+		if(traceLevels && traceLevels->replica > 1)
+		{
+		    Ice::Trace out(traceLevels->logger, traceLevels->replicaCat);
+		    out << "trying to establish session with master replica";
+		}
+
+		session = _master->registerReplica(_name, _replica, _info);
+		int t = session->getTimeout();
+		if(t > 0)
+		{
+		    timeout = IceUtil::Time::seconds(t);
+		}
+
+		if(traceLevels && traceLevels->replica > 0)
+		{
+		    Ice::Trace out(traceLevels->logger, traceLevels->replicaCat);
+		    out << "established session with master replica";
+		}
+	    }
+	    catch(const ReplicaActiveException&)
+	    {
+		if(traceLevels)
+		{
+		    traceLevels->logger->error("a replica with the same name is already registered and active");
+		}
+	    }
+	    catch(const Ice::LocalException& ex)
+	    {
+		ObjectInfo info;
+		info.type = InternalRegistry::ice_staticId();
+		info.proxy = _replica;
+		_database->addObject(info, true);
+		
+		Ice::Identity id;
+		id.category = _replica->ice_getIdentity().category;
+		id.name = "Query";
+		info.type = Query::ice_staticId();
+		info.proxy = _info.clientProxy->ice_identity(id);
+		_database->addObject(info, true);
+		
+		if(traceLevels && traceLevels->replica > 1)
+		{
+		    Ice::Trace out(traceLevels->logger, traceLevels->replicaCat);
+		    out << "failed to establish session with master replica:\n" << ex;
+		}
+	    }
+	}
 
 	{
 	    Lock sync(*this);
-
-	    session = _session;	    
-
 	    if(!_shutdown)
 	    {
-		timedWait(_timeout);
+		timedWait(timeout);
 	    }
-
 	    if(_shutdown)
 	    {
 		break;
@@ -143,26 +213,21 @@ ReplicaSessionKeepAliveThread::run()
 	try
 	{
 	    session->destroy();
-	}
-	catch(const Ice::LocalException&)
-	{
-	    //
-	    // TODO: XXX: TRACE?
-	    //
-//	    ostringstream os;
-//	    os << "couldn't contact the IceGrid registry to destroy the node session:\n" << ex;
-//	    _database->getTraceLevels()->logger->warning(os.str());
-	}
-    }
-}
 
-void
-ReplicaSessionKeepAliveThread::waitForCreate()
-{
-    Lock sync(*this);
-    while(!_session)
-    {
-	wait();
+	    if(traceLevels && traceLevels->replica > 0)
+	    {
+		Ice::Trace out(traceLevels->logger, traceLevels->replicaCat);
+		out << "destroyed master replica session";
+	    }
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    if(traceLevels && traceLevels->replica > 1)
+	    {
+		Ice::Trace out(traceLevels->logger, traceLevels->replicaCat);
+		out << "couldn't destroy master replica session:\n" << ex;
+	    }
+	}
     }
 }
 
@@ -172,50 +237,6 @@ ReplicaSessionKeepAliveThread::terminate()
     Lock sync(*this);
     _shutdown = true;
     notifyAll();
-}
-
-void
-ReplicaSessionKeepAliveThread::keepAlive(const ReplicaSessionPrx& session)
-{
-    if(session)
-    {
-	try
-	{
-	    session->keepAlive();
-	    return; // We're done!
-	}
-	catch(const Ice::LocalException&)
-	{
-	}
-    }
-
-    try
-    {
-	ReplicaSessionPrx newSession = _master->registerReplica(_name, _replica, _info);
-	int timeout = newSession->getTimeout();
-	{
-	    Lock sync(*this);
-	    if(timeout > 0)
-	    {
-		_timeout = IceUtil::Time::seconds(timeout);
-	    }
-	    _session = newSession;
-	    notifyAll();
-	}
-    }
-    catch(const ReplicaActiveException&)
-    {
- 	_database->getTraceLevels()->logger->error("a replica with the same name is already registered and active");
-    }
-    catch(const Ice::LocalException&)
-    {
-	//
-	// TODO: FIX THIS SHOULD BE A TRACE
-	//
-//	ostringstream os;
-//	os << "couldn't contact the IceGrid registry:\n" << ex;
-//	_database->getTraceLevels()->logger->warning(os.str());
-    }
 }
 
 ReplicaSessionManager::ReplicaSessionManager()
