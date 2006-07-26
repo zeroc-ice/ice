@@ -397,7 +397,7 @@ NodeSessionManager::waitForCreate()
 	NodeSessionKeepAliveThreadPtr thread;
 	{
 	    Lock sync(*this);
-	    while(!_masterSession || _sessions.empty() || !_destroyed)
+	    while(!_masterSession && _sessions.empty() && !_destroyed)
 	    {
 		wait();
 	    }
