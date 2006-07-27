@@ -15,36 +15,6 @@
 
 const char *ior_output_file = "ec.ior";
 
-//
-// Parse command line arguments, returning 0 on success, -1 on failure.
-//
-static int 
-parse_args(int argc, char *argv[])
-{
-    ACE_Get_Opt get_opts(argc, argv, "n:o:");
-    int c;
-
-    while((c = get_opts()) != -1)
-    {
-	switch(c)
-	{
-	case 'o':
-	    ior_output_file = get_opts.opt_arg();
-	    break;
-
-	case '?':
-	default:
-	    ACE_ERROR_RETURN ((LM_ERROR,
-			       "usage:  %s "
-			       "-o <iorfile>"
-			       "\n",
-			       argv [0]),
-			      -1);
-	}
-    }
-    return 0;
-}
-
 class EventChannel : public TAO_CEC_EventChannel
 {
 public:

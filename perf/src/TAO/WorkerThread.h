@@ -7,19 +7,21 @@
 //
 // **********************************************************************
 
-#ifndef LATENCY_ICE
-#define LATENCY_ICE
+#ifndef WORKER_THREAD_H
+#define WORKER_THREAD_H
 
-module Demo
+#include <tao/ORB.h>
+#include <ace/Task.h>
+
+class WorkerThread : public ACE_Task_Base
 {
+public:
+    WorkerThread(CORBA::ORB_ptr orb);
 
-class Latency
-{
-    ["ami"] void ping();
+    virtual int svc();
 
-    void shutdown();
+private:
+    CORBA::ORB_var _orb;
 };
 
-};
-
-#endif
+#endif /* WORKER_THREAD_H */

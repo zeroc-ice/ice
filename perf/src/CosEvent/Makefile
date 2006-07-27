@@ -7,6 +7,15 @@
 #
 # **********************************************************************
 
+#
+# TODO: 
+#
+# 1. We probably would like to take advantage of the Ice Make.rules
+# files.
+#
+
+top_srcdir	= ../..
+
 TARGETS =  Service \
 	   Consumer \
 	   Supplier \
@@ -36,25 +45,17 @@ DESTROYER_OBJS = Destroyer.o
 NOTIFIER_OBJS =  Notifier.o \
 	         SyncC.o 
 
-#
-# XXX: These libraries need to be cleaned up!
-#
+SRCS = $(NOTIFIER_OBJS:.o=.cpp) $(DESTROYER_OBJS:.o=.cpp) $(SERVICE_OBJS:.o=.cpp) \
+	$(CONSUMER_OBJS:.o=.cpp) $(SUPPLIER_OBJS:.o=.cpp)
 
-LDFLAGS += -L$(ACE_ROOT)/lib
+include $(top_srcdir)/config/Make.rules
+include $(top_srcdir)/config/Make.tao.rules
+
 
 TAO_CLIENTLIBS = -lTAO 
 TAO_POALIBS = -lTAO_PortableServer
 EVENT_LIBS = -lTAO_CosEvent -lTAO_CosEvent_Skel -lTAO_Messaging
 SERVICE_LIBS = -lTAO_CosEvent_Serv
-
-CPPFLAGS += -I. -I$(ACE_ROOT)/include 
-
-# To build multiple executables in the same directory on AIX, it works
-# best to wipe out any previously-created tempinc directory.
-# The compiler/linker isn't too smart about instantiating templates...
-ifdef TEMPINCDIR
-COMPILE.cc := $(RM) -rf tempinc; $(COMPILE.cc)
-endif
 
 #----------------------------------------------------------------------------
 #       Local targets
@@ -93,3 +94,5 @@ PerfS.cpp PerfC.cpp: Perf.idl
 
 SyncC.cpp SyncS.cpp: Sync.idl
 	$(TAO_ROOT)/bin/tao_idl -Ge 1 $^
+
+include .depend

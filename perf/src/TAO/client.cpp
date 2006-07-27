@@ -1,16 +1,23 @@
-// client.cpp,v 1.6 2003/11/02 23:27:22 dhinton Exp
+// **********************************************************************
+//
+// Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
 
-#include "Roundtrip.h"
-#include "Roundtrip_Handler.h"
-#include "Worker_Thread.h"
-#include "ace/Get_Opt.h"
-#include "ace/High_Res_Timer.h"
-#include "ace/Sched_Params.h"
-#include "ace/Stats.h"
-#include "ace/OS_NS_errno.h"
+#include <Roundtrip.h>
+#include <Roundtrip_Handler.h>
+#include <WorkerThread.h>
+#include <ace/Get_Opt.h>
+#include <ace/High_Res_Timer.h>
+#include <ace/Sched_Params.h>
+#include <ace/Stats.h>
+#include <ace/OS_NS_errno.h>
 
-#include "tao/Strategies/advanced_resource.h"
-#include "tao/Messaging/Messaging.h"
+#include <tao/Strategies/advanced_resource.h>
+#include <tao/Messaging/Messaging.h>
 #include <iostream>
 
 #ifdef _WIN32
@@ -18,30 +25,17 @@
 #   include <time.h>
 #endif
 
+//
+// TODO: Move time functions into a OSLayer type header.
+//
+
 using namespace std;
 
-ACE_RCSID(Thread_Per_Connection_Latency, client, "client.cpp,v 1.6 2003/11/02 23:27:22 dhinton Exp")
-
-const char *ior = "file://test.ior";
 int do_shutdown = 1;
 
 int
 main(int argc, char *argv[])
 {
-//     int priority = (ACE_Sched_Params::priority_min(ACE_SCHED_FIFO) +
-// 		    ACE_Sched_Params::priority_max(ACE_SCHED_FIFO)) / 2;
-//     if(ACE_OS::sched_params(ACE_Sched_Params(ACE_SCHED_FIFO, priority, ACE_SCOPE_PROCESS)) != 0)
-//     {
-// 	if(ACE_OS::last_error() == EPERM)
-//         {
-// 	    ACE_DEBUG((LM_DEBUG, "client(%P|%t): user is not superuser, ""test runs in time-shared class\n"));
-//         }
-// 	else
-// 	{
-// 	    ACE_ERROR((LM_ERROR, "client(%P|%t): sched_params failed\n"));
-// 	}
-//     }
-    
     ACE_TRY_NEW_ENV
     {
 	CORBA::ORB_var orb = CORBA::ORB_init(argc, argv, "" ACE_ENV_ARG_PARAMETER);
@@ -148,7 +142,7 @@ main(int argc, char *argv[])
 	    }
 	}
 
-	object = orb->string_to_object(ior ACE_ENV_ARG_PARAMETER);
+	object = orb->string_to_object("file://test.ior" ACE_ENV_ARG_PARAMETER);
 	ACE_TRY_CHECK;
 
 	Test::Roundtrip_var roundtrip = Test::Roundtrip::_narrow(object.in() ACE_ENV_ARG_PARAMETER);
@@ -156,7 +150,7 @@ main(int argc, char *argv[])
 
 	if(CORBA::is_nil(roundtrip.in()))
         {
-	    ACE_ERROR_RETURN((LM_ERROR, "Nil Test::Roundtrip reference <%s>\n", ior), 1);
+	    ACE_ERROR_RETURN((LM_ERROR, "Nil Test::Roundtrip reference <%s>\n", "file://test.ior"), 1);
         }
 
 	roundtrip->test_method(ACE_ENV_SINGLE_ARG_PARAMETER);
@@ -177,7 +171,7 @@ main(int argc, char *argv[])
 
 	    if(ami)
 	    {
-		Worker_Thread *worker = new Worker_Thread(orb.in());
+		WorkerThread *worker = new WorkerThread(orb.in());
 		worker->activate(THR_NEW_LWP | THR_JOINABLE, 1, 1);
 	    }
 
@@ -254,7 +248,9 @@ main(int argc, char *argv[])
 	    longStringSeq.length(5000);
 	    for(i = 0; i < 5000; ++i)
 	    {
-		longStringSeq[i] = CORBA::string_dup("As far as the laws of mathematics refer to reality, they are not certain; and as far as they are certain, they do not refer to reality.");
+		longStringSeq[i] = CORBA::string_dup("As far as the laws of mathematics refer to reality, "
+						     "they are not certain; and as far as they are certain, "
+						     "they do not refer to reality.");
 	    }
 	
 	    Test::StringDoubleSeq stringDoubleSeq;

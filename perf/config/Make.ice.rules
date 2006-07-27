@@ -7,6 +7,10 @@
 #
 # **********************************************************************
 
+ifeq ($(ICE_HOME),)
+    $(error ICE_HOME must be defined to build Ice performance testing tools.)
+endif
+
 slicedir		= $(ICE_HOME)/slice
 configdir		= $(ICE_HOME)/config
 
@@ -39,15 +43,12 @@ SLICE2CPP		= $(ICE_HOME)/bin/slice2cpp
 .cc.o:
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
 
+#
+# XXX- Fix SLICE_SRCS depend rule.
+#
 depend:: $(SRCS) $(SLICE_SRCS)
 	-rm -f .depend
 	if test -n "$(SRCS)" ; then \
-	    $(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | \
+	    $(CXX) -DMAKEDEPEND -MM $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | \
 	    $(configdir)/makedepend.py >> .depend; \
 	fi
-
-ifneq ($(TEMPLATE_REPOSITORY),)
-clean::
-	rm -fr $(TEMPLATE_REPOSITORY)
-endif
-

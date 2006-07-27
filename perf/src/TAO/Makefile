@@ -19,32 +19,30 @@ OBJS		= TestC.o \
 
 COBJS		= client.o \
 		  Roundtrip_Handler.o \
-		  Worker_Thread.o
+		  WorkerThread.o
 
 SOBJS		= server.o \
 		  Roundtrip.o \
-		  Worker_Thread.o
+		  WorkerThread.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
+include $(top_srcdir)/config/Make.tao.rules
 
-CPPFLAGS	:= -I. -I$(TAO_HOME)/include -I$(ICE_HOME)/include $(CPPFLAGS)
-CXXFLAGS	:= -O3 -pthread -Wall -D_REENTRANT
-LDFLAGS		:=  -L$(TAO_HOME)/lib -L$(ICE_HOME)/lib
-LIBS		:= -lTAO_Messaging -lTAO_Strategies -lTAO_PortableServer -lIceUtil -lpthread
+LIBS		:= -lTAO_Messaging -lTAO_Strategies -lTAO_PortableServer -lpthread
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(ICE_LIBS) $(LIBS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(ICE_LIBS) $(LIBS)
 
-TestS.cpp: Test.idl
-	$(TAO_HOME)/bin/tao_idl -Ge 1 -GC Test.idl
+TestS.cpp TestC.cpp: Test.idl
+	$(TAO_ROOT)/bin/tao_idl -Ge 1 -GC Test.idl
 
 include .depend

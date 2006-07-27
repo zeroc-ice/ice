@@ -7,6 +7,10 @@
 #
 # **********************************************************************
 
+ifeq ($(ICEE_HOME),)
+    $(error ICEE_HOME must be defined to build Ice performance testing tools.)
+endif
+
 slicedir		= $(ICEE_HOME)/slice
 configdir		= $(ICEE_HOME)/config
 

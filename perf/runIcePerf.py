@@ -8,6 +8,12 @@
 #
 # **********************************************************************
 
+#
+# TODO:
+# - should add appropriate lib directories to LD_LIBRARY_PATH or PATH as
+# the platform warrants.
+#
+
 import os, sys, getopt, re, platform
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
@@ -33,22 +39,17 @@ def usage():
     print "Command line options:"
     print ""
     print " -h | --help           Print this help message."
-    print " -i | --iter           Defines the number of the test will be run."
+    print " -i | --iter           Defines the number of the test will be run (default once)."
     print " -n | -hostname        Defines the hostname."
     print " -o | -output          Defines the name of the output file."
+    print " -csv 		  Create a CSV format data file"
     print ""
     sys.exit(2)
     
-
-#
-# Ice configuration properties.
-#
-threadPoolOne = " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=1 --Ice.ThreadPool.Server.SizeWarn=2"
-threadPoolFour = " --Ice.ThreadPool.Server.Size=4 --Ice.ThreadPool.Server.SizeMax=4 --Ice.ThreadPool.Server.SizeWarn=5"
-threadPerConnection = " --Ice.ThreadPerConnection"
-blocking = " --Ice.Blocking"
-
 class ClientServerTest(TestUtil.Test) :
+
+    def __init__(self, results, i, product, test, directory = ""):
+	TestUtil.Test.__init__(self, results, i, product, test, directory)
 
     def run(self, name, directory, clientOptions, serverOptions):
 
@@ -59,10 +60,14 @@ class ClientServerTest(TestUtil.Test) :
         cwd = os.getcwd()
         os.chdir(os.path.join(toplevel, "src", self.directory, options["directory"]))
 
-        serverPipe = os.popen(os.path.join(".", "server") + " " + options["server"])
+	redirectStdErr = " 2>/dev/null"
+	if TestUtil.isWin32():
+	    redirectStdErr = " 2>NUL"
+
+        serverPipe = os.popen(os.path.join(".", "server") + " " + options["server"] + redirectStdErr)
         TestUtil.getAdapterReady(serverPipe)
 
-        clientPipe = os.popen(os.path.join(".", "client") + " " + options["client"])
+        clientPipe = os.popen(os.path.join(".", "client") + " " + options["client"] + redirectStdErr)
         result = float(clientPipe.read())
 
         clientPipe.close()
@@ -72,201 +77,16 @@ class ClientServerTest(TestUtil.Test) :
         os.chdir(cwd)
 
         return result
-    
-def runIcePerfs(expr, results, i):
-
-    test = ClientServerTest(expr, results, i, "Ice", "latency twoway")
-    test.run("1tp", "latency", "twoway", threadPoolOne)
-    test.run("4tp", "latency", "twoway", threadPoolFour)
-    test.run("tpc", "latency", "twoway " + threadPerConnection, threadPerConnection)
-    
-    test = ClientServerTest(expr, results, i, "Ice", "latency oneway")
-    test.run("1tp", "latency", "oneway", threadPoolOne)
-    test.run("4tp", "latency", "oneway", threadPoolFour)
-    test.run("tpc", "latency", "oneway " + threadPerConnection, threadPerConnection)
-    
-    test = ClientServerTest(expr, results, i, "Ice", "latency oneway")
-    test.run("1tp (batch)", "latency", "batch", threadPoolOne)
-    test.run("4tp (batch)", "latency", "batch", threadPoolFour)
-    test.run("tpc (batch)", "latency", "batch " + threadPerConnection, threadPerConnection)
-
-    test = ClientServerTest(expr, results, i, "Ice", "latency twoway AMI")
-    test.run("1tp", "latency", "twoway ami", threadPoolOne)
-    test.run("4tp", "latency", "twoway ami", threadPoolFour)
-    test.run("tpc", "latency", "twoway ami " + threadPerConnection, threadPerConnection)
-
-    test = ClientServerTest(expr, results, i, "Ice", "throughput byte")
-    test.run("1tp", "throughput", "byte", threadPoolOne)
-    test.run("4tp", "throughput", "byte", threadPoolFour)
-    test.run("tpc", "throughput", "byte " + threadPerConnection, threadPerConnection)
-    
-    test = ClientServerTest(expr, results, i, "Ice", "throughput string seq")
-    test.run("1tp", "throughput", "stringSeq", threadPoolOne)
-    test.run("4tp", "throughput", "stringSeq", threadPoolFour)
-    test.run("tpc", "throughput", "stringSeq " + threadPerConnection, threadPerConnection)
-    
-    test = ClientServerTest(expr, results, i, "Ice", "throughput long string seq")
-    test.run("1tp", "throughput", "longStringSeq", threadPoolOne)
-    test.run("4tp", "throughput", "longStringSeq", threadPoolFour)
-    test.run("tpc", "throughput", "longStringSeq " + threadPerConnection, threadPerConnection)
-    
-    test = ClientServerTest(expr, results, i, "Ice", "throughput struct seq")
-    test.run("1tp", "throughput", "structSeq", threadPoolOne)
-    test.run("4tp", "throughput", "structSeq", threadPoolFour)
-    test.run("tpc", "throughput", "structSeq " + threadPerConnection, threadPerConnection)
-
-def runIceEPerfs(expr, results, i):
-
-    test = ClientServerTest(expr, results, i, "IceE", "latency twoway")
-    test.run("tpc", "latency", "twoway ", "")
-    test.run("tpc blocking", "latency", "twoway " + blocking, "")
-    
-    test = ClientServerTest(expr, results, i, "IceE", "latency oneway")
-    test.run("tpc", "latency", "oneway ", "")
-    test.run("tpc blocking", "latency", "oneway " + blocking, "")
-    
-    test = ClientServerTest(expr, results, i, "IceE", "latency oneway")
-    test.run("tpc (batch)", "latency", "batch ", "")
-    test.run("tpc blocking (batch)", "latency", "batch " + blocking, "")
-
-    test = ClientServerTest(expr, results, i, "IceE", "throughput byte")
-    test.run("tpc", "throughput", "byte ", "")
-    test.run("tpc blocking", "throughput", "byte " + blocking, "")
-    
-    test = ClientServerTest(expr, results, i, "IceE", "throughput string seq")
-    test.run("tpc", "throughput", "stringSeq ", "")
-    test.run("tpc blocking", "throughput", "stringSeq " + blocking, "")
-    
-    test = ClientServerTest(expr, results, i, "IceE", "throughput long string seq")
-    test.run("tpc", "throughput", "longStringSeq ", "")
-    test.run("tpc blocking", "throughput", "longStringSeq " + blocking, "")
-    
-    test = ClientServerTest(expr, results, i, "IceE", "throughput struct seq")
-    test.run("tpc", "throughput", "structSeq ", "")
-    test.run("tpc blocking", "throughput", "structSeq " + blocking, "")
-
-    #test = ClientServerTest(expr, results, i, "IceE", "throughput byte (receive)")
-    #test.run("tpc", "throughput", "receive byte ", "")
-    #test.run("tpc blocking", "throughput", "receive byte " + blocking, "")
-    
-    #test = ClientServerTest(expr, results, i, "IceE", "throughput string seq (receive)")
-    #test.run("tpc", "throughput", "receive stringSeq ", "")
-    #test.run("tpc blocking", "throughput", "receive stringSeq " + blocking, "")
-    
-    #test = ClientServerTest(expr, results, i, "IceE", "throughput long string seq (receive)")
-    #test.run("tpc", "throughput", "receive longStringSeq ", "")
-    #test.run("tpc blocking", "throughput", "receive longStringSeq " + blocking, "")
-    
-    #test = ClientServerTest(expr, results, i, "IceE", "throughput struct seq (receive)")
-    #test.run("tpc", "throughput", "receive structSeq ", "")
-    #test.run("tpc blocking", "throughput", "receive structSeq " + blocking, "")
-
-def runTAOPerfs(expr, results, i):
-
-    taoTPConf = " -ORBSvcConf svc.threadPool.conf"
-    taoTCConf = " -ORBSvcConf svc.threadPerConnection.conf"
-    taoReactiveConf = " -ORBSvcConf svc.reactive.conf"
-    taoBlockingConf = " -ORBSvcConf svc.blocking.conf"
-
-    test = ClientServerTest(expr, results, i, "TAO", "latency twoway")
-    test.run("1tp", "", taoReactiveConf + " latency twoway", taoTPConf + " threadPool 1")
-    test.run("4tp", "", taoReactiveConf + " latency twoway", taoTPConf + " threadPool 4")
-    test.run("tpc", "", taoReactiveConf + " latency twoway", taoTCConf)
-    test.run("tpc blocking", "", taoBlockingConf + " latency twoway", taoTCConf)
-
-    test = ClientServerTest(expr, results, i, "TAO", "latency oneway")
-    test.run("1tp", "", taoReactiveConf + " latency oneway", taoTPConf + " threadPool 1")
-    test.run("4tp", "", taoReactiveConf + " latency oneway", taoTPConf + " threadPool 4")
-    test.run("tpc", "", taoReactiveConf + " latency oneway", taoTCConf)
-    test.run("tpc blocking", "", taoBlockingConf + " latency oneway", taoTCConf)
-    
-    test = ClientServerTest(expr, results, i, "TAO", "latency twoway AMI")
-    test.run("1tp", "", taoReactiveConf + " latency twoway ami", taoTPConf + " threadPool 1")
-    test.run("4tp", "", taoReactiveConf + " latency twoway ami", taoTPConf + " threadPool 4")
-    test.run("tpc", "", taoReactiveConf + " latency twoway ami", taoTCConf)
-
-    test = ClientServerTest(expr, results, i, "TAO", "throughput byte")
-    test.run("1tp", "", taoReactiveConf + " throughput byte", taoTPConf + " threadPool 1")
-    test.run("4tp", "", taoReactiveConf + " throughput byte", taoTPConf + " threadPool 4")
-    test.run("tpc", "", taoReactiveConf + " throughput byte", taoTCConf)
-    test.run("tpc blocking", "", taoBlockingConf + " throughput byte", taoTCConf)
-    
-    test = ClientServerTest(expr, results, i, "TAO", "throughput string seq")
-    test.run("1tp", "", taoReactiveConf + " throughput string", taoTPConf + " threadPool 1")
-    test.run("4tp", "", taoReactiveConf + " throughput string", taoTPConf + " threadPool 4")
-    test.run("tpc", "", taoReactiveConf + " throughput string", taoTCConf)
-    test.run("tpc blocking", "", taoBlockingConf + " throughput string", taoTCConf)
-    
-    test = ClientServerTest(expr, results, i, "TAO", "throughput long string seq")
-    test.run("1tp", "", taoReactiveConf + " throughput longString", taoTPConf + " threadPool 1")
-    test.run("4tp", "", taoReactiveConf + " throughput longString", taoTPConf + " threadPool 4")
-    test.run("tpc", "", taoReactiveConf + " throughput longString", taoTCConf)
-    test.run("tpc blocking", "", taoBlockingConf + " throughput longString", taoTCConf)
-    
-    test = ClientServerTest(expr, results, i, "TAO", "throughput struct seq")
-    test.run("1tp", "", taoReactiveConf + " throughput struct", taoTPConf + " threadPool 1")
-    test.run("4tp", "", taoReactiveConf + " throughput struct", taoTPConf + " threadPool 4")
-    test.run("tpc", "", taoReactiveConf + " throughput struct", taoTCConf)
-    test.run("tpc blocking", "", taoBlockingConf + " throughput struct", taoTCConf)
-
-def runOmniORBPerfs(expr, results, i, unixSockets):
-
-    threadPerConnection = "-ORBthreadPerConnectionPolicy 1"
-    threadPoolWithOpt = "-ORBthreadPerConnectionPolicy 0"
-    threadPoolWithoutOpt = "-ORBthreadPerConnectionPolicy 0 -ORBthreadPoolWatchConnection 0"
-    product = "omniORB"
-    
-    if unixSockets:
-        threadPerConnection += " -ORBendPoint giop:unix::"
-        threadPoolWithOpt += " -ORBendPoint giop:unix::"
-        threadPoolWithoutOpt += " -ORBendPoint giop:unix::"
-        product = "omniORB (unix)"
-            
-    test = ClientServerTest(expr, results, i, product, "latency twoway", "omniORB")
-    if not TestUtil.isWin32():
-        test.run("1tp", "", "latency twoway", threadPoolWithoutOpt)
-    test.run("1tp w/ opt", "", "latency twoway", threadPoolWithOpt)
-    test.run("tpc", "", "latency twoway", threadPerConnection)
-    
-    test = ClientServerTest(expr, results, i, product, "latency oneway", "omniORB")
-    if not TestUtil.isWin32():
-        test.run("1tp", "", "latency oneway", threadPoolWithoutOpt)
-    test.run("1tp w/ opt", "", "latency oneway", threadPoolWithOpt)
-    test.run("tpc", "", "latency oneway", threadPerConnection)
-    
-    test = ClientServerTest(expr, results, i, product, "throughput byte", "omniORB")
-    if not TestUtil.isWin32():
-        test.run("1tp", "", "throughput byte", threadPoolWithoutOpt)
-    test.run("1tp w/ opt", "", "throughput byte", threadPoolWithOpt)
-    test.run("tpc", "", "throughput byte", threadPerConnection)
-    
-    test = ClientServerTest(expr, results, i, product, "throughput string seq", "omniORB")
-    if not TestUtil.isWin32():
-        test.run("1tp", "", "throughput string", threadPoolWithoutOpt)
-    test.run("1tp w/ opt", "", "throughput string", threadPoolWithOpt)
-    test.run("tpc", "", "throughput string", threadPerConnection)
-    
-    test = ClientServerTest(expr, results, i, product, "throughput long string seq", "omniORB")
-    if not TestUtil.isWin32():
-        test.run("1tp", "", "throughput longString", threadPoolWithoutOpt)
-    test.run("1tp w/ opt", "", "throughput longString", threadPoolWithOpt)
-    test.run("tpc", "", "throughput longString", threadPerConnection)
-    
-    test = ClientServerTest(expr, results, i, product, "throughput struct seq", "omniORB")
-    if not TestUtil.isWin32():
-        test.run("1tp", "", "throughput struct", threadPoolWithoutOpt)
-    test.run("1tp w/ opt", "", "throughput struct", threadPoolWithOpt)
-    test.run("tpc", "", "throughput struct", threadPerConnection)
 
 try:
     opts, pargs = getopt.getopt(sys.argv[1:], 'hi:o:n:', ['help', 'iter=', 'output=', 'hostname=']);
 except getopt.GetoptError:
     usage()
 
-niter = max
-printResults = False
+niter = 1
 hostname = ""
 outputFile = ""
+csv = False
 for o, a in opts:
     if o == '-i' or o == "--iter":
         niter = int(a)
@@ -276,6 +96,8 @@ for o, a in opts:
         outputFile = a
     elif o == '-n' or o == "--hostname":
         hostname = a
+    elif o == '-csv':
+	cvs = True
 
 if outputFile == "":
     (system, name, ver, build, machine, processor) = platform.uname()
@@ -295,33 +117,51 @@ if not os.environ.has_key('ICE_HOME'):
         os.environ['ICE_HOME'] = os.path.join(toplevel, "..", "ice")
 
 if not os.environ.has_key('ICE_HOME') and \
-   not os.environ.has_key('TAO_HOME') and \
-   not os.environ.has_key('OMNIORB_HOME') and \
+   not os.environ.has_key('TAO_ROOT') and \
    not os.environ.has_key('ICEE_HOME'):
-    print "You need to set at least ICE_HOME, ICEE_HOME, OMNIORB_HOME or TAO_HOME!"
+    print "You need to set at least ICE_HOME, ICEE_HOME or TAO_ROOT!"
     sys.exit(1)
     
 results = TestUtil.HostResults(hostname, outputFile)
+configs = [ ("IceTests", "ICE_HOME"), ("TAOTests", "TAO_ROOT"), ("IceETests", "ICEE_HOME")]
 
-i = 1        
+tests = []
+for f, e in configs:
+    if os.path.exists(f + ".py") and os.environ.has_key(e):
+	m = __import__(f)
+	tests.extend(m.getDefinitions())
+
+# 
+# Filter tests for those that match our pattern.
+#
+if len(expr) > 0:
+    candidates = tests
+    tests = []
+    for product, group, dir, cases in candidates:
+	allowedCases = []
+	for e in expr:
+	    for c in cases:
+		criteria = "%s %s %s" % (product, group, c[0])
+		if e.match(criteria):
+		    allowedCases.append(c)
+	if len(allowedCases) > 0:
+	    tests.append((product, group, dir, allowedCases))
+
+i = 1
 while i <= niter:
     try:
-        if os.environ.has_key('ICE_HOME'):
-            runIcePerfs(expr, results, i)
-        if os.environ.has_key('ICEE_HOME'):
-            runIceEPerfs(expr, results, i)
-        if os.environ.has_key('TAO_HOME'):
-            runTAOPerfs(expr, results, i)
-        if os.environ.has_key('OMNIORB_HOME'):
-            runOmniORBPerfs(expr, results, i, 0)
-            if not TestUtil.isWin32():
-                runOmniORBPerfs(expr, results, i, 1)
-        i += 1
+	for product, group, dir, cases in tests:
+	    test = ClientServerTest(results, i, product, group)
+	    for name, clientargs, serverargs in cases:
+		test.run(name, dir, clientargs, serverargs)
     except KeyboardInterrupt:
-        break
+	break
+    i += 1
 
 print "\n"
 print "All results:"
 all = TestUtil.AllResults()
 all.add(results)
 all.printAll(TestUtil.ValuesMeanAndBest(), False)
+if csv:
+    all.printAll(TestUtil.ValuesMeanAndBest(), True)

@@ -7,19 +7,22 @@
 //
 // **********************************************************************
 
-#ifndef LATENCY_ICE
-#define LATENCY_ICE
+#include <WorkerThread.h>
 
-module Demo
+WorkerThread::WorkerThread(CORBA::ORB_ptr orb):
+    _orb(CORBA::ORB::_duplicate(orb))
 {
+}
 
-class Latency
+int
+WorkerThread::svc()
 {
-    ["ami"] void ping();
-
-    void shutdown();
-};
-
-};
-
-#endif
+    ACE_DECLARE_NEW_CORBA_ENV;
+    ACE_TRY
+    {
+	_orb->run(ACE_ENV_SINGLE_ARG_PARAMETER);
+	ACE_TRY_CHECK;
+    }
+    ACE_CATCHANY {} ACE_ENDTRY;
+    return 0;
+}

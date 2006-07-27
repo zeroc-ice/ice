@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -70,7 +70,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     StringSeq stringSeq(StringSeqSize, "hello");
 
-    StringSeq longStringSeq(LongStringSeqSize, "As far as the laws of mathematics refer to reality, they are not certain; and as far as they are certain, they do not refer to reality.");
+    StringSeq longStringSeq(LongStringSeqSize, "As far as the laws of mathematics refer to reality, "
+			    "they are not certain; and as far as they are certain, they do not refer to reality.");
 
     StringDoubleSeq structSeq(StringDoubleSeqSize);
     for(i = 0; i < StringDoubleSeqSize; ++i)
@@ -79,7 +80,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	structSeq[i].d = 3.14;
     }
 
-    throughput->ice_ping(); // Initial ping to setup the connection.
+    //
+    // Force the connection to be established by calling a ping.
+    //
+    throughput->ice_ping(); 
 
     IceUtil::Time tm = IceUtil::Time::now();
     const int repetitions = 1000;
@@ -128,9 +132,10 @@ main(int argc, char* argv[])
 
     try
     {
-	Ice::PropertiesPtr properties = Ice::createProperties();
-        properties->load("config");
-	communicator = Ice::initializeWithProperties(argc, argv, properties);
+	Ice::InitializationData initData;
+	initData.properties = Ice::createProperties();
+        initData.properties->load("config");
+	communicator = Ice::initialize(argc, argv, initData);
 	status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

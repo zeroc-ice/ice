@@ -10,6 +10,9 @@
 
 import os, sys, pickle, platform
 
+#
+# XXX Why do we need to do this?
+#
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
@@ -294,6 +297,13 @@ class AllResults :
 
     def printAllAsCsv(self, results, tests, names, hosts, products):
 
+	#
+	# TODO: CSV's are occasionally imported into databases and
+	# spreadsheets. It would be better to have the CSV form more
+	# closely follow a raw table form then to break it up into
+	# groups.
+	#
+
         print "Test, Configuration, ",
         for product in products:
             for host in hosts:
@@ -390,8 +400,7 @@ class AllResults :
         
 class Test :
 
-    def __init__(self, expr, results, i, product, test, directory = ""):
-        self.expr = expr
+    def __init__(self, results, i, product, test, directory = ""):
         self.results = results
         self.iteration = i
         self.product = product
@@ -402,15 +411,6 @@ class Test :
             self.directory  = product
 
     def run(self, name, options):
-
-        match = len(self.expr) == 0
-        for e in self.expr:
-            if e.match(self.product + " " + self.test + " " + name):
-                match = True
-                break;
-
-        if not match:
-            return
 
         print str(self.iteration) + ": " + self.product + " " + self.test + " " + name + "...",
         sys.stdout.flush()
