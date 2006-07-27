@@ -40,10 +40,10 @@ using IceUtil::spar;
 using IceUtil::epar;
 
 static string // Should be an anonymous namespace, but VC++ 6 can't handle that.
-sliceModeToIceMode(const OperationPtr& op)
+sliceModeToIceMode(Operation::Mode opMode)
 {
     string mode;
-    switch(op->mode())
+    switch(opMode)
     {
 	case Operation::Normal:
 	{
@@ -347,7 +347,7 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
 
 	    TypeStringList::const_iterator q;
 	    
-	    _out << nl << "checkMode__(" << sliceModeToIceMode(op) << ", current__.mode);";
+	    _out << nl << "checkMode__(" << sliceModeToIceMode(op->mode()) << ", current__.mode);";
 	    if(!inParams.empty())
 	    {
 		_out << nl << "IceInternal.BasicStream is__ = inS__.istr();";
@@ -473,7 +473,7 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
 	    }
 	    
 	    TypeStringList::const_iterator q;
-	    _out << nl << "checkMode__(" << sliceModeToIceMode(op) << ", current__.mode);";
+	    _out << nl << "checkMode__(" << sliceModeToIceMode(op->mode()) << ", current__.mode);";
     
 	    if(!inParams.empty())
 	    {
@@ -4039,7 +4039,8 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	_out << sp << nl << "public " << retS << ' ' << opName << spar << params << "Ice.Context context__" << epar;
 	_out << sb;
 
-	_out << nl << "IceInternal.Outgoing og__ = getOutgoing(\"" << op->name() << "\", " << sliceModeToIceMode(op)
+	_out << nl << "IceInternal.Outgoing og__ = getOutgoing(\"" << op->name() << "\", " 
+	     << sliceModeToIceMode(op->sendMode())
 	     << ", context__);";
 	_out << nl << "try";
 	_out << sb;
@@ -4215,7 +4216,8 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 	else
 	{
 	    _out << nl << "Ice.Current current__ = new Ice.Current();";
-	    _out << nl << "initCurrent__(ref current__, \"" << op->name() << "\", " << sliceModeToIceMode(op)
+	    _out << nl << "initCurrent__(ref current__, \"" << op->name() << "\", " 
+		 << sliceModeToIceMode(op->sendMode())
 		 << ", context__);";
 	    _out << nl << "while(true)";
 	    _out << sb;
@@ -4469,7 +4471,8 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	_out << sb;
 	_out << nl << "try";
 	_out << sb;
-	_out << nl << "prepare__(prx__, \"" << name << "\", " << sliceModeToIceMode(p) << ", ctx__);";
+	_out << nl << "prepare__(prx__, \"" << name << "\", " << sliceModeToIceMode(p->sendMode()) 
+	     << ", ctx__);";
 	for(q = inParams.begin(); q != inParams.end(); ++q)
 	{
 	    string typeS = typeToString(q->first);
