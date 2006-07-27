@@ -132,6 +132,11 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable
         return __ids[0];
     }
 
+    public int ice_operationAttributes(String operation)
+    {
+	return 0;
+    }
+
     public void
     ice_preMarshal()
     {

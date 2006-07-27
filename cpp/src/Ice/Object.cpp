@@ -133,6 +133,13 @@ Ice::Object::___ice_id(Incoming& __inS, const Current& __current)
     return DispatchOK;
 }
 
+Ice::Int
+Ice::Object::ice_operationAttributes(const string&) const
+{
+    return 0;
+}
+
+
 string Ice::Object::__all[] =
 {
     "ice_id",
@@ -268,14 +275,29 @@ Ice::Object::__checkMode(OperationMode expected, OperationMode received)
 {
     if(expected != received)
     {
-	Ice::MarshalException ex(__FILE__, __LINE__);
-	std::ostringstream __reason;
-	__reason << "unexpected operation mode. expected = "
-		 << operationModeToString(expected)
-		 << " received = "
-		 << operationModeToString(received);
-	ex.reason = __reason.str();
-	throw ex;
+	if(expected == Idempotent && received == Nonmutating)
+	{
+	    // 
+	    // Fine: typically an old client still using the deprecated nonmutating keyword
+	    //
+	    
+	    //
+	    // Note that expected == Nonmutating and received == Idempotent is not ok:
+	    // the server may still use the deprecated nonmutating keyword to detect updates
+	    // and the client should not break this (deprecated) feature.
+	    //
+	}
+	else
+	{
+	    Ice::MarshalException ex(__FILE__, __LINE__);
+	    std::ostringstream __reason;
+	    __reason << "unexpected operation mode. expected = "
+		     << operationModeToString(expected)
+		     << " received = "
+		     << operationModeToString(received);
+	    ex.reason = __reason.str();
+	    throw ex;
+	}
     }
 }
 

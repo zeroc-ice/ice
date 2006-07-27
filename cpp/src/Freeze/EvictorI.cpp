@@ -294,7 +294,8 @@ Freeze::EvictorI::EvictorI(const ObjectAdapterPtr& adapter,
     _trace = _communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Evictor");
     _txTrace = _communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Transaction");
     _deadlockWarning = (_communicator->getProperties()->getPropertyAsInt("Freeze.Warn.Deadlocks") != 0);
-   
+    _useNonmutating = (_communicator->getProperties()->getPropertyAsInt("Freeze.Evictor.UseNonmutating") != 0);
+
     string propertyPrefix = string("Freeze.Evictor.") + envName + '.' + _filename; 
     
     //
@@ -1135,8 +1136,6 @@ Freeze::EvictorI::locate(const Current& current, LocalObjectPtr& cookie)
     //
     if(current.operation == "ice_ping")
     {
-	assert(current.mode == Nonmutating);
-
 	if(hasFacetImpl(current.id, current.facet))
 	{
 	    if(_trace >= 3)
@@ -1272,7 +1271,8 @@ Freeze::EvictorI::finished(const Current& current, const ObjectPtr& servant, con
     
 	bool enqueue = false;
 	
-	if(current.mode != Nonmutating)
+	if((_useNonmutating && current.mode != Nonmutating) ||
+	   (servant->ice_operationAttributes(current.operation) & 0x1) != 0)
 	{
 	    IceUtil::Mutex::Lock lock(element->mutex);
 	    

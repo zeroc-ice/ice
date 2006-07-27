@@ -71,6 +71,8 @@ public:
     virtual const std::string& ice_id(const Current& = Current()) const;
     IceInternal::DispatchStatus ___ice_id(IceInternal::Incoming&, const Current&);
 
+    virtual Int ice_operationAttributes(const std::string&) const;
+
     static const std::string& ice_staticId();
 
     virtual ObjectPtr ice_clone() const;

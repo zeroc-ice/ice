@@ -1497,7 +1497,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << nl << "static const ::std::string __operation(\"" << p->name() << "\");";
     C << nl << "::Ice::ConnectionPtr __connection = ice_getConnection();";
     C << nl << "::IceInternal::Outgoing __outS(__connection.get(), _reference.get(), __operation, "
-      << "static_cast< ::Ice::OperationMode>(" << p->mode() << "), __ctx);";
+      << operationModeToString(p->sendMode()) << ", __ctx);";
     if(!inParams.empty())
     {
         C << nl << "try";
@@ -2250,8 +2250,8 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	args += ')';
     }
 
-    bool nonmutating = p->mode() == Operation::Nonmutating;
-
+    bool isConst = (p->mode() == Operation::Nonmutating) || p->hasMetaData("cpp:const");
+  
     string deprecateMetadata, deprecateSymbol;
     if(p->findMetaData("deprecate", deprecateMetadata) || cl->findMetaData("deprecate", deprecateMetadata))
     {
@@ -2259,17 +2259,17 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
     }
 
     H << sp;
-    H << nl << deprecateSymbol << "virtual " << retS << ' ' << fixKwd(name) << params << (nonmutating ? " const" : "")
+    H << nl << deprecateSymbol << "virtual " << retS << ' ' << fixKwd(name) << params << (isConst ? " const" : "")
       << " = 0;";
 
     if(!cl->isLocal())
     {
 	H << nl << "::IceInternal::DispatchStatus ___" << name
-	  << "(::IceInternal::Incoming&, const ::Ice::Current&)" << (nonmutating ? " const" : "") << ';';
+	  << "(::IceInternal::Incoming&, const ::Ice::Current&)" << (isConst ? " const" : "") << ';';
 
 	C << sp;
 	C << nl << "::IceInternal::DispatchStatus" << nl << scope.substr(2) << "___" << name
-	  << "(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)" << (nonmutating ? " const" : "");
+	  << "(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)" << (isConst ? " const" : "");
 	C << sb;
 
 	ExceptionList throws = p->throws();
@@ -2872,9 +2872,9 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         H.restoreIndent();
 
-        bool nonmutating = op->mode() == Operation::Nonmutating;
-
-        H << ")" << (nonmutating ? " const" : "") << ';';
+	bool isConst = (op->mode() == Operation::Nonmutating) || op->hasMetaData("cpp:const");
+        
+        H << ")" << (isConst ? " const" : "") << ';';
 
         C << sp << nl << retS << nl;
 	C << scope.substr(2) << name << "I::" << fixKwd(opName) << '(';
@@ -2916,7 +2916,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         C.restoreIndent();
         C << ')';
-	C << (nonmutating ? " const" : "");
+	C << (isConst ? " const" : "");
         C << sb;
 
         if(ret)

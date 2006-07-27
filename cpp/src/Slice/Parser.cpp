@@ -4266,6 +4266,12 @@ Slice::Operation::mode() const
     return _mode;
 }
 
+Operation::Mode
+Slice::Operation::sendMode() const
+{
+    return _sendMode;
+}
+
 ParamDeclPtr
 Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool isOutParam)
 {
@@ -4563,8 +4569,14 @@ Slice::Operation::Operation(const ContainerPtr& container,
     Contained(container, name),
     Container(container->unit()),
     _returnType(returnType),
-    _mode(mode)
+    _mode(mode),
+    _sendMode(mode)
 {
+    if(_sendMode == Operation::Idempotent && hasMetaData("nonmutating"))
+    {
+	_sendMode = Operation::Nonmutating;
+    }
+
     if(_unit->profile() == IceE)
     {
 	ClassDefPtr cl = ClassDefPtr::dynamicCast(this->container());

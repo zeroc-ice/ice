@@ -32,10 +32,10 @@ using IceUtil::spar;
 using IceUtil::epar;
 
 static string
-sliceModeToIceMode(const OperationPtr& op)
+sliceModeToIceMode(Operation::Mode opMode)
 {
     string mode;
-    switch(op->mode())
+    switch(opMode)
     {
 	case Operation::Normal:
 	{
@@ -459,7 +459,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 
 	int iter;
 	    
-	out << nl << "__checkMode(" << sliceModeToIceMode(op) << ", __current.mode);";
+	out << nl << "__checkMode(" << sliceModeToIceMode(op->mode()) << ", __current.mode);";
 	if(!inParams.empty())
 	{
 	    out << nl << "IceInternal.BasicStream __is = __in.is();";
@@ -2273,7 +2273,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
 	out << nl << "Ice.Connection __connection = ice_getConnection();";
         out << nl << "IceInternal.Outgoing __og = __connection.getOutgoing(_reference, \"" << op->name() << "\", "
-            << sliceModeToIceMode(op) << ", __ctx);";
+            << sliceModeToIceMode(op->sendMode()) << ", __ctx);";
         out << nl << "try";
         out << sb;
         if(!inParams.empty())

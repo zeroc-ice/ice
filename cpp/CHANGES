@@ -1,6 +1,32 @@
 Changes since version 3.1.0
 ---------------------------     
 
+- New Freeze property: Freeze.Evictor.UseNonmutating:
+  When set to a non-0 value, the Freeze Evictor behaves like it did 
+  in previous Ice releases, i.e. it considers that nonmutating 
+  operations don't update the target object, while all other 
+  operations do update the target.
+  As of this release, the recommended mechanism is to use the
+  "freeze:write" and "freeze:write" metadata (see below).
+  Default value: 0
+
+- New operation metadata:
+  - ["cpp:const"]: generate a const member function on the corresponding
+    servant base class
+  - ["freeze:read"], ["freeze:write"]: mark the operation as "read"
+    or "write" for the Freeze evictor. The default is the freeze mode
+    of the enclosing interface/class.
+  - ["nonmutating"]: for idempotent operations, instruct Ice to send
+    the nonmutating operation-mode instead of the idempotent operation
+    -mode. This metadata allows you to replace 'nonmutating' by 
+    '["nonmutating"] idempotent' while maintaining compatibility with 
+    objects implemented using Ice 3.0 or 3.1.
+
+- New interface/class metadata:
+  - ["freeze:read"], ["freeze:write"]: defines the default freeze mode
+   for operations on that interface/class. The default is read.
+   This metadata has no effect on derived classes/interfaces.
+
 - Fixed an assert in the IceGrid locator implementation which could
   occur when using dynamic adapter registration. The assert was
   triggered when an adapter was removed and a client was requesting

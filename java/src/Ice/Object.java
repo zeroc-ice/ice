@@ -29,6 +29,8 @@ public interface Object
     String ice_id();
     String ice_id(Current current);
 
+    int ice_operationAttributes(String operation);
+
     void ice_preMarshal();
     void ice_postUnmarshal();
 

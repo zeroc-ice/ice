@@ -1,6 +1,15 @@
 Changes since version 3.1.0
 ---------------------------
 
+- New Freeze property: Freeze.Evictor.UseNonmutating:
+  When set to a non-0 value, the Freeze Evictor behaves like it did 
+  in previous Ice releases, i.e. it considers that nonmutating 
+  operations don't update the target object, while all other 
+  operations do update the target.
+  As of this release, the recommended mechanism is to use the
+  "freeze:write" and "freeze:write" metadata (see Ice CHANGES file).
+  Default value: 0
+
 - Restored Communicator::setDefaultContext
 
 

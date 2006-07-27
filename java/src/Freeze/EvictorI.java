@@ -243,6 +243,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	_trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Evictor");
 	_txTrace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Transaction");
 	_deadlockWarning = _communicator.getProperties().getPropertyAsInt("Freeze.Warn.Deadlocks") != 0;
+	_useNonmutating = _communicator.getProperties().getPropertyAsInt("Freeze.Evictor.UseNonmutating") != 0;
+	
 
 	_errorPrefix = "Freeze Evictor DbEnv(\"" + envName + "\") Db(\"" + _filename + "\"): ";
 
@@ -1351,7 +1353,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		
 		boolean enqueue = false;
 		
-		if(current.mode != Ice.OperationMode.Nonmutating)
+		if((_useNonmutating && current.mode != Ice.OperationMode.Nonmutating) ||
+		   (servant.ice_operationAttributes(current.operation) & 0x1) != 0)
 		{
 		    synchronized(element)
 		    {
@@ -2221,6 +2224,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     private String _errorPrefix;
     
     private boolean _deadlockWarning;    
+
+    private boolean _useNonmutating;
 
     private Ice.Object _pingObject = new PingObject();
 }

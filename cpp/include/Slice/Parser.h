@@ -548,6 +548,7 @@ public:
 
     TypePtr returnType() const;
     Mode mode() const;
+    Mode sendMode() const;
     ParamDeclPtr createParamDecl(const std::string&, const TypePtr&, bool);
     ParamDeclList parameters() const;
     ExceptionList throws() const;
@@ -568,6 +569,7 @@ protected:
     TypePtr _returnType;
     ExceptionList _throws;
     Mode _mode;
+    Mode _sendMode;
 };
 
 // ----------------------------------------------------------------------

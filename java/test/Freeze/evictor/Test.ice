@@ -25,22 +25,22 @@ exception EvictorDeactivatedException
 {
 };
 
-class Servant
+["freeze:write"] class Servant
 {
-    nonmutating int getValue();
-    ["amd"] nonmutating int slowGetValue();
+    ["freeze:read", "cpp:const"] idempotent int getValue();
+    ["amd", "freeze:read", "cpp:const"] idempotent int slowGetValue();
 
-    void setValue(int value);
+    idempotent void setValue(int value);
 
     ["ami", "amd"] void setValueAsync(int value);
-    nonmutating void releaseAsync();
+    ["freeze:read", "cpp:const"] void releaseAsync();
 
-    nonmutating void addFacet(string name, string data) throws AlreadyRegisteredException;
-    nonmutating void removeFacet(string name) throws NotRegisteredException;
+    ["freeze:read", "cpp:const"] void addFacet(string name, string data) throws AlreadyRegisteredException;
+    ["freeze:read", "cpp:const"] void removeFacet(string name) throws NotRegisteredException;
 
-    nonmutating int getTransientValue();
-    void setTransientValue(int value);
-    void keepInCache();
+    ["freeze:read", "cpp:const"] int getTransientValue();
+    idempotent void setTransientValue(int value);
+    idempotent void keepInCache();
     void release() throws NotRegisteredException;
 
     void destroy();
@@ -48,27 +48,27 @@ class Servant
     int value;
 };
 
-class Facet extends Servant
+["freeze:write"] class Facet extends Servant
 {
-    nonmutating string getData();
-    void setData(string data);
+    ["freeze:read", "cpp:const"] idempotent string getData();
+    idempotent void setData(string data);
 
     string data;
 };
 
 interface RemoteEvictor
 {
-    void setSize(int size);
+    idempotent void setSize(int size);
 
     Servant* createServant(string id, int value) 
 	throws AlreadyRegisteredException, EvictorDeactivatedException;
 
-    Servant* getServant(string id);
+    idempotent Servant* getServant(string id);
 
     void saveNow();
 
     void deactivate();
-    void destroyAllServants(string facet);
+    idempotent void destroyAllServants(string facet);
 };
 
 interface RemoteEvictorFactory

@@ -15,12 +15,14 @@
         <ant dir="dbmap"/>
         <ant dir="complex"/>
 	<ant dir="evictor"/>
+        <ant dir="oldevictor"/>
     </target>
 
     <target name="clean">
         <ant dir="dbmap" target="clean"/>
         <ant dir="complex" target="clean"/>
         <ant dir="evictor" target="clean"/>
+        <ant dir="oldevictor" target="clean"/>
     </target>
 
 </project>

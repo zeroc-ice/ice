@@ -33,10 +33,10 @@ using IceUtil::spar;
 using IceUtil::epar;
 
 static string
-sliceModeToIceMode(const OperationPtr& op)
+sliceModeToIceMode(Operation::Mode opMode)
 {
     string mode;
-    switch(op->mode())
+    switch(opMode)
     {
 	case Operation::Normal:
 	{
@@ -586,7 +586,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 
 	    int iter;
 	    
-	    out << nl << "__checkMode(" << sliceModeToIceMode(op) << ", __current.mode);";
+	    out << nl << "__checkMode(" << sliceModeToIceMode(op->mode()) << ", __current.mode);";
 
 	    if(!inParams.empty())
 	    {
@@ -719,7 +719,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	    
 	    int iter;
 	    
-	    out << nl << "__checkMode(" << sliceModeToIceMode(op) << ", __current.mode);";
+	    out << nl << "__checkMode(" << sliceModeToIceMode(op->mode()) << ", __current.mode);";
 
 	    if(!inParams.empty())
 	    {
@@ -885,6 +885,49 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         out << sp << nl << "assert(false);";
         out << nl << "return IceInternal.DispatchStatus.DispatchOperationNotExist;";
         out << eb;
+
+
+	//
+	// Check if we need to generate ice_operationAttributes()
+	//
+	
+	StringList freezeWriteOpNames;
+	for(OperationList::iterator r = allOps.begin(); r != allOps.end(); ++r)
+	{
+	    ClassDefPtr classDef = ClassDefPtr::dynamicCast((*r)->container());
+	    assert(classDef != 0);
+	    
+	    if((*r)->hasMetaData("freeze:write") || 
+	       (classDef->hasMetaData("freeze:write") && !(*r)->hasMetaData("freeze:read")))
+	    {
+		freezeWriteOpNames.push_back((*r)->name());
+	    }
+	}
+
+	if(!freezeWriteOpNames.empty())
+	{
+	    freezeWriteOpNames.sort();
+	    
+	    StringList::iterator q;
+
+	    out << sp << nl << "private final static String[] __freezeWriteOperations =";
+	    out << sb;
+	    q = freezeWriteOpNames.begin();
+	    while(q != freezeWriteOpNames.end())
+	    {
+		out << nl << '"' << *q << '"';
+		if(++q != freezeWriteOpNames.end())
+		{
+		    out << ',';
+		}
+	    }
+	    out << eb << ';';
+
+	    out << sp << nl << "public int ice_operationAttributes(String operation)";
+	    out << sb;
+	    out << nl << "return (java.util.Arrays.binarySearch(__freezeWriteOperations, operation) >= 0) ? 1 : 0;";
+	    out << eb;
+	}
     }
 }
 
@@ -4031,7 +4074,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << sb;
 
         out << nl << "IceInternal.Outgoing __og = __connection.getOutgoing(__reference, \"" << op->name() << "\", "
-	    << sliceModeToIceMode(op) << ", __ctx, __compress);";
+	    << sliceModeToIceMode(op->sendMode()) << ", __ctx, __compress);";
         out << nl << "try";
         out << sb;
         if(!inParams.empty())
@@ -4192,7 +4235,8 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 	{
 	    StringList metaData = op->getMetaData();
 	    out << nl << "Ice.Current __current = new Ice.Current();";
-	    out << nl << "__initCurrent(__current, \"" << op->name() << "\", " << sliceModeToIceMode(op)
+	    out << nl << "__initCurrent(__current, \"" << op->name() << "\", " 
+		<< sliceModeToIceMode(op->sendMode())
 		<< ", __ctx);";
 	    out << nl << "while(true)";
 	    out << sb;
@@ -4777,7 +4821,8 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	out << sb;
 	out << nl << "try";
 	out << sb;
-	out << nl << "__prepare(__prx, \"" << p->name() << "\", " << sliceModeToIceMode(p) << ", __ctx);";
+	out << nl << "__prepare(__prx, \"" << p->name() << "\", " 
+	    << sliceModeToIceMode(p->sendMode()) << ", __ctx);";
         iter = 0;
 	for(pli = inParams.begin(); pli != inParams.end(); ++pli)
 	{

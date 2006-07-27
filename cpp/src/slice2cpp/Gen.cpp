@@ -2195,7 +2195,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << sp << nl << retS << nl << "IceDelegateM" << scoped << spar << paramsDecl << epar;
     C << sb;
     C << nl << "::IceInternal::Outgoing __og(__connection.get(), __reference.get(), " << flatName << ", "
-      << operationModeToString(p->mode()) << ", __context, __compress);";
+      << operationModeToString(p->sendMode()) << ", __context, __compress);";
     if(!inParams.empty())
     {
 	C << nl << "try";
@@ -2455,7 +2455,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
 	C << sb;
 	C << nl << "::Ice::Current __current;";
 	C << nl << "__initCurrent(__current, " << p->flattenedScope() + p->name() + "_name, "
-	  << operationModeToString(p->mode()) << ", __context);";
+	  << operationModeToString(p->sendMode()) << ", __context);";
 	C << nl << "while(true)";
 	C << sb;
 	C << nl << "::IceInternal::Direct __direct(__current);";
@@ -2961,6 +2961,59 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C << nl << "assert(false);";
 	    C << nl << "return ::IceInternal::DispatchOperationNotExist;";
 	    C << eb;
+
+	    
+	    //
+	    // Check if we need to generate ice_operationAttributes()
+	    //
+	    
+	    StringList freezeWriteOpNames;
+	    for(OperationList::iterator r = allOps.begin(); r != allOps.end(); ++r)
+	    {
+		ClassDefPtr classDef = ClassDefPtr::dynamicCast((*r)->container());
+		assert(classDef != 0);
+		
+		if((*r)->hasMetaData("freeze:write") || 
+		   (classDef->hasMetaData("freeze:write") && !(*r)->hasMetaData("freeze:read")))
+		{
+		    freezeWriteOpNames.push_back((*r)->name());
+		}
+	    }
+
+	    if(!freezeWriteOpNames.empty())
+	    {
+		freezeWriteOpNames.sort();
+
+		H << sp;
+		H << nl
+		  << "virtual ::Ice::Int ice_operationAttributes(const ::std::string&) const;";
+		
+		flatName = p->flattenedScope() + p->name() + "_freezeWriteOperations";
+		C << sp;
+		C << nl << "static ::std::string " << flatName << "[] =";
+		C << sb;
+		q = freezeWriteOpNames.begin();
+		while(q != freezeWriteOpNames.end())
+		{
+		    C << nl << '"' << *q << '"';
+		    if(++q != freezeWriteOpNames.end())
+		    {
+			C << ',';
+		    }
+		}
+		C << eb << ';';
+		C << sp;
+
+		C << nl << "::Ice::Int" << nl << scoped.substr(2)
+		  << "::ice_operationAttributes(const ::std::string& opName) const";
+		C << sb;
+		
+		C << nl << "::std::string* end = " << flatName << " + " << freezeWriteOpNames.size() << ";";
+		C << nl << "::std::string* r = ::std::find(" << flatName << ", end, opName);";
+
+		C << nl << "return r == end ? 0 : 1;";
+		C << eb;
+	    }
 	}
 	
 	H << sp;
@@ -3334,7 +3387,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
     paramsDeclAMD += "const ::Ice::Current& __current)";
     argsAMD += "__current)";
     
-    bool nonmutating = p->mode() == Operation::Nonmutating;
+    bool isConst = (p->mode() == Operation::Nonmutating) || p->hasMetaData("cpp:const");
     bool amd = !cl->isLocal() && (cl->hasMetaData("amd") || p->hasMetaData("amd"));
 
     string deprecateMetadata, deprecateSymbol;
@@ -3347,18 +3400,18 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
     if(!amd)
     {
 	H << nl << deprecateSymbol << "virtual " << retS << ' ' << fixKwd(name) << params
-	  << (nonmutating ? " const" : "") << " = 0;";
+	  << (isConst ? " const" : "") << " = 0;";
     }
     else
     {
 	H << nl << deprecateSymbol << "virtual void " << name << "_async" << paramsAMD
-	  << (nonmutating ? " const" : "") << " = 0;";
+	  << (isConst ? " const" : "") << " = 0;";
     }	
 
     if(!cl->isLocal())
     {
 	H << nl << "::IceInternal::DispatchStatus ___" << name
-	  << "(::IceInternal::Incoming&, const ::Ice::Current&)" << (nonmutating ? " const" : "") << ';';
+	  << "(::IceInternal::Incoming&, const ::Ice::Current&)" << (isConst ? " const" : "") << ';';
 
 	C << sp;
 	C << nl << "::IceInternal::DispatchStatus" << nl << scope.substr(2) << "___" << name
@@ -3367,7 +3420,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	{
 	    C << "__inS";
 	}
-	C << ", const ::Ice::Current& __current)" << (nonmutating ? " const" : "");
+	C << ", const ::Ice::Current& __current)" << (isConst ? " const" : "");
 	C << sb;
 	if(!amd)
 	{
@@ -4358,9 +4411,9 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             H << ',' << nl << "const Ice::Current&";
             H.restoreIndent();
 
-            bool nonmutating = op->mode() == Operation::Nonmutating;
+            bool isConst = (op->mode() == Operation::Nonmutating) || p->hasMetaData("cpp:const");
 
-            H << ")" << (nonmutating ? " const" : "") << ';';
+            H << ")" << (isConst ? " const" : "") << ';';
 
             C << sp << nl << "void" << nl << scope << name << "I::" << opName << "_async(";
             C.useCurrentPosAsIndent();
@@ -4375,7 +4428,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             C << ',' << nl << "const Ice::Current& current";
             C.restoreIndent();
-            C << ")" << (nonmutating ? " const" : "");
+            C << ")" << (isConst ? " const" : "");
             C << sb;
 
             string result = "r";
@@ -4461,9 +4514,9 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             H.restoreIndent();
 
-            bool nonmutating = op->mode() == Operation::Nonmutating;
+            bool isConst = (op->mode() == Operation::Nonmutating) || p->hasMetaData("cpp:const");
 
-            H << ")" << (nonmutating ? " const" : "") << ';';
+            H << ")" << (isConst ? " const" : "") << ';';
 
             C << sp << nl << retS << nl;
 	    C << scope.substr(2) << name << "I::" << fixKwd(opName) << '(';
@@ -4504,7 +4557,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             C.restoreIndent();
             C << ')';
-	    C << (nonmutating ? " const" : "");
+	    C << (isConst ? " const" : "");
             C << sb;
 
             if(ret)
@@ -4670,7 +4723,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	C << sb;
 	C << nl << "try";
 	C << sb;
-	C << nl << "__prepare(__prx, " << flatName << ", " << operationModeToString(p->mode()) << ", __ctx);";
+	C << nl << "__prepare(__prx, " << flatName << ", " << operationModeToString(p->sendMode()) << ", __ctx);";
 	writeMarshalCode(C, inParams, 0, StringList(), true);
 	if(p->sendsClasses())
 	{

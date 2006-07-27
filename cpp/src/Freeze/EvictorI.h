@@ -242,6 +242,8 @@ private:
 
     bool _deadlockWarning;
 
+    bool _useNonmutating;
+
     Ice::ObjectPtr _pingObject;
 };
 
