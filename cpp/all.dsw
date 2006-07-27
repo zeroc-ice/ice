@@ -375,6 +375,12 @@ Package=<4>
     Project_Dep_Name evictorS
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name oldevictorC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name oldevictorS
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name icecpp
     End Project Dependency
     Begin Project Dependency
@@ -1311,6 +1317,52 @@ Package=<4>
     Project_Dep_Name slice2cpp
     End Project Dependency
 }}}
+
+###############################################################################
+
+Project: "oldevictorC"=.\test\freeze\oldevictor\oldevictorC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2cpp
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "oldevictorS"=.\test\freeze\oldevictor\oldevictorS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name freeze
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2cpp
+    End Project Dependency
+}}}
+
 
 ###############################################################################
 

@@ -102,6 +102,7 @@ tests = [ \
     "Freeze/dbmap", \
     "Freeze/complex", \
     "Freeze/evictor", \
+    "Freeze/oldevictor", \
     "IceStorm/single", \
     "IceStorm/federation", \
     "IceStorm/federation2", \
