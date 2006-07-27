@@ -1,6 +1,9 @@
 Changes since version 3.1.0
 ---------------------------     
 
+- The keyword 'nonmutating' is now deprecated. You should use
+  instead 'idempotent' with the metadata below (when needed). 
+
 - New Freeze property: Freeze.Evictor.UseNonmutating:
   When set to a non-0 value, the Freeze Evictor behaves like it did 
   in previous Ice releases, i.e. it considers that nonmutating 
