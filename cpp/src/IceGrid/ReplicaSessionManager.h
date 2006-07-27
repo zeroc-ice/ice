@@ -74,6 +74,8 @@ private:
     };
     typedef IceUtil::Handle<Thread> ThreadPtr;
 
+    friend class Thread;
+
     ReplicaSessionPrx createSession(const InternalRegistryPrx&, IceUtil::Time&) const;
     void destroySession(const ReplicaSessionPrx&) const;
     bool keepAlive(const ReplicaSessionPrx&) const;

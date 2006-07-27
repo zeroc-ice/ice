@@ -93,6 +93,8 @@ private:
     };
     typedef IceUtil::Handle<Thread> ThreadPtr;
 
+    friend class Thread;
+
     NodeSessionPrx createSession(const InternalRegistryPrx&, IceUtil::Time&) const;
     void destroySession(const NodeSessionPrx&) const;
     bool keepAlive(const NodeSessionPrx&) const;
