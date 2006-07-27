@@ -15,7 +15,7 @@ module Demo
 
 interface Hello
 {
-    nonmutating void sayHello();
+    idempotent void sayHello();
 };
 
 //
@@ -37,7 +37,7 @@ interface Session
     //
     idempotent void refresh();
 
-    nonmutating string getName();
+    idempotent string getName();
 
     //
     // Destroy the session explicitly.

@@ -71,7 +71,7 @@ interface Router extends Ice::Router
      * @return The category.
      *
      **/
-    nonmutating string getCategoryForClient();
+    idempotent string getCategoryForClient();
 
     /**
      *
@@ -128,7 +128,7 @@ interface Router extends Ice::Router
      * @return The timeout (in seconds).
      *
      **/
-    nonmutating long getSessionTimeout();
+    idempotent long getSessionTimeout();
 };
 
 /**

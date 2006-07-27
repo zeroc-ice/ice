@@ -90,7 +90,7 @@ interface Locator
      * be found.
      *
      **/
-    nonmutating Object* findObjectById(Ice::Identity id)
+    ["nonmutating", "cpp:const"] idempotent Object* findObjectById(Ice::Identity id)
 	throws ObjectNotFoundException;
 
     /**
@@ -106,7 +106,7 @@ interface Locator
      * found.
      *
      **/
-    nonmutating Object* findAdapterById(string id)
+    ["nonmutating", "cpp:const"] idempotent Object* findAdapterById(string id)
 	throws AdapterNotFoundException;
 
     /**
@@ -116,7 +116,7 @@ interface Locator
      * @return The locator registry.
      *
      **/
-    nonmutating LocatorRegistry* getRegistry();
+    ["nonmutating", "cpp:const"] idempotent LocatorRegistry* getRegistry();
 };
 
 /**

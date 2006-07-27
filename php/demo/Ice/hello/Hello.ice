@@ -15,7 +15,7 @@ module Demo
 
 class Hello
 {
-    nonmutating void sayHello();
+    idempotent void sayHello();
     idempotent void shutdown();
 };
 

@@ -22,7 +22,7 @@ interface TestIntf
 
 local class Cookie
 {
-    nonmutating string message();
+    ["cpp:const"] idempotent string message();
 };
 
 };

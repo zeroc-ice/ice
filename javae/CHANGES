@@ -1,6 +1,16 @@
 Changes since version 1.1.0
 ---------------------------
 
+- The keyword 'nonmutating' is now deprecated; use 'idempotent'
+  instead.
+
+- New metadata:
+  - ["nonmutating"]: for idempotent operations, instruct Ice to send
+    the nonmutating operation-mode instead of the idempotent operation
+    -mode. This metadata allows you to replace 'nonmutating' by 
+    '["nonmutating"] idempotent' while maintaining compatibility with 
+    objects implemented using Ice 3.0 or 3.1.
+
 - Removed getDefaultProperties() method, and the global default
   properties. If you need global properties, you can easily
   create your own global variable.
