@@ -25,7 +25,8 @@ OBJS		= Scanner.o \
 		  Preprocessor.o \
 		  Checksum.o \
 		  PythonUtil.o \
-		  DotNetNames.o
+		  DotNetNames.o \
+		  RubyUtil.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
