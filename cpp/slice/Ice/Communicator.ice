@@ -115,7 +115,7 @@ local interface Communicator
      * @see proxyToString
      *
      **/
-    nonmutating Object* stringToProxy(string str);
+    ["cpp:const"] Object* stringToProxy(string str);
 
     /**
      *
@@ -128,7 +128,7 @@ local interface Communicator
      * @see stringToProxy
      *
      **/
-    nonmutating string proxyToString(Object* obj);
+    ["cpp:const"] string proxyToString(Object* obj);
 
     /**
      *
@@ -141,7 +141,7 @@ local interface Communicator
      * @see identityToString
      *
      **/
-    nonmutating Identity stringToIdentity(string str);
+    ["cpp:const"] Identity stringToIdentity(string str);
 
     /**
      *
@@ -154,7 +154,7 @@ local interface Communicator
      * @see stringToIdentity
      *
      **/
-    nonmutating string identityToString(Identity ident);
+    ["cpp:const"] string identityToString(Identity ident);
 
     /**
      *
@@ -269,7 +269,7 @@ local interface Communicator
      * @see ObjectFactory
      *
      **/
-    nonmutating ObjectFactory findObjectFactory(string id);
+    ["cpp:const"] ObjectFactory findObjectFactory(string id);
 
 
     /**
@@ -282,7 +282,7 @@ local interface Communicator
      *
      * @see setDefaultContext
      **/
-    nonmutating Context getDefaultContext();
+    ["cpp:const"] Context getDefaultContext();
 
     /**
      *
@@ -308,7 +308,7 @@ local interface Communicator
      * @see Properties
      *
      **/
-    nonmutating Properties getProperties();
+    ["cpp:const"] Properties getProperties();
 
     /**
      *
@@ -319,7 +319,7 @@ local interface Communicator
      * @see Logger
      *
      **/
-    nonmutating Logger getLogger();
+    ["cpp:const"] Logger getLogger();
 
     /**
      *
@@ -330,7 +330,7 @@ local interface Communicator
      * @see Stats
      *
      **/
-    nonmutating Stats getStats();
+    ["cpp:const"] Stats getStats();
 
     /**
      *
@@ -342,7 +342,7 @@ local interface Communicator
      * @see Router
      *
      **/
-    nonmutating Router* getDefaultRouter();
+    ["cpp:const"] Router* getDefaultRouter();
 
     /**
      *
@@ -373,7 +373,7 @@ local interface Communicator
      * @see Locator
      *
      **/
-    nonmutating Locator* getDefaultLocator();
+    ["cpp:const"] Locator* getDefaultLocator();
 
     /**
      *
@@ -406,7 +406,7 @@ local interface Communicator
      * @see PluginManager
      *
      **/
-    nonmutating PluginManager getPluginManager();
+    ["cpp:const"] PluginManager getPluginManager();
 
     /**
      *

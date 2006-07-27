@@ -390,7 +390,7 @@ interface Admin
      * doesn't exist.
      *
      **/
-    nonmutating ApplicationDescriptor getApplicationDescriptor(string name)
+    ["nonmutating", "cpp:const"] idempotent ApplicationDescriptor getApplicationDescriptor(string name)
 	throws ApplicationNotExistException;
 
     /**
@@ -401,7 +401,7 @@ interface Admin
      * descriptor can't be accessed or is invalid.
      *
      **/
-    nonmutating ApplicationDescriptor getDefaultApplicationDescriptor()
+    ["nonmutating", "cpp:const"] idempotent ApplicationDescriptor getDefaultApplicationDescriptor()
 	throws DeploymentException;
 
     /**
@@ -411,7 +411,7 @@ interface Admin
      * @return The application names.
      *
      **/
-    nonmutating Ice::StringSeq getAllApplicationNames();
+    ["nonmutating", "cpp:const"] idempotent Ice::StringSeq getAllApplicationNames();
 
     /**
      *
@@ -424,7 +424,7 @@ interface Admin
      * @return The server information.
      *
      **/
-    nonmutating ServerInfo getServerInfo(string id)
+    ["nonmutating", "cpp:const"] idempotent ServerInfo getServerInfo(string id)
 	throws ServerNotExistException;
 
     /**
@@ -444,7 +444,7 @@ interface Admin
      * deployed on the node.
      *
      **/
-    nonmutating ServerState getServerState(string id)
+    ["nonmutating", "cpp:const"] idempotent ServerState getServerState(string id)
 	throws ServerNotExistException, NodeUnreachableException, DeploymentException;
     
     /**
@@ -465,7 +465,7 @@ interface Admin
      * deployed on the node.
      *
      **/
-    nonmutating int getServerPid(string id)
+    ["nonmutating", "cpp:const"] idempotent int getServerPid(string id)
 	throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
     /**
@@ -507,7 +507,7 @@ interface Admin
      * deployed on the node.
      *
      **/
-    nonmutating bool isServerEnabled(string id)
+    ["nonmutating", "cpp:const"] idempotent bool isServerEnabled(string id)
 	throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
     /**
@@ -635,7 +635,7 @@ interface Admin
      * @return The server ids.
      *
      **/
-    nonmutating Ice::StringSeq getAllServerIds();
+    ["nonmutating", "cpp:const"] idempotent Ice::StringSeq getAllServerIds();
 
     /**
      *
@@ -654,7 +654,7 @@ interface Admin
      * replica group doesn't exist.
      *
      **/
-    nonmutating AdapterInfoSeq getAdapterInfo(string id)
+    ["nonmutating", "cpp:const"] idempotent AdapterInfoSeq getAdapterInfo(string id)
 	throws AdapterNotExistException;
 
     /**
@@ -675,7 +675,7 @@ interface Admin
      * @return The adapter ids.
      *
      **/
-    nonmutating Ice::StringSeq getAllAdapterIds();
+    ["nonmutating", "cpp:const"] idempotent Ice::StringSeq getAllAdapterIds();
 
     /**
      *
@@ -765,7 +765,7 @@ interface Admin
      * registered with the registry.
      *
      **/
-    nonmutating ObjectInfo getObjectInfo(Ice::Identity id)
+    ["nonmutating", "cpp:const"] idempotent ObjectInfo getObjectInfo(Ice::Identity id)
 	throws ObjectNotRegisteredException;
 
     /**
@@ -778,7 +778,7 @@ interface Admin
      * @return The object infos.
      *
      **/
-    nonmutating ObjectInfoSeq getObjectInfosByType(string type);
+    ["nonmutating", "cpp:const"] idempotent ObjectInfoSeq getObjectInfosByType(string type);
 
     /**
      *
@@ -793,7 +793,7 @@ interface Admin
      * matching the given expression.
      *
      **/
-    nonmutating ObjectInfoSeq getAllObjectInfos(string expr);
+    ["nonmutating", "cpp:const"] idempotent ObjectInfoSeq getAllObjectInfos(string expr);
     
     /**
      *
@@ -806,7 +806,7 @@ interface Admin
      * @throws NodeNotExistException Raised if the node doesn't exist.
      *
      **/
-    nonmutating bool pingNode(string name)
+    ["nonmutating", "cpp:const"] idempotent bool pingNode(string name)
 	throws NodeNotExistException;
 
     /**
@@ -823,7 +823,7 @@ interface Admin
      * reached.
      *
      **/
-    ["ami"] nonmutating LoadInfo getNodeLoad(string name)
+    ["ami", "nonmutating", "cpp:const"] idempotent LoadInfo getNodeLoad(string name)
 	throws NodeNotExistException, NodeUnreachableException;
 
     /**
@@ -840,7 +840,7 @@ interface Admin
      * reached.
      *
      **/
-    nonmutating NodeInfo getNodeInfo(string name)
+    ["nonmutating", "cpp:const"] idempotent NodeInfo getNodeInfo(string name)
 	throws NodeNotExistException, NodeUnreachableException;
     
     /**
@@ -872,7 +872,7 @@ interface Admin
      * reached.
      *
      **/
-    nonmutating string getNodeHostname(string name)
+    ["nonmutating", "cpp:const"] idempotent string getNodeHostname(string name)
 	throws NodeNotExistException, NodeUnreachableException;
 
     /**
@@ -882,7 +882,7 @@ interface Admin
      * @return The node names.
      *
      **/
-    nonmutating Ice::StringSeq getAllNodeNames();
+    ["nonmutating", "cpp:const"] idempotent Ice::StringSeq getAllNodeNames();
 
     /**
      *
@@ -898,7 +898,7 @@ interface Admin
      * @return A dictionary mapping Slice type ids to their checksums.
      *
      **/
-    nonmutating Ice::SliceChecksumDict getSliceChecksums();
+    ["nonmutating", "cpp:const"] idempotent Ice::SliceChecksumDict getSliceChecksums();
 };
 
 interface RegistryObserver;
@@ -935,7 +935,7 @@ interface AdminSession extends Glacier2::Session
      * @return The admin interface proxy.
      *
      **/
-    nonmutating Admin* getAdmin();
+    ["nonmutating", "cpp:const"] idempotent Admin* getAdmin();
 
     /**
      *

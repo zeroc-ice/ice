@@ -4269,7 +4269,14 @@ Slice::Operation::mode() const
 Operation::Mode
 Slice::Operation::sendMode() const
 {
-    return _sendMode;
+    if(_mode == Operation::Idempotent && hasMetaData("nonmutating"))
+    {
+	return Operation::Nonmutating;
+    }
+    else
+    {
+	return _mode;
+    }
 }
 
 ParamDeclPtr
@@ -4569,14 +4576,8 @@ Slice::Operation::Operation(const ContainerPtr& container,
     Contained(container, name),
     Container(container->unit()),
     _returnType(returnType),
-    _mode(mode),
-    _sendMode(mode)
+    _mode(mode)
 {
-    if(_sendMode == Operation::Idempotent && hasMetaData("nonmutating"))
-    {
-	_sendMode = Operation::Nonmutating;
-    }
-
     if(_unit->profile() == IceE)
     {
 	ClassDefPtr cl = ClassDefPtr::dynamicCast(this->container());

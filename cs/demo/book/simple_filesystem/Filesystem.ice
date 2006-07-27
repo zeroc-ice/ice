@@ -13,19 +13,19 @@ module Filesystem {
     };
 
     interface Node {
-    	nonmutating string name();
+    	idempotent string name();
     };
 
     sequence<string> Lines;
 
     interface File extends Node {
-    	nonmutating Lines read();
+    	idempotent Lines read();
 	idempotent void write(Lines text) throws GenericError;
     };
 
     sequence<Node*> NodeSeq;
 
     interface Directory extends Node {
-    	nonmutating NodeSeq list();
+    	idempotent NodeSeq list();
     };
 };

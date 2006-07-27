@@ -15,7 +15,7 @@ module Demo
 
 interface Hello
 {
-    nonmutating void sayHello();
+    ["cpp:const"] idempotent void sayHello();
 };
 
 //
@@ -37,7 +37,7 @@ interface Session
     //
     idempotent void refresh();
 
-    nonmutating string getName();
+    ["cpp:const"] idempotent string getName();
 
     //
     // Destroy the session explicitly.

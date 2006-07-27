@@ -28,7 +28,7 @@ interface TestLocator extends ::Ice::Locator
     //
     // Returns the number of request on the locator interface.
     //
-    nonmutating int getRequestCount();
+    idempotent int getRequestCount();
 };
 
 interface ServerManager

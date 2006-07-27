@@ -71,7 +71,7 @@ interface Router extends Ice::Router
      * @return The category.
      *
      **/
-    nonmutating string getCategoryForClient();
+    ["nonmutating", "cpp:const"] idempotent string getCategoryForClient();
 
     /**
      *
@@ -160,7 +160,7 @@ interface Router extends Ice::Router
      * @return The timeout (in seconds).
      *
      **/
-    nonmutating long getSessionTimeout();
+    ["nonmutating", "cpp:const"] idempotent long getSessionTimeout();
 };
 
 /**

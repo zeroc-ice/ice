@@ -61,7 +61,7 @@ interface Adapter
      * endpoints if the adapter is already active.
      *
      **/
-     ["ami"] nonmutating Object* getDirectProxy()
+    ["ami", "nonmutating", "cpp:const"] idempotent Object* getDirectProxy()
 	throws AdapterNotActiveException;
 
     /**
@@ -129,7 +129,7 @@ interface Server
      * Check if the server is enabled.
      *
      **/
-    nonmutating bool isEnabled();
+    ["nonmutating", "cpp:const"] idempotent bool isEnabled();
 
     /**
      *
@@ -155,7 +155,7 @@ interface Server
      * @see ServerState
      *
      **/
-    nonmutating ServerState getState();
+    ["nonmutating", "cpp:const"] idempotent ServerState getState();
 
     /**
      *
@@ -165,7 +165,7 @@ interface Server
      * integer.
      *
      **/
-    nonmutating int getPid();
+    ["nonmutating", "cpp:const"] idempotent int getPid();
 
     /**
      *
@@ -241,28 +241,28 @@ interface Node
      * Get the node name.
      *
      **/
-    nonmutating string getName();    
+    ["nonmutating", "cpp:const"] idempotent string getName();    
 
     /**
      *
      * Get the node hostname.
      *
      **/
-    nonmutating string getHostname();    
+    ["nonmutating", "cpp:const"] idempotent string getHostname();    
 
     /**
      *
      * Get the node load.
      *
      **/
-    nonmutating LoadInfo getLoad();
+    ["nonmutating", "cpp:const"] idempotent LoadInfo getLoad();
 
     /**
      *
      * Shutdown the node.
      *
      **/
-    nonmutating void shutdown();
+    ["nonmutating", "cpp:const"] idempotent void shutdown();
 };
 
 sequence<Node*> NodePrxSeq;
@@ -291,21 +291,21 @@ interface NodeSession
      * Return the node session timeout.
      *
      **/ 
-    nonmutating int getTimeout();
+    ["nonmutating", "cpp:const"] idempotent int getTimeout();
 
     /**
      *
      * Return the registry observer.
      *
      **/
-    nonmutating NodeObserver* getObserver();
+    ["nonmutating", "cpp:const"] idempotent NodeObserver* getObserver();
 
     /**
      *
      * Get the name of the servers deployed on the node.
      *
      **/
-    nonmutating Ice::StringSeq getServers();
+    ["nonmutating", "cpp:const"] idempotent Ice::StringSeq getServers();
 
     /**
      *
@@ -339,7 +339,7 @@ interface ReplicaSession
      * Return the replica session timeout.
      *
      **/ 
-    nonmutating int getTimeout();
+    ["nonmutating", "cpp:const"] idempotent int getTimeout();
 
     /**
      *
@@ -386,8 +386,8 @@ interface InternalRegistry
 
     void registerWithReplica(InternalRegistry* prx);
 
-    nonmutating NodePrxSeq getNodes();
-    nonmutating InternalRegistryPrxSeq getReplicas();
+    ["nonmutating", "cpp:const"] idempotent NodePrxSeq getNodes();
+    ["nonmutating", "cpp:const"] idempotent InternalRegistryPrxSeq getReplicas();
 };
 
 

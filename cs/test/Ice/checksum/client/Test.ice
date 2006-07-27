@@ -17,7 +17,7 @@ module Test
 
 interface Checksum
 {
-    nonmutating Ice::SliceChecksumDict getSliceChecksums();
+    idempotent Ice::SliceChecksumDict getSliceChecksums();
     
     void shutdown();
 };

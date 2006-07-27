@@ -38,7 +38,7 @@ interface PermissionsVerifier
      * @return True if access is granted, or false otherwise.
      *
      **/
-    nonmutating bool checkPermissions(string userId, string password, out string reason);
+    ["nonmutating", "cpp:const"] idempotent bool checkPermissions(string userId, string password, out string reason);
 };
 
 /**
@@ -64,7 +64,7 @@ interface SSLPermissionsVerifier
      * @see SSLInfo
      *
      **/
-    nonmutating bool authorize(SSLInfo info, out string reason);
+    ["nonmutating", "cpp:const"] idempotent bool authorize(SSLInfo info, out string reason);
 };
 
 };

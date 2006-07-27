@@ -52,7 +52,7 @@ local interface Connection
      * @return The current transaction if there is one, null otherwise.
      *
      **/
-    nonmutating Transaction currentTransaction();
+    ["cpp:const"] Transaction currentTransaction();
 
      
     /**
@@ -69,7 +69,7 @@ local interface Connection
      * Returns the communicator associated with this connection
      *
      **/
-    nonmutating Ice::Communicator getCommunicator();
+    ["cpp:const"] Ice::Communicator getCommunicator();
 
     /**
      *
@@ -77,7 +77,7 @@ local interface Connection
      * environment)
      *
      **/
-    nonmutating string getName();
+    ["cpp:const"] string getName();
 
 }; 
 

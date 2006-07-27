@@ -569,7 +569,6 @@ protected:
     TypePtr _returnType;
     ExceptionList _throws;
     Mode _mode;
-    Mode _sendMode;
 };
 
 // ----------------------------------------------------------------------

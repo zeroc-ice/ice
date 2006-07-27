@@ -46,7 +46,7 @@ local interface Endpoint
      * @return The string representation of the endpoint.
      *
      **/
-    nonmutating string toString();
+    ["cpp:const"] string toString();
 };
 local sequence<Endpoint> EndpointSeq;
 

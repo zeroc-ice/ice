@@ -97,7 +97,7 @@ interface ServiceManager
      * @return A dictionary mapping Slice type ids to their checksums.
      *
      **/
-    nonmutating Ice::SliceChecksumDict getSliceChecksums();
+    ["nonmutating", "cpp:const"] idempotent Ice::SliceChecksumDict getSliceChecksums();
 
     /**
      *

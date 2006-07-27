@@ -54,7 +54,7 @@ local interface Connection
      * @see setAdapter
      *
      **/
-    nonmutating Object* createProxy(Identity id);
+    ["cpp:const"] Object* createProxy(Identity id);
 
     /**
      *
@@ -88,7 +88,7 @@ local interface Connection
      * @see setAdapter
      *
      **/
-    nonmutating ObjectAdapter getAdapter();
+    ["cpp:const"] ObjectAdapter getAdapter();
 
     /**
      *
@@ -107,7 +107,7 @@ local interface Connection
      * @return The type of the connection.
      *
      **/
-    nonmutating string type();
+    ["cpp:const"] string type();
 
     /**
      *
@@ -116,7 +116,7 @@ local interface Connection
      * @return The connection's timeout.
      *
      **/
-    nonmutating int timeout();
+    ["cpp:const"] int timeout();
 
     /**
      *
@@ -127,7 +127,7 @@ local interface Connection
      * text.
      *
      **/
-    nonmutating string toString();
+    ["cpp:const"] string toString();
 };
 
 };

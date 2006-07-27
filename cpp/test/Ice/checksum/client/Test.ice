@@ -17,7 +17,7 @@ module Test
 
 interface Checksum
 {
-    nonmutating Ice::SliceChecksumDict getSliceChecksums();
+    ["cpp:const"] idempotent Ice::SliceChecksumDict getSliceChecksums();
     
     void shutdown();
 };

@@ -122,7 +122,7 @@ interface Topic
      * @see TopicManager::create
      *
      **/
-    nonmutating string getName();
+    ["nonmutating", "cpp:const"] idempotent string getName();
 
     /**
      *
@@ -134,7 +134,7 @@ interface Topic
      * @return A proxy to publish data on this topic.
      *
      **/
-    nonmutating Object* getPublisher();
+    ["nonmutating", "cpp:const"] idempotent Object* getPublisher();
 
     /**
      *
@@ -196,7 +196,7 @@ interface Topic
      * @return A sequence of LinkInfo objects.
      *
      **/
-    nonmutating LinkInfoSeq getLinkInfoSeq();
+    ["nonmutating", "cpp:const"] idempotent LinkInfoSeq getLinkInfoSeq();
 
     /**
      *
@@ -280,7 +280,7 @@ interface TopicManager
      * @throws NoSuchTopic Raised if the topic does not exist.
      *
      **/
-    nonmutating Topic* retrieve(string name) throws NoSuchTopic;
+    ["nonmutating", "cpp:const"] idempotent Topic* retrieve(string name) throws NoSuchTopic;
 
     /**
      *
@@ -289,7 +289,7 @@ interface TopicManager
      * @return A dictionary of string, topic proxy pairs.
      *
      **/
-    nonmutating TopicDict retrieveAll();
+    ["nonmutating", "cpp:const"] idempotent TopicDict retrieveAll();
 
     /**
      *
@@ -298,7 +298,7 @@ interface TopicManager
      * @return A dictionary mapping Slice type ids to their checksums.
      *
      **/
-    nonmutating Ice::SliceChecksumDict getSliceChecksums();
+    ["nonmutating", "cpp:const"] idempotent Ice::SliceChecksumDict getSliceChecksums();
 };
 
 };

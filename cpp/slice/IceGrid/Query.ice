@@ -54,7 +54,7 @@ enum LoadSample
      * @return The proxy or null if no such object has been found.
      *
      **/
-    nonmutating Object* findObjectById(Ice::Identity id);
+    ["nonmutating", "cpp:const"] idempotent Object* findObjectById(Ice::Identity id);
 
     /**
      *
@@ -67,7 +67,7 @@ enum LoadSample
      * @return The proxy or null if no such object has been found.
      *
      **/
-    nonmutating Object* findObjectByType(string type);
+    ["nonmutating", "cpp:const"] idempotent Object* findObjectByType(string type);
 
     /**
      *
@@ -82,7 +82,7 @@ enum LoadSample
      * @return The proxy or null if no such object has been found.
      *
      **/
-    nonmutating Object* findObjectByTypeOnLeastLoadedNode(string type, LoadSample sample);
+    ["nonmutating", "cpp:const"] idempotent Object* findObjectByTypeOnLeastLoadedNode(string type, LoadSample sample);
 
     /**
      *
@@ -94,7 +94,7 @@ enum LoadSample
      * have been found.
      *
      **/
-    nonmutating Ice::ObjectProxySeq findAllObjectsByType(string type);
+    ["nonmutating", "cpp:const"] idempotent Ice::ObjectProxySeq findAllObjectsByType(string type);
 };
 
 };

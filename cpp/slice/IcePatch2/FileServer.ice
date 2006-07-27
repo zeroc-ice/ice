@@ -70,7 +70,7 @@ interface FileServer
      * files in the specified partition.
      *
      **/
-    ["ami"] nonmutating FileInfoSeq getFileInfoSeq(int partition)
+    ["ami", "nonmutating", "cpp:const"] idempotent FileInfoSeq getFileInfoSeq(int partition)
 	throws PartitionOutOfRangeException;
 
     /**
@@ -84,7 +84,7 @@ interface FileServer
      * updated files.
      *
      **/
-    nonmutating ByteSeqSeq getChecksumSeq();
+    ["nonmutating", "cpp:const"] idempotent ByteSeqSeq getChecksumSeq();
 
     /**
      *
@@ -94,7 +94,7 @@ interface FileServer
      * @return The master checksum for the file set.
      *
      **/
-    nonmutating Ice::ByteSeq getChecksum();
+    ["nonmutating", "cpp:const"] idempotent Ice::ByteSeq getChecksum();
 
     /**
      *
@@ -113,7 +113,8 @@ interface FileServer
      * @return A sequence containing the compressed file contents.
      *
      **/
-    ["ami", "amd", "cpp:array"] nonmutating Ice::ByteSeq getFileCompressed(string path, int pos, int num)
+    ["ami", "amd", "nonmutating", "cpp:const", "cpp:array"] 
+    idempotent Ice::ByteSeq getFileCompressed(string path, int pos, int num)
 	throws FileAccessException;
 };
 

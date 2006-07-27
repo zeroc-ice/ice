@@ -726,6 +726,20 @@ operation_preamble
 	{
 	    cl->checkIntroduced(name, op);
 	    unit->pushContainer(op);
+	    static bool firstWarning = true;  
+	    
+	    string msg = "the keyword 'nonmutating' is deprecated";
+	    if(firstWarning)
+	    {
+		msg += ";\n";
+		msg += "You should replace it with 'idempotent' plus Freeze metadata\n";
+		msg += "(if you use a Freeze evictor) and/or [\"cpp:const\"] (if you\n";
+		msg += "want a const member function on the generated C++ servant\n";
+		msg += "base class).";
+		firstWarning = false;
+	    }
+	    
+	    unit->warning(msg); 
 	    $$ = op;
 	}
 	else

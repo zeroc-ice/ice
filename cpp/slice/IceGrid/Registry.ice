@@ -121,7 +121,7 @@ interface Registry
      * @return The timeout in milliseconds.
      *
      **/
-    nonmutating int getSessionTimeout();
+    ["nonmutating", "cpp:const"] idempotent int getSessionTimeout();
 };
 
 };

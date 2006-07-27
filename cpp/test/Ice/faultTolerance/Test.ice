@@ -18,7 +18,7 @@ module Test
     void shutdown();
     void abort();
     idempotent void idempotentAbort();
-    nonmutating void nonmutatingAbort();
+    ["cpp:const"] idempotent void nonmutatingAbort();
     idempotent int pid();
 };
 

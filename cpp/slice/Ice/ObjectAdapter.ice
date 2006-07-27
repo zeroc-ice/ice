@@ -39,7 +39,7 @@ local interface ObjectAdapter
      * @return This object adapter's name.
      *
      **/
-    nonmutating string getName();
+    ["cpp:const"] string getName();
 
     /**
      *
@@ -50,7 +50,7 @@ local interface ObjectAdapter
      * @see Communicator
      *
      **/
-    nonmutating Communicator getCommunicator();
+    ["cpp:const"] Communicator getCommunicator();
 
     /**
      *
@@ -310,7 +310,7 @@ local interface ObjectAdapter
      * @see findByProxy
      *
      **/
-    nonmutating Object find(Identity id);
+    ["cpp:const"] Object find(Identity id);
 
     /**
      *
@@ -333,7 +333,7 @@ local interface ObjectAdapter
      * @see findByProxy
      *
      **/
-    nonmutating Object findFacet(Identity id, string facet);
+    ["cpp:const"] Object findFacet(Identity id, string facet);
 
     /**
      *
@@ -351,7 +351,7 @@ local interface ObjectAdapter
      * @see findFacet
      *
      **/
-    nonmutating FacetMap findAllFacets(Identity id);
+    ["cpp:const"] FacetMap findAllFacets(Identity id);
 
     /**
      *
@@ -371,7 +371,7 @@ local interface ObjectAdapter
      * @see findFacet
      *
      **/
-    nonmutating Object findByProxy(Object* proxy);
+    ["cpp:const"] Object findByProxy(Object* proxy);
 
     /**
      *
@@ -439,7 +439,7 @@ local interface ObjectAdapter
      * @see ServantLocator
      *
      **/
-    nonmutating ServantLocator findServantLocator(string category);
+    ["cpp:const"] ServantLocator findServantLocator(string category);
 
     /**
      *
@@ -458,7 +458,7 @@ local interface ObjectAdapter
      * @see Identity
      *
      **/
-    nonmutating Object* createProxy(Identity id);
+    ["cpp:const"] Object* createProxy(Identity id);
 
     /**
      *
@@ -473,7 +473,7 @@ local interface ObjectAdapter
      * @see Identity
      *
      **/
-    nonmutating Object* createDirectProxy(Identity id);
+    ["cpp:const"] Object* createDirectProxy(Identity id);
 
     /**
      *
@@ -489,7 +489,7 @@ local interface ObjectAdapter
      * @see Identity
      *
      **/
-    nonmutating Object* createIndirectProxy(Identity id);
+    ["cpp:const"] Object* createIndirectProxy(Identity id);
 
     /**
      *
@@ -509,7 +509,7 @@ local interface ObjectAdapter
      * @see Identity
      *
      **/
-    nonmutating Object* createReverseProxy(Identity id);
+    ["cpp:const"] Object* createReverseProxy(Identity id);
 
     /**
      * Set an &Ice; locator for this object adapter. By doing so, the
