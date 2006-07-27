@@ -15,6 +15,7 @@
 #include <IceGrid/Topics.h>
 #include <IceGrid/NodeSessionI.h>
 #include <IceGrid/ReplicaSessionI.h>
+#include <IceGrid/ReplicaSessionManager.h>
 
 using namespace std;
 using namespace IceGrid;
@@ -86,9 +87,12 @@ private:
 
 }
 
-InternalRegistryI::InternalRegistryI(const DatabasePtr& database, const ReapThreadPtr& reaper) : 
-    _database(database), 
-    _reaper(reaper)
+InternalRegistryI::InternalRegistryI(const DatabasePtr& database, 
+				     const ReapThreadPtr& reaper,			
+				     ReplicaSessionManager& session) : 
+    _database(database),
+    _reaper(reaper),
+    _session(session)
 {
 }
 
@@ -111,11 +115,53 @@ InternalRegistryI::registerNode(const std::string& name,
 ReplicaSessionPrx
 InternalRegistryI::registerReplica(const std::string& name,
 				   const InternalRegistryPrx& replica, 
-				   const ReplicaInfo& info,
+				   const RegistryObserverPrx& observer,
 				   const Ice::Current& current)
 {
-    ReplicaSessionIPtr session = new ReplicaSessionI(_database, name, replica, info);
+    ReplicaSessionIPtr session = new ReplicaSessionI(_database, name, replica, observer);
     ReplicaSessionPrx proxy = ReplicaSessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
     _reaper->add(new SessionReapable<ReplicaSessionI>(current.adapter, session, proxy));
     return proxy;
+}
+
+void
+InternalRegistryI::registerWithReplica(const InternalRegistryPrx& replica, const Ice::Current&)
+{
+    _session.create(replica);
+}
+
+NodePrxSeq
+InternalRegistryI::getNodes(const Ice::Current&) const
+{
+    NodePrxSeq nodes;
+    try
+    {
+	Ice::ObjectProxySeq proxies = _database->getObjectsByType(Node::ice_staticId());
+	for(Ice::ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
+	{
+	    nodes.push_back(NodePrx::uncheckedCast(*p));
+	}
+    }
+    catch(const ObjectNotRegisteredException&)
+    {
+    }
+    return nodes;
+}
+
+InternalRegistryPrxSeq
+InternalRegistryI::getReplicas(const Ice::Current&) const
+{
+    InternalRegistryPrxSeq replicas;
+    try
+    {
+	Ice::ObjectProxySeq proxies = _database->getObjectsByType(InternalRegistry::ice_staticId());
+	for(Ice::ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
+	{
+	    replicas.push_back(InternalRegistryPrx::uncheckedCast(*p));
+	}
+    }
+    catch(const ObjectNotRegisteredException&)
+    {
+    }
+    return replicas;
 }

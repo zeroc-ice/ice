@@ -18,12 +18,12 @@ using namespace IceGrid;
 ReplicaSessionI::ReplicaSessionI(const DatabasePtr& database, 
 				 const string& name, 
 				 const InternalRegistryPrx& proxy,
-				 const ReplicaInfo& info) :
+				 const RegistryObserverPrx& observer) :
     _database(database),
     _traceLevels(database->getTraceLevels()),
     _name(name),
     _proxy(InternalRegistryPrx::uncheckedCast(proxy->ice_timeout(_database->getSessionTimeout() * 1000))),
-    _info(info),
+    _observer(observer),
     _timestamp(IceUtil::Time::now()),
     _destroy(false)
 {
@@ -65,6 +65,19 @@ ReplicaSessionI::getTimeout(const Ice::Current& current) const
 }
 
 void
+ReplicaSessionI::setClientAndServerProxies(const Ice::ObjectPrx& clientProxy, 
+					   const Ice::ObjectPrx& serverProxy, 
+					   const Ice::Current&)
+{
+    {
+	Lock sync(*this);
+	_clientProxy = clientProxy;
+	_serverProxy = serverProxy;
+    }
+    _database->updateReplicatedWellKnownObjects();
+}
+
+void
 ReplicaSessionI::destroy(const Ice::Current& current)
 {
     Lock sync(*this);
@@ -75,7 +88,8 @@ ReplicaSessionI::destroy(const Ice::Current& current)
 
     _destroy = true;
 
-    _database->removeReplica(_name);
+    _database->removeReplica(_name, this, !current.adapter);
+    _database->updateReplicatedWellKnownObjects();
 
     if(current.adapter)
     {
@@ -99,4 +113,18 @@ ReplicaSessionI::timestamp() const
 	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
     return _timestamp;
+}
+
+Ice::ObjectPrx
+ReplicaSessionI::getClientProxy() const
+{
+    Lock sync(*this);
+    return _clientProxy;
+}
+
+Ice::ObjectPrx
+ReplicaSessionI::getServerProxy() const
+{
+    Lock sync(*this);
+    return _serverProxy;
 }

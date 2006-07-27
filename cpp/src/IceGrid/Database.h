@@ -55,8 +55,8 @@ class Database : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
     
-    Database(const Ice::ObjectAdapterPtr&, const IceStorm::TopicManagerPrx&, const Ice::ObjectPrx&, 
-	     const Ice::ObjectPrx&, const std::string&, int, const TraceLevelsPtr&);
+    Database(const Ice::ObjectAdapterPtr&, const IceStorm::TopicManagerPrx&, const std::string&, int, 
+	     const TraceLevelsPtr&);
     virtual ~Database();
     
     void destroy();
@@ -69,7 +69,7 @@ public:
     void clearTopics();
     RegistryObserverTopicPtr getRegistryObserverTopic() const;
     NodeObserverTopicPtr getNodeObserverTopic() const;
-    int getSessionTimeout() const;
+    int getSessionTimeout() const { return _sessionTimeout; }
 
     int lock(AdminSessionI*, const std::string&);
     void unlock(AdminSessionI*);
@@ -77,6 +77,12 @@ public:
     void init(int serial);
     void initMaster();
     void initReplica(int, const ApplicationDescriptorSeq&, const AdapterInfoSeq&, const ObjectInfoSeq&);
+
+    void setClientProxy(const Ice::ObjectPrx&);
+    void setServerProxy(const Ice::ObjectPrx&);
+    Ice::ObjectPrx getClientProxy() const;
+    Ice::ObjectPrx getServerProxy() const;
+    void updateReplicatedWellKnownObjects();
 
     void addApplicationDescriptor(AdminSessionI*, const ApplicationDescriptor&, int = -1);
     void updateApplicationDescriptor(AdminSessionI*, const ApplicationUpdateDescriptor&, int = -1);
@@ -90,12 +96,11 @@ public:
     void addNode(const std::string&, const NodeSessionIPtr&);
     NodePrx getNode(const std::string&) const;
     NodeInfo getNodeInfo(const std::string&) const;
-    void removeNode(const std::string&);
+    void removeNode(const std::string&, const NodeSessionIPtr&, bool);
     Ice::StringSeq getAllNodes(const std::string& = std::string());
 
     void addReplica(const std::string&, const ReplicaSessionIPtr&);
-    InternalRegistryPrxSeq getReplicas() const;
-    void removeReplica(const std::string&);
+    void removeReplica(const std::string&, const ReplicaSessionIPtr&, bool);
 
     ServerInfo getServerInfo(const std::string&, bool = false);
     ServerPrx getServer(const std::string&, bool = true);
@@ -157,6 +162,7 @@ private:
     const std::string _envName;
     const std::string _instanceName;
     const TraceLevelsPtr _traceLevels;
+    const int _sessionTimeout;
 
     ReplicaCache _replicaCache;
     NodeCache _nodeCache;
@@ -167,6 +173,9 @@ private:
 
     RegistryObserverTopicPtr _registryObserverTopic;
     NodeObserverTopicPtr _nodeObserverTopic;
+
+    Ice::ObjectPrx _clientProxy;
+    Ice::ObjectPrx _serverProxy;
 
     std::map<std::string, std::string> _applicationsByServerName;
  

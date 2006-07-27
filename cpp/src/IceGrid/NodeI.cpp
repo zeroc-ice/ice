@@ -459,6 +459,12 @@ NodeI::patch(const string& application,
 }
 
 void
+NodeI::registerWithReplica(const InternalRegistryPrx& replica, const Ice::Current&)
+{
+    _sessions.create(replica);
+}
+
+void
 NodeI::replicaAdded(const InternalRegistryPrx& replica, const Ice::Current&)
 {
     _sessions.replicaAdded(replica);

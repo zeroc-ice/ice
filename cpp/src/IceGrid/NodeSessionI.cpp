@@ -87,12 +87,6 @@ NodeSessionI::getServers(const Ice::Current& current) const
     return _database->getAllNodeServers(_name);
 }
 
-InternalRegistryPrxSeq
-NodeSessionI::getReplicas(const Ice::Current& current) const
-{
-    return _database->getReplicas();
-}
-
 void
 NodeSessionI::destroy(const Ice::Current& current)
 {
@@ -104,7 +98,7 @@ NodeSessionI::destroy(const Ice::Current& current)
 
     _destroy = true;
 
-    _database->removeNode(_name);
+    _database->removeNode(_name, this, !current.adapter);
 
     if(current.adapter)
     {

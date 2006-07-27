@@ -25,16 +25,19 @@ class ReplicaSessionI : public ReplicaSession, public IceUtil::Mutex
 {
 public:
 
-    ReplicaSessionI(const DatabasePtr&, const std::string&, const InternalRegistryPrx&, const ReplicaInfo&);
+    ReplicaSessionI(const DatabasePtr&, const std::string&, const InternalRegistryPrx&, const RegistryObserverPrx&);
 
     virtual void keepAlive(const Ice::Current&);
     virtual int getTimeout(const Ice::Current&) const;
+    virtual void setClientAndServerProxies(const Ice::ObjectPrx&, const Ice::ObjectPrx&, const Ice::Current&);
     virtual void destroy(const Ice::Current&);
     
     virtual IceUtil::Time timestamp() const;
 
     const InternalRegistryPrx& getProxy() const { return _proxy; }
-    const ReplicaInfo& getReplicaInfo() const { return _info; }
+    const RegistryObserverPrx& getObserver() const { return _observer; }
+    Ice::ObjectPrx getClientProxy() const;
+    Ice::ObjectPrx getServerProxy() const;
 
 private:
     
@@ -42,7 +45,9 @@ private:
     const TraceLevelsPtr _traceLevels;
     const std::string _name;
     const InternalRegistryPrx _proxy;
-    const ReplicaInfo _info;
+    const RegistryObserverPrx _observer;
+    Ice::ObjectPrx _clientProxy;
+    Ice::ObjectPrx _serverProxy;
     IceUtil::Time _timestamp;
     bool _destroy;
 };

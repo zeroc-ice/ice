@@ -7,24 +7,17 @@
 //
 // **********************************************************************
 
+#include <Ice/LocalException.h>
 #include <Ice/LoggerUtil.h>
 #include <IceGrid/ReplicaCache.h>
 #include <IceGrid/ReplicaSessionI.h>
-#include <IceGrid/Database.h>
 #include <IceGrid/Topics.h>
 
 using namespace std;
 using namespace IceGrid;
 
-ReplicaCache::ReplicaCache(const Ice::CommunicatorPtr& communicator, 
-			   const IceStorm::TopicManagerPrx& topicManager,
-			   const std::string& instanceName,
-			   const Ice::ObjectPrx& clientProxy,
-			   const Ice::ObjectPrx& serverProxy) :
-    _communicator(communicator),
-    _instanceName(instanceName),
-    _clientProxy(clientProxy),
-    _serverProxy(serverProxy)
+ReplicaCache::ReplicaCache(const Ice::CommunicatorPtr& communicator, const IceStorm::TopicManagerPrx& topicManager) :
+    _communicator(communicator)
 {
     IceStorm::TopicPrx t;
     try
@@ -43,45 +36,28 @@ ReplicaCache::ReplicaCache(const Ice::CommunicatorPtr& communicator,
 void
 ReplicaCache::destroy()
 {
-    //
-    // TODO: XXX: Is this also really needed for replicas?!
-    //
     _entries.clear();
 }
 
-void
-ReplicaCache::add(const string& name, const ReplicaSessionIPtr& session, const DatabasePtr& database)
+ReplicaEntryPtr
+ReplicaCache::add(const string& name, const ReplicaSessionIPtr& session)
 {
-    Lock sync(*this);
-
-    if(getImpl(name))
+    ReplicaEntryPtr entry;
     {
-	throw ReplicaActiveException();
-    }
+	Lock sync(*this);
+
+	if(getImpl(name))
+	{
+	    throw ReplicaActiveException();
+	}
     
-    if(_traceLevels && _traceLevels->replica > 0)
-    {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
-	out << "replica `" << name << "' up";
-    }
+	if(_traceLevels && _traceLevels->replica > 0)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
+	    out << "replica `" << name << "' up";
+	}
     
-    addImpl(name, new ReplicaEntry(name, session));
-
-    ObjectInfo info;
-    info.type = InternalRegistry::ice_staticId();
-    info.proxy = session->getProxy();
-    database->addObject(info, true);
-
-    Ice::ObjectPrx clientProxy = getClientProxy();
-    Ice::Identity id;
-    id.category = _instanceName;
-    id.name = "Query";
-    database->updateObject(clientProxy->ice_identity(id));
-
-    RegistryObserverTopicPtr topic = database->getRegistryObserverTopic();
-    if(topic)
-    {
-	topic->subscribe(session->getReplicaInfo().observer);
+	entry = addImpl(name, new ReplicaEntry(name, session));
     }
 
     try
@@ -92,16 +68,27 @@ ReplicaCache::add(const string& name, const ReplicaSessionIPtr& session, const D
     {
 	// TODO: XXX
     }
+
+    return entry;
 }
 
-void
-ReplicaCache::remove(const string& name, const DatabasePtr& database)
+ReplicaEntryPtr
+ReplicaCache::remove(const string& name)
 {
-    Lock sync(*this);
-
-    ReplicaEntryPtr entry = removeImpl(name);
-    assert(entry);
-
+    ReplicaEntryPtr entry;
+    {
+	Lock sync(*this);
+	
+	entry = removeImpl(name);
+	assert(entry);
+	
+	if(_traceLevels && _traceLevels->replica > 0)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
+	    out << "replica `" << name << "' down";
+	}
+    }
+    
     try
     {
 	_nodes->replicaRemoved(entry->getSession()->getProxy());
@@ -110,26 +97,8 @@ ReplicaCache::remove(const string& name, const DatabasePtr& database)
     {
 	// TODO: XXX
     }
-
-    RegistryObserverTopicPtr topic = database->getRegistryObserverTopic();
-    if(topic)
-    {
-	topic->unsubscribe(entry->getSession()->getReplicaInfo().observer);
-    }
-
-    database->removeObject(entry->getSession()->getProxy()->ice_getIdentity());
-
-    Ice::ObjectPrx clientProxy = getClientProxy();
-    Ice::Identity id;
-    id.category = _instanceName;
-    id.name = "Query";
-    database->updateObject(clientProxy->ice_identity(id));
-
-    if(_traceLevels && _traceLevels->replica > 0)
-    {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
-	out << "replica `" << name << "' down";
-    }
+    
+    return entry;
 }
 
 void
@@ -164,51 +133,46 @@ ReplicaCache::nodeRemoved(const NodePrx& node)
     }
 }
 
-InternalRegistryPrxSeq
-ReplicaCache::getAll() const
-{
-    Lock sync(*this);
-    InternalRegistryPrxSeq replicas;
-    replicas.reserve(_entries.size());
-    for(map<string, ReplicaEntryPtr>::const_iterator p = _entries.begin(); p != _entries.end(); ++p)
-    {
-	replicas.push_back(p->second->getSession()->getProxy());
-    }
-    return replicas;
-}
-
 Ice::ObjectPrx
-ReplicaCache::getClientProxy() const
+ReplicaCache::getClientProxy(const Ice::ObjectPrx& proxy) const
 {
     Ice::EndpointSeq endpoints;
 
-    Ice::EndpointSeq endpts = _clientProxy->ice_getEndpoints();
+    Ice::EndpointSeq endpts = proxy->ice_getEndpoints();
     endpoints.insert(endpoints.end(), endpts.begin(), endpts.end());
 
     for(map<string, ReplicaEntryPtr>::const_iterator p = _entries.begin(); p != _entries.end(); ++p)
     {
-	endpts = p->second->getSession()->getReplicaInfo().clientProxy->ice_getEndpoints();
-	endpoints.insert(endpoints.end(), endpts.begin(), endpts.end());
+	Ice::ObjectPrx clientProxy = p->second->getSession()->getClientProxy();
+	if(clientProxy)
+	{
+	    endpts = clientProxy->ice_getEndpoints();
+	    endpoints.insert(endpoints.end(), endpts.begin(), endpts.end());
+	}
     }
 
-    return _clientProxy->ice_endpoints(endpoints);
+    return proxy->ice_endpoints(endpoints);
 }
 
 Ice::ObjectPrx
-ReplicaCache::getServerProxy() const
+ReplicaCache::getServerProxy(const Ice::ObjectPrx& proxy) const
 {
     Ice::EndpointSeq endpoints;
 
-    Ice::EndpointSeq endpts = _serverProxy->ice_getEndpoints();
+    Ice::EndpointSeq endpts = proxy->ice_getEndpoints();
     endpoints.insert(endpoints.end(), endpts.begin(), endpts.end());
 
     for(map<string, ReplicaEntryPtr>::const_iterator p = _entries.begin(); p != _entries.end(); ++p)
     {
-	endpts = p->second->getSession()->getReplicaInfo().serverProxy->ice_getEndpoints();
-	endpoints.insert(endpoints.end(), endpts.begin(), endpts.end());
+	Ice::ObjectPrx serverProxy = p->second->getSession()->getServerProxy();
+	if(serverProxy)
+	{
+	    endpts = serverProxy->ice_getEndpoints();
+	    endpoints.insert(endpoints.end(), endpts.begin(), endpts.end());
+	}
     }
 
-    return _serverProxy->ice_endpoints(endpoints);
+    return proxy->ice_endpoints(endpoints);
 }
 
 

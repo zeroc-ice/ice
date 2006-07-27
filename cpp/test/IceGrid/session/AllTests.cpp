@@ -1557,7 +1557,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    int s = session1->startUpdate();
 	    test(s == serial);
 	    admin1->addApplication(nodeApp);
-	    regObs1->waitForUpdate(__FILE__, __LINE__);
+	    regObs1->waitForUpdate(__FILE__, __LINE__); // application added
 	    test(regObs1->applications.find("NodeApp") != regObs1->applications.end());
 	    test(++serial == regObs1->serial);
 	}
@@ -1582,6 +1582,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    cerr << "node = " << ex.name << endl;
 	    cerr << "reason = " << ex.reason << endl;
 	}
+	regObs1->waitForUpdate(__FILE__, __LINE__); // object added (for node well-known proxy)
+	test(++serial == regObs1->serial);
 
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // updateServer
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // updateServer
@@ -1601,6 +1603,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    cerr << "node = " << ex.name << endl;
 	    cerr << "reason = " << ex.reason << endl;
 	}
+	regObs1->waitForUpdate(__FILE__, __LINE__); // object removed (for node well-known proxy)
+	test(++serial == regObs1->serial);
+
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // updateServer
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // updateServer
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // nodeDown
@@ -1609,7 +1614,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	try
 	{
 	    admin1->removeApplication("NodeApp");
-	    regObs1->waitForUpdate(__FILE__, __LINE__);
+	    regObs1->waitForUpdate(__FILE__, __LINE__); // application removed
 	    test(regObs1->applications.empty());
 	    test(++serial == regObs1->serial);
 	}

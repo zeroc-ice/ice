@@ -63,12 +63,14 @@ ServerCache::ServerCache(const Ice::CommunicatorPtr& communicator,
 			 NodeCache& nodeCache, 
 			 AdapterCache& adapterCache, 
 			 ObjectCache& objectCache,
-			 AllocatableObjectCache& allocatableObjectCache) :
+			 AllocatableObjectCache& allocatableObjectCache,
+			 int sessionTimeout) :
     _communicator(communicator),
     _nodeCache(nodeCache), 
     _adapterCache(adapterCache), 
     _objectCache(objectCache),
-    _allocatableObjectCache(allocatableObjectCache)
+    _allocatableObjectCache(allocatableObjectCache),
+    _sessionTimeout(sessionTimeout)
 {
 }
 
@@ -623,7 +625,7 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
 	    //
 	    _loaded = _load;
 	    assert(_loaded.get());
-	    int timeout = _cache.getNodeCache().getSessionTimeout() * 1000; // sec to ms
+	    int timeout = _cache.getSessionTimeout() * 1000; // sec to ms
 	    _proxy = ServerPrx::uncheckedCast(proxy->ice_timeout(timeout)->ice_collocationOptimized(false));
 	    _adapters.clear();
 	    for(AdapterPrxDict::const_iterator p = adpts.begin(); p != adpts.end(); ++p)

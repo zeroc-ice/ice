@@ -155,10 +155,9 @@ private:
 
 };
 
-NodeCache::NodeCache(const Ice::CommunicatorPtr& communicator, ReplicaCache& replicaCache, int sessionTimeout) :
+NodeCache::NodeCache(const Ice::CommunicatorPtr& communicator, ReplicaCache& replicaCache) :
     _communicator(communicator),
-    _replicaCache(replicaCache),
-    _sessionTimeout(sessionTimeout)
+    _replicaCache(replicaCache)
 {
 }
 

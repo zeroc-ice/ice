@@ -71,7 +71,7 @@ class NodeCache : public CacheByString<NodeEntry>
 {
 public:
 
-    NodeCache(const Ice::CommunicatorPtr&, ReplicaCache&, int);
+    NodeCache(const Ice::CommunicatorPtr&, ReplicaCache&);
 
     void destroy();
 
@@ -79,13 +79,11 @@ public:
 
     const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
     ReplicaCache& getReplicaCache() const { return _replicaCache; }
-    int getSessionTimeout() const { return _sessionTimeout; }
 
 private:
     
     const Ice::CommunicatorPtr _communicator;
     ReplicaCache& _replicaCache;
-    const int _sessionTimeout;
 };
 
 };

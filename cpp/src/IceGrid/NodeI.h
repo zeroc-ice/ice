@@ -45,6 +45,7 @@ public:
     virtual void patch(const std::string&, const std::string&, const DistributionDescriptor&, bool,
 		       const Ice::Current&);
 
+    virtual void registerWithReplica(const InternalRegistryPrx&, const Ice::Current&);
     virtual void replicaAdded(const InternalRegistryPrx&, const Ice::Current&);
     virtual void replicaRemoved(const InternalRegistryPrx&, const Ice::Current&);
 

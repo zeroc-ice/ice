@@ -24,6 +24,7 @@ nodeOptions = r' --Ice.Warn.Connections=0' + \
               r' --IceGrid.Node.Endpoints=default' + \
               r' --IceGrid.Node.WaitTime=30' + \
               r' --Ice.ProgramName=icegridnode' + \
+              r' --IceGrid.Node.Trace.Replica=0' + \
               r' --IceGrid.Node.Trace.Activator=0' + \
               r' --IceGrid.Node.Trace.Adapter=0' + \
               r' --IceGrid.Node.Trace.Server=0' + \

@@ -22,21 +22,29 @@ typedef IceUtil::Handle<Database> DatabasePtr;
 class ReapThread;
 typedef IceUtil::Handle<ReapThread> ReapThreadPtr;    
 
+class ReplicaSessionManager;
+
 class InternalRegistryI : public InternalRegistry
 {
 public:
 
-    InternalRegistryI(const DatabasePtr&, const ReapThreadPtr&);
+    InternalRegistryI(const DatabasePtr&, const ReapThreadPtr&, ReplicaSessionManager&);
     virtual ~InternalRegistryI();
 
     virtual NodeSessionPrx registerNode(const std::string&, const NodePrx&, const NodeInfo&, const Ice::Current&);
-    virtual ReplicaSessionPrx registerReplica(const std::string&, const InternalRegistryPrx&, const ReplicaInfo&, 
-					      const Ice::Current&);
+    virtual ReplicaSessionPrx registerReplica(const std::string&, const InternalRegistryPrx&, 
+					      const RegistryObserverPrx&, const Ice::Current&);
+
+    virtual void registerWithReplica(const InternalRegistryPrx&, const Ice::Current&);
+
+    virtual NodePrxSeq getNodes(const Ice::Current&) const;
+    virtual InternalRegistryPrxSeq getReplicas(const Ice::Current&) const;
 
 private:    
 
     const DatabasePtr _database;
     const ReapThreadPtr _reaper;
+    ReplicaSessionManager& _session;
 };
     
 };

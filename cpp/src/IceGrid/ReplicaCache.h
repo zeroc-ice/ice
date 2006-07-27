@@ -24,9 +24,6 @@ class ReplicaCache;
 class ReplicaSessionI;
 typedef IceUtil::Handle<ReplicaSessionI> ReplicaSessionIPtr;
 
-class Database;
-typedef IceUtil::Handle<Database> DatabasePtr;
-
 class ReplicaEntry : public IceUtil::Shared
 {
 public:
@@ -47,27 +44,21 @@ class ReplicaCache : public CacheByString<ReplicaEntry>
 {
 public:
 
-    ReplicaCache(const Ice::CommunicatorPtr&, const IceStorm::TopicManagerPrx&, 
-		 const std::string&, const Ice::ObjectPrx&, const Ice::ObjectPrx&);
+    ReplicaCache(const Ice::CommunicatorPtr&, const IceStorm::TopicManagerPrx&);
     void destroy();
 
-    void add(const std::string&, const ReplicaSessionIPtr&, const DatabasePtr&);
-    void remove(const std::string&, const DatabasePtr&);
+    ReplicaEntryPtr add(const std::string&, const ReplicaSessionIPtr&);
+    ReplicaEntryPtr remove(const std::string&);
 
     void nodeAdded(const NodePrx&);
     void nodeRemoved(const NodePrx&);
-    
-    InternalRegistryPrxSeq getAll() const; 
+
+    Ice::ObjectPrx getClientProxy(const Ice::ObjectPrx&) const;
+    Ice::ObjectPrx getServerProxy(const Ice::ObjectPrx&) const;    
 
 private:
 
-    Ice::ObjectPrx getClientProxy() const;
-    Ice::ObjectPrx getServerProxy() const;
-    
     const Ice::CommunicatorPtr _communicator;
-    const std::string _instanceName;
-    const Ice::ObjectPrx _clientProxy;
-    const Ice::ObjectPrx _serverProxy;
     const IceStorm::TopicPrx _topic;
     const NodePrx _nodes;
 };

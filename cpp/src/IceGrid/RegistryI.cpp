@@ -241,6 +241,7 @@ RegistryI::start(bool nowarn)
     properties->setProperty("IceGrid.Registry.Admin.AdapterId", "");
     properties->setProperty("IceGrid.Registry.Internal.AdapterId", "");
 
+    setupThreadPool(properties, "Ice.ThreadPool.Client", 1, 100);
     setupThreadPool(properties, "IceGrid.Registry.Client.ThreadPool", 1, 10);
     setupThreadPool(properties, "IceGrid.Registry.Server.ThreadPool", 1, 10);
     setupThreadPool(properties, "IceGrid.Registry.Admin.ThreadPool", 1, 10);
@@ -251,11 +252,8 @@ RegistryI::start(bool nowarn)
     string replicaName = properties->getProperty("IceGrid.Registry.ReplicaName");
 
     //
-    // Create the object adapters.
+    // Create the internal registry object adapter and activate it.
     //
-    ObjectAdapterPtr serverAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Server");
-    ObjectAdapterPtr clientAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Client");
-    ObjectAdapterPtr adminAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Admin");
     ObjectAdapterPtr registryAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Internal");
     registryAdapter->activate();
 
@@ -278,54 +276,19 @@ RegistryI::start(bool nowarn)
 	_instanceName = _communicator->getDefaultLocator()->ice_getIdentity().category;
     }
 
-
-
     //
-    // Add a default servant locator to the client object adapter. The
-    // default servant ensure that request on session objects are from
-    // the same connection as the connection that created the session.
+    // Start the internal reaper thread.
     //
-    _sessionServantLocator = new SessionServantLocatorI(clientAdapter, _instanceName);
-    clientAdapter->addServantLocator(_sessionServantLocator, "");    
-
-    //
-    // Start the reaper threads.
-    //
-    int intSessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.NodeSessionTimeout", 10);
-    intSessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.InternalSessionTimeout", 
-								intSessionTimeout);
-    _internalReaper = new ReapThread(intSessionTimeout);
+    int timeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.NodeSessionTimeout", 10);
+    timeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.InternalSessionTimeout", timeout);
+    _internalReaper = new ReapThread(timeout);
     _internalReaper->start();
 
-    //
-    // TODO: Deprecate AdminSessionTimeout?
-    //
-    int admSessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.AdminSessionTimeout", 10);
-    _sessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.SessionTimeout", admSessionTimeout);
-    if(_sessionTimeout != intSessionTimeout)
-    {
-	_clientReaper = new ReapThread(_sessionTimeout);
-	_clientReaper->start();
-    }
-    else
-    {
-	_clientReaper = _internalReaper;
-    }
-
-    //
-    // Setup the wait queue (used for allocation request timeouts).
-    //
-    _waitQueue = new WaitQueue();
-    _waitQueue->start();
-    
     //
     // Create the registry database.
     //
     properties->setProperty("Freeze.DbEnv.Registry.DbHome", dbPath);
     properties->setProperty("Freeze.DbEnv.Registry.DbPrivate", "0");
-
-    Ice::ObjectPrx clientPrx = clientAdapter->createDirectProxy(_communicator->stringToIdentity("dummy"));
-    Ice::ObjectPrx serverPrx = clientAdapter->createDirectProxy(_communicator->stringToIdentity("dummy"));
 
     //
     // Create the internal IceStorm service.
@@ -337,27 +300,68 @@ RegistryI::start(bool nowarn)
  					  _communicator->stringToIdentity(_instanceName + "/RegistryTopicManager"),
 					  "Registry");
 
-    _database = new Database(registryAdapter, _iceStorm->getTopicManager(), clientPrx, serverPrx, _instanceName, 
-			     intSessionTimeout, _traceLevels);
+    _database = new Database(registryAdapter, _iceStorm->getTopicManager(), _instanceName, timeout, _traceLevels);
 
     InternalRegistryPrx internalRegistry;
     if(replicaName.empty())
     {
 	_database->initMaster();
-
-	LocatorPrx internalLocator = setupLocator(clientAdapter, serverAdapter, registryAdapter);
-	setupQuery(clientAdapter);
-	setupAdmin(adminAdapter);
-	setupRegistry(clientAdapter);
 	internalRegistry = setupInternalRegistry(registryAdapter, replicaName);
-	
 	setupNullPermissionsVerifier(registryAdapter);
 	if(!setupUserAccountMapper(registryAdapter))
 	{
 	    return false;
 	}
+
+	NodePrxSeq nodes = registerReplicas(internalRegistry);
+	registerNodes(internalRegistry, nodes);
+    }
+    else
+    {
+	internalRegistry = setupInternalRegistry(registryAdapter, replicaName);
+	_session.create(replicaName, _database, internalRegistry);
+
+	registerNodes(internalRegistry, _session.getNodes());
+    }
+
+    ObjectAdapterPtr serverAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Server");
+    ObjectAdapterPtr clientAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Client");
+    ObjectAdapterPtr adminAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Admin");
+
+    _database->setClientProxy(clientAdapter->createDirectProxy(_communicator->stringToIdentity("dummy")));
+    _database->setServerProxy(serverAdapter->createDirectProxy(_communicator->stringToIdentity("dummy")));
+
+    if(replicaName.empty())
+    {
+	LocatorPrx internalLocator = setupLocator(clientAdapter, serverAdapter, registryAdapter);
+	setupQuery(clientAdapter);
+	setupAdmin(adminAdapter);
+	setupRegistry(clientAdapter);	
+
+	//
+	// TODO: Deprecate AdminSessionTimeout?
+	//
+	int sessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.AdminSessionTimeout", 10);
+	_sessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.SessionTimeout", sessionTimeout);
+	_clientReaper = new ReapThread(_sessionTimeout);
+	_clientReaper->start();
+
+	//
+	// Add a default servant locator to the client object adapter. The
+	// default servant ensure that request on session objects are from
+	// the same connection as the connection that created the session.
+	//
+	_sessionServantLocator = new SessionServantLocatorI(clientAdapter, _instanceName);
+	clientAdapter->addServantLocator(_sessionServantLocator, "");    
+	
 	setupClientSessionFactory(registryAdapter, adminAdapter, internalLocator, nowarn);
 	setupAdminSessionFactory(registryAdapter, adminAdapter, internalLocator, nowarn);
+
+	//
+	// Register all the replicated well-known objects with all the
+	// known client and server endpoints.
+	//
+	_database->updateReplicatedWellKnownObjects();
     }
     else
     {
@@ -366,15 +370,8 @@ RegistryI::start(bool nowarn)
 	// initialized by the observer when the replica registers with
 	// the master.
 	//
-
 	setupLocator(clientAdapter, serverAdapter, 0);
 	setupQuery(clientAdapter);
-	internalRegistry = setupInternalRegistry(registryAdapter, replicaName);
-    }
-
-    if(!replicaName.empty())
-    {
-	_session.create(replicaName, _database, internalRegistry, clientAdapter, serverAdapter);
     }
 
     //
@@ -383,6 +380,11 @@ RegistryI::start(bool nowarn)
     serverAdapter->activate();
     clientAdapter->activate();
     adminAdapter->activate();
+
+    if(!replicaName.empty())
+    {
+	_session.activate();
+    }
 
     return true;
 }
@@ -420,7 +422,12 @@ RegistryI::setupQuery(const Ice::ObjectAdapterPtr& clientAdapter)
 {
     Identity queryId = _communicator->stringToIdentity(_instanceName + "/Query");
     clientAdapter->add(new QueryI(_communicator, _database), queryId);
-    addWellKnownObject(clientAdapter->createProxy(queryId), Query::ice_staticId());
+
+    // 
+    // We don't register the IceGrid::Query object well-known
+    // object. This is taken care of by the database. 
+    //
+//    addWellKnownObject(clientAdapter->createProxy(queryId), Query::ice_staticId());
 }
 
 void
@@ -448,7 +455,7 @@ RegistryI::setupInternalRegistry(const Ice::ObjectAdapterPtr& registryAdapter, c
     {
 	internalRegistryId.name += "-" + replicaName;
     }
-    ObjectPtr internalRegistry = new InternalRegistryI(_database, _internalReaper);
+    ObjectPtr internalRegistry = new InternalRegistryI(_database, _internalReaper, _session);
     Ice::ObjectPrx proxy = registryAdapter->add(internalRegistry, internalRegistryId);
     addWellKnownObject(proxy, InternalRegistry::ice_staticId());
     return InternalRegistryPrx::uncheckedCast(proxy);
@@ -495,6 +502,9 @@ RegistryI::setupClientSessionFactory(const Ice::ObjectAdapterPtr& registryAdapte
 				     const Ice::LocatorPrx& locator,
 				     bool nowarn)
 {
+    _waitQueue = new WaitQueue(); // Used for for session allocation timeout.
+    _waitQueue->start();
+    
     _clientSessionFactory = new ClientSessionFactory(adminAdapter, _database, _waitQueue);
 
     Identity clientSessionMgrId = _communicator->stringToIdentity(_instanceName + "/SessionManager");
@@ -557,20 +567,22 @@ RegistryI::stop()
 
     _database->clearTopics();
 
-    _internalReaper->terminate();
-    _internalReaper->getThreadControl().join();
-
-    if(_internalReaper != _clientReaper)
+    if(_clientReaper)
     {
 	_clientReaper->terminate();
 	_clientReaper->getThreadControl().join();
+	_clientReaper = 0;
     }
 
+    _internalReaper->terminate();
+    _internalReaper->getThreadControl().join();
     _internalReaper = 0;
-    _clientReaper = 0;
 
-    _waitQueue->destroy();
-    _waitQueue = 0;
+    if(_waitQueue)
+    {
+	_waitQueue->destroy();
+	_waitQueue = 0;
+    }
 
     if(_iceStorm)
     {
@@ -585,6 +597,8 @@ RegistryI::stop()
 SessionPrx
 RegistryI::createSession(const string& user, const string& password, const Current& current)
 {
+    assert(_clientReaper && _clientSessionFactory);
+
     if(!_clientVerifier)
     {
 	PermissionDeniedException ex;
@@ -627,6 +641,8 @@ RegistryI::createSession(const string& user, const string& password, const Curre
 AdminSessionPrx
 RegistryI::createAdminSession(const string& user, const string& password, const Current& current)
 {
+    assert(_clientReaper && _adminSessionFactory);
+
     if(!_adminVerifier)
     {
 	PermissionDeniedException ex;
@@ -671,6 +687,8 @@ RegistryI::createAdminSession(const string& user, const string& password, const 
 SessionPrx
 RegistryI::createSessionFromSecureConnection(const Current& current)
 {
+    assert(_clientReaper && _clientSessionFactory);
+
     if(!_sslClientVerifier)
     {
 	PermissionDeniedException ex;
@@ -715,6 +733,8 @@ RegistryI::createSessionFromSecureConnection(const Current& current)
 AdminSessionPrx
 RegistryI::createAdminSessionFromSecureConnection(const Current& current)
 {
+    assert(_clientReaper && _adminSessionFactory);
+
     if(!_sslAdminVerifier)
     {
 	PermissionDeniedException ex;
@@ -777,17 +797,10 @@ void
 RegistryI::addWellKnownObject(const ObjectPrx& proxy, const string& type)
 {
     assert(_database);
-    try
-    {
-	_database->removeObject(proxy->ice_getIdentity());
-    }
-    catch(const IceGrid::ObjectNotRegisteredException&)
-    {
-    }
     ObjectInfo info;
     info.proxy = proxy;
     info.type = type;
-    _database->addObject(info);
+    _database->addObject(info, true);
 }
 
 void
@@ -1006,4 +1019,51 @@ RegistryI::getSSLInfo(const ConnectionPtr& connection, string& userDN)
     }
 
     return sslinfo;
+}
+
+NodePrxSeq
+RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry)
+{
+    set<NodePrx> nodes;
+    InternalRegistryPrxSeq replicas = internalRegistry->getReplicas();
+    for(InternalRegistryPrxSeq::const_iterator r = replicas.begin(); r != replicas.end(); ++r)
+    {
+	if((*r)->ice_getIdentity() != internalRegistry->ice_getIdentity())
+	{
+	    try
+	    {
+		(*r)->registerWithReplica(internalRegistry);
+		NodePrxSeq nds = (*r)->getNodes();
+		nodes.insert(nds.begin(), nds.end());
+	    }
+	    catch(const Ice::LocalException&)
+	    {
+		// TODO: Cleanup the database?
+	    }
+	}
+    }
+    
+    if(nodes.empty())
+    {
+	NodePrxSeq nds = internalRegistry->getNodes();
+	nodes.insert(nds.begin(), nds.end());
+    }
+
+    return NodePrxSeq(nodes.begin(), nodes.end());
+}
+
+void
+RegistryI::registerNodes(const InternalRegistryPrx& internalRegistry, const NodePrxSeq& nodes)
+{
+    for(NodePrxSeq::const_iterator p = nodes.begin(); p != nodes.end(); ++p)
+    {
+	try
+	{
+	    NodePrx::uncheckedCast(*p)->registerWithReplica(internalRegistry);
+	}
+	catch(const Ice::LocalException&)
+	{
+	    // TODO: Cleanup the database?
+	}
+    }
 }

@@ -215,6 +215,13 @@ interface Node
 
     /**
      *
+     * Establish a session to the given replica.
+     * 
+     **/
+    void registerWithReplica(InternalRegistry* replica);
+
+    /**
+     *
      * Notification that a replica has been added. The node should 
      * establish a session with this new replica.
      *
@@ -258,6 +265,8 @@ interface Node
     nonmutating void shutdown();
 };
 
+sequence<Node*> NodePrxSeq;
+
 /**
  *
  * This exception is raised if a node is already registered and
@@ -300,13 +309,6 @@ interface NodeSession
 
     /**
      *
-     * Get the replicas of the IceGrid registry.
-     *
-     **/
-    nonmutating InternalRegistryPrxSeq getReplicas();
-
-    /**
-     *
      * Destroy the session.
      *
      **/
@@ -321,13 +323,6 @@ interface NodeSession
  **/
 exception ReplicaActiveException
 {
-};
-
-struct ReplicaInfo
-{
-    RegistryObserver* observer;
-    Object* clientProxy;
-    Object* serverProxy;
 };
 
 interface ReplicaSession
@@ -345,6 +340,15 @@ interface ReplicaSession
      *
      **/ 
     nonmutating int getTimeout();
+
+    /**
+     *
+     * Set the client and server proxies for this replica. This will
+     * cause the master registry to update the registry well-known
+     * objects endpoints (e.g.: for the IceGrid::Query interface).
+     *
+     **/
+    idempotent void setClientAndServerProxies(Object* serverProxy, Object* clientProxy);
 
     /**
      *
@@ -377,8 +381,13 @@ interface InternalRegistry
     NodeSession* registerNode(string name, Node* nd, NodeInfo info)
 	throws NodeActiveException;
 
-    ReplicaSession* registerReplica(string name, InternalRegistry* prx, ReplicaInfo info)
+    ReplicaSession* registerReplica(string name, InternalRegistry* prx, RegistryObserver* observer)
 	throws ReplicaActiveException;
+
+    void registerWithReplica(InternalRegistry* prx);
+
+    nonmutating NodePrxSeq getNodes();
+    nonmutating InternalRegistryPrxSeq getReplicas();
 };
 
 
