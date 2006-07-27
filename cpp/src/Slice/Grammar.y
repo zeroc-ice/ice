@@ -732,10 +732,13 @@ operation_preamble
 	    if(firstWarning)
 	    {
 		msg += ";\n";
-		msg += "You should replace it with 'idempotent' plus Freeze metadata\n";
-		msg += "(if you use a Freeze evictor) and/or [\"cpp:const\"] (if you\n";
-		msg += "want a const member function on the generated C++ servant\n";
-		msg += "base class).";
+		msg += "You should use instead 'idempotent' plus:\n";
+		msg += " - Freeze metadata ([\"freeze:read\"], [\"freeze:write\"]) if you implement your objects with a Freeze evictor\n";
+		msg += " - [\"nonmutating\"], if you need to maintain compatibility with operations that expect ";
+		msg += "'Nonmutating' as operation-mode. With this metadata, the generated code sends ";
+		msg += "'Nonmutating' instead of 'Idempotent'\n";
+		msg += " - [\"cpp:const\"], to get a const member function on the generated C++ servant base class";
+
 		firstWarning = false;
 	    }
 	    
