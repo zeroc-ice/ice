@@ -141,6 +141,10 @@ SOURCE=.\PythonUtil.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\RubyUtil.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Scanner.cpp
 # End Source File
 # Begin Source File
@@ -190,6 +194,10 @@ SOURCE=..\..\include\slice\Preprocessor.h
 # Begin Source File
 
 SOURCE=..\..\include\slice\PythonUtil.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\slice\RubyUtil.h
 # End Source File
 # Begin Source File
 
