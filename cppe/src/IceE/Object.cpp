@@ -186,10 +186,26 @@ void
 Ice::Object::__invalidMode(OperationMode expected, OperationMode received)
 {
     assert(expected != received);
-    Ice::MarshalException ex(__FILE__, __LINE__);
-    ex.reason = Ice::printfToString("unexpected operation mode. expected = %s received = %s", 
-				    operationModeToString(expected), operationModeToString(received));
-    throw ex;
+
+    if(expected == Idempotent && received == Nonmutating)
+    {
+	// 
+	// Fine: typically an old client still using the deprecated nonmutating keyword
+	//
+	
+	//
+	// Note that expected == Nonmutating and received == Idempotent is not ok:
+	// the server may still use the deprecated nonmutating keyword to detect updates
+	// and the client should not break this (deprecated) feature.
+	//
+    }
+    else
+    {
+	Ice::MarshalException ex(__FILE__, __LINE__);
+	ex.reason = Ice::printfToString("unexpected operation mode. expected = %s received = %s", 
+					operationModeToString(expected), operationModeToString(received));
+	throw ex;
+    }
 }
 
 DispatchStatus

@@ -211,11 +211,22 @@ public abstract class ObjectImpl implements Object
     {
 	if(expected != received)
 	{
-	    Ice.MarshalException ex = new Ice.MarshalException();
-	    ex.reason = "unexpected operation mode. expected = "
-			+ operationModeToString(expected) + " received = "
-			+ operationModeToString(received);
-	    throw ex;
+	    if(expected == Ice.OperationMode.Idempotent 
+	       && received == Ice.OperationMode.Nonmutating)
+	    {
+		//
+		// Fine: typically an old client still using the 
+                // deprecated nonmutating keyword
+		//
+	    }
+	    else
+	    {
+		Ice.MarshalException ex = new Ice.MarshalException();
+		ex.reason = "unexpected operation mode. expected = "
+		    + operationModeToString(expected) + " received = "
+		    + operationModeToString(received);
+		throw ex;
+	    }
 	}
     }
 }

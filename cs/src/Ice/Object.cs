@@ -282,11 +282,22 @@ namespace Ice
 	{
 	    if(expected != received)
 	    {
-		Ice.MarshalException ex = new Ice.MarshalException();
-		ex.reason = "unexpected operation mode. expected = "
-		    + operationModeToString(expected) + " received = "
-		    + operationModeToString(received);
-		throw ex;
+		if(expected == OperationMode.Idempotent 
+		   && received == OperationMode.Nonmutating)
+		{
+		    //
+		    // Fine: typically an old client still using the 
+		    // deprecated nonmutating keyword
+		    //
+		}
+		else
+		{
+		    Ice.MarshalException ex = new Ice.MarshalException();
+		    ex.reason = "unexpected operation mode. expected = "
+			+ operationModeToString(expected) + " received = "
+			+ operationModeToString(received);
+		    throw ex;
+		}
 	    }
 	}
         public static Ice.Current defaultCurrent = new Ice.Current();
