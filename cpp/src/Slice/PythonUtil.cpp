@@ -1888,7 +1888,7 @@ Slice::Python::printHeader(IceUtil::Output& out)
     static const char* header =
 "# **********************************************************************\n"
 "#\n"
-"# Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.\n"
+"# Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.\n"
 "#\n"
 "# This copy of Ice is licensed to you under the terms described in the\n"
 "# ICE_LICENSE file included in this distribution.\n"
