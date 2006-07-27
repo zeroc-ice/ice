@@ -1,0 +1,230 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+ifndef ICE_HOME
+    $(error ICE_HOME is not defined)
+endif
+
+#
+# Select an installation base directory. The directory will be created
+# if it does not exist.
+#
+
+prefix			= /opt/IceRuby-$(VERSION)
+
+#
+# Define OPTIMIZE as yes if you want to build with optimization.
+# Otherwise the Ice extension is built with debug information.
+#
+
+#OPTIMIZE		= yes
+
+#
+# Define LP64 as yes if you want to build in 64 bit mode on a platform
+# that supports both 32 and 64 bit.
+#
+#LP64			:= yes
+
+#
+# The values below can be overridden by defining them as environment
+# variables.
+#
+
+#
+# If you've built Ruby yourself then set RUBY_HOME to contain
+# the installation directory; the rest of the Ruby-related settings
+# should be correct.
+#
+# If you've installed a distribution, or Ruby was included with
+# your system, then you likely need to review the values of
+# RUBY_INCLUDE_DIR and RUBY_LIB_DIR.
+#
+
+UNAME_MACHINE		=  $(shell uname -m)
+
+ifneq ($(RUBY_HOME),)
+    RUBY_LIB_DIR	= $(RUBY_HOME)/lib
+else
+    RUBY_LIB_DIR	= /usr/lib
+endif
+
+RUBY_VERSION	    	= $(notdir $(wildcard $(RUBY_LIB_DIR)/ruby/[0-9]*))
+RUBY_PLATFORM		= $(notdir $(wildcard $(RUBY_LIB_DIR)/ruby/$(RUBY_VERSION)/$(UNAME_MACHINE)*))
+RUBY_INCLUDE_DIR	= $(RUBY_LIB_DIR)/ruby/$(RUBY_VERSION)/$(RUBY_PLATFORM)
+
+ifeq ($(shell test ! -f $(RUBY_LIB_DIR)/libruby.so -a -f $(RUBY_LIB_DIR)/libruby-static.a && echo 0),0)
+    RUBY_STATIC	= yes
+endif
+
+RUBY_FLAGS		?= -I$(RUBY_INCLUDE_DIR)
+
+ifneq ($(RUBY_STATIC),)
+    RUBY_LIBS		?= -L$(RUBY_LIB_DIR) -lruby-static
+else
+    RUBY_LIBS		?= -L$(RUBY_LIB_DIR) -lruby
+endif
+
+ifeq ($(LP64),yes)
+   ICE_LIBS             = -L$(ICE_HOME)/lib64 -L$(ICE_HOME)/lib -lIce -lIceUtil -lSlice 
+else 
+   ICE_LIBS		= -L$(ICE_HOME)/lib -lIce -lIceUtil -lSlice
+endif
+
+ICE_FLAGS		= -I$(ICE_HOME)/include
+
+
+
+# ----------------------------------------------------------------------
+# Don't change anything below this line!
+# ----------------------------------------------------------------------
+
+SHELL			= /bin/sh
+VERSION			= 3.1.0
+SOVERSION		= 31
+libdir			= $(top_srcdir)/ruby
+
+ifeq ($(shell test -d $(top_srcdir)/slice && echo 0),0)
+    slicedir		= $(top_srcdir)/slice
+else
+    slicedir		= $(ICE_HOME)/slice
+endif
+
+ifeq ($(LP64),yes)
+#
+# TODO: Where should the shared library be installed if it is a 64 bit
+# build.
+#
+    install_libdir	= $(prefix)/lib
+else
+    install_libdir	= $(prefix)/lib
+endif
+
+install_slicedir	= $(prefix)/slice
+install_rubydir		= $(prefix)/ruby
+
+INSTALL			= cp -fp
+INSTALL_PROGRAM		= ${INSTALL}
+INSTALL_LIBRARY		= ${INSTALL}
+INSTALL_DATA		= ${INSTALL}
+
+UNAME			:= $(shell uname)
+
+#
+# Platform specific definitions
+#
+ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
+    configdir		= $(top_srcdir)/config
+else
+    configdir		= $(ICE_HOME)/config
+endif
+include	 $(configdir)/Make.rules.$(UNAME)
+
+ifeq ($(LP64),yes)
+    libsubdir		  := lib$(lp64suffix)
+else
+    libsubdir		  := lib
+endif
+
+
+CPPFLAGS		=
+ICECPPFLAGS		= -I$(slicedir)
+SLICE2RBFLAGS		= $(ICECPPFLAGS)
+
+LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
+
+#
+# Default functions for shared library names. A Ruby extension library
+# cannot have a "lib" prefix, so Ruby-specific functions are defined.
+#
+
+ifeq ($(mklibfilename),)
+    mklibfilename	= $(if $(2),lib$(1).so.$(2),lib$(1).so)
+endif
+
+ifeq ($(mksoname),)
+    mksoname		= $(if $(2),lib$(1).so.$(2),lib$(1).so)
+endif
+
+ifeq ($(mklibname),)
+    mklibname		= lib$(1).so
+endif
+
+ifndef mklibtargets
+    mklibtargets	= $(1) $(2) $(3)
+endif
+
+ifeq ($(mkshlib),)
+    $(error You need to define mkshlib in Make.rules.$(UNAME)) 
+endif
+
+ifeq ($(installlib),)
+    installlib		= $(INSTALL) $(2)/$(3) $(1); \
+			  rm -f $(1)/$(4); ln -s $(3) $(1)/$(4); \
+			  rm -f $(1)/$(5); ln -s $(4) $(1)/$(5); \
+			  chmod a+rx $(1)/$(3) 
+endif
+
+ifeq ($(installdata),)
+    installdata		= $(INSTALL_DATA) $(1) $(2); \
+			  chmod a+r $(2)/$(notdir $(1))
+endif
+
+ifeq ($(installprogram),)
+    installprogram	= $(INSTALL_PROGRAM) $(1) $(2); \
+			  chmod a+rx $(2)/$(notdir $(1))
+endif
+
+ifeq ($(mkdir),)
+    mkdir		= mkdir $(1) ; \
+			  chmod a+rx $(1)
+endif
+
+#
+# A Ruby extension library cannot have a "lib" prefix, so Ruby-specific
+# functions are defined that strip "lib" from the regular library name.
+#
+mkrubylibfilename	= $(subst lib,,$(call mklibfilename,$(1),$(2)))
+mkrubysoname		= $(subst lib,,$(call mksoname,$(1),$(2)))
+mkrubylibname		= $(subst lib,,$(call mklibname,$(1)))
+
+SLICE2RB		= $(ICE_HOME)/bin/slice2rb
+
+EVERYTHING		= all depend clean install
+
+.SUFFIXES:
+.SUFFIXES:		.cpp .o .rb
+
+all:: $(SRCS)
+
+%.rb: $(SDIR)/%.ice
+	rm -f $(*F).rb
+	$(SLICE2RB) $(SLICE2RBFLAGS) $<
+
+.cpp.o:
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+
+clean::
+	-rm -f $(TARGETS)
+	-rm -f core *.o *.bak
+
+all:: $(SRCS) $(TARGETS)
+
+depend:: $(SRCS) $(SLICE_SRCS)
+	-rm -f .depend
+	if test -n "$(SRCS)" ; then \
+	    $(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | \
+	    $(configdir)/makedepend.py >> .depend; \
+	fi
+
+ifneq ($(TEMPLATE_REPOSITORY),)
+clean::
+	rm -fr $(TEMPLATE_REPOSITORY)
+endif
+
+install::

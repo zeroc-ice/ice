@@ -1,0 +1,10 @@
+Communicator.o: Communicator.cpp ./Communicator.h ./Config.h ./Logger.h ./ObjectFactory.h ./Properties.h ./Proxy.h ./Util.h
+Init.o: Init.cpp ./Communicator.h ./Config.h ./Logger.h ./Operation.h ./Properties.h ./Proxy.h ./Slice.h ./Types.h ./Util.h
+Logger.o: Logger.cpp ./Logger.h ./Config.h ./Util.h
+ObjectFactory.o: ObjectFactory.cpp ./ObjectFactory.h ./Config.h ./Types.h ./Util.h
+Operation.o: Operation.cpp ./Operation.h ./Config.h ./Proxy.h ./Types.h ./Util.h
+Properties.o: Properties.cpp ./Properties.h ./Config.h ./Util.h
+Proxy.o: Proxy.cpp ./Proxy.h ./Config.h ./Communicator.h ./Util.h
+Slice.o: Slice.cpp ./Slice.h ./Config.h ./Util.h
+Types.o: Types.cpp ./Types.h ./Config.h ./Util.h ./Proxy.h
+Util.o: Util.cpp ./Util.h ./Config.h
