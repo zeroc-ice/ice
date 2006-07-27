@@ -5148,6 +5148,8 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
         ami = true;
     }
     StringList metaData = p->getMetaData();
+    metaData.remove("cpp:const");
+
     TypePtr returnType = p->returnType();
     if(!metaData.empty())
     {
@@ -5165,7 +5167,7 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
         }
         else
         {
-            validate(returnType, metaData, p->definitionContext()->filename(), p->line(), ami);
+	    validate(returnType, metaData, p->definitionContext()->filename(), p->line(), ami);
         }
     }
 
@@ -5245,6 +5247,7 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
                         continue;
                     }
                 }
+
                 cout << file << ":" << line << ": warning: ignoring invalid metadata `" << s << "'" << endl;
             }
             _history.insert(s);
