@@ -1,5 +1,5 @@
 #
-# The client reads this property to createIceSSL the reference to the
+# The client reads this property to create the reference to the
 # "hello" object in the server.
 #
 Hello.Proxy=hello:tcp -p 10000:udp -p 10000:ssl -p 10001
