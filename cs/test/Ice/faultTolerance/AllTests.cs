@@ -166,26 +166,6 @@ public class AllTests
 	private AMI_Test_abortI @delegate = new AMI_Test_abortI();
     }
     
-    private class AMI_Test_nonmutatingAbortI : AMI_TestIntf_nonmutatingAbort
-    {
-	public override void ice_response()
-	{
-	    test(false);
-	}
-	
-	public override void ice_exception(Ice.Exception ex)
-	{
-	    @delegate.ice_exception(ex);
-	}
-	
-	public bool check()
-	{
-	    return @delegate.check();
-	}
-
-	private AMI_Test_abortI @delegate = new AMI_Test_abortI();
-    }
-    
     public static void allTests(Ice.Communicator communicator, System.Collections.ArrayList ports)
     {
         Console.Out.Write("testing stringToProxy... ");
@@ -290,7 +270,7 @@ public class AllTests
 		    Console.Out.WriteLine("ok");
 		}
             }
-            else if(j == 2)
+            else if(j == 2 || j == 3)
             {
 	        if(!ami)
 		{
@@ -320,41 +300,6 @@ public class AllTests
 		    Console.Out.Flush();
 		    AMI_Test_idempotentAbortI cb = new AMI_Test_idempotentAbortI();
 		    obj.idempotentAbort_async(cb);
-		    test(cb.check());
-		    Console.Out.WriteLine("ok");
-		}
-                ++i;
-            }
-            else if(j == 3)
-            {
-	        if(!ami)
-		{
-		    Console.Out.Write("aborting server #" + i + " and #" + (i + 1) + " with nonmutating call... ");
-		    Console.Out.Flush();
-		    try
-		    {
-			obj.nonmutatingAbort();
-			test(false);
-		    }
-		    catch(Ice.ConnectionLostException)
-		    {
-			Console.Out.WriteLine("ok");
-		    }
-		    catch(Ice.ConnectFailedException)
-		    {
-			Console.Out.WriteLine("ok");
-		    }
-		    catch(Ice.SocketException)
-		    {
-			Console.Out.WriteLine("ok");
-		    }
-		}
-		else
-		{
-		    Console.Out.Write("aborting server #" + i + " and #" + (i + 1) + " with nonmutating AMI call... ");
-		    Console.Out.Flush();
-		    AMI_Test_nonmutatingAbortI cb = new AMI_Test_nonmutatingAbortI();
-		    obj.nonmutatingAbort_async(cb);
 		    test(cb.check());
 		    Console.Out.WriteLine("ok");
 		}

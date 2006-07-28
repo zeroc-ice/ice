@@ -41,11 +41,6 @@ public sealed class TestI : TestIntfDisp_
 	commitSuicide();
     }
     
-    public override void nonmutatingAbort(Ice.Current current)
-    {
-	commitSuicide();
-    }
-    
     public override int pid(Ice.Current current)
     {
 	lock(this)

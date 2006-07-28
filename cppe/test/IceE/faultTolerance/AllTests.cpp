@@ -116,31 +116,12 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 	        tprintf("ok\n");
 	    }
 	}
-	else if(j == 2)
+	else if(j == 2 || j == 3)
 	{
 	    tprintf("aborting server #%d and #%d with idempotent call...", i, i + 1);
 	    try
 	    {
 	        obj->idempotentAbort();
-	        test(false);
-	    }
-	    catch(const Ice::ConnectionLostException&)
-	    {
-	        tprintf("ok\n");
-	    }
-	    catch(const Ice::ConnectFailedException&)
-	    {
-	        tprintf("ok\n");
-	    }
-
-	    ++i;
-	}
-	else if(j == 3)
-	{
-	    tprintf("aborting server #%d and #%d with nonmutating call...", i, i + 1);
-	    try
-	    {
-	        obj->nonmutatingAbort();
 	        test(false);
 	    }
 	    catch(const Ice::ConnectionLostException&)

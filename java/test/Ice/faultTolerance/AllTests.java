@@ -203,36 +203,7 @@ public class AllTests
 
 	private AMI_Test_abortI delegate = new AMI_Test_abortI();
     }
-    
-    private static class AMI_Test_nonmutatingAbortI extends AMI_TestIntf_nonmutatingAbort
-    {
-	public void
-	ice_response()
-	{
-	    test(false);
-	}
-	
-	public void
-	ice_exception(Ice.LocalException ex)
-	{
-	    delegate.ice_exception(ex);
-	}
-	
-	public void
-	ice_exception(Ice.UserException ex)
-	{
-	    delegate.ice_exception(ex);
-	}
-	
-	public boolean
-	check()
-	{
-	    return delegate.check();
-	}
-
-	private AMI_Test_abortI delegate = new AMI_Test_abortI();
-    }
-    
+     
     public static void
     allTests(Ice.Communicator communicator, int[] ports)
     {
@@ -339,7 +310,7 @@ public class AllTests
 		    System.out.println("ok");
 		}
             }
-            else if(j == 2)
+            else if(j == 2 || j == 3)
             {
 		if(!ami)
 		{
@@ -369,42 +340,6 @@ public class AllTests
 		    System.out.flush();
 		    AMI_Test_idempotentAbortI cb = new AMI_Test_idempotentAbortI();
 		    obj.idempotentAbort_async(cb);
-		    test(cb.check());
-		    System.out.println("ok");
-		}
-
-                ++i;
-            }
-            else if(j == 3)
-            {
-		if(!ami)
-		{
-		    System.out.print("aborting server #" + i + " and #" + (i + 1) + " with nonmutating call... ");
-		    System.out.flush();
-		    try
-		    {
-			obj.nonmutatingAbort();
-			test(false);
-		    }
-		    catch(Ice.ConnectionLostException ex)
-		    {
-			System.out.println("ok");
-		    }
-		    catch(Ice.ConnectFailedException exc)
-		    {
-			System.out.println("ok");
-		    }
-		    catch(Ice.SocketException ex)
-		    {
-			System.out.println("ok");
-		    }
-		}
-		else
-		{
-		    System.out.print("aborting server #" + i + " and #" + (i + 1) + " with nonmutating AMI call... ");
-		    System.out.flush();
-		    AMI_Test_nonmutatingAbortI cb = new AMI_Test_nonmutatingAbortI();
-		    obj.nonmutatingAbort_async(cb);
 		    test(cb.check());
 		    System.out.println("ok");
 		}

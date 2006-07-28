@@ -41,9 +41,6 @@ class TestI(Test.TestIntf):
     def idempotentAbort(self, current=None):
         os._exit(0)
 
-    def nonmutatingAbort(self, current=None):
-        os._exit(0)
-
     def pid(self, current=None):
         return os.getpid()
 

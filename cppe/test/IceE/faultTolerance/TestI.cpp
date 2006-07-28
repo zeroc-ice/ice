@@ -34,12 +34,6 @@ TestI::idempotentAbort(const Ice::Current&)
     exit(0);
 }
 
-void
-TestI::nonmutatingAbort(const Ice::Current&) const
-{
-    exit(0);
-}
-
 Ice::Int
 TestI::pid(const Ice::Current&)
 {

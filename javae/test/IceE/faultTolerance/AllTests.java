@@ -132,37 +132,13 @@ public class AllTests
 		    out.println("ok");
 		}
             }
-            else if(j == 2)
+            else if(j == 2 || j == 3)
             {
 		out.print("aborting server #" + i + " and #" + (i + 1) + " with idempotent call... ");
 		out.flush();
 		try
 		{
 		    obj.idempotentAbort();
-		    test(false);
-		}
-		catch(Ice.ConnectionLostException ex)
-		{
-		    out.println("ok");
-		}
-		catch(Ice.ConnectFailedException exc)
-		{
-		    out.println("ok");
-		}
-		catch(Ice.SocketException ex)
-		{
-		    out.println("ok");
-		}
-
-                ++i;
-            }
-            else if(j == 3)
-            {
-		out.print("aborting server #" + i + " and #" + (i + 1) + " with nonmutating call... ");
-		out.flush();
-		try
-		{
-		    obj.nonmutatingAbort();
 		    test(false);
 		}
 		catch(Ice.ConnectionLostException ex)

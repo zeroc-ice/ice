@@ -21,7 +21,6 @@ public:
     virtual void shutdown(const Ice::Current&);
     virtual void abort(const Ice::Current&);
     virtual void idempotentAbort(const Ice::Current&);
-    virtual void nonmutatingAbort(const Ice::Current&) const;
     virtual Ice::Int pid(const Ice::Current&);
 
 private:

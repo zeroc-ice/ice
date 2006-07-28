@@ -36,12 +36,6 @@ public final class TestI extends _TestIntfDisp
 	Runtime.getRuntime().halt(0);
     }
 
-    public void
-    nonmutatingAbort(Ice.Current current)
-    {
-	Runtime.getRuntime().halt(0);
-    }
-
     public int
     pid(Ice.Current current)
     {

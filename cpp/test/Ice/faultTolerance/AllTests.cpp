@@ -147,21 +147,6 @@ class AMI_Test_idempotentAbortI : public AMI_TestIntf_idempotentAbort, public AM
 
 typedef IceUtil::Handle<AMI_Test_idempotentAbortI> AMI_Test_idempotentAbortIPtr;
 
-class AMI_Test_nonmutatingAbortI : public AMI_TestIntf_nonmutatingAbort, public AMI_Test_abortI
-{
-    virtual void ice_response()
-    {
-	test(false);
-    }
-
-    virtual void ice_exception(const Ice::Exception& ex)
-    {
-	AMI_Test_abortI::ice_exception(ex);
-    }
-};
-
-typedef IceUtil::Handle<AMI_Test_nonmutatingAbortI> AMI_Test_nonmutatingAbortIPtr;
-
 void
 allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 {
@@ -257,7 +242,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 		cout << "ok" << endl;
 	    }
 	}
-	else if(j == 2)
+	else if(j == 2 || j == 3)
 	{
 	    if(!ami)
 	    {
@@ -281,36 +266,6 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 		cout << "aborting server #" << i << " and #" << i + 1 << " with idempotent AMI call... " << flush;
 		AMI_Test_idempotentAbortIPtr cb = new AMI_Test_idempotentAbortI;
 		obj->idempotentAbort_async(cb);
-		test(cb->check());
-		cout << "ok" << endl;
-	    }
-
-	    ++i;
-	}
-	else if(j == 3)
-	{
-	    if(!ami)
-	    {
-		cout << "aborting server #" << i << " and #" << i + 1 << " with nonmutating call... " << flush;
-		try
-		{
-		    obj->nonmutatingAbort();
-		    test(false);
-		}
-		catch(const Ice::ConnectionLostException&)
-		{
-		    cout << "ok" << endl;
-		}
-		catch(const Ice::ConnectFailedException&)
-		{
-		    cout << "ok" << endl;
-		}
-	    }
-	    else
-	    {
-		cout << "aborting server #" << i << " and #" << i + 1 << " with nonmutating AMI call... " << flush;
-		AMI_Test_nonmutatingAbortIPtr cb = new AMI_Test_nonmutatingAbortI;
-		obj->nonmutatingAbort_async(cb);
 		test(cb->check());
 		cout << "ok" << endl;
 	    }
