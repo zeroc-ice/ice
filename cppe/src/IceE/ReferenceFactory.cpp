@@ -53,7 +53,7 @@ IceInternal::ReferenceFactory::copy(const Reference* r) const
 
 ReferencePtr
 IceInternal::ReferenceFactory::create(const Identity& ident,
-				      const Context& context,
+				      const SharedContextPtr& context,
 				      const string& facet,
 				      Reference::Mode mode,
 				      bool secure,
@@ -89,7 +89,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 
 ReferencePtr
 IceInternal::ReferenceFactory::create(const Identity& ident,
-				      const Context& context,
+				      const SharedContextPtr& context,
 				      const string& facet,
 				      Reference::Mode mode,
 				      bool secure,
@@ -126,7 +126,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 
 ReferencePtr
 IceInternal::ReferenceFactory::create(const Identity& ident,
-				      const Context& context,
+				      const SharedContextPtr& context,
 				      const string& facet,
 				      Reference::Mode mode,
 				      const vector<Ice::ConnectionPtr>& fixedConnections)
@@ -441,10 +441,10 @@ IceInternal::ReferenceFactory::create(const string& str)
     {
 #ifdef ICEE_HAS_LOCATOR
 #   ifdef ICEE_HAS_ROUTER
-	return create(ident, _instance->initializationData().defaultContext, facet, mode, secure, "", routerInfo,
+	return create(ident, _instance->getDefaultContext(), facet, mode, secure, "", routerInfo,
 		      locatorInfo);
 #   else
-	return create(ident, _instance->initializationData().defaultContext, facet, mode, secure, "", locatorInfo);
+	return create(ident, _instance->getDefaultContext(), facet, mode, secure, "", locatorInfo);
 #   endif
 #else	
 	ProxyParseException ex(__FILE__, __LINE__);
@@ -503,10 +503,10 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    }
 
 #ifdef ICEE_HAS_ROUTER
-	    return create(ident, _instance->initializationData().defaultContext, facet, mode, secure, endpoints,
+	    return create(ident, _instance->getDefaultContext(), facet, mode, secure, endpoints,
 	    		  routerInfo);
 #else
-	    return create(ident, _instance->initializationData().defaultContext, facet, mode, secure, endpoints);
+	    return create(ident, _instance->getDefaultContext(), facet, mode, secure, endpoints);
 #endif
 	    break;
 	}
@@ -559,10 +559,10 @@ IceInternal::ReferenceFactory::create(const string& str)
             }
 
 #ifdef ICEE_HAS_ROUTER
-	    return create(ident, _instance->initializationData().defaultContext, facet, mode, secure, adapter, 
+	    return create(ident, _instance->getDefaultContext(), facet, mode, secure, adapter, 
 	    		  routerInfo, locatorInfo);
 #else
-	    return create(ident, _instance->initializationData().defaultContext, facet, mode, secure, adapter,
+	    return create(ident, _instance->getDefaultContext(), facet, mode, secure, adapter,
 	    		  locatorInfo);
 #endif
 	    break;
@@ -637,10 +637,10 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 	    endpoints.push_back(endpoint);
 	}
 #ifdef ICEE_HAS_ROUTER
-	return create(ident, _instance->initializationData().defaultContext, facet, mode, secure, endpoints,
+	return create(ident, _instance->getDefaultContext(), facet, mode, secure, endpoints,
 		      routerInfo);
 #else
-	return create(ident, _instance->initializationData().defaultContext, facet, mode, secure, endpoints);
+	return create(ident, _instance->getDefaultContext(), facet, mode, secure, endpoints);
 #endif
     }
     else
@@ -649,10 +649,10 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 	LocatorInfoPtr locatorInfo = _instance->locatorManager()->get(getDefaultLocator());
 	s->read(adapterId);
 #   ifdef ICEE_HAS_ROUTER
-	return create(ident, _instance->initializationData().defaultContext, facet, mode, secure, adapterId,
+	return create(ident, _instance->getDefaultContext(), facet, mode, secure, adapterId,
 		      routerInfo, locatorInfo);
 #   else
-	return create(ident, _instance->initializationData().defaultContext, facet, mode, secure, adapterId,
+	return create(ident, _instance->getDefaultContext(), facet, mode, secure, adapterId,
 		      locatorInfo);
 #   endif
 #else

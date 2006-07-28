@@ -42,7 +42,7 @@ ReferencePtr
 IceInternal::Reference::defaultContext() const
 {
     ReferencePtr r = _instance->referenceFactory()->copy(this);
-    r->_context = _instance->initializationData().defaultContext;
+    r->_context = _instance->getDefaultContext();
     return r;
 }
 
@@ -56,7 +56,7 @@ ReferencePtr
 IceInternal::Reference::changeContext(const Context& newContext) const
 {
     ReferencePtr r = _instance->referenceFactory()->copy(this);
-    r->_context = newContext;
+    r->_context = new SharedContext(newContext);
     return r;
 }
 
@@ -134,7 +134,7 @@ Reference::hash() const
         h = 5 * h + *p;
     }
 
-    for(q = _context.begin(); q != _context.end(); ++q)
+    for(q = _context->getValue().begin(); q != _context->getValue().end(); ++q)
     {
 	for(p = q->first.begin(); p != q->first.end(); ++p)
 	{
@@ -303,7 +303,7 @@ IceInternal::Reference::operator==(const Reference& r) const
 	return false;
     }
 
-    if(_context != r._context)
+    if(_context->getValue() != r._context->getValue())
     {
 	return false;
     }
@@ -361,11 +361,11 @@ IceInternal::Reference::operator<(const Reference& r) const
 	return false;
     }
     
-    if(_context < r._context)
+    if(_context->getValue() < r._context->getValue())
     {
 	return true;
     }
-    else if(r._context < _context)
+    else if(r._context->getValue() < _context->getValue())
     {
 	return false;
     }
@@ -403,7 +403,7 @@ IceInternal::Reference::operator<(const Reference& r) const
 }
 
 IceInternal::Reference::Reference(const InstancePtr& inst, const CommunicatorPtr& com, const Identity& ident,
-				  const Context& ctx, const string& fs, Mode md, bool sec) :
+				  const SharedContextPtr& ctx, const string& fs, Mode md, bool sec) :
     _hashInitialized(false),
     _instance(inst),
     _communicator(com),
@@ -450,7 +450,7 @@ void IceInternal::incRef(IceInternal::FixedReference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::FixedReference* p) { p->__decRef(); }
 
 IceInternal::FixedReference::FixedReference(const InstancePtr& inst, const CommunicatorPtr& com, const Identity& ident,
-					    const Context& ctx, const string& fs, Mode md,
+					    const SharedContextPtr& ctx, const string& fs, Mode md,
 					    const vector<ConnectionPtr>& fixedConns) :
     Reference(inst, com, ident, ctx, fs, md, false),
     _fixedConnections(fixedConns)
@@ -699,7 +699,7 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
 }
 
 IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const CommunicatorPtr& com,
-						  const Identity& ident, const Context& ctx, const string& fs,
+						  const Identity& ident, const SharedContextPtr& ctx, const string& fs,
 						  Mode md, bool sec, const RouterInfoPtr& rtrInfo) :
     Reference(inst, com, ident, ctx, fs, md, sec), _routerInfo(rtrInfo)
 {
@@ -717,7 +717,7 @@ void IceInternal::decRef(IceInternal::DirectReference* p) { p->__decRef(); }
 
 #ifdef ICEE_HAS_ROUTER
 IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const CommunicatorPtr& com,
-					      const Identity& ident, const Context& ctx, const string& fs, Mode md,
+					      const Identity& ident, const SharedContextPtr& ctx, const string& fs, Mode md,
 					      bool sec, const vector<EndpointPtr>& endpts,
 					      const RouterInfoPtr& rtrInfo) :
 
@@ -727,7 +727,7 @@ IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const Com
 }
 #else
 IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const CommunicatorPtr& com,
-					      const Identity& ident, const Context& ctx, const string& fs, Mode md,
+					      const Identity& ident, const SharedContextPtr& ctx, const string& fs, Mode md,
 					      bool sec, const vector<EndpointPtr>& endpts) :
     Reference(inst, com, ident, ctx, fs, md, sec),
     _endpoints(endpts)
@@ -921,7 +921,7 @@ void IceInternal::decRef(IceInternal::IndirectReference* p) { p->__decRef(); }
 
 #ifdef ICEE_HAS_ROUTER
 IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const CommunicatorPtr& com,
-						  const Identity& ident, const Context& ctx, const string& fs,
+						  const Identity& ident, const SharedContextPtr& ctx, const string& fs,
 						  Mode md, bool sec, const string& adptid,
 						  const RouterInfoPtr& rtrInfo, const LocatorInfoPtr& locInfo) :
     RoutableReference(inst, com, ident, ctx, fs, md, sec, rtrInfo),
@@ -931,7 +931,7 @@ IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const
 }
 #else
 IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const CommunicatorPtr& com, 
-						  const Identity& ident, const Context& ctx, const string& fs,
+						  const Identity& ident, const SharedContextPtr& ctx, const string& fs,
 						  Mode md, bool sec, const string& adptid,
 						  const LocatorInfoPtr& locInfo) :
     Reference(inst, com, ident, ctx, fs, md, sec),

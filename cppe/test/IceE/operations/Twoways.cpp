@@ -646,29 +646,45 @@ twoways(const Ice::CommunicatorPtr& communicator,
 	    //
 	    // Test that default context is obtained correctly from communicator.
 	    //
-            Ice::InitializationData initData = initializationData;
-            initData.defaultContext["a"] = "b";
-            Ice::CommunicatorPtr communicator2 = Ice::initialize(initData);
+	    Ice::Context dflt;
+	    dflt["a"] = "b";
+	    communicator->setDefaultContext(dflt);
+	    test(p->opContext() != dflt);
 
-	    string ref = communicator2->getProperties()->getPropertyWithDefault(
+	    Test::MyClassPrx p2 = Test::MyClassPrx::uncheckedCast(p->ice_context(Ice::Context()));
+	    test(p2->opContext().empty());
+
+	    p2 = Test::MyClassPrx::uncheckedCast(p->ice_defaultContext());
+	    test(p2->opContext() == dflt);
+
+	    communicator->setDefaultContext(Ice::Context());
+	    test(!p2->opContext().empty());
+
+	    communicator->setDefaultContext(dflt);
+	    string ref = communicator->getProperties()->getPropertyWithDefault(
 		"Operations.Proxy", "test:default -p 12010 -t 10000");
-	    Test::MyClassPrx c = Test::MyClassPrx::checkedCast(communicator2->stringToProxy(ref));
-	    test(c->opContext() == initData.defaultContext);
+	    Test::MyClassPrx c = Test::MyClassPrx::checkedCast(communicator->stringToProxy(ref));
+	    test(c->opContext() == dflt);
 
-	    Ice::Context ctx;
-	    ctx["a"] = "c";
-	    Test::MyClassPrx c2 = Test::MyClassPrx::uncheckedCast(c->ice_context(ctx));
+	    dflt["a"] = "c";
+	    Test::MyClassPrx c2 = Test::MyClassPrx::uncheckedCast(c->ice_context(dflt));
 	    test(c2->opContext()["a"] == "c");
 
-	    ctx.clear();
-	    Test::MyClassPrx c3 = Test::MyClassPrx::uncheckedCast(c2->ice_context(ctx));
+	    dflt.clear();
+	    Test::MyClassPrx c3 = Test::MyClassPrx::uncheckedCast(c2->ice_context(dflt));
 	    Ice::Context tmp = c3->opContext();
 	    test(tmp.find("a") == tmp.end());
 
 	    Test::MyClassPrx c4 = Test::MyClassPrx::uncheckedCast(c2->ice_defaultContext());
 	    test(c4->opContext()["a"] == "b");
 
-	    communicator2->destroy();
+	    dflt["a"] = "d";
+	    communicator->setDefaultContext(dflt);
+
+	    Test::MyClassPrx c5 = Test::MyClassPrx::uncheckedCast(c->ice_defaultContext());
+	    test(c5->opContext()["a"] == "d");
+
+	    communicator->setDefaultContext(Ice::Context());
 	}
     }
 

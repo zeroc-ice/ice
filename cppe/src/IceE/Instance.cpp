@@ -222,6 +222,33 @@ IceInternal::Instance::flushBatchRequests()
 }
 #endif
 
+void
+IceInternal::Instance::setDefaultContext(const Context& ctx)
+{
+    IceUtil::RecMutex::Lock sync(*this);
+    
+    if(_state == StateDestroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
+    _defaultContext = new SharedContext(ctx); 
+}
+
+SharedContextPtr
+IceInternal::Instance::getDefaultContext() const
+{
+    IceUtil::RecMutex::Lock sync(*this);
+    
+    if(_state == StateDestroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
+    return _defaultContext;
+}
+
+
 Identity
 IceInternal::Instance::stringToIdentity(const string& s) const
 {
@@ -328,10 +355,11 @@ IceInternal::Instance::identityToString(const Identity& ident) const
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const InitializationData& initData) :
     _state(StateActive),
     _initData(initData),
-    _messageSizeMax(0)
+    _messageSizeMax(0),
 #ifndef ICEE_PURE_BLOCKING_CLIENT
-    , _threadPerConnectionStackSize(0)
+    _threadPerConnectionStackSize(0),
 #endif
+    _defaultContext(new SharedContext(initData.defaultContext))
 {
     try
     {
@@ -514,7 +542,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
 	if(!_initData.wstringConverter)
 	{
-	    const_cast<WstringConverterPtr&>(_initData.wstringConverter) = new UnicodeWstringConverter();
+	    _initData.wstringConverter = new UnicodeWstringConverter();
 	}
 
 	__setNoDelete(false);

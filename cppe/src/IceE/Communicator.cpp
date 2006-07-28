@@ -116,10 +116,16 @@ Ice::Communicator::createObjectAdapterWithRouter(const string& name, const Route
 
 #endif
 
+void
+Ice::Communicator::setDefaultContext(const Context& ctx)
+{
+    _instance->setDefaultContext(ctx);
+}
+
 Ice::Context
 Ice::Communicator::getDefaultContext() const
 {
-    return _instance->initializationData().defaultContext;
+    return _instance->getDefaultContext()->getValue();
 }
 
 PropertiesPtr

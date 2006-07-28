@@ -41,7 +41,9 @@ public:
     ObjectAdapterPtr createObjectAdapterWithRouter(const std::string&, const RouterPrx&);
 #endif
 
+    void setDefaultContext(const Context&);
     Context getDefaultContext() const;
+
     PropertiesPtr getProperties() const;
     LoggerPtr getLogger() const;
 

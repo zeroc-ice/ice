@@ -54,7 +54,7 @@ Changes since version 1.1.0
   to be set during communicator creation. Currently included are
   Properties, Logger, and default context. The initializeWith
   communicator initialization functions have been deprecated and the
-  setLogger() and setDefaultContext() methods have been removed.
+  setLogger() method has been removed.
 
 - Added support for the "cpp:type:wstring" slice metadata. When used
   generated code will use std::wstring instead of std::string. See

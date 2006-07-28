@@ -177,7 +177,7 @@ IceProxy::Ice::Object::ice_toString() const
 bool
 IceProxy::Ice::Object::ice_isA(const string& __id)
 {
-    return ice_isA(__id, _reference->getContext());
+    return ice_isA(__id, _reference->getContext()->getValue());
 }
 
 bool
@@ -250,7 +250,7 @@ IceProxy::Ice::Object::ice_isA(const string& __id, const Context& __context)
 void
 IceProxy::Ice::Object::ice_ping()
 {
-    ice_ping(_reference->getContext());
+    ice_ping(_reference->getContext()->getValue());
 }
 
 void
@@ -312,7 +312,7 @@ IceProxy::Ice::Object::ice_ping(const Context& __context)
 vector<string>
 IceProxy::Ice::Object::ice_ids()
 {
-    return ice_ids(_reference->getContext());
+    return ice_ids(_reference->getContext()->getValue());
 }
 
 vector<string>
@@ -377,7 +377,7 @@ IceProxy::Ice::Object::ice_ids(const Context& __context)
 string
 IceProxy::Ice::Object::ice_id()
 {
-    return ice_id(_reference->getContext());
+    return ice_id(_reference->getContext()->getValue());
 }
 
 string
@@ -442,7 +442,7 @@ IceProxy::Ice::Object::ice_id(const Context& __context)
 Context
 IceProxy::Ice::Object::ice_getContext() const
 {
-    return _reference->getContext();
+    return _reference->getContext()->getValue();
 }
 
 ObjectPrx
@@ -794,7 +794,7 @@ IceProxy::Ice::Object::__checkTwowayOnly(const char* name) const
 const Context&
 IceProxy::Ice::Object::__defaultContext() const
 {
-    return _reference->getContext();
+    return _reference->getContext()->getValue();
 }
 
 void

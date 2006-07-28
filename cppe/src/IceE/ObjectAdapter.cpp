@@ -519,7 +519,7 @@ Ice::ObjectAdapter::createReverseProxy(const Identity& ident) const
     // reference.
     //
     vector<EndpointPtr> endpoints;
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->initializationData().defaultContext, "",
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->getDefaultContext(), "",
     							     Reference::ModeTwoway, connections);
     return _instance->proxyFactory()->referenceToProxy(ref);
 }
@@ -775,10 +775,10 @@ Ice::ObjectAdapter::newDirectProxy(const Identity& ident, const string& facet) c
     // Create a reference and return a proxy for this reference.
     //
 #ifdef ICEE_HAS_ROUTER
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->initializationData().defaultContext,
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->getDefaultContext(),
     							     facet, Reference::ModeTwoway, false, endpoints, 0);
 #else
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->initializationData().defaultContext,
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->getDefaultContext(),
     							     facet, Reference::ModeTwoway, false, endpoints);
 #endif
     return _instance->proxyFactory()->referenceToProxy(ref);
@@ -793,11 +793,11 @@ Ice::ObjectAdapter::newIndirectProxy(const Identity& ident, const string& facet,
     // Create a reference with the adapter id.
     //
 #ifdef ICEE_HAS_ROUTER
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->initializationData().defaultContext,
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->getDefaultContext(),
     							     facet, Reference::ModeTwoway, false, id, 0, _locatorInfo);
     
 #else
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->initializationData().defaultContext,
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->getDefaultContext(),
     							     facet, Reference::ModeTwoway, false, id, _locatorInfo);
 #endif
 

@@ -25,6 +25,7 @@
 #include <IceE/ConnectionF.h>
 #include <IceE/Shared.h>
 #include <IceE/RecMutex.h>
+#include <IceE/SharedContext.h>
 #include <IceE/Identity.h>
 
 namespace IceInternal
@@ -51,7 +52,7 @@ public:
     const Ice::Identity& getIdentity() const { return _identity; }
     const std::string& getFacet() const { return _facet; }
     const InstancePtr& getInstance() const { return _instance; }
-    const Ice::Context& getContext() const { return _context; }
+    const SharedContextPtr& getContext() const { return _context; }
 
     ReferencePtr defaultContext() const;
 
@@ -108,7 +109,7 @@ public:
 
 protected:
 
-    Reference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&,
+    Reference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const SharedContextPtr&,
 	      const std::string&, Mode, bool);
     Reference(const Reference&);
 
@@ -126,7 +127,7 @@ private:
     Mode _mode;
     bool _secure;
     Ice::Identity _identity;
-    Ice::Context _context;
+    SharedContextPtr _context;
     std::string _facet;
 
     //
@@ -144,7 +145,7 @@ class FixedReference : public Reference
 {
 public:
 
-    FixedReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&,
+    FixedReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const SharedContextPtr&,
 		   const std::string&, Mode, const std::vector<Ice::ConnectionPtr>&);
 
     const std::vector<Ice::ConnectionPtr>& getFixedConnections() const;
@@ -201,7 +202,7 @@ public:
 
 protected:
 
-    RoutableReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&,
+    RoutableReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const SharedContextPtr&,
 		      const std::string&, Mode, bool, const RouterInfoPtr&);
     RoutableReference(const RoutableReference&);
 
@@ -221,7 +222,7 @@ class DirectReference :
 {
 public:
 
-    DirectReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&,
+    DirectReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const SharedContextPtr&,
 		    const std::string&, Mode, bool, const std::vector<EndpointPtr>&
 #ifdef ICEE_HAS_ROUTER
 		    , const RouterInfoPtr&
@@ -273,7 +274,7 @@ class IndirectReference :
 {
 public:
 
-    IndirectReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&,
+    IndirectReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const SharedContextPtr&,
 		      const std::string&, Mode, bool, const std::string&
 #ifdef ICEE_HAS_ROUTER
 		      , const RouterInfoPtr&

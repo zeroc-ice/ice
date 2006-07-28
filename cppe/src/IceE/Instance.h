@@ -28,6 +28,7 @@
 #include <IceE/Shared.h>
 #include <IceE/RecMutex.h>
 #include <IceE/Initialize.h>
+#include <IceE/SharedContext.h>
 #include <IceE/Identity.h>
 
 namespace IceInternal
@@ -56,6 +57,10 @@ public:
 #ifdef ICEE_HAS_BATCH
     void flushBatchRequests();
 #endif
+
+     void setDefaultContext(const ::Ice::Context&);
+    SharedContextPtr getDefaultContext() const;
+
 #ifndef ICEE_PURE_BLOCKING_CLIENT
     size_t threadPerConnectionStackSize() const;
 #endif
@@ -104,6 +109,7 @@ private:
 #ifndef ICEE_PURE_CLIENT
     ObjectAdapterFactoryPtr _objectAdapterFactory;
 #endif
+    SharedContextPtr _defaultContext;
 };
 
 class UTF8BufferI : public Ice::UTF8Buffer
