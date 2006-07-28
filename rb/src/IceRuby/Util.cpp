@@ -260,10 +260,10 @@ typedef int (*ICE_RUBY_HASH_FOREACH_CALLBACK)(...);
 }
 
 void
-IceRuby::hashIterate(VALUE hash, HashIterator& iter)
+IceRuby::hashIterate(VALUE h, HashIterator& iter)
 {
-    assert(TYPE(hash) == T_HASH);
-    callRuby(IceRuby_Util_rb_hash_foreach, hash,
+    assert(TYPE(h) == T_HASH);
+    callRuby(IceRuby_Util_rb_hash_foreach, h,
 	     reinterpret_cast<ICE_RUBY_HASH_FOREACH_CALLBACK>(IceRuby_Util_hash_foreach_callback),
 	     reinterpret_cast<VALUE>(&iter));
 }

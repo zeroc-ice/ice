@@ -47,7 +47,7 @@ IceRuby_createProperties(int argc, VALUE* argv, VALUE self)
 	    defaults = getProperties(argv[1]);
 	}
 
-	Ice::PropertiesPtr obj = createProperties(seq, defaults);
+	Ice::PropertiesPtr obj = Ice::createProperties(seq, defaults);
 
 	//
 	// Replace the contents of the given argument list with the filtered arguments.
@@ -258,13 +258,13 @@ IceRuby_Properties_to_s(VALUE self)
 	Ice::PropertiesPtr p = getProperties(self);
 	Ice::PropertyDict dict = p->getPropertiesForPrefix("");
 	string str;
-	for(Ice::PropertyDict::const_iterator p = dict.begin(); p != dict.end(); ++p)
+	for(Ice::PropertyDict::const_iterator q = dict.begin(); q != dict.end(); ++q)
 	{
-	    if(p != dict.begin())
+	    if(q != dict.begin())
 	    {
 		str.append("\n");
 	    }
-	    str.append(p->first + "=" + p->second);
+	    str.append(q->first + "=" + q->second);
 	}
 	return createString(str);
     }

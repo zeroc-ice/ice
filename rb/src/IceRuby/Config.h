@@ -11,7 +11,7 @@
 #define ICE_RUBY_CONFIG_H
 
 //
-// This file includes <ruby.h> and should always be included first,
+// This file includes <ruby.h> and should always be included first.
 //
 
 #include <Ice/Config.h>
@@ -27,6 +27,15 @@
 //#endif
 
 #include <ruby.h>
+
+//
+// The Ruby header file win32/win32.h defines a number of macros for
+// functions like shutdown() and close() that wreak havoc.
+//
+#ifdef _WIN32
+#undef shutdown
+#undef close
+#endif
 
 extern "C"
 {
