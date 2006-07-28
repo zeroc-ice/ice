@@ -37,38 +37,28 @@ prefix			= /opt/IceRuby-$(VERSION)
 #
 
 #
-# If you've built Ruby yourself then set RUBY_HOME to contain
-# the installation directory; the rest of the Ruby-related settings
-# should be correct.
+# If the Ruby interpreter is in your PATH, the settings below will
+# work properly in most cases. If you want to use a particular
+# installation of Ruby, set RUBY_HOME with the installation directory.
 #
-# If you've installed a distribution, or Ruby was included with
-# your system, then you likely need to review the values of
-# RUBY_INCLUDE_DIR and RUBY_LIB_DIR.
-#
-
-UNAME_MACHINE		=  $(shell uname -m)
 
 ifneq ($(RUBY_HOME),)
-    RUBY_LIB_DIR	= $(RUBY_HOME)/lib
+    RUBY = $(RUBY_HOME)/bin/ruby
 else
-    RUBY_LIB_DIR	= /usr/lib
+    RUBY = ruby
 endif
 
-RUBY_VERSION	    	= $(notdir $(wildcard $(RUBY_LIB_DIR)/ruby/[0-9]*))
-RUBY_PLATFORM		= $(notdir $(wildcard $(RUBY_LIB_DIR)/ruby/$(RUBY_VERSION)/$(UNAME_MACHINE)*))
-RUBY_INCLUDE_DIR	= $(RUBY_LIB_DIR)/ruby/$(RUBY_VERSION)/$(RUBY_PLATFORM)
+RUBY_INCLUDE_DIR	= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(topdir)")')
+RUBY_LIB_DIR		= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(libdir)")')
 
-ifeq ($(shell test ! -f $(RUBY_LIB_DIR)/libruby.so -a -f $(RUBY_LIB_DIR)/libruby-static.a && echo 0),0)
-    RUBY_STATIC	= yes
-endif
-
-RUBY_FLAGS		?= -I$(RUBY_INCLUDE_DIR)
-
-ifneq ($(RUBY_STATIC),)
-    RUBY_LIBS		?= -L$(RUBY_LIB_DIR) -lruby-static
+ifeq ($(shell $(RUBY) -e 'require "rbconfig"; puts Config::MAKEFILE_CONFIG["ENABLE_SHARED"]'),"yes")
+    RUBY_LIB		= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("-l$$(RUBY_SO_NAME)")')
 else
-    RUBY_LIBS		?= -L$(RUBY_LIB_DIR) -lruby
+    RUBY_LIB		= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("-l$$(RUBY_SO_NAME)-static")')
 endif
+
+RUBY_FLAGS		= -I$(RUBY_INCLUDE_DIR)
+RUBY_LIBS		= -L$(RUBY_LIB_DIR) $(RUBY_LIB)
 
 ifeq ($(LP64),yes)
    ICE_LIBS             = -L$(ICE_HOME)/lib64 -L$(ICE_HOME)/lib -lIce -lIceUtil -lSlice 
