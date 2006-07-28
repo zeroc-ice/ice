@@ -28,6 +28,11 @@
 
 #include <ruby.h>
 
-#define CAST_METHOD(X) reinterpret_cast<VALUE(*)(...)>(X)
+extern "C"
+{
+typedef VALUE(*ICE_RUBY_ENTRY_POINT)(...);
+}
+
+#define CAST_METHOD(X) reinterpret_cast<ICE_RUBY_ENTRY_POINT>(X)
 
 #endif

@@ -252,14 +252,19 @@ IceRuby_Util_rb_hash_foreach(VALUE hash, int (*func)(ANYARGS), VALUE arg)
 {
     rb_hash_foreach(hash, func, arg);
     return Qnil;
-}   
+}
+
+extern "C"
+{
+typedef int (*ICE_RUBY_HASH_FOREACH_CALLBACK)(...);
+}
 
 void
 IceRuby::hashIterate(VALUE hash, HashIterator& iter)
 {
     assert(TYPE(hash) == T_HASH);
     callRuby(IceRuby_Util_rb_hash_foreach, hash,
-	     reinterpret_cast<int (*)(ANYARGS)>(IceRuby_Util_hash_foreach_callback),
+	     reinterpret_cast<ICE_RUBY_HASH_FOREACH_CALLBACK>(IceRuby_Util_hash_foreach_callback),
 	     reinterpret_cast<VALUE>(&iter));
 }
 
@@ -512,7 +517,7 @@ IceRuby_RubyThread_threadMain(RubyThreadPtr* p)
 void
 IceRuby::RubyThread::start(bool join)
 {
-    VALUE t = callRuby(rb_thread_create, reinterpret_cast<VALUE (*)(ANYARGS)>(IceRuby_RubyThread_threadMain),
+    VALUE t = callRuby(rb_thread_create, CAST_METHOD(IceRuby_RubyThread_threadMain),
 		       reinterpret_cast<void*>(new RubyThreadPtr(this)));
     assert(!NIL_P(t));
     if(join)
