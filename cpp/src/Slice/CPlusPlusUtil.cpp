@@ -856,6 +856,11 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		    StringList md;
 		    md.push_back("cpp:array");
 		    string tmpParam = "___";
+
+		    //
+		    // Catch some case in which it is not possible to just prepend
+		    // underscores to param to use as temporary variable.
+		    //
 		    if(fixedParam.find("(*") == 0)
 		    {
 		        tmpParam += fixedParam.substr(2, fixedParam.length() - 3);
@@ -863,6 +868,10 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		    else if(fixedParam.find("[i]") != string::npos)
 		    {
 		        tmpParam += fixedParam.substr(0, fixedParam.length() - 3);
+		    }
+		    else if(fixedParam.find("->second") != string::npos)
+		    {
+		        tmpParam += fixedParam.substr(0, fixedParam.length() - 8);
 		    }
 		    else
 		    {
