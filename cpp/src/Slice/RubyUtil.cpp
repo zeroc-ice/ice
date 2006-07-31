@@ -1072,20 +1072,6 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     _out << nl << "end";
 
     //
-    // Accessor for each enumerator.
-    //
-    for(q = enums.begin(), i = 0; q != enums.end(); ++q, ++i)
-    {
-	ostringstream idx;
-	idx << i;
-	_out << sp << nl << "def " << name << "." << fixIdent((*q)->name(), false);
-	_out.inc();
-	_out << nl << "@@_values[" << idx.str() << "]";
-	_out.dec();
-	_out << nl << "end";
-    }
-
-    //
     // from_int
     //
     {
@@ -1179,6 +1165,17 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     }
     _out << ']';
 
+    //
+    // Constant for each enumerator.
+    //
+    _out << sp;
+    for(q = enums.begin(), i = 0; q != enums.end(); ++q, ++i)
+    {
+	ostringstream idx;
+	idx << i;
+	_out << nl << fixIdent((*q)->name(), true) << " = @@_values[" << idx.str() << "]";
+    }
+
     _out << sp << nl << "private_class_method :new";
 
     _out.dec();
@@ -1194,7 +1191,7 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
 	{
 	    _out << ", ";
 	}
-	_out << name << '.' << fixIdent((*q)->name(), false);
+	_out << name << "::" << fixIdent((*q)->name(), true);
     }
     _out << "])";
 
@@ -1326,15 +1323,15 @@ Slice::Ruby::CodeVisitor::visitConst(const ConstPtr& p)
     }
     else if(en)
     {
-	_out << getAbsolute(en, true) << '.';
+	_out << getAbsolute(en, true) << "::";
 	string::size_type colon = value.rfind(':');
 	if(colon != string::npos)
 	{
-	    _out << fixIdent(value.substr(colon + 1), false);
+	    _out << fixIdent(value.substr(colon + 1), true);
 	}
 	else
 	{
-	    _out << fixIdent(value, false);
+	    _out << fixIdent(value, true);
 	}
     }
     else
@@ -1463,7 +1460,7 @@ Slice::Ruby::CodeVisitor::getDefaultValue(const TypePtr& p)
     if(en)
     {
 	EnumeratorList enums = en->getEnumerators();
-	return getAbsolute(en, true) + "." + fixIdent(enums.front()->name(), false);
+	return getAbsolute(en, true) + "::" + fixIdent(enums.front()->name(), true);
     }
 
     StructPtr st = StructPtr::dynamicCast(p);
