@@ -67,9 +67,9 @@ def twoways(communicator, initData, p)
     #
     # opMyEnum
     #
-    r, e = p.opMyEnum(Test::MyEnum.enum2)
-    test(e == Test::MyEnum.enum2)
-    test(r == Test::MyEnum.enum3)
+    r, e = p.opMyEnum(Test::MyEnum::Enum2)
+    test(e == Test::MyEnum::Enum2)
+    test(r == Test::MyEnum::Enum3)
 
     #
     # opMyClass
@@ -100,21 +100,21 @@ def twoways(communicator, initData, p)
     #
     si1 = Test::Structure.new
     si1.p = p
-    si1.e = Test::MyEnum.enum3
+    si1.e = Test::MyEnum::Enum3
     si1.s = Test::AnotherStruct.new
     si1.s.s = "abc"
     si2 = Test::Structure.new
     si2.p = nil
-    si2.e = Test::MyEnum.enum2
+    si2.e = Test::MyEnum::Enum2
     si2.s = Test::AnotherStruct.new
     si2.s.s = "def"
 
     rso, so = p.opStruct(si1, si2)
     test(!rso.p)
-    test(rso.e == Test::MyEnum.enum2)
+    test(rso.e == Test::MyEnum::Enum2)
     test(rso.s.s == "def")
     test(so.p == p)
-    test(so.e == Test::MyEnum.enum3)
+    test(so.e == Test::MyEnum::Enum3)
     test(so.s.s == "a new string")
     so.p.opVoid()
 
@@ -407,17 +407,17 @@ def twoways(communicator, initData, p)
     #
     # opStringMyEnumD
     #
-    di1 = {'abc'=>Test::MyEnum.enum1, ''=>Test::MyEnum.enum2}
-    di2 = {'abc'=>Test::MyEnum.enum1, 'qwerty'=>Test::MyEnum.enum3, 'Hello!!'=>Test::MyEnum.enum2}
+    di1 = {'abc'=>Test::MyEnum::Enum1, ''=>Test::MyEnum::Enum2}
+    di2 = {'abc'=>Test::MyEnum::Enum1, 'qwerty'=>Test::MyEnum::Enum3, 'Hello!!'=>Test::MyEnum::Enum2}
 
     ro, d = p.opStringMyEnumD(di1, di2)
 
     test(d == di1)
     test(ro.length == 4)
-    test(ro["abc"] == Test::MyEnum.enum1)
-    test(ro["qwerty"] == Test::MyEnum.enum3)
-    test(ro[""] == Test::MyEnum.enum2)
-    test(ro["Hello!!"] == Test::MyEnum.enum2)
+    test(ro["abc"] == Test::MyEnum::Enum1)
+    test(ro["qwerty"] == Test::MyEnum::Enum3)
+    test(ro[""] == Test::MyEnum::Enum2)
+    test(ro["Hello!!"] == Test::MyEnum::Enum2)
 
     #
     # opIntS
