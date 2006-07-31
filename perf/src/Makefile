@@ -17,13 +17,9 @@ ifdef ICE_HOME
     SUBDIRS	:= Ice IceStorm  $(SUBDIRS)
 endif
 
-ifdef TAO_HOME
-    export ACE_ROOT := $(TAO_HOME)
+ifdef TAO_ROOT
+    export ACE_ROOT := $(TAO_ROOT))
     SUBDIRS 	:= TAO CosEvent $(SUBDIRS)
-endif
- 
-ifdef OMNIORB_HOME
-    SUBDIRS 	:= omniORB $(SUBDIRS)
 endif
 
 ifdef ICEE_HOME
@@ -37,7 +33,7 @@ $(EVERYTHING)::
 	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
 	done
 
-ifdef TAO_HOME
+ifdef TAO_ROOT
 clean::
 	( cd TAO && make realclean )
 	( cd CosEvent && make realclean )

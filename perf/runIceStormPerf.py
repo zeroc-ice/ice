@@ -281,7 +281,7 @@ try:
 except getopt.GetoptError:
     usage()
 
-niter = max
+niter = 1
 printResults = False
 hostname = ""
 outputFile = ""
