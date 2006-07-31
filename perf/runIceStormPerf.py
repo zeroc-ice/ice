@@ -205,27 +205,26 @@ def runIceStormPerfs(expr, results, i):
     throughput = False
 
     tests = [
-	    (prodName, noPayLoad, latency, 1, 1, [ ("oneway", "", "-t"), ("twoway", "-o", "-t") ]),
-	    (prodName, payLoad, latency, 1, 1, [ ("oneway", "", "-t"), ("twoway", "-o", "-t") ]),
-	    (prodName, payLoad, latency, 1, 2, [ ("oneway", "", "-t"), ("twoway", "-o", "-t") ]),
-	    (prodName, payLoad, latency, 1, 5, [ ("oneway", "", "-t"), ("twoway", "-o", "-t") ]),
-	    (prodName, payLoad, latency, 1, 10, [ ("oneway", "", "-t"), ("twoway", "-o", "-t") ]),
-	    (prodName, payLoad, latency, 1, 20, [ ("oneway", "", "-t"), ("twoway", "-o", "-t") ]),
-	    (prodName, payLoad, throughput, 1, 1, [ 
+	    (prod, noPayLoad, latency, 1, 1, [ ("oneway", "", "-t"), ("twoway", "-o", "-t") ]),
+	    (prod, payLoad, latency, 1, 1, [ ("oneway", "", "-t"), ("twoway", "-o", "-t") ]),
+	    (prod, payLoad, latency, 1, 2, [ ("oneway", "", "-t"), ("twoway", "-o", "-t") ]),
+	    (prod, payLoad, latency, 1, 5, [ ("oneway", "", "-t"), ("twoway", "-o", "-t") ]),
+	    (prod, payLoad, latency, 1, 10, [ ("oneway", "", "-t"), ("twoway", "-o", "-t") ]),
+	    (prod, payLoad, latency, 1, 20, [ ("oneway", "", "-t"), ("twoway", "-o", "-t") ]),
+	    (prod, payLoad, throughput, 1, 1, [ 
 		("oneway", "", "-t"), ("oneway (batch)", "-o", "-b"), ("twoway", "-o", "-t")]),
-	    (prodName, payLoad, throughput, 1, 10, [ 
+	    (prod, payLoad, throughput, 1, 10, [ 
 		("oneway", "", "-t"), ("oneway (batch)", "-o", "-b"), ("twoway", "-o", "-t")]),
-	    (prodName, payLoad, throughput, 10, 1, [ 
+	    (prod, payLoad, throughput, 10, 1, [ 
 		("oneway", "", "-t"), ("oneway (batch)", "-o", "-b"), ("twoway", "-o", "-t")]),
-	    (prodName, payLoad, throughput, 5, 5, [ 
+	    (prod, payLoad, throughput, 5, 5, [ 
 		("oneway", "", "-t"), ("oneway (batch)", "-o", "-b"), ("twoway", "-o", "-t")]),
 	    ]
 
-    if len(expr) > 0:
-	candidates = tests
-	test = []
-	for t in candidates:
-	    pass
+    for prodName, withPayload, latencyTest, suppliers, consumers, cases in tests:
+	test = CosEventTest(prodName, results, i, prodName, withPayload, latencyTest, suppliers, consumers)
+	for clientArg, opt,  serverArg in cases:
+	    test.run(clientArg, opt, serverArg)
 
 
 #    test = IceStormTest(results, i, "IceStorm", False, True, 1, 1) # w/o payload
@@ -240,31 +239,36 @@ def runCosEventPerfs(expr, results, i):
     payLoad = True
     latency = True
     throughput = False
-    prodName = "CosEvent"
+    prod = "CosEvent"
 
     tests = [
-	    (prodname, noPayLoad, latency, 1, 1, 
+	    (prod, noPayLoad, latency, 1, 1, 
 		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
-	    (prodname, payLoad, latency, 1, 1, 
+	    (prod, payLoad, latency, 1, 1, 
 		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
-	    (prodname, payLoad, latency, 1, 2, 
+	    (prod, payLoad, latency, 1, 2, 
 		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
-	    (prodname, payLoad, latency, 1, 5, 
+	    (prod, payLoad, latency, 1, 5, 
 		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
-	    (prodname, payLoad, latency, 1, 10, 
+	    (prod, payLoad, latency, 1, 10, 
 		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
-	    (prodname, payLoad, latency, 1, 20, 
+	    (prod, payLoad, latency, 1, 20, 
 		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
-	    (prodname, payLoad, throughput, 1, 1, 
+	    (prod, payLoad, throughput, 1, 1, 
 		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
-	    (prodname, payLoad, throughput, 1, 10, 
+	    (prod, payLoad, throughput, 1, 10, 
 		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
-	    (prodname, payLoad, throughput, 10, 1, 
+	    (prod, payLoad, throughput, 10, 1, 
 		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
-	    (prodname, payLoad, throughput, 5, 5, 
+	    (prod, payLoad, throughput, 5, 5, 
 		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
 	    ]
 
+    for prodName, withPayload, latencyTest, suppliers, consumers, cases in tests:
+	test = CosEventTest(prodName, results, i, prodName, withPayload, latencyTest, suppliers, consumers)
+	for clientArg, serverArg in cases:
+	    test.run(clientArg, serverArg)
+	
 
     # Latency tests
 
