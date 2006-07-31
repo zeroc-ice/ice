@@ -47,12 +47,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name throughputIceES
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name omniORBC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name omniORBS
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -118,30 +112,6 @@ Package=<4>
 ###############################################################################
 
 Project: "latencyIceS"=.\src\Ice\latency\latencyIceS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "omniORBC"=.\src\omniORB\omniORBC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "omniORBS"=.\src\omniORB\omniORBS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

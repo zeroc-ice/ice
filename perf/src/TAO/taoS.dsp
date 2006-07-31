@@ -37,7 +37,7 @@ RSC=rc.exe
 # PROP Target_Dir ""
 MTL=midl.exe
 # ADD MTL /D "_DEBUG" /nologo /mktyplib203 /win32
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /Zi /Gy /I "$(ACE_ROOT)" /I "$(TAO_ROOT)" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /FD /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /Zi /Gy /I "$(ACE_ROOT)" /I "$(TAO_ROOT)" /I "." /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409 /i "$(ACE_ROOT)" /i "$(TAO_ROOT)" /d "_DEBUG"
@@ -58,7 +58,7 @@ LINK32=link.exe
 # PROP Target_Dir ""
 MTL=midl.exe
 # ADD MTL /D "NDEBUG" /nologo /mktyplib203 /win32
-# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "$(ACE_ROOT)" /I "$(TAO_ROOT)" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "$(ACE_ROOT)" /I "$(TAO_ROOT)" /I "." /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409 /i "$(ACE_ROOT)" /i "$(TAO_ROOT)" /d "NDEBUG"
@@ -66,7 +66,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /machine:IX86
-# ADD LINK32 advapi32.lib user32.lib TAO_Messaging.lib TAO_Strategies.lib TAO_PortableServer.lib TAO_ValueType.lib TAO.lib ACE.lib /nologo /subsystem:console /pdb:none /machine:I386 /out:"server.exe" /libpath:"$(TAO_ROOT)\..\lib" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(ACE_ROOT)\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType"
+# ADD LINK32 advapi32.lib user32.lib TAO_Messaging.lib TAO_Strategies.lib TAO_PortableServer.lib TAO_ValueType.lib TAO_AnyTypeCode.lib TAO.lib ACE.lib /nologo /subsystem:console /pdb:none /machine:I386 /out:"server.exe" /libpath:"$(TAO_ROOT)\..\lib" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(ACE_ROOT)\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType"
 
 !ENDIF 
 
@@ -95,7 +95,7 @@ SOURCE="TestS.cpp"
 # End Source File
 # Begin Source File
 
-SOURCE="Worker_Thread.cpp"
+SOURCE=.\WorkerThread.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -116,10 +116,6 @@ SOURCE="TestS.h"
 # Begin Source File
 
 SOURCE="TestS_T.h"
-# End Source File
-# Begin Source File
-
-SOURCE="Worker_Thread.h"
 # End Source File
 # End Group
 # Begin Group "Inline Files"

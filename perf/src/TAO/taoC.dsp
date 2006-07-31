@@ -37,7 +37,7 @@ RSC=rc.exe
 # PROP Target_Dir ""
 MTL=midl.exe
 # ADD MTL /D "_DEBUG" /nologo /mktyplib203 /win32
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /Zi /Gy /I "$(TAO_ROOT)\.." /I "$(TAO_ROOT)" /I "$(ICE_HOME)\include" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /FD /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /Zi /Gy /I "$(TAO_ROOT)\.." /I "$(TAO_ROOT)" /I "$(ICE_HOME)\include" /I "." /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409 /i "$(TAO_ROOT)\.." /i "$(TAO_ROOT)" /d "_DEBUG"
@@ -58,7 +58,7 @@ LINK32=link.exe
 # PROP Target_Dir ""
 MTL=midl.exe
 # ADD MTL /D "NDEBUG" /nologo /mktyplib203 /win32
-# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "$(TAO_ROOT)\.." /I "$(TAO_ROOT)" /I "$(ICE_HOME)\include" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "$(TAO_ROOT)\.." /I "$(TAO_ROOT)" /I "$(ICE_HOME)\include" /I "." /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409 /i "$(TAO_ROOT)\.." /i "$(TAO_ROOT)" /d "NDEBUG"
@@ -66,7 +66,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /machine:IX86
-# ADD LINK32 advapi32.lib user32.lib TAO_Strategies.lib TAO_PortableServer.lib TAO.lib TAO_ValueType.lib TAO_Messaging.lib ACE.lib IceUtil.lib /nologo /subsystem:console /pdb:none /machine:I386 /out:"client.exe" /libpath:"$(TAO_ROOT)\..\lib" /libpath:"$(TAO_ROOT)\..\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(ICE_HOME)\lib"
+# ADD LINK32 advapi32.lib user32.lib TAO_Strategies.lib TAO_PortableServer.lib TAO_ValueType.lib TAO_AnyTypeCode.lib TAO_Messaging.lib TAO.lib ACE.lib IceUtil.lib /nologo /subsystem:console /pdb:none /machine:I386 /out:"client.exe" /libpath:"$(TAO_ROOT)\..\lib" /libpath:"$(TAO_ROOT)\..\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(ICE_HOME)\lib"
 
 !ENDIF 
 
@@ -95,7 +95,7 @@ SOURCE=.\TestS.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Worker_Thread.cpp
+SOURCE=.\WorkerThread.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -119,7 +119,7 @@ SOURCE="TestS_T.h"
 # End Source File
 # Begin Source File
 
-SOURCE=.\Worker_Thread.h
+SOURCE=.\WorkerThread.h
 # End Source File
 # End Group
 # Begin Group "Inline Files"
