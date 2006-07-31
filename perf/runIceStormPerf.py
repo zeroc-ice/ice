@@ -222,7 +222,7 @@ def runIceStormPerfs(expr, results, i):
 	    ]
 
     for prodName, withPayload, latencyTest, suppliers, consumers, cases in tests:
-	test = CosEventTest(prodName, results, i, prodName, withPayload, latencyTest, suppliers, consumers)
+	test = IceStormTest(results, i, prodName, withPayload, latencyTest, suppliers, consumers)
 	for clientArg, opt,  serverArg in cases:
 	    test.run(clientArg, opt, serverArg)
 
