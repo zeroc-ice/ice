@@ -67,7 +67,7 @@ class ClientServerTest(TestUtil.Test) :
         serverPipe = os.popen(os.path.join(".", "server") + " " + options["server"] + redirectStdErr)
         TestUtil.getAdapterReady(serverPipe)
 
-        clientPipe = os.popen(os.path.join(".", "client") + " " + options["client"] + redirectStdErr)
+        clientPipe = os.popen(os.path.join(".", "client") + " " + options["client"])
         result = float(clientPipe.read())
 
         clientPipe.close()
@@ -97,7 +97,7 @@ for o, a in opts:
     elif o == '-n' or o == "--hostname":
         hostname = a
     elif o == '-csv':
-	cvs = True
+	csv = True
 
 if outputFile == "":
     (system, name, ver, build, machine, processor) = platform.uname()

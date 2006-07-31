@@ -1,5 +1,5 @@
 IceBox.ServiceManager.Endpoints=tcp -p 9998
-IceBox.Service.IceStorm=IceStormService,21:create
+IceBox.Service.IceStorm=IceStormService,31:createIceStorm
 Freeze.DbEnv.IceStorm.DbHome=db
 
 IceStorm.TopicManager.Proxy=IceStorm/TopicManager:default -p 10000

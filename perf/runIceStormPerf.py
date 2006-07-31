@@ -8,6 +8,12 @@
 #
 # **********************************************************************
 
+#
+# TODO:
+#
+#  - regular expressions need to be reimplemented.
+#
+
 import os, sys, time, getopt, re, platform
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
@@ -26,7 +32,7 @@ period = 2 # (ms)
 
 class Test(TestUtil.Test) :
 
-    def __init__(self, expr, results, i, product, wPayload, latency, nPublishers, nSubscribers):
+    def __init__(self, results, i, product, wPayload, latency, nPublishers, nSubscribers):
 
         if latency:
             test = "latency " + str(nPublishers) + "-" + str(nSubscribers)
@@ -34,9 +40,9 @@ class Test(TestUtil.Test) :
             test = "throughput " + str(nPublishers) + "-" + str(nSubscribers)
 
         if wPayload:
-            TestUtil.Test.__init__(self, expr, results, i, product, test)
+            TestUtil.Test.__init__(self,  results, i, product, test)
         else:
-            TestUtil.Test.__init__(self, expr, results, i, product + " w/o payload", test)
+            TestUtil.Test.__init__(self, results, i, product + " w/o payload", test)
 
         self.payload = wPayload
         self.latency = latency
@@ -157,7 +163,7 @@ class CosEventTest(Test):
 
     def __init__(self, expr, results, i, product, wPayload, latency, nPublishers, nSubscribers):
 
-        Test.__init__(self, expr, results, i, product, wPayload, latency, nPublishers, nSubscribers)
+        Test.__init__(self, results, i, product, wPayload, latency, nPublishers, nSubscribers)
 
     def run(self, name, serviceOpts):
 
@@ -191,101 +197,80 @@ class CosEventTest(Test):
 def runIceStormPerfs(expr, results, i):
 
     # Latency tests
-    
-    test = IceStormTest(expr, results, i, "IceStorm", False, True, 1, 1) # w/o payload
-    test.run("oneway", "", "-t")
-    test.run("twoway", "-o", "-t")
 
-    test = IceStormTest(expr, results, i, "IceStorm", True, True, 1, 1)
-    test.run("oneway", "", "-t")
-    test.run("twoway", "-o", "-t")
+    prod = "IceStorm"
+    noPayLoad = False
+    payLoad = True
+    latency = True
+    throughput = False
 
-    test = IceStormTest(expr, results, i, "IceStorm", True, True, 1, 2)
-    test.run("oneway", "", "-t")
-    test.run("twoway", "-o", "-t")
+    tests = [
+	    (prodName, noPayLoad, latency, 1, 1, [ ("oneway", "", "-t"), ("twoway", "-o", "-t") ]),
+	    (prodName, payLoad, latency, 1, 1, [ ("oneway", "", "-t"), ("twoway", "-o", "-t") ]),
+	    (prodName, payLoad, latency, 1, 2, [ ("oneway", "", "-t"), ("twoway", "-o", "-t") ]),
+	    (prodName, payLoad, latency, 1, 5, [ ("oneway", "", "-t"), ("twoway", "-o", "-t") ]),
+	    (prodName, payLoad, latency, 1, 10, [ ("oneway", "", "-t"), ("twoway", "-o", "-t") ]),
+	    (prodName, payLoad, latency, 1, 20, [ ("oneway", "", "-t"), ("twoway", "-o", "-t") ]),
+	    (prodName, payLoad, throughput, 1, 1, [ 
+		("oneway", "", "-t"), ("oneway (batch)", "-o", "-b"), ("twoway", "-o", "-t")]),
+	    (prodName, payLoad, throughput, 1, 10, [ 
+		("oneway", "", "-t"), ("oneway (batch)", "-o", "-b"), ("twoway", "-o", "-t")]),
+	    (prodName, payLoad, throughput, 10, 1, [ 
+		("oneway", "", "-t"), ("oneway (batch)", "-o", "-b"), ("twoway", "-o", "-t")]),
+	    (prodName, payLoad, throughput, 5, 5, [ 
+		("oneway", "", "-t"), ("oneway (batch)", "-o", "-b"), ("twoway", "-o", "-t")]),
+	    ]
 
-    test = IceStormTest(expr, results, i, "IceStorm", True, True, 1, 5)
-    test.run("oneway", "", "-t")
-    test.run("twoway", "-o", "-t")
+    if len(expr) > 0:
+	candidates = tests
+	test = []
+	for t in candidates:
+	    pass
 
-    test = IceStormTest(expr, results, i, "IceStorm", True, True, 1, 10)
-    test.run("oneway", "", "-t")
-    test.run("twoway", "-o", "-t")
 
-    test = IceStormTest(expr, results, i, "IceStorm", True, True, 1, 20)
-    test.run("oneway", "", "-t")
-    test.run("twoway", "-o", "-t")
-
-    # Throughput tests
-    
-    test = IceStormTest(expr, results, i, "IceStorm", True, False, 1, 1)
-    test.run("oneway", "", "-t")
-    test.run("oneway (batch)", "", "-b")
-    test.run("twoway", "-o", "-t")
-
-    test = IceStormTest(expr, results, i, "IceStorm", True, False, 1, 10)
-    test.run("oneway", "", "-t")
-    test.run("oneway (batch)", "", "-b")
-    test.run("twoway", "-o", "-t")
-
-    test = IceStormTest(expr, results, i, "IceStorm", True, False, 10, 1)
-    test.run("oneway", "", "-t")
-    test.run("oneway (batch)", "", "-b")
-    test.run("twoway", "-o", "-t")
-
-    test = IceStormTest(expr, results, i, "IceStorm", True, False, 5, 5)
-    test.run("oneway", "", "-t")
-    test.run("oneway (batch)", "", "-b")
-    test.run("twoway", "-o", "-t")
+#    test = IceStormTest(results, i, "IceStorm", False, True, 1, 1) # w/o payload
+#    test.run("oneway", "", "-t")
+#    test.run("twoway", "-o", "-t")
 
 def runCosEventPerfs(expr, results, i):
 
     reactiveService = " -ORBSvcConf svc.event.reactive.conf"
     bufferedService = " -ORBSvcConf svc.event.mt.conf"
+    noPayLoad = False
+    payLoad = True
+    latency = True
+    throughput = False
+    prodName = "CosEvent"
+
+    tests = [
+	    (prodname, noPayLoad, latency, 1, 1, 
+		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
+	    (prodname, payLoad, latency, 1, 1, 
+		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
+	    (prodname, payLoad, latency, 1, 2, 
+		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
+	    (prodname, payLoad, latency, 1, 5, 
+		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
+	    (prodname, payLoad, latency, 1, 10, 
+		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
+	    (prodname, payLoad, latency, 1, 20, 
+		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
+	    (prodname, payLoad, throughput, 1, 1, 
+		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
+	    (prodname, payLoad, throughput, 1, 10, 
+		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
+	    (prodname, payLoad, throughput, 10, 1, 
+		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
+	    (prodname, payLoad, throughput, 5, 5, 
+		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
+	    ]
+
 
     # Latency tests
 
-    test = CosEventTest(expr, results, i, "CosEvent", False, True, 1, 1)  # w/o payload
-    test.run("twoway", reactiveService)
-    test.run("twoway buffered", bufferedService)
-
-    test = CosEventTest(expr, results, i, "CosEvent", True, True, 1, 1)
-    test.run("twoway", reactiveService)
-    test.run("twoway buffered", bufferedService)
-
-    test = CosEventTest(expr, results, i, "CosEvent", True, True, 1, 2)
-    test.run("twoway", reactiveService)
-    test.run("twoway buffered", bufferedService)
-
-    test = CosEventTest(expr, results, i, "CosEvent", True, True, 1, 5)
-    test.run("twoway", reactiveService)
-    test.run("twoway buffered", bufferedService)
-
-    test = CosEventTest(expr, results, i, "CosEvent", True, True, 1, 10)
-    test.run("twoway", reactiveService)
-    test.run("twoway buffered", bufferedService)
-
-    test = CosEventTest(expr, results, i, "CosEvent", True, True, 1, 20)
-    test.run("twoway", reactiveService)
-    test.run("twoway buffered", bufferedService)
-
-    # Throughput tests
-
-    test = CosEventTest(expr, results, i, "CosEvent", True, False, 1, 1)
-    test.run("twoway", reactiveService)
-    test.run("twoway buffered", bufferedService)
-
-    test = CosEventTest(expr, results, i, "CosEvent", True, False, 1, 10)
-    test.run("twoway", reactiveService)
-    test.run("twoway buffered", bufferedService)
-
-    test = CosEventTest(expr, results, i, "CosEvent", True, False, 10, 1)
-    test.run("twoway", reactiveService)
-    test.run("twoway buffered", bufferedService)
-
-    test = CosEventTest(expr, results, i, "CosEvent", True, False, 5, 5)
-    test.run("twoway", reactiveService)
-    test.run("twoway buffered", bufferedService)
+    # test = CosEventTest(expr, results, i, "CosEvent", False, True, 1, 1)  # w/o payload
+    # test.run("twoway", reactiveService)
+    # test.run("twoway buffered", bufferedService)
 
 try:
     opts, pargs = getopt.getopt(sys.argv[1:], 'hi:o:n:', ['help', 'iter=', 'output=', 'hostname='])
