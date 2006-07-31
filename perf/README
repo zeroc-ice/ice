@@ -20,14 +20,14 @@ To configure your environment:
  - set the ICE_HOME environment variable to refer to the path of the Ice
    distribution you want to test. 
  - set the ICEE_HOME environment variable to refer to the path of the
-   IceE distirbution you want to test. 
- - set the TAO_ROOT environment variable to refer to the path of the TAO
-   distribution you want to test. 
+   IceE distribution you want to test. 
+ - set the TAO_ROOT and ACE_ROOT environment variables to refer to the
+   path of the TAO distributions you want to test. 
 
-ICEE_HOME and TAO_ROOT are optional settings and are only required if
-you want to build and run the TAO and IceE performance tests. Ice and
-ICE_HOME is required for the TAO tests as the TAO performance tests use
-some Ice APIs in their implementation. 
+ICEE_HOME, TAO_ROOT and ACE_ROOT are optional settings and are only
+required if you want to build and run the IceE and TAO performance
+tests. Ice and ICE_HOME is required for the TAO tests as the TAO
+performance tests use some Ice APIs in their implementation. 
 
 Note that if you have a pre-existing working environment configured for
 using Ice and TAO, chances are you already have these variables
