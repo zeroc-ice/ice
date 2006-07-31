@@ -3,8 +3,9 @@ The Ice Performance Test Suite (IcePERF)
 
 The Ice Performance Test Suite provides performance evaluation tools,
 configurations and build systems for multiple middleware platforms.
-Currently supported middleware products are: Ice, TAO (CORBA) and
-(OmniORB). 
+Currently supported middleware products are: Ice, IceE and TAO (CORBA).
+IcePERF is also currently only supported on the Linux, Windows 2000 and
+XP family operating systems.
 
 The iceperf tools and configurations strive to provide the closest
 common configuration so the results produced are 'fair' and as directly
@@ -80,5 +81,3 @@ option to control the number of runs per test:
 # Run each ORB test 5 times.
 # 
 python runIcePerf.py --iter 5
-
-
