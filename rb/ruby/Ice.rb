@@ -347,7 +347,7 @@ module Ice
     end
 end
 
-Ice::Object_mixin::OP_ice_isA = ::Ice::__defineOperation('ice_isA', ::Ice::OperationMode.Nonmutating, false, [::Ice::T_string], [], ::Ice::T_bool, [])
-Ice::Object_mixin::OP_ice_ping = ::Ice::__defineOperation('ice_ping', ::Ice::OperationMode.Nonmutating, false, [], [], nil, [])
-Ice::Object_mixin::OP_ice_ids = ::Ice::__defineOperation('ice_ids', ::Ice::OperationMode.Nonmutating, false, [], [], ::Ice::T_StringSeq, [])
-Ice::Object_mixin::OP_ice_id = ::Ice::__defineOperation('ice_id', ::Ice::OperationMode.Nonmutating, false, [], [], ::Ice::T_string, [])
+Ice::Object_mixin::OP_ice_isA = ::Ice::__defineOperation('ice_isA', ::Ice::OperationMode::Nonmutating, false, [::Ice::T_string], [], ::Ice::T_bool, [])
+Ice::Object_mixin::OP_ice_ping = ::Ice::__defineOperation('ice_ping', ::Ice::OperationMode::Nonmutating, false, [], [], nil, [])
+Ice::Object_mixin::OP_ice_ids = ::Ice::__defineOperation('ice_ids', ::Ice::OperationMode::Nonmutating, false, [], [], ::Ice::T_StringSeq, [])
+Ice::Object_mixin::OP_ice_id = ::Ice::__defineOperation('ice_id', ::Ice::OperationMode::Nonmutating, false, [], [], ::Ice::T_string, [])

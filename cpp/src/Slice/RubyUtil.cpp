@@ -624,13 +624,13 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    switch((*s)->mode())
 	    {
 	    case Operation::Normal:
-		_out << "::Ice::OperationMode.Normal";
+		_out << "::Ice::OperationMode::Normal";
 		break;
 	    case Operation::Nonmutating:
-		_out << "::Ice::OperationMode.Nonmutating";
+		_out << "::Ice::OperationMode::Nonmutating";
 		break;
 	    case Operation::Idempotent:
-		_out << "::Ice::OperationMode.Idempotent";
+		_out << "::Ice::OperationMode::Idempotent";
 		break;
 	    }
 	    _out << ", " << ((p->hasMetaData("amd") || (*s)->hasMetaData("amd")) ? "true" : "false") << ", [";
