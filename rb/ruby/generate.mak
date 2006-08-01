@@ -111,11 +111,11 @@ SLICE2RBFLAGS	= -I$(slicedir) --ice
 
 all:: $(MODULES) $(ALL_SRCS)
 
-$(MODULES)::
-	-mkdir $<
+$(MODULES):
+	-mkdir $@
 
-#.ice.rb:
-#	$(SLICE2RB) $(SLICE2RBFLAGS) $(slicedir)/Ice/LocalException.ice
+$(ALL_SRCS): {$(slicedir)}$*.ice
+	-$(SLICE2RB) $(SLICE2RBFLAGS) --output-dir $(*D) $(slicedir)/$*.ice
 
 clean::
 	-rmdir /S /Q $(MODULES)
