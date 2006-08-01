@@ -29,17 +29,17 @@ private:
     
     void started();
     bool stopped();
-    void add(long long);
+    void add(CORBA::LongLong);
     void calc();
 
     CORBA::ULong _event_count;
 
     CORBA::ULong _nExpectedTicks;
-    std::vector<int> _results;
+    std::vector<long> _results;
 
     bool _payload;
-    long long _startTime;
-    long long _stopTime;
+    CORBA::LongLong _startTime;
+    CORBA::LongLong _stopTime;
     int _nPublishers;
     int _nStartedPublishers;
     int _nStoppedPublishers;

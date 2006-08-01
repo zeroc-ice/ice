@@ -147,6 +147,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "supplier"=.\src\CosEvent\supplier.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "taoC"=.\src\TAO\taoC.dsp - Package Owner=<4>
 
 Package=<5>

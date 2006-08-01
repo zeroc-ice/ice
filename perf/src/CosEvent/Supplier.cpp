@@ -16,6 +16,11 @@
 #include <PerfS.h>
 #include <SyncS.h>
 
+#ifdef _WIN32
+#   include <sys/timeb.h>
+#   include <time.h>
+#endif
+
 #include <iostream>
 #include <string>
 
@@ -139,7 +144,6 @@ Supplier::run(int argc, char* argv[])
  	Perf::Sync_var sync = Perf::Sync::_narrow(obj);
 
 	ACE_Time_Value sleep_time(0, period * 1000);
-	timeval tv;
 
 	ior = orb->object_to_string(sync.in() ACE_ENV_ARG_PARAMETER);
 	ACE_TRY_CHECK;
@@ -147,7 +151,6 @@ Supplier::run(int argc, char* argv[])
 	cout << "Supplier ready" << endl;
 	syncImpl->wait();
 	
-	sched_yield();
 	if(!payload)
 	{
 	    {
@@ -155,11 +158,23 @@ Supplier::run(int argc, char* argv[])
 		event <<= CORBA::LongLong(0);
 		consumer->push(event ACE_ENV_ARG_PARAMETER);
 	    }
+#ifdef WIN32
+	    struct _timeb tb;
+#else
+	    struct timeval tv;
+#endif
 	    for(int i = 0; i < repetitions; ++i)
 	    {
 		CORBA::Any event;
+#ifdef WIN32
+		_ftime(&tb);
+		CORBA::LongLong start = tb.time * 1000000 + tb.millitm * 1000;
+#else
 		gettimeofday(&tv, 0);
-		event <<= CORBA::LongLong(tv.tv_sec * static_cast<long long>(1000000) + tv.tv_usec);
+		CORBA::LongLonglong start = tv.tv_sec * 1000000 + tv.tv_usec;
+#endif
+
+		event <<= start;
 		
 		consumer->push(event ACE_ENV_ARG_PARAMETER);
 		ACE_TRY_CHECK;
@@ -189,9 +204,15 @@ Supplier::run(int argc, char* argv[])
 		e.e = Perf::A;
 		e.i = 10;
 		e.s.s = "TEST";
+#ifdef WIN32
+		struct _timeb tb;
+		_ftime(&tb);
+		e.time = tb.time * 1000000 + tb.millitm * 1000;
+#else
+		struct timeval tv;
 		gettimeofday(&tv, 0);
 		e.time = tv.tv_sec * static_cast<long long>(1000000) + tv.tv_usec;
-
+#endif
 		CORBA::Any event;
 		event <<= e;	
 		consumer->push(event ACE_ENV_ARG_PARAMETER);

@@ -17,6 +17,11 @@
 #include <iostream>
 #include <math.h>
 
+#ifdef _WIN32
+#   include <sys/timeb.h>
+#   include <time.h>
+#endif
+
 using namespace std;
 
 Consumer::Consumer() :
@@ -131,7 +136,7 @@ Consumer::push(const CORBA::Any& any ACE_ENV_ARG_DECL_NOT_USED)
 {
     ACE_Guard<ACE_Thread_Mutex> sync(_lock);
 
-    long long time = 0;
+    CORBA::LongLong time = 0;
     if(!_payload)
     {
 	any >>= time;
@@ -169,9 +174,15 @@ Consumer::started()
 {
     if(++_nStartedPublishers == _nPublishers)
     {
+#ifdef WIN32
+	struct _timeb tb;
+	_ftime(&tb);
+	_startTime = tb.time * 1000000 + tb.millitm * 1000;
+#else
 	timeval tv;
 	gettimeofday(&tv, 0);
-	_startTime = tv.tv_sec * static_cast<long long>(1000000) + tv.tv_usec;
+	_startTime = tv.tv_sec * static_cast<CORBA::LongLong>(1000000) + tv.tv_usec;
+#endif
     }
 }
 
@@ -180,9 +191,15 @@ Consumer::stopped()
 {
     if(_nStoppedPublishers == 0)
     {
+#ifdef WIN32
+	struct _timeb tb;
+	_ftime(&tb);
+	_stopTime = tb.time * 1000000 + tb.millitm * 1000;
+#else
 	timeval tv;
 	gettimeofday(&tv, 0);
-	_stopTime = tv.tv_sec * static_cast<long long>(1000000) + tv.tv_usec;
+	_stopTime = tv.tv_sec * static_cast<CORBA::LongLong>(1000000) + tv.tv_usec;
+#endif
     }
     if(_nStartedPublishers < _nPublishers)
     {
@@ -202,13 +219,19 @@ Consumer::stopped()
 }
 
 void
-Consumer::add(long long time)
+Consumer::add(CORBA::LongLong time)
 {
     if(_nStartedPublishers == _nPublishers && _nStoppedPublishers == 0)
     {
+#ifdef WIN32
+	struct _timeb tb;
+	_ftime(&tb);
+	_results.push_back(tb.time * 1000000 + tb.millitm * 1000 - time);
+#else
 	timeval tv;
 	gettimeofday(&tv, 0);
- 	_results.push_back(tv.tv_sec * static_cast<long long>(1000000) + tv.tv_usec - time);
+ 	_results.push_back(tv.tv_sec * static_cast<CORBA::LongLong>(1000000) + tv.tv_usec - time);
+#endif
     }
 }
 
@@ -234,17 +257,21 @@ Consumer::calc()
     _results.resize(_results.size() / 2);
 
     double total = 0.0;
-    for(vector<int>::const_iterator p = _results.begin(); p != _results.end(); ++p)
     {
-	total += *p;
+	for(vector<long>::const_iterator i = _results.begin(); i != _results.end(); ++i)
+	{
+	    total += *i;
+	}
     }
     double mean = total / _results.size();
     
     double deviation;
     total = 0.0;
-    for(vector<int>::const_iterator p = _results.begin(); p != _results.end(); ++p)
     {
-	total = (*p - mean) * (*p - mean);
+	for(vector<long>::const_iterator i = _results.begin(); i != _results.end(); ++i)
+	{
+	    total = (*i - mean) * (*i - mean);
+	}
     }
     deviation = sqrt(total / (_results.size() - 1));
 
