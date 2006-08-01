@@ -133,6 +133,18 @@ SLICE2RBFLAGS		= $(ICECPPFLAGS)
 
 LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
 
+ifeq ($(FLEX_NOLINE),yes)
+    FLEXFLAGS	       := -L
+else
+    FLEXFLAGS	       :=
+endif
+
+ifeq ($(BISON_NOLINE),yes)
+    BISONFLAGS		:= -dvtl
+else
+    BISONFLAGS		:= -dvt
+endif
+
 #
 # Default functions for shared library names. A Ruby extension library
 # cannot have a "lib" prefix, so Ruby-specific functions are defined.
