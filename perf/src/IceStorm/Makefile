@@ -17,19 +17,21 @@ TARGETS		= $(PUBLISHER) $(SUBSCRIBER) $(NOTIFIER)
 
 OBJS		= Perf.o
 
-POBJS		= Publisher.o
+POBJS		= Publisher.o \
+		  Sync.o
 
 SOBJS		= Subscriber.o \
 		  PerfI.o
 
 NOBJS		= Notifier.o \
-		  Perf.o
+		  Sync.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(POBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp)
 
-SLICE_SRCS	= Perf.ice
+SLICE_SRCS	= Perf.ice \
+		  Sync.ice
 
 include $(top_srcdir)/config/Make.rules
 include $(top_srcdir)/config/Make.ice.rules
