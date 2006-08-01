@@ -226,11 +226,6 @@ def runIceStormPerfs(expr, results, i):
 	for clientArg, opt,  serverArg in cases:
 	    test.run(clientArg, opt, serverArg)
 
-
-#    test = IceStormTest(results, i, "IceStorm", False, True, 1, 1) # w/o payload
-#    test.run("oneway", "", "-t")
-#    test.run("twoway", "-o", "-t")
-
 def runCosEventPerfs(expr, results, i):
 
     reactiveService = " -ORBSvcConf svc.event.reactive.conf"

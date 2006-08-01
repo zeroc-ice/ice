@@ -51,6 +51,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "destroyer"=.\src\CosEvent\destroyer.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "dummyIceC"=.\src\Ice\dummy\dummyIceC.dsp - Package Owner=<4>
 
 Package=<5>
@@ -112,6 +124,18 @@ Package=<4>
 ###############################################################################
 
 Project: "latencyIceS"=.\src\Ice\latency\latencyIceS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "notifier"=.\src\CosEvent\notifier.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

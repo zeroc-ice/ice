@@ -9,10 +9,11 @@
 
 #ifndef ROUNDTRIP_HANDLER_H
 #define ROUNDTRIP_HANDLER_H
-#include <ace/pre.h>
+
+#include <IceUtil/Mutex.h>
+#include <IceUtil/Monitor.h>
 
 #include <TestS.h>
-#include <ace/Basic_Stats.h>
 
 #if defined (_MSC_VER)
 #   if (_MSC_VER >= 1200)
@@ -20,9 +21,6 @@
 #   endif /* _MSC_VER >= 1200 */
 #   pragma warning (disable:4250)
 #endif /* _MSC_VER */
-
-#include <IceUtil/Mutex.h>
-#include <IceUtil/Monitor.h>
 
 //
 // Implement the Test::Roundtrip interface

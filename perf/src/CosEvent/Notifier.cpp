@@ -53,9 +53,9 @@ public:
 		syncs.push_back(Perf::Sync::_duplicate(sync.in()));
 	    }
 
-	    for(vector<Perf::Sync_var>::const_iterator p = syncs.begin(); p != syncs.end(); ++p)
+	    for(vector<Perf::Sync_var>::const_iterator i = syncs.begin(); i != syncs.end(); ++i)
 	    {
-		(*p)->notify();
+		(*i)->notify();
 		ACE_TRY_CHECK;	
 	    }
 

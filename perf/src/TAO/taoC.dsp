@@ -34,6 +34,7 @@ RSC=rc.exe
 # PROP Use_Debug_Libraries 1
 # PROP Output_Dir "."
 # PROP Intermediate_Dir "Debug\taoC"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 MTL=midl.exe
 # ADD MTL /D "_DEBUG" /nologo /mktyplib203 /win32
@@ -45,7 +46,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /machine:IX86
-# ADD LINK32 advapi32.lib user32.lib TAO_Strategiesd.lib TAO_PortableServerd.lib TAOd.lib TAO_ValueTyped.lib TAO_Messagingd.lib ACEd.lib IceUtild.lib /nologo /subsystem:console /incremental:no /debug /machine:I386 /out:".\client.exe" /libpath:"$(TAO_ROOT)\..\lib" /libpath:"$(TAO_ROOT)\..\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(ICE_HOME)\lib"
+# ADD LINK32 TAO_AnyTypeCoded.lib TAO_ValueTyped.lib TAO_Messagingd.lib TAO_PortableServerd.lib TAOd.lib ACEd.lib IceUtild.lib  advapi32.lib user32.lib /nologo /subsystem:console /incremental:no /debug /machine:I386 /out:".\client.exe" /libpath:"$(TAO_ROOT)\..\lib" /libpath:"$(TAO_ROOT)\..\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(ICE_HOME)\lib"
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "taoC - Win32 Release"
@@ -171,7 +172,7 @@ InputPath="Test.idl"
 
 BuildCmds= \
 	PATH=%PATH%;$(ACE_ROOT)\lib \
-	$(ACE_ROOT)\bin\tao_idl -Ge 1 -GC -Wb,pre_include=ace\pre.h -Wb,post_include=ace\post.h -I$(TAO_ROOT) $(InputPath) \
+	$(ACE_ROOT)\bin\tao_idl -Ge 1 -GC  -I$(TAO_ROOT) $(InputPath) \
 	
 
 "TestC.inl" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -208,7 +209,7 @@ InputPath="Test.idl"
 
 BuildCmds= \
 	PATH=%PATH%;$(ACE_ROOT)\lib \
-	$(ACE_ROOT)\bin\tao_idl -Ge 1 -GC -Wb,pre_include=ace\pre.h -Wb,post_include=ace\post.h -I$(TAO_ROOT) $(InputPath) \
+	$(ACE_ROOT)\bin\tao_idl -Ge 1 -GC -I$(TAO_ROOT) $(InputPath) \
 	
 
 "TestC.inl" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"

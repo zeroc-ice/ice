@@ -7,18 +7,17 @@
 //
 // **********************************************************************
 
-#include <Roundtrip.h>
-#include <Roundtrip_Handler.h>
-#include <WorkerThread.h>
 #include <ace/Get_Opt.h>
 #include <ace/High_Res_Timer.h>
 #include <ace/Sched_Params.h>
 #include <ace/Stats.h>
 #include <ace/OS_NS_errno.h>
 
-#include <tao/Strategies/advanced_resource.h>
 #include <tao/Messaging/Messaging.h>
 #include <iostream>
+#include <Roundtrip.h>
+#include <Roundtrip_Handler.h>
+#include <WorkerThread.h>
 
 #ifdef _WIN32
 #   include <sys/timeb.h>

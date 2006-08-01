@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <Roundtrip_Handler.h>
-#include <ace/OS_NS_time.h>
 
 Roundtrip_Handler::Roundtrip_Handler() :
     _finished(false)
