@@ -204,6 +204,20 @@ all:: $(SRCS)
 .cpp.o:
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
 
+%.h %.cpp: %.y
+	rm -f $(*F).h $(*F).cpp
+	bison $(BISONFLAGS) $<
+	mv $(*F).tab.c $(*F).cpp
+	mv $(*F).tab.h $(*F).h
+	rm -f $(*F).output
+
+%.cpp: %.l
+	flex $(FLEXFLAGS) $<
+	rm -f $@
+	echo '#include <IceUtil/Config.h>' > $@
+	cat lex.yy.c >> $@
+	rm -f lex.yy.c
+
 clean::
 	-rm -f $(TARGETS)
 	-rm -f core *.o *.bak
