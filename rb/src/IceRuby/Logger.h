@@ -16,30 +16,6 @@
 namespace IceRuby
 {
 
-//
-// LoggerWrapper delegates to a Ruby implementation.
-//
-class LoggerWrapper : public Ice::Logger
-{
-public:
-
-    LoggerWrapper(VALUE);
-
-    virtual void print(const std::string&);
-    virtual void trace(const std::string&, const std::string&);
-    virtual void warning(const std::string&);
-    virtual void error(const std::string&);
-
-    VALUE getObject();
-
-    void mark();
-
-private:
-
-    VALUE _logger;
-};
-typedef IceUtil::Handle<LoggerWrapper> LoggerWrapperPtr;
-
 bool initLogger(VALUE);
 
 //

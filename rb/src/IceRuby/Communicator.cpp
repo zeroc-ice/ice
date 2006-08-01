@@ -36,12 +36,6 @@ IceRuby_Communicator_mark(Ice::CommunicatorPtr* p)
     ObjectFactoryPtr pof = ObjectFactoryPtr::dynamicCast((*p)->findObjectFactory(""));
     assert(pof);
     pof->mark();
-
-    LoggerWrapperPtr wrapper = LoggerWrapperPtr::dynamicCast((*p)->getLogger());
-    if(wrapper)
-    {
-	wrapper->mark();
-    }
 }
 
 extern "C"
@@ -114,7 +108,7 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE self)
 
 	    if(!NIL_P(logger))
 	    {
-		data.logger = new LoggerWrapper(logger);
+		throw RubyException(rb_eArgError, "custom logger is not supported");
 	    }
 
 	    if(!NIL_P(defaultContext) && !hashToContext(defaultContext, data.defaultContext))
@@ -381,20 +375,6 @@ IceRuby_Communicator_getLogger(VALUE self)
     {
 	Ice::CommunicatorPtr p = getCommunicator(self);
 	Ice::LoggerPtr logger = p->getLogger();
-
-	//
-	// The communicator's logger can either be a C++ object (such as
-	// the default logger supplied by the Ice run time), or a C++
-	// wrapper around a Ruby implementation. If the latter, we
-	// return it directly. Otherwise, we create a Ruby object
-	// that delegates to the C++ object.
-	//
-	LoggerWrapperPtr wrapper = LoggerWrapperPtr::dynamicCast(logger);
-	if(wrapper)
-	{
-	    return wrapper->getObject();
-	}
-
 	return createLogger(logger);
     }
     ICE_RUBY_CATCH
