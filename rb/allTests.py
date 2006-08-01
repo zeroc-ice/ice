@@ -34,7 +34,7 @@ def runTests(args, tests, num = 0):
 	print "*** running tests in " + dir,
 	print
 
-        status = os.system(os.path.join(dir, "run.py " + args))
+        status = os.system("python " + os.path.join(dir, "run.py " + args))
 
 	if status and not (sys.platform.startswith("aix") and status == 256):
 	    if(num > 0):
