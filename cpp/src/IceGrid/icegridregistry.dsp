@@ -219,7 +219,7 @@ SOURCE=.\StringAdapterInfoDict.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\StringApplicationDescriptorDict.cpp
+SOURCE=.\StringApplicationInfoDict.cpp
 # End Source File
 # Begin Source File
 
@@ -315,7 +315,7 @@ SOURCE=.\ServerRegistryI.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\StringApplicationDescriptorDict.h
+SOURCE=.\StringApplicationInfoDict.h
 # End Source File
 # Begin Source File
 
@@ -418,12 +418,12 @@ USERDEP__DUMMY3="..\..\bin\slice2freeze.exe"	"..\..\lib\slice.lib"
 InputPath=.\dummy3.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice --include-dir IceGrid -I../../slice -I.. --dict IceGrid::StringApplicationDescriptorDict,string,IceGrid::ApplicationDescriptor StringApplicationDescriptorDict ../../slice/IceGrid/Admin.ice
+	..\..\bin\slice2freeze.exe --ice --include-dir IceGrid -I../../slice -I.. --dict IceGrid::StringApplicationInfoDict,string,IceGrid::ApplicationInfo StringApplicationInfoDict ../../slice/IceGrid/Admin.ice
 
-"StringApplicationDescriptorDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"StringApplicationInfoDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"StringApplicationDescriptorDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"StringApplicationInfoDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -434,12 +434,12 @@ USERDEP__DUMMY3="..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"
 InputPath=.\dummy3.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice --include-dir IceGrid -I../../slice --dict IceGrid::StringApplicationDescriptorDict,string,IceGrid::ApplicationDescriptor StringApplicationDescriptorDict ../../slice/IceGrid/Admin.ice
+	..\..\bin\slice2freeze.exe --ice --include-dir IceGrid -I../../slice --dict IceGrid::StringApplicationInfoDict,string,IceGrid::ApplicationInfo StringApplicationInfoDict ../../slice/IceGrid/Admin.ice
 
-"StringApplicationDescriptorDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"StringApplicationInfoDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"StringApplicationDescriptorDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"StringApplicationInfoDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
