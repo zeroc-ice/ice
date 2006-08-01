@@ -118,7 +118,7 @@ Subscriber::run(int argc, char* argv[])
     {
 	topic = manager->retrieve("time");
     }
-    catch(const IceStorm::NoSuchTopic& e)
+    catch(const IceStorm::NoSuchTopic&)
     {
 	try
 	{

@@ -12,7 +12,7 @@
 #include <IceStorm/IceStorm.h>
 
 #include <Perf.h>
-#include <sys/time.h>
+#include <Sync.h>
 
 using namespace std;
 using namespace Perf;

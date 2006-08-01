@@ -51,6 +51,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "consumer"=.\src\CosEvent\consumer.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "destroyer"=.\src\CosEvent\destroyer.dsp - Package Owner=<4>
 
 Package=<5>
@@ -136,6 +148,42 @@ Package=<4>
 ###############################################################################
 
 Project: "notifier"=.\src\CosEvent\notifier.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "notifierIce"=.\src\IceStorm\notifierIce.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "publisherIce"=.\src\IceStorm\publisherIce.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "subscriberIce"=.\src\IceStorm\subscriberIce.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

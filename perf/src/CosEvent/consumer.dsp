@@ -34,6 +34,7 @@ RSC=rc.exe
 # PROP Use_Debug_Libraries 1
 # PROP Output_Dir "."
 # PROP Intermediate_Dir "Debug\consumer"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 MTL=midl.exe
 # ADD MTL /D "_DEBUG" /nologo /mktyplib203 /win32
@@ -45,7 +46,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /machine:IX86
-# ADD LINK32 TAO_AnyTypeCoded.lib TAO_Messagingd.lib TAO_PortableServerd.lib TAO_ValueTyped.lib TAOd.lib ACEd.lib advapi32.lib user32.lib /nologo /subsystem:console /incremental:no /debug /machine:I386 /out:".\server.exe" /libpath:"$(TAO_ROOT)\..\lib" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(ACE_ROOT)\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType"
+# ADD LINK32 TAO_AnyTypeCoded.lib TAO_CosEventd.lib TAO_CosEvent_skeld.lib  TAO_Messagingd.lib TAO_PortableServerd.lib TAO_ValueTyped.lib TAOd.lib ACEd.lib advapi32.lib user32.lib /nologo /subsystem:console /incremental:no /debug /machine:I386 /libpath:"$(TAO_ROOT)\..\lib" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(ACE_ROOT)\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType"
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "consumer - Win32 Release"
@@ -66,7 +67,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /machine:IX86
-# ADD LINK32 TAO_AnyTypeCode.lib TAO_CosEvent.lib TAO_Messaging.lib TAO_PortableServer.lib TAO_ValueType.lib TAO.lib ACE.lib advapi32.lib user32.lib /nologo /subsystem:console /pdb:none /machine:I386 /out:"server.exe" /libpath:"$(TAO_ROOT)\..\lib" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(ACE_ROOT)\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType"
+# ADD LINK32 TAO_AnyTypeCode.lib TAO_CosEvent_skel.lib TAO_CosEvent.lib TAO_Messaging.lib TAO_PortableServer.lib TAO_ValueType.lib TAO.lib ACE.lib advapi32.lib user32.lib /nologo /subsystem:console /pdb:none /machine:I386 /out:"server.exe" /libpath:"$(TAO_ROOT)\..\lib" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(ACE_ROOT)\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType"
 
 !ENDIF 
 
@@ -79,15 +80,15 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;cxx;c"
 # Begin Source File
 
+SOURCE="Consumer.cpp"
+# End Source File
+# Begin Source File
+
 SOURCE="PerfC.cpp"
 # End Source File
 # Begin Source File
 
 SOURCE="PerfS.cpp"
-# End Source File
-# Begin Source File
-
-SOURCE="Consumer.cpp"
 # End Source File
 # Begin Source File
 
@@ -159,12 +160,12 @@ SOURCE="SyncS_T.inl"
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE="SyncS_T.cpp"
+SOURCE="PerfS_T.cpp"
 # PROP Exclude_From_Build 1
 # End Source File
 # Begin Source File
 
-SOURCE="PerfS_T.cpp"
+SOURCE="SyncS_T.cpp"
 # PROP Exclude_From_Build 1
 # End Source File
 # End Group

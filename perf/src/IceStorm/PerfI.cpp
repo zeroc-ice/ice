@@ -29,7 +29,7 @@ PingI::PingI(int nExpectedTicks, int nPublishers) :
 }
 
 void
-PingI::tick(long long time, Perf::AEnum, int, const Perf::AStruct&, const Ice::Current& current)
+PingI::tick(Ice::Long time, Perf::AEnum, int, const Perf::AStruct&, const Ice::Current& current)
 {
     Lock sync(*this);
     if(time > 0)
@@ -50,7 +50,7 @@ PingI::tick(long long time, Perf::AEnum, int, const Perf::AStruct&, const Ice::C
 }
 
 void
-PingI::tickVoid(long long time, const Ice::Current& current)
+PingI::tickVoid(Ice::Long time, const Ice::Current& current)
 {
     Lock sync(*this);
     if(time > 0)
@@ -108,7 +108,7 @@ PingI::stopped()
 }
 
 void
-PingI::add(long long time)
+PingI::add(Ice::Long time)
 {
     ++_nReceived;
     if(_nStartedPublishers == _nPublishers && _nStoppedPublishers == 0)
@@ -129,17 +129,21 @@ PingI::calc()
     _results.resize(_results.size() / 2);
 
     double total = 0.0;
-    for(vector<int>::const_iterator p = _results.begin(); p != _results.end(); ++p)
     {
-	total += *p;
+	for(vector<int>::const_iterator p = _results.begin(); p != _results.end(); ++p)
+	{
+	    total += *p;
+	}
     }
     double mean = total / _results.size();
     
     double deviation;
     total = 0.0;
-    for(vector<int>::const_iterator p = _results.begin(); p != _results.end(); ++p)
     {
-	total = (*p - mean) * (*p - mean);
+	for(vector<int>::const_iterator p = _results.begin(); p != _results.end(); ++p)
+	{
+	    total = (*p - mean) * (*p - mean);
+	}
     }
     deviation = sqrt(total / (_results.size() - 1));
 

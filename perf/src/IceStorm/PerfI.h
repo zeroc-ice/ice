@@ -11,6 +11,7 @@
 #define PERF_I_H
 
 #include <Perf.h>
+#include <Ice/Config.h>
 #include <IceUtil/Mutex.h>
 
 class PingI : public Perf::Ping, IceUtil::Mutex
@@ -18,14 +19,14 @@ class PingI : public Perf::Ping, IceUtil::Mutex
 public:
 
     PingI(int, int);
-    virtual void tickVoid(long long, const Ice::Current&);
-    virtual void tick(long long, Perf::AEnum, int, const Perf::AStruct&, const Ice::Current&);
+    virtual void tickVoid(Ice::Long, const Ice::Current&);
+    virtual void tick(Ice::Long, Perf::AEnum, int, const Perf::AStruct&, const Ice::Current&);
 
 private:
 
     void started();
     bool stopped();
-    void add(long long);
+    void add(Ice::Long);
     void calc();
 
     int _nPublishers;

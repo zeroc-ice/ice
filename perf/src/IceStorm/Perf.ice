@@ -42,11 +42,6 @@ interface Ping
     void tick(long time, AEnum e, int i, AStruct s);
 };
 
-interface Sync
-{
-    void notify();
-};
-
 };
 
 #endif
