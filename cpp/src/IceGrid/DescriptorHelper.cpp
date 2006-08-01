@@ -421,7 +421,7 @@ Resolver::operator()(const DistributionDescriptor& desc) const
     DistributionDescriptor result;
     result.icepatch = operator()(desc.icepatch, "IcePatch2 server proxy");
     result.directories = operator()(desc.directories, "distribution source directory");
-    return desc;
+    return result;
 }
 
 PropertyDescriptorSeq
@@ -2341,6 +2341,7 @@ ApplicationUpdateDescriptor
 ApplicationHelper::diff(const ApplicationHelper& helper) const
 {
     ApplicationUpdateDescriptor updt;
+    assert(helper._def.name == _def.name);
 
     updt.name = _def.name;
     if(_def.description != helper._def.description)
