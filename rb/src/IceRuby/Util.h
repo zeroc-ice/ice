@@ -289,24 +289,6 @@ inline VALUE createArray(T sz)
 //
 VALUE convertLocalException(const Ice::LocalException&);
 
-//
-// Execute as a Ruby thread.
-//
-class RubyThread : public IceUtil::Shared
-{
-public:
-
-    virtual ~RubyThread() {}
-
-    virtual void run() = 0;
-
-    //
-    // Schedule the thread. May raise RubyException.
-    //
-    void start(bool = false);
-};
-typedef IceUtil::Handle<RubyThread> RubyThreadPtr;
-
 }
 
 //

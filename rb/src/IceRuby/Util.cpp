@@ -491,37 +491,3 @@ IceRuby::convertLocalException(const Ice::LocalException& ex)
 	return rb_exc_new2(rb_eRuntimeError, msg.c_str());
     }
 }
-
-extern "C"
-VALUE
-IceRuby_RubyThread_threadMain(RubyThreadPtr* p)
-{
-    ICE_RUBY_TRY
-    {
-	assert(p);
-	try
-	{
-	    (*p)->run();
-	}
-	catch(...)
-	{
-	    delete p;
-	    throw;
-	}
-	delete p;
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-void
-IceRuby::RubyThread::start(bool join)
-{
-    VALUE t = callRuby(rb_thread_create, CAST_METHOD(IceRuby_RubyThread_threadMain),
-		       reinterpret_cast<void*>(new RubyThreadPtr(this)));
-    assert(!NIL_P(t));
-    if(join)
-    {
-	callRuby(rb_funcall, t, rb_intern("join"), 0);
-    }
-}
