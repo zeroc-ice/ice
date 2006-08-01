@@ -12,10 +12,9 @@ require 'pathname'
 
 rubyDir = nil
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]
-    toplevel = Pathname.new(toplevel).realpath
-    path = toplevel.join("ruby", "Ice.rb")
+    path = Pathname.new(toplevel).join("ruby", "Ice.rb")
     if path.file?
-	rubyDir = path
+	rubyDir = Pathname.new(toplevel).join("ruby")
 	break
     end
 end
