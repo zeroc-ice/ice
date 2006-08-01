@@ -123,6 +123,13 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE self)
 	    }
 	}
 
+	//
+	// Insert the program name (stored in the Ruby global variable $0) as the first
+	// element of the sequence.
+	//
+	VALUE progName = callRuby(rb_gv_get, "$0");
+	seq.insert(seq.begin(), getString(progName));
+
 	data.properties = Ice::createProperties(seq, data.properties);
 
 	//
@@ -177,7 +184,10 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE self)
 	{
 	    callRuby(rb_ary_clear, args);
 
-	    for(i = 0; i < ac; ++i)
+	    //
+	    // We start at index 1 in order to skip the element that we inserted earlier.
+	    //
+	    for(i = 1; i < ac; ++i)
 	    {
 		VALUE str = createString(av[i]);
 		callRuby(rb_ary_push, args, str);
