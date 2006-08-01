@@ -24,6 +24,12 @@ class ObjectFactoryI
 end
 
 def allTests(communicator)
+    platformInfo = RUBY_PLATFORM.split("-")
+    isWin32 = false
+    if platformInfo.length >= 2 && platformInfo[1] == "mswin32"
+	isWin32 = true
+    end
+
     print "testing object factory registration exception... "
     STDOUT.flush
     of = ObjectFactoryI.new
@@ -105,19 +111,25 @@ def allTests(communicator)
 	test(false)
     end
 
-    begin
-	thrower.throwModA(1, 2)
-	test(false)
-    rescue Test::Mod::A => ex
-	test(ex.aMem == 1)
-	test(ex.a2Mem == 2)
-    rescue Ice::OperationNotExistException
-	#
-	# This operation is not supported in Java.
-	#
-    rescue
-	print $!.backtrace.join("\n")
-	test(false)
+    #
+    # We cannot invoke throwModA if the server was built with VC6.
+    #
+    if !isWin32
+	begin
+	    thrower.throwModA(1, 2)
+	    test(false)
+	rescue Test::Mod::A => ex
+	    test(ex.aMem == 1)
+	    test(ex.a2Mem == 2)
+	rescue Ice::OperationNotExistException
+	    #
+	    # This operation is not supported in Java.
+	    #
+	rescue
+	    print $!
+	    print $!.backtrace.join("\n")
+	    test(false)
+	end
     end
 
     puts "ok"
@@ -146,18 +158,23 @@ def allTests(communicator)
 	test(false)
     end
 
-    begin
-	thrower.throwModA(1, 2)
-	test(false)
-    rescue Test::A => ex
-	test(ex.aMem == 1)
-    rescue Ice::OperationNotExistException
-	#
-	# This operation is not supported in Java.
-	#
-    rescue
-	print $!.backtrace.join("\n")
-	test(false)
+    #
+    # We cannot invoke throwModA if the server was built with VC6.
+    #
+    if !isWin32
+	begin
+	    thrower.throwModA(1, 2)
+	    test(false)
+	rescue Test::A => ex
+	    test(ex.aMem == 1)
+	rescue Ice::OperationNotExistException
+	    #
+	    # This operation is not supported in Java.
+	    #
+	rescue
+	    print $!.backtrace.join("\n")
+	    test(false)
+	end
     end
 
     puts "ok"
