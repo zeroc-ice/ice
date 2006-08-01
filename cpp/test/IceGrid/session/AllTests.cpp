@@ -148,15 +148,18 @@ public:
     }
     
     virtual void 
-    init(int serial, const ApplicationDescriptorSeq& apps, const AdapterInfoSeq& adapters, 
-	 const ObjectInfoSeq& objects, const Ice::Current&)
+    init(int serial, 
+	 const ApplicationInfoSeq& apps, 
+	 const AdapterInfoSeq& adapters, 
+	 const ObjectInfoSeq& objects,
+	 const Ice::Current&)
     {
 	Lock sync(*this);
-	for(ApplicationDescriptorSeq::const_iterator p = apps.begin(); p != apps.end(); ++p)
+	for(ApplicationInfoSeq::const_iterator p = apps.begin(); p != apps.end(); ++p)
 	{
-	    if(p->name != "Test") // Ignore the test application from application.xml!
+	    if(p->descriptor.name != "Test") // Ignore the test application from application.xml!
 	    {
-		this->applications.insert(make_pair(p->name, *p));
+		this->applications.insert(make_pair(p->descriptor.name, *p));
 	    }
 	}
 	for(AdapterInfoSeq::const_iterator q = adapters.begin(); q != adapters.end(); ++q)
@@ -171,11 +174,11 @@ public:
     }
 
     virtual void
-    applicationAdded(int serial, const ApplicationDescriptor& app, const Ice::Current&)
+    applicationAdded(int serial, const ApplicationInfo& app, const Ice::Current&)
     {
 	Lock sync(*this);
-	this->applications.insert(make_pair(app.name, app));
-	updated(serial, "application added `" + app.name + "'");
+	this->applications.insert(make_pair(app.descriptor.name, app));
+	updated(serial, "application added `" + app.descriptor.name + "'");
     }
 
     virtual void 
@@ -187,16 +190,17 @@ public:
     }
 
     virtual void 
-    applicationUpdated(int serial, const ApplicationUpdateDescriptor& desc, const Ice::Current&)
+    applicationUpdated(int serial, const ApplicationUpdateInfo& info, const Ice::Current&)
     {
 	Lock sync(*this);
+	const ApplicationUpdateDescriptor& desc = info.descriptor;
 	for(Ice::StringSeq::const_iterator q = desc.removeVariables.begin(); q != desc.removeVariables.end(); ++q)
 	{
-	    this->applications[desc.name].variables.erase(*q);
+	    this->applications[desc.name].descriptor.variables.erase(*q);
 	}
 	for(map<string, string>::const_iterator p = desc.variables.begin(); p != desc.variables.end(); ++p)
 	{
-	    this->applications[desc.name].variables[p->first] = p->second;
+	    this->applications[desc.name].descriptor.variables[p->first] = p->second;
 	}
 	updated(serial, "application updated `" + desc.name + "'");
     }
@@ -271,7 +275,7 @@ public:
     }
 
     int serial;
-    map<string, ApplicationDescriptor> applications;
+    map<string, ApplicationInfo> applications;
     map<string, AdapterInfo> adapters;
     map<Ice::Identity, ObjectInfo> objects;
 
@@ -1386,7 +1390,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    admin1->updateApplication(update);
 	    regObs1->waitForUpdate(__FILE__, __LINE__);
 	    test(regObs1->applications.find("Application") != regObs1->applications.end());
-	    test(regObs1->applications["Application"].variables["test"] == "test");
+	    test(regObs1->applications["Application"].descriptor.variables["test"] == "test");
 	    test(++serial == regObs1->serial);
 	}
 	catch(const Ice::UserException& ex)
@@ -1398,14 +1402,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	try
 	{
 	    ApplicationDescriptor app; 
-	    app = regObs1->applications["Application"];
+	    app = regObs1->applications["Application"].descriptor;
 	    app.variables.clear();
 	    app.variables["test1"] = "test";
 	    admin1->syncApplication(app);
 	    regObs1->waitForUpdate(__FILE__, __LINE__);
 	    test(regObs1->applications.find("Application") != regObs1->applications.end());
-	    test(regObs1->applications["Application"].variables.size() == 1);
-	    test(regObs1->applications["Application"].variables["test1"] == "test");
+	    test(regObs1->applications["Application"].descriptor.variables.size() == 1);
+	    test(regObs1->applications["Application"].descriptor.variables["test1"] == "test");
 	    test(++serial == regObs1->serial);
 	}
 	catch(const Ice::UserException& ex)

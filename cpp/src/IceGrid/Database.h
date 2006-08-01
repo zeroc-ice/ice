@@ -16,7 +16,7 @@
 #include <Ice/CommunicatorF.h>
 #include <IceGrid/Admin.h>
 #include <IceGrid/Internal.h>
-#include <IceGrid/StringApplicationDescriptorDict.h>
+#include <IceGrid/StringApplicationInfoDict.h>
 #include <IceGrid/IdentityObjectInfoDict.h>
 #include <IceGrid/StringAdapterInfoDict.h>
 #include <IceGrid/ServerCache.h>
@@ -76,7 +76,7 @@ public:
 
     void init(int serial);
     void initMaster();
-    void initReplica(int, const ApplicationDescriptorSeq&, const AdapterInfoSeq&, const ObjectInfoSeq&);
+    void initReplica(int, const ApplicationInfoSeq&, const AdapterInfoSeq&, const ObjectInfoSeq&);
 
     void setClientProxy(const Ice::ObjectPrx&);
     void setServerProxy(const Ice::ObjectPrx&);
@@ -141,17 +141,17 @@ private:
     void checkAdapterForAddition(const std::string&);
     void checkObjectForAddition(const Ice::Identity&);
 
-    void load(const ApplicationHelper&, ServerEntrySeq&);
+    void load(const ApplicationHelper&, ServerEntrySeq&, int);
     void unload(const ApplicationHelper&, ServerEntrySeq&);
-    void reload(const ApplicationHelper&, const ApplicationHelper&, ServerEntrySeq&);
-    void finishUpdate(ServerEntrySeq&, const ApplicationUpdateDescriptor&, const ApplicationDescriptor&, 
+    void reload(const ApplicationHelper&, const ApplicationHelper&, ServerEntrySeq&, int);
+    void finishUpdate(ServerEntrySeq&, const ApplicationUpdateDescriptor&, const ApplicationInfo&, 
 		      const ApplicationDescriptor&);
 
     void checkSessionLock(AdminSessionI*);
 
     friend struct AddComponent;
 
-    static const std::string _descriptorDbName;
+    static const std::string _applicationDbName;
     static const std::string _objectDbName;
     static const std::string _adapterDbName;
     static const std::string _replicaGroupDbName;
@@ -177,10 +177,8 @@ private:
     Ice::ObjectPrx _clientProxy;
     Ice::ObjectPrx _serverProxy;
 
-    std::map<std::string, std::string> _applicationsByServerName;
- 
     Freeze::ConnectionPtr _connection;
-    StringApplicationDescriptorDict _descriptors;
+    StringApplicationInfoDict _applications;
     IdentityObjectInfoDict _objects;
     StringAdapterInfoDict _adapters;
     

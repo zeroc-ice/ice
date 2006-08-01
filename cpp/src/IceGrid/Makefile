@@ -55,7 +55,7 @@ NODE_OBJS	= NodeI.o \
 
 REGISTRY_OBJS   = RegistryI.o \
 	  	  InternalRegistryI.o \
-		  StringApplicationDescriptorDict.o \
+		  StringApplicationInfoDict.o \
 		  IdentityObjectInfoDict.o \
 		  StringAdapterInfoDict.o \
 		  Database.o \
@@ -156,13 +156,13 @@ $(LOCAL_HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP)
 	rm -f $(HDIR)/$(*F).h $(*F).cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(SDIR)/$(*F).ice
 
-$(LOCAL_HDIR)/StringApplicationDescriptorDict.h StringApplicationDescriptorDict.cpp: $(SLICE2FREEZE)
-	rm -f StringApplicationDescriptorDict.h StringApplicationDescriptorDict.cpp
-	$(SLICE2FREEZECMD) --dict IceGrid::StringApplicationDescriptorDict,string,IceGrid::ApplicationDescriptor \
-	StringApplicationDescriptorDict ../../slice/IceGrid/Admin.ice
+$(LOCAL_HDIR)/StringApplicationInfoDict.h StringApplicationInfoDict.cpp: $(SLICE2FREEZE)
+	rm -f StringApplicationInfoDict.h StringApplicationInfoDict.cpp
+	$(SLICE2FREEZECMD) --dict IceGrid::StringApplicationInfoDict,string,IceGrid::ApplicationInfo \
+	StringApplicationInfoDict $(LOCAL_SDIR)/Internal.ice
 
 clean::
-	rm -f StringApplicationDescriptorDict.h StringApplicationDescriptorDict.cpp
+	rm -f StringApplicationInfoDict.h StringApplicationInfoDict.cpp
 
 $(LOCAL_HDIR)/IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp: $(SLICE2FREEZE)
 	rm -f IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp

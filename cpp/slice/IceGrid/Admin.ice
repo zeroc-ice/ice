@@ -248,6 +248,45 @@ struct LoadInfo
     float avg15;
 };
 
+struct ApplicationInfo
+{
+    /** The creation time. */
+    long createTime;
+    
+    /** The user who created the application. */
+    string createUser;
+
+    /** The update time. */
+    long updateTime;
+
+    /** The user who updated the application. */
+    string updateUser;
+    
+    /** The application revision number. */
+    int revision;
+
+    /** The application descriptor */
+    ApplicationDescriptor descriptor;
+
+};
+["java:type:{java.util.LinkedList}"] sequence<ApplicationInfo> ApplicationInfoSeq;
+
+struct ApplicationUpdateInfo
+{
+    /** The update time. */
+    long updateTime;
+
+    /** The user who updated the application. */
+    string updateUser;
+
+    /** The application revision number. */
+    int revision;
+
+    /** The update descriptor. */
+    ApplicationUpdateDescriptor descriptor;
+};
+
+
 /**
  *
  * The &IceGrid; administrative interface. <warning><para>Allowing

@@ -399,7 +399,7 @@ NodeEntry::canRemove()
 }
 
 void
-NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, const SessionIPtr& session)
+NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, const SessionIPtr& session, int revision)
 {
     try
     {

@@ -72,7 +72,10 @@ public:
 	    if(updateState)
 	    {
 		Lock sync(*this);
-		_state = session ? Connected : Disconnected;
+		if(_state != Destroyed)
+		{
+		    _state = session ? Connected : Disconnected;
+		}
 		_session = session;
 		notifyAll();
 	    }

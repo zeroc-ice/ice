@@ -28,7 +28,7 @@ public:
 
     virtual void 
     init(int serial, 
-	 const ApplicationDescriptorSeq& applications, 
+	 const ApplicationInfoSeq& applications, 
 	 const AdapterInfoSeq& adapters, 
 	 const ObjectInfoSeq& objects, 
 	 const Ice::Current&)
@@ -37,9 +37,9 @@ public:
     }
 
     virtual void 
-    applicationAdded(int serial, const ApplicationDescriptor& application, const Ice::Current&)
+    applicationAdded(int serial, const ApplicationInfo& application, const Ice::Current&)
     {
-	_database->addApplicationDescriptor(0, application, serial);
+	_database->addApplicationDescriptor(0, application.descriptor, serial);
     }
 
     virtual void 
@@ -49,9 +49,9 @@ public:
     }
 
     virtual void 
-    applicationUpdated(int serial, const ApplicationUpdateDescriptor& update, const Ice::Current&)
+    applicationUpdated(int serial, const ApplicationUpdateInfo& update, const Ice::Current&)
     {
-	_database->updateApplicationDescriptor(0, update, serial);
+	_database->updateApplicationDescriptor(0, update.descriptor, serial);
     }
 
     virtual void 

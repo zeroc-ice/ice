@@ -37,7 +37,7 @@ public:
     ServerEntry(ServerCache&, const std::string&);
 
     void sync();
-    void update(const ServerInfo&);
+    void update(const ServerInfo&, int);
     void destroy();
 
     ServerInfo getServerInfo(bool = false) const;
@@ -80,6 +80,7 @@ private:
     std::auto_ptr<Ice::Exception> _exception;
 
     SessionIPtr _session;
+    int _revision;
 };
 typedef IceUtil::Handle<ServerEntry> ServerEntryPtr;
 typedef std::vector<ServerEntryPtr> ServerEntrySeq;
@@ -90,7 +91,7 @@ public:
 
     ServerCache(const Ice::CommunicatorPtr&, NodeCache&, AdapterCache&, ObjectCache&, AllocatableObjectCache&, int);
 
-    ServerEntryPtr add(const ServerInfo&);
+    ServerEntryPtr add(const ServerInfo&, int);
     ServerEntryPtr get(const std::string&) const;
     bool has(const std::string&) const;
     ServerEntryPtr remove(const std::string&, bool = true);

@@ -227,7 +227,7 @@ interface RegistryObserver
      * interface (not through the deployment mechanism).
      *
      **/
-    ["ami"] void init(int serial, ApplicationDescriptorSeq applications, AdapterInfoSeq adpts, ObjectInfoSeq objects);
+    ["ami"] void init(int serial, ApplicationInfoSeq applications, AdapterInfoSeq adpts, ObjectInfoSeq objects);
 
     /**
      * 
@@ -239,7 +239,7 @@ interface RegistryObserver
      * @param desc The descriptor of the new application.
      * 
      **/
-    void applicationAdded(int serial, ApplicationDescriptor desc);
+    void applicationAdded(int serial, ApplicationInfo desc);
 
     /**
      *
@@ -263,7 +263,7 @@ interface RegistryObserver
      * @param desc The descriptor of the update.
      * 
      **/
-    void applicationUpdated(int serial, ApplicationUpdateDescriptor desc);
+    void applicationUpdated(int serial, ApplicationUpdateInfo desc);
 
     /**
      *

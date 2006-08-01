@@ -75,7 +75,7 @@ ServerCache::ServerCache(const Ice::CommunicatorPtr& communicator,
 }
 
 ServerEntryPtr
-ServerCache::add(const ServerInfo& info)
+ServerCache::add(const ServerInfo& info, int rev)
 {
     Lock sync(*this);
 
@@ -85,7 +85,7 @@ ServerCache::add(const ServerInfo& info)
 	entry = new ServerEntry(*this, info.descriptor->id);
 	addImpl(info.descriptor->id, entry);
     }
-    entry->update(info);
+    entry->update(info, rev);
     _nodeCache.get(info.node, true)->addServer(entry);
 
     forEachCommunicator(AddCommunicator(*this, entry))(info.descriptor);
@@ -222,7 +222,7 @@ ServerEntry::sync()
 }
 
 void
-ServerEntry::update(const ServerInfo& info)
+ServerEntry::update(const ServerInfo& info, int revision)
 {
     Lock sync(*this);
 
@@ -252,6 +252,7 @@ ServerEntry::update(const ServerInfo& info)
     // Update the allocatable flag.
     //
     const_cast<bool&>(_allocatable) = info.descriptor->allocatable || info.descriptor->activation == "session";
+    _revision = revision;
 }
 
 void
@@ -505,6 +506,7 @@ void
 ServerEntry::syncImpl(bool waitForUpdate)
 {
     ServerInfo load;
+    int revision;
     SessionIPtr session;
     ServerInfo destroy;
 
@@ -543,6 +545,7 @@ ServerEntry::syncImpl(bool waitForUpdate)
 	{
 	    load = *_load;
 	    session = _session;
+	    revision = _revision;
 	}
 	else
 	{
@@ -567,7 +570,7 @@ ServerEntry::syncImpl(bool waitForUpdate)
     {
 	try
 	{
-	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session);
+	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session, revision);
 	}
 	catch(NodeNotExistException&)
 	{
@@ -611,7 +614,9 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
 {
     ServerInfo load;
     SessionIPtr session;
+    int revision;
     ServerInfo destroy;
+
     {
 	Lock sync(*this);
 	if(!_updated)
@@ -652,6 +657,7 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
 	    {
 		load = *_load;
 		session = _session;
+		revision = _revision;
 	    }
 	}
     }
@@ -672,7 +678,7 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
     {
 	try
 	{
-	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session);
+	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session, revision);
 	}
 	catch(NodeNotExistException&)
 	{
@@ -686,6 +692,8 @@ ServerEntry::destroyCallback()
 {
     ServerInfo load;
     SessionIPtr session;
+    int revision;
+
     {
 	Lock sync(*this);
 	_destroy.reset(0);
@@ -701,6 +709,7 @@ ServerEntry::destroyCallback()
 	    _updated = false;
 	    load = *_load;
 	    session = _session;
+	    revision = _revision;
 	}
     }
 
@@ -708,7 +717,7 @@ ServerEntry::destroyCallback()
     {
 	try
 	{
-	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session);
+	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session, revision);
 	}
 	catch(NodeNotExistException&)
 	{
@@ -726,7 +735,9 @@ ServerEntry::exception(const Ice::Exception& ex)
 {
     ServerInfo load;
     SessionIPtr session;
+    int revision;
     bool remove = false;
+
     {
 	Lock sync(*this);
 	if((_destroy.get() && !_load.get()) || (!_destroy.get() && !_updated))
@@ -743,6 +754,7 @@ ServerEntry::exception(const Ice::Exception& ex)
 	    _updated = false;
 	    load = *_load.get();
 	    session = _session;
+	    revision = _revision;
 	}
     }
 
@@ -750,7 +762,7 @@ ServerEntry::exception(const Ice::Exception& ex)
     {
 	try
 	{
-	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session);
+	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session, revision);
 	}
 	catch(NodeNotExistException&)
 	{

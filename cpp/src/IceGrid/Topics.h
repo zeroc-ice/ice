@@ -53,12 +53,12 @@ class RegistryObserverTopic : public RegistryObserver, public IceUtil::Monitor<I
 public:
 
     RegistryObserverTopic(const Ice::ObjectAdapterPtr&, const IceStorm::TopicManagerPrx&);
-    virtual void init(int, const ApplicationDescriptorSeq&, const AdapterInfoSeq&, const ObjectInfoSeq&,
+    virtual void init(int, const ApplicationInfoSeq&, const AdapterInfoSeq&, const ObjectInfoSeq&, 
 		      const Ice::Current&);
 
-    virtual void applicationAdded(int, const ApplicationDescriptor&, const Ice::Current&);
+    virtual void applicationAdded(int, const ApplicationInfo&, const Ice::Current&);
     virtual void applicationRemoved(int, const std::string&, const Ice::Current&);
-    virtual void applicationUpdated(int, const ApplicationUpdateDescriptor&, const Ice::Current&);
+    virtual void applicationUpdated(int, const ApplicationUpdateInfo&, const Ice::Current&);
 
     virtual void adapterAdded(int, const AdapterInfo&, const Ice::Current&);
     virtual void adapterUpdated(int, const AdapterInfo&, const Ice::Current&);
@@ -81,7 +81,7 @@ private:
     const RegistryObserverPrx _publisher;
 
     int _serial;
-    std::map<std::string, ApplicationDescriptor> _applications;
+    std::map<std::string, ApplicationInfo> _applications;
     std::map<std::string, AdapterInfo> _adapters;
     std::map<Ice::Identity, ObjectInfo> _objects;
 };

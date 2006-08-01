@@ -26,7 +26,7 @@
 using namespace std;
 using namespace IceGrid;
 
-const string Database::_descriptorDbName = "applications";
+const string Database::_applicationDbName = "applications";
 const string Database::_adapterDbName = "adapters";
 const string Database::_objectDbName = "objects";
 
@@ -135,18 +135,18 @@ Database::Database(const Ice::ObjectAdapterPtr& registryAdapter,
     _clientProxy(_communicator->stringToProxy("dummy")),
     _serverProxy(_communicator->stringToProxy("dummy")),
     _connection(Freeze::createConnection(registryAdapter->getCommunicator(), _envName)),
-    _descriptors(_connection, _descriptorDbName),
+    _applications(_connection, _applicationDbName),
     _objects(_connection, _objectDbName),
     _adapters(_connection, _adapterDbName),
     _lock(0), 
     _serial(-1)
 {
     ServerEntrySeq entries;
-    for(StringApplicationDescriptorDict::const_iterator p = _descriptors.begin(); p != _descriptors.end(); ++p)
+    for(StringApplicationInfoDict::const_iterator p = _applications.begin(); p != _applications.end(); ++p)
     {
 	try
 	{
-	    load(ApplicationHelper(_communicator, p->second), entries);
+	    load(ApplicationHelper(_communicator, p->second.descriptor), entries, p->second.revision);
 	}
 	catch(const DeploymentException& ex)
 	{
@@ -269,8 +269,8 @@ Database::initMaster()
     _registryObserverTopic = new RegistryObserverTopic(_internalAdapter, _topicManager);
     _serial = 0;
 
-    ApplicationDescriptorSeq applications;
-    for(StringApplicationDescriptorDict::const_iterator p = _descriptors.begin(); p != _descriptors.end(); ++p)
+    ApplicationInfoSeq applications;
+    for(StringApplicationInfoDict::const_iterator p = _applications.begin(); p != _applications.end(); ++p)
     {
 	applications.push_back(p->second);
     }	
@@ -289,7 +289,7 @@ Database::initMaster()
 
 void
 Database::initReplica(int masterSerial, 
-		      const ApplicationDescriptorSeq& applications,
+		      const ApplicationInfoSeq& applications,
 		      const AdapterInfoSeq& adapters, 
 		      const ObjectInfoSeq& objects)
 {
@@ -299,35 +299,37 @@ Database::initReplica(int masterSerial,
 
     ServerEntrySeq entries;
     set<string> names;
-    for(ApplicationDescriptorSeq::const_iterator p = applications.begin(); p != applications.end(); ++p)
+    for(ApplicationInfoSeq::const_iterator p = applications.begin(); p != applications.end(); ++p)
     {
 	try
 	{
-	    StringApplicationDescriptorDict::const_iterator s = _descriptors.find(p->name);
-	    if(s != _descriptors.end())
+	    StringApplicationInfoDict::const_iterator s = _applications.find(p->descriptor.name);
+	    if(s != _applications.end())
 	    {
-		reload(ApplicationHelper(_communicator, s->second), ApplicationHelper(_communicator, *p), entries);
+		ApplicationHelper previous(_communicator, s->second.descriptor);
+		ApplicationHelper helper(_communicator, p->descriptor);
+		reload(previous, helper, entries, p->revision);
 	    }
 	    else
 	    {
-		load(ApplicationHelper(_communicator, *p), entries);
+		load(ApplicationHelper(_communicator, p->descriptor), entries, p->revision);
 	    }
 	}
 	catch(const DeploymentException& ex)
 	{
 	    Ice::Warning warn(_traceLevels->logger);
-	    warn << "invalid application `" << p->name << "':\n" << ex.reason;
+	    warn << "invalid application `" << p->descriptor.name << "':\n" << ex.reason;
 	}
-	_descriptors.put(StringApplicationDescriptorDict::value_type(p->name, *p));
-	names.insert(p->name);
+	_applications.put(StringApplicationInfoDict::value_type(p->descriptor.name, *p));
+	names.insert(p->descriptor.name);
     }
-    StringApplicationDescriptorDict::iterator s = _descriptors.begin();
-    while(s != _descriptors.end())
+    StringApplicationInfoDict::iterator s = _applications.begin();
+    while(s != _applications.end())
     {
 	if(names.find(s->first) == names.end())
 	{
-	    unload(ApplicationHelper(_communicator, s->second), entries);
-	    _descriptors.erase(s++);
+	    unload(ApplicationHelper(_communicator, s->second.descriptor), entries);
+	    _applications.erase(s++);
 	}
 	else
 	{
@@ -402,14 +404,14 @@ Database::addApplicationDescriptor(AdminSessionI* session, const ApplicationDesc
 	    wait();
 	}
 
-	if(_descriptors.find(desc.name) != _descriptors.end())
+	if(_applications.find(desc.name) != _applications.end())
 	{
 	    throw DeploymentException("application `" + desc.name + "' already exists");
 	}	
 
 	ApplicationHelper helper(_communicator, desc);
 	checkForAddition(helper);
-	load(helper, entries);
+	load(helper, entries, 1);
 	_updating.insert(desc.name);
     }
 
@@ -445,9 +447,17 @@ Database::addApplicationDescriptor(AdminSessionI* session, const ApplicationDesc
     // Save the application descriptor.
     //
     int serial;
+    ApplicationInfo info;
     {
 	Lock sync(*this);	
-	_descriptors.put(StringApplicationDescriptorDict::value_type(desc.name, desc));	
+	
+	info.createTime = info.updateTime = IceUtil::Time::now().toMilliSeconds();
+	info.createUser = info.updateUser = _lockUserId;
+	info.descriptor = desc;
+	info.revision = 1;
+
+	_applications.put(StringApplicationInfoDict::value_type(desc.name, info));	
+
 	serial = ++_serial;	
 	_updating.erase(desc.name);
 	notifyAll();
@@ -458,7 +468,7 @@ Database::addApplicationDescriptor(AdminSessionI* session, const ApplicationDesc
     //
     if(_registryObserverTopic)
     {
-	_registryObserverTopic->getPublisher()->applicationAdded(serial, desc);
+	_registryObserverTopic->getPublisher()->applicationAdded(serial, info);
     }
 
     if(_traceLevels->application > 0)
@@ -469,11 +479,12 @@ Database::addApplicationDescriptor(AdminSessionI* session, const ApplicationDesc
 }
 
 void
-Database::updateApplicationDescriptor(AdminSessionI* session, const ApplicationUpdateDescriptor& update, 
+Database::updateApplicationDescriptor(AdminSessionI* session, 
+				      const ApplicationUpdateDescriptor& update, 
 				      int masterSerial)
 {
     ServerEntrySeq entries;
-    ApplicationDescriptor oldDesc;
+    ApplicationInfo oldApp;
     ApplicationDescriptor newDesc;
     {
 	Lock sync(*this);	
@@ -484,25 +495,25 @@ Database::updateApplicationDescriptor(AdminSessionI* session, const ApplicationU
 	    wait();
 	}
 
-	StringApplicationDescriptorDict::const_iterator p = _descriptors.find(update.name);
-	if(p == _descriptors.end())
+	StringApplicationInfoDict::const_iterator p = _applications.find(update.name);
+	if(p == _applications.end())
 	{
 	    throw ApplicationNotExistException(update.name);
 	}
+	oldApp = p->second;
 
-	ApplicationHelper previous(_communicator, p->second);
+	ApplicationHelper previous(_communicator, oldApp.descriptor);
 	ApplicationHelper helper(_communicator, previous.update(update));
 
 	checkForUpdate(previous, helper);
-	reload(previous, helper, entries);
+	reload(previous, helper, entries, oldApp.revision + 1);
 
-	oldDesc = previous.getDefinition();
 	newDesc = helper.getDefinition();
 
 	_updating.insert(update.name);
     }
 
-    finishUpdate(entries, update, oldDesc, newDesc);
+    finishUpdate(entries, update, oldApp, newDesc);
 }
 
 void
@@ -510,7 +521,7 @@ Database::syncApplicationDescriptor(AdminSessionI* session, const ApplicationDes
 {
     ServerEntrySeq entries;
     ApplicationUpdateDescriptor update;
-    ApplicationDescriptor oldDesc;
+    ApplicationInfo oldApp;
     {
 	Lock sync(*this);
 	checkSessionLock(session);
@@ -520,25 +531,24 @@ Database::syncApplicationDescriptor(AdminSessionI* session, const ApplicationDes
 	    wait();
 	}
 
-	StringApplicationDescriptorDict::const_iterator p = _descriptors.find(newDesc.name);
-	if(p == _descriptors.end())
+	StringApplicationInfoDict::const_iterator p = _applications.find(newDesc.name);
+	if(p == _applications.end())
 	{
 	    throw ApplicationNotExistException(newDesc.name);
 	}
+	oldApp = p->second;
 
-	ApplicationHelper previous(_communicator, p->second);
+	ApplicationHelper previous(_communicator, oldApp.descriptor);
 	ApplicationHelper helper(_communicator, newDesc);
 	update = helper.diff(previous);
 	
 	checkForUpdate(previous, helper);	
-	reload(previous, helper, entries);	
-
-	oldDesc = previous.getDefinition();
+	reload(previous, helper, entries, oldApp.revision + 1);
 
 	_updating.insert(update.name);
     }
 
-    finishUpdate(entries, update, oldDesc, newDesc);
+    finishUpdate(entries, update, oldApp, newDesc);
 }
 
 void
@@ -549,7 +559,7 @@ Database::instantiateServer(AdminSessionI* session,
 {
     ServerEntrySeq entries;
     ApplicationUpdateDescriptor update;
-    ApplicationDescriptor oldDesc;
+    ApplicationInfo oldApp;
     ApplicationDescriptor newDesc;
     {
 	Lock sync(*this);	
@@ -560,26 +570,26 @@ Database::instantiateServer(AdminSessionI* session,
 	    wait();
 	}
 
-	StringApplicationDescriptorDict::const_iterator p = _descriptors.find(application);
-	if(p == _descriptors.end())
+	StringApplicationInfoDict::const_iterator p = _applications.find(application);
+	if(p == _applications.end())
 	{
 	    throw ApplicationNotExistException(application);
 	}
+	oldApp = p->second;
 
-	ApplicationHelper previous(_communicator, p->second);
+	ApplicationHelper previous(_communicator, oldApp.descriptor);
 	ApplicationHelper helper(_communicator, previous.instantiateServer(node, instance));
 	update = helper.diff(previous);
 
 	checkForUpdate(previous, helper);	
-	reload(previous, helper, entries);
+	reload(previous, helper, entries, oldApp.revision + 1);
 
-	oldDesc = previous.getDefinition();
 	newDesc = helper.getDefinition();
 
 	_updating.insert(update.name);
     }
 
-    finishUpdate(entries, update, oldDesc, newDesc);
+    finishUpdate(entries, update, oldApp, newDesc);
 }
 
 void
@@ -596,15 +606,15 @@ Database::removeApplicationDescriptor(AdminSessionI* session, const std::string&
 	    wait();
 	}
 
-	StringApplicationDescriptorDict::iterator p = _descriptors.find(name);
-	if(p == _descriptors.end())
+	StringApplicationInfoDict::iterator p = _applications.find(name);
+	if(p == _applications.end())
 	{
 	    throw ApplicationNotExistException(name);
 	}
 
 	try
 	{
-	    ApplicationHelper helper(_communicator, p->second);
+	    ApplicationHelper helper(_communicator, p->second.descriptor);
 	    unload(helper, entries);
 	}
 	catch(const DeploymentException&)
@@ -616,7 +626,7 @@ Database::removeApplicationDescriptor(AdminSessionI* session, const std::string&
 	    //
 	}
 	
-	_descriptors.erase(p);
+	_applications.erase(p);
 
 	serial = ++_serial;
     }
@@ -642,23 +652,23 @@ ApplicationDescriptor
 Database::getApplicationDescriptor(const std::string& name)
 {
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
-    StringApplicationDescriptorDict descriptors(connection, _descriptorDbName); 
+    StringApplicationInfoDict descriptors(connection, _applicationDbName); 
     
-    StringApplicationDescriptorDict::const_iterator p = descriptors.find(name);
+    StringApplicationInfoDict::const_iterator p = descriptors.find(name);
     if(p == descriptors.end())
     {
 	throw ApplicationNotExistException(name);
     }
 
-    return p->second;
+    return p->second.descriptor;
 }
 
 Ice::StringSeq
 Database::getAllApplications(const string& expression)
 {
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
-    StringApplicationDescriptorDict descriptors(connection, _descriptorDbName);
-    return getMatchingKeys<StringApplicationDescriptorDict>(descriptors, expression);
+    StringApplicationInfoDict descriptors(connection, _applicationDbName);
+    return getMatchingKeys<StringApplicationInfoDict>(descriptors, expression);
 }
 
 void 
@@ -883,7 +893,7 @@ Database::removeAdapter(const string& adapterId)
 	    throw ex;
 	}
 
-	Freeze::TransactionHolder txHolder(_connection);
+	Freeze::TransactionHolder txHolder(_connection); // Required because of the iterator
 
 	StringAdapterInfoDict::iterator p = _adapters.find(adapterId);
 	if(p != _adapters.end())
@@ -1466,7 +1476,7 @@ Database::checkObjectForAddition(const Ice::Identity& objectId)
 }
 
 void
-Database::load(const ApplicationHelper& app, ServerEntrySeq& entries)
+Database::load(const ApplicationHelper& app, ServerEntrySeq& entries, int rev)
 {
     const NodeDescriptorDict& nodes = app.getInstance().nodes;
     const string application = app.getInstance().name;
@@ -1492,7 +1502,7 @@ Database::load(const ApplicationHelper& app, ServerEntrySeq& entries)
     map<string, ServerInfo> servers = app.getServerInfos();
     for(map<string, ServerInfo>::const_iterator p = servers.begin(); p != servers.end(); ++p)
     {
-	entries.push_back(_serverCache.add(p->second));
+	entries.push_back(_serverCache.add(p->second, rev));
     }
 }
 
@@ -1524,7 +1534,7 @@ Database::unload(const ApplicationHelper& app, ServerEntrySeq& entries)
 }
 
 void
-Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newApp, ServerEntrySeq& entries)
+Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newApp, ServerEntrySeq& entries, int rev)
 {
     const string application = oldApp.getInstance().name;
 
@@ -1632,14 +1642,14 @@ Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newAp
     //
     for(vector<ServerInfo>::const_iterator q = load.begin(); q != load.end(); ++q)
     {
-	entries.push_back(_serverCache.add(*q));
+	entries.push_back(_serverCache.add(*q, rev));
     }
 }
 
 void
 Database::finishUpdate(ServerEntrySeq& entries, 
 		       const ApplicationUpdateDescriptor& update,
-		       const ApplicationDescriptor& oldDesc, 
+		       const ApplicationInfo& oldApp, 
 		       const ApplicationDescriptor& newDesc)
 {
 
@@ -1657,8 +1667,8 @@ Database::finishUpdate(ServerEntrySeq& entries,
 	    Lock sync(*this);
 	    entries.clear();
 	    ApplicationHelper previous(_communicator, newDesc);
-	    ApplicationHelper helper(_communicator, oldDesc);
-	    reload(previous, helper, entries);
+	    ApplicationHelper helper(_communicator, oldApp.descriptor);
+	    reload(previous, helper, entries, oldApp.revision);
 	    _updating.erase(newDesc.name);
 	    notifyAll();
 	}
@@ -1677,20 +1687,29 @@ Database::finishUpdate(ServerEntrySeq& entries,
     // Save the application descriptor.
     //
     int serial;
+    ApplicationUpdateInfo updateInfo;
     {
 	Lock sync(*this);
-	_descriptors.put(StringApplicationDescriptorDict::value_type(update.name, newDesc));
+	
+	ApplicationInfo info = oldApp;
+	info.updateTime = updateInfo.updateTime = IceUtil::Time::now().toMilliSeconds();
+	info.updateUser = updateInfo.updateUser = _lockUserId;
+	info.revision = updateInfo.revision = oldApp.revision + 1;
+	info.descriptor = newDesc;
+	updateInfo.descriptor = update;
+
+	_applications.put(StringApplicationInfoDict::value_type(update.name, info));
 	serial = ++_serial;
 	_updating.erase(update.name);
 	notifyAll();
-    }    
+    }
 
     //
     // Notify the observers.
     //
     if(_registryObserverTopic)
     {
-	_registryObserverTopic->getPublisher()->applicationUpdated(serial, update);
+	_registryObserverTopic->getPublisher()->applicationUpdated(serial, updateInfo);
     }
 
     if(_traceLevels->application > 0)

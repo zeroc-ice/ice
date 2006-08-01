@@ -65,20 +65,27 @@ class RegistryObserverI extends _RegistryObserverDisp
     {
 	_initialized = true;
 	_serial = serial;
-	_applications = applications;
+
+	_applications = new java.util.LinkedList();
+	java.util.Iterator p = applications.iterator();
+	while(p.hasNext())
+	{
+	    _applications.add(((ApplicationInfo)p.next()).descriptor); // TODO: Use ApplicationInfo directly.
+	}
+
 	_adapters = adapters;
 	_objects = objects;
 	notify();
     }
 
-    public void applicationAdded(final int serial, final ApplicationDescriptor desc, 
+    public void applicationAdded(final int serial, final ApplicationInfo info, 
 				 Ice.Current current)
     {
 	SwingUtilities.invokeLater(new Runnable() 
 	    {
 		public void run() 
 		{
-		    _coordinator.applicationAdded(serial, desc);
+		    _coordinator.applicationAdded(serial, info.descriptor); // TODO: Use ApplicationInfo directly.
 		}
 	    });
     }
@@ -95,14 +102,14 @@ class RegistryObserverI extends _RegistryObserverDisp
 	    });
     }
 
-    public void applicationUpdated(final int serial, final ApplicationUpdateDescriptor desc, 
+    public void applicationUpdated(final int serial, final ApplicationUpdateInfo info, 
 				   Ice.Current current)
     {
 	SwingUtilities.invokeLater(new Runnable() 
 	    {
 		public void run() 
 		{
-		    _coordinator.applicationUpdated(serial, desc);
+		    _coordinator.applicationUpdated(serial, info.descriptor); // TODO: Use ApplicationUpdateInfo
 		}
 	    });
     }

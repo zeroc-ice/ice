@@ -295,7 +295,7 @@ RegistryObserverTopic::RegistryObserverTopic(const Ice::ObjectAdapterPtr& adapte
 
 void 
 RegistryObserverTopic::init(int serial, 
-			    const ApplicationDescriptorSeq& apps, 
+			    const ApplicationInfoSeq& apps, 
 			    const AdapterInfoSeq& adpts,
 			    const ObjectInfoSeq& objects,
 			    const Ice::Current&)
@@ -304,9 +304,9 @@ RegistryObserverTopic::init(int serial,
 
     _serial = serial;
 
-    for(ApplicationDescriptorSeq::const_iterator p = apps.begin(); p != apps.end(); ++p)
+    for(ApplicationInfoSeq::const_iterator p = apps.begin(); p != apps.end(); ++p)
     {
-	_applications.insert(make_pair(p->name, *p));
+	_applications.insert(make_pair(p->descriptor.name, *p));
     }
     for(AdapterInfoSeq::const_iterator q = adpts.begin(); q != adpts.end(); ++q)
     {
@@ -321,15 +321,15 @@ RegistryObserverTopic::init(int serial,
 }
 
 void 
-RegistryObserverTopic::applicationAdded(int serial, const ApplicationDescriptor& desc, const Ice::Current&)
+RegistryObserverTopic::applicationAdded(int serial, const ApplicationInfo& info, const Ice::Current&)
 {
     Lock sync(*this);
 
     updateSerial(serial);
 
-    _applications.insert(make_pair(desc.name, desc));
+    _applications.insert(make_pair(info.descriptor.name, info));
 
-    _internalPublisher->applicationAdded(serial, desc);
+    _internalPublisher->applicationAdded(serial, info);
 }
 
 void 
@@ -345,18 +345,21 @@ RegistryObserverTopic::applicationRemoved(int serial, const string& name, const 
 }
 
 void 
-RegistryObserverTopic::applicationUpdated(int serial, const ApplicationUpdateDescriptor& desc, const Ice::Current& c)
+RegistryObserverTopic::applicationUpdated(int serial, const ApplicationUpdateInfo& info, const Ice::Current& c)
 {
     Lock sync(*this);
 
     updateSerial(serial);
     try
     {
-	map<string, ApplicationDescriptor>::iterator p = _applications.find(desc.name);
+	map<string, ApplicationInfo>::iterator p = _applications.find(info.descriptor.name);
 	if(p != _applications.end())
 	{
-	    ApplicationHelper helper(c.adapter->getCommunicator(), p->second);
-	    p->second = helper.update(desc);
+	    ApplicationHelper helper(c.adapter->getCommunicator(), p->second.descriptor);
+	    p->second.descriptor = helper.update(info.descriptor);
+	    p->second.updateTime = info.updateTime;
+	    p->second.updateUser = info.updateUser;
+	    p->second.revision = info.revision;
 	}
     }
     catch(const DeploymentException& ex)
@@ -379,7 +382,7 @@ RegistryObserverTopic::applicationUpdated(int serial, const ApplicationUpdateDes
 	assert(false);
     }
 
-    _internalPublisher->applicationUpdated(serial, desc);
+    _internalPublisher->applicationUpdated(serial, info);
 }
 
 void 
@@ -461,7 +464,7 @@ RegistryObserverTopic::subscribe(const RegistryObserverPrx& observer, int serial
     {
 	if(serial == -1)
 	{
-	    ApplicationDescriptorSeq applications;
+	    ApplicationInfoSeq applications;
 	    AdapterInfoSeq adapters;
 	    ObjectInfoSeq objects;
 	    {
@@ -469,7 +472,7 @@ RegistryObserverTopic::subscribe(const RegistryObserverPrx& observer, int serial
 		assert(_serial != -1);
 		serial = _serial;
 
-		map<string, ApplicationDescriptor>::const_iterator p;
+		map<string, ApplicationInfo>::const_iterator p;
 		for(p = _applications.begin(); p != _applications.end(); ++p)
 		{
 		    applications.push_back(p->second);
