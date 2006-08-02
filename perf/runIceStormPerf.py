@@ -241,18 +241,18 @@ def runIceStormPerfs(expr, results, i):
     if len(expr) > 0:
 	candidates = tests
 	tests = []
-	for prodName, withPayload, latencyTest, suppliers, consumers, cases in tests:
+	for prodName, withPayload, latencyTest, suppliers, consumers, cases in candidates:
 	    allowedCases = []
 	    for e in expr:
 		for c in cases:
 		    type = "throughput"
-		    if latentcyTest:
+		    if latencyTest:
 			type = "latency"
 		    criteria = "%s %s %s" % (prodName, type, c[0])
 		    if e.match(criteria):
 			allowedCases.append(c)
 	    if len(allowedCases) > 0:
-		tests.append(prodName, withPayload, latencyTest, suppliers, consumers, allowedCases) 
+		tests.append((prodName, withPayload, latencyTest, suppliers, consumers, allowedCases))
 
     for prodName, withPayload, latencyTest, suppliers, consumers, cases in tests:
 	test = IceStormTest(results, i, prodName, withPayload, latencyTest, suppliers, consumers)
@@ -295,18 +295,18 @@ def runCosEventPerfs(expr, results, i):
     if len(expr) > 0:
 	candidates = tests
 	tests = []
-	for prodName, withPayload, latencyTest, suppliers, consumers, cases in tests:
+	for prodName, withPayload, latencyTest, suppliers, consumers, cases in candidates:
 	    allowedCases = []
 	    for e in expr:
 		for c in cases:
 		    type = "throughput"
-		    if latentcyTest:
+		    if latencyTest:
 			type = "latency"
 		    criteria = "%s %s %s" % (prodName, type, c[0])
 		    if e.match(criteria):
 			allowedCases.append(c)
 	    if len(allowedCases) > 0:
-		tests.append(prodName, withPayload, latencyTest, suppliers, consumers, allowedCases) 
+		tests.append((prodName, withPayload, latencyTest, suppliers, consumers, allowedCases))
 
     for prodName, withPayload, latencyTest, suppliers, consumers, cases in tests:
 	test = CosEventTest(prodName, results, i, prodName, withPayload, latencyTest, suppliers, consumers)
