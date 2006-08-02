@@ -42,9 +42,33 @@ def find(path, patt):
     return result
 
 #
-# Add some text to any line that matches the given pattern.
+# Modify the given Make.rules file to uncomment a line containing the given pattern.
 #
-def addToLine(file, patt, text):
+def uncomment(file, patt):
+    origfile = file + ".orig"
+    os.rename(file, origfile)
+    oldFile = open(origfile, "r")
+    newFile = open(file, "w")
+    origLines = oldFile.readlines()
+
+    expr = re.compile(patt)
+    doComment = 0
+    newLines = []
+    for x in origLines:
+	if expr.match(x) != None and x[0] == '#':
+	    newLines.append(x[1:])
+	else:
+	    newLines.append(x)
+
+    newFile.writelines(newLines)
+    newFile.close()
+    oldFile.close()
+    os.remove(origfile)
+
+#
+# Modify the given Make.rules file to add a flag if ICE_HOME is defined.
+#
+def fixMakeRules(file, patt, text):
     origfile = file + ".orig"
     os.rename(file, origfile)
     oldFile = open(origfile, "r")
@@ -56,7 +80,36 @@ def addToLine(file, patt, text):
     newLines = []
     for x in origLines:
 	if expr.match(x) != None:
+	    newLines.append('ifneq ($(ICE_HOME),)\n')
 	    newLines.append(x.rstrip() + text + "\n")
+	    newLines.append('else\n')
+	    newLines.append(x)
+	    newLines.append('endif\n')
+	else:
+	    newLines.append(x)
+
+    newFile.writelines(newLines)
+    newFile.close()
+    oldFile.close()
+    os.remove(origfile)
+
+#
+# Modify the given Make.rules file to insert text in a variable value.
+#
+def fixMakeVar(file, patt, text):
+    origfile = file + ".orig"
+    os.rename(file, origfile)
+    oldFile = open(origfile, "r")
+    newFile = open(file, "w")
+    origLines = oldFile.readlines()
+
+    expr = re.compile(patt)
+    doComment = 0
+    newLines = []
+    for x in origLines:
+	m = expr.match(x)
+	if m != None:
+	    newLines.append(m.group() + text + x[m.end():])
 	else:
 	    newLines.append(x)
 
@@ -104,7 +157,7 @@ os.chdir(distdir)
 # We need to provide slice2rb and libSlice. The statements below export sources
 # from version 3.1.0 and then add the Ruby-related code from ice/HEAD.
 #
-print "Checking out CVS tag " + tag + "..."
+print "Checking out translator sources using CVS tag " + tag + "..."
 if verbose:
     quiet = ""
 else:
@@ -112,7 +165,7 @@ else:
 #os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag +
 #          " ice/config ice/include/Slice ice/src/Makefile ice/src/Slice ice/src/slice2rb")
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export -rR3_1_0" +
-          " ice/config ice/include/Slice ice/src/Makefile ice/src/Slice")
+          " ice/config ice/slice ice/include/Slice ice/src/Makefile ice/src/Slice")
 os.remove(os.path.join("ice", "src", "Makefile"))
 os.remove(os.path.join("ice", "src", "Slice", "Makefile"))
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export -rHEAD ice/include/Slice/RubyUtil.h" +
@@ -121,12 +174,76 @@ os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export -rHEAD ice/in
 os.mkdir(os.path.join("ice", "bin"))
 os.mkdir(os.path.join("ice", "lib"))
 
-addToLine(os.path.join("ice", "config", "Make.rules"), "^CPPFLAGS", " -I$(ICE_HOME)/include")
-addToLine(os.path.join("ice", "config", "Make.rules"), "^LDFLAGS", " -L$(ICE_HOME)/lib")
+fixMakeRules(os.path.join("ice", "config", "Make.rules"), "^CPPFLAGS[ \\t]*=", " -I$(ICE_HOME)/include")
+fixMakeRules(os.path.join("ice", "config", "Make.rules"), "^LDFLAGS[ \\t]*=", " -L$(ICE_HOME)/lib")
+uncomment(os.path.join("ice", "config", "Make.rules"), "^#OPTIMIZE")
 
 cwd = os.getcwd()
 os.chdir(os.path.join("ice", "src"))
 os.system("gmake depend")
+os.system("gmake")
+os.chdir(cwd)
+
+#
+# Export IceRuby sources from CVS.
+#
+print "Checking out IceRuby sources using CVS tag " + tag + "..."
+if verbose:
+    quiet = ""
+else:
+    quiet = "-Q"
+os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " icerb")
+
+icePath = os.path.abspath("ice")
+fixMakeVar(os.path.join("icerb", "config", "Make.rules"), "^CPPFLAGS[ \\t]*=", " -I" + icePath + "/include")
+fixMakeVar(os.path.join("icerb", "config", "Make.rules"), "^LDFLAGS[ \\t]*=", " -L" + icePath + "/lib")
+uncomment(os.path.join("icerb", "config", "Make.rules"), "^#OPTIMIZE")
+
+#
+# Taken from ice/config/TestUtil.py
+#
+# If having this duplicated is really a problem we should split these
+# methods out into their own module.
+#
+def isHpUx():
+
+   if sys.platform == "hp-ux11":
+        return 1
+   else:
+        return 0
+
+def isDarwin():
+
+   if sys.platform == "darwin":
+        return 1
+   else:
+        return 0
+
+def isAIX():
+   if sys.platform in ['aix4', 'aix5']:
+        return 1
+   else:
+        return 0
+
+if isHpUx():
+    os.environ["SHLIB_PATH"] = os.path.join(icePath, "lib") + ":" + os.getenv("SHLIB_PATH", "")
+elif isDarwin():
+    os.environ["DYLD_LIBRARY_PATH"] = os.path.join(icePath, "lib") + ":" + os.getenv("DYLD_LIBRRARY_PATH", "")
+elif isAIX():
+    os.environ["LIBPATH"] = os.path.join(icePath, "lib") + ":" + os.getenv("LIBPATH", "")
+else:
+    os.environ["LD_LIBRARY_PATH"] = os.path.join(icePath, "lib") + ":" + os.getenv("LD_LIBRARY_PATH", "")
+
+os.environ["PATH"] = os.path.join(icePath, "bin") + ":" + os.getenv("PATH", "")
+
+for x in glob.glob(os.path.join("ice", "config", "Make.rules.*")):
+    if not os.path.exists(os.path.join("icerb", "config", os.path.basename(x))):
+	shutil.copyfile(x, os.path.join("icerb", "config", os.path.basename(x)))
+
+os.rename(os.path.join("ice", "slice"), os.path.join("icerb", "slice"))
+
+cwd = os.getcwd()
+os.chdir("icerb")
 os.system("gmake")
 os.chdir(cwd)
 
@@ -139,13 +256,29 @@ version = re.search("^VERSION[ \t]+=[^\d]*([\d\.]+)", config.read(), re.M).group
 shutil.rmtree(os.path.join("ice", "config"))
 shutil.rmtree(os.path.join("ice", "include"))
 shutil.rmtree(os.path.join("ice", "src"))
+shutil.rmtree(os.path.join("icerb", "src"))
+
+#
+# Remove files.
+#
+print "Removing unnecessary files..."
+filesToRemove = [ \
+    os.path.join("icerb", "makebindist.py"), \
+    ]
+filesToRemove.extend(find("icerb", "*.o"))
+filesToRemove.extend(find("icerb", "*.dsp"))
+filesToRemove.extend(find("icerb", "*.dsw"))
+for x in filesToRemove:
+    os.remove(x)
 
 #
 # Create archives.
 #
 print "Creating distribution archives..."
 icever = "IceRuby-" + version + "-bin-linux"
-os.rename("ice", icever)
+os.rename("icerb", icever)
+os.rename(os.path.join("ice", "bin"), os.path.join(icever, "bin"))
+os.rename(os.path.join("ice", "lib"), os.path.join(icever, "lib"))
 if verbose:
     quiet = "v"
 else:
@@ -159,11 +292,12 @@ if verbose:
     quiet = ""
 else:
     quiet = "-q"
-os.system("zip -9 -r " + quiet + " " + icever + ".zip " + icever)
+os.system("zip -9ry " + quiet + " " + icever + ".zip " + icever)
 
 #
 # Done.
 #
 print "Cleaning up..."
 shutil.rmtree(icever)
+shutil.rmtree("ice")
 print "Done."
