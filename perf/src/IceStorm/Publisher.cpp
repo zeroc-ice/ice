@@ -17,6 +17,10 @@
 using namespace std;
 using namespace Perf;
 
+//
+// Time types do not give us sufficient resolution on Windows, so the
+// high resolution performance counters are used.
+//
 Ice::Long
 getTick()
 {

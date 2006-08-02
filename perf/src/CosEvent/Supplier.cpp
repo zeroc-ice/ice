@@ -23,6 +23,10 @@
 
 using namespace std;
 
+//
+// Time types do not give us sufficient resolution on Windows, so the
+// high resolution performance counters are used.
+//
 CORBA::LongLong
 getTick()
 {
