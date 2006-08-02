@@ -606,7 +606,7 @@ IceRuby_ObjectPrx_ice_getEndpointSelection(VALUE self)
 	Ice::EndpointSelectionType type = p->ice_getEndpointSelection();
 	VALUE cls = callRuby(rb_path2class, "Ice::EndpointSelectionType");
 	assert(!NIL_P(cls));
-	ID name;
+	ID name = 0;
 	switch(type)
 	{
 	case Ice::Random:

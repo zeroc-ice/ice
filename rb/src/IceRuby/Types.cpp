@@ -288,7 +288,7 @@ void
 IceRuby::PrimitiveInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, VALUE target,
 				  void* closure)
 {
-    VALUE val;
+    VALUE val = Qnil;
     switch(kind)
     {
     case PrimitiveInfo::KindBool:
@@ -519,7 +519,7 @@ void
 IceRuby::PrimitiveInfo::unmarshalSequence(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, VALUE target,
 					  void* closure)
 {
-    VALUE arr;
+    VALUE arr = Qnil;
 
     switch(kind)
     {
