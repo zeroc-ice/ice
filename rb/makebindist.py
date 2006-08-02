@@ -275,7 +275,7 @@ for x in filesToRemove:
 # Create archives.
 #
 print "Creating distribution archives..."
-icever = "IceRuby-" + version + "-bin-linux"
+icever = "IceRuby-" + version
 os.rename("icerb", icever)
 os.rename(os.path.join("ice", "bin"), os.path.join(icever, "bin"))
 os.rename(os.path.join("ice", "lib"), os.path.join(icever, "lib"))
