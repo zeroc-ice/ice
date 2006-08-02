@@ -8,8 +8,8 @@
 # **********************************************************************
 
 ifndef ICE_HOME
-    ifeq ($(shell test -f /usr/include/Ice/Ice.h && echo 0),0)
-	$(error Ice installation not found - set ICE_HOME)
+    ifneq ($(shell test -f /usr/include/Ice/Ice.h && echo 0),0)
+	$(error "Ice installation not found - set ICE_HOME")
     endif
 endif
 
