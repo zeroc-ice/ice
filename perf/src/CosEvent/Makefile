@@ -75,10 +75,10 @@ realclean: clean
 	-$(RM) -rf PerfC.* PerfS.* PerfS_T.*
 
 Supplier: $(addprefix $(VDIR),$(SUPPLIER_OBJS))
-	$(LINK.cc) $(LDFLAGS) -o $@ $^ $(EVENT_LIBS) $(TAO_POALIBS) $(TAO_CLIENTLIBS) 
+	$(LINK.cc) $(LDFLAGS) -o $@ $^ $(EVENT_LIBS) $(TAO_POALIBS) $(TAO_CLIENTLIBS) $(ICE_LIBS)
 
 Consumer: $(addprefix $(VDIR),$(CONSUMER_OBJS))
-	$(LINK.cc) $(LDFLAGS) -o $@ $^ $(EVENT_LIBS) $(TAO_POALIBS) $(TAO_CLIENTLIBS)
+	$(LINK.cc) $(LDFLAGS) -o $@ $^ $(EVENT_LIBS) $(TAO_POALIBS) $(TAO_CLIENTLIBS) $(ICE_LIBS)
 
 Service: $(addprefix $(VDIR),$(SERVICE_OBJS))
 	$(LINK.cc) $(LDFLAGS) -o $@ $^ $(EVENT_LIBS) $(SERVICE_LIBS) $(TAO_POALIBS) $(TAO_CLIENTLIBS)
