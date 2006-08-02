@@ -215,8 +215,6 @@ class CosEventTest(Test):
 
 def runIceStormPerfs(expr, results, i):
 
-    # Latency tests
-
     prod = "IceStorm"
     noPayLoad = False
     payLoad = True
@@ -239,6 +237,22 @@ def runIceStormPerfs(expr, results, i):
 	    (prod, payLoad, throughput, 5, 5, [ 
 		("oneway", "", "-t"), ("oneway (batch)", "-o", "-b"), ("twoway", "-o", "-t")]),
 	    ]
+
+    if len(expr) > 0:
+	candidates = tests
+	tests = []
+	for prodName, withPayload, latencyTest, suppliers, consumers, cases in tests:
+	    allowedCases = []
+	    for e in expr:
+		for c in cases:
+		    type = "throughput"
+		    if latentcyTest:
+			type = "latency"
+		    criteria = "%s %s %s" % (prodName, type, c[0])
+		    if e.match(criteria):
+			allowedCases.append(c)
+	    if len(allowedCases) > 0:
+		tests.append(prodName, withPayload, latencyTest, suppliers, consumers, allowedCases) 
 
     for prodName, withPayload, latencyTest, suppliers, consumers, cases in tests:
 	test = IceStormTest(results, i, prodName, withPayload, latencyTest, suppliers, consumers)
@@ -278,17 +292,26 @@ def runCosEventPerfs(expr, results, i):
 		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
 	    ]
 
+    if len(expr) > 0:
+	candidates = tests
+	tests = []
+	for prodName, withPayload, latencyTest, suppliers, consumers, cases in tests:
+	    allowedCases = []
+	    for e in expr:
+		for c in cases:
+		    type = "throughput"
+		    if latentcyTest:
+			type = "latency"
+		    criteria = "%s %s %s" % (prodName, type, c[0])
+		    if e.match(criteria):
+			allowedCases.append(c)
+	    if len(allowedCases) > 0:
+		tests.append(prodName, withPayload, latencyTest, suppliers, consumers, allowedCases) 
+
     for prodName, withPayload, latencyTest, suppliers, consumers, cases in tests:
 	test = CosEventTest(prodName, results, i, prodName, withPayload, latencyTest, suppliers, consumers)
 	for clientArg, serverArg in cases:
 	    test.run(clientArg, serverArg)
-	
-
-    # Latency tests
-
-    # test = CosEventTest(expr, results, i, "CosEvent", False, True, 1, 1)  # w/o payload
-    # test.run("twoway", reactiveService)
-    # test.run("twoway buffered", bufferedService)
 
 try:
     opts, pargs = getopt.getopt(sys.argv[1:], 'hi:o:n:', ['help', 'iter=', 'output=', 'hostname='])
