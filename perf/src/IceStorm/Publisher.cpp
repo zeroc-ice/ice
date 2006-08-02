@@ -25,7 +25,7 @@ getTick()
     QueryPerformanceCounter(&t);
     return t.QuadPart;
 #else
-    return IceUtil::Time::now().toMicrosSeconds();
+    return IceUtil::Time::now().toMicroSeconds();
 #endif
 }
 

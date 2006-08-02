@@ -13,8 +13,6 @@
 
 #include <PerfI.h>
 
-#include <io.h>
-
 #include <algorithm>
 #include <math.h>
 
