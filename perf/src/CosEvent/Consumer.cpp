@@ -204,7 +204,16 @@ Consumer::add(CORBA::LongLong time)
 {
     if(_nStartedPublishers == _nPublishers && _nStoppedPublishers == 0)
     {
+#ifdef WIN32
+	LARGE_INTEGER t;
+	QueryPerformanceCounter(&t);
+	CORBA::LongLong interval = t.QuadPart - time;
+	QueryPerformanceFrequency(&t);
+	interval /= (t.QuadPart / 100000);
+	_results.push_back(static_cast<long>(interval));
+#else
  	_results.push_back(static_cast<long>(IceUtil::Time::now().toMicroSeconds() - time));
+#endif
     }
 }
 
@@ -217,7 +226,7 @@ Consumer::disconnect_push_consumer(ACE_ENV_SINGLE_ARG_DECL)
 void
 Consumer::calc()
 {
-    double size = static_cast<double>(_results.size());
+    double originalSize = _results.size();
     if(_results.empty())
     {
 	cout << " -1.0 -1.0 -1.0 " << flush;
@@ -229,7 +238,7 @@ Consumer::calc()
     sort(_results.begin(), _results.end());
     _results.resize(_results.size() / 2);
 
-    double total = 0.0;
+    double total = 0;
     {
 	for(vector<long>::const_iterator i = _results.begin(); i != _results.end(); ++i)
 	{
@@ -239,21 +248,21 @@ Consumer::calc()
     double mean = total / _results.size();
     
     double deviation;
-    total = 0.0;
+    double x = 0.0;
     {
 	for(vector<long>::const_iterator i = _results.begin(); i != _results.end(); ++i)
 	{
-	    total = (*i - mean) * (*i - mean);
+	    x += (*i - mean) * (*i - mean);
 	}
     }
-    deviation = sqrt(total / (_results.size() - 1));
+    deviation = sqrt(x / (_results.size() - 1));
 
-    if(size < (_nExpectedTicks * 0.90))
+    if(originalSize < (_nExpectedTicks * 0.90))
     {
-	cerr << "less than 90% of the expected ticks were used for the test " << size << endl;
+	cerr << "less than 90% of the expected ticks were used for the test " << originalSize << endl;
     }
 
-    cout << mean << " " << deviation << " " << size / (_stopTime - _startTime) * 1000000.0 << " " << flush;
+    cout << mean << " " << deviation << " " << originalSize / (_stopTime - _startTime) * 1000000.0 << " " << flush;
 
     _results.clear();    
     _nStartedPublishers = 0;

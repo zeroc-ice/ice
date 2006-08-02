@@ -13,6 +13,8 @@
 
 #include <PerfI.h>
 
+#include <io.h>
+
 #include <algorithm>
 #include <math.h>
 
@@ -113,15 +115,25 @@ PingI::add(Ice::Long time)
     ++_nReceived;
     if(_nStartedPublishers == _nPublishers && _nStoppedPublishers == 0)
     {
-	_results.push_back(static_cast<int>(IceUtil::Time::now().toMicroSeconds() - time));
+#ifdef WIN32
+	LARGE_INTEGER t;
+	QueryPerformanceCounter(&t);
+	Ice::Long interval = t.QuadPart - time;
+	QueryPerformanceFrequency(&t);
+	interval /= (t.QuadPart / 100000);
+	_results.push_back(interval);
+#else
+	IceUtil::Time t = IceUtil::Time::microSeconds(time);
+	IceUtil::Time interval = IceUtil::Time::now() - t;
+	_results.push_back(static_cast<Ice::Long>(interval.toMicroSeconds()));
+#endif
     }
 }
 
 void
 PingI::calc()
 {
-    double size = static_cast<double>(_results.size());
-
+    double originalSize = _results.size();
     //
     // Only keep the N/2 best results
     //
@@ -130,29 +142,31 @@ PingI::calc()
 
     double total = 0.0;
     {
-	for(vector<int>::const_iterator p = _results.begin(); p != _results.end(); ++p)
+	for(vector<Ice::Long>::const_iterator p = _results.begin(); p != _results.end(); ++p)
 	{
-	    total += *p;
+	    total += (*p) * 1.0;
 	}
     }
-    double mean = total / _results.size();
+    double newSize = _results.size();
+    double mean = total / newSize; 
     
     double deviation;
-    total = 0.0;
+    double x = 0.0;
     {
-	for(vector<int>::const_iterator p = _results.begin(); p != _results.end(); ++p)
+	for(vector<Ice::Long>::const_iterator p = _results.begin(); p != _results.end(); ++p)
 	{
-	    total = (*p - mean) * (*p - mean);
+	    x += (*p - mean) * (*p - mean);
 	}
     }
-    deviation = sqrt(total / (_results.size() - 1));
+    deviation = sqrt(x / (_results.size() - 1));
 
-    if(size < (_nExpectedTicks * 0.90))
+    if(originalSize < (_nExpectedTicks * 0.90))
     {
-	cerr << "less than 90% of the expected ticks were used for the test " << size << endl;
+	cerr << "less than 90% of the expected ticks were used for the test " << originalSize << endl;
     }
 
-    cout << mean << " " << deviation << " " << size / (_stopTime - _startTime).toMicroSeconds() * 1000000.0 << " ";
+    cout << mean << " " << deviation << " " << 
+	originalSize / (_stopTime - _startTime).toMicroSeconds() * 1000000.0 << " ";
     cout << flush;
 
     _results.clear();

@@ -14,6 +14,8 @@
 #include <Ice/Config.h>
 #include <IceUtil/Mutex.h>
 
+#include <fstream>
+
 class PingI : public Perf::Ping, IceUtil::Mutex
 {
 public:
@@ -34,7 +36,7 @@ private:
     int _nStoppedPublishers;
     int _nExpectedTicks;
     int _nReceived;
-    std::vector<int> _results;
+    std::vector<Ice::Long> _results;
     IceUtil::Time _startTime;
     IceUtil::Time _stopTime;
 };

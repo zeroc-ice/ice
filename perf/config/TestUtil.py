@@ -424,6 +424,7 @@ class Test :
             except:
                 print result
         else:
+	    print result
             print "invalid"
     
     def execute(self, options):

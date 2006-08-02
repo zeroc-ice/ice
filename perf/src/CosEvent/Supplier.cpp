@@ -23,6 +23,18 @@
 
 using namespace std;
 
+CORBA::LongLong
+getTick()
+{
+#ifdef WIN32
+    LARGE_INTEGER t;
+    QueryPerformanceCounter(&t);
+    return t.QuadPart;
+#else
+    return IceUtil::Time::now().toMicroSeconds();
+#endif
+}
+
 class Sync_impl : public POA_Perf::Sync, public PortableServer::RefCountServantBase
 {
 public:
@@ -158,7 +170,7 @@ Supplier::run(int argc, char* argv[])
 	    for(int i = 0; i < repetitions; ++i)
 	    {
 		CORBA::Any event;
-		CORBA::LongLong start = IceUtil::Time::now().toMicroSeconds();
+		CORBA::LongLong start = getTick();
 		event <<= start;
 		
 		consumer->push(event ACE_ENV_ARG_PARAMETER);
@@ -189,7 +201,7 @@ Supplier::run(int argc, char* argv[])
 		e.e = Perf::A;
 		e.i = 10;
 		e.s.s = "TEST";
-		e.time = IceUtil::Time::now().toMicroSeconds();
+		e.time = getTick();
 		CORBA::Any event;
 		event <<= e;	
 		consumer->push(event ACE_ENV_ARG_PARAMETER);

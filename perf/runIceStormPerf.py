@@ -335,8 +335,8 @@ results = TestUtil.HostResults(hostname, outputFile)
 i = 1        
 while i <= niter:
     try:
-#        if os.environ.has_key('ICE_HOME'):
-#            runIceStormPerfs(expr, results, i)
+        if os.environ.has_key('ICE_HOME'):
+            runIceStormPerfs(expr, results, i)
         if os.environ.has_key('TAO_ROOT'):
             runCosEventPerfs(expr, results, i)
         i += 1
