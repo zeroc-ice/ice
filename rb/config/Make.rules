@@ -8,7 +8,9 @@
 # **********************************************************************
 
 ifndef ICE_HOME
-    $(error ICE_HOME is not defined)
+    ifeq ($(shell test -f /usr/include/Ice/Ice.h && echo 0),0)
+	$(error Ice installation not found - set ICE_HOME)
+    endif
 endif
 
 #
@@ -65,13 +67,19 @@ endif
 RUBY_FLAGS		= -I$(RUBY_INCLUDE_DIR)
 RUBY_LIBS		= -L$(RUBY_LIB_DIR) $(RUBY_LIB)
 
-ifeq ($(LP64),yes)
-   ICE_LIBS             = -L$(ICE_HOME)/lib64 -L$(ICE_HOME)/lib -lIce -lIceUtil -lSlice 
-else 
-   ICE_LIBS		= -L$(ICE_HOME)/lib -lIce -lIceUtil -lSlice
+ifneq ($(ICE_HOME),)
+    ifeq ($(LP64),yes)
+       ICE_LIB_DIRS	= -L$(ICE_HOME)/lib64 -L$(ICE_HOME)/lib
+    else 
+       ICE_LIB_DIRS	= -L$(ICE_HOME)/lib
+    endif
 endif
 
-ICE_FLAGS		= -I$(ICE_HOME)/include
+ICE_LIBS		= $(ICE_LIB_DIRS) -lIce -lIceUtil -lSlice 
+
+ifneq ($(ICE_HOME),)
+    ICE_FLAGS		= -I$(ICE_HOME)/include
+endif
 
 
 
