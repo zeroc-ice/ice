@@ -200,7 +200,11 @@ mkrubylibfilename	= $(subst lib,,$(call mklibfilename,$(1),$(2)))
 mkrubysoname		= $(subst lib,,$(call mksoname,$(1),$(2)))
 mkrubylibname		= $(subst lib,,$(call mklibname,$(1)))
 
-SLICE2RB		= $(ICE_HOME)/bin/slice2rb
+ifeq ($(shell test -x $(ICE_HOME)/bin/slice2rb && echo 0),0)
+    SLICE2RB		= $(ICE_HOME)/bin/slice2rb
+else
+    SLICE2RB		= slice2rb
+endif
 
 EVERYTHING		= all depend clean install
 
@@ -215,20 +219,6 @@ all:: $(SRCS)
 
 .cpp.o:
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
-
-%.h %.cpp: %.y
-	rm -f $(*F).h $(*F).cpp
-	bison $(BISONFLAGS) $<
-	mv $(*F).tab.c $(*F).cpp
-	mv $(*F).tab.h $(*F).h
-	rm -f $(*F).output
-
-%.cpp: %.l
-	flex $(FLEXFLAGS) $<
-	rm -f $@
-	echo '#include <IceUtil/Config.h>' > $@
-	cat lex.yy.c >> $@
-	rm -f lex.yy.c
 
 clean::
 	-rm -f $(TARGETS)
