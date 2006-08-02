@@ -47,6 +47,30 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name throughputIceES
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name consumer
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name destroyer
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name notifier
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name notifierIce
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name publisherIce
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name subscriberIce
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name supplier
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name eventService
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -88,6 +112,18 @@ Package=<4>
 ###############################################################################
 
 Project: "dummyIceS"=.\src\Ice\dummy\dummyIceS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "eventService"=.\src\CosEvent\eventService.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

@@ -17,10 +17,7 @@
 #include <iostream>
 #include <math.h>
 
-#ifdef _WIN32
-#   include <sys/timeb.h>
-#   include <time.h>
-#endif
+#include <IceUtil/Time.h>
 
 using namespace std;
 
@@ -174,15 +171,7 @@ Consumer::started()
 {
     if(++_nStartedPublishers == _nPublishers)
     {
-#ifdef WIN32
-	struct _timeb tb;
-	_ftime(&tb);
-	_startTime = tb.time * 1000000 + tb.millitm * 1000;
-#else
-	timeval tv;
-	gettimeofday(&tv, 0);
-	_startTime = tv.tv_sec * static_cast<CORBA::LongLong>(1000000) + tv.tv_usec;
-#endif
+	_startTime = IceUtil::Time::now().toMicroSeconds(); 
     }
 }
 
@@ -191,15 +180,7 @@ Consumer::stopped()
 {
     if(_nStoppedPublishers == 0)
     {
-#ifdef WIN32
-	struct _timeb tb;
-	_ftime(&tb);
-	_stopTime = tb.time * 1000000 + tb.millitm * 1000;
-#else
-	timeval tv;
-	gettimeofday(&tv, 0);
-	_stopTime = tv.tv_sec * static_cast<CORBA::LongLong>(1000000) + tv.tv_usec;
-#endif
+	_stopTime = IceUtil::Time::now().toMicroSeconds();
     }
     if(_nStartedPublishers < _nPublishers)
     {
@@ -223,15 +204,7 @@ Consumer::add(CORBA::LongLong time)
 {
     if(_nStartedPublishers == _nPublishers && _nStoppedPublishers == 0)
     {
-#ifdef WIN32
-	struct _timeb tb;
-	_ftime(&tb);
-	_results.push_back(tb.time * 1000000 + tb.millitm * 1000 - time);
-#else
-	timeval tv;
-	gettimeofday(&tv, 0);
- 	_results.push_back(tv.tv_sec * static_cast<CORBA::LongLong>(1000000) + tv.tv_usec - time);
-#endif
+ 	_results.push_back(static_cast<long>(IceUtil::Time::now().toMicroSeconds() - time));
     }
 }
 
@@ -247,7 +220,7 @@ Consumer::calc()
     double size = static_cast<double>(_results.size());
     if(_results.empty())
     {
-	cout << "-1.0 -1.0 -1.0" << flush;
+	cout << " -1.0 -1.0 -1.0 " << flush;
     }
 
     //

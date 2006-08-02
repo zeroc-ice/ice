@@ -38,7 +38,7 @@ RSC=rc.exe
 # PROP Target_Dir ""
 MTL=midl.exe
 # ADD MTL /D "_DEBUG" /nologo /mktyplib203 /win32
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /Zi /Gy /I "$(ACE_ROOT)" /I "$(TAO_ROOT)" /I "." /I "$(TAO_ROOT)\orbsvcs" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /FD /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /Zi /Gy /I "$(ACE_ROOT)" /I "$(TAO_ROOT)" /I "." /I "$(TAO_ROOT)\orbsvcs" /I "$(ICE_HOME)\include" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409 /i "$(ACE_ROOT)" /i "$(TAO_ROOT)" /d "_DEBUG"
@@ -46,7 +46,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /machine:IX86
-# ADD LINK32 TAO_AnyTypeCoded.lib TAO_Messagingd.lib TAO_PortableServerd.lib TAO_ValueTyped.lib TAOd.lib ACEd.lib advapi32.lib user32.lib /nologo /subsystem:console /incremental:no /debug /machine:I386 /libpath:"$(TAO_ROOT)\..\lib" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(ACE_ROOT)\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType"
+# ADD LINK32 TAO_CosEvent_skeld.lib TAO_CosEventd.lib TAO_AnyTypeCoded.lib TAO_Messagingd.lib TAO_PortableServerd.lib TAO_ValueTyped.lib TAOd.lib ACEd.lib IceUtild.lib advapi32.lib user32.lib /nologo /subsystem:console /incremental:no /debug /machine:I386 /out:"supplier.exe"/ libpath:"$(TAO_ROOT)\..\lib" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(ACE_ROOT)\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType" /libpath:"$(ICE_HOME)\lib"
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "supplier - Win32 Release"
@@ -59,7 +59,7 @@ LINK32=link.exe
 # PROP Target_Dir ""
 MTL=midl.exe
 # ADD MTL /D "NDEBUG" /nologo /mktyplib203 /win32
-# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "$(ACE_ROOT)" /I "$(TAO_ROOT)" /I "." /I "$(TAO_ROOT)\orbsvcs" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "$(ACE_ROOT)" /I "$(TAO_ROOT)" /I "." /I "$(TAO_ROOT)\orbsvcs" /I "$(ICE_HOME)\include" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409 /i "$(ACE_ROOT)" /i "$(TAO_ROOT)" /d "NDEBUG"
@@ -67,7 +67,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /machine:IX86
-# ADD LINK32 TAO_AnyTypeCode.lib TAO_CosEvent.lib TAO_Messaging.lib TAO_PortableServer.lib TAO_ValueType.lib TAO.lib ACE.lib advapi32.lib user32.lib /nologo /subsystem:console /pdb:none /machine:I386 /out:"server.exe" /libpath:"$(TAO_ROOT)\..\lib" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(ACE_ROOT)\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType"
+# ADD LINK32  TAO_CosEvent.lib TAO_CosEvent_skel.lib TAO_AnyTypeCode.lib TAO_Messaging.lib TAO_PortableServer.lib TAO_ValueType.lib TAO.lib ACE.lib IceUtil.lib advapi32.lib user32.lib /nologo /subsystem:console /pdb:none /machine:I386 /out:"supplier.exe" /libpath:"$(TAO_ROOT)\..\lib" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(ACE_ROOT)\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType" /libpath:"$(ICE_HOME)\lib"
 
 !ENDIF 
 
@@ -272,7 +272,7 @@ InputPath="Sync.idl"
 
 BuildCmds= \
 	PATH=%PATH%;$(ACE_ROOT)\lib \
-	$(ACE_ROOT)\bin\tao_idl -Ge 1 -GC -I$(TAO_ROOT) $(InputPath) \
+	$(ACE_ROOT)\bin\tao_idl -Ge 1 -I$(TAO_ROOT) $(InputPath) \
 	
 
 "SyncC.inl" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -312,7 +312,7 @@ InputPath="Sync.idl"
 
 BuildCmds= \
 	PATH=%PATH%;$(ACE_ROOT)\lib \
-	$(ACE_ROOT)\bin\tao_idl -Ge 1 -GC -I$(TAO_ROOT) $(InputPath) \
+	$(ACE_ROOT)\bin\tao_idl -Ge 1 -I$(TAO_ROOT) $(InputPath) \
 	
 
 "SyncC.inl" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"

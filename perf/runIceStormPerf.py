@@ -59,18 +59,29 @@ class Test(TestUtil.Test) :
             options += " -r " + str(throughputRepetitions)
         if self.payload:
             options += " -w"
-            
-        pipes = [os.popen(os.path.join(".", name) + options) for i in range(0, self.nPublishers)]
+
+	publisherPipes = []
+	for i in range(0, self.nPublishers):
+	    p = os.popen(os.path.join(".", name) + options) 
+	    if p == None:
+		print "Unable to start all publishers"
+		sys.exit(1)
+	    publisherPipes.append(p)
+
         iors = ""
-        for i in pipes:
-            iors += " '" + i.readline().strip() + "'";
+        for i in publisherPipes:
+            iors += ' "' + i.readline().strip() + '"';
             TestUtil.getAdapterReady(i)
 
         pipe = os.popen(os.path.join(".", notifier) + iors)
+	if pipe == None:
+	    print "Unable to start notifier"
+	    sys.exit(1)
+
         TestUtil.printOutputFromPipe(pipe)
         pipe.close()
         
-        return pipes
+        return publisherPipes
 
     def startSubscribers(self, name, options):
 
@@ -82,10 +93,18 @@ class Test(TestUtil.Test) :
             options += " -r " + str(throughputRepetitions)
         if self.payload:
             options += " -w"
-        subscribersPipe = [os.popen(os.path.join(".", name) + options) for i in range(0, self.nSubscribers)]
-        for i in subscribersPipe:
+
+	subscriberPipes = []
+	for i in range(0, self.nSubscribers):
+	    p = os.popen(os.path.join(".", name) + options)
+	    if p == None:
+		print "Unable to start all subscribers"
+		sys.exit(1)
+	    subscriberPipes.append(p)
+
+        for i in subscriberPipes:
             TestUtil.getAdapterReady(i)
-        return subscribersPipe
+        return subscriberPipes
 
     def waitForResults(self, subscribers, publishers):
         
@@ -188,7 +207,7 @@ class CosEventTest(Test):
         result = self.waitForResults(subscribersPipe, publishersPipe)
 
         # Shutdown CosEvent
-        os.system(os.path.join(".", "Destroyer") + " " + ior)
+	os.system(os.path.join(".", "Destroyer") + " file://ec.ior")
         servicePipe.close()
 
         os.chdir(cwd)
@@ -316,8 +335,8 @@ results = TestUtil.HostResults(hostname, outputFile)
 i = 1        
 while i <= niter:
     try:
-        if os.environ.has_key('ICE_HOME'):
-            runIceStormPerfs(expr, results, i)
+#        if os.environ.has_key('ICE_HOME'):
+#            runIceStormPerfs(expr, results, i)
         if os.environ.has_key('TAO_ROOT'):
             runCosEventPerfs(expr, results, i)
         i += 1
