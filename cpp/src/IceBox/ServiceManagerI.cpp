@@ -316,7 +316,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	    string name = properties->getProperty("Ice.ProgramName");
 	    PropertiesPtr serviceProperties = createProperties(serviceArgs, properties);
 	 
-	    if(name == properties->getProperty("Ice.ProgramName"))
+	    if(name == serviceProperties->getProperty("Ice.ProgramName"))
 	    {
 		//
 		// If the service did not set its own program-name, and 
