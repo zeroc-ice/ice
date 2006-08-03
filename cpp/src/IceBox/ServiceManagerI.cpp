@@ -283,41 +283,57 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	// property set.
 	//
 	PropertiesPtr properties = _communicator->getProperties();
+
 	if(properties->getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
 	{
-	    PropertiesPtr fileProperties = createProperties(serviceArgs);
-	    properties->parseCommandLineOptions("", fileProperties->getCommandLineOptions());
+	    PropertiesPtr serviceProperties = createProperties(serviceArgs, properties);
 
-	    serviceArgs = properties->parseIceCommandLineOptions(serviceArgs);
+	    //
+	    // Erase properties in 'properties'
+	    //
+	    PropertyDict allProps = properties->getPropertiesForPrefix("");
+	    for(PropertyDict::iterator p = allProps.begin(); p != allProps.end(); ++p)
+	    {
+		if(serviceProperties->getProperty(p->first) == "")
+		{
+		    properties->setProperty(p->first, "");
+		}
+	    }
+	    
+	    //
+	    // Put all serviceProperties into 'properties'
+	    //
+	    properties->parseCommandLineOptions("", serviceProperties->getCommandLineOptions());
+	    
+	    //
+	    // Parse <service>.* command line options
+	    // (the Ice command line options were parse by the createProperties above)
+	    //
 	    serviceArgs = properties->parseCommandLineOptions(service, serviceArgs);
 	}
 	else
 	{	
-	    PropertiesPtr serviceProperties = properties->clone();
-
-	    //
-	    //  Append the service name to the program name if not empty.
-	    //
-	    string name = serviceProperties->getProperty("Ice.ProgramName");
-	    if(name != service)
+	    string name = properties->getProperty("Ice.ProgramName");
+	    PropertiesPtr serviceProperties = createProperties(serviceArgs, properties);
+	 
+	    if(name == properties->getProperty("Ice.ProgramName"))
 	    {
-		name = name.empty() ? service : name + "-" + service;
+		//
+		// If the service did not set its own program-name, and 
+		// the icebox program-name != service, append the service name to the 
+		// program name.
+		//
+		if(name != service)
+		{
+		    name = name.empty() ? service : name + "-" + service;
+		}
+		serviceProperties->setProperty("Ice.ProgramName", name);
 	    }
-
+	    
 	    //
-	    // Load property file eventually specified with
-	    // --Ice.Config and add the properties from the file to
-	    // the service properties.
+	    // Parse <service>.* command line options
+	    // (the Ice command line options were parsed by the createProperties above)
 	    //
-	    PropertiesPtr fileProperties = createProperties(serviceArgs);
-	    serviceProperties->parseCommandLineOptions("", fileProperties->getCommandLineOptions());
-
-	    serviceProperties->setProperty("Ice.ProgramName", name);
-
-	    //
-	    // Parse Ice and <service>.* command line options.
-	    //
-	    serviceArgs = serviceProperties->parseIceCommandLineOptions(serviceArgs);
 	    serviceArgs = serviceProperties->parseCommandLineOptions(service, serviceArgs);
 
 	    //

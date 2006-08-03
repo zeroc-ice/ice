@@ -178,6 +178,7 @@ Ice::PropertiesI::parseCommandLineOptions(const string& prefix, const StringSeq&
     for(i = 0; i < options.size(); i++)
     {
         string opt = options[i];
+       
         if(opt.find(pfx) == 0)
         {
             if(opt.find('=') == string::npos)
@@ -253,17 +254,22 @@ Ice::PropertiesI::PropertiesI(StringSeq& args, const PropertiesPtr& defaults, co
     }
 
     StringSeq::iterator q = args.begin();
-    if(q != args.end())
+
+    if(_properties.find("Ice.ProgramName") == _properties.end())
     {
-        //
-        // Use the first argument as the value for Ice.ProgramName. Replace
-        // any backslashes in this value with forward slashes, in case this
-        // value is used by the event logger.
-        //
-        string name = *q;
-        replace(name.begin(), name.end(), '\\', '/');
-	setProperty("Ice.ProgramName", name);
+	if(q != args.end())
+	{
+	    //
+	    // Use the first argument as the value for Ice.ProgramName. Replace
+	    // any backslashes in this value with forward slashes, in case this
+	    // value is used by the event logger.
+	    //
+	    string name = *q;
+	    replace(name.begin(), name.end(), '\\', '/');
+	    setProperty("Ice.ProgramName", name);
+	}
     }
+
     StringSeq tmp;
 
     bool loadConfigFiles = false;
