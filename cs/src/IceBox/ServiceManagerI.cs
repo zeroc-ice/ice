@@ -330,39 +330,54 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
 	    Ice.Properties properties = Ice.Application.communicator().getProperties();
 	    if(properties.getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
 	    {
-		Ice.Properties fileProperties = Ice.Util.createProperties(ref serviceArgs);
-		properties.parseCommandLineOptions("", fileProperties.getCommandLineOptions());
+		Ice.Properties serviceProperties = Ice.Util.createProperties(ref serviceArgs, properties);
 
-		serviceArgs = properties.parseIceCommandLineOptions(serviceArgs);
+		//
+		// Erase properties in 'properties'
+		//
+		Ice.PropertyDict allProps = properties.getPropertiesForPrefix("");
+		foreach(string key in allProps.Keys)
+		{
+		    if(serviceProperties.getProperty(key).Length == 0)
+		    {
+			properties.setProperty(key, "");
+		    }
+		}
+		
+		//
+		// Put all serviceProperties into 'properties'
+		//
+		properties.parseCommandLineOptions("", serviceProperties.getCommandLineOptions());
+		
+		//
+		// Parse <service>.* command line options
+		// (the Ice command line options were parse by the createProperties above)
+		//
 		serviceArgs = properties.parseCommandLineOptions(service, serviceArgs);
 	    }
 	    else
 	    {
-		Ice.Properties serviceProperties = properties.ice_clone_();
+		string name = properties.getProperty("Ice.ProgramName");
+		Ice.Properties serviceProperties = Ice.Util.createProperties(ref serviceArgs, properties);
 
-		//
-		// Initialize the Ice.ProgramName property with the name of this service.
-		//
-		string name = serviceProperties.getProperty("Ice.ProgramName");
-		if(!name.Equals(service))
+		if(name.Equals(serviceProperties.getProperty("Ice.ProgramName")))
 		{
-		    name = name.Length == 0 ? service : name + "-" + service;
+		    //
+		    // If the service did not set its own program-name, and 
+		    // the icebox program-name != service, append the service name to the 
+		    // program name.
+		    //
+		    if(!name.Equals(service))
+		    {
+			name = name.Length == 0 ? service : name + "-" + service;
+		    }
+		    serviceProperties.setProperty("Ice.ProgramName", name);
 		}
-
+		
 		//
-		// Load property file eventually specified with
-		// --Ice.Config and add the properties from the file to
-		// the service properties.
+		// Parse <service>.* command line options.
+		// (the Ice command line options were parsed by the createProperties above)
 		//
-		Ice.Properties fileProperties = Ice.Util.createProperties(ref serviceArgs);
-		serviceProperties.parseCommandLineOptions("", fileProperties.getCommandLineOptions());
-
-		serviceProperties.setProperty("Ice.ProgramName", name);
-
-		//
-		// Parse Ice and <service>.* command line options.
-		//
-		serviceArgs = serviceProperties.parseIceCommandLineOptions(serviceArgs);
 		serviceArgs = serviceProperties.parseCommandLineOptions(service, serviceArgs);
 
 		Ice.InitializationData initData = new Ice.InitializationData();

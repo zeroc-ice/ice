@@ -244,7 +244,10 @@ namespace Ice
 		_properties = defaults.getPropertiesForPrefix("");
 	    }
 	    
-	    setProperty("Ice.ProgramName", System.AppDomain.CurrentDomain.FriendlyName);
+	    if(_properties["Ice.ProgramName"] == null)
+	    {
+		setProperty("Ice.ProgramName", System.AppDomain.CurrentDomain.FriendlyName);
+	    }
 
 	    bool loadConfigFiles = false;
 
