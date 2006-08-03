@@ -320,7 +320,6 @@ public class ServiceManagerI extends _ServiceManagerDisp
 		    {
 			properties.setProperty(key, "");
 		    }
-
 		}
 		
 		//
