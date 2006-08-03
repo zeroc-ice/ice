@@ -245,9 +245,9 @@ public class ServiceManagerI extends _ServiceManagerDisp
 		l.add(_argv[j]);
 	    }
 	}
-
-	String[] serviceArgs = new String[l.size()];
-	l.toArray(serviceArgs);
+	
+	Ice.StringSeqHolder serviceArgs = new Ice.StringSeqHolder();
+	serviceArgs.value = (String[])l.toArray(new String[0]);
 
 	//
 	// Instantiate the class.
@@ -305,40 +305,59 @@ public class ServiceManagerI extends _ServiceManagerDisp
 	    Ice.Properties properties = _server.communicator().getProperties();
 	    if(properties.getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
 	    {
-		Ice.Properties fileProperties = Ice.Util.createProperties(serviceArgs);
-		properties.parseCommandLineOptions("", fileProperties.getCommandLineOptions());
 
-		serviceArgs = properties.parseIceCommandLineOptions(serviceArgs);
-		serviceArgs = properties.parseCommandLineOptions(service, serviceArgs);
+		Ice.Properties serviceProperties = Ice.Util.createProperties(serviceArgs, properties);
+
+		//
+		// Erase properties in 'properties'
+		//
+		java.util.Map allProps = properties.getPropertiesForPrefix("");
+		java.util.Iterator p = allProps.keySet().iterator();
+		while(p.hasNext())
+		{
+		    String key = (String)p.next();
+		    if(serviceProperties.getProperty(key).length() == 0)
+		    {
+			properties.setProperty(key, "");
+		    }
+
+		}
+		
+		//
+		// Put all serviceProperties into 'properties'
+		//
+		properties.parseCommandLineOptions("", serviceProperties.getCommandLineOptions());
+		
+		//
+		// Parse <service>.* command line options
+		// (the Ice command line options were parse by the createProperties above)
+		//
+		serviceArgs.value = properties.parseCommandLineOptions(service, serviceArgs.value);
 	    }
 	    else
 	    {
-		Ice.Properties serviceProperties = properties._clone();
+		String name = properties.getProperty("Ice.ProgramName");
+		Ice.Properties serviceProperties = Ice.Util.createProperties(serviceArgs, properties);
 
-		//
-		// Initialize the Ice.ProgramName property with the name of this service.
-		//
-		String name = serviceProperties.getProperty("Ice.ProgramName");
-		if(!name.equals(service))
+		if(name.equals(serviceProperties.getProperty("Ice.ProgramName")))
 		{
-		    name = name.length() == 0 ? service : name + "-" + service;
+		    //
+		    // If the service did not set its own program-name, and 
+		    // the icebox program-name != service, append the service name to the 
+		    // program name.
+		    //
+		    if(!name.equals(service))
+		    {
+			name = name.length() == 0 ? service : name + "-" + service;
+		    }
+		    serviceProperties.setProperty("Ice.ProgramName", name);
 		}
-
+		
 		//
-		// Load property file eventually specified with
-		// --Ice.Config and add the properties from the file to
-		// the service properties.
+		// Parse <service>.* command line options.
+		// (the Ice command line options were parsed by the createProperties above)
 		//
-		Ice.Properties fileProperties = Ice.Util.createProperties(serviceArgs);
-		serviceProperties.parseCommandLineOptions("", fileProperties.getCommandLineOptions());
-
-		serviceProperties.setProperty("Ice.ProgramName", name);
-
-		//
-		// Parse Ice and <service>.* command line options.
-		//
-		serviceArgs = serviceProperties.parseIceCommandLineOptions(serviceArgs);
-		serviceArgs = serviceProperties.parseCommandLineOptions(service, serviceArgs);
+		serviceArgs.value = serviceProperties.parseCommandLineOptions(service, serviceArgs.value);
 
 		//
 		// Remaining command line options are passed to the
@@ -354,7 +373,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
 	    try
 	    {
-		info.service.start(service, communicator, serviceArgs);
+		info.service.start(service, communicator, serviceArgs.value);
 	    }
 	    catch(Throwable ex)
 	    {
