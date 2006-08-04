@@ -171,4 +171,4 @@ UnexpectedObjectExceptionTestI::ice_invoke(const std::vector<Ice::Byte>&,
     out->writePendingObjects();
     out->finished(outParams);
     return true;
-};
+}
