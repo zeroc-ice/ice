@@ -519,7 +519,19 @@ Ice::NoObjectFactoryException::ice_print(ostream& out) const
     {
 	out << ":\n" << reason;
     }
-}
+}	
+
+void
+Ice::UnexpectedObjectException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nunexpected class instance of type `" << type << 
+	"'; expected instance of type `" << expectedType << "'";
+    if(!reason.empty())
+    {
+	out << ":\n" << reason;
+    }
+}	
 
 void
 Ice::MemoryLimitException::ice_print(ostream& out) const

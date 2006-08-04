@@ -22,6 +22,7 @@ sys.path.insert(0, os.path.join(toplevel, "lib"))
 
 import Ice
 Ice.loadSlice('Test.ice')
+Ice.loadSlice('ServerPrivate.ice')
 import Test, TestI
 
 def run(args, communicator):
@@ -29,6 +30,8 @@ def run(args, communicator):
     adapter = communicator.createObjectAdapter("TestAdapter")
     initial = TestI.InitialI(adapter)
     adapter.add(initial, communicator.stringToIdentity("initial"))
+    uoet = TestI.UnexpectedObjectExceptionTestI()
+    adapter.add(uoet, communicator.stringToIdentity("uoet"))
     adapter.activate()
     communicator.waitForShutdown()
     return True

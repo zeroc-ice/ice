@@ -82,4 +82,12 @@ private:
     Test::DPtr _d;
 };
 
+class UnexpectedObjectExceptionTestI : public Ice::Blobject
+{
+public:
+
+    virtual bool ice_invoke(const std::vector<Ice::Byte>&, std::vector<Ice::Byte>&, const Ice::Current&);
+};
+typedef IceUtil::Handle<UnexpectedObjectExceptionTestI> UnexpectedObjectExceptionTestIPtr;
+
 #endif

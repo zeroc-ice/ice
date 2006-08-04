@@ -108,3 +108,7 @@ class InitialI(Test.Initial):
         self._c.preMarshalInvoked = False
         self._d.preMarshalInvoked = False
         return (self._b1, self._b2, self._c, self._d)
+
+class UnexpectedObjectExceptionTestI(Test.UnexpectedObjectExceptionTest):
+    def op(self, current=None):
+        return Test.AlsoEmpty()

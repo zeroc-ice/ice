@@ -129,6 +129,33 @@ public class AllTests
 	}
         Console.Out.WriteLine("ok");
 
+	if(!collocated)
+	{
+	    Console.Out.Write("testing UnexpectedObjectException...");
+	    Console.Out.Flush();
+	    @ref = "uoet:default -p 12010 -t 10000";
+	    @base = communicator.stringToProxy(@ref);
+	    test(@base != null);
+	    UnexpectedObjectExceptionTestPrx uoet = UnexpectedObjectExceptionTestPrxHelper.uncheckedCast(@base);
+	    test(uoet != null);
+	    try
+	    {
+		uoet.op();
+		test(false);
+	    }
+	    catch(Ice.UnexpectedObjectException ex)
+	    {
+		test(ex.type.Equals("::Test::AlsoEmpty"));
+		test(ex.expectedType.Equals("::Test::Empty"));
+	    }
+	    catch(System.Exception ex)
+	    {
+		Console.Out.WriteLine(ex);
+		test(false);
+	    }
+	    Console.Out.WriteLine("ok");
+	}
+
         return initial;
     }
 }

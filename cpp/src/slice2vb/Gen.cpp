@@ -1096,7 +1096,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 	_out << sp << nl << "Public Sub New(ByVal inS__ As Ice.InputStream)";
 	_out.inc();
 	_out << nl << "_in = inS__";
-	_out << nl << "_pp = New IceInternal.ParamPatcher(GetType(" << scoped << "))";
+	_out << nl << "_pp = New IceInternal.ParamPatcher(GetType(" << scoped << "), \"" << p->scoped() << "\")";
 	_out.dec();
 	_out << nl << "End Sub";
 
@@ -1126,7 +1126,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 	_out << nl << "Private _pp As IceInternal.ParamPatcher";
 
 	_out.dec();
-	_out << nl << "End Class";
+	_out << sp << nl << "End Class";
     }
 
     _out << sp;
@@ -1354,6 +1354,8 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
 	    _out << sp << nl << "Public Overrides Sub patch(ByVal v As Ice.Object)";
 	    _out.inc();
+	    _out << nl << "Try";
+	    _out.inc();
 	    if(allClassMembers.size() > 1)
 	    {
 		_out << nl << "Select Case _member";
@@ -1371,6 +1373,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 		string memberType = typeToString((*d)->type());
 		_out << nl << "type_ = GetType(" << memberType << ')';
 		_out << nl << "_instance." << memberName << " = CType(v, " << memberType << ')';
+		_out << nl << "_typeId = \"" << (*d)->type()->typeId() << "\"";
 		if(allClassMembers.size() > 1)
 		{
 		    _out.dec();
@@ -1382,6 +1385,15 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 		_out << nl << "End Select";
 	    }
 	    _out.dec();
+	    _out << nl << "Catch _ex As System.InvalidCastException";
+	    _out.inc();
+	    _out << nl << "Dim _e As Ice.UnexpectedObjectException = New Ice.UnexpectedObjectException";
+	    _out << nl << "_e.type = v.ice_id()";
+	    _out << nl << "_e.expectedType = _typeId";
+	    _out << nl << "Throw _e";
+	    _out.dec();
+	    _out << nl << "End Try";
+	    _out.dec();
 	    _out << nl << "End Sub";
 
 	    _out << sp << nl << "Private _instance As " << name;
@@ -1389,8 +1401,9 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    {
 		_out << nl << "Private _member As Integer";
 	    }
+	    _out << nl << "Private _typeId As String";
 	    _out.dec();
-	    _out << nl << "End Class";
+	    _out << sp << nl << "End Class";
 	}
 
 	_out << sp << nl << "Public Overloads Overrides Sub read__(ByVal is__ As IceInternal.BasicStream, "
@@ -2285,6 +2298,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
 	    _out << sp << nl << "Public Overrides Sub patch(ByVal v As Ice.Object)";
 	    _out.inc();
+	    _out << nl << "Try";
+	    _out.inc();
 	    if(allClassMembers.size() > 1)
 	    {
 		_out << nl << "Select Case _member";
@@ -2302,6 +2317,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 		string memberType = typeToString((*q)->type());
 		_out << nl << "type_ = GetType(" << memberType << ')';
 		_out << nl << "_instance." << memberName << " = CType(v, " << memberType << ')';
+		_out << nl << "_typeId = \"" << (*q)->type()->typeId() << "\"";
 		if(allClassMembers.size() > 1)
 		{
 		    _out.dec();
@@ -2314,6 +2330,15 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 		_out << nl << "End Select";
 	    }
 	    _out.dec();
+	    _out << nl << "Catch _ex As System.InvalidCastException";
+	    _out.inc();
+	    _out << nl << "Dim _e As Ice.UnexpectedObjectException = New Ice.UnexpectedObjectException";
+	    _out << nl << "_e.type = v.ice_id()";
+	    _out << nl << "_e.expectedType = _typeId";
+	    _out << nl << "Throw _e";
+	    _out.dec();
+	    _out << nl << "End Try";
+	    _out.dec();
 	    _out << nl << "End Sub";
 
 	    _out << sp << nl << "Private _instance As " << name;
@@ -2321,8 +2346,9 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	    {
 		_out << nl << "Private _member As Integer";
 	    }
+	    _out << nl << "Private _typeId As String";
 	    _out.dec();
-	    _out << nl << "End Class";
+	    _out << sp << nl << "End Class";
 	}
         _out << sp << nl << "Public Overloads Overrides Sub read__(ByVal is__ As IceInternal.BasicStream, "
 	                    "ByVal rid__ As Boolean)";
@@ -2479,7 +2505,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 	_out << nl << "End Function";
 
 	_out.dec();
-	_out << nl << "End Class";
+	_out << sp << nl << "End Class";
     }
 
     _out << sp;
@@ -2724,6 +2750,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
 	    _out << sp << nl << "Public Overrides Sub patch(ByVal v As Ice.Object)";
 	    _out.inc();
+	    _out << nl << "Try";
+	    _out.inc();
 	    if(classMembers.size() > 1)
 	    {
 		_out << nl << "Select Case _member";
@@ -2741,6 +2769,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 		string memberName = fixId((*q)->name(), isClass ? DotNet::ICloneable : 0);
 		_out << nl << "type_ = GetType(" << memberType << ')';
 		_out << nl << "_instance." << memberName << " = CType(v, " << memberType << ')';
+		_out << nl << "_typeId = \"" << (*q)->type()->typeId() << "\"";
 		if(classMembers.size() > 1)
 		{
 		    _out.dec();
@@ -2753,6 +2782,15 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 		_out << nl << "End Select";
 	    }
 	    _out.dec();
+	    _out << nl << "Catch _ex As System.InvalidCastException";
+	    _out.inc();
+	    _out << nl << "Dim _e As Ice.UnexpectedObjectException = New Ice.UnexpectedObjectException";
+	    _out << nl << "_e.type = v.ice_id()";
+	    _out << nl << "_e.expectedType = _typeId";
+	    _out << nl << "Throw _e";
+	    _out.dec();
+	    _out << nl << "End Try";
+	    _out.dec();
 	    _out << nl << "End Sub";
 
 	    _out << sp << nl << "Private _instance As " << name;
@@ -2760,8 +2798,9 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	    {
 		_out << nl << "Private _member As Integer";
 	    }
+	    _out << nl << "Private _typeId As String";
 	    _out.dec();
-	    _out << nl << "End Class";
+	    _out << sp << nl << "End Class";
 	}
 
         _out << sp << nl << "Public Sub read__(ByVal is__ As IceInternal.BasicStream)";
@@ -3186,7 +3225,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 	_out << nl << "End Function";
 
 	_out.dec();
-	_out << nl << "End Class";
+	_out << sp << nl << "End Class";
     }
 }
 
@@ -3306,7 +3345,7 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 	}
     }
     _out.dec();
-    _out << nl << "End Class";
+    _out << sp << nl << "End Class";
 }
 
 void
@@ -4208,7 +4247,18 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 	_out << sp << nl << "Public Overrides Sub patch(ByVal v As Ice.Object)";
 	_out.inc();
 	_out << nl << "type_ = GetType(" << typeToString(p->valueType()) << ')';
+	_out << nl << "Try";
+	_out.inc();
 	_out << nl << "_m(_key) = CType(v, " << valueS << ')';
+	_out.dec();
+	_out << nl << "Catch _ex As System.InvalidCastException";
+	_out.inc();
+	_out << nl << "Dim _e As Ice.UnexpectedObjectException = New Ice.UnexpectedObjectException";
+	_out << nl << "_e.type = v.ice_id()";
+	_out << nl << "_e.expectedType = \"" << value->typeId() << "\"";
+	_out << nl << "Throw _e";
+	_out.dec();
+	_out << nl << "End Try";
 	_out.dec();
 	_out << nl << "End Sub";
 
@@ -4542,9 +4592,10 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
 	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
 	    {
+		ContainedPtr contained = ContainedPtr::dynamicCast(ret);
 		_out << nl << "Dim ret__ As " << retS << " = Nothing";
 		_out << nl << "Dim ret___PP As IceInternal.ParamPatcher = New IceInternal.ParamPatcher(GetType("
-		     << retS << "))";
+		     << retS << "), \"" << (contained ? contained->scoped() : "::Ice::Object") << "\")";
 		_out << nl << "is__.readObject(ret___PP)";
 	    }
 	    else
@@ -5065,7 +5116,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	_out.dec();
 	_out << nl << "End Sub";
 	_out.dec();
-	_out << nl << "End Class";
+	_out << sp << nl << "End Class";
     }
 
     if(cl->hasMetaData("amd") || p->hasMetaData("amd"))
@@ -5188,7 +5239,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	_out << nl << "End Sub";
 
 	_out.dec();
-	_out << nl << "End Class";
+	_out << sp << nl << "End Class";
     }
 }
 
@@ -5394,7 +5445,7 @@ void
 Slice::Gen::TieVisitor::visitClassDefEnd(const ClassDefPtr&)
 {
     _out.dec();
-    _out << nl << "End Class";
+    _out << sp << nl << "End Class";
 }
 
 void

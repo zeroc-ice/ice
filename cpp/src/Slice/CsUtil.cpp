@@ -358,7 +358,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
 		    if(isOutParam)
 		    {
 			out << nl << "IceInternal.ParamPatcher " << param
-			    << "_PP = new IceInternal.ParamPatcher(typeof(Ice.Object));";
+			    << "_PP = new IceInternal.ParamPatcher(typeof(Ice.Object), \"::Ice::Object\");";
 			out << nl << stream << ".readObject(";
 			if(streamingAPI)
 			{
@@ -436,8 +436,9 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
         {
 	    if(isOutParam)
 	    {
+		ContainedPtr contained = ContainedPtr::dynamicCast(type);
 		out << nl << "IceInternal.ParamPatcher " << param
-		    << "_PP = new IceInternal.ParamPatcher(typeof(" << typeToString(type) << "));";
+		    << "_PP = new IceInternal.ParamPatcher(typeof(" << typeToString(type) << "), \"" << contained->scoped() << "\");";
 		out << nl << stream << ".readObject(";
 		if(streamingAPI)
 		{

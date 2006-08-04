@@ -368,6 +368,8 @@ public:
 
     virtual void read(const Ice::InputStreamPtr&, bool);
 
+    virtual ClassInfoPtr getInfo() const;
+
     PyObject* getObject() const; // Borrowed reference.
 
 private:

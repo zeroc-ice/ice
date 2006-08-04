@@ -366,7 +366,8 @@ Slice::VbGenerator::writeMarshalUnmarshalCode(Output &out,
 		    if(isOutParam)
 		    {
 			out << nl << "Dim " << param
-			    << "_PP As IceInternal.ParamPatcher = New IceInternal.ParamPatcher(GetType(Ice.Object)";
+			    << "_PP As IceInternal.ParamPatcher = New IceInternal.ParamPatcher(GetType(Ice.Object), "
+			    << "\"::Ice::Object\")";
 			if(streamingAPI)
 			{
 			    out << nl << stream << ".readObject(CType(" << param << "_PP, Ice.ReadObjectCallback))";
@@ -449,9 +450,10 @@ Slice::VbGenerator::writeMarshalUnmarshalCode(Output &out,
         {
 	    if(isOutParam)
 	    {
+		ContainedPtr contained = ContainedPtr::dynamicCast(type);
 		out << nl << "Dim " << param
 		    << "_PP As IceInternal.ParamPatcher = New IceInternal.ParamPatcher(GetType("
-		    << typeToString(type) << "))";
+		    << typeToString(type) << "), \"" << contained->scoped() << "\")";
 		if(streamingAPI)
 		{
 		    out << nl << stream << ".readObject(CType(" << param << "_PP, Ice.ReadObjectCallback))";

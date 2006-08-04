@@ -78,7 +78,7 @@ local exception AlreadyRegisteredException
 
     /**
      *
-     * The id (or name) of the object that is registered already.
+     * The ID (or name) of the object that is registered already.
      *
      **/
     string id;
@@ -104,7 +104,7 @@ local exception NotRegisteredException
 
     /**
      *
-     * The id (or name) of the object that could not be removed.
+     * The ID (or name) of the object that could not be removed.
      *
      **/
     string id;
@@ -246,7 +246,7 @@ local exception ObjectAdapterIdInUseException
 {
     /**
      *
-     * Adapter id.
+     * Adapter ID.
      *
      **/
     string id;
@@ -656,7 +656,7 @@ local exception ConnectionNotValidatedException extends ProtocolException
 /**
  *
  * This exception is a specialization of [ProtocolException],
- * indicating that a response for an unknown request id has been
+ * indicating that a response for an unknown request ID has been
  * received.
  *
  **/
@@ -780,8 +780,8 @@ local exception IllegalIndirectionException extends MarshalException
 /**
  *
  * This exception is a specialization of [MarshalException] that is
- * raised if no suitable object factory was found during object
- * unmarshaling.
+ * raised if no suitable object factory was found during
+ * unmarshaling of a Slice class instance.
  *
  * @see ObjectFactory
  * @see Communicator::addObjectFactory
@@ -792,11 +792,40 @@ local exception NoObjectFactoryException extends MarshalException
 {
     /**
      *
-     * The absolute Slice type id of the object for which we
-     * could not find a factory.
+     * The Slice type ID of the class instance for which no
+     * no factory could be found.
      *
      **/
     string type;
+};
+
+/**
+ *
+ * This exception is a specialization of [MarshalException] that is
+ * raised if the type of an unmarshaled Slice class instance does
+ * not match the type excepted by an operation that is passed that instance.
+ * This can happen if client and server are compiled with mismatched Slice
+ * definitions or if a class of the wrong type is passed as a parameter
+ * or return value using dynamic invocation. This exception can also be
+ * raised if &IceStorm; is used to send Slice class instances and
+ * an operation is subscribed to the wrong topic.
+ *
+ **/
+local exception UnexpectedObjectException extends MarshalException
+{
+    /**
+     *
+     * The Slice type ID of the class instance that was unmarshaled.
+     *
+     **/
+    string type;
+
+    /**
+     *
+     * The Slice type ID that was excepted by the receiving operation.
+     *
+     **/
+    string expectedType;
 };
 
 /**

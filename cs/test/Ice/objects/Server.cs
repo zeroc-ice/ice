@@ -15,6 +15,8 @@ public class Server
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object @object = new InitialI(adapter);
         adapter.add(@object, communicator.stringToIdentity("initial"));
+        @object = new UnexpectedObjectExceptionTestI();
+        adapter.add(@object, communicator.stringToIdentity("uoet"));
         adapter.activate();
         communicator.waitForShutdown();
         return 0;

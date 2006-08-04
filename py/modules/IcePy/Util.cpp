@@ -559,6 +559,16 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
         m = PyString_FromString(const_cast<char*>(e.type.c_str()));
         PyObject_SetAttrString(p, STRCAST("type"), m.get());
     }
+    catch(const Ice::UnexpectedObjectException& e)
+    {
+        IcePy::PyObjectHandle m;
+        m = PyString_FromString(const_cast<char*>(e.reason.c_str()));
+        PyObject_SetAttrString(p, STRCAST("reason"), m.get());
+        m = PyString_FromString(const_cast<char*>(e.type.c_str()));
+        PyObject_SetAttrString(p, STRCAST("type"), m.get());
+        m = PyString_FromString(const_cast<char*>(e.expectedType.c_str()));
+        PyObject_SetAttrString(p, STRCAST("expectedType"), m.get());
+    }
     catch(const Ice::MarshalException& e)
     {
         IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.reason.c_str()));

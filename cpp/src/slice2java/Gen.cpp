@@ -1688,6 +1688,8 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
 	    out << sp << nl << "public void" << nl << "patch(Ice.Object v)";
 	    out << sb;
+	    out << nl << "try";
+	    out << sb;
 	    if(allClassMembers.size() > 1)
 	    {
 		out << nl << "switch(__member)";
@@ -1719,6 +1721,14 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    {
 		out << eb;
 	    }
+	    out << eb;
+	    out << nl << "catch(ClassCastException ex)";
+	    out << sb;
+	    out << nl << "Ice.UnexpectedObjectException _e = new Ice.UnexpectedObjectException();";
+	    out << nl << "_e.type = v.ice_id();";
+	    out << nl << "_e.expectedType = type();";
+	    out << nl << "throw _e;";
+	    out << eb;
 	    out << eb;
 
 	    out << sp << nl << "public String" << nl << "type()";
@@ -2015,6 +2025,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
 	    out << sp << nl << "public void" << nl << "patch(Ice.Object v)";
 	    out << sb;
+	    out << nl << "try";
+	    out << sb;
 	    if(allClassMembers.size() > 1)
 	    {
 		out << nl << "switch(__member)";
@@ -2046,6 +2058,14 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	    {
 		out << eb;
 	    }
+	    out << eb;
+	    out << nl << "catch(ClassCastException ex)";
+	    out << sb;
+	    out << nl << "Ice.UnexpectedObjectException _e = new Ice.UnexpectedObjectException();";
+	    out << nl << "_e.type = v.ice_id();";
+	    out << nl << "_e.expectedType = type();";
+	    out << nl << "throw _e;";
+	    out << eb;
 	    out << eb;
 
 	    out << sp << nl << "public String" << nl << "type()";
@@ -2419,6 +2439,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
 	    out << sp << nl << "public void" << nl << "patch(Ice.Object v)";
 	    out << sb;
+	    out << nl << "try";
+	    out << sb;
 	    if(classMembers.size() > 1)
 	    {
 		out << nl << "switch(__member)";
@@ -2450,6 +2472,14 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	    {
 		out << eb;
 	    }
+	    out << eb;
+	    out << nl << "catch(ClassCastException ex)";
+	    out << sb;
+	    out << nl << "Ice.UnexpectedObjectException _e = new Ice.UnexpectedObjectException();";
+	    out << nl << "_e.type = v.ice_id();";
+	    out << nl << "_e.expectedType = type();";
+	    out << nl << "throw _e;";
+	    out << eb;
 	    out << eb;
 
 	    out << sp << nl << "public String" << nl << "type()";
@@ -3177,7 +3207,17 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
 		out << nl << "public void";
 		out << nl << "patch(Ice.Object v)";
 		out << sb;
+		out << nl << "try";
+		out << sb;
 		out << nl << "value = (" << typeS << ")v;";
+		out << eb;
+		out << nl << "catch(ClassCastException ex)";
+		out << sb;
+		out << nl << "Ice.UnexpectedObjectException _e = new Ice.UnexpectedObjectException();";
+		out << nl << "_e.type = v.ice_id();";
+		out << nl << "_e.expectedType = type();";
+		out << nl << "throw _e;";
+		out << eb;
 		out << eb;
 
 		out << sp << nl << "public String" << nl << "type()";

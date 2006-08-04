@@ -22,10 +22,11 @@ sys.path.insert(0, os.path.join(toplevel, "lib"))
 
 import Ice
 Ice.loadSlice('Test.ice')
+Ice.loadSlice('ClientPrivate.ice')
 import AllTests
 
 def run(args, communicator):
-    initial = AllTests.allTests(communicator)
+    initial = AllTests.allTests(communicator, False)
     initial.shutdown()
     return True
 

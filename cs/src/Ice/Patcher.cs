@@ -42,8 +42,9 @@ namespace IceInternal
 
     public sealed class ParamPatcher : Patcher
     {
-	public ParamPatcher(System.Type type) : base(type)
+	public ParamPatcher(System.Type type, string expectedSliceType) : base(type)
 	{
+	    _expectedSliceType = expectedSliceType;
 	}
 
 	public override void patch(Ice.Object v)
@@ -51,13 +52,17 @@ namespace IceInternal
             Debug.Assert(type_ != null);
 	    if(v != null && !type_.IsInstanceOfType(v))
 	    {
-                throw new System.InvalidCastException("expected element of type " + type()
-                    + " but received " + v.GetType().FullName);
+		Ice.UnexpectedObjectException ex = new Ice.UnexpectedObjectException(
+			"unexpected class instance of type `" + v.ice_id()
+                    	+ "'; expected instance of type '" + _expectedSliceType + "'");
+		ex.type = v.ice_id();
+		ex.expectedType = _expectedSliceType;
 	    }
 	    value = v;
 	}
 
 	public Ice.Object value;
+	private string _expectedSliceType;
     }
 
     public sealed class SequencePatcher : Patcher

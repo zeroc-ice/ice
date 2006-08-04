@@ -20,6 +20,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     InitialPtr initial = new InitialI(adapter);
     adapter->add(initial, communicator->stringToIdentity("initial"));
+    UnexpectedObjectExceptionTestIPtr uoet = new UnexpectedObjectExceptionTestI;
+    adapter->add(uoet, communicator->stringToIdentity("uoet"));
     adapter->activate();
     communicator->waitForShutdown();
     return EXIT_SUCCESS;

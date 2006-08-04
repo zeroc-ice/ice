@@ -34,7 +34,7 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-def allTests(communicator):
+def allTests(communicator, collocated):
     factory = MyObjectFactory()
     communicator.addObjectFactory(factory, '::Test::B')
     communicator.addObjectFactory(factory, '::Test::C')
@@ -131,5 +131,26 @@ def allTests(communicator):
     test(d.theB.theC.preMarshalInvoked)
     test(d.theB.theC.postUnmarshalInvoked())
     print "ok"
+
+    if not collocated:
+	print "testing UnexpectedObjectException... "
+	ref = "uoet:default -p 12010 -t 10000"
+	base = communicator.stringToProxy(ref)
+	test(base)
+	uoet = Test.UnexpectedObjectExceptionTestPrx.uncheckedCast(base)
+	test(uoet)
+	try:
+	    uoet.op()
+	    test(False)
+	except Ice.UnexpectedObjectException, ex:
+	    test(ex.type == "::Test::AlsoEmpty")
+	    test(ex.expectedType == "::Test::Empty")
+	except Ice.Exception, ex:
+	    print ex
+	    test(False)
+	except:
+	    print sys.exc_info()
+	    test(False)
+	print "ok"
 
     return initial

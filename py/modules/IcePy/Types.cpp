@@ -1987,6 +1987,12 @@ IcePy::ObjectReader::read(const Ice::InputStreamPtr& is, bool rid)
     is->endSlice();
 }
 
+ClassInfoPtr
+IcePy::ObjectReader::getInfo() const
+{
+    return _info;
+}
+
 PyObject*
 IcePy::ObjectReader::getObject() const
 {
@@ -2042,9 +2048,10 @@ IcePy::ReadObjectCallback::invoke(const Ice::ObjectPtr& p)
         PyObject* obj = reader->getObject();
         if(!PyObject_IsInstance(obj, _info->pythonType.get()))
         {
-            Ice::NoObjectFactoryException ex(__FILE__, __LINE__);
+            Ice::UnexpectedObjectException ex(__FILE__, __LINE__);
 	    ex.reason = "unmarshaled object is not an instance of " + _info->id;
-            ex.type = _info->id;
+            ex.type = reader->getInfo()->getId();
+	    ex.expectedType = _info->id;
             throw ex;
         }
 
