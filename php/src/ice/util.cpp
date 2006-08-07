@@ -469,6 +469,42 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
         //
         zend_throw_exception_object(zex TSRMLS_CC);
     }
+    catch(const Ice::UnexpectedObjectException& e)
+    {
+        string name = e.ice_name();
+        zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
+        if(!cls)
+        {
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to find class %s", name.c_str());
+            return;
+        }
+
+        zval* zex;
+        MAKE_STD_ZVAL(zex);
+        if(object_init_ex(zex, cls) != SUCCESS)
+        {
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
+            return;
+        }
+
+        //
+        // Set the reason member.
+        //
+        zend_update_property_string(cls, zex, "reason", sizeof("reason") - 1,
+                                    const_cast<char*>(e.reason.c_str()) TSRMLS_CC);
+
+        //
+        // Set the type and exptected type members.
+        //
+        zend_update_property_string(cls, zex, "type", sizeof("type") - 1, const_cast<char*>(e.type.c_str()) TSRMLS_CC);
+        zend_update_property_string(cls, zex, "expectedType", sizeof("expectedType") - 1,
+	                            const_cast<char*>(e.expectedType.c_str()) TSRMLS_CC);
+
+        //
+        // Throw the exception.
+        //
+        zend_throw_exception_object(zex TSRMLS_CC);
+    }
     catch(const Ice::MarshalException& e)
     {
         string name = e.ice_name();

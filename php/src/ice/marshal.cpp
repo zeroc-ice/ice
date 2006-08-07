@@ -1591,8 +1591,9 @@ IcePHP::ObjectReader::setValue(zend_class_entry* ce, const string& scoped, zval*
     //
     if(!checkClass(_class, ce))
     {
-        Ice::NoObjectFactoryException ex(__FILE__, __LINE__);
-        ex.type = scoped;
+        Ice::UnexpectedObjectException ex(__FILE__, __LINE__);
+        ex.type = _type ? _type->scoped() : "::Ice::Object";
+	ex.expectedType = scoped;
         throw ex;
     }
 

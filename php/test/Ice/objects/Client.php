@@ -235,6 +235,29 @@ function allTests()
     $d->theA = null;
     $d->theB = null;
 
+    echo "testing UnexpectedObjectException... ";
+    flush();
+    $ref = "uoet:default -p 12010 -t 2000";
+    $base = $ICE->stringToProxy($ref);
+    test($base != null);
+    $uoet = $base->ice_checkedCast("::Test::UnexpectedObjectExceptionTest");
+    test($uoet != null);
+    try
+    {
+        $uoet->op();
+        test(false);
+    }
+    catch(Ice_UnexpectedObjectException $ex)
+    {
+        test($ex->type == "::Test::AlsoEmpty");
+        test($ex->expectedType == "::Test::Empty");
+    }
+    catch(Exception $ex)
+    {
+        echo $ex.getTraceAsString();
+    }
+    echo "ok\n";
+
     return $initial;
 }
 
