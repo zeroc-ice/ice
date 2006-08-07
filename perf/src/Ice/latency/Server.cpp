@@ -16,8 +16,14 @@ using namespace Demo;
 class LatencyI : public Latency
 {
     virtual void
-    ping(const Ice::Current& current)
+    ping(const Ice::Current&)
     {
+    }
+
+    virtual void
+    withData(const ByteSeq&, const Ice::Current&)
+    {
+	// We don't need to do anything here.
     }
 
     virtual void

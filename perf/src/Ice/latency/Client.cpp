@@ -53,6 +53,46 @@ private:
 
 typedef IceUtil::Handle<AMI_Latency_pingI> AMI_Latency_pingIPtr;
 
+class AMI_Latency_withDataI : public Demo::AMI_Latency_withData, IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+    AMI_Latency_withDataI() :
+	_finished(false)
+    {
+    }
+
+    void 
+    waitFinished()
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	while(!_finished)
+	{
+	    wait();
+	}
+	_finished = false;
+    }
+    
+private:
+    virtual void
+    ice_response()
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	assert(!_finished);
+	_finished = true;
+	notify();
+    }
+
+    virtual void
+    ice_exception(const ::Ice::Exception&)
+    {
+	assert(false);
+    }
+
+    bool _finished;
+};
+
+typedef IceUtil::Handle<AMI_Latency_withDataI> AMI_Latency_withDataIPtr;
+
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
@@ -61,6 +101,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     bool twoway = false;
     bool ami = false;
     int i;
+    long payLoadSize = 0;
+
     for(i = 0; i < argc; i++)
     {
 	if(strcmp(argv[i], "oneway") == 0)
@@ -78,6 +120,15 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	else if(strcmp(argv[i], "ami") == 0)
 	{
 	    ami = true;
+	}
+	else if(strncmp(argv[i], "--payload=", strlen("--payload=")) == 0)
+	{
+	    payLoadSize = strtol(argv[i] + strlen("--payload="), 0, 10);
+	    if(errno == ERANGE)
+	    {
+		cerr << argv[0] << ": payload argument rangge error: " << argv[i] << endl;
+		return EXIT_FAILURE;
+	    }
 	}
     }
     if(!oneway && !twoway && !batch)
@@ -102,6 +153,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     Ice::PropertiesPtr properties = communicator->getProperties();
     const char* proxyProperty = "Latency.Latency";
     std::string proxy = properties->getProperty(proxyProperty);
+
     if(proxy.empty())
     {
 	cerr << argv[0] << ": property `" << proxyProperty << "' not set" << endl;
@@ -122,49 +174,102 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     // Initial ping to setup the connection.
     latency->ping();
 
-    AMI_Latency_pingIPtr cb = new AMI_Latency_pingI();
-
     IceUtil::Time tm = IceUtil::Time::now();
-
-    for(i = 0; i < repetitions; ++i)
+    if(payLoadSize == 0)
     {
-        if(batch)
+	AMI_Latency_pingIPtr cb = new AMI_Latency_pingI();
+
+	for(i = 0; i < repetitions; ++i)
 	{
-            if(i != 0 && i % 100 == 0)
+	    if(batch)
 	    {
-	       batchprx->ice_getConnection()->flushBatchRequests();
+		if(i != 0 && i % 100 == 0)
+		{
+		    batchprx->ice_getConnection()->flushBatchRequests();
+		}
+	    }
+
+	    if(twoway)
+	    {
+		if(ami)
+		{
+		    latency->ping_async(cb);
+		    cb->waitFinished();
+		}
+		else
+		{
+		    latency->ping();
+		}
+	    }
+	    else if(oneway)
+	    {
+		onewayprx->ping();
+	    }
+	    else if(batch)
+	    {
+		batchprx->ping();
 	    }
 	}
 
-	if(twoway)
+	if(oneway || batch)
 	{
-	    if(ami)
+	    if(batch)
 	    {
-	        latency->ping_async(cb);
-		cb->waitFinished();
+		batchprx->ice_getConnection()->flushBatchRequests();
 	    }
-	    else
-	    {
-	        latency->ping();
-	    }
-	}
-	else if(oneway)
-	{
-	    onewayprx->ping();
-	}
-	else if(batch)
-	{
-	    batchprx->ping();
+	    latency->ping();
 	}
     }
-
-    if(oneway || batch)
+    else
     {
-        if(batch)
+	ByteSeq payLoadBuf(payLoadSize);
+	Ice::Int j;
+	for(j = 0; j < payLoadSize; ++j)
 	{
-            batchprx->ice_getConnection()->flushBatchRequests();
-        }
-        latency->ping();
+	    payLoadBuf[j] = '0' + (char)(j % 10);
+	}
+	AMI_Latency_withDataIPtr cb = new AMI_Latency_withDataI();
+
+	for(j = 0; j < repetitions; ++j)
+	{
+	    if(batch)
+	    {
+		if(j != 0 && j % 100 == 0)
+		{
+		    batchprx->ice_getConnection()->flushBatchRequests();
+		}
+	    }
+
+	    if(twoway)
+	    {
+		if(ami)
+		{
+		    latency->withData_async(cb, payLoadBuf);
+		    cb->waitFinished();
+		}
+		else
+		{
+		    latency->withData(payLoadBuf);
+		}
+	    }
+	    else if(oneway)
+	    {
+		onewayprx->withData(payLoadBuf);
+	    }
+	    else if(batch)
+	    {
+		batchprx->withData(payLoadBuf);
+	    }
+	}
+
+	if(oneway || batch)
+	{
+	    if(batch)
+	    {
+		batchprx->ice_getConnection()->flushBatchRequests();
+	    }
+	    latency->withData(payLoadBuf);
+	}
     }
 
     tm = IceUtil::Time::now() - tm;
