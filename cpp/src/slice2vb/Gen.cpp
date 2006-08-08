@@ -12,7 +12,7 @@
 #include <Gen.h>
 #include <limits>
 #include <sys/stat.h>
-#ifndef _MSC_VER
+#ifndef _WIN32
 #include <unistd.h>
 #else
 #include <direct.h>
@@ -5695,7 +5695,7 @@ Slice::Gen::BaseImplVisitor::writeValue(const TypePtr& type)
     StructPtr st = StructPtr::dynamicCast(type);
     if(st)
     {
-        return st->hasMetaData("clr:class") ? "Nothing" : "New " + fixId(st->scoped()) + "()";
+        return st->hasMetaData("clr:class") ? string("Nothing") : "New " + fixId(st->scoped()) + "()";
     }
 
     return "Nothing";

@@ -12,7 +12,7 @@
 #include <Gen.h>
 #include <limits>
 #include <sys/stat.h>
-#ifndef _MSC_VER
+#ifndef _WIN32
 #include <unistd.h>
 #else
 #include <direct.h>
@@ -4890,7 +4890,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
 	{
 	    _out << "override ";
 	}
-	_out << (hasAMD ? "void" : retS) << ' ' << opName << spar << params;
+	_out << (hasAMD ? string("void") : retS) << ' ' << opName << spar << params;
         if(!p->isLocal())
         {
             _out << "Ice.Current current__";
@@ -4965,7 +4965,7 @@ Slice::Gen::TieVisitor::writeInheritedOperationsWithOpNames(const ClassDefPtr& p
 	{
 	    _out << "override ";
 	}
-	_out << (hasAMD ? "void" : retS) << ' ' << opName << spar << params;
+	_out << (hasAMD ? string("void") : retS) << ' ' << opName << spar << params;
         if(!p->isLocal())
         {
             _out << "Ice.Current current__";
@@ -5152,7 +5152,7 @@ Slice::Gen::BaseImplVisitor::writeValue(const TypePtr& type)
     StructPtr st = StructPtr::dynamicCast(type);
     if(st)
     {
-        return st->hasMetaData("clr:class") ? "null" : "new " + fixId(st->scoped()) + "()";
+        return st->hasMetaData("clr:class") ? string("null") : "new " + fixId(st->scoped()) + "()";
     }
 
     return "null";
