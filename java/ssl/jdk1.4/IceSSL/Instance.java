@@ -535,19 +535,22 @@ class Instance
 		    ((java.security.cert.X509Certificate)info.certs[0]).getSubjectAlternativeNames();
 		java.util.ArrayList ipAddresses = new java.util.ArrayList();
 		java.util.ArrayList dnsNames = new java.util.ArrayList();
-		java.util.Iterator i = subjectAltNames.iterator();
-		while(i.hasNext())
+		if(subjectAltNames != null)
 		{
-		    java.util.List l = (java.util.List)i.next();
-		    assert(!l.isEmpty());
-		    Integer n = (Integer)l.get(0);
-		    if(n.intValue() == 7)
+		    java.util.Iterator i = subjectAltNames.iterator();
+		    while(i.hasNext())
 		    {
-			ipAddresses.add((String)l.get(1));
-		    }
-		    else if(n.intValue() == 2)
-		    {
-			dnsNames.add(((String)l.get(1)).toLowerCase());
+			java.util.List l = (java.util.List)i.next();
+			assert(!l.isEmpty());
+			Integer n = (Integer)l.get(0);
+			if(n.intValue() == 7)
+			{
+			    ipAddresses.add((String)l.get(1));
+			}
+			else if(n.intValue() == 2)
+			{
+			    dnsNames.add(((String)l.get(1)).toLowerCase());
+			}
 		    }
 		}
 
