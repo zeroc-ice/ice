@@ -1,0 +1,81 @@
+=========================================================================
+Requirements
+=========================================================================
+
+- Ice for C++ @ver@
+- Ruby 1.8.4
+
+You can use an Ice for C++ source or binary distribution to build the
+Ice extension for Ruby.
+
+=========================================================================
+Building the Ice extension for Ruby
+=========================================================================
+
+Follow these steps to build the Ice extension for Ruby:
+
+1) Edit config/Make.rules and do the following:
+
+   * Modify the installation prefix (if necessary).
+
+   * Enable OPTIMIZE=yes if desired.
+
+2) Define ICE_HOME with the installation directory of Ice for C++ if
+   it is installed in a non-standard directory.
+
+3) If you want to use a Ruby interpreter in a non-standard location,
+   define the RUBY_HOME environment variable with the installation
+   directory.
+
+4) Execute 'ruby -v' to verify that the correct Ruby interpreter
+   is in your executable search path.
+
+5) Run 'make'.
+
+6) Upon successful completion, run 'make install'. You may need
+   additional user privileges to install in the directory specified by
+   config/Make.rules.
+
+7) See "Configuring your Environment" below.
+
+
+=========================================================================
+Configuring your Environment
+=========================================================================
+
+There are a number of ways you can modify the interpreter's load path
+so that it can successfully locate the Ice extension. For example, you
+can add the installation directory to RUBYLIB:
+
+export RUBYLIB=/opt/IceRuby-@ver@/ruby:$RUBYLIB
+
+Another possibility is to pass the extension's installation directory
+to the interpreter using the -I option as follows:
+
+ruby -I/opt/IceRuby-@ver@/ruby ...
+
+Finally, you can modify the load path directly in a script like this:
+
+# Ruby
+$:.unshift('/opt/IceRuby-@ver@/ruby')
+require 'Ice'
+...
+
+
+=========================================================================
+Running the Tests
+=========================================================================
+
+The test subdirectory contains Ruby implementations of the core Ice
+test suite clients. The tests require servers from the Ice for C++
+source distribution and expect the ICE_HOME environment variable to
+supply the directory containing the C++ build.
+
+To run all of the tests, do the following:
+
+$ python allTests.py
+
+You can also run tests individually by changing to the test directory
+and running this command:
+
+$ python run.py
