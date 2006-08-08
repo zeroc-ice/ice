@@ -69,7 +69,6 @@ public:
 private:
 
     bool _finished;
-
 };
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)

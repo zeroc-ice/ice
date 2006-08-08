@@ -79,6 +79,7 @@ main(int argc, char *argv[])
 	bool sendstrings = false;
 	bool sendlongstrings = false;
 	bool sendstructs = false;
+	long payLoadSize = 0;
 
 	int i;
 	for(i = 0; i < argc; ++i)
@@ -118,6 +119,15 @@ main(int argc, char *argv[])
 	    else if(strcmp(argv[i], "struct") == 0)
 	    {
 		sendstructs = true;
+	    }
+	    else if(strncmp(argv[i], "--payload=", strlen("--payload=")) == 0)
+	    {
+		payLoadSize = strtol(argv[i] + strlen("--payload="), 0, 10);
+		if(errno == ERANGE)
+		{
+		    cerr << argv[0] << ": payload argument range error: " << argv[i] << endl;
+		    return EXIT_FAILURE;
+		}
 	    }
 	}
 
@@ -194,6 +204,16 @@ main(int argc, char *argv[])
 		repetitions = 100000;
 	    }
 
+	    Test::ByteSeq seq;
+	    if(payLoadSize > 0)
+	    {
+		seq.length(payLoadSize);
+		for(int i = 0; i < payLoadSize; ++i)
+		{
+		    seq[i] = '0' + (char)(i % 10);
+		}
+	    }
+
 	    for(int i = 0; i != repetitions; ++i)
 	    {
 		if(oneway)
@@ -206,6 +226,11 @@ main(int argc, char *argv[])
 		    roundtrip->sendc_test_method(roundtrip_handler.in() ACE_ENV_SINGLE_ARG_PARAMETER);
 		    ACE_TRY_CHECK;
 		    roundtrip_handler_impl->waitFinished();
+		}
+		else if(payLoadSize > 0)
+		{
+		    roundtrip->sendByteSeq(seq ACE_ENV_SINGLE_ARG_PARAMETER);
+		    ACE_TRY_CHECK;
 		}
 		else
 		{
