@@ -23,6 +23,11 @@ class LatencyI : public Latency
     }
 
     virtual void
+    withData(const ByteSeq& data, const Ice::Current& current)
+    {
+    }
+
+    virtual void
     shutdown(const Ice::Current& current)
     {
 	current.adapter->getCommunicator()->shutdown();

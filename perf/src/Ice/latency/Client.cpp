@@ -93,6 +93,100 @@ private:
 
 typedef IceUtil::Handle<AMI_Latency_withDataI> AMI_Latency_withDataIPtr;
 
+class TestAdapter
+{
+public:
+    TestAdapter(const LatencyPrx prx) :
+	_prx(prx)
+    {
+    }
+
+    virtual ~TestAdapter() {}
+
+    virtual void doIt() = 0;
+
+    virtual void doItAsync() = 0;
+
+    virtual void 
+    flush()
+    {
+	_prx->ice_getConnection()->flushBatchRequests();
+    }
+
+protected:
+    LatencyPrx _prx;
+};
+
+class NoPayload : public TestAdapter
+{ 
+public:
+    NoPayload(const LatencyPrx prx):
+	TestAdapter(prx),
+	_cb(new AMI_Latency_pingI)
+    {
+    }
+
+    virtual void 
+    doIt()
+    {
+	_prx->ping();
+    }
+
+    virtual void 
+    doItAsync()
+    {
+	_prx->ping_async(_cb);
+	_cb->waitFinished();
+    }
+
+private:
+    AMI_Latency_pingIPtr _cb;
+};
+
+class WithPayload : public TestAdapter
+{
+public:
+    WithPayload(const LatencyPrx prx, const long payLoadSize):
+	TestAdapter(prx), _payload(payLoadSize), _cb(new AMI_Latency_withDataI) 
+    {
+	for(long i = 0; i < payLoadSize; ++i)
+	{
+	    _payload[i] = '0' + (char)(i % 10);
+	}
+    }
+
+    virtual void 
+    doIt()
+    {
+	_prx->withData(_payload);
+    }
+
+    virtual void 
+    doItAsync()
+    {
+	_prx->withData_async(_cb, _payload);
+	_cb->waitFinished();
+    }
+
+private:
+    ByteSeq _payload;
+    AMI_Latency_withDataIPtr _cb;
+};
+
+TestAdapter* 
+createAdapter(const LatencyPrx prx, const long payLoadSize)
+{
+    if(payLoadSize)
+    {
+	return new NoPayload(prx);
+    }
+    else
+    {
+	return new WithPayload(prx, payLoadSize);
+    }
+    return 0;
+}
+
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
@@ -126,7 +220,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    payLoadSize = strtol(argv[i] + strlen("--payload="), 0, 10);
 	    if(errno == ERANGE)
 	    {
-		cerr << argv[0] << ": payload argument rangge error: " << argv[i] << endl;
+		cerr << argv[0] << ": payload argument range error: " << argv[i] << endl;
 		return EXIT_FAILURE;
 	    }
 	}
@@ -168,115 +262,74 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    LatencyPrx onewayprx = LatencyPrx::uncheckedCast(base->ice_oneway());
-    LatencyPrx batchprx = LatencyPrx::uncheckedCast(base->ice_batchOneway());
-
     // Initial ping to setup the connection.
     latency->ping();
 
-    IceUtil::Time tm = IceUtil::Time::now();
-    if(payLoadSize == 0)
+    TestAdapter* adapter = 0;
+    try
     {
-	AMI_Latency_pingIPtr cb = new AMI_Latency_pingI();
+	if(batch)
+	{
+	    adapter = createAdapter(LatencyPrx::uncheckedCast(base->ice_oneway()), payLoadSize);
+	}
+	else if(oneway)
+	{
+	    adapter = createAdapter(LatencyPrx::uncheckedCast(base->ice_batchOneway()), payLoadSize);
+	}
+	else
+	{
+	    adapter = createAdapter(latency, payLoadSize);
+	}
 
+	//
+	// MAIN TEST LOOP.
+	//
+	IceUtil::Time tm = IceUtil::Time::now();
 	for(i = 0; i < repetitions; ++i)
 	{
 	    if(batch)
 	    {
 		if(i != 0 && i % 100 == 0)
 		{
-		    batchprx->ice_getConnection()->flushBatchRequests();
+		    adapter->flush();
 		}
 	    }
-
-	    if(twoway)
+	    if(ami)
 	    {
-		if(ami)
-		{
-		    latency->ping_async(cb);
-		    cb->waitFinished();
-		}
-		else
-		{
-		    latency->ping();
-		}
+		adapter->doItAsync();
 	    }
-	    else if(oneway)
+	    else
 	    {
-		onewayprx->ping();
-	    }
-	    else if(batch)
-	    {
-		batchprx->ping();
+		adapter->doIt();
 	    }
 	}
+	// 
+	// END OF MAIN TEST LOOP
+	//
 
+	//
+	// Tidy up laggart requests.
+	//
 	if(oneway || batch)
 	{
 	    if(batch)
 	    {
-		batchprx->ice_getConnection()->flushBatchRequests();
+		adapter->flush();
 	    }
 	    latency->ping();
 	}
+
+	tm = IceUtil::Time::now() - tm;
+
+	latency->shutdown();
+	cout << tm.toMilliSecondsDouble() / repetitions << endl;
+	delete adapter;
     }
-    else
+    catch(...)
     {
-	ByteSeq payLoadBuf(payLoadSize);
-	Ice::Int j;
-	for(j = 0; j < payLoadSize; ++j)
-	{
-	    payLoadBuf[j] = '0' + (char)(j % 10);
-	}
-	AMI_Latency_withDataIPtr cb = new AMI_Latency_withDataI();
-
-	for(j = 0; j < repetitions; ++j)
-	{
-	    if(batch)
-	    {
-		if(j != 0 && j % 100 == 0)
-		{
-		    batchprx->ice_getConnection()->flushBatchRequests();
-		}
-	    }
-
-	    if(twoway)
-	    {
-		if(ami)
-		{
-		    latency->withData_async(cb, payLoadBuf);
-		    cb->waitFinished();
-		}
-		else
-		{
-		    latency->withData(payLoadBuf);
-		}
-	    }
-	    else if(oneway)
-	    {
-		onewayprx->withData(payLoadBuf);
-	    }
-	    else if(batch)
-	    {
-		batchprx->withData(payLoadBuf);
-	    }
-	}
-
-	if(oneway || batch)
-	{
-	    if(batch)
-	    {
-		batchprx->ice_getConnection()->flushBatchRequests();
-	    }
-	    latency->withData(payLoadBuf);
-	}
+	delete adapter;
+	throw;
     }
-
-    tm = IceUtil::Time::now() - tm;
-
-    latency->shutdown();
-
-    cout << tm.toMilliSecondsDouble() / repetitions << endl;
     return EXIT_SUCCESS;
 }
 

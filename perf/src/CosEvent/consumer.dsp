@@ -46,7 +46,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /machine:IX86
-# ADD LINK32 TAO_AnyTypeCoded.lib TAO_CosEventd.lib TAO_CosEvent_skeld.lib TAO_Messagingd.lib TAO_PortableServerd.lib TAO_ValueTyped.lib TAOd.lib ACEd.lib IceUtild.lib advapi32.lib user32.lib /nologo /subsystem:console /incremental:no /debug /machine:I386 /libpath:"$(TAO_ROOT)\..\lib" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(ACE_ROOT)\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType"/libpath:"$(ICE_HOME)\lib"
+# ADD LINK32 TAO_AnyTypeCoded.lib TAO_CosEventd.lib TAO_CosEvent_skeld.lib TAO_Messagingd.lib TAO_PortableServerd.lib TAO_ValueTyped.lib TAOd.lib ACEd.lib IceUtild.lib advapi32.lib user32.lib /nologo /subsystem:console /incremental:no /debug /machine:I386 /libpath:"$(TAO_ROOT)\..\lib" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(ACE_ROOT)\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(ICE_HOME)\lib" /libpath:"$(TAO_ROOT)\tao\ValueType"/libpath:"$(ICE_HOME)\lib"
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "consumer - Win32 Release"

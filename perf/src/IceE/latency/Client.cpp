@@ -15,6 +15,71 @@
 using namespace std;
 using namespace Demo;
 
+class TestAdapter
+{
+public:
+    TestAdapter(const LatencyPrx prx) :
+	_prx(prx)
+    {
+    }
+
+    virtual ~TestAdapter() {}
+
+    virtual void doIt() = 0;
+
+protected:
+    LatencyPrx _prx;
+};
+
+class NoPayload : public TestAdapter
+{ 
+public:
+    NoPayload(const LatencyPrx prx):
+	TestAdapter(prx)
+    {
+    }
+
+    virtual void doIt()
+    {
+	_prx->ping();
+    }
+};
+
+class WithPayload : public TestAdapter
+{
+public:
+    WithPayload(const LatencyPrx prx, const long payLoadSize):
+	TestAdapter(prx), _payload(payLoadSize)
+    {
+	for(long i = 0; i < payLoadSize; ++i)
+	{
+	    _payload[i] = '0' + (char)(i % 10);
+	}
+    }
+
+    virtual void doIt()
+    {
+	_prx->withData(_payload);
+    }
+
+private:
+    ByteSeq _payload;
+};
+
+TestAdapter* 
+createAdapter(const LatencyPrx prx, const long payLoadSize)
+{
+    if(payLoadSize)
+    {
+	return new NoPayload(prx);
+    }
+    else
+    {
+	return new WithPayload(prx, payLoadSize);
+    }
+    return 0;
+}
+
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
@@ -22,6 +87,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     bool batch = false;
     bool twoway = false;
     int i;
+    long payLoadSize = 0;
     for(i = 0; i < argc; i++)
     {
 	if(strcmp(argv[i], "oneway") == 0)
@@ -35,6 +101,15 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	else if(strcmp(argv[i], "twoway") == 0)
 	{
 	    twoway = true;
+	}
+	else if(strncmp(argv[i], "--payload=", strlen("--payload=")) == 0)
+	{
+	    payLoadSize = strtol(argv[i] + strlen("--payload="), 0, 10);
+	    if(errno == ERANGE)
+	    {
+		cerr << argv[0] << ": payload argument range error: " << argv[i] << endl;
+		return EXIT_FAILURE;
+	    }
 	}
     }
     if(!oneway && !twoway && !batch)
@@ -79,45 +154,66 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     // Initial ping to setup the connection.
     latency->ping();
 
-    IceUtil::Time tm = IceUtil::Time::now();
-    for(i = 0; i < repetitions; ++i)
+    TestAdapter* testAdapter = 0; 
+    try
     {
-        if(batch)
-	{
-            if(i != 0 && i % 100 == 0)
-	    {
-	       batchprx->ice_getConnection()->flushBatchRequests();
-	    }
-	}
-
 	if(twoway)
 	{
-	    latency->ping();
+	    testAdapter = createAdapter(latency, payLoadSize); 
 	}
 	else if(oneway)
 	{
-	    onewayprx->ping();
+	    testAdapter = createAdapter(onewayprx, payLoadSize); 
 	}
 	else if(batch)
 	{
-	    batchprx->ping();
+	    testAdapter = createAdapter(batchprx, payLoadSize); 
 	}
-    }
 
-    if(oneway || batch)
-    {
-        if(batch)
+	//
+	// MAIN TEST LOOP.
+	//
+	IceUtil::Time tm = IceUtil::Time::now();
+	for(i = 0; i < repetitions; ++i)
 	{
-            batchprx->ice_getConnection()->flushBatchRequests();
-        }
-        latency->ping();
+	    if(batch)
+	    {
+		if(i != 0 && i % 100 == 0)
+		{
+		    batchprx->ice_getConnection()->flushBatchRequests();
+		}
+	    }
+	    testAdapter->doIt();
+	}
+	// 
+	// END OF MAIN TEST LOOP
+	//
+
+	//
+	// Tidy up laggart requests.
+	//
+	if(oneway || batch)
+	{
+	    if(batch)
+	    {
+		batchprx->ice_getConnection()->flushBatchRequests();
+	    }
+	    latency->ping();
+	}
+
+	tm = IceUtil::Time::now() - tm;
+
+	latency->shutdown();
+	cout << tm.toMilliSecondsDouble() / repetitions << endl;
+	delete testAdapter;
+    }
+    catch(...)
+    {
+	delete testAdapter;
+	throw;
     }
 
-    tm = IceUtil::Time::now() - tm;
 
-    latency->shutdown();
-
-    cout << tm.toMilliSecondsDouble() / repetitions << endl;
     return EXIT_SUCCESS;
 }
 

@@ -27,6 +27,36 @@ testDefinitions = [
 		("tpc blocking (batch)", "batch" + blocking, ""),
 		]
 	    ),
+	(productName, "latency twoway 2k", "latency", [
+		("tpc", "twoway", "", [("payload", "2000")]),
+		("tpc blocking", "twoway" + blocking, "", [("payload", "2000")]),
+		]
+	    ),
+	(productName, "latency oneway 2k", "latency", [
+		("tpc", "oneway", "", [("payload", "2000")]),
+		("tpc blocking", "oneway" + blocking, "", [("payload", "2000")]),
+		]
+	    ),
+	(productName, "latency oneway 2k (batch)", "latency", [
+		("tpc (batch)", "batch", "", [("payload", "2000")]),
+		("tpc blocking (batch)", "batch" + blocking, "", [("payload", "2000")]),
+		]
+	    ),
+	(productName, "latency twoway 10k", "latency", [
+		("tpc", "twoway", "", [("payload", "10000")]),
+		("tpc blocking", "twoway" + blocking, "", [("payload", "10000")]),
+		]
+	    ),
+	(productName, "latency oneway 10k", "latency", [
+		("tpc", "oneway", "", [("payload", "10000")]),
+		("tpc blocking", "oneway" + blocking, "", [("payload", "10000")]),
+		]
+	    ),
+	(productName, "latency oneway 10k (batch)", "latency", [
+		("tpc (batch)", "batch", "", [("payload", "10000")]),
+		("tpc blocking (batch)", "batch" + blocking, "", [("payload", "10000")]),
+		]
+	    ),
 	(productName, "throughput byte", "throughput", [
 		("tpc", "byte", ""),
 		("tpc blocking", "byte" + blocking, ""),

@@ -120,11 +120,7 @@ class Test(TestUtil.Test) :
             try:
                 r = [float(x) for x in out.split()]
                 if self.latency:
-                    if r[1] > 3:
-                        results.append(-1.0)
-                        print "high standard deviation: " + str(r[1]) + " ", # Standard deviation
-                    else:
-                        results.append(r[0]) # Latency
+		    results.append(r[0]) # Latency
                 else:
                     results.append(r[2]) # Throughput
             except KeyboardInterrupt:
