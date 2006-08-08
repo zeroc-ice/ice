@@ -16,6 +16,9 @@ Changes since version 3.1.0
   "freeze:write" and "freeze:write" metadata (see Ice CHANGES file).
   Default value: 0
 
+- Fixed a bug in IceSSL that caused a NullPointerException if a
+  certificate did not contain subjectAltName extensions.
+
 - Restored Communicator::setDefaultContext
 
 
