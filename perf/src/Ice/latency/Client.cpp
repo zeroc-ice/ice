@@ -176,7 +176,7 @@ private:
 TestAdapter* 
 createAdapter(const LatencyPrx prx, const long payLoadSize)
 {
-    if(payLoadSize)
+    if(payLoadSize > 0)
     {
 	return new NoPayload(prx);
     }
