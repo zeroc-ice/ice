@@ -270,11 +270,11 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
 	if(batch)
 	{
-	    adapter = createAdapter(LatencyPrx::uncheckedCast(base->ice_oneway()), payLoadSize);
+	    adapter = createAdapter(LatencyPrx::uncheckedCast(base->ice_batchOneway()), payLoadSize);
 	}
 	else if(oneway)
 	{
-	    adapter = createAdapter(LatencyPrx::uncheckedCast(base->ice_batchOneway()), payLoadSize);
+	    adapter = createAdapter(LatencyPrx::uncheckedCast(base->ice_oneway()), payLoadSize);
 	}
 	else
 	{
