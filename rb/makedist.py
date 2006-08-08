@@ -106,7 +106,7 @@ os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " i
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export -rR3_1_0 ice/config ice/slice")
 if not skipDocs or not skipTranslator:
     os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " " +
-	      "ice/src/icecpp ice/src/IceUtil ice/src/Slice ice/src/slice2docbook ice/src/slice2rb " +
+	      "ice/bin ice/lib ice/src/icecpp ice/src/IceUtil ice/src/Slice ice/src/slice2docbook ice/src/slice2rb " +
 	      "ice/include/IceUtil ice/include/Slice ice/doc")
 
 #

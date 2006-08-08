@@ -34,11 +34,6 @@ prefix			= /opt/IceRuby-$(VERSION)
 #LP64			:= yes
 
 #
-# The values below can be overridden by defining them as environment
-# variables.
-#
-
-#
 # If the Ruby interpreter is in your PATH, the settings below will
 # work properly in most cases. If you want to use a particular
 # installation of Ruby, set RUBY_HOME with the installation directory.
@@ -80,7 +75,6 @@ ICE_LIBS		= $(ICE_LIB_DIRS) -lIce -lIceUtil -lSlice
 ifneq ($(ICE_HOME),)
     ICE_FLAGS		= -I$(ICE_HOME)/include
 endif
-
 
 
 # ----------------------------------------------------------------------
