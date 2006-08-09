@@ -4147,7 +4147,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 		_out << nl << retS << " ret__;";
 		ContainedPtr contained = ContainedPtr::dynamicCast(ret);
 		_out << nl << "IceInternal.ParamPatcher ret___PP = new IceInternal.ParamPatcher(typeof("
-		    << retS << "), \"" << (contained? contained->scoped() : "::Ice::Object") << "\");";
+		    << retS << "), \"" << (contained? contained->scoped() : string("::Ice::Object")) << "\");";
 		_out << nl << "is__.readObject(ret___PP);";
 	    }
 	    else

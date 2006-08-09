@@ -24,6 +24,9 @@ using namespace Ice;
 using namespace IceInternal;
 
 void IceInternal::incRef(ThreadPool* p) { p->__incRef(); }
+#ifdef __BCPLUSPLUS__
+ICE_API
+#endif
 void IceInternal::decRef(ThreadPool* p) { p->__decRef(); }
 
 IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& prefix, int timeout) :

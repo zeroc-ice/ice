@@ -24,6 +24,9 @@
 #include <Ice/RouterInfo.h>
 #include <Ice/LocalException.h>
 #include <Ice/Functional.h>
+#ifdef __BCPLUSPLUS__
+#  include <iterator>
+#endif
 
 using namespace std;
 using namespace Ice;

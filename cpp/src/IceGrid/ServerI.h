@@ -199,6 +199,116 @@ private:
 };
 typedef IceUtil::Handle<TimedServerCommand> TimedServerCommandPtr;
 
+class DestroyCommand : public ServerCommand
+{
+public:
+
+    DestroyCommand(const ServerIPtr&, bool);
+
+    bool canExecute(ServerI::InternalServerState state);
+    ServerI::InternalServerState nextState();
+    void execute();
+
+    void addCallback(const AMD_Node_destroyServerPtr& amdCB);
+    void finished();
+
+private:
+
+    const bool _kill;
+    std::vector<AMD_Node_destroyServerPtr> _destroyCB;
+};
+
+class StopCommand : public TimedServerCommand
+{
+public:
+
+    StopCommand(const ServerIPtr&, const WaitQueuePtr&, int);
+
+    static bool isStopped(ServerI::InternalServerState state);
+
+    bool canExecute(ServerI::InternalServerState state);
+    ServerI::InternalServerState nextState();
+    void execute();
+    void timeout(bool destroyed);
+
+    void addCallback(const AMD_Server_stopPtr&);
+    void failed(const std::string& reason);
+    void finished();
+
+private:
+
+    std::vector<AMD_Server_stopPtr> _stopCB;
+};
+
+class StartCommand : public TimedServerCommand
+{
+public:
+
+    StartCommand(const ServerIPtr&, const WaitQueuePtr&, int);
+
+    bool canExecute(ServerI::InternalServerState state);
+    ServerI::InternalServerState nextState();
+    void execute();
+    void timeout(bool destroyed);
+
+    void addCallback(const AMD_Server_startPtr&);
+    void failed(const std::string& reason);
+    void finished();
+
+private:
+
+    std::vector<AMD_Server_startPtr> _startCB;
+};
+
+class PatchCommand : public ServerCommand, public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    PatchCommand(const ServerIPtr&);
+
+    bool canExecute(ServerI::InternalServerState state);
+    ServerI::InternalServerState nextState();
+    void execute();
+
+    bool waitForPatch();
+    void destroyed();
+    void finished();
+
+private:
+
+    bool _notified;
+    bool _destroyed;
+};
+
+class LoadCommand : public ServerCommand
+{
+public:
+
+    LoadCommand(const ServerIPtr&);
+
+    bool canExecute(ServerI::InternalServerState state);
+    ServerI::InternalServerState nextState();
+    void execute();
+
+    void setUpdate(const std::string&, const ServerDescriptorPtr&, const std::string&, bool clearDir);
+    bool clearDir() const;
+    std::string sessionId() const;
+    std::string getApplication() const;
+    ServerDescriptorPtr getDescriptor() const;
+    void addCallback(const AMD_Node_loadServerPtr&);
+    void failed(const Ice::Exception&);
+    void finished(const ServerPrx&, const AdapterPrxDict&, int, int);
+
+private:
+
+    std::vector<AMD_Node_loadServerPtr> _loadCB;
+    bool _clearDir;
+    std::string _application;
+    ServerDescriptorPtr _desc;
+    std::string _sessionId;
+    std::auto_ptr<DeploymentException> _exception;
+};
+
 }
 
 #endif

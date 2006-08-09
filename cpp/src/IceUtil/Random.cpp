@@ -19,7 +19,6 @@
 
 using namespace std;
 
-
 IceUtil::RandomGeneratorException::RandomGeneratorException(const char* file, int line, int error) :
     Exception(file, line),
     _error(error)

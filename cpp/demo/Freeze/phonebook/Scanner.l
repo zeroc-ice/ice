@@ -30,6 +30,7 @@ WS	[ \t\v\f\r]
 NL	[\n]
 
 %option noyywrap
+%option never-interactive
 
 %%
 

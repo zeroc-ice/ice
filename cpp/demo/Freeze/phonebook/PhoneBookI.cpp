@@ -21,42 +21,42 @@ ContactI::ContactI(const ContactFactoryPtr& contactFactory) :
 string
 ContactI::getName(const Ice::Current&) const
 {
-   Lock lock(*this);
-   return name;
+    IceUtil::Mutex::Lock lock(*this);
+    return name;
 }
 
 void
 ContactI::setName(const string& newName, const Ice::Current&)
 {
-    Lock lock(*this);
+    IceUtil::Mutex::Lock lock(*this);
     name = newName;
 }
 
 string
 ContactI::getAddress(const Ice::Current&) const
 {
-    Lock lock(*this);
+    IceUtil::Mutex::Lock lock(*this);
     return address;
 }
 
 void
 ContactI::setAddress(const string& newAddress, const Ice::Current&)
 {
-    Lock lock(*this);
+    IceUtil::Mutex::Lock lock(*this);
     address = newAddress;
 }
 
 string
 ContactI::getPhone(const Ice::Current&) const
 {
-    Lock lock(*this);
+    IceUtil::Mutex::Lock lock(*this);
     return phone;
 }
 
 void
 ContactI::setPhone(const string& newPhone, const Ice::Current&)
 {
-    Lock lock(*this);
+    IceUtil::Mutex::Lock lock(*this);
     phone = newPhone;
 }
 

@@ -12,12 +12,10 @@
 
 #include <IceStorm/Subscriber.h>
 #include <IceStorm/QueuedProxy.h>
+#include <IceStorm/SubscriberFactory.h>
 
 namespace IceStorm
 {
-
-class SubscriberFactory;
-typedef IceUtil::Handle<SubscriberFactory> SubscriberFactoryPtr;
 
 class OnewaySubscriber : public Subscriber
 {

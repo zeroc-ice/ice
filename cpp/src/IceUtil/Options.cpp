@@ -691,7 +691,11 @@ IceUtil::Options::optArg(const string& opt) const
     }
 
     map<string, string>::const_iterator p = _opts.find(opt);
-    return p == _opts.end() ? "" : p->second;
+    if(p == _opts.end())
+    {
+        return "";
+    }
+    return p->second;
 }
 
 vector<string>

@@ -24,7 +24,7 @@ using namespace std;
 namespace IceUtil
 {
 
-#if defined(_MSC_VER) && (_MSC_VER < 1300) 
+#if defined(__BCPLUSPLUS__) || (defined(_MSC_VER) && (_MSC_VER < 1300))
 //
 // The VC60 runtime does not include _strtoi64, so we provide our own implementation
 //
@@ -176,7 +176,7 @@ Int64
 strToInt64(const char* s, char** endptr, int base)
 {
 #if defined(_WIN32)
-#   if defined(_MSC_VER) && (_MSC_VER < 1300) 
+#   if defined(__BCPLUSPLUS__) || (defined(_MSC_VER) && (_MSC_VER < 1300))
     return strToInt64Impl(s, endptr, base);
 #   else
     return _strtoi64(s, endptr, base);

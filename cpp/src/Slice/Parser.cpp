@@ -10,6 +10,9 @@
 #include <IceUtil/Functional.h>
 #include <Slice/Parser.h>
 #include <Slice/GrammarUtil.h>
+#ifdef __BCPLUSPLUS__
+#  include <iterator>
+#endif
 
 using namespace std;
 using namespace Slice;

@@ -166,7 +166,7 @@ LocatorRegistryI::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_set
 	    {
 		Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
 		out << "registered adapter `" << adapterId << "' endpoints: `" 
-		    << (proxy ? proxy->ice_toString() : "") << "'";
+		    << (proxy ? proxy->ice_toString() : string("")) << "'";
 	    }
 	    return;
 	}
@@ -220,7 +220,7 @@ LocatorRegistryI::setReplicatedAdapterDirectProxy_async(
 	    {
 		Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
 		out << "registered replicated adapter `" << adapterId << "' endpoints: `" 
-		    << (proxy ? proxy->ice_toString() : "") << "'";
+		    << (proxy ? proxy->ice_toString() : string("")) << "'";
 	    }
 	    return;
 	}
@@ -270,7 +270,8 @@ LocatorRegistryI::setServerProcessProxy_async(const Ice::AMD_LocatorRegistry_set
 	if(traceLevels->locator > 1)
 	{
 	    Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
-	    out << "registered server `" << id << "' process proxy: `" << (proxy ? proxy->ice_toString() : "") << "'";
+	    out << "registered server `" << id << "' process proxy: `" << (proxy ? proxy->ice_toString() : string(""))
+	        << "'";
 	}
         return;
     }

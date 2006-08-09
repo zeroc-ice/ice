@@ -152,7 +152,7 @@ transformDb(bool evictor,  const Ice::CommunicatorPtr& communicator,
 	    // Execute the transformation descriptors.
 	    //
 	    istringstream istr(descriptors);
-	    string facet = (name == "$default" ? "" : name);
+	    string facet = (name == "$default" ? string("") : name);
 	    FreezeScript::transformDatabase(communicator, objectFactory, oldUnit, newUnit, &db, dbNew, txnNew, 0,
 					    dbName, facet, purgeObjects, cerr, suppress, istr);
 	    
@@ -235,7 +235,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     vector<string> args;
     try
     {
-        args = opts.parse(argc, argv);
+        args = opts.parse(argc, (const char**)argv);
     }
     catch(const IceUtil::Options::BadOpt& e)
     {

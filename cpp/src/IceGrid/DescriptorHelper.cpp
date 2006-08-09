@@ -2446,8 +2446,8 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& updt) const
 	    {
 		resolve.exception("can't remove servers for node `" + p->name + "': node doesn't exist");
 	    }
-	    desc.loadFactor = p->loadFactor ? p->loadFactor->value : "";
-	    desc.description = p->description ? p->description->value : "";
+	    desc.loadFactor = p->loadFactor ? p->loadFactor->value : string("");
+	    desc.description = p->description ? p->description->value : string("");
 	    def.nodes.insert(make_pair(p->name, desc));
 	}
     }

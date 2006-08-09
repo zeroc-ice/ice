@@ -46,6 +46,7 @@ int
 main(int argc, char* argv[])
 {
     int status;
+
     Ice::CommunicatorPtr communicator;
 
     try

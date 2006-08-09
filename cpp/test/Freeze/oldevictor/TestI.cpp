@@ -62,7 +62,7 @@ Test::ServantI::init(const RemoteEvictorIPtr& remoteEvictor, const Freeze::Evict
 Int
 Test::ServantI::getValue(const Current&) const
 {
-    Lock sync(*this);
+    Mutex::Lock sync(*this);
     return value;
 }
 
@@ -70,7 +70,7 @@ Int
 Test::ServantI::slowGetValue(const Current&) const
 {
     IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
-    Lock sync(*this);
+    Mutex::Lock sync(*this);
     return value;
 }
 
@@ -79,7 +79,7 @@ Test::ServantI::slowGetValue_async(const AMD_Servant_slowGetValuePtr& cb,
 				   const Current&) const
 {
     IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
-    Lock sync(*this);
+    Mutex::Lock sync(*this);
     (new DelayedResponse(cb, value))->start().detach();
 }
 
@@ -87,7 +87,7 @@ Test::ServantI::slowGetValue_async(const AMD_Servant_slowGetValuePtr& cb,
 void
 Test::ServantI::setValue(Int val, const Current&)
 {
-    Lock sync(*this);
+    Mutex::Lock sync(*this);
     value = val;
 }
 
@@ -95,7 +95,7 @@ Test::ServantI::setValue(Int val, const Current&)
 void
 Test::ServantI::setValueAsync_async(const AMD_Servant_setValueAsyncPtr& __cb, Int value, const Current&)
 {
-    Lock sync(*this);
+    Mutex::Lock sync(*this);
     _setValueAsyncCB = __cb;
     _setValueAsyncValue = value;
 }
@@ -105,7 +105,7 @@ Test::ServantI::releaseAsync(const Current& current) const
 {
     if(_setValueAsyncCB)
     {
-	Lock sync(*this);
+	Mutex::Lock sync(*this);
         const_cast<Int&>(value) = _setValueAsyncValue;
         _setValueAsyncCB->ice_response();
         const_cast<AMD_Servant_setValueAsyncPtr&>(_setValueAsyncCB) = 0;
@@ -144,14 +144,14 @@ Test::ServantI::removeFacet(const string& name, const Current& current) const
 Ice::Int
 Test::ServantI::getTransientValue(const Current& current) const
 {
-    Lock sync(*this);
+    Mutex::Lock sync(*this);
     return _transientValue;
 }
 
 void
 Test::ServantI::setTransientValue(Ice::Int val, const Current& current)
 {
-    Lock sync(*this);
+    Mutex::Lock sync(*this);
     _transientValue = val;
 }
 
@@ -202,14 +202,14 @@ Test::FacetI::FacetI(const RemoteEvictorIPtr& remoteEvictor, const Freeze::Evict
 string
 Test::FacetI::getData(const Current&) const
 {
-    Lock sync(*this);
+    Mutex::Lock sync(*this);
     return data;
 }
 
 void
 Test::FacetI::setData(const string& d, const Current&)
 {
-    Lock sync(*this);
+    Mutex::Lock sync(*this);
     data = d;
 }
 

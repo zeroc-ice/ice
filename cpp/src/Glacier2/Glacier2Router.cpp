@@ -11,6 +11,7 @@
 #include <IceUtil/UUID.h>
 #include <IceUtil/Options.h>
 #include <Ice/Service.h>
+#include <Glacier2/RouterI.h>
 #include <Glacier2/Session.h>
 #include <Glacier2/SessionRouterI.h>
 #include <Glacier2/CryptPermissionsVerifierI.h>
@@ -78,7 +79,7 @@ Glacier2::RouterService::start(int argc, char* argv[])
     vector<string> args;
     try
     {
-    	args = opts.parse(argc, argv);
+    	args = opts.parse(argc, (const char**)argv);
     }
     catch(const IceUtil::Options::BadOpt& e)
     {

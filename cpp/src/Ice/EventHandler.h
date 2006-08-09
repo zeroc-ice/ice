@@ -73,7 +73,7 @@ public:
 protected:
     
     EventHandler(const InstancePtr&);
-    virtual ~EventHandler();
+    ICE_API virtual ~EventHandler();
 
     const InstancePtr _instance;
 

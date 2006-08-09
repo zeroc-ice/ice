@@ -11,6 +11,13 @@
 #include <Ice/Ice.h>
 #include <Ice/Service.h>
 #include <IceGrid/RegistryI.h>
+#ifdef __BCPLUSPLUS__
+#  include <IceGrid/AdminSessionI.h>
+#  include <IceGrid/WaitQueue.h>
+#  include <IceGrid/ReapThread.h>
+#  include <IceGrid/TraceLevels.h>
+#  include <IceGrid/Database.h>
+#endif
 
 using namespace std;
 using namespace Ice;
@@ -57,7 +64,7 @@ RegistryService::start(int argc, char* argv[])
     vector<string> args;
     try
     {
-    	args = opts.parse(argc, argv);
+    	args = opts.parse(argc, (const char**)argv);
     }
     catch(const IceUtil::Options::BadOpt& e)
     {

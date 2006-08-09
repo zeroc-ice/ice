@@ -39,6 +39,7 @@ for i in range(0, num):
 ports = ""
 for i in range(0, num):
     ports = "%s %d" % (ports, base + i)
+
 print "starting client...",
 clientPipe = os.popen(client + TestUtil.clientOptions + " " + ports + " 2>&1")
 print "ok"

@@ -15,6 +15,9 @@ using namespace Ice;
 using namespace IceInternal;
 
 void IceInternal::incRef(TraceLevels* p) { p->__incRef(); }
+#ifdef __BCPLUSPLUS__
+ICE_API
+#endif
 void IceInternal::decRef(TraceLevels* p) { p->__decRef(); }
 
 IceInternal::TraceLevels::TraceLevels(const PropertiesPtr& properties) :

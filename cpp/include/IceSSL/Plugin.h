@@ -42,7 +42,7 @@ typedef struct ssl_ctx_st SSL_CTX;
 // X509 is the OpenSSL type that represents a certificate.
 //
 typedef struct x509_st X509;
-typedef struct X509_name_st X509_NAME;
+typedef struct X509_name_st X509NAME;
 
 //
 // EVP_PKEY is the OpenSSL type that represents a public key.
@@ -152,7 +152,7 @@ public:
     //
     // Create a DistinguishedName using an OpenSSL value.
     //
-    DistinguishedName(X509_NAME*);
+    DistinguishedName(X509NAME*);
 
     //
     // Create a DistinguishedName from a string encoded using

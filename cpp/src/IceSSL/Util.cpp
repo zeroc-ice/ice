@@ -15,8 +15,10 @@
 #   include <direct.h>
 #   include <sys/types.h>
 #   include <sys/stat.h>
-#   define S_ISDIR(mode) ((mode) & _S_IFDIR)
-#   define S_ISREG(mode) ((mode) & _S_IFREG)
+#   ifdef _MSC_VER
+#     define S_ISDIR(mode) ((mode) & _S_IFDIR)
+#     define S_ISREG(mode) ((mode) & _S_IFREG)
+#   endif
 #else
 #   include <sys/stat.h>
 #endif

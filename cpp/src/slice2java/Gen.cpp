@@ -1365,7 +1365,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
 
         out << sp;
-        out << nl << "public " << (hasAMD ? "void" : retS) << nl << opName << spar << params;
+        out << nl << "public " << (hasAMD ? string("void") : retS) << nl << opName << spar << params;
         if(!p->isLocal())
         {
             out << "Ice.Current __current";

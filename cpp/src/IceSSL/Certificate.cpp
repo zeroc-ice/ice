@@ -122,7 +122,7 @@ ASMUtcTimeToIceUtilTime(const ASN1_UTCTIME* s)
 }
 
 static string
-convertX509NameToString(X509_NAME* name)
+convertX509NameToString(X509NAME* name)
 {
     BIO* out = BIO_new(BIO_s_mem());
     X509_NAME_print_ex(out, name, 0, XN_FLAG_RFC2253);
@@ -245,7 +245,7 @@ ParseException::ice_throw() const
     throw *this;
 }
 
-DistinguishedName::DistinguishedName(X509_NAME* name) :
+DistinguishedName::DistinguishedName(X509NAME* name) :
     _rdns(RFC2253::parseStrict(convertX509NameToString(name)))
 {
     unescape();

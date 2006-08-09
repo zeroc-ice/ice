@@ -11,6 +11,9 @@
 #define PREPROCESSOR_H
 
 #include <IceUtil/Config.h>
+#ifdef __BCPLUSPLUS__
+#  include <stdio.h>
+#endif
 
 #ifndef SLICE_API
 #   ifdef SLICE_API_EXPORTS

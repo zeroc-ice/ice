@@ -136,7 +136,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     vector<string> args;
     try
     {
-        args = opts.parse(argc, argv);
+        args = opts.parse(argc, (const char**)argv);
     }
     catch(const IceUtil::Options::BadOpt& e)
     {
@@ -401,7 +401,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
                 for(vector<string>::iterator p = dbNames.begin(); p != dbNames.end(); ++p)
                 {
                     string name = *p;
-                    string facet = (name == "$default" ? "" : name);
+                    string facet = (name == "$default" ? string("") : name);
                     Db db(&dbEnv, 0);
                     db.open(txn, dbName.c_str(), name.c_str(), DB_BTREE, DB_RDONLY, FREEZE_SCRIPT_DB_MODE);
                     descriptor->dump(communicator, &db, txn, facet);

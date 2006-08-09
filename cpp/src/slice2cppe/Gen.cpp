@@ -1186,11 +1186,11 @@ Slice::Gen::TypesVisitor::emitUpcall(const ExceptionPtr& base, const string& cal
     C.zeroIndent();
     C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
     C.restoreIndent();
-    C << nl << (base ? fixKwd(base->name()) : (isLocal ? "LocalException" : "UserException")) << call;
+    C << nl << (base ? fixKwd(base->name()) : string(isLocal ? "LocalException" : "UserException")) << call;
     C.zeroIndent();
     C << nl << "#else";
     C.restoreIndent();
-    C << nl << (base ? fixKwd(base->scoped()) : (isLocal ? "::Ice::LocalException" : "::Ice::UserException")) << call;
+    C << nl << (base ? fixKwd(base->scoped()) : string(isLocal ? "::Ice::LocalException" : "::Ice::UserException")) << call;
     C.zeroIndent();
     C << nl << "#endif";
     C.restoreIndent();
@@ -2447,11 +2447,11 @@ Slice::Gen::ObjectVisitor::emitUpcall(const ClassDefPtr& base, const string& cal
     C.zeroIndent();
     C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
     C.restoreIndent();
-    C << nl << (base ? fixKwd(base->name()) : "Object") << call;
+    C << nl << (base ? fixKwd(base->name()) : string("Object")) << call;
     C.zeroIndent();
     C << nl << "#else";
     C.restoreIndent();
-    C << nl << (base ? fixKwd(base->scoped()) : "::Ice::Object") << call;
+    C << nl << (base ? fixKwd(base->scoped()) : string("::Ice::Object")) << call;
     C.zeroIndent();
     C << nl << "#endif";
     C.restoreIndent();

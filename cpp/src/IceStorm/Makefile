@@ -52,7 +52,6 @@ AOBJS		= Admin.o \
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(SERVICE_OBJS:.o=.cpp) \
-		  $(SERVER_OBJS:.o=.cpp) \
 		  $(AOBJS:.o=.cpp)
 
 SLICE_SRCS	= $(SDIR)/IceStorm.ice \

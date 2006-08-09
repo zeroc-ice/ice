@@ -445,7 +445,8 @@ NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, con
 	}
 	
 	AMI_Node_loadServerPtr amiCB = new LoadCB(_cache.getTraceLevels(), entry, entry->getId(), _name);
-	node->loadServer_async(amiCB, server.application, desc, session ? session->getId() : "");
+	string sessionId = session ? session->getId() : string("");
+	node->loadServer_async(amiCB, server.application, desc, sessionId);
     }
     catch(const NodeUnreachableException& ex)
     {

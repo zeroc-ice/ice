@@ -19,6 +19,9 @@ using namespace Ice;
 using namespace IceInternal;
 
 void IceInternal::incRef(ServantManager* p) { p->__incRef(); }
+#ifdef __BCPLUSPLUS__
+ICE_API
+#endif
 void IceInternal::decRef(ServantManager* p) { p->__decRef(); }
 
 void

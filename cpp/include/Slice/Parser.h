@@ -19,6 +19,7 @@
 #include <stack>
 #include <map>
 #include <set>
+#include <stdio.h>
 
 #ifndef SLICE_API
 #   ifdef SLICE_API_EXPORTS

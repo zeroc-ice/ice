@@ -7,6 +7,9 @@
 //
 // **********************************************************************
 
+#include <IceStorm/SubscriberFactory.h>
+#include <IceStorm/Flusher.h>
+#include <IceStorm/TopicI.h>
 #include <IceStorm/TopicManagerI.h>
 #include <IceStorm/TraceLevels.h>
 #include <IceStorm/Service.h>

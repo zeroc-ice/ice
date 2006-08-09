@@ -93,7 +93,7 @@ Freeze::MapHelper::create(const Freeze::ConnectionPtr& connection,
 			  const std::vector<MapIndexBasePtr>& indices,
 			  bool createDb)
 {
-    Freeze::ConnectionIPtr connectionI = Freeze::ConnectionIPtr::dynamicCast(connection);
+    Freeze::ConnectionIPtr connectionI = Freeze::ConnectionIPtr::dynamicCast(connection.get());
     return new MapHelperI(connectionI, dbName, key, value, keyCompare, indices, createDb);
 }
 

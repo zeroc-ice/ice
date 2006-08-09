@@ -130,365 +130,6 @@ private:
     const TimedServerCommandPtr _command;
 };
 
-class LoadCommand : public ServerCommand
-{
-public:
-
-    LoadCommand(const ServerIPtr& server) : 
-	ServerCommand(server)
-    {
-    }
-
-    virtual bool
-    canExecute(ServerI::InternalServerState state)
-    {
-	return state == ServerI::Inactive;
-    }
-
-    virtual ServerI::InternalServerState
-    nextState()
-    {
-	return ServerI::Loading;
-    }
-
-    virtual void
-    execute()
-    {
-	_server->update();
-    }
-
-    void
-    setUpdate(const string& application, const ServerDescriptorPtr& desc, const std::string& sessionId, bool clearDir)
-    {
-	_clearDir = clearDir;
-	_application = application;
-	_desc = desc;
-	_sessionId = sessionId;
-    }
-
-    bool 
-    clearDir() const
-    {
-	return _clearDir;
-    }
-
-    string
-    sessionId() const
-    {
-	return _sessionId;
-    }
-
-    string
-    getApplication() const
-    {
-	return _application;
-    }
-    
-    ServerDescriptorPtr
-    getDescriptor() const
-    {
-	return _desc;
-    }
-
-    void
-    addCallback(const AMD_Node_loadServerPtr& amdCB)
-    {
-	_loadCB.push_back(amdCB);
-    }
-
-    void
-    failed(const Ice::Exception& ex)
-    {
-	for(vector<AMD_Node_loadServerPtr>::const_iterator p = _loadCB.begin(); p != _loadCB.end(); ++p)
-	{
-	    (*p)->ice_exception(ex);
-	}	
-    }
-
-    void
-    finished(const ServerPrx& proxy, const AdapterPrxDict& adapters, int at, int dt)
-    {
-	for(vector<AMD_Node_loadServerPtr>::const_iterator p = _loadCB.begin(); p != _loadCB.end(); ++p)
-	{
-	    (*p)->ice_response(proxy, adapters, at, dt);
-	}
-    }
-
-private:
-
-    vector<AMD_Node_loadServerPtr> _loadCB;
-    bool _clearDir;
-    string _application;
-    ServerDescriptorPtr _desc;
-    string _sessionId;
-    auto_ptr<DeploymentException> _exception;
-};
-
-class DestroyCommand : public ServerCommand
-{
-public:
-
-    DestroyCommand(const ServerIPtr& server, bool kill) : 
-	ServerCommand(server),
-	_kill(kill)
-    {
-    }
-
-    virtual bool
-    canExecute(ServerI::InternalServerState state)
-    {
-	return
-	    state == ServerI::Inactive || 
-	    state == ServerI::WaitForActivation ||
-	    state == ServerI::Active || 
-	    state == ServerI::ActivationTimeout ||
-	    state == ServerI::Deactivating || 
-	    state == ServerI::DeactivatingWaitForProcess;
-    }
-
-    virtual ServerI::InternalServerState
-    nextState()
-    {
-	return ServerI::Destroying;
-    }
-
-    virtual void
-    execute()
-    {
-	if(_kill)
-	{
-	    _server->kill();
-	}
-	else
-	{
-	    _server->destroy();
-	}
-    }
-
-    void
-    addCallback(const AMD_Node_destroyServerPtr& amdCB)
-    {
-	_destroyCB.push_back(amdCB);
-    }
-
-    void
-    finished()
-    {
-	for(vector<AMD_Node_destroyServerPtr>::const_iterator p = _destroyCB.begin(); p != _destroyCB.end(); ++p)
-	{
-	    (*p)->ice_response();
-	}	
-    }
-
-private:
-
-    const bool _kill;
-    vector<AMD_Node_destroyServerPtr> _destroyCB;
-};
-
-class PatchCommand : public ServerCommand, public IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-
-    PatchCommand(const ServerIPtr& server) : 
-	ServerCommand(server), 
-	_notified(false),
-	_destroyed(false)
-    {
-    }
-
-    virtual bool
-    canExecute(ServerI::InternalServerState state)
-    {
-	return state == ServerI::Inactive;
-    }
-
-    virtual ServerI::InternalServerState
-    nextState()
-    {
-	return ServerI::Patching;
-    }
-
-    virtual void
-    execute()
-    {
-	Lock sync(*this);
-	_notified = true;
-	notifyAll();
-    }
-
-    bool
-    waitForPatch()
-    {
-	Lock sync(*this);
-	while(!_notified && !_destroyed)
-	{
-	    wait();
-	}
-	return _destroyed;
-    }
-
-    void
-    destroyed()
-    {
-	Lock sync(*this);
-	_destroyed = true;
-	notifyAll();
-    }
-
-    void
-    finished()
-    {
-    }
-
-private:
-
-    bool _notified;
-    bool _destroyed;
-};
-
-class StartCommand : public TimedServerCommand
-{
-public:
-
-    StartCommand(const ServerIPtr& server, const WaitQueuePtr& waitQueue, int timeout) : 
-	TimedServerCommand(server, waitQueue, timeout)
-    {
-    }
-
-    virtual bool
-    canExecute(ServerI::InternalServerState state)
-    {
-	return state == ServerI::Inactive;
-    }
-
-    virtual ServerI::InternalServerState
-    nextState()
-    {
-	startTimer();
-	return ServerI::Activating;
-    }
-
-    virtual void
-    execute()
-    {
-	_server->activate();
-    }
-
-    virtual void
-    timeout(bool destroyed)
-    {
-	_server->activationFailed(destroyed);
-    }
-
-    void
-    addCallback(const AMD_Server_startPtr& amdCB)
-    {
-	_startCB.push_back(amdCB);
-    }
-    
-    void
-    failed(const string& reason)
-    {
-	stopTimer();
-	ServerStartException ex(_server->getId(), reason);
-	for(vector<AMD_Server_startPtr>::const_iterator p = _startCB.begin(); p != _startCB.end(); ++p)
-	{
-	    (*p)->ice_exception(ex);
-	}	
-	_startCB.clear();
-    }
-
-    void
-    finished()
-    {
-	stopTimer();
-	for(vector<AMD_Server_startPtr>::const_iterator p = _startCB.begin(); p != _startCB.end(); ++p)
-	{
-	    (*p)->ice_response();
-	}
-	_startCB.clear();
-    }
-
-private:
-
-    vector<AMD_Server_startPtr> _startCB;
-};
-
-class StopCommand : public TimedServerCommand
-{
-public:
-
-    StopCommand(const ServerIPtr& server, const WaitQueuePtr& waitQueue, int timeout) : 
-	TimedServerCommand(server, waitQueue, timeout)
-    {
-    }
-
-    static bool 
-    isStopped(ServerI::InternalServerState state)
-    {
-	return state == ServerI::Inactive || state == ServerI::Patching || state == ServerI::Loading;
-    }
-
-    virtual bool
-    canExecute(ServerI::InternalServerState state)
-    {
-	return state == ServerI::WaitForActivation || state == ServerI::ActivationTimeout || state == ServerI::Active;
-    }
-
-    virtual ServerI::InternalServerState
-    nextState()
-    {
-	startTimer();
-	return ServerI::Deactivating;
-    }
-
-    virtual void
-    execute()
-    {
-	_server->deactivate();
-    }
-
-    virtual void
-    timeout(bool)
-    {
-	_server->kill();
-    }
-
-    void
-    addCallback(const AMD_Server_stopPtr& amdCB)
-    {
-	_stopCB.push_back(amdCB);
-    }
-
-    void
-    failed(const string& reason)
-    {
-	stopTimer();
-	ServerStopException ex(_server->getId(), reason);
-	for(vector<AMD_Server_stopPtr>::const_iterator p = _stopCB.begin(); p != _stopCB.end(); ++p)
-	{
-	    (*p)->ice_exception(ex);
-	}	
-	_stopCB.clear();
-    }
-
-    void
-    finished()
-    {
-	stopTimer();
-	for(vector<AMD_Server_stopPtr>::const_iterator p = _stopCB.begin(); p != _stopCB.end(); ++p)
-	{
-	    (*p)->ice_response();
-	}
-	_stopCB.clear();
-    }
-
-private:
-
-    vector<AMD_Server_stopPtr> _stopCB;
-};
-
 class DelayedStart : public WaitItem
 {
 public:
@@ -547,7 +188,7 @@ struct EnvironmentEval : std::unary_function<string, string>
 	    }
 	    string variable = v.substr(beg + 1, end - beg - 1);
 	    int ret = GetEnvironmentVariable(variable.c_str(), buf, sizeof(buf));
-	    string valstr = (ret > 0 && ret < sizeof(buf)) ? string(buf) : "";
+	    string valstr = (ret > 0 && ret < sizeof(buf)) ? string(buf) : string("");
 	    v.replace(beg, end - beg + 1, valstr);
  	    beg += valstr.size();
 	}
@@ -606,6 +247,314 @@ void
 TimedServerCommand::stopTimer()
 {
     _waitQueue->remove(_timer);
+}
+
+LoadCommand::LoadCommand(const ServerIPtr& server) : 
+    ServerCommand(server)
+{
+}
+
+bool
+LoadCommand::canExecute(ServerI::InternalServerState state)
+{
+    return state == ServerI::Inactive;
+}
+
+ServerI::InternalServerState
+LoadCommand::nextState()
+{
+    return ServerI::Loading;
+}
+
+void
+LoadCommand::execute()
+{
+    _server->update();
+}
+
+void
+LoadCommand::setUpdate(const string& application, const ServerDescriptorPtr& desc, const std::string& sessionId,
+		       bool clearDir)
+{
+    _clearDir = clearDir;
+    _application = application;
+    _desc = desc;
+    _sessionId = sessionId;
+}
+
+bool 
+LoadCommand::clearDir() const
+{
+    return _clearDir;
+}
+
+string
+LoadCommand::sessionId() const
+{
+    return _sessionId;
+}
+
+string
+LoadCommand::getApplication() const
+{
+    return _application;
+}
+    
+ServerDescriptorPtr
+LoadCommand::getDescriptor() const
+{
+    return _desc;
+}
+
+void
+LoadCommand::addCallback(const AMD_Node_loadServerPtr& amdCB)
+{
+    _loadCB.push_back(amdCB);
+}
+
+void
+LoadCommand::failed(const Ice::Exception& ex)
+{
+    for(vector<AMD_Node_loadServerPtr>::const_iterator p = _loadCB.begin(); p != _loadCB.end(); ++p)
+    {
+        (*p)->ice_exception(ex);
+    }	
+}
+
+void
+LoadCommand::finished(const ServerPrx& proxy, const AdapterPrxDict& adapters, int at, int dt)
+{
+    for(vector<AMD_Node_loadServerPtr>::const_iterator p = _loadCB.begin(); p != _loadCB.end(); ++p)
+    {
+        (*p)->ice_response(proxy, adapters, at, dt);
+    }
+}
+
+DestroyCommand::DestroyCommand(const ServerIPtr& server, bool kill) : 
+    ServerCommand(server),
+    _kill(kill)
+{
+}
+
+bool
+DestroyCommand::canExecute(ServerI::InternalServerState state)
+{
+    return
+        state == ServerI::Inactive || 
+        state == ServerI::WaitForActivation ||
+        state == ServerI::Active || 
+        state == ServerI::ActivationTimeout ||
+        state == ServerI::Deactivating || 
+        state == ServerI::DeactivatingWaitForProcess;
+}
+
+ServerI::InternalServerState
+DestroyCommand::nextState()
+{
+    return ServerI::Destroying;
+}
+
+void
+DestroyCommand::execute()
+{
+    if(_kill)
+    {
+        _server->kill();
+    }
+    else
+    {
+        _server->destroy();
+    }
+}
+
+void
+DestroyCommand::addCallback(const AMD_Node_destroyServerPtr& amdCB)
+{
+    _destroyCB.push_back(amdCB);
+}
+
+void
+DestroyCommand::finished()
+{
+    for(vector<AMD_Node_destroyServerPtr>::const_iterator p = _destroyCB.begin(); p != _destroyCB.end(); ++p)
+    {
+        (*p)->ice_response();
+    }	
+}
+
+PatchCommand::PatchCommand(const ServerIPtr& server) : 
+    ServerCommand(server), 
+    _notified(false),
+    _destroyed(false)
+{
+}
+
+bool
+PatchCommand::canExecute(ServerI::InternalServerState state)
+{
+    return state == ServerI::Inactive;
+}
+
+ServerI::InternalServerState
+PatchCommand::nextState()
+{
+    return ServerI::Patching;
+}
+
+void
+PatchCommand::execute()
+{
+    Lock sync(*this);
+    _notified = true;
+    notifyAll();
+}
+
+bool
+PatchCommand::waitForPatch()
+{
+    Lock sync(*this);
+    while(!_notified && !_destroyed)
+    {
+        wait();
+    }
+    return _destroyed;
+}
+
+void
+PatchCommand::destroyed()
+{
+    Lock sync(*this);
+    _destroyed = true;
+    notifyAll();
+}
+
+void
+PatchCommand::finished()
+{
+}
+
+StartCommand::StartCommand(const ServerIPtr& server, const WaitQueuePtr& waitQueue, int timeout) : 
+    TimedServerCommand(server, waitQueue, timeout)
+{
+}
+
+bool
+StartCommand::canExecute(ServerI::InternalServerState state)
+{
+    return state == ServerI::Inactive;
+}
+
+ServerI::InternalServerState
+StartCommand::nextState()
+{
+    startTimer();
+    return ServerI::Activating;
+}
+
+void
+StartCommand::execute()
+{
+    _server->activate();
+}
+
+void
+StartCommand::timeout(bool destroyed)
+{
+    _server->activationFailed(destroyed);
+}
+
+void
+StartCommand::addCallback(const AMD_Server_startPtr& amdCB)
+{
+    _startCB.push_back(amdCB);
+}
+    
+void
+StartCommand::failed(const string& reason)
+{
+    stopTimer();
+    ServerStartException ex(_server->getId(), reason);
+    for(vector<AMD_Server_startPtr>::const_iterator p = _startCB.begin(); p != _startCB.end(); ++p)
+    {
+        (*p)->ice_exception(ex);
+    }	
+    _startCB.clear();
+}
+
+void
+StartCommand::finished()
+{
+    stopTimer();
+    for(vector<AMD_Server_startPtr>::const_iterator p = _startCB.begin(); p != _startCB.end(); ++p)
+    {
+        (*p)->ice_response();
+    }
+    _startCB.clear();
+}
+
+StopCommand::StopCommand(const ServerIPtr& server, const WaitQueuePtr& waitQueue, int timeout) : 
+    TimedServerCommand(server, waitQueue, timeout)
+{
+}
+
+bool 
+StopCommand::isStopped(ServerI::InternalServerState state)
+{
+    return state == ServerI::Inactive || state == ServerI::Patching || state == ServerI::Loading;
+}
+
+bool
+StopCommand::canExecute(ServerI::InternalServerState state)
+{
+    return state == ServerI::WaitForActivation || state == ServerI::ActivationTimeout || state == ServerI::Active;
+}
+
+ServerI::InternalServerState
+StopCommand::nextState()
+{
+    startTimer();
+    return ServerI::Deactivating;
+}
+
+void
+StopCommand::execute()
+{
+    _server->deactivate();
+}
+
+void
+StopCommand::timeout(bool)
+{
+    _server->kill();
+}
+
+void
+StopCommand::addCallback(const AMD_Server_stopPtr& amdCB)
+{
+    _stopCB.push_back(amdCB);
+}
+
+void
+StopCommand::failed(const string& reason)
+{
+    stopTimer();
+    ServerStopException ex(_server->getId(), reason);
+    for(vector<AMD_Server_stopPtr>::const_iterator p = _stopCB.begin(); p != _stopCB.end(); ++p)
+    {
+        (*p)->ice_exception(ex);
+    }	
+    _stopCB.clear();
+}
+
+void
+StopCommand::finished()
+{
+    stopTimer();
+    for(vector<AMD_Server_stopPtr>::const_iterator p = _stopCB.begin(); p != _stopCB.end(); ++p)
+    {
+        (*p)->ice_response();
+    }
+    _stopCB.clear();
 }
 
 ServerI::ServerI(const NodeIPtr& node, const ServerPrx& proxy, const string& serversDir, const string& id, int wt) :
@@ -1459,7 +1408,7 @@ ServerI::terminated(const string& msg, int status)
 #else
 	    os << " with exit code " << status;
 #endif
-	    os << (msg.empty() ? "." : ":\n" + msg);
+	    os << (msg.empty() ? string(".") : ":\n" + msg);
 	    setStateNoSync(ServerI::Deactivating, os.str());
 	}
     }

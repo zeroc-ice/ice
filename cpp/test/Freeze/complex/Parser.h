@@ -14,11 +14,11 @@
 
 #ifdef _WIN32
 #   include <io.h>
-#   define isatty _isatty
-#   define fileno _fileno
-// '_isatty' : inconsistent dll linkage.  dllexport assumed.
 #   ifdef _MSC_VER
-#       pragma warning( disable : 4273 )
+#     define isatty _isatty
+#     define fileno _fileno
+// '_isatty' : inconsistent dll linkage.  dllexport assumed.
+#     pragma warning( disable : 4273 )
 #   endif
 #endif
 

@@ -36,6 +36,10 @@
 #   include <sys/time.h>
 #endif
 
+#ifdef __BCPLUSPLUS__
+#  include <iterator>
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;

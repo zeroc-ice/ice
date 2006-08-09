@@ -22,6 +22,9 @@
 #include <Ice/TraceUtil.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/LoggerUtil.h>
+#ifdef __BCPLUSPLUS__
+#  include <iterator>
+#endif
 
 using namespace std;
 using namespace Ice;

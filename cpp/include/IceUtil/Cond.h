@@ -37,7 +37,7 @@ class Semaphore
 public:
 
     Semaphore(long = 0);
-    ~Semaphore();
+    ICE_UTIL_API ~Semaphore();
 
     void wait() const;
     bool timedWait(const Time&) const;

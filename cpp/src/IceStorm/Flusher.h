@@ -12,7 +12,9 @@
 
 #include <IceUtil/Handle.h>
 #include <IceUtil/Shared.h>
+#include <IceUtil/Thread.h>
 #include <Ice/CommunicatorF.h>
+#include <list>
 
 namespace IceStorm
 {
@@ -20,14 +22,40 @@ namespace IceStorm
 //
 // Forward declarations.
 //
-class FlusherThread;
-typedef IceUtil::Handle<FlusherThread> FlusherThreadPtr;
-
 class TraceLevels;
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
 class Flushable;
 typedef IceUtil::Handle<Flushable> FlushablePtr;
+typedef std::list<FlushablePtr> FlushableList;
+
+//
+// Flusher Thread
+//
+class FlusherThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    FlusherThread(const Ice::CommunicatorPtr&, const TraceLevelsPtr&);
+    ~FlusherThread();
+
+    virtual void run();
+    void destroy();
+    void add(const FlushablePtr&);
+    void remove(const FlushablePtr&);
+private:
+
+    void flushAll();
+    long calcTimeout();
+
+    Ice::CommunicatorPtr _communicator;
+    TraceLevelsPtr _traceLevels;
+    FlushableList _subscribers;
+    bool _destroy;
+    long _flushTime;
+};
+
+typedef IceUtil::Handle<FlusherThread> FlusherThreadPtr;
 
 //
 // Responsible for flushing Flushable objects at regular intervals.

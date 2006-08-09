@@ -16,6 +16,9 @@
 #include <IceUtil/Random.h>
 
 #include <functional>
+#ifdef __BCPLUSPLUS__
+#  include <iterator>
+#endif
 
 namespace IceGrid
 {

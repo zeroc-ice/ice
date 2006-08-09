@@ -11,6 +11,9 @@
 import sys, os, TestUtil
 from threading import Thread
 
+debug = 0
+#debug = 1
+
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
@@ -70,6 +73,9 @@ def startIceGridRegistry(testdir, dynamicRegistration = False):
 
     if dynamicRegistration:
         command += ' --IceGrid.Registry.DynamicRegistration'        
+    if debug:
+        print command
+
 
     (stdin, iceGridPipe) = os.popen4(command)
     TestUtil.getServerPid(iceGridPipe)
@@ -97,6 +103,9 @@ def startIceGridNode(testdir):
               r' --IceGrid.Node.Data=' + dataDir + \
               r' --IceGrid.Node.Name=localnode' + \
               r' --IceGrid.Node.PropertiesOverride=' + overrideOptions
+    if debug:
+        print command
+
 
     (stdin, iceGridPipe) = os.popen4(command)
     TestUtil.getServerPid(iceGridPipe)
@@ -115,6 +124,9 @@ def iceGridAdmin(cmd, ignoreFailure = False):
     command = iceGridAdmin + TestUtil.clientOptions + \
               r' --Ice.Default.Locator="IceGrid/Locator:default -p ' + iceGridPort + '" ' + \
               r' -e "' + cmd + '" 2>&1'
+    if debug:
+        print command
+
 
     iceGridAdminPipe = os.popen(command)
 
@@ -156,7 +168,12 @@ def iceGridTest(name, application, additionalOptions = "", applicationOptions = 
         print "ok"
 
     print "starting client...",
-    clientPipe = os.popen(client + TestUtil.clientOptions + " " + clientOptions + " 2>&1")
+
+    command = client + TestUtil.clientOptions + " " + clientOptions + " 2>&1"
+    if debug:
+        print command
+
+    clientPipe = os.popen(command)
     print "ok"
 
     TestUtil.printOutputFromPipe(clientPipe)
@@ -209,7 +226,11 @@ def iceGridClientServerTest(name, additionalClientOptions, additionalServerOptio
     print "ok"
 
     print "starting client...",
-    clientPipe = os.popen(client + TestUtil.clientOptions + " " + clientOptions + " 2>&1")
+    command = client + TestUtil.clientOptions + " " + clientOptions + " 2>&1"
+    if debug:
+        print command
+
+    clientPipe = os.popen(command)
     print "ok"
 
     TestUtil.printOutputFromPipe(clientPipe)

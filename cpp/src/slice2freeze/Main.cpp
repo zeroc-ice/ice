@@ -457,7 +457,7 @@ writeDictWithIndicesH(const string& name, const Dict& dict,
 	  << capitalizedMembers[i] << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData)
 	  << ") const;";
 
-	string countFunction = dict.indices[i].member.empty() ? "valueCount" 
+	string countFunction = dict.indices[i].member.empty() ? string("valueCount")
 	    : dict.indices[i].member + "Count";
 
 	H << nl << "int " << countFunction
@@ -745,7 +745,7 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
 	  << "(__index), upperBoundFor" << capitalizedMembers[i] << "(__index));";
 	C << eb;
 
-	string countFunction = dict.indices[i].member.empty() ? "valueCount" 
+	string countFunction = dict.indices[i].member.empty() ? string("valueCount") 
 	    : dict.indices[i].member + "Count";
 
 	C << sp << nl << "int"
@@ -1213,7 +1213,7 @@ main(int argc, char* argv[])
     vector<string> args;
     try
     {
-        args = opts.parse(argc, argv);
+        args = opts.parse(argc, (const char**)argv);
     }
     catch(const IceUtil::Options::BadOpt& e)
     {

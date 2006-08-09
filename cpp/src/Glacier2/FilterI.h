@@ -129,7 +129,6 @@ FilterT<T, P>::remove(const std::vector<T>& deletions, const Ice::Current&)
     while(r != toRemove.end())
     {
 	iterator i = mark;
-	bool found = false;
 	while(i != _items.end() && r != toRemove.end())
 	{
 	    if(*r == *i)
@@ -142,7 +141,6 @@ FilterT<T, P>::remove(const std::vector<T>& deletions, const Ice::Current&)
 		++i;
 		++r;
 		mark = i;
-		found = true;
 	    }
 	    else
 	    {

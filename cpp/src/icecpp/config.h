@@ -37,7 +37,9 @@
 #         pragma warning( 4 : 4267 )   
 #      endif
 #   endif
-#   define alloca _alloca
+#   ifdef _MSC_VER
+#      define alloca _alloca
+#   endif
 #endif
 
 #if defined(__linux) || defined(__FreeBSD__) || defined(__sun) || \

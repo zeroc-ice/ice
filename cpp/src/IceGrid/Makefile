@@ -105,6 +105,7 @@ SLICE_SRCS	= $(SDIR)/Admin.ice \
                   $(SDIR)/Exception.ice \
                   $(SDIR)/FileParser.ice \
                   $(SDIR)/Query.ice \
+		  $(SDIR)/Registry.ice \
 		  $(SDIR)/Session.ice \
 		  $(SDIR)/Observer.ice \
 		  $(SDIR)/Descriptor.ice \

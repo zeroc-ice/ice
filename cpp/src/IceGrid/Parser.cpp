@@ -949,15 +949,15 @@ Parser::endpointsAdapter(const list<string>& args)
 	if(adpts.size() == 1 && adpts.begin()->id == adapterId)
 	{
 	    string endpoints = _communicator->proxyToString(adpts.begin()->proxy);
-	    cout << (endpoints.empty() ? "<inactive>" : endpoints) << endl;
+	    cout << (endpoints.empty() ? string("<inactive>") : endpoints) << endl;
 	}
 	else
 	{
 	    for(AdapterInfoSeq::const_iterator p = adpts.begin(); p != adpts.end(); ++p)
 	    {
-		cout << (p->id.empty() ? "<empty>" : p->id) << ": ";
+		cout << (p->id.empty() ? string("<empty>") : p->id) << ": ";
 		string endpoints = _communicator->proxyToString(p->proxy);
-		cout << (endpoints.empty() ? "<inactive>" : endpoints) << endl;
+		cout << (endpoints.empty() ? string("<inactive>") : endpoints) << endl;
 	    }
 	}
     }

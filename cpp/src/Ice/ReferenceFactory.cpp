@@ -31,7 +31,7 @@ void IceInternal::decRef(::IceInternal::ReferenceFactory* p) { p->__decRef(); }
 ReferencePtr
 IceInternal::ReferenceFactory::copy(const Reference* r) const
 {
-    Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if(!_instance)
     {
@@ -57,7 +57,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 				      const RouterInfoPtr& routerInfo,
 				      bool collocationOptimization)
 {
-    Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if(!_instance)
     {
@@ -88,7 +88,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 				      bool collocationOptimization,
 				      int locatorCacheTimeout)
 {
-    Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if(!_instance)
     {
@@ -114,7 +114,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 				      Reference::Mode mode,
 				      const vector<Ice::ConnectionIPtr>& fixedConnections)
 {
-    Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if(!_instance)
     {
@@ -643,7 +643,7 @@ IceInternal::ReferenceFactory::ReferenceFactory(const InstancePtr& instance, con
 void
 IceInternal::ReferenceFactory::destroy()
 {
-    Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if(!_instance)
     {

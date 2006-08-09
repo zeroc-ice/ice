@@ -11,6 +11,11 @@
 #include <OS.h>
 #include <IceUtil/Unicode.h>
 
+#ifdef __BCPLUSPLUS__
+#  include <dir.h>
+#  include <io.h>
+#endif
+
 using namespace std;
 using namespace OS;
 

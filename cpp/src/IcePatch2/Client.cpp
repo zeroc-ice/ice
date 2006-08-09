@@ -169,7 +169,11 @@ private:
     keyPressed()
     {
 	bool pressed = false;
+#ifdef __BCPLUSPLUS__
+	while(kbhit())
+#else
 	while(_kbhit())
+#endif
 	{
 	    pressed = true;
 	    _getch();
@@ -241,7 +245,7 @@ Client::run(int argc, char* argv[])
     vector<string> args;
     try
     {
-    	args = opts.parse(argc, argv);
+    	args = opts.parse(argc, (const char**)argv);
     }
     catch(const IceUtil::Options::BadOpt& e)
     {

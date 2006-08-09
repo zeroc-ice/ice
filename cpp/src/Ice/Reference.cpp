@@ -1590,17 +1590,26 @@ IceInternal::IndirectReference::getConnection(bool& comp) const
 	    if(!getRouterInfo())
 	    {
 	        assert(_locatorInfo);
-		const IndirectReferencePtr self = const_cast<IndirectReference*>(this);
-		_locatorInfo->clearCache(self);
+
+		// COMPILERFIX: Braces needed to prevent BCB from causing Reference refCount from
+		//              being decremented twice when loop continues.
+		{
+		    const IndirectReferencePtr self = const_cast<IndirectReference*>(this);
+		    _locatorInfo->clearCache(self);
+		}
 
 		if(cached)
 		{
-		    TraceLevelsPtr traceLevels = getInstance()->traceLevels();
-		    if(traceLevels->retry >= 2)
+		    // COMPILERFIX: Braces needed to prevent BCB from causing TraceLevels refCount from
+		    //              being decremented twice when loop continues.
 		    {
-		        Trace out(getInstance()->initializationData().logger, traceLevels->retryCat);
-			out << "connection to cached endpoints failed\n"
-			    << "removing endpoints from cache and trying one more time\n" << ex;
+		        TraceLevelsPtr traceLevels = getInstance()->traceLevels();
+		        if(traceLevels->retry >= 2)
+		        {
+		            Trace out(getInstance()->initializationData().logger, traceLevels->retryCat);
+			    out << "connection to cached endpoints failed\n"
+			        << "removing endpoints from cache and trying one more time\n" << ex;
+		        }
 		    }
 		    continue;
 		}

@@ -11,6 +11,9 @@
 #include <TestAMDI.h>
 #include <TestCommon.h>
 #include <functional>
+#ifdef __BCPLUSPLUS__
+#  include <iterator>
+#endif
 
 class Thread_opVoid : public IceUtil::Thread
 {
@@ -419,5 +422,9 @@ bool
 TestCheckedCastI::ice_isA(const std::string& s, const Ice::Current& current) const
 {
     _ctx = current.ctx;
+#ifdef __BCPLUSPLUS__
+    return Test::TestCheckedCast::ice_isA(s, current);
+#else
     return TestCheckedCast::ice_isA(s, current);
+#endif
 }

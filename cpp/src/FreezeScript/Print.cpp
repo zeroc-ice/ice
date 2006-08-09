@@ -97,7 +97,7 @@ void
 FreezeScript::PrintVisitor::visitProxy(const ProxyDataPtr& data)
 {
     string str = data->toString();
-    _out << typeToString(data->getType()) << '(' << (str.empty() ? "nil" : str) << ')';
+    _out << typeToString(data->getType()) << '(' << (str.empty() ? string("nil") : str) << ')';
 }
 
 void

@@ -144,7 +144,8 @@ public:
 		{
 		    roundedSize = 1;
 		}
-		out << _dest << ": downloading " << (_path.empty() ? "" : (_path + " ")) << roundedSize << "KB ";
+		out << _dest << ": downloading " << (_path.empty() ? string("") : (_path + " ")) << roundedSize 
+		    << "KB ";
 		_startedPatch = true;
 	    }
 	}

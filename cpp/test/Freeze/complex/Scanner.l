@@ -34,6 +34,7 @@ NL	[\n]
 DIGIT   [0-9]
 
 %option noyywrap
+%option never-interactive
 
 %%
 

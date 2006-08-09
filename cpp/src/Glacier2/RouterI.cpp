@@ -9,6 +9,8 @@
 
 #include <IceUtil/Random.h>
 
+#include <Glacier2/FilterManager.h>
+#include <Glacier2/RoutingTable.h>
 #include <Glacier2/RouterI.h>
 #include <Glacier2/Session.h>
 

@@ -29,8 +29,13 @@ Time
 IceUtil::Time::now()
 {
 #ifdef _WIN32
+#  if defined(_MSC_VER)
     struct _timeb tb;
     _ftime(&tb);
+#  elif defined(__BCPLUSPLUS__)
+    struct timeb tb;
+    ftime(&tb);
+#  endif
     return Time(static_cast<Int64>(tb.time) * ICE_INT64(1000000) + 
 		tb.millitm * 1000);
 #else

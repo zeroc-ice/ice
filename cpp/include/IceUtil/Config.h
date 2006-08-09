@@ -53,7 +53,7 @@
 //
 // TODO: more macros to support IBM Visual Age _Export syntax as well.
 //
-#if (defined(_MSC_VER) && !defined(ICE_STATIC_LIBS)) || \
+#if defined(__BCPLUSPLUS__) || (defined(_MSC_VER) && !defined(ICE_STATIC_LIBS)) || \
     (defined(__HP_aCC) && defined(__HP_WINDLL))
 #   define ICE_DECLSPEC_EXPORT __declspec(dllexport)
 #   define ICE_DECLSPEC_IMPORT __declspec(dllimport)
@@ -90,7 +90,7 @@
 // TODO: figure out why IceUtil does not compile with _SLTP_DEBUG using
 // the Intel compiler.
 //
-#if !defined(NDEBUG) && !defined(_STLP_DEBUG) && !defined(__INTEL_COMPILER)
+#if !defined(NDEBUG) && !defined(_STLP_DEBUG) && !defined(__INTEL_COMPILER) && !defined(__BCPLUSPLUS__)
 #   define _STLP_DEBUG
 #endif
 
@@ -107,7 +107,7 @@
 #       define _WIN32_WINNT 0x0400
 #   endif
 
-#   if !defined(_DLL) || !defined(_MT)
+#   if defined(_MSC_VER) && (!defined(_DLL) || !defined(_MT))
 #       error "Only multi-threaded DLL libraries can be used with Ice!"
 #   endif
 
@@ -179,7 +179,7 @@ private:
 //
 // Int64 typedef
 //
-#if defined(_MSC_VER)
+#if defined(__BCPLUSPLUS__) || defined(_MSC_VER)
 //
 // On Windows, long is always 32-bit
 //
@@ -195,7 +195,7 @@ typedef long long Int64;
 //
 // ICE_INT64: macro for Int64 literal values
 //
-#if defined(_MSC_VER)
+#if defined(__BCPLUSPLUS__) || defined(_MSC_VER)
 #   define ICE_INT64(n) n##i64
 #elif defined(ICE_64)
 #   define ICE_INT64(n) n##L

@@ -242,13 +242,21 @@ public:
     template<class Y>
     static Handle dynamicCast(const HandleBase<Y>& r)
     {
+#ifdef __BCPLUSPLUS__
+	return Handle<T>(dynamic_cast<T*>(r._ptr));
+#else
 	return Handle(dynamic_cast<T*>(r._ptr));
+#endif
     }
 
     template<class Y>
     static Handle dynamicCast(Y* p)
     {
+#ifdef __BCPLUSPLUS__
+	return Handle<T>(dynamic_cast<T*>(p));
+#else
 	return Handle(dynamic_cast<T*>(p));
+#endif
     }
 };
 

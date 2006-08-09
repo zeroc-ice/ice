@@ -10,6 +10,9 @@
 #include <Slice/PythonUtil.h>
 #include <Slice/Checksum.h>
 #include <IceUtil/Functional.h>
+#ifdef __BCPLUSPLUS__
+#  include <iterator>
+#endif
 
 using namespace std;
 using namespace Slice;

@@ -498,17 +498,17 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
 	if(sz <= 0x7f)
 	{
 	    func = marshal ? "writeByte" : "readByte";
-	    cast = marshal ? "(byte)" : "(" + fixId(en->scoped()) + ")";
+	    cast = marshal ? string("(byte)") : "(" + fixId(en->scoped()) + ")";
 	}
 	else if(sz <= 0x7fff)
 	{
 	    func = marshal ? "writeShort" : "readShort";
-	    cast = marshal ? "(short)" : "(" + fixId(en->scoped()) + ")";
+	    cast = marshal ? string("(short)") : "(" + fixId(en->scoped()) + ")";
 	}
 	else
 	{
 	    func = marshal ? "writeInt" : "readInt";
-	    cast = marshal ? "(int)" : "(" + fixId(en->scoped()) + ")";
+	    cast = marshal ? string("(int)") : "(" + fixId(en->scoped()) + ")";
 	}
 	if(marshal)
 	{

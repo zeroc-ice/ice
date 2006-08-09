@@ -77,9 +77,9 @@ public:
 
 
 
-#ifndef _MSC_VER
+#if !defined(_MSC_VER) && !defined(__BCPLUSPLUS__)
 // COMPILERBUG
-// VC++ considers that aggregates should not have private members ...
+// VC++ BC++ considers that aggregates should not have private members ...
 // even if it's just functions.
 private:
 #endif

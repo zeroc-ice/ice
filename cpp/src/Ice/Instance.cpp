@@ -770,7 +770,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
 
     if(printProcessId)
     {
-#ifdef _WIN32
+#ifdef _MSC_VER
 	cout << _getpid() << endl;
 #else
 	cout << getpid() << endl;

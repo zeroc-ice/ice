@@ -12,6 +12,7 @@
 
 #include <Ice/Ice.h>
 #include <IcePatch2/FileInfo.h>
+#include <stdio.h>
 
 namespace IcePatch2
 {

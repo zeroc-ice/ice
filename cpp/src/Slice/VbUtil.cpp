@@ -518,17 +518,17 @@ Slice::VbGenerator::writeMarshalUnmarshalCode(Output &out,
 	if(sz <= 0x7f)
 	{
 	    func = marshal ? "writeByte" : "readByte";
-	    cast = marshal ? "Byte" : fixId(en->scoped());
+	    cast = marshal ? string("Byte") : fixId(en->scoped());
 	}
 	else if(sz <= 0x7fff)
 	{
 	    func = marshal ? "writeShort" : "readShort";
-	    cast = marshal ? "Short" : fixId(en->scoped());
+	    cast = marshal ? string("Short") : fixId(en->scoped());
 	}
 	else
 	{
 	    func = marshal ? "writeInt" : "readInt";
-	    cast = marshal ? "Integer" : fixId(en->scoped());
+	    cast = marshal ? string("Integer") : fixId(en->scoped());
 	}
 	if(marshal)
 	{

@@ -11,6 +11,10 @@
 #include <IceUtil/Functional.h>
 #include <Gen.h>
 
+#ifdef __BCPLUSPLUS__
+#  include <iterator>
+#endif
+
 using namespace std;
 using namespace Slice;
 using namespace IceUtil;
@@ -513,7 +517,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	    O << nl << "<synopsis>";
 	    printMetaData(*q);
 	    TypePtr returnType = (*q)->returnType();
-	    O << (returnType ? toString(returnType, p) : "<type>void</type>") << " <function>" << (*q)->name()
+	    O << (returnType ? toString(returnType, p) : string("<type>void</type>")) << " <function>" << (*q)->name()
 	      << "</function>(";
 	    O.inc();
 	    ParamDeclList paramList = (*q)->parameters();

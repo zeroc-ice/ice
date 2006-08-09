@@ -30,6 +30,10 @@
 #   include <dirent.h>
 #endif
 
+#ifdef __BCPLUSPLUS__
+#   include <iterator>
+#endif
+
 const char* IcePatch2::checksumFile = "IcePatch2.sum";
 const char* IcePatch2::logFile = "IcePatch2.log";
 
@@ -426,6 +430,7 @@ IcePatch2::getDirname(const string& pa)
 void
 IcePatch2::rename(const string& fromPa, const string& toPa)
 {
+
     const string fromPath = simplify(fromPa);
     const string toPath = simplify(toPa);
 
@@ -452,6 +457,10 @@ IcePatch2::remove(const string& pa)
     {
 	if(OS::rmdir(path) == -1)
 	{
+	    if(errno == EACCES)
+	    {
+	        assert(false);
+	    }
 	    throw "cannot remove directory `" + path + "':\n" + lastError();
 	}
     }
@@ -507,24 +516,25 @@ IcePatch2::readDirectory(const string& pa)
 
 #ifdef _WIN32
 
-    struct _wfinddata_t data;
+    StringSeq result;
     const wstring fs = IceUtil::stringToWstring(simplify(path + "/*"));
 
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-    long h = _wfindfirst(fs.c_str(), &data);
-#else
-    intptr_t h = _wfindfirst(fs.c_str(), &data);
-#endif
+#  ifdef __BCPLUSPLUS__
+    struct _wffblk data;
+    int h = _wfindfirst(fs.c_str(), &data, FA_DIREC);
     if(h == -1)
     {
+	if(_doserrno == ENMFILE)
+	{
+	    return result;
+	}
 	throw "cannot read directory `" + path + "':\n" + lastError();
     }
 
-    StringSeq result;
 
     while(true)
     {
-	string name = IceUtil::wstringToString(data.name);
+	string name = IceUtil::wstringToString(data.ff_name);
 	assert(!name.empty());
 
 	if(name != ".." && name != ".")
@@ -532,7 +542,7 @@ IcePatch2::readDirectory(const string& pa)
 	    result.push_back(name);
 	}
 
-	if(_wfindnext(h, &data) == -1)
+	if(_wfindnext(&data) == -1)
 	{
 	    if(errno == ENOENT)
 	    {
@@ -540,15 +550,52 @@ IcePatch2::readDirectory(const string& pa)
 	    }
 
 	    string ex = "cannot read directory `" + path + "':\n" + lastError();
-	    _findclose(h);
+	    _wfindclose(&data);
 	    throw ex;
 	}
     }
 
+    _wfindclose(&data);
+#  else
+    struct _wfinddata_t data;
+
+#    if defined(_MSC_VER) && (_MSC_VER < 1300)
+    long h = _wfindfirst(fs.c_str(), &data);
+#    else
+    intptr_t h = _wfindfirst(fs.c_str(), &data);
+#    endif
+    if(h == -1)
+    {
+        throw "cannot read directory `" + path + "':\n" + lastError();
+    }
+
+    while(true)
+    {
+        string name = IceUtil::wstringToString(data.name);
+        assert(!name.empty());
+
+        if(name != ".." && name != ".")
+        {
+            result.push_back(name);
+        }
+
+        if(_wfindnext(h, &data) == -1)
+        {
+            if(errno == ENOENT)
+            {
+                break;
+            }
+
+            string ex = "cannot read directory `" + path + "':\n" + lastError();
+            _findclose(h);
+            throw ex;
+        }
+    }
+
     _findclose(h);
+#  endif
 
     sort(result.begin(), result.end());
-
     return result;
 
 #else
