@@ -1,7 +1,7 @@
-Latency.Latency=latency:tcp -p 10000
-Latency.Endpoints=tcp -p 10000
+Latency.Latency=latency:tcp -h 127.0.0.1 -p 10000
+Latency.Endpoints=tcp -h 127.0.0.1 -p 10000
 
-Ice.MessageSizeMax=10240
+#Ice.MessageSizeMax=10240
 Ice.MonitorConnections=0
 Ice.ACM.Client=0
 Ice.ACM.Server=0

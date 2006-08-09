@@ -72,7 +72,7 @@ clean::
 	$(DESTROYER_OBJS) $(NOTIFIER_OBJS) $(TARGETS)
 
 realclean: clean
-	-$(RM) -rf PerfC.* PerfS.* PerfS_T.*
+	-$(RM) -rf PerfC.* PerfS.* PerfS_T.* SyncC.* SyncS.* SyncS_T.* 
 
 Supplier: $(addprefix $(VDIR),$(SUPPLIER_OBJS))
 	$(LINK.cc) $(LDFLAGS) -o $@ $^ $(EVENT_LIBS) $(TAO_POALIBS) $(TAO_CLIENTLIBS) $(ICE_LIBS)

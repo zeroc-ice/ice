@@ -35,6 +35,5 @@ $(EVERYTHING)::
 
 ifdef TAO_ROOT
 clean::
-	( cd TAO && make realclean )
 	( cd CosEvent && make realclean )
 endif
