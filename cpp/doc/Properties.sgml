@@ -2408,10 +2408,10 @@ the client.</entry>
 <row>
 <entry>1</entry>
 <entry>
-For an outgoing connection, the client verifies the server's certificate (if
-an anonymous cipher is not used) and aborts the connection if verification fails.
-For an incoming connection, the server requests a certificate from the client and
-verifies it if one is provided, aborting the connection if verification fails.
+For an outgoing connection, the client verifies the server's certificate and aborts
+the connection if verification fails. For an incoming connection, the server requests
+a certificate from the client and verifies it if one is provided, aborting the
+connection if verification fails.
 </entry>
 </row>
 <row>
