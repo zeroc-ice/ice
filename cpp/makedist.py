@@ -284,6 +284,8 @@ for x in grammars:
     # Edit the Makefile to comment out the grammar rules.
     #
     fixMakefile("Makefile", base)
+    fixMakefile("Makefile.mak", base)
+
     #
     # Edit the project file(s) to comment out the grammar rules.
     #
@@ -315,6 +317,8 @@ for x in scanners:
     # Edit the Makefile to comment out the flex rules.
     #
     fixMakefile("Makefile", base)
+    fixMakefile("Makefile.mak", base)
+
     #
     # Edit the project file(s) to comment out the flex rules.
     #
