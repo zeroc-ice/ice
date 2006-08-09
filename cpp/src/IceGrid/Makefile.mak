@@ -122,7 +122,7 @@ NLINKWITH	= $(ALINKWITH) icestorm$(LIBSUFFIX).lib freeze$(LIBSUFFIX).lib icebox$
 
 !ifdef BUILD_UTILS
 
-CPPFLAGS	= -I. -I.. $(CPPFLAGS)
+CPPFLAGS	= -I. -I.. -Idummyinclude $(CPPFLAGS)
 
 !else
 

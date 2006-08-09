@@ -24,7 +24,7 @@ SRCS		= $(OBJS:.o=.cpp)
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-CPPFLAGS	= -I. -I../../include $(CPPFLAGS)
+CPPFLAGS	= -I. -Idummyinclude -I../../include $(CPPFLAGS)
 
 $(CLIENT): $(OBJS)
 	del /q $@

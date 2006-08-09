@@ -44,7 +44,7 @@ SRCS		= $(OBJS:.o=.cpp) \
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I. $(CPPFLAGS)
+CPPFLAGS	= -I. -Idummyinclude $(CPPFLAGS)
 SLICE2CPPFLAGS	= --ice $(SLICE2CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)

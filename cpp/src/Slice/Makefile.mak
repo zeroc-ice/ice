@@ -30,7 +30,7 @@ SRCS		= $(OBJS:.o=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I.. $(CPPFLAGS) -DSLICE_API_EXPORTS 
+CPPFLAGS	= -I.. -Idummyinclude $(CPPFLAGS) -DSLICE_API_EXPORTS 
 
 $(LIBNAME): $(DLLNAME)
 
