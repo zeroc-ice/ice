@@ -31,6 +31,20 @@ testDefinitions = [
 		("tpc blocking", taoBlockingConf + " latency twoway", taoTCConf),
 		]
 	    ),
+	(productName, "latency twoway 2k", "", [
+		("1tp", taoReactiveConf + " latency twoway", taoTPConf + " threadPool 1", [("payload", "2000")]),
+		("4tp", taoReactiveConf + " latency twoway", taoTPConf + " threadPool 4",  [("payload", "2000")]),
+		("tpc", taoReactiveConf + " latency twoway", taoTCConf,  [("payload", "2000")]),
+		("tpc blocking", taoBlockingConf + " latency twoway", taoTCConf,  [("payload", "2000")]),
+		]
+	    ),
+	(productName, "latency twoway 10k", "", [
+		("1tp", taoReactiveConf + " latency twoway", taoTPConf + " threadPool 1", [("payload", "10000")]),
+		("4tp", taoReactiveConf + " latency twoway", taoTPConf + " threadPool 4",  [("payload", "10000")]),
+		("tpc", taoReactiveConf + " latency twoway", taoTCConf,  [("payload", "10000")]),
+		("tpc blocking", taoBlockingConf + " latency twoway", taoTCConf,  [("payload", "10000")]),
+		]
+	    ),
 	(productName, "latency oneway", "", [
 		("1tp", taoReactiveConf + " latency oneway", taoTPConf + " threadPool 1"),
 		("4tp", taoReactiveConf + " latency oneway", taoTPConf + " threadPool 4"),

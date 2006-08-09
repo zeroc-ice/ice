@@ -153,8 +153,8 @@ while i <= niter:
 	for product, group, dir, cases in tests:
 	    test = ClientServerTest(results, i, product, group)
 	    for c in cases:
+		additionalArgs = "" 
 		if len(c) > 3:
-		    additionalArgs = "" 
 		    for arg, value in c[3]:
 			additionalArgs = " %s --%s=%s" % (additionalArgs, arg, value)
 		test.run(c[0], dir, c[1] + additionalArgs, c[2])
