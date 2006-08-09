@@ -687,10 +687,10 @@ IcePy._t_Object = IcePy.defineClass('::Ice::Object', Object, False, None, (), ()
 IcePy._t_ObjectPrx = IcePy.defineProxy('::Ice::Object', ObjectPrx)
 Object.ice_type = IcePy._t_Object
 
-Object._op_ice_isA = IcePy.Operation('ice_isA', OperationMode.Nonmutating, False, (IcePy._t_string,), (), IcePy._t_bool, ())
-Object._op_ice_ping = IcePy.Operation('ice_ping', OperationMode.Nonmutating, False, (), (), None, ())
-Object._op_ice_ids = IcePy.Operation('ice_ids', OperationMode.Nonmutating, False, (), (), _t_StringSeq, ())
-Object._op_ice_id = IcePy.Operation('ice_id', OperationMode.Nonmutating, False, (), (), IcePy._t_string, ())
+Object._op_ice_isA = IcePy.Operation('ice_isA', OperationMode.Idempotent, OperationMode.Nonmutating, False, (IcePy._t_string,), (), IcePy._t_bool, ())
+Object._op_ice_ping = IcePy.Operation('ice_ping', OperationMode.Idempotent, OperationMode.Nonmutating, False, (), (), None, ())
+Object._op_ice_ids = IcePy.Operation('ice_ids', OperationMode.Idempotent, OperationMode.Nonmutating, False, (), (), _t_StringSeq, ())
+Object._op_ice_id = IcePy.Operation('ice_id', OperationMode.Idempotent, OperationMode.Nonmutating, False, (), (), IcePy._t_string, ())
 
 IcePy._t_LocalObject = IcePy.defineClass('::Ice::LocalObject', LocalObject, False, None, (), ())
 LocalObject.ice_type = IcePy._t_LocalObject

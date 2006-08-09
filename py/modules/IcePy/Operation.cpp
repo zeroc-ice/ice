@@ -47,11 +47,12 @@ class OperationI : public Operation
 {
 public:
 
-    OperationI(const char*, PyObject*, int, PyObject*, PyObject*, PyObject*, PyObject*);
+    OperationI(const char*, PyObject*, PyObject*, int, PyObject*, PyObject*, PyObject*, PyObject*);
 
     virtual PyObject* invoke(const Ice::ObjectPrx&, PyObject*, PyObject*);
     virtual PyObject* invokeAsync(const Ice::ObjectPrx&, PyObject*, PyObject*, PyObject*);
     virtual void deprecate(const string&);
+    virtual Ice::OperationMode mode() const;
 
     virtual void dispatch(PyObject*, const Ice::AMD_Object_ice_invokePtr&, const vector<Ice::Byte>&,
                           const Ice::Current&);
@@ -66,6 +67,7 @@ private:
 
     string _name;
     Ice::OperationMode _mode;
+    Ice::OperationMode _sendMode;
     bool _amd;
     ParamInfoList _inParams;
     ParamInfoList _outParams;
@@ -145,18 +147,19 @@ operationInit(OperationObject* self, PyObject* args, PyObject* /*kwds*/)
     PyObject* modeType = lookupType("Ice.OperationMode");
     assert(modeType != NULL);
     PyObject* mode;
+    PyObject* sendMode;
     int amd;
     PyObject* inParams;
     PyObject* outParams;
     PyObject* returnType;
     PyObject* exceptions;
-    if(!PyArg_ParseTuple(args, STRCAST("sO!iO!O!OO!"), &name, modeType, &mode, &amd, &PyTuple_Type, &inParams,
-                         &PyTuple_Type, &outParams, &returnType, &PyTuple_Type, &exceptions))
+    if(!PyArg_ParseTuple(args, STRCAST("sO!O!iO!O!OO!"), &name, modeType, &mode, modeType, &sendMode, &amd,
+			 &PyTuple_Type, &inParams, &PyTuple_Type, &outParams, &returnType, &PyTuple_Type, &exceptions))
     {
         return -1;
     }
 
-    OperationIPtr op = new OperationI(name, mode, amd, inParams, outParams, returnType, exceptions);
+    OperationIPtr op = new OperationI(name, mode, sendMode, amd, inParams, outParams, returnType, exceptions);
     self->op = new OperationPtr(op);
 
     return 0;
@@ -391,8 +394,8 @@ IcePy::AMICallback::ice_exception(const Ice::Exception& ex)
 //
 // OperationI implementation.
 //
-IcePy::OperationI::OperationI(const char* name, PyObject* mode, int amd, PyObject* inParams, PyObject* outParams,
-                              PyObject* returnType, PyObject* exceptions)
+IcePy::OperationI::OperationI(const char* name, PyObject* mode, PyObject* sendMode, int amd, PyObject* inParams,
+			      PyObject* outParams, PyObject* returnType, PyObject* exceptions)
 {
     _name = name;
     _amd = amd ? true : false;
@@ -411,6 +414,13 @@ IcePy::OperationI::OperationI(const char* name, PyObject* mode, int amd, PyObjec
     PyObjectHandle modeValue = PyObject_GetAttrString(mode, STRCAST("value"));
     assert(PyInt_Check(modeValue.get()));
     _mode = (Ice::OperationMode)static_cast<int>(PyInt_AS_LONG(modeValue.get()));
+
+    //
+    // sendMode
+    //
+    PyObjectHandle sendModeValue = PyObject_GetAttrString(sendMode, STRCAST("value"));
+    assert(PyInt_Check(sendModeValue.get()));
+    _sendMode = (Ice::OperationMode)static_cast<int>(PyInt_AS_LONG(sendModeValue.get()));
 
     int i, sz;
 
@@ -515,12 +525,12 @@ IcePy::OperationI::invoke(const Ice::ObjectPrx& proxy, PyObject* args, PyObject*
                 }
 
                 AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-                status = proxy->ice_invoke(_name, _mode, params, result, ctx);
+                status = proxy->ice_invoke(_name, _sendMode, params, result, ctx);
             }
             else
             {
                 AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-                status = proxy->ice_invoke(_name, _mode, params, result);
+                status = proxy->ice_invoke(_name, _sendMode, params, result);
             }
         }
 
@@ -629,12 +639,12 @@ IcePy::OperationI::invokeAsync(const Ice::ObjectPrx& proxy, PyObject* callback, 
             }
 
             AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-            proxy->ice_invoke_async(cb, _name, _mode, params, ctx);
+            proxy->ice_invoke_async(cb, _name, _sendMode, params, ctx);
         }
         else
         {
             AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-            proxy->ice_invoke_async(cb, _name, _mode, params);
+            proxy->ice_invoke_async(cb, _name, _sendMode, params);
         }
     }
     catch(const Ice::Exception& ex)
@@ -657,6 +667,12 @@ IcePy::OperationI::deprecate(const string& msg)
     {
 	_deprecateMessage = "operation " + _name + " is deprecated";
     }
+}
+
+Ice::OperationMode
+IcePy::OperationI::mode() const
+{
+    return _mode;
 }
 
 void

@@ -1930,7 +1930,7 @@ IcePHP::Operation::getZendFunction() const
 void
 IcePHP::Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
 {
-    Ice::OperationMode mode = (Ice::OperationMode)_op->mode();
+    Ice::OperationMode mode = (Ice::OperationMode)_op->sendMode();
     int i;
 
     //

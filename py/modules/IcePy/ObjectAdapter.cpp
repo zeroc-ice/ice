@@ -175,6 +175,8 @@ IcePy::ServantWrapper::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
             }
         }
 
+	__checkMode(op->mode(), current.mode);
+
         op->dispatch(_servant, cb, inParams, current);
     }
     catch(const Ice::Exception& ex)

@@ -121,6 +121,11 @@ private:
     //
     void writeHash(const string&, const TypePtr&, int&);
 
+    //
+    // Convert an operation mode into a string.
+    //
+    string getOperationMode(Slice::Operation::Mode);
+
     struct MemberInfo
     {
         string fixedName;
@@ -764,20 +769,9 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    ParamDeclList::iterator t;
 	    int count;
 
-	    _out << nl << name << "._op_" << (*s)->name() << " = IcePy.Operation('" << (*s)->name() << "', ";
-	    switch((*s)->mode())
-	    {
-	    case Operation::Normal:
-		_out << "Ice.OperationMode.Normal";
-		break;
-	    case Operation::Nonmutating:
-		_out << "Ice.OperationMode.Nonmutating";
-		break;
-	    case Operation::Idempotent:
-		_out << "Ice.OperationMode.Idempotent";
-		break;
-	    }
-	    _out << ", " << ((p->hasMetaData("amd") || (*s)->hasMetaData("amd")) ? "True" : "False") << ", (";
+	    _out << nl << name << "._op_" << (*s)->name() << " = IcePy.Operation('" << (*s)->name() << "', "
+		 << getOperationMode((*s)->mode()) << ", " << getOperationMode((*s)->sendMode()) << ", "
+		 << ((p->hasMetaData("amd") || (*s)->hasMetaData("amd")) ? "True" : "False") << ", (";
 	    for(t = params.begin(), count = 0; t != params.end(); ++t)
 	    {
 		if(!(*t)->isOutParam())
@@ -1609,6 +1603,25 @@ Slice::Python::CodeVisitor::writeHash(const string& name, const TypePtr& p, int&
     }
 
     _out << nl << "_h = 5 * _h + __builtin__.hash(" << name << ")";
+}
+
+string
+Slice::Python::CodeVisitor::getOperationMode(Slice::Operation::Mode mode)
+{
+    string result;
+    switch(mode)
+    {
+    case Operation::Normal:
+	result = "Ice.OperationMode.Normal";
+	break;
+    case Operation::Nonmutating:
+	result = "Ice.OperationMode.Nonmutating";
+	break;
+    case Operation::Idempotent:
+	result = "Ice.OperationMode.Idempotent";
+	break;
+    }
+    return result;
 }
 
 void
