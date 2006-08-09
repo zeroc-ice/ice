@@ -11,7 +11,7 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-CA_FILES =  iceca
+CA_FILES =  iceca \
 	    ImportKey.class
 
 install::
