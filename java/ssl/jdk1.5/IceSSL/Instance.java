@@ -434,7 +434,7 @@ class Instance
 	if(_securityTraceLevel >= 1)
 	{
 	    StringBuffer s = new StringBuffer();
-	    s.append("enabling ciphersuites for ssl server socket " + toString() + ":");
+	    s.append("enabling SSL ciphersuites:");
 	    for(int i = 0; i < cipherSuites.length; ++i)
 	    {
 		s.append("\n  " + cipherSuites[i]);

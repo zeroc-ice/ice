@@ -328,7 +328,7 @@ class AcceptorI implements IceInternal.Acceptor
 	    if(_instance.securityTraceLevel() > 0)
 	    {
 		StringBuffer s = new StringBuffer();
-		s.append("enabling ciphersuites for ssl server socket " + toString() + ":");
+		s.append("enabling SSL ciphersuites for server socket " + toString() + ":");
 		for(int i = 0; i < cipherSuites.length; ++i)
 		{
 		    s.append("\n  " + cipherSuites[i]);

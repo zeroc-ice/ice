@@ -70,7 +70,7 @@ final class ConnectorI implements IceInternal.Connector
 	    if(_instance.securityTraceLevel() > 0)
 	    {
 		StringBuffer s = new StringBuffer();
-		s.append("enabling ciphersuites for ssl socket\n" + IceInternal.Network.fdToString(fd) + ":");
+		s.append("enabling SSL ciphersuites for socket\n" + IceInternal.Network.fdToString(fd) + ":");
 		for(int i = 0; i < cipherSuites.length; ++i)
 		{
 		    s.append("\n  " + cipherSuites[i]);
