@@ -1,0 +1,6 @@
+HR.Endpoints=tcp -p 10000
+
+Ice.ThreadPool.Server.Size=5
+
+Oracle.ConnectInfo=scott/tiger
+

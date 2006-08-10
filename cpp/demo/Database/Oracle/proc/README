@@ -1,0 +1,29 @@
+Oracle Pro*C/C++ demo
+=====================
+
+This demo shows how to implement an Ice server that uses Oracle
+through its Embedded SQL (Pro*C/C++) API.
+
+It is a fairly simple demo that illustrates how to:
+ - map relational data to Ice objects, in particular convert 
+   between Ice and Oracle Pro*C/C++ types.
+ - associate an Oracle Pro*C/C++ context and database connection
+   to each thread in the Ice server thread pool.
+ - use Ice default servants
+
+Pre-requisites
+--------------
+- Setup an Oracle database with the traditional EMP/DEPT schema. 
+With Oracle server 10.2, the corresponding SQL script is 
+$ORACLE_HOME/rdbms/admin/utilsamp.sql.
+
+- Review/edit the Oracle.ConnectInfo property in config.server
+You may need to change it to connect to your Oracle instance.
+
+Running the demo
+----------------
+- Start the server:
+$ server
+
+- Start the client in a separate terminal:
+$ client
