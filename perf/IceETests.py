@@ -27,34 +27,34 @@ testDefinitions = [
 		("tpc blocking (batch)", "batch" + blocking, ""),
 		]
 	    ),
-	(productName, "latency twoway 2k", "latency", [
+	(productName, "latency twoway with 2k payload", "latency", [
 		("tpc", "twoway", "", [("payload", "2000")]),
 		("tpc blocking", "twoway" + blocking, "", [("payload", "2000")]),
 		]
 	    ),
-	(productName, "latency oneway 2k", "latency", [
+	(productName, "latency oneway with 2k payload", "latency", [
 		("tpc", "oneway", "", [("payload", "2000")]),
 		("tpc blocking", "oneway" + blocking, "", [("payload", "2000")]),
 		]
 	    ),
-	(productName, "latency oneway 2k (batch)", "latency", [
-		("tpc (batch)", "batch", "", [("payload", "2000")]),
-		("tpc blocking (batch)", "batch" + blocking, "", [("payload", "2000")]),
+	(productName, "latency oneway batch with 2k payload", "latency", [
+		("tpc", "batch", "", [("payload", "2000")]),
+		("tpc blocking", "batch" + blocking, "", [("payload", "2000")]),
 		]
 	    ),
-	(productName, "latency twoway 10k", "latency", [
+	(productName, "latency twoway with 10k payload", "latency", [
 		("tpc", "twoway", "", [("payload", "10000")]),
 		("tpc blocking", "twoway" + blocking, "", [("payload", "10000")]),
 		]
 	    ),
-	(productName, "latency oneway 10k", "latency", [
+	(productName, "latency oneway with 10k payload", "latency", [
 		("tpc", "oneway", "", [("payload", "10000")]),
 		("tpc blocking", "oneway" + blocking, "", [("payload", "10000")]),
 		]
 	    ),
-	(productName, "latency oneway 10k (batch)", "latency", [
-		("tpc (batch)", "batch", "", [("payload", "10000")]),
-		("tpc blocking (batch)", "batch" + blocking, "", [("payload", "10000")]),
+	(productName, "latency oneway batch with 10k payload", "latency", [
+		("tpc", "batch", [("payload", "10000")]),
+		("tpc blocking", "batch" + blocking, "", [("payload", "10000")]),
 		]
 	    ),
 	(productName, "throughput byte", "throughput", [
@@ -62,21 +62,24 @@ testDefinitions = [
 		("tpc blocking", "byte" + blocking, ""),
 		]
 	    ),
-	(productName, "throughput string seq", "throughput", [
+	(productName, "throughput string sequence", "throughput", [
 		("tpc", "stringSeq", ""),
 		("tpc blocking", "stringSeq" + blocking, ""),
 		]
 	    ),
-	(productName, "throughput long string seq", "throughput", [
+	(productName, "throughput long string sequence", "throughput", [
 		("tpc", "longStringSeq", ""),
 		("tpc blocking", "longStringSeq" + blocking, ""),
 		]
 	    ),
-	(productName, "throughput struct seq", "throughput", [
+	(productName, "throughput struct sequence", "throughput", [
 		("tpc", "structSeq", ""),
 		("tpc blocking", "structSeq" + blocking, ""),
 		]
 	    ),
+	]
+
+unusedTests = [
 	(productName, "throughput byte (receive)", "throughput", [
 		("tpc", "receive byte", ""),
 		("tpc blocking", "receive byte" + blocking, ""),

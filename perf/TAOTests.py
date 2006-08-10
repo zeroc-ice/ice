@@ -31,14 +31,14 @@ testDefinitions = [
 		("tpc blocking", taoBlockingConf + " latency twoway", taoTCConf),
 		]
 	    ),
-	(productName, "latency twoway 2k", "", [
+	(productName, "latency twoway with 2k payload", "", [
 		("1tp", taoReactiveConf + " latency twoway", taoTPConf + " threadPool 1", [("payload", "2000")]),
 		("4tp", taoReactiveConf + " latency twoway", taoTPConf + " threadPool 4",  [("payload", "2000")]),
 		("tpc", taoReactiveConf + " latency twoway", taoTCConf,  [("payload", "2000")]),
 		("tpc blocking", taoBlockingConf + " latency twoway", taoTCConf,  [("payload", "2000")]),
 		]
 	    ),
-	(productName, "latency twoway 10k", "", [
+	(productName, "latency twoway with 10k payload", "", [
 		("1tp", taoReactiveConf + " latency twoway", taoTPConf + " threadPool 1", [("payload", "10000")]),
 		("4tp", taoReactiveConf + " latency twoway", taoTPConf + " threadPool 4",  [("payload", "10000")]),
 		("tpc", taoReactiveConf + " latency twoway", taoTCConf,  [("payload", "10000")]),
@@ -52,11 +52,37 @@ testDefinitions = [
 		("tpc blocking", taoBlockingConf + " latency oneway", taoTCConf),
 		]
 	    ),
+	(productName, "latency oneway with 2k payload", "", [
+		("1tp", taoReactiveConf + " latency oneway", taoTPConf + " threadPool 1", [("payload", "2000")]),
+		("4tp", taoReactiveConf + " latency oneway", taoTPConf + " threadPool 4",  [("payload", "2000")]),
+		("tpc", taoReactiveConf + " latency oneway", taoTCConf,  [("payload", "2000")]),
+		("tpc blocking", taoBlockingConf + " latency oneway", taoTCConf,  [("payload", "2000")]),
+		]
+	    ),
+	(productName, "latency oneway with 10k payload", "", [
+		("1tp", taoReactiveConf + " latency oneway", taoTPConf + " threadPool 1", [("payload", "10000")]),
+		("4tp", taoReactiveConf + " latency oneway", taoTPConf + " threadPool 4",  [("payload", "10000")]),
+		("tpc", taoReactiveConf + " latency oneway", taoTCConf,  [("payload", "10000")]),
+		("tpc blocking", taoBlockingConf + " latency oneway", taoTCConf,  [("payload", "10000")]),
+		]
+	    ),
 	(productName, "latency twoway AMI", "", [
 		("1tp", taoReactiveConf + " latency twoway ami", taoTPConf + " threadPool 1"),
 		("4tp", taoReactiveConf + " latency twoway ami", taoTPConf + " threadPool 4"),
 		("tpc", taoReactiveConf + " latency twoway ami", taoTCConf),
 		#("tpc blocking", taoBlockingConf + " latency twoway ami", taoTCConf),
+		]
+	    ),
+	(productName, "latency twoway AMI with 2k payload", "", [
+		("1tp", taoReactiveConf + " latency twoway ami", taoTPConf + " threadPool 1", [("payload", "2000")]),
+		("4tp", taoReactiveConf + " latency twoway ami", taoTPConf + " threadPool 4", [("payload", "2000")]),
+		("tpc", taoReactiveConf + " latency twoway ami", taoTCConf, [("payload", "2000")]),
+		]
+	    ),
+	(productName, "latency twoway AMI with 10k payload", "", [
+		("1tp", taoReactiveConf + " latency twoway ami", taoTPConf + " threadPool 1", [("payload", "10000")]),
+		("4tp", taoReactiveConf + " latency twoway ami", taoTPConf + " threadPool 4", [("payload", "10000")]),
+		("tpc", taoReactiveConf + " latency twoway ami", taoTCConf, [("payload", "10000")]),
 		]
 	    ),
 	(productName, "throughput byte", "", [
@@ -66,21 +92,21 @@ testDefinitions = [
 		("tpc blocking", taoBlockingConf + " latency throughput byte", taoTCConf),
 		]
 	    ),
-	(productName, "throughput string seq", "", [
+	(productName, "throughput string sequence", "", [
 		("1tp", taoReactiveConf + " throughput string", taoTPConf + " threadPool 1"),
 		("4tp", taoReactiveConf + " throughput string", taoTPConf + " threadPool 4"),
 		("tpc", taoReactiveConf + " throughput string", taoTCConf),
 		("tpc blocking", taoBlockingConf + " throughput string", taoTCConf),
 		]
 	    ),
-	(productName, "throughput long string seq", "", [
+	(productName, "throughput long string sequence", "", [
 		("1tp", taoReactiveConf + " throughput longString", taoTPConf + " threadPool 1"),
 		("4tp", taoReactiveConf + " throughput longString", taoTPConf + " threadPool 4"),
 		("tpc", taoReactiveConf + " throughput longString", taoTCConf),
 		("tpc blocking", taoBlockingConf + " throughput longString", taoTCConf),
 		]
 	    ),
-	(productName, "throughput struct seq", "", [
+	(productName, "throughput struct sequence", "", [
 		("1tp", taoReactiveConf + " throughput struct", taoTPConf + " threadPool 1"),
 		("4tp", taoReactiveConf + " throughput struct", taoTPConf + " threadPool 4"),
 		("tpc", taoReactiveConf + " throughput struct", taoTCConf),

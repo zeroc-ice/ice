@@ -45,6 +45,9 @@ public:
     virtual void test_oneway(ACE_ENV_SINGLE_ARG_DECL)
 	ACE_THROW_SPEC((CORBA::SystemException));
 
+    virtual void test_oneway_with_data(const Test::ByteSeq& seq ACE_ENV_ARG_DECL_WITH_DEFAULTS)
+	ACE_THROW_SPEC((CORBA::SystemException));
+
     virtual void shutdown(ACE_ENV_SINGLE_ARG_DECL)
 	ACE_THROW_SPEC((CORBA::SystemException));
 

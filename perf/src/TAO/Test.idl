@@ -7,41 +7,41 @@
 //
 // **********************************************************************
 
+#ifndef TAO_PERF_TEST
+#define TAO_PERF_TEST
+
 module Test
 {
-  /// Use a timestamp to measure the roundtrip delay
-  typedef unsigned long long Timestamp;
+    typedef unsigned long long Timestamp;
 
-  typedef sequence<octet> ByteSeq;
+    typedef sequence<octet> ByteSeq;
 
-  typedef sequence<string> StringSeq;
+    typedef sequence<string> StringSeq;
 
-  struct StringDouble
-  {
-     string str;
-     double d;
-  };
-  typedef sequence<StringDouble> StringDoubleSeq;
+    struct StringDouble
+    {
+	string str;
+	double d;
+    };
+    typedef sequence<StringDouble> StringDoubleSeq;
 
-  /// Measure roundtrip delay
-  interface Roundtrip
-  {
-    void sendByteSeq(in ByteSeq seq);
-    void sendStringSeq(in StringSeq seq);
-    void sendStringDoubleSeq(in StringDoubleSeq seq);
+    //
+    // For testing roundtrip RPC performance. Used for both latency and
+    // throughput testing.
+    //
+    interface Roundtrip
+    {
+	void sendByteSeq(in ByteSeq seq);
+	void sendStringSeq(in StringSeq seq);
+	void sendStringDoubleSeq(in StringDoubleSeq seq);
 
-    /// A simple method to measure roundtrip delays
-    /**
-     * The operation simply returns its argument, this is used in AMI
-     * and deferred synchronous tests to measure the roundtrip delay
-     * without the need for a different reply handler for each
-     * request.
-     */
-    void test_method ();
+	void test_method ();
 
-    oneway void test_oneway();
+	oneway void test_oneway();
+	oneway void test_oneway_with_data(in ByteSeq seq);
 
-    /// Shutdown the ORB
-    void shutdown ();
-  };
+	void shutdown ();
+    };
 };
+
+#endif /* TAO_PERF_TEST */

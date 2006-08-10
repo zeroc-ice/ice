@@ -45,6 +45,13 @@ Roundtrip::test_oneway(ACE_ENV_SINGLE_ARG_DECL)
 }
 
 void
+Roundtrip::test_oneway_with_data(const Test::ByteSeq & ACE_ENV_ARG_DECL_WITH_DEFAULTS)
+    ACE_THROW_SPEC((CORBA::SystemException))
+{
+}
+
+
+void
 Roundtrip::shutdown(ACE_ENV_SINGLE_ARG_DECL)
     ACE_THROW_SPEC((CORBA::SystemException))
 {

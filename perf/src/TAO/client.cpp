@@ -7,26 +7,13 @@
 //
 // **********************************************************************
 
-#include <ace/Get_Opt.h>
-#include <ace/High_Res_Timer.h>
-#include <ace/Sched_Params.h>
-#include <ace/Stats.h>
-#include <ace/OS_NS_errno.h>
-
 #include <tao/Messaging/Messaging.h>
 #include <iostream>
 #include <Roundtrip.h>
 #include <Roundtrip_Handler.h>
 #include <WorkerThread.h>
 
-#ifdef _WIN32
-#   include <sys/timeb.h>
-#   include <time.h>
-#endif
-
-//
-// TODO: Move time functions into a OSLayer type header.
-//
+#include <IceUtil/Time.h>
 
 using namespace std;
 
@@ -131,6 +118,9 @@ main(int argc, char *argv[])
 	    }
 	}
 
+	//
+	// Defaults to latency test if neither was selected.
+	//
 	if(!latency && !throughput)
 	{
 	    latency = true;
@@ -184,15 +174,7 @@ main(int argc, char *argv[])
 		worker->activate(THR_NEW_LWP | THR_JOINABLE, 1, 1);
 	    }
 
-#ifdef WIN32
-	    struct _timeb tb;
-	    _ftime(&tb);
-	    _int64 start = tb.time * 1000000 + tb.millitm * 1000;
-#else
-	    struct timeval tv;
-	    gettimeofday(&tv, 0);
-	    long start = tv.tv_sec * 1000000 + tv.tv_usec;
-#endif
+	    IceUtil::Time start = IceUtil::Time::now();
 
 	    int repetitions;
 	    if(oneway)
@@ -218,14 +200,32 @@ main(int argc, char *argv[])
 	    {
 		if(oneway)
 		{
-		    roundtrip->test_oneway(ACE_ENV_SINGLE_ARG_PARAMETER);
-		    ACE_TRY_CHECK;
+		    if(payLoadSize > 0)
+		    {
+			roundtrip->test_oneway_with_data(seq ACE_ENV_ARG_DECL_WITH_DEFAULTS);
+			ACE_TRY_CHECK;
+		    }
+		    else
+		    {
+			roundtrip->test_oneway(ACE_ENV_SINGLE_ARG_PARAMETER);
+			ACE_TRY_CHECK;
+		    }
 		}
 		else if(ami)
 		{
-		    roundtrip->sendc_test_method(roundtrip_handler.in() ACE_ENV_SINGLE_ARG_PARAMETER);
-		    ACE_TRY_CHECK;
-		    roundtrip_handler_impl->waitFinished();
+		    if(payLoadSize > 0)
+		    {
+        
+			roundtrip->sendc_sendByteSeq(roundtrip_handler.in(), seq ACE_ENV_ARG_DECL_WITH_DEFAULTS);
+			ACE_TRY_CHECK;
+			roundtrip_handler_impl->waitFinished();
+		    }
+		    else
+		    {
+			roundtrip->sendc_test_method(roundtrip_handler.in() ACE_ENV_SINGLE_ARG_PARAMETER);
+			ACE_TRY_CHECK;
+			roundtrip_handler_impl->waitFinished();
+		    }
 		}
 		else if(payLoadSize > 0)
 		{
@@ -244,15 +244,8 @@ main(int argc, char *argv[])
 		roundtrip->test_method(ACE_ENV_SINGLE_ARG_PARAMETER);
 	    }
 
-#ifdef WIN32
-	    _ftime(&tb);
-	    float tm = (tb.time * 1000000 + tb.millitm * 1000 - start) / 1000.0f;
-#else
-	    gettimeofday(&tv, 0);
-	    float tm = (tv.tv_sec * 1000000 + tv.tv_usec - start) / 1000;
-#endif
-
-	    cout <<(float) tm / repetitions << endl;
+	    IceUtil::Time interval = IceUtil::Time::now() - start;
+	    cout << interval.toMilliSecondsDouble() / repetitions << endl;
 	}
 	else
 	{
@@ -285,15 +278,7 @@ main(int argc, char *argv[])
 		stringDoubleSeq[i].d = 3.14;
 	    }
 
-#ifdef WIN32
-	    struct _timeb tb;
-	    _ftime(&tb);
-	    _int64 start = tb.time * 1000000 + tb.millitm * 1000;
-#else
-	    struct timeval tv;
-	    gettimeofday(&tv, 0);
-	    long start = tv.tv_sec * 1000000 + tv.tv_usec;
-#endif
+	    IceUtil::Time start = IceUtil::Time::now();
 	    
 	    const int repetitions = 1000;
 	    for(i = 0; i < repetitions; ++i)
@@ -315,15 +300,9 @@ main(int argc, char *argv[])
 		    roundtrip->sendStringDoubleSeq(stringDoubleSeq);
 		}
 	    }
-#ifdef WIN32
-	    _ftime(&tb);
-	    float tm = (tb.time * 1000000 + tb.millitm * 1000 - start) / 1000.0f;
-#else
-	    gettimeofday(&tv, 0);
-	    float tm = (tv.tv_sec * 1000000 + tv.tv_usec - start) / 1000;
-#endif
 
-	    cout << tm / repetitions << endl;
+	    IceUtil::Time interval = IceUtil::Time::now() - start;
+	    cout << interval.toMilliSecondsDouble() / repetitions << endl;
 	}			
 
 	roundtrip->shutdown(ACE_ENV_SINGLE_ARG_PARAMETER);

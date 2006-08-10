@@ -70,21 +70,21 @@ testDefinitions = [
 		]
 	    ),
 	(productName, "latency twoway AMI", "latency", [
-		("1tp (batch)", "twoway ami", threadPoolOne, []),
-		("4tp (batch)", "twoway ami", threadPoolFour, []), 
-		("tpc (batch)", "twoway ami " + threadPerConnection, threadPerConnection, []),
+		("1tp", "twoway ami", threadPoolOne, []),
+		("4tp", "twoway ami", threadPoolFour, []), 
+		("tpc", "twoway ami " + threadPerConnection, threadPerConnection, []),
 		]
 	    ),
 	(productName, "latency twoway AMI with 2k payload", "latency", [
-		("1tp (batch)", "twoway ami", threadPoolOne, [("payload", "2000")]),
-		("4tp (batch)", "twoway ami", threadPoolFour, [("payload", "2000")]), 
-		("tpc (batch)", "twoway ami " + threadPerConnection, threadPerConnection, [("payload", "2000")]),
+		("1tp", "twoway ami", threadPoolOne, [("payload", "2000")]),
+		("4tp", "twoway ami", threadPoolFour, [("payload", "2000")]), 
+		("tpc", "twoway ami " + threadPerConnection, threadPerConnection, [("payload", "2000")]),
 		]
 	    ),
 	(productName, "latency twoway AMI with 10k payload", "latency", [
-		("1tp (batch)", "twoway ami", threadPoolOne, [("payload", "10000")]),
-		("4tp (batch)", "twoway ami", threadPoolFour, [("payload", "10000")]), 
-		("tpc (batch)", "twoway ami " + threadPerConnection, threadPerConnection, [("payload", "10000")]),
+		("1tp", "twoway ami", threadPoolOne, [("payload", "10000")]),
+		("4tp", "twoway ami", threadPoolFour, [("payload", "10000")]), 
+		("tpc", "twoway ami " + threadPerConnection, threadPerConnection, [("payload", "10000")]),
 		]
 	    ),
 	(productName, "throughput byte", "throughput", [
