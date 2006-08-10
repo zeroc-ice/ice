@@ -53,7 +53,7 @@ testDefinitions = [
 		]
 	    ),
 	(productName, "latency oneway batch with 10k payload", "latency", [
-		("tpc", "batch", [("payload", "10000")]),
+		("tpc", "batch", "", [("payload", "10000")]),
 		("tpc blocking", "batch" + blocking, "", [("payload", "10000")]),
 		]
 	    ),
