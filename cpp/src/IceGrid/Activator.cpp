@@ -879,7 +879,7 @@ Activator::kill(const string& name)
         throw ex;
     }
 
-    BOOL b = TerminateProcess(hnd, 0); // We use 0 for the exit code to make sure it's not considered as a crash.
+    TerminateProcess(hnd, 0); // We use 0 for the exit code to make sure it's not considered as a crash.
 
     CloseHandle(hnd);
 
@@ -1136,7 +1136,7 @@ Activator::terminationListener()
 	for(vector<Process>::const_iterator p = terminated.begin(); p != terminated.end(); ++p)
 	{
 	    DWORD status;
-	    BOOL b = GetExitCodeProcess(p->hnd, &status);
+	    GetExitCodeProcess(p->hnd, &status);
 	    CloseHandle(p->hnd);
 	    assert(status != STILL_ACTIVE);
 

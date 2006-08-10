@@ -15,7 +15,7 @@ CXX		= bcc32.exe
 CC		= bcc32.exe
 LINK 		= ilink32.exe
 
-CPPFLAGS	= -I"$(THIRDPARTY_HOME)\include" -q -w-par -b- -y -vi- -tWC -tWM -tW- -c -DNO_STRICT;_NO_VCL;_RTLDLL
+CPPFLAGS	= -I"$(THIRDPARTY_HOME)\include" -q -w-par -w-lvc -w-rch -b- -y -vi- -tWC -tWM -tW- -c -DNO_STRICT;_NO_VCL;_RTLDLL
 
 !if "$(OPTIMIZE)" == "yes"
 CPPFLAGS	= $(CPPFLAGS) -O2 -k- -DNDEBUG
