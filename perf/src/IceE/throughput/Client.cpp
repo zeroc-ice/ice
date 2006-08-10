@@ -181,10 +181,9 @@ main(int argc, char* argv[])
 
     try
     {
-	Ice::InitializationData initData;
-	initData.properties = Ice::createProperties();
-        initData.properties->load("config");
-	communicator = Ice::initialize(argc, argv, initData);
+	Ice::PropertiesPtr properties = Ice::createProperties();
+        properties->load("config");
+	communicator = Ice::initializeWithProperties(argc, argv, properties);
 	status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

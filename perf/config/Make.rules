@@ -26,12 +26,6 @@
 #ICEE_HOME	?= 
 
 #
-# If you want to compile OmniORB performance tests, set OMNIORB_HOME to the
-# OmniORB distribution directory
-#
-#OMNIORB_HOME	?= 
-
-#
 # Define DEBUG as yes if you want to build with debug information.
 #
 #DEBUG			= yes

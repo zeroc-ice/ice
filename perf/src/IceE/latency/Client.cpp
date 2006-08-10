@@ -180,7 +180,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    {
 		if(i != 0 && i % 100 == 0)
 		{
-		    batchprx->ice_getConnection()->flushBatchRequests();
+		    batchprx->ice_connection()->flushBatchRequests();
 		}
 	    }
 	    testAdapter->doIt();
@@ -196,7 +196,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	{
 	    if(batch)
 	    {
-		batchprx->ice_getConnection()->flushBatchRequests();
+		batchprx->ice_connection()->flushBatchRequests();
 	    }
 	    latency->ping();
 	}
@@ -225,10 +225,9 @@ main(int argc, char* argv[])
 
     try
     {
-	Ice::InitializationData initData;
-	initData.properties = Ice::createProperties();
-        initData.properties->load("config");
-	communicator = Ice::initialize(argc, argv, initData);
+	Ice::PropertiesPtr properties = Ice::createProperties();
+        properties->load("config");
+	communicator = Ice::initializeWithProperties(argc, argv, properties);
 	status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

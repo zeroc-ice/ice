@@ -18,7 +18,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Throughput");
     Ice::ObjectPtr object = new ThroughputI;
-    adapter->add(object, communicator->stringToIdentity("throughput"));
+    adapter->add(object, Ice::stringToIdentity("throughput"));
     adapter->activate();
     communicator->waitForShutdown();
     return EXIT_SUCCESS;
@@ -31,10 +31,9 @@ main(int argc, char* argv[])
     Ice::CommunicatorPtr communicator;
 
     try
-    {	Ice::InitializationData initData;
-	initData.properties = Ice::createProperties();
-        initData.properties->load("config");
-	communicator = Ice::initialize(argc, argv, initData);
+    {	Ice::PropertiesPtr properties = Ice::createProperties();
+        properties->load("config");
+	communicator = Ice::initializeWithProperties(argc, argv, properties);
 	status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)
