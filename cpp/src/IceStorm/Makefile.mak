@@ -114,7 +114,7 @@ LinkRecord.cpp LinkRecord.h: LinkRecord.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	$(SLICE2CPP) -I.. $(SLICE2CPPFLAGS) LinkRecord.ice
 
 Scanner.cpp : Scanner.l
-	flex $(FLEXFLAGS) Scanner.l
+	flex Scanner.l
 	del /q $@
 	echo #include "IceUtil/Config.h" > Scanner.cpp
 	type lex.yy.c >> Scanner.cpp

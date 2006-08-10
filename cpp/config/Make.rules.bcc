@@ -11,36 +11,23 @@
 # This file is included by Make.rules.mak when using Borland C++Builder.
 #
 
-BORLAND_HOME		= "C:\Program Files\Borland"
+CXX		= bcc32.exe
+CC		= bcc32.exe
+LINK 		= ilink32.exe
 
-CXX			= bcc32.exe
-CC			= bcc32.exe
-LINK 			= ilink32.exe
-AR			= tlib.exe
-
-#
-# icecpp is built with a C compiler
-#
-#CFLAGS 			= -O2
-
-CPPFLAGS		= -I$(THIRDPARTY_HOME)\include -q -w-par -b- -y -vi- -tWC -tWM -tW- -c -DNO_STRICT;_NO_VCL;_RTLDLL
+CPPFLAGS	= -I"$(THIRDPARTY_HOME)\include" -q -w-par -b- -y -vi- -tWC -tWM -tW- -c -DNO_STRICT;_NO_VCL;_RTLDLL
 
 !if "$(OPTIMIZE)" == "yes"
-CPPFLAGS		= $(CPPFLAGS) -O2 -k- -DNDEBUG
+CPPFLAGS	= $(CPPFLAGS) -O2 -k- -DNDEBUG
 !else
-CPPFLAGS		= $(CPPFLAGS) -Od -v -k -D_DEBUG
+CPPFLAGS	= $(CPPFLAGS) -Od -v -k -D_DEBUG
 !endif
 
-#
-# C++ run-time libraries, necessary for linking some shared libraries.
-#
-CXXLIBS			= cw32mti.lib
+LDFLAGS		= -L$(top_srcdir)\lib -L"$(THIRDPARTY_HOME)\lib" -L"$(BCB)\lib" -q -Gn -v -x
+LD_DLLFLAGS	= $(LDFLAGS) -Gi -Tpd c0d32.obj
+LD_EXEFLAGS	= $(LDFLAGS) -Tpe c0x32.obj
 
-LDFLAGS			= -L$(top_srcdir)\lib -L$(THIRDPARTY_HOME)\lib -L"$(BCB)\lib" -q -Gn -v -x
-LD_DLLFLAGS		= $(LDFLAGS) -Gi -Tpd c0d32.obj
-LD_EXEFLAGS		= $(LDFLAGS) -Tpe c0x32.obj
+ICE_OS_LIBS     = cw32mti.lib import32.lib
 
-ICEUTIL_OS_LIBS         = cw32mti.lib import32.lib
-
-BASELIBS		= iceutil$(LIBSUFFIX).lib $(ICEUTIL_OS_LIBS)
-LIBS			= ice$(LIBSUFFIX).lib $(BASELIBS)
+BASELIBS	= iceutil$(LIBSUFFIX).lib $(ICE_OS_LIBS)
+LIBS		= ice$(LIBSUFFIX).lib $(BASELIBS)

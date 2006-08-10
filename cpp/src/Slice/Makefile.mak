@@ -40,7 +40,7 @@ $(DLLNAME): $(OBJS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 
 Scanner.cpp : Scanner.l
-	flex $(FLEXFLAGS) Scanner.l
+	flex Scanner.l
 	del /q $@
 	echo #include "IceUtil/Config.h" > Scanner.cpp
 	type lex.yy.c >> Scanner.cpp

@@ -42,13 +42,12 @@ SRCS		= $(OBJS:.o=.cpp)
 !include $(top_srcdir)/config/Make.rules.mak
 
 CPPFLAGS        = $(CPPFLAGS) -DICE_UTIL_API_EXPORTS -I..
-LINKWITH        = $(STLPORT_LIBS) $(ICEUTIL_OS_LIBS)
 
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS)
 	del /q $@
-	$(LINK) $(LD_DLLFLAGS) $(OBJS), $(DLLNAME),, $(LINKWITH)
+	$(LINK) $(LD_DLLFLAGS) $(OBJS), $(DLLNAME),, $(ICE_OS_LIBS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	
 

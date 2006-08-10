@@ -29,7 +29,7 @@ BCB			= C:\Program Files\Borland\BDS\4.0
 # If third party libraries are not installed in the default location
 # change the following setting to reflect the installation location.
 #
-THIRDPARTY_HOME	= C:\Ice-$(VERSION)-ThirdParty
+THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
@@ -55,21 +55,15 @@ INSTALL_PROGRAM		= $(INSTALL)
 INSTALL_LIBRARY		= $(INSTALL)
 INSTALL_DATA		= $(INSTALL)
 
-# TODO - Should be setting above for BCB vs MSVC
-UNAME			= bcc
-
 #
 # Compiler specific definitions
 #
-!include 	$(top_srcdir)/config/Make.rules.$(UNAME)
+# TODO: Will need to change if/when VC++ command line builds are supported
+#
+!include 	$(top_srcdir)/config/Make.rules.bcc
 
-!if "$(LP64)" == "yes"
-install_libdir	  = $(prefix)\lib$(lp64suffix)
-libsubdir	  = lib$(lp64suffix)
-!else
 install_libdir	  = $(prefix)\lib
 libsubdir	  = lib
-!endif
 
 !if "$(OPTIMIZE)" != "yes"
 LIBSUFFIX	= $(LIBSUFFIX)d
@@ -80,23 +74,11 @@ BZIP2_LIBS              = libbz2$(LIBSUFFIX).lib
 DB_LIBS                 = libdb44.lib
 EXPAT_LIBS              = libexpat.lib
 
-CPPFLAGS		= $(CPPFLAGS) -I$(includedir) $(STLPORT_FLAGS)
+CPPFLAGS		= $(CPPFLAGS) -I$(includedir)
 ICECPPFLAGS		= -I$(slicedir)
 SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 
 LDFLAGS			= $(LDFLAGS) $(LDPLATFORMFLAGS) $(CXXFLAGS)
-
-!if "$(FLEX_NOLINE)" == "yes"
-FLEXFLAGS	       	= -L
-!else
-FLEXFLAGS	        =
-!endif
-
-!if "$(BISON_NOLINE)" == "yes"
-BISONFLAGS		= -dvtl
-!else
-BISONFLAGS		= -dvt
-!endif
 
 SLICEPARSERLIB		= $(top_srcdir)\lib\slice$(LIBSUFFIX).lib
 SLICE2CPP		= $(bindir)\slice2cpp.exe
@@ -104,7 +86,7 @@ SLICE2XSD		= $(bindir)\slice2xsd.exe
 SLICE2FREEZE		= $(bindir)\slice2freeze.exe
 SLICE2DOCBOOK		= $(bindir)\slice2docbook.exe
 
-EVERYTHING		= all depend clean install
+EVERYTHING		= all clean install
 
 .SUFFIXES:
 .SUFFIXES:		.cpp .c .o
@@ -116,17 +98,6 @@ EVERYTHING		= all depend clean install
 	$(CC) /c $(CPPFLAGS) $(CFLAGS) -o $@ $<
 
 all:: $(SRCS) $(TARGETS)
-
-depend:: $(SRCS) $(SLICE_SRCS)
-	-del /q .depend
-	if test -n "$(SRCS)" ; then \
-	    $(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | \
-	    $(top_srcdir)/config/makedepend.py >> .depend; \
-	fi
-	if test -n "$(SLICE_SRCS)" ; then \
-	    $(SLICE2CPP) --depend $(SLICE2CPPFLAGS) $(SLICE_SRCS) | \
-	    $(top_srcdir)/config/makedepend.py >> .depend; \
-	fi
 
 !if "$(TARGETS)" != ""
 

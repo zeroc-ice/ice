@@ -67,7 +67,7 @@ Library.cpp Library.h: Library.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) Library.ice
 
 Scanner.cpp : Scanner.l
-	flex $(FLEXFLAGS) Scanner.l
+	flex Scanner.l
 	del /q $@
 	echo #include "IceUtil/Config.h" > Scanner.cpp
 	type lex.yy.c >> Scanner.cpp

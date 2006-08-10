@@ -51,7 +51,7 @@ $(DUMPDB): $(DUMP_OBJS) $(COMMON_OBJS)
 	$(LINK) $(LD_EXEFLAGS) $(DUMP_OBJS) $(COMMON_OBJS), $@,, $(LINKWITH)
 
 Scanner.cpp : Scanner.l
-	flex $(FLEXFLAGS) Scanner.l
+	flex Scanner.l
 	del /q $@
 	echo #include "IceUtil/Config.h" > Scanner.cpp
 	type lex.yy.c >> Scanner.cpp

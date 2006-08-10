@@ -1,0 +1,149 @@
+======================================================================
+Requirements
+======================================================================
+
+
+Windows version
+---------------
+
+Ice has been extensively tested with Windows XP. A Ice binary
+distribution for Borland is available from:
+
+  http://www.zeroc.com/download.html
+
+These binary distributions include everything necessary to build Ice 
+applications and require Windows XP.
+
+
+C++ compiler
+------------
+
+Ice supports Borland C++Builder 2006 Update 2.
+
+NMAKE
+-----
+
+In order to build Ice you need nmake, MicroSoft's make utility, 
+installed. If you do not already have it installed, you can download it
+from the following link.
+
+http://download.microsoft.com/download/vc15/patch/1.52/w95/en-us/nmake15.exe
+
+
+Third-party libraries
+---------------------
+
+Ice has dependencies on a number of third-party libraries:
+
+- Berkeley DB 4.4.20
+- expat 1.9x
+- OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
+- bzip2 1.0
+
+If you have downloaded an Ice binary installer, you already have all 
+of the required third-party libraries and do not need to download any 
+additional packages, nor do you need to compile the Ice source
+code.
+
+You can download an installer containing binaries for all of the 
+required third-party libraries from the ZeroC web site:
+
+  http://www.zeroc.com/download.html
+
+Python
+------
+
+You will need Python to run the automated test suite. If you have no
+interest in running the test scripts, Python is not required.
+
+You can download a Python distribution for Windows from
+http://www.python.org/download
+
+Important note for Windows 98, Windows 98 SE and Windows ME users:
+
+The Windows 9x shell is too limited to run the Ice test suite. For
+these versions of Windows, you need Cygwin and the python interpreter
+that comes with Cygwin in order to run the test suite. Cygwin can be
+downloaded from:
+
+http://www.cygwin.com
+
+
+======================================================================
+Compilation and Testing
+======================================================================
+
+Using your favorite Zip tool, unzip the Ice and Ice third-party 
+archives anywhere you like.
+
+Add the third-party libraries bin directory to your PATH.
+
+Open a command prompt and change the working directory to Ice-@ver@.
+For example:
+
+$ cd C:\Ice-@ver@
+
+Edit config/Make.rules to establish your build configuration. The
+comments in the file provide more information. Pay particular
+attention to the variable that define the locations of the third-
+party libraries.
+
+Now you're ready to build Ice:
+
+$ nmake /f Makefile.mak
+
+You can now run the test suite, provided that you have installed 
+Python. Open a command prompt and change to the top- level Ice 
+directory. At the command prompt, execute:
+
+  python allTests.py
+
+If everything worked out, you should see lots of "ok" messages. In
+case of a failure, the tests abort with "failed".
+
+If you want to try out any of the demos, make sure to update your PATH
+environment variable to add the "bin" directory, which contains the
+Ice DLLs and executables.
+
+
+======================================================================
+Windows 98, Windows 98 SE, Windows ME, Windows NT 3.51 
+======================================================================
+
+By default, IceUtil::Mutex and related classes are implemented using
+Windows' CriticalSection, and in particular they use the function
+TryEnterCriticalSection. This function is either not present or
+implemented as a "no-op" call on Windows 98, Windows 98 SE, Windows ME
+and Windows NT 3.51, so default Ice builds cannot be used on these
+versions of Windows.
+
+IceUtil::Mutex and related classes can also use "heavier" mutex
+objects that allow Ice to work on all Windows versions (>= 98). If you
+wish to build Ice in this configuration, you must first edit the file
+include\IceUtil\Config.h and remove the following lines:
+
+#   ifndef _WIN32_WINNT
+        //
+        // Necessary for TryEnterCriticalSection.
+        //
+#       define _WIN32_WINNT 0x0400
+#   endif
+
+The IceGrid Node is not available on Windows 98, 98SE and ME, because
+it requires a DLL that is not available on these versions of Windows.
+
+On Windows 98, Windows 98 SE and Windows ME, we also recommend that
+you increase the number of connections supported by TCP/IP (to 500 for
+example). See MaxConnections at
+http://support.microsoft.com/default.aspx?scid=kb;EN-US;158474
+
+
+======================================================================
+Installation
+======================================================================
+
+Simply run "nmake /f Makefile.mak install". This will install Ice in
+the directory specified by the "prefix" variable in
+config/Make.rules.mak. After installation, make sure that the
+<prefix>/bin directory is in your PATH.
+
