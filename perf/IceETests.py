@@ -50,6 +50,8 @@ testDefinitions = [
 	(productName, "throughput byte", "throughput", [
 		("tpc", "byte", ""),
 		("tpc blocking", "byte" + blocking, ""),
+		("tpc (w/o zero copy)", "byte noZeroCopy", ""),
+		("tpc blocking (w/o zero copy)", "byte noZeroCopy" + blocking, ""),
 		]
 	    ),
 	(productName, "throughput string sequence", "throughput", [

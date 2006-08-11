@@ -31,6 +31,7 @@ const int StringDoubleSeqSize = 50000;
 interface Throughput
 {
     void sendByteSeq(["cpp:array"] ByteSeq seq);
+    void sendByteSeqNZ(ByteSeq seq);
     ByteSeq recvByteSeq();
     ByteSeq echoByteSeq(ByteSeq seq);
 

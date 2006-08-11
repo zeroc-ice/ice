@@ -23,12 +23,17 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     bool longStringSeqTest = false;
     bool structSeqTest = false;
     bool receive = false;
+    bool zeroCopy = true;
     int i;
     for(i = 0; i < argc; i++)
     {
        if(strcmp(argv[i], "structSeq") == 0)
        {
 	   structSeqTest = true;
+       }
+       else if(strcmp(argv[i], "noZeroCopy") == 0)
+       {
+	   zeroCopy = false;
        }
        else if(strcmp(argv[i], "longStringSeq") == 0)
        {
@@ -96,13 +101,27 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
 	if(!receive)
 	{
-	    for(i = 0; i < repetitions; ++i)
+	    if(zeroCopy)
 	    {
+		for(i = 0; i < repetitions; ++i)
+		{
 #ifdef ICEE_USE_ARRAY_MAPPING
-		throughput->sendByteSeq(byteArr);
+		    throughput->sendByteSeq(byteArr);
 #else
-		throughput->sendByteSeq(byteSeq);
+		    throughput->sendByteSeq(byteSeq);
 #endif
+		}
+	    }
+	    else
+	    {
+		for(i = 0; i < repetitions; ++i)
+		{
+#ifdef ICEE_USE_ARRAY_MAPPING
+		    throughput->sendByteSeqNZ(byteSeq);
+#else
+		    throughput->sendByteSeq(byteSeq);
+#endif
+		}
 	    }
 	}
 	else

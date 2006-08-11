@@ -79,6 +79,9 @@ testDefinitions = [
 		("1tp", "byte", threadPoolOne, []),
 		("4tp", "byte", threadPoolFour, []), 
 		("tpc", "byte " + threadPerConnection, threadPerConnection, []),
+		("1tp (w/o zero copy)", "byte noZeroCopy", threadPoolOne, []),
+		("4tp (w/o zero copy)", "byte noZeroCopy", threadPoolFour, []), 
+		("tpc (w/o zero copy)", "byte noZeroCopy" + threadPerConnection, threadPerConnection, []),
 		]
 	    ),
 	(productName, "throughput string sequence", "throughput", [

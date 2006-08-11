@@ -35,6 +35,11 @@ public:
     sendByteSeq(const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&)
     {
     }
+
+    virtual void
+    sendByteSeqNZ(const Demo::ByteSeq&, const Ice::Current&)
+    {
+    }
 #else
     virtual void
     sendByteSeq(const Demo::ByteSeq&, const Ice::Current&)

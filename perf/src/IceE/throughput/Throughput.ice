@@ -32,6 +32,7 @@ interface Throughput
 {
 #ifdef ICEE_USE_ARRAY_MAPPING
     void sendByteSeq(["cpp:array"] ByteSeq seq);
+    void sendByteSeqNZ(ByteSeq seq);
 #else
     void sendByteSeq(ByteSeq seq);
 #endif

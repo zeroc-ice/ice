@@ -20,12 +20,17 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     bool stringSeqTest = false;
     bool longStringSeqTest = false;
     bool structSeqTest = false;
+    bool zeroCopy = true;
     int i;
     for(i = 0; i < argc; i++)
     {
        if(strcmp(argv[i], "structSeq") == 0)
        {
 	   structSeqTest = true;
+       }
+       else if(strcmp(argv[i], "noZeroCopy") == 0)
+       {
+	   zeroCopy = false;
        }
        else if(strcmp(argv[i], "longStringSeq") == 0)
        {
@@ -89,9 +94,19 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     const int repetitions = 1000;
     if(byteTest)
     {
-	for(i = 0; i < repetitions; ++i)
+	if(zeroCopy)
 	{
-	    throughput->sendByteSeq(byteArr);
+	    for(i = 0; i < repetitions; ++i)
+	    {
+		throughput->sendByteSeq(byteArr);
+	    }
+	}
+	else
+	{
+	    for(i = 0; i < repetitions; ++i)
+	    {
+		throughput->sendByteSeqNZ(byteSeq);
+	    }
 	}
     }
     else if(stringSeqTest)

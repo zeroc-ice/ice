@@ -34,6 +34,11 @@ public:
     {
     }
 
+    virtual void
+    sendByteSeqNZ(const Demo::ByteSeq&, const Ice::Current&)
+    {
+    }
+
     virtual Demo::ByteSeq
     recvByteSeq(const Ice::Current&)
     {
