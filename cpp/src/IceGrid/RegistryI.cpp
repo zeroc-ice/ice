@@ -1051,7 +1051,16 @@ RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry)
 	nodes.insert(nds.begin(), nds.end());
     }
 
+#ifdef _RWSTD_NO_MEMBER_TEMPLATES
+    NodePrxSeq result;
+    for(set<NodePrx>::iterator p = nodes.begin(); p != nodes.end(); ++p)
+    {
+	result.push_back(*p);
+    }
+    return result;
+#else
     return NodePrxSeq(nodes.begin(), nodes.end());
+#endif
 }
 
 void
