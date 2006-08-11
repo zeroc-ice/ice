@@ -89,7 +89,7 @@ testDefinitions = [
 		("1tp", taoReactiveConf + " throughput byte", taoTPConf + " threadPool 1"),
 		("4tp", taoReactiveConf + " throughput byte", taoTPConf + " threadPool 4"),
 		("tpc", taoReactiveConf + " throughput byte", taoTCConf),
-		("tpc blocking", taoBlockingConf + " latency throughput byte", taoTCConf),
+		("tpc blocking", taoBlockingConf + " throughput byte", taoTCConf),
 		]
 	    ),
 	(productName, "throughput string sequence", "", [
