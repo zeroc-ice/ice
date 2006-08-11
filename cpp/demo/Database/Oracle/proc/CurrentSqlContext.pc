@@ -14,6 +14,9 @@
 
 using namespace std;
 
+#ifndef TRACE
+// #   define TRACE 1
+#endif
 
 #ifdef _MSC_VER
    #define __thread __declspec(thread)
@@ -47,8 +50,9 @@ public:
     {
 	if(_current != 0 && _index < _current->size())
 	{
+#ifdef TRACE
 	    cerr << "Disconnecting from Oracle in thread " << IceUtil::ThreadControl().id() << endl;
-
+#endif
 	    EXEC SQL BEGIN DECLARE SECTION;
 	    sql_context ctx = (*_current)[_index];
 	    EXEC SQL END DECLARE SECTION;
@@ -66,7 +70,9 @@ public:
 	    if(find_if(_current->begin(), _current->end(), bind2nd(not_equal_to<sql_context>(), static_cast<void*>(0)))
 	       == _current->end())
 	    {
+#ifdef TRACE
 		cerr << "Deleting _current in thread " << IceUtil::ThreadControl().id() << endl;
+#endif
 		delete _current;
 		_current = 0;
 	    }
@@ -116,8 +122,9 @@ CurrentSqlContext::operator sql_context() const
 
     if(ctx == 0)
     {
+#ifdef TRACE
 	cerr << "Connecting to Oracle in thread " << IceUtil::ThreadControl().id() << endl;
-
+#endif
 	//
 	// Allocate and connect
 	//

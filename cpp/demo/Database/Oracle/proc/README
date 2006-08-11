@@ -11,17 +11,27 @@ It is a fairly simple demo that illustrates how to:
    to each thread in the Ice server thread pool.
  - use Ice default servants
 
-Pre-requisites
---------------
+Building the demo
+-----------------
+On Linux or Unix, set ORACLE_HOME to point to your Oracle 
+installation home directory. Then build as usual.
+
+On Windows, you need to add the following directories to your 
+Visual C++ environment: 
+ - Include files: <oracle-home>\precomp\public
+ - Library files: <oracle-home>\precomp\lib
+ - Executable files: <oracle-home>\bin
+Then build as usual.
+
+Running the demo
+----------------
 - Setup an Oracle database with the traditional EMP/DEPT schema. 
 With Oracle server 10.2, the corresponding SQL script is 
 $ORACLE_HOME/rdbms/admin/utilsamp.sql.
 
-- Review/edit the Oracle.ConnectInfo property in config.server
+- Review the Oracle.ConnectInfo property in the config.server file.
 You may need to change it to connect to your Oracle instance.
 
-Running the demo
-----------------
 - Start the server:
 $ server
 
