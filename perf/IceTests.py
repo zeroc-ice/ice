@@ -57,18 +57,6 @@ testDefinitions = [
 		("tpc", "batch " + threadPerConnection, threadPerConnection, []),
 		]
 	    ),
-	(productName, "latency oneway batch with 2k payload", "latency", [
-		("1tp", "batch", threadPoolOne, [("payload", "2000")]),
-		("4tp", "batch", threadPoolFour, [("payload", "2000")]), 
-		("tpc", "batch " + threadPerConnection, threadPerConnection, [("payload", "2000")]),
-		]
-	    ),
-	(productName, "latency oneway batch with 10k payload", "latency", [
-		("1tp", "batch", threadPoolOne, [("payload", "10000")]),
-		("4tp", "batch", threadPoolFour, [("payload", "10000")]), 
-		("tpc", "batch " + threadPerConnection, threadPerConnection, [("payload", "10000")]),
-		]
-	    ),
 	(productName, "latency twoway AMI", "latency", [
 		("1tp", "twoway ami", threadPoolOne, []),
 		("4tp", "twoway ami", threadPoolFour, []), 
@@ -109,6 +97,25 @@ testDefinitions = [
 		("1tp", "structSeq", threadPoolOne, []),
 		("4tp", "structSeq", threadPoolFour, []), 
 		("tpc", "structSeq " + threadPerConnection, threadPerConnection),
+		]
+	    ),
+	]
+
+#
+# These tests have been removed from the main run because there is no
+# corresponding equivalent in TAO.
+#
+unusedTests = [
+	(productName, "latency oneway batch with 2k payload", "latency", [
+		("1tp", "batch", threadPoolOne, [("payload", "2000")]),
+		("4tp", "batch", threadPoolFour, [("payload", "2000")]), 
+		("tpc", "batch " + threadPerConnection, threadPerConnection, [("payload", "2000")]),
+		]
+	    ),
+	(productName, "latency oneway batch with 10k payload", "latency", [
+		("1tp", "batch", threadPoolOne, [("payload", "10000")]),
+		("4tp", "batch", threadPoolFour, [("payload", "10000")]), 
+		("tpc", "batch " + threadPerConnection, threadPerConnection, [("payload", "10000")]),
 		]
 	    ),
 	]

@@ -52,6 +52,13 @@ testDefinitions = [
 		("tpc blocking", taoBlockingConf + " latency oneway", taoTCConf),
 		]
 	    ),
+	(productName, "latency oneway batch", "", [
+		("1tp (no batching avail)", taoReactiveConf + " latency oneway", taoTPConf + " threadPool 1"),
+		("4tp (no batching avail)", taoReactiveConf + " latency oneway", taoTPConf + " threadPool 4"),
+		("tpc (no batching avail)", taoReactiveConf + " latency oneway", taoTCConf),
+		("tpc blocking (no batching avail)", taoBlockingConf + " latency oneway", taoTCConf),
+		]
+	    ),
 	(productName, "latency oneway with 2k payload", "", [
 		("1tp", taoReactiveConf + " latency oneway", taoTPConf + " threadPool 1", [("payload", "2000")]),
 		("4tp", taoReactiveConf + " latency oneway", taoTPConf + " threadPool 4",  [("payload", "2000")]),

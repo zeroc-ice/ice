@@ -37,11 +37,6 @@ testDefinitions = [
 		("tpc blocking", "oneway" + blocking, "", [("payload", "2000")]),
 		]
 	    ),
-	(productName, "latency oneway batch with 2k payload", "latency", [
-		("tpc", "batch", "", [("payload", "2000")]),
-		("tpc blocking", "batch" + blocking, "", [("payload", "2000")]),
-		]
-	    ),
 	(productName, "latency twoway with 10k payload", "latency", [
 		("tpc", "twoway", "", [("payload", "10000")]),
 		("tpc blocking", "twoway" + blocking, "", [("payload", "10000")]),
@@ -50,11 +45,6 @@ testDefinitions = [
 	(productName, "latency oneway with 10k payload", "latency", [
 		("tpc", "oneway", "", [("payload", "10000")]),
 		("tpc blocking", "oneway" + blocking, "", [("payload", "10000")]),
-		]
-	    ),
-	(productName, "latency oneway batch with 10k payload", "latency", [
-		("tpc", "batch", "", [("payload", "10000")]),
-		("tpc blocking", "batch" + blocking, "", [("payload", "10000")]),
 		]
 	    ),
 	(productName, "throughput byte", "throughput", [
@@ -79,25 +69,19 @@ testDefinitions = [
 	    ),
 	]
 
+#
+# These tests have been removed from the main run because there is no
+# corresponding equivalent in TAO.
+#
 unusedTests = [
-	(productName, "throughput byte (receive)", "throughput", [
-		("tpc", "receive byte", ""),
-		("tpc blocking", "receive byte" + blocking, ""),
+	(productName, "latency oneway batch with 2k payload", "latency", [
+		("tpc", "batch", "", [("payload", "2000")]),
+		("tpc blocking", "batch" + blocking, "", [("payload", "2000")]),
 		]
 	    ),
-	(productName, "throughput string seq (receive)", "throughput", [
-		("tpc", "receive stringSeq", ""),
-		("tpc blocking", "receive stringSeq" + blocking, ""),
-		]
-	    ),
-	(productName, "throughput long string seq (receive)", "throughput", [
-		("tpc", "receive longStringSeq", ""),
-		("tpc blocking", "receive longStringSeq" + blocking, ""),
-		]
-	    ),
-	(productName, "throughput struct seq (receive)", "throughput", [
-		("tpc", "receive structSeq", ""),
-		("tpc blocking", "receive structSeq" + blocking, ""),
+	(productName, "latency oneway batch with 10k payload", "latency", [
+		("tpc", "batch", "", [("payload", "10000")]),
+		("tpc blocking", "batch" + blocking, "", [("payload", "10000")]),
 		]
 	    ),
 	]
