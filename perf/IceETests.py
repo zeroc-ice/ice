@@ -22,7 +22,7 @@ testDefinitions = [
 		("tpc blocking", "oneway" + blocking, ""),
 		]
 	    ),
-	(productName, "latency oneway (batch)", "latency", [
+	(productName, "latency oneway batch", "latency", [
 		("tpc (batch)", "batch", ""),
 		("tpc blocking (batch)", "batch" + blocking, ""),
 		]
