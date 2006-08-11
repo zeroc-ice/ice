@@ -19,7 +19,7 @@ public:
 
     EmpI(const CurrentSqlContext&, const std::string&, const std::string&);
     
-    virtual void ice_ping(const Ice::Current&);
+    virtual void ice_ping(const Ice::Current&) const;
 
     virtual HR::EmpDesc getDesc(const Ice::Current&);    
     virtual void updateDesc(const HR::EmpDesc& newDesc, const Ice::Current&);

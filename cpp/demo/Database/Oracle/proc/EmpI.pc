@@ -24,7 +24,7 @@ EmpI::EmpI(const CurrentSqlContext& currentCtx,
 }
 
 void 
-EmpI::ice_ping(const Ice::Current& current)
+EmpI::ice_ping(const Ice::Current& current) const
 {
     struct sqlca sqlca;
     EXEC SQL BEGIN DECLARE SECTION;

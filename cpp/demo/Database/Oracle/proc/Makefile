@@ -41,15 +41,21 @@ CPPFLAGS	:= -I. -I$(ORACLE_HOME)/precomp/public -DSQLCA_NONE $(CPPFLAGS)
 
 GENERATED_PROC_FILES  = $(PROC_SRCS:.pc=.cpp) 
 
-ORACLE_LIBS     = -L$(ORACLE_HOME)/lib -lclntsh 
-
+ifeq ($(LP64),yes)
+   ORACLE_LIBS     = -L$(ORACLE_HOME)/lib -lclntsh 
+else
+   ORACLE_LIBS     = -L$(ORACLE_HOME)/lib32 -lclntsh
+endif
 
 .SUFFIXES:
 .SUFFIXES:		.pc .cpp .c .o
 
+#
+# The rm -f tp* $*.lis is to work around a proc bug on Linux
+#
 .pc.cpp:
 	proc threads=yes parse=none lines=yes code=cpp cpp_suffix=cpp close_on_commit=yes $<
-	rm tp* *.lis
+	rm -f tp* $*.lis
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@

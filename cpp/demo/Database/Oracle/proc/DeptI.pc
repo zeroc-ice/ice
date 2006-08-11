@@ -23,7 +23,7 @@ DeptI::DeptI(const CurrentSqlContext& currentCtx, const string& empCategory) :
 }
 
 void 
-DeptI::ice_ping(const Ice::Current& current)
+DeptI::ice_ping(const Ice::Current& current) const
 {
     struct sqlca sqlca;
     EXEC SQL BEGIN DECLARE SECTION;

@@ -19,7 +19,7 @@ public:
 
     DeptI(const CurrentSqlContext&, const std::string&);
     
-    virtual void ice_ping(const Ice::Current&);
+    virtual void ice_ping(const Ice::Current&) const;
 
     virtual HR::EmpPrx createEmp(int, const HR::EmpDesc&, const Ice::Current&);
 

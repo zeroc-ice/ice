@@ -59,7 +59,7 @@ HRClient::HRClient() :
 	"dept <identity>: set department <identity> as the current department\n"
 	"emp <identity>: set employee <identity> as the current employee\n"
 	"exit: exit client\n"
-	"help: prints this list of commands\n"
+	"help: print this list of commands\n"
 	"root: go back to the root menu\n";
 
     _rootCommands =
@@ -114,7 +114,8 @@ HRClient::checkCin(const string& command) const
 void
 HRClient::invalidCommand(const string& command) const
 {
-    cout << "Invalid command '" << command << "'" << endl;
+    cout << "Invalid command '" << command << "'. "
+	"Type 'help' for help." << endl;
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 }
 
