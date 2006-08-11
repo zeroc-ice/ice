@@ -124,6 +124,14 @@ IcePy._t_ObjectPrx = IcePy.declareProxy('::Ice::Object')
 IcePy._t_LocalObject = IcePy.declareClass('::Ice::LocalObject')
 
 #
+# Sequence mappings.
+#
+IcePy.SEQ_DEFAULT = 0
+IcePy.SEQ_TUPLE = 1
+IcePy.SEQ_LIST = 2
+#IcePy.SEQ_ARRAY = 3
+
+#
 # Slice checksum dictionary.
 #
 sliceChecksums = {}

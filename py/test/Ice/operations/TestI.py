@@ -48,10 +48,11 @@ class MyDerivedClassI(Test.MyDerivedClass):
         return (p2, p1)
 
     def opByteS(self, p1, p2, current=None):
-        p3 = p1[0:]
+	# By default sequence<byte> maps to a string.
+        p3 = map(ord, p1)
         p3.reverse()
-        r = p1[0:]
-        r.extend(p2)
+        r = map(ord, p1)
+        r.extend(map(ord, p2))
         return (r, p3)
 
     def opBoolS(self, p1, p2, current=None):

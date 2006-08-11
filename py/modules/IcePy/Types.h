@@ -114,9 +114,6 @@ public:
 
     virtual void print(PyObject*, IceUtil::Output&, PrintObjectHistory*);
 
-    void marshalSequence(PyObject*, const Ice::OutputStreamPtr&);
-    void unmarshalSequence(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*);
-
     enum Kind
     {
         KindBool,
@@ -216,8 +213,20 @@ public:
 
     virtual void destroy();
 
+    void marshalPrimitiveSequence(const PrimitiveInfoPtr&, PyObject*, const Ice::OutputStreamPtr&);
+    void unmarshalPrimitiveSequence(const PrimitiveInfoPtr&, const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&,
+				    PyObject*, void*);
+
+    enum Mapping { SEQ_DEFAULT, SEQ_TUPLE, SEQ_LIST };
+
     std::string id;
+    Mapping mapping;
     TypeInfoPtr elementType;
+
+private:
+
+    PyObject* createContainer(int) const;
+    void setItem(PyObject*, int, PyObject*) const;
 };
 typedef IceUtil::Handle<SequenceInfo> SequenceInfoPtr;
 

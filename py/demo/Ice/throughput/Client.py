@@ -31,8 +31,8 @@ e: Echo (send and receive) sequence
 
 other commands:
 s: shutdown server
-"x: exit
-"?: help
+x: exit
+?: help
 """
 
 class Client(Ice.Application):
@@ -50,9 +50,10 @@ class Client(Ice.Application):
 	    return False
 	throughputOneway = Demo.ThroughputPrx.uncheckedCast(throughput.ice_oneway())
 
-	byteSeq = []
-	byteSeq[0:Demo.ByteSeqSize] = range(0, Demo.ByteSeqSize)
-	byteSeq = [0 for x in byteSeq]
+	bytes = []
+	bytes[0:Demo.ByteSeqSize] = range(0, Demo.ByteSeqSize)
+	bytes = ['\x00' for x in bytes]
+	byteSeq = ''.join(bytes)
 
 	stringSeq = []
 	stringSeq[0:Demo.StringSeqSize] = range(0, Demo.StringSeqSize)
@@ -118,7 +119,6 @@ class Client(Ice.Application):
 			print "variable-length struct",
 		    elif currentType == '4':
 			print "fixed-length struct",
-		    
 		    
 		    if c == 'o':
 			print "sequences of size %d as oneway..." % seqSize

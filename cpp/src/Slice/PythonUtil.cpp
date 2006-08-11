@@ -1140,6 +1140,19 @@ Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
     _out << sp << nl << "if not " << getDictLookup(p, "_t_") << ':';
     _out.inc();
     _out << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineSequence('" << scoped << "', ";
+    if(p->hasMetaData("python:type:tuple"))
+    {
+	_out << "IcePy.SEQ_TUPLE";
+    }
+    else if(p->hasMetaData("python:type:list"))
+    {
+	_out << "IcePy.SEQ_LIST";
+    }
+    else
+    {
+	_out << "IcePy.SEQ_DEFAULT";
+    }
+    _out << ", ";
     writeType(p->type());
     _out << ")";
     _out.dec();
@@ -2050,18 +2063,19 @@ Slice::Python::MetaDataVisitor::validate(const ContainedPtr& cont)
             if(s.find(prefix) == 0)
             {
                 string::size_type pos = s.find(':', prefix.size());
-                if(pos == string::npos)
+                if(pos != string::npos && s.substr(prefix.size(), pos - prefix.size()) == "type")
                 {
-                    cout << file << ":" << cont->line() << ": warning: metadata `" << s << "' uses deprecated syntax"
-		         << endl;
-                }
-                else if(s.substr(prefix.size(), pos - prefix.size()) != "type")
-                {
-                    cout << file << ":" << cont->line() << ": warning: ignoring invalid metadata `" << s << "'" << endl;
-                }
-		if(SequencePtr::dynamicCast(cont))
-		{
-		    continue;
+		    static const string typePrefix = "python:type:";
+		    string type = s.substr(typePrefix.size(), pos - typePrefix.size());
+		    if(SequencePtr::dynamicCast(cont))
+		    {
+			// TODO: type == "array"?
+			// TODO: Allow data member, parameter overrides?
+			if(type == "tuple" || type == "list")
+			{
+			    continue;
+			}
+		    }
 		}
 		cout << file << ":" << cont->line() << ": warning: ignoring invalid metadata `" << s << "'" << endl;
             }

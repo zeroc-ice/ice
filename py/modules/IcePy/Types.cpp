@@ -504,7 +504,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
         string val;
         if(PyString_Check(p))
         {
-            val = PyString_AS_STRING(p);
+            val = string(PyString_AS_STRING(p), PyString_GET_SIZE(p));
         }
         else if(p != Py_None)
         {
@@ -602,442 +602,6 @@ IcePy::PrimitiveInfo::print(PyObject* value, IceUtil::Output& out, PrintObjectHi
     }
     assert(PyString_Check(p.get()));
     out << PyString_AS_STRING(p.get());
-}
-
-
-void
-IcePy::PrimitiveInfo::marshalSequence(PyObject* p, const Ice::OutputStreamPtr& os)
-{
-    PyObjectHandle fs = PySequence_Fast(p, STRCAST("expected a sequence value"));
-    if(fs.get() == NULL)
-    {
-        return;
-    }
-
-    switch(kind)
-    {
-    case PrimitiveInfo::KindBool:
-    {
-        int sz = PySequence_Fast_GET_SIZE(fs.get());
-        Ice::BoolSeq seq(sz);
-        for(int i = 0; i < sz; ++i)
-        {
-            PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
-            if(item == NULL)
-            {
-                throw AbortMarshaling();
-            }
-            int isTrue = PyObject_IsTrue(item);
-            if(isTrue < 0)
-            {
-                PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<bool>"), i);
-                throw AbortMarshaling();
-            }
-            seq[i] = isTrue ? true : false;
-        }
-        os->writeBoolSeq(seq);
-        break;
-    }
-    case PrimitiveInfo::KindByte:
-    {
-        int sz = PySequence_Fast_GET_SIZE(fs.get());
-        Ice::ByteSeq seq(sz);
-        for(int i = 0; i < sz; ++i)
-        {
-            PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
-            if(item == NULL)
-            {
-                throw AbortMarshaling();
-            }
-
-            long val = -1;
-            if(PyInt_Check(item))
-            {
-                val = PyInt_AS_LONG(item);
-            }
-            else if(PyLong_Check(item))
-            {
-                val = PyLong_AsLong(item);
-            }
-
-            if(PyErr_Occurred() || val < 0 || val > 255)
-            {
-                PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<byte>"), i);
-                throw AbortMarshaling();
-            }
-            seq[i] = static_cast<Ice::Byte>(val);
-        }
-        os->writeByteSeq(seq);
-        break;
-    }
-    case PrimitiveInfo::KindShort:
-    {
-        int sz = PySequence_Fast_GET_SIZE(fs.get());
-        Ice::ShortSeq seq(sz);
-        for(int i = 0; i < sz; ++i)
-        {
-            PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
-            if(item == NULL)
-            {
-                throw AbortMarshaling();
-            }
-
-            long val = SHRT_MIN - 1;
-            if(PyInt_Check(item))
-            {
-                val = PyInt_AS_LONG(item);
-            }
-            else if(PyLong_Check(item))
-            {
-                val = PyLong_AsLong(item);
-            }
-
-            if(PyErr_Occurred() || val < SHRT_MIN || val > SHRT_MAX)
-            {
-                PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<short>"), i);
-                throw AbortMarshaling();
-            }
-            seq[i] = static_cast<Ice::Short>(val);
-        }
-        os->writeShortSeq(seq);
-        break;
-    }
-    case PrimitiveInfo::KindInt:
-    {
-        int sz = PySequence_Fast_GET_SIZE(fs.get());
-        Ice::IntSeq seq(sz);
-        for(int i = 0; i < sz; ++i)
-        {
-            PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
-            if(item == NULL)
-            {
-                throw AbortMarshaling();
-            }
-
-            long val;
-            if(PyInt_Check(item))
-            {
-                val = PyInt_AS_LONG(item);
-            }
-            else if(PyLong_Check(item))
-            {
-                val = PyLong_AsLong(item);
-            }
-            else
-            {
-                PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<int>"), i);
-                throw AbortMarshaling();
-            }
-
-            if(PyErr_Occurred() || val < INT_MIN || val > INT_MAX)
-            {
-                PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<int>"), i);
-                throw AbortMarshaling();
-            }
-            seq[i] = static_cast<Ice::Int>(val);
-        }
-        os->writeIntSeq(seq);
-        break;
-    }
-    case PrimitiveInfo::KindLong:
-    {
-        int sz = PySequence_Fast_GET_SIZE(fs.get());
-        Ice::LongSeq seq(sz);
-        for(int i = 0; i < sz; ++i)
-        {
-            PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
-            if(item == NULL)
-            {
-                throw AbortMarshaling();
-            }
-
-            Ice::Long val;
-            if(PyInt_Check(item))
-            {
-                val = PyInt_AS_LONG(item);
-            }
-            else if(PyLong_Check(item))
-            {
-                val = PyLong_AsLongLong(item);
-            }
-            else
-            {
-                PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<int>"), i);
-                throw AbortMarshaling();
-            }
-
-            if(PyErr_Occurred())
-            {
-                PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<int>"), i);
-                throw AbortMarshaling();
-            }
-            seq[i] = val;
-        }
-        os->writeLongSeq(seq);
-        break;
-    }
-    case PrimitiveInfo::KindFloat:
-    {
-        int sz = PySequence_Fast_GET_SIZE(fs.get());
-        Ice::FloatSeq seq(sz);
-        for(int i = 0; i < sz; ++i)
-        {
-            PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
-            if(item == NULL)
-            {
-                throw AbortMarshaling();
-            }
-
-            float val;
-            if(PyFloat_Check(item))
-            {
-                val = static_cast<float>(PyFloat_AS_DOUBLE(item));
-            }
-            else
-            {
-                PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<float>"), i);
-                throw AbortMarshaling();
-            }
-
-            seq[i] = val;
-        }
-        os->writeFloatSeq(seq);
-        break;
-    }
-    case PrimitiveInfo::KindDouble:
-    {
-        int sz = PySequence_Fast_GET_SIZE(fs.get());
-        Ice::DoubleSeq seq(sz);
-        for(int i = 0; i < sz; ++i)
-        {
-            PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
-            if(item == NULL)
-            {
-                throw AbortMarshaling();
-            }
-
-            double val;
-            if(PyFloat_Check(item))
-            {
-                val = PyFloat_AS_DOUBLE(item);
-            }
-            else
-            {
-                PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<double>"), i);
-                throw AbortMarshaling();
-            }
-
-            seq[i] = val;
-        }
-        os->writeDoubleSeq(seq);
-        break;
-    }
-    case PrimitiveInfo::KindString:
-    {
-        int sz = PySequence_Fast_GET_SIZE(fs.get());
-        Ice::StringSeq seq(sz);
-        for(int i = 0; i < sz; ++i)
-        {
-            PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
-            if(item == NULL)
-            {
-                throw AbortMarshaling();
-            }
-
-            string val;
-            if(PyString_Check(item))
-            {
-                val = PyString_AS_STRING(item);
-            }
-            else if(p != Py_None)
-            {
-                PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<string>"), i);
-                throw AbortMarshaling();
-            }
-
-            seq[i] = val;
-        }
-        os->writeStringSeq(seq);
-        break;
-    }
-    }
-}
-
-void
-IcePy::PrimitiveInfo::unmarshalSequence(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, PyObject* target,
-                                        void* closure)
-{
-    PyObjectHandle list;
-
-    switch(kind)
-    {
-    case PrimitiveInfo::KindBool:
-    {
-        Ice::BoolSeq seq = is->readBoolSeq();
-        int sz = static_cast<int>(seq.size());
-        list = PyList_New(sz);
-        if(list.get() == NULL)
-        {
-            throw AbortMarshaling();
-        }
-
-        for(int i = 0; i < sz; ++i)
-        {
-            PyObject* val = seq[i] ? Py_True : Py_False;
-            Py_INCREF(val);
-            PyList_SET_ITEM(list.get(), i, val); // PyList_SET_ITEM steals a reference.
-        }
-        break;
-    }
-    case PrimitiveInfo::KindByte:
-    {
-        Ice::ByteSeq seq = is->readByteSeq();
-        int sz = static_cast<int>(seq.size());
-        list = PyList_New(sz);
-        if(list.get() == NULL)
-        {
-            throw AbortMarshaling();
-        }
-
-        for(int i = 0; i < sz; ++i)
-        {
-            PyObjectHandle item = PyInt_FromLong(seq[i]);
-            if(item.get() == NULL)
-            {
-                throw AbortMarshaling();
-            }
-            PyList_SET_ITEM(list.get(), i, item.release()); // PyList_SET_ITEM steals a reference.
-        }
-        break;
-    }
-    case PrimitiveInfo::KindShort:
-    {
-        Ice::ShortSeq seq = is->readShortSeq();
-        int sz = static_cast<int>(seq.size());
-        list = PyList_New(sz);
-        if(list.get() == NULL)
-        {
-            throw AbortMarshaling();
-        }
-
-        for(int i = 0; i < sz; ++i)
-        {
-            PyObjectHandle item = PyInt_FromLong(seq[i]);
-            if(item.get() == NULL)
-            {
-                throw AbortMarshaling();
-            }
-            PyList_SET_ITEM(list.get(), i, item.release()); // PyList_SET_ITEM steals a reference.
-        }
-        break;
-    }
-    case PrimitiveInfo::KindInt:
-    {
-        Ice::IntSeq seq = is->readIntSeq();
-        int sz = static_cast<int>(seq.size());
-        list = PyList_New(sz);
-        if(list.get() == NULL)
-        {
-            throw AbortMarshaling();
-        }
-
-        for(int i = 0; i < sz; ++i)
-        {
-            PyObjectHandle item = PyInt_FromLong(seq[i]);
-            if(item.get() == NULL)
-            {
-                throw AbortMarshaling();
-            }
-            PyList_SET_ITEM(list.get(), i, item.release()); // PyList_SET_ITEM steals a reference.
-        }
-        break;
-    }
-    case PrimitiveInfo::KindLong:
-    {
-        Ice::LongSeq seq = is->readLongSeq();
-        int sz = static_cast<int>(seq.size());
-        list = PyList_New(sz);
-        if(list.get() == NULL)
-        {
-            throw AbortMarshaling();
-        }
-
-        for(int i = 0; i < sz; ++i)
-        {
-            PyObjectHandle item = PyLong_FromLongLong(seq[i]);
-            if(item.get() == NULL)
-            {
-                throw AbortMarshaling();
-            }
-            PyList_SET_ITEM(list.get(), i, item.release()); // PyList_SET_ITEM steals a reference.
-        }
-        break;
-    }
-    case PrimitiveInfo::KindFloat:
-    {
-        Ice::FloatSeq seq = is->readFloatSeq();
-        int sz = static_cast<int>(seq.size());
-        list = PyList_New(sz);
-        if(list.get() == NULL)
-        {
-            throw AbortMarshaling();
-        }
-
-        for(int i = 0; i < sz; ++i)
-        {
-            PyObjectHandle item = PyFloat_FromDouble(seq[i]);
-            if(item.get() == NULL)
-            {
-                throw AbortMarshaling();
-            }
-            PyList_SET_ITEM(list.get(), i, item.release()); // PyList_SET_ITEM steals a reference.
-        }
-        break;
-    }
-    case PrimitiveInfo::KindDouble:
-    {
-        Ice::DoubleSeq seq = is->readDoubleSeq();
-        int sz = static_cast<int>(seq.size());
-        list = PyList_New(sz);
-        if(list.get() == NULL)
-        {
-            throw AbortMarshaling();
-        }
-
-        for(int i = 0; i < sz; ++i)
-        {
-            PyObjectHandle item = PyFloat_FromDouble(seq[i]);
-            if(item.get() == NULL)
-            {
-                throw AbortMarshaling();
-            }
-            PyList_SET_ITEM(list.get(), i, item.release()); // PyList_SET_ITEM steals a reference.
-        }
-        break;
-    }
-    case PrimitiveInfo::KindString:
-    {
-        Ice::StringSeq seq = is->readStringSeq();
-        int sz = static_cast<int>(seq.size());
-        list = PyList_New(sz);
-        if(list.get() == NULL)
-        {
-            throw AbortMarshaling();
-        }
-
-        for(int i = 0; i < sz; ++i)
-        {
-            PyObjectHandle item = PyString_FromString(seq[i].c_str());
-            if(item.get() == NULL)
-            {
-                throw AbortMarshaling();
-            }
-            PyList_SET_ITEM(list.get(), i, item.release()); // PyList_SET_ITEM steals a reference.
-        }
-        break;
-    }
-    }
-    cb->unmarshaled(list.get(), target, closure);
 }
 
 //
@@ -1303,7 +867,7 @@ IcePy::SequenceInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Object
     PrimitiveInfoPtr pi = PrimitiveInfoPtr::dynamicCast(elementType);
     if(pi)
     {
-        pi->marshalSequence(p, os);
+	marshalPrimitiveSequence(pi, p, os);
         return;
     }
 
@@ -1339,12 +903,22 @@ IcePy::SequenceInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCal
     PrimitiveInfoPtr pi = PrimitiveInfoPtr::dynamicCast(elementType);
     if(pi)
     {
-        pi->unmarshalSequence(is, cb, target, closure);
+	unmarshalPrimitiveSequence(pi, is, cb, target, closure);
         return;
     }
 
     Ice::Int sz = is->readSize();
-    PyObjectHandle result = PyList_New(sz);
+    PyObjectHandle result;
+    if(mapping == SEQ_DEFAULT || mapping == SEQ_LIST)
+    {
+	result = PyList_New(sz);
+    }
+    else
+    {
+	assert(mapping == SEQ_TUPLE);
+	result = PyTuple_New(sz);
+    }
+
     if(result.get() == NULL)
     {
         throw AbortMarshaling();
@@ -1363,8 +937,17 @@ void
 IcePy::SequenceInfo::unmarshaled(PyObject* val, PyObject* target, void* closure)
 {
     long i = reinterpret_cast<long>(closure);
-    PyList_SET_ITEM(target, i, val);
-    Py_INCREF(val); // PyList_SET_ITEM steals a reference.
+    if(mapping == SEQ_DEFAULT || mapping == SEQ_LIST)
+    {
+	PyList_SET_ITEM(target, i, val);
+	Py_INCREF(val); // PyList_SET_ITEM steals a reference.
+    }
+    else
+    {
+	assert(mapping == SEQ_TUPLE);
+	PyTuple_SET_ITEM(target, i, val);
+	Py_INCREF(val); // PyTuple_SET_ITEM steals a reference.
+    }
 }
 
 void
@@ -1412,6 +995,513 @@ IcePy::SequenceInfo::destroy()
     {
         elementType->destroy();
         elementType = 0;
+    }
+}
+
+void
+IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObject* p, const Ice::OutputStreamPtr& os)
+{
+    PyObjectHandle fs;
+    if(pi->kind == PrimitiveInfo::KindByte)
+    {
+	//
+	// Accept a string or a sequence for sequence<byte>.
+	//
+	if(!PyString_Check(p))
+	{
+	    fs = PySequence_Fast(p, STRCAST("expected a string or a sequence value"));
+	    if(fs.get() == NULL)
+	    {
+		return;
+	    }
+	}
+    }
+    else
+    {
+	fs = PySequence_Fast(p, STRCAST("expected a sequence value"));
+	if(fs.get() == NULL)
+	{
+	    return;
+	}
+    }
+
+    switch(pi->kind)
+    {
+    case PrimitiveInfo::KindBool:
+    {
+	int sz = PySequence_Fast_GET_SIZE(fs.get());
+	Ice::BoolSeq seq(sz);
+	for(int i = 0; i < sz; ++i)
+	{
+	    PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
+	    if(item == NULL)
+	    {
+		throw AbortMarshaling();
+	    }
+	    int isTrue = PyObject_IsTrue(item);
+	    if(isTrue < 0)
+	    {
+		PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<bool>"), i);
+		throw AbortMarshaling();
+	    }
+	    seq[i] = isTrue ? true : false;
+	}
+	os->writeBoolSeq(seq);
+	break;
+    }
+    case PrimitiveInfo::KindByte:
+    {
+	if(fs.get() == NULL)
+	{
+	    assert(PyString_Check(p));
+	    const char* str = PyString_AS_STRING(p);
+	    int sz = PyString_GET_SIZE(p);
+	    Ice::ByteSeq seq(sz);
+	    for(int i = 0; i < sz; ++i)
+	    {
+		seq[i] = static_cast<Ice::Byte>(str[i]);
+	    }
+	    os->writeByteSeq(seq);
+	}
+	else
+	{
+	    int sz = PySequence_Fast_GET_SIZE(fs.get());
+	    Ice::ByteSeq seq(sz);
+	    for(int i = 0; i < sz; ++i)
+	    {
+		PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
+		if(item == NULL)
+		{
+		    throw AbortMarshaling();
+		}
+
+		long val = -1;
+		if(PyInt_Check(item))
+		{
+		    val = PyInt_AS_LONG(item);
+		}
+		else if(PyLong_Check(item))
+		{
+		    val = PyLong_AsLong(item);
+		}
+
+		if(PyErr_Occurred() || val < 0 || val > 255)
+		{
+		    PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<byte>"), i);
+		    throw AbortMarshaling();
+		}
+		seq[i] = static_cast<Ice::Byte>(val);
+	    }
+	    os->writeByteSeq(seq);
+	}
+	break;
+    }
+    case PrimitiveInfo::KindShort:
+    {
+	int sz = PySequence_Fast_GET_SIZE(fs.get());
+	Ice::ShortSeq seq(sz);
+	for(int i = 0; i < sz; ++i)
+	{
+	    PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
+	    if(item == NULL)
+	    {
+		throw AbortMarshaling();
+	    }
+
+	    long val = SHRT_MIN - 1;
+	    if(PyInt_Check(item))
+	    {
+		val = PyInt_AS_LONG(item);
+	    }
+	    else if(PyLong_Check(item))
+	    {
+		val = PyLong_AsLong(item);
+	    }
+
+	    if(PyErr_Occurred() || val < SHRT_MIN || val > SHRT_MAX)
+	    {
+		PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<short>"), i);
+		throw AbortMarshaling();
+	    }
+	    seq[i] = static_cast<Ice::Short>(val);
+	}
+	os->writeShortSeq(seq);
+	break;
+    }
+    case PrimitiveInfo::KindInt:
+    {
+	int sz = PySequence_Fast_GET_SIZE(fs.get());
+	Ice::IntSeq seq(sz);
+	for(int i = 0; i < sz; ++i)
+	{
+	    PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
+	    if(item == NULL)
+	    {
+		throw AbortMarshaling();
+	    }
+
+	    long val;
+	    if(PyInt_Check(item))
+	    {
+		val = PyInt_AS_LONG(item);
+	    }
+	    else if(PyLong_Check(item))
+	    {
+		val = PyLong_AsLong(item);
+	    }
+	    else
+	    {
+		PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<int>"), i);
+		throw AbortMarshaling();
+	    }
+
+	    if(PyErr_Occurred() || val < INT_MIN || val > INT_MAX)
+	    {
+		PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<int>"), i);
+		throw AbortMarshaling();
+	    }
+	    seq[i] = static_cast<Ice::Int>(val);
+	}
+	os->writeIntSeq(seq);
+	break;
+    }
+    case PrimitiveInfo::KindLong:
+    {
+	int sz = PySequence_Fast_GET_SIZE(fs.get());
+	Ice::LongSeq seq(sz);
+	for(int i = 0; i < sz; ++i)
+	{
+	    PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
+	    if(item == NULL)
+	    {
+		throw AbortMarshaling();
+	    }
+
+	    Ice::Long val;
+	    if(PyInt_Check(item))
+	    {
+		val = PyInt_AS_LONG(item);
+	    }
+	    else if(PyLong_Check(item))
+	    {
+		val = PyLong_AsLongLong(item);
+	    }
+	    else
+	    {
+		PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<long>"), i);
+		throw AbortMarshaling();
+	    }
+
+	    if(PyErr_Occurred())
+	    {
+		PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<long>"), i);
+		throw AbortMarshaling();
+	    }
+	    seq[i] = val;
+	}
+	os->writeLongSeq(seq);
+	break;
+    }
+    case PrimitiveInfo::KindFloat:
+    {
+	int sz = PySequence_Fast_GET_SIZE(fs.get());
+	Ice::FloatSeq seq(sz);
+	for(int i = 0; i < sz; ++i)
+	{
+	    PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
+	    if(item == NULL)
+	    {
+		throw AbortMarshaling();
+	    }
+
+	    float val;
+	    if(PyFloat_Check(item))
+	    {
+		val = static_cast<float>(PyFloat_AS_DOUBLE(item));
+	    }
+	    else
+	    {
+		PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<float>"), i);
+		throw AbortMarshaling();
+	    }
+
+	    seq[i] = val;
+	}
+	os->writeFloatSeq(seq);
+	break;
+    }
+    case PrimitiveInfo::KindDouble:
+    {
+	int sz = PySequence_Fast_GET_SIZE(fs.get());
+	Ice::DoubleSeq seq(sz);
+	for(int i = 0; i < sz; ++i)
+	{
+	    PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
+	    if(item == NULL)
+	    {
+		throw AbortMarshaling();
+	    }
+
+	    double val;
+	    if(PyFloat_Check(item))
+	    {
+		val = PyFloat_AS_DOUBLE(item);
+	    }
+	    else
+	    {
+		PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<double>"), i);
+		throw AbortMarshaling();
+	    }
+
+	    seq[i] = val;
+	}
+	os->writeDoubleSeq(seq);
+	break;
+    }
+    case PrimitiveInfo::KindString:
+    {
+	int sz = PySequence_Fast_GET_SIZE(fs.get());
+	Ice::StringSeq seq(sz);
+	for(int i = 0; i < sz; ++i)
+	{
+	    PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
+	    if(item == NULL)
+	    {
+		throw AbortMarshaling();
+	    }
+
+	    string val;
+	    if(PyString_Check(item))
+	    {
+		val = string(PyString_AS_STRING(item), PyString_GET_SIZE(item));
+	    }
+	    else if(p != Py_None)
+	    {
+		PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<string>"), i);
+		throw AbortMarshaling();
+	    }
+
+	    seq[i] = val;
+	}
+	os->writeStringSeq(seq);
+	break;
+    }
+    }
+}
+
+void
+IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, const Ice::InputStreamPtr& is,
+						const UnmarshalCallbackPtr& cb, PyObject* target, void* closure)
+{
+    PyObjectHandle result;
+
+    switch(pi->kind)
+    {
+    case PrimitiveInfo::KindBool:
+    {
+	Ice::BoolSeq seq = is->readBoolSeq();
+	int sz = static_cast<int>(seq.size());
+	result = createContainer(sz);
+	if(result.get() == NULL)
+	{
+	    throw AbortMarshaling();
+	}
+
+	for(int i = 0; i < sz; ++i)
+	{
+	    setItem(result.get(), i, seq[i] ? Py_True : Py_False);
+	}
+	break;
+    }
+    case PrimitiveInfo::KindByte:
+    {
+	Ice::ByteSeq seq = is->readByteSeq();
+	int sz = static_cast<int>(seq.size());
+	if(mapping == SEQ_DEFAULT)
+	{
+	    result = PyString_FromStringAndSize(reinterpret_cast<char*>(&seq[0]), sz);
+	    if(result.get() == NULL)
+	    {
+		throw AbortMarshaling();
+	    }
+	}
+	else
+	{
+	    result = createContainer(sz);
+	    if(result.get() == NULL)
+	    {
+		throw AbortMarshaling();
+	    }
+
+	    for(int i = 0; i < sz; ++i)
+	    {
+		PyObjectHandle item = PyInt_FromLong(seq[i]);
+		if(item.get() == NULL)
+		{
+		    throw AbortMarshaling();
+		}
+		setItem(result.get(), i, item.get());
+	    }
+	}
+	break;
+    }
+    case PrimitiveInfo::KindShort:
+    {
+	Ice::ShortSeq seq = is->readShortSeq();
+	int sz = static_cast<int>(seq.size());
+	result = createContainer(sz);
+	if(result.get() == NULL)
+	{
+	    throw AbortMarshaling();
+	}
+
+	for(int i = 0; i < sz; ++i)
+	{
+	    PyObjectHandle item = PyInt_FromLong(seq[i]);
+	    if(item.get() == NULL)
+	    {
+		throw AbortMarshaling();
+	    }
+	    setItem(result.get(), i, item.get());
+	}
+	break;
+    }
+    case PrimitiveInfo::KindInt:
+    {
+	Ice::IntSeq seq = is->readIntSeq();
+	int sz = static_cast<int>(seq.size());
+	result = createContainer(sz);
+	if(result.get() == NULL)
+	{
+	    throw AbortMarshaling();
+	}
+
+	for(int i = 0; i < sz; ++i)
+	{
+	    PyObjectHandle item = PyInt_FromLong(seq[i]);
+	    if(item.get() == NULL)
+	    {
+		throw AbortMarshaling();
+	    }
+	    setItem(result.get(), i, item.get());
+	}
+	break;
+    }
+    case PrimitiveInfo::KindLong:
+    {
+	Ice::LongSeq seq = is->readLongSeq();
+	int sz = static_cast<int>(seq.size());
+	result = createContainer(sz);
+	if(result.get() == NULL)
+	{
+	    throw AbortMarshaling();
+	}
+
+	for(int i = 0; i < sz; ++i)
+	{
+	    PyObjectHandle item = PyLong_FromLongLong(seq[i]);
+	    if(item.get() == NULL)
+	    {
+		throw AbortMarshaling();
+	    }
+	    setItem(result.get(), i, item.get());
+	}
+	break;
+    }
+    case PrimitiveInfo::KindFloat:
+    {
+	Ice::FloatSeq seq = is->readFloatSeq();
+	int sz = static_cast<int>(seq.size());
+	result = createContainer(sz);
+	if(result.get() == NULL)
+	{
+	    throw AbortMarshaling();
+	}
+
+	for(int i = 0; i < sz; ++i)
+	{
+	    PyObjectHandle item = PyFloat_FromDouble(seq[i]);
+	    if(item.get() == NULL)
+	    {
+		throw AbortMarshaling();
+	    }
+	    setItem(result.get(), i, item.get());
+	}
+	break;
+    }
+    case PrimitiveInfo::KindDouble:
+    {
+	Ice::DoubleSeq seq = is->readDoubleSeq();
+	int sz = static_cast<int>(seq.size());
+	result = createContainer(sz);
+	if(result.get() == NULL)
+	{
+	    throw AbortMarshaling();
+	}
+
+	for(int i = 0; i < sz; ++i)
+	{
+	    PyObjectHandle item = PyFloat_FromDouble(seq[i]);
+	    if(item.get() == NULL)
+	    {
+		throw AbortMarshaling();
+	    }
+	    setItem(result.get(), i, item.get());
+	}
+	break;
+    }
+    case PrimitiveInfo::KindString:
+    {
+	Ice::StringSeq seq = is->readStringSeq();
+	int sz = static_cast<int>(seq.size());
+	result = createContainer(sz);
+	if(result.get() == NULL)
+	{
+	    throw AbortMarshaling();
+	}
+
+	for(int i = 0; i < sz; ++i)
+	{
+	    PyObjectHandle item = PyString_FromString(seq[i].c_str());
+	    if(item.get() == NULL)
+	    {
+		throw AbortMarshaling();
+	    }
+	    setItem(result.get(), i, item.get());
+	}
+	break;
+    }
+    }
+    cb->unmarshaled(result.get(), target, closure);
+}
+
+PyObject*
+IcePy::SequenceInfo::createContainer(int sz) const
+{
+    if(mapping == SEQ_DEFAULT || mapping == SEQ_LIST)
+    {
+	return PyList_New(sz);
+    }
+    else
+    {
+	assert(mapping == SEQ_TUPLE);
+	return PyTuple_New(sz);
+    }
+}
+
+void
+IcePy::SequenceInfo::setItem(PyObject* cont, int i, PyObject* val) const
+{
+    if(mapping == SEQ_DEFAULT || mapping == SEQ_LIST)
+    {
+	Py_INCREF(val);
+	PyList_SET_ITEM(cont, i, val); // PyList_SET_ITEM steals a reference.
+    }
+    else
+    {
+	assert(mapping == SEQ_TUPLE);
+	Py_INCREF(val);
+	PyTuple_SET_ITEM(cont, i, val); // PyTuple_SET_ITEM steals a reference.
     }
 }
 
@@ -2509,7 +2599,7 @@ IcePy_defineStruct(PyObject*, PyObject* args)
         assert(PyString_Check(s));
         PyObject* t = PyTuple_GET_ITEM(m, 1); // Member type.
         DataMemberPtr member = new DataMember;
-        member->name = PyString_AS_STRING(s);
+        member->name = string(PyString_AS_STRING(s), PyString_GET_SIZE(s));
         member->type = getType(t);
         info->members.push_back(member);
     }
@@ -2522,14 +2612,30 @@ PyObject*
 IcePy_defineSequence(PyObject*, PyObject* args)
 {
     char* id;
+    int mapping;
     PyObject* elementType;
-    if(!PyArg_ParseTuple(args, STRCAST("sO"), &id, &elementType))
+    if(!PyArg_ParseTuple(args, STRCAST("siO"), &id, &mapping, &elementType))
     {
         return NULL;
     }
 
     SequenceInfoPtr info = new SequenceInfo;
     info->id = id;
+    switch(mapping)
+    {
+    case 0:
+	info->mapping = SequenceInfo::SEQ_DEFAULT;
+	break;
+    case 1:
+	info->mapping = SequenceInfo::SEQ_TUPLE;
+	break;
+    case 2:
+	info->mapping = SequenceInfo::SEQ_LIST;
+	break;
+    default:
+	assert(false);
+	break;
+    }
     info->elementType = getType(elementType);
 
     return createType(info);
@@ -2698,7 +2804,7 @@ IcePy_defineClass(PyObject*, PyObject* args)
         assert(PyString_Check(s));
         PyObject* t = PyTuple_GET_ITEM(m, 1); // Member type.
         DataMemberPtr member = new DataMember;
-        member->name = PyString_AS_STRING(s);
+        member->name = string(PyString_AS_STRING(s), PyString_GET_SIZE(s));
         member->type = getType(t);
         info->members.push_back(member);
     }
@@ -2749,7 +2855,7 @@ IcePy_defineException(PyObject*, PyObject* args)
         assert(PyString_Check(s));
         PyObject* t = PyTuple_GET_ITEM(m, 1); // Member type.
         DataMemberPtr member = new DataMember;
-        member->name = PyString_AS_STRING(s);
+        member->name = string(PyString_AS_STRING(s), PyString_GET_SIZE(s));
         member->type = getType(t);
         info->members.push_back(member);
         if(!info->usesClasses)
