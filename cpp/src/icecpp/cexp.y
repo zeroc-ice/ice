@@ -246,7 +246,7 @@ static void integer_overflow PROTO((void));
 //
 // Required to allow the code to compile with VC 8 with bison 2.1.
 //
-#if _MSC_VER == 1400
+#if defined(_MSC_VER) && _MSC_VER == 1400
 #   define __STDC__
 #   define YYMALLOC
 #   define YYFREE
@@ -256,7 +256,7 @@ static void integer_overflow PROTO((void));
 // Required to allow the code to compile with VC 6 (and newer
 // versions?) with bison 2.3.
 //
-#if _MSC_VER < 1300 // TODO: Change to "#ifdef _MSC_VER" if newer VC versions also need this.
+#if defined(_MSC_VER) && _MSC_VER < 1300 // TODO: Change to "#ifdef _MSC_VER" if newer VC versions also need this.
 #   define YYMALLOC malloc
 #   define YYFREE free
 #endif
