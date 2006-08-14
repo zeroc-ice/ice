@@ -24,6 +24,21 @@ To configure your environment:
  - set the TAO_ROOT and ACE_ROOT environment variables to refer to the
    path of the TAO distributions you want to test. 
 
+For Windows users only:
+
+   The Windows build system for the IceE translator does not install the
+   translator into a specific location, nor is there a environment
+   varialble that can be used to identify its location. In order to
+   build the IceE portion of the performance tests you will need to
+   either:
+
+     - add the location of the translators to your PATH environment
+       variable if you are using the /useenv option, or
+
+     - add the location of the translators to the list of executable
+       directories in the Microsoft IDE Tools|Options|Directories
+       settings.
+
 ICEE_HOME, TAO_ROOT and ACE_ROOT are optional settings and are only
 required if you want to build and run the IceE and TAO performance
 tests. Ice and ICE_HOME is required for the TAO tests as the TAO

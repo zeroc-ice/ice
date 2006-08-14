@@ -20,15 +20,19 @@ CPPFLAGS		=
 ICECPPFLAGS		= -I$(slicedir)
 SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 
+#
+# Optimization rules come from the Ice distribution's config files.
+#
 ifeq ($(DEBUG),yes)
      CXXFLAGS		:= -g $(CXXFLAGS)
 endif
+
 LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS)
 
 ICE_CPPFLAGS		?= -I$(ICEE_HOME)/include
 ICE_LIBS		?= -L$(ICEE_HOME)/lib -lIceE
 
-SLICE2CPP		= $(ICE_HOME)/bin/slice2cppe
+SLICE2CPP		= $(ICEE_HOME)/bin/slice2cppe
 
 .SUFFIXES:
 .SUFFIXES:		.cc .cpp .o .py

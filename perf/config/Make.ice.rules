@@ -20,9 +20,13 @@ CPPFLAGS		=
 ICECPPFLAGS		= -I$(slicedir)
 SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 
+#
+# Optimization rules come from the Ice distribution's config files.
+#
 ifeq ($(DEBUG),yes)
      CXXFLAGS		:= -g $(CXXFLAGS)
 endif
+
 LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS)
 
 ICE_CPPFLAGS		?= -I$(ICE_HOME)/include
