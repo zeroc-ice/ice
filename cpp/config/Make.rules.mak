@@ -70,7 +70,7 @@ LIBSUFFIX	= $(LIBSUFFIX)d
 !endif
 
 OPENSSL_LIBS            = ssleay32.lib libeay32.lib
-BZIP2_LIBS              = libbz2$(LIBSUFFIX).lib
+BZIP2_LIBS              = libbz2.lib
 DB_LIBS                 = libdb44.lib
 EXPAT_LIBS              = libexpat.lib
 
