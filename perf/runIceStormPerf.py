@@ -366,4 +366,4 @@ print "\n"
 print "All results:"
 all = TestUtil.AllResults()
 all.add(results)
-all.printAll(TestUtil.ValuesMeanAndBest(), False)
+all.printAll(TestUtil.ValuesMeanAndBest(), "text")
