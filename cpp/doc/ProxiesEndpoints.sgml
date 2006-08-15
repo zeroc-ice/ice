@@ -246,8 +246,7 @@ the host name as returned by <literal>gethostname()</literal> is used.</entry>
 listens for connections, as well as the host name or IP address that
 is advertised in proxies created by the adapter. If not specified, (or specified as <literal>-h *</literal>
 or <literal>-h 0.0.0.0</literal>), the adapter listens on all network interfaces
-except for the loopback interface (except if no network interfaces are found, in
-which case the adapter listens only on the loopback interface).</entry>
+(including the loopback interface).</entry>
 </row>
 <row>
 <entry>-p <replaceable>port</replaceable></entry>
@@ -352,8 +351,7 @@ the host name as returned by <literal>gethostname()</literal> is used.</entry>
 listens for datagrams, as well as the host name or IP address that is
 advertised in proxies created by this adapter. If not specified, (or specified as <literal>-h *</literal>
 or <literal>-h 0.0.0.0</literal>), the adapter listens on all network interfaces
-except for the loopback interface (except if no network interfaces are found, in
-which case the adapter listens only on the loopback interface).</entry>
+(including the loopback interface).</entry>
 </row>
 <row>
 <entry>-p <replaceable>port</replaceable></entry>
@@ -425,8 +423,7 @@ listens for connections, as well as the host name or IP address that
 is advertised in proxies created by this adapter.
 If not specified, (or specified as <literal>-h *</literal>
 or <literal>-h 0.0.0.0</literal>), the adapter listens on all network interfaces
-except for the loopback interface (except if no network interfaces are found, in
-which case the adapter listens only on the loopback interface).</entry>
+(including the loopback interface).</entry>
 </row>
 <row>
 <entry>-p <replaceable>port</replaceable></entry>
