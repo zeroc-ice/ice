@@ -528,6 +528,7 @@ communicatorSetWrapper(CommunicatorObject* self, PyObject* args)
 
     assert(self->wrapper == NULL);
     self->wrapper = wrapper;
+    Py_INCREF(self->wrapper);
 
     Py_INCREF(Py_None);
     return Py_None;
