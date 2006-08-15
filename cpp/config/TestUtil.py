@@ -24,12 +24,13 @@ compress = 0
 #compress = 1
 
 #
-# Set threadPerConnection to 1 in case you want to run the tests in
-# thread per connection mode.
+# Set threadPerConnection to 1 or 2 in case you want to run the tests in
+# one or two thread per connection mode.
 #
 
-threadPerConnection = 0
+#threadPerConnection = 0
 #threadPerConnection = 1
+threadPerConnection = 2
 
 #
 # If you don't set "host" below, then the Ice library will try to find
@@ -52,10 +53,10 @@ import sys, os, re, errno, getopt
 from threading import Thread
 
 def usage():
-    print "usage: " + sys.argv[0] + " --debug --protocol protocol --compress --host host --threadPerConnection"
+    print "usage: " + sys.argv[0] + " --debug --protocol protocol --compress --host host --threadPerConnection num"
     sys.exit(2)
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "", ["debug", "protocol=", "compress", "host=", "threadPerConnection"])
+    opts, args = getopt.getopt(sys.argv[1:], "", ["debug", "protocol=", "compress", "host=", "threadPerConnection="])
 except getopt.GetoptError:
     usage()
 
@@ -67,7 +68,7 @@ for o, a in opts:
     if o == "--compress":
 	compress = 1
     if o == "--threadPerConnection":
-	threadPerConnection = 1
+	threadPerConnection = a
     if o == "--host":
 	host = a
 
@@ -386,11 +387,6 @@ if compress:
     serverProtocol += " --Ice.Override.Compress"
     clientServerProtocol += " --Ice.Override.Compress"
 
-if threadPerConnection:
-    clientProtocol += " --Ice.ThreadPerConnection"
-    serverProtocol += " --Ice.ThreadPerConnection"
-    clientServerProtocol += " --Ice.ThreadPerConnection"
-
 if host != "":
     defaultHost = " --Ice.Default.Host=" + host
 else:
@@ -399,9 +395,14 @@ else:
 commonClientOptions = " --Ice.NullHandleAbort --Ice.Warn.Connections"
 
 commonServerOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.NullHandleAbort" + \
-                      " --Ice.Warn.Connections --Ice.ServerIdleTime=30" + \
-                      " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3" + \
-                      " --Ice.ThreadPool.Server.SizeWarn=0"
+                      " --Ice.Warn.Connections --Ice.ServerIdleTime=30";
+
+if threadPerConnection > 0:
+    commonClientOptions += " --Ice.ThreadPerConnection=" + str(threadPerConnection)
+    commonServerOptions += " --Ice.ThreadPerConnection=" + str(threadPerConnection)
+else:
+    commonServerOptions += " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3" + \
+			   " --Ice.ThreadPool.Server.SizeWarn=0"
 
 clientOptions = clientProtocol + defaultHost + commonClientOptions
 serverOptions = serverProtocol + defaultHost + commonServerOptions

@@ -65,7 +65,7 @@ public:
     ObjectAdapterFactoryPtr objectAdapterFactory() const;
     ThreadPoolPtr clientThreadPool();
     ThreadPoolPtr serverThreadPool();
-    bool threadPerConnection() const;
+    Ice::Int threadPerConnection() const;
     size_t threadPerConnectionStackSize() const;
     EndpointFactoryManagerPtr endpointFactoryManager() const;
     DynamicLibraryListPtr dynamicLibraryList() const;
@@ -110,7 +110,7 @@ private:
     ObjectAdapterFactoryPtr _objectAdapterFactory;
     ThreadPoolPtr _clientThreadPool;
     ThreadPoolPtr _serverThreadPool;
-    const bool _threadPerConnection;
+    const Ice::Int _threadPerConnection;
     const size_t _threadPerConnectionStackSize;
     EndpointFactoryManagerPtr _endpointFactoryManager;
     DynamicLibraryListPtr _dynamicLibraryList;

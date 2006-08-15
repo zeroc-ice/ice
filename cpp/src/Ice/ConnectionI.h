@@ -131,22 +131,25 @@ private:
     void invokeAll(IceInternal::BasicStream&, Int, Int, Byte,
 		   const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&);
 
-    void run();
+    void run(); // For thread per connection.
+    void runSecond(); // For second thread per connection.
 
     class ThreadPerConnection : public IceUtil::Thread
     {
     public:
 	
-	ThreadPerConnection(const ConnectionIPtr&);
+	ThreadPerConnection(const ConnectionIPtr&, bool);
 	virtual void run();
 
     private:
 	
 	ConnectionIPtr _connection;
+	const bool _second;
     };
     friend class ThreadPerConnection;
     // Defined as mutable because "isFinished() const" sets this to 0.
     mutable IceUtil::ThreadPtr _threadPerConnection;
+    mutable IceUtil::ThreadPtr _secondThreadPerConnection;
 
     IceInternal::TransceiverPtr _transceiver;
     const std::string _desc;
