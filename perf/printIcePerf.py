@@ -30,11 +30,12 @@ def usage():
     print " -h | --help           Print this help message."
     print " -n | --hostname       Print this help message."
     print " -c | --csv            Print the results in the CSV format."
+    print " --csv2                Print the results in alternate CSV format."
     print ""
     sys.exit(2)
 
 try:
-    opts, pargs = getopt.getopt(sys.argv[1:], 'hn:c', ['help', 'hostname=', 'csv']);
+    opts, pargs = getopt.getopt(sys.argv[1:], 'hn:c', ['help', 'hostname=', 'csv', 'csv2']);
 except getopt.GetoptError:
     usage()
 
@@ -42,14 +43,16 @@ niter = max
 printResults = False
 hostname = ""
 outputFile = ""
-csv = False
+outputFormat = "text"
 for o, a in opts:
     if o == '-h' or o == "--help":
         usage()
     elif o == '-n' or o == "--hostname":
         hostname = a
     elif o == '-c' or o == "--csv":
-        csv = True
+        outputFormat = "csv"
+    elif o == "--csv2":
+        outputFormat = "csv2"
 
 
 (system, name, ver, build, machine, processor) = platform.uname()
@@ -71,4 +74,4 @@ else:
     all.add(pickle.load(f));
     f.close()
             
-all.printAll(TestUtil.ValuesMeanAndBest(), csv)
+all.printAll(TestUtil.ValuesMeanAndBest(), outputFormat)

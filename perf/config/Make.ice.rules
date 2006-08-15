@@ -25,6 +25,8 @@ SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 #
 ifeq ($(DEBUG),yes)
      CXXFLAGS		:= -g $(CXXFLAGS)
+else
+     CXXFLAGS		:= -O3 $(CXXFLAGS)
 endif
 
 LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS)

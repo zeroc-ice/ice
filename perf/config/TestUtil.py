@@ -277,7 +277,7 @@ class AllResults :
         for r in self.results.itervalues():
             r.convert(function)
     
-    def printAll(self, function, csv):
+    def printAll(self, function, what):
 
         results = { }
         tests = [ ]
@@ -287,10 +287,12 @@ class AllResults :
         for r in self.results.itervalues():
             r.addToResults(results, tests, names, products, hosts, function)
 
-        if csv:
-            self.printAllAsCsv(results, tests, names, hosts, products)
-        else:
+	if what == "text":
             self.printAllAsText(results, tests, names, hosts, products)
+	elif what == "csv":
+            self.printAllAsCsv(results, tests, names, hosts, products)
+	elif what == "csv2": 
+	    self.printAllAsCsv2(results, tests, names, hosts, products)
 
     def printAllAsCsv(self, results, tests, names, hosts, products):
 
@@ -324,6 +326,23 @@ class AllResults :
                             print ",",
 
                     print ""
+
+    def printAllAsCsv2(self, results, tests, names, hosts, products):
+	for test in tests:
+	    for n in names:
+		(name, subname) = splitName(n)
+		if results[test].has_key(name) and results[test][name].has_key(subname):
+		    for product in products: 
+			if results[test][name][subname].has_key(product):
+			    for host in hosts:
+				if results[test][name][subname][product].has_key(host):
+				    map = { 'host': host, 'product': product, 'test': test, 'name': name,  \
+					    'subname': subname, \
+					    'result': str(results[test][name][subname][product][host]) }
+				    print '"%(host)s","%(product)s","%(test)s","%(name)s %(subname)s","%(result)s"' \
+					    % map
+
+
 
     def printAllAsText(self, results, tests, names, hosts, products):
 
