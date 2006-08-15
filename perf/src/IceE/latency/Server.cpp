@@ -9,6 +9,7 @@
 
 #include <IceE/IceE.h>
 #include <Latency.h>
+#include <IceE/IdentityUtil.h>
 
 #include <iostream>
 

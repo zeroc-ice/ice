@@ -10,10 +10,10 @@
 #ifndef ROUNDTRIP_HANDLER_H
 #define ROUNDTRIP_HANDLER_H
 
+#include <TestS.h>
+
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
-
-#include <TestS.h>
 
 #if defined (_MSC_VER)
 #   if (_MSC_VER >= 1200)

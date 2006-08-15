@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <ThroughputI.h>
+#include <IceE/IdentityUtil.h>
 
 #include <iostream>
 
