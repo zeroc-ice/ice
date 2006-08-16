@@ -1056,12 +1056,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
 	    assert(PyString_Check(p));
 	    const char* str = PyString_AS_STRING(p);
 	    int sz = PyString_GET_SIZE(p);
-	    Ice::ByteSeq seq(sz);
-	    for(int i = 0; i < sz; ++i)
-	    {
-		seq[i] = static_cast<Ice::Byte>(str[i]);
-	    }
-	    os->writeByteSeq(seq);
+	    os->writeByteSeq(reinterpret_cast<const Ice::Byte*>(str), reinterpret_cast<const Ice::Byte*>(str + sz));
 	}
 	else
 	{
@@ -1315,11 +1310,12 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, cons
     }
     case PrimitiveInfo::KindByte:
     {
-	Ice::ByteSeq seq = is->readByteSeq();
-	int sz = static_cast<int>(seq.size());
+	pair<const Ice::Byte*, const Ice::Byte*> p;
+	is->readByteSeq(p);
+	int sz = static_cast<int>(p.second - p.first);
 	if(mapping == SEQ_DEFAULT)
 	{
-	    result = PyString_FromStringAndSize(reinterpret_cast<char*>(&seq[0]), sz);
+	    result = PyString_FromStringAndSize(reinterpret_cast<const char*>(p.first), sz);
 	    if(result.get() == NULL)
 	    {
 		throw AbortMarshaling();
@@ -1335,7 +1331,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, cons
 
 	    for(int i = 0; i < sz; ++i)
 	    {
-		PyObjectHandle item = PyInt_FromLong(seq[i]);
+		PyObjectHandle item = PyInt_FromLong(p.first[i]);
 		if(item.get() == NULL)
 		{
 		    throw AbortMarshaling();
