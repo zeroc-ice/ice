@@ -88,6 +88,12 @@ Ice::InputStreamI::readByteSeq()
     return v;
 }
 
+void
+Ice::InputStreamI::readByteSeq(pair<const Byte*, const Byte*>& p)
+{
+    _is.read(p);
+}
+
 Short
 Ice::InputStreamI::readShort()
 {
@@ -328,6 +334,12 @@ Ice::OutputStreamI::writeByteSeq(const vector<Byte>& v)
     {
         _os.write(&v[0], &v[0] + v.size());
     }
+}
+
+void
+Ice::OutputStreamI::writeByteSeq(const Byte* begin, const Byte* end)
+{
+    _os.write(begin, end);
 }
 
 void

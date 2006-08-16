@@ -65,6 +65,7 @@ public:
 
     virtual ::Ice::Byte readByte();
     virtual ::std::vector< ::Ice::Byte > readByteSeq();
+    virtual void readByteSeq(::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&);
 
     virtual ::Ice::Short readShort();
     virtual ::std::vector< ::Ice::Short > readShortSeq();
@@ -131,6 +132,7 @@ public:
 
     virtual void writeByte(::Ice::Byte);
     virtual void writeByteSeq(const ::std::vector< ::Ice::Byte >&);
+    virtual void writeByteSeq(const Ice::Byte*, const Ice::Byte*);
 
     virtual void writeShort(::Ice::Short);
     virtual void writeShortSeq(const ::std::vector< ::Ice::Short >&);
