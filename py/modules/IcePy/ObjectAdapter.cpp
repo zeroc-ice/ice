@@ -1471,7 +1471,9 @@ IcePy::wrapObjectAdapter(const Ice::ObjectAdapterPtr& adapter)
 Ice::ObjectAdapterPtr
 IcePy::unwrapObjectAdapter(PyObject* obj)
 {
+#ifndef NDEBUG
     PyObject* wrapperType = lookupType("Ice.ObjectAdapterI");
+#endif
     assert(wrapperType != NULL);
     assert(PyObject_IsInstance(obj, wrapperType));
     PyObjectHandle impl = PyObject_GetAttrString(obj, STRCAST("_impl"));
