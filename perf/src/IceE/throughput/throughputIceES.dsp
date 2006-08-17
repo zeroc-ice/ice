@@ -126,7 +126,7 @@ USERDEP__THROU="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\slice.lib"
 InputPath=.\Throughput.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe -DICEE_USE_ARRAY_MAPPING Throughput.ice
+	slice2cppe.exe -DICEE_USE_ARRAY_MAPPING Throughput.ice
 
 "Throughput.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -142,7 +142,7 @@ USERDEP__THROU="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\sliced.lib"
 InputPath=.\Throughput.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe -DICEE_USE_ARRAY_MAPPING Throughput.ice
+	slice2cppe.exe -DICEE_USE_ARRAY_MAPPING Throughput.ice
 
 "Throughput.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)

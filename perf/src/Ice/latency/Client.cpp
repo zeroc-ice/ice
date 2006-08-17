@@ -178,11 +178,11 @@ createAdapter(const LatencyPrx prx, const long payLoadSize)
 {
     if(payLoadSize > 0)
     {
-	return new NoPayload(prx);
+	return new WithPayload(prx, payLoadSize);
     }
     else
     {
-	return new WithPayload(prx, payLoadSize);
+	return new NoPayload(prx);
     }
     return 0;
 }
@@ -229,6 +229,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
 	twoway = true;
     }
+
+    return EXIT_SUCCESS;
+
 
     int repetitions = 0;
     if(twoway)

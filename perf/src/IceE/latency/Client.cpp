@@ -69,13 +69,13 @@ private:
 TestAdapter* 
 createAdapter(const LatencyPrx prx, const long payLoadSize)
 {
-    if(payLoadSize)
+    if(payLoadSize > 0)
     {
-	return new NoPayload(prx);
+	return new WithPayload(prx, payLoadSize);
     }
     else
     {
-	return new WithPayload(prx, payLoadSize);
+	return new NoPayload(prx);
     }
     return 0;
 }
