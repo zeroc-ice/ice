@@ -230,9 +230,6 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	twoway = true;
     }
 
-    return EXIT_SUCCESS;
-
-
     int repetitions = 0;
     if(twoway)
     {
