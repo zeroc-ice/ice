@@ -16,46 +16,32 @@ TARGETS		= $(CLIENT) $(SERVER)
 
 SLICE_SRCS	= HR.ice
 
-PROC_SRCS       = CurrentSqlContext.pc \
-                  Util.pc \
-                  EmpI.pc \
-                  DeptI.pc \
-                  DeptFactoryI.pc \
-                  Server.pc
-
 OBJS		= HR.o
 
 COBJS		= Client.o
 
-SOBJS		= $(PROC_SRCS:.pc=.o)
+SOBJS		= DbTypes.o \
+                  DbTypesMap.o \
+                  DeptFactoryI.o \
+                  DeptI.o  \
+                  EmpI.o  \
+                  Server.o \
+                  Util.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp)
 
-
-
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. -I$(ORACLE_HOME)/precomp/public -DSQLCA_NONE $(CPPFLAGS)
-
-GENERATED_PROC_FILES  = $(PROC_SRCS:.pc=.cpp) 
+CPPFLAGS	:= -I. -I$(ORACLE_HOME)/rdbms/public $(CPPFLAGS)
 
 ifeq ($(LP64),yes)
-   ORACLE_LIBS     = -L$(ORACLE_HOME)/lib -lclntsh 
+   ORACLE_LIBS     = -L$(ORACLE_HOME)/lib -locci -lclntsh
 else
-   ORACLE_LIBS     = -L$(ORACLE_HOME)/lib32 -lclntsh
+   ORACLE_LIBS     = -L$(ORACLE_HOME)/lib32 -locci -lclntsh
 endif
 
-.SUFFIXES:
-.SUFFIXES:		.pc .cpp .c .o
-
-#
-# The rm -f tp* $*.lis is to work around a proc bug on Linux
-#
-.pc.cpp:
-	proc threads=yes parse=none lines=yes code=cpp cpp_suffix=cpp close_on_commit=yes $<
-	rm -f tp* $*.lis
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
@@ -65,7 +51,15 @@ $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(ORACLE_LIBS) $(LIBS)
 
+
+ DbTypes.h DbTypes.cpp DbTypesMap.h DbTypesMap.cpp DbTypesOut.typ: DbTypes.typ
+	ott userid=scott/tiger@orcl code=cpp hfile=DbTypes.h cppfile=DbTypes.cpp \
+            mapfile=DbTypesMap.cpp intype=DbTypes.typ outtype=DbTypesOut.typ \
+            attraccess=private
+
 clean::
-	rm -f $(GENERATED_PROC_FILES)
+	rm -f DbTypes.h DbTypes.cpp DbTypesMap.h DbTypesMap.cpp DbTypesOut.typ
 
 include .depend
+
+

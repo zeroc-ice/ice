@@ -9,6 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <EmpI.h>
+#include <DeptI.h>
 #include <Util.h>
 #include <occi.h>
 
@@ -27,19 +28,7 @@ void
 EmpI::ice_ping(const Ice::Current& current) const
 {
     ConnectionHolder conh(_pool);
-    {
-	StatementHolder stmth(conh);
-      
-	stmth.statement()->setSQL("BEGIN; SELECT COUNT(*) INTO :1 FROM EMP_VIEW WHERE EMPNO = :2; END");
-	stmth.statement()->registerOutParam(1, OCCIINT);
-	stmth.statement()->setString(2, current.id.name);
-	stmth.statement()->execute();
-	
-	if(stmth.statement()->getInt(1) == 0)
-	{
-	    throw Ice::ObjectNotExistException(__FILE__, __LINE__);
-	}
-    }
+    getRef(conh.connection(), decodeName(current.id.name));
     conh.commit();
 }
 
@@ -48,47 +37,37 @@ HR::EmpDesc
 EmpI::getDesc(const Ice::Current& current)
 {
     ConnectionHolder conh(_pool);
-    
-    Ref<EMP_T> empRef = getRef(conh.connection(), decodeName(current.id.name));
-    if(empRef.isNull())
-    {
-	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
-    }
-
     HR::EmpDesc result;
-    result.ename = empRef->getEname();
-    result.job = empRef->getJob();
-    
-    Ref<EMP_T> mgrRef = empRef->getMgrref();
-    if(!mgrRef.isNull())
     {
-	Ice::Identity mgrId;
-	mgrId.name = encodeName(mgrRef->getEmpno());
-	mgrId.category = _empCategory;
-	result.mgr = 
-	    HR::EmpPrx::uncheckedCast(current.adapter->createProxy(mgrId));
-    }
+	Ref<EMP_T> empRef = getRef(conh.connection(), decodeName(current.id.name));
     
-    if(!empRef->getSal().isNull())
-    {
-	result.sal = empRef->getSal().toText(_env, "9,999,999.99");
-    }
-    
-    if(!empRef->getComm().isNull())
-    {
+	result.ename = empRef->getEname();
+	result.job = empRef->getJob();
+	
+	Ref<EMP_T> mgrRef = empRef->getMgrref();
+	if(!mgrRef.isNull())
+	{
+	    Ice::Identity mgrId;
+	    mgrId.name = encodeName(mgrRef->getEmpno());
+	    mgrId.category = _empCategory;
+	    result.mgr = 
+		HR::EmpPrx::uncheckedCast(current.adapter->createProxy(mgrId));
+	}
+	
+	result.hiredate = empRef->getHiredate().toText();
+	result.sal = empRef->getSal().toText(_env, "99,999.99");
 	result.comm = empRef->getComm().toText(_env, "0.999");
+	
+	Ref<DEPT_T> deptRef = empRef->getDeptref();
+	if(!deptRef.isNull())
+	{
+	    Ice::Identity deptId;
+	    deptId.name = encodeName(deptRef->getDeptno());
+	    deptId.category = _deptCategory;
+	    result.edept = 
+		HR::DeptPrx::uncheckedCast(current.adapter->createProxy(deptId));
+	}
     }
-    
-    Ref<DEPT_T> deptRef = empRef->getDeptref();
-    if(!deptRef.isNull())
-    {
-	Ice::Identity deptId;
-	deptId.name = encodeName(deptRef->getDeptno());
-	deptId.category = _deptCategory;
-	result.edept = 
-	    HR::DeptPrx::uncheckedCast(current.adapter->createProxy(deptId));
-    }
-
     conh.commit();
     return result;
 }
@@ -98,11 +77,7 @@ void EmpI::updateDesc(const HR::EmpDesc& newDesc, const Ice::Current& current)
     ConnectionHolder conh(_pool);
     
     Ref<EMP_T> empRef = getRef(conh.connection(), decodeName(current.id.name));
-    if(empRef.isNull())
-    {
-	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
-    }
-
+   
     empRef->setEname(newDesc.ename);
     empRef->setJob(newDesc.job);
     
@@ -114,24 +89,42 @@ void EmpI::updateDesc(const HR::EmpDesc& newDesc, const Ice::Current& current)
     {
 	Ref<EMP_T> mgrRef = getRef(conh.connection(), 
 				   decodeName(newDesc.mgr->ice_getIdentity().name));
-	if(mgrRef.isNull())
-	{
-	    throw Ice::ObjectNotExistException(__FILE__, __LINE__);
-	}
 	empRef->setMgrref(mgrRef);
     }
 
-    Date hiredate;
-    hiredate.fromText(newDesc.hiredate);
-    empRef->setHiredate(hiredate);
+    if(newDesc.hiredate == "")
+    {
+	empRef->setHiredate(Date());
+    }
+    else
+    {
+	Date hiredate(_env);
+	hiredate.fromText(newDesc.hiredate);
+	empRef->setHiredate(hiredate);
+    }
 
-    Number sal;
-    sal.fromText(_env, newDesc.sal, "9,999,999.99");
-    empRef->setSal(sal);
-
-    Number comm;
-    comm.fromText(_env, newDesc.comm, "0.999");
-    empRef->setComm(comm);
+    
+    if(newDesc.sal == "")
+    {
+	empRef->setSal(Number());
+    }
+    else
+    {
+	Number sal(0);
+	sal.fromText(_env, newDesc.sal, "99,999.99");
+	empRef->setSal(sal);
+    }
+    
+    if(newDesc.comm == "")
+    {
+	empRef->setComm(Number());	
+    }
+    else
+    {
+	Number comm(0);
+	comm.fromText(_env, newDesc.comm, "0.999");
+	empRef->setComm(comm);
+    }
 
     if(newDesc.edept == 0)
     {
@@ -139,12 +132,8 @@ void EmpI::updateDesc(const HR::EmpDesc& newDesc, const Ice::Current& current)
     }
     else
     {
-	Ref<DEPT_T> deptRef = getRef(conh.connection(), 
-				     decodeName(newDesc.edept->ice_getIdentity().name));
-	if(deptRef.isNull())
-	{
-	    throw Ice::ObjectNotExistException(__FILE__, __LINE__);
-	}
+	Ref<DEPT_T> deptRef = DeptI::getRef(conh.connection(), 
+					    decodeName(newDesc.edept->ice_getIdentity().name));
 	empRef->setDeptref(deptRef);
     }
 
@@ -157,11 +146,7 @@ void EmpI::remove(const Ice::Current& current)
     ConnectionHolder conh(_pool);
     
     Ref<EMP_T> empRef = getRef(conh.connection(), decodeName(current.id.name));
-    if(empRef.isNull())
-    {
-	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
-    }
-
+   
     empRef->markDelete();
     conh.commit();
 }
@@ -171,9 +156,15 @@ Ref<EMP_T>
 EmpI::getRef(Connection* con, int empno)
 {
     StatementHolder stmth(con);
-    stmth.statement()->setSQL("BEGIN; SELECT REF(e) INTO :1 FROM EMP_VIEW e WHERE EMPNO = :2; END");
-    stmth.statement()->registerOutParam(1, OCCIREF);
-    stmth.statement()->setInt(2, empno);
-    stmth.statement()->execute();
-    return stmth.statement()->getRef(1);
+    
+    stmth.statement()->setSQL("SELECT REF(e) FROM EMP_VIEW e WHERE EMPNO = :1");
+    stmth.statement()->setInt(1, empno);
+    auto_ptr<ResultSet> rs(stmth.statement()->executeQuery());
+    
+    if(rs->next() == ResultSet::END_OF_FETCH)
+    {
+	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
+   
+    return rs->getRef(1);
 }

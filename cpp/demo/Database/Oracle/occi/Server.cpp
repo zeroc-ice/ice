@@ -14,6 +14,7 @@
 #include <Ice/Application.h>
 #include <Ice/ServantLocator.h>
 #include <occi.h>
+#include <DbTypesMap.h>
 
 using namespace std;
 using namespace oracle::occi;
@@ -84,6 +85,7 @@ HRServer::run(int argc, char* argv[])
 	//
 	env = Environment::createEnvironment(
 	    Environment::Mode(Environment::THREADED_MUTEXED | Environment::OBJECT));
+	DbTypesMap(env);
 	
 	pool = env->createStatelessConnectionPool(
 	    username, password, connectString, 5, 2, 1,

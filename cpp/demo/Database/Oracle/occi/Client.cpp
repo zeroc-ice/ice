@@ -34,6 +34,9 @@ private:
     void doRootMenu(const string&) const;
     void doDeptMenu(const string&) const;
     void doEmpMenu(const string&) const;
+
+    static string quote(const string&);
+    static string unquote(const string&);
     
     Menu _currentMenu;
     DeptFactoryPrx _factory;
@@ -73,11 +76,13 @@ HRClient::HRClient() :
 	"create: create a new employee in this department\n"
 	"find <name>: find employee(s) named <name> in this department\n" 
 	"list: list all employees in this department\n"
+	"ping: ping this department\n"
 	"remove: remove this department\n"
 	"show: describe this department\n"
 	"update: update this department\n";
 
     _empCommands =
+	"ping: ping this employee\n"
 	"remove: remove this employee\n"
 	"show: describe this employee\n"
 	"update: update this employee\n";
@@ -259,6 +264,10 @@ HRClient::doRootMenu(const string& command) const
 	int deptno;
 	DeptDesc desc;
 	cin >> deptno >> desc.dname >> desc.loc;
+
+	desc.dname = unquote(desc.dname);
+	desc.loc = unquote(desc.loc);
+
 	if(checkCin("create parameters"))
 	{
 	    try
@@ -370,12 +379,20 @@ HRClient::doDeptMenu(const string& command) const
 	string mgrId;
 	EmpDesc desc;
 	cin >> empno >> desc.ename >> desc.job >> mgrId >> desc.hiredate >> desc.sal >> desc.comm;
-	if(mgrId != "<None>")
+	
+	desc.ename = unquote(desc.ename);
+	desc.job = unquote(desc.job);
+
+	if(mgrId != "''")
 	{
 	    desc.mgr = EmpPrx::uncheckedCast(communicator()
 					     ->stringToProxy(mgrId)->ice_endpoints(
 						 _factory->ice_getEndpoints()));
 	}
+	desc.hiredate = unquote(desc.hiredate);
+	desc.sal = unquote(desc.sal);
+	desc.comm = unquote(desc.comm);
+
 	desc.edept = _currentDept;
 
 	if(checkCin("create parameters"))
@@ -472,6 +489,28 @@ HRClient::doDeptMenu(const string& command) const
 	    cout << "Caught an unknown exception" << endl;
 	}
     }
+    else if(command == "ping")
+    {
+	checkEof(command);
+	try
+	{
+	    _currentDept->ice_ping();
+	    cout << "ice_ping: success!" << endl;
+	}
+	catch(const IceUtil::Exception& e)
+	{
+	    cout << "Caught an Ice exception: " << e << endl;
+	}
+	catch(const std::exception& e)
+	{
+	    cout << "Caught a std::exception: " << e.what() << endl;
+	}
+	catch(...)
+	{
+	    cout << "Caught an unknown exception" << endl;
+	}
+
+    }
     else if(command == "remove")
     {
 	checkEof(command);
@@ -504,8 +543,8 @@ HRClient::doDeptMenu(const string& command) const
 	    DeptDesc desc = _currentDept->getDesc();
 	    cout << "identity: " << communicator()->identityToString(
 		_currentDept->ice_getIdentity()) << endl;
-	    cout << "dname: " << desc.dname << endl;
-	    cout << "loc: " << desc.loc << endl;
+	    cout << "dname: " << quote(desc.dname) << endl;
+	    cout << "loc: " << quote(desc.loc) << endl;
 	}
 	catch(const IceUtil::Exception& e)
 	{
@@ -526,6 +565,9 @@ HRClient::doDeptMenu(const string& command) const
 	cout << "Please enter: dname loc ==> ";
 	DeptDesc desc;
 	cin >> desc.dname >> desc.loc;
+	desc.dname = unquote(desc.dname);
+	desc.loc = unquote(desc.loc);
+
 	if(checkCin("update parameters"))
 	{
 	    try
@@ -560,7 +602,29 @@ HRClient::doDeptMenu(const string& command) const
 void
 HRClient::doEmpMenu(const string& command) const
 {
-    if(command == "remove")
+    if(command == "ping")
+    {
+	checkEof(command);
+	try
+	{
+	    _currentEmp->ice_ping();
+	    cout << "ice_ping: success!" << endl;
+	}
+	catch(const IceUtil::Exception& e)
+	{
+	    cout << "Caught an Ice exception: " << e << endl;
+	}
+	catch(const std::exception& e)
+	{
+	    cout << "Caught a std::exception: " << e.what() << endl;
+	}
+	catch(...)
+	{
+	    cout << "Caught an unknown exception" << endl;
+	}
+
+    }
+    else if(command == "remove")
     {
 	checkEof(command);
 	try
@@ -592,15 +656,15 @@ HRClient::doEmpMenu(const string& command) const
 	    EmpDesc desc = _currentEmp->getDesc();
 	    cout << "identity: " << communicator()->identityToString(
 		_currentEmp->ice_getIdentity()) << endl;
-	    cout << "ename: " << desc.ename << endl;
-	    cout << "job: " << desc.job << endl;
-	    cout << "mgr: " <<  (desc.mgr == 0 ? "<None>" :
+	    cout << "ename: " << quote(desc.ename) << endl;
+	    cout << "job: " << quote(desc.job) << endl;
+	    cout << "mgr: " <<  (desc.mgr == 0 ? "''" :
 		communicator()->identityToString(
 		    desc.mgr->ice_getIdentity())) << endl;
-	    cout << "hiredate: " << desc.hiredate << endl;
-	    cout << "sal: " << desc.sal << endl;
-	    cout << "comm: " << desc.comm << endl;
-	    cout << "dept: " << (desc.edept == 0 ? "<None>" :
+	    cout << "hiredate: " << quote(desc.hiredate) << endl;
+	    cout << "sal: " << quote(desc.sal) << endl;
+	    cout << "comm: " << quote(desc.comm) << endl;
+	    cout << "dept: " << (desc.edept == 0 ? "''" :
 		communicator()->identityToString(
 		    desc.edept->ice_getIdentity())) << endl;
 	}
@@ -627,14 +691,23 @@ HRClient::doEmpMenu(const string& command) const
 	cin >> desc.ename >> desc.job 
 	    >> mgrId >> desc.hiredate >> desc.sal >> desc.comm >> deptId;
 	
-	if(mgrId != "<None>")
+	desc.ename = unquote(desc.ename);
+	desc.job = unquote(desc.job);
+
+	if(mgrId != "''")
 	{
 	    desc.mgr = EmpPrx::uncheckedCast(communicator()
 					     ->stringToProxy(mgrId)->ice_endpoints(
 						 _factory->ice_getEndpoints()));
 	}
 
-	if(deptId != "<None>")
+	cout << "mgrId is " << mgrId << endl;
+
+	desc.hiredate = unquote(desc.hiredate);
+	desc.sal = unquote(desc.sal);
+	desc.comm = unquote(desc.comm);
+
+	if(deptId != "''")
 	{
 	    desc.edept = DeptPrx::uncheckedCast(communicator()
 						->stringToProxy(deptId)->ice_endpoints(
@@ -670,4 +743,32 @@ HRClient::doEmpMenu(const string& command) const
     {
 	invalidCommand(command);
     }
+}
+
+/*static*/ string
+HRClient::quote(const string& str)
+{
+    if(str == "")
+    {
+	return "''";
+    }
+    else
+    {
+	return str;
+    }
+
+}
+
+/*static*/ string
+HRClient::unquote(const string& str)
+{
+    if(str == "''")
+    {
+	return "";
+    }
+    else
+    {
+	return str;
+    }
+
 }

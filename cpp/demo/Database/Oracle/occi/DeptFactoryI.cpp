@@ -58,8 +58,8 @@ DeptFactoryI::findAll(const Ice::Current& current)
     {
 	StatementHolder stmth(conh);
     
-	auto_ptr<ResultSet> rs =
-	    stmth.statement()->executeQuery("SELECT DEPTNO FROM DEPT_VIEW");
+	auto_ptr<ResultSet> rs(
+	    stmth.statement()->executeQuery("SELECT DEPTNO FROM DEPT_VIEW"));
 	
 	while(rs->next() != ResultSet::END_OF_FETCH)
 	{
@@ -89,8 +89,8 @@ DeptFactoryI::findByName(const string& name, const Ice::Current& current)
 	stmth.statement()->setString(1, name);
 	stmth.statement()->execute();
 	
-	auto_ptr<ResultSet> rs =
-	    stmth.statement()->getResultSet();
+	auto_ptr<ResultSet> rs(
+	    stmth.statement()->getResultSet());
 
 	while(rs->next() != ResultSet::END_OF_FETCH)
 	{

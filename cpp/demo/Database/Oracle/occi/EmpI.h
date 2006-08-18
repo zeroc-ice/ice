@@ -28,7 +28,7 @@ public:
     virtual void remove(const Ice::Current&);
 
     //
-    // Returns a null ref when not found
+    // Throws Ice::ObjectNotExistException when not found
     //
     static oracle::occi::Ref<EMP_T> getRef(oracle::occi::Connection* con, int empno);
 

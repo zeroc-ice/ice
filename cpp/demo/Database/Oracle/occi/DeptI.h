@@ -33,7 +33,7 @@ public:
     virtual HR::EmpPrxSeq findByName(const std::string&, const Ice::Current&);
 
     //
-    // Returns a null ref when not found
+    // Throws Ice::ObjectNotExistException when not found
     //
     static oracle::occi::Ref<DEPT_T> getRef(oracle::occi::Connection* con, int deptno);
 
