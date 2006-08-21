@@ -93,7 +93,6 @@ except getopt.GetoptError:
 niter = 1
 hostname = ""
 filename = ""
-csv = False
 for o, a in opts:
     if o == '-i' or o == "--iter":
         niter = int(a)
@@ -103,8 +102,6 @@ for o, a in opts:
         filename = a
     elif o == '-n' or o == "--hostname":
         hostname = a
-    elif o == '-csv':
-	csv = True
 
 if filename == "":
     (system, name, ver, build, machine, processor) = platform.uname()
@@ -191,4 +188,4 @@ outputFile = file(filename, 'w+b')
 outputFile.write(str(rawResults))
 outputFile.close()
 
-TestUtil.PrintResults(rawResults, outputFile)
+TestUtil.PrintResults(rawResults, filename)
