@@ -218,7 +218,7 @@ lookupKwd(const string& name)
     {       
         "abstract", "assert", "boolean", "break", "byte", "case", "catch",
         "char", "checkedCast", "class", "clone", "const", "continue", "default", "do",
-        "double", "else", "equals", "extends", "false", "final", "finalize",
+        "double", "else", "enum", "equals", "extends", "false", "final", "finalize",
 	"finally", "float", "for", "getClass", "goto", "hashCode", "if",
 	"implements", "import", "instanceof", "int", "interface", "long",
 	"native", "new", "notify", "notifyAll", "null", "package", "private",
