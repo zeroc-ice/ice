@@ -85,7 +85,7 @@ public class ImportKey
 	char[] kstorePassword = readPassword(args[5]);
 	if(args.length > 6)
 	{
-	    kstorePassword = readPassword(args[5]);
+	    kstorePassword = readPassword(args[6]);
 	}
 	else
 	{
