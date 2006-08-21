@@ -416,7 +416,7 @@ public final class ReferenceFactory
 		EndpointI endp = _instance.endpointFactoryManager().create(es);
 		if(endp != null)
 		{
-		    java.util.ArrayList endps = endp.expand(false);
+		    java.util.ArrayList endps = endp.expand();
 		    endpoints.addAll(endps);
 		}
 		else

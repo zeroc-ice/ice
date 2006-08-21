@@ -476,7 +476,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 		EndpointPtr endp = _instance->endpointFactory()->create(es);
 		if(endp != 0)
 		{
-		    vector<EndpointPtr> endps = endp->expand(false);
+		    vector<EndpointPtr> endps = endp->expand();
 		    endpoints.insert(endpoints.end(), endps.begin(), endps.end());
 		}
 		else

@@ -1004,7 +1004,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 		e.str = s;
 		throw e;
 	    }
-	    java.util.ArrayList endps = endp.expand(true);
+	    java.util.ArrayList endps = endp.expand();
 	    endpoints.addAll(endps);
 
 	    ++end;

@@ -32,7 +32,7 @@ public:
     virtual AcceptorPtr acceptor(EndpointPtr&) const;
     virtual bool publish() const;
 #endif
-    virtual std::vector<EndpointPtr> expand(bool) const;
+    virtual std::vector<EndpointPtr> expand() const;
 
     virtual bool operator==(const Endpoint&) const;
     virtual bool operator!=(const Endpoint&) const;

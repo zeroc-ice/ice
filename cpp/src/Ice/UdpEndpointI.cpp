@@ -471,7 +471,7 @@ IceInternal::UdpEndpointI::acceptor(EndpointIPtr& endp, const string&) const
 }
 
 vector<EndpointIPtr>
-IceInternal::UdpEndpointI::expand(bool includeLoopback) const
+IceInternal::UdpEndpointI::expand() const
 {
     vector<EndpointIPtr> endps;
     if(_host == "0.0.0.0")
@@ -479,11 +479,8 @@ IceInternal::UdpEndpointI::expand(bool includeLoopback) const
         vector<string> hosts = getLocalHosts();
         for(unsigned int i = 0; i < hosts.size(); ++i)
         {
-	    if(includeLoopback || hosts.size() == 1 || hosts[i] != "127.0.0.1")
-	    {
-                endps.push_back(new UdpEndpointI(_instance, hosts[i], _port, _connect, _connectionId, _compress, 
-	    				         hosts.size() == 1 || hosts[i] != "127.0.0.1"));
-	    }
+            endps.push_back(new UdpEndpointI(_instance, hosts[i], _port, _connect, _connectionId, _compress, 
+	    				     hosts.size() == 1 || hosts[i] != "127.0.0.1"));
         }
     }
     else

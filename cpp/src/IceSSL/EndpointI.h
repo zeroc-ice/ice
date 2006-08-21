@@ -42,7 +42,7 @@ public:
     virtual IceInternal::TransceiverPtr serverTransceiver(IceInternal::EndpointIPtr&) const;
     virtual IceInternal::ConnectorPtr connector() const;
     virtual IceInternal::AcceptorPtr acceptor(IceInternal::EndpointIPtr&, const std::string&) const;
-    virtual std::vector<IceInternal::EndpointIPtr> expand(bool) const;
+    virtual std::vector<IceInternal::EndpointIPtr> expand() const;
     virtual bool publish() const;
     virtual bool equivalent(const IceInternal::TransceiverPtr&) const;
     virtual bool equivalent(const IceInternal::AcceptorPtr&) const;

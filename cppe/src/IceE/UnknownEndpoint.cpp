@@ -88,7 +88,7 @@ IceInternal::UnknownEndpoint::publish() const
 #endif
 
 vector<EndpointPtr>
-IceInternal::UnknownEndpoint::expand(bool includeLoopback) const
+IceInternal::UnknownEndpoint::expand() const
 {
     assert(false);
     vector<EndpointPtr> ret;
