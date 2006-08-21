@@ -72,6 +72,7 @@ public class Client extends Ice.Application
     public int
     run(String[] args)
     {
+	int status = 0;
         IceGrid.RegistryPrx registry = 
 	    IceGrid.RegistryPrxHelper.checkedCast(communicator().stringToProxy("DemoIceGrid/Registry"));
 	if(registry == null)
@@ -117,10 +118,53 @@ public class Client extends Ice.Application
 	SessionKeepAliveThread keepAlive = new SessionKeepAliveThread(session, registry.getSessionTimeout() / 2);
 	keepAlive.start();
 
-	HelloPrx hello = null;
 	try
 	{
-	    hello = HelloPrxHelper.checkedCast(session.allocateObjectById(communicator().stringToIdentity("hello")));
+	    HelloPrx hello = HelloPrxHelper.checkedCast(
+		session.allocateObjectById(communicator().stringToIdentity("hello")));
+
+	    menu();
+	    
+	    String line = null;
+	    do
+	    {
+		try
+		{
+		    System.out.print("==> ");
+		    System.out.flush();
+		    line = in.readLine();
+		    if(line == null)
+		    {
+			break;
+		    }
+		    if(line.equals("t"))
+		    {
+			hello.sayHello();
+		    }
+		    else if(line.equals("x"))
+		    {
+			// Nothing to do
+		    }
+		    else if(line.equals("?"))
+		    {
+			menu();
+		    }
+		    else
+		    {
+			System.out.println("unknown command `" + line + "'");
+			menu();
+		    }
+		}
+		catch(java.io.IOException ex)
+		{
+		    ex.printStackTrace();
+		}
+		catch(Ice.LocalException ex)
+		{
+		    ex.printStackTrace();
+		}
+	    }
+	    while(!line.equals("x"));
 	}
 	catch(IceGrid.AllocationException ex)
 	{
@@ -132,70 +176,23 @@ public class Client extends Ice.Application
 	    System.err.println("object not registered with registry");
 	    return 1;
 	}
-
-        menu();
-
-        String line = null;
-        do
-        {
-            try
-            {
-                System.out.print("==> ");
-                System.out.flush();
-                line = in.readLine();
-                if(line == null)
-                {
-                    break;
-                }
-                if(line.equals("t"))
-                {
-                    hello.sayHello();
-                }
-                else if(line.equals("x"))
-                {
-                    // Nothing to do
-                }
-                else if(line.equals("?"))
-                {
-                    menu();
-                }
-                else
-                {
-                    System.out.println("unknown command `" + line + "'");
-                    menu();
-                }
-            }
-            catch(java.io.IOException ex)
-            {
-                ex.printStackTrace();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-            }
-        }
-        while(!line.equals("x"));
+	catch(Exception ex)
+	{
+	    System.err.println("expected exception: " + ex);
+	    status = 1;
+	}
 
 	keepAlive.terminate();
-
 	try
 	{
-	    session.releaseObject(hello.ice_getIdentity());
+	    keepAlive.join();
 	}
-	catch(IceGrid.AllocationException ex)
+	catch(InterruptedException e)
 	{
-	    System.err.println("could not release object: " + ex.reason);
-	    return 1;
 	}
-	catch(IceGrid.ObjectNotRegisteredException ex)
-	{
-	    System.err.println("object not registered with registry");
-	    return 1;
-	}
-
 	session.destroy();
 
-        return 0;
+        return status;
     }
 
     public static void
