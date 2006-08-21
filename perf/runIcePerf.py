@@ -12,9 +12,10 @@
 # TODO:
 # - should add appropriate lib directories to LD_LIBRARY_PATH or PATH as
 # the platform warrants.
+# - convert to use the python CSV module.
 #
 
-import os, sys, getopt, re, platform
+import os, sys, getopt, re, platform, time
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -48,12 +49,12 @@ def usage():
     
 class ClientServerTest(TestUtil.Test) :
 
-    def __init__(self, results, i, product, test, directory = ""):
-	TestUtil.Test.__init__(self, results, i, product, test, directory)
+    def __init__(self, product, test, directory = ""):
+	TestUtil.Test.__init__(self, product, test, directory)
 
-    def run(self, name, directory, clientOptions, serverOptions):
+    def run(self, name, directory, clientOptions, serverOptions, topics):
 
-        TestUtil.Test.run(self, name, { "client" : clientOptions, "server" : serverOptions, "directory" : directory })
+        return TestUtil.Test.run(self, name, { "client" : clientOptions, "server" : serverOptions, "directory" : directory }, topics)
 
     def execute(self, options):
         
@@ -68,13 +69,19 @@ class ClientServerTest(TestUtil.Test) :
         TestUtil.getAdapterReady(serverPipe)
 
         clientPipe = os.popen(os.path.join(".", "client") + " " + options["client"])
-        result = float(clientPipe.read())
+	data = clientPipe.read()
+	try:
+	    try:
+		result = eval(data)
+	    finally:
+		clientPipe.close()
+		TestUtil.printOutputFromPipe(serverPipe);
+		serverPipe.close()        
+		os.chdir(cwd)
+	except:
+	    print data
+	    raise
 
-        clientPipe.close()
-        TestUtil.printOutputFromPipe(serverPipe);
-        serverPipe.close()        
-
-        os.chdir(cwd)
 
         return result
 
@@ -85,7 +92,7 @@ except getopt.GetoptError:
 
 niter = 1
 hostname = ""
-outputFile = ""
+filename = ""
 csv = False
 for o, a in opts:
     if o == '-i' or o == "--iter":
@@ -93,19 +100,19 @@ for o, a in opts:
     elif o == '-h' or o == "--help":
         usage()
     elif o == '-o' or o == "--output":
-        outputFile = a
+        filename = a
     elif o == '-n' or o == "--hostname":
         hostname = a
     elif o == '-csv':
 	csv = True
 
-if outputFile == "":
+if filename == "":
     (system, name, ver, build, machine, processor) = platform.uname()
     if hostname == "":
         hostname = name
         if hostname.find('.'):
             hostname = hostname[0:hostname.find('.')]
-    outputFile = ("results.ice." + system + "." + hostname).lower()
+    filename = ("results.ice." + system + "." + hostname).lower()
 
 expr = [ ]
 if len(pargs) > 0:
@@ -122,7 +129,6 @@ if not os.environ.has_key('ICE_HOME') and \
     print "You need to set at least ICE_HOME, ICEE_HOME or TAO_ROOT!"
     sys.exit(1)
     
-results = TestUtil.HostResults(hostname, outputFile)
 configs = [ ("IceTests", "ICE_HOME"), ("TAOTests", "TAO_ROOT"), ("IceETests", "ICEE_HOME")]
 
 tests = []
@@ -147,26 +153,42 @@ if len(expr) > 0:
 	if len(allowedCases) > 0:
 	    tests.append((product, group, dir, allowedCases))
 
+rawResults = []
+
 i = 1
 while i <= niter:
     try:
 	for product, group, dir, cases in tests:
-	    test = ClientServerTest(results, i, product, group)
+	    test = ClientServerTest(product, group)
 	    for c in cases:
 		additionalArgs = "" 
-		if len(c) > 3:
-		    for arg, value in c[3]:
-			additionalArgs = " %s --%s=%s" % (additionalArgs, arg, value)
-		test.run(c[0], dir, c[1] + additionalArgs, c[2])
+		for arg, value in c[3]:
+		    additionalArgs = " %s --%s=%s" % (additionalArgs, arg, value)
+
+		try:
+		    result = test.run(c[0], dir, c[1] + additionalArgs, c[2], c[4])
+		    time.sleep(2)
+		    rawResults.append(result)
+		except SyntaxError, e:
+		    #
+		    # Syntax errors may occur if something goes wrong
+		    # with the test programs. If so, we'll reject the
+		    # result on the basis that we can't interpet the
+		    # output anyway.
+		    # 
+		    print e
 
     except KeyboardInterrupt:
 	break
     i += 1
 
 print "\n"
-print "All results:"
-all = TestUtil.AllResults()
-all.add(results)
-all.printAll(TestUtil.ValuesMeanAndBest(), "text")
-if csv:
-    all.printAll(TestUtil.ValuesMeanAndBest(), "csv")
+
+#
+# Save results
+#
+outputFile = file(filename, 'w+b')
+outputFile.write(str(rawResults))
+outputFile.close()
+
+TestUtil.PrintResults(rawResults, outputFile)

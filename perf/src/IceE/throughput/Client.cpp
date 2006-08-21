@@ -9,6 +9,7 @@
 
 #include <IceE/IceE.h>
 #include <Throughput.h>
+#include <IcePerf/Data.h>
 
 #include <iostream>
 
@@ -92,6 +93,12 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         structSeq[i].s = "hello";
 	structSeq[i].d = 3.14;
     }
+    Ice::Int byteSeqSize = ByteSeqSize * sizeof(Ice::Byte);
+    Ice::Int stringSeqSize = StringSeqSize * stringSeq[0].size() * sizeof(stringSeq[0][0]);
+    Ice::Int longSeqSize = LongStringSeqSize * longStringSeq[0].size() * sizeof(longStringSeq[0][0]);
+    Ice::Int structSeqSize = StringDoubleSeqSize * sizeof(structSeq[0].d) + 
+			     StringDoubleSeqSize * structSeq[0].s.size() * sizeof(structSeq[0].s[0]);
+    Ice::Int payloadSize = 0;
 
     throughput->ice_ping(); // Initial ping to setup the connection.
 
@@ -99,6 +106,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     const int repetitions = 1000;
     if(byteTest)
     {
+	payloadSize = byteSeqSize;
 	if(!receive)
 	{
 	    if(zeroCopy)
@@ -134,6 +142,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
     else if(stringSeqTest)
     {
+	payloadSize = stringSeqSize;
 	if(!receive)
 	{
 	    for(i = 0; i < repetitions; ++i)
@@ -151,6 +160,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
     else if(longStringSeqTest)
     {
+	payloadSize = longSeqSize;
 	if(!receive)
 	{
 	    for(i = 0; i < repetitions; ++i)
@@ -168,6 +178,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
     else if(structSeqTest)
     {
+	payloadSize = structSeqSize;
 	if(!receive)
 	{
 	    for(i = 0; i < repetitions; ++i)
@@ -184,8 +195,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	}
     }
 
-    tm = IceUtil::Time::now() - tm;
-    cout << tm.toMilliSecondsDouble() / repetitions << endl;
+    IcePerf::TestPrinter formatter;
+    formatter.fmt(cout, "Ice", "throughput", IceUtil::Time::now() - tm, repetitions, payloadSize, argc, argv);
 
     throughput->shutdown();
 

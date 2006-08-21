@@ -11,7 +11,7 @@ top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		=
+SUBDIRS		= 
 
 ifdef ICE_HOME
     SUBDIRS	:= Ice IceStorm  $(SUBDIRS)

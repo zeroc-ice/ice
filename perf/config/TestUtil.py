@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, pickle, platform
+import os, sys, pickle, platform, pprint
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -52,16 +52,19 @@ def printOutputFromPipe(pipe):
 
         os.write(1, c)
 
-class ValuesMeanAndBest :
+class ValuesCalculator:
 
-    def calcMeanAndBest(self, values):
+    def getMean(self, values):
 
         if len(values) == 0:
-            return (0, 0)
+            return 0
 
         values.sort()
+
+	#
+	# XXX- Why do we do this?
+	#
         values = values[0:len(values) / 2 + 1]
-        best = values[0]
         
         mean = 0.0
         for r in values:
@@ -69,7 +72,13 @@ class ValuesMeanAndBest :
             
         mean /= len(values)
             
-        return (mean, best)
+        return mean
+
+    def getBest(self, values):
+	if len(values) == 0:
+	    return 0
+        values.sort()
+	return values[0]
 
 
 def splitName(name):
@@ -93,332 +102,12 @@ def compTest((k1, v1), (k2, v2)):
         return 1
     else:
         return 0
-     
-class TestResults :
 
-    def __init__(self, test):
-
-        self.test = test
-        self.results = { }
-        self.names = [ ]
-        self.products = [ ]
-        self.reference = ""
-
-    def add(self, product, name, result):
-
-        if not product in self.products:
-            self.products.append(product)
-
-        if not name in self.names:
-            self.names.append(name)
-
-        if not self.results.has_key(name):
-            self.results[name] = { }
-
-        if not self.results[name].has_key(product):
-            self.results[name][product] = [ ]
-            
-        self.results[name][product].append(result)
-
-    def merge(self, result):
-
-        for n in result.names:
-            for p in result.products:
-                for i in result.results[n][p]:
-                    self.add(p, n, i)
-
-    def remove(self, expr):
-
-        for n in self.names:
-            for p in self.products:
-                if expr.match(p + " " + self.test + " " + n):
-                    if self.results.has_key(n) and self.results[n].has_key(p):
-                        self.results[n].pop(p)
-                        if len(self.results[n]) == 0:
-                            self.results.pop(n)
-                        print "removed " + p + " " + self.test + " " + n
-
-    def convert(self, function):
-
-        for x in self.results.iterkeys():
-            for y in self.results[x].iterkeys():
-                for i in range(0, len(self.results[x][y])):
-                    self.results[x][y][i] = function.convert(self.results[x][y][i])
-
-    def addToResults(self, results, tests, names, products, id, function):
-
-        if len(self.results) == 0:
-            return
-
-        if not self.test in tests:
-            tests.append(self.test)
-
-        if not results.has_key(self.test):
-            results[self.test] = { } 
-
-        for n in self.names:
- 
-            (mn, sn) = splitName(n);
-            if not results[self.test].has_key(mn):
-                results[self.test][mn] = { }
-
-            if not results[self.test][mn].has_key(sn):
-                results[self.test][mn][sn] = { }
-                    
-            if not n in names:
-                names.append(n)
-
-            if self.results.has_key(n):
-                
-                for p in self.products:
-                    
-                    if self.results[n].has_key(p):
-                        
-                        if not results[self.test][mn][sn].has_key(p):
-                            results[self.test][mn][sn][p] = { }
-
-                        if not p in products:
-                            products.append(p)
-
-                        (mean, best) = function.calcMeanAndBest(self.results[n][p])
-
-                        results[self.test][mn][sn][p][id] = mean
-
-class HostResults :
-
-    def __init__(self, hostname, outputFile):
-
-        self.id = hostname + " " + platform.system()
-        self.outputFile = outputFile
-        self.tests = [ ]
-        self.results = { }
-
-    def add(self, product, test, name, result):
-
-        if not self.results.has_key(test):
-            self.results[test] = TestResults(test)
-
-        if not test in self.tests:
-            self.tests.append(test)
-
-        self.results[test].add(product, name, result)
-
-        f = file(self.outputFile, 'w')
-        pickle.dump(self, f);
-        f.close()
-
-    def merge(self, results):
-
-        for t in results.tests:
-
-            if not t in self.tests:
-                self.tests.append(t)
-
-            if not self.results.has_key(t):
-                self.results[t] = TestResults(t)
-
-            self.results[t].merge(results.results[t])
-
-    def remove(self, expr):
-
-        for r in self.results.itervalues():
-            r.remove(expr)
-
-    def save(self, outputFile):
-
-        if outputFile == "":
-            outputFile = self.outputFile
-
-        f = file(outputFile, 'w')
-        pickle.dump(self, f);
-        f.close()        
-
-    def convert(self, function):
-
-        for t in self.tests:
-            self.results[t].convert(function)
-        
-    def addToResults(self, results, tests, names, products, hosts, function):
-
-        if not self.id in hosts:
-            hosts.append(self.id)
-
-        for t in self.tests:
-            self.results[t].addToResults(results, tests, names, products, self.id, function)
-        
-class AllResults :
-
-    def __init__(self):
-        self.results = { }
-
-    def add(self, results):
-
-        if self.results.has_key(results.id):
-            self.results[results.id].merge(results)
-        else:
-            self.results[results.id] = results
-
-    def remove(self, expr):
-
-        for result in self.results.itervalues():
-            result.remove(expr)
-
-    def saveAll(self, outputFile):
-
-        if outputFile != "" and len(self.results) > 1:
-            print "You can't use --output with input file from different host/operating system"
-            return
-
-        for result in self.results.itervalues():
-            result.save(outputFile)
-
-    def convert(self, function):
-
-        for r in self.results.itervalues():
-            r.convert(function)
-    
-    def printAll(self, function, what):
-
-        results = { }
-        tests = [ ]
-        names = [ ]
-        hosts = [ ]
-        products = [ ]
-        for r in self.results.itervalues():
-            r.addToResults(results, tests, names, products, hosts, function)
-
-	if what == "text":
-            self.printAllAsText(results, tests, names, hosts, products)
-	elif what == "csv":
-            self.printAllAsCsv(results, tests, names, hosts, products)
-	elif what == "csv2": 
-	    self.printAllAsCsv2(results, tests, names, hosts, products)
-
-    def printAllAsCsv(self, results, tests, names, hosts, products):
-
-	#
-	# TODO: CSV's are occasionally imported into databases and
-	# spreadsheets. It would be better to have the CSV form more
-	# closely follow a raw table form then to break it up into
-	# groups.
-	#
-
-        print "Test, Configuration, ",
-        for product in products:
-            for host in hosts:
-                print product + " " + host + ",",
-        print ""
-
-        for test in tests:
-            for n in names:
-                (name, subname) = splitName(n)
-                if results[test].has_key(name) and results[test][name].has_key(subname):
-                    print test + "," + name + "," + subname + ",",
-                    for product in products:
-                        if results[test][name][subname].has_key(product):
-                            for host in hosts:
-                                if not results[test][name][subname][product].has_key(host):
-                                    print ",",
-                                else:
-                                    m = results[test][name][subname][product][host]
-                                    print  str(m) + ",",
-                        else:
-                            print ",",
-
-                    print ""
-
-    def printAllAsCsv2(self, results, tests, names, hosts, products):
-	for test in tests:
-	    for n in names:
-		(name, subname) = splitName(n)
-		if results[test].has_key(name) and results[test][name].has_key(subname):
-		    for product in products: 
-			if results[test][name][subname].has_key(product):
-			    for host in hosts:
-				if results[test][name][subname][product].has_key(host):
-				    map = { 'host': host, 'product': product, 'test': test, 'name': name,  \
-					    'subname': subname, \
-					    'result': str(results[test][name][subname][product][host]) }
-				    print '"%(host)s","%(product)s","%(test)s","%(name)s %(subname)s","%(result)s"' \
-					    % map
-
-
-
-    def printAllAsText(self, results, tests, names, hosts, products):
-
-        for test in tests:
-            print test + ": "
-            sep = "==========================="
-            print sep[0:len(test)]
-            print ""
-            
-            maxLen = 0
-            for name in names:
-                for product in products:
-                    if maxLen < len(product + " " + name):
-                        maxLen = len(product + " " + name)
-
-            print (" %-" + str(maxLen) + "s") % "Test",
-            for host in hosts:
-                print "| %-18s" % host[0:18],
-            print ""
-
-            print (" %-" + str(maxLen) + "s") % ("-------------------------------------------"[0:maxLen]),
-            for host in hosts:
-                print "+-------------------",
-            print ""
-
-            namesWithSubnames = { }
-            for n in names:
-                (name, subname) = splitName(n)
-                if not namesWithSubnames.has_key(name):
-                    namesWithSubnames[name] = [ ]
-                namesWithSubnames[name].append(subname)
-
-            sortedNames = namesWithSubnames.keys();
-            sortedNames.sort()
-            for name in sortedNames:
-                t = [ ]
-                bestResults = { }
-                for subname in namesWithSubnames[name]:
-                    if results[test].has_key(name) and results[test][name].has_key(subname):
-                        for product in products:
-                            if results[test][name][subname].has_key(product):
-                                k = product + " " + name + " " + subname
-                                v = results[test][name][subname][product]
-                                t.append((k,v))
-                                for (h, r) in v.iteritems():
-                                    if not bestResults.has_key(h):
-                                        bestResults[h] = r
-                                    elif r < bestResults[h]:
-                                        bestResults[h] = r
-                                    
-                if len(t) > 0:
-
-                    t.sort(compTest)
-                    for (k, v) in t:
-                        print (" %-" + str(maxLen) + "s") % k,
-                        for host in hosts:
-                            if not v.has_key(host):
-                                print "| %-18s" % "",
-                            elif v[host] / bestResults[host] >= 10.0:
-                                print "| %10.6f (%-#1.2f)" % (v[host], v[host] / bestResults[host]),
-                            else:
-                                print "| %10.6f (%-#1.2f) " % (v[host], v[host] / bestResults[host]),
-                        print ""
-
-                    print (" %-" + str(maxLen) + "s") % ("-------------------------------------------"[0:maxLen]),
-                    for host in hosts:
-                        print "+-------------------",
-                    print ""
-            
-            print ""
-        
 class Test :
+    """Encapsulates the run of a test group. Manages the running of test
+    cases and captures the results."""
 
-    def __init__(self, results, i, product, test, directory = ""):
-        self.results = results
-        self.iteration = i
+    def __init__(self, product, test, topics, directory = ""):
         self.product = product
         self.test = test
         if directory != "":
@@ -426,25 +115,289 @@ class Test :
         else:
             self.directory  = product
 
-    def run(self, name, options):
+    def run(self, name, options, topics):
 
-        print str(self.iteration) + ": " + self.product + " " + self.test + " " + name + "...",
+        print self.product + " " + self.test + " " + name + "...",
         sys.stdout.flush()
 
         result = self.execute(options)
-        if result > 0.0:
-            self.results.add(self.product, self.test, name, result)
+        if result['latency'] > 0.0:
             try:
-                (m1, m5, m15) = os.getloadavg()
-                print "(load = " + str(m1) + ") " + str(result)
+                (m1, m5, m15) = os.getloadavg() # XXX - not needed.
+                print "(load = " + str(m1) + ") " + str(result['latency'])
             except:
-                print result
+                print result['latency']
         else:
-	    print result
+	    print result['latency']
             print "invalid"
+
+	result['product'] = self.product
+	result['test'] = self.test
+	result['variant'] = name
+	result['topics'] = topics
+	return result
     
     def execute(self, options):
 
         return
 
-    
+def OrganizeResultsByProduct(rawData):
+    """
+    Set up a structure where all of the results for a given product are
+    grouped under a map's key. This is useful for determining which
+    tests have been run against a specific product.  
+    """
+    dataTree = {}
+    for f in rawData:
+	if dataTree.has_key(f['product']):
+	    if dataTree[f['product']].has_key(f['test']):
+		dataTree[f['product']][f['test']].append(f)
+	    else:
+		dataTree[f['product']][f['test']] = [f]
+	else:
+	    dataTree[f['product']] = {f['test'] : [f]}
+    return dataTree
+
+def OrganizeResultsByTest(rawData):
+    """
+    The organization is along the lines of a tree. 
+           test-name
+            /     \
+         topicA   topicB
+	 /  |   \       \
+    prodA prodB prodC  prodA
+      |     |            |
+    res 0  res 0        res 0
+    res 1   .           res 1
+     .      .             .
+     .                    .
+     .                    .
+    res n               res n
+    """
+    dataTree = {}
+    for f in rawData:
+	topics = f['topics'] 
+	if dataTree.has_key(f['test']):
+	    #
+	    # Test key is already in the tree. So we iterate through our
+	    # topics that these results apply to and insert them into
+	    # the relevant topic subtrees, taking care to proper
+	    # initialize the subtrees if they don't already exist. 
+	    # 
+	    for t in topics:
+		#
+		# Organizing topics
+		#
+		if dataTree[f['test']].has_key(t):
+		    if dataTree[f['test']][t].has_key(f['product']):
+			dataTree[f['test']][t][f['product']].append(f)
+		    else:
+			dataTree[f['test']][t][f['product']] = [f]
+		else:
+		    dataTree[f['test']][t] = {f['product'] : [f]}
+	else:
+	    #
+	    # Test isn't in the tree yet. We insert the data into the
+	    # tree, repeating the insertion for each topic. This leads
+	    # to redundancy in the tree structure, but it is useful for
+	    # producing comparisons later on.
+	    #
+	    dataTree[f['test']] = {} 
+	    for t in topics:
+		dataTree[f['test']][t] = { f['product'] : [f] } 
+    return dataTree
+
+def getMinKey(t):
+    return min(t[1], t[2])
+
+def getMaxKey(t):
+    return max(t[1], t[2])
+
+#
+# TODO: This should create an object instance to organize the data
+# instead of using lists and hashtables.
+# 
+def compileAndGroupResults(keyVariant, data):
+
+    #
+    # Gather variants:
+    #
+    initResults = [0,           0,          0]
+    #	      totalLatency totalThroughput count 
+
+    results = {}
+    for d in data:
+	if not results.has_key(d['variant']):
+	    results[d['variant']] = list(initResults)
+	results[d['variant']][0] += d['latency']
+	results[d['variant']][1] += d['throughput']
+	results[d['variant']][2] += 1 
+
+    sys.stdout.flush()
+
+    rest = []
+    r = []
+    for k in results.keys():
+	avgLatency = results[k][0]  / results[k][2]
+	avgThroughput = results[k][1]  / results[k][2]
+	if k != keyVariant:
+	    rest.append((avgLatency, avgThroughput, k))
+	else:
+	    r = [(avgLatency, avgThroughput, "")]
+
+    #
+    # There is a weird side effect at work here. The first entry is the
+    # one that is used to compare to the exact variant match. The way
+    # the above code works, this should always be the case if there is a
+    # match. If there *ISN'T* an exact match on the variant then the
+    # first result in the sequence will be used. This actually works
+    # nicely in the case of latency oneway batch in Ice VS. TAO since
+    # TAO doesn't support batching and consequently there isn't an exact
+    # match.
+    #
+    r.extend(rest)
+    return r
+
+def PrintResults(rawResults, fileroot):
+    resultsByProduct = OrganizeResultsByProduct(rawResults)
+    resultsByTest = OrganizeResultsByTest(rawResults)
+
+    #
+    # Compare vs Ice.
+    #
+    for A, B in [('Ice', 'TAO'), ('IceE', 'TAO'), ('Ice', 'IceE')]:
+	print "Creating file %s.%s_vs_%s.csv" % (fileroot, A, B) 
+	outputFile = file("%s.%s_vs_%s.csv" % (fileroot, A, B), "w+b")
+
+	# 
+	# If there are no results for this product comparison, skip it.
+	#
+	if not (resultsByProduct.has_key(A) and resultsByProduct.has_key(B)):
+	    continue
+
+	outputFile.write("%s versus %s\n\n" % (A, B))
+
+	#
+	# In an A vs B comparison, we are only interested in comparing the
+	# tests that were run on A. We do not care about the tests that were
+	# run on B but non on A. As long as resultsByProduct is organized
+	# correctly, keyTests will contain all of the tests that were run on
+	# product A.
+	#
+	keyTests = resultsByProduct[A]
+	tests = list(keyTests.keys())
+	tests.sort()
+
+	for t in tests:
+	    #
+	    # If resultsByTest is organized correctly, r will now contain
+	    # all the results that apply to this test, including all of the
+	    # variants (sub-tests, configurations,
+	    # whatever-you-want-to-call-them). See OrganizeResultsByTest for
+	    # the actual organization of this structure.
+	    #
+	    r = resultsByTest[t]
+
+	    #
+	    # Sorting should have the affect of grouping the variants together
+	    # in semi-logical groups.
+	    #
+	    topics = list(r.keys())
+	    topics.sort()
+
+	    #
+	    # TODO: Do we want to do matching on 'similar' keys, not just
+	    # exact matches. I don't know what our output format then
+	    # becomes...
+	    #
+	    latency = t.find('latency') != -1
+	    topicResults = []
+	    annotatedResults = {}
+	    annotations = {} 
+	    stars = ""
+	    for topic in topics:
+
+		#
+		# A vs B 
+		#
+		if r[topic].has_key(A) and r[topic].has_key(B):
+		    keyVariant = r[topic][A][0]['variant'] 
+		    line = [ keyVariant ]
+		    data = r[topic][A]
+		    totalLatency = 0.0
+		    totalThroughput = 0.0
+		    count = 0
+		    for d in data:
+			totalLatency += d['latency']
+			totalThroughput += d['throughput']
+			count += 1 
+		    aLatency = totalLatency / count 
+		    aThroughput = totalThroughput / count 
+
+		    bResults = compileAndGroupResults(keyVariant, r[topic][B])
+		    if len(bResults) > 1:
+			annotatedResults[keyVariant] = bResults[1:]
+
+		    lineNote = ""
+		    if bResults[0][2] != "": 
+			note = bResults[0][2]
+			note = note[len(keyVariant):].strip()
+			if not annotations.has_key(note):
+			    stars = "%s*" % stars
+			    annotations[note] = stars
+			lineNote = annotations[note]
+
+		    if latency:
+			percentDiff =  (bResults[0][0] - aLatency)/aLatency
+			line.extend([aLatency, bResults[0][0], percentDiff * 100, lineNote])
+		    else:
+			percentDiff =  (aThroughput - bResults[0][1])/aThroughput
+			line.extend([aThroughput, bResults[0][1], percentDiff * 100, lineNote])
+		    topicResults.append(tuple(line))
+	    #
+	    # Format of the column headers in CSV format.
+	    #
+	    if len(topicResults) > 0:
+		outputFile.write('"%s", %s, %s, %s\n' % (t, A, B, '% difference'))
+		if latency:
+		    outputFile.write('"", (ms), (ms)\n')
+		else:
+		    outputFile.write('"", (MB/s), (MB/s)\n')
+
+		if latency:
+		    topicResults.sort(None, getMinKey, False)
+		else:
+		    topicResults.sort(None, getMaxKey, True)
+
+		for tr in topicResults:
+		    outputFile.write('"%s","%f","%f","%f","%s"\n' % tr)
+		    if annotatedResults.has_key(tr[0]):
+			baseValue = tr[1]
+			for additional in annotatedResults[tr[0]]:
+			    aValue = 0.0
+			    percentDiff = 0.0
+			    if latency:
+				aValue = additional[0]
+				percentDiff = (aValue - baseValue) /  baseValue * 100
+			    else:
+				aValue = additional[1]
+				percentDiff = (baseValue - aValue) / baseValue * 100
+			    
+			    note = additional[2][len(tr[0]):]
+			    note = note.strip()
+			    lineNote = ""
+			    if not annotations.has_key(note):
+				stars = "%s*" % stars
+				annotations[note] = stars
+				lineNote = stars
+
+			    lineNote = annotations[note]
+
+			    outputFile.write('"","","%f","%f","%s"\n' % (aValue, percentDiff, lineNote))
+		count = 1
+		for a in annotations.keys():
+		    outputFile.write("%s %s\n" % (annotations[a], a))
+		    count += 1
+		outputFile.write('\n')
+
+	outputFile.close() 

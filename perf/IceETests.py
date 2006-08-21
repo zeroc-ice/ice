@@ -13,60 +13,60 @@ blocking = " --Ice.Blocking "
 
 testDefinitions = [
 	(productName, "latency twoway", "latency", [
-		("tpc", "twoway", ""),
-		("tpc blocking", "twoway" + blocking, ""),
+		("tpc", "twoway", "", [], ["tpc"]),
+		("tpc blocking", "twoway" + blocking, "", [], ["tpc", "tpcb"]),
 		]
 	    ),
 	(productName, "latency oneway", "latency", [
-		("tpc", "oneway", ""),
-		("tpc blocking", "oneway" + blocking, ""),
+		("tpc", "oneway", "", [] , ["tpc"]),
+		("tpc blocking", "oneway" + blocking, "", [], ["tpc", "tpcb"]),
 		]
 	    ),
 	(productName, "latency oneway batch", "latency", [
-		("tpc (batch)", "batch", ""),
-		("tpc blocking (batch)", "batch" + blocking, ""),
+		("tpc (batch)", "batch", "", [], ["tpc"]),
+		("tpc blocking (batch)", "batch" + blocking, "", [], ["tpc", "tpcb"]),
 		]
 	    ),
 	(productName, "latency twoway with 2k payload", "latency", [
-		("tpc", "twoway", "", [("payload", "2000")]),
-		("tpc blocking", "twoway" + blocking, "", [("payload", "2000")]),
+		("tpc", "twoway", "", [("payload", "2000")], ["tpc"]),
+		("tpc blocking", "twoway" + blocking, "", [("payload", "2000")], ["tpc", "tpcb"]),
 		]
 	    ),
 	(productName, "latency oneway with 2k payload", "latency", [
-		("tpc", "oneway", "", [("payload", "2000")]),
-		("tpc blocking", "oneway" + blocking, "", [("payload", "2000")]),
+		("tpc", "oneway", "", [("payload", "2000")], ["tpc"]),
+		("tpc blocking", "oneway" + blocking, "", [("payload", "2000")], ["tpc", "tpcb"]),
 		]
 	    ),
 	(productName, "latency twoway with 10k payload", "latency", [
-		("tpc", "twoway", "", [("payload", "10000")]),
-		("tpc blocking", "twoway" + blocking, "", [("payload", "10000")]),
+		("tpc", "twoway", "", [("payload", "10000")], ["tpc"]),
+		("tpc blocking", "twoway" + blocking, "", [("payload", "10000")], ["tpc", "tpcb"]),
 		]
 	    ),
 	(productName, "latency oneway with 10k payload", "latency", [
-		("tpc", "oneway", "", [("payload", "10000")]),
-		("tpc blocking", "oneway" + blocking, "", [("payload", "10000")]),
+		("tpc", "oneway", "", [("payload", "10000")], ["tpc"]),
+		("tpc blocking", "oneway" + blocking, "", [("payload", "10000")], ["tpc", "tpcb"]),
 		]
 	    ),
 	(productName, "throughput byte", "throughput", [
-		("tpc", "byte", ""),
-		("tpc blocking", "byte" + blocking, ""),
-		("tpc (w/o zero copy)", "byte noZeroCopy", ""),
-		("tpc blocking (w/o zero copy)", "byte noZeroCopy" + blocking, ""),
+		("tpc", "byte", "", [], ["tpc"]),
+		("tpc blocking", "byte" + blocking, "", [], ["tpcb"]),
+		("tpc (w/o zero copy)", "byte noZeroCopy", "", [], ["tpc"]),
+		("tpc blocking (w/o zero copy)", "byte noZeroCopy" + blocking, "", [], ["tpc", "tpcb"]),
 		]
 	    ),
 	(productName, "throughput string sequence", "throughput", [
-		("tpc", "stringSeq", ""),
-		("tpc blocking", "stringSeq" + blocking, ""),
+		("tpc", "stringSeq", "", [], ["tpc"]),
+		("tpc blocking", "stringSeq" + blocking, "", [], ["tpc", "tpcb"]),
 		]
 	    ),
 	(productName, "throughput long string sequence", "throughput", [
-		("tpc", "longStringSeq", ""),
-		("tpc blocking", "longStringSeq" + blocking, ""),
+		("tpc", "longStringSeq", "", [], ["tpc"]),
+		("tpc blocking", "longStringSeq" + blocking, "", [], ["tpc", "tpcb"]),
 		]
 	    ),
 	(productName, "throughput struct sequence", "throughput", [
-		("tpc", "structSeq", ""),
-		("tpc blocking", "structSeq" + blocking, ""),
+		("tpc", "structSeq", "", [], ["tpcb"]),
+		("tpc blocking", "structSeq" + blocking, "", [], ["tpc", "tpcb"]),
 		]
 	    ),
 	]

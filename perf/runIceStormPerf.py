@@ -366,4 +366,9 @@ print "\n"
 print "All results:"
 all = TestUtil.AllResults()
 all.add(results)
+
+#
+# XXX- This isn't correct for throughput numbers. With the throughput numbers
+# we use e/s not s/e, so larger numbers are better.
+#
 all.printAll(TestUtil.ValuesMeanAndBest(), "text")

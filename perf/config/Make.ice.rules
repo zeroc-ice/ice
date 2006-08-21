@@ -16,7 +16,7 @@ configdir		= $(ICE_HOME)/config
 
 include	 $(configdir)/Make.rules.$(UNAME)
 
-CPPFLAGS		=
+CPPFLAGS		= -I$(top_srcdir)/include
 ICECPPFLAGS		= -I$(slicedir)
 SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 

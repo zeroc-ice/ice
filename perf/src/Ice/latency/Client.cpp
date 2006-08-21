@@ -9,6 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <Latency.h>
+#include <IcePerf/Data.h>
 
 using namespace std;
 using namespace Demo;
@@ -265,6 +266,12 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     // Initial ping to setup the connection.
     latency->ping();
 
+    //
+    // Unless there is a payload defined there is no payload per-se. This
+    // will result in data throughput of 0. This is okay since we don't
+    // care about throughput for requests with no data anyway.
+    //
+
     TestAdapter* adapter = 0;
     try
     {
@@ -319,10 +326,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    latency->ping();
 	}
 
-	tm = IceUtil::Time::now() - tm;
-
+	IcePerf::TestPrinter formatter;
+	formatter.fmt(cout, "Ice", "latency", IceUtil::Time::now() - tm, repetitions, payLoadSize * sizeof(Ice::Byte), argc, argv);
 	latency->shutdown();
-	cout << tm.toMilliSecondsDouble() / repetitions << endl;
 	delete adapter;
     }
     catch(...)

@@ -36,11 +36,11 @@ ifeq ($(ICEE_USE_ARRAY_MAPPING),yes)
 	SLICE2CPPFLAGS := -DICEE_USE_ARRAY_MAPPING $(SLICE2CPPFLAGS)
 endif
 
-CPPFLAGS	:= -I. $(ICE_CPPFLAGS) $(CPPFLAGS)
+CPPFLAGS	:= -D_ICEE -I. -I$(top_srcdir)/include $(ICE_CPPFLAGS) $(CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(ICE_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(ICE_LIBS) 
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@

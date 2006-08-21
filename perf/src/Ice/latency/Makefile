@@ -29,11 +29,11 @@ SLICE_SRCS	= Latency.ice
 include $(top_srcdir)/config/Make.rules
 include $(top_srcdir)/config/Make.ice.rules
 
-CPPFLAGS	:= -I. $(ICE_CPPFLAGS) $(CPPFLAGS)
+CPPFLAGS	:= -I. -I$(top_srcdir)/include $(ICE_CPPFLAGS) $(CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(ICE_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(ICE_LIBS) 
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@

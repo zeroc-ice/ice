@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <IcePerf/Data.h>
 #include <Throughput.h>
 
 using namespace std;
@@ -85,6 +86,13 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	structSeq[i].d = 3.14;
     }
 
+    Ice::Int byteSeqSize = ByteSeqSize * sizeof(Ice::Byte);
+    Ice::Int stringSeqSize = StringSeqSize * stringSeq[0].size() * sizeof(stringSeq[0][0]);
+    Ice::Int longSeqSize = LongStringSeqSize * longStringSeq[0].size() * sizeof(longStringSeq[0][0]);
+    Ice::Int structSeqSize = StringDoubleSeqSize * sizeof(structSeq[0].d) + 
+			     StringDoubleSeqSize * structSeq[0].s.size() * sizeof(structSeq[0].s[0]);
+    Ice::Int payloadSize = 0;
+
     //
     // Force the connection to be established by calling a ping.
     //
@@ -94,6 +102,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     const int repetitions = 1000;
     if(byteTest)
     {
+	payloadSize = byteSeqSize;
 	if(zeroCopy)
 	{
 	    for(i = 0; i < repetitions; ++i)
@@ -111,6 +120,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
     else if(stringSeqTest)
     {
+	payloadSize = stringSeqSize;
 	for(i = 0; i < repetitions; ++i)
 	{
 	    throughput->sendStringSeq(stringSeq);
@@ -118,6 +128,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
     else if(longStringSeqTest)
     {
+	payloadSize = longSeqSize;
 	for(i = 0; i < repetitions; ++i)
 	{
 	    throughput->sendStringSeq(longStringSeq);
@@ -125,14 +136,15 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
     else if(structSeqTest)
     {
+	payloadSize = structSeqSize;
 	for(i = 0; i < repetitions; ++i)
 	{
 	    throughput->sendStructSeq(structSeq);
 	}
     }
 
-    tm = IceUtil::Time::now() - tm;
-    cout << tm.toMilliSecondsDouble() / repetitions << endl;
+    IcePerf::TestPrinter formatter;
+    formatter.fmt(cout, "Ice", "throughput", IceUtil::Time::now() - tm, repetitions, payloadSize, argc, argv);
 
     throughput->shutdown();
 

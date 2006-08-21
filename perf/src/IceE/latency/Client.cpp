@@ -9,6 +9,7 @@
 
 #include <IceE/IceE.h>
 #include <Latency.h>
+#include <IcePerf/Data.h>
 
 #include <iostream>
 
@@ -201,10 +202,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    latency->ping();
 	}
 
-	tm = IceUtil::Time::now() - tm;
-
+	IcePerf::TestPrinter formatter;
+	formatter.fmt(cout, "IceE", "latency", IceUtil::Time::now() - tm, repetitions, payLoadSize * sizeof(Ice::Byte), argc, argv);
 	latency->shutdown();
-	cout << tm.toMilliSecondsDouble() / repetitions << endl;
 	delete testAdapter;
     }
     catch(...)

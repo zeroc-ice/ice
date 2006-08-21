@@ -42,7 +42,7 @@ except getopt.GetoptError:
 niter = max
 printResults = False
 hostname = ""
-outputFile = ""
+filename = ""
 outputFormat = "text"
 for o, a in opts:
     if o == '-h' or o == "--help":
@@ -60,18 +60,11 @@ if hostname == "":
     hostname = name
     if hostname.find('.'):
         hostname = hostname[0:hostname.find('.')]
-outputFile = ("results.ice." + system + "." + hostname).lower()
+filename = ("results.ice." + system + "." + hostname).lower()
 
+inputfile = file(filename)
+rawResults = eval(inputfile.read())
+inputfile.close()
 
-all = TestUtil.AllResults()
-if len(pargs) > 0:
-    for fname in pargs:
-        f = file(fname)
-        all.add(pickle.load(f))
-        f.close
-else:
-    f = file(outputFile)
-    all.add(pickle.load(f));
-    f.close()
-            
-all.printAll(TestUtil.ValuesMeanAndBest(), outputFormat)
+TestUtil.PrintResults(rawResults, filename)
+

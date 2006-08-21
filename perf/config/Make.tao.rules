@@ -17,7 +17,7 @@ endif
 
 include	 $(ICE_HOME)/config/Make.rules.$(UNAME)
 
-CPPFLAGS	:= -I. -I$(TAO_ROOT)/include -I$(ICE_HOME)/include $(CPPFLAGS)
+CPPFLAGS	:= -I. -I$(top_srcdir)/include -I$(TAO_ROOT)/include -I$(ICE_HOME)/include $(CPPFLAGS)
 CXXFLAGS	:= -O3 -pthread -Wall -D_REENTRANT
 
 ifeq ($(DEBUG),yes)

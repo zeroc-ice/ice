@@ -13,7 +13,7 @@
 #include <Roundtrip_Handler.h>
 #include <WorkerThread.h>
 
-#include <IceUtil/Time.h>
+#include <IcePerf/Data.h>
 
 using namespace std;
 
@@ -62,11 +62,13 @@ main(int argc, char *argv[])
 	bool ami = false;
 
 	bool throughput = false;
-	bool sendbytes = false;
-	bool sendstrings = false;
-	bool sendlongstrings = false;
-	bool sendstructs = false;
-	long payLoadSize = 0;
+	bool sendBytes = false;
+	bool sendStrings = false;
+	bool sendLongStrings = false;
+	bool sendStructs = false;
+	long byteSeqSize = 0;
+	Ice::Int payloadSize = 0;
+	int repetitions;
 
 	int i;
 	for(i = 0; i < argc; ++i)
@@ -93,23 +95,23 @@ main(int argc, char *argv[])
 	    }
 	    else if(strcmp(argv[i], "byte") == 0)
 	    {
-		sendbytes = true;
+		sendBytes = true;
 	    }
 	    else if(strcmp(argv[i], "string") == 0)
 	    {
-		sendstrings = true;
+		sendStrings = true;
 	    }
 	    else if(strcmp(argv[i], "longString") == 0)
 	    {
-		sendlongstrings = true;
+		sendLongStrings = true;
 	    }
 	    else if(strcmp(argv[i], "struct") == 0)
 	    {
-		sendstructs = true;
+		sendStructs = true;
 	    }
 	    else if(strncmp(argv[i], "--payload=", strlen("--payload=")) == 0)
 	    {
-		payLoadSize = strtol(argv[i] + strlen("--payload="), 0, 10);
+		byteSeqSize = strtol(argv[i] + strlen("--payload="), 0, 10);
 		if(errno == ERANGE)
 		{
 		    cerr << argv[0] << ": payload argument range error: " << argv[i] << endl;
@@ -135,9 +137,9 @@ main(int argc, char *argv[])
 	}
 	else if(throughput)
 	{
-	    if(!sendbytes && !sendstrings && !sendlongstrings && !sendstructs)
+	    if(!sendBytes && !sendStrings && !sendLongStrings && !sendStructs)
 	    {
-		sendbytes = true;
+		sendBytes = true;
 	    }
 	}
 
@@ -176,7 +178,6 @@ main(int argc, char *argv[])
 
 	    IceUtil::Time start = IceUtil::Time::now();
 
-	    int repetitions;
 	    if(oneway)
 	    {
 		repetitions = 500000;
@@ -187,20 +188,21 @@ main(int argc, char *argv[])
 	    }
 
 	    Test::ByteSeq seq;
-	    if(payLoadSize > 0)
+	    if(byteSeqSize > 0)
 	    {
-		seq.length(payLoadSize);
-		for(int i = 0; i < payLoadSize; ++i)
+		seq.length(byteSeqSize);
+		for(int i = 0; i < byteSeqSize; ++i)
 		{
 		    seq[i] = '0' + (char)(i % 10);
 		}
+		payloadSize = seq.length() * sizeof(seq[0]);
 	    }
 
 	    for(int i = 0; i != repetitions; ++i)
 	    {
 		if(oneway)
 		{
-		    if(payLoadSize > 0)
+		    if(byteSeqSize > 0)
 		    {
 			roundtrip->test_oneway_with_data(seq ACE_ENV_ARG_DECL_WITH_DEFAULTS);
 			ACE_TRY_CHECK;
@@ -213,7 +215,7 @@ main(int argc, char *argv[])
 		}
 		else if(ami)
 		{
-		    if(payLoadSize > 0)
+		    if(byteSeqSize > 0)
 		    {
         
 			roundtrip->sendc_sendByteSeq(roundtrip_handler.in(), seq ACE_ENV_ARG_DECL_WITH_DEFAULTS);
@@ -227,7 +229,7 @@ main(int argc, char *argv[])
 			roundtrip_handler_impl->waitFinished();
 		    }
 		}
-		else if(payLoadSize > 0)
+		else if(byteSeqSize > 0)
 		{
 		    roundtrip->sendByteSeq(seq ACE_ENV_SINGLE_ARG_PARAMETER);
 		    ACE_TRY_CHECK;
@@ -244,13 +246,13 @@ main(int argc, char *argv[])
 		roundtrip->test_method(ACE_ENV_SINGLE_ARG_PARAMETER);
 	    }
 
-	    IceUtil::Time interval = IceUtil::Time::now() - start;
-	    cout << interval.toMilliSecondsDouble() / repetitions << endl;
+	    IcePerf::TestPrinter formatter;
+	    formatter.fmt(cout, "TAO", "latency", IceUtil::Time::now() - start, repetitions, payloadSize, argc, argv);
 	}
 	else
 	{
+	    repetitions = 1000;
 	    int i;
-
 	    Test::ByteSeq seq;
 	    seq.length(500000);
 
@@ -279,30 +281,51 @@ main(int argc, char *argv[])
 	    }
 
 	    IceUtil::Time start = IceUtil::Time::now();
+
+	    if(sendBytes)
+	    {
+		payloadSize = seq.length() * sizeof(seq[0]);
+	    }
+	    else if(sendStrings)
+	    {
+		payloadSize = stringSeq.length() * strlen(stringSeq[0]) * sizeof(stringSeq[0][0]);
+	    }
+	    else if(sendLongStrings)
+	    {
+		payloadSize = longStringSeq.length() * strlen(longStringSeq[0]) * sizeof(longStringSeq[0][0]);
+	    }
+	    else if(sendStructs)
+	    {
+		payloadSize = stringDoubleSeq.length() * (strlen(stringDoubleSeq[0].str) * sizeof(stringDoubleSeq[0].str[0]) + 
+							  sizeof(stringDoubleSeq[0].d));
+	    }
+	    else
+	    {
+		assert(false);
+	    }
 	    
-	    const int repetitions = 1000;
 	    for(i = 0; i < repetitions; ++i)
 	    {
-		if(sendbytes)
+		if(sendBytes)
 		{
 		    roundtrip->sendByteSeq(seq);
 		}
-		else if(sendstrings)
+		else if(sendStrings)
 		{
 		    roundtrip->sendStringSeq(stringSeq);
 		}
-		else if(sendlongstrings)
+		else if(sendLongStrings)
 		{
 		    roundtrip->sendStringSeq(longStringSeq);
 		}
-		else if(sendstructs)
+		else if(sendStructs)
 		{
 		    roundtrip->sendStringDoubleSeq(stringDoubleSeq);
 		}
 	    }
 
-	    IceUtil::Time interval = IceUtil::Time::now() - start;
-	    cout << interval.toMilliSecondsDouble() / repetitions << endl;
+	    IcePerf::TestPrinter formatter;
+	    formatter.fmt(cout, "TAO", "throughput", IceUtil::Time::now() - start, repetitions, payloadSize, argc, argv);
 	}			
 
 	roundtrip->shutdown(ACE_ENV_SINGLE_ARG_PARAMETER);
