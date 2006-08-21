@@ -108,6 +108,7 @@ HelloClient::trim(const string& s)
 int
 HelloClient::run(int argc, char* argv[])
 {
+    int status = EXIT_SUCCESS;
     IceGrid::RegistryPrx registry = 
 	IceGrid::RegistryPrx::checkedCast(communicator()->stringToProxy("DemoIceGrid/Registry"));
     if(!registry)
@@ -145,62 +146,74 @@ HelloClient::run(int argc, char* argv[])
     SessionKeepAliveThreadPtr keepAlive = new SessionKeepAliveThread(session, registry->getSessionTimeout() / 2);
     keepAlive->start();
 
-    HelloPrx hello;
     try
     {
-        hello = HelloPrx::checkedCast(session->allocateObjectById(communicator()->stringToIdentity("hello")));
+	HelloPrx hello = HelloPrx::checkedCast(session->allocateObjectById(communicator()->stringToIdentity("hello")));
+
+	menu();
+
+	char c;
+	do
+	{
+	    try
+	    {
+		cout << "==> ";
+		cin >> c;
+		if(c == 't')
+		{
+		    hello->sayHello();
+		}
+		else if(c == 'x')
+		{
+		    // Nothing to do
+		}
+		else if(c == '?')
+		{
+		    menu();
+		}
+		else
+		{
+		    cout << "unknown command `" << c << "'" << endl;
+		    menu();
+		}
+	    }
+	    catch(const Ice::Exception& ex)
+	    {
+		cerr << ex << endl;
+	    }
+	}
+	while(cin.good() && c != 'x');
     }
     catch(const IceGrid::AllocationException& ex)
     {
-        cerr << argv[0] << ": could not allocate object: " << ex.reason << endl;
-	return EXIT_FAILURE;
+	cerr << argv[0] << ": could not allocate object: " << ex.reason << endl;
+	status = EXIT_FAILURE;
     }
     catch(const IceGrid::ObjectNotRegisteredException&)
     {
-        cerr << argv[0] << ": object not registered with registry" << endl;
-	return EXIT_FAILURE;
+	cerr << argv[0] << ": object not registered with registry" << endl;
+	status = EXIT_FAILURE;
     }
-
-    menu();
-
-    char c;
-    do
+    catch(const Ice::Exception& ex)
     {
-	try
-	{
-	    cout << "==> ";
-	    cin >> c;
-	    if(c == 't')
-	    {
-		hello->sayHello();
-	    }
-	    else if(c == 'x')
-	    {
-		// Nothing to do
-	    }
-	    else if(c == '?')
-	    {
-		menu();
-	    }
-	    else
-	    {
-		cout << "unknown command `" << c << "'" << endl;
-		menu();
-	    }
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex << endl;
-	}
+	cerr << ex << endl;
+	status = EXIT_FAILURE;
     }
-    while(cin.good() && c != 'x');
+    catch(...)
+    {
+	cerr << "unexpected exception" << endl;
+	status = EXIT_FAILURE;
+    }
 
+    //
+    // Destroy the keepAlive thread and the sesion object otherwise
+    // the session will be kept allocated until the timeout occurs.
+    // Destroying the session will release all allocated objects.
+    //
     keepAlive->destroy();
     keepAlive->getThreadControl().join();
-
-    session->releaseObject(hello->ice_getIdentity());
     session->destroy();
 
-    return EXIT_SUCCESS;
+    return status;
 }
 
