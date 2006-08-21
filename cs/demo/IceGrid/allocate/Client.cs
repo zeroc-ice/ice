@@ -72,6 +72,7 @@ public class Client : Ice.Application
 
     public override int run(string[] args)
     {
+	int status = 0;
         IceGrid.RegistryPrx registry = 
 	    IceGrid.RegistryPrxHelper.checkedCast(communicator().stringToProxy("DemoIceGrid/Registry"));
 	if(registry == null)
@@ -111,97 +112,83 @@ public class Client : Ice.Application
 	Thread keepAliveThread = new Thread(new ThreadStart(keepAlive.run));
 	keepAliveThread.Start();
 
-	HelloPrx hello = null;
 	try
 	{
-	    hello = HelloPrxHelper.checkedCast(session.allocateObjectById(communicator().stringToIdentity("hello")));
-	}
+	    HelloPrx hello;
+	    try
+	    {
+		hello = HelloPrxHelper.checkedCast(
+		    session.allocateObjectById(communicator().stringToIdentity("hello")));
+	    }
+	    catch(IceGrid.ObjectNotRegisteredException)
+	    {
+		hello = HelloPrxHelper.checkedCast(session.allocateObjectByType("::Demo::Hello"));
+	    }
+
+	    menu();
+
+	    string line = null;
+	    do
+	    {
+		try
+		{
+		    Console.Write("==> ");
+		    Console.Out.Flush();
+		    line = Console.In.ReadLine();
+		    if(line == null)
+		    {
+			break;
+		    }
+		    if(line.Equals("t"))
+		    {
+			hello.sayHello();
+		    }
+		    else if(line.Equals("s"))
+		    {
+			hello.shutdown();
+		    }
+		    else if(line.Equals("x"))
+		    {
+			// Nothing to do
+		    }
+		    else if(line.Equals("?"))
+		    {
+			menu();
+		    }
+		    else
+		    {
+			Console.WriteLine("unknown command `" + line + "'");
+			menu();
+		    }
+		}
+		catch(Ice.LocalException ex)
+		{
+		    Console.WriteLine(ex);
+		}
+	    }
+	    while(!line.Equals("x"));
+    	}
 	catch(IceGrid.AllocationException ex)
 	{
 	    Console.WriteLine("could not allocate object: " + ex.reason);
-	    return 1;
+	    status = 1;
 	}
-	catch(IceGrid.ObjectNotRegisteredException)
+	catch(Exception ex)
 	{
+	    Console.WriteLine("expected exception: " + ex);
+	    status = 1;
 	}
-	if(hello == null)
-	{
-	    try
-	    {
-	        hello = HelloPrxHelper.checkedCast(session.allocateObjectByType("::Demo::Hello"));
-	    }
-	    catch(IceGrid.AllocationException ex)
-	    {
-	        Console.WriteLine("could not allocate object: " + ex.reason);
-	        return 1;
-	    }
-	}
-
-        menu();
-
-        string line = null;
-        do
-        {
-            try
-            {
-                Console.Write("==> ");
-                Console.Out.Flush();
-                line = Console.In.ReadLine();
-                if(line == null)
-                {
-                    break;
-                }
-                if(line.Equals("t"))
-                {
-                    hello.sayHello();
-                }
-                else if(line.Equals("s"))
-                {
-                    hello.shutdown();
-                }
-                else if(line.Equals("x"))
-                {
-                    // Nothing to do
-                }
-                else if(line.Equals("?"))
-                {
-                    menu();
-                }
-                else
-                {
-                    Console.WriteLine("unknown command `" + line + "'");
-                    menu();
-                }
-            }
-            catch(Ice.LocalException ex)
-            {
-                Console.WriteLine(ex);
-            }
-        }
-        while(!line.Equals("x"));
-
+	
+	//
+	// Destroy the keepAlive thread and the sesion object otherwise
+	// the session will be kept allocated until the timeout occurs.
+	// Destroying the session will release all allocated objects.
+	//
 	keepAlive.terminate();
 	keepAliveThread.Join();
-	keepAlive = null;
-	
-	try
-	{
-	    session.releaseObject(hello.ice_getIdentity());
-	}
-	catch(IceGrid.AllocationException ex)
-	{
-	    Console.WriteLine("could not release object: " + ex.reason);
-	    return 1;
-	}
-	catch(IceGrid.ObjectNotRegisteredException)
-	{
-	    Console.WriteLine("object not registered with registry");
-	    return 1;
-	}
-
 	session.destroy();
 
-        return 0;
+        return status;
     }
 
     public static void Main(string[] args)

@@ -1,6 +1,10 @@
 Changes since version 3.1.0
 ---------------------------     
 
+- Fixed a bug with the IceGrid allocate and sessionAllocation demos 
+  where the session would not be destroyed in the event of an 
+  allocation failure.
+
 - Fixed a bug with config/ca/import.py script when importing
   certificates without an encrypted private key into a java keystore.
 

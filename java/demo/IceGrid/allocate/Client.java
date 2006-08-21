@@ -128,7 +128,7 @@ public class Client extends Ice.Application
 	    // succeed if the application-multiple.xml descriptor is
 	    // used.
 	    //
-	    HelloPrx hello = null;
+	    HelloPrx hello;
 	    try
 	    {
 		hello = HelloPrxHelper.checkedCast(
@@ -197,6 +197,11 @@ public class Client extends Ice.Application
 	    status = 1;
 	}
 
+	//
+	// Destroy the keepAlive thread and the sesion object otherwise
+	// the session will be kept allocated until the timeout occurs.
+	// Destroying the session will release all allocated objects.
+	//
 	keepAlive.terminate();
 	try
 	{

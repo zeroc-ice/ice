@@ -54,6 +54,7 @@ class SessionKeepAliveThread(threading.Thread):
 
 class Client(Ice.Application):
     def run(self, args):
+	status = True
 	registry = IceGrid.RegistryPrx.checkedCast(self.communicator().stringToProxy("DemoIceGrid/Registry"))
 	if registry == None:
 	    print self.appName() + ": could not contact registry"
@@ -72,48 +73,49 @@ class Client(Ice.Application):
 	keepAlive = SessionKeepAliveThread(session, registry.getSessionTimeout() / 2)
 	keepAlive.start()
 
-        hello = None
 	try:
-	    hello = Demo.HelloPrx.checkedCast(session.allocateObjectById(self.communicator().stringToIdentity("hello")))
+	    try:
+		hello = Demo.HelloPrx.checkedCast(\
+		    session.allocateObjectById(self.communicator().stringToIdentity("hello")))
+	    except IceGrid.ObjectNotRegisteredException:
+		hello = Demo.HelloPrx.checkedCast(session.allocateObjectByType("::Demo::Hello"))
+
+	    menu()
+
+	    c = None
+	    while c != 'x':
+		try:
+		    c = raw_input("==> ")
+		    if c == 't':
+			hello.sayHello()
+		    elif c == 's':
+			hello.shutdown()
+		    elif c == 'x':
+			pass # Nothing to do
+		    elif c == '?':
+			menu()
+		    else:
+			print "unknown command `" + c + "'"
+			menu()
+		except EOFError:
+		    break
 	except IceGrid.AllocationException, ex:
             print self.appName() + ": could not allocate object: " + ex.reason
-            return False
-	except IceGrid.ObjectNotRegisteredException:
-	    pass
-	if hello == None:
-	    try:
-	        hello = Demo.HelloPrx.checkedCast(session.allocateObjectByType("::Demo::Hello"))
-	    except IceGrid.AllocationException, ex:
-	        print self.appName() + ": could not allocate object: " + ex.reason
-	        return False
+            status = False
+	except:
+            print self.appName() + ": could not allocate object: " + str(sys.exc_info()[0])
+            status = False
 
-	menu()
-
-	c = None
-	while c != 'x':
-	    try:
-		c = raw_input("==> ")
-		if c == 't':
-		    hello.sayHello()
-		elif c == 's':
-		    hello.shutdown()
-		elif c == 'x':
-		    pass # Nothing to do
-		elif c == '?':
-		    menu()
-		else:
-		    print "unknown command `" + c + "'"
-		    menu()
-	    except EOFError:
-		break
-
+	#
+	# Destroy the keepAlive thread and the sesion object otherwise
+	# the session will be kept allocated until the timeout occurs.
+	# Destroying the session will release all allocated objects.
+	#
 	keepAlive.terminate()
 	keepAlive.join()
-
-	session.releaseObject(hello.ice_getIdentity())
 	session.destroy();
 
-	return True
+	return status
 
 app = Client()
 sys.exit(app.main(sys.argv, "config.client"))

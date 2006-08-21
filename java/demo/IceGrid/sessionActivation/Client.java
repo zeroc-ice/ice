@@ -169,12 +169,12 @@ public class Client extends Ice.Application
 	catch(IceGrid.AllocationException ex)
 	{
 	    System.err.println("could not allocate object: " + ex.reason);
-	    return 1;
+	    status = 1;
 	}
 	catch(IceGrid.ObjectNotRegisteredException ex)
 	{
 	    System.err.println("object not registered with registry");
-	    return 1;
+	    status = 1;
 	}
 	catch(Exception ex)
 	{
@@ -182,6 +182,11 @@ public class Client extends Ice.Application
 	    status = 1;
 	}
 
+	//
+	// Destroy the keepAlive thread and the sesion object otherwise
+	// the session will be kept allocated until the timeout occurs.
+	// Destroying the session will release all allocated objects.
+	//
 	keepAlive.terminate();
 	try
 	{
