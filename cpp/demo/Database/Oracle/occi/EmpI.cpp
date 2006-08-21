@@ -55,8 +55,16 @@ EmpI::getDesc(const Ice::Current& current)
 	}
 	
 	result.hiredate = empRef->getHiredate().toText();
-	result.sal = empRef->getSal().toText(_env, "99,999.99");
-	result.comm = empRef->getComm().toText(_env, "0.999");
+
+	if(!empRef->getSal().isNull())
+	{
+	    result.sal = empRef->getSal().toText(_env, "99999.99");
+	}
+
+	if(!empRef->getComm().isNull())
+	{
+	    result.comm = empRef->getComm().toText(_env, "0.999");
+	}
 	
 	Ref<DEPT_T> deptRef = empRef->getDeptref();
 	if(!deptRef.isNull())
@@ -75,79 +83,79 @@ EmpI::getDesc(const Ice::Current& current)
 void EmpI::updateDesc(const HR::EmpDesc& newDesc, const Ice::Current& current)
 {
     ConnectionHolder conh(_pool);
-    
-    Ref<EMP_T> empRef = getRef(conh.connection(), decodeName(current.id.name));
+    {
+	Ref<EMP_T> empRef = getRef(conh.connection(), decodeName(current.id.name));
    
-    empRef->setEname(newDesc.ename);
-    empRef->setJob(newDesc.job);
-    
-    if(newDesc.mgr == 0)
-    {
-	empRef->setMgrref(Ref<EMP_T>());
+	empRef->setEname(newDesc.ename);
+	empRef->setJob(newDesc.job);
+	
+	if(newDesc.mgr == 0)
+	{
+	    empRef->setMgrref(Ref<EMP_T>());
+	}
+	else
+	{
+	    Ref<EMP_T> mgrRef = getRef(conh.connection(), 
+				       decodeName(newDesc.mgr->ice_getIdentity().name));
+	    empRef->setMgrref(mgrRef);
+	}
+	
+	if(newDesc.hiredate == "")
+	{
+	    empRef->setHiredate(Date());
+	}
+	else
+	{
+	    Date hiredate(_env);
+	    hiredate.fromText(newDesc.hiredate);
+	    empRef->setHiredate(hiredate);
+	}
+	
+	if(newDesc.sal == "")
+	{
+	    empRef->setSal(Number());
+	}
+	else
+	{
+	    Number sal(0);
+	    sal.fromText(_env, newDesc.sal, "99999.99");
+	    empRef->setSal(sal);
+	}
+	
+	if(newDesc.comm == "")
+	{
+	    empRef->setComm(Number());	
+	}
+	else
+	{
+	    Number comm(0);
+	    comm.fromText(_env, newDesc.comm, "0.999");
+	    empRef->setComm(comm);
+	}
+	
+	if(newDesc.edept == 0)
+	{
+	    empRef->setDeptref(Ref<DEPT_T>());
+	}
+	else
+	{
+	    Ref<DEPT_T> deptRef = DeptI::getRef(conh.connection(), 
+						decodeName(newDesc.edept->ice_getIdentity().name));
+	    empRef->setDeptref(deptRef);
+	}
+	
+	empRef->markModified();
     }
-    else
-    {
-	Ref<EMP_T> mgrRef = getRef(conh.connection(), 
-				   decodeName(newDesc.mgr->ice_getIdentity().name));
-	empRef->setMgrref(mgrRef);
-    }
-
-    if(newDesc.hiredate == "")
-    {
-	empRef->setHiredate(Date());
-    }
-    else
-    {
-	Date hiredate(_env);
-	hiredate.fromText(newDesc.hiredate);
-	empRef->setHiredate(hiredate);
-    }
-
-    
-    if(newDesc.sal == "")
-    {
-	empRef->setSal(Number());
-    }
-    else
-    {
-	Number sal(0);
-	sal.fromText(_env, newDesc.sal, "99,999.99");
-	empRef->setSal(sal);
-    }
-    
-    if(newDesc.comm == "")
-    {
-	empRef->setComm(Number());	
-    }
-    else
-    {
-	Number comm(0);
-	comm.fromText(_env, newDesc.comm, "0.999");
-	empRef->setComm(comm);
-    }
-
-    if(newDesc.edept == 0)
-    {
-	empRef->setDeptref(Ref<DEPT_T>());
-    }
-    else
-    {
-	Ref<DEPT_T> deptRef = DeptI::getRef(conh.connection(), 
-					    decodeName(newDesc.edept->ice_getIdentity().name));
-	empRef->setDeptref(deptRef);
-    }
-
-    empRef->markModified();
     conh.commit();
 }
 
 void EmpI::remove(const Ice::Current& current)
 {
     ConnectionHolder conh(_pool);
-    
-    Ref<EMP_T> empRef = getRef(conh.connection(), decodeName(current.id.name));
-   
-    empRef->markDelete();
+    {
+	Ref<EMP_T> empRef = getRef(conh.connection(), decodeName(current.id.name));
+	empRef->markDelete();
+    }
     conh.commit();
 }
 

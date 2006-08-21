@@ -41,47 +41,48 @@ HR::EmpPrx
 DeptI::createEmp(int empno, const HR::EmpDesc& desc, const Ice::Current& current)
 {
     ConnectionHolder conh(_pool);
-    
-    Ref<DEPT_T> deptRef = getRef(conh.connection(), decodeName(current.id.name));
-
-    //
-    // Inserted into the OCCI cache
-    //
-    EMP_T* emp = new(conh.connection(), "EMP_VIEW")EMP_T;
-    
-    emp->setEmpno(empno);
-    emp->setEname(desc.ename);
-    emp->setJob(desc.job);
-    if(desc.mgr != 0)
     {
-	Ref<EMP_T> mgrRef = 
-	    EmpI::getRef(conh.connection(), decodeName(desc.mgr->ice_getIdentity().name));
+	Ref<DEPT_T> deptRef = getRef(conh.connection(), decodeName(current.id.name));
 
-	emp->setMgrref(mgrRef);
+	//
+	// Inserted into the OCCI cache
+	//
+	EMP_T* emp = new(conh.connection(), "EMP_VIEW")EMP_T;
+	
+	emp->setEmpno(empno);
+	emp->setEname(desc.ename);
+	emp->setJob(desc.job);
+	if(desc.mgr != 0)
+	{
+	    Ref<EMP_T> mgrRef = 
+		EmpI::getRef(conh.connection(), decodeName(desc.mgr->ice_getIdentity().name));
+	    
+	    emp->setMgrref(mgrRef);
+	}
+	
+	if(desc.hiredate != "")
+	{
+	    Date hiredate(_env);
+	    hiredate.fromText(desc.hiredate);
+	    emp->setHiredate(hiredate);
+	}
+	
+	if(desc.sal != "")
+	{
+	    Number sal(0);
+	    sal.fromText(_env, desc.sal, "99999.99");
+	    emp->setSal(sal);
+	}
+	
+	if(desc.comm != "")
+	{
+	    Number comm(0);
+	    comm.fromText(_env, desc.comm, "0.999");
+	    emp->setComm(comm);
+	}
+	
+	emp->setDeptref(deptRef);
     }
-
-    if(desc.hiredate != "")
-    {
-	Date hiredate(_env);
-	hiredate.fromText(desc.hiredate);
-	emp->setHiredate(hiredate);
-    }
-    
-    if(desc.sal != "")
-    {
-	Number sal(0);
-	sal.fromText(_env, desc.sal, "99,999.99");
-	emp->setSal(sal);
-    }
-
-    if(desc.comm != "")
-    {
-	Number comm(0);
-	comm.fromText(_env, desc.comm, "0.999");
-	emp->setComm(comm);
-    }
-
-    emp->setDeptref(deptRef);
     conh.commit();
 
     Ice::Identity empId;
@@ -94,12 +95,14 @@ HR::DeptDesc
 DeptI::getDesc(const Ice::Current& current)
 {
     assert(this != 0);
-
+    HR::DeptDesc result;
+    
     ConnectionHolder conh(_pool);
-    
-    Ref<DEPT_T> deptRef = getRef(conh.connection(), decodeName(current.id.name));
-    
-    HR::DeptDesc result = {deptRef->getDname(), deptRef->getLoc()};
+    {
+	Ref<DEPT_T> deptRef = getRef(conh.connection(), decodeName(current.id.name));	
+	result.dname = deptRef->getDname();
+	result.loc = deptRef->getLoc();
+    }
     conh.commit();
     return result;
 }
@@ -107,21 +110,23 @@ DeptI::getDesc(const Ice::Current& current)
 void DeptI::updateDesc(const HR::DeptDesc& newDesc, const Ice::Current& current)
 {
     ConnectionHolder conh(_pool);
+    {
+	Ref<DEPT_T> deptRef = getRef(conh.connection(), decodeName(current.id.name));
     
-    Ref<DEPT_T> deptRef = getRef(conh.connection(), decodeName(current.id.name));
-    
-    deptRef->setDname(newDesc.dname);
-    deptRef->setLoc(newDesc.loc);
-    deptRef->markModified();
+	deptRef->setDname(newDesc.dname);
+	deptRef->setLoc(newDesc.loc);
+	deptRef->markModified();
+    }
     conh.commit();
 }
 
 void DeptI::remove(const Ice::Current& current)
 {
     ConnectionHolder conh(_pool);
-    
-    Ref<DEPT_T> deptRef = getRef(conh.connection(), decodeName(current.id.name));
-    deptRef->markDelete();
+    {
+	Ref<DEPT_T> deptRef = getRef(conh.connection(), decodeName(current.id.name));
+	deptRef->markDelete();
+    }
     conh.commit();
 }
 
