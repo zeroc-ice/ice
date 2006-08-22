@@ -102,8 +102,21 @@ namespace IceSSL
 		    //
 		    if(traceLevel_ > 0)
 		    {
-		        communicator_.getLogger().trace("Security", "trust manager evaluating peer DN:\n" +
-							subjectName);
+			if(info.incoming)
+			{
+			    communicator_.getLogger().trace("Security", "trust manager evaluating client:\n" +
+				"subject = " + subjectName + "\n" +
+				"adapter = " + info.adapterName + "\n" +
+				"local addr = " + IceInternal.Network.addrToString(info.localAddr) + "\n" +
+				"remote addr = " + IceInternal.Network.addrToString(info.remoteAddr));
+			}
+			else
+			{
+			    communicator_.getLogger().trace("Security", "trust manager evaluating server:\n" +
+				"subject = " + subjectName + "\n" +
+				"local addr = " + IceInternal.Network.addrToString(info.localAddr) + "\n" +
+				"remote addr = " + IceInternal.Network.addrToString(info.remoteAddr));
+			}
 		    }
 
 		    ArrayList dn = RFC2253.parseStrict(subjectName);

@@ -15,6 +15,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/Logger.h>
 #include <Ice/LoggerUtil.h>
+#include <Ice/Network.h>
 
 using namespace std;
 using namespace IceSSL;
@@ -101,7 +102,21 @@ TrustManager::verify(const ConnectionInfo& info)
 	if(_traceLevel > 0)
 	{
 	    Ice::Trace trace(_communicator->getLogger(), "Security");
-	    trace << "trust manager evaluating peer DN:\n" << string(subject);
+	    if(info.incoming)
+	    {
+		trace << "trust manager evaluating client:\n"
+		      << "subject = " << string(subject) << '\n'
+		      << "adapter = " << info.adapterName << '\n'
+		      << "local addr = " << IceInternal::addrToString(info.localAddr) << '\n'
+		      << "remote addr = " << IceInternal::addrToString(info.remoteAddr);
+	    }
+	    else
+	    {
+		trace << "trust manager evaluating server:\n"
+		      << "subject = " << string(subject) << '\n'
+		      << "local addr = " << IceInternal::addrToString(info.localAddr) << '\n'
+		      << "remote addr = " << IceInternal::addrToString(info.remoteAddr);
+	    }
 	}
 	
 	//

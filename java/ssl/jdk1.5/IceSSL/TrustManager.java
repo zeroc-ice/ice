@@ -100,7 +100,21 @@ class TrustManager
 		//
 		if(_traceLevel > 0)
 		{
-		    _communicator.getLogger().trace("Security", "trust manager evaluating peer DN:\n" + subjectName);
+		    if(info.incoming)
+		    {
+			_communicator.getLogger().trace("Security", "trust manager evaluating client:\n" +
+			    "subject = " + subjectName + "\n" +
+			    "adapter = " + info.adapterName + "\n" +
+			    "local addr = " + IceInternal.Network.addrToString(info.localAddr) + "\n" +
+			    "remote addr = " + IceInternal.Network.addrToString(info.remoteAddr));
+		    }
+		    else
+		    {
+			_communicator.getLogger().trace("Security", "trust manager evaluating server:\n" +
+			    "subject = " + subjectName + "\n" +
+			    "local addr = " + IceInternal.Network.addrToString(info.localAddr) + "\n" +
+			    "remote addr = " + IceInternal.Network.addrToString(info.remoteAddr));
+		    }
 		}
 		java.util.List dn = RFC2253.parseStrict(subjectName);
 
