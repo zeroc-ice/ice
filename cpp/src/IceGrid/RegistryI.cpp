@@ -128,6 +128,17 @@ public:
     }
 };
 
+class NullSSLPermissionsVerifierI : public Glacier2::SSLPermissionsVerifier
+{
+public:
+
+    virtual bool
+    authorize(const Glacier2::SSLInfo&, std::string&, const Ice::Current&) const
+    {
+	return true;
+    }
+};
+
 class CryptPermissionsVerifierI : public Glacier2::PermissionsVerifier
 {
 public:
@@ -469,6 +480,11 @@ RegistryI::setupNullPermissionsVerifier(const Ice::ObjectAdapterPtr& registryAda
     Identity nullPermVerifId = _communicator->stringToIdentity(_instanceName + "/NullPermissionsVerifier");
     registryAdapter->add(new NullPermissionsVerifierI(), nullPermVerifId);
     addWellKnownObject(registryAdapter->createProxy(nullPermVerifId), Glacier2::PermissionsVerifier::ice_staticId());
+
+    Identity nullSSLPermVerifId = _communicator->stringToIdentity(_instanceName + "/NullSSLPermissionsVerifier");
+    registryAdapter->add(new NullSSLPermissionsVerifierI(), nullSSLPermVerifId);
+    addWellKnownObject(registryAdapter->createProxy(nullSSLPermVerifId),
+		       Glacier2::SSLPermissionsVerifier::ice_staticId());
 }
 
 bool
