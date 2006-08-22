@@ -110,7 +110,38 @@ class TrustManager
 		java.util.Iterator p = trustset.iterator();
 		while(p.hasNext())
 		{
-		    if(match((java.util.List)p.next(), dn))
+		    java.util.List matchSet = (java.util.List)p.next();
+		    if(_traceLevel > 1)
+		    {
+			String s = "trust manager matching PDNs:\n";
+			java.util.Iterator q = matchSet.iterator();
+			boolean addSemi = false;
+			while(q.hasNext())
+			{
+			    if(addSemi)
+			    {
+				s += ';';
+			    }
+			    addSemi = true;
+			    java.util.List rdnSet = (java.util.List)q.next();
+			    java.util.Iterator r = rdnSet.iterator();
+			    boolean addComma = false;
+			    while(r.hasNext())
+			    {
+				if(addComma)
+				{
+				    s += ',';
+				}
+				addComma = true;
+				RFC2253.RDNPair rdn = (RFC2253.RDNPair)r.next();
+				s += rdn.key;
+				s += '=';
+				s += rdn.value;
+			    }
+			}
+			_communicator.getLogger().trace("Security", s);
+		    }
+		    if(match(matchSet, dn))
 		    {
 			return true;
 		    }
