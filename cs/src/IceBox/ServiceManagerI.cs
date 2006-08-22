@@ -48,11 +48,7 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
 
 	    Ice.Properties properties = Ice.Application.communicator().getProperties();
 
-	    string identity = properties.getProperty("IceBox.ServiceManager.Identity");
-	    if(identity.Length == 0)
-	    {
-		identity = properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox") + "/ServiceManager";
-	    }
+	    string identity = properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox") + "/ServiceManager";
 	    adapter.add(this, Ice.Application.communicator().stringToIdentity(identity));
 
 	    //

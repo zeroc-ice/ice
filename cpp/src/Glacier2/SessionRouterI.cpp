@@ -245,13 +245,8 @@ Glacier2::SessionRouterI::SessionRouterI(const ObjectAdapterPtr& clientAdapter,
     // This session router is used directly as servant for the main
     // Glacier2 router Ice object.
     //
-    const char* routerIdProperty = "Glacier2.RouterIdentity";
-    string routerId = _properties->getProperty(routerIdProperty);
-    if(routerId.empty())
-    {
-        const char* instanceNameProperty = "Glacier2.InstanceName";
-        routerId = _properties->getPropertyWithDefault(instanceNameProperty, "Glacier2") + "/router";
-    }
+    const string instanceNameProperty = "Glacier2.InstanceName";
+    string routerId = _properties->getPropertyWithDefault(instanceNameProperty, "Glacier2") + "/router";
     Identity id = clientAdapter->getCommunicator()->stringToIdentity(routerId);
     _clientAdapter->add(this, id);
 

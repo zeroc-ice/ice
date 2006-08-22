@@ -1,3 +1,70 @@
+NOTE: Please keep changes in the appropriate section for HEAD or 3.1.
+
+Changes since version 3.1.1 (HEAD)
+---------------------------     
+
+- Removed support for the following configuration properties that were
+  deprecated in Ice 3.0:
+
+  IceBox.ServiceManager.Identity
+  IcePatch2.AdminIdentity
+  IcePatch2.Identity
+  Glacier2.AdminIdentity
+  Glacier2.RouterIdentity
+
+  Each of these services supports an InstanceName property that should
+  be used instead.
+
+- Added UnexpectedObjectException. This exception is raised if you
+  use Slice classes and client and server are compiled with mismatched
+  Slice definitions. Alternatively, this exception is raised if you
+  use dynamic invocation and pass a class of the wrong type as an
+  operation parameter.
+
+- The Slice keyword 'nonmutating' is now deprecated; 'idempotent'
+  should be used instead. A new metadata directive is supported for
+  backward-compatibility (see below).
+
+- Added the Freeze property Freeze.Evictor.UseNonmutating.
+
+  When set to a non-zero value, the Freeze Evictor behaves like it did
+  in previous Ice releases in that it assumes nonmutating operations
+  do not update the target object, while all other operations do
+  update the target.
+
+  As of this release, the recommended mechanism is to use the
+  "freeze:read" and "freeze:write" metadata (see below).
+
+  If not defined, the default value of this property is 0.
+
+- New Slice metadata for operations:
+
+  - ["cpp:const"] generates a const member function on the
+    corresponding servant base class.
+
+  - ["freeze:read"] or ["freeze:write"] marks the operation as "read"
+    or "write" for the Freeze evictor. The default is the freeze mode
+    of the enclosing interface/class.
+
+  - ["nonmutating"] provides backward compatibility for idempotent
+    operations that were previously declared using the deprecated
+    'nonmutating' keyword. You can replace the 'nonmutating' keyword
+    with '["nonmutating"] idempotent' to maintain compatibility with
+    objects implemented using Ice 3.0 or 3.1.
+
+- New Slice metadata for interfaces/classes:
+
+  - ["freeze:read"] or ["freeze:write"] defines the default freeze
+    mode for operations on the interface/class. The default is read.
+    This metadata has no effect on derived types.
+
+- For non-abstract Slice classes, the C++ code generator now adds a
+  protected destructor. This prevents accidental allocation of
+  class instances on the stack or as static variables. For the
+  implementation of abstract Slice classes, and for servant classes,
+  applications can do the same thing and add a protected destructor
+  to prevent non-heap allocation.
+
 Changes since version 3.1.0
 ---------------------------     
 
@@ -8,52 +75,17 @@ Changes since version 3.1.0
 - Fixed a bug with config/ca/import.py script when importing
   certificates without an encrypted private key into a java keystore.
 
-- Added UnexpectedObjectException. This exception is raised if you
-  use Slice classes and client and server are compiled with mismatched
-  Slice definitions. Alternatively, this exception is raised if you
-  use dynamic invocation and pass a class of the wrong type as an operation
-  parameter.
-
 - Fixed a bug where variables from distribution descriptors were not
   substituted.
 
-- The keyword 'nonmutating' is now deprecated. You should use
-  instead 'idempotent' with the metadata below (when needed). 
-
-- New Freeze property: Freeze.Evictor.UseNonmutating:
-  When set to a non-0 value, the Freeze Evictor behaves like it did 
-  in previous Ice releases, i.e. it considers that nonmutating 
-  operations don't update the target object, while all other 
-  operations do update the target.
-  As of this release, the recommended mechanism is to use the
-  "freeze:write" and "freeze:write" metadata (see below).
-  Default value: 0
-
-- New operation metadata:
-  - ["cpp:const"]: generate a const member function on the corresponding
-    servant base class
-  - ["freeze:read"], ["freeze:write"]: mark the operation as "read"
-    or "write" for the Freeze evictor. The default is the freeze mode
-    of the enclosing interface/class.
-  - ["nonmutating"]: for idempotent operations, instruct Ice to send
-    the nonmutating operation-mode instead of the idempotent operation
-    -mode. This metadata allows you to replace 'nonmutating' by 
-    '["nonmutating"] idempotent' while maintaining compatibility with 
-    objects implemented using Ice 3.0 or 3.1.
-
-- New interface/class metadata:
-  - ["freeze:read"], ["freeze:write"]: defines the default freeze mode
-   for operations on that interface/class. The default is read.
-   This metadata has no effect on derived classes/interfaces.
-
-- Fixed an assert in the IceGrid locator implementation which could
+- Fixed an assert in the IceGrid locator implementation that could
   occur when using dynamic adapter registration. The assert was
   triggered when an adapter was removed and a client was requesting
   at the same time the adapter endpoints through the locator
   interface.
 
 - Fixed a bug in slice2cpp that caused incorrect code to be generated
-  if a class had member that was an interface (not class) by value:
+  if a class had a member that was an interface (not class) by value:
 
   interface I
   {
@@ -73,22 +105,15 @@ Changes since version 3.1.0
       C myCstar;	// OK, no problem with 3.1.0.
   };
 
-- For non-abstract Slice classes, the C++ code generator now adds a
-  protected destructor. This prevents accidental allocation of
-  class instances on the stack or as static variables. For the
-  implementation of abstract Slice classes, and for servant classes,
-  applications can do the same thing and add a protected destructor
-  to prevent non-heap allocation.
-
-- Fixed a bug in the IceGrid replication code which would cause clients
+- Fixed a bug in the IceGrid replication code that would cause clients
   to get an Ice::NoEndpointException if the node of a replica was
   inactive.
 
-- Fixed a bug in the IceGrid XML parser which could cause a crash if
+- Fixed a bug in the IceGrid XML parser that could cause a crash if
   the adapter element for the IceBox.ServiceManager adapter was
   specified in the icebox element.
 
-- Restored Communicator::setDefaultContext
+- Restored Communicator::setDefaultContext.
 
 - Fixed a bug in Ice::initialize() that raised a NullHandleException
   when the function was called without arguments or when the

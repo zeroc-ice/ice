@@ -180,7 +180,6 @@ IceBox:
     ServiceManager.AdapterId
     ServiceManager.ReplicaGroupId
     ServiceManager.Endpoints
-    ServiceManager.Identity
     ServiceManager.PublishedEndpoints
     ServiceManager.RegisterProcess
     ServiceManager.ThreadPool.Size
@@ -289,11 +288,9 @@ IcePatch2:
     Admin.ThreadPool.SizeMax
     Admin.ThreadPool.SizeWarn
     Admin.ThreadPool.StackSize
-    AdminIdentity
     ChunkSize
     Directory
     Endpoints
-    Identity
     InstanceName
     PublishedEndpoints
     RegisterProcess
@@ -366,7 +363,6 @@ IceStorm:
 Glacier2:
     AddUserToAllowCategories
     Admin.Endpoints
-    AdminIdentity
     Admin.PublishedEndpoints
     Admin.RegisterProcess
     AllowCategories
@@ -390,7 +386,6 @@ Glacier2:
     InstanceName
     PermissionsVerifier
     SSLPermissionsVerifier
-    RouterIdentity
     RoutingTable.MaxSize
     Server.AlwaysBatch
     Server.Buffered

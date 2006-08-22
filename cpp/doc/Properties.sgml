@@ -2531,25 +2531,6 @@ for more information.
 </section>
 </section>
 
-<section><title>IceBox.ServiceManager.Identity</title>
-<section><title>Synopsis</title>
-<synopsis>
-IceBox.ServiceManager.Identity=<replaceable>identity</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-The identity of the service manager interface. If not specified the
-default value <literal>ServiceManager</literal> is used.
-</para>
-<note><para>This property is deprecated and supported only for
-backward-compatibility. New applications should use
-<link linkend="IceBox.InstanceName">IceBox.InstanceName</link>.
-</para></note>
-</section>
-</section>
-
 <section><title>IceBox.ServiceManager.RegisterProcess</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -4495,25 +4476,6 @@ security risk!</para></note>
 </section>
 </section>
 
-<section><title>Glacier2.AdminIdentity</title>
-<section><title>Synopsis</title>
-<synopsis>
-Glacier2.AdminIdentity=<replaceable>identity</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-The identity of the &Glacier2; admin interface. If not specified, the
-default value <literal>Glacier2/admin</literal> is used.
-</para>
-<note><para>This property is deprecated and supported only for
-backward-compatibility. New applications should use
-<link linkend="Glacier2.InstanceName">Glacier2.InstanceName</link>.
-</para></note>
-</section>
-</section>
-
 <section id="Glacier2.AllowCategories"><title>Glacier2.AllowCategories</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -4875,14 +4837,10 @@ Specifies a default identity category for the &Glacier2; objects.
 If defined, the identity of the &Glacier2; admin interface becomes
 <replaceable>name</replaceable><literal>/admin</literal> and the
 identity of the &Glacier2; router interface becomes
-<replaceable>name</replaceable><literal>/router</literal>. The
-deprecated properties <literal>Glacier2.AdminIdentity</literal>
-and <literal>Glacier2.RouterIdentity</literal> take precedence.
+<replaceable>name</replaceable><literal>/router</literal>.
 </para>
 <para>
-If not otherwise defined, the default identities of the &Glacier2;
-objects are <literal>Glacier2/admin</literal> and
-<literal>Glacier2/router</literal>.
+If not defined, the default value is <literal>Glacier2</literal>.
 </para>
 </section>
 </section>
@@ -4906,25 +4864,6 @@ For simple configurations, you can specify the name of a
 password file using
 <link linkend="Glacier2CryptPasswords">Glacier2.CryptPasswords</link>.
 </para>
-</section>
-</section>
-
-<section><title>Glacier2.RouterIdentity</title>
-<section><title>Synopsis</title>
-<synopsis>
-Glacier2.RouterIdentity=<replaceable>identity</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-The identity of the &Glacier2; router interface. If not specified, the
-default value <literal>Glacier2/router</literal> is used.
-</para>
-<note><para>This property is deprecated and supported only for
-backward-compatibility. New applications should use
-<link linkend="Glacier2.InstanceName">Glacier2.InstanceName</link>.
-</para></note>
 </section>
 </section>
 
@@ -5581,26 +5520,6 @@ hostile clients.
 </section>
 </section>
 
-<section><title>IcePatch2.AdminIdentity</title>
-<section><title>Synopsis</title>
-<synopsis>
-IcePatch2.AdminIdentity=<replaceable>identity</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-This property determines the identity of the <literal>IcePatch2::Admin</literal>
-singleton object offered by the &IcePatch2; server. The default
-value is <literal>IcePatch2/admin</literal>.
-</para>
-<note><para>This property is deprecated and supported only for
-backward-compatibility. New applications should use
-<link linkend="IcePatch2.InstanceName">IcePatch2.InstanceName</link>.
-</para></note>
-</section>
-</section>
-
 <section><title>IcePatch2.ChunkSize</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -5655,26 +5574,6 @@ by both the IcePatch2 server and client.
 </section>
 </section>
 
-<section><title>IcePatch2.Identity</title>
-<section><title>Synopsis</title>
-<synopsis>
-IcePatch2.Identity=<replaceable>identity</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-This property determines the identity of the <literal>IcePatch2::FileServer</literal>
-singleton object offered by the &IcePatch2; server. The default
-value is <literal>IcePatch2/server</literal>.
-</para>
-<note><para>This property is deprecated and supported only for
-backward-compatibility. New applications should use
-<link linkend="IcePatch2.InstanceName">IcePatch2.InstanceName</link>.
-</para></note>
-</section>
-</section>
-
 <section id="IcePatch2.InstanceName"><title>IcePatch2.InstanceName</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -5688,14 +5587,10 @@ Specifies a default identity category for the &IcePatch2; objects.
 If defined, the identity of the &IcePatch2; admin interface becomes
 <replaceable>name</replaceable><literal>/admin</literal> and the
 identity of the &IcePatch2; file server interface becomes
-<replaceable>name</replaceable><literal>/server</literal>. The
-deprecated properties <literal>IcePatch2.AdminIdentity</literal>
-and <literal>IcePatch2.Identity</literal> take precedence.
+<replaceable>name</replaceable><literal>/server</literal>.
 </para>
 <para>
-If not otherwise defined, the default identities of the &IcePatch2;
-objects are <literal>IcePatch2/admin</literal> and
-<literal>IcePatch2/server</literal>.
+If not defined, the default value is <literal>IcePatch2</literal>.
 </para>
 </section>
 </section>

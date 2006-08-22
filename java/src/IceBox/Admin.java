@@ -59,15 +59,10 @@ public final class Admin
 
             Ice.Properties properties = communicator().getProperties();
 
-	    String managerIdentity = properties.getProperty("IceBox.ServiceManager.Identity");
-	    if(managerIdentity.length() == 0)
-	    {
-		managerIdentity =
-		    properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox") + "/ServiceManager";
-	    }
+	    String managerIdentity =
+		properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox") + "/ServiceManager";
 
 	    String managerProxy;
-
 	    if(properties.getProperty("Ice.Default.Locator").length() == 0)
 	    {
 		String managerEndpoints = properties.getProperty("IceBox.ServiceManager.Endpoints");

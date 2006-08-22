@@ -1,3 +1,18 @@
+NOTE: Please keep changes in the appropriate section for HEAD or 3.1.
+
+Changes since version 3.1.1 (HEAD)
+---------------------------     
+
+- Removed support for the IceBox.ServiceManager.Identity property,
+  which was deprecated in Ice 3.0. The IceBox service supports an
+  InstanceName property that should be used instead.
+
+- Added UnexpectedObjectException. This exception is raised if you
+  use Slice classes and client and server are compiled with mismatched
+  Slice definitions. Alternatively, this exception is raised if you
+  use dynamic invocation and pass a class of the wrong type as an
+  operation parameter.
+
 Changes since version 3.1.0
 ---------------------------
 
@@ -5,14 +20,7 @@ Changes since version 3.1.0
   where the session would not be destroyed in the event of an
   allocation failure.
 
-- Added UnexpectedObjectException. This exception is raised if you
-  use Slice classes and client and server are compiled with mismatched
-  Slice definitions. Alternatively, this exception is raised if you
-  use dynamic invocation and pass a class of the wrong type as an operation
-  parameter.
-
-- Restored Communicator::setDefaultContext
-
+- Restored Communicator::setDefaultContext.
 
 Changes since version 3.0.1
 ---------------------------
