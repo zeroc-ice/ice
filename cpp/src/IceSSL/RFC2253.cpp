@@ -167,6 +167,7 @@ hexToInt(char v)
 	return 10 + (v - 'A');
     }
     throw ParseException(__FILE__, __LINE__, "unescape: invalid hex pair");
+    return 0; // To satisfy the compiler.
 }
 
 static char
