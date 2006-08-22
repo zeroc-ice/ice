@@ -109,6 +109,19 @@ TrustManager::verify(const ConnectionInfo& info)
 	//
 	for(list<list<DistinguishedName> >::const_iterator p = trustset.begin(); p != trustset.end(); ++p)
 	{
+	    if(_traceLevel > 1)
+	    {
+		Ice::Trace trace(_communicator->getLogger(), "Security");
+		trace << "trust manager matching PDNs:\n";
+		for(list<DistinguishedName>::const_iterator r = p->begin(); r != p->end(); ++r)
+		{
+		    if(r != p->begin())
+		    {
+			trace << ';';
+		    }
+		    trace << string(*r);
+		}
+	    }
 	    if(match(*p, subject))
 	    {
 		return true;
