@@ -298,6 +298,11 @@ IcePatch2::simplify(const string& path)
 	result.erase(pos, 2);
     }
 
+    while(result.substr(0, 4) == "/../")
+    {
+        result.erase(0, 3);
+    }
+
     if(result.substr(0, 2) == "./")
     {
 	result.erase(0, 2);
@@ -322,6 +327,11 @@ IcePatch2::simplify(const string& path)
     if(result.size() >= 1 && result[result.size() - 1] == '/')
     {
 	result.erase(result.size() - 1);
+    }
+
+    if(result == "/..")
+    {
+        result = "/";
     }
 
     return result;
@@ -658,12 +668,15 @@ IcePatch2::createDirectoryRecursive(const string& pa)
 	createDirectoryRecursive(dir);
     }
 
-    if(OS::mkdir(path, 0777) == -1)
+    if(!isRoot(path + "/"))
     {
-	if(errno != EEXIST)
-	{
-	    throw "cannot create directory `" + path + "':\n" + lastError();
-	}
+        if(OS::mkdir(path, 0777) == -1)
+        {
+	    if(errno != EEXIST)
+	    {
+	        throw "cannot create directory `" + path + "':\n" + lastError();
+	    }
+        }
     }
 }
 
