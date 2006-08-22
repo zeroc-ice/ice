@@ -91,6 +91,15 @@ namespace IceInternal
 		    {
 			cached = false;
 			
+		        if(@ref.getInstance().traceLevels().location >= 1)
+		        {
+		            System.Text.StringBuilder s = new System.Text.StringBuilder();
+		            s.Append("searching for adapter by id\n");
+			    s.Append("adapter = " + adapterId);
+		            @ref.getInstance().initializationData().logger.trace(
+		    	        @ref.getInstance().traceLevels().locationCat, s.ToString());
+		        }
+
 			//
 			// Search the adapter in the location service if we didn't
 			// find it in the cache.
@@ -115,6 +124,15 @@ namespace IceInternal
 		    {
 			objectCached = false;
 		    
+		        if(@ref.getInstance().traceLevels().location >= 1)
+		        {
+		            System.Text.StringBuilder s = new System.Text.StringBuilder();
+		            s.Append("searching for object by id\n");
+			    s.Append("object = " + @ref.getInstance().identityToString(identity));
+		            @ref.getInstance().initializationData().logger.trace(
+		    	        @ref.getInstance().traceLevels().locationCat, s.ToString());
+		        }
+
 			obj = _locator.findObjectById(identity);
 		    }
 		    
@@ -148,6 +166,15 @@ namespace IceInternal
 	    }
 	    catch(Ice.AdapterNotFoundException ex)
 	    {
+		if(@ref.getInstance().traceLevels().location >= 1)
+		{
+		    System.Text.StringBuilder s = new System.Text.StringBuilder();
+		    s.Append("adapter not found\n");
+		    s.Append("adapter = " + adapterId);
+		    @ref.getInstance().initializationData().logger.trace(
+		        @ref.getInstance().traceLevels().locationCat, s.ToString());
+		}
+
 		Ice.NotRegisteredException e = new Ice.NotRegisteredException(ex);
 		e.kindOfObject = "object adapter";
 		e.id = adapterId;
@@ -155,6 +182,15 @@ namespace IceInternal
 	    }
 	    catch(Ice.ObjectNotFoundException ex)
 	    {
+		if(@ref.getInstance().traceLevels().location >= 1)
+		{
+		    System.Text.StringBuilder s = new System.Text.StringBuilder();
+		    s.Append("object not found\n");
+		    s.Append("object = " + @ref.getInstance().identityToString(identity));
+		    @ref.getInstance().initializationData().logger.trace(
+		        @ref.getInstance().traceLevels().locationCat, s.ToString());
+		}
+
 		Ice.NotRegisteredException e = new Ice.NotRegisteredException(ex);
 		e.kindOfObject = "object";
 		e.id = @ref.getInstance().identityToString(identity);
@@ -184,15 +220,35 @@ namespace IceInternal
 		}
 	    }
 	    
-	    if(@ref.getInstance().traceLevels().location >= 1 && endpoints != null && endpoints.Length > 0)
+	    if(@ref.getInstance().traceLevels().location >= 1)
 	    {
-		if(cached)
+	        if(endpoints != null && endpoints.Length > 0)
 		{
-		    trace("found endpoints in locator table", @ref, endpoints);
+		    if(cached)
+		    {
+		        trace("found endpoints in locator table", @ref, endpoints);
+		    }
+		    else
+		    {
+		        trace("retrieved endpoints from locator, adding to locator table", @ref, endpoints);
+		    }
 		}
 		else
 		{
-		    trace("retrieved endpoints from locator, adding to locator table", @ref, endpoints);
+		    System.Text.StringBuilder s = new System.Text.StringBuilder();
+		    s.Append("no endpoints configured for ");
+		    if(adapterId.Length > 0)
+		    {
+		        s.Append("adapter\n");
+			s.Append("adapter = " + adapterId);
+		    }
+		    else
+		    {
+		        s.Append("object\n");
+			s.Append("object = " + @ref.getInstance().identityToString(identity));
+		    }
+		    @ref.getInstance().initializationData().logger.trace(
+		    	@ref.getInstance().traceLevels().locationCat, s.ToString());
 		}
 	    }
 	    
