@@ -83,6 +83,15 @@ public final class LocatorInfo
 		{
 		    cached.value = false;
 		    
+	            if(ref.getInstance().traceLevels().location >= 1)
+	            {
+		        StringBuffer s = new StringBuffer();
+		        s.append("searching for adapter by id\n");
+		        s.append("adapter = " + adapterId);
+		        ref.getInstance().initializationData().logger.trace(
+		            ref.getInstance().traceLevels().locationCat, s.toString());
+	            }
+
 		    //
 		    // Search the adapter in the location service if we didn't
 		    // find it in the cache.
@@ -106,6 +115,15 @@ public final class LocatorInfo
 		if(object == null)
 		{
 		    objectCached = false;
+
+	            if(ref.getInstance().traceLevels().location >= 1)
+	            {
+		        StringBuffer s = new StringBuffer();
+		        s.append("searching for object by id\n");
+		        s.append("object = " + ref.getInstance().identityToString(identity));
+		        ref.getInstance().initializationData().logger.trace(
+		            ref.getInstance().traceLevels().locationCat, s.toString());
+	            }
 
 		    object = _locator.findObjectById(identity);
 		}
@@ -142,6 +160,15 @@ public final class LocatorInfo
 	}
 	catch(Ice.AdapterNotFoundException ex)
 	{
+	    if(ref.getInstance().traceLevels().location >= 1)
+	    {
+	        StringBuffer s = new StringBuffer();
+	        s.append("adapter not found\n");
+	        s.append("adapter = " + adapterId);
+	        ref.getInstance().initializationData().logger.trace(
+	            ref.getInstance().traceLevels().locationCat, s.toString());
+	    }
+
 	    Ice.NotRegisteredException e = new Ice.NotRegisteredException();
 	    e.kindOfObject = "object adapter";
 	    e.id = adapterId;
@@ -149,6 +176,15 @@ public final class LocatorInfo
 	}
 	catch(Ice.ObjectNotFoundException ex)
 	{
+	    if(ref.getInstance().traceLevels().location >= 1)
+	    {
+	        StringBuffer s = new StringBuffer();
+	        s.append("object not found\n");
+	        s.append("object = " + ref.getInstance().identityToString(identity));
+	        ref.getInstance().initializationData().logger.trace(
+	            ref.getInstance().traceLevels().locationCat, s.toString());
+	    }
+
 	    Ice.NotRegisteredException e = new Ice.NotRegisteredException();
 	    e.kindOfObject = "object";
 	    e.id = ref.getInstance().identityToString(identity);
@@ -179,15 +215,33 @@ public final class LocatorInfo
 	    throw ex;
 	}
 
-	if(ref.getInstance().traceLevels().location >= 1 && endpoints != null && endpoints.length > 0)
+	if(ref.getInstance().traceLevels().location >= 1)
 	{
-	    if(cached.value)
+	    if(endpoints != null && endpoints.length > 0)
 	    {
-		trace("found endpoints in locator table", ref, endpoints);
+	        if(cached.value)
+	        {
+		    trace("found endpoints in locator table", ref, endpoints);
+	        }
+	        else
+	        {
+		    trace("retrieved endpoints from locator, adding to locator table", ref, endpoints);
+	        }
 	    }
 	    else
 	    {
-		trace("retrieved endpoints from locator, adding to locator table", ref, endpoints);
+	        StringBuffer s = new StringBuffer();
+		s.append("no endpoints configured for ");
+		if(adapterId.length() > 0)
+		{
+		    s.append("adapter\n");
+		    s.append("adapter = " + adapterId + "\n");
+		}
+		else
+		{
+		    s.append("object\n");
+		    s.append("object = " + ref.getInstance().identityToString(identity) + "\n");
+		}
 	    }
 	}
 
