@@ -318,6 +318,14 @@ IceInternal::LocatorInfo::getEndpoints(const IndirectReferencePtr& ref, int ttl,
 	    {
 		cached = false;
 	    
+	        if(ref->getInstance()->traceLevels()->location >= 1)
+	        {
+	            Trace out(ref->getInstance()->initializationData().logger,
+	    	              ref->getInstance()->traceLevels()->locationCat);
+		    out << "searching for adapter by id" << "\n";
+		    out << "adapter = " << ref->getAdapterId();
+	        }
+
 		object = _locator->findAdapterById(ref->getAdapterId());
 		if(object)
 		{
@@ -331,6 +339,14 @@ IceInternal::LocatorInfo::getEndpoints(const IndirectReferencePtr& ref, int ttl,
 	    bool objectCached = true;
 	    if(!_table->getProxy(ref->getIdentity(), ttl, object))
 	    {
+	        if(ref->getInstance()->traceLevels()->location >= 1)
+	        {
+	            Trace out(ref->getInstance()->initializationData().logger,
+	    	              ref->getInstance()->traceLevels()->locationCat);
+		    out << "searching for object by id" << "\n";
+		    out << "object = " << ref->getInstance()->identityToString(ref->getIdentity());
+	        }
+
 		objectCached = false;
 		object = _locator->findObjectById(ref->getIdentity());
 	    }
@@ -365,6 +381,14 @@ IceInternal::LocatorInfo::getEndpoints(const IndirectReferencePtr& ref, int ttl,
     }
     catch(const AdapterNotFoundException&)
     {
+	if(ref->getInstance()->traceLevels()->location >= 1)
+	{
+	    Trace out(ref->getInstance()->initializationData().logger,
+	              ref->getInstance()->traceLevels()->locationCat);
+	    out << "adapter not found" << "\n";
+	    out << "adapter = " << ref->getAdapterId();
+        }
+
 	NotRegisteredException ex(__FILE__, __LINE__);
 	ex.kindOfObject = "object adapter";
 	ex.id = ref->getAdapterId();
@@ -372,6 +396,14 @@ IceInternal::LocatorInfo::getEndpoints(const IndirectReferencePtr& ref, int ttl,
     }
     catch(const ObjectNotFoundException&)
     {
+	if(ref->getInstance()->traceLevels()->location >= 1)
+	{
+	    Trace out(ref->getInstance()->initializationData().logger,
+	              ref->getInstance()->traceLevels()->locationCat);
+	    out << "object not found" << "\n";
+	    out << "object = " << ref->getInstance()->identityToString(ref->getIdentity());
+        }
+
 	NotRegisteredException ex(__FILE__, __LINE__);
 	ex.kindOfObject = "object";
 	ex.id = ref->getInstance()->identityToString(ref->getIdentity());
@@ -388,7 +420,7 @@ IceInternal::LocatorInfo::getEndpoints(const IndirectReferencePtr& ref, int ttl,
 	    Trace out(ref->getInstance()->initializationData().logger,
 	    	      ref->getInstance()->traceLevels()->locationCat);
 	    out << "couldn't contact the locator to retrieve adapter endpoints\n";
-	    if(!ref)
+	    if(ref->getAdapterId().empty())
 	    {
 		out << "object = " << ref->getInstance()->identityToString(ref->getIdentity()) << "\n";
 	    }
@@ -400,16 +432,35 @@ IceInternal::LocatorInfo::getEndpoints(const IndirectReferencePtr& ref, int ttl,
 	}
 	throw;
     }
+
     
-    if(ref->getInstance()->traceLevels()->location >= 1 && !endpoints.empty())
+    if(ref->getInstance()->traceLevels()->location >= 1)
     {
-	if(cached)
+        if(!endpoints.empty())
 	{
-	    trace("found endpoints in locator table", ref, endpoints);
+	    if(cached)
+	    {
+	        trace("found endpoints in locator table", ref, endpoints);
+	    }
+	    else
+	    {
+	        trace("retrieved endpoints from locator, adding to locator table", ref, endpoints);
+	    }
 	}
 	else
 	{
-	    trace("retrieved endpoints from locator, adding to locator table", ref, endpoints);
+	    Trace out(ref->getInstance()->initializationData().logger, ref->getInstance()->traceLevels()->locationCat);
+	    out << "no endpoints configured for ";
+	    if(ref->getAdapterId().empty())
+	    {
+	        out << "object\n";
+		out << "object = " << ref->getInstance()->identityToString(ref->getIdentity());
+	    }
+	    else
+	    {
+	        out << "adapter\n";
+		out << "adapter = " << ref->getAdapterId();
+	    }
 	}
     }
 
