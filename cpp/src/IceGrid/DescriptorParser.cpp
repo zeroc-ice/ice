@@ -206,7 +206,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	{
 	    if(!_currentApplication.get())
 	    {
-		error("the <server> element can only be a child of a <application> element");
+		error("the <server> element can only be a child of an <application> element");
 	    }
 	    _currentNode.reset(_currentApplication->createNode(attributes));
 	}
@@ -254,7 +254,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	{
 	    if(_currentTemplate.get() || _currentNode.get())
 	    {
-		error("element <server-template> can only be a child of an <application> element");
+		error("the <server-template> element can only be a child of an <application> element");
 	    }
 	    _currentTemplate.reset(_currentApplication->createServerTemplate(attributes));
 	}
@@ -287,7 +287,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	{
 	    if(_currentNode.get() || _currentTemplate.get())
 	    {
-		error("element <service-template> can only be a child of an <application> element");
+		error("the <service-template> element can only be a child of an <application> element");
 	    }
 
 	    _currentTemplate.reset(_currentApplication->createServiceTemplate(attributes));
@@ -296,7 +296,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	{
 	    if(!_currentApplication.get())
 	    {
-		error("the <replica-group> element can only be a child of a <application> element");
+		error("the <replica-group> element can only be a child of an <application> element");
 	    }
 	    _currentApplication->addReplicaGroup(attributes);
 	    _inReplicaGroup = true;
@@ -375,7 +375,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    }
 	    else
 	    {
-		error("the <property> element can only be a child of a <properties>, <icebox>, <server> or <service>"
+		error("the <property> element can only be a child of a <properties>, <icebox>, <server> or <service> "
 		      "element");
 	    }
 	}
@@ -407,7 +407,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	{
 	    if(!_inAdapter)
 	    {
-		error("the <allocatable> element can only be a child of an <adapter>");
+		error("the <allocatable> element can only be a child of an <adapter> element");
 	    }
 	    _currentCommunicator->addAllocatable(attributes);
 	}
@@ -431,7 +431,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	{
 	    if(!_currentCommunicator)
 	    {
-		error("the <dbenv> element can only be a child of an <server> or <service> element");
+		error("the <dbenv> element can only be a child of a <server> or <service> element");
 	    }
 	    _currentCommunicator->addDbEnv(attributes);
 	    _inDbEnv = true;
