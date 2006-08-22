@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, pickle, platform, pprint
+import os, sys, platform, pprint
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -51,57 +51,6 @@ def printOutputFromPipe(pipe):
             break
 
         os.write(1, c)
-
-class ValuesCalculator:
-
-    def getMean(self, values):
-
-        if len(values) == 0:
-            return 0
-
-        values.sort()
-
-	#
-	# XXX- Why do we do this?
-	#
-        values = values[0:len(values) / 2 + 1]
-        
-        mean = 0.0
-        for r in values:
-            mean += r
-            
-        mean /= len(values)
-            
-        return mean
-
-    def getBest(self, values):
-	if len(values) == 0:
-	    return 0
-        values.sort()
-	return values[0]
-
-
-def splitName(name):
-    return (name.split()[0], name[len(name.split()[0]):].strip())
-
-def compTest((k1, v1), (k2, v2)):
-
-    m1 = 0.0
-    for m in v1.itervalues():
-        m1 += m
-    m1 /= len(v1)
-        
-    m2 = 0.0
-    for m in v2.itervalues():
-        m2 += m
-    m2 /= len(v2)
-
-    if m1 < m2:
-        return -1
-    elif m2 > m1:
-        return 1
-    else:
-        return 0
 
 class Test :
     """Encapsulates the run of a test group. Manages the running of test

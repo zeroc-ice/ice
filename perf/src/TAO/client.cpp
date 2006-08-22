@@ -248,6 +248,12 @@ main(int argc, char *argv[])
 
 	    IcePerf::TestPrinter formatter;
 	    formatter.fmt(cout, "TAO", "latency", IceUtil::Time::now() - start, repetitions, payloadSize, argc, argv);
+
+	    roundtrip->shutdown(ACE_ENV_SINGLE_ARG_PARAMETER);
+	    ACE_TRY_CHECK;
+
+	    orb->destroy(ACE_ENV_SINGLE_ARG_PARAMETER);
+	    ACE_TRY_CHECK;
 	}
 	else
 	{
@@ -326,13 +332,13 @@ main(int argc, char *argv[])
 
 	    IcePerf::TestPrinter formatter;
 	    formatter.fmt(cout, "TAO", "throughput", IceUtil::Time::now() - start, repetitions, payloadSize, argc, argv);
+
+	    roundtrip->shutdown(ACE_ENV_SINGLE_ARG_PARAMETER);
+	    ACE_TRY_CHECK;
+
+	    orb->destroy(ACE_ENV_SINGLE_ARG_PARAMETER);
+	    ACE_TRY_CHECK;
 	}			
-
-	roundtrip->shutdown(ACE_ENV_SINGLE_ARG_PARAMETER);
-	ACE_TRY_CHECK;
-
-	orb->destroy(ACE_ENV_SINGLE_ARG_PARAMETER);
-	ACE_TRY_CHECK;
     }
     ACE_CATCHANY
     {
