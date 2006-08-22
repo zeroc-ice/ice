@@ -49,11 +49,14 @@ static IceUtil::StaticMutex staticMutex = ICE_STATIC_MUTEX_INITIALIZER;
 static int instanceCount = 0;
 static IceUtil::Mutex* locks = 0;
 
+extern "C"
+{
+
 //
 // OpenSSL mutex callback.
 //
-static void
-opensslLockCallback(int mode, int n, const char* file, int line)
+void
+IceSSL_opensslLockCallback(int mode, int n, const char* file, int line)
 {
     if(mode & CRYPTO_LOCK)
     {
@@ -68,8 +71,8 @@ opensslLockCallback(int mode, int n, const char* file, int line)
 //
 // OpenSSL thread id callback.
 //
-static unsigned long
-opensslThreadIdCallback()
+unsigned long
+IceSSL_opensslThreadIdCallback()
 {
 #if defined(_WIN32)
     return static_cast<unsigned long>(GetCurrentThreadId());
@@ -86,6 +89,8 @@ opensslThreadIdCallback()
 #else
 #   error "Unknown platform"
 #endif
+}
+
 }
 
 //
@@ -154,8 +159,8 @@ IceSSL::PluginI::setupSSL(const CommunicatorPtr& communicator)
 	// Create the mutexes and set the callbacks.
 	//
 	locks = new IceUtil::Mutex[CRYPTO_num_locks()];
-	CRYPTO_set_locking_callback(opensslLockCallback);
-	CRYPTO_set_id_callback(opensslThreadIdCallback);
+	CRYPTO_set_locking_callback(IceSSL_opensslLockCallback);
+	CRYPTO_set_id_callback(IceSSL_opensslThreadIdCallback);
 
 	//
 	// Load human-readable error messages.

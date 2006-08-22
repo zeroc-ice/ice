@@ -30,8 +30,11 @@ using namespace IceSSL;
 void IceInternal::incRef(IceSSL::Instance* p) { p->__incRef(); }
 void IceInternal::decRef(IceSSL::Instance* p) { p->__decRef(); }
 
-static int
-opensslPasswordCallback(char* buf, int size, int flag, void* userData)
+extern "C"
+{
+
+int
+IceSSL_opensslPasswordCallback(char* buf, int size, int flag, void* userData)
 {
     IceSSL::Instance* p = reinterpret_cast<IceSSL::Instance*>(userData);
     string passwd = p->password(flag == 1);
@@ -49,20 +52,22 @@ opensslPasswordCallback(char* buf, int size, int flag, void* userData)
 }
 
 #ifndef OPENSSL_NO_DH
-static DH*
-opensslDHCallback(SSL* ssl, int /*isExport*/, int keyLength)
+DH*
+IceSSL_opensslDHCallback(SSL* ssl, int /*isExport*/, int keyLength)
 {
     IceSSL::Instance* p = reinterpret_cast<IceSSL::Instance*>(SSL_CTX_get_ex_data(ssl->ctx, 0));
     return p->dhParams(keyLength);
 }
 #endif
 
-static int
-opensslVerifyCallback(int ok, X509_STORE_CTX* ctx)
+int
+IceSSL_opensslVerifyCallback(int ok, X509_STORE_CTX* ctx)
 {
     SSL* ssl = reinterpret_cast<SSL*>(X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx()));
     IceSSL::Instance* p = reinterpret_cast<IceSSL::Instance*>(SSL_CTX_get_ex_data(ssl->ctx, 0));
     return p->verifyCallback(ok, ssl, ctx);
+}
+
 }
 
 static bool
@@ -190,7 +195,7 @@ IceSSL::Instance::initialize()
 		throw ex;
 	    }
 	    }
-	    SSL_CTX_set_verify(_ctx, sslVerifyMode, opensslVerifyCallback);
+	    SSL_CTX_set_verify(_ctx, sslVerifyMode, IceSSL_opensslVerifyCallback);
 	}
 
 	//
@@ -203,7 +208,7 @@ IceSSL::Instance::initialize()
 	    string password = properties->getProperty(propPrefix + "Password");
 	    if(!password.empty() || _prompt)
 	    {
-		SSL_CTX_set_default_passwd_cb(_ctx, opensslPasswordCallback);
+		SSL_CTX_set_default_passwd_cb(_ctx, IceSSL_opensslPasswordCallback);
 		SSL_CTX_set_default_passwd_cb_userdata(_ctx, this);
 		_password = password;
 	    }
@@ -444,7 +449,7 @@ IceSSL::Instance::initialize()
 #ifndef OPENSSL_NO_DH
 	    _dhParams = new DHParams;
 	    SSL_CTX_set_options(_ctx, SSL_OP_SINGLE_DH_USE);
-	    SSL_CTX_set_tmp_dh_callback(_ctx, opensslDHCallback);
+	    SSL_CTX_set_tmp_dh_callback(_ctx, IceSSL_opensslDHCallback);
 #endif
 	    //
 	    // Properties have the following form:
