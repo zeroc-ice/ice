@@ -59,24 +59,25 @@ Module SessionActivationC
 	    Console.WriteLine("?: help")
 	End Sub
 
-        Public Overloads Overrides Function run(ByVal args() As String) As Integer
+	Public Overloads Overrides Function run(ByVal args() As String) As Integer
+	    Dim status As Integer = 0
 	    Dim registry As IceGrid.RegistryPrx
 	    registry = IceGrid.RegistryPrxHelper.checkedCast(communicator().stringToProxy("DemoIceGrid/Registry"))
- 	    If registry Is Nothing Then
-	        Console.Error.WriteLine("could not contact registry")
+	    If registry Is Nothing Then
+		Console.Error.WriteLine("could not contact registry")
 	    End If
 
-	    Dim session As IceGrid.SessionPrx = Nothing	    
-            While True
-	        Console.Out.WriteLine("This demo accepts any user-id / password combination.")
+	    Dim session As IceGrid.SessionPrx = Nothing
+	    While True
+		Console.Out.WriteLine("This demo accepts any user-id / password combination.")
 
-                Console.Out.Write("user id: ")
-                Console.Out.Flush()
-                Dim id As String = Console.In.ReadLine()
+		Console.Out.Write("user id: ")
+		Console.Out.Flush()
+		Dim id As String = Console.In.ReadLine()
 
-                Console.Out.Write("password: ")
-                Console.Out.Flush()
-                Dim pw As String = Console.In.ReadLine()
+		Console.Out.Write("password: ")
+		Console.Out.Flush()
+		Dim pw As String = Console.In.ReadLine()
 
 		Try
 		    session = registry.createSession(id, pw)
@@ -84,58 +85,62 @@ Module SessionActivationC
 		Catch ex As IceGrid.PermissionDeniedException
 		    Console.Error.WriteLine("permission denied:\n" + ex.reason)
 		End Try
-            End While
+	    End While
 
-            Dim keepAlive As SessionKeepAliveThread = New SessionKeepAliveThread(session, registry.getSessionTimeout() / 2)
-            Dim keepAliveThread As Thread = New Thread(New ThreadStart(AddressOf keepAlive.run))
-            keepAliveThread.Start()
+	    Dim keepAlive As SessionKeepAliveThread = New SessionKeepAliveThread(session, registry.getSessionTimeout() / 2)
+	    Dim keepAliveThread As Thread = New Thread(New ThreadStart(AddressOf keepAlive.run))
+	    keepAliveThread.Start()
 
-	    Dim hello As HelloPrx = Nothing
 	    Try
-	        hello = HelloPrxHelper.checkedCast(session.allocateObjectById(communicator().stringToIdentity("hello")))
-	    Catch ex As Icegrid.AllocationException
-	        Console.Error.WriteLine("could not allocate object: " + ex.reason)
-	        Return 1
-	    Catch ex As Icegrid.ObjectNotRegisteredException
-	        Console.Error.WriteLine("object not registered with registry")
-	        Return 1
+		Dim hello As HelloPrx = HelloPrxHelper.checkedCast(session.allocateObjectById(communicator().stringToIdentity("hello")))
+
+		menu()
+
+		Dim line As String = Nothing
+		Do
+		    Try
+			Console.Out.Write("==> ")
+			Console.Out.Flush()
+			line = Console.In.ReadLine()
+			If line Is Nothing Then
+			    Exit Try
+			End If
+			If line.Equals("t") Then
+			    hello.sayHello()
+			ElseIf line.Equals("x") Then
+			    ' Nothing to do
+			ElseIf line.Equals("?") Then
+			    menu()
+			Else
+			    Console.WriteLine("unknown command `" & line & "'")
+			    menu()
+			End If
+		    Catch ex As System.Exception
+			Console.Error.WriteLine(ex)
+		    End Try
+		Loop While Not line.Equals("x")
+	    Catch ex As IceGrid.AllocationException
+		Console.Error.WriteLine("could not allocate object: " + ex.reason)
+		status = 1
+	    Catch ex As IceGrid.ObjectNotRegisteredException
+		Console.Error.WriteLine("object not registered with registry")
+		status = 1
+	    Catch ex As Exception
+		Console.Error.WriteLine("unexpected exception: " + ex.ToString())
+		status = 1
 	    End Try
 
-	    menu()
-
-            Dim line As String = Nothing
-            Do
-                Try
-                    Console.Out.Write("==> ")
-                    Console.Out.Flush()
-                    line = Console.In.ReadLine()
-                    If line Is Nothing Then
-                        Exit Try
-                    End If
-                    If line.Equals("t") Then
-                        hello.sayHello()
-                    ElseIf line.Equals("x") Then
-                        ' Nothing to do
-                    ElseIf line.Equals("?") Then
-                        menu()
-                    Else
-                        Console.WriteLine("unknown command `" & line & "'")
-                        menu()
-                    End If
-                Catch ex As System.Exception
-                    Console.Error.WriteLine(ex)
-                End Try
-            Loop While Not line.Equals("x")
-
-            keepAlive.terminate()
-            keepAliveThread.Join()
-            keepAlive = Nothing
-
-	    session.releaseObject(hello.ice_getIdentity())
+	    '
+	    ' Destroy the keepAlive thread and the sesion object otherwise
+	    ' the session will be kept allocated until the timeout occurs.
+	    ' Destroying the session will release all allocated objects.
+	    '
+	    keepAlive.terminate()
+	    keepAliveThread.Join()
 	    session.destroy()
 
-            Return 0
-        End Function
+	    Return status
+	End Function
     End Class
 
     Public Sub Main(ByVal args() As String)
