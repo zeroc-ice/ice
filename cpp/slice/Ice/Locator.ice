@@ -137,7 +137,7 @@ interface LocatorRegistry
      *
      * Set the adapter endpoints with the locator registry.
      *
-     * @param adapterId The adapter id.
+     * @param id The adapter id.
      *
      * @param proxy The adapter proxy (a dummy direct proxy created
      * by the adapter). The direct proxy contains the adapter
