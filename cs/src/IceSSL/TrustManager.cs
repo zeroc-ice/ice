@@ -126,7 +126,7 @@ namespace IceSSL
                     // the parser in order to keep the various RFC2253
                     // implementations as close as possible.
                     //
-                    for (int i = 0; i < dn.Count; ++i)
+                    for(int i = 0; i < dn.Count; ++i)
                     {
                         RFC2253.RDNPair p = (RFC2253.RDNPair)dn[i];
                         p.value = RFC2253.unescape(p.value);
@@ -136,12 +136,38 @@ namespace IceSSL
 		    //
 		    // Try matching against everything in the trust set.
 		    //
-                    for(int i = 0; i < trustset.Count; ++i)
+                    foreach(ArrayList matchSet in trustset)
 		    {
-		        if(match((ArrayList)trustset[i], dn))
-		        {
-			    return true;
-		        }
+                        if(traceLevel_ > 0)
+                        {
+                            string s = "trust manager matching PDNs:\n";
+                            bool addSemi = false;
+                            foreach(ArrayList rdnSet in matchSet)
+                            {
+                                if(addSemi)
+                                {
+                                    s += ';';
+                                }
+                                addSemi = true;
+				bool addComma = false;
+                                foreach(RFC2253.RDNPair rdn in rdnSet)
+                                {
+                                    if(addComma)
+                                    {
+                                        s += ',';
+                                    }
+                                    addComma = true;
+                                    s += rdn.key;
+                                    s += '=';
+                                    s += rdn.value;
+                                }
+                            }
+                            communicator_.getLogger().trace("Security", s);
+                        }
+                        if(match(matchSet, dn))
+                        {
+                            return true;
+                        }
 		    }
 	        }
 	        catch(RFC2253.ParseException e)
@@ -157,9 +183,9 @@ namespace IceSSL
         private bool
         match(ArrayList matchSet, ArrayList subject)
         {
-            for(int i = 0; i < matchSet.Count; ++i)
+            foreach(ArrayList item in matchSet)
             {
-	        if(matchRDNs((ArrayList)matchSet[i], subject))
+	        if(matchRDNs(item, subject))
 	        {
 		    return true;
 	        }
@@ -170,14 +196,11 @@ namespace IceSSL
         private bool
         matchRDNs(ArrayList match, ArrayList subject)
         {
-            for(int i = 0; i < match.Count; ++i)
+	    foreach(RFC2253.RDNPair matchRDN in match)
 	    {
-                RFC2253.RDNPair matchRDN = (RFC2253.RDNPair)match[i];
                 bool found = false;
-                
-                for(int j = 0; j < subject.Count; ++j)
-	        {
-		    RFC2253.RDNPair subjectRDN = (RFC2253.RDNPair)subject[j];
+                foreach(RFC2253.RDNPair subjectRDN in subject)
+		{
 		    if(matchRDN.key.Equals(subjectRDN.key))
 		    {
 		        found = true;
