@@ -5,8 +5,8 @@ Changes since version 3.1.1 (HEAD)
 
 - Added the NullSSLPermissionsVerifier to the IceGrid registry.
 
-- Added more tracing to the IceSSL plug-in to help debugging the
-  TrustOnly properties.
+- Added more tracing to the IceSSL plug-in to help with debugging
+  the TrustOnly properties.
 
 - Merged the simple CA scripts into a single iceca script.
 
