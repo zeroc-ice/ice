@@ -410,11 +410,16 @@ NodeService::start(int argc, char* argv[])
     _waitQueue->start();
 
     //
+    // The IceGrid instance name.
+    //
+    const string instanceName = communicator()->getDefaultLocator()->ice_getIdentity().category;
+
+    //
     // Create the server factory. The server factory creates persistent objects
     // for the server and server adapter. It also takes care of installing the
     // evictors and object factories necessary to store these objects.
     //
-    Identity id = communicator()->stringToIdentity(IceUtil::generateUUID());
+    Identity id = communicator()->stringToIdentity(instanceName + "/" + IceUtil::generateUUID());
     NodePrx nodeProxy = NodePrx::uncheckedCast(_adapter->createProxy(id));
     _node = new NodeI(_adapter, _sessions, _activator, _waitQueue, traceLevels, nodeProxy, name, mapper);
     _adapter->add(_node, nodeProxy->ice_getIdentity());
@@ -462,7 +467,6 @@ NodeService::start(int argc, char* argv[])
         AdminPrx admin;
         try
         {
-	    const string instanceName = communicator()->getDefaultLocator()->ice_getIdentity().category;
 	    const string adminId = instanceName + "/Admin";
             admin = AdminPrx::checkedCast(communicator()->stringToProxy(adminId));
         }

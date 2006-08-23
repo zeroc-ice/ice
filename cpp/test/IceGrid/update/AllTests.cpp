@@ -540,7 +540,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(false);
 	}
 
-	testApp = admin->getApplicationDescriptor("TestApp");
+	testApp = admin->getApplicationInfo("TestApp").descriptor;
 	test(testApp.nodes.size() == 2);
 	test(testApp.nodes["node1"].variables["nodename"] == "node1");
 	test(testApp.nodes["node2"].variables["nodename"] == "node2");
@@ -561,7 +561,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(false);
 	}
 
-	testApp = admin->getApplicationDescriptor("TestApp");
+	testApp = admin->getApplicationInfo("TestApp").descriptor;
 	test(testApp.nodes.size() == 2);
 	test(testApp.nodes["node1"].variables["nodename"] == "node1");
 	test(testApp.nodes["node2"].variables["nodename"] == "node2updated");
@@ -582,7 +582,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(false);
 	}
 	
-	testApp = admin->getApplicationDescriptor("TestApp");
+	testApp = admin->getApplicationInfo("TestApp").descriptor;
 	test(testApp.nodes.size() == 1);
 	test(testApp.nodes["node2"].variables["nodename"] == "node2updated");
 	
@@ -705,7 +705,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 
 	ServerInfo serverBefore = admin->getServerInfo("Server");
-	ApplicationDescriptor origApp = admin->getApplicationDescriptor("TestApp");
+	ApplicationDescriptor origApp = admin->getApplicationInfo("TestApp").descriptor;
 
 	update = empty;
 	update.variables["nodevar"] = "appoverride";
@@ -882,7 +882,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	admin->updateApplication(update);
 	info = admin->getServerInfo("Server");
 	test(hasProperty(info.descriptor, "NodeProp", "updated"));
-	ApplicationDescriptor updatedApplication = admin->getApplicationDescriptor("TestApp");
+	ApplicationDescriptor updatedApplication = admin->getApplicationInfo("TestApp").descriptor;
 	test(updatedApplication.nodes["node1"].propertySets.find("NodePropertySet1") ==
 	     updatedApplication.nodes["node1"].propertySets.end());
 
@@ -894,7 +894,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	admin->updateApplication(update);
 	info = admin->getServerInfo("Server");
 	test(hasProperty(info.descriptor, "ApplicationProp", "updated"));
-	updatedApplication = admin->getApplicationDescriptor("TestApp");
+	updatedApplication = admin->getApplicationInfo("TestApp").descriptor;
 	test(updatedApplication.propertySets.find("ApplicationPropertySet1") == 
 	     updatedApplication.propertySets.end());
 
@@ -917,7 +917,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    cerr << ex << endl;
 	    test(false);
 	}
-	testApp = admin->getApplicationDescriptor("TestApp");
+	testApp = admin->getApplicationInfo("TestApp").descriptor;
 	test(testApp.description == "Description");
 	
 	ApplicationUpdateDescriptor update;
@@ -931,7 +931,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    cerr << ex << endl;
 	    test(false);
 	}
-	testApp = admin->getApplicationDescriptor("TestApp");
+	testApp = admin->getApplicationInfo("TestApp").descriptor;
 	test(testApp.description == "Description");
 
 	update.description = new BoxedString("updatedDescription");
@@ -944,7 +944,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    cerr << ex << endl;
 	    test(false);
 	}
-	testApp = admin->getApplicationDescriptor("TestApp");
+	testApp = admin->getApplicationInfo("TestApp").descriptor;
 	test(testApp.description == "updatedDescription");
 	    
 	update.description = new BoxedString("");
@@ -957,7 +957,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    cerr << ex << endl;
 	    test(false);
 	}
-	testApp = admin->getApplicationDescriptor("TestApp");
+	testApp = admin->getApplicationInfo("TestApp").descriptor;
 	test(testApp.description == "");
 
 	admin->removeApplication("TestApp");

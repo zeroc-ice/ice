@@ -90,7 +90,7 @@ public:
     void instantiateServer(AdminSessionI*, const std::string&, const std::string&, const ServerInstanceDescriptor&);
     void removeApplicationDescriptor(AdminSessionI*, const std::string&, int = -1);
 
-    ApplicationDescriptor getApplicationDescriptor(const std::string&);
+    ApplicationInfo getApplicationInfo(const std::string&);
     Ice::StringSeq getAllApplications(const std::string& = std::string());
 
     void addNode(const std::string&, const NodeSessionIPtr&);
@@ -141,9 +141,9 @@ private:
     void checkAdapterForAddition(const std::string&);
     void checkObjectForAddition(const Ice::Identity&);
 
-    void load(const ApplicationHelper&, ServerEntrySeq&, int);
+    void load(const ApplicationHelper&, ServerEntrySeq&, const std::string&, int);
     void unload(const ApplicationHelper&, ServerEntrySeq&);
-    void reload(const ApplicationHelper&, const ApplicationHelper&, ServerEntrySeq&, int);
+    void reload(const ApplicationHelper&, const ApplicationHelper&, ServerEntrySeq&, const std::string&, int);
     void finishUpdate(ServerEntrySeq&, const ApplicationUpdateDescriptor&, const ApplicationInfo&, 
 		      const ApplicationDescriptor&);
 
@@ -163,6 +163,7 @@ private:
     const std::string _instanceName;
     const TraceLevelsPtr _traceLevels;
     const int _sessionTimeout;
+    const bool _master;
 
     ReplicaCache _replicaCache;
     NodeCache _nodeCache;

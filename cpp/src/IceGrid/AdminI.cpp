@@ -328,7 +328,7 @@ AdminI::patchApplication_async(const AMD_Admin_patchApplicationPtr& amdCB,
 			       bool shutdown, 
 			       const Current& current)
 {
-    ApplicationHelper helper(current.adapter->getCommunicator(), _database->getApplicationDescriptor(name));    
+    ApplicationHelper helper(current.adapter->getCommunicator(), _database->getApplicationInfo(name).descriptor);
     DistributionDescriptor appDistrib;
     vector<string> nodes;
     helper.getDistributions(appDistrib, nodes);
@@ -360,10 +360,10 @@ AdminI::patchApplication_async(const AMD_Admin_patchApplicationPtr& amdCB,
     }
 }
 
-ApplicationDescriptor
-AdminI::getApplicationDescriptor(const string& name, const Current&) const
+ApplicationInfo
+AdminI::getApplicationInfo(const string& name, const Current&) const
 {
-    return _database->getApplicationDescriptor(name);
+    return _database->getApplicationInfo(name);
 }
 
 ApplicationDescriptor
@@ -500,7 +500,8 @@ AdminI::patchServer_async(const AMD_Admin_patchServerPtr& amdCB, const string& i
 			  const Current& current)
 {
     ServerInfo info = _database->getServerInfo(id);
-    ApplicationHelper helper(current.adapter->getCommunicator(), _database->getApplicationDescriptor(info.application));
+    ApplicationInfo appInfo = _database->getApplicationInfo(info.application);
+    ApplicationHelper helper(current.adapter->getCommunicator(), appInfo.descriptor);
     DistributionDescriptor appDistrib;
     vector<string> nodes;
     helper.getDistributions(appDistrib, nodes, id);

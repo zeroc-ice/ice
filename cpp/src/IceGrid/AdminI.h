@@ -42,7 +42,7 @@ public:
 				   const Ice::Current&);
     virtual void patchApplication_async(const AMD_Admin_patchApplicationPtr&, const std::string&, bool, 
 					const Ice::Current&);
-    virtual ApplicationDescriptor getApplicationDescriptor(const ::std::string&, const Ice::Current&) const;
+    virtual ApplicationInfo getApplicationInfo(const ::std::string&, const Ice::Current&) const;
     virtual ApplicationDescriptor getDefaultApplicationDescriptor(const Ice::Current&) const;
     virtual Ice::StringSeq getAllApplicationNames(const Ice::Current&) const;
 

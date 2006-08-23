@@ -159,6 +159,12 @@ LocatorRegistryI::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_set
 	    //
 	    // Get the adapter from the registry and set its direct proxy.
 	    //
+	    // NOTE: We pass false to the getAdapter call to indicate
+	    // that we don't necessarily want an up-to-date adapter
+	    // proxy. This is needed for the session activation mode
+	    // for cases where the server is released during the
+	    // server startup.
+	    //
 	    AMI_Adapter_setDirectProxyPtr amiCB = new SetDirectProxyCB(cb);
 	    _database->getAdapter(adapterId, "", false)->setDirectProxy_async(amiCB, proxy);
 	    const TraceLevelsPtr traceLevels = _database->getTraceLevels();
@@ -263,6 +269,11 @@ LocatorRegistryI::setServerProcessProxy_async(const Ice::AMD_LocatorRegistry_set
         //
         // Get the server from the registry and set its process proxy.
         //
+	// NOTE: We pass false to the getServer call to indicate that
+	// we don't necessarily want an up-to-date adapter proxy. This
+	// is needed for the session activation mode for cases where
+	// the server is released during the server startup.
+	//
 	AMI_Server_setProcessPtr amiCB = new AMI_Server_setProcessI(cb);
         _database->getServer(id, false)->setProcess_async(amiCB, proxy);
 

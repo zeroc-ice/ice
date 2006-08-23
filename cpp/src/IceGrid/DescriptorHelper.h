@@ -142,11 +142,11 @@ public:
     virtual ServerDescriptorPtr instantiate(const Resolver&, const PropertyDescriptorSeq&) const;
 
     void print(IceUtil::Output&) const;
-    void print(IceUtil::Output&, const std::string&, const std::string&) const;
+    void print(IceUtil::Output&, const ServerInfo&) const;
 
 protected:
 
-    void printImpl(IceUtil::Output&, const std::string&, const std::string&) const;
+    void printImpl(IceUtil::Output&, const ServerInfo&) const;
     void instantiateImpl(const ServerDescriptorPtr&, const Resolver&, const PropertyDescriptorSeq&) const;
 
 private:
@@ -203,7 +203,7 @@ public:
     virtual void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
 
     void print(IceUtil::Output&) const;
-    void print(IceUtil::Output&, const std::string&, const std::string&) const;
+    void print(IceUtil::Output&, const ServerInfo&) const;
 
 protected:
 
@@ -264,7 +264,7 @@ public:
     void getIds(std::multiset<std::string>&, std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
     const NodeDescriptor& getDefinition() const;
     const NodeDescriptor& getInstance() const;
-    void getServerInfos(const std::string&, std::map<std::string, ServerInfo>&) const;
+    void getServerInfos(const std::string&, const std::string&, int, std::map<std::string, ServerInfo>&) const;
     bool hasDistributions(const std::string&) const;
     bool hasServers() const;
     bool hasServer(const std::string&) const;
@@ -299,9 +299,9 @@ public:
     const ApplicationDescriptor& getInstance() const;
     void getDistributions(DistributionDescriptor&, std::vector<std::string>&,const std::string& = std::string()) const;
 
-    void print(IceUtil::Output&) const;
+    void print(IceUtil::Output&, const ApplicationInfo&) const;
     void printDiff(IceUtil::Output&, const ApplicationHelper&) const;
-    std::map<std::string, ServerInfo> getServerInfos() const;
+    std::map<std::string, ServerInfo> getServerInfos(const std::string&, int) const;
 
 private:
 

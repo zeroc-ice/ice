@@ -273,37 +273,22 @@ LoadCommand::execute()
 }
 
 void
-LoadCommand::setUpdate(const string& application, const ServerDescriptorPtr& desc, const std::string& sessionId,
-		       bool clearDir)
+LoadCommand::setUpdate(const ServerInfo& info, bool clearDir)
 {
     _clearDir = clearDir;
-    _application = application;
-    _desc = desc;
-    _sessionId = sessionId;
+    _info = info;
+}
+
+ServerInfo
+LoadCommand::getServerInfo() const
+{
+    return _info;
 }
 
 bool 
 LoadCommand::clearDir() const
 {
     return _clearDir;
-}
-
-string
-LoadCommand::sessionId() const
-{
-    return _sessionId;
-}
-
-string
-LoadCommand::getApplication() const
-{
-    return _application;
-}
-    
-ServerDescriptorPtr
-LoadCommand::getDescriptor() const
-{
-    return _desc;
 }
 
 void
@@ -572,6 +557,23 @@ ServerI::ServerI(const NodeIPtr& node, const ServerPrx& proxy, const string& ser
     assert(_node->getActivator());
     const_cast<int&>(_disableOnFailure) = 
 	_node->getCommunicator()->getProperties()->getPropertyAsIntWithDefault("IceGrid.Node.DisableOnFailure", 0);
+
+    //
+    // Read the server application uuid and revision. This is to
+    // ensure that a registry won't try to load an older server
+    // definition than the one for which this server was loaded.
+    //
+    string idFilePath = _serverDir + "/revision";
+    ifstream is(idFilePath.c_str());
+    if(is.good())
+    {
+	is >> _info.uuid;
+	is >> _info.revision;
+    }
+    else
+    {
+	_info.revision = 0;
+    }
 }
 
 ServerI::~ServerI()
@@ -658,7 +660,7 @@ ServerI::setEnabled(bool enabled, const ::Ice::Current&)
     bool activate = false;
     {
 	Lock sync(*this);
-	if(!_desc ||
+	if(!_info.descriptor ||
 	   enabled && _activation != Disabled || 
 	   !enabled && _activation == Disabled && _failureTime == IceUtil::Time())
 	{
@@ -666,7 +668,7 @@ ServerI::setEnabled(bool enabled, const ::Ice::Current&)
 	}
 
 	_failureTime = IceUtil::Time();
-	_activation = enabled ? toServerActivation(_desc->activation) : Disabled;
+	_activation = enabled ? toServerActivation(_info.descriptor->activation) : Disabled;
 	activate = _state == Inactive && _activation == Always;
     }
 
@@ -723,22 +725,16 @@ ServerI::setProcess_async(const AMD_Server_setProcessPtr& amdCB, const Ice::Proc
     }
 }
 
-string
-ServerI::getApplication() const
-{
-    Lock sync(*this);    
-    return _application;
-}
-
 bool
 ServerI::canActivateOnDemand() const
 {
     Lock sync(*this);
-    if(!_desc)
+    if(!_info.descriptor)
     {
 	return false;
     }
-    return _desc->activation  == "on-demand" || (!_sessionId.empty() && _desc->activation == "session");
+    return _info.descriptor->activation  == "on-demand" ||
+	(!_info.sessionId.empty() && _info.descriptor->activation == "session");
 }
 
 const string&
@@ -751,14 +747,7 @@ DistributionDescriptor
 ServerI::getDistribution() const
 {
     Lock sync(*this);
-    return _desc ? _desc->distrib : DistributionDescriptor();
-}
-
-bool
-ServerI::hasApplicationDistribution() const
-{
-    Lock sync(*this);
-    return _desc ? _desc->applicationDistrib : false;
+    return _info.descriptor ? _info.descriptor->distrib : DistributionDescriptor();
 }
 
 void
@@ -824,7 +813,7 @@ ServerI::start(ServerActivation activation, const AMD_Server_startPtr& amdCB)
 	{
 	    throw ServerStartException(_id, "The server activation doesn't allow this activation mode.");
 	}
-	else if(_activation == Session && _sessionId.empty())
+	else if(_activation == Session && _info.sessionId.empty())
 	{
 	    throw ServerStartException(_id, "The server is not owned by a session.");
 	}	
@@ -867,14 +856,60 @@ ServerI::start(ServerActivation activation, const AMD_Server_startPtr& amdCB)
 }
 
 void
-ServerI::load(const AMD_Node_loadServerPtr& amdCB, const string& app, const ServerDescriptorPtr& desc, 
-	      const std::string& sessionId)
+ServerI::load(const AMD_Node_loadServerPtr& amdCB, const ServerInfo& info, bool fromMaster)
 {
     ServerCommandPtr command;
     {
 	Lock sync(*this);
-	if(_desc && descriptorEqual(_node->getCommunicator(), _desc, desc) && _sessionId == sessionId)
+
+	//
+	// TODO: XXX: Clear the info uuid and revision when destroyed?
+	//
+
+	//
+	// Don't reload the server if:
+	//
+	// - the application uuid, the application revision and the
+	//   session id didn't change.
+	//
+	// - the load command if from a replica and the given
+	//   descriptor is from another application or out-of-date.
+	//
+	// - the descriptor and the session id didn't change.
+	//
+	// In any case, we update the server application revision if
+	// it needs to be updated.
+	//
+	if(!fromMaster)
 	{
+	    if(_info.uuid != info.uuid)
+	    {
+		throw DeploymentException("server descriptor from replica is from another application");
+	    }
+	    else if(_info.revision > info.revision)
+	    {
+		ostringstream os;
+		os << "server descriptor from replica is too old:\n";
+		os << "current revision: " << _info.revision << "\n";
+ 		os << "replica revision: " << info.revision;
+		throw DeploymentException(os.str());
+	    }
+	}
+
+	if(_info.descriptor && _info.sessionId == info.sessionId &&
+	   (_info.uuid == info.uuid && _info.revision == info.revision || 
+	    descriptorEqual(_node->getCommunicator(), _info.descriptor, info.descriptor)))
+	{
+	    if(_info.uuid == info.uuid && _info.revision < info.revision)
+	    {
+		//
+		// If the application was updated but the server didn't change
+		// we just update the application revision.
+		//
+		_info.revision = info.revision;
+		updateRevisionFile();
+	    }
+
 	    if(amdCB)
 	    {
 		AdapterPrxDict adapters;
@@ -886,6 +921,8 @@ ServerI::load(const AMD_Node_loadServerPtr& amdCB, const string& app, const Serv
 	    }
 	    return;
 	}
+
+	assert(fromMaster || _info.uuid.empty() || _info.uuid == info.uuid && _info.revision <= info.revision);
 	if(!StopCommand::isStopped(_state) && !_stop)
 	{
 	    _stop = new StopCommand(this, _node->getWaitQueue(), _deactivationTimeout);
@@ -894,7 +931,7 @@ ServerI::load(const AMD_Node_loadServerPtr& amdCB, const string& app, const Serv
 	{
 	    _load = new LoadCommand(this);
 	}
-	_load->setUpdate(app, desc, sessionId, _destroy);
+	_load->setUpdate(info, _destroy);
 	if(_destroy && _state != Destroying)
 	{
 	    _destroy->finished();
@@ -1145,8 +1182,8 @@ ServerI::activate()
 #endif
     {
 	Lock sync(*this);
-	assert(_state == Activating && _desc);
-	desc = _desc;
+	assert(_state == Activating && _info.descriptor);
+	desc = _info.descriptor;
 	adpts = _adapters;
 #ifndef _WIN32
 	uid = _uid;
@@ -1328,6 +1365,11 @@ ServerI::destroy()
 	adpts = _adapters;
     }
 
+    if(_info.descriptor->applicationDistrib)
+    {
+	_node->removeServer(_info.application, this);
+    }
+    
     try
     {
 	IcePatch2::removeRecursive(_serverDir);
@@ -1464,9 +1506,7 @@ ServerI::update()
 	    return;
 	}
 
-	string oldApp = _application;
-	ServerDescriptorPtr oldDesc = _desc;
-	string oldSessionId = _sessionId;
+	ServerInfo oldInfo = _info;
 	try
 	{
 	    if(_load->clearDir())
@@ -1487,7 +1527,7 @@ ServerI::update()
 
 	    try
 	    {
-		updateImpl(_load->getApplication(), _load->getDescriptor(), _load->sessionId());
+		updateImpl(_load->getServerInfo());
 	    }
 	    catch(const Ice::Exception& ex)
 	    {
@@ -1504,6 +1544,15 @@ ServerI::update()
 		throw DeploymentException(msg);
 	    }
 
+	    if(oldInfo.descriptor && oldInfo.descriptor->applicationDistrib)
+	    {
+		_node->removeServer(oldInfo.application, this);
+	    }
+	    if(_info.descriptor->applicationDistrib)
+	    {
+		_node->addServer(_info.application, this);
+	    }
+
 	    AdapterPrxDict adapters;
 	    for(ServerAdapterDict::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
 	    {
@@ -1518,7 +1567,7 @@ ServerI::update()
 	    //
 	    try
 	    {
-		updateImpl(oldApp, oldDesc, oldSessionId);
+		updateImpl(oldInfo);
 	    }
 	    catch(const Ice::Exception& e)
 	    {
@@ -1548,15 +1597,13 @@ ServerI::update()
 }
 
 void
-ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc, const string& sessionId)
+ServerI::updateImpl(const ServerInfo& info)
 {
     assert(_load);
 
-    _application = application;
-    _desc = desc;
-    _sessionId = sessionId;
+    _info = info;
 
-    if(!_desc)
+    if(!_info.descriptor)
     {
 	return;
     }
@@ -1568,15 +1615,15 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc, 
     ServerAdapterDict oldAdapters;
     oldAdapters.swap(_adapters);
     AdapterDescriptorSeq::const_iterator r;
-    for(r = _desc->adapters.begin(); r != _desc->adapters.end(); ++r)
+    for(r = _info.descriptor->adapters.begin(); r != _info.descriptor->adapters.end(); ++r)
     {
 	if(!r->id.empty())
 	{
-	    oldAdapters.erase(addAdapter(*r, _desc));
+	    oldAdapters.erase(addAdapter(*r, _info.descriptor));
 	}
 	_processRegistered |= r->registerProcess;
     }
-    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(_desc);
+    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(_info.descriptor);
     if(iceBox)
     {
 	ServiceInstanceDescriptorSeq::const_iterator s;
@@ -1619,7 +1666,7 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc, 
     //
     if(_activation != Disabled || _failureTime != IceUtil::Time())
     {
-	_activation = toServerActivation(_desc->activation);
+	_activation = toServerActivation(_info.descriptor->activation);
 	_failureTime = IceUtil::Time();
     }
 
@@ -1634,9 +1681,9 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc, 
     // mode and if it's not currently owned by a session.
     //
     string user;
-    if(_desc->activation != "session" || !_sessionId.empty())
+    if(_info.descriptor->activation != "session" || !_info.sessionId.empty())
     {
-	user = _desc->user;
+	user = _info.descriptor->user;
 #ifndef _WIN32
 	//
 	// Check if the node is running as root, if that's the case we
@@ -1649,7 +1696,7 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc, 
 	    // a session we set the user to the session id, otherwise
 	    // we set it to "nobody".
 	    //
-	    user = !_sessionId.empty() ? _sessionId : "nobody";
+	    user = !_info.sessionId.empty() ? _info.sessionId : "nobody";
 	}
 #endif
     }
@@ -1753,12 +1800,12 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc, 
     }
 #endif
 
-    istringstream at(_desc->activationTimeout);
+    istringstream at(_info.descriptor->activationTimeout);
     if(!(at >> _activationTimeout) || !at.eof() || _activationTimeout == 0)
     {
 	_activationTimeout = _waitTime;
     }
-    istringstream dt(_desc->deactivationTimeout);
+    istringstream dt(_info.descriptor->deactivationTimeout);
     if(!(dt >> _deactivationTimeout) || !dt.eof() || _deactivationTimeout == 0)
     {
 	_deactivationTimeout = _waitTime;
@@ -1773,10 +1820,15 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc, 
     createOrUpdateDirectory(_serverDir + "/distrib");
 
     //
+    // Update the revision file.
+    //
+    updateRevisionFile();
+
+    //
     // Update the configuration file(s) of the server if necessary.
     //
     Ice::StringSeq knownFiles;
-    updateConfigFile(_serverDir, _desc);
+    updateConfigFile(_serverDir, _info.descriptor);
     knownFiles.push_back("config");
     if(iceBox)
     {
@@ -1793,7 +1845,8 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc, 
     // Update the database environments if necessary.
     //
     Ice::StringSeq knownDbEnvs;
-    for(DbEnvDescriptorSeq::const_iterator q = _desc->dbEnvs.begin(); q != _desc->dbEnvs.end(); ++q)
+    for(DbEnvDescriptorSeq::const_iterator q = _info.descriptor->dbEnvs.begin(); 
+	q != _info.descriptor->dbEnvs.end(); ++q)
     {
 	updateDbEnv(_serverDir, *q);
 	knownDbEnvs.push_back(q->name);
@@ -1866,19 +1919,32 @@ ServerI::updateImpl(const string& application, const ServerDescriptorPtr& desc, 
 }
 
 void
+ServerI::updateRevisionFile()
+{
+    string idFilePath = _serverDir + "/revision";
+    ofstream os(idFilePath.c_str());
+    if(os.good())
+    {
+	os << _info.uuid << endl;
+	os << _info.revision << endl;
+    }
+}
+
+void
 ServerI::checkActivation()
 {
     //assert(locked());
     if(_state == ServerI::WaitForActivation || _state == ServerI::ActivationTimeout)
     {
-	for(AdapterDescriptorSeq::const_iterator p = _desc->adapters.begin(); p != _desc->adapters.end(); ++p)
+	for(AdapterDescriptorSeq::const_iterator p = _info.descriptor->adapters.begin(); 
+	    p != _info.descriptor->adapters.end(); ++p)
 	{
 	    if(!p->id.empty() && p->waitForActivation && _activeAdapters.find(p->id) == _activeAdapters.end())
 	    {
 		return;
 	    }
 	}
-	IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(_desc);
+	IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(_info.descriptor);
 	if(iceBox)
 	{
 	    ServiceInstanceDescriptorSeq::const_iterator s;

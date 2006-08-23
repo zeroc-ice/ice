@@ -145,10 +145,13 @@ Client::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
     
-    Ice::PropertiesPtr properties = communicator()->getProperties();
-
-    const string instanceNameProperty = "IceGrid.InstanceName";
-    string instanceName = properties->getPropertyWithDefault(instanceNameProperty, "IceGrid");
+    if(!communicator()->getDefaultLocator())
+    {
+	cerr << appName() << "property `Ice.Default.Locator' is not set" << endl;
+	return EXIT_FAILURE;
+    }
+    
+    string instanceName = communicator()->getDefaultLocator()->ice_getIdentity().category;	
 
     AdminPrx admin = AdminPrx::checkedCast(communicator()->stringToProxy(instanceName + "/Admin"));
     if(!admin)

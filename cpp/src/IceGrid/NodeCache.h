@@ -51,7 +51,7 @@ public:
 
     bool canRemove();
     
-    void loadServer(const ServerEntryPtr&, const ServerInfo&, const SessionIPtr&, int);
+    void loadServer(const ServerEntryPtr&, const ServerInfo&, const SessionIPtr&);
     void destroyServer(const ServerEntryPtr&, const std::string&);
     ServerInfo getServerInfo(const ServerInfo&, const SessionIPtr&);
 
@@ -71,18 +71,20 @@ class NodeCache : public CacheByString<NodeEntry>
 {
 public:
 
-    NodeCache(const Ice::CommunicatorPtr&, ReplicaCache&);
+    NodeCache(const Ice::CommunicatorPtr&, ReplicaCache&, bool);
 
     void destroy();
 
     NodeEntryPtr get(const std::string&, bool = false) const;
 
     const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
+    bool isMaster() const { return _master; }
     ReplicaCache& getReplicaCache() const { return _replicaCache; }
 
 private:
     
     const Ice::CommunicatorPtr _communicator;
+    const bool _master;
     ReplicaCache& _replicaCache;
 };
 

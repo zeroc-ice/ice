@@ -33,11 +33,12 @@ NodeSessionKeepAliveThread::NodeSessionKeepAliveThread(const InternalRegistryPrx
 NodeSessionPrx
 NodeSessionKeepAliveThread::createSession(const InternalRegistryPrx& registry, IceUtil::Time& timeout) const
 {
+    TraceLevelsPtr traceLevels = _node->getTraceLevels();
     try
     {
-	if(_node->getTraceLevels() && _node->getTraceLevels()->replica > 1)
+	if(traceLevels && traceLevels->replica > 1)
 	{
-	    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->replicaCat);
+	    Ice::Trace out(traceLevels->logger, traceLevels->replicaCat);
 	    out << "trying to establish session with replica `" << _name << "'";
 	}
 
@@ -49,9 +50,9 @@ NodeSessionKeepAliveThread::createSession(const InternalRegistryPrx& registry, I
 	    timeout = IceUtil::Time::seconds(t);
 	}
 	
-	if(_node->getTraceLevels() && _node->getTraceLevels()->replica > 0)
+	if(traceLevels && traceLevels->replica > 0)
 	{
-	    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->replicaCat);
+	    Ice::Trace out(traceLevels->logger, traceLevels->replicaCat);
 	    out << "established session with replica `" << _name << "'";
 	}
 	
@@ -59,17 +60,17 @@ NodeSessionKeepAliveThread::createSession(const InternalRegistryPrx& registry, I
     }
     catch(const NodeActiveException&)
     {
-	if(_node->getTraceLevels())
+	if(traceLevels)
 	{
-	    _node->getTraceLevels()->logger->error("a node with the same name is already registered and active");
+	    traceLevels->logger->error("a node with the same name is already active with the replica `" + _name + "'");
 	}
 	return 0;
     }
     catch(const Ice::LocalException& ex)
     {
-	if(_node->getTraceLevels() && _node->getTraceLevels()->replica > 1)
+	if(traceLevels && traceLevels->replica > 1)
 	{
-	    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->replicaCat);
+	    Ice::Trace out(traceLevels->logger, traceLevels->replicaCat);
 	    out << "failed to establish session with replica `" << _name << "':\n" << ex;
 	}
 	return 0;
@@ -299,11 +300,12 @@ NodeSessionManager::createSession(const InternalRegistryPrx& registry, IceUtil::
     // Establish a session with the master IceGrid registry.
     //
     NodeSessionPrx session;
+    TraceLevelsPtr traceLevels = _node->getTraceLevels();
     try
     {
-	if(_node->getTraceLevels() && _node->getTraceLevels()->replica > 1)
+	if(traceLevels && traceLevels->replica > 1)
 	{
-	    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->replicaCat);
+	    Ice::Trace out(traceLevels->logger, traceLevels->replicaCat);
 	    out << "trying to establish session with master replica";
 	}
 
@@ -315,24 +317,24 @@ NodeSessionManager::createSession(const InternalRegistryPrx& registry, IceUtil::
 	    timeout = IceUtil::Time::seconds(t);
 	}
 
-	if(_node->getTraceLevels() && _node->getTraceLevels()->replica > 0)
+	if(traceLevels && traceLevels->replica > 0)
 	{
-	    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->replicaCat);
+	    Ice::Trace out(traceLevels->logger, traceLevels->replicaCat);
 	    out << "established session with master replica";
 	}	
     }
     catch(const NodeActiveException&)
     {
-	if(_node->getTraceLevels())
+	if(traceLevels)
 	{
-	    _node->getTraceLevels()->logger->error("a node with the same name is already registered and active");
+	    traceLevels->logger->error("a node with the same name is already active with the master replica");
 	}
     }
     catch(const Ice::LocalException& ex)
     {
-	if(_node->getTraceLevels() && _node->getTraceLevels()->replica > 1)
+	if(traceLevels && traceLevels->replica > 1)
 	{
-	    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->replicaCat);
+	    Ice::Trace out(traceLevels->logger, traceLevels->replicaCat);
 	    out << "failed to establish session with master replica:\n" << ex;
 	}
     }

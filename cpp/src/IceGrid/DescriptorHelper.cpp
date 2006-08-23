@@ -1235,28 +1235,34 @@ ServerHelper::instantiate(const Resolver& resolver, const PropertyDescriptorSeq&
 void
 ServerHelper::print(Output& out) const
 {
-    print(out, "", "");
+    print(out, ServerInfo());
 }
 
 void
-ServerHelper::print(Output& out, const string& application, const string& node) const
+ServerHelper::print(Output& out, const ServerInfo& info) const
 {
     out << "server `" + _desc->id + "'";
     out << sb;
-    printImpl(out, application, node);
+    printImpl(out, info);
     out << eb;
 }
 
 void
-ServerHelper::printImpl(Output& out, const string& application, const string& node) const
+ServerHelper::printImpl(Output& out, const ServerInfo& info) const
 {
-    if(!application.empty())
+    if(!info.application.empty())
     {
-	out << nl << "application = `" << application << "'";
+	out << nl << "application = `" << info.application << "'";
+	out << nl << "application uuid = `" << info.uuid << "'";
+	out << nl << "application revision = `" << info.revision << "'";
     }
-    if(!node.empty())
+    if(!info.node.empty())
     {
-	out << nl << "node = `" << node << "'";
+	out << nl << "node = `" << info.node << "'";
+    }
+    if(!info.sessionId.empty())
+    {
+	out << nl << "session id = `" << info.sessionId << "'";
     }
     out << nl << "exe = `" << _desc->exe << "'";
     if(!_desc->pwd.empty())
@@ -1385,16 +1391,16 @@ IceBoxHelper::getIds(multiset<string>& adapterIds, multiset<Ice::Identity>& obje
 void
 IceBoxHelper::print(Output& out) const
 {
-    print(out, "", "");
+    print(out, ServerInfo());
 }
 
 void
-IceBoxHelper::print(Output& out, const string& application, const string& node) const
+IceBoxHelper::print(Output& out, const ServerInfo& info) const
 {
     out << "icebox `" + _desc->id + "'";
     out << sb;
     out << nl << "service manager endpoints = `" << getProperty("IceBox.ServiceManager.Endpoints") << "'";
-    printImpl(out, application, node);
+    printImpl(out, info);
     for(vector<ServiceInstanceHelper>::const_iterator p = _services.begin(); p != _services.end(); ++p)
     {
 	out << nl;
@@ -1996,14 +2002,16 @@ NodeHelper::getInstance() const
 }
 
 void
-NodeHelper::getServerInfos(const string& application, map<string, ServerInfo>& servers) const
+NodeHelper::getServerInfos(const string& app, const string& uuid, int revision, map<string, ServerInfo>& servers) const
 {
     ServerInstanceHelperDict::const_iterator p;
     for(p = _serverInstances.begin(); p != _serverInstances.end(); ++p)
     {
 	ServerInfo info;
 	info.node = _name;
-	info.application = application;
+	info.application = app;
+	info.uuid = uuid;
+	info.revision = revision;
 	info.descriptor = p->second.getServerInstance();
 	servers.insert(make_pair(p->second.getId(), info));
     }
@@ -2011,7 +2019,9 @@ NodeHelper::getServerInfos(const string& application, map<string, ServerInfo>& s
     {
 	ServerInfo info;
 	info.node = _name;
-	info.application = application;
+	info.application = app;
+	info.uuid = uuid;
+	info.revision = revision;
 	info.descriptor = p->second.getServerInstance();
 	servers.insert(make_pair(p->second.getId(), info));
     }
@@ -2527,12 +2537,12 @@ ApplicationHelper::getInstance() const
 }
 
 map<string, ServerInfo>
-ApplicationHelper::getServerInfos() const
+ApplicationHelper::getServerInfos(const string& uuid, int revision) const
 {
     map<string, ServerInfo> servers;
     for(NodeHelperDict::const_iterator n = _nodes.begin(); n != _nodes.end(); ++n)
     {
-	n->second.getServerInfos(_def.name, servers);
+	n->second.getServerInfos(_def.name, uuid, revision, servers);
     }
     return servers;
 }
@@ -2562,10 +2572,17 @@ ApplicationHelper::getDistributions(DistributionDescriptor& distribution,
 }
 
 void
-ApplicationHelper::print(Output& out) const
+ApplicationHelper::print(Output& out, const ApplicationInfo& info) const
 {
     out << "application `" << _instance.name << "'";
     out << sb;
+    out << nl << "uuid = `" << info.uuid << "'";
+    out << nl << "revision = `" << info.revision << "'";
+    out << nl << "creation time = `" << IceUtil::Time::milliSeconds(info.createTime).toDateTime() << "'";
+    out << nl << "created by = `" << info.createUser << "'";
+    out << nl << "update time = `" << IceUtil::Time::milliSeconds(info.updateTime).toDateTime() << "'";
+    out << nl << "updated by = `" << info.updateUser << "'";
+
     if(!_instance.description.empty())
     {
 	out << nl << "description = `" << _instance.description << "'";

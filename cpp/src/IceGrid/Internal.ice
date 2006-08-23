@@ -187,9 +187,8 @@ interface Node
      * they will be created.
      *
      **/
-    ["amd", "ami"] idempotent Server* loadServer(string application, 
-						 ServerDescriptor desc,
-						 string sessionId,
+    ["amd", "ami"] idempotent Server* loadServer(ServerInfo svr,
+						 bool fromMaster,
 						 out AdapterPrxDict adapters, 
 						 out int actTimeout, 
 						 out int deactTimeout)

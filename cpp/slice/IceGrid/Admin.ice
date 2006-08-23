@@ -158,6 +158,20 @@ struct ServerInfo
      **/
     string application;
 
+    /**
+     *
+     * The application uuid.
+     *
+     **/
+    string uuid;
+    
+    /**
+     *
+     * The application revision.
+     *
+     **/
+    int revision;
+
     /** 
      *
      * The server node. 
@@ -171,6 +185,13 @@ struct ServerInfo
      *
      **/
     ServerDescriptor descriptor;
+
+    /**
+     *
+     * The id of the session which allocated the server.
+     *
+     **/
+    string sessionId;
 };
 
 /**
@@ -250,6 +271,9 @@ struct LoadInfo
 
 struct ApplicationInfo
 {
+    /** Unique application identifier. */
+    string uuid;
+
     /** The creation time. */
     long createTime;
     
@@ -267,7 +291,6 @@ struct ApplicationInfo
 
     /** The application descriptor */
     ApplicationDescriptor descriptor;
-
 };
 ["java:type:{java.util.LinkedList}"] sequence<ApplicationInfo> ApplicationInfoSeq;
 
@@ -429,7 +452,7 @@ interface Admin
      * doesn't exist.
      *
      **/
-    ["nonmutating", "cpp:const"] idempotent ApplicationDescriptor getApplicationDescriptor(string name)
+    ["nonmutating", "cpp:const"] idempotent ApplicationInfo getApplicationInfo(string name)
 	throws ApplicationNotExistException;
 
     /**

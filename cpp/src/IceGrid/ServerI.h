@@ -83,15 +83,13 @@ public:
     virtual bool isEnabled(const ::Ice::Current& = Ice::Current()) const;
     virtual void setProcess_async(const AMD_Server_setProcessPtr&, const ::Ice::ProcessPrx&, const ::Ice::Current&);
 
-    std::string getApplication() const;
     bool canActivateOnDemand() const;
     const std::string& getId() const;
     DistributionDescriptor getDistribution() const;
-    bool hasApplicationDistribution() const;
     void getDynamicInfo(ServerDynamicInfoSeq&, AdapterDynamicInfoSeq&) const;
 
     void start(ServerActivation, const AMD_Server_startPtr& = AMD_Server_startPtr());
-    void load(const AMD_Node_loadServerPtr&, const std::string&, const ServerDescriptorPtr&, const std::string&);
+    void load(const AMD_Node_loadServerPtr&, const ServerInfo&, bool);
     void destroy(const AMD_Node_destroyServerPtr&);
     bool startPatch(bool);
     bool waitForPatch();
@@ -111,7 +109,8 @@ public:
 
 private:
     
-    void updateImpl(const std::string&, const ServerDescriptorPtr&, const std::string&);
+    void updateImpl(const ServerInfo&);
+    void updateRevisionFile();
     void checkActivation();
     void checkDestroyed();
     void disableOnFailure();
@@ -137,9 +136,7 @@ private:
     const std::string _serverDir;
     const int _disableOnFailure;
 
-    std::string _application;
-    ServerDescriptorPtr _desc;
-    std::string _sessionId;
+    ServerInfo _info;
 #ifndef _WIN32
     uid_t _uid;
     gid_t _gid;
@@ -205,11 +202,11 @@ public:
 
     DestroyCommand(const ServerIPtr&, bool);
 
-    bool canExecute(ServerI::InternalServerState state);
+    bool canExecute(ServerI::InternalServerState);
     ServerI::InternalServerState nextState();
     void execute();
 
-    void addCallback(const AMD_Node_destroyServerPtr& amdCB);
+    void addCallback(const AMD_Node_destroyServerPtr&);
     void finished();
 
 private:
@@ -224,9 +221,9 @@ public:
 
     StopCommand(const ServerIPtr&, const WaitQueuePtr&, int);
 
-    static bool isStopped(ServerI::InternalServerState state);
+    static bool isStopped(ServerI::InternalServerState);
 
-    bool canExecute(ServerI::InternalServerState state);
+    bool canExecute(ServerI::InternalServerState);
     ServerI::InternalServerState nextState();
     void execute();
     void timeout(bool destroyed);
@@ -246,7 +243,7 @@ public:
 
     StartCommand(const ServerIPtr&, const WaitQueuePtr&, int);
 
-    bool canExecute(ServerI::InternalServerState state);
+    bool canExecute(ServerI::InternalServerState);
     ServerI::InternalServerState nextState();
     void execute();
     void timeout(bool destroyed);
@@ -266,7 +263,7 @@ public:
 
     PatchCommand(const ServerIPtr&);
 
-    bool canExecute(ServerI::InternalServerState state);
+    bool canExecute(ServerI::InternalServerState);
     ServerI::InternalServerState nextState();
     void execute();
 
@@ -286,15 +283,13 @@ public:
 
     LoadCommand(const ServerIPtr&);
 
-    bool canExecute(ServerI::InternalServerState state);
+    bool canExecute(ServerI::InternalServerState);
     ServerI::InternalServerState nextState();
     void execute();
 
-    void setUpdate(const std::string&, const ServerDescriptorPtr&, const std::string&, bool clearDir);
+    void setUpdate(const ServerInfo&, bool);
     bool clearDir() const;
-    std::string sessionId() const;
-    std::string getApplication() const;
-    ServerDescriptorPtr getDescriptor() const;
+    ServerInfo getServerInfo() const;
     void addCallback(const AMD_Node_loadServerPtr&);
     void failed(const Ice::Exception&);
     void finished(const ServerPrx&, const AdapterPrxDict&, int, int);
@@ -303,9 +298,7 @@ private:
 
     std::vector<AMD_Node_loadServerPtr> _loadCB;
     bool _clearDir;
-    std::string _application;
-    ServerDescriptorPtr _desc;
-    std::string _sessionId;
+    ServerInfo _info;
     std::auto_ptr<DeploymentException> _exception;
 };
 

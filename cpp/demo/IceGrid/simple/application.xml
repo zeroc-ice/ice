@@ -18,6 +18,7 @@
 	<adapter name="Hello" endpoints="tcp" register-process="true">
 	  <object identity="hello" type="::Demo::Hello"/>
 	</adapter>
+        <dbenv name="Test"/>
 	<property name="Identity" value="hello"/>
       </server>
     </node>

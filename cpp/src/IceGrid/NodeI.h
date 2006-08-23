@@ -39,8 +39,7 @@ public:
 	  const TraceLevelsPtr&, const NodePrx&, const std::string&, const UserAccountMapperPrx&);
     virtual ~NodeI();
 
-    virtual void loadServer_async(const AMD_Node_loadServerPtr&, const std::string&, const ServerDescriptorPtr&, 
-				  const std::string&, const Ice::Current&);
+    virtual void loadServer_async(const AMD_Node_loadServerPtr&, const ServerInfo&, bool, const Ice::Current&);
     virtual void destroyServer_async(const AMD_Node_destroyServerPtr&, const std::string&, const Ice::Current&);
     virtual void patch(const std::string&, const std::string&, const DistributionDescriptor&, bool,
 		       const Ice::Current&);
@@ -67,6 +66,9 @@ public:
     void setObserver(const NodeObserverPrx&);
     void checkConsistency(const NodeSessionPrx&);
 
+    void addServer(const std::string&, const ServerIPtr&);
+    void removeServer(const std::string&, const ServerIPtr&);
+
 private:
 
     void checkConsistencyNoSync(const Ice::StringSeq&);
@@ -74,10 +76,8 @@ private:
     void initObserver(const Ice::StringSeq&);
     void patch(const IcePatch2::FileServerPrx&, const std::string&, const std::vector<std::string>&);
     
-    void addServer(const std::string&, const ServerIPtr&);
-    void removeServer(const ServerIPtr&);
-    std::set<ServerIPtr> getApplicationServers(const std::string&);
-    Ice::Identity createServerIdentity(const std::string&);
+    std::set<ServerIPtr> getApplicationServers(const std::string&) const;
+    Ice::Identity createServerIdentity(const std::string&) const;
 
     const Ice::ObjectAdapterPtr _adapter;
     NodeSessionManager& _sessions;
@@ -96,6 +96,8 @@ private:
     IceUtil::Mutex _observerMutex;
     NodeObserverPrx _observer;
     mutable PlatformInfo _platform;
+
+    IceUtil::Mutex _serversByApplicationLock;
     std::map<std::string, std::set<ServerIPtr> > _serversByApplication;
     std::set<std::string> _patchInProgress;
 };

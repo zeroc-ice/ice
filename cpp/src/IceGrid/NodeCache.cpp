@@ -8,6 +8,8 @@
 // **********************************************************************
 
 #include <IceUtil/Functional.h>
+#include <Ice/Communicator.h>
+#include <Ice/Properties.h>
 #include <Ice/LoggerUtil.h>
 #include <IceGrid/NodeCache.h>
 #include <IceGrid/SessionI.h>
@@ -155,8 +157,9 @@ private:
 
 };
 
-NodeCache::NodeCache(const Ice::CommunicatorPtr& communicator, ReplicaCache& replicaCache) :
+NodeCache::NodeCache(const Ice::CommunicatorPtr& communicator, ReplicaCache& replicaCache, bool master) :
     _communicator(communicator),
+    _master(master),
     _replicaCache(replicaCache)
 {
 }
@@ -399,7 +402,7 @@ NodeEntry::canRemove()
 }
 
 void
-NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, const SessionIPtr& session, int revision)
+NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, const SessionIPtr& session)
 {
     try
     {
@@ -445,8 +448,10 @@ NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, con
 	}
 	
 	AMI_Node_loadServerPtr amiCB = new LoadCB(_cache.getTraceLevels(), entry, entry->getId(), _name);
-	string sessionId = session ? session->getId() : string("");
-	node->loadServer_async(amiCB, server.application, desc, sessionId);
+
+	ServerInfo info = server;
+	info.descriptor = desc;
+	node->loadServer_async(amiCB, info, _cache.isMaster());
     }
     catch(const NodeUnreachableException& ex)
     {

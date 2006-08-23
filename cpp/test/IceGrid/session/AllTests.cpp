@@ -759,9 +759,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	Glacier2::SessionPrx base;
 
 	base = router1->createSession("client1", "test1");
+	test(base);
 	session1 = SessionPrx::uncheckedCast(base->ice_connectionId("router1")->ice_router(router1));
 
 	base = router2->createSession("client2", "test2");
+	test(base);
 	session2 = SessionPrx::uncheckedCast(base->ice_connectionId("router2")->ice_router(router2));
 
 	try

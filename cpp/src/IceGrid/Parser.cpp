@@ -235,8 +235,9 @@ Parser::describeApplication(const list<string>& args)
 	string name = *p++;
 
 	Output out(cout);
-	ApplicationHelper helper(_communicator, _admin->getApplicationDescriptor(name));
-	helper.print(out);
+	ApplicationInfo info = _admin->getApplicationInfo(name);
+	ApplicationHelper helper(_communicator, info.descriptor);
+	helper.print(out, info);
 	out << nl;
     }
     catch(const Ice::Exception& ex)
@@ -276,10 +277,10 @@ Parser::diffApplication(const list<string>& args)
 	}
 
 	ApplicationDescriptor newApp = DescriptorParser::parseDescriptor(desc, targets, vars, _communicator, _admin);
-	ApplicationDescriptor origApp = _admin->getApplicationDescriptor(newApp.name);
+	ApplicationInfo origApp = _admin->getApplicationInfo(newApp.name);
 
 	ApplicationHelper newAppHelper(_communicator, newApp);
-	ApplicationHelper oldAppHelper(_communicator, origApp);
+	ApplicationHelper oldAppHelper(_communicator, origApp.descriptor);
 	
 	Output out(cout);
 	newAppHelper.printDiff(out, oldAppHelper);
@@ -400,11 +401,11 @@ Parser::describeServerTemplate(const list<string>& args)
 	string name = *p++;
 	string templ = *p++;
 
-	ApplicationDescriptor application = _admin->getApplicationDescriptor(name);
+	ApplicationInfo application = _admin->getApplicationInfo(name);
 	
 	Output out(cout);
-	TemplateDescriptorDict::const_iterator q = application.serverTemplates.find(templ);
-	if(q != application.serverTemplates.end())
+	TemplateDescriptorDict::const_iterator q = application.descriptor.serverTemplates.find(templ);
+	if(q != application.descriptor.serverTemplates.end())
 	{
 	    out << "server template `" << templ << "'";
 	    out << sb;
@@ -489,11 +490,11 @@ Parser::describeServiceTemplate(const list<string>& args)
 	string name = *p++;
 	string templ = *p++;
 
-	ApplicationDescriptor application = _admin->getApplicationDescriptor(name);
+	ApplicationInfo application = _admin->getApplicationInfo(name);
 	
 	Output out(cout);
-	TemplateDescriptorDict::const_iterator q = application.serviceTemplates.find(templ);
-	if(q != application.serviceTemplates.end())
+	TemplateDescriptorDict::const_iterator q = application.descriptor.serviceTemplates.find(templ);
+	if(q != application.descriptor.serviceTemplates.end())
 	{
 	    out << "service template `" << templ << "'";
 	    out << sb;
@@ -796,11 +797,11 @@ Parser::describeServer(const list<string>& args)
 	IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(info.descriptor);
 	if(iceBox)
 	{
-	    IceBoxHelper(_communicator, iceBox).print(out, info.application, info.node);
+	    IceBoxHelper(_communicator, iceBox).print(out, info);
 	}
 	else
 	{
-	    ServerHelper(_communicator, info.descriptor).print(out, info.application, info.node);
+	    ServerHelper(_communicator, info.descriptor).print(out, info);
 	}
 	out << nl;
     }

@@ -9,6 +9,7 @@
 
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Random.h>
+#include <IceUtil/UUID.h>
 #include <Freeze/Freeze.h>
 #include <IceGrid/Database.h>
 #include <IceGrid/TraceLevels.h>
@@ -127,8 +128,9 @@ Database::Database(const Ice::ObjectAdapterPtr& registryAdapter,
     _instanceName(instanceName),
     _traceLevels(traceLevels),  
     _sessionTimeout(sessionTimeout),
+    _master(_communicator->getProperties()->getProperty("IceGrid.Registry.ReplicaName").empty()),
     _replicaCache(_communicator, topicManager),
-    _nodeCache(_communicator, _replicaCache),
+    _nodeCache(_communicator, _replicaCache, _master),
     _objectCache(_communicator),
     _allocatableObjectCache(_communicator),
     _serverCache(_communicator, _nodeCache, _adapterCache, _objectCache, _allocatableObjectCache, sessionTimeout),
@@ -146,7 +148,7 @@ Database::Database(const Ice::ObjectAdapterPtr& registryAdapter,
     {
 	try
 	{
-	    load(ApplicationHelper(_communicator, p->second.descriptor), entries, p->second.revision);
+	    load(ApplicationHelper(_communicator, p->second.descriptor), entries, p->second.uuid, p->second.revision);
 	}
 	catch(const DeploymentException& ex)
 	{
@@ -308,11 +310,11 @@ Database::initReplica(int masterSerial,
 	    {
 		ApplicationHelper previous(_communicator, s->second.descriptor);
 		ApplicationHelper helper(_communicator, p->descriptor);
-		reload(previous, helper, entries, p->revision);
+		reload(previous, helper, entries, p->uuid, p->revision);
 	    }
 	    else
 	    {
-		load(ApplicationHelper(_communicator, p->descriptor), entries, p->revision);
+		load(ApplicationHelper(_communicator, p->descriptor), entries, p->uuid, p->revision);
 	    }
 	}
 	catch(const DeploymentException& ex)
@@ -395,6 +397,7 @@ void
 Database::addApplicationDescriptor(AdminSessionI* session, const ApplicationDescriptor& desc, int masterSerial)
 {
     ServerEntrySeq entries;
+    string uuid = IceUtil::generateUUID();
     {
 	Lock sync(*this);
 	checkSessionLock(session);
@@ -411,7 +414,7 @@ Database::addApplicationDescriptor(AdminSessionI* session, const ApplicationDesc
 
 	ApplicationHelper helper(_communicator, desc);
 	checkForAddition(helper);
-	load(helper, entries, 1);
+	load(helper, entries, uuid, 1);
 	_updating.insert(desc.name);
     }
 
@@ -455,6 +458,7 @@ Database::addApplicationDescriptor(AdminSessionI* session, const ApplicationDesc
 	info.createUser = info.updateUser = _lockUserId;
 	info.descriptor = desc;
 	info.revision = 1;
+	info.uuid = uuid;
 
 	_applications.put(StringApplicationInfoDict::value_type(desc.name, info));	
 
@@ -506,7 +510,7 @@ Database::updateApplicationDescriptor(AdminSessionI* session,
 	ApplicationHelper helper(_communicator, previous.update(update));
 
 	checkForUpdate(previous, helper);
-	reload(previous, helper, entries, oldApp.revision + 1);
+	reload(previous, helper, entries, oldApp.uuid, oldApp.revision + 1);
 
 	newDesc = helper.getDefinition();
 
@@ -543,7 +547,7 @@ Database::syncApplicationDescriptor(AdminSessionI* session, const ApplicationDes
 	update = helper.diff(previous);
 	
 	checkForUpdate(previous, helper);	
-	reload(previous, helper, entries, oldApp.revision + 1);
+	reload(previous, helper, entries, oldApp.uuid, oldApp.revision + 1);
 
 	_updating.insert(update.name);
     }
@@ -582,7 +586,7 @@ Database::instantiateServer(AdminSessionI* session,
 	update = helper.diff(previous);
 
 	checkForUpdate(previous, helper);	
-	reload(previous, helper, entries, oldApp.revision + 1);
+	reload(previous, helper, entries, oldApp.uuid, oldApp.revision + 1);
 
 	newDesc = helper.getDefinition();
 
@@ -648,8 +652,8 @@ Database::removeApplicationDescriptor(AdminSessionI* session, const std::string&
     for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
 }
 
-ApplicationDescriptor
-Database::getApplicationDescriptor(const std::string& name)
+ApplicationInfo
+Database::getApplicationInfo(const std::string& name)
 {
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     StringApplicationInfoDict descriptors(connection, _applicationDbName); 
@@ -660,7 +664,7 @@ Database::getApplicationDescriptor(const std::string& name)
 	throw ApplicationNotExistException(name);
     }
 
-    return p->second.descriptor;
+    return p->second;
 }
 
 Ice::StringSeq
@@ -697,7 +701,12 @@ Database::getNodeInfo(const string& name) const
 void 
 Database::removeNode(const string& name, const NodeSessionIPtr& session, bool shutdown)
 {
-    if(!shutdown)
+    //
+    // If the registry isn't being shutdown and this registry is the
+    // master we remove the node well-known proxy from the object
+    // adapter. Replicas will be notified through the replication.
+    // 
+    if(!shutdown && _master)
     {
 	removeObject(session->getNode()->ice_getIdentity());
     }
@@ -719,12 +728,20 @@ Database::removeNode(const string& name, const NodeSessionIPtr& session, bool sh
 void
 Database::addReplica(const string& name, const ReplicaSessionIPtr& session)
 {
-    ReplicaEntryPtr entry = _replicaCache.add(name, session);
+    _replicaCache.add(name, session);
 
-    ObjectInfo info;
-    info.type = InternalRegistry::ice_staticId();
-    info.proxy = session->getProxy();
-    addObject(info, true);
+    //
+    // Only the master adds the node well-known proxy to its
+    // database. The well-known proxy will be transmitted to the
+    // replicas through the replication of the database.
+    //
+    if(_master)
+    {
+	ObjectInfo info;
+	info.type = InternalRegistry::ice_staticId();
+	info.proxy = session->getProxy();
+	addObject(info, true);
+    }
 
     RegistryObserverTopicPtr topic = getRegistryObserverTopic();
     if(topic)
@@ -736,6 +753,10 @@ Database::addReplica(const string& name, const ReplicaSessionIPtr& session)
 void
 Database::removeReplica(const string& name, const ReplicaSessionIPtr& session, bool shutdown)
 {
+    //
+    // If this registry isn't being shutdown remove the replica
+    // well-known proxy from the database.
+    //
     if(!shutdown)
     {
 	removeObject(session->getProxy()->ice_getIdentity());
@@ -1476,7 +1497,7 @@ Database::checkObjectForAddition(const Ice::Identity& objectId)
 }
 
 void
-Database::load(const ApplicationHelper& app, ServerEntrySeq& entries, int rev)
+Database::load(const ApplicationHelper& app, ServerEntrySeq& entries, const string& uuid, int revision)
 {
     const NodeDescriptorDict& nodes = app.getInstance().nodes;
     const string application = app.getInstance().name;
@@ -1499,17 +1520,17 @@ Database::load(const ApplicationHelper& app, ServerEntrySeq& entries, int rev)
 	}
     }
 
-    map<string, ServerInfo> servers = app.getServerInfos();
+    map<string, ServerInfo> servers = app.getServerInfos(uuid, revision);
     for(map<string, ServerInfo>::const_iterator p = servers.begin(); p != servers.end(); ++p)
     {
-	entries.push_back(_serverCache.add(p->second, rev));
+	entries.push_back(_serverCache.add(p->second));
     }
 }
 
 void
 Database::unload(const ApplicationHelper& app, ServerEntrySeq& entries)
 {
-    map<string, ServerInfo> servers = app.getServerInfos();
+    map<string, ServerInfo> servers = app.getServerInfos("", 0);
     for(map<string, ServerInfo>::const_iterator p = servers.begin(); p != servers.end(); ++p)
     {
 	entries.push_back(_serverCache.remove(p->first));
@@ -1534,16 +1555,21 @@ Database::unload(const ApplicationHelper& app, ServerEntrySeq& entries)
 }
 
 void
-Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newApp, ServerEntrySeq& entries, int rev)
+Database::reload(const ApplicationHelper& oldApp, 
+		 const ApplicationHelper& newApp, 
+		 ServerEntrySeq& entries, 
+		 const string& uuid, 
+		 int revision)
 {
     const string application = oldApp.getInstance().name;
 
     //
     // Remove destroyed servers.
     //
-    map<string, ServerInfo> oldServers = oldApp.getServerInfos();
-    map<string, ServerInfo> newServers = newApp.getServerInfos();
+    map<string, ServerInfo> oldServers = oldApp.getServerInfos(uuid, revision);
+    map<string, ServerInfo> newServers = newApp.getServerInfos(uuid, revision);
     vector<ServerInfo> load;
+    vector<string> updateRev;
     map<string, ServerInfo>::const_iterator p;
     for(p = newServers.begin(); p != newServers.end(); ++p)
     {
@@ -1558,6 +1584,10 @@ Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newAp
 	    _serverCache.remove(p->first, false); // Don't destroy the server if it was updated.
 	    load.push_back(p->second);
 	}
+	else
+	{
+	    updateRev.push_back(p->first);
+	}
     }
     for(p = oldServers.begin(); p != oldServers.end(); ++p)
     {
@@ -1565,6 +1595,10 @@ Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newAp
 	if(q == newServers.end())
 	{
 	    entries.push_back(_serverCache.remove(p->first));
+	}
+	else
+	{
+	    updateRev.push_back(p->first);
 	}
     }
 
@@ -1642,7 +1676,15 @@ Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newAp
     //
     for(vector<ServerInfo>::const_iterator q = load.begin(); q != load.end(); ++q)
     {
-	entries.push_back(_serverCache.add(*q, rev));
+	entries.push_back(_serverCache.add(*q));
+    }
+
+    //
+    // Just update the revision of the server.
+    //
+    for(vector<string>::const_iterator rp = updateRev.begin(); rp != updateRev.end(); ++rp)
+    {
+	_serverCache.get(*rp)->updateRevision(revision);
     }
 }
 
@@ -1668,7 +1710,7 @@ Database::finishUpdate(ServerEntrySeq& entries,
 	    entries.clear();
 	    ApplicationHelper previous(_communicator, newDesc);
 	    ApplicationHelper helper(_communicator, oldApp.descriptor);
-	    reload(previous, helper, entries, oldApp.revision);
+	    reload(previous, helper, entries, oldApp.uuid, oldApp.revision);
 	    _updating.erase(newDesc.name);
 	    notifyAll();
 	}

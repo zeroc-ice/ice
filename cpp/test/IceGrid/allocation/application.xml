@@ -13,7 +13,7 @@
         <property name="Glacier2.Server.Endpoints" value="tcp -h 127.0.0.1"/>
         <property name="Glacier2.Admin.Endpoints" value="tcp -h 127.0.0.1"/>
         <property name="Glacier2.Admin.RegisterProcess" value="1"/>
-
+				   
         <property name="Glacier2.SessionManager" value="${manager}"/>
         <property name="Glacier2.SSLSessionManager" value="IceGrid/SSLSessionManager"/>
         <property name="Glacier2.PermissionsVerifier" value="${verifier}"/>

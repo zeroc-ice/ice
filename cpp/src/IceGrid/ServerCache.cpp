@@ -75,7 +75,7 @@ ServerCache::ServerCache(const Ice::CommunicatorPtr& communicator,
 }
 
 ServerEntryPtr
-ServerCache::add(const ServerInfo& info, int rev)
+ServerCache::add(const ServerInfo& info)
 {
     Lock sync(*this);
 
@@ -85,7 +85,7 @@ ServerCache::add(const ServerInfo& info, int rev)
 	entry = new ServerEntry(*this, info.descriptor->id);
 	addImpl(info.descriptor->id, entry);
     }
-    entry->update(info, rev);
+    entry->update(info);
     _nodeCache.get(info.node, true)->addServer(entry);
 
     forEachCommunicator(AddCommunicator(*this, entry))(info.descriptor);
@@ -222,7 +222,7 @@ ServerEntry::sync()
 }
 
 void
-ServerEntry::update(const ServerInfo& info, int revision)
+ServerEntry::update(const ServerInfo& info)
 {
     Lock sync(*this);
 
@@ -252,7 +252,48 @@ ServerEntry::update(const ServerInfo& info, int revision)
     // Update the allocatable flag.
     //
     const_cast<bool&>(_allocatable) = info.descriptor->allocatable || info.descriptor->activation == "session";
-    _revision = revision;
+}
+
+void
+ServerEntry::updateRevision(int revision)
+{
+    ServerPrx proxy;
+    string uuid;
+    {
+	Lock sync(*this);
+	if(_loaded.get()) // Synced or if not up to date is fine
+	{
+	    proxy = _proxy;
+	    uuid = _loaded->uuid;
+	    _loaded->revision = revision;
+	}
+	else if(_load.get())
+	{
+	    uuid = _load->uuid;
+	    _load->revision = revision;
+	}
+	else
+	{
+	    assert(false);
+	}
+    }
+
+    //
+    // TODO: XXX: Also update the revision on the node is the server
+    // is loaded? That's not strictly necessary... (and doing this
+    // here might not be a good idea since this is called with the
+    // database locked.)
+    //
+//     if(proxy)
+//     {
+// 	try
+// 	{
+// 	    proxy->updateRevision(uuid, revision);
+// 	}
+// 	catch(const Ice::LocalException&)
+// 	{
+// 	}
+//     }
 }
 
 void
@@ -506,7 +547,6 @@ void
 ServerEntry::syncImpl(bool waitForUpdate)
 {
     ServerInfo load;
-    int revision;
     SessionIPtr session;
     ServerInfo destroy;
 
@@ -545,7 +585,6 @@ ServerEntry::syncImpl(bool waitForUpdate)
 	{
 	    load = *_load;
 	    session = _session;
-	    revision = _revision;
 	}
 	else
 	{
@@ -570,7 +609,7 @@ ServerEntry::syncImpl(bool waitForUpdate)
     {
 	try
 	{
-	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session, revision);
+	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session);
 	}
 	catch(NodeNotExistException&)
 	{
@@ -614,7 +653,6 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
 {
     ServerInfo load;
     SessionIPtr session;
-    int revision;
     ServerInfo destroy;
 
     {
@@ -657,7 +695,6 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
 	    {
 		load = *_load;
 		session = _session;
-		revision = _revision;
 	    }
 	}
     }
@@ -678,7 +715,7 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
     {
 	try
 	{
-	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session, revision);
+	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session);
 	}
 	catch(NodeNotExistException&)
 	{
@@ -692,7 +729,6 @@ ServerEntry::destroyCallback()
 {
     ServerInfo load;
     SessionIPtr session;
-    int revision;
 
     {
 	Lock sync(*this);
@@ -709,7 +745,6 @@ ServerEntry::destroyCallback()
 	    _updated = false;
 	    load = *_load;
 	    session = _session;
-	    revision = _revision;
 	}
     }
 
@@ -717,7 +752,7 @@ ServerEntry::destroyCallback()
     {
 	try
 	{
-	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session, revision);
+	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session);
 	}
 	catch(NodeNotExistException&)
 	{
@@ -735,7 +770,6 @@ ServerEntry::exception(const Ice::Exception& ex)
 {
     ServerInfo load;
     SessionIPtr session;
-    int revision;
     bool remove = false;
 
     {
@@ -754,7 +788,6 @@ ServerEntry::exception(const Ice::Exception& ex)
 	    _updated = false;
 	    load = *_load.get();
 	    session = _session;
-	    revision = _revision;
 	}
     }
 
@@ -762,7 +795,7 @@ ServerEntry::exception(const Ice::Exception& ex)
     {
 	try
 	{
-	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session, revision);
+	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session);
 	}
 	catch(NodeNotExistException&)
 	{
@@ -819,6 +852,7 @@ ServerEntry::allocated(const SessionIPtr& session)
 //	_proxy = 0;
 //	_adapters.clear();
 	_session = session;
+	_load->sessionId = session->getId();
     }
 
     Glacier2::SessionControlPrx ctl = session->getSessionControl();
@@ -883,6 +917,7 @@ ServerEntry::released(const SessionIPtr& session)
 	}
 //	_proxy = 0;
 //	_adapters.clear();
+	_load->sessionId = "";
 	_session = 0;
     }
 

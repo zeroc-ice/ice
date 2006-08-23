@@ -209,45 +209,42 @@ NodeI::~NodeI()
 
 void
 NodeI::loadServer_async(const AMD_Node_loadServerPtr& amdCB,
-			const string& application,
-			const ServerDescriptorPtr& desc,
-			const string& sessionId,
+			const ServerInfo& info,
+			bool fromMaster,
 			const Ice::Current& current)
 {
     Lock sync(*this);
     ++_serial;
-
-    Ice::Identity id = createServerIdentity(desc->id);
-
+    
+    Ice::Identity id = createServerIdentity(info.descriptor->id);
+    
     //
     // Check if we already have a servant for this server. If that's
     // the case, the server is already loaded and we just need to
     // update it.
     //
+    bool added = false;
     ServerIPtr server = ServerIPtr::dynamicCast(_adapter->find(id));
-    ServerPrx proxy = ServerPrx::uncheckedCast(_adapter->createProxy(id));
     if(!server)
     {
-	server = new ServerI(this, proxy, _serversDir, desc->id, _waitTime);
+	ServerPrx proxy = ServerPrx::uncheckedCast(_adapter->createProxy(id));
+	server = new ServerI(this, proxy, _serversDir, info.descriptor->id, _waitTime);
 	_adapter->add(server, id);
+	added = true;
     }
-    else
+
+    try
     {
-	if(server->hasApplicationDistribution())
+	server->load(amdCB, info, fromMaster);
+    }
+    catch(const Ice::Exception&)
+    {
+	if(added)
 	{
-	    removeServer(server);
+	    _adapter->remove(id);
 	}
+	throw;
     }
-
-    if(desc->applicationDistrib)
-    {
-	addServer(application, server);
-    }
-
-    //
-    // Update the server with the new descriptor information.
-    //
-    server->load(amdCB, application, desc, sessionId);
 }
 
 void
@@ -256,14 +253,12 @@ NodeI::destroyServer_async(const AMD_Node_destroyServerPtr& amdCB, const string&
     Lock sync(*this);
     ++_serial;
 
-    Ice::Identity id = createServerIdentity(serverId);
-    ServerIPtr server = ServerIPtr::dynamicCast(_adapter->find(id));
+    ServerIPtr server = ServerIPtr::dynamicCast(_adapter->find(createServerIdentity(serverId)));
     if(server)
     {
 	//
 	// Destroy the server object if it's loaded.
 	//
-	removeServer(server);
 	server->destroy(amdCB);
     }
     else
@@ -289,55 +284,54 @@ NodeI::patch(const string& application,
 	     bool shutdown, 
 	     const Ice::Current&)
 {
-    set<ServerIPtr> servers;
     {
 	Lock sync(*this);
-
 	while(_patchInProgress.find(application) != _patchInProgress.end())
 	{
 	    wait();
 	}
 	_patchInProgress.insert(application);
-
-	if(!appDistrib.icepatch.empty())
+    }
+ 
+    set<ServerIPtr> servers;
+    if(!appDistrib.icepatch.empty())
+    {
+	//
+	// Get all the application servers (even the ones which
+	// don't have a distribution since they depend on the
+	// application distribution).
+	//
+	servers = getApplicationServers(application);
+    }
+    else if(server.empty())
+    {
+	//
+	// Get all the application servers which have a distribution.
+	//
+	servers = getApplicationServers(application);
+	set<ServerIPtr>::iterator s = servers.begin();
+	while(s != servers.end())
 	{
-	    //
-	    // Get all the application servers (even the ones which
-	    // don't have a distribution since they depend on the
-	    // application distribution).
-	    //
-	    servers = getApplicationServers(application);
-	}
-	else if(server.empty())
-	{
-	    //
-	    // Get all the application servers which have a distribution.
-	    //
-	    servers = getApplicationServers(application);
-	    set<ServerIPtr>::iterator s = servers.begin();
-	    while(s != servers.end())
+	    if((*s)->getDistribution().icepatch.empty())
 	    {
-		if((*s)->getDistribution().icepatch.empty())
-		{
-		    servers.erase(s++);
-		}
-		else
-		{
-		    ++s;
-		}
+		servers.erase(s++);
+	    }
+	    else
+	    {
+		++s;
 	    }
 	}
-	else
+    }
+    else
+    {
+	//
+	// Get the given server.
+	//
+	Ice::Identity id = createServerIdentity(server);
+	ServerIPtr svr = ServerIPtr::dynamicCast(_adapter->find(id));
+	if(svr)
 	{
-	    //
-	    // Get the given server.
-	    //
-	    Ice::Identity id = createServerIdentity(server);
-	    ServerIPtr svr = ServerIPtr::dynamicCast(_adapter->find(id));
-	    if(svr)
-	    {
-		servers.insert(svr);
-	    }
+	    servers.insert(svr);
 	}
     }
 
@@ -602,6 +596,34 @@ NodeI::checkConsistency(const NodeSessionPrx& session)
 }
 
 void
+NodeI::addServer(const string& application, const ServerIPtr& server)
+{
+    IceUtil::Mutex::Lock sync(_serversByApplicationLock);
+    map<string, set<ServerIPtr> >::iterator p = _serversByApplication.find(application);
+    if(p == _serversByApplication.end())
+    {
+	map<string, set<ServerIPtr> >::value_type v(application, set<ServerIPtr>());
+	p = _serversByApplication.insert(p, v);
+    }
+    p->second.insert(server);
+}
+
+void
+NodeI::removeServer(const std::string& application, const ServerIPtr& server)
+{
+    IceUtil::Mutex::Lock sync(_serversByApplicationLock);
+    map<string, set<ServerIPtr> >::iterator p = _serversByApplication.find(application);
+    if(p != _serversByApplication.end())
+    {
+	p->second.erase(server);
+	if(p->second.empty())
+	{
+	    _serversByApplication.erase(p);
+	}
+    }
+}
+
+void
 NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
 {
     //
@@ -794,6 +816,8 @@ NodeI::initObserver(const Ice::StringSeq& servers)
 	info.info = _platform.getNodeInfo();
 	info.servers = serverInfos;
 	info.adapters = adapterInfos;
+
+	assert(_observer); // No synchronization needed here, this is called by a single thread.
 	_observer->nodeUp(info);
     }
     catch(const Ice::LocalException& ex)
@@ -840,35 +864,10 @@ NodeI::patch(const FileServerPrx& icepatch, const string& dest, const vector<str
     
 }
 
-void
-NodeI::addServer(const string& application, const ServerIPtr& server)
-{
-    map<string, set<ServerIPtr> >::iterator p = _serversByApplication.find(application);
-    if(p == _serversByApplication.end())
-    {
-	map<string, set<ServerIPtr> >::value_type v(application, set<ServerIPtr>());
-	p = _serversByApplication.insert(p, v);
-    }
-    p->second.insert(server);
-}
-
-void
-NodeI::removeServer(const ServerIPtr& server)
-{
-    map<string, set<ServerIPtr> >::iterator p = _serversByApplication.find(server->getApplication());
-    if(p != _serversByApplication.end())
-    {
-	p->second.erase(server);
-	if(p->second.empty())
-	{
-	    _serversByApplication.erase(p);
-	}
-    }
-}
-
 set<ServerIPtr>
-NodeI::getApplicationServers(const string& application)
+NodeI::getApplicationServers(const string& application) const
 {
+    IceUtil::Mutex::Lock sync(_serversByApplicationLock);
     set<ServerIPtr> servers;
     map<string, set<ServerIPtr> >::const_iterator p = _serversByApplication.find(application);
     if(p != _serversByApplication.end())
@@ -879,7 +878,7 @@ NodeI::getApplicationServers(const string& application)
 }
 
 Ice::Identity
-NodeI::createServerIdentity(const string& name)
+NodeI::createServerIdentity(const string& name) const
 {
     Ice::Identity id;
     id.category = _instanceName + "-Server";
