@@ -32,7 +32,7 @@ period = 2 # (ms)
 
 class Test(TestUtil.Test) :
 
-    def __init__(self, results, i, product, wPayload, latency, nPublishers, nSubscribers):
+    def __init__(self, product, wPayload, latency, nPublishers, nSubscribers):
 
         if latency:
             test = "latency " + str(nPublishers) + "-" + str(nSubscribers)
@@ -40,9 +40,9 @@ class Test(TestUtil.Test) :
             test = "throughput " + str(nPublishers) + "-" + str(nSubscribers)
 
         if wPayload:
-            TestUtil.Test.__init__(self,  results, i, product, test)
+            TestUtil.Test.__init__(self, product, test)
         else:
-            TestUtil.Test.__init__(self, results, i, product + " w/o payload", test)
+            TestUtil.Test.__init__(self, product, test + " w/o payload")
 
         self.payload = wPayload
         self.latency = latency
@@ -116,30 +116,32 @@ class Test(TestUtil.Test) :
         # Gather results from each subscribers
         results = [ ]
         for i in range(0, self.nSubscribers):
-            out = subscribers[i].read()
             try:
-                r = [float(x) for x in out.split()]
-                if self.latency:
-		    results.append(r[0]) # Latency
-                else:
-                    results.append(r[2]) # Throughput
+		out = eval(subscribers[i].read())
+		results.append(out)
             except KeyboardInterrupt:
                 print " invalid output: " + out,
                 pass
+	    except SyntaxError, e:
+                print e
+		pass
             subscribers[i].close()
 
-        mean = 0.0
+	if len(results) == 0:
+	    return None 
+
+        avgLatency = 0.0
+	avgThroughput = 0.0
         for r in results:
-            if r < 0.0:
-                return -1.0 # We have one bogus result, no need to record this one.
-            else:
-                mean += r
-        mean /= len(results)
-        return mean
+	    avgLatency += r['latency']
+	    avgThroughput += r['throughput']
+        avgLatency /= len(results)
+        avgThroughput /= len(results)
+	return { 'latency': avgLatency, 'throughput': avgThroughput, 'data': results }
 
 class IceStormTest(Test):
 
-    def run(self, name, subscriberOpts, publisherOpts):
+    def run(self, name, subscriberOpts, publisherOpts, topics):
 
         nthreads = 4
         threadOpts = " --Ice.ThreadPool.Server.Size=" + str(nthreads) + \
@@ -148,8 +150,8 @@ class IceStormTest(Test):
 
         publisherOpts += threadOpts;
         subscriberOpts += threadOpts;
-        
-        TestUtil.Test.run(self, name, { "publisher" : publisherOpts, "subscriber" : subscriberOpts })
+
+        return TestUtil.Test.run(self, name, { "publisher" : publisherOpts, "subscriber" : subscriberOpts }, topics)
 
     def execute(self, options):
         
@@ -176,14 +178,14 @@ class IceStormTest(Test):
 
 class CosEventTest(Test):
 
-    def __init__(self, expr, results, i, product, wPayload, latency, nPublishers, nSubscribers):
+    def __init__(self, product, wPayload, latency, nPublishers, nSubscribers):
 
-        Test.__init__(self, results, i, product, wPayload, latency, nPublishers, nSubscribers)
+        Test.__init__(self, product, wPayload, latency, nPublishers, nSubscribers)
 
-    def run(self, name, serviceOpts):
+    def run(self, name, serviceOpts, topics):
 
         threadOpts = " -n 4"
-        TestUtil.Test.run(self, name, { "service" : serviceOpts, "publisher" : threadOpts, "subscriber" : threadOpts })
+        return TestUtil.Test.run(self, name, { "service" : serviceOpts, "publisher" : threadOpts, "subscriber" : threadOpts }, topics)
 
     def execute(self, options):
         
@@ -209,7 +211,7 @@ class CosEventTest(Test):
         os.chdir(cwd)
         return result
 
-def runIceStormPerfs(expr, results, i):
+def runIceStormPerfs(expr, results):
 
     prod = "IceStorm"
     noPayLoad = False
@@ -218,20 +220,21 @@ def runIceStormPerfs(expr, results, i):
     throughput = False
 
     tests = [
-	    (prod, noPayLoad, latency, 1, 1, [ ("oneway", "", "-t"), ("twoway", "-o", "-t") ]),
-	    (prod, payLoad, latency, 1, 1, [ ("oneway", "", "-t"), ("twoway", "-o", "-t") ]),
-	    (prod, payLoad, latency, 1, 2, [ ("oneway", "", "-t"), ("twoway", "-o", "-t") ]),
-	    (prod, payLoad, latency, 1, 5, [ ("oneway", "", "-t"), ("twoway", "-o", "-t") ]),
-	    (prod, payLoad, latency, 1, 10, [ ("oneway", "", "-t"), ("twoway", "-o", "-t") ]),
-	    (prod, payLoad, latency, 1, 20, [ ("oneway", "", "-t"), ("twoway", "-o", "-t") ]),
+	    (prod, noPayLoad, latency, 1, 1, [ (["latnp1"], "oneway", "", "-t"), 
+		(["latnp2"], "twoway", "-o", "-t") ]),
+	    (prod, payLoad, latency, 1, 1, [ (["lat1"], "oneway", "", "-t"), (["lat2"], "twoway", "-o", "-t") ]),
+	    (prod, payLoad, latency, 1, 2, [ (["lat1"], "oneway", "", "-t"), (["lat2"], "twoway", "-o", "-t") ]),
+	    (prod, payLoad, latency, 1, 5, [ (["lat1"], "oneway", "", "-t"), (["lat2"], "twoway", "-o", "-t") ]),
+	    (prod, payLoad, latency, 1, 10, [ (["lat1"], "oneway", "", "-t"), (["lat2"], "twoway", "-o", "-t") ]),
+	    (prod, payLoad, latency, 1, 20, [ (["lat1"], "oneway", "", "-t"), (["lat2"], "twoway", "-o", "-t") ]),
 	    (prod, payLoad, throughput, 1, 1, [ 
-		("oneway", "", "-t"), ("oneway (batch)", "-o", "-b"), ("twoway", "-o", "-t")]),
+		(["tpt1"], "oneway", "", "-t"), (["tpt1b"], "oneway (batch)", "-o", "-b"), (["tpt2"], "twoway", "-o", "-t")]),
 	    (prod, payLoad, throughput, 1, 10, [ 
-		("oneway", "", "-t"), ("oneway (batch)", "-o", "-b"), ("twoway", "-o", "-t")]),
+		(["tpt1"], "oneway", "", "-t"), (["tpt1b"], "oneway (batch)", "-o", "-b"), (["tpt2"], "twoway", "-o", "-t")]),
 	    (prod, payLoad, throughput, 10, 1, [ 
-		("oneway", "", "-t"), ("oneway (batch)", "-o", "-b"), ("twoway", "-o", "-t")]),
+		(["tpt1"], "oneway", "", "-t"), (["tpt1b"], "oneway (batch)", "-o", "-b"), (["tpt2"], "twoway", "-o", "-t")]),
 	    (prod, payLoad, throughput, 5, 5, [ 
-		("oneway", "", "-t"), ("oneway (batch)", "-o", "-b"), ("twoway", "-o", "-t")]),
+		(["tpt1"], "oneway", "", "-t"), (["tpt1b"], "oneway (batch)", "-o", "-b"), (["tpt2"], "twoway", "-o", "-t")]),
 	    ]
 
     if len(expr) > 0:
@@ -244,18 +247,22 @@ def runIceStormPerfs(expr, results, i):
 		    type = "throughput"
 		    if latencyTest:
 			type = "latency"
-		    criteria = "%s %s %s" % (prodName, type, c[0])
+		    criteria = "%s %s %s" % (prodName, type, c[1])
 		    if e.match(criteria):
 			allowedCases.append(c)
 	    if len(allowedCases) > 0:
 		tests.append((prodName, withPayload, latencyTest, suppliers, consumers, allowedCases))
 
     for prodName, withPayload, latencyTest, suppliers, consumers, cases in tests:
-	test = IceStormTest(results, i, prodName, withPayload, latencyTest, suppliers, consumers)
-	for clientArg, opt,  serverArg in cases:
-	    test.run(clientArg, opt, serverArg)
+	test = IceStormTest(prodName, withPayload, latencyTest, suppliers, consumers)
+	for t, clientArg, opt, serverArg in cases:
+	    r = test.run(clientArg, opt, serverArg, t)
+	    if r != None:
+		r['suppliers'] = suppliers
+		r['consumers'] = consumers
+		results.append(r)
 
-def runCosEventPerfs(expr, results, i):
+def runCosEventPerfs(expr, results):
 
     reactiveService = " -ORBSvcConf svc.event.reactive.conf"
     bufferedService = " -ORBSvcConf svc.event.mt.conf"
@@ -267,25 +274,25 @@ def runCosEventPerfs(expr, results, i):
 
     tests = [
 	    (prod, noPayLoad, latency, 1, 1, 
-		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
+		[(["latnp2"], "twoway", reactiveService), (["latnp2"], "twoway buffered", bufferedService)]),
 	    (prod, payLoad, latency, 1, 1, 
-		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
+		[(["lat2"], "twoway", reactiveService), (["lat2"], "twoway buffered", bufferedService)]),
 	    (prod, payLoad, latency, 1, 2, 
-		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
+		[(["lat2"], "twoway", reactiveService), (["lat2"], "twoway buffered", bufferedService)]),
 	    (prod, payLoad, latency, 1, 5, 
-		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
+		[(["lat2"], "twoway", reactiveService), (["lat2"], "twoway buffered", bufferedService)]),
 	    (prod, payLoad, latency, 1, 10, 
-		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
+		[(["lat2"], "twoway", reactiveService), (["lat2"], "twoway buffered", bufferedService)]),
 	    (prod, payLoad, latency, 1, 20, 
-		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
+		[(["lat2"], "twoway", reactiveService), (["lat2"], "twoway buffered", bufferedService)]),
 	    (prod, payLoad, throughput, 1, 1, 
-		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
+		[(["tpt2"], "twoway", reactiveService), (["tpt1b"], "twoway buffered", bufferedService)]),
 	    (prod, payLoad, throughput, 1, 10, 
-		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
+		[(["tpt2"], "twoway", reactiveService), (["tpt1b"], "twoway buffered", bufferedService)]),
 	    (prod, payLoad, throughput, 10, 1, 
-		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
+		[(["tpt2"], "twoway", reactiveService), (["tpt1b"], "twoway buffered", bufferedService)]),
 	    (prod, payLoad, throughput, 5, 5, 
-		[("twoway", reactiveService), ("twoway buffered", bufferedService)]),
+		[(["tpt2"], "twoway", reactiveService), (["tpt1b"], "twoway buffered", bufferedService)]),
 	    ]
 
     if len(expr) > 0:
@@ -305,9 +312,13 @@ def runCosEventPerfs(expr, results, i):
 		tests.append((prodName, withPayload, latencyTest, suppliers, consumers, allowedCases))
 
     for prodName, withPayload, latencyTest, suppliers, consumers, cases in tests:
-	test = CosEventTest(prodName, results, i, prodName, withPayload, latencyTest, suppliers, consumers)
-	for clientArg, serverArg in cases:
-	    test.run(clientArg, serverArg)
+	test = CosEventTest(prodName, withPayload, latencyTest, suppliers, consumers)
+	for t, clientArg, serverArg in cases:
+	    r = test.run(clientArg, serverArg, t)
+	    if r != None:
+		r['suppliers'] = suppliers
+		r['consumers'] = consumers
+		results.append(r)
 
 try:
     opts, pargs = getopt.getopt(sys.argv[1:], 'hi:o:n:', ['help', 'iter=', 'output=', 'hostname='])
@@ -316,15 +327,15 @@ except getopt.GetoptError:
 
 niter = 1
 printResults = False
+filename = ""
 hostname = ""
-outputFile = ""
 for o, a in opts:
     if o == '-i' or o == "--iter":
         niter = int(a)
     elif o == '-h' or o == "--help":
         usage()
     elif o == '-o' or o == "--output":
-        outputFile = a
+        filename = a
     elif o == '-n' or o == "--hostname":
         hostname = a
 
@@ -336,39 +347,34 @@ if not os.environ.has_key('ICE_HOME') and not os.environ.has_key('TAO_ROOT'):
     print "You need to set at least ICE_HOME or TAO_ROOT!"
     sys.exit(1)
 
-if outputFile == "":
+if filename == "":
     (system, name, ver, build, machine, processor) = platform.uname()
     if hostname == "":
         hostname = name
         if hostname.find('.'):
             hostname = hostname[0:hostname.find('.')]
-    outputFile = ("results.icestorm." + system + "." + hostname).lower()
+    filename = ("results.icestorm." + system + "." + hostname).lower()
 
 expr = [ ]
 if len(pargs) > 0:
     for e in pargs:
         expr.append(re.compile(e))
 
-results = TestUtil.HostResults(hostname, outputFile)
+results = []
 
 i = 1        
 while i <= niter:
     try:
         if os.environ.has_key('ICE_HOME'):
-            runIceStormPerfs(expr, results, i)
+            runIceStormPerfs(expr, results)
         if os.environ.has_key('TAO_ROOT'):
-            runCosEventPerfs(expr, results, i)
+            runCosEventPerfs(expr, results)
         i += 1
     except KeyboardInterrupt:
         break
 
 print "\n"
 print "All results:"
-all = TestUtil.AllResults()
-all.add(results)
-
-#
-# XXX- This isn't correct for throughput numbers. With the throughput numbers
-# we use e/s not s/e, so larger numbers are better.
-#
-all.printAll(TestUtil.ValuesMeanAndBest(), "text")
+outputFile = file(filename, 'w+b')
+outputFile.write(str(results))
+outputFile.close()

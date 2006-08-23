@@ -36,6 +36,7 @@ private:
     int _nStoppedPublishers;
     int _nExpectedTicks;
     int _nReceived;
+    int _payloadSize;
     std::vector<Ice::Long> _results;
     IceUtil::Time _startTime;
     IceUtil::Time _stopTime;

@@ -188,4 +188,4 @@ outputFile = file(filename, 'w+b')
 outputFile.write(str(rawResults))
 outputFile.close()
 
-TestUtil.PrintResults(rawResults, filename)
+TestUtil.PrintResults(rawResults, filename, [('Ice', 'TAO'), ('IceE', 'TAO'), ('Ice', 'IceE')])

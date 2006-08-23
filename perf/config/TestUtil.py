@@ -56,7 +56,7 @@ class Test :
     """Encapsulates the run of a test group. Manages the running of test
     cases and captures the results."""
 
-    def __init__(self, product, test, topics, directory = ""):
+    def __init__(self, product, test, directory = ""):
         self.product = product
         self.test = test
         if directory != "":
@@ -66,24 +66,24 @@ class Test :
 
     def run(self, name, options, topics):
 
-        print self.product + " " + self.test + " " + name + "...",
+        sys.stdout.write(self.product + " " + self.test + " " + name + "... ")
         sys.stdout.flush()
 
         result = self.execute(options)
-        if result['latency'] > 0.0:
-            try:
-                (m1, m5, m15) = os.getloadavg() # XXX - not needed.
-                print "(load = " + str(m1) + ") " + str(result['latency'])
-            except:
-                print result['latency']
-        else:
-	    print result['latency']
-            print "invalid"
+	if result != None:
+	    key = 'latency'
+	    if self.test.find('latency') == -1:
+		key = 'throughput'
 
-	result['product'] = self.product
-	result['test'] = self.test
-	result['variant'] = name
-	result['topics'] = topics
+	    if result[key] > 0.0:
+		print result[key]
+	    else:
+		print str(result[key]) + "(invalid data)"
+
+	    result['product'] = self.product
+	    result['test'] = self.test
+	    result['variant'] = name
+	    result['topics'] = topics
 	return result
     
     def execute(self, options):
@@ -207,14 +207,27 @@ def compileAndGroupResults(keyVariant, data):
     r.extend(rest)
     return r
 
-def PrintResults(rawResults, fileroot):
+def PrintResults(rawResults, fileroot, products):
     resultsByProduct = OrganizeResultsByProduct(rawResults)
+    #
+    # Uncomment the following lines to produce a fairly readable representation of the structure.
+    #
+    # byProduct = file('byproduct.res', 'w+b')
+    # byProduct.write(pprint.pformat(resultsByProduct))
+    # byProduct.close()
+
     resultsByTest = OrganizeResultsByTest(rawResults)
+    #
+    # Uncomment the following lines to produce a fairly readable representation of the structure.
+    #
+    # byTests = file('bytest.res', 'w+b')
+    # byTests.write(pprint.pformat(resultsByTest))
+    # byTests.close()
 
     #
     # Compare vs Ice.
     #
-    for A, B in [('Ice', 'TAO'), ('IceE', 'TAO'), ('Ice', 'IceE')]:
+    for A, B in products:
 	print "Creating file %s.%s_vs_%s.csv" % (fileroot, A, B) 
 	outputFile = file("%s.%s_vs_%s.csv" % (fileroot, A, B), "w+b")
 
@@ -290,7 +303,14 @@ def PrintResults(rawResults, fileroot):
 		    lineNote = ""
 		    if bResults[0][2] != "": 
 			note = bResults[0][2]
-			note = note[len(keyVariant):].strip()
+
+			#
+			# If keyVariant is part of the name, remove it.
+			#
+			if note.find(keyVariant) != -1:
+			    note = note[len(keyVariant):].strip()
+			note = note.strip()
+
 			if not annotations.has_key(note):
 			    stars = "%s*" % stars
 			    annotations[note] = stars
@@ -331,9 +351,15 @@ def PrintResults(rawResults, fileroot):
 			    else:
 				aValue = additional[1]
 				percentDiff = (baseValue - aValue) / baseValue * 100
-			    
-			    note = additional[2][len(tr[0]):]
+
+			    #
+			    # If keyVariant is part of the name, remove it.
+			    #
+			    note = additional[2]
+			    if note.find(tr[0]) != -1:
+				note = note[len(tr[0]):]
 			    note = note.strip()
+
 			    lineNote = ""
 			    if not annotations.has_key(note):
 				stars = "%s*" % stars

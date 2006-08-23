@@ -23,13 +23,14 @@ PingI::PingI(int nExpectedTicks, int nPublishers) :
     _nStartedPublishers(0),
     _nStoppedPublishers(0),
     _nExpectedTicks(nExpectedTicks * _nPublishers),
-    _nReceived(0)
+    _nReceived(0),
+    _payloadSize(1)
 {
     _results.reserve(nExpectedTicks * _nPublishers);
 }
 
 void
-PingI::tick(Ice::Long time, Perf::AEnum, int, const Perf::AStruct&, const Ice::Current& current)
+PingI::tick(Ice::Long time, Perf::AEnum e , int, const Perf::AStruct& s, const Ice::Current& current)
 {
     Lock sync(*this);
     if(time > 0)
@@ -38,6 +39,16 @@ PingI::tick(Ice::Long time, Perf::AEnum, int, const Perf::AStruct&, const Ice::C
     }
     else if(time == 0)
     {
+	_payloadSize += sizeof(e);
+	_payloadSize += sizeof(Ice::Int);
+
+	//
+	// This needs to be kept up to date with the definition of the
+	// structure in the slice. 
+	//
+	_payloadSize += sizeof(s.e);
+	_payloadSize += sizeof(s.d);
+	_payloadSize += s.s.size();
 	started();
     }
     else if(time < 0)
@@ -142,7 +153,7 @@ PingI::calc()
     {
 	for(vector<Ice::Long>::const_iterator p = _results.begin(); p != _results.end(); ++p)
 	{
-	    total += (*p) * 1.0;
+	    total += (*p);
 	}
     }
     double newSize = _results.size();
@@ -162,10 +173,9 @@ PingI::calc()
     {
 	cerr << "less than 90% of the expected ticks were used for the test " << originalSize << endl;
     }
-
-    cout << mean << " " << deviation << " " << 
-	originalSize / (_stopTime - _startTime).toMicroSeconds() * 1000000.0 << " ";
-    cout << flush;
+    cout << "{ 'latency' : " << mean << ", 'deviation' : " << deviation << ", 'throughput' : " <<
+	(originalSize * _payloadSize / (double)(1024^2)) / (_stopTime - _startTime).toMicroSeconds() * 1000000.0 << 
+	", 'repetitions': " << originalSize << ", 'payload': " << _payloadSize << "}" << endl;
 
     _results.clear();
     _nStartedPublishers = 0;

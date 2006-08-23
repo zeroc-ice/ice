@@ -29,8 +29,6 @@ def usage():
     print ""
     print " -h | --help           Print this help message."
     print " -n | --hostname       Print this help message."
-    print " -c | --csv            Print the results in the CSV format."
-    print " --csv2                Print the results in alternate CSV format."
     print ""
     sys.exit(2)
 
@@ -49,11 +47,6 @@ for o, a in opts:
         usage()
     elif o == '-n' or o == "--hostname":
         hostname = a
-    elif o == '-c' or o == "--csv":
-        outputFormat = "csv"
-    elif o == "--csv2":
-        outputFormat = "csv2"
-
 
 (system, name, ver, build, machine, processor) = platform.uname()
 if hostname == "":
@@ -66,5 +59,5 @@ inputfile = file(filename)
 rawResults = eval(inputfile.read())
 inputfile.close()
 
-TestUtil.PrintResults(rawResults, filename)
+TestUtil.PrintResults(rawResults, filename, [('Ice', 'TAO'), ('IceE', 'TAO'), ('Ice', 'IceE')])
 

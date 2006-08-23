@@ -44,6 +44,7 @@ private:
     int _nStartedPublishers;
     int _nStoppedPublishers;
     ACE_Thread_Mutex _lock;
+    int _payloadSize;
 
     CORBA::ORB_ptr _orb;
 };

@@ -27,7 +27,8 @@ Consumer::Consumer() :
     _stopTime(0),
     _nPublishers(0),
     _nStartedPublishers(0),
-    _nStoppedPublishers(0)
+    _nStoppedPublishers(0),
+    _payloadSize(1)
 {
 }
 
@@ -151,6 +152,18 @@ Consumer::push(const CORBA::Any& any ACE_ENV_ARG_DECL_NOT_USED)
     }
     else if(time == 0)
     {
+	if(_payload)
+	{
+	    const Perf::Event* e;
+	    any >>= e;
+	    _payloadSize = 0;
+	    _payloadSize += sizeof(e->time);
+	    _payloadSize += sizeof(e->e);
+	    _payloadSize += sizeof(e->i);
+	    _payloadSize += sizeof(e->s.e);
+	    _payloadSize += sizeof(e->s.d);
+	    _payloadSize += strlen(e->s.s);
+	}
 	started();
     }
     else if(time == -1)
@@ -188,6 +201,7 @@ Consumer::stopped()
 	cerr << _nPublishers << " " << _nStartedPublishers << " " << _nStoppedPublishers << endl;
 	cerr << _startTime - _stopTime << " " << _results.size() << endl;
     }
+
     if(++_nStoppedPublishers == _nPublishers)
     {
 	calc();
@@ -229,7 +243,7 @@ Consumer::calc()
     double originalSize = _results.size();
     if(_results.empty())
     {
-	cout << " -1.0 -1.0 -1.0 " << flush;
+	cout << "{ 'latency': -1.0, 'throughput': -1.0, 'deviation': -1.0 }" << flush;
     }
 
     //
@@ -262,7 +276,9 @@ Consumer::calc()
 	cerr << "less than 90% of the expected ticks were used for the test " << originalSize << endl;
     }
 
-    cout << mean << " " << deviation << " " << originalSize / (_stopTime - _startTime) * 1000000.0 << " " << flush;
+    cout << "{ 'latency' : " << mean << ", 'deviation' : " << deviation << ", 'throughput' : " <<
+	(originalSize * _payloadSize / (double)(1024^2)) / (_stopTime - _startTime) * 1000000.0 << 
+	", 'repetitions': " << originalSize << ", 'payload': " << _payloadSize << "}" << endl;
 
     _results.clear();    
     _nStartedPublishers = 0;
