@@ -3,6 +3,11 @@ NOTE: Please keep changes in the appropriate section for HEAD or 3.1.
 Changes since version 3.1.1 (HEAD)
 ---------------------------     
 
+- Added more tracing to the IceSSL plug-in to help debugging the
+  TrustOnly properties.
+
+- Merged the simple CA scripts into a single iceca script.
+
 - Removed support for the following configuration properties that were
   deprecated in Ice 3.0:
 
