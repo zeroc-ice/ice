@@ -62,6 +62,7 @@ public:
 
     virtual bool readBool();
     virtual ::std::vector< bool > readBoolSeq();
+    virtual bool* readBoolSeq(::std::pair<const bool*, const bool*>&);
 
     virtual ::Ice::Byte readByte();
     virtual ::std::vector< ::Ice::Byte > readByteSeq();
@@ -69,18 +70,23 @@ public:
 
     virtual ::Ice::Short readShort();
     virtual ::std::vector< ::Ice::Short > readShortSeq();
+    virtual ::Ice::Short* readShortSeq(::std::pair<const ::Ice::Short*, const ::Ice::Short*>&);
 
     virtual ::Ice::Int readInt();
     virtual ::std::vector< ::Ice::Int > readIntSeq();
+    virtual ::Ice::Int* readIntSeq(::std::pair<const ::Ice::Int*, const ::Ice::Int*>&);
 
     virtual ::Ice::Long readLong();
     virtual ::std::vector< ::Ice::Long > readLongSeq();
+    virtual ::Ice::Long* readLongSeq(::std::pair<const ::Ice::Long*, const ::Ice::Long*>&);
 
     virtual ::Ice::Float readFloat();
     virtual ::std::vector< ::Ice::Float > readFloatSeq();
+    virtual ::Ice::Float* readFloatSeq(::std::pair<const ::Ice::Float*, const ::Ice::Float*>&);
 
     virtual ::Ice::Double readDouble();
     virtual ::std::vector< ::Ice::Double > readDoubleSeq();
+    virtual ::Ice::Double* readDoubleSeq(::std::pair<const ::Ice::Double*, const ::Ice::Double*>&);
 
     virtual ::std::string readString();
     virtual ::std::vector< ::std::string > readStringSeq();
@@ -129,6 +135,7 @@ public:
 
     virtual void writeBool(bool);
     virtual void writeBoolSeq(const ::std::vector< bool >&);
+    virtual void writeBoolSeq(const bool*, const bool*);
 
     virtual void writeByte(::Ice::Byte);
     virtual void writeByteSeq(const ::std::vector< ::Ice::Byte >&);
@@ -136,18 +143,23 @@ public:
 
     virtual void writeShort(::Ice::Short);
     virtual void writeShortSeq(const ::std::vector< ::Ice::Short >&);
+    virtual void writeShortSeq(const Ice::Short*, const Ice::Short*);
 
     virtual void writeInt(::Ice::Int);
     virtual void writeIntSeq(const ::std::vector< ::Ice::Int >&);
+    virtual void writeIntSeq(const Ice::Int*, const Ice::Int*);
 
     virtual void writeLong(::Ice::Long);
     virtual void writeLongSeq(const ::std::vector< ::Ice::Long >&);
+    virtual void writeLongSeq(const Ice::Long*, const Ice::Long*);
 
     virtual void writeFloat(::Ice::Float);
     virtual void writeFloatSeq(const ::std::vector< ::Ice::Float >&);
+    virtual void writeFloatSeq(const Ice::Float*, const Ice::Float*);
 
     virtual void writeDouble(::Ice::Double);
     virtual void writeDoubleSeq(const ::std::vector< ::Ice::Double >&);
+    virtual void writeDoubleSeq(const Ice::Double*, const Ice::Double*);
 
     virtual void writeString(const ::std::string&);
     virtual void writeStringSeq(const ::std::vector< ::std::string >&);
