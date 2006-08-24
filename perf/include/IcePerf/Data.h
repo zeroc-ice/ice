@@ -53,7 +53,7 @@ IcePerf::TestPrinter::fmt(std::ostream& output, const std::string& product, cons
     output << "'repetitions' : "  << repetitions << ", ";
     output << "'payload' : " << payloadSize  << ", ";
     output << "'latency' : " << duration.toMilliSecondsDouble()/repetitions << ", ";
-    output << "'throughput' : " << ((double)payloadSize / (double)(1024^2) * repetitions) / duration.toMilliSecondsDouble() * 1000.0 << ", ";
+    output << "'throughput' : " << ((double)payloadSize * repetitions / (1024 * 1024)) / duration.toMilliSecondsDouble() * 1000.0 << ", ";
     output << "'args' : '" ;
     int i;
     for(i = 0; i < argc; ++i)
