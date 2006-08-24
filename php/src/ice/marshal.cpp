@@ -17,6 +17,7 @@
 #include "ice_util.h"
 
 #include <IceUtil/InputUtil.h>
+#include <IceUtil/ScopedArray.h>
 
 using namespace std;
 using namespace IcePHP;
@@ -78,9 +79,12 @@ public:
 
     virtual void destroy();
 
+    bool validate(zval* TSRMLS_DC);
+
 private:
     Slice::BuiltinPtr _type;
 };
+typedef IceUtil::Handle<PrimitiveMarshaler> PrimitiveMarshalerPtr;
 
 class SequenceMarshaler : public Marshaler
 {
@@ -94,6 +98,7 @@ public:
 
 private:
     Slice::SequencePtr _type;
+    Slice::BuiltinPtr _builtin;
     MarshalerPtr _elementMarshaler;
 };
 
@@ -425,7 +430,7 @@ IcePHP::PrimitiveMarshaler::PrimitiveMarshaler(const Slice::BuiltinPtr& type) :
 }
 
 bool
-IcePHP::PrimitiveMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap& TSRMLS_DC)
+IcePHP::PrimitiveMarshaler::validate(zval* zv TSRMLS_DC)
 {
     switch(_type->kind())
     {
@@ -437,7 +442,6 @@ IcePHP::PrimitiveMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Ob
             php_error_docref(NULL TSRMLS_CC, E_ERROR, "expected boolean value but received %s", s.c_str());
             return false;
         }
-        os->writeBool(Z_BVAL_P(zv) ? true : false);
         break;
     }
     case Slice::Builtin::KindByte:
@@ -454,7 +458,6 @@ IcePHP::PrimitiveMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Ob
             php_error_docref(NULL TSRMLS_CC, E_ERROR, "value %ld is out of range for a byte", val);
             return false;
         }
-        os->writeByte(static_cast<Ice::Byte>(val));
         break;
     }
     case Slice::Builtin::KindShort:
@@ -471,7 +474,6 @@ IcePHP::PrimitiveMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Ob
             php_error_docref(NULL TSRMLS_CC, E_ERROR, "value %ld is out of range for a short", val);
             return false;
         }
-        os->writeShort(static_cast<Ice::Short>(val));
         break;
     }
     case Slice::Builtin::KindInt:
@@ -488,7 +490,6 @@ IcePHP::PrimitiveMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Ob
             php_error_docref(NULL TSRMLS_CC, E_ERROR, "value %ld is out of range for an int", val);
             return false;
         }
-        os->writeInt(static_cast<Ice::Int>(val));
         break;
     }
     case Slice::Builtin::KindLong:
@@ -517,7 +518,6 @@ IcePHP::PrimitiveMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Ob
                 return false;
             }
         }
-        os->writeLong(val);
         break;
     }
     case Slice::Builtin::KindFloat:
@@ -528,8 +528,6 @@ IcePHP::PrimitiveMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Ob
             php_error_docref(NULL TSRMLS_CC, E_ERROR, "expected float value but received %s", s.c_str());
             return false;
         }
-        double val = Z_DVAL_P(zv);
-        os->writeFloat(static_cast<Ice::Float>(val));
         break;
     }
     case Slice::Builtin::KindDouble:
@@ -540,26 +538,112 @@ IcePHP::PrimitiveMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Ob
             php_error_docref(NULL TSRMLS_CC, E_ERROR, "expected double value but received %s", s.c_str());
             return false;
         }
+        break;
+    }
+    case Slice::Builtin::KindString:
+    {
+        if(Z_TYPE_P(zv) != IS_STRING && Z_TYPE_P(zv) != IS_NULL)
+        {
+            string s = zendTypeToString(Z_TYPE_P(zv));
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "expected string value but received %s", s.c_str());
+            return false;
+        }
+        break;
+    }
+
+    case Slice::Builtin::KindObject:
+    case Slice::Builtin::KindObjectProxy:
+    case Slice::Builtin::KindLocalObject:
+        assert(false);
+    }
+    return true;
+}
+
+bool
+IcePHP::PrimitiveMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap& TSRMLS_DC)
+{
+    if(!validate(zv TSRMLS_CC))
+    {
+	return false;
+    }
+
+    switch(_type->kind())
+    {
+    case Slice::Builtin::KindBool:
+    {
+        assert(Z_TYPE_P(zv) == IS_BOOL);
+        os->writeBool(Z_BVAL_P(zv) ? true : false);
+        break;
+    }
+    case Slice::Builtin::KindByte:
+    {
+        assert(Z_TYPE_P(zv) == IS_LONG);
+        long val = Z_LVAL_P(zv);
+        assert(val >= 0 && val <= 255);
+        os->writeByte(static_cast<Ice::Byte>(val));
+        break;
+    }
+    case Slice::Builtin::KindShort:
+    {
+        assert(Z_TYPE_P(zv) == IS_LONG);
+        long val = Z_LVAL_P(zv);
+        assert(val >= SHRT_MIN && val <= SHRT_MAX);
+        os->writeShort(static_cast<Ice::Short>(val));
+        break;
+    }
+    case Slice::Builtin::KindInt:
+    {
+        assert(Z_TYPE_P(zv) == IS_LONG);
+        long val = Z_LVAL_P(zv);
+        assert(val >= INT_MIN && val <= INT_MAX);
+        os->writeInt(static_cast<Ice::Int>(val));
+        break;
+    }
+    case Slice::Builtin::KindLong:
+    {
+        //
+        // The platform's 'long' type may not be 64 bits, so we also accept
+        // a string argument for this type.
+        //
+        assert(Z_TYPE_P(zv) == IS_LONG || Z_TYPE_P(zv) == IS_STRING);
+        Ice::Long val;
+        if(Z_TYPE_P(zv) == IS_LONG)
+        {
+            val = Z_LVAL_P(zv);
+        }
+        else
+        {
+            string sval(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
+            IceUtil::stringToInt64(sval, val);
+        }
+        os->writeLong(val);
+        break;
+    }
+    case Slice::Builtin::KindFloat:
+    {
+        assert(Z_TYPE_P(zv) == IS_DOUBLE);
+        double val = Z_DVAL_P(zv);
+        os->writeFloat(static_cast<Ice::Float>(val));
+        break;
+    }
+    case Slice::Builtin::KindDouble:
+    {
+        assert(Z_TYPE_P(zv) == IS_DOUBLE);
         double val = Z_DVAL_P(zv);
         os->writeDouble(val);
         break;
     }
     case Slice::Builtin::KindString:
     {
+        assert(Z_TYPE_P(zv) == IS_STRING || Z_TYPE_P(zv) == IS_NULL);
         if(Z_TYPE_P(zv) == IS_STRING)
         {
             string val(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
             os->writeString(val);
         }
-        else if(Z_TYPE_P(zv) == IS_NULL)
-        {
-            os->writeString(string());
-        }
         else
         {
-            string s = zendTypeToString(Z_TYPE_P(zv));
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "expected string value but received %s", s.c_str());
-            return false;
+            os->writeString(string());
         }
         break;
     }
@@ -664,6 +748,11 @@ IcePHP::PrimitiveMarshaler::destroy()
 IcePHP::SequenceMarshaler::SequenceMarshaler(const Slice::SequencePtr& type TSRMLS_DC) :
     _type(type)
 {
+    Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(type);
+    if(b && b->kind() != Slice::Builtin::KindObject && b->kind() != Slice::Builtin::KindObjectProxy)
+    {
+	_builtin = b;
+    }
     _elementMarshaler = createMarshaler(type->type() TSRMLS_CC);
 }
 
@@ -672,25 +761,211 @@ IcePHP::SequenceMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Obj
 {
     if(Z_TYPE_P(zv) != IS_ARRAY)
     {
-        string s = zendTypeToString(Z_TYPE_P(zv));
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "expected array value but received %s", s.c_str());
-        return false;
+	string s = zendTypeToString(Z_TYPE_P(zv));
+	php_error_docref(NULL TSRMLS_CC, E_ERROR, "expected array value but received %s", s.c_str());
+	return false;
     }
 
     HashTable* arr = Z_ARRVAL_P(zv);
+
     HashPosition pos;
-    zval** val;
-
-    os->writeSize(zend_hash_num_elements(arr));
-
     zend_hash_internal_pointer_reset_ex(arr, &pos);
-    while(zend_hash_get_current_data_ex(arr, (void**)&val, &pos) != FAILURE)
+    Ice::Int sz = static_cast<Ice::Int>(zend_hash_num_elements(arr));
+
+    if(_builtin)
     {
-        if(!_elementMarshaler->marshal(*val, os, m TSRMLS_CC))
-        {
-            return false;
-        }
-        zend_hash_move_forward_ex(arr, &pos);
+	PrimitiveMarshalerPtr pm = PrimitiveMarshalerPtr::dynamicCast(_elementMarshaler);
+	assert(pm);
+	switch(_builtin->kind())
+	{
+	case Slice::Builtin::KindBool:
+	{
+	    Ice::BoolSeq seq(sz);
+	    zval** val;
+	    Ice::Int i = 0;
+	    while(zend_hash_get_current_data_ex(arr, (void**)&val, &pos) != FAILURE)
+	    {
+		if(!pm->validate(*val TSRMLS_CC))
+		{
+		    return false;
+		}
+		seq[i++] = Z_BVAL_P(*val) ? true : false;
+		zend_hash_move_forward_ex(arr, &pos);
+	    }
+	    os->writeBoolSeq(seq);
+	    break;
+	}
+	case Slice::Builtin::KindByte:
+	{
+	    Ice::ByteSeq seq(sz);
+	    zval** val;
+	    Ice::Int i = 0;
+	    while(zend_hash_get_current_data_ex(arr, (void**)&val, &pos) != FAILURE)
+	    {
+		if(!pm->validate(*val TSRMLS_CC))
+		{
+		    return false;
+		}
+		long l = Z_LVAL_P(*val);
+		assert(l >= 0 && l <= 255);
+		seq[i++] = static_cast<Ice::Byte>(l);
+		zend_hash_move_forward_ex(arr, &pos);
+	    }
+	    os->writeByteSeq(seq);
+	    break;
+	}
+	case Slice::Builtin::KindShort:
+	{
+	    Ice::ShortSeq seq(sz);
+	    zval** val;
+	    Ice::Int i = 0;
+	    while(zend_hash_get_current_data_ex(arr, (void**)&val, &pos) != FAILURE)
+	    {
+		if(!pm->validate(*val TSRMLS_CC))
+		{
+		    return false;
+		}
+		long l = Z_LVAL_P(*val);
+		assert(l >= SHRT_MIN && l <= SHRT_MAX);
+		seq[i++] = static_cast<Ice::Short>(l);
+		zend_hash_move_forward_ex(arr, &pos);
+	    }
+	    os->writeShortSeq(seq);
+	    break;
+	}
+	case Slice::Builtin::KindInt:
+	{
+	    Ice::IntSeq seq(sz);
+	    zval** val;
+	    Ice::Int i = 0;
+	    while(zend_hash_get_current_data_ex(arr, (void**)&val, &pos) != FAILURE)
+	    {
+		if(!pm->validate(*val TSRMLS_CC))
+		{
+		    return false;
+		}
+		long l = Z_LVAL_P(*val);
+		assert(l >= INT_MIN && l <= INT_MAX);
+		seq[i++] = static_cast<Ice::Int>(l);
+		zend_hash_move_forward_ex(arr, &pos);
+	    }
+	    os->writeIntSeq(seq);
+	    break;
+	}
+	case Slice::Builtin::KindLong:
+	{
+	    Ice::LongSeq seq(sz);
+	    zval** val;
+	    Ice::Int i = 0;
+	    while(zend_hash_get_current_data_ex(arr, (void**)&val, &pos) != FAILURE)
+	    {
+		if(!pm->validate(*val TSRMLS_CC))
+		{
+		    return false;
+		}
+		//
+		// The platform's 'long' type may not be 64 bits, so we also accept
+		// a string argument for this type.
+		//
+		assert(Z_TYPE_P(*val) == IS_LONG || Z_TYPE_P(*val) == IS_STRING);
+		Ice::Long l;
+		if(Z_TYPE_P(*val) == IS_LONG)
+		{
+		    l = Z_LVAL_P(*val);
+		}
+		else
+		{
+		    string sval(Z_STRVAL_P(*val), Z_STRLEN_P(*val));
+		    IceUtil::stringToInt64(sval, l);
+		}
+		seq[i++] = l;
+		zend_hash_move_forward_ex(arr, &pos);
+	    }
+	    os->writeLongSeq(seq);
+	    break;
+	}
+	case Slice::Builtin::KindFloat:
+	{
+	    Ice::FloatSeq seq(sz);
+	    zval** val;
+	    Ice::Int i = 0;
+	    while(zend_hash_get_current_data_ex(arr, (void**)&val, &pos) != FAILURE)
+	    {
+		if(!pm->validate(*val TSRMLS_CC))
+		{
+		    return false;
+		}
+		double d = Z_DVAL_P(*val);
+		seq[i++] = static_cast<Ice::Float>(d);
+		zend_hash_move_forward_ex(arr, &pos);
+	    }
+	    os->writeFloatSeq(seq);
+	    break;
+	}
+	case Slice::Builtin::KindDouble:
+	{
+	    Ice::DoubleSeq seq(sz);
+	    zval** val;
+	    Ice::Int i = 0;
+	    while(zend_hash_get_current_data_ex(arr, (void**)&val, &pos) != FAILURE)
+	    {
+		if(!pm->validate(*val TSRMLS_CC))
+		{
+		    return false;
+		}
+		double d = Z_DVAL_P(*val);
+		seq[i++] = d;
+		zend_hash_move_forward_ex(arr, &pos);
+	    }
+	    os->writeDoubleSeq(seq);
+	    break;
+	}
+	case Slice::Builtin::KindString:
+	{
+	    Ice::StringSeq seq(sz);
+	    zval** val;
+	    Ice::Int i = 0;
+	    while(zend_hash_get_current_data_ex(arr, (void**)&val, &pos) != FAILURE)
+	    {
+		if(!pm->validate(*val TSRMLS_CC))
+		{
+		    return false;
+		}
+		string s;
+		if(Z_TYPE_P(*val) == IS_STRING)
+		{
+		    s = string(Z_STRVAL_P(*val), Z_STRLEN_P(*val));
+		}
+		else
+		{
+		    assert(Z_TYPE_P(*val) == IS_NULL);
+		}
+		seq[i++] = s;
+		zend_hash_move_forward_ex(arr, &pos);
+	    }
+	    os->writeStringSeq(seq);
+	    break;
+	}
+
+	case Slice::Builtin::KindObject:
+	case Slice::Builtin::KindObjectProxy:
+	case Slice::Builtin::KindLocalObject:
+	    assert(false);
+	}
+    }
+    else
+    {
+	os->writeSize(sz);
+
+	zval** val;
+	while(zend_hash_get_current_data_ex(arr, (void**)&val, &pos) != FAILURE)
+	{
+	    if(!_elementMarshaler->marshal(*val, os, m TSRMLS_CC))
+	    {
+		return false;
+	    }
+	    zend_hash_move_forward_ex(arr, &pos);
+	}
     }
 
     return true;
@@ -701,19 +976,158 @@ IcePHP::SequenceMarshaler::unmarshal(zval* zv, const Ice::InputStreamPtr& is TSR
 {
     array_init(zv);
 
-    Ice::Int sz = is->readSize();
-
-    // TODO: Optimize for certain sequence types (e.g., bytes)?
-
-    for(Ice::Int i = 0; i < sz; ++i)
+    if(_builtin)
     {
-        zval* val;
-        MAKE_STD_ZVAL(val);
-        if(!_elementMarshaler->unmarshal(val, is TSRMLS_CC))
-        {
-            return false;
-        }
-        add_index_zval(zv, i, val);
+	switch(_builtin->kind())
+	{
+	case Slice::Builtin::KindBool:
+	{
+	    pair<const bool*, const bool*> pr;
+	    IceUtil::ScopedArray<bool> arr(is->readBoolSeq(pr));
+	    Ice::Int i = 0;
+	    for(const bool* p = pr.first; p != pr.second; ++p, ++i)
+	    {
+		zval* val;
+		MAKE_STD_ZVAL(val);
+		ZVAL_BOOL(val, *p ? 1 : 0);
+		add_index_zval(zv, i, val);
+	    }
+	    break;
+	}
+	case Slice::Builtin::KindByte:
+	{
+	    pair<const Ice::Byte*, const Ice::Byte*> pr;
+	    is->readByteSeq(pr);
+	    Ice::Int i = 0;
+	    for(const Ice::Byte* p = pr.first; p != pr.second; ++p, ++i)
+	    {
+		zval* val;
+		MAKE_STD_ZVAL(val);
+		ZVAL_LONG(val, *p & 0xff);
+		add_index_zval(zv, i, val);
+	    }
+	    break;
+	}
+	case Slice::Builtin::KindShort:
+	{
+	    pair<const Ice::Short*, const Ice::Short*> pr;
+	    IceUtil::ScopedArray<Ice::Short> arr(is->readShortSeq(pr));
+	    Ice::Int i = 0;
+	    for(const Ice::Short* p = pr.first; p != pr.second; ++p, ++i)
+	    {
+		zval* val;
+		MAKE_STD_ZVAL(val);
+		ZVAL_LONG(val, *p);
+		add_index_zval(zv, i, val);
+	    }
+	    break;
+	}
+	case Slice::Builtin::KindInt:
+	{
+	    pair<const Ice::Int*, const Ice::Int*> pr;
+	    IceUtil::ScopedArray<Ice::Int> arr(is->readIntSeq(pr));
+	    Ice::Int i = 0;
+	    for(const Ice::Int* p = pr.first; p != pr.second; ++p, ++i)
+	    {
+		zval* val;
+		MAKE_STD_ZVAL(val);
+		ZVAL_LONG(val, *p);
+		add_index_zval(zv, i, val);
+	    }
+	    break;
+	}
+	case Slice::Builtin::KindLong:
+	{
+	    pair<const Ice::Long*, const Ice::Long*> pr;
+	    IceUtil::ScopedArray<Ice::Long> arr(is->readLongSeq(pr));
+	    Ice::Int i = 0;
+	    for(const Ice::Long* p = pr.first; p != pr.second; ++p, ++i)
+	    {
+		zval* val;
+		MAKE_STD_ZVAL(val);
+		//
+		// The platform's 'long' type may not be 64 bits, so we store 64-bit
+		// values as a string.
+		//
+		if(sizeof(Ice::Long) > sizeof(long) && (*p < LONG_MIN || *p > LONG_MAX))
+		{
+		    char buf[64];
+#ifdef WIN32
+		    sprintf(buf, "%I64d", *p);
+#else
+		    sprintf(buf, "%lld", *p);
+#endif
+		    ZVAL_STRING(val, buf, 1);
+		}
+		else
+		{
+		    ZVAL_LONG(val, static_cast<long>(*p));
+		}
+		add_index_zval(zv, i, val);
+	    }
+	    break;
+	}
+	case Slice::Builtin::KindFloat:
+	{
+	    pair<const Ice::Float*, const Ice::Float*> pr;
+	    IceUtil::ScopedArray<Ice::Float> arr(is->readFloatSeq(pr));
+	    Ice::Int i = 0;
+	    for(const Ice::Float* p = pr.first; p != pr.second; ++p, ++i)
+	    {
+		zval* val;
+		MAKE_STD_ZVAL(val);
+		ZVAL_DOUBLE(zv, *p);
+		add_index_zval(zv, i, val);
+	    }
+	    break;
+	}
+	case Slice::Builtin::KindDouble:
+	{
+	    pair<const Ice::Double*, const Ice::Double*> pr;
+	    IceUtil::ScopedArray<Ice::Double> arr(is->readDoubleSeq(pr));
+	    Ice::Int i = 0;
+	    for(const Ice::Double* p = pr.first; p != pr.second; ++p, ++i)
+	    {
+		zval* val;
+		MAKE_STD_ZVAL(val);
+		ZVAL_DOUBLE(zv, *p);
+		add_index_zval(zv, i, val);
+	    }
+	    break;
+	}
+	case Slice::Builtin::KindString:
+	{
+	    Ice::StringSeq seq = is->readStringSeq();
+	    Ice::Int i = 0;
+	    for(Ice::StringSeq::iterator p = seq.begin(); p != seq.end(); ++p, ++i)
+	    {
+		zval* val;
+		MAKE_STD_ZVAL(val);
+		ZVAL_STRINGL(val, const_cast<char*>(p->c_str()), p->length(), 1);
+		add_index_zval(zv, i, val);
+	    }
+	    break;
+	}
+
+	case Slice::Builtin::KindObject:
+	case Slice::Builtin::KindObjectProxy:
+	case Slice::Builtin::KindLocalObject:
+	    assert(false);
+	}
+    }
+    else
+    {
+	Ice::Int sz = is->readSize();
+	for(Ice::Int i = 0; i < sz; ++i)
+	{
+	    zval* val;
+	    MAKE_STD_ZVAL(val);
+	    if(!_elementMarshaler->unmarshal(val, is TSRMLS_CC))
+	    {
+		return false;
+	    }
+	    add_index_zval(zv, i, val);
+	}
     }
 
     return true;
