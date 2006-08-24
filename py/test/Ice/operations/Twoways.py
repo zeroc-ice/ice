@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import Ice, math, Test
+import Ice, math, Test, array
 
 def test(b):
     if not b:
@@ -147,10 +147,54 @@ def twoways(communicator, initData, p):
     test(rso[7] == '\xf4')
 
     #
+    # opByteS (array)
+    #
+    print "array",
+    bsi1 = array.array('B')
+    bsi1.fromlist([0x01, 0x11, 0x12, 0x22])
+    bsi2 = array.array('B')
+    bsi2.fromlist([0xf1, 0xf2, 0xf3, 0xf4])
+
+    rso, bso = p.opByteS(bsi1, bsi2)
+    test(len(bso) == 4)
+    test(bso[0] == '\x22')
+    test(bso[1] == '\x12')
+    test(bso[2] == '\x11')
+    test(bso[3] == '\x01')
+    test(len(rso) == 8)
+    test(rso[0] == '\x01')
+    test(rso[1] == '\x11')
+    test(rso[2] == '\x12')
+    test(rso[3] == '\x22')
+    test(rso[4] == '\xf1')
+    test(rso[5] == '\xf2')
+    test(rso[6] == '\xf3')
+    test(rso[7] == '\xf4')
+
+    #
     # opBoolS
     #
     bsi1 = (True, True, False)
     bsi2 = (False,)
+
+    rso, bso = p.opBoolS(bsi1, bsi2)
+    test(len(bso) == 4)
+    test(bso[0])
+    test(bso[1])
+    test(not bso[2])
+    test(not bso[3])
+    test(len(rso) == 3)
+    test(not rso[0])
+    test(rso[1])
+    test(rso[2])
+
+    #
+    # opBoolS (array)
+    #
+    bsi1 = array.array('B')
+    bsi1.fromlist([1, 1, 0])
+    bsi2 = array.array('B')
+    bsi2.fromlist([0])
 
     rso, bso = p.opBoolS(bsi1, bsi2)
     test(len(bso) == 4)
@@ -193,10 +237,64 @@ def twoways(communicator, initData, p):
     test(rso[2] == 20)
 
     #
+    # opShortIntLongS (array)
+    #
+    ssi = array.array('h')
+    ssi.fromlist([1, 2, 3])
+    isi = array.array('i')
+    isi.fromlist([5, 6, 7, 8])
+    lsi = (10, 30, 20)  # Can't store Ice::Long in an array.
+
+    rso, sso, iso, lso = p.opShortIntLongS(ssi, isi, lsi)
+    test(len(sso) == 3)
+    test(sso[0] == 1)
+    test(sso[1] == 2)
+    test(sso[2] == 3)
+    test(len(iso) == 4)
+    test(iso[0] == 8)
+    test(iso[1] == 7)
+    test(iso[2] == 6)
+    test(iso[3] == 5)
+    test(len(lso) == 6)
+    test(lso[0] == 10)
+    test(lso[1] == 30)
+    test(lso[2] == 20)
+    test(lso[3] == 10)
+    test(lso[4] == 30)
+    test(lso[5] == 20)
+    test(len(rso) == 3)
+    test(rso[0] == 10)
+    test(rso[1] == 30)
+    test(rso[2] == 20)
+
+    #
     # opFloatDoubleS
     #
     fsi = (3.14, 1.11)
     dsi = (1.1E10, 1.2E10, 1.3E10)
+
+    rso, fso, dso = p.opFloatDoubleS(fsi, dsi)
+    test(len(fso) == 2)
+    test(fso[0] - 3.14 < 0.001)
+    test(fso[1] - 1.11 < 0.001)
+    test(len(dso) == 3)
+    test(dso[0] == 1.3E10)
+    test(dso[1] == 1.2E10)
+    test(dso[2] == 1.1E10)
+    test(len(rso) == 5)
+    test(rso[0] == 1.1E10)
+    test(rso[1] == 1.2E10)
+    test(rso[2] == 1.3E10)
+    test(rso[3] - 3.14 < 0.001)
+    test(rso[4] - 1.11 < 0.001)
+
+    #
+    # opFloatDoubleS (array)
+    #
+    fsi = array.array('f')
+    fsi.fromlist([3.14, 1.11])
+    dsi = array.array('d')
+    dsi.fromlist([1.1E10, 1.2E10, 1.3E10])
 
     rso, fso, dso = p.opFloatDoubleS(fsi, dsi)
     test(len(fso) == 2)

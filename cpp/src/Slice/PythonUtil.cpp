@@ -28,16 +28,11 @@ class MetaDataVisitor : public ParserVisitor
 public:
 
     virtual bool visitModuleStart(const ModulePtr&);
-    virtual void visitModuleEnd(const ModulePtr&);
     virtual void visitClassDecl(const ClassDeclPtr&);
     virtual bool visitClassDefStart(const ClassDefPtr&);
-    virtual void visitClassDefEnd(const ClassDefPtr&);
     virtual bool visitExceptionStart(const ExceptionPtr&);
-    virtual void visitExceptionEnd(const ExceptionPtr&);
     virtual bool visitStructStart(const StructPtr&);
-    virtual void visitStructEnd(const StructPtr&);
     virtual void visitOperation(const OperationPtr&);
-    virtual void visitParamDecl(const ParamDeclPtr&);
     virtual void visitDataMember(const DataMemberPtr&);
     virtual void visitSequence(const SequencePtr&);
     virtual void visitDictionary(const DictionaryPtr&);
@@ -46,7 +41,20 @@ public:
 
 private:
 
-    void validate(const ContainedPtr&);
+    //
+    // Validates global metadata.
+    //
+    void validateGlobal(const DefinitionContextPtr&);
+
+    //
+    // Validates sequence metadata.
+    //
+    void validateSequence(const DefinitionContextPtr&, const string&, const TypePtr&, const StringList&);
+
+    //
+    // Checks a definition that doesn't currently support Python metadata.
+    //
+    void reject(const ContainedPtr&);
 
     StringSet _history;
 };
@@ -122,6 +130,11 @@ private:
     void writeHash(const string&, const TypePtr&, int&);
 
     //
+    // Write Python metadata as a tuple.
+    //
+    void writeMetaData(const StringList&);
+
+    //
     // Convert an operation mode into a string.
     //
     string getOperationMode(Slice::Operation::Mode);
@@ -131,6 +144,7 @@ private:
         string fixedName;
         TypePtr type;
         bool inherited;
+	StringList metaData;
     };
     typedef list<MemberInfo> MemberInfoList;
 
@@ -681,8 +695,9 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     DataMemberList members = p->dataMembers();
-    _out << sp << nl << "_M_" << type << " = IcePy.defineClass('" << scoped << "', " << name << ", "
-	 << (p->isAbstract() ? "True" : "False") << ", ";
+    _out << sp << nl << "_M_" << type << " = IcePy.defineClass('" << scoped << "', " << name << ", ";
+    writeMetaData(p->getMetaData());
+    _out << ", " << (p->isAbstract() ? "True" : "False") << ", ";
     if(!base)
     {
 	_out << "None";
@@ -717,7 +732,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Data members are represented as a tuple:
     //
-    //   ('MemberName', MemberType)
+    //   ('MemberName', MemberMetaData, MemberType)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
     //
@@ -734,6 +749,8 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    _out << ',' << nl;
 	}
 	_out << "('" << fixIdent((*r)->name()) << "', ";
+	writeMetaData((*r)->getMetaData());
+	_out << ", ";
 	writeType((*r)->type());
 	_out << ')';
     }
@@ -752,7 +769,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Define each operation. The arguments to the IcePy.Operation constructor are:
     //
-    // 'opName', Mode, (InParams), (OutParams), ReturnType, (Exceptions)
+    // 'opName', Mode, SendMode, AMD, (MetaData), (InParams), (OutParams), ReturnType, (Exceptions)
     //
     // where InParams and OutParams are tuples of type descriptions, and Exceptions
     // is a tuple of exception type ids.
@@ -771,7 +788,9 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
 	    _out << nl << name << "._op_" << (*s)->name() << " = IcePy.Operation('" << (*s)->name() << "', "
 		 << getOperationMode((*s)->mode()) << ", " << getOperationMode((*s)->sendMode()) << ", "
-		 << ((p->hasMetaData("amd") || (*s)->hasMetaData("amd")) ? "True" : "False") << ", (";
+		 << ((p->hasMetaData("amd") || (*s)->hasMetaData("amd")) ? "True" : "False") << ", ";
+	    writeMetaData((*s)->getMetaData());
+	    _out << ", (";
 	    for(t = params.begin(), count = 0; t != params.end(); ++t)
 	    {
 		if(!(*t)->isOutParam())
@@ -780,7 +799,11 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 		    {
 			_out << ", ";
 		    }
+		    _out << '(';
+		    writeMetaData((*t)->getMetaData());
+		    _out << ", ";
 		    writeType((*t)->type());
+		    _out << ')';
 		    ++count;
 		}
 	    }
@@ -797,7 +820,11 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 		    {
 			_out << ", ";
 		    }
+		    _out << '(';
+		    writeMetaData((*t)->getMetaData());
+		    _out << ", ";
 		    writeType((*t)->type());
+		    _out << ')';
 		    ++count;
 		}
 	    }
@@ -962,6 +989,8 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     string type = getAbsolute(p, "_t_");
     _out << sp << nl << "_M_" << type << " = IcePy.defineException('" << scoped << "', " << name << ", ";
+    writeMetaData(p->getMetaData());
+    _out << ", ";
     if(!base)
     {
 	_out << "None";
@@ -979,7 +1008,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // Data members are represented as a tuple:
     //
-    //   ('MemberName', MemberType)
+    //   ('MemberName', MemberMetaData, MemberType)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
     //
@@ -989,7 +1018,9 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 	{
 	    _out << ',' << nl;
 	}
-	_out << "(\"" << fixIdent((*dmli)->name()) << "\", ";
+	_out << "('" << fixIdent((*dmli)->name()) << "', ";
+	writeMetaData((*dmli)->getMetaData());
+	_out << ", ";
 	writeType((*dmli)->type());
 	_out << ')';
     }
@@ -1028,6 +1059,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
             memberList.push_back(MemberInfo());
             memberList.back().fixedName = fixIdent((*q)->name());
             memberList.back().type = (*q)->type();
+            memberList.back().metaData = (*q)->getMetaData();
         }
     }
 
@@ -1088,12 +1120,13 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     //
     // Emit the type information.
     //
-    _out << sp << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineStruct('" << scoped << "', "
-	 << name << ", (";
+    _out << sp << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineStruct('" << scoped << "', " << name << ", ";
+    writeMetaData(p->getMetaData());
+    _out << ", (";
     //
     // Data members are represented as a tuple:
     //
-    //   ('MemberName', MemberType)
+    //   ('MemberName', MemberMetaData, MemberType)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
     //
@@ -1108,7 +1141,9 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
 	{
 	    _out << ',' << nl;
 	}
-	_out << "(\"" << r->fixedName << "\", ";
+	_out << "('" << r->fixedName << "', ";
+	writeMetaData(r->metaData);
+	_out << ", ";
 	writeType(r->type);
 	_out << ')';
     }
@@ -1140,18 +1175,7 @@ Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
     _out << sp << nl << "if not " << getDictLookup(p, "_t_") << ':';
     _out.inc();
     _out << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineSequence('" << scoped << "', ";
-    if(p->hasMetaData("python:type:tuple"))
-    {
-	_out << "IcePy.SEQ_TUPLE";
-    }
-    else if(p->hasMetaData("python:type:list"))
-    {
-	_out << "IcePy.SEQ_LIST";
-    }
-    else
-    {
-	_out << "IcePy.SEQ_DEFAULT";
-    }
+    writeMetaData(p->getMetaData());
     _out << ", ";
     writeType(p->type());
     _out << ")";
@@ -1168,6 +1192,8 @@ Slice::Python::CodeVisitor::visitDictionary(const DictionaryPtr& p)
     _out << sp << nl << "if not " << getDictLookup(p, "_t_") << ':';
     _out.inc();
     _out << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineDictionary('" << scoped << "', ";
+    writeMetaData(p->getMetaData());
+    _out << ", ";
     writeType(p->keyType());
     _out << ", ";
     writeType(p->valueType());
@@ -1245,7 +1271,9 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     // Emit the type information.
     //
     _out << sp << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineEnum('" << scoped << "', " << name
-	 << ", (";
+	 << ", ";
+    writeMetaData(p->getMetaData());
+    _out << ", (";
     for(q = enums.begin(); q != enums.end(); ++q)
     {
 	if(q != enums.begin())
@@ -1618,6 +1646,30 @@ Slice::Python::CodeVisitor::writeHash(const string& name, const TypePtr& p, int&
     _out << nl << "_h = 5 * _h + __builtin__.hash(" << name << ")";
 }
 
+void
+Slice::Python::CodeVisitor::writeMetaData(const StringList& meta)
+{
+    int i = 0;
+    _out << '(';
+    for(StringList::const_iterator p = meta.begin(); p != meta.end(); ++p)
+    {
+	if(p->find("python:") == 0)
+	{
+	    if(i > 0)
+	    {
+		_out << ", ";
+	    }
+	    _out << "'" << *p << "'";
+	    ++i;
+	}
+    }
+    if(i == 1)
+    {
+	_out << ',';
+    }
+    _out << ')';
+}
+
 string
 Slice::Python::CodeVisitor::getOperationMode(Slice::Operation::Mode mode)
 {
@@ -1654,6 +1706,7 @@ Slice::Python::CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfo
         m.fixedName = fixIdent((*q)->name());
         m.type = (*q)->type();
         m.inherited = inherited;
+	m.metaData = (*q)->getMetaData();
         allMembers.push_back(m);
     }
 }
@@ -1675,6 +1728,7 @@ Slice::Python::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, Membe
         m.fixedName = fixIdent((*q)->name());
         m.type = (*q)->type();
         m.inherited = inherited;
+	m.metaData = (*q)->getMetaData();
         allMembers.push_back(m);
     }
 }
@@ -1932,154 +1986,161 @@ Slice::Python::printHeader(IceUtil::Output& out)
 bool
 Slice::Python::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
 {
-    validate(p);
+    if(!ModulePtr::dynamicCast(p->container()))
+    {
+	//
+	// We only need to validate global metadata for top-level modules.
+	//
+	validateGlobal(p->definitionContext());
+    }
+    reject(p);
     return true;
-}
-
-void
-Slice::Python::MetaDataVisitor::visitModuleEnd(const ModulePtr&)
-{
 }
 
 void
 Slice::Python::MetaDataVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
-    validate(p);
+    reject(p);
 }
 
 bool
 Slice::Python::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    validate(p);
+    reject(p);
     return true;
-}
-
-void
-Slice::Python::MetaDataVisitor::visitClassDefEnd(const ClassDefPtr&)
-{
 }
 
 bool
 Slice::Python::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    validate(p);
+    reject(p);
     return true;
-}
-
-void
-Slice::Python::MetaDataVisitor::visitExceptionEnd(const ExceptionPtr&)
-{
 }
 
 bool
 Slice::Python::MetaDataVisitor::visitStructStart(const StructPtr& p)
 {
-    validate(p);
+    reject(p);
     return true;
-}
-
-void
-Slice::Python::MetaDataVisitor::visitStructEnd(const StructPtr&)
-{
 }
 
 void
 Slice::Python::MetaDataVisitor::visitOperation(const OperationPtr& p)
 {
-    validate(p);
-}
+    DefinitionContextPtr dc = p->definitionContext();
+    assert(dc);
 
-void
-Slice::Python::MetaDataVisitor::visitParamDecl(const ParamDeclPtr& p)
-{
-    validate(p);
+    TypePtr ret = p->returnType();
+    if(ret)
+    {
+	validateSequence(dc, p->line(), ret, p->getMetaData());
+    }
+
+    ParamDeclList params = p->parameters();
+    for(ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
+    {
+	validateSequence(dc, (*q)->line(), (*q)->type(), (*q)->getMetaData());
+    }
 }
 
 void
 Slice::Python::MetaDataVisitor::visitDataMember(const DataMemberPtr& p)
 {
-    validate(p);
+    validateSequence(p->definitionContext(), p->line(), p->type(), p->getMetaData());
 }
 
 void
 Slice::Python::MetaDataVisitor::visitSequence(const SequencePtr& p)
 {
-    validate(p);
+    validateSequence(p->definitionContext(), p->line(), p, p->getMetaData());
 }
 
 void
 Slice::Python::MetaDataVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    validate(p);
+    reject(p);
 }
 
 void
 Slice::Python::MetaDataVisitor::visitEnum(const EnumPtr& p)
 {
-    validate(p);
+    reject(p);
 }
 
 void
 Slice::Python::MetaDataVisitor::visitConst(const ConstPtr& p)
 {
-    validate(p);
+    reject(p);
 }
 
 void
-Slice::Python::MetaDataVisitor::validate(const ContainedPtr& cont)
+Slice::Python::MetaDataVisitor::validateGlobal(const DefinitionContextPtr& dc)
 {
-    DefinitionContextPtr dc = cont->definitionContext();
-    assert(dc);
     StringList globalMetaData = dc->getMetaData();
-    string file = dc->filename();
 
-    StringList localMetaData = cont->getMetaData();
-
-    StringList::const_iterator p;
     static const string prefix = "python:";
 
-    for(p = globalMetaData.begin(); p != globalMetaData.end(); ++p)
+    for(StringList::const_iterator p = globalMetaData.begin(); p != globalMetaData.end(); ++p)
     {
-        string s = *p;
-        if(_history.count(s) == 0)
-        {
-            if(s.find(prefix) == 0)
-            {
-                static const string packagePrefix = "python:package:";
-                if(s.find(packagePrefix) != 0 || s.size() == packagePrefix.size())
-                {
-                    cout << file << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
-                }
-            }
-            _history.insert(s);
-        }
+	string s = *p;
+	if(_history.count(s) == 0)
+	{
+	    if(s.find(prefix) == 0)
+	    {
+		static const string packagePrefix = "python:package:";
+		if(s.find(packagePrefix) != 0 || s.size() == packagePrefix.size())
+		{
+		    cout << dc->filename() << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
+		}
+	    }
+	    _history.insert(s);
+	}
     }
+}
 
-    for(p = localMetaData.begin(); p != localMetaData.end(); ++p)
+void
+Slice::Python::MetaDataVisitor::validateSequence(const DefinitionContextPtr& dc, const string& line,
+						 const TypePtr& type, const StringList& meta)
+{
+    static const string prefix = "python:";
+
+    for(StringList::const_iterator p = meta.begin(); p != meta.end(); ++p)
     {
         string s = *p;
-        if(_history.count(s) == 0)
-        {
-            if(s.find(prefix) == 0)
-            {
-                string::size_type pos = s.find(':', prefix.size());
-                if(pos != string::npos && s.substr(prefix.size(), pos - prefix.size()) == "type")
-                {
-		    static const string typePrefix = "python:type:";
-		    string type = s.substr(typePrefix.size(), pos - typePrefix.size());
-		    if(SequencePtr::dynamicCast(cont))
+	if(s.find(prefix) == 0)
+	{
+	    string::size_type pos = s.find(':', prefix.size());
+	    if(pos != string::npos && s.substr(prefix.size(), pos - prefix.size()) == "seq")
+	    {
+		static const string seqPrefix = "python:seq:";
+		string arg = s.substr(seqPrefix.size(), pos - seqPrefix.size());
+		if(SequencePtr::dynamicCast(type))
+		{
+		    if(arg == "tuple" || arg == "list" || arg == "default")
 		    {
-			// TODO: type == "array"?
-			// TODO: Allow data member, parameter overrides?
-			if(type == "tuple" || type == "list")
-			{
-			    continue;
-			}
+			continue;
 		    }
 		}
-		cout << file << ":" << cont->line() << ": warning: ignoring invalid metadata `" << s << "'" << endl;
-            }
-            _history.insert(s);
-        }
+	    }
+	    cout << dc->filename() << ":" << line << ": warning: ignoring metadata `" << s << "'" << endl;
+	}
+    }
+}
+
+void
+Slice::Python::MetaDataVisitor::reject(const ContainedPtr& cont)
+{
+    StringList localMetaData = cont->getMetaData();
+
+    static const string prefix = "python:";
+
+    for(StringList::const_iterator p = localMetaData.begin(); p != localMetaData.end(); ++p)
+    {
+	if(p->find(prefix) == 0)
+	{
+	    DefinitionContextPtr dc = cont->definitionContext();
+	    assert(dc);
+	    cout << dc->filename() << ":" << cont->line() << ": warning: ignoring metadata `" << *p << "'" << endl;
+	}
     }
 }

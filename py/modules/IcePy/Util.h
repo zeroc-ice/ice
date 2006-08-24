@@ -114,6 +114,11 @@ bool listToStringSeq(PyObject*, Ice::StringSeq&);
 bool stringSeqToList(const Ice::StringSeq&, PyObject*);
 
 //
+// Convert a tuple to Ice::StringSeq.
+//
+bool tupleToStringSeq(PyObject*, Ice::StringSeq&);
+
+//
 // Convert Ice::Context to and from a Python dictionary.
 //
 bool dictionaryToContext(PyObject*, Ice::Context&);

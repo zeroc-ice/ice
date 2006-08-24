@@ -310,20 +310,19 @@ IcePy::listToStringSeq(PyObject* l, Ice::StringSeq& seq)
 {
     assert(PyList_Check(l));
 
-    int sz = PyList_Size(l);
+    int sz = PyList_GET_SIZE(l);
     for(int i = 0; i < sz; ++i)
     {
-        PyObject* item = PyList_GetItem(l, i);
-        if(item == NULL)
-        {
-            return false;
-        }
-        char* str = PyString_AsString(item);
-        if(str == NULL)
-        {
-            return false;
-        }
-        seq.push_back(str);
+	PyObject* item = PyList_GET_ITEM(l, i);
+	if(item == NULL)
+	{
+	    return false;
+	}
+	if(!PyString_Check(item))
+	{
+	    return false;
+	}
+	seq.push_back(string(PyString_AS_STRING(item), PyString_GET_SIZE(item)));
     }
 
     return true;
@@ -349,6 +348,29 @@ IcePy::stringSeqToList(const Ice::StringSeq& seq, PyObject* l)
             Py_DECREF(l);
             return false;
         }
+    }
+
+    return true;
+}
+
+bool
+IcePy::tupleToStringSeq(PyObject* t, Ice::StringSeq& seq)
+{
+    assert(PyTuple_Check(t));
+
+    int sz = PyTuple_GET_SIZE(t);
+    for(int i = 0; i < sz; ++i)
+    {
+	PyObject* item = PyTuple_GET_ITEM(t, i);
+	if(item == NULL)
+	{
+	    return false;
+	}
+	if(!PyString_Check(item))
+	{
+	    return false;
+	}
+	seq.push_back(string(PyString_AS_STRING(item), PyString_GET_SIZE(item)));
     }
 
     return true;

@@ -1,3 +1,60 @@
+NOTE: Please keep changes in the appropriate section for HEAD or 3.1.
+
+Changes since version 3.1.1
+---------------------------
+
+- Added support for metadata to modify the mapping of a Slice
+  sequence type. The default mapping for sequences remains unchanged
+  (except for sequence<byte> as described below): a sequence is
+  received as a Python list. Using metadata, you can now specify that
+  a sequence be received as a tuple instead:
+
+  ["python:seq:tuple"] sequence<string> StringTuple;
+
+  In this example, all occurrences of StringTuple are received as
+  a tuple. You can also apply the metadata more selectively:
+
+  sequence<string> StringList;
+  struct S {
+      StringList l;
+      ["python:seq:tuple"] StringList stringTuple;
+  };
+  interface I {
+      ["python:seq:tuple"] StringList op(StringList l);
+  };
+
+  In this case, the default mapping is used for all occurrences of
+  StringList except for the stringTuple member of the structure and
+  the return value of op().
+
+  The metadata "python:seq:list" forces a sequence to be received
+  as a list, which you can use to override a prior metadata
+  definition:
+
+  ["python:seq:tuple"] sequence<string> StringTuple;
+  struct S {
+      ["python:seq:list"] StringTuple stringList;
+  };
+
+  Finally, the metadata "python:seq:default" directs the extension
+  to use the default mapping for the sequence, which is a list for all 
+  sequence types except sequence<byte>.
+
+- The default mapping for the Slice type sequence<byte> is now a
+  Python string, and therefore a string is also accepted as a legal
+  value for sequence<byte>. For programs that need to continue
+  receiving a sequence<byte> value as a list, you can use a metadata
+  directive to modify the mapping as shown below:
+
+  ["python:seq:list"] sequence<byte> ByteList;
+
+- The extension now accepts an object that implements the buffer
+  protocol as a legal value for sequences of most primitive types.
+  For example, it is more efficient to transfer an array of integer
+  values constructed using the "array" module than it is using a tuple
+  or a list. Note that no type- or range-checking is performed on the
+  contents of a buffer.
+
 Changes since version 3.1.0
 ---------------------------
 
@@ -5,13 +62,13 @@ Changes since version 3.1.0
   where the session would not be destroyed in the event of an 
   allocation failure.
 
--- Added UnexpectedObjectException. This exception is raised if you
+- Added UnexpectedObjectException. This exception is raised if you
   use Slice classes and client and server are compiled with mismatched
   Slice definitions. Alternatively, this exception is raised if you
-  use dynamic invocation and pass a class of the wrong type as an operation
-  parameter.
+  use dynamic invocation and pass a class of the wrong type as an
+  operation parameter.
 
-- Restored Communicator::setDefaultContext
+- Restored Communicator::setDefaultContext.
 
 Changes since version 3.0.1
 ---------------------------

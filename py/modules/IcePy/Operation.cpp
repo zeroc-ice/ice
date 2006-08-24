@@ -38,6 +38,7 @@ public:
 
     virtual void unmarshaled(PyObject*, PyObject*, void*);
 
+    Ice::StringSeq metaData;
     TypeInfoPtr type;
 };
 typedef IceUtil::Handle<ParamInfo> ParamInfoPtr;
@@ -47,7 +48,7 @@ class OperationI : public Operation
 {
 public:
 
-    OperationI(const char*, PyObject*, PyObject*, int, PyObject*, PyObject*, PyObject*, PyObject*);
+    OperationI(const char*, PyObject*, PyObject*, int, PyObject*, PyObject*, PyObject*, PyObject*, PyObject*);
 
     virtual PyObject* invoke(const Ice::ObjectPrx&, PyObject*, PyObject*);
     virtual PyObject* invokeAsync(const Ice::ObjectPrx&, PyObject*, PyObject*, PyObject*);
@@ -69,6 +70,7 @@ private:
     Ice::OperationMode _mode;
     Ice::OperationMode _sendMode;
     bool _amd;
+    Ice::StringSeq _metaData;
     ParamInfoList _inParams;
     ParamInfoList _outParams;
     ParamInfoPtr _returnType;
@@ -83,6 +85,7 @@ private:
     PyObject* unmarshalException(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
     bool validateException(PyObject*) const;
     void checkTwowayOnly(const Ice::ObjectPrx&) const;
+    static void convertParams(PyObject*, ParamInfoList&, bool&);
 };
 typedef IceUtil::Handle<OperationI> OperationIPtr;
 
@@ -149,17 +152,19 @@ operationInit(OperationObject* self, PyObject* args, PyObject* /*kwds*/)
     PyObject* mode;
     PyObject* sendMode;
     int amd;
+    PyObject* meta;
     PyObject* inParams;
     PyObject* outParams;
     PyObject* returnType;
     PyObject* exceptions;
-    if(!PyArg_ParseTuple(args, STRCAST("sO!O!iO!O!OO!"), &name, modeType, &mode, modeType, &sendMode, &amd,
-			 &PyTuple_Type, &inParams, &PyTuple_Type, &outParams, &returnType, &PyTuple_Type, &exceptions))
+    if(!PyArg_ParseTuple(args, STRCAST("sO!O!iO!O!O!OO!"), &name, modeType, &mode, modeType, &sendMode, &amd,
+			 &PyTuple_Type, &meta, &PyTuple_Type, &inParams, &PyTuple_Type, &outParams, &returnType,
+			 &PyTuple_Type, &exceptions))
     {
         return -1;
     }
 
-    OperationIPtr op = new OperationI(name, mode, sendMode, amd, inParams, outParams, returnType, exceptions);
+    OperationIPtr op = new OperationI(name, mode, sendMode, amd, meta, inParams, outParams, returnType, exceptions);
     self->op = new OperationPtr(op);
 
     return 0;
@@ -394,19 +399,10 @@ IcePy::AMICallback::ice_exception(const Ice::Exception& ex)
 //
 // OperationI implementation.
 //
-IcePy::OperationI::OperationI(const char* name, PyObject* mode, PyObject* sendMode, int amd, PyObject* inParams,
-			      PyObject* outParams, PyObject* returnType, PyObject* exceptions)
+IcePy::OperationI::OperationI(const char* name, PyObject* mode, PyObject* sendMode, int amd, PyObject* meta,
+			      PyObject* inParams, PyObject* outParams, PyObject* returnType, PyObject* exceptions)
 {
     _name = name;
-    _amd = amd ? true : false;
-    if(_amd)
-    {
-        _dispatchName = fixIdent(_name) + "_async";
-    }
-    else
-    {
-        _dispatchName = fixIdent(_name);
-    }
 
     //
     // mode
@@ -422,39 +418,39 @@ IcePy::OperationI::OperationI(const char* name, PyObject* mode, PyObject* sendMo
     assert(PyInt_Check(sendModeValue.get()));
     _sendMode = (Ice::OperationMode)static_cast<int>(PyInt_AS_LONG(sendModeValue.get()));
 
+    //
+    // amd
+    //
+    _amd = amd ? true : false;
+    if(_amd)
+    {
+        _dispatchName = fixIdent(_name) + "_async";
+    }
+    else
+    {
+        _dispatchName = fixIdent(_name);
+    }
+
+    //
+    // metaData
+    //
+#ifndef NDEBUG
+    bool b =
+#endif
+    tupleToStringSeq(meta, _metaData);
+    assert(b);
+
     int i, sz;
 
     //
     // inParams
     //
-    _sendsClasses = false;
-    sz = PyTuple_GET_SIZE(inParams);
-    for(i = 0; i < sz; ++i)
-    {
-        ParamInfoPtr param = new ParamInfo;
-        param->type = getType(PyTuple_GET_ITEM(inParams, i));
-        _inParams.push_back(param);
-        if(!_sendsClasses)
-        {
-            _sendsClasses = param->type->usesClasses();
-        }
-    }
+    convertParams(inParams, _inParams, _sendsClasses);
 
     //
     // outParams
     //
-    _returnsClasses = false;
-    sz = PyTuple_GET_SIZE(outParams);
-    for(i = 0; i < sz; ++i)
-    {
-        ParamInfoPtr param = new ParamInfo;
-        param->type = getType(PyTuple_GET_ITEM(outParams, i));
-        _outParams.push_back(param);
-        if(!_returnsClasses)
-        {
-            _returnsClasses = param->type->usesClasses();
-        }
-    }
+    convertParams(outParams, _outParams, _returnsClasses);
 
     //
     // returnType
@@ -708,7 +704,7 @@ IcePy::OperationI::dispatch(PyObject* servant, const Ice::AMD_Object_ice_invokeP
             for(ParamInfoList::iterator p = _inParams.begin(); p != _inParams.end(); ++p, ++i)
             {
 		void* closure = reinterpret_cast<void*>(i);
-                (*p)->type->unmarshal(is, *p, args.get(), closure);
+                (*p)->type->unmarshal(is, *p, args.get(), closure, &(*p)->metaData);
             }
             if(_sendsClasses)
             {
@@ -923,7 +919,7 @@ IcePy::OperationI::sendResponse(const Ice::AMD_Object_ice_invokePtr& cb, PyObjec
                 PyErr_Warn(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()));
                 throw Ice::MarshalException(__FILE__, __LINE__);
             }
-            (*p)->type->marshal(arg, os, &objectMap);
+            (*p)->type->marshal(arg, os, &objectMap, &(*p)->metaData);
         }
 
         if(_returnType)
@@ -946,7 +942,7 @@ IcePy::OperationI::sendResponse(const Ice::AMD_Object_ice_invokePtr& cb, PyObjec
                 PyErr_Warn(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()));
                 throw Ice::MarshalException(__FILE__, __LINE__);
             }
-            _returnType->type->marshal(res, os, &objectMap);
+            _returnType->type->marshal(res, os, &objectMap, &_metaData);
         }
 
         if(_returnsClasses)
@@ -1072,7 +1068,7 @@ IcePy::OperationI::prepareRequest(const Ice::CommunicatorPtr& communicator, PyOb
                                  async ? i + 2 : i + 1, const_cast<char*>(opName.c_str()));
                     return false;
                 }
-                (*p)->type->marshal(arg, os, &objectMap);
+                (*p)->type->marshal(arg, os, &objectMap, &(*p)->metaData);
             }
 
             if(_sendsClasses)
@@ -1113,12 +1109,12 @@ IcePy::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice::C
         for(ParamInfoList::iterator p = _outParams.begin(); p != _outParams.end(); ++p, ++i)
         {
 	    void* closure = reinterpret_cast<void*>(i);
-            (*p)->type->unmarshal(is, *p, results.get(), closure);
+            (*p)->type->unmarshal(is, *p, results.get(), closure, &(*p)->metaData);
         }
 
         if(_returnType)
         {
-            _returnType->type->unmarshal(is, _returnType, results.get(), 0);
+            _returnType->type->unmarshal(is, _returnType, results.get(), 0, &_metaData);
         }
 
         if(_returnsClasses)
@@ -1197,6 +1193,42 @@ IcePy::OperationI::checkTwowayOnly(const Ice::ObjectPrx& proxy) const
 	Ice::TwowayOnlyException ex(__FILE__, __LINE__);
 	ex.operation = _name;
 	throw ex;
+    }
+}
+
+void
+IcePy::OperationI::convertParams(PyObject* p, ParamInfoList& params, bool& usesClasses)
+{
+    usesClasses = false;
+    int sz = PyTuple_GET_SIZE(p);
+    for(int i = 0; i < sz; ++i)
+    {
+	PyObject* item = PyTuple_GET_ITEM(p, i);
+	assert(PyTuple_Check(item));
+	assert(PyTuple_GET_SIZE(item) == 2);
+
+	ParamInfoPtr param = new ParamInfo;
+
+	//
+	// metaData
+	//
+	PyObject* meta = PyTuple_GET_ITEM(item, 0);
+	assert(PyTuple_Check(meta));
+#ifndef NDEBUG
+	bool b =
+#endif
+	tupleToStringSeq(meta, param->metaData);
+	assert(b);
+
+	//
+	// type
+	//
+	param->type = getType(PyTuple_GET_ITEM(item, 1));
+	params.push_back(param);
+	if(!usesClasses)
+	{
+	    usesClasses = param->type->usesClasses();
+	}
     }
 }
 
