@@ -241,6 +241,7 @@ Slice::Gen::generate(const UnitPtr& p)
     }
 
     C << "\n#include <IceUtil/Iterator.h>";
+    C << "\n#include <IceUtil/ScopedArray.h>";
 
     StringList includes = p->includeFiles();
 

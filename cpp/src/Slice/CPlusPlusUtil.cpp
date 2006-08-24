@@ -767,8 +767,8 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		    {
 		       s = " " + s;
 		    }
-		    out << nl << "::IceUtil::auto_array<" << s << "> ___" << fixedParam << ";";
-		    out << nl << stream << deref << func << fixedParam << ", ___" << fixedParam << ");";
+		    out << nl << "::IceUtil::ScopedArray<" << s << "> ___" << fixedParam << '('
+			<< stream << deref << func << fixedParam << "));";
 		}
 		else
 		{

@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/DisableWarnings.h>
+#include <IceUtil/ScopedArray.h>
 #include <IceUtil/Unicode.h>
 #include <IcePatch2/FileServerI.h>
 #include <OS.h>
@@ -112,7 +113,7 @@ IcePatch2::FileServerI::getFileCompressed_async(const AMD_FileServer_getFileComp
 	return;
     }
 
-    IceUtil::auto_array<Byte> bytes(new Byte[num]);
+    IceUtil::ScopedArray<Byte> bytes(new Byte[num]);
 #ifdef _WIN32
     int r;
     if((r = read(fd, bytes.get(), static_cast<unsigned int>(num))) == -1)

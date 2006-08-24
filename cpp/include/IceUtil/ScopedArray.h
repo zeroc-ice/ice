@@ -7,23 +7,25 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_AUTO_ARRAY_H
-#define ICE_UTIL_AUTO_ARRAY_H
+#ifndef ICE_UTIL_SCOPED_ARRAY_H
+#define ICE_UTIL_SCOPED_ARRAY_H
+
+#include <IceUtil/Config.h>
 
 namespace IceUtil
 {
 
 template<typename T>
-class auto_array
+class ScopedArray : private noncopyable
 {
 public:
 
-    auto_array(T* ptr = 0) :
+    explicit ScopedArray(T* ptr = 0) :
         _ptr(ptr)
     {
     }
 
-    ~auto_array()
+    ~ScopedArray()
     {
         if(_ptr != 0)
 	{
@@ -33,6 +35,7 @@ public:
 
     void reset(T* ptr = 0)
     {
+	assert(ptr == 0 || ptr != _ptr);
         if(_ptr != 0)
 	{
 	    delete[] _ptr;
@@ -42,6 +45,8 @@ public:
 
     T& operator[](size_t i) const
     {
+	assert(_ptr != 0);
+	assert(i >= 0);
         return _ptr[i];
     }
 
@@ -50,7 +55,7 @@ public:
         return _ptr;
     }
 
-    void swap(auto_array& a)
+    void swap(ScopedArray& a)
     {
         T* tmp = a._ptr;
 	a._ptr = _ptr;
