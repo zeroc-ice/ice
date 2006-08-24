@@ -3,6 +3,8 @@ NOTE: Please keep changes in the appropriate section for HEAD or 3.1.
 Changes since version 3.1.1 (HEAD)
 ---------------------------     
 
+- Added zero-copy functions to the stream classes.
+
 - Added the NullSSLPermissionsVerifier to the IceGrid registry.
 
 - Added more tracing to the IceSSL plug-in to help with debugging
@@ -72,6 +74,27 @@ Changes since version 3.1.1 (HEAD)
   applications can do the same thing and add a protected destructor
   to prevent non-heap allocation.
 
+- Fixed a bug in slice2cpp that caused incorrect code to be generated
+  if a class had a member that was an interface (not class) by value:
+
+  interface I
+  {
+      void op();
+  };
+
+  class C
+  {
+      void op();
+  };
+
+  class MyClass
+  {
+      I myI;		// Note: I, not I*. Bad code generated for this in 3.1.0.
+      I* myIstar;	// OK, no problem with 3.1.0.
+      C myC;		// OK, no problem with 3.1.0.
+      C myCstar;	// OK, no problem with 3.1.0.
+  };
+
 Changes since version 3.1.0
 ---------------------------     
 
@@ -95,27 +118,6 @@ Changes since version 3.1.0
   triggered when an adapter was removed and a client was requesting
   at the same time the adapter endpoints through the locator
   interface.
-
-- Fixed a bug in slice2cpp that caused incorrect code to be generated
-  if a class had a member that was an interface (not class) by value:
-
-  interface I
-  {
-      void op();
-  };
-
-  class C
-  {
-      void op();
-  };
-
-  class MyClass
-  {
-      I myI;		// Note: I, not I*. Bad code generated for this in 3.1.0.
-      I* myIstar;	// OK, no problem with 3.1.0.
-      C myC;		// OK, no problem with 3.1.0.
-      C myCstar;	// OK, no problem with 3.1.0.
-  };
 
 - Fixed a bug in the IceGrid replication code that would cause clients
   to get an Ice::NoEndpointException if the node of a replica was
