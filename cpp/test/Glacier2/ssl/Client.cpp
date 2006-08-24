@@ -42,7 +42,7 @@ int
 CallbackClient::run(int argc, char* argv[])
 {
     Glacier2::RouterPrx router = Glacier2::RouterPrx::uncheckedCast(
-	communicator()->stringToProxy("abc/def:tcp -h 127.0.0.1 -p 12347 -t 10000"));
+	communicator()->stringToProxy("Glacier2/router:tcp -h 127.0.0.1 -p 12347 -t 10000"));
     communicator()->setDefaultRouter(router);
 
     //
@@ -80,7 +80,7 @@ CallbackClient::run(int argc, char* argv[])
     //
     communicator()->setDefaultRouter(Glacier2::RouterPrx());
     router = Glacier2::RouterPrx::uncheckedCast(
-	communicator()->stringToProxy("abc/def:ssl -h 127.0.0.1 -p 12348 -t 10000"));
+	communicator()->stringToProxy("Glacier2/router:ssl -h 127.0.0.1 -p 12348 -t 10000"));
     communicator()->setDefaultRouter(router);
 
     //
@@ -118,7 +118,7 @@ CallbackClient::run(int argc, char* argv[])
 
     communicator()->setDefaultRouter(0);
     Glacier2::AdminPrx admin = Glacier2::AdminPrx::checkedCast(
-	communicator()->stringToProxy("ABC/DEF:tcp -h 127.0.0.1 -p 12349 -t 10000"));
+	communicator()->stringToProxy("Glacier2/admin:tcp -h 127.0.0.1 -p 12349 -t 10000"));
     admin->shutdown();
     
     return EXIT_SUCCESS;
