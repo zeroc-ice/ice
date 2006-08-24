@@ -240,13 +240,15 @@ A <literal>tcp</literal> endpoint supports the following options:
 specified, the value of <literal>Ice.Default.Host</literal> is used
 instead.</entry>
 <entry>Determines the host name or IP address to which a connection
-attempt is made. If not specified, the IP address corresponding to
-the host name as returned by <literal>gethostname()</literal> is used.</entry>
+attempt is made. If not specified, all network interfaces (including
+loopback) are tried to contact the server.</entry>
 <entry>Determines the network interface on which the object adapter
-listens for connections, as well as the host name or IP address that
-is advertised in proxies created by the adapter. If not specified, (or specified as <literal>-h *</literal>
+listens for connections. If not specified, (or specified as <literal>-h *</literal>
 or <literal>-h 0.0.0.0</literal>), the adapter listens on all network interfaces
-(including the loopback interface).</entry>
+(including the loopback interface). The endpoints specified by <literal>-h</literal>
+are published in proxies. If not specified, all endpoints except loopback are published
+(except if loopback is the only available interface, in which case only loopback is
+published).</entry>
 </row>
 <row>
 <entry>-p <replaceable>port</replaceable></entry>
@@ -344,14 +346,16 @@ version number supported by the server.</entry>
 <entry>Specifies the host name or IP address of the endpoint. If not
 specified, the value of <literal>Ice.Default.Host</literal> is used
 instead.</entry>
-<entry>Determines the host name or IP address to which datagrams
-are sent. If not specified, the IP address corresponding to
-the host name as returned by <literal>gethostname()</literal> is used.</entry>
+<entry>Determines the host name or IP address to which a datagrams
+are sent. If not specified, all network interfaces (including
+loopback) are tried to contact the server.</entry>
 <entry>Determines the network interface on which the object adapter
-listens for datagrams, as well as the host name or IP address that is
-advertised in proxies created by this adapter. If not specified, (or specified as <literal>-h *</literal>
+listens for datagrams. If not specified, (or specified as <literal>-h *</literal>
 or <literal>-h 0.0.0.0</literal>), the adapter listens on all network interfaces
-(including the loopback interface).</entry>
+(including the loopback interface). The endpoints specified by <literal>-h</literal>
+are published in proxies. If not specified, all endpoints except loopback are published
+(except if loopback is the only available interface, in which case only loopback is
+published).</entry>
 </row>
 <row>
 <entry>-p <replaceable>port</replaceable></entry>
@@ -416,14 +420,15 @@ An <literal>ssl</literal> endpoint supports the following options:
 specified, the value of <literal>Ice.Default.Host</literal> is used
 instead.</entry>
 <entry>Determines the host name or IP address to which a connection
-attempt is made. If not specified, the IP address corresponding to
-the host name as returned by <literal>gethostname()</literal> is used.</entry>
+attempt is made. If not specified, all network interfaces (including
+loopback) are tried to contact the server.</entry>
 <entry>Determines the network interface on which the object adapter
-listens for connections, as well as the host name or IP address that
-is advertised in proxies created by this adapter.
-If not specified, (or specified as <literal>-h *</literal>
+listens for connections. If not specified, (or specified as <literal>-h *</literal>
 or <literal>-h 0.0.0.0</literal>), the adapter listens on all network interfaces
-(including the loopback interface).</entry>
+(including the loopback interface). The endpoints specified by <literal>-h</literal>
+are published in proxies. If not specified, all endpoints except loopback are published
+(except if loopback is the only available interface, in which case only loopback is
+published).</entry>
 </row>
 <row>
 <entry>-p <replaceable>port</replaceable></entry>
