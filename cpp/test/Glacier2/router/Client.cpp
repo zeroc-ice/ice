@@ -85,7 +85,7 @@ public:
     void run()
     {
 	CommunicatorPtr communicator = initialize(initData);
-	ObjectPrx routerBase = communicator->stringToProxy("abc/def:default -p 12347 -t 10000");
+	ObjectPrx routerBase = communicator->stringToProxy("Glacier2/router:default -p 12347 -t 10000");
 	Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(routerBase);
 	communicator->setDefaultRouter(router);
 
@@ -192,7 +192,7 @@ public:
     void run()
     {
 	CommunicatorPtr communicator = initialize(initData);
-	ObjectPrx routerBase = communicator->stringToProxy("abc/def:default -p 12347 -t 30000");
+	ObjectPrx routerBase = communicator->stringToProxy("Glacier2/router:default -p 12347 -t 30000");
 	_router = Glacier2::RouterPrx::checkedCast(routerBase);
 	communicator->setDefaultRouter(_router);
 
@@ -437,7 +437,7 @@ CallbackClient::run(int argc, char* argv[])
 
     {
 	cout << "testing stringToProxy for router... " << flush;
-	routerBase = communicator()->stringToProxy("abc/def:default -p 12347 -t 10000");
+	routerBase = communicator()->stringToProxy("Glacier2/router:default -p 12347 -t 10000");
 	cout << "ok" << endl;
     }
     
@@ -865,7 +865,7 @@ CallbackClient::run(int argc, char* argv[])
 
 	{
 	    cout << "testing stringToProxy for admin object... " << flush;
-	    adminBase = communicator()->stringToProxy("ABC/DEF:tcp -h 127.0.0.1 -p 12348 -t 10000");
+	    adminBase = communicator()->stringToProxy("Glacier2/admin:tcp -h 127.0.0.1 -p 12348 -t 10000");
 	    cout << "ok" << endl;
 	}
 	
