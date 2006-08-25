@@ -964,7 +964,6 @@ IceInternal::BasicStream::read(pair<const Long*, const Long*>& v)
         result = new Long[sz];
         v.first = result;
         v.second = result + sz;
-        b.reset(array);
 
 	Container::iterator begin = i;
 	i += sz * static_cast<int>(sizeof(Long));
@@ -1115,7 +1114,6 @@ IceInternal::BasicStream::read(pair<const Float*, const Float*>& v)
         result = new Float[sz];
         v.first = result;
         v.second = result + sz;
-        b.reset(array);
 
 	Container::iterator begin = i;
 	i += sz * static_cast<int>(sizeof(Float));
@@ -1286,7 +1284,6 @@ IceInternal::BasicStream::read(pair<const Double*, const Double*>& v)
         result = new Double[sz];
         v.first = result;
         v.second = result + sz;
-        b.reset(array);
 
 	Container::iterator begin = i;
 	i += sz * static_cast<int>(sizeof(Double));
