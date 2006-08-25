@@ -179,7 +179,7 @@ Slice::Ruby::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
     if(_classHistory.count(scoped) == 0)
     {
 	string name = "T_" + fixIdent(p->name(), true);
-	_out << sp << nl << "if not defined?(" << name << ')';
+	_out << sp << nl << "if not defined?(" << getAbsolute(p, true, "T_") << ')';
 	_out.inc();
 	_out << nl << name << " = ::Ice::__declareClass('" << scoped << "')";
 	if(!p->isLocal())
@@ -519,7 +519,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Emit type descriptions.
     //
-    _out << sp << nl << "if not defined?(T_" << name << ')';
+    _out << sp << nl << "if not defined?(" << getAbsolute(p, true, "T_") << ')';
     _out.inc();
     _out << nl << "T_" << name << " = ::Ice::__declareClass('" << scoped << "')";
     if(!p->isLocal())
