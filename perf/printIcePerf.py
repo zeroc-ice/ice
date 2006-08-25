@@ -59,5 +59,5 @@ inputfile = file(filename)
 rawResults = eval(inputfile.read())
 inputfile.close()
 
-TestUtil.PrintResults(rawResults, filename, [('Ice', 'TAO'), ('IceE', 'TAO'), ('Ice', 'IceE')])
+TestUtil.PrintResults(rawResults, filename, [('Ice', 'TAO'), ('IceE', 'TAO'), ('IceE', 'Ice')])
 

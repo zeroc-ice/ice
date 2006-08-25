@@ -320,7 +320,8 @@ def PrintResults(rawResults, fileroot, products):
 			percentDiff =  (bResults[0][0] - aLatency)/aLatency
 			line.extend([aLatency, bResults[0][0], percentDiff * 100, lineNote])
 		    else:
-			percentDiff =  (aThroughput - bResults[0][1])/aThroughput
+			percentDiff =  (aThroughput - bResults[0][1])/bResults[0][1]
+
 			line.extend([aThroughput, bResults[0][1], percentDiff * 100, lineNote])
 		    topicResults.append(tuple(line))
 	    #
@@ -350,7 +351,7 @@ def PrintResults(rawResults, fileroot, products):
 				percentDiff = (aValue - baseValue) /  baseValue * 100
 			    else:
 				aValue = additional[1]
-				percentDiff = (baseValue - aValue) / baseValue * 100
+				percentDiff = (baseValue - aValue) / aValue * 100
 
 			    #
 			    # If keyVariant is part of the name, remove it.
@@ -369,10 +370,12 @@ def PrintResults(rawResults, fileroot, products):
 			    lineNote = annotations[note]
 
 			    outputFile.write('"","","%f","%f","%s"\n' % (aValue, percentDiff, lineNote))
-		count = 1
+		notes = []
 		for a in annotations.keys():
-		    outputFile.write("%s %s\n" % (annotations[a], a))
-		    count += 1
+		    notes.append("%s %s" % (annotations[a], a))
+		notes.sort()
+		for n in notes:
+		    outputFile.write(n + "\n")
 		outputFile.write('\n')
 
 	outputFile.close() 
