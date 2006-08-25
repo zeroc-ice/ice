@@ -80,12 +80,12 @@ Client::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    if(opts.isSet("h") || opts.isSet("help"))
+    if(opts.isSet("help"))
     {
 	usage();
 	return EXIT_SUCCESS;
     }
-    if(opts.isSet("v") || opts.isSet("version"))
+    if(opts.isSet("version"))
     {
 	cout << ICE_STRING_VERSION << endl;
 	return EXIT_SUCCESS;
@@ -122,7 +122,7 @@ Client::run(int argc, char* argv[])
 	    commands += *i + ";";
 	}
     }
-    debug = opts.isSet("d") || opts.isSet("debug");
+    debug = opts.isSet("debug");
 
     if(!args.empty() && !commands.empty())
     {

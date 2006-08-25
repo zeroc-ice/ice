@@ -244,12 +244,12 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    if(opts.isSet("h") || opts.isSet("help"))
+    if(opts.isSet("help"))
     {
 	usage(argv[0]);
 	return EXIT_SUCCESS;
     }
-    if(opts.isSet("v") || opts.isSet("version"))
+    if(opts.isSet("version"))
     {
 	cout << ICE_STRING_VERSION << endl;
 	return EXIT_SUCCESS;
@@ -272,7 +272,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
 	    newCppArgs += " -U" + *i;
 	}
     }
-    debug = opts.isSet("d") || opts.isSet("debug");
+    debug = opts.isSet("debug");
 
     // No need to set --ice here, it is always true.
 

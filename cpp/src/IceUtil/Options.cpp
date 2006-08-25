@@ -9,6 +9,7 @@
 
 #include <IceUtil/Options.h>
 #include <iostream>
+#include <set>
 
 using namespace std;
 
@@ -86,10 +87,8 @@ IceUtil::Options::addOpt(const string& shortOpt, const string& longOpt, ArgType 
 
     checkArgs(shortOpt, longOpt, at == NeedArg, dflt);
 
-    addValidOpt(shortOpt, ShortOpt, at, dflt, rt);
-    addValidOpt(longOpt, LongOpt, at, dflt, rt);
+    addValidOpt(shortOpt, longOpt, at, dflt, rt);
 }
-
 
 //
 // Split a command line into argv-style arguments, applying
@@ -113,6 +112,7 @@ IceUtil::Options::split(const string& line)
     }
     string::size_type end = line.find_last_not_of(IFS);
     assert(end != string::npos);
+
     string l(line, start, end - start + 1);
 
     vector<string> vec;
@@ -539,20 +539,7 @@ IceUtil::Options::parse(const vector<string>& args)
 
 	    pos = checkOpt(opt, LongOpt);
 
-	    if(p != string::npos)
-	    {
-	        if(pos->second.arg == NoArg && p != args[i].size() - 1)
-		{
-		    string err = "`";
-		    err += args[i];
-		    err += "': option does not take an argument";
-		    throw BadOpt(err);
-		}
-		setOpt(opt, args[i].substr(p + 1), pos->second.repeat);
-		argDone = true;
-	    }
-
-	    if(pos->second.repeat == NoRepeat)
+	    if(pos->second->repeat == NoRepeat)
 	    {
 		set<string>::iterator seenPos = seenNonRepeatableOpts.find(opt);
 		if(seenPos != seenNonRepeatableOpts.end())
@@ -562,6 +549,24 @@ IceUtil::Options::parse(const vector<string>& args)
 		    throw BadOpt(err);
 		}
 		seenNonRepeatableOpts.insert(seenPos, opt);
+		string synonym = getSynonym(opt);
+		if(!synonym.empty())
+		{
+		    seenNonRepeatableOpts.insert(synonym);
+		}
+	    }
+
+	    if(p != string::npos)
+	    {
+	        if(pos->second->arg == NoArg && p != args[i].size() - 1)
+		{
+		    string err = "`";
+		    err += args[i];
+		    err += "': option does not take an argument";
+		    throw BadOpt(err);
+		}
+		setOpt(opt, "", args[i].substr(p + 1), pos->second->repeat);
+		argDone = true;
 	    }
 	}
 	else if(!args[i].empty() && args[i][0] == '-')
@@ -574,25 +579,31 @@ IceUtil::Options::parse(const vector<string>& args)
 	        opt.clear();
 		opt.push_back(args[i][p]);
 		pos = checkOpt(opt, ShortOpt);
-		if(pos->second.arg == NeedArg && p != args[i].size() - 1)
+
+		if(pos->second->repeat == NoRepeat)
+		{
+		    set<string>::iterator seenPos = seenNonRepeatableOpts.find(opt);
+		    if(seenPos != seenNonRepeatableOpts.end())
+		    {
+			string err = "`-";
+			err += opt + ":' option cannot be repeated";
+			throw BadOpt(err);
+		    }
+		    seenNonRepeatableOpts.insert(seenPos, opt);
+		    string synonym = getSynonym(opt);
+		    if(!synonym.empty())
+		    {
+			seenNonRepeatableOpts.insert(synonym);
+		    }
+		}
+
+		if(pos->second->arg == NeedArg && p != args[i].size() - 1)
 		{
 		    string optArg = args[i].substr(p + 1);
-		    setOpt(opt, optArg, pos->second.repeat);
+		    setOpt(opt, "", optArg, pos->second->repeat);
 		    argDone = true;
 		    break;
 		}
-	    }
-
-	    if(pos->second.repeat == NoRepeat)
-	    {
-		set<string>::iterator seenPos = seenNonRepeatableOpts.find(opt);
-		if(seenPos != seenNonRepeatableOpts.end())
-		{
-		    string err = "`-";
-		    err += opt + ":' option cannot be repeated";
-		    throw BadOpt(err);
-		}
-		seenNonRepeatableOpts.insert(seenPos, opt);
 	    }
 	}
 	else
@@ -606,7 +617,7 @@ IceUtil::Options::parse(const vector<string>& args)
 
 	if(!argDone)
 	{
-	    if(pos->second.arg == NeedArg) // Need an argument that is separated by whitespace.
+	    if(pos->second->arg == NeedArg) // Need an argument that is separated by whitespace.
 	    {
 		if(i == args.size() - 1)
 		{
@@ -619,14 +630,16 @@ IceUtil::Options::parse(const vector<string>& args)
 		    err += "' option requires an argument";
 		    throw BadOpt(err);
 		}
-		setOpt(opt, args[++i], pos->second.repeat);
+		setOpt(opt, "", args[++i], pos->second->repeat);
 	    }
 	    else
 	    {
-		setOpt(opt, "1", pos->second.repeat);
+		setOpt(opt, "", "1", pos->second->repeat);
 	    }
 	}
     }
+
+    _synonyms.clear(); // Don't need the contents anymore.
 
     while(i < args.size())
     {
@@ -663,7 +676,7 @@ IceUtil::Options::isSet(const string& opt) const
     }
 
     ValidOpts::const_iterator pos = checkOptIsValid(opt);
-    return pos->second.repeat == NoRepeat ? _opts.find(opt) != _opts.end() : _ropts.find(opt) != _ropts.end();
+    return pos->second->repeat == NoRepeat ? _opts.find(opt) != _opts.end() : _ropts.find(opt) != _ropts.end();
 }
 
 string
@@ -678,10 +691,10 @@ IceUtil::Options::optArg(const string& opt) const
 
     ValidOpts::const_iterator pos = checkOptHasArg(opt);
 
-    if(pos->second.repeat == Repeat)
+    if(pos->second->repeat == Repeat)
     {
 	string err = "`-";
-	if(pos->second.length == LongOpt)
+	if(pos->second->length == LongOpt)
 	{
 	    err.push_back('-');
 	}
@@ -690,12 +703,12 @@ IceUtil::Options::optArg(const string& opt) const
 	throw APIError(err);
     }
 
-    map<string, string>::const_iterator p = _opts.find(opt);
+    Opts::const_iterator p = _opts.find(opt);
     if(p == _opts.end())
     {
         return "";
     }
-    return p->second;
+    return p->second->val;
 }
 
 vector<string>
@@ -710,10 +723,10 @@ IceUtil::Options::argVec(const string& opt) const
 
     ValidOpts::const_iterator pos = checkOptHasArg(opt);
 
-    if(pos->second.repeat == NoRepeat)
+    if(pos->second->repeat == NoRepeat)
     {
 	string err = "`-";
-	if(pos->second.length == LongOpt)
+	if(pos->second->length == LongOpt)
 	{
 	    err.push_back('-');
 	}
@@ -721,37 +734,50 @@ IceUtil::Options::argVec(const string& opt) const
 	throw APIError(err);
     }
 
-    map<string, vector<string> >::const_iterator p = _ropts.find(opt);
-    return p == _ropts.end() ? vector<string>() : p->second;
+    ROpts::const_iterator p = _ropts.find(opt);
+    return p == _ropts.end() ? vector<string>() : p->second->vals;
 }
 
 void
-IceUtil::Options::addValidOpt(const string& opt, LengthType lt, ArgType at, const string& dflt, RepeatType rt)
+IceUtil::Options::addValidOpt(const string& shortOpt, const string& longOpt,
+                              ArgType at, const string& dflt, RepeatType rt)
 {
-    if(opt.empty())
-    {
-        return;
-    }
-
-    ValidOpts::iterator pos = _validOpts.find(opt);
-    if(pos != _validOpts.end())
+    if(!shortOpt.empty() && _validOpts.find(shortOpt) != _validOpts.end())
     {
 	string err = "`";
-	err += opt;
+	err += shortOpt;
+	err += "': duplicate option";
+	throw APIError(err);
+    }
+    if(!longOpt.empty() && _validOpts.find(longOpt) != _validOpts.end())
+    {
+	string err = "`";
+	err += longOpt;
 	err += "': duplicate option";
 	throw APIError(err);
     }
 
-    OptionDetails od;
-    od.length = lt;
-    od.arg = at;
-    od.repeat = rt;
+    ODPtr odp = new OptionDetails;
+    odp->arg = at;
+    odp->repeat = rt;
+    odp->hasDefault = !dflt.empty();
 
-    _validOpts.insert(pos, ValidOpts::value_type(opt, od));
+    if(!shortOpt.empty())
+    {
+	odp->length = ShortOpt;
+	_validOpts[shortOpt] = odp;
+    }
+    if(!longOpt.empty())
+    {
+	odp->length = LongOpt;
+        _validOpts[longOpt] = odp;
+    }
+
+    updateSynonyms(shortOpt, longOpt);
 
     if(at == NeedArg && !dflt.empty())
     {
-	setOpt(opt, dflt, rt);
+	setOpt(shortOpt, longOpt, dflt, rt);
     }
 }
 
@@ -774,25 +800,102 @@ IceUtil::Options::checkOpt(const string& opt, LengthType lt)
 }
 
 void
-IceUtil::Options::setOpt(const string& opt, const string& val, RepeatType rt)
+IceUtil::Options::setOpt(const string& opt1, const string& opt2, const string& val, RepeatType rt)
 {
-    if(rt == Repeat)
+    //
+    // opt1 and opt2 (short and long opt) can't both be empty.
+    //
+    assert(!(opt1.empty() && opt2.empty()));
+
+    if(rt == NoRepeat)
     {
-	ROpts::iterator pos = _ropts.find(opt);
-	if(pos != _ropts.end())
+	setNonRepeatingOpt(opt1, val);
+	setNonRepeatingOpt(opt2, val);
+    }
+    else
+    {
+	setRepeatingOpt(opt1, val);
+	setRepeatingOpt(opt2, val);
+    }
+}
+
+void
+IceUtil::Options::setNonRepeatingOpt(const string& opt, const string& val)
+{
+    if(opt.empty())
+    {
+        return;
+    }
+
+    assert(_opts.find(opt) == _opts.end());
+
+    OValPtr ovp = new OptionValue;
+    ovp->val = val;
+    _opts[opt] = ovp;
+
+    const string synonym = getSynonym(opt);
+    if(!synonym.empty())
+    {
+	_opts[synonym] = ovp;
+    }
+}
+
+void
+IceUtil::Options::setRepeatingOpt(const string& opt, const string& val)
+{
+    if(opt.empty())
+    {
+        return;
+    }
+
+    ValidOpts::const_iterator vpos = _validOpts.find(opt);
+    assert(vpos != _validOpts.end());
+
+    ROpts::iterator pos = _ropts.find(opt);
+    const string synonym = getSynonym(opt);
+    ROpts::iterator spos = _ropts.find(synonym);
+
+    if(pos != _ropts.end())
+    {
+	assert(_validOpts.find(opt) != _validOpts.end());
+	assert(vpos->second->repeat == Repeat);
+
+	_ropts[opt] = pos->second;
+	if(vpos->second->hasDefault && pos->second->vals.size() == 1)
 	{
-	    pos->second.push_back(val);
+	    pos->second->vals[0] = val;
+	    vpos->second->hasDefault = false;
 	}
 	else
 	{
-	    vector<string> vec;
-	    vec.push_back(val);
-	    _ropts.insert(pos, ROpts::value_type(opt, vec));
+	    pos->second->vals.push_back(val);
+	}
+    }
+    else if(spos != _ropts.end())
+    {
+	assert(_validOpts.find(synonym) != _validOpts.end());
+	assert(_validOpts.find(synonym)->second->repeat == Repeat);
+
+	_ropts[synonym] = spos->second;
+	if(vpos->second->hasDefault && spos->second->vals.size() == 1)
+	{
+	    spos->second->vals[0] = val;
+	    vpos->second->hasDefault = false;
+	}
+	else
+	{
+	    spos->second->vals.push_back(val);
 	}
     }
     else
     {
-	_opts[opt] = val;
+	OVecPtr ovp = new OptionValueVector;
+	ovp->vals.push_back(val);
+	_ropts[opt] = ovp;
+	if(!synonym.empty())
+	{
+	    _ropts[synonym] = ovp;
+	}
     }
 }
 
@@ -814,10 +917,10 @@ IceUtil::Options::ValidOpts::const_iterator
 IceUtil::Options::checkOptHasArg(const string& opt) const
 {
     ValidOpts::const_iterator pos = checkOptIsValid(opt);
-    if(pos->second.arg == NoArg)
+    if(pos->second->arg == NoArg)
     {
 	string err = "`-";
-	if(pos->second.length == LongOpt)
+	if(pos->second->length == LongOpt)
 	{
 	    err.push_back('-');
 	}
@@ -826,4 +929,21 @@ IceUtil::Options::checkOptHasArg(const string& opt) const
 	throw APIError(err);
     }
     return pos;
+}
+
+void
+IceUtil::Options::updateSynonyms(const ::std::string& shortOpt, const ::std::string& longOpt)
+{
+    if(!shortOpt.empty() && !longOpt.empty())
+    {
+        _synonyms[shortOpt] = longOpt;
+	_synonyms[longOpt] = shortOpt;
+    }
+}
+
+string
+IceUtil::Options::getSynonym(const ::std::string& optName) const
+{
+    Synonyms::const_iterator pos = _synonyms.find(optName);
+    return pos != _synonyms.end() ? pos->second : "";
 }

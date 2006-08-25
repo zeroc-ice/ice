@@ -1116,12 +1116,12 @@ main(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    if(opts.isSet("h") || opts.isSet("help"))
+    if(opts.isSet("help"))
     {
 	usage(argv[0]);
 	return EXIT_SUCCESS;
     }
-    if(opts.isSet("v") || opts.isSet("version"))
+    if(opts.isSet("version"))
     {
 	cout << ICE_STRING_VERSION << endl;
 	return EXIT_SUCCESS;
@@ -1360,7 +1360,7 @@ main(int argc, char* argv[])
 	output = opts.optArg("output-dir");
     }
     depend = opts.isSet("depend");
-    debug = opts.isSet("d") || opts.isSet("debug");
+    debug = opts.isSet("debug");
     ice = opts.isSet("ice");
     if(opts.isSet("meta"))
     {

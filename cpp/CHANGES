@@ -3,6 +3,45 @@ NOTE: Please keep changes in the appropriate section for HEAD or 3.1.
 Changes since version 3.1.1 (HEAD)
 ---------------------------     
 
+- Changed IceUtil::Options to allow testing for synonyms without
+  having to check both the short and long options. For example:
+
+    IceUtil::Options opts;
+    opts.addOpt("v", "version");
+    opts.parse();
+
+  Previously, to test whether the -v or --version option was set, you
+  had to write:
+
+    if(opts.isSet("v" || opts.isSet("version")
+	// show version...
+
+  With the new behavior, you can test for either "v" or "version",
+  and the test returns true if either the long or short option
+  was set:
+
+    if(opts.isSet("version")
+	// show version...
+
+  or:
+
+    if(opts.isSet("v")
+	// show version...
+
+  Either test works correctly, regardless of of whether the actual
+  option passed to the executable was -v or --version.
+
+  Note that, for this to work, you must add both long and short option
+  in a single call to addOpt():
+
+    opts.addOpt("v", "version"); // -v and --version are synonyms
+
+  If you add the options in separate calls, they are not recognized
+  as synonyms:
+
+    opts.addOpt("v");		// --version is considered a separate option from --version
+    opts.addOpt("", "version"); // --version is considered a separate option from -v
+
 - Added zero-copy functions to the stream classes.
 
 - Added the NullSSLPermissionsVerifier to the IceGrid registry.

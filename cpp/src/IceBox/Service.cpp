@@ -61,12 +61,12 @@ IceBox::IceBoxService::start(int argc, char* argv[])
         return false;
     }
 
-    if(opts.isSet("h") || opts.isSet("help"))
+    if(opts.isSet("help"))
     {
         usage(argv[0]);
         return false;
     }
-    if(opts.isSet("v") || opts.isSet("version"))
+    if(opts.isSet("version"))
     {
         print(ICE_STRING_VERSION);
         return false;

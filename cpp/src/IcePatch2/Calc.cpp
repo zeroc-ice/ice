@@ -141,18 +141,18 @@ main(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    if(opts.isSet("h") || opts.isSet("help"))
+    if(opts.isSet("help"))
     {
 	usage(argv[0]);
 	return EXIT_SUCCESS;
     }
-    if(opts.isSet("v") || opts.isSet("version"))
+    if(opts.isSet("version"))
     {
 	cout << ICE_STRING_VERSION << endl;
 	return EXIT_SUCCESS;
     }
-    bool doCompress = opts.isSet("z") || opts.isSet("compress");
-    bool dontCompress = opts.isSet("Z") || opts.isSet("no-compress");
+    bool doCompress = opts.isSet("compress");
+    bool dontCompress = opts.isSet("no-compress");
     if(doCompress && dontCompress)
     {
         cerr << argv[0] << ": only one of -z and -Z are mutually exclusive" << endl;
@@ -167,8 +167,8 @@ main(int argc, char* argv[])
     {
         compress = 0;
     }
-    verbose = opts.isSet("V") || opts.isSet("verbose");
-    caseInsensitive = opts.isSet("i") || opts.isSet("case-insensitive");
+    verbose = opts.isSet("verbose");
+    caseInsensitive = opts.isSet("case-insensitive");
 
     if(args.empty())
     {

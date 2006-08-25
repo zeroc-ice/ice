@@ -175,7 +175,7 @@ Parser::addApplication(const list<string>& origArgs)
 	ApplicationDescriptor app = DescriptorParser::parseDescriptor(desc, targets, vars, _communicator, _admin);
 	_admin->addApplication(app);
 	
-	if(!opts.isSet("n") && !opts.isSet("no-patch"))
+	if(!opts.isSet("no-patch"))
 	{
 	    //
 	    // Patch the application.
@@ -363,7 +363,7 @@ Parser::patchApplication(const list<string>& origArgs)
     {
 	vector<string>::const_iterator p = args.begin();
 	string name = *p++;
-	_admin->patchApplication(name, opts.isSet("f") || opts.isSet("force"));
+	_admin->patchApplication(name, opts.isSet("force"));
     }
     catch(const Ice::Exception& ex)
     {
@@ -730,7 +730,7 @@ Parser::patchServer(const list<string>& origArgs)
 
     try
     {
-	_admin->patchServer(args.front(), opts.isSet("f") || opts.isSet("force"));
+	_admin->patchServer(args.front(), opts.isSet("force"));
     }
     catch(const Ice::Exception& ex)
     {
