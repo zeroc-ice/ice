@@ -1,1 +1,1 @@
-Parser.o: Parser.cpp ../../include/IceXML/Parser.h ../../include/IceUtil/Shared.h ../../include/IceUtil/Config.h ../../include/IceUtil/Handle.h ../../include/IceUtil/Exception.h
+Parser$(OBJEXT): Parser.cpp ../../include/IceXML/Parser.h ../../include/IceUtil/Shared.h ../../include/IceUtil/Config.h ../../include/IceUtil/Handle.h ../../include/IceUtil/Exception.h

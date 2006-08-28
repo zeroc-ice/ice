@@ -131,6 +131,8 @@ INSTALL_PROGRAM		= ${INSTALL}
 INSTALL_LIBRARY		= ${INSTALL}
 INSTALL_DATA		= ${INSTALL}
 
+OBJEXT			= .o
+
 UNAME			:= $(shell uname)
 
 #
