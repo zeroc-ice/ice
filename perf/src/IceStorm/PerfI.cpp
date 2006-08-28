@@ -129,7 +129,7 @@ PingI::add(Ice::Long time)
 	QueryPerformanceCounter(&t);
 	Ice::Long interval = t.QuadPart - time;
 	QueryPerformanceFrequency(&t);
-	interval /= (t.QuadPart / 100000);
+	interval /= t.QuadPart/1000000;
 	_results.push_back(interval);
 #else
 	IceUtil::Time t = IceUtil::Time::microSeconds(time);

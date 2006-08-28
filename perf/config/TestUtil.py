@@ -321,7 +321,6 @@ def PrintResults(rawResults, fileroot, products):
 			line.extend([aLatency, bResults[0][0], percentDiff * 100, lineNote])
 		    else:
 			percentDiff =  (aThroughput - bResults[0][1])/bResults[0][1]
-
 			line.extend([aThroughput, bResults[0][1], percentDiff * 100, lineNote])
 		    topicResults.append(tuple(line))
 	    #
@@ -348,7 +347,7 @@ def PrintResults(rawResults, fileroot, products):
 			    percentDiff = 0.0
 			    if latency:
 				aValue = additional[0]
-				percentDiff = (aValue - baseValue) /  baseValue * 100
+				percentDiff = (aValue - baseValue) / baseValue * 100
 			    else:
 				aValue = additional[1]
 				percentDiff = (baseValue - aValue) / aValue * 100

@@ -223,7 +223,7 @@ Consumer::add(CORBA::LongLong time)
 	QueryPerformanceCounter(&t);
 	CORBA::LongLong interval = t.QuadPart - time;
 	QueryPerformanceFrequency(&t);
-	interval /= (t.QuadPart / 100000);
+	interval /= t.QuadPart/1000000;
 	_results.push_back(static_cast<long>(interval));
 #else
  	_results.push_back(static_cast<long>(IceUtil::Time::now().toMicroSeconds() - time));
