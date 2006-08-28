@@ -14,15 +14,15 @@ SUBSCRIBER	= subscriber.exe
 
 TARGETS		= $(PUBLISHER) $(SUBSCRIBER)
 
-OBJS		= Single.o
+OBJS		= Single.obj
 
-POBJS		= Publisher.o
+POBJS		= Publisher.obj
 
-SOBJS		= Subscriber.o
+SOBJS		= Subscriber.obj
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(POBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
+SRCS		= $(OBJS:.obj=.cpp) \
+		  $(POBJS:.obj=.cpp) \
+		  $(SOBJS:.obj=.cpp)
 
 
 !include $(top_srcdir)/config/Make.rules.mak

@@ -13,10 +13,9 @@ CLIENT		= client.exe
 
 TARGETS		= $(CLIENT)
 
-OBJS		= Client.o
+OBJS		= Client.obj
 
-
-SRCS		= $(OBJS:.o=.cpp)
+SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 

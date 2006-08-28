@@ -14,16 +14,16 @@ SERVER		= server.exe
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Hello.o
+OBJS		= Hello.obj
 
-COBJS		= Client.o
+COBJS		= Client.obj
 
-SOBJS		= HelloI.o \
-		  Server.o
+SOBJS		= HelloI.obj \
+		  Server.obj
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
+SRCS		= $(OBJS:.obj=.cpp) \
+		  $(COBJS:.obj=.cpp) \
+		  $(SOBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 

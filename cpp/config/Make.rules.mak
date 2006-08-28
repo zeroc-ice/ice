@@ -29,7 +29,8 @@ BCB			= C:\Program Files\Borland\BDS\4.0
 # If third party libraries are not installed in the default location
 # change the following setting to reflect the installation location.
 #
-THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty
+#THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty
+THIRDPARTY_HOME		= C:\src\packages_win32
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
@@ -55,6 +56,9 @@ INSTALL_PROGRAM		= $(INSTALL)
 INSTALL_LIBRARY		= $(INSTALL)
 INSTALL_DATA		= $(INSTALL)
 
+
+OBJEXT			= .obj
+
 #
 # Compiler specific definitions
 #
@@ -71,7 +75,7 @@ LIBSUFFIX	= $(LIBSUFFIX)d
 
 OPENSSL_LIBS            = ssleay32.lib libeay32.lib
 BZIP2_LIBS              = libbz2.lib
-DB_LIBS                 = libdb44.lib
+DB_LIBS                 = libdb43.lib
 EXPAT_LIBS              = libexpat.lib
 
 CPPFLAGS		= $(CPPFLAGS) -I$(includedir)
@@ -89,13 +93,13 @@ SLICE2DOCBOOK		= $(bindir)\slice2docbook.exe
 EVERYTHING		= all clean install
 
 .SUFFIXES:
-.SUFFIXES:		.cpp .c .o
+.SUFFIXES:		.cpp .c .obj
 
-.cpp.o:
-	$(CXX) /c $(CPPFLAGS) $(CXXFLAGS) -o $@ $<
+.cpp.obj:
+	$(CXX) /c $(CPPFLAGS) $(CXXFLAGS) $<
 
-.c.o:
-	$(CC) /c $(CPPFLAGS) $(CFLAGS) -o $@ $<
+.c.obj:
+	$(CC) /c $(CPPFLAGS) $(CFLAGS) $<
 
 all:: $(SRCS) $(TARGETS)
 
@@ -107,6 +111,6 @@ clean::
 !endif
 
 clean::
-	-del /q core *.o *.bak
+	-del /q core *.obj *.bak
 
 install::

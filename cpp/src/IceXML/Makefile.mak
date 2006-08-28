@@ -14,9 +14,9 @@ DLLNAME		= $(top_srcdir)\bin\icexml$(SOVERSION)$(LIBSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
-OBJS		= Parser.o
+OBJS		= Parser.obj
 
-SRCS		= $(OBJS:.o=.cpp)
+SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 

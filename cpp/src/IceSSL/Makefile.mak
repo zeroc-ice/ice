@@ -14,18 +14,18 @@ DLLNAME		= $(top_srcdir)\bin\icessl$(SOVERSION)$(LIBSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
-OBJS		= AcceptorI.o \
-		  Certificate.o \
-                  ConnectorI.o \
-                  EndpointI.o \
-                  Instance.o \
-                  PluginI.o \
-                  TransceiverI.o \
-                  Util.o \
-		  RFC2253.o \
-		  TrustManager.o
+OBJS		= AcceptorI.obj \
+		  Certificate.obj \
+                  ConnectorI.obj \
+                  EndpointI.obj \
+                  Instance.obj \
+                  PluginI.obj \
+                  TransceiverI.obj \
+                  Util.obj \
+		  RFC2253.obj \
+		  TrustManager.obj
 
-SRCS		= $(OBJS:.o=.cpp)
+SRCS		= $(OBJS:.obj=.cpp)
 
 HDIR		= $(includedir)\IceSSL
 

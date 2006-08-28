@@ -15,23 +15,23 @@ COLLOCATED	= collocated.exe
 
 TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 
-COBJS		= Test.o \
-		  TestI.o \
-		  Client.o \
-		  AllTests.o
+COBJS		= Test.obj \
+		  TestI.obj \
+		  Client.obj \
+		  AllTests.obj
 
-SOBJS		= Test.o \
-		  TestI.o \
-		  Server.o
+SOBJS		= Test.obj \
+		  TestI.obj \
+		  Server.obj
 
-COLOBJS		= Test.o \
-		  TestI.o \
-		  Collocated.o \
-		  AllTests.o
+COLOBJS		= Test.obj \
+		  TestI.obj \
+		  Collocated.obj \
+		  AllTests.obj
 
-SRCS		= $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp) \
-		  $(COLOBJS:.o=.cpp)
+SRCS		= $(COBJS:.obj=.cpp) \
+		  $(SOBJS:.obj=.cpp) \
+		  $(COLOBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 

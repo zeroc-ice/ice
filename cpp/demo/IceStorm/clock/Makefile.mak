@@ -14,16 +14,16 @@ SUBSCRIBER	= subscriber.exe
 
 TARGETS		= $(PUBLISHER) $(SUBSCRIBER)
 
-OBJS		= Clock.o
+OBJS		= Clock.obj
 
-POBJS		= Publisher.o
+POBJS		= Publisher.obj
 
-SOBJS		= Subscriber.o \
-		  ClockI.o
+SOBJS		= Subscriber.obj \
+		  ClockI.obj
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(POBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
+SRCS		= $(OBJS:.obj=.cpp) \
+		  $(POBJS:.obj=.cpp) \
+		  $(SOBJS:.obj=.cpp)
 
 
 !include $(top_srcdir)/config/Make.rules.mak

@@ -14,30 +14,30 @@ DLLNAME         = $(top_srcdir)\bin\iceutil$(SOVERSION)$(LIBSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
-OBJS		= Base64.o \
-		  Cond.o \
-                  ConvertUTF.o \
-		  CountDownLatch.o \
-		  CtrlCHandler.o \
-		  Exception.o \
-		  Shared.o \
-		  InputUtil.o \
-		  MD5.o \
-		  MD5I.o \
-		  Options.o \
-		  OutputUtil.o \
-		  Random.o \
-		  RWRecMutex.o \
-		  RecMutex.o \
-		  StaticMutex.o \
-		  StringUtil.o \
-		  Thread.o \
-		  ThreadException.o \
-		  Time.o \
-		  UUID.o \
-		  Unicode.o
+OBJS		= Base64.obj \
+		  Cond.obj \
+                  ConvertUTF.obj \
+		  CountDownLatch.obj \
+		  CtrlCHandler.obj \
+		  Exception.obj \
+		  Shared.obj \
+		  InputUtil.obj \
+		  MD5.obj \
+		  MD5I.obj \
+		  Options.obj \
+		  OutputUtil.obj \
+		  Random.obj \
+		  RWRecMutex.obj \
+		  RecMutex.obj \
+		  StaticMutex.obj \
+		  StringUtil.obj \
+		  Thread.obj \
+		  ThreadException.obj \
+		  Time.obj \
+		  UUID.obj \
+		  Unicode.obj
 
-SRCS		= $(OBJS:.o=.cpp)
+SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -57,7 +57,7 @@ install:: all
 
 !include .depend
 
-parser: parser.o
+parser: parser.obj
 	del /q $@
-	$(CXX) $(LDFLAGS) -o $@ parser.o $(BASELIBS)
+	$(CXX) $(LDFLAGS) -o $@ parser.obj $(BASELIBS)
 

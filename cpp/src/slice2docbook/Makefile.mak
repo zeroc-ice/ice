@@ -13,10 +13,10 @@ NAME		= $(top_srcdir)\bin\slice2docbook.exe
 
 TARGETS		= $(NAME)
 
-OBJS		= Gen.o \
-		  Main.o
+OBJS		= Gen.obj \
+		  Main.obj
 
-SRCS		= $(OBJS:.o=.cpp)
+SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 

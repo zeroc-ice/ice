@@ -13,14 +13,14 @@ CLIENT		= client.exe
 
 TARGETS		= $(CLIENT)
 
-OBJS		= ComplexDict.o \
-		  Complex.o \
-		  Grammar.o \
-		  Scanner.o \
-		  Parser.o \
-		  Client.o
+OBJS		= ComplexDict.obj \
+		  Complex.obj \
+		  Grammar.obj \
+		  Scanner.obj \
+		  Parser.obj \
+		  Client.obj
 
-SRCS		= $(OBJS:.o=.cpp)
+SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)\config\Make.rules.mak
 

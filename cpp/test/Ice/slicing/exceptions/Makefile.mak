@@ -15,23 +15,23 @@ SERVERAMD	= serveramd.exe
 
 TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD)
 
-COBJS		= Test.o \
-		  Client.o \
-		  AllTests.o
+COBJS		= Test.obj \
+		  Client.obj \
+		  AllTests.obj
 
-SOBJS		= Test.o \
-    		  ServerPrivate.o \
-		  TestI.o \
-		  Server.o
+SOBJS		= Test.obj \
+    		  ServerPrivate.obj \
+		  TestI.obj \
+		  Server.obj
 
-SAMDOBJS	= TestAMD.o \
-    		  ServerPrivateAMD.o \
-		  TestAMDI.o \
-		  ServerAMD.o
+SAMDOBJS	= TestAMD.obj \
+    		  ServerPrivateAMD.obj \
+		  TestAMDI.obj \
+		  ServerAMD.obj
 
-SRCS		= $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp) \
-		  $(SAMDOBJS:.o=.cpp)
+SRCS		= $(COBJS:.obj=.cpp) \
+		  $(SOBJS:.obj=.cpp) \
+		  $(SAMDOBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 

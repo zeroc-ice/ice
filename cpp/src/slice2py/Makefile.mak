@@ -13,9 +13,9 @@ NAME		= $(top_srcdir)\bin\slice2py.exe
 
 TARGETS		= $(NAME)
 
-OBJS		= Main.o
+OBJS		= Main.obj
 
-SRCS		= $(OBJS:.o=.cpp)
+SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 

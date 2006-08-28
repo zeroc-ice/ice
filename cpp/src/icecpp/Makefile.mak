@@ -13,9 +13,9 @@ NAME		= $(top_srcdir)\bin\icecpp.exe
 
 TARGETS		= $(NAME)
 
-OBJS		= cccp.o \
-		  cexp.o \
-		  prefix.o
+OBJS		= cccp.obj \
+		  cexp.obj \
+		  prefix.obj
 
 !include $(top_srcdir)/config/Make.rules.mak
 

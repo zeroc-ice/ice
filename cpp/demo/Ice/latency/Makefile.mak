@@ -14,15 +14,15 @@ SERVER		= server.exe
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Latency.o
+OBJS		= Latency.obj
 
-COBJS		= Client.o
+COBJS		= Client.obj
 
-SOBJS		= Server.o
+SOBJS		= Server.obj
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
+SRCS		= $(OBJS:.obj=.cpp) \
+		  $(COBJS:.obj=.cpp) \
+		  $(SOBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 

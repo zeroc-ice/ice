@@ -14,16 +14,16 @@ SERVER		= server.exe
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Throughput.o
+OBJS		= Throughput.obj
 
-COBJS		= Client.o
+COBJS		= Client.obj
 
-SOBJS		= ThroughputI.o \
-		  Server.o
+SOBJS		= ThroughputI.obj \
+		  Server.obj
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
+SRCS		= $(OBJS:.obj=.cpp) \
+		  $(COBJS:.obj=.cpp) \
+		  $(SOBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 

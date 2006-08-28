@@ -24,26 +24,26 @@ TARGETS         = $(LIBNAME) $(DLLNAME)
 
 !endif
 
-OBJS		= PermissionsVerifier.o \
-		  Router.o \
-		  SSLInfo.o \
-		  Session.o
+OBJS		= PermissionsVerifier.obj \
+		  Router.obj \
+		  SSLInfo.obj \
+		  Session.obj
 
-ROBJS		= Blobject.o \
-		  ClientBlobject.o \
-		  CryptPermissionsVerifierI.o \
-		  Glacier2Router.o \
-		  ProxyVerifier.o \
-		  RequestQueue.o \
-		  RouterI.o \
-		  RoutingTable.o \
-		  FilterI.o \
-		  FilterManager.o \
-		  ServerBlobject.o \
-		  SessionRouterI.o
+ROBJS		= Blobject.obj \
+		  ClientBlobject.obj \
+		  CryptPermissionsVerifierI.obj \
+		  Glacier2Router.obj \
+		  ProxyVerifier.obj \
+		  RequestQueue.obj \
+		  RouterI.obj \
+		  RoutingTable.obj \
+		  FilterI.obj \
+		  FilterManager.obj \
+		  ServerBlobject.obj \
+		  SessionRouterI.obj
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(ROBJS:.o=.cpp)
+SRCS		= $(OBJS:.obj=.cpp) \
+		  $(ROBJS:.obj=.cpp)
 
 HDIR		= $(includedir)\Glacier2
 SDIR		= $(slicedir)\Glacier2

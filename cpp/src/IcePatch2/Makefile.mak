@@ -26,23 +26,23 @@ TARGETS         = $(LIBNAME) $(DLLNAME)
 
 !endif
 
-OBJS		= Util.o \
-		  ClientUtil.o \
-		  FileInfo.o \
-		  FileServer.o \
-		  OS.o
+OBJS		= Util.obj \
+		  ClientUtil.obj \
+		  FileInfo.obj \
+		  FileServer.obj \
+		  OS.obj
 
-SOBJS		= Server.o \
-		  FileServerI.o
+SOBJS		= Server.obj \
+		  FileServerI.obj
 
-COBJS		= Client.o
+COBJS		= Client.obj
 
-CALCOBJS	= Calc.o
+CALCOBJS	= Calc.obj
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp) \
-		  $(COBJS:.o=.cpp) \
-		  $(CALCOBJS:.o=.cpp)
+SRCS		= $(OBJS:.obj=.cpp) \
+		  $(SOBJS:.obj=.cpp) \
+		  $(COBJS:.obj=.cpp) \
+		  $(CALCOBJS:.obj=.cpp)
 
 HDIR		= $(includedir)\IcePatch2
 SDIR		= $(slicedir)\IcePatch2

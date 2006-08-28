@@ -26,84 +26,84 @@ TARGETS         = $(LIBNAME) $(DLLNAME)
 
 !endif
 
-LIB_OBJS	= Admin.o \
-		  Query.o \
-		  Exception.o \
-		  Descriptor.o \
-		  Observer.o \
-		  Session.o \
-		  Registry.o \
-		  UserAccountMapper.o
+LIB_OBJS	= Admin.obj \
+		  Query.obj \
+		  Exception.obj \
+		  Descriptor.obj \
+		  Observer.obj \
+		  Session.obj \
+		  Registry.obj \
+		  UserAccountMapper.obj
 
-ADMIN_OBJS	= Grammar.o \
-		  Scanner.o \
-		  Parser.o \
-		  DescriptorParser.o \
-		  DescriptorBuilder.o \
-		  DescriptorHelper.o \
-		  FileParser.o \
-		  FileParserI.o \
-		  Util.o \
-		  Internal.o \
-		  Client.o
+ADMIN_OBJS	= Grammar.obj \
+		  Scanner.obj \
+		  Parser.obj \
+		  DescriptorParser.obj \
+		  DescriptorBuilder.obj \
+		  DescriptorHelper.obj \
+		  FileParser.obj \
+		  FileParserI.obj \
+		  Util.obj \
+		  Internal.obj \
+		  Client.obj
 
-COMMON_OBJS	= Internal.o \
-		  DescriptorParser.o \
-		  DescriptorBuilder.o \
-		  TraceLevels.o
+COMMON_OBJS	= Internal.obj \
+		  DescriptorParser.obj \
+		  DescriptorBuilder.obj \
+		  TraceLevels.obj
 
-NODE_OBJS	= NodeI.o \
-		  ServerI.o \
-		  ServerAdapterI.o \
-		  Activator.o \
-		  PlatformInfo.o \
-		  NodeSessionManager.o
+NODE_OBJS	= NodeI.obj \
+		  ServerI.obj \
+		  ServerAdapterI.obj \
+		  Activator.obj \
+		  PlatformInfo.obj \
+		  NodeSessionManager.obj
 
-REGISTRY_OBJS	= RegistryI.o \
-		  InternalRegistryI.o \
-		  StringApplicationInfoDict.o \
-		  IdentityObjectInfoDict.o \
-		  StringAdapterInfoDict.o \
-		  Database.o \
-		  Allocatable.o \
-		  AdapterCache.o \
-		  ObjectCache.o \
-		  AllocatableObjectCache.o \
-		  ServerCache.o \
-		  NodeCache.o \
-		  ReplicaCache.o \
-		  LocatorI.o \
-		  LocatorRegistryI.o \
-		  AdminI.o \
-		  Util.o \
-		  DescriptorHelper.o \
-		  NodeSessionI.o \
-		  ReplicaSessionI.o \
-		  ReapThread.o \
-		  SessionI.o \
-		  AdminSessionI.o \
-		  SessionServantLocatorI.o \
-		  Topics.o \
-		  QueryI.o \
-		  WaitQueue.o \
-		  FileUserAccountMapperI.o \
-		  ReplicaSessionManager.o
+REGISTRY_OBJS	= RegistryI.obj \
+		  InternalRegistryI.obj \
+		  StringApplicationInfoDict.obj \
+		  IdentityObjectInfoDict.obj \
+		  StringAdapterInfoDict.obj \
+		  Database.obj \
+		  Allocatable.obj \
+		  AdapterCache.obj \
+		  ObjectCache.obj \
+		  AllocatableObjectCache.obj \
+		  ServerCache.obj \
+		  NodeCache.obj \
+		  ReplicaCache.obj \
+		  LocatorI.obj \
+		  LocatorRegistryI.obj \
+		  AdminI.obj \
+		  Util.obj \
+		  DescriptorHelper.obj \
+		  NodeSessionI.obj \
+		  ReplicaSessionI.obj \
+		  ReapThread.obj \
+		  SessionI.obj \
+		  AdminSessionI.obj \
+		  SessionServantLocatorI.obj \
+		  Topics.obj \
+		  QueryI.obj \
+		  WaitQueue.obj \
+		  FileUserAccountMapperI.obj \
+		  ReplicaSessionManager.obj
 
 NODE_SVR_OBJS	= $(COMMON_OBJS) \
 		  $(NODE_OBJS) \
 		  $(REGISTRY_OBJS) \
-		  IceGridNode.o
+		  IceGridNode.obj
 
 REGISTRY_SVR_OBJS = \
 		  $(COMMON_OBJS) \
 		  $(REGISTRY_OBJS) \
-		  IceGridRegistry.o
+		  IceGridRegistry.obj
 		    
-SRCS		= $(LIB_OBJS:.o=.cpp) \
-		  $(ADMIN_OBJS:.o=.cpp) \
-		  $(COMMON_OBJS:.o=.cpp) \
-		  $(NODE_OBJS:.o=.cpp) \
-		  $(REGISTRY_OBJS:.o=.cpp) \
+SRCS		= $(LIB_OBJS:.obj=.cpp) \
+		  $(ADMIN_OBJS:.obj=.cpp) \
+		  $(COMMON_OBJS:.obj=.cpp) \
+		  $(NODE_OBJS:.obj=.cpp) \
+		  $(REGISTRY_OBJS:.obj=.cpp) \
 		  IceGridNode.cpp \
 		  IceGridRegistry.cpp
 

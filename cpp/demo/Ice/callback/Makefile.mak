@@ -14,16 +14,16 @@ SERVER		= server.exe
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Callback.o
+OBJS		= Callback.obj
 
-COBJS		= Client.o
+COBJS		= Client.obj
 
-SOBJS		= CallbackSenderI.o \
-		  Server.o
+SOBJS		= CallbackSenderI.obj \
+		  Server.obj
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
+SRCS		= $(OBJS:.obj=.cpp) \
+		  $(COBJS:.obj=.cpp) \
+		  $(SOBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 

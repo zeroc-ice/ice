@@ -14,18 +14,18 @@ SERVER		= server.exe
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Session.o
+OBJS		= Session.obj
 
-COBJS		= Client.o
+COBJS		= Client.obj
 
-SOBJS		= ReapThread.o \
-		  SessionFactoryI.o \
-		  SessionI.o \
-		  Server.o
+SOBJS		= ReapThread.obj \
+		  SessionFactoryI.obj \
+		  SessionI.obj \
+		  Server.obj
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
+SRCS		= $(OBJS:.obj=.cpp) \
+		  $(COBJS:.obj=.cpp) \
+		  $(SOBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 

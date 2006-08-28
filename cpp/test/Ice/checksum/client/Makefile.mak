@@ -13,12 +13,12 @@ CLIENT		= client.exe
 
 TARGETS		= $(CLIENT)
 
-COBJS		= Test.o \
-		  Types.o \
-		  Client.o \
-		  AllTests.o
+COBJS		= Test.obj \
+		  Types.obj \
+		  Client.obj \
+		  AllTests.obj
 
-SRCS		= $(COBJS:.o=.cpp)
+SRCS		= $(COBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 

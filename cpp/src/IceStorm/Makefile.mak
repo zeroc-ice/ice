@@ -27,35 +27,35 @@ TARGETS         = $(LIBNAME) $(DLLNAME) $(SVCLIBNAME) $(SVCDLLNAME)
 
 !endif
 
-OBJS		= IceStorm.o \
+OBJS		= IceStorm.obj \
 
-SOBJS		= TraceLevels.o \
-		  Flusher.o \
-		  Subscriber.o \
-		  OnewaySubscriber.o \
-		  OnewayBatchSubscriber.o \
-		  LinkSubscriber.o \
-		  SubscriberFactory.o \
-		  TopicI.o \
-		  TopicManagerI.o \
-		  PersistentTopicMap.o \
-		  LinkRecord.o \
-		  IceStormInternal.o \
-		  Service.o \
-		  QueuedProxy.o \
-		  OnewayProxy.o \
-		  TwowayProxy.o \
-		  LinkProxy.o
+SOBJS		= TraceLevels.obj \
+		  Flusher.obj \
+		  Subscriber.obj \
+		  OnewaySubscriber.obj \
+		  OnewayBatchSubscriber.obj \
+		  LinkSubscriber.obj \
+		  SubscriberFactory.obj \
+		  TopicI.obj \
+		  TopicManagerI.obj \
+		  PersistentTopicMap.obj \
+		  LinkRecord.obj \
+		  IceStormInternal.obj \
+		  Service.obj \
+		  QueuedProxy.obj \
+		  OnewayProxy.obj \
+		  TwowayProxy.obj \
+		  LinkProxy.obj
 
-AOBJS		= Admin.o \
-		  Grammar.o \
-		  Scanner.o \
-		  WeightedGraph.o \
-		  Parser.o
+AOBJS		= Admin.obj \
+		  Grammar.obj \
+		  Scanner.obj \
+		  WeightedGraph.obj \
+		  Parser.obj
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp) \
-		  $(AOBJS:.o=.cpp)
+SRCS		= $(OBJS:.obj=.cpp) \
+		  $(SOBJS:.obj=.cpp) \
+		  $(AOBJS:.obj=.cpp)
 
 HDIR		= $(includedir)\IceStorm
 SDIR		= $(slicedir)\IceStorm
@@ -73,11 +73,11 @@ EXTRAFLAGS	= -DICE_STORM_SERVICE_API_EXPORTS
 
 !endif
 
-IceStorm.o: IceStorm.cpp
-	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) -DICE_STORM_API_EXPORTS -o IceStorm.o IceStorm.cpp
+IceStorm.obj: IceStorm.cpp
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) -DICE_STORM_API_EXPORTS IceStorm.cpp
 
-.cpp.o:
-	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $(EXTRAFLAGS) -o $@ $<
+.cpp.obj:
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $(EXTRAFLAGS) $<
 
 $(LIBNAME): $(DLLNAME)
 

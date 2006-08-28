@@ -14,19 +14,19 @@ DLLNAME		= $(top_srcdir)\bin\slice$(SOVERSION)$(LIBSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
-OBJS		= Scanner.o \
-		  Grammar.o \
-		  Parser.o \
-		  CPlusPlusUtil.o \
-		  CsUtil.o \
-		  VbUtil.o \
-		  JavaUtil.o \
-		  Preprocessor.o \
-		  Checksum.o \
-		  PythonUtil.o \
-		  DotNetNames.o
+OBJS		= Scanner.obj \
+		  Grammar.obj \
+		  Parser.obj \
+		  CPlusPlusUtil.obj \
+		  CsUtil.obj \
+		  VbUtil.obj \
+		  JavaUtil.obj \
+		  Preprocessor.obj \
+		  Checksum.obj \
+		  PythonUtil.obj \
+		  DotNetNames.obj
 
-SRCS		= $(OBJS:.o=.cpp)
+SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 

@@ -14,26 +14,26 @@ DUMPDB		= $(top_srcdir)\bin\dumpdb.exe
 
 TARGETS		= $(TRANSFORMDB) $(DUMPDB)
 
-COMMON_OBJS	= Grammar.o \
-		  Scanner.o \
-		  AssignVisitor.o \
-		  Data.o \
-		  Error.o \
-		  Functions.o \
-		  Exception.o \
-		  Parser.o \
-		  Print.o \
-		  Util.o
+COMMON_OBJS	= Grammar.obj \
+		  Scanner.obj \
+		  AssignVisitor.obj \
+		  Data.obj \
+		  Error.obj \
+		  Functions.obj \
+		  Exception.obj \
+		  Parser.obj \
+		  Print.obj \
+		  Util.obj
 
-TRANSFORM_OBJS	= TransformAnalyzer.o \
-		  TransformVisitor.o \
-		  Transformer.o \
-		  transformdb.o
+TRANSFORM_OBJS	= TransformAnalyzer.obj \
+		  TransformVisitor.obj \
+		  Transformer.obj \
+		  transformdb.obj
 
-DUMP_OBJS	= DumpDescriptors.o \
-		  DumpDB.o
+DUMP_OBJS	= DumpDescriptors.obj \
+		  DumpDB.obj
 
-SRCS		= $(COMMON_OBJS:.o=.cpp) $(TRANSFORM_OBJS:.o=.cpp) $(DUMP_OBJS:.o=.cpp)
+SRCS		= $(COMMON_OBJS:.obj=.cpp) $(TRANSFORM_OBJS:.obj=.cpp) $(DUMP_OBJS:.obj=.cpp)
 
 HDIR		= $(includedir)\FreezeScript
 

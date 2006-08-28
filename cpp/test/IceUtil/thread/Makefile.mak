@@ -13,22 +13,21 @@ CLIENT		= client.exe
 
 TARGETS		= $(CLIENT)
 
-OBJS		= TestBase.o \
-		  CreateTest.o \
-		  AliveTest.o \
-		  StartTest.o \
-		  RWRecMutexTest.o \
-		  RecMutexTest.o \
-		  StaticMutexTest.o \
-		  MutexTest.o \
-		  MonitorMutexTest.o \
-		  MonitorRecMutexTest.o \
-                  CountDownLatchTest.o \
-		  TestSuite.o \
-		  Client.o
+OBJS		= TestBase.obj \
+		  CreateTest.obj \
+		  AliveTest.obj \
+		  StartTest.obj \
+		  RWRecMutexTest.obj \
+		  RecMutexTest.obj \
+		  StaticMutexTest.obj \
+		  MutexTest.obj \
+		  MonitorMutexTest.obj \
+		  MonitorRecMutexTest.obj \
+                  CountDownLatchTest.obj \
+		  TestSuite.obj \
+		  Client.obj
 
-
-SRCS		= $(OBJS:.o=.cpp)
+SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 

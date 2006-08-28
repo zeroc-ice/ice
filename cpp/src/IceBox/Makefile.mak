@@ -25,17 +25,17 @@ TARGETS         = $(LIBNAME) $(DLLNAME)
 
 !endif
 
-OBJS		= IceBox.o \
-		  Exception.o
+OBJS		= IceBox.obj \
+		  Exception.obj
 
-SOBJS		= ServiceManagerI.o \
-		  Service.o
+SOBJS		= ServiceManagerI.obj \
+		  Service.obj
 
-AOBJS		= Admin.o
+AOBJS		= Admin.obj
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp) \
-		  $(AOBJS:.o=.cpp)
+SRCS		= $(OBJS:.obj=.cpp) \
+		  $(SOBJS:.obj=.cpp) \
+		  $(AOBJS:.obj=.cpp)
 
 HDIR		= $(includedir)\IceBox
 SDIR		= $(slicedir)\IceBox

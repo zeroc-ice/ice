@@ -13,14 +13,14 @@ CLIENT		= client.exe
 
 TARGETS		= $(CLIENT)
 
-OBJS		= Client.o \
-                  ByteIntMap.o \
-                  IntIdentityMap.o \
-                  IntIdentityMapWithIndex.o \
-                  SortedMap.o \
-		  WstringWstringMap.o
+OBJS		= Client.obj \
+                  ByteIntMap.obj \
+                  IntIdentityMap.obj \
+                  IntIdentityMapWithIndex.obj \
+                  SortedMap.obj \
+		  WstringWstringMap.obj
 
-SRCS		= $(OBJS:.o=.cpp)
+SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)\config\Make.rules.mak
 

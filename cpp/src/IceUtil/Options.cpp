@@ -945,5 +945,5 @@ string
 IceUtil::Options::getSynonym(const ::std::string& optName) const
 {
     Synonyms::const_iterator pos = _synonyms.find(optName);
-    return pos != _synonyms.end() ? pos->second : "";
+    return pos != _synonyms.end() ? pos->second : string("");
 }

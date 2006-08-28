@@ -16,33 +16,33 @@ COLLOCATED	= collocated.exe
 
 TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD) $(COLLOCATED)
 
-COBJS		= Test.o \
-		  Client.o \
-		  AllTests.o \
-		  Twoways.o \
-		  TwowaysAMI.o \
-		  BatchOneways.o
+COBJS		= Test.obj \
+		  Client.obj \
+		  AllTests.obj \
+		  Twoways.obj \
+		  TwowaysAMI.obj \
+		  BatchOneways.obj
 
-SOBJS		= Test.o \
-		  TestI.o \
-		  Server.o
+SOBJS		= Test.obj \
+		  TestI.obj \
+		  Server.obj
 
-SAMDOBJS	= TestAMD.o \
-		  TestAMDI.o \
-		  ServerAMD.o
+SAMDOBJS	= TestAMD.obj \
+		  TestAMDI.obj \
+		  ServerAMD.obj
 
-COLOBJS		= Test.o \
-		  TestI.o \
-		  Collocated.o \
-		  AllTests.o \
-		  Twoways.o \
-		  TwowaysAMI.o \
-		  BatchOneways.o
+COLOBJS		= Test.obj \
+		  TestI.obj \
+		  Collocated.obj \
+		  AllTests.obj \
+		  Twoways.obj \
+		  TwowaysAMI.obj \
+		  BatchOneways.obj
 
-SRCS		= $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp) \
-		  $(SAMDOBJS:.o=.cpp) \
-		  $(COLOBJS:.o=.cpp)
+SRCS		= $(COBJS:.obj=.cpp) \
+		  $(SOBJS:.obj=.cpp) \
+		  $(SAMDOBJS:.obj=.cpp) \
+		  $(COLOBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 

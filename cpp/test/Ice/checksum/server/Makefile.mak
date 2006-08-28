@@ -13,12 +13,12 @@ SERVER		= server.exe
 
 TARGETS		= $(SERVER)
 
-SOBJS		= Test.o \
-		  Types.o \
-		  TestI.o \
-		  Server.o
+SOBJS		= Test.obj \
+		  Types.obj \
+		  TestI.obj \
+		  Server.obj
 
-SRCS		= $(SOBJS:.o=.cpp)
+SRCS		= $(SOBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 

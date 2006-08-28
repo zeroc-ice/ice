@@ -13,11 +13,11 @@ CLIENT		= makedb.exe
 
 TARGETS		= $(CLIENT)
 
-OBJS		= TestOld.o \
-                  makedb.o \
-                  IntSMap.o
+OBJS		= TestOld.obj \
+                  makedb.obj \
+                  IntSMap.obj
 
-SRCS		= $(OBJS:.o=.cpp)
+SRCS		= $(OBJS:.obj=.cpp)
 
 SLICE_SRCS	= TestOld.ice
 

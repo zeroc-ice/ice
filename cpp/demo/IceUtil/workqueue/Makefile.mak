@@ -13,9 +13,9 @@ CLIENT		= workqueue.exe
 
 TARGETS		= $(CLIENT)
 
-OBJS		= WorkQueue.o
+OBJS		= WorkQueue.obj
 
-SRCS		= $(OBJS:.o=.cpp)
+SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
