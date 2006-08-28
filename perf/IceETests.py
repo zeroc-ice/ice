@@ -23,8 +23,8 @@ testDefinitions = [
 		]
 	    ),
 	(productName, "latency oneway batch", "latency", [
-		("tpc (batch)", "batch", "", [], ["tpc"]),
-		("tpc blocking (batch)", "batch" + blocking, "", [], ["tpc", "tpcb"]),
+		("tpc", "batch", "", [], ["tpc"]),
+		("tpc blocking", "batch" + blocking, "", [], ["tpc", "tpcb"]),
 		]
 	    ),
 	(productName, "latency twoway with 2k payload", "latency", [
@@ -50,8 +50,8 @@ testDefinitions = [
 	(productName, "throughput byte", "throughput", [
 		("tpc", "byte", "", [], ["tpc"]),
 		("tpc blocking", "byte" + blocking, "", [], ["tpcb"]),
-		("tpc (w/o zero copy)", "byte noZeroCopy", "", [], ["tpc"]),
-		("tpc blocking (w/o zero copy)", "byte noZeroCopy" + blocking, "", [], ["tpc", "tpcb"]),
+		("tpc (w/o zero copy)", "byte noZeroCopy", "", [], ["tpc", "tpcnz"]),
+		("tpc blocking (w/o zero copy)", "byte noZeroCopy" + blocking, "", [], ["tpc", "tpcb", "tpcnz"]),
 		]
 	    ),
 	(productName, "throughput string sequence", "throughput", [

@@ -378,3 +378,5 @@ print "All results:"
 outputFile = file(filename, 'w+b')
 outputFile.write(str(results))
 outputFile.close()
+
+TestUtil.PrintResults(rawResults, filename, [('IceStorm', 'CosEvent')])
