@@ -205,7 +205,7 @@ SOURCE=.\Chat.ice
 InputPath=.\Chat.ice
 
 BuildCmds= \
-	slice2cppe.exe -I. Chat.ice
+	slice2cppe.exe -I. -I../../../slice Chat.ice
 
 "Chat.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -220,7 +220,7 @@ BuildCmds= \
 InputPath=.\Chat.ice
 
 BuildCmds= \
-	slice2cppe.exe -I. Chat.ice
+	slice2cppe.exe -I. -I../../../slice Chat.ice
 
 "Chat.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -235,7 +235,7 @@ BuildCmds= \
 InputPath=.\Chat.ice
 
 BuildCmds= \
-	slice2cppe.exe -I. Chat.ice
+	slice2cppe.exe -I. -I../../../slice Chat.ice
 
 "Chat.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -250,7 +250,7 @@ BuildCmds= \
 InputPath=.\Chat.ice
 
 BuildCmds= \
-	slice2cppe.exe -I. Chat.ice
+	slice2cppe.exe -I. -I../../../slice Chat.ice
 
 "Chat.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)

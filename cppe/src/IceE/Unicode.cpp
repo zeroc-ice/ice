@@ -140,7 +140,7 @@ IceUtil::UTFConversionException::UTFConversionException(const char* file, int li
     _conversionResult(cr)
 {}
 
-const string
+string
 IceUtil::UTFConversionException::ice_name() const
 {
     return _name;

@@ -43,7 +43,7 @@ Ice::AlreadyRegisteredException::AlreadyRegisteredException(const char* __file, 
 
 static const char* __Ice__AlreadyRegisteredException_name = "Ice::AlreadyRegisteredException";
 
-const ::std::string
+::std::string
 Ice::AlreadyRegisteredException::ice_name() const
 {
     return __Ice__AlreadyRegisteredException_name;
@@ -83,7 +83,7 @@ Ice::NotRegisteredException::NotRegisteredException(const char* __file, int __li
 
 static const char* __Ice__NotRegisteredException_name = "Ice::NotRegisteredException";
 
-const ::std::string
+::std::string
 Ice::NotRegisteredException::ice_name() const
 {
     return __Ice__NotRegisteredException_name;
@@ -122,7 +122,7 @@ Ice::TwowayOnlyException::TwowayOnlyException(const char* __file, int __line, co
 
 static const char* __Ice__TwowayOnlyException_name = "Ice::TwowayOnlyException";
 
-const ::std::string
+::std::string
 Ice::TwowayOnlyException::ice_name() const
 {
     return __Ice__TwowayOnlyException_name;
@@ -151,7 +151,7 @@ Ice::CloneNotImplementedException::CloneNotImplementedException(const char* __fi
 
 static const char* __Ice__CloneNotImplementedException_name = "Ice::CloneNotImplementedException";
 
-const ::std::string
+::std::string
 Ice::CloneNotImplementedException::ice_name() const
 {
     return __Ice__CloneNotImplementedException_name;
@@ -190,7 +190,7 @@ Ice::UnknownException::UnknownException(const char* __file, int __line, const ::
 
 static const char* __Ice__UnknownException_name = "Ice::UnknownException";
 
-const ::std::string
+::std::string
 Ice::UnknownException::ice_name() const
 {
     return __Ice__UnknownException_name;
@@ -228,7 +228,7 @@ Ice::UnknownLocalException::UnknownLocalException(const char* __file, int __line
 
 static const char* __Ice__UnknownLocalException_name = "Ice::UnknownLocalException";
 
-const ::std::string
+::std::string
 Ice::UnknownLocalException::ice_name() const
 {
     return __Ice__UnknownLocalException_name;
@@ -266,7 +266,7 @@ Ice::UnknownUserException::UnknownUserException(const char* __file, int __line, 
 
 static const char* __Ice__UnknownUserException_name = "Ice::UnknownUserException";
 
-const ::std::string
+::std::string
 Ice::UnknownUserException::ice_name() const
 {
     return __Ice__UnknownUserException_name;
@@ -295,7 +295,7 @@ Ice::VersionMismatchException::VersionMismatchException(const char* __file, int 
 
 static const char* __Ice__VersionMismatchException_name = "Ice::VersionMismatchException";
 
-const ::std::string
+::std::string
 Ice::VersionMismatchException::ice_name() const
 {
     return __Ice__VersionMismatchException_name;
@@ -324,7 +324,7 @@ Ice::CommunicatorDestroyedException::CommunicatorDestroyedException(const char* 
 
 static const char* __Ice__CommunicatorDestroyedException_name = "Ice::CommunicatorDestroyedException";
 
-const ::std::string
+::std::string
 Ice::CommunicatorDestroyedException::ice_name() const
 {
     return __Ice__CommunicatorDestroyedException_name;
@@ -365,7 +365,7 @@ Ice::ObjectAdapterDeactivatedException::ObjectAdapterDeactivatedException(const 
 
 static const char* __Ice__ObjectAdapterDeactivatedException_name = "Ice::ObjectAdapterDeactivatedException";
 
-const ::std::string
+::std::string
 Ice::ObjectAdapterDeactivatedException::ice_name() const
 {
     return __Ice__ObjectAdapterDeactivatedException_name;
@@ -413,7 +413,7 @@ Ice::ObjectAdapterIdInUseException::ObjectAdapterIdInUseException(const char* __
 
 static const char* __Ice__ObjectAdapterIdInUseException_name = "Ice::ObjectAdapterIdInUseException";
 
-const ::std::string
+::std::string
 Ice::ObjectAdapterIdInUseException::ice_name() const
 {
     return __Ice__ObjectAdapterIdInUseException_name;
@@ -468,7 +468,7 @@ Ice::NoEndpointException::NoEndpointException(const char* __file, int __line, co
 
 static const char* __Ice__NoEndpointException_name = "Ice::NoEndpointException";
 
-const ::std::string
+::std::string
 Ice::NoEndpointException::ice_name() const
 {
     return __Ice__NoEndpointException_name;
@@ -507,7 +507,7 @@ Ice::EndpointParseException::EndpointParseException(const char* __file, int __li
 
 static const char* __Ice__EndpointParseException_name = "Ice::EndpointParseException";
 
-const ::std::string
+::std::string
 Ice::EndpointParseException::ice_name() const
 {
     return __Ice__EndpointParseException_name;
@@ -546,7 +546,7 @@ Ice::IdentityParseException::IdentityParseException(const char* __file, int __li
 
 static const char* __Ice__IdentityParseException_name = "Ice::IdentityParseException";
 
-const ::std::string
+::std::string
 Ice::IdentityParseException::ice_name() const
 {
     return __Ice__IdentityParseException_name;
@@ -585,7 +585,7 @@ Ice::ProxyParseException::ProxyParseException(const char* __file, int __line, co
 
 static const char* __Ice__ProxyParseException_name = "Ice::ProxyParseException";
 
-const ::std::string
+::std::string
 Ice::ProxyParseException::ice_name() const
 {
     return __Ice__ProxyParseException_name;
@@ -624,7 +624,7 @@ Ice::IllegalIdentityException::IllegalIdentityException(const char* __file, int 
 
 static const char* __Ice__IllegalIdentityException_name = "Ice::IllegalIdentityException";
 
-const ::std::string
+::std::string
 Ice::IllegalIdentityException::ice_name() const
 {
     return __Ice__IllegalIdentityException_name;
@@ -665,7 +665,7 @@ Ice::RequestFailedException::RequestFailedException(const char* __file, int __li
 
 static const char* __Ice__RequestFailedException_name = "Ice::RequestFailedException";
 
-const ::std::string
+::std::string
 Ice::RequestFailedException::ice_name() const
 {
     return __Ice__RequestFailedException_name;
@@ -703,7 +703,7 @@ Ice::ObjectNotExistException::ObjectNotExistException(const char* __file, int __
 
 static const char* __Ice__ObjectNotExistException_name = "Ice::ObjectNotExistException";
 
-const ::std::string
+::std::string
 Ice::ObjectNotExistException::ice_name() const
 {
     return __Ice__ObjectNotExistException_name;
@@ -741,7 +741,7 @@ Ice::FacetNotExistException::FacetNotExistException(const char* __file, int __li
 
 static const char* __Ice__FacetNotExistException_name = "Ice::FacetNotExistException";
 
-const ::std::string
+::std::string
 Ice::FacetNotExistException::ice_name() const
 {
     return __Ice__FacetNotExistException_name;
@@ -779,7 +779,7 @@ Ice::OperationNotExistException::OperationNotExistException(const char* __file, 
 
 static const char* __Ice__OperationNotExistException_name = "Ice::OperationNotExistException";
 
-const ::std::string
+::std::string
 Ice::OperationNotExistException::ice_name() const
 {
     return __Ice__OperationNotExistException_name;
@@ -818,7 +818,7 @@ Ice::SyscallException::SyscallException(const char* __file, int __line, ::Ice::I
 
 static const char* __Ice__SyscallException_name = "Ice::SyscallException";
 
-const ::std::string
+::std::string
 Ice::SyscallException::ice_name() const
 {
     return __Ice__SyscallException_name;
@@ -856,7 +856,7 @@ Ice::SocketException::SocketException(const char* __file, int __line, ::Ice::Int
 
 static const char* __Ice__SocketException_name = "Ice::SocketException";
 
-const ::std::string
+::std::string
 Ice::SocketException::ice_name() const
 {
     return __Ice__SocketException_name;
@@ -895,7 +895,7 @@ Ice::FileException::FileException(const char* __file, int __line, ::Ice::Int __e
 
 static const char* __Ice__FileException_name = "Ice::FileException";
 
-const ::std::string
+::std::string
 Ice::FileException::ice_name() const
 {
     return __Ice__FileException_name;
@@ -933,7 +933,7 @@ Ice::ConnectFailedException::ConnectFailedException(const char* __file, int __li
 
 static const char* __Ice__ConnectFailedException_name = "Ice::ConnectFailedException";
 
-const ::std::string
+::std::string
 Ice::ConnectFailedException::ice_name() const
 {
     return __Ice__ConnectFailedException_name;
@@ -971,7 +971,7 @@ Ice::ConnectionRefusedException::ConnectionRefusedException(const char* __file, 
 
 static const char* __Ice__ConnectionRefusedException_name = "Ice::ConnectionRefusedException";
 
-const ::std::string
+::std::string
 Ice::ConnectionRefusedException::ice_name() const
 {
     return __Ice__ConnectionRefusedException_name;
@@ -1009,7 +1009,7 @@ Ice::ConnectionLostException::ConnectionLostException(const char* __file, int __
 
 static const char* __Ice__ConnectionLostException_name = "Ice::ConnectionLostException";
 
-const ::std::string
+::std::string
 Ice::ConnectionLostException::ice_name() const
 {
     return __Ice__ConnectionLostException_name;
@@ -1049,7 +1049,7 @@ Ice::DNSException::DNSException(const char* __file, int __line, ::Ice::Int __err
 
 static const char* __Ice__DNSException_name = "Ice::DNSException";
 
-const ::std::string
+::std::string
 Ice::DNSException::ice_name() const
 {
     return __Ice__DNSException_name;
@@ -1078,7 +1078,7 @@ Ice::TimeoutException::TimeoutException(const char* __file, int __line) :
 
 static const char* __Ice__TimeoutException_name = "Ice::TimeoutException";
 
-const ::std::string
+::std::string
 Ice::TimeoutException::ice_name() const
 {
     return __Ice__TimeoutException_name;
@@ -1107,7 +1107,7 @@ Ice::ConnectTimeoutException::ConnectTimeoutException(const char* __file, int __
 
 static const char* __Ice__ConnectTimeoutException_name = "Ice::ConnectTimeoutException";
 
-const ::std::string
+::std::string
 Ice::ConnectTimeoutException::ice_name() const
 {
     return __Ice__ConnectTimeoutException_name;
@@ -1136,7 +1136,7 @@ Ice::CloseTimeoutException::CloseTimeoutException(const char* __file, int __line
 
 static const char* __Ice__CloseTimeoutException_name = "Ice::CloseTimeoutException";
 
-const ::std::string
+::std::string
 Ice::CloseTimeoutException::ice_name() const
 {
     return __Ice__CloseTimeoutException_name;
@@ -1165,7 +1165,7 @@ Ice::ProtocolException::ProtocolException(const char* __file, int __line) :
 
 static const char* __Ice__ProtocolException_name = "Ice::ProtocolException";
 
-const ::std::string
+::std::string
 Ice::ProtocolException::ice_name() const
 {
     return __Ice__ProtocolException_name;
@@ -1204,7 +1204,7 @@ Ice::BadMagicException::BadMagicException(const char* __file, int __line, const 
 
 static const char* __Ice__BadMagicException_name = "Ice::BadMagicException";
 
-const ::std::string
+::std::string
 Ice::BadMagicException::ice_name() const
 {
     return __Ice__BadMagicException_name;
@@ -1246,7 +1246,7 @@ Ice::UnsupportedProtocolException::UnsupportedProtocolException(const char* __fi
 
 static const char* __Ice__UnsupportedProtocolException_name = "Ice::UnsupportedProtocolException";
 
-const ::std::string
+::std::string
 Ice::UnsupportedProtocolException::ice_name() const
 {
     return __Ice__UnsupportedProtocolException_name;
@@ -1288,7 +1288,7 @@ Ice::UnsupportedEncodingException::UnsupportedEncodingException(const char* __fi
 
 static const char* __Ice__UnsupportedEncodingException_name = "Ice::UnsupportedEncodingException";
 
-const ::std::string
+::std::string
 Ice::UnsupportedEncodingException::ice_name() const
 {
     return __Ice__UnsupportedEncodingException_name;
@@ -1317,7 +1317,7 @@ Ice::UnknownMessageException::UnknownMessageException(const char* __file, int __
 
 static const char* __Ice__UnknownMessageException_name = "Ice::UnknownMessageException";
 
-const ::std::string
+::std::string
 Ice::UnknownMessageException::ice_name() const
 {
     return __Ice__UnknownMessageException_name;
@@ -1346,7 +1346,7 @@ Ice::ConnectionNotValidatedException::ConnectionNotValidatedException(const char
 
 static const char* __Ice__ConnectionNotValidatedException_name = "Ice::ConnectionNotValidatedException";
 
-const ::std::string
+::std::string
 Ice::ConnectionNotValidatedException::ice_name() const
 {
     return __Ice__ConnectionNotValidatedException_name;
@@ -1375,7 +1375,7 @@ Ice::UnknownRequestIdException::UnknownRequestIdException(const char* __file, in
 
 static const char* __Ice__UnknownRequestIdException_name = "Ice::UnknownRequestIdException";
 
-const ::std::string
+::std::string
 Ice::UnknownRequestIdException::ice_name() const
 {
     return __Ice__UnknownRequestIdException_name;
@@ -1404,7 +1404,7 @@ Ice::UnknownReplyStatusException::UnknownReplyStatusException(const char* __file
 
 static const char* __Ice__UnknownReplyStatusException_name = "Ice::UnknownReplyStatusException";
 
-const ::std::string
+::std::string
 Ice::UnknownReplyStatusException::ice_name() const
 {
     return __Ice__UnknownReplyStatusException_name;
@@ -1433,7 +1433,7 @@ Ice::CloseConnectionException::CloseConnectionException(const char* __file, int 
 
 static const char* __Ice__CloseConnectionException_name = "Ice::CloseConnectionException";
 
-const ::std::string
+::std::string
 Ice::CloseConnectionException::ice_name() const
 {
     return __Ice__CloseConnectionException_name;
@@ -1462,7 +1462,7 @@ Ice::ForcedCloseConnectionException::ForcedCloseConnectionException(const char* 
 
 static const char* __Ice__ForcedCloseConnectionException_name = "Ice::ForcedCloseConnectionException";
 
-const ::std::string
+::std::string
 Ice::ForcedCloseConnectionException::ice_name() const
 {
     return __Ice__ForcedCloseConnectionException_name;
@@ -1491,7 +1491,7 @@ Ice::IllegalMessageSizeException::IllegalMessageSizeException(const char* __file
 
 static const char* __Ice__IllegalMessageSizeException_name = "Ice::IllegalMessageSizeException";
 
-const ::std::string
+::std::string
 Ice::IllegalMessageSizeException::ice_name() const
 {
     return __Ice__IllegalMessageSizeException_name;
@@ -1520,7 +1520,7 @@ Ice::FeatureNotSupportedException::FeatureNotSupportedException(const char* __fi
 
 static const char* __Ice__FeatureNotSupportedException_name = "Ice::FeatureNotSupportedException";
 
-const ::std::string
+::std::string
 Ice::FeatureNotSupportedException::ice_name() const
 {
     return __Ice__FeatureNotSupportedException_name;
@@ -1559,7 +1559,7 @@ Ice::MarshalException::MarshalException(const char* __file, int __line, const ::
 
 static const char* __Ice__MarshalException_name = "Ice::MarshalException";
 
-const ::std::string
+::std::string
 Ice::MarshalException::ice_name() const
 {
     return __Ice__MarshalException_name;
@@ -1597,7 +1597,7 @@ Ice::ProxyUnmarshalException::ProxyUnmarshalException(const char* __file, int __
 
 static const char* __Ice__ProxyUnmarshalException_name = "Ice::ProxyUnmarshalException";
 
-const ::std::string
+::std::string
 Ice::ProxyUnmarshalException::ice_name() const
 {
     return __Ice__ProxyUnmarshalException_name;
@@ -1635,7 +1635,7 @@ Ice::UnmarshalOutOfBoundsException::UnmarshalOutOfBoundsException(const char* __
 
 static const char* __Ice__UnmarshalOutOfBoundsException_name = "Ice::UnmarshalOutOfBoundsException";
 
-const ::std::string
+::std::string
 Ice::UnmarshalOutOfBoundsException::ice_name() const
 {
     return __Ice__UnmarshalOutOfBoundsException_name;
@@ -1673,7 +1673,7 @@ Ice::MemoryLimitException::MemoryLimitException(const char* __file, int __line, 
 
 static const char* __Ice__MemoryLimitException_name = "Ice::MemoryLimitException";
 
-const ::std::string
+::std::string
 Ice::MemoryLimitException::ice_name() const
 {
     return __Ice__MemoryLimitException_name;
@@ -1712,7 +1712,7 @@ Ice::StringConversionException::StringConversionException(const char* __file, in
 
 static const char* __Ice__StringConversionException_name = "Ice::StringConversionException";
 
-const ::std::string
+::std::string
 Ice::StringConversionException::ice_name() const
 {
     return __Ice__StringConversionException_name;
@@ -1750,7 +1750,7 @@ Ice::EncapsulationException::EncapsulationException(const char* __file, int __li
 
 static const char* __Ice__EncapsulationException_name = "Ice::EncapsulationException";
 
-const ::std::string
+::std::string
 Ice::EncapsulationException::ice_name() const
 {
     return __Ice__EncapsulationException_name;
@@ -1788,7 +1788,7 @@ Ice::NegativeSizeException::NegativeSizeException(const char* __file, int __line
 
 static const char* __Ice__NegativeSizeException_name = "Ice::NegativeSizeException";
 
-const ::std::string
+::std::string
 Ice::NegativeSizeException::ice_name() const
 {
     return __Ice__NegativeSizeException_name;

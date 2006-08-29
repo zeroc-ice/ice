@@ -139,7 +139,7 @@ class ICE_API UTFConversionException : public Exception
 public:
     
     UTFConversionException(const char*, int, ConversionResult);
-    virtual const std::string ice_name() const;
+    virtual std::string ice_name() const;
     virtual std::string toString() const;
     virtual Exception* ice_clone() const;
     virtual void ice_throw() const;

@@ -24,7 +24,7 @@ public:
     AlreadyRegisteredException(const char*, int);
     AlreadyRegisteredException(const char*, int, const ::std::string&, const ::std::string&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -40,7 +40,7 @@ public:
     NotRegisteredException(const char*, int);
     NotRegisteredException(const char*, int, const ::std::string&, const ::std::string&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -56,7 +56,7 @@ public:
     TwowayOnlyException(const char*, int);
     TwowayOnlyException(const char*, int, const ::std::string&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -70,7 +70,7 @@ public:
 
     CloneNotImplementedException(const char*, int);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -83,7 +83,7 @@ public:
     UnknownException(const char*, int);
     UnknownException(const char*, int, const ::std::string&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -98,7 +98,7 @@ public:
     UnknownLocalException(const char*, int);
     UnknownLocalException(const char*, int, const ::std::string&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -111,7 +111,7 @@ public:
     UnknownUserException(const char*, int);
     UnknownUserException(const char*, int, const ::std::string&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -123,7 +123,7 @@ public:
 
     VersionMismatchException(const char*, int);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -135,7 +135,7 @@ public:
 
     CommunicatorDestroyedException(const char*, int);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -150,7 +150,7 @@ public:
     ObjectAdapterDeactivatedException(const char*, int);
     ObjectAdapterDeactivatedException(const char*, int, const ::std::string&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -165,7 +165,7 @@ public:
     ObjectAdapterIdInUseException(const char*, int);
     ObjectAdapterIdInUseException(const char*, int, const ::std::string&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -181,7 +181,7 @@ public:
     NoEndpointException(const char*, int);
     NoEndpointException(const char*, int, const ::std::string&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -196,7 +196,7 @@ public:
     EndpointParseException(const char*, int);
     EndpointParseException(const char*, int, const ::std::string&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -211,7 +211,7 @@ public:
     IdentityParseException(const char*, int);
     IdentityParseException(const char*, int, const ::std::string&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -226,7 +226,7 @@ public:
     ProxyParseException(const char*, int);
     ProxyParseException(const char*, int, const ::std::string&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -241,7 +241,7 @@ public:
     IllegalIdentityException(const char*, int);
     IllegalIdentityException(const char*, int, const ::Ice::Identity&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -256,7 +256,7 @@ public:
     RequestFailedException(const char*, int);
     RequestFailedException(const char*, int, const ::Ice::Identity&, const ::std::string&, const ::std::string&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -273,7 +273,7 @@ public:
     ObjectNotExistException(const char*, int);
     ObjectNotExistException(const char*, int, const ::Ice::Identity&, const ::std::string&, const ::std::string&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -286,7 +286,7 @@ public:
     FacetNotExistException(const char*, int);
     FacetNotExistException(const char*, int, const ::Ice::Identity&, const ::std::string&, const ::std::string&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -299,7 +299,7 @@ public:
     OperationNotExistException(const char*, int);
     OperationNotExistException(const char*, int, const ::Ice::Identity&, const ::std::string&, const ::std::string&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -312,7 +312,7 @@ public:
     SyscallException(const char*, int);
     SyscallException(const char*, int, ::Ice::Int);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -327,7 +327,7 @@ public:
     SocketException(const char*, int);
     SocketException(const char*, int, ::Ice::Int);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -340,7 +340,7 @@ public:
     FileException(const char*, int);
     FileException(const char*, int, ::Ice::Int, const ::std::string&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -355,7 +355,7 @@ public:
     ConnectFailedException(const char*, int);
     ConnectFailedException(const char*, int, ::Ice::Int);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -368,7 +368,7 @@ public:
     ConnectionRefusedException(const char*, int);
     ConnectionRefusedException(const char*, int, ::Ice::Int);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -381,7 +381,7 @@ public:
     ConnectionLostException(const char*, int);
     ConnectionLostException(const char*, int, ::Ice::Int);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -394,7 +394,7 @@ public:
     DNSException(const char*, int);
     DNSException(const char*, int, ::Ice::Int, const ::std::string&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -409,7 +409,7 @@ public:
 
     TimeoutException(const char*, int);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -421,7 +421,7 @@ public:
 
     ConnectTimeoutException(const char*, int);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -433,7 +433,7 @@ public:
 
     CloseTimeoutException(const char*, int);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -445,7 +445,7 @@ public:
 
     ProtocolException(const char*, int);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -458,7 +458,7 @@ public:
     BadMagicException(const char*, int);
     BadMagicException(const char*, int, const ::Ice::ByteSeq&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -473,7 +473,7 @@ public:
     UnsupportedProtocolException(const char*, int);
     UnsupportedProtocolException(const char*, int, ::Ice::Int, ::Ice::Int, ::Ice::Int, ::Ice::Int);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -491,7 +491,7 @@ public:
     UnsupportedEncodingException(const char*, int);
     UnsupportedEncodingException(const char*, int, ::Ice::Int, ::Ice::Int, ::Ice::Int, ::Ice::Int);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -508,7 +508,7 @@ public:
 
     UnknownMessageException(const char*, int);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -520,7 +520,7 @@ public:
 
     ConnectionNotValidatedException(const char*, int);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -532,7 +532,7 @@ public:
 
     UnknownRequestIdException(const char*, int);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -544,7 +544,7 @@ public:
 
     UnknownReplyStatusException(const char*, int);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -556,7 +556,7 @@ public:
 
     CloseConnectionException(const char*, int);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -568,7 +568,7 @@ public:
 
     ForcedCloseConnectionException(const char*, int);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -580,7 +580,7 @@ public:
 
     IllegalMessageSizeException(const char*, int);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -592,7 +592,7 @@ public:
 
     FeatureNotSupportedException(const char*, int);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -607,7 +607,7 @@ public:
     MarshalException(const char*, int);
     MarshalException(const char*, int, const ::std::string&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -622,7 +622,7 @@ public:
     ProxyUnmarshalException(const char*, int);
     ProxyUnmarshalException(const char*, int, const ::std::string&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -635,7 +635,7 @@ public:
     UnmarshalOutOfBoundsException(const char*, int);
     UnmarshalOutOfBoundsException(const char*, int, const ::std::string&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -648,7 +648,7 @@ public:
     MemoryLimitException(const char*, int);
     MemoryLimitException(const char*, int, const ::std::string&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -661,7 +661,7 @@ public:
     StringConversionException(const char*, int);
     StringConversionException(const char*, int, const ::std::string&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -674,7 +674,7 @@ public:
     EncapsulationException(const char*, int);
     EncapsulationException(const char*, int, const ::std::string&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -687,7 +687,7 @@ public:
     NegativeSizeException(const char*, int);
     NegativeSizeException(const char*, int, const ::std::string&);
 
-    virtual const ::std::string ice_name() const;
+    virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;

@@ -138,7 +138,7 @@ static UUIDCleanup uuidCleanup;
 
 #endif
 
-const string
+string
 IceUtil::UUIDGenerationException::ice_name() const
 {
     return _name;

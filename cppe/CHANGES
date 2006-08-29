@@ -1,8 +1,13 @@
 Changes since version 1.1.0
 ---------------------------
 
-- If a proxy contains no -h paramater a Ice client will now attempt
-  to connect using loopback as well as all other local interfaces.
+- The ice_name() member function of exceptions derived from Ice::Exception
+  (and, hence, IceUtil::Exception) now returns a non-const string
+  instead of a const string:
+
+  	const ::std::string ice_name() const; // Old signature
+
+	::std::string ice_name() const; // New signature
 
 - For non-abstract Slice classes, the C++ code generated now adds a
   protected destructor. This prevents accidental allocation of

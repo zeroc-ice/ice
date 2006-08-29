@@ -22,7 +22,7 @@ public:
     Exception();
     Exception(const char*, int);
     virtual ~Exception();
-    virtual const std::string ice_name() const;
+    virtual std::string ice_name() const;
     virtual std::string toString() const;
     virtual Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -41,7 +41,7 @@ class ICE_API NullHandleException : public Exception
 public:
     
     NullHandleException(const char*, int);
-    virtual const std::string ice_name() const;
+    virtual std::string ice_name() const;
     virtual Exception* ice_clone() const;
     virtual void ice_throw() const;
 
@@ -56,7 +56,7 @@ public:
 
     IllegalArgumentException(const char*, int);
     IllegalArgumentException(const char*, int, const std::string&);
-    virtual const std::string ice_name() const;
+    virtual std::string ice_name() const;
     virtual Exception* ice_clone() const;
     virtual void ice_throw() const;
 

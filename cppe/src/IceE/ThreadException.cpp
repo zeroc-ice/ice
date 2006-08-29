@@ -20,7 +20,7 @@ IceUtil::ThreadSyscallException::ThreadSyscallException(const char* file, int li
     
 const char* IceUtil::ThreadSyscallException::_name = "IceUtil::ThreadSyscallException";
 
-const string
+string
 IceUtil::ThreadSyscallException::ice_name() const
 {
     return _name;
@@ -92,7 +92,7 @@ IceUtil::ThreadLockedException::ThreadLockedException(const char* file, int line
 
 const char* IceUtil::ThreadLockedException::_name = "IceUtil::ThreadLockedException";
 
-const string
+string
 IceUtil::ThreadLockedException::ice_name() const
 {
     return _name;
@@ -117,7 +117,7 @@ IceUtil::ThreadStartedException::ThreadStartedException(const char* file, int li
 
 const char* IceUtil::ThreadStartedException::_name = "IceUtil::ThreadStartedException";
 
-const string
+string
 IceUtil::ThreadStartedException::ice_name() const
 {
     return _name;
@@ -142,7 +142,7 @@ IceUtil::ThreadNotStartedException::ThreadNotStartedException(const char* file, 
 
 const char* IceUtil::ThreadNotStartedException::_name = "IceUtil::ThreadNotStartedException";
 
-const string
+string
 IceUtil::ThreadNotStartedException::ice_name() const
 {
     return _name;
@@ -167,7 +167,7 @@ IceUtil::BadThreadControlException::BadThreadControlException(const char* file, 
 
 const char* IceUtil::BadThreadControlException::_name = "IceUtil::BadThreadControlException";
 
-const string
+string
 IceUtil::BadThreadControlException::ice_name() const
 {
     return _name;
