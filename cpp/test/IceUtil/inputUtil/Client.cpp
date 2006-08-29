@@ -183,7 +183,7 @@ main(int, char**)
 	    IceUtil::Options::split(*p);
 	    test(false);
 	}
-	catch(const IceUtil::Options::BadQuote&)
+	catch(const IceUtil::BadOptException&)
 	{
 	}
     }

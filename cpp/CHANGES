@@ -3,6 +3,14 @@ NOTE: Please keep changes in the appropriate section for HEAD or 3.1.
 Changes since version 3.1.1 (HEAD)
 ---------------------------     
 
+- The ice_name() member function of exceptions derived from Ice::Exception
+  (and, hence, IceUtil::Exception) now returns a non-const string
+  instead of a const string:
+
+  	const ::std::string ice_name() const; // Old signature
+
+	::std::string ice_name() const; // New signature
+
 - Changed IceUtil::Options to allow testing for synonyms without
   having to check both the short and long options. For example:
 
@@ -41,6 +49,19 @@ Changes since version 3.1.1 (HEAD)
 
     opts.addOpt("v");		// --version is considered a separate option from --version
     opts.addOpt("", "version"); // --version is considered a separate option from -v
+
+- The exceptions raised by IceUtil::Options have changed:
+
+  - IceUtil::Options::APIError is now IceUtil::APIException
+
+  - IceUtil::Options::BadOpt is now IceUtil::BadOptException
+
+  - IceUtil::Options::BadQuote has been removed.
+
+  APIException and BadOptException are now derived from IceUtil::Exception.
+  IceUtil::Options::parse() and IceUtil::Options::split() now raise
+  BadOptException (instead of BadQuote) if a closing quote is missing
+  from a command-line argument.
 
 - Added zero-copy functions to the stream classes.
 

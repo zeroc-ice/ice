@@ -28,7 +28,7 @@ CertificateReadException::CertificateReadException(const char* file, int line, c
 {
 }
 
-const string
+string
 CertificateReadException::ice_name() const
 {
     return _name;
@@ -55,7 +55,7 @@ CertificateEncodingException::CertificateEncodingException(const char* file, int
 {
 }
 
-const string
+string
 CertificateEncodingException::ice_name() const
 {
     return _name;
@@ -227,7 +227,7 @@ ParseException::ParseException(const char* file, int line, const string& r) :
 {
 }
 
-const string
+string
 ParseException::ice_name() const
 {
     return _name;

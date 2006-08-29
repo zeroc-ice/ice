@@ -18,7 +18,7 @@ IceUtil::DeadlockException::DeadlockException(const char* file, int line) :
 
 const char* IceUtil::DeadlockException::_name = "IceUtil::DeadlockException";
 
-const ::std::string
+::std::string
 IceUtil::DeadlockException::ice_name() const
 {
     return _name;

@@ -22,7 +22,7 @@ class ICE_UTIL_API DeadlockException : public Exception
 public:
 
     DeadlockException(const char*, int);
-    virtual const std::string ice_name() const;
+    virtual std::string ice_name() const;
     virtual Exception* ice_clone() const;
     virtual void ice_throw() const;
 

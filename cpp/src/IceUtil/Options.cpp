@@ -13,6 +13,72 @@
 
 using namespace std;
 
+IceUtil::APIException::APIException(const char* file, int line, const string& r)
+    : IceUtil::Exception(file, line), reason(r)
+{
+}
+
+const char* IceUtil::APIException::_name = "IceUtil::APIException";
+
+string
+IceUtil::APIException::ice_name() const
+{
+    return _name;
+}
+
+IceUtil::Exception*
+IceUtil::APIException::ice_clone() const
+{
+    return new APIException(*this);
+}
+
+void
+IceUtil::APIException::ice_throw() const
+{
+    throw *this;
+}
+
+ostream&
+IceUtil::operator<<(ostream& out, const IceUtil::APIException& ex)
+{
+    ex.ice_print(out);
+    out << ": " << ex.reason;
+    return out;
+}
+
+IceUtil::BadOptException::BadOptException(const char* file, int line, const string& r)
+    : IceUtil::Exception(file, line), reason(r)
+{
+}
+
+const char* IceUtil::BadOptException::_name = "IceUtil::BadOptException";
+
+string
+IceUtil::BadOptException::ice_name() const
+{
+    return _name;
+}
+
+IceUtil::Exception*
+IceUtil::BadOptException::ice_clone() const
+{
+    return new BadOptException(*this);
+}
+
+void
+IceUtil::BadOptException::ice_throw() const
+{
+    throw *this;
+}
+
+ostream&
+IceUtil::operator<<(ostream& out, const IceUtil::BadOptException& ex)
+{
+    ex.ice_print(out);
+    out << ": " << ex.reason;
+    return out;
+}
+
 IceUtil::Options::Options()
     : parseCalled(false)
 {
@@ -23,7 +89,7 @@ IceUtil::Options::checkArgs(const string& shortOpt, const string& longOpt, bool 
 {
     if(shortOpt.empty() && longOpt.empty())
     {
-        throw APIError("short and long option cannot both be empty");
+        throw IllegalArgumentException(__FILE__, __LINE__, "short and long option cannot both be empty");
     }
 
     if(!shortOpt.empty())
@@ -33,21 +99,21 @@ IceUtil::Options::checkArgs(const string& shortOpt, const string& longOpt, bool 
 	    string err = "`";
 	    err += shortOpt;
 	    err += "': a short option cannot specify more than one option";
-	    throw APIError(err);
+	    throw IllegalArgumentException(__FILE__, __LINE__, err);
 	}
 	if(shortOpt.find_first_of(" \t\n\r\f\v") != string::npos)
 	{
 	    string err = "`";
 	    err += shortOpt;
 	    err += "': a short option cannot be whitespace";
-	    throw APIError(err);
+	    throw IllegalArgumentException(__FILE__, __LINE__, err);
 	}
 	if(shortOpt[0] == '-')
 	{
 	    string err = "`";
 	    err += shortOpt;
 	    err += "': a short option cannot be `-'";
-	    throw APIError(err);
+	    throw IllegalArgumentException(__FILE__, __LINE__, err);
 	}
     }
 
@@ -58,20 +124,21 @@ IceUtil::Options::checkArgs(const string& shortOpt, const string& longOpt, bool 
 	    string err = "`";
 	    err += longOpt;
 	    err += "': a long option cannot contain whitespace";
-	    throw APIError(err);
+	    throw IllegalArgumentException(__FILE__, __LINE__, err);
 	}
 	if(longOpt[0] == '-')
 	{
 	    string err = "`";
 	    err += longOpt;
 	    err += "': a long option must not contain a leading `-'";
-	    throw APIError(err);
+	    throw IllegalArgumentException(__FILE__, __LINE__, err);
 	}
     }
 
     if(!needArg && !dflt.empty())
     {
-	throw APIError("a default value can be specified only for options requiring an argument");
+	throw IllegalArgumentException(__FILE__, __LINE__,
+	                               "a default value can be specified only for options requiring an argument");
     }
 }
 
@@ -82,7 +149,7 @@ IceUtil::Options::addOpt(const string& shortOpt, const string& longOpt, ArgType 
     
     if(parseCalled)
     {
-	throw APIError("cannot add options after parse() was called");
+	throw APIException(__FILE__, __LINE__, "cannot add options after parse() was called");
     }
 
     checkArgs(shortOpt, longOpt, at == NeedArg, dflt);
@@ -461,17 +528,17 @@ IceUtil::Options::split(const string& line)
 	}
 	case SingleQuote:
 	{
-	    throw BadQuote("missing closing single quote");
+	    throw BadOptException(__FILE__, __LINE__, "missing closing single quote");
 	    break;
 	}
 	case DoubleQuote:
 	{
-	    throw BadQuote("missing closing double quote");
+	    throw BadOptException(__FILE__, __LINE__, "missing closing double quote");
 	    break;
 	}
 	case ANSIQuote:
 	{
-	    throw BadQuote("unterminated $' quote");
+	    throw BadOptException(__FILE__, __LINE__, "unterminated $' quote");
 	    break;
 	}
 	default:
@@ -486,7 +553,7 @@ IceUtil::Options::split(const string& line)
 
 //
 // Parse a vector of arguments and return the non-option
-// arguments as the return value. Throw BadOpt if any of the
+// arguments as the return value. Throw BadOptException if any of the
 // options are invalid.
 // Note that args[0] is ignored because that is the name
 // of the executable.
@@ -499,7 +566,7 @@ IceUtil::Options::parse(const vector<string>& args)
 
     if(parseCalled)
     {
-	throw APIError("cannot call parse() more than once on the same Option instance");
+	throw APIException(__FILE__, __LINE__, "cannot call parse() more than once on the same Option instance");
     }
     parseCalled = true;
 
@@ -546,7 +613,7 @@ IceUtil::Options::parse(const vector<string>& args)
 		{
 		    string err = "`--";
 		    err += opt + ":' option cannot be repeated";
-		    throw BadOpt(err);
+		    throw BadOptException(__FILE__, __LINE__, err);
 		}
 		seenNonRepeatableOpts.insert(seenPos, opt);
 		string synonym = getSynonym(opt);
@@ -563,7 +630,7 @@ IceUtil::Options::parse(const vector<string>& args)
 		    string err = "`";
 		    err += args[i];
 		    err += "': option does not take an argument";
-		    throw BadOpt(err);
+		    throw BadOptException(__FILE__, __LINE__, err);
 		}
 		setOpt(opt, "", args[i].substr(p + 1), pos->second->repeat);
 		argDone = true;
@@ -587,7 +654,7 @@ IceUtil::Options::parse(const vector<string>& args)
 		    {
 			string err = "`-";
 			err += opt + ":' option cannot be repeated";
-			throw BadOpt(err);
+			throw BadOptException(__FILE__, __LINE__, err);
 		    }
 		    seenNonRepeatableOpts.insert(seenPos, opt);
 		    string synonym = getSynonym(opt);
@@ -628,7 +695,7 @@ IceUtil::Options::parse(const vector<string>& args)
 		    }
 		    err += opt;
 		    err += "' option requires an argument";
-		    throw BadOpt(err);
+		    throw BadOptException(__FILE__, __LINE__, err);
 		}
 		setOpt(opt, "", args[++i], pos->second->repeat);
 	    }
@@ -672,7 +739,7 @@ IceUtil::Options::isSet(const string& opt) const
 
     if(!parseCalled)
     {
-	throw APIError("cannot lookup options before calling parse()");
+	throw APIException(__FILE__, __LINE__, "cannot lookup options before calling parse()");
     }
 
     ValidOpts::const_iterator pos = checkOptIsValid(opt);
@@ -686,7 +753,7 @@ IceUtil::Options::optArg(const string& opt) const
 
     if(!parseCalled)
     {
-	throw APIError("cannot lookup options before calling parse()");
+	throw APIException(__FILE__, __LINE__, "cannot lookup options before calling parse()");
     }
 
     ValidOpts::const_iterator pos = checkOptHasArg(opt);
@@ -700,7 +767,7 @@ IceUtil::Options::optArg(const string& opt) const
 	}
 	err += opt;
 	err += "': is a repeating option -- use argVec() to get its arguments";
-	throw APIError(err);
+	throw IllegalArgumentException(__FILE__, __LINE__, err);
     }
 
     Opts::const_iterator p = _opts.find(opt);
@@ -718,7 +785,7 @@ IceUtil::Options::argVec(const string& opt) const
 
     if(!parseCalled)
     {
-	throw APIError("cannot lookup options before calling parse()");
+	throw APIException(__FILE__, __LINE__, "cannot lookup options before calling parse()");
     }
 
     ValidOpts::const_iterator pos = checkOptHasArg(opt);
@@ -731,7 +798,7 @@ IceUtil::Options::argVec(const string& opt) const
 	    err.push_back('-');
 	}
 	err += opt + "': is a non-repeating option -- use optArg() to get its argument";
-	throw APIError(err);
+	throw IllegalArgumentException(__FILE__, __LINE__, err);
     }
 
     ROpts::const_iterator p = _ropts.find(opt);
@@ -747,14 +814,14 @@ IceUtil::Options::addValidOpt(const string& shortOpt, const string& longOpt,
 	string err = "`";
 	err += shortOpt;
 	err += "': duplicate option";
-	throw APIError(err);
+	throw IllegalArgumentException(__FILE__, __LINE__, err);
     }
     if(!longOpt.empty() && _validOpts.find(longOpt) != _validOpts.end())
     {
 	string err = "`";
 	err += longOpt;
 	err += "': duplicate option";
-	throw APIError(err);
+	throw IllegalArgumentException(__FILE__, __LINE__, err);
     }
 
     ODPtr odp = new OptionDetails;
@@ -794,7 +861,7 @@ IceUtil::Options::checkOpt(const string& opt, LengthType lt)
 	}
 	err += opt;
 	err.push_back('\'');
-	throw BadOpt(err);
+	throw BadOptException(__FILE__, __LINE__, err);
     }
     return pos;
 }
@@ -908,7 +975,7 @@ IceUtil::Options::checkOptIsValid(const string& opt) const
 	string err = "`";
 	err += opt;
 	err += "': invalid option";
-	throw APIError(err);
+	throw IllegalArgumentException(__FILE__, __LINE__, err);
     }
     return pos;
 }
@@ -926,7 +993,7 @@ IceUtil::Options::checkOptHasArg(const string& opt) const
 	}
 	err += opt;
 	err += "': option does not take arguments";
-	throw APIError(err);
+	throw IllegalArgumentException(__FILE__, __LINE__, err);
     }
     return pos;
 }

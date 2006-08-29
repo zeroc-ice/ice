@@ -21,7 +21,7 @@ class ICE_UTIL_API RandomGeneratorException : public Exception
 public:
     
     RandomGeneratorException(const char*, int, int = 0);
-    virtual const std::string ice_name() const;
+    virtual std::string ice_name() const;
     virtual void ice_print(std::ostream&) const;
     virtual Exception* ice_clone() const;
     virtual void ice_throw() const;

@@ -136,7 +136,7 @@ Parser::addApplication(const list<string>& origArgs)
 	}
 	args = opts.parse(args);
     }
-    catch(const IceUtil::Options::BadOpt& e)
+    catch(const IceUtil::BadOptException& e)
     {
 	error(e.reason);
 	return;
@@ -347,7 +347,7 @@ Parser::patchApplication(const list<string>& origArgs)
 	}
 	args = opts.parse(args);
     }
-    catch(const IceUtil::Options::BadOpt& e)
+    catch(const IceUtil::BadOptException& e)
     {
 	error(e.reason);
 	return;
@@ -716,7 +716,7 @@ Parser::patchServer(const list<string>& origArgs)
 	}
 	args = opts.parse(args);
     }
-    catch(const IceUtil::Options::BadOpt& e)
+    catch(const IceUtil::BadOptException& e)
     {
 	error(e.reason);
 	return;

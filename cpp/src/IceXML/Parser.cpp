@@ -30,7 +30,7 @@ IceXML::ParserException::ParserException(const char* file, int line, const strin
 
 const char* IceXML::ParserException::_name = "IceXML::ParserException";
 
-const string
+string
 IceXML::ParserException::ice_name() const
 {
     return _name;

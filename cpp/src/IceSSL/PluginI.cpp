@@ -266,7 +266,7 @@ ConnectionInvalidException::ConnectionInvalidException(const char* file, int lin
 {
 }
 
-const string
+string
 ConnectionInvalidException::ice_name() const
 {
     return _name;

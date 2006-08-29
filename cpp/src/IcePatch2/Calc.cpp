@@ -134,7 +134,7 @@ main(int argc, char* argv[])
     {
     	args = opts.parse(argc, (const char**)argv);
     }
-    catch(const IceUtil::Options::BadOpt& e)
+    catch(const IceUtil::BadOptException& e)
     {
         cerr << e.reason << endl;
 	usage(argv[0]);

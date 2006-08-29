@@ -14,6 +14,7 @@
 #include <IceUtil/RecMutex.h>
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
+#include <IceUtil/Exception.h>
 #include <string>
 #include <vector>
 #include <map>
@@ -21,34 +22,45 @@
 namespace IceUtil
 {
 
-class ICE_UTIL_API Options
+class ICE_UTIL_API APIException : public IceUtil::Exception
 {
 public:
 
-    struct Error
-    {
-        Error(const ::std::string& r) : reason(r) {}
-        ::std::string reason;
+    APIException(const char*, int, const ::std::string&);
+    virtual ::std::string ice_name() const;
+    virtual ::IceUtil::Exception* ice_clone() const;
+    virtual void ice_throw() const;
 
-    protected:
+    ::std::string reason;
 
-        Error() {} // This struct is an abstract base.
-    };
+private:
 
-    struct APIError : public Error
-    {
-        APIError(const ::std::string& r) : Error(r) {}
-    };
+    static const char* _name;
+};
 
-    struct BadOpt : public Error
-    {
-        BadOpt(const ::std::string& r) : Error(r) {}
-    };
+ICE_UTIL_API ::std::ostream& operator<<(::std::ostream&, const APIException&);
 
-    struct BadQuote : public Error
-    {
-        BadQuote(const ::std::string& r) : Error(r) {}
-    };
+class ICE_UTIL_API BadOptException : public IceUtil::Exception
+{
+public:
+
+    BadOptException(const char*, int, const ::std::string&);
+    virtual ::std::string ice_name() const;
+    virtual ::IceUtil::Exception* ice_clone() const;
+    virtual void ice_throw() const;
+
+    ::std::string reason;
+
+private:
+
+    static const char* _name;
+};
+
+ICE_UTIL_API ::std::ostream& operator<<(::std::ostream&, const BadOptException&);
+
+class ICE_UTIL_API Options
+{
+public:
 
     enum LengthType { ShortOpt, LongOpt };
     enum RepeatType { Repeat, NoRepeat };

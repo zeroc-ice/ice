@@ -77,7 +77,7 @@ public:
 static RandomCleanup uuidCleanup;
 }
 
-const string
+string
 IceUtil::RandomGeneratorException::ice_name() const
 {
     return _name;

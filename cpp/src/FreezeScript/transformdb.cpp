@@ -237,7 +237,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     {
         args = opts.parse(argc, (const char**)argv);
     }
-    catch(const IceUtil::Options::BadOpt& e)
+    catch(const IceUtil::BadOptException& e)
     {
 	cerr << argv[0] << ": " << e.reason << endl;
 	usage(argv[0]);
