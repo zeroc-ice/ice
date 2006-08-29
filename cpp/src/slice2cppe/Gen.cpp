@@ -201,6 +201,7 @@ Slice::Gen::generate(const UnitPtr& p)
     H << "\n#endif";
     H << "\n#include <IceE/Exception.h>";
     H << "\n#include <IceE/LocalObject.h>";
+    H << "\n#include <IceE/ScopedArray.h>";
 
     if(p->usesProxies())
     {

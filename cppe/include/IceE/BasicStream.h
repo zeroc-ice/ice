@@ -13,7 +13,6 @@
 #include <IceE/ProxyF.h>
 
 #include <IceE/Buffer.h>
-#include <IceE/AutoArray.h>
 #include <IceE/Protocol.h>
 #include <IceE/Unicode.h>
 #include <IceE/StringConverter.h>
@@ -406,13 +405,13 @@ public:
 	v = *i++;
     }
     void read(std::vector<bool>&);
-    void read(std::pair<const bool*, const bool*>&, IceUtil::auto_array<bool>&);
+    bool* read(std::pair<const bool*, const bool*>&);
 
     void write(Ice::Short);
     void read(Ice::Short&);
     void write(const Ice::Short*, const Ice::Short*);
     void read(std::vector<Ice::Short>&);
-    void read(std::pair<const Ice::Short*, const Ice::Short*>&, IceUtil::auto_array<Ice::Short>&);
+    Ice::Short* read(std::pair<const Ice::Short*, const Ice::Short*>&);
 
     void
     write(Ice::Int v) // Inlined for performance reasons.
@@ -460,25 +459,25 @@ public:
 
     void write(const Ice::Int*, const Ice::Int*);
     void read(std::vector<Ice::Int>&);
-    void read(std::pair<const Ice::Int*, const Ice::Int*>&, IceUtil::auto_array<Ice::Int>&);
+    Ice::Int* read(std::pair<const Ice::Int*, const Ice::Int*>&);
 
     void write(Ice::Long);
     void read(Ice::Long&);
     void write(const Ice::Long*, const Ice::Long*);
     void read(std::vector<Ice::Long>&);
-    void read(std::pair<const Ice::Long*, const Ice::Long*>&, IceUtil::auto_array<Ice::Long>&);
+    Ice::Long* read(std::pair<const Ice::Long*, const Ice::Long*>&);
 
     void write(Ice::Float);
     void read(Ice::Float&);
     void write(const Ice::Float*, const Ice::Float*);
     void read(std::vector<Ice::Float>&);
-    void read(std::pair<const Ice::Float*, const Ice::Float*>&, IceUtil::auto_array<Ice::Float>&);
+    Ice::Float* read(std::pair<const Ice::Float*, const Ice::Float*>&);
 
     void write(Ice::Double);
     void read(Ice::Double&);
     void write(const Ice::Double*, const Ice::Double*);
     void read(std::vector<Ice::Double>&);
-    void read(std::pair<const Ice::Double*, const Ice::Double*>&, IceUtil::auto_array<Ice::Double>&);
+    Ice::Double* read(std::pair<const Ice::Double*, const Ice::Double*>&);
 
     //
     // NOTE: This function is not implemented. It is declared here to

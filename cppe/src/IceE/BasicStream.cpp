@@ -455,8 +455,7 @@ namespace
 template<size_t boolSize>
 struct BasicStreamReadBoolHelper
 {
-    static void read(pair<const bool*, const bool*>& v, IceUtil::auto_array<bool>& b,
-		     Int sz, BasicStream::Container::iterator& i)
+    static bool* read(pair<const bool*, const bool*>& v, Int sz, BasicStream::Container::iterator& i)
     {
         bool* array = new bool[sz];
         for(int idx = 0; idx < sz; ++idx)
@@ -465,38 +464,40 @@ struct BasicStreamReadBoolHelper
         }
         v.first = array;
         v.second = array + sz;
-        b.reset(array);
+	return array;
     }
 };
 
 template<>
 struct BasicStreamReadBoolHelper<1>
 {
-    static void read(pair<const bool*, const bool*>& v, IceUtil::auto_array<bool>& b,
-		     Int sz, BasicStream::Container::iterator& i)
+    static bool* read(pair<const bool*, const bool*>& v, Int sz, BasicStream::Container::iterator& i)
     {
         v.first = reinterpret_cast<bool*>(i);
         v.second = reinterpret_cast<bool*>(i) + sz;
+	return 0;
     }
 };
 
 }
 
-void
-IceInternal::BasicStream::read(pair<const bool*, const bool*>& v, IceUtil::auto_array<bool>& b)
+bool*
+IceInternal::BasicStream::read(pair<const bool*, const bool*>& v)
 {
+    bool* result = 0;
     Int sz;
     readSize(sz);
     if(sz > 0)
     {
         checkFixedSeq(sz, 1);
-	BasicStreamReadBoolHelper<sizeof(bool)>::read(v, b, sz, i);
+	result = BasicStreamReadBoolHelper<sizeof(bool)>::read(v, sz, i);
         i += sz;
     }
     else
     {
         v.first = v.second = reinterpret_cast<bool*>(i);
     }
+    return result;
 }
 
 void
@@ -591,9 +592,10 @@ IceInternal::BasicStream::read(vector<Short>& v)
     }
 }
 
-void
-IceInternal::BasicStream::read(pair<const Short*, const Short*>& v, IceUtil::auto_array<Short>& b)
+Short*
+IceInternal::BasicStream::read(pair<const Short*, const Short*>& v)
 {
+    Short* result = 0;
     Int sz;
     readSize(sz);
     if(sz > 0)
@@ -604,16 +606,15 @@ IceInternal::BasicStream::read(pair<const Short*, const Short*>& v, IceUtil::aut
         i += sz * static_cast<int>(sizeof(Short));
         v.second = reinterpret_cast<Short*>(i);
 #else
-        Short* array = new Short[sz];
-        v.first = array;
-        v.second = array + sz;
-        b.reset(array);
+        result = new Short[sz];
+        v.first = result;
+        v.second = result + sz;
 
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(Short));
 #  ifdef ICE_BIG_ENDIAN
         const Byte* src = &(*begin);
-        Byte* dest = reinterpret_cast<Byte*>(&array[0]) + sizeof(Short) - 1;
+        Byte* dest = reinterpret_cast<Byte*>(&result[0]) + sizeof(Short) - 1;
         for(int j = 0 ; j < sz ; ++j)
         {
             *dest-- = *src++;
@@ -621,7 +622,7 @@ IceInternal::BasicStream::read(pair<const Short*, const Short*>& v, IceUtil::aut
             dest += 2 * sizeof(Short);
         }
 #  else
-        copy(begin, i, reinterpret_cast<Byte*>(&array[0]));
+        copy(begin, i, reinterpret_cast<Byte*>(&result[0]));
 #  endif
 #endif
     }
@@ -629,6 +630,7 @@ IceInternal::BasicStream::read(pair<const Short*, const Short*>& v, IceUtil::aut
     {
         v.first = v.second = 0;
     }
+    return result;
 }
 
 void
@@ -689,9 +691,10 @@ IceInternal::BasicStream::read(vector<Int>& v)
     }
 }
 
-void
-IceInternal::BasicStream::read(pair<const Int*, const Int*>& v, IceUtil::auto_array<Int>& b)
+Int*
+IceInternal::BasicStream::read(pair<const Int*, const Int*>& v)
 {
+    Int* result = 0;
     Int sz;
     readSize(sz);
     if(sz > 0)
@@ -702,16 +705,15 @@ IceInternal::BasicStream::read(pair<const Int*, const Int*>& v, IceUtil::auto_ar
         i += sz * static_cast<int>(sizeof(Int));
         v.second = reinterpret_cast<Int*>(i);
 #else
-        Int* array = new Int[sz];
-        v.first = array;
-        v.second = array + sz;
-        b.reset(array);
+        result = new Int[sz];
+        v.first = result;
+        v.second = result + sz;
 
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(Int));
 #  ifdef ICE_BIG_ENDIAN
         const Byte* src = &(*begin);
-        Byte* dest = reinterpret_cast<Byte*>(&array[0]) + sizeof(Int) - 1;
+        Byte* dest = reinterpret_cast<Byte*>(&result[0]) + sizeof(Int) - 1;
         for(int j = 0 ; j < sz ; ++j)
         {
             *dest-- = *src++;
@@ -721,7 +723,7 @@ IceInternal::BasicStream::read(pair<const Int*, const Int*>& v, IceUtil::auto_ar
             dest += 2 * sizeof(Int);
         }
 #  else
-        copy(begin, i, reinterpret_cast<Byte*>(&array[0]));
+        copy(begin, i, reinterpret_cast<Byte*>(&result[0]));
 #  endif
 #endif
     }
@@ -729,6 +731,7 @@ IceInternal::BasicStream::read(pair<const Int*, const Int*>& v, IceUtil::auto_ar
     {
         v.first = v.second = 0;
     }
+    return result;
 }
 
 void
@@ -858,9 +861,10 @@ IceInternal::BasicStream::read(vector<Long>& v)
     }
 }
 
-void
-IceInternal::BasicStream::read(pair<const Long*, const Long*>& v, IceUtil::auto_array<Long>& b)
+Long*
+IceInternal::BasicStream::read(pair<const Long*, const Long*>& v)
 {
+    Long* result = 0;
     Int sz;
     readSize(sz);
     if(sz > 0)
@@ -871,16 +875,15 @@ IceInternal::BasicStream::read(pair<const Long*, const Long*>& v, IceUtil::auto_
         i += sz * static_cast<int>(sizeof(Long));
         v.second = reinterpret_cast<Long*>(i);
 #else
-        Long* array = new Long[sz];
-        v.first = array;
-        v.second = array + sz;
-        b.reset(array);
+        result = new Long[sz];
+        v.first = result;
+        v.second = result + sz;
 
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(Long));
 #  ifdef ICE_BIG_ENDIAN
         const Byte* src = &(*begin);
-        Byte* dest = reinterpret_cast<Byte*>(&array[0]) + sizeof(Long) - 1;
+        Byte* dest = reinterpret_cast<Byte*>(&result[0]) + sizeof(Long) - 1;
         for(int j = 0 ; j < sz ; ++j)
         {
             *dest-- = *src++;
@@ -894,7 +897,7 @@ IceInternal::BasicStream::read(pair<const Long*, const Long*>& v, IceUtil::auto_
             dest += 2 * sizeof(Long);
         }
 #  else
-        copy(begin, i, reinterpret_cast<Byte*>(&array[0]));
+        copy(begin, i, reinterpret_cast<Byte*>(&result[0]));
 #  endif
 #endif
     }
@@ -902,6 +905,7 @@ IceInternal::BasicStream::read(pair<const Long*, const Long*>& v, IceUtil::auto_
     {
         v.first = v.second = 0;
     }
+    return result;
 }
 
 void
@@ -1007,9 +1011,10 @@ IceInternal::BasicStream::read(vector<Float>& v)
     }
 }
 
-void
-IceInternal::BasicStream::read(pair<const Float*, const Float*>& v, IceUtil::auto_array<Float>& b)
+Float*
+IceInternal::BasicStream::read(pair<const Float*, const Float*>& v)
 {
+    Float* result = 0;
     Int sz;
     readSize(sz);
     if(sz > 0)
@@ -1020,16 +1025,15 @@ IceInternal::BasicStream::read(pair<const Float*, const Float*>& v, IceUtil::aut
         i += sz * static_cast<int>(sizeof(Float));
         v.second = reinterpret_cast<Float*>(i);
 #else
-        Float* array = new Float[sz];
-        v.first = array;
-        v.second = array + sz;
-        b.reset(array);
+        result = new Float[sz];
+        v.first = result;
+        v.second = result + sz;
 
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(Float));
 #  ifdef ICE_BIG_ENDIAN
         const Byte* src = &(*begin);
-        Byte* dest = reinterpret_cast<Byte*>(&array[0]) + sizeof(Float) - 1;
+        Byte* dest = reinterpret_cast<Byte*>(&result[0]) + sizeof(Float) - 1;
         for(int j = 0 ; j < sz ; ++j)
         {
             *dest-- = *src++;
@@ -1039,7 +1043,7 @@ IceInternal::BasicStream::read(pair<const Float*, const Float*>& v, IceUtil::aut
             dest += 2 * sizeof(Float);
         }
 #  else
-        copy(begin, i, reinterpret_cast<Byte*>(&array[0]));
+        copy(begin, i, reinterpret_cast<Byte*>(&result[0]));
 #  endif
 #endif
     }
@@ -1047,6 +1051,7 @@ IceInternal::BasicStream::read(pair<const Float*, const Float*>& v, IceUtil::aut
     {
         v.first = v.second = 0;
     }
+    return result;
 }
 
 void
@@ -1228,9 +1233,10 @@ IceInternal::BasicStream::read(vector<Double>& v)
     }
 }
 
-void
-IceInternal::BasicStream::read(pair<const Double*, const Double*>& v, IceUtil::auto_array<Double>& b)
+Double*
+IceInternal::BasicStream::read(pair<const Double*, const Double*>& v)
 {
+    Double* result = 0;
     Int sz;
     readSize(sz);
     if(sz > 0)
@@ -1241,16 +1247,15 @@ IceInternal::BasicStream::read(pair<const Double*, const Double*>& v, IceUtil::a
         i += sz * static_cast<int>(sizeof(Double));
         v.second = reinterpret_cast<Double*>(i);
 #else
-        Double* array = new Double[sz];
-        v.first = array;
-        v.second = array + sz;
-        b.reset(array);
+        result = new Double[sz];
+        v.first = result;
+        v.second = result + sz;
 
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(Double));
 #  ifdef ICE_BIG_ENDIAN
         const Byte* src = &(*begin);
-        Byte* dest = reinterpret_cast<Byte*>(&array[0]) + sizeof(Double) - 1;
+        Byte* dest = reinterpret_cast<Byte*>(&result[0]) + sizeof(Double) - 1;
         for(int j = 0 ; j < sz ; ++j)
         {
             *dest-- = *src++;
@@ -1264,7 +1269,7 @@ IceInternal::BasicStream::read(pair<const Double*, const Double*>& v, IceUtil::a
             dest += 2 * sizeof(Double);
         }
 #  else
-        copy(begin, i, reinterpret_cast<Byte*>(&array[0]));
+        copy(begin, i, reinterpret_cast<Byte*>(&result[0]));
 #  endif
 #endif
     }
@@ -1272,6 +1277,7 @@ IceInternal::BasicStream::read(pair<const Double*, const Double*>& v, IceUtil::a
     {
         v.first = v.second = 0;
     }
+    return result;
 }
 
 
