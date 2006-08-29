@@ -121,12 +121,15 @@ def iceGridAdmin(cmd, ignoreFailure = False):
     global iceGridPort
     iceGridAdmin = os.path.join(toplevel, "bin", "icegridadmin")
 
+    user = r"admin1"
+    if cmd == "shutdown":
+	user = r"shutdown"
     command = iceGridAdmin + TestUtil.clientOptions + \
               r' --Ice.Default.Locator="IceGrid/Locator:default -p ' + iceGridPort + '" ' + \
+              r" --IceGridAdmin.Username=" + user + " --IceGridAdmin.Password=test1 " + \
               r' -e "' + cmd + '" 2>&1'
     if debug:
         print command
-
 
     iceGridAdminPipe = os.popen(command)
 

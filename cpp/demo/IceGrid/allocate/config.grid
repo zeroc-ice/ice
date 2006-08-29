@@ -11,7 +11,7 @@ Ice.Default.Locator=DemoIceGrid/Locator:default -p 12000
 IceGrid.Registry.Client.Endpoints=default -p 12000
 IceGrid.Registry.Server.Endpoints=default
 IceGrid.Registry.Internal.Endpoints=default
-IceGrid.Registry.Admin.Endpoints=default
+#IceGrid.Registry.Admin.Endpoints=default
 IceGrid.Registry.Data=db/registry
 IceGrid.Registry.PermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
 IceGrid.Registry.AdminPermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
@@ -33,3 +33,10 @@ IceGrid.Node.Trace.Activator=1
 IceGrid.Node.Trace.Patch=1
 #IceGrid.Node.Trace.Adapter=2
 #IceGrid.Node.Trace.Server=3
+
+
+#
+# Dummy username and password for icegridadmin.
+#
+IceGridAdmin.Username=foo
+IceGridAdmin.Password=bar

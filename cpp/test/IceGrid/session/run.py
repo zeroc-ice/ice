@@ -30,14 +30,25 @@ if not os.path.exists(node1Dir):
 else:
     IceGridAdmin.cleanDbDir(node1Dir)
 
+print "starting admin permissions verifier...",
+serverCmd = os.path.join(testdir, "verifier") + TestUtil.commonServerOptions
+if TestUtil.debug:
+    print "(" + serverCmd + ")",
+verifierPipe = os.popen(serverCmd + " 2>&1")
+TestUtil.getServerPid(verifierPipe)
+TestUtil.getAdapterReady(verifierPipe)
+print "ok"
+
 IceGridAdmin.registryOptions += \
                              r' --IceGrid.Registry.DynamicRegistration' + \
                              r' --IceGrid.Registry.PermissionsVerifier="ClientPermissionsVerifier"' + \
-                             r' --IceGrid.Registry.AdminPermissionsVerifier="AdminPermissionsVerifier"' + \
-                             r' --IceGrid.Registry.SSLPermissionsVerifier="SSLPermissionsVerifier"' + \
-                             r' --IceGrid.Registry.AdminSSLPermissionsVerifier="SSLPermissionsVerifier"'
+                             r' --IceGrid.Registry.AdminPermissionsVerifier="AdminPermissionsVerifier:tcp -p 12002"' + \
+                             r' --IceGrid.Registry.SSLPermissionsVerifier="SSLPermissionsVerifier"'
 
 IceGridAdmin.iceGridTest(name, "application.xml", \
                          "--IceDir=\"" + toplevel + "\" --TestDir=\"" + testdir + "\"", \
                          '\\"properties-override=' + TestUtil.clientServerOptions.replace("--", "") + '\\"')
+
+status = TestUtil.closePipe(verifierPipe)
+
 sys.exit(0)

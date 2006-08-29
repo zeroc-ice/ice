@@ -188,6 +188,12 @@ IceBox:
     ServiceManager.ThreadPool.StackSize
     UseSharedCommunicator.<any>
 
+IceGridAdmin:
+    UseSecureAuthentication
+    Routed
+    Username
+    Password
+
 IceGrid:
     AdminGUI.Endpoints
     InstanceName

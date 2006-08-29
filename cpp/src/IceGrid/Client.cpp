@@ -13,11 +13,62 @@
 #include <Ice/SliceChecksums.h>
 #include <IceGrid/Parser.h>
 #include <IceGrid/FileParserI.h>
+#include <IceGrid/Registry.h>
+#include <Glacier2/Router.h>
 #include <fstream>
 
 using namespace std;
 using namespace Ice;
 using namespace IceGrid;
+
+class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    SessionKeepAliveThread(const IceGrid::AdminSessionPrx& session, long timeout) :
+	_session(session),
+        _timeout(IceUtil::Time::seconds(timeout)),
+        _destroy(false)
+    {
+    }
+
+    virtual void
+    run()
+    {
+        Lock sync(*this);
+        while(!_destroy)
+        {
+            timedWait(_timeout);
+            if(_destroy)
+            {
+	        break;
+	    }
+            try
+            {
+                _session->keepAlive();
+            }
+            catch(const Ice::Exception&)
+            {
+		break;
+            }
+        }
+    }
+
+    void
+    destroy()
+    {
+        Lock sync(*this);
+        _destroy = true;
+        notify();
+    }
+
+private:
+
+    IceGrid::AdminSessionPrx _session;
+    const IceUtil::Time _timeout;
+    bool _destroy;
+};
+typedef IceUtil::Handle<SessionKeepAliveThread> SessionKeepAliveThreadPtr;
 
 class Client : public Application
 {
@@ -25,6 +76,8 @@ public:
 
     void usage();
     virtual int run(int, char*[]);
+
+    string trim(const string&);
 };
 
 int
@@ -49,6 +102,10 @@ Client::usage()
 	"-e COMMANDS          Execute COMMANDS.\n"
 	"-d, --debug          Print debug messages.\n"
         "-s, --server         Start icegridadmin as a server (to parse XML files).\n"
+        "-u, --username       Login with the given username.\n"
+        "-p, --password       Login with the given password.\n"
+        "-s, --ssl            Authenticate through SSL.\n"
+        "-r, --routed         Login through a Glacier2 router.\n"
 	;
 }
 
@@ -66,6 +123,10 @@ Client::run(int argc, char* argv[])
     opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("I", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("e", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("u", "username", IceUtil::Options::NeedArg, "", IceUtil::Options::NoRepeat);
+    opts.addOpt("p", "password", IceUtil::Options::NeedArg, "", IceUtil::Options::NoRepeat);
+    opts.addOpt("S", "ssl");
+    opts.addOpt("r", "routed");
     opts.addOpt("d", "debug");
     opts.addOpt("s", "server");
 
@@ -144,28 +205,139 @@ Client::run(int argc, char* argv[])
 	usage();
 	return EXIT_FAILURE;
     }
-    
-    if(!communicator()->getDefaultLocator())
-    {
-	cerr << appName() << "property `Ice.Default.Locator' is not set" << endl;
-	return EXIT_FAILURE;
-    }
-    
-    string instanceName = communicator()->getDefaultLocator()->ice_getIdentity().category;	
 
-    AdminPrx admin = AdminPrx::checkedCast(communicator()->stringToProxy(instanceName + "/Admin"));
-    if(!admin)
+    string instanceName;
+    if(communicator()->getDefaultLocator())
     {
-	cerr << appName() << ": no valid administrative interface" << endl;
+	instanceName = communicator()->getDefaultLocator()->ice_getIdentity().category;	
+    }
+    else
+    {
+	instanceName = communicator()->getProperties()->getPropertyWithDefault("IceGrid.InstanceName", "IceGrid");
+    }
+    
+    int timeout;
+    IceGrid::AdminSessionPrx session;
+    bool ssl = communicator()->getProperties()->getPropertyAsInt("IceGridAdmin.UseSecureAuthentication");
+    if(opts.isSet("ssl"))
+    {
+    	ssl = true;
+    }
+
+    string id = communicator()->getProperties()->getProperty("IceGridAdmin.Username");
+    if(!opts.optArg("username").empty())
+    {
+	id = opts.optArg("username");
+    }
+    string password = communicator()->getProperties()->getProperty("IceGridAdmin.Password");
+    if(!opts.optArg("password").empty())
+    {
+	password = opts.optArg("password");
+    }
+    bool routed = communicator()->getProperties()->getPropertyAsInt("IceGridAdmin.Routed");
+    if(opts.isSet("routed"))
+    {
+    	routed = true;
+    }
+
+    try
+    {
+	if(routed)
+	{
+	    Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(communicator()->getDefaultRouter());
+	    if(!router)
+	    {
+		cerr << argv[0] << ": configured router is not a Glacier2 router" << endl;
+		return EXIT_FAILURE;
+	    }
+
+	    // Use SSL if available.
+	    try
+	    {
+		router = Glacier2::RouterPrx::checkedCast(router->ice_secure(true));
+	    }
+	    catch(const Ice::NoEndpointException&)
+	    {
+	    }
+
+	    if(ssl)
+	    {
+		session = IceGrid::AdminSessionPrx::uncheckedCast(router->createSessionFromSecureConnection());
+	    }
+	    else
+	    {
+		while(id.empty())
+		{
+		    cout << "user id: " << flush;
+		    getline(cin, id);
+		    id = trim(id);
+		}
+		
+		if(password.empty())
+		{
+		    cout << "password: " << flush;
+		    getline(cin, password);
+		    password = trim(password);
+		}
+		    
+		session = IceGrid::AdminSessionPrx::uncheckedCast(router->createSession(id, password));
+	    }
+	    timeout = router->getSessionTimeout();
+	}
+	else
+	{
+	    IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
+		communicator()->stringToProxy(instanceName + "/Registry"));
+	    if(!registry)
+	    {
+		cerr << argv[0] << ": could not contact registry" << endl;
+		return EXIT_FAILURE;
+	    }
+
+	    // Use SSL if available.
+	    try
+	    {
+		registry = IceGrid::RegistryPrx::checkedCast(registry->ice_secure(true));
+	    }
+	    catch(const Ice::NoEndpointException&)
+	    {
+	    }
+
+	    if(ssl)
+	    {
+		session = registry->createAdminSessionFromSecureConnection();
+	    }
+	    else
+	    {
+		while(id.empty())
+		{
+		    cout << "user id: " << flush;
+		    getline(cin, id);
+		    id = trim(id);
+		}
+		
+		if(password.empty())
+		{
+		    cout << "password: " << flush;
+		    getline(cin, password);
+		    password = trim(password);
+		}
+		    
+		session = registry->createAdminSession(id, password);
+	    }
+	    timeout = registry->getSessionTimeout();
+	}
+    }
+    catch(const IceGrid::PermissionDeniedException& ex)
+    {
+	cout << "permission denied:\n" << ex.reason << endl;
 	return EXIT_FAILURE;
     }
 
-    QueryPrx query = QueryPrx::checkedCast(communicator()->stringToProxy(instanceName + "/Query"));
-    if(!query)
-    {
-	cerr << appName() << ": no valid query interface" << endl;
-	return EXIT_FAILURE;
-    }
+    SessionKeepAliveThreadPtr keepAlive = new SessionKeepAliveThread(session, timeout / 2);
+    keepAlive->start();
+
+    AdminPrx admin = session->getAdmin();
 
     Ice::SliceChecksumDict serverChecksums = admin->getSliceChecksums();
     Ice::SliceChecksumDict localChecksums = Ice::sliceChecksums();
@@ -189,7 +361,8 @@ Client::run(int argc, char* argv[])
         }
     }
 
-    ParserPtr p = Parser::createParser(communicator(), admin, query);
+    ParserPtr p = Parser::createParser(communicator(), admin);
+    session->startUpdate();
 
     int status = EXIT_SUCCESS;
 
@@ -253,5 +426,40 @@ Client::run(int argc, char* argv[])
 	}
     }
 
+    try
+    {
+	session->finishUpdate();
+    }
+    catch(const Ice::Exception&)
+    {
+	// Ignore. If the registry has been shutdown this will cause
+	// an exception.
+    }
+
+    keepAlive->destroy();
+    keepAlive->getThreadControl().join();
+
+    try
+    {
+	session->destroy();
+    }
+    catch(const Ice::Exception&)
+    {
+	// Ignore. If the registry has been shutdown this will cause
+	// an exception.
+    }
+
     return status;
+}
+
+string
+Client::trim(const string& s)
+{
+    static const string delims = "\t\r\n ";
+    string::size_type last = s.find_last_not_of(delims);
+    if(last != string::npos)
+    {
+        return s.substr(s.find_first_not_of(delims), last+1);
+    }
+    return s;
 }

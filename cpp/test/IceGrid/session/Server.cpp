@@ -25,17 +25,6 @@ public:
     }
 };
 
-class AdminPermissionsVerifierI : public Glacier2::PermissionsVerifier
-{
-public:
-
-    virtual bool
-    checkPermissions(const string& userId, const string& passwd, string&, const Ice::Current&) const
-    {
-	return userId == "admin1" && passwd == "test1" || userId == "admin2" && passwd == "test2";
-    }
-};
-
 class SSLPermissionsVerifierI : public Glacier2::SSLPermissionsVerifier
 {
 public:
@@ -69,7 +58,6 @@ Server::run(int argc, char* argv[])
     if(communicator()->getProperties()->getPropertyAsInt("AddPermissionsVerifiers") > 0)
     {
 	adapter->add(new ClientPermissionsVerifierI(), communicator()->stringToIdentity("ClientPermissionsVerifier"));
-	adapter->add(new AdminPermissionsVerifierI(), communicator()->stringToIdentity("AdminPermissionsVerifier"));
 	adapter->add(new SSLPermissionsVerifierI(), communicator()->stringToIdentity("SSLPermissionsVerifier"));
     }
     adapter->activate();

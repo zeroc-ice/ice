@@ -11,15 +11,19 @@ top_srcdir	= ../../..
 
 CLIENT		= client
 SERVER		= server
+VERIFIER	= verifier
 
-TARGETS		= $(CLIENT) $(SERVER)
+TARGETS		= $(CLIENT) $(SERVER) $(VERIFIER)
 
 COBJS		= Client.o \
 		  AllTests.o
 
 SOBJS		= Server.o
 
+VOBJS		= PermissionsVerifier.o
+
 SRCS		= $(COBJS:.o=.cpp) \
+		  $(VOBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
@@ -30,6 +34,10 @@ LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 $(CLIENT): $(COBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(OPENSSL_RPATH_LINK) -lIceGrid -lGlacier2 $(LIBS)
+
+$(VERIFIER): $(VOBJS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(VOBJS) -lGlacier2 $(LIBS)
 
 $(SERVER): $(SOBJS)
 	rm -f $@

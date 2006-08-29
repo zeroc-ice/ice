@@ -41,9 +41,9 @@ Parser* parser;
 }
 
 ParserPtr
-Parser::createParser(const CommunicatorPtr& communicator, const AdminPrx& admin, const QueryPrx& query)
+Parser::createParser(const CommunicatorPtr& communicator, const AdminPrx& admin)
 {
-    return new Parser(communicator, admin, query);
+    return new Parser(communicator, admin);
 }
 
 void
@@ -1494,10 +1494,9 @@ Parser::parse(const std::string& commands, bool debug)
     return status;
 }
 
-Parser::Parser(const CommunicatorPtr& communicator, const AdminPrx& admin, const QueryPrx& query) :
+Parser::Parser(const CommunicatorPtr& communicator, const AdminPrx& admin) :
     _communicator(communicator),
-    _admin(admin),
-    _query(query)
+    _admin(admin)
 {
 }
 
@@ -1563,7 +1562,7 @@ Parser::exception(const Ice::Exception& ex)
     }
     catch(const AccessDeniedException& ex)
     {
-	error("couldn't update the registry, the session from + `" + ex.lockUserId + "' is updating the registry");
+	error("couldn't update the registry, the session from `" + ex.lockUserId + "' is updating the registry");
     }
     catch(const IceXML::ParserException& ex)
     {
