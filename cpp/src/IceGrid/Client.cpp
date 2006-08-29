@@ -282,7 +282,7 @@ Client::run(int argc, char* argv[])
 		    
 		session = IceGrid::AdminSessionPrx::uncheckedCast(router->createSession(id, password));
 	    }
-	    timeout = router->getSessionTimeout();
+	    timeout = static_cast<int>(router->getSessionTimeout());
 	}
 	else
 	{
