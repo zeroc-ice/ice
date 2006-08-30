@@ -3887,6 +3887,12 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -3899,6 +3905,12 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
 }}}
 
 ###############################################################################
