@@ -1,0 +1,43 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# This file is included by Make.rules.mak when using Borland C++Builder.
+#
+
+CXX		= cl.exe
+CC		= cl.exe
+LINK 		= link.exe
+
+PREOUT		= /out:
+PRELIBS		= 
+
+CPPFLAGS	= -nologo -I"$(THIRDPARTY_HOME)\include" -W3 -WX -GR -GX -FD -D_CONSOLE -DWIN32_LEAN_AND_MEAN
+
+!if "$(STLPORT_HOME)" != ""
+CPPFLAGS        = -I"$(STLPORT_HOME)\include\stlport" $(CPPFLAGS)
+!endif
+
+!if "$(OPTIMIZE)" == "yes"
+CPPFLAGS	= $(CPPFLAGS) -MD -O2 -DNDEBUG
+!else
+CPPFLAGS	= $(CPPFLAGS) -MDd -Zi -Gm -GZ -Od -D_DEBUG
+!endif
+
+LDFLAGS		= /LIBPATH:"$(top_srcdir)\lib" /LIBPATH:"$(THIRDPARTY_HOME)\lib" /nologo /incremental:yes /FIXED:no
+!if "$(OPTIMIZE)" != "yes"
+LDFLAGS		= $(LDFLAGS) /debug
+!endif
+LD_DLLFLAGS	= $(LDFLAGS) /dll
+LD_EXEFLAGS	= $(LDFLAGS)
+
+ICE_OS_LIBS     = rpcrt4.lib advapi32.lib
+
+BASELIBS	= iceutil$(LIBSUFFIX).lib $(ICE_OS_LIBS)
+LIBS		= ice$(LIBSUFFIX).lib $(BASELIBS)

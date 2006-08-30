@@ -24,12 +24,19 @@ CPPFLAGS	= $(CPPFLAGS) -DICE_XML_API_EXPORTS
 
 LINKWITH        = $(EXPAT_LIBS) $(BASELIBS)
 
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
+!endif
+
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS)
 	del /q $@
-	$(LINK) $(LD_DLLFLAGS) $(OBJS), $(DLLNAME),, $(LINKWITH)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
+
+clean::
+	del /q $(DLLNAME:.dll=.*)
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)

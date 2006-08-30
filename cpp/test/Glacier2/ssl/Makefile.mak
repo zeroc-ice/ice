@@ -25,12 +25,18 @@ SRCS		= $(COBJS:.obj=.cpp) \
 
 CPPFLAGS	= -I. -I../../include $(CPPFLAGS)
 
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
+SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
+!endif
+
 $(CLIENT): $(COBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(COBJS), $@,, $(LIBS) glacier2$(LIBSUFFIX).lib
+	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) glacier2$(LIBSUFFIX).lib
 
 $(SERVER): $(SOBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(SOBJS), $@,, $(LIBS) glacier2$(LIBSUFFIX).lib $(OPENSSL_LIBS) icessl$(LIBSUFFIX).lib
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) glacier2$(LIBSUFFIX).lib \
+	  $(OPENSSL_LIBS) icessl$(LIBSUFFIX).lib
 
 !include .depend

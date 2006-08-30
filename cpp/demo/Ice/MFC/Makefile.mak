@@ -7,25 +7,12 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..\..
+top_srcdir	= ..\..\..
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-SUBDIRS		= minimal \
-		  hello \
-		  latency \
-		  throughput \
-		  value \
-		  callback \
-		  nested \
-		  invoke \
-		  bidir \
-		  session \
-		  converter
-
-!if "$(BORLAND_HOME)" == ""
-SUBDIRS		= $(SUBDIRS) MFC
-!endif
+SUBDIRS		= client \
+		  server
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

@@ -61,24 +61,31 @@ CPPFLAGS	= -I. -I.. $(CPPFLAGS) -DICE_PATCH2_API_EXPORTS
 
 SLICE2CPPFLAGS	= --ice --include-dir IcePatch2 --dll-export ICE_PATCH2_API $(SLICE2CPPFLAGS)
 
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
+SPDBFLAGS       = /pdb:$(SERVER:.exe=.pdb)
+CPDBFLAGS       = /pdb:$(CLIENT:.exe=.pdb)
+CAPDBFLAGS      = /pdb:$(CALC:.exe=.pdb)
+!endif
+
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS)
 	del /q $@
-	$(LINK) $(LD_DLLFLAGS) $(OBJS), $(DLLNAME),, $(LIBS) $(BZIP2_LIBS) $(OPENSSL_LIBS)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LIBS) $(BZIP2_LIBS) $(OPENSSL_LIBS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 
 $(SERVER): $(SOBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(SOBJS), $@,, $(LIBS) icepatch2$(LIBSUFFIX).lib
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) icepatch2$(LIBSUFFIX).lib
 
 $(CLIENT): $(COBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(COBJS), $@,, $(LIBS) icepatch2$(LIBSUFFIX).lib
+	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) icepatch2$(LIBSUFFIX).lib
 
 $(CALC): $(CALCOBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(CALCOBJS), $@,, $(LIBS) icepatch2$(LIBSUFFIX).lib
+	$(LINK) $(LD_EXEFLAGS) $(CAPDBFLAGS) $(CALCOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) icepatch2$(LIBSUFFIX).lib
 
 FileInfo.cpp $(HDIR)\FileInfo.h: $(SDIR)\FileInfo.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(SDIR)\FileInfo.ice
@@ -93,6 +100,10 @@ FileServer.cpp $(HDIR)\FileServer.h: $(SDIR)\FileServer.ice $(SLICE2CPP) $(SLICE
 clean::
 	del /q FileInfo.cpp $(HDIR)\FileInfo.h
 	del /q FileServer.cpp $(HDIR)\FileServer.h
+	del /q $(DLLNAME:.dll=.*)
+	del /q $(SERVER:.exe=.*)
+	del /q $(CLIENT:.exe=.*)
+	del /q $(CALC:.exe=.*)
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)

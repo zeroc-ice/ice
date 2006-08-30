@@ -50,22 +50,22 @@ CPPFLAGS	= -I.. $(CPPFLAGS) -DFREEZE_API_EXPORTS
 SLICE2CPPFLAGS	= --ice --include-dir Freeze --dll-export FREEZE_API $(SLICE2CPPFLAGS)
 LINKWITH	= $(LIBS) $(DB_LIBS)
 
-$(HDIR)/Catalog.h Catalog.cpp: $(SLICE2FREEZE) $(SDIR)/CatalogData.ice
-	del /q $(HDIR)\Catalog.h Catalog.cpp
-	$(SLICE2FREEZE) $(SLICE2CPPFLAGS) --dict Freeze::Catalog,string,Freeze::CatalogData \
-	Catalog ../../slice/Freeze/CatalogData.ice
-	move Catalog.h $(HDIR)
-
-clean::
-	del /q $(HDIR)\Catalog.h Catalog.cpp
-
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
+!endif
 
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS)
 	del /q $@
-	$(LINK) $(LD_DLLFLAGS) $(OBJS), $(DLLNAME),, $(LINKWITH)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
+
+$(HDIR)/Catalog.h Catalog.cpp: $(SLICE2FREEZE) $(SDIR)/CatalogData.ice
+	del /q $(HDIR)\Catalog.h Catalog.cpp
+	$(SLICE2FREEZE) $(SLICE2CPPFLAGS) --dict Freeze::Catalog,string,Freeze::CatalogData \
+	Catalog ../../slice/Freeze/CatalogData.ice
+	move Catalog.h $(HDIR)
 
 DB.cpp $(HDIR)/DB.h: $(SDIR)/DB.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(SDIR)/DB.ice
@@ -109,6 +109,10 @@ PingObject.cpp ../Freeze/PingObject.h: PingObject.ice $(SLICE2CPP) $(SLICEPARSER
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) PingObject.ice
 
 clean::
+	del /q $(HDIR)\Catalog.h Catalog.cpp
+
+clean::
+	del /q $(DLLNAME:.dll=.*)
 	del /q DB.cpp $(HDIR)\DB.h
 	del /q CatalogData.cpp $(HDIR)\CatalogData.h
 	del /q Connection.cpp $(HDIR)\Connection.h

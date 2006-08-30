@@ -26,9 +26,13 @@ SRCS		= $(OBJS:.obj=.cpp)
 
 CPPFLAGS	= -I. -I..\..\include $(CPPFLAGS)
 
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
+!endif
+
 $(CLIENT): $(OBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(OBJS), $@,, $(LIBS) freeze$(LIBSUFFIX).lib
+	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
 
 ByteIntMap.h ByteIntMap.cpp: $(SLICE2FREEZE)
 	del /q ByteIntMap.h ByteIntMap.cpp

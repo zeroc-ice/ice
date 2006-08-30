@@ -11,7 +11,11 @@ top_srcdir	= ..
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-SUBDIRS		= IceUtil \
+!if "$(BORLAND_HOME)" == ""
+SUBDIRS		= icecpp
+!endif
+
+SUBDIRS		= $(SUBDIRS) IceUtil \
 		  Slice \
 		  slice2cpp \
 		  slice2cs \
@@ -23,6 +27,7 @@ SUBDIRS		= IceUtil \
 		  slice2py \
 		  slice2cppe \
 		  slice2javae \
+		  slice2rb \
 		  Ice \
 		  IceXML \
 		  IceSSL \

@@ -31,16 +31,27 @@ HDIR		= $(includedir)\IceSSL
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_SSL_API_EXPORTS
+CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_SSL_API_EXPORTS -DFD_SETSIZE=1024
 
 LINKWITH        = $(OPENSSL_LIBS) $(LIBS)
+!if "$(BORLAND_HOME)" == ""
+LINKWITH	= $(LINKWITH) ws2_32.lib
+!endif
+
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
+!endif
 
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS)
 	del /q $@
-	$(LINK) $(LD_DLLFLAGS) $(OBJS), $(DLLNAME),, $(LINKWITH)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
+
+
+clean::
+	del /q $(DLLNAME:.dll=.*)
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)

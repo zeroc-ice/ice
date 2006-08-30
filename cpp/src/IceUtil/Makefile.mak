@@ -43,21 +43,22 @@ SRCS		= $(OBJS:.obj=.cpp)
 
 CPPFLAGS        = $(CPPFLAGS) -DICE_UTIL_API_EXPORTS -I..
 
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+PDBFLAGS	= /pdb:$(DLLNAME:.dll=.pdb)
+!endif
+
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS)
 	del /q $@
-	$(LINK) $(LD_DLLFLAGS) $(OBJS), $(DLLNAME),, $(ICE_OS_LIBS)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(ICE_OS_LIBS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
-	
+
+clean::
+	del /q $(DLLNAME:.dll=.*)
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)
 	copy $(DLLNAME) $(install_bindir)
 
 !include .depend
-
-parser: parser.obj
-	del /q $@
-	$(CXX) $(LDFLAGS) -o $@ parser.obj $(BASELIBS)
-

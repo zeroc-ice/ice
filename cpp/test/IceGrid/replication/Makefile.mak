@@ -38,19 +38,27 @@ SRCS		= $(OBJS:.obj=.cpp) \
 CPPFLAGS	= -I. -I../../include $(CPPFLAGS)
 LINKWITH	= $(LIBS) icebox$(LIBSUFFIX).lib
 
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
+CPDBFLAGS       = /pdb:$(CLIENT:.exe=.pdb)
+SPDBFLAGS       = /pdb:$(SERVER:.exe=.pdb)
+!endif
+
 $(LIBNAME) : $(DLLNAME)
 
 $(DLLNAME): $(OBJS) $(SERVICE_OBJS)
 	del /q $@
-	$(LINK) $(LD_DLLFLAGS) $(OBJS) $(SERVICE_OBJS), $(DLLNAME),, $(LINKWITH) freeze$(LIBSUFFIX).lib
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(SERVICE_OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH) \
+	  freeze$(LIBSUFFIX).lib
 
 $(CLIENT): $(OBJS) $(COBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(OBJS) $(COBJS), $@,, $(LINKWITH) icegrid$(LIBSUFFIX).lib glacier2$(LIBSUFFIX).lib
+	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) \
+	  icegrid$(LIBSUFFIX).lib glacier2$(LIBSUFFIX).lib
 
 $(SERVER): $(OBJS) $(SOBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(OBJS) $(SOBJS), $@,, $(LIBS)
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
 Test.cpp Test.h: Test.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) Test.ice

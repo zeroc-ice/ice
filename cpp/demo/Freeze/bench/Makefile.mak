@@ -21,9 +21,13 @@ SRCS		= $(OBJS:.obj=.cpp)
 
 CPPFLAGS	= -I. $(CPPFLAGS)
 
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+PDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
+!endif
+
 $(CLIENT): $(OBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(OBJS), $@,, $(LIBS) freeze$(LIBSUFFIX).lib
+	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
 
 BenchTypes.h BenchTypes.cpp: Test.ice $(SLICE2FREEZE)
 	del /q BenchTypes.h BenchTypes.cpp

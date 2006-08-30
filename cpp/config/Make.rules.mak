@@ -21,16 +21,21 @@ prefix			= C:\Ice-$(VERSION)
 
 
 #
-# Borland C++Builder 2006 home directory. Change if different from default.
+# Borland C++Builder 2006 home directory. Defined if building with 
+# C++ Builder. Change if different from default.
 #
-BCB			= C:\Program Files\Borland\BDS\4.0	
+#BORLAND_HOME		= C:\Program Files\Borland\BDS\4.0	
 
 #
 # If third party libraries are not installed in the default location
 # change the following setting to reflect the installation location.
 #
-#THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty
-THIRDPARTY_HOME		= C:\src\packages_win32
+THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty
+
+#
+# Define if using STLPort. Required if using MSVC++ 6.0.
+#
+#STLPORT_HOME		= $(THIRDPARTY_HOME)
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
@@ -56,15 +61,13 @@ INSTALL_PROGRAM		= $(INSTALL)
 INSTALL_LIBRARY		= $(INSTALL)
 INSTALL_DATA		= $(INSTALL)
 
-
 OBJEXT			= .obj
 
-#
-# Compiler specific definitions
-#
-# TODO: Will need to change if/when VC++ command line builds are supported
-#
+!if "$(BORLAND_HOME)" == ""
+!include 	$(top_srcdir)/config/Make.rules.msvc
+!else
 !include 	$(top_srcdir)/config/Make.rules.bcc
+!endif
 
 install_libdir	  = $(prefix)\lib
 libsubdir	  = lib
@@ -111,6 +114,6 @@ clean::
 !endif
 
 clean::
-	-del /q core *.obj *.bak
+	-del /q core *.obj *.bak *.ilk *.exp *.pdb *.tds
 
 install::

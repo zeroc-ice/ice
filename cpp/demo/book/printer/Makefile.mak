@@ -28,13 +28,18 @@ SRCS		= $(OBJS:.obj=.cpp) \
 
 CPPFLAGS	= -I. $(CPPFLAGS)
 
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
+SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
+!endif
+
 $(CLIENT): $(OBJS) $(COBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(OBJS) $(COBJS), $@,, $(LIBS)
+	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(OBJS) $(SOBJS), $@,, $(LIBS)
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
 Printer.cpp Printer.h: Printer.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) Printer.ice

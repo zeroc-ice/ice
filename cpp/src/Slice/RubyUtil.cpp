@@ -11,6 +11,10 @@
 #include <Slice/Checksum.h>
 #include <IceUtil/Functional.h>
 
+#ifdef __BCPLUSPLUS__
+#include <iterator>
+#endif
+
 using namespace std;
 using namespace Slice;
 using namespace IceUtil;
@@ -530,7 +534,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "end";
     _classHistory.insert(scoped); // Avoid redundant declarations.
 
-    _out << sp << nl << "T_" << name << ".defineClass(" << (p->isInterface() ? "nil" : name) << ", "
+    _out << sp << nl << "T_" << name << ".defineClass(" << (p->isInterface() ? string("nil") : name) << ", "
 	 << (p->isAbstract() ? "true" : "false") << ", ";
     if(!base)
     {

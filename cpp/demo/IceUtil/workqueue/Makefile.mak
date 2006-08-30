@@ -21,8 +21,12 @@ SRCS		= $(OBJS:.obj=.cpp)
 
 CPPFLAGS	= -I. $(CPPFLAGS)
 
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+PDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
+!endif
+
 $(CLIENT): $(OBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(OBJS), $@,, $(BASELIBS)
+	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(BASELIBS)
 
 !include .depend

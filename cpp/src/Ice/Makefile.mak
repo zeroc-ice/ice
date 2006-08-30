@@ -107,15 +107,19 @@ SDIR		= $(slicedir)\Ice
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_API_EXPORTS
+CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_API_EXPORTS -DFD_SETSIZE=1024
 SLICE2CPPFLAGS	= --ice --include-dir Ice --dll-export ICE_API $(SLICE2CPPFLAGS)
 LINKWITH        = $(BASELIBS) $(BZIP2_LIBS) $(ICE_OS_LIBS) ws2_32.lib
+
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
+!endif
 
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS)
 	del /q $@
-	$(LINK) $(LD_DLLFLAGS) $(OBJS), $(DLLNAME),, $(LINKWITH)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 
 EventLoggerI.obj: EventLoggerMsg.h
@@ -292,6 +296,7 @@ clean::
 	del /q SliceChecksumDict.cpp $(HDIR)\SliceChecksumDict.h
 	del /q $(HDIR)\StatsF.h
 	del /q Stats.cpp $(HDIR)\Stats.h
+	del /q $(DLLNAME:.dll=.*)
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)

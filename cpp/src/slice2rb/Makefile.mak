@@ -7,26 +7,32 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..\..\..
+top_srcdir	= ..\..
 
-CLIENT		= client.exe
+NAME		= $(top_srcdir)\bin\slice2rb.exe
 
-TARGETS		= $(CLIENT)
+TARGETS		= $(NAME)
 
-OBJS		= Client.obj
+OBJS		= Main.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I. -I../../include $(CPPFLAGS)
+CPPFLAGS	= -I. $(CPPFLAGS)
 
 !if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
-PDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
+PDBFLAGS        = /pdb:$(NAME:.exe=.pdb)
 !endif
 
-$(CLIENT): $(OBJS)
+$(NAME): $(OBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(BASELIBS)
+	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)slice$(LIBSUFFIX).lib $(BASELIBS)
+
+clean::
+	del /q $(NAME:.exe=.*)
+
+install:: all
+	copy $(NAME) $(install_bindir)
 
 !include .depend

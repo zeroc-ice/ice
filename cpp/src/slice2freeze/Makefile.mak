@@ -23,7 +23,10 @@ CPPFLAGS	= -I. $(CPPFLAGS)
 
 $(NAME): $(OBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(OBJS), $@,, slice$(LIBSUFFIX).lib $(BASELIBS)
+	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)slice$(LIBSUFFIX).lib $(BASELIBS)
+
+clean::
+	del /q $(NAME:.exe=.*)
 
 install:: all
 	copy $(NAME) $(install_bindir)

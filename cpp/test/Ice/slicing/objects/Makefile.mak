@@ -43,17 +43,23 @@ ICECPPFLAGS	= -I. $(ICECPPFLAGS)
 
 CPPFLAGS	= -I. -I../../../include $(CPPFLAGS)
 
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
+SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
+SAPDBFLAGS       = /pdb:$(SERVERAMD:.exe=.pdb)
+!endif
+
 $(CLIENT): $(COBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(COBJS), $@,, $(LIBS)
+	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
 $(SERVER): $(SOBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(SOBJS), $@,, $(LIBS)
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
 $(SERVERAMD): $(SAMDOBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(SAMDOBJS), $@,, $(LIBS)
+	$(LINK) $(LD_EXEFLAGS) $(SAPDBFLAGS) $(SAMDOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
 Test.cpp Test.h: Test.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) Test.ice

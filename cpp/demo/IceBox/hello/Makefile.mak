@@ -34,15 +34,20 @@ SLICE_SRCS	= Hello.ice
 CPPFLAGS	= -I. $(CPPFLAGS)
 LINKWITH	= $(LIBS) icebox$(LIBSUFFIX).lib
 
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
+CPDBFLAGS       = /pdb:$(CLIENT:.exe=.pdb)
+!endif
+
 $(LIBNAME) : $(DLLNAME)
 
 $(DLLNAME): $(OBJS) $(SOBJS)
 	del /q $@
-	$(LINK) $(LD_DLLFLAGS) $(OBJS) $(SOBJS), $(DLLNAME),, $(LINKWITH)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(OBJS) $(COBJS), $@,, $(LIBS)
+	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
 Hello.cpp Hello.h: Hello.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) Hello.ice

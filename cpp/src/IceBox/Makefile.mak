@@ -54,29 +54,39 @@ CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_BOX_API_EXPORTS
 
 SLICE2CPPFLAGS	= --checksum --ice --dll-export ICE_BOX_API --include-dir IceBox $(SLICE2CPPFLAGS)
 
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
+SPDBFLAGS       = /pdb:$(SERVER:.exe=.pdb)
+APDBFLAGS       = /pdb:$(ADMIN:.exe=.pdb)
+!endif
+
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS)
 	del /q $@
-	$(LINK) $(LD_DLLFLAGS) $(OBJS), $(DLLNAME),, $(LIBS)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LIBS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 
 $(SERVER): $(SOBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(SOBJS), $@,, $(LIBS) icebox$(LIBSUFFIX).lib
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) icebox$(LIBSUFFIX).lib
 
 $(ADMIN): $(AOBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(AOBJS), $@,, $(LIBS) icebox$(LIBSUFFIX).lib
+	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(AOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) icebox$(LIBSUFFIX).lib
 
 IceBox.cpp $(HDIR)\IceBox.h: $(SDIR)\IceBox.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(SDIR)\IceBox.ice
 	move IceBox.h $(HDIR)
 
+
 !ifdef BUILD_UTILS
 
 clean::
 	del /q IceBox.cpp $(HDIR)\IceBox.h
+	del /q $(DLLNAME:.dll=.*)
+	del /q $(SERVER:.exe=.*)
+	del /q $(ADMIN:.exe=.*)
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)

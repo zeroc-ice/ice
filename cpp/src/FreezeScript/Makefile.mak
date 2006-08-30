@@ -42,13 +42,18 @@ HDIR		= $(includedir)\FreezeScript
 CPPFLAGS	= -I.. -Idummyinclude $(CPPFLAGS)
 LINKWITH	= slice$(LIBSUFFIX).lib icexml$(LIBSUFFIX).lib freeze$(LIBSUFFIX).lib $(LIBS) $(DB_LIBS)
 
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+TPDBFLAGS        = /pdb:$(TRANSFORMDB:.exe=.pdb)
+DPDBFLAGS        = /pdb:$(DUMPDB:.exe=.pdb)
+!endif
+
 $(TRANSFORMDB): $(TRANSFORM_OBJS) $(COMMON_OBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(TRANSFORM_OBJS) $(COMMON_OBJS), $@,, $(LINKWITH)
+	$(LINK) $(LD_EXEFLAGS) $(TPDBFLAGS) $(TRANSFORM_OBJS) $(COMMON_OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 
 $(DUMPDB): $(DUMP_OBJS) $(COMMON_OBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(DUMP_OBJS) $(COMMON_OBJS), $@,, $(LINKWITH)
+	$(LINK) $(LD_EXEFLAGS) $(DPDBFLAGS) $(DUMP_OBJS) $(COMMON_OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 
 Scanner.cpp : Scanner.l
 	flex Scanner.l
@@ -65,6 +70,8 @@ Grammar.cpp Grammar.h: Grammar.y
 	del /q Grammar.output
 
 clean::
+	del /q $(TRANSFORMDB:.exe=.*)
+	del /q $(DUMPDB:.exe=.*)
 	del /q Grammar.cpp Grammar.h
 	del /q Scanner.cpp
 

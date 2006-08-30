@@ -31,13 +31,18 @@ SRCS		= $(OBJS:.obj=.cpp) \
 CPPFLAGS	= -I. $(CPPFLAGS)
 LIBS		= $(top_srcdir)\lib\icestorm$(LIBSUFFIX).lib $(LIBS)
 
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+PPDBFLAGS        = /pdb:$(PUBLISHER:.exe=.pdb)
+SPDBFLAGS        = /pdb:$(SUBSCRIBER:.exe=.pdb)
+!endif
+
 $(PUBLISHER): $(OBJS) $(POBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(OBJS) $(POBJS), $@,, $(LIBS)
+	$(LINK) $(LD_EXEFLAGS) $(PPDBFLAGS) $(OBJS) $(POBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
 $(SUBSCRIBER): $(OBJS) $(SOBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(OBJS) $(SOBJS), $@,, $(LIBS)
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
 Clock.cpp Clock.h: Clock.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) Clock.ice

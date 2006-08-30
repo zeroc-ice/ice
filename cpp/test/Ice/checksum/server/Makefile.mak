@@ -24,9 +24,13 @@ SRCS		= $(SOBJS:.obj=.cpp)
 
 CPPFLAGS	= -I. -I../../../include $(CPPFLAGS)
 
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+PDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
+!endif
+
 $(SERVER): $(SOBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(SOBJS), $@,, $(LIBS)
+	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
 Test.cpp Test.h: Test.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	$(SLICE2CPP) --checksum $(SLICE2CPPFLAGS) Test.ice

@@ -54,11 +54,19 @@ SDIR		= $(slicedir)\Glacier2
 
 CPPFLAGS	= -I.. $(CPPFLAGS)
 LINKWITH 	= $(LIBS) $(OPENSSL_LIBS) glacier2$(LIBSUFFIX).lib icessl$(LIBSUFFIX).lib
+!if "$(BORLAND_HOME)" == ""
+LINKWITH	= $(LINKWITH) ws2_32.lib
+!endif
 
 !else
 
 CPPFLAGS	= -I.. $(CPPFLAGS) -DGLACIER2_API_EXPORTS
 
+!endif
+
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
+RPDBFLAGS       = /pdb:$(ROUTER:.exe=.pdb)
 !endif
 
 SLICE2CPPFLAGS	= --include-dir Glacier2 --dll-export GLACIER2_API $(SLICE2CPPFLAGS)
@@ -67,12 +75,12 @@ $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS)
 	del /q $@
-	$(LINK) $(LD_DLLFLAGS) $(OBJS), $(DLLNAME),, $(LIBS)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LIBS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 
 $(ROUTER): $(ROBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(ROBJS), $@,, $(LINKWITH)
+	$(LINK) $(LD_EXEFLAGS) $(RPDBFLAGS) $(ROBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 
 $(HDIR)\PermissionsVerifierF.h: $(SDIR)\PermissionsVerifierF.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(SDIR)\PermissionsVerifierF.ice
@@ -115,6 +123,8 @@ clean::
 	del /q $(HDIR)\SessionF.h
 	del /q Session.cpp $(HDIR)\Session.h
 	del /q SSLInfo.cpp $(HDIR)\SSLInfo.h
+	del /q $(DLLNAME:.dll=.*)
+	del /q $(ROUTER:.exe=.*)
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)

@@ -24,7 +24,8 @@ OBJS		= Scanner.obj \
 		  Preprocessor.obj \
 		  Checksum.obj \
 		  PythonUtil.obj \
-		  DotNetNames.obj
+		  DotNetNames.obj \
+		  RubyUtil.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
 
@@ -32,11 +33,15 @@ SRCS		= $(OBJS:.obj=.cpp)
 
 CPPFLAGS	= -I.. -Idummyinclude $(CPPFLAGS) -DSLICE_API_EXPORTS 
 
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
+!endif
+
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS)
 	del /q $@
-	$(LINK) $(LD_DLLFLAGS) $(OBJS), $(DLLNAME),, $(BASELIBS)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(BASELIBS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 
 Scanner.cpp : Scanner.l
@@ -56,6 +61,7 @@ Grammar.cpp Grammar.h: Grammar.y
 clean::
 	del /q Grammar.cpp Grammar.h
 	del /q Scanner.cpp
+	del /q $(DLLNAME:.dll=.*)
 
 install:: all
 	copy $(LIBNAME) $(install_libdir)

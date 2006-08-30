@@ -46,17 +46,23 @@ SRCS		= $(OBJS:.obj=.cpp) \
 
 CPPFLAGS	= -I. -Idummyinclude $(CPPFLAGS)
 
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
+SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
+COPDBFLAGS       = /pdb:$(COLLOCATED:.exe=.pdb)
+!endif
+
 $(CLIENT): $(OBJS) $(COBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(OBJS) $(COBJS), $@,, $(LIBS)
+	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(OBJS) $(SOBJS), $@,, $(LIBS) freeze$(LIBSUFFIX).lib
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
 
 $(COLLOCATED): $(OBJS) $(COLOBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(OBJS) $(COLOBJS), $@,, $(LIBS) freeze$(LIBSUFFIX).lib
+	$(LINK) $(LD_EXEFLAGS) $(COPDBFLAGS) $(OBJS) $(COLOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
 
 NameIndex.h NameIndex.cpp: PhoneBook.ice $(SLICE2FREEZE)
 	del /q NameIndex.h NameIndex.cpp

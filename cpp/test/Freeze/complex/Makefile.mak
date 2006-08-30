@@ -26,9 +26,13 @@ SRCS		= $(OBJS:.obj=.cpp)
 
 CPPFLAGS	= -I. -Idummyinclude -I../../include $(CPPFLAGS)
 
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+PDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
+!endif
+
 $(CLIENT): $(OBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(OBJS), $@,, $(LIBS) freeze$(LIBSUFFIX).lib
+	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
 
 ComplexDict.h ComplexDict.cpp: Complex.ice $(SLICE2FREEZE)
 	del /q ComplexDict.h ComplexDict.cpp
