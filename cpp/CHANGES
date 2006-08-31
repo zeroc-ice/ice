@@ -3,6 +3,19 @@ NOTE: Please keep changes in the appropriate section for HEAD or 3.1.
 Changes since version 3.1.1 (HEAD)
 ---------------------------     
 
+- The icegridadmin command tool now must establish an administrative
+  session with the IceGrid registry -- anonymous administration is no
+  longer permitted. As with the IceGrid GUI authentication occurs
+  through the IceGrid Client endpoints either using a username and
+  password or through SSL. See the Ice manual for full
+  details. icegridadmin tool.
+
+- The IceGrid registry Admin endpoints have been removed. A new set of
+  endpoints has been added for the Glacier2 session manager. These
+  should only be enabled through the
+  IceGrid.Registry.SessionManager.Endpoints property if Glacier2
+  integration is desired since it presents a security threat.
+
 - The ice_name() member function of exceptions derived from Ice::Exception
   (and, hence, IceUtil::Exception) now returns a non-const string
   instead of a const string:
