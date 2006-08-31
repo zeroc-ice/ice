@@ -117,7 +117,7 @@ install:: all
 install:: all
 
 $(EVERYTHING)::
-	$(MAKE) /f Makefile.mak BUILD_UTILS=1 $@
+	$(MAKE) -nologo /f Makefile.mak BUILD_UTILS=1 $@
 
 !endif
 
