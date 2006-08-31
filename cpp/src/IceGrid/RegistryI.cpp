@@ -238,7 +238,14 @@ RegistryI::start(bool nowarn)
 	return false;
     }
 
-    // IceGrid.Registry.SessionManager.Endpoints is optional.
+    if(!properties->getProperty("IceGrid.Registry.SessionManager.Endpoints").empty())
+    {
+	if(!nowarn)
+	{
+	    Warning out(_communicator->getLogger());
+	    out << "session manager endpoints `IceGrid.Registry.SessionManager.Endpoints' enabled";
+	}
+    }
 
     properties->setProperty("Ice.PrintProcessId", "0");
     properties->setProperty("Ice.ServerIdleTime", "0");
