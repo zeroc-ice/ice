@@ -292,6 +292,20 @@ public:
 			p = _sessions.erase(p);
 		    }
 		}
+
+		vector<AdminSessionPrx>::iterator q = _adminSessions.begin();
+		while(q != _adminSessions.end())
+		{
+		    try
+		    {
+			(*q)->keepAlive();
+			++q;
+		    }
+		    catch(const Ice::Exception&)
+		    {
+			q = _adminSessions.erase(q);
+		    }
+		}
 	    }
 	}
     }
@@ -301,6 +315,13 @@ public:
     {
 	Lock sync(*this);
 	_sessions.push_back(session);
+    }
+
+    void 
+    add(const AdminSessionPrx& session)
+    {
+	Lock sync(*this);
+	_adminSessions.push_back(session);
     }
 
     void
@@ -315,6 +336,7 @@ private:
 
     const Ice::LoggerPtr _logger;
     vector<SessionPrx> _sessions;
+    vector<AdminSessionPrx> _adminSessions;
     const IceUtil::Time _timeout;
     bool _terminated;
 };
@@ -323,7 +345,17 @@ typedef IceUtil::Handle<SessionKeepAliveThread> SessionKeepAliveThreadPtr;
 void 
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    AdminPrx admin = AdminPrx::checkedCast(communicator->stringToProxy("IceGrid/Admin"));
+    SessionKeepAliveThreadPtr keepAlive = new SessionKeepAliveThread(
+	communicator->getLogger(), IceUtil::Time::seconds(5));
+    keepAlive->start();
+
+    RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(communicator->stringToProxy("IceGrid/Registry"));
+    test(registry);
+    AdminSessionPrx session = registry->createAdminSession("foo", "bar");
+
+    keepAlive->add(session);
+
+    AdminPrx admin = session->getAdmin();
     test(admin);
 
     cout << "starting router... " << flush;
@@ -338,14 +370,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    RegistryPrx registry = RegistryPrx::checkedCast(communicator->stringToProxy("IceGrid/Registry"));
-    test(registry);
-
-    SessionKeepAliveThreadPtr keepAlive;
-    keepAlive = new SessionKeepAliveThread(communicator->getLogger(), IceUtil::Time::seconds(5));
-    keepAlive->start();
-
-    const int _allocationTimeout = 5000;
+    const int allocationTimeout = 5000;
 
     Ice::ObjectPrx obj;
     Ice::ObjectPrx dummy;
@@ -484,7 +509,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	session2->releaseObject(allocatablebis);
     
-	session2->setAllocationTimeout(_allocationTimeout);
+	session2->setAllocationTimeout(allocationTimeout);
 	AllocateObjectByIdCallbackPtr cb1 = new AllocateObjectByIdCallback();
 	session2->allocateObjectById_async(cb1, allocatable);
 	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
@@ -511,7 +536,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	}
 
-	session1->setAllocationTimeout(_allocationTimeout);
+	session1->setAllocationTimeout(allocationTimeout);
 	cb1 = new AllocateObjectByIdCallback();
 	session1->allocateObjectById_async(cb1, allocatable);
 	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
@@ -630,7 +655,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	session2->releaseObject(allocatablebis);
 
-	session1->setAllocationTimeout(_allocationTimeout);
+	session1->setAllocationTimeout(allocationTimeout);
 	AllocateObjectByTypeCallbackPtr cb3 = new AllocateObjectByTypeCallback();
 	session1->allocateObjectByType_async(cb3, "::Test");
 	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
@@ -786,7 +811,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	session1->allocateObjectById(allocatable3);
 	session1->allocateObjectById(allocatable4);
 
-	session2->setAllocationTimeout(_allocationTimeout);
+	session2->setAllocationTimeout(allocationTimeout);
 	cb1 = new AllocateObjectByIdCallback();
 	session2->allocateObjectById_async(cb1, allocatable3);
 	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
@@ -798,7 +823,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(cb1->hasResponse(dummy));
 	session2->releaseObject(allocatable3);
 
-	session1->setAllocationTimeout(_allocationTimeout);
+	session1->setAllocationTimeout(allocationTimeout);
 	test(session2->allocateObjectByType("::TestServer1"));
 	cb3 = new AllocateObjectByTypeCallback();
 	session1->allocateObjectByType_async(cb3, "::TestServer2");
@@ -865,8 +890,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	cout << "testing concurrent allocations... " << flush;
 
-	session1->setAllocationTimeout(_allocationTimeout);
-	session2->setAllocationTimeout(_allocationTimeout);
+	session1->setAllocationTimeout(allocationTimeout);
+	session2->setAllocationTimeout(allocationTimeout);
 
 	session2->allocateObjectById(allocatable);
 	AllocateObjectByIdCallbackPtr cb11 = new AllocateObjectByIdCallback();
@@ -914,7 +939,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	obj = session2->allocateObjectByType("::Test"); // Allocate the object
 	test(obj && obj->ice_getIdentity().name == "allocatable");
 
-	session1->setAllocationTimeout(_allocationTimeout);
+	session1->setAllocationTimeout(allocationTimeout);
 	cb3 = new AllocateObjectByTypeCallback();
 	session1->allocateObjectByType_async(cb3, "::Test");
 	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
@@ -1032,4 +1057,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "shutting down router... " << flush;
     admin->stopServer("Glacier2");
     cout << "ok" << endl;
+
+    keepAlive->terminate();
+    keepAlive->getThreadControl().join();
+    keepAlive = 0;
+
+    session->destroy();
 }

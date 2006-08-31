@@ -222,15 +222,15 @@ IceGrid:
     Node.UserAccounts
     Node.UserAccountMapper
     Node.WaitTime
-    Registry.Admin.AdapterId
-    Registry.Admin.ReplicaGroupId
-    Registry.Admin.Endpoints
-    Registry.Admin.PublishedEndpoints
-    Registry.Admin.RegisterProcess
-    Registry.Admin.ThreadPool.Size
-    Registry.Admin.ThreadPool.SizeMax
-    Registry.Admin.ThreadPool.SizeWarn
-    Registry.Admin.ThreadPool.StackSize
+    Registry.SessionManager.AdapterId
+    Registry.SessionManager.ReplicaGroupId
+    Registry.SessionManager.Endpoints
+    Registry.SessionManager.PublishedEndpoints
+    Registry.SessionManager.RegisterProcess
+    Registry.SessionManager.ThreadPool.Size
+    Registry.SessionManager.ThreadPool.SizeMax
+    Registry.SessionManager.ThreadPool.SizeWarn
+    Registry.SessionManager.ThreadPool.StackSize
     Registry.AdminCryptPasswords
     Registry.AdminPermissionsVerifier
     Registry.AdminSSLPermissionsVerifier

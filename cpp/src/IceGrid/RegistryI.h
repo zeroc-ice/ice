@@ -66,7 +66,6 @@ private:
     Ice::LocatorPrx setupLocator(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, 
 				 const Ice::ObjectAdapterPtr&); 
     void setupQuery(const Ice::ObjectAdapterPtr&);
-    void setupAdmin(const Ice::ObjectAdapterPtr&);
     void setupRegistry(const Ice::ObjectAdapterPtr&);
     InternalRegistryPrx setupInternalRegistry(const Ice::ObjectAdapterPtr&, const std::string&);
     void setupNullPermissionsVerifier(const Ice::ObjectAdapterPtr&);

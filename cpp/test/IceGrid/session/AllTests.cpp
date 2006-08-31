@@ -495,10 +495,17 @@ testFailedAndPrintObservers(const char* expr, const char* file, unsigned int lin
 void 
 allTests(const Ice::CommunicatorPtr& communicator)
 {
+    SessionKeepAliveThreadPtr keepAlive = new SessionKeepAliveThread(
+	communicator->getLogger(), IceUtil::Time::seconds(5));
+    keepAlive->start();
+
     RegistryPrx registry = RegistryPrx::checkedCast(communicator->stringToProxy("IceGrid/Registry"));
     test(registry);
 
-    AdminPrx admin = AdminPrx::checkedCast(communicator->stringToProxy("IceGrid/Admin"));
+    AdminSessionPrx session = registry->createAdminSession("admin3", "test3");
+    keepAlive->add(session);
+
+    AdminPrx admin = session->getAdmin();
     test(admin);
 
     cout << "starting router... " << flush;
@@ -526,10 +533,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     Ice::PropertiesPtr properties = communicator->getProperties();
-
-    SessionKeepAliveThreadPtr keepAlive;
-    keepAlive = new SessionKeepAliveThread(communicator->getLogger(), IceUtil::Time::seconds(5));
-    keepAlive->start();
 
     IceGrid::RegistryPrx registry1 = IceGrid::RegistryPrx::uncheckedCast(registry->ice_connectionId("reg1"));
     IceGrid::RegistryPrx registry2 = IceGrid::RegistryPrx::uncheckedCast(registry->ice_connectionId("reg2"));
@@ -1125,8 +1128,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
 	cout << "testing updates with admin sessions... " << flush;
-	AdminSessionPrx session1 = AdminSessionPrx::uncheckedCast(registry->createAdminSession("admin1", "test1"));
-	AdminSessionPrx session2 = AdminSessionPrx::uncheckedCast(registry->createAdminSession("admin2", "test2"));
+	AdminSessionPrx session1 = registry->createAdminSession("admin1", "test1");
+	AdminSessionPrx session2 = registry->createAdminSession("admin2", "test2");
 	
 	keepAlive->add(session1);
 	keepAlive->add(session2);	
@@ -1342,7 +1345,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
 	cout << "testing registry observer... " << flush;
-	AdminSessionPrx session1 = AdminSessionPrx::uncheckedCast(registry->createAdminSession("admin1", "test1"));
+	AdminSessionPrx session1 = registry->createAdminSession("admin1", "test1");
 	AdminPrx admin1 = session1->getAdmin();
 
 	keepAlive->add(session1);
@@ -1647,7 +1650,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
 	cout << "testing node observer... " << flush;
-	AdminSessionPrx session1 = AdminSessionPrx::uncheckedCast(registry->createAdminSession("admin1", "test1"));
+	AdminSessionPrx session1 = registry->createAdminSession("admin1", "test1");
 	
 	keepAlive->add(session1);
 	
@@ -1686,7 +1689,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	node.servers.push_back(server);
 	nodeApp.nodes["localnode"] = node;
 
+	session->startUpdate();
 	admin->addApplication(nodeApp);
+	session->finishUpdate();
 	regObs1->waitForUpdate(__FILE__, __LINE__);
 
 	admin->startServer("node-1");
@@ -1708,7 +1713,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // nodeDown
 	test(nodeObs1->nodes["localnode"].servers[0].state == Inactive);
 
+	session->startUpdate();
 	admin->removeApplication("NodeApp");
+	session->finishUpdate();
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate(Destroying)
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate(Destroyed)
 
@@ -1732,10 +1739,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	node.servers.push_back(server);
 	testApp.nodes["localnode"] = node;
 
+	session->startUpdate();
 	admin->addApplication(testApp);
+	session->finishUpdate();
 	regObs1->waitForUpdate(__FILE__, __LINE__);
 
+	session->startUpdate();
 	admin->startServer("Server");
+	session->finishUpdate();
 
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate
@@ -1766,7 +1777,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(nodeObs1->nodes["localnode"].servers[0].state == Inactive);
 	test(nodeObs1->nodes["localnode"].adapters.empty());
 
+	session->startUpdate();
 	admin->removeApplication("TestApp");	
+	session->finishUpdate();
 
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate(Destroying)
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate(Destroyed)
@@ -1777,10 +1790,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	cout << "ok" << endl;
     }
 
-    keepAlive->terminate();
-    keepAlive->getThreadControl().join();
-    keepAlive = 0;
-
     admin->stopServer("PermissionsVerifierServer");
 
     cout << "shutting down admin router... " << flush;
@@ -1790,4 +1799,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "shutting down router... " << flush;
     admin->stopServer("Glacier2");
     cout << "ok" << endl;
+
+    keepAlive->terminate();
+    keepAlive->getThreadControl().join();
+    keepAlive = 0;
+
+    session->destroy();
 }

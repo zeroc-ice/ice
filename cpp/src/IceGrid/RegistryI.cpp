@@ -238,26 +238,19 @@ RegistryI::start(bool nowarn)
 	return false;
     }
 
-    if(!properties->getProperty("IceGrid.Registry.Admin.Endpoints").empty())
-    {
-	if(!nowarn)
-	{
-	    Warning out(_communicator->getLogger());
-	    out << "administrative endpoints `IceGrid.Registry.Admin.Endpoints' enabled";
-	}
-    }
+    // IceGrid.Registry.SessionManager.Endpoints is optional.
 
     properties->setProperty("Ice.PrintProcessId", "0");
     properties->setProperty("Ice.ServerIdleTime", "0");
     properties->setProperty("IceGrid.Registry.Client.AdapterId", "");
     properties->setProperty("IceGrid.Registry.Server.AdapterId", "");
-    properties->setProperty("IceGrid.Registry.Admin.AdapterId", "");
+    properties->setProperty("IceGrid.Registry.SessionManager.AdapterId", "");
     properties->setProperty("IceGrid.Registry.Internal.AdapterId", "");
 
     setupThreadPool(properties, "Ice.ThreadPool.Client", 1, 100);
     setupThreadPool(properties, "IceGrid.Registry.Client.ThreadPool", 1, 10);
     setupThreadPool(properties, "IceGrid.Registry.Server.ThreadPool", 1, 10);
-    setupThreadPool(properties, "IceGrid.Registry.Admin.ThreadPool", 1, 10);
+    setupThreadPool(properties, "IceGrid.Registry.SessionManager.ThreadPool", 1, 10);
     setupThreadPool(properties, "IceGrid.Registry.Internal.ThreadPool", 1, 100);
 
     _traceLevels = new TraceLevels(properties, _communicator->getLogger(), false);
@@ -339,7 +332,7 @@ RegistryI::start(bool nowarn)
 
     ObjectAdapterPtr serverAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Server");
     ObjectAdapterPtr clientAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Client");
-    ObjectAdapterPtr adminAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Admin");
+    ObjectAdapterPtr sessionManagerAdapter = _communicator->createObjectAdapter("IceGrid.Registry.SessionManager");
 
     _database->setClientProxy(clientAdapter->createDirectProxy(_communicator->stringToIdentity("dummy")));
     _database->setServerProxy(serverAdapter->createDirectProxy(_communicator->stringToIdentity("dummy")));
@@ -348,7 +341,6 @@ RegistryI::start(bool nowarn)
     {
 	LocatorPrx internalLocator = setupLocator(clientAdapter, serverAdapter, registryAdapter);
 	setupQuery(clientAdapter);
-	setupAdmin(adminAdapter);
 	setupRegistry(clientAdapter);	
 
 	//
@@ -367,8 +359,8 @@ RegistryI::start(bool nowarn)
 	_sessionServantLocator = new SessionServantLocatorI(clientAdapter, _instanceName);
 	clientAdapter->addServantLocator(_sessionServantLocator, "");    
 	
-	setupClientSessionFactory(registryAdapter, adminAdapter, internalLocator, nowarn);
-	setupAdminSessionFactory(registryAdapter, adminAdapter, internalLocator, nowarn);
+	setupClientSessionFactory(registryAdapter, sessionManagerAdapter, internalLocator, nowarn);
+	setupAdminSessionFactory(registryAdapter, sessionManagerAdapter, internalLocator, nowarn);
 
 	//
 	// Register all the replicated well-known objects with all the
@@ -392,7 +384,7 @@ RegistryI::start(bool nowarn)
     //
     serverAdapter->activate();
     clientAdapter->activate();
-    adminAdapter->activate();
+    sessionManagerAdapter->activate();
 
     if(!replicaName.empty())
     {
@@ -441,15 +433,6 @@ RegistryI::setupQuery(const Ice::ObjectAdapterPtr& clientAdapter)
     // object. This is taken care of by the database. 
     //
 //    addWellKnownObject(clientAdapter->createProxy(queryId), Query::ice_staticId());
-}
-
-void
-RegistryI::setupAdmin(const Ice::ObjectAdapterPtr& adminAdapter)
-{
-    Identity adminId = _communicator->stringToIdentity(_instanceName + "/Admin");
-    ObjectPtr admin = new AdminI(_database, this, 0);
-    adminAdapter->add(admin, adminId);
-    addWellKnownObject(adminAdapter->createProxy(adminId), Admin::ice_staticId());
 }
 
 void
@@ -516,20 +499,20 @@ RegistryI::setupUserAccountMapper(const Ice::ObjectAdapterPtr& registryAdapter)
 
 void
 RegistryI::setupClientSessionFactory(const Ice::ObjectAdapterPtr& registryAdapter,
-				     const Ice::ObjectAdapterPtr& adminAdapter,
+				     const Ice::ObjectAdapterPtr& sessionManagerAdapter,
 				     const Ice::LocatorPrx& locator,
 				     bool nowarn)
 {
     _waitQueue = new WaitQueue(); // Used for for session allocation timeout.
     _waitQueue->start();
     
-    _clientSessionFactory = new ClientSessionFactory(adminAdapter, _database, _waitQueue);
+    _clientSessionFactory = new ClientSessionFactory(sessionManagerAdapter, _database, _waitQueue);
 
     Identity clientSessionMgrId = _communicator->stringToIdentity(_instanceName + "/SessionManager");
-    adminAdapter->add(new ClientSessionManagerI(_clientSessionFactory), clientSessionMgrId);
+    sessionManagerAdapter->add(new ClientSessionManagerI(_clientSessionFactory), clientSessionMgrId);
 
     Identity sslClientSessionMgrId = _communicator->stringToIdentity(_instanceName + "/SSLSessionManager");
-    adminAdapter->add(new ClientSSLSessionManagerI(_clientSessionFactory), sslClientSessionMgrId);
+    sessionManagerAdapter->add(new ClientSSLSessionManagerI(_clientSessionFactory), sslClientSessionMgrId);
 
     Ice::PropertiesPtr properties = _communicator->getProperties();
 
@@ -543,23 +526,25 @@ RegistryI::setupClientSessionFactory(const Ice::ObjectAdapterPtr& registryAdapte
 						   properties->getProperty("IceGrid.Registry.SSLPermissionsVerifier"), 
 						   nowarn);
 
-    addWellKnownObject(adminAdapter->createProxy(clientSessionMgrId), Glacier2::SessionManager::ice_staticId());
-    addWellKnownObject(adminAdapter->createProxy(sslClientSessionMgrId), Glacier2::SSLSessionManager::ice_staticId());
+    addWellKnownObject(sessionManagerAdapter->createProxy(clientSessionMgrId),
+		       Glacier2::SessionManager::ice_staticId());
+    addWellKnownObject(sessionManagerAdapter->createProxy(sslClientSessionMgrId),
+		       Glacier2::SSLSessionManager::ice_staticId());
 }
 
 void
 RegistryI::setupAdminSessionFactory(const Ice::ObjectAdapterPtr& registryAdapter, 
-				    const Ice::ObjectAdapterPtr& adminAdapter,
+				    const Ice::ObjectAdapterPtr& sessionManagerAdapter,
 				    const Ice::LocatorPrx& locator,
 				    bool nowarn)
 {
-    _adminSessionFactory = new AdminSessionFactory(adminAdapter, _database, this);
+    _adminSessionFactory = new AdminSessionFactory(sessionManagerAdapter, _database, this);
 
     Identity adminSessionMgrId = _communicator->stringToIdentity(_instanceName + "/AdminSessionManager");
-    adminAdapter->add(new AdminSessionManagerI(_adminSessionFactory), adminSessionMgrId);
+    sessionManagerAdapter->add(new AdminSessionManagerI(_adminSessionFactory), adminSessionMgrId);
 
     Identity sslAdmSessionMgrId = _communicator->stringToIdentity(_instanceName + "/AdminSSLSessionManager");
-    adminAdapter->add(new AdminSSLSessionManagerI(_adminSessionFactory), sslAdmSessionMgrId);
+    sessionManagerAdapter->add(new AdminSSLSessionManagerI(_adminSessionFactory), sslAdmSessionMgrId);
 
     Ice::PropertiesPtr properties = _communicator->getProperties();
 
@@ -574,8 +559,10 @@ RegistryI::setupAdminSessionFactory(const Ice::ObjectAdapterPtr& registryAdapter
 				  properties->getProperty("IceGrid.Registry.AdminSSLPermissionsVerifier"), 
 				  nowarn);
 
-    addWellKnownObject(adminAdapter->createProxy(adminSessionMgrId), Glacier2::SessionManager::ice_staticId());
-    addWellKnownObject(adminAdapter->createProxy(sslAdmSessionMgrId), Glacier2::SSLSessionManager::ice_staticId());
+    addWellKnownObject(sessionManagerAdapter->createProxy(adminSessionMgrId),
+		       Glacier2::SessionManager::ice_staticId());
+    addWellKnownObject(sessionManagerAdapter->createProxy(sslAdmSessionMgrId),
+		       Glacier2::SSLSessionManager::ice_staticId());
 }
 
 void

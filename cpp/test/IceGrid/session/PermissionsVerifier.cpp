@@ -25,7 +25,8 @@ public:
 	    c.adapter->getCommunicator()->shutdown();
 	    return true;
 	}
-	return userId == "admin1" && passwd == "test1" || userId == "admin2" && passwd == "test2";
+	return userId == "admin1" && passwd == "test1" || userId == "admin2" && passwd == "test2" ||
+		userId == "admin3" && passwd == "test3";
     }
 };
 

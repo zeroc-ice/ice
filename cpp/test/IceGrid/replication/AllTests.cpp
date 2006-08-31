@@ -11,6 +11,7 @@
 #include <Ice/BuiltinSequences.h>
 #include <Ice/IdentityUtil.h>
 #include <IceGrid/Query.h>
+#include <IceGrid/Registry.h>
 #include <IceGrid/Admin.h>
 #include <TestCommon.h>
 #include <Test.h>
@@ -18,6 +19,56 @@
 using namespace std;
 using namespace Test;
 using namespace IceGrid;
+
+class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    SessionKeepAliveThread(const IceGrid::AdminSessionPrx& session, long timeout) :
+	_session(session),
+        _timeout(IceUtil::Time::seconds(timeout)),
+        _destroy(false)
+    {
+    }
+
+    virtual void
+    run()
+    {
+        Lock sync(*this);
+        while(!_destroy)
+        {
+            timedWait(_timeout);
+            if(_destroy)
+            {
+	        break;
+	    }
+            try
+            {
+                _session->keepAlive();
+            }
+            catch(const Ice::Exception&)
+            {
+		break;
+            }
+        }
+    }
+
+    void
+    destroy()
+    {
+        Lock sync(*this);
+        _destroy = true;
+        notify();
+    }
+
+private:
+
+    IceGrid::AdminSessionPrx _session;
+    const IceUtil::Time _timeout;
+    bool _destroy;
+};
+
+typedef IceUtil::Handle<SessionKeepAliveThread> SessionKeepAliveThreadPtr;
 
 void
 instantiateServer(const AdminPrx& admin, const string& templ, const string& node, const map<string, string>& params)
@@ -81,7 +132,15 @@ removeServer(const AdminPrx& admin, const string& id)
 void
 allTests(const Ice::CommunicatorPtr& comm)
 {
-    AdminPrx admin = AdminPrx::checkedCast(comm->stringToProxy("IceGrid/Admin"));
+    RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(comm->stringToProxy("IceGrid/Registry"));
+    test(registry);
+    AdminSessionPrx session = registry->createAdminSession("foo", "bar");
+    session->startUpdate();
+
+    SessionKeepAliveThreadPtr keepAlive = new SessionKeepAliveThread(session, registry->getSessionTimeout()/2);
+    keepAlive->start();
+
+    AdminPrx admin = session->getAdmin();
     test(admin);
 
     set<string> serverReplicaIds;
@@ -342,4 +401,12 @@ allTests(const Ice::CommunicatorPtr& comm)
 	removeServer(admin, "Server1");
     };
     cout << "ok" << endl;
+
+    session->finishUpdate();
+
+    keepAlive->destroy();
+    keepAlive->getThreadControl().join();
+    keepAlive = 0;
+
+    session->destroy();
 }
