@@ -218,7 +218,7 @@ Client::run(int argc, char* argv[])
     
     int timeout;
     IceGrid::AdminSessionPrx session;
-    bool ssl = communicator()->getProperties()->getPropertyAsInt("IceGridAdmin.UseSecureAuthentication");
+    bool ssl = communicator()->getProperties()->getPropertyAsInt("IceGridAdmin.AuthenticateUsingSSL");
     if(opts.isSet("ssl"))
     {
     	ssl = true;

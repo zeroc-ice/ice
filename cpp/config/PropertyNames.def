@@ -189,7 +189,7 @@ IceBox:
     UseSharedCommunicator.<any>
 
 IceGridAdmin:
-    UseSecureAuthentication
+    AuthenticateUsingSSL
     Routed
     Username
     Password
