@@ -21,7 +21,7 @@ prefix			= C:\Ice-$(VERSION)
 
 
 #
-# Borland C++Builder 2006 home directory. Defined if building with 
+# Borland C++Builder 2006 home directory. Define if building with 
 # C++ Builder. Change if different from default.
 #
 #BORLAND_HOME		= C:\Program Files\Borland\BDS\4.0	
@@ -30,7 +30,8 @@ prefix			= C:\Ice-$(VERSION)
 # If third party libraries are not installed in the default location
 # change the following setting to reflect the installation location.
 #
-THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty-VC60
+#THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty
+THIRDPARTY_HOME		= C:\src\packages_win32
 
 #
 # Define if using STLPort. Required if using MSVC++ 6.0.
@@ -96,13 +97,23 @@ SLICE2DOCBOOK		= $(bindir)\slice2docbook.exe
 EVERYTHING		= all clean install
 
 .SUFFIXES:
-.SUFFIXES:		.cpp .c .obj
+.SUFFIXES:		.cpp .c .obj .ice
 
 .cpp.obj::
 	$(CXX) /c $(CPPFLAGS) $(CXXFLAGS) $<
 
 .c.obj:
 	$(CC) /c $(CPPFLAGS) $(CFLAGS) $<
+
+
+{$(SDIR)\}.ice{$(HDIR)}.h:
+	del /q $(HDIR)\$(*F).h $(*F).cpp
+	$(SLICE2CPP) $(SLICE2CPPFLAGS) $<
+	move $(*F).h $(HDIR)
+
+.ice.h:
+	del /q $(*F).h $(*F).cpp
+	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(*F).ice
 
 all:: $(SRCS) $(TARGETS)
 

@@ -42,9 +42,6 @@ $(SERVER): $(OBJS) $(SOBJS)
 	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
-Backend.cpp Backend.h: Backend.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) Backend.ice
-
 clean::
 	del /q Backend.cpp Backend.h
 

@@ -43,9 +43,6 @@ $(SERVER): $(OBJS) $(SOBJS)
 	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
-Hello.cpp Hello.h: Hello.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) Hello.ice
-
 clean::
 	del /q Hello.cpp Hello.h
 

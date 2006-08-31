@@ -43,9 +43,6 @@ $(SERVER): $(SOBJS)
 	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) glacier2$(LIBSUFFIX).lib
 
-Test.cpp Test.h: Test.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) Test.ice
-
 clean::
 	del /q Test.cpp Test.h
 

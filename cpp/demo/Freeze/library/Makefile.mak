@@ -69,9 +69,6 @@ LibraryTypes.h LibraryTypes.cpp: Library.ice $(SLICE2FREEZE)
 	del /q LibraryTypes.h LibraryTypes.cpp
 	$(SLICE2FREEZE) --ice -I$(slicedir) --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes $(slicedir)/Ice/BuiltinSequences.ice Library.ice
 
-Library.cpp Library.h: Library.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) Library.ice
-
 Scanner.cpp : Scanner.l
 	flex Scanner.l
 	del /q $@

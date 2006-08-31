@@ -41,9 +41,6 @@ $(SERVER): $(OBJS) $(SOBJS)
 	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
-Printer.cpp Printer.h: Printer.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) Printer.ice
-
 clean::
 	del /q Printer.cpp Printer.h
 

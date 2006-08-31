@@ -43,9 +43,6 @@ $(SUBSCRIBER): $(OBJS) $(SOBJS)
 	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
-Single.cpp Single.h: Single.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) Single.ice
-
 clean::
 	del /q Single.cpp Single.h
 

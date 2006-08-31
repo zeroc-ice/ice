@@ -42,9 +42,6 @@ $(SERVER): $(OBJS) $(SOBJS)
 	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) glacier2$(LIBSUFFIX).lib
 
-Chat.cpp Chat.h: Chat.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) Chat.ice
-
 clean::
 	del /q Chat.cpp Chat.h
 

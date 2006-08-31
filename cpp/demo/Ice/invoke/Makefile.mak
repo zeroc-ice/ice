@@ -27,6 +27,7 @@ SRCS		= $(OBJS:.obj=.cpp) \
 
 !include $(top_srcdir)/config/Make.rules.mak
 
+SLICE2CPPFLAGS	= --stream $(SLICE2CPPFLAGS)
 CPPFLAGS	= -I. $(CPPFLAGS)
 
 !if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
@@ -41,9 +42,6 @@ $(CLIENT): $(OBJS) $(COBJS)
 $(SERVER): $(OBJS) $(SOBJS)
 	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
-
-Printer.cpp Printer.h: Printer.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) --stream $(SLICE2CPPFLAGS) Printer.ice
 
 clean::
 	del /q Printer.cpp Printer.h

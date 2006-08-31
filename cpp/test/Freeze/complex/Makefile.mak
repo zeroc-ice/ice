@@ -38,9 +38,6 @@ ComplexDict.h ComplexDict.cpp: Complex.ice $(SLICE2FREEZE)
 	del /q ComplexDict.h ComplexDict.cpp
 	$(SLICE2FREEZE) -I$(slicedir) --dict Complex::ComplexDict,Complex::Key,Complex::Node ComplexDict Complex.ice
 
-Complex.cpp Complex.h: Complex.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) Complex.ice
-
 Scanner.cpp : Scanner.l
 	flex Scanner.l
 	del /q $@

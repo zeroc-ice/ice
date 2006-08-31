@@ -44,9 +44,6 @@ $(SUBSCRIBER): $(OBJS) $(SOBJS)
 	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
-Clock.cpp Clock.h: Clock.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) Clock.ice
-
 clean::
 	del /q Clock.cpp Clock.h
 

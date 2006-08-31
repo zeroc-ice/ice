@@ -35,9 +35,6 @@ $(SERVER): $(OBJS) $(COBJS) HelloServer.res
 	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) /subsystem:windows $(OBJS) $(COBJS) HelloServer.res \
 	  $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
-Hello.cpp Hello.h: Hello.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) Hello.ice
-
 HelloServer.res: HelloServer.rc
 	rc.exe HelloServer.rc
 

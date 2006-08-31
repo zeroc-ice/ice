@@ -52,9 +52,6 @@ $(SESSION_SERVER): $(SSOBJS)
 	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(SSPDBFLAGS) $(SSOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) glacier2$(LIBSUFFIX).lib
 
-Callback.cpp Callback.h: Callback.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) Callback.ice
-
 clean::
 	del /q Callback.cpp Callback.h
 

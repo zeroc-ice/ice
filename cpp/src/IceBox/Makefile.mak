@@ -75,11 +75,6 @@ $(ADMIN): $(AOBJS)
 	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(AOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) icebox$(LIBSUFFIX).lib
 
-IceBox.cpp $(HDIR)\IceBox.h: $(SDIR)\IceBox.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(SDIR)\IceBox.ice
-	move IceBox.h $(HDIR)
-
-
 !ifdef BUILD_UTILS
 
 clean::

@@ -35,6 +35,7 @@ SRCS		= $(COBJS:.obj=.cpp) \
 
 !include $(top_srcdir)/config/Make.rules.mak
 
+SLICE2CPPFLAGS	= --stream $(SLICE2CPPFLAGS)
 CPPFLAGS	= -I. -I../../include $(CPPFLAGS)
 
 !if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
@@ -54,9 +55,6 @@ $(SERVER): $(SOBJS)
 $(COLLOCATED): $(COLOBJS)
 	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(COPDBFLAGS) $(COLOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
-
-Test.cpp Test.h: Test.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) --stream $(SLICE2CPPFLAGS) Test.ice
 
 clean::
 	del /q Test.cpp Test.h

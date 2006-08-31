@@ -63,7 +63,7 @@ SDIR		= $(slicedir)\IceStorm
 !include $(top_srcdir)\config\Make.rules.mak
 
 CPPFLAGS	= -I.. -Idummyinclude $(CPPFLAGS)
-SLICE2CPPFLAGS	= --ice --include-dir IceStorm $(SLICE2CPPFLAGS)
+SLICE2CPPFLAGS	= --ice --include-dir IceStorm $(SLICE2CPPFLAGS) -I..
 LINKWITH 	= $(LIBS) icestorm$(LIBSUFFIX).lib freeze$(LIBSUFFIX).lib icebox$(LIBSUFFIX).lib
 ALINKWITH 	= $(LIBS) icestorm$(LIBSUFFIX).lib icexml$(LIBSUFFIX).lib
 
@@ -76,7 +76,7 @@ EXTRAFLAGS	= -DICE_STORM_SERVICE_API_EXPORTS
 IceStorm.obj: IceStorm.cpp
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) -DICE_STORM_API_EXPORTS IceStorm.cpp
 
-.cpp.obj:
+.cpp.obj::
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $(EXTRAFLAGS) $<
 
 
@@ -110,15 +110,9 @@ PersistentTopicMap.h PersistentTopicMap.cpp: ../IceStorm/LinkRecord.ice $(sliced
 	IceStorm::PersistentTopicMap,string,IceStorm::LinkRecordDict PersistentTopicMap \
 	..\IceStorm\LinkRecord.ice
 
-IceStorm.cpp $(HDIR)\IceStorm.h: $(SDIR)\IceStorm.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) --checksum --dll-export ICE_STORM_API $(SLICE2CPPFLAGS) $(SDIR)\IceStorm.ice
+IceStorm.cpp $(HDIR)\IceStorm.h: $(SDIR)\IceStorm.ice
+	$(SLICE2CPP) --dll-export ICE_STORM_API $(SLICE2CPPFLAGS) $(SDIR)\IceStorm.ice
 	move IceStorm.h $(HDIR)
-
-IceStormInternal.cpp IceStormInternal.h: IceStormInternal.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) IceStormInternal.ice
-
-LinkRecord.cpp LinkRecord.h: LinkRecord.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) -I.. $(SLICE2CPPFLAGS) LinkRecord.ice
 
 Scanner.cpp : Scanner.l
 	flex Scanner.l

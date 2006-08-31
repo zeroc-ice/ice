@@ -56,9 +56,6 @@ DbTypes.h DbTypes.cpp DbTypesMap.h DbTypesMap.cpp DbTypesOut.typ: DbTypes.typ
 	ott userid=scott/tiger@orcl code=cpp hfile=DbTypes.h cppfile=DbTypes.cpp mapfile=DbTypesMap.cpp \
 	  intype=DbTypes outtype=DbTypesOut.typ attraccess=private
 
-HR.cpp HR.h: HR.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) HR.ice
-
 clean::
 	del /q HR.cpp HR.h
 	del /q DbTypes.h DbTypes.cpp DbTypesMap.h DbTypesMap.cpp DbTypesOut.typ

@@ -32,9 +32,6 @@ $(CLIENT): $(OBJS)
 	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
 
-TestOld.cpp TestOld.h: TestOld.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-        $(SLICE2CPP) $(SLICE2CPPFLAGS) TestOld.ice
-
 clean::
 	del /q TestOld.cpp TestOld.h
 

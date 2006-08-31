@@ -37,9 +37,6 @@ IntSMap.h IntSMap.cpp: $(SLICE2FREEZE)
 	del /q IntSMap.h IntSMap.cpp
 	$(SLICE2FREEZE) --dict IntSMap,int,::Test::S IntSMap TestOld.ice
 
-TestOld.cpp TestOld.h: TestOld.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-        $(SLICE2CPP) $(SLICE2CPPFLAGS) TestOld.ice
-
 clean::
 	del /q IntSMap.h IntSMap.cpp
 

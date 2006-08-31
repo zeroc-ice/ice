@@ -82,45 +82,14 @@ $(ROUTER): $(ROBJS)
 	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(RPDBFLAGS) $(ROBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 
-$(HDIR)\PermissionsVerifierF.h: $(SDIR)\PermissionsVerifierF.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(SDIR)\PermissionsVerifierF.ice
-	del /q PermissionsVerifierF.cpp
-	move PermissionsVerifierF.h $(HDIR)
-
-PermissionsVerifier.cpp $(HDIR)\PermissionsVerifier.h: $(SDIR)\PermissionsVerifier.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(SDIR)\PermissionsVerifier.ice
-	move PermissionsVerifier.h $(HDIR)
-
-$(HDIR)\RouterF.h: $(SDIR)\RouterF.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(SDIR)\RouterF.ice
-	del /q RouterF.cpp
-	move RouterF.h $(HDIR)
-
-Router.cpp $(HDIR)\Router.h: $(SDIR)\Router.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(SDIR)\Router.ice
-	move Router.h $(HDIR)
-
-$(HDIR)\SessionF.h: $(SDIR)\SessionF.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(SDIR)\SessionF.ice
-	del /q SessionF.cpp
-	move SessionF.h $(HDIR)
-
-Session.cpp $(HDIR)\Session.h: $(SDIR)\Session.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(SDIR)\Session.ice
-	move Session.h $(HDIR)
-
-SSLInfo.cpp $(HDIR)\SSLInfo.h: $(SDIR)\SSLInfo.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(SDIR)\SSLInfo.ice
-	move SSLInfo.h $(HDIR)
-
 !ifdef BUILD_UTILS
 
 clean::
-	del /q $(HDIR)\PermissionsVerifierF.h
+	del /q PermissionsVerifierF.cpp $(HDIR)\PermissionsVerifierF.h
 	del /q PermissionsVerifier.cpp $(HDIR)\PermissionsVerifier.h
-	del /q $(HDIR)\RouterF.h
+	del /q RouterF.cpp $(HDIR)\RouterF.h
 	del /q Router.cpp $(HDIR)\Router.h
-	del /q $(HDIR)\SessionF.h
+	del /q SessionF.cpp $(HDIR)\SessionF.h
 	del /q Session.cpp $(HDIR)\Session.h
 	del /q SSLInfo.cpp $(HDIR)\SSLInfo.h
 	del /q $(DLLNAME:.dll=.*)

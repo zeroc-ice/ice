@@ -54,9 +54,6 @@ $(COLLOCATED): $(COLOBJS)
 	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(COPDBFLAGS) $(COLOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
-Test.cpp Test.h: Test.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) Test.ice
-
 clean::
 	del /q Test.cpp Test.h
 

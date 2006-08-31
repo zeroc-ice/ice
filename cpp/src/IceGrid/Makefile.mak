@@ -114,7 +114,6 @@ SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IceGrid $(ICECPPFLAGS)
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-SLICE2CPPFLAGS	= --checksum --ice --include-dir IceGrid $(SLICE2CPPFLAGS)
 LINKWITH 	= $(LIBS) glacier2$(LIBSUFFIX).lib
 ALINKWITH 	= $(LINKWITH) icegrid$(LIBSUFFIX).lib icexml$(LIBSUFFIX).lib icepatch2$(LIBSUFFIX).lib
 NLINKWITH	= $(ALINKWITH) icestorm$(LIBSUFFIX).lib freeze$(LIBSUFFIX).lib icebox$(LIBSUFFIX).lib \
@@ -125,6 +124,7 @@ NLINKWITH	= $(NLINKWITH) pdh.lib ws2_32.lib
 
 !ifdef BUILD_UTILS
 
+SLICE2CPPFLAGS	= --checksum --ice --include-dir IceGrid $(SLICE2CPPFLAGS)
 CPPFLAGS	= -I. -I.. -Idummyinclude $(CPPFLAGS)
 !if "$(BORLAND_HOME)" == ""
 CPPFLAGS 	= $(CPPFLAGS) -Zm200
@@ -132,6 +132,7 @@ CPPFLAGS 	= $(CPPFLAGS) -Zm200
 
 !else
 
+SLICE2CPPFLAGS	= --checksum --ice --include-dir IceGrid --dll-export ICE_GRID_API $(SLICE2CPPFLAGS)
 CPPFLAGS        = -I.. -DICE_GRID_API_EXPORTS $(CPPFLAGS)
 
 !endif
@@ -178,44 +179,8 @@ StringAdapterInfoDict.h StringAdapterInfoDict.cpp: $(SLICE2FREEZE)
 	$(SLICE2FREEZECMD) --dict IceGrid::StringAdapterInfoDict,string,IceGrid::AdapterInfo \
 	--dict-index IceGrid::StringAdapterInfoDict,replicaGroupId StringAdapterInfoDict $(SDIR)\Admin.ice
 
-Admin.cpp $(HDIR)\Admin.h: $(SDIR)\Admin.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) --dll-export ICE_GRID_API $(SDIR)\Admin.ice
-	move Admin.h $(HDIR)
-
-Exception.cpp $(HDIR)\Exception.h: $(SDIR)\Exception.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) --dll-export ICE_GRID_API $(SDIR)\Exception.ice
-	move Exception.h $(HDIR)
-
-Query.cpp $(HDIR)\Query.h: $(SDIR)\Query.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) --dll-export ICE_GRID_API $(SDIR)\Query.ice
-	move Query.h $(HDIR)
-
-Session.cpp $(HDIR)\Session.h: $(SDIR)\Session.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) --dll-export ICE_GRID_API $(SDIR)\Session.ice
-	move Session.h $(HDIR)
-
-Observer.cpp $(HDIR)\Observer.h: $(SDIR)\Observer.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) --dll-export ICE_GRID_API $(SDIR)\Observer.ice
-	move Observer.h $(HDIR)
-
-Descriptor.cpp $(HDIR)\Descriptor.h: $(SDIR)\Descriptor.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) --dll-export ICE_GRID_API $(SDIR)\Descriptor.ice
-	move Descriptor.h $(HDIR)
-
-UserAccountMapper.cpp $(HDIR)\UserAccountMapper.h: $(SDIR)\UserAccountMapper.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) --dll-export ICE_GRID_API $(SDIR)\UserAccountMapper.ice
-	move UserAccountMapper.h $(HDIR)
-
-Registry.cpp $(HDIR)\Registry.h: $(SDIR)\Registry.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) --dll-export ICE_GRID_API $(SDIR)\Registry.ice
-	move Registry.h $(HDIR)
-
-FileParser.cpp $(HDIR)\FileParser.h: $(SDIR)\FileParser.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(SDIR)\FileParser.ice
-	move FileParser.h $(HDIR)
-
-Internal.cpp Internal.h: Internal.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) Internal.ice
+#Internal.cpp Internal.h: Internal.ice $(SLICE2CPP) $(SLICEPARSERLIB)
+#	$(SLICE2CPP) $(SLICE2CPPFLAGS) Internal.ice
 
 Scanner.cpp : Scanner.l
 	flex Scanner.l

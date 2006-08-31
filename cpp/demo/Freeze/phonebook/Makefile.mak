@@ -68,9 +68,6 @@ NameIndex.h NameIndex.cpp: PhoneBook.ice $(SLICE2FREEZE)
 	del /q NameIndex.h NameIndex.cpp
 	$(SLICE2FREEZE) $(ICECPPFLAGS) --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice
 
-PhoneBook.cpp PhoneBook.h: PhoneBook.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) PhoneBook.ice
-
 Scanner.cpp : Scanner.l
 	flex Scanner.l
 	del /q $@

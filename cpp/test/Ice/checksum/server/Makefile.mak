@@ -22,6 +22,7 @@ SRCS		= $(SOBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
+SLICE2CPPFLAGS	= --checksum $(SLICE2CPPFLAGS)
 CPPFLAGS	= -I. -I../../../include $(CPPFLAGS)
 
 !if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
@@ -31,12 +32,6 @@ PDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 $(SERVER): $(SOBJS)
 	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
-
-Test.cpp Test.h: Test.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) --checksum $(SLICE2CPPFLAGS) Test.ice
-
-Types.cpp Types.h: Types.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) --checksum $(SLICE2CPPFLAGS) Types.ice
 
 clean::
 	del /q Test.cpp Test.h

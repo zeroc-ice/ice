@@ -87,14 +87,6 @@ $(CALC): $(CALCOBJS)
 	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(CAPDBFLAGS) $(CALCOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) icepatch2$(LIBSUFFIX).lib
 
-FileInfo.cpp $(HDIR)\FileInfo.h: $(SDIR)\FileInfo.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(SDIR)\FileInfo.ice
-	move FileInfo.h $(HDIR)
-
-FileServer.cpp $(HDIR)\FileServer.h: $(SDIR)\FileServer.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(SDIR)\FileServer.ice
-	move FileServer.h $(HDIR)
-
 !ifdef BUILD_UTILS
 
 clean::
