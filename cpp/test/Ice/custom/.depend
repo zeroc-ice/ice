@@ -30,3 +30,7 @@ Test.cpp: Test.ice
 TestAMD.cpp: TestAMD.ice
 Wstring.cpp: Wstring.ice
 WstringAMD.cpp: WstringAMD.ice
+Test.ice: $(SLICE2CPP) $(SLICEPARSERLIB)
+TestAMD.ice: $(SLICE2CPP) $(SLICEPARSERLIB)
+Wstring.ice: $(SLICE2CPP) $(SLICEPARSERLIB)
+WstringAMD.ice: $(SLICE2CPP) $(SLICEPARSERLIB)

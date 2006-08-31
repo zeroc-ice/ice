@@ -327,6 +327,9 @@ clean::
 	-rm -f core *.o *.bak
 
 ifneq ($(SLICE_SRCS),)
+depend::
+	$(foreach slice, $(SLICE_SRCS), echo '$(slice): $$(SLICE2CPP) $$(SLICEPARSERLIB)' >> .depend;)
+
 clean::
 	rm -f $(addsuffix .cpp, $(basename $(notdir $(SLICE_SRCS))))
 	rm -f $(addsuffix .h, $(basename $(notdir $(SLICE_SRCS))))
