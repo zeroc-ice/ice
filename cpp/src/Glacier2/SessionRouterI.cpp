@@ -140,7 +140,12 @@ public:
     virtual bool
     authorize(string& reason, const Ice::Context& ctx)
     {
-	return _verifier->checkPermissions(_user, _password, reason, ctx);
+	if(_verifier)
+	{
+	    return _verifier->checkPermissions(_user, _password, reason, ctx);
+	}
+	reason = "No PermissionsVerifier is available";
+	return false;
     }
 
 private:
@@ -162,7 +167,13 @@ public:
     virtual bool
     authorize(string& reason, const Ice::Context& ctx)
     {
-	return _verifier->authorize(_info, reason, ctx);
+	if(_verifier)
+	{
+	    return _verifier->authorize(_info, reason, ctx);
+	}
+
+	reason = "No SSLPermissionsVerifier is available";
+	return false;
     }
 
 private:
