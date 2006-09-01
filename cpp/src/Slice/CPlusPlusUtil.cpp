@@ -49,6 +49,11 @@ Slice::changeInclude(const string& orig, const vector<string>& includePaths)
     string file = normalizePath(orig);
     string::size_type pos;
 
+    //
+    // Compare each include path against the included file and select
+    // the path that produces the shortest relative filename.
+    //
+    string result = file;
     for(vector<string>::const_iterator p = includePaths.begin(); p != includePaths.end(); ++p)
     {
 	string includePath = normalizePath(*p);
@@ -56,19 +61,19 @@ Slice::changeInclude(const string& orig, const vector<string>& includePaths)
 	if(file.compare(0, includePath.length(), includePath) == 0)
 	{
 	    string s = file.substr(includePath.length());
-	    if(s.size() < file.size())
+	    if(s.size() < result.size())
 	    {
-		file = s;
+		result = s;
 	    }
 	}
     }
 
-    if((pos = file.rfind('.')) != string::npos)
+    if((pos = result.rfind('.')) != string::npos)
     {
-	file.erase(pos);
+	result.erase(pos);
     }
 
-    return file;
+    return result;
 }
 
 void
