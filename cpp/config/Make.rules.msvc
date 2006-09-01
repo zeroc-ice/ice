@@ -30,9 +30,11 @@ CPPFLAGS	= $(CPPFLAGS) -MD -O2 -DNDEBUG
 CPPFLAGS	= $(CPPFLAGS) -MDd -Zi -Gm -GZ -Od -D_DEBUG
 !endif
 
-LDFLAGS		= /LIBPATH:"$(top_srcdir)\lib" /LIBPATH:"$(THIRDPARTY_HOME)\lib" /nologo /incremental:yes /FIXED:no
+LDFLAGS		= /LIBPATH:"$(top_srcdir)\lib" /LIBPATH:"$(THIRDPARTY_HOME)\lib" /nologo /FIXED:no
 !if "$(OPTIMIZE)" != "yes"
-LDFLAGS		= $(LDFLAGS) /debug
+LDFLAGS		= $(LDFLAGS) /debug /incremental:yes
+!else
+LDFLAGS         = $(LDFLAGS) /pdb:none /OPT:REF
 !endif
 LD_DLLFLAGS	= $(LDFLAGS) /dll
 LD_EXEFLAGS	= $(LDFLAGS)
