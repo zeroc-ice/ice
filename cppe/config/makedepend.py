@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import fileinput, re
+import fileinput, re, string
 
 previous = ""
 
@@ -17,6 +17,8 @@ for line in fileinput.input():
 
     if re.compile("^#").search(line, 0):
         continue;
+
+    line = string.replace(line, ".o:", "$(OBJEXT):")
 
     if(previous):
         line = previous + " " + line
