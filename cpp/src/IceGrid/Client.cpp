@@ -234,11 +234,18 @@ Client::run(int argc, char* argv[])
     {
 	password = opts.optArg("password");
     }
-    bool routed = communicator()->getProperties()->getPropertyAsInt("IceGridAdmin.Routed");
+
+    //
+    // If a glacier2 router is configured, then set routed to true by
+    // default.
+    //
+    bool routed = communicator()->getProperties()->getPropertyAsIntWithDefault(
+	"IceGridAdmin.Routed", communicator()->getDefaultRouter());
     if(opts.isSet("routed"))
     {
     	routed = true;
     }
+
 
     try
     {
@@ -263,6 +270,13 @@ Client::run(int argc, char* argv[])
 	    if(ssl)
 	    {
 		session = IceGrid::AdminSessionPrx::uncheckedCast(router->createSessionFromSecureConnection());
+		if(!session)
+		{
+		    cerr << argv[0]
+			 << ": Glacier2 returned a null session, please set the Glacier2.SSLSessionManager property"
+			 << endl;
+		    return EXIT_FAILURE;
+		}
 	    }
 	    else
 	    {
@@ -281,6 +295,13 @@ Client::run(int argc, char* argv[])
 		}
 		    
 		session = IceGrid::AdminSessionPrx::uncheckedCast(router->createSession(id, password));
+		if(!session)
+		{
+		    cerr << argv[0]
+			 << ": Glacier2 returned a null session, please set the Glacier2.SessionManager property"
+			 << endl;
+		    return EXIT_FAILURE;
+		}
 	    }
 	    timeout = static_cast<int>(router->getSessionTimeout());
 	}
@@ -325,6 +346,7 @@ Client::run(int argc, char* argv[])
 		    
 		session = registry->createAdminSession(id, password);
 	    }
+	    assert(session);
 	    timeout = registry->getSessionTimeout();
 	}
     }
