@@ -628,6 +628,91 @@ Parser::listAllNodes()
 }
 
 void
+Parser::describeRegistry(const list<string>& args)
+{
+    if(args.size() != 1)
+    {
+	invalidCommand("`registry describe' requires exactly one argument");
+	return;
+    }
+
+    try
+    {
+	RegistryInfo info = _admin->getRegistryInfo(args.front());
+	Output out(cout);
+	out << "registry `" << args.front() << "'";
+	out << sb;
+	out << nl << "host name = `" << info.hostname << "'";
+	out << nl << "endpoints = `" << info.endpoints << "'";
+	out << eb;
+	out << nl;
+    }
+    catch(const Ice::Exception& ex)
+    {
+	exception(ex);
+    }
+}
+
+void
+Parser::pingRegistry(const list<string>& args)
+{
+    if(args.size() != 1)
+    {
+	invalidCommand("`registry ping' requires exactly one argument");
+	return;
+    }
+
+    try
+    {
+	if(_admin->pingRegistry(args.front()))
+	{
+	    cout << "registry is up" << endl;
+	}
+	else
+	{
+	    cout << "registry is down" << endl;
+	}
+    }
+    catch(const Ice::Exception& ex)
+    {
+	exception(ex);
+    }
+}
+
+void
+Parser::shutdownRegistry(const list<string>& args)
+{
+    if(args.size() != 1)
+    {
+	invalidCommand("`registry shutdown' requires exactly one argument");
+	return;
+    }
+
+    try
+    {
+	_admin->shutdownRegistry(args.front());
+    }
+    catch(const Ice::Exception& ex)
+    {
+	exception(ex);
+    }
+}
+
+void
+Parser::listAllRegistries()
+{
+    try
+    {
+	Ice::StringSeq names = _admin->getAllRegistryNames();
+	copy(names.begin(), names.end(), ostream_iterator<string>(cout,"\n"));
+    }
+    catch(const Ice::Exception& ex)
+    {
+	exception(ex);
+    }
+}
+
+void
 Parser::removeServer(const list<string>& args)
 {
     if(args.size() != 1)
@@ -1526,10 +1611,6 @@ Parser::exception(const Ice::Exception& ex)
     catch(const ObjectExistsException& ex)
     {
 	error("object `" + _communicator->identityToString(ex.id) + "' already exists");
-    }
-    catch(const ObjectNotExistException& ex)
-    {
-	error("couldn't find object `" + _communicator->identityToString(ex.id) + "'");
     }
     catch(const DeploymentException& ex)
     {

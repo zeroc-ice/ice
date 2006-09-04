@@ -33,8 +33,11 @@ public:
 
     virtual AdminPrx getAdmin(const Ice::Current&) const;
 
-    virtual void setObservers(const RegistryObserverPrx&, const NodeObserverPrx&, const Ice::Current&);
-    virtual void setObserversByIdentity(const Ice::Identity&, const Ice::Identity&, const Ice::Current&); 
+    virtual void setObservers(const RegistryObserverPrx&, const NodeObserverPrx&, const ApplicationObserverPrx&,
+			      const AdapterObserverPrx&, const ObjectObserverPrx&, const Ice::Current&);
+
+    virtual void setObserversByIdentity(const Ice::Identity&, const Ice::Identity&, const Ice::Identity&,
+					const Ice::Identity&, const Ice::Identity&, const Ice::Current&); 
 
     virtual int startUpdate(const Ice::Current&);
     virtual void finishUpdate(const Ice::Current&);
@@ -43,11 +46,12 @@ public:
 
 private:
 
+    void setupObserverSubscription(TopicName, const Ice::ObjectPrx&);
+    Ice::ObjectPrx toProxy(const Ice::Identity&, const Ice::ConnectionPtr&);
+
     const int _timeout;
     const AdminPrx _admin;
-
-    RegistryObserverPrx _registryObserver;
-    NodeObserverPrx _nodeObserver;
+    std::map<TopicName, Ice::ObjectPrx> _observers;
 };
 typedef IceUtil::Handle<AdminSessionI> AdminSessionIPtr;
 

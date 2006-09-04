@@ -31,7 +31,7 @@ NodeSessionKeepAliveThread::NodeSessionKeepAliveThread(const InternalRegistryPrx
 }
 
 NodeSessionPrx
-NodeSessionKeepAliveThread::createSession(const InternalRegistryPrx& registry, IceUtil::Time& timeout) const
+NodeSessionKeepAliveThread::createSession(const InternalRegistryPrx& registry, IceUtil::Time& timeout)
 {
     TraceLevelsPtr traceLevels = _node->getTraceLevels();
     try
@@ -78,7 +78,7 @@ NodeSessionKeepAliveThread::createSession(const InternalRegistryPrx& registry, I
 }
 
 void 
-NodeSessionKeepAliveThread::destroySession(const NodeSessionPrx& session) const
+NodeSessionKeepAliveThread::destroySession(const NodeSessionPrx& session)
 {
     try
     {
@@ -101,7 +101,7 @@ NodeSessionKeepAliveThread::destroySession(const NodeSessionPrx& session) const
 }
 
 bool 
-NodeSessionKeepAliveThread::keepAlive(const NodeSessionPrx& session) const
+NodeSessionKeepAliveThread::keepAlive(const NodeSessionPrx& session)
 {
     if(_node->getTraceLevels() && _node->getTraceLevels()->replica > 2)
     {
@@ -145,7 +145,7 @@ NodeSessionManager::create(const NodeIPtr& node)
     id.name = "Query";
     _query = QueryPrx::uncheckedCast(communicator->stringToProxy(communicator->identityToString(id)));
 
-    id.name = "InternalRegistry";
+    id.name = "InternalRegistry-Master";
     _master = InternalRegistryPrx::uncheckedCast(communicator->stringToProxy(communicator->identityToString(id)));
 
     _thread = new Thread(*this, _master);
@@ -218,14 +218,9 @@ NodeSessionManager::replicaAdded(const InternalRegistryPrx& replica)
 	return p->second;
     }
 
-    InternalRegistryPrx registry = 
-	InternalRegistryPrx::uncheckedCast(
-	    replica->ice_getCommunicator()->stringToProxy(
-		replica->ice_getCommunicator()->identityToString(replica->ice_getIdentity())));
-
-    NodeSessionKeepAliveThreadPtr thread = new NodeSessionKeepAliveThread(registry, _node);
-    thread->start();
+    NodeSessionKeepAliveThreadPtr thread = new NodeSessionKeepAliveThread(replica, _node);
     _sessions.insert(make_pair(replica->ice_getIdentity(), thread));
+    thread->start();
     return thread;
 }
 
@@ -294,7 +289,7 @@ NodeSessionManager::syncReplicas(const InternalRegistryPrxSeq& replicas)
 }
 
 NodeSessionPrx
-NodeSessionManager::createSession(const InternalRegistryPrx& registry, IceUtil::Time& timeout) const
+NodeSessionManager::createSession(const InternalRegistryPrx& registry, IceUtil::Time& timeout)
 {
     //
     // Establish a session with the master IceGrid registry.
@@ -396,7 +391,7 @@ NodeSessionManager::createSession(const InternalRegistryPrx& registry, IceUtil::
 }
 
 bool
-NodeSessionManager::keepAlive(const NodeSessionPrx& session) const
+NodeSessionManager::keepAlive(const NodeSessionPrx& session)
 {
     if(_node->getTraceLevels() && _node->getTraceLevels()->replica > 2)
     {
@@ -422,7 +417,7 @@ NodeSessionManager::keepAlive(const NodeSessionPrx& session) const
 }
 
 void
-NodeSessionManager::destroySession(const NodeSessionPrx& session) const
+NodeSessionManager::destroySession(const NodeSessionPrx& session)
 {
     try
     {

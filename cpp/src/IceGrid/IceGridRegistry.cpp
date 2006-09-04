@@ -11,11 +11,11 @@
 #include <Ice/Ice.h>
 #include <Ice/Service.h>
 #include <IceGrid/RegistryI.h>
+#include <IceGrid/TraceLevels.h>
 #ifdef __BCPLUSPLUS__
 #  include <IceGrid/AdminSessionI.h>
 #  include <IceGrid/WaitQueue.h>
 #  include <IceGrid/ReapThread.h>
-#  include <IceGrid/TraceLevels.h>
 #  include <IceGrid/Database.h>
 #endif
 
@@ -35,6 +35,7 @@ public:
 protected:
 
     virtual bool start(int, char*[]);
+    virtual void waitForShutdown();
     virtual bool stop();
     virtual CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&);
 
@@ -91,23 +92,39 @@ RegistryService::start(int argc, char* argv[])
 	return false;
     }
 
+    Ice::PropertiesPtr properties = communicator()->getProperties();
+
     //
     // Warn the user that setting Ice.ThreadPool.Server isn't useful.
     //
-    if(!nowarn && communicator()->getProperties()->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 0) > 0)
+    if(!nowarn && properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 0) > 0)
     {
 	Warning out(communicator()->getLogger());
 	out << "setting `Ice.ThreadPool.Server.Size' is not useful,\n";
 	out << "you should set individual adapter thread pools instead.";
     }
+
+    TraceLevelsPtr traceLevels = new TraceLevels(communicator(), "IceGrid.Registry");
     
-    _registry = new RegistryI(communicator());
+    _registry = new RegistryI(communicator(), traceLevels);
     if(!_registry->start(nowarn))
     {
 	return false;
     }
 
     return true;
+}
+
+void
+RegistryService::waitForShutdown()
+{
+    //
+    // Wait for the activator shutdown. Once the run method returns
+    // all the servers have been deactivated.
+    //
+    enableInterrupt();
+    _registry->waitForShutdown();
+    disableInterrupt();
 }
 
 bool

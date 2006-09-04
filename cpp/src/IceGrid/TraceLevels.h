@@ -11,7 +11,7 @@
 #define ICE_GRID_TRACE_LEVELS_H
 
 #include <IceUtil/Shared.h>
-#include <Ice/PropertiesF.h>
+#include <Ice/CommunicatorF.h>
 #include <Ice/LoggerF.h>
 
 namespace IceGrid
@@ -21,7 +21,7 @@ class TraceLevels : public ::IceUtil::Shared
 {
 public:
 
-    TraceLevels(const ::Ice::PropertiesPtr&, const Ice::LoggerPtr&, bool);
+    TraceLevels(const Ice::CommunicatorPtr&, const std::string&);
     virtual ~TraceLevels();
 
     const int application;

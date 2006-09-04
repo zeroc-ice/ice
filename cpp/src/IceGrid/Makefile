@@ -44,13 +44,13 @@ ADMIN_OBJS	= Grammar.o \
 COMMON_OBJS	= Internal.o \
                   DescriptorParser.o \
                   DescriptorBuilder.o \
-		  TraceLevels.o
+		  TraceLevels.o \
+		  PlatformInfo.o
 
 NODE_OBJS	= NodeI.o \
 		  ServerI.o \
 		  ServerAdapterI.o \
 	          Activator.o \
-		  PlatformInfo.o \
 		  NodeSessionManager.o
 
 REGISTRY_OBJS   = RegistryI.o \
@@ -81,7 +81,8 @@ REGISTRY_OBJS   = RegistryI.o \
 		  QueryI.o \
 		  WaitQueue.o \
 		  FileUserAccountMapperI.o \
-		  ReplicaSessionManager.o
+		  ReplicaSessionManager.o \
+		  WellKnownObjectsManager.o
 
 NODE_SVR_OBJS 	= $(COMMON_OBJS) \
 		  $(NODE_OBJS) \

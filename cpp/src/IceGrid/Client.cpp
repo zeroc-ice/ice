@@ -25,7 +25,7 @@ class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<I
 {
 public:
 
-    SessionKeepAliveThread(const IceGrid::AdminSessionPrx& session, long timeout) :
+    SessionKeepAliveThread(const AdminSessionPrx& session, long timeout) :
 	_session(session),
         _timeout(IceUtil::Time::seconds(timeout)),
         _destroy(false)
@@ -64,7 +64,7 @@ public:
 
 private:
 
-    IceGrid::AdminSessionPrx _session;
+    AdminSessionPrx _session;
     const IceUtil::Time _timeout;
     bool _destroy;
 };
@@ -129,6 +129,7 @@ Client::run(int argc, char* argv[])
     opts.addOpt("r", "routed");
     opts.addOpt("d", "debug");
     opts.addOpt("s", "server");
+    opts.addOpt("R", "replica", IceUtil::Options::NeedArg, "", IceUtil::Options::NoRepeat);
 
     vector<string> args;
     try
@@ -217,7 +218,7 @@ Client::run(int argc, char* argv[])
     }
     
     int timeout;
-    IceGrid::AdminSessionPrx session;
+    AdminSessionPrx session;
     bool ssl = communicator()->getProperties()->getPropertyAsInt("IceGridAdmin.AuthenticateUsingSSL");
     if(opts.isSet("ssl"))
     {
@@ -245,6 +246,11 @@ Client::run(int argc, char* argv[])
     {
     	routed = true;
     }
+    string replica = communicator()->getProperties()->getProperty("IceGridAdmin.Replica");
+    if(!opts.optArg("replica").empty())
+    {
+	replica = opts.optArg("replica");
+    }
 
 
     try
@@ -269,7 +275,7 @@ Client::run(int argc, char* argv[])
 
 	    if(ssl)
 	    {
-		session = IceGrid::AdminSessionPrx::uncheckedCast(router->createSessionFromSecureConnection());
+		session = AdminSessionPrx::uncheckedCast(router->createSessionFromSecureConnection());
 		if(!session)
 		{
 		    cerr << argv[0]
@@ -294,7 +300,7 @@ Client::run(int argc, char* argv[])
 		    password = trim(password);
 		}
 		    
-		session = IceGrid::AdminSessionPrx::uncheckedCast(router->createSession(id, password));
+		session = AdminSessionPrx::uncheckedCast(router->createSession(id, password));
 		if(!session)
 		{
 		    cerr << argv[0]
@@ -307,18 +313,32 @@ Client::run(int argc, char* argv[])
 	}
 	else
 	{
-	    IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
-		communicator()->stringToProxy(instanceName + "/Registry"));
-	    if(!registry)
+	    string registryStr = instanceName + "/Registry";
+	    if(!replica.empty() && replica != "Master")
 	    {
-		cerr << argv[0] << ": could not contact registry" << endl;
-		return EXIT_FAILURE;
+		registryStr += "-" + replica;
+	    }
+
+	    RegistryPrx registry;
+	    try
+	    {
+		registry = RegistryPrx::checkedCast(communicator()->stringToProxy(registryStr));
+		if(!registry)
+		{
+		    cerr << argv[0] << ": could not contact registry" << endl;
+		    return EXIT_FAILURE;
+		}
+	    }
+	    catch(const Ice::NotRegisteredException&)
+	    {
+		cerr << argv[0] << ": no active registry replica named `" << replica << "'" << endl;
+		return EXIT_FAILURE;		
 	    }
 
 	    // Use SSL if available.
 	    try
 	    {
-		registry = IceGrid::RegistryPrx::checkedCast(registry->ice_secure(true));
+		registry = RegistryPrx::checkedCast(registry->ice_secure(true));
 	    }
 	    catch(const Ice::NoEndpointException&)
 	    {

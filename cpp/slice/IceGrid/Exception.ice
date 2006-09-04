@@ -108,6 +108,16 @@ exception NodeNotExistException
 
 /**
  *
+ * This exception is raised if a registry does not exist.
+ *
+ **/
+exception RegistryNotExistException
+{
+    string name;
+};
+
+/**
+ *
  * An exception for deployment failure errors.
  *
  **/
@@ -132,6 +142,20 @@ exception NodeUnreachableException
     string name;
 
     /** The reason why the node couldn't be reached. */
+    string reason;
+};
+
+/**
+ *
+ * This exception is raised if a registry could not be reached.
+ *
+ **/
+exception RegistryUnreachableException
+{
+    /** The name of the registry that is not reachable. */
+    string name;
+
+    /** The reason why the registry couldn't be reached. */
     string reason;
 };
 

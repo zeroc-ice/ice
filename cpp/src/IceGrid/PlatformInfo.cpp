@@ -69,9 +69,10 @@ getLocalizedPerfName(const map<string, string>& perfNames, const string& name)
 
 #endif
 
-PlatformInfo::PlatformInfo(const Ice::CommunicatorPtr& communicator, const TraceLevelsPtr& traceLevels) : 
-    _traceLevels(traceLevels),
-    _hostname(IceInternal::getProtocolPluginFacade(communicator)->getDefaultHost())
+PlatformInfo::PlatformInfo(const string& prefix, 
+			   const Ice::CommunicatorPtr& communicator, 
+			   const TraceLevelsPtr& traceLevels) : 
+    _traceLevels(traceLevels)
 {
     //
     // Initialization of the necessary data structures to get the load average.
@@ -121,11 +122,11 @@ PlatformInfo::PlatformInfo(const Ice::CommunicatorPtr& communicator, const Trace
 #if defined(_WIN32)
     SYSTEM_INFO sysInfo;
     GetSystemInfo(&sysInfo);
-    _info.nProcessors = sysInfo.dwNumberOfProcessors;
+    _nProcessors = sysInfo.dwNumberOfProcessors;
 #elif defined(__APPLE__)
     static int ncpu[2] = { CTL_HW, HW_NCPU };
-    size_t sz = sizeof(_info.nProcessors);
-    if(sysctl(ncpu, 2, &_info.nProcessors, &sz, 0, 0) == -1)
+    size_t sz = sizeof(_nProcessors);
+    if(sysctl(ncpu, 2, &_nProcessors, &sz, 0, 0) == -1)
     {
 	Ice::SyscallException ex(__FILE__, __LINE__);
 	ex.error = getSystemErrno();
@@ -135,47 +136,61 @@ PlatformInfo::PlatformInfo(const Ice::CommunicatorPtr& communicator, const Trace
     struct pst_dynamic dynInfo;
     if(pstat_getdynamic(&dynInfo, sizeof(dynInfo), 1, 0) >= 0)
     {
-        _info.nProcessors = dynInfo.psd_proc_cnt;
+        _nProcessors = dynInfo.psd_proc_cnt;
     }
     else
     {
-        _info.nProcessors = 1;
+        _nProcessors = 1;
     }
 #else
-    _info.nProcessors = static_cast<int>(sysconf(_SC_NPROCESSORS_ONLN));
+    _nProcessors = static_cast<int>(sysconf(_SC_NPROCESSORS_ONLN));
 #endif
 
     //
     // Get the rest of the node information.
     //
 #ifdef _WIN32
-    _info.os = "Windows";
+    _os = "Windows";
     char hostname[MAX_COMPUTERNAME_LENGTH + 1];
     unsigned long size = sizeof(hostname);
     if(GetComputerName(hostname, &size))
     {
-	_info.hostname = hostname;
+	_hostname = hostname;
     }
     OSVERSIONINFO osInfo;
     osInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
     GetVersionEx(&osInfo);
     ostringstream os;
     os << osInfo.dwMajorVersion << "." << osInfo.dwMinorVersion;
-    _info.release = os.str();
-    _info.version = osInfo.szCSDVersion;
-    _info.machine = "x86"; // TODO?
+    _release = os.str();
+    _version = osInfo.szCSDVersion;
+    _machine = "x86"; // TODO?
 #else
     struct utsname utsinfo;
     uname(&utsinfo);
-    _info.os = utsinfo.sysname;
-    _info.hostname = utsinfo.nodename;
-    _info.release = utsinfo.release;
-    _info.version = utsinfo.version;
-    _info.machine = utsinfo.machine;
+    _os = utsinfo.sysname;
+    _hostname = utsinfo.nodename;
+    _release = utsinfo.release;
+    _version = utsinfo.version;
+    _machine = utsinfo.machine;
 #endif
 
-    _info.dataDir = communicator->getProperties()->getProperty("IceGrid.Node.Data");
-    if(!IcePatch2::isAbsolute(_info.dataDir))
+    Ice::PropertiesPtr properties = communicator->getProperties();
+    if(prefix == "IceGrid.Registry")
+    {
+	_name = properties->getPropertyWithDefault("IceGrid.Registry.ReplicaName", "Master");
+	const string endpointsPrefix = prefix + ".Client";
+	_endpoints = properties->getPropertyWithDefault(
+	    endpointsPrefix + ".PublishedEndpoints", properties->getProperty(endpointsPrefix + ".Endpoints"));	
+    }
+    else
+    {
+	_name = properties->getProperty(prefix + ".Name");
+	_endpoints = properties->getPropertyWithDefault(
+	    prefix + ".PublishedEndpoints", properties->getProperty(prefix + ".Endpoints"));
+    }
+    _dataDir = properties->getProperty(prefix + ".Data");    
+    if(!IcePatch2::isAbsolute(_dataDir))
     {
 #ifdef _WIN32
 	char cwd[_MAX_PATH];
@@ -188,11 +203,11 @@ PlatformInfo::PlatformInfo(const Ice::CommunicatorPtr& communicator, const Trace
 	    throw "cannot get the current directory:\n" + IcePatch2::lastError();
 	}
 	
-	_info.dataDir = string(cwd) + '/' + _info.dataDir;
+	_dataDir = string(cwd) + '/' + _dataDir;
     }
-    if(_info.dataDir[_info.dataDir.length() - 1] == '/')
+    if(_dataDir[_dataDir.length() - 1] == '/')
     {
-	_info.dataDir = _info.dataDir.substr(0, _info.dataDir.length() - 1);
+	_dataDir = _dataDir.substr(0, _dataDir.length() - 1);
     }
 }
 
@@ -214,7 +229,26 @@ PlatformInfo::~PlatformInfo()
 NodeInfo
 PlatformInfo::getNodeInfo() const
 {
-    return _info;
+    NodeInfo info;
+    info.name = _name;
+    info.os = _os;
+    info.hostname = _hostname;
+    info.release = _release;
+    info.version = _version;
+    info.machine = _machine;
+    info.nProcessors = _nProcessors;
+    info.dataDir = _dataDir;
+    return info;
+}
+
+RegistryInfo
+PlatformInfo::getRegistryInfo() const
+{
+    RegistryInfo info;
+    info.name = _name;
+    info.hostname = _hostname;
+    info.endpoints = _endpoints;
+    return info;
 }
 
 LoadInfo
@@ -304,7 +338,7 @@ PlatformInfo::getHostname() const
 std::string
 PlatformInfo::getDataDir() const
 {
-    return _info.dataDir;
+    return _dataDir;
 }
 
 #ifdef _WIN32

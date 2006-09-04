@@ -295,30 +295,35 @@ AdminI::~AdminI()
 void
 AdminI::addApplication(const ApplicationDescriptor& descriptor, const Current&)
 {
+    checkIsMaster();
     _database->addApplicationDescriptor(_session.get(), descriptor);
 }
 
 void
 AdminI::syncApplication(const ApplicationDescriptor& descriptor, const Current&)
 {
+    checkIsMaster();
     _database->syncApplicationDescriptor(_session.get(), descriptor);
 }
 
 void
 AdminI::updateApplication(const ApplicationUpdateDescriptor& descriptor, const Current&)
 {
+    checkIsMaster();
     _database->updateApplicationDescriptor(_session.get(), descriptor);
 }
 
 void
 AdminI::removeApplication(const string& name, const Current&)
 {
+    checkIsMaster();
     _database->removeApplicationDescriptor(_session.get(), name);
 }
 
 void
 AdminI::instantiateServer(const string& app, const string& node, const ServerInstanceDescriptor& desc, const Current&)
 {
+    checkIsMaster();
     _database->instantiateServer(_session.get(), app, node, desc);
 }
 
@@ -599,6 +604,7 @@ AdminI::getAdapterInfo(const string& id, const Current&) const
 void
 AdminI::removeAdapter(const string& adapterId, const Ice::Current&)
 {
+    checkIsMaster();
     _database->removeAdapter(adapterId);
 }
 
@@ -611,6 +617,7 @@ AdminI::getAllAdapterIds(const Current&) const
 void 
 AdminI::addObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
 {
+    checkIsMaster();
     try
     {
 	addObjectWithType(proxy, proxy->ice_id(), current);
@@ -628,6 +635,7 @@ AdminI::addObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
 void 
 AdminI::updateObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
 {
+    checkIsMaster();
     const Ice::Identity id = proxy->ice_getIdentity();
     if(id.category == _database->getInstanceName())
     {
@@ -640,6 +648,7 @@ AdminI::updateObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
 void 
 AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& type, const ::Ice::Current& current)
 {
+    checkIsMaster();
     const Ice::Identity id = proxy->ice_getIdentity();
     if(id.category == _database->getInstanceName())
     {
@@ -656,6 +665,7 @@ AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& type, const
 void 
 AdminI::removeObject(const Ice::Identity& id, const Ice::Current& current)
 {
+    checkIsMaster();
     if(id.category == _database->getInstanceName())
     {
 	throw DeploymentException("removing object `" + current.adapter->getCommunicator()->identityToString(id) +
@@ -779,6 +789,77 @@ AdminI::getAllNodeNames(const Current&) const
     return _database->getAllNodes();
 }
 
+RegistryInfo
+AdminI::getRegistryInfo(const string& name, const Ice::Current&) const
+{
+    if(name == _registry->getName())
+    {
+	return _registry->getInfo();
+    }
+    else
+    {
+	return _database->getReplicaInfo(name);
+    }
+}
+
+bool
+AdminI::pingRegistry(const string& name, const Current&) const
+{
+    if(name == _registry->getName())
+    {
+ 	return true;
+    }
+
+    try
+    {
+	_database->getReplica(name)->ice_ping();
+	return true;
+    }
+    catch(const Ice::ObjectNotExistException&)
+    {
+	throw RegistryNotExistException();
+    }
+    catch(const Ice::LocalException&)
+    {
+	return false;
+    }
+    return false;
+}
+
+void
+AdminI::shutdownRegistry(const string& name, const Current&)
+{
+    if(name == _registry->getName())
+    {
+	_registry->shutdown();
+	return;
+    }
+
+    InternalRegistryPrx registry = _database->getReplica(name);
+    try
+    {
+	registry->shutdown();
+    }
+    catch(const Ice::ObjectNotExistException&)
+    {
+	throw RegistryNotExistException(name);
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	ostringstream os;
+	os << ex;
+	throw RegistryUnreachableException(name, os.str());
+    }
+}
+
+StringSeq
+AdminI::getAllRegistryNames(const Current&) const
+{
+    Ice::StringSeq replicas = _database->getAllReplicas();
+    replicas.push_back(_registry->getName());
+    return replicas;
+}
+
 void
 AdminI::shutdown(const Current&)
 {
@@ -789,4 +870,15 @@ SliceChecksumDict
 AdminI::getSliceChecksums(const Current&) const
 {
     return sliceChecksums();
+}
+
+void
+AdminI::checkIsMaster() const
+{
+    if(!_database->isMaster())
+    {
+	DeploymentException ex;
+	ex.reason = "this operation is only allowed on the master registry.";
+	throw ex;
+    }
 }

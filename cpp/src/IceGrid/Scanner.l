@@ -176,6 +176,10 @@ NL	[\n]
     return ICE_GRID_NODE;
 }
 
+"registry" {
+    return ICE_GRID_REGISTRY;
+}
+
 "ping" {
     return ICE_GRID_PING;
 }

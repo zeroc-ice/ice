@@ -346,6 +346,8 @@ ClientSessionFactory::ClientSessionFactory(const Ice::ObjectAdapterPtr& adapter,
 Glacier2::SessionPrx
 ClientSessionFactory::createGlacier2Session(const string& sessionId, const Glacier2::SessionControlPrx& ctl)
 {
+    assert(_adapter);
+
     Ice::IdentitySeq ids; // Identities of the object the session is allowed to access.
 
     Ice::Identity id;

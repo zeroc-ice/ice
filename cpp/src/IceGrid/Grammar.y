@@ -38,6 +38,7 @@ yyerror(const char* s)
 %token ICE_GRID_EXIT
 %token ICE_GRID_APPLICATION
 %token ICE_GRID_NODE
+%token ICE_GRID_REGISTRY
 %token ICE_GRID_SERVER
 %token ICE_GRID_ADAPTER
 %token ICE_GRID_PING
@@ -166,6 +167,22 @@ command
 {
     parser->listAllNodes();
 }
+| ICE_GRID_REGISTRY ICE_GRID_DESCRIBE optional_strings ';'
+{
+    parser->describeRegistry($3);
+}
+| ICE_GRID_REGISTRY ICE_GRID_PING optional_strings ';'
+{
+    parser->pingRegistry($3);
+}
+| ICE_GRID_REGISTRY ICE_GRID_SHUTDOWN optional_strings ';'
+{
+    parser->shutdownRegistry($3);
+}
+| ICE_GRID_REGISTRY ICE_GRID_LIST ';'
+{
+    parser->listAllRegistries();
+}
 | ICE_GRID_SERVER ICE_GRID_REMOVE optional_strings ';'
 {
     parser->removeServer($3);
@@ -293,6 +310,17 @@ command
     else
     {
 	parser->invalidCommand("invalid command: `node " + $2.front() + "'");
+    }
+}
+| ICE_GRID_REGISTRY optional_strings ';'
+{
+    if($2.empty())
+    {
+	parser->invalidCommand("invalid command `registry'");
+    }
+    else
+    {
+	parser->invalidCommand("invalid command: `registry " + $2.front() + "'");
     }
 }
 | ICE_GRID_SERVICE optional_strings ';'

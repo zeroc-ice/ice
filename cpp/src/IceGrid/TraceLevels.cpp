@@ -7,13 +7,14 @@
 //
 // **********************************************************************
 
+#include <Ice/Communicator.h>
 #include <Ice/Properties.h>
 #include <IceGrid/TraceLevels.h>
 
 using namespace std;
 using namespace IceGrid;
 
-TraceLevels::TraceLevels(const Ice::PropertiesPtr& properties, const Ice::LoggerPtr& theLogger, bool isNode) :
+TraceLevels::TraceLevels(const Ice::CommunicatorPtr& communicator, const string& prefix) :
     application(0),
     applicationCat("Application"),
     node(0),
@@ -34,9 +35,11 @@ TraceLevels::TraceLevels(const Ice::PropertiesPtr& properties, const Ice::Logger
     locatorCat("Locator"),
     session(0),
     sessionCat("Session"),
-    logger(theLogger)
+    logger(communicator->getLogger())
 {
-    string keyBase = isNode ? "IceGrid.Node.Trace." : "IceGrid.Registry.Trace.";
+    Ice::PropertiesPtr properties = communicator->getProperties();
+
+    string keyBase = prefix + ".Trace.";
     const_cast<int&>(application) = properties->getPropertyAsInt(keyBase + applicationCat);
     const_cast<int&>(node) = properties->getPropertyAsInt(keyBase + nodeCat);
     const_cast<int&>(replica) = properties->getPropertyAsInt(keyBase + replicaCat);

@@ -11,87 +11,150 @@
 #define ICEGRID_TOPICS_H
 
 #include <IceUtil/Mutex.h>
-
 #include <IceStorm/IceStorm.h>
-
+#include <IceGrid/Internal.h>
 #include <IceGrid/Observer.h>
+#include <IceGrid/StringApplicationInfoDict.h>
+#include <IceGrid/StringAdapterInfoDict.h>
+#include <IceGrid/IdentityObjectInfoDict.h>
 
 namespace IceGrid
 {
+enum TopicName
+{
+    RegistryObserverTopicName,
+    NodeObserverTopicName,
+    ApplicationObserverTopicName,
+    AdapterObserverTopicName,
+    ObjectObserverTopicName
+};    
 
-class NodeObserverTopic : public NodeObserver, public IceUtil::Mutex
+class ObserverTopic : public IceUtil::Monitor<IceUtil::Mutex>, virtual public Ice::Object
 {
 public:
 
-    NodeObserverTopic(const Ice::ObjectAdapterPtr&, const IceStorm::TopicManagerPrx&);
-#ifdef __BCPLUSPLUS__ // COMPILERFIX
-//    void initialize(const IceStorm::TopicManagerPrx&);
-#endif
+    ObserverTopic(const IceStorm::TopicManagerPrx&, const std::string&);
+    virtual ~ObserverTopic();
 
-    virtual void init(const NodeDynamicInfoSeq&, const Ice::Current&);
+    void subscribe(const Ice::ObjectPrx&, int = -1);
+    void unsubscribe(const Ice::ObjectPrx&);
+    void destroy();
+
+    virtual void initObserver(const Ice::ObjectPrx&) = 0;
+
+protected:
+
+    void subscribeImpl(const Ice::ObjectPrx&);
+    void updateSerial(int);
+
+    IceStorm::TopicPrx _topic;
+    Ice::ObjectPrx _basePublisher;
+    int _serial;    
+};
+typedef IceUtil::Handle<ObserverTopic> ObserverTopicPtr;
+
+class RegistryObserverTopic : public ObserverTopic
+{
+public:
+
+    RegistryObserverTopic(const IceStorm::TopicManagerPrx&);
+
+    void registryUp(const RegistryInfo&);
+    void registryDown(const std::string&);
+
+    virtual void initObserver(const Ice::ObjectPrx&);
+
+private:
+
+    const RegistryObserverPrx _publisher;
+    std::map<std::string, RegistryInfo> _registries;
+};
+typedef IceUtil::Handle<RegistryObserverTopic> RegistryObserverTopicPtr;
+
+class NodeObserverTopic : public ObserverTopic, public NodeObserver
+{
+public:
+    
+    NodeObserverTopic(const IceStorm::TopicManagerPrx&, const Ice::ObjectAdapterPtr&);
+
+    virtual void nodeInit(const NodeDynamicInfoSeq&, const Ice::Current&);
     virtual void nodeUp(const NodeDynamicInfo&, const Ice::Current&);
     virtual void nodeDown(const std::string&, const Ice::Current&);
     virtual void updateServer(const std::string&, const ServerDynamicInfo&, const Ice::Current&);
     virtual void updateAdapter(const std::string&, const AdapterDynamicInfo&, const Ice::Current&);
 
-    void subscribe(const NodeObserverPrx&, int serial = -1);
-    void unsubscribe(const NodeObserverPrx&);
-    const NodeObserverPrx& getPublisher() { return _publisher; }
+    const NodeObserverPrx& getPublisher() { return _externalPublisher; }
 
-    void removeNode(const std::string&);
+    void nodeDown(const std::string&);
+    virtual void initObserver(const Ice::ObjectPrx&);
 
 private:
 
-    const IceStorm::TopicPrx _topic;
-    const NodeObserverPrx _internalPublisher;
+    const NodeObserverPrx _externalPublisher;
     const NodeObserverPrx _publisher;
-
-    int _serial;
     std::map<std::string, NodeDynamicInfo> _nodes;
 };
 typedef IceUtil::Handle<NodeObserverTopic> NodeObserverTopicPtr;
 
-class RegistryObserverTopic : public RegistryObserver, public IceUtil::Monitor<IceUtil::Mutex>
+class ApplicationObserverTopic : public ObserverTopic
 {
 public:
-#ifdef __BCPLUSPLUS__ // COMPILERFIX
-//    void initialize(const IceStorm::TopicManagerPrx&);
-#endif
 
+    ApplicationObserverTopic(const IceStorm::TopicManagerPrx&, const StringApplicationInfoDict&);
 
-    RegistryObserverTopic(const Ice::ObjectAdapterPtr&, const IceStorm::TopicManagerPrx&);
-    virtual void init(int, const ApplicationInfoSeq&, const AdapterInfoSeq&, const ObjectInfoSeq&, 
-		      const Ice::Current&);
-    virtual void applicationAdded(int, const ApplicationInfo&, const Ice::Current&);
-    virtual void applicationRemoved(int, const std::string&, const Ice::Current&);
-    virtual void applicationUpdated(int, const ApplicationUpdateInfo&, const Ice::Current&);
+    void applicationInit(int, const ApplicationInfoSeq&);
+    void applicationAdded(int, const ApplicationInfo&);
+    void applicationRemoved(int, const std::string&);
+    void applicationUpdated(int, const ApplicationUpdateInfo&);
 
-    virtual void adapterAdded(int, const AdapterInfo&, const Ice::Current&);
-    virtual void adapterUpdated(int, const AdapterInfo&, const Ice::Current&);
-    virtual void adapterRemoved(int, const std::string&, const Ice::Current&);
-    
-    virtual void objectAdded(int, const ObjectInfo&, const Ice::Current&);
-    virtual void objectUpdated(int, const ObjectInfo&, const Ice::Current&);
-    virtual void objectRemoved(int, const Ice::Identity&, const Ice::Current&);
-
-    void subscribe(const RegistryObserverPrx&, int = -1);
-    void unsubscribe(const RegistryObserverPrx&);
-    const RegistryObserverPrx& getPublisher() { return _publisher; }
+    virtual void initObserver(const Ice::ObjectPrx&);
 
 private:
 
-    void updateSerial(int);
-
-    const IceStorm::TopicPrx _topic;
-    const RegistryObserverPrx _internalPublisher;
-    const RegistryObserverPrx _publisher;
-
-    int _serial;
+    const ApplicationObserverPrx _publisher;
     std::map<std::string, ApplicationInfo> _applications;
+};
+typedef IceUtil::Handle<ApplicationObserverTopic> ApplicationObserverTopicPtr;
+
+class AdapterObserverTopic : public ObserverTopic
+{
+public:
+
+    AdapterObserverTopic(const IceStorm::TopicManagerPrx&, const StringAdapterInfoDict&);
+
+    void adapterInit(int, const AdapterInfoSeq&);
+    void adapterAdded(int, const AdapterInfo&);
+    void adapterUpdated(int, const AdapterInfo&);
+    void adapterRemoved(int, const std::string&);
+
+    virtual void initObserver(const Ice::ObjectPrx&);
+
+private:
+
+    const AdapterObserverPrx _publisher;
     std::map<std::string, AdapterInfo> _adapters;
+};
+typedef IceUtil::Handle<AdapterObserverTopic> AdapterObserverTopicPtr;
+
+class ObjectObserverTopic : public ObserverTopic
+{
+public:
+
+    ObjectObserverTopic(const IceStorm::TopicManagerPrx&, const IdentityObjectInfoDict&);
+
+    void objectInit(int, const ObjectInfoSeq&);
+    void objectAdded(int, const ObjectInfo&);
+    void objectUpdated(int, const ObjectInfo&);
+    void objectRemoved(int, const Ice::Identity&);
+
+    virtual void initObserver(const Ice::ObjectPrx&);
+
+private:
+
+    const ObjectObserverPrx _publisher;
     std::map<Ice::Identity, ObjectInfo> _objects;
 };
-typedef IceUtil::Handle<RegistryObserverTopic> RegistryObserverTopicPtr;
+typedef IceUtil::Handle<ObjectObserverTopic> ObjectObserverTopicPtr;
 
 };
 

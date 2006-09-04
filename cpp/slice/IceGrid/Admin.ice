@@ -203,6 +203,13 @@ struct NodeInfo
 {
     /**
      *
+     * The name of the node.
+     *
+     **/
+    string name;
+
+    /**
+     *
      * The operating system name.
      *
      **/
@@ -251,6 +258,37 @@ struct NodeInfo
      **/
     string dataDir;
 };
+
+/**
+ *
+ * Information about an &IceGrid; registry replica.
+ *
+ **/
+struct RegistryInfo
+{
+    /**
+     *
+     * The name of the registry.
+     *
+     **/
+    string name;
+
+    /**
+     *
+     * The network name of the host running this registry (as defined in
+     * uname()).
+     *
+     **/
+    string hostname;
+
+    /**
+     *
+     * The client endpoints of the registry.
+     *
+     **/
+    string endpoints;
+};
+sequence<RegistryInfo> RegistryInfoSeq;
 
 /**
  *
@@ -792,7 +830,7 @@ interface Admin
      *
      **/
     void addObjectWithType(Object* obj, string type)
-	throws ObjectExistsException;
+	throws ObjectExistsException, DeploymentException;
 
     /**
      *
@@ -948,6 +986,61 @@ interface Admin
 
     /**
      *
+     * Ping an &IceGrid; registry to see if it is active.
+     *
+     * @param name The registry name.
+     *
+     * @return true if the registry ping succeeded, false otherwise.
+     * 
+     * @throws RegistryNotExistException Raised if the registry doesn't exist.
+     *
+     **/
+    ["nonmutating", "cpp:const"] idempotent bool pingRegistry(string name)
+	throws RegistryNotExistException;
+
+    /**
+     *
+     * Get the registry information for the registry with the given name.
+     *
+     * @param name The registry name.
+     *
+     * @return The registry information.
+     * 
+     * @throws RegistryNotExistException Raised if the registry doesn't exist.
+     *
+     * @throws RegistryUnreachableException Raised if the registry could not be
+     * reached.
+     *
+     **/
+    ["nonmutating", "cpp:const"] idempotent RegistryInfo getRegistryInfo(string name)
+	throws RegistryNotExistException, RegistryUnreachableException;
+    
+    /**
+     *
+     * Shutdown an &IceGrid; registry.
+     * 
+     * @param name The registry name.
+     *
+     * @throws RegistryNotExistException Raised if the registry doesn't exist.
+     *
+     * @throws RegistryUnreachableException Raised if the registry could not be
+     * reached.
+     *
+     **/
+    ["ami"] idempotent void shutdownRegistry(string name)
+	throws RegistryNotExistException, RegistryUnreachableException;
+
+    /**
+     *
+     * Get all the &IceGrid; registrys currently registered.
+     *
+     * @return The registry names.
+     *
+     **/
+    ["nonmutating", "cpp:const"] idempotent Ice::StringSeq getAllRegistryNames();
+
+    /**
+     *
      * Shut down the &IceGrid; registry.
      *
      **/
@@ -965,6 +1058,9 @@ interface Admin
 
 interface RegistryObserver;
 interface NodeObserver;
+interface ApplicationObserver;
+interface AdapterObserver;
+interface ObjectObserver;
 
 /**
  *
@@ -1009,8 +1105,15 @@ interface AdminSession extends Glacier2::Session
      *
      * @param nodeObs The node observer.
      *
+     * @param appObs The application observer.
+     *
+     * @param adapterObs The adapter observer.
+     *
+     * @param objObs The object observer.
+     *
      **/
-    idempotent void setObservers(RegistryObserver* registryObs, NodeObserver* nodeObs);
+    idempotent void setObservers(RegistryObserver* registryObs, NodeObserver* nodeObs, ApplicationObserver* appObs,
+				 AdapterObserver* adptObs, ObjectObserver* objObs);
 
     /**
      *
@@ -1024,8 +1127,15 @@ interface AdminSession extends Glacier2::Session
      *
      * @param nodeObs The node observer identity.
      *
+     * @param appObs The application observer.
+     *
+     * @param adptObs The adapter observer.
+     *
+     * @param objObs The object observer.
+     *
      **/
-    idempotent void setObserversByIdentity(Ice::Identity registryObs, Ice::Identity nodeObs);
+    idempotent void setObserversByIdentity(Ice::Identity registryObs, Ice::Identity nodeObs, Ice::Identity appObs,
+					   Ice::Identity adptObs, Ice::Identity objObs);
 
     /**
      *

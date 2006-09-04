@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <Ice/Communicator.h>
 #include <Ice/LocalException.h>
 #include <Ice/LoggerUtil.h>
 #include <IceGrid/ReplicaCache.h>
@@ -62,7 +63,7 @@ ReplicaCache::add(const string& name, const ReplicaSessionIPtr& session)
 
     try
     {
-	_nodes->replicaAdded(session->getProxy());
+	_nodes->replicaAdded(session->getInternalRegistry());
     }
     catch(const Ice::LocalException&)
     {
@@ -91,13 +92,27 @@ ReplicaCache::remove(const string& name)
     
     try
     {
-	_nodes->replicaRemoved(entry->getSession()->getProxy());
+	_nodes->replicaRemoved(entry->getSession()->getInternalRegistry());
     }
     catch(const Ice::LocalException&)
     {
 	// TODO: XXX
     }
     
+    return entry;
+}
+
+ReplicaEntryPtr
+ReplicaCache::get(const string& name) const
+{
+    Lock sync(*this);
+    ReplicaEntryPtr entry = getImpl(name);
+    if(!entry)
+    {
+	RegistryNotExistException ex;
+	ex.name = name;
+	throw ex;
+    }
     return entry;
 }
 
@@ -134,47 +149,28 @@ ReplicaCache::nodeRemoved(const NodePrx& node)
 }
 
 Ice::ObjectPrx
-ReplicaCache::getClientProxy(const Ice::ObjectPrx& proxy) const
+ReplicaCache::getEndpoints(const string& name, const Ice::ObjectPrx& proxy) const
 {
     Ice::EndpointSeq endpoints;
 
-    Ice::EndpointSeq endpts = proxy->ice_getEndpoints();
-    endpoints.insert(endpoints.end(), endpts.begin(), endpts.end());
+    if(proxy)
+    {
+	Ice::EndpointSeq endpts = proxy->ice_getEndpoints();
+	endpoints.insert(endpoints.end(), endpts.begin(), endpts.end());
+    }
 
     for(map<string, ReplicaEntryPtr>::const_iterator p = _entries.begin(); p != _entries.end(); ++p)
     {
-	Ice::ObjectPrx clientProxy = p->second->getSession()->getClientProxy();
-	if(clientProxy)
+	Ice::ObjectPrx prx = p->second->getSession()->getEndpoint(name);
+	if(prx)
 	{
-	    endpts = clientProxy->ice_getEndpoints();
+	    Ice::EndpointSeq endpts = prx->ice_getEndpoints();
 	    endpoints.insert(endpoints.end(), endpts.begin(), endpts.end());
 	}
     }
 
-    return proxy->ice_endpoints(endpoints);
+    return _communicator->stringToProxy("dummy")->ice_endpoints(endpoints);
 }
-
-Ice::ObjectPrx
-ReplicaCache::getServerProxy(const Ice::ObjectPrx& proxy) const
-{
-    Ice::EndpointSeq endpoints;
-
-    Ice::EndpointSeq endpts = proxy->ice_getEndpoints();
-    endpoints.insert(endpoints.end(), endpts.begin(), endpts.end());
-
-    for(map<string, ReplicaEntryPtr>::const_iterator p = _entries.begin(); p != _entries.end(); ++p)
-    {
-	Ice::ObjectPrx serverProxy = p->second->getSession()->getServerProxy();
-	if(serverProxy)
-	{
-	    endpts = serverProxy->ice_getEndpoints();
-	    endpoints.insert(endpoints.end(), endpts.begin(), endpts.end());
-	}
-    }
-
-    return proxy->ice_endpoints(endpoints);
-}
-
 
 ReplicaEntry::ReplicaEntry(const std::string& name, const ReplicaSessionIPtr& session) : 
     _name(name),
@@ -186,5 +182,17 @@ const ReplicaSessionIPtr&
 ReplicaEntry::getSession() const
 { 
     return _session;
+}
+
+RegistryInfo
+ReplicaEntry::getInfo() const
+{
+    return _session->getInfo();
+}
+
+InternalRegistryPrx
+ReplicaEntry::getProxy() const
+{
+    return _session->getInternalRegistry();
 }
 

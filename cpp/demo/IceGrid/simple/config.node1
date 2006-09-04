@@ -8,4 +8,4 @@ IceGrid.Node.Data=db/node1
 #IceGrid.Node.Output=db
 #IceGrid.Node.RedirectErrToOut=1
 
-IceGrid.Node.Trace.Replica=1
+IceGrid.Node.Trace.Replica=2

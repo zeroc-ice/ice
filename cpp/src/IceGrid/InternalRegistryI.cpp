@@ -9,8 +9,10 @@
 
 #include <Ice/Ice.h>
 
+#include <IceGrid/RegistryI.h>
 #include <IceGrid/InternalRegistryI.h>
 #include <IceGrid/Database.h>
+#include <IceGrid/WellKnownObjectsManager.h>
 #include <IceGrid/ReapThread.h>
 #include <IceGrid/Topics.h>
 #include <IceGrid/NodeSessionI.h>
@@ -87,11 +89,15 @@ private:
 
 }
 
-InternalRegistryI::InternalRegistryI(const DatabasePtr& database, 
-				     const ReapThreadPtr& reaper,			
+InternalRegistryI::InternalRegistryI(const RegistryIPtr& registry,
+				     const DatabasePtr& database, 
+				     const ReapThreadPtr& reaper,
+				     const WellKnownObjectsManagerPtr& wellKnownObjects,
 				     ReplicaSessionManager& session) : 
+    _registry(registry),
     _database(database),
     _reaper(reaper),
+    _wellKnownObjects(wellKnownObjects),
     _session(session),
     _timeout(_database->getSessionTimeout())
 {
@@ -115,11 +121,12 @@ InternalRegistryI::registerNode(const std::string& name,
 
 ReplicaSessionPrx
 InternalRegistryI::registerReplica(const std::string& name,
-				   const InternalRegistryPrx& replica, 
-				   const RegistryObserverPrx& observer,
+				   const RegistryInfo& info,
+				   const InternalRegistryPrx& registry,
+				   const DatabaseObserverPrx& dbObserver,
 				   const Ice::Current& current)
 {
-    ReplicaSessionIPtr session = new ReplicaSessionI(_database, name, replica, observer);
+    ReplicaSessionIPtr session = new ReplicaSessionI(_database, _wellKnownObjects, name, info, registry, dbObserver);
     ReplicaSessionPrx proxy = ReplicaSessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
     _reaper->add(new SessionReapable<ReplicaSessionI>(current.adapter, session, proxy), _timeout);
     return proxy;
@@ -165,4 +172,10 @@ InternalRegistryI::getReplicas(const Ice::Current&) const
     {
     }
     return replicas;
+}
+
+void
+InternalRegistryI::shutdown(const Ice::Current& current) const
+{
+    _registry->shutdown();
 }

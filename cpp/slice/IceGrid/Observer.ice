@@ -99,13 +99,6 @@ struct NodeDynamicInfo
 {
     /**
      *
-     * The name of the node.
-     *
-     **/
-    string name;
-
-    /**
-     *
      * Some static information about the node.
      *
      **/
@@ -144,14 +137,14 @@ interface NodeObserver
 {
     /**
      *
-     * The init operation is called after the registration of the
-     * observer to communicate the current state of the node to the
+     * The nodeInit operation is called after the registration of the
+     * observer to communicate the current state of the nodes to the
      * observer implementation.
      *
      * @param nodes The current state of the nodes.
      *
      **/
-    ["ami"] void init(NodeDynamicInfoSeq nodes);
+    ["ami"] void nodeInit(NodeDynamicInfoSeq nodes);
 
     /**
      *
@@ -200,34 +193,28 @@ interface NodeObserver
 
 /**
  *
- * The registry observer interface. Observers should implement this
+ * The database observer interface. Observers should implement this
  * interface to receive information about the state of the IceGrid
- * registry.
+ * registry database.
  * 
  **/
-interface RegistryObserver
+interface ApplicationObserver
 {
     /**
      *
-     * The init operation is called after the registration of the
-     * observer to communicate the current state of the registry to the
-     * observer implementation.
+     * The applicationInit operation is called after the registration
+     * of the observer to communicate the current state of the
+     * registry to the observer implementation.
      *
-     * @param serial The current serial number of the registry database. This
-     * serial number allows observers to make sure that their internal state
-     * is synchronized with the registry.
+     * @param serial The current serial number of the registry
+     * database. This serial number allows observers to make sure that
+     * their internal state is synchronized with the registry.
      *
      * @param applications The applications currently registered with
      * the registry.
      *
-     * @param adapters The adapters that were dynamically registered
-     * with the registry (not through the deployment mechanism).
-     *
-     * @param objects The objects registered with the [Admin]
-     * interface (not through the deployment mechanism).
-     *
      **/
-    ["ami"] void init(int serial, ApplicationInfoSeq applications, AdapterInfoSeq adpts, ObjectInfoSeq objects);
+    ["ami"] void applicationInit(int serial, ApplicationInfoSeq applications);
 
     /**
      * 
@@ -264,6 +251,25 @@ interface RegistryObserver
      * 
      **/
     void applicationUpdated(int serial, ApplicationUpdateInfo desc);
+};
+
+interface AdapterObserver
+{
+    /**
+     *
+     * The adapterInit operation is called after the registration of
+     * the observer to communicate the current state of the registry
+     * to the observer implementation.
+     *
+     * @param serial The current serial number of the registry
+     * database. This serial number allows observers to make sure that
+     * their internal state is synchronized with the registry.
+     *
+     * @param adapters The adapters that were dynamically registered
+     * with the registry (not through the deployment mechanism).
+     *
+     **/
+    ["ami"] void adapterInit(AdapterInfoSeq adpts);
 
     /**
      *
@@ -271,7 +277,7 @@ interface RegistryObserver
      * a dynamically-registered adapter was added.
      *
      **/
-    void adapterAdded(int serial, AdapterInfo info);
+    void adapterAdded(AdapterInfo info);
 
     /**
      *
@@ -279,7 +285,7 @@ interface RegistryObserver
      * a dynamically-registered adapter was updated.
      *
      **/
-    void adapterUpdated(int serial, AdapterInfo info);
+    void adapterUpdated(AdapterInfo info);
 
     /**
      *
@@ -287,7 +293,26 @@ interface RegistryObserver
      * a dynamically-registered adapter was removed.
      *
      **/
-    void adapterRemoved(int serial, string id);
+    void adapterRemoved(string id);
+};
+
+interface ObjectObserver
+{
+    /**
+     *
+     * The objectInit operation is called after the registration of
+     * the observer to communicate the current state of the registry
+     * to the observer implementation.
+     *
+     * @param serial The current serial number of the registry database. This
+     * serial number allows observers to make sure that their internal state
+     * is synchronized with the registry.
+     *
+     * @param objects The objects registered with the [Admin]
+     * interface (not through the deployment mechanism).
+     *
+     **/
+    ["ami"] void objectInit(ObjectInfoSeq objects);
 
     /**
      *
@@ -295,7 +320,7 @@ interface RegistryObserver
      * object was added through the [Admin] interface.
      *
      **/
-    void objectAdded(int serial, ObjectInfo info);
+    void objectAdded(ObjectInfo info);
 
     /**
      *
@@ -303,7 +328,7 @@ interface RegistryObserver
      * an object registered through the [Admin] interface was updated.
      *
      **/
-    void objectUpdated(int serial, ObjectInfo info);
+    void objectUpdated(ObjectInfo info);
 
     /**
      *
@@ -311,7 +336,41 @@ interface RegistryObserver
      * an object registered through the [Admin] interface was removed.
      *
      **/
-    void objectRemoved(int serial, Ice::Identity id);
+    void objectRemoved(Ice::Identity id);
+};
+
+interface RegistryObserver
+{
+    /**
+     *
+     * The registryInit operation is called after the registration of
+     * the observer to communicate the current state of the registries
+     * to the observer implementation.
+     *
+     * @param registries The current state of the registries.
+     *
+     **/
+    ["ami"] void registryInit(RegistryInfoSeq registries);
+
+    /**
+     *
+     * The nodeUp operation is called to notify the observer that a node
+     * came up.
+     * 
+     * @param node The node state.
+     *
+     **/
+    void registryUp(RegistryInfo node);
+
+    /**
+     *
+     * The nodeDown operation is called to notify the observer that a node
+     * went down.
+     * 
+     * @param name The node name.
+     *
+     **/
+    void registryDown(string name);
 };
 
 };

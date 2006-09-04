@@ -16,6 +16,7 @@
 #include <Glacier2/Session.ice>
 #include <IceGrid/Admin.ice>
 #include <IceGrid/Observer.ice>
+#include <IceGrid/Registry.ice>
 
 module IceGrid
 {
@@ -340,14 +341,8 @@ interface ReplicaSession
      **/ 
     ["nonmutating", "cpp:const"] idempotent int getTimeout();
 
-    /**
-     *
-     * Set the client and server proxies for this replica. This will
-     * cause the master registry to update the registry well-known
-     * objects endpoints (e.g.: for the IceGrid::Query interface).
-     *
-     **/
-    idempotent void setClientAndServerProxies(Object* serverProxy, Object* clientProxy);
+    idempotent void setEndpoints(StringObjectProxyDict endpoints);
+    idempotent void registerWellKnownObjects(ObjectInfoSeq objects);
 
     /**
      *
@@ -355,6 +350,10 @@ interface ReplicaSession
      *
      **/
     void destroy();
+};
+
+interface DatabaseObserver extends ApplicationObserver, ObjectObserver, AdapterObserver
+{
 };
 
 interface InternalRegistry
@@ -380,13 +379,16 @@ interface InternalRegistry
     NodeSession* registerNode(string name, Node* nd, NodeInfo info)
 	throws NodeActiveException;
 
-    ReplicaSession* registerReplica(string name, InternalRegistry* prx, RegistryObserver* observer)
+    ReplicaSession* registerReplica(string name, RegistryInfo info, InternalRegistry* prx, DatabaseObserver* dbObs)
 	throws ReplicaActiveException;
 
     void registerWithReplica(InternalRegistry* prx);
 
     ["nonmutating", "cpp:const"] idempotent NodePrxSeq getNodes();
+
     ["nonmutating", "cpp:const"] idempotent InternalRegistryPrxSeq getReplicas();
+
+    ["cpp:const"] idempotent void shutdown();
 };
 
 

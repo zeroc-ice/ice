@@ -77,12 +77,19 @@ public:
     virtual std::string getNodeHostname(const std::string&, const Ice::Current&) const;
     virtual Ice::StringSeq getAllNodeNames(const ::Ice::Current&) const;
 
+    virtual RegistryInfo getRegistryInfo(const std::string&, const Ice::Current&) const;
+    virtual bool pingRegistry(const std::string&, const Ice::Current&) const;
+    virtual void shutdownRegistry(const std::string&, const Ice::Current&);
+    virtual Ice::StringSeq getAllRegistryNames(const ::Ice::Current&) const;
+
     virtual void shutdown(const Ice::Current&);
 
     virtual Ice::SliceChecksumDict getSliceChecksums(const Ice::Current&) const;
 
 private:
 
+    void checkIsMaster() const;
+    
     const DatabasePtr _database;
     const RegistryIPtr _registry;
     const TraceLevelsPtr _traceLevels;

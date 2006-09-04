@@ -32,6 +32,8 @@ public:
 
     bool canRemove() const { return true; }
     const ReplicaSessionIPtr& getSession() const;
+    RegistryInfo getInfo() const;
+    InternalRegistryPrx getProxy() const;
 
 private:
     
@@ -49,12 +51,12 @@ public:
 
     ReplicaEntryPtr add(const std::string&, const ReplicaSessionIPtr&);
     ReplicaEntryPtr remove(const std::string&);
+    ReplicaEntryPtr get(const std::string&) const;
 
     void nodeAdded(const NodePrx&);
     void nodeRemoved(const NodePrx&);
 
-    Ice::ObjectPrx getClientProxy(const Ice::ObjectPrx&) const;
-    Ice::ObjectPrx getServerProxy(const Ice::ObjectPrx&) const;    
+    Ice::ObjectPrx getEndpoints(const std::string&, const Ice::ObjectPrx&) const;
 
 private:
 

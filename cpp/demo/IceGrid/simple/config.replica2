@@ -11,6 +11,9 @@ IceGrid.Registry.Internal.Endpoints=default
 IceGrid.Registry.Data=db/replica2
 IceGrid.Registry.ReplicaName=Replica2
 
+IceGrid.Registry.PermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
+IceGrid.Registry.AdminPermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
+
 #
 # Trace properties.
 #

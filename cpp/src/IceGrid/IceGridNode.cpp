@@ -104,7 +104,7 @@ private:
 } // End of namespace IceGrid
 
 CollocatedRegistry::CollocatedRegistry(const CommunicatorPtr& communicator, const ActivatorPtr& activator) :
-    RegistryI(communicator), 
+    RegistryI(communicator, new TraceLevels(communicator, "IceGrid.Registry")), 
     _activator(activator)
 {
 }
@@ -246,7 +246,7 @@ NodeService::start(int argc, char* argv[])
     //
     // Create the activator.
     //
-    TraceLevelsPtr traceLevels = new TraceLevels(properties, communicator()->getLogger(), true);
+    TraceLevelsPtr traceLevels = new TraceLevels(communicator(), "IceGrid.Node");
     _activator = new Activator(traceLevels, properties);
 
     //
@@ -419,7 +419,7 @@ NodeService::start(int argc, char* argv[])
     // for the server and server adapter. It also takes care of installing the
     // evictors and object factories necessary to store these objects.
     //
-    Identity id = communicator()->stringToIdentity(instanceName + "/" + IceUtil::generateUUID());
+    Identity id = communicator()->stringToIdentity(instanceName + "/Node-" + name);
     NodePrx nodeProxy = NodePrx::uncheckedCast(_adapter->createProxy(id));
     _node = new NodeI(_adapter, _sessions, _activator, _waitQueue, traceLevels, nodeProxy, name, mapper);
     _adapter->add(_node, nodeProxy->ice_getIdentity());

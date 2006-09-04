@@ -44,6 +44,9 @@ AdminSessionI::getAdmin(const Ice::Current& current) const
 void
 AdminSessionI::setObservers(const RegistryObserverPrx& registryObserver, 
 			    const NodeObserverPrx& nodeObserver, 
+			    const ApplicationObserverPrx& appObserver,
+			    const AdapterObserverPrx& adapterObserver,
+			    const ObjectObserverPrx& objectObserver,
 			    const Ice::Current& current)
 {
     Lock sync(*this);
@@ -54,32 +57,19 @@ AdminSessionI::setObservers(const RegistryObserverPrx& registryObserver,
 	throw ex;
     }
 
-    //
-    // Subscribe to the topics.
-    //
-    if(registryObserver)
-    {
-	if(_registryObserver)
-	{
-	    _database->getRegistryObserverTopic()->unsubscribe(_registryObserver);
-	}
-	_registryObserver = RegistryObserverPrx::uncheckedCast(registryObserver->ice_timeout(_timeout * 1000));
-	_database->getRegistryObserverTopic()->subscribe(_registryObserver); 
-    }
-    if(nodeObserver)
-    {
-	if(_nodeObserver)
-	{
-	    _database->getNodeObserverTopic()->unsubscribe(_nodeObserver);
-	}
-	_nodeObserver = NodeObserverPrx::uncheckedCast(nodeObserver->ice_timeout(_timeout * 1000));
-	_database->getNodeObserverTopic()->subscribe(_nodeObserver);
-    }
+    setupObserverSubscription(RegistryObserverTopicName, registryObserver);
+    setupObserverSubscription(NodeObserverTopicName, nodeObserver);
+    setupObserverSubscription(ApplicationObserverTopicName, appObserver);
+    setupObserverSubscription(AdapterObserverTopicName, adapterObserver);
+    setupObserverSubscription(ObjectObserverTopicName, objectObserver);
 }
 
 void
 AdminSessionI::setObserversByIdentity(const Ice::Identity& registryObserver, 
 				      const Ice::Identity& nodeObserver,
+				      const Ice::Identity& appObserver,
+				      const Ice::Identity& adapterObserver,
+				      const Ice::Identity& objectObserver,
 				      const Ice::Current& current)
 {
     Lock sync(*this);
@@ -90,27 +80,12 @@ AdminSessionI::setObserversByIdentity(const Ice::Identity& registryObserver,
 	throw ex;
     }
 
-    //
-    // Subscribe to the topics.
-    //
-    if(!registryObserver.name.empty())
-    {
-	if(_registryObserver)
-	{
-	    _database->getRegistryObserverTopic()->unsubscribe(_registryObserver);
-	}
-	_registryObserver = RegistryObserverPrx::uncheckedCast(current.con->createProxy(registryObserver));
-	_database->getRegistryObserverTopic()->subscribe(_registryObserver);
-    }
-    if(!nodeObserver.name.empty())
-    {
-	if(_nodeObserver)
-	{
-	    _database->getNodeObserverTopic()->unsubscribe(_nodeObserver);
-	}
-	_nodeObserver = NodeObserverPrx::uncheckedCast(current.con->createProxy(nodeObserver));
-	_database->getNodeObserverTopic()->subscribe(_nodeObserver);
-    }
+    setupObserverSubscription(RegistryObserverTopicName, toProxy(registryObserver, current.con));
+    setupObserverSubscription(NodeObserverTopicName, toProxy(nodeObserver, current.con));
+    setupObserverSubscription(ApplicationObserverTopicName, toProxy(appObserver, current.con));
+    setupObserverSubscription(AdapterObserverTopicName, toProxy(adapterObserver, current.con));
+    setupObserverSubscription(ObjectObserverTopicName, toProxy(objectObserver, current.con));
+
 }
 
 int
@@ -173,16 +148,11 @@ AdminSessionI::destroy(const Ice::Current& current)
     //
     if(current.adapter) // Not shutting down
     {
-	if(_registryObserver) // Immutable once _destroy = true
-	{
-	    _database->getRegistryObserverTopic()->unsubscribe(_registryObserver);
-	    _registryObserver = 0;
-	}
-	if(_nodeObserver)
-	{
-	    _database->getNodeObserverTopic()->unsubscribe(_nodeObserver);
-	    _nodeObserver = 0;
-	}
+	setupObserverSubscription(RegistryObserverTopicName, 0);
+	setupObserverSubscription(NodeObserverTopicName, 0);
+	setupObserverSubscription(ApplicationObserverTopicName, 0);
+	setupObserverSubscription(AdapterObserverTopicName, 0);
+	setupObserverSubscription(ObjectObserverTopicName, 0);
     }
 }
 
@@ -201,6 +171,8 @@ AdminSessionFactory::AdminSessionFactory(const Ice::ObjectAdapterPtr& adapter,
 Glacier2::SessionPrx
 AdminSessionFactory::createGlacier2Session(const string& sessionId, const Glacier2::SessionControlPrx& ctl)
 {
+    assert(_adapter);
+
     Ice::IdentitySeq ids; // Identities of the object the session is allowed to access.
 
     Ice::Identity id;
@@ -285,4 +257,26 @@ AdminSSLSessionManagerI::create(const Glacier2::SSLInfo& info,
     }
 
     return _factory->createGlacier2Session(userDN, ctl);
+}
+
+void
+AdminSessionI::setupObserverSubscription(TopicName name, const Ice::ObjectPrx& observer)
+{
+    if(_observers[name] != observer)
+    {
+	_database->getObserverTopic(name)->unsubscribe(_observers[name]);
+	_observers[name] = 0;
+    }
+
+    if(observer)
+    {
+	_observers[name] = observer->ice_timeout(_timeout * 1000);
+	_database->getObserverTopic(name)->subscribe(_observers[name]); 
+    }
+}
+
+Ice::ObjectPrx
+AdminSessionI::toProxy(const Ice::Identity& id, const Ice::ConnectionPtr& connection)
+{
+    return id.name.empty() ? Ice::ObjectPrx() : connection->createProxy(id);
 }

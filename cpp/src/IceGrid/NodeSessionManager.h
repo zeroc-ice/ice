@@ -30,9 +30,9 @@ public:
 
     NodeSessionKeepAliveThread(const InternalRegistryPrx&, const NodeIPtr&);
 
-    virtual NodeSessionPrx createSession(const InternalRegistryPrx&, IceUtil::Time&) const;
-    virtual void destroySession(const NodeSessionPrx&) const;
-    virtual bool keepAlive(const NodeSessionPrx&) const;
+    virtual NodeSessionPrx createSession(const InternalRegistryPrx&, IceUtil::Time&);
+    virtual void destroySession(const NodeSessionPrx&);
+    virtual bool keepAlive(const NodeSessionPrx&);
 
 private:
 
@@ -70,19 +70,19 @@ private:
 	}
 
 	virtual NodeSessionPrx 
-	createSession(const InternalRegistryPrx& master, IceUtil::Time& timeout) const
+	createSession(const InternalRegistryPrx& master, IceUtil::Time& timeout)
         {
 	    return _manager.createSession(master, timeout);
 	}
 
 	virtual void 
-	destroySession(const NodeSessionPrx& session) const
+	destroySession(const NodeSessionPrx& session)
         {
 	    _manager.destroySession(session);
 	}
 
 	virtual bool 
-	keepAlive(const NodeSessionPrx& session) const
+	keepAlive(const NodeSessionPrx& session)
         {
 	    return _manager.keepAlive(session);
 	}
@@ -95,9 +95,9 @@ private:
 
     friend class Thread;
 
-    NodeSessionPrx createSession(const InternalRegistryPrx&, IceUtil::Time&) const;
-    void destroySession(const NodeSessionPrx&) const;
-    bool keepAlive(const NodeSessionPrx&) const;
+    NodeSessionPrx createSession(const InternalRegistryPrx&, IceUtil::Time&);
+    void destroySession(const NodeSessionPrx&);
+    bool keepAlive(const NodeSessionPrx&);
 
     const NodeIPtr _node;
     ThreadPtr _thread;

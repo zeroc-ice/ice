@@ -567,8 +567,13 @@ ServerI::ServerI(const NodeIPtr& node, const ServerPrx& proxy, const string& ser
     ifstream is(idFilePath.c_str());
     if(is.good())
     {
-	is >> _info.uuid;
-	is >> _info.revision;
+	char line[1024];
+	is.getline(line, 1024);
+	is.getline(line, 1024);
+	is.getline(line, 1024);
+	string ignore;
+	is >> ignore >> _info.uuid;
+	is >> ignore >> _info.revision;
     }
     else
     {
@@ -1925,8 +1930,11 @@ ServerI::updateRevisionFile()
     ofstream os(idFilePath.c_str());
     if(os.good())
     {
-	os << _info.uuid << endl;
-	os << _info.revision << endl;
+	os << "#" << endl;
+	os << "# This server belongs to the application `" << _info.application << "'" << endl;
+	os << "#" << endl;
+	os << "uuid: " << _info.uuid << endl;
+	os << "revision: " << _info.revision << endl;
     }
 }
 

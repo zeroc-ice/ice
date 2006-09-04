@@ -70,7 +70,7 @@ NodeSessionI::getTimeout(const Ice::Current& current) const
 NodeObserverPrx
 NodeSessionI::getObserver(const Ice::Current& current) const
 {
-    NodeObserverTopicPtr topic = _database->getNodeObserverTopic();
+    NodeObserverTopicPtr topic = NodeObserverTopicPtr::dynamicCast(_database->getObserverTopic(NodeObserverTopicName));
     if(topic)
     {
 	return topic->getPublisher();
@@ -90,13 +90,14 @@ NodeSessionI::getServers(const Ice::Current& current) const
 void
 NodeSessionI::destroy(const Ice::Current& current)
 {
-    Lock sync(*this);
-    if(_destroy)
     {
-	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+	Lock sync(*this);
+	if(_destroy)
+	{
+	    throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+	}	
+	_destroy = true;
     }
-
-    _destroy = true;
 
     _database->removeNode(_name, this, !current.adapter);
 
@@ -106,7 +107,6 @@ NodeSessionI::destroy(const Ice::Current& current)
 	{
 	    current.adapter->remove(current.id);
 	}
-
 	catch(const Ice::ObjectAdapterDeactivatedException&)
 	{
 	}

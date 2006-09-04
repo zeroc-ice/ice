@@ -86,8 +86,12 @@ public:
     void pingNode(const std::list<std::string>&);
     void printLoadNode(const std::list<std::string>&);
     void shutdownNode(const std::list<std::string>&);
-    void removeNode(const std::list<std::string>&);
     void listAllNodes();
+
+    void describeRegistry(const std::list<std::string>&);
+    void pingRegistry(const std::list<std::string>&);
+    void shutdownRegistry(const std::list<std::string>&);
+    void listAllRegistries();
 
     void removeServer(const std::list<std::string>&);
     void startServer(const std::list<std::string>&);

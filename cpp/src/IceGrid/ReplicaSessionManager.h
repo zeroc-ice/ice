@@ -23,6 +23,9 @@ namespace IceGrid
 class Database;
 typedef IceUtil::Handle<Database> DatabasePtr;
 
+class WellKnownObjectsManager;
+typedef IceUtil::Handle<WellKnownObjectsManager> WellKnownObjectsManagerPtr;
+
 class TraceLevels;
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
@@ -32,12 +35,15 @@ public:
 
     ReplicaSessionManager();
     
-    void create(const std::string&, const DatabasePtr&, const InternalRegistryPrx&);
+    void create(const std::string&, const RegistryInfo&, const DatabasePtr&, const WellKnownObjectsManagerPtr&, 
+		const InternalRegistryPrx&);
     void create(const InternalRegistryPrx&);
-    void activate();
     NodePrxSeq getNodes() const;
     void destroy();
 
+    void incInitCount();
+    void registerAllWellKnownObjects();
+    
 private:
 
     class Thread : public SessionKeepAliveThread<ReplicaSessionPrx, InternalRegistryPrx>
@@ -51,22 +57,24 @@ private:
 	}
 
 	virtual ReplicaSessionPrx 
-	createSession(const InternalRegistryPrx& master, IceUtil::Time& timeout) const
+	createSession(const InternalRegistryPrx& master, IceUtil::Time& timeout)
         {
 	    return _manager.createSession(master, timeout);
 	}
 
 	virtual void 
-	destroySession(const ReplicaSessionPrx& session) const
+	destroySession(const ReplicaSessionPrx& session)
         {
 	    _manager.destroySession(session);
 	}
 
 	virtual bool 
-	keepAlive(const ReplicaSessionPrx& session) const
+	keepAlive(const ReplicaSessionPrx& session)
         {
 	    return _manager.keepAlive(session);
 	}
+
+	void registerAllWellKnownObjects();
 
     private:
 	
@@ -76,17 +84,21 @@ private:
 
     friend class Thread;
 
-    ReplicaSessionPrx createSession(const InternalRegistryPrx&, IceUtil::Time&) const;
-    void destroySession(const ReplicaSessionPrx&) const;
-    bool keepAlive(const ReplicaSessionPrx&) const;
+    ReplicaSessionPrx createSession(const InternalRegistryPrx&, IceUtil::Time&);
+    void destroySession(const ReplicaSessionPrx&);
+    bool keepAlive(const ReplicaSessionPrx&);
 
     ThreadPtr _thread;
     std::string _name;
+    RegistryInfo _info;
     InternalRegistryPrx _master;
-    InternalRegistryPrx _replica;
-    RegistryObserverPrx _observer;
+    RegistryPrx _registry;
+    InternalRegistryPrx _internalRegistry;
+    DatabaseObserverPrx _observer;
     DatabasePtr _database;
+    WellKnownObjectsManagerPtr _wellKnownObjects;
     TraceLevelsPtr _traceLevels;
+    int _initCount;
 };
 
 }

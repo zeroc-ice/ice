@@ -14,13 +14,18 @@
 using namespace std;
 using namespace IceGrid;
 
-class RegistryInitCB : public AMI_RegistryObserver_init
+namespace IceGrid
+{
+
+template<class T>
+class InitCB : public T
 {
 public:
 
-    RegistryInitCB(const RegistryObserverTopicPtr& topic, const RegistryObserverPrx& observer, int serial) : 
+    InitCB(const ObserverTopicPtr& topic, const Ice::ObjectPrx& observer, const string& name, int serial) : 
 	_topic(topic),
 	_observer(observer),
+	_name(name),
 	_serial(serial)
     {	
     }
@@ -35,68 +40,30 @@ public:
     ice_exception(const Ice::Exception& ex)
     {
 	Ice::Warning out(_observer->ice_getCommunicator()->getLogger());
-	out << "couldn't initialize registry observer:\n" << ex;    
+	out << "couldn't initialize " << _name << " observer:\n" << ex;    
     }
 
 private:
 
-    const RegistryObserverTopicPtr _topic;
-    const RegistryObserverPrx _observer;
+    const ObserverTopicPtr _topic;
+    const Ice::ObjectPrx _observer;
+    const string _name;
     const int _serial;
 };
 
-class NodeInitCB : public AMI_NodeObserver_init
-{
-public:
-
-    NodeInitCB(const NodeObserverTopicPtr& topic, const NodeObserverPrx& observer, int serial) : 
-	_topic(topic),
-	_observer(observer),
-	_serial(serial)
-    {	
-    }
-
-    void
-    ice_response()
-    {
-	_topic->subscribe(_observer, _serial);
-    }
-    
-    void
-    ice_exception(const Ice::Exception& ex)
-    {
-	Ice::Warning out(_observer->ice_getCommunicator()->getLogger());
-	out << "couldn't initialize node observer:\n" << ex;    
-    }
-    
-private:
-
-    const NodeObserverTopicPtr _topic;
-    const NodeObserverPrx _observer;
-    const int _serial;
 };
 
-NodeObserverTopic::NodeObserverTopic(const Ice::ObjectAdapterPtr& adapter,
-				     const IceStorm::TopicManagerPrx& topicManager) : 
-/*
-#ifdef __BCPLUSPLUS__ // COMPILERFIX
-{
-}
-
-void
-NodeObserverTopic::initialize(const IceStorm::TopicManagerPrx& topicManager)
-#endif
-*/
+ObserverTopic::ObserverTopic(const IceStorm::TopicManagerPrx& topicManager, const string& name) :
     _serial(0)
 {
     IceStorm::TopicPrx t;
     try
     {
-	t = topicManager->create("NodeObserver");
+	t = topicManager->create(name);
     }
     catch(const IceStorm::TopicExists&)
     {
-	t = topicManager->retrieve("NodeObserver");
+	t = topicManager->retrieve(name);
     }
 
     //
@@ -104,24 +71,154 @@ NodeObserverTopic::initialize(const IceStorm::TopicManagerPrx& topicManager)
     // topic because the subscribe() method is given a fixed proxy
     // which can't be marshalled.
     //
-    const_cast<IceStorm::TopicPrx&>(_topic) = IceStorm::TopicPrx::uncheckedCast(t->ice_collocationOptimized(true));
-    const_cast<NodeObserverPrx&>(_internalPublisher) = NodeObserverPrx::uncheckedCast(_topic->getPublisher());
+    _topic = IceStorm::TopicPrx::uncheckedCast(t->ice_collocationOptimized(true));
+    _basePublisher = _topic->getPublisher()->ice_collocationOptimized(false);
+}
 
-    __setNoDelete(true);
-    try
-    {
-	const_cast<NodeObserverPrx&>(_publisher) = NodeObserverPrx::uncheckedCast(adapter->addWithUUID(this));
-    }
-    catch(...)
-    {
-	__setNoDelete(false);
-	throw;
-    }
-    __setNoDelete(false);
+ObserverTopic::~ObserverTopic()
+{
 }
 
 void
-NodeObserverTopic::init(const NodeDynamicInfoSeq&, const Ice::Current&)
+ObserverTopic::subscribe(const Ice::ObjectPrx& obsv, int serial)
+{
+    while(true)
+    {
+	if(serial == -1)
+	{
+	    initObserver(obsv);
+	    return;
+	}
+
+	Lock sync(*this);
+	if(serial != _serial)
+	{
+	    serial = -1;
+	    continue;
+	}
+
+	subscribeImpl(obsv);
+	break;
+    }
+}
+
+void
+ObserverTopic::unsubscribe(const Ice::ObjectPrx& observer)
+{
+    Lock sync(*this);
+    if(_topic)
+    {
+	_topic->unsubscribe(observer);
+    }
+}
+
+void
+ObserverTopic::destroy()
+{
+    Lock sync(*this);
+    _topic = 0;
+}
+
+void 
+ObserverTopic::subscribeImpl(const Ice::ObjectPrx& observer)
+{
+    // This must be called with the mutex locked.
+    if(!_topic)
+    {
+	return;
+    }
+
+    IceStorm::QoS qos;
+    qos["reliability"] = "twoway ordered";
+    _topic->subscribe(qos, observer);
+}
+
+void
+ObserverTopic::updateSerial(int serial)
+{
+    //
+    // This loop ensures that updates from the database are processed
+    // sequentially.
+    //
+    assert(_serial < serial);
+    while(_serial + 1 != serial)
+    {
+	wait();
+    }
+    _serial = serial;
+    notifyAll();
+}
+
+RegistryObserverTopic::RegistryObserverTopic(const IceStorm::TopicManagerPrx& topicManager) : 
+    ObserverTopic(topicManager, "RegistryObserver")
+{
+    const_cast<RegistryObserverPrx&>(_publisher) = RegistryObserverPrx::uncheckedCast(_basePublisher);
+}
+
+void
+RegistryObserverTopic::registryUp(const RegistryInfo& info)
+{
+    Lock sync(*this);
+    if(!_topic)
+    {
+	return;
+    }
+    updateSerial(_serial + 1);
+    _registries.insert(make_pair(info.name, info));
+    _publisher->registryUp(info);
+}
+
+void 
+RegistryObserverTopic::registryDown(const string& name)
+{
+    Lock sync(*this);
+    if(!_topic)
+    {
+	return;
+    }
+    updateSerial(_serial + 1);
+    if(_registries.find(name) != _registries.end())
+    {
+	_registries.erase(name);
+	_publisher->registryDown(name);
+    }
+}
+
+void
+RegistryObserverTopic::initObserver(const Ice::ObjectPrx& obsv)
+{
+    RegistryObserverPrx observer = RegistryObserverPrx::uncheckedCast(obsv);
+    RegistryInfoSeq registries;
+    int serial;
+    {
+	Lock sync(*this);
+	registries.reserve(_registries.size());
+	for(map<string, RegistryInfo>::const_iterator p = _registries.begin(); p != _registries.end(); ++p)
+	{
+	    registries.push_back(p->second);
+	}
+	serial = _serial;
+    }
+    observer->registryInit_async(new InitCB<AMI_RegistryObserver_registryInit>(this, observer, "registry", serial),
+				 registries);
+}
+
+NodeObserverTopic::NodeObserverTopic(const IceStorm::TopicManagerPrx& topicManager, 
+				     const Ice::ObjectAdapterPtr& adapter) : 
+    ObserverTopic(topicManager, "NodeObserver")
+{
+    const_cast<NodeObserverPrx&>(_publisher) = NodeObserverPrx::uncheckedCast(_basePublisher);
+    try
+    {
+	const_cast<NodeObserverPrx&>(_externalPublisher) = NodeObserverPrx::uncheckedCast(adapter->addWithUUID(this));
+    }
+    catch(const Ice::LocalException&)
+    {
+    }
+}
+
+void
+NodeObserverTopic::nodeInit(const NodeDynamicInfoSeq&, const Ice::Current&)
 {
     assert(false);
 }
@@ -130,25 +227,30 @@ void
 NodeObserverTopic::nodeUp(const NodeDynamicInfo& info, const Ice::Current& current)
 {
     Lock sync(*this);
-    _nodes.insert(make_pair(info.name, info));
-    _internalPublisher->nodeUp(info);
+    if(!_topic)
+    {
+	return;
+    }
+    updateSerial(_serial + 1);
+    _nodes.insert(make_pair(info.info.name, info));
+    _publisher->nodeUp(info);
 }
 
 void 
 NodeObserverTopic::nodeDown(const string& name, const Ice::Current&)
 {
-    Lock sync(*this);
-    if(_nodes.find(name) != _nodes.end())
-    {
-	_nodes.erase(name);
-	_internalPublisher->nodeDown(name);
-    }
+    assert(false);
 }
 
 void 
 NodeObserverTopic::updateServer(const string& node, const ServerDynamicInfo& server, const Ice::Current&)
 {
     Lock sync(*this);
+    if(!_topic)
+    {
+	return;
+    }
+
     if(_nodes.find(node) == _nodes.end())
     {
 	//
@@ -157,7 +259,7 @@ NodeObserverTopic::updateServer(const string& node, const ServerDynamicInfo& ser
 	return;
     }
     
-    ++_serial;
+    updateSerial(_serial + 1);
 
     ServerDynamicInfoSeq& servers = _nodes[node].servers;
     ServerDynamicInfoSeq::iterator p = servers.begin();
@@ -182,13 +284,18 @@ NodeObserverTopic::updateServer(const string& node, const ServerDynamicInfo& ser
 	servers.push_back(server);
     }
 
-    _internalPublisher->updateServer(node, server);
+    _publisher->updateServer(node, server);
 }
 
 void 
 NodeObserverTopic::updateAdapter(const string& node, const AdapterDynamicInfo& adapter, const Ice::Current&)
 {
     Lock sync(*this);
+    if(!_topic)
+    {
+	return;
+    }
+
     if(_nodes.find(node) == _nodes.end())
     {
 	//
@@ -197,7 +304,7 @@ NodeObserverTopic::updateAdapter(const string& node, const AdapterDynamicInfo& a
 	return;
     }
 
-    ++_serial;
+    updateSerial(_serial + 1);
 
     AdapterDynamicInfoSeq& adapters = _nodes[node].adapters;
     AdapterDynamicInfoSeq::iterator p = adapters.begin();
@@ -222,149 +329,103 @@ NodeObserverTopic::updateAdapter(const string& node, const AdapterDynamicInfo& a
 	adapters.push_back(adapter);
     }
     
-    _internalPublisher->updateAdapter(node, adapter);
-}
-
-void
-NodeObserverTopic::subscribe(const NodeObserverPrx& observer, int serial)
-{
-    while(true)
-    {
-	if(serial == -1)
-	{
-	    NodeDynamicInfoSeq nodes;
-	    {
-		Lock sync(*this);
-		nodes.reserve(_nodes.size());
-		for(map<string, NodeDynamicInfo>::const_iterator p = _nodes.begin(); p != _nodes.end(); ++p)
-		{
-		    nodes.push_back(p->second);
-		}
-		serial = _serial;
-	    }
-	    observer->init_async(new NodeInitCB(this, observer, serial), nodes);
-	    return;
-	}
-
-	Lock sync(*this);
-	if(serial != _serial)
-	{
-	    serial = -1;
-	    continue;
-	}
-
-	IceStorm::QoS qos;
-	qos["reliability"] = "twoway ordered";
-	_topic->subscribe(qos, observer);
-	break;
-    }
-}
-
-void
-NodeObserverTopic::unsubscribe(const NodeObserverPrx& observer)
-{
-    _topic->unsubscribe(observer);
-}
-
-RegistryObserverTopic::RegistryObserverTopic(const Ice::ObjectAdapterPtr& adapter,
-					     const IceStorm::TopicManagerPrx& topicManager) : 
-/*
-#ifdef __BCPLUSPLUS__ // COMPILERFIX
-{
-}
-
-void
-RegistryObserverTopic::initialize(const IceStorm::TopicManagerPrx& topicManager)
-#endif
-*/
-    _serial(0)
-{
-    IceStorm::TopicPrx t;
-    try
-    {
-	t = topicManager->create("RegistryObserver");
-    }
-    catch(const IceStorm::TopicExists&)
-    {
-	t = topicManager->retrieve("RegistryObserver");
-    }
-
-    //
-    // NOTE: collocation optimization needs to be turned on for the
-    // topic because the subscribe() method is given a fixed proxy
-    // which can't be marshalled.
-    //
-    const_cast<IceStorm::TopicPrx&>(_topic) = IceStorm::TopicPrx::uncheckedCast(t->ice_collocationOptimized(true));
-    const_cast<RegistryObserverPrx&>(_internalPublisher) = RegistryObserverPrx::uncheckedCast(_topic->getPublisher());
-
-    __setNoDelete(true);
-    try
-    {
-	const_cast<RegistryObserverPrx&>(_publisher) = RegistryObserverPrx::uncheckedCast(adapter->addWithUUID(this));
-    }
-    catch(...)
-    {
-	__setNoDelete(false);
-	throw;
-    }
-    __setNoDelete(false);
+    _publisher->updateAdapter(node, adapter);
 }
 
 void 
-RegistryObserverTopic::init(int serial, 
-			    const ApplicationInfoSeq& apps, 
-			    const AdapterInfoSeq& adpts,
-			    const ObjectInfoSeq& objects,
-			    const Ice::Current&)
+NodeObserverTopic::nodeDown(const string& name)
 {
     Lock sync(*this);
+    if(!_topic)
+    {
+	return;
+    }
 
-    _serial = serial;
+    updateSerial(_serial + 1);
 
+    if(_nodes.find(name) != _nodes.end())
+    {
+	_nodes.erase(name);
+	_publisher->nodeDown(name);
+    }
+}
+
+void
+NodeObserverTopic::initObserver(const Ice::ObjectPrx& obsv)
+{
+    NodeObserverPrx observer = NodeObserverPrx::uncheckedCast(obsv);
+    int serial;
+    NodeDynamicInfoSeq nodes;
+    {
+	Lock sync(*this);
+	nodes.reserve(_nodes.size());
+	for(map<string, NodeDynamicInfo>::const_iterator p = _nodes.begin(); p != _nodes.end(); ++p)
+	{
+	    nodes.push_back(p->second);
+	}
+	serial = _serial;
+    }
+    observer->nodeInit_async(new InitCB<AMI_NodeObserver_nodeInit>(this, observer, "node", serial), nodes);
+}
+
+ApplicationObserverTopic::ApplicationObserverTopic(const IceStorm::TopicManagerPrx& topicManager,
+						   const StringApplicationInfoDict& applications) :
+    ObserverTopic(topicManager, "ApplicationObserver"),
+    _applications(applications.begin(), applications.end())
+{
+    const_cast<ApplicationObserverPrx&>(_publisher) = ApplicationObserverPrx::uncheckedCast(_basePublisher);
+}
+
+void 
+ApplicationObserverTopic::applicationInit(int serial, const ApplicationInfoSeq& apps)
+{
+    Lock sync(*this);
+    if(!_topic)
+    {
+	return;
+    }
+    updateSerial(serial);
+    _applications.clear();
     for(ApplicationInfoSeq::const_iterator p = apps.begin(); p != apps.end(); ++p)
     {
 	_applications.insert(make_pair(p->descriptor.name, *p));
     }
-    for(AdapterInfoSeq::const_iterator q = adpts.begin(); q != adpts.end(); ++q)
-    {
-	_adapters.insert(make_pair(q->id, *q));
-    }
-    for(ObjectInfoSeq::const_iterator r = objects.begin(); r != objects.end(); ++r)
-    {
-	_objects.insert(make_pair(r->proxy->ice_getIdentity(), *r));
-    }
-
-    _internalPublisher->init(serial, apps, adpts, objects);
 }
 
 void 
-RegistryObserverTopic::applicationAdded(int serial, const ApplicationInfo& info, const Ice::Current&)
+ApplicationObserverTopic::applicationAdded(int serial, const ApplicationInfo& info)
 {
     Lock sync(*this);
-
+    if(!_topic)
+    {
+	return;
+    }
     updateSerial(serial);
-
     _applications.insert(make_pair(info.descriptor.name, info));
-
-    _internalPublisher->applicationAdded(serial, info);
+    _publisher->applicationAdded(serial, info);
 }
 
 void 
-RegistryObserverTopic::applicationRemoved(int serial, const string& name, const Ice::Current&)
+ApplicationObserverTopic::applicationRemoved(int serial, const string& name)
 {
     Lock sync(*this);
-
+    if(!_topic)
+    {
+	return;
+    }
     updateSerial(serial);
-
     _applications.erase(name);
-
-    _internalPublisher->applicationRemoved(serial, name);
+    _publisher->applicationRemoved(serial, name);
 }
 
 void 
-RegistryObserverTopic::applicationUpdated(int serial, const ApplicationUpdateInfo& info, const Ice::Current& c)
+ApplicationObserverTopic::applicationUpdated(int serial, const ApplicationUpdateInfo& info)
 {
     Lock sync(*this);
+    if(!_topic)
+    {
+	return;
+    }
 
     updateSerial(serial);
     try
@@ -372,7 +433,7 @@ RegistryObserverTopic::applicationUpdated(int serial, const ApplicationUpdateInf
 	map<string, ApplicationInfo>::iterator p = _applications.find(info.descriptor.name);
 	if(p != _applications.end())
 	{
-	    ApplicationHelper helper(c.adapter->getCommunicator(), p->second.descriptor);
+	    ApplicationHelper helper(_publisher->ice_getCommunicator(), p->second.descriptor);
 	    p->second.descriptor = helper.update(info.descriptor);
 	    p->second.updateTime = info.updateTime;
 	    p->second.updateUser = info.updateUser;
@@ -398,156 +459,189 @@ RegistryObserverTopic::applicationUpdated(int serial, const ApplicationUpdateInf
     {
 	assert(false);
     }
-
-    _internalPublisher->applicationUpdated(serial, info);
+    _publisher->applicationUpdated(serial, info);
 }
 
 void 
-RegistryObserverTopic::adapterAdded(int serial, const AdapterInfo& info, const Ice::Current&)
+ApplicationObserverTopic::initObserver(const Ice::ObjectPrx& obsv)
 {
-    Lock sync(*this);
-
-    updateSerial(serial);
-
-    _adapters.insert(make_pair(info.id, info));
-
-    _internalPublisher->adapterAdded(serial, info);
-}
-
-void 
-RegistryObserverTopic::adapterUpdated(int serial, const AdapterInfo& info, const Ice::Current&)
-{
-    Lock sync(*this);
-
-    updateSerial(serial);
-
-    _adapters[info.id] = info;
-
-    _internalPublisher->adapterUpdated(serial, info);
-}
-
-void
-RegistryObserverTopic::adapterRemoved(int serial, const string& id, const Ice::Current&)
-{
-    Lock sync(*this);
-
-    updateSerial(serial);
-
-    _adapters.erase(id);
-
-    _internalPublisher->adapterRemoved(serial, id);
-}
-
-void 
-RegistryObserverTopic::objectAdded(int serial, const ObjectInfo& info, const Ice::Current&)
-{
-    Lock sync(*this);
-
-    updateSerial(serial);
-
-    _objects.insert(make_pair(info.proxy->ice_getIdentity(), info));
-
-    _internalPublisher->objectAdded(serial, info);
-}
-
-void 
-RegistryObserverTopic::objectUpdated(int serial, const ObjectInfo& info, const Ice::Current&)
-{
-    Lock sync(*this);
-
-    updateSerial(serial);
-
-    _objects[info.proxy->ice_getIdentity()] = info;
-
-    _internalPublisher->objectUpdated(serial, info);
-}
-
-void
-RegistryObserverTopic::objectRemoved(int serial, const Ice::Identity& id, const Ice::Current&)
-{
-    Lock sync(*this);
-
-    updateSerial(serial);
-
-    _objects.erase(id);
-
-    _internalPublisher->objectRemoved(serial, id);
-}
-
-void 
-RegistryObserverTopic::subscribe(const RegistryObserverPrx& observer, int serial)
-{
-    while(true)
+    ApplicationObserverPrx observer = ApplicationObserverPrx::uncheckedCast(obsv);
+    int serial;
+    ApplicationInfoSeq applications;
     {
-	if(serial == -1)
-	{
-	    ApplicationInfoSeq applications;
-	    AdapterInfoSeq adapters;
-	    ObjectInfoSeq objects;
-	    {
-		Lock sync(*this);
-		assert(_serial != -1);
-		serial = _serial;
-
-		map<string, ApplicationInfo>::const_iterator p;
-		for(p = _applications.begin(); p != _applications.end(); ++p)
-		{
-		    applications.push_back(p->second);
-		}
-		
-		map<string, AdapterInfo>::const_iterator q;
-		for(q = _adapters.begin(); q != _adapters.end(); ++q)
-		{
-		    adapters.push_back(q->second);
-		}
-
-		map<Ice::Identity, ObjectInfo>::const_iterator r;
-		for(r = _objects.begin(); r != _objects.end(); ++r)
-		{
-		    objects.push_back(r->second);
-		}
-	    }
-	    observer->init_async(new RegistryInitCB(this, observer, serial), serial, applications, adapters, objects);
-	    return;
-	}
-
-	//
-	// If the registry cache changed since we've send the init()
-	// call we need to do it again. Otherwise, we can subscribe to
-	// the IceStorm topic.
-	//
 	Lock sync(*this);
-	if(serial != _serial)
+	serial = _serial;
+	assert(serial != -1);
+	for(map<string, ApplicationInfo>::const_iterator p = _applications.begin(); p != _applications.end(); ++p)
 	{
-	    serial = -1;
-	    continue;
+	    applications.push_back(p->second);
 	}
+    }
+    observer->applicationInit_async(new InitCB<AMI_ApplicationObserver_applicationInit>(this, observer, "application",
+											serial), 
+				    serial, applications);
+}
 
-	IceStorm::QoS qos;
-	qos["reliability"] = "twoway ordered";
-	_topic->subscribe(qos, observer);
-	break;
+AdapterObserverTopic::AdapterObserverTopic(const IceStorm::TopicManagerPrx& topicManager,
+					   const StringAdapterInfoDict& adapters) :
+    ObserverTopic(topicManager, "AdapterObserver"),
+    _adapters(adapters.begin(), adapters.end())
+{
+    const_cast<AdapterObserverPrx&>(_publisher) = AdapterObserverPrx::uncheckedCast(_basePublisher);
+}
+
+void 
+AdapterObserverTopic::adapterInit(int serial, const AdapterInfoSeq& adpts)
+{
+    Lock sync(*this);
+    if(!_topic)
+    {
+	return;
+    }
+    updateSerial(serial);
+    _adapters.clear();
+    for(AdapterInfoSeq::const_iterator q = adpts.begin(); q != adpts.end(); ++q)
+    {
+	_adapters.insert(make_pair(q->id, *q));
     }
 }
 
 void 
-RegistryObserverTopic::unsubscribe(const RegistryObserverPrx& observer)
+AdapterObserverTopic::adapterAdded(int serial, const AdapterInfo& info)
 {
     Lock sync(*this);
-    _topic->unsubscribe(observer);
+    if(!_topic)
+    {
+	return;
+    }
+    updateSerial(serial);
+    _adapters.insert(make_pair(info.id, info));
+    _publisher->adapterAdded(info);
+}
+
+void 
+AdapterObserverTopic::adapterUpdated(int serial, const AdapterInfo& info)
+{
+    Lock sync(*this);
+    if(!_topic)
+    {
+	return;
+    }
+    updateSerial(serial);
+    _adapters[info.id] = info;
+    _publisher->adapterUpdated(info);
 }
 
 void
-RegistryObserverTopic::updateSerial(int serial)
+AdapterObserverTopic::adapterRemoved(int serial, const string& id)
 {
-    //
-    // This loop ensures that updates from the database are processed
-    // sequentially.
-    //
-    while(_serial + 1 != serial)
+    Lock sync(*this);
+    if(!_topic)
     {
-	wait();
+	return;
     }
-    _serial = serial;
-    notifyAll();
+    updateSerial(serial);
+    _adapters.erase(id);
+    _publisher->adapterRemoved(id);
 }
+
+void 
+AdapterObserverTopic::initObserver(const Ice::ObjectPrx& obsv)
+{
+    AdapterObserverPrx observer = AdapterObserverPrx::uncheckedCast(obsv);
+    int serial;
+    AdapterInfoSeq adapters;
+    {
+	Lock sync(*this);
+	serial = _serial;
+	assert(serial != -1);
+	for(map<string, AdapterInfo>::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
+	{
+	    adapters.push_back(p->second);
+	}	
+    }	    
+    observer->adapterInit_async(new InitCB<AMI_AdapterObserver_adapterInit>(this, observer, "adapter", serial), 
+				adapters);
+}
+
+ObjectObserverTopic::ObjectObserverTopic(const IceStorm::TopicManagerPrx& topicManager,
+					 const IdentityObjectInfoDict& objects) :
+    ObserverTopic(topicManager, "ObjectObserver"),
+    _objects(objects.begin(), objects.end())
+{
+    const_cast<ObjectObserverPrx&>(_publisher) = ObjectObserverPrx::uncheckedCast(_basePublisher);
+}
+
+void 
+ObjectObserverTopic::objectInit(int serial, const ObjectInfoSeq& objects)
+{
+    Lock sync(*this);
+    if(!_topic)
+    {
+	return;
+    }
+    updateSerial(serial);
+    _objects.clear();
+    for(ObjectInfoSeq::const_iterator r = objects.begin(); r != objects.end(); ++r)
+    {
+	_objects.insert(make_pair(r->proxy->ice_getIdentity(), *r));
+    }
+}
+
+void 
+ObjectObserverTopic::objectAdded(int serial, const ObjectInfo& info)
+{
+    Lock sync(*this);
+    if(!_topic)
+    {
+	return;
+    }
+    updateSerial(serial);
+    _objects.insert(make_pair(info.proxy->ice_getIdentity(), info));
+    _publisher->objectAdded(info);
+}
+
+void 
+ObjectObserverTopic::objectUpdated(int serial, const ObjectInfo& info)
+{
+    Lock sync(*this);
+    if(!_topic)
+    {
+	return;
+    }
+    updateSerial(serial);
+    _objects[info.proxy->ice_getIdentity()] = info;
+    _publisher->objectUpdated(info);
+}
+
+void
+ObjectObserverTopic::objectRemoved(int serial, const Ice::Identity& id)
+{
+    Lock sync(*this);
+    if(!_topic)
+    {
+	return;
+    }
+    updateSerial(serial);
+    _objects.erase(id);
+    _publisher->objectRemoved(id);
+}
+
+void 
+ObjectObserverTopic::initObserver(const Ice::ObjectPrx& obsv)
+{
+    ObjectObserverPrx observer = ObjectObserverPrx::uncheckedCast(obsv);
+    int serial;
+    ObjectInfoSeq objects;
+    {
+	Lock sync(*this);
+	serial = _serial;
+	for(map<Ice::Identity, ObjectInfo>::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
+	{
+	    objects.push_back(p->second);
+	}
+    }	    
+    observer->objectInit_async(new InitCB<AMI_ObjectObserver_objectInit>(this, observer, "object", serial), objects);
+}
+
+

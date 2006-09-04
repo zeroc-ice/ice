@@ -90,16 +90,16 @@ private:
 };
 typedef IceUtil::Handle<SessionKeepAliveThread> SessionKeepAliveThreadPtr;
 
-class ObserverStackTracer
+class ObserverBase : public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    ObserverStackTracer(const string& name) : _name(name)
+    ObserverBase(const string& name) : _name(name), _updated(0)
     {
 	_observers.insert(make_pair(name, this));
     }
 
-    virtual ~ObserverStackTracer()
+    virtual ~ObserverBase()
     {
 	_observers.erase(_name);
     }
@@ -107,7 +107,7 @@ public:
     static void
     printStack()
     {
-	map<string, ObserverStackTracer*>::const_iterator p;
+	map<string, ObserverBase*>::const_iterator p;
 	for(p = _observers.begin(); p != _observers.end(); ++p)
 	{
 	    vector<string>::const_iterator q = p->second->_stack.begin();
@@ -130,29 +130,54 @@ public:
 	_stack.push_back(msg);
     }
 
-private:
+    void
+    waitForUpdate(const char* file, int line)
+    {
+	Lock sync(*this);
+
+	ostringstream os;
+	os << "wait for update from line " << line;
+	trace(os.str());
+
+	while(!_updated)
+	{
+	    if(!timedWait(IceUtil::Time::seconds(10)))
+	    {
+		cerr << "timeout: " << file << ":" << line << endl;
+		ObserverBase::printStack();
+		test(false); // Timeout
+	    }
+	}
+	--_updated;
+    }
+
+protected:
+
+    void
+    updated(const string& update)
+    {
+	trace(update);
+	++_updated;
+	notifyAll();
+    }
 
     string _name;
     vector<string> _stack;
-    
-    static map<string, ObserverStackTracer*> _observers;
+    int _updated;
+    static map<string, ObserverBase*> _observers;
 };
-map<string, ObserverStackTracer*> ObserverStackTracer::_observers;
+map<string, ObserverBase*> ObserverBase::_observers;
 
-class RegistryObserverI : public RegistryObserver, public ObserverStackTracer, public IceUtil::Monitor<IceUtil::Mutex>
+class ApplicationObserverI : public ApplicationObserver, public ObserverBase
 {
 public:
 
-    RegistryObserverI(const string& name) : ObserverStackTracer(name), _updated(0)
+    ApplicationObserverI(const string& name) : ObserverBase(name)					     
     {
     }
     
     virtual void 
-    init(int serial, 
-	 const ApplicationInfoSeq& apps, 
-	 const AdapterInfoSeq& adapters, 
-	 const ObjectInfoSeq& objects,
-	 const Ice::Current&)
+    applicationInit(int serial, const ApplicationInfoSeq& apps, const Ice::Current&)
     {
 	Lock sync(*this);
 	for(ApplicationInfoSeq::const_iterator p = apps.begin(); p != apps.end(); ++p)
@@ -162,15 +187,7 @@ public:
 		this->applications.insert(make_pair(p->descriptor.name, *p));
 	    }
 	}
-	for(AdapterInfoSeq::const_iterator q = adapters.begin(); q != adapters.end(); ++q)
-	{
-	    this->adapters.insert(make_pair(q->id, *q));
-	}
-	for(ObjectInfoSeq::const_iterator r = objects.begin(); r != objects.end(); ++r)
-	{
-	    this->objects.insert(make_pair(r->proxy->ice_getIdentity(), *r));
-	}
-	updated(serial, "init update");
+	updated(updateSerial(serial, "init update"));
     }
 
     virtual void
@@ -178,7 +195,7 @@ public:
     {
 	Lock sync(*this);
 	this->applications.insert(make_pair(app.descriptor.name, app));
-	updated(serial, "application added `" + app.descriptor.name + "'");
+	updated(updateSerial(serial, "application added `" + app.descriptor.name + "'"));
     }
 
     virtual void 
@@ -186,7 +203,7 @@ public:
     {
 	Lock sync(*this);
 	this->applications.erase(name);
-	updated(serial, "application removed `" + name + "'");
+	updated(updateSerial(serial, "application removed `" + name + "'"));
     }
 
     virtual void 
@@ -202,129 +219,169 @@ public:
 	{
 	    this->applications[desc.name].descriptor.variables[p->first] = p->second;
 	}
-	updated(serial, "application updated `" + desc.name + "'");
-    }
-
-    void
-    adapterAdded(int serial, const AdapterInfo& info, const Ice::Current&)
-    {
-	Lock sync(*this);
-	this->adapters.insert(make_pair(info.id, info));
-	updated(serial, "adapter added `" + info.id + "'");
-    }
-
-    void
-    adapterUpdated(int serial, const AdapterInfo& info, const Ice::Current&)
-    {
-	Lock sync(*this);
-	this->adapters[info.id] = info;
-	updated(serial, "adapter updated `" + info.id + "'");
-    }
-
-    void
-    adapterRemoved(int serial, const string& id, const Ice::Current&)
-    {
-	Lock sync(*this);
-	this->adapters.erase(id);
-	updated(serial, "adapter removed `" + id + "'");
-    }
-
-    void
-    objectAdded(int serial, const ObjectInfo& info, const Ice::Current&)
-    {
-	Lock sync(*this);
-	this->objects.insert(make_pair(info.proxy->ice_getIdentity(), info));
-	updated(serial, "object added `" + info.proxy->ice_toString() + "'");
-    }
-
-    void
-    objectUpdated(int serial, const ObjectInfo& info, const Ice::Current&)
-    {
-	Lock sync(*this);
-	this->objects[info.proxy->ice_getIdentity()] = info;
-	updated(serial, "object updated `" + info.proxy->ice_toString() + "'");
-    }
-
-    void
-    objectRemoved(int serial, const Ice::Identity& id, const Ice::Current& current)
-    {
-	Lock sync(*this);
-	this->objects.erase(id);
-	updated(serial, "object removed `" + current.adapter->getCommunicator()->identityToString(id) + "'");
-    }
-
-    void
-    waitForUpdate(const char* file, int line)
-    {
-	Lock sync(*this);
-
-	ostringstream os;
-	os << "wait for update from line " << line << " (serial = " << serial << ")";
-	trace(os.str());
-
-	while(!_updated)
-	{
-	    if(!timedWait(IceUtil::Time::seconds(10)))
-	    {
-		cerr << "timeout: " << file << ":" << line << endl;
-		ObserverStackTracer::printStack();
-		test(false); // Timeout
-	    }
-	}
-	--_updated;
+	updated(updateSerial(serial, "application updated `" + desc.name + "'"));
     }
 
     int serial;
     map<string, ApplicationInfo> applications;
+
+private:
+
+    string
+    updateSerial(int serial, const string& update)
+    {
+	this->serial = serial;
+	ostringstream os;
+	os << update << " (serial = " << serial << ")";
+	return os.str();
+    }
+};
+typedef IceUtil::Handle<ApplicationObserverI> ApplicationObserverIPtr;
+
+class AdapterObserverI : public AdapterObserver, public ObserverBase
+{
+public:
+
+    AdapterObserverI(const string& name) : ObserverBase(name)
+    {
+    }
+    
+    virtual void 
+    adapterInit(const AdapterInfoSeq& adapters, const Ice::Current&)
+    {
+	Lock sync(*this);
+	for(AdapterInfoSeq::const_iterator q = adapters.begin(); q != adapters.end(); ++q)
+	{
+	    this->adapters.insert(make_pair(q->id, *q));
+	}
+	updated(updateSerial(0, "init update"));
+    }
+
+    void
+    adapterAdded(const AdapterInfo& info, const Ice::Current&)
+    {
+	Lock sync(*this);
+	this->adapters.insert(make_pair(info.id, info));
+	updated(updateSerial(0, "adapter added `" + info.id + "'"));
+    }
+
+    void
+    adapterUpdated(const AdapterInfo& info, const Ice::Current&)
+    {
+	Lock sync(*this);
+	this->adapters[info.id] = info;
+	updated(updateSerial(0, "adapter updated `" + info.id + "'"));
+    }
+
+    void
+    adapterRemoved(const string& id, const Ice::Current&)
+    {
+	Lock sync(*this);
+	this->adapters.erase(id);
+	updated(updateSerial(0, "adapter removed `" + id + "'"));
+    }
+
+    int serial;
     map<string, AdapterInfo> adapters;
+
+private:
+
+    string
+    updateSerial(int serial, const string& update)
+    {
+	this->serial = serial;
+	ostringstream os;
+	os << update << " (serial = " << serial << ")";
+	return os.str();
+    }
+};
+typedef IceUtil::Handle<AdapterObserverI> AdapterObserverIPtr;
+
+class ObjectObserverI : public ObjectObserver, public ObserverBase
+{
+public:
+
+    ObjectObserverI(const string& name) : ObserverBase(name)
+    {
+    }
+    
+    virtual void 
+    objectInit(const ObjectInfoSeq& objects, const Ice::Current&)
+    {
+	Lock sync(*this);
+	for(ObjectInfoSeq::const_iterator r = objects.begin(); r != objects.end(); ++r)
+	{
+	    this->objects.insert(make_pair(r->proxy->ice_getIdentity(), *r));
+	}
+	updated(updateSerial(0, "init update"));
+    }
+
+    void
+    objectAdded(const ObjectInfo& info, const Ice::Current&)
+    {
+	Lock sync(*this);
+	this->objects.insert(make_pair(info.proxy->ice_getIdentity(), info));
+	updated(updateSerial(0, "object added `" + info.proxy->ice_toString() + "'"));
+    }
+
+    void
+    objectUpdated(const ObjectInfo& info, const Ice::Current&)
+    {
+	Lock sync(*this);
+	this->objects[info.proxy->ice_getIdentity()] = info;
+	updated(updateSerial(0, "object updated `" + info.proxy->ice_toString() + "'"));
+    }
+
+    void
+    objectRemoved(const Ice::Identity& id, const Ice::Current& current)
+    {
+	Lock sync(*this);
+	this->objects.erase(id);
+	updated(updateSerial(0, "object removed `" + 
+			     current.adapter->getCommunicator()->identityToString(id) + "'"));
+    }
+
+    int serial;
     map<Ice::Identity, ObjectInfo> objects;
 
 private:
 
-    void
-    updated(int serial, const string& update)
+    string
+    updateSerial(int serial, const string& update)
     {
+	this->serial = serial;
 	ostringstream os;
-	os  << update << " (serial = " << serial << ")";
-	trace(os.str());
-
-	if(serial != -1)
-	{
-	    this->serial = serial;
-	}
-	++_updated;
-	notifyAll();
+	os << update << " (serial = " << serial << ")";
+	return os.str();
     }
-
-    int _updated;
 };
-typedef IceUtil::Handle<RegistryObserverI> RegistryObserverIPtr;
+typedef IceUtil::Handle<ObjectObserverI> ObjectObserverIPtr;
 
-class NodeObserverI : public NodeObserver, public ObserverStackTracer, public IceUtil::Monitor<IceUtil::Mutex>
+class NodeObserverI : public NodeObserver, public ObserverBase
 {
 public:
 
-    NodeObserverI(const string& name) : ObserverStackTracer(name), _updated(0)
+    NodeObserverI(const string& name) : ObserverBase(name)
     {
     }
 
     virtual void 
-    init(const NodeDynamicInfoSeq& info, const Ice::Current& current)
+    nodeInit(const NodeDynamicInfoSeq& info, const Ice::Current& current)
     {
 	Lock sync(*this);
 	for(NodeDynamicInfoSeq::const_iterator p = info.begin(); p != info.end(); ++p)
 	{
-	    this->nodes[p->name] = filter(*p);
+	    this->nodes[p->info.name] = filter(*p);
 	}
-	updated(current, "init");
+	updated("init");
     }
 
     virtual void
     nodeUp(const NodeDynamicInfo& info, const Ice::Current& current)
     {
 	Lock sync(*this);
-	this->nodes[info.name] = filter(info);
-	updated(current, "node `" + info.name + "' up");
+	this->nodes[info.info.name] = filter(info);
+	updated("node `" + info.info.name + "' up");
     }
 
     virtual void
@@ -332,7 +389,7 @@ public:
     {
 	Lock sync(*this);
 	this->nodes.erase(name);
-	updated(current, "node `" + name + "' down");
+	updated("node `" + name + "' down");
     }
 
     virtual void
@@ -370,7 +427,7 @@ public:
 	ostringstream os;
 	os << "server `" << info.id << "' on node `" << node << "' state updated: " << info.state
 	   << " (pid = " << info.pid << ")";
-	updated(current, os.str());
+	updated(os.str());
     }
 
     virtual void
@@ -408,19 +465,18 @@ public:
 	ostringstream os;
 	os << "adapter `" << info.id << " on node `" << node << "' state updated: " 
 	   << (info.proxy ? "active" : "inactive");
-	updated(current, os.str());
+	updated(os.str());
     }
 
     NodeDynamicInfo
     filter(const NodeDynamicInfo& info)
     {
-	if(info.name != "localnode")
+	if(info.info.name != "localnode")
 	{
 	    return info;
 	}
 
 	NodeDynamicInfo filtered;
-	filtered.name = info.name;
 	filtered.info = info.info;
 
 	for(ServerDynamicInfoSeq::const_iterator p = info.servers.begin(); p != info.servers.end(); ++p)
@@ -444,48 +500,14 @@ public:
 	return filtered;
     }
 
-    void
-    waitForUpdate(const char* file, int line)
-    {
-	Lock sync(*this);
-
-	ostringstream os;
-	os << "wait for update from line " << line;
-	trace(os.str());
-
-	while(!_updated)
-	{
-	    if(!timedWait(IceUtil::Time::seconds(10)))
-	    {
-		cerr << "timeout: " << file << ":" << line << endl;
-		ObserverStackTracer::printStack();
-		test(false); // Timeout
-	    }
-	}
-	--_updated;
-    }
-
     map<string, NodeDynamicInfo> nodes;
-
-private:
-
-    void
-    updated(const Ice::Current& current, const string& update)
-    {
-	trace(update);
-	++_updated;
-	//cerr << "updated: " << current.operation << " " << _updated << endl;
-	notifyAll();
-    }
-
-    int _updated;
 };
 typedef IceUtil::Handle<NodeObserverI> NodeObserverIPtr;
 
 void
 testFailedAndPrintObservers(const char* expr, const char* file, unsigned int line)
 {
-    ObserverStackTracer::printStack();
+    ObserverBase::printStack();
     testFailed(expr, file, line);
 }
 
@@ -1138,27 +1160,35 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	AdminPrx admin2 = session2->getAdmin();
 	
 	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("Observer1");
-	RegistryObserverIPtr regObs1 = new RegistryObserverI("regObs1");
-	Ice::ObjectPrx ro1 = adpt1->addWithUUID(regObs1);
+	ApplicationObserverIPtr appObs1 = new ApplicationObserverI("appObs1.1");
+	Ice::ObjectPrx app1 = adpt1->addWithUUID(appObs1);
 	NodeObserverIPtr nodeObs1 = new NodeObserverI("nodeObs1");
 	Ice::ObjectPrx no1 = adpt1->addWithUUID(nodeObs1);
 	adpt1->activate();
 	registry->ice_getConnection()->setAdapter(adpt1);	
-	session1->setObserversByIdentity(ro1->ice_getIdentity(), no1->ice_getIdentity());
+	session1->setObserversByIdentity(Ice::Identity(), 
+					 no1->ice_getIdentity(), 
+					 app1->ice_getIdentity(), 
+					 Ice::Identity(),
+					 Ice::Identity());
 	
 	Ice::ObjectAdapterPtr adpt2 = communicator->createObjectAdapterWithEndpoints("Observer2", "default");
-	RegistryObserverIPtr regObs2 = new RegistryObserverI("regObs2");
- 	Ice::ObjectPrx ro2 = adpt2->addWithUUID(regObs2);
+	ApplicationObserverIPtr appObs2 = new ApplicationObserverI("appObs2");
+ 	Ice::ObjectPrx app2 = adpt2->addWithUUID(appObs2);
  	NodeObserverIPtr nodeObs2 = new NodeObserverI("nodeObs1");
  	Ice::ObjectPrx no2 = adpt2->addWithUUID(nodeObs2);
  	adpt2->activate();
- 	session2->setObservers(RegistryObserverPrx::uncheckedCast(ro2), NodeObserverPrx::uncheckedCast(no2));
+ 	session2->setObservers(0,
+			       NodeObserverPrx::uncheckedCast(no2), 
+			       ApplicationObserverPrx::uncheckedCast(app2),
+			       0,
+			       0);
 	
-	regObs1->waitForUpdate(__FILE__, __LINE__);
-	regObs2->waitForUpdate(__FILE__, __LINE__);
+	appObs1->waitForUpdate(__FILE__, __LINE__);
+	appObs2->waitForUpdate(__FILE__, __LINE__);
 
-	int serial = regObs1->serial;
-	test(serial == regObs2->serial);
+	int serial = appObs1->serial;
+	test(serial == appObs2->serial);
 
 	try
 	{
@@ -1211,7 +1241,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	try
 	{
 	    int s = session2->startUpdate();
-	    test(s == regObs2->serial);
+	    test(s == appObs2->serial);
 	}
 	catch(const Ice::UserException&)
 	{
@@ -1247,11 +1277,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(false);
 	}
 
-	regObs1->waitForUpdate(__FILE__, __LINE__);
-	regObs2->waitForUpdate(__FILE__, __LINE__);
+	appObs1->waitForUpdate(__FILE__, __LINE__);
+	appObs2->waitForUpdate(__FILE__, __LINE__);
 
-	test(serial + 1 == regObs1->serial);
-	test(serial + 1 == regObs2->serial);
+	test(serial + 1 == appObs1->serial);
+	test(serial + 1 == appObs2->serial);
 	++serial;
 
 	try
@@ -1270,11 +1300,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(false);
 	}
 
-	regObs1->waitForUpdate(__FILE__, __LINE__);
-	regObs2->waitForUpdate(__FILE__, __LINE__);
+	appObs1->waitForUpdate(__FILE__, __LINE__);
+	appObs2->waitForUpdate(__FILE__, __LINE__);
 
-	test(serial + 1 == regObs1->serial);
-	test(serial + 1 == regObs2->serial);
+	test(serial + 1 == appObs1->serial);
+	test(serial + 1 == appObs2->serial);
 	++serial;
 
 	try
@@ -1300,11 +1330,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(false);
 	}
 
-	regObs1->waitForUpdate(__FILE__, __LINE__);
-	regObs2->waitForUpdate(__FILE__, __LINE__);
+	appObs1->waitForUpdate(__FILE__, __LINE__);
+	appObs2->waitForUpdate(__FILE__, __LINE__);
 
-	test(serial + 1 == regObs1->serial);
-	test(serial + 1 == regObs2->serial);
+	test(serial + 1 == appObs1->serial);
+	test(serial + 1 == appObs2->serial);
 	++serial;
 	
 	try
@@ -1344,31 +1374,27 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     {
-	cout << "testing registry observer... " << flush;
+	cout << "testing application observer... " << flush;
 	AdminSessionPrx session1 = registry->createAdminSession("admin1", "test1");
 	AdminPrx admin1 = session1->getAdmin();
 
 	keepAlive->add(session1);
 	
 	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("Observer1.1");
-	RegistryObserverIPtr regObs1 = new RegistryObserverI("regObs1");
-	Ice::ObjectPrx ro1 = adpt1->addWithUUID(regObs1);
-	NodeObserverIPtr nodeObs1 = new NodeObserverI("nodeObs1");
-	Ice::ObjectPrx no1 = adpt1->addWithUUID(nodeObs1);
+	ApplicationObserverIPtr appObs1 = new ApplicationObserverI("appObs1.2");
+	Ice::ObjectPrx app1 = adpt1->addWithUUID(appObs1);
 	adpt1->activate();
 	registry->ice_getConnection()->setAdapter(adpt1);	
-	session1->setObserversByIdentity(ro1->ice_getIdentity(), no1->ice_getIdentity());
+	session1->setObserversByIdentity(Ice::Identity(), 
+					 Ice::Identity(), 
+					 app1->ice_getIdentity(),
+					 Ice::Identity(),
+					 Ice::Identity());
 	
-	regObs1->waitForUpdate(__FILE__, __LINE__);
+	appObs1->waitForUpdate(__FILE__, __LINE__);
 
-	int serial = regObs1->serial;
-	test(regObs1->applications.empty());
-
-	do
-	{
-	    nodeObs1->waitForUpdate(__FILE__, __LINE__);
-	}
-	while(nodeObs1->nodes.find("localnode") == nodeObs1->nodes.end());
+	int serial = appObs1->serial;
+	test(appObs1->applications.empty());
 
 	try
 	{
@@ -1377,9 +1403,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    int s = session1->startUpdate();
 	    test(s == serial);
 	    admin1->addApplication(app);
-	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->applications.find("Application") != regObs1->applications.end());
-	    test(++serial == regObs1->serial);
+	    appObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(appObs1->applications.find("Application") != appObs1->applications.end());
+	    test(++serial == appObs1->serial);
 	}
 	catch(const Ice::UserException& ex)
 	{
@@ -1393,10 +1419,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    update.name = "Application";
 	    update.variables.insert(make_pair(string("test"), string("test")));
 	    admin1->updateApplication(update);
-	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->applications.find("Application") != regObs1->applications.end());
-	    test(regObs1->applications["Application"].descriptor.variables["test"] == "test");
-	    test(++serial == regObs1->serial);
+	    appObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(appObs1->applications.find("Application") != appObs1->applications.end());
+	    test(appObs1->applications["Application"].descriptor.variables["test"] == "test");
+	    test(++serial == appObs1->serial);
 	}
 	catch(const Ice::UserException& ex)
 	{
@@ -1407,15 +1433,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	try
 	{
 	    ApplicationDescriptor app; 
-	    app = regObs1->applications["Application"].descriptor;
+	    app = appObs1->applications["Application"].descriptor;
 	    app.variables.clear();
 	    app.variables["test1"] = "test";
 	    admin1->syncApplication(app);
-	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->applications.find("Application") != regObs1->applications.end());
-	    test(regObs1->applications["Application"].descriptor.variables.size() == 1);
-	    test(regObs1->applications["Application"].descriptor.variables["test1"] == "test");
-	    test(++serial == regObs1->serial);
+	    appObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(appObs1->applications.find("Application") != appObs1->applications.end());
+	    test(appObs1->applications["Application"].descriptor.variables.size() == 1);
+	    test(appObs1->applications["Application"].descriptor.variables["test1"] == "test");
+	    test(++serial == appObs1->serial);
 	}
 	catch(const Ice::UserException& ex)
 	{
@@ -1426,9 +1452,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	try
 	{
 	    admin1->removeApplication("Application");
-	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->applications.empty());
-	    test(++serial == regObs1->serial);
+	    appObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(appObs1->applications.empty());
+	    test(++serial == appObs1->serial);
 	}
 	catch(const Ice::UserException& ex)
 	{
@@ -1436,68 +1462,95 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(false);
 	}
 
-	//
-	// Test adapterAdded/adapterUpdated/adapterRemoved.
-	//
+ 	session1->destroy();
+ 	adpt1->deactivate();
+ 	adpt1->waitForDeactivate();
+
+	cout << "ok" << endl;
+    }
+
+    {
+	cout << "testing adapter observer... " << flush;
+
+	AdminSessionPrx session1 = AdminSessionPrx::uncheckedCast(registry->createAdminSession("admin1", "test1"));
+	AdminPrx admin1 = session1->getAdmin();
+
+	keepAlive->add(session1);
+	
+	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("Observer1.1");
+	AdapterObserverIPtr adptObs1 = new AdapterObserverI("adptObs1");
+	Ice::ObjectPrx adapter1 = adpt1->addWithUUID(adptObs1);
+	adpt1->activate();
+	registry->ice_getConnection()->setAdapter(adpt1);	
+	session1->setObserversByIdentity(Ice::Identity(), 
+					 Ice::Identity(), 
+					 Ice::Identity(), 
+					 adapter1->ice_getIdentity(), 
+					 Ice::Identity());
+	
+	adptObs1->waitForUpdate(__FILE__, __LINE__); // init
+
+//	int serial = adptObs1->serial;
+
 	try
 	{
 	    Ice::ObjectPrx obj = communicator->stringToProxy("dummy:tcp -p 10000");
 
 	    Ice::LocatorRegistryPrx locatorRegistry = communicator->getDefaultLocator()->getRegistry();
 	    locatorRegistry->setAdapterDirectProxy("DummyAdapter", obj);
-	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->adapters.find("DummyAdapter") != regObs1->adapters.end());
-	    test(regObs1->adapters["DummyAdapter"].proxy == obj);
-	    test(++serial == regObs1->serial);
+	    adptObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(adptObs1->adapters.find("DummyAdapter") != adptObs1->adapters.end());
+	    test(adptObs1->adapters["DummyAdapter"].proxy == obj);
+//	    test(++serial == adptObs1->serial);
 	    
 	    obj = communicator->stringToProxy("dummy:tcp -p 10000 -h host");
 	    locatorRegistry->setAdapterDirectProxy("DummyAdapter", obj);
-	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->adapters.find("DummyAdapter") != regObs1->adapters.end());
-	    test(regObs1->adapters["DummyAdapter"].proxy == obj);
-	    test(++serial == regObs1->serial);
+	    adptObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(adptObs1->adapters.find("DummyAdapter") != adptObs1->adapters.end());
+	    test(adptObs1->adapters["DummyAdapter"].proxy == obj);
+//	    test(++serial == adptObs1->serial);
 
 	    obj = communicator->stringToProxy("dummy:tcp -p 10000 -h host");
 	    locatorRegistry->setReplicatedAdapterDirectProxy("DummyAdapter", "DummyReplicaGroup", obj);
-	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->adapters.find("DummyAdapter") != regObs1->adapters.end());
-	    test(regObs1->adapters["DummyAdapter"].proxy == obj);
-	    test(regObs1->adapters["DummyAdapter"].replicaGroupId == "DummyReplicaGroup");
-	    test(++serial == regObs1->serial);
+	    adptObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(adptObs1->adapters.find("DummyAdapter") != adptObs1->adapters.end());
+	    test(adptObs1->adapters["DummyAdapter"].proxy == obj);
+	    test(adptObs1->adapters["DummyAdapter"].replicaGroupId == "DummyReplicaGroup");
+//	    test(++serial == adptObs1->serial);
 
 	    obj = communicator->stringToProxy("dummy:tcp -p 10000 -h host");
 	    locatorRegistry->setReplicatedAdapterDirectProxy("DummyAdapter1", "DummyReplicaGroup", obj);
-	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->adapters.find("DummyAdapter1") != regObs1->adapters.end());
-	    test(regObs1->adapters["DummyAdapter1"].proxy == obj);
-	    test(regObs1->adapters["DummyAdapter1"].replicaGroupId == "DummyReplicaGroup");
-	    test(++serial == regObs1->serial);
+	    adptObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(adptObs1->adapters.find("DummyAdapter1") != adptObs1->adapters.end());
+	    test(adptObs1->adapters["DummyAdapter1"].proxy == obj);
+	    test(adptObs1->adapters["DummyAdapter1"].replicaGroupId == "DummyReplicaGroup");
+//	    test(++serial == adptObs1->serial);
 
 	    obj = communicator->stringToProxy("dummy:tcp -p 10000 -h host");
 	    locatorRegistry->setReplicatedAdapterDirectProxy("DummyAdapter2", "DummyReplicaGroup", obj);
-	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->adapters.find("DummyAdapter2") != regObs1->adapters.end());
-	    test(regObs1->adapters["DummyAdapter2"].proxy == obj);
-	    test(regObs1->adapters["DummyAdapter2"].replicaGroupId == "DummyReplicaGroup");
-	    test(++serial == regObs1->serial);
+	    adptObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(adptObs1->adapters.find("DummyAdapter2") != adptObs1->adapters.end());
+	    test(adptObs1->adapters["DummyAdapter2"].proxy == obj);
+	    test(adptObs1->adapters["DummyAdapter2"].replicaGroupId == "DummyReplicaGroup");
+//	    test(++serial == adptObs1->serial);
 
 	    admin->removeAdapter("DummyAdapter2");
-	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->adapters.find("DummyAdapter2") == regObs1->adapters.end());
-	    test(++serial == regObs1->serial);
+	    adptObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(adptObs1->adapters.find("DummyAdapter2") == adptObs1->adapters.end());
+//	    test(++serial == adptObs1->serial);
 
 	    admin->removeAdapter("DummyReplicaGroup");
-	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->adapters["DummyAdapter"].replicaGroupId == "");
-	    test(regObs1->adapters["DummyAdapter1"].replicaGroupId == "");
-	    serial += 2;
-	    test(serial == regObs1->serial);
+	    adptObs1->waitForUpdate(__FILE__, __LINE__);
+	    adptObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(adptObs1->adapters["DummyAdapter"].replicaGroupId == "");
+	    test(adptObs1->adapters["DummyAdapter1"].replicaGroupId == "");
+//	    serial += 2;
+//	    test(serial == adptObs1->serial);
 
 	    locatorRegistry->setAdapterDirectProxy("DummyAdapter", 0);
-	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->adapters.find("DummyAdapter") == regObs1->adapters.end());
-	    test(++serial == regObs1->serial);
+	    adptObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(adptObs1->adapters.find("DummyAdapter") == adptObs1->adapters.end());
+//	    test(++serial == adptObs1->serial);
 	}
 	catch(const Ice::UserException& ex)
 	{
@@ -1505,32 +1558,59 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(false);
 	}
 
-	//
-	// Test objectAdded/objectUpdated/objectRemoved.
-	//
+ 	session1->destroy();
+ 	adpt1->deactivate();
+ 	adpt1->waitForDeactivate();
+
+	cout << "ok" << endl;
+    }
+
+    {
+	cout << "testing object observer... " << flush;
+
+	AdminSessionPrx session1 = AdminSessionPrx::uncheckedCast(registry->createAdminSession("admin1", "test1"));
+	AdminPrx admin1 = session1->getAdmin();
+
+	keepAlive->add(session1);
+	
+	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("Observer1.1");
+	ObjectObserverIPtr objectObs1 = new ObjectObserverI("objectObs1");
+	Ice::ObjectPrx object1 = adpt1->addWithUUID(objectObs1);
+	adpt1->activate();
+	registry->ice_getConnection()->setAdapter(adpt1);	
+	session1->setObserversByIdentity(Ice::Identity(), 
+					 Ice::Identity(), 
+					 Ice::Identity(), 
+					 Ice::Identity(), 
+					 object1->ice_getIdentity());
+	
+	objectObs1->waitForUpdate(__FILE__, __LINE__); // init
+
+//	int serial = objectObs1->serial;
+
 	try
 	{
 	    Ice::ObjectPrx obj = communicator->stringToProxy("dummy:tcp -p 10000");
 
 	    admin->addObjectWithType(obj, "::Dummy");
-	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->objects.find(communicator->stringToIdentity("dummy")) != regObs1->objects.end());
-	    test(regObs1->objects[communicator->stringToIdentity("dummy")].type == "::Dummy");
-	    test(regObs1->objects[communicator->stringToIdentity("dummy")].proxy == obj);
-	    test(++serial == regObs1->serial);
+	    objectObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(objectObs1->objects.find(communicator->stringToIdentity("dummy")) != objectObs1->objects.end());
+	    test(objectObs1->objects[communicator->stringToIdentity("dummy")].type == "::Dummy");
+	    test(objectObs1->objects[communicator->stringToIdentity("dummy")].proxy == obj);
+//	    test(++serial == objectObs1->serial);
 	    
 	    obj = communicator->stringToProxy("dummy:tcp -p 10000 -h host");
 	    admin->updateObject(obj);
-	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->objects.find(communicator->stringToIdentity("dummy")) != regObs1->objects.end());
-	    test(regObs1->objects[communicator->stringToIdentity("dummy")].type == "::Dummy");
-	    test(regObs1->objects[communicator->stringToIdentity("dummy")].proxy == obj);
-	    test(++serial == regObs1->serial);
+	    objectObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(objectObs1->objects.find(communicator->stringToIdentity("dummy")) != objectObs1->objects.end());
+	    test(objectObs1->objects[communicator->stringToIdentity("dummy")].type == "::Dummy");
+	    test(objectObs1->objects[communicator->stringToIdentity("dummy")].proxy == obj);
+//	    test(++serial == objectObs1->serial);
 
 	    admin->removeObject(obj->ice_getIdentity());
-	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->objects.find(communicator->stringToIdentity("dummy")) == regObs1->objects.end());
-	    test(++serial == regObs1->serial);	    
+	    objectObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(objectObs1->objects.find(communicator->stringToIdentity("dummy")) == objectObs1->objects.end());
+//	    test(++serial == objectObs1->serial);	    
 	}
 	catch(const Ice::UserException& ex)
 	{
@@ -1538,114 +1618,124 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(false);
 	}
 
-	//
-	// Setup a descriptor to deploy a node on the node.
-	//
-	ApplicationDescriptor nodeApp;
-	nodeApp.name = "NodeApp";
-	ServerDescriptorPtr server = new ServerDescriptor();
-	server->id = "node-1";
-	server->exe = properties->getProperty("IceDir") + "/bin/icegridnode";
-	server->options.push_back("--nowarn");
-	server->pwd = ".";
-	AdapterDescriptor adapter;
-	adapter.name = "IceGrid.Node";
-	adapter.id = "IceGrid.Node.node-1";
-	adapter.registerProcess = true;
-	adapter.waitForActivation = false;
-	server->adapters.push_back(adapter);
-	addProperty(server, "IceGrid.Node.Name", "node-1");
-	addProperty(server, "IceGrid.Node.Data", properties->getProperty("TestDir") + "/db/node-1");
-	addProperty(server, "IceGrid.Node.Endpoints", "default");
-	NodeDescriptor node;
-	node.servers.push_back(server);
-	nodeApp.nodes["localnode"] = node;
-	
-	try
-	{
-	    int s = session1->startUpdate();
-	    test(s == serial);
-	    admin1->addApplication(nodeApp);
-	    regObs1->waitForUpdate(__FILE__, __LINE__); // application added
-	    test(regObs1->applications.find("NodeApp") != regObs1->applications.end());
-	    test(++serial == regObs1->serial);
-	}
-	catch(const DeploymentException& ex)
-	{
-	    cerr << ex.reason << endl;
-	    test(false);
-	}
-	catch(const Ice::UserException& ex)
-	{
-	    cerr << ex << endl;
-	    test(false);
-	}
-
-	try
-	{
-	    admin->startServer("node-1");
-	}
-	catch(const NodeUnreachableException& ex)
-	{
-	    cerr << ex << ":\n";
-	    cerr << "node = " << ex.name << endl;
-	    cerr << "reason = " << ex.reason << endl;
-	}
-	regObs1->waitForUpdate(__FILE__, __LINE__); // object added (for node well-known proxy)
-	test(++serial == regObs1->serial);
-
-	nodeObs1->waitForUpdate(__FILE__, __LINE__); // updateServer
-	nodeObs1->waitForUpdate(__FILE__, __LINE__); // updateServer
-	do
-	{
-	    nodeObs1->waitForUpdate(__FILE__, __LINE__); // nodeUp
-	}
-	while(nodeObs1->nodes.find("node-1") == nodeObs1->nodes.end());
-
-	try
-	{
-	    admin->stopServer("node-1");
-	}
-	catch(const NodeUnreachableException& ex)
-	{
-	    cerr << ex << ":\n";
-	    cerr << "node = " << ex.name << endl;
-	    cerr << "reason = " << ex.reason << endl;
-	}
-	regObs1->waitForUpdate(__FILE__, __LINE__); // object removed (for node well-known proxy)
-	test(++serial == regObs1->serial);
-
-	nodeObs1->waitForUpdate(__FILE__, __LINE__); // updateServer
-	nodeObs1->waitForUpdate(__FILE__, __LINE__); // updateServer
-	nodeObs1->waitForUpdate(__FILE__, __LINE__); // nodeDown
-	test(nodeObs1->nodes.find("node-1") == nodeObs1->nodes.end());
-
-	try
-	{
-	    admin1->removeApplication("NodeApp");
-	    regObs1->waitForUpdate(__FILE__, __LINE__); // application removed
-	    test(regObs1->applications.empty());
-	    test(++serial == regObs1->serial);
-	}
-	catch(const DeploymentException& ex)
-	{
-	    cerr << ex.reason << endl;
-	    test(false);
-	}
-	catch(const Ice::UserException& ex)
-	{
-	    cerr << ex << endl;
-	    test(false);
-	}
-
-	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate(Destroying)
-	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate(Destroyed)
-
-	session1->destroy();
-	adpt1->deactivate();
-	adpt1->waitForDeactivate();
+ 	session1->destroy();
+ 	adpt1->deactivate();
+ 	adpt1->waitForDeactivate();
 
 	cout << "ok" << endl;
+    }
+
+    {
+// 	cout << "???" << endl;
+
+// 	//
+// 	// Setup a descriptor to deploy a node on the node.
+// 	//
+// 	ApplicationDescriptor nodeApp;
+// 	nodeApp.name = "NodeApp";
+// 	ServerDescriptorPtr server = new ServerDescriptor();
+// 	server->id = "node-1";
+// 	server->exe = properties->getProperty("IceDir") + "/bin/icegridnode";
+// 	server->options.push_back("--nowarn");
+// 	server->pwd = ".";
+// 	AdapterDescriptor adapter;
+// 	adapter.name = "IceGrid.Node";
+// 	adapter.id = "IceGrid.Node.node-1";
+// 	adapter.registerProcess = true;
+// 	adapter.waitForActivation = false;
+// 	server->adapters.push_back(adapter);
+// 	addProperty(server, "IceGrid.Node.Name", "node-1");
+// 	addProperty(server, "IceGrid.Node.Data", properties->getProperty("TestDir") + "/db/node-1");
+// 	addProperty(server, "IceGrid.Node.Endpoints", "default");
+// 	NodeDescriptor node;
+// 	node.servers.push_back(server);
+// 	nodeApp.nodes["localnode"] = node;
+	
+// 	try
+// 	{
+// 	    int s = session1->startUpdate();
+// 	    test(s == serial);
+// 	    admin1->addApplication(nodeApp);
+// 	    appObs1->waitForUpdate(__FILE__, __LINE__); // application added
+// 	    test(appObs1->applications.find("NodeApp") != appObs1->applications.end());
+// 	    test(++serial == appObs1->serial);
+// 	}
+// 	catch(const DeploymentException& ex)
+// 	{
+// 	    cerr << ex.reason << endl;
+// 	    test(false);
+// 	}
+// 	catch(const Ice::UserException& ex)
+// 	{
+// 	    cerr << ex << endl;
+// 	    test(false);
+// 	}
+
+// 	try
+// 	{
+// 	    admin->startServer("node-1");
+// 	}
+// 	catch(const NodeUnreachableException& ex)
+// 	{
+// 	    cerr << ex << ":\n";
+// 	    cerr << "node = " << ex.name << endl;
+// 	    cerr << "reason = " << ex.reason << endl;
+// 	}
+// 	appObs1->waitForUpdate(__FILE__, __LINE__); // object added (for node well-known proxy)
+// 	test(++serial == appObs1->serial);
+
+// 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // updateServer
+// 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // updateServer
+// 	do
+// 	{
+// 	    nodeObs1->waitForUpdate(__FILE__, __LINE__); // nodeUp
+// 	}
+// 	while(nodeObs1->nodes.find("node-1") == nodeObs1->nodes.end());
+
+// 	try
+// 	{
+// 	    admin->stopServer("node-1");
+// 	}
+// 	catch(const NodeUnreachableException& ex)
+// 	{
+// 	    cerr << ex << ":\n";
+// 	    cerr << "node = " << ex.name << endl;
+// 	    cerr << "reason = " << ex.reason << endl;
+// 	}
+// 	appObs1->waitForUpdate(__FILE__, __LINE__); // object removed (for node well-known proxy)
+// 	test(++serial == appObs1->serial);
+
+// 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // updateServer
+// 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // updateServer
+// 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // nodeDown
+// 	test(nodeObs1->nodes.find("node-1") == nodeObs1->nodes.end());
+
+// 	try
+// 	{
+// 	    admin1->removeApplication("NodeApp");
+// 	    appObs1->waitForUpdate(__FILE__, __LINE__); // application removed
+// 	    test(appObs1->applications.empty());
+// 	    test(++serial == appObs1->serial);
+// 	}
+// 	catch(const DeploymentException& ex)
+// 	{
+// 	    cerr << ex.reason << endl;
+// 	    test(false);
+// 	}
+// 	catch(const Ice::UserException& ex)
+// 	{
+// 	    cerr << ex << endl;
+// 	    test(false);
+// 	}
+
+// 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate(Destroying)
+// 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate(Destroyed)
+
+// 	session1->destroy();
+// 	adpt1->deactivate();
+// 	adpt1->waitForDeactivate();
+
+// 	cout << "ok" << endl;
     }
 
     {
@@ -1655,19 +1745,23 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	keepAlive->add(session1);
 	
 	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("Observer1.2");
-	RegistryObserverIPtr regObs1 = new RegistryObserverI("regObs1");
-	Ice::ObjectPrx ro1 = adpt1->addWithUUID(regObs1);
+	ApplicationObserverIPtr appObs1 = new ApplicationObserverI("appObs1.3");
+	Ice::ObjectPrx app1 = adpt1->addWithUUID(appObs1);
 	NodeObserverIPtr nodeObs1 = new NodeObserverI("nodeObs1");
 	Ice::ObjectPrx no1 = adpt1->addWithUUID(nodeObs1);
 	adpt1->activate();
 	registry->ice_getConnection()->setAdapter(adpt1);	
-	session1->setObserversByIdentity(ro1->ice_getIdentity(), no1->ice_getIdentity());
+	session1->setObserversByIdentity(Ice::Identity(), 
+					 no1->ice_getIdentity(), 
+					 app1->ice_getIdentity(), 
+					 Ice::Identity(),
+					 Ice::Identity());
 	
-	regObs1->waitForUpdate(__FILE__, __LINE__);
+	appObs1->waitForUpdate(__FILE__, __LINE__);
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // init
 
 	test(nodeObs1->nodes.find("localnode") != nodeObs1->nodes.end());
-	test(regObs1->applications.empty());
+	test(appObs1->applications.empty());
 
 	ApplicationDescriptor nodeApp;
 	nodeApp.name = "NodeApp";
@@ -1692,7 +1786,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	session->startUpdate();
 	admin->addApplication(nodeApp);
 	session->finishUpdate();
-	regObs1->waitForUpdate(__FILE__, __LINE__);
+	appObs1->waitForUpdate(__FILE__, __LINE__);
 
 	admin->startServer("node-1");
 
@@ -1719,7 +1813,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate(Destroying)
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate(Destroyed)
 
-	regObs1->waitForUpdate(__FILE__, __LINE__);
+	appObs1->waitForUpdate(__FILE__, __LINE__);
 	test(nodeObs1->nodes.find("node-1") == nodeObs1->nodes.end());
 
 	ApplicationDescriptor testApp;
@@ -1742,7 +1836,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	session->startUpdate();
 	admin->addApplication(testApp);
 	session->finishUpdate();
-	regObs1->waitForUpdate(__FILE__, __LINE__);
+	appObs1->waitForUpdate(__FILE__, __LINE__);
+
 
 	session->startUpdate();
 	admin->startServer("Server");
@@ -1785,7 +1880,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate(Destroyed)
 	test(nodeObs1->nodes["localnode"].servers.empty());
 
-	regObs1->waitForUpdate(__FILE__, __LINE__);
+	appObs1->waitForUpdate(__FILE__, __LINE__);
 
 	cout << "ok" << endl;
     }

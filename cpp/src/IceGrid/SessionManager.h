@@ -15,6 +15,8 @@
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Thread.h>
 
+#include <IceGrid/Query.h>
+
 namespace IceGrid
 {
 
@@ -23,9 +25,9 @@ class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<I
 {
     enum State
     {
-	Initial,
 	Disconnected,
 	Connected,
+	Retry,
 	Destroyed
     };
 
@@ -33,7 +35,7 @@ public:
 
     SessionKeepAliveThread(const FPrx& factory) : 
 	_factory(factory),
-	_state(Initial)
+	_state(Disconnected)
     {
     }
 
@@ -42,7 +44,7 @@ public:
     {
 	TPrx session;
 	FPrx factory = _factory;
-	bool updateState = true;
+	bool updateState = false;
 	IceUtil::Time timeout = IceUtil::Time::seconds(10); 
 
 	while(true)
@@ -67,6 +69,33 @@ public:
 	    {
 		session = createSession(factory, timeout);
 		updateState |= session;
+	    }		
+
+	    //
+	    // If we failed to create the session with the factory an
+	    // the factory proxy is a direct proxy, we check with the
+	    // Query interface if the factory proxy was updated. It's
+	    // possible that the factory was restarted for example.
+	    //
+	    if(!session && !factory->ice_getEndpoints().empty())
+	    {
+		std::string instanceName = factory->ice_getIdentity().category;
+		try
+		{
+		    QueryPrx query = QueryPrx::uncheckedCast(
+			factory->ice_getCommunicator()->stringToProxy(instanceName + "/Query"));
+		    Ice::ObjectPrx obj = query->findObjectById(factory->ice_getIdentity());
+		    FPrx newFactory = FPrx::uncheckedCast(obj);
+		    if(newFactory != factory)
+		    {
+			session = createSession(newFactory, timeout);
+			factory = newFactory;
+			updateState |= session;
+		    }
+		}
+		catch(const Ice::LocalException&)
+		{
+		}
 	    }
 	    
 	    if(updateState)
@@ -76,6 +105,7 @@ public:
 		{
 		    _state = session ? Connected : Disconnected;
 		}
+		_factory = factory;
 		_session = session;
 		notifyAll();
 	    }
@@ -86,9 +116,9 @@ public:
 	    {
 		Lock sync(*this);
 		
-		if(_state != Destroyed)
+		if(_state != Destroyed && _state != Retry)
 		{
-		    timedWait(timeout);
+		    timedWait(timeout); // TODO: XXX: Timeout / 2 instead?
 		}
 		
 		if(_state == Destroyed)
@@ -96,7 +126,7 @@ public:
 		    break;
 		}
 		
-		updateState = _state == Initial;
+		updateState = _state == Retry;
 		factory = _factory;
 	    }
 	}
@@ -124,31 +154,30 @@ public:
     virtual bool
     tryCreateSession(FPrx factory)
     {
-	FPrx previous;
 	{
 	    Lock sync(*this);
+	    while(_state == Retry)
+	    {
+		wait();
+	    }
+
 	    if(_state == Destroyed)
 	    {
 		return false;
 	    }
 
-	    _state = Initial;
+	    _state = Retry;
 	    if(factory)
 	    {
-		previous = _factory;
 		_factory = factory;
 	    }
 	    notifyAll();
 	}
 	{
 	    Lock sync(*this);
-	    while(_state == Initial)
+	    while(_state == Retry)
 	    {
 		wait();
-	    }
-	    if(factory)
-	    {
-		_factory = previous; // Restore the previous factory
 	    }
 	}	
 	return true;
@@ -169,11 +198,11 @@ public:
 	return _session;
     }
 
-    virtual TPrx createSession(const FPrx&, IceUtil::Time&) const = 0;
-    virtual void destroySession(const TPrx&) const = 0;
-    virtual bool keepAlive(const TPrx&) const = 0;
+    virtual TPrx createSession(const FPrx&, IceUtil::Time&) = 0;
+    virtual void destroySession(const TPrx&) = 0;
+    virtual bool keepAlive(const TPrx&) = 0;
 
-private:
+protected:
 
     FPrx _factory;
     TPrx _session;

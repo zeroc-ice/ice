@@ -13,6 +13,7 @@
 #include <IceGrid/Registry.h>
 #include <IceGrid/Query.h>
 #include <IceGrid/Internal.h>
+#include <IceGrid/PlatformInfo.h>
 #include <IceGrid/ReplicaSessionManager.h>
 #include <Glacier2/PermissionsVerifierF.h>
 #include <IceStorm/Service.h>
@@ -22,6 +23,9 @@ namespace IceGrid
 
 class Database;
 typedef IceUtil::Handle<Database> DatabasePtr;
+
+class WellKnownObjectsManager;
+typedef IceUtil::Handle<WellKnownObjectsManager> WellKnownObjectsManagerPtr;
 
 class TraceLevels;
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
@@ -45,7 +49,7 @@ class RegistryI : public Registry
 {
 public:
 
-    RegistryI(const Ice::CommunicatorPtr&);
+    RegistryI(const Ice::CommunicatorPtr&, const TraceLevelsPtr&);
     ~RegistryI();
 
     bool start(bool);
@@ -59,6 +63,10 @@ public:
 
     virtual int getSessionTimeout(const Ice::Current& = Ice::Current()) const;
 
+    std::string getName() const;
+    RegistryInfo getInfo() const;
+
+    void waitForShutdown();
     virtual void shutdown();
     
 private:
@@ -67,7 +75,7 @@ private:
 				 const Ice::ObjectAdapterPtr&); 
     void setupQuery(const Ice::ObjectAdapterPtr&);
     void setupRegistry(const Ice::ObjectAdapterPtr&);
-    InternalRegistryPrx setupInternalRegistry(const Ice::ObjectAdapterPtr&, const std::string&);
+    InternalRegistryPrx setupInternalRegistry(const Ice::ObjectAdapterPtr&);
     void setupNullPermissionsVerifier(const Ice::ObjectAdapterPtr&);
     bool setupUserAccountMapper(const Ice::ObjectAdapterPtr&);
     void setupClientSessionFactory(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::LocatorPrx&,
@@ -75,7 +83,6 @@ private:
     void setupAdminSessionFactory(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::LocatorPrx&,
 				  bool);
 
-    void addWellKnownObject(const Ice::ObjectPrx&, const std::string&);
     void setupThreadPool(const Ice::PropertiesPtr&, const std::string&, int, int = 0);
     Glacier2::PermissionsVerifierPrx getPermissionsVerifier(const Ice::ObjectAdapterPtr&, const Ice::LocatorPrx&,
 							    const std::string&, const std::string&, bool);
@@ -87,15 +94,23 @@ private:
     void registerNodes(const InternalRegistryPrx&, const NodePrxSeq&);
     
     const Ice::CommunicatorPtr _communicator;
+    const TraceLevelsPtr _traceLevels;
 
     DatabasePtr _database;
-    TraceLevelsPtr _traceLevels;
+    Ice::ObjectAdapterPtr _clientAdapter;
+    WellKnownObjectsManagerPtr _wellKnownObjects;
     std::string _instanceName;
+    bool _master;
+    std::string _replicaName;
     ReapThreadPtr _reaper;
     WaitQueuePtr _waitQueue;
     SessionServantLocatorIPtr _sessionServantLocator;
     int _sessionTimeout;
     ReplicaSessionManager _session;
+    mutable PlatformInfo _platform;
+
+    Glacier2::PermissionsVerifierPrx _nullPermissionsVerifier;
+    Glacier2::SSLPermissionsVerifierPrx _nullSSLPermissionsVerifier;
 
     ClientSessionFactoryPtr _clientSessionFactory;
     Glacier2::PermissionsVerifierPrx _clientVerifier;

@@ -192,7 +192,7 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     _waitTime(0),
     _userAccountMapper(mapper),
     _serial(1),
-    _platform(adapter->getCommunicator(), _traceLevels)
+    _platform("IceGrid.Node", adapter->getCommunicator(), _traceLevels)
 {
     _dataDir = _platform.getDataDir();
     _serversDir = _dataDir + "/servers";
@@ -590,7 +590,14 @@ NodeI::checkConsistency(const NodeSessionPrx& session)
 	    serial = _serial;
 	}
 	assert(session);
-	servers = session->getServers();
+	try
+	{
+	    servers = session->getServers();
+	}
+	catch(const Ice::LocalException&)
+	{
+	    return; // The connection with the session was lost.
+	}
 	sort(servers.begin(), servers.end());
     }
 }
@@ -630,7 +637,18 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
     // Check if the servers directory doesn't contain more servers
     // than the registry really knows.
     //
-    Ice::StringSeq contents = readDirectory(_serversDir);
+    Ice::StringSeq contents;
+    try
+    {
+	contents = readDirectory(_serversDir);
+    }
+    catch(const string& msg)
+    {
+	Ice::Error out(_traceLevels->logger);
+	out << "couldn't read directory `" << _serversDir << "':" << msg;
+	return;
+    }
+
     vector<string> remove;
     set_difference(contents.begin(), contents.end(), servers.begin(), servers.end(), back_inserter(remove));
 		
@@ -702,10 +720,13 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
 	contents.clear();
 	contents = readDirectory(_tmpDir);
     }
-    catch(const string&)
+    catch(const string& msg)
     {
-	createDirectory(_tmpDir);
+	Ice::Error out(_traceLevels->logger);
+	out << "couldn't read directory `" << _tmpDir << "':" << msg;
+	return;
     }
+
     if(contents.size() < 10)
     {
 	ostringstream os;
@@ -812,7 +833,6 @@ NodeI::initObserver(const Ice::StringSeq& servers)
     try
     {
 	NodeDynamicInfo info;
-	info.name = _name;
 	info.info = _platform.getNodeInfo();
 	info.servers = serverInfos;
 	info.adapters = adapterInfos;
