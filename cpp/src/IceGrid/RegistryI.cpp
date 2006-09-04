@@ -447,30 +447,19 @@ RegistryI::setupClientSessionFactory(const Ice::ObjectAdapterPtr& registryAdapte
     assert(_reaper);
     _clientSessionFactory = new ClientSessionFactory(sessionManagerAdapter, _database, _waitQueue, _reaper);
 
-    if(sessionManagerAdapter)
+    if(sessionManagerAdapter && _master) // Slaves don't support client session manager objects.
     {
-	//
-	// Add the replicated objects (the well-known proxy is updated by
-	// the database updateReplicatedWellKnownOjects method).
-	//
 	Identity clientSessionMgrId = _communicator->stringToIdentity(_instanceName + "/SessionManager");
 	Identity sslClientSessionMgrId = _communicator->stringToIdentity(_instanceName + "/SSLSessionManager");
-	sessionManagerAdapter->add(new ClientSessionManagerI(_clientSessionFactory), clientSessionMgrId);
-	sessionManagerAdapter->add(new ClientSSLSessionManagerI(_clientSessionFactory), sslClientSessionMgrId);
-	
-	//
-	// Add the per-replica objects (and register a well-known proxy).
-	//
-	clientSessionMgrId.name += "-" + _replicaName;
-	sslClientSessionMgrId.name += "-" + _replicaName;
+
 	sessionManagerAdapter->add(new ClientSessionManagerI(_clientSessionFactory), clientSessionMgrId);
 	sessionManagerAdapter->add(new ClientSSLSessionManagerI(_clientSessionFactory), sslClientSessionMgrId);
 
-	_wellKnownObjects->add(sessionManagerAdapter->createProxy(clientSessionMgrId), 
-			       Glacier2::SessionManager::ice_staticId());
+ 	_wellKnownObjects->add(sessionManagerAdapter->createProxy(clientSessionMgrId), 
+ 			       Glacier2::SessionManager::ice_staticId());
 	
-	_wellKnownObjects->add(sessionManagerAdapter->createProxy(sslClientSessionMgrId), 
-			       Glacier2::SSLSessionManager::ice_staticId());
+ 	_wellKnownObjects->add(sessionManagerAdapter->createProxy(sslClientSessionMgrId), 
+ 			       Glacier2::SSLSessionManager::ice_staticId());
     }
 
     Ice::PropertiesPtr properties = _communicator->getProperties();
@@ -497,20 +486,14 @@ RegistryI::setupAdminSessionFactory(const Ice::ObjectAdapterPtr& registryAdapter
 
     if(sessionManagerAdapter)
     {
-	//
-	// Add the replicated objects (the well-known proxy is updated by
-	// the database updateReplicatedWellKnownOjects method).
-	//
 	Identity adminSessionMgrId = _communicator->stringToIdentity(_instanceName + "/AdminSessionManager");
 	Identity sslAdmSessionMgrId = _communicator->stringToIdentity(_instanceName + "/AdminSSLSessionManager");
-	sessionManagerAdapter->add(new AdminSessionManagerI(_adminSessionFactory), adminSessionMgrId);
-	sessionManagerAdapter->add(new AdminSSLSessionManagerI(_adminSessionFactory), sslAdmSessionMgrId);
-	
-	//
-	// Add the per-replica objects (and register a well-known proxy).
-	//
-	adminSessionMgrId.name += "-" + _replicaName;
-	sslAdmSessionMgrId.name += "-" + _replicaName;
+	if(!_master)
+	{
+	    adminSessionMgrId.name += "-" + _replicaName;
+	    sslAdmSessionMgrId.name += "-" + _replicaName;
+	}
+
 	sessionManagerAdapter->add(new AdminSessionManagerI(_adminSessionFactory), adminSessionMgrId);
 	sessionManagerAdapter->add(new AdminSSLSessionManagerI(_adminSessionFactory), sslAdmSessionMgrId);
 	

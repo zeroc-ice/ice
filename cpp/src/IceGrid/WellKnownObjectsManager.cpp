@@ -115,29 +115,6 @@ WellKnownObjectsManager::updateReplicatedWellKnownObjects()
     info.proxy = replicatedClientProxy->ice_identity(id);
     objects.push_back(info);
 
-    Ice::ObjectPrx replicatedSessionManagerProxy = _database->getReplicatedEndpoints("SessionManager", 
-										     _endpoints["SessionManager"]);
-    
-    id.name = "SessionManager";
-    info.type = Glacier2::SessionManager::ice_staticId();
-    info.proxy = replicatedSessionManagerProxy->ice_identity(id);
-    objects.push_back(info);
-
-    id.name = "SSLSessionManager";
-    info.type = Glacier2::SessionManager::ice_staticId();
-    info.proxy = replicatedSessionManagerProxy->ice_identity(id);
-    objects.push_back(info);
-
-    id.name = "AdminSessionManager";
-    info.type = Glacier2::SessionManager::ice_staticId();
-    info.proxy = replicatedSessionManagerProxy->ice_identity(id);
-    objects.push_back(info);
-
-    id.name = "AdminSSLSessionManager";
-    info.type = Glacier2::SessionManager::ice_staticId();
-    info.proxy = replicatedSessionManagerProxy->ice_identity(id);
-    objects.push_back(info);
-
     Ice::ObjectPrx replicatedInternalProxy = _database->getReplicatedEndpoints("Internal", _endpoints["Internal"]);
 
     id.name = "NullPermissionsVerifier";
