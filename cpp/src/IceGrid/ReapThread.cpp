@@ -13,8 +13,8 @@
 using namespace std;
 using namespace IceGrid;
 
-ReapThread::ReapThread(int timeout) :
-    _timeout(IceUtil::Time::seconds(timeout)),
+ReapThread::ReapThread(int wakeInterval) :
+    _wakeInterval(IceUtil::Time::seconds(wakeInterval)),
     _terminated(false)
 {
 }
@@ -27,7 +27,7 @@ ReapThread::run()
     {
 	{
 	    Lock sync(*this);
-	    timedWait(_timeout);
+	    timedWait(_wakeInterval);
 	    
 	    if(_terminated)
 	    {
@@ -83,20 +83,6 @@ ReapThread::terminate()
     {
 	p->item->destroy(true);
     }
-}
-
-void
-ReapThread::add(const ReapablePtr& reapable)
-{
-    Lock sync(*this);
-    if(_terminated)
-    {
-	return;
-    }
-    ReapableItem item;
-    item.item = reapable;
-    item.timeout = _timeout;
-    _sessions.push_back(item);
 }
 
 void

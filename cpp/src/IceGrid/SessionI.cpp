@@ -335,11 +335,11 @@ SessionI::removeAllocation(const AllocatablePtr& allocatable)
 ClientSessionFactory::ClientSessionFactory(const Ice::ObjectAdapterPtr& adapter,
 					   const DatabasePtr& database, 
 					   const WaitQueuePtr& waitQueue,
-					   const ReapThreadPtr& reapThread) :
+					   const ReapThreadPtr& reaper) :
     _adapter(adapter),
     _database(database), 
     _waitQueue(waitQueue),
-    _reapThread(reapThread)
+    _reaper(reaper)
 {
 }
 
@@ -374,7 +374,7 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const Glaci
 	}
     }
 
-    _reapThread->add(new SessionReapable(_adapter, session, s->ice_getIdentity()), ctl->getSessionTimeout());
+    _reaper->add(new SessionReapable(_adapter, session, s->ice_getIdentity()), ctl->getSessionTimeout());
 
     return s;
 }

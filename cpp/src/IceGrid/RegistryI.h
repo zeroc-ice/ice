@@ -91,8 +91,7 @@ private:
     DatabasePtr _database;
     TraceLevelsPtr _traceLevels;
     std::string _instanceName;
-    ReapThreadPtr _internalReaper;
-    ReapThreadPtr _clientReaper;
+    ReapThreadPtr _reaper;
     WaitQueuePtr _waitQueue;
     SessionServantLocatorIPtr _sessionServantLocator;
     int _sessionTimeout;

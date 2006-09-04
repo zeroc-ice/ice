@@ -188,12 +188,12 @@ AdminSessionI::destroy(const Ice::Current& current)
 
 AdminSessionFactory::AdminSessionFactory(const Ice::ObjectAdapterPtr& adapter,
 					 const DatabasePtr& database,
-					 const ReapThreadPtr& reapThread,
+					 const ReapThreadPtr& reaper,
 					 const RegistryIPtr& registry) :
     _adapter(adapter),
     _database(database), 
     _timeout(registry->getSessionTimeout()),
-    _reapThread(reapThread),
+    _reaper(reaper),
     _registry(registry)
 {
 }
@@ -231,7 +231,7 @@ AdminSessionFactory::createGlacier2Session(const string& sessionId, const Glacie
 	}
     }
 
-    _reapThread->add(new SessionReapable(_adapter, session, s->ice_getIdentity()), ctl->getSessionTimeout());
+    _reaper->add(new SessionReapable(_adapter, session, s->ice_getIdentity()), ctl->getSessionTimeout());
 
     return s;
 }

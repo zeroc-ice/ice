@@ -138,7 +138,7 @@ private:
     const Ice::ObjectAdapterPtr _adapter;
     const DatabasePtr _database;
     const WaitQueuePtr _waitQueue;
-    const ReapThreadPtr _reapThread;
+    const ReapThreadPtr _reaper;
 };
 typedef IceUtil::Handle<ClientSessionFactory> ClientSessionFactoryPtr;
 

@@ -92,7 +92,8 @@ InternalRegistryI::InternalRegistryI(const DatabasePtr& database,
 				     ReplicaSessionManager& session) : 
     _database(database),
     _reaper(reaper),
-    _session(session)
+    _session(session),
+    _timeout(_database->getSessionTimeout())
 {
 }
 
@@ -108,7 +109,7 @@ InternalRegistryI::registerNode(const std::string& name,
 {
     NodeSessionIPtr session = new NodeSessionI(_database, name, node, info);
     NodeSessionPrx proxy = NodeSessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
-    _reaper->add(new SessionReapable<NodeSessionI>(current.adapter, session, proxy));
+    _reaper->add(new SessionReapable<NodeSessionI>(current.adapter, session, proxy), _timeout);
     return proxy;
 }
 
@@ -120,7 +121,7 @@ InternalRegistryI::registerReplica(const std::string& name,
 {
     ReplicaSessionIPtr session = new ReplicaSessionI(_database, name, replica, observer);
     ReplicaSessionPrx proxy = ReplicaSessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
-    _reaper->add(new SessionReapable<ReplicaSessionI>(current.adapter, session, proxy));
+    _reaper->add(new SessionReapable<ReplicaSessionI>(current.adapter, session, proxy), _timeout);
     return proxy;
 }
 

@@ -38,12 +38,11 @@ public:
     
     virtual void run();
     void terminate();
-    void add(const ReapablePtr&);
     void add(const ReapablePtr&, int);
 
 private:
     
-    const IceUtil::Time _timeout;
+    const IceUtil::Time _wakeInterval;
     bool _terminated;
     struct ReapableItem
     {

@@ -209,6 +209,18 @@ RegistryI::start(bool nowarn)
     registryAdapter->activate();
 
     //
+    // The reaper thread will wake every 30 seconds.
+    //
+    _reaper = new ReapThread(30);
+    _reaper->start();
+
+    //
+    // TODO: Deprecate AdminSessionTimeout?
+    //
+    int sessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.AdminSessionTimeout", 10);
+    _sessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.SessionTimeout", sessionTimeout);
+
+    //
     // Get the instance name
     //
     if(replicaName.empty())
@@ -228,14 +240,6 @@ RegistryI::start(bool nowarn)
     }
 
     //
-    // Start the internal reaper thread.
-    //
-    int timeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.NodeSessionTimeout", 10);
-    timeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.InternalSessionTimeout", timeout);
-    _internalReaper = new ReapThread(timeout);
-    _internalReaper->start();
-
-    //
     // Create the registry database.
     //
     properties->setProperty("Freeze.DbEnv.Registry.DbHome", dbPath);
@@ -250,6 +254,9 @@ RegistryI::start(bool nowarn)
 					  "IceGrid.Registry", 
  					  _communicator->stringToIdentity(_instanceName + "/RegistryTopicManager"),
 					  "Registry");
+
+    int timeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.NodeSessionTimeout", 10);
+    timeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.InternalSessionTimeout", timeout);
 
     _database = new Database(registryAdapter, _iceStorm->getTopicManager(), _instanceName, timeout, _traceLevels);
 
@@ -287,14 +294,6 @@ RegistryI::start(bool nowarn)
 	LocatorPrx internalLocator = setupLocator(clientAdapter, serverAdapter, registryAdapter);
 	setupQuery(clientAdapter);
 	setupRegistry(clientAdapter);	
-
-	//
-	// TODO: Deprecate AdminSessionTimeout?
-	//
-	int sessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.AdminSessionTimeout", 10);
-	_sessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.SessionTimeout", sessionTimeout);
-	_clientReaper = new ReapThread(_sessionTimeout);
-	_clientReaper->start();
 
 	//
 	// Add a default servant locator to the client object adapter. The
@@ -396,7 +395,8 @@ RegistryI::setupInternalRegistry(const Ice::ObjectAdapterPtr& registryAdapter, c
     {
 	internalRegistryId.name += "-" + replicaName;
     }
-    ObjectPtr internalRegistry = new InternalRegistryI(_database, _internalReaper, _session);
+    assert(_reaper);
+    ObjectPtr internalRegistry = new InternalRegistryI(_database, _reaper, _session);
     Ice::ObjectPrx proxy = registryAdapter->add(internalRegistry, internalRegistryId);
     addWellKnownObject(proxy, InternalRegistry::ice_staticId());
     return InternalRegistryPrx::uncheckedCast(proxy);
@@ -451,8 +451,8 @@ RegistryI::setupClientSessionFactory(const Ice::ObjectAdapterPtr& registryAdapte
     _waitQueue = new WaitQueue(); // Used for for session allocation timeout.
     _waitQueue->start();
     
-    assert(_clientReaper);
-    _clientSessionFactory = new ClientSessionFactory(sessionManagerAdapter, _database, _waitQueue, _clientReaper);
+    assert(_reaper);
+    _clientSessionFactory = new ClientSessionFactory(sessionManagerAdapter, _database, _waitQueue, _reaper);
 
     Identity clientSessionMgrId = _communicator->stringToIdentity(_instanceName + "/SessionManager");
     sessionManagerAdapter->add(new ClientSessionManagerI(_clientSessionFactory), clientSessionMgrId);
@@ -484,7 +484,8 @@ RegistryI::setupAdminSessionFactory(const Ice::ObjectAdapterPtr& registryAdapter
 				    const Ice::LocatorPrx& locator,
 				    bool nowarn)
 {
-    _adminSessionFactory = new AdminSessionFactory(sessionManagerAdapter, _database, _clientReaper, this);
+    assert(_reaper);
+    _adminSessionFactory = new AdminSessionFactory(sessionManagerAdapter, _database, _reaper, this);
 
     Identity adminSessionMgrId = _communicator->stringToIdentity(_instanceName + "/AdminSessionManager");
     sessionManagerAdapter->add(new AdminSessionManagerI(_adminSessionFactory), adminSessionMgrId);
@@ -518,16 +519,12 @@ RegistryI::stop()
 
     _database->clearTopics();
 
-    if(_clientReaper)
+    if(_reaper)
     {
-	_clientReaper->terminate();
-	_clientReaper->getThreadControl().join();
-	_clientReaper = 0;
+	_reaper->terminate();
+	_reaper->getThreadControl().join();
+	_reaper = 0;
     }
-
-    _internalReaper->terminate();
-    _internalReaper->getThreadControl().join();
-    _internalReaper = 0;
 
     if(_waitQueue)
     {
@@ -548,7 +545,7 @@ RegistryI::stop()
 SessionPrx
 RegistryI::createSession(const string& user, const string& password, const Current& current)
 {
-    assert(_clientReaper && _clientSessionFactory);
+    assert(_reaper && _clientSessionFactory);
 
     if(!_clientVerifier)
     {
@@ -592,14 +589,14 @@ RegistryI::createSession(const string& user, const string& password, const Curre
     SessionIPtr session = _clientSessionFactory->createSessionServant(user, 0);
     session->setServantLocator(_sessionServantLocator);
     SessionPrx proxy = SessionPrx::uncheckedCast(_sessionServantLocator->add(session, current.con));
-    _clientReaper->add(new SessionReapable(current.adapter, session, proxy->ice_getIdentity()));
+    _reaper->add(new SessionReapable(current.adapter, session, proxy->ice_getIdentity()), _sessionTimeout);
     return proxy;    
 }
 
 AdminSessionPrx
 RegistryI::createAdminSession(const string& user, const string& password, const Current& current)
 {
-    assert(_clientReaper && _adminSessionFactory);
+    assert(_reaper && _adminSessionFactory);
 
     if(!_adminVerifier)
     {
@@ -645,14 +642,14 @@ RegistryI::createAdminSession(const string& user, const string& password, const 
     session->setAdmin(AdminPrx::uncheckedCast(admin));
     session->setServantLocator(_sessionServantLocator);
     AdminSessionPrx proxy = AdminSessionPrx::uncheckedCast(_sessionServantLocator->add(session, current.con));
-    _clientReaper->add(new SessionReapable(current.adapter, session, proxy->ice_getIdentity()));
+    _reaper->add(new SessionReapable(current.adapter, session, proxy->ice_getIdentity()), _sessionTimeout);
     return proxy;    
 }
 
 SessionPrx
 RegistryI::createSessionFromSecureConnection(const Current& current)
 {
-    assert(_clientReaper && _clientSessionFactory);
+    assert(_reaper && _clientSessionFactory);
 
     if(!_sslClientVerifier)
     {
@@ -698,14 +695,14 @@ RegistryI::createSessionFromSecureConnection(const Current& current)
     SessionIPtr session = _clientSessionFactory->createSessionServant(userDN, 0);
     session->setServantLocator(_sessionServantLocator);
     SessionPrx proxy = SessionPrx::uncheckedCast(_sessionServantLocator->add(session, current.con));
-    _clientReaper->add(new SessionReapable(current.adapter, session, proxy->ice_getIdentity()));
+    _reaper->add(new SessionReapable(current.adapter, session, proxy->ice_getIdentity()), _sessionTimeout);
     return proxy;
 }
 
 AdminSessionPrx
 RegistryI::createAdminSessionFromSecureConnection(const Current& current)
 {
-    assert(_clientReaper && _adminSessionFactory);
+    assert(_reaper && _adminSessionFactory);
 
     if(!_sslAdminVerifier)
     {
@@ -749,7 +746,7 @@ RegistryI::createAdminSessionFromSecureConnection(const Current& current)
     session->setAdmin(AdminPrx::uncheckedCast(admin));
     session->setServantLocator(_sessionServantLocator);
     AdminSessionPrx proxy = AdminSessionPrx::uncheckedCast(_sessionServantLocator->add(session, current.con));
-    _clientReaper->add(new SessionReapable(current.adapter, session, proxy->ice_getIdentity()));
+    _reaper->add(new SessionReapable(current.adapter, session, proxy->ice_getIdentity()), _sessionTimeout);
     return proxy;    
 }
 

@@ -68,7 +68,7 @@ private:
     const DatabasePtr _database;
     const int _timeout;
     const WaitQueuePtr _waitQueue;
-    const ReapThreadPtr _reapThread;
+    const ReapThreadPtr _reaper;
     const RegistryIPtr _registry;
 };
 typedef IceUtil::Handle<AdminSessionFactory> AdminSessionFactoryPtr;

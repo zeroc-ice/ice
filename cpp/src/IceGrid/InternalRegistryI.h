@@ -45,6 +45,7 @@ private:
     const DatabasePtr _database;
     const ReapThreadPtr _reaper;
     ReplicaSessionManager& _session;
+    const int _timeout;
 };
     
 };
