@@ -29,29 +29,36 @@ class SessionControlI : public SessionControl
 public:
 
     SessionControlI(const SessionRouterIPtr& sessionRouter, const ConnectionPtr& connection,
-		    const FilterManagerPtr& filterManager) :
+		    const FilterManagerPtr& filterManager, int timeout) :
         _sessionRouter(sessionRouter),
 	_connection(connection),
-	_filters(filterManager)
+	_filters(filterManager),
+	_timeout(timeout)
     {
     }
 
     virtual StringSetPrx
-    categories(const Current& current)
+    categories(const Current&)
     {
 	return _filters->categoriesPrx();
     }
 
     virtual StringSetPrx
-    adapterIds(const Current& current)
+    adapterIds(const Current&)
     {
 	return _filters->adapterIdsPrx();
     }
 
     virtual IdentitySetPrx
-    identities(const Current& current)
+    identities(const Current&)
     {
 	return _filters->identitiesPrx(); 
+    }
+
+    virtual int
+    getSessionTimeout(const Current&)
+    {
+	return _timeout;
     }
     
     virtual void
@@ -66,6 +73,7 @@ private:
     const SessionRouterIPtr _sessionRouter;
     const ConnectionPtr _connection;
     const FilterManagerPtr _filters;
+    const int _timeout;
 };
 
 class ClientLocator : public ServantLocator
@@ -838,7 +846,8 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 	    if(_adminAdapter)
 	    {
 	        control = SessionControlPrx::uncheckedCast(
-		    _adminAdapter->addWithUUID(new SessionControlI(this, current.con, filterManager))); 
+		    _adminAdapter->addWithUUID(
+			new SessionControlI(this, current.con, filterManager, _sessionTimeout.toSeconds())));
 		controlId = control->ice_getIdentity();
 	    }
 	    session = factory->create(control, current.ctx);

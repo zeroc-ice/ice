@@ -22,7 +22,7 @@ ReapThread::ReapThread(int timeout) :
 void
 ReapThread::run()
 {
-    vector<ReapablePtr> reap;
+    vector<ReapableItem> reap;
     while(true)
     {
 	{
@@ -34,12 +34,12 @@ ReapThread::run()
 		break;
 	    }
 
-	    list<ReapablePtr>::iterator p = _sessions.begin();
+	    list<ReapableItem>::iterator p = _sessions.begin();
 	    while(p != _sessions.end())
 	    {
 		try
 		{
-		    if((IceUtil::Time::now() - (*p)->timestamp()) > _timeout)
+		    if((IceUtil::Time::now() - p->item->timestamp()) > p->timeout)
 		    {
 			reap.push_back(*p);
 			p = _sessions.erase(p);
@@ -56,9 +56,9 @@ ReapThread::run()
 	    }
 	}
 
-	for(vector<ReapablePtr>::const_iterator p = reap.begin(); p != reap.end(); ++p)
+	for(vector<ReapableItem>::const_iterator p = reap.begin(); p != reap.end(); ++p)
 	{
-	    (*p)->destroy(false);
+	    p->item->destroy(false);
 	}
 	reap.clear();
     }
@@ -67,7 +67,7 @@ ReapThread::run()
 void
 ReapThread::terminate()
 {
-    list<ReapablePtr> reap;
+    list<ReapableItem> reap;
     {
 	Lock sync(*this);
 	if(_terminated)
@@ -79,9 +79,9 @@ ReapThread::terminate()
 	reap.swap(_sessions);
     }
 
-    for(list<ReapablePtr>::const_iterator p = reap.begin(); p != reap.end(); ++p)
+    for(list<ReapableItem>::const_iterator p = reap.begin(); p != reap.end(); ++p)
     {
-	(*p)->destroy(true);
+	p->item->destroy(true);
     }
 }
 
@@ -93,6 +93,24 @@ ReapThread::add(const ReapablePtr& reapable)
     {
 	return;
     }
-    _sessions.push_back(reapable);
+    ReapableItem item;
+    item.item = reapable;
+    item.timeout = _timeout;
+    _sessions.push_back(item);
+}
+
+void
+ReapThread::add(const ReapablePtr& reapable, int timeout)
+{
+    Lock sync(*this);
+    if(_terminated)
+    {
+	return;
+    }
+
+    ReapableItem item;
+    item.item = reapable;
+    item.timeout = IceUtil::Time::seconds(timeout);
+    _sessions.push_back(item);
 }
 

@@ -13,6 +13,7 @@
 #include <IceGrid/QueryI.h>
 #include <IceGrid/LocatorI.h>
 #include <IceGrid/Database.h>
+#include <IceGrid/Admin.h>
 
 #include <IceSSL/Plugin.h>
 
@@ -154,6 +155,57 @@ BaseSessionI::setServantLocator(const SessionServantLocatorIPtr& servantLocator)
     const_cast<SessionServantLocatorIPtr&>(_servantLocator) = servantLocator;
 }
 
+SessionReapable::SessionReapable(const Ice::ObjectAdapterPtr& adapter,
+				 const Ice::ObjectPtr& session,
+				 const Ice::Identity& id) : 
+    _adapter(adapter),
+    _servant(session),
+    _session(dynamic_cast<BaseSessionI*>(_servant.get())),
+    _id(id)
+{
+}
+
+SessionReapable::~SessionReapable()
+{
+}
+
+IceUtil::Time
+SessionReapable::timestamp() const
+{
+    return _session->timestamp();
+}
+
+void
+SessionReapable::destroy(bool destroy)
+{
+    try
+    {
+	//
+	// Invoke on the servant directly instead of the
+	// proxy. Invoking on the proxy might not always work if the
+	// communicator is being shutdown/destroyed. We have to create
+	// a fake "current" because the session destroy methods needs
+	// the adapter and object identity to unregister the servant
+	// from the adapter.
+	//
+	Ice::Current current;
+	if(!destroy)
+	{
+	    current.adapter = _adapter;
+	    current.id = _id;
+	}
+	_session->destroy(current);
+    }
+    catch(const Ice::ObjectNotExistException&)
+    {
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	Ice::Warning out(_adapter->getCommunicator()->getLogger());
+	out << "unexpected exception while reaping node session:\n" << ex;
+    }
+}
+
 SessionI::SessionI(const string& id, 
 		   const DatabasePtr& database, 
 		   const WaitQueuePtr& waitQueue,
@@ -282,10 +334,12 @@ SessionI::removeAllocation(const AllocatablePtr& allocatable)
 
 ClientSessionFactory::ClientSessionFactory(const Ice::ObjectAdapterPtr& adapter,
 					   const DatabasePtr& database, 
-					   const WaitQueuePtr& waitQueue) :
+					   const WaitQueuePtr& waitQueue,
+					   const ReapThreadPtr& reapThread) :
     _adapter(adapter),
     _database(database), 
-    _waitQueue(waitQueue)
+    _waitQueue(waitQueue),
+    _reapThread(reapThread)
 {
 }
 
@@ -319,6 +373,8 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const Glaci
 	    return 0;
 	}
     }
+
+    _reapThread->add(new SessionReapable(_adapter, session, s->ice_getIdentity()), ctl->getSessionTimeout());
 
     return s;
 }

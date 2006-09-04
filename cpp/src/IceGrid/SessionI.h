@@ -11,6 +11,7 @@
 #define ICEGRID_SESSIONI_H
 
 #include <IceUtil/Mutex.h>
+#include <IceGrid/ReapThread.h>
 #include <IceGrid/Session.h>
 #include <IceGrid/SessionServantLocatorI.h>
 
@@ -59,9 +60,28 @@ protected:
     bool _destroyed;
     IceUtil::Time _timestamp;
 };
+typedef IceUtil::Handle<BaseSessionI> BaseSessionIPtr;
 
 class SessionDestroyedException
 {
+};
+
+class SessionReapable : public Reapable
+{
+public:
+
+    SessionReapable(const Ice::ObjectAdapterPtr&, const Ice::ObjectPtr&, const Ice::Identity&);
+    virtual ~SessionReapable();
+	
+    virtual IceUtil::Time timestamp() const;
+    virtual void destroy(bool);
+
+private:
+
+    const Ice::ObjectAdapterPtr _adapter;
+    const Ice::ObjectPtr _servant;
+    BaseSessionI* _session;
+    const Ice::Identity _id;
 };
 
 class SessionI : public BaseSessionI, public Session
@@ -106,7 +126,7 @@ class ClientSessionFactory : virtual public IceUtil::Shared
 {
 public:
 
-    ClientSessionFactory(const Ice::ObjectAdapterPtr&, const DatabasePtr&, const WaitQueuePtr&);
+    ClientSessionFactory(const Ice::ObjectAdapterPtr&, const DatabasePtr&, const WaitQueuePtr&, const ReapThreadPtr&);
 
     Glacier2::SessionPrx createGlacier2Session(const std::string&, const Glacier2::SessionControlPrx&);
     SessionIPtr createSessionServant(const std::string&, const Glacier2::SessionControlPrx&);
@@ -118,6 +138,7 @@ private:
     const Ice::ObjectAdapterPtr _adapter;
     const DatabasePtr _database;
     const WaitQueuePtr _waitQueue;
+    const ReapThreadPtr _reapThread;
 };
 typedef IceUtil::Handle<ClientSessionFactory> ClientSessionFactoryPtr;
 

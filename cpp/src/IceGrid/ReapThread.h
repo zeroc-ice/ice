@@ -39,12 +39,18 @@ public:
     virtual void run();
     void terminate();
     void add(const ReapablePtr&);
+    void add(const ReapablePtr&, int);
 
 private:
     
     const IceUtil::Time _timeout;
     bool _terminated;
-    std::list<ReapablePtr> _sessions;
+    struct ReapableItem
+    {
+	ReapablePtr item;
+	IceUtil::Time timeout;
+    };
+    std::list<ReapableItem> _sessions;
 };
 typedef IceUtil::Handle<ReapThread> ReapThreadPtr;
 

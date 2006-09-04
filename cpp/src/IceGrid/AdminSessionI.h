@@ -12,6 +12,7 @@
 
 #include <IceGrid/SessionI.h>
 #include <IceGrid/Topics.h>
+#include <IceGrid/ReapThread.h>
 
 namespace IceGrid
 {
@@ -54,7 +55,7 @@ class AdminSessionFactory : virtual public IceUtil::Shared
 {
 public:
 
-    AdminSessionFactory(const Ice::ObjectAdapterPtr&, const DatabasePtr&, const RegistryIPtr&);
+    AdminSessionFactory(const Ice::ObjectAdapterPtr&, const DatabasePtr&, const ReapThreadPtr&, const RegistryIPtr&);
     
     Glacier2::SessionPrx createGlacier2Session(const std::string&, const Glacier2::SessionControlPrx&);
     AdminSessionIPtr createSessionServant(const std::string&);
@@ -67,6 +68,7 @@ private:
     const DatabasePtr _database;
     const int _timeout;
     const WaitQueuePtr _waitQueue;
+    const ReapThreadPtr _reapThread;
     const RegistryIPtr _registry;
 };
 typedef IceUtil::Handle<AdminSessionFactory> AdminSessionFactoryPtr;

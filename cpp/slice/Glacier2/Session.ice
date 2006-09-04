@@ -180,6 +180,15 @@ interface SessionControl
      *
      **/
     IdentitySet* identities();
+
+    /**
+     *
+     * Get the session timeout.
+     *
+     * @return The timeout.
+     *
+     **/
+    idempotent int getSessionTimeout();
     
     /**
      *

@@ -55,68 +55,6 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
-class SessionReapable : public Reapable
-{
-public:
-
-    SessionReapable(const ObjectAdapterPtr& adapter, 
-		    const ObjectPtr& session, 
-		    const Identity& id) : 
-	_adapter(adapter),
-	_servant(session),
-	_session(dynamic_cast<BaseSessionI*>(_servant.get())),
-	_id(id)
-    {
-    }
-
-    virtual ~SessionReapable()
-    {
-    }
-	
-    virtual IceUtil::Time
-    timestamp() const
-    {
-	return _session->timestamp();
-    }
-
-    virtual void
-    destroy(bool destroy)
-    {
-	try
-	{
-	    //
-	    // Invoke on the servant directly instead of the
-	    // proxy. Invoking on the proxy might not always work if the
-	    // communicator is being shutdown/destroyed. We have to create
-	    // a fake "current" because the session destroy methods needs
-	    // the adapter and object identity to unregister the servant
-	    // from the adapter.
-	    //
-	    Current current;
-	    if(!destroy)
-	    {
-		current.adapter = _adapter;
-		current.id = _id;
-	    }
-	    _session->destroy(current);
-	}
-	catch(const ObjectNotExistException&)
-	{
-	}
-	catch(const LocalException& ex)
-	{
-	    Warning out(_adapter->getCommunicator()->getLogger());
-	    out << "unexpected exception while reaping node session:\n" << ex;
-	}
-    }
-
-private:
-
-    const ObjectAdapterPtr _adapter;
-    const ObjectPtr _servant;
-    BaseSessionI* _session;
-    const Identity _id;
-};
 
 class NullPermissionsVerifierI : public Glacier2::PermissionsVerifier
 {
@@ -513,7 +451,8 @@ RegistryI::setupClientSessionFactory(const Ice::ObjectAdapterPtr& registryAdapte
     _waitQueue = new WaitQueue(); // Used for for session allocation timeout.
     _waitQueue->start();
     
-    _clientSessionFactory = new ClientSessionFactory(sessionManagerAdapter, _database, _waitQueue);
+    assert(_clientReaper);
+    _clientSessionFactory = new ClientSessionFactory(sessionManagerAdapter, _database, _waitQueue, _clientReaper);
 
     Identity clientSessionMgrId = _communicator->stringToIdentity(_instanceName + "/SessionManager");
     sessionManagerAdapter->add(new ClientSessionManagerI(_clientSessionFactory), clientSessionMgrId);
@@ -545,7 +484,7 @@ RegistryI::setupAdminSessionFactory(const Ice::ObjectAdapterPtr& registryAdapter
 				    const Ice::LocatorPrx& locator,
 				    bool nowarn)
 {
-    _adminSessionFactory = new AdminSessionFactory(sessionManagerAdapter, _database, this);
+    _adminSessionFactory = new AdminSessionFactory(sessionManagerAdapter, _database, _clientReaper, this);
 
     Identity adminSessionMgrId = _communicator->stringToIdentity(_instanceName + "/AdminSessionManager");
     sessionManagerAdapter->add(new AdminSessionManagerI(_adminSessionFactory), adminSessionMgrId);
