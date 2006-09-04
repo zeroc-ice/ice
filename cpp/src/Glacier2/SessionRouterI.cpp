@@ -29,11 +29,11 @@ class SessionControlI : public SessionControl
 public:
 
     SessionControlI(const SessionRouterIPtr& sessionRouter, const ConnectionPtr& connection,
-		    const FilterManagerPtr& filterManager, int timeout) :
+		    const FilterManagerPtr& filterManager, IceUtil::Time timeout) :
         _sessionRouter(sessionRouter),
 	_connection(connection),
 	_filters(filterManager),
-	_timeout(timeout)
+	_timeout(static_cast<int>(timeout.toSeconds()))
     {
     }
 
@@ -847,7 +847,7 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 	    {
 	        control = SessionControlPrx::uncheckedCast(
 		    _adminAdapter->addWithUUID(
-			new SessionControlI(this, current.con, filterManager, _sessionTimeout.toSeconds())));
+			new SessionControlI(this, current.con, filterManager, _sessionTimeout)));
 		controlId = control->ice_getIdentity();
 	    }
 	    session = factory->create(control, current.ctx);
