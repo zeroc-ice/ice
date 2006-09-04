@@ -237,6 +237,10 @@ SOURCE=.\Util.cpp
 
 SOURCE=.\WaitQueue.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\WellKnownObjectsManager.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
