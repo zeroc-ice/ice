@@ -159,7 +159,7 @@ class Node extends ListTreeNode
 
     Node(Root parent, NodeDynamicInfo info)
     {
-	super(parent, info.name);
+	super(parent, info.info.name);
 	up(info, false);
     }
 

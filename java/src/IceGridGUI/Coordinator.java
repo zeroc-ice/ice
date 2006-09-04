@@ -466,15 +466,14 @@ public class Coordinator
 
 
     //
-    // From the Registry observer:
+    // From the Application observer:
     //
-    void registryInit(String instanceName, int serial, java.util.List applications,
-		      AdapterInfo[] adapters, ObjectInfo[] objects)
+    void applicationInit(String instanceName, int serial, java.util.List applications)
     {	
 	assert _latestSerial == -1;
 	_latestSerial = serial;
 
-	_liveDeploymentRoot.init(instanceName, applications, adapters, objects);
+	_liveDeploymentRoot.applicationInit(instanceName, applications);
 	//
 	// When we get this init, we can't have any live Application yet.
 	//
@@ -528,46 +527,58 @@ public class Coordinator
 	updateSerial(serial);
     }
 
-    void adapterAdded(int serial, AdapterInfo info)
+    //
+    // From the Adapter observer:
+    //
+    void adapterInit(AdapterInfo[] adapters)
+    {
+	_liveDeploymentRoot.adapterInit(adapters);
+	// _liveDeploymentPane.refresh(); // TODO: XXX: Is is it necessary to call refresh()?
+    }
+
+    void adapterAdded(AdapterInfo info)
     {
 	_liveDeploymentRoot.adapterAdded(info);
 	_liveDeploymentPane.refresh();
-	updateSerial(serial);
     }    
 
-    void adapterUpdated(int serial, AdapterInfo info)
+    void adapterUpdated(AdapterInfo info)
     {
 	_liveDeploymentRoot.adapterUpdated(info);
 	_liveDeploymentPane.refresh();
-	updateSerial(serial);
     }    
 
-    void adapterRemoved(int serial, String id)
+    void adapterRemoved(String id)
     {
 	_liveDeploymentRoot.adapterRemoved(id);
 	_liveDeploymentPane.refresh();
-	updateSerial(serial);
     }    
     
-    void objectAdded(int serial, ObjectInfo info)
+    //
+    // From the Object observer:
+    //
+    void objectInit(ObjectInfo[] objects)
+    {
+	_liveDeploymentRoot.objectInit(objects);
+	// _liveDeploymentPane.refresh(); // TODO: XXX: Is is it necessary to call refresh()?
+    }
+
+    void objectAdded(ObjectInfo info)
     {
 	_liveDeploymentRoot.objectAdded(info);
 	_liveDeploymentPane.refresh();
-	updateSerial(serial);
     }    
 
-    void objectUpdated(int serial, ObjectInfo info)
+    void objectUpdated(ObjectInfo info)
     {
 	_liveDeploymentRoot.objectUpdated(info);
 	_liveDeploymentPane.refresh();
-	updateSerial(serial);
     }    
 
-    void objectRemoved(int serial, Ice.Identity id)
+    void objectRemoved(Ice.Identity id)
     {
 	_liveDeploymentRoot.objectRemoved(id);
 	_liveDeploymentPane.refresh();
-	updateSerial(serial);
     } 
     
     public void accessDenied(AccessDeniedException e)
@@ -1193,7 +1204,6 @@ public class Coordinator
 	// Set various default values
 	//
 	properties.setProperty("Ice.Override.ConnectTimeout", "5000");
-	properties.setProperty("IceGrid.AdminGUI.Endpoints", "tcp -t 10000");
 	
 	//
         // For SSL with JDK 1.4

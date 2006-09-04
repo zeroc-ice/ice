@@ -18,7 +18,7 @@ class NodeObserverI extends _NodeObserverDisp
 	_coordinator = coordinator;
     }
     
-    public void init(final NodeDynamicInfo[] nodes, Ice.Current current)
+    public void nodeInit(final NodeDynamicInfo[] nodes, Ice.Current current)
     {
 	SwingUtilities.invokeLater(new Runnable() 
 	    {

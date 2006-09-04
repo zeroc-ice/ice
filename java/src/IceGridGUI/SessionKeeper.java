@@ -161,12 +161,36 @@ class SessionKeeper
 	    {
 		try
 		{
-		    _adapter.remove(_registryObserverIdentity);
+		    _adapter.remove(_applicationObserverIdentity);
+		}
+		catch(Ice.NotRegisteredException e)
+		{
+		}
+
+		try
+		{
+		    _adapter.remove(_adapterObserverIdentity);
+		}
+		catch(Ice.NotRegisteredException e)
+		{
+		}
+
+		try
+		{
+		    _adapter.remove(_objectObserverIdentity);
 		}
 		catch(Ice.NotRegisteredException e)
 		{
 		}
 		
+		try
+		{
+		    _adapter.remove(_registryObserverIdentity);
+		}
+		catch(Ice.NotRegisteredException e)
+		{
+		}
+
 		try
 		{
 		    _adapter.remove(_nodeObserverIdentity);
@@ -213,36 +237,64 @@ class SessionKeeper
 	    //
 	    // Create servants and proxies
 	    //
+	    _applicationObserverIdentity.name = "application";
+	    _applicationObserverIdentity.category = category;
+	    _adapterObserverIdentity.name = "adapter";
+	    _adapterObserverIdentity.category = category;
+	    _objectObserverIdentity.name = "object";
+	    _objectObserverIdentity.category = category;
 	    _registryObserverIdentity.name = "registry";
 	    _registryObserverIdentity.category = category;
 	    _nodeObserverIdentity.name = "node";
 	    _nodeObserverIdentity.category = category;
 	    
-	    RegistryObserverI registryObserverServant = new RegistryObserverI(
+	    ApplicationObserverI applicationObserverServant = new ApplicationObserverI(
 		_admin.ice_getIdentity().category, _coordinator);
 	    
-	    RegistryObserverPrx registryObserver = 
+	    ApplicationObserverPrx applicationObserver = 
+		ApplicationObserverPrxHelper.uncheckedCast(
+		    _adapter.add(
+			applicationObserverServant, _applicationObserverIdentity));
+
+	    AdapterObserverPrx adapterObserver = 
+		AdapterObserverPrxHelper.uncheckedCast(
+		    _adapter.add(
+			new AdapterObserverI(_coordinator), _adapterObserverIdentity));
+
+	    ObjectObserverPrx objectObserver = 
+		ObjectObserverPrxHelper.uncheckedCast(
+		    _adapter.add(
+			new ObjectObserverI(_coordinator), _objectObserverIdentity));
+	    
+	    RegistryObserverPrx registryObserver =
 		RegistryObserverPrxHelper.uncheckedCast(
 		    _adapter.add(
-			registryObserverServant, _registryObserverIdentity));
+			new RegistryObserverI(_coordinator), _registryObserverIdentity));
 	    
 	    NodeObserverPrx nodeObserver =
 		NodeObserverPrxHelper.uncheckedCast(
 		    _adapter.add(
 			new NodeObserverI(_coordinator), _nodeObserverIdentity));
 	    
-	    if(router == null)
+	    if(router != null)
 	    {
-		_session.setObservers(registryObserver, nodeObserver);
+		_session.setObservers(registryObserver, 
+				      nodeObserver, 
+				      applicationObserver, 
+				      adapterObserver, 
+				      objectObserver); 
 	    }
 	    else
 	    {
 		_session.setObserversByIdentity(
-		    _registryObserverIdentity, 
-		    _registryObserverIdentity);
+		    _registryObserverIdentity,
+		    _nodeObserverIdentity, 
+		    _applicationObserverIdentity,
+		    _adapterObserverIdentity,
+		    _objectObserverIdentity);
 	    }
 	    
-	    registryObserverServant.waitForInit();
+	    applicationObserverServant.waitForInit();
 	}
 
 
@@ -252,6 +304,9 @@ class SessionKeeper
 	private Ice.ObjectAdapter _adapter;
 	private AdminPrx _admin;
 	private AdminPrx _routedAdmin;
+	private Ice.Identity _applicationObserverIdentity = new Ice.Identity();
+	private Ice.Identity _adapterObserverIdentity = new Ice.Identity();
+	private Ice.Identity _objectObserverIdentity = new Ice.Identity();
 	private Ice.Identity _registryObserverIdentity = new Ice.Identity();
 	private Ice.Identity _nodeObserverIdentity = new Ice.Identity();
     }
@@ -1055,7 +1110,10 @@ class SessionKeeper
 
     void logout(boolean destroySession)
     {
-	_session.close(destroySession);
+	if(_session != null)  // TODO: XXX: Review: The Session constructor might throw
+	{
+	    _session.close(destroySession);
+	}
 	_coordinator.sessionLost();
 	_session = null;
     }

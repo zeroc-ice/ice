@@ -112,22 +112,10 @@ public class Root extends ListTreeNode
     }
 
 
-    public void init(String instanceName, java.util.List applications,
-		     AdapterInfo[] adapters, ObjectInfo[] objects)
+    public void applicationInit(String instanceName, java.util.List applications)
     {
 	_label = instanceName;
-	_tree.setRootVisible(true);
-	
-	for(int i = 0; i < adapters.length; ++i)
-	{
-	    _adapters.put(adapters[i].id, adapters[i]);
-	}
-
-	for(int i = 0; i < objects.length; ++i)
-	{
-	    _objects.put(Ice.Util.identityToString(objects[i].proxy.ice_getIdentity()), 
-			 objects[i]);
-	}
+	_tree.setRootVisible(true);	
 	
 	java.util.Iterator p = applications.iterator();
 	while(p.hasNext())
@@ -393,6 +381,17 @@ public class Root extends ListTreeNode
 	}
     }
 
+    public void adapterInit(AdapterInfo[] adapters)
+    {
+	//
+	// TODO: XXX: REVIEW
+	//
+	for(int i = 0; i < adapters.length; ++i)
+	{
+	    _adapters.put(adapters[i].id, adapters[i]);
+	}	
+    }
+
     public void adapterAdded(AdapterInfo info)
     {
 	_adapters.put(info.id, info);
@@ -408,6 +407,17 @@ public class Root extends ListTreeNode
 	_adapters.remove(id);
     }    
     
+    public void objectInit(ObjectInfo[] objects)
+    {
+	//
+	// TODO: XXX: REVIEW
+	//
+	for(int i = 0; i < objects.length; ++i)
+	{
+	    _objects.put(Ice.Util.identityToString(objects[i].proxy.ice_getIdentity()), objects[i]);
+	}
+    }
+
     public void objectAdded(ObjectInfo info)
     {
 	_objects.put(Ice.Util.identityToString(info.proxy.ice_getIdentity()), info);
@@ -429,7 +439,7 @@ public class Root extends ListTreeNode
     //
     public void nodeUp(NodeDynamicInfo updatedInfo)
     {
-	Node node = findNode(updatedInfo.name);
+	Node node = findNode(updatedInfo.info.name);
 	if(node != null)
 	{
 	    node.up(updatedInfo, true);
