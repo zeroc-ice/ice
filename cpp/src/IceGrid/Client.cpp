@@ -313,16 +313,19 @@ Client::run(int argc, char* argv[])
 	}
 	else
 	{
-	    string registryStr = instanceName + "/Registry";
+	    Identity registryId;
+	    registryId.category = instanceName;
+	    registryId.name = "Registry";
 	    if(!replica.empty() && replica != "Master")
 	    {
-		registryStr += "-" + replica;
+		registryId.name += "-" + replica;
 	    }
 
 	    RegistryPrx registry;
 	    try
 	    {
-		registry = RegistryPrx::checkedCast(communicator()->stringToProxy(registryStr));
+		registry = RegistryPrx::checkedCast(
+			communicator()->stringToProxy("\"" + communicator()->identityToString(registryId) + "\""));
 		if(!registry)
 		{
 		    cerr << argv[0] << ": could not contact registry" << endl;

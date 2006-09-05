@@ -62,8 +62,10 @@ IceBox::ServiceManagerI::start()
         ObjectAdapterPtr adapter = _communicator->createObjectAdapter("IceBox.ServiceManager");
 
 	PropertiesPtr properties = _communicator->getProperties();
-        string identity = properties->getPropertyWithDefault("IceBox.InstanceName", "IceBox") + "/ServiceManager";
-        adapter->add(obj, _communicator->stringToIdentity(identity));
+        Identity identity;
+	identity.category = properties->getPropertyWithDefault("IceBox.InstanceName", "IceBox");
+	identity.name = "ServiceManager";
+        adapter->add(obj, identity);
 
         //
         // Parse the IceBox.LoadOrder property.

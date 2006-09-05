@@ -163,16 +163,11 @@ IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFe
 	throw string("property `") + endpointsProperty + "' is not set";
     }
 
-    const char* idProperty = "IcePatch2.Identity";
-    string idStr = properties->getProperty(idProperty);
-    if(idStr.empty())
-    {
-	const char* instanceProperty = "IcePatch2.InstanceName";
-	idStr = properties->getPropertyWithDefault(instanceProperty, "IcePatch2") + "/server";
-    }
-    const Identity id = communicator->stringToIdentity(idStr);
+    Identity id;
+    id.category = properties->getPropertyWithDefault("IcePatch2.InstanceName", "IcePatch2");
+    id.name = "server";
     
-    ObjectPrx serverBase = communicator->stringToProxy(communicator->identityToString(id) + ':' + endpoints);
+    ObjectPrx serverBase = communicator->stringToProxy("\"" + communicator->identityToString(id) + "\" :" + endpoints);
     FileServerPrx server = FileServerPrx::checkedCast(serverBase);
     if(!server)
     {

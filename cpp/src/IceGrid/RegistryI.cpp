@@ -229,8 +229,7 @@ RegistryI::start(bool nowarn)
     //
     if(_master)
     {
-	const string instanceNameProperty = "IceGrid.InstanceName";
-	_instanceName = properties->getPropertyWithDefault(instanceNameProperty, "IceGrid");    
+	_instanceName = properties->getPropertyWithDefault("IceGrid.InstanceName", "IceGrid");    
     }
     else
     {
@@ -252,11 +251,14 @@ RegistryI::start(bool nowarn)
     //
     // Create the internal IceStorm service.
     //
+    Identity registryTopicManagerId;
+    registryTopicManagerId.category = _instanceName;
+    registryTopicManagerId.name = "RegistryTopicManager";
     _iceStorm = IceStorm::Service::create(_communicator, 
 					  registryAdapter, 
 					  registryAdapter, 
 					  "IceGrid.Registry", 
- 					  _communicator->stringToIdentity(_instanceName + "/RegistryTopicManager"),
+ 					  registryTopicManagerId,
 					  "Registry");
 
     int timeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.NodeSessionTimeout", 10);
@@ -350,10 +352,14 @@ RegistryI::setupLocator(const Ice::ObjectAdapterPtr& clientAdapter,
     // Create the locator registry and locator interfaces.
     //
     bool dynamicReg = _communicator->getProperties()->getPropertyAsInt("IceGrid.Registry.DynamicRegistration") > 0;
-    Identity locatorRegistryId = _communicator->stringToIdentity(_instanceName + "/" + IceUtil::generateUUID());
+    Identity locatorRegistryId;
+    locatorRegistryId.category = _instanceName;
+    locatorRegistryId.name = IceUtil::generateUUID();
     ObjectPrx regPrx = serverAdapter->add(new LocatorRegistryI(_database, dynamicReg), locatorRegistryId);
 
-    Identity locatorId = _communicator->stringToIdentity(_instanceName + "/Locator");
+    Identity locatorId;
+    locatorId.category = _instanceName;
+    locatorId.name = "Locator";
     clientAdapter->add(new LocatorI(_communicator, _database, LocatorRegistryPrx::uncheckedCast(regPrx)), locatorId);
 
     return LocatorPrx::uncheckedCast(registryAdapter->addWithUUID(
@@ -365,14 +371,18 @@ RegistryI::setupLocator(const Ice::ObjectAdapterPtr& clientAdapter,
 void
 RegistryI::setupQuery(const Ice::ObjectAdapterPtr& clientAdapter)
 {
-    Identity queryId = _communicator->stringToIdentity(_instanceName + "/Query");
+    Identity queryId;
+    queryId.category = _instanceName;
+    queryId.name = "Query";
     clientAdapter->add(new QueryI(_communicator, _database), queryId);
 }
 
 void
 RegistryI::setupRegistry(const Ice::ObjectAdapterPtr& clientAdapter)
 {
-    Identity registryId = _communicator->stringToIdentity(_instanceName + "/Registry");
+    Identity registryId;
+    registryId.category = _instanceName;
+    registryId.name = "Registry";
     if(!_master)
     {
 	registryId.name += "-" + _replicaName;
@@ -384,7 +394,9 @@ RegistryI::setupRegistry(const Ice::ObjectAdapterPtr& clientAdapter)
 InternalRegistryPrx
 RegistryI::setupInternalRegistry(const Ice::ObjectAdapterPtr& registryAdapter)
 {
-    Identity internalRegistryId = _communicator->stringToIdentity(_instanceName + "/InternalRegistry-" + _replicaName);
+    Identity internalRegistryId;
+    internalRegistryId.category = _instanceName;
+    internalRegistryId.name = "InternalRegistry-" + _replicaName;
     assert(_reaper);
     ObjectPtr internalRegistry = new InternalRegistryI(this, _database, _reaper, _wellKnownObjects, _session);
     Ice::ObjectPrx proxy = registryAdapter->add(internalRegistry, internalRegistryId);
@@ -395,11 +407,15 @@ RegistryI::setupInternalRegistry(const Ice::ObjectAdapterPtr& registryAdapter)
 void
 RegistryI::setupNullPermissionsVerifier(const Ice::ObjectAdapterPtr& registryAdapter)
 {
-    Identity nullPermVerifId = _communicator->stringToIdentity(_instanceName + "/NullPermissionsVerifier");
+    Identity nullPermVerifId;
+    nullPermVerifId.category = _instanceName;
+    nullPermVerifId.name = "NullPermissionsVerifier";
     _nullPermissionsVerifier = Glacier2::PermissionsVerifierPrx::uncheckedCast(
 	registryAdapter->add(new NullPermissionsVerifierI(), nullPermVerifId)->ice_collocationOptimized(true));
 
-    Identity nullSSLPermVerifId = _communicator->stringToIdentity(_instanceName + "/NullSSLPermissionsVerifier");
+    Identity nullSSLPermVerifId;
+    nullSSLPermVerifId.category = _instanceName;
+    nullSSLPermVerifId.name = "NullSSLPermissionsVerifier";
     _nullSSLPermissionsVerifier = Glacier2::SSLPermissionsVerifierPrx::uncheckedCast(
 	registryAdapter->add(new NullSSLPermissionsVerifierI(), nullSSLPermVerifId)->ice_collocationOptimized(true));
 }
@@ -417,7 +433,9 @@ RegistryI::setupUserAccountMapper(const Ice::ObjectAdapterPtr& registryAdapter)
     {
 	try
 	{
-	    Identity mapperId = _communicator->stringToIdentity(_instanceName + "/RegistryUserAccountMapper");
+	    Identity mapperId;
+	    mapperId.category = _instanceName;
+	    mapperId.name = "RegistryUserAccountMapper";
 	    if(!_master)
 	    {
 		mapperId.name += "-" + _replicaName;
@@ -449,8 +467,12 @@ RegistryI::setupClientSessionFactory(const Ice::ObjectAdapterPtr& registryAdapte
 
     if(sessionManagerAdapter && _master) // Slaves don't support client session manager objects.
     {
-	Identity clientSessionMgrId = _communicator->stringToIdentity(_instanceName + "/SessionManager");
-	Identity sslClientSessionMgrId = _communicator->stringToIdentity(_instanceName + "/SSLSessionManager");
+	Identity clientSessionMgrId;
+	clientSessionMgrId.category = _instanceName;
+	clientSessionMgrId.name = "SessionManager";
+	Identity sslClientSessionMgrId;
+	sslClientSessionMgrId.category = _instanceName;
+	sslClientSessionMgrId.name = "SSLSessionManager";
 
 	sessionManagerAdapter->add(new ClientSessionManagerI(_clientSessionFactory), clientSessionMgrId);
 	sessionManagerAdapter->add(new ClientSSLSessionManagerI(_clientSessionFactory), sslClientSessionMgrId);
@@ -486,8 +508,12 @@ RegistryI::setupAdminSessionFactory(const Ice::ObjectAdapterPtr& registryAdapter
 
     if(sessionManagerAdapter)
     {
-	Identity adminSessionMgrId = _communicator->stringToIdentity(_instanceName + "/AdminSessionManager");
-	Identity sslAdmSessionMgrId = _communicator->stringToIdentity(_instanceName + "/AdminSSLSessionManager");
+	Identity adminSessionMgrId;
+	adminSessionMgrId.category = _instanceName;
+	adminSessionMgrId.name = "AdminSessionManager";
+	Identity sslAdmSessionMgrId;
+	sslAdmSessionMgrId.category = _instanceName;
+	sslAdmSessionMgrId.name = "AdminSSLSessionManager";
 	if(!_master)
 	{
 	    adminSessionMgrId.name += "-" + _replicaName;

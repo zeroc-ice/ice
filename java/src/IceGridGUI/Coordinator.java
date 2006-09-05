@@ -818,7 +818,10 @@ public class Coordinator
 	    // Router
 	    //
 	    
-	    String str = info.routerInstanceName  + "/router";
+	    Ice.Identity routerId = new Ice.Identity();
+	    routerId.category = info.routerInstanceName;
+	    routerId.name = "router"
+	    String str = "\"" + _communicator.identityToString(routerId) + "\"";
 	    if(!info.routerEndpoints.equals(""))
 	    {
 		str += ":" + info.routerEndpoints;
@@ -880,7 +883,10 @@ public class Coordinator
 	    //
 	    // The client uses the locator only without routing
 	    //
-	    String str = info.registryInstanceName + "/Locator";
+	    Ice.Identity locatorId = new Ice.Identity();
+	    locatorId.category = info.registryInstanceName;
+	    locatorId.name = "Locator";
+	    String str = "\"" + _communicator.identityToString(locatorId) + "\"";
 	    if(!info.registryEndpoints.equals(""))
 	    {
 		str += ":" + info.registryEndpoints;
@@ -905,10 +911,12 @@ public class Coordinator
 	    //
 	    // Local session
 	    //
-	    str = info.registryInstanceName + "/Registry";
+	    Ice.Identity registryId = new Ice.Identity();
+	    registryId.category = info.registryInstanceName;
+	    registryId.name = "Registry";
 		
 	    RegistryPrx registry = RegistryPrxHelper.
-		uncheckedCast(_communicator.stringToProxy(str));
+		uncheckedCast(_communicator.stringToProxy("\"" + _communicator.identityToString(registryId) + "\""));
 	    
 	    try
 	    {

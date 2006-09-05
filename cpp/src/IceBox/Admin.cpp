@@ -83,7 +83,9 @@ Client::run(int argc, char* argv[])
     }
 
     PropertiesPtr properties = communicator()->getProperties();
-    string managerIdentity = properties->getPropertyWithDefault("IceBox.InstanceName", "IceBox") + "/ServiceManager";
+    Identity managerIdentity;
+    managerIdentity.category = properties->getPropertyWithDefault("IceBox.InstanceName", "IceBox");
+    managerIdentity.name = "ServiceManager";
 
     string managerProxy;
     if(properties->getProperty("Ice.Default.Locator").empty())
@@ -95,7 +97,7 @@ Client::run(int argc, char* argv[])
 	    return EXIT_FAILURE;
 	}
 
-	managerProxy = managerIdentity + ":" + managerEndpoints;
+	managerProxy = "\"" + communicator()->identityToString(managerIdentity) + "\" :" + managerEndpoints;
     }
     else
     {
@@ -106,7 +108,7 @@ Client::run(int argc, char* argv[])
 	    return EXIT_FAILURE;
 	}
 
-	managerProxy = managerIdentity + "@" + managerAdapterId;
+	managerProxy = "\"" + communicator()->identityToString(managerIdentity) + "\" @" + managerAdapterId;
     }
 
     ObjectPrx base = communicator()->stringToProxy(managerProxy);

@@ -268,9 +268,11 @@ NodeService::start(int argc, char* argv[])
         //
 	if(properties->getProperty("Ice.Default.Locator").empty())
 	{
-	    const string instanceNameProperty = "IceGrid.InstanceName";
-	    const string locatorId = properties->getPropertyWithDefault(instanceNameProperty, "IceGrid") + "/Locator";
-	    string locatorPrx = locatorId + ":" + properties->getProperty("IceGrid.Registry.Client.Endpoints");
+	    Identity locatorId;
+	    locatorId.category = properties->getPropertyWithDefault("IceGrid.InstanceName", "IceGrid");
+	    locatorId.name = "Locator";
+	    string locatorPrx = "\"" + communicator()->identityToString(locatorId) + "\" :" +
+	    			properties->getProperty("IceGrid.Registry.Client.Endpoints");
 	    communicator()->setDefaultLocator(LocatorPrx::uncheckedCast(communicator()->stringToProxy(locatorPrx)));
 	    properties->setProperty("Ice.Default.Locator", locatorPrx);
 	}

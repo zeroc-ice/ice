@@ -48,8 +48,10 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
 
 	    Ice.Properties properties = Ice.Application.communicator().getProperties();
 
-	    string identity = properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox") + "/ServiceManager";
-	    adapter.add(this, Ice.Application.communicator().stringToIdentity(identity));
+	    Ice.Identity identity = new Ice.Identity;
+	    identity.category = properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox");
+	    identity.name = "ServiceManager";
+	    adapter.add(this, identity);
 
 	    //
 	    // Parse the IceBox.LoadOrder property.
