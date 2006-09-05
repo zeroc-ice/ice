@@ -104,6 +104,16 @@ install:: all
 	copy $(CLIENT) $(install_bindir)
 	copy $(CALC) $(install_bindir)
 
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+
+install:: all
+	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
+	copy $(SERVER:.exe=.pdb) $(install_bindir)
+	copy $(CLIENT:.exe=.pdb) $(install_bindir)
+	copy $(CALC:.exe=.pdb) $(install_bindir)
+
+!endif
+
 !else
 
 install:: all

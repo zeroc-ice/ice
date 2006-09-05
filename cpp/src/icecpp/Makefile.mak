@@ -42,6 +42,13 @@ $(NAME): $(OBJS)
 install:: all
 	copy $(NAME) $(install_bindir)
 
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+
+install:: all
+	copy $(NAME:.exe=.pdb) $(install_bindir)
+
+!endif
+
 clean::
 	del /q cexp.c
 	del /q $(NAME:.exe=.*)

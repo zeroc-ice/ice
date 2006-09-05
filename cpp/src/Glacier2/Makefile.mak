@@ -100,6 +100,14 @@ install:: all
 	copy $(DLLNAME) $(install_bindir)
 	copy $(ROUTER) $(install_bindir)
 
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+
+install:: all
+	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
+	copy $(ROUTER:.exe=.pdb) $(install_bindir)
+
+!endif
+
 !else
 
 install:: all

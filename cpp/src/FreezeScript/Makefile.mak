@@ -79,4 +79,12 @@ install:: all
 	copy $(TRANSFORMDB) $(install_bindir)
 	copy $(DUMPDB) $(install_bindir)
 
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+
+install:: all
+	copy $(TRANSFORMDB:.exe=.pdb) $(install_bindir)
+	copy $(DUMPDB:.exe=.pdb) $(install_bindir)
+
+!endif
+
 !include .depend

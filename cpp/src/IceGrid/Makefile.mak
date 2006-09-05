@@ -231,6 +231,16 @@ install:: all
 	copy $(NODE_SERVER) $(install_bindir)
 	copy $(REGISTRY_SERVER) $(install_bindir)
 
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+
+install:: all
+	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
+	copy $(ADMIN:.exe=.pdb) $(install_bindir)
+	copy $(NODE_SERVER:.exe=.pdb) $(install_bindir)
+	copy $(REGISTRY_SERVER:.exe=.pdb) $(install_bindir)
+
+!endif
+
 !else
 
 install:: all

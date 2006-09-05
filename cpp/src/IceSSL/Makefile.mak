@@ -57,4 +57,11 @@ install:: all
 	copy $(LIBNAME) $(install_libdir)
 	copy $(DLLNAME) $(install_bindir)
 
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+
+install:: all
+	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
+
+!endif
+
 !include .depend

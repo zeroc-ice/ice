@@ -152,6 +152,15 @@ install:: all
 	copy $(SVCDLLNAME) $(install_bindir)
 	copy $(ADMIN) $(install_bindir)
 
+!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+
+install:: all
+	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
+	copy $(SVCDLLNAME:.dll=.pdb) $(install_bindir)
+	copy $(ADMIN:.exe=.pdb) $(install_bindir)
+
+!endif
+
 !else
 
 install:: all
