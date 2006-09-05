@@ -43,7 +43,12 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     {
 	argSeq = IceUtil::Options::split(cmd);
     }
-    catch(const IceUtil::Options::Error& ex)
+    catch(const IceUtil::BadOptException& ex)
+    {
+	PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
+	return NULL;
+    }
+    catch(const IceUtil::APIException& ex)
     {
 	PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
 	return NULL;
@@ -75,7 +80,12 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
 	    return NULL;
 	}
     }
-    catch(const IceUtil::Options::BadOpt& ex)
+    catch(const IceUtil::BadOptException& ex)
+    {
+	PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
+	return NULL;
+    }
+    catch(const IceUtil::APIException& ex)
     {
 	PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
 	return NULL;
