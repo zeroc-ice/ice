@@ -50,13 +50,13 @@ ADMIN_OBJS	= Grammar.obj \
 COMMON_OBJS	= Internal.obj \
 		  DescriptorParser.obj \
 		  DescriptorBuilder.obj \
-		  TraceLevels.obj
+		  TraceLevels.obj \
+		  PlatformInfo.obj
 
 NODE_OBJS	= NodeI.obj \
 		  ServerI.obj \
 		  ServerAdapterI.obj \
 		  Activator.obj \
-		  PlatformInfo.obj \
 		  NodeSessionManager.obj
 
 REGISTRY_OBJS	= RegistryI.obj \
@@ -87,7 +87,8 @@ REGISTRY_OBJS	= RegistryI.obj \
 		  QueryI.obj \
 		  WaitQueue.obj \
 		  FileUserAccountMapperI.obj \
-		  ReplicaSessionManager.obj
+		  ReplicaSessionManager.obj \
+		  WellKnownObjectsManager.obj
 
 NODE_SVR_OBJS	= $(COMMON_OBJS) \
 		  $(NODE_OBJS) \
