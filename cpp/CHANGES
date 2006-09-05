@@ -3,9 +3,9 @@ NOTE: Please keep changes in the appropriate section for HEAD or 3.1.
 Changes since version 3.1.1 (HEAD)
 ---------------------------     
 
-- Ice grid registry now cleans up any created admin & regular client
-  sessions sessions that do not correctly timeout. This could occur
-  if the Glacier2 router terminates unexpectedly.
+- IceGrid registry now cleans up any created admin and regular client
+  sessions that do not correctly time out. This could occur if the
+  Glacier2 router terminates unexpectedly.
 
 - Added Glacier2::SessionControl::getSessionTimeout.
 
@@ -181,6 +181,9 @@ Changes since version 3.1.1 (HEAD)
 
 Changes since version 3.1.0
 ---------------------------     
+
+- Fixed a Glacier2 shutdown bug where active sessions would not be
+  destroyed properly.
 
 - A bug was fixed where the glacier2router would throw a
   NullHandleException if permission verifier was used that was not

@@ -82,6 +82,12 @@ Glacier2::RouterI::destroy()
 	    catch(const NotRegisteredException&)
 	    {
 	    }
+	    catch(const ObjectAdapterDeactivatedException&)
+	    {
+		//
+		// Expected if the router has been shutdown.
+		//
+	    }
 	}
 
 	//
