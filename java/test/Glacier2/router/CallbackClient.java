@@ -19,7 +19,7 @@ class CallbackClient extends Ice.Application
         {
             System.out.print("testing stringToProxy for router... ");
             System.out.flush();
-            routerBase = communicator().stringToProxy("abc/def:default -p 12347 -t 30000");
+            routerBase = communicator().stringToProxy("Glacier2/router:default -p 12347 -t 30000");
             System.out.println("ok");
         }
         
@@ -39,6 +39,14 @@ class CallbackClient extends Ice.Application
             communicator().setDefaultRouter(router);
             System.out.println("ok");
         }
+
+	{
+	    System.out.print("getting the session timeout... ");
+            System.out.flush();
+	    long timeout = router.getSessionTimeout();
+	    test(timeout == 30);
+            System.out.println("ok");
+	}
 
         Ice.ObjectPrx base;
 
@@ -394,7 +402,7 @@ class CallbackClient extends Ice.Application
 	    
 	    {
 		System.out.print("testing stringToProxy for admin object... ");
-		adminBase = communicator().stringToProxy("ABC/DEF:tcp -h 127.0.0.1 -p 12348 -t 10000");
+		adminBase = communicator().stringToProxy("Glacier2/admin:tcp -h 127.0.0.1 -p 12348 -t 10000");
 		System.out.println("ok");
 	    }
 	    

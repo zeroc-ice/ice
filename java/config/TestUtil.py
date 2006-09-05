@@ -375,12 +375,10 @@ serverOptions = serverProtocol + defaultHost + commonServerOptions
 clientServerOptions = clientServerProtocol + defaultHost + commonServerOptions
 collocatedOptions = clientServerProtocol + defaultHost
 
-cppCommonClientOptions = " --Ice.Warn.Connections"
+cppCommonClientOptions = " --Ice.NullHandleAbort --Ice.Warn.Connections"
 
-cppCommonServerOptions = " --Ice.PrintAdapterReady" + \
-                         " --Ice.Warn.Connections --Ice.ServerIdleTime=30" + \
-                         " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3" + \
-                         " --Ice.ThreadPool.Server.SizeWarn=0"
+cppCommonServerOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.NullHandleAbort" + \
+                         " --Ice.Warn.Connections --Ice.ServerIdleTime=30"
 
 cppClientOptions = cppClientProtocol + defaultHost + cppCommonClientOptions
 cppServerOptions = cppServerProtocol + defaultHost + cppCommonServerOptions
