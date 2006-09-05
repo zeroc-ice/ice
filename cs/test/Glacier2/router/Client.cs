@@ -20,7 +20,7 @@ public class Client : Ice.Application
         {
             Console.Out.Write("testing stringToProxy for router... ");
             Console.Out.Flush();
-            routerBase = communicator().stringToProxy("abc/def:default -p 12347 -t 30000");
+            routerBase = communicator().stringToProxy("Glacier2/router:default -p 12347 -t 30000");
             Console.Out.WriteLine("ok");
         }
         
@@ -40,6 +40,14 @@ public class Client : Ice.Application
             communicator().setDefaultRouter(router);
             Console.Out.WriteLine("ok");
         }
+
+	{
+	    Console.Out.Write("getting the session timeout... ");
+            Console.Out.Flush();
+	    long timeout = router.getSessionTimeout();
+	    test(timeout == 30);
+            Console.Out.WriteLine("ok");
+	}
 
         Ice.ObjectPrx @base;
 
@@ -367,7 +375,7 @@ public class Client : Ice.Application
 	    
 	    {
 		Console.Out.Write("testing stringToProxy for admin object... ");
-		adminBase = communicator().stringToProxy("ABC/DEF:tcp -h 127.0.0.1 -p 12348 -t 10000");
+		adminBase = communicator().stringToProxy("Glacier2/admin:tcp -h 127.0.0.1 -p 12348 -t 10000");
 		Console.Out.WriteLine("ok");
 	    }
 	    
