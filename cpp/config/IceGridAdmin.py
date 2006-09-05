@@ -11,9 +11,6 @@
 import sys, os, TestUtil
 from threading import Thread
 
-debug = 0
-#debug = 1
-
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
@@ -70,11 +67,11 @@ def startIceGridRegistry(testdir, dynamicRegistration = False):
 
     if dynamicRegistration:
         command += ' --IceGrid.Registry.DynamicRegistration'        
-    if debug:
-        print command
 
+    if TestUtil.debug:
+	print "(" + command + ")",
 
-    (stdin, iceGridPipe) = os.popen4(command)
+    iceGridPipe = os.popen(command + " 2>&1")
     TestUtil.getServerPid(iceGridPipe)
     TestUtil.getAdapterReady(iceGridPipe, True, 4)
     print "ok"
@@ -100,11 +97,11 @@ def startIceGridNode(testdir):
               r' --IceGrid.Node.Data=' + dataDir + \
               r' --IceGrid.Node.Name=localnode' + \
               r' --IceGrid.Node.PropertiesOverride=' + overrideOptions
-    if debug:
-        print command
 
+    if TestUtil.debug:
+        print "(" + command + ")",
 
-    (stdin, iceGridPipe) = os.popen4(command)
+    iceGridPipe = os.popen(command + " 2>&1")
     TestUtil.getServerPid(iceGridPipe)
     TestUtil.getAdapterReady(iceGridPipe, False)
     TestUtil.waitServiceReady(iceGridPipe, 'node')
@@ -124,11 +121,12 @@ def iceGridAdmin(cmd, ignoreFailure = False):
     command = iceGridAdmin + TestUtil.clientOptions + \
               r' --Ice.Default.Locator="IceGrid/Locator:default -p ' + iceGridPort + '" ' + \
               r" --IceGridAdmin.Username=" + user + " --IceGridAdmin.Password=test1 " + \
-              r' -e "' + cmd + '" 2>&1'
-    if debug:
-        print command
+              r' -e "' + cmd + '"'
 
-    iceGridAdminPipe = os.popen(command)
+    if TestUtil.debug:
+        print "(" + command +")",
+
+    iceGridAdminPipe = os.popen(command + " 2>&1")
 
     output = iceGridAdminPipe.readlines()
         
@@ -169,11 +167,12 @@ def iceGridTest(name, application, additionalOptions = "", applicationOptions = 
 
     print "starting client...",
 
-    command = client + TestUtil.clientOptions + " " + clientOptions + " 2>&1"
-    if debug:
-        print command
+    command = client + TestUtil.clientOptions + " " + clientOptions
 
-    clientPipe = os.popen(command)
+    if TestUtil.debug:
+        print "(" + command +")",
+
+    clientPipe = os.popen(command + " 2>&1")
     print "ok"
 
     TestUtil.printOutputFromPipe(clientPipe)
@@ -220,17 +219,24 @@ def iceGridClientServerTest(name, additionalClientOptions, additionalServerOptio
     iceGridRegistryPipe = startIceGridRegistry(testdir, True)
 
     print "starting sever...",
-    serverPipe = os.popen(server + TestUtil.clientServerOptions + " " + serverOptions + " 2>&1")
+
+    command = server + TestUtil.clientServerOptions + " " + serverOptions
+
+    if TestUtil.debug:
+        print "(" + command +")",
+
+    serverPipe = os.popen(command + " 2>&1")
     TestUtil.getServerPid(serverPipe)
     TestUtil.getAdapterReady(serverPipe)
     print "ok"
 
     print "starting client...",
-    command = client + TestUtil.clientOptions + " " + clientOptions + " 2>&1"
-    if debug:
-        print command
+    command = client + TestUtil.clientOptions + " " + clientOptions
 
-    clientPipe = os.popen(command)
+    if TestUtil.debug:
+        print "(" + command +")",
+
+    clientPipe = os.popen(command + " 2>&1")
     print "ok"
 
     TestUtil.printOutputFromPipe(clientPipe)

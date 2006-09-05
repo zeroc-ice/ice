@@ -30,12 +30,12 @@ nodeOptions = r' --Ice.Warn.Connections=0' + \
               r' --IceGrid.Node.Endpoints=default' + \
               r' --IceGrid.Node.WaitTime=30' + \
               r' --Ice.ProgramName=icegridnode' + \
+              r' --IceGrid.Node.Trace.Replica=0' + \
               r' --IceGrid.Node.Trace.Activator=0' + \
               r' --IceGrid.Node.Trace.Adapter=0' + \
               r' --IceGrid.Node.Trace.Server=0' + \
               r' --IceGrid.Node.PrintServersReady=node' + \
 	      r' --Ice.NullHandleAbort' + \
-              r' --Ice.PrintProcessId' \
               r' --Ice.ThreadPool.Server.Size=0';
 
 registryOptions = r' --Ice.Warn.Connections=0' + \
@@ -43,17 +43,14 @@ registryOptions = r' --Ice.Warn.Connections=0' + \
                   r' --IceGrid.Registry.AdminPermissionsVerifier=IceGrid/NullPermissionsVerifier' + \
                   r' --IceGrid.Registry.Server.Endpoints=default' + \
                   r' --IceGrid.Registry.Internal.Endpoints=default' + \
-                  r' --IceGrid.Registry.Admin.Endpoints=default' + \
-                  r' --IceGrid.Registry.Server.Endpoints=default' + \
-                  r' --IceGrid.Registry.Internal.Endpoints=default' + \
-                  r' --IceGrid.Registry.Admin.Endpoints=default' + \
+                  r' --IceGrid.Registry.SessionManager.Endpoints=default' + \
                   r' --IceGrid.Registry.Trace.Session=0' + \
                   r' --IceGrid.Registry.Trace.Application=0' + \
+                  r' --IceGrid.Registry.Trace.Node=0' + \
                   r' --IceGrid.Registry.Trace.Adapter=0' + \
                   r' --IceGrid.Registry.Trace.Object=0' + \
                   r' --IceGrid.Registry.Trace.Server=0' + \
                   r' --IceGrid.Registry.Trace.Locator=0' + \
-                  r' --Ice.PrintProcessId' \
                   r' --Ice.ThreadPool.Server.Size=0';
 
 def startIceGridRegistry(testdir, dynamicRegistration = False):
@@ -77,7 +74,9 @@ def startIceGridRegistry(testdir, dynamicRegistration = False):
     if dynamicRegistration:
         command += ' --IceGrid.Registry.DynamicRegistration'        
 
-    (stdin, iceGridPipe) = os.popen4(command)
+    if TestUtil.debug:
+        print "(" + command +")",
+    iceGridPipe = os.popen(command + " 2>&1")
     TestUtil.getServerPid(iceGridPipe)
     TestUtil.getAdapterReady(iceGridPipe, True, 4)
     print "ok"
@@ -104,7 +103,9 @@ def startIceGridNode(testdir):
               r' --IceGrid.Node.Name=localnode' + \
               r' --IceGrid.Node.PropertiesOverride=' + overrideOptions
 
-    (stdin, iceGridPipe) = os.popen4(command)
+    if TestUtil.debug:
+        print "(" + command +")",
+    iceGridPipe = os.popen(command + " 2>&1")
     TestUtil.getServerPid(iceGridPipe)
     TestUtil.getAdapterReady(iceGridPipe, False)
     TestUtil.waitServiceReady(iceGridPipe, 'node')
@@ -118,17 +119,26 @@ def iceGridAdmin(cmd, ignoreFailure = False):
     global iceGridPort
     iceGridAdmin = os.path.join(ice_home, "bin", "icegridadmin")
 
+    user = r"admin1"
+    if cmd == "shutdown":
+	user = r"shutdown"
     command = iceGridAdmin + TestUtil.cppClientOptions + \
               r' --Ice.Default.Locator="IceGrid/Locator:default -p ' + iceGridPort + '" ' + \
-              r' -e "' + cmd + '" 2>&1'
+              r" --IceGridAdmin.Username=" + user + " --IceGridAdmin.Password=test1 " + \
+              r' -e "' + cmd + '"'
 
-    iceGridAdminPipe = os.popen(command)
+    if TestUtil.debug:
+	print "(" + command + ")",
+
+    iceGridAdminPipe = os.popen(command + " 2>&1")
 
     output = iceGridAdminPipe.readlines()
         
-    iceGridAdminStatus = iceGridAdminPipe.close()
+    iceGridAdminStatus = TestUtil.closePipe(iceGridAdminPipe)
     if not ignoreFailure and iceGridAdminStatus:
         print "icegridadmin command failed: " + cmd
+        for line in output:
+            print line
         TestUtil.killServers()
         sys.exit(1)
 
@@ -160,7 +170,10 @@ def iceGridTest(name, application, additionalOptions = "", applicationOptions = 
         print "ok"
 
     print TestUtil.createMsg("client"),
-    clientPipe = os.popen(TestUtil.createCmd(client) + TestUtil.clientOptions + " " + clientOptions + " 2>&1")
+    command = TestUtil.createCmd(client) + TestUtil.clientOptions + " " + clientOptions
+    if TestUtil.debug:
+        print "(" + command +")",
+    clientPipe = os.popen(command + " 2>&1")
     print "ok"
 
     TestUtil.printOutputFromPipe(clientPipe)
@@ -203,12 +216,18 @@ def iceGridClientServerTest(name, additionalClientOptions, additionalServerOptio
     iceGridRegistryPipe = startIceGridRegistry(testdir, True)
 
     print TestUtil.createMsg("server"),
-    serverPipe = os.popen(TestUtil.createCmd(server) + TestUtil.clientServerOptions + " " + serverOptions + " 2>&1")
+    command = TestUtil.createCmd(server) + TestUtil.clientServerOptions + " " + serverOptions
+    if TestUtil.debug:
+        print "(" + command +")",
+    serverPipe = os.popen(command + " 2>&1")
     TestUtil.getAdapterReady(serverPipe)
     print "ok"
 
     print TestUtil.createMsg("client"),
-    clientPipe = os.popen(TestUtil.createCmd(client) + TestUtil.clientOptions + " " + clientOptions + " 2>&1")
+    command = TestUtil.createCmd(client) + TestUtil.clientOptions + " " + clientOptions
+    if TestUtil.debug:
+        print "(" + command +")",
+    clientPipe = os.popen(command + " 2>&1")
     print "ok"
 
     TestUtil.printOutputFromPipe(clientPipe)

@@ -11,6 +11,53 @@ import Test.*;
 
 public class AllTests
 {
+    static private class SessionKeepAliveThread extends Thread
+    {
+        SessionKeepAliveThread(IceGrid.AdminSessionPrx session, long timeout)
+	{
+	    _session = session;
+	    _timeout = timeout;
+	    _terminated = false;
+	}
+
+	synchronized public void
+	run()
+	{
+            while(!_terminated)
+            {
+                try
+                {
+                    wait(_timeout);
+                }
+                catch(InterruptedException e)
+                {
+                }
+                if(_terminated)
+                {
+		    break;
+		}
+                try
+                {
+                    _session.keepAlive();
+                }
+                catch(Ice.LocalException ex)
+                {
+		    break;
+                }
+            }
+	}
+
+	synchronized private void
+	terminate()
+	{
+	    _terminated = true;
+	    notify();
+	}
+
+	final private IceGrid.AdminSessionPrx _session;
+	final private long _timeout;
+	private boolean _terminated;
+    }
     private static void
     test(boolean b)
     {
@@ -103,7 +150,23 @@ public class AllTests
 	}
 	System.out.println("ok");	
 
- 	IceGrid.AdminPrx admin = IceGrid.AdminPrxHelper.checkedCast(communicator.stringToProxy("IceGrid/Admin"));
+	IceGrid.RegistryPrx registry = IceGrid.RegistryPrxHelper.checkedCast(
+	    communicator.stringToProxy("IceGrid/Registry"));
+	test(registry != null);
+	IceGrid.AdminSessionPrx session = null;
+	try
+	{
+	    session = registry.createAdminSession("foo", "bar");
+	}
+	catch(IceGrid.PermissionDeniedException e)
+	{
+	    test(false);
+	}
+
+	SessionKeepAliveThread keepAlive = new SessionKeepAliveThread(session, registry.getSessionTimeout()/2);
+	keepAlive.start();
+
+	IceGrid.AdminPrx admin = session.getAdmin();
 	test(admin != null);
 
 	try
@@ -202,5 +265,15 @@ public class AllTests
 	{
 	    test(false);
 	}
+
+	keepAlive.terminate();
+	try
+	{
+	    keepAlive.join();
+	}
+	catch(InterruptedException e)
+	{
+	}
+	session.destroy();
     }
 }

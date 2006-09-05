@@ -45,6 +45,7 @@ TestUtil.getServerPid(starterPipe)
 #
 TestUtil.getAdapterReady(starterPipe, False)
 print "ok"
+
 starterThread = TestUtil.ReaderThread(starterPipe);
 starterThread.start()
 

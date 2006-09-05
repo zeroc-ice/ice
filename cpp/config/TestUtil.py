@@ -395,7 +395,7 @@ else:
 commonClientOptions = " --Ice.NullHandleAbort --Ice.Warn.Connections"
 
 commonServerOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.NullHandleAbort" + \
-                      " --Ice.Warn.Connections --Ice.ServerIdleTime=30";
+                      " --Ice.Warn.Connections --Ice.ServerIdleTime=30"
 
 if threadPerConnection > 0:
     commonClientOptions += " --Ice.ThreadPerConnection=" + str(threadPerConnection)

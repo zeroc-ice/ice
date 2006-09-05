@@ -8,10 +8,57 @@
 // **********************************************************************
 
 using System;
+using System.Threading;
 using Test;
 
 public class AllTests
 {
+    class SessionKeepAliveThread 
+    {
+        public SessionKeepAliveThread(IceGrid.AdminSessionPrx session, int timeout)
+	{
+	    _session = session;
+	    _timeout = timeout;
+	    _terminated = false;
+	}
+
+	public void run()
+	{
+	    lock(this)
+	    {
+                while(!_terminated)
+                {
+	            System.Threading.Monitor.Wait(this, _timeout);
+                    if(_terminated)
+                    {
+		        break;
+		    }
+                    try
+                    {
+                        _session.keepAlive();
+                    }
+                    catch(Ice.LocalException)
+                    {
+		        break;
+                    }
+                }
+	    }
+	}
+
+	public void terminate()
+	{
+	    lock(this)
+	    {
+	        _terminated = true;
+	        System.Threading.Monitor.Pulse(this);
+	    }
+	}
+
+	private IceGrid.AdminSessionPrx _session;
+	private int _timeout;
+	private bool _terminated;
+    }
+
     private static void
     test(bool b)
     {
@@ -103,7 +150,24 @@ public class AllTests
 	}
 	Console.Out.WriteLine("ok");	
 
- 	IceGrid.AdminPrx admin = IceGrid.AdminPrxHelper.checkedCast(communicator.stringToProxy("IceGrid/Admin"));
+	IceGrid.RegistryPrx registry = IceGrid.RegistryPrxHelper.checkedCast(
+	    communicator.stringToProxy("IceGrid/Registry"));
+	test(registry != null);
+	IceGrid.AdminSessionPrx session = null;
+	try
+	{
+	    session = registry.createAdminSession("foo", "bar");
+	}
+	catch(IceGrid.PermissionDeniedException)
+	{
+	    test(false);
+	}
+
+	SessionKeepAliveThread keepAlive = new SessionKeepAliveThread(session, registry.getSessionTimeout()/2);
+	Thread keepAliveThread = new Thread(new ThreadStart(keepAlive.run));
+	keepAliveThread.Start();
+
+	IceGrid.AdminPrx admin = session.getAdmin();
 	test(admin != null);
 
 	try
@@ -190,5 +254,9 @@ public class AllTests
 	{
 	    test(false);
 	}
+
+	keepAlive.terminate();
+	keepAliveThread.Join();
+	session.destroy();
     }
 }
