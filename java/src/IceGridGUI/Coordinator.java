@@ -820,7 +820,7 @@ public class Coordinator
 	    
 	    Ice.Identity routerId = new Ice.Identity();
 	    routerId.category = info.routerInstanceName;
-	    routerId.name = "router"
+	    routerId.name = "router";
 	    String str = "\"" + _communicator.identityToString(routerId) + "\"";
 	    if(!info.routerEndpoints.equals(""))
 	    {

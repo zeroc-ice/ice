@@ -48,7 +48,7 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
 
 	    Ice.Properties properties = Ice.Application.communicator().getProperties();
 
-	    Ice.Identity identity = new Ice.Identity;
+	    Ice.Identity identity = new Ice.Identity();
 	    identity.category = properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox");
 	    identity.name = "ServiceManager";
 	    adapter.add(this, identity);
