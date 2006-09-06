@@ -180,7 +180,7 @@ public:
 	    _cb->ice_exception(ex);
 	    return;
 	}
-	catch(const Ice::LocalException& ex) // Master unreachable.
+	catch(const Ice::LocalException&) // Master unreachable.
 	{
 	    //
 	    // TODO: Add a better exception?
