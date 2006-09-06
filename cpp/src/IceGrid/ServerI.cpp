@@ -889,7 +889,8 @@ ServerI::load(const AMD_Node_loadServerPtr& amdCB, const ServerInfo& info, bool 
 	{
 	    if(_info.uuid != info.uuid)
 	    {
-		throw DeploymentException("server descriptor from replica is from another application");
+		throw DeploymentException("server descriptor from replica is from another application (`" + 
+					  info.uuid + "'");
 	    }
 	    else if(_info.revision > info.revision)
 	    {

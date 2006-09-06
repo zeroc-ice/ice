@@ -41,9 +41,10 @@ public:
     NodePrxSeq getNodes() const;
     void destroy();
 
-    void incInitCount();
+    void receivedUpdate(const std::string&, int);
     void registerAllWellKnownObjects();
-    
+    ReplicaSessionPrx getSession() const { return _thread->getSession(); }
+
 private:
 
     class Thread : public SessionKeepAliveThread<ReplicaSessionPrx, InternalRegistryPrx>
@@ -98,7 +99,6 @@ private:
     DatabasePtr _database;
     WellKnownObjectsManagerPtr _wellKnownObjects;
     TraceLevelsPtr _traceLevels;
-    int _initCount;
 };
 
 }

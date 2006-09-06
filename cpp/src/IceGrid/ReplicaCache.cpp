@@ -89,6 +89,24 @@ ReplicaCache::remove(const string& name)
 	    out << "replica `" << name << "' down";
 	}
     }
+
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_waitForUpdatesMonitor);
+	map<string, set<string> >::iterator p = _waitForUpdates.begin();
+	while(p != _waitForUpdates.end())
+	{
+	    p->second.erase(name);
+	    if(p->second.empty())
+	    {
+		_waitForUpdates.erase(p++);
+		_waitForUpdatesMonitor.notifyAll();
+	    }
+	    else
+	    {
+		++p;
+	    }
+	}
+    }
     
     try
     {
@@ -170,6 +188,61 @@ ReplicaCache::getEndpoints(const string& name, const Ice::ObjectPrx& proxy) cons
     }
 
     return _communicator->stringToProxy("dummy")->ice_endpoints(endpoints);
+}
+
+void
+ReplicaCache::waitForUpdateReplication(const string& name, int serial)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_waitForUpdatesMonitor);
+
+    vector<string> replicas = getAll("");
+    if(replicas.empty())
+    {
+	return;
+    }
+
+    ostringstream os;
+    os << name << "-" << serial;
+    const string key = os.str();
+
+    _waitForUpdates.insert(make_pair(key, set<string>(replicas.begin(), replicas.end())));
+
+    //
+    // Wait until all the updates are received.
+    //
+    while(true)
+    {
+	map<string, set<string> >::const_iterator p = _waitForUpdates.find(key);
+	if(p == _waitForUpdates.end())
+	{
+	    return;
+	}
+	else
+	{
+	    _waitForUpdatesMonitor.wait();
+	}
+    }
+}
+
+void
+ReplicaCache::replicaReceivedUpdate(const string& name, const string& update, int serial)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_waitForUpdatesMonitor);
+
+    ostringstream os;
+    os << update << "-" << serial;
+    const string key = os.str();
+
+    map<string, set<string> >::iterator p = _waitForUpdates.find(key);
+    if(p != _waitForUpdates.end())
+    {
+	p->second.erase(name);
+	if(p->second.empty())
+	{
+	    _waitForUpdates.erase(p);
+	    _waitForUpdatesMonitor.notifyAll();
+	}
+    }
 }
 
 ReplicaEntry::ReplicaEntry(const std::string& name, const ReplicaSessionIPtr& session) : 

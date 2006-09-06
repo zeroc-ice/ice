@@ -74,11 +74,11 @@ public:
     void syncObjects(const ObjectInfoSeq&);
     Ice::ObjectPrx getReplicatedEndpoints(const std::string&, const Ice::ObjectPrx&);
 
-    void addApplicationDescriptor(AdminSessionI*, const ApplicationDescriptor&);
-    void updateApplicationDescriptor(AdminSessionI*, const ApplicationUpdateDescriptor&);
-    void syncApplicationDescriptor(AdminSessionI*, const ApplicationDescriptor&);
-    void instantiateServer(AdminSessionI*, const std::string&, const std::string&, const ServerInstanceDescriptor&);
-    void removeApplicationDescriptor(AdminSessionI*, const std::string&);
+    void addApplication(const ApplicationInfo&, AdminSessionI* = 0);
+    void updateApplication(const ApplicationUpdateInfo&, AdminSessionI* = 0);
+    void syncApplicationDescriptor(const ApplicationDescriptor&, AdminSessionI*);
+    void instantiateServer(const std::string&, const std::string&, const ServerInstanceDescriptor&, AdminSessionI*);
+    void removeApplication(const std::string&, AdminSessionI* = 0);
 
     ApplicationInfo getApplicationInfo(const std::string&);
     Ice::StringSeq getAllApplications(const std::string& = std::string());
@@ -92,6 +92,7 @@ public:
     void addReplica(const std::string&, const ReplicaSessionIPtr&);
     RegistryInfo getReplicaInfo(const std::string&) const;
     InternalRegistryPrx getReplica(const std::string&) const;
+    void replicaReceivedUpdate(const std::string&, const std::string&, int);
     void removeReplica(const std::string&, const ReplicaSessionIPtr&);
     Ice::StringSeq getAllReplicas(const std::string& = std::string());
 
@@ -140,8 +141,8 @@ private:
     void load(const ApplicationHelper&, ServerEntrySeq&, const std::string&, int);
     void unload(const ApplicationHelper&, ServerEntrySeq&);
     void reload(const ApplicationHelper&, const ApplicationHelper&, ServerEntrySeq&, const std::string&, int);
-    void finishUpdate(ServerEntrySeq&, const ApplicationUpdateDescriptor&, const ApplicationInfo&, 
-		      const ApplicationDescriptor&);
+    void finishUpdate(ServerEntrySeq&, const ApplicationUpdateInfo&, const ApplicationInfo&, 
+		      const ApplicationDescriptor&, AdminSessionI*);
 
     void checkSessionLock(AdminSessionI*);
 

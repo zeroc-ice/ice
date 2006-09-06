@@ -34,7 +34,7 @@ public:
     const ReplicaSessionIPtr& getSession() const;
     RegistryInfo getInfo() const;
     InternalRegistryPrx getProxy() const;
-
+    
 private:
     
     const std::string _name;
@@ -58,11 +58,17 @@ public:
 
     Ice::ObjectPrx getEndpoints(const std::string&, const Ice::ObjectPrx&) const;
 
+    void waitForUpdateReplication(const std::string&, int);
+    void replicaReceivedUpdate(const std::string&, const std::string&, int);
+
 private:
 
     const Ice::CommunicatorPtr _communicator;
     const IceStorm::TopicPrx _topic;
     const NodePrx _nodes;
+
+    IceUtil::Monitor<IceUtil::Mutex> _waitForUpdatesMonitor;
+    std::map<std::string, std::set<std::string> > _waitForUpdates;
 };
 
 };

@@ -36,6 +36,9 @@ public:
     virtual int getTimeout(const Ice::Current&) const;
     virtual void setEndpoints(const StringObjectProxyDict&, const Ice::Current&);
     virtual void registerWellKnownObjects(const ObjectInfoSeq&, const Ice::Current&);
+    virtual void setAdapterDirectProxy(const std::string&, const std::string&, const Ice::ObjectPrx&, 
+				       const Ice::Current&);
+    virtual void receivedUpdate(const std::string&, int, const Ice::Current&);
     virtual void destroy(const Ice::Current&);
     
     virtual IceUtil::Time timestamp() const;

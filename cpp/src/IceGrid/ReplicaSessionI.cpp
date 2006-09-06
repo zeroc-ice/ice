@@ -98,6 +98,21 @@ ReplicaSessionI::registerWellKnownObjects(const ObjectInfoSeq& objects, const Ic
 }
 
 void
+ReplicaSessionI::setAdapterDirectProxy(const string& adapterId,
+				       const string& replicaGroupId, 
+				       const Ice::ObjectPrx& proxy,
+				       const Ice::Current&)
+{
+    _database->setAdapterDirectProxy(adapterId, replicaGroupId, proxy);
+}
+
+void
+ReplicaSessionI::receivedUpdate(const string& update, int serial, const Ice::Current&)
+{
+    _database->replicaReceivedUpdate(_name, update, serial);
+}
+
+void
 ReplicaSessionI::destroy(const Ice::Current& current)
 {
     {

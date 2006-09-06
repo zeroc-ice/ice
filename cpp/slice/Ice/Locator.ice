@@ -152,7 +152,7 @@ interface LocatorRegistry
      * id is already active.
      *
      **/
-    ["amd"] idempotent void setAdapterDirectProxy(string id, Object* proxy)
+    ["amd", "ami"] idempotent void setAdapterDirectProxy(string id, Object* proxy)
 	throws AdapterNotFoundException, AdapterAlreadyActiveException;
 
     /**
@@ -163,7 +163,7 @@ interface LocatorRegistry
      *
      * @param replicaGroupId The replica group id.
      *
-     * @param proxy The adapter proxy (a dummy direct proxy created
+     * @param p The adapter proxy (a dummy direct proxy created
      * by the adapter). The direct proxy contains the adapter
      * endpoints.
      *
@@ -180,7 +180,7 @@ interface LocatorRegistry
      * locator registry for this object adapter.
      *
      **/
-    ["amd"] idempotent void setReplicatedAdapterDirectProxy(string adapterId, string replicaGroupId, Object* proxy)
+    ["amd", "ami"] idempotent void setReplicatedAdapterDirectProxy(string adapterId, string replicaGroupId, Object* p)
 	throws AdapterNotFoundException, AdapterAlreadyActiveException, InvalidReplicaGroupIdException;
 
     /**

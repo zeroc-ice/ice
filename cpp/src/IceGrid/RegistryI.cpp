@@ -351,21 +351,20 @@ RegistryI::setupLocator(const Ice::ObjectAdapterPtr& clientAdapter,
     //
     // Create the locator registry and locator interfaces.
     //
-    bool dynamicReg = _communicator->getProperties()->getPropertyAsInt("IceGrid.Registry.DynamicRegistration") > 0;
-    Identity locatorRegistryId;
-    locatorRegistryId.category = _instanceName;
-    locatorRegistryId.name = IceUtil::generateUUID();
-    ObjectPrx regPrx = serverAdapter->add(new LocatorRegistryI(_database, dynamicReg), locatorRegistryId);
+    bool dynReg = _communicator->getProperties()->getPropertyAsInt("IceGrid.Registry.DynamicRegistration") > 0;
+    Identity locatorRegId;
+    locatorRegId.category = _instanceName;
+    locatorRegId.name = IceUtil::generateUUID();
+    ObjectPrx obj = serverAdapter->add(new LocatorRegistryI(_database, dynReg, _master, _session), locatorRegId);
+    Ice::LocatorRegistryPrx locatorRegistry = LocatorRegistryPrx::uncheckedCast(obj);
 
     Identity locatorId;
     locatorId.category = _instanceName;
     locatorId.name = "Locator";
-    clientAdapter->add(new LocatorI(_communicator, _database, LocatorRegistryPrx::uncheckedCast(regPrx)), locatorId);
-
-    return LocatorPrx::uncheckedCast(registryAdapter->addWithUUID(
-					 new LocatorI(_communicator, 
-						      _database, 
-						      LocatorRegistryPrx::uncheckedCast(regPrx))));
+    clientAdapter->add(new LocatorI(_communicator, _database, locatorRegistry), locatorId);
+    
+    obj = registryAdapter->addWithUUID(new LocatorI(_communicator, _database, locatorRegistry));
+    return LocatorPrx::uncheckedCast(obj);
 }
 
 void

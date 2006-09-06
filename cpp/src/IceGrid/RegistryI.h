@@ -109,6 +109,8 @@ private:
     ReplicaSessionManager _session;
     mutable PlatformInfo _platform;
 
+    Ice::LocatorRegistryPrx _locatorRegistry;
+
     Glacier2::PermissionsVerifierPrx _nullPermissionsVerifier;
     Glacier2::SSLPermissionsVerifierPrx _nullSSLPermissionsVerifier;
 

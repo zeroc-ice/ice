@@ -13,6 +13,8 @@
 #include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/ProcessF.ice>
+#include <Ice/Locator.ice>
+
 #include <Glacier2/Session.ice>
 #include <IceGrid/Admin.ice>
 #include <IceGrid/Observer.ice>
@@ -341,8 +343,40 @@ interface ReplicaSession
      **/ 
     ["nonmutating", "cpp:const"] idempotent int getTimeout();
 
+    /**
+     *
+     * This method sets the endpoints of the replica. This allows the
+     * master to create proxies with multiple endpoints for replicated
+     * objects (e.g.: IceGrid::Query object).
+     * 
+     **/
     idempotent void setEndpoints(StringObjectProxyDict endpoints);
+
+    /**
+     *
+     * Registers the replica well-known objects with the master.
+     *
+     **/
     idempotent void registerWellKnownObjects(ObjectInfoSeq objects);
+
+    /**
+     *
+     * Set the adapter direct proxy of the given adapter in the
+     * master. This is used to support dynamic registration with
+     * the locator registry interface.
+     *
+     **/
+    ["ami"] idempotent void setAdapterDirectProxy(string adapterId, string replicaGroupId, Object* proxy)
+	throws AdapterNotExistException, AdapterActiveException, Ice::InvalidReplicaGroupIdException;	
+
+    /**
+     *
+     * Notify the master that an update was received. The master might
+     * wait for replication updates to be received by all the replicas
+     * before to continue.
+     *
+     **/
+    void receivedUpdate(string name, int serial); 
 
     /**
      *

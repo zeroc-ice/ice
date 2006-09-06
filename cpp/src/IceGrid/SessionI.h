@@ -48,6 +48,8 @@ public:
     IceUtil::Time timestamp() const;
     void setServantLocator(const SessionServantLocatorIPtr&);
 
+    const std::string& getId() const { return _id; }
+
 protected:
 
     BaseSessionI(const std::string&, const std::string&, const DatabasePtr&);
@@ -104,7 +106,6 @@ public:
 
     int getAllocationTimeout() const;
     const WaitQueuePtr& getWaitQueue() const { return _waitQueue; }
-    const std::string& getId() const { return _id; }
     Glacier2::SessionControlPrx getSessionControl() const { return _sessionControl; }
 
     bool addAllocationRequest(const AllocationRequestPtr&);

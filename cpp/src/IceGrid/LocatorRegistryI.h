@@ -20,11 +20,13 @@ namespace IceGrid
 class Database;
 typedef IceUtil::Handle<Database> DatabasePtr;
 
+class ReplicaSessionManager;
+
 class LocatorRegistryI : public Ice::LocatorRegistry
 {
 public:
 
-    LocatorRegistryI(const DatabasePtr&, bool);
+    LocatorRegistryI(const DatabasePtr&, bool, bool, ReplicaSessionManager&);
     
     virtual void setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_setAdapterDirectProxyPtr&,
 					     const std::string&, const Ice::ObjectPrx&, const Ice::Current&);
@@ -40,7 +42,10 @@ private:
     
     const DatabasePtr _database;
     const bool _dynamicRegistration;
+    const bool _master;
+    ReplicaSessionManager& _session;
 };
+typedef IceUtil::Handle<LocatorRegistryI> LocatorRegistryIPtr;
 
 }
 

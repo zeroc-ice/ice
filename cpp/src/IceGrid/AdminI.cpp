@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+#include <IceUtil/UUID.h>
+
 #include <Ice/Ice.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/TraceUtil.h>
@@ -296,35 +298,49 @@ void
 AdminI::addApplication(const ApplicationDescriptor& descriptor, const Current&)
 {
     checkIsMaster();
-    _database->addApplicationDescriptor(_session.get(), descriptor);
+
+    ApplicationInfo info;
+    info.createTime = info.updateTime = IceUtil::Time::now().toMilliSeconds();
+    info.createUser = info.updateUser = _session->getId();
+    info.descriptor = descriptor;
+    info.revision = 1;
+    info.uuid = IceUtil::generateUUID();
+
+    _database->addApplication(info, _session.get());
 }
 
 void
 AdminI::syncApplication(const ApplicationDescriptor& descriptor, const Current&)
 {
     checkIsMaster();
-    _database->syncApplicationDescriptor(_session.get(), descriptor);
+    _database->syncApplicationDescriptor(descriptor, _session.get());
 }
 
 void
 AdminI::updateApplication(const ApplicationUpdateDescriptor& descriptor, const Current&)
 {
     checkIsMaster();
-    _database->updateApplicationDescriptor(_session.get(), descriptor);
+
+    ApplicationUpdateInfo update;
+    update.updateTime = IceUtil::Time::now().toMilliSeconds();
+    update.updateUser = _session->getId();
+    update.descriptor = descriptor;
+    update.revision = -1; // The database will set it.
+    _database->updateApplication(update, _session.get());
 }
 
 void
 AdminI::removeApplication(const string& name, const Current&)
 {
     checkIsMaster();
-    _database->removeApplicationDescriptor(_session.get(), name);
+    _database->removeApplication(name, _session.get());
 }
 
 void
 AdminI::instantiateServer(const string& app, const string& node, const ServerInstanceDescriptor& desc, const Current&)
 {
     checkIsMaster();
-    _database->instantiateServer(_session.get(), app, node, desc);
+    _database->instantiateServer(app, node, desc, _session.get());
 }
 
 void

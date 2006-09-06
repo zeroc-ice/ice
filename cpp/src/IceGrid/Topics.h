@@ -37,6 +37,7 @@ public:
     virtual ~ObserverTopic();
 
     void subscribe(const Ice::ObjectPrx&, int = -1);
+    void subscribeAndWaitForSubscription(const Ice::ObjectPrx&);
     void unsubscribe(const Ice::ObjectPrx&);
     void destroy();
 
@@ -46,9 +47,11 @@ protected:
 
     void subscribeImpl(const Ice::ObjectPrx&);
     void updateSerial(int);
+    Ice::Context getContext(const std::string&, int) const;
 
     IceStorm::TopicPrx _topic;
     Ice::ObjectPrx _basePublisher;
+    std::set<Ice::Identity> _waitForSubscribe;
     int _serial;    
 };
 typedef IceUtil::Handle<ObserverTopic> ObserverTopicPtr;

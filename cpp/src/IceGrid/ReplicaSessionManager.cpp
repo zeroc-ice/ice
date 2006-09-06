@@ -33,78 +33,112 @@ public:
     applicationInit(int, const ApplicationInfoSeq& applications, const Ice::Current&)
     {
 	_database->syncApplications(applications);
-	_manager.incInitCount();
    }
 
     virtual void 
-    applicationAdded(int, const ApplicationInfo& application, const Ice::Current&)
+    applicationAdded(int, const ApplicationInfo& application, const Ice::Current& current)
     {
-	_database->addApplicationDescriptor(0, application.descriptor);
+	try
+	{
+	    _database->addApplication(application);
+	}
+	catch(const DeploymentException& ex)
+	{
+	    cerr << ex.reason << endl;
+	}
+	_manager.receivedUpdate("application", getSerial(current.ctx, "application"));
     }
 
     virtual void 
-    applicationRemoved(int, const std::string& name, const Ice::Current&)
+    applicationRemoved(int, const std::string& name, const Ice::Current& current)
     {
-	_database->removeApplicationDescriptor(0, name);
+	try
+	{
+	    _database->removeApplication(name);
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cerr << ex << endl;
+	}
+	_manager.receivedUpdate("application", getSerial(current.ctx, "application"));
     }
 
     virtual void 
-    applicationUpdated(int, const ApplicationUpdateInfo& update, const Ice::Current&)
+    applicationUpdated(int, const ApplicationUpdateInfo& update, const Ice::Current& current)
     {
-	_database->updateApplicationDescriptor(0, update.descriptor);
+	_database->updateApplication(update);
+	_manager.receivedUpdate("application", getSerial(current.ctx, "application"));
     }
 
     virtual void
-    adapterInit(const AdapterInfoSeq& adapters, const Ice::Current&)
+    adapterInit(const AdapterInfoSeq& adapters, const Ice::Current& current)
     {
 	_database->syncAdapters(adapters);
-	_manager.incInitCount();
     }
 
     virtual void 
-    adapterAdded(const AdapterInfo& info, const Ice::Current&)
+    adapterAdded(const AdapterInfo& info, const Ice::Current& current)
     {
 	_database->setAdapterDirectProxy(info.id, info.replicaGroupId, info.proxy);
+	_manager.receivedUpdate("adapter", getSerial(current.ctx, "adapter"));
     }
 
     virtual void 
-    adapterUpdated(const AdapterInfo& info, const Ice::Current&)
+    adapterUpdated(const AdapterInfo& info, const Ice::Current& current)
     {
 	_database->setAdapterDirectProxy(info.id, info.replicaGroupId, info.proxy);
+	_manager.receivedUpdate("adapter", getSerial(current.ctx, "adapter"));
     }
 
     virtual void 
-    adapterRemoved(const std::string& id, const Ice::Current&)
+    adapterRemoved(const std::string& id, const Ice::Current& current)
     {
 	_database->setAdapterDirectProxy(id, "", 0);
+	_manager.receivedUpdate("adapter", getSerial(current.ctx, "adapter"));
     }
 
     virtual void
-    objectInit(const ObjectInfoSeq& objects, const Ice::Current&)
+    objectInit(const ObjectInfoSeq& objects, const Ice::Current& current)
     {
 	_database->syncObjects(objects);
-	_manager.incInitCount();	
     }
 
     virtual void 
-    objectAdded(const ObjectInfo& info, const Ice::Current&)
+    objectAdded(const ObjectInfo& info, const Ice::Current& current)
     {
 	_database->addObject(info, false);
+	_manager.receivedUpdate("object", getSerial(current.ctx, "object"));
     }
 
     virtual void 
-    objectUpdated(const ObjectInfo& info, const Ice::Current&)
+    objectUpdated(const ObjectInfo& info, const Ice::Current& current)
     {
 	_database->updateObject(info.proxy);
+	_manager.receivedUpdate("object", getSerial(current.ctx, "object"));
     }
 
     virtual void 
-    objectRemoved(const Ice::Identity& id, const Ice::Current&)
+    objectRemoved(const Ice::Identity& id, const Ice::Current& current)
     {
 	_database->removeObject(id);
+	_manager.receivedUpdate("object", getSerial(current.ctx, "object"));
     }
 
 private:
+
+    int 
+    getSerial(const Ice::Context& context, const string& name)
+    {
+	Ice::Context::const_iterator p = context.find(name);
+	if(p != context.end())
+	{
+	    int serial;
+	    istringstream is(p->second);
+	    is >> serial;
+	    return serial;
+	}
+	return -1;
+    }
     
     const DatabasePtr _database;
     ReplicaSessionManager& _manager;
@@ -113,7 +147,7 @@ private:
 
 };
 
-ReplicaSessionManager::ReplicaSessionManager() : _initCount(0)
+ReplicaSessionManager::ReplicaSessionManager()
 {
 }
 
@@ -203,12 +237,12 @@ ReplicaSessionManager::destroy()
 }
 
 void
-ReplicaSessionManager::incInitCount()
+ReplicaSessionManager::receivedUpdate(const string& update, int serial)
 {
-    Lock sync(*this);
-    if(++_initCount == 3)
+    ReplicaSessionPrx session = _thread->getSession();
+    if(session)
     {
-	notifyAll();
+	session->receivedUpdate(update, serial);
     }
 }
 
@@ -274,37 +308,11 @@ ReplicaSessionManager::createSession(const InternalRegistryPrx& registry, IceUti
 	    out << "trying to establish session with master replica";
 	}
 
-	{
-	    Lock sync(*this);
-	    _initCount = 0;
-	}
-
 	ReplicaSessionPrx session = registry->registerReplica(_name, _info, _internalRegistry, _observer);
 	int t = session->getTimeout();
 	if(t > 0)
 	{
 	    timeout = IceUtil::Time::seconds(t);
-	}
-
-	//
-	// Wait for the database to be synchronized with the
-	// master. This is necessary to ensure that we don't try to
-	// modify the database before or at the same time as the
-	// master is trying to send us the copy of the database.
-	// 
-	{
-	    Lock sync(*this);
-	    while(_initCount != 3)
-	    {
-		if(t > 0)
-		{
-		    timedWait(timeout);
-		}
-		else
-		{
-		    wait();
-		}
-	    }
 	}
 
 	//

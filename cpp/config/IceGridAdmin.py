@@ -11,6 +11,12 @@
 import sys, os, TestUtil
 from threading import Thread
 
+#
+# Set nreplicas to a number N to test replication with N replicas.
+#
+nreplicas=0
+#nreplicas=1
+
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
@@ -18,7 +24,7 @@ for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
 else:
     raise "can't find toplevel directory!"
 
-iceGridPort = "12010";
+iceGridPort = 12010;
 
 nodeOptions = r' --Ice.Warn.Connections=0' + \
               r' --IceGrid.Node.Endpoints=default' + \
@@ -45,38 +51,72 @@ registryOptions = r' --Ice.Warn.Connections=0' + \
                   r' --IceGrid.Registry.Trace.Object=0' + \
                   r' --IceGrid.Registry.Trace.Server=0' + \
                   r' --IceGrid.Registry.Trace.Locator=0' + \
-                  r' --Ice.ThreadPool.Server.Size=0';
+                  r' --Ice.ThreadPool.Server.Size=0 ' + \
+                  r' --IceGrid.Registry.DefaultTemplates=' + os.path.join(toplevel, "config", "templates.xml")
+
+
+def getDefaultLocatorProperty():
+
+   i = 0
+   property = '--Ice.Default.Locator=IceGrid/Locator';
+   while i < nreplicas + 1:
+       property = property + ':default -p ' + str(iceGridPort + i)
+       i = i + 1
+
+   return '"' + property + '"'
 
 def startIceGridRegistry(testdir, dynamicRegistration = False):
 
-    global iceGridPort
-
     iceGrid = os.path.join(toplevel, "bin", "icegridregistry")
 
-    dataDir = os.path.join(testdir, "db", "registry")
-    if not os.path.exists(dataDir):
-        os.mkdir(dataDir)
-    else:
-        cleanDbDir(dataDir)
-
-    print "starting icegrid registry...",
-    command = iceGrid + TestUtil.clientServerOptions + ' --nowarn ' + registryOptions + \
-              r' --IceGrid.Registry.Client.Endpoints="default -p ' + iceGridPort + ' -t 30000" ' + \
-              r' --IceGrid.Registry.Data=' + dataDir + \
-              r' --IceGrid.Registry.DefaultTemplates=' + os.path.join(toplevel, "config", "templates.xml")
-
+    command = iceGrid + TestUtil.clientServerOptions + ' --nowarn ' + registryOptions
     if dynamicRegistration:
-        command += ' --IceGrid.Registry.DynamicRegistration'        
+        command += r' --IceGrid.Registry.DynamicRegistration'        
 
-    if TestUtil.debug:
-	print "(" + command + ")",
+    i = 0
+    while i < (nreplicas + 1):
 
-    iceGridPipe = os.popen(command + " 2>&1")
-    TestUtil.getServerPid(iceGridPipe)
-    TestUtil.getAdapterReady(iceGridPipe, True, 4)
+	if i == 0:
+            name = "registry"
+	else:
+	    name = "replica-" + str(i)
+
+        dataDir = os.path.join(testdir, "db", name)
+        if not os.path.exists(dataDir):
+            os.mkdir(dataDir)
+        else:
+            cleanDbDir(dataDir)
+
+        print "starting icegrid " + name + "...",
+        cmd = command + \
+              r' --IceGrid.Registry.Client.Endpoints="default -p ' + str(iceGridPort + i) + ' -t 30000" ' + \
+              r' --IceGrid.Registry.Data=' + dataDir
+
+        if i > 0:
+	    cmd += r' --IceGrid.Registry.ReplicaName=' + name + ' ' + getDefaultLocatorProperty()
+
+        if TestUtil.debug:
+	    print "(" + cmd + ")",
+
+        pipe = os.popen(cmd + " 2>&1")
+        TestUtil.getServerPid(pipe)
+        TestUtil.getAdapterReady(pipe, True, 4)
+        print "ok"
+
+        i = i + 1
+
+def shutdownIceGridRegistry():
+
+    i = nreplicas
+    while i > 0:
+        print "shutting down icegrid replica-" + str(i) + "...",
+        iceGridAdmin("registry shutdown replica-" + str(i))
+        print "ok"
+        i = i - 1
+
+    print "shutting down icegrid registry...",
+    iceGridAdmin("shutdown")
     print "ok"
-
-    return iceGridPipe
 
 def startIceGridNode(testdir):
 
@@ -93,7 +133,7 @@ def startIceGridNode(testdir):
 
     print "starting icegrid node...",
     command = iceGrid + TestUtil.clientServerOptions + ' --nowarn ' + nodeOptions + \
-              r' "--Ice.Default.Locator=IceGrid/Locator:default -p ' + iceGridPort + '" ' + \
+              r' ' + getDefaultLocatorProperty() + \
               r' --IceGrid.Node.Data=' + dataDir + \
               r' --IceGrid.Node.Name=localnode' + \
               r' --IceGrid.Node.PropertiesOverride=' + overrideOptions
@@ -112,14 +152,12 @@ def startIceGridNode(testdir):
 
 def iceGridAdmin(cmd, ignoreFailure = False):
 
-    global iceGridPort
     iceGridAdmin = os.path.join(toplevel, "bin", "icegridadmin")
 
     user = r"admin1"
     if cmd == "shutdown":
 	user = r"shutdown"
-    command = iceGridAdmin + TestUtil.clientOptions + \
-              r' --Ice.Default.Locator="IceGrid/Locator:default -p ' + iceGridPort + '" ' + \
+    command = iceGridAdmin + TestUtil.clientOptions + ' ' + getDefaultLocatorProperty() + \
               r" --IceGridAdmin.Username=" + user + " --IceGridAdmin.Password=test1 " + \
               r' -e "' + cmd + '"'
 
@@ -142,8 +180,6 @@ def iceGridAdmin(cmd, ignoreFailure = False):
     
 def killNodeServers():
     
-    global iceGridPort
-    
     for server in iceGridAdmin("server list"):
         server = server.strip()
         iceGridAdmin("server disable " + server, True)
@@ -154,9 +190,9 @@ def iceGridTest(name, application, additionalOptions = "", applicationOptions = 
     testdir = os.path.join(toplevel, "test", name)
     client = os.path.join(testdir, "client")
 
-    clientOptions = " --Ice.Default.Locator=\"IceGrid/Locator:default -p " + iceGridPort + "\" " + additionalOptions
+    clientOptions = ' ' + getDefaultLocatorProperty() + ' ' + additionalOptions
 
-    iceGridRegistryPipe = startIceGridRegistry(testdir)
+    startIceGridRegistry(testdir)
     iceGridNodePipe = startIceGridNode(testdir)
 
     if application != "":
@@ -195,9 +231,7 @@ def iceGridTest(name, application, additionalOptions = "", applicationOptions = 
     print "shutting down icegrid node...",
     iceGridAdmin("node shutdown localnode")
     print "ok"
-    print "shutting down icegrid registry...",
-    iceGridAdmin("shutdown")
-    print "ok"
+    shutdownIceGridRegistry()
 
     TestUtil.joinServers()
 
@@ -210,13 +244,10 @@ def iceGridClientServerTest(name, additionalClientOptions, additionalServerOptio
     server = os.path.join(testdir, "server")
     client = os.path.join(testdir, "client")
 
-    clientOptions = "--Ice.Default.Locator=\"IceGrid/Locator:default -p " + iceGridPort + "\" " + \
-                    additionalClientOptions
-
-    serverOptions = "--Ice.Default.Locator=\"IceGrid/Locator:default -p " + iceGridPort + "\" " + \
-                    additionalServerOptions
+    clientOptions = getDefaultLocatorProperty() + ' ' + additionalClientOptions
+    serverOptions = getDefaultLocatorProperty() + ' ' + additionalServerOptions
     
-    iceGridRegistryPipe = startIceGridRegistry(testdir, True)
+    startIceGridRegistry(testdir, True)
 
     print "starting sever...",
 
@@ -246,9 +277,7 @@ def iceGridClientServerTest(name, additionalClientOptions, additionalServerOptio
         TestUtil.killServers()
         sys.exit(1)
 
-    print "shutting down icegrid registry...",
-    iceGridAdmin("shutdown")
-    print "ok"
+    shutdownIceGridRegistry()
 
     TestUtil.joinServers()
 

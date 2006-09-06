@@ -9,11 +9,15 @@
 
 #include <Ice/Ice.h>
 #include <IceGrid/LocatorRegistryI.h>
+#include <IceGrid/ReplicaSessionManager.h>
 #include <IceGrid/Database.h>
 #include <IceGrid/Util.h>
 
 using namespace std;
 using namespace IceGrid;
+
+namespace IceGrid
+{
 
 class SetDirectProxyCB : public AMI_Adapter_setDirectProxy
 {
@@ -41,7 +45,7 @@ public:
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{
-	    _cb->ice_exception(Ice::AdapterNotFoundException());// Expected if the adapter was destroyed.
+	    _cb->ice_exception(Ice::AdapterNotFoundException()); // Expected if the adapter was destroyed.
 	    return;
 	}
 	catch(const Ice::LocalException&)
@@ -85,7 +89,7 @@ public:
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{
-	    _cb->ice_exception(Ice::AdapterNotFoundException());// Expected if the adapter was destroyed.
+	    _cb->ice_exception(Ice::AdapterNotFoundException()); // Expected if the adapter was destroyed.
 	    return;
 	}
 	catch(const Ice::LocalException&)
@@ -140,9 +144,74 @@ private:
     Ice::AMD_LocatorRegistry_setServerProcessProxyPtr _cb;
 };
 
-LocatorRegistryI::LocatorRegistryI(const DatabasePtr& database, bool dynamicRegistration) :
+template<class AmdCB>
+class MasterSetDirectProxyCB : public AMI_ReplicaSession_setAdapterDirectProxy
+{
+public:
+
+    MasterSetDirectProxyCB(const AmdCB& cb) : 
+	_cb(cb)
+    {
+    }
+
+    virtual void ice_response()
+    {
+	_cb->ice_response();
+    }
+
+    virtual void ice_exception(const ::Ice::Exception& ex)
+    {
+	try
+	{
+	    ex.ice_throw();
+	}
+	catch(const AdapterActiveException&)
+	{
+	    _cb->ice_exception(Ice::AdapterAlreadyActiveException());
+	    return;
+	}
+	catch(const AdapterNotExistException&)
+	{
+	    _cb->ice_exception(Ice::AdapterNotFoundException());
+	    return;
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    _cb->ice_exception(ex);
+	    return;
+	}
+	catch(const Ice::LocalException& ex) // Master unreachable.
+	{
+	    //
+	    // TODO: Add a better exception?
+	    // 
+	    _cb->ice_exception(Ice::AdapterNotFoundException());
+	    return;
+	}
+	assert(false);
+    }
+
+private:
+
+    AmdCB _cb;
+};
+
+template<class AmdCB> MasterSetDirectProxyCB<AmdCB>*
+newMasterSetDirectProxyCB(const AmdCB& cb)
+{
+    return new MasterSetDirectProxyCB<AmdCB>(cb);
+}
+
+};
+
+LocatorRegistryI::LocatorRegistryI(const DatabasePtr& database,
+				   bool dynamicRegistration, 
+				   bool master,
+				   ReplicaSessionManager& session) :
     _database(database),
-    _dynamicRegistration(dynamicRegistration)
+    _dynamicRegistration(dynamicRegistration),
+    _master(master),
+    _session(session)
 {
 }
 
@@ -194,11 +263,30 @@ LocatorRegistryI::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_set
 	    cb->ice_response();
 	    return;
 	}
-	
+
 	assert(_dynamicRegistration);
-	if(_database->setAdapterDirectProxy(adapterId, "", proxy))
+	if(_master)
 	{
-	    cb->ice_response();
+	    if(_database->setAdapterDirectProxy(adapterId, "", proxy))
+	    {
+		cb->ice_response();
+		return;
+	    }
+	}
+	else
+	{
+	    ReplicaSessionPrx session = _session.getSession();
+	    if(session)
+	    {
+		session->setAdapterDirectProxy_async(newMasterSetDirectProxyCB(cb), adapterId, "", proxy);
+	    }
+	    else
+	    {
+		//
+		// TODO: Add a better exception?
+		//
+		cb->ice_exception(Ice::AdapterNotFoundException());
+	    }
 	    return;
 	}
     }
@@ -250,9 +338,28 @@ LocatorRegistryI::setReplicatedAdapterDirectProxy_async(
 	}
 	
 	assert(_dynamicRegistration);
-	if(_database->setAdapterDirectProxy(adapterId, replicaGroupId, proxy))
+	if(_master)
 	{
-	    cb->ice_response();
+	    if(_database->setAdapterDirectProxy(adapterId, replicaGroupId, proxy))
+	    {
+		cb->ice_response();
+		return;
+	    }
+	}
+	else
+	{
+	    ReplicaSessionPrx session = _session.getSession();
+	    if(session)
+	    {
+		session->setAdapterDirectProxy_async(newMasterSetDirectProxyCB(cb), adapterId, replicaGroupId, proxy);
+	    }
+	    else
+	    {
+		//
+		// TODO: Add a better exception?
+		//
+		cb->ice_exception(Ice::AdapterNotFoundException());
+	    }
 	    return;
 	}
     }
