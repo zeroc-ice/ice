@@ -30,13 +30,12 @@ prefix			= C:\Ice-$(VERSION)
 # If third party libraries are not installed in the default location
 # change the following setting to reflect the installation location.
 #
-#THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty
-THIRDPARTY_HOME		= c:\src\packages_win32
+THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty
 
 #
 # Define if using STLPort. Required if using MSVC++ 6.0.
 #
-STLPORT_HOME		= $(THIRDPARTY_HOME)
+#STLPORT_HOME		= $(THIRDPARTY_HOME)
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
@@ -56,11 +55,6 @@ install_includedir	= $(prefix)\include
 install_slicedir	= $(prefix)\slice
 install_schemadir	= $(prefix)\schema
 install_docdir		= $(prefix)\doc
-
-INSTALL			= copy
-INSTALL_PROGRAM		= $(INSTALL)
-INSTALL_LIBRARY		= $(INSTALL)
-INSTALL_DATA		= $(INSTALL)
 
 OBJEXT			= .obj
 

@@ -32,7 +32,7 @@ CPPFLAGS	= $(CPPFLAGS) -MDd -Zi -Gm -GZ -Od -D_DEBUG
 
 LDFLAGS		= /LIBPATH:"$(top_srcdir)\lib" /LIBPATH:"$(THIRDPARTY_HOME)\lib" /nologo /FIXED:no
 !if "$(OPTIMIZE)" != "yes"
-LDFLAGS		= $(LDFLAGS) /debug /incremental:yes
+LDFLAGS		= $(LDFLAGS) /debug 
 !else
 LDFLAGS         = $(LDFLAGS) /pdb:none /OPT:REF
 !endif
