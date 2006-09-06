@@ -3,6 +3,9 @@ NOTE: Please keep changes in the appropriate section for HEAD or 3.1.
 Changes since version 3.1.1 (HEAD)
 ---------------------------     
 
+- If a proxy contains no -h parameter, an Ice client will now attempt
+  to connect using loopback as well as all other local interfaces.
+
 - IceGrid registry now cleans up any created admin and regular client
   sessions that do not correctly time out. This could occur if the
   Glacier2 router terminates unexpectedly.
@@ -188,9 +191,6 @@ Changes since version 3.1.0
 - A bug was fixed where the glacier2router would throw a
   NullHandleException if permission verifier was used that was not
   configured.
-
-- If a proxy contains no -h parameter, an Ice client will now attempt
-  to connect using loopback as well as all other local interfaces.
 
 - Fixed a bug with the IceGrid allocate and sessionAllocation demos 
   where the session would not be destroyed in the event of an 
