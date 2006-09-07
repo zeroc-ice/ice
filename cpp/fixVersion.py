@@ -172,12 +172,16 @@ if not patchIceE:
     ice_home = findSourceTree("ice", os.path.join("include", "IceUtil", "Config.h"))
     if ice_home:
 	fileMatchAndReplace(os.path.join(ice_home, "include", "IceUtil", "Config.h"),
-				    [("ICE_STRING_VERSION \"([0-9]*\.[0-9]*\.[0-9]*)\"", version), \
-					     ("ICE_INT_VERSION ([0-9]*)", intVersion(version))])
+			    [("ICE_STRING_VERSION \"([0-9]*\.[0-9]*\.[0-9]*)\"", version), \
+			    ("ICE_INT_VERSION ([0-9]*)", intVersion(version))])
 
 	fileMatchAndReplace(os.path.join(ice_home, "config", "Make.rules"),
-				    [("VERSION[\t\s]*= ([0-9]*\.[0-9]*\.[0-9]*)", version),
-			     ("SOVERSION[\t\s]*= ([0-9]*)", soVersion(version))])
+			    [("VERSION[\t\s]*= ([0-9]*\.[0-9]*\.[0-9]*)", version),
+			    ("SOVERSION[\t\s]*= ([0-9]*)", soVersion(version))])
+
+	fileMatchAndReplace(os.path.join(ice_home, "config", "Make.rules.mak"),
+			    [("VERSION[\t\s]*= ([0-9]*\.[0-9]*\.[0-9]*)", version),
+			    ("SOVERSION[\t\s]*= ([0-9]*)", soVersion(version))])
 
 	fileMatchAndReplace(os.path.join(ice_home, "src", "ca", "import.py"),
 			    [("Ice-([0-9]*\.[0-9]*\.[0-9]*)", version)])
