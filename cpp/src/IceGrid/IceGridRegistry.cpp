@@ -17,6 +17,7 @@
 #  include <IceGrid/WaitQueue.h>
 #  include <IceGrid/ReapThread.h>
 #  include <IceGrid/Database.h>
+#  include <IceGrid/WellKnownObjectsManager.h>
 #endif
 
 using namespace std;

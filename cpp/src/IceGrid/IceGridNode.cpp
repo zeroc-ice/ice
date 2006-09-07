@@ -24,6 +24,7 @@
 #  include <IceGrid/AdminSessionI.h>
 #  include <IceGrid/ReapThread.h>
 #  include <IceGrid/Database.h>
+#  include <IceGrid/WellKnownObjectsManager.h>
 #endif
 #include <IceGrid/DescriptorParser.h>
 #include <IcePatch2/Util.h>
