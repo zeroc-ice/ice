@@ -34,15 +34,17 @@ class ReapThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mute
 {
 public:
 
-    ReapThread(int);
+    ReapThread();
     
     virtual void run();
     void terminate();
     void add(const ReapablePtr&, int);
 
 private:
+
+    bool calcWakeInterval();
     
-    const IceUtil::Time _wakeInterval;
+    IceUtil::Time _wakeInterval;
     bool _terminated;
     struct ReapableItem
     {

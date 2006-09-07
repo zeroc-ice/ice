@@ -212,10 +212,7 @@ RegistryI::start(bool nowarn)
     ObjectAdapterPtr registryAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Internal");
     registryAdapter->activate();
 
-    //
-    // The reaper thread will wake every 30 seconds.
-    //
-    _reaper = new ReapThread(30);
+    _reaper = new ReapThread();
     _reaper->start();
 
     //

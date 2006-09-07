@@ -13,8 +13,7 @@
 using namespace std;
 using namespace IceGrid;
 
-ReapThread::ReapThread(int wakeInterval) :
-    _wakeInterval(IceUtil::Time::seconds(wakeInterval)),
+ReapThread::ReapThread() :
     _terminated(false)
 {
 }
@@ -27,7 +26,20 @@ ReapThread::run()
     {
 	{
 	    Lock sync(*this);
-	    timedWait(_wakeInterval);
+	    calcWakeInterval();
+	    //
+	    // If the wake interval is zero then we wait forever.
+	    //
+	    if(_wakeInterval == IceUtil::Time())
+	    {
+		assert(_sessions.empty());
+		wait();
+	    }
+	    else
+	    {
+		assert(!_sessions.empty());
+		timedWait(_wakeInterval);
+	    }
 	    
 	    if(_terminated)
 	    {
@@ -94,9 +106,54 @@ ReapThread::add(const ReapablePtr& reapable, int timeout)
 	return;
     }
 
+    //
+    // 10 seconds is the minimum permissable timeout.
+    //
+    if(timeout < 10)
+    {
+	timeout = 10;
+    }
+
     ReapableItem item;
     item.item = reapable;
     item.timeout = IceUtil::Time::seconds(timeout);
     _sessions.push_back(item);
+
+    //
+    // If there is a new minimum wake interval then wake the reaping
+    // thread.
+    //
+    if(calcWakeInterval())
+    {
+	notify();
+    }
+
+    //
+    // Since we just added a new session there must be a non-zero
+    // wakeInterval.
+    //
+    assert(_wakeInterval != IceUtil::Time());
 }
 
+// Returns true iff the calculated wake interval is less than the
+// current wake interval (or if the original wake interval was
+// "forever").
+bool
+ReapThread::calcWakeInterval()
+{
+    // Re-calculate minimum timeout
+    IceUtil::Time oldWakeInterval = _wakeInterval;
+    IceUtil::Time minimum;
+    bool first = true;
+    for(list<ReapableItem>::const_iterator p = _sessions.begin(); p != _sessions.end(); ++p)
+    {
+	if(first || p->timeout < minimum)
+	{
+	    minimum = p->timeout;
+	    first = false;
+	}
+    }
+
+    _wakeInterval = minimum;
+    return oldWakeInterval == IceUtil::Time() || minimum < oldWakeInterval;
+}
