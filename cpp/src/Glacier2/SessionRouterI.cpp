@@ -798,7 +798,14 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 	if(!ok)
 	{
 	    PermissionDeniedException exc;
-	    exc.reason = reason;
+	    if(reason.empty())
+	    {
+		exc.reason = "permission denied";
+	    }
+	    else
+	    {
+		exc.reason = reason;
+	    }
 	    throw exc;
 	}
     }
