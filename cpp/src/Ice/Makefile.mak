@@ -29,6 +29,7 @@ OBJS		= Acceptor.obj \
 		  Current.obj \
 		  DefaultsAndOverrides.obj \
 		  Direct.obj \
+		  DLLMain.obj \
 		  DynamicLibrary.obj \
 		  EndpointFactoryManager.obj \
 		  EndpointFactory.obj \
@@ -113,6 +114,7 @@ LINKWITH        = $(BASELIBS) $(BZIP2_LIBS) $(ICE_OS_LIBS) ws2_32.lib
 
 !if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
+LD_DLLFLAGS	= $(LD_DLLFLAGS) /entry:"ice_DLL_Main"
 !endif
 
 $(LIBNAME): $(DLLNAME)
