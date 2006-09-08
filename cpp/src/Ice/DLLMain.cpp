@@ -20,6 +20,7 @@ DllMain(HINSTANCE hDLL, DWORD reason, LPVOID reserved)
 {
 #else
 ice_DLL_Main(HINSTANCE hDLL, DWORD reason, LPVOID reserved)
+{
     if(!_CRT_INIT(hDLL, reason, reserved))
     {
         return FALSE;
