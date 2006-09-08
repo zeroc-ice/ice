@@ -180,9 +180,6 @@ StringAdapterInfoDict.h StringAdapterInfoDict.cpp: $(SLICE2FREEZE)
 	$(SLICE2FREEZECMD) --dict IceGrid::StringAdapterInfoDict,string,IceGrid::AdapterInfo \
 	--dict-index IceGrid::StringAdapterInfoDict,replicaGroupId StringAdapterInfoDict $(SDIR)\Admin.ice
 
-#Internal.cpp Internal.h: Internal.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-#	$(SLICE2CPP) $(SLICE2CPPFLAGS) Internal.ice
-
 Scanner.cpp : Scanner.l
 	flex Scanner.l
 	del /q $@
