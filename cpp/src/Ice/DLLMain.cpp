@@ -15,12 +15,16 @@ extern "C"
 {
 
 BOOL WINAPI
-ice_DLL_Main(HINSTANCE hDLL, DWORD reason, LPVOID reserved)
+#ifdef __BCPLUSPLUS__
+DllMain(HINSTANCE hDLL, DWORD reason, LPVOID reserved)
 {
+#else
+ice_DLL_Main(HINSTANCE hDLL, DWORD reason, LPVOID reserved)
     if(!_CRT_INIT(hDLL, reason, reserved))
     {
         return FALSE;
     }
+#endif
 
     if(reason == DLL_PROCESS_ATTACH)
     {
