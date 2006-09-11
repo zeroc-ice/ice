@@ -668,12 +668,14 @@ IceInternal::FixedReference::filterConnections(const vector<ConnectionIPtr>& all
     random_shuffle(connections.begin(), connections.end(), rng);
 
     //
-    // If a secure connection is requested, remove all non-secure
-    // connections. Otherwise make non-secure connections preferred over
-    // secure connections by partitioning the connection vector, so that
-    // non-secure connections come first.
+    // If a secure connection is requested or secure overrides is set,
+    // remove all non-secure connections. Otherwise make non-secure
+    // connections preferred over secure connections by partitioning
+    // the connection vector, so that non-secure connections come
+    // first.
     //
-    if(getSecure())
+    DefaultsAndOverridesPtr overrides = getInstance()->defaultsAndOverrides();
+    if(getSecure() || (overrides->overrideSecure && overrides->overrideSecureValue))
     {
 	connections.erase(remove_if(connections.begin(), connections.end(), not1(ConnectionIsSecure())),
 			  connections.end());
@@ -989,8 +991,9 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
 }
 
 IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const CommunicatorPtr& com,
-						  const Identity& ident, const SharedContextPtr& ctx, const string& fs, Mode md,
-						  bool sec, const RouterInfoPtr& rtrInfo, bool collocationOpt) :
+						  const Identity& ident, const SharedContextPtr& ctx, const string& fs,
+						  Mode md, bool sec, const RouterInfoPtr& rtrInfo,
+						  bool collocationOpt) :
     Reference(inst, com, ident, ctx, fs, md),
     _secure(sec),
     _routerInfo(rtrInfo),
@@ -1084,12 +1087,13 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
     }
     
     //
-    // If a secure connection is requested, remove all non-secure
-    // endpoints. Otherwise make non-secure endpoints preferred over
-    // secure endpoints by partitioning the endpoint vector, so that
-    // non-secure endpoints come first.
+    // If a secure connection is requested or secure overrides is set,
+    // remove all non-secure endpoints. Otherwise make non-secure
+    // endpoints preferred over secure endpoints by partitioning the
+    // endpoint vector, so that non-secure endpoints come first.
     //
-    if(getSecure())
+    DefaultsAndOverridesPtr overrides = getInstance()->defaultsAndOverrides();
+    if(getSecure() || (overrides->overrideSecure && overrides->overrideSecureValue))
     {
 	endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), not1(Ice::constMemFun(&EndpointI::secure))),
 			endpoints.end());

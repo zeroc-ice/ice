@@ -337,12 +337,14 @@ public abstract class RoutableReference extends Reference
 	}
 
         //
-        // If a secure connection is requested, remove all non-secure
-        // endpoints. Otherwise make non-secure endpoints preferred over
-        // secure endpoints by partitioning the endpoint vector, so that
-        // non-secure endpoints come first.
+        // If a secure connection is requested or secure overrides is
+        // set, remove all non-secure endpoints. Otherwise make
+        // non-secure endpoints preferred over secure endpoints by
+        // partitioning the endpoint vector, so that non-secure
+        // endpoints come first.
         //
-        if(getSecure())
+	DefaultsAndOverrides overrides = getInstance().defaultsAndOverrides();
+        if(getSecure() || (overrides.overrideSecure && overrides.overrideSecureValue))
         {
             java.util.Iterator i = endpoints.iterator();
             while(i.hasNext())
