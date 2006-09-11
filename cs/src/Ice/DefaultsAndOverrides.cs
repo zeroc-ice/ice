@@ -69,6 +69,18 @@ namespace IceInternal
 		overrideCompressValue = false;
 	    }
 
+	    val = properties.getProperty("Ice.Override.Secure");
+	    if(val.Length > 0)
+	    {
+		overrideSecure = true;
+		overrideSecureValue = properties.getPropertyAsInt("Ice.Override.Secure") > 0;
+	    }
+	    else
+	    {
+		overrideSecure = false;
+		overrideSecureValue = false;
+	    }
+
 	    defaultLocator = properties.getProperty("Ice.Default.Locator");
 
 	    defaultCollocationOptimization =
@@ -90,6 +102,8 @@ namespace IceInternal
 	public int overrideConnectTimeoutValue;
 	public bool overrideCompress;
 	public bool overrideCompressValue;
+	public bool overrideSecure;
+	public bool overrideSecureValue;
     }
 
 }

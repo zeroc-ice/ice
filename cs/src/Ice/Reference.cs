@@ -629,12 +629,14 @@ namespace IceInternal
 	    }
 
 	    //
-	    // If a secure connection is requested, remove all non-secure
-	    // endpoints. Otherwise make non-secure endpoints preferred over
-	    // secure endpoints by partitioning the endpoint vector, so that
-	    // non-secure endpoints come first.
+	    // If a secure connection is requested or secure overrides
+	    // is set, remove all non-secure endpoints. Otherwise make
+	    // non-secure endpoints preferred over secure endpoints by
+	    // partitioning the endpoint vector, so that non-secure
+	    // endpoints come first.
 	    //
-	    if(getSecure())
+	    DefaultsAndOverrides overrides = getInstance().defaultsAndOverrides();
+	    if(overrides.overrideSecure ? overrides.overrideSecureValue : getSecure())
 	    {
 		ArrayList tmp = new ArrayList();
 		foreach(Ice.ConnectionI connection in connections)
@@ -1008,12 +1010,14 @@ namespace IceInternal
 	    }
 
 	    //
-	    // If a secure connection is requested, remove all non-secure
-	    // endpoints. Otherwise make non-secure endpoints preferred over
-	    // secure endpoints by partitioning the endpoint vector, so that
-	    // non-secure endpoints come first.
+	    // If a secure connection is requested or secure overrides
+	    // is set, remove all non-secure endpoints. Otherwise make
+	    // non-secure endpoints preferred over secure endpoints by
+	    // partitioning the endpoint vector, so that non-secure
+	    // endpoints come first.
 	    //
-	    if(getSecure())
+	    DefaultsAndOverrides overrides = getInstance().defaultsAndOverrides();
+	    if(overrides.overrideSecure ? overrides.overrideSecureValue : getSecure())
 	    {
 		ArrayList tmp = new ArrayList();
 		foreach(EndpointI endpoint in endpoints)

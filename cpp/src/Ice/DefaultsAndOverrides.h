@@ -36,6 +36,8 @@ public:
     Ice::Int overrideConnectTimeoutValue;
     bool overrideCompress;
     bool overrideCompressValue;
+    bool overrideSecure;
+    bool overrideSecureValue;
 };
 
 }

@@ -135,6 +135,7 @@ Ice:
     Override.Compress
     Override.ConnectTimeout
     Override.Timeout
+    Override.Secure
     Package.<any>
     Plugin.<any>
     PluginLoadOrder
@@ -171,6 +172,7 @@ Ice:
     Warn.Datagrams
     Warn.Dispatch
     Warn.Endpoints
+    AllowableEndpoints
 
 IceBox:
     InstanceName

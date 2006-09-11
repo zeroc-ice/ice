@@ -24,7 +24,9 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     overrideConnectTimeout(false),
     overrideConnectTimeoutValue(-1),
     overrideCompress(false),
-    overrideCompressValue(false)
+    overrideCompressValue(false),
+    overrideSecure(false),
+    overrideSecureValue(false)
 {
     const_cast<string&>(defaultProtocol) = properties->getPropertyWithDefault("Ice.Default.Protocol", "tcp");
 
@@ -53,6 +55,13 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     {
 	const_cast<bool&>(overrideCompress) = true;
 	const_cast<bool&>(overrideCompressValue) = properties->getPropertyAsInt("Ice.Override.Compress");
+    }
+
+    value = properties->getProperty("Ice.Override.Secure");
+    if(!value.empty())
+    {
+	const_cast<bool&>(overrideSecure) = true;
+	const_cast<bool&>(overrideSecureValue) = properties->getPropertyAsInt("Ice.Override.Secure");
     }
 
     const_cast<string&>(defaultLocator) = properties->getProperty("Ice.Default.Locator");

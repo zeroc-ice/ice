@@ -71,6 +71,18 @@ public final class DefaultsAndOverrides
 	    overrideCompressValue = false;
 	}
 
+	value = properties.getProperty("Ice.Override.Secure");
+	if(value.length() > 0)
+	{
+	    overrideSecure = true;
+	    overrideSecureValue = properties.getPropertyAsInt("Ice.Override.Secure") > 0;
+	}
+	else
+	{
+	    overrideSecure = false;
+	    overrideSecureValue = false;
+	}
+
 	defaultLocator = properties.getProperty("Ice.Default.Locator");
 
 	defaultCollocationOptimization =
@@ -92,4 +104,6 @@ public final class DefaultsAndOverrides
     final public int overrideConnectTimeoutValue;
     final public boolean overrideCompress;
     final public boolean overrideCompressValue;
+    final public boolean overrideSecure;
+    final public boolean overrideSecureValue;
 }

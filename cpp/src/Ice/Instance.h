@@ -15,8 +15,6 @@
 #include <IceUtil/RecMutex.h>
 #include <Ice/InstanceF.h>
 #include <Ice/CommunicatorF.h>
-#include <Ice/PropertiesF.h>
-#include <Ice/LoggerF.h>
 #include <Ice/StatsF.h>
 #include <Ice/TraceLevelsF.h>
 #include <Ice/DefaultsAndOverridesF.h>

@@ -675,7 +675,7 @@ IceInternal::FixedReference::filterConnections(const vector<ConnectionIPtr>& all
     // first.
     //
     DefaultsAndOverridesPtr overrides = getInstance()->defaultsAndOverrides();
-    if(getSecure() || (overrides->overrideSecure && overrides->overrideSecureValue))
+    if(overrides->overrideSecure ? overrides->overrideSecureValue : getSecure())
     {
 	connections.erase(remove_if(connections.begin(), connections.end(), not1(ConnectionIsSecure())),
 			  connections.end());
@@ -1093,7 +1093,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
     // endpoint vector, so that non-secure endpoints come first.
     //
     DefaultsAndOverridesPtr overrides = getInstance()->defaultsAndOverrides();
-    if(getSecure() || (overrides->overrideSecure && overrides->overrideSecureValue))
+    if(overrides->overrideSecure ? overrides->overrideSecureValue : getSecure())
     {
 	endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), not1(Ice::constMemFun(&EndpointI::secure))),
 			endpoints.end());

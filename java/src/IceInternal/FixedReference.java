@@ -258,7 +258,7 @@ public class FixedReference extends Reference
         // endpoints come first.
         //
 	DefaultsAndOverrides overrides = getInstance().defaultsAndOverrides();
-        if(getSecure() || (overrides.overrideSecure && overrides.overrideSecureValue))
+	if(overrides.overrideSecure ? overrides.overrideSecureValue : getSecure())
         {
             java.util.Iterator i = connections.iterator();
             while(i.hasNext())

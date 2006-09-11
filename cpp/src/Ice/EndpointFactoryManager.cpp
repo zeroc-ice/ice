@@ -13,6 +13,7 @@
 #include <Ice/BasicStream.h>
 #include <Ice/LocalException.h>
 #include <Ice/Instance.h>
+#include <Ice/Properties.h>
 #include <Ice/DefaultsAndOverrides.h>
 
 using namespace std;
