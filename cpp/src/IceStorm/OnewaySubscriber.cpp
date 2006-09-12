@@ -7,27 +7,82 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
 #include <IceStorm/OnewaySubscriber.h>
-#include <IceStorm/SubscriberFactory.h>
 #include <IceStorm/TraceLevels.h>
+#include <IceStorm/Event.h>
+#include <IceStorm/QueuedProxy.h>
+
+#include <Ice/ObjectAdapter.h>
+#include <Ice/LoggerUtil.h>
+#include <Ice/Communicator.h>
+#include <Ice/LocalException.h>
 
 using namespace IceStorm;
 using namespace std;
 
-OnewaySubscriber::OnewaySubscriber(const SubscriberFactoryPtr& factory, const Ice::CommunicatorPtr& communicator,
-				   const TraceLevelsPtr& traceLevels, const QueuedProxyPtr& obj) :
-    Subscriber(traceLevels, obj->proxy()->ice_getIdentity()),
-    _communicator(communicator),
-    _factory(factory),
-    _obj(obj)
+namespace IceStorm
 {
-    _factory->incProxyUsageCount(_obj);
+
+class PerSubscriberPublisherProxyI : public Ice::BlobjectArray
+{
+public:
+
+    PerSubscriberPublisherProxyI(const SubscriberPtr& subscriber) :
+	_subscriber(subscriber)
+    {
+    }
+
+    ~PerSubscriberPublisherProxyI()
+    {
+    }
+
+    virtual bool
+    ice_invoke(const pair<const Ice::Byte*, const Ice::Byte*>& inParams, vector< Ice::Byte>& outParam,
+	       const Ice::Current& current)
+    {
+	const Ice::Context& context = current.ctx;
+
+	EventPtr event = new Event;
+	event->forwarded = false;
+	Ice::Context::const_iterator p = context.find("cost");
+	if(p != context.end())
+	{
+	    event->cost = atoi(p->second.c_str());
+	}
+	else
+	{
+	    event->cost = 0; // TODO: Default comes from property?
+	}
+	event->op = current.operation;
+	event->mode = current.mode;
+	vector<Ice::Byte>(inParams.first, inParams.second).swap(event->data);
+	event->context = context;
+
+	_subscriber->publish(event);
+
+	return true;
+    }
+
+private:
+
+    //
+    // Set of associated subscribers
+    //
+    const SubscriberPtr _subscriber;
+};
+
+}
+
+OnewaySubscriber::OnewaySubscriber(const SubscriberFactoryPtr& factory, const Ice::CommunicatorPtr& communicator,
+				   const TraceLevelsPtr& traceLevels, const Ice::ObjectAdapterPtr& adapter,
+				   const QueuedProxyPtr& obj) :
+    Subscriber(factory, communicator, traceLevels, obj),
+    _adapter(adapter)
+{
 }
 
 OnewaySubscriber::~OnewaySubscriber()
 {
-    _factory->decProxyUsageCount(_obj);
 }
 
 bool
@@ -39,32 +94,42 @@ OnewaySubscriber::persistent() const
 void
 OnewaySubscriber::activate()
 {
-    // Nothing to do
+    _proxy = _adapter->addWithUUID(new PerSubscriberPublisherProxyI(this));
 }
 
 void
 OnewaySubscriber::unsubscribe()
 {
-    IceUtil::Mutex::Lock sync(_stateMutex);
-    _state = StateUnsubscribed;
+    Subscriber::unsubscribe();
 
-    if(_traceLevels->subscriber > 0)
+    //
+    // Clear the per-subscriber object.
+    //
+    try
     {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
-	out << "Unsubscribe " << _communicator->identityToString(id());
+	_adapter->remove(_proxy->ice_getIdentity());
+    }
+    catch(const Ice::NotRegisteredException&)
+    {
+	// Ignore
     }
 }
 
 void
 OnewaySubscriber::replace()
 {
-    IceUtil::Mutex::Lock sync(_stateMutex);
-    _state = StateReplaced;
+    Subscriber::replace();
 
-    if(_traceLevels->subscriber > 0)
+    //
+    // Clear the per-subscriber object.
+    //
+    try
     {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
-	out << "Replace " << _communicator->identityToString(id());
+	_adapter->remove(_proxy->ice_getIdentity());
+    }
+    catch(const Ice::NotRegisteredException&)
+    {
+	// Ignore
     }
 }
 
@@ -89,9 +154,28 @@ OnewaySubscriber::publish(const EventPtr& event)
             if(_traceLevels->subscriber > 0)
             {
                 Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
-                out << _communicator->identityToString(id()) << ": publish failed: " << e;
+                out << _desc << ": publish failed: " << e;
             }
             _state = StateError;
+
+	    //
+	    // Clear the per-subscriber object.
+	    //
+	    try
+	    {
+		_adapter->remove(_proxy->ice_getIdentity());
+	    }
+	    catch(const Ice::NotRegisteredException&)
+	    {
+		// Ignore
+	    }
         }
     }
+}
+
+Ice::ObjectPrx
+OnewaySubscriber::proxy() const
+{
+    assert(_proxy);
+    return _proxy;
 }

@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceStorm/LinkProxy.h>
+#include <IceStorm/Event.h>
 
 using namespace std;
 

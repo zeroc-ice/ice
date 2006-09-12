@@ -7,8 +7,9 @@
 //
 // **********************************************************************
 
-#include <Ice/Properties.h>
 #include <IceStorm/TraceLevels.h>
+
+#include <Ice/Properties.h>
 
 using namespace std;
 using namespace IceStorm;

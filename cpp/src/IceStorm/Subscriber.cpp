@@ -9,19 +9,31 @@
 
 #include <IceStorm/Subscriber.h>
 #include <IceStorm/TraceLevels.h>
+#include <IceStorm/SubscriberFactory.h>
+#include <IceStorm/QueuedProxy.h>
+
+#include <Ice/LoggerUtil.h>
+#include <Ice/Communicator.h>
 
 using namespace IceStorm;
 using namespace std;
 
-Subscriber::Subscriber(const TraceLevelsPtr& traceLevels, const Ice::Identity& id) :
+Subscriber::Subscriber( const SubscriberFactoryPtr& factory,
+			const Ice::CommunicatorPtr& communicator,
+			const TraceLevelsPtr& traceLevels,
+			const QueuedProxyPtr& obj) :
+    _factory(factory),
+    _desc(communicator->identityToString(obj->proxy()->ice_getIdentity())),
     _traceLevels(traceLevels),
-    _state(StateActive),
-    _id(id)
+    _obj(obj),
+    _state(StateActive)
 {
+    _factory->incProxyUsageCount(_obj);
 }
 
 Subscriber::~Subscriber()
 {
+    _factory->decProxyUsageCount(_obj);
 }
 
 bool
@@ -31,6 +43,37 @@ Subscriber::inactive() const
     return _state != StateActive;;
 }
 
+void
+Subscriber::activate()
+{
+}
+
+void
+Subscriber::unsubscribe()
+{
+    IceUtil::Mutex::Lock sync(_stateMutex);
+    _state = StateUnsubscribed;
+
+    if(_traceLevels->subscriber > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
+	out << "Unsubscribe " << _desc;
+    }
+}
+
+void
+Subscriber::replace()
+{
+    IceUtil::Mutex::Lock sync(_stateMutex);
+    _state = StateReplaced;
+
+    if(_traceLevels->subscriber > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
+	out << "Replace " << _desc;
+    }
+}
+
 bool
 Subscriber::error() const
 {
@@ -38,9 +81,8 @@ Subscriber::error() const
     return _state == StateError;
 }
 
-
 Ice::Identity
 Subscriber::id() const
 {
-    return _id;
+    return _obj->proxy()->ice_getIdentity();
 }

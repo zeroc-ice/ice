@@ -7,16 +7,18 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
-#include <Ice/SliceChecksums.h>
 #include <IceStorm/TopicManagerI.h>
 #include <IceStorm/TopicI.h>
 #include <IceStorm/Flusher.h>
 #include <IceStorm/TraceLevels.h>
+#include <IceStorm/SubscriberFactory.h>
 #include <Freeze/Initialize.h>
+
+#include <Ice/SliceChecksums.h>
 
 #include <functional>
 #include <ctype.h>
+
 
 using namespace IceStorm;
 using namespace std;

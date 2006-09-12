@@ -27,7 +27,7 @@ typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
 class Flusher;
 typedef IceUtil::Handle<Flusher> FlusherPtr;
- 
+
 class SubscriberFactory;
 typedef IceUtil::Handle<SubscriberFactory> SubscriberFactoryPtr;
 

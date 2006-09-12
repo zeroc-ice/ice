@@ -7,25 +7,28 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
 #include <IceStorm/LinkSubscriber.h>
-#include <IceStorm/SubscriberFactory.h>
 #include <IceStorm/TraceLevels.h>
+#include <IceStorm/Event.h>
+#include <IceStorm/QueuedProxy.h>
+
+#include <Ice/LoggerUtil.h>
+#include <Ice/LocalException.h>
+#include <Ice/Communicator.h>
 
 using namespace IceStorm;
 using namespace std;
 
 LinkSubscriber::LinkSubscriber(const SubscriberFactoryPtr& factory, const Ice::CommunicatorPtr& communicator,
 			       const TraceLevelsPtr& traceLevels, const QueuedProxyPtr& obj, Ice::Int cost) :
-    Subscriber(traceLevels, obj->proxy()->ice_getIdentity()),
-    _factory(factory), _communicator(communicator), _obj(obj), _cost(cost)
+    Subscriber(factory, communicator, traceLevels, obj),
+    _communicator(communicator),
+    _cost(cost)
 {
-    _factory->incProxyUsageCount(_obj);
 }
 
 LinkSubscriber::~LinkSubscriber()
 {
-    _factory->decProxyUsageCount(_obj);
 }
 
 bool
@@ -38,38 +41,6 @@ bool
 LinkSubscriber::inactive() const
 {
     return Subscriber::inactive();
-}
-
-void
-LinkSubscriber::activate()
-{
-    // Nothing to do
-}
-
-void
-LinkSubscriber::unsubscribe()
-{
-    IceUtil::Mutex::Lock sync(_stateMutex);
-    _state = StateUnsubscribed;
-
-    if(_traceLevels->subscriber > 0)
-    {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
-	out << "Unsubscribe " << _communicator->identityToString(id());
-    }
-}
-
-void
-LinkSubscriber::replace()
-{
-    IceUtil::Mutex::Lock sync(_stateMutex);
-    _state = StateReplaced;
-
-    if(_traceLevels->subscriber > 0)
-    {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
-	out << "Replace " << _communicator->identityToString(id());
-    }
 }
 
 void
@@ -100,7 +71,7 @@ LinkSubscriber::publish(const EventPtr& event)
 	if(_traceLevels->subscriber > 0)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
-	    out << _communicator->identityToString(id()) << ": link topic publish failed: " << e;
+	    out << _desc << ": link topic publish failed: " << e;
 	}
     }
     catch(const Ice::LocalException& e)
@@ -108,9 +79,15 @@ LinkSubscriber::publish(const EventPtr& event)
 	if(_traceLevels->subscriber > 0)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
-	    out << _communicator->identityToString(id()) << ": link topic publish failed: " << e;
+	    out << _desc << ": link topic publish failed: " << e;
 	}
     }
+}
+
+Ice::ObjectPrx
+LinkSubscriber::proxy() const
+{
+    return Ice::ObjectPrx();
 }
 
 void

@@ -11,8 +11,6 @@
 #define ONEWAY_SUBSCRIBER_H
 
 #include <IceStorm/Subscriber.h>
-#include <IceStorm/QueuedProxy.h>
-#include <IceStorm/SubscriberFactory.h>
 
 namespace IceStorm
 {
@@ -22,7 +20,7 @@ class OnewaySubscriber : public Subscriber
 public:
 
     OnewaySubscriber(const SubscriberFactoryPtr&, const Ice::CommunicatorPtr&, const TraceLevelsPtr&, 
-    		     const QueuedProxyPtr&);
+		     const Ice::ObjectAdapterPtr&, const QueuedProxyPtr&);
     ~OnewaySubscriber();
 
     virtual bool persistent() const;
@@ -30,13 +28,12 @@ public:
     virtual void unsubscribe();
     virtual void replace();
     virtual void publish(const EventPtr&);
+    virtual Ice::ObjectPrx proxy() const;
 
 protected:
 
-    // Immutable
-    Ice::CommunicatorPtr _communicator;
-    SubscriberFactoryPtr _factory;
-    QueuedProxyPtr _obj;
+    Ice::ObjectAdapterPtr _adapter;
+    Ice::ObjectPrx _proxy;
 };
 
 } // End namespace IceStorm

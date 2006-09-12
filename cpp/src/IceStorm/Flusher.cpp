@@ -7,12 +7,15 @@
 //
 // **********************************************************************
 
-#include <IceUtil/Thread.h>
-#include <IceUtil/Monitor.h>
-#include <Ice/Ice.h>
+#include <IceStorm/Flusher.h>
 #include <IceStorm/Flushable.h>
 #include <IceStorm/TraceLevels.h>
-#include <IceStorm/Flusher.h>
+
+#include <IceUtil/Functional.h>
+#include <Ice/Communicator.h>
+#include <Ice/Properties.h>
+#include <Ice/LoggerUtil.h>
+
 #include <algorithm>
 
 using namespace IceStorm;

@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
 #include <IceStorm/SubscriberFactory.h>
 #include <IceStorm/LinkSubscriber.h>
 #include <IceStorm/OnewaySubscriber.h>
@@ -17,6 +16,8 @@
 #include <IceStorm/LinkProxy.h>
 #include <IceStorm/OnewayProxy.h>
 #include <IceStorm/TwowayProxy.h>
+
+#include <Ice/LoggerUtil.h>
 
 using namespace std;
 using namespace IceStorm;
@@ -30,7 +31,7 @@ SubscriberFactory::SubscriberFactory(const Ice::CommunicatorPtr& communicator,
 {
 }
 
-SubscriberPtr
+LinkSubscriberPtr
 SubscriberFactory::createLinkSubscriber(const TopicLinkPrx& obj, Ice::Int cost)
 {
     IceUtil::RecMutex::Lock sync(_proxiesMutex);
@@ -57,8 +58,8 @@ SubscriberFactory::createLinkSubscriber(const TopicLinkPrx& obj, Ice::Int cost)
     return new LinkSubscriber(this, _communicator, _traceLevels, proxy, cost);
 }
 
-SubscriberPtr
-SubscriberFactory::createSubscriber(const QoS& qos, const Ice::ObjectPrx& obj)
+OnewaySubscriberPtr
+SubscriberFactory::createSubscriber(const Ice::ObjectAdapterPtr& adapter, const QoS& qos, const Ice::ObjectPrx& obj)
 {
     IceUtil::RecMutex::Lock sync(_proxiesMutex);
 
@@ -144,7 +145,7 @@ SubscriberFactory::createSubscriber(const QoS& qos, const Ice::ObjectPrx& obj)
 
     if(reliability == "batch")
     {
-        return new OnewayBatchSubscriber(this, _communicator, _traceLevels, _flusher, proxy);
+        return new OnewayBatchSubscriber(this, _communicator, _traceLevels, _flusher, adapter, proxy);
     }
     else // oneway or twoway
     {
@@ -152,7 +153,7 @@ SubscriberFactory::createSubscriber(const QoS& qos, const Ice::ObjectPrx& obj)
 	// TODO: rename OnewaySubscriber into something more approriate, ObjectPrxSubscriber
 	// for example (there's also LinkSubscriber).
 	//
-        return new OnewaySubscriber(this, _communicator, _traceLevels, proxy);
+        return new OnewaySubscriber(this, _communicator, _traceLevels, adapter, proxy);
     }
 }
 

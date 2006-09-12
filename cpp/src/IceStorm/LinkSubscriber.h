@@ -12,14 +12,9 @@
 
 #include <IceStorm/Flushable.h>
 #include <IceStorm/Subscriber.h>
-#include <IceStorm/IceStormInternal.h> // For TopicLink
-#include <IceStorm/QueuedProxy.h>
 
 namespace IceStorm
 {
-
-class SubscriberFactory;
-typedef IceUtil::Handle<SubscriberFactory> SubscriberFactoryPtr;
 
 class LinkSubscriber : public Subscriber, public Flushable
 {
@@ -31,10 +26,8 @@ public:
 
     virtual bool persistent() const;
     virtual bool inactive() const;
-    virtual void activate();
-    virtual void unsubscribe();
-    virtual void replace();
     virtual void publish(const EventPtr&);
+    virtual Ice::ObjectPrx proxy() const;
 
     virtual void flush();
     virtual bool operator==(const Flushable&) const;
@@ -42,10 +35,8 @@ public:
 private:
 
     // Immutable
-    SubscriberFactoryPtr _factory;
-    Ice::CommunicatorPtr _communicator;
-    QueuedProxyPtr _obj;
-    Ice::Int _cost;
+    const Ice::CommunicatorPtr _communicator;
+    const Ice::Int _cost;
 };
 
 } // End namespace IceStorm

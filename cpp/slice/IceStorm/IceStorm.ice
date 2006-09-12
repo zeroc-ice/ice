@@ -147,10 +147,12 @@ interface Topic
      *
      * @param subscriber The subscriber's proxy.
      *
+     * @return The per-subscriber publisher object.
+     *
      * @see unsubscribe
      *
      **/
-    void subscribe(QoS theQoS, Object* subscriber);
+    Object* subscribe(QoS theQoS, Object* subscriber);
 
     /**
      *

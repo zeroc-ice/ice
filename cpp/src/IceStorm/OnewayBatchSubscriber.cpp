@@ -7,10 +7,11 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
 #include <IceStorm/OnewayBatchSubscriber.h>
 #include <IceStorm/TraceLevels.h>
 #include <IceStorm/Flusher.h>
+
+#include <Ice/Communicator.h>
 
 using namespace IceStorm;
 using namespace std;
@@ -19,14 +20,22 @@ OnewayBatchSubscriber::OnewayBatchSubscriber(const SubscriberFactoryPtr& factory
 	                                     const Ice::CommunicatorPtr& communicator,
 					     const TraceLevelsPtr& traceLevels,
                                              const FlusherPtr& flusher,
+                                             const Ice::ObjectAdapterPtr& adapter,
 					     const QueuedProxyPtr& obj) :
-    OnewaySubscriber(factory, communicator, traceLevels, obj),
+    OnewaySubscriber(factory, communicator, traceLevels, adapter, obj),
+    _communicator(communicator),
     _flusher(flusher)
 {
 }
 
 OnewayBatchSubscriber::~OnewayBatchSubscriber()
 {
+}
+
+bool
+OnewayBatchSubscriber::inactive() const
+{
+    return OnewaySubscriber::inactive();
 }
 
 void
@@ -44,16 +53,7 @@ OnewayBatchSubscriber::activate()
 void
 OnewayBatchSubscriber::unsubscribe()
 {
-    {
-	IceUtil::Mutex::Lock sync(_stateMutex);
-	_state = StateUnsubscribed;
-    }
-
-    if(_traceLevels->subscriber > 0)
-    {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
-	out << "Unsubscribe " << _communicator->identityToString(id());
-    }
+    OnewaySubscriber::unsubscribe();
 
     //
     // If this subscriber has been registered with the flusher then
@@ -65,28 +65,13 @@ OnewayBatchSubscriber::unsubscribe()
 void
 OnewayBatchSubscriber::replace()
 {
-    {
-	IceUtil::Mutex::Lock sync(_stateMutex);
-	_state = StateReplaced;
-    }
-
-    if(_traceLevels->subscriber > 0)
-    {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
-	out << "Replace " << _communicator->identityToString(id());
-    }
+    OnewaySubscriber::replace();
 
     //
     // If this subscriber has been registered with the flusher then
     // remove it.
     //
     _flusher->remove(this);
-}
-
-bool
-OnewayBatchSubscriber::inactive() const
-{
-    return OnewaySubscriber::inactive();
 }
 
 void

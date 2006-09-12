@@ -7,13 +7,17 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
 #include <IceStorm/TopicI.h>
 #include <IceStorm/SubscriberFactory.h>
-#include <IceStorm/Subscriber.h>
+#include <IceStorm/OnewaySubscriber.h>
+#include <IceStorm/LinkSubscriber.h>
 #include <IceStorm/TraceLevels.h>
+#include <IceStorm/Event.h>
+
 #include <Freeze/Initialize.h>
 #include <algorithm>
+
+#include <Ice/LoggerUtil.h>
 
 using namespace IceStorm;
 using namespace std;
@@ -410,7 +414,7 @@ TopicI::destroy(const Ice::Current&)
     _adapter->remove(id);
 }
 
-void
+Ice::ObjectPrx
 TopicI::subscribe(const QoS& qos, const Ice::ObjectPrx& subscriber, const Ice::Current&)
 {
     IceUtil::RecMutex::Lock sync(*this);
@@ -444,8 +448,9 @@ TopicI::subscribe(const QoS& qos, const Ice::ObjectPrx& subscriber, const Ice::C
     //
     // Add this subscriber to the set of subscribers.
     //
-    SubscriberPtr sub = _factory->createSubscriber(qos, subscriber);
+    OnewaySubscriberPtr sub = _factory->createSubscriber(_adapter, qos, subscriber);
     _subscribers->add(sub);
+    return sub->proxy();
 }
 
 void

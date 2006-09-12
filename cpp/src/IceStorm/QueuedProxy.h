@@ -11,10 +11,12 @@
 #define QUEUED_PROXY_H
 
 #include <Ice/Proxy.h>
-#include <IceStorm/Event.h>
 
 namespace IceStorm
 {
+
+class Event;
+typedef IceUtil::Handle<Event> EventPtr;
 
 //
 // QueuedProxy encapsulates a subscriber proxy in order to maintain a

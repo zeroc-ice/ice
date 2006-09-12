@@ -3,7 +3,12 @@ NOTE: Please keep changes in the appropriate section for HEAD or 3.1.
 Changes since version 3.1.1 (HEAD)
 ---------------------------     
 
-- Added Ice.Override.Secure which will force a client to only use
+- Added per-subscriber publisher objects to IceStorm.
+  IceStorm::Topic::subscribe now return a proxy which is used to
+  send an event to only that particular subscriber. See
+  demo/IceStorm/counter for a demo of this feature.
+
+- Added Ice.Override.Secure which forces a client to only use
   secure connections.
 
 - If a proxy contains no -h parameter, an Ice client will now attempt

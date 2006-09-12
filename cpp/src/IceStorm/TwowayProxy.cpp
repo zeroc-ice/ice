@@ -7,8 +7,10 @@
 //
 // **********************************************************************
 
-#include <Ice/OutgoingAsync.h> // for Ice::AMI_Object_ice_invoke
 #include <IceStorm/TwowayProxy.h>
+#include <IceStorm/Event.h>
+
+#include <Ice/OutgoingAsync.h> // for Ice::AMI_Object_ice_invoke
 
 using namespace std;
 

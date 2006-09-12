@@ -11,7 +11,6 @@
 #define SUBSCRIBER_FACTORY_H
 
 #include <IceStorm/IceStormInternal.h> // For QoS, TopicLink
-#include <IceStorm/QueuedProxy.h>
 #include <IceUtil/RecMutex.h>
 #include <map>
 
@@ -24,11 +23,17 @@ namespace IceStorm
 class TraceLevels;
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
-class Subscriber;
-typedef IceUtil::Handle<Subscriber> SubscriberPtr;
+class LinkSubscriber;
+typedef IceUtil::Handle<LinkSubscriber> LinkSubscriberPtr;
+
+class OnewaySubscriber;
+typedef IceUtil::Handle<OnewaySubscriber> OnewaySubscriberPtr;
 
 class Flusher;
 typedef IceUtil::Handle<Flusher> FlusherPtr;
+
+class QueuedProxy;
+typedef IceUtil::Handle<QueuedProxy> QueuedProxyPtr;
 
 //
 // Factory object that knows how to create various type of Subscriber
@@ -44,12 +49,12 @@ public:
     // Create a link subscriber (that is a subscriber that points to
     // another topic instance).
     //
-    SubscriberPtr createLinkSubscriber(const TopicLinkPrx&, Ice::Int);
+    LinkSubscriberPtr createLinkSubscriber(const TopicLinkPrx&, Ice::Int);
 
     //
     // Create a Subscriber with the given QoS.
     //
-    SubscriberPtr createSubscriber(const QoS&, const Ice::ObjectPrx&);
+    OnewaySubscriberPtr createSubscriber(const Ice::ObjectAdapterPtr&, const QoS&, const Ice::ObjectPrx&);
 
     //
     // Increment the usage count of a queued proxy.

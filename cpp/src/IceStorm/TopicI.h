@@ -13,7 +13,6 @@
 #include <IceUtil/RecMutex.h>
 #include <IceStorm/IceStormInternal.h>
 #include <IceStorm/PersistentTopicMap.h>
-#include <IceStorm/SubscriberFactory.h>
 #include <list>
 
 namespace IceStorm
@@ -76,7 +75,7 @@ public:
 
     virtual std::string getName(const Ice::Current&) const;
     virtual Ice::ObjectPrx getPublisher(const Ice::Current&) const;
-    virtual void subscribe(const QoS&, const Ice::ObjectPrx&, const Ice::Current&);
+    virtual Ice::ObjectPrx subscribe(const QoS&, const Ice::ObjectPrx&, const Ice::Current&);
     virtual void unsubscribe(const Ice::ObjectPrx&, const Ice::Current&);
     virtual void destroy(const Ice::Current&);
     virtual void link(const TopicPrx&, Ice::Int, const Ice::Current&);

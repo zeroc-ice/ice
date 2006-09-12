@@ -13,6 +13,8 @@
 #include <IceUtil/Handle.h>
 #include <IceUtil/Shared.h>
 #include <IceUtil/Thread.h>
+#include <IceUtil/Mutex.h>
+#include <IceUtil/Monitor.h>
 #include <Ice/CommunicatorF.h>
 #include <list>
 

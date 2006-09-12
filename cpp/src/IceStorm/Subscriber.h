@@ -10,11 +10,10 @@
 #ifndef SUBSCRIBER_H
 #define SUBSCRIBER_H
 
-#include <IceUtil/Mutex.h>
+#include <IceUtil/Handle.h>
+#include <IceUtil/Shared.h>
+#include <Ice/CommunicatorF.h>
 #include <Ice/Identity.h>
-#include <IceStorm/Event.h>
-
-#include <vector>
 
 namespace IceStorm
 {
@@ -25,6 +24,15 @@ namespace IceStorm
 class TraceLevels;
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
+class SubscriberFactory;
+typedef IceUtil::Handle<SubscriberFactory> SubscriberFactoryPtr;
+
+class Event;
+typedef IceUtil::Handle<Event> EventPtr;
+
+class QueuedProxy;
+typedef IceUtil::Handle<QueuedProxy> QueuedProxyPtr;
+
 //
 // Subscriber interface.
 //
@@ -32,7 +40,8 @@ class Subscriber : public virtual IceUtil::Shared
 {
 public:
 
-    Subscriber(const TraceLevelsPtr& traceLevels, const Ice::Identity&);
+    Subscriber(const SubscriberFactoryPtr&, const Ice::CommunicatorPtr&,
+	       const TraceLevelsPtr&, const QueuedProxyPtr&);
     ~Subscriber();
 
     virtual bool persistent() const = 0;
@@ -57,17 +66,17 @@ public:
     // Activate. Called after any other subscribers with the same
     // identity have been deactivated.
     //
-    virtual void activate() = 0;
+    virtual void activate();
 
     //
     // Unsubscribe. Mark the state as Unsubscribed.
     //
-    virtual void unsubscribe() = 0;
+    virtual void unsubscribe();
 
     //
     // Unsubscribe. Mark the state as Replaced.
     //
-    virtual void replace() = 0;
+    virtual void replace();
 
     //
     // Publish the given event. Mark the state as Error in the event of
@@ -78,7 +87,10 @@ public:
 protected:
 
     // Immutable
-    TraceLevelsPtr _traceLevels; 
+    const SubscriberFactoryPtr _factory;
+    const std::string _desc;
+    const TraceLevelsPtr _traceLevels; 
+    const QueuedProxyPtr _obj;
 
     //
     // Subscriber state.
@@ -106,15 +118,6 @@ protected:
 
     IceUtil::Mutex _stateMutex;
     State _state;
-
-private:
-
-    //
-    // This id is the full id of the subscriber for a particular topic.
-    //
-    // Immutable.
-    //
-    Ice::Identity _id;
 };
 
 typedef IceUtil::Handle<Subscriber> SubscriberPtr;
