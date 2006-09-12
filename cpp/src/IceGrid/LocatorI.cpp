@@ -424,9 +424,10 @@ LocatorI::getDirectProxyRequest(const RequestPtr& request, const AdapterPrx& ada
     // we just add this one to the queue. If not, we add it to the queue and initiate
     // a call on the adapter to get its direct proxy.
     //
-    PendingRequests& requests = _pendingRequests[adapter->ice_getIdentity()];
-    requests.push_back(request);
-    return requests.size() == 1;
+    PendingRequestsMap::iterator p;
+    p = _pendingRequests.insert(make_pair(adapter->ice_getIdentity(), PendingRequests())).first;
+    p->second.push_back(request);
+    return p->second.size() == 1;
 }
 
 void
@@ -459,7 +460,7 @@ LocatorI::getDirectProxyException(const AdapterPrx& adapter, const string& id, c
 	Lock sync(*this);
 	PendingRequestsMap::iterator p = _pendingRequests.find(adapter->ice_getIdentity());
 	assert(p != _pendingRequests.end());
-	requests = p->second;
+	requests.swap(p->second);
 	_pendingRequests.erase(p);
     }
 
@@ -477,7 +478,7 @@ LocatorI::getDirectProxyCallback(const Ice::Identity& adapterId, const Ice::Obje
 	Lock sync(*this);
 	PendingRequestsMap::iterator p = _pendingRequests.find(adapterId);
 	assert(p != _pendingRequests.end());
-	requests = p->second;
+	requests.swap(p->second);
 	_pendingRequests.erase(p);
     }
 
