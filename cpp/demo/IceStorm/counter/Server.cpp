@@ -56,13 +56,13 @@ Server::run(int argc, char* argv[])
     {
 	topic = manager->retrieve("counter");
     }
-    catch(const IceStorm::NoSuchTopic& ex)
+    catch(const IceStorm::NoSuchTopic&)
     {
 	try
 	{
 	    topic = manager->create("counter");
 	}
-	catch(const IceStorm::TopicExists& ex)
+	catch(const IceStorm::TopicExists&)
 	{
 	    cerr << appName() << ": topic exists, please try again." << endl;
 	    return EXIT_FAILURE;

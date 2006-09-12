@@ -9,42 +9,43 @@
 
 top_srcdir	= ..\..\..
 
-PUBLISHER	= publisher.exe
-SUBSCRIBER	= subscriber.exe
+CLIENT		= client.exe
+SERVER		= server.exe
 
-TARGETS		= $(PUBLISHER) $(SUBSCRIBER)
+TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Clock.obj
+OBJS		= Counter.obj
 
-POBJS		= Publisher.obj
+COBJS		= Client.obj \
+		  CounterObserverI.obj
 
-SOBJS		= Subscriber.obj \
-		  ClockI.obj
+SOBJS		= Server.obj \
+		  CounterI.obj
 
 SRCS		= $(OBJS:.obj=.cpp) \
-		  $(POBJS:.obj=.cpp) \
+		  $(COBJS:.obj=.cpp) \
 		  $(SOBJS:.obj=.cpp)
 
 
 !include $(top_srcdir)/config/Make.rules.mak
 
 CPPFLAGS	= -I. $(CPPFLAGS)
-LIBS		= $(top_srcdir)\lib\icestorm$(LIBSUFFIX).lib $(LIBS)
+IS_LIBS		= $(top_srcdir)\lib\icestorm$(LIBSUFFIX).lib $(LIBS)
 
 !if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
-PPDBFLAGS        = /pdb:$(PUBLISHER:.exe=.pdb)
-SPDBFLAGS        = /pdb:$(SUBSCRIBER:.exe=.pdb)
+PPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
+SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 !endif
 
-$(PUBLISHER): $(OBJS) $(POBJS)
+$(CLIENT): $(OBJS) $(COBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(PPDBFLAGS) $(OBJS) $(POBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	$(LINK) $(LD_EXEFLAGS) $(PPDBFLAGS) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
-$(SUBSCRIBER): $(OBJS) $(SOBJS)
+$(SERVER): $(OBJS) $(SOBJS)
 	del /q $@
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(IS_LIBS)
 
 clean::
-	del /q Clock.cpp Clock.h
+	del /q Counter.cpp Counter.h
 
 !include .depend

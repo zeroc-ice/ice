@@ -12,6 +12,7 @@
 
 #include <IceUtil/Handle.h>
 #include <IceUtil/Shared.h>
+#include <IceUtil/Mutex.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/Identity.h>
 
