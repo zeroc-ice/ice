@@ -16,14 +16,14 @@ TARGETS		= $(CLIENT) $(SERVER)
 
 OBJS		= Counter.o
 
-POBJS		= Client.o \
+COBJS		= Client.o \
 		  CounterObserverI.o
 
 SOBJS		= Server.o \
 		  CounterI.o
 
 SRCS		= $(OBJS:.o=.cpp) \
-		  $(POBJS:.o=.cpp) \
+		  $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp)
 
 SLICE_SRCS	= Counter.ice
@@ -33,9 +33,9 @@ include $(top_srcdir)/config/Make.rules
 CPPFLAGS	:= -I. $(CPPFLAGS)
 LIBS		:= -lIceStorm $(LIBS)
 
-$(CLIENT): $(OBJS) $(POBJS)
+$(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(POBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
