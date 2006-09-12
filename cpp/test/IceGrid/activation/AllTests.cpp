@@ -146,6 +146,20 @@ allTests(const Ice::CommunicatorPtr& communicator)
     admin->startServer("node-1");
     admin->startServer("node-2");
 
+    int nRetry = 0;
+    while(!admin->pingNode("node-1") && nRetry < 15)
+    {
+	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+	++nRetry;
+    }
+
+    nRetry = 0;
+    while(!admin->pingNode("node-2") && nRetry < 15)
+    {
+	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+	++nRetry;
+    }
+
     cout << "testing on-demand activation... " << flush;
     try
     {
@@ -539,7 +553,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	}	
 	test(!admin->isServerEnabled("server2"));
-	int nRetry = 0;
+	nRetry = 0;
 	while(!admin->isServerEnabled("server2") && nRetry < 15)
 	{
 	    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));

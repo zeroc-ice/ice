@@ -51,7 +51,7 @@ class Database : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 public:
 
     Database(const Ice::ObjectAdapterPtr&, const IceStorm::TopicManagerPrx&,
-	     const std::string&, int, const TraceLevelsPtr&);
+	     const std::string&, int, const TraceLevelsPtr&, bool);
     virtual ~Database();
     
     void destroy();
@@ -92,7 +92,8 @@ public:
     void addReplica(const std::string&, const ReplicaSessionIPtr&);
     RegistryInfo getReplicaInfo(const std::string&) const;
     InternalRegistryPrx getReplica(const std::string&) const;
-    void replicaReceivedUpdate(const std::string&, const std::string&, int);
+    void replicaReceivedUpdate(const std::string&, const std::string&, int, const std::string&);
+    void waitForApplicationReplication(const std::string&, int);
     void removeReplica(const std::string&, const ReplicaSessionIPtr&);
     Ice::StringSeq getAllReplicas(const std::string& = std::string());
 
@@ -183,6 +184,7 @@ private:
     AdminSessionI* _lock;
     std::string _lockUserId;
     int _applicationSerial;
+    int _replicaApplicationSerial;
     int _adapterSerial;
     int _objectSerial;
     std::set<std::string> _updating;

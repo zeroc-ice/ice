@@ -107,9 +107,9 @@ ReplicaSessionI::setAdapterDirectProxy(const string& adapterId,
 }
 
 void
-ReplicaSessionI::receivedUpdate(const string& update, int serial, const Ice::Current&)
+ReplicaSessionI::receivedUpdate(const string& update, int serial, const string& failure, const Ice::Current&)
 {
-    _database->replicaReceivedUpdate(_name, update, serial);
+    _database->replicaReceivedUpdate(_name, update, serial, failure);
 }
 
 void

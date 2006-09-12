@@ -40,7 +40,8 @@ public:
     virtual ~NodeI();
 
     virtual void loadServer_async(const AMD_Node_loadServerPtr&, const ServerInfo&, bool, const Ice::Current&);
-    virtual void destroyServer_async(const AMD_Node_destroyServerPtr&, const std::string&, const Ice::Current&);
+    virtual void destroyServer_async(const AMD_Node_destroyServerPtr&, const std::string&, const std::string&,
+				     int, const Ice::Current&);
     virtual void patch(const std::string&, const std::string&, const DistributionDescriptor&, bool,
 		       const Ice::Current&);
 
@@ -65,6 +66,7 @@ public:
     NodeSessionPrx registerWithRegistry(const InternalRegistryPrx&);
     void setObserver(const NodeObserverPrx&);
     void checkConsistency(const NodeSessionPrx&);
+    NodeSessionPrx getMasterNodeSession() const;
 
     void addServer(const std::string&, const ServerIPtr&);
     void removeServer(const std::string&, const ServerIPtr&);

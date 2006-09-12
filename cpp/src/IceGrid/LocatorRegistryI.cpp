@@ -278,15 +278,20 @@ LocatorRegistryI::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_set
 	    ReplicaSessionPrx session = _session.getSession();
 	    if(session)
 	    {
-		session->setAdapterDirectProxy_async(newMasterSetDirectProxyCB(cb), adapterId, "", proxy);
+		try
+		{
+		    session->setAdapterDirectProxy_async(newMasterSetDirectProxyCB(cb), adapterId, "", proxy);
+		    return;
+		}
+		catch(const Ice::LocalException&)
+		{
+		}
 	    }
-	    else
-	    {
-		//
-		// TODO: Add a better exception?
-		//
-		cb->ice_exception(Ice::AdapterNotFoundException());
-	    }
+
+	    //
+	    // TODO: Add a better exception?
+	    //
+	    cb->ice_exception(Ice::AdapterNotFoundException());
 	    return;
 	}
     }
@@ -351,15 +356,21 @@ LocatorRegistryI::setReplicatedAdapterDirectProxy_async(
 	    ReplicaSessionPrx session = _session.getSession();
 	    if(session)
 	    {
-		session->setAdapterDirectProxy_async(newMasterSetDirectProxyCB(cb), adapterId, replicaGroupId, proxy);
+		try
+		{
+		    session->setAdapterDirectProxy_async(newMasterSetDirectProxyCB(cb), adapterId, replicaGroupId, 
+							 proxy);
+		    return;
+		}
+		catch(const Ice::LocalException&)
+		{
+		}
 	    }
-	    else
-	    {
-		//
-		// TODO: Add a better exception?
-		//
-		cb->ice_exception(Ice::AdapterNotFoundException());
-	    }
+	    
+	    //
+	    // TODO: Add a better exception?
+	    //
+	    cb->ice_exception(Ice::AdapterNotFoundException());
 	    return;
 	}
     }

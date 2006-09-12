@@ -258,10 +258,10 @@ RegistryI::start(bool nowarn)
  					  registryTopicManagerId,
 					  "Registry");
 
-    int timeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.NodeSessionTimeout", 10);
-    timeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.InternalSessionTimeout", timeout);
+    int t = properties->getPropertyAsIntWithDefault("IceGrid.Registry.NodeSessionTimeout", 10);
+    t = properties->getPropertyAsIntWithDefault("IceGrid.Registry.InternalSessionTimeout", t);
 
-    _database = new Database(registryAdapter, _iceStorm->getTopicManager(), _instanceName, timeout, _traceLevels);
+    _database = new Database(registryAdapter, _iceStorm->getTopicManager(), _instanceName, t, _traceLevels, _master);
     _wellKnownObjects = new WellKnownObjectsManager(_database);
 
     InternalRegistryPrx internalRegistry;

@@ -58,8 +58,9 @@ public:
     void exception(const Ice::Exception&);
 
     virtual void allocated(const SessionIPtr&);
+    virtual void allocatedNoSync(const SessionIPtr&);
     virtual void released(const SessionIPtr&);
-    virtual bool release(const SessionIPtr&, bool);
+    virtual void releaseNoSync(const SessionIPtr&);
 
 private:
     

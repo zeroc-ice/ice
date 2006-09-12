@@ -19,7 +19,7 @@ namespace IceGrid
 {
 
 template<typename Key, typename Value>
-class Cache : public IceUtil::Mutex
+class Cache : public IceUtil::Monitor<IceUtil::Mutex>
 {
     typedef IceUtil::Handle<Value> ValuePtr;
     typedef std::map<Key, ValuePtr> ValueMap;
@@ -142,7 +142,7 @@ public:
     virtual std::vector<std::string>
     getAll(const std::string& expr)
     {
-	IceUtil::Mutex::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	return getMatchingKeys<std::map<std::string,TPtr> >(Cache<std::string, T>::_entries, expr);
     }
 };

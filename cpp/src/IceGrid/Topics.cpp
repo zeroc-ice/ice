@@ -197,7 +197,15 @@ RegistryObserverTopic::registryUp(const RegistryInfo& info)
     }
     updateSerial(_serial + 1);
     _registries.insert(make_pair(info.name, info));
-    _publisher->registryUp(info);
+    try
+    {
+	_publisher->registryUp(info);
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	Ice::Warning out(_publisher->ice_getCommunicator()->getLogger());
+	out << "unexpected exception while publishing `registryUp' update:\n" << ex;    
+    }
 }
 
 void 
@@ -212,7 +220,15 @@ RegistryObserverTopic::registryDown(const string& name)
     if(_registries.find(name) != _registries.end())
     {
 	_registries.erase(name);
-	_publisher->registryDown(name);
+	try
+	{
+	    _publisher->registryDown(name);
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    Ice::Warning out(_publisher->ice_getCommunicator()->getLogger());
+	    out << "unexpected exception while publishing `registryDown' update:\n" << ex;    
+	}
     }
 }
 
@@ -265,7 +281,15 @@ NodeObserverTopic::nodeUp(const NodeDynamicInfo& info, const Ice::Current& curre
     }
     updateSerial(_serial + 1);
     _nodes.insert(make_pair(info.info.name, info));
-    _publisher->nodeUp(info);
+    try
+    {
+	_publisher->nodeUp(info);
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	Ice::Warning out(_publisher->ice_getCommunicator()->getLogger());
+	out << "unexpected exception while publishing 'nodeUp' update:\n" << ex;    
+    }
 }
 
 void 
@@ -316,7 +340,15 @@ NodeObserverTopic::updateServer(const string& node, const ServerDynamicInfo& ser
 	servers.push_back(server);
     }
 
-    _publisher->updateServer(node, server);
+    try
+    {
+	_publisher->updateServer(node, server);
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	Ice::Warning out(_publisher->ice_getCommunicator()->getLogger());
+	out << "unexpected exception while publishing `updateServer' update:\n" << ex;    
+    }
 }
 
 void 
@@ -361,7 +393,15 @@ NodeObserverTopic::updateAdapter(const string& node, const AdapterDynamicInfo& a
 	adapters.push_back(adapter);
     }
     
-    _publisher->updateAdapter(node, adapter);
+    try
+    {
+	_publisher->updateAdapter(node, adapter);
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	Ice::Warning out(_publisher->ice_getCommunicator()->getLogger());
+	out << "unexpected exception while publishing `updateAdapter' update:\n" << ex;    
+    }
 }
 
 void 
@@ -378,7 +418,15 @@ NodeObserverTopic::nodeDown(const string& name)
     if(_nodes.find(name) != _nodes.end())
     {
 	_nodes.erase(name);
-	_publisher->nodeDown(name);
+	try
+	{
+	    _publisher->nodeDown(name);
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    Ice::Warning out(_publisher->ice_getCommunicator()->getLogger());
+	    out << "unexpected exception while publishing `nodeDown' update:\n" << ex;    
+	}
     }
 }
 
@@ -422,7 +470,15 @@ ApplicationObserverTopic::applicationInit(int serial, const ApplicationInfoSeq& 
     {
 	_applications.insert(make_pair(p->descriptor.name, *p));
     }
-    _publisher->applicationInit(serial, apps, getContext("application", serial));
+    try
+    {
+	_publisher->applicationInit(serial, apps, getContext("application", serial));
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	Ice::Warning out(_publisher->ice_getCommunicator()->getLogger());
+	out << "unexpected exception while publishing `applicationInit' update:\n" << ex;    
+    }
 }
 
 void 
@@ -435,7 +491,15 @@ ApplicationObserverTopic::applicationAdded(int serial, const ApplicationInfo& in
     }
     updateSerial(serial);
     _applications.insert(make_pair(info.descriptor.name, info));
-    _publisher->applicationAdded(serial, info, getContext("application", serial));
+    try
+    {
+	_publisher->applicationAdded(serial, info, getContext("application", serial));
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	Ice::Warning out(_publisher->ice_getCommunicator()->getLogger());
+	out << "unexpected exception while publishing `applicationAdded' update:\n" << ex;    
+    }
 }
 
 void 
@@ -448,7 +512,15 @@ ApplicationObserverTopic::applicationRemoved(int serial, const string& name)
     }
     updateSerial(serial);
     _applications.erase(name);
-    _publisher->applicationRemoved(serial, name, getContext("application", serial));
+    try
+    {
+	_publisher->applicationRemoved(serial, name, getContext("application", serial));
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	Ice::Warning out(_publisher->ice_getCommunicator()->getLogger());
+	out << "unexpected exception while publishing `applicationRemoved' update:\n" << ex;    
+    }
 }
 
 void 
@@ -492,7 +564,15 @@ ApplicationObserverTopic::applicationUpdated(int serial, const ApplicationUpdate
     {
 	assert(false);
     }
-    _publisher->applicationUpdated(serial, info, getContext("application", serial));
+    try
+    {
+	_publisher->applicationUpdated(serial, info, getContext("application", serial));
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	Ice::Warning out(_publisher->ice_getCommunicator()->getLogger());
+	out << "unexpected exception while publishing `applicationUpdated' update:\n" << ex;    
+    }
 }
 
 void 
@@ -537,7 +617,15 @@ AdapterObserverTopic::adapterInit(int serial, const AdapterInfoSeq& adpts)
     {
 	_adapters.insert(make_pair(q->id, *q));
     }
-    _publisher->adapterInit(adpts, getContext("adapter", serial));
+    try
+    {
+	_publisher->adapterInit(adpts, getContext("adapter", serial));
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	Ice::Warning out(_publisher->ice_getCommunicator()->getLogger());
+	out << "unexpected exception while publishing `adapterInit' update:\n" << ex;    
+    }
 }
 
 void 
@@ -550,7 +638,15 @@ AdapterObserverTopic::adapterAdded(int serial, const AdapterInfo& info)
     }
     updateSerial(serial);
     _adapters.insert(make_pair(info.id, info));
-    _publisher->adapterAdded(info, getContext("adapter", serial));
+    try
+    {
+	_publisher->adapterAdded(info, getContext("adapter", serial));
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	Ice::Warning out(_publisher->ice_getCommunicator()->getLogger());
+	out << "unexpected exception while publishing `adapterAdded' update:\n" << ex;    
+    }
 }
 
 void 
@@ -563,7 +659,15 @@ AdapterObserverTopic::adapterUpdated(int serial, const AdapterInfo& info)
     }
     updateSerial(serial);
     _adapters[info.id] = info;
-    _publisher->adapterUpdated(info, getContext("adapter", serial));
+    try
+    {
+	_publisher->adapterUpdated(info, getContext("adapter", serial));
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	Ice::Warning out(_publisher->ice_getCommunicator()->getLogger());
+	out << "unexpected exception while publishing `adapterUpdated' update:\n" << ex;    
+    }
 }
 
 void
@@ -576,7 +680,15 @@ AdapterObserverTopic::adapterRemoved(int serial, const string& id)
     }
     updateSerial(serial);
     _adapters.erase(id);
-    _publisher->adapterRemoved(id, getContext("adapter", serial));
+    try
+    {
+	_publisher->adapterRemoved(id, getContext("adapter", serial));
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	Ice::Warning out(_publisher->ice_getCommunicator()->getLogger());
+	out << "unexpected exception while publishing `adapterRemoved' update:\n" << ex;    
+    }
 }
 
 void 
@@ -620,7 +732,15 @@ ObjectObserverTopic::objectInit(int serial, const ObjectInfoSeq& objects)
     {
 	_objects.insert(make_pair(r->proxy->ice_getIdentity(), *r));
     }
-    _publisher->objectInit(objects, getContext("object", serial));
+    try
+    {
+	_publisher->objectInit(objects, getContext("object", serial));
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	Ice::Warning out(_publisher->ice_getCommunicator()->getLogger());
+	out << "unexpected exception while publishing `objectInit' update:\n" << ex;    
+    }
 }
 
 void 
@@ -633,7 +753,15 @@ ObjectObserverTopic::objectAdded(int serial, const ObjectInfo& info)
     }
     updateSerial(serial);
     _objects.insert(make_pair(info.proxy->ice_getIdentity(), info));
-    _publisher->objectAdded(info, getContext("object", serial));
+    try
+    {
+	_publisher->objectAdded(info, getContext("object", serial));
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	Ice::Warning out(_publisher->ice_getCommunicator()->getLogger());
+	out << "unexpected exception while publishing `objectAdded' update:\n" << ex;    
+    }
 }
 
 void 
@@ -646,7 +774,15 @@ ObjectObserverTopic::objectUpdated(int serial, const ObjectInfo& info)
     }
     updateSerial(serial);
     _objects[info.proxy->ice_getIdentity()] = info;
-    _publisher->objectUpdated(info, getContext("object", serial));
+    try
+    {
+	_publisher->objectUpdated(info, getContext("object", serial));
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	Ice::Warning out(_publisher->ice_getCommunicator()->getLogger());
+	out << "unexpected exception while publishing `objectUpdated' update:\n" << ex;    
+    }
 }
 
 void
@@ -659,7 +795,15 @@ ObjectObserverTopic::objectRemoved(int serial, const Ice::Identity& id)
     }
     updateSerial(serial);
     _objects.erase(id);
-    _publisher->objectRemoved(id, getContext("object", serial));
+    try
+    {
+	_publisher->objectRemoved(id, getContext("object", serial));
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	Ice::Warning out(_publisher->ice_getCommunicator()->getLogger());
+	out << "unexpected exception while publishing `objectRemoved' update:\n" << ex;    
+    }
 }
 
 void 

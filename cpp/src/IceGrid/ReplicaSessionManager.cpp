@@ -38,36 +38,58 @@ public:
     virtual void 
     applicationAdded(int, const ApplicationInfo& application, const Ice::Current& current)
     {
+	string failure;
 	try
 	{
 	    _database->addApplication(application);
 	}
 	catch(const DeploymentException& ex)
 	{
-	    cerr << ex.reason << endl;
+	    ostringstream os;
+	    os << ex << ":\n" << ex.reason;
+	    failure = os.str();
 	}
-	_manager.receivedUpdate("application", getSerial(current.ctx, "application"));
+	_manager.receivedUpdate("application", getSerial(current.ctx, "application"), failure);
     }
 
     virtual void 
     applicationRemoved(int, const std::string& name, const Ice::Current& current)
     {
+	string failure;
 	try
 	{
 	    _database->removeApplication(name);
 	}
-	catch(const Ice::Exception& ex)
+	catch(const ApplicationNotExistException& ex)
 	{
-	    cerr << ex << endl;
+	    ostringstream os;
+	    os << ex << ":\napplication: " << ex.name;
+	    failure = os.str();
 	}
-	_manager.receivedUpdate("application", getSerial(current.ctx, "application"));
+	_manager.receivedUpdate("application", getSerial(current.ctx, "application"), failure);
     }
 
     virtual void 
     applicationUpdated(int, const ApplicationUpdateInfo& update, const Ice::Current& current)
     {
-	_database->updateApplication(update);
-	_manager.receivedUpdate("application", getSerial(current.ctx, "application"));
+	string failure;
+	try
+	{
+	    _database->updateApplication(update);
+	}
+	catch(const DeploymentException& ex)
+	{
+	    ostringstream os;
+	    os << ex << ":\n" << ex.reason;
+	    failure = os.str();
+	}
+	catch(const ApplicationNotExistException& ex)
+	{
+	    ostringstream os;
+	    os << ex << ":\napplication: " << ex.name;
+	    failure = os.str();
+	}
+	_manager.receivedUpdate("application", getSerial(current.ctx, "application"), failure);
     }
 
     virtual void
@@ -79,22 +101,34 @@ public:
     virtual void 
     adapterAdded(const AdapterInfo& info, const Ice::Current& current)
     {
-	_database->setAdapterDirectProxy(info.id, info.replicaGroupId, info.proxy);
-	_manager.receivedUpdate("adapter", getSerial(current.ctx, "adapter"));
+	string failure;
+	if(!_database->setAdapterDirectProxy(info.id, info.replicaGroupId, info.proxy))
+	{
+	    failure = "adapter `" + info.id + "' already exists and belongs to an application";
+	}
+	_manager.receivedUpdate("adapter", getSerial(current.ctx, "adapter"), failure);
     }
 
     virtual void 
     adapterUpdated(const AdapterInfo& info, const Ice::Current& current)
     {
-	_database->setAdapterDirectProxy(info.id, info.replicaGroupId, info.proxy);
-	_manager.receivedUpdate("adapter", getSerial(current.ctx, "adapter"));
+	string failure;
+	if(!_database->setAdapterDirectProxy(info.id, info.replicaGroupId, info.proxy))
+	{
+	    failure = "adapter `" + info.id + "' already exists and belongs to an application";
+	}
+	_manager.receivedUpdate("adapter", getSerial(current.ctx, "adapter"), failure);
     }
 
     virtual void 
     adapterRemoved(const std::string& id, const Ice::Current& current)
     {
-	_database->setAdapterDirectProxy(id, "", 0);
-	_manager.receivedUpdate("adapter", getSerial(current.ctx, "adapter"));
+	string failure;
+	if(!_database->setAdapterDirectProxy(id, "", 0))
+	{
+	    failure = "adapter `" + id + "' already exists and belongs to an application";
+	}
+	_manager.receivedUpdate("adapter", getSerial(current.ctx, "adapter"), failure);
     }
 
     virtual void
@@ -106,22 +140,56 @@ public:
     virtual void 
     objectAdded(const ObjectInfo& info, const Ice::Current& current)
     {
-	_database->addObject(info, false);
-	_manager.receivedUpdate("object", getSerial(current.ctx, "object"));
+	string failure;
+	try
+	{
+	    _database->addObject(info, true);
+	}
+	catch(const ObjectExistsException& ex)
+	{
+	    ostringstream os;
+	    os << ex << ":\n";
+	    os << "id: " << info.proxy->ice_getCommunicator()->identityToString(info.proxy->ice_getIdentity());
+	    failure = os.str();
+	}
+	_manager.receivedUpdate("object", getSerial(current.ctx, "object"), failure);
     }
 
     virtual void 
     objectUpdated(const ObjectInfo& info, const Ice::Current& current)
     {
-	_database->updateObject(info.proxy);
-	_manager.receivedUpdate("object", getSerial(current.ctx, "object"));
+	string failure;
+	try
+	{
+	    _database->addObject(info, true);
+	}
+	catch(const DeploymentException& ex)
+	{
+	    ostringstream os;
+	    os << ex << ":\n" << ex.reason;
+	    failure = os.str();
+	}
+	_manager.receivedUpdate("object", getSerial(current.ctx, "object"), failure);
     }
 
     virtual void 
     objectRemoved(const Ice::Identity& id, const Ice::Current& current)
     {
-	_database->removeObject(id);
-	_manager.receivedUpdate("object", getSerial(current.ctx, "object"));
+	string failure;
+	try
+	{
+	    _database->removeObject(id);
+	}
+	catch(const DeploymentException& ex)
+	{
+	    ostringstream os;
+	    os << ex << ":\n" << ex.reason;
+	    failure = os.str();
+	}
+	catch(const ObjectNotRegisteredException& ex)
+	{
+	}
+	_manager.receivedUpdate("object", getSerial(current.ctx, "object"), failure);
     }
 
 private:
@@ -237,12 +305,22 @@ ReplicaSessionManager::destroy()
 }
 
 void
-ReplicaSessionManager::receivedUpdate(const string& update, int serial)
+ReplicaSessionManager::receivedUpdate(const string& update, int serial, const string& failure)
 {
     ReplicaSessionPrx session = _thread->getSession();
     if(session)
     {
-	session->receivedUpdate(update, serial);
+	try
+	{
+	    session->receivedUpdate(update, serial, failure);
+	}
+	catch(const Ice::LocalException&)
+	{
+	}
+    }
+    if(!failure.empty())
+    {
+	_thread->destroyActiveSession();
     }
 }
 
@@ -312,7 +390,7 @@ ReplicaSessionManager::createSession(const InternalRegistryPrx& registry, IceUti
 	int t = session->getTimeout();
 	if(t > 0)
 	{
-	    timeout = IceUtil::Time::seconds(t);
+	    timeout = IceUtil::Time::seconds(t / 2);
 	}
 
 	//

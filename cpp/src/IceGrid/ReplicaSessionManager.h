@@ -41,7 +41,7 @@ public:
     NodePrxSeq getNodes() const;
     void destroy();
 
-    void receivedUpdate(const std::string&, int);
+    void receivedUpdate(const std::string&, int, const std::string&);
     void registerAllWellKnownObjects();
     ReplicaSessionPrx getSession() const { return _thread->getSession(); }
 

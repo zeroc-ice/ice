@@ -80,7 +80,7 @@ public:
     virtual void checkAllocatable();
     virtual bool allocate(const AllocationRequestPtr&, bool = false);
     virtual bool tryAllocate(const AllocationRequestPtr&, bool = false);
-    virtual bool release(const SessionIPtr&, bool = false);
+    virtual void release(const SessionIPtr&, bool = false);
 
     bool isAllocatable() const { return _allocatable; }
     SessionIPtr getSession() const;
@@ -88,6 +88,9 @@ public:
     virtual void allocated(const SessionIPtr&) = 0;
     virtual void released(const SessionIPtr&) = 0;
     virtual bool canTryAllocate() { return false; }
+
+    virtual void allocatedNoSync(const SessionIPtr&) { ; }
+    virtual void releasedNoSync(const SessionIPtr&) { ; }
 
     bool operator<(const Allocatable&) const;
 

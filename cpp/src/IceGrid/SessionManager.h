@@ -28,6 +28,7 @@ class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<I
 	Disconnected,
 	Connected,
 	Retry,
+	DestroySession,
 	Destroyed
     };
 
@@ -46,6 +47,7 @@ public:
 	FPrx factory = _factory;
 	bool updateState = false;
 	IceUtil::Time timeout = IceUtil::Time::seconds(10); 
+	bool destroy = false;
 
 	while(true)
 	{
@@ -116,9 +118,9 @@ public:
 	    {
 		Lock sync(*this);
 		
-		if(_state != Destroyed && _state != Retry)
+		if(_state == Connected || _state == Disconnected)
 		{
-		    timedWait(timeout); // TODO: XXX: Timeout / 2 instead?
+		    timedWait(timeout);
 		}
 		
 		if(_state == Destroyed)
@@ -126,8 +128,21 @@ public:
 		    break;
 		}
 		
-		updateState = _state == Retry;
+		if(_state == DestroySession && session)
+		{
+		    destroy = true;
+		}
+
+		updateState = _state == Retry || _state == DestroySession;
 		factory = _factory;
+	    }
+
+	    if(destroy)
+	    {
+		assert(session);
+		destroySession(session);
+		destroy = false;
+		session = 0;
 	    }
 	}
 	
@@ -181,6 +196,14 @@ public:
 	    }
 	}	
 	return true;
+    }
+
+    void
+    destroyActiveSession()
+    {
+	Lock sync(*this);
+	_state = DestroySession;
+	notifyAll();	
     }
 
     void

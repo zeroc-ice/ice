@@ -248,33 +248,25 @@ NodeI::loadServer_async(const AMD_Node_loadServerPtr& amdCB,
 }
 
 void
-NodeI::destroyServer_async(const AMD_Node_destroyServerPtr& amdCB, const string& serverId, const Ice::Current& current)
+NodeI::destroyServer_async(const AMD_Node_destroyServerPtr& amdCB, 
+			   const string& serverId, 
+			   const string& uuid, 
+			   int revision,
+			   const Ice::Current& current)
 {
     Lock sync(*this);
     ++_serial;
 
     ServerIPtr server = ServerIPtr::dynamicCast(_adapter->find(createServerIdentity(serverId)));
-    if(server)
+    if(!server)
     {
-	//
-	// Destroy the server object if it's loaded.
-	//
-	server->destroy(amdCB);
+	server = new ServerI(this, 0, _serversDir, serverId, _waitTime);
     }
-    else
-    {
-	//
-	// Delete the server directory from the disk.
-	//
-	try
-	{
-	    removeRecursive(_serversDir + "/" + serverId);
-	}
-	catch(const string&)
-	{
-	}
-	amdCB->ice_response();
-    }
+    
+    //
+    // Destroy the server object if it's loaded.
+    //
+    server->destroy(amdCB, uuid, revision);
 }
 
 void
@@ -667,7 +659,7 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
 		//
 		try
 		{
-		    server->destroy(0);
+		    server->destroy(0, "", 0);
 		    p = remove.erase(p);
 		    continue;
 		}
@@ -766,6 +758,12 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
 	Ice::Warning out(_traceLevels->logger);
 	out << "rotation failed: " << msg;
     }
+}
+
+NodeSessionPrx
+NodeI::getMasterNodeSession() const
+{
+    return _sessions.getMasterNodeSession();
 }
 
 bool

@@ -113,10 +113,17 @@ InternalRegistryI::registerNode(const std::string& name,
 				const NodeInfo& info,
 				const Ice::Current& current)
 {
-    NodeSessionIPtr session = new NodeSessionI(_database, name, node, info);
-    NodeSessionPrx proxy = NodeSessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
-    _reaper->add(new SessionReapable<NodeSessionI>(current.adapter, session, proxy), _timeout);
-    return proxy;
+    try
+    {
+	NodeSessionIPtr session = new NodeSessionI(_database, name, node, info);
+	NodeSessionPrx proxy = NodeSessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
+	_reaper->add(new SessionReapable<NodeSessionI>(current.adapter, session, proxy), _timeout);
+	return proxy;
+    }
+    catch(const Ice::ObjectAdapterDeactivatedException&)
+    {
+	throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
+    }
 }
 
 ReplicaSessionPrx
@@ -126,10 +133,18 @@ InternalRegistryI::registerReplica(const std::string& name,
 				   const DatabaseObserverPrx& dbObserver,
 				   const Ice::Current& current)
 {
-    ReplicaSessionIPtr session = new ReplicaSessionI(_database, _wellKnownObjects, name, info, registry, dbObserver);
-    ReplicaSessionPrx proxy = ReplicaSessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
-    _reaper->add(new SessionReapable<ReplicaSessionI>(current.adapter, session, proxy), _timeout);
-    return proxy;
+    try
+    {
+	ReplicaSessionIPtr session = new ReplicaSessionI(_database, _wellKnownObjects, name, info, registry, 
+							 dbObserver);
+	ReplicaSessionPrx proxy = ReplicaSessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
+	_reaper->add(new SessionReapable<ReplicaSessionI>(current.adapter, session, proxy), _timeout);
+	return proxy;
+    }
+    catch(const Ice::ObjectAdapterDeactivatedException&)
+    {
+	throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
+    }
 }
 
 void

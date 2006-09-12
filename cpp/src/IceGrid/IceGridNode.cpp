@@ -244,6 +244,28 @@ NodeService::start(int argc, char* argv[])
 	properties->setProperty("IceGrid.Node.ThreadPool.SizeMax", os.str());
     }
 
+    size = properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Client.Size", 0);
+    if(size <= 0)
+    {
+	properties->setProperty("Ice.ThreadPool.Client.Size", "1");
+	size = 1;
+    }
+    sizeMax = properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Client.SizeMax", 0);
+    if(sizeMax <= 0)
+    {
+	if(size >= sizeMax)
+	{
+	    sizeMax = size * 10;
+	}
+	if(sizeMax < 100)
+	{
+	    sizeMax = 100;
+	}
+	ostringstream os;
+	os << sizeMax;
+	properties->setProperty("Ice.ThreadPool.Client.SizeMax", os.str());
+    }
+
     //
     // Create the activator.
     //
@@ -517,6 +539,9 @@ NodeService::start(int argc, char* argv[])
 	//
 	// We wait for the node to be registered with the registry
 	// before to claim it's ready.
+	//
+	// TODO: XXX: That's not correct. The node can't be
+	// interrupted if we wait here...
 	//
 	_sessions.waitForCreate();
 	print(bundleName + " ready");

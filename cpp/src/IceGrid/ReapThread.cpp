@@ -26,7 +26,13 @@ ReapThread::run()
     {
 	{
 	    Lock sync(*this);
+	    if(_terminated)
+	    {
+		break;
+	    }
+
 	    calcWakeInterval();
+
 	    //
 	    // If the wake interval is zero then we wait forever.
 	    //

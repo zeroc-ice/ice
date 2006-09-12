@@ -134,6 +134,18 @@ public:
 	    os << ex;
  	    _server->exception(NodeUnreachableException(_node, os.str()));
 	}
+	catch(const DeploymentException& ex)
+	{
+	    if(_traceLevels && _traceLevels->server > 1)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
+		out << "couldn't unload `" << _id << "' on node `" << _node << "':\n" << ex.reason;
+	    }
+
+	    ostringstream os;
+	    os << "couldn't unload `" << _id << "' on node `" << _node << "':\n" << ex.reason;
+	    _server->exception(DeploymentException(os.str()));
+	}
 	catch(const Ice::Exception& ex)
 	{
 	    if(_traceLevels && _traceLevels->server > 1)
@@ -279,23 +291,6 @@ NodeEntry::setSession(const NodeSessionIPtr& session)
 	{
 	    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->nodeCat);
 	    out << "node `" << _name << "' up";
-	}
-
-	ServerEntrySeq entries;
-	{
-	    Lock sync(*this);
-	    for(map<string, ServerEntryPtr>::const_iterator q = _servers.begin() ; q != _servers.end(); ++q)
-	    {
-		entries.push_back(q->second);
-	    }
-	}
-
-	try
-	{
-	    for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
-	}
-	catch(const DeploymentException&)
-	{
 	}
     }
     else
@@ -460,17 +455,17 @@ NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, con
 }
 
 void
-NodeEntry::destroyServer(const ServerEntryPtr& entry, const string& id)
+NodeEntry::destroyServer(const ServerEntryPtr& entry, const ServerInfo& info)
 {
     try
     {
 	if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 2)
 	{
 	    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
-	    out << "unloading `" << id << "' on node `" << _name << "'";	
+	    out << "unloading `" << info.descriptor->id << "' on node `" << _name << "'";	
 	}
-	AMI_Node_destroyServerPtr amiCB = new DestroyCB(_cache.getTraceLevels(), entry, id, _name);
-	getProxy()->destroyServer_async(amiCB, id);
+	AMI_Node_destroyServerPtr amiCB = new DestroyCB(_cache.getTraceLevels(), entry, info.descriptor->id, _name);
+	getProxy()->destroyServer_async(amiCB, info.descriptor->id, info.uuid, info.revision);
     }
     catch(const NodeUnreachableException& ex)
     {

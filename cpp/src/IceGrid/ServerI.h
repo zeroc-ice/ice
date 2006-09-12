@@ -90,7 +90,7 @@ public:
 
     void start(ServerActivation, const AMD_Server_startPtr& = AMD_Server_startPtr());
     void load(const AMD_Node_loadServerPtr&, const ServerInfo&, bool);
-    void destroy(const AMD_Node_destroyServerPtr&);
+    void destroy(const AMD_Node_destroyServerPtr&, const std::string&, int);
     bool startPatch(bool);
     bool waitForPatch();
     void finishPatch();
@@ -153,6 +153,7 @@ private:
     IceUtil::Time _failureTime;
     ServerActivation _previousActivation;
     WaitItemPtr _timer;
+    bool _waitForReplication;
 
     DestroyCommandPtr _destroy;
     StopCommandPtr _stop;

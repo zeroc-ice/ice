@@ -205,7 +205,7 @@ Allocatable::tryAllocate(const AllocationRequestPtr& request, bool fromRelease)
     }
 }
 
-bool
+void
 Allocatable::release(const SessionIPtr& session, bool fromRelease)
 {
     bool isReleased = false;
@@ -218,6 +218,7 @@ Allocatable::release(const SessionIPtr& session, bool fromRelease)
 	    {
 		wait();
 	    }
+	    assert(!_releasing);
 	}
 
 	if(!_session || _session != session)
@@ -230,93 +231,95 @@ Allocatable::release(const SessionIPtr& session, bool fromRelease)
 	    _session = 0;
 
 	    released(session);
+	    
+	    isReleased = true;
 
-	    if(!_releasing)
+	    if(!fromRelease && !_requests.empty())
 	    {
-		if(!_requests.empty())
-		{
-		    assert(!_parent);
-		    _releasing = true; // Prevent new allocations.
-		    hasRequests = true;
-		}
-		
-		isReleased = true;
+		assert(!_parent);
+		_releasing = true; // Prevent new allocations.
+		hasRequests = true;
 	    }
 	}
+    }
+
+    if(isReleased)
+    {
+	releasedNoSync(session);
     }
 
     if(_parent)
     {
-	return _parent->release(session, fromRelease);
+	_parent->release(session, fromRelease);
     }
-
-    if(hasRequests)
+    else if(!fromRelease)
     {
-	while(true)
+	if(hasRequests)
 	{
-	    AllocationRequestPtr request;
-	    AllocatablePtr allocatable = dequeueAllocationAttempt(request);
-	    if(!allocatable)
+	    while(true)
 	    {
-		Lock sync(*this);
-		assert(_count == 0 && _requests.empty());
-		_releasing = false;
-		notifyAll();
-		return true;
-	    }
-	    
-	    //
-	    // Try to allocate the allocatable with the request or if
-	    // there's no request, just notify the allocatable that it can
-	    // be allocated again.
-	    //
-	    if(request && allocatable->allocate(request, true) || !request && allocatable->canTryAllocate())
-	    {
-		while(true)
+		AllocationRequestPtr request;
+		AllocatablePtr allocatable = dequeueAllocationAttempt(request);
+		if(!allocatable)
 		{
+		    Lock sync(*this);
+		    assert(_count == 0 && _requests.empty());
+		    _releasing = false;
+		    notifyAll();
+		    return;
+		}
+	    
+		//
+		// Try to allocate the allocatable with the request or if
+		// there's no request, just notify the allocatable that it can
+		// be allocated again.
+		//
+		if(request && allocatable->allocate(request, true) || !request && allocatable->canTryAllocate())
+		{
+		    while(true)
 		    {
-			Lock sync(*this);
-			assert(_count);
+			{
+			    Lock sync(*this);
+			    assert(_count);
 			
-			allocatable = 0;
-			request = 0;
+			    allocatable = 0;
+			    request = 0;
 
-			//
-			// Check if there's other requests from the session
-			// waiting to allocate this allocatable.
-			//
-			list<pair<AllocatablePtr, AllocationRequestPtr> >::iterator p = _requests.begin();
-			while(p != _requests.end())
-			{
-			    if(p->second && p->second->getSession() == _session)
+			    //
+			    // Check if there's other requests from the session
+			    // waiting to allocate this allocatable.
+			    //
+			    list<pair<AllocatablePtr, AllocationRequestPtr> >::iterator p = _requests.begin();
+			    while(p != _requests.end())
 			    {
-				allocatable = p->first;
-				request = p->second;
-				_requests.erase(p);
-				break;
+				if(p->second && p->second->getSession() == _session)
+				{
+				    allocatable = p->first;
+				    request = p->second;
+				    _requests.erase(p);
+				    break;
+				}
+				++p;
+			    }			
+			    if(!allocatable)
+			    {
+				_releasing = false;
+				notifyAll();
+				return; // We're done, the allocatable was released (but is allocated again)!
 			    }
-			    ++p;
-			}			
-			if(!allocatable)
-			{
-			    _releasing = false;
-			    notifyAll();
-			    return true; // We're done, the allocatable was released (but is allocated again)!
 			}
-		    }
 
-		    assert(allocatable && request);
-		    allocatable->allocate(request, true);
+			assert(allocatable && request);
+			allocatable->allocate(request, true);
+		    }
 		}
 	    }
 	}
+	else if(isReleased)
+	{
+	    canTryAllocate(); // Notify that this allocatable can be allocated.
+	}
     }
-    else if(isReleased)
-    {
-	canTryAllocate(); // Notify that this allocatable can be allocated.
-	return true; // The allocatable was released.
-    }
-    return false;
 }
 
 SessionIPtr
@@ -383,7 +386,8 @@ Allocatable::allocate(const AllocationRequestPtr& request, bool tryAllocate, boo
     {
 	return false;
     }
-
+    
+    bool allocationCount = 0;
     try
     {
 	Lock sync(*this);
@@ -406,7 +410,7 @@ Allocatable::allocate(const AllocationRequestPtr& request, bool tryAllocate, boo
 		assert(_count == 0);
 		_session = request->getSession();
 		++_count;
-		return true; // Allocated
+		allocationCount = _count;
 	    }
 	}
 	else if(_session == request->getSession())
@@ -416,7 +420,7 @@ Allocatable::allocate(const AllocationRequestPtr& request, bool tryAllocate, boo
 		assert(_count > 0);
 		++_count;
 		request->allocated(this, _session);
-		return true; // Allocated
+		allocationCount = _count;
 	    }
 	}
 	else
@@ -440,12 +444,16 @@ Allocatable::allocate(const AllocationRequestPtr& request, bool tryAllocate, boo
 	}
 	throw ex;
     }
-    
-    if(_parent)
+
+    if(allocationCount == 1)
+    {
+	allocatedNoSync(request->getSession());
+    }
+    else if(allocationCount == 0 && _parent)
     {
 	_parent->release(request->getSession(), fromRelease);
     }
-    return false;
+    return allocationCount > 0;
 }
 
 bool
@@ -460,30 +468,37 @@ Allocatable::allocateFromChild(const AllocationRequestPtr& request,
     {
 	return false;
     }
-
-    Lock sync(*this);
-    if((!_session || _session == request->getSession()) && (fromRelease || !_releasing))
+    
+    int allocationCount = 0;
     {
-	if(!_session)
+	Lock sync(*this);
+	if((!_session || _session == request->getSession()) && (fromRelease || !_releasing))
 	{
-	    try
+	    if(!_session)
 	    {
-		allocated(request->getSession());
+		try
+		{
+		    allocated(request->getSession());
+		}
+		catch(const SessionDestroyedException&)
+		{
+		    // Ignore
+		}
 	    }
-	    catch(const SessionDestroyedException&)
-	    {
-		// Ignore
-	    }
+	    _session = request->getSession();
+	    ++_count;
+	    allocationCount = _count;
 	}
-	_session = request->getSession();
-	++_count;
-	return true; // Allocated	    
-    }
-    else
-    {
-	queueAllocationAttempt(child, request, tryAllocate);
+	else
+	{
+	    queueAllocationAttempt(child, request, tryAllocate);
+	}
     }
 
-    return false;
+    if(allocationCount == 1)
+    {
+	allocatedNoSync(request->getSession());
+    }
+    return allocationCount > 0;
 }
 

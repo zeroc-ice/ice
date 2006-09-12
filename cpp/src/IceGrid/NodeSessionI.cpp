@@ -81,6 +81,19 @@ NodeSessionI::getObserver(const Ice::Current& current) const
     }
 }
 
+void
+NodeSessionI::loadServers(const Ice::Current& current) const
+{
+    //
+    // Get the server proxies to load them on the node.
+    //
+    Ice::StringSeq servers = _database->getAllNodeServers(_name);
+    for(Ice::StringSeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
+    {
+	_database->getServer(*p);
+    }
+}
+
 Ice::StringSeq
 NodeSessionI::getServers(const Ice::Current& current) const
 {
@@ -88,8 +101,20 @@ NodeSessionI::getServers(const Ice::Current& current) const
 }
 
 void
+NodeSessionI::waitForApplicationReplication(const std::string& application, int revision, const Ice::Current&) const
+{
+    _database->waitForApplicationReplication(application, revision);
+}
+
+void
 NodeSessionI::destroy(const Ice::Current& current)
 {
+    //
+    // TODO: XXX: If we set destroy to true now, it's possible that
+    // the node calls keepAlive on the sesion and tries to create the
+    // session after getting the ONE and before the node is removed 
+    // from the db...
+    //
     {
 	Lock sync(*this);
 	if(_destroy)

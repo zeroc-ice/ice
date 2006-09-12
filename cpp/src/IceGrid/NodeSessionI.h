@@ -30,7 +30,9 @@ public:
     virtual void keepAlive(const LoadInfo&, const Ice::Current&);
     virtual int getTimeout(const Ice::Current&) const;
     virtual NodeObserverPrx getObserver(const Ice::Current&) const;
+    virtual void loadServers(const Ice::Current&) const;
     virtual Ice::StringSeq getServers(const Ice::Current&) const;
+    virtual void waitForApplicationReplication(const std::string&, int, const Ice::Current&) const;
     virtual void destroy(const Ice::Current&);
     
     const NodePrx& getNode() const;

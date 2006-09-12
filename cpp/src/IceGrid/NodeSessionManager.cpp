@@ -47,7 +47,7 @@ NodeSessionKeepAliveThread::createSession(const InternalRegistryPrx& registry, I
 	int t = session->getTimeout();
 	if(t > 0)
 	{
-	    timeout = IceUtil::Time::seconds(t);
+	    timeout = IceUtil::Time::seconds(t / 2);
 	}
 	
 	if(traceLevels && traceLevels->replica > 0)
@@ -150,6 +150,14 @@ NodeSessionManager::create(const NodeIPtr& node)
 
     _thread = new Thread(*this, _master);
     _thread->start();
+    
+    //
+    // We can't wait for the session to be created here as the node
+    // adapter isn't activated yet and the registry would hang trying
+    // to load the servers on the node (when createSession invokes
+    // loadServers() on the session).
+    //
+    //_thread->tryCreateSession(_master);
 }
 
 void
@@ -273,6 +281,7 @@ NodeSessionManager::syncReplicas(const InternalRegistryPrxSeq& replicas)
 	{
 	    thread = new NodeSessionKeepAliveThread(*p, _node);
 	    thread->start();
+	    thread->tryCreateSession(*p);
 	}
 	_sessions.insert(make_pair((*p)->ice_getIdentity(), thread));
     }
@@ -309,7 +318,7 @@ NodeSessionManager::createSession(const InternalRegistryPrx& registry, IceUtil::
 	int t = session->getTimeout();
 	if(t > 0)
 	{
-	    timeout = IceUtil::Time::seconds(t);
+	    timeout = IceUtil::Time::seconds(t / 2);
 	}
 
 	if(traceLevels && traceLevels->replica > 0)
@@ -332,16 +341,6 @@ NodeSessionManager::createSession(const InternalRegistryPrx& registry, IceUtil::
 	    Ice::Trace out(traceLevels->logger, traceLevels->replicaCat);
 	    out << "failed to establish session with master replica:\n" << ex;
 	}
-    }
-
-    if(session)
-    {
-	_node->setObserver(session->getObserver());
-	_node->checkConsistency(session);
-    }
-    else
-    {
-	_node->setObserver(0);
     }
 
     //
@@ -380,6 +379,35 @@ NodeSessionManager::createSession(const InternalRegistryPrx& registry, IceUtil::
 		    replicas.push_back(InternalRegistryPrx::uncheckedCast(*p));
 		}
 	    }
+	}
+    }
+    catch(const Ice::LocalException&)
+    {
+	// IGNORE
+    }
+
+    //
+    // Ask the master to load the servers on the node. Once this is
+    // done we check the consistency of the node to make sure old
+    // servers are removed.
+    //
+    // NOTE: it's important for this to be done after trying to
+    // register with the replicas. When the master loads the server
+    // some server might get activated and it's better if at that time
+    // the registry replicas (at least the ones which are up) have all
+    // established their session with the node.
+    //
+    try
+    {
+	if(session)
+	{
+	    session->loadServers();
+	    _node->setObserver(session->getObserver());
+	    _node->checkConsistency(session);
+	}
+	else
+	{
+	    _node->setObserver(0);
 	}
     }
     catch(const Ice::LocalException&)

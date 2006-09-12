@@ -202,7 +202,8 @@ interface Node
      * Destroy the given server.
      *
      **/
-    ["amd", "ami"] idempotent void destroyServer(string name);
+    ["amd", "ami"] idempotent void destroyServer(string name, string uuid, int revision)
+	throws DeploymentException;
 
     /**
      *
@@ -304,10 +305,24 @@ interface NodeSession
 
     /**
      *
+     * Ask the registry to load the servers on the node.
+     * 
+     **/
+    ["nonmutating", "cpp:const"] idempotent void loadServers();
+
+    /**
+     *
      * Get the name of the servers deployed on the node.
      *
      **/
     ["nonmutating", "cpp:const"] idempotent Ice::StringSeq getServers();
+
+    /**
+     *
+     * Wait for the replication of the given application to be done.
+     *
+     **/
+    ["ami", "cpp:const"] void waitForApplicationReplication(string application, int revision);
 
     /**
      *
@@ -376,7 +391,7 @@ interface ReplicaSession
      * before to continue.
      *
      **/
-    void receivedUpdate(string name, int serial); 
+    void receivedUpdate(string name, int serial, string failure); 
 
     /**
      *

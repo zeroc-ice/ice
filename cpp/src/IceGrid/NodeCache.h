@@ -52,7 +52,7 @@ public:
     bool canRemove();
     
     void loadServer(const ServerEntryPtr&, const ServerInfo&, const SessionIPtr&);
-    void destroyServer(const ServerEntryPtr&, const std::string&);
+    void destroyServer(const ServerEntryPtr&, const ServerInfo&);
     ServerInfo getServerInfo(const ServerInfo&, const SessionIPtr&);
 
 private:

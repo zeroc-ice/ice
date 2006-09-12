@@ -93,7 +93,8 @@ ServerCache::add(const ServerInfo& info)
     if(_traceLevels && _traceLevels->server > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-	out << "added server `" << info.descriptor->id << "'";	
+
+	out << "added server `" << info.descriptor->id << "' (`" << info.uuid << "', `" << info.revision << "')";
     }
 
     return entry;
@@ -598,7 +599,7 @@ ServerEntry::syncImpl(bool waitForUpdate)
     {
 	try
 	{
-	    _cache.getNodeCache().get(destroy.node)->destroyServer(this, destroy.descriptor->id);
+	    _cache.getNodeCache().get(destroy.node)->destroyServer(this, destroy);
 	}
 	catch(NodeNotExistException&)
 	{
@@ -704,7 +705,7 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
     {
 	try
 	{
-	    _cache.getNodeCache().get(destroy.node)->destroyServer(this, destroy.descriptor->id);
+	    _cache.getNodeCache().get(destroy.node)->destroyServer(this, destroy);
 	}
 	catch(NodeNotExistException&)
 	{
@@ -896,6 +897,22 @@ ServerEntry::allocated(const SessionIPtr& session)
 }
 
 void
+ServerEntry::allocatedNoSync(const SessionIPtr& session)
+{
+    {
+	Lock sync(*this);
+	if(!_updated || 
+	   _loaded.get() && _loaded->descriptor->activation != "session" || 
+	   _load.get() && _load->descriptor->activation != "session")
+	{
+		return;
+	}
+    }
+    
+    syncImpl(true); // We sync here to ensure the "session" server will be activated.
+}
+
+void
 ServerEntry::released(const SessionIPtr& session)
 {
     assert(_loaded.get() || _load.get());
@@ -969,29 +986,18 @@ ServerEntry::released(const SessionIPtr& session)
     }
 }
 
-bool
-ServerEntry::release(const SessionIPtr& session, bool fromRelease)
+void
+ServerEntry::releaseNoSync(const SessionIPtr& session)
 {
-    bool released = Allocatable::release(session, fromRelease);
-    
-    //
-    // If this server was released (and not from another release
-    // call), we check if it needs to be synced.
-    //
-    if(released && !fromRelease)
     {
+	Lock sync(*this);
+	if(!_updated || 
+	   _loaded.get() && _loaded->descriptor->activation != "session" || 
+	   _load.get() && _load->descriptor->activation != "session")
 	{
-	    Lock sync(*this);
-	    if(!_updated || 
-	       _loaded.get() && _loaded->descriptor->activation != "session" || 
-	       _load.get() && _load->descriptor->activation != "session")
-	    {
-		return true;
-	    }
+	    return;
 	}
-
-	syncImpl(false); // We sync here to ensure the "session" server will be shutdown.
     }
-
-    return released;
+    
+    syncImpl(false); // We sync here to ensure the "session" server will be shutdown.
 }

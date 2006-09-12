@@ -55,6 +55,8 @@ public:
     NodeSessionKeepAliveThreadPtr replicaAdded(const InternalRegistryPrx&);
     void replicaRemoved(const InternalRegistryPrx&);
 
+    NodeSessionPrx getMasterNodeSession() const { return _thread->getSession(); }
+
 private:
 
     void syncReplicas(const InternalRegistryPrxSeq&);
