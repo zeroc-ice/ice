@@ -31,7 +31,7 @@ SLICE_SRCS	= Counter.ice
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
-LIBS		:= -lIceStorm $(LIBS)
+IS_LIBS		:= -lIceStorm $(LIBS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
@@ -39,6 +39,6 @@ $(CLIENT): $(OBJS) $(COBJS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(IS_LIBS)
 
 include .depend
