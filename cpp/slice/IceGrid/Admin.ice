@@ -432,7 +432,7 @@ interface Admin
      *
      **/
     void removeApplication(string name)
-	throws AccessDeniedException, ApplicationNotExistException;
+	throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
 
     /**
      *

@@ -186,7 +186,7 @@ public:
 	    os << ex << ":\n" << ex.reason;
 	    failure = os.str();
 	}
-	catch(const ObjectNotRegisteredException& ex)
+	catch(const ObjectNotRegisteredException&)
 	{
 	}
 	_manager.receivedUpdate("object", getSerial(current.ctx, "object"), failure);

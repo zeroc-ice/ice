@@ -387,7 +387,7 @@ Allocatable::allocate(const AllocationRequestPtr& request, bool tryAllocate, boo
 	return false;
     }
     
-    bool allocationCount = 0;
+    int allocationCount = 0;
     try
     {
 	Lock sync(*this);
