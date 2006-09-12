@@ -218,7 +218,7 @@ RegistryI::start(bool nowarn)
     //
     // TODO: Deprecate AdminSessionTimeout?
     //
-    int sessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.AdminSessionTimeout", 10);
+    int sessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.AdminSessionTimeout", 30);
     _sessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.SessionTimeout", sessionTimeout);
 
     //
@@ -258,7 +258,7 @@ RegistryI::start(bool nowarn)
  					  registryTopicManagerId,
 					  "Registry");
 
-    int t = properties->getPropertyAsIntWithDefault("IceGrid.Registry.NodeSessionTimeout", 10);
+    int t = properties->getPropertyAsIntWithDefault("IceGrid.Registry.NodeSessionTimeout", 30);
     t = properties->getPropertyAsIntWithDefault("IceGrid.Registry.InternalSessionTimeout", t);
 
     _database = new Database(registryAdapter, _iceStorm->getTopicManager(), _instanceName, t, _traceLevels, _master);

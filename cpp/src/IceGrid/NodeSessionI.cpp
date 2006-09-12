@@ -90,7 +90,14 @@ NodeSessionI::loadServers(const Ice::Current& current) const
     Ice::StringSeq servers = _database->getAllNodeServers(_name);
     for(Ice::StringSeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
     {
-	_database->getServer(*p);
+	try
+	{
+	    _database->getServer(*p);
+	}
+	catch(const Ice::UserException&)
+	{
+	    // Ignore.
+	}
     }
 }
 

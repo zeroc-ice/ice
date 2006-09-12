@@ -1010,9 +1010,8 @@ ServerI::destroy(const AMD_Node_destroyServerPtr& amdCB, const string& uuid, int
 	{
 	    if(_info.uuid.empty())
 	    {
-		DeploymentException ex;
-		ex.reason = "server doesn't exist (`" + uuid + "')";
-		throw ex;
+		amdCB->ice_response();
+		return; // Server doesn't exist.
 	    }
 	    else if(_info.uuid != uuid)
 	    {

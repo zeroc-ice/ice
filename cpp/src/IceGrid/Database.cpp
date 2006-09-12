@@ -628,7 +628,14 @@ Database::removeApplication(const string& name, AdminSessionI* session)
 
     if(session)
     {
-	for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
+	try
+	{
+	    for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
+	}
+	catch(const DeploymentException&)
+	{
+	    // Ignore, this is traced by the node cache.
+	}
     }
     else
     {
