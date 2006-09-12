@@ -628,7 +628,15 @@ Database::removeApplication(const string& name, AdminSessionI* session)
 
     if(session)
     {
-	for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
+	try
+	{
+	    for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
+	}
+	catch(const DeploymentException& ex)
+	{
+	    Ice::Error err(_traceLevels->logger);
+	    err << "unexpected deployment exception while removing application `" << name << "':\n" << ex.reason;
+	}
     }
     else
     {
