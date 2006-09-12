@@ -206,7 +206,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "testing always activation... " << flush;
     try
     {
-	test(admin->getServerState("server-always") == IceGrid::Active);
+	waitForServerState(admin, "server-always", IceGrid::Active);
 	TestIntfPrx obj = TestIntfPrx::checkedCast(communicator->stringToProxy("server-always"));
 	admin->stopServer("server-always");
 	waitForServerState(admin, "server-always", IceGrid::Active);
