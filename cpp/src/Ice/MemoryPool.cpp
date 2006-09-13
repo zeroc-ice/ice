@@ -9,9 +9,6 @@
 
 #include <Ice/MemoryPool.h>
 
-#include <Ice/Instance.h>
-#include <Ice/Initialize.h>
-#include <Ice/Properties.h>
 
 // #define MEMPOOL_DEBUG
 
