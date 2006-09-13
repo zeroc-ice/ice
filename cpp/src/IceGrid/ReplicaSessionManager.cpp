@@ -30,10 +30,10 @@ public:
     }
 
     virtual void 
-    applicationInit(int, const ApplicationInfoSeq& applications, const Ice::Current&)
+    applicationInit(int, const ApplicationInfoSeq& applications, const Ice::Current& current)
     {
 	_database->syncApplications(applications);
-   }
+    }
 
     virtual void 
     applicationAdded(int, const ApplicationInfo& application, const Ice::Current& current)

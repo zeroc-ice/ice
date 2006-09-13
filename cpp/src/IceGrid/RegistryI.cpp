@@ -828,12 +828,14 @@ RegistryI::getInfo() const
 void
 RegistryI::waitForShutdown()
 {
+    assert(_clientAdapter);
     _clientAdapter->waitForDeactivate();
 }
 
 void
 RegistryI::shutdown()
 {
+    assert(_clientAdapter);
     _clientAdapter->deactivate();
 }
 

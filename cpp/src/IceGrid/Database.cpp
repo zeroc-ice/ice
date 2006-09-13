@@ -723,9 +723,9 @@ Database::addReplica(const string& name, const ReplicaSessionIPtr& session)
 {
     _replicaCache.add(name, session);
 
-    _applicationObserverTopic->subscribeAndWaitForSubscription(session->getObserver(), name);
-    _adapterObserverTopic->subscribeAndWaitForSubscription(session->getObserver(), name);
-    _objectObserverTopic->subscribeAndWaitForSubscription(session->getObserver(), name);
+    _applicationObserverTopic->subscribe(session->getObserver(), name);
+    _adapterObserverTopic->subscribe(session->getObserver(), name);
+    _objectObserverTopic->subscribe(session->getObserver(), name);
 }
 
 InternalRegistryPrx 

@@ -29,18 +29,16 @@ public:
     virtual ~ObserverTopic();
 
     void subscribe(const Ice::ObjectPrx&, const std::string& = std::string(), int = -1);
-    void subscribeAndWaitForSubscription(const Ice::ObjectPrx&, const std::string& = std::string());
     void unsubscribe(const Ice::ObjectPrx&, const std::string& = std::string());
     void destroy();
 
     void receivedUpdate(const std::string&, int, const std::string&);
 
-    virtual void initObserver(const Ice::ObjectPrx&, const std::string&) = 0;
+    virtual void initObserver(const Ice::ObjectPrx&) = 0;
 
 protected:
 
     void waitForSyncedSubscribers(int);
-    void subscribeImpl(const Ice::ObjectPrx&, const std::string&);
     void updateSerial(int);
     Ice::Context getContext(int) const;
 
@@ -64,7 +62,7 @@ public:
     void registryUp(const RegistryInfo&);
     void registryDown(const std::string&);
 
-    virtual void initObserver(const Ice::ObjectPrx&, const std::string&);
+    virtual void initObserver(const Ice::ObjectPrx&);
 
 private:
 
@@ -88,7 +86,7 @@ public:
     const NodeObserverPrx& getPublisher() { return _externalPublisher; }
 
     void nodeDown(const std::string&);
-    virtual void initObserver(const Ice::ObjectPrx&, const std::string&);
+    virtual void initObserver(const Ice::ObjectPrx&);
 
 private:
 
@@ -109,7 +107,7 @@ public:
     void applicationRemoved(int, const std::string&);
     void applicationUpdated(int, const ApplicationUpdateInfo&);
 
-    virtual void initObserver(const Ice::ObjectPrx&, const std::string&);
+    virtual void initObserver(const Ice::ObjectPrx&);
 
 private:
 
@@ -129,7 +127,7 @@ public:
     void adapterUpdated(int, const AdapterInfo&);
     void adapterRemoved(int, const std::string&);
 
-    virtual void initObserver(const Ice::ObjectPrx&, const std::string&);
+    virtual void initObserver(const Ice::ObjectPrx&);
 
 private:
 
@@ -149,7 +147,7 @@ public:
     void objectUpdated(int, const ObjectInfo&);
     void objectRemoved(int, const Ice::Identity&);
 
-    virtual void initObserver(const Ice::ObjectPrx&, const std::string&);
+    virtual void initObserver(const Ice::ObjectPrx&);
 
 private:
 

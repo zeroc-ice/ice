@@ -33,6 +33,8 @@ public:
 
     RegistryService();
 
+    virtual bool shutdown();
+
 protected:
 
     virtual bool start(int, char*[]);
@@ -51,6 +53,14 @@ private:
 
 RegistryService::RegistryService()
 {
+}
+
+bool
+RegistryService::shutdown()
+{
+    assert(_registry);
+    _registry->shutdown();
+    return true;
 }
 
 bool
