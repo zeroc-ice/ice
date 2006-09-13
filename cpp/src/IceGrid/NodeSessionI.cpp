@@ -108,9 +108,12 @@ NodeSessionI::getServers(const Ice::Current& current) const
 }
 
 void
-NodeSessionI::waitForApplicationReplication(const std::string& application, int revision, const Ice::Current&) const
+NodeSessionI::waitForApplicationReplication_async(const AMD_NodeSession_waitForApplicationReplicationPtr& cb, 
+						  const std::string& application, 
+						  int revision, 
+						  const Ice::Current&) const
 {
-    _database->waitForApplicationReplication(application, revision);
+    _database->waitForApplicationReplication(cb, application, revision);
 }
 
 void

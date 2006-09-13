@@ -20,14 +20,6 @@
 
 namespace IceGrid
 {
-enum TopicName
-{
-    RegistryObserverTopicName,
-    NodeObserverTopicName,
-    ApplicationObserverTopicName,
-    AdapterObserverTopicName,
-    ObjectObserverTopicName
-};    
 
 class ObserverTopic : public IceUtil::Monitor<IceUtil::Mutex>, virtual public Ice::Object
 {
@@ -36,23 +28,30 @@ public:
     ObserverTopic(const IceStorm::TopicManagerPrx&, const std::string&);
     virtual ~ObserverTopic();
 
-    void subscribe(const Ice::ObjectPrx&, int = -1);
-    void subscribeAndWaitForSubscription(const Ice::ObjectPrx&);
-    void unsubscribe(const Ice::ObjectPrx&);
+    void subscribe(const Ice::ObjectPrx&, const std::string& = std::string(), int = -1);
+    void subscribeAndWaitForSubscription(const Ice::ObjectPrx&, const std::string& = std::string());
+    void unsubscribe(const Ice::ObjectPrx&, const std::string& = std::string());
     void destroy();
 
-    virtual void initObserver(const Ice::ObjectPrx&) = 0;
+    void receivedUpdate(const std::string&, int, const std::string&);
+
+    virtual void initObserver(const Ice::ObjectPrx&, const std::string&) = 0;
 
 protected:
 
-    void subscribeImpl(const Ice::ObjectPrx&);
+    void waitForSyncedSubscribers(int);
+    void subscribeImpl(const Ice::ObjectPrx&, const std::string&);
     void updateSerial(int);
-    Ice::Context getContext(const std::string&, int) const;
+    Ice::Context getContext(int) const;
 
     IceStorm::TopicPrx _topic;
     Ice::ObjectPrx _basePublisher;
     std::set<Ice::Identity> _waitForSubscribe;
-    int _serial;    
+    int _serial;
+
+    std::set<std::string> _syncSubscribers;
+    std::map<int, std::set<std::string> > _waitForUpdates;
+    std::map<int, std::map<std::string, std::string> > _updateFailures;
 };
 typedef IceUtil::Handle<ObserverTopic> ObserverTopicPtr;
 
@@ -65,7 +64,7 @@ public:
     void registryUp(const RegistryInfo&);
     void registryDown(const std::string&);
 
-    virtual void initObserver(const Ice::ObjectPrx&);
+    virtual void initObserver(const Ice::ObjectPrx&, const std::string&);
 
 private:
 
@@ -89,7 +88,7 @@ public:
     const NodeObserverPrx& getPublisher() { return _externalPublisher; }
 
     void nodeDown(const std::string&);
-    virtual void initObserver(const Ice::ObjectPrx&);
+    virtual void initObserver(const Ice::ObjectPrx&, const std::string&);
 
 private:
 
@@ -110,7 +109,7 @@ public:
     void applicationRemoved(int, const std::string&);
     void applicationUpdated(int, const ApplicationUpdateInfo&);
 
-    virtual void initObserver(const Ice::ObjectPrx&);
+    virtual void initObserver(const Ice::ObjectPrx&, const std::string&);
 
 private:
 
@@ -130,7 +129,7 @@ public:
     void adapterUpdated(int, const AdapterInfo&);
     void adapterRemoved(int, const std::string&);
 
-    virtual void initObserver(const Ice::ObjectPrx&);
+    virtual void initObserver(const Ice::ObjectPrx&, const std::string&);
 
 private:
 
@@ -150,7 +149,7 @@ public:
     void objectUpdated(int, const ObjectInfo&);
     void objectRemoved(int, const Ice::Identity&);
 
-    virtual void initObserver(const Ice::ObjectPrx&);
+    virtual void initObserver(const Ice::ObjectPrx&, const std::string&);
 
 private:
 

@@ -322,7 +322,7 @@ interface NodeSession
      * Wait for the replication of the given application to be done.
      *
      **/
-    ["ami", "cpp:const"] void waitForApplicationReplication(string application, int revision);
+    ["amd", "ami", "cpp:const"] void waitForApplicationReplication(string application, int revision);
 
     /**
      *
@@ -340,6 +340,15 @@ interface NodeSession
  **/
 exception ReplicaActiveException
 {
+};
+
+enum TopicName
+{
+    RegistryObserverTopicName,
+    NodeObserverTopicName,
+    ApplicationObserverTopicName,
+    AdapterObserverTopicName,
+    ObjectObserverTopicName
 };
 
 interface ReplicaSession
@@ -391,7 +400,7 @@ interface ReplicaSession
      * before to continue.
      *
      **/
-    void receivedUpdate(string name, int serial, string failure); 
+    void receivedUpdate(TopicName name, int serial, string failure); 
 
     /**
      *

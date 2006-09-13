@@ -92,8 +92,9 @@ public:
     void addReplica(const std::string&, const ReplicaSessionIPtr&);
     RegistryInfo getReplicaInfo(const std::string&) const;
     InternalRegistryPrx getReplica(const std::string&) const;
-    void replicaReceivedUpdate(const std::string&, const std::string&, int, const std::string&);
-    void waitForApplicationReplication(const std::string&, int);
+    void replicaReceivedUpdate(const std::string&, TopicName, int, const std::string&);
+    void waitForApplicationReplication(const AMD_NodeSession_waitForApplicationReplicationPtr&, const std::string&, 
+				       int);
     void removeReplica(const std::string&, const ReplicaSessionIPtr&);
     Ice::StringSeq getAllReplicas(const std::string& = std::string());
 
@@ -142,11 +143,14 @@ private:
     void load(const ApplicationHelper&, ServerEntrySeq&, const std::string&, int);
     void unload(const ApplicationHelper&, ServerEntrySeq&);
     void reload(const ApplicationHelper&, const ApplicationHelper&, ServerEntrySeq&, const std::string&, int);
-    void finishUpdate(ServerEntrySeq&, const ApplicationUpdateInfo&, const ApplicationInfo&, 
-		      const ApplicationDescriptor&, AdminSessionI*);
+    void finishApplicationUpdate(ServerEntrySeq&, const ApplicationUpdateInfo&, const ApplicationInfo&, 
+				 const ApplicationDescriptor&, AdminSessionI*);
 
     void checkSessionLock(AdminSessionI*);
 
+    void startUpdating(const std::string&);
+    void finishUpdating(const std::string&);
+    
     friend struct AddComponent;
 
     static const std::string _applicationDbName;
@@ -187,7 +191,7 @@ private:
     int _replicaApplicationSerial;
     int _adapterSerial;
     int _objectSerial;
-    std::set<std::string> _updating;
+    std::map<std::string, std::vector<AMD_NodeSession_waitForApplicationReplicationPtr> > _updating;
 };
 typedef IceUtil::Handle<Database> DatabasePtr;
 

@@ -58,24 +58,11 @@ public:
 
     Ice::ObjectPrx getEndpoints(const std::string&, const Ice::ObjectPrx&) const;
 
-    void waitForUpdateReplication(const std::string&, int);
-    void replicaReceivedUpdate(const std::string&, const std::string&, int, const std::string&);
-    
-    void startApplicationReplication(const std::string&, int);
-    void finishApplicationReplication(const std::string&, int);
-    void waitForApplicationReplication(const std::string&, int);
-
 private:
-
-    void removeReplicaUpdates(const std::string&);
 
     const Ice::CommunicatorPtr _communicator;
     const IceStorm::TopicPrx _topic;
     const NodePrx _nodes;
-
-    std::map<std::string, std::set<std::string> > _waitForUpdates;
-    std::map<std::string, std::map<std::string, std::string> > _updateFailures;
-    std::set<std::string> _applicationReplication;
 };
 
 };

@@ -49,7 +49,7 @@ public:
 	    os << ex << ":\n" << ex.reason;
 	    failure = os.str();
 	}
-	_manager.receivedUpdate("application", getSerial(current.ctx, "application"), failure);
+	_manager.receivedUpdate(ApplicationObserverTopicName, getSerial(current.ctx), failure);
     }
 
     virtual void 
@@ -66,7 +66,7 @@ public:
 	    os << ex << ":\napplication: " << ex.name;
 	    failure = os.str();
 	}
-	_manager.receivedUpdate("application", getSerial(current.ctx, "application"), failure);
+	_manager.receivedUpdate(ApplicationObserverTopicName, getSerial(current.ctx), failure);
     }
 
     virtual void 
@@ -89,7 +89,7 @@ public:
 	    os << ex << ":\napplication: " << ex.name;
 	    failure = os.str();
 	}
-	_manager.receivedUpdate("application", getSerial(current.ctx, "application"), failure);
+	_manager.receivedUpdate(ApplicationObserverTopicName, getSerial(current.ctx), failure);
     }
 
     virtual void
@@ -106,7 +106,7 @@ public:
 	{
 	    failure = "adapter `" + info.id + "' already exists and belongs to an application";
 	}
-	_manager.receivedUpdate("adapter", getSerial(current.ctx, "adapter"), failure);
+	_manager.receivedUpdate(AdapterObserverTopicName, getSerial(current.ctx), failure);
     }
 
     virtual void 
@@ -117,7 +117,7 @@ public:
 	{
 	    failure = "adapter `" + info.id + "' already exists and belongs to an application";
 	}
-	_manager.receivedUpdate("adapter", getSerial(current.ctx, "adapter"), failure);
+	_manager.receivedUpdate(AdapterObserverTopicName, getSerial(current.ctx), failure);
     }
 
     virtual void 
@@ -128,7 +128,7 @@ public:
 	{
 	    failure = "adapter `" + id + "' already exists and belongs to an application";
 	}
-	_manager.receivedUpdate("adapter", getSerial(current.ctx, "adapter"), failure);
+	_manager.receivedUpdate(AdapterObserverTopicName, getSerial(current.ctx), failure);
     }
 
     virtual void
@@ -152,7 +152,7 @@ public:
 	    os << "id: " << info.proxy->ice_getCommunicator()->identityToString(info.proxy->ice_getIdentity());
 	    failure = os.str();
 	}
-	_manager.receivedUpdate("object", getSerial(current.ctx, "object"), failure);
+	_manager.receivedUpdate(ObjectObserverTopicName, getSerial(current.ctx), failure);
     }
 
     virtual void 
@@ -169,7 +169,7 @@ public:
 	    os << ex << ":\n" << ex.reason;
 	    failure = os.str();
 	}
-	_manager.receivedUpdate("object", getSerial(current.ctx, "object"), failure);
+	_manager.receivedUpdate(ObjectObserverTopicName, getSerial(current.ctx), failure);
     }
 
     virtual void 
@@ -189,15 +189,15 @@ public:
 	catch(const ObjectNotRegisteredException&)
 	{
 	}
-	_manager.receivedUpdate("object", getSerial(current.ctx, "object"), failure);
+	_manager.receivedUpdate(ObjectObserverTopicName, getSerial(current.ctx), failure);
     }
 
 private:
 
     int 
-    getSerial(const Ice::Context& context, const string& name)
+    getSerial(const Ice::Context& context)
     {
-	Ice::Context::const_iterator p = context.find(name);
+	Ice::Context::const_iterator p = context.find("serial");
 	if(p != context.end())
 	{
 	    int serial;
@@ -305,14 +305,14 @@ ReplicaSessionManager::destroy()
 }
 
 void
-ReplicaSessionManager::receivedUpdate(const string& update, int serial, const string& failure)
+ReplicaSessionManager::receivedUpdate(TopicName name, int serial, const string& failure)
 {
     ReplicaSessionPrx session = _thread->getSession();
     if(session)
     {
 	try
 	{
-	    session->receivedUpdate(update, serial, failure);
+	    session->receivedUpdate(name, serial, failure);
 	}
 	catch(const Ice::LocalException&)
 	{
