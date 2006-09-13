@@ -31,6 +31,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 IceInternal::BasicStream::BasicStream(Instance* instance) :
+    IceInternal::Buffer(instance->memoryPool()),
     _instance(instance),
     _currentReadEncaps(0),
     _currentWriteEncaps(0),

@@ -12,10 +12,12 @@ import fileinput, re, string
 
 previous = ""
 
+commentre = re.compile("^#")
+
 for line in fileinput.input():
     line = line.strip()
 
-    if re.compile("^#").search(line, 0):
+    if commentre.search(line, 0):
         continue;
 
     line = string.replace(line, ".o:", "$(OBJEXT):")

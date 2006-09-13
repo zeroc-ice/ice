@@ -12,17 +12,16 @@
 
 #include <Ice/Config.h>
 
-#define ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
-#define ICE_BUFFER_FIXED_SIZE 64
-
 namespace IceInternal
 {
+
+class MemoryPool;
 
 class ICE_API Buffer : private IceUtil::noncopyable
 {
 public:
 
-    Buffer() : i(b.begin()) { }
+    Buffer(MemoryPool* pool) : b(pool), i(b.begin()) { }
     virtual ~Buffer() { }
 
     void swap(Buffer&);
@@ -44,33 +43,9 @@ public:
 	typedef ptrdiff_t difference_type;
 	typedef size_t size_type;
 
-#ifdef ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
-	Container() :
-	    _buf(_fixed),
-	    _size(0),
-	    _capacity(ICE_BUFFER_FIXED_SIZE)
-	{
-	}
-#else
-	Container() :
-	    _buf(0),
-	    _size(0),
-	    _capacity(0)
-	{
-	}
-#endif
+	Container(MemoryPool* pool);
 
-	~Container()
-	{
-#ifdef ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
-	    if(_buf != _fixed)
-	    {
-		free(_buf);
-	    }
-#else
-	    free(_buf);
-#endif
-	}
+	~Container();
 
 	iterator begin()
 	{
@@ -159,7 +134,7 @@ public:
 	    assert(n < _size);
 	    return _buf[n];
 	}
-
+	
     private:
 
 	Container(const Container&);
@@ -171,14 +146,12 @@ public:
 	size_type _capacity;
 	int _shrinkCounter;
 
-#ifdef ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
 	//
-	// For small buffers, we stack-allocate the memory. Only when
-	// a buffer size larger than _fixedSize is requested, we
-	// allocate memory dynamically.
+	// MemoryPool does not need to be reference counted.  Buffer is
+	// always stack allocated so there is no danger of the memory pool
+	// instance being destroyed while buffer is using it.  
 	//
-	value_type _fixed[ICE_BUFFER_FIXED_SIZE];
-#endif
+	MemoryPool* _pool;
     };
 
     Container b;

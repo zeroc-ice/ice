@@ -112,8 +112,8 @@ KERBEROS_HOME           ?= /usr/kerberos
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION			= 3.1.0
-SOVERSION		= 31
+VERSION			= 3.2.0
+SOVERSION		= 32
 bindir			= $(top_srcdir)/bin
 libdir			= $(top_srcdir)/lib
 includedir		= $(top_srcdir)/include
@@ -189,7 +189,7 @@ CPPFLAGS		= -I$(includedir) $(STLPORT_FLAGS)
 ICECPPFLAGS		= -I$(slicedir)
 SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 
-LDFLAGS			=  $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
+LDFLAGS			=   $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir) 
 
 ifeq ($(FLEX_NOLINE),yes)
     FLEXFLAGS	       := -L
@@ -268,7 +268,7 @@ SLICE2XSD		= $(bindir)/slice2xsd
 SLICE2FREEZE		= $(bindir)/slice2freeze
 SLICE2DOCBOOK		= $(bindir)/slice2docbook
 
-EVERYTHING		= all depend clean install
+EVERYTHING		= all depend clean install 
 
 .SUFFIXES:
 .SUFFIXES:		.cpp .c .o

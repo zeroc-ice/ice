@@ -128,6 +128,8 @@ Ice:
     GC.Interval
     InitPlugins
     Logger.Timestamp
+    MemoryPool
+    MemoryPool.HighWaterMark
     MessageSizeMax
     MonitorConnections
     Nohup

@@ -117,10 +117,10 @@ tests = [ \
     "IceGrid/allocation", \
     "Glacier2/router", \
     "Glacier2/attack", \
-    "Glacier2/addressFilter", \
     "Glacier2/sessionControl", \
     "Glacier2/ssl", \
     "Glacier2/filters", \
+    "Glacier2/addressFilter", \
     ]
 
 #
@@ -132,12 +132,12 @@ if isCygwin() == 0:
       ]
 
 def usage():
-    print "usage: " + sys.argv[0] + " -l -r <regex> -R <regex> --debug --protocol protocol --compress --host host --threadPerConnection"
+    print "usage: " + sys.argv[0] + " -l -r <regex> -R <regex> --debug --protocol protocol --compress --host host --threadPerConnection --disablePool"
     sys.exit(2)
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "lr:R:", \
-    	["debug", "protocol=", "compress", "host=", "threadPerConnection"])
+    	["debug", "protocol=", "compress", "host=", "threadPerConnection", "disablePool"])
 except getopt.GetoptError:
     usage()
 
@@ -159,7 +159,7 @@ for o, a in opts:
 	tests = filter(rematch, tests)
     if o in ( "--protocol", "--host" ):
 	args += " " + o + " " + a
-    if o in ( "--debug", "--compress", "--threadPerConnection" ):
+    if o in ( "--debug", "--compress", "--threadPerConnection", "--disablePool" ):
 	args += " " + o 
     
 if loop:

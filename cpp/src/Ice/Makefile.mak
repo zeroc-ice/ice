@@ -18,6 +18,7 @@ OBJS		= Acceptor.obj \
 		  Application.obj \
 		  Buffer.obj \
 		  BasicStream.obj \
+		  MemoryPool.obj \
 		  BuiltinSequences.obj \
 		  CommunicatorI.obj \
 		  Communicator.obj \

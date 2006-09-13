@@ -34,6 +34,7 @@
 #include <Ice/PluginManagerI.h>
 #include <Ice/Initialize.h>
 #include <IceUtil/StringUtil.h>
+#include <Ice/MemoryPool.h>
 
 #include <stdio.h>
 
@@ -451,6 +452,12 @@ IceInternal::Instance::identityToString(const Identity& ident) const
     }
 }
 
+IceInternal::MemoryPool*
+IceInternal::Instance::memoryPool() const
+{
+    return _memoryPool;
+}
+
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const InitializationData& initData) :
     _state(StateActive),
     _initData(initData),
@@ -459,7 +466,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     _serverACM(0),
     _threadPerConnection(0),
     _threadPerConnectionStackSize(0),
-    _defaultContext(new SharedContext(initData.defaultContext))
+    _defaultContext(new SharedContext(initData.defaultContext)),
+    _memoryPool(0)
 {
     try
     {
@@ -669,6 +677,19 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _pluginManager = new PluginManagerI(communicator, _dynamicLibraryList);
 
+	if(_initData.properties->getPropertyAsIntWithDefault("Ice.MemoryPool", 1) == 1)
+	{
+
+	    //
+	    // High watermark defaults to 4 * max page size.
+	    //
+	    size_t highWaterMark = _initData.properties->getPropertyAsIntWithDefault("Ice.MemoryPool.HighWaterMark", 128);
+	    const size_t megaByte = 1024 * 1024;
+
+	    highWaterMark *= megaByte;
+	    _memoryPool = new MemoryPool(highWaterMark);
+	}
+
 	_outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
 	_servantFactoryManager = new ObjectFactoryManager();
@@ -700,6 +721,8 @@ IceInternal::Instance::~Instance()
     assert(!_referenceFactory);
     assert(!_proxyFactory);
     assert(!_outgoingConnectionFactory);
+    delete _memoryPool;
+
     assert(!_connectionMonitor);
     assert(!_servantFactoryManager);
     assert(!_objectAdapterFactory);

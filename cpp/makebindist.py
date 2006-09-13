@@ -23,6 +23,23 @@ import RPMTools
 
 DEBUGMODE=False
 
+demodepend_clip = r'''
+demodepend:: $(SRCS) $(SLICE_SRCS)
+	-rm -f .depend
+	if test -n "$(SRCS)" ; then \
+	    $(CXX) -DMAKEDEPEND -MM $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | \
+	    while read line ; do \
+	       echo $$line | sed -e 's/\.\.\/\.\.\/\.\./$$(ICE_DIR)/g' >> .depend ; \
+	    done;  \
+	fi
+	if test -n "$(SLICE_SRCS)" ; then \
+	    $(SLICE2CPP) --depend $(SLICE2CPPFLAGS) $(SLICE_SRCS) | \
+	    while read line ; do \
+	       echo $$line | sed -e 's/\.\.\/\.\.\/\.\./$$(ICE_DIR)/g' >> .depend ; \
+	    done;  \
+	fi
+'''
+
 class ExtProgramError:
     def __init__(self, error = None):
 	self.msg = error
@@ -184,6 +201,13 @@ def readcommand(cmd):
     pipe_stdin.close()
     pipe_stdout.close()
     return lines[0].strip()
+
+class IceComponent:
+    def __init__(self, cvsDirectory, archivePrefix, version, id=None):
+	self.cvs = cvsDirectory
+	self.archivePrefix = archivePrefix
+	self.version = version
+	self.id = id
 
 def collectSourceDistributions(tag, sourceDir, cvsdir, distro):
     '''
