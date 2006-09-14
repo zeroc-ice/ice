@@ -48,6 +48,7 @@ public:
     const RegistryInfo& getInfo() const { return _info; }
 
     Ice::ObjectPrx getEndpoint(const std::string&);
+    bool isDestroyed() const;
 
 private:
     

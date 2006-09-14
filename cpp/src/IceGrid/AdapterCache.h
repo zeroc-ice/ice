@@ -118,7 +118,7 @@ public:
 protected:
     
     virtual AdapterEntryPtr addImpl(const std::string&, const AdapterEntryPtr&);
-    virtual AdapterEntryPtr removeImpl(const std::string&);
+    virtual void removeImpl(const std::string&);
 
 };
 

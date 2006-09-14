@@ -115,6 +115,7 @@ ReplicaSessionI::receivedUpdate(TopicName topic, int serial, const string& failu
 void
 ReplicaSessionI::destroy(const Ice::Current& current)
 {
+    bool shutdown = !current.adapter;
     {
 	Lock sync(*this);
 	if(_destroy)
@@ -126,7 +127,6 @@ ReplicaSessionI::destroy(const Ice::Current& current)
     _database->removeReplica(_name, this);
 
     _wellKnownObjects->unregisterWellKnownObjects(_replicaWellKnownObjects);
-    bool shutdown = !current.adapter;
     if(shutdown)
     {
 	ObjectInfo info;
@@ -167,4 +167,11 @@ ReplicaSessionI::getEndpoint(const std::string& name)
 {
     Lock sync(*this);
     return _replicaEndpoints[name];
+}
+
+bool
+ReplicaSessionI::isDestroyed() const
+{
+    Lock sync(*this);
+    return _destroy;
 }

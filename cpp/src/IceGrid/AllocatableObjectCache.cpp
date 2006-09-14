@@ -166,8 +166,9 @@ AllocatableObjectEntryPtr
 AllocatableObjectCache::remove(const Ice::Identity& id)
 {
     Lock sync(*this);
-    AllocatableObjectEntryPtr entry = removeImpl(id);
+    AllocatableObjectEntryPtr entry = getImpl(id);
     assert(entry);
+    removeImpl(id);
 
     map<string, TypeEntry>::iterator p = _types.find(entry->getType());
     assert(p != _types.end());

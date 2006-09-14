@@ -135,8 +135,9 @@ AdapterCache::removeServerAdapter(const string& id)
 {
     Lock sync(*this);
 
-    ServerAdapterEntryPtr entry = ServerAdapterEntryPtr::dynamicCast(removeImpl(id));
+    ServerAdapterEntryPtr entry = ServerAdapterEntryPtr::dynamicCast(getImpl(id));
     assert(entry);
+    removeImpl(id);
     
     string replicaGroupId = entry->getReplicaGroupId();
     if(!replicaGroupId.empty())
@@ -151,8 +152,7 @@ void
 AdapterCache::removeReplicaGroup(const string& id)
 {
     Lock sync(*this);
-    ReplicaGroupEntryPtr entry = ReplicaGroupEntryPtr::dynamicCast(removeImpl(id));
-    assert(entry);
+    removeImpl(id);
 }
 
 AdapterEntryPtr
@@ -166,7 +166,7 @@ AdapterCache::addImpl(const string& id, const AdapterEntryPtr& entry)
     return Cache<string, AdapterEntry>::addImpl(id, entry);
 }
 
-AdapterEntryPtr
+void
 AdapterCache::removeImpl(const string& id)
 {
     if(_traceLevels && _traceLevels->adapter > 0)
@@ -174,7 +174,7 @@ AdapterCache::removeImpl(const string& id)
 	Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
 	out << "removed adapter `" << id << "'";	
     }    
-    return Cache<string, AdapterEntry>::removeImpl(id);
+    Cache<string, AdapterEntry>::removeImpl(id);
 }
 
 AdapterEntry::AdapterEntry(AdapterCache& cache, const string& id) :

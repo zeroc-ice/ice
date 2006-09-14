@@ -119,12 +119,6 @@ NodeSessionI::waitForApplicationReplication_async(const AMD_NodeSession_waitForA
 void
 NodeSessionI::destroy(const Ice::Current& current)
 {
-    //
-    // TODO: XXX: If we set destroy to true now, it's possible that
-    // the node calls keepAlive on the sesion and tries to create the
-    // session after getting the ONE and before the node is removed 
-    // from the db...
-    //
     {
 	Lock sync(*this);
 	if(_destroy)
@@ -176,4 +170,11 @@ NodeSessionI::timestamp() const
 	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
     return _timestamp;
+}
+
+bool
+NodeSessionI::isDestroyed() const
+{
+    Lock sync(*this);
+    return _destroy;
 }

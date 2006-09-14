@@ -40,6 +40,7 @@ public:
     const NodeInfo& getInfo() const;
     const LoadInfo& getLoadInfo() const;
     virtual IceUtil::Time timestamp() const;
+    bool isDestroyed() const;
 
 private:
     

@@ -114,8 +114,9 @@ ObjectEntryPtr
 ObjectCache::remove(const Ice::Identity& id)
 {
     Lock sync(*this);
-    ObjectEntryPtr entry = removeImpl(id);
+    ObjectEntryPtr entry = getImpl(id);
     assert(entry);
+    removeImpl(id);
 
     map<string, TypeEntry>::iterator p = _types.find(entry->getType());
     assert(p != _types.end());

@@ -357,7 +357,13 @@ Database::syncObjects(const ObjectInfoSeq& objects)
 	_objects.clear();
 	for(ObjectInfoSeq::const_iterator q = objects.begin(); q != objects.end(); ++q)
 	{
-	    _objects.put(IdentityObjectInfoDict::value_type(q->proxy->ice_getIdentity(), *q));
+	    const Ice::Identity& id = q->proxy->ice_getIdentity();
+	    if(id.category != _instanceName || id.name.find("Node-") != 0)
+	    {
+		// Don't replicate node well-known objects. These objects are 
+		// maintained by each replica with each node session.
+		_objects.put(IdentityObjectInfoDict::value_type(q->proxy->ice_getIdentity(), *q));
+	    }
 	}
 	serial = ++_objectSerial;
     }
@@ -618,7 +624,7 @@ Database::removeApplication(const string& name, AdminSessionI* session)
 	out << "removed application `" << name << "'";
     }
 
-    if(session)
+    if(_master)
     {
 	try
 	{
@@ -628,10 +634,6 @@ Database::removeApplication(const string& name, AdminSessionI* session)
 	{
 	    // Ignore, this is traced by the node cache.
 	}
-    }
-    else
-    {
-	// TODO: XXX: synchronize the servers
     }
 }
 
@@ -663,18 +665,10 @@ Database::addNode(const string& name, const NodeSessionIPtr& session)
 {
     _nodeCache.get(name, true)->setSession(session);
 
-//     //
-//     // Only the master adds the node well-known proxy to its
-//     // database. The well-known proxy will be transmitted to the
-//     // replicas through the replication of the database.
-//     //
-//     if(_master)
-//     {
-	ObjectInfo info;
-	info.type = Node::ice_staticId();
-	info.proxy = session->getNode();
-	addObject(info, true);
-//    }
+    ObjectInfo info;
+    info.type = Node::ice_staticId();
+    info.proxy = session->getNode();
+    addObject(info, true);
 }
 
 NodePrx 
@@ -695,9 +689,9 @@ Database::removeNode(const string& name, const NodeSessionIPtr& session, bool sh
     //
     // If the registry isn't being shutdown and this registry is the
     // master we remove the node well-known proxy from the object
-    // adapter. Replicas will be notified through the replication.
+    // adapter. Replicas will be notified through replication.
     // 
-    if(!shutdown && _master)
+    if(!shutdown)
     {
 	removeObject(session->getNode()->ice_getIdentity());
     }
@@ -709,6 +703,10 @@ Database::removeNode(const string& name, const NodeSessionIPtr& session, bool sh
     //
     _nodeObserverTopic->nodeDown(name);
 
+    //
+    // Clear the node session. Once this is called, the node can
+    // create a new session.
+    //
     _nodeCache.get(name)->setSession(0);
 }
 
@@ -1128,8 +1126,8 @@ Database::getAllAdapters(const string& expression)
 void
 Database::addObject(const ObjectInfo& info, bool replaceIfExistsInDatabase)
 {
-    int serial;
     const Ice::Identity id = info.proxy->ice_getIdentity();
+    int serial;
     bool update = false;
     {
 	Lock sync(*this);	
@@ -1263,7 +1261,6 @@ Database::addOrUpdateObjectsInDatabase(const ObjectInfoSeq& objects)
     vector<bool> updated;
     {
 	Lock sync(*this);
-
 	Freeze::TransactionHolder txHolder(_connection);
 	for(ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
 	{
@@ -1310,6 +1307,7 @@ Database::removeObjectsInDatabase(const ObjectInfoSeq& objects)
 {
     int serial;
     {
+	Lock sync(*this);
 	Freeze::TransactionHolder txHolder(_connection);
 	for(ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
 	{

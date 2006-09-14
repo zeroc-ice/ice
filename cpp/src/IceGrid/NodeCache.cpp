@@ -208,7 +208,12 @@ NodeCache::get(const string& name, bool create) const
 
 NodeEntry::NodeEntry(NodeCache& cache, const std::string& name) : 
     _cache(cache),
+    _ref(0),
     _name(name)
+{
+}
+
+NodeEntry::~NodeEntry()
 {
 }
 
@@ -222,16 +227,8 @@ NodeEntry::addDescriptor(const string& application, const NodeDescriptor& descri
 void
 NodeEntry::removeDescriptor(const string& application)
 {
-    bool remove = false;
-    {
-	Lock sync(*this);
-	_descriptors.erase(application);
-	remove = _servers.empty() && !_session && _descriptors.empty();
-    }
-    if(remove)
-    {
-	_cache.remove(_name);
-    }    
+    Lock sync(*this);
+    _descriptors.erase(application);
 }
 
 void
@@ -244,45 +241,45 @@ NodeEntry::addServer(const ServerEntryPtr& entry)
 void
 NodeEntry::removeServer(const ServerEntryPtr& entry)
 {
-    bool remove = false;
-    {
-	Lock sync(*this);
-	_servers.erase(entry->getId());
-	remove = _servers.empty() && !_session && _descriptors.empty();
-    }
-    if(remove)
-    {
-	_cache.remove(_name);
-    }
+    Lock sync(*this);
+    _servers.erase(entry->getId());
 }
 
 void
 NodeEntry::setSession(const NodeSessionIPtr& session)
 {
-    bool remove = false;
+    Lock sync(*this);
+
+    if(session)
     {
-	Lock sync(*this);
-	if(session && _session)
+	// If the current session has just been destroyed, wait for the setSession(0) call.
+	assert(session != _session);
+	while(_session && _session->isDestroyed()) 
 	{
-	    throw NodeActiveException();
+	    wait();
 	}
-	else if(!session && !_session)
-	{
-	    return;
-	}
+    }
+    
+    if(session && _session)
+    {
+	throw NodeActiveException();
+    }
+    else if(!session && !_session)
+    {
+	return;
+    }
+    
+    if(!session && _session)
+    {
+	_cache.getReplicaCache().nodeRemoved(_session->getNode());
+    }
+    
+    _session = session;
+    notifyAll();
 
-	if(!session && _session)
-	{
-	    _cache.getReplicaCache().nodeRemoved(_session->getNode());
-	}
-
-	_session = session;
-	remove = _servers.empty() && !_session && _descriptors.empty();
-
-	if(_session)
-	{
-	    _cache.getReplicaCache().nodeAdded(session->getNode());
-	}
+    if(_session)
+    {
+	_cache.getReplicaCache().nodeAdded(session->getNode());
     }
     
     if(session)
@@ -301,15 +298,6 @@ NodeEntry::setSession(const NodeSessionIPtr& session)
 	    out << "node `" << _name << "' down";
 	}
     }
-
-    //
-    // NOTE: this needs to be the last thing to do as this will
-    // destroy this entry.
-    //
-    if(remove)
-    {
-	_cache.remove(_name);
-    }    
 }
 
 NodePrx
@@ -393,7 +381,7 @@ bool
 NodeEntry::canRemove()
 {
     Lock sync(*this);
-    return !_session && _servers.empty() && _descriptors.empty();
+    return _servers.empty() && !_session && _descriptors.empty();
 }
 
 void
@@ -518,5 +506,51 @@ NodeEntry::getServerDescriptor(const ServerInfo& server, const SessionIPtr& sess
     else
     {
 	return ServerHelper(_cache.getCommunicator(), server.descriptor).instantiate(resolve, PropertyDescriptorSeq());
+    }
+}
+
+void
+NodeEntry::__incRef()
+{
+    Lock sync(*this);
+    assert(_ref >= 0);
+    ++_ref;
+}
+
+void
+NodeEntry::__decRef()
+{
+    //
+    // The node entry implements its own reference counting. If the
+    // reference count drops to 1, this means that only the cache
+    // holds a reference on the node entry. If that's the case, we
+    // check if the node entry can be removed or not and if it can be
+    // removed we remove it from the cache map.
+    //
+
+    bool doRemove = false;
+    bool doDelete = false;
+    {
+	Lock sync(*this);
+	assert(_ref > 0);
+	--_ref;
+	
+	if(_ref == 1)
+	{
+	    doRemove = _servers.empty() && !_session && _descriptors.empty();
+	}
+	else if(_ref == 0)
+	{
+	    doDelete = true;
+	}
+    }
+
+    if(doRemove)
+    {
+	_cache.remove(_name);
+    }
+    else if(doDelete)
+    {
+	delete this;
     }
 }

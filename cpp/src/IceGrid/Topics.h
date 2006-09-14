@@ -42,6 +42,7 @@ protected:
     void updateSerial(int);
     Ice::Context getContext(int) const;
 
+    Ice::LoggerPtr _logger;
     IceStorm::TopicPrx _topic;
     Ice::ObjectPrx _basePublisher;
     std::set<Ice::Identity> _waitForSubscribe;

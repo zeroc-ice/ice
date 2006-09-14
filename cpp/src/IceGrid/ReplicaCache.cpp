@@ -47,9 +47,22 @@ ReplicaCache::add(const string& name, const ReplicaSessionIPtr& session)
     {
 	Lock sync(*this);
 
-	if(getImpl(name))
+	while(true)
 	{
-	    throw ReplicaActiveException();
+	    ReplicaEntryPtr entry = getImpl(name);
+	    if(entry)
+	    {
+		if(entry->getSession()->isDestroyed())
+		{
+		    wait();
+		    continue;
+		}
+		else
+		{
+		    throw ReplicaActiveException();
+		}
+	    }
+	    break;
 	}
     
 	if(_traceLevels && _traceLevels->replica > 0)
@@ -61,6 +74,11 @@ ReplicaCache::add(const string& name, const ReplicaSessionIPtr& session)
 	entry = addImpl(name, new ReplicaEntry(name, session));
     }
 
+    //
+    // Note: it's safe to do this outside the synchronization because
+    // remove() can't be called until this method returns (and until
+    // the replica session is fully created).
+    //
     try
     {
 	_nodes->replicaAdded(session->getInternalRegistry());
@@ -79,9 +97,10 @@ ReplicaCache::remove(const string& name)
     ReplicaEntryPtr entry;
     {
 	Lock sync(*this);
-	
-	entry = removeImpl(name);
+	entry = getImpl(name);
 	assert(entry);
+	removeImpl(name);
+	notifyAll();
 	
 	if(_traceLevels && _traceLevels->replica > 0)
 	{

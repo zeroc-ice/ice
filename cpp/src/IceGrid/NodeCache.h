@@ -31,12 +31,13 @@ typedef IceUtil::Handle<ServerEntry> ServerEntryPtr;
 
 class ReplicaCache;
 
-class NodeEntry : public IceUtil::Shared, public IceUtil::Mutex
+class NodeEntry : public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
     
     NodeEntry(NodeCache&, const std::string&);
-
+    virtual ~NodeEntry();
+    
     void addDescriptor(const std::string&, const NodeDescriptor&);
     void removeDescriptor(const std::string&);
 
@@ -55,11 +56,16 @@ public:
     void destroyServer(const ServerEntryPtr&, const ServerInfo&);
     ServerInfo getServerInfo(const ServerInfo&, const SessionIPtr&);
 
+    void __incRef();
+    void __decRef();
+
 private:
     
     ServerDescriptorPtr getServerDescriptor(const ServerInfo&, const SessionIPtr&);
 
     NodeCache& _cache;
+    IceUtil::Mutex _refMutex;
+    int _ref;
     const std::string _name;
     NodeSessionIPtr _session;
     std::map<std::string, ServerEntryPtr> _servers;

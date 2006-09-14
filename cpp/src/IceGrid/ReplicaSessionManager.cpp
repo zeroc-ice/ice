@@ -143,7 +143,13 @@ public:
 	string failure;
 	try
 	{
-	    _database->addObject(info, true);
+	    const Ice::Identity& id = info.proxy->ice_getIdentity();
+	    if(id.category != _database->getInstanceName() || id.name.find("Node-") != 0)
+	    {
+		// Don't replicate node well-known objects. These objects are 
+		// maintained by each replica with each node session.
+		_database->addObject(info, true);
+	    }
 	}
 	catch(const ObjectExistsException& ex)
 	{
@@ -161,7 +167,13 @@ public:
 	string failure;
 	try
 	{
-	    _database->addObject(info, true);
+	    const Ice::Identity& id = info.proxy->ice_getIdentity();
+	    if(id.category != _database->getInstanceName() || id.name.find("Node-") != 0)
+	    {
+		// Don't replicate node well-known objects. These objects are 
+		// maintained by each replica with each node session.
+		_database->addObject(info, true);
+	    }
 	}
 	catch(const DeploymentException& ex)
 	{
@@ -178,7 +190,12 @@ public:
 	string failure;
 	try
 	{
-	    _database->removeObject(id);
+	    if(id.category != _database->getInstanceName() || id.name.find("Node-") != 0)
+	    {
+		// Don't replicate node well-known objects. These objects are 
+		// maintained by each replica with each node session.
+		_database->removeObject(id);
+	    }
 	}
 	catch(const DeploymentException& ex)
 	{

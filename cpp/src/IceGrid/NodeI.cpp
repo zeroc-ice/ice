@@ -485,16 +485,6 @@ void
 NodeI::shutdown(const Ice::Current&) const
 {
     _activator->shutdown();
-    //
-    // TODO: XXX: Wait for the session to be down with the registry
-    // who invoked this call. Perhaps it's better to have the registry
-    // wait actually...
-    //
-//     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_sessionMonitor);
-//     while(_session)
-//     {
-// 	_sessionMonitor.wait();
-//     }
 }
 
 Ice::CommunicatorPtr

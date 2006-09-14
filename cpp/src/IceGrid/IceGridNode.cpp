@@ -540,10 +540,9 @@ NodeService::start(int argc, char* argv[])
 	// We wait for the node to be registered with the registry
 	// before to claim it's ready.
 	//
-	// TODO: XXX: That's not correct. The node can't be
-	// interrupted if we wait here...
-	//
+	enableInterrupt();
 	_sessions.waitForCreate();
+	disableInterrupt();
 	print(bundleName + " ready");
     }
 

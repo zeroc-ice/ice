@@ -42,11 +42,11 @@ public:
 	return getImpl(key);
     }
 
-    ValuePtr
+    void
     remove(const Key& key)
     {
 	Lock sync(*this);
-	return removeImpl(key);
+	removeImpl(key);
     }
 
     void 
@@ -95,7 +95,7 @@ protected:
 	return entry;
     }
 
-    virtual ValuePtr
+    virtual void
     removeImpl(const Key& key)
     {
 	typename ValueMap::iterator p = _entries.end();
@@ -115,15 +115,12 @@ protected:
 	assert(p != _entries.end());
 	if(p->second->canRemove())
 	{
-	    ValuePtr entry = p->second;
 	    _entries.erase(p);
 	    _entriesHint = _entries.end();
-	    return entry;
 	}
 	else
 	{
 	    _entriesHint = p;
-	    return p->second;
 	}
     }
 
