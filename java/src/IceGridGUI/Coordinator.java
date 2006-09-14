@@ -621,6 +621,12 @@ public class Coordinator
 	{
 	    accessDenied(e);
 	}
+	catch(DeploymentException e)
+	{
+	    // 
+	    // TODO: XXX: The application couldn't be removed (probably because we tried to remove it from a slave).
+	    //
+	}
 	catch(ApplicationNotExistException e)
 	{
 	    //
