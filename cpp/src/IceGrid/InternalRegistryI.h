@@ -56,8 +56,8 @@ private:
     const ReapThreadPtr _reaper;
     const WellKnownObjectsManagerPtr _wellKnownObjects;
     ReplicaSessionManager& _session;
-    const int _nodeSessionTimeout;
-    const int _replicaSessionTimeout;
+    int _nodeSessionTimeout;
+    int _replicaSessionTimeout;
 };
     
 };

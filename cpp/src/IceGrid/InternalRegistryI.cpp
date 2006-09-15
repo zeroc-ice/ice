@@ -98,9 +98,7 @@ InternalRegistryI::InternalRegistryI(const RegistryIPtr& registry,
     _database(database),
     _reaper(reaper),
     _wellKnownObjects(wellKnownObjects),
-    _session(session),
-    _nodeSessionTimeout(30),
-    _replicaSessionTimeout(30)
+    _session(session)
 {
     Ice::PropertiesPtr properties = database->getCommunicator()->getProperties();
     _nodeSessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.NodeSessionTimeout", 30);
