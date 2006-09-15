@@ -155,6 +155,9 @@ public:
 		    << "' with `always' activation mode after failure:\n" 
 		    << ex.reason;
 	    }
+	    catch(const Ice::ObjectNotExistException&)
+	    {
+	    }
 	}
     }
 
@@ -595,7 +598,7 @@ ServerI::ServerI(const NodeIPtr& node, const ServerPrx& proxy, const string& ser
     if(is.good())
     {
 	char line[1024];
-	is.getline(line, 1024);
+	is.getline(line, 1024); // Ignore comments
 	is.getline(line, 1024);
 	is.getline(line, 1024);
 	string ignore;
@@ -661,6 +664,7 @@ void
 ServerI::writeMessage(const string& message, Ice::Int fd, const Ice::Current& current)
 {
     Lock sync(*this);
+    checkDestroyed();
     if(_process != 0)
     {
 	try
@@ -677,6 +681,7 @@ ServerState
 ServerI::getState(const Ice::Current&) const
 {
     Lock sync(*this);
+    checkDestroyed();
     return toServerState(_state);
 }
 
@@ -692,16 +697,29 @@ ServerI::setEnabled(bool enabled, const ::Ice::Current&)
     bool activate = false;
     {
 	Lock sync(*this);
-	if(!_info.descriptor ||
-	   enabled && _activation != Disabled || 
-	   !enabled && _activation == Disabled && _failureTime == IceUtil::Time())
-	{
-	    return;
-	}
+	checkDestroyed();
+	assert(_info.descriptor);
 
-	_failureTime = IceUtil::Time();
-	_activation = enabled ? toServerActivation(_info.descriptor->activation) : Disabled;
-	activate = _state == Inactive && _activation == Always;
+	if(enabled && _activation == Disabled)
+	{
+	    _failureTime = IceUtil::Time();
+	    _activation = toServerActivation(_info.descriptor->activation);
+	    activate = _state == Inactive && _activation == Always;
+	}
+	else if(!enabled && (_activation != Disabled || _failureTime != IceUtil::Time()))
+	{
+	    _failureTime = IceUtil::Time();
+	    _activation = Disabled;
+	    if(_timer)
+	    {
+		_node->getWaitQueue()->remove(_timer);
+		_timer = 0;
+	    }
+	}
+	else
+	{
+	    return; // Nothing to change!
+	}
     }
 
     if(activate)
@@ -710,9 +728,14 @@ ServerI::setEnabled(bool enabled, const ::Ice::Current&)
 	{
 	    start(Always);
 	}
-	catch(const ServerStartException&)
+	catch(const ServerStartException& ex)
 	{
-	    // TODO: Log?
+	    Ice::Error out(_node->getTraceLevels()->logger);
+	    out << "couldn't reactivate server `" << _id << "' with `always' activation mode:\n" 
+		<< ex.reason;
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
 	}
     }
 
@@ -725,11 +748,7 @@ ServerI::setEnabled(bool enabled, const ::Ice::Current&)
 	}
 	catch(const Ice::LocalException&)
 	{
-	    //
-	    // Expected if the master IceGrid registry is down.
-	    //
-	    //Ice::Warning out(_node->getTraceLevels()->logger);
-	    //out << "unexpected observer exception:\n" << ex;
+	    // Expected if the IceGrid registry is down.
 	}
     }
 }
@@ -738,6 +757,7 @@ bool
 ServerI::isEnabled(const ::Ice::Current&) const
 {
     Lock sync(*this);
+    checkDestroyed();
     return _activation != Disabled;
 }
 
@@ -747,6 +767,7 @@ ServerI::setProcess_async(const AMD_Server_setProcessPtr& amdCB, const Ice::Proc
     bool deact = false;
     {
 	Lock sync(*this);
+	checkDestroyed();
 	_process = process;
 	deact = _state == DeactivatingWaitForProcess;
     }
@@ -761,12 +782,18 @@ bool
 ServerI::canActivateOnDemand() const
 {
     Lock sync(*this);
-    if(!_info.descriptor)
+    if(!_info.descriptor || _state == Destroying || _state == Destroyed || _activation == Disabled)
     {
 	return false;
     }
-    return _info.descriptor->activation  == "on-demand" ||
-	(!_info.sessionId.empty() && _info.descriptor->activation == "session");
+
+    if(_info.descriptor->activation  == "on-demand" ||
+       (_info.descriptor->activation == "session" && !_info.sessionId.empty()))
+    {
+	return true;
+    }
+
+    return false;
 }
 
 const string&
@@ -791,6 +818,7 @@ ServerI::getDynamicInfo(ServerDynamicInfoSeq& serverInfos, AdapterDynamicInfoSeq
     ServerAdapterDict adapters;
     {
 	Lock sync(*this);
+	checkDestroyed();
 	if(_state == ServerI::Inactive && _activation != Disabled)
 	{
 	    return;
@@ -829,10 +857,17 @@ ServerI::start(ServerActivation activation, const AMD_Server_startPtr& amdCB)
 	checkDestroyed();
 
 	//
-	// Re-enable the server if disabled because of a failure and if
-	// activated manually.
+	// Eventually re-enable the server if it's disabled because of a failure.
 	//
-	enableAfterFailure(activation == Manual);
+	if(_disableOnFailure > 0 && _failureTime != IceUtil::Time())
+	{
+	    if(activation == Manual ||
+	       (_failureTime + IceUtil::Time::seconds(_disableOnFailure) < IceUtil::Time::now()))
+	    {
+		_activation = _previousActivation;
+		_failureTime = IceUtil::Time();
+	    }
+	}
 
 	//
 	// Check the current activation mode and the requested activation.
@@ -840,6 +875,11 @@ ServerI::start(ServerActivation activation, const AMD_Server_startPtr& amdCB)
 	if(_activation == Disabled)
 	{
 	    throw ServerStartException(_id, "The server is disabled.");
+	}
+	else if(_activation != Always && activation == Always)
+	{
+	    assert(!amdCB);
+	    return; // Nothing to do.
 	}
 	else if(_activation == Manual && activation != Manual)
 	{
@@ -849,11 +889,6 @@ ServerI::start(ServerActivation activation, const AMD_Server_startPtr& amdCB)
 	{
 	    throw ServerStartException(_id, "The server is not owned by a session.");
 	}	
-	else if(_activation != Always && activation == Always)
-	{
-	    assert(!amdCB);
-	    return; // Nothing to do.
-	}
 
 	//
 	// Check the current state.
@@ -875,6 +910,12 @@ ServerI::start(ServerActivation activation, const AMD_Server_startPtr& amdCB)
 	else if(_state == Destroying)
 	{
 	    throw ServerStartException(_id, "The server is being destroyed.");
+	}
+
+	if(_timer)
+	{
+	    _node->getWaitQueue()->remove(_timer);
+	    _timer = 0;
 	}
 
 	if(!_start)
@@ -899,10 +940,7 @@ ServerI::load(const AMD_Node_loadServerPtr& amdCB, const ServerInfo& info, bool 
     ServerCommandPtr command;
     {
 	Lock sync(*this);
-
-	//
-	// TODO: XXX: Clear the info uuid and revision when destroyed?
-	//
+	checkDestroyed();
 
 	//
 	// Don't reload the server if:
@@ -1006,6 +1044,8 @@ ServerI::destroy(const AMD_Node_destroyServerPtr& amdCB, const string& uuid, int
     ServerCommandPtr command;
     {
 	Lock sync(*this);
+	checkDestroyed();
+
 	if(!uuid.empty()) // Empty if from checkConsistency.
 	{
 	    if(_info.uuid.empty())
@@ -1128,7 +1168,7 @@ ServerI::adapterActivated(const string& id)
 }
 
 void
-ServerI::checkDestroyed()
+ServerI::checkDestroyed() const
 {
     if(_state == Destroyed)
     {
@@ -2252,31 +2292,28 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
 	catch(const Ice::ObjectAdapterDeactivatedException&)
 	{
 	}
+	_info = ServerInfo();
     }
     else if(_state == Inactive)
     {
-	if(_activation == Always ||
-	   _activation == Disabled && _previousActivation == Always &&
-	   _disableOnFailure > 0 && _failureTime != IceUtil::Time())
+	if(_activation == Always)
+	{
+	    _timer = new DelayedStart(this, _node->getTraceLevels());
+	    _node->getWaitQueue()->add(_timer, IceUtil::Time::milliSeconds(500));
+	}
+	else if(_activation == Disabled && _disableOnFailure > 0 && _failureTime != IceUtil::Time())
 	{
 	    //
 	    // If the server was disabled because it failed, we
 	    // schedule a callback to re-enable it. We add 500ms to
 	    // the disable on failure duration to make sure that the
 	    // server will be ready to be reactivated when the
-	    // callback is executed.
+	    // callback is executed.  
 	    //
 	    _timer = new DelayedStart(this, _node->getTraceLevels());
 	    _node->getWaitQueue()->add(_timer, 
 				       IceUtil::Time::seconds(_disableOnFailure) + IceUtil::Time::milliSeconds(500));
 	}
-// 	else if(_activation == Always)
-// 	{
-// 	    if(!_start)
-// 	    {
-// 		_start = new StartCommand(this, _node->getWaitQueue(), _activationTimeout);
-// 	    }
-// 	}
     }
 
     //
@@ -2295,11 +2332,7 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
 	    }
 	    catch(const Ice::LocalException&)
 	    {
-		//
-		// Expected if the master IceGrid registry is down.
-		//
-		//Ice::Warning out(_node->getTraceLevels()->logger);
-		//out << "unexpected observer exception:\n" << ex;
+		// Expected if the IceGrid registry is down.
 	    }
 	}
     }

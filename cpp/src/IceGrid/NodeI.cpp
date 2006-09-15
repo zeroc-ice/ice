@@ -223,27 +223,36 @@ NodeI::loadServer_async(const AMD_Node_loadServerPtr& amdCB,
     // the case, the server is already loaded and we just need to
     // update it.
     //
-    bool added = false;
-    ServerIPtr server = ServerIPtr::dynamicCast(_adapter->find(id));
-    if(!server)
+    while(true)
     {
-	ServerPrx proxy = ServerPrx::uncheckedCast(_adapter->createProxy(id));
-	server = new ServerI(this, proxy, _serversDir, info.descriptor->id, _waitTime);
-	_adapter->add(server, id);
-	added = true;
-    }
-
-    try
-    {
-	server->load(amdCB, info, fromMaster);
-    }
-    catch(const Ice::Exception&)
-    {
-	if(added)
+	bool added = false;
+	ServerIPtr server = ServerIPtr::dynamicCast(_adapter->find(id));
+	if(!server)
 	{
-	    _adapter->remove(id);
+	    ServerPrx proxy = ServerPrx::uncheckedCast(_adapter->createProxy(id));
+	    server = new ServerI(this, proxy, _serversDir, info.descriptor->id, _waitTime);
+	    _adapter->add(server, id);
+	    added = true;
 	}
-	throw;
+	
+	try
+	{
+	    server->load(amdCB, info, fromMaster);
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	    assert(!added);
+	    continue;
+	}
+	catch(const Ice::Exception&)
+	{
+	    if(added)
+	    {
+		_adapter->remove(id);
+	    }
+	    throw;
+	}
+	break;
     }
 }
 
@@ -266,7 +275,13 @@ NodeI::destroyServer_async(const AMD_Node_destroyServerPtr& amdCB,
     //
     // Destroy the server object if it's loaded.
     //
-    server->destroy(amdCB, uuid, revision);
+    try
+    {
+	server->destroy(amdCB, uuid, revision);
+    }
+    catch(const Ice::ObjectNotExistException&)
+    {
+    }
 }
 
 void
@@ -333,14 +348,21 @@ NodeI::patch(const string& application,
 	vector<string> running;
 	while(s != servers.end())
 	{
-	    if(!(*s)->startPatch(shutdown))
+	    try
 	    {
-		running.push_back((*s)->getId());
-		servers.erase(s++);
+		if(!(*s)->startPatch(shutdown))
+		{
+		    running.push_back((*s)->getId());
+		    servers.erase(s++);
+		}
+		else
+		{
+		    ++s;
+		}
 	    }
-	    else
+	    catch(const Ice::ObjectNotExistException&)
 	    {
-		++s;
+		servers.erase(s++);
 	    }
 	}
 

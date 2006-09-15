@@ -278,23 +278,6 @@ ServerEntry::updateRevision(int revision)
 	    assert(false);
 	}
     }
-
-    //
-    // TODO: XXX: Also update the revision on the node is the server
-    // is loaded? That's not strictly necessary... (and doing this
-    // here might not be a good idea since this is called with the
-    // database locked.)
-    //
-//     if(proxy)
-//     {
-// 	try
-// 	{
-// 	    proxy->updateRevision(uuid, revision);
-// 	}
-// 	catch(const Ice::LocalException&)
-// 	{
-// 	}
-//     }
 }
 
 void

@@ -112,7 +112,7 @@ private:
     void updateImpl(const ServerInfo&);
     void updateRevisionFile();
     void checkActivation();
-    void checkDestroyed();
+    void checkDestroyed() const;
     void disableOnFailure();
     void enableAfterFailure(bool);
 
