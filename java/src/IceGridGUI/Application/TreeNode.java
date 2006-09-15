@@ -230,7 +230,7 @@ public abstract class TreeNode extends TreeNodeBase
 				java.util.Map defaultValues)
 	throws java.io.IOException
     {
-	java.util.Iterator p = parameters.iterator();
+	java.util.Iterator p = new java.util.LinkedHashSet(parameters).iterator();
 	while(p.hasNext())
 	{
 	    String parameter = (String)p.next();
@@ -251,7 +251,10 @@ public abstract class TreeNode extends TreeNodeBase
     {
 	java.util.LinkedList result = new java.util.LinkedList();
 
-	java.util.Iterator p = parameters.iterator();
+	//
+	// We use a LinkedHashSet to maintain order while eliminating duplicates
+	//
+	java.util.Iterator p = new java.util.LinkedHashSet(parameters).iterator();
 	while(p.hasNext())
 	{
 	    String param = (String)p.next();
@@ -263,8 +266,6 @@ public abstract class TreeNode extends TreeNodeBase
 	}
 	return result;
     }
-
-  
 
     //
     // Actions

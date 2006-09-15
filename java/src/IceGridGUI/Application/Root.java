@@ -472,6 +472,14 @@ public class Root extends ListTreeNode
 			//
 			_coordinator.accessDenied(e);
 		    }
+		    catch(Ice.LocalException e)
+		    {
+			JOptionPane.showMessageDialog(
+			    _coordinator.getMainFrame(),
+			    e.toString(),
+			    "Communication Exception",
+			    JOptionPane.ERROR_MESSAGE);
+		    }
 		    finally
 		    {
 			_coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -487,6 +495,14 @@ public class Root extends ListTreeNode
 	catch(AccessDeniedException e)
 	{
 	    _coordinator.accessDenied(e);
+	}
+	catch(Ice.LocalException e)
+	{
+	    JOptionPane.showMessageDialog(
+		_coordinator.getMainFrame(),
+		e.toString(),
+		"Communication Exception",
+		JOptionPane.ERROR_MESSAGE);
 	}
     }
 

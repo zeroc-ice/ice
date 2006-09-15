@@ -365,7 +365,17 @@ public class Coordinator
     {
 	if(_communicator == null)
 	{
-	    _communicator = Ice.Util.initialize(_initData);
+	    try
+	    {
+		_communicator = Ice.Util.initialize(_initData);
+	    }
+	    catch(Ice.LocalException e)
+	    {
+		JOptionPane.showMessageDialog(null,
+					      e.toString(),
+					      "Communicator initialization failed",
+					      JOptionPane.ERROR_MESSAGE);
+	    }
 	}
 	return _communicator;
     }
@@ -415,8 +425,6 @@ public class Coordinator
 	return _discardUpdates;
     }
     
-
-
     //
     // Open live application and select application tab
     //
@@ -583,8 +591,6 @@ public class Coordinator
     
     public void accessDenied(AccessDeniedException e)
     {
-	assert false;
-
 	JOptionPane.showMessageDialog(
 	    _mainFrame,
 	    "Another session (username = " + e.lockUserId 
@@ -805,18 +811,37 @@ public class Coordinator
 	AdminSessionPrx session = null;
 	
 	destroyCommunicator();
-	//
-	// Transform SSL info into properties
-	//
-	Ice.InitializationData initData = (Ice.InitializationData)_initData.clone();
-	initData.properties = initData.properties._clone();
-	initData.properties.setProperty("IceSSL.Keystore", info.keystore);
-	initData.properties.setProperty("IceSSL.Password", new String(info.keyPassword));
-	initData.properties.setProperty("IceSSL.KeystorePassword", new String(info.keystorePassword));
-	initData.properties.setProperty("IceSSL.Alias", info.alias);
-	initData.properties.setProperty("IceSSL.Truststore", info.truststore);
-	initData.properties.setProperty("IceSSL.TruststorePassword", new String(info.truststorePassword));
-	_communicator = Ice.Util.initialize(initData);
+
+	Ice.InitializationData initData = _initData;	
+	if(info.routed && info.routerSSLEnabled || !info.routed && info.registrySSLEnabled)
+	{
+	    initData = (Ice.InitializationData)initData.clone();
+	    initData.properties = initData.properties._clone();
+	    initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
+
+	    //
+	    // Transform SSL info into properties
+	    //	   
+	    initData.properties.setProperty("IceSSL.Keystore", info.keystore);
+	    initData.properties.setProperty("IceSSL.Password", new String(info.keyPassword));
+	    initData.properties.setProperty("IceSSL.KeystorePassword", new String(info.keystorePassword));
+	    initData.properties.setProperty("IceSSL.Alias", info.alias);
+	    initData.properties.setProperty("IceSSL.Truststore", info.truststore);
+	    initData.properties.setProperty("IceSSL.TruststorePassword", new String(info.truststorePassword));
+	}
+
+	try
+	{
+	    _communicator = Ice.Util.initialize(initData);
+	}
+	catch(Ice.LocalException e)
+	{
+	    JOptionPane.showMessageDialog(parent,
+					  e.toString(),
+					  "Communicator initialization failed",
+					  JOptionPane.ERROR_MESSAGE);
+	    return null;
+	}
 
 	if(info.routed)
 	{
@@ -824,10 +849,12 @@ public class Coordinator
 	    // Router
 	    //
 	    
+
 	    Ice.Identity routerId = new Ice.Identity();
 	    routerId.category = info.routerInstanceName;
 	    routerId.name = "router";
 	    String str = "\"" + _communicator.identityToString(routerId) + "\"";
+
 	    if(!info.routerEndpoints.equals(""))
 	    {
 		str += ":" + info.routerEndpoints;
@@ -846,18 +873,51 @@ public class Coordinator
 		Glacier2.SessionPrx s;
 		if(info.routerUseSSL)
 		{
+		    router = Glacier2.RouterPrxHelper.
+			uncheckedCast(router.ice_secure(true));
+
 		    s = router.createSessionFromSecureConnection();
+		    
+		    if(s == null)
+		    {
+			JOptionPane.showMessageDialog(
+			    parent,
+			    "createSessionFromSecureConnection returned a null session: \n"
+			    + "verify that Glacier2.SSLSessionManager is set to "
+			    + "<IceGridInstanceName>/AdminSSLSessionManager in your Glacier2 router configuration",
+			    "Login failed",
+			    JOptionPane.ERROR_MESSAGE);
+			
+			return null;
+		    }
 		}
 		else
 		{
 		    s = router.createSession(
 			info.routerUsername, new String(info.routerPassword));
+
+		    if(s == null)
+		    {
+			JOptionPane.showMessageDialog(
+			    parent,
+			    "createSession returned a null session: \n"
+			    + "verify that Glacier2.SessionManager is set to "
+			    + "<IceGridInstanceName>/AdminSessionManager in your Glacier2 router configuration",
+			    "Login failed",
+			    JOptionPane.ERROR_MESSAGE);
+			
+			return null;
+		    }
 		}
 		
 		session = AdminSessionPrxHelper.uncheckedCast(s);
 	    }
 	    catch(Glacier2.PermissionDeniedException e)
 	    {
+		if(e.reason.length() == 0)
+		{
+		    e.reason = info.routerUseSSL ? "Invalid credentials" : "Invalid username/password";
+		}
 		JOptionPane.showMessageDialog(parent,
 					      "Permission denied: "
 					      + e.reason,
@@ -928,6 +988,9 @@ public class Coordinator
 	    {
 		if(info.registryUseSSL)
 		{
+		    registry = RegistryPrxHelper.
+			uncheckedCast(registry.ice_secure(true));
+
 		    session = AdminSessionPrxHelper.uncheckedCast(
 			registry.createAdminSessionFromSecureConnection());
 		}
@@ -1109,14 +1172,13 @@ public class Coordinator
 
 		destroyIceGridAdmin();
 		return null;
-
 	    }
 	}
 
 	try
 	{
 	    FileParserPrx fileParser = FileParserPrxHelper.checkedCast(
-		getCommunicator().stringToProxy(_fileParser));
+		getCommunicator().stringToProxy(_fileParser).ice_router(null));
 	    return fileParser.parse(file.getAbsolutePath(), 
 				    _sessionKeeper.getRoutedAdmin());
 	}
@@ -1219,9 +1281,6 @@ public class Coordinator
 	//
 	properties.setProperty("Ice.Override.ConnectTimeout", "5000");
 	
-	//
-        // For SSL with JDK 1.4
-        //
 	properties.setProperty("Ice.ThreadPerConnection", "1");
 
 	//
