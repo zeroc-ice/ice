@@ -7,10 +7,9 @@
 #
 # **********************************************************************
 
-top_srcdir	= ../../../..
-
 CLIENT		= client
 SERVER		= server
+
 
 TARGETS		= $(CLIENT) $(SERVER)
 
@@ -18,13 +17,11 @@ COBJS		= Client.o
 
 SOBJS		= Server.o
 
-SRCS		= $(SOBJS:.o=.cpp) \
-		  $(COBJS:.o=.cpp)
+SRCS		= $(SOBJS:.o=.cpp) $(COBJS:.o=.cpp)
 
-include $(top_srcdir)/config/Make.rules
-include $(top_srcdir)/config/Make.icee.rules
+CPPFLAGS	:=
 
-CPPFLAGS	:= -I. $(ICE_CPPFLAGS) $(CPPFLAGS)
+all: $(CLIENT) $(SERVER)
 
 $(CLIENT): $(COBJS)
 	rm -f $@
@@ -33,5 +30,3 @@ $(CLIENT): $(COBJS)
 $(SERVER): $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(SOBJS)
-
-include .depend

@@ -15,11 +15,11 @@ all: $(TARGETS)
 
 $(CLIENT): Client.java
 	rm -f $@
-	javac $<
+	javac -source 1.4 $<
 
 $(SERVER): Server.java
 	rm -f $@
-	javac $<
+	javac -source 1.4 $<
 
 clean:
 	rm -f $(TARGETS)
