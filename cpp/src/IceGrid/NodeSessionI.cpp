@@ -19,12 +19,14 @@ using namespace IceGrid;
 NodeSessionI::NodeSessionI(const DatabasePtr& database, 
 			   const string& name, 
 			   const NodePrx& node, 
-			   const NodeInfo& info) :
+			   const NodeInfo& info,
+			   int timeout) :
     _database(database),
     _traceLevels(database->getTraceLevels()),
     _name(name),
-    _node(NodePrx::uncheckedCast(node->ice_timeout(_database->getSessionTimeout() * 1000))),
+    _node(NodePrx::uncheckedCast(node->ice_timeout(timeout * 1000))),
     _info(info),
+    _timeout(timeout),
     _timestamp(IceUtil::Time::now()),
     _destroy(false)
 {
@@ -64,7 +66,7 @@ NodeSessionI::keepAlive(const LoadInfo& load, const Ice::Current& current)
 int
 NodeSessionI::getTimeout(const Ice::Current& current) const
 {
-    return _database->getSessionTimeout();
+    return _timeout;
 }
 
 NodeObserverPrx

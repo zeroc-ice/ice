@@ -30,7 +30,7 @@ class ReplicaSessionI : public ReplicaSession, public IceUtil::Mutex
 public:
 
     ReplicaSessionI(const DatabasePtr&, const WellKnownObjectsManagerPtr&, const std::string&, const RegistryInfo&,
-		    const InternalRegistryPrx&, const DatabaseObserverPrx&);
+		    const InternalRegistryPrx&, const DatabaseObserverPrx&, int);
 
     virtual void keepAlive(const Ice::Current&);
     virtual int getTimeout(const Ice::Current&) const;
@@ -59,6 +59,7 @@ private:
     const InternalRegistryPrx _internalRegistry;
     const DatabaseObserverPrx _databaseObserver;
     const RegistryInfo _info;
+    const int _timeout;
     ObjectInfoSeq _replicaWellKnownObjects;
     StringObjectProxyDict _replicaEndpoints;
     IceUtil::Time _timestamp;

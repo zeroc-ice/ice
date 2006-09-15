@@ -28,20 +28,35 @@ class LoadCB : public AMI_Node_loadServer
 {
 public:
 
-    LoadCB(const TraceLevelsPtr& traceLevels, const ServerEntryPtr& server, const string& id, const string& node) : 
-	_traceLevels(traceLevels), _server(server), _id(id), _node(node)
+    LoadCB(const TraceLevelsPtr& traceLevels, 
+	   const ServerEntryPtr& server, 
+	   const string& id, 
+	   const string& node,
+	   int timeout) : 
+	_traceLevels(traceLevels), _server(server), _id(id), _node(node), _timeout(timeout)
     {
     }
 
     void
-    ice_response(const ServerPrx& proxy, const AdapterPrxDict& adapters, int at, int dt)
+    ice_response(const ServerPrx& proxy, const AdapterPrxDict& adpts, int at, int dt)
     {
 	if(_traceLevels && _traceLevels->server > 1)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
 	    out << "loaded `" << _id << "' on node `" << _node << "'";	
 	}
-	_server->loadCallback(ServerPrx::uncheckedCast(proxy->ice_collocationOptimized(false)), adapters, at, dt);
+
+	//
+	// Apply the node session timeout on the proxies.
+	//
+	ServerPrx server = ServerPrx::uncheckedCast(proxy->ice_timeout(_timeout * 1000));
+	AdapterPrxDict adapters;
+	for(AdapterPrxDict::const_iterator p = adpts.begin(); p != adpts.end(); ++p)
+	{
+	    adapters.insert(make_pair(p->first, AdapterPrx::uncheckedCast(p->second->ice_timeout(_timeout * 1000))));
+	}
+
+	_server->loadCallback(server, adapters, at + _timeout, dt + _timeout);
     }
 
     void
@@ -94,6 +109,7 @@ private:
     const ServerEntryPtr _server;
     const string _id;
     const string _node;
+    const int _timeout;
 };
 
 class DestroyCB : public AMI_Node_destroyServer
@@ -390,6 +406,7 @@ NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, con
     try
     {
 	NodePrx node;
+	int timeout;
 	ServerDescriptorPtr desc;
 	{
 	    Lock sync(*this);
@@ -398,6 +415,7 @@ NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, con
 		throw NodeUnreachableException(_name, "the node is not active");
 	    }
 	    node = _session->getNode();
+	    timeout = _session->getTimeout();
 	    try
 	    {
 		desc = getServerDescriptor(server, session);
@@ -430,8 +448,7 @@ NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, con
 	    }
 	}
 	
-	AMI_Node_loadServerPtr amiCB = new LoadCB(_cache.getTraceLevels(), entry, entry->getId(), _name);
-
+	AMI_Node_loadServerPtr amiCB = new LoadCB(_cache.getTraceLevels(), entry, entry->getId(), _name, timeout);
 	ServerInfo info = server;
 	info.descriptor = desc;
 	node->loadServer_async(amiCB, info, _cache.isMaster());

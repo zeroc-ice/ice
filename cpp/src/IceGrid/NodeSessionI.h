@@ -25,10 +25,10 @@ class NodeSessionI : public NodeSession, public IceUtil::Mutex
 {
 public:
 
-    NodeSessionI(const DatabasePtr&, const std::string&, const NodePrx&, const NodeInfo&);
+    NodeSessionI(const DatabasePtr&, const std::string&, const NodePrx&, const NodeInfo&, int);
 
     virtual void keepAlive(const LoadInfo&, const Ice::Current&);
-    virtual int getTimeout(const Ice::Current&) const;
+    virtual int getTimeout(const Ice::Current& = Ice::Current()) const;
     virtual NodeObserverPrx getObserver(const Ice::Current&) const;
     virtual void loadServers(const Ice::Current&) const;
     virtual Ice::StringSeq getServers(const Ice::Current&) const;
@@ -49,6 +49,7 @@ private:
     const std::string _name;
     const NodePrx _node;
     const NodeInfo _info;
+    const int _timeout;
     IceUtil::Time _timestamp;
     LoadInfo _load;
     bool _destroy;

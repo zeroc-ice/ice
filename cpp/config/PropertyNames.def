@@ -238,7 +238,6 @@ IceGrid:
     Registry.AdminCryptPasswords
     Registry.AdminPermissionsVerifier
     Registry.AdminSSLPermissionsVerifier
-    Registry.AdminSessionTimeout
     Registry.Client.AdapterId
     Registry.Client.ReplicaGroupId
     Registry.Client.Endpoints
@@ -264,6 +263,7 @@ IceGrid:
     Registry.NodeSessionTimeout
     Registry.PermissionsVerifier
     Registry.ReplicaName
+    Registry.ReplicaSessionTimeout
     Registry.Server.AdapterId
     Registry.Server.ReplicaGroupId
     Registry.Server.Endpoints

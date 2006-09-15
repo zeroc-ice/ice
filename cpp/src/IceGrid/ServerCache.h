@@ -90,7 +90,7 @@ class ServerCache : public CacheByString<ServerEntry>
 {
 public:
 
-    ServerCache(const Ice::CommunicatorPtr&, NodeCache&, AdapterCache&, ObjectCache&, AllocatableObjectCache&, int);
+    ServerCache(const Ice::CommunicatorPtr&, NodeCache&, AdapterCache&, ObjectCache&, AllocatableObjectCache&);
 
     ServerEntryPtr add(const ServerInfo&);
     ServerEntryPtr get(const std::string&) const;
@@ -101,7 +101,6 @@ public:
     
     NodeCache& getNodeCache() const { return _nodeCache; }
     Ice::CommunicatorPtr getCommunicator() const { return _communicator; }
-    int getSessionTimeout() const { return _sessionTimeout; }
 
 private:
     
@@ -116,7 +115,6 @@ private:
     AdapterCache& _adapterCache;
     ObjectCache& _objectCache;
     AllocatableObjectCache& _allocatableObjectCache;
-    int _sessionTimeout;
 };
 
 };

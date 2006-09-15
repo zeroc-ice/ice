@@ -50,8 +50,8 @@ class Database : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    Database(const Ice::ObjectAdapterPtr&, const IceStorm::TopicManagerPrx&,
-	     const std::string&, int, const TraceLevelsPtr&, bool);
+    Database(const Ice::ObjectAdapterPtr&, const IceStorm::TopicManagerPrx&, const std::string&, const TraceLevelsPtr&,
+	     bool);
     virtual ~Database();
     
     void destroy();
@@ -64,7 +64,6 @@ public:
 
     void destroyTopics();
     ObserverTopicPtr getObserverTopic(TopicName) const;
-    int getSessionTimeout() const { return _sessionTimeout; }
 
     int lock(AdminSessionI*, const std::string&);
     void unlock(AdminSessionI*);
@@ -164,7 +163,6 @@ private:
     const std::string _envName;
     const std::string _instanceName;
     const TraceLevelsPtr _traceLevels;
-    const int _sessionTimeout;
     const bool _master;
 
     ReplicaCache _replicaCache;

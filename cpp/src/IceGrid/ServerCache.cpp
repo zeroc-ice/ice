@@ -63,14 +63,12 @@ ServerCache::ServerCache(const Ice::CommunicatorPtr& communicator,
 			 NodeCache& nodeCache, 
 			 AdapterCache& adapterCache, 
 			 ObjectCache& objectCache,
-			 AllocatableObjectCache& allocatableObjectCache,
-			 int sessionTimeout) :
+			 AllocatableObjectCache& allocatableObjectCache) :
     _communicator(communicator),
     _nodeCache(nodeCache), 
     _adapterCache(adapterCache), 
     _objectCache(objectCache),
-    _allocatableObjectCache(allocatableObjectCache),
-    _sessionTimeout(sessionTimeout)
+    _allocatableObjectCache(allocatableObjectCache)
 {
 }
 
@@ -652,16 +650,10 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
 	    //
 	    _loaded = _load;
 	    assert(_loaded.get());
-	    int timeout = _cache.getSessionTimeout() * 1000; // sec to ms
-	    _proxy = ServerPrx::uncheckedCast(proxy->ice_timeout(timeout)->ice_collocationOptimized(false));
-	    _adapters.clear();
-	    for(AdapterPrxDict::const_iterator p = adpts.begin(); p != adpts.end(); ++p)
-	    {
-		Ice::ObjectPrx adapter = p->second->ice_timeout(timeout)->ice_collocationOptimized(false);
-		_adapters.insert(make_pair(p->first, AdapterPrx::uncheckedCast(adapter)));
-	    }
-	    _activationTimeout = at + timeout;
-	    _deactivationTimeout = dt + timeout;
+	    _proxy = proxy;
+	    _adapters = adpts;
+	    _activationTimeout = at;
+	    _deactivationTimeout = dt;
 
 	    assert(!_destroy.get() && !_load.get());
 	    _synchronizing = false;

@@ -21,14 +21,16 @@ ReplicaSessionI::ReplicaSessionI(const DatabasePtr& database,
 				 const string& name, 
 				 const RegistryInfo& info,
 				 const InternalRegistryPrx& proxy,
-				 const DatabaseObserverPrx& databaseObserver) :
+				 const DatabaseObserverPrx& databaseObserver,
+				 int timeout) :
     _database(database),
     _wellKnownObjects(wellKnownObjects),
     _traceLevels(database->getTraceLevels()),
     _name(name),
-    _internalRegistry(InternalRegistryPrx::uncheckedCast(proxy->ice_timeout(_database->getSessionTimeout() * 1000))),
+    _internalRegistry(InternalRegistryPrx::uncheckedCast(proxy->ice_timeout(timeout * 1000))),
     _databaseObserver(databaseObserver),
     _info(info),
+    _timeout(timeout),
     _timestamp(IceUtil::Time::now()),
     _destroy(false)
 {
@@ -66,7 +68,7 @@ ReplicaSessionI::keepAlive(const Ice::Current& current)
 int
 ReplicaSessionI::getTimeout(const Ice::Current& current) const
 {
-    return _database->getSessionTimeout();
+    return _timeout;
 }
 
 void

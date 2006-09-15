@@ -3116,7 +3116,26 @@ Each &IceGrid; node establishes a session with the registry that must
 be refreshed periodically. If a node does not refresh its session
 within <replaceable>num</replaceable> seconds, the node's session is
 destroyed and the servers deployed on that node become unavailable to
-new clients. If not specified, the default value is 10 seconds.
+new clients. If not specified, the default value is 30 seconds.
+</para>
+</section>
+</section>
+
+<section><title>IceGrid.Registry.ReplicaSessionTimeout</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceGrid.Registry.ReplicaSessionTimeout=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Each &IceGrid; registry replica establishes a session with the master 
+registry that must be refreshed periodically. If a replica does not 
+refresh its session within <replaceable>num</replaceable> seconds, 
+the replica's session is destroyed and the replica doesn't receive 
+anymore replication information from the master registry. If not 
+specified, the default value is 30 seconds.
 </para>
 </section>
 </section>
@@ -3234,8 +3253,8 @@ IceGrid.Registry.SessionTimeout=<replaceable>num</replaceable>
 &IceGrid; clients or administrative clients might establish a session
 with the registry. This session must be refreshed periodically. If the
 client does not refresh its session within
-<replaceable>num</replaceable> seconds, the session is destroyed.  If
-not specified, the default value is 10 seconds.
+<replaceable>num</replaceable> seconds, the session is destroyed. If
+not specified, the default value is 30 seconds.
 </para>
 </section>
 </section>

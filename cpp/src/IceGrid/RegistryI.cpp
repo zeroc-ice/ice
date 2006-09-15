@@ -215,11 +215,7 @@ RegistryI::start(bool nowarn)
     _reaper = new ReapThread();
     _reaper->start();
 
-    //
-    // TODO: Deprecate AdminSessionTimeout?
-    //
-    int sessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.AdminSessionTimeout", 30);
-    _sessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.SessionTimeout", sessionTimeout);
+    _sessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.SessionTimeout", 30);
 
     //
     // Get the instance name
@@ -258,10 +254,7 @@ RegistryI::start(bool nowarn)
  					  registryTopicManagerId,
 					  "Registry");
 
-    int t = properties->getPropertyAsIntWithDefault("IceGrid.Registry.NodeSessionTimeout", 30);
-    t = properties->getPropertyAsIntWithDefault("IceGrid.Registry.InternalSessionTimeout", t);
-
-    _database = new Database(registryAdapter, _iceStorm->getTopicManager(), _instanceName, t, _traceLevels, _master);
+    _database = new Database(registryAdapter, _iceStorm->getTopicManager(), _instanceName, _traceLevels, _master);
     _wellKnownObjects = new WellKnownObjectsManager(_database);
 
     InternalRegistryPrx internalRegistry;

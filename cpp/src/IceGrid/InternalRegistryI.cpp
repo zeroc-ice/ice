@@ -99,8 +99,12 @@ InternalRegistryI::InternalRegistryI(const RegistryIPtr& registry,
     _reaper(reaper),
     _wellKnownObjects(wellKnownObjects),
     _session(session),
-    _timeout(_database->getSessionTimeout())
+    _nodeSessionTimeout(30),
+    _replicaSessionTimeout(30)
 {
+    Ice::PropertiesPtr properties = database->getCommunicator()->getProperties();
+    _nodeSessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.NodeSessionTimeout", 30);
+    _replicaSessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.ReplicaSessionTimeout", 30);
 }
 
 InternalRegistryI::~InternalRegistryI()
@@ -115,9 +119,9 @@ InternalRegistryI::registerNode(const std::string& name,
 {
     try
     {
-	NodeSessionIPtr session = new NodeSessionI(_database, name, node, info);
+	NodeSessionIPtr session = new NodeSessionI(_database, name, node, info, _nodeSessionTimeout);
 	NodeSessionPrx proxy = NodeSessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
-	_reaper->add(new SessionReapable<NodeSessionI>(current.adapter, session, proxy), _timeout);
+	_reaper->add(new SessionReapable<NodeSessionI>(current.adapter, session, proxy), _nodeSessionTimeout);
 	return proxy;
     }
     catch(const Ice::ObjectAdapterDeactivatedException&)
@@ -136,9 +140,9 @@ InternalRegistryI::registerReplica(const std::string& name,
     try
     {
 	ReplicaSessionIPtr session = new ReplicaSessionI(_database, _wellKnownObjects, name, info, registry, 
-							 dbObserver);
+							 dbObserver, _replicaSessionTimeout);
 	ReplicaSessionPrx proxy = ReplicaSessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
-	_reaper->add(new SessionReapable<ReplicaSessionI>(current.adapter, session, proxy), _timeout);
+	_reaper->add(new SessionReapable<ReplicaSessionI>(current.adapter, session, proxy), _replicaSessionTimeout);
 	return proxy;
     }
     catch(const Ice::ObjectAdapterDeactivatedException&)
