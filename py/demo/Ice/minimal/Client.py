@@ -22,10 +22,7 @@ try:
         print args[0] + ": invalid proxy"
 	status = 1
     else:
-        desc = Demo.TDFAgentDescription();
-	desc.Name = ""
-	desc.Services = []
-	hello.sayHello(desc)
+	hello.sayHello()
 except:
     traceback.print_exc()
     status = 1
