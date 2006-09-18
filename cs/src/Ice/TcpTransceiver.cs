@@ -94,7 +94,7 @@ namespace IceInternal
 	        throw new Ice.SocketException(ex);
 	    }
 	}
-	
+
 	public void write(BasicStream stream, int timeout)
 	{
 	    Debug.Assert(_fd != null);
@@ -199,36 +199,25 @@ namespace IceInternal
 			//
 			// Try to receive first. Much of the time, this will work and we
 			// avoid the cost of calling Poll().
-			//	
-			ret = _fd.Receive(buf.rawBytes(), position, remaining, SocketFlags.None);
-		    }
-		    catch(Win32Exception e)
-		    {
-			if(Network.wouldBlock(e))
-			{
-			    if(timeout == 0)
-			    {
-				throw new Ice.TimeoutException();
-			    }
-			    ret = 0;
-			}
-			else
-			{
-			    throw;
-			}
-		    }
-		    if(ret == 0)
-		    {
-			if(!Network.doPoll(_fd, timeout, Network.PollMode.Read))
-			{
-			    throw new Ice.TimeoutException();
-			}
+			//
 			ret = _fd.Receive(buf.rawBytes(), position, remaining, SocketFlags.None);
 			if(ret == 0)
 			{
 			    throw new Ice.ConnectionLostException();
 			}
-		    }  		    
+		    }
+		    catch(Win32Exception e)
+		    {
+			if(Network.wouldBlock(e))
+			{
+			    if(!Network.doPoll(_fd, timeout, Network.PollMode.Read))
+			    {
+				throw new Ice.TimeoutException();
+			    }
+			    continue;
+			}
+			throw;
+		    }
 		    if(_traceLevels.network >= 3)
 		    {
 			string s = "received " + ret + " of " + remaining + " bytes via tcp\n" + ToString();
