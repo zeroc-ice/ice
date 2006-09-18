@@ -30,3 +30,6 @@ $(CLIENT): $(COBJS)
 $(SERVER): $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(SOBJS)
+
+clean:
+	rm -f Client.o Server.o $(TARGETS)

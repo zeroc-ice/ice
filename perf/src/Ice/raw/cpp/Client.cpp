@@ -15,40 +15,40 @@
 #ifdef _WIN32
 #   include <winsock2.h>
 typedef int ssize_t;
-#else
-#   include <unistd.h>
-#   include <fcntl.h>
-#   include <sys/socket.h>
-
-#   if defined(__hpux)
-#      include <sys/time.h>
-#   else   
-#      include <sys/select.h>
-#   endif
-
-#   include <netinet/in.h>
-#   include <netinet/tcp.h>
-#   include <arpa/inet.h>
-#   include <netdb.h>
-#endif
-
-#ifdef _WIN32
 #   include <sys/timeb.h>
 #else
-#   include <sys/time.h>
-#endif
 
-#ifndef _WIN32
+#   include <sys/types.h>
+#   include <sys/socket.h>
+#   include <netinet/in.h>
+#   include <arpa/inet.h>
+#   include <sys/time.h>
+
 #   define SOCKET int
 #   define SOCKET_ERROR -1
 #   define INVALID_SOCKET -1
+
 #endif
 
 #include <iostream>
 #include <string>
 
+#if defined(__i386)     || defined(_M_IX86) || defined(__x86_64)  || \
+    defined(_M_X64)     || defined(_M_IA64) || defined(__alpha__) || \
+    defined(__MIPSEL__)
+#   define ICE_LITTLE_ENDIAN
+#elif defined(__sparc) || defined(__sparc__) || defined(__hppa)      || \
+      defined(__ppc__) || defined(_ARCH_COM) || defined(__MIPSEB__)
+#   define ICE_BIG_ENDIAN
+#else
+#   error "Unknown architecture"
+#endif
+
 using namespace std;
 
+//
+// Ripped off from the Ice core.
+//
 namespace Protocol
 {
 
@@ -146,22 +146,50 @@ const char replyHdr[] =
 
 }
 
-int
+static void
 putInt(char* base, int& offset, int v)
 {
-    memcpy(base + offset, &v, sizeof(int));
+    char* dest = base+offset;
+#ifdef ICE_BIG_ENDIAN
+    const char* src = reinterpret_cast<const char*>(&v) + sizeof(Ice::Int) - 1;
+    *dest++ = *src--;
+    *dest++ = *src--;
+    *dest++ = *src--;
+    *dest = *src;
+#else
+    const char* src = reinterpret_cast<const char*>(&v);
+    *dest++ = *src++;
+    *dest++ = *src++;
+    *dest++ = *src++;
+    *dest = *src;
+#endif
     offset += sizeof(int);
 }
 
-int
-getInt(char* base, int& offset)
+static int
+getInt(const char* base, int& offset)
 {
-    int v = *(int*)base;
+    const char* src = base+offset;
     offset += sizeof(int);
+    int v;
+#ifdef ICE_BIG_ENDIAN
+    char* dest = reinterpret_cast<char*>(&v) + sizeof(Ice::Int) - 1;
+    *dest-- = *src++;
+    *dest-- = *src++;
+    *dest-- = *src++;
+    *dest = *src;
+#else
+    char* dest = reinterpret_cast<char*>(&v);
+    *dest++ = *src++;
+    *dest++ = *src++;
+    *dest++ = *src++;
+    *dest = *src;
+#endif
+
     return v;
 }
 
-void
+static void
 run(SOCKET fd)
 {
     int seq = 500000;
