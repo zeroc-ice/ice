@@ -32,6 +32,7 @@ typedef int ssize_t;
 
 #include <iostream>
 #include <string>
+#include <assert.h>
 
 #if defined(__i386)     || defined(_M_IX86) || defined(__x86_64)  || \
     defined(_M_X64)     || defined(_M_IA64) || defined(__alpha__) || \
@@ -192,7 +193,7 @@ getInt(const char* base, int& offset)
 static void
 run(SOCKET fd)
 {
-    int seq = 500000;
+    const int seq = 500000;
     char req[seq + Protocol::headerSize + 42]; // 42 is the size of the message header
     memset(req, 0, sizeof(req));
     memcpy(req, Protocol::requestHdr, Protocol::headerSize);

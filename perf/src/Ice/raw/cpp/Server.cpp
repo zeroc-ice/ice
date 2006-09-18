@@ -32,6 +32,8 @@ typedef int ssize_t;
 
 #include <errno.h>
 #include <iostream>
+#include <string>
+#include <assert.h>
 
 #if defined(__i386)     || defined(_M_IX86) || defined(__x86_64)  || \
     defined(_M_X64)     || defined(_M_IA64) || defined(__alpha__) || \
@@ -353,7 +355,8 @@ run(SOCKET fd)
 	   !rawcmp(opIcePing, sizeof(opIcePing)-1, req, offset, sz) &&
 	   !rawcmp(opSendByteSeq, sizeof(opSendByteSeq)-1, req, offset, sz))
 	{
-	    cerr << "unsupported op: " << string(&req[offset], sz) << endl;
+	    string op(&req[offset], sz);
+	    cerr << "unsupported op: " << op << endl;
 	    return;
 	}
 	
@@ -438,7 +441,11 @@ main(int argc, char* argv[])
 	cout << "Accepted new client" << endl;
 	run(fd2);
 	cout << "Disconnected client" << endl;
+#ifdef WIN32
+	::closesocket(fd2);
+#else
 	::close(fd2);
+#endif
     }
 
     return EXIT_SUCCESS;
