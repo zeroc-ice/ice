@@ -1,5 +1,5 @@
-Latency.Proxy=ping:default -p 10000
-Latency.Endpoints=default -p 10000
+Latency.Proxy=ping:default -p 10000 -h 127.0.0.1
+Latency.Endpoints=default -p 10000 -h 127.0.0.1
 
 #
 # Use faster blocking client side model by default.

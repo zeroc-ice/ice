@@ -1,4 +1,4 @@
-Throughput.Throughput=throughput:default -p 10000
+Throughput.Throughput=throughput:default -p 10000 -h 127.0.0.1
 
 #Ice.Plugin.IceSSL=IceSSL:createIceSSL
 IceSSL.DefaultDir=../../../certs

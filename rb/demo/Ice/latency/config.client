@@ -1,4 +1,4 @@
-Latency.Ping=ping:default -p 10000
+Latency.Ping=ping:default -p 10000 -h 127.0.0.1
 
 #
 # SSL Configuration

@@ -1,4 +1,4 @@
-Latency.Endpoints=default -p 10000
+Latency.Endpoints=default -p 10000 -h 127.0.0.1
 
 #
 # SSL Configuration
