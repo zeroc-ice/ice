@@ -190,6 +190,10 @@ AdminSessionFactory::createGlacier2Session(const string& sessionId, const Glacie
     Glacier2::SessionPrx s = Glacier2::SessionPrx::uncheckedCast(_adapter->add(session, id));
     ids.push_back(id);
 
+    // The IceGrid::Query object
+    id.name = "Query";
+    ids.push_back(id);
+
     if(ctl)
     {
 	try

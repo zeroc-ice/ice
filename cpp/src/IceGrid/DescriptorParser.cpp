@@ -413,7 +413,9 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	}
 	else if(name == "distrib")
 	{
-	    if(!_currentApplication.get() && (!_currentServer.get() || _currentServer.get() != _currentCommunicator))
+	    if(!_currentApplication.get() ||
+	       (_currentNode.get() || _currentTemplate.get()) && !_currentServer.get() ||
+	       _currentServer.get() != _currentCommunicator)
 	    {
 		error("the <distrib> element can only be a child of an <application>, <server> or <icebox> element");
 	    }

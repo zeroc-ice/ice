@@ -24,7 +24,7 @@ public:
 
     Resolver(const ApplicationDescriptor&, const Ice::CommunicatorPtr&);
     Resolver(const Resolver&, const std::map<std::string, std::string>&, bool);
-    Resolver(const std::string&, const std::map<std::string, std::string>&, const Ice::CommunicatorPtr&);
+    Resolver(const NodeInfo&, const Ice::CommunicatorPtr&);
 
     std::string operator()(const std::string&, const std::string& = std::string(), bool = true, bool = true) const;
     Ice::StringSeq operator()(const Ice::StringSeq&, const std::string&) const;

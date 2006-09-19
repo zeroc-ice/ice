@@ -497,18 +497,10 @@ NodeEntry::getServerDescriptor(const ServerInfo& server, const SessionIPtr& sess
 {
     assert(_session);
 
-    NodeInfo info = _session->getInfo();
-    
-    Resolver resolve("server `" + server.descriptor->id + "'", map<string, string>(), _cache.getCommunicator());
+    Resolver resolve(_session->getInfo(), _cache.getCommunicator());
     resolve.setReserved("application", server.application);
-    resolve.setReserved("node", server.node);
     resolve.setReserved("server", server.descriptor->id);
-    resolve.setReserved("node.os", info.os);
-    resolve.setReserved("node.hostname", info.hostname);
-    resolve.setReserved("node.release", info.release);
-    resolve.setReserved("node.version", info.version);
-    resolve.setReserved("node.machine", info.machine);
-    resolve.setReserved("node.datadir", info.dataDir);
+    resolve.setContext("server `${server}'");
 
     if(session)
     {

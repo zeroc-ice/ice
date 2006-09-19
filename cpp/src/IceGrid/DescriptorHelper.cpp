@@ -300,12 +300,20 @@ Resolver::Resolver(const ApplicationDescriptor& app, const Ice::CommunicatorPtr&
 	{
 	    exception("empty server template id");
 	}
+	if(!t->second.descriptor)
+	{
+	    exception("invalid server template: server definition is empty");
+	}
     }
     for(t = _application->serviceTemplates.begin(); t != _application->serviceTemplates.end(); ++t)
     {
 	if(t->first == "")
 	{
 	    exception("empty service template id");
+	}
+	if(!t->second.descriptor)
+	{
+	    exception("invalid service template: service definition is empty");
 	}
     }
 }
@@ -342,23 +350,20 @@ Resolver::Resolver(const Resolver& resolve,
     }
 }
 
-Resolver::Resolver(const string& context, const map<string, string>& values, const Ice::CommunicatorPtr& com) :
+Resolver::Resolver(const NodeInfo& info, const Ice::CommunicatorPtr& com) :
     _application(0),
     _communicator(com),
     _escape(true),
-    _context(context),
-    _variables(values),
+    _context("node `" + info.name + "'"),
     _reserved(getReserved())
 {
-    checkReserved("variable", values);
-
-    for(StringStringDict::const_iterator v = _variables.begin(); v != _variables.end(); ++v)
-    {
-	if(v->first == "")
-	{
-	    exception("empty variable name");
-	}
-    }
+    setReserved("node", info.name);
+    setReserved("node.os", info.os);
+    setReserved("node.hostname", info.hostname);
+    setReserved("node.release", info.release);
+    setReserved("node.version", info.version);
+    setReserved("node.machine", info.machine);
+    setReserved("node.datadir", info.dataDir);
 }
 
 string 

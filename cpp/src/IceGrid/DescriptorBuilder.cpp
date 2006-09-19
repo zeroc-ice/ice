@@ -340,6 +340,10 @@ ApplicationDescriptorBuilder::addNode(const string& name, const NodeDescriptor& 
 void
 ApplicationDescriptorBuilder::addServerTemplate(const string& id, const TemplateDescriptor& templ)
 {
+    if(!templ.descriptor)
+    {
+	throw "invalid server template `" + id + "': server definition is missing";
+    }
     if(!_descriptor.serverTemplates.insert(make_pair(id, templ)).second)
     {
 	throw "duplicate server template `" + id + "'";
@@ -349,6 +353,10 @@ ApplicationDescriptorBuilder::addServerTemplate(const string& id, const Template
 void
 ApplicationDescriptorBuilder::addServiceTemplate(const string& id, const TemplateDescriptor& templ)
 {
+    if(!templ.descriptor)
+    {
+	throw "invalid service template `" + id + "': service definition is missing";
+    }
     if(!_descriptor.serviceTemplates.insert(make_pair(id, templ)).second)
     {
 	throw "duplicate service template `" + id + "'";
