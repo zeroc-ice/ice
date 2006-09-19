@@ -23,9 +23,13 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCulture("")]		
 [assembly: AssemblyVersion("3.1.0")]
 [assembly: AssemblyDelaySign(false)]
-#if __MonoCS__
-[assembly: AssemblyKeyFile("../../config/IcecsKey.snk")] // mcs uses different search algorithm.
-#elif ICE_DOTNET_1X
+
+#if ICE_DOTNET_1X && !__MonoCS__
+#if MAKEFILE_BUILD
+[assembly: AssemblyKeyFile("../../config/IcecsKey.snk")]
+#else
 [assembly: AssemblyKeyFile("../../../../config/IcecsKey.snk")]
 #endif
+#endif
+
 [assembly: AssemblyKeyName("")]

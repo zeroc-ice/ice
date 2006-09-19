@@ -8,21 +8,14 @@
 # **********************************************************************
 
 #
-# Checks for ICE_HOME environment variable.  If it isn't present it will
-# attempt to find an Ice installation in /usr.
+# If you are compiling with MONO you must define this symbol.
 #
+MONO = yes
 
-ifeq ($(ICE_HOME),)
-    ICE_DIR = /usr
-    ifneq ($(shell test -f $(ICE_DIR)/bin/icestormadmin && echo 0),0)
-$(error Ice distribution not found, please set ICE_HOME!)
-    endif
-else
-    ICE_DIR = $(ICE_HOME)
-    ifneq ($(shell test -d $(ICE_DIR)/slice && echo 0),0)
-$(error Ice distribution not found, please set ICE_HOME!)
-    endif
-endif
+#
+# If you are compiling with .NET 1.x you must define this symbol.
+#
+#DOTNET_1 = yes
 
 #
 # Select an installation base directory. The directory will be created
@@ -46,11 +39,42 @@ prefix			= /opt/IceCS-$(VERSION)
 # assertions enabled.
 #
 
-DEBUG			= yes
+#DEBUG			= yes
+
+#OPTIMIZE		= yes
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
+
+ifeq ($(MONO), yes)
+    DOTNET_1 = yes
+endif
+
+#
+# Checks for ICE_HOME environment variable.  If it isn't present it will
+# attempt to find an Ice installation in /usr.
+#
+
+ifeq ($(ICE_HOME),)
+    ICE_DIR = /usr
+    ifneq ($(shell test -f $(ICE_DIR)/bin/icestormadmin && echo 0),0)
+$(error Ice distribution not found, please set ICE_HOME!)
+    endif
+else
+    ICE_DIR = $(ICE_HOME)
+    ifneq ($(shell test -d $(ICE_DIR)/slice && echo 0),0)
+$(error Ice distribution not found, please set ICE_HOME!)
+    endif
+endif
+
+ifeq ($(MONO), yes)
+	DSEP = /
+else
+	DSEP = \\
+endif
+
+
 
 src_build		= yes
 
@@ -95,13 +119,25 @@ INSTALL_DATA		= ${INSTALL}
 
 GACUTIL			= gacutil
 
+ifeq ($(MONO),yes)
 MCS			= mcs
+else
+MCS			= csc -nologo
+endif
 
 LIBS			= $(bindir)/icecs.dll $(bindir)/glaciercs.dll
 
-MCSFLAGS = -warnaserror
+MCSFLAGS = -warnaserror -d:MAKEFILE_BUILD
 ifeq ($(DEBUG),yes)
     MCSFLAGS := $(MCSFLAGS) -debug -define:DEBUG
+endif
+
+ifeq ($(OPTIMIZE),yes)
+    MCSFLAGS := $(MCSFLAGS) -optimize+
+endif
+
+ifeq ($(DOTNET_1), yes)
+    MCSFLAGS := $(MCSFLAGS) -d:ICE_DOTNET_1X
 endif
 
 ifeq ($(installdata),)
@@ -132,7 +168,8 @@ SGEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_S_SRCS))))
 GEN_AMD_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_AMD_SRCS))))
 SAMD_GEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_SAMD_SRCS))))
 
-EVERYTHING		= all depend clean install
+
+EVERYTHING		= all depend clean install config
 
 .SUFFIXES:
 .SUFFIXES:		.cs .ice
@@ -171,6 +208,10 @@ depend:: $(SLICE_SRCS) $(SLICE_C_SRCS) $(SLICE_S_SRCS) $(SLICE_AMD_SRCS) $(SLICE
 
 clean::
 	-rm -f $(TARGETS) $(patsubst %,%.mdb,$(TARGETS)) *.bak *.dll *.pdb *.mdb
+	-rm -f $(patsubst %,%.config,$(TARGETS))
+
+config::
+	$(top_srcdir)/config/makeconfig.py $(top_srcdir) $(TARGETS)
 
 ifneq ($(SLICE_SRCS),)
 clean::

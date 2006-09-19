@@ -27,9 +27,13 @@ MCSFLAGS	:= $(MCSFLAGS) -target:exe
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) -I.
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) $(subst /,$(DSEP),$^)
 
 server.exe: $(S_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) -r:Mono.Posix $^
+ifeq ($(MONO), yes)
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) -r:Mono.Posix $(subst /,$(DSEP),$^)
+else
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) $(subst /,$(DSEP),$^)
+endif
 
 include .depend

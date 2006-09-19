@@ -12,6 +12,11 @@ top_srcdir	= ..
 include $(top_srcdir)/config/Make.rules.cs
 
 SUBDIRS		= Ice IceStorm Glacier2 IcePatch2 IceGrid IceBox
+ifneq ($(MONO), yes)
+ifneq ($(DOTNET_1), yes)
+SUBDIRS		+= IceSSL
+endif
+endif
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

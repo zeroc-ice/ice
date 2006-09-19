@@ -25,10 +25,14 @@ include $(top_srcdir)/config/Make.rules.cs
 
 MCSFLAGS	:= $(MCSFLAGS) -target:library -out:$(TARGETS) -unsafe
 
+ifneq ($(DOTNET_1), yes)
+MCSFLAGS	:= $(MCSFLAGS) -keyfile:$(top_srcdir)/config/IcecsKey.snk
+endif
+
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) -I$(slicedir) --ice
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) $(call ref,icecs) $^
+	$(MCS) $(MCSFLAGS) $(call ref,icecs) $(subst /,$(DSEP),$^)
 
 ifeq ($(NOGAC),)
 

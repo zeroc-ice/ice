@@ -78,6 +78,10 @@
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
+    <ProjectReference Include="..\..\..\src\Glacier2\Glacier2.csproj">
+      <Project>{F6EAFA67-FF43-4C8B-BF7F-86F79DCCDA1A}</Project>
+      <Name>Glacier2</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\src\IceGrid\IceGrid.csproj">
       <Name>IceGrid</Name>
       <Project>{08BA06BB-1803-4EF5-81A1-467DF5464A9E}</Project>

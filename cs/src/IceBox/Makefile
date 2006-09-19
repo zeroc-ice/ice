@@ -25,13 +25,19 @@ include $(top_srcdir)/config/Make.rules.cs
 
 MCSFLAGS	:= $(MCSFLAGS) -target:exe
 
+LIB_MCSFLAGS	:= -target:library -out:$(bindir)/$(LIBNAME) -unsafe
+
+ifneq ($(DOTNET_1), yes)
+LIB_MCSFLAGS	:= $(LIB_MCSFLAGS) -keyfile:$(top_srcdir)/config/IcecsKey.snk
+endif
+
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --checksum --ice -I. -I$(slicedir)
 
 $(bindir)/iceboxnet.exe: $(I_SRCS) $(bindir)/$(LIBNAME)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,$(PKG)) $(call ref,icecs) $(I_SRCS)
 
 $(bindir)/$(LIBNAME): $(L_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -target:library -out:$(bindir)/$(LIBNAME) -unsafe $(call ref,glacier2cs) $(call ref,icecs) $^
+	$(MCS) $(LIB_MCSFLAGS) $(call ref,glacier2cs) $(call ref,icecs) $(subst /,$(DSEP),$^)
 
 ifeq ($(NOGAC),)
 
