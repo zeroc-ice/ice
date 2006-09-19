@@ -9,7 +9,6 @@
 
 #include <IceUtil/UUID.h>
 #include <Ice/Ice.h>
-#include <Ice/ProtocolPluginFacade.h> // Just to get the hostname
 #include <Ice/Locator.h>
 #include <Ice/Service.h>
 #include <IceGrid/Activator.h>
@@ -33,6 +32,7 @@
 #   include <direct.h>
 #   include <sys/types.h>
 #   include <sys/stat.h>
+#   include <winsock2.h>
 #   ifdef _MSC_VER
 #      define S_ISDIR(mode) ((mode) & _S_IFDIR)
 #      define S_ISREG(mode) ((mode) & _S_IFREG)
