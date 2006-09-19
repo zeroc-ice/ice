@@ -253,8 +253,9 @@ RegistryI::start(bool nowarn)
 					  "IceGrid.Registry", 
  					  registryTopicManagerId,
 					  "Registry");
+    const IceStorm::TopicManagerPrx topicManager = _iceStorm->getTopicManager();
 
-    _database = new Database(registryAdapter, _iceStorm->getTopicManager(), _instanceName, _traceLevels, _master);
+    _database = new Database(registryAdapter, topicManager, _instanceName, _traceLevels, getInfo(), _master);
     _wellKnownObjects = new WellKnownObjectsManager(_database);
 
     InternalRegistryPrx internalRegistry;

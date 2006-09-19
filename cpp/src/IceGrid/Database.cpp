@@ -119,6 +119,7 @@ Database::Database(const Ice::ObjectAdapterPtr& registryAdapter,
 		   const IceStorm::TopicManagerPrx& topicManager,
 		   const string& instanceName,
 		   const TraceLevelsPtr& traceLevels,
+		   const RegistryInfo& info,
 		   bool master) :
     _communicator(registryAdapter->getCommunicator()),
     _internalAdapter(registryAdapter),
@@ -164,10 +165,11 @@ Database::Database(const Ice::ObjectAdapterPtr& registryAdapter,
 
     _nodeObserverTopic = new NodeObserverTopic(_topicManager, _internalAdapter);
     _registryObserverTopic = new RegistryObserverTopic(_topicManager);
-
     _applicationObserverTopic = new ApplicationObserverTopic(_topicManager, _applications);
     _adapterObserverTopic = new AdapterObserverTopic(_topicManager, _adapters);
     _objectObserverTopic = new ObjectObserverTopic(_topicManager, _objects);
+
+    _registryObserverTopic->registryUp(info);
 
     //
     // Register a default servant to manage manually registered object adapters.
@@ -719,6 +721,8 @@ Database::addReplica(const string& name, const ReplicaSessionIPtr& session)
 {
     _replicaCache.add(name, session);
 
+    _registryObserverTopic->registryUp(session->getInfo());
+
     _applicationObserverTopic->subscribe(session->getObserver(), name);
     _adapterObserverTopic->subscribe(session->getObserver(), name);
     _objectObserverTopic->subscribe(session->getObserver(), name);
@@ -769,6 +773,8 @@ Database::removeReplica(const string& name, const ReplicaSessionIPtr& session)
     _applicationObserverTopic->unsubscribe(session->getObserver(), name);
     _adapterObserverTopic->unsubscribe(session->getObserver(), name);
     _objectObserverTopic->unsubscribe(session->getObserver(), name); 
+
+    _registryObserverTopic->registryDown(name);
 
     _replicaCache.remove(name);
 }

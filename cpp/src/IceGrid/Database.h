@@ -51,7 +51,7 @@ class Database : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 public:
 
     Database(const Ice::ObjectAdapterPtr&, const IceStorm::TopicManagerPrx&, const std::string&, const TraceLevelsPtr&,
-	     bool);
+	     const RegistryInfo&, bool);
     virtual ~Database();
     
     void destroy();
