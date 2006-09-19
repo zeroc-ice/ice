@@ -504,6 +504,45 @@ public:
 };
 typedef IceUtil::Handle<NodeObserverI> NodeObserverIPtr;
 
+class RegistryObserverI : public RegistryObserver, public ObserverBase
+{
+public:
+
+    RegistryObserverI(const string& name) : ObserverBase(name)
+    {
+    }
+
+    virtual void 
+    registryInit(const RegistryInfoSeq& info, const Ice::Current& current)
+    {
+	Lock sync(*this);
+	for(RegistryInfoSeq::const_iterator p = info.begin(); p != info.end(); ++p)
+	{
+	    this->registries[p->name] = *p;
+	}
+	updated("init");
+    }
+
+    virtual void
+    registryUp(const RegistryInfo& info, const Ice::Current& current)
+    {
+	Lock sync(*this);
+	this->registries[info.name] = info;
+	updated("registry `" + info.name + "' up");
+    }
+
+    virtual void
+    registryDown(const string& name, const Ice::Current& current)
+	{
+	    Lock sync(*this);
+	    this->registries.erase(name);
+	    updated("registry `" + name + "' down");
+	}
+
+    map<string, RegistryInfo> registries;
+};
+typedef IceUtil::Handle<RegistryObserverI> RegistryObserverIPtr;
+
 void
 testFailedAndPrintObservers(const char* expr, const char* file, unsigned int line)
 {
@@ -1047,6 +1086,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	admin1->ice_ping();
 	admin2->ice_ping();
 
+	obj = communicator->stringToProxy("IceGrid/Query");
+	obj->ice_connectionId("admRouter1")->ice_router(adminRouter1)->ice_ping();
+	obj->ice_connectionId("admRouter2")->ice_router(adminRouter2)->ice_ping();
+
 	try
 	{
 	    admSession1->ice_connectionId("admRouter2")->ice_router(adminRouter2)->ice_ping();
@@ -1490,8 +1533,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	
 	adptObs1->waitForUpdate(__FILE__, __LINE__); // init
 
-//	int serial = adptObs1->serial;
-
 	try
 	{
 	    Ice::ObjectPrx obj = communicator->stringToProxy("dummy:tcp -p 10000");
@@ -1501,14 +1542,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    adptObs1->waitForUpdate(__FILE__, __LINE__);
 	    test(adptObs1->adapters.find("DummyAdapter") != adptObs1->adapters.end());
 	    test(adptObs1->adapters["DummyAdapter"].proxy == obj);
-//	    test(++serial == adptObs1->serial);
 	    
 	    obj = communicator->stringToProxy("dummy:tcp -p 10000 -h host");
 	    locatorRegistry->setAdapterDirectProxy("DummyAdapter", obj);
 	    adptObs1->waitForUpdate(__FILE__, __LINE__);
 	    test(adptObs1->adapters.find("DummyAdapter") != adptObs1->adapters.end());
 	    test(adptObs1->adapters["DummyAdapter"].proxy == obj);
-//	    test(++serial == adptObs1->serial);
 
 	    obj = communicator->stringToProxy("dummy:tcp -p 10000 -h host");
 	    locatorRegistry->setReplicatedAdapterDirectProxy("DummyAdapter", "DummyReplicaGroup", obj);
@@ -1516,7 +1555,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(adptObs1->adapters.find("DummyAdapter") != adptObs1->adapters.end());
 	    test(adptObs1->adapters["DummyAdapter"].proxy == obj);
 	    test(adptObs1->adapters["DummyAdapter"].replicaGroupId == "DummyReplicaGroup");
-//	    test(++serial == adptObs1->serial);
 
 	    obj = communicator->stringToProxy("dummy:tcp -p 10000 -h host");
 	    locatorRegistry->setReplicatedAdapterDirectProxy("DummyAdapter1", "DummyReplicaGroup", obj);
@@ -1524,7 +1562,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(adptObs1->adapters.find("DummyAdapter1") != adptObs1->adapters.end());
 	    test(adptObs1->adapters["DummyAdapter1"].proxy == obj);
 	    test(adptObs1->adapters["DummyAdapter1"].replicaGroupId == "DummyReplicaGroup");
-//	    test(++serial == adptObs1->serial);
 
 	    obj = communicator->stringToProxy("dummy:tcp -p 10000 -h host");
 	    locatorRegistry->setReplicatedAdapterDirectProxy("DummyAdapter2", "DummyReplicaGroup", obj);
@@ -1532,25 +1569,20 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(adptObs1->adapters.find("DummyAdapter2") != adptObs1->adapters.end());
 	    test(adptObs1->adapters["DummyAdapter2"].proxy == obj);
 	    test(adptObs1->adapters["DummyAdapter2"].replicaGroupId == "DummyReplicaGroup");
-//	    test(++serial == adptObs1->serial);
 
 	    admin->removeAdapter("DummyAdapter2");
 	    adptObs1->waitForUpdate(__FILE__, __LINE__);
 	    test(adptObs1->adapters.find("DummyAdapter2") == adptObs1->adapters.end());
-//	    test(++serial == adptObs1->serial);
 
 	    admin->removeAdapter("DummyReplicaGroup");
 	    adptObs1->waitForUpdate(__FILE__, __LINE__);
 	    adptObs1->waitForUpdate(__FILE__, __LINE__);
 	    test(adptObs1->adapters["DummyAdapter"].replicaGroupId == "");
 	    test(adptObs1->adapters["DummyAdapter1"].replicaGroupId == "");
-//	    serial += 2;
-//	    test(serial == adptObs1->serial);
 
 	    locatorRegistry->setAdapterDirectProxy("DummyAdapter", 0);
 	    adptObs1->waitForUpdate(__FILE__, __LINE__);
 	    test(adptObs1->adapters.find("DummyAdapter") == adptObs1->adapters.end());
-//	    test(++serial == adptObs1->serial);
 	}
 	catch(const Ice::UserException& ex)
 	{
@@ -1586,8 +1618,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	
 	objectObs1->waitForUpdate(__FILE__, __LINE__); // init
 
-//	int serial = objectObs1->serial;
-
 	try
 	{
 	    Ice::ObjectPrx obj = communicator->stringToProxy("dummy:tcp -p 10000");
@@ -1597,7 +1627,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(objectObs1->objects.find(communicator->stringToIdentity("dummy")) != objectObs1->objects.end());
 	    test(objectObs1->objects[communicator->stringToIdentity("dummy")].type == "::Dummy");
 	    test(objectObs1->objects[communicator->stringToIdentity("dummy")].proxy == obj);
-//	    test(++serial == objectObs1->serial);
 	    
 	    obj = communicator->stringToProxy("dummy:tcp -p 10000 -h host");
 	    admin->updateObject(obj);
@@ -1605,12 +1634,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(objectObs1->objects.find(communicator->stringToIdentity("dummy")) != objectObs1->objects.end());
 	    test(objectObs1->objects[communicator->stringToIdentity("dummy")].type == "::Dummy");
 	    test(objectObs1->objects[communicator->stringToIdentity("dummy")].proxy == obj);
-//	    test(++serial == objectObs1->serial);
 
 	    admin->removeObject(obj->ice_getIdentity());
 	    objectObs1->waitForUpdate(__FILE__, __LINE__);
 	    test(objectObs1->objects.find(communicator->stringToIdentity("dummy")) == objectObs1->objects.end());
-//	    test(++serial == objectObs1->serial);	    
 	}
 	catch(const Ice::UserException& ex)
 	{
@@ -1884,6 +1911,48 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	cout << "ok" << endl;
     }
+
+    {
+	cout << "testing registry observer... " << flush;
+	AdminSessionPrx session1 = registry->createAdminSession("admin1", "test1");
+	
+	keepAlive->add(session1);
+	
+	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("Observer1.3");
+	ApplicationObserverIPtr appObs1 = new ApplicationObserverI("appObs1.4");
+	Ice::ObjectPrx app1 = adpt1->addWithUUID(appObs1);
+	RegistryObserverIPtr registryObs1 = new RegistryObserverI("registryObs1");
+	Ice::ObjectPrx ro1 = adpt1->addWithUUID(registryObs1);
+	adpt1->activate();
+	registry->ice_getConnection()->setAdapter(adpt1);	
+	session1->setObserversByIdentity(ro1->ice_getIdentity(), 
+					 Ice::Identity(),
+					 app1->ice_getIdentity(), 
+					 Ice::Identity(),
+					 Ice::Identity());
+	
+	appObs1->waitForUpdate(__FILE__, __LINE__);
+	registryObs1->waitForUpdate(__FILE__, __LINE__); // init
+
+	test(registryObs1->registries.find("Master") != registryObs1->registries.end());
+	test(appObs1->applications.empty());
+
+	QueryPrx query = QueryPrx::uncheckedCast(communicator->stringToProxy("IceGrid/Query"));
+	Ice::ObjectProxySeq registries = query->findAllObjectsByType("::IceGrid::Registry");
+	const string prefix("Registry-");
+	for(Ice::ObjectProxySeq::const_iterator p = registries.begin(); p != registries.end(); ++p)
+	{
+	    string name = (*p)->ice_getIdentity().name;
+	    string::size_type pos = name.find(prefix);
+	    if(pos != string::npos)
+	    {
+		name = name.substr(prefix.size());
+		test(registryObs1->registries.find(name) != registryObs1->registries.end());
+	    }
+	}
+	cout << "ok" << endl;
+    }
+
 
     admin->stopServer("PermissionsVerifierServer");
 
