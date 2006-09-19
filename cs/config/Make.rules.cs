@@ -47,10 +47,6 @@ prefix			= /opt/IceCS-$(VERSION)
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
-ifeq ($(MONO), yes)
-    DOTNET_1 = yes
-endif
-
 #
 # Checks for ICE_HOME environment variable.  If it isn't present it will
 # attempt to find an Ice installation in /usr.
@@ -137,6 +133,10 @@ ifeq ($(OPTIMIZE),yes)
 endif
 
 ifeq ($(DOTNET_1), yes)
+    MCSFLAGS := $(MCSFLAGS) -d:ICE_DOTNET_1X
+endif
+
+ifeq ($(MONO), yes)
     MCSFLAGS := $(MCSFLAGS) -d:ICE_DOTNET_1X
 endif
 
