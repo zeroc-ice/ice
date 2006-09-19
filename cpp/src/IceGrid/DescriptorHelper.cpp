@@ -302,7 +302,19 @@ Resolver::Resolver(const ApplicationDescriptor& app, const Ice::CommunicatorPtr&
 	}
 	if(!t->second.descriptor)
 	{
-	    exception("invalid server template: server definition is empty");
+	    exception("invalid server template `" + t->first + "': server definition is empty");
+	}
+
+	Ice::StringSeq params = t->second.parameters;
+	sort(params.begin(), params.end());
+	Ice::StringSeq wdups = params;
+	Ice::StringSeq dups;
+	set_difference(wdups.begin(), wdups.end(), params.begin(), unique(params.begin(), params.end()), 
+		       back_inserter(dups));
+	if(!dups.empty())
+	{
+	    dups.erase(unique(dups.begin(), dups.end()), dups.end());
+	    exception("invalid server template `" + t->first + "': duplicate parameters " + toString(dups));
 	}
     }
     for(t = _application->serviceTemplates.begin(); t != _application->serviceTemplates.end(); ++t)
@@ -313,7 +325,18 @@ Resolver::Resolver(const ApplicationDescriptor& app, const Ice::CommunicatorPtr&
 	}
 	if(!t->second.descriptor)
 	{
-	    exception("invalid service template: service definition is empty");
+	    exception("invalid service template `" + t->first + "': service definition is empty");
+	}
+	Ice::StringSeq params = t->second.parameters;
+	sort(params.begin(), params.end());
+	Ice::StringSeq wdups = params;
+	Ice::StringSeq dups;
+	set_difference(wdups.begin(), wdups.end(), params.begin(), unique(params.begin(), params.end()), 
+		       back_inserter(dups));
+	if(!dups.empty())
+	{
+	    dups.erase(unique(dups.begin(), dups.end()), dups.end());
+	    exception("invalid server template `" + t->first + "': duplicate parameters " + toString(dups));
 	}
     }
 }

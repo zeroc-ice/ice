@@ -495,6 +495,12 @@ TemplateDescriptorBuilder::TemplateDescriptorBuilder(ApplicationDescriptorBuilde
 void
 TemplateDescriptorBuilder::addParameter(const XmlAttributesHelper& attrs)
 {
+    if(find(_descriptor.parameters.begin(), _descriptor.parameters.end(), attrs("name")) !=
+       _descriptor.parameters.end())
+    {
+	throw "duplicate parameter `" + attrs("name") + "'"; 
+    }
+
     _descriptor.parameters.push_back(attrs("name"));
     if(attrs.contains("default"))
     {

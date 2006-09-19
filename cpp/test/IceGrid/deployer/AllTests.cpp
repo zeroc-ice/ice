@@ -92,8 +92,7 @@ typedef IceUtil::Handle<SessionKeepAliveThread> SessionKeepAliveThreadPtr;
 void
 allTests(const Ice::CommunicatorPtr& comm)
 {
-    RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
-	comm->stringToProxy("IceGrid/Registry"));
+    RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(comm->stringToProxy("IceGrid/Registry"));
     test(registry);
     AdminSessionPrx session = registry->createAdminSession("foo", "bar");
 
@@ -347,6 +346,37 @@ allTests(const Ice::CommunicatorPtr& comm)
     test(obj->getProperty("AppProperty21") == "Override");
     test(obj->getProperty("NodeProperty") == "NodeVar");
 
+    cout << "ok" << endl;
+
+    cout << "testing validation... " << flush;
+    TemplateDescriptor templ;
+    templ.parameters.push_back("name");
+    templ.parameters.push_back("nam3");
+    templ.parameters.push_back("nam2");
+    templ.parameters.push_back("nam3");
+    templ.descriptor = new ServerDescriptor();
+    ServerDescriptorPtr server = ServerDescriptorPtr::dynamicCast(templ.descriptor);
+    server->id = "test";
+    server->exe = "${test.dir}/server";
+    ApplicationDescriptor desc;
+    desc.name = "App";
+    desc.serverTemplates["ServerTemplate"] = templ;
+    try
+    {
+	session->startUpdate();
+	admin->addApplication(desc);
+	session->finishUpdate();
+	test(false);
+    }
+    catch(const DeploymentException& ex)
+    {
+ 	test(ex.reason.find("duplicate parameters") != string::npos);
+    }
+    catch(const Ice::Exception& ex)
+    {
+	cerr << ex << endl;
+	test(false);
+    }
     cout << "ok" << endl;
 
     keepAlive->destroy();
