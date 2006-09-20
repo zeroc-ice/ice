@@ -1,6 +1,8 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Added new overload of Ice::initialize() that accepts a StringSeq as the first argument.
+
 - The ice_name() member function of exceptions derived from Ice::Exception
   (and, hence, IceUtil::Exception) now returns a non-const string
   instead of a const string:
