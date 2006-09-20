@@ -68,6 +68,9 @@ struct InitializationData
 ICE_API CommunicatorPtr initialize(int&, char*[], const InitializationData& = InitializationData(),
 				   Int = ICE_INT_VERSION);
 
+ICE_API CommunicatorPtr initialize(Ice::StringSeq&, const InitializationData& = InitializationData(),
+				   Int = ICE_INT_VERSION);
+
 ICE_API CommunicatorPtr initialize(const InitializationData& = InitializationData(), 
 				   Int = ICE_INT_VERSION);
 
