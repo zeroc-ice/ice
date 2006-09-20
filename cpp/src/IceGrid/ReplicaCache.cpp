@@ -159,7 +159,7 @@ ReplicaCache::nodeAdded(const NodePrx& node)
     {
 	_topic->subscribe(qos, node);
     }
-    catch(const Ice::ConnectionRefusedException& ex)
+    catch(const Ice::ConnectionRefusedException&)
     {
 	// The replica is being shutdown.
     }
@@ -181,7 +181,7 @@ ReplicaCache::nodeRemoved(const NodePrx& node)
     {
 	_topic->unsubscribe(node);
     }
-    catch(const Ice::ConnectionRefusedException& ex)
+    catch(const Ice::ConnectionRefusedException&)
     {
 	// The replica is being shutdown.
     }
