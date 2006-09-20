@@ -11,8 +11,9 @@ top_srcdir	= ../../..
 
 CLIENT		= client
 SERVER		= server
+VERIFIER	= verifier
 
-TARGETS		= $(CLIENT) $(SERVER)
+TARGETS		= $(CLIENT) $(SERVER) $(VERIFIER)
 
 OBJS		= Test.o
 
@@ -22,9 +23,12 @@ COBJS		= Client.o \
 SOBJS		= TestI.o \
 		  Server.o
 
+VOBJS		= PermissionsVerifier.o
+
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
+		  $(SOBJS:.o=.cpp) \
+		  $(VOBJS:.obj=.cpp)
 
 SLICE_SRCS	= Test.ice
 
@@ -40,6 +44,10 @@ $(CLIENT): $(OBJS) $(COBJS)
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
+
+$(VERIFIER): $(VOBJS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(VOBJS) -lGlacier2 $(LIBS)
 
 clean::
 	rm -rf db/node db/registry db/node-1 db/node-2

@@ -28,7 +28,7 @@ public:
     ObserverTopic(const IceStorm::TopicManagerPrx&, const std::string&);
     virtual ~ObserverTopic();
 
-    void subscribe(const Ice::ObjectPrx&, const std::string& = std::string(), int = -1);
+    void subscribe(const Ice::ObjectPrx&, const std::string& = std::string());
     void unsubscribe(const Ice::ObjectPrx&, const std::string& = std::string());
     void destroy();
 
@@ -38,14 +38,13 @@ public:
 
 protected:
 
-    void waitForSyncedSubscribers(int);
+    void waitForSyncedSubscribers(int, const std::string& = std::string());
     void updateSerial(int);
     Ice::Context getContext(int) const;
 
     Ice::LoggerPtr _logger;
     IceStorm::TopicPrx _topic;
     Ice::ObjectPrx _basePublisher;
-    std::set<Ice::Identity> _waitForSubscribe;
     int _serial;
 
     std::set<std::string> _syncSubscribers;
@@ -147,6 +146,9 @@ public:
     void objectAdded(int, const ObjectInfo&);
     void objectUpdated(int, const ObjectInfo&);
     void objectRemoved(int, const Ice::Identity&);
+
+    void objectsAddedOrUpdated(int, const ObjectInfoSeq&);
+    void objectsRemoved(int, const ObjectInfoSeq&);
 
     virtual void initObserver(const Ice::ObjectPrx&);
 

@@ -94,7 +94,7 @@ public:
     void replicaReceivedUpdate(const std::string&, TopicName, int, const std::string&);
     void waitForApplicationReplication(const AMD_NodeSession_waitForApplicationReplicationPtr&, const std::string&, 
 				       int);
-    void removeReplica(const std::string&, const ReplicaSessionIPtr&);
+    void removeReplica(const std::string&, const ReplicaSessionIPtr&, bool);
     Ice::StringSeq getAllReplicas(const std::string& = std::string());
 
     ServerInfo getServerInfo(const std::string&, bool = false);

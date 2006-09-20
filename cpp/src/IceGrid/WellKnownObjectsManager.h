@@ -30,10 +30,6 @@ public:
 
     void registerAll();
     void registerAll(const ReplicaSessionPrx&);
-
-    void registerWellKnownObjects(const ObjectInfoSeq&);
-    void unregisterWellKnownObjects(const ObjectInfoSeq&);
-
     void updateReplicatedWellKnownObjects();
 
     Ice::ObjectPrx getEndpoints(const std::string&);

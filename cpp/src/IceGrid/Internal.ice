@@ -351,6 +351,10 @@ enum TopicName
     ObjectObserverTopicName
 };
 
+interface DatabaseObserver extends ApplicationObserver, ObjectObserver, AdapterObserver
+{
+};
+
 interface ReplicaSession
 {
     /**
@@ -366,6 +370,14 @@ interface ReplicaSession
      *
      **/ 
     ["nonmutating", "cpp:const"] idempotent int getTimeout();
+
+    /**
+     *
+     * Set the database observer. Once the observer is subscribed, it
+     * will receive the database and database updates.
+     *
+     **/
+    idempotent void setDatabaseObserver(DatabaseObserver* dbObs);
 
     /**
      *
@@ -410,10 +422,6 @@ interface ReplicaSession
     void destroy();
 };
 
-interface DatabaseObserver extends ApplicationObserver, ObjectObserver, AdapterObserver
-{
-};
-
 interface InternalRegistry
 {
     /**
@@ -437,7 +445,7 @@ interface InternalRegistry
     NodeSession* registerNode(string name, Node* nd, NodeInfo info)
 	throws NodeActiveException;
 
-    ReplicaSession* registerReplica(string name, RegistryInfo info, InternalRegistry* prx, DatabaseObserver* dbObs)
+    ReplicaSession* registerReplica(string name, RegistryInfo info, InternalRegistry* prx)
 	throws ReplicaActiveException;
 
     void registerWithReplica(InternalRegistry* prx);

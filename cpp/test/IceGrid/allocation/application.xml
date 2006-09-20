@@ -25,7 +25,7 @@
 
       <server-instance template="Glacier2" id="Glacier2" 
                        endpoints="default -p 12347 -h 127.0.0.1 -t 10000" 
-                       verifier="IceGrid/NullPermissionsVerifier"
+                       verifier="PermissionsVerifier"
                        manager="IceGrid/SessionManager"/>
 
       <server id="ObjectAllocation" exe="${test.dir}/server" activation="on-demand" pwd=".">
@@ -35,6 +35,12 @@
 
           <object identity="nonallocatable" type="::Test"/>
           <object identity="nonallocatable2" type="::NotAllocatable"/>
+        </adapter>
+      </server>
+
+      <server id="PermissionsVerifier" exe="${test.dir}/verifier" activation="on-demand">
+        <adapter name="PermissionsVerifier" endpoints="default">
+          <object identity="PermissionsVerifier" type="::Glacier2::PermissionsVerifier"/>
         </adapter>
       </server>
 

@@ -195,7 +195,6 @@ void
 Database::destroy()
 {
     _nodeCache.destroy(); // Break cyclic reference count.
-    _replicaCache.destroy();
 }
 
 std::string
@@ -285,6 +284,7 @@ Database::syncApplications(const ApplicationInfoSeq& applications)
     {
 	Lock sync(*this);
 
+	Freeze::TransactionHolder txHolder(_connection);
 	ServerEntrySeq entries;
 	set<string> names;
 	for(ApplicationInfoSeq::const_iterator p = applications.begin(); p != applications.end(); ++p)
@@ -325,6 +325,7 @@ Database::syncApplications(const ApplicationInfoSeq& applications)
 	    }
 	}
 	serial = ++_applicationSerial;
+	txHolder.commit();
     }
 
     _applicationObserverTopic->applicationInit(serial, applications);
@@ -336,14 +337,16 @@ Database::syncAdapters(const AdapterInfoSeq& adapters)
     int serial;
     {
 	Lock sync(*this);
+
+	Freeze::TransactionHolder txHolder(_connection);
 	_adapters.clear();
 	for(AdapterInfoSeq::const_iterator r = adapters.end(); r != adapters.end(); ++r)
 	{
 	    _adapters.put(StringAdapterInfoDict::value_type(r->id, *r));
 	}
 	serial = ++_adapterSerial;
-    }
-    
+	txHolder.commit();
+    }    
 
     _adapterObserverTopic->adapterInit(serial, adapters);
 }
@@ -354,8 +357,19 @@ Database::syncObjects(const ObjectInfoSeq& objects)
     int serial;
     {
 	Lock sync(*this);
+
+	Freeze::TransactionHolder txHolder(_connection);
+
+	ObjectInfoSeq nodes;
+	for(IdentityObjectInfoDict::const_iterator p = _objects.findByType(Node::ice_staticId()); p != _objects.end(); 
+	    ++p)
+	{
+	    nodes.push_back(p->second);
+	}
+
 	_objects.clear();
-	for(ObjectInfoSeq::const_iterator q = objects.begin(); q != objects.end(); ++q)
+	ObjectInfoSeq::const_iterator q;
+	for(q = objects.begin(); q != objects.end(); ++q)
 	{
 	    const Ice::Identity& id = q->proxy->ice_getIdentity();
 	    if(id.category != _instanceName || id.name.find("Node-") != 0)
@@ -365,8 +379,18 @@ Database::syncObjects(const ObjectInfoSeq& objects)
 		_objects.put(IdentityObjectInfoDict::value_type(q->proxy->ice_getIdentity(), *q));
 	    }
 	}
+	for(q = nodes.begin(); q != nodes.end(); ++q)
+	{
+	    const Ice::Identity& id = q->proxy->ice_getIdentity();
+	    if(id.category == _instanceName || id.name.find("Node-") == 0)
+	    {
+		_objects.put(IdentityObjectInfoDict::value_type(q->proxy->ice_getIdentity(), *q));
+	    }
+	}
 	serial = ++_objectSerial;
+	txHolder.commit();
     }
+
     _objectObserverTopic->objectInit(serial, objects);
 }
 
@@ -720,12 +744,7 @@ void
 Database::addReplica(const string& name, const ReplicaSessionIPtr& session)
 {
     _replicaCache.add(name, session);
-
     _registryObserverTopic->registryUp(session->getInfo());
-
-    _applicationObserverTopic->subscribe(session->getObserver(), name);
-    _adapterObserverTopic->subscribe(session->getObserver(), name);
-    _objectObserverTopic->subscribe(session->getObserver(), name);
 }
 
 InternalRegistryPrx 
@@ -768,15 +787,10 @@ Database::waitForApplicationReplication(const AMD_NodeSession_waitForApplication
 }
 
 void
-Database::removeReplica(const string& name, const ReplicaSessionIPtr& session)
+Database::removeReplica(const string& name, const ReplicaSessionIPtr& session, bool shutdown)
 {
-    _applicationObserverTopic->unsubscribe(session->getObserver(), name);
-    _adapterObserverTopic->unsubscribe(session->getObserver(), name);
-    _objectObserverTopic->unsubscribe(session->getObserver(), name); 
-
     _registryObserverTopic->registryDown(name);
-
-    _replicaCache.remove(name);
+    _replicaCache.remove(name, shutdown);
 }
 
 Ice::StringSeq
@@ -1271,39 +1285,11 @@ Database::addOrUpdateObjectsInDatabase(const ObjectInfoSeq& objects)
 	    updated.push_back(_objects.find(p->proxy->ice_getIdentity()) != _objects.end());
 	    _objects.put(IdentityObjectInfoDict::value_type(p->proxy->ice_getIdentity(), *p));
 	}
-	serial = _objectSerial;
-	_objectSerial += static_cast<int>(static_cast<int>(objects.size()));
+	serial = ++_objectSerial;
 	txHolder.commit();
     }
 	
-    vector<bool>::const_iterator q = updated.begin();
-    for(ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p, ++q)
-    {
-	//
-	// TODO: Add a better observer call?
-	//
-	if(!*q)
-	{
-	    _objectObserverTopic->objectAdded(++serial, *p);
-	}
-	else
-	{
-	    _objectObserverTopic->objectUpdated(++serial, *p);
-	}
-
-	if(_traceLevels->object > 0)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-	    if(!*q)
-	    {
-		out << "added object `" << _communicator->identityToString(p->proxy->ice_getIdentity()) << "'";
-	    }
-	    else
-	    {
-		out << "updated object `" << _communicator->identityToString(p->proxy->ice_getIdentity()) << "'";
-	    }
-	}
-    }
+    _objectObserverTopic->objectsAddedOrUpdated(serial, objects);
 }
 
 void
@@ -1317,21 +1303,11 @@ Database::removeObjectsInDatabase(const ObjectInfoSeq& objects)
 	{
 	    _objects.erase(p->proxy->ice_getIdentity());
 	}
-	serial = _objectSerial;
-	_objectSerial += static_cast<int>(static_cast<int>(objects.size()));
+	serial = ++_objectSerial;
 	txHolder.commit();
     }
 
-    for(ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
-    {
-	_objectObserverTopic->objectRemoved(++serial, p->proxy->ice_getIdentity());
-
-	if(_traceLevels->object > 0)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-	    out << "removed object `" << _communicator->identityToString(p->proxy->ice_getIdentity()) << "'";
-	}
-    }
+    _objectObserverTopic->objectsRemoved(serial, objects);
 }
 
 void

@@ -74,7 +74,7 @@ public:
 	    }		
 
 	    //
-	    // If we failed to create the session with the factory an
+	    // If we failed to create the session with the factory and
 	    // the factory proxy is a direct proxy, we check with the
 	    // Query interface if the factory proxy was updated. It's
 	    // possible that the factory was restarted for example.

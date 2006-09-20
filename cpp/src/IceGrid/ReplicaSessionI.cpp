@@ -21,14 +21,12 @@ ReplicaSessionI::ReplicaSessionI(const DatabasePtr& database,
 				 const string& name, 
 				 const RegistryInfo& info,
 				 const InternalRegistryPrx& proxy,
-				 const DatabaseObserverPrx& databaseObserver,
 				 int timeout) :
     _database(database),
     _wellKnownObjects(wellKnownObjects),
     _traceLevels(database->getTraceLevels()),
     _name(name),
     _internalRegistry(InternalRegistryPrx::uncheckedCast(proxy->ice_timeout(timeout * 1000))),
-    _databaseObserver(databaseObserver),
     _info(info),
     _timeout(timeout),
     _timestamp(IceUtil::Time::now()),
@@ -72,6 +70,20 @@ ReplicaSessionI::getTimeout(const Ice::Current& current) const
 }
 
 void
+ReplicaSessionI::setDatabaseObserver(const DatabaseObserverPrx& observer, const Ice::Current& current)
+{
+    Lock sync(*this);
+    if(_destroy)
+    {
+	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }	
+    _observer = observer;
+    _database->getObserverTopic(ApplicationObserverTopicName)->subscribe(_observer, _name);
+    _database->getObserverTopic(AdapterObserverTopicName)->subscribe(_observer, _name);
+    _database->getObserverTopic(ObjectObserverTopicName)->subscribe(_observer, _name);
+}
+
+void
 ReplicaSessionI::setEndpoints(const StringObjectProxyDict& endpoints, const Ice::Current& current)
 {
     {
@@ -88,15 +100,13 @@ ReplicaSessionI::setEndpoints(const StringObjectProxyDict& endpoints, const Ice:
 void
 ReplicaSessionI::registerWellKnownObjects(const ObjectInfoSeq& objects, const Ice::Current& current)
 {
+    Lock sync(*this);
+    if(_destroy)
     {
-	Lock sync(*this);
-	if(_destroy)
-	{
-	    throw Ice::ObjectNotExistException(__FILE__, __LINE__);
-	}
-	_replicaWellKnownObjects = objects;
+	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
-    _wellKnownObjects->registerWellKnownObjects(objects);
+    _replicaWellKnownObjects = objects;
+    _database->addOrUpdateObjectsInDatabase(objects);
 }
 
 void
@@ -126,17 +136,29 @@ ReplicaSessionI::destroy(const Ice::Current& current)
 	}	
 	_destroy = true;
     }
-    _database->removeReplica(_name, this);
 
-    _wellKnownObjects->unregisterWellKnownObjects(_replicaWellKnownObjects);
-    if(shutdown)
+    if(_observer)
     {
-	ObjectInfo info;
-	info.type = InternalRegistry::ice_staticId();
-	info.proxy = _internalRegistry;
-	_database->addObject(info, true);
+	_database->getObserverTopic(ApplicationObserverTopicName)->unsubscribe(_observer, _name);
+	_database->getObserverTopic(AdapterObserverTopicName)->unsubscribe(_observer, _name);
+	_database->getObserverTopic(ObjectObserverTopicName)->unsubscribe(_observer, _name);
     }
-    else
+
+    if(!_replicaWellKnownObjects.empty())
+    {
+	_database->removeObjectsInDatabase(_replicaWellKnownObjects);
+	if(shutdown)
+	{
+	    ObjectInfo info;
+	    info.type = InternalRegistry::ice_staticId();
+	    info.proxy = _internalRegistry;
+	    _database->addObject(info, true);
+	}
+    }
+
+    _database->removeReplica(_name, this, shutdown);
+
+    if(!shutdown)
     {
 	_wellKnownObjects->updateReplicatedWellKnownObjects(); // No need to update these if we're shutting down.
     }

@@ -32,21 +32,6 @@ typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 class ReplicaSessionManager : public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
-
-    ReplicaSessionManager();
-    
-    void create(const std::string&, const RegistryInfo&, const DatabasePtr&, const WellKnownObjectsManagerPtr&, 
-		const InternalRegistryPrx&);
-    void create(const InternalRegistryPrx&);
-    NodePrxSeq getNodes() const;
-    void destroy();
-
-    void receivedUpdate(TopicName, int, const std::string&);
-    void registerAllWellKnownObjects();
-    ReplicaSessionPrx getSession() const { return _thread->getSession(); }
-
-private:
-
     class Thread : public SessionKeepAliveThread<ReplicaSessionPrx, InternalRegistryPrx>
     {
     public:
@@ -82,6 +67,19 @@ private:
 	ReplicaSessionManager& _manager;
     };
     typedef IceUtil::Handle<Thread> ThreadPtr;
+
+    ReplicaSessionManager();
+    
+    void create(const std::string&, const RegistryInfo&, const DatabasePtr&, const WellKnownObjectsManagerPtr&, 
+		const InternalRegistryPrx&);
+    void create(const InternalRegistryPrx&);
+    NodePrxSeq getNodes() const;
+    void destroy();
+
+    void registerAllWellKnownObjects();
+    ReplicaSessionPrx getSession() const { return _thread->getSession(); }
+
+private:
 
     friend class Thread;
 

@@ -34,12 +34,6 @@ ReplicaCache::ReplicaCache(const Ice::CommunicatorPtr& communicator, const IceSt
     const_cast<NodePrx&>(_nodes) = NodePrx::uncheckedCast(_topic->getPublisher());
 }
 
-void
-ReplicaCache::destroy()
-{
-    _entries.clear();
-}
-
 ReplicaEntryPtr
 ReplicaCache::add(const string& name, const ReplicaSessionIPtr& session)
 {
@@ -83,16 +77,25 @@ ReplicaCache::add(const string& name, const ReplicaSessionIPtr& session)
     {
 	_nodes->replicaAdded(session->getInternalRegistry());
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::ConnectionRefusedException&)
     {
-	// TODO: XXX
+	// Expected if the replica is being shutdown.
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	TraceLevelsPtr traceLevels = getTraceLevels();
+	if(traceLevels)
+	{
+	    Ice::Warning out(traceLevels->logger);
+	    out << "unexpected exception while publishing `replicaAdded' update:\n" << ex;    
+	}
     }
 
     return entry;
 }
 
 ReplicaEntryPtr
-ReplicaCache::remove(const string& name)
+ReplicaCache::remove(const string& name, bool shutdown)
 {
     ReplicaEntryPtr entry;
     {
@@ -108,14 +111,26 @@ ReplicaCache::remove(const string& name)
 	    out << "replica `" << name << "' down";
 	}
     }
-    
-    try
+
+    if(!shutdown)
     {
-	_nodes->replicaRemoved(entry->getSession()->getInternalRegistry());
-    }
-    catch(const Ice::LocalException&)
-    {
-	// TODO: XXX
+	try
+	{
+	    _nodes->replicaRemoved(entry->getSession()->getInternalRegistry());
+	}
+	catch(const Ice::ConnectionRefusedException&)
+	{
+	    // Expected if the replica is being shutdown.
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    TraceLevelsPtr traceLevels = getTraceLevels();
+	    if(traceLevels)
+	    {
+		Ice::Warning out(traceLevels->logger);
+		out << "unexpected exception while publishing `replicaRemoved' update:\n" << ex;    
+	    }
+	}
     }
     
     return entry;
@@ -144,9 +159,18 @@ ReplicaCache::nodeAdded(const NodePrx& node)
     {
 	_topic->subscribe(qos, node);
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::ConnectionRefusedException& ex)
     {
-	// TODO: XXX
+	// The replica is being shutdown.
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	TraceLevelsPtr traceLevels = getTraceLevels();
+	if(traceLevels)
+	{
+	    Ice::Warning out(traceLevels->logger);
+	    out << "unexpected exception while subscribing node from replica observer topic:\n" << ex;    
+	}
     }
 }
 
@@ -157,13 +181,18 @@ ReplicaCache::nodeRemoved(const NodePrx& node)
     {
 	_topic->unsubscribe(node);
     }
-    catch(const Ice::ConnectionRefusedException&)
+    catch(const Ice::ConnectionRefusedException& ex)
     {
 	// The replica is being shutdown.
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& ex)
     {
-	// TODO: XXX
+	TraceLevelsPtr traceLevels = getTraceLevels();
+	if(traceLevels)
+	{
+	    Ice::Warning out(traceLevels->logger);
+	    out << "unexpected exception while unsubscribing node from replica observer topic:\n" << ex;    
+	}
     }
 }
 
@@ -178,6 +207,7 @@ ReplicaCache::getEndpoints(const string& name, const Ice::ObjectPrx& proxy) cons
 	endpoints.insert(endpoints.end(), endpts.begin(), endpts.end());
     }
 
+    Lock sync(*this);
     for(map<string, ReplicaEntryPtr>::const_iterator p = _entries.begin(); p != _entries.end(); ++p)
     {
 	Ice::ObjectPrx prx = p->second->getSession()->getEndpoint(name);
@@ -194,6 +224,10 @@ ReplicaCache::getEndpoints(const string& name, const Ice::ObjectPrx& proxy) cons
 ReplicaEntry::ReplicaEntry(const std::string& name, const ReplicaSessionIPtr& session) : 
     _name(name),
     _session(session)
+{
+}
+
+ReplicaEntry::~ReplicaEntry()
 {
 }
 

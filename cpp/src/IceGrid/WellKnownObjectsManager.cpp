@@ -72,19 +72,7 @@ WellKnownObjectsManager::registerAll()
     // If initialized, the endpoints and well known objects are immutable.
     //
     updateReplicatedWellKnownObjects();
-    registerWellKnownObjects(_wellKnownObjects);
-}
-
-void
-WellKnownObjectsManager::registerWellKnownObjects(const ObjectInfoSeq& objects)
-{
-    _database->addOrUpdateObjectsInDatabase(objects);
-}
-
-void
-WellKnownObjectsManager::unregisterWellKnownObjects(const ObjectInfoSeq& objects)
-{
-    _database->removeObjectsInDatabase(objects);
+    _database->addOrUpdateObjectsInDatabase(_wellKnownObjects);
 }
 
 void
@@ -103,6 +91,8 @@ WellKnownObjectsManager::updateReplicatedWellKnownObjects()
     ObjectInfo info;
     ObjectInfoSeq objects;
 
+    Lock sync(*this);
+
     Ice::ObjectPrx replicatedClientProxy = _database->getReplicatedEndpoints("Client", _endpoints["Client"]);
 
     id.name = "Query";
@@ -113,18 +103,6 @@ WellKnownObjectsManager::updateReplicatedWellKnownObjects()
     id.name = "Locator";
     info.type = Ice::Locator::ice_staticId();
     info.proxy = replicatedClientProxy->ice_identity(id);
-    objects.push_back(info);
-
-    Ice::ObjectPrx replicatedInternalProxy = _database->getReplicatedEndpoints("Internal", _endpoints["Internal"]);
-
-    id.name = "NullPermissionsVerifier";
-    info.type = Glacier2::PermissionsVerifier::ice_staticId();
-    info.proxy = replicatedInternalProxy->ice_identity(id);
-    objects.push_back(info);
-
-    id.name = "NullSSLPermissionsVerifier";
-    info.type = Glacier2::SSLPermissionsVerifier::ice_staticId();
-    info.proxy = replicatedInternalProxy->ice_identity(id);
     objects.push_back(info);
 
     _database->addOrUpdateObjectsInDatabase(objects);

@@ -132,13 +132,12 @@ ReplicaSessionPrx
 InternalRegistryI::registerReplica(const std::string& name,
 				   const RegistryInfo& info,
 				   const InternalRegistryPrx& registry,
-				   const DatabaseObserverPrx& dbObserver,
 				   const Ice::Current& current)
 {
     try
     {
 	ReplicaSessionIPtr session = new ReplicaSessionI(_database, _wellKnownObjects, name, info, registry, 
-							 dbObserver, _replicaSessionTimeout);
+							 _replicaSessionTimeout);
 	ReplicaSessionPrx proxy = ReplicaSessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
 	_reaper->add(new SessionReapable<ReplicaSessionI>(current.adapter, session, proxy), _replicaSessionTimeout);
 	return proxy;

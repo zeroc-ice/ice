@@ -29,6 +29,7 @@ class ReplicaEntry : public IceUtil::Shared
 public:
     
     ReplicaEntry(const std::string&, const ReplicaSessionIPtr&);
+    virtual ~ReplicaEntry();
 
     bool canRemove() const { return true; }
     const ReplicaSessionIPtr& getSession() const;
@@ -47,10 +48,9 @@ class ReplicaCache : public CacheByString<ReplicaEntry>
 public:
 
     ReplicaCache(const Ice::CommunicatorPtr&, const IceStorm::TopicManagerPrx&);
-    void destroy();
 
     ReplicaEntryPtr add(const std::string&, const ReplicaSessionIPtr&);
-    ReplicaEntryPtr remove(const std::string&);
+    ReplicaEntryPtr remove(const std::string&, bool);
     ReplicaEntryPtr get(const std::string&) const;
 
     void nodeAdded(const NodePrx&);

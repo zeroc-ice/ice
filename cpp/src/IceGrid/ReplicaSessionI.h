@@ -30,10 +30,11 @@ class ReplicaSessionI : public ReplicaSession, public IceUtil::Mutex
 public:
 
     ReplicaSessionI(const DatabasePtr&, const WellKnownObjectsManagerPtr&, const std::string&, const RegistryInfo&,
-		    const InternalRegistryPrx&, const DatabaseObserverPrx&, int);
+		    const InternalRegistryPrx&, int);
 
     virtual void keepAlive(const Ice::Current&);
     virtual int getTimeout(const Ice::Current&) const;
+    virtual void setDatabaseObserver(const DatabaseObserverPrx&, const Ice::Current&);
     virtual void setEndpoints(const StringObjectProxyDict&, const Ice::Current&);
     virtual void registerWellKnownObjects(const ObjectInfoSeq&, const Ice::Current&);
     virtual void setAdapterDirectProxy(const std::string&, const std::string&, const Ice::ObjectPrx&, 
@@ -44,7 +45,6 @@ public:
     virtual IceUtil::Time timestamp() const;
 
     const InternalRegistryPrx& getInternalRegistry() const { return _internalRegistry; }
-    const DatabaseObserverPrx& getObserver() const { return _databaseObserver; }
     const RegistryInfo& getInfo() const { return _info; }
 
     Ice::ObjectPrx getEndpoint(const std::string&);
@@ -57,9 +57,9 @@ private:
     const TraceLevelsPtr _traceLevels;
     const std::string _name;
     const InternalRegistryPrx _internalRegistry;
-    const DatabaseObserverPrx _databaseObserver;
     const RegistryInfo _info;
     const int _timeout;
+    DatabaseObserverPrx _observer;
     ObjectInfoSeq _replicaWellKnownObjects;
     StringObjectProxyDict _replicaEndpoints;
     IceUtil::Time _timestamp;

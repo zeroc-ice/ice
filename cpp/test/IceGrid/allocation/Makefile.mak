@@ -11,8 +11,9 @@ top_srcdir	= ..\..\..
 
 CLIENT		= client.exe
 SERVER		= server.exe
+VERIFIER        = verifier.exe
 
-TARGETS		= $(CLIENT) $(SERVER)
+TARGETS		= $(CLIENT) $(SERVER) $(VERIFIER)
 
 COBJS		= Test.obj \
 		  Client.obj \
@@ -22,8 +23,11 @@ SOBJS		= Test.obj \
 		  TestI.obj \
 		  Server.obj
 
+VOBJS		= PermissionsVerifier.obj
+
 SRCS		= $(COBJS:.obj=.cpp) \
-		  $(SOBJS:.obj=.cpp)
+		  $(SOBJS:.obj=.cpp) \
+		  $(VOBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -33,6 +37,7 @@ LINKWITH	= $(LIBS) icegrid$(LIBSUFFIX).lib glacier2$(LIBSUFFIX).lib
 !if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
+VPDBFLAGS        = /pdb:$(VERIFIER:.exe=.pdb)
 !endif
 
 $(CLIENT): $(COBJS)
@@ -42,6 +47,10 @@ $(CLIENT): $(COBJS)
 $(SERVER): $(SOBJS)
 	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+
+$(VERIFIER): $(VOBJS)
+	del /q $@
+	$(LINK) $(LD_EXEFLAGS) $(VPDBFLAGS) $(VOBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 
 clean::
 	del /q Test.cpp Test.h
