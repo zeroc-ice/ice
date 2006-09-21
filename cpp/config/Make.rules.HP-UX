@@ -45,8 +45,8 @@ endif
 #
 CXXLIBS			= -lCsup_v2 -lstd_v2
 
-ifeq ($(ADD_LIBDIR_TO_RPATH),yes)
-   LDPLATFORMFLAGS      = -Wl,+s -Wl,+b$(install_libdir)
+ifneq ($(embedded_runpath_prefix),)
+   LDPLATFORMFLAGS      = -Wl,+s -Wl,+b$(runpath_libdir)
 else
    LDPLATFORMFLAGS      = -Wl,+s
 endif

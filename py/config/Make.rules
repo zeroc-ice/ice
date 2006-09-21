@@ -19,11 +19,10 @@ endif
 prefix			= /opt/IcePy-$(VERSION)
 
 #
-# When creating an executable, shall we add install_libdir to the
-# runpath embedded in this executable?
+# The "root directory" for runpath embedded in executables. Can be unset
+# to avoid adding a runpath to Ice executables.
 #
-ADD_LIBDIR_TO_RPATH     ?= yes
-
+embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
 
 #
 # Define OPTIMIZE as yes if you want to build with optimization.
@@ -99,8 +98,11 @@ ICE_FLAGS		= -I$(ICE_HOME)/include
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION			= 3.1.0
-SOVERSION		= 31
+VERSION_MAJOR           = 3
+VERSION_MINOR           = 1
+VERSION_PATCH           = 1
+VERSION			= $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)
+SOVERSION		= $(VERSION_MAJOR)$(VERSION_MINOR)
 libdir			= $(top_srcdir)/python
 
 ifeq ($(shell test -d $(top_srcdir)/slice && echo 0),0)
@@ -145,6 +147,13 @@ else
     libsubdir		  := lib
 endif
 
+ifneq ($(embedded_runpath_prefix),)
+   ifeq ($(LP64),yes)
+       runpath_libdir	  := $(embedded_runpath_prefix)/lib$(lp64suffix)
+   else
+       runpath_libdir	  := $(embedded_runpath_prefix)/lib
+   endif
+endif
 
 CPPFLAGS		=
 ICECPPFLAGS		= -I$(slicedir)

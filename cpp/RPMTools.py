@@ -67,7 +67,7 @@ class Package:
 	#
         minorVer = version[0:3]
 	ofile.write('Source0: http://www.zeroc.com/download/Ice/' + minorVer + '/Ice-%{version}.tar.gz\n')
-	ofile.write('Source1: http://www.zeroc.com/download/Ice/' + minorVer + '/IceJ-%{version}.tar.gz\n')
+	ofile.write('Source1: http://www.zeroc.com/download/Ice/' + minorVer + '/IceJ-%{version}-java2.tar.gz\n')
 	ofile.write('Source2: http://www.zeroc.com/download/Ice/' + minorVer + '/IcePy-%{version}.tar.gz\n')
 	ofile.write('Source3: http://www.zeroc.com/download/Ice/' + minorVer + '/IceCS-%{version}.tar.gz\n')
 	ofile.write('Source4: http://www.zeroc.com/download/Ice/' + minorVer + '/Ice-%{version}-demos.tar.gz\n')
@@ -77,6 +77,7 @@ class Package:
 	ofile.write('Source8: http://www.zeroc.com/download/Ice/' + minorVer + '/php-5.1.4.tar.bz2\n')
 	ofile.write('Source9: http://www.zeroc.com/download/Ice/' + minorVer + '/IcePHP-%{version}.tar.gz\n')
 	ofile.write('Source10: http://www.zeroc.com/download/Ice/' + minorVer + '/iceproject.xml\n')
+	ofile.write('Source11: http://www.zeroc.com/download/Ice/' + minorVer + '/IceJ-%{version}-java5.tar.gz\n')
 	ofile.write('\n')
 	if len(installDir) != 0:
 	    ofile.write('BuildRoot: ' + installDir + '\n')
@@ -281,7 +282,7 @@ transforms = [ ('file', 'ice.ini', 'etc/php.d/ice.ini'),
 	       ('dir', '%{icelibdir}', 'usr/%{icelibdir}'),
 	       ('file', 'usr/%{icelibdir}/icephp.so', 'usr/%{icelibdir}/php/modules/icephp.so'),
 	       ('file', 'usr/lib/Ice.jar', 'usr/lib/Ice-%version%/Ice.jar' ),
-	       ('file', 'usr/lib/java5/Ice.jar', 'usr/lib/Ice-%version%/java5/Ice.jar' ),
+	       ('dir', 'usr/lib/java5', 'usr/lib/Ice-%version%/java5' ),
 	       ('file', 'usr/lib/IceGridGUI.jar', 'usr/lib/Ice-%version%/IceGridGUI.jar' ),
 	       ('file', 'bin/icecs.dll', 'usr/lib/mono/gac/icecs/%version%.0__1f998c50fec78381/icecs.dll'),
 	       ('file', 'bin/glacier2cs.dll',
@@ -683,9 +684,9 @@ gzip -dc $RPM_SOURCE_DIR/configure.gz > $RPM_BUILD_DIR/php-5.1.4/configure
 def writeBuildCommands(ofile, version):
     ofile.write("""
 cd $RPM_BUILD_DIR/Ice-%{version}
-gmake OPTIMIZE=yes RPM_BUILD_ROOT=$RPM_BUILD_ROOT ADD_LIBDIR_TO_RPATH=no
+gmake OPTIMIZE=yes RPM_BUILD_ROOT=$RPM_BUILD_ROOT embedded_runpath_prefix=""
 cd $RPM_BUILD_DIR/IcePy-%{version}
-gmake  OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT ADD_LIBDIR_TO_RPATH=no
+gmake  OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT embedded_runpath_prefix=""
 cd $RPM_BUILD_DIR/IceCS-%{version}
 export PATH=$RPM_BUILD_DIR/Ice-%{version}/bin:$PATH
 export LD_LIBRARY_PATH=$RPM_BUILD_DIR/Ice-%{version}/lib:$LD_LIBRARY_PATH

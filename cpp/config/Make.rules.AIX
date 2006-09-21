@@ -43,8 +43,8 @@ else
      CXXFLAGS		+= -g
 endif
 
-ifeq ($(ADD_LIBDIR_TO_RPATH),yes)
-   LDPLATFORMFLAGS      = -Wl,-blibpath:$(install_libdir):/usr/lpp/xlopt:/usr/lib/threads:/usr/vacpp/lib:/usr/lib:/lib
+ifneq ($(embedded_runpath_prefix),)
+   LDPLATFORMFLAGS      = -Wl,-blibpath:$(runpath_libdir):/usr/lpp/xlopt:/usr/lib/threads:/usr/vacpp/lib:/usr/lib:/lib
 else
    LDPLATFORMFLAGS	= -Wl,-blibpath:/usr/lpp/xlopt:/usr/lib/threads:/usr/vacpp/lib:/usr/lib:/lib
 endif
