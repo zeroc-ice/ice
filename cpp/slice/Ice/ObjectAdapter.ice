@@ -344,7 +344,7 @@ local interface ObjectAdapter
      * should be returned.
      *
      * @return A collection containing all the facet names and
-     * servants which have been found, or an empty map if there is no
+     * servants that have been found, or an empty map if there is no
      * facet for the given identity.
      *
      * @see find
