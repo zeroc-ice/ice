@@ -30,7 +30,7 @@ prefix			= C:\Ice-$(VERSION)
 # If third party libraries are not installed in the default location
 # change the following setting to reflect the installation location.
 #
-#THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty
+THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty
 
 #
 # Define if using STLPort. Required if using MSVC++ 6.0.
@@ -42,8 +42,8 @@ prefix			= C:\Ice-$(VERSION)
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION			= 3.1.0
-SOVERSION		= 31
+VERSION			= 3.2.0
+SOVERSION		= 32
 bindir			= $(top_srcdir)\bin
 libdir			= $(top_srcdir)\lib
 includedir		= $(top_srcdir)\include

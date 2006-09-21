@@ -17,4 +17,4 @@ SUBDIRS		= simple deployer session update activation replication allocation
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \
 	    @echo "making $@ in %i" & \
-	    cmd /c "cd %i & $(MAKE) -nologo -f Makefile.mak $@"
+	    cmd /c "cd %i & $(MAKE) -nologo -f Makefile.mak $@" || exit 1
