@@ -71,6 +71,7 @@ private:
 
     void raiseLocalException();
     std::string getTraceback();
+    std::string getTypeName();
 
     PyObjectHandle _type;
     PyObjectHandle _tb;
@@ -131,11 +132,6 @@ bool contextToDictionary(const Ice::Context&, PyObject*);
 PyObject* lookupType(const std::string&);
 
 //
-// Returns the current Python exception.
-//
-//void getPythonException(PyObjectHandle&, PyObjectHandle&, bool);
-
-//
 // Creates an exception instance of the given type.
 //
 PyObject* createExceptionInstance(PyObject*);
@@ -151,11 +147,15 @@ PyObject* convertException(const Ice::Exception&);
 void setPythonException(const Ice::Exception&);
 
 //
+// Sets an exception in the Python environment.
+//
+void setPythonException(PyObject*);
+
+//
 // Converts a Python exception into an Ice exception and throws it.
 // If no exception is provided, the interpreter's current exception
 // is obtained. The second argument is an optional traceback object.
 //
-//void throwPythonException(PyObject* = NULL, PyObject* = NULL);
 void throwPythonException();
 
 //

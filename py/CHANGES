@@ -55,18 +55,20 @@ Changes since version 3.1.1
   or a list. Note that no type- or range-checking is performed on the
   contents of a buffer.
 
-Changes since version 3.1.0
----------------------------
-
-- Fixed a bug with the IceGrid allocate and sessionAllocation demos 
-  where the session would not be destroyed in the event of an 
-  allocation failure.
-
 - Added UnexpectedObjectException. This exception is raised if you
   use Slice classes and client and server are compiled with mismatched
   Slice definitions. Alternatively, this exception is raised if you
   use dynamic invocation and pass a class of the wrong type as an
   operation parameter.
+
+Changes since version 3.1.0
+---------------------------
+
+- Added compatibility with Python 2.5.
+
+- Fixed a bug with the IceGrid allocate and sessionAllocation demos 
+  where the session would not be destroyed in the event of an 
+  allocation failure.
 
 - Restored Communicator::setDefaultContext.
 

@@ -440,7 +440,7 @@ IcePy::OperationI::OperationI(const char* name, PyObject* mode, PyObject* sendMo
     tupleToStringSeq(meta, _metaData);
     assert(b);
 
-    int i, sz;
+    Py_ssize_t i, sz;
 
     //
     // inParams
@@ -545,11 +545,7 @@ IcePy::OperationI::invoke(const Ice::ObjectPrx& proxy, PyObject* args, PyObject*
                 //
                 // Set the Python exception.
                 //
-                assert(PyInstance_Check(ex.get()));
-                PyObject* type = (PyObject*)((PyInstanceObject*)ex.get())->in_class;
-                Py_INCREF(type);
-                PyErr_Restore(type, ex.release(), NULL);
-
+		setPythonException(ex.get());
                 return NULL;
             }
             else if(_outParams.size() > 0 || _returnType)
@@ -680,9 +676,9 @@ IcePy::OperationI::dispatch(PyObject* servant, const Ice::AMD_Object_ice_invokeP
     //
     // Unmarshal the in parameters.
     //
-    int count = static_cast<int>(_inParams.size()) + 1; // Leave room for a trailing Ice::Current object.
+    Py_ssize_t count = static_cast<Py_ssize_t>(_inParams.size()) + 1; // Leave room for a trailing Ice::Current object.
 
-    int start = 0;
+    Py_ssize_t start = 0;
     if(_amd)
     {
         ++count; // Leave room for a leading AMD callback argument.
@@ -700,7 +696,7 @@ IcePy::OperationI::dispatch(PyObject* servant, const Ice::AMD_Object_ice_invokeP
         Ice::InputStreamPtr is = Ice::createInputStream(communicator, inBytes);
         try
         {
-            int i = start;
+            Py_ssize_t i = start;
             for(ParamInfoList::iterator p = _inParams.begin(); p != _inParams.end(); ++p, ++i)
             {
 		void* closure = reinterpret_cast<void*>(i);
@@ -880,8 +876,8 @@ IcePy::OperationI::sendResponse(const Ice::AMD_Object_ice_invokePtr& cb, PyObjec
     Ice::OutputStreamPtr os = Ice::createOutputStream(communicator);
     try
     {
-        int i = _returnType ? 1 : 0;
-        int numResults = static_cast<int>(_outParams.size()) + i;
+        Py_ssize_t i = _returnType ? 1 : 0;
+        Py_ssize_t numResults = static_cast<Py_ssize_t>(_outParams.size()) + i;
         if(numResults > 1)
         {
             if(!PyTuple_Check(args) || PyTuple_GET_SIZE(args) != numResults)
@@ -966,22 +962,20 @@ IcePy::OperationI::sendException(const Ice::AMD_Object_ice_invokePtr& cb, PyExce
 {
     try
     {
-        PyObject* exType = (PyObject*)((PyInstanceObject*)ex.ex.get())->in_class;
-
         //
         // A servant that calls sys.exit() will raise the SystemExit exception.
         // This is normally caught by the interpreter, causing it to exit.
         // However, we have no way to pass this exception to the interpreter,
         // so we act on it directly.
         //
-        if(PyErr_GivenExceptionMatches(exType, PyExc_SystemExit))
+	if(PyObject_IsInstance(ex.ex.get(), PyExc_SystemExit))
         {
             handleSystemExit(ex.ex.get()); // Does not return.
         }
 
         PyObject* userExceptionType = lookupType("Ice.UserException");
 
-        if(PyErr_GivenExceptionMatches(exType, userExceptionType))
+	if(PyObject_IsInstance(ex.ex.get(), userExceptionType))
         {
             //
             // Get the exception's type and verify that it is legal to be thrown from this operation.
@@ -1030,12 +1024,13 @@ IcePy::OperationI::prepareRequest(const Ice::CommunicatorPtr& communicator, PyOb
     //
     // Validate the number of arguments.
     //
-    int argc = PyTuple_GET_SIZE(args);
-    int paramCount = static_cast<int>(_inParams.size());
+    Py_ssize_t argc = PyTuple_GET_SIZE(args);
+    Py_ssize_t paramCount = static_cast<Py_ssize_t>(_inParams.size());
     if(argc != paramCount)
     {
         string fixedName = fixIdent(_name);
-        PyErr_Format(PyExc_RuntimeError, STRCAST("%s expects %d in parameters"), fixedName.c_str(), paramCount);
+        PyErr_Format(PyExc_RuntimeError, STRCAST("%s expects %d in parameters"), fixedName.c_str(),
+		     static_cast<int>(paramCount));
         return false;
     }
 
@@ -1095,8 +1090,8 @@ IcePy::OperationI::prepareRequest(const Ice::CommunicatorPtr& communicator, PyOb
 PyObject*
 IcePy::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice::CommunicatorPtr& communicator)
 {
-    int i = _returnType ? 1 : 0;
-    int numResults = static_cast<int>(_outParams.size()) + i;
+    Py_ssize_t i = _returnType ? 1 : 0;
+    Py_ssize_t numResults = static_cast<Py_ssize_t>(_outParams.size()) + i;
 
     PyObjectHandle results = PyTuple_New(numResults);
     if(results.get() != NULL && numResults > 0)

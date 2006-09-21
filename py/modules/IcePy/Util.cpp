@@ -113,9 +113,7 @@ IcePy::PyException::raise()
 	    PyErr_Clear();
 	    if(name.get() == NULL)
 	    {
-		PyObject* cls = (PyObject*)((PyInstanceObject*)ex.get())->in_class;
-		IcePy::PyObjectHandle str = PyObject_Str(cls);
-		e.unknown = PyString_AsString(str.get());
+		e.unknown = getTypeName();
 	    }
 	    else
 	    {
@@ -140,11 +138,7 @@ IcePy::PyException::raise()
 	{
 	    ostringstream ostr;
 
-	    PyObject* cls = (PyObject*)((PyInstanceObject*)ex.get())->in_class;
-	    IcePy::PyObjectHandle className = PyObject_Str(cls);
-	    assert(className.get() != NULL);
-
-	    ostr << PyString_AsString(className.get());
+	    ostr << getTypeName();
 
 	    IcePy::PyObjectHandle msg = PyObject_Str(ex.get());
 	    if(msg.get() != NULL && strlen(PyString_AsString(msg.get())) > 0)
@@ -161,10 +155,7 @@ IcePy::PyException::raise()
 void
 IcePy::PyException::raiseLocalException()
 {
-    assert(PyInstance_Check(ex.get()));
-    PyObject* cls = (PyObject*)((PyInstanceObject*)ex.get())->in_class;
-    IcePy::PyObjectHandle h = PyObject_Str(cls);
-    string typeName = PyString_AsString(h.get());
+    string typeName = getTypeName();
 
     try
     {
@@ -277,12 +268,24 @@ IcePy::PyException::getTraceback()
     PyObjectHandle list = PyObject_CallObject(func, args.get());
 
     string result;
-    for(int i = 0; i < PyList_GET_SIZE(list.get()); ++i)
+    for(Py_ssize_t i = 0; i < PyList_GET_SIZE(list.get()); ++i)
     {
 	result += PyString_AsString(PyList_GetItem(list.get(), i));
     }
 
     return result;
+}
+
+string
+IcePy::PyException::getTypeName()
+{
+#ifdef ICEPY_OLD_EXCEPTIONS
+    PyObject* cls = (PyObject*)((PyInstanceObject*)ex.get())->in_class;
+#else
+    PyObject* cls = (PyObject*)ex.get()->ob_type;
+#endif
+    PyObjectHandle str = PyObject_Str(cls);
+    return PyString_AsString(str.get());
 }
 
 IcePy::AllowThreads::AllowThreads()
@@ -310,8 +313,8 @@ IcePy::listToStringSeq(PyObject* l, Ice::StringSeq& seq)
 {
     assert(PyList_Check(l));
 
-    int sz = PyList_GET_SIZE(l);
-    for(int i = 0; i < sz; ++i)
+    Py_ssize_t sz = PyList_GET_SIZE(l);
+    for(Py_ssize_t i = 0; i < sz; ++i)
     {
 	PyObject* item = PyList_GET_ITEM(l, i);
 	if(item == NULL)
@@ -381,7 +384,7 @@ IcePy::dictionaryToContext(PyObject* dict, Ice::Context& context)
 {
     assert(PyDict_Check(dict));
 
-    int pos = 0;
+    Py_ssize_t pos = 0;
     PyObject* key;
     PyObject* value;
     while(PyDict_Next(dict, &pos, &key, &value))
@@ -467,7 +470,11 @@ IcePy::lookupType(const string& typeName)
 PyObject*
 IcePy::createExceptionInstance(PyObject* type)
 {
+#ifdef ICEPY_OLD_EXCEPTIONS
     assert(PyClass_Check(type));
+#else
+    assert(PyExceptionClass_Check(type));
+#endif
     IcePy::PyObjectHandle args = PyTuple_New(0);
     if(args.get() == NULL)
     {
@@ -697,13 +704,27 @@ void
 IcePy::setPythonException(const Ice::Exception& ex)
 {
     PyObjectHandle p = convertException(ex);
-
     if(p.get() != NULL)
     {
-        PyObject* type = (PyObject*)((PyInstanceObject*)p.get())->in_class;
-        Py_INCREF(type);
-        PyErr_Restore(type, p.release(), NULL);
+	setPythonException(p.get());
     }
+}
+
+void
+IcePy::setPythonException(PyObject* ex)
+{
+    //
+    // PyErr_Restore steals references to the type and exception.
+    //
+#ifdef ICEPY_OLD_EXCEPTIONS
+    PyObject* type = (PyObject*)((PyInstanceObject*)ex)->in_class;
+    Py_INCREF(type);
+#else
+    PyObject* type = PyObject_Type(ex);
+    assert(type != NULL);
+#endif
+    Py_INCREF(ex);
+    PyErr_Restore(type, ex, NULL);
 }
 
 void
@@ -720,7 +741,11 @@ IcePy::handleSystemExit(PyObject* ex)
     // This code is similar to handle_system_exit in pythonrun.c.
     //
     PyObjectHandle code;
+#ifdef ICEPY_OLD_EXCEPTIONS
     if(PyInstance_Check(ex))
+#else
+    if(PyExceptionInstance_Check(ex))
+#endif
     {
         code = PyObject_GetAttrString(ex, STRCAST("code"));
     }

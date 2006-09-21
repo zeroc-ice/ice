@@ -39,13 +39,13 @@ struct CurrentObject
 //
 // Member identifiers.
 //
-const int CURRENT_ADAPTER    = 0;
-const int CURRENT_CONNECTION = 1;
-const int CURRENT_ID         = 2;
-const int CURRENT_FACET      = 3;
-const int CURRENT_OPERATION  = 4;
-const int CURRENT_MODE       = 5;
-const int CURRENT_CTX        = 6;
+const Py_ssize_t CURRENT_ADAPTER    = 0;
+const Py_ssize_t CURRENT_CONNECTION = 1;
+const Py_ssize_t CURRENT_ID         = 2;
+const Py_ssize_t CURRENT_FACET      = 3;
+const Py_ssize_t CURRENT_OPERATION  = 4;
+const Py_ssize_t CURRENT_MODE       = 5;
+const Py_ssize_t CURRENT_CTX        = 6;
 
 }
 

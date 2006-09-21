@@ -713,8 +713,8 @@ proxyIceEndpoints(ProxyObject* self, PyObject* args)
     assert(self->proxy);
 
     Ice::EndpointSeq seq;
-    int sz = PySequence_Fast_GET_SIZE(endpoints);
-    for(int i = 0; i < sz; ++i)
+    Py_ssize_t sz = PySequence_Fast_GET_SIZE(endpoints);
+    for(Py_ssize_t i = 0; i < sz; ++i)
     {
         PyObject* p = PySequence_Fast_GET_ITEM(endpoints, i);
 	if(!PyObject_IsInstance(p, (PyObject*)&EndpointType))
