@@ -17,13 +17,19 @@ namespace IceStorm
 {
 
 //
+// Forward declarations.
+//
+class TraceLevels;
+typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
+
+//
 // LinkProxy subclasses QueuedProxy for topic links.
 //
 class LinkProxy : public QueuedProxy
 {
 public:
 
-    LinkProxy(const TopicLinkPrx&);
+    LinkProxy(const TraceLevelsPtr&, const std::string&, const TopicLinkPrx&);
 
     virtual Ice::ObjectPrx proxy() const;
 
@@ -33,6 +39,8 @@ protected:
 
 private:
 
+    const TraceLevelsPtr _traceLevels;
+    const std::string _id;
     TopicLinkPrx _obj;
 };
 

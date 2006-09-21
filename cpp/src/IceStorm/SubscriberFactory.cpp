@@ -18,6 +18,7 @@
 #include <IceStorm/TwowayProxy.h>
 
 #include <Ice/LoggerUtil.h>
+#include <Ice/Communicator.h>
 
 using namespace std;
 using namespace IceStorm;
@@ -48,7 +49,7 @@ SubscriberFactory::createLinkSubscriber(const TopicLinkPrx& obj, Ice::Int cost)
     }
     else
     {
-        proxy = new LinkProxy(obj);
+        proxy = new LinkProxy(_traceLevels, _communicator->identityToString(obj->ice_getIdentity()), obj);
         ProxyInfo info;
         info.proxy = proxy;
         info.count = 0;

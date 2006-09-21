@@ -195,6 +195,10 @@ Changes since version 3.1.1 (HEAD)
 Changes since version 3.1.0
 ---------------------------     
 
+- Fixed a bug in IceStorm where IceStorm stops sending events to
+  linked topics if the linked topic becomes unavailable for any
+  reason.
+
 - Fixed a bug where the number of endpoints returned for replica group
   with no load balancing policy was random.
 

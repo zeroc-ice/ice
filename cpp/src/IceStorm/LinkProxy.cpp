@@ -7,12 +7,18 @@
 //
 // **********************************************************************
 
+#include <Ice/LocalException.h>
+#include <Ice/LoggerUtil.h>
+
 #include <IceStorm/LinkProxy.h>
+#include <IceStorm/TraceLevels.h>
 #include <IceStorm/Event.h>
 
 using namespace std;
 
-IceStorm::LinkProxy::LinkProxy(const TopicLinkPrx& obj) :
+IceStorm::LinkProxy::LinkProxy(const TraceLevelsPtr& traceLevels, const string& id, const TopicLinkPrx& obj) :
+    _traceLevels(traceLevels),
+    _id(id),
     _obj(obj)
 {
 }
@@ -44,5 +50,24 @@ IceStorm::LinkProxy::deliver(const vector<EventPtr>& v)
 	e.context = (*p)->context;
 	events.push_back(e);
     }
-    _obj->forward(events);
+
+    try
+    {
+	_obj->forward(events);
+    }
+    catch(const Ice::ObjectNotExistException&)
+    {
+	//
+	// ObjectNotExist causes the link to be removed.
+	//
+	throw;
+    }
+    catch(const Ice::LocalException& e)
+    {
+	if(_traceLevels->subscriber > 0)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
+	    out << _id << ": link topic publish failed: " << e;
+	}
+    }
 }

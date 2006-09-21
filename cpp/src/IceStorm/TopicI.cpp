@@ -348,6 +348,8 @@ TopicI::TopicI(const Ice::CommunicatorPtr& communicator, const Ice::ObjectAdapte
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
 	    out << _name << " relink " << p->first;
+//XXX:
+	    out << " proxy: " << communicator->proxyToString(p->second.obj);
 	}
 	
 	//
