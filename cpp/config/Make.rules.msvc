@@ -43,3 +43,6 @@ ICE_OS_LIBS     = rpcrt4.lib advapi32.lib
 
 BASELIBS	= iceutil$(LIBSUFFIX).lib $(ICE_OS_LIBS)
 LIBS		= ice$(LIBSUFFIX).lib $(BASELIBS)
+
+BZIP2_LIBS      = libbz2$(LIBSUFFIX).lib
+DB_LIBS         = libdb43$(LIBSUFFIX).lib

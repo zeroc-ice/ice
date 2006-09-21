@@ -34,3 +34,6 @@ ICE_OS_LIBS     = cw32mti.lib import32.lib
 
 BASELIBS	= iceutil$(LIBSUFFIX).lib $(ICE_OS_LIBS)
 LIBS		= ice$(LIBSUFFIX).lib $(BASELIBS)
+
+BZIP2_LIBS      = libbz2.lib
+DB_LIBS         = libdb43.lib

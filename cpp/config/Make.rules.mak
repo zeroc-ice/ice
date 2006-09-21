@@ -74,14 +74,6 @@ LIBSUFFIX	= $(LIBSUFFIX)d
 OPENSSL_LIBS            = ssleay32.lib libeay32.lib
 EXPAT_LIBS              = libexpat.lib
 
-!if "$(BORLAND_HOME)" == ""
-BZIP2_LIBS              = libbz2$(LIBSUFFIX).lib
-DB_LIBS                 = libdb43$(LIBSUFFIX).lib
-!else
-BZIP2_LIBS              = libbz2.lib
-DB_LIBS                 = libdb43.lib
-!endif
-
 CPPFLAGS		= $(CPPFLAGS) -I$(includedir)
 ICECPPFLAGS		= -I$(slicedir)
 SLICE2CPPFLAGS		= $(ICECPPFLAGS)
