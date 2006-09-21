@@ -195,6 +195,12 @@ Changes since version 3.1.1 (HEAD)
 Changes since version 3.1.0
 ---------------------------     
 
+- Fixed a bug where the number of endpoints returned for replica group
+  with no load balancing policy was random.
+
+- It's now possible to invoke on the IceGrid::Query object from an
+  IceGrid admin session created through Glacier2.
+
 - Fixed a Glacier2 shutdown bug where active sessions would not be
   destroyed properly.
 
