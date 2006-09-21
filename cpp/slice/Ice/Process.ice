@@ -29,7 +29,7 @@ interface Process
 {
     /**
      *
-     * Initiate a graceful shutdown.
+     * Initiate a graceful shut-down.
      *
      * @see Communicator::shutdown
      *

@@ -467,7 +467,7 @@ interface Admin
      * @param name The application name.
      *
      * @param shutdown If true, the servers depending on the data to
-     * patch will be shutdown if necessary.
+     * patch will be shut down if necessary.
      *
      * @throws ApplicationNotExistException Raised if the application
      * doesn't exist.
@@ -572,7 +572,7 @@ interface Admin
      *
      * Enable or disable a server. A disabled server can't be started
      * on demand or administratively. The enable state of the server
-     * is not persistent: if the node is shutdown and restarted, the
+     * is not persistent: if the node is shut down and restarted, the
      * server will be enabled by default.
      *
      * @param id The server id.
@@ -664,7 +664,7 @@ interface Admin
      * @param id The server id.
      *
      * @param shutdown If true, servers depending on the data to patch
-     * will be shutdown if necessary.
+     * will be shut down if necessary.
      *
      * @throws ServerNotExistException Raised if the server doesn't
      * exist.

@@ -82,11 +82,11 @@ local interface Communicator
     /**
      *
      * Wait until this communicator's server functionality has shut
-     * down completely. Calling [shutdown] initiates shutdown, and
+     * down completely. Calling [shutdown] initiates shut-down, and
      * [waitForShutdown] only returns when all outstanding requests
      * have completed. A typical use of this operation is to call it
      * from the main thread, which then waits until some other thread
-     * calls [shutdown]. After shutdown is complete, the main thread
+     * calls [shutdown]. After shut-down is complete, the main thread
      * returns and can do some cleanup work before it finally calls
      * [destroy] to also shut down the client functionality, and then
      * exits the application.
