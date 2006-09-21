@@ -44,7 +44,6 @@ SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 ORACLE_LIBS     = /LIBPATH:$(ORACLE_HOME)\precomp\lib oraocci10$(LIBSUFFIX).lib
 
 $(CLIENT): $(OBJS) $(COBJS)
-	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
 $(SERVER): $(OBJS) $(SOBJS)

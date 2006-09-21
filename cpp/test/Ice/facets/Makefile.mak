@@ -43,15 +43,12 @@ COPDBFLAGS       = /pdb:$(COLLOCATED:.exe=.pdb)
 !endif
 
 $(CLIENT): $(COBJS)
-	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
 $(SERVER): $(SOBJS)
-	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
 $(COLLOCATED): $(COLOBJS)
-	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(COPDBFLAGS) $(COLOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
 clean::

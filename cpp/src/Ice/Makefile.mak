@@ -121,7 +121,6 @@ LD_DLLFLAGS	= $(LD_DLLFLAGS) /entry:"ice_DLL_Main"
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS)
-	del /q $@
 	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 

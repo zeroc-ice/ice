@@ -63,16 +63,13 @@ APDBFLAGS       = /pdb:$(ADMIN:.exe=.pdb)
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS)
-	del /q $@
 	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LIBS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 
 $(SERVER): $(SOBJS)
-	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) icebox$(LIBSUFFIX).lib
 
 $(ADMIN): $(AOBJS)
-	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(AOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) icebox$(LIBSUFFIX).lib
 
 !ifdef BUILD_UTILS

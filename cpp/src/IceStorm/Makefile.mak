@@ -89,19 +89,16 @@ APDBFLAGS       = /pdb:$(ADMIN:.exe=.pdb)
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS)
-	del /q $@
 	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LIBS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 
 $(SVCLIBNAME): $(SVCDLLNAME)
 
 $(SVCDLLNAME): $(SOBJS)
-	del /q $@
 	$(LINK) $(LD_DLLFLAGS) $(SPDBFLAGS) $(SOBJS) $(PREOUT)$(SVCDLLNAME) $(PRELIBS)$(LINKWITH)
 	move $(SVCDLLNAME:.dll=.lib) $(SVCLIBNAME)
 
 $(ADMIN): $(AOBJS)
-	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(AOBJS) $(PREOUT)$@ $(PRELIBS)$(ALINKWITH)
 
 PersistentTopicMap.h PersistentTopicMap.cpp: ../IceStorm/LinkRecord.ice $(slicedir)/Ice/Identity.ice $(SLICE2FREEZE)

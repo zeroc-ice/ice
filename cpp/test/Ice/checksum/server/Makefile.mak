@@ -30,7 +30,6 @@ PDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 !endif
 
 $(SERVER): $(SOBJS)
-	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
 clean::

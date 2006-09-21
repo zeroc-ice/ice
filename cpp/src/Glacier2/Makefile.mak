@@ -74,12 +74,10 @@ SLICE2CPPFLAGS	= --include-dir Glacier2 --dll-export GLACIER2_API $(SLICE2CPPFLA
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS)
-	del /q $@
 	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LIBS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 
 $(ROUTER): $(ROBJS)
-	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(RPDBFLAGS) $(ROBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 
 !ifdef BUILD_UTILS

@@ -38,15 +38,12 @@ VPDBFLAGS        = /pdb:$(VERIFIER:.exe=.pdb)
 !endif
 
 $(CLIENT): $(COBJS)
-	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) icegrid$(LIBSUFFIX).lib
 
 $(VERIFIER): $(VOBJS)
-	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(VPDBFLAGS) $(VOBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 
 $(SERVER): $(SOBJS)
-	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) icessl$(LIBSUFFIX).lib
 
 !include .depend

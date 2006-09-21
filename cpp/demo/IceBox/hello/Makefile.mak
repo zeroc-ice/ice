@@ -42,11 +42,9 @@ CPDBFLAGS       = /pdb:$(CLIENT:.exe=.pdb)
 $(LIBNAME) : $(DLLNAME)
 
 $(DLLNAME): $(OBJS) $(SOBJS)
-	del /q $@
 	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH)
 
 $(CLIENT): $(OBJS) $(COBJS)
-	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
 clean::

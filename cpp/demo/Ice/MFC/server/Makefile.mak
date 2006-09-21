@@ -31,7 +31,6 @@ PDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 !endif
 
 $(SERVER): $(OBJS) $(COBJS) HelloServer.res
-	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) /subsystem:windows $(OBJS) $(COBJS) HelloServer.res \
 	  $(PREOUT)$@ $(PRELIBS)$(LIBS)
 

@@ -50,7 +50,6 @@ PDBFLAGS	= /pdb:$(DLLNAME:.dll=.pdb)
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS)
-	del /q $@
 	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(ICE_OS_LIBS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 

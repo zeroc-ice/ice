@@ -22,7 +22,6 @@ SRCS		= $(OBJS:.obj=.cpp)
 CPPFLAGS	= -I. $(CPPFLAGS)
 
 $(NAME): $(OBJS)
-	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)slice$(LIBSUFFIX).lib $(BASELIBS)
 
 clean::

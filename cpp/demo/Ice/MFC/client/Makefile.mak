@@ -29,7 +29,6 @@ PDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 !endif
 
 $(CLIENT): $(OBJS) $(COBJS) HelloClient.res
-	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) /subsystem:windows $(OBJS) $(COBJS) HelloClient.res \
 	  $(PREOUT)$@ $(PRELIBS)$(LIBS)
 

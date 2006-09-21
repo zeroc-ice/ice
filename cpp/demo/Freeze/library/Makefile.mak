@@ -54,15 +54,12 @@ COPDBFLAGS       = /pdb:$(COLLOCATED:.exe=.pdb)
 !endif
 
 $(CLIENT): $(OBJS) $(COBJS)
-	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
 $(SERVER): $(OBJS) $(SOBJS)
-	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
 
 $(COLLOCATED): $(OBJS) $(COLOBJS)
-	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(COPDBFLAGS) $(OBJS) $(COLOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
 
 LibraryTypes.h LibraryTypes.cpp: Library.ice $(SLICE2FREEZE)

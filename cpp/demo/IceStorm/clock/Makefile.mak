@@ -37,11 +37,9 @@ SPDBFLAGS        = /pdb:$(SUBSCRIBER:.exe=.pdb)
 !endif
 
 $(PUBLISHER): $(OBJS) $(POBJS)
-	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(PPDBFLAGS) $(OBJS) $(POBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
 $(SUBSCRIBER): $(OBJS) $(SOBJS)
-	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
 clean::

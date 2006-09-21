@@ -27,7 +27,6 @@ PDBFLAGS        = /pdb:$(NAME:.exe=.pdb)
 !endif
 
 $(NAME): $(OBJS)
-	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)slice$(LIBSUFFIX).lib $(BASELIBS)
 
 clean::

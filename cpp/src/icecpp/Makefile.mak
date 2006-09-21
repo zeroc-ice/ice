@@ -36,7 +36,6 @@ prefix.obj: prefix.c
 	$(CC) /c $(CPPFLAGS) $(CFLAGS) -D__STDC__ prefix.c
 
 $(NAME): $(OBJS)
-	del /q $@
 	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 
 install:: all
