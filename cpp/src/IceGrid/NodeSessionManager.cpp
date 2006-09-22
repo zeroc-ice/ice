@@ -253,7 +253,7 @@ NodeSessionManager::replicaRemoved(const InternalRegistryPrx& replica)
     }
     if(thread)
     {
-	thread->terminate();
+	thread->terminate(false); // Don't destroy the session, the replica is being shutdown!
 	thread->getThreadControl().join();
     }
 }

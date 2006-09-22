@@ -130,6 +130,10 @@ public:
     ObjectInfoSeq getObjectInfosByType(const std::string&);
     ObjectInfoSeq getAllObjectInfos(const std::string& = std::string());
 
+    void addInternalObject(const ObjectInfo&, bool = false);
+    void removeInternalObject(const Ice::Identity&);
+    Ice::ObjectProxySeq getInternalObjectsByType(const std::string&);
+
 private:
 
     void checkForAddition(const ApplicationHelper&);
@@ -154,6 +158,7 @@ private:
 
     static const std::string _applicationDbName;
     static const std::string _objectDbName;
+    static const std::string _internalObjectDbName;
     static const std::string _adapterDbName;
     static const std::string _replicaGroupDbName;
   
@@ -180,8 +185,9 @@ private:
 
     Freeze::ConnectionPtr _connection;
     StringApplicationInfoDict _applications;
-    IdentityObjectInfoDict _objects;
     StringAdapterInfoDict _adapters;
+    IdentityObjectInfoDict _objects;
+    IdentityObjectInfoDict _internalObjects;
     
     AdminSessionI* _lock;
     std::string _lockUserId;

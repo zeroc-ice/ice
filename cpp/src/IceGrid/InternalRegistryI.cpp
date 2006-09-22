@@ -160,7 +160,7 @@ InternalRegistryI::getNodes(const Ice::Current&) const
     NodePrxSeq nodes;
     try
     {
-	Ice::ObjectProxySeq proxies = _database->getObjectsByType(Node::ice_staticId());
+	Ice::ObjectProxySeq proxies = _database->getInternalObjectsByType(Node::ice_staticId());
 	for(Ice::ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
 	{
 	    nodes.push_back(NodePrx::uncheckedCast(*p));

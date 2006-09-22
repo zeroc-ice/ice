@@ -29,6 +29,7 @@ using namespace IceGrid;
 const string Database::_applicationDbName = "applications";
 const string Database::_adapterDbName = "adapters";
 const string Database::_objectDbName = "objects";
+const string Database::_internalObjectDbName = "internal-objects";
 
 namespace IceGrid
 {
@@ -135,8 +136,9 @@ Database::Database(const Ice::ObjectAdapterPtr& registryAdapter,
     _serverCache(_communicator, _nodeCache, _adapterCache, _objectCache, _allocatableObjectCache),
     _connection(Freeze::createConnection(registryAdapter->getCommunicator(), _envName)),
     _applications(_connection, _applicationDbName),
-    _objects(_connection, _objectDbName),
     _adapters(_connection, _adapterDbName),
+    _objects(_connection, _objectDbName),
+    _internalObjects(_connection, _internalObjectDbName),
     _lock(0), 
     _applicationSerial(0),
     _adapterSerial(0),
@@ -359,33 +361,10 @@ Database::syncObjects(const ObjectInfoSeq& objects)
 	Lock sync(*this);
 
 	Freeze::TransactionHolder txHolder(_connection);
-
-	ObjectInfoSeq nodes;
-	for(IdentityObjectInfoDict::const_iterator p = _objects.findByType(Node::ice_staticId()); p != _objects.end(); 
-	    ++p)
-	{
-	    nodes.push_back(p->second);
-	}
-
 	_objects.clear();
-	ObjectInfoSeq::const_iterator q;
-	for(q = objects.begin(); q != objects.end(); ++q)
+	for(ObjectInfoSeq::const_iterator q = objects.begin(); q != objects.end(); ++q)
 	{
-	    const Ice::Identity& id = q->proxy->ice_getIdentity();
-	    if(id.category != _instanceName || id.name.find("Node-") != 0)
-	    {
-		// Don't replicate node well-known objects. These objects are 
-		// maintained by each replica with each node session.
-		_objects.put(IdentityObjectInfoDict::value_type(q->proxy->ice_getIdentity(), *q));
-	    }
-	}
-	for(q = nodes.begin(); q != nodes.end(); ++q)
-	{
-	    const Ice::Identity& id = q->proxy->ice_getIdentity();
-	    if(id.category == _instanceName || id.name.find("Node-") == 0)
-	    {
-		_objects.put(IdentityObjectInfoDict::value_type(q->proxy->ice_getIdentity(), *q));
-	    }
+	    _objects.put(IdentityObjectInfoDict::value_type(q->proxy->ice_getIdentity(), *q));
 	}
 	serial = ++_objectSerial;
 	txHolder.commit();
@@ -692,7 +671,7 @@ Database::addNode(const string& name, const NodeSessionIPtr& session)
     ObjectInfo info;
     info.type = Node::ice_staticId();
     info.proxy = session->getNode();
-    addObject(info, true);
+    addInternalObject(info, true);
 }
 
 NodePrx 
@@ -717,7 +696,7 @@ Database::removeNode(const string& name, const NodeSessionIPtr& session, bool sh
     // 
     if(!shutdown)
     {
-	removeObject(session->getNode()->ice_getIdentity());
+	removeInternalObject(session->getNode()->ice_getIdentity());
     }
 
     //
@@ -1457,6 +1436,49 @@ Database::getObjectInfosByType(const string& type)
 	infos.push_back(p->second);
     }
     return infos;
+}
+
+void
+Database::addInternalObject(const ObjectInfo& info, bool replace)
+{
+    Lock sync(*this);	
+    const Ice::Identity id = info.proxy->ice_getIdentity();
+    if(!replace && _internalObjects.find(id) != _internalObjects.end())
+    {
+	throw ObjectExistsException(id);
+    }
+    _internalObjects.put(IdentityObjectInfoDict::value_type(id, info));
+}
+
+void
+Database::removeInternalObject(const Ice::Identity& id)
+{
+    Lock sync(*this);
+    IdentityObjectInfoDict::iterator p = _internalObjects.find(id);
+    if(p == _internalObjects.end())
+    {
+	ObjectNotRegisteredException ex;
+	ex.id = id;
+	throw ex;
+    }
+    _internalObjects.erase(p);
+}
+
+Ice::ObjectProxySeq
+Database::getInternalObjectsByType(const string& type)
+{
+    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
+    IdentityObjectInfoDict internalObjects(connection, _internalObjectDbName);    
+    Ice::ObjectProxySeq proxies;
+    for(IdentityObjectInfoDict::const_iterator p = internalObjects.findByType(type); p != internalObjects.end(); ++p)
+    {
+	proxies.push_back(p->second.proxy);
+    }
+    if(proxies.empty())
+    {
+	throw ObjectNotRegisteredException();
+    }
+    return proxies;
 }
 
 void

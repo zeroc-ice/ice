@@ -36,7 +36,8 @@ public:
 
     SessionKeepAliveThread(const FPrx& factory) : 
 	_factory(factory),
-	_state(Disconnected)
+	_state(Disconnected),
+	_destroySession(false)
     {
     }
 
@@ -117,8 +118,11 @@ public:
 	    //
 	    {
 		Lock sync(*this);
-		
-		if(_state == Connected || _state == Disconnected)
+		if(_state == Destroyed)
+		{
+		    break;
+		}
+		else if(_state == Connected || _state == Disconnected)
 		{
 		    timedWait(timeout);
 		}
@@ -127,8 +131,7 @@ public:
 		{
 		    break;
 		}
-		
-		if(_state == DestroySession && session)
+		else if(_state == DestroySession && session)
 		{
 		    destroy = true;
 		}
@@ -149,7 +152,7 @@ public:
 	//
 	// Destroy the session.
 	//
-	if(session)
+	if(_destroySession && session)
 	{
 	    destroySession(session);
 	}
@@ -207,10 +210,12 @@ public:
     }
 
     void
-    terminate()
+    terminate(bool destroySession = true)
     {
 	Lock sync(*this);
+	assert(_state != Destroyed);
 	_state = Destroyed;
+	_destroySession = destroySession;
 	notifyAll();
     }
 
@@ -230,6 +235,7 @@ protected:
     FPrx _factory;
     TPrx _session;
     State _state;
+    bool _destroySession;
 };
 
 };
