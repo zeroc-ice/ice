@@ -238,7 +238,23 @@ os.chdir(cwd)
 # Get Ice version.
 #
 config = open(os.path.join("icepy", "config", "Make.rules"), "r")
-version = re.search("^VERSION[ \t]+=[^\d]*([\d\.]+)", config.read(), re.M).group(1)
+versionMajor = ""
+versionMinor = ""
+versionPatch = ""
+for l in config.readlines():
+    if l.startswith("VERSION_MAJOR"):
+	n, v = l.split('=')
+	versionMajor = v.strip()
+    elif l.startswith("VERSION_MINOR"):
+	n, v = l.split('=')
+	versionMinor = v.strip()
+    elif l.startswith("VERSION_PATCH"):
+	n, v = l.split('=')
+	versionPatch = v.strip()
+
+config.close()
+
+version='%s.%s.%s' % (versionMajor, versionMinor, versionPatch) 
 
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("icepy", "README*"), version)
