@@ -195,6 +195,8 @@ Changes since version 3.1.1 (HEAD)
 Changes since version 3.1.0
 ---------------------------     
 
+- Removed obsolete --no-globals option from slice2docbook.
+
 - Fixed a bug in IceStorm where IceStorm stops sending events to
   linked topics if the linked topic becomes unavailable for any
   reason.

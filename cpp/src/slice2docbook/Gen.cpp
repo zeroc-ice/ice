@@ -19,10 +19,9 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtil;
 
-Slice::Gen::Gen(const string& name, const string& file, bool standAlone, bool noGlobals, bool chapter,
+Slice::Gen::Gen(const string& name, const string& file, bool standAlone, bool chapter,
                 bool noIndex, bool sortFields) :
     _standAlone(standAlone),
-    _noGlobals(noGlobals),
     _noIndex(noIndex),
     _sortFields(sortFields)
 {
@@ -80,14 +79,6 @@ Slice::Gen::visitUnitStart(const UnitPtr& p)
     else
     {
 	printHeader();
-    }
-
-    if(!_noGlobals && !_noIndex)
-    {
-	start(_chapter, "Global Module", false);
-//	start("section", "Overview", false);
-	visitContainer(p);
-//	end();
     }
 
     return true;

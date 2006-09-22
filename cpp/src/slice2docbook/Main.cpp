@@ -29,7 +29,6 @@ usage(const char* n)
         "-IDIR                Put DIR in the include file search path.\n"
 	"-E                   Print preprocessor output on stdout.\n"
         "-s, --stand-alone    Create stand-alone docbook file.\n"
-        "--no-globals         Don't document the global module.\n"
         "--chapter            Use \"chapter\" instead of \"section\" as\n"
         "                     top-level element.\n"
 	"--noindex            Suppress generation of index pages.\n"
@@ -46,7 +45,6 @@ main(int argc, char* argv[])
     string cppArgs;
     bool preprocess;
     bool standAlone;
-    bool noGlobals;
     bool chapter;
     bool noIndex;
     bool debug;
@@ -62,7 +60,6 @@ main(int argc, char* argv[])
     opts.addOpt("I", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("E");
     opts.addOpt("s", "stand-alone");
-    opts.addOpt("", "no-globals");
     opts.addOpt("", "chapter");
     opts.addOpt("", "noindex");
     opts.addOpt("", "sort-fields");
@@ -118,7 +115,6 @@ main(int argc, char* argv[])
     }
     preprocess = opts.isSet("E");
     standAlone = opts.isSet("stand-alone");
-    noGlobals = opts.isSet("no-globals");
     chapter = opts.isSet("chapter");
     noIndex = opts.isSet("noindex");
     sortFields = opts.isSet("sort-fields");
@@ -194,7 +190,7 @@ main(int argc, char* argv[])
 
     if(status == EXIT_SUCCESS && !preprocess)
     {
-	Gen gen(argv[0], docbook, standAlone, noGlobals, chapter, noIndex, sortFields);
+	Gen gen(argv[0], docbook, standAlone, chapter, noIndex, sortFields);
 	if(!gen)
 	{
 	    p->destroy();
