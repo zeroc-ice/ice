@@ -11,3 +11,5 @@ IceGrid.Registry.AdminPermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
 
 IceGrid.Registry.Trace.Node=1
 IceGrid.Registry.Trace.Replica=1
+
+IceGrid.Registry.DefaultTemplates=../../../config/templates.xml

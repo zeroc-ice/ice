@@ -110,8 +110,9 @@ AttackClient::run(int argc, char* argv[])
 	{
 	    Glacier2::SessionPrx session = router->createSession("userid", "abc123");
 	}
-	catch(const Glacier2::CannotCreateSessionException&)
+	catch(const Glacier2::CannotCreateSessionException& ex)
 	{
+	    cerr << ex.reason << endl;
 	    test("Unable to create new session" == 0);
 	}
 	BackendPrx backend = BackendPrx::uncheckedCast(communicator()->stringToProxy(p->second));

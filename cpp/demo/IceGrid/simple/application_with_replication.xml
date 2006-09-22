@@ -21,13 +21,15 @@
     </server-template>
 
     <replica-group id="ReplicatedHelloAdapter">
-      <load-balancing type="round-robin"/>
+<!--      <load-balancing type="round-robin"/> -->
       <object identity="hello" type="::Demo::Hello"/>
     </replica-group>
 
     <node name="localhost">
       <server-instance template="SimpleServer" index="1"/>
       <server-instance template="SimpleServer" index="2"/>
+    </node>
+    <node name="localhost1">
       <server-instance template="SimpleServer" index="3"/>
     </node>
 

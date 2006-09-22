@@ -15,7 +15,7 @@ from threading import Thread
 # Set nreplicas to a number N to test replication with N replicas.
 #
 nreplicas=0
-#nreplicas=2
+nreplicas=2
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)

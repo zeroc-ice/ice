@@ -2,7 +2,7 @@
 # The client reads this property to create the reference to the
 # "hello" object in the server.
 #
-Hello.Proxy=hello:tcp -p 10000:udp -p 10000:ssl -p 10001
+Hello.Proxy=hello:tcp -h 192.168.0.3 -p 10000:tcp -h 192.168.0.156 -p 10000
 
 #
 # Warn about connection exceptions

@@ -205,7 +205,13 @@ ServerAdapterEntry::getProxies(int& nReplicas, bool& replicaGroup)
     vector<pair<string, AdapterPrx> > adapters;
     nReplicas = 1;
     replicaGroup = false;
-    adapters.push_back(make_pair(_id, getProxy("", true)));
+    // 
+    // COMPILEFIX: We need to use a temporary here to work around a
+    // compiler bug with xlC on AIX which causes a segfault if
+    // getProxy raises an exception.
+    //
+    AdapterPrx adpt = getProxy("", true); 
+    adapters.push_back(make_pair(_id, adpt));
     return adapters;
 }
 
@@ -406,7 +412,13 @@ ReplicaGroupEntry::getProxies(int& nReplicas, bool& replicaGroup)
     {
 	try
 	{
-	    adapters.push_back(make_pair(p->first, p->second->getProxy(_id, true)));
+	    // 
+	    // COMPILEFIX: We need to use a temporary here to work around a
+	    // compiler bug with xlC on AIX which causes a segfault if
+	    // getProxy raises an exception.
+	    //
+	    AdapterPrx adpt = p->second->getProxy(_id, true);
+	    adapters.push_back(make_pair(p->first, adpt));
 	}
 	catch(const AdapterNotExistException&)
 	{
