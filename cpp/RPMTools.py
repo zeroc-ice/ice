@@ -361,6 +361,7 @@ fileLists = [
 	     ('file', 'share/doc/Ice-%version%/certs/cakey.pem'),
 	     ('xdir', 'share/doc/Ice-%version%/config'),
 	     ('file', 'share/doc/Ice-%version%/config/templates.xml'),
+	     ('exe', 'share/doc/Ice-%version%/config/convertssl.py'),
 	     ('exe', 'share/doc/Ice-%version%/config/ca/cautil.py'),
 	     ('exe', 'share/doc/Ice-%version%/config/ca/ImportKey.class'),
 	     ('exe', 'share/doc/Ice-%version%/config/ca/import.py'),
