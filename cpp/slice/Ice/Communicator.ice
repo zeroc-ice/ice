@@ -183,7 +183,8 @@ local interface Communicator
      *
      * <para>It is legal to create an object adapter without any endpoints.
      * Such an object adapter cannot be accessed remotely and, therefore,
-     * is accessible only for collocated invocations within a single address
+     * is accessible only for collocated invocations that originate from the
+     * the same communicator as is used by the adapter.
      * space.</para>
      * 
      * @param name The object adapter name.
