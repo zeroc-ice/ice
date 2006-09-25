@@ -344,11 +344,64 @@ prefix = $(ICE_DIR)
 	    if line.startswith('prefix'):
 		state = 'done'
     #
-    # Dependency files are all going to be bogus.  The makedepend
-    # script doesn't seem to work properly for the slice files.
+    # Dependency files are all going to be bogus since they contain relative
+    # paths to Ice headers. We need to adjust this.
+    #
+    # XXX: The following will not work for demos not in demo/A/B type dir
     #
     os.chdir("..")
-    runprog("sh -c 'for f in `find . -name .depend` ; do echo \"\" > $f ; done'")
+    runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\./$(ICE_DIR)/g' $f ; done")
+    makefile.close()
+
+def editMakeRulesMak(filename, version):
+    '''
+    Ice distributions contain files with useful build rules. However,
+    these rules are source distribution specific. This script edits
+    these files to make them appropriate to accompany binary
+    distributions.
+    '''
+    state = 'header'
+    reIceLocation = re.compile('^[a-z]*dir.*=\s*\$\(top_srcdir\)')
+
+    makefile =  fileinput.input(filename, True)
+    for line in makefile:
+	if state == 'done':
+	    if reIceLocation.search(line) <> None:
+		output = line.rstrip('\n').replace('top_srcdir', 'ICE_DIR', 10)
+		print output
+	    elif line.startswith('install_'):
+		#
+		# Do nothing.
+		#
+		pass
+	    else:
+		print line.rstrip('\n')
+	elif state == 'header':
+	    #
+	    # Reading header.
+	    #
+	    print line.rstrip('\n')
+	    if line.strip() == "":
+		state = 'untilprefix'
+		print """
+#
+# Checks for ICE_HOME environment variable.
+#
+
+!if "$(ICE_HOME)" == ""
+all::
+	@echo Ice distribution not found, please set ICE_HOME!
+	@exit 1
+!endif
+
+ICE_DIR = $(ICE_HOME)
+prefix = $(ICE_DIR)
+
+"""
+	elif state == 'untilprefix':
+	    if line.startswith('prefix'):
+		state = 'done'
+
     makefile.close()
 
 def updateIceVersion(filename, version):
@@ -377,7 +430,7 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
     # be nicer to make the toExtract list more tailored for each
     # distribution.
     #
-    toExtract = "%s/demo %s/config %s/certs" % (distro, distro, distro)
+    toExtract = "%s/demo %s/config %s/certs ICE_LICENSE" % (distro, distro, distro)
 	
     runprog("gzip -dc " + sources + "/" + distro + ".tar.gz | tar xf - " + toExtract, False)
 	
@@ -431,6 +484,7 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
 
     if distro.startswith('Ice-'):
 	editMakeRules(os.path.join(basepath, 'Make.rules'), version)
+	editMakeRulesMak(os.path.join(basepath, 'Make.rules.mak'), version)
     elif distro.startswith('IceCS-'):
 	editMakeRulesCS(os.path.join(basepath, 'Make.rules.cs'), version)
 
@@ -444,6 +498,11 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
 
 def archiveDemoTree(buildDir, version, installFiles):
     cwd = os.getcwd()
+    os.chdir(os.path.join(buildDir, 'Ice-%s-demos' % version))
+    filesToRemove = ['certs/makecerts.py', 'certs/ImportKey.java', 'certs/ImportKey.class', 'certs/seed.dat',
+	    'config/convertssl.py', 'config/upgradeicegrid.py', 'config/PropertyNames.def', 'config/makeprops.py', 
+	    'config/TestUtil.py', 'config/IceGridAdmin.py', 'config/ice_ca.cnf', 'config/icegridgui.pro']
+    obliterate(filesToRemove)
     os.chdir(buildDir)
     
     # 
@@ -463,7 +522,7 @@ def archiveDemoTree(buildDir, version, installFiles):
     runprog("sh -c 'for f in `find Ice-" + version + "-demos -name \"*\.dsw\" ` ; do rm -rf $f ; done'")
     runprog("sh -c 'for f in `find Ice-" + version + "-demos/democs -name \"*.sln\" ` ; do rm -rf $f ; done'")
     runprog("sh -c 'for f in `find Ice-" + version + "-demos/democs -name \"*.csproj\" ` ; do rm -rf $f ; done'")
-
+   
     runprog("tar cf Ice-" + version + "-demos.tar Ice-" + version + "-demos")
     runprog("gzip -9 Ice-" + version + "-demos.tar")
     os.chdir(cwd)
@@ -490,11 +549,8 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
     if distro.startswith('IceJ'):
 	if not os.path.exists(os.path.join(installDir, 'lib')):
 	    os.mkdir(os.path.join(installDir, 'lib'))
-	if not os.path.exists(os.path.join(installDir, 'lib', 'java5')):
-	    os.mkdir(os.path.join(installDir, 'lib', 'java5'))
 	shutil.copy(buildDir + '/' + distro + '/lib/Ice.jar', installDir + '/lib')
 	shutil.copy(buildDir + '/' + distro + '/lib/IceGridGUI.jar', installDir + '/lib')
-	shutil.copy(buildDir + '/' + distro + '/lib/java5/Ice.jar', installDir + '/lib/java5')
 	#
 	# We really just want to copy the files, not move them.
 	# Shelling out to a copy is easier (and more likely to always
@@ -805,9 +861,9 @@ def makePHPbinary(sources, buildDir, installDir, version, clean):
                 print line.rstrip('\n') + ' -DCOMPILE_DL_ICE'
 	    elif line.startswith('ICE_SHARED_LIBADD'):
 		if platform == 'linux64':
-		    print "ICE_SHARED_LIBADD = -Wl,-rpath,/opt/Ice-%s/lib64 -L/opt/Ice-%s/lib64 -lIce -lSlice -lIceUtil" % (version, version)
+		    print "ICE_SHARED_LIBADD = -Wl,-rpath,/opt/Ice-%s/lib64 -L%s/Ice-%s/lib64 -lIce -lSlice -lIceUtil" % (version, buildDir, version)
 		else:
-		    print "ICE_SHARED_LIBADD = -Wl,-rpath,/opt/Ice-%s/lib -L/opt/Ice-%s/lib -lIce -lSlice -lIceUtil" % (version, version)
+		    print "ICE_SHARED_LIBADD = -Wl,-rpath,/opt/Ice-%s/lib -L%s/Ice-%s/lib -lIce -lSlice -lIceUtil" % (version, buildDir, version)
             else:
                 print line.strip('\n')
 
@@ -885,6 +941,11 @@ def usage():
     print '                       If this is omitted makebindist will traverse'
     print '                       ../icej ../icepy ../icecs, etc and make the'
     print '                       distributions for you.'
+    print '			  (Note: makedist.py seems to only work on Linux.'
+    print '                        To use makebindist.py on other UNIX platforms,'
+    print '                        you must copy pre-made source distributions onto'
+    print '                        the host and use this option to reference their'
+    print '                        location.'
     print '-v, --verbose          Print verbose processing messages.'
     print '-t, --tag              Specify the CVS version tag for the packages.'
     print '--noclean              Do not clean up current sources where'
@@ -1038,7 +1099,6 @@ def main():
 	RPMTools.createFullSpecFile(sys.stdout, installDir, version, soVersion)
         sys.exit(0)
 
-
     #
     # We need to clean the directory out to keep obsolete files from
     # being installed.  This needs to happen whether we are running with
@@ -1098,15 +1158,19 @@ def main():
     if build and not cvsMode:
         collectSources = False
         if sources == None:
+	    if not getPlatform().startswith("linux"):
+		print "makedist.py is not supported on non-Linux platforms. Create the source"
+		print "distributions on a Linux box, copy them to a location on this host and"
+		print "specify their location with the --sources argument"
             sources = buildDir + '/sources'
             collectSources = clean
 
         #
         # Ice must be first or building the other source distributions will fail.
         #
-        sourceTarBalls = [ ('ice', 'Ice-' + version, ''),
-			   ('icephp','IcePHP-' + version, 'php'),
-                           ('icej','IceJ-' + version, 'j') ]
+        sourceTarBalls = [ ('ice', 'Ice-%s' % version, ''),
+			   ('icephp','IcePHP-%s' % version, 'php'),
+                           ('icej','IceJ-%s-java2' % version, 'j') ]
 
 	if not getPlatform() in ['aix', 'solaris', 'hpux']:
 	    sourceTarBalls.append(('icepy','IcePy-' + version, 'py'))
@@ -1150,7 +1214,7 @@ def main():
 	    for cvs, tarball, demoDir in toCollect:
 		extractDemos(sources, buildDir, version, tarball, demoDir)
 		shutil.copy("%s/unix/README.DEMOS" % installFiles, "%s/Ice-%s-demos/README.DEMOS" % (buildDir, version)) 
-		shutil.copy("%s/Ice-%s/ICE_LICENSE" % (buildDir, version), "%s/Ice-%s-demos/ICE_LICENSE" % (buildDir, version))
+	#	shutil.copy("%s/Ice-%s/ICE_LICENSE" % (buildDir, version), "%s/Ice-%s-demos/ICE_LICENSE" % (buildDir, version))
 	    archiveDemoTree(buildDir, version, installFiles)
 	    shutil.move("%s/Ice-%s-demos.tar.gz" % (buildDir, version), "%s/Ice-%s-demos.tar.gz" % (installDir, version))
 
@@ -1159,6 +1223,18 @@ def main():
 	#
         for cvs, tarball, demoDir in sourceTarBalls:
             makeInstall(sources, buildDir, "%s/Ice-%s" % (installDir, version), tarball, clean, version)	    
+
+	#
+	# XXX- put java5 Ice.jar in place!
+	#
+	prevDir = os.getcwd()
+	os.chdir("%s/Ice-%s/lib" % (installDir, version))
+        os.mkdir("java5")	
+	os.chdir("java5")
+	os.system("gzip -dc %s/IceJ-%s-java5.tar.gz | tar xf - IceJ-%s-java5/lib/Ice.jar" % (sources, version, version))
+	shutil.move("IceJ-%s-java5/lib/Ice.jar" % version, "Ice.jar")
+	shutil.rmtree("IceJ-%s-java5" % version)
+	os.chdir(prevDir)
 
     elif cvsMode:
 	collectSources = False

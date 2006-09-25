@@ -665,13 +665,14 @@ def writeUnpackingCommands(ofile, version):
 # files in place with sed.
 #
 sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/Ice-%{version}/config/Make.rules
-%setup -q -n IceJ-%{version} -T -D -b 1
+%setup -q -n IceJ-%{version}-java2 -T -D -b 1
 %setup -q -n IcePy-%{version} -T -D -b 2
 sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IcePy-%{version}/config/Make.rules
 %setup -q -n IceCS-%{version} -T -D -b 3 
 sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IceCS-%{version}/config/Make.rules.cs
 sed -i -e 's/^cvs_build.*$/cvs_build = no/' $RPM_BUILD_DIR/IceCS-%{version}/config/Make.rules.cs
 %setup -q -n Ice-%{version}-demos -T -D -b 4 
+%setup -q -n IceJ-%{version}-java5 -T -D -b 11
 cd $RPM_BUILD_DIR
 tar xfz $RPM_SOURCE_DIR/IcePHP-%{version}.tar.gz
 tar xfj $RPM_SOURCE_DIR/php-5.1.4.tar.bz2
@@ -714,15 +715,15 @@ if test ! -d $RPM_BUILD_ROOT/lib;
 then
     mkdir -p $RPM_BUILD_ROOT/lib
 fi
-cp -p $RPM_BUILD_DIR/IceJ-%{version}/lib/Ice.jar $RPM_BUILD_ROOT/lib/Ice.jar
+cp -p $RPM_BUILD_DIR/IceJ-%{version}-java2/lib/Ice.jar $RPM_BUILD_ROOT/lib/Ice.jar
 
 if test ! -d $RPM_BUILD_ROOT/lib/java5;
 then
     mkdir -p $RPM_BUILD_ROOT/lib/java5
 fi
-cp -p $RPM_BUILD_DIR/IceJ-%{version}/lib/Ice.jar $RPM_BUILD_ROOT/lib/java5/Ice.jar
-cp -p $RPM_BUILD_DIR/IceJ-%{version}/lib/IceGridGUI.jar $RPM_BUILD_ROOT/lib/IceGridGUI.jar
-cp -pR $RPM_BUILD_DIR/IceJ-%{version}/ant $RPM_BUILD_ROOT
+cp -p $RPM_BUILD_DIR/IceJ-%{version}-java5/lib/Ice.jar $RPM_BUILD_ROOT/lib/java5/Ice.jar
+cp -p $RPM_BUILD_DIR/IceJ-%{version}-java2/lib/IceGridGUI.jar $RPM_BUILD_ROOT/lib/IceGridGUI.jar
+cp -pR $RPM_BUILD_DIR/IceJ-%{version}-java2/ant $RPM_BUILD_ROOT
 cd $RPM_BUILD_DIR/IcePy-%{version}
 gmake ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT install
 cd $RPM_BUILD_DIR/IceCS-%{version}
@@ -772,8 +773,9 @@ def writeTransformCommands(ofile, version):
 	    if os.path.dirname(dest) <> '' and source.split('/')[0] == dest.split('/')[0]:
 		ofile.write('# Rule 2\n')
 		ofile.write('mkdir -p $RPM_BUILD_ROOT/arraftmp\n')
-		ofile.write('mv $RPM_BUILD_ROOT/usr/' + source + ' $RPM_BUILD_ROOT/arraftmp/' + source + '\n')
-		ofile.write('mkdir -p $RPM_BUILD_ROOT/usr/' + os.path.dirname(dest) + '\n')
+		ofile.write('mkdir -p $RPM_BUILD_ROOT/arraftmp/%s\n' % os.path.dirname(source))
+		ofile.write('mv $RPM_BUILD_ROOT/' + source + ' $RPM_BUILD_ROOT/arraftmp/' + source + '\n')
+		ofile.write('mkdir -p $RPM_BUILD_ROOT/' + os.path.dirname(dest) + '\n')
 		ofile.write('mv $RPM_BUILD_ROOT/arraftmp/' + source + ' $RPM_BUILD_ROOT/' + dest + '\n')
 		ofile.write('rm -rf $RPM_BUILD_ROOT/arraftmp\n')
 	    elif os.path.dirname(dest) <> '':
