@@ -33,6 +33,54 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::InitializationData
     test(base->ice_batchOneway()->ice_isBatchOneway());
     tprintf("ok\n");
 
+    tprintf("testing proxy comparison... ");
+
+    test(communicator->stringToProxy("foo") == communicator->stringToProxy("foo"));
+    test(communicator->stringToProxy("foo") != communicator->stringToProxy("foo2"));
+    test(communicator->stringToProxy("foo") < communicator->stringToProxy("foo2"));
+    test(!(communicator->stringToProxy("foo2") < communicator->stringToProxy("foo")));
+
+    Ice::ObjectPrx compObj = communicator->stringToProxy("foo");
+
+    test(compObj->ice_facet("facet") == compObj->ice_facet("facet"));
+    test(compObj->ice_facet("facet") != compObj->ice_facet("facet1"));
+    test(compObj->ice_facet("facet") < compObj->ice_facet("facet1"));
+    test(!(compObj->ice_facet("facet") < compObj->ice_facet("facet")));
+
+    test(compObj->ice_oneway() == compObj->ice_oneway());
+    test(compObj->ice_oneway() != compObj->ice_twoway());
+    test(compObj->ice_twoway() < compObj->ice_oneway());
+    test(!(compObj->ice_oneway() < compObj->ice_twoway()));
+
+    test(compObj->ice_timeout(20) == compObj->ice_timeout(20));
+    test(compObj->ice_timeout(10) != compObj->ice_timeout(20));
+    test(compObj->ice_timeout(10) < compObj->ice_timeout(20));
+    test(!(compObj->ice_timeout(20) < compObj->ice_timeout(10)));
+
+    Ice::ObjectPrx compObj1 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10000");
+    Ice::ObjectPrx compObj2 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10001");
+    test(compObj1 != compObj2);
+    test(compObj1 < compObj2);
+    test(!(compObj2 < compObj1));
+
+    compObj1 = communicator->stringToProxy("foo@MyAdapter1");
+    compObj2 = communicator->stringToProxy("foo@MyAdapter2");
+    test(compObj1 != compObj2);
+    test(compObj1 < compObj2);
+    test(!(compObj2 < compObj1));
+
+    compObj1 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 1000");
+    compObj2 = communicator->stringToProxy("foo@MyAdapter1");
+    test(compObj1 != compObj2);
+    test(compObj1 < compObj2);
+    test(!(compObj2 < compObj1));
+
+    //
+    // TODO: Ideally we should also test comparison of fixed proxies.
+    //
+
+    tprintf("ok\n");
+
     tprintf("testing ice_getCommunicator... ");
     test(base->ice_getCommunicator().get() == communicator.get());
     tprintf("ok\n");

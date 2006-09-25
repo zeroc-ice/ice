@@ -47,6 +47,13 @@ public:
 	ModeLast = ModeBatchDatagram
     };
 
+    enum Type
+    {
+	Fixed,
+	Direct,
+	Indirect
+    };
+
     Mode getMode() const { return _mode; }
     bool getSecure() const { return _secure; };
     const Ice::Identity& getIdentity() const { return _identity; }
@@ -58,6 +65,7 @@ public:
 
     Ice::CommunicatorPtr getCommunicator() const;
 
+    virtual Type getType() const = 0;
 #ifdef ICEE_HAS_ROUTER
     virtual RouterInfoPtr getRouterInfo() const { return 0; }
 #endif
@@ -150,6 +158,7 @@ public:
 
     const std::vector<Ice::ConnectionPtr>& getFixedConnections() const;
 
+    virtual Type getType() const;
     virtual std::vector<EndpointPtr> getEndpoints() const;
 
 #ifdef ICEE_HAS_ROUTER
@@ -229,6 +238,7 @@ public:
 #endif
 		    );
 
+    virtual Type getType() const;
     virtual std::vector<EndpointPtr> getEndpoints() const;
 
     DirectReferencePtr changeEndpoints(const std::vector<EndpointPtr>&) const;
@@ -285,6 +295,7 @@ public:
 
     virtual LocatorInfoPtr getLocatorInfo() const { return _locatorInfo; }
 
+    virtual Type getType() const;
     virtual std::vector<EndpointPtr> getEndpoints() const;
 
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const;

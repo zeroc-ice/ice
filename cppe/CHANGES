@@ -1,6 +1,9 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Fixed a bug where proxy operator< could return an incorrect result
+  for proxy of different types (e.g.: direct vs. indirect proxies).
+
 - For object adapters without endpoints, Ice.Trace.Network >= 2 now
   prints a trace message.
 

@@ -972,7 +972,7 @@ IceInternal::getLocalHosts()
 
     ::freeifaddrs(ifap);
 #else
-    SOCKET fd = createSocket(false);
+    SOCKET fd = createSocket();
 
 #ifdef _AIX
     int cmd = CSIOCGIFCONF;

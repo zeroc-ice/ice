@@ -287,6 +287,11 @@ IceInternal::Reference::operator==(const Reference& r) const
     //
     // Note: if(this == &r) test is performed by each non-abstract derived class.
     //
+
+    if(getType() != r.getType())
+    {
+	return false;
+    }
     
     if(_mode != r._mode)
     {
@@ -399,6 +404,15 @@ IceInternal::Reference::operator<(const Reference& r) const
 	}
     }
 
+    if(getType() < r.getType())
+    {
+	return true;
+    }
+    else if(r.getType() < getType())
+    {
+	return false;
+    }
+
     return false;
 }
 
@@ -461,6 +475,12 @@ const vector<ConnectionPtr>&
 IceInternal::FixedReference::getFixedConnections() const
 {
     return _fixedConnections;
+}
+
+Reference::Type
+IceInternal::FixedReference::getType() const
+{
+    return Fixed;
 }
 
 vector<EndpointPtr>
@@ -597,10 +617,8 @@ IceInternal::FixedReference::operator<(const Reference& r) const
     if(Reference::operator==(r))
     {
         const FixedReference* rhs = dynamic_cast<const FixedReference*>(&r);
-        if(rhs)
-        {
-            return _fixedConnections < rhs->_fixedConnections;
-        }
+        assert(rhs);
+	return _fixedConnections < rhs->_fixedConnections;
     }
     return false;
 }
@@ -690,10 +708,8 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
     if(Reference::operator==(r))
     {
         const RoutableReference* rhs = dynamic_cast<const RoutableReference*>(&r);
-        if(rhs)
-        {
-            return _routerInfo < rhs->_routerInfo;
-        }
+        assert(rhs);
+	return _routerInfo < rhs->_routerInfo;
     }
     return false;
 }
@@ -734,6 +750,12 @@ IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const Com
 {
 }
 #endif
+
+Reference::Type
+IceInternal::DirectReference::getType() const
+{
+    return Direct;
+}
 
 vector<EndpointPtr>
 IceInternal::DirectReference::getEndpoints() const
@@ -895,10 +917,8 @@ IceInternal::DirectReference::operator<(const Reference& r) const
     if(Parent::operator==(r))
     {
         const DirectReference* rhs = dynamic_cast<const DirectReference*>(&r);
-        if(rhs)
-        {
-            return _endpoints < rhs->_endpoints;
-        }
+	assert(rhs);
+	return _endpoints < rhs->_endpoints;
     }
     return false;
 }
@@ -940,6 +960,12 @@ IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const
 {
 }
 #endif
+
+Reference::Type
+IceInternal::IndirectReference::getType() const
+{
+    return Indirect;
+}
 
 vector<EndpointPtr>
 IceInternal::IndirectReference::getEndpoints() const
@@ -1143,18 +1169,16 @@ IceInternal::IndirectReference::operator<(const Reference& r) const
     if(Parent::operator==(r))
     {
         const IndirectReference* rhs = dynamic_cast<const IndirectReference*>(&r);
-        if(rhs)
-        {
-            if(_adapterId < rhs->_adapterId)
-            {
-                return true;
-            }
-            else if(rhs->_adapterId < _adapterId)
-            {
-                return false;
-            }
-            return _locatorInfo < rhs->_locatorInfo;
-        }
+	assert(rhs);
+	if(_adapterId < rhs->_adapterId)
+	{
+	    return true;
+	}
+	else if(rhs->_adapterId < _adapterId)
+	{
+	    return false;
+	}
+	return _locatorInfo < rhs->_locatorInfo;
     }
     return false;
 }
