@@ -37,6 +37,7 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
 {
     bool matched = false;
     bool hasFilters = false;
+    string rejectedFilters;
  
     if(!_filters->categories()->empty())
     {
@@ -45,14 +46,14 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
 	{
 	    matched = true;
 	}
-	else
+	else if(_rejectTraceLevel >= 1)
 	{
-	    if(_rejectTraceLevel >= 1)
+	    if(rejectedFilters.size() != 0)
 	    {
-		Trace out(_logger, "Glacier2");
-		out << "rejecting request: category filter\n";
-		out << "identity: " << _communicator->identityToString(current.id);
+	        rejectedFilters += ", ";
+
 	    }
+	    rejectedFilters += "category filter";
 	}
     }
 
@@ -63,14 +64,14 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
 	{
 	    matched = true;
 	}
-	else
+	else if(_rejectTraceLevel >= 1)
 	{
-	    if(_rejectTraceLevel >= 1)
+	    if(rejectedFilters.size() != 0)
 	    {
-		Trace out(_logger, "Glacier2");
-		out << "rejecting request: identity filter\n";
-		out << "identity: " << _communicator->identityToString(current.id);
+	        rejectedFilters += ", ";
+
 	    }
+	    rejectedFilters += "identity filter";
 	}
     }
 
@@ -100,19 +101,26 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Array_Object_ice_invok
 	{
 	    matched = true;
 	}
-	else
+	else if(_rejectTraceLevel >= 1)
 	{
-	    if(_rejectTraceLevel >= 1)
+	    if(rejectedFilters.size() != 0)
 	    {
-		Trace out(_logger, "Glacier2");
-		out << "rejecting request: adapter id filter\n";
-		out << "identity: " << _communicator->identityToString(current.id);
+	        rejectedFilters += ", ";
+
 	    }
+	    rejectedFilters += "adapter id filter";
 	}
     }
 
     if(hasFilters && !matched)
     {
+	if(_rejectTraceLevel >= 1)
+	{
+	    Trace out(_logger, "Glacier2");
+	    out << "rejecting request: " << rejectedFilters << "\n";
+	    out << "identity: " << _communicator->identityToString(current.id);
+	}
+
 	ObjectNotExistException ex(__FILE__, __LINE__);
 	ex.id = current.id;
 	throw ex;
