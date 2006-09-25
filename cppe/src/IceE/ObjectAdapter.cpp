@@ -30,6 +30,7 @@
 #endif
 #include <IceE/Endpoint.h>
 #include <IceE/LoggerUtil.h>
+#include <IceE/TraceLevels.h>
 #include <ctype.h>
 
 using namespace std;
@@ -670,6 +671,15 @@ Ice::ObjectAdapter::ObjectAdapter(const InstancePtr& instance, const Communicato
 	    for(vector<EndpointPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
 	    {
 	        _incomingConnectionFactories.push_back(new IncomingConnectionFactory(_instance, *p, this));
+	    }
+	    if(endpoints.empty())
+	    {
+		TraceLevelsPtr tl = _instance->traceLevels();
+		if(tl->network >= 2)
+		{
+		    Trace out(_instance->initializationData().logger, tl->networkCat);
+		    out << "created adapter `" << name << "' without endpoints";
+		}
 	    }
 
 	    //

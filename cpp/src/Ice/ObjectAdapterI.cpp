@@ -29,6 +29,7 @@
 #include <Ice/Communicator.h>
 #include <Ice/Router.h>
 #include <Ice/DefaultsAndOverrides.h>
+#include <Ice/TraceLevels.h>
 
 #ifdef _WIN32
 #   include <sys/timeb.h>
@@ -747,6 +748,15 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 	    for(vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
     	    {
 	        _incomingConnectionFactories.push_back(new IncomingConnectionFactory(instance, *p, this, _name));
+	    }
+	    if(endpoints.empty())
+	    {
+		TraceLevelsPtr tl = _instance->traceLevels();
+		if(tl->network >= 2)
+		{
+		    Trace out(_instance->initializationData().logger, tl->networkCat);
+		    out << "created adapter `" << name << "' without endpoints";
+		}
 	    }
 
 	    //

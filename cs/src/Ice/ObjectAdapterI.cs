@@ -791,6 +791,15 @@ namespace Ice
 		        _incomingConnectionFactories.Add(
 			    new IceInternal.IncomingConnectionFactory(instance, endp, this, _name));
 		    }
+		    if(endpoints.Count == 0)
+		    {
+		    	IceInternal.TraceLevels tl = instance_.traceLevels();
+			if(tl.network >= 2)
+			{
+			    instance_.initializationData().logger.trace(tl.networkCat,
+								    "created adapter `" + name + "' without endpoints");
+			}
+		    }
 		
 		    //
 		    // Parse published endpoints. If set, these are used in proxies

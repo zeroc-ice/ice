@@ -781,6 +781,15 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
                     _incomingConnectionFactories.add(new IceInternal.IncomingConnectionFactory(
 							 instance, endp, this, _name));
                 }
+		if(endpoints.size() == 0)
+		{
+		    IceInternal.TraceLevels tl = _instance.traceLevels();
+		    if(tl.network >= 2)
+		    {
+			_instance.initializationData().logger.trace(tl.networkCat,
+			                                            "created adapter `" + name + "' without endpoints");
+		    }
+		}
 
 	        //
 	        // Parse published endpoints. If set, these are used in proxies

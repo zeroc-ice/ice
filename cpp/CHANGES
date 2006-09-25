@@ -3,6 +3,9 @@ NOTE: Please keep changes in the appropriate section for HEAD or 3.1.
 Changes since version 3.1.1 (HEAD)
 ---------------------------     
 
+- For object adapters without endpoints, Ice.Trace.Network >= 2 now
+  prints a trace message.
+
 - Added new overload of Ice::initialize() that accepts a StringSeq as the first argument.
 
 - Added per-subscriber publisher objects to IceStorm.

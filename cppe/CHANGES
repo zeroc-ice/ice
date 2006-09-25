@@ -1,6 +1,9 @@
 Changes since version 1.1.0
 ---------------------------
 
+- For object adapters without endpoints, Ice.Trace.Network >= 2 now
+  prints a trace message.
+
 - Added new overload of Ice::initialize() that accepts a StringSeq as the first argument.
 
 - The ice_name() member function of exceptions derived from Ice::Exception

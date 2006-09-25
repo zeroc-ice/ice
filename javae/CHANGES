@@ -1,6 +1,9 @@
 Changes since version 1.1.0
 ---------------------------
 
+- For object adapters without endpoints, Ice.Trace.Network >= 2 now
+  prints a trace message.
+
 - The keyword 'nonmutating' is now deprecated; use 'idempotent'
   instead.
 
