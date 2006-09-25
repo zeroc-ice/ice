@@ -198,6 +198,9 @@ Changes since version 3.1.1 (HEAD)
 Changes since version 3.1.0
 ---------------------------     
 
+- Fixed a bug where proxy operator< could return an incorrect result
+  for proxy of different types (e.g.: direct vs. indirect proxies).
+
 - Removed obsolete --no-globals option from slice2docbook.
 
 - Fixed a bug in IceStorm where IceStorm stops sending events to

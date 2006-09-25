@@ -287,6 +287,11 @@ IceInternal::Reference::operator==(const Reference& r) const
     // Note: if(this == &r) test is performed by each non-abstract derived class.
     //
     
+    if(getType() != r.getType())
+    {
+	return false;
+    }
+
     if(_mode != r._mode)
     {
 	return false;
@@ -358,6 +363,15 @@ IceInternal::Reference::operator<(const Reference& r) const
     {
 	return false;
     }
+
+    if(getType() < r.getType())
+    {
+	return true;
+    }
+    else if(r.getType() < getType())
+    {
+	return false;
+    }
     
     return false;
 }
@@ -422,6 +436,12 @@ const vector<ConnectionIPtr>&
 IceInternal::FixedReference::getFixedConnections() const
 {
     return _fixedConnections;
+}
+
+Reference::Type
+IceInternal::FixedReference::getType() const
+{
+    return Fixed;
 }
 
 bool
@@ -610,10 +630,8 @@ IceInternal::FixedReference::operator<(const Reference& r) const
     if(Reference::operator==(r))
     {
         const FixedReference* rhs = dynamic_cast<const FixedReference*>(&r);
-        if(rhs)
-        {
-            return _fixedConnections < rhs->_fixedConnections;
-        }
+        assert(rhs);
+	return _fixedConnections < rhs->_fixedConnections;
     }
     return false;
 }
@@ -903,89 +921,86 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
     if(Reference::operator==(r))
     {
         const RoutableReference* rhs = dynamic_cast<const RoutableReference*>(&r);
-        if(rhs)
-        {
-	    if(!_secure && rhs->_secure)
+	assert(rhs);
+	if(!_secure && rhs->_secure)
+	{
+	    return true;
+	}
+	else if(rhs->_secure < _secure)
+	{
+	    return false;
+	}
+	if(!_collocationOptimization && rhs->_collocationOptimization)
+	{
+	    return true;
+	}
+	else if(rhs->_collocationOptimization < _collocationOptimization)
+	{
+	    return false;
+	}
+	if(!_cacheConnection && rhs->_cacheConnection)
+	{
+	    return true;
+	}
+	else if(rhs->_cacheConnection < _cacheConnection)
+	{
+	    return false;
+	}
+	if(_endpointSelection < rhs->_endpointSelection)
+	{
+	    return true;
+	}
+	else if(rhs->_endpointSelection < _endpointSelection)
+	{
+	    return false;
+	}
+	if(_connectionId < rhs->_connectionId)
+	{
+	    return true;
+	}
+	else if(rhs->_connectionId < _connectionId)
+	{
+	    return false;
+	}
+	if(!_overrideCompress && rhs->_overrideCompress)
+	{
+	    return true;
+	}
+	else if(rhs->_overrideCompress < _overrideCompress)
+	{
+	    return false;
+	}
+	else if(_overrideCompress)
+	{
+	    if(!_compress && rhs->_compress)
 	    {
 		return true;
 	    }
-	    else if(rhs->_secure < _secure)
+	    else if(rhs->_compress < _compress)
 	    {
 		return false;
 	    }
-	    if(!_collocationOptimization && rhs->_collocationOptimization)
+	}	
+	if(!_overrideTimeout && rhs->_overrideTimeout)
+	{
+	    return true;
+	}
+	else if(rhs->_overrideTimeout < _overrideTimeout)
+	{
+	    return false;
+	}
+	else if(_overrideTimeout)
+	{
+	    if(_timeout < rhs->_timeout)
 	    {
 		return true;
 	    }
-	    else if(rhs->_collocationOptimization < _collocationOptimization)
+	    else if(rhs->_timeout < _timeout)
 	    {
 		return false;
 	    }
-	    if(!_cacheConnection && rhs->_cacheConnection)
-	    {
-		return true;
-	    }
-	    else if(rhs->_cacheConnection < _cacheConnection)
-	    {
-		return false;
-	    }
-	    if(_endpointSelection < rhs->_endpointSelection)
-	    {
-		return true;
-	    }
-	    else if(rhs->_endpointSelection < _endpointSelection)
-	    {
-		return false;
-	    }
-            if(_connectionId < rhs->_connectionId)
-            {
-                return true;
-            }
-            else if(rhs->_connectionId < _connectionId)
-            {
-                return false;
-            }
-	    if(!_overrideCompress && rhs->_overrideCompress)
-	    {
-		return true;
-	    }
-	    else if(rhs->_overrideCompress < _overrideCompress)
-	    {
-		return false;
-	    }
-	    else if(_overrideCompress)
-	    {
-		if(!_compress && rhs->_compress)
-		{
-		    return true;
-		}
-		else if(rhs->_compress < _compress)
-		{
-		    return false;
-		}
-	    }
-
-	    if(!_overrideTimeout && rhs->_overrideTimeout)
-	    {
-		return true;
-	    }
-	    else if(rhs->_overrideTimeout < _overrideTimeout)
-	    {
-		return false;
-	    }
-	    else if(_overrideTimeout)
-	    {
-		if(_timeout < rhs->_timeout)
-		{
-		    return true;
-		}
-		else if(rhs->_timeout < _timeout)
-		{
-		    return false;
-		}
-	    }
-            return _routerInfo < rhs->_routerInfo;
-        }
+	}
+	return _routerInfo < rhs->_routerInfo;
     }
     return false;
 }
@@ -1201,6 +1216,12 @@ IceInternal::DirectReference::getEndpoints() const
     return _endpoints;
 }
 
+Reference::Type
+IceInternal::DirectReference::getType() const
+{
+    return Direct;
+}
+
 int
 IceInternal::DirectReference::getLocatorCacheTimeout() const
 {
@@ -1405,10 +1426,8 @@ IceInternal::DirectReference::operator<(const Reference& r) const
     if(RoutableReference::operator==(r))
     {
         const DirectReference* rhs = dynamic_cast<const DirectReference*>(&r);
-        if(rhs)
-        {
-            return _endpoints < rhs->_endpoints;
-        }
+	assert(rhs);
+	return _endpoints < rhs->_endpoints;
     }
     return false;
 }
@@ -1450,6 +1469,12 @@ vector<EndpointIPtr>
 IceInternal::IndirectReference::getEndpoints() const
 {
     return vector<EndpointIPtr>();
+}
+
+Reference::Type
+IceInternal::IndirectReference::getType() const
+{
+    return Indirect;
 }
 
 int
@@ -1695,28 +1720,26 @@ IceInternal::IndirectReference::operator<(const Reference& r) const
     if(RoutableReference::operator==(r))
     {
         const IndirectReference* rhs = dynamic_cast<const IndirectReference*>(&r);
-        if(rhs)
-        {
-            if(_adapterId < rhs->_adapterId)
-            {
-                return true;
-            }
-            else if(rhs->_adapterId < _adapterId)
-            {
-                return false;
-            }
-
-            if(_locatorInfo < rhs->_locatorInfo)
-	    {
-		return true;
-	    }
-	    else if(rhs->_locatorInfo < _locatorInfo)
-	    {
-		return false;
-	    }
+	assert(rhs);
+	if(_adapterId < rhs->_adapterId)
+	{
+	    return true;
+	}
+	else if(rhs->_adapterId < _adapterId)
+	{
+	    return false;
+	}
+	
+	if(_locatorInfo < rhs->_locatorInfo)
+	{
+	    return true;
+	}
+	else if(rhs->_locatorInfo < _locatorInfo)
+	{
+	    return false;
+	}
 	    
-	    return _locatorCacheTimeout < rhs->_locatorCacheTimeout;
-        }
+	return _locatorCacheTimeout < rhs->_locatorCacheTimeout;
     }
     return false;
 }

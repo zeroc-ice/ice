@@ -43,6 +43,13 @@ public:
 	ModeLast = ModeBatchDatagram
     };
 
+    enum Type
+    {
+	Fixed,
+	Direct,
+	Indirect
+    };
+
     Mode getMode() const { return _mode; }
     const Ice::Identity& getIdentity() const { return _identity; }
     const std::string& getFacet() const { return _facet; }
@@ -56,6 +63,7 @@ public:
     virtual RouterInfoPtr getRouterInfo() const { return 0; }
     virtual LocatorInfoPtr getLocatorInfo() const { return 0; }
 
+    virtual Type getType() const = 0;
     virtual bool getSecure() const = 0;
     virtual std::string getAdapterId() const = 0;
     virtual std::vector<EndpointIPtr> getEndpoints() const = 0;
@@ -140,6 +148,7 @@ public:
 
     const std::vector<Ice::ConnectionIPtr>& getFixedConnections() const;
 
+    virtual Type getType() const;
     virtual bool getSecure() const;
     virtual std::string getAdapterId() const;
     virtual std::vector<EndpointIPtr> getEndpoints() const;
@@ -245,6 +254,7 @@ public:
     DirectReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const SharedContextPtr&,
 		    const std::string&, Mode, bool, const std::vector<EndpointIPtr>&, const RouterInfoPtr&, bool);
 
+    virtual Type getType() const;
     virtual int getLocatorCacheTimeout() const;
     virtual std::string getAdapterId() const;
     virtual std::vector<EndpointIPtr> getEndpoints() const;
@@ -286,6 +296,7 @@ public:
 
     virtual LocatorInfoPtr getLocatorInfo() const { return _locatorInfo; }
 
+    virtual Type getType() const;
     virtual int getLocatorCacheTimeout() const;
     virtual std::string getAdapterId() const;
     virtual std::vector<EndpointIPtr> getEndpoints() const;
