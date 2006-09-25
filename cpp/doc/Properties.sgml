@@ -2635,7 +2635,7 @@ are ready to be used.
 <section><title>IceBox.Service.<replaceable>name</replaceable></title>
 <section><title>Synopsis</title>
 <synopsis>
-IceBox.Service.<replaceable>name</replaceable>=<replaceable>entry_point [args]</replaceable>
+IceBox.Service.<replaceable>name</replaceable>=<replaceable>entry_point[,version] [args]</replaceable>
 </synopsis>
 </section>
 <section>
@@ -2645,10 +2645,14 @@ Defines a service to be loaded during &IceBox; initialization.
 </para>
 <para>
 In C++, <replaceable>entry_point</replaceable> has the form
-<literal>library:symbol</literal>. The <literal>library</literal>
-component is the name of a shared library or DLL. The
-<literal>symbol</literal> component is the name of a factory
-function used to create the service.
+<literal>basename[,version]:symbol</literal>. The <literal>basename</literal>
+and optional <literal>version</literal> components are used to construct the
+name of a DLL or shared library. If no version is supplied, the version is the
+empty string. The <literal>symbol</literal> component is the name of a function
+with C linkage. For example, the entry point <literal>icestormservice,31:createIceStorm</literal>
+implies a shared library name of libIceStormService.so.31 on Unix and IceStormService31.dll on Windows.
+Furthermore, if IceBox is built on Windows with debugging, a <literal>d</literal> is automatically
+appended to the version (e.g., <literal>IceStormService31d.dll</literal>).
 </para>
 <para>
 In Java, <replaceable>entry_point</replaceable> is the name of the
