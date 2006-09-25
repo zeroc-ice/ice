@@ -44,6 +44,40 @@ public class AllTests
 	test(base.ice_getCommunicator() == communicator);
 	out.println("ok");
 
+	System.out.print("testing proxy comparison... ");
+	System.out.flush();
+
+	test(communicator.stringToProxy("foo").equals(communicator.stringToProxy("foo")));
+	test(!communicator.stringToProxy("foo").equals(communicator.stringToProxy("foo2")));
+
+	Ice.ObjectPrx compObj = communicator.stringToProxy("foo");
+
+	test(compObj.ice_facet("facet").equals(compObj.ice_facet("facet")));
+	test(!compObj.ice_facet("facet").equals(compObj.ice_facet("facet1")));
+
+	test(compObj.ice_oneway().equals(compObj.ice_oneway()));
+	test(!compObj.ice_oneway().equals(compObj.ice_twoway()));
+
+	test(compObj.ice_timeout(20).equals(compObj.ice_timeout(20)));
+	test(!compObj.ice_timeout(10).equals(compObj.ice_timeout(20)));
+
+	Ice.ObjectPrx compObj1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000");
+	Ice.ObjectPrx compObj2 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10001");
+	test(!compObj1.equals(compObj2));
+
+	compObj1 = communicator.stringToProxy("foo@MyAdapter1");
+	compObj2 = communicator.stringToProxy("foo@MyAdapter2");
+	test(!compObj1.equals(compObj2));
+
+	compObj1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 1000");
+	compObj2 = communicator.stringToProxy("foo@MyAdapter1");
+	test(!compObj1.equals(compObj2));
+
+	//
+	// TODO: Ideally we should also test comparison of fixed proxies.
+	//
+	System.out.println("ok");
+
         out.print("testing checked cast... ");
         out.flush();
         Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(base);
