@@ -199,7 +199,7 @@ Changes since version 3.1.0
 ---------------------------     
 
 - Fixed a bug where proxy operator< could return an incorrect result
-  for proxy of different types (e.g.: direct vs. indirect proxies).
+  for proxies of different types (e.g., direct vs. indirect proxies).
 
 - Removed obsolete --no-globals option from slice2docbook.
 
@@ -207,8 +207,8 @@ Changes since version 3.1.0
   linked topics if the linked topic becomes unavailable for any
   reason.
 
-- Fixed a bug where the number of endpoints returned for replica group
-  with no load balancing policy was random.
+- Fixed a bug where the number of endpoints returned for a replica
+  group with no load balancing policy was random.
 
 - It's now possible to invoke on the IceGrid::Query object from an
   IceGrid admin session created through Glacier2.
@@ -217,7 +217,7 @@ Changes since version 3.1.0
   destroyed properly.
 
 - A bug was fixed where the glacier2router would throw a
-  NullHandleException if permission verifier was used that was not
+  NullHandleException if a permission verifier was used that was not
   configured.
 
 - Fixed a bug with the IceGrid allocate and sessionAllocation demos 
