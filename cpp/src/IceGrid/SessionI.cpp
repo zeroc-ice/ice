@@ -363,6 +363,7 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const Glaci
     id.name = "Query";
     ids.push_back(id);
 
+    int timeout = 0;
     if(ctl)
     {
 	try
@@ -374,9 +375,13 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const Glaci
 	    s->destroy();
 	    return 0;
 	}
+	timeout = ctl->getSessionTimeout();
     }
 
-    _reaper->add(new SessionReapable(_adapter, session, s->ice_getIdentity()), ctl->getSessionTimeout());
+    if(timeout > 0)
+    {
+	_reaper->add(new SessionReapable(_adapter, session, s->ice_getIdentity()), timeout);
+    }
 
     return s;
 }

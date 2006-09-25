@@ -194,6 +194,7 @@ AdminSessionFactory::createGlacier2Session(const string& sessionId, const Glacie
     id.name = "Query";
     ids.push_back(id);
 
+    int timeout = 0;
     if(ctl)
     {
 	try
@@ -205,9 +206,13 @@ AdminSessionFactory::createGlacier2Session(const string& sessionId, const Glacie
 	    s->destroy();
 	    return 0;
 	}
+	timeout = ctl->getSessionTimeout();
     }
 
-    _reaper->add(new SessionReapable(_adapter, session, s->ice_getIdentity()), ctl->getSessionTimeout());
+    if(timeout > 0)
+    {
+	_reaper->add(new SessionReapable(_adapter, session, s->ice_getIdentity()), timeout);
+    }
 
     return s;
 }
