@@ -131,7 +131,7 @@ interface Admin
      * Shut down the &IcePatch2; server.
      *
      **/
-    idempotent void shutdown();
+    void shutdown();
 };
 
 };

@@ -955,7 +955,7 @@ interface Admin
      * reached.
      *
      **/
-    ["ami"] idempotent void shutdownNode(string name)
+    ["ami"] void shutdownNode(string name)
 	throws NodeNotExistException, NodeUnreachableException;
 
     /**
@@ -1044,7 +1044,7 @@ interface Admin
      * Shut down the &IceGrid; registry.
      *
      **/
-    idempotent void shutdown();
+    void shutdown();
 
     /**
      *

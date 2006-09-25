@@ -34,7 +34,7 @@ interface Process
      * @see Communicator::shutdown
      *
      **/
-    ["ami"] idempotent void shutdown();
+    ["ami"] void shutdown();
 
 
     /**
