@@ -480,7 +480,7 @@ IceInternal::FixedReference::getFixedConnections() const
 Reference::Type
 IceInternal::FixedReference::getType() const
 {
-    return Fixed;
+    return TypeFixed;
 }
 
 vector<EndpointPtr>
@@ -754,7 +754,7 @@ IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const Com
 Reference::Type
 IceInternal::DirectReference::getType() const
 {
-    return Direct;
+    return TypeDirect;
 }
 
 vector<EndpointPtr>
@@ -964,7 +964,7 @@ IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const
 Reference::Type
 IceInternal::IndirectReference::getType() const
 {
-    return Indirect;
+    return TypeIndirect;
 }
 
 vector<EndpointPtr>
