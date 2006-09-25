@@ -49,6 +49,63 @@ public class AllTests
 	test(!baseProxy.ice_collocationOptimized(false).ice_isCollocationOptimized());
 	Console.Out.WriteLine("ok");
 
+	Console.Out.Write("testing proxy comparison... ");
+	Console.Out.Flush();
+
+	test(communicator.stringToProxy("foo").Equals(communicator.stringToProxy("foo")));
+	test(!communicator.stringToProxy("foo").Equals(communicator.stringToProxy("foo2")));
+
+	Ice.ObjectPrx compObj = communicator.stringToProxy("foo");
+
+	test(compObj.ice_facet("facet").Equals(compObj.ice_facet("facet")));
+	test(!compObj.ice_facet("facet").Equals(compObj.ice_facet("facet1")));
+
+	test(compObj.ice_oneway().Equals(compObj.ice_oneway()));
+	test(!compObj.ice_oneway().Equals(compObj.ice_twoway()));
+
+	test(compObj.ice_secure(true).Equals(compObj.ice_secure(true)));
+	test(!compObj.ice_secure(false).Equals(compObj.ice_secure(true)));
+
+	test(compObj.ice_collocationOptimized(true).Equals(compObj.ice_collocationOptimized(true)));
+	test(!compObj.ice_collocationOptimized(false).Equals(compObj.ice_collocationOptimized(true)));
+
+	test(compObj.ice_connectionCached(true).Equals(compObj.ice_connectionCached(true)));
+	test(!compObj.ice_connectionCached(false).Equals(compObj.ice_connectionCached(true)));
+
+	test(compObj.ice_endpointSelection(Ice.EndpointSelectionType.Random).Equals(
+		 compObj.ice_endpointSelection(Ice.EndpointSelectionType.Random)));
+	test(!compObj.ice_endpointSelection(Ice.EndpointSelectionType.Random).Equals(
+		 compObj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered)));
+
+	test(compObj.ice_connectionId("id2").Equals(compObj.ice_connectionId("id2")));
+	test(!compObj.ice_connectionId("id1").Equals(compObj.ice_connectionId("id2")));
+
+	test(compObj.ice_compress(true).Equals(compObj.ice_compress(true)));
+	test(!compObj.ice_compress(false).Equals(compObj.ice_compress(true)));
+
+	test(compObj.ice_timeout(20).Equals(compObj.ice_timeout(20)));
+	test(!compObj.ice_timeout(10).Equals(compObj.ice_timeout(20)));
+
+	Ice.ObjectPrx compObj1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000");
+	Ice.ObjectPrx compObj2 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10001");
+	test(!compObj1.Equals(compObj2));
+
+	compObj1 = communicator.stringToProxy("foo@MyAdapter1");
+	compObj2 = communicator.stringToProxy("foo@MyAdapter2");
+	test(!compObj1.Equals(compObj2));
+
+	test(compObj1.ice_locatorCacheTimeout(20).Equals(compObj1.ice_locatorCacheTimeout(20)));
+	test(!compObj1.ice_locatorCacheTimeout(10).Equals(compObj1.ice_locatorCacheTimeout(20)));
+
+	compObj1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 1000");
+	compObj2 = communicator.stringToProxy("foo@MyAdapter1");
+	test(!compObj1.Equals(compObj2));
+
+	//
+	// TODO: Ideally we should also test comparison of fixed proxies.
+	//
+	Console.Out.WriteLine("ok");
+
 	Console.Out.Write("testing checked cast... ");
 	Console.Out.Flush();
 	Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
