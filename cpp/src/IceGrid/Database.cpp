@@ -1337,6 +1337,10 @@ Ice::ObjectPrx
 Database::getObjectByType(const string& type)
 {
     Ice::ObjectProxySeq objs = getObjectsByType(type);
+    if(objs.empty())
+    {
+	return 0;
+    }
     return objs[IceUtil::random(static_cast<int>(objs.size()))];
 }
 
@@ -1344,6 +1348,11 @@ Ice::ObjectPrx
 Database::getObjectByTypeOnLeastLoadedNode(const string& type, LoadSample sample)
 {
     Ice::ObjectProxySeq objs = getObjectsByType(type);
+    if(objs.empty())
+    {
+	return 0;
+    }
+
     RandomNumberGenerator rng;
     random_shuffle(objs.begin(), objs.end(), rng);
     vector<pair<Ice::ObjectPrx, float> > objectsWithLoad;
@@ -1371,16 +1380,11 @@ Ice::ObjectProxySeq
 Database::getObjectsByType(const string& type)
 {
     Ice::ObjectProxySeq proxies = _objectCache.getObjectsByType(type);
-
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     IdentityObjectInfoDict objects(connection, _objectDbName);    
     for(IdentityObjectInfoDict::const_iterator p = objects.findByType(type); p != objects.end(); ++p)
     {
 	proxies.push_back(p->second.proxy);
-    }
-    if(proxies.empty())
-    {
-	throw ObjectNotRegisteredException();
     }
     return proxies;
 }
@@ -1411,7 +1415,6 @@ ObjectInfoSeq
 Database::getAllObjectInfos(const string& expression)
 {
     ObjectInfoSeq infos = _objectCache.getAll(expression);
-
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     IdentityObjectInfoDict objects(connection, _objectDbName); 
     for(IdentityObjectInfoDict::const_iterator p = objects.begin(); p != objects.end(); ++p)
@@ -1428,7 +1431,6 @@ ObjectInfoSeq
 Database::getObjectInfosByType(const string& type)
 {
     ObjectInfoSeq infos = _objectCache.getAllByType(type);
-
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     IdentityObjectInfoDict objects(connection, _objectDbName);    
     for(IdentityObjectInfoDict::const_iterator p = objects.findByType(type); p != objects.end(); ++p)
@@ -1473,10 +1475,6 @@ Database::getInternalObjectsByType(const string& type)
     for(IdentityObjectInfoDict::const_iterator p = internalObjects.findByType(type); p != internalObjects.end(); ++p)
     {
 	proxies.push_back(p->second.proxy);
-    }
-    if(proxies.empty())
-    {
-	throw ObjectNotRegisteredException();
     }
     return proxies;
 }

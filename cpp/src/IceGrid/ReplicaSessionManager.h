@@ -32,12 +32,13 @@ typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 class ReplicaSessionManager : public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
-    class Thread : public SessionKeepAliveThread<ReplicaSessionPrx, InternalRegistryPrx>
+
+    class Thread : public SessionKeepAliveThread<ReplicaSessionPrx>
     {
     public:
 
 	Thread(ReplicaSessionManager& manager, const InternalRegistryPrx& master) : 
-	    SessionKeepAliveThread<ReplicaSessionPrx, InternalRegistryPrx>(master),
+	    SessionKeepAliveThread<ReplicaSessionPrx>(master),
 	    _manager(manager)
         {
 	}
@@ -73,7 +74,7 @@ public:
     void create(const std::string&, const RegistryInfo&, const DatabasePtr&, const WellKnownObjectsManagerPtr&, 
 		const InternalRegistryPrx&);
     void create(const InternalRegistryPrx&);
-    NodePrxSeq getNodes() const;
+    NodePrxSeq getNodes(const NodePrxSeq&) const;
     void destroy();
 
     void registerAllWellKnownObjects();
@@ -84,6 +85,7 @@ private:
     friend class Thread;
 
     ReplicaSessionPrx createSession(const InternalRegistryPrx&, IceUtil::Time&);
+    ReplicaSessionPrx createSessionImpl(const InternalRegistryPrx&, IceUtil::Time&);
     void destroySession(const ReplicaSessionPrx&);
     bool keepAlive(const ReplicaSessionPrx&);
 
@@ -97,6 +99,7 @@ private:
     DatabasePtr _database;
     WellKnownObjectsManagerPtr _wellKnownObjects;
     TraceLevelsPtr _traceLevels;
+    std::vector<QueryPrx> _queryObjects;
 };
 
 }

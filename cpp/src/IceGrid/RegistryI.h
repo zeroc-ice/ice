@@ -90,7 +90,7 @@ private:
     Glacier2::SSLPermissionsVerifierPrx getSSLPermissionsVerifier(const Ice::LocatorPrx&, const std::string&, bool);
     Glacier2::SSLInfo getSSLInfo(const Ice::ConnectionPtr&, std::string&);
 
-    NodePrxSeq registerReplicas(const InternalRegistryPrx&);
+    NodePrxSeq registerReplicas(const InternalRegistryPrx&, const InternalRegistryPrxSeq&);
     void registerNodes(const InternalRegistryPrx&, const NodePrxSeq&);
     
     const Ice::CommunicatorPtr _communicator;

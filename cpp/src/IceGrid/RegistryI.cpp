@@ -206,12 +206,6 @@ RegistryI::start(bool nowarn)
     _replicaName = properties->getPropertyWithDefault("IceGrid.Registry.ReplicaName", "Master");
     _master = _replicaName == "Master";
 
-    //
-    // Create the internal registry object adapter and activate it.
-    //
-    ObjectAdapterPtr registryAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Internal");
-    registryAdapter->activate();
-
     _reaper = new ReapThread();
     _reaper->start();
 
@@ -222,7 +216,18 @@ RegistryI::start(bool nowarn)
     //
     if(_master)
     {
-	_instanceName = properties->getPropertyWithDefault("IceGrid.InstanceName", "IceGrid");    
+	_instanceName = properties->getProperty("IceGrid.InstanceName");    
+	if(_instanceName.empty())
+	{
+	    if(_communicator->getDefaultLocator())
+	    {
+		_instanceName = _communicator->getDefaultLocator()->ice_getIdentity().category;
+	    }
+	    else
+	    {
+		_instanceName = "IceGrid";
+	    }
+	}
     }
     else
     {
@@ -242,6 +247,12 @@ RegistryI::start(bool nowarn)
     properties->setProperty("Freeze.DbEnv.Registry.DbPrivate", "0");
 
     //
+    // Create the internal registry object adapter.
+    //
+    ObjectAdapterPtr registryAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Internal");
+    registryAdapter->activate();
+
+    //
     // Create the internal IceStorm service.
     //
     Identity registryTopicManagerId;
@@ -258,18 +269,44 @@ RegistryI::start(bool nowarn)
     _database = new Database(registryAdapter, topicManager, _instanceName, _traceLevels, getInfo(), _master);
     _wellKnownObjects = new WellKnownObjectsManager(_database);
 
-    InternalRegistryPrx internalRegistry;
+    //
+    // Get the saved replica/node proxies and remove them from the
+    // database.
+    //
+    Ice::ObjectProxySeq proxies;
+
+    NodePrxSeq nodes;
+    proxies = _database->getInternalObjectsByType(Node::ice_staticId());
+    for(Ice::ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
+    {
+	nodes.push_back(NodePrx::uncheckedCast(*p));
+	_database->removeInternalObject((*p)->ice_getIdentity());
+    }
+
+    InternalRegistryPrxSeq replicas;
+    proxies = _database->getObjectsByType(InternalRegistry::ice_staticId());
+    for(Ice::ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
+    {
+	replicas.push_back(InternalRegistryPrx::uncheckedCast(*p));
+	_database->removeObject((*p)->ice_getIdentity());
+    }
+
+    //
+    // NOTE: The internal registry object must be added only once the
+    // node/replica proxies are retrieved and removed from the
+    // database. Otherwise, if some replica/node register as soon as
+    // the internal registry is setup we might clear valid proxies.
+    //
+    InternalRegistryPrx internalRegistry = setupInternalRegistry(registryAdapter);
     if(_master)
     {
-	internalRegistry = setupInternalRegistry(registryAdapter);
-	NodePrxSeq nodes = registerReplicas(internalRegistry);
+	NodePrxSeq nodes = registerReplicas(internalRegistry, replicas);
 	registerNodes(internalRegistry, nodes);
     }
     else
     {
-	internalRegistry = setupInternalRegistry(registryAdapter);
 	_session.create(_replicaName, getInfo(), _database, _wellKnownObjects, internalRegistry);
-	registerNodes(internalRegistry, _session.getNodes());
+	registerNodes(internalRegistry, _session.getNodes(nodes));
     }
 
     ObjectAdapterPtr serverAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Server");
@@ -1062,10 +1099,9 @@ RegistryI::getSSLInfo(const ConnectionPtr& connection, string& userDN)
 }
 
 NodePrxSeq
-RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry)
+RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry, const InternalRegistryPrxSeq& replicas)
 {
     set<NodePrx> nodes;
-    InternalRegistryPrxSeq replicas = internalRegistry->getReplicas();
     for(InternalRegistryPrxSeq::const_iterator r = replicas.begin(); r != replicas.end(); ++r)
     {
 	if((*r)->ice_getIdentity() != internalRegistry->ice_getIdentity())
@@ -1078,7 +1114,6 @@ RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry)
 	    }
 	    catch(const Ice::LocalException&)
 	    {
-		// TODO: Cleanup the database?
 	    }
 	}
     }
@@ -1112,7 +1147,6 @@ RegistryI::registerNodes(const InternalRegistryPrx& internalRegistry, const Node
 	}
 	catch(const Ice::LocalException&)
 	{
-	    // TODO: Cleanup the database?
 	}
     }
 }

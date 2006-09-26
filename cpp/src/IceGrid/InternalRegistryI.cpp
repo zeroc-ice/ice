@@ -158,16 +158,10 @@ NodePrxSeq
 InternalRegistryI::getNodes(const Ice::Current&) const
 {
     NodePrxSeq nodes;
-    try
+    Ice::ObjectProxySeq proxies = _database->getInternalObjectsByType(Node::ice_staticId());
+    for(Ice::ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
     {
-	Ice::ObjectProxySeq proxies = _database->getInternalObjectsByType(Node::ice_staticId());
-	for(Ice::ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
-	{
-	    nodes.push_back(NodePrx::uncheckedCast(*p));
-	}
-    }
-    catch(const ObjectNotRegisteredException&)
-    {
+	nodes.push_back(NodePrx::uncheckedCast(*p));
     }
     return nodes;
 }
@@ -176,16 +170,10 @@ InternalRegistryPrxSeq
 InternalRegistryI::getReplicas(const Ice::Current&) const
 {
     InternalRegistryPrxSeq replicas;
-    try
+    Ice::ObjectProxySeq proxies = _database->getObjectsByType(InternalRegistry::ice_staticId());
+    for(Ice::ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
     {
-	Ice::ObjectProxySeq proxies = _database->getObjectsByType(InternalRegistry::ice_staticId());
-	for(Ice::ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
-	{
-	    replicas.push_back(InternalRegistryPrx::uncheckedCast(*p));
-	}
-    }
-    catch(const ObjectNotRegisteredException&)
-    {
+	replicas.push_back(InternalRegistryPrx::uncheckedCast(*p));
     }
     return replicas;
 }

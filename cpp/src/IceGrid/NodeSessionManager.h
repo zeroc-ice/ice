@@ -24,20 +24,23 @@ namespace IceGrid
 class NodeI;
 typedef IceUtil::Handle<NodeI> NodeIPtr;
 
-class NodeSessionKeepAliveThread : public SessionKeepAliveThread<NodeSessionPrx, InternalRegistryPrx>
+class NodeSessionKeepAliveThread : public SessionKeepAliveThread<NodeSessionPrx>
 {
 public:
 
-    NodeSessionKeepAliveThread(const InternalRegistryPrx&, const NodeIPtr&);
+    NodeSessionKeepAliveThread(const InternalRegistryPrx&, const NodeIPtr&, const IceGrid::QueryPrx&);
 
     virtual NodeSessionPrx createSession(const InternalRegistryPrx&, IceUtil::Time&);
     virtual void destroySession(const NodeSessionPrx&);
     virtual bool keepAlive(const NodeSessionPrx&);
 
-private:
+protected:
+
+    virtual NodeSessionPrx createSessionImpl(const InternalRegistryPrx&, IceUtil::Time&);
 
     const NodeIPtr _node;
     const std::string _name;
+    const IceGrid::QueryPrx _query;
 };
 typedef IceUtil::Handle<NodeSessionKeepAliveThread> NodeSessionKeepAliveThreadPtr;
 
@@ -61,12 +64,12 @@ private:
 
     void syncReplicas(const InternalRegistryPrxSeq&);
 
-    class Thread : public SessionKeepAliveThread<NodeSessionPrx, InternalRegistryPrx>
+    class Thread : public NodeSessionKeepAliveThread
     {
     public:
 
-	Thread(NodeSessionManager& manager, const InternalRegistryPrx& master) : 
-	    SessionKeepAliveThread<NodeSessionPrx, InternalRegistryPrx>(master),
+	Thread(NodeSessionManager& manager) : 
+	    NodeSessionKeepAliveThread(manager._master, manager._node, manager._query),
 	    _manager(manager)
         {
 	}
@@ -74,19 +77,9 @@ private:
 	virtual NodeSessionPrx 
 	createSession(const InternalRegistryPrx& master, IceUtil::Time& timeout)
         {
-	    return _manager.createSession(master, timeout);
-	}
-
-	virtual void 
-	destroySession(const NodeSessionPrx& session)
-        {
-	    _manager.destroySession(session);
-	}
-
-	virtual bool 
-	keepAlive(const NodeSessionPrx& session)
-        {
-	    return _manager.keepAlive(session);
+	    NodeSessionPrx session = NodeSessionKeepAliveThread::createSession(master, timeout);
+	    _manager.createdSession(session);
+	    return session;
 	}
 
     private:
@@ -94,12 +87,9 @@ private:
 	NodeSessionManager& _manager;
     };
     typedef IceUtil::Handle<Thread> ThreadPtr;
-
     friend class Thread;
 
-    NodeSessionPrx createSession(const InternalRegistryPrx&, IceUtil::Time&);
-    void destroySession(const NodeSessionPrx&);
-    bool keepAlive(const NodeSessionPrx&);
+    void createdSession(const NodeSessionPrx&);
 
     const NodeIPtr _node;
     ThreadPtr _thread;

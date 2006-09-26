@@ -41,14 +41,7 @@ QueryI::findObjectById_async(const AMD_Query_findObjectByIdPtr& cb, const Ice::I
 void
 QueryI::findObjectByType_async(const AMD_Query_findObjectByTypePtr& cb, const string& type, const Ice::Current&) const
 {
-    try
-    {
-	cb->ice_response(_database->getObjectByType(type));
-    }
-    catch(const ObjectNotRegisteredException&)
-    {
-	cb->ice_response(0);
-    }
+    cb->ice_response(_database->getObjectByType(type));
 }
 
 void
@@ -57,14 +50,7 @@ QueryI::findObjectByTypeOnLeastLoadedNode_async(const AMD_Query_findObjectByType
 						LoadSample sample, 
 						const Ice::Current&) const
 {
-    try
-    {
-	cb->ice_response(_database->getObjectByTypeOnLeastLoadedNode(type, sample));
-    }
-    catch(const ObjectNotRegisteredException&)
-    {
-	cb->ice_response(0);
-    }
+    cb->ice_response(_database->getObjectByTypeOnLeastLoadedNode(type, sample));
 }
 
 void
@@ -72,14 +58,7 @@ QueryI::findAllObjectsByType_async(const AMD_Query_findAllObjectsByTypePtr& cb,
 				   const string& type, 
 				   const Ice::Current&) const
 {
-    try
-    {
-	cb->ice_response(_database->getObjectsByType(type));
-    }
-    catch(const ObjectNotRegisteredException&)
-    {
-	cb->ice_response(Ice::ObjectProxySeq());
-    }
+    cb->ice_response(_database->getObjectsByType(type));
 }
 
 

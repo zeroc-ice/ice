@@ -1,6 +1,6 @@
 Ice.ProgramName=Replica2
 
-Ice.Default.Locator=DemoIceGrid/Locator:default -p 12000
+Ice.Default.Locator=DemoIceGrid/Locator:default -p 12000:default -p 12001
 
 #
 # IceGrid registry configuration.
@@ -18,4 +18,4 @@ IceGrid.Registry.AdminPermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
 # Trace properties.
 #
 IceGrid.Registry.Trace.Node=1
-IceGrid.Registry.Trace.Replica=1
+IceGrid.Registry.Trace.Replica=2
