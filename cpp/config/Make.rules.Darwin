@@ -35,7 +35,11 @@ mklibname           	= lib$(1).dylib
 curdir			= $(shell pwd)
 
 ifeq ($(OPTIMIZE),yes)
-    mkshlib                 = $(CXX) -single_module -dynamiclib $(shlibldflags) -o $(1) -install_name $(runpath_libdir)/$(2) $(3) $(4)
+   ifneq ($(embedded_runpath_prefix),)
+      mkshlib                 = $(CXX) -single_module -dynamiclib $(shlibldflags) -o $(1) -install_name $(runpath_libdir)/$(2) $(3) $(4)
+   else
+      mkshlib                 = $(CXX) -single_module -dynamiclib $(shlibldflags) -o $(1) -install_name $(2) $(3) $(4)
+   endif
 else
     # Don't use -install_name if we're building a debug version. GDB doesn't honor the
     # DYLD_LIBRARY_PATH environment variable if a runpath is embedded in the 
