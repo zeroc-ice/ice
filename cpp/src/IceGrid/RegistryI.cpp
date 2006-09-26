@@ -274,10 +274,11 @@ RegistryI::start(bool nowarn)
     // database.
     //
     Ice::ObjectProxySeq proxies;
+    Ice::ObjectProxySeq::const_iterator p;
 
     NodePrxSeq nodes;
     proxies = _database->getInternalObjectsByType(Node::ice_staticId());
-    for(Ice::ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
+    for(p = proxies.begin(); p != proxies.end(); ++p)
     {
 	nodes.push_back(NodePrx::uncheckedCast(*p));
 	_database->removeInternalObject((*p)->ice_getIdentity());
@@ -285,7 +286,7 @@ RegistryI::start(bool nowarn)
 
     InternalRegistryPrxSeq replicas;
     proxies = _database->getObjectsByType(InternalRegistry::ice_staticId());
-    for(Ice::ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
+    for(p = proxies.begin(); p != proxies.end(); ++p)
     {
 	replicas.push_back(InternalRegistryPrx::uncheckedCast(*p));
 	_database->removeObject((*p)->ice_getIdentity());
