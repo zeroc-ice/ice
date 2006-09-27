@@ -30,6 +30,7 @@ ice30_home = None
 ice31_home = None
 olddbenv = None
 newdbenv = None
+bindir = None
 
 #
 # Show usage information.
@@ -48,9 +49,9 @@ def printOutputFromPipe(pipe):
         os.write(1, line)    
 
 def transformdb(dbname, desc):
-    global ice30_home, ice31_home, olddbenv, newdbenv
+    global ice30_home, ice31_home, olddbenv, newdbenv, bindir
 
-    transformdb = os.path.join(ice31_home, "bin", "transformdb") + \
+    transformdb = os.path.join(bindir, "transformdb") + \
               " --include-old " + os.path.join(ice30_home, "slice") + \
               " --include-new " + os.path.join(ice31_home, "slice") + \
               " --old " + os.path.join(ice30_home, "slice", "IceGrid", "Admin.ice") + \
@@ -89,6 +90,13 @@ ice30_home = sys.argv[1]
 ice31_home = sys.argv[2]
 olddbenv = sys.argv[3]
 newdbenv = sys.argv[4]
+
+for bindir in [os.path.join(ice31_home, "bin"), os.path.join(os.getenv("ICE_HOME"), "bin"), "/usr/bin"]:
+    bindir = os.path.normpath(bindir)
+    if os.path.exists(os.path.join(bindir, "transformdb")):
+        break
+else:
+    raise "can't locate the `transformdb' executable"
 
 transformdb("applications", \
 '<transformdb>' + \
