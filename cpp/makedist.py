@@ -178,14 +178,17 @@ def fixMakeRules(file):
 #
 # Fix version in README, INSTALL files
 #
-def fixVersion(files, version):
+def fixVersion(files, version, mmversion):
 
     for file in files:
         origfile = file + ".orig"
         os.rename(file, origfile)
         oldFile = open(origfile, "r")
         newFile = open(file, "w")
-        newFile.write(re.sub("@ver@", version, oldFile.read()))
+	line = oldFile.read();
+	line = re.sub("@ver@", version, line)
+	line = re.sub("@mmver@", mmversion, line)
+        newFile.write(line)
         newFile.close()
         oldFile.close()
         os.remove(origfile)
@@ -366,10 +369,11 @@ if not skipDocs:
 #
 config = open(os.path.join("ice", "include", "IceUtil", "Config.h"), "r")
 version = re.search("ICE_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
+mmversion = re.search("([0-9]*\.[0-9]*)\.[0-9]*", version).group(1)
 
 print "Fixing version in README and INSTALL files..."
-fixVersion(find("ice", "README*"), version)
-fixVersion(find("ice", "INSTALL*"), version)
+fixVersion(find("ice", "README*"), version, mmversion)
+fixVersion(find("ice", "INSTALL*"), version, mmversion)
 
 #
 # Create archives.
