@@ -10,33 +10,35 @@
 
 #
 # This script upgrades the IceGrid registry database environment for
-# 3.0.x version of IceGrid to the new format in 3.1.
+# 3.0.x version of IceGrid to the new format.
 #
 # Usage:
 #
-# python upgradeicegrid.py ice30_home ice31_home olddbenv newdbenv
+# python upgradeicegrid.py olddbenv newdbenv
 #
 # Where:
 #
-# ice30_home is the path of the Ice 3.0.x distribution.
-# ice31_home is the path of the Ice 3.1 distribution.
 # olddbenv is the path of the Ice 3.0.x registry database environment
 # newdbenv is the path of the Ice 3.1 registry database environment
 #
+#
+# NOTE: the 3.0 slice definitions for the IceGrid database are stored
+# in the icegrid-slice.3.0.tar.gz file. These definitions are used by
+# the script to perform the database transformation.
+#
 
-import sys, os
+import sys, os, gzip
 
-ice30_home = None
-ice31_home = None
 olddbenv = None
 newdbenv = None
 bindir = None
+slicedir = None
 
 #
 # Show usage information.
 #
 def usage():
-    print "Usage: " + sys.argv[0] + " ice30_home ice31_home olddbenv newdbenv"
+    print "Usage: " + sys.argv[0] + " olddbenv newdbenv"
     print
     print "Options:"
     print "-h    Show this message."
@@ -49,22 +51,26 @@ def printOutputFromPipe(pipe):
         os.write(1, line)    
 
 def transformdb(dbname, desc):
-    global ice30_home, ice31_home, olddbenv, newdbenv, bindir
+    global olddbenv, newdbenv, slicedir, bindir
 
-    transformdb = os.path.join(bindir, "transformdb") + \
-              " --include-old " + os.path.join(ice30_home, "slice") + \
-              " --include-new " + os.path.join(ice31_home, "slice") + \
-              " --old " + os.path.join(ice30_home, "slice", "IceGrid", "Admin.ice") + \
-              " --new " + os.path.join(ice31_home, "slice", "IceGrid", "Admin.ice")
+    oldslice = os.path.join(newdbenv, "icegrid-slice.3.0.ice")
+    oldslicefile = open(oldslice, "w+")
+    oldslicefile.write(gzip.GzipFile(os.path.join(os.path.dirname(sys.argv[0]), "icegrid-slice.3.0.ice.gz")).read())
+    oldslicefile.close()
 
     tmpdesc = os.path.join(newdbenv, "tmpdesc" + dbname + ".xml")
     tmpfile = open(tmpdesc, "w+")
     tmpfile.write(desc)
     tmpfile.close()
 
+    transformdb = os.path.join(bindir, "transformdb") + \
+              " --old " + oldslice + \
+              " --include-new " + slicedir + " --new " + os.path.join(slicedir, "IceGrid", "Admin.ice")
+
     pipe = os.popen(transformdb + " -f " + tmpdesc + " " + olddbenv + " " + dbname + " " + newdbenv)
     printOutputFromPipe(pipe)
     os.remove(tmpdesc)
+    os.remove(oldslice)
     if pipe.close():
         sys.exit(1)
 
@@ -82,21 +88,35 @@ for x in sys.argv[1:]:
         usage()
         sys.exit(1)
 
-if len(sys.argv) < 5:
+if len(sys.argv) != 3:
     usage()
     sys.exit(0)
     
-ice30_home = sys.argv[1]
-ice31_home = sys.argv[2]
-olddbenv = sys.argv[3]
-newdbenv = sys.argv[4]
+olddbenv = sys.argv[1]
+if not os.path.exists(olddbenv):
+    raise "database environment `" + olddbenv + "' doesn't exist"
 
-for bindir in [os.path.join(ice31_home, "bin"), os.path.join(os.getenv("ICE_HOME"), "bin"), "/usr/bin"]:
+newdbenv = sys.argv[2]
+if not os.path.exists(newdbenv):
+    raise "database environment `" + newdbenv + "' doesn't exist"
+
+icedir = os.getenv("ICE_HOME")
+if icedir == None:
+    icedir = os.path.join(os.path.dirname(sys.argv[0]), "..")
+
+for bindir in [os.path.join(icedir, "bin"), "/usr/bin"]:
     bindir = os.path.normpath(bindir)
     if os.path.exists(os.path.join(bindir, "transformdb")):
         break
 else:
     raise "can't locate the `transformdb' executable"
+
+for slicedir in [os.path.join(icedir, "slice"), "/usr/share"]:
+    slicedir = os.path.normpath(slicedir)
+    if os.path.exists(os.path.join(slicedir, "IceGrid", "Admin.ice")):
+        break
+else:
+    raise "can't locate the IceGrid slice files"
 
 transformdb("applications", \
 '<transformdb>' + \
