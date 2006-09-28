@@ -104,14 +104,23 @@ class StressClient : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mu
 {
 public:
     
-    StressClient(const Ice::CommunicatorPtr& communicator, int id, const RegistryPrx& registry, 
-    		 bool destroySession) : 
-        _communicator(communicator),
+    StressClient(int id, const RegistryPrx& registry, bool destroySession) : 
+        _communicator(registry->ice_getCommunicator()),
 	_id(id),
 	_registry(registry),
 	_notified(false),
 	_terminated(false),
 	_destroySession(destroySession)
+    {
+    }
+
+    StressClient(int id, const SessionPrx& session) : 
+        _communicator(session->ice_getCommunicator()),
+	_id(id),
+	_session(session),
+	_notified(false),
+	_terminated(false),
+	_destroySession(false)
     {
     }
 
@@ -133,7 +142,7 @@ public:
 		Lock sync(*this);
 		if(_terminated)
 		{
-		    if(session)
+		    if(!_session && session)
 		    {
 			session->destroy();
 		    }
@@ -145,8 +154,15 @@ public:
 	    {
 		ostringstream os;
 		os << "Client-" << _id;
-		session = _registry->createSession(os.str(), "");
-		session->setAllocationTimeout(IceUtil::random(200)); // 200ms timeout
+		if(_session)
+		{
+		    session = _session;
+		}
+		else
+		{
+		    session = _registry->createSession(os.str(), "");
+		    session->setAllocationTimeout(IceUtil::random(200)); // 200ms timeout
+		}
 	    }
 
 	    assert(session);
@@ -162,10 +178,12 @@ public:
 		object = allocateByType(session);
 		break;
 	    case 2:
+		assert(!_session);
 		allocateAndDestroy(session);
 		session = 0;
 		break;
 	    case 3:
+		assert(!_session);
 		allocateByTypeAndDestroy(session);
 		session = 0;
 		break;
@@ -180,6 +198,7 @@ public:
 		    session->releaseObject(object->ice_getIdentity());
 		    break;
 		case 1:
+		    assert(!_session);
 		    session->destroy();
 		    session = 0;
 		    break;
@@ -199,6 +218,12 @@ public:
 	}
 	catch(const AllocationTimeoutException&)
 	{
+	}
+	catch(const AllocationException&)
+	{
+	    // This can only happen if we are using the common session 
+	    // and the object is already allocated.
+	    test(_session);
 	}
 	return 0;
     }
@@ -253,6 +278,7 @@ protected:
     const Ice::CommunicatorPtr _communicator;
     const int _id;
     const RegistryPrx _registry;
+    const SessionPrx _session;
     bool _notified;
     bool _terminated;
     const bool _destroySession;
@@ -535,7 +561,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	catch(const AllocationException&)
 	{
 	}
-
 	session1->setAllocationTimeout(allocationTimeout);
 	cb1 = new AllocateObjectByIdCallback();
 	session1->allocateObjectById_async(cb1, allocatable);
@@ -932,6 +957,69 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(cb33->hasResponse(dummy) && dummy);
 	session1->releaseObject(allocatable);
 
+	session2->allocateObjectById(allocatable3);
+	cb11 = new AllocateObjectByIdCallback();
+	cb12 = new AllocateObjectByIdCallback();
+	session1->allocateObjectById_async(cb11, allocatable3);
+	session1->allocateObjectById_async(cb12, allocatable3);
+	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+	test(!cb11->hasResponse(dummy));
+	test(!cb12->hasResponse(dummy));
+	session2->releaseObject(allocatable3);
+	cb11->waitResponse(__FILE__, __LINE__);
+	cb12->waitResponse(__FILE__, __LINE__);
+	test(cb11->hasResponse(dummy) ? cb12->hasException() : cb12->hasResponse(dummy));
+	test(cb12->hasResponse(dummy) ? cb11->hasException() : cb11->hasResponse(dummy));
+	session1->releaseObject(allocatable3);
+
+	session2->allocateObjectById(allocatable3);
+	cb31 = new AllocateObjectByTypeCallback();
+	cb32 = new AllocateObjectByTypeCallback();
+	session1->allocateObjectByType_async(cb31, "::TestServer1");
+	session1->allocateObjectByType_async(cb32, "::TestServer1");
+	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+	test(!cb31->hasResponse(dummy));
+	test(!cb32->hasResponse(dummy));
+	session2->releaseObject(allocatable3);
+	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(300));
+	do
+	{
+	    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+	}
+	while(!cb31->hasResponse(dummy) && !cb32->hasResponse(dummy));
+	test(cb31->hasResponse(dummy) && dummy && !cb32->hasResponse(dummy) ||
+	     cb32->hasResponse(dummy) && dummy && !cb31->hasResponse(dummy));
+	session1->releaseObject(allocatable3);
+	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(300));
+	cb33 = cb31->hasResponse(dummy) ? cb32 : cb31;
+	cb33->waitResponse(__FILE__, __LINE__);
+	test(cb33->hasResponse(dummy) && dummy);
+	session1->releaseObject(allocatable3);
+
+	session1->allocateObjectById(allocatable3);
+	cb31 = new AllocateObjectByTypeCallback();
+	cb32 = new AllocateObjectByTypeCallback();
+	session1->allocateObjectByType_async(cb31, "::TestServer1");
+	session1->allocateObjectByType_async(cb32, "::TestServer1");
+	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+	test(!cb31->hasResponse(dummy));
+	test(!cb32->hasResponse(dummy));
+	session1->releaseObject(allocatable3);
+	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(300));
+	do
+	{
+	    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+	}
+	while(!cb31->hasResponse(dummy) && !cb32->hasResponse(dummy));
+	test(cb31->hasResponse(dummy) && dummy && !cb32->hasResponse(dummy) ||
+	     cb32->hasResponse(dummy) && dummy && !cb31->hasResponse(dummy));
+	session1->releaseObject(allocatable3);
+	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(300));
+	cb33 = cb31->hasResponse(dummy) ? cb32 : cb31;
+	cb33->waitResponse(__FILE__, __LINE__);
+	test(cb33->hasResponse(dummy) && dummy);
+	session1->releaseObject(allocatable3);
+
 	cout << "ok" << endl;
 
 	cout << "testing session destroy... " << flush;
@@ -944,7 +1032,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	session1->allocateObjectByType_async(cb3, "::Test");
 	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
 	test(!cb3->hasResponse(dummy));
-	session2->destroy();
+	session2->destroy();	
 	cb3->waitResponse(__FILE__, __LINE__);
 	test(cb3->hasResponse(obj));
 	session1->destroy();
@@ -1009,17 +1097,28 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	cout << "ok" << endl;
 
 	cout << "stress test... " << flush;
-	const int nClients = 4;
+
+	SessionPrx stressSession = registry->createSession("StressSession", "");	
+	keepAlive->add(stressSession);
+
+	const int nClients = 10;
 	int i;
 	vector<StressClientPtr> clients;
 	for(i = 0; i < nClients - 2; ++i)
 	{
-	    clients.push_back(new StressClient(communicator, i, registry, false));
+	    if(IceUtil::random(2) == 1)
+	    {
+		clients.push_back(new StressClient(i, registry, false));
+	    }
+	    else
+	    {
+		clients.push_back(new StressClient(i, stressSession));
+	    }
 	    clients.back()->start();
 	}
-	clients.push_back(new StressClient(communicator, i++, registry, true));
+	clients.push_back(new StressClient(i++, registry, true));
 	clients.back()->start();
-	clients.push_back(new StressClient(communicator, i++, registry, true));
+	clients.push_back(new StressClient(i++, registry, true));
 	clients.back()->start();
 	
 	for(vector<StressClientPtr>::const_iterator p = clients.begin(); p != clients.end(); ++p)
@@ -1030,7 +1129,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	//
 	// Let the stress client run for a bit.
 	//
-	IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(6));
+	IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(8));
 
 	//
 	// Terminate the stress clients.
@@ -1040,6 +1139,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    (*q)->terminate();
 	    (*q)->getThreadControl().join();
 	}
+
+	stressSession->destroy();
 
 	cout << "ok" << endl;
     }

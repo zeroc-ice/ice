@@ -70,21 +70,23 @@
       <server id="ServerStress-1" exe="${test.dir}/server" activation="on-demand" pwd=".">
         <adapter name="Server" endpoints="default">
   	  <allocatable identity="stress-1" type="::StressTest"/>
-  	  <allocatable identity="stress-2" type="::StressTest"/>
+  	  <allocatable identity="stress-2" type="::StressTestBis"/>
         </adapter>
       </server>
 
       <server id="ServerStress-2" exe="${test.dir}/server" activation="on-demand" pwd="." allocatable="true">
         <adapter name="Server" endpoints="default">
   	  <allocatable identity="stress-3" type="::StressTest"/>
-  	  <allocatable identity="stress-4" type="::StressTest"/>
+  	  <allocatable identity="stress-4" type="::StressTestBis"/>
+          <allocatable identity="concurrent-1" type="::TestConcurrent"/>
         </adapter>
       </server>
 
       <server id="ServerStress-3" exe="${test.dir}/server" activation="on-demand" pwd="." allocatable="true">
         <adapter name="Server" endpoints="default">
   	  <allocatable identity="stress-5" type="::StressTest"/>
-  	  <allocatable identity="stress-6" type="::StressTest"/>
+  	  <allocatable identity="stress-6" type="::StressTestBis"/>
+          <allocatable identity="concurrent-2" type="::TestConcurrent"/>
         </adapter>
       </server>
 

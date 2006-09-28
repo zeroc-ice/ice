@@ -97,6 +97,7 @@ public:
 protected:
 
     bool allocate(const AllocationRequestPtr&, bool, bool);
+    void queueAllocationAttemptFromChild(const AllocatablePtr&);
     bool allocateFromChild(const AllocationRequestPtr&, const AllocatablePtr&, bool, bool);
     
     void queueAllocationAttempt(const AllocatablePtr&, const AllocationRequestPtr&, bool);
@@ -106,7 +107,6 @@ protected:
     const AllocatablePtr _parent;
     
     std::list<std::pair<AllocatablePtr, AllocationRequestPtr> > _requests;
-    std::set<AllocatablePtr> _attempts;
     SessionIPtr _session;
     int _count;
     bool _releasing;
