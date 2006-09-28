@@ -439,7 +439,7 @@ main(int argc, char* argv[])
 	vector<string> optargs = opts.argVec("D");
 	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
 	{
-	    cppArgs += " -D" + *i;
+	    cppArgs += " -D\"" + *i + "\"";
 	}
     }
     if(opts.isSet("U"))
@@ -447,7 +447,7 @@ main(int argc, char* argv[])
 	vector<string> optargs = opts.argVec("U");
 	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
 	{
-	    cppArgs += " -U" + *i;
+	    cppArgs += " -U\"" + *i + "\"";
 	}
     }
     if(opts.isSet("I"))
@@ -455,7 +455,7 @@ main(int argc, char* argv[])
 	includePaths = opts.argVec("I");
 	for(vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
 	{
-	    cppArgs += " -I" + *i;
+	    cppArgs += " -I\"" + *i + "\"";
 	}
     }
     preprocess = opts.isSet("E");
