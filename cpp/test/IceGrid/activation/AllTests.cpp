@@ -25,7 +25,12 @@ waitForServerState(const IceGrid::AdminPrx& admin, const std::string& server, Ic
 	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
 	++nRetry;
     }
-    test(admin->getServerState(server) == state);
+    if(admin->getServerState(server) != state)
+    {
+	cerr << "server state change timed out:" << endl;
+	cerr << "server: " << server << endl;
+	cerr << "state: " << state << endl;
+    }
 }
 
 class PingThread : public IceUtil::Thread, IceUtil::Monitor<IceUtil::Mutex>

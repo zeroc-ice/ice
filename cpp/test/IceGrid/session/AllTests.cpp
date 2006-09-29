@@ -1330,16 +1330,20 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(serial + 1 == appObs2->serial);
 	++serial;
 
-	try
-	{
-	    ApplicationUpdateDescriptor update;
-	    update.name = "Application";
-	    admin1->updateApplication(update);
-	    test(false);
-	}
-	catch(const AccessDeniedException&)
-	{
-	}
+	//
+	// We now allow modifying the database without holding the
+	// exclusive lock.
+	//
+// 	try
+// 	{
+// 	    ApplicationUpdateDescriptor update;
+// 	    update.name = "Application";
+// 	    admin1->updateApplication(update);
+// 	    test(false);
+// 	}
+// 	catch(const AccessDeniedException&)
+// 	{
+// 	}
 
 	try
 	{

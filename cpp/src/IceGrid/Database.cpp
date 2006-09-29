@@ -239,11 +239,7 @@ Database::getObserverTopic(TopicName name) const
 void
 Database::checkSessionLock(AdminSessionI* session)
 {
-    if(_lock == 0 && session)
-    {
-	throw AccessDeniedException(); // Sessions must first acquire the lock!
-    }
-    else if(_lock != 0 && session != _lock)
+    if(_lock != 0 && session != _lock)
     {
 	throw AccessDeniedException(_lockUserId); // Lock held by another session.
     }
@@ -495,8 +491,6 @@ Database::updateApplication(const ApplicationUpdateInfo& updt, AdminSessionI* se
 void
 Database::syncApplicationDescriptor(const ApplicationDescriptor& newDesc, AdminSessionI* session)
 {
-    assert(session);
-
     ServerEntrySeq entries;
     ApplicationUpdateInfo update;
     ApplicationInfo oldApp;
@@ -539,8 +533,6 @@ Database::instantiateServer(const string& application,
 			    const ServerInstanceDescriptor& instance,
 			    AdminSessionI* session)
 {
-    assert(session);
-
     ServerEntrySeq entries;
     ApplicationUpdateInfo update;
     ApplicationInfo oldApp;

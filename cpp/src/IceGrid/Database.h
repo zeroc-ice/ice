@@ -75,8 +75,8 @@ public:
 
     void addApplication(const ApplicationInfo&, AdminSessionI* = 0);
     void updateApplication(const ApplicationUpdateInfo&, AdminSessionI* = 0);
-    void syncApplicationDescriptor(const ApplicationDescriptor&, AdminSessionI*);
-    void instantiateServer(const std::string&, const std::string&, const ServerInstanceDescriptor&, AdminSessionI*);
+    void syncApplicationDescriptor(const ApplicationDescriptor&, AdminSessionI* = 0);
+    void instantiateServer(const std::string&, const std::string&, const ServerInstanceDescriptor&, AdminSessionI* =0);
     void removeApplication(const std::string&, AdminSessionI* = 0);
 
     ApplicationInfo getApplicationInfo(const std::string&);

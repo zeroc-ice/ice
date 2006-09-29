@@ -81,6 +81,7 @@ protected:
 private:
 
     void usage(const std::string&);
+    string trim(const string&);
 
     ActivatorPtr _activator;
     WaitQueuePtr _waitQueue;
@@ -495,65 +496,112 @@ NodeService::start(int argc, char* argv[])
     //
     _adapter->activate();
 
+    string bundleName = properties->getProperty("IceGrid.Node.PrintServersReady");
+    if(!bundleName.empty() || !desc.empty())
+    {
+	enableInterrupt();
+	_sessions.waitForCreate();
+	disableInterrupt();
+    }
+
     //
     // Deploy application if a descriptor is passed as a command-line option.
     //
     if(!desc.empty())
     {
-        AdminPrx admin;
-        try
-        {
-	    const string adminId = instanceName + "/Admin";
-            admin = AdminPrx::checkedCast(communicator()->stringToProxy(adminId));
-        }
-        catch(const LocalException& ex)
-        {
-            ostringstream ostr;
-            ostr << "couldn't contact IceGrid admin interface to deploy application `" << desc << "':\n" << ex;
-            warning(ostr.str());
-        }
-
-        if(admin)
-        {
-            try
-            {
-		map<string, string> vars;
-		ApplicationDescriptor app;
-		app = DescriptorParser::parseDescriptor(desc, targets, vars, communicator(), admin);
-		try
-		{
-		    admin->syncApplication(app);
-		}
-		catch(const ApplicationNotExistException&)
-		{
-		    admin->addApplication(app);
-		}
+	try
+	{
+	    Ice::Identity registryId;
+	    registryId.category = instanceName;
+	    registryId.name = "Registry";
+	    
+	    RegistryPrx registry = RegistryPrx::checkedCast(
+		communicator()->stringToProxy("\"" + communicator()->identityToString(registryId) + "\""));
+	    if(!registry)
+	    {
+		throw "invalid registry";
 	    }
-            catch(const DeploymentException& ex)
-            {
-                ostringstream ostr;
-                ostr << "failed to deploy application `" << desc << "':\n" << ex << ": " << ex.reason;
-                warning(ostr.str());
-            }
-            catch(const LocalException& ex)
-            {
-                ostringstream ostr;
-                ostr << "failed to deploy application `" << desc << "':\n" << ex;
-                warning(ostr.str());
-            }
-        }
+	
+	    //
+	    // Use SSL if available.
+	    //
+	    try
+	    {
+		registry = RegistryPrx::checkedCast(registry->ice_secure(true));
+	    }
+	    catch(const Ice::NoEndpointException&)
+	    {
+	    }
+	    
+	    IceGrid::AdminSessionPrx session;
+	    if(communicator()->getProperties()->getPropertyAsInt("IceGridAdmin.AuthenticateUsingSSL"))
+	    {
+		session = registry->createAdminSessionFromSecureConnection();
+	    }
+	    else
+	    {
+		string id = communicator()->getProperties()->getProperty("IceGridAdmin.Username");
+		string password = communicator()->getProperties()->getProperty("IceGridAdmin.Password");
+		while(id.empty())
+		{
+		    cout << "user id: " << flush;
+		    getline(cin, id);
+		    id = trim(id);
+		}
+		
+		if(password.empty())
+		{
+		    cout << "password: " << flush;
+		    getline(cin, password);
+		    password = trim(password);
+		}
+		
+		session = registry->createAdminSession(id, password);
+	    }
+	    assert(session);
+
+	    AdminPrx admin = session->getAdmin();
+	    map<string, string> vars;
+	    ApplicationDescriptor app = DescriptorParser::parseDescriptor(desc, targets, vars, communicator(), admin);
+
+	    try
+	    {
+		admin->syncApplication(app);
+	    }
+	    catch(const ApplicationNotExistException&)
+	    {
+		admin->addApplication(app);
+	    }
+	}
+	catch(const DeploymentException& ex)
+	{
+	    ostringstream ostr;
+	    ostr << "failed to deploy application `" << desc << "':\n" << ex << ": " << ex.reason;
+	    warning(ostr.str());
+	}
+	catch(const AccessDeniedException& ex)
+	{
+	    ostringstream ostr;
+	    ostr << "failed to deploy application `" << desc << "':\n" 
+		 << "registry database is locked by `" << ex.lockUserId << "'";
+	    warning(ostr.str());
+	}
+	catch(const LocalException& ex)
+	{
+	    ostringstream ostr;
+	    ostr << "failed to deploy application `" << desc << "':\n" << ex;
+	    warning(ostr.str());
+	}
+	catch(const string& reason)
+	{
+	    ostringstream ostr;
+	    ostr << "failed to deploy application `" << desc << "':\n" << reason;
+	    warning(ostr.str());
+	}
     }
 
-    string bundleName = properties->getProperty("IceGrid.Node.PrintServersReady");
     if(!bundleName.empty())
     {
-	//
-	// We wait for the node to be registered with the registry
-	// before to claim it's ready.
-	//
-	enableInterrupt();
-	_sessions.waitForCreate();
-	disableInterrupt();
 	print(bundleName + " ready");
     }
 
@@ -710,6 +758,18 @@ NodeService::usage(const string& appName)
     );
 #endif
     print("Usage: " + appName + " [options]\n" + options);
+}
+
+string
+NodeService::trim(const string& s)
+{
+    static const string delims = "\t\r\n ";
+    string::size_type last = s.find_last_not_of(delims);
+    if(last != string::npos)
+    {
+        return s.substr(s.find_first_not_of(delims), last+1);
+    }
+    return s;
 }
 
 int

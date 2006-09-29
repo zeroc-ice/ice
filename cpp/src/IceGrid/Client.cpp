@@ -407,7 +407,6 @@ Client::run(int argc, char* argv[])
     }
 
     ParserPtr p = Parser::createParser(communicator(), admin);
-    session->startUpdate();
 
     int status = EXIT_SUCCESS;
 
@@ -469,16 +468,6 @@ Client::run(int argc, char* argv[])
 		status = EXIT_FAILURE;
 	    }
 	}
-    }
-
-    try
-    {
-	session->finishUpdate();
-    }
-    catch(const Ice::Exception&)
-    {
-	// Ignore. If the registry has been shutdown this will cause
-	// an exception.
     }
 
     keepAlive->destroy();
