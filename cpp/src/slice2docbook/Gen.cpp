@@ -1189,10 +1189,10 @@ Slice::Gen::printComment(const ContainedPtr& p, const string& deprecateReason)
 	start("section", "Used By", false);
 	O << nl << "<para>";
 	start("simplelist type=\"inline\"");
-	for(list<string>::const_iterator q = strings.begin(); q != strings.end(); ++q)
+	for(list<string>::const_iterator p = strings.begin(); p != strings.end(); ++p)
 	{
 	    start("member");
-	    O << *q;
+	    O << *p;
 	    end();
 	}
 	end();
