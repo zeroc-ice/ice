@@ -185,7 +185,7 @@ local interface Communicator
      * Such an object adapter cannot be accessed remotely and, therefore,
      * is accessible only for collocated invocations that originate from the
      * the same communicator as is used by the adapter.
-     * space.</para>
+     * space.
      * 
      * @param name The object adapter name.
      *
