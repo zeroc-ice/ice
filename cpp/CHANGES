@@ -198,6 +198,12 @@ Changes since version 3.1.1 (HEAD)
 Changes since version 3.1.0
 ---------------------------     
 
+- Fixed a bug in slice2docbook that could cause the "Used By" section of a
+  symbol to list the same operation more than once.
+
+- slice2doc book now adds a "Used By" section for exceptions. (Previously,
+  exceptions did not have this section, only other types.)
+
 - Fixed IceGrid allocation bug which could cause allocation failures
   when allocating multiple objects by type from allocatable servers
   and with the same session.

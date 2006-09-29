@@ -1121,21 +1121,38 @@ Slice::Gen::printComment(const ContainedPtr& p, const string& deprecateReason)
     if(ex)
     {
 	derivedExceptions = p->unit()->findDerivedExceptions(ex);
-    }
-    if(!derivedExceptions.empty())
-    {
-	start("section", "Derived Exceptions", false);
-	O << nl << "<para>";
-	start("simplelist type=\"inline\"");
-	for(ExceptionList::const_iterator q = derivedExceptions.begin(); q != derivedExceptions.end(); ++q)
+	if(!derivedExceptions.empty())
 	{
-	    start("member");
-	    O << toString(*q, container);
+	    start("section", "Derived Exceptions", false);
+	    O << nl << "<para>";
+	    start("simplelist type=\"inline\"");
+	    for(ExceptionList::const_iterator q = derivedExceptions.begin(); q != derivedExceptions.end(); ++q)
+	    {
+		start("member");
+		O << toString(*q, container);
+		end();
+	    }
+	    end();
+	    O << "</para>";
 	    end();
 	}
-	end();
-	O << "</para>";
-	end();
+	ContainedList usedBy;
+	usedBy = p->unit()->findUsedBy(ex);
+	if(!usedBy.empty())
+	{
+	    start("section", "Used By", false);
+	    O << nl << "<para>";
+	    start("simplelist type=\"inline\"");
+	    for(ContainedList::const_iterator q = usedBy.begin(); q != usedBy.end(); ++q)
+	    {
+		start("member");
+		O << toString(*q, container);
+		end();
+	    }
+	    end();
+	    O << "</para>";
+	    end();
+	}
     }
 
     ContainedList usedBy;
@@ -1154,13 +1171,28 @@ Slice::Gen::printComment(const ContainedPtr& p, const string& deprecateReason)
     }
     if(!usedBy.empty())
     {
+	//
+	// We first accumulate the strings in a list instead of printing
+	// each stringified entry in the usedBy list. This is necessary because
+	// the usedBy list can contain operations and parameters. But toString()
+	// on a parameter returns the string for the parameter's operation, so
+	// we can end up printing the same operation name more than once.
+	//
+	list<string> strings;
+	for(ContainedList::const_iterator q = usedBy.begin(); q != usedBy.end(); ++q)
+	{
+	    strings.push_back(toString(*q, container));
+	}
+	strings.sort();
+	strings.unique();
+
 	start("section", "Used By", false);
 	O << nl << "<para>";
 	start("simplelist type=\"inline\"");
-	for(ContainedList::const_iterator q = usedBy.begin(); q != usedBy.end(); ++q)
+	for(list<string>::const_iterator q = strings.begin(); q != strings.end(); ++q)
 	{
 	    start("member");
-	    O << toString(*q, container);
+	    O << *q;
 	    end();
 	}
 	end();
