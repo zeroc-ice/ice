@@ -77,7 +77,11 @@ else
 endif
 
 ifeq ($(PYTHON_VERSION),)
-    $(error Unable to find Python 2.3 or 2.4. See config/Make.rules)
+    ifneq ($(PYTHON_HOME),)
+        $(error Unable to find a Python interpreter at PYTHON_HOME=$(PYTHON_HOME). See config/Make.rules)
+    else
+        $(error Unable to find Python 2.3, 2.4, or 2.5. See config/Make.rules)
+    endif
 endif
 
 PYTHON_FLAGS		?= -I$(PYTHON_INCLUDE_DIR)
