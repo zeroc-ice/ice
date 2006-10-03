@@ -43,6 +43,9 @@ link below for more information:
 
 http://www.hp.com/products1/unix/java/java2/sdkrte14/downloads/index_pa-risc.html
 
+On Linux x86_64, we recommend using JRE 1.5.0_07 or an ealier version. 
+JRE 1.5.0_08 and JRE 1.5.0_09 introduced a bug that affects Freeze maps.
+
 When using the Ice for Java SSL plugin (IceSSL), you may experience
 occasional hangs. The most likely reason is that your system's entropy
 pool is empty. If you have sufficient system privileges, you can solve
