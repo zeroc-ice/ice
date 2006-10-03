@@ -52,6 +52,7 @@ registryOptions = r' --Ice.Warn.Connections=0' + \
                   r' --IceGrid.Registry.Trace.Server=0' + \
                   r' --IceGrid.Registry.Trace.Locator=0' + \
                   r' --Ice.ThreadPool.Server.Size=0 ' + \
+                  r' --Ice.ThreadPool.Client.SizeWarn=10' + \
                   r' --IceGrid.Registry.DefaultTemplates=' + os.path.join(toplevel, "config", "templates.xml")
 
 

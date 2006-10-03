@@ -731,7 +731,7 @@ def makePHPbinary(sources, buildDir, installDir, version, clean):
     """ Create the IcePHP binaries and install to Ice installation directory """
 
     platform = getPlatform()
-    if not platform in ['linux', 'macosx', 'linux64']:
+    if not platform in ['linux', 'linux64']:
         return         
         
     #
