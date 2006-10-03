@@ -38,7 +38,7 @@ Requirements
 ======================================================================
 
 This binary distribution was compiled on Solaris 9 using Sun CC
-version 5.5.
+version 5.8.
 
 The following Solaris 9 binary packages, available from
 http://www.sunfreeware.com, are required to use this distribution:
