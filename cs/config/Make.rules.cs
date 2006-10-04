@@ -70,10 +70,6 @@ else
 	DSEP = \\
 endif
 
-
-
-src_build		= yes
-
 SHELL			= /bin/sh
 VERSION			= 3.1.0
 
@@ -98,7 +94,7 @@ install_bindir		= $(prefix)/bin
 install_libdir		= $(prefix)/lib
 install_slicedir	= $(prefix)/slice
 
-ifeq ($(src_build),yes)
+ifneq ($(ICE_DIR),/usr)
 ref = -r:$(bindir)/$(1).dll
 else
 ref = -pkg:$(1)
