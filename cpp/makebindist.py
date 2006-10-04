@@ -361,6 +361,7 @@ prefix = $(ICE_DIR)
     # XXX: The following will not work for demos not in demo/A/B type dir
     #
     os.chdir("..")
+    runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\.\/slice/$(slicedir)/g' $f ; done")
     runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\./$(ICE_DIR)/g' $f ; done")
     makefile.close()
 
