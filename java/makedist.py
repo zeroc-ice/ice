@@ -257,6 +257,9 @@ os.mkdir("lib")
 os.rename("Ice.jar", os.path.join("lib", "Ice.jar"))
 if os.path.exists(os.path.join("IceGridGUI.jar")):
     os.rename("IceGridGUI.jar", os.path.join("lib", "IceGridGUI.jar"))
+else:
+    os.remove("THIRD_PARTY_LICENSE")
+    os.remove("THIRD_PARTY_SOURCES")
 
 #
 # Remove "generated" subdirectories.
