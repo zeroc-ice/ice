@@ -111,7 +111,7 @@ for bindir in [os.path.join(icedir, "bin"), "/usr/bin"]:
 else:
     raise "can't locate the `transformdb' executable"
 
-for slicedir in [os.path.join(icedir, "slice"), "/usr/share"]:
+for slicedir in [os.path.join(icedir, "slice"), "/usr/share/slice"]:
     slicedir = os.path.normpath(slicedir)
     if os.path.exists(os.path.join(slicedir, "IceGrid", "Admin.ice")):
         break
