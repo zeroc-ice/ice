@@ -17,7 +17,6 @@ namespace IceInternal
 	    networkCat = "Network";
 	    protocolCat = "Protocol";
 	    retryCat = "Retry";
-	    securityCat = "Security";
 	    locationCat = "Location";
 	    slicingCat = "Slicing";
 	    
@@ -26,7 +25,6 @@ namespace IceInternal
 	    network = properties.getPropertyAsInt(keyBase + networkCat);
 	    protocol = properties.getPropertyAsInt(keyBase + protocolCat);
 	    retry = properties.getPropertyAsInt(keyBase + retryCat);
-	    security = properties.getPropertyAsInt(keyBase + securityCat);
 	    location = properties.getPropertyAsInt(keyBase + locationCat);
 	    slicing = properties.getPropertyAsInt(keyBase + slicingCat);
 	}
@@ -37,8 +35,6 @@ namespace IceInternal
 	public readonly string protocolCat;
 	public readonly int retry;
 	public readonly string retryCat;
-	public readonly int security;
-	public readonly string securityCat;
 	public readonly int location;
 	public readonly string locationCat;
 	public readonly int slicing;
