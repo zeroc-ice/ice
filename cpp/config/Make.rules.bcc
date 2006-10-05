@@ -10,6 +10,12 @@
 #
 # This file is included by Make.rules.mak when using Borland C++Builder.
 #
+# The following warnings are suppressed when building Ice:
+#
+# W8057 - Parameter is never used
+# W8031 - Temporary used for parameter
+# W8066 - Unreachable code
+#
 
 CXX		= bcc32.exe
 CC		= bcc32.exe
@@ -18,7 +24,7 @@ LINK 		= ilink32.exe
 PREOUT		= ,
 PRELIBS		= ,,
 
-CPPFLAGS	= -I"$(THIRDPARTY_HOME)\include" -q -w-par -w-lvc -w-rch -b- -y -vi- -tWC -tWM -tW- -c -DNO_STRICT;_NO_VCL;_RTLDLL
+CPPFLAGS	= -I"$(THIRDPARTY_HOME)\include" -q -w-par -w-lvc -w-rch -vi- -tWC -tWM -tW- -c -DNO_STRICT;_NO_VCL;_RTLDLL
 
 !if "$(OPTIMIZE)" == "yes"
 CPPFLAGS	= $(CPPFLAGS) -O2 -k- -DNDEBUG
