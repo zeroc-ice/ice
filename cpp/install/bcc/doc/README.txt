@@ -51,7 +51,7 @@ libraries, and executables.
 Demos and documentation
 -----------------------
 
-Sample programs are provided in the Ice-3.1.1-demos.zip package,
+Sample programs are provided in the Ice-@ver@-demos.zip package,
 which can be downloaded from the ZeroC web site at
 
 http://www.zeroc.com/download.html
