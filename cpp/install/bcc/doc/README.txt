@@ -15,8 +15,7 @@ Ice is available under the terms of the GNU General Public License
 customers who wish to use Ice in proprietary products. Please contact
 sales@zeroc.com for more information on licensing Ice.
 
-This file describes how to setup C++Builder 2006 for Ice, and
-provides instructions for building and running the sample programs.
+This file describes how to setup C++Builder 2006 for Ice.
 
 See doc/README.html for information on the documentation included with
 this distribution.
