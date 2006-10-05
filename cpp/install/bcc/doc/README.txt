@@ -15,7 +15,7 @@ Ice is available under the terms of the GNU General Public License
 customers who wish to use Ice in proprietary products. Please contact
 sales@zeroc.com for more information on licensing Ice.
 
-This file describes how to setup Visual Studio 6.0 for Ice, and
+This file describes how to setup C++Builder 2006 for Ice, and
 provides instructions for building and running the sample programs.
 
 See doc/README.html for information on the documentation included with
@@ -26,6 +26,41 @@ C++Builder Requirements
 --------------------------
 
 This release requires C++Builder 2006 update 2.
+
+
+Setting up C++Builder 2006
+--------------------------
+
+Before you can use Ice in your C++ applications, you first need to
+configure C++Builder with the locations of the Ice header files,
+libraries, and executables.
+
+- In the IDE, choose Project->Default Options->C++ Compiler->Paths and Defines
+
+- Select "Include search path"
+
+- Add <Ice installation root directory>\include
+
+- Choose Project->Default Options->Linker->Paths and Defines
+
+- Select "Library search path"
+
+- Add <Ice installation root directory>\lib
+
+
+Demos and documentation
+-----------------------
+
+Sample programs are provided in the Ice-3.1.1-demos.zip package,
+which can be downloaded from the ZeroC web site at
+
+http://www.zeroc.com/download.html
+
+Please refer to the README.DEMOS file included in that package for
+more information.
+
+See doc/README.html for information on the documentation included with
+this distribution.
 
 
 Binary compatibility
