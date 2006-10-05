@@ -151,6 +151,38 @@ The network trace level:
 </section>
 </section>
 
+<section><title>Ice.Trace.Location</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Trace.Location=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The location trace level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No location trace. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Trace &Ice; locator requests.</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>Like 1, but also trace the removal of endpoints from the cache.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
 <section><title>Ice.Trace.Protocol</title>
 <section><title>Synopsis</title>
 <synopsis>
