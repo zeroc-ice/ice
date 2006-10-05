@@ -12,19 +12,22 @@
 #
 # The following warnings are suppressed when building Ice:
 #
-# W8057 - Parameter is never used
-# W8031 - Temporary used for parameter
-# W8066 - Unreachable code
+# -w-par: W8057 - Parameter is never used
+# -w-lvc: W8031 - Temporary used for parameter
+# -w-rch: W8066 - Unreachable code
+#
+# Ice and Ice applications must be built with multi-threaded support (-tWM)
+# and linked with the multi-threaded runtime library (cw32mti.lib).
 #
 
 CXX		= bcc32.exe
 CC		= bcc32.exe
 LINK 		= ilink32.exe
 
-PREOUT		= ,
-PRELIBS		= ,,
-
-CPPFLAGS	= -I"$(THIRDPARTY_HOME)\include" -q -w-par -w-lvc -w-rch -vi- -tWC -tWM -tW- -c -DNO_STRICT;_NO_VCL;_RTLDLL
+!if "$(THIRDPARTY_HOME)" != ""
+CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include"
+!endif
+CPPFLAGS	= $(CPPFLAGS) -q -w-par -w-lvc -w-rch -vi- -tWM -c -DNO_STRICT;_NO_VCL;_RTLDLL
 
 !if "$(OPTIMIZE)" == "yes"
 CPPFLAGS	= $(CPPFLAGS) -O2 -k- -DNDEBUG
@@ -32,7 +35,11 @@ CPPFLAGS	= $(CPPFLAGS) -O2 -k- -DNDEBUG
 CPPFLAGS	= $(CPPFLAGS) -Od -v -k -D_DEBUG
 !endif
 
-LDFLAGS		= -L$(top_srcdir)\lib -L"$(THIRDPARTY_HOME)\lib" -L"$(BCB)\lib" -q -Gn -v -x
+!if "$(THIRDPARTY_HOME)" != ""
+LDFLAGS		= -L"$(THIRDPARTY_HOME)\lib"
+!endif
+LDFLAGS		= $(LDFLAGS) -L"$(libdir)" -L"$(BCB)\lib" -q -Gn -v -x
+
 LD_DLLFLAGS	= $(LDFLAGS) -Gi -Tpd c0d32.obj
 LD_EXEFLAGS	= $(LDFLAGS) -Tpe c0x32.obj
 
@@ -40,6 +47,3 @@ ICE_OS_LIBS     = cw32mti.lib import32.lib
 
 BASELIBS	= iceutil$(LIBSUFFIX).lib $(ICE_OS_LIBS)
 LIBS		= ice$(LIBSUFFIX).lib $(BASELIBS)
-
-BZIP2_LIBS      = libbz2.lib
-DB_LIBS         = libdb43.lib
