@@ -28,7 +28,7 @@ server = os.path.join(testdir, "server")
 print "starting server...",
 serverPipe = os.popen(server + TestUtil.clientServerOptions + " ")
 TestUtil.getServerPid(serverPipe)
-TestUtil.getAdapterReady(serverPipe)
+TestUtil.getAdapterReady(serverPipe, True, 3)
 print "ok"
 
 router = os.path.join(toplevel, "bin", "glacier2router")
