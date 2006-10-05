@@ -9,8 +9,8 @@ We recommend that you copy the demo subdirectories from the RPM
 installation directory to your home directory.
 
 
-Building the Demos
-==================
+Building the Demos - Unix
+=========================
 
 These instructions assume that you have correctly configured your
 environment according to the directions in the README or platform-
@@ -28,6 +28,26 @@ http://ant.apache.org/bindownload.cgi
 
 Ice requires ant 1.6.3 or later, but we recommend using the most
 recent release.
+
+
+Building the Demos - Borland C++Builder
+=======================================
+
+These instuctions are for building the C++ demos using Borland
+C++Builder 2006. First you must set up your couple of environment 
+variables to indicate the location of your Ice installation.
+
+$ set ICE_HOME=<Ice installation root directory>
+$ set PATH=%ICE_HOME%\bin;%PATH%
+
+Then go to the demo directory and run
+
+$ nmake /f Makefile.mak
+
+nmake is required to build the demos. If not already installed it can be
+downloaded at the following link:
+
+http://download.microsoft.com/download/vc15/patch/1.52/w95/en-us/nmake15.exe
 
 
 Running the Ice Demos
