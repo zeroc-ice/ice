@@ -151,7 +151,7 @@ public class Client : Ice.Application
 		    oneway = HelloPrxHelper.uncheckedCast(oneway.ice_secure(secure));
 		    batchOneway = HelloPrxHelper.uncheckedCast(batchOneway.ice_secure(secure));
 		    datagram = HelloPrxHelper.uncheckedCast(datagram.ice_secure(secure));
-		    batchDatagram = HelloPrxHelper.uncheckedCast(datagram.ice_secure(secure));
+		    batchDatagram = HelloPrxHelper.uncheckedCast(batchDatagram.ice_secure(secure));
 		    
 		    if(secure)
 		    {
