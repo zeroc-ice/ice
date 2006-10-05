@@ -371,6 +371,11 @@ def editMakeRulesMak(filename, version):
 		# Do nothing.
 		#
 		pass
+	    elif line.startswith('THIRDPARTY_HOME'):
+		#
+		# Do nothing.
+		#
+		pass
 	    else:
 		print line.rstrip('\n')
 	elif state == 'header':
