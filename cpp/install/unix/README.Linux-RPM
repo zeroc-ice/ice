@@ -89,6 +89,10 @@ supporting Python files:
 
 $ export PYTHONPATH=/usr/lib/Ice-@ver@/python:$PYTHONPATH
 
+On a x86_64 system, the python Ice extension is installed in
+/usr/lib64/Ice-@ver@/python, so use instead:
+
+$ export PYTHONPATH=/usr/lib64/Ice-@ver@/python:$PYTHONPATH
 
 C#/Mono
 -------
