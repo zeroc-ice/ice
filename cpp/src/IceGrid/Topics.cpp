@@ -59,7 +59,7 @@ ObserverTopic::subscribe(const Ice::ObjectPrx& obsv, const string& name)
     {
 	assert(_syncSubscribers.find(name) == _syncSubscribers.end());
 	_syncSubscribers.insert(name);
-	waitForSyncedSubscribers(_serial, name);
+	waitForSyncedSubscribersNoSync(_serial, name);
     }
 }
 
@@ -138,6 +138,13 @@ ObserverTopic::receivedUpdate(const string& name, int serial, const string& fail
 void
 ObserverTopic::waitForSyncedSubscribers(int serial, const string& name)
 {
+    Lock sync(*this);
+    waitForSyncedSubscribersNoSync(serial, name);
+}
+
+void
+ObserverTopic::waitForSyncedSubscribersNoSync(int serial, const string& name)
+{
     if(_syncSubscribers.empty() && name.empty())
     {
 	return;
@@ -150,6 +157,10 @@ ObserverTopic::waitForSyncedSubscribers(int serial, const string& name)
     }
     else
     {
+	if(_syncSubscribers.find(name) == _syncSubscribers.end())
+	{
+	    return; // Not subscribed anymore.
+	}
 	_waitForUpdates[serial].insert(name);
     }
 
@@ -519,7 +530,7 @@ ApplicationObserverTopic::applicationAdded(int serial, const ApplicationInfo& in
 	Ice::Warning out(_logger);
 	out << "unexpected exception while publishing `applicationAdded' update:\n" << ex;    
     }
-    waitForSyncedSubscribers(serial);
+    waitForSyncedSubscribersNoSync(serial);
 }
 
 void 
@@ -541,7 +552,7 @@ ApplicationObserverTopic::applicationRemoved(int serial, const string& name)
 	Ice::Warning out(_logger);
 	out << "unexpected exception while publishing `applicationRemoved' update:\n" << ex;    
     }
-    waitForSyncedSubscribers(serial);
+    waitForSyncedSubscribersNoSync(serial);
 }
 
 void 
@@ -594,7 +605,7 @@ ApplicationObserverTopic::applicationUpdated(int serial, const ApplicationUpdate
 	Ice::Warning out(_logger);
 	out << "unexpected exception while publishing `applicationUpdated' update:\n" << ex;    
     }
-    waitForSyncedSubscribers(serial);
+    waitForSyncedSubscribersNoSync(serial);
 }
 
 void 
@@ -661,7 +672,7 @@ AdapterObserverTopic::adapterAdded(int serial, const AdapterInfo& info)
 	Ice::Warning out(_logger);
 	out << "unexpected exception while publishing `adapterAdded' update:\n" << ex;    
     }
-    waitForSyncedSubscribers(serial);
+    waitForSyncedSubscribersNoSync(serial);
 }
 
 void 
@@ -683,7 +694,7 @@ AdapterObserverTopic::adapterUpdated(int serial, const AdapterInfo& info)
 	Ice::Warning out(_logger);
 	out << "unexpected exception while publishing `adapterUpdated' update:\n" << ex;    
     }
-    waitForSyncedSubscribers(serial);
+    waitForSyncedSubscribersNoSync(serial);
 }
 
 void
@@ -705,7 +716,7 @@ AdapterObserverTopic::adapterRemoved(int serial, const string& id)
 	Ice::Warning out(_logger);
 	out << "unexpected exception while publishing `adapterRemoved' update:\n" << ex;    
     }
-    waitForSyncedSubscribers(serial);
+    waitForSyncedSubscribersNoSync(serial);
 }
 
 void 
@@ -772,7 +783,7 @@ ObjectObserverTopic::objectAdded(int serial, const ObjectInfo& info)
 	Ice::Warning out(_logger);
 	out << "unexpected exception while publishing `objectAdded' update:\n" << ex;    
     }
-    waitForSyncedSubscribers(serial);
+    waitForSyncedSubscribersNoSync(serial);
 }
 
 void 
@@ -794,7 +805,7 @@ ObjectObserverTopic::objectUpdated(int serial, const ObjectInfo& info)
 	Ice::Warning out(_logger);
 	out << "unexpected exception while publishing `objectUpdated' update:\n" << ex;    
     }
-    waitForSyncedSubscribers(serial);
+    waitForSyncedSubscribersNoSync(serial);
 }
 
 void
@@ -816,7 +827,7 @@ ObjectObserverTopic::objectRemoved(int serial, const Ice::Identity& id)
 	Ice::Warning out(_logger);
 	out << "unexpected exception while publishing `objectRemoved' update:\n" << ex;    
     }
-    waitForSyncedSubscribers(serial);
+    waitForSyncedSubscribersNoSync(serial);
 }
 
 void 
@@ -861,11 +872,10 @@ ObjectObserverTopic::objectsAddedOrUpdated(int serial, const ObjectInfoSeq& info
     }
 
     //
-    // We don't need to wait for the update to be received by the
-    // replicas here. This operation is only called internaly by 
-    // IceGrid.
+    // We don't wait for the update to be received by the replicas
+    // here. This operation is called by ReplicaSessionI.
     // 
-    //waitForSyncedSubscribers(serial);
+    //waitForSyncedSubscribersNoSync(serial);
 }
 
 void 
@@ -897,7 +907,7 @@ ObjectObserverTopic::objectsRemoved(int serial, const ObjectInfoSeq& infos)
     // replicas here. This operation is only called internaly by 
     // IceGrid.
     // 
-    //waitForSyncedSubscribers(serial);
+    //waitForSyncedSubscribersNoSync(serial);
 }
 
 void 

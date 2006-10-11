@@ -12,10 +12,7 @@ top_srcdir	= ../../..
 CLIENT		= client
 SERVER		= server
 
-SVCFILENAME     = $(call mklibfilename,TestService)
-SVCSONAME	= $(call mksoname,TestService) 
-
-TARGETS		= $(CLIENT) $(SERVER) $(SVCFILENAME) 
+TARGETS		= $(CLIENT) $(SERVER)
 
 OBJS		= Test.o
 
@@ -25,13 +22,9 @@ COBJS		= Client.o \
 SOBJS		= TestI.o \
 		  Server.o
 
-SERVICE_OBJS	= TestI.o \
-		  Service.o
-
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp) \
-		  $(SERVICE_OBJS:.o=.cpp)
+		  $(SOBJS:.o=.cpp)
 
 SLICE_SRCS	= Test.ice
 
@@ -47,10 +40,6 @@ $(CLIENT): $(OBJS) $(COBJS)
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
-
-$(SVCFILENAME): $(OBJS) $(SERVICE_OBJS)
-	rm -f $@
-	$(call mkshlib,$@,$(SVCSONAME),$(OBJS) $(SERVICE_OBJS),$(LINKWITH))
 
 clean::
 	rm -rf db/node db/registry

@@ -206,7 +206,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	{
 	    if(!_currentApplication.get())
 	    {
-		error("the <server> element can only be a child of an <application> element");
+		error("the <node> element can only be a child of an <application> element");
 	    }
 	    _currentNode.reset(_currentApplication->createNode(attributes));
 	}
@@ -252,7 +252,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	}
 	else if(name == "server-template")
 	{
-	    if(_currentTemplate.get() || _currentNode.get())
+	    if(!_currentApplication.get() || _currentTemplate.get() || _currentNode.get())
 	    {
 		error("the <server-template> element can only be a child of an <application> element");
 	    }
@@ -285,7 +285,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	}
 	else if(name == "service-template")
 	{
-	    if(_currentNode.get() || _currentTemplate.get())
+	    if(!_currentApplication.get() || _currentNode.get() || _currentTemplate.get())
 	    {
 		error("the <service-template> element can only be a child of an <application> element");
 	    }

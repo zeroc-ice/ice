@@ -36,9 +36,11 @@ public:
 
     virtual void initObserver(const Ice::ObjectPrx&) = 0;
 
+    void waitForSyncedSubscribers(int, const std::string& = std::string());
+
 protected:
 
-    void waitForSyncedSubscribers(int, const std::string& = std::string());
+    void waitForSyncedSubscribersNoSync(int, const std::string& = std::string());
     void updateSerial(int);
     Ice::Context getContext(int) const;
 

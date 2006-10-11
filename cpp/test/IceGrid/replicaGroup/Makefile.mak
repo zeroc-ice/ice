@@ -12,7 +12,10 @@ top_srcdir	= ..\..\..
 CLIENT		= client.exe
 SERVER		= server.exe
 
-TARGETS		= $(CLIENT) $(SERVER)
+LIBNAME		= testservice$(LIBSUFFIX).lib
+DLLNAME		= testservice$(LIBSUFFIX).dll
+
+TARGETS		= $(CLIENT) $(SERVER) $(LIBNAME) $(DLLNAME)
 
 OBJS		= Test.obj
 
@@ -22,9 +25,13 @@ COBJS		= Client.obj \
 SOBJS		= TestI.obj \
 		  Server.obj
 
+SERVICE_OBJS	= TestI.obj \
+		  Service.obj
+
 SRCS		= $(OBJS:.obj=.cpp) \
 		  $(COBJS:.obj=.cpp) \
-		  $(SOBJS:.obj=.cpp)
+		  $(SOBJS:.obj=.cpp) \
+		  $(SERVICE_OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -36,6 +43,12 @@ PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 CPDBFLAGS       = /pdb:$(CLIENT:.exe=.pdb)
 SPDBFLAGS       = /pdb:$(SERVER:.exe=.pdb)
 !endif
+
+$(LIBNAME) : $(DLLNAME)
+
+$(DLLNAME): $(OBJS) $(SERVICE_OBJS)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(SERVICE_OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH) \
+	  freeze$(LIBSUFFIX).lib
 
 $(CLIENT): $(OBJS) $(COBJS)
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) \

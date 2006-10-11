@@ -1,0 +1,57 @@
+<icegrid>
+
+  <application name="Test">
+
+    <replica-group id="Default">
+      <object identity="Default" type="::Test::TestIntf"/>
+    </replica-group>
+
+    <replica-group id="RoundRobin">
+      <load-balancing type="round-robin" n-replicas="1"/>
+      <object identity="RoundRobin" type="::Test::TestIntf"/>
+    </replica-group>
+
+    <replica-group id="Adaptive">
+      <load-balancing type="adaptive" n-replicas="1"/>
+      <object identity="Adaptive" type="::Test::TestIntf"/>
+    </replica-group>
+
+    <replica-group id="Random">
+      <load-balancing type="random" n-replicas="1"/>
+      <object identity="Random" type="::Test::TestIntf"/>
+    </replica-group>
+
+    <server-template id="Server">
+      <parameter name="id"/>
+      <parameter name="replicaGroup"/>
+      <server id="${id}" exe="${test.dir}/server" activation="on-demand" pwd=".">
+        <adapter name="ReplicatedAdapter" endpoints="default" replica-group="${replicaGroup}"/>
+        <property name="Identity" value="${replicaGroup}"/>
+      </server>
+    </server-template>
+
+    <service-template id="Service">
+      <parameter name="name"/>
+      <parameter name="replicaGroup"/>
+      <service name="${name}" entry="TestService:create">
+        <adapter name="${service}" endpoints="default" replica-group="${replicaGroup}">
+          <object identity="${service}"/>
+        </adapter>
+        <property name="Identity" value="${replicaGroup}"/>
+      </service>
+    </service-template>
+
+    <server-template id="IceBox">
+      <parameter name="id"/>
+      <parameter name="replicaGroup"/>
+      <icebox id="${id}" exe="${icebox.exe}" activation="on-demand" pwd=".">  
+        <adapter name="IceBox.ServiceManager" endpoints="tcp -h 127.0.0.1" register-process="true"/>
+        <service-instance template="Service" name="Service1" replicaGroup="${replicaGroup}"/>
+        <service-instance template="Service" name="Service2" replicaGroup="${replicaGroup}"/>
+        <service-instance template="Service" name="Service3" replicaGroup="${replicaGroup}"/>
+      </icebox>
+    </server-template>
+
+  </application>
+
+</icegrid>

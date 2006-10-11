@@ -113,7 +113,8 @@ tests = [ \
     "IceGrid/session", \
     "IceGrid/update", \
     "IceGrid/activation", \
-    "IceGrid/replication", \
+    "IceGrid/replicaGroup", \
+#    "IceGrid/replication", \
     "IceGrid/allocation", \
     "Glacier2/router", \
     "Glacier2/attack", \

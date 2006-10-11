@@ -115,7 +115,7 @@ public:
     void removeObject(const Ice::Identity&);
     void updateObject(const Ice::ObjectPrx&);
 
-    void addOrUpdateObjectsInDatabase(const ObjectInfoSeq&);
+    int addOrUpdateObjectsInDatabase(const ObjectInfoSeq&);
     void removeObjectsInDatabase(const ObjectInfoSeq&);
 
     void allocateObject(const Ice::Identity&, const ObjectAllocationRequestPtr&);

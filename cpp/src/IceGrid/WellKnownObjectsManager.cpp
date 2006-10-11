@@ -90,7 +90,7 @@ WellKnownObjectsManager::updateReplicatedWellKnownObjects()
     id.category = _database->getInstanceName();
     ObjectInfo info;
     ObjectInfoSeq objects;
-
+    
     Lock sync(*this);
 
     Ice::ObjectPrx replicatedClientProxy = _database->getReplicatedEndpoints("Client", _endpoints["Client"]);

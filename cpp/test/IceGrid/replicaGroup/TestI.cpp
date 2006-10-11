@@ -16,3 +16,9 @@ TestI::TestI(const Ice::ObjectAdapterPtr& adapter, const Ice::PropertiesPtr& pro
 {
 }
 
+std::string
+TestI::getReplicaIdAndShutdown(const Ice::Current&)
+{
+    _adapter->getCommunicator()->shutdown();
+    return _properties->getProperty(_adapter->getName() + ".AdapterId");
+}

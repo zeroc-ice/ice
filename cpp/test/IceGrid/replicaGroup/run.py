@@ -21,11 +21,11 @@ sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 import IceGridAdmin
 
-name = os.path.join("IceGrid", "replication")
+name = os.path.join("IceGrid", "replicaGroup")
 testdir = os.path.join(toplevel, "test", name)
 
 TestUtil.addLdPath(testdir)
 
-IceGridAdmin.iceGridTest(name, "application.xml", "", \
-                         ' \\"properties-override=' + TestUtil.clientServerOptions.replace("--", "") + '\\"')
+IceGridAdmin.iceGridTest(name, "application.xml", "--Ice.RetryIntervals=\"0 50 100 250\"", \
+                         "icebox.exe=" + TestUtil.getIceBox(testdir))
 sys.exit(0)

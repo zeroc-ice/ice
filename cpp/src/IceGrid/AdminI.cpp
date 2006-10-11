@@ -800,7 +800,6 @@ AdminI::getNodeHostname(const string& name, const Current&) const
 	throw NodeUnreachableException(name, os.str());
 	return ""; // Keep the compiler happy.
     }
-	return ""; // Keep the compiler happy.
 }
 
 

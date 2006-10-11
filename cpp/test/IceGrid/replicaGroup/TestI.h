@@ -18,6 +18,8 @@ public:
 
     TestI(const Ice::ObjectAdapterPtr&, const Ice::PropertiesPtr&);
 
+    virtual std::string getReplicaIdAndShutdown(const Ice::Current&);
+
 private:
 
     Ice::ObjectAdapterPtr _adapter;

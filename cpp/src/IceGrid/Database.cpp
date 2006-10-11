@@ -338,7 +338,7 @@ Database::syncAdapters(const AdapterInfoSeq& adapters)
 
 	Freeze::TransactionHolder txHolder(_connection);
 	_adapters.clear();
-	for(AdapterInfoSeq::const_iterator r = adapters.end(); r != adapters.end(); ++r)
+	for(AdapterInfoSeq::const_iterator r = adapters.begin(); r != adapters.end(); ++r)
 	{
 	    _adapters.put(StringAdapterInfoDict::value_type(r->id, *r));
 	}
@@ -1243,7 +1243,7 @@ Database::updateObject(const Ice::ObjectPrx& proxy)
     }
 }
 
-void
+int
 Database::addOrUpdateObjectsInDatabase(const ObjectInfoSeq& objects)
 {
     int serial;
@@ -1261,6 +1261,7 @@ Database::addOrUpdateObjectsInDatabase(const ObjectInfoSeq& objects)
     }
 	
     _objectObserverTopic->objectsAddedOrUpdated(serial, objects);
+    return serial;
 }
 
 void

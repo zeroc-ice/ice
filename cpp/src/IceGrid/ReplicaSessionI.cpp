@@ -100,13 +100,17 @@ ReplicaSessionI::setEndpoints(const StringObjectProxyDict& endpoints, const Ice:
 void
 ReplicaSessionI::registerWellKnownObjects(const ObjectInfoSeq& objects, const Ice::Current& current)
 {
-    Lock sync(*this);
-    if(_destroy)
+    int serial;
     {
-	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+	Lock sync(*this);
+	if(_destroy)
+	{
+	    throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+	}
+	_replicaWellKnownObjects = objects;
+	serial = _database->addOrUpdateObjectsInDatabase(objects);
     }
-    _replicaWellKnownObjects = objects;
-    _database->addOrUpdateObjectsInDatabase(objects);
+    _database->getObserverTopic(ObjectObserverTopicName)->waitForSyncedSubscribers(serial, _name);
 }
 
 void
@@ -156,12 +160,14 @@ ReplicaSessionI::destroy(const Ice::Current& current)
 	}
     }
 
-    _database->removeReplica(_name, this, shutdown);
-
     if(!shutdown)
     {
+	cerr << "updating well known objects " << _name << endl;
 	_wellKnownObjects->updateReplicatedWellKnownObjects(); // No need to update these if we're shutting down.
     }
+
+    cerr << "removing replica " << _name << endl;
+    _database->removeReplica(_name, this, shutdown);
 
     if(current.adapter)
     {
@@ -190,6 +196,10 @@ Ice::ObjectPrx
 ReplicaSessionI::getEndpoint(const std::string& name)
 {
     Lock sync(*this);
+    if(_destroy)
+    {
+	return 0;
+    }
     return _replicaEndpoints[name];
 }
 

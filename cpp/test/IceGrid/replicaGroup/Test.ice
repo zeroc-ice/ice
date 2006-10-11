@@ -7,21 +7,17 @@
 //
 // **********************************************************************
 
-#ifndef TEST_I_H
-#define TEST_I_H
+#ifndef TEST_ICE
+#define TEST_ICE
 
-#include <Test.h>
-
-class TestI : public ::Test::TestIntf
+module Test
 {
-public:
 
-    TestI(const Ice::ObjectAdapterPtr&, const Ice::PropertiesPtr&);
+interface TestIntf
+{
+    string getReplicaIdAndShutdown();
+};
 
-private:
-
-    Ice::ObjectAdapterPtr _adapter;
-    Ice::PropertiesPtr _properties;
 };
 
 #endif
