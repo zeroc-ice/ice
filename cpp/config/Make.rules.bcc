@@ -24,9 +24,14 @@ CXX		= bcc32.exe
 CC		= bcc32.exe
 LINK 		= ilink32.exe
 
+PREOUT		= ,
+PRELIB		= ,,
+
 !if "$(THIRDPARTY_HOME)" != ""
 CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include"
+LDFLAGS		= -L"$(THIRDPARTY_HOME)\lib"
 !endif
+
 CPPFLAGS	= $(CPPFLAGS) -q -w-par -w-lvc -w-rch -vi- -tWM -c -DNO_STRICT;_NO_VCL;_RTLDLL
 
 !if "$(OPTIMIZE)" == "yes"
@@ -35,9 +40,6 @@ CPPFLAGS	= $(CPPFLAGS) -O2 -k- -DNDEBUG
 CPPFLAGS	= $(CPPFLAGS) -Od -v -k -D_DEBUG
 !endif
 
-!if "$(THIRDPARTY_HOME)" != ""
-LDFLAGS		= -L"$(THIRDPARTY_HOME)\lib"
-!endif
 LDFLAGS		= $(LDFLAGS) -L"$(libdir)" -L"$(BCB)\lib" -q -Gn -v -x
 
 LD_DLLFLAGS	= $(LDFLAGS) -Gi -Tpd c0d32.obj
@@ -47,3 +49,6 @@ ICE_OS_LIBS     = cw32mti.lib import32.lib
 
 BASELIBS	= iceutil$(LIBSUFFIX).lib $(ICE_OS_LIBS)
 LIBS		= ice$(LIBSUFFIX).lib $(BASELIBS)
+
+BZIP2_LIBS      = libbz2.lib
+DB_LIBS         = libdb43.lib
