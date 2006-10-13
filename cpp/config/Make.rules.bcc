@@ -25,7 +25,7 @@ CC		= bcc32.exe
 LINK 		= ilink32.exe
 
 PREOUT		= ,
-PRELIB		= ,,
+PRELIBS		= ,,
 
 !if "$(THIRDPARTY_HOME)" != ""
 CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include"
