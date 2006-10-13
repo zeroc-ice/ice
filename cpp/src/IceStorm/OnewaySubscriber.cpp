@@ -17,6 +17,10 @@
 #include <Ice/Communicator.h>
 #include <Ice/LocalException.h>
 
+#ifdef __BCPLUSPLUS__
+#include <IceStorm/SubscriberFactory.h>
+#endif
+
 using namespace IceStorm;
 using namespace std;
 
