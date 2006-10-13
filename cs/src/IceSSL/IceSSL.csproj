@@ -13,6 +13,8 @@
     <AssemblyName>icesslcs</AssemblyName>
     <StartupObject>
     </StartupObject>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\config\IcecsKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>false</DebugSymbols>
@@ -61,6 +63,7 @@
     <Compile Include="Instance.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="PluginI.cs" />
+    <Compile Include="AssemblyInfo.cs" />
     <Compile Include="RFC2253.cs" />
     <Compile Include="TransceiverI.cs" />
     <Compile Include="TrustManager.cs" />
@@ -72,4 +75,7 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\..\config\IcecsKey.snk" />
+  </ItemGroup>
 </Project>
