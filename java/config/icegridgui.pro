@@ -37,6 +37,7 @@
 
 -dontusemixedcaseclassnames
 -dontoptimize
+-dontobfuscate
 
 -keepclassmembers class * implements java.io.Serializable {
     static final long serialVersionUID;
@@ -63,3 +64,10 @@
 -keep public class javax.**
 -keep interface javax.**
 -keep class * implements javax.**
+
+#
+# Without this directive, the menus on Windows don't look good
+#
+-keepclassmembers class com.jgoodies.looks.** {
+   <methods>;
+}

@@ -183,13 +183,13 @@ if not patchIceE:
 			    [("VERSION[\t\s]*= ([0-9]*\.[0-9]*\.[0-9]*)", version),
 			    ("SOVERSION[\t\s]*= ([0-9]*)", soVersion(version))])
 
-	fileMatchAndReplace(os.path.join(ice_home, "src", "ca", "import.py"),
+	fileMatchAndReplace(os.path.join(ice_home, "config", "ca", "import.py"),
 			    [("Ice-([0-9]*\.[0-9]*\.[0-9]*)", version)])
-	fileMatchAndReplace(os.path.join(ice_home, "src", "ca", "initca.py"),
+	fileMatchAndReplace(os.path.join(ice_home, "config", "ca", "initca.py"),
 			    [("Ice-([0-9]*\.[0-9]*\.[0-9]*)", version)])
-	fileMatchAndReplace(os.path.join(ice_home, "src", "ca", "req.py"),
+	fileMatchAndReplace(os.path.join(ice_home, "config", "ca", "req.py"),
 			    [("Ice-([0-9]*\.[0-9]*\.[0-9]*)", version)])
-	fileMatchAndReplace(os.path.join(ice_home, "src", "ca", "sign.py"),
+	fileMatchAndReplace(os.path.join(ice_home, "config", "ca", "sign.py"),
 			    [("Ice-([0-9]*\.[0-9]*\.[0-9]*)", version)])
 
 	fileMatchAllAndReplace(os.path.join(ice_home, "src", "Freeze", "freeze.dsp"),

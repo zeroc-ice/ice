@@ -25,3 +25,11 @@ install::
 	$(call installdata,templates.xml,$(prefix)/config)
 	$(call installdata,convertssl.py,$(prefix)/config)
 	$(call installdata,upgradeicegrid.py,$(prefix)/config)
+	$(call installdata,icegrid-slice.3.0.ice.gz,$(prefix)/config)
+
+$(EVERYTHING)::
+	@for subdir in $(SUBDIRS); \
+	do \
+	    echo "making $@ in $$subdir"; \
+	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
+	done

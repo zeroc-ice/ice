@@ -22,7 +22,7 @@ STLPortVer = '4.6.2'
 ExpatVer = '1.95.8'
 DBVer = '4.3.29'
 
-DistPrefixes = ["Ice-", "IceJ-", "IceCS-", "IcePy-", "IcePHP-", "IceVB-"]
+DistPrefixes = ["Ice-%s", "IceJ-%s-java2", "IceJ-%s-java5", "IceCS-%s", "IcePy-%s", "IcePHP-%s", "IceVB-%s"]
 
 class DistEnvironmentError:
     def __init__(self, msg = None):
@@ -142,7 +142,7 @@ def checkSources(sourceDir):
 	raise DistEnvironmentError(msg)
 
     keyVersion = '0.0.0'
-    exp = re.compile("Ice-([0-9.]*).zip")
+    exp = re.compile("Ice-([0-9.]*).*.zip")
     current = None
     for d in icezip:
 	m = exp.match(os.path.split(d)[1])
@@ -153,10 +153,11 @@ def checkSources(sourceDir):
 
     print keyVersion
     prefixes = list(DistPrefixes)
-    prefixes.remove("Ice-")
+    prefixes.remove("Ice-%s")
     for prefix in prefixes:
-	if not os.path.exists(os.path.join(sourceDir, "%s%s.zip" % (prefix, keyVersion))):
-	    msg = "Source directory %s does not contain archive for %s."
+	pkg = prefix % keyVersion + ".zip"
+	if not os.path.exists(os.path.join(sourceDir, pkg)):
+	    msg = "Source directory %s does not contain archive for %s." % (sourceDir, pkg)
 	    logging.error(msg)
 	    raise DistEnvironmentError(msg)
 
@@ -645,8 +646,8 @@ def main():
 	    # TODO: See if this can be replaced by ZipFile and native
 	    # Python code somehow.
 	    #
-	    filename = os.path.join(os.environ['SOURCES'], "%s%s.zip" % (z, sourcesVersion))
-	    if not os.path.exists(os.path.join(os.environ['BUILD_DIR'], "%s%s" % (z, sourcesVersion))):
+	    filename = os.path.join(os.environ['SOURCES'], z % sourcesVersion + ".zip")
+	    if not os.path.exists(os.path.join(os.environ['BUILD_DIR'], z %  sourcesVersion)):
 		runprog("unzip -q %s -d %s" % (filename, os.environ['BUILD_DIR']))
 
 	os.environ['ICE_HOME'] = os.path.join(os.environ['BUILD_DIR'], "Ice-%s" % sourcesVersion)

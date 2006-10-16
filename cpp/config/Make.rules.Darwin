@@ -47,7 +47,6 @@ else
     mkshlib                 = $(CXX) -single_module -dynamiclib $(shlibldflags) -o $(1) $(3) $(4)
 endif
 
-
 BASELIBS		= -lIceUtil -lpthread 
 LIBS			= -lIce $(BASELIBS)
 

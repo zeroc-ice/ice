@@ -101,12 +101,19 @@ The discussion below assumes you have defined the ICE_HOME variable
 with the directory of your Ice installation.
 
 In order to use Ice services and tools such as Slice translators, you
-need to add $ICE_HOME/bin to your PATH and $ICE_HOME/lib to your
-LIBPATH, as shown in the bash commands below:
+need to add $ICE_HOME/bin to your PATH as shown in the bash command
+below:
 
 $ export PATH=$ICE_HOME/bin:$PATH
-$ export LIBPATH=$ICE_HOME/lib:$LIBPATH
 
+Ice shared libraries and executables in this distribution contain 
+/opt/Ice-@mmver@/lib as embedded runpath. In order to run Ice services 
+and tools, you can either:
+ - create a symbolic link /opt/Ice-@mmver@ that points to your Ice
+   installation.
+     $ ln -s $ICE_HOME /opt/Ice-@mmver@
+ - or add $ICE_HOME/lib to your LIBPATH environment variable 
+     $ export LIBPATH=$ICE_HOME/lib:$LIBPATH
 
 C++
 ---

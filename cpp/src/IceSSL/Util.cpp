@@ -195,13 +195,14 @@ IceSSL::DHParams::~DHParams()
 bool
 IceSSL::DHParams::add(int keyLength, const string& file)
 {
-    FILE* fp = fopen(file.c_str(), "r");
-    if(!fp)
+    BIO* bio = BIO_new(BIO_s_file());
+    if(BIO_read_filename(bio, file.c_str()) <= 0)
     {
+	BIO_free(bio);
 	return false;
     }
-    DH* dh = PEM_read_DHparams(fp, 0, 0, 0);
-    fclose(fp);
+    DH* dh = PEM_read_bio_DHparams(bio, 0, 0, 0);
+    BIO_free(bio);
     if(!dh)
     {
 	return false;

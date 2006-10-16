@@ -85,7 +85,7 @@ Running the PHP demos
 
 Two PHP demos are provided in the demophp directory.
 
-To run the PHP demos, you need PHP 5.1.4. It can be downloaded from:
+To run the PHP demos, you need PHP 5.1.6. It can be downloaded from:
 
 http://www.php.net/downloads.php
 
@@ -224,14 +224,15 @@ Apache1 and Apache2:
 
    The required files from C:\Ice\bin are listed below:
 
-   php_ice.dll
+   bzip2.dll
+   icecpp.exe
    ice31.dll
    iceutil31.dll
-   slice31.dll
-   icecpp.exe
-   bzip2.dll
    msvcp60.dll
    msvcrt.dll
+   php_ice.dll
+   slice31.dll
+   stlport_vc646.dll
 
    NOTE: If you modify the System PATH, you will need to restart your
    computer for the changes to take effect.
@@ -253,8 +254,8 @@ Apache1 and Apache2:
 6) Start Apache and verify that the PHP module has been loaded
    successfully. If Apache does not start, check the Windows Event
    Viewer as well as Apache's log files for more information. The most
-   likely reason for Apache to fail at startup is missing DLLs (see
-   step 4).
+   likely reasons for Apache to fail at startup are missing DLLs (see
+   step 4) or insufficient privilege settings.
 
 7) In order to load Slice definitions for a PHP script, you must
    modify php.ini and then restart Apache. For example, the "hello"

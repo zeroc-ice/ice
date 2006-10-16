@@ -847,7 +847,7 @@ class SessionKeeper
 
 		_registryInstanceName.setText(_loginInfo.registryInstanceName);
 		_registryEndpoints.setText(_loginInfo.registryEndpoints);
-		_registrySSLEnabled.setSelected(_loginInfo.routerSSLEnabled);
+		_registrySSLEnabled.setSelected(_loginInfo.registrySSLEnabled);
 
 		_routerUsername.setText(_loginInfo.routerUsername);
 		selectRouterUseSSL(_loginInfo.routerUseSSL);

@@ -534,6 +534,7 @@ def archiveDemoTree(buildDir, version, installFiles):
    
     runprog("tar cf Ice-" + version + "-demos.tar Ice-" + version + "-demos")
     runprog("gzip -9 Ice-" + version + "-demos.tar")
+    runprog("zip -9r Ice-" + version + "-demos.zip Ice-" + version + "-demos")
     os.chdir(cwd)
 
 def makeInstall(sources, buildDir, installDir, distro, clean, version, mmVersion):
@@ -1202,24 +1203,13 @@ def main():
 	    shutil.copy("%s/unix/README.DEMOS" % installFiles, "%s/Ice-%s-demos/README.DEMOS" % (buildDir, version)) 
 	archiveDemoTree(buildDir, version, installFiles)
 	shutil.move("%s/Ice-%s-demos.tar.gz" % (buildDir, version), "%s/Ice-%s-demos.tar.gz" % (installDir, version))
+        shutil.move("%s/Ice-%s-demos.zip" % (buildDir, version), "%s/Ice-%s-demos.zip" % (installDir, version))
 
 	#
 	# Everything should be set for building stuff up now.
 	#
         for cvs, tarball, demoDir in sourceTarBalls:
             makeInstall(sources, buildDir, "%s/Ice-%s" % (installDir, version), tarball, clean, version, mmVersion)	    
-
-	#
-	# XXX- put java5 Ice.jar in place!
-	#
-	prevDir = os.getcwd()
-	os.chdir("%s/Ice-%s/lib" % (installDir, version))
-        os.mkdir("java5")	
-	os.chdir("java5")
-	os.system("gzip -dc %s/IceJ-%s-java5.tar.gz | tar xf - IceJ-%s-java5/lib/Ice.jar" % (sources, version, version))
-	shutil.move("IceJ-%s-java5/lib/Ice.jar" % version, "Ice.jar")
-	shutil.rmtree("IceJ-%s-java5" % version)
-	os.chdir(prevDir)
 
 	#
 	# XXX- put java5 Ice.jar in place!
@@ -1319,13 +1309,15 @@ def main():
     #
     if getPlatform() == 'linux' and not cvsMode:
 	shutil.copy(installFiles + '/unix/README.Linux-RPM', '/usr/src/redhat/SOURCES/README.Linux-RPM')
+        shutil.copy(installFiles + '/unix/SOURCES.Linux', '/usr/src/redhat/SOURCES/SOURCES')
+        shutil.copy(installFiles + '/unix/THIRD_PARTY_LICENSE.Linux', '/usr/src/redhat/SOURCES/THIRD_PARTY_LICENSE')
 	shutil.copy(installFiles + '/unix/README.Linux-RPM', installDir + '/Ice-' + version + '/README')
 	shutil.copy(installFiles + '/thirdparty/php/ice.ini', installDir + '/Ice-' + version + '/ice.ini')
+
         shutil.copy(sources + '/php-5.1.4.tar.bz2', '/usr/src/redhat/SOURCES')
         shutil.copy(installFiles + '/thirdparty/php/ice.ini', '/usr/src/redhat/SOURCES')
         shutil.copy(buildDir + '/ice/install/thirdparty/php/configure-5.1.4.gz',
                     '/usr/src/redhat/SOURCES/configure.gz')
-        shutil.copy(installFiles + '/common/iceproject.xml', '/usr/src/redhat/SOURCES')
         iceArchives = glob.glob(sources + '/Ice*' + version + '*.gz')
         for f in iceArchives:
             shutil.copy(f, '/usr/src/redhat/SOURCES')

@@ -21,7 +21,15 @@ install::
 	    echo "Creating $(prefix)..." ; \
 	    $(call mkdir,$(prefix)) ; \
 	fi
-
+ifneq ($(embedded_runpath_prefix),)
+	@if test -h $(embedded_runpath_prefix) ; \
+	then \
+	     if `\rm -f $(embedded_runpath_prefix) 2>/dev/null`; \
+              then echo "Removed symbolic link $(embedded_runpath_prefix)"; fi \
+        fi
+	@if `ln -s $(prefix) $(embedded_runpath_prefix) 2>/dev/null`;\
+         then echo "Created symbolic link $(embedded_runpath_prefix) --> $(prefix)"; fi
+endif
 	@for subdir in $(INSTALL_SUBDIRS); \
 	do \
 	    if test ! -d $$subdir ; \

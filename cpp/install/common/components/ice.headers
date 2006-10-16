@@ -1,5 +1,6 @@
 Ice/Properties
 Ice/GC
+Ice/GCCountMap
 Ice/ObjectAdapter
 Ice/UndefSysMacros
 Ice/Incoming

@@ -52,9 +52,9 @@ Python
 ------
 
 The Ice extension for Python included in this distribution requires
-Python 2.3 installed with Mac OS X 10.4. If you prefer to use Python
-2.4, you can download the Ice for Python source code from the ZeroC
-web site at http://www.zeroc.com/download.html.
+Python 2.3 installed with Mac OS X 10.4. If you prefer to use a later
+version of Python, you can download the Ice for Python source code
+from the ZeroC web site at http://www.zeroc.com/download.html.
 
 
 ======================================================================
@@ -79,12 +79,19 @@ The discussion below assumes you have defined the ICE_HOME variable
 with the directory of your Ice installation.
 
 In order to use Ice services and tools such as Slice translators, you
-need to add $ICE_HOME/bin to your PATH and $ICE_HOME/lib to your
-DYLD_LIBRARY_PATH, as shown in the bash commands below:
+need to add $ICE_HOME/bin to your PATH as shown in the bash command
+below:
 
 $ export PATH=$ICE_HOME/bin:$PATH
-$ export DYLD_LIBRARY_PATH=$ICE_HOME/lib:$DYLD_LIBRARY_PATH
 
+Ice shared libraries and executables in this distribution contain 
+/opt/Ice-@mmver@/lib as embedded runpath. In order to run Ice services 
+and tools, you can either:
+ - create a symbolic link /opt/Ice-@mmver@ that points to your Ice
+   installation.
+     $ ln -s $ICE_HOME /opt/Ice-@mmver@
+ - or add $ICE_HOME/lib to your DYLD_LIBRARY_PATH environment variable 
+     $ export DYLD_LIBRARY_PATH=$ICE_HOME/lib:$DYLD_LIBRARY_PATH
 
 C++
 ---

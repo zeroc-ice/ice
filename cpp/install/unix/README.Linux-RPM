@@ -187,8 +187,35 @@ $ java -jar IceGridGUI.jar
 Demos and documentation
 ======================================================================
 
-Sample programs are included with each development kit. See the file
-README.DEMOS for instructions on building and running the demos.
+Sample programs are provided in the Ice-@ver@-demos.tar.gz package,
+which can be downloaded from the ZeroC web site at
+
+http://www.zeroc.com/download.html
+
+Please refer to the README.DEMOS file included in that package for
+more information.
 
 See doc/README.html for information on the documentation included with
 this distribution.
+
+
+======================================================================
+Binary compatibility
+======================================================================
+
+Patch releases of Ice are binary compatible. For example, version
+<x>.<y>.1 is compatible with <x>.<y>.0, so you can run applications
+compiled with <x>.<y>.0 with the <x>.<y>.1 runtime without having to
+recompile.
+
+With the binary installers, simply uninstall the previous version of
+Ice and install the new one. Already deployed applications that were
+compiled against the <x>.<y>.0 runtime will automatically use the
+<x>.<y>.1 runtime.
+
+Note: Under Mono, binary compatibility currently does not work due to
+      issues with Mono. Until this problem in Mono is fixed, you cannot
+      run applications compiled with previous minor versions of Ice
+      against a newer version of the Ice assemblies. For example, an
+      application compiled with version <x>.<y>.0 of Ice cannot run with
+      the <x>.<y>.1 Ice assemblies.
