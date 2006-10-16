@@ -87,15 +87,6 @@ endif
 PYTHON_FLAGS		?= -I$(PYTHON_INCLUDE_DIR)
 PYTHON_LIBS		?= -L$(PYTHON_LIB_DIR) -l$(PYTHON_VERSION)
 
-ifeq ($(LP64),yes)
-   ICE_LIBS             = -L$(ICE_HOME)/lib64 -L$(ICE_HOME)/lib -lIce -lIceUtil -lSlice 
-else 
-   ICE_LIBS		= -L$(ICE_HOME)/lib -lIce -lIceUtil -lSlice
-endif
-
-ICE_FLAGS		= -I$(ICE_HOME)/include
-
-
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
@@ -108,22 +99,6 @@ VERSION_PATCH           = 1
 VERSION			= $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)
 SOVERSION		= $(VERSION_MAJOR)$(VERSION_MINOR)
 libdir			= $(top_srcdir)/python
-
-ifeq ($(shell test -d $(top_srcdir)/slice && echo 0),0)
-    slicedir		= $(top_srcdir)/slice
-else
-    slicedir		= $(ICE_HOME)/slice
-endif
-
-ifeq ($(LP64),yes)
-#
-# TODO: Where should the shared library be installed if it is a 64 bit
-# build.
-#
-    install_libdir	= $(prefix)/python
-else
-    install_libdir	= $(prefix)/python
-endif
 
 install_slicedir	= $(prefix)/slice
 install_pythondir	= $(prefix)/python
@@ -144,6 +119,30 @@ else
     configdir		= $(ICE_HOME)/config
 endif
 include	 $(configdir)/Make.rules.$(UNAME)
+
+ifeq ($(LP64),yes)
+   ICE_LIBS             = -L$(ICE_HOME)/lib64 -L$(ICE_HOME)/lib -lIce -lIceUtil -lSlice 
+else 
+   ICE_LIBS		= -L$(ICE_HOME)/lib -lIce -lIceUtil -lSlice
+endif
+
+ICE_FLAGS		= -I$(ICE_HOME)/include
+
+ifeq ($(shell test -d $(top_srcdir)/slice && echo 0),0)
+    slicedir		= $(top_srcdir)/slice
+else
+    slicedir		= $(ICE_HOME)/slice
+endif
+
+ifeq ($(LP64),yes)
+#
+# TODO: Where should the shared library be installed if it is a 64 bit
+# build.
+#
+    install_libdir	= $(prefix)/python
+else
+    install_libdir	= $(prefix)/python
+endif
 
 ifeq ($(LP64),yes)
     libsubdir		  := lib$(lp64suffix)
