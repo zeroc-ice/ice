@@ -35,10 +35,19 @@ clean::
 install:: all
 	copy $(NAME) $(install_bindir)
 
-!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+!if "$(OPTIMIZE)" != "yes"
+
+!if "$(BORLAND_HOME)" == ""
 
 install:: all
 	copy $(NAME:.exe=.pdb) $(install_bindir)
+
+!else
+
+install:: all
+	copy $(NAME:.exe=.tds) $(install_bindir)
+
+!endif
 
 !endif
 

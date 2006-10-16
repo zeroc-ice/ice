@@ -86,12 +86,23 @@ install:: all
 	copy $(SERVER) $(install_bindir)
 	copy $(ADMIN) $(install_bindir)
 
-!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+!if "$(OPTIMIZE)" != "yes"
+
+!if "$(BORLAND_HOME)" == ""
 
 install:: all
 	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
 	copy $(SERVER:.exe=.pdb) $(install_bindir)
 	copy $(ADMIN:.exe=.pdb) $(install_bindir)
+
+!else
+
+install:: all
+	copy $(DLLNAME:.dll=.tds) $(install_bindir)
+	copy $(SERVER:.exe=.tds) $(install_bindir)
+	copy $(ADMIN:.exe=.tds) $(install_bindir)
+
+!endif
 
 !endif
 

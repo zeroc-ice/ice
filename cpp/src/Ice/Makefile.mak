@@ -168,10 +168,19 @@ install:: all
 	copy $(LIBNAME) $(install_libdir)
 	copy $(DLLNAME) $(install_bindir)
 
-!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+!if "$(OPTIMIZE)" != "yes"
+
+!if "$(BORLAND_HOME)" == ""
 
 install:: all
 	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
+
+!else
+
+install:: all
+	copy $(DLLNAME:.dll=.tds) $(install_bindir)
+
+!endif
 
 !endif
 
