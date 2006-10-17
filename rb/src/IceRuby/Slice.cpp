@@ -35,10 +35,21 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
 	{
 	    argSeq = IceUtil::Options::split(cmd);
 	}
+#if ICE_INT_VERSION == 30101
+	// TODO: Clean this up!
 	catch(const IceUtil::Options::Error& ex)
 	{
 	    throw RubyException(rb_eArgError, "error in Slice options: %s", ex.reason.c_str());
 	}
+#else
+	catch(const IceUtil::Exception& ex)
+	{
+	    ostringstream ostr;
+	    ex.ice_print(ostr);
+	    string msg = ostr.str();
+	    throw RubyException(rb_eArgError, "error in Slice options:\n%s", msg.c_str());
+	}
+#endif
 
 	if(argc > 1)
 	{
@@ -68,10 +79,21 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
 		throw RubyException(rb_eArgError, "no Slice files specified in `%s'", cmd.c_str());
 	    }
 	}
+#if ICE_INT_VERSION == 30101
+	// TODO: Clean this up!
 	catch(const IceUtil::Options::BadOpt& ex)
 	{
 	    throw RubyException(rb_eArgError, "error in Slice options: %s", ex.reason.c_str());
 	}
+#else
+	catch(const IceUtil::Exception& ex)
+	{
+	    ostringstream ostr;
+	    ex.ice_print(ostr);
+	    string msg = ostr.str();
+	    throw RubyException(rb_eArgError, "error in Slice options:\n%s", msg.c_str());
+	}
+#endif
 
 	string cppArgs;
 	vector<string> includePaths;
