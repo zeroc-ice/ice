@@ -391,9 +391,7 @@ def editMakeRulesMak(filename, version):
 #
 
 !if "$(ICE_HOME)" == ""
-all::
-	@echo Ice distribution not found, please set ICE_HOME!
-	@exit 1
+!error Ice distribution not found, please set ICE_HOME!
 !endif
 
 ICE_DIR = $(ICE_HOME)
