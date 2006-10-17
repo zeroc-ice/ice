@@ -430,7 +430,7 @@ NodeSessionManager::createdSession(const NodeSessionPrx& session)
 			Ice::ObjectProxySeq prxs = (*p)->findAllObjectsByType(InternalRegistry::ice_staticId());
 			proxies.insert(prxs.begin(), prxs.end());
 		    }
-		    catch(const Ice::LocalException& ex)
+		    catch(const Ice::LocalException&)
 		    {
 			// IGNORE
 		    }
