@@ -301,7 +301,7 @@ RegistryI::start(bool nowarn)
     InternalRegistryPrx internalRegistry = setupInternalRegistry(registryAdapter);
     if(_master)
     {
-	NodePrxSeq nodes = registerReplicas(internalRegistry, replicas);
+	nodes = registerReplicas(internalRegistry, replicas, nodes);
 	registerNodes(internalRegistry, nodes);
     }
     else
@@ -390,7 +390,10 @@ RegistryI::setupLocator(const Ice::ObjectAdapterPtr& clientAdapter,
     Identity locatorId;
     locatorId.category = _instanceName;
     locatorId.name = "Locator";
-    clientAdapter->add(new LocatorI(_communicator, _database, locatorRegistry), locatorId);
+    LocatorPtr locator = new LocatorI(_communicator, _database, locatorRegistry);
+    clientAdapter->add(locator, locatorId);
+    locatorId.name = "Locator-" + _replicaName;
+    clientAdapter->add(locator, locatorId);
     
     obj = registryAdapter->addWithUUID(new LocatorI(_communicator, _database, locatorRegistry));
     return LocatorPrx::uncheckedCast(obj);
@@ -613,7 +616,9 @@ RegistryI::stop()
 	_iceStorm = 0;
     }
 
-    _database->destroy();
+    _wellKnownObjects = 0;
+    _clientSessionFactory = 0;
+    _adminSessionFactory = 0;
     _database = 0;
 }
 
@@ -1112,31 +1117,55 @@ RegistryI::getSSLInfo(const ConnectionPtr& connection, string& userDN)
 }
 
 NodePrxSeq
-RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry, const InternalRegistryPrxSeq& replicas)
+RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry, 
+			    const InternalRegistryPrxSeq& replicas,
+			    const NodePrxSeq& dbNodes)
 {
     set<NodePrx> nodes;
+    nodes.insert(dbNodes.begin(), dbNodes.end());
+
     for(InternalRegistryPrxSeq::const_iterator r = replicas.begin(); r != replicas.end(); ++r)
     {
 	if((*r)->ice_getIdentity() != internalRegistry->ice_getIdentity())
 	{
+	    string replicaName;
+	    if(_traceLevels && _traceLevels->replica > 1)
+	    {
+		replicaName = (*r)->ice_getIdentity().name;
+		const string prefix("InternalRegistry-");
+		string::size_type pos = replicaName.find(prefix);
+		if(pos != string::npos)
+		{
+		    replicaName = replicaName.substr(prefix.size());
+		}
+
+		Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
+		out << "creating replica `" << replicaName << "' session";
+	    }
+
 	    try
 	    {
 		(*r)->registerWithReplica(internalRegistry);
 		NodePrxSeq nds = (*r)->getNodes();
 		nodes.insert(nds.begin(), nds.end());
+
+		if(_traceLevels && _traceLevels->replica > 1)
+		{
+		    Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
+		    out << "replica `" << replicaName << "' session created";
+		}
 	    }
-	    catch(const Ice::LocalException&)
+	    catch(const Ice::LocalException& ex)
 	    {
+		if(_traceLevels && _traceLevels->replica > 1)
+		{
+		    Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
+		    out << "replica `" << replicaName << "' session creation failed:\n" << ex;
+		}
 	    }
 	}
     }
     
-    if(nodes.empty())
-    {
-	NodePrxSeq nds = internalRegistry->getNodes();
-	nodes.insert(nds.begin(), nds.end());
-    }
-
 #ifdef _RWSTD_NO_MEMBER_TEMPLATES
     NodePrxSeq result;
     for(set<NodePrx>::iterator p = nodes.begin(); p != nodes.end(); ++p)
@@ -1154,12 +1183,38 @@ RegistryI::registerNodes(const InternalRegistryPrx& internalRegistry, const Node
 {
     for(NodePrxSeq::const_iterator p = nodes.begin(); p != nodes.end(); ++p)
     {
+	string nodeName;
+	if(_traceLevels && _traceLevels->node > 1)
+	{
+	    nodeName = (*p)->ice_getIdentity().name;
+	    const string prefix("Node-");
+	    string::size_type pos = nodeName.find(prefix);
+	    if(pos != string::npos)
+	    {
+		nodeName = nodeName.substr(prefix.size());
+	    }
+	    
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->nodeCat);
+	    out << "creating node `" << nodeName << "' session";
+	}
+	
 	try
 	{
 	    NodePrx::uncheckedCast(*p)->registerWithReplica(internalRegistry);
+	    
+	    if(_traceLevels && _traceLevels->node > 1)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->nodeCat);
+		out << "node `" << nodeName << "' session created";
+	    }
 	}
-	catch(const Ice::LocalException&)
+	catch(const Ice::LocalException& ex)
 	{
+	    if(_traceLevels && _traceLevels->node > 1)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->nodeCat);
+		out << "node `" << nodeName << "' session creation failed:\n" << ex;
+	    }
 	}
     }
 }

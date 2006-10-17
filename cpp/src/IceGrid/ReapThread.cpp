@@ -90,6 +90,7 @@ ReapThread::terminate()
 	Lock sync(*this);
 	if(_terminated)
 	{
+	    assert(_sessions.empty());
 	    return;
 	}
 	_terminated = true;
@@ -97,7 +98,7 @@ ReapThread::terminate()
 	reap.swap(_sessions);
     }
 
-    for(list<ReapableItem>::const_iterator p = reap.begin(); p != reap.end(); ++p)
+    for(list<ReapableItem>::iterator p = reap.begin(); p != reap.end(); ++p)
     {
 	p->item->destroy(true);
     }

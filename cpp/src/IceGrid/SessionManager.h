@@ -143,7 +143,7 @@ public:
     }
 
     virtual bool
-    tryCreateSession(InternalRegistryPrx registry)
+    tryCreateSession(const InternalRegistryPrx& registry)
     {
 	{
 	    Lock sync(*this);
@@ -170,7 +170,7 @@ public:
 	    {
 		wait();
 	    }
-	}	
+	}
 	return true;
     }
 

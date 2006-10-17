@@ -26,6 +26,6 @@ testdir = os.path.join(toplevel, "test", name)
 
 TestUtil.addLdPath(testdir)
 
-IceGridAdmin.iceGridTest(name, "application.xml", "", \
+IceGridAdmin.iceGridTest(name, "application.xml", "--IceDir=\"" + toplevel + "\" --TestDir=\"" + testdir + "\"", \
                          ' \\"properties-override=' + TestUtil.clientServerOptions.replace("--", "") + '\\"')
 sys.exit(0)

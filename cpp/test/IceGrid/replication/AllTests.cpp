@@ -14,6 +14,7 @@
 #include <IceGrid/Query.h>
 #include <IceGrid/Registry.h>
 #include <IceGrid/Admin.h>
+#include <IceGrid/UserAccountMapper.h>
 #include <TestCommon.h>
 #include <Test.h>
 
@@ -73,17 +74,59 @@ typedef IceUtil::Handle<SessionKeepAliveThread> SessionKeepAliveThreadPtr;
 void
 waitForRegistryState(const IceGrid::AdminPrx& admin, const std::string& registry, bool up)
 {
+//     int nRetry = 0;
+//     while(nRetry < 15)
+//     {
+// 	try
+// 	{
+// 	    if(admin->pingRegistry(registry) && up) // Wait for the registry to be removed.
+// 	    {
+// 		return;
+// 	    }
+// 	}
+// 	catch(const RegistryNotExistException&)
+// 	{
+// 	    if(!up)
+// 	    {
+// 		return;
+// 	    }
+// 	}
+	
+// 	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+// 	++nRetry;
+//     }
+//     if(admin->pingRegistry(registry) != up)
+//     {
+// 	cerr << "registry state change timed out:" << endl;
+// 	cerr << "registry: " << registry << endl;
+// 	cerr << "state: " << up << endl;
+//     }
+
+    int nRetry = 0;
+    while(nRetry < 15)
+    {
+	if(admin->getServerState(registry) == (up ? Active : Inactive))
+	{
+	    return;
+	} 
+    }
+    test(false);
+}
+
+void
+waitForNodeState(const IceGrid::AdminPrx& admin, const std::string& node, bool up)
+{
     int nRetry = 0;
     while(nRetry < 15)
     {
 	try
 	{
-	    if(admin->pingRegistry(registry) && up) // Wait for the registry to be removed.
+	    if(admin->pingNode(node) && up) // Wait for the node to be removed.
 	    {
 		return;
 	    }
 	}
-	catch(const RegistryNotExistException&)
+	catch(const NodeNotExistException&)
 	{
 	    if(!up)
 	    {
@@ -94,10 +137,10 @@ waitForRegistryState(const IceGrid::AdminPrx& admin, const std::string& registry
 	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
 	++nRetry;
     }
-    if(admin->pingRegistry(registry) != up)
+    if(admin->pingNode(node) != up)
     {
-	cerr << "registry state change timed out:" << endl;
-	cerr << "registry: " << registry << endl;
+	cerr << "node state change timed out:" << endl;
+	cerr << "node: " << node << endl;
 	cerr << "state: " << up << endl;
     }
 }
@@ -231,11 +274,14 @@ allTests(const Ice::CommunicatorPtr& comm)
     instantiateServer(admin, "IceGridRegistry", params);
 
     Ice::LocatorPrx masterLocator = 
-	Ice::LocatorPrx::uncheckedCast(comm->stringToProxy("TestIceGrid/Locator:default -p 12050"));
+	Ice::LocatorPrx::uncheckedCast(comm->stringToProxy("TestIceGrid/Locator-Master:default -p 12050"));
     Ice::LocatorPrx slave1Locator = 
-	Ice::LocatorPrx::uncheckedCast(comm->stringToProxy("TestIceGrid/Locator:default -p 12051"));
+	Ice::LocatorPrx::uncheckedCast(comm->stringToProxy("TestIceGrid/Locator-Slave1:default -p 12051"));
     Ice::LocatorPrx slave2Locator = 
-	Ice::LocatorPrx::uncheckedCast(comm->stringToProxy("TestIceGrid/Locator:default -p 12052"));
+	Ice::LocatorPrx::uncheckedCast(comm->stringToProxy("TestIceGrid/Locator-Slave2:default -p 12052"));
+
+    Ice::LocatorPrx replicatedLocator = 
+	Ice::LocatorPrx::uncheckedCast(comm->stringToProxy("TestIceGrid/Locator:default -p 12050:default -p 12051"));
 
     AdminPrx masterAdmin, slave1Admin, slave2Admin;
 
@@ -305,6 +351,13 @@ allTests(const Ice::CommunicatorPtr& comm)
 	waitForRegistryState(admin, "Slave2", false);
 
 	info = masterAdmin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Locator"));
+	// We eventually need to wait here for the update of the replicated objects to propagate to the replica.
+ 	int nRetry = 0;
+	while(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Locator")) != info && nRetry < 15)
+	{
+	    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+	    ++nRetry;
+	}
 	test(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Locator")) == info);
 	test(info.type == Ice::Locator::ice_staticId());
 	endpoints = info.proxy->ice_getEndpoints();
@@ -313,22 +366,129 @@ allTests(const Ice::CommunicatorPtr& comm)
 	test(endpoints[1]->toString() == slave1Locator->ice_getEndpoints()[0]->toString());
 
 	info = masterAdmin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Query"));
+	nRetry = 0;
+	while(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Query")) != info && nRetry < 15)
+	{
+	    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+	    ++nRetry;
+	}
 	test(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Query")) == info);
 	test(info.type == IceGrid::Query::ice_staticId());
 	endpoints = info.proxy->ice_getEndpoints();
 	test(endpoints.size() == 2);
 	test(endpoints[0]->toString() == masterLocator->ice_getEndpoints()[0]->toString());
 	test(endpoints[1]->toString() == slave1Locator->ice_getEndpoints()[0]->toString());
-    }
-    cout << "ok" << endl;
 
-    cout << "testing replicated query interface... " << flush;
-    {
+	QueryPrx query;
+	query = QueryPrx::uncheckedCast(comm->stringToProxy("TestIceGrid/Query:" + endpoints[0]->toString()));
+	Ice::ObjectProxySeq objs = query->findAllObjectsByType("::IceGrid::Registry");
+	test(objs.size() == 2);
+	query = QueryPrx::uncheckedCast(comm->stringToProxy("TestIceGrid/Query:" + endpoints[1]->toString()));
+	test(objs == query->findAllObjectsByType("::IceGrid::Registry"));
     }
     cout << "ok" << endl;
 
     cout << "testing well-known IceGrid objects... " << flush;
     {
+	//
+	// Test Registry well-known object (we have already tested
+	// admin session creation for the creation of the admin
+	// session above!)
+	//
+	RegistryPrx masterRegistry = RegistryPrx::checkedCast(
+	    comm->stringToProxy("TestIceGrid/Registry")->ice_locator(replicatedLocator));
+	RegistryPrx slave1Registry = RegistryPrx::checkedCast(
+	    comm->stringToProxy("TestIceGrid/Registry-Slave1")->ice_locator(replicatedLocator));
+
+	SessionPrx session = masterRegistry->createSession("dummy", "dummy");
+	session->destroy();
+	if(comm->getProperties()->getProperty("Ice.Default.Protocol") == "ssl")
+	{ 
+	    session = masterRegistry->createSessionFromSecureConnection();
+	    session->destroy();
+	}
+	else
+	{
+	    try
+	    {
+		masterRegistry->createSessionFromSecureConnection();
+	    }
+	    catch(const PermissionDeniedException&)
+	    {
+	    }
+	}
+
+	try
+	{
+	    slave1Registry->createSession("dummy", "");
+	}
+	catch(const PermissionDeniedException&)
+	{
+	}
+	try
+	{
+	    slave1Registry->createSessionFromSecureConnection();
+	}
+	catch(const PermissionDeniedException&)
+	{
+	}
+
+	//
+	// Test registry user-account mapper.
+	//
+	UserAccountMapperPrx masterMapper = UserAccountMapperPrx::checkedCast(
+	    comm->stringToProxy("TestIceGrid/RegistryUserAccountMapper")->ice_locator(replicatedLocator));
+	UserAccountMapperPrx slave1Mapper = UserAccountMapperPrx::checkedCast(
+	    comm->stringToProxy("TestIceGrid/RegistryUserAccountMapper-Slave1")->ice_locator(replicatedLocator));
+
+	test(masterMapper->getUserAccount("Dummy User Account1") == "dummy1");
+	test(masterMapper->getUserAccount("Dummy User Account2") == "dummy2");
+	test(slave1Mapper->getUserAccount("Dummy User Account1") == "dummy1");
+	test(slave1Mapper->getUserAccount("Dummy User Account2") == "dummy2");
+	try
+	{
+	    masterMapper->getUserAccount("unknown");
+	    test(false);
+	}
+	catch(UserAccountNotFoundException&)
+	{
+	}
+	try
+	{
+	    slave1Mapper->getUserAccount("unknown");
+	    test(false);
+	}
+	catch(UserAccountNotFoundException&)
+	{
+	}
+	
+	//
+	// Test SessionManager, SSLSessionManager,
+	// AdminSessionManager, AdminSSLSessionManager
+	//
+	comm->stringToProxy("TestIceGrid/SessionManager")->ice_locator(replicatedLocator)->ice_ping();
+	comm->stringToProxy("TestIceGrid/SSLSessionManager")->ice_locator(replicatedLocator)->ice_ping();
+	try
+	{
+	    comm->stringToProxy("TestIceGrid/SessionManager-Slave1")->ice_locator(replicatedLocator)->ice_ping();
+	    test(false);
+	}
+	catch(const Ice::NotRegisteredException&)
+	{
+	}
+	try
+	{
+	    comm->stringToProxy("TestIceGrid/SSLSessionManager-Slave1")->ice_locator(replicatedLocator)->ice_ping();
+	    test(false);
+	}
+	catch(const Ice::NotRegisteredException&)
+	{
+	}
+
+	comm->stringToProxy("TestIceGrid/AdminSessionManager")->ice_locator(replicatedLocator)->ice_ping();
+	comm->stringToProxy("TestIceGrid/AdminSSLSessionManager")->ice_locator(replicatedLocator)->ice_ping();
+	comm->stringToProxy("TestIceGrid/AdminSessionManager-Slave1")->ice_locator(replicatedLocator)->ice_ping();
+	comm->stringToProxy("TestIceGrid/AdminSSLSessionManager-Slave1")->ice_locator(replicatedLocator)->ice_ping();
     }
     cout << "ok" << endl;
 
@@ -597,11 +757,9 @@ allTests(const Ice::CommunicatorPtr& comm)
     }
     cout << "ok" << endl;
 
-    removeServer(admin, "Slave2");
-    slave1Admin->shutdown();
-    removeServer(admin, "Slave1");
-    masterAdmin->shutdown();
-    removeServer(admin, "Master");
+    params.clear();
+    params["id"] = "Node1";
+    instantiateServer(admin, "IceGridNode", params);
 
     //
     // Test node session establishment.
@@ -610,9 +768,273 @@ allTests(const Ice::CommunicatorPtr& comm)
     // - shutdown slave1, start slave1 -> node should re-connect
     // - shutdown master
     // - shutdown slave2, start slave2 -> node should re-connect
-    // - start slave3 -> node can't connect to it
     // - shutdown slave1
-    // - start master -> node connects to master, slave3
+    // - start master -> node connects to master
     // - start slave1 -> node connects to slave1
     //
+    cout << "testing node session establishment... " << flush;
+    {
+	admin->startServer("Node1");
+	
+	waitForNodeState(masterAdmin, "Node1", true);
+	waitForNodeState(slave1Admin, "Node1", true);
+
+	admin->startServer("Slave2");
+	slave2Admin = createAdminSession(slave2Locator, "Slave2");
+
+	waitForNodeState(slave2Admin, "Node1", true); // Node should connect.
+
+	slave1Admin->shutdown();
+	waitForRegistryState(admin, "Slave1", false);
+	admin->startServer("Slave1");
+	slave1Admin = createAdminSession(slave1Locator, "Slave1");
+
+	try
+	{
+	    test(slave1Admin->pingNode("Node1")); // Node should be re-connected.
+	}
+	catch(const NodeNotExistException&)
+	{
+	    test(false);
+	}
+
+	masterAdmin->shutdown();
+	waitForRegistryState(admin, "Master", false);
+
+	slave2Admin->shutdown();
+	waitForRegistryState(admin, "Slave2", false);
+	admin->startServer("Slave2");
+	slave2Admin = createAdminSession(slave2Locator, "Slave2");
+
+	try
+	{
+	    test(slave2Admin->pingNode("Node1")); // Node should be re-connected even if the master is down.
+	}
+	catch(const NodeNotExistException&)
+	{
+	    test(false);
+	}
+
+	slave1Admin->shutdown();
+	waitForRegistryState(admin, "Slave1", false);
+
+	admin->startServer("Master");
+	masterAdmin = createAdminSession(masterLocator, "");
+
+	try
+	{
+	    test(masterAdmin->pingNode("Node1")); // Node should be re-connected.
+	}
+	catch(const NodeNotExistException&)
+	{
+	    test(false);
+	}
+
+	admin->startServer("Slave1");
+	slave1Admin = createAdminSession(slave1Locator, "Slave1");
+
+	try
+	{
+	    test(slave1Admin->pingNode("Node1")); // Node should be re-connected.
+	}
+	catch(const NodeNotExistException&)
+	{
+	    test(false);
+	}
+
+	try
+	{
+	    test(masterAdmin->pingNode("Node1"));
+	}
+	catch(const NodeNotExistException&)
+	{
+	    test(false);
+	}
+
+	try
+	{
+	    test(slave2Admin->pingNode("Node1"));
+	}
+	catch(const NodeNotExistException&)
+	{
+	    test(false);
+	}
+
+	slave2Admin->shutdown();
+	waitForRegistryState(admin, "Slave2", false);
+	admin->startServer("Slave2");
+	slave2Admin = createAdminSession(slave2Locator, "Slave2");
+	try
+	{
+	    test(slave2Admin->pingNode("Node1"));
+	}
+	catch(const NodeNotExistException&)
+	{
+	    test(false);
+	}
+    }
+    cout << "ok" << endl;
+
+    //
+    // Testing updates with out-of-date replicas.
+    //
+    cout << "testing out-of-date replicas... " << flush;
+    {
+	ApplicationDescriptor app;
+	app.name = "TestApp";
+	app.description = "added application";
+
+	ServerDescriptorPtr server = new ServerDescriptor();
+	server->id = "Server";
+	server->exe = comm->getProperties()->getProperty("TestDir") + "/server";
+	server->pwd = ".";
+	server->activation = "on-demand";
+	AdapterDescriptor adapter;
+	adapter.name = "TestAdapter";
+	adapter.id = "TestAdapter.Server";
+	adapter.registerProcess = true;
+	PropertyDescriptor property;
+	property.name = "TestAdapter.Endpoints";
+	property.value = "default";
+	server->propertySet.properties.push_back(property);
+	property.name = "Identity";
+	property.value = "test";
+	server->propertySet.properties.push_back(property);
+	ObjectDescriptor object;
+	object.id = comm->stringToIdentity("test");
+	object.type = "::Test::TestIntf";
+	adapter.objects.push_back(object);
+	server->adapters.push_back(adapter);
+	app.nodes["Node1"].servers.push_back(server);
+
+	masterAdmin->addApplication(app);
+
+	comm->stringToProxy("test")->ice_locator(masterLocator)->ice_locatorCacheTimeout(0)->ice_ping();
+	comm->stringToProxy("test")->ice_locator(slave1Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+	comm->stringToProxy("test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+	masterAdmin->stopServer("Server");
+
+	//
+	// Shutdown Slave2 and update application.
+	//
+	slave2Admin->shutdown();
+	waitForRegistryState(admin, "Slave2", false);
+
+	ApplicationUpdateDescriptor update;
+	update.name = "TestApp";
+	NodeUpdateDescriptor node;
+	node.name = "Node1";
+	node.servers.push_back(server);
+	update.nodes.push_back(node);
+	property.name = "Dummy";
+	property.value = "val";
+	server->propertySet.properties.push_back(property);
+	masterAdmin->updateApplication(update);
+
+	comm->stringToProxy("test")->ice_locator(masterLocator)->ice_locatorCacheTimeout(0)->ice_ping();
+	comm->stringToProxy("test")->ice_locator(slave1Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+
+	masterAdmin->shutdown();
+	waitForRegistryState(admin, "Master", false);
+
+	admin->startServer("Slave2");
+	slave2Admin = createAdminSession(slave2Locator, "Slave2");
+	try
+	{
+	    slave2Admin->startServer("Server");
+	    test(false);
+	}
+	catch(const DeploymentException&)
+	{
+	}
+	try
+	{
+	    comm->stringToProxy("test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+	    test(false);
+	}
+	catch(const Ice::NoEndpointException&)
+	{
+	}
+
+	admin->startServer("Master");
+	masterAdmin = createAdminSession(masterLocator, "");
+
+ 	slave2Admin->shutdown();
+ 	waitForRegistryState(admin, "Slave2", false);
+	admin->startServer("Slave2");
+	slave2Admin = createAdminSession(slave2Locator, "Slave2");
+
+	comm->stringToProxy("test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+
+	//
+	// Shutdown Node1 and update the application, then, shutdown
+	// the master.
+	//
+ 	slave1Admin->shutdownNode("Node1");
+
+	property.name = "Dummy2";
+	property.value = "val";
+	server->propertySet.properties.push_back(property);
+	masterAdmin->updateApplication(update);
+
+	masterAdmin->shutdown();
+	waitForRegistryState(admin, "Master", false);
+
+	//
+	// Restart Node1 and Slave2, Slave2 still has the old version
+	// of the server so it should be able to load it. Slave1 has 
+	// a more recent version, so it can't load it.
+	//
+
+	admin->startServer("Node1");
+	
+	waitForNodeState(slave1Admin, "Node1", true);
+	waitForNodeState(slave2Admin, "Node1", true);
+
+	comm->stringToProxy("test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+	slave2Admin->stopServer("Server");
+
+	try
+	{
+	    comm->stringToProxy("test")->ice_locator(slave1Locator)->ice_locatorCacheTimeout(0)->ice_ping();	
+	}
+	catch(const Ice::NoEndpointException&)
+	{
+	}
+
+	comm->stringToProxy("test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+	slave2Admin->stopServer("Server");
+
+	//
+	// Start the master. This will re-load the server on the node
+	// and update the out-of-date replicas.
+	//
+	admin->startServer("Master");
+	masterAdmin = createAdminSession(masterLocator, "");
+
+	waitForNodeState(masterAdmin, "Node1", true);
+
+	comm->stringToProxy("test")->ice_locator(masterLocator)->ice_locatorCacheTimeout(0)->ice_ping();
+	comm->stringToProxy("test")->ice_locator(slave1Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+	comm->stringToProxy("test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+
+	slave2Admin->stopServer("Server");
+
+	masterAdmin->removeApplication("TestApp");
+    }    
+    cout << "ok" << endl;
+
+    cout << "testing master upgrade... " << flush;
+    {
+    }
+    cout << "ok" << endl;
+    
+    slave1Admin->shutdownNode("Node1");
+    removeServer(admin, "Node1");
+
+    removeServer(admin, "Slave2");
+    slave1Admin->shutdown();
+    removeServer(admin, "Slave1");
+    masterAdmin->shutdown();
+    removeServer(admin, "Master");
 }

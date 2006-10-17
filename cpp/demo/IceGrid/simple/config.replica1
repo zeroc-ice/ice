@@ -17,5 +17,5 @@ IceGrid.Registry.AdminPermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
 #
 # Trace properties.
 #
-IceGrid.Registry.Trace.Node=1
+IceGrid.Registry.Trace.Node=2
 IceGrid.Registry.Trace.Replica=2

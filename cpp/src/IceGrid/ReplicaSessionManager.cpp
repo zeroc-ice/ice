@@ -250,13 +250,15 @@ ReplicaSessionManager::create(const string& name,
 			      const InternalRegistryPrx& internalRegistry)
 {
     Ice::CommunicatorPtr comm = database->getCommunicator();
-    string instName = comm->getDefaultLocator()->ice_getIdentity().category;
-
     {
 	Lock sync(*this);
+
+	Ice::Identity id;
+	id.category = comm->getDefaultLocator()->ice_getIdentity().category;
+	id.name = "InternalRegistry-Master";
+
 	
-	_master = InternalRegistryPrx::uncheckedCast(comm->stringToProxy(instName + "/InternalRegistry-Master"));
-	
+	_master = InternalRegistryPrx::uncheckedCast(comm->stringToProxy(comm->identityToString(id)));
 	_name = name;
 	_info = info;
 	_internalRegistry = internalRegistry;
@@ -272,7 +274,8 @@ ReplicaSessionManager::create(const string& name,
 	// replicas.
 	//
 	Ice::EndpointSeq endpoints = comm->getDefaultLocator()->ice_getEndpoints();
-	QueryPrx query = QueryPrx::uncheckedCast(comm->stringToProxy(instName + "/Query"));
+	id.name = "Query";
+	QueryPrx query = QueryPrx::uncheckedCast(comm->stringToProxy(comm->identityToString(id)));
 	for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
 	{
 	    Ice::EndpointSeq singleEndpoint;
@@ -334,11 +337,22 @@ ReplicaSessionManager::destroy()
 
     _thread->terminate();
     _thread->getThreadControl().join();
+
+    _database = 0;
+    _wellKnownObjects = 0;
 }
 
 void
 ReplicaSessionManager::registerAllWellKnownObjects()
 {
+    //
+    // Always register first the well-known objects with the
+    // database. Then, if there's a session, we register them with the
+    // session and this will eventually override the ones with just
+    // registered with the ones from the master.
+    //
+    _wellKnownObjects->registerAll();
+
     //
     // If there's an active session, register the well-known objects
     // with the session.
@@ -452,17 +466,28 @@ ReplicaSessionManager::createSession(const InternalRegistryPrx& registry, IceUti
 	
     if(session)
     {
-	if(_traceLevels && _traceLevels->replica > 0)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
-	    out << "established session with master replica";
-	}
+	//
+	// Register all the well-known objects with the replica session.
+	//
+	_wellKnownObjects->registerAll(session);
     }
     else
     {
-	if(_traceLevels && _traceLevels->replica > 1)
+	//
+	// Re-register all the well known objects with the local database.
+	//
+	_wellKnownObjects->registerAll();
+    }
+
+    if(_traceLevels && _traceLevels->replica > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
+	if(session)
 	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
+	    out << "established session with master replica";
+	}
+	else
+	{
 	    out << "failed to establish session with master replica:\n";
 	    if(exception.get())
 	    {
@@ -497,11 +522,6 @@ ReplicaSessionManager::createSessionImpl(const InternalRegistryPrx& registry, Ic
 	DatabaseObserverPtr servant = new MasterDatabaseObserverI(_thread, _database, session);
 	_observer = DatabaseObserverPrx::uncheckedCast(_database->getInternalAdapter()->addWithUUID(servant));	
 	session->setDatabaseObserver(_observer);
-
-	//
-	// Register all the well-known objects with the replica session.
-	//
-	_wellKnownObjects->registerAll(session);
 	return session;
     }
     catch(const Ice::LocalException&)
@@ -517,11 +537,6 @@ ReplicaSessionManager::createSessionImpl(const InternalRegistryPrx& registry, Ic
 	    }
 	    _observer = 0;
 	}
-
-	//
-	// Re-register all the well known objects with the local database.
-	//
-	_wellKnownObjects->registerAll();
 	throw;
     }
 }

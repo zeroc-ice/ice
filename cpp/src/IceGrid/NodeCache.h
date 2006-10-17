@@ -79,8 +79,6 @@ public:
 
     NodeCache(const Ice::CommunicatorPtr&, ReplicaCache&, bool);
 
-    void destroy();
-
     NodeEntryPtr get(const std::string&, bool = false) const;
 
     const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }

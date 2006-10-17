@@ -28,7 +28,7 @@ class NodeSessionKeepAliveThread : public SessionKeepAliveThread<NodeSessionPrx>
 {
 public:
 
-    NodeSessionKeepAliveThread(const InternalRegistryPrx&, const NodeIPtr&, const IceGrid::QueryPrx&);
+    NodeSessionKeepAliveThread(const InternalRegistryPrx&, const NodeIPtr&, const std::vector<QueryPrx>&);
 
     virtual NodeSessionPrx createSession(const InternalRegistryPrx&, IceUtil::Time&);
     virtual void destroySession(const NodeSessionPrx&);
@@ -40,7 +40,7 @@ protected:
 
     const NodeIPtr _node;
     const std::string _name;
-    const IceGrid::QueryPrx _query;
+    const std::vector<QueryPrx> _queryObjects;
 };
 typedef IceUtil::Handle<NodeSessionKeepAliveThread> NodeSessionKeepAliveThreadPtr;
 
@@ -69,7 +69,7 @@ private:
     public:
 
 	Thread(NodeSessionManager& manager) : 
-	    NodeSessionKeepAliveThread(manager._master, manager._node, manager._query),
+	    NodeSessionKeepAliveThread(manager._master, manager._node, manager._queryObjects),
 	    _manager(manager)
         {
 	}
@@ -93,7 +93,7 @@ private:
 
     const NodeIPtr _node;
     ThreadPtr _thread;
-    QueryPrx _query;
+    std::vector<QueryPrx> _queryObjects;
     InternalRegistryPrx _master;
     unsigned long _serial;
     bool _destroyed;

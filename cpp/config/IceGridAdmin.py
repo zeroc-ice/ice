@@ -42,6 +42,8 @@ nodeOptions = r' --Ice.Warn.Connections=0' + \
 registryOptions = r' --Ice.Warn.Connections=0' + \
                   r' --IceGrid.Registry.PermissionsVerifier=IceGrid/NullPermissionsVerifier' + \
                   r' --IceGrid.Registry.AdminPermissionsVerifier=IceGrid/NullPermissionsVerifier' + \
+                  r' --IceGrid.Registry.SSLPermissionsVerifier=IceGrid/NullSSLPermissionsVerifier' + \
+                  r' --IceGrid.Registry.AdminSSLPermissionsVerifier=IceGrid/NullSSLPermissionsVerifier' + \
                   r' --IceGrid.Registry.Server.Endpoints=default' + \
                   r' --IceGrid.Registry.Internal.Endpoints=default' + \
                   r' --IceGrid.Registry.SessionManager.Endpoints=default' + \
@@ -205,7 +207,6 @@ def iceGridTest(name, application, additionalOptions = "", applicationOptions = 
         print "ok"
 
     print "starting client...",
-
     command = client + TestUtil.clientOptions + " " + clientOptions
 
     if TestUtil.debug:

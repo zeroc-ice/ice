@@ -54,8 +54,6 @@ public:
 	     const RegistryInfo&, bool);
     virtual ~Database();
     
-    void destroy();
-
     std::string getInstanceName() const;
     bool isMaster() const { return _master; }
     const TraceLevelsPtr& getTraceLevels() const { return _traceLevels; }

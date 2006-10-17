@@ -192,16 +192,6 @@ NodeCache::NodeCache(const Ice::CommunicatorPtr& communicator, ReplicaCache& rep
 {
 }
 
-void
-NodeCache::destroy()
-{
-    map<string, NodeEntryPtr> entries = _entries; // Copying the map is necessary as setSession might remove the entry.
-    for(map<string, NodeEntryPtr>::const_iterator p = entries.begin(); p != entries.end(); ++p)
-    {
-	p->second->setSession(0); // Break cyclic reference count.
-    }    
-}
-
 NodeEntryPtr
 NodeCache::get(const string& name, bool create) const
 {

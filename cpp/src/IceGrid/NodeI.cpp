@@ -182,6 +182,7 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
 	     const NodePrx& proxy,
 	     const string& name,
 	     const UserAccountMapperPrx& mapper) :
+    _communicator(adapter->getCommunicator()),
     _adapter(adapter),
     _sessions(sessions),
     _activator(activator),
@@ -192,14 +193,14 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     _waitTime(0),
     _userAccountMapper(mapper),
     _serial(1),
-    _platform("IceGrid.Node", adapter->getCommunicator(), _traceLevels)
+    _platform("IceGrid.Node", _communicator, _traceLevels)
 {
     _dataDir = _platform.getDataDir();
     _serversDir = _dataDir + "/servers";
     _tmpDir = _dataDir + "/tmp";
 
-    Ice::PropertiesPtr properties = getCommunicator()->getProperties();
-    const_cast<string&>(_instanceName) = getCommunicator()->getDefaultLocator()->ice_getIdentity().category;
+    Ice::PropertiesPtr properties = _communicator->getProperties();
+    const_cast<string&>(_instanceName) = _communicator->getDefaultLocator()->ice_getIdentity().category;
     const_cast<Ice::Int&>(_waitTime) = properties->getPropertyAsIntWithDefault("IceGrid.Node.WaitTime", 60);
 }
 
@@ -395,7 +396,7 @@ NodeI::patch(const string& application,
 	    FileServerPrx icepatch;
 	    if(!appDistrib.icepatch.empty())
 	    {
-		icepatch = FileServerPrx::checkedCast(getCommunicator()->stringToProxy(appDistrib.icepatch));
+		icepatch = FileServerPrx::checkedCast(_communicator->stringToProxy(appDistrib.icepatch));
 		if(!icepatch)
 		{
 		    throw "proxy `" + appDistrib.icepatch + "' is not a file server.";
@@ -414,7 +415,7 @@ NodeI::patch(const string& application,
 		    continue;
 		}
 
-		icepatch = FileServerPrx::checkedCast(getCommunicator()->stringToProxy(dist.icepatch));
+		icepatch = FileServerPrx::checkedCast(_communicator->stringToProxy(dist.icepatch));
 		if(!icepatch)
 		{
 		    throw "proxy `" + dist.icepatch + "' is not a file server.";
@@ -512,7 +513,7 @@ NodeI::shutdown(const Ice::Current&) const
 Ice::CommunicatorPtr
 NodeI::getCommunicator() const
 {
-    return _adapter->getCommunicator();
+    return _communicator;
 }
 
 Ice::ObjectAdapterPtr

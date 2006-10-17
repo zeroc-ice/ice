@@ -81,6 +81,7 @@ private:
     std::set<ServerIPtr> getApplicationServers(const std::string&) const;
     Ice::Identity createServerIdentity(const std::string&) const;
 
+    const Ice::CommunicatorPtr _communicator;
     const Ice::ObjectAdapterPtr _adapter;
     NodeSessionManager& _sessions;
     const ActivatorPtr _activator;

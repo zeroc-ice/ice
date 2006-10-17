@@ -948,8 +948,9 @@ ServerI::load(const AMD_Node_loadServerPtr& amdCB, const ServerInfo& info, bool 
 	// - the application uuid, the application revision and the
 	//   session id didn't change.
 	//
-	// - the load command if from a replica and the given
-	//   descriptor is from another application or out-of-date.
+	// - the load command if from a slave and the given descriptor
+	//   is from another application or doesn't have the same
+	//   version.
 	//
 	// - the descriptor and the session id didn't change.
 	//
@@ -964,10 +965,10 @@ ServerI::load(const AMD_Node_loadServerPtr& amdCB, const ServerInfo& info, bool 
 		ex.reason = "server descriptor from replica is from another application (`" + info.uuid + "')";
 		throw ex;
 	    }
-	    else if(_info.revision > info.revision)
+	    else if(_info.revision != info.revision)
 	    {
 		ostringstream os;
-		os << "server descriptor from replica is too old:\n";
+		os << "server descriptor from replica has different version:\n";
 		os << "current revision: " << _info.revision << "\n";
  		os << "replica revision: " << info.revision;
 		throw DeploymentException(os.str());
@@ -1794,6 +1795,10 @@ ServerI::updateImpl(const ServerInfo& info)
 	{
 	    t->second->destroy();
 	}
+	catch(const Ice::ObjectAdapterDeactivatedException&)
+	{
+	    // IGNORE
+	}
 	catch(const Ice::LocalException& ex)
 	{
 	    Ice::Error out(_node->getTraceLevels()->logger);
@@ -2291,6 +2296,7 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
 	}
 	catch(const Ice::ObjectAdapterDeactivatedException&)
 	{
+	    // IGNORE
 	}
 	_info = ServerInfo();
     }
@@ -2408,14 +2414,27 @@ ServerI::addAdapter(const AdapterDescriptor& desc, const CommunicatorDescriptorP
     Ice::Identity id;
     id.category = _this->ice_getIdentity().category + "Adapter";
     id.name = _id + "-" + desc.id;
-    AdapterPrx proxy = AdapterPrx::uncheckedCast(_node->getAdapter()->createProxy(id));
-    ServerAdapterIPtr servant = ServerAdapterIPtr::dynamicCast(_node->getAdapter()->find(id));
-    if(!servant)
+    try
     {
-	servant = new ServerAdapterI(_node, this, _id, proxy, desc.id, _waitTime);
-	_node->getAdapter()->add(servant, id);
+	AdapterPrx proxy = AdapterPrx::uncheckedCast(_node->getAdapter()->createProxy(id));
+	ServerAdapterIPtr servant = ServerAdapterIPtr::dynamicCast(_node->getAdapter()->find(id));
+	if(!servant)
+	{
+	    servant = new ServerAdapterI(_node, this, _id, proxy, desc.id, _waitTime);
+	    _node->getAdapter()->add(servant, id);
+	}
+ 	_adapters.insert(make_pair(desc.id, servant));
     }
-    _adapters.insert(make_pair(desc.id, servant));
+    catch(const Ice::ObjectAdapterDeactivatedException&)
+    {
+	// IGNORE
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	Ice::Error out(_node->getTraceLevels()->logger);
+	out << "couldn't add adapter `" << desc.id << "':\n" << ex;
+    }
+
     return desc.id;
 }
 

@@ -110,6 +110,13 @@ ReplicaSessionI::registerWellKnownObjects(const ObjectInfoSeq& objects, const Ic
 	_replicaWellKnownObjects = objects;
 	serial = _database->addOrUpdateObjectsInDatabase(objects);
     }
+
+    //
+    // We wait for the replica to receive the database replication
+    // updates. This is to ensure that the replica well-known objects
+    // are correctly setup when the replica starts accepting requests
+    // from clients (if the replica is being started).
+    //
     _database->getObserverTopic(ObjectObserverTopicName)->waitForSyncedSubscribers(serial, _name);
 }
 
@@ -162,11 +169,9 @@ ReplicaSessionI::destroy(const Ice::Current& current)
 
     if(!shutdown)
     {
-	cerr << "updating well known objects " << _name << endl;
 	_wellKnownObjects->updateReplicatedWellKnownObjects(); // No need to update these if we're shutting down.
     }
 
-    cerr << "removing replica " << _name << endl;
     _database->removeReplica(_name, this, shutdown);
 
     if(current.adapter)

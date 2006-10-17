@@ -41,6 +41,8 @@ SessionServantLocatorI::finished(const Ice::Current&, const Ice::ObjectPtr&, con
 void
 SessionServantLocatorI::deactivate(const std::string&)
 {
+    Lock sync(*this);
+    _servants.clear();
 }
 
 Ice::ObjectPrx
