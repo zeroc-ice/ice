@@ -47,7 +47,9 @@ endif
 
 RUBY_VERSION		= $(shell $(RUBY) --version | cut -d' ' -f2)
 ifneq ($(RUBY_VERSION),1.8.4)
-    $(error "Ruby 1.8.4 is required - found $(RUBY_VERSION)")
+    ifneq ($(RUBY_VERSION),1.8.5)
+	$(error "Ruby 1.8.4 or 1.8.5 is required - found $(RUBY_VERSION)")
+    endif
 endif
 
 RUBY_INCLUDE_DIR	= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(archdir)")')
