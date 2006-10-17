@@ -1,27 +1,15 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
 
-.SUFFIXES:	.py
+top_srcdir	= ..
 
-!IF EXIST (../slice)
-slicedir	= ../slice
-!ELSE IFDEF ICE_HOME
-slicedir	= $(ICE_HOME)/slice
-!ELSE
-!ERROR "Slice directory not found - set ICE_HOME!"
-!ENDIF
-
-!IFDEF ICE_HOME
-SLICE2PY	= $(ICE_HOME)\bin\slice2py
-!ELSE
-SLICE2PY	= slice2py
-!ENDIF
+!include $(top_srcdir)\config\Make.rules.mak
 
 ICE_SRCS	= Ice_LocalException_ice.py \
 		  Ice_Communicator_ice.py \
@@ -89,7 +77,7 @@ ALL_SRCS	= $(ICE_SRCS) \
 
 PACKAGES	= Glacier2 IceBox IceGrid IcePatch2 IceStorm
 
-SLICE2PYFLAGS	= -I$(slicedir) --ice
+SLICE2PYFLAGS   = $(SLICE2PYFLAGS) --ice
 
 all:: $(ALL_SRCS)
 
@@ -251,7 +239,15 @@ IcePatch2_FileServer_ice.py: $(slicedir)/IcePatch2/FileServer.ice
 IceStorm_IceStorm_ice.py: $(slicedir)/IceStorm/IceStorm.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceStorm_ $(slicedir)/IceStorm/IceStorm.ice
 
+
+install:: $(ALL_SRCS)
+	@echo "Installing generated code"
+	copy *.py $(install_pythondir)
+	@for %i in ( $(PACKAGES) ) do \
+	    @if not exist $(install_pythondir)\%i \
+	        mkdir $(install_pythondir)\%i
+	@for %i in ( $(PACKAGES) ) do \
+	    copy %i\* $(install_pythondir)\%i
+
 clean::
-	-del /Q *.pyc
-	-del /Q *_ice.py
-	-rmdir /S /Q $(PACKAGES)
+	del /q $(PACKAGES) *_ice.py
