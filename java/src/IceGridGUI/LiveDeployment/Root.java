@@ -34,9 +34,9 @@ public class Root extends ListArrayTreeNode
     {
 	super(null, "Root", 2);
 	_coordinator = coordinator;
-	_childrenArray[0] = _registries;
+	_childrenArray[0] = _slaves;
 	_childrenArray[1] = _nodes;
-
+	
 	_tree = new JTree(this, true);
 	_treeModel = (DefaultTreeModel)_tree.getModel();
 	_objectDialog = new ObjectDialog(this);
@@ -45,9 +45,56 @@ public class Root extends ListArrayTreeNode
     public boolean[] getAvailableActions()
     {
 	boolean[] actions = new boolean[ACTION_COUNT];
-	actions[ADD_OBJECT] = true;
+	actions[ADD_OBJECT] = _coordinator.connectedToMaster();
+	actions[SHUTDOWN_REGISTRY] = true;
 	return actions;
     }
+
+    public void shutdownRegistry()
+    {
+	final String prefix = "Shutting down registry '" + _replicaName + "'...";
+	getCoordinator().getStatusBar().setText(prefix);
+
+	AMI_Admin_shutdownRegistry cb = new AMI_Admin_shutdownRegistry()
+	    {
+		//
+		// Called by another thread!
+		//
+		public void ice_response()
+		{
+		    amiSuccess(prefix);
+		}
+		
+		public void ice_exception(Ice.UserException e)
+		{
+		    amiFailure(prefix, "Failed to shutdown " + _replicaName, e);
+		}
+
+		public void ice_exception(Ice.LocalException e)
+		{
+		    amiFailure(prefix, "Failed to shutdown " + _replicaName, 
+			       e.toString());
+		}
+	    };
+
+	try
+	{   
+	    _coordinator.getMainFrame().setCursor(
+		Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+	    
+	    _coordinator.getAdmin().shutdownRegistry_async(cb, _replicaName);
+	}
+	catch(Ice.LocalException e)
+	{
+	    failure(prefix, "Failed to shutdown " + _replicaName, e.toString());
+	}
+	finally
+	{
+	    _coordinator.getMainFrame().setCursor(
+		Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	}
+    }
+
 
     public ApplicationDescriptor getApplicationDescriptor(String name)
     {
@@ -114,9 +161,10 @@ public class Root extends ListArrayTreeNode
     }
 
 
-    public void applicationInit(String instanceName, java.util.List applications)
+    public void applicationInit(String instanceName, String replicaName, java.util.List applications)
     {
-	_label = instanceName;
+	_replicaName = replicaName;
+	_label = instanceName + " (" + _replicaName + ")";
 	_tree.setRootVisible(true);	
 	
 	java.util.Iterator p = applications.iterator();
@@ -133,10 +181,11 @@ public class Root extends ListArrayTreeNode
     {
 	_adapters.clear();
 	_objects.clear();
+	_replicaName = null;
 
 	_descriptorMap.clear();
 	_nodes.clear();
-	_registries.clear();
+	_slaves.clear();
 	_treeModel.nodeStructureChanged(this);
 	_tree.setRootVisible(false);
     }
@@ -144,7 +193,7 @@ public class Root extends ListArrayTreeNode
     public void patch(final String applicationName)
     {
 	int shutdown = JOptionPane.showConfirmDialog(
-	    getCoordinator().getMainFrame(),
+	    _coordinator.getMainFrame(),
 	    "You are about to install or refresh your" 
 	    + " application distribution.\n"
 	    + " Do you want shut down all servers affected by this update?", 
@@ -242,7 +291,7 @@ public class Root extends ListArrayTreeNode
 	    if(node.remove(name))
 	    {
 		toRemove.add(node);
-		toRemoveIndices[i++] = _registries.size() + index;
+		toRemoveIndices[i++] = _slaves.size() + index;
 	    }
 	}
 
@@ -436,29 +485,36 @@ public class Root extends ListArrayTreeNode
     //
     public void registryUp(RegistryInfo info)
     {
-	RegistryReplica newReplica = new RegistryReplica(this, info);
-
-	int i;
-	for(i = 0; i < _registries.size(); ++i)
+	if(info.name.equals(_replicaName))
 	{
-	    String otherName = _registries.get(i).toString();
-	    if(info.name.compareTo(otherName) > 0)
-	    {
-		i++;
-		break;
-	    }
+	    _info = info;
 	}
-	_registries.add(i, newReplica);
-	_treeModel.nodesWereInserted(this, new int[]{i});
+	else
+	{
+	    Slave newSlave = new Slave(this, info);
+
+	    int i;
+	    for(i = 0; i < _slaves.size(); ++i)
+	    {
+		String otherName = _slaves.get(i).toString();
+		if(info.name.compareTo(otherName) > 0)
+		{
+		    i++;
+		    break;
+		}
+	    }
+	    _slaves.add(i, newSlave);
+	    _treeModel.nodesWereInserted(this, new int[]{i});
+	}
     }
 
     public void registryDown(String name)
     {
-	TreeNodeBase registry = find(name, _registries);
+	TreeNodeBase registry = find(name, _slaves);
 	if(registry != null)
 	{
 	    int index = getIndex(registry);
-	    _registries.remove(registry);
+	    _slaves.remove(registry);
 	    _treeModel.nodesWereRemoved(this, new int[]{index}, new Object[]{registry});
 	}
     }
@@ -519,6 +575,8 @@ public class Root extends ListArrayTreeNode
 	{
 	    _popup = new JPopupMenu();
 	    _popup.add(la.get(ADD_OBJECT));
+	    _popup.addSeparator();
+	    _popup.add(la.get(SHUTDOWN_REGISTRY));
 	}
 	
 	la.setTarget(this);
@@ -590,7 +648,11 @@ public class Root extends ListArrayTreeNode
     {
 	return _adapters;
     }
-   
+
+    RegistryInfo getRegistryInfo()
+    {
+	return _info;
+    }
 
     boolean addObject(String strProxy, String type)
     {
@@ -798,7 +860,7 @@ public class Root extends ListArrayTreeNode
 	    }
 	}
 	_nodes.add(i, node);
-	_treeModel.nodesWereInserted(this, new int[]{_registries.size() + i});
+	_treeModel.nodesWereInserted(this, new int[]{_slaves.size() + i});
     }
 
     private void removeNodes(int[] toRemoveIndices, java.util.List toRemove)
@@ -811,9 +873,10 @@ public class Root extends ListArrayTreeNode
     }
   
     private final Coordinator _coordinator;
+    private String _replicaName;
 
     private final java.util.List _nodes = new java.util.LinkedList();
-    private final java.util.List _registries = new java.util.LinkedList();
+    private final java.util.List _slaves = new java.util.LinkedList();
 
     //
     // Maps application name to current application descriptor
@@ -835,6 +898,8 @@ public class Root extends ListArrayTreeNode
     //
     private final JTree _tree;
     private final DefaultTreeModel _treeModel;
+
+    private RegistryInfo _info;
     
     private String _label;
 

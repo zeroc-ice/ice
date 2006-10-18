@@ -28,14 +28,20 @@ class RegistryEditor extends Editor
 {
     RegistryEditor()
     {
+	_hostname.setEditable(false);
+	_endpoints.setEditable(false);
+
 	Action deleteObject = new AbstractAction("Remove selected object")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    int selectedRow = _objects.getSelectedRow();
-		    if(selectedRow != -1)
+		    if(_target.getCoordinator().connectedToMaster())
 		    {
-			_target.removeObject((String)_objects.getValueAt(selectedRow, 0));
+			int selectedRow = _objects.getSelectedRow();
+			if(selectedRow != -1)
+			{
+			    _target.removeObject((String)_objects.getValueAt(selectedRow, 0));
+			}
 		    }
 		}
 	    };
@@ -48,7 +54,10 @@ class RegistryEditor extends Editor
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    _target.addObject();
+		    if(_target.getCoordinator().connectedToMaster())
+		    {
+			_target.addObject();
+		    }
 		}
 	    };
 	_objects.getActionMap().put("insert", addObject);
@@ -63,10 +72,13 @@ class RegistryEditor extends Editor
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    int selectedRow = _adapters.getSelectedRow();
-		    if(selectedRow != -1)
+		    if(_target.getCoordinator().connectedToMaster())
 		    {
-			_target.removeAdapter((String)_adapters.getValueAt(selectedRow, 0));
+			int selectedRow = _adapters.getSelectedRow();
+			if(selectedRow != -1)
+			{
+			    _target.removeAdapter((String)_adapters.getValueAt(selectedRow, 0));
+			}
 		    }
 		}
 	    };
@@ -80,9 +92,15 @@ class RegistryEditor extends Editor
     {
 	CellConstraints cc = new CellConstraints();
 
-	builder.appendSeparator("Dynamic Well-Known Objects");
-	builder.append("");
+	builder.append("Hostname" );
+	builder.append(_hostname, 3);
 	builder.nextLine();
+
+	builder.append("Endpoints" );
+	builder.append(_endpoints, 3);
+	builder.nextLine();
+
+	builder.appendSeparator("Dynamic Well-Known Objects");
 	builder.append("");
 	builder.nextLine();
 	builder.append("");
@@ -122,8 +140,6 @@ class RegistryEditor extends Editor
 	builder.append("");
 	builder.nextLine();
 	builder.append("");
-	builder.nextLine();
-	builder.append("");
 	builder.nextRow(-14);
 	scrollPane = new JScrollPane(_adapters);
 	scrollPane.setToolTipText(_adapters.getToolTipText());
@@ -142,12 +158,16 @@ class RegistryEditor extends Editor
     void show(Root root)
     {
 	_target = root;
+	_hostname.setText(root.getRegistryInfo().hostname);
+	_endpoints.setText(root.getRegistryInfo().endpoints);
 	_objects.setObjects(root.getObjects());
 	_adapters.setAdapters(root.getAdapters());
     }
 
-
+    private JTextField _hostname = new JTextField(20);
+    private JTextField _endpoints = new JTextField(20);
     private TableField _objects = new TableField("Proxy", "Type");
     private TableField _adapters = new TableField("ID", "Endpoints", "Replica Group");
+    
     private Root _target;
 }

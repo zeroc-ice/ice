@@ -1194,10 +1194,9 @@ class SessionKeeper
 	    {
 		return false;
 	    }
-	    String registryName;
 	    try
 	    {
-		registryName = session.getReplicaName();
+		_replicaName = session.getReplicaName();
 	    }
 	    catch(Ice.LocalException e)
 	    {
@@ -1212,17 +1211,16 @@ class SessionKeeper
 
 	    _coordinator.getStatusBar().setConnected(true);
 	    
-	    _connectedToMaster = registryName.equals("Master");
+	    _connectedToMaster = _replicaName.equals("Master");
 	    if(_connectedToMaster)
 	    {
 		_coordinator.getStatusBar().setText("Logged into Master Registry");
 	    }
 	    else
 	    {
-		_coordinator.getStatusBar().setText("Logged into Slave Registry '" + registryName + "'");
+		_coordinator.getStatusBar().setText("Logged into Slave Registry '" + _replicaName + "'");
 	    }
 	    
-
 	    try
 	    {
 		_session = new Session(session, keepAlivePeriodHolder.value, parent);
@@ -1259,6 +1257,7 @@ class SessionKeeper
 	    _coordinator.sessionLost();
 	    _session = null;
 	    _connectedToMaster = false;
+	    _replicaName = "";
 	}
     }
    
@@ -1282,6 +1281,10 @@ class SessionKeeper
 	return _session != null && _connectedToMaster;
     }
 
+    String getReplicaName()
+    {
+	return _replicaName;
+    }
    
     private LoginDialog _loginDialog;
     private LoginInfo _loginInfo;
@@ -1291,4 +1294,5 @@ class SessionKeeper
   
     private Session _session;
     private boolean _connectedToMaster = false;
+    private String _replicaName = "";
 }

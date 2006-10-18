@@ -483,7 +483,8 @@ public class Coordinator
 	assert _latestSerial == -1;
 	_latestSerial = serial;
 
-	_liveDeploymentRoot.applicationInit(instanceName, applications);
+	_liveDeploymentRoot.applicationInit(instanceName, 
+					    _sessionKeeper.getReplicaName(), applications);
 	//
 	// When we get this init, we can't have any live Application yet.
 	//
@@ -570,7 +571,7 @@ public class Coordinator
     void objectInit(ObjectInfo[] objects)
     {
 	_liveDeploymentRoot.objectInit(objects);
-	// _liveDeploymentPane.refresh(); // TODO: XXX: Is is it necessary to call refresh()?
+	_liveDeploymentPane.refresh();
     }
 
     void objectAdded(ObjectInfo info)
