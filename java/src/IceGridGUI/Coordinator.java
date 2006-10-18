@@ -247,6 +247,8 @@ public class Coordinator
 	    _registryMenu.setEnabled(false);
 	    toolsMenu.add(_registryMenu);
 	    _registryMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.ADD_OBJECT));
+	    _registryMenu.addSeparator();
+	    _registryMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.SHUTDOWN_REGISTRY));
 
 	    //
 	    // Server sub-menu
@@ -745,6 +747,22 @@ public class Coordinator
 	}
     }
   
+
+    //
+    // From the Registry observer:
+    //
+    void registryUp(RegistryInfo info)
+    {
+	_liveDeploymentRoot.registryUp(info);
+	_liveDeploymentPane.refresh();
+    }
+
+    void registryDown(String registry)
+    {
+	_liveDeploymentRoot.registryDown(registry);
+	_liveDeploymentPane.refresh();
+    }
+
     //
     // From the Node observer:
     //
@@ -804,7 +822,8 @@ public class Coordinator
 	_saveToRegistry.setEnabled(false);
     }
     
-    AdminSessionPrx login(SessionKeeper.LoginInfo info, Component parent)
+    AdminSessionPrx login(SessionKeeper.LoginInfo info, Component parent, 
+			  Ice.LongHolder keepAlivePeriodHolder)
     {	
 	_liveDeploymentRoot.clear();
 
@@ -849,7 +868,6 @@ public class Coordinator
 	    // Router
 	    //
 	    
-
 	    Ice.Identity routerId = new Ice.Identity();
 	    routerId.category = info.routerInstanceName;
 	    routerId.name = "router";
@@ -911,6 +929,9 @@ public class Coordinator
 		}
 		
 		session = AdminSessionPrxHelper.uncheckedCast(s);
+		keepAlivePeriodHolder.value = router.getSessionTimeout() * 1000 / 2;
+		_statusBar.setText("Routed session established");
+		
 	    }
 	    catch(Glacier2.PermissionDeniedException e)
 	    {
@@ -946,6 +967,17 @@ public class Coordinator
 	}
 	else
 	{
+	    if(info.registryEndpoints.equals(""))
+	    {
+		JOptionPane.showMessageDialog(
+		    parent,
+		    "You need to provide one or more endpoint for the Registry",
+		    "Login failed",
+		    JOptionPane.ERROR_MESSAGE);
+
+		return null;
+	    }
+	    
 	    //
 	    // The client uses the locator only without routing
 	    //
@@ -953,15 +985,16 @@ public class Coordinator
 	    locatorId.category = info.registryInstanceName;
 	    locatorId.name = "Locator";
 	    String str = "\"" + _communicator.identityToString(locatorId) + "\"";
-	    if(!info.registryEndpoints.equals(""))
-	    {
-		str += ":" + info.registryEndpoints;
-	    }
+	    str += ":" + info.registryEndpoints;
 	   
+	    RegistryPrx localRegistry = null; 
+
 	    try
 	    {
-		Ice.LocatorPrx defaultLocator = Ice.LocatorPrxHelper.
-		    checkedCast(_communicator.stringToProxy(str));
+		IceGrid.LocatorPrx defaultLocator = IceGrid.LocatorPrxHelper.
+		    uncheckedCast(_communicator.stringToProxy(str));
+		localRegistry = defaultLocator.getLocalRegistry();
+
 		_communicator.setDefaultLocator(defaultLocator);
 	    }
 	    catch(Ice.LocalException e)
@@ -974,50 +1007,92 @@ public class Coordinator
 		return null;
 	    }
 
-	    //
-	    // Local session
-	    //
-	    Ice.Identity registryId = new Ice.Identity();
-	    registryId.category = info.registryInstanceName;
-	    registryId.name = "Registry";
-		
-	    RegistryPrx registry = RegistryPrxHelper.
-		uncheckedCast(_communicator.stringToProxy("\"" + _communicator.identityToString(registryId) + "\""));
-	    
-	    try
-	    {
-		if(info.registryUseSSL)
-		{
-		    registry = RegistryPrxHelper.
-			uncheckedCast(registry.ice_secure(true));
+	    RegistryPrx registry = localRegistry;
 
-		    session = AdminSessionPrxHelper.uncheckedCast(
-			registry.createAdminSessionFromSecureConnection());
-		}
-		else
+	    if(info.connectToMaster)
+	    {
+		Ice.Identity masterRegistryId = new Ice.Identity();
+		masterRegistryId.category = info.registryInstanceName;
+		masterRegistryId.name = "Registry";
+
+		registry = RegistryPrxHelper.
+		    uncheckedCast(_communicator.stringToProxy("\"" + 
+							      _communicator.identityToString(masterRegistryId) + "\""));
+	    }
+	    
+	    do
+	    {
+		try
 		{
-		    session = AdminSessionPrxHelper.uncheckedCast(
-			registry.createAdminSession(info.registryUsername, 
-						    new String(info.registryPassword)));
+		    if(info.registryUseSSL)
+		    {
+			registry = RegistryPrxHelper.
+			    uncheckedCast(registry.ice_secure(true));
+			
+			session = registry.createAdminSessionFromSecureConnection();
+			assert session != null;
+		    }
+		    else
+		    {
+			session = registry.createAdminSession(info.registryUsername, 
+							new String(info.registryPassword));
+			assert session != null;
+		    }
+		    keepAlivePeriodHolder.value = registry.getSessionTimeout() * 1000 / 2;
 		}
-	    }
-	    catch(IceGrid.PermissionDeniedException e)
+		catch(IceGrid.PermissionDeniedException e)
+		{
+		    JOptionPane.showMessageDialog(parent,
+						  "Permission denied: "
+						  + e.reason,
+						  "Login failed",
+						  JOptionPane.ERROR_MESSAGE);
+		    return null;
+		}
+		catch(Ice.LocalException e)
+		{
+		    if(registry.ice_getIdentity().equals(localRegistry.ice_getIdentity()))
+		    {
+			JOptionPane.showMessageDialog(parent,
+						      "Could not create session: "
+						      + e.toString(),
+						      "Login failed",
+						      JOptionPane.ERROR_MESSAGE);
+		    }
+		    else
+		    {
+			if(JOptionPane.showConfirmDialog(
+			       parent,
+			       "Unable to connect to the Master Registry; do you want to connect to a Slave Registry?",
+			       "Master Registry down",
+			       JOptionPane.YES_NO_OPTION,
+			       JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION)
+			{
+
+			    registry = localRegistry;
+			}
+			else
+			{
+			    return null;
+			}
+		    }
+		}
+	    } while(session == null);
+
+	    if(registry.ice_getIdentity().name.equals("Registry"))
 	    {
-		JOptionPane.showMessageDialog(parent,
-					      "Permission denied: "
-					      + e.reason,
-					      "Login failed",
-					      JOptionPane.ERROR_MESSAGE);
-		return null;
+		_statusBar.setText("Logged into Master Registry");
 	    }
-	    catch(Ice.LocalException e)
+	    else
 	    {
-		JOptionPane.showMessageDialog(parent,
-					      "Could not create session: "
-					      + e.toString(),
-					      "Login failed",
-					      JOptionPane.ERROR_MESSAGE);
-		return null;
+		String name = registry.ice_getIdentity().name;
+		String prefix = "Registry-";
+		if(name.startsWith(prefix))
+		{
+		    name = name.substring(prefix.length());
+		}
+
+		_statusBar.setText("Logged into Slave Registry '" + name + "'");
 	    }
 	}
 	
@@ -1887,7 +1962,8 @@ public class Coordinator
 	    availableActions[IceGridGUI.LiveDeployment.TreeNode.SHUTDOWN_NODE]);
 
 	_registryMenu.setEnabled(
-	    availableActions[IceGridGUI.LiveDeployment.TreeNode.ADD_OBJECT]);
+	    availableActions[IceGridGUI.LiveDeployment.TreeNode.ADD_OBJECT] ||
+	    availableActions[IceGridGUI.LiveDeployment.TreeNode.SHUTDOWN_REGISTRY]);
 
 	_serverMenu.setEnabled(
 	    availableActions[IceGridGUI.LiveDeployment.TreeNode.START] ||

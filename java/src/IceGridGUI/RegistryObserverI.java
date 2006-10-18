@@ -19,33 +19,40 @@ class RegistryObserverI extends _RegistryObserverDisp
 	_coordinator = coordinator;
     }
 
-    public void registryInit(final RegistryInfo[] registries, Ice.Current current)
+    public void registryInit(final RegistryInfo[] registryInfos, Ice.Current current)
     {
-	// TODO: XXX
+	SwingUtilities.invokeLater(new Runnable() 
+	    {
+		public void run() 
+		{
+		    for(int i = 0; i < registryInfos.length; ++i)
+		    {
+			_coordinator.registryUp(registryInfos[i]);
+		    }
+		}
+	    });
     }
 
     public void registryUp(final RegistryInfo registryInfo, Ice.Current current)
     {
-	// TODO: XXX
-// 	SwingUtilities.invokeLater(new Runnable() 
-// 	    {
-// 		public void run() 
-// 		{
-// 		    _coordinator.registryUp(registryInfo);
-// 		}
-// 	    });			   
+ 	SwingUtilities.invokeLater(new Runnable() 
+	    {
+		public void run() 
+		{
+		    _coordinator.registryUp(registryInfo);
+		}
+	    });			   
     }
 
     public void registryDown(final String registryName, Ice.Current current)
     {
-	// TODO: XXX
-// 	SwingUtilities.invokeLater(new Runnable() 
-// 	    {
-// 		public void run() 
-// 		{
-// 		    _coordinator.registryDown(registryName);
-// 		}
-// 	    });			   
+	SwingUtilities.invokeLater(new Runnable() 
+	    {
+		public void run() 
+		{
+		    _coordinator.registryDown(registryName);
+		}
+	    });			   
     }
 
     private final Coordinator _coordinator;

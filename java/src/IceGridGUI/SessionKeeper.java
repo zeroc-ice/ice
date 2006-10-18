@@ -49,7 +49,7 @@ class SessionKeeper
     //
     private class Session
     {
-	Session(AdminSessionPrx session, Component parent)
+	Session(AdminSessionPrx session, long keepAliveperiod, Component parent)
 	{
 	    _session = session;
 	    
@@ -68,24 +68,7 @@ class SessionKeeper
 		throw e;
 	    }
 
-	    long period = 0;
-
-	    Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.uncheckedCast(
-		_coordinator.getCommunicator().getDefaultRouter());
-	    if(router != null)
-	    {
-		period = router.getSessionTimeout() * 1000 / 2;
-	    }
-	    else
-	    {
-		String str = _admin.ice_getIdentity().category + "/Registry";
-		RegistryPrx registry = RegistryPrxHelper.
-		    uncheckedCast(_coordinator.getCommunicator().stringToProxy(str));
-		
-		period = registry.getSessionTimeout() * 1000 / 2;
-	    }
-	    
-	    _thread = new Pinger(_session, period);
+	    _thread = new Pinger(_session, keepAliveperiod);
 	    _thread.start();
 	    
 	    try
@@ -370,6 +353,8 @@ class SessionKeeper
 		registryEndpoints = 
 		    _connectionPrefs.get("registry.endpoints", registryEndpoints);
 	    }
+	    connectToMaster = _connectionPrefs.getBoolean("registry.connectToMaster", connectToMaster);
+
 	    
 	    //
 	    // Glacier2 properties
@@ -476,6 +461,7 @@ class SessionKeeper
 		_connectionPrefs.putBoolean("registry.sslEnabled", registrySSLEnabled);
 		_connectionPrefs.put("registry.instanceName", registryInstanceName);
 		_connectionPrefs.put("registry.endpoints", registryEndpoints);
+		_connectionPrefs.putBoolean("registry.connectToMaster", connectToMaster);
 	    }
 
 	    //
@@ -494,6 +480,7 @@ class SessionKeeper
 	boolean registrySSLEnabled = false;
 	String registryInstanceName = "IceGrid";
 	String registryEndpoints = "";
+	boolean connectToMaster = true;
 
 	String routerUsername = System.getProperty("user.name");
 	char[] routerPassword;
@@ -537,6 +524,7 @@ class SessionKeeper
 			{
 			    setVisible(false);
 			}
+
 			//
 			// Otherwise go back to the dialog
 			//
@@ -710,6 +698,8 @@ class SessionKeeper
 		builder.nextLine();
 		builder.append("IceGrid Registry Endpoint(s)", _registryEndpoints);
 		builder.nextLine();
+		builder.append("", _connectToMaster);
+		builder.nextLine();
 		
 		directPanel = builder.getPanel();
 	    }
@@ -848,6 +838,7 @@ class SessionKeeper
 		_registryInstanceName.setText(_loginInfo.registryInstanceName);
 		_registryEndpoints.setText(_loginInfo.registryEndpoints);
 		_registrySSLEnabled.setSelected(_loginInfo.registrySSLEnabled);
+		_connectToMaster.setSelected(_loginInfo.connectToMaster);
 
 		_routerUsername.setText(_loginInfo.routerUsername);
 		selectRouterUseSSL(_loginInfo.routerUseSSL);
@@ -895,6 +886,7 @@ class SessionKeeper
 	    _loginInfo.registrySSLEnabled = _registrySSLEnabled.isSelected();
 	    _loginInfo.registryInstanceName = _registryInstanceName.getText();
 	    _loginInfo.registryEndpoints = _registryEndpoints.getText();
+	    _loginInfo.connectToMaster = _connectToMaster.isSelected();
 	 
 	    _loginInfo.routerUsername = _routerUsername.getText();
 	    _loginInfo.routerPassword = _routerPassword.getPassword();
@@ -1057,6 +1049,7 @@ class SessionKeeper
 	private JCheckBox _registrySSLEnabled;
 	private JTextField _registryInstanceName = new JTextField(30);
 	private JTextField _registryEndpoints = new JTextField(30);
+	private JCheckBox _connectToMaster = new JCheckBox("Connect to Master Registry");
 
 	private JTextField _routerUsername = new JTextField(30);
 	private JLabel _routerUsernameLabel;
@@ -1193,7 +1186,10 @@ class SessionKeeper
 	{
 	    parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
        
-	    AdminSessionPrx session = _coordinator.login(_loginInfo, parent);
+	    Ice.LongHolder keepAlivePeriodHolder = new Ice.LongHolder();
+
+	    AdminSessionPrx session = _coordinator.login(_loginInfo, parent, 
+							 keepAlivePeriodHolder);
 	    if(session == null)
 	    {
 		return false;
@@ -1202,7 +1198,7 @@ class SessionKeeper
 
 	    try
 	    {
-		_session = new Session(session, parent);
+		_session = new Session(session, keepAlivePeriodHolder.value, parent);
 	    }
 	    catch(Ice.LocalException e)
 	    {
@@ -1230,7 +1226,7 @@ class SessionKeeper
 
     void logout(boolean destroySession)
     {
-	if(_session != null)  // TODO: XXX: Review: The Session constructor might throw
+	if(_session != null)
 	{
 	    _session.close(destroySession);
 	    _coordinator.sessionLost();

@@ -38,11 +38,13 @@ public abstract class TreeNode extends TreeNodeBase
     public static final int DISABLE = 3;
 
     public static final int SHUTDOWN_NODE = 4;
-    public static final int PATCH_SERVER = 5;
+    public static final int SHUTDOWN_REGISTRY = 5;
 
-    public static final int ADD_OBJECT = 6;
+    public static final int PATCH_SERVER = 6;
 
-    static public final int ACTION_COUNT = 7;
+    public static final int ADD_OBJECT = 7;
+
+    static public final int ACTION_COUNT = 8;
     
     public boolean[] getAvailableActions()
     {
@@ -66,6 +68,10 @@ public abstract class TreeNode extends TreeNodeBase
 	assert false;
     }
     public void shutdownNode()
+    {
+	assert false;
+    }
+    public void shutdownRegistry()
     {
 	assert false;
     }

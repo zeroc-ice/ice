@@ -102,6 +102,14 @@ public class LiveActions
 		    _target.shutdownNode();
 		}
 	    };
+
+	_array[TreeNode.SHUTDOWN_REGISTRY] = new AbstractAction("Shutdown")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _target.shutdownRegistry();
+		}
+	    };
 	
 	_array[TreeNode.PATCH_SERVER] = 
 	    new AbstractAction("Patch distribution")

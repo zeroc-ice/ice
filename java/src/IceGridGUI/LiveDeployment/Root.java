@@ -28,12 +28,14 @@ import IceGridGUI.*;
 //
 // The Root node of the Live Deployment view
 //
-public class Root extends ListTreeNode
+public class Root extends ListArrayTreeNode
 {
     public Root(Coordinator coordinator) 
     {
-	super(null, "Root");
+	super(null, "Root", 2);
 	_coordinator = coordinator;
+	_childrenArray[0] = _registries;
+	_childrenArray[1] = _nodes;
 
 	_tree = new JTree(this, true);
 	_treeModel = (DefaultTreeModel)_tree.getModel();
@@ -133,7 +135,8 @@ public class Root extends ListTreeNode
 	_objects.clear();
 
 	_descriptorMap.clear();
-	_children.clear();
+	_nodes.clear();
+	_registries.clear();
 	_treeModel.nodeStructureChanged(this);
 	_tree.setRootVisible(false);
     }
@@ -230,16 +233,16 @@ public class Root extends ListTreeNode
 	_descriptorMap.remove(name);
 
 	java.util.List toRemove = new java.util.LinkedList();
-	int[] toRemoveIndices = new int[_children.size()];
+	int[] toRemoveIndices = new int[_nodes.size()];
 
 	int i = 0;
-	for(int index = 0; index < _children.size(); ++index)
+	for(int index = 0; index < _nodes.size(); ++index)
 	{
-	    Node node = (Node)_children.get(index);
+	    Node node = (Node)_nodes.get(index);
 	    if(node.remove(name))
 	    {
 		toRemove.add(node);
-		toRemoveIndices[i++] = index;
+		toRemoveIndices[i++] = _registries.size() + index;
 	    }
 	}
 
@@ -333,7 +336,7 @@ public class Root extends ListTreeNode
 	    if(node.remove(update.name))
 	    {
 		int index = getIndex(node); 
-		_children.remove(node);
+		_nodes.remove(node);
 		_treeModel.nodesWereRemoved(this, new int[]{index}, new Object[]{node});
 	    }
 	}
@@ -368,7 +371,7 @@ public class Root extends ListTreeNode
 	//
 	if(variablesChanged || !update.serviceTemplates.isEmpty() || !update.serverTemplates.isEmpty())
 	{
-	    p = _children.iterator();
+	    p = _nodes.iterator();
 	    while(p.hasNext())
 	    {
 		Node node = (Node)p.next();
@@ -383,9 +386,6 @@ public class Root extends ListTreeNode
 
     public void adapterInit(AdapterInfo[] adapters)
     {
-	//
-	// TODO: XXX: REVIEW
-	//
 	for(int i = 0; i < adapters.length; ++i)
 	{
 	    _adapters.put(adapters[i].id, adapters[i]);
@@ -409,9 +409,6 @@ public class Root extends ListTreeNode
     
     public void objectInit(ObjectInfo[] objects)
     {
-	//
-	// TODO: XXX: REVIEW
-	//
 	for(int i = 0; i < objects.length; ++i)
 	{
 	    _objects.put(Ice.Util.identityToString(objects[i].proxy.ice_getIdentity()), objects[i]);
@@ -433,6 +430,38 @@ public class Root extends ListTreeNode
 	_objects.remove(Ice.Util.identityToString(id));
     } 
 
+
+    //
+    // From the Registry Observer:
+    //
+    public void registryUp(RegistryInfo info)
+    {
+	RegistryReplica newReplica = new RegistryReplica(this, info);
+
+	int i;
+	for(i = 0; i < _registries.size(); ++i)
+	{
+	    String otherName = _registries.get(i).toString();
+	    if(info.name.compareTo(otherName) > 0)
+	    {
+		i++;
+		break;
+	    }
+	}
+	_registries.add(i, newReplica);
+	_treeModel.nodesWereInserted(this, new int[]{i});
+    }
+
+    public void registryDown(String name)
+    {
+	TreeNodeBase registry = find(name, _registries);
+	if(registry != null)
+	{
+	    int index = getIndex(registry);
+	    _registries.remove(registry);
+	    _treeModel.nodesWereRemoved(this, new int[]{index}, new Object[]{registry});
+	}
+    }
 
     //
     // From the Node Observer:
@@ -458,7 +487,7 @@ public class Root extends ListTreeNode
 	    if(node.down())
 	    {
 		int index = getIndex(node); 
-		_children.remove(node);
+		_nodes.remove(node);
 		_treeModel.nodesWereRemoved(this, new int[]{index}, new Object[]{node});
 	    }
 	}
@@ -752,36 +781,39 @@ public class Root extends ListTreeNode
 
     private Node findNode(String nodeName)
     {
-	return (Node)find(nodeName, _children);
+	return (Node)find(nodeName, _nodes);
     }
     
     private void insertNode(Node node)
     {
 	String nodeName = node.toString();
 	int i;
-	for(i = 0; i < _children.size(); ++i)
+	for(i = 0; i < _nodes.size(); ++i)
 	{
-	    String otherNodeName = _children.get(i).toString();
+	    String otherNodeName = _nodes.get(i).toString();
 	    if(nodeName.compareTo(otherNodeName) > 0)
 	    {
 		i++;
 		break;
 	    }
 	}
-	_children.add(i, node);
-	_treeModel.nodesWereInserted(this, new int[]{i});
+	_nodes.add(i, node);
+	_treeModel.nodesWereInserted(this, new int[]{_registries.size() + i});
     }
 
     private void removeNodes(int[] toRemoveIndices, java.util.List toRemove)
     {
 	if(toRemove.size() > 0)
 	{
-	    _children.removeAll(toRemove);
+	    _nodes.removeAll(toRemove);
 	    _treeModel.nodesWereRemoved(this, toRemoveIndices, toRemove.toArray());
 	}
     }
   
     private final Coordinator _coordinator;
+
+    private final java.util.List _nodes = new java.util.LinkedList();
+    private final java.util.List _registries = new java.util.LinkedList();
 
     //
     // Maps application name to current application descriptor
@@ -810,6 +842,5 @@ public class Root extends ListTreeNode
 
     static private RegistryEditor _editor;
     static private JPopupMenu _popup;
-    static private DefaultTreeCellRenderer _cellRenderer;  
-
+    static private DefaultTreeCellRenderer _cellRenderer;
 }
