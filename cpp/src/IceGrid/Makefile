@@ -21,6 +21,7 @@ LIBTARGETS	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(
 TARGETS         = $(LIBTARGETS) $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
 
 LIB_OBJS	= Admin.o \
+		  Locator.o \
 		  Query.o \
 	 	  Exception.o \
 		  Descriptor.o \
@@ -66,7 +67,6 @@ REGISTRY_OBJS   = RegistryI.o \
 		  ServerCache.o \
 		  NodeCache.o \
 		  ReplicaCache.o \
-		  Locator.o \
 		  LocatorI.o \
 		  LocatorRegistryI.o \
 		  AdminI.o \

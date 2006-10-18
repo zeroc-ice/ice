@@ -490,7 +490,7 @@ RegistryI::setupUserAccountMapper(const Ice::ObjectAdapterPtr& registryAdapter)
 void
 RegistryI::setupClientSessionFactory(const Ice::ObjectAdapterPtr& registryAdapter,
 				     const Ice::ObjectAdapterPtr& sessionManagerAdapter,
-				     const LocatorPrx& locator,
+				     const IceGrid::LocatorPrx& locator,
 				     bool nowarn)
 {
     _waitQueue = new WaitQueue(); // Used for for session allocation timeout.
@@ -534,7 +534,7 @@ RegistryI::setupClientSessionFactory(const Ice::ObjectAdapterPtr& registryAdapte
 void
 RegistryI::setupAdminSessionFactory(const Ice::ObjectAdapterPtr& registryAdapter, 
 				    const Ice::ObjectAdapterPtr& sessionManagerAdapter,
-				    const LocatorPrx& locator,
+				    const IceGrid::LocatorPrx& locator,
 				    bool nowarn)
 {
     assert(_reaper);
@@ -920,7 +920,7 @@ RegistryI::setupThreadPool(const PropertiesPtr& properties, const string& name, 
 
 Glacier2::PermissionsVerifierPrx
 RegistryI::getPermissionsVerifier(const ObjectAdapterPtr& adapter, 
-				  const LocatorPrx& locator,
+				  const IceGrid::LocatorPrx& locator,
 				  const string& verifierProperty,
 				  const string& passwordsProperty,
 				  bool nowarn)
@@ -1022,7 +1022,7 @@ RegistryI::getPermissionsVerifier(const ObjectAdapterPtr& adapter,
 }
 
 Glacier2::SSLPermissionsVerifierPrx
-RegistryI::getSSLPermissionsVerifier(const LocatorPrx& locator, const string& verifierProperty, bool nowarn)
+RegistryI::getSSLPermissionsVerifier(const IceGrid::LocatorPrx& locator, const string& verifierProperty, bool nowarn)
 {
     //
     // Get the permissions verifier, or create a default one if no

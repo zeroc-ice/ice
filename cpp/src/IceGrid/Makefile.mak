@@ -28,6 +28,7 @@ TARGETS         = $(LIBNAME) $(DLLNAME)
 
 LIB_OBJS	= Admin.obj \
 		  Query.obj \
+		  Locator.obj \
 		  Exception.obj \
 		  Descriptor.obj \
 		  Observer.obj \
@@ -201,6 +202,7 @@ clean::
 	del /q Admin.cpp $(HDIR)\Admin.h
 	del /q Exception.cpp $(HDIR)\Exception.h
 	del /q FileParser.cpp $(HDIR)\FileParser.h
+	del /q Locator.cpp $(HDIR)\Locator.h
 	del /q Query.cpp $(HDIR)\Query.h
 	del /q Session.cpp $(HDIR)\Session.h
 	del /q Observer.cpp $(HDIR)\Observer.h

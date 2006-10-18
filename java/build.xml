@@ -111,7 +111,7 @@
                 <include name="Exception.ice" />
                 <include name="FileParser.ice"/>
                 <include name="Observer.ice" />
-                <include name="PerfTypes.ice" />
+                <include name="Locator.ice" />
                 <include name="Query.ice" />
                 <include name="Registry.ice" />
                 <include name="Session.ice" />

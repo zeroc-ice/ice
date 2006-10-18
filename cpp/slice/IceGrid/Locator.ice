@@ -32,23 +32,23 @@ interface Locator extends Ice::Locator
 {
     /**
      *
-     * Get the proxy of the registry object hosted by this &IceGrid
+     * Get the proxy of the registry object hosted by this &IceGrid;
      * registry.
      *
      * @return The proxy of the registry object.
      *
      **/
-    ["nonmutating", "cpp:const"] idempotent Registry* getLocalRegistry();
+    ["cpp:const"] idempotent Registry* getLocalRegistry();
 
     /**
      *
-     * Get the proxy of the query object hosted by this &IceGrid
+     * Get the proxy of the query object hosted by this &IceGrid;
      * registry.
      *
      * @return The proxy of the query object.
      *
      **/
-    ["nonmutating", "cpp:const"] idempotent Query* getLocalQuery();
+    ["cpp:const"] idempotent Query* getLocalQuery();
 };
 
 };
