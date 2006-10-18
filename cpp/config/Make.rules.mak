@@ -19,7 +19,6 @@ prefix			= C:\Ice-$(VERSION)
 #
 #OPTIMIZE		= yes
 
-
 #
 # Borland C++Builder 2006 home directory. Define if building with 
 # C++ Builder. Change if different from default.
@@ -33,9 +32,11 @@ prefix			= C:\Ice-$(VERSION)
 THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty
 
 #
-# Define if using STLPort. Required if using MSVC++ 6.0.
+# Define USE_STLPORT if using STLPort. Required if using MSVC++ 6.0.
+# STLPort must be installed in the same directory as the other third
+# party libraries.
 #
-#STLPORT_HOME		= $(THIRDPARTY_HOME)
+#USE_STLPORT		= yes
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!

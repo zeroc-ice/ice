@@ -21,13 +21,14 @@ PRELIBS		=
 !if "$(THIRDPARTY_HOME)" != ""
 CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include"
 LDFLAGS         = /LIBPATH:"$(THIRDPARTY_HOME)\lib"
+
+!if "$(USE_STLPORT)" != ""
+CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include\stlport" $(CPPFLAGS)
+!endif
+
 !endif
 
 CPPFLAGS	= $(CPPFLAGS) -nologo -W3 -WX -GR -GX -FD -D_CONSOLE -DWIN32_LEAN_AND_MEAN
-
-!if "$(STLPORT_HOME)" != ""
-CPPFLAGS        = -I"$(STLPORT_HOME)\include\stlport" $(CPPFLAGS)
-!endif
 
 !if "$(OPTIMIZE)" == "yes"
 CPPFLAGS	= $(CPPFLAGS) -MD -O2 -DNDEBUG
