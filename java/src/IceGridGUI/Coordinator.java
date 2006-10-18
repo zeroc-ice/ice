@@ -822,7 +822,8 @@ public class Coordinator
 	_saveToRegistry.setEnabled(false);
     }
     
-    AdminSessionPrx login(SessionKeeper.LoginInfo info, Component parent, 
+    AdminSessionPrx login(SessionKeeper.LoginInfo info, 
+			  Component parent, 
 			  Ice.LongHolder keepAlivePeriodHolder)
     {	
 	_liveDeploymentRoot.clear();
@@ -929,9 +930,7 @@ public class Coordinator
 		}
 		
 		session = AdminSessionPrxHelper.uncheckedCast(s);
-		keepAlivePeriodHolder.value = router.getSessionTimeout() * 1000 / 2;
-		_statusBar.setText("Routed session established");
-		
+		keepAlivePeriodHolder.value = router.getSessionTimeout() * 1000 / 2;	
 	    }
 	    catch(Glacier2.PermissionDeniedException e)
 	    {
@@ -1078,22 +1077,6 @@ public class Coordinator
 		    }
 		}
 	    } while(session == null);
-
-	    if(registry.ice_getIdentity().name.equals("Registry"))
-	    {
-		_statusBar.setText("Logged into Master Registry");
-	    }
-	    else
-	    {
-		String name = registry.ice_getIdentity().name;
-		String prefix = "Registry-";
-		if(name.startsWith(prefix))
-		{
-		    name = name.substring(prefix.length());
-		}
-
-		_statusBar.setText("Logged into Slave Registry '" + name + "'");
-	    }
 	}
 	
 	_logout.setEnabled(true);
@@ -1915,6 +1898,11 @@ public class Coordinator
     public AdminSessionPrx getSession()
     {
 	return _sessionKeeper.getSession();
+    }
+
+    public boolean connectedToMaster()
+    {
+	return _sessionKeeper.connectedToMaster();
     }
 
     SessionKeeper getSessionKeeper()

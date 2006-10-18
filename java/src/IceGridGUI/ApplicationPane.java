@@ -50,17 +50,16 @@ public class ApplicationPane extends JSplitPane implements Tab
 
 	c.getCloseApplicationAction().setEnabled(true);
 
-	boolean enableSave = _root.needsSaving() && (_root.isLive() || _root.hasFile());
-	c.getSaveAction().setEnabled(enableSave);
-	c.getDiscardUpdatesAction().setEnabled(enableSave);
+	c.getSaveAction().setEnabled(_root.needsSaving() && (_root.isLive() && c.connectedToMaster() || _root.hasFile()));
+	c.getDiscardUpdatesAction().setEnabled(_root.needsSaving() && (_root.isLive() || _root.hasFile()));
 
 	if(_root.isLive())
 	{
-	    c.getSaveToRegistryAction().setEnabled(_root.needsSaving());
+	    c.getSaveToRegistryAction().setEnabled(_root.needsSaving() && c.connectedToMaster());
 	}
 	else
 	{
-	    c.getSaveToRegistryAction().setEnabled(c.getSession() != null);
+	    c.getSaveToRegistryAction().setEnabled(c.connectedToMaster());
 	}
 	c.getSaveToFileAction().setEnabled(true);
 

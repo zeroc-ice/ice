@@ -1035,10 +1035,10 @@ public class Root extends ListTreeNode
 
 	_concurrentUpdates.clear();
 	
-	_coordinator.getSaveAction().setEnabled(_live || _file != null);
+	_coordinator.getSaveAction().setEnabled(_live && _coordinator.connectedToMaster() || _file != null);
 	_coordinator.getDiscardUpdatesAction().setEnabled(_live || _file != null);
 
-	_coordinator.getSaveToRegistryAction().setEnabled(_coordinator.getSession() != null);
+	_coordinator.getSaveToRegistryAction().setEnabled(_coordinator.connectedToMaster());
 	_coordinator.getSaveToFileAction().setEnabled(true);
     }
 

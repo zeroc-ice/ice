@@ -1187,14 +1187,41 @@ class SessionKeeper
 	    parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
        
 	    Ice.LongHolder keepAlivePeriodHolder = new Ice.LongHolder();
-
-	    AdminSessionPrx session = _coordinator.login(_loginInfo, parent, 
-							 keepAlivePeriodHolder);
+	 
+	    AdminSessionPrx session = _coordinator.login(
+		_loginInfo, parent, keepAlivePeriodHolder);
 	    if(session == null)
 	    {
 		return false;
 	    }
+	    String registryName;
+	    try
+	    {
+		registryName = session.getReplicaName();
+	    }
+	    catch(Ice.LocalException e)
+	    {
+		logout(true);
+		JOptionPane.showMessageDialog(
+		    parent,
+		    "Could not retrieve replica name: " + e.toString(),
+		    "Login failed",
+		    JOptionPane.ERROR_MESSAGE);
+		return false;
+	    }
+
 	    _coordinator.getStatusBar().setConnected(true);
+	    
+	    _connectedToMaster = registryName.equals("Master");
+	    if(_connectedToMaster)
+	    {
+		_coordinator.getStatusBar().setText("Logged into Master Registry");
+	    }
+	    else
+	    {
+		_coordinator.getStatusBar().setText("Logged into Slave Registry '" + registryName + "'");
+	    }
+	    
 
 	    try
 	    {
@@ -1231,6 +1258,7 @@ class SessionKeeper
 	    _session.close(destroySession);
 	    _coordinator.sessionLost();
 	    _session = null;
+	    _connectedToMaster = false;
 	}
     }
    
@@ -1248,6 +1276,12 @@ class SessionKeeper
     {
 	return _session == null ? null : _session.getRoutedAdmin();
     }
+
+    boolean connectedToMaster()
+    {
+	return _session != null && _connectedToMaster;
+    }
+
    
     private LoginDialog _loginDialog;
     private LoginInfo _loginInfo;
@@ -1256,4 +1290,5 @@ class SessionKeeper
     private Preferences _loginPrefs;
   
     private Session _session;
+    private boolean _connectedToMaster = false;
 }
