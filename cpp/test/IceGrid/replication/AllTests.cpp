@@ -230,7 +230,7 @@ createAdminSession(const Ice::LocatorPrx& locator, const string& replica)
     test(waitAndPing(locator));
     
     string registryStr("TestIceGrid/Registry");
-    if(!replica.empty())
+    if(!replica.empty() && replica != "Master")
     {
 	registryStr += "-" + replica;
     }
@@ -260,16 +260,19 @@ allTests(const Ice::CommunicatorPtr& comm)
 
     params.clear();
     params["id"] = "Master";
+    params["replicaName"] = "";
     params["port"] = "12050";
     instantiateServer(admin, "IceGridRegistry", params);
     
     params.clear();
     params["id"] = "Slave1";
+    params["replicaName"] = "Slave1";
     params["port"] = "12051";
     instantiateServer(admin, "IceGridRegistry", params);
     
     params.clear();
     params["id"] = "Slave2";
+    params["replicaName"] = "Slave2";
     params["port"] = "12052";
     instantiateServer(admin, "IceGridRegistry", params);
 
@@ -1026,6 +1029,95 @@ allTests(const Ice::CommunicatorPtr& comm)
 
     cout << "testing master upgrade... " << flush;
     {
+	ApplicationDescriptor app;
+	app.name = "TestApp";
+	app.description = "added application";
+
+	ServerDescriptorPtr server = new ServerDescriptor();
+	server->id = "Server";
+	server->exe = comm->getProperties()->getProperty("TestDir") + "/server";
+	server->pwd = ".";
+	server->activation = "on-demand";
+	AdapterDescriptor adapter;
+	adapter.name = "TestAdapter";
+	adapter.id = "TestAdapter.Server";
+	adapter.registerProcess = true;
+	PropertyDescriptor property;
+	property.name = "TestAdapter.Endpoints";
+	property.value = "default";
+	server->propertySet.properties.push_back(property);
+	property.name = "Identity";
+	property.value = "test";
+	server->propertySet.properties.push_back(property);
+	ObjectDescriptor object;
+	object.id = comm->stringToIdentity("test");
+	object.type = "::Test::TestIntf";
+	adapter.objects.push_back(object);
+	server->adapters.push_back(adapter);
+	app.nodes["Node1"].servers.push_back(server);
+
+	masterAdmin->addApplication(app);
+
+	comm->stringToProxy("test")->ice_locator(masterLocator)->ice_locatorCacheTimeout(0)->ice_ping();
+	comm->stringToProxy("test")->ice_locator(slave1Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+	comm->stringToProxy("test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+	masterAdmin->stopServer("Server");
+
+	//
+	// Shutdown the Master, update Slave1 to be the Master.
+	//
+	masterAdmin->shutdown();
+	waitForRegistryState(admin, "Master", false);
+	slave1Admin->shutdown();
+	waitForRegistryState(admin, "Slave1", false);
+	
+	params["id"] = "Slave1";
+	params["port"] = "12051";
+	params["replicaName"] = "Master";
+	instantiateServer(admin, "IceGridRegistry", params);
+
+	admin->startServer("Slave1");
+	slave1Locator = 
+	    Ice::LocatorPrx::uncheckedCast(comm->stringToProxy("TestIceGrid/Locator-Master:default -p 12051"));
+	slave1Admin = createAdminSession(slave1Locator, "");
+
+	ApplicationUpdateDescriptor update;
+	update.name = "TestApp";
+	NodeUpdateDescriptor node;
+	node.name = "Node1";
+	node.servers.push_back(server);
+	update.nodes.push_back(node);
+	property.name = "Dummy";
+	property.value = "val";
+	server->propertySet.properties.push_back(property);
+	slave1Admin->updateApplication(update);
+
+	comm->stringToProxy("test")->ice_locator(slave1Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+	comm->stringToProxy("test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+
+	slave1Admin->shutdown();
+	waitForRegistryState(admin, "Slave1", false);
+
+	params["id"] = "Slave1";
+	params["replicaName"] = "Slave1";
+	params["port"] = "12051";
+	instantiateServer(admin, "IceGridRegistry", params);
+
+	admin->startServer("Master");
+	masterAdmin = createAdminSession(masterLocator, "");
+
+	admin->startServer("Slave1");
+	slave1Locator = 
+	    Ice::LocatorPrx::uncheckedCast(comm->stringToProxy("TestIceGrid/Locator-Slave1:default -p 12051"));
+	slave1Admin = createAdminSession(slave1Locator, "Slave1");
+
+	comm->stringToProxy("test")->ice_locator(masterLocator)->ice_locatorCacheTimeout(0)->ice_ping();
+	comm->stringToProxy("test")->ice_locator(slave1Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+	comm->stringToProxy("test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+
+	masterAdmin->stopServer("Server");
+	
+	masterAdmin->removeApplication("TestApp");
     }
     cout << "ok" << endl;
     

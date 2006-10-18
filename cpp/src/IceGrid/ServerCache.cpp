@@ -254,31 +254,6 @@ ServerEntry::update(const ServerInfo& info)
 }
 
 void
-ServerEntry::updateRevision(int revision)
-{
-    ServerPrx proxy;
-    string uuid;
-    {
-	Lock sync(*this);
-	if(_loaded.get()) // Synced or if not up to date is fine
-	{
-	    proxy = _proxy;
-	    uuid = _loaded->uuid;
-	    _loaded->revision = revision;
-	}
-	else if(_load.get())
-	{
-	    uuid = _load->uuid;
-	    _load->revision = revision;
-	}
-	else
-	{
-	    assert(false);
-	}
-    }
-}
-
-void
 ServerEntry::destroy()
 {
     Lock sync(*this);

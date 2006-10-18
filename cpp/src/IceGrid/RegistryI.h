@@ -12,6 +12,7 @@
 
 #include <IceGrid/Registry.h>
 #include <IceGrid/Query.h>
+#include <IceGrid/Locator.h>
 #include <IceGrid/Internal.h>
 #include <IceGrid/PlatformInfo.h>
 #include <IceGrid/ReplicaSessionManager.h>
@@ -71,23 +72,23 @@ public:
     
 private:
 
-    Ice::LocatorPrx setupLocator(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, 
-				 const Ice::ObjectAdapterPtr&); 
-    void setupQuery(const Ice::ObjectAdapterPtr&);
-    void setupRegistry(const Ice::ObjectAdapterPtr&);
+    LocatorPrx setupLocator(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&,
+			    const RegistryPrx&, const QueryPrx&); 
+    QueryPrx setupQuery(const Ice::ObjectAdapterPtr&);
+    RegistryPrx setupRegistry(const Ice::ObjectAdapterPtr&);
     InternalRegistryPrx setupInternalRegistry(const Ice::ObjectAdapterPtr&);
     void setupNullPermissionsVerifier(const Ice::ObjectAdapterPtr&);
     bool setupUserAccountMapper(const Ice::ObjectAdapterPtr&);
-    void setupClientSessionFactory(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::LocatorPrx&,
+    void setupClientSessionFactory(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const LocatorPrx&,
 				   bool);
-    void setupAdminSessionFactory(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::LocatorPrx&,
+    void setupAdminSessionFactory(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const LocatorPrx&,
 				  bool);
 
     void setupThreadPool(const Ice::PropertiesPtr&, const std::string&, int, int = 0);
-    Glacier2::PermissionsVerifierPrx getPermissionsVerifier(const Ice::ObjectAdapterPtr&, const Ice::LocatorPrx&,
+    Glacier2::PermissionsVerifierPrx getPermissionsVerifier(const Ice::ObjectAdapterPtr&, const LocatorPrx&,
 							    const std::string&, const std::string&, bool);
 
-    Glacier2::SSLPermissionsVerifierPrx getSSLPermissionsVerifier(const Ice::LocatorPrx&, const std::string&, bool);
+    Glacier2::SSLPermissionsVerifierPrx getSSLPermissionsVerifier(const LocatorPrx&, const std::string&, bool);
     Glacier2::SSLInfo getSSLInfo(const Ice::ConnectionPtr&, std::string&);
 
     NodePrxSeq registerReplicas(const InternalRegistryPrx&, const InternalRegistryPrxSeq&, const NodePrxSeq&);

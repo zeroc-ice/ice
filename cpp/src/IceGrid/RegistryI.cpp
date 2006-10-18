@@ -334,9 +334,9 @@ RegistryI::start(bool nowarn)
 	return false;
     }
 
-    LocatorPrx internalLocator = setupLocator(_clientAdapter, serverAdapter, registryAdapter);
-    setupQuery(_clientAdapter);
-    setupRegistry(_clientAdapter);
+    QueryPrx query = setupQuery(_clientAdapter);
+    RegistryPrx registry = setupRegistry(_clientAdapter);
+    LocatorPrx internalLocator = setupLocator(_clientAdapter, serverAdapter, registryAdapter, registry, query);
 
     //
     // Add a default servant locator to the client object adapter. The
@@ -372,10 +372,12 @@ RegistryI::start(bool nowarn)
     return true;
 }
 
-LocatorPrx
+IceGrid::LocatorPrx
 RegistryI::setupLocator(const Ice::ObjectAdapterPtr& clientAdapter, 
 			const Ice::ObjectAdapterPtr& serverAdapter,
-			const Ice::ObjectAdapterPtr& registryAdapter)
+			const Ice::ObjectAdapterPtr& registryAdapter,
+			const RegistryPrx& registry,
+			const QueryPrx& query)
 {
     //
     // Create the locator registry and locator interfaces.
@@ -390,25 +392,25 @@ RegistryI::setupLocator(const Ice::ObjectAdapterPtr& clientAdapter,
     Identity locatorId;
     locatorId.category = _instanceName;
     locatorId.name = "Locator";
-    LocatorPtr locator = new LocatorI(_communicator, _database, locatorRegistry);
+    LocatorPtr locator = new LocatorI(_communicator, _database, locatorRegistry, registry, query);
     clientAdapter->add(locator, locatorId);
     locatorId.name = "Locator-" + _replicaName;
     clientAdapter->add(locator, locatorId);
     
-    obj = registryAdapter->addWithUUID(new LocatorI(_communicator, _database, locatorRegistry));
+    obj = registryAdapter->addWithUUID(new LocatorI(_communicator, _database, locatorRegistry, registry, query));
     return LocatorPrx::uncheckedCast(obj);
 }
 
-void
+QueryPrx
 RegistryI::setupQuery(const Ice::ObjectAdapterPtr& clientAdapter)
 {
     Identity queryId;
     queryId.category = _instanceName;
     queryId.name = "Query";
-    clientAdapter->add(new QueryI(_communicator, _database), queryId);
+    return QueryPrx::uncheckedCast(clientAdapter->add(new QueryI(_communicator, _database), queryId));
 }
 
-void
+RegistryPrx
 RegistryI::setupRegistry(const Ice::ObjectAdapterPtr& clientAdapter)
 {
     Identity registryId;
@@ -418,8 +420,9 @@ RegistryI::setupRegistry(const Ice::ObjectAdapterPtr& clientAdapter)
     {
 	registryId.name += "-" + _replicaName;
     }
-    clientAdapter->add(this, registryId);
-    _wellKnownObjects->add(clientAdapter->createProxy(registryId), Registry::ice_staticId());
+    RegistryPrx proxy = RegistryPrx::uncheckedCast(clientAdapter->add(this, registryId));
+    _wellKnownObjects->add(proxy, Registry::ice_staticId());
+    return proxy;
 }
 
 InternalRegistryPrx
@@ -487,7 +490,7 @@ RegistryI::setupUserAccountMapper(const Ice::ObjectAdapterPtr& registryAdapter)
 void
 RegistryI::setupClientSessionFactory(const Ice::ObjectAdapterPtr& registryAdapter,
 				     const Ice::ObjectAdapterPtr& sessionManagerAdapter,
-				     const Ice::LocatorPrx& locator,
+				     const LocatorPrx& locator,
 				     bool nowarn)
 {
     _waitQueue = new WaitQueue(); // Used for for session allocation timeout.
@@ -531,7 +534,7 @@ RegistryI::setupClientSessionFactory(const Ice::ObjectAdapterPtr& registryAdapte
 void
 RegistryI::setupAdminSessionFactory(const Ice::ObjectAdapterPtr& registryAdapter, 
 				    const Ice::ObjectAdapterPtr& sessionManagerAdapter,
-				    const Ice::LocatorPrx& locator,
+				    const LocatorPrx& locator,
 				    bool nowarn)
 {
     assert(_reaper);

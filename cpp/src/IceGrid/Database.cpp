@@ -1613,7 +1613,6 @@ Database::reload(const ApplicationHelper& oldApp,
     map<string, ServerInfo> oldServers = oldApp.getServerInfos(uuid, revision);
     map<string, ServerInfo> newServers = newApp.getServerInfos(uuid, revision);
     vector<ServerInfo> load;
-    vector<string> updateRev;
     map<string, ServerInfo>::const_iterator p;
     for(p = newServers.begin(); p != newServers.end(); ++p)
     {
@@ -1622,15 +1621,10 @@ Database::reload(const ApplicationHelper& oldApp,
 	{
 	    load.push_back(p->second);
 	} 
-	else if(p->second.node != q->second.node || 
-	        !descriptorEqual(_communicator, p->second.descriptor, q->second.descriptor))
+	else
 	{
 	    _serverCache.remove(p->first, false); // Don't destroy the server if it was updated.
 	    load.push_back(p->second);
-	}
-	else
-	{
-	    updateRev.push_back(p->first);
 	}
     }
     for(p = oldServers.begin(); p != oldServers.end(); ++p)
@@ -1639,10 +1633,6 @@ Database::reload(const ApplicationHelper& oldApp,
 	if(q == newServers.end())
 	{
 	    entries.push_back(_serverCache.remove(p->first));
-	}
-	else
-	{
-	    updateRev.push_back(p->first);
 	}
     }
 
@@ -1721,14 +1711,6 @@ Database::reload(const ApplicationHelper& oldApp,
     for(vector<ServerInfo>::const_iterator q = load.begin(); q != load.end(); ++q)
     {
 	entries.push_back(_serverCache.add(*q));
-    }
-
-    //
-    // Just update the revision of the server.
-    //
-    for(vector<string>::const_iterator rp = updateRev.begin(); rp != updateRev.end(); ++rp)
-    {
-	_serverCache.get(*rp)->updateRevision(revision);
     }
 }
 

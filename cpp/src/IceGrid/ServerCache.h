@@ -38,7 +38,6 @@ public:
 
     void sync();
     void update(const ServerInfo&);
-    void updateRevision(int);
     void destroy();
 
     ServerInfo getServerInfo(bool = false) const;

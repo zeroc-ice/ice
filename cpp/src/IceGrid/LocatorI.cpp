@@ -303,10 +303,14 @@ LocatorI::Request::sendResponse()
 
 LocatorI::LocatorI(const Ice::CommunicatorPtr& communicator, 
 		   const DatabasePtr& database, 
-		   const Ice::LocatorRegistryPrx& locatorRegistry) :
+		   const Ice::LocatorRegistryPrx& locatorRegistry,
+		   const RegistryPrx& registry,
+		   const QueryPrx& query) :
     _communicator(communicator),
     _database(database),
-    _locatorRegistry(Ice::LocatorRegistryPrx::uncheckedCast(locatorRegistry->ice_collocationOptimized(false)))
+    _locatorRegistry(Ice::LocatorRegistryPrx::uncheckedCast(locatorRegistry->ice_collocationOptimized(false))),
+    _localRegistry(registry),
+    _localQuery(query)
 {
 }
 
@@ -412,6 +416,18 @@ Ice::LocatorRegistryPrx
 LocatorI::getRegistry(const Ice::Current&) const
 {
     return _locatorRegistry;
+}
+
+RegistryPrx
+LocatorI::getLocalRegistry(const Ice::Current&) const
+{
+    return _localRegistry;
+}
+
+QueryPrx
+LocatorI::getLocalQuery(const Ice::Current&) const
+{
+    return _localQuery;
 }
 
 bool

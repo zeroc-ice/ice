@@ -94,6 +94,7 @@ def startIceGridRegistry(testdir, dynamicRegistration = False):
 
         print "starting icegrid " + name + "...",
         cmd = command + \
+              r' --Ice.ProgramName=' + name + \
               r' --IceGrid.Registry.Client.Endpoints="default -p ' + str(iceGridPort + i) + ' -t 30000" ' + \
               r' --IceGrid.Registry.Data=' + dataDir
 

@@ -21,6 +21,7 @@
     <server-template id="IceGridRegistry">
       <parameter name="id"/>
       <parameter name="port"/>
+      <parameter name="replicaName"/>
       <server id="${id}" exe="${ice.dir}/bin/icegridregistry" activation="manual">
         <option>--nowarn</option>
         <dbenv name="data">
@@ -32,7 +33,7 @@
         <property name="IceGrid.Registry.Server.Endpoints" value="default"/>
         <property name="IceGrid.Registry.Internal.Endpoints" value="default"/>
         <property name="IceGrid.Registry.SessionManager.Endpoints" value="default"/>
-        <property name="IceGrid.Registry.ReplicaName" value="${server}"/>
+        <property name="IceGrid.Registry.ReplicaName" value="${replicaName}"/>
         <property name="IceGrid.Registry.Data" value="${node.datadir}/servers/${server}/dbs/data"/>
         <property name="IceGrid.Registry.PermissionsVerifier" value="TestIceGrid/NullPermissionsVerifier"/>
         <property name="IceGrid.Registry.SSLPermissionsVerifier" value="TestIceGrid/NullSSLPermissionsVerifier"/>

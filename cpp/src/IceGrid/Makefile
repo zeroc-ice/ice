@@ -66,6 +66,7 @@ REGISTRY_OBJS   = RegistryI.o \
 		  ServerCache.o \
 		  NodeCache.o \
 		  ReplicaCache.o \
+		  Locator.o \
 		  LocatorI.o \
 		  LocatorRegistryI.o \
 		  AdminI.o \
@@ -105,6 +106,7 @@ SRCS		= $(LIB_OBJS:.o=.cpp) \
 SLICE_SRCS	= $(SDIR)/Admin.ice \
                   $(SDIR)/Exception.ice \
                   $(SDIR)/FileParser.ice \
+                  $(SDIR)/Locator.ice \
                   $(SDIR)/Query.ice \
 		  $(SDIR)/Registry.ice \
 		  $(SDIR)/Session.ice \
