@@ -24,7 +24,7 @@ class AdminSessionI : public BaseSessionI, public AdminSession
 {
 public:
 
-    AdminSessionI(const std::string&, const DatabasePtr&, int);
+    AdminSessionI(const std::string&, const DatabasePtr&, int, const std::string&);
     virtual ~AdminSessionI();
 
     void setAdmin(const AdminPrx&);
@@ -42,6 +42,8 @@ public:
     virtual int startUpdate(const Ice::Current&);
     virtual void finishUpdate(const Ice::Current&);
 
+    virtual std::string getReplicaName(const Ice::Current&) const;
+
     virtual void destroy(const Ice::Current&);
 
 private:
@@ -51,6 +53,7 @@ private:
 
     const int _timeout;
     const AdminPrx _admin;
+    const std::string _replicaName;
     std::map<TopicName, Ice::ObjectPrx> _observers;
 };
 typedef IceUtil::Handle<AdminSessionI> AdminSessionIPtr;

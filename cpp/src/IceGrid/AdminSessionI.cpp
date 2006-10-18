@@ -19,9 +19,10 @@
 using namespace std;
 using namespace IceGrid;
 
-AdminSessionI::AdminSessionI(const string& id, const DatabasePtr& db, int timeout) :
+AdminSessionI::AdminSessionI(const string& id, const DatabasePtr& db, int timeout, const string& replicaName) :
     BaseSessionI(id, "admin", db),
-    _timeout(timeout)
+    _timeout(timeout),
+    _replicaName(replicaName)
 {
 }
 
@@ -115,6 +116,12 @@ AdminSessionI::finishUpdate(const Ice::Current& current)
     }
 
     _database->unlock(this);
+}
+
+string
+AdminSessionI::getReplicaName(const Ice::Current& current) const
+{
+    return _replicaName;
 }
 
 void
@@ -220,7 +227,7 @@ AdminSessionFactory::createGlacier2Session(const string& sessionId, const Glacie
 AdminSessionIPtr
 AdminSessionFactory::createSessionServant(const string& id)
 {
-    return new AdminSessionI(id, _database, _timeout);
+    return new AdminSessionI(id, _database, _timeout, _registry->getName());
 }
 
 const TraceLevelsPtr&

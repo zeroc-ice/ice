@@ -1161,6 +1161,15 @@ interface AdminSession extends Glacier2::Session
      **/
     void finishUpdate()
 	throws AccessDeniedException;
+
+    /**
+     *
+     * Get the name of the registry replica hosting this session.
+     *
+     * @return The replica name of the registry.
+     *
+     **/
+    ["cpp:const"] idempotent string getReplicaName();
 };
 
 };
