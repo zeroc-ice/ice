@@ -995,7 +995,7 @@ interface Admin
      * @throws RegistryNotExistException Raised if the registry doesn't exist.
      *
      **/
-    ["nonmutating", "cpp:const"] idempotent bool pingRegistry(string name)
+    ["cpp:const"] idempotent bool pingRegistry(string name)
 	throws RegistryNotExistException;
 
     /**
@@ -1012,7 +1012,7 @@ interface Admin
      * reached.
      *
      **/
-    ["nonmutating", "cpp:const"] idempotent RegistryInfo getRegistryInfo(string name)
+    ["cpp:const"] idempotent RegistryInfo getRegistryInfo(string name)
 	throws RegistryNotExistException, RegistryUnreachableException;
     
     /**
@@ -1037,7 +1037,7 @@ interface Admin
      * @return The registry names.
      *
      **/
-    ["nonmutating", "cpp:const"] idempotent Ice::StringSeq getAllRegistryNames();
+    ["cpp:const"] idempotent Ice::StringSeq getAllRegistryNames();
 
     /**
      *
