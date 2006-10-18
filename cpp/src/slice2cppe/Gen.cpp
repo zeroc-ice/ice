@@ -41,6 +41,18 @@ getIds(const ClassDefPtr& p, StringList& ids)
     ids.unique();
 }
 
+static string
+getDeprecateSymbol(const ContainedPtr& p1, const ContainedPtr& p2)
+{
+    string deprecateMetadata, deprecateSymbol;
+    if(p1->findMetaData("deprecate", deprecateMetadata) ||
+       (p2 != 0 && p2->findMetaData("deprecate", deprecateMetadata)))
+    {
+        deprecateSymbol = "ICE_DEPRECATED_API ";
+    }
+    return deprecateSymbol;
+}
+
 Slice::Gen::Gen(const string& name, const string& base,	const string& headerExtension,
 	        const string& sourceExtension, const vector<string>& extraHeaders, const string& include,
 		const vector<string>& includePaths, const string& dllExport, const string& dir, bool imp, 
@@ -1467,11 +1479,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     ContainerPtr container = p->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    string deprecateMetadata, deprecateSymbol;
-    if(p->findMetaData("deprecate", deprecateMetadata) || cl->findMetaData("deprecate", deprecateMetadata))
-    {
-	deprecateSymbol = "ICE_DEPRECATED_API ";
-    }
+    string deprecateSymbol = getDeprecateSymbol(p, cl);
     H << sp << nl << deprecateSymbol << retS << ' ' << fixKwd(name) << spar << paramsDecl << epar;
     H << sb;
     H << nl;
@@ -2253,11 +2261,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 
     bool isConst = (p->mode() == Operation::Nonmutating) || p->hasMetaData("cpp:const");
   
-    string deprecateMetadata, deprecateSymbol;
-    if(p->findMetaData("deprecate", deprecateMetadata) || cl->findMetaData("deprecate", deprecateMetadata))
-    {
-	deprecateSymbol = "ICE_DEPRECATED_API ";
-    }
+    string deprecateSymbol = getDeprecateSymbol(p, cl);
 
     H << sp;
     H << nl << deprecateSymbol << "virtual " << retS << ' ' << fixKwd(name) << params << (isConst ? " const" : "")

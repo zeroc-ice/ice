@@ -62,6 +62,22 @@ sliceModeToIceMode(Operation::Mode opMode)
     return mode;
 }
 
+static string
+getDeprecateReason(const ContainedPtr& p1, const ContainedPtr& p2, const string& type)
+{
+    string deprecateMetadata, deprecateReason;
+    if(p1->findMetaData("deprecate", deprecateMetadata) || 
+       (p2 != 0 && p2->findMetaData("deprecate", deprecateMetadata)))
+    {
+        deprecateReason = "This " + type + " has been deprecated.";
+        if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
+        {
+    	    deprecateReason = deprecateMetadata.substr(10);
+        }
+    }
+    return deprecateReason;
+}
+
 Slice::JavaVisitor::JavaVisitor(const string& dir) :
     JavaGenerator(dir)
 {
@@ -1180,15 +1196,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
 	    ret = op->returnType();
 	}
 
-	string deprecateMetadata, deprecateReason;
-	if((*r)->findMetaData("deprecate", deprecateMetadata) || p->findMetaData("deprecate", deprecateMetadata))
-	{
-	    deprecateReason = "This operation has been deprecated.";
-	    if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
-	    {
-		deprecateReason = deprecateMetadata.substr(10);
-	    }
-	}
+	string deprecateReason = getDeprecateReason(*r, p, "operation");
 
 	string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData());
 	ExceptionList throws = op->throws();
@@ -1886,14 +1894,9 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     out << sp;
 
-    string deprecateMetadata;
-    if(p->findMetaData("deprecate", deprecateMetadata))
+    string deprecateReason = getDeprecateReason(p, 0, "type");
+    if(!deprecateReason.empty())
     {
-	string deprecateReason = "This type has been deprecated.";
-	if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
-	{
-	    deprecateReason = deprecateMetadata.substr(10);
-	}
 	out << nl << "/**";
 	out << nl << " * @deprecated " << deprecateReason;
 	out << nl << " **/";
@@ -2228,14 +2231,9 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     out << sp;
 
-    string deprecateMetadata;
-    if(p->findMetaData("deprecate", deprecateMetadata))
+    string deprecateReason = getDeprecateReason(p, 0, "type");
+    if(!deprecateReason.empty())
     {
-	string deprecateReason = "This type has been deprecated.";
-	if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
-	{
-	    deprecateReason = deprecateMetadata.substr(10);
-	}
 	out << nl << "/**";
 	out << nl << " * @deprecated " << deprecateReason;
 	out << nl << " **/";
@@ -2584,14 +2582,9 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
     out << sp;
 
-    string deprecateMetadata, deprecateReason;
-    if(p->findMetaData("deprecate", deprecateMetadata)  || contained->findMetaData("deprecate", deprecateMetadata))
+    string deprecateReason = getDeprecateReason(p, contained, "member");
+    if(!deprecateReason.empty())
     {
-	deprecateReason = "This member has been deprecated.";
-	if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
-	{
-	    deprecateReason = deprecateMetadata.substr(10);
-	}
 	out << nl << "/**";
 	out << nl << " * @deprecated " << deprecateReason;
 	out << nl << " **/";
@@ -2752,14 +2745,9 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     out << sp;
 
-    string deprecateMetadata;
-    if(p->findMetaData("deprecate", deprecateMetadata))
+    string deprecateReason = getDeprecateReason(p, 0, "type");
+    if(!deprecateReason.empty())
     {
-	string deprecateReason = "This type has been deprecated.";
-	if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
-	{
-	    deprecateReason = deprecateMetadata.substr(10);
-	}
 	out << nl << "/**";
 	out << nl << " * @deprecated " << deprecateReason;
 	out << nl << " **/";
@@ -3889,15 +3877,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     throws.sort();
     throws.unique();
 
-    string deprecateMetadata, deprecateReason;
-    if(p->findMetaData("deprecate", deprecateMetadata) || cl->findMetaData("deprecate", deprecateMetadata))
-    {
-	deprecateReason = "This operation has been deprecated.";
-	if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
-	{
-	    deprecateReason = deprecateMetadata.substr(10);
-	}
-    }
+    string deprecateReason = getDeprecateReason(p, cl, "operation");
 
     //
     // Write two versions of the operation - with and without a

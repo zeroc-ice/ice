@@ -69,6 +69,22 @@ sliceModeToIceMode(Operation::Mode opMode)
     return mode;
 }
 
+static void
+emitDeprecate(const ContainedPtr& p1, const ContainedPtr& p2, Output& out, const string& type)
+{
+    string deprecateMetadata;
+    if(p1->findMetaData("deprecate", deprecateMetadata) || 
+       (p2 != 0 && p2->findMetaData("deprecate", deprecateMetadata)))
+    {
+	string deprecateReason = "This " + type + " has been deprecated.";
+	if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
+	{
+	    deprecateReason = deprecateMetadata.substr(10);
+	}
+	out << nl << "[System.Obsolete(\"" << deprecateReason << "\")]";
+    }
+}
+
 Slice::CsVisitor::CsVisitor(Output& out) : _out(out)
 {
 }
@@ -1584,16 +1600,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
     _out << sp;
 
-    string deprecateMetadata;
-    if(p->findMetaData("deprecate", deprecateMetadata))
-    {
-	string deprecateReason = "This type has been deprecated.";
-	if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
-	{
-	    deprecateReason = deprecateMetadata.substr(10);
-	}
-	_out << nl << "[System.Obsolete(\"" << deprecateReason << "\")]";
-    }
+    emitDeprecate(p, 0, _out, "type");
 
     emitAttributes(p);
     _out << nl << "public class " << name
@@ -1965,16 +1972,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     _out << sp;
 
-    string deprecateMetadata;
-    if(p->findMetaData("deprecate", deprecateMetadata))
-    {
-	string deprecateReason = "This type has been deprecated.";
-	if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
-	{
-	    deprecateReason = deprecateMetadata.substr(10);
-	}
-	_out << nl << "[System.Obsolete(\"" << deprecateReason << "\")]";
-    }
+    emitDeprecate(p, 0, _out, "type");
 
     emitAttributes(p);
     _out << nl << "public class " << name << " : ";
@@ -2357,16 +2355,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     _out << sp;
 
-    string deprecateMetadata;
-    if(p->findMetaData("deprecate", deprecateMetadata))
-    {
-	string deprecateReason = "This type has been deprecated.";
-	if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
-	{
-	    deprecateReason = deprecateMetadata.substr(10);
-	}
-	_out << nl << "[System.Obsolete(\"" << deprecateReason << "\")]";
-    }
+    emitDeprecate(p, 0, _out, "type");
 
     emitAttributes(p);
     if(isValueType(p))
@@ -2693,16 +2682,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
     _out << sp;
 
-    string deprecateMetadata;
-    if(p->findMetaData("deprecate", deprecateMetadata))
-    {
-	string deprecateReason = "This type has been deprecated.";
-	if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
-	{
-	    deprecateReason = deprecateMetadata.substr(10);
-	}
-	_out << nl << "[System.Obsolete(\"" << deprecateReason << "\")]";
-    }
+    emitDeprecate(p, 0, _out, "type");
 
     emitAttributes(p);
     _out << nl << "public class " << name
@@ -2956,16 +2936,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     EnumeratorList enumerators = p->getEnumerators();
     _out << sp;
 
-    string deprecateMetadata;
-    if(p->findMetaData("deprecate", deprecateMetadata))
-    {
-	string deprecateReason = "This type has been deprecated.";
-	if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
-	{
-	    deprecateReason = deprecateMetadata.substr(10);
-	}
-	_out << nl << "[System.Obsolete(\"" << deprecateReason << "\")]";
-    }
+    emitDeprecate(p, 0, _out, "type");
 
     emitAttributes(p);
     _out << nl << "public enum " << name;
@@ -3109,16 +3080,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
     _out << sp;
 
-    string deprecateMetadata;
-    if(p->findMetaData("deprecate", deprecateMetadata) || cont->findMetaData("deprecate", deprecateMetadata))
-    {
-	string deprecateReason = "This member has been deprecated.";
-	if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
-	{
-	    deprecateReason = deprecateMetadata.substr(10);
-	}
-	_out << nl << "[System.Obsolete(\"" << deprecateReason << "\")]";
-    }
+    emitDeprecate(p, cont, _out, "member");
 
     emitAttributes(p);
 
@@ -3386,16 +3348,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
 
 	_out << sp;
 
-	string deprecateMetadata;
-	if(op->findMetaData("deprecate", deprecateMetadata) || p->findMetaData("deprecate", deprecateMetadata))
-	{
-	    string deprecateReason = "This operation has been deprecated.";
-	    if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
-	    {
-		deprecateReason = deprecateMetadata.substr(10);
-	    }
-	    _out << nl << "[System.Obsolete(\"" << deprecateReason << "\")]";
-	}
+        emitDeprecate(op, p, _out, "operation");
 
 	emitAttributes(op);
 	string retS = typeToString(ret);
