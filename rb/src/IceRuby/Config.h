@@ -35,6 +35,8 @@
 #ifdef _WIN32
 #undef shutdown
 #undef close
+#undef read
+#undef write
 #endif
 
 extern "C"
