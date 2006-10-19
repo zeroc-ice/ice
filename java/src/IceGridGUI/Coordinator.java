@@ -1058,13 +1058,15 @@ public class Coordinator
 						      + e.toString(),
 						      "Login failed",
 						      JOptionPane.ERROR_MESSAGE);
+			return null;
 		    }
 		    else
 		    {
 			if(JOptionPane.showConfirmDialog(
 			       parent,
-			       "Unable to connect to the Master Registry; do you want to connect to a Slave Registry?",
-			       "Master Registry down",
+			       "Unable to connect to the Master Registry: " + e.toString()
+			       + "\n\nDo you want to connect to a Slave Registry?",
+			       "Cannot connect to Master Registry",
 			       JOptionPane.YES_NO_OPTION,
 			       JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION)
 			{
