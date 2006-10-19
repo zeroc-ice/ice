@@ -237,25 +237,24 @@ NodeSessionManager::create(const NodeIPtr& node)
     // to load the servers on the node (when createSession invokes
     // loadServers() on the session).
     //
-    //_thread->tryCreateSession(_master);
+    _thread->tryCreateSession(false);
 }
 
 void
 NodeSessionManager::create(const InternalRegistryPrx& replica)
 {
     assert(_thread);
+    NodeSessionKeepAliveThreadPtr thread;
     if(replica->ice_getIdentity() == _master->ice_getIdentity())
     {
-	_thread->tryCreateSession(replica);
+	thread = _thread;
     }
     else
     {
-	NodeSessionKeepAliveThreadPtr thread = replicaAdded(replica);
-	if(thread)
-	{
-	    thread->tryCreateSession(replica);
-	}
+	thread = replicaAdded(replica);
     }
+    thread->setRegistry(replica);
+    thread->tryCreateSession();
 }
 
 void
@@ -309,6 +308,7 @@ NodeSessionManager::replicaAdded(const InternalRegistryPrx& replica)
     NodeSessionKeepAliveThreadPtr thread = new NodeSessionKeepAliveThread(replica, _node, _queryObjects);
     _sessions.insert(make_pair(replica->ice_getIdentity(), thread));
     thread->start();
+    thread->tryCreateSession(false);
     return thread;
 }
 
@@ -361,7 +361,7 @@ NodeSessionManager::syncReplicas(const InternalRegistryPrxSeq& replicas)
 	{
 	    thread = new NodeSessionKeepAliveThread(*p, _node, _queryObjects);
 	    thread->start();
-	    thread->tryCreateSession(*p);
+	    thread->tryCreateSession(false);
 	}
 	_sessions.insert(make_pair((*p)->ice_getIdentity(), thread));
     }

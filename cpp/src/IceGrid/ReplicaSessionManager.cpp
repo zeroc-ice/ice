@@ -288,7 +288,7 @@ ReplicaSessionManager::create(const string& name,
 	notifyAll();
     }    
 
-    _thread->tryCreateSession(0);
+    _thread->tryCreateSession();
 }
 
 void
@@ -308,7 +308,8 @@ ReplicaSessionManager::create(const InternalRegistryPrx& replica)
 	return;
     }
 
-    _thread->tryCreateSession(replica);
+    _thread->setRegistry(replica);
+    _thread->tryCreateSession();
 }
 
 NodePrxSeq

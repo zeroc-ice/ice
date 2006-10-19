@@ -28,17 +28,24 @@ class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<I
     {
 	Disconnected,
 	Connected,
-	Retry,
-	DestroySession,
+	InProgress,
 	Destroyed
+    };
+
+    enum Action
+    {
+	Connect,
+	Disconnect,
+	KeepAlive,
+	None
     };
 
 public:
 
     SessionKeepAliveThread(const InternalRegistryPrx& registry) : 
 	_registry(registry),
-	_state(Disconnected),
-	_destroySession(false)
+	_state(InProgress),
+	_nextAction(None)
     {
     }
 
@@ -46,86 +53,104 @@ public:
     run()
     {
 	TPrx session;
-	InternalRegistryPrx registry = _registry;
-	bool updateState = false;
+	InternalRegistryPrx registry;
 	IceUtil::Time timeout = IceUtil::Time::seconds(10); 
-	bool destroy = false;
+	Action action = Connect;
 
 	while(true)
 	{
-	    //
-	    // Send a keep alive message to the session.
-	    //
-	    if(session)
-	    {
-		if(!keepAlive(session))
-		{
-		    session = 0;
-		}
-		updateState |= !session;
-	    }
-	    
-	    //
-	    // If the session isn't established yet, try to create a new
-	    // session.
-	    //
-	    if(!session)
-	    {
-		session = createSession(registry, timeout);
-		updateState |= session;
-	    }
-
-	    if(updateState)
 	    {
 		Lock sync(*this);
-		if(_state != Destroyed)
+		if(_state == Destroyed)
 		{
-		    _state = session ? Connected : Disconnected;
+		    break;
 		}
+
+		//
+		// Update the current state.
+		//
+		assert(_state == InProgress);
+		_state = session ? Connected : Disconnected;
 		_session = session;
+		if(_nextAction == Connect && _state == Connected)
+		{
+		    _nextAction = KeepAlive;
+		}
+		else if(_nextAction == Disconnect && _state == Disconnected)
+		{
+		    _nextAction = None;
+		}
+		else if(_nextAction == KeepAlive && _state == Disconnected)
+		{
+		    _nextAction = Connect;
+		}
+		notifyAll();
+
+
+		//
+		// Wait if there's nothing to do and if we are
+		// connected or if we've just tried to connect.
+		//
+		if(_nextAction == None)
+		{
+		    if(_state == Connected || (action == Connect || action == KeepAlive))
+		    {
+			while(_state != Destroyed && _nextAction == None)
+			{
+			    if(!timedWait(timeout))
+			    {
+				break;
+			    }
+			}
+		    }
+		    if(_nextAction == None)
+		    {
+			_nextAction = session ? KeepAlive : Connect;
+		    }
+		}
+
+		if(_state == Destroyed)
+		{
+		    break;
+		}
+		
+		assert(_nextAction != None);
+		
+		action = _nextAction;
+		registry = _registry;
+		_nextAction = None;
+		_state = InProgress;
 		notifyAll();
 	    }
 
-	    //
-	    // Wait for the configured timeout duration.
-	    //
+	    switch(action)
 	    {
-		Lock sync(*this);
-		if(_state == Destroyed)
-		{
-		    break;
-		}
-		else if(_state == Connected || _state == Disconnected)
-		{
-		    timedWait(timeout);
-		}
-		
-		if(_state == Destroyed)
-		{
-		    break;
-		}
-		else if(_state == DestroySession && session)
-		{
-		    destroy = true;
-		}
-
-		updateState = _state == Retry || _state == DestroySession;
-		registry = _registry;
-	    }
-
-	    if(destroy)
-	    {
+	    case Connect:
+		assert(!session);
+		session = createSession(registry, timeout);
+		break;
+	    case Disconnect:
 		assert(session);
 		destroySession(session);
-		destroy = false;
 		session = 0;
+		break;
+	    case KeepAlive:
+		assert(session);
+		if(!keepAlive(session))
+		{
+		    session = createSession(registry, timeout);
+		}
+		break;
+	    case None:
+	    default:
+		assert(false);
 	    }
 	}
 	
 	//
 	// Destroy the session.
 	//
-	if(_destroySession && session)
+	if(_nextAction == Disconnect && session)
 	{
 	    destroySession(session);
 	}
@@ -142,44 +167,48 @@ public:
 	return _state != Destroyed;
     }
 
-    virtual bool
-    tryCreateSession(const InternalRegistryPrx& registry)
+    virtual void
+    tryCreateSession(bool waitForTry = true)
     {
 	{
 	    Lock sync(*this);
-	    while(_state == Retry)
-	    {
-		wait();
-	    }
-
 	    if(_state == Destroyed)
 	    {
-		return false;
+		return;
 	    }
 
-	    _state = Retry;
-	    if(registry)
+	    if(_state == Connected)
 	    {
-		_registry = registry;
+		_nextAction = KeepAlive;
+	    }
+	    else
+	    {
+		_nextAction = Connect;
 	    }
 	    notifyAll();
 	}
+
+	if(waitForTry)
 	{
 	    Lock sync(*this);
-	    while(_state == Retry)
+	    // Wait until the action is executed and the state changes.
+	    while((_nextAction == Connect || _nextAction == KeepAlive) || _state == InProgress)
 	    {
 		wait();
 	    }
 	}
-	return true;
     }
 
     void
     destroyActiveSession()
     {
 	Lock sync(*this);
-	_state = DestroySession;
-	notifyAll();	
+	if(_state == Destroyed || _state == Disconnected)
+	{
+	    return;
+	}
+	_nextAction = Disconnect;
+	notifyAll();
     }
 
     void
@@ -188,7 +217,7 @@ public:
 	Lock sync(*this);
 	assert(_state != Destroyed);
 	_state = Destroyed;
-	_destroySession = destroySession;
+	_nextAction = destroySession ? Disconnect : None;
 	notifyAll();
     }
 
@@ -222,7 +251,7 @@ protected:
     InternalRegistryPrx _registry;
     TPrx _session;
     State _state;
-    bool _destroySession;
+    Action _nextAction;
 };
 
 };
