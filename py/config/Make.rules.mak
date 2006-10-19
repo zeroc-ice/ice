@@ -41,8 +41,8 @@ PYTHON_HOME		= C:\Python24
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION_MAJOR           = 3
-VERSION_MINOR           = 2
+VERSION_MAJOR           = 4
+VERSION_MINOR           = 0
 VERSION_PATCH           = 0
 VERSION			= $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)
 SOVERSION		= $(VERSION_MAJOR)$(VERSION_MINOR)

@@ -21,7 +21,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCopyright("Copyright (c) 2003-2005, ZeroC, Inc.")]
 [assembly: AssemblyTrademark("Ice")]
 [assembly: AssemblyCulture("")]		
-[assembly: AssemblyVersion("3.1.0")]
+[assembly: AssemblyVersion("4.0.0")]
 [assembly: AssemblyDelaySign(false)]
 
 #if ICE_DOTNET_1X && !__MonoCS__

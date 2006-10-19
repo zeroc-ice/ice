@@ -43,8 +43,8 @@ THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION			= 3.2.0
-SOVERSION		= 32
+VERSION			= 4.0.0
+SOVERSION		= 40
 bindir			= $(top_srcdir)\bin
 libdir			= $(top_srcdir)\lib
 includedir		= $(top_srcdir)\include

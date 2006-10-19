@@ -71,7 +71,7 @@ else
 endif
 
 SHELL			= /bin/sh
-VERSION			= 3.1.0
+VERSION			= 4.0.0
 
 bindir			= $(top_srcdir)/bin
 libdir			= $(top_srcdir)/lib

@@ -27,6 +27,20 @@ def soVersion(version):
     minor = int(r.group(2))
     return ("%d%d" % (major, minor)).strip()
 
+def majorVersion(version):
+    r = re.search("([0-9]*)\.([0-9]*)\.([0-9]*)", version)
+    major = int(r.group(1))
+    return ("%d" % (major)).strip()
+
+def minorVersion(version):
+    r = re.search("([0-9]*)\.([0-9]*)\.([0-9]*)", version)
+    minor = int(r.group(2))
+    return ("%d" % (minor)).strip()
+
+def patchVersion(version):
+    r = re.search("([0-9]*)\.([0-9]*)\.([0-9]*)", version)
+    patch = int(r.group(3))
+    return ("%d" % (patch)).strip()
 
 #
 # Find files matching a pattern.
@@ -176,46 +190,16 @@ if not patchIceE:
 			    ("ICE_INT_VERSION ([0-9]*)", intVersion(version))])
 
 	fileMatchAndReplace(os.path.join(ice_home, "config", "Make.rules"),
-			    [("VERSION[\t\s]*= ([0-9]*\.[0-9]*\.[0-9]*)", version),
-			    ("SOVERSION[\t\s]*= ([0-9]*)", soVersion(version))])
+			    [("VERSION_MAJOR[\t\s]*= ([0-9]*)", majorVersion(version)),
+			    ("VERSION_MINOR[\t\s]*= ([0-9]*)", minorVersion(version)),
+			    ("VERSION_PATCH[\t\s]*= ([0-9]*)", patchVersion(version))])
 
 	fileMatchAndReplace(os.path.join(ice_home, "config", "Make.rules.mak"),
 			    [("VERSION[\t\s]*= ([0-9]*\.[0-9]*\.[0-9]*)", version),
 			    ("SOVERSION[\t\s]*= ([0-9]*)", soVersion(version))])
 
-	fileMatchAndReplace(os.path.join(ice_home, "config", "ca", "import.py"),
+	fileMatchAndReplace(os.path.join(ice_home, "src", "ca", "iceca"),
 			    [("Ice-([0-9]*\.[0-9]*\.[0-9]*)", version)])
-	fileMatchAndReplace(os.path.join(ice_home, "config", "ca", "initca.py"),
-			    [("Ice-([0-9]*\.[0-9]*\.[0-9]*)", version)])
-	fileMatchAndReplace(os.path.join(ice_home, "config", "ca", "req.py"),
-			    [("Ice-([0-9]*\.[0-9]*\.[0-9]*)", version)])
-	fileMatchAndReplace(os.path.join(ice_home, "config", "ca", "sign.py"),
-			    [("Ice-([0-9]*\.[0-9]*\.[0-9]*)", version)])
-
-	fileMatchAllAndReplace(os.path.join(ice_home, "src", "Freeze", "freeze.dsp"),
-			       [("freeze([0-9][0-9])d?\.((dll)|(pdb))", soVersion(version))])
-	fileMatchAllAndReplace(os.path.join(ice_home, "src", "Glacier2", "glacier2.dsp"),
-			       [("glacier2([0-9][0-9])d?\.((dll)|(pdb))", soVersion(version))])
-	fileMatchAllAndReplace(os.path.join(ice_home, "src", "Ice", "ice.dsp"),
-			       [("ice([0-9][0-9])d?\.((dll)|(pdb))", soVersion(version))])
-	fileMatchAllAndReplace(os.path.join(ice_home, "src", "IceBox", "icebox.dsp"),
-			       [("icebox([0-9][0-9])d?\.((dll)|(pdb))", soVersion(version))])
-	fileMatchAllAndReplace(os.path.join(ice_home, "src", "IceGrid", "icegrid.dsp"),
-			       [("icegrid([0-9][0-9])d?\.((dll)|(pdb))", soVersion(version))])
-	fileMatchAllAndReplace(os.path.join(ice_home, "src", "IcePatch2", "icepatch2.dsp"),
-			       [("icepatch2([0-9][0-9])d?\.((dll)|(pdb))", soVersion(version))])
-	fileMatchAllAndReplace(os.path.join(ice_home, "src", "IceSSL", "icessl.dsp"),
-			       [("icessl([0-9][0-9])d?\.((dll)|(pdb))", soVersion(version))])
-	fileMatchAllAndReplace(os.path.join(ice_home, "src", "IceStorm", "icestorm.dsp"),
-			       [("icestorm([0-9][0-9])d?\.((dll)|(pdb))", soVersion(version))])
-	fileMatchAllAndReplace(os.path.join(ice_home, "src", "IceStorm", "icestormS.dsp"),
-			       [("icestormservice([0-9][0-9])d?\.((dll)|(pdb))", soVersion(version))])
-	fileMatchAllAndReplace(os.path.join(ice_home, "src", "IceUtil", "iceutil.dsp"),
-			       [("iceutil([0-9][0-9])d?\.((dll)|(pdb))", soVersion(version))])
-	fileMatchAllAndReplace(os.path.join(ice_home, "src", "IceXML", "icexml.dsp"),
-			       [("icexml([0-9][0-9])d?\.((dll)|(pdb))", soVersion(version))])
-	fileMatchAllAndReplace(os.path.join(ice_home, "src", "Slice", "slice.dsp"),
-			       [("slice([0-9][0-9])d?\.((dll)|(pdb))", soVersion(version))])
 
     #
     # Fix version in IceJ sources
@@ -253,11 +237,17 @@ if not patchIceE:
     #
     # Fix version in IcePy
     #
-    icephp_home = findSourceTree("icepy", os.path.join("modules", "IcePy", "Config.h"))
-    if icephp_home:
-	fileMatchAndReplace(os.path.join(icephp_home, "config", "Make.rules"),
-			    [("^VERSION[ \t]+=[^\d]*([\d\.]+)", version),
-			     ("^SOVERSION[\t\s]*= ([0-9]*)", soVersion(version))])
+    icepy_home = findSourceTree("icepy", os.path.join("modules", "IcePy", "Config.h"))
+    if icepy_home:
+	fileMatchAndReplace(os.path.join(icepy_home, "config", "Make.rules"),
+			    [("VERSION_MAJOR[\t\s]*= ([0-9]*)", majorVersion(version)),
+			    ("VERSION_MINOR[\t\s]*= ([0-9]*)", minorVersion(version)),
+			    ("VERSION_PATCH[\t\s]*= ([0-9]*)", patchVersion(version))])
+
+	fileMatchAndReplace(os.path.join(icepy_home, "config", "Make.rules.mak"),
+			    [("VERSION_MAJOR[\t\s]*= ([0-9]*)", majorVersion(version)),
+			    ("VERSION_MINOR[\t\s]*= ([0-9]*)", minorVersion(version)),
+			    ("VERSION_PATCH[\t\s]*= ([0-9]*)", patchVersion(version))])
 
     sys.exit(0)
 
