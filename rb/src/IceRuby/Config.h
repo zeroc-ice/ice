@@ -33,10 +33,10 @@
 // functions like shutdown() and close() that wreak havoc.
 //
 #ifdef _WIN32
-#undef shutdown
-#undef close
-#undef read
-#undef write
+#   undef shutdown
+#   undef close
+#   undef read
+#   undef write
 #endif
 
 extern "C"
