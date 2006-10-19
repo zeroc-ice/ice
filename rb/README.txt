@@ -6,23 +6,23 @@ with supporting libraries and sample programs.
 
 Requirements:
 
-* Ice 3.1.1 for Microsoft Visual C++ 6.0
-* Ruby 1.8.4 or 1.8.5
+- Ice 3.1.1 for Microsoft Visual C++ 6.0
+- Ruby 1.8.5
 
 You can obtain a Windows installer for Ice 3.1.1 from the ZeroC
 web site:
 
-http://www.zeroc.com/download.html
+  http://www.zeroc.com/download.html
 
 An installer for Ruby is available here:
 
-http://rubyforge.org/projects/rubyinstaller/
+  http://rubyforge.org/projects/rubyinstaller/
 
 
 Installation Instructions
 -------------------------
 
-The steps below assume you have extracted the Ice for Ruby archive
+The steps below assume you have extracted this Ice for Ruby archive
 into the C:\IceRuby-3.1.1 directory.
 
 1. Add C:\IceRuby-3.1.1\bin to your PATH.
