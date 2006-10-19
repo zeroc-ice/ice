@@ -422,22 +422,32 @@ NodeSessionManager::createdSession(const NodeSessionPrx& session)
 	    else
 	    {
 		replicas.clear();
-		set<Ice::ObjectPrx> proxies;
+		map<Ice::Identity, Ice::ObjectPrx> proxies;
 		for(vector<QueryPrx>::const_iterator p = _queryObjects.begin(); p != _queryObjects.end(); ++p)
 		{
 		    try
 		    {
 			Ice::ObjectProxySeq prxs = (*p)->findAllObjectsByType(InternalRegistry::ice_staticId());
-			proxies.insert(prxs.begin(), prxs.end());
+			for(Ice::ObjectProxySeq::const_iterator q = prxs.begin(); q != prxs.end(); ++q)
+			{
+			    //
+			    // NOTE: We might override a good proxy
+			    // here! We could improve this to make
+			    // sure that we don't override the proxy
+			    // for replica N if that proxy was
+			    // obtained from replica N.
+			    //
+			    proxies[(*q)->ice_getIdentity()] = *q;
+			}
 		    }
 		    catch(const Ice::LocalException&)
 		    {
 			// IGNORE
 		    }
 		}
-		for(set<Ice::ObjectPrx>::const_iterator q = proxies.begin(); q != proxies.end(); ++q)
+		for(map<Ice::Identity, Ice::ObjectPrx>::const_iterator q = proxies.begin(); q != proxies.end(); ++q)
 		{
-		    replicas.push_back(InternalRegistryPrx::uncheckedCast(*q));
+		    replicas.push_back(InternalRegistryPrx::uncheckedCast(q->second));
 		}
 	    }
 	}
