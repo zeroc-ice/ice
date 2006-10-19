@@ -12,7 +12,7 @@ top_srcdir	= ..\..
 !include $(top_srcdir)/config/Make.rules.mak
 
 
-SUBDIRS		= simple deployer session update activation replicaGroup allocation
+SUBDIRS		= simple deployer session update activation replicaGroup allocation replication
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \
