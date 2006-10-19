@@ -58,6 +58,7 @@ ICEGRID_SRCS	= IceGrid_Admin_ice.py \
 		  IceGrid_Exception_ice.py \
 		  IceGrid_FileParser_ice.py \
 		  IceGrid_Observer_ice.py \
+		  IceGrid_Locator_ice.py \
 		  IceGrid_Query_ice.py \
 		  IceGrid_Registry_ice.py \
 		  IceGrid_Session_ice.py \
