@@ -44,7 +44,7 @@ public:
 	}
 
 	virtual ReplicaSessionPrx 
-	createSession(const InternalRegistryPrx& master, IceUtil::Time& timeout)
+	createSession(InternalRegistryPrx& master, IceUtil::Time& timeout)
         {
 	    return _manager.createSession(master, timeout);
 	}
@@ -84,7 +84,7 @@ private:
 
     friend class Thread;
 
-    ReplicaSessionPrx createSession(const InternalRegistryPrx&, IceUtil::Time&);
+    ReplicaSessionPrx createSession(InternalRegistryPrx&, IceUtil::Time&);
     ReplicaSessionPrx createSessionImpl(const InternalRegistryPrx&, IceUtil::Time&);
     void destroySession(const ReplicaSessionPrx&);
     bool keepAlive(const ReplicaSessionPrx&);

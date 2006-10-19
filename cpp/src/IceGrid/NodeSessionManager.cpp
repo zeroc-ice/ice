@@ -35,7 +35,7 @@ NodeSessionKeepAliveThread::NodeSessionKeepAliveThread(const InternalRegistryPrx
 }
 
 NodeSessionPrx
-NodeSessionKeepAliveThread::createSession(const InternalRegistryPrx& registry, IceUtil::Time& timeout)
+NodeSessionKeepAliveThread::createSession(InternalRegistryPrx& registry, IceUtil::Time& timeout)
 {
     NodeSessionPrx session;
     auto_ptr<Ice::Exception> exception;
@@ -59,7 +59,7 @@ NodeSessionKeepAliveThread::createSession(const InternalRegistryPrx& registry, I
 	    {
 		exception.reset(ex.ice_clone());
 		used.insert(registry);
-		setRegistry(InternalRegistryPrx::uncheckedCast(registry->ice_endpoints(Ice::EndpointSeq())));
+		registry = InternalRegistryPrx::uncheckedCast(registry->ice_endpoints(Ice::EndpointSeq()));
 	    }
 	}
 
@@ -75,7 +75,7 @@ NodeSessionKeepAliveThread::createSession(const InternalRegistryPrx& registry, I
 		    if(newRegistry && used.find(newRegistry) == used.end())
 		    {
 			session = createSessionImpl(newRegistry, timeout);
-			setRegistry(newRegistry);
+			registry = newRegistry;
 			break;
 		    }
 		}
@@ -323,7 +323,7 @@ NodeSessionManager::replicaRemoved(const InternalRegistryPrx& replica)
 	    return;
 	}
 
-	--_serial;
+	++_serial;
 	NodeSessionMap::iterator p = _sessions.find(replica->ice_getIdentity());
 	if(p != _sessions.end())
 	{

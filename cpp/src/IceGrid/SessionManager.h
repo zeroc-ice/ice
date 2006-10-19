@@ -72,6 +72,10 @@ public:
 		assert(_state == InProgress);
 		_state = session ? Connected : Disconnected;
 		_session = session;
+		if(_session)
+		{
+		    _registry = registry;
+		}
 		if(_nextAction == Connect && _state == Connected)
 		{
 		    _nextAction = KeepAlive;
@@ -242,7 +246,7 @@ public:
 	return _registry;
     }
     
-    virtual TPrx createSession(const InternalRegistryPrx&, IceUtil::Time&) = 0;
+    virtual TPrx createSession(InternalRegistryPrx&, IceUtil::Time&) = 0;
     virtual void destroySession(const TPrx&) = 0;
     virtual bool keepAlive(const TPrx&) = 0;
 

@@ -30,7 +30,7 @@ public:
 
     NodeSessionKeepAliveThread(const InternalRegistryPrx&, const NodeIPtr&, const std::vector<QueryPrx>&);
 
-    virtual NodeSessionPrx createSession(const InternalRegistryPrx&, IceUtil::Time&);
+    virtual NodeSessionPrx createSession(InternalRegistryPrx&, IceUtil::Time&);
     virtual void destroySession(const NodeSessionPrx&);
     virtual bool keepAlive(const NodeSessionPrx&);
 
@@ -75,7 +75,7 @@ private:
 	}
 
 	virtual NodeSessionPrx 
-	createSession(const InternalRegistryPrx& master, IceUtil::Time& timeout)
+	createSession(InternalRegistryPrx& master, IceUtil::Time& timeout)
         {
 	    NodeSessionPrx session = NodeSessionKeepAliveThread::createSession(master, timeout);
 	    _manager.createdSession(session);

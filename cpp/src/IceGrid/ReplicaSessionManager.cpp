@@ -398,7 +398,7 @@ ReplicaSessionManager::keepAlive(const ReplicaSessionPrx& session)
 }
 
 ReplicaSessionPrx
-ReplicaSessionManager::createSession(const InternalRegistryPrx& registry, IceUtil::Time& timeout)
+ReplicaSessionManager::createSession(InternalRegistryPrx& registry, IceUtil::Time& timeout)
 {
     ReplicaSessionPrx session;
     auto_ptr<Ice::Exception> exception;
@@ -421,7 +421,7 @@ ReplicaSessionManager::createSession(const InternalRegistryPrx& registry, IceUti
 	    {
 		exception.reset(ex.ice_clone());
 		used.insert(registry);
-		_thread->setRegistry(InternalRegistryPrx::uncheckedCast(registry->ice_endpoints(Ice::EndpointSeq())));
+		registry = InternalRegistryPrx::uncheckedCast(registry->ice_endpoints(Ice::EndpointSeq()));
 	    }
 	}
 
@@ -437,7 +437,7 @@ ReplicaSessionManager::createSession(const InternalRegistryPrx& registry, IceUti
 		    if(newRegistry && used.find(newRegistry) == used.end())
 		    {
 			session = createSessionImpl(newRegistry, timeout);
-			_thread->setRegistry(newRegistry);
+			registry = newRegistry;
 			break;
 		    }
 		}
