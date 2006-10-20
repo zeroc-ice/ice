@@ -3,7 +3,7 @@
     <ProjectType>Local</ProjectType>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{212A63B7-D2C4-41EC-ABDF-534BC425D486}</ProjectGuid>
+    <ProjectGuid>{B41A6B60-9582-4814-9291-4758BEF1E9CC}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ApplicationIcon>
@@ -75,19 +75,17 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="glacier2cs">
+      <Name>glacier2cs</Name>
+      <HintPath>..\..\..\bin\glacier2cs.dll</HintPath>
+    </Reference>
+    <Reference Include="icecs">
+      <Name>icecs</Name>
+      <HintPath>..\..\..\bin\icecs.dll</HintPath>
+    </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
-    <ProjectReference Include="..\..\..\src\Glacier2\Glacier2.csproj">
-      <Name>Glacier2</Name>
-      <Project>{F6EAFA67-FF43-4C8B-BF7F-86F79DCCDA1A}</Project>
-      <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\src\Ice\Ice.csproj">
-      <Name>Ice</Name>
-      <Project>{C3630502-8F67-42BF-B4CA-A21D2EA8049E}</Project>
-      <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="SessionI.cs">

@@ -3,7 +3,7 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{5675512A-559A-4916-908E-35825BE29B6B}"
+        ProjectGuid = "{2AC78A13-497B-44B1-8BF0-156877B78293}"
     >
         <Build>
             <Settings
@@ -16,7 +16,7 @@
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Exe"
-                PreBuildEvent = "$(SolutionDir)\bin\generatecs.exe $(SolutionDir) $(ProjectDir) glacier2callbackC"
+                PreBuildEvent = "$(SolutionDir)\..\bin\generatecs.exe $(SolutionDir) $(ProjectDir) glacier2callbackC"
                 PostBuildEvent = ""
                 RootNamespace = ""
                 RunPostBuildEvent = "OnBuildSuccess"
@@ -70,19 +70,24 @@
                     HintPath = "..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.dll"
                 />
                 <Reference
-                    Name = "Ice"
-                    Project = "{C3630502-8F67-42BF-B4CA-A21D2EA8049E}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                    Name = "icecs"
+                    AssemblyName = "icecs"
+                    HintPath = "..\..\..\bin\icecs.dll"
                 />
                 <Reference
-                    Name = "Glacier2"
-                    Project = "{F6EAFA67-FF43-4C8B-BF7F-86F79DCCDA1A}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                    Name = "glacier2cs"
+                    AssemblyName = "glacier2cs"
+                    HintPath = "..\..\bin\glacier2cs.dll"
                 />
             </References>
         </Build>
         <Files>
             <Include>
+                <File
+                    RelPath = "CallbackI.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
                 <File
                     RelPath = "CallbackReceiverI.cs"
                     SubType = "Code"

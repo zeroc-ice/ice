@@ -3,7 +3,7 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{73D1719A-7415-478B-ABC7-BED6F3C65ED7}"
+        ProjectGuid = "{2E01BB07-5E3A-4563-AE3B-C357672BEEF7}"
     >
         <Build>
             <Settings
@@ -16,7 +16,7 @@
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Exe"
-                PreBuildEvent = "$(SolutionDir)\bin\generatecs.exe $(SolutionDir) $(ProjectDir) simpleFSC"
+                PreBuildEvent = "$(SolutionDir)\..\bin\generatecs.exe $(SolutionDir) $(ProjectDir) simpleFSC"
                 PostBuildEvent = ""
                 RootNamespace = ""
                 RunPostBuildEvent = "OnBuildSuccess"
@@ -32,7 +32,7 @@
                     DocumentationFile = ""
                     DebugSymbols = "true"
                     FileAlignment = "4096"
-                    IncrementalBuild = "true"
+                    IncrementalBuild = "false"
                     NoStdLib = "false"
                     NoWarn = ""
                     Optimize = "false"
@@ -70,9 +70,9 @@
                     HintPath = "..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.dll"
                 />
                 <Reference
-                    Name = "Ice"
-                    Project = "{C3630502-8F67-42BF-B4CA-A21D2EA8049E}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                    Name = "icecs"
+                    AssemblyName = "icecs"
+                    HintPath = "..\..\..\bin\icecs.dll"
                 />
             </References>
         </Build>

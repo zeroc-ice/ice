@@ -75,19 +75,17 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="iceboxcs">
+      <Name>iceboxcs</Name>
+      <HintPath>..\..\..\bin\iceboxcs.dll</HintPath>
+    </Reference>
+    <Reference Include="icecs">
+      <Name>icecs</Name>
+      <HintPath>..\..\..\bin\icecs.dll</HintPath>
+    </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
-    <ProjectReference Include="..\..\..\src\IceBox\IceBox.csproj">
-      <Name>IceBox</Name>
-      <Project>{EDE89B8B-D826-4A1D-BC88-E877A4D4E35E}</Project>
-      <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\src\Ice\Ice.csproj">
-      <Name>Ice</Name>
-      <Project>{C3630502-8F67-42BF-B4CA-A21D2EA8049E}</Project>
-      <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="generated\Hello.cs">
@@ -102,7 +100,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>"$(SolutionDir)."\bin\generatecs.exe "$(SolutionDir)." "$(ProjectDir)." $(ProjectName)</PreBuildEvent>
+    <PreBuildEvent>"$(SolutionDir)."\..\bin\generatecs.exe "$(SolutionDir)." "$(ProjectDir)." $(ProjectName)</PreBuildEvent>
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>

@@ -3,7 +3,7 @@
     <ProjectType>Local</ProjectType>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{CE404B99-3005-4376-A27D-FE25C2D5CA01}</ProjectGuid>
+    <ProjectGuid>{09767289-E658-49F2-ADD6-2EB467328E6F}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ApplicationIcon>
@@ -75,14 +75,13 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="icecs">
+      <Name>icecs</Name>
+      <HintPath>..\..\..\bin\icecs.dll</HintPath>
+    </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
-    <ProjectReference Include="..\..\..\src\Ice\Ice.csproj">
-      <Name>Ice</Name>
-      <Project>{C3630502-8F67-42BF-B4CA-A21D2EA8049E}</Project>
-      <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Client.cs">
@@ -103,7 +102,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>"$(SolutionDir)."\bin\generatecs.exe "$(SolutionDir)." "$(ProjectDir)." $(ProjectName)</PreBuildEvent>
+    <PreBuildEvent>"$(SolutionDir)."\..\bin\generatecs.exe "$(SolutionDir)." "$(ProjectDir)." $(ProjectName)</PreBuildEvent>
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
