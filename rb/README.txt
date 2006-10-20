@@ -1,12 +1,14 @@
 Ice for Ruby Preview Release
 ----------------------------
 
-The archive you downloaded contains the Ice extension for Ruby, along
-with supporting libraries and sample programs.
+This binary archive contains the Ice extension for Ruby, supporting
+libraries and sample programs. The executables and DLLs in this
+archive were compiled with Microsoft Visual C++ 6.0 for compatibility
+with Ruby.
 
 Requirements:
 
-- Ice 3.1.1 for Microsoft Visual C++ 6.0
+- Ice for C++ 3.1.1 run time (Microsoft Visual C++ 6.0)
 - Ruby 1.8.5
 
 You can obtain a Windows installer for Ice 3.1.1 from the ZeroC

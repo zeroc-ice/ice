@@ -8,7 +8,7 @@ default C++ compiler, GCC 4.1.1.
 
 Requirements:
 
-- Ice 3.1.1 for Linux
+- Ice for C++ 3.1.1 run time
 - Ruby 1.8.4
 
 You can obtain RPMs or a Linux binary archive of Ice 3.1.1 from the

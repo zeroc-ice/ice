@@ -81,14 +81,14 @@ Follow these steps:
 
      C:\ruby\lib
 
-7. Open the all.dsw workspace in the Ice for Ruby source
+5. Open the all.dsw workspace in the Ice for Ruby source
    directory.
 
-8. Choose Build->Set Active Configuration and select
+6. Choose Build->Set Active Configuration and select
 
    IceRuby - Win32 Release
 
-9. Choose Build->Build IceRuby.dll
+7. Choose Build->Build IceRuby.dll
 
 If no errors occurred, you can now begin using Ice for Ruby.
 
