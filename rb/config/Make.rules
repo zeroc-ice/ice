@@ -84,7 +84,7 @@ endif
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION			= 3.1.0
+VERSION			= 3.1.1
 SOVERSION		= 31
 libdir			= $(top_srcdir)/ruby
 
