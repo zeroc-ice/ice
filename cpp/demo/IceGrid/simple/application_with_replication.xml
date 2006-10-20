@@ -21,7 +21,7 @@
     </server-template>
 
     <replica-group id="ReplicatedHelloAdapter">
-<!--      <load-balancing type="round-robin"/> -->
+      <load-balancing type="round-robin"/>
       <object identity="hello" type="::Demo::Hello"/>
     </replica-group>
 
