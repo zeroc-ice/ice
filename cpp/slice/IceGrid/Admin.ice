@@ -1111,9 +1111,13 @@ interface AdminSession extends Glacier2::Session
      *
      * @param objObs The object observer.
      *
+     * @throws ObserverAlreadyRegisteredException Raised if an
+     * observer is already registered with this registry.
+     *
      **/
     idempotent void setObservers(RegistryObserver* registryObs, NodeObserver* nodeObs, ApplicationObserver* appObs,
-				 AdapterObserver* adptObs, ObjectObserver* objObs);
+				 AdapterObserver* adptObs, ObjectObserver* objObs)
+	throws ObserverAlreadyRegisteredException;
 
     /**
      *
@@ -1133,9 +1137,13 @@ interface AdminSession extends Glacier2::Session
      *
      * @param objObs The object observer.
      *
+     * @throws ObserverAlreadyRegisteredException Raised if an
+     * observer is already registered with this registry.
+     *
      **/
     idempotent void setObserversByIdentity(Ice::Identity registryObs, Ice::Identity nodeObs, Ice::Identity appObs,
-					   Ice::Identity adptObs, Ice::Identity objObs);
+					   Ice::Identity adptObs, Ice::Identity objObs)
+	throws ObserverAlreadyRegisteredException;
 
     /**
      *

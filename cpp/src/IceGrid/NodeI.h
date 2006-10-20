@@ -59,23 +59,25 @@ public:
     Ice::ObjectAdapterPtr getAdapter() const;
     ActivatorPtr getActivator() const;
     TraceLevelsPtr getTraceLevels() const;
-    NodeObserverPrx getObserver() const;
     UserAccountMapperPrx getUserAccountMapper() const;
     PlatformInfo& getPlatformInfo() const { return _platform; }
 
     NodeSessionPrx registerWithRegistry(const InternalRegistryPrx&);
-    void setObserver(const NodeObserverPrx&);
     void checkConsistency(const NodeSessionPrx&);
     NodeSessionPrx getMasterNodeSession() const;
 
-    void addServer(const std::string&, const ServerIPtr&);
-    void removeServer(const std::string&, const ServerIPtr&);
+    void addObserver(const std::string&, const NodeObserverPrx&);
+    void removeObserver(const std::string&);
+    void observerUpdateServer(const ServerDynamicInfo&);
+    void observerUpdateAdapter(const AdapterDynamicInfo&);
+
+    void addServer(const ServerIPtr&, const std::string&, bool);
+    void removeServer(const ServerIPtr&, const std::string&, bool);
 
 private:
 
     void checkConsistencyNoSync(const Ice::StringSeq&);
     bool canRemoveServerDirectory(const std::string&);
-    void initObserver(const Ice::StringSeq&);
     void patch(const IcePatch2::FileServerPrx&, const std::string&, const std::vector<std::string>&);
     
     std::set<ServerIPtr> getApplicationServers(const std::string&) const;
@@ -97,10 +99,12 @@ private:
     std::string _tmpDir;
     unsigned long _serial;
     IceUtil::Mutex _observerMutex;
-    NodeObserverPrx _observer;
+    std::map<std::string, NodeObserverPrx> _observers;
+    std::map<std::string, ServerDynamicInfo> _serversDynamicInfo;
+    std::map<std::string, AdapterDynamicInfo> _adaptersDynamicInfo;
     mutable PlatformInfo _platform;
 
-    IceUtil::Mutex _serversByApplicationLock;
+    IceUtil::Mutex _serversLock;
     std::map<std::string, std::set<ServerIPtr> > _serversByApplication;
     std::set<std::string> _patchInProgress;
 };

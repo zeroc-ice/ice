@@ -139,23 +139,10 @@ ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Current&)
 
     if(updated)
     {
-	NodeObserverPrx observer = _node->getObserver();
-	if(observer)
-	{
-	    AdapterDynamicInfo info;
-	    info.id = _id;
-	    info.proxy = _proxy;
-	    try
-	    {
-		observer->updateAdapter(_node->getName(), info);
-	    }
-	    catch(const Ice::LocalException&)
-	    {
-		//
-		// Expected if the master IceGrid registry is down.
-		//
-	    }
-	}
+	AdapterDynamicInfo info;
+	info.id = _id;
+	info.proxy = _proxy;
+	_node->observerUpdateAdapter(info);
     }
 
     if(_proxy)

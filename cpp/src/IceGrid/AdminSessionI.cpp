@@ -278,7 +278,7 @@ AdminSSLSessionManagerI::create(const Glacier2::SSLInfo& info,
 void
 AdminSessionI::setupObserverSubscription(TopicName name, const Ice::ObjectPrx& observer)
 {
-    if(_observers[name] != observer)
+    if(_observers[name] && _observers[name] != observer)
     {
 	_database->getObserverTopic(name)->unsubscribe(_observers[name]);
 	_observers[name] = 0;

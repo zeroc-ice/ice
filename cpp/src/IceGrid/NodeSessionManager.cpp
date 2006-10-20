@@ -140,12 +140,15 @@ NodeSessionKeepAliveThread::createSessionImpl(const InternalRegistryPrx& registr
     {
 	timeout = IceUtil::Time::seconds(t / 2);
     }
+    _node->addObserver(_name, session->getObserver());
     return session;
 }
 
 void 
 NodeSessionKeepAliveThread::destroySession(const NodeSessionPrx& session)
 {
+    _node->removeObserver(_name);
+
     try
     {
 	session->destroy();
@@ -473,12 +476,7 @@ NodeSessionManager::createdSession(const NodeSessionPrx& session)
 	if(session)
 	{
 	    session->loadServers();
-	    _node->setObserver(session->getObserver());
 	    _node->checkConsistency(session);
-	}
-	else
-	{
-	    _node->setObserver(0);
 	}
     }
     catch(const Ice::LocalException&)

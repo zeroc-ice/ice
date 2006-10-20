@@ -231,6 +231,26 @@ exception PermissionDeniedException
     string reason;
 };
 
+/**
+ *
+ * This exception is raised if an observer is already registered with
+ * the registry.
+ *
+ * @see AdminSession::setObservers
+ * @see AdminSession::setObserversByIdentity
+ *
+ **/
+exception ObserverAlreadyRegisteredException
+{
+    /**
+     *
+     * The identity of the observer.
+     *
+     **/
+    Ice::Identity id;
+};
+
+
 };
 
 #endif

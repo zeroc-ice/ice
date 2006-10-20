@@ -50,10 +50,23 @@ ObserverTopic::subscribe(const Ice::ObjectPrx& obsv, const string& name)
     {
 	return;
     }
-    
+
+    //
+    // We need to ensure that this observer isn't already registered
+    // as IceStorm might otherwise replace a previous subscriber
+    // without any notification.
+    //
+    assert(obsv);
+    if(_subscribers.find(obsv->ice_getIdentity()) != _subscribers.end())
+    {
+	throw ObserverAlreadyRegisteredException(obsv->ice_getIdentity());
+    }
+       
     IceStorm::QoS qos;
     qos["reliability"] = "twoway ordered";
     initObserver(_topic->subscribe(qos, obsv));
+
+    _subscribers.insert(obsv->ice_getIdentity());
 
     if(!name.empty())
     {
@@ -71,6 +84,9 @@ ObserverTopic::unsubscribe(const Ice::ObjectPrx& observer, const string& name)
     {
 	_topic->unsubscribe(observer);
     }
+
+    assert(observer);
+    _subscribers.erase(observer->ice_getIdentity());
 
     if(!name.empty())
     {
@@ -358,7 +374,7 @@ NodeObserverTopic::updateServer(const string& node, const ServerDynamicInfo& ser
     {
 	if(p->id == server.id)
 	{
-	    if(server.state == Destroyed || server.state == Inactive)
+	    if(server.state == Destroyed || (server.state == Inactive && server.enabled))
 	    {
 		servers.erase(p);
 	    }
@@ -370,7 +386,7 @@ NodeObserverTopic::updateServer(const string& node, const ServerDynamicInfo& ser
 	}
 	++p;
     }
-    if(server.state != Destroyed && server.state != Inactive && p == servers.end())
+    if(server.state != Destroyed && (server.state != Inactive || !server.enabled) && p == servers.end())
     {
 	servers.push_back(server);
     }

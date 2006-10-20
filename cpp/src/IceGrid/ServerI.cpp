@@ -720,6 +720,8 @@ ServerI::setEnabled(bool enabled, const ::Ice::Current&)
 	{
 	    return; // Nothing to change!
 	}
+
+	_node->observerUpdateServer(getDynamicInfo());
     }
 
     if(activate)
@@ -736,19 +738,6 @@ ServerI::setEnabled(bool enabled, const ::Ice::Current&)
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{
-	}
-    }
-
-    NodeObserverPrx observer = _node->getObserver();
-    if(observer)
-    {
-	try
-	{
-	    observer->updateServer(_node->getName(), getDynamicInfo());
-	}
-	catch(const Ice::LocalException&)
-	{
-	    // Expected if the IceGrid registry is down.
 	}
     }
 }
@@ -1509,10 +1498,7 @@ ServerI::destroy()
 	adpts = _adapters;
     }
 
-    if(_info.descriptor->applicationDistrib)
-    {
-	_node->removeServer(_info.application, this);
-    }
+    _node->removeServer(this, _info.application, _info.descriptor->applicationDistrib);
     
     try
     {
@@ -1688,14 +1674,11 @@ ServerI::update()
 		throw DeploymentException(msg);
 	    }
 
-	    if(oldInfo.descriptor && oldInfo.descriptor->applicationDistrib)
+	    if(oldInfo.descriptor)
 	    {
-		_node->removeServer(oldInfo.application, this);
+		_node->removeServer(this, oldInfo.application, oldInfo.descriptor->applicationDistrib);
 	    }
-	    if(_info.descriptor->applicationDistrib)
-	    {
-		_node->addServer(_info.application, this);
-	    }
+	    _node->addServer(this, _info.application, _info.descriptor->applicationDistrib);
 
 	    AdapterPrxDict adapters;
 	    for(ServerAdapterDict::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
@@ -2329,18 +2312,7 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
     if(toServerState(previous) != toServerState(_state) && 
        !(previous == Inactive && _state == Deactivating))
     {
-	NodeObserverPrx observer = _node->getObserver();
-	if(observer)
-	{
-	    try
-	    {
-		observer->updateServer(_node->getName(), getDynamicInfo());
-	    }
-	    catch(const Ice::LocalException&)
-	    {
-		// Expected if the IceGrid registry is down.
-	    }
-	}
+	_node->observerUpdateServer(getDynamicInfo());
     }
 
     if(_node->getTraceLevels()->server > 1)
