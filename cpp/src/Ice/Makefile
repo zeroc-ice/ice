@@ -48,6 +48,8 @@ OBJS		= Acceptor.o \
 		  GCShared.o \
 		  Identity.o \
 		  IdentityUtil.o \
+		  ImplicitContext.o \
+		  ImplicitContextI.o \
 		  IncomingAsync.o \
 		  Incoming.o \
 		  Initialize.o \
@@ -125,6 +127,7 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/Endpoint.ice \
 		  $(SDIR)/FacetMap.ice \
 		  $(SDIR)/Identity.ice \
+		  $(SDIR)/ImplicitContext.ice \
 		  $(SDIR)/LocalException.ice \
 		  $(SDIR)/LocatorF.ice \
 		  $(SDIR)/Locator.ice \

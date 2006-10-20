@@ -32,6 +32,7 @@
 #include <Ice/PluginF.h>
 #include <Ice/Initialize.h>
 #include <Ice/SharedContext.h>
+#include <Ice/ImplicitContextI.h>
 #include <list>
 
 namespace Ice
@@ -86,6 +87,11 @@ public:
     MemoryPool* memoryPool() const;
     std::string identityToString(const Ice::Identity&) const;
     
+    const Ice::ImplicitContextIPtr& getImplicitContext() const
+    {
+	return _implicitContext;
+    }
+
 private:
 
     Instance(const Ice::CommunicatorPtr&, const Ice::InitializationData&);
@@ -124,6 +130,7 @@ private:
     Ice::PluginManagerPtr _pluginManager;
     SharedContextPtr _defaultContext;
     MemoryPool* _memoryPool;
+    const Ice::ImplicitContextIPtr _implicitContext;
 };
 
 class UTF8BufferI : public Ice::UTF8Buffer

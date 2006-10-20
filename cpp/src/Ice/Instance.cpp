@@ -467,7 +467,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     _threadPerConnection(0),
     _threadPerConnectionStackSize(0),
     _defaultContext(new SharedContext(initData.defaultContext)),
-    _memoryPool(0)
+    _memoryPool(0),
+    _implicitContext(0)
 {
     try
     {
@@ -658,6 +659,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 	    }
 	    const_cast<size_t&>(_threadPerConnectionStackSize) = static_cast<size_t>(stackSize);
 	}
+
+	const_cast<ImplicitContextIPtr&>(_implicitContext) = 
+	    ImplicitContextI::create(_initData.properties->getProperty("Ice.ImplicitContext"));
 
 	_routerManager = new RouterManager;
 

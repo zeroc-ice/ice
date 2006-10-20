@@ -19,6 +19,7 @@
 #include <Ice/LocatorF.ice>
 #include <Ice/PluginF.ice>
 #include <Ice/Current.ice>
+#include <Ice/ImplicitContext.ice>
 
 /**
  *
@@ -303,8 +304,17 @@ local interface Communicator
      * @see getDefaultContext
      **/
     void setDefaultContext(Context ctx);
-
-
+    
+    /**
+     * Get the implicit context associated with this communicator.
+     *
+     * @return The implicit context associated with this communicator; 
+     * returns null when the property Ice.ImplicitContext is not set 
+     * or is set to None.
+     *
+     **/
+    ["cpp:const"] ImplicitContext getImplicitContext();
+    
     /**
      *
      * Get the properties for this communicator.

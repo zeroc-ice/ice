@@ -126,6 +126,7 @@ Ice:
     Default.Protocol
     Default.Router
     GC.Interval
+    ImplicitContext
     InitPlugins
     Logger.Timestamp
     MemoryPool

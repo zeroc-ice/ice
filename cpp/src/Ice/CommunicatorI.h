@@ -44,6 +44,8 @@ public:
     virtual Context getDefaultContext() const;
     virtual void setDefaultContext(const Context&);
 
+    virtual ImplicitContextPtr getImplicitContext() const;
+
     virtual PropertiesPtr getProperties() const;
     virtual LoggerPtr getLogger() const;
     virtual StatsPtr getStats() const;

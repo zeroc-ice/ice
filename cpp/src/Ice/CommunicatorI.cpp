@@ -221,11 +221,16 @@ Ice::CommunicatorI::getDefaultContext() const
     return _instance->getDefaultContext()->getValue();
 }
 
-
 void
 Ice::CommunicatorI::setDefaultContext(const Context& ctx)
 {
     _instance->setDefaultContext(ctx);
+}
+
+Ice::ImplicitContextPtr
+Ice::CommunicatorI::getImplicitContext() const
+{
+    return _instance->getImplicitContext();
 }
 
 
