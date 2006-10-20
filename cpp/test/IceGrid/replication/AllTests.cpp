@@ -109,6 +109,9 @@ waitForRegistryState(const IceGrid::AdminPrx& admin, const std::string& registry
 	{
 	    return;
 	} 
+
+	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+	++nRetry;
     }
     test(false);
 }
