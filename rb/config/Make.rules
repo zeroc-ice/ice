@@ -72,7 +72,7 @@ ifneq ($(ICE_HOME),)
     endif
 endif
 
-ICE_LIBS		= $(ICE_LIB_DIRS) -lIce -lIceUtil -lSlice 
+ICE_LIBS		= $(ICE_LIB_DIRS) -lIce -lSliceRuby -lSlice -lIceUtil
 
 ifneq ($(ICE_HOME),)
     ICE_FLAGS		= -I$(ICE_HOME)/include
