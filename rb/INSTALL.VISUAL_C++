@@ -16,6 +16,16 @@ Requirements
   supported by Ice for Ruby.
 
 
+Obtaining Ruby
+--------------
+
+The instructions for compiling the Ice extension assume that you have
+already installed the binary Ruby distribution into the C:\ruby
+directory. You can obtain the installer from RubyForge:
+
+  http://rubyforge.org/projects/rubyinstaller/
+
+
 Compiling Ice
 -------------
 
@@ -43,13 +53,7 @@ Follow these steps:
 Compiling Ice for Ruby
 ----------------------
 
-The instructions for compiling the Ice extension assume that you have
-already installed the binary Ruby distribution into the C:\ruby
-directory. You can obtain the installer from RubyForge:
-
-  http://rubyforge.org/projects/rubyinstaller/
-
-Follow these steps:
+Follow these steps to build the extension:
 
 1. Set the ICE_HOME environment variable with the directory of your
    Ice source distribution, for example:
@@ -120,6 +124,21 @@ If the interpreter responds with the value "true", the Ice extension
 was loaded successfully. Enter "exit" to quit the interpreter.
 
 
+OpenSSL Compatibility Issue
+---------------------------
+
+The Ruby installer includes versions of the OpenSSL DLLs that are not
+compatible with the ones supplied with Ice. If you intend to use SSL
+in your Ice for Ruby applications, you will need to remove or rename
+the following files in the Ruby installation directory:
+
+  libeay32.dll
+  ssleay32.dll
+
+If you used the default installation directory, these files are
+located in C:\ruby\bin.
+
+
 Running the demos
 -----------------
 
@@ -134,13 +153,13 @@ the C++ server. Assuming that your Ice installation is located in
 C:\Ice-@ver@, and that you have already compiled the sample C++
 programs, we begin by starting the server:
 
-> cd \Ice-@ver@\demo\Ice\hello
-> server
+  > cd \Ice-@ver@\demo\Ice\hello
+  > server
 
 In a separate window, start the client:
 
-> cd \IceRuby-@ver@\demo\Ice\hello
-> ruby Client.rb
+  > cd \IceRuby-@ver@\demo\Ice\hello
+  > ruby Client.rb
 
 Some demo directories contain README files if additional requirements
 are necessary.

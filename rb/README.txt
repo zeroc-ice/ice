@@ -41,6 +41,36 @@ into the C:\IceRuby-3.1.1 directory.
    about the location of the Ice extension and supporting files. See
    the accompanying Ice for Ruby documentation for more information.
 
+4. Verify that Ruby can load the Ice extension successfully. Open a
+   command window and start the interpreter using irb.bat, as shown
+   below:
+
+   > irb.bat
+   irb(main):001:0>
+
+   At the prompt, enter
+
+   require "Ice"
+
+   If the interpreter responds with the value "true", the Ice
+   extension was loaded successfully. Enter "exit" to quit the
+   interpreter.
+
+
+OpenSSL Compatibility Issue
+---------------------------
+
+The Ruby installer includes versions of the OpenSSL DLLs that are not
+compatible with the ones supplied with Ice. If you intend to use SSL
+in your Ice for Ruby applications, you will need to remove or rename
+the following files in the Ruby installation directory:
+
+  libeay32.dll
+  ssleay32.dll
+
+If you used the default installation directory, these files are
+located in C:\ruby\bin.
+
 
 Running the demos
 -----------------
@@ -56,13 +86,13 @@ the C++ server. Assuming that your Ice installation is located in
 C:\Ice, and that you have already compiled the sample C++ programs,
 we begin by starting the server:
 
-> cd \Ice\demo\Ice\hello
-> server
+  > cd \Ice\demo\Ice\hello
+  > server
 
 In a separate window, start the client:
 
-> cd \IceRuby-3.1.1\demo\Ice\hello
-> ruby Client.rb
+  > cd \IceRuby-3.1.1\demo\Ice\hello
+  > ruby Client.rb
 
 Some demo directories contain README files if additional requirements
 are necessary.
