@@ -103,7 +103,9 @@ if verbose:
 else:
     quiet = "-Q"
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " icerb")
-os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export -rR3_1_0 ice/config ice/slice")
+#os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " ice/config ice/slice")
+os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export -ricerb_preview_branch -l ice")
+os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export -ricerb_preview_branch ice/config ice/slice ice/include ice/src")
 if not skipDocs or not skipTranslator:
     os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " " +
 	      "ice/bin ice/lib ice/src/icecpp ice/src/IceUtil ice/src/Slice ice/src/slice2docbook ice/src/slice2rb " +
@@ -124,6 +126,10 @@ slicedirs = [\
 os.mkdir(os.path.join("icerb", "slice"))
 for x in slicedirs:
     shutil.copytree(os.path.join("ice", "slice", x), os.path.join("icerb", "slice", x), 1)
+
+#
+# Copy any platform-specific Make.rules files.
+#
 for x in glob.glob(os.path.join("ice", "config", "Make.rules.*")):
     if not os.path.exists(os.path.join("icerb", "config", os.path.basename(x))):
 	shutil.copyfile(x, os.path.join("icerb", "config", os.path.basename(x)))
@@ -135,6 +141,8 @@ print "Removing unnecessary files..."
 filesToRemove = [ \
     os.path.join("icerb", "makedist.py"), \
     os.path.join("icerb", "makebindist.py"), \
+    os.path.join("icerb", "README.txt"), \
+    os.path.join("icerb", "README.Linux"), \
     ]
 filesToRemove.extend(find("icerb", ".dummy"))
 for x in filesToRemove:
@@ -249,6 +257,24 @@ fixVersion(find("icerb", "README*"), version)
 fixVersion(find("icerb", "INSTALL*"), version)
 
 #
+# Create C++ patch archive.
+#
+print "Creating C++ patch archive..."
+filesToInclude = "all.dsw src/Makefile src/Makefile.mak src/slice2rb/.depend src/slice2rb/Main.cpp \
+		  src/slice2rb/Makefile src/slice2rb/Makefile.mak src/slice2rb/slice2rb.dsp \
+		  src/SliceRuby/.depend src/SliceRuby/Makefile src/SliceRuby/Makefile.mak \
+		  src/SliceRuby/RubyUtil.cpp src/SliceRuby/sliceruby.dsp include/Slice/RubyUtil.h"
+cwd = os.getcwd()
+os.chdir("ice")
+if verbose:
+    quiet = ""
+else:
+    quiet = "-q"
+os.system("zip -9 -r " + quiet + " patch.zip " + filesToInclude)
+os.chdir(cwd)
+shutil.copyfile(os.path.join("ice", "patch.zip"), os.path.join("icerb", "patch.zip"))
+
+#
 # Create source archives.
 #
 print "Creating distribution archives..."
@@ -280,6 +306,6 @@ os.system("zip -9 -r " + quiet + " " + icever + ".zip " + icever)
 # Done.
 #
 print "Cleaning up..."
-#shutil.rmtree(icever)
+shutil.rmtree(icever)
 shutil.rmtree("ice")
 print "Done."
