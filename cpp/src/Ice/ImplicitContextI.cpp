@@ -126,7 +126,8 @@ ImplicitContextI::cleanupThread()
 {
     if(PerThreadImplicitContext::_count > 0)
     {
-	threadDestructor(TlsGetValue(PerThreadImplicitContext::_key));
+	PerThreadImplicitContext::threadDestructor(
+	    TlsGetValue(PerThreadImplicitContext::_key));
     } 
 }
 #endif
