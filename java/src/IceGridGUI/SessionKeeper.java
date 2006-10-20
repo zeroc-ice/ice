@@ -220,15 +220,15 @@ class SessionKeeper
 	    //
 	    // Create servants and proxies
 	    //
-	    _applicationObserverIdentity.name = "application";
+	    _applicationObserverIdentity.name = "application-" + Ice.Util.generateUUID();
 	    _applicationObserverIdentity.category = category;
-	    _adapterObserverIdentity.name = "adapter";
+	    _adapterObserverIdentity.name = "adapter-" + Ice.Util.generateUUID();
 	    _adapterObserverIdentity.category = category;
-	    _objectObserverIdentity.name = "object";
+	    _objectObserverIdentity.name = "object-" + Ice.Util.generateUUID();
 	    _objectObserverIdentity.category = category;
-	    _registryObserverIdentity.name = "registry";
+	    _registryObserverIdentity.name = "registry-" + Ice.Util.generateUUID();
 	    _registryObserverIdentity.category = category;
-	    _nodeObserverIdentity.name = "node";
+	    _nodeObserverIdentity.name = "node-" + Ice.Util.generateUUID();
 	    _nodeObserverIdentity.category = category;
 	    
 	    ApplicationObserverI applicationObserverServant = new ApplicationObserverI(
@@ -258,23 +258,30 @@ class SessionKeeper
 		NodeObserverPrxHelper.uncheckedCast(
 		    _adapter.add(
 			new NodeObserverI(_coordinator), _nodeObserverIdentity));
-	    
-	    if(router != null)
+
+	    try
 	    {
-		_session.setObservers(registryObserver, 
-				      nodeObserver, 
-				      applicationObserver, 
-				      adapterObserver, 
-				      objectObserver); 
+		if(router != null)
+		{
+		    _session.setObservers(registryObserver, 
+					  nodeObserver, 
+					  applicationObserver, 
+					  adapterObserver, 
+					  objectObserver); 
+		}
+		else
+		{
+		    _session.setObserversByIdentity(
+			_registryObserverIdentity,
+			_nodeObserverIdentity, 
+			_applicationObserverIdentity,
+			_adapterObserverIdentity,
+			_objectObserverIdentity);
+		}
 	    }
-	    else
+	    catch(ObserverAlreadyRegisteredException ex)
 	    {
-		_session.setObserversByIdentity(
-		    _registryObserverIdentity,
-		    _nodeObserverIdentity, 
-		    _applicationObserverIdentity,
-		    _adapterObserverIdentity,
-		    _objectObserverIdentity);
+		assert false; // We use UUIDs for the observer identities.
 	    }
 	    
 	    applicationObserverServant.waitForInit();
