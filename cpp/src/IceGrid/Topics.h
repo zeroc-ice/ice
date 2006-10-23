@@ -40,6 +40,7 @@ public:
 
 protected:
 
+    void addExpectedUpdate(int);
     void waitForSyncedSubscribersNoSync(int, const std::string& = std::string());
     void updateSerial(int);
     Ice::Context getContext(int) const;
