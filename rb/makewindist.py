@@ -100,11 +100,12 @@ if not os.path.exists(os.path.join(os.environ["ICE_HOME"], "bin", "slice2rb.exe"
 config = open(os.path.join(os.environ["ICE_HOME"], "include", "IceUtil", "Config.h"), "r")
 version = re.search("ICE_STRING_VERSION[ \t]+\"([\d\.]+)\"", config.read(), re.M).group(1)
 
-distDir = "IceRuby-" + version + "-bin-win32"
+distDir = "IceRuby-" + version
+archive = distDir + "-bin-win32.zip"
 if os.path.exists(distDir):
     shutil.rmtree(distDir)
-if os.path.exists(distDir + ".zip"):
-    os.remove(distDir + ".zip")
+if os.path.exists(archive):
+    os.remove(archive)
 os.mkdir(distDir)
 
 os.mkdir(os.path.join(distDir, "bin"))
@@ -139,7 +140,7 @@ if verbose:
     quiet = ""
 else:
     quiet = "-q"
-os.system("zip -9ry " + quiet + " " + distDir + ".zip " + distDir)
+os.system("zip -9ry " + quiet + " " + archive + " " + distDir)
 
 #
 # Done.
