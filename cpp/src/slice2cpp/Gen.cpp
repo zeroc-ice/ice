@@ -1850,11 +1850,29 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
 	H << "return ";
     }
-    H << fixKwd(name) << spar << args << "__defaultContext()" << epar << ';';
+    H << fixKwd(name) << spar << args << "0" << epar << ';';
     H << eb;
-    H << nl << retS << ' ' << fixKwd(name) << spar << params << "const ::Ice::Context&" << epar << ';';
+    H << nl << deprecateSymbol << retS << ' ' << fixKwd(name) << spar << paramsDecl << "const ::Ice::Context& __ctx" << epar;
+    H << sb;
+    H << nl;
+    if(ret)
+    {
+	H << "return ";
+    }
+    H << fixKwd(name) << spar << args << "&__ctx" << epar << ';';
+    H << eb;
+    
+    H << nl;
+    H.dec();
+    H << nl << "private:";
+    H.inc();
+    H << sp << nl << retS << ' ' << fixKwd(name) << spar << params << "const ::Ice::Context*" << epar << ';'; 
+    H << nl;
+    H.dec();
+    H << nl << "public:";
+    H.inc();
 
-    C << sp << nl << retS << nl << "IceProxy" << scoped << spar << paramsDecl << "const ::Ice::Context& __ctx" << epar;
+    C << sp << nl << retS << nl << "IceProxy" << scoped << spar << paramsDecl << "const ::Ice::Context* __ctx" << epar;
     C << sb;
     C << nl << "int __cnt = 0;";
     C << nl << "while(true)";
@@ -1911,16 +1929,19 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	C << sp << nl << "void" << nl << "IceProxy" << scope << name << "_async" << spar
 	  << ("const " + classScopedAMI + '_' + name + "Ptr& __cb") << paramsDeclAMI << epar;
 	C << sb;
-	C << nl << name << "_async" << spar << "__cb" << argsAMI << "__defaultContext()" << epar << ';';
+	C << nl << "__cb->__invoke" << spar << "this" << argsAMI << "0" << epar << ';';
 	C << eb;
 
 	C << sp << nl << "void" << nl << "IceProxy" << scope << name << "_async" << spar
 	  << ("const " + classScopedAMI + '_' + name + "Ptr& __cb") << paramsDeclAMI << "const ::Ice::Context& __ctx"
 	  << epar;
 	C << sb;
-	C << nl << "__cb->__invoke" << spar << "this" << argsAMI << "__ctx" << epar << ';';
+	C << nl << "__cb->__invoke" << spar << "this" << argsAMI << "&__ctx" << epar << ';';
 	C << eb;
     }
+
+    
+
 }
 
 Slice::Gen::DelegateVisitor::DelegateVisitor(Output& h, Output& c, const string& dllExport) :
@@ -2055,7 +2076,7 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
 	params.push_back(typeString);
     }
 
-    params.push_back("const ::Ice::Context&");
+    params.push_back("const ::Ice::Context*");
 
     H << sp << nl << "virtual " << retS << ' ' << name << spar << params << epar << " = 0;";
 }
@@ -2196,8 +2217,8 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 	paramsDecl.push_back(typeString + ' ' + paramName);
     }
 
-    params.push_back("const ::Ice::Context&");
-    paramsDecl.push_back("const ::Ice::Context& __context");
+    params.push_back("const ::Ice::Context*");
+    paramsDecl.push_back("const ::Ice::Context* __context");
 
     string flatName = p->flattenedScope() + p->name() + "_name";
 
@@ -2436,8 +2457,8 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
 	args.push_back(paramName);
     }
     
-    params.push_back("const ::Ice::Context&");
-    paramsDecl.push_back("const ::Ice::Context& __context");
+    params.push_back("const ::Ice::Context*");
+    paramsDecl.push_back("const ::Ice::Context* __context");
     args.push_back("__current");
     
     ContainerPtr container = p->container();
@@ -4703,8 +4724,8 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	}
     }
 
-    paramsInvoke.push_back("const ::Ice::Context&");
-    paramsDeclInvoke.push_back("const ::Ice::Context& __ctx");
+    paramsInvoke.push_back("const ::Ice::Context*");
+    paramsDeclInvoke.push_back("const ::Ice::Context* __ctx");
 
     if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
     {

@@ -20,6 +20,7 @@
 #include <Ice/RouterInfo.h>
 #include <Ice/Outgoing.h> // For LocalExceptionWrapper.
 #include <Ice/Protocol.h>
+#include <Ice/ImplicitContextI.h>
 
 using namespace std;
 using namespace Ice;
@@ -258,7 +259,7 @@ IceInternal::OutgoingAsync::__finished(const LocalException& exc)
 
 void
 IceInternal::OutgoingAsync::__prepare(const ObjectPrx& prx, const string& operation, OperationMode mode,
-				      const Context& context)
+				      const Context* context)
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(_monitor);
 
@@ -308,12 +309,31 @@ IceInternal::OutgoingAsync::__prepare(const ObjectPrx& prx, const string& operat
 
 	__os->write(static_cast<Byte>(_mode));
 
-	__os->writeSize(Int(context.size()));
-	Context::const_iterator p;
-	for(p = context.begin(); p != context.end(); ++p)
+	if(context != 0)
 	{
-	    __os->write(p->first);
-	    __os->write(p->second);
+	    //
+	    // Explicit context
+	    //
+	    __write(__os, *context, __U__Context());
+	}
+	else
+	{
+	    //
+	    // Implicit context
+	    //
+	    const ImplicitContextIPtr& implicitContext =
+		ref->getInstance()->getImplicitContext();
+	    
+	    const Context& prxContext = ref->getContext()->getValue();
+
+	    if(implicitContext == 0)
+	    {
+		__write(__os, prxContext, __U__Context());
+	    }
+	    else
+	    {
+		implicitContext->write(prxContext, __os);
+	    }
 	}
 	
 	__os->startWriteEncaps();
@@ -423,7 +443,7 @@ IceInternal::OutgoingAsync::cleanup()
 
 void
 Ice::AMI_Object_ice_invoke::__invoke(const ObjectPrx& prx, const string& operation, OperationMode mode,
-				     const vector<Byte>& inParams, const Context& context)
+				     const vector<Byte>& inParams, const Context* context)
 {
     try
     {
@@ -458,7 +478,7 @@ Ice::AMI_Object_ice_invoke::__response(bool ok) // ok == true means no user exce
 
 void
 Ice::AMI_Array_Object_ice_invoke::__invoke(const ObjectPrx& prx, const string& operation, OperationMode mode,
-				           const pair<const Byte*, const Byte*>& inParams, const Context& context)
+				           const pair<const Byte*, const Byte*>& inParams, const Context* context)
 {
     try
     {

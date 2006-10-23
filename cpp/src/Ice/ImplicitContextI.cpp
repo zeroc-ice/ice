@@ -29,8 +29,10 @@ public:
     virtual void remove(const string&);
 
     virtual void write(const Context&, ::IceInternal::BasicStream*) const;
+    virtual void write(const Context&, Context&) const;
 
 protected:
+
     Context _context;
 };
 
@@ -47,8 +49,10 @@ public:
     virtual void remove(const string&);
 
     virtual void write(const Context&, ::IceInternal::BasicStream*) const;
+    virtual void write(const Context&, Context&) const;
 
 private:
+
     IceUtil::Mutex _mutex;
 };
 
@@ -68,6 +72,7 @@ public:
     virtual void remove(const string&);
 
     virtual void write(const Context&, ::IceInternal::BasicStream*) const;
+    virtual void write(const Context&, Context&) const;
     
     static void threadDestructor(void*);
     
@@ -204,6 +209,24 @@ SharedImplicitContextWithoutLocking::write(const Context& proxyCtx, ::IceInterna
     }
 }
 
+void 
+SharedImplicitContextWithoutLocking::write(const Context& proxyCtx, Context& ctx) const
+{
+    if(proxyCtx.size() == 0)
+    {
+	ctx = _context;
+    }
+    else if(_context.size() == 0)
+    {
+	ctx = proxyCtx;
+    }
+    else
+    {
+	ctx = proxyCtx;
+	ctx.insert(_context.begin(), _context.end());
+    }
+
+}
 
 //
 // SharedImplicitContext implementation
@@ -271,6 +294,13 @@ SharedImplicitContext::write(const Context& proxyCtx, ::IceInternal::BasicStream
 	lock.release();
 	__write(s, combined, __U__Context());
     }
+}
+
+void 
+SharedImplicitContext::write(const Context& proxyCtx, Context& ctx) const
+{
+    IceUtil::Mutex::Lock lock(_mutex);
+    SharedImplicitContextWithoutLocking::write(proxyCtx, ctx);
 }
 
 //
@@ -496,20 +526,40 @@ PerThreadImplicitContext::remove(const string& k)
 void 
 PerThreadImplicitContext::write(const Context& proxyCtx, ::IceInternal::BasicStream* s) const
 {
-    Context* ctx = getThreadContext(false);
+    Context* threadCtx = getThreadContext(false);
 
-    if(ctx == 0 || ctx->size() == 0)
+    if(threadCtx == 0 || threadCtx->size() == 0)
     {
 	__write(s, proxyCtx, __U__Context());
     }
     else if(proxyCtx.size() == 0)
     {
-	__write(s, *ctx, __U__Context());
+	__write(s, *threadCtx, __U__Context());
     }
     else
     {
 	Context combined = proxyCtx;
-	combined.insert(ctx->begin(), ctx->end());
+	combined.insert(threadCtx->begin(), threadCtx->end());
 	__write(s, combined, __U__Context());
+    }
+}
+
+void 
+PerThreadImplicitContext::write(const Context& proxyCtx, Context& ctx) const
+{
+    Context* threadCtx = getThreadContext(false);
+
+    if(threadCtx == 0 || threadCtx->size() == 0)
+    {
+	ctx = proxyCtx;
+    }
+    else if(proxyCtx.size() == 0)
+    {
+	ctx = *threadCtx;
+    }
+    else
+    {
+	ctx = proxyCtx;
+	ctx.insert(threadCtx->begin(), threadCtx->end());
     }
 }

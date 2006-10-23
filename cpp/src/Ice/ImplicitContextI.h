@@ -9,7 +9,6 @@
 
 #ifndef ICE_IMPLICIT_CONTEXT_I_H
 #define ICE_IMPLICIT_CONTEXT_I_H
-#endif
 
 #include <Ice/ImplicitContext.h>
 
@@ -36,8 +35,17 @@ public:
     // the underlying context)
     //
     virtual void write(const Context&, ::IceInternal::BasicStream*) const = 0;
+
+    //
+    // Writes the underlying context plus the given context
+    // (entries in the given context overwrite entries in
+    // the underlying context)
+    //
+    virtual void write(const Context&, Context&) const = 0;
+
 };
 
 typedef IceInternal::Handle<ImplicitContextI> ImplicitContextIPtr;
 
 }
+#endif

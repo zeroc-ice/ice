@@ -14,6 +14,7 @@
 #include <Ice/Endpoint.h>
 #include <Ice/LocalException.h>
 #include <Ice/Protocol.h>
+#include <Ice/Instance.h>
 
 using namespace std;
 using namespace Ice;
@@ -45,7 +46,7 @@ IceInternal::LocalExceptionWrapper::retry() const
 }
 
 IceInternal::Outgoing::Outgoing(ConnectionI* connection, Reference* ref, const string& operation,
-				OperationMode mode, const Context& context, bool compress) :
+				OperationMode mode, const Context* context, bool compress) :
     _connection(connection),
     _reference(ref),
     _state(StateUnsent),
@@ -92,12 +93,31 @@ IceInternal::Outgoing::Outgoing(ConnectionI* connection, Reference* ref, const s
 
 	_os.write(static_cast<Byte>(mode));
 
-	_os.writeSize(Int(context.size()));
-	Context::const_iterator p;
-	for(p = context.begin(); p != context.end(); ++p)
+	if(context != 0)
 	{
-	    _os.write(p->first);
-	    _os.write(p->second);
+	    //
+	    // Explicit context
+	    //
+	    __write(&_os, *context, __U__Context());
+	}
+	else
+	{
+	    //
+	    // Implicit context
+	    //
+	    const ImplicitContextIPtr& implicitContext =
+		_reference->getInstance()->getImplicitContext();
+	    
+	    const Context& prxContext = _reference->getContext()->getValue();
+
+	    if(implicitContext == 0)
+	    {
+		__write(&_os, prxContext, __U__Context());
+	    }
+	    else
+	    {
+		implicitContext->write(prxContext, &_os);
+	    }
 	}
 	
 	//

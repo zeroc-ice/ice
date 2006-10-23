@@ -61,7 +61,7 @@ class ICE_API Outgoing : private IceUtil::noncopyable, public IceUtil::Monitor<I
 {
 public:
 
-    Outgoing(Ice::ConnectionI*, Reference*, const std::string&, Ice::OperationMode, const Ice::Context&, bool);
+    Outgoing(Ice::ConnectionI*, Reference*, const std::string&, Ice::OperationMode, const Ice::Context*, bool);
 
     bool invoke(); // Returns true if ok, false if user exception.
     void abort(const Ice::LocalException&);

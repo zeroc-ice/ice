@@ -91,25 +91,76 @@ public:
 
     ::std::string ice_toString() const;
 
-    bool ice_isA(const ::std::string&);
-    bool ice_isA(const ::std::string&, const ::Ice::Context&);
-    void ice_ping();
-    void ice_ping(const ::Ice::Context&);
-    ::std::vector< ::std::string> ice_ids();
-    ::std::vector< ::std::string> ice_ids(const ::Ice::Context&);
-    ::std::string ice_id();
-    ::std::string ice_id(const ::Ice::Context&);
+    bool ice_isA(const ::std::string& typeId)
+    {
+	return ice_isA(typeId, 0);
+    }
+    bool ice_isA(const ::std::string& typeId, const ::Ice::Context& context)
+    {
+	return ice_isA(typeId, &context);
+    }
+    
+    void ice_ping()
+    {
+	ice_ping(0);
+    }
+    void ice_ping(const ::Ice::Context& context)
+    {
+	ice_ping(&context);
+    }
+    
+    ::std::vector< ::std::string> ice_ids()
+    {
+	return ice_ids(0);
+    }
+    ::std::vector< ::std::string> ice_ids(const ::Ice::Context& context)
+    {
+	return ice_ids(&context);
+    }
+    
+    ::std::string ice_id()
+    {
+	return ice_id(0);
+    }
+    ::std::string ice_id(const ::Ice::Context& context)
+    {
+	return ice_id(&context);
+    }
 
     // Returns true if ok, false if user exception.
-    bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
-	            ::std::vector< ::Ice::Byte>&);
-    bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
-	            ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
-    bool ice_invoke(const ::std::string&, ::Ice::OperationMode, 
-    		    const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&, ::std::vector< ::Ice::Byte>&);
-    bool ice_invoke(const ::std::string&, ::Ice::OperationMode, 
-    		    const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&, ::std::vector< ::Ice::Byte>&,
-		    const ::Ice::Context&);
+    bool ice_invoke(const ::std::string& operation, 
+		    ::Ice::OperationMode mode, 
+		    const ::std::vector< ::Ice::Byte>& inParams,
+	            ::std::vector< ::Ice::Byte>& outParams)
+    {
+	const ::Ice::Context* context = 0;
+	return ice_invoke(operation, mode, inParams, outParams, context);
+    }
+    bool ice_invoke(const ::std::string& operation, 
+		    ::Ice::OperationMode mode, 
+		    const ::std::vector< ::Ice::Byte>& inParams,
+	            ::std::vector< ::Ice::Byte>& outParams,
+		    const ::Ice::Context& context)
+    {
+	return ice_invoke(operation, mode, inParams, outParams, &context);
+    }
+    bool ice_invoke(const ::std::string& operation, 
+		    ::Ice::OperationMode mode, 
+    		    const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams, 
+		    ::std::vector< ::Ice::Byte>& outParams)
+    {
+	const ::Ice::Context* context = 0;
+	return ice_invoke(operation, mode, inParams, outParams, context);
+    }
+    bool ice_invoke(const ::std::string& operation, 
+		    ::Ice::OperationMode mode,
+    		    const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams,
+		    ::std::vector< ::Ice::Byte>& outParams,
+		    const ::Ice::Context& context)
+    {
+	return ice_invoke(operation, mode, inParams, outParams, &context);
+    }
+
     void ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&, const ::std::string&, ::Ice::OperationMode,
     			  const ::std::vector< ::Ice::Byte>&);
     void ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&, const ::std::string&, ::Ice::OperationMode,
@@ -195,10 +246,25 @@ protected:
     virtual ::IceInternal::Handle< ::IceDelegateM::Ice::Object> __createDelegateM();
     virtual ::IceInternal::Handle< ::IceDelegateD::Ice::Object> __createDelegateD();
 
-    const ::Ice::Context& __defaultContext() const;
-
 private:
 
+    bool ice_isA(const ::std::string&, const ::Ice::Context*);
+    void ice_ping(const ::Ice::Context*);
+    ::std::vector< ::std::string> ice_ids(const ::Ice::Context*);
+    ::std::string ice_id(const ::Ice::Context*);
+
+   
+    bool ice_invoke(const ::std::string&, 
+		    ::Ice::OperationMode, 
+		    const ::std::vector< ::Ice::Byte>&,
+	            ::std::vector< ::Ice::Byte>&,
+		    const ::Ice::Context*);
+    bool ice_invoke(const ::std::string&, 
+		    ::Ice::OperationMode,
+    		    const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
+		    ::std::vector< ::Ice::Byte>&,
+		    const ::Ice::Context*);
+  
     void setup(const ::IceInternal::ReferencePtr&);
     friend class ::IceInternal::ProxyFactory;
 
@@ -217,13 +283,13 @@ class ICE_API Object : public ::IceUtil::Shared
 {
 public:
 
-    virtual bool ice_isA(const ::std::string&, const ::Ice::Context&) = 0;
-    virtual void ice_ping(const ::Ice::Context&) = 0;
-    virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context&) = 0;
-    virtual ::std::string ice_id(const ::Ice::Context&) = 0;
+    virtual bool ice_isA(const ::std::string&, const ::Ice::Context*) = 0;
+    virtual void ice_ping(const ::Ice::Context*) = 0;
+    virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context*) = 0;
+    virtual ::std::string ice_id(const ::Ice::Context*) = 0;
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode,
     			    const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
-			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&) = 0;
+			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context*) = 0;
 
     virtual ::Ice::ConnectionIPtr __getConnection(bool&) const = 0;
 };
@@ -239,13 +305,13 @@ public:
 
     virtual ~Object();
 
-    virtual bool ice_isA(const ::std::string&, const ::Ice::Context&);
-    virtual void ice_ping(const ::Ice::Context&);
-    virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context&);
-    virtual ::std::string ice_id(const ::Ice::Context&);
+    virtual bool ice_isA(const ::std::string&, const ::Ice::Context*);
+    virtual void ice_ping(const ::Ice::Context*);
+    virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context*);
+    virtual ::std::string ice_id(const ::Ice::Context*);
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, 
     			    const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
-			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
+			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context*);
 
     virtual ::Ice::ConnectionIPtr __getConnection(bool&) const;
 
@@ -272,13 +338,13 @@ class ICE_API Object : virtual public ::IceDelegate::Ice::Object
 {
 public:
 
-    virtual bool ice_isA(const ::std::string&, const ::Ice::Context&);
-    virtual void ice_ping(const ::Ice::Context&);
-    virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context&);
-    virtual ::std::string ice_id(const ::Ice::Context&);
+    virtual bool ice_isA(const ::std::string&, const ::Ice::Context*);
+    virtual void ice_ping(const ::Ice::Context*);
+    virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context*);
+    virtual ::std::string ice_id(const ::Ice::Context*);
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode,
     			    const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
-			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
+			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context*);
 
     virtual ::Ice::ConnectionIPtr __getConnection(bool&) const;
 
@@ -289,7 +355,7 @@ protected:
     ::IceInternal::ReferencePtr __reference;
     ::Ice::ObjectAdapterPtr __adapter;
 
-    void __initCurrent(::Ice::Current&, const ::std::string&, ::Ice::OperationMode, const ::Ice::Context&);
+    void __initCurrent(::Ice::Current&, const ::std::string&, ::Ice::OperationMode, const ::Ice::Context*);
 
 private:
 
@@ -371,7 +437,7 @@ checkedCastImpl(const ::Ice::ObjectPrx& b)
 }
 
 template<typename P> P 
-checkedCastImpl(const ::Ice::ObjectPrx& b, const ::Ice::Context& ctx)
+checkedCastImpl(const ::Ice::ObjectPrx& b, const ::Ice::Context& context)
 {
     P d = 0;
     if(b.get())
@@ -379,7 +445,7 @@ checkedCastImpl(const ::Ice::ObjectPrx& b, const ::Ice::Context& ctx)
 	typedef typename P::element_type T;
 
 	d = dynamic_cast<T*>(b.get());
-	if(!d && b->ice_isA(T::ice_staticId(), ctx))
+	if(!d && b->ice_isA(T::ice_staticId(), context))
 	{
 	    d = new T;
 	    d->__copyFrom(b);
@@ -429,9 +495,9 @@ checkedCastImpl< ::Ice::ObjectPrx>(const ::Ice::ObjectPrx& b, const std::string&
 }
 
 template<> inline ::Ice::ObjectPrx 
-checkedCastImpl< ::Ice::ObjectPrx>(const ::Ice::ObjectPrx& b, const std::string& f, const ::Ice::Context& ctx)
+checkedCastImpl< ::Ice::ObjectPrx>(const ::Ice::ObjectPrx& b, const std::string& f, const ::Ice::Context& context)
 {
-    return checkedCastImpl(b, f, "::Ice::Object", ctx);
+    return checkedCastImpl(b, f, "::Ice::Object", context);
 }
 
 template<> inline ::Ice::ObjectPrx 
@@ -462,12 +528,12 @@ checkedCastImpl(const ::Ice::ObjectPrx& b, const std::string& f)
 }
 
 template<typename P> P 
-checkedCastImpl(const ::Ice::ObjectPrx& b, const std::string& f, const ::Ice::Context& ctx)
+checkedCastImpl(const ::Ice::ObjectPrx& b, const std::string& f, const ::Ice::Context& context)
 {
     P d = 0;
 
     typedef typename P::element_type T;
-    ::Ice::ObjectPrx bb = checkedCastImpl(b, f, T::ice_staticId(), ctx);
+    ::Ice::ObjectPrx bb = checkedCastImpl(b, f, T::ice_staticId(), context);
 
     if(bb)
     {
@@ -509,13 +575,13 @@ checkedCast(const ::IceInternal::ProxyHandle<Y>& b)
 }
 
 template<typename P, typename Y> inline P 
-checkedCast(const ::IceInternal::ProxyHandle<Y>& b, const ::Ice::Context& ctx)
+checkedCast(const ::IceInternal::ProxyHandle<Y>& b, const ::Ice::Context& context)
 {
     Y* tag = 0;
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
-    return ::IceInternal::checkedCastHelper<P::element_type>(b, tag, ctx);
+    return ::IceInternal::checkedCastHelper<P::element_type>(b, tag, context);
 #else
-    return ::IceInternal::checkedCastHelper<typename P::element_type>(b, tag, ctx);
+    return ::IceInternal::checkedCastHelper<typename P::element_type>(b, tag, context);
 #endif
 }
 
@@ -537,9 +603,9 @@ checkedCast(const ::Ice::ObjectPrx& b, const std::string& f)
 }
 
 template<typename P> inline P 
-checkedCast(const ::Ice::ObjectPrx& b, const std::string& f, const ::Ice::Context& ctx)
+checkedCast(const ::Ice::ObjectPrx& b, const std::string& f, const ::Ice::Context& context)
 {
-    return ::IceInternal::checkedCastImpl<P>(b, f, ctx);
+    return ::IceInternal::checkedCastImpl<P>(b, f, context);
 }
 
 template<typename P> inline P 

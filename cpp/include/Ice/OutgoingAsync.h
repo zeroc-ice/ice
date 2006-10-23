@@ -40,7 +40,7 @@ public:
 
 protected:
 
-    void __prepare(const Ice::ObjectPrx&, const std::string&, Ice::OperationMode, const Ice::Context&);
+    void __prepare(const Ice::ObjectPrx&, const std::string&, Ice::OperationMode, const Ice::Context*);
     void __send();
 
     virtual void __response(bool) = 0;
@@ -76,7 +76,7 @@ public:
     virtual void ice_exception(const Ice::Exception&) = 0;
 
     void __invoke(const Ice::ObjectPrx&, const std::string& operation, OperationMode,
-		  const std::vector<Ice::Byte>&, const Context&);
+		  const std::vector<Ice::Byte>&, const Context*);
 
 protected:
 
@@ -91,7 +91,7 @@ public:
     virtual void ice_exception(const Ice::Exception&) = 0;
 
     void __invoke(const Ice::ObjectPrx&, const std::string& operation, OperationMode,
-		  const std::pair<const Byte*, const Byte*>&, const Context&);
+		  const std::pair<const Byte*, const Byte*>&, const Context*);
 
 protected:
 

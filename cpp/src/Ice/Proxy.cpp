@@ -24,6 +24,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/ConnectionI.h> // To convert from ConnectionIPtr to ConnectionPtr in ice_connection().
 #include <Ice/Stream.h>
+#include <Ice/ImplicitContextI.h>
 
 using namespace std;
 using namespace Ice;
@@ -77,7 +78,7 @@ IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& 
 }
 
 ::Ice::ObjectPrx
-IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& typeId, const Context& ctx)
+IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& typeId, const Context& context)
 {
 //
 // COMPILERBUG: Without this work-around, release VC7.0 build crash
@@ -92,7 +93,7 @@ IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& 
 	ObjectPrx bb = b->ice_facet(f);
 	try
 	{
-	    if(bb->ice_isA(typeId, ctx))
+	    if(bb->ice_isA(typeId, context))
 	    {
 		return bb;
 	    }
@@ -158,14 +159,9 @@ IceProxy::Ice::Object::ice_toString() const
     return _reference->toString();
 }
 
-bool
-IceProxy::Ice::Object::ice_isA(const string& __id)
-{
-    return ice_isA(__id, _reference->getContext()->getValue());
-}
 
 bool
-IceProxy::Ice::Object::ice_isA(const string& __id, const Context& __context)
+IceProxy::Ice::Object::ice_isA(const string& typeId, const Context* context)
 {
     int __cnt = 0;
     while(true)
@@ -174,7 +170,7 @@ IceProxy::Ice::Object::ice_isA(const string& __id, const Context& __context)
 	{
 	    __checkTwowayOnly("ice_isA");
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
-	    return __del->ice_isA(__id, __context);
+	    return __del->ice_isA(typeId, context);
 	}
 	catch(const LocalExceptionWrapper& __ex)
 	{
@@ -188,13 +184,7 @@ IceProxy::Ice::Object::ice_isA(const string& __id, const Context& __context)
 }
 
 void
-IceProxy::Ice::Object::ice_ping()
-{
-    ice_ping(_reference->getContext()->getValue());
-}
-
-void
-IceProxy::Ice::Object::ice_ping(const Context& __context)
+IceProxy::Ice::Object::ice_ping(const Context* context)
 {
     int __cnt = 0;
     while(true)
@@ -202,7 +192,7 @@ IceProxy::Ice::Object::ice_ping(const Context& __context)
 	try
 	{
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
-	    __del->ice_ping(__context);
+	    __del->ice_ping(context);
 	    return;
 	}
 	catch(const LocalExceptionWrapper& __ex)
@@ -217,13 +207,7 @@ IceProxy::Ice::Object::ice_ping(const Context& __context)
 }
 
 vector<string>
-IceProxy::Ice::Object::ice_ids()
-{
-    return ice_ids(_reference->getContext()->getValue());
-}
-
-vector<string>
-IceProxy::Ice::Object::ice_ids(const Context& __context)
+IceProxy::Ice::Object::ice_ids(const Context* context)
 {
     int __cnt = 0;
     while(true)
@@ -232,7 +216,7 @@ IceProxy::Ice::Object::ice_ids(const Context& __context)
 	{
 	    __checkTwowayOnly("ice_ids");
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
-	    return __del->ice_ids(__context);
+	    return __del->ice_ids(context);
 	}
 	catch(const LocalExceptionWrapper& __ex)
 	{
@@ -246,13 +230,7 @@ IceProxy::Ice::Object::ice_ids(const Context& __context)
 }
 
 string
-IceProxy::Ice::Object::ice_id()
-{
-    return ice_id(_reference->getContext()->getValue());
-}
-
-string
-IceProxy::Ice::Object::ice_id(const Context& __context)
+IceProxy::Ice::Object::ice_id(const Context* context)
 {
     int __cnt = 0;
     while(true)
@@ -261,7 +239,7 @@ IceProxy::Ice::Object::ice_id(const Context& __context)
 	{
 	    __checkTwowayOnly("ice_id");
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
-	    return __del->ice_id(__context);
+	    return __del->ice_id(context);
 	}
 	catch(const LocalExceptionWrapper& __ex)
 	{
@@ -274,21 +252,13 @@ IceProxy::Ice::Object::ice_id(const Context& __context)
     }
 }
 
-bool
-IceProxy::Ice::Object::ice_invoke(const string& operation,
-				  OperationMode mode,
-				  const vector<Byte>& inParams,
-				  vector<Byte>& outParams)
-{
-    return ice_invoke(operation, mode, inParams, outParams, _reference->getContext()->getValue());
-}
 
 bool
 IceProxy::Ice::Object::ice_invoke(const string& operation,
 				  OperationMode mode,
 				  const vector<Byte>& inParams,
 				  vector<Byte>& outParams,
-				  const Context& context)
+				  const Context* context)
 {
     pair<const Byte*, const Byte*> inPair;
     if(inParams.size() == 0)
@@ -303,21 +273,13 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
     return ice_invoke(operation, mode, inPair, outParams, context);
 }
 
-bool
-IceProxy::Ice::Object::ice_invoke(const string& operation,
-				  OperationMode mode,
-				  const pair<const Byte*, const Byte*>& inParams,
-				  vector<Byte>& outParams)
-{
-    return ice_invoke(operation, mode, inParams, outParams, _reference->getContext()->getValue());
-}
 
 bool
 IceProxy::Ice::Object::ice_invoke(const string& operation,
 				  OperationMode mode,
 				  const pair<const Byte*, const Byte*>& inParams,
 				  vector<Byte>& outParams,
-				  const Context& context)
+				  const Context* context)
 {
     int __cnt = 0;
     while(true)
@@ -352,7 +314,7 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
 					OperationMode mode,
 					const vector<Byte>& inParams)
 {
-    ice_invoke_async(cb, operation, mode, inParams, _reference->getContext()->getValue());
+    cb->__invoke(this, operation, mode, inParams, 0);
 }
 
 void
@@ -362,7 +324,7 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
 					const vector<Byte>& inParams,
 					const Context& context)
 {
-    cb->__invoke(this, operation, mode, inParams, context);
+    cb->__invoke(this, operation, mode, inParams, &context);
 }
 
 void
@@ -371,7 +333,7 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Array_Object_ice_invokePtr& cb
 					OperationMode mode,
 					const pair<const Byte*, const Byte*>& inParams)
 {
-    ice_invoke_async(cb, operation, mode, inParams, _reference->getContext()->getValue());
+    cb->__invoke(this, operation, mode, inParams, 0);
 }
 
 void
@@ -381,7 +343,7 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Array_Object_ice_invokePtr& cb
 					const pair<const Byte*, const Byte*>& inParams,
 					const Context& context)
 {
-    cb->__invoke(this, operation, mode, inParams, context);
+    cb->__invoke(this, operation, mode, inParams, &context);
 }
 
 Identity
@@ -1087,12 +1049,6 @@ IceProxy::Ice::Object::__createDelegateD()
     return Handle< ::IceDelegateD::Ice::Object>(new ::IceDelegateD::Ice::Object);
 }
 
-const Context&
-IceProxy::Ice::Object::__defaultContext() const
-{
-    return _reference->getContext()->getValue();
-}
-
 void
 IceProxy::Ice::Object::setup(const ReferencePtr& ref)
 {
@@ -1112,10 +1068,10 @@ IceDelegateM::Ice::Object::~Object()
 }
 
 bool
-IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context& __context)
+IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context* context)
 {
     static const string __operation("ice_isA");
-    Outgoing __og(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context, __compress);
+    Outgoing __og(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, context, __compress);
     try
     {
 	BasicStream* __os = __og.os();
@@ -1151,10 +1107,10 @@ IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context& __context)
 }
 
 void
-IceDelegateM::Ice::Object::ice_ping(const Context& __context)
+IceDelegateM::Ice::Object::ice_ping(const Context* context)
 {
     static const string __operation("ice_ping");
-    Outgoing __og(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context, __compress);
+    Outgoing __og(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, context, __compress);
     bool __ok = __og.invoke();
     try
     {
@@ -1178,10 +1134,10 @@ IceDelegateM::Ice::Object::ice_ping(const Context& __context)
 }
 
 vector<string>
-IceDelegateM::Ice::Object::ice_ids(const Context& __context)
+IceDelegateM::Ice::Object::ice_ids(const Context* context)
 {
     static const string __operation("ice_ids");
-    Outgoing __og(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context, __compress);
+    Outgoing __og(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, context, __compress);
     vector<string> __ret;
     bool __ok = __og.invoke();
     try
@@ -1208,10 +1164,10 @@ IceDelegateM::Ice::Object::ice_ids(const Context& __context)
 }
 
 string
-IceDelegateM::Ice::Object::ice_id(const Context& __context)
+IceDelegateM::Ice::Object::ice_id(const Context* context)
 {
     static const string __operation("ice_id");
-    Outgoing __og(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context, __compress);
+    Outgoing __og(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, context, __compress);
     string __ret;
     bool __ok = __og.invoke();
     try
@@ -1242,7 +1198,7 @@ IceDelegateM::Ice::Object::ice_invoke(const string& operation,
                                       OperationMode mode,
 				      const pair<const Byte*, const Byte*>& inParams,
 				      vector<Byte>& outParams,
-				      const Context& context)
+				      const Context* context)
 {
     Outgoing __og(__connection.get(), __reference.get(), operation, mode, context, __compress);
     try
@@ -1315,10 +1271,10 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 }
 
 bool
-IceDelegateD::Ice::Object::ice_isA(const string& __id, const Context& __context)
+IceDelegateD::Ice::Object::ice_isA(const string& __id, const Context* context)
 {
     Current __current;
-    __initCurrent(__current, "ice_isA", ::Ice::Nonmutating, __context);
+    __initCurrent(__current, "ice_isA", ::Ice::Nonmutating, context);
     while(true)
     {
 	Direct __direct(__current);
@@ -1328,10 +1284,10 @@ IceDelegateD::Ice::Object::ice_isA(const string& __id, const Context& __context)
 }
 
 void
-IceDelegateD::Ice::Object::ice_ping(const ::Ice::Context& __context)
+IceDelegateD::Ice::Object::ice_ping(const ::Ice::Context* context)
 {
     Current __current;
-    __initCurrent(__current, "ice_ping", ::Ice::Nonmutating, __context);
+    __initCurrent(__current, "ice_ping", ::Ice::Nonmutating, context);
     while(true)
     {
 	Direct __direct(__current);
@@ -1341,10 +1297,10 @@ IceDelegateD::Ice::Object::ice_ping(const ::Ice::Context& __context)
 }
 
 vector<string>
-IceDelegateD::Ice::Object::ice_ids(const ::Ice::Context& __context)
+IceDelegateD::Ice::Object::ice_ids(const ::Ice::Context* context)
 {
     Current __current;
-    __initCurrent(__current, "ice_ids", ::Ice::Nonmutating, __context);
+    __initCurrent(__current, "ice_ids", ::Ice::Nonmutating, context);
     while(true)
     {
 	Direct __direct(__current);
@@ -1354,10 +1310,10 @@ IceDelegateD::Ice::Object::ice_ids(const ::Ice::Context& __context)
 }
 
 string
-IceDelegateD::Ice::Object::ice_id(const ::Ice::Context& __context)
+IceDelegateD::Ice::Object::ice_id(const ::Ice::Context* context)
 {
     Current __current;
-    __initCurrent(__current, "ice_id", ::Ice::Nonmutating, __context);
+    __initCurrent(__current, "ice_id", ::Ice::Nonmutating, context);
     while(true)
     {
 	Direct __direct(__current);
@@ -1371,7 +1327,7 @@ IceDelegateD::Ice::Object::ice_invoke(const string&,
 				      OperationMode,
 				      const pair<const Byte*, const Byte*>& inParams,
 				      vector<Byte>&,
-				      const Context&)
+				      const Context*)
 {
     throw CollocationOptimizationException(__FILE__, __LINE__);
     return false;
@@ -1406,14 +1362,36 @@ IceDelegateD::Ice::Object::__copyFrom(const ::IceInternal::Handle< ::IceDelegate
 
 void
 IceDelegateD::Ice::Object::__initCurrent(Current& current, const string& op, OperationMode mode,
-					 const Context& context)
+					 const Context* context)
 {
     current.adapter = __adapter;
     current.id = __reference->getIdentity();
     current.facet = __reference->getFacet();
     current.operation = op;
     current.mode = mode;
-    current.ctx = context;
+    if(context == 0)
+    {
+	//
+	// Implicit context
+	//
+	const ImplicitContextIPtr& implicitContext =
+		__reference->getInstance()->getImplicitContext();
+
+	const Context& prxContext = __reference->getContext()->getValue();
+
+	if(implicitContext == 0)
+	{
+	    current.ctx = prxContext;
+	}
+	else
+	{
+	    implicitContext->write(prxContext, current.ctx);
+	}
+    }
+    else
+    {
+	current.ctx = *context;
+    }
     current.requestId = -1;
 }
 
