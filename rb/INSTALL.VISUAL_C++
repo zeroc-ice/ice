@@ -138,6 +138,11 @@ the following files in the Ruby installation directory:
 If you used the default installation directory, these files are
 located in C:\ruby\bin.
 
+Also be aware that the Ruby installer inserts C:\ruby\bin at the
+beginning of the system PATH, therefore the DLLs listed above can also
+have an adverse impact on other Ice language mappings that use
+OpenSSL, such as C++ and Python.
+
 
 Running the demos
 -----------------
