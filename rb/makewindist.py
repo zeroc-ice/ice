@@ -145,6 +145,5 @@ os.system("zip -9ry " + quiet + " " + distDir + ".zip " + distDir)
 # Done.
 #
 print "Cleaning up..."
-#shutil.rmtree(icever)
-#shutil.rmtree("ice")
+shutil.rmtree(distDir)
 print "Done."
