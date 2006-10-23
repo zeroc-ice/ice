@@ -30,11 +30,11 @@ into the /opt/IceRuby-3.1.1 directory.
 
 1. Add /opt/IceRuby-3.1.1/bin to your PATH:
 
-   export PATH=/opt/IceRuby-3.1.1/bin:$PATH
+   $ export PATH=/opt/IceRuby-3.1.1/bin:$PATH
 
 2. Add /opt/IceRuby-3.1.1/lib to your LD_LIBRARY_PATH:
 
-   export LD_LIBRARY_PATH=/opt/IceRuby-3.1.1/lib:$LD_LIBRARY_PATH
+   $ export LD_LIBRARY_PATH=/opt/IceRuby-3.1.1/lib:$LD_LIBRARY_PATH
 
 3. Verify that the Ice run time is also in your PATH. If you installed
    Ice using RPMs, no further action is necessary. If you installed
@@ -42,13 +42,13 @@ into the /opt/IceRuby-3.1.1 directory.
    directory and LD_LIBRARY_PATH should include the lib directory, as
    shown below:
 
-   export ICE_HOME=/opt/Ice-3.1.1
-   export PATH=$ICE_HOME/bin:$PATH
-   export LD_LIBRARY_PATH=$ICE_HOME/lib:$LD_LIBRARY_PATH
+   $ export ICE_HOME=/opt/Ice-3.1.1
+   $ export PATH=$ICE_HOME/bin:$PATH
+   $ export LD_LIBRARY_PATH=$ICE_HOME/lib:$LD_LIBRARY_PATH
    
 4. Define the RUBYLIB environment variable as follows:
 
-   export RUBYLIB=/opt/IceRuby-3.1.1/ruby
+   $ export RUBYLIB=/opt/IceRuby-3.1.1/ruby
 
    Note that there are other ways of informing the Ruby interpreter
    about the location of the Ice extension and supporting files. See
@@ -68,13 +68,13 @@ As an example, let's run the hello application in demo/Ice/hello using
 the C++ server. Assuming that you have already compiled the sample C++
 programs, we begin by starting the server:
 
-> cd $ICE_HOME/demo/Ice/hello
-> server
+  $ cd $ICE_HOME/demo/Ice/hello
+  $ server
 
 In a separate window, start the client:
 
-> cd /opt/IceRuby-3.1.1/demo/Ice/hello
-> ruby Client.rb
+  $ cd /opt/IceRuby-3.1.1/demo/Ice/hello
+  $ ruby Client.rb
 
 Some demo directories contain README files if additional requirements
 are necessary.
