@@ -34,7 +34,7 @@ PYTHON_HOME		= C:\Python24
 #
 # Define if using STLPort. Required if using MSVC++ 6.0.
 #
-#STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty
+STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
@@ -58,6 +58,7 @@ configdir		= $(ICE_HOME)\config
 !endif
 
 !if "$(STLPORT_HOME)" != ""
+CPPFLAGS		= -I"$(STLPORT_HOME)\include\stlport"
 LDFLAGS			= /LIBPATH:"$(STLPORT_HOME)\lib"
 !endif
 
