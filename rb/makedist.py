@@ -141,6 +141,7 @@ print "Removing unnecessary files..."
 filesToRemove = [ \
     os.path.join("icerb", "makedist.py"), \
     os.path.join("icerb", "makebindist.py"), \
+    os.path.join("icerb", "makewindist.py"), \
     os.path.join("icerb", "README.txt"), \
     os.path.join("icerb", "README.Linux"), \
     ]

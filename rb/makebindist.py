@@ -263,7 +263,9 @@ shutil.rmtree(os.path.join("icerb", "src"))
 #
 print "Removing unnecessary files..."
 filesToRemove = [ \
+    os.path.join("icerb", "makedist.py"), \
     os.path.join("icerb", "makebindist.py"), \
+    os.path.join("icerb", "makewindist.py"), \
     ]
 filesToRemove.extend(find("icerb", "*.o"))
 filesToRemove.extend(find("icerb", "*.dsp"))
