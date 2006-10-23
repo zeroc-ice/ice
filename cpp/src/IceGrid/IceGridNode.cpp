@@ -370,23 +370,8 @@ NodeService::start(int argc, char* argv[])
     string name = properties->getProperty("IceGrid.Node.Name");
     if(name.empty())
     {
-	char host[1024 + 1];
-	string hostname;
-	if(gethostname(host, 1024) != -1)
-	{
-	    hostname = host;
-	}
-	if(hostname.empty())
-	{
-	    error("property `IceGrid.Node.Name' is not set and hostname is empty");
-	    return false;
-	}
-	if(!nowarn)
-        {
-            warning("property `IceGrid.Node.Name' is not set, using hostname: " + hostname);
-        }
-	properties->setProperty("IceGrid.Node.Name", hostname);
-	name = hostname;
+	error("property `IceGrid.Node.Name' is not set");
+	return false;
     }
 
     //

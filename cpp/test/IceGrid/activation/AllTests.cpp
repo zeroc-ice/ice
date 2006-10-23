@@ -189,6 +189,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	try
 	{
 	    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("server-manual"));
+	    test(false);
 	}
 	catch(const Ice::NoEndpointException&)
 	{
@@ -235,6 +236,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	try
 	{
 	    obj->ice_ping();
+	    test(false);
 	}
 	catch(const Ice::NoEndpointException&)
 	{
@@ -250,6 +252,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	try
 	{
 	    obj->ice_ping();
+	    test(false);
 	}
 	catch(const Ice::NoEndpointException&)
 	{
@@ -263,6 +266,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	try
 	{
 	    obj->ice_ping();
+	    test(false);
 	}
 	catch(const Ice::NoEndpointException&)
 	{
@@ -284,6 +288,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	try
 	{
 	    communicator->stringToProxy("server")->ice_ping();
+	    test(false);
 	}
 	catch(const Ice::NoEndpointException&)
 	{
@@ -291,6 +296,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	try
 	{
 	    admin->startServer("server");
+	    test(false);
 	}
 	catch(const IceGrid::ServerStartException&)
 	{
@@ -302,6 +308,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	try
 	{
 	    communicator->stringToProxy("server-manual")->ice_ping();
+	    test(false);
 	}
 	catch(const Ice::NoEndpointException&)
 	{
@@ -309,6 +316,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	try
 	{
 	    admin->startServer("server-manual");
+	    test(false);
 	}
 	catch(const IceGrid::ServerStartException&)
 	{
@@ -322,6 +330,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	try
 	{
 	    communicator->stringToProxy("server-always")->ice_ping();
+	    test(false);
 	}
 	catch(const Ice::NoEndpointException&)
 	{
@@ -329,6 +338,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	try
 	{
 	    admin->startServer("server-always");
+	    test(false);
 	}
 	catch(const IceGrid::ServerStartException&)
 	{
@@ -361,6 +371,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	try
 	{
 	    communicator->stringToProxy("server-manual")->ice_ping();
+	    test(false);
 	}
 	catch(const Ice::NoEndpointException&)
 	{
@@ -378,6 +389,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	try
 	{
 	    admin->startServer("server-always");
+	    test(false);
 	}
 	catch(const IceGrid::ServerStartException&)
 	{
@@ -513,6 +525,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	try
 	{
 	    obj->ice_ping();    
+	    test(false);
 	}
 	catch(const Ice::NoEndpointException&)
 	{
@@ -553,6 +566,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	try
 	{
 	    obj->ice_ping();    
+	    test(false);
 	}
 	catch(const Ice::NoEndpointException&)
 	{

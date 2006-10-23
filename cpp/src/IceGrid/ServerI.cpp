@@ -799,45 +799,6 @@ ServerI::getDistribution() const
 }
 
 void
-ServerI::getDynamicInfo(ServerDynamicInfoSeq& serverInfos, AdapterDynamicInfoSeq& adapterInfos) const
-{
-    //
-    // Add server info if it's not inactive.
-    //
-    ServerAdapterDict adapters;
-    {
-	Lock sync(*this);
-	checkDestroyed();
-	if(_state == ServerI::Inactive && _activation != Disabled)
-	{
-	    return;
-	}
-	adapters = _adapters;
-	serverInfos.push_back(getDynamicInfo());
-    }
-
-    //
-    // Add adapters info.
-    //
-    for(ServerAdapterDict::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
-    {
-	try
-	{
-	    AdapterDynamicInfo adapter;
-	    adapter.id = p->first;
-	    adapter.proxy = p->second->getDirectProxy();
-	    adapterInfos.push_back(adapter);
-	}
-	catch(const AdapterNotActiveException&)
-	{
-	}
-	catch(const Ice::ObjectNotExistException&)
-	{
-	}
-    }
-}
-
-void
 ServerI::start(ServerActivation activation, const AMD_Server_startPtr& amdCB)
 {
     ServerCommandPtr command;
@@ -2309,8 +2270,7 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
     // Don't send the server update if the state didn't change or if
     // the server couldn't be forked.
     //
-    if(toServerState(previous) != toServerState(_state) && 
-       !(previous == Inactive && _state == Deactivating))
+    if(toServerState(previous) != toServerState(_state) && !(previous == Inactive && _state == Deactivating))
     {
 	_node->observerUpdateServer(getDynamicInfo());
     }

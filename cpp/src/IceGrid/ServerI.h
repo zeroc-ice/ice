@@ -86,7 +86,6 @@ public:
     bool canActivateOnDemand() const;
     const std::string& getId() const;
     DistributionDescriptor getDistribution() const;
-    void getDynamicInfo(ServerDynamicInfoSeq&, AdapterDynamicInfoSeq&) const;
 
     void start(ServerActivation, const AMD_Server_startPtr& = AMD_Server_startPtr());
     void load(const AMD_Node_loadServerPtr&, const ServerInfo&, bool);

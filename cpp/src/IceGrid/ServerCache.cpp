@@ -937,7 +937,7 @@ ServerEntry::released(const SessionIPtr& session)
 }
 
 void
-ServerEntry::releaseNoSync(const SessionIPtr& session)
+ServerEntry::releasedNoSync(const SessionIPtr& session)
 {
     {
 	Lock sync(*this);

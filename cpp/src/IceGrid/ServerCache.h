@@ -59,7 +59,7 @@ public:
     virtual void allocated(const SessionIPtr&);
     virtual void allocatedNoSync(const SessionIPtr&);
     virtual void released(const SessionIPtr&);
-    virtual void releaseNoSync(const SessionIPtr&);
+    virtual void releasedNoSync(const SessionIPtr&);
 
 private:
     

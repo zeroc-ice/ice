@@ -3683,8 +3683,6 @@ Defines the name of the &IceGrid; node. All nodes using the same
 registry must have unique names; a node refuses to start if
 there is a node with the same name running already.
 </para>
-<note><para>The default value is the hostname as returned by
-<literal>gethostname()</literal>.</para></note>
 </section>
 </section>
 
