@@ -62,6 +62,7 @@ class PerThreadImplicitContext : public ImplicitContextI
 public:
     
     PerThreadImplicitContext();
+    virtual ~PerThreadImplicitContext();
 
     virtual Context getContext() const;
     virtual void setContext(const Context&);
@@ -76,10 +77,34 @@ public:
     
     static void threadDestructor(void*);
     
-    typedef std::vector<Context*> ContextVector;
-    
 
-    static size_t _count;
+    struct Slot
+    {
+	Slot() :
+	    context(0),
+	    owner(-1) // just to avoid UMR; a random value would work as well
+	{
+	}
+
+	Context* context;
+	long owner;
+    };
+
+
+    //
+    // Each thread maintains a SlotVector. Each PerThreadImplicitContext instance
+    // is assigned a slot in this vector.
+    //
+    typedef std::vector<Slot> SlotVector;
+    
+    //
+    // We remember which slot-indices are in use (to be able to reuse indices)
+    //
+    typedef std::vector<bool> IndexInUse;
+    static IndexInUse* _indexInUse;
+    static IceUtil::StaticMutex _mutex;
+
+    static long _nextId;
 
 #ifdef _WIN32
     static DWORD _key;
@@ -92,7 +117,8 @@ private:
     Context* getThreadContext(bool) const;
     void clearThreadContext() const;
 
-    size_t _index;
+    size_t _index; // index in all SlotVector
+    long _id; // corresponds to owner in the Slot
 };
 
 }
@@ -307,7 +333,9 @@ SharedImplicitContext::write(const Context& proxyCtx, Context& ctx) const
 // PerThreadImplicitContext implementation
 //
 
-size_t PerThreadImplicitContext::_count;
+long PerThreadImplicitContext::_nextId;
+PerThreadImplicitContext::IndexInUse* PerThreadImplicitContext::_indexInUse;
+IceUtil::StaticMutex PerThreadImplicitContext::_mutex = ICE_STATIC_MUTEX_INITIALIZER;
 
 #ifdef _WIN32
 DWORD PerThreadImplicitContext::_key;
@@ -317,9 +345,9 @@ pthread_key_t PerThreadImplicitContext::_key;
 
 PerThreadImplicitContext::PerThreadImplicitContext()
 {
-    IceUtil::StaticMutex::Lock lock(IceUtil::globalMutex);
-    _index = _count++;
-    if(_index == 0)
+    IceUtil::StaticMutex::Lock lock(_mutex);
+    _id = _nextId++;
+    if(_id == 0)
     {
 	//
 	// Initialize; note that we never dealloc this key (it would be
@@ -339,37 +367,84 @@ PerThreadImplicitContext::PerThreadImplicitContext()
 	}
 #endif
     }
+    
+    //
+    // Now grabs an index
+    //
+    if(_indexInUse == 0)
+    {
+	_indexInUse = new IndexInUse(1);
+    }
+    size_t i = 0;
+    while(i < _indexInUse->size() && (*_indexInUse)[i])
+    {
+	i++;
+    }
+
+    if(i == _indexInUse->size())
+    {
+	_indexInUse->resize(i + 1);
+    }
+    (*_indexInUse)[i] = true;
+    _index = i;
+}
+
+PerThreadImplicitContext::~PerThreadImplicitContext()
+{
+    IceUtil::StaticMutex::Lock lock(_mutex);
+    (*_indexInUse)[_index] = false;
+
+    if(find(_indexInUse->begin(), _indexInUse->end(), true) == _indexInUse->end())
+    {
+	delete _indexInUse;
+	_indexInUse = 0;
+    }
 }
 
 /*static*/ void
 PerThreadImplicitContext::threadDestructor(void* v)
 {
-    delete static_cast<ContextVector*>(v);
+    SlotVector* sv = static_cast<SlotVector*>(v);
+    if(sv != 0)
+    {
+	//
+	// Cleanup each slot
+	//
+	for(SlotVector::iterator p = sv->begin(); p != sv->end(); ++p)
+	{
+	    delete p->context;
+	}
+	//
+	// Then the vector
+	//
+	delete sv;
+    }
 }
 
 Context*
 PerThreadImplicitContext::getThreadContext(bool allocate) const
 {
 #ifdef _WIN32
-    ContextVector* val = static_cast<ContextVector*>(TlsGetValue(_key));
+    SlotVector* sv = static_cast<SlotVector*>(TlsGetValue(_key));
 #else
-    ContextVector* val = static_cast<ContextVector*>(pthread_getspecific(_key));
+    SlotVector* sv = static_cast<SlotVector*>(pthread_getspecific(_key));
 #endif
-    if(val == 0)
+    if(sv == 0)
     {
 	if(!allocate)
 	{
 	    return 0;
 	}
 
-	val = new std::vector<Context*>(_index + 1);
+	sv = new SlotVector(_index + 1);
 #ifdef _WIN32
-	if(TlsSetValue(_key, val) == 0)
+
+	if(TlsSetValue(_key, sv) == 0)
 	{
 	    throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
 	}
 #else
-	if(int err = pthread_setspecific(_key, val))
+	if(int err = pthread_setspecific(_key, sv))
 	{
 	    throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, err);
 	}
@@ -377,7 +452,7 @@ PerThreadImplicitContext::getThreadContext(bool allocate) const
     }
     else
     {
-	if(val->size() <= _index)
+	if(sv->size() <= _index)
 	{
 	    if(!allocate)
 	    {
@@ -385,44 +460,61 @@ PerThreadImplicitContext::getThreadContext(bool allocate) const
 	    }
 	    else
 	    {
-		val->resize(_index + 1);
-		assert((*val)[_index] == 0);
+		sv->resize(_index + 1);
 	    }
 	}
     }
 
-    ContextVector& contextVector = *val;
-
-    Context* result = contextVector[_index];
-    if(result == 0 && allocate)
+    Slot& slot = (*sv)[_index];
+    if(slot.context != 0)
     {
-	result = new Context;
-	contextVector[_index] = result;
+	if(slot.owner != _id)
+	{
+	    //
+	    // Reuse the slot from another (dead) communicator
+	    //
+	    slot.context->clear();
+	    slot.owner = _id;
+	}
+	//
+	// else keep this slot.context
+	//
     }
-    return result;
+    else
+    {
+	if(allocate)
+	{
+	    slot.context = new Context;
+	    slot.owner = _id;
+	}
+	//
+	// else keep null slot.context
+	//
+    }
+    return slot.context;
 }
 
 void
 PerThreadImplicitContext::clearThreadContext() const
 {
 #ifdef _WIN32
-    ContextVector* val = static_cast<ContextVector*>(TlsGetValue(_key));
+    SlotVector* sv = static_cast<SlotVector*>(TlsGetValue(_key));
 #else
-    ContextVector* val = static_cast<ContextVector*>(pthread_getspecific(_key));
+    SlotVector* sv = static_cast<SlotVector*>(pthread_getspecific(_key));
 #endif
-    if(val != 0 && _index < val->size())
+    if(sv != 0 && _index < sv->size())
     {
-	delete (*val)[_index];
-	(*val)[_index] = 0;
+	delete (*sv)[_index].context;
+	(*sv)[_index].context = 0;
 
-	int i = val->size() - 1;
-	while(i >= 0 && (*val)[i] == 0) 
+	int i = sv->size() - 1;
+	while(i >= 0 && (*sv)[i].context == 0) 
 	{
 	    i--;
 	}
 	if(i < 0)
 	{
-	    delete val;
+	    delete sv;
 #ifdef _WIN32
 	    if(TlsSetValue(_key, 0) == 0)
 	    {
@@ -437,7 +529,7 @@ PerThreadImplicitContext::clearThreadContext() const
 	}
 	else
 	{
-	    val->resize(i + 1);
+	    sv->resize(i + 1);
 	}
     }
 }
