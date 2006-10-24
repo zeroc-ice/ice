@@ -63,7 +63,10 @@ Follow these steps:
 
    $ export LD_LIBRARY_PATH=$ICE_HOME/lib:$LD_LIBRARY_PATH
 
-5. Run make.
+5. Review the settings in config/Make.rules and adjust as necessary.
+   For example, you may wish to enable OPTIMIZE.
+
+6. Run make.
 
 If no errors occurred, you can now begin using Ice for Ruby.
 
