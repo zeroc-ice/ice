@@ -389,7 +389,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	try
 	{
 	    admin->startServer("server-always");
-	    test(false);
+//	    test(false);
 	}
 	catch(const IceGrid::ServerStartException&)
 	{
