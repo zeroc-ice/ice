@@ -117,6 +117,11 @@ namespace Ice
 	    instance_.setDefaultContext(ctx);
 	}
 
+	public ImplicitContext getImplicitContext()
+	{
+	    return null;
+	}
+
 	public PluginManager getPluginManager()
 	{
       	    return instance_.pluginManager();

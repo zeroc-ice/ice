@@ -27,6 +27,7 @@ ICE_SRCS	= Ice_LocalException_ice.py \
 		  Ice_ObjectFactoryF_ice.py \
 		  Ice_Identity_ice.py \
 		  Ice_Current_ice.py \
+		  Ice_ImplicitContext_ice.py \
 		  Ice_Router_ice.py \
 		  Ice_RouterF_ice.py \
 		  Ice_Plugin_ice.py \
@@ -128,6 +129,9 @@ Ice_Identity_ice.py: $(slicedir)/Ice/Identity.ice
 
 Ice_Current_ice.py: $(slicedir)/Ice/Current.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/Current.ice
+
+Ice_ImplicitContext_ice.py: $(slicedir)/Ice/ImplicitContext.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/ImplicitContext.ice
 
 Ice_Router_ice.py: $(slicedir)/Ice/Router.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/Router.ice

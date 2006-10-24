@@ -106,7 +106,6 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     {
 	PyObjectHandle properties = PyObject_GetAttrString(initData, STRCAST("properties"));
 	PyObjectHandle logger = PyObject_GetAttrString(initData, STRCAST("logger"));
-	PyObjectHandle defaultContext = PyObject_GetAttrString(initData, STRCAST("defaultContext"));
 	PyObjectHandle threadHook = PyObject_GetAttrString(initData, STRCAST("threadHook"));
 
 	if(properties.get() && properties.get() != Py_None)
@@ -122,14 +121,6 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 	if(logger.get() && logger.get() != Py_None)
 	{
 	    data.logger = new LoggerWrapper(logger.get());
-	}
-
-	if(defaultContext.get() && defaultContext.get() != Py_None)
-	{
-	    if(!dictionaryToContext(defaultContext.get(), data.defaultContext))
-	    {
-		return -1;
-	    }
 	}
 
 	if(threadHook.get() && threadHook.get() != Py_None)
