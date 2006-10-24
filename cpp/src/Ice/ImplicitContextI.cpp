@@ -364,7 +364,7 @@ PerThreadImplicitContext::getThreadContext(bool allocate) const
 
 	val = new std::vector<Context*>(_index + 1);
 #ifdef _WIN32
-	if(TlsSetValue(_key, val) != 0)
+	if(TlsSetValue(_key, val) == 0)
 	{
 	    throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
 	}
@@ -424,7 +424,7 @@ PerThreadImplicitContext::clearThreadContext() const
 	{
 	    delete val;
 #ifdef _WIN32
-	    if(!TlsSetValue(_key, 0))
+	    if(TlsSetValue(_key, 0) == 0)
 	    {
 		IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
 	    }
