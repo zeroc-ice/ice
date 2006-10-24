@@ -12,9 +12,7 @@ top_srcdir	= ..
 TARGETS		= reference/index.html
 
 SGMLFILES	= reference.sgml \
-		  SliceDoc.sgml \
-		  Properties.sgml \
-		  ProxiesEndpoints.sgml
+		  SliceDoc.sgml
 
 SLICEFILES	= $(wildcard ../slice/Ice/*.ice) \
 		  $(wildcard ../slice/Freeze/*.ice) \
@@ -48,12 +46,8 @@ SliceDoc.sgml: $(SLICEFILES) $(SLICE2DOCBOOK)
 	rm -f $@
 	$(SLICE2DOCBOOK) --ice -I$(top_srcdir)/slice $@ $(SLICEFILES)
 
-appendix:
-	rm -f SliceDoc.sgml
-	$(SLICE2DOCBOOK) --noindex --ice -I$(top_srcdir)/slice SliceDoc.sgml $(SLICEFILES)
-
 clean::
-	rm -f SliceDoc.sgml appendix.sgml
+	rm -f SliceDoc.sgml
 
 install::
 	@if test -f reference/index.html ; \

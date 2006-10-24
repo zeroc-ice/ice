@@ -11,8 +11,6 @@
 <!ENTITY Freeze "<phrase>Freeze</phrase>">
 
 <!ENTITY SliceDoc SYSTEM "SliceDoc.sgml">
-<!ENTITY Properties SYSTEM "Properties.sgml">
-<!ENTITY ProxiesEndpoints SYSTEM "ProxiesEndpoints.sgml">
 
 ]>
 
@@ -46,13 +44,5 @@
 <chapter>
 <title>Slice Documentation</title>
 &SliceDoc;
-</chapter>
-<chapter>
-<title>Properties</title>
-&Properties;
-</chapter>
-<chapter>
-<title>Proxies and Endpoints</title>
-&ProxiesEndpoints;
 </chapter>
 </book>
