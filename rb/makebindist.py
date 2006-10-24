@@ -154,33 +154,25 @@ os.chdir(distdir)
 #
 # Export C++ sources from CVS.
 #
-# We need to provide slice2rb and libSlice. The statements below export sources
-# from version 3.1.0 and then add the Ruby-related code from ice/HEAD.
+# We need to provide slice2rb and libSliceRuby. The statements below export sources
+# from branch icerb_preview_branch.
 #
 print "Checking out translator sources using CVS tag " + tag + "..."
 if verbose:
     quiet = ""
 else:
     quiet = "-Q"
-#os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag +
-#          " ice/config ice/include/Slice ice/src/Makefile ice/src/Slice ice/src/slice2rb")
-os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export -rR3_1_0" +
-          " ice/config ice/slice ice/include/Slice ice/src/Makefile ice/src/Slice")
-os.remove(os.path.join("ice", "src", "Makefile"))
-os.remove(os.path.join("ice", "src", "Slice", "Makefile"))
-os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export -rHEAD ice/include/Slice/RubyUtil.h" +
-	  " ice/src/Makefile ice/src/Slice/Makefile ice/src/Slice/RubyUtil.cpp ice/src/slice2rb")
+os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export -ricerb_preview_branch" +
+          " ice/config ice/slice ice/include ice/src/Makefile ice/src/IceUtil ice/src/icecpp ice/src/Slice" +
+	  " ice/src/SliceRuby ice/src/slice2rb ice/src/slice2cpp ice/src/Ice")
 
 os.mkdir(os.path.join("ice", "bin"))
 os.mkdir(os.path.join("ice", "lib"))
 
-fixMakeRules(os.path.join("ice", "config", "Make.rules"), "^CPPFLAGS[ \\t]*=", " -I$(ICE_HOME)/include")
-fixMakeRules(os.path.join("ice", "config", "Make.rules"), "^LDFLAGS[ \\t]*=", " -L$(ICE_HOME)/lib")
 uncomment(os.path.join("ice", "config", "Make.rules"), "^#OPTIMIZE")
 
 cwd = os.getcwd()
 os.chdir(os.path.join("ice", "src"))
-os.system("gmake depend")
 os.system("gmake")
 os.chdir(cwd)
 
@@ -194,9 +186,6 @@ else:
     quiet = "-Q"
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " icerb")
 
-icePath = os.path.abspath("ice")
-fixMakeVar(os.path.join("icerb", "config", "Make.rules"), "^CPPFLAGS[ \\t]*=", " -I" + icePath + "/include")
-fixMakeVar(os.path.join("icerb", "config", "Make.rules"), "^LDFLAGS[ \\t]*=", " -L" + icePath + "/lib")
 uncomment(os.path.join("icerb", "config", "Make.rules"), "^#OPTIMIZE")
 
 #
@@ -225,6 +214,8 @@ def isAIX():
    else:
         return 0
 
+icePath = os.path.abspath("ice")
+
 if isHpUx():
     os.environ["SHLIB_PATH"] = os.path.join(icePath, "lib") + ":" + os.getenv("SHLIB_PATH", "")
 elif isDarwin():
@@ -236,11 +227,7 @@ else:
 
 os.environ["PATH"] = os.path.join(icePath, "bin") + ":" + os.getenv("PATH", "")
 
-for x in glob.glob(os.path.join("ice", "config", "Make.rules.*")):
-    if not os.path.exists(os.path.join("icerb", "config", os.path.basename(x))):
-	shutil.copyfile(x, os.path.join("icerb", "config", os.path.basename(x)))
-
-os.rename(os.path.join("ice", "slice"), os.path.join("icerb", "slice"))
+os.environ["ICE_HOME"] = icePath
 
 cwd = os.getcwd()
 os.chdir("icerb")
@@ -250,19 +237,17 @@ os.chdir(cwd)
 #
 # Get Ice version.
 #
-config = open(os.path.join("ice", "config", "Make.rules"), "r")
-version = re.search("^VERSION[ \t]+=[^\d]*([\d\.]+)", config.read(), re.M).group(1)
+config = open(os.path.join("ice", "include", "IceUtil", "Config.h"), "r")
+version = re.search("ICE_STRING_VERSION[ \t]+\"([\d\.]+)\"", config.read(), re.M).group(1)
 
-shutil.rmtree(os.path.join("ice", "config"))
-shutil.rmtree(os.path.join("ice", "include"))
-shutil.rmtree(os.path.join("ice", "src"))
-shutil.rmtree(os.path.join("icerb", "src"))
+os.rename(os.path.join("icerb", "README.Linux"), os.path.join("icerb", "README"))
 
 #
 # Remove files.
 #
 print "Removing unnecessary files..."
 filesToRemove = [ \
+    os.path.join("icerb", "allTests.py"), \
     os.path.join("icerb", "makedist.py"), \
     os.path.join("icerb", "makebindist.py"), \
     os.path.join("icerb", "makewindist.py"), \
@@ -270,14 +255,27 @@ filesToRemove = [ \
 filesToRemove.extend(find("icerb", "*.o"))
 filesToRemove.extend(find("icerb", "*.dsp"))
 filesToRemove.extend(find("icerb", "*.dsw"))
+filesToRemove.extend(find("icerb", "Makefile"))
+filesToRemove.extend(find("icerb", "*.mak"))
+filesToRemove.extend(find("icerb", "README.*"))
+filesToRemove.extend(find("icerb", "INSTALL.*"))
+filesToRemove.extend(find(os.path.join("ice", "bin"), "icecpp"))
+filesToRemove.extend(find(os.path.join("ice", "bin"), "slice2cpp"))
+filesToRemove.extend(find(os.path.join("ice", "lib"), "libIce*"))
+filesToRemove.extend(find(os.path.join("ice", "lib"), "libSlice.*"))
 for x in filesToRemove:
     os.remove(x)
+
+shutil.rmtree(os.path.join("icerb", "config"))
+shutil.rmtree(os.path.join("icerb", "src"))
+shutil.rmtree(os.path.join("icerb", "test"))
+
 
 #
 # Create archives.
 #
 print "Creating distribution archives..."
-icever = "IceRuby-" + version
+icever = "IceRuby-" + version + "-bin-fc5"
 os.rename("icerb", icever)
 os.rename(os.path.join("ice", "bin"), os.path.join(icever, "bin"))
 os.rename(os.path.join("ice", "lib"), os.path.join(icever, "lib"))
@@ -300,6 +298,6 @@ os.system("zip -9ry " + quiet + " " + icever + ".zip " + icever)
 # Done.
 #
 print "Cleaning up..."
-shutil.rmtree(icever)
-shutil.rmtree("ice")
+#shutil.rmtree(icever)
+#shutil.rmtree("ice")
 print "Done."
