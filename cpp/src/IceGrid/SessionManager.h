@@ -90,7 +90,6 @@ public:
 		}
 		notifyAll();
 
-
 		//
 		// Wait if there's nothing to do and if we are
 		// connected or if we've just tried to connect.
@@ -99,9 +98,10 @@ public:
 		{
 		    if(_state == Connected || (action == Connect || action == KeepAlive))
 		    {
+			IceUtil::Time wakeTime = IceUtil::Time::now() + timeout;
 			while(_state != Destroyed && _nextAction == None)
 			{
-			    if(!timedWait(timeout))
+			    if(!timedWait(wakeTime - IceUtil::Time::now()))
 			    {
 				break;
 			    }
@@ -219,6 +219,10 @@ public:
     terminate(bool destroySession = true)
     {
 	Lock sync(*this);
+	if(_state == Destroyed)
+	{
+	    return;
+	}
 	assert(_state != Destroyed);
 	_state = Destroyed;
 	_nextAction = destroySession ? Disconnect : None;

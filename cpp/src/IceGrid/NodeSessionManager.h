@@ -52,7 +52,8 @@ public:
     
     void create(const NodeIPtr&);
     void create(const InternalRegistryPrx&);
-    void waitForCreate();
+    bool waitForCreate();
+    void terminate();
     void destroy();
 
     NodeSessionKeepAliveThreadPtr replicaAdded(const InternalRegistryPrx&);

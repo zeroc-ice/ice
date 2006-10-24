@@ -154,6 +154,7 @@ NodeService::shutdown()
 {
     assert(_activator);
     _activator->shutdown();
+    _sessions.terminate(); // Unblock the main thread if it's blocked on waitForCreate()
     return true;
 }
 
@@ -485,7 +486,14 @@ NodeService::start(int argc, char* argv[])
     if(!bundleName.empty() || !desc.empty())
     {
 	enableInterrupt();
-	_sessions.waitForCreate();
+	if(!_sessions.waitForCreate())
+	{
+	    //
+	    // Create was interrupted, return true as if the service was
+	    // correctly initiliazed to make sure it's properly stopped.
+	    //
+	    return true;
+	}
 	disableInterrupt();
     }
 

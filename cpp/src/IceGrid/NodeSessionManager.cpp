@@ -260,11 +260,18 @@ NodeSessionManager::create(const InternalRegistryPrx& replica)
     thread->tryCreateSession();
 }
 
-void
+bool
 NodeSessionManager::waitForCreate()
 {
     assert(_thread);
-    _thread->waitForCreate();
+    return _thread->waitForCreate();
+}
+
+void
+NodeSessionManager::terminate()
+{
+    assert(_thread);
+    _thread->terminate();
 }
 
 void
