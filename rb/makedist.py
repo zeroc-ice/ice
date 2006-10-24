@@ -18,8 +18,8 @@ def usage():
     print
     print "Options:"
     print "-h    Show this message."
-    #print "-d    Skip SGML documentation conversion."
-    #print "-t    Skip building translator and use the one in PATH."
+    print "-d    Skip SGML documentation conversion."
+    print "-t    Skip building translator and use the one in PATH."
     print "-v    Be verbose."
     print
     print "If no tag is specified, HEAD is used."
@@ -107,9 +107,7 @@ os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " i
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export -ricerb_preview_branch -l ice")
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export -ricerb_preview_branch ice/config ice/slice ice/include ice/src")
 if not skipDocs or not skipTranslator:
-    os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " " +
-	      "ice/bin ice/lib ice/src/icecpp ice/src/IceUtil ice/src/Slice ice/src/slice2docbook ice/src/slice2rb " +
-	      "ice/include/IceUtil ice/include/Slice ice/doc")
+    os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export -ricerb_preview_branch ice/bin ice/lib ice/doc")
 
 #
 # Copy Slice directories.
@@ -215,6 +213,9 @@ if not skipTranslator:
     os.system("gmake")
     os.chdir(cwd)
     os.chdir(os.path.join("ice", "src", "Slice"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.chdir(os.path.join("ice", "src", "SliceRuby"))
     os.system("gmake")
     os.chdir(cwd)
     os.chdir(os.path.join("ice", "src", "slice2rb"))
