@@ -34,6 +34,7 @@
                 <include name="Current.ice" />
                 <include name="Endpoint.ice" />
                 <include name="FacetMap.ice" />
+		<include name="ImplicitContext.ice" />
                 <include name="Identity.ice" />
                 <include name="LocalException.ice" />
                 <include name="Locator.ice" />

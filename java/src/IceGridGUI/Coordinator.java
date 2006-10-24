@@ -1064,7 +1064,7 @@ public class Coordinator
 		    {
 			if(JOptionPane.showConfirmDialog(
 			       parent,
-			       "Unable to connect to the Master Registry: " + e.toString()
+			       "Unable to connect to the Master Registry:\n " + e.toString()
 			       + "\n\nDo you want to connect to a Slave Registry?",
 			       "Cannot connect to Master Registry",
 			       JOptionPane.YES_NO_OPTION,

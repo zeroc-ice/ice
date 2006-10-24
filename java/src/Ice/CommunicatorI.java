@@ -137,6 +137,12 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
 	_instance.setDefaultContext(ctx);
     }
 
+    public ImplicitContext
+    getImplicitContext()
+    {
+	return null;
+    }
+
     public PluginManager
     getPluginManager()
     {
