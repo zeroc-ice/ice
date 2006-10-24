@@ -949,5 +949,5 @@ ServerEntry::releasedNoSync(const SessionIPtr& session)
 	}
     }
     
-    syncImpl(false); // We sync here to ensure the "session" server will be shutdown.
+    syncImpl(true); // We sync here to ensure the "session" server will be shutdown.
 }
