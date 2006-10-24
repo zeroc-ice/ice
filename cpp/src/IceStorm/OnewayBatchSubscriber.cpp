@@ -13,6 +13,11 @@
 
 #include <Ice/Communicator.h>
 
+#ifdef __BCPLUSPLUS__
+#  include <IceStorm/QueuedProxy.h>
+#  include <IceStorm/SubscriberFactory.h>
+#endif
+
 using namespace IceStorm;
 using namespace std;
 
