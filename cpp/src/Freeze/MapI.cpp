@@ -231,33 +231,34 @@ Freeze::IteratorHelperI::find(const Key& key) const
     Dbt dbValue;
     dbValue.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
 
-    try
+    for(;;)
     {
-	if(_dbc->get(&dbKey, &dbValue, DB_SET) == 0)
-	{
-	    return true;
-	}
-	else
-	{
-	    return false;
-	}
-    }
-    catch(const ::DbDeadlockException& dx)
-    {
-	if(_tx != 0)
-	{
-	    _tx->dead();
-	}
+        try
+        {
+	    if(_dbc->get(&dbKey, &dbValue, DB_SET) == 0)
+	    {
+	        return true;
+	    }
+	    else
+	    {
+	        return false;
+	    }
+        }
+        catch(const ::DbDeadlockException& dx)
+        {
+	    if(_tx != 0)
+	    {
+	        _tx->dead();
+	    }
 
-	DeadlockException ex(__FILE__, __LINE__);
-	ex.message = dx.what();
-	throw ex;
-    }
-    catch(const ::DbException& dx)
-    {
-	DatabaseException ex(__FILE__, __LINE__);
-	ex.message = dx.what();
-	throw ex;
+	    DeadlockException ex(__FILE__, __LINE__);
+	    ex.message = dx.what();
+	    throw ex;
+        }
+        catch(const ::DbException& dx)
+        {
+            handleDbException(dx, const_cast<Key&>(key), dbKey, __FILE__, __LINE__);
+        }
     }
 }
 
