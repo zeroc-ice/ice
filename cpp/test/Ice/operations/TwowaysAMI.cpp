@@ -872,8 +872,7 @@ public:
 typedef IceUtil::Handle<AMI_MyClass_opDoubleMarshalingI> AMI_MyClass_opDoubleMarshalingIPtr;
 
 void
-twowaysAMI(const Ice::CommunicatorPtr& communicator, 
-	   const Ice::InitializationData& initializationData, const Test::MyClassPrx& p)
+twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 {
     {
         // Check that a call to a void operation raises TwowayOnlyException
@@ -1322,6 +1321,79 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator,
 
 	    communicator->setDefaultContext(Ice::Context());
 	}
+
+	{
+	    //
+	    // Test implicit context propagation
+	    //
+	    
+	    string impls[] = {"Shared", "SharedWithoutLocking", "PerThread"};
+	    for(int i = 0; i < 3; i++)
+	    {
+		Ice::InitializationData initData;
+		initData.properties = Ice::createProperties();
+		initData.properties->setProperty("Ice.ImplicitContext", impls[i]);
+		
+		Ice::CommunicatorPtr ic = Ice::initialize(initData);
+
+		Ice::Context ctx;
+		ctx["one"] = "ONE";
+		ctx["two"] = "TWO";
+		ctx["three"] = "THREE";
+
+
+		Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(
+	    				ic->stringToProxy("test:default -p 12010 -t 10000"));
+		
+		
+		ic->getImplicitContext()->setContext(ctx);
+		test(ic->getImplicitContext()->getContext() == ctx);
+		{
+		    AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(ctx);
+		    p->opContext_async(cb);
+		    test(cb->check());
+		}
+
+		ic->getImplicitContext()->set("zero", "ZERO");
+		test(ic->getImplicitContext()->get("zero") == "ZERO");
+		test(ic->getImplicitContext()->getWithDefault("foobar", "foo") == "foo");
+
+		ctx = ic->getImplicitContext()->getContext();
+		{
+		    AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(ctx);
+		    p->opContext_async(cb);
+		    test(cb->check());
+		}
+		
+		Ice::Context prxContext;
+		prxContext["one"] = "UN";
+		prxContext["four"] = "QUATRE";
+		
+		Ice::Context combined = prxContext;
+		combined.insert(ctx.begin(), ctx.end());
+		test(combined["one"] == "UN");
+		
+		p = Test::MyClassPrx::uncheckedCast(p->ice_context(prxContext));
+		
+		ic->getImplicitContext()->setContext(Ice::Context());
+		{
+		    AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(prxContext);
+		    p->opContext_async(cb);
+		    test(cb->check());
+		}
+
+		ic->getImplicitContext()->setContext(ctx);
+		{
+		    AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(combined);
+		    p->opContext_async(cb);
+		    test(cb->check());
+		}
+		
+		ic->destroy();
+	    }
+	}
+
+
     }
 
     {

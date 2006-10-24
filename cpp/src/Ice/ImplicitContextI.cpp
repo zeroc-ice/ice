@@ -362,7 +362,7 @@ PerThreadImplicitContext::getThreadContext(bool allocate) const
 	    return 0;
 	}
 
-	val = new std::vector<Context*>(_index);
+	val = new std::vector<Context*>(_index + 1);
 #ifdef _WIN32
 	if(TlsSetValue(_key, val) != 0)
 	{
@@ -377,7 +377,7 @@ PerThreadImplicitContext::getThreadContext(bool allocate) const
     }
     else
     {
-	if(val->size() < _index)
+	if(val->size() <= _index)
 	{
 	    if(!allocate)
 	    {
@@ -386,6 +386,7 @@ PerThreadImplicitContext::getThreadContext(bool allocate) const
 	    else
 	    {
 		val->resize(_index + 1);
+		assert((*val)[_index] == 0);
 	    }
 	}
     }
@@ -409,8 +410,9 @@ PerThreadImplicitContext::clearThreadContext() const
 #else
     ContextVector* val = static_cast<ContextVector*>(pthread_getspecific(_key));
 #endif
-    if(val != 0 && val->size() < _index)
+    if(val != 0 && _index < val->size())
     {
+	delete (*val)[_index];
 	(*val)[_index] = 0;
 
 	int i = val->size() - 1;
@@ -465,6 +467,7 @@ PerThreadImplicitContext::setContext(const Context& newContext)
     else
     {
 	Context* ctx = getThreadContext(true);
+	assert(ctx != 0);
 	*ctx = newContext;
     }
 }

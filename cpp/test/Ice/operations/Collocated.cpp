@@ -23,8 +23,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator,
     adapter->add(new TestCheckedCastI, communicator->stringToIdentity("context"));
     adapter->activate();
 
-    Test::MyClassPrx allTests(const Ice::CommunicatorPtr&, const Ice::InitializationData&, bool);
-    allTests(communicator, initData, true);
+    Test::MyClassPrx allTests(const Ice::CommunicatorPtr&, bool);
+    allTests(communicator, true);
 
     return EXIT_SUCCESS;
 }

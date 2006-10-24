@@ -59,7 +59,6 @@ struct InitializationData
     PropertiesPtr properties;
     LoggerPtr logger;
     StatsPtr stats;
-    Context defaultContext;
     StringConverterPtr stringConverter;
     WstringConverterPtr wstringConverter;
     ThreadNotificationPtr threadHook;

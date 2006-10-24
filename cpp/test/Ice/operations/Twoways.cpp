@@ -25,8 +25,7 @@
 using namespace std;
 
 void
-twoways(const Ice::CommunicatorPtr& communicator, const Ice::InitializationData& initializationData,
-	const Test::MyClassPrx& p)
+twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 {
     {
 	p->opVoid();
@@ -685,6 +684,62 @@ twoways(const Ice::CommunicatorPtr& communicator, const Ice::InitializationData&
 
 	    communicator->setDefaultContext(Ice::Context());
 	}
+	
+	{
+	    //
+	    // Test implicit context propagation
+	    //
+	    
+	    string impls[] = {"Shared", "SharedWithoutLocking", "PerThread"};
+	    for(int i = 0; i < 3; i++)
+	    {
+		Ice::InitializationData initData;
+		initData.properties = Ice::createProperties();
+		initData.properties->setProperty("Ice.ImplicitContext", impls[i]);
+		
+		Ice::CommunicatorPtr ic = Ice::initialize(initData);
+
+		Ice::Context ctx;
+		ctx["one"] = "ONE";
+		ctx["two"] = "TWO";
+		ctx["three"] = "THREE";
+
+
+		Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(
+	    				ic->stringToProxy("test:default -p 12010 -t 10000"));
+		
+		
+		ic->getImplicitContext()->setContext(ctx);
+		test(ic->getImplicitContext()->getContext() == ctx);
+		test(p->opContext() == ctx);
+
+		ic->getImplicitContext()->set("zero", "ZERO");
+		test(ic->getImplicitContext()->get("zero") == "ZERO");
+		test(ic->getImplicitContext()->getWithDefault("foobar", "foo") == "foo");
+
+		ctx = ic->getImplicitContext()->getContext();
+		test(p->opContext() == ctx);
+		
+		Ice::Context prxContext;
+		prxContext["one"] = "UN";
+		prxContext["four"] = "QUATRE";
+		
+		Ice::Context combined = prxContext;
+		combined.insert(ctx.begin(), ctx.end());
+		test(combined["one"] == "UN");
+		
+		p = Test::MyClassPrx::uncheckedCast(p->ice_context(prxContext));
+
+		ic->getImplicitContext()->setContext(Ice::Context());
+		test(p->opContext() == prxContext);
+
+		ic->getImplicitContext()->setContext(ctx);
+		test(p->opContext() == combined);
+		
+		ic->destroy();
+	    }
+	}
+	
     }
 
     {

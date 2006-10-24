@@ -466,7 +466,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     _serverACM(0),
     _threadPerConnection(0),
     _threadPerConnectionStackSize(0),
-    _defaultContext(new SharedContext(initData.defaultContext)),
+    _defaultContext(new SharedContext),
     _memoryPool(0),
     _implicitContext(0)
 {

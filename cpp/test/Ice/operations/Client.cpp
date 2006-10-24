@@ -18,9 +18,8 @@ run(int argc, char* argv[],
     const Ice::CommunicatorPtr& communicator,
     const Ice::InitializationData& initData)
 {
-    Test::MyClassPrx allTests(const Ice::CommunicatorPtr&, 
-			      const Ice::InitializationData&, bool);
-    Test::MyClassPrx myClass = allTests(communicator, initData, false);
+    Test::MyClassPrx allTests(const Ice::CommunicatorPtr&, bool);
+    Test::MyClassPrx myClass = allTests(communicator, false);
 
     cout << "testing server shutdown... " << flush;
     myClass->shutdown();
