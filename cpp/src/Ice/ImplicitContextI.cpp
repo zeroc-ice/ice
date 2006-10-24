@@ -155,7 +155,7 @@ ImplicitContextI::create(const std::string& kind)
 void
 ImplicitContextI::cleanupThread()
 {
-    if(PerThreadImplicitContext::_count > 0)
+    if(PerThreadImplicitContext::_nextId > 0)
     {
 	PerThreadImplicitContext::threadDestructor(
 	    TlsGetValue(PerThreadImplicitContext::_key));
