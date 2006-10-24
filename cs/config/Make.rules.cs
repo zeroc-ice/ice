@@ -10,12 +10,12 @@
 #
 # If you are compiling with MONO you must define this symbol.
 #
-#MONO = yes
+MONO = yes
 
 #
 # If you are compiling with .NET 1.x you must define this symbol.
 #
-DOTNET_1 = yes
+#DOTNET_1 = yes
 
 #
 # Select an installation base directory. The directory will be created
