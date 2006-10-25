@@ -46,15 +46,7 @@ Compiling Ice for Ruby
 
 Follow these steps to build the extension:
 
-1. Set the ICE_HOME environment variable with the directory of your
-   Ice installation, for example:
-
-   ICE_HOME=C:\Ice-@ver@-VC60
-
-   In the System control panel, select the Advanced tab, click on
-   Environment Variables, and add a new user variable for ICE_HOME.
-
-2. Start Visual C++ and choose Tools->Options->Directories.
+1. Start Visual C++ and choose Tools->Options->Directories.
 
    - Select "Include files" and add entries for the following
      directories:
@@ -77,15 +69,15 @@ Follow these steps to build the extension:
 
      C:\Ice-@ver@-VC60\bin
 
-3. Open the all.dsw workspace in the Ice for Ruby source
+2. Open the all.dsw workspace in the Ice for Ruby source
    directory.
 
-4. Choose Build->Set Active Configuration and select the following
+3. Choose Build->Set Active Configuration and select the following
    project:
 
    all - Win32 Release
 
-5. Choose Build->Build
+4. Choose Build->Build
 
 If no errors occurred, you can now begin using Ice for Ruby.
 
