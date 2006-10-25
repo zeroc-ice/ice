@@ -20,6 +20,7 @@ The Ice extension for Ruby was compiled using the following RPMs:
 
   ruby-1.8.4
   ruby-libs-1.8.4
+  ruby-devel-1.8.4
 
 
 Installation Instructions
@@ -53,6 +54,34 @@ into the /opt/IceRuby-3.1.1 directory.
    Note that there are other ways of informing the Ruby interpreter
    about the location of the Ice extension and supporting files. See
    the accompanying Ice for Ruby documentation for more information.
+
+
+SELinux Issue
+-------------
+
+If SELinux is enabled on your system, you may encounter this error
+message when Ruby attempts to load the Ice extension:
+
+  "cannot restore segment prot after reloc: Permission denied"
+
+There are two ways to solve this problem:
+
+- Change the default security context for the Ice extension
+  using the following command:
+
+  $ chcon -t texrel_shlib_t /opt/IceRuby-3.1.1/ruby/IceRuby.so*
+
+  Replace /opt/IceRuby-3.1.1 with your installation directory.
+
+- Disable SELinux completely by adding the following line to your
+  /etc/sysconfig/selinux file:
+
+  SELINUX=disabled
+
+For more information on SELinux in Fedora Core 5, refer to the FAQ at
+the link below:
+
+http://fedora.redhat.com/docs/selinux-faq-fc5/
 
 
 Running the demos
