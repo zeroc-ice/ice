@@ -12,6 +12,7 @@
 #endif
 #include <IceUtil/DisableWarnings.h>
 #include <Communicator.h>
+#include <ImplicitContext.h>
 #include <Logger.h>
 #include <ObjectAdapter.h>
 #include <ObjectFactory.h>
@@ -727,6 +728,23 @@ communicatorGetDefaultContext(CommunicatorObject* self)
 extern "C"
 #endif
 static PyObject*
+communicatorGetImplicitContext(CommunicatorObject* self)
+{
+    Ice::ImplicitContextPtr implicitContext = (*self->communicator)->getImplicitContext();
+    
+    if(implicitContext == 0)
+    {
+	return 0;
+    }
+
+    return createImplicitContext(implicitContext);
+}
+
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 communicatorCreateObjectAdapter(CommunicatorObject* self, PyObject* args)
 {
     char* name;
@@ -1027,6 +1045,8 @@ static PyMethodDef CommunicatorMethods[] =
         PyDoc_STR(STRCAST("setDefaultContext(ctx) -> None")) },
     { STRCAST("getDefaultContext"), (PyCFunction)communicatorGetDefaultContext, METH_NOARGS,
         PyDoc_STR(STRCAST("getDefaultContext() -> Ice.Context")) },
+    { STRCAST("getImplicitContext"), (PyCFunction)communicatorGetImplicitContext, METH_NOARGS,
+      PyDoc_STR(STRCAST("getImplicitContext() -> Ice.ImplicitContext")) },
     { STRCAST("getProperties"), (PyCFunction)communicatorGetProperties, METH_NOARGS,
         PyDoc_STR(STRCAST("getProperties() -> Ice.Properties")) },
     { STRCAST("getLogger"), (PyCFunction)communicatorGetLogger, METH_NOARGS,

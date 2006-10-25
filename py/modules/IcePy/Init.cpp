@@ -13,6 +13,7 @@
 #include <Communicator.h>
 #include <Connection.h>
 #include <Current.h>
+#include <ImplicitContext.h>
 #include <Logger.h>
 #include <ObjectAdapter.h>
 #include <Operation.h>
@@ -120,6 +121,10 @@ initIcePy(void)
         return;
     }
     if(!initConnection(module))
+    {
+        return;
+    }
+    if(!initImplicitContext(module))
     {
         return;
     }

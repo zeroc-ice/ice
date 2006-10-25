@@ -149,7 +149,6 @@ def twoways(communicator, initData, p):
     #
     # opByteS (array)
     #
-    print "array",
     bsi1 = array.array('B')
     bsi1.fromlist([0x01, 0x11, 0x12, 0x22])
     bsi2 = array.array('B')
@@ -595,3 +594,46 @@ def twoways(communicator, initData, p):
     test(c5.opContext()['a'] == 'd')
 
     communicator.setDefaultContext({})
+
+    #
+    # Test implicit context propagation
+    #
+    impls = ( 'Shared', 'SharedWithoutLocking', 'PerThread' )
+    for i in impls:
+        initData = Ice.InitializationData()
+        initData.properties = Ice.createProperties()
+        initData.properties.setProperty('Ice.ImplicitContext', i)
+        ic = Ice.initialize(data=initData)
+        
+        ctx = {'one': 'ONE', 'two': 'TWO', 'three': 'THREE'}
+	
+        p = Test.MyClassPrx.uncheckedCast(ic.stringToProxy("test:default -p 12010 -t 10000"))
+        
+        ic.getImplicitContext().setContext(ctx)
+        test(ic.getImplicitContext().getContext() == ctx)
+        test(p.opContext() == ctx)
+        
+        ic.getImplicitContext().set('zero', 'ZERO')
+        test(ic.getImplicitContext().get('zero') == 'ZERO')
+        test(ic.getImplicitContext().getWithDefault('foobar', 'foo') == 'foo')
+        ic.getImplicitContext().remove('two')
+        test(ic.getImplicitContext().getWithDefault('two', 'bar') == 'bar')
+        ctx = ic.getImplicitContext().getContext()
+        test(p.opContext() == ctx)
+        
+        prxContext = {'one': 'UN', 'four': 'QUATRE'}
+        
+        combined = ctx
+        combined.update(prxContext)
+        test(combined['one'] == 'UN')
+        
+        p = Test.MyClassPrx.uncheckedCast(p.ice_context(prxContext))
+        ic.getImplicitContext().setContext({})
+        test(p.opContext() == prxContext)
+        
+        ic.getImplicitContext().setContext(ctx)
+        test(p.opContext() == combined)
+
+        ic.destroy()
+        
+        

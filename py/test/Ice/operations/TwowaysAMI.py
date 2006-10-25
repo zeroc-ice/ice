@@ -855,8 +855,59 @@ def twowaysAMI(communicator, initData, p):
     derived.opDerived_async(cb)
     test(cb.check())
 
+    #
+    # Test implicit context propagation
+    #
+    impls = ( 'Shared', 'SharedWithoutLocking', 'PerThread' )
+    for i in impls:
+        initData = Ice.InitializationData()
+        initData.properties = Ice.createProperties()
+        initData.properties.setProperty('Ice.ImplicitContext', i)
+        ic = Ice.initialize(data=initData)
+        
+        ctx = {'one': 'ONE', 'two': 'TWO', 'three': 'THREE'}
+	
+        p = Test.MyClassPrx.uncheckedCast(ic.stringToProxy("test:default -p 12010 -t 10000"))
+        
+        ic.getImplicitContext().setContext(ctx)
+        test(ic.getImplicitContext().getContext() == ctx)
 
+        cb = AMI_MyClass_opContextEqualI(ctx)
+        p.opContext_async(cb)
+        test(cb.check())
+        
+        ic.getImplicitContext().set('zero', 'ZERO')
+        test(ic.getImplicitContext().get('zero') == 'ZERO')
+        test(ic.getImplicitContext().getWithDefault('foobar', 'foo') == 'foo')
+        ic.getImplicitContext().remove('two')
+        test(ic.getImplicitContext().getWithDefault('two', 'bar') == 'bar')
+        ctx = ic.getImplicitContext().getContext()
 
+        cb = AMI_MyClass_opContextEqualI(ctx)
+        p.opContext_async(cb)
+        test(cb.check())
+        
+        prxContext = {'one': 'UN', 'four': 'QUATRE'}
+        
+        combined = ctx
+        combined.update(prxContext)
+        test(combined['one'] == 'UN')
+        
+        p = Test.MyClassPrx.uncheckedCast(p.ice_context(prxContext))
+        ic.getImplicitContext().setContext({})
+
+        cb = AMI_MyClass_opContextEqualI(prxContext)
+        p.opContext_async(cb)
+        test(cb.check())
+       
+        ic.getImplicitContext().setContext(ctx)
+
+        cb = AMI_MyClass_opContextEqualI(combined)
+        p.opContext_async(cb)
+        test(cb.check())
+
+        ic.destroy()
+        
 
 
 

@@ -178,7 +178,6 @@ class InitializationData(object):
 	self.properties = None
 	self.logger = None
 	#self.stats = None # Stats not currently supported in Python.
-	self.defaultContext = {}
 	self.threadHook = None
 
 #
@@ -239,6 +238,9 @@ class CommunicatorI(Communicator):
 
     def getDefaultContext(self):
         return self._impl.getDefaultContext()
+
+    def getImplicitContext(self):
+        return ImplicitContextI(self._impl.getImplicitContext())
 
     def getProperties(self):
         properties = self._impl.getProperties()
@@ -474,6 +476,32 @@ def createProperties(args=[], defaults=None):
     properties = IcePy.createProperties(args, defaults)
     return PropertiesI(properties)
 
+
+#
+# ImplicitContext wrapper
+#
+class ImplicitContextI(ImplicitContext):
+    def __init__(self, impl):
+        self._impl = impl
+
+    def setContext(self, ctx):
+        self._impl.setContext(ctx)
+
+    def getContext(self):
+        return self._impl.getContext();
+
+    def set(self, key, value):
+        self._impl.set(key, value);
+
+    def remove(self, key):
+        self._impl.remove(key);
+
+    def get(self, key):
+        return self._impl.get(key);
+
+    def getWithDefault(self, key, dflt):
+        return self._impl.getWithDefault(key, dflt);
+    
 
 #
 # The variables below need to be global in order to properly reference a
