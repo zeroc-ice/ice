@@ -8,7 +8,7 @@ This file describes how to compile Ice for Ruby on Linux.
 Requirements
 ------------
 
-- Ice @ver@
+- Ice @ver@ for C++ development kit
 - Ruby 1.8.4 or 1.8.5
 
 You can build Ice for Ruby using a source or RPM installation of Ruby.
@@ -17,28 +17,6 @@ If you prefer to use RPMs, the following components are required:
   ruby-1.8.4
   ruby-libs-1.8.4
   ruby-devel-1.8.4
-
-
-Compiling Ice
--------------
-
-Before compiling the Ice extension for Ruby, you must first apply a
-patch and build the Ice for C++ @ver@ source distribution. You can
-obtain the source distribution from the ZeroC web site:
-
-  http://www.zeroc.com/download.html
-
-Follow these steps:
-
-1. Extract the Ice @ver@ source distribution. Subsequent steps assume
-   that you extracted the archive into the /tmp/Ice-@ver@ directory.
-
-2. Extract the patch.zip archive (included in the Ice for Ruby source
-   distribution) into the /tmp/Ice-@ver@ directory. This patch adds
-   several files and replaces several others.
-
-3. Follow the instructions provided in /tmp/Ice-@ver@/INSTALL.LINUX
-   for building and installing Ice as usual.
 
 
 Compiling Ice for Ruby
@@ -54,19 +32,19 @@ Follow these steps:
 
    $ export RUBY_HOME=/opt/ruby-1.8.5
 
-2. Set the ICE_HOME environment variable to the directory of your
-   patched Ice installation, for example:
+2. If you installed the Ice @ver@ for C++ development kit in a
+   non-standard location, set the ICE_HOME environment variable to the
+   installation directory. For example:
 
    $ export ICE_HOME=/opt/Ice-@ver@
 
-3. Modify your PATH environment variable to include the following
-   directories:
+3. If necessary, modify your PATH environment variable to include the
+   following directories:
 
-   - $ICE_HOME/bin
-   - $RUBY_HOME/bin (if necessary)
+   $ export PATH=$ICE_HOME/bin:$RUBY_HOME/bin:$PATH
 
-4. Modify your LD_LIBRARY_PATH environment variable to include
-   $ICE_HOME/lib:
+4. If necessary, modify your LD_LIBRARY_PATH environment variable to
+   include $ICE_HOME/lib:
 
    $ export LD_LIBRARY_PATH=$ICE_HOME/lib:$LD_LIBRARY_PATH
 
@@ -81,23 +59,24 @@ If no errors occurred, you can now begin using Ice for Ruby.
 Using Ice for Ruby
 ------------------
 
-There are a number of ways you can modify the interpreter's load path
-so that it can successfully locate the Ice extension. For example, you
-can add the installation directory to RUBYLIB:
+The Ruby interpreter must be able to locate the Ice extension. One way
+to configure the interpreter is to define the RUBYLIB environment
+variable as follows:
 
   $ export RUBYLIB=/opt/IceRuby-@ver@/ruby:$RUBYLIB
 
-Another possibility is to pass the extension's installation directory
-to the interpreter using the -I option as follows:
+This example assumes that your Ice for Ruby installation is located in
+the /opt/IceRuby-@ver@ directory.
 
-  $ ruby -I/opt/IceRuby-@ver@/ruby ...
+In addition, you must modify your PATH environment variable to include
+the directory /opt/IceRuby-@ver@/bin as shown below:
 
-Finally, you can modify the load path directly in a script like this:
+  $ export PATH=/opt/IceRuby-@ver@/bin:$PATH
 
-  # Ruby
-  $:.unshift('/opt/IceRuby-@ver@/ruby')
-  require 'Ice'
-  ...
+You must also modify LD_LIBRARY_PATH to include the directory
+/opt/IceRuby-@ver@/lib:
+
+  $ export LD_LIBRARY_PATH=/opt/IceRuby-@ver@/lib:LD_LIBRARY_PATH
 
 To verify that Ruby can load the Ice extension successfully, open a
 command window and start the interpreter using irb, as shown below:
