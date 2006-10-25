@@ -307,6 +307,10 @@ for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
 else:
     raise "can't find toplevel directory!"
 
+if isWin32() and threadPerConnection:
+    print "Error: thread-per-connection is not currently supported on Windows."
+    sys.exit(1)
+
 if isWin32():
     if isCygwin():
 	os.environ["PATH"] = os.path.join(toplevel, "bin") + ":" + os.getenv("PATH", "")
