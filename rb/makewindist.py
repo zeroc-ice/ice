@@ -26,8 +26,6 @@ def usage():
     print "-v    Be verbose."
     print
     print "Where build-dir is the directory containing a source build."
-    print
-    print "NOTE: ICE_HOME must point to the patched Ice build."
 
 #
 # Find files matching a pattern.
@@ -49,14 +47,6 @@ def find(path, patt):
 win32 = sys.platform.startswith("win") or sys.platform.startswith("cygwin")
 if not win32:
     print "This script is only for Windows!"
-    sys.exit(1)
-
-if not os.environ.has_key("ICE_HOME"):
-    print "ICE_HOME is not defined!"
-    sys.exit(1)
-
-if not os.path.exists(os.path.join(os.environ["ICE_HOME"], "bin", "slice2rb.exe")):
-    print "slice2rb not found in %ICE_HOME%\bin"
     sys.exit(1)
 
 #
@@ -90,15 +80,11 @@ if not os.path.exists(os.path.join(buildDir, "README.txt")):
     print "error: " + buildDir + " must contain a compiled CVS repository or export directory."
     sys.exit(1)
 
-if not os.path.exists(os.path.join(os.environ["ICE_HOME"], "bin", "slice2rb.exe")):
-    print "error: slice2rb not found in %ICE_HOME%\bin."
-    sys.exit(1)
-
 #
 # Get Ice version.
 #
-config = open(os.path.join(os.environ["ICE_HOME"], "include", "IceUtil", "Config.h"), "r")
-version = re.search("ICE_STRING_VERSION[ \t]+\"([\d\.]+)\"", config.read(), re.M).group(1)
+config = open(os.path.join(buildDir, "config", "Make.rules"), "r")
+version = re.search("^VERSION[ \t]+=[^\d]*([\d\.]+)", config.read(), re.M).group(1)
 
 distDir = "IceRuby-" + version
 archive = distDir + "-bin-win32.zip"
@@ -108,15 +94,14 @@ if os.path.exists(archive):
     os.remove(archive)
 os.mkdir(distDir)
 
-os.mkdir(os.path.join(distDir, "bin"))
-
+shutil.copytree(os.path.join(buildDir, "bin"), os.path.join(distDir, "bin"))
 shutil.copytree(os.path.join(buildDir, "certs"), os.path.join(distDir, "certs"))
 shutil.copytree(os.path.join(buildDir, "demo"), os.path.join(distDir, "demo"))
 shutil.copytree(os.path.join(buildDir, "ruby"), os.path.join(distDir, "ruby"))
 
 shutil.copyfile(os.path.join(buildDir, "README.txt"), os.path.join(distDir, "README.txt"))
-shutil.copyfile(os.path.join(os.environ["ICE_HOME"], "bin", "slice2rb.exe"), os.path.join(distDir, "bin", "slice2rb.exe"))
-shutil.copyfile(os.path.join(os.environ["ICE_HOME"], "bin", "sliceruby31.dll"), os.path.join(distDir, "bin", "sliceruby31.dll"))
+shutil.copyfile(os.path.join(buildDir, "LICENSE"), os.path.join(distDir, "LICENSE"))
+shutil.copyfile(os.path.join(buildDir, "ICE_LICENSE"), os.path.join(distDir, "ICE_LICENSE"))
 
 #
 # Remove files.
@@ -127,6 +112,8 @@ filesToRemove.extend(find(distDir, "Makefile"))
 filesToRemove.extend(find(distDir, "*.mak"))
 filesToRemove.extend(find(distDir, "*.dsp"))
 filesToRemove.extend(find(distDir, "*.dsw"))
+filesToRemove.extend(find(distDir, ".dummy"))
+filesToRemove.extend(find(distDir, "*.plg"))
 for x in filesToRemove:
     os.remove(x)
 for x in find(distDir, "CVS"):
