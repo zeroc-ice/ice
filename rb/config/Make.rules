@@ -18,7 +18,8 @@ endif
 # if it does not exist.
 #
 
-prefix			= /opt/IceRuby-$(VERSION)
+#prefix			= /opt/IceRuby-$(VERSION)
+prefix			= /home/mark/cvs/icerb/testinst
 
 #
 # Define OPTIMIZE as yes if you want to build with optimization.
@@ -86,7 +87,9 @@ endif
 SHELL			= /bin/sh
 VERSION			= 3.1.1
 SOVERSION		= 31
-libdir			= $(top_srcdir)/ruby
+bindir			= $(top_srcdir)/bin
+libdir			= $(top_srcdir)/lib
+rubydir			= $(top_srcdir)/ruby
 
 ifeq ($(shell test -d $(top_srcdir)/slice && echo 0),0)
     slicedir		= $(top_srcdir)/slice
@@ -104,6 +107,7 @@ else
     install_libdir	= $(prefix)/lib
 endif
 
+install_bindir		= $(prefix)/bin
 install_slicedir	= $(prefix)/slice
 install_rubydir		= $(prefix)/ruby
 
@@ -204,11 +208,7 @@ mkrubylibfilename	= $(subst lib,,$(call mklibfilename,$(1),$(2)))
 mkrubysoname		= $(subst lib,,$(call mksoname,$(1),$(2)))
 mkrubylibname		= $(subst lib,,$(call mklibname,$(1)))
 
-ifeq ($(shell test -x $(ICE_HOME)/bin/slice2rb && echo 0),0)
-    SLICE2RB		= $(ICE_HOME)/bin/slice2rb
-else
-    SLICE2RB		= slice2rb
-endif
+SLICE2RB		= $(bindir)/slice2rb
 
 EVERYTHING		= all depend clean install
 

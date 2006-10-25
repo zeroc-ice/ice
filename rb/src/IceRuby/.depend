@@ -2,9 +2,9 @@ Communicator$(OBJEXT): Communicator.cpp ./Communicator.h ./Config.h ./Logger.h .
 Init$(OBJEXT): Init.cpp ./Communicator.h ./Config.h ./Logger.h ./Operation.h ./Properties.h ./Proxy.h ./Slice.h ./Types.h ./Util.h
 Logger$(OBJEXT): Logger.cpp ./Logger.h ./Config.h ./Util.h
 ObjectFactory$(OBJEXT): ObjectFactory.cpp ./ObjectFactory.h ./Config.h ./Types.h ./Util.h
-Operation$(OBJEXT): Operation.cpp ./Operation.h ./Config.h ./Proxy.h ./Types.h ./Util.h
+Operation$(OBJEXT): Operation.cpp ./Operation.h ./Config.h ./Proxy.h ./Types.h ./Util.h ../SliceRuby/RubyUtil.h
 Properties$(OBJEXT): Properties.cpp ./Properties.h ./Config.h ./Util.h
 Proxy$(OBJEXT): Proxy.cpp ./Proxy.h ./Config.h ./Communicator.h ./Util.h
-Slice$(OBJEXT): Slice.cpp ./Slice.h ./Config.h ./Util.h
+Slice$(OBJEXT): Slice.cpp ./Slice.h ./Config.h ./Util.h ../SliceRuby/RubyUtil.h
 Types$(OBJEXT): Types.cpp ./Types.h ./Config.h ./Util.h ./Proxy.h
 Util$(OBJEXT): Util.cpp ./Util.h ./Config.h

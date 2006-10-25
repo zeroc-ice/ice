@@ -7,18 +7,25 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..
+top_srcdir	= ../..
+
+NAME		= $(top_srcdir)/bin/slice2rb
+
+TARGETS		= $(NAME)
+
+OBJS		= Main.o
+
+SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= SliceRuby slice2rb IceRuby
+CPPFLAGS	:= -I.. $(ICE_FLAGS) $(CPPFLAGS)
 
-$(EVERYTHING)::
-	@for subdir in $(SUBDIRS); \
-	do \
-	    if test -d $$subdir ; \
-	    then \
-		echo "making $@ in $$subdir"; \
-		( cd $$subdir && $(MAKE) $@ ) || exit 1; \
-	    fi; \
-	done
+$(NAME): $(OBJS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(ICE_LIB_DIRS) -lSliceRuby -lSlice $(BASELIBS)
+
+install:: all
+	$(call installprogram,$(NAME),$(install_bindir))
+
+include .depend

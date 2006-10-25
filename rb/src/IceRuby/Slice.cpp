@@ -10,7 +10,7 @@
 #include <Slice.h>
 #include <Util.h>
 #include <Slice/Preprocessor.h>
-#include <Slice/RubyUtil.h>
+#include <SliceRuby/RubyUtil.h>
 #include <IceUtil/Options.h>
 
 using namespace std;

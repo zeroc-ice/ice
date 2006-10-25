@@ -311,26 +311,28 @@ if isWin32() and threadPerConnection:
     print "Error: thread-per-connection is not currently supported on Windows."
     sys.exit(1)
 
+abstoplevel = os.path.abspath(toplevel)
+
 if isWin32():
     if isCygwin():
-	os.environ["PATH"] = os.path.join(toplevel, "bin") + ":" + os.path.join(ice_home, "bin") + ":" + \
+	os.environ["PATH"] = os.path.join(abstoplevel, "bin") + ":" + os.path.join(ice_home, "bin") + ":" + \
 	    os.getenv("PATH", "")
     else:
-	os.environ["PATH"] = os.path.join(toplevel, "bin") + ";" + os.path.join(ice_home, "bin") + ";" + \
+	os.environ["PATH"] = os.path.join(abstoplevel, "bin") + ";" + os.path.join(ice_home, "bin") + ";" + \
 	    os.getenv("PATH", "")
 elif isHpUx():
-    os.environ["SHLIB_PATH"] = os.path.join(toplevel, "lib") + ":" + os.path.join(ice_home, "lib") + ":" + \
+    os.environ["SHLIB_PATH"] = os.path.join(abstoplevel, "lib") + ":" + os.path.join(ice_home, "lib") + ":" + \
 	os.getenv("SHLIB_PATH", "")
 elif isDarwin():
-    os.environ["DYLD_LIBRARY_PATH"] = os.path.join(toplevel, "lib") + ":" + os.path.join(ice_home, "lib") + ":" + \
+    os.environ["DYLD_LIBRARY_PATH"] = os.path.join(abstoplevel, "lib") + ":" + os.path.join(ice_home, "lib") + ":" + \
 	os.getenv("DYLD_LIBRARY_PATH", "")
 elif isAIX():
-    os.environ["LIBPATH"] = os.path.join(toplevel, "lib") + ":" + os.path.join(ice_home, "lib") + ":" + \
+    os.environ["LIBPATH"] = os.path.join(abstoplevel, "lib") + ":" + os.path.join(ice_home, "lib") + ":" + \
 	os.getenv("LIBPATH", "")
 else:
-    os.environ["LD_LIBRARY_PATH"] = os.path.join(toplevel, "lib") + ":" + os.path.join(ice_home, "lib") + ":" + \
+    os.environ["LD_LIBRARY_PATH"] = os.path.join(abstoplevel, "lib") + ":" + os.path.join(ice_home, "lib") + ":" + \
 	os.getenv("LD_LIBRARY_PATH", "")
-    os.environ["LD_LIBRARY_PATH_64"] = os.path.join(toplevel, "lib") + ":" + os.path.join(ice_home, "lib") + ":" + \
+    os.environ["LD_LIBRARY_PATH_64"] = os.path.join(abstoplevel, "lib") + ":" + os.path.join(ice_home, "lib") + ":" + \
 	os.getenv("LD_LIBRARY_PATH_64", "")
 
 if protocol == "ssl":
