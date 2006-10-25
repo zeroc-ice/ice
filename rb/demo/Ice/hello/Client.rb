@@ -123,6 +123,8 @@ class Client < Ice::Application
 		    puts "unknown command `" + c + "'"
 		    menu()
 		end
+	    rescue Ice::Exception => ex
+		puts ex
 	    rescue EOFError
 		break
 	    end
