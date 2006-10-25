@@ -78,7 +78,7 @@ for o, a in opts:
 #
 # Check for ICE_HOME.
 #
-ice_home = os.environ["ICE_HOME"]
+ice_home = os.getenv("ICE_HOME", "")
 if len(ice_home) == 0:
     print "ICE_HOME is not defined"
     sys.exit(1)
