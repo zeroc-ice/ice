@@ -13,24 +13,23 @@ include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= src ruby
 
+INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir) $(install_rubydir) $(install_slicedir)
+
 install::
 	@if test ! -d $(prefix) ; \
 	then \
 	    echo "Creating $(prefix)..." ; \
 	    $(call mkdir,$(prefix)) ; \
 	fi
-
-	@if test ! -d $(install_slicedir) ; \
-	then \
-	    echo "Creating $(install_slicedir)..." ; \
-	    $(call mkdir,$(install_slicedir)) ; \
-	fi
-
-	@if test ! -d $(install_rubydir) ; \
-	then \
-	    echo "Creating $(install_rubydir)..." ; \
-	    $(call mkdir,$(install_rubydir)) ; \
-	fi
+	@for subdir in $(INSTALL_SUBDIRS); \
+	do \
+	    if test ! -d $$subdir ; \
+	    then \
+		echo "Creating $$subdir..." ; \
+		mkdir -p $$subdir ; \
+		chmod a+rx $$subdir ; \
+	    fi ; \
+	done
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
