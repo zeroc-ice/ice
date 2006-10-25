@@ -38,8 +38,8 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-def run(args, communicator, initData):
-    myClass = AllTests.allTests(communicator, initData)
+def run(args, communicator):
+    myClass = AllTests.allTests(communicator)
 
     print "testing server shutdown...",
     myClass.shutdown()
@@ -63,7 +63,7 @@ try:
     initData.properties.setProperty('Ice.ThreadPool.Client.SizeWarn', '0')
 
     communicator = Ice.initialize(sys.argv, initData)
-    status = run(sys.argv, communicator, initData)
+    status = run(sys.argv, communicator)
 except:
     traceback.print_exc()
     status = False

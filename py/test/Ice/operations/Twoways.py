@@ -14,7 +14,7 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-def twoways(communicator, initData, p):
+def twoways(communicator, p):
     #
     # opVoid
     #

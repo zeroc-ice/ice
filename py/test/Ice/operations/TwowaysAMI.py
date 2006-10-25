@@ -521,7 +521,7 @@ class AMI_MyDerivedClass_opDerivedI(CallbackBase):
     def ice_exception(self, ex):
         test(False)
 
-def twowaysAMI(communicator, initData, p):
+def twowaysAMI(communicator, p):
     # Check that a call to a void operation raises TwowayOnlyException
     # in the ice_exception() callback instead of at the point of call.
     oneway = Test.MyClassPrx.uncheckedCast(p.ice_oneway())
