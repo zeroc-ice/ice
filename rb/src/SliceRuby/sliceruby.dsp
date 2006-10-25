@@ -54,7 +54,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 /nologo /dll /machine:I386 /out:"Release/sliceruby31.dll" /implib:"Release/sliceruby.lib" /FIXED:no
+# ADD LINK32 slice.lib iceutil.lib /nologo /dll /machine:I386 /out:"Release/sliceruby31.dll" /implib:"Release/sliceruby.lib" /FIXED:no
 # Begin Special Build Tool
 OutDir=.\Release
 SOURCE="$(InputPath)"
@@ -86,7 +86,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386
-# ADD LINK32 /nologo /dll /debug /machine:I386 /out:"Debug/sliceruby31d.dll" /implib:"Debug/slicerubyd.lib" /FIXED:no
+# ADD LINK32 sliced.lib iceutild.lib /nologo /dll /debug /machine:I386 /out:"Debug/sliceruby31d.dll" /implib:"Debug/slicerubyd.lib" /FIXED:no
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 OutDir=.\Debug

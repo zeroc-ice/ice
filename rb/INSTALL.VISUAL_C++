@@ -16,38 +16,29 @@ Requirements
   supported by Ice for Ruby.
 
 
-Obtaining Ruby
---------------
+Build Environment
+-----------------
 
-The instructions for compiling the Ice extension assume that you have
-already installed the binary Ruby distribution into the C:\ruby
-directory. You can obtain the installer from RubyForge:
+The instructions in this file make the following assumptions about
+your build environment:
 
-  http://rubyforge.org/projects/rubyinstaller/
+1. You have installed the Ice @ver@ for Visual C++ 6.0 distribution
+   using the installer available at the link below:
 
+   http://www.zeroc.com/download.html
 
-Compiling Ice
--------------
+   The default installation directory is C:\Ice-@ver@-VC60.
 
-Before compiling the Ice extension for Ruby, you must first apply a
-patch and build the Ice for C++ @ver@ source distribution. You can
-obtain the source distribution from the ZeroC web site:
+2. You have installed Ruby using the Windows installer available at
+   RubyForge:
 
-  http://www.zeroc.com/download.html
+   http://rubyforge.org/projects/rubyinstaller/
 
-You will likely also need the third-party installer for VC 6.0.
+   The default installation directory is C:\ruby.
 
-Follow these steps:
-
-1. Extract the Ice @ver@ source distribution. Subsequent steps assume
-   that you extracted the archive into the C:\Ice-@ver@ directory.
-
-2. Extract the patch.zip archive (included in the Ice for Ruby source
-   distribution) into the C:\Ice-@ver@ directory. This patch adds
-   several files and replaces several others.
-
-3. Follow the instructions provided in C:\Ice-@ver@\INSTALL.VISUAL_C++
-   for configuring Visual C++ and building Ice as usual.
+If you selected different installation directories, you will need to
+modify the relevant pathnames in the steps below to match your
+configuration.
 
 
 Compiling Ice for Ruby
@@ -56,43 +47,45 @@ Compiling Ice for Ruby
 Follow these steps to build the extension:
 
 1. Set the ICE_HOME environment variable with the directory of your
-   Ice source distribution, for example:
+   Ice installation, for example:
 
-   ICE_HOME=C:\Ice-@ver@
+   ICE_HOME=C:\Ice-@ver@-VC60
 
    In the System control panel, select the Advanced tab, click on
-   Environment Variables, and a new user variable for ICE_HOME.
+   Environment Variables, and add a new user variable for ICE_HOME.
 
-2. Modify your PATH environment variable to include the following
-   directories:
+2. Start Visual C++ and choose Tools->Options->Directories.
 
-   - %ICE_HOME%\bin
-   - C:\Ice-@ver@-ThirdParty-VC60\bin (if you used the Ice third-
-     party installer)
-   - C:\ruby\bin
+   - Select "Include files" and add entries for the following
+     directories:
 
-3. Restart Visual C++.
-
-4. In Visual C++, choose Tools->Options->Directories.
-
-   - Select "Include files" and add an entry for the following
-     directory:
-
+     C:\Ice-@ver@-VC60\include
+     C:\Ice-@ver@-VC60\include\stlport
      C:\ruby\lib\ruby\1.8\i386-mswin32
 
-   - Select "Library files" and add an entry for the following
-     directory:
+     Note that the "stlport" entry must appear before any of the
+     standard Visual C++ include directories.
 
+   - Select "Library files" and add entries for the following
+     directories:
+
+     C:\Ice-@ver@-VC60\lib
      C:\ruby\lib
 
-5. Open the all.dsw workspace in the Ice for Ruby source
+   - Select "Executable files" and add an entry for the following
+     directory:
+
+     C:\Ice-@ver@-VC60\bin
+
+3. Open the all.dsw workspace in the Ice for Ruby source
    directory.
 
-6. Choose Build->Set Active Configuration and select
+4. Choose Build->Set Active Configuration and select the following
+   project:
 
-   IceRuby - Win32 Release
+   all - Win32 Release
 
-7. Choose Build->Build IceRuby.dll
+5. Choose Build->Build
 
 If no errors occurred, you can now begin using Ice for Ruby.
 
@@ -104,10 +97,20 @@ The Ruby interpreter must be able to locate the Ice extension. One way
 to configure the interpreter is to define the RUBYLIB environment
 variable as follows:
 
-  set RUBYLIB=C:\IceRuby-@ver@\ruby
+  > set RUBYLIB=C:\IceRuby-@ver@\ruby
 
 This example assumes your Ice for Ruby source distribution is located
 in the C:\IceRuby-@ver@ directory.
+
+In addition, you must modify your PATH environment variable to include
+the following directories:
+
+  C:\Ice-@ver@-60\bin
+  C:\IceRuby-@ver@\bin
+
+At a command prompt, you can set your PATH as shown below:
+
+  > set PATH=C:\Ice-@ver@-60\bin;C:\IceRuby-@ver@\bin;%PATH%
 
 To verify that Ruby can load the Ice extension successfully, open a
 command window and start the interpreter using irb.bat, as shown
@@ -158,7 +161,7 @@ the C++ server. Assuming that your Ice installation is located in
 C:\Ice-@ver@, and that you have already compiled the sample C++
 programs, we begin by starting the server:
 
-  > cd \Ice-@ver@\demo\Ice\hello
+  > cd \Ice-@ver@-VC60\demo\Ice\hello
   > server
 
 In a separate window, start the client:

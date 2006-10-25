@@ -17,11 +17,7 @@ slicedir	= $(ICE_HOME)/slice
 !ERROR "Slice directory not found - set ICE_HOME!"
 !ENDIF
 
-!IFDEF ICE_HOME
-SLICE2RB	= $(ICE_HOME)\bin\slice2rb
-!ELSE
-SLICE2RB	= slice2rb
-!ENDIF
+SLICE2RB	= ..\bin\slice2rb
 
 #
 # IMPORTANT: If you add or remove Slice files, you also need to check Ice.rb!
