@@ -313,18 +313,25 @@ if isWin32() and threadPerConnection:
 
 if isWin32():
     if isCygwin():
-	os.environ["PATH"] = os.path.join(toplevel, "bin") + ":" + os.getenv("PATH", "")
+	os.environ["PATH"] = os.path.join(toplevel, "bin") + ":" + os.path.join(ice_home, "bin") + ":" + \
+	    os.getenv("PATH", "")
     else:
-	os.environ["PATH"] = os.path.join(toplevel, "bin") + ";" + os.getenv("PATH", "")
+	os.environ["PATH"] = os.path.join(toplevel, "bin") + ";" + os.path.join(ice_home, "bin") + ";" + \
+	    os.getenv("PATH", "")
 elif isHpUx():
-    os.environ["SHLIB_PATH"] = os.path.join(toplevel, "lib") + ":" + os.getenv("SHLIB_PATH", "")
+    os.environ["SHLIB_PATH"] = os.path.join(toplevel, "lib") + ":" + os.path.join(ice_home, "lib") + ":" + \
+	os.getenv("SHLIB_PATH", "")
 elif isDarwin():
-    os.environ["DYLD_LIBRARY_PATH"] = os.path.join(toplevel, "lib") + ":" + os.getenv("DYLD_LIBRARY_PATH", "")
+    os.environ["DYLD_LIBRARY_PATH"] = os.path.join(toplevel, "lib") + ":" + os.path.join(ice_home, "lib") + ":" + \
+	os.getenv("DYLD_LIBRARY_PATH", "")
 elif isAIX():
-    os.environ["LIBPATH"] = os.path.join(toplevel, "lib") + ":" + os.getenv("LIBPATH", "")
+    os.environ["LIBPATH"] = os.path.join(toplevel, "lib") + ":" + os.path.join(ice_home, "lib") + ":" + \
+	os.getenv("LIBPATH", "")
 else:
-    os.environ["LD_LIBRARY_PATH"] = os.path.join(toplevel, "lib") + ":" + os.getenv("LD_LIBRARY_PATH", "")
-    os.environ["LD_LIBRARY_PATH_64"] = os.path.join(toplevel, "lib") + ":" + os.getenv("LD_LIBRARY_PATH_64", "")
+    os.environ["LD_LIBRARY_PATH"] = os.path.join(toplevel, "lib") + ":" + os.path.join(ice_home, "lib") + ":" + \
+	os.getenv("LD_LIBRARY_PATH", "")
+    os.environ["LD_LIBRARY_PATH_64"] = os.path.join(toplevel, "lib") + ":" + os.path.join(ice_home, "lib") + ":" + \
+	os.getenv("LD_LIBRARY_PATH_64", "")
 
 if protocol == "ssl":
     certs		 = os.path.abspath(os.path.join(toplevel, "certs"))
