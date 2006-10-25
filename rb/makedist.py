@@ -97,17 +97,19 @@ os.chdir(distdir)
 #
 # NOTE: Assumes that the C++ and Ruby trees will use the same tag.
 #
-print "Checking out CVS tag " + tag + "..."
+print "Checking out Ruby sources using CVS tag " + tag + "..."
 if verbose:
     quiet = ""
 else:
     quiet = "-Q"
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " icerb")
+cpptag = "-rR3_1_1"
+print "Checking out C++ sources using CVS tag " + cpptag + "..."
 #os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " ice/config ice/slice")
-os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export -ricerb_preview_branch -l ice")
-os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export -ricerb_preview_branch ice/config ice/slice ice/include ice/src")
+os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + cpptag + " ice/slice")
 if not skipDocs or not skipTranslator:
-    os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export -ricerb_preview_branch ice/bin ice/lib ice/doc")
+    os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + cpptag +
+	      " ice/bin ice/config ice/doc ice/include ice/lib ice/src")
 
 #
 # Copy Slice directories.
@@ -128,9 +130,9 @@ for x in slicedirs:
 #
 # Copy any platform-specific Make.rules files.
 #
-for x in glob.glob(os.path.join("ice", "config", "Make.rules.*")):
-    if not os.path.exists(os.path.join("icerb", "config", os.path.basename(x))):
-	shutil.copyfile(x, os.path.join("icerb", "config", os.path.basename(x)))
+#for x in glob.glob(os.path.join("ice", "config", "Make.rules.*")):
+#    if not os.path.exists(os.path.join("icerb", "config", os.path.basename(x))):
+#	shutil.copyfile(x, os.path.join("icerb", "config", os.path.basename(x)))
 
 #
 # Remove files.
@@ -175,32 +177,6 @@ if not skipDocs:
     os.rename(os.path.join("ice", "doc", "images"), os.path.join("icerb", "doc", "images"))
 
 #
-# Taken from ice/config/TestUtil.py
-#
-# If having this duplicated is really a problem we should split these
-# methods out into their own module.
-#
-def isHpUx():
-
-   if sys.platform == "hp-ux11":
-        return 1
-   else:
-        return 0
-
-def isDarwin():
-
-   if sys.platform == "darwin":
-        return 1
-   else:
-        return 0
-
-def isAIX():
-   if sys.platform in ['aix4', 'aix5']:
-        return 1
-   else:
-        return 0
-
-#
 # Build slice2rb.
 #
 if not skipTranslator:
@@ -215,25 +191,18 @@ if not skipTranslator:
     os.chdir(os.path.join("ice", "src", "Slice"))
     os.system("gmake")
     os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "SliceRuby"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "slice2rb"))
-    os.system("gmake")
-    os.chdir(cwd)
-
-    os.environ["PATH"] = os.path.join(cwd, "ice", "bin") + ":" + os.getenv("PATH", "")
-
-    if isHpUx():
-	os.environ["SHLIB_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("SHLIB_PATH", "")
-    elif isDarwin():
-	os.environ["DYLD_LIBRARY_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("DYLD_LIBRRARY_PATH", "")
-    elif isAIX():
-	os.environ["LIBPATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("LIBPATH", "")
-    else:
-	os.environ["LD_LIBRARY_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("LD_LIBRARY_PATH", "")
 
     os.environ["ICE_HOME"] = os.path.join(cwd, "ice")
+
+    os.chdir(os.path.join("icerb", "src", "SliceRuby"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.chdir(os.path.join("icerb", "src", "slice2rb"))
+    os.system("gmake")
+    os.chdir(cwd)
+
+    os.environ["PATH"] = os.path.join(cwd, "ice", "bin") + ":" + os.path.join(cwd, "icerb", "bin") + ":" + os.getenv("PATH", "")
+    os.environ["LD_LIBRARY_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.path.join(cwd, "icerb", "lib") + ":" + os.getenv("LD_LIBRARY_PATH", "")
 
 #
 # Translate Slice files.
@@ -249,6 +218,19 @@ os.system("gmake" + quiet)
 os.chdir(cwd)
 
 #
+# Clean up after build.
+#
+if not skipTranslator:
+    cwd = os.getcwd()
+    os.chdir(os.path.join("icerb", "src"))
+    if verbose:
+	quiet = ""
+    else:
+	quiet = " -s"
+    os.system("gmake" + quiet + " clean")
+    os.chdir(cwd)
+
+#
 # Get Ice version.
 #
 config = open(os.path.join("icerb", "config", "Make.rules"), "r")
@@ -257,24 +239,6 @@ version = re.search("^VERSION[ \t]+=[^\d]*([\d\.]+)", config.read(), re.M).group
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("icerb", "README*"), version)
 fixVersion(find("icerb", "INSTALL*"), version)
-
-#
-# Create C++ patch archive.
-#
-print "Creating C++ patch archive..."
-filesToInclude = "all.dsw src/Makefile src/Makefile.mak src/slice2rb/.depend src/slice2rb/Main.cpp \
-		  src/slice2rb/Makefile src/slice2rb/Makefile.mak src/slice2rb/slice2rb.dsp \
-		  src/SliceRuby/.depend src/SliceRuby/Makefile src/SliceRuby/Makefile.mak \
-		  src/SliceRuby/RubyUtil.cpp src/SliceRuby/sliceruby.dsp include/Slice/RubyUtil.h"
-cwd = os.getcwd()
-os.chdir("ice")
-if verbose:
-    quiet = ""
-else:
-    quiet = "-q"
-os.system("zip -9 -r " + quiet + " patch.zip " + filesToInclude)
-os.chdir(cwd)
-shutil.copyfile(os.path.join("ice", "patch.zip"), os.path.join("icerb", "patch.zip"))
 
 #
 # Create source archives.
@@ -308,6 +272,6 @@ os.system("zip -9 -r " + quiet + " " + icever + ".zip " + icever)
 # Done.
 #
 print "Cleaning up..."
-shutil.rmtree(icever)
-shutil.rmtree("ice")
+#shutil.rmtree(icever)
+#shutil.rmtree("ice")
 print "Done."
