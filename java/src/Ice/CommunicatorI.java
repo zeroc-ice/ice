@@ -140,7 +140,7 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
     public ImplicitContext
     getImplicitContext()
     {
-	return null;
+	return _instance.getImplicitContext();
     }
 
     public PluginManager

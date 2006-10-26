@@ -242,6 +242,13 @@ public final class Instance
         return new java.util.HashMap(_defaultContext);
     }
 
+    public Ice.ImplicitContextI
+    getImplicitContext()
+    {
+	return _implicitContext;
+    }
+
+
     public void
     flushBatchRequests()
     {
@@ -394,6 +401,10 @@ public final class Instance
 	    //
 	    _clientACM = _initData.properties.getPropertyAsIntWithDefault("Ice.ACM.Client", 60);
 	    _serverACM = _initData.properties.getPropertyAsInt("Ice.ACM.Server");
+
+	    _implicitContext = Ice.ImplicitContextI.create(
+		_initData.properties.getProperty("Ice.ImplicitContext"));
+	    
 
 	    _threadPerConnection = _initData.properties.getPropertyAsInt("Ice.ThreadPerConnection") > 0;
 
@@ -697,6 +708,7 @@ public final class Instance
     private final int _messageSizeMax; // Immutable, not reset by destroy().
     private final int _clientACM; // Immutable, not reset by destroy().
     private final int _serverACM; // Immutable, not reset by destroy().
+    private final Ice.ImplicitContextI _implicitContext;
     private RouterManager _routerManager;
     private LocatorManager _locatorManager;
     private ReferenceFactory _referenceFactory;
@@ -712,6 +724,7 @@ public final class Instance
     private EndpointFactoryManager _endpointFactoryManager;
     private Ice.PluginManager _pluginManager;
     private java.util.Map _defaultContext;
+ 
     private static java.util.Map _emptyContext = new java.util.HashMap();
 
     private static boolean _oneOffDone = false;
