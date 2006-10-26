@@ -19,13 +19,14 @@ import os, sys, shutil, fnmatch, re, glob
 # Show usage information.
 #
 def usage():
-    print "Usage: " + sys.argv[0] + " [options] build-dir"
+    print "Usage: " + sys.argv[0] + " [options] [build-dir]"
     print
     print "Options:"
     print "-h    Show this message."
     print "-v    Be verbose."
     print
     print "Where build-dir is the directory containing a source build."
+    print "If not specified, the current directory is used."
 
 #
 # Find files matching a pattern.
@@ -52,7 +53,7 @@ if not win32:
 #
 # Check arguments
 #
-buildDir = None
+buildDir = "."
 verbose = 0
 for x in sys.argv[1:]:
     if x == "-h":
@@ -68,12 +69,9 @@ for x in sys.argv[1:]:
     else:
         buildDir = x
 
-if not buildDir:
-    usage()
-    sys.exit(1)
-
 if not os.path.exists(buildDir):
     print "error: " + buildDir + " not found."
+    usage()
     sys.exit(1)
 
 if not os.path.exists(os.path.join(buildDir, "README.txt")):
