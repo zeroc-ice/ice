@@ -10,11 +10,14 @@
 top_srcdir	= ..\..
 
 PKG		= iceboxcs
-LIBNAME		= $(PKG).dll
-TARGETS		= $(bindir)\iceboxnet.exe $(bindir)\$(LIBNAME)
+LIBNAME		= $(bindir)\$(PKG).dll
+ICEBOXNET	= $(bindir)\iceboxnet.exe
+ICEBOXADMINNET	= $(bindir)\iceboxadminnet.exe
+TARGETS		= $(LIBNAME) $(ICEBOXNET) $(ICEBOXADMINNET)
 
 L_SRCS		= AssemblyInfo.cs
 I_SRCS		= Server.cs ServiceManagerI.cs
+A_SRCS		= Admin.cs
 
 SLICE_SRCS	= $(SDIR)\IceBox.ice
 
@@ -27,7 +30,7 @@ GDIR		= generated
 
 MCSFLAGS	= $(MCSFLAGS) -target:exe
 
-LIB_MCSFLAGS	= -target:library -out:$(bindir)\$(LIBNAME) -unsafe
+LIB_MCSFLAGS	= -target:library -out:$(LIBNAME) -unsafe
 
 !if "$(DOTNET_1)" != "yes"
 LIB_MCSFLAGS	= $(LIB_MCSFLAGS) -keyfile:$(top_srcdir)\config\IcecsKey.snk
@@ -35,25 +38,29 @@ LIB_MCSFLAGS	= $(LIB_MCSFLAGS) -keyfile:$(top_srcdir)\config\IcecsKey.snk
 
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --checksum --ice -I. -I$(slicedir)
 
-$(bindir)\iceboxnet.exe: $(I_SRCS) $(bindir)\$(LIBNAME)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)\$(LIBNAME) -r:$(bindir)\icecs.dll $(I_SRCS)
+$(ICEBOXNET): $(I_SRCS) $(LIBNAME)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:$(LIBNAME) -r:$(bindir)\icecs.dll $(I_SRCS)
 
-$(bindir)\$(LIBNAME): $(L_SRCS) $(GEN_SRCS)
+$(ICEBOXADMINNET): $(A_SRCS) $(LIBNAME)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:$(LIBNAME) -r:$(bindir)\icecs.dll $(A_SRCS)
+
+$(LIBNAME): $(L_SRCS) $(GEN_SRCS)
 	$(MCS) $(LIB_MCSFLAGS) -r:$(bindir)\icecs.dll $(L_SRCS) $(GEN_SRCS)
 
 !if "$(NOGAC)" == ""
 
 install:: all
-	$(GACUTIL) -i $(bindir)/$(LIBNAME)
+	$(GACUTIL) -i $(LIBNAME)
 
 !else
 
 install:: all
-	copy $(bindir)\iceboxcs.dll $(install_bindir)
+	copy $(LIBNAME) $(install_bindir)
 
 !endif
 
 install:: all
-	copy $(bindir)\iceboxnet.exe $(install_bindir)
+	copy $(ICEBOXNET) $(install_bindir)
+	copy $(ICEBOXADMINNET) $(install_bindir)
 
 !include .depend

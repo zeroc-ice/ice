@@ -6,3 +6,7 @@ $ iceboxnet.exe --Ice.Config=config.icebox
 In the second window, run the client:
 
 $ client.exe
+
+To shut down IceBox, use iceboxadmin:
+
+$ iceboxadminnet --Ice.Config=config.icebox shutdown
