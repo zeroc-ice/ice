@@ -57,6 +57,19 @@ into the C:\IceRuby-3.1.1 directory.
    interpreter.
 
 
+Limitations
+-----------
+
+Ruby's lack of support for native threads makes it impractical for
+ZeroC to implement server-side functionality, therefore Ice for Ruby
+can only be used in client applications. If you have a need for this
+feature and wish to sponsor its development, please contact us at
+info@zeroc.com.
+
+Ice for Ruby currently does not support the thread-per-connection
+concurrency model on Windows.
+
+
 OpenSSL Compatibility Issue
 ---------------------------
 
