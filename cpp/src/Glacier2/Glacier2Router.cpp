@@ -252,7 +252,7 @@ Glacier2::RouterService::start(int argc, char* argv[])
 	{
 	    ostringstream ostr;
 	    ostr << ex;
-	    error("unable to contact permissions verifier `" + sslVerifierProperty + "'\n" + ostr.str());
+	    error("unable to contact ssl permissions verifier `" + sslVerifierProperty + "'\n" + ostr.str());
 	    return false;
 	}
 	if(!sslVerifier)
