@@ -143,6 +143,14 @@ for x in sys.argv[1:]:
         tag = "-r" + x
 
 #
+# Check for ICE_HOME.
+#
+if not os.environ.has_key("ICE_HOME"):
+    print "ICE_HOME must be defined."
+    sys.exit(1)
+iceHome = os.environ["ICE_HOME"]
+
+#
 # Remove any existing "bindist" directory and create a new one.
 #
 distdir = "bindist"
@@ -152,93 +160,35 @@ os.mkdir(distdir)
 os.chdir(distdir)
 
 #
-# Export C++ sources from CVS.
-#
-# We need to provide slice2rb and libSliceRuby. The statements below export sources
-# from branch icerb_preview_branch.
-#
-print "Checking out translator sources using CVS tag " + tag + "..."
-if verbose:
-    quiet = ""
-else:
-    quiet = "-Q"
-os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export -ricerb_preview_branch" +
-          " ice/config ice/slice ice/include ice/src/Makefile ice/src/IceUtil ice/src/icecpp ice/src/Slice" +
-	  " ice/src/SliceRuby ice/src/slice2rb ice/src/slice2cpp ice/src/Ice")
-
-os.mkdir(os.path.join("ice", "bin"))
-os.mkdir(os.path.join("ice", "lib"))
-
-uncomment(os.path.join("ice", "config", "Make.rules"), "^#OPTIMIZE")
-
-cwd = os.getcwd()
-os.chdir(os.path.join("ice", "src"))
-os.system("gmake")
-os.chdir(cwd)
-
-#
 # Export IceRuby sources from CVS.
 #
-print "Checking out IceRuby sources using CVS tag " + tag + "..."
+print "Checking out Ruby sources using CVS tag " + tag + "..."
 if verbose:
     quiet = ""
 else:
     quiet = "-Q"
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " icerb")
 
+#
+# Validate versions.
+#
+config = open(os.path.join("icerb", "config", "Make.rules"), "r")
+version = re.search("^VERSION[ \t]+=[^\d]*([\d\.]+)", config.read(), re.M).group(1)
+config = open(os.path.join(iceHome, "include", "IceUtil", "Config.h"), "r")
+iceVersion = re.search("ICE_STRING_VERSION[ \t]+\"([\d\.]+)\"", config.read(), re.M).group(1)
+if version != iceVersion:
+    print "Version mismatch between icerb (" + version + ") and ice (" + iceVersion + ")!"
+    sys.exit(1)
+
 uncomment(os.path.join("icerb", "config", "Make.rules"), "^#OPTIMIZE")
 
-#
-# Taken from ice/config/TestUtil.py
-#
-# If having this duplicated is really a problem we should split these
-# methods out into their own module.
-#
-def isHpUx():
-
-   if sys.platform == "hp-ux11":
-        return 1
-   else:
-        return 0
-
-def isDarwin():
-
-   if sys.platform == "darwin":
-        return 1
-   else:
-        return 0
-
-def isAIX():
-   if sys.platform in ['aix4', 'aix5']:
-        return 1
-   else:
-        return 0
-
-icePath = os.path.abspath("ice")
-
-if isHpUx():
-    os.environ["SHLIB_PATH"] = os.path.join(icePath, "lib") + ":" + os.getenv("SHLIB_PATH", "")
-elif isDarwin():
-    os.environ["DYLD_LIBRARY_PATH"] = os.path.join(icePath, "lib") + ":" + os.getenv("DYLD_LIBRRARY_PATH", "")
-elif isAIX():
-    os.environ["LIBPATH"] = os.path.join(icePath, "lib") + ":" + os.getenv("LIBPATH", "")
-else:
-    os.environ["LD_LIBRARY_PATH"] = os.path.join(icePath, "lib") + ":" + os.getenv("LD_LIBRARY_PATH", "")
-
-os.environ["PATH"] = os.path.join(icePath, "bin") + ":" + os.getenv("PATH", "")
-
-os.environ["ICE_HOME"] = icePath
+os.environ["LD_LIBRARY_PATH"] = os.path.join(iceHome, "lib") + ":" + os.getenv("LD_LIBRARY_PATH", "")
+os.environ["PATH"] = os.path.join(iceHome, "bin") + ":" + os.getenv("PATH", "")
 
 cwd = os.getcwd()
 os.chdir("icerb")
 os.system("gmake")
 os.chdir(cwd)
-
-#
-# Get Ice version.
-#
-config = open(os.path.join("ice", "include", "IceUtil", "Config.h"), "r")
-version = re.search("ICE_STRING_VERSION[ \t]+\"([\d\.]+)\"", config.read(), re.M).group(1)
 
 os.rename(os.path.join("icerb", "README.Linux"), os.path.join("icerb", "README"))
 
@@ -259,10 +209,6 @@ filesToRemove.extend(find("icerb", "Makefile"))
 filesToRemove.extend(find("icerb", "*.mak"))
 filesToRemove.extend(find("icerb", "README.*"))
 filesToRemove.extend(find("icerb", "INSTALL.*"))
-filesToRemove.extend(find(os.path.join("ice", "bin"), "icecpp"))
-filesToRemove.extend(find(os.path.join("ice", "bin"), "slice2cpp"))
-filesToRemove.extend(find(os.path.join("ice", "lib"), "libIce*"))
-filesToRemove.extend(find(os.path.join("ice", "lib"), "libSlice.*"))
 for x in filesToRemove:
     os.remove(x)
 
@@ -277,8 +223,6 @@ shutil.rmtree(os.path.join("icerb", "test"))
 print "Creating distribution archives..."
 icever = "IceRuby-" + version + "-bin-fc5"
 os.rename("icerb", icever)
-os.rename(os.path.join("ice", "bin"), os.path.join(icever, "bin"))
-os.rename(os.path.join("ice", "lib"), os.path.join(icever, "lib"))
 if verbose:
     quiet = "v"
 else:
