@@ -15,8 +15,6 @@ C_SRCS		= AllTests.cs Client.cs EmptyI.cs
 S_SRCS		= AI.cs BI.cs CI.cs DI.cs EI.cs EmptyI.cs FI.cs GI.cs HI.cs Server.cs
 COL_SRCS	= AI.cs AllTests.cs BI.cs CI.cs Collocated.cs DI.cs EI.cs EmptyI.cs FI.cs GI.cs HI.cs
 
-SLICE_SRCS	= $(SDIR)\Test.ice
-
 GEN_SRCS	= $(GDIR)\Test.cs
 
 SDIR		= .

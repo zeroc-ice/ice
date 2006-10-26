@@ -15,8 +15,6 @@ C_SRCS		= Client.cs AllTests.cs
 S_SRCS		= Server.cs CookieI.cs ServantLocatorI.cs TestI.cs
 COL_SRCS	= Collocated.cs AllTests.cs CookieI.cs ServantLocatorI.cs TestI.cs
 
-SLICE_SRCS	= $(SDIR)\Test.ice
-
 GEN_SRCS	= $(GDIR)\Test.cs
 
 SDIR		= .

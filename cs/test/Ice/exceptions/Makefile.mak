@@ -16,9 +16,6 @@ S_SRCS		= EmptyI.cs ObjectFactoryI.cs ServantLocatorI.cs Server.cs ThrowerI.cs
 COL_SRCS	= AllTests.cs Collocated.cs EmptyI.cs ObjectFactoryI.cs ServantLocatorI.cs ThrowerI.cs
 SAMD_SRCS	= EmptyI.cs ObjectFactoryI.cs ServantLocatorI.cs Server.cs ThrowerAMDI.cs
 
-SLICE_SRCS	= $(SDIR)\Test.ice
-SLICE_AMD_SRCS  = $(SDIR)\TestAMD.ice
-
 GEN_SRCS	= $(GDIR)\Test.cs
 GEN_AMD_SRCS  	= $(GDIR)\TestAMD.cs
 

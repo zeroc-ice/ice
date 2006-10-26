@@ -14,8 +14,6 @@ TARGETS		= client.exe server.exe
 C_SRCS		= Client.cs
 S_SRCS		= Server.cs ThroughputI.cs
 
-SLICE_SRCS	= $(SDIR)\Throughput.ice
-
 GEN_SRCS	= $(GDIR)\Throughput.cs
 
 SDIR		= .

@@ -13,8 +13,6 @@ TARGETS		= client.exe
 
 C_SRCS		= Client.cs
 
-SLICE_SRCS	= $(SDIR)\Test.ice
-
 GEN_SRCS	= $(GDIR)\Test.cs
 
 SDIR		= .

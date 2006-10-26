@@ -15,11 +15,6 @@ C_SRCS		= AllTests.cs Client.cs
 S_SRCS		= Server.cs TestI.cs
 SAMD_SRCS	= Server.cs TestAMDI.cs
 
-SLICE_SRCS	= $(SDIR)\Test.ice
-SLICE_S_SRCS	= $(SDIR)\ServerPrivate.ice
-SLICE_AMD_SRCS	= $(SDIR)\TestAMD.ice
-SLICE_SAMD_SRCS	= $(SDIR)\ServerPrivateAMD.ice
-
 GEN_SRCS	= $(GDIR)\Test.cs
 SGEN_SRCS	= $(GDIR)\ServerPrivate.cs
 GEN_AMD_SRCS	= $(GDIR)\TestAMD.cs

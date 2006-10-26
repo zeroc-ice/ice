@@ -14,8 +14,6 @@ TARGETS		= client.exe server.exe
 C_SRCS		= Client.cs
 S_SRCS		= Server.cs
 
-SLICE_SRCS	= $(SDIR)\Latency.ice
-
 GEN_SRCS	= $(GDIR)\Latency.cs
 
 SDIR		= .

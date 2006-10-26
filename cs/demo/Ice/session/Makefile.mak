@@ -14,8 +14,6 @@ TARGETS		= client.exe server.exe
 C_SRCS		= Client.cs 
 S_SRCS		= HelloI.cs ReapThread.cs Server.cs SessionFactoryI.cs SessionI.cs
 
-SLICE_SRCS	= $(SDIR)\Session.ice
-
 GEN_SRCS	= $(GDIR)\Session.cs
 
 SDIR		= .

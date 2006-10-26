@@ -14,8 +14,6 @@ TARGETS		= client.exe server.exe
 C_SRCS		= CallbackReceiverI.cs Client.cs
 S_SRCS		= CallbackSenderI.cs Server.cs
 
-SLICE_SRCS	= $(SDIR)\Callback.ice
-
 GEN_SRCS	= $(GDIR)\Callback.cs
 
 SDIR		= .

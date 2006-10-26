@@ -15,8 +15,6 @@ TARGETS		= $(bindir)\$(LIBNAME)
 
 SRCS		= AssemblyInfo.cs
 
-SLICE_SRCS	= $(SDIR)\IceStorm.ice
-
 GEN_SRCS	= $(GDIR)\IceStorm.cs
 
 SDIR		= $(slicedir)\IceStorm

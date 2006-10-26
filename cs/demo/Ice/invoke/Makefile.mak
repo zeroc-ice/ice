@@ -14,8 +14,6 @@ TARGETS		= client.exe server.exe
 C_SRCS		= Client.cs
 S_SRCS		= PrinterI.cs Server.cs
 
-SLICE_SRCS	= $(SDIR)\Printer.ice
-
 GEN_SRCS	= $(GDIR)\Printer.cs
 
 SDIR		= .

@@ -14,8 +14,6 @@ TARGETS		= client.exe server.exe
 C_SRCS		= Client.cs NestedI.cs
 S_SRCS		= Server.cs NestedI.cs
 
-SLICE_SRCS	= $(SDIR)\Nested.ice
-
 GEN_SRCS	= $(GDIR)\Nested.cs
 
 SDIR		= .

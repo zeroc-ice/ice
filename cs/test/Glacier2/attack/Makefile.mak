@@ -14,8 +14,6 @@ TARGETS		= client.exe server.exe
 C_SRCS		= Client.cs 
 S_SRCS		= Server.cs BackendI.cs 
 
-SLICE_SRCS	= $(SDIR)\Backend.ice
-
 GEN_SRCS	= $(GDIR)\Backend.cs
 
 SDIR		= .

@@ -17,9 +17,6 @@ COL_SRCS	= AllTests.cs Collocated.cs MyDerivedClassI.cs TestCheckedCastI.cs \
 		  Twoways.cs TwowaysAMI.cs BatchOneways.cs
 SAMD_SRCS	= MyDerivedClassAMDI.cs Server.cs TestCheckedCastAMDI.cs
 
-SLICE_SRCS	= $(SDIR)\Test.ice
-SLICE_AMD_SRCS	= $(SDIR)\TestAMD.ice
-
 GEN_SRCS	= $(GDIR)\Test.cs
 GEN_AMD_SRCS	= $(GDIR)\TestAMD.cs
 

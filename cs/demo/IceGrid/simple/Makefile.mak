@@ -14,8 +14,6 @@ TARGETS		= client.exe server.exe
 C_SRCS		= Client.cs
 S_SRCS		= HelloI.cs Server.cs
 
-SLICE_SRCS	= $(SDIR)\Hello.ice
-
 GEN_SRCS	= $(GDIR)\Hello.cs
 
 SDIR		= .

@@ -14,8 +14,6 @@ TARGETS		= publisher.exe subscriber.exe
 C_SRCS		= Publisher.cs
 S_SRCS		= ClockI.cs Subscriber.cs
 
-SLICE_SRCS	= $(SDIR)\Clock.ice
-
 GEN_SRCS	= $(GDIR)\Clock.cs
 
 SDIR		= .

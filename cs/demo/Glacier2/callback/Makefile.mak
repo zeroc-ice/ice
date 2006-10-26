@@ -15,8 +15,6 @@ C_SRCS		= CallbackReceiverI.cs Client.cs
 S_SRCS		= CallbackI.cs Server.cs
 SS_SRCS		= SessionI.cs SessionManagerI.cs SessionServer.cs
 
-SLICE_SRCS	= $(SDIR)\Callback.ice
-
 GEN_SRCS	= $(GDIR)\Callback.cs
 
 SDIR		= .

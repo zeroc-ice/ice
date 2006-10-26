@@ -15,16 +15,6 @@ TARGETS		= $(bindir)\$(LIBNAME)
 
 SRCS		= AssemblyInfo.cs
 
-SLICE_SRCS	= $(SDIR)\Admin.ice \
-		  $(SDIR)\Observer.ice \
-		  $(SDIR)\Descriptor.ice \
-		  $(SDIR)\Exception.ice \
-		  $(SDIR)\FileParser.ice \
-		  $(SDIR)\Query.ice \
-		  $(SDIR)\Registry.ice \
-		  $(SDIR)\Session.ice \
-		  $(SDIR)\UserAccountMapper.ice
-
 GEN_SRCS	= $(GDIR)\Admin.cs \
 		  $(GDIR)\Observer.cs \
 		  $(GDIR)\Descriptor.cs \

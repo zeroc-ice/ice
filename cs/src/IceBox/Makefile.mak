@@ -19,8 +19,6 @@ L_SRCS		= AssemblyInfo.cs
 I_SRCS		= Server.cs ServiceManagerI.cs
 A_SRCS		= Admin.cs
 
-SLICE_SRCS	= $(SDIR)\IceBox.ice
-
 GEN_SRCS	= $(GDIR)\IceBox.cs
 
 SDIR		= $(slicedir)\IceBox

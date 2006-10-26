@@ -15,8 +15,6 @@ C_SRCS		= AllTests.cs BI.cs CI.cs DI.cs Client.cs
 S_SRCS		= InitialI.cs BI.cs CI.cs DI.cs Server.cs UnexpectedObjectExceptionTestI.cs
 COL_SRCS	= AllTests.cs BI.cs CI.cs DI.cs Collocated.cs InitialI.cs UnexpectedObjectExceptionTestI.cs
 
-SLICE_SRCS	= $(SDIR)\Test.ice
-
 GEN_SRCS	= $(GDIR)\Test.cs
 
 SDIR		= .

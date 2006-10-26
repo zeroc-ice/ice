@@ -15,9 +15,6 @@ TARGETS		= $(bindir)\$(LIBNAME)
 
 SRCS		= AssemblyInfo.cs
 
-SLICE_SRCS	= $(SDIR)\FileInfo.ice \
-		  $(SDIR)\FileServer.ice
-
 GEN_SRCS	= $(GDIR)\FileInfo.cs \
 		  $(GDIR)\FileServer.cs
 
