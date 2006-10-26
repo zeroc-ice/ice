@@ -164,7 +164,7 @@ IceRuby_ObjectPrx_mark(Ice::ObjectPrx* p)
     // We need to mark the communicator associated with this proxy.
     //
     assert(p);
-    VALUE communicator = lookupCommunicator((*p)->ice_getCommunicator());
+    volatile VALUE communicator = lookupCommunicator((*p)->ice_getCommunicator());
     assert(!NIL_P(communicator));
     rb_gc_mark(communicator);
 }
@@ -313,7 +313,7 @@ IceRuby_ObjectPrx_ice_ids(int argc, VALUE* argv, VALUE self)
 	    ids = p->ice_ids();
 	}
 
-	VALUE result = createArray(ids.size());
+	volatile VALUE result = createArray(ids.size());
 	long i = 0;
 	for(vector<string>::iterator q = ids.begin(); q != ids.end(); ++q, ++i)
 	{
@@ -491,12 +491,13 @@ IceRuby_ObjectPrx_ice_getEndpoints(VALUE self)
 	Ice::ObjectPrx p = getProxy(self);
 
 	Ice::EndpointSeq seq = p->ice_getEndpoints();
-	VALUE result = createArray(seq.size());
+	volatile VALUE result = createArray(seq.size());
 	Ice::EndpointSeq::size_type i = 0;
 	for(Ice::EndpointSeq::iterator q = seq.begin(); q != seq.end(); ++q, ++i)
 	{
 	    RARRAY(result)->ptr[i] = createEndpoint(seq[i]);
 	}
+	RARRAY(result)->len = static_cast<long>(seq.size());
 	return result;
     }
     ICE_RUBY_CATCH
@@ -519,7 +520,7 @@ IceRuby_ObjectPrx_ice_endpoints(VALUE self, VALUE seq)
 	Ice::EndpointSeq endpoints;
 	if(!NIL_P(seq))
 	{
-	    VALUE arr = callRuby(rb_check_array_type, seq);
+	    volatile VALUE arr = callRuby(rb_check_array_type, seq);
 	    if(NIL_P(seq))
 	    {
 		throw RubyException(rb_eTypeError, "unable to convert value to an array of endpoints");
@@ -604,7 +605,7 @@ IceRuby_ObjectPrx_ice_getEndpointSelection(VALUE self)
 	Ice::ObjectPrx p = getProxy(self);
 
 	Ice::EndpointSelectionType type = p->ice_getEndpointSelection();
-	VALUE cls = callRuby(rb_path2class, "Ice::EndpointSelectionType");
+	volatile VALUE cls = callRuby(rb_path2class, "Ice::EndpointSelectionType");
 	assert(!NIL_P(cls));
 	ID name = 0;
 	switch(type)
@@ -630,14 +631,14 @@ IceRuby_ObjectPrx_ice_endpointSelection(VALUE self, VALUE type)
     {
 	Ice::ObjectPrx p = getProxy(self);
 
-	VALUE cls = callRuby(rb_path2class, "Ice::EndpointSelectionType");
+	volatile VALUE cls = callRuby(rb_path2class, "Ice::EndpointSelectionType");
 	assert(!NIL_P(cls));
 	if(callRuby(rb_obj_is_instance_of, type, cls) == Qfalse)
 	{
 	    throw RubyException(rb_eTypeError, "argument must be an Ice::EndpointSelectionType enumerator");
 	}
 
-	VALUE val = callRuby(rb_funcall, type, rb_intern("to_i"), 0);
+	volatile VALUE val = callRuby(rb_funcall, type, rb_intern("to_i"), 0);
 	Ice::EndpointSelectionType t = static_cast<Ice::EndpointSelectionType>(getInteger(val));
 	return createProxy(p->ice_endpointSelection(t));
     }
@@ -682,7 +683,7 @@ IceRuby_ObjectPrx_ice_getRouter(VALUE self)
 	Ice::RouterPrx router = p->ice_getRouter();
 	if(router)
 	{
-	    VALUE cls = callRuby(rb_path2class, "Ice::RouterPrx");
+	    volatile VALUE cls = callRuby(rb_path2class, "Ice::RouterPrx");
 	    assert(!NIL_P(cls));
 	    return createProxy(router, cls);
 	}
@@ -725,7 +726,7 @@ IceRuby_ObjectPrx_ice_getLocator(VALUE self)
 	Ice::LocatorPrx locator = p->ice_getLocator();
 	if(locator)
 	{
-	    VALUE cls = callRuby(rb_path2class, "Ice::LocatorPrx");
+	    volatile VALUE cls = callRuby(rb_path2class, "Ice::LocatorPrx");
 	    assert(!NIL_P(cls));
 	    return createProxy(locator, cls);
 	}
@@ -1045,7 +1046,7 @@ IceRuby_ObjectPrx_checkedCast(int argc, VALUE* args, VALUE self)
 	Ice::ObjectPrx p = getProxy(args[0]);
 
 	string facet;
-	VALUE ctx = Qnil;
+	volatile VALUE ctx = Qnil;
 
 	if(argc == 3)
 	{

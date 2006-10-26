@@ -279,9 +279,7 @@ inline VALUE callRuby(Fun fun, T1 t1, T2 t2, T3 t3, T4 t4)
 template<typename T>
 inline VALUE createArray(T sz)
 {
-    VALUE arr = callRuby(rb_ary_new2, static_cast<long>(sz));
-    RARRAY(arr)->len = sz;
-    return arr;
+    return callRuby(rb_ary_new2, static_cast<long>(sz));
 }
 
 //
@@ -297,7 +295,7 @@ VALUE convertLocalException(const Ice::LocalException&);
 // exceptions into Ruby exceptions and ensure that C++ objects are cleaned up properly.
 //
 #define ICE_RUBY_TRY \
-    VALUE __ice_ex = Qnil; \
+    volatile VALUE __ice_ex = Qnil; \
     \
     goto __ice_start; \
     \

@@ -47,8 +47,8 @@ IceRuby::ObjectFactory::create(const string& id)
 	//
 	// Invoke the create method on the Ruby factory object.
 	//
-	VALUE str = createString(id);
-	VALUE obj = callRuby(rb_funcall, p->second, rb_intern("create"), 1, str);
+	volatile VALUE str = createString(id);
+	volatile VALUE obj = callRuby(rb_funcall, p->second, rb_intern("create"), 1, str);
 	if(NIL_P(obj))
 	{
 	    return 0;
@@ -67,7 +67,7 @@ IceRuby::ObjectFactory::create(const string& id)
     //
     // Instantiate the object.
     //
-    VALUE obj = callRuby(rb_class_new_instance, 0, reinterpret_cast<VALUE*>(0), info->rubyClass);
+    volatile VALUE obj = callRuby(rb_class_new_instance, 0, reinterpret_cast<VALUE*>(0), info->rubyClass);
     assert(!NIL_P(obj));
     return new ObjectReader(obj, info);
 }

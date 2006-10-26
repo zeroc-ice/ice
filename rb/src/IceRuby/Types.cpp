@@ -255,7 +255,7 @@ IceRuby::PrimitiveInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectM
     }
     case PrimitiveInfo::KindFloat:
     {
-	VALUE val = callRuby(rb_Float, p);
+	volatile VALUE val = callRuby(rb_Float, p);
 	if(NIL_P(val))
 	{
 	    throw RubyException(rb_eTypeError, "unable to convert value to a float");
@@ -266,7 +266,7 @@ IceRuby::PrimitiveInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectM
     }
     case PrimitiveInfo::KindDouble:
     {
-	VALUE val = callRuby(rb_Float, p);
+	volatile VALUE val = callRuby(rb_Float, p);
 	if(NIL_P(val))
 	{
 	    throw RubyException(rb_eTypeError, "unable to convert value to a double");
@@ -288,7 +288,7 @@ void
 IceRuby::PrimitiveInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, VALUE target,
 				  void* closure)
 {
-    VALUE val = Qnil;
+    volatile VALUE val = Qnil;
     switch(kind)
     {
     case PrimitiveInfo::KindBool:
@@ -389,7 +389,7 @@ IceRuby::PrimitiveInfo::print(VALUE value, IceUtil::Output& out, PrintObjectHist
 void
 IceRuby::PrimitiveInfo::marshalSequence(VALUE p, const Ice::OutputStreamPtr& os)
 {
-    VALUE arr = callRuby(rb_Array, p);
+    volatile VALUE arr = callRuby(rb_Array, p);
     if(NIL_P(arr))
     {
 	throw RubyException(rb_eTypeError, "unable to convert value to an array");
@@ -473,7 +473,7 @@ IceRuby::PrimitiveInfo::marshalSequence(VALUE p, const Ice::OutputStreamPtr& os)
 	Ice::FloatSeq seq(sz);
 	for(long i = 0; i < sz; ++i)
 	{
-	    VALUE v = callRuby(rb_Float, RARRAY(arr)->ptr[i]);
+	    volatile VALUE v = callRuby(rb_Float, RARRAY(arr)->ptr[i]);
 	    if(NIL_P(v))
 	    {
 		throw RubyException(rb_eTypeError, "unable to convert array element %ld to a float", i);
@@ -490,7 +490,7 @@ IceRuby::PrimitiveInfo::marshalSequence(VALUE p, const Ice::OutputStreamPtr& os)
 	Ice::DoubleSeq seq(sz);
 	for(long i = 0; i < sz; ++i)
 	{
-	    VALUE v = callRuby(rb_Float, RARRAY(arr)->ptr[i]);
+	    volatile VALUE v = callRuby(rb_Float, RARRAY(arr)->ptr[i]);
 	    if(NIL_P(v))
 	    {
 		throw RubyException(rb_eTypeError, "unable to convert array element %ld to a double", i);
@@ -519,7 +519,7 @@ void
 IceRuby::PrimitiveInfo::unmarshalSequence(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, VALUE target,
 					  void* closure)
 {
-    VALUE arr = Qnil;
+    volatile VALUE arr = Qnil;
 
     switch(kind)
     {
@@ -533,6 +533,7 @@ IceRuby::PrimitiveInfo::unmarshalSequence(const Ice::InputStreamPtr& is, const U
 	{
 	    RARRAY(arr)->ptr[i] = seq[i] ? Qtrue : Qfalse;
 	}
+	RARRAY(arr)->len = sz;
 	break;
     }
     case PrimitiveInfo::KindByte:
@@ -545,6 +546,7 @@ IceRuby::PrimitiveInfo::unmarshalSequence(const Ice::InputStreamPtr& is, const U
 	{
 	    RARRAY(arr)->ptr[i] = INT2FIX(seq[i]);
 	}
+	RARRAY(arr)->len = sz;
 	break;
     }
     case PrimitiveInfo::KindShort:
@@ -557,6 +559,7 @@ IceRuby::PrimitiveInfo::unmarshalSequence(const Ice::InputStreamPtr& is, const U
 	{
 	    RARRAY(arr)->ptr[i] = INT2FIX(seq[i]);
 	}
+	RARRAY(arr)->len = sz;
 	break;
     }
     case PrimitiveInfo::KindInt:
@@ -569,6 +572,7 @@ IceRuby::PrimitiveInfo::unmarshalSequence(const Ice::InputStreamPtr& is, const U
 	{
 	    RARRAY(arr)->ptr[i] = INT2FIX(seq[i]);
 	}
+	RARRAY(arr)->len = sz;
 	break;
     }
     case PrimitiveInfo::KindLong:
@@ -581,6 +585,7 @@ IceRuby::PrimitiveInfo::unmarshalSequence(const Ice::InputStreamPtr& is, const U
 	{
 	    RARRAY(arr)->ptr[i] = callRuby(rb_ll2inum, seq[i]);
 	}
+	RARRAY(arr)->len = sz;
 	break;
     }
     case PrimitiveInfo::KindFloat:
@@ -593,6 +598,7 @@ IceRuby::PrimitiveInfo::unmarshalSequence(const Ice::InputStreamPtr& is, const U
 	{
 	    RARRAY(arr)->ptr[i] = callRuby(rb_float_new, seq[i]);
 	}
+	RARRAY(arr)->len = sz;
 	break;
     }
     case PrimitiveInfo::KindDouble:
@@ -605,6 +611,7 @@ IceRuby::PrimitiveInfo::unmarshalSequence(const Ice::InputStreamPtr& is, const U
 	{
 	    RARRAY(arr)->ptr[i] = callRuby(rb_float_new, seq[i]);
 	}
+	RARRAY(arr)->len = sz;
 	break;
     }
     case PrimitiveInfo::KindString:
@@ -617,6 +624,7 @@ IceRuby::PrimitiveInfo::unmarshalSequence(const Ice::InputStreamPtr& is, const U
 	{
 	    RARRAY(arr)->ptr[i] = createString(seq[i]);
 	}
+	RARRAY(arr)->len = sz;
 	break;
     }
     }
@@ -626,7 +634,7 @@ IceRuby::PrimitiveInfo::unmarshalSequence(const Ice::InputStreamPtr& is, const U
 double
 IceRuby::PrimitiveInfo::toDouble(VALUE v)
 {
-    VALUE val = callRuby(rb_Float, v);
+    volatile VALUE val = callRuby(rb_Float, v);
     if(NIL_P(val))
     {
 	throw RubyException(rb_eTypeError, "unable to convert value to a double");
@@ -658,7 +666,7 @@ IceRuby::EnumInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap*)
     //
     // Validate value.
     //
-    VALUE val = callRuby(rb_iv_get, p, "@val");
+    volatile VALUE val = callRuby(rb_iv_get, p, "@val");
     assert(FIXNUM_P(val));
     long ival = FIX2LONG(val);
     long count = static_cast<long>(enumerators.size());
@@ -715,7 +723,7 @@ IceRuby::EnumInfo::print(VALUE value, IceUtil::Output& out, PrintObjectHistory*)
 	out << "<invalid value - expected " << id << ">";
 	return;
     }
-    VALUE str = callRuby(rb_funcall, value, rb_intern("inspect"), 0);
+    volatile VALUE str = callRuby(rb_funcall, value, rb_intern("inspect"), 0);
     out << getString(str);
 }
 
@@ -765,7 +773,7 @@ IceRuby::StructInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap*
     for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
     {
 	DataMemberPtr member = *q;
-	VALUE val = callRuby(rb_ivar_get, p, member->rubyID);
+	volatile VALUE val = callRuby(rb_ivar_get, p, member->rubyID);
 	if(!member->type->validate(val))
 	{
 	    throw RubyException(rb_eTypeError, "invalid value for %s member `%s'", const_cast<char*>(id.c_str()),
@@ -779,7 +787,7 @@ void
 IceRuby::StructInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, VALUE target,
 			       void* closure)
 {
-    VALUE obj = callRuby(rb_class_new_instance, 0, static_cast<VALUE*>(0), rubyClass);
+    volatile VALUE obj = callRuby(rb_class_new_instance, 0, static_cast<VALUE*>(0), rubyClass);
 
     for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
     {
@@ -809,7 +817,7 @@ IceRuby::StructInfo::print(VALUE value, IceUtil::Output& out, PrintObjectHistory
 	}
 	else
 	{
-	    VALUE val = callRuby(rb_ivar_get, value, member->rubyID);
+	    volatile VALUE val = callRuby(rb_ivar_get, value, member->rubyID);
 	    member->type->print(val, out, history);
 	}
     }
@@ -871,7 +879,7 @@ IceRuby::SequenceInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMa
 	return;
     }
 
-    VALUE arr = callRuby(rb_Array, p);
+    volatile VALUE arr = callRuby(rb_Array, p);
     if(NIL_P(arr))
     {
 	throw RubyException(rb_eTypeError, "unable to convert value to an array");
@@ -902,13 +910,14 @@ IceRuby::SequenceInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalC
     }
 
     Ice::Int sz = is->readSize();
-    VALUE arr = createArray(sz);
+    volatile VALUE arr = createArray(sz);
 
     for(Ice::Int i = 0; i < sz; ++i)
     {
 	void* cl = reinterpret_cast<void*>(i);
 	elementType->unmarshal(is, this, arr, cl);
     }
+    RARRAY(arr)->len = sz;
 
     cb->unmarshaled(arr, target, closure);
 }
@@ -935,7 +944,7 @@ IceRuby::SequenceInfo::print(VALUE value, IceUtil::Output& out, PrintObjectHisto
     }
     else
     {
-	VALUE arr = callRuby(rb_Array, value);
+	volatile VALUE arr = callRuby(rb_Array, value);
 	if(NIL_P(arr))
 	{
 	    throw RubyException(rb_eTypeError, "unable to convert value to an array");
@@ -1021,7 +1030,7 @@ IceRuby::DictionaryInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, Object
 	return;
     }
 
-    VALUE hash = callRuby(rb_convert_type, p, T_HASH, "Hash", "to_hash");
+    volatile VALUE hash = callRuby(rb_convert_type, p, T_HASH, "Hash", "to_hash");
     if(NIL_P(hash))
     {
 	throw RubyException(rb_eTypeError, "unable to convert value to a hash");
@@ -1055,7 +1064,7 @@ void
 IceRuby::DictionaryInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, VALUE target,
 				   void* closure)
 {
-    VALUE hash = callRuby(rb_hash_new);
+    volatile VALUE hash = callRuby(rb_hash_new);
 
     KeyCallbackPtr keyCB = new KeyCallback;
     keyCB->key = Qnil;
@@ -1084,7 +1093,7 @@ IceRuby::DictionaryInfo::unmarshal(const Ice::InputStreamPtr& is, const Unmarsha
 void
 IceRuby::DictionaryInfo::unmarshaled(VALUE val, VALUE target, void* closure)
 {
-    VALUE key = reinterpret_cast<VALUE>(closure);
+    volatile VALUE key = reinterpret_cast<VALUE>(closure);
     callRuby(rb_hash_aset, target, key, val);
 }
 
@@ -1123,7 +1132,7 @@ IceRuby::DictionaryInfo::print(VALUE value, IceUtil::Output& out, PrintObjectHis
     }
     else
     {
-	VALUE hash = callRuby(rb_convert_type, value, T_HASH, "Hash", "to_hash");
+	volatile VALUE hash = callRuby(rb_convert_type, value, T_HASH, "Hash", "to_hash");
 	if(NIL_P(hash))
 	{
 	    throw RubyException(rb_eTypeError, "unable to convert value to a hash");
@@ -1193,8 +1202,8 @@ IceRuby::ClassInfo::validate(VALUE val)
     // We consider an object to be an instance of this class if its class contains
     // an ICE_TYPE constant that refers to this class, or a subclass of this class.
     //
-    VALUE cls = CLASS_OF(val);
-    VALUE type = callRuby(rb_const_get, cls, rb_intern("ICE_TYPE"));
+    volatile VALUE cls = CLASS_OF(val);
+    volatile VALUE type = callRuby(rb_const_get, cls, rb_intern("ICE_TYPE"));
     if(NIL_P(type))
     {
 	return false;
@@ -1235,8 +1244,8 @@ IceRuby::ClassInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap* 
     ObjectMap::iterator q = objectMap->find(p);
     if(q == objectMap->end())
     {
-	VALUE cls = CLASS_OF(p);
-	VALUE type = callRuby(rb_const_get, cls, rb_intern("ICE_TYPE"));
+	volatile VALUE cls = CLASS_OF(p);
+	volatile VALUE type = callRuby(rb_const_get, cls, rb_intern("ICE_TYPE"));
 	assert(!NIL_P(type)); // Should have been caught by validate().
 	ClassInfoPtr info = ClassInfoPtr::dynamicCast(getType(type));
 	assert(info);
@@ -1288,8 +1297,8 @@ IceRuby::ClassInfo::print(VALUE value, IceUtil::Output& out, PrintObjectHistory*
 	}
 	else
 	{
-	    VALUE cls = CLASS_OF(value);
-	    VALUE type = callRuby(rb_const_get, cls, rb_intern("ICE_TYPE"));
+	    volatile VALUE cls = CLASS_OF(value);
+	    volatile VALUE type = callRuby(rb_const_get, cls, rb_intern("ICE_TYPE"));
 	    ClassInfoPtr info = ClassInfoPtr::dynamicCast(getType(type));
 	    assert(info);
 	    out << "object #" << history->index << " (" << info->id << ')';
@@ -1336,7 +1345,7 @@ IceRuby::ClassInfo::printMembers(VALUE value, IceUtil::Output& out, PrintObjectH
 	}
 	else
 	{
-	    VALUE val = callRuby(rb_ivar_get, value, member->rubyID);
+	    volatile VALUE val = callRuby(rb_ivar_get, value, member->rubyID);
 	    member->type->print(val, out, history);
 	}
     }
@@ -1392,8 +1401,8 @@ IceRuby::ProxyInfo::validate(VALUE val)
 	{
 	    return false;
 	}
-	VALUE cls = CLASS_OF(val);
-	VALUE type = callRuby(rb_const_get, cls, rb_intern("ICE_TYPE"));
+	volatile VALUE cls = CLASS_OF(val);
+	volatile VALUE type = callRuby(rb_const_get, cls, rb_intern("ICE_TYPE"));
 	assert(!NIL_P(type));
 	ProxyInfoPtr info = ProxyInfoPtr::dynamicCast(getType(type));
 	assert(info);
@@ -1433,7 +1442,7 @@ IceRuby::ProxyInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCall
 	throw RubyException(rb_eRuntimeError, "class %s is declared but not defined", id.c_str());
     }
 
-    VALUE p = createProxy(proxy, rubyClass);
+    volatile VALUE p = createProxy(proxy, rubyClass);
     cb->unmarshaled(p, target, closure);
 }
 
@@ -1492,7 +1501,7 @@ IceRuby::ObjectWriter::write(const Ice::OutputStreamPtr& os) const
 	for(DataMemberList::iterator q = info->members.begin(); q != info->members.end(); ++q)
 	{
 	    DataMemberPtr member = *q;
-	    VALUE val = callRuby(rb_ivar_get, _object, member->rubyID);
+	    volatile VALUE val = callRuby(rb_ivar_get, _object, member->rubyID);
 	    if(!member->type->validate(val))
 	    {
 		throw RubyException(rb_eTypeError, "invalid value for %s member `%s'", _info->id.c_str(),
@@ -1627,7 +1636,7 @@ IceRuby::ReadObjectCallback::invoke(const Ice::ObjectPtr& p)
 	//
 	// Verify that the unmarshaled object is compatible with the formal type.
 	//
-	VALUE obj = reader->getObject();
+	volatile VALUE obj = reader->getObject();
 	if(!_info->validate(obj))
 	{
 	    Ice::NoObjectFactoryException ex(__FILE__, __LINE__);
@@ -1666,7 +1675,7 @@ IceRuby::ExceptionInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectM
 	for(DataMemberList::iterator q = info->members.begin(); q != info->members.end(); ++q)
 	{
 	    DataMemberPtr member = *q;
-	    VALUE val = callRuby(rb_ivar_get, p, member->rubyID);
+	    volatile VALUE val = callRuby(rb_ivar_get, p, member->rubyID);
 	    if(!member->type->validate(val))
 	    {
 		throw RubyException(rb_eTypeError, "invalid value for %s member `%s'", id.c_str(),
@@ -1684,7 +1693,7 @@ IceRuby::ExceptionInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectM
 VALUE
 IceRuby::ExceptionInfo::unmarshal(const Ice::InputStreamPtr& is)
 {
-    VALUE obj = callRuby(rb_class_new_instance, 0, static_cast<VALUE*>(0), rubyClass);
+    volatile VALUE obj = callRuby(rb_class_new_instance, 0, static_cast<VALUE*>(0), rubyClass);
 
     //
     // NOTE: The type id for the first slice has already been read.
@@ -1746,7 +1755,7 @@ IceRuby::ExceptionInfo::printMembers(VALUE value, IceUtil::Output& out, PrintObj
 	}
 	else
 	{
-	    VALUE val = callRuby(rb_ivar_get, value, member->rubyID);
+	    volatile VALUE val = callRuby(rb_ivar_get, value, member->rubyID);
 	    member->type->print(val, out, history);
 	}
     }
@@ -1762,7 +1771,7 @@ IceRuby_defineEnum(VALUE /*self*/, VALUE id, VALUE type, VALUE enumerators)
 	info->id = getString(id);
 	info->rubyClass = type;
 
-	VALUE arr = callRuby(rb_check_array_type, enumerators);
+	volatile VALUE arr = callRuby(rb_check_array_type, enumerators);
 	assert(!NIL_P(arr));
 	for(long i = 0; i < RARRAY(arr)->len; ++i)
 	{
@@ -1785,11 +1794,11 @@ IceRuby_defineStruct(VALUE /*self*/, VALUE id, VALUE type, VALUE members)
 	info->id = getString(id);
 	info->rubyClass = type;
 
-	VALUE arr = callRuby(rb_check_array_type, members);
+	volatile VALUE arr = callRuby(rb_check_array_type, members);
 	assert(!NIL_P(arr));
 	for(long i = 0; i < RARRAY(arr)->len; ++i)
 	{
-	    VALUE m = callRuby(rb_check_array_type, RARRAY(arr)->ptr[i]);
+	    volatile VALUE m = callRuby(rb_check_array_type, RARRAY(arr)->ptr[i]);
 	    assert(!NIL_P(m));
 	    assert(RARRAY(m)->len == 2);
 	    DataMemberPtr member = new DataMember;
@@ -1906,11 +1915,11 @@ IceRuby_defineException(VALUE /*self*/, VALUE id, VALUE type, VALUE base, VALUE 
 
 	info->usesClasses = false;
 
-	VALUE arr = callRuby(rb_check_array_type, members);
+	volatile VALUE arr = callRuby(rb_check_array_type, members);
 	assert(!NIL_P(arr));
 	for(long i = 0; i < RARRAY(arr)->len; ++i)
 	{
-	    VALUE m = callRuby(rb_check_array_type, RARRAY(arr)->ptr[i]);
+	    volatile VALUE m = callRuby(rb_check_array_type, RARRAY(arr)->ptr[i]);
 	    assert(!NIL_P(m));
 	    assert(RARRAY(m)->len == 2);
 	    DataMemberPtr member = new DataMember;
@@ -1970,7 +1979,7 @@ IceRuby_TypeInfo_defineClass(VALUE self, VALUE type, VALUE isAbstract, VALUE bas
 	}
 
 	long i;
-	VALUE arr;
+	volatile VALUE arr;
 
 	arr = callRuby(rb_check_array_type, interfaces);
 	assert(!NIL_P(arr));
@@ -1985,7 +1994,7 @@ IceRuby_TypeInfo_defineClass(VALUE self, VALUE type, VALUE isAbstract, VALUE bas
 	assert(!NIL_P(arr));
 	for(i = 0; i < RARRAY(arr)->len; ++i)
 	{
-	    VALUE m = callRuby(rb_check_array_type, RARRAY(arr)->ptr[i]);
+	    volatile VALUE m = callRuby(rb_check_array_type, RARRAY(arr)->ptr[i]);
 	    assert(!NIL_P(m));
 	    assert(RARRAY(m)->len == 2);
 	    DataMemberPtr member = new DataMember;
@@ -2030,8 +2039,8 @@ IceRuby_stringifyException(VALUE /*self*/, VALUE ex)
 {
     ICE_RUBY_TRY
     {
-	VALUE cls = CLASS_OF(ex);
-	VALUE type = callRuby(rb_const_get, cls, rb_intern("ICE_TYPE"));
+	volatile VALUE cls = CLASS_OF(ex);
+	volatile VALUE type = callRuby(rb_const_get, cls, rb_intern("ICE_TYPE"));
 	ExceptionInfoPtr info = getException(type);
 
 	ostringstream ostr;

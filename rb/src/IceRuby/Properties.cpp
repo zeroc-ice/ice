@@ -51,7 +51,7 @@ IceRuby_createProperties(int argc, VALUE* argv, VALUE self)
 	// Insert the program name (stored in the Ruby global variable $0) as the first
 	// element of the sequence.
 	//
-	VALUE progName = callRuby(rb_gv_get, "$0");
+	volatile VALUE progName = callRuby(rb_gv_get, "$0");
 	seq.insert(seq.begin(), getString(progName));
 
 	Ice::PropertiesPtr obj = Ice::createProperties(seq, defaults);
@@ -68,7 +68,7 @@ IceRuby_createProperties(int argc, VALUE* argv, VALUE self)
 	    //
 	    for(Ice::StringSeq::size_type i = 1; i < seq.size(); ++i)
 	    {
-		VALUE str = createString(seq[i]);
+		volatile VALUE str = createString(seq[i]);
 		callRuby(rb_ary_push, argv[0], str);
 	    }
 	}
@@ -150,11 +150,11 @@ IceRuby_Properties_getPropertiesForPrefix(VALUE self, VALUE prefix)
 	Ice::PropertiesPtr p = getProperties(self);
 	string pfx = getString(prefix);
 	Ice::PropertyDict dict = p->getPropertiesForPrefix(pfx);
-	VALUE result = callRuby(rb_hash_new);
+	volatile VALUE result = callRuby(rb_hash_new);
 	for(Ice::PropertyDict::const_iterator q = dict.begin(); q != dict.end(); ++q)
 	{
-	    VALUE key = createString(q->first);
-	    VALUE value = createString(q->second);
+	    volatile VALUE key = createString(q->first);
+	    volatile VALUE value = createString(q->second);
 	    callRuby(rb_hash_aset, result, key, value);
 	}
 	return result;

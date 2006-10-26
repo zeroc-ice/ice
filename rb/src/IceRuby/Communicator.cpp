@@ -52,8 +52,8 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE self)
 {
     ICE_RUBY_TRY
     {
-	VALUE initDataCls = callRuby(rb_path2class, "Ice::InitializationData");
-	VALUE args = Qnil, initData = Qnil;
+	volatile VALUE initDataCls = callRuby(rb_path2class, "Ice::InitializationData");
+	volatile VALUE args = Qnil, initData = Qnil;
 	if(argc == 1)
 	{
 	    if(isArray(argv[0]))
@@ -97,9 +97,9 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE self)
 	Ice::InitializationData data;
 	if(!NIL_P(initData))
 	{
-	    VALUE properties = callRuby(rb_iv_get, initData, "@properties");
-	    VALUE logger = callRuby(rb_iv_get, initData, "@logger");
-	    VALUE defaultContext = callRuby(rb_iv_get, initData, "@defaultContext");
+	    volatile VALUE properties = callRuby(rb_iv_get, initData, "@properties");
+	    volatile VALUE logger = callRuby(rb_iv_get, initData, "@logger");
+	    volatile VALUE defaultContext = callRuby(rb_iv_get, initData, "@defaultContext");
 
 	    if(!NIL_P(properties))
 	    {
@@ -121,7 +121,7 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE self)
 	// Insert the program name (stored in the Ruby global variable $0) as the first
 	// element of the sequence.
 	//
-	VALUE progName = callRuby(rb_gv_get, "$0");
+	volatile VALUE progName = callRuby(rb_gv_get, "$0");
 	seq.insert(seq.begin(), getString(progName));
 
 	data.properties = Ice::createProperties(seq, data.properties);
@@ -183,7 +183,7 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE self)
 	    //
 	    for(i = 1; i < ac; ++i)
 	    {
-		VALUE str = createString(av[i]);
+		volatile VALUE str = createString(av[i]);
 		callRuby(rb_ary_push, args, str);
 	    }
 	}
@@ -197,15 +197,15 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE self)
 	ObjectFactoryPtr factory = new ObjectFactory;
 	communicator->addObjectFactory(factory, "");
 
-	VALUE result = Data_Wrap_Struct(_communicatorClass, IceRuby_Communicator_mark, IceRuby_Communicator_free,
-					new Ice::CommunicatorPtr(communicator));
+	VALUE result = Data_Wrap_Struct(_communicatorClass, IceRuby_Communicator_mark,
+					IceRuby_Communicator_free, new Ice::CommunicatorPtr(communicator));
 
 	CommunicatorMap::iterator p = _communicatorMap.find(communicator);
 	if(p != _communicatorMap.end())
 	{
 	    _communicatorMap.erase(p);
 	}
-	_communicatorMap.insert(CommunicatorMap::value_type(communicator, result));
+	_communicatorMap.insert(CommunicatorMap::value_type(communicator, reinterpret_cast<const VALUE&>(result)));
 
 	return result;
     }
@@ -391,7 +391,7 @@ IceRuby_Communicator_getDefaultRouter(VALUE self)
 	Ice::RouterPrx router = p->getDefaultRouter();
 	if(router)
 	{
-	    VALUE cls = callRuby(rb_path2class, "Ice::RouterPrx");
+	    volatile VALUE cls = callRuby(rb_path2class, "Ice::RouterPrx");
 	    assert(!NIL_P(cls));
 	    return createProxy(router, cls);
 	}
@@ -432,7 +432,7 @@ IceRuby_Communicator_getDefaultLocator(VALUE self)
 	Ice::LocatorPrx locator = p->getDefaultLocator();
 	if(locator)
 	{
-	    VALUE cls = callRuby(rb_path2class, "Ice::LocatorPrx");
+	    volatile VALUE cls = callRuby(rb_path2class, "Ice::LocatorPrx");
 	    assert(!NIL_P(cls));
 	    return createProxy(locator, cls);
 	}

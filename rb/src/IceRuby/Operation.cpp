@@ -158,7 +158,7 @@ IceRuby::OperationI::OperationI(VALUE name, VALUE mode, VALUE amd, VALUE inParam
     //
     // mode
     //
-    VALUE modeValue = callRuby(rb_funcall, mode, rb_intern("to_i"), 0);
+    volatile VALUE modeValue = callRuby(rb_funcall, mode, rb_intern("to_i"), 0);
     assert(TYPE(modeValue) == T_FIXNUM);
     _mode = static_cast<Ice::OperationMode>(FIX2LONG(modeValue));
 
@@ -266,7 +266,7 @@ IceRuby::OperationI::invoke(const Ice::ObjectPrx& proxy, VALUE args, VALUE hctx)
 	    //
 	    // Unmarshal a user exception.
 	    //
-	    VALUE ex = unmarshalException(result, communicator);
+	    volatile VALUE ex = unmarshalException(result, communicator);
 	    throw RubyException(ex);
 	}
 	else if(_outParams.size() > 0 || _returnType)
@@ -275,7 +275,7 @@ IceRuby::OperationI::invoke(const Ice::ObjectPrx& proxy, VALUE args, VALUE hctx)
 	    // Unmarshal the results. If there is more than one value to be returned, then return them
 	    // in an array of the form [result, outParam1, ...]. Otherwise just return the value.
 	    //
-	    VALUE results = unmarshalResults(result, communicator);
+	    volatile VALUE results = unmarshalResults(result, communicator);
 
 	    if(RARRAY(results)->len > 1)
 	    {
@@ -330,7 +330,7 @@ IceRuby::OperationI::prepareRequest(const Ice::CommunicatorPtr& communicator, VA
 	long i = 0;
 	for(ParamInfoList::iterator p = _inParams.begin(); p != _inParams.end(); ++p, ++i)
 	{
-	    VALUE arg = RARRAY(args)->ptr[i];
+	    volatile VALUE arg = RARRAY(args)->ptr[i];
 	    if(!(*p)->type->validate(arg))
 	    {
 		string opName;
@@ -364,7 +364,7 @@ IceRuby::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice:
     int numResults = static_cast<int>(_outParams.size()) + i;
     assert(numResults > 0);
 
-    VALUE results = createArray(numResults);
+    volatile VALUE results = createArray(numResults);
 
     //
     // Unmarshal the results. If there is more than one value to be returned, then return them
@@ -387,6 +387,7 @@ IceRuby::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice:
 	is->readPendingObjects();
     }
 
+    RARRAY(results)->len = numResults;
     return results;
 }
 
@@ -403,7 +404,7 @@ IceRuby::OperationI::unmarshalException(const vector<Ice::Byte>& bytes, const Ic
 	ExceptionInfoPtr info = lookupExceptionInfo(id);
 	if(info)
 	{
-	    VALUE ex = info->unmarshal(is);
+	    volatile VALUE ex = info->unmarshal(is);
 	    if(info->usesClasses)
 	    {
 		is->readPendingObjects();
@@ -415,8 +416,8 @@ IceRuby::OperationI::unmarshalException(const vector<Ice::Byte>& bytes, const Ic
 	    }
 	    else
 	    {
-		VALUE cls = CLASS_OF(ex);
-		VALUE path = callRuby(rb_class_path, cls);
+		volatile VALUE cls = CLASS_OF(ex);
+		volatile VALUE path = callRuby(rb_class_path, cls);
 		assert(TYPE(path) == T_STRING);
 		Ice::UnknownUserException e(__FILE__, __LINE__);
 		e.unknown = RSTRING(path)->ptr;

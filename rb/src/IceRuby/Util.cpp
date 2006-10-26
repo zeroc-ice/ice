@@ -41,8 +41,8 @@ IceRuby::RubyException::RubyException(VALUE exClass, const char* fmt, ...)
 ostream&
 IceRuby::RubyException::operator<<(ostream& ostr) const
 {
-    VALUE cls = rb_class_path(CLASS_OF(ex));
-    VALUE msg = rb_obj_as_string(ex);
+    volatile VALUE cls = rb_class_path(CLASS_OF(ex));
+    volatile VALUE msg = rb_obj_as_string(ex);
     ostr << RSTRING(cls)->ptr << ": " << RSTRING(msg)->ptr;
     return ostr;
 }
@@ -68,7 +68,7 @@ IceRuby::isHash(VALUE val)
 string
 IceRuby::getString(VALUE val)
 {
-    VALUE result = callRuby(rb_string_value, &val);
+    volatile VALUE result = callRuby(rb_string_value, &val);
     return RSTRING(result)->ptr;
 }
 
@@ -111,7 +111,7 @@ IceRuby::getLong(VALUE val)
     // The rb_num2ll function raises exceptions, but we can't call it using callProtected
     // because its return type is long long and not VALUE.
     //
-    VALUE v = callRuby(rb_Integer, val);
+    volatile VALUE v = callRuby(rb_Integer, val);
     if(NIL_P(v))
     {
 	throw RubyException(rb_eTypeError, "unable to convert value to a long");
@@ -151,7 +151,7 @@ IceRuby::getLong(VALUE val)
 bool
 IceRuby::arrayToStringSeq(VALUE val, vector<string>& seq)
 {
-    VALUE arr = callRuby(rb_check_array_type, val);
+    volatile VALUE arr = callRuby(rb_check_array_type, val);
     if(NIL_P(arr))
     {
 	return false;
@@ -167,12 +167,13 @@ IceRuby::arrayToStringSeq(VALUE val, vector<string>& seq)
 VALUE
 IceRuby::stringSeqToArray(const vector<string>& seq)
 {
-    VALUE result = createArray(seq.size());
+    volatile VALUE result = createArray(seq.size());
     long i = 0;
     for(vector<string>::const_iterator p = seq.begin(); p != seq.end(); ++p, ++i)
     {
 	RARRAY(result)->ptr[i] = createString(*p);
     }
+    RARRAY(result)->len = static_cast<long>(seq.size());
     return result;
 }
 
@@ -216,11 +217,11 @@ IceRuby::hashToContext(VALUE val, Ice::Context& ctx)
 VALUE
 IceRuby::contextToHash(const Ice::Context& ctx)
 {
-    VALUE result = callRuby(rb_hash_new);
+    volatile VALUE result = callRuby(rb_hash_new);
     for(Ice::Context::const_iterator p = ctx.begin(); p != ctx.end(); ++p)
     {
-	VALUE key = callRuby(rb_str_new, p->first.c_str(), static_cast<long>(p->first.size()));
-	VALUE value = callRuby(rb_str_new, p->second.c_str(), static_cast<long>(p->second.size()));
+	volatile VALUE key = callRuby(rb_str_new, p->first.c_str(), static_cast<long>(p->first.size()));
+	volatile VALUE value = callRuby(rb_str_new, p->second.c_str(), static_cast<long>(p->second.size()));
 	callRuby(rb_hash_aset, result, key, value);
     }
     return result;
@@ -271,7 +272,7 @@ IceRuby::hashIterate(VALUE h, HashIterator& iter)
 Ice::Identity
 IceRuby::getIdentity(VALUE v)
 {
-    VALUE cls = callRuby(rb_path2class, "Ice::Identity");
+    volatile VALUE cls = callRuby(rb_path2class, "Ice::Identity");
     assert(!NIL_P(cls));
 
     if(callRuby(rb_obj_is_kind_of, v, cls) == Qfalse)
@@ -279,8 +280,8 @@ IceRuby::getIdentity(VALUE v)
 	throw RubyException(rb_eTypeError, "value is not an Ice::Identity");
     }
 
-    VALUE name = callRuby(rb_iv_get, v, "@name");
-    VALUE category = callRuby(rb_iv_get, v, "@category");
+    volatile VALUE name = callRuby(rb_iv_get, v, "@name");
+    volatile VALUE category = callRuby(rb_iv_get, v, "@category");
 
     if(!NIL_P(category) && !isString(category))
     {
@@ -304,12 +305,12 @@ IceRuby::getIdentity(VALUE v)
 VALUE
 IceRuby::createIdentity(const Ice::Identity& id)
 {
-    VALUE cls = callRuby(rb_path2class, "Ice::Identity");
+    volatile VALUE cls = callRuby(rb_path2class, "Ice::Identity");
     assert(!NIL_P(cls));
 
-    VALUE result = callRuby(rb_class_new_instance, 0, reinterpret_cast<VALUE*>(0), cls);
-    VALUE name = callRuby(rb_str_new, id.name.c_str(), static_cast<long>(id.name.size()));
-    VALUE category = callRuby(rb_str_new, id.category.c_str(), static_cast<long>(id.category.size()));
+    volatile VALUE result = callRuby(rb_class_new_instance, 0, reinterpret_cast<VALUE*>(0), cls);
+    volatile VALUE name = callRuby(rb_str_new, id.name.c_str(), static_cast<long>(id.name.size()));
+    volatile VALUE category = callRuby(rb_str_new, id.category.c_str(), static_cast<long>(id.category.size()));
     callRuby(rb_iv_set, result, "@name", name);
     callRuby(rb_iv_set, result, "@category", category);
     return result;
@@ -319,7 +320,7 @@ VALUE
 IceRuby::callProtected(RubyFunction func, VALUE arg)
 {
     int error = 0;
-    VALUE result = rb_protect(func, arg, &error);
+    volatile VALUE result = rb_protect(func, arg, &error);
     if(error)
     {
 	throw RubyException();
@@ -339,47 +340,47 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
     }
     catch(const Ice::UnknownException& e)
     {
-	VALUE v = createString(e.unknown);
+	volatile VALUE v = createString(e.unknown);
 	callRuby(rb_iv_set, p, "@unknown", v);
     }
     catch(const Ice::ObjectAdapterDeactivatedException& e)
     {
-	VALUE v = createString(e.name);
+	volatile VALUE v = createString(e.name);
 	callRuby(rb_iv_set, p, "@name", v);
     }
     catch(const Ice::ObjectAdapterIdInUseException& e)
     {
-	VALUE v = createString(e.id);
+	volatile VALUE v = createString(e.id);
 	callRuby(rb_iv_set, p, "@id", v);
     }
     catch(const Ice::NoEndpointException& e)
     {
-	VALUE v = createString(e.proxy);
+	volatile VALUE v = createString(e.proxy);
 	callRuby(rb_iv_set, p, "@proxy", v);
     }
     catch(const Ice::EndpointParseException& e)
     {
-	VALUE v = createString(e.str);
+	volatile VALUE v = createString(e.str);
 	callRuby(rb_iv_set, p, "@str", v);
     }
     catch(const Ice::IdentityParseException& e)
     {
-	VALUE v = createString(e.str);
+	volatile VALUE v = createString(e.str);
 	callRuby(rb_iv_set, p, "@str", v);
     }
     catch(const Ice::ProxyParseException& e)
     {
-	VALUE v = createString(e.str);
+	volatile VALUE v = createString(e.str);
 	callRuby(rb_iv_set, p, "@str", v);
     }
     catch(const Ice::IllegalIdentityException& e)
     {
-	VALUE v = IceRuby::createIdentity(e.id);
+	volatile VALUE v = IceRuby::createIdentity(e.id);
 	callRuby(rb_iv_set, p, "@id", v);
     }
     catch(const Ice::RequestFailedException& e)
     {
-	VALUE v;
+	volatile VALUE v;
 	v = IceRuby::createIdentity(e.id);
 	callRuby(rb_iv_set, p, "@id", v);
 	v = createString(e.facet);
@@ -389,12 +390,12 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
     }
     catch(const Ice::SyscallException& e)
     {
-	VALUE v = INT2FIX(e.error);
+	volatile VALUE v = INT2FIX(e.error);
 	callRuby(rb_iv_set, p, "@error", v);
     }
     catch(const Ice::DNSException& e)
     {
-	VALUE v;
+	volatile VALUE v;
 	v = INT2FIX(e.error);
 	callRuby(rb_iv_set, p, "@error", v);
 	v = createString(e.host);
@@ -416,7 +417,7 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
     }
     catch(const Ice::NoObjectFactoryException& e)
     {
-	VALUE v;
+	volatile VALUE v;
 	v = createString(e.reason);
 	callRuby(rb_iv_set, p, "@reason", v);
 	v = createString(e.type);
@@ -424,17 +425,17 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
     }
     catch(const Ice::MarshalException& e)
     {
-	VALUE v = createString(e.reason);
+	volatile VALUE v = createString(e.reason);
 	callRuby(rb_iv_set, p, "@reason", v);
     }
     catch(const Ice::PluginInitializationException& e)
     {
-	VALUE v = createString(e.reason);
+	volatile VALUE v = createString(e.reason);
 	callRuby(rb_iv_set, p, "@reason", v);
     }
     catch(const Ice::AlreadyRegisteredException& e)
     {
-	VALUE v;
+	volatile VALUE v;
 	v = createString(e.kindOfObject);
 	callRuby(rb_iv_set, p, "@kindOfObject", v);
 	v = createString(e.id);
@@ -442,7 +443,7 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
     }
     catch(const Ice::NotRegisteredException& e)
     {
-	VALUE v;
+	volatile VALUE v;
 	v = createString(e.kindOfObject);
 	callRuby(rb_iv_set, p, "@kindOfObject", v);
 	v = createString(e.id);
@@ -450,7 +451,7 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
     }
     catch(const Ice::TwowayOnlyException& e)
     {
-	VALUE v = createString(e.operation);
+	volatile VALUE v = createString(e.operation);
 	callRuby(rb_iv_set, p, "@operation", v);
     }
     catch(const Ice::LocalException&)
@@ -472,12 +473,12 @@ IceRuby::convertLocalException(const Ice::LocalException& ex)
     try
     {
 	string name = ex.ice_name();
-	VALUE cls = callRuby(rb_path2class, name.c_str());
+	volatile VALUE cls = callRuby(rb_path2class, name.c_str());
 	if(NIL_P(cls))
 	{
 	    throw RubyException(rb_eRuntimeError, "exception class `%s' not found", name.c_str());
 	}
-	VALUE result = callRuby(rb_class_new_instance, 0, reinterpret_cast<VALUE*>(0), cls);
+	volatile VALUE result = callRuby(rb_class_new_instance, 0, reinterpret_cast<VALUE*>(0), cls);
 	setExceptionMembers(ex, result);
 	return result;
     }
