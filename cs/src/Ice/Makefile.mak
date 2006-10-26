@@ -134,6 +134,7 @@ GEN_SRCS	= $(GDIR)\BuiltinSequences.cs \
 		  $(GDIR)\Endpoint.cs \
 		  $(GDIR)\FacetMap.cs \
 		  $(GDIR)\Identity.cs \
+		  $(GDIR)\ImplicitContext.cs \
 		  $(GDIR)\LocalException.cs \
 		  $(GDIR)\LocatorF.cs \
 		  $(GDIR)\Locator.cs \
