@@ -1933,6 +1933,11 @@ namespace IceInternal
 
 	private void reallocate(int size)
 	{
+	    //
+	    // Limit the buffer size to MessageSizeMax
+	    //
+	    size = size > _messageSizeMax ? _messageSizeMax : size;
+
 	    ByteBuffer old = _buf;
 	    Debug.Assert(old != null);
 
