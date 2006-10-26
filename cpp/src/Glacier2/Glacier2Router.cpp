@@ -148,7 +148,17 @@ Glacier2::RouterService::start(int argc, char* argv[])
     string passwordsProperty = properties->getProperty("Glacier2.CryptPasswords");
     if(!verifierProperty.empty())
     {
-	verifier = PermissionsVerifierPrx::checkedCast(communicator()->stringToProxy(verifierProperty));
+    	try
+	{
+	    verifier = PermissionsVerifierPrx::checkedCast(communicator()->stringToProxy(verifierProperty));
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    ostringstream ostr;
+	    ostr << ex;
+	    error("unable to contact permissions verifier `" + verifierProperty + "'\n" + ostr.str());
+	    return false;
+	}
 	if(!verifier)
 	{
 	    error("permissions verifier `" + verifierProperty + "' is invalid");
@@ -206,7 +216,17 @@ Glacier2::RouterService::start(int argc, char* argv[])
     SessionManagerPrx sessionManager;
     if(!sessionManagerProperty.empty())
     {
-	sessionManager = SessionManagerPrx::checkedCast(communicator()->stringToProxy(sessionManagerProperty));
+        try
+	{
+	    sessionManager = SessionManagerPrx::checkedCast(communicator()->stringToProxy(sessionManagerProperty));
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    ostringstream ostr;
+	    ostr << ex;
+	    error("unable to contact session manager `" + sessionManagerProperty + "'\n" + ostr.str());
+	    return false;
+	}
 	if(!sessionManager)
 	{
 	    error("session manager `" + sessionManagerProperty + "' is invalid");
@@ -224,7 +244,17 @@ Glacier2::RouterService::start(int argc, char* argv[])
     SSLPermissionsVerifierPrx sslVerifier;
     if(!sslVerifierProperty.empty())
     {
-	sslVerifier = SSLPermissionsVerifierPrx::checkedCast(communicator()->stringToProxy(sslVerifierProperty));
+        try
+	{
+	    sslVerifier = SSLPermissionsVerifierPrx::checkedCast(communicator()->stringToProxy(sslVerifierProperty));
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    ostringstream ostr;
+	    ostr << ex;
+	    error("unable to contact permissions verifier `" + sslVerifierProperty + "'\n" + ostr.str());
+	    return false;
+	}
 	if(!sslVerifier)
 	{
 	    error("ssl permissions verifier `" + sslVerifierProperty + "' is invalid");
@@ -239,7 +269,18 @@ Glacier2::RouterService::start(int argc, char* argv[])
     SSLSessionManagerPrx sslSessionManager;
     if(!sslSessionManagerProperty.empty())
     {
-	sslSessionManager = SSLSessionManagerPrx::checkedCast(communicator()->stringToProxy(sslSessionManagerProperty));
+        try
+	{
+	    sslSessionManager = 
+	        SSLSessionManagerPrx::checkedCast(communicator()->stringToProxy(sslSessionManagerProperty));
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    ostringstream ostr;
+	    ostr << ex;
+	    error("unable to ssl session manager `" + sslSessionManagerProperty + "'\n" + ostr.str());
+	    return false;
+	}
 	if(!sslSessionManager)
 	{
 	    error("ssl session manager `" + sslSessionManagerProperty + "' is invalid");
