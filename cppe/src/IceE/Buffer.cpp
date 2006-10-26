@@ -95,7 +95,7 @@ IceInternal::Buffer::Container::reserve(size_type n)
 {
     if(n > _capacity)
     {
-	_capacity = std::max<size_type>(n, 2 * _capacity);
+	_capacity = std::max<size_type>(n, std::min(2 * _capacity, _maxCapacity));
 	_capacity = std::max<size_type>(static_cast<size_type>(240), _capacity);
     }
     else if(n < _capacity)

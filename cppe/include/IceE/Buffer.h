@@ -22,7 +22,7 @@ class ICE_API Buffer : private IceUtil::noncopyable
 {
 public:
 
-    Buffer() : i(b.begin()) { }
+    Buffer(size_t maxCapacity) : b(maxCapacity), i(b.begin()) { }
     virtual ~Buffer() { }
 
     void swap(Buffer&);
@@ -45,17 +45,19 @@ public:
 	typedef size_t size_type;
 
 #ifdef ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
-	Container() :
+	Container(size_type maxCapacity) :
 	    _buf(_fixed),
 	    _size(0),
-	    _capacity(ICE_BUFFER_FIXED_SIZE)
+	    _capacity(ICE_BUFFER_FIXED_SIZE),
+	    _maxCapacity(maxCapacity)
 	{
 	}
 #else
-	Container() :
+	Container(size_type maxCapacity) :
 	    _buf(0),
 	    _size(0),
-	    _capacity(0)
+	    _capacity(0),
+	    _maxCapacity(maxCapacity)
 	{
 	}
 #endif
@@ -169,6 +171,7 @@ public:
 	pointer _buf;
 	size_type _size;
 	size_type _capacity;
+	size_type _maxCapacity;
 	int _shrinkCounter;
 
 #ifdef ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION

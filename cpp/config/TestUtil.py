@@ -28,9 +28,9 @@ compress = 0
 # one or two thread per connection mode.
 #
 
-#threadPerConnection = 0
+threadPerConnection = 0
 #threadPerConnection = 1
-threadPerConnection = 2
+#threadPerConnection = 2
 
 #
 # Set to 1 to disable the memory pool.

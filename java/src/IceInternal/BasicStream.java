@@ -2259,6 +2259,11 @@ public class BasicStream
     private void
     reallocate(int size)
     {
+        //
+	// Limit the buffer size to MessageSizeMax
+	//
+        size = size > _messageSizeMax ? _messageSizeMax : size;
+
 	java.nio.ByteBuffer old = _buf;
 	assert(old != null);
 

@@ -1492,6 +1492,11 @@ public class BasicStream
     private void
     reallocate(int size)
     {
+        //
+	// Limit buffer size to MessageSizeMax
+	//
+	size = size > _messageSizeMax ? _messageSizeMax : size;
+
 	ByteBuffer old = _buf;
 	if(IceUtil.Debug.ASSERT)
 	{
