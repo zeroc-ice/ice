@@ -12,6 +12,7 @@
 #include <IceStorm/Flusher.h>
 #include <IceStorm/TraceLevels.h>
 #include <IceStorm/SubscriberFactory.h>
+#include <IceStorm/KeepAliveThread.h>
 #include <Freeze/Initialize.h>
 
 #include <Ice/SliceChecksums.h>
@@ -33,23 +34,36 @@ TopicManagerI::TopicManagerI(const Ice::CommunicatorPtr& communicator, const Ice
     _envName(envName),
     _dbName(dbName),
     _connection(Freeze::createConnection(_communicator, envName)),
-    _topics(_connection, dbName)
+    _topics(_connection, dbName),
+    _upstream(_connection, "upstream"),
+    _flusher(new Flusher(communicator, traceLevels)),
+    _factory(new SubscriberFactory(communicator, traceLevels, _flusher))
 {
-    _flusher = new Flusher(_communicator, _traceLevels);
-    _factory = new SubscriberFactory(_communicator, _traceLevels, _flusher);
+    _keepAlive = new KeepAliveThread(communicator, traceLevels, IceUtil::Time::seconds(
+					 communicator->getProperties()->getPropertyAsIntWithDefault(
+					     "IceStorm.KeepAliveTimeout", 60)));
 
     //
     // Recreate each of the topics in the persistent map
     //
-    for(PersistentTopicMap::iterator p = _topics.begin(); p != _topics.end(); ++p)
+    for(PersistentTopicMap::const_iterator p = _topics.begin(); p != _topics.end(); ++p)
     {
 	installTopic(p->first, p->second, false);
     }
+
+    //
+    // The keep alive thread must be started after all topics are
+    // installed so that any upstream topics are notified immediately
+    // after startup.
+    //
+    _keepAlive->start();
 }
 
 TopicManagerI::~TopicManagerI()
 {
     _flusher->stopFlushing();
+    _keepAlive->getThreadControl().join();
+    _keepAlive = 0;
 }
 
 TopicPrx
@@ -67,6 +81,7 @@ TopicManagerI::create(const string& name, const Ice::Current&)
     }
 
     _topics.put(PersistentTopicMap::value_type(name, LinkRecordDict()));
+    _upstream.put(PersistentUpstreamMap::value_type(name, TopicUpstreamLinkPrxSeq()));
     installTopic(name, LinkRecordDict(), true);
 
     //
@@ -160,6 +175,8 @@ TopicManagerI::reap()
 
             _topics.erase(i->first);
 
+            _upstream.erase(i->first);
+
             try
             {
                 Ice::Identity id;
@@ -184,11 +201,17 @@ void
 TopicManagerI::shutdown()
 {
     IceUtil::Mutex::Lock sync(*this);
+
     reap(); 
+    for(TopicIMap::const_iterator p = _topicIMap.begin(); p != _topicIMap.end(); ++p)
+    {
+	p->second->reap();
+    }
+    _keepAlive->destroy();
 }
 
 void
-TopicManagerI::installTopic(const string& name, const LinkRecordDict& links, bool create)
+TopicManagerI::installTopic(const string& name, const LinkRecordDict& rec, bool create)
 {
     //
     // Called by constructor or with 'this' mutex locked. 
@@ -210,8 +233,8 @@ TopicManagerI::installTopic(const string& name, const LinkRecordDict& links, boo
     //
     // Create topic implementation
     //
-    TopicIPtr topicI =
-        new TopicI(_communicator, _publishAdapter, _traceLevels, name, links, _factory, _envName, _dbName);
+    TopicIPtr topicI = new TopicI(_communicator, _publishAdapter, _traceLevels, _keepAlive,
+				  name, rec, _factory, _envName, _dbName);
     
     //
     // The identity is the name of the Topic.

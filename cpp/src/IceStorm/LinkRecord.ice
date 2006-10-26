@@ -22,16 +22,18 @@ module IceStorm
  **/
 struct LinkRecord
 {
-    TopicLink* obj;
-    int cost;
-
-    //
-    // Only for Topic::getLinkInfoSeq()
-    //
-    Topic* theTopic; 
+    TopicLink* obj; // The topic link object.
+    int cost; // The cost.
+    TopicUpstreamLink* upstream; // The upstream link (for recreating
+				 // the upstream link object).
+    Topic* theTopic;  // The linked topic for getLinkInfoSeq
 };
 
+/** Dictionary of link name to link record. */
 dictionary<string, LinkRecord> LinkRecordDict;
+
+/** Sequence of TopicUpstreamLink objects. */
+sequence<TopicUpstreamLink*> TopicUpstreamLinkPrxSeq;
 
 }; // End module IceStorm
 

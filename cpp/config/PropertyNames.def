@@ -366,10 +366,12 @@ IceStorm:
     TopicManager.ThreadPool.SizeMax
     TopicManager.ThreadPool.SizeWarn
     TopicManager.ThreadPool.StackSize
+    KeepAliveTimeout
     Trace.Flush
     Trace.Subscriber
     Trace.Topic
     Trace.TopicManager
+    Trace.KeepAlive
 
 Glacier2:
     AddUserToAllowCategories

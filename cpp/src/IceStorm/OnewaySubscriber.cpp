@@ -138,6 +138,12 @@ OnewaySubscriber::replace()
 }
 
 void
+OnewaySubscriber::reachable()
+{
+    // Nothing to do
+}
+
+void
 OnewaySubscriber::publish(const EventPtr& event)
 {
     try

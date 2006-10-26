@@ -36,11 +36,16 @@ Subscriber::~Subscriber()
     _factory->decProxyUsageCount(_obj);
 }
 
+//
+// A subscriber is inactive if the state is not active and its not
+// unreachable. Link subscribers go into the unreachable state if they
+// are temporarily unreachable.
+//
 bool
 Subscriber::inactive() const
 {
     IceUtil::Mutex::Lock sync(_stateMutex);
-    return _state != StateActive;;
+    return _state != StateActive && _state != StateUnreachable;
 }
 
 void

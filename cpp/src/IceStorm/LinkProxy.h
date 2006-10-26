@@ -30,19 +30,25 @@ class LinkProxy : public QueuedProxy
 public:
 
     LinkProxy(const TraceLevelsPtr&, const std::string&, const TopicLinkPrx&);
+    ~LinkProxy();
 
     virtual Ice::ObjectPrx proxy() const;
+
+    virtual void publish(const EventPtr&);
+    void response();
+    void exception(const Ice::LocalException&);
 
 protected:
 
     virtual void deliver(const std::vector<EventPtr>&);
-
 private:
 
     const TraceLevelsPtr _traceLevels;
     const std::string _id;
-    TopicLinkPrx _obj;
+    const TopicLinkPrx _obj;
+    const TopicLinkPrx _objAMI;
 };
+typedef IceUtil::Handle<LinkProxy> LinkProxyPtr;
 
 }
 

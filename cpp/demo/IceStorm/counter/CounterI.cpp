@@ -34,7 +34,7 @@ CounterI::subscribe(const CounterObserverPrx& observer, const Ice::Current&)
     // object which is then used to send the initialize event to just
     // the given subscriber.
     //
-    CounterObserverPrx o = CounterObserverPrx::uncheckedCast(_topic->subscribe(qos, observer));
+    CounterObserverPrx o = CounterObserverPrx::uncheckedCast(_topic->subscribeAndGetPublisher(qos, observer));
     o->init(_value);
 }
 

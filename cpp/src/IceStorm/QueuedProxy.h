@@ -33,6 +33,8 @@ public:
 
     virtual Ice::ObjectPrx proxy() const = 0;
 
+    void clearError();
+
 protected:
 
     virtual void deliver(const std::vector<EventPtr>&) = 0;

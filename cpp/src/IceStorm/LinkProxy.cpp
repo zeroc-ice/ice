@@ -14,19 +14,99 @@
 #include <IceStorm/TraceLevels.h>
 #include <IceStorm/Event.h>
 
+class LinkOrderedInvokeCB : public IceStorm::AMI_TopicLink_forward
+{
+public:
+
+    LinkOrderedInvokeCB(const IceStorm::LinkProxyPtr& proxy) : _proxy(proxy)
+    {
+    }
+
+    virtual void
+    ice_response()
+    {
+	_proxy->response();
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& ex)
+    {
+	try
+	{
+	    ex.ice_throw();
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    _proxy->exception(ex);
+	}
+    }
+
+private:
+
+    const IceStorm::LinkProxyPtr _proxy;
+};
+
 using namespace std;
 
 IceStorm::LinkProxy::LinkProxy(const TraceLevelsPtr& traceLevels, const string& id, const TopicLinkPrx& obj) :
     _traceLevels(traceLevels),
     _id(id),
-    _obj(obj)
+    _obj(obj),
+    //
+    // We'll use this proxy with AMI invocations later, so therefore
+    // we must turn off the collocation optimization. I don't want to
+    // store this in _obj as this proxy is used for comparison
+    // purposes with proxies loaded from the Freeze database which
+    // don't retain the collocation optimization flag (however, this
+    // flag is used for proxy comparison purposes).
+    //
+    _objAMI(TopicLinkPrx::uncheckedCast(obj->ice_collocationOptimized(false)))
 {
+}
+
+IceStorm::LinkProxy::~LinkProxy()
+{
+    assert(!_busy);
 }
 
 Ice::ObjectPrx
 IceStorm::LinkProxy::proxy() const
 {
     return _obj;
+}
+
+void
+IceStorm::LinkProxy::publish(const EventPtr& event)
+{
+    vector<EventPtr> v;
+    {
+	IceUtil::Mutex::Lock sync(_mutex);
+	
+	if(_exception.get())
+	{
+	    _exception->ice_throw();
+	}
+	
+	_events.push_back(event);
+	
+	if(_busy)
+	{
+	    return;
+	}
+
+	v.swap(_events);
+	_busy = true;
+    }
+
+    try
+    {
+	deliver(v);
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	exception(ex);
+	throw;
+    }
 }
 
 void
@@ -50,24 +130,42 @@ IceStorm::LinkProxy::deliver(const vector<EventPtr>& v)
 	e.context = (*p)->context;
 	events.push_back(e);
     }
+    _objAMI->forward_async(new LinkOrderedInvokeCB(this), events);
+}
+
+void
+IceStorm::LinkProxy::response()
+{
+    vector<EventPtr> v;
+    {
+	IceUtil::Mutex::Lock sync(_mutex);
+	
+	assert(!_exception.get() && _busy);
+	
+	if(_events.empty())
+	{
+	    _busy = false;
+	    return;
+	}
+
+	v.swap(_events);
+    }
 
     try
     {
-	_obj->forward(events);
+	deliver(v);
     }
-    catch(const Ice::ObjectNotExistException&)
+    catch(const Ice::LocalException& ex)
     {
-	//
-	// ObjectNotExist causes the link to be removed.
-	//
-	throw;
+	exception(ex);
     }
-    catch(const Ice::LocalException& e)
-    {
-	if(_traceLevels->subscriber > 0)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
-	    out << _id << ": link topic publish failed: " << e;
-	}
-    }
+}
+
+void
+IceStorm::LinkProxy::exception(const Ice::LocalException& ex)
+{
+    IceUtil::Mutex::Lock sync(_mutex);
+    assert(!_exception.get() && _busy);
+    _busy = false;
+    _exception.reset(dynamic_cast<Ice::LocalException*>(ex.ice_clone()));
 }

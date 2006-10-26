@@ -33,9 +33,11 @@ SERVICE_OBJS	= IceStorm.o \
 		  OnewayBatchSubscriber.o \
 		  LinkSubscriber.o \
 		  SubscriberFactory.o \
+		  KeepAliveThread.o \
 		  TopicI.o \
 		  TopicManagerI.o \
                   PersistentTopicMap.o \
+                  PersistentUpstreamMap.o \
 		  LinkRecord.o \
 		  IceStormInternal.o \
 		  Service.o \
@@ -111,8 +113,14 @@ PersistentTopicMap.h PersistentTopicMap.cpp: ../IceStorm/LinkRecord.ice $(sliced
 	$(SLICE2FREEZECMD) --dict IceStorm::PersistentTopicMap,string,IceStorm::LinkRecordDict PersistentTopicMap \
 	../IceStorm/LinkRecord.ice
 
+PersistentUpstreamMap.h PersistentUpstreamMap.cpp: ../IceStorm/LinkRecord.ice $(slicedir)/Ice/Identity.ice $(SLICE2FREEZE)
+	rm -f PersistentUpstreamMap.h PersistentUpstreamMap.cpp
+	$(SLICE2FREEZECMD) --dict IceStorm::PersistentUpstreamMap,string,IceStorm::TopicUpstreamLinkPrxSeq \
+	 PersistentUpstreamMap ../IceStorm/LinkRecord.ice
+
 clean::
 	rm -f PersistentTopicMap.h PersistentTopicMap.cpp
+	rm -f PersistentUpstreamMap.h PersistentUpstreamMap.cpp
 
 # Needed for make -jn to work.
 ../IceStorm/Grammar.y: Grammar.h

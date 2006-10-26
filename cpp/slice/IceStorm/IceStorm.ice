@@ -152,7 +152,25 @@ interface Topic
      * @see unsubscribe
      *
      **/
-    Object* subscribe(QoS theQoS, Object* subscriber);
+    void subscribe(QoS theQoS, Object* subscriber);
+
+    /**
+     *
+     * Subscribe with the given [qos] to this topic. If the given
+     * [subscriber] proxy has already been registered, it will be
+     * replaced. A per-subscriber publisher object is returned.
+     *
+     * @param qos The quality of service parameters for this
+     * subscription.
+     *
+     * @param subscriber The subscriber's proxy.
+     *
+     * @return The per-subscriber publisher object.
+     *
+     * @see unsubscribe
+     *
+     **/
+    Object* subscribeAndGetPublisher(QoS theQoS, Object* subscriber);
 
     /**
      *
@@ -190,6 +208,18 @@ interface Topic
      *
      **/
     void unlink(Topic* linkTo) throws NoSuchLink;
+
+    /**
+     *
+     * Destroy the link from this topic to the named given topic
+     * [linkTo].
+     *
+     * @param link The name of the topic to destroy the link to.
+     *
+     * @throws NoSuchLink Raised if a link to the topic does not exist.
+     *
+     **/
+    void unlinkByName(string linkTo) throws NoSuchLink;
 
     /**
      *

@@ -80,6 +80,11 @@ public:
     virtual void replace();
 
     //
+    // Mark the state as reachable.
+    //
+    virtual void reachable() = 0;
+
+    //
     // Publish the given event. Mark the state as Error in the event of
     // a problem.
     //
@@ -114,7 +119,11 @@ protected:
 	//
 	// The Subscriber has been replaced.
 	//
-	StateReplaced
+	StateReplaced,
+	//
+	// The Subscriber is no longer reachable.
+	//
+	StateUnreachable
     };
 
     IceUtil::Mutex _stateMutex;

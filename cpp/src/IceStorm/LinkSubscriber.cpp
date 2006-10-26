@@ -48,8 +48,45 @@ LinkSubscriber::inactive() const
 }
 
 void
+LinkSubscriber::reachable()
+{
+    IceUtil::Mutex::Lock sync(_stateMutex);
+    if(_state == StateUnreachable)
+    {
+	_state = StateActive;
+
+	if(_traceLevels->subscriber > 0)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
+	    out << "Reachable " << _communicator->identityToString(id());
+	}
+    }
+    else
+    {
+	//
+	// Because the _exception is queued until the next event is
+	// stored its possible to be in an undetected error state (and
+	// thus the unreachable state has not been reached yet). So,
+	// therefore, we clear the error state if set.
+	//
+	_obj->clearError();
+    }
+}
+
+void
 LinkSubscriber::publish(const EventPtr& event)
 {
+    //
+    // If the link is unreachable then ignore the event.
+    //
+    {
+	IceUtil::Mutex::Lock sync(_stateMutex);
+	if(_state == StateUnreachable)
+	{
+	    return;
+	}
+    }
+
     //
     // Don't propagate a message that has already been forwarded.
     // Also, if this link has a non-zero cost, then don't propagate

@@ -23,6 +23,8 @@ TraceLevels::TraceLevels(const string name, const Ice::PropertiesPtr& properties
     flushCat("Flush"),
     subscriber(0),
     subscriberCat("Subscriber"),
+    keepAlive(0),
+    keepAliveCat("KeepAlive"),
     logger(theLogger)
 {
     const string keyBase = name + ".Trace.";
@@ -30,6 +32,7 @@ TraceLevels::TraceLevels(const string name, const Ice::PropertiesPtr& properties
     const_cast<int&>(topic) = properties->getPropertyAsInt(keyBase + topicCat);
     const_cast<int&>(flush) = properties->getPropertyAsInt(keyBase + flushCat);
     const_cast<int&>(subscriber) = properties->getPropertyAsInt(keyBase + subscriberCat);
+    const_cast<int&>(keepAlive) = properties->getPropertyAsInt(keyBase + keepAliveCat);
 }
 
 TraceLevels::~TraceLevels()

@@ -12,6 +12,7 @@
 
 #include <IceStorm/IceStorm.h>
 #include <IceStorm/PersistentTopicMap.h>
+#include <IceStorm/PersistentUpstreamMap.h>
 
 namespace IceStorm
 {
@@ -30,6 +31,9 @@ typedef IceUtil::Handle<Flusher> FlusherPtr;
 
 class SubscriberFactory;
 typedef IceUtil::Handle<SubscriberFactory> SubscriberFactoryPtr;
+
+class KeepAliveThread;
+typedef IceUtil::Handle<KeepAliveThread> KeepAliveThreadPtr;
 
 //
 // Map of TopicImplementation objects.
@@ -61,17 +65,20 @@ private:
 
     void installTopic(const std::string&, const LinkRecordDict&, bool);
   
-    Ice::CommunicatorPtr _communicator;
-    Ice::ObjectAdapterPtr _topicAdapter;
-    Ice::ObjectAdapterPtr _publishAdapter;
-    TraceLevelsPtr _traceLevels;
-    TopicIMap _topicIMap;
-    FlusherPtr _flusher;
-    SubscriberFactoryPtr _factory;
-    std::string _envName;
-    std::string _dbName;
-    Freeze::ConnectionPtr _connection;
+    const Ice::CommunicatorPtr _communicator;
+    const Ice::ObjectAdapterPtr _topicAdapter;
+    const Ice::ObjectAdapterPtr _publishAdapter;
+    const TraceLevelsPtr _traceLevels;
+    const std::string _envName;
+    const std::string _dbName;
+    const Freeze::ConnectionPtr _connection;
     PersistentTopicMap _topics;
+    PersistentUpstreamMap _upstream;
+    const FlusherPtr _flusher;
+    const SubscriberFactoryPtr _factory;
+    /*const*/ KeepAliveThreadPtr _keepAlive;
+
+    TopicIMap _topicIMap;
 };
 
 typedef IceUtil::Handle<TopicManagerI> TopicManagerIPtr;

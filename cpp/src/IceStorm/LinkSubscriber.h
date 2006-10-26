@@ -27,6 +27,7 @@ public:
     virtual bool persistent() const;
     virtual bool inactive() const;
     virtual void publish(const EventPtr&);
+    virtual void reachable();
     virtual Ice::ObjectPrx proxy() const;
 
     virtual void flush();

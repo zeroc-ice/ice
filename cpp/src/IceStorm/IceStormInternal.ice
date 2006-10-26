@@ -67,7 +67,25 @@ interface TopicLink
      * @param events The events to forward.
      *
      **/
-    void forward(EventDataSeq events);
+    ["ami"] void forward(EventDataSeq events);
+};
+
+/**
+ *
+ * The TopicUpstreamLink interface. This is used to inform an unstream
+ * topic that a federated downstream topic is alive.
+ *
+ * @see TopicInternal
+ *
+ **/
+interface TopicUpstreamLink
+{
+    /**
+     *
+     *  Inform the upstream topic that a federated downstream topic is alive.
+     *
+     **/
+    void keepAlive();
 };
 
 /**
@@ -87,6 +105,28 @@ interface TopicInternal extends Topic
      *
      **/
     idempotent TopicLink* getLinkProxy();
+
+    /**
+     *
+     * Send a link notification to the downstream topic.
+     *
+     * @param name The topic name.
+     *
+     * @param upstream The upstream topic.
+     * 
+     **/
+    void linkNotification(string name, TopicUpstreamLink* upstream);
+
+    /**
+     *
+     * Send an unlink notification to the downstream topic.
+     *
+     * @param name The topic name.
+     *
+     * @param upstream The upstream topic.
+     * 
+     **/
+    void unlinkNotification(string name, TopicUpstreamLink* upstream);
 };
 
 }; // End module IceStorm

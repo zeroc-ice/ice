@@ -77,3 +77,9 @@ IceStorm::QueuedProxy::publish(const EventPtr& event)
     }
 }
 
+void
+IceStorm::QueuedProxy::clearError()
+{
+    IceUtil::Mutex::Lock sync(_mutex);
+    _exception.reset();
+}

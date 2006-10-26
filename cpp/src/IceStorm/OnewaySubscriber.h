@@ -27,6 +27,7 @@ public:
     virtual void activate();
     virtual void unsubscribe();
     virtual void replace();
+    virtual void reachable();
     virtual void publish(const EventPtr&);
     virtual Ice::ObjectPrx proxy() const;
 
