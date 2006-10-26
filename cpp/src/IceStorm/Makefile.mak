@@ -29,16 +29,20 @@ TARGETS         = $(LIBNAME) $(DLLNAME) $(SVCLIBNAME) $(SVCDLLNAME)
 
 OBJS		= IceStorm.obj \
 
-SOBJS		= TraceLevels.obj \
+
+SERVICE_OBJS	= IceStorm.obj \
+		  TraceLevels.obj \
 		  Flusher.obj \
 		  Subscriber.obj \
 		  OnewaySubscriber.obj \
 		  OnewayBatchSubscriber.obj \
 		  LinkSubscriber.obj \
 		  SubscriberFactory.obj \
+		  KeepAliveThread.obj \
 		  TopicI.obj \
 		  TopicManagerI.obj \
-		  PersistentTopicMap.obj \
+                  PersistentTopicMap.obj \
+                  PersistentUpstreamMap.obj \
 		  LinkRecord.obj \
 		  IceStormInternal.obj \
 		  Service.obj \
@@ -103,9 +107,14 @@ $(ADMIN): $(AOBJS)
 
 PersistentTopicMap.h PersistentTopicMap.cpp: ../IceStorm/LinkRecord.ice $(slicedir)/Ice/Identity.ice $(SLICE2FREEZE)
 	del /q PersistentTopicMap.h PersistentTopicMap.cpp
-	$(SLICE2FREEZE) --ice --include-dir IceStorm -I.. -I$(slicedir) --dict \
-	IceStorm::PersistentTopicMap,string,IceStorm::LinkRecordDict PersistentTopicMap \
+	$(SLICE2FREEZE) --dict IceStorm::PersistentTopicMap,string,IceStorm::LinkRecordDict PersistentTopicMap \
 	..\IceStorm\LinkRecord.ice
+
+
+PersistentUpstreamMap.h PersistentUpstreamMap.cpp: ../IceStorm/LinkRecord.ice $(slicedir)/Ice/Identity.ice $(SLICE2FREEZE)
+	del /q PersistentUpstreamMap.h PersistentUpstreamMap.cpp
+	$(SLICE2FREEZE) --dict IceStorm::PersistentUpstreamMap,string,IceStorm::TopicUpstreamLinkPrxSeq \
+	 PersistentUpstreamMap ../IceStorm/LinkRecord.ice
 
 IceStorm.cpp $(HDIR)\IceStorm.h: $(SDIR)\IceStorm.ice
 	$(SLICE2CPP) --dll-export ICE_STORM_API $(SLICE2CPPFLAGS) $(SDIR)\IceStorm.ice
