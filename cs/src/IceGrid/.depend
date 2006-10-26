@@ -2,4 +2,9 @@ Admin.cs:
 Observer.cs:
 Descriptor.cs:
 Exception.cs:
+FileParser.cs:
+Locator.cs:
 Query.cs:
+Registry.cs:
+Session.cs:
+UserAccountMapper.cs:
