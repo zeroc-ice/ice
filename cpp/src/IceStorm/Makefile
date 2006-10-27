@@ -57,8 +57,8 @@ SRCS		= $(OBJS:.o=.cpp) \
 		  $(AOBJS:.o=.cpp)
 
 SLICE_SRCS	= $(SDIR)/IceStorm.ice \
-		  IceStormInternal.ice \
-		  LinkRecord.ice
+		  ../IceStorm/IceStormInternal.ice \
+		  ../IceStorm/LinkRecord.ice
 
 HDIR		= $(includedir)/IceStorm
 SDIR		= $(slicedir)/IceStorm

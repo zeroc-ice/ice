@@ -113,7 +113,7 @@ SLICE_SRCS	= $(SDIR)/Admin.ice \
 		  $(SDIR)/Observer.ice \
 		  $(SDIR)/Descriptor.ice \
 		  $(SDIR)/UserAccountMapper.ice \
-		  Internal.ice
+		  ../IceGrid/Internal.ice
 
 HDIR		= $(includedir)/IceGrid
 LOCAL_HDIR	= ../IceGrid

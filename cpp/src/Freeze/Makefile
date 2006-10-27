@@ -51,7 +51,7 @@ SLICE_SRCS	= $(SDIR)/DB.ice \
 		  $(SDIR)/EvictorStorage.ice \
 		  $(SDIR)/Evictor.ice \
                   $(SDIR)/Transaction.ice \
-		  PingObject.ice
+		  ../Freeze/PingObject.ice
 
 HDIR		= $(includedir)/Freeze
 SDIR		= $(slicedir)/Freeze
