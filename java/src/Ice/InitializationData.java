@@ -36,6 +36,5 @@ public final class InitializationData implements Cloneable
     public Properties properties;
     public Logger logger;
     public Stats stats;
-    public java.util.Map defaultContext;
     public ThreadNotification threadHook;
 }
