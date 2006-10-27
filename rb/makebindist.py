@@ -209,6 +209,7 @@ filesToRemove.extend(find("icerb", "Makefile"))
 filesToRemove.extend(find("icerb", "*.mak"))
 filesToRemove.extend(find("icerb", "README.*"))
 filesToRemove.extend(find("icerb", "INSTALL.*"))
+filesToRemove.extend(find("icerb", ".dummy"))
 for x in filesToRemove:
     os.remove(x)
 
@@ -221,7 +222,8 @@ shutil.rmtree(os.path.join("icerb", "test"))
 # Create archives.
 #
 print "Creating distribution archives..."
-icever = "IceRuby-" + version + "-bin-fc5"
+icever = "IceRuby-" + version
+archive = icever + "-bin-fc5"
 os.rename("icerb", icever)
 if verbose:
     quiet = "v"
@@ -230,13 +232,13 @@ else:
 os.system("chmod -R u+rw,go+r-w . " + icever)
 os.system("find " + icever + " -type d -exec chmod a+x {} \\;")
 os.system("find " + icever + " -perm +111 -exec chmod a+x {} \\;")
-os.system("tar c" + quiet + "f " + icever + ".tar " + icever)
-os.system("gzip -9 " + icever + ".tar")
+os.system("tar c" + quiet + "f " + archive + ".tar " + icever)
+os.system("gzip -9 " + archive + ".tar")
 if verbose:
     quiet = ""
 else:
     quiet = "-q"
-os.system("zip -9ry " + quiet + " " + icever + ".zip " + icever)
+os.system("zip -9ry " + quiet + " " + archive + ".zip " + icever)
 
 #
 # Done.
