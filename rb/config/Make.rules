@@ -55,7 +55,9 @@ endif
 RUBY_INCLUDE_DIR	= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(archdir)")')
 RUBY_LIB_DIR		= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(libdir)")')
 
-ifeq ($(shell $(RUBY) -e 'require "rbconfig"; puts Config::MAKEFILE_CONFIG["ENABLE_SHARED"]'),"yes")
+RUBY_SHARED		= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::MAKEFILE_CONFIG["ENABLE_SHARED"]')
+
+ifeq ("$(RUBY_SHARED)","yes")
     RUBY_LIB		= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("-l$$(RUBY_SO_NAME)")')
 else
     RUBY_LIB		= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("-l$$(RUBY_SO_NAME)-static")')
@@ -182,6 +184,11 @@ ifeq ($(installlib),)
 			  rm -f $(1)/$(4); ln -s $(3) $(1)/$(4); \
 			  rm -f $(1)/$(5); ln -s $(4) $(1)/$(5); \
 			  chmod a+rx $(1)/$(3) 
+endif
+
+ifeq ($(installrubylib),)
+    installrubylib	= $(INSTALL) $(1) $(2); \
+			  chmod a+rx $(2)/$(notdir $(1))
 endif
 
 ifeq ($(installdata),)

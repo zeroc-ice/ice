@@ -9,11 +9,10 @@
 
 top_srcdir	= ../..
 
-LIBFILENAME     = $(call mkrubylibfilename,IceRuby,$(VERSION))
-SONAME          = $(call mkrubysoname,IceRuby,$(SOVERSION))  
 LIBNAME		= $(call mkrubylibname,IceRuby)
+SONAME          = $(LIBNAME)
 
-TARGETS		= $(call mklibtargets,$(rubydir)/$(LIBFILENAME),$(rubydir)/$(SONAME),$(rubydir)/$(LIBNAME))
+TARGETS		= $(rubydir)/$(LIBNAME)
 
 OBJS		= Communicator.o \
 		  Init.o \
@@ -34,19 +33,11 @@ CPPFLAGS	:= -I. -I.. $(CPPFLAGS) $(ICE_FLAGS) $(RUBY_FLAGS)
 
 LINKWITH        := -L$(libdir) $(ICE_LIBS) $(RUBY_LIBS) $(CXXLIBS)
 
-$(rubydir)/$(LIBFILENAME): $(OBJS)
+$(rubydir)/$(LIBNAME): $(OBJS)
 	rm -f $@
 	$(call mkshlib,$@,$(SONAME),$(OBJS),$(LINKWITH))
 
-$(rubydir)/$(SONAME): $(rubydir)/$(LIBFILENAME)
-	rm -f $@
-	ln -s $(LIBFILENAME) $@
-
-$(rubydir)/$(LIBNAME): $(rubydir)/$(SONAME)
-	rm -f $@
-	ln -s $(SONAME) $@
-
 install:: all
-	$(call installlib,$(install_rubydir),$(rubydir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
+	$(call installrubylib,$(rubydir)/$(LIBNAME),$(install_rubydir))
 
 include .depend
