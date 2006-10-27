@@ -13,11 +13,11 @@
 #include <IceBox/IceBox.h>
 #include <IceStorm/IceStorm.h>
 
-#ifndef ICE_STORM_SERVICE_API
-#   ifdef ICE_STORM_SERVICE_API_EXPORTS
-#       define ICE_STORM_SERVICE_API ICE_DECLSPEC_EXPORT
+#ifndef ICE_STORM_API
+#   ifdef ICE_STORM_API_EXPORTS
+#       define ICE_STORM_API ICE_DECLSPEC_EXPORT
 #   else
-#       define ICE_STORM_SERVICE_API ICE_DECLSPEC_IMPORT
+#       define ICE_STORM_API ICE_DECLSPEC_IMPORT
 #   endif
 #endif
 
@@ -27,7 +27,7 @@ namespace IceStorm
 class Service;
 typedef ::IceInternal::Handle< ::IceStorm::Service> ServicePtr;
 
-class ICE_STORM_SERVICE_API Service : public ::IceBox::Service
+class ICE_STORM_API Service : public ::IceBox::Service
 {
 public:
 

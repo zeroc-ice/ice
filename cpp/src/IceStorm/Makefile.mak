@@ -68,21 +68,16 @@ SDIR		= $(slicedir)\IceStorm
 
 CPPFLAGS	= -I.. -Idummyinclude $(CPPFLAGS)
 SLICE2CPPFLAGS	= --ice --include-dir IceStorm $(SLICE2CPPFLAGS) -I..
-LINKWITH 	= $(LIBS) icestorm$(LIBSUFFIX).lib freeze$(LIBSUFFIX).lib icebox$(LIBSUFFIX).lib
+LINKWITH 	= $(LIBS) freeze$(LIBSUFFIX).lib icebox$(LIBSUFFIX).lib
 ALINKWITH 	= $(LIBS) icestorm$(LIBSUFFIX).lib icexml$(LIBSUFFIX).lib
+
+SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IceStorm -I.. -I$(slicedir)
 
 !ifndef BUILD_UTILS
 
-EXTRAFLAGS	= -DICE_STORM_SERVICE_API_EXPORTS
+CPPFLAGS	= $(CPPFLAGS) -DICE_STORM_API_EXPORTS
 
 !endif
-
-IceStorm.obj: IceStorm.cpp
-	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) -DICE_STORM_API_EXPORTS IceStorm.cpp
-
-.cpp.obj::
-	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $(EXTRAFLAGS) $<
-
 
 !if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
@@ -98,22 +93,21 @@ $(DLLNAME): $(OBJS)
 
 $(SVCLIBNAME): $(SVCDLLNAME)
 
-$(SVCDLLNAME): $(SOBJS)
-	$(LINK) $(LD_DLLFLAGS) $(SPDBFLAGS) $(SOBJS) $(PREOUT)$(SVCDLLNAME) $(PRELIBS)$(LINKWITH)
+$(SVCDLLNAME): $(SERVICE_OBJS)
+	$(LINK) $(LD_DLLFLAGS) $(SPDBFLAGS) $(SERVICE_OBJS) $(PREOUT)$(SVCDLLNAME) $(PRELIBS)$(LINKWITH)
 	move $(SVCDLLNAME:.dll=.lib) $(SVCLIBNAME)
 
 $(ADMIN): $(AOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(AOBJS) $(PREOUT)$@ $(PRELIBS)$(ALINKWITH)
 
-PersistentTopicMap.h PersistentTopicMap.cpp: ../IceStorm/LinkRecord.ice $(slicedir)/Ice/Identity.ice $(SLICE2FREEZE)
+..\IceStorm\PersistentTopicMap.h PersistentTopicMap.cpp: ..\IceStorm\LinkRecord.ice $(slicedir)\Ice\Identity.ice $(SLICE2FREEZE)
 	del /q PersistentTopicMap.h PersistentTopicMap.cpp
-	$(SLICE2FREEZE) --dict IceStorm::PersistentTopicMap,string,IceStorm::LinkRecordDict PersistentTopicMap \
+	$(SLICE2FREEZECMD) --dict IceStorm::PersistentTopicMap,string,IceStorm::LinkRecordDict PersistentTopicMap \
 	..\IceStorm\LinkRecord.ice
 
-
-PersistentUpstreamMap.h PersistentUpstreamMap.cpp: ../IceStorm/LinkRecord.ice $(slicedir)/Ice/Identity.ice $(SLICE2FREEZE)
+..\IceStorm\PersistentUpstreamMap.h PersistentUpstreamMap.cpp: ..\IceStorm\LinkRecord.ice $(slicedir)\Ice\Identity.ice $(SLICE2FREEZE)
 	del /q PersistentUpstreamMap.h PersistentUpstreamMap.cpp
-	$(SLICE2FREEZE) --dict IceStorm::PersistentUpstreamMap,string,IceStorm::TopicUpstreamLinkPrxSeq \
+	$(SLICE2FREEZECMD) --dict IceStorm::PersistentUpstreamMap,string,IceStorm::TopicUpstreamLinkPrxSeq \
 	 PersistentUpstreamMap ../IceStorm/LinkRecord.ice
 
 IceStorm.cpp $(HDIR)\IceStorm.h: $(SDIR)\IceStorm.ice

@@ -57,7 +57,7 @@ private:
 extern "C"
 {
 
-ICE_STORM_SERVICE_API ::IceBox::Service*
+ICE_STORM_API ::IceBox::Service*
 createIceStorm(CommunicatorPtr communicator)
 {
     return new ServiceI;

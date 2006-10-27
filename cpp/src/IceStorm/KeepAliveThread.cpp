@@ -115,11 +115,11 @@ KeepAliveThread::run()
 	    {
 		(*p)->keepAlive();
 	    }
-	    catch(const Ice::ObjectNotExistException& e)
+	    catch(const Ice::ObjectNotExistException&)
 	    {
 		failed(*p);
 	    }
-	    catch(const Ice::Exception& e)
+	    catch(const Ice::Exception&)
 	    {
 		if(_traceLevels->keepAlive > 1)
 		{
