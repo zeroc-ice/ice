@@ -41,8 +41,8 @@ STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION_MAJOR           = 4
-VERSION_MINOR           = 0
+VERSION_MAJOR           = 3
+VERSION_MINOR           = 2
 VERSION_PATCH           = 0
 VERSION			= $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)
 SOVERSION		= $(VERSION_MAJOR)$(VERSION_MINOR)

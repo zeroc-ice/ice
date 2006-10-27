@@ -10,8 +10,8 @@
 #ifndef PHP_ICE_H
 #define PHP_ICE_H
 
-#define ICEPHP_STRING_VERSION "4.0.0"
-#define ICEPHP_INT_VERSION 40000      /* AABBCC, with AA=major, BB=minor, CC=patch */
+#define ICEPHP_STRING_VERSION "3.2.0"
+#define ICEPHP_INT_VERSION 30200      /* AABBCC, with AA=major, BB=minor, CC=patch */
 
 /*
  * This file may be included by PHP's build system, therefore we have
