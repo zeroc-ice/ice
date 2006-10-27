@@ -135,7 +135,6 @@ allTests(const Ice::CommunicatorPtr& comm)
     RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(comm->stringToProxy("IceGrid/Registry"));
     test(registry);
     AdminSessionPrx session = registry->createAdminSession("foo", "bar");
-    session->startUpdate();
 
     SessionKeepAliveThreadPtr keepAlive = new SessionKeepAliveThread(session, registry->getSessionTimeout()/2);
     keepAlive->start();
@@ -401,8 +400,6 @@ allTests(const Ice::CommunicatorPtr& comm)
 	removeServer(admin, "Server1");
     };
     cout << "ok" << endl;
-
-    session->finishUpdate();
 
     keepAlive->destroy();
     keepAlive->getThreadControl().join();

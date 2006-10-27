@@ -124,8 +124,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
     SessionKeepAliveThreadPtr keepAlive = new SessionKeepAliveThread(session, registry->getSessionTimeout()/2);
     keepAlive->start();
 
-    session->startUpdate();
-
     AdminPrx admin = session->getAdmin();
     test(admin);
 
@@ -1212,8 +1210,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	cout << "ok" << endl;
     }
-
-    session->finishUpdate();
 
     keepAlive->destroy();
     keepAlive->getThreadControl().join();
