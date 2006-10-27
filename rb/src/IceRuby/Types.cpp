@@ -365,6 +365,8 @@ IceRuby::PrimitiveInfo::print(VALUE value, IceUtil::Output& out, PrintObjectHist
 	char buf[64];
 #ifdef WIN32
 	sprintf(buf, "%I64d", l);
+#elif defined(ICE_64)
+	sprintf(buf, "%ld", l);
 #else
 	sprintf(buf, "%lld", l);
 #endif
