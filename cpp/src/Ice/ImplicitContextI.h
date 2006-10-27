@@ -37,11 +37,11 @@ public:
     virtual void write(const Context&, ::IceInternal::BasicStream*) const = 0;
 
     //
-    // Writes the underlying context plus the given context
+    // Combines the underlying context plus the given context
     // (entries in the given context overwrite entries in
     // the underlying context)
     //
-    virtual void write(const Context&, Context&) const = 0;
+    virtual void combine(const Context&, Context&) const = 0;
 
 };
 

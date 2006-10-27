@@ -29,7 +29,7 @@ public:
     virtual void remove(const string&);
 
     virtual void write(const Context&, ::IceInternal::BasicStream*) const;
-    virtual void write(const Context&, Context&) const;
+    virtual void combine(const Context&, Context&) const;
 
 protected:
 
@@ -49,7 +49,7 @@ public:
     virtual void remove(const string&);
 
     virtual void write(const Context&, ::IceInternal::BasicStream*) const;
-    virtual void write(const Context&, Context&) const;
+    virtual void combine(const Context&, Context&) const;
 
 private:
 
@@ -73,7 +73,7 @@ public:
     virtual void remove(const string&);
 
     virtual void write(const Context&, ::IceInternal::BasicStream*) const;
-    virtual void write(const Context&, Context&) const;
+    virtual void combine(const Context&, Context&) const;
     
     static void threadDestructor(void*);
     
@@ -236,7 +236,7 @@ SharedImplicitContextWithoutLocking::write(const Context& proxyCtx, ::IceInterna
 }
 
 void 
-SharedImplicitContextWithoutLocking::write(const Context& proxyCtx, Context& ctx) const
+SharedImplicitContextWithoutLocking::combine(const Context& proxyCtx, Context& ctx) const
 {
     if(proxyCtx.size() == 0)
     {
@@ -323,10 +323,10 @@ SharedImplicitContext::write(const Context& proxyCtx, ::IceInternal::BasicStream
 }
 
 void 
-SharedImplicitContext::write(const Context& proxyCtx, Context& ctx) const
+SharedImplicitContext::combine(const Context& proxyCtx, Context& ctx) const
 {
     IceUtil::Mutex::Lock lock(_mutex);
-    SharedImplicitContextWithoutLocking::write(proxyCtx, ctx);
+    SharedImplicitContextWithoutLocking::combine(proxyCtx, ctx);
 }
 
 //
@@ -640,7 +640,7 @@ PerThreadImplicitContext::write(const Context& proxyCtx, ::IceInternal::BasicStr
 }
 
 void 
-PerThreadImplicitContext::write(const Context& proxyCtx, Context& ctx) const
+PerThreadImplicitContext::combine(const Context& proxyCtx, Context& ctx) const
 {
     Context* threadCtx = getThreadContext(false);
 

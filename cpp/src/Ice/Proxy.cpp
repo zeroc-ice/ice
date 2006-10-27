@@ -1369,7 +1369,14 @@ IceDelegateD::Ice::Object::__initCurrent(Current& current, const string& op, Ope
     current.facet = __reference->getFacet();
     current.operation = op;
     current.mode = mode;
-    if(context == 0)
+    if(context != 0)
+    {
+	//
+	// Explicit context
+	//
+	current.ctx = *context;
+    }
+    else
     {
 	//
 	// Implicit context
@@ -1385,12 +1392,8 @@ IceDelegateD::Ice::Object::__initCurrent(Current& current, const string& op, Ope
 	}
 	else
 	{
-	    implicitContext->write(prxContext, current.ctx);
+	    implicitContext->combine(prxContext, current.ctx);
 	}
-    }
-    else
-    {
-	current.ctx = *context;
     }
     current.requestId = -1;
 }

@@ -3277,6 +3277,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     bool java5 = p->definitionContext()->findMetaData("java:java5") == "java:java5";
     string contextType = java5 ? "java.util.Map<String, String>" : "java.util.Map";
     string contextParam = contextType + " __ctx";
+    string explicitContextParam = "boolean __explicitCtx";
 
     OperationList ops = p->allOperations();
 
@@ -3302,17 +3303,6 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         // context parameter
         //
         out << sp;
-	//
-	// TODO: If we eventually drop support for Java2, we can remove this
-	// SupressWarnings annotation. Meanwhile, it is necessary to prevent
-	// a compiler warning about an unchecked conversion. This is caused
-	// by the fact that __defaultContext() returns the unchecked type
-	// java.util.Map but Ice.Context is mapped to Map<String, String>.
-	//
-	if(java5)
-	{
-	    out << nl << "@SuppressWarnings(\"unchecked\")";
-	}
         out << nl << "public " << retS << nl << opName << spar << params << epar;
         writeThrowsClause(package, throws);
         out << sb;
@@ -3321,13 +3311,41 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << "return ";
         }
-	out << opName << spar << args << "__defaultContext()" << epar << ';';
+	out << opName << spar << args << "null, false" << epar << ';';
         out << eb;
 
-        out << sp;
+	out << sp;
         out << nl << "public " << retS << nl << opName << spar << params << contextParam << epar;
         writeThrowsClause(package, throws);
         out << sb;
+	out << nl;
+        if(ret)
+        {
+            out << "return ";
+        }
+	out << opName << spar << args << "__ctx, true" << epar << ';';
+        out << eb;
+
+        out << sp;
+	//
+	// TODO: If we eventually drop support for Java2, we can remove this
+	// SupressWarnings annotation. Meanwhile, it is necessary to prevent
+	// a compiler warning about an unchecked conversion. This is caused
+	// by the fact that _emptyContext returns the unchecked type
+	// java.util.Map but Ice.Context is mapped to Map<String, String>.
+	//
+	if(java5)
+	{
+	    out << nl << "@SuppressWarnings(\"unchecked\")";
+	}
+        out << nl << "private " << retS << nl << opName << spar << params << contextParam
+	    << explicitContextParam << epar;
+        writeThrowsClause(package, throws);
+        out << sb;
+	out << nl << "if(__explicitCtx && __ctx == null)";
+	out << sb;
+	out << nl << "__ctx = _emptyContext;";
+	out << eb;
         out << nl << "int __cnt = 0;";
         out << nl << "while(true)";
         out << sb;
@@ -3378,25 +3396,37 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    // context parameter
 	    //
 	    out << sp;
+	    out << nl << "public void" << nl << op->name() << "_async" << spar << paramsAMI << epar;
+	    out << sb;
+	    out << nl << op->name() << "_async" << spar << argsAMI << "null, false" << epar << ';';
+	    out << eb;
+
+	    out << sp;
+	    out << nl << "public void" << nl << op->name() << "_async" << spar << paramsAMI 
+		<< contextParam << epar;
+	    out << sb;
+	    out << nl << op->name() << "_async" << spar << argsAMI << "__ctx, true" << epar << ';';
+	    out << eb;
+
+	    out << sp;
 	    //
 	    // TODO: If we eventually drop support for Java2, we can remove this
 	    // SupressWarnings annotation. Meanwhile, it is necessary to prevent
 	    // a compiler warning about an unchecked conversion. This is caused
-	    // by the fact that __defaultContext() returns the unchecked type
+	    // by the fact that _emptyContext returns the unchecked type
 	    // java.util.Map but Ice.Context is mapped to Map<String, String>.
 	    //
 	    if(java5)
 	    {
 		out << nl << "@SuppressWarnings(\"unchecked\")";
 	    }
-	    out << nl << "public void" << nl << op->name() << "_async" << spar << paramsAMI << epar;
+	    out << nl << "private void" << nl << op->name() << "_async" << spar << paramsAMI 
+		<< contextParam << explicitContextParam << epar;
 	    out << sb;
-	    out << nl << op->name() << "_async" << spar << argsAMI << "__defaultContext()" << epar << ';';
+	    out << nl << "if(__explicitCtx && __ctx == null)";
+	    out << sb;
+	    out << nl << "__ctx = _emptyContext;";
 	    out << eb;
-
-	    out << sp;
-	    out << nl << "public void" << nl << op->name() << "_async" << spar << paramsAMI << contextParam << epar;
-	    out << sb;
 	    out << nl << "__cb.__invoke" << spar << "this" << argsAMI << "__ctx" << epar << ';';
 	    out << eb;
 	}
