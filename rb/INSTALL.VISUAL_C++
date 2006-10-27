@@ -97,12 +97,12 @@ in the C:\IceRuby-@ver@ directory.
 In addition, you must modify your PATH environment variable to include
 the following directories:
 
-  C:\Ice-@ver@-60\bin
+  C:\Ice-@ver@-VC60\bin
   C:\IceRuby-@ver@\bin
 
 At a command prompt, you can set your PATH as shown below:
 
-  > set PATH=C:\Ice-@ver@-60\bin;C:\IceRuby-@ver@\bin;%PATH%
+  > set PATH=C:\Ice-@ver@-VC60\bin;C:\IceRuby-@ver@\bin;%PATH%
 
 To verify that Ruby can load the Ice extension successfully, open a
 command window and start the interpreter using irb.bat, as shown
