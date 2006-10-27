@@ -79,7 +79,7 @@ There are two ways to solve this problem:
 - Change the default security context for the Ice extension
   using the following command:
 
-  $ chcon -t texrel_shlib_t /opt/IceRuby-3.1.1/ruby/IceRuby.so*
+  $ chcon -t texrel_shlib_t /opt/IceRuby-3.1.1/ruby/IceRuby.so
 
   Replace /opt/IceRuby-3.1.1 with your installation directory.
 
