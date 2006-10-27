@@ -9,7 +9,7 @@
 
 ifndef ICE_HOME
     ifneq ($(shell test -f /usr/include/Ice/Ice.h && echo 0),0)
-	$(error "Ice installation not found - set ICE_HOME")
+$(error Ice installation not found, please set ICE_HOME!)
     endif
 endif
 
