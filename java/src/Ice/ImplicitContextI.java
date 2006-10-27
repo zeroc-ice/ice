@@ -39,7 +39,7 @@ public abstract class ImplicitContextI extends LocalObjectImpl implements Implic
 	}
     }
 
-    abstract void write(java.util.Map prxContext, IceInternal.BasicStream os);
+    abstract public void write(java.util.Map prxContext, IceInternal.BasicStream os);
     abstract java.util.Map combine(java.util.Map prxContext);
 
 
@@ -53,11 +53,20 @@ public abstract class ImplicitContextI extends LocalObjectImpl implements Implic
 	public void setContext(java.util.Map context)
 	{
 	    _context.clear();
-	    _context.putAll(context);
+	    if(context != null && !context.isEmpty())
+	    {
+		_context.putAll(context);
+	    }
 	}
 
 	public String get(String key)
 	{
+	    if(key == null)
+	    {
+		key = "";
+	    }
+
+
 	    String val = (String)_context.get(key);
 	    if(val == null)
 	    {
@@ -71,30 +80,53 @@ public abstract class ImplicitContextI extends LocalObjectImpl implements Implic
 
 	public String getWithDefault(String key, String dflt)
 	{
+	    if(key == null)
+	    {
+		key = "";
+	    }
+	    if(dflt == null)
+	    {
+		dflt = "";
+	    }
+
 	    String val = (String)_context.get(key);
 	    return val == null ? dflt : val;
 	}
 
 	public void set(String key, String value)
 	{
+	    if(key == null)
+	    {
+		key = "";
+	    }
+	    if(value == null)
+	    {
+		value = "";
+	    }
+
 	    _context.put(key, value);
 	}
 
 	public void remove(String key)
 	{
+	    if(key == null)
+	    {
+		key = "";
+	    }
+
 	    if(_context.remove(key) == null)
 	    {
 		throw new Ice.NotSetException(key);
 	    }
 	}
 
-	void write(java.util.Map prxContext, IceInternal.BasicStream os)
+	public void write(java.util.Map prxContext, IceInternal.BasicStream os)
 	{
-	    if(prxContext.size() == 0)
+	    if(prxContext.isEmpty())
 	    {
 		ContextHelper.write(os, _context);
 	    }
-	    else if(_context.size() == 0)
+	    else if(_context.isEmpty())
 	    {
 		ContextHelper.write(os, prxContext);
 	    }
@@ -146,9 +178,9 @@ public abstract class ImplicitContextI extends LocalObjectImpl implements Implic
 	    super.remove(key);
 	}
 
-	void write(java.util.Map prxContext, IceInternal.BasicStream os)
+	public void write(java.util.Map prxContext, IceInternal.BasicStream os)
 	{
-	    if(prxContext.size() == 0)
+	    if(prxContext.isEmpty())
 	    {
 		synchronized(this)
 		{
@@ -160,7 +192,7 @@ public abstract class ImplicitContextI extends LocalObjectImpl implements Implic
 		java.util.Map ctx = null;
 		synchronized(this)
 		{
-		    ctx = _context.size() == 0 ? prxContext : super.combine(prxContext); 
+		    ctx = _context.isEmpty() ? prxContext : super.combine(prxContext); 
 		}
 		ContextHelper.write(os, ctx);
 	    }
@@ -195,7 +227,7 @@ public abstract class ImplicitContextI extends LocalObjectImpl implements Implic
 
 	public void setContext(java.util.Map context)
 	{
-	    if(context == null || context.size() == 0)
+	    if(context == null || context.isEmpty())
 	    {
 		_map.remove(Thread.currentThread());
 	    }
@@ -208,6 +240,11 @@ public abstract class ImplicitContextI extends LocalObjectImpl implements Implic
 
 	public String get(String key)
 	{
+	    if(key == null)
+	    {
+		key = "";
+	    }
+
 	    java.util.HashMap threadContext = (java.util.HashMap)_map.get(Thread.currentThread());
 
 	    if(threadContext == null)
@@ -224,6 +261,15 @@ public abstract class ImplicitContextI extends LocalObjectImpl implements Implic
 
 	public String getWithDefault(String key, String dflt)
 	{
+	    if(key == null)
+	    {
+		key = "";
+	    }
+	    if(dflt == null)
+	    {
+		dflt = "";
+	    }
+    
 	    java.util.HashMap threadContext = (java.util.HashMap)_map.get(Thread.currentThread());
 
 	    if(threadContext == null)
@@ -240,12 +286,22 @@ public abstract class ImplicitContextI extends LocalObjectImpl implements Implic
 
 	public void set(String key, String value)
 	{
-	    java.util.HashMap threadContext = (java.util.HashMap)_map.get(Thread.currentThread());
+	    if(key == null)
+	    {
+		key = "";
+	    }
+	    if(value == null)
+	    {
+	        value = "";
+	    }
+
+	    Thread currentThread = Thread.currentThread();
+	    java.util.HashMap threadContext = (java.util.HashMap)_map.get(currentThread);
 
 	    if(threadContext == null)
 	    {
 		threadContext = new java.util.HashMap();
-		_map.put(Thread.currentThread(), threadContext);
+		_map.put(currentThread, threadContext);
 	    }
 	    
 	    threadContext.put(key, value);
@@ -253,6 +309,11 @@ public abstract class ImplicitContextI extends LocalObjectImpl implements Implic
 
 	public void remove(String key)
 	{
+	    if(key == null)
+	    {
+		key = "";
+	    }
+
 	    java.util.HashMap threadContext = (java.util.HashMap)_map.get(Thread.currentThread());
 
 	    if(threadContext == null)
@@ -266,15 +327,15 @@ public abstract class ImplicitContextI extends LocalObjectImpl implements Implic
 	    }
 	}
 
-	void write(java.util.Map prxContext, IceInternal.BasicStream os)
+	public void write(java.util.Map prxContext, IceInternal.BasicStream os)
 	{
 	    java.util.HashMap threadContext = (java.util.HashMap)_map.get(Thread.currentThread());
 	    
-	    if(threadContext == null || threadContext.size() == 0)
+	    if(threadContext == null || threadContext.isEmpty())
 	    {
 		ContextHelper.write(os, prxContext);
 	    }
-	    else if(prxContext.size() == 0)
+	    else if(prxContext.isEmpty())
 	    {
 		ContextHelper.write(os, threadContext);
 	    }
@@ -295,6 +356,9 @@ public abstract class ImplicitContextI extends LocalObjectImpl implements Implic
 	    return combined;
 	}
 
+	//
+	// Synchronized map Thread -> Context
+	//
 	private java.util.Map _map = java.util.Collections.synchronizedMap(new java.util.HashMap());
 
     } 

@@ -10,7 +10,7 @@
 public class Collocated
 {
     private static int
-    run(String[] args, Ice.Communicator communicator, Ice.InitializationData initData)
+    run(String[] args, Ice.Communicator communicator)
     {
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
@@ -19,7 +19,7 @@ public class Collocated
         adapter.add(new TestCheckedCastI(), communicator.stringToIdentity("context"));
 	adapter.activate();
 
-        AllTests.allTests(communicator, initData, true);
+        AllTests.allTests(communicator, true);
 
         return 0;
     }
@@ -36,7 +36,7 @@ public class Collocated
 	    Ice.InitializationData initData = new Ice.InitializationData();
 	    initData.properties = Ice.Util.createProperties(argsH);
             communicator = Ice.Util.initialize(argsH, initData);
-            status = run(args, communicator, initData);
+            status = run(args, communicator);
         }
         catch(Ice.LocalException ex)
         {

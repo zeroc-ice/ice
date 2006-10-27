@@ -140,7 +140,30 @@ public class _ObjectDelD implements _ObjectDel
         current.facet = __reference.getFacet();
         current.operation = op;
         current.mode = mode;
-        current.ctx = context;
+
+	if(context != null)
+	{
+	    current.ctx = context;
+	}
+	else
+	{
+	    //
+	    // Implicit context
+	    //
+	    ImplicitContextI implicitContext =
+		__reference.getInstance().getImplicitContext();
+	    
+	    java.util.Map prxContext = __reference.getContext();
+	    
+	    if(implicitContext == null)
+	    {
+		current.ctx = new java.util.HashMap(prxContext);
+	    }
+	    else
+	    {
+		current.ctx = implicitContext.combine(prxContext);
+	    }
+	}
 	current.requestId = -1;
     }
 

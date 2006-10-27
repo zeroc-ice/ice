@@ -19,7 +19,7 @@ class Twoways
     }
 
     static void
-    twoways(Ice.Communicator communicator, Ice.InitializationData initData, Test.MyClassPrx p)
+    twoways(Ice.Communicator communicator, Test.MyClassPrx p)
     {
         {
             p.opVoid();
@@ -661,6 +661,58 @@ class Twoways
 		test(c5.opContext().get("a").equals("d"));
 
 		communicator.setDefaultContext(new java.util.HashMap());
+	    }
+	}
+	{
+	    //
+	    // Test implicit context propagation
+	    //
+	    
+	    String[] impls = {"Shared", "SharedWithoutLocking", "PerThread"};
+	    for(int i = 0; i < 3; i++)
+	    {
+		Ice.InitializationData initData = new Ice.InitializationData();
+		initData.properties = Ice.Util.createProperties();
+		initData.properties.setProperty("Ice.ImplicitContext", impls[i]);
+		
+		Ice.Communicator ic = Ice.Util.initialize(initData);
+		
+		java.util.Map ctx = new java.util.HashMap();
+		ctx.put("one", "ONE");
+		ctx.put("two", "TWO");
+		ctx.put("three", "THREE");
+		
+		Test.MyClassPrx p3 = Test.MyClassPrxHelper.uncheckedCast(
+		    ic.stringToProxy("test:default -p 12010 -t 10000"));
+		
+		ic.getImplicitContext().setContext(ctx);
+		test(ic.getImplicitContext().getContext().equals(ctx));
+		test(p3.opContext().equals(ctx));
+		
+		ic.getImplicitContext().set("zero", "ZERO");
+		test(ic.getImplicitContext().get("zero").equals("ZERO"));
+		test(ic.getImplicitContext().getWithDefault("foobar", "foo").equals("foo"));
+		
+		ctx = ic.getImplicitContext().getContext();
+		test(p3.opContext().equals(ctx));
+		
+		java.util.Map prxContext = new java.util.HashMap();
+		prxContext.put("one", "UN");
+		prxContext.put("four", "QUATRE");
+		
+		java.util.Map combined = new java.util.HashMap(ctx);
+		combined.putAll(prxContext);
+		test(combined.get("one").equals("UN"));
+		
+		p3 = Test.MyClassPrxHelper.uncheckedCast(p3.ice_context(prxContext));
+		
+		ic.getImplicitContext().setContext(null);
+		test(p3.opContext().equals(prxContext));
+		
+		ic.getImplicitContext().setContext(ctx);
+		test(p3.opContext().equals(combined));
+		
+		ic.destroy();
 	    }
 	}
 

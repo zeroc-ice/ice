@@ -295,26 +295,33 @@ public abstract class OutgoingAsync
 
 		__os.writeByte((byte)mode.value());
 
-		if(context == null)
+		if(context != null)
 		{
-		    __os.writeSize(0);
+		    //
+		    // Explicit context
+		    //
+		    Ice.ContextHelper.write(__os, context);
 		}
 		else
 		{
-		    final int sz = context.size();
-		    __os.writeSize(sz);
-		    if(sz > 0)
+		    //
+		    // Implicit context
+		    //
+		    Ice.ImplicitContextI implicitContext =
+			ref.getInstance().getImplicitContext();
+		    
+		    java.util.Map prxContext = ref.getContext();
+		    
+		    if(implicitContext == null)
 		    {
-			java.util.Iterator i = context.entrySet().iterator();
-			while(i.hasNext())
-			{
-			    java.util.Map.Entry entry = (java.util.Map.Entry)i.next();
-			    __os.writeString((String)entry.getKey());
-			    __os.writeString((String)entry.getValue());
-			}
+			Ice.ContextHelper.write(__os, prxContext);
+		    }
+		    else
+		    {
+			implicitContext.write(prxContext, __os);
 		    }
 		}
-		
+	
 		__os.startWriteEncaps();
 	    }
 	    catch(Ice.LocalException ex)

@@ -10,9 +10,9 @@
 public class Client
 {
     private static int
-    run(String[] args, Ice.Communicator communicator, Ice.InitializationData initData)
+    run(String[] args, Ice.Communicator communicator)
     {
-        Test.MyClassPrx myClass = AllTests.allTests(communicator, initData, false);
+        Test.MyClassPrx myClass = AllTests.allTests(communicator, false);
 
         System.out.print("testing server shutdown... ");
         System.out.flush();
@@ -61,7 +61,7 @@ public class Client
 	    initData.properties.setProperty("Ice.Warn.Connections", "0");
 	    
             communicator = Ice.Util.initialize(argsH, initData);
-            status = run(argsH.value, communicator, initData);
+            status = run(argsH.value, communicator);
         }
         catch(Ice.LocalException ex)
         {
