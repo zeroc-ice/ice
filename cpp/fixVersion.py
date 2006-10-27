@@ -222,6 +222,9 @@ if not patchIceE:
 	fileMatchAndReplace(os.path.join(icecs_home, "config", "Make.rules.cs"),
 			    [("VERSION[\t\s]*= ([0-9]*\.[0-9]*\.[0-9]*)", version)])
 
+	fileMatchAndReplace(os.path.join(icecs_home, "config", "Make.rules.mak"),
+			    [("VERSION[\t\s]*= ([0-9]*\.[0-9]*\.[0-9]*)", version)])
+
 	for f in find(icecs_home, "*.pc"):
 	    fileMatchAndReplace(f, [("[\t\s]*version[\t\s]*=[\t\s]*([0-9]*\.[0-9]*\.[0-9]*)", version)])
 
@@ -249,6 +252,7 @@ if not patchIceE:
 			    ("VERSION_MINOR[\t\s]*= ([0-9]*)", minorVersion(version)),
 			    ("VERSION_PATCH[\t\s]*= ([0-9]*)", patchVersion(version))])
 
+    print "Make sure to run 'make config' in icecs!"
     sys.exit(0)
 
 #
