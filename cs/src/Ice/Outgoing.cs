@@ -436,21 +436,30 @@ namespace IceInternal
 
 		_os.writeByte((byte)mode);
 
-		if(context == null)
+		if(context != null)
 		{
-		    _os.writeSize(0);
+		    //
+		    // Explicit context
+		    //
+		    Ice.ContextHelper.write(_os, context);
 		}
 		else
 		{
-		    int sz = context.Count;
-		    _os.writeSize(sz);
-		    if(sz > 0)
+		    //
+		    // Implicit context
+		    //
+		    Ice.ImplicitContextI implicitContext =
+			_reference.getInstance().getImplicitContext();
+		    
+		    Ice.Context prxContext = _reference.getContext();
+		    
+		    if(implicitContext == null)
 		    {
-			foreach(DictionaryEntry e in context)
-			{
-			    _os.writeString((string)e.Key);
-			    _os.writeString((string)e.Value);
-			}
+			Ice.ContextHelper.write(_os, prxContext);
+		    }
+		    else
+		    {
+			implicitContext.write(prxContext, _os);
 		    }
 		}
 		

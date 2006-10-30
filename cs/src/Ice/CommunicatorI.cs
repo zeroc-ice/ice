@@ -119,7 +119,7 @@ namespace Ice
 
 	public ImplicitContext getImplicitContext()
 	{
-	    return null;
+	    return instance_.getImplicitContext();
 	}
 
 	public PluginManager getPluginManager()

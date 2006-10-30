@@ -960,7 +960,7 @@ public class TwowaysAMI
     }
     
     internal static void twowaysAMI(Ice.Communicator communicator, 
-				    Ice.InitializationData initData, Test.MyClassPrx p)
+				    Ice.InitializationData initData2, Test.MyClassPrx p)
     {
         {
 	    // Check that a call to a void operation raises TwowayOnlyException
@@ -1383,6 +1383,76 @@ public class TwowaysAMI
 		communicator.setDefaultContext(new Ice.Context());
 	    }
         }
+
+	{
+	    //
+	    // Test implicit context propagation
+	    //
+	    
+	    String[] impls = {"Shared", "SharedWithoutLocking", "PerThread"};
+	    for(int i = 0; i < 3; i++)
+	    {
+		Ice.InitializationData initData = new Ice.InitializationData();
+		initData.properties = Ice.Util.createProperties();
+		initData.properties.setProperty("Ice.ImplicitContext", impls[i]);
+		
+		Ice.Communicator ic = Ice.Util.initialize(initData);
+		
+		Ice.Context ctx = new Ice.Context();
+		ctx["one"] = "ONE";
+		ctx["two"] = "TWO";
+		ctx["three"] = "THREE";
+		
+		Test.MyClassPrx p3 = Test.MyClassPrxHelper.uncheckedCast(
+		    ic.stringToProxy("test:default -p 12010 -t 10000"));
+		
+		ic.getImplicitContext().setContext(ctx);
+		test(ic.getImplicitContext().getContext().Equals(ctx));
+		{
+		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
+		    p3.opContext_async(cb);
+		    test(cb.check());
+		}
+	
+		
+		ic.getImplicitContext().set("zero", "ZERO");
+		test(ic.getImplicitContext().get("zero").Equals("ZERO"));
+		test(ic.getImplicitContext().getWithDefault("foobar", "foo").Equals("foo"));
+		
+		ctx = ic.getImplicitContext().getContext();
+		{
+		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
+		    p3.opContext_async(cb);
+		    test(cb.check());
+		}
+		
+		Ice.Context prxContext = new Ice.Context();
+		prxContext["one"] = "UN";
+		prxContext["four"] = "QUATRE";
+		
+		Ice.Context combined = (Ice.Context)prxContext.Clone();
+		combined.AddRange(ctx);
+		test(combined["one"].Equals("UN"));
+		
+		p3 = Test.MyClassPrxHelper.uncheckedCast(p3.ice_context(prxContext));
+		
+		ic.getImplicitContext().setContext(null);
+		{
+		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(prxContext);
+		    p3.opContext_async(cb);
+		    test(cb.check());
+		}
+		
+		ic.getImplicitContext().setContext(ctx);
+		{
+		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(combined);
+		    p3.opContext_async(cb);
+		    test(cb.check());
+		}
+		
+		ic.destroy();
+	    }
+	}
         
         {
             Test.MyDerivedClassPrx derived = Test.MyDerivedClassPrxHelper.checkedCast(p);

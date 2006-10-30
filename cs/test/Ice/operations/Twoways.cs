@@ -20,7 +20,7 @@ class Twoways
     }
     
     internal static void twoways(Ice.Communicator communicator, 
-				 Ice.InitializationData initData, Test.MyClassPrx p)
+				 Ice.InitializationData initData2, Test.MyClassPrx p)
     {
 	{
 	    p.opVoid();
@@ -638,6 +638,58 @@ class Twoways
 		test(c5.opContext()["a"].Equals("d"));
 
 		communicator.setDefaultContext(new Ice.Context());
+	    }
+	}
+	{
+	    //
+	    // Test implicit context propagation
+	    //
+	    
+	    String[] impls = {"Shared", "SharedWithoutLocking", "PerThread"};
+	    for(int i = 0; i < 3; i++)
+	    {
+		Ice.InitializationData initData = new Ice.InitializationData();
+		initData.properties = Ice.Util.createProperties();
+		initData.properties.setProperty("Ice.ImplicitContext", impls[i]);
+		
+		Ice.Communicator ic = Ice.Util.initialize(initData);
+		
+		Ice.Context ctx = new Ice.Context();
+		ctx["one"] = "ONE";
+		ctx["two"] = "TWO";
+		ctx["three"] = "THREE";
+		
+		Test.MyClassPrx p3 = Test.MyClassPrxHelper.uncheckedCast(
+		    ic.stringToProxy("test:default -p 12010 -t 10000"));
+
+		ic.getImplicitContext().setContext(ctx);
+		test(ic.getImplicitContext().getContext().Equals(ctx));
+		test(p3.opContext().Equals(ctx));
+		
+		ic.getImplicitContext().set("zero", "ZERO");
+		test(ic.getImplicitContext().get("zero").Equals("ZERO"));
+		test(ic.getImplicitContext().getWithDefault("foobar", "foo").Equals("foo"));
+		
+		ctx = ic.getImplicitContext().getContext();
+		test(p3.opContext().Equals(ctx));
+		
+		Ice.Context prxContext = new Ice.Context();
+		prxContext["one"] = "UN";
+		prxContext["four"] = "QUATRE";
+		
+		Ice.Context combined = (Ice.Context)prxContext.Clone();
+		combined.AddRange(ctx);
+		test(combined["one"].Equals("UN"));
+		
+		p3 = Test.MyClassPrxHelper.uncheckedCast(p3.ice_context(prxContext));
+		
+		ic.getImplicitContext().setContext(null);
+		test(p3.opContext().Equals(prxContext));
+		
+		ic.getImplicitContext().setContext(ctx);
+		test(p3.opContext().Equals(combined));
+		
+		ic.destroy();
 	    }
 	}
     }

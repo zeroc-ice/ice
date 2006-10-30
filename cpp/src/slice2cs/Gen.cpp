@@ -3424,12 +3424,28 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	{
 	    _out << "return ";
 	}
-	_out << opName << spar << args << "defaultContext__()" << epar << ';';
+	_out << opName << spar << args << "null" << "false" << epar << ';';
 	_out << eb;
 
-	_out << sp << nl << "public " << retS << " " << opName << spar << params << "Ice.Context context__" << epar;
+	_out << sp << nl << "public " << retS << " " << opName << spar << params 
+	     << "Ice.Context context__" << epar;
+	_out << sb;
+	_out << nl;
+	if(ret)
+	{
+	    _out << "return ";
+	}
+	_out << opName << spar << args << "context__" << "true" << epar << ';';
+	_out << eb;
+
+	_out << sp << nl << "private " << retS << " " << opName << spar << params 
+	     << "Ice.Context context__" << "bool explicitContext__" << epar;
 	_out << sb;
 
+	_out << nl << "if(explicitContext__ && context__ == null)";
+	_out << sb;
+	_out << nl << "context__ = emptyContext_;";
+	_out << eb;
 	_out << nl << "int cnt__ = 0;";
 	_out << nl << "while(true)";
 	_out << sb;
@@ -3503,11 +3519,15 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    _out << sp;
 	    _out << nl << "public void " << opName << "_async" << spar << paramsAMI << epar;
 	    _out << sb;
-	    _out << nl << opName << "_async" << spar << argsAMI << "defaultContext__()" << epar << ';';
+	    _out << nl << "cb__.invoke__" << spar << "this" << argsAMI << "null" << epar << ';';
 	    _out << eb;
 
 	    _out << nl << "public void " << opName << "_async" << spar << paramsAMI << "Ice.Context ctx__" << epar;
 	    _out << sb;
+	    _out << nl << "if(ctx__ == null)";
+	    _out << sb;
+	    _out << nl << "ctx__ = emptyContext_;";
+	    _out << eb;
 	    _out << nl << "cb__.invoke__" << spar << "this" << argsAMI << "ctx__" << epar << ';';
 	    _out << eb;
 	}

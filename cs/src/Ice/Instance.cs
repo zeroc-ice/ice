@@ -267,6 +267,11 @@ namespace IceInternal
 	    }
 	}
 
+	public Ice.ImplicitContextI getImplicitContext()
+	{
+	    return _implicitContext;
+	}
+
 	public void flushBatchRequests()
 	{
 	    OutgoingConnectionFactory connectionFactory;
@@ -406,6 +411,8 @@ namespace IceInternal
 		//
 		_clientACM = _initData.properties.getPropertyAsIntWithDefault("Ice.ACM.Client", 60);
 		_serverACM = _initData.properties.getPropertyAsInt("Ice.ACM.Server");
+
+		_implicitContext = Ice.ImplicitContextI.create(_initData.properties.getProperty("Ice.ImplicitContext"));
 
 		_threadPerConnection = _initData.properties.getPropertyAsInt("Ice.ThreadPerConnection") > 0;
 
@@ -687,6 +694,7 @@ namespace IceInternal
 	private int _messageSizeMax; // Immutable, not reset by destroy().
 	private int _clientACM; // Immutable, not reset by destroy().
 	private int _serverACM; // Immutable, not reset by destroy().
+	private Ice.ImplicitContextI _implicitContext; // Immutable
 	private RouterManager _routerManager;
 	private LocatorManager _locatorManager;
 	private ReferenceFactory _referenceFactory;

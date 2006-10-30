@@ -155,11 +155,21 @@ namespace Ice
 
         public bool ice_isA(string id__)
         {
-            return ice_isA(id__, _reference.getContext());
+            return ice_isA(id__, null, false);
         }
 
-        public bool ice_isA(string id__, Context context__)
+	public bool ice_isA(string id__, Context context__)
         {
+	    return ice_isA(id__, context__, true);
+	}
+
+        private bool ice_isA(string id__, Context context__, bool explicitContext__)
+        {
+	    if(explicitContext__ && context__ == null)
+	    {
+		context__ = emptyContext_;
+	    }
+
             int cnt__ = 0;
             while(true)
             {
@@ -182,11 +192,21 @@ namespace Ice
 
         public void ice_ping()
         {
-            ice_ping(_reference.getContext());
+            ice_ping(null, false);
         }
 
-        public void ice_ping(Context context__)
+	public void ice_ping(Context context__)
         {
+            ice_ping(context__, true);
+        }
+
+        private void ice_ping(Context context__, bool explicitContext__)
+        {
+	    if(explicitContext__ && context__ == null)
+	    {
+		context__ = emptyContext_;
+	    }
+
             int cnt__ = 0;
             while(true)
             {
@@ -210,11 +230,20 @@ namespace Ice
 
         public string[] ice_ids()
         {
-            return ice_ids(_reference.getContext());
+            return ice_ids(null, false);
         }
 
-        public string[] ice_ids(Context context__)
+	public string[] ice_ids(Context context__)
         {
+	    return ice_ids(context__, true);
+	}
+
+        private string[] ice_ids(Context context__, bool explicitContext__)
+        {
+	    if(explicitContext__ && context__ == null)
+	    {
+		context__ = emptyContext_;
+	    }
             int cnt__ = 0;
             while(true)
             {
@@ -237,11 +266,20 @@ namespace Ice
 
         public string ice_id()
         {
-            return ice_id(_reference.getContext());
+            return ice_id(null, false);
         }
 
-        public string ice_id(Context context__)
+	public string ice_id(Context context__)
         {
+	     return ice_id(context__, true);
+	}
+
+        private string ice_id(Context context__, bool explicitContext__)
+        {
+	    if(explicitContext__ && context__ == null)
+	    {
+		context__ = emptyContext_;
+	    }
             int cnt__ = 0;
             while(true)
             {
@@ -264,12 +302,23 @@ namespace Ice
 
         public bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams)
         {
-            return ice_invoke(operation, mode, inParams, out outParams, _reference.getContext());
+            return ice_invoke(operation, mode, inParams, out outParams, null, false);
         }
 
-        public bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
+	public bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
             Context context)
         {
+	    return ice_invoke(operation, mode, inParams, out outParams, context, true);
+	}
+	    
+        private bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
+				Context context,  bool explicitContext)
+        {
+	    if(explicitContext && context == null)
+	    {
+		context = emptyContext_;
+	    }
+
             int cnt__ = 0;
             while(true)
             {
@@ -298,12 +347,17 @@ namespace Ice
 
         public void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams)
         {
-            ice_invoke_async(cb, operation, mode, inParams, _reference.getContext());
+            checkTwowayOnly__("ice_invoke_async");
+            cb.invoke__(this, operation, mode, inParams, null);
         }
 
         public void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams,
 				     Context context)
         {
+	    if(context == null)
+	    {
+		context = emptyContext_;
+	    }
             checkTwowayOnly__("ice_invoke_async");
             cb.invoke__(this, operation, mode, inParams, context);
         }
@@ -954,11 +1008,6 @@ namespace Ice
             return new ObjectDelD_();
         }
 
-        protected Context defaultContext__()
-        {
-            return _reference.getContext();
-        }
-
         //
         // Only for use by IceInternal.ProxyFactory
         //
@@ -975,6 +1024,7 @@ namespace Ice
             _reference = @ref;
         }
 
+	protected static Ice.Context emptyContext_ = new Ice.Context();
         private IceInternal.Reference _reference;
         private ObjectDel_ _delegate;
     }
@@ -1183,7 +1233,31 @@ namespace Ice
             current.facet = reference__.getFacet();
             current.operation = op;
             current.mode = mode;
-            current.ctx = context;
+
+	    if(context != null)
+	    {
+		current.ctx = context;
+	    }
+	    else
+	    {
+		//
+		// Implicit context
+		//
+		ImplicitContextI implicitContext =
+		    reference__.getInstance().getImplicitContext();
+	    
+		Context prxContext = reference__.getContext();
+		
+		if(implicitContext == null)
+		{
+		    current.ctx = (Context)prxContext.Clone();
+		}
+		else
+		{
+		    current.ctx = implicitContext.combine(prxContext);
+		}
+	    }
+	    
 	    current.requestId = -1;
         }
 	
