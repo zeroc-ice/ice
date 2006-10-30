@@ -202,10 +202,6 @@ public abstract class ImplicitContextI extends LocalObjectImpl implements Implic
 	{
 	    return super.combine(prxContext);
 	}
-	
-	//
-	// The other write does not need to be further synchronized
-	//
     }
 
     static class PerThread extends ImplicitContextI
