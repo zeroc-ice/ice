@@ -432,14 +432,7 @@ namespace IceInternal
 		
 		_pluginManager = new Ice.PluginManagerI(communicator);
 
-		if(_initData.defaultContext == null)
-		{
-		    _defaultContext = _emptyContext;
-		}
-		else
-		{
-		    _defaultContext = _initData.defaultContext;
-		}
+		_defaultContext = _emptyContext;
 		
 		_outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 		

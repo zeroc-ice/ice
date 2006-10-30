@@ -37,7 +37,6 @@ namespace Ice
         public Properties properties;
 	public Logger logger;
 	public Stats stats;
-	public Context defaultContext;
 	public ThreadNotification threadHook;
     }
 
