@@ -10,7 +10,7 @@
 top_srcdir	= ..\..
 
 LIBNAME		= IceRuby$(RBLIBSUFFIX).lib
-DLLNAME         = IceRuby$(RBLIBSUFFIX).dll
+DLLNAME         = $(rubydir)\IceRuby$(RBLIBSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
@@ -41,7 +41,7 @@ $(LIBNAME): $(DLLNAME)
 $(DLLNAME): $(OBJS)
 	$(LINK) $(RUBY_LDFLAGS) $(ICE_LDFLAGS) $(LD_DLLFLAGS) $(PDBFLAGS) /export:Init_IceRuby $(OBJS) \
 		$(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH)
-	move $(DLLNAME) $(rubydir)
+	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 
 install:: all
 	copy $(DLLNAME) $(install_rubydir)

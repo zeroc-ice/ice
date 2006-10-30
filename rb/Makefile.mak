@@ -13,7 +13,7 @@ top_srcdir	= .
 
 SUBDIRS		= src ruby
 
-INSTALL_SUBDIRS = $(install_libdir) $(install_rubydir) $(install_slicedir)
+INSTALL_SUBDIRS = $(install_rubydir) $(install_slicedir)
 
 install::
 	@if not exist $(prefix) \

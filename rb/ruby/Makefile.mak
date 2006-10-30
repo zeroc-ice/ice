@@ -105,5 +105,15 @@ $(MODULES):
 $(ALL_SRCS): $(MODULES) {$(slicedir)}$*.ice
 	-$(SLICE2RB) $(SLICE2RBFLAGS) --output-dir $(*D) $(slicedir)\$*.ice
 
+
+install::
+	@echo "Installing generated code"
+	copy *.rb $(install_rubydir)
+	@for %i in ( $(MODULES) ) do \
+	    @if not exist $(install_rubydir)\%i \
+	        mkdir $(install_rubydir)\%i
+	@for %i in ( $(MODULES) ) do \
+	    copy %i\* $(install_rubydir)\%i
+
 clean::
 	-rmdir /S /Q $(MODULES)
