@@ -1687,7 +1687,7 @@ Slice::Ruby::fixIdent(const string& ident, bool checkUpperCase)
     for(vector<string>::const_iterator i = ids.begin(); i != ids.end(); ++i)
     {
 	string id = *i;
-	if(checkUpperCase)
+	if(checkUpperCase && id.size() != 0)
 	{
 	    // TODO: Is this the correct way to capitalize Slice identifiers?
 	    if(id[0] >= 'a' && id[0] <= 'z')
