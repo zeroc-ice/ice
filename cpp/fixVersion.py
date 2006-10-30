@@ -225,6 +225,15 @@ if not patchIceE:
 	fileMatchAndReplace(os.path.join(icecs_home, "config", "Make.rules.mak"),
 			    [("VERSION[\t\s]*= ([0-9]*\.[0-9]*\.[0-9]*)", version)])
 
+	fileMatchAndReplace(os.path.join(icecs_home, "config", "makeconfig.py"),
+			    [("version=*\"([0-9]*\.[0-9]*\.[0-9]*).0\"", version)])
+
+	#
+	# Above command causes makeconfig.py to lose execute permissions
+	#
+	cmd = "chmod 770 " + os.path.join(icecs_home, "config", "makeconfig.py")
+	os.system(cmd)
+
 	for f in find(icecs_home, "*.pc"):
 	    fileMatchAndReplace(f, [("[\t\s]*version[\t\s]*=[\t\s]*([0-9]*\.[0-9]*\.[0-9]*)", version)])
 
@@ -252,7 +261,25 @@ if not patchIceE:
 			    ("VERSION_MINOR[\t\s]*= ([0-9]*)", minorVersion(version)),
 			    ("VERSION_PATCH[\t\s]*= ([0-9]*)", patchVersion(version))])
 
-    print "Make sure to run 'make config' in icecs!"
+    #
+    # Fix version in IcePy
+    #
+    icerb_home = findSourceTree("icerb", os.path.join("src", "IceRuby", "Config.h"))
+    if icerb_home:
+	fileMatchAndReplace(os.path.join(icerb_home, "config", "Make.rules"),
+			    [("VERSION[\t\s]*= ([0-9]*\.[0-9]*\.[0-9]*)", version),
+			    ("SOVERSION[\t\s]*= ([0-9]*)", soVersion(version))])
+
+	fileMatchAndReplace(os.path.join(icerb_home, "config", "Make.rules.mak"),
+			    [("VERSION_MAJOR[\t\s]*= ([0-9]*)", majorVersion(version)),
+			    ("VERSION_MINOR[\t\s]*= ([0-9]*)", minorVersion(version)),
+			    ("VERSION_PATCH[\t\s]*= ([0-9]*)", patchVersion(version))])
+
+    print "Running 'make config' in IceCS"
+    os.chdir(icecs_home)
+    result = os.system('gmake config')
+    if result != 0:
+        print "\'gmake config\' failed!!!"
     sys.exit(0)
 
 #
