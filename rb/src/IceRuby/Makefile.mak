@@ -16,6 +16,7 @@ TARGETS		= $(LIBNAME) $(DLLNAME)
 
 OBJS		= Communicator.obj \
 		  Init.obj \
+		  ImplicitContext.obj \
 		  Logger.obj \
 		  ObjectFactory.obj \
 		  Operation.obj \

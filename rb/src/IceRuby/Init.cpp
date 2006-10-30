@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Communicator.h>
+#include <ImplicitContext.h>
 #include <Logger.h>
 #include <Operation.h>
 #include <Properties.h>
@@ -34,6 +35,7 @@ Init_IceRuby()
     initProxy(iceModule);
     initSlice(iceModule);
     initTypes(iceModule);
+    initImplicitContext(iceModule);
 }
 
 }

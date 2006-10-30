@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-def twoways(communicator, initData, p)
+def twoways(communicator, initData2, p)
     #
     # opVoid
     #
@@ -455,26 +455,88 @@ def twoways(communicator, initData, p)
     r = p2.opContext(ctx)
     test(r == ctx)
 
-    # TODO: FIX THIS TEST!!!!!
     #
     # Test that default context is obtained correctly from communicator.
     #
-    #initData.defaultContext = {'a'=>'b'}
-    #communicator2 = Ice.initialize(initData)
+    dflt = {'a'=>'b'}
+    communicator.setDefaultContext(dflt)
+    test(p.opContext() != dflt)
 
-    #c = Test::MyClassPrx::checkedCast(communicator2.stringToProxy("test:default -p 12010 -t 10000"))
-    #test(c.opContext() == initData.defaultContext)
+    p2 = Test::MyClassPrx::uncheckedCast(p.ice_context({}))
+    test(p2.opContext().length == 0)
 
-    #ctx = {'a'=>'c'}
-    #c2 = Test::MyClassPrx::uncheckedCast(c.ice_context(ctx))
-    #test(c2.opContext()['a'] == 'c')
+    p2 = Test::MyClassPrx::uncheckedCast(p.ice_defaultContext())
+    test(p2.opContext() == dflt)
 
-    #ctx = {}
-    #c3 = Test::MyClassPrx::uncheckedCast(c2.ice_context(ctx))
-    #test(!c3.opContext().has_key?('a'))
+    communicator.setDefaultContext({})
+    test(p2.opContext().length > 0)
 
-    #c4 = Test::MyClassPrx::uncheckedCast(c2.ice_defaultContext())
-    #test(c4.opContext()['a'] == 'b')
+    communicator.setDefaultContext(dflt)
+    c = Test::MyClassPrx::checkedCast(communicator.stringToProxy("test:default -p 12010 -t 10000"))
+    test(c.opContext() == dflt)
 
-    #communicator2.destroy()
+    dflt['a'] = 'c'
+    c2 = Test::MyClassPrx::uncheckedCast(c.ice_context(dflt))
+    test(c2.opContext()['a'] == 'c')
+
+    dflt = {}
+    c3 = Test::MyClassPrx::uncheckedCast(c2.ice_context(dflt))
+    tmp = c3.opContext()
+    test(!tmp.has_key?('a'))
+
+    c4 = Test::MyClassPrx::uncheckedCast(c2.ice_defaultContext())
+    test(c4.opContext()['a'] == 'b')
+
+    dflt['a'] = 'd'
+    communicator.setDefaultContext(dflt)
+
+    c5 = Test::MyClassPrx::uncheckedCast(c.ice_defaultContext())
+    test(c5.opContext()['a'] == 'd')
+
+    communicator.setDefaultContext({})
+
+    #
+    # Test implicit context propagation
+    #
+    impls = [ 'Shared', 'SharedWithoutLocking', 'PerThread' ]
+    for i in impls
+        initData = Ice::InitializationData.new
+        initData.properties = Ice.createProperties()
+        initData.properties.setProperty('Ice.ImplicitContext', i)
+        ic = Ice.initialize(initData)
+        
+        ctx = {'one'=>'ONE', 'two'=>'TWO', 'three'=>'THREE'}
+	
+        p = Test::MyClassPrx::uncheckedCast(ic.stringToProxy("test:default -p 12010 -t 10000"))
+        
+        ic.getImplicitContext().setContext(ctx)
+        test(ic.getImplicitContext().getContext() == ctx)
+        test(p.opContext() == ctx)
+        
+        ic.getImplicitContext().set('zero', 'ZERO')
+        test(ic.getImplicitContext().get('zero') == 'ZERO')
+        test(ic.getImplicitContext().getWithDefault('foobar', 'foo') == 'foo')
+        ic.getImplicitContext().remove('two')
+        test(ic.getImplicitContext().getWithDefault('two', 'bar') == 'bar')
+        ctx = ic.getImplicitContext().getContext()
+        test(p.opContext() == ctx)
+        
+        prxContext = {'one'=>'UN', 'four'=>'QUATRE'}
+        
+        combined = ctx
+        combined.update(prxContext)
+        test(combined['one'] == 'UN')
+        
+        p = Test::MyClassPrx::uncheckedCast(p.ice_context(prxContext))
+        ic.getImplicitContext().setContext({})
+        test(p.opContext() == prxContext)
+        
+        ic.getImplicitContext().setContext(ctx)
+        test(p.opContext() == combined)
+
+        ic.destroy()
+    end
+
+
+    
 end

@@ -30,6 +30,7 @@ ICE_SRCS	= Ice/LocalException.rb \
 		  Ice/ObjectFactoryF.rb \
 		  Ice/Identity.rb \
 		  Ice/Current.rb \
+		  Ice/ImplicitContext.rb \
 		  Ice/Router.rb \
 		  Ice/RouterF.rb \
 		  Ice/Plugin.rb \

@@ -16,6 +16,7 @@ TARGETS		= $(rubydir)/$(LIBNAME)
 
 OBJS		= Communicator.o \
 		  Init.o \
+		  ImplicitContext.o \
 		  Logger.o \
 		  ObjectFactory.o \
 		  Operation.o \
