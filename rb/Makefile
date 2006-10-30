@@ -13,7 +13,7 @@ include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= src ruby
 
-INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir) $(install_rubydir) $(install_slicedir)
+INSTALL_SUBDIRS	= $(install_libdir) $(install_rubydir) $(install_slicedir)
 
 install::
 	@if test ! -d $(prefix) ; \
