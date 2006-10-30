@@ -46,8 +46,8 @@ def test(b)
     end
 end
 
-def run(args, communicator, initData)
-    myClass = allTests(communicator, initData)
+def run(args, communicator)
+    myClass = allTests(communicator)
 
     print "testing server shutdown... "
     STDOUT.flush
@@ -73,7 +73,7 @@ begin
     initData.properties.setProperty('Ice.ThreadPool.Client.SizeWarn', '0')
 
     communicator = Ice.initialize(ARGV, initData)
-    status = run(ARGV, communicator, initData)
+    status = run(ARGV, communicator)
 rescue => ex
     puts $!
     print ex.backtrace.join("\n")

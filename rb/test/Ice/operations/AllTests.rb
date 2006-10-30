@@ -10,7 +10,7 @@
 
 require 'Twoways'
 
-def allTests(communicator, initData)
+def allTests(communicator)
     print "testing stringToProxy... "
     STDOUT.flush
     ref = "test:default -p 12010 -t 10000"
@@ -82,8 +82,8 @@ def allTests(communicator, initData)
 
     print "testing twoway operations... "
     STDOUT.flush
-    twoways(communicator, initData, cl)
-    twoways(communicator, initData, derived)
+    twoways(communicator, cl)
+    twoways(communicator, derived)
     derived.opDerived()
     puts "ok"
 

@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-def twoways(communicator, initData2, p)
+def twoways(communicator, p)
     #
     # opVoid
     #
