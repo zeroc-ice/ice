@@ -91,7 +91,7 @@ SLICE2PYFLAGS		= $(ICECPPFLAGS)
 
 SLICE2PY		= $(ICE_HOME)\bin\slice2py.exe
 
-EVERYTHING		= all depend clean install
+EVERYTHING		= all clean install
 
 .SUFFIXES:
 .SUFFIXES:		.cpp .obj .py
