@@ -19,8 +19,7 @@ public class AllTests
 	}
     }
     
-    public static Test.MyClassPrx allTests(Ice.Communicator communicator,
-					   Ice.InitializationData initData, bool collocated)
+    public static Test.MyClassPrx allTests(Ice.Communicator communicator, bool collocated)
     {
 	Console.Out.Write("testing stringToProxy... ");
 	Console.Out.Flush();
@@ -153,8 +152,8 @@ public class AllTests
 	
 	Console.Out.Write("testing twoway operations... ");
 	Console.Out.Flush();
-	Twoways.twoways(communicator, initData, cl);
-	Twoways.twoways(communicator, initData, derivedProxy);
+	Twoways.twoways(communicator, cl);
+	Twoways.twoways(communicator, derivedProxy);
 	derivedProxy.opDerived();
 	Console.Out.WriteLine("ok");
 	
@@ -162,8 +161,8 @@ public class AllTests
 	{
 	    Console.Out.Write("testing twoway operations with AMI... ");
 	    Console.Out.Flush();
-	    TwowaysAMI.twowaysAMI(communicator, initData, cl);
-	    TwowaysAMI.twowaysAMI(communicator, initData, derivedProxy);
+	    TwowaysAMI.twowaysAMI(communicator, cl);
+	    TwowaysAMI.twowaysAMI(communicator, derivedProxy);
 	    Console.Out.WriteLine("ok");
 
 	    Console.Out.Write("testing batch oneway operations... ");

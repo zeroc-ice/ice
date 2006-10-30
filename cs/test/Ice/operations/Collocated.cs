@@ -11,8 +11,7 @@ using System;
 
 public class Collocated
 {
-    private static int run(String[] args, Ice.Communicator communicator,
-			   Ice.InitializationData initData)
+    private static int run(String[] args, Ice.Communicator communicator)
     {
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 2000");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
@@ -21,7 +20,7 @@ public class Collocated
 	adapter.add(new TestCheckedCastI(), communicator.stringToIdentity("context"));
 	adapter.activate();
 
-        AllTests.allTests(communicator, initData, true);
+        AllTests.allTests(communicator, true);
 
         return 0;
     }
@@ -39,7 +38,7 @@ public class Collocated
 	    initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
 	    
 	    communicator = Ice.Util.initialize(ref args, initData);
-	    status = run(args, communicator, initData);
+	    status = run(args, communicator);
 	}
 	catch(System.Exception ex)
 	{

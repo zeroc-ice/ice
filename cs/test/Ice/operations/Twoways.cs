@@ -19,8 +19,7 @@ class Twoways
 	}
     }
     
-    internal static void twoways(Ice.Communicator communicator, 
-				 Ice.InitializationData initData2, Test.MyClassPrx p)
+    internal static void twoways(Ice.Communicator communicator, Test.MyClassPrx p)
     {
 	{
 	    p.opVoid();

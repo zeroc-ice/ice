@@ -959,8 +959,7 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
     
-    internal static void twowaysAMI(Ice.Communicator communicator, 
-				    Ice.InitializationData initData2, Test.MyClassPrx p)
+    internal static void twowaysAMI(Ice.Communicator communicator, Test.MyClassPrx p)
     {
         {
 	    // Check that a call to a void operation raises TwowayOnlyException

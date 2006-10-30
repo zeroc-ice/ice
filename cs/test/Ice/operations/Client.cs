@@ -11,10 +11,9 @@ using System;
 
 public class Client
 {
-    private static int run(String[] args, Ice.Communicator communicator, 
-			   Ice.InitializationData initData)
+    private static int run(String[] args, Ice.Communicator communicator)
     {
-	Test.MyClassPrx myClass = AllTests.allTests(communicator, initData, false);
+	Test.MyClassPrx myClass = AllTests.allTests(communicator, false);
 	
 	Console.Out.Write("testing server shutdown... ");
 	Console.Out.Flush();
@@ -57,7 +56,7 @@ public class Client
 	    initData.properties.setProperty("Ice.Warn.Connections", "0");
 
 	    communicator = Ice.Util.initialize(ref args, initData);
-	    status = run(args, communicator, initData);
+	    status = run(args, communicator);
 	}
 	catch(System.Exception ex)
 	{
