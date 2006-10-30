@@ -268,7 +268,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams)
     {
 	__checkTwowayOnly("ice_invoke_async");
-        ice_invoke_async(cb, operation, mode, inParams, null);
+	cb.__invoke(this, operation, mode, inParams, null);
     }
 
     public final void
@@ -280,7 +280,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
 	    context = _emptyContext;
 	}
 	__checkTwowayOnly("ice_invoke_async");
-	ice_invoke_async(cb, operation, mode, inParams, context);
+       	cb.__invoke(this, operation, mode, inParams, context);
     }
     
     public final Identity
