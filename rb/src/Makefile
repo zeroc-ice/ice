@@ -11,7 +11,7 @@ top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= SliceRuby slice2rb IceRuby
+SUBDIRS		= IceRuby
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

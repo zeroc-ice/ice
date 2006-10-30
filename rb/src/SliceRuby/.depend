@@ -1,1 +1,0 @@
-RubyUtil$(OBJEXT): RubyUtil.cpp ../SliceRuby/RubyUtil.h
