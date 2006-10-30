@@ -14,7 +14,7 @@
 #include <Ice/Initialize.h>
 #include <Ice/LocalException.h>
 #include <Ice/Proxy.h>
-#include <SliceRuby/RubyUtil.h>
+#include <Slice/RubyUtil.h>
 
 using namespace std;
 using namespace IceRuby;

@@ -99,7 +99,6 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE self)
 	{
 	    volatile VALUE properties = callRuby(rb_iv_get, initData, "@properties");
 	    volatile VALUE logger = callRuby(rb_iv_get, initData, "@logger");
-	    volatile VALUE defaultContext = callRuby(rb_iv_get, initData, "@defaultContext");
 
 	    if(!NIL_P(properties))
 	    {
@@ -109,11 +108,6 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE self)
 	    if(!NIL_P(logger))
 	    {
 		throw RubyException(rb_eArgError, "custom logger is not supported");
-	    }
-
-	    if(!NIL_P(defaultContext) && !hashToContext(defaultContext, data.defaultContext))
-	    {
-		throw RubyException(rb_eTypeError, "invalid value for defaultContext");
 	    }
 	}
 

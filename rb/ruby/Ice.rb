@@ -54,13 +54,12 @@ module Ice
     # InitializationData.
     #
     class InitializationData
-	def initialize(properties=nil, logger=nil, defaultContext=nil)
+	def initialize(properties=nil, logger=nil)
 	    @properties = properties
 	    @logger = logger
-	    @defaultContext = defaultContext
 	end
 
-	attr_accessor :properties, :logger, :defaultContext
+	attr_accessor :properties, :logger
     end
 
     #
