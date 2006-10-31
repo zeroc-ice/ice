@@ -81,6 +81,19 @@ Follow these steps to build the extension:
 
 If no errors occurred, you can now begin using Ice for Ruby.
 
+NOTE: If you are using a Ruby interpreter that was compiled in debug
+mode, you must take the following steps:
+
+1. Build the project configuration "all - Win32 Debug".
+
+2. Edit ruby/Ice.rb and change the line below
+
+   require "IceRuby"
+
+   to the following:
+
+   require "IceRubyd"
+
 
 Using Ice for Ruby
 ------------------
