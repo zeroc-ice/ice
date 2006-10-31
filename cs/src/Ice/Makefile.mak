@@ -35,7 +35,7 @@ SRCS		= Acceptor.cs \
 		  EndpointFactoryManager.cs \
 		  EventHandler.cs \
 		  Exception.cs \
-		  ImplicitContext.cs \
+		  ImplicitContextI.cs \
 		  IncomingAsync.cs \
 		  Incoming.cs \
 		  InputStream.cs \
