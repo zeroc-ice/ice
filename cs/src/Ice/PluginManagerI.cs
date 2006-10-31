@@ -321,6 +321,12 @@ namespace Ice
 	    try
 	    {
 		factory = (PluginFactory)IceInternal.AssemblyUtil.createInstance(c);
+		if(factory == null)
+		{
+		    PluginInitializationException e = new PluginInitializationException();
+		    e.reason = err + "Can't find constructor for '" + className + "'";
+		    throw e;
+		}
 	    }
 	    catch(System.InvalidCastException ex)
 	    {

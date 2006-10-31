@@ -3,6 +3,10 @@ NOTE: Please keep changes in the appropriate section for HEAD or 3.1.
 Changes since version 3.1.1 (HEAD)
 ---------------------------     
 
+- Fixed a bug where loading an Ice plugin or an IceBox service could
+  result in a System.NullReferenceException if no constructors are
+  available to create the plugin or service instance.
+
 - For object adapters without endpoints, Ice.Trace.Network >= 2 now
   prints a trace message.
 

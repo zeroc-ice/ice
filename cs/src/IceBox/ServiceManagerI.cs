@@ -293,6 +293,12 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
 	try
 	{
 	    info.service = (IceBox.Service)IceInternal.AssemblyUtil.createInstance(c);
+	    if(info.service == null)
+	    {
+		IceBox.FailureException e = new IceBox.FailureException();
+		e.reason = err + "Can't find constructor for '" + className + "'";
+		throw e;
+	    }
 	}
 	catch(System.InvalidCastException ex)
 	{
