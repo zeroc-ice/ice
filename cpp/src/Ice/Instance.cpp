@@ -681,7 +681,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _pluginManager = new PluginManagerI(communicator, _dynamicLibraryList);
 
-	if(_initData.properties->getPropertyAsIntWithDefault("Ice.MemoryPool", 1) == 1)
+	if(_initData.properties->getPropertyAsIntWithDefault("Ice.MemoryPool", 0) == 1)
 	{
 
 	    //

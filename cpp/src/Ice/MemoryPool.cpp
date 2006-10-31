@@ -9,7 +9,6 @@
 
 #include <Ice/MemoryPool.h>
 
-
 // #define MEMPOOL_DEBUG
 
 //
