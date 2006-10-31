@@ -201,6 +201,11 @@ if not patchIceE:
 	fileMatchAndReplace(os.path.join(ice_home, "src", "ca", "iceca"),
 			    [("Ice-([0-9]*\.[0-9]*\.[0-9]*)", version)])
 
+	fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "clock", "config.icebox"),
+			    [("IceStormService,([0-9]*[0-9]*)", soVersion(version))])
+
+	fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "counter", "config.icebox"),
+			    [("IceStormService,([0-9]*[0-9]*)", soVersion(version))])
     #
     # Fix version in IceJ sources
     #
@@ -209,6 +214,9 @@ if not patchIceE:
 	fileMatchAndReplace(os.path.join(icej_home, "src", "IceUtil", "Version.java"),
 			    [("ICE_STRING_VERSION = \"([0-9]*\.[0-9]*\.[0-9]*)\"", version), \
 			     ("ICE_INT_VERSION = ([0-9]*)", intVersion(version))])
+
+	fileMatchAndReplace(os.path.join(icej_home, "demo", "IceStorm", "clock", "config.icebox"),
+			    [("IceStormService,([0-9]*[0-9]*)", soVersion(version))])
 
     #
     # Fix version in IceCS sources
@@ -227,15 +235,22 @@ if not patchIceE:
 
 	fileMatchAndReplace(os.path.join(icecs_home, "config", "makeconfig.py"),
 			    [("version=*\"([0-9]*\.[0-9]*\.[0-9]*).0\"", version)])
-
-	#
-	# Above command causes makeconfig.py to lose execute permissions
-	#
 	cmd = "chmod 770 " + os.path.join(icecs_home, "config", "makeconfig.py")
 	os.system(cmd)
 
+	fileMatchAndReplace(os.path.join(icecs_home, "demo", "IceStorm", "clock", "config.icebox"),
+			    [("IceStormService,([0-9]*[0-9]*)", soVersion(version))])
+
 	for f in find(icecs_home, "*.pc"):
 	    fileMatchAndReplace(f, [("[\t\s]*version[\t\s]*=[\t\s]*([0-9]*\.[0-9]*\.[0-9]*)", version)])
+
+    #
+    # Fix version in IceCS sources
+    #
+    icevb_home = findSourceTree("icevb", os.path.join("generate", "Generate.vb"))
+    if icevb_home:
+	fileMatchAndReplace(os.path.join(icevb_home, "demo", "IceStorm", "clock", "config.icebox"),
+			    [("IceStormService,([0-9]*[0-9]*)", soVersion(version))])
 
     #
     # Fix version in IcePHP
@@ -261,8 +276,11 @@ if not patchIceE:
 			    ("VERSION_MINOR[\t\s]*= ([0-9]*)", minorVersion(version)),
 			    ("VERSION_PATCH[\t\s]*= ([0-9]*)", patchVersion(version))])
 
+	fileMatchAndReplace(os.path.join(icepy_home, "demo", "IceStorm", "clock", "config.icebox"),
+			    [("IceStormService,([0-9]*[0-9]*)", soVersion(version))])
+
     #
-    # Fix version in IcePy
+    # Fix version in IceRuby
     #
     icerb_home = findSourceTree("icerb", os.path.join("src", "IceRuby", "Config.h"))
     if icerb_home:
