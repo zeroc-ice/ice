@@ -61,6 +61,18 @@ Changes since version 3.1.1
   use dynamic invocation and pass a class of the wrong type as an
   operation parameter.
 
+- The Slice keyword 'nonmutating' is now deprecated; 'idempotent'
+  should be used instead. A new metadata directive is supported for
+  backward-compatibility (see below).
+
+- New Slice metadata for operations:
+
+  - ["nonmutating"] provides backward compatibility for idempotent
+    operations that were previously declared using the deprecated
+    'nonmutating' keyword. You can replace the 'nonmutating' keyword
+    with '["nonmutating"] idempotent' to maintain compatibility with
+    objects implemented using Ice 3.0 or 3.1.
+
 Changes since version 3.1.0
 ---------------------------
 
