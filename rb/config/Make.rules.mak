@@ -63,7 +63,6 @@ install_rubydir		= $(prefix)\ruby
 
 !if "$(OPTIMIZE)" != "yes"
 LIBSUFFIX       = $(LIBSUFFIX)d
-RBLIBSUFFIX     = _$(LIBSUFFIX)
 !endif
 
 ICE_LIBS		= ice$(LIBSUFFIX).lib iceutil$(LIBSUFFIX).lib slice$(LIBSUFFIX).lib
