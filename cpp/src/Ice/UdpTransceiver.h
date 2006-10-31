@@ -62,8 +62,10 @@ private:
 
     SOCKET _fd;
     struct sockaddr_in _addr;
+#ifdef _WIN32
     fd_set _rFdSet;
     fd_set _wFdSet;
+#endif
     bool _connect;
     int _rcvSize;
     int _sndSize;

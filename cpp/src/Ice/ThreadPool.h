@@ -26,7 +26,13 @@
 #   include <winsock2.h>
 #else
 #   define SOCKET int
+#   ifdef __linux
+#       include <sys/epoll.h>
+#   else
+#       include <sys/poll.h>
+#   endif
 #endif
+
 
 namespace IceInternal
 {
@@ -66,7 +72,14 @@ private:
     SOCKET _lastFd;
     SOCKET _fdIntrRead;
     SOCKET _fdIntrWrite;
+#if defined(_WIN32)
     fd_set _fdSet;
+#elif defined(__linux)
+    int _epollFd;
+    std::vector<struct epoll_event> _events;
+#else
+    std::vector<struct pollfd> _pollFdSet;
+#endif
 
     std::list<std::pair<SOCKET, EventHandlerPtr> > _changes; // Event handler set for addition; null for removal.
 

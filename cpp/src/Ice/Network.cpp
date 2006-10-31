@@ -601,28 +601,11 @@ repeatConnect:
 	    assert(nevents.lNetworkEvents & FD_CONNECT);
 	    val = nevents.iErrorCode[FD_CONNECT_BIT];
 #else
-	repeatSelect:
-	    int ret;
-	    fd_set wFdSet;
-	    FD_ZERO(&wFdSet);
-	    FD_SET(fd, &wFdSet);
-	    //
-	    // Note that although we use a different mechanism for
-	    // WIN32, winsock notifies about connection failures
-	    // through the exception filedescriptors
-	    //
-	    if(timeout >= 0)
-	    {
-		struct timeval tv;
-		tv.tv_sec = timeout / 1000;
-		tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
-		ret = ::select(fd + 1, 0, &wFdSet, 0, &tv);
-	    }
-	    else
-	    {
-		ret = ::select(fd + 1, 0, &wFdSet, 0, 0);
-	    }
-	    
+	repeatPoll:
+	    struct pollfd pollFd[1];
+	    pollFd[0].fd = fd;
+	    pollFd[0].events = POLLOUT;
+	    int ret = ::poll(pollFd, 1, timeout);
 	    if(ret == 0)
 	    {
 		closeSocketNoThrow(fd);
@@ -632,7 +615,7 @@ repeatConnect:
 	    {
 		if(interrupted())
 		{
-		    goto repeatSelect;
+		    goto repeatPoll;
 		}
 		
 		SocketException ex(__FILE__, __LINE__);
@@ -730,6 +713,7 @@ repeatAccept:
 	{
 	repeatSelect:
 	    int rs;
+#ifdef _WIN32
 	    fd_set fdSet;
 	    FD_ZERO(&fdSet);
 	    FD_SET(fd, &fdSet);
@@ -744,6 +728,12 @@ repeatAccept:
 	    {
 		rs = ::select(static_cast<int>(fd + 1), &fdSet, 0, 0, 0);
 	    }
+#else
+	    struct pollfd pollFd[1];
+	    pollFd[0].fd = fd;
+	    pollFd[0].events = POLLIN;
+	    rs = ::poll(pollFd, 1, timeout);
+#endif
 	    
 	    if(rs == SOCKET_ERROR)
 	    {

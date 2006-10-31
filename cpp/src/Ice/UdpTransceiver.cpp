@@ -141,9 +141,15 @@ repeat:
 	repeatSelect:
 
 	    assert(_fd != INVALID_SOCKET);
+#ifdef _WIN32
 	    FD_SET(_fd, &_wFdSet);
 	    int rs = ::select(static_cast<int>(_fd + 1), 0, &_wFdSet, 0, 0);
-	    
+#else
+	    struct pollfd fdSet[1];
+	    fdSet[0].fd = _fd;
+	    fdSet[0].events = POLLOUT;
+	    int rs = ::poll(fdSet, 1, -1);
+#endif
 	    if(rs == SOCKET_ERROR)
 	    {
 		if(interrupted())
@@ -257,8 +263,15 @@ repeat:
 	repeatSelect:
 	    
 	    assert(_fd != INVALID_SOCKET);
+#ifdef _WIN32
 	    FD_SET(_fd, &_rFdSet);
 	    int rs = ::select(static_cast<int>(_fd + 1), &_rFdSet, 0, 0, 0);
+#else
+	    struct pollfd fdSet[1];
+	    fdSet[0].fd = _fd;
+	    fdSet[0].events = POLLIN;
+	    int rs = ::poll(fdSet, 1, -1);
+#endif
 
 	    if(rs == SOCKET_ERROR)
 	    {
@@ -368,8 +381,10 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
 	throw;
     }
 
+#ifdef _WIN32
     FD_ZERO(&_rFdSet);
     FD_ZERO(&_wFdSet);
+#endif
 }
 
 IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const string& host, int port, bool connect) :
@@ -406,8 +421,10 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
 	throw;
     }
 
+#ifdef _WIN32
     FD_ZERO(&_rFdSet);
     FD_ZERO(&_wFdSet);
+#endif
 }
 
 IceInternal::UdpTransceiver::~UdpTransceiver()

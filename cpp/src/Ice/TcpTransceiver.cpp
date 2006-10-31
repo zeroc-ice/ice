@@ -122,6 +122,7 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
 
 		int rs;
 		assert(_fd != INVALID_SOCKET);
+#ifdef _WIN32
 		FD_SET(_fd, &_wFdSet);
 
 		if(timeout >= 0)
@@ -135,7 +136,12 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
 		{
 		    rs = ::select(static_cast<int>(_fd + 1), 0, &_wFdSet, 0, 0);
 		}
-		
+#else
+		struct pollfd pollFd[1];
+		pollFd[0].fd = _fd;
+		pollFd[0].events = POLLOUT;
+		rs = ::poll(pollFd, 1, timeout);
+#endif		
 		if(rs == SOCKET_ERROR)
 		{
 		    if(interrupted())
@@ -238,6 +244,7 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
 
 		int rs;
 		assert(_fd != INVALID_SOCKET);
+#ifdef _WIN32
 		FD_SET(_fd, &_rFdSet);
 
 		if(timeout >= 0)
@@ -251,7 +258,12 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
 		{
 		    rs = ::select(static_cast<int>(_fd + 1), &_rFdSet, 0, 0, 0);
 		}
-		
+#else
+		struct pollfd pollFd[1];
+		pollFd[0].fd = _fd;
+		pollFd[0].events = POLLIN;
+		rs = ::poll(pollFd, 1, timeout);
+#endif
 		if(rs == SOCKET_ERROR)
 		{
 		    if(interrupted())

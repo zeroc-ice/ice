@@ -276,6 +276,7 @@ IceSSL::DHParams::get(int keyLength)
 static bool
 selectReadWrite(SOCKET fd, bool read, int timeout)
 {
+#ifdef _WIN32
     fd_set rFdSet, wFdSet;
     FD_ZERO(&rFdSet);
     FD_ZERO(&wFdSet);
@@ -287,9 +288,15 @@ selectReadWrite(SOCKET fd, bool read, int timeout)
     {
 	FD_SET(fd, &wFdSet);
     }
+#else
+    struct pollfd pollfd[1];
+    pollfd[0].fd = fd;
+    pollfd[0].events = read ? POLLIN : POLLOUT;
+#endif
 
 repeatSelect:
     int ret;
+#ifdef _WIN32
     if(timeout >= 0)
     {
 	struct timeval tv;
@@ -301,6 +308,9 @@ repeatSelect:
     {
 	ret = ::select(static_cast<int>(fd) + 1, &rFdSet, &wFdSet, 0, 0);
     }
+#else
+    ret = ::poll(pollfd, 1, timeout); 
+#endif
 
     if(ret == 0)
     {

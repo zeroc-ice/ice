@@ -23,13 +23,7 @@ typedef int ssize_t;
 #   include <unistd.h>
 #   include <fcntl.h>
 #   include <sys/socket.h>
-
-#   if defined(__hpux)
-#      include <sys/time.h>
-#   else   
-#      include <sys/select.h>
-#   endif
-
+#   include <sys/poll.h>
 #   include <netinet/in.h>
 #   include <netinet/tcp.h>
 #   include <arpa/inet.h>
