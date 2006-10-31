@@ -40,7 +40,7 @@ class OperationI : public Operation
 {
 public:
 
-    OperationI(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE);
+    OperationI(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE);
 
     virtual VALUE invoke(const Ice::ObjectPrx&, VALUE, VALUE);
     virtual void deprecate(const string&);
@@ -49,6 +49,7 @@ private:
 
     string _name;
     Ice::OperationMode _mode;
+    Ice::OperationMode _sendMode;
     bool _amd;
     ParamInfoList _inParams;
     ParamInfoList _outParams;
@@ -78,12 +79,12 @@ IceRuby_Operation_free(OperationPtr* p)
 
 extern "C"
 VALUE
-IceRuby_defineOperation(VALUE /*self*/, VALUE name, VALUE mode, VALUE amd, VALUE inParams, VALUE outParams,
-			VALUE returnType, VALUE exceptions)
+IceRuby_defineOperation(VALUE /*self*/, VALUE name, VALUE mode, VALUE sendMode, VALUE amd, VALUE inParams,
+			VALUE outParams, VALUE returnType, VALUE exceptions)
 {
     ICE_RUBY_TRY
     {
-	OperationIPtr op = new OperationI(name, mode, amd, inParams, outParams, returnType, exceptions);
+	OperationIPtr op = new OperationI(name, mode, sendMode, amd, inParams, outParams, returnType, exceptions);
 	return Data_Wrap_Struct(_operationClass, 0, IceRuby_Operation_free, new OperationPtr(op));
     }
     ICE_RUBY_CATCH
@@ -141,8 +142,8 @@ IceRuby::ParamInfo::unmarshaled(VALUE val, VALUE target, void* closure)
 //
 // OperationI implementation.
 //
-IceRuby::OperationI::OperationI(VALUE name, VALUE mode, VALUE amd, VALUE inParams, VALUE outParams, VALUE returnType,
-				VALUE exceptions)
+IceRuby::OperationI::OperationI(VALUE name, VALUE mode, VALUE sendMode, VALUE amd, VALUE inParams, VALUE outParams,
+				VALUE returnType, VALUE exceptions)
 {
     _name = getString(name);
     _amd = amd == Qtrue;
@@ -161,6 +162,13 @@ IceRuby::OperationI::OperationI(VALUE name, VALUE mode, VALUE amd, VALUE inParam
     volatile VALUE modeValue = callRuby(rb_funcall, mode, rb_intern("to_i"), 0);
     assert(TYPE(modeValue) == T_FIXNUM);
     _mode = static_cast<Ice::OperationMode>(FIX2LONG(modeValue));
+
+    //
+    // sendMode
+    //
+    volatile VALUE sendModeValue = callRuby(rb_funcall, sendMode, rb_intern("to_i"), 0);
+    assert(TYPE(sendModeValue) == T_FIXNUM);
+    _sendMode = static_cast<Ice::OperationMode>(FIX2LONG(sendModeValue));
 
     long i;
 
@@ -249,11 +257,11 @@ IceRuby::OperationI::invoke(const Ice::ObjectPrx& proxy, VALUE args, VALUE hctx)
 	    throw RubyException(rb_eArgError, "context argument must be nil or a hash");
 	}
 
-	status = proxy->ice_invoke(_name, _mode, params, result, ctx);
+	status = proxy->ice_invoke(_name, _sendMode, params, result, ctx);
     }
     else
     {
-	status = proxy->ice_invoke(_name, _mode, params, result);
+	status = proxy->ice_invoke(_name, _sendMode, params, result);
     }
 
     //
@@ -468,7 +476,7 @@ IceRuby::OperationI::checkTwowayOnly(const Ice::ObjectPrx& proxy) const
 bool
 IceRuby::initOperation(VALUE iceModule)
 {
-    rb_define_module_function(iceModule, "__defineOperation", CAST_METHOD(IceRuby_defineOperation), 7);
+    rb_define_module_function(iceModule, "__defineOperation", CAST_METHOD(IceRuby_defineOperation), 8);
 
     //
     // Define a class to represent an operation.
