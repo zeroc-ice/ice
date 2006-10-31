@@ -24,10 +24,11 @@ NMAKE
 -----
 
 In order to build Ice you need nmake, MicroSoft's make utility, 
-installed. If you do not already have it installed, you can download it
-from the following link.
+installed. If you do not already have it installed, you can download 
+the Windows Platform SDK from the following link in order to obtain
+it.
 
-http://download.microsoft.com/download/vc15/patch/1.52/w95/en-us/nmake15.exe
+http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en
 
 
 Third-party libraries
@@ -35,7 +36,7 @@ Third-party libraries
 
 Ice has dependencies on a number of third-party libraries:
 
-- Berkeley DB 4.4.20
+- Berkeley DB 4.3.29
 - expat 1.9x
 - OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
 - bzip2 1.0
@@ -84,9 +85,8 @@ For example:
 $ cd C:\Ice-@ver@
 
 Edit config/Make.rules to establish your build configuration. The
-comments in the file provide more information. Pay particular
-attention to the variable that define the locations of the third-
-party libraries.
+comments in the file provide more information. In particular you
+must uncomment the BORLAND_HOME variable setting.
 
 Now you're ready to build Ice:
 
