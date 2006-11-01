@@ -131,9 +131,6 @@ public:
 
     virtual void print(VALUE, IceUtil::Output&, PrintObjectHistory*);
 
-    void marshalSequence(VALUE, const Ice::OutputStreamPtr&);
-    void unmarshalSequence(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*);
-
     static double toDouble(VALUE);
 
     Kind kind;
@@ -226,6 +223,12 @@ public:
 
     std::string id;
     TypeInfoPtr elementType;
+
+private:
+
+    void marshalPrimitiveSequence(const PrimitiveInfoPtr&, VALUE, const Ice::OutputStreamPtr&);
+    void unmarshalPrimitiveSequence(const PrimitiveInfoPtr&, const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&,
+				    VALUE, void*);
 };
 typedef IceUtil::Handle<SequenceInfo> SequenceInfoPtr;
 

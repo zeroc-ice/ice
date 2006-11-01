@@ -52,7 +52,7 @@ class Client < Ice::Application
 	end
 	throughputOneway = Demo::ThroughputPrx::uncheckedCast(throughput.ice_oneway())
 
-	byteSeq = Array.new(Demo::ByteSeqSize, 0)
+	byteSeq = "\0" * Demo::ByteSeqSize
 
 	stringSeq = Array.new(Demo::StringSeqSize, "hello")
 

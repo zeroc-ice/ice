@@ -11,6 +11,7 @@
 #include <Proxy.h>
 #include <Util.h>
 #include <IceUtil/InputUtil.h>
+#include <IceUtil/ScopedArray.h>
 #include <Ice/LocalException.h>
 
 #include <st.h>
@@ -388,251 +389,6 @@ IceRuby::PrimitiveInfo::print(VALUE value, IceUtil::Output& out, PrintObjectHist
     }
 }
 
-void
-IceRuby::PrimitiveInfo::marshalSequence(VALUE p, const Ice::OutputStreamPtr& os)
-{
-    volatile VALUE arr = callRuby(rb_Array, p);
-    if(NIL_P(arr))
-    {
-	throw RubyException(rb_eTypeError, "unable to convert value to an array");
-    }
-
-    switch(kind)
-    {
-    case PrimitiveInfo::KindBool:
-    {
-	long sz = RARRAY(arr)->len;
-	Ice::BoolSeq seq(sz);
-	for(long i = 0; i < sz; ++i)
-	{
-	    seq[i] = RTEST(RARRAY(arr)->ptr[i]);
-	}
-	os->writeBoolSeq(seq);
-	break;
-    }
-    case PrimitiveInfo::KindByte:
-    {
-	long sz = RARRAY(arr)->len;
-	Ice::ByteSeq seq(sz);
-	for(long i = 0; i < sz; ++i)
-	{
-	    long val = getInteger(RARRAY(arr)->ptr[i]);
-	    if(val < 0 || val > 255)
-	    {
-		throw RubyException(rb_eTypeError, "invalid value for element %ld of sequence<byte>", i);
-	    }
-	    seq[i] = static_cast<Ice::Byte>(val);
-	}
-	os->writeByteSeq(seq);
-	break;
-    }
-    case PrimitiveInfo::KindShort:
-    {
-	long sz = RARRAY(arr)->len;
-	Ice::ShortSeq seq(sz);
-	for(long i = 0; i < sz; ++i)
-	{
-	    long val = getInteger(RARRAY(arr)->ptr[i]);
-	    if(val < SHRT_MIN || val > SHRT_MAX)
-	    {
-		throw RubyException(rb_eTypeError, "invalid value for element %ld of sequence<short>", i);
-	    }
-	    seq[i] = static_cast<Ice::Short>(val);
-	}
-	os->writeShortSeq(seq);
-	break;
-    }
-    case PrimitiveInfo::KindInt:
-    {
-	long sz = RARRAY(arr)->len;
-	Ice::IntSeq seq(sz);
-	for(long i = 0; i < sz; ++i)
-	{
-	    long val = getInteger(RARRAY(arr)->ptr[i]);
-	    if(val < INT_MIN || val > INT_MAX)
-	    {
-		throw RubyException(rb_eTypeError, "invalid value for element %ld of sequence<int>", i);
-	    }
-	    seq[i] = static_cast<Ice::Int>(val);
-	}
-	os->writeIntSeq(seq);
-	break;
-    }
-    case PrimitiveInfo::KindLong:
-    {
-	long sz = RARRAY(arr)->len;
-	Ice::LongSeq seq(sz);
-	for(long i = 0; i < sz; ++i)
-	{
-	    seq[i] = getLong(RARRAY(arr)->ptr[i]);
-	}
-	os->writeLongSeq(seq);
-	break;
-    }
-    case PrimitiveInfo::KindFloat:
-    {
-	long sz = RARRAY(arr)->len;
-	Ice::FloatSeq seq(sz);
-	for(long i = 0; i < sz; ++i)
-	{
-	    volatile VALUE v = callRuby(rb_Float, RARRAY(arr)->ptr[i]);
-	    if(NIL_P(v))
-	    {
-		throw RubyException(rb_eTypeError, "unable to convert array element %ld to a float", i);
-	    }
-	    assert(TYPE(v) == T_FLOAT);
-	    seq[i] = static_cast<Ice::Float>(RFLOAT(v)->value);
-	}
-	os->writeFloatSeq(seq);
-	break;
-    }
-    case PrimitiveInfo::KindDouble:
-    {
-	long sz = RARRAY(arr)->len;
-	Ice::DoubleSeq seq(sz);
-	for(long i = 0; i < sz; ++i)
-	{
-	    volatile VALUE v = callRuby(rb_Float, RARRAY(arr)->ptr[i]);
-	    if(NIL_P(v))
-	    {
-		throw RubyException(rb_eTypeError, "unable to convert array element %ld to a double", i);
-	    }
-	    assert(TYPE(v) == T_FLOAT);
-	    seq[i] = RFLOAT(v)->value;
-	}
-	os->writeDoubleSeq(seq);
-	break;
-    }
-    case PrimitiveInfo::KindString:
-    {
-	long sz = RARRAY(arr)->len;
-	Ice::StringSeq seq(sz);
-	for(long i = 0; i < sz; ++i)
-	{
-	    seq[i] = getString(RARRAY(arr)->ptr[i]);
-	}
-	os->writeStringSeq(seq);
-	break;
-    }
-    }
-}
-
-void
-IceRuby::PrimitiveInfo::unmarshalSequence(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, VALUE target,
-					  void* closure)
-{
-    volatile VALUE arr = Qnil;
-
-    switch(kind)
-    {
-    case PrimitiveInfo::KindBool:
-    {
-	Ice::BoolSeq seq = is->readBoolSeq();
-	long sz = static_cast<long>(seq.size());
-	arr = createArray(sz);
-
-	for(long i = 0; i < sz; ++i)
-	{
-	    RARRAY(arr)->ptr[i] = seq[i] ? Qtrue : Qfalse;
-	}
-	RARRAY(arr)->len = sz;
-	break;
-    }
-    case PrimitiveInfo::KindByte:
-    {
-	Ice::ByteSeq seq = is->readByteSeq();
-	long sz = static_cast<long>(seq.size());
-	arr = createArray(sz);
-
-	for(long i = 0; i < sz; ++i)
-	{
-	    RARRAY(arr)->ptr[i] = INT2FIX(seq[i]);
-	}
-	RARRAY(arr)->len = sz;
-	break;
-    }
-    case PrimitiveInfo::KindShort:
-    {
-	Ice::ShortSeq seq = is->readShortSeq();
-	long sz = static_cast<long>(seq.size());
-	arr = createArray(sz);
-
-	for(long i = 0; i < sz; ++i)
-	{
-	    RARRAY(arr)->ptr[i] = INT2FIX(seq[i]);
-	}
-	RARRAY(arr)->len = sz;
-	break;
-    }
-    case PrimitiveInfo::KindInt:
-    {
-	Ice::IntSeq seq = is->readIntSeq();
-	long sz = static_cast<long>(seq.size());
-	arr = createArray(sz);
-
-	for(long i = 0; i < sz; ++i)
-	{
-	    RARRAY(arr)->ptr[i] = INT2FIX(seq[i]);
-	}
-	RARRAY(arr)->len = sz;
-	break;
-    }
-    case PrimitiveInfo::KindLong:
-    {
-	Ice::LongSeq seq = is->readLongSeq();
-	long sz = static_cast<long>(seq.size());
-	arr = createArray(sz);
-
-	for(long i = 0; i < sz; ++i)
-	{
-	    RARRAY(arr)->ptr[i] = callRuby(rb_ll2inum, seq[i]);
-	}
-	RARRAY(arr)->len = sz;
-	break;
-    }
-    case PrimitiveInfo::KindFloat:
-    {
-	Ice::FloatSeq seq = is->readFloatSeq();
-	long sz = static_cast<long>(seq.size());
-	arr = createArray(sz);
-
-	for(long i = 0; i < sz; ++i)
-	{
-	    RARRAY(arr)->ptr[i] = callRuby(rb_float_new, seq[i]);
-	}
-	RARRAY(arr)->len = sz;
-	break;
-    }
-    case PrimitiveInfo::KindDouble:
-    {
-	Ice::DoubleSeq seq = is->readDoubleSeq();
-	long sz = static_cast<long>(seq.size());
-	arr = createArray(sz);
-
-	for(long i = 0; i < sz; ++i)
-	{
-	    RARRAY(arr)->ptr[i] = callRuby(rb_float_new, seq[i]);
-	}
-	RARRAY(arr)->len = sz;
-	break;
-    }
-    case PrimitiveInfo::KindString:
-    {
-	Ice::StringSeq seq = is->readStringSeq();
-	long sz = static_cast<long>(seq.size());
-	arr = createArray(sz);
-
-	for(long i = 0; i < sz; ++i)
-	{
-	    RARRAY(arr)->ptr[i] = createString(seq[i]);
-	}
-	RARRAY(arr)->len = sz;
-	break;
-    }
-    }
-    cb->unmarshaled(arr, target, closure);
-}
-
 double
 IceRuby::PrimitiveInfo::toDouble(VALUE v)
 {
@@ -849,11 +605,19 @@ bool
 IceRuby::SequenceInfo::validate(VALUE val)
 {
     //
-    // Accept nil, an array, or any object that responds to to_ary.
+    // Accept nil, an array, a string (for sequence<byte>), or any object that responds to to_ary.
     //
     if(NIL_P(val) || TYPE(val) == T_ARRAY)
     {
 	return true;
+    }
+    if(TYPE(val) == T_STRING)
+    {
+	PrimitiveInfoPtr pi = PrimitiveInfoPtr::dynamicCast(elementType);
+	if(pi && pi->kind == PrimitiveInfo::KindByte)
+	{
+	    return true;
+	}
     }
     ID id = rb_intern("to_ary");
     return callRuby(rb_respond_to, val, id) != 0;
@@ -877,7 +641,7 @@ IceRuby::SequenceInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMa
     PrimitiveInfoPtr pi = PrimitiveInfoPtr::dynamicCast(elementType);
     if(pi)
     {
-	pi->marshalSequence(p, os);
+	marshalPrimitiveSequence(pi, p, os);
 	return;
     }
 
@@ -907,7 +671,7 @@ IceRuby::SequenceInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalC
     PrimitiveInfoPtr pi = PrimitiveInfoPtr::dynamicCast(elementType);
     if(pi)
     {
-	pi->unmarshalSequence(is, cb, target, closure);
+	unmarshalPrimitiveSequence(pi, is, cb, target, closure);
 	return;
     }
 
@@ -972,6 +736,291 @@ IceRuby::SequenceInfo::destroy()
 	elementType->destroy();
 	elementType = 0;
     }
+}
+
+void
+IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALUE p, const Ice::OutputStreamPtr& os)
+{
+    volatile VALUE arr = Qnil;
+    volatile VALUE str = Qnil;
+
+    //
+    // Accept a string or an array for sequence<byte>.
+    //
+    if(pi->kind == PrimitiveInfo::KindByte)
+    {
+	if(TYPE(p) == T_STRING)
+	{
+	    str = p;
+	}
+	else
+	{
+	    arr = callRuby(rb_Array, p);
+	    if(NIL_P(arr))
+	    {
+		throw RubyException(rb_eTypeError, "argument is not a string or an array");
+	    }
+	}
+    }
+    else
+    {
+	arr = callRuby(rb_Array, p);
+	if(NIL_P(arr))
+	{
+	    throw RubyException(rb_eTypeError, "unable to convert value to an array");
+	}
+    }
+
+    switch(pi->kind)
+    {
+    case PrimitiveInfo::KindBool:
+    {
+	long sz = RARRAY(arr)->len;
+	Ice::BoolSeq seq(sz);
+	for(long i = 0; i < sz; ++i)
+	{
+	    seq[i] = RTEST(RARRAY(arr)->ptr[i]);
+	}
+	os->writeBoolSeq(seq);
+	break;
+    }
+    case PrimitiveInfo::KindByte:
+    {
+	if(!NIL_P(str))
+	{
+	    const char* s = RSTRING(str)->ptr;
+	    const long len = RSTRING(str)->len;
+	    if(s == 0 || len == 0)
+	    {
+		os->writeSize(0);
+	    }
+	    else
+	    {
+		os->writeByteSeq(reinterpret_cast<const Ice::Byte*>(s), reinterpret_cast<const Ice::Byte*>(s + len));
+	    }
+	}
+	else
+	{
+	    long sz = RARRAY(arr)->len;
+	    Ice::ByteSeq seq(sz);
+	    for(long i = 0; i < sz; ++i)
+	    {
+		long val = getInteger(RARRAY(arr)->ptr[i]);
+		if(val < 0 || val > 255)
+		{
+		    throw RubyException(rb_eTypeError, "invalid value for element %ld of sequence<byte>", i);
+		}
+		seq[i] = static_cast<Ice::Byte>(val);
+	    }
+	    os->writeByteSeq(seq);
+	}
+	break;
+    }
+    case PrimitiveInfo::KindShort:
+    {
+	long sz = RARRAY(arr)->len;
+	Ice::ShortSeq seq(sz);
+	for(long i = 0; i < sz; ++i)
+	{
+	    long val = getInteger(RARRAY(arr)->ptr[i]);
+	    if(val < SHRT_MIN || val > SHRT_MAX)
+	    {
+		throw RubyException(rb_eTypeError, "invalid value for element %ld of sequence<short>", i);
+	    }
+	    seq[i] = static_cast<Ice::Short>(val);
+	}
+	os->writeShortSeq(seq);
+	break;
+    }
+    case PrimitiveInfo::KindInt:
+    {
+	long sz = RARRAY(arr)->len;
+	Ice::IntSeq seq(sz);
+	for(long i = 0; i < sz; ++i)
+	{
+	    long val = getInteger(RARRAY(arr)->ptr[i]);
+	    if(val < INT_MIN || val > INT_MAX)
+	    {
+		throw RubyException(rb_eTypeError, "invalid value for element %ld of sequence<int>", i);
+	    }
+	    seq[i] = static_cast<Ice::Int>(val);
+	}
+	os->writeIntSeq(seq);
+	break;
+    }
+    case PrimitiveInfo::KindLong:
+    {
+	long sz = RARRAY(arr)->len;
+	Ice::LongSeq seq(sz);
+	for(long i = 0; i < sz; ++i)
+	{
+	    seq[i] = getLong(RARRAY(arr)->ptr[i]);
+	}
+	os->writeLongSeq(seq);
+	break;
+    }
+    case PrimitiveInfo::KindFloat:
+    {
+	long sz = RARRAY(arr)->len;
+	Ice::FloatSeq seq(sz);
+	for(long i = 0; i < sz; ++i)
+	{
+	    volatile VALUE v = callRuby(rb_Float, RARRAY(arr)->ptr[i]);
+	    if(NIL_P(v))
+	    {
+		throw RubyException(rb_eTypeError, "unable to convert array element %ld to a float", i);
+	    }
+	    assert(TYPE(v) == T_FLOAT);
+	    seq[i] = static_cast<Ice::Float>(RFLOAT(v)->value);
+	}
+	os->writeFloatSeq(seq);
+	break;
+    }
+    case PrimitiveInfo::KindDouble:
+    {
+	long sz = RARRAY(arr)->len;
+	Ice::DoubleSeq seq(sz);
+	for(long i = 0; i < sz; ++i)
+	{
+	    volatile VALUE v = callRuby(rb_Float, RARRAY(arr)->ptr[i]);
+	    if(NIL_P(v))
+	    {
+		throw RubyException(rb_eTypeError, "unable to convert array element %ld to a double", i);
+	    }
+	    assert(TYPE(v) == T_FLOAT);
+	    seq[i] = RFLOAT(v)->value;
+	}
+	os->writeDoubleSeq(seq);
+	break;
+    }
+    case PrimitiveInfo::KindString:
+    {
+	long sz = RARRAY(arr)->len;
+	Ice::StringSeq seq(sz);
+	for(long i = 0; i < sz; ++i)
+	{
+	    seq[i] = getString(RARRAY(arr)->ptr[i]);
+	}
+	os->writeStringSeq(seq);
+	break;
+    }
+    }
+}
+
+void
+IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, const Ice::InputStreamPtr& is,
+						  const UnmarshalCallbackPtr& cb, VALUE target, void* closure)
+{
+    volatile VALUE result = Qnil;
+
+    switch(pi->kind)
+    {
+    case PrimitiveInfo::KindBool:
+    {
+	pair<const bool*, const bool*> p;
+	IceUtil::ScopedArray<bool> sa(is->readBoolSeq(p));
+	long sz = static_cast<long>(p.second - p.first);
+	result = createArray(sz);
+
+	for(long i = 0; i < sz; ++i)
+	{
+	    RARRAY(result)->ptr[i] = p.first[i] ? Qtrue : Qfalse;
+	}
+	RARRAY(result)->len = sz;
+	break;
+    }
+    case PrimitiveInfo::KindByte:
+    {
+	pair<const Ice::Byte*, const Ice::Byte*> p;
+	is->readByteSeq(p);
+	result = callRuby(rb_str_new, reinterpret_cast<const char*>(p.first), static_cast<long>(p.second - p.first));
+	break;
+    }
+    case PrimitiveInfo::KindShort:
+    {
+	pair<const Ice::Short*, const Ice::Short*> p;
+	IceUtil::ScopedArray<Ice::Short> sa(is->readShortSeq(p));
+	long sz = static_cast<long>(p.second - p.first);
+	result = createArray(sz);
+
+	for(long i = 0; i < sz; ++i)
+	{
+	    RARRAY(result)->ptr[i] = INT2FIX(p.first[i]);
+	}
+	RARRAY(result)->len = sz;
+	break;
+    }
+    case PrimitiveInfo::KindInt:
+    {
+	pair<const Ice::Int*, const Ice::Int*> p;
+	IceUtil::ScopedArray<Ice::Int> sa(is->readIntSeq(p));
+	long sz = static_cast<long>(p.second - p.first);
+	result = createArray(sz);
+
+	for(long i = 0; i < sz; ++i)
+	{
+	    RARRAY(result)->ptr[i] = INT2FIX(p.first[i]);
+	}
+	RARRAY(result)->len = sz;
+	break;
+    }
+    case PrimitiveInfo::KindLong:
+    {
+	pair<const Ice::Long*, const Ice::Long*> p;
+	IceUtil::ScopedArray<Ice::Long> sa(is->readLongSeq(p));
+	long sz = static_cast<long>(p.second - p.first);
+	result = createArray(sz);
+
+	for(long i = 0; i < sz; ++i)
+	{
+	    RARRAY(result)->ptr[i] = callRuby(rb_ll2inum, p.first[i]);
+	}
+	RARRAY(result)->len = sz;
+	break;
+    }
+    case PrimitiveInfo::KindFloat:
+    {
+	pair<const Ice::Float*, const Ice::Float*> p;
+	IceUtil::ScopedArray<Ice::Float> sa(is->readFloatSeq(p));
+	long sz = static_cast<long>(p.second - p.first);
+	result = createArray(sz);
+
+	for(long i = 0; i < sz; ++i)
+	{
+	    RARRAY(result)->ptr[i] = callRuby(rb_float_new, p.first[i]);
+	}
+	RARRAY(result)->len = sz;
+	break;
+    }
+    case PrimitiveInfo::KindDouble:
+    {
+	pair<const Ice::Double*, const Ice::Double*> p;
+	IceUtil::ScopedArray<Ice::Double> sa(is->readDoubleSeq(p));
+	long sz = static_cast<long>(p.second - p.first);
+	result = createArray(sz);
+
+	for(long i = 0; i < sz; ++i)
+	{
+	    RARRAY(result)->ptr[i] = callRuby(rb_float_new, p.first[i]);
+	}
+	RARRAY(result)->len = sz;
+	break;
+    }
+    case PrimitiveInfo::KindString:
+    {
+	Ice::StringSeq seq = is->readStringSeq();
+	long sz = static_cast<long>(seq.size());
+	result = createArray(sz);
+
+	for(long i = 0; i < sz; ++i)
+	{
+	    RARRAY(result)->ptr[i] = createString(seq[i]);
+	}
+	RARRAY(result)->len = sz;
+	break;
+    }
+    }
+    cb->unmarshaled(result, target, closure);
 }
 
 //
