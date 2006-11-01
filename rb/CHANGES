@@ -1,0 +1,32 @@
+NOTE: Please keep changes in the appropriate section for HEAD or 3.1.
+
+Changes since version 3.1.1 (HEAD)
+---------------------------     
+
+- Changed the mapping of sequence<byte> for performance reasons:
+
+  - A string is now accepted as a legal value when sequence<byte> is
+    expected. An array of integers is also accepted, but the Ice run
+    time validates every element of the array to ensure it is in the
+    proper range, therefore using an array is much slower than using
+    a string.
+
+  - A sequence<byte> value is now always received as a string.
+
+- Added UnexpectedObjectException. This exception is raised if you
+  use Slice classes and client and server are compiled with mismatched
+  Slice definitions. Alternatively, this exception is raised if you
+  use dynamic invocation and pass a class of the wrong type as an
+  operation parameter.
+
+- The Slice keyword 'nonmutating' is now deprecated; 'idempotent'
+  should be used instead. A new metadata directive is supported for
+  backward-compatibility (see below).
+
+- New Slice metadata for operations:
+
+  - ["nonmutating"] provides backward compatibility for idempotent
+    operations that were previously declared using the deprecated
+    'nonmutating' keyword. You can replace the 'nonmutating' keyword
+    with '["nonmutating"] idempotent' to maintain compatibility with
+    objects implemented using Ice 3.0 or 3.1.
