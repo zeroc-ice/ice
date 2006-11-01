@@ -25,6 +25,7 @@ $:.unshift(rubyDir)
 
 require 'Ice'
 Ice::loadSlice('Test.ice')
+Ice::loadSlice('ClientPrivate.ice')
 require 'AllTests'
 
 def run(args, communicator)

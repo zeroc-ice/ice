@@ -380,6 +380,8 @@ public:
 
     virtual void read(const Ice::InputStreamPtr&, bool);
 
+    virtual ClassInfoPtr getInfo() const;
+
     VALUE getObject() const; // Borrowed reference.
 
 private:

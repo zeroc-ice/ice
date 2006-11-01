@@ -1592,6 +1592,12 @@ IceRuby::ObjectReader::read(const Ice::InputStreamPtr& is, bool rid)
     is->endSlice();
 }
 
+ClassInfoPtr
+IceRuby::ObjectReader::getInfo() const
+{
+    return _info;
+}
+
 VALUE
 IceRuby::ObjectReader::getObject() const
 {
@@ -1641,9 +1647,10 @@ IceRuby::ReadObjectCallback::invoke(const Ice::ObjectPtr& p)
 	volatile VALUE obj = reader->getObject();
 	if(!_info->validate(obj))
 	{
-	    Ice::NoObjectFactoryException ex(__FILE__, __LINE__);
+	    Ice::UnexpectedObjectException ex(__FILE__, __LINE__);
 	    ex.reason = "unmarshaled object is not an instance of " + _info->id;
-	    ex.type = _info->id;
+	    ex.type = reader->getInfo()->getId();
+	    ex.expectedType = _info->id;
 	    throw ex;
 	}
 

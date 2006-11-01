@@ -146,5 +146,29 @@ def allTests(communicator)
     test(d.theB.theC.postUnmarshalInvoked())
     puts "ok"
 
+    print "testing UnexpectedObjectException... "
+    STDOUT.flush
+    ref = "uoet:default -p 12010 -t 10000"
+    base = communicator.stringToProxy(ref)
+    test(base)
+    uoet = Test::UnexpectedObjectExceptionTestPrx::uncheckedCast(base)
+    test(uoet)
+    begin
+	uoet.op()
+	test(false)
+    rescue Ice::UnexpectedObjectException => ex
+	test(ex.type == "::Test::AlsoEmpty")
+	test(ex.expectedType == "::Test::Empty")
+    rescue Ice::Exception => ex
+	puts $!
+	print ex.backtrace.join("\n")
+	test(false)
+    rescue => ex
+	puts $!
+	print ex.backtrace.join("\n")
+	test(false)
+    end
+    puts "ok"
+
     return initial
 end

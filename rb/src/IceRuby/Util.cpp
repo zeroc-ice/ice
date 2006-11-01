@@ -423,6 +423,16 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
 	v = createString(e.type);
 	callRuby(rb_iv_set, p, "@type", v);
     }
+    catch(const Ice::UnexpectedObjectException& e)
+    {
+	volatile VALUE v;
+	v = createString(e.reason);
+	callRuby(rb_iv_set, p, "@reason", v);
+	v = createString(e.type);
+	callRuby(rb_iv_set, p, "@type", v);
+	v = createString(e.expectedType);
+	callRuby(rb_iv_set, p, "@expectedType", v);
+    }
     catch(const Ice::MarshalException& e)
     {
 	volatile VALUE v = createString(e.reason);
