@@ -9,7 +9,6 @@
 
 #include <Ice/Buffer.h>
 #include <Ice/LocalException.h>
-#include <Ice/MemoryPool.h>
 
 using namespace std;
 using namespace Ice;
@@ -22,25 +21,17 @@ IceInternal::Buffer::swap(Buffer& other)
     std::swap(i, other.i); 
 }
 
-IceInternal::Buffer::Container::Container(IceInternal::MemoryPool* pool, size_type maxCapacity) :
+IceInternal::Buffer::Container::Container(size_type maxCapacity) :
     _buf(0),
     _size(0),
     _capacity(0),
-    _maxCapacity(maxCapacity),
-    _pool(pool)
+    _maxCapacity(maxCapacity)
 {
 }
 
 IceInternal::Buffer::Container::~Container()
 {
-    if(_pool)
-    {
-	_pool->free(_buf);
-    }
-    else
-    {
-	::free(_buf);
-    }
+    ::free(_buf);
 }
 
 void
@@ -56,14 +47,7 @@ IceInternal::Buffer::Container::swap(Container& other)
 void
 IceInternal::Buffer::Container::clear()
 {
-    if(_pool)
-    {
-	_pool->free(_buf);
-    }
-    else
-    {
-	::free(_buf);
-    }
+    free(_buf);
     _buf = 0;
     _size = 0;
     _capacity = 0;
@@ -88,25 +72,11 @@ IceInternal::Buffer::Container::reserve(size_type n)
     
     if(_buf)
     {
-	if(_pool)
-	{
-	    _buf = _pool->realloc(_buf, _capacity);
-	}
-	else
-	{
-	    _buf = reinterpret_cast<pointer>(::realloc(_buf, _capacity));
-	}
+	_buf = reinterpret_cast<pointer>(::realloc(_buf, _capacity));
     }
     else
     {
-	if(_pool)
-	{
-	    _buf = _pool->alloc(_capacity);
-	}
-	else
-	{
-	    _buf = reinterpret_cast<pointer>(::malloc(_capacity));
-	}
+	_buf = reinterpret_cast<pointer>(::malloc(_capacity));
     }
 	
     if(!_buf)

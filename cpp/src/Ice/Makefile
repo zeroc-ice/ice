@@ -19,7 +19,6 @@ OBJS		= Acceptor.o \
 		  Application.o \
 		  Buffer.o \
 		  BasicStream.o \
-		  MemoryPool.o \
 		  BuiltinSequences.o \
 		  CommunicatorF.o \
 		  CommunicatorI.o \

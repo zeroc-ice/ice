@@ -44,8 +44,6 @@ class CommunicatorI;
 
 namespace IceInternal
 {
-class MemoryPool;
-
 
 class Instance : public IceUtil::Shared, public IceUtil::RecMutex
 {
@@ -79,12 +77,6 @@ public:
     SharedContextPtr getDefaultContext() const;
     Ice::Identity stringToIdentity(const std::string&) const;
 
-    //
-    // The memory pool is only accessed by BasicStream's. BasicStream's are
-    // always stack allocated so there is no danger of a memory pool instance being
-    // prematurely destroyed while it is in use.
-    //
-    MemoryPool* memoryPool() const;
     std::string identityToString(const Ice::Identity&) const;
     
     const Ice::ImplicitContextIPtr& getImplicitContext() const
@@ -129,7 +121,6 @@ private:
     DynamicLibraryListPtr _dynamicLibraryList;
     Ice::PluginManagerPtr _pluginManager;
     SharedContextPtr _defaultContext;
-    MemoryPool* _memoryPool;
     const Ice::ImplicitContextIPtr _implicitContext;
 };
 

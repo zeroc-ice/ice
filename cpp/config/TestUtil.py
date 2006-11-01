@@ -33,12 +33,6 @@ threadPerConnection = 0
 #threadPerConnection = 2
 
 #
-# Set to 1 to disable the memory pool.
-#
-#disablePool=1
-disablePool=0
-
-#
 # If you don't set "host" below, then the Ice library will try to find
 # out the IP address of this host. For the Ice test suite, it's best
 # to set the IP address explicitly to 127.0.0.1. This avoid problems
@@ -59,10 +53,10 @@ import sys, os, re, errno, getopt
 from threading import Thread
 
 def usage():
-    print "usage: " + sys.argv[0] + " --debug --protocol protocol --compress --host host --threadPerConnection num --disablePool"
+    print "usage: " + sys.argv[0] + " --debug --protocol protocol --compress --host host --threadPerConnection num"
     sys.exit(2)
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "", ["debug", "protocol=", "compress", "host=", "threadPerConnection=", "disablePool"])
+    opts, args = getopt.getopt(sys.argv[1:], "", ["debug", "protocol=", "compress", "host=", "threadPerConnection="])
 except getopt.GetoptError:
     usage()
 
@@ -75,8 +69,6 @@ for o, a in opts:
 	compress = 1
     if o == "--threadPerConnection":
 	threadPerConnection = a
-    if o == "--disablePool":
-	disablePool = 1
     if o == "--host":
 	host = a
 
@@ -411,10 +403,6 @@ if threadPerConnection > 0:
 else:
     commonServerOptions += " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3" + \
 			   " --Ice.ThreadPool.Server.SizeWarn=0"
-
-if disablePool == 1:
-    commonClientOptions = " --Ice.MemoryPool=0 " + commonClientOptions
-    commonServerOptions = " --Ice.MemoryPool=0 " + commonServerOptions
 
 clientOptions = clientProtocol + defaultHost + commonClientOptions
 serverOptions = serverProtocol + defaultHost + commonServerOptions

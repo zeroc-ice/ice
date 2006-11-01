@@ -15,13 +15,11 @@
 namespace IceInternal
 {
 
-class MemoryPool;
-
 class ICE_API Buffer : private IceUtil::noncopyable
 {
 public:
 
-    Buffer(MemoryPool* pool, size_t maxCapacity) : b(pool, maxCapacity), i(b.begin()) { }
+    Buffer(size_t maxCapacity) : b(maxCapacity), i(b.begin()) { }
     virtual ~Buffer() { }
 
     void swap(Buffer&);
@@ -43,7 +41,7 @@ public:
 	typedef ptrdiff_t difference_type;
 	typedef size_t size_type;
 
-	Container(MemoryPool* pool, size_type maxCapacity);
+	Container(size_type maxCapacity);
 
 	~Container();
 
@@ -146,13 +144,6 @@ public:
 	size_type _capacity;
 	size_type _maxCapacity;
 	int _shrinkCounter;
-
-	//
-	// MemoryPool does not need to be reference counted.  Buffer is
-	// always stack allocated so there is no danger of the memory pool
-	// instance being destroyed while buffer is using it.  
-	//
-	MemoryPool* _pool;
     };
 
     Container b;

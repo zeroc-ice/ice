@@ -129,8 +129,6 @@ Ice:
     ImplicitContext
     InitPlugins
     Logger.Timestamp
-    MemoryPool
-    MemoryPool.HighWaterMark
     MessageSizeMax
     MonitorConnections
     Nohup
