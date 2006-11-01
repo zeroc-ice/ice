@@ -1,4 +1,4 @@
-Throughput.Endpoints=default -p 10000 -h 128.0.0.1
+Throughput.Endpoints=default -p 10000
 
 #
 # SSL Configuration
