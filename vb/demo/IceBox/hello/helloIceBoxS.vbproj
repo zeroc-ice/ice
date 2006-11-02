@@ -3,7 +3,7 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{EFAF3BCD-C882-4E46-B8DC-8F833B41369C}"
+        ProjectGuid = "{6B31D52B-B813-4483-851A-91DF37C0B69C}"
     >
         <Build>
             <Settings
@@ -20,7 +20,7 @@
                 OptionCompare = "Binary"
                 OptionExplicit = "On"
                 OptionStrict = "Off"
-                RootNamespace = "helloicebox"
+                RootNamespace = "HelloIceBox"
                 StartupObject = ""
             >
                 <Config
@@ -64,18 +64,18 @@
                 <Reference
                     Name = "icecs"
                     AssemblyName = "icecs"
-                    HintPath = "..\..\..\..\icecs\bin\icecs.dll"
+                    HintPath = "..\..\..\bin\icecs.dll"
                 />
                 <Reference
                     Name = "iceboxcs"
                     AssemblyName = "iceboxcs"
-                    HintPath = "..\..\..\..\icecs\bin\iceboxcs.dll"
+                    HintPath = "..\..\..\bin\iceboxcs.dll"
                 />
-		<Reference
-		    Name = "helloIceBoxCommon"
-		    Project = "{2B6F3901-FE7D-483A-A787-BFE81992B69B}"
-		    Package = "{F184B08F-C81C-45F6-A57F-5ABD9991F28F}"
-		/>
+                <Reference
+                    Name = "helloIceBoxCommonD"
+                    Project = "{54B6C934-DFDD-453F-AD83-98556D36B69B}"
+                    Package = "{F184B08F-C81C-45F6-A57F-5ABD9991F28F}"
+                />
             </References>
             <Imports>
                 <Import Namespace = "System" />

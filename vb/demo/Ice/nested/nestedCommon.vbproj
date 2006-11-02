@@ -3,13 +3,13 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{9E098793-DE6B-41D9-9C3E-288D03FEA4F4}"
+        ProjectGuid = "{A0B88A9F-B84D-494D-A763-78712667E592}"
     >
         <Build>
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "nestedCommon"
+                AssemblyName = "nestedCommonD"
                 AssemblyOriginatorKeyFile = ""
                 AssemblyOriginatorKeyMode = "None"
                 DefaultClientScript = "JScript"
@@ -62,9 +62,13 @@
                     AssemblyName = "System"
                 />
                 <Reference
+                    Name = "System.Data"
+                    AssemblyName = "System.Data"
+                />
+                <Reference
                     Name = "icecs"
                     AssemblyName = "icecs"
-                    HintPath = "..\..\..\..\icecs\bin\icecs.dll"
+                    HintPath = "..\..\..\bin\icecs.dll"
                 />
             </References>
             <Imports>
@@ -73,11 +77,6 @@
         </Build>
         <Files>
             <Include>
-                <File
-                    RelPath = "NestedI.vb"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
                 <File
                     RelPath = "generated\Nested.vb"
                     SubType = "Code"

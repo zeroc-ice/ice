@@ -3,7 +3,7 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{4E4E7E13-5CF8-4D93-B98D-6952963A367D}"
+        ProjectGuid = "{61545E43-F8B3-492F-B6A5-26527AB13696}"
     >
         <Build>
             <Settings
@@ -64,16 +64,16 @@
                 <Reference
                     Name = "icecs"
                     AssemblyName = "icecs"
-                    HintPath = "..\..\..\..\icecs\bin\icecs.dll"
+                    HintPath = "..\..\..\bin\icecs.dll"
                 />
                 <Reference
                     Name = "icegridcs"
                     AssemblyName = "icegridcs"
-                    HintPath = "..\..\..\..\icecs\bin\icegridcs.dll"
+                    HintPath = "..\..\..\bin\icegridcs.dll"
                 />
                 <Reference
-                    Name = "simpleIceGridCommon"
-                    Project = "{85753C0C-0A58-471C-991A-119620F8B67D}"
+                    Name = "simpleIceGridCommonD"
+                    Project = "{4F91E9BD-6EF1-47AD-AB67-E5357AE83696}"
                     Package = "{F184B08F-C81C-45F6-A57F-5ABD9991F28F}"
                 />
             </References>

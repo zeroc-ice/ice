@@ -3,13 +3,13 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{03CD2196-1D2E-4223-A23D-F343B16A9132}"
+        ProjectGuid = "{5FEE2505-2240-455A-9A5D-FCACB7274C46}"
     >
         <Build>
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "latencyCommon"
+                AssemblyName = "latencyCommonD"
                 AssemblyOriginatorKeyFile = ""
                 AssemblyOriginatorKeyMode = "None"
                 DefaultClientScript = "JScript"
@@ -62,9 +62,13 @@
                     AssemblyName = "System"
                 />
                 <Reference
+                    Name = "System.Data"
+                    AssemblyName = "System.Data"
+                />
+                <Reference
                     Name = "icecs"
                     AssemblyName = "icecs"
-                    HintPath = "..\..\..\..\icecs\bin\icecs.dll"
+                    HintPath = "..\..\..\bin\icecs.dll"
                 />
             </References>
             <Imports>

@@ -3,7 +3,7 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{2098ADE0-BF20-4438-A1DE-8457A1FBC9F6}"
+        ProjectGuid = "{CAB44FDA-91DB-4890-8E8C-8F56422C6508}"
     >
         <Build>
             <Settings
@@ -20,7 +20,7 @@
                 OptionCompare = "Binary"
                 OptionExplicit = "On"
                 OptionStrict = "Off"
-                RootNamespace = ""
+                RootNamespace = "valueCD"
                 StartupObject = ""
             >
                 <Config
@@ -62,14 +62,18 @@
                     AssemblyName = "System"
                 />
                 <Reference
-                    Name = "valueCommon"
-                    Project = "{359D559E-A139-44B0-B09F-3B527AEAB0A3}"
+                    Name = "System.Data"
+                    AssemblyName = "System.Data"
+                />
+                <Reference
+                    Name = "valueCommonD"
+                    Project = "{801CAF98-F8CF-42E2-98AD-1373A8ABA749}"
                     Package = "{F184B08F-C81C-45F6-A57F-5ABD9991F28F}"
                 />
                 <Reference
                     Name = "icecs"
                     AssemblyName = "icecs"
-                    HintPath = "..\..\..\..\icecs\bin\icecs.dll"
+                    HintPath = "..\..\..\bin\icecs.dll"
                 />
             </References>
             <Imports>
@@ -80,6 +84,21 @@
             <Include>
                 <File
                     RelPath = "Client.vb"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "DerivedPrinterI.vb"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "ObjectFactory.vb"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "PrinterI.vb"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

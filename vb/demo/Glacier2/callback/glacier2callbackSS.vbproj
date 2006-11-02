@@ -3,7 +3,7 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{8042C825-DA24-4908-A54C-C3FF3C94A120}"
+        ProjectGuid = "{10F1F272-4F37-400F-A1CF-8D68CAC629CD}"
     >
         <Build>
             <Settings
@@ -62,19 +62,18 @@
                     AssemblyName = "System"
                 />
                 <Reference
-                    Name = "icecs"
-                    AssemblyName = "icecs"
-                    HintPath = "..\..\..\..\icecs\bin\icecs.dll"
-                />
-                <Reference
                     Name = "System.Data"
                     AssemblyName = "System.Data"
-                    HintPath = "..\..\..\..\..\..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.Data.dll"
+                />
+                <Reference
+                    Name = "icecs"
+                    AssemblyName = "icecs"
+                    HintPath = "..\..\..\bin\icecs.dll"
                 />
                 <Reference
                     Name = "glacier2cs"
                     AssemblyName = "glacier2cs"
-                    HintPath = "..\..\..\..\icecs\bin\glacier2cs.dll"
+                    HintPath = "..\..\..\bin\glacier2cs.dll"
                 />
             </References>
             <Imports>

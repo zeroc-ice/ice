@@ -3,13 +3,13 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{01641681-AC64-4EA4-9B39-AB2D7272722A}"
+        ProjectGuid = "{93030D8A-FD38-4445-80BE-13BDCA62349F}"
     >
         <Build>
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "throughputCommon"
+                AssemblyName = "throughputCommonD"
                 AssemblyOriginatorKeyFile = ""
                 AssemblyOriginatorKeyMode = "None"
                 DefaultClientScript = "JScript"
@@ -62,9 +62,13 @@
                     AssemblyName = "System"
                 />
                 <Reference
+                    Name = "System.Data"
+                    AssemblyName = "System.Data"
+                />
+                <Reference
                     Name = "icecs"
                     AssemblyName = "icecs"
-                    HintPath = "..\..\..\..\icecs\bin\icecs.dll"
+                    HintPath = "..\..\..\bin\icecs.dll"
                 />
             </References>
             <Imports>

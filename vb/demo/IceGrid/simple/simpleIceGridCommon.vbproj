@@ -3,13 +3,13 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{85753C0C-0A58-471C-991A-119620F8B67D}"
+        ProjectGuid = "{4F91E9BD-6EF1-47AD-AB67-E5357AE83696}"
     >
         <Build>
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "simpleIceGridCommon"
+                AssemblyName = "simpleIceGridCommonD"
                 AssemblyOriginatorKeyFile = ""
                 AssemblyOriginatorKeyMode = "None"
                 DefaultClientScript = "JScript"
@@ -20,8 +20,8 @@
                 OptionCompare = "Binary"
                 OptionExplicit = "On"
                 OptionStrict = "Off"
-                RootNamespace = "simpleicegrid"
-                StartupObject = "simpleicegrid.(None)"
+                RootNamespace = "simpleIceGrid"
+                StartupObject = "simpleIceGrid.(None)"
             >
                 <Config
                     Name = "Debug"
@@ -64,7 +64,7 @@
                 <Reference
                     Name = "icecs"
                     AssemblyName = "icecs"
-                    HintPath = "..\..\..\..\icecs\bin\icecs.dll"
+                    HintPath = "..\..\..\bin\icecs.dll"
                 />
             </References>
             <Imports>

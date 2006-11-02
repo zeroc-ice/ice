@@ -3,7 +3,7 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{7FB96A9D-FB86-4B13-90AF-D093DB7019DD}"
+        ProjectGuid = "{C726E767-E1F0-47DE-B00C-F70318DF22DC}"
     >
         <Build>
             <Settings
@@ -62,19 +62,18 @@
                     AssemblyName = "System"
                 />
                 <Reference
-                    Name = "glacier2callbackCommon"
-                    Project = "{75174677-2AB4-4C59-9DFC-D382C129BC73}"
+                    Name = "System.Data"
+                    AssemblyName = "System.Data"
+                />
+                <Reference
+                    Name = "glacier2callbackCommonD"
+                    Project = "{32AC5916-F54A-4397-B609-BF71A2D55123}"
                     Package = "{F184B08F-C81C-45F6-A57F-5ABD9991F28F}"
                 />
                 <Reference
                     Name = "icecs"
                     AssemblyName = "icecs"
-                    HintPath = "..\..\..\..\icecs\bin\icecs.dll"
-                />
-                <Reference
-                    Name = "System.Data"
-                    AssemblyName = "System.Data"
-                    HintPath = "..\..\..\..\..\..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.Data.dll"
+                    HintPath = "..\..\..\bin\icecs.dll"
                 />
             </References>
             <Imports>

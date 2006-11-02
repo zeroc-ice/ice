@@ -7,6 +7,7 @@
 '
 ' **********************************************************************
 
+Imports System
 Imports System.Collections
 
 Module ClockS

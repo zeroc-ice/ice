@@ -3,260 +3,260 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "compileSlice", "compileSlic
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "callbackCD", "Ice\callback\callbackCD.vbproj", "{C0226AF9-D73D-4F55-A34B-CA24689F7607}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "callbackC", "Ice\callback\callbackC.vbproj", "{C0226AF9-D73D-4F55-A34B-CA24689F7607}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2589CB66-F45D-4F17-A799-ADD9EA001A94} = {2589CB66-F45D-4F17-A799-ADD9EA001A94}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "callbackCommonD", "Ice\callback\callbackCommonD.vbproj", "{2589CB66-F45D-4F17-A799-ADD9EA001A94}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "callbackCommon", "Ice\callback\callbackCommon.vbproj", "{2589CB66-F45D-4F17-A799-ADD9EA001A94}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "callbackSD", "Ice\callback\callbackSD.vbproj", "{B04DBAC4-083D-4F57-8823-1C9C3B46E4E5}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "callbackS", "Ice\callback\callbackS.vbproj", "{B04DBAC4-083D-4F57-8823-1C9C3B46E4E5}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2589CB66-F45D-4F17-A799-ADD9EA001A94} = {2589CB66-F45D-4F17-A799-ADD9EA001A94}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "helloCD", "Ice\hello\helloCD.vbproj", "{E705273D-4882-47AF-AF7D-41A12CFEFBE4}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "helloC", "Ice\hello\helloC.vbproj", "{E705273D-4882-47AF-AF7D-41A12CFEFBE4}"
 	ProjectSection(ProjectDependencies) = postProject
 		{59486F58-E9F1-4B78-B0D0-B52570350BE9} = {59486F58-E9F1-4B78-B0D0-B52570350BE9}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "helloCommonD", "Ice\hello\helloCommonD.vbproj", "{59486F58-E9F1-4B78-B0D0-B52570350BE9}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "helloCommon", "Ice\hello\helloCommon.vbproj", "{59486F58-E9F1-4B78-B0D0-B52570350BE9}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "helloSD", "Ice\hello\helloSD.vbproj", "{B7CA51A2-E26B-48E6-A4EA-828B9A2AD2B5}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "helloS", "Ice\hello\helloS.vbproj", "{B7CA51A2-E26B-48E6-A4EA-828B9A2AD2B5}"
 	ProjectSection(ProjectDependencies) = postProject
 		{59486F58-E9F1-4B78-B0D0-B52570350BE9} = {59486F58-E9F1-4B78-B0D0-B52570350BE9}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "invokeCD", "Ice\invoke\invokeCD.vbproj", "{62CD2F2A-281F-4371-B5D8-CCFA113EEDA5}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "invokeC", "Ice\invoke\invokeC.vbproj", "{62CD2F2A-281F-4371-B5D8-CCFA113EEDA5}"
 	ProjectSection(ProjectDependencies) = postProject
 		{C2A070AF-8C67-4F5F-BA72-9CF92794790A} = {C2A070AF-8C67-4F5F-BA72-9CF92794790A}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "invokeCommonD", "Ice\invoke\invokeCommonD.vbproj", "{C2A070AF-8C67-4F5F-BA72-9CF92794790A}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "invokeCommon", "Ice\invoke\invokeCommon.vbproj", "{C2A070AF-8C67-4F5F-BA72-9CF92794790A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "invokeSD", "Ice\invoke\invokeSD.vbproj", "{6BF3EEA6-EF93-409C-BB0A-612F54CCFFE1}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "invokeS", "Ice\invoke\invokeS.vbproj", "{6BF3EEA6-EF93-409C-BB0A-612F54CCFFE1}"
 	ProjectSection(ProjectDependencies) = postProject
 		{C2A070AF-8C67-4F5F-BA72-9CF92794790A} = {C2A070AF-8C67-4F5F-BA72-9CF92794790A}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "latencyCD", "Ice\latency\latencyCD.vbproj", "{367DB319-3ADF-4787-94DD-A9F0C5EDD102}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "latencyC", "Ice\latency\latencyC.vbproj", "{367DB319-3ADF-4787-94DD-A9F0C5EDD102}"
 	ProjectSection(ProjectDependencies) = postProject
 		{5FEE2505-2240-455A-9A5D-FCACB7274C46} = {5FEE2505-2240-455A-9A5D-FCACB7274C46}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "latencyCommonD", "Ice\latency\latencyCommonD.vbproj", "{5FEE2505-2240-455A-9A5D-FCACB7274C46}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "latencyCommon", "Ice\latency\latencyCommon.vbproj", "{5FEE2505-2240-455A-9A5D-FCACB7274C46}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "latencySD", "Ice\latency\latencySD.vbproj", "{E0D2CCD8-B988-43D5-8E4B-76A15110D5D7}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "latencyS", "Ice\latency\latencyS.vbproj", "{E0D2CCD8-B988-43D5-8E4B-76A15110D5D7}"
 	ProjectSection(ProjectDependencies) = postProject
 		{5FEE2505-2240-455A-9A5D-FCACB7274C46} = {5FEE2505-2240-455A-9A5D-FCACB7274C46}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "nestedCD", "Ice\nested\nestedCD.vbproj", "{73E26C91-7786-4085-B58A-F0A2993FDB53}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "nestedC", "Ice\nested\nestedC.vbproj", "{73E26C91-7786-4085-B58A-F0A2993FDB53}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A0B88A9F-B84D-494D-A763-78712667E592} = {A0B88A9F-B84D-494D-A763-78712667E592}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "nestedCommonD", "Ice\nested\nestedCommonD.vbproj", "{A0B88A9F-B84D-494D-A763-78712667E592}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "nestedCommon", "Ice\nested\nestedCommon.vbproj", "{A0B88A9F-B84D-494D-A763-78712667E592}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "nestedSD", "Ice\nested\nestedSD.vbproj", "{E2E33D96-D09B-4040-8C01-8543772BEA55}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "nestedS", "Ice\nested\nestedS.vbproj", "{E2E33D96-D09B-4040-8C01-8543772BEA55}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A0B88A9F-B84D-494D-A763-78712667E592} = {A0B88A9F-B84D-494D-A763-78712667E592}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "throughputCD", "Ice\throughput\throughputCD.vbproj", "{AFAF737D-61D5-478E-969C-B0F7CF15CCA5}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "throughputC", "Ice\throughput\throughputC.vbproj", "{AFAF737D-61D5-478E-969C-B0F7CF15CCA5}"
 	ProjectSection(ProjectDependencies) = postProject
 		{93030D8A-FD38-4445-80BE-13BDCA62349F} = {93030D8A-FD38-4445-80BE-13BDCA62349F}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "throughputCommonD", "Ice\throughput\throughputCommonD.vbproj", "{93030D8A-FD38-4445-80BE-13BDCA62349F}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "throughputCommon", "Ice\throughput\throughputCommon.vbproj", "{93030D8A-FD38-4445-80BE-13BDCA62349F}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "throughputSD", "Ice\throughput\throughputSD.vbproj", "{345B2ED1-378D-4C6B-921F-8FD80350CC92}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "throughputS", "Ice\throughput\throughputS.vbproj", "{345B2ED1-378D-4C6B-921F-8FD80350CC92}"
 	ProjectSection(ProjectDependencies) = postProject
 		{93030D8A-FD38-4445-80BE-13BDCA62349F} = {93030D8A-FD38-4445-80BE-13BDCA62349F}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "valueCD", "Ice\value\valueCD.vbproj", "{CAB44FDA-91DB-4890-8E8C-8F56422C6508}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "valueC", "Ice\value\valueC.vbproj", "{CAB44FDA-91DB-4890-8E8C-8F56422C6508}"
 	ProjectSection(ProjectDependencies) = postProject
 		{801CAF98-F8CF-42E2-98AD-1373A8ABA749} = {801CAF98-F8CF-42E2-98AD-1373A8ABA749}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "valueCommonD", "Ice\value\valueCommonD.vbproj", "{801CAF98-F8CF-42E2-98AD-1373A8ABA749}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "valueCommon", "Ice\value\valueCommon.vbproj", "{801CAF98-F8CF-42E2-98AD-1373A8ABA749}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "valueSD", "Ice\value\valueSD.vbproj", "{DAA748B3-725F-49CF-B485-9C7F7FC3BECE}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "valueS", "Ice\value\valueS.vbproj", "{DAA748B3-725F-49CF-B485-9C7F7FC3BECE}"
 	ProjectSection(ProjectDependencies) = postProject
 		{801CAF98-F8CF-42E2-98AD-1373A8ABA749} = {801CAF98-F8CF-42E2-98AD-1373A8ABA749}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "printerCD", "book\printer\printerCD.vbproj", "{A9808C9D-94C3-43FC-9100-BB55328865BD}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "printerC", "book\printer\printerC.vbproj", "{A9808C9D-94C3-43FC-9100-BB55328865BD}"
 	ProjectSection(ProjectDependencies) = postProject
 		{5F9AA7BE-B1C1-488F-AB67-6E742F2FCCBE} = {5F9AA7BE-B1C1-488F-AB67-6E742F2FCCBE}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "printerCommonD", "book\printer\printerCommonD.vbproj", "{5F9AA7BE-B1C1-488F-AB67-6E742F2FCCBE}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "printerCommon", "book\printer\printerCommon.vbproj", "{5F9AA7BE-B1C1-488F-AB67-6E742F2FCCBE}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "printerSD", "book\printer\printerSD.vbproj", "{EAD5FEB2-1CA9-44C6-AD31-B1939BF83104}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "printerS", "book\printer\printerS.vbproj", "{EAD5FEB2-1CA9-44C6-AD31-B1939BF83104}"
 	ProjectSection(ProjectDependencies) = postProject
 		{5F9AA7BE-B1C1-488F-AB67-6E742F2FCCBE} = {5F9AA7BE-B1C1-488F-AB67-6E742F2FCCBE}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleFSCD", "book\simple_filesystem\simpleFSCD.vbproj", "{1BEB3E09-5C48-4F9D-9295-C91FD52E662D}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleFSC", "book\simple_filesystem\simpleFSC.vbproj", "{1BEB3E09-5C48-4F9D-9295-C91FD52E662D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B2902411-A398-421B-A848-64073F8B9EC9} = {B2902411-A398-421B-A848-64073F8B9EC9}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleFSCommonD", "book\simple_filesystem\simpleFSCommonD.vbproj", "{B2902411-A398-421B-A848-64073F8B9EC9}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleFSCommon", "book\simple_filesystem\simpleFSCommon.vbproj", "{B2902411-A398-421B-A848-64073F8B9EC9}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleFSSD", "book\simple_filesystem\simpleFSSD.vbproj", "{357ADC23-03C4-4A8B-8017-07810895F3AF}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleFSS", "book\simple_filesystem\simpleFSS.vbproj", "{357ADC23-03C4-4A8B-8017-07810895F3AF}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "bidirCD", "Ice\bidir\bidirCD.vbproj", "{61ADC064-8C64-44F7-BF9C-6E669CE28122}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "bidirC", "Ice\bidir\bidirC.vbproj", "{61ADC064-8C64-44F7-BF9C-6E669CE28122}"
 	ProjectSection(ProjectDependencies) = postProject
 		{8B858A7E-448F-4269-8D9A-2FC41A98D036} = {8B858A7E-448F-4269-8D9A-2FC41A98D036}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "bidirCommonD", "Ice\bidir\bidirCommonD.vbproj", "{8B858A7E-448F-4269-8D9A-2FC41A98D036}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "bidirCommon", "Ice\bidir\bidirCommon.vbproj", "{8B858A7E-448F-4269-8D9A-2FC41A98D036}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "bidirSD", "Ice\bidir\bidirSD.vbproj", "{B0B292F5-B5E4-4537-9C74-8525A4B0C484}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "bidirS", "Ice\bidir\bidirS.vbproj", "{B0B292F5-B5E4-4537-9C74-8525A4B0C484}"
 	ProjectSection(ProjectDependencies) = postProject
 		{8B858A7E-448F-4269-8D9A-2FC41A98D036} = {8B858A7E-448F-4269-8D9A-2FC41A98D036}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "glacier2callbackCD", "Glacier2\callback\glacier2callbackCD.vbproj", "{C64E4A20-7021-4DBF-9CE6-0D284965628B}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "glacier2callbackC", "Glacier2\callback\glacier2callbackC.vbproj", "{C64E4A20-7021-4DBF-9CE6-0D284965628B}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "glacier2callbackCommonD", "Glacier2\callback\glacier2callbackCommonD.vbproj", "{32AC5916-F54A-4397-B609-BF71A2D55123}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "glacier2callbackCommon", "Glacier2\callback\glacier2callbackCommon.vbproj", "{32AC5916-F54A-4397-B609-BF71A2D55123}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "glacier2callbackSD", "Glacier2\callback\glacier2callbackSD.vbproj", "{C726E767-E1F0-47DE-B00C-F70318DF22DC}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "glacier2callbackS", "Glacier2\callback\glacier2callbackS.vbproj", "{C726E767-E1F0-47DE-B00C-F70318DF22DC}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "glacier2callbackSSD", "Glacier2\callback\glacier2callbackSSD.vbproj", "{10F1F272-4F37-400F-A1CF-8D68CAC629CD}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "glacier2callbackSS", "Glacier2\callback\glacier2callbackSS.vbproj", "{10F1F272-4F37-400F-A1CF-8D68CAC629CD}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionCommonD", "Ice\session\sessionCommonD.vbproj", "{53595BE6-647C-4F3E-9EE8-E8BFA2F95E15}"
-	ProjectSection(ProjectDependencies) = postProject
-		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
-	EndProjectSection
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionCD", "Ice\session\sessionCD.vbproj", "{9A8AE05D-ADD2-45FC-B11D-8AC3FB40D9A3}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionCommon", "Ice\session\sessionCommon.vbproj", "{53595BE6-647C-4F3E-9EE8-E8BFA2F95E15}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionSD", "Ice\session\sessionSD.vbproj", "{538DC68C-250A-4D9B-9C84-457D80DD6F1D}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionC", "Ice\session\sessionC.vbproj", "{9A8AE05D-ADD2-45FC-B11D-8AC3FB40D9A3}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "minimalCommonD", "Ice\minimal\minimalCommonD.vbproj", "{1CAE2E1F-5089-4026-93A8-AFCF8183539D}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "minimalSD", "Ice\minimal\minimalSD.vbproj", "{F700D409-2FBC-463F-87C4-93C4DEEB3B71}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "minimalCD", "Ice\minimal\minimalCD.vbproj", "{E04152E5-84AC-4EDD-991C-95045AF8E3A4}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "helloIceBoxCD", "IceBox\hello\helloIceBoxCD.vbproj", "{51724B8F-D0AA-4898-851F-BF7A0A2DB69B}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "helloIceBoxCommonD", "IceBox\hello\helloIceBoxCommonD.vbproj", "{54B6C934-DFDD-453F-AD83-98556D36B69B}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionS", "Ice\session\sessionS.vbproj", "{538DC68C-250A-4D9B-9C84-457D80DD6F1D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "helloIceBoxSD", "IceBox\hello\helloIceBoxSD.vbproj", "{6B31D52B-B813-4483-851A-91DF37C0B69C}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "minimalCommon", "Ice\minimal\minimalCommon.vbproj", "{1CAE2E1F-5089-4026-93A8-AFCF8183539D}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleIceGridCD", "IceGrid\simple\simpleIceGridCD.vbproj", "{61545E43-F8B3-492F-B6A5-26527AB13696}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "minimalS", "Ice\minimal\minimalS.vbproj", "{F700D409-2FBC-463F-87C4-93C4DEEB3B71}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleIceGridCommonD", "IceGrid\simple\simpleIceGridCommonD.vbproj", "{4F91E9BD-6EF1-47AD-AB67-E5357AE83696}"
-	ProjectSection(ProjectDependencies) = postProject
-		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
-	EndProjectSection
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleIceGridSD", "IceGrid\simple\simpleIceGridSD.vbproj", "{E42D2542-A745-4752-8D53-565BC7A93696}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "minimalC", "Ice\minimal\minimalC.vbproj", "{E04152E5-84AC-4EDD-991C-95045AF8E3A4}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionActivationCD", "IceGrid\sessionActivation\sessionActivationCD.vbproj", "{22675E43-F8B3-492F-B6A5-26527AB13696}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "helloIceBoxC", "IceBox\hello\helloIceBoxC.vbproj", "{51724B8F-D0AA-4898-851F-BF7A0A2DB69B}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionActivationCommonD", "IceGrid\sessionActivation\sessionActivationCommonD.vbproj", "{2267E9BD-6EF1-47AD-AB67-E5357AE83696}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "helloIceBoxCommon", "IceBox\hello\helloIceBoxCommon.vbproj", "{54B6C934-DFDD-453F-AD83-98556D36B69B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionActivationSD", "IceGrid\sessionActivation\sessionActivationSD.vbproj", "{22672542-A745-4752-8D53-565BC7A93696}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "helloIceBoxS", "IceBox\hello\helloIceBoxS.vbproj", "{6B31D52B-B813-4483-851A-91DF37C0B69C}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "allocateCD", "IceGrid\allocate\allocateCD.vbproj", "{19705E43-F8B3-492F-B6A5-26527AB13696}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleIceGridC", "IceGrid\simple\simpleIceGridC.vbproj", "{61545E43-F8B3-492F-B6A5-26527AB13696}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "allocateCommonD", "IceGrid\allocate\allocateCommonD.vbproj", "{1970E9BD-6EF1-47AD-AB67-E5357AE83696}"
-	ProjectSection(ProjectDependencies) = postProject
-		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
-	EndProjectSection
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "allocateSD", "IceGrid\allocate\allocateSD.vbproj", "{19702542-A745-4752-8D53-565BC7A93696}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "clockCD", "IceStorm\clock\clockCD.vbproj", "{E76D1D8E-7154-461D-BAFA-A3BB2E5D6D7A}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "clockCommonD", "IceStorm\clock\clockCommonD.vbproj", "{BD0D11C9-CE32-424E-AAEA-F6296372B674}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleIceGridCommon", "IceGrid\simple\simpleIceGridCommon.vbproj", "{4F91E9BD-6EF1-47AD-AB67-E5357AE83696}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "clockSD", "IceStorm\clock\clockSD.vbproj", "{FC6800FD-F1B4-4ADC-850C-6D53FFC26D81}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleIceGridS", "IceGrid\simple\simpleIceGridS.vbproj", "{E42D2542-A745-4752-8D53-565BC7A93696}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionActivationC", "IceGrid\sessionActivation\sessionActivationC.vbproj", "{22675E43-F8B3-492F-B6A5-26527AB13696}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionActivationCommon", "IceGrid\sessionActivation\sessionActivationCommon.vbproj", "{2267E9BD-6EF1-47AD-AB67-E5357AE83696}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionActivationS", "IceGrid\sessionActivation\sessionActivationS.vbproj", "{22672542-A745-4752-8D53-565BC7A93696}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "allocateC", "IceGrid\allocate\allocateC.vbproj", "{19705E43-F8B3-492F-B6A5-26527AB13696}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "allocateCommon", "IceGrid\allocate\allocateCommon.vbproj", "{1970E9BD-6EF1-47AD-AB67-E5357AE83696}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "allocateS", "IceGrid\allocate\allocateS.vbproj", "{19702542-A745-4752-8D53-565BC7A93696}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "clockC", "IceStorm\clock\clockC.vbproj", "{E76D1D8E-7154-461D-BAFA-A3BB2E5D6D7A}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "clockCommon", "IceStorm\clock\clockCommon.vbproj", "{BD0D11C9-CE32-424E-AAEA-F6296372B674}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "clockS", "IceStorm\clock\clockS.vbproj", "{FC6800FD-F1B4-4ADC-850C-6D53FFC26D81}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject

@@ -7,6 +7,7 @@
 '
 ' **********************************************************************
 
+Imports System
 Imports Demo
 
 Public Class ClockI

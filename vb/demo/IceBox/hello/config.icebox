@@ -9,7 +9,7 @@ IceBox.ServiceManager.Endpoints=tcp -p 9998:ssl -p 9999
 #
 # The hello service
 #
-IceBox.Service.Hello=helloservice.dll:helloicebox.HelloIceBoxS+HelloServiceI
+IceBox.Service.Hello=helloservice.dll:HelloIceBox.HelloIceBoxS+HelloServiceI
 
 #
 # The server creates one single object adapter with the name of

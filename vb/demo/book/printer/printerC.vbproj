@@ -3,7 +3,7 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{F9015E65-8312-4FAA-9261-F72C9989C6D7}"
+        ProjectGuid = "{A9808C9D-94C3-43FC-9100-BB55328865BD}"
     >
         <Build>
             <Settings
@@ -62,14 +62,18 @@
                     AssemblyName = "System"
                 />
                 <Reference
-                    Name = "icecs"
-                    AssemblyName = "icecs"
-                    HintPath = "..\..\..\..\icecs\bin\icecs.dll"
+                    Name = "System.Data"
+                    AssemblyName = "System.Data"
                 />
                 <Reference
-                    Name = "printerCommon"
-                    Project = "{DF6F3718-DC85-4DEA-A4AF-57967A8E222D}"
+                    Name = "printerCommonD"
+                    Project = "{5F9AA7BE-B1C1-488F-AB67-6E742F2FCCBE}"
                     Package = "{F184B08F-C81C-45F6-A57F-5ABD9991F28F}"
+                />
+                <Reference
+                    Name = "icecs"
+                    AssemblyName = "icecs"
+                    HintPath = "..\..\..\bin\icecs.dll"
                 />
             </References>
             <Imports>

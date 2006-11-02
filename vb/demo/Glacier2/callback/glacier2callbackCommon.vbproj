@@ -3,13 +3,13 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{75174677-2AB4-4C59-9DFC-D382C129BC73}"
+        ProjectGuid = "{32AC5916-F54A-4397-B609-BF71A2D55123}"
     >
         <Build>
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "glacier2callbackCommon"
+                AssemblyName = "glacier2callbackCommonD"
                 AssemblyOriginatorKeyFile = ""
                 AssemblyOriginatorKeyMode = "None"
                 DefaultClientScript = "JScript"
@@ -20,8 +20,8 @@
                 OptionCompare = "Binary"
                 OptionExplicit = "On"
                 OptionStrict = "Off"
-                RootNamespace = "glacier2demo"
-                StartupObject = "glacier2demo.(None)"
+                RootNamespace = "glacier2Demo"
+                StartupObject = "glacier2Demo.(None)"
             >
                 <Config
                     Name = "Debug"
@@ -62,9 +62,13 @@
                     AssemblyName = "System"
                 />
                 <Reference
+                    Name = "System.Data"
+                    AssemblyName = "System.Data"
+                />
+                <Reference
                     Name = "icecs"
                     AssemblyName = "icecs"
-                    HintPath = "..\..\..\..\icecs\bin\icecs.dll"
+                    HintPath = "..\..\..\bin\icecs.dll"
                 />
             </References>
             <Imports>

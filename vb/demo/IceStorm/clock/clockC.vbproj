@@ -3,7 +3,7 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{298D6EED-3E48-4C56-B61A-E3D9EA7B2E12}"
+        ProjectGuid = "{E76D1D8E-7154-461D-BAFA-A3BB2E5D6D7A}"
     >
         <Build>
             <Settings
@@ -62,19 +62,19 @@
                     AssemblyName = "System"
                 />
                 <Reference
-                    Name = "clockCommon"
-                    Project = "{A9A64F6F-100A-48F1-B8BB-A648EDAFB674}"
+                    Name = "clockCommonD"
+                    Project = "{BD0D11C9-CE32-424E-AAEA-F6296372B674}"
                     Package = "{F184B08F-C81C-45F6-A57F-5ABD9991F28F}"
                 />
                 <Reference
                     Name = "icecs"
                     AssemblyName = "icecs"
-                    HintPath = "..\..\..\..\icecs\bin\icecs.dll"
+                    HintPath = "..\..\..\bin\icecs.dll"
                 />
                 <Reference
                     Name = "icestormcs"
                     AssemblyName = "icestormcs"
-                    HintPath = "..\..\..\..\icecs\bin\icestormcs.dll"
+                    HintPath = "..\..\..\bin\icestormcs.dll"
                 />
             </References>
             <Imports>

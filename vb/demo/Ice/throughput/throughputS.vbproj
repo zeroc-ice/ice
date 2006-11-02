@@ -3,7 +3,7 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{145A53FE-422A-4B83-8B3E-2EA96758435B}"
+        ProjectGuid = "{345B2ED1-378D-4C6B-921F-8FD80350CC92}"
     >
         <Build>
             <Settings
@@ -20,7 +20,7 @@
                 OptionCompare = "Binary"
                 OptionExplicit = "On"
                 OptionStrict = "Off"
-                RootNamespace = ""
+                RootNamespace = "throughputSD"
                 StartupObject = ""
             >
                 <Config
@@ -62,14 +62,18 @@
                     AssemblyName = "System"
                 />
                 <Reference
-                    Name = "throughputCommon"
-                    Project = "{01641681-AC64-4EA4-9B39-AB2D7272722A}"
+                    Name = "System.Data"
+                    AssemblyName = "System.Data"
+                />
+                <Reference
+                    Name = "throughputCommonD"
+                    Project = "{93030D8A-FD38-4445-80BE-13BDCA62349F}"
                     Package = "{F184B08F-C81C-45F6-A57F-5ABD9991F28F}"
                 />
                 <Reference
                     Name = "icecs"
                     AssemblyName = "icecs"
-                    HintPath = "..\..\..\..\icecs\bin\icecs.dll"
+                    HintPath = "..\..\..\bin\icecs.dll"
                 />
             </References>
             <Imports>

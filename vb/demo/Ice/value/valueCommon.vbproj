@@ -3,13 +3,13 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{359D559E-A139-44B0-B09F-3B527AEAB0A3}"
+        ProjectGuid = "{801CAF98-F8CF-42E2-98AD-1373A8ABA749}"
     >
         <Build>
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "valueCommon"
+                AssemblyName = "valueCommonD"
                 AssemblyOriginatorKeyFile = ""
                 AssemblyOriginatorKeyMode = "None"
                 DefaultClientScript = "JScript"
@@ -58,9 +58,17 @@
             </Settings>
             <References>
                 <Reference
+                    Name = "System"
+                    AssemblyName = "System"
+                />
+                <Reference
+                    Name = "System.Data"
+                    AssemblyName = "System.Data"
+                />
+                <Reference
                     Name = "icecs"
                     AssemblyName = "icecs"
-                    HintPath = "..\..\..\..\icecs\bin\icecs.dll"
+                    HintPath = "..\..\..\bin\icecs.dll"
                 />
             </References>
             <Imports>
@@ -69,21 +77,6 @@
         </Build>
         <Files>
             <Include>
-                <File
-                    RelPath = "DerivedPrinterI.vb"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ObjectFactory.vb"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "PrinterI.vb"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
                 <File
                     RelPath = "generated\Value.vb"
                     SubType = "Code"
