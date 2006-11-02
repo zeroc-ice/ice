@@ -249,6 +249,9 @@ if not patchIceE:
     #
     icevb_home = findSourceTree("icevb", os.path.join("generate", "Generate.vb"))
     if icevb_home:
+	fileMatchAndReplace(os.path.join(icevb_home, "config", "Make.rules.mak"),
+			    [("VERSION[\t\s]*= ([0-9]*\.[0-9]*\.[0-9]*)", version)])
+
 	fileMatchAndReplace(os.path.join(icevb_home, "demo", "IceStorm", "clock", "config.icebox"),
 			    [("IceStormService,([0-9]*[0-9]*)", soVersion(version))])
 
@@ -298,6 +301,9 @@ if not patchIceE:
     result = os.system('gmake config')
     if result != 0:
         print "\'gmake config\' failed!!!"
+
+    print "\nYou must run \"nmake /f Makefile.mak config\" in icevb to complete version change!"
+
     sys.exit(0)
 
 #
