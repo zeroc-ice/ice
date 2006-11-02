@@ -3764,9 +3764,10 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	{
 	    _out << "Return ";
 	}
-	_out << opName << spar << args << "defaultContext__()" << epar;
+	_out << opName << spar << args << "Nothing" << "False" << epar;
 	_out.dec();
 	_out << nl << "End " << vbOp;
+
 
 	_out << sp << nl << "Public " << vbOp << ' ' << opName << spar << params
 	     << "ByVal context__ As Ice.Context" << epar;
@@ -3774,8 +3775,29 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	{
 	    _out << " As " << retS;
 	}
-	_out << " Implements " << name << "Prx." << opName; // TODO: should be containing class?
+	_out << " Implements " << name << "Prx." << opName;
 	_out.inc();
+	_out << nl;
+	if(ret)
+	{
+	    _out << "Return ";
+	}
+	_out << opName << spar << args << "context__" << "True" << epar;
+	_out.dec();
+	_out << nl << "End " << vbOp;
+
+	_out << sp << nl << "Private " << vbOp << ' ' << opName << spar << params
+	     << "ByVal context__ As Ice.Context" << "explicitContext__ As Boolean" << epar;
+	if(ret)
+	{
+	    _out << " As " << retS;
+	}
+	_out.inc();
+	_out << nl << "If explicitContext__ And context__ Is Nothing Then";
+	_out.inc();
+	_out << nl << "context__ = emptyContext_";
+	_out.dec();
+	_out << nl << "End If";
 	_out << nl << "Dim cnt__ As Integer = 0";
 	_out << nl << "While True";
 	_out.inc();
@@ -3860,7 +3882,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    _out << sp << nl << "Public Sub " << opName << "_async" << spar << paramsAMI << epar
 	         << " Implements " << name << "Prx." << opName << "_async"; // TODO: should be containing class?
 	    _out.inc();
-	    _out << nl << opName << "_async" << spar << argsAMI << "defaultContext__()" << epar;
+	    _out << nl << opName << "_async" << spar << argsAMI << "Nothing" << epar;
 	    _out.dec();
 	    _out << nl << "End Sub";
 
@@ -3868,6 +3890,11 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	         << "ByVal ctx__ As Ice.Context" << epar
 	         << " Implements " << name << "Prx." << opName << "_async"; // TODO: should be containing class?
 	    _out.inc();
+	    _out << nl << "If ctx__ Is Nothing Then";
+	    _out.inc();
+	    _out << nl << "ctx__ = emptyContext_";
+	    _out.dec();
+	    _out << nl << "End If";
 	    _out << nl << "cb__.invoke__" << spar << "Me" << argsAMI << "ctx__" << epar;
 	    _out.dec();
 	    _out << nl << "End Sub";
