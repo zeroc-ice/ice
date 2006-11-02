@@ -8,10 +8,10 @@
 # **********************************************************************
 
 
-threadPoolOne = " --Ice.MemoryPool=1 --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=1 --Ice.ThreadPool.Server.SizeWarn=2"
-threadPoolFour = " --Ice.MemoryPool=1 --Ice.ThreadPool.Server.Size=4 --Ice.ThreadPool.Server.SizeMax=4 --Ice.ThreadPool.Server.SizeWarn=5"
-threadPerConnection = " --Ice.MemoryPool=1  --Ice.ThreadPerConnection"
-blocking = " --Ice.MemoryPool=1 --Ice.Blocking"
+threadPoolOne = "  --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=1 --Ice.ThreadPool.Server.SizeWarn=2"
+threadPoolFour = " --Ice.ThreadPool.Server.Size=4 --Ice.ThreadPool.Server.SizeMax=4 --Ice.ThreadPool.Server.SizeWarn=5"
+threadPerConnection = "  --Ice.ThreadPerConnection"
+blocking = "  --Ice.Blocking"
 productName = "Ice"
 
 testDefinitions = [

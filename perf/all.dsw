@@ -36,18 +36,6 @@ Package=<4>
     Project_Dep_Name taoS
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name latencyIceEC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name latencyIceES
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name throughputIceEC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name throughputIceES
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name consumer
     End Project Dependency
     Begin Project Dependency

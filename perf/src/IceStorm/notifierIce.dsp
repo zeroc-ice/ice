@@ -41,6 +41,7 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
+MTL=midl.exe
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "$(ICE_HOME)/include" /I "$(ICE_HOME)/include/stlport" /D "NDEBUG" /D "_CONSOLE" /FD /c
 # SUBTRACT CPP /Fr /YX
@@ -51,7 +52,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 Ice.lib IceUtil.lib /nologo /subsystem:console /incremental:yes /machine:I386 /out:"notifier.exe" /libpath:"$(ICE_HOME)/lib"
+# ADD LINK32 Ice.lib IceUtil.lib stlport_vc6.lib /nologo /subsystem:console /incremental:yes /machine:I386 /out:"notifier.exe" /libpath:"$(ICE_HOME)/lib"
 # SUBTRACT LINK32 /debug /nodefaultlib
 
 !ELSEIF  "$(CFG)" == "notifierIce - Win32 Debug"
@@ -67,6 +68,7 @@ LINK32=link.exe
 # PROP Intermediate_Dir "Debug"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
+MTL=midl.exe
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
 # ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "$(ICE_HOME)/include" /I "$(ICE_HOME)/include/stlport" /D "_DEBUG" /D "_CONSOLE" /FD /GZ /c
 # SUBTRACT CPP /Fr /YX
@@ -77,7 +79,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 Iced.lib IceUtild.lib /nologo /subsystem:console /debug /machine:I386 /out:"notifier.exe" /pdbtype:sept /libpath:"$(ICE_HOME)/lib"
+# ADD LINK32 Iced.lib IceUtild.lib stlport_vc6.lib /nologo /subsystem:console /debug /machine:I386 /out:"notifier.exe" /pdbtype:sept /libpath:"$(ICE_HOME)/lib"
 # SUBTRACT LINK32 /incremental:no /nodefaultlib
 
 !ENDIF 
@@ -115,7 +117,7 @@ SOURCE=.\Sync.ice
 
 !IF  "$(CFG)" == "notifierIce - Win32 Release"
 
-USERDEP__LATEN="$(ICE_HOME)\bin\slice2cpp.exe"	"$(ICE_HOME)\lib\slice.lib"	
+USERDEP__SYNC_="$(ICE_HOME)\bin\slice2cpp.exe"	"$(ICE_HOME)\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Sync.ice
 
@@ -131,7 +133,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "notifierIce - Win32 Debug"
 
-USERDEP__LATEN="$(ICE_HOME)\bin\slice2cpp.exe"	"$(ICE_HOME)\lib\sliced.lib"	
+USERDEP__SYNC_="$(ICE_HOME)\bin\slice2cpp.exe"	"$(ICE_HOME)\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Sync.ice
 
