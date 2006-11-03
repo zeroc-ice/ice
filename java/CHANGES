@@ -3,6 +3,24 @@ NOTE: Please keep changes in the appropriate section for HEAD or 3.1.
 Changes since version 3.1.1 (HEAD)
 ---------------------------     
 
+- New feature: implicit context 
+  When you invoke an operation on a proxy and don't pass an explicit 
+  context, Ice uses the "implicit context" combined with the context
+  associated with the proxy (if there is one)
+  You can retrieve and set this ImplicitContext using 
+  Communicator::getImplicitContext(). Four ImplicitContext implementations
+  are available. You select an implementation by setting the 
+  Ice.ImplicitContext property to one of the following values:
+    * None: (the default) No implicit context at all
+    * PerThread: The implementation maintains a Context per thread
+    * Shared: The implementation maintains a single Context shared 
+              by all threads, and serializes access to this Context
+    * SharedWithoutLocking: The implementation maintains a single 
+              Context shared by all threads, and does not serialize 
+              access to this Context
+
+- Removed defaultContext from InitializationData
+
 - For object adapters without endpoints, Ice.Trace.Network >= 2 now
   prints a trace message.
 
