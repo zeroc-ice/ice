@@ -33,7 +33,7 @@ SRCS		= $(OBJS:.obj=.cpp) \
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I. -I$(ORACLE_HOME)\precomp\public -DSQLCA_NONE $(CPPFLAGS)
+CPPFLAGS	= -I. -I$(ORACLE_HOME)\precomp\public -DSQLCA_NONE $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
 GENERATED_PROC_FILES  = $(PROC_SRCS:.pc=.cpp) 
 

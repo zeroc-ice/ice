@@ -31,7 +31,7 @@ HDIR		= $(includedir)\IceSSL
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_SSL_API_EXPORTS -DFD_SETSIZE=1024
+CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_SSL_API_EXPORTS -DFD_SETSIZE=1024 -DWIN32_LEAN_AND_MEAN
 
 LINKWITH        = $(OPENSSL_LIBS) $(LIBS)
 !if "$(BORLAND_HOME)" == ""

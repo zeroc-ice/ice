@@ -55,7 +55,7 @@ SRCS		= $(COBJS:.obj=.cpp) \
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-SLICE2CPPFLAGS	= --stream $(SLICE2CPPFLAGS)
+SLICE2CPPFLAGS	= --stream $(SLICE2CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 CPPFLAGS	= -I. -I../../include $(CPPFLAGS)
 !if "$(BORLAND_HOME)" == ""
 CPPFLAGS	= $(CPPFLAGS) -Zm200

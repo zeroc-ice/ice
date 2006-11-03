@@ -37,7 +37,7 @@ SRCS		= $(COBJS:.obj=.cpp) \
 
 ICECPPFLAGS	= -I. $(ICECPPFLAGS)
 
-CPPFLAGS	= -I. -I../../../include $(CPPFLAGS)
+CPPFLAGS	= -I. -I../../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
 !if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)

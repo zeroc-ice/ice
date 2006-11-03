@@ -52,7 +52,7 @@ SDIR		= $(slicedir)\Glacier2
 
 !ifdef BUILD_UTILS
 
-CPPFLAGS	= -I.. $(CPPFLAGS)
+CPPFLAGS	= -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 LINKWITH 	= $(LIBS) $(OPENSSL_LIBS) glacier2$(LIBSUFFIX).lib icessl$(LIBSUFFIX).lib
 !if "$(BORLAND_HOME)" == ""
 LINKWITH	= $(LINKWITH) ws2_32.lib

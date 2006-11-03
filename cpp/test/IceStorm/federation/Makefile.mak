@@ -27,7 +27,7 @@ SRCS		= $(OBJS:.obj=.cpp) \
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I. -I../../include $(CPPFLAGS)
+CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 LIBS		= icestorm$(LIBSUFFIX).lib $(LIBS)
 
 !if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"

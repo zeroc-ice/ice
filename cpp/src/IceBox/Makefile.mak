@@ -44,7 +44,7 @@ SDIR		= $(slicedir)\IceBox
 
 !ifdef BUILD_UTILS
 
-CPPFLAGS	= -I.. $(CPPFLAGS)
+CPPFLAGS	= -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
 !else
 

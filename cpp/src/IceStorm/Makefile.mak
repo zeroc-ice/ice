@@ -66,7 +66,7 @@ SDIR		= $(slicedir)\IceStorm
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-CPPFLAGS	= -I.. -Idummyinclude $(CPPFLAGS)
+CPPFLAGS	= -I.. -Idummyinclude $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 SLICE2CPPFLAGS	= --ice --include-dir IceStorm $(SLICE2CPPFLAGS) -I..
 LINKWITH 	= $(LIBS) freeze$(LIBSUFFIX).lib icebox$(LIBSUFFIX).lib
 ALINKWITH 	= $(LIBS) icestorm$(LIBSUFFIX).lib icexml$(LIBSUFFIX).lib

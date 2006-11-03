@@ -45,7 +45,7 @@ SDIR		= $(slicedir)\Freeze
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I.. $(CPPFLAGS) -DFREEZE_API_EXPORTS
+CPPFLAGS	= -I.. $(CPPFLAGS) -DFREEZE_API_EXPORTS -DWIN32_LEAN_AND_MEAN
 SLICE2CPPFLAGS	= --ice --include-dir Freeze --dll-export FREEZE_API $(SLICE2CPPFLAGS)
 LINKWITH	= $(LIBS) $(DB_LIBS)
 

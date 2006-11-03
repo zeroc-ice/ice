@@ -19,7 +19,7 @@ SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I. $(CPPFLAGS)
+CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
 !if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
 PDBFLAGS        = /pdb:$(NAME:.exe=.pdb)

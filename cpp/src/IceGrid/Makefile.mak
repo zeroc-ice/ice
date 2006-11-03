@@ -127,7 +127,7 @@ NLINKWITH	= $(NLINKWITH) pdh.lib ws2_32.lib
 !ifdef BUILD_UTILS
 
 SLICE2CPPFLAGS	= --checksum --ice --include-dir IceGrid $(SLICE2CPPFLAGS)
-CPPFLAGS	= -I. -I.. -Idummyinclude $(CPPFLAGS)
+CPPFLAGS	= -I. -I.. -Idummyinclude $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 !if "$(BORLAND_HOME)" == ""
 CPPFLAGS 	= $(CPPFLAGS) -Zm200
 !endif

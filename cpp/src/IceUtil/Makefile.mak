@@ -41,7 +41,7 @@ SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS        = $(CPPFLAGS) -DICE_UTIL_API_EXPORTS -I..
+CPPFLAGS        = $(CPPFLAGS) -DICE_UTIL_API_EXPORTS -I.. -DWIN32_LEAN_AND_MEAN
 
 !if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
 PDBFLAGS	= /pdb:$(DLLNAME:.dll=.pdb)

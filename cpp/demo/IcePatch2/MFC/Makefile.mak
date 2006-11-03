@@ -13,26 +13,29 @@ CLIENT		= client.exe
 
 TARGETS		= $(CLIENT)
 
-COBJS		= Test.obj \
-		  Client.obj
-
-SRCS		= $(COBJS:.obj=.cpp)
+OBJS		= PatchClient.obj \
+		  PatchClientDlg.obj \
+		  stdafx.obj
+		
+SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
+CPPFLAGS	= -I. $(CPPFLAGS) -D_AFXDLL -DVC_EXTRALEAN
+LINKWITH	= icepatch2$(LIBSUFFIX).lib $(LIBS)
 
 !if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
 PDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 !endif
 
-$(CLIENT): $(COBJS)
-	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(CLIENT): $(OBJS) $(COBJS) PatchClient.res
+	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) /subsystem:windows $(OBJS) $(COBJS) PatchClient.res \
+	  $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
+
+PatchClient.res: PatchClient.rc
+	rc.exe PatchClient.rc
 
 clean::
-	del /q Test.cpp Test.h
-
-clean::
-	del /q seed
+	del /q PatchClient.res
 
 !include .depend

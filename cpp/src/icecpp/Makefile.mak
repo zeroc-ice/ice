@@ -19,7 +19,7 @@ OBJS		= cccp.obj \
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CFLAGS = $(CFLAGS) -I. -I../../include
+CFLAGS = $(CFLAGS) -I. -I../../include -DWIN32_LEAN_AND_MEAN
 
 !if "$(BORLAND_HOME)" == ""
 LINKWITH	= setargv.obj advapi32.lib

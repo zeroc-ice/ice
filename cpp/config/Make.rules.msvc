@@ -28,7 +28,7 @@ CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include\stlport" $(CPPFLAGS)
 
 !endif
 
-CPPFLAGS	= $(CPPFLAGS) -nologo -W3 -WX -GR -GX -FD -D_CONSOLE -DWIN32_LEAN_AND_MEAN
+CPPFLAGS	= $(CPPFLAGS) -nologo -W3 -WX -GR -GX -FD -D_CONSOLE
 
 !if "$(OPTIMIZE)" == "yes"
 CPPFLAGS	= $(CPPFLAGS) -MD -O2 -DNDEBUG

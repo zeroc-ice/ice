@@ -7,22 +7,11 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..
+top_srcdir	= ..\..
 
-!include $(top_srcdir)/config/Make.rules.mak
+!include $(top_srcdir)\config\Make.rules.mak
 
-SUBDIRS		= IceUtil \
-		  Ice \
-		  IceBox \
-		  Glacier2 \
-		  Freeze \
-		  IceStorm \
-		  IceGrid \
-		  book
-
-!if "$(BORLAND_HOME)" == ""
-SUBDIRS		= $(SUBDIRS) IcePatch2
-!endif
+SUBDIRS		= MFC
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

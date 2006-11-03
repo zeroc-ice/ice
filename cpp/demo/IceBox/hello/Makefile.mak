@@ -31,7 +31,7 @@ SLICE_SRCS	= Hello.ice
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-CPPFLAGS	= -I. $(CPPFLAGS)
+CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 LINKWITH	= $(LIBS) icebox$(LIBSUFFIX).lib
 
 !if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"

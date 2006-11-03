@@ -28,7 +28,7 @@ SRCS		= $(OBJS:.obj=.cpp) \
 !include $(top_srcdir)/config/Make.rules.mak
 
 SLICE2CPPFLAGS	= --stream $(SLICE2CPPFLAGS)
-CPPFLAGS	= -I. $(CPPFLAGS)
+CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
 !if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
