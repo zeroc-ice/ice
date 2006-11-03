@@ -494,9 +494,18 @@ NodeObserverTopic::initObserver(const Ice::ObjectPrx& obsv)
 
 ApplicationObserverTopic::ApplicationObserverTopic(const IceStorm::TopicManagerPrx& topicManager,
 						   const StringApplicationInfoDict& applications) :
-    ObserverTopic(topicManager, "ApplicationObserver"),
-    _applications(applications.begin(), applications.end())
+    ObserverTopic(topicManager, "ApplicationObserver")
+#ifndef _RWSTD_NO_MEMBER_TEMPLATES
+    ,_applications(applications.begin(), applications.end())
+#endif
 {
+#ifdef _RWSTD_NO_MEMBER_TEMPLATES
+    for(StringApplicationInfoDict::const_iterator p = applications.begin(); p != applications.end(); ++p)
+    {
+	_applications[p->first] = p->second;
+    }
+#endif
+
     const_cast<ApplicationObserverPrx&>(_publisher) = ApplicationObserverPrx::uncheckedCast(_basePublisher);
 }
 
@@ -639,9 +648,18 @@ ApplicationObserverTopic::initObserver(const Ice::ObjectPrx& obsv)
 
 AdapterObserverTopic::AdapterObserverTopic(const IceStorm::TopicManagerPrx& topicManager,
 					   const StringAdapterInfoDict& adapters) :
-    ObserverTopic(topicManager, "AdapterObserver"),
-    _adapters(adapters.begin(), adapters.end())
+    ObserverTopic(topicManager, "AdapterObserver")
+#ifndef _RWSTD_NO_MEMBER_TEMPLATES
+    , _adapters(adapters.begin(), adapters.end())
+#endif
 {
+#ifdef _RWSTD_NO_MEMBER_TEMPLATES
+    for(StringAdapterInfoDict::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+    {
+        _adapters[p->first] = p->second;
+    }
+#endif
+
     const_cast<AdapterObserverPrx&>(_publisher) = AdapterObserverPrx::uncheckedCast(_basePublisher);
 }
 
@@ -753,9 +771,18 @@ AdapterObserverTopic::initObserver(const Ice::ObjectPrx& obsv)
 
 ObjectObserverTopic::ObjectObserverTopic(const IceStorm::TopicManagerPrx& topicManager,
 					 const IdentityObjectInfoDict& objects) :
-    ObserverTopic(topicManager, "ObjectObserver"),
-    _objects(objects.begin(), objects.end())
+    ObserverTopic(topicManager, "ObjectObserver")
+#ifndef _RWSTD_NO_MEMBER_TEMPLATES
+    , _objects(objects.begin(), objects.end())
+#endif
 {
+#ifdef _RWSTD_NO_MEMBER_TEMPLATES
+    for(IdentityObjectInfoDict::const_iterator p = objects.begin(); p != objects.end(); ++p)
+    {
+        _objects[p->first] = p->second;
+    }
+#endif
+    
     const_cast<ObjectObserverPrx&>(_publisher) = ObjectObserverPrx::uncheckedCast(_basePublisher);
 }
 
