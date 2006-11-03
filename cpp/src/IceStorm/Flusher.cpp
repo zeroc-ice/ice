@@ -12,9 +12,12 @@
 #include <IceStorm/TraceLevels.h>
 
 #include <IceUtil/Functional.h>
-#include <Ice/Communicator.h>
+
 #include <Ice/Properties.h>
 #include <Ice/LoggerUtil.h>
+#include <Ice/Communicator.h>
+
+#include <Ice/Outgoing.h> // COMPILERFIX: Required for VS2003 and VS2005 builds to work!
 
 #include <algorithm>
 
