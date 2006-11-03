@@ -159,7 +159,7 @@ ServerCache::addCommunicator(const CommunicatorDescriptorPtr& comm, const Server
     for(AdapterDescriptorSeq::const_iterator q = comm->adapters.begin() ; q != comm->adapters.end(); ++q)
     {
 	assert(!q->id.empty());
-	_adapterCache.addServerAdapter(q->id, q->replicaGroupId, server);
+	_adapterCache.addServerAdapter(*q, server);
 
 	ObjectDescriptorSeq::const_iterator r;
 	for(r = q->objects.begin(); r != q->objects.end(); ++r)

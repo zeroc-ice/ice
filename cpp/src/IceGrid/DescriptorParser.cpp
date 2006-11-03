@@ -668,6 +668,7 @@ DescriptorHandler::endElement(const string& name, int line, int column)
 	} 
 	else if(name == "replica-group")
 	{
+	    _currentApplication->finishReplicaGroup();
 	    _inReplicaGroup = false;
 	} 
 	else if(name == "dbenv")

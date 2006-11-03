@@ -40,6 +40,8 @@ public:
     virtual AdapterInfoSeq getAdapterInfo() const = 0;
 
     virtual bool canRemove();
+
+    std::string getId() const;
     
 protected:
 
@@ -52,7 +54,7 @@ class ServerAdapterEntry : public AdapterEntry
 {
 public:
 
-    ServerAdapterEntry(AdapterCache&, const std::string&, const std::string&, const ServerEntryPtr&);
+    ServerAdapterEntry(AdapterCache&, const std::string&, const std::string&, int, const ServerEntryPtr&);
 
     virtual std::vector<std::pair<std::string, AdapterPrx> > getProxies(int&, bool&);
     virtual float getLeastLoadedNodeLoad(LoadSample) const;
@@ -61,12 +63,14 @@ public:
     virtual const std::string& getReplicaGroupId() const { return _replicaGroupId; }
 
     AdapterPrx getProxy(const std::string&, bool) const;
-
+    int getPriority() const;
+    
 private:
     
     ServerEntryPtr getServer() const;
 
     const std::string _replicaGroupId;
+    const int _priority;
     const ServerEntryPtr _server;
 };
 typedef IceUtil::Handle<ServerAdapterEntry> ServerAdapterEntryPtr;
@@ -87,8 +91,6 @@ public:
 
     void update(const LoadBalancingPolicyPtr&);
 
-    typedef std::vector<std::pair<std::string, ServerAdapterEntryPtr> > ReplicaSeq;
-
 private:
 
     const std::string _application;
@@ -96,7 +98,7 @@ private:
     LoadBalancingPolicyPtr _loadBalancing;
     int _loadBalancingNReplicas;
     LoadSample _loadSample;
-    ReplicaSeq _replicas;
+    std::vector<ServerAdapterEntryPtr> _replicas;
     int _lastReplica;
 };
 typedef IceUtil::Handle<ReplicaGroupEntry> ReplicaGroupEntryPtr;
@@ -105,8 +107,8 @@ class AdapterCache : public CacheByString<AdapterEntry>
 {
 public:
 
-    ServerAdapterEntryPtr addServerAdapter(const std::string&, const std::string&, const ServerEntryPtr&);
-    ReplicaGroupEntryPtr addReplicaGroup(const std::string&, const std::string&, const LoadBalancingPolicyPtr&);
+    ServerAdapterEntryPtr addServerAdapter(const AdapterDescriptor&, const ServerEntryPtr&);
+    ReplicaGroupEntryPtr addReplicaGroup(const ReplicaGroupDescriptor&, const std::string&);
 
     AdapterEntryPtr get(const std::string&) const;
     ServerAdapterEntryPtr getServerAdapter(const std::string&) const;

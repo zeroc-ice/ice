@@ -1108,7 +1108,13 @@ ServerI::adapterActivated(const string& id)
     ServerCommandPtr command;
     {
 	Lock sync(*this);
-	_activeAdapters.insert(id);
+	if(_state != ServerI::Activating && 
+	   _state != ServerI::WaitForActivation &&
+	   _state != ServerI::ActivationTimeout)
+	{
+	    return;
+	}
+	_activatedAdapters.insert(id);
 	checkActivation();
 	command = nextCommand();
     }
@@ -1173,13 +1179,6 @@ ServerI::enableAfterFailure(bool force)
 	_node->getWaitQueue()->remove(_timer);
 	_timer = 0;
     }
-}
-
-void
-ServerI::adapterDeactivated(const string& id)
-{
-    Lock sync(*this);
-    _activeAdapters.erase(id);
 }
 
 void
@@ -1501,6 +1500,7 @@ ServerI::terminated(const string& msg, int status)
 	//
 	_process = 0;
 	_pid = 0;
+	_activatedAdapters.clear();
 
 	bool failed = false;
 #ifndef _WIN32
@@ -2035,7 +2035,7 @@ ServerI::checkActivation()
 	for(AdapterDescriptorSeq::const_iterator p = _info.descriptor->adapters.begin(); 
 	    p != _info.descriptor->adapters.end(); ++p)
 	{
-	    if(!p->id.empty() && p->waitForActivation && _activeAdapters.find(p->id) == _activeAdapters.end())
+	    if(!p->id.empty() && p->waitForActivation && _activatedAdapters.find(p->id) == _activatedAdapters.end())
 	    {
 		return;
 	    }
@@ -2049,7 +2049,9 @@ ServerI::checkActivation()
 		ServiceDescriptorPtr desc = ServiceDescriptorPtr::dynamicCast(s->descriptor);
 		for(AdapterDescriptorSeq::const_iterator p = desc->adapters.begin(); p != desc->adapters.end(); ++p)
 		{
-		    if(!p->id.empty() && p->waitForActivation && _activeAdapters.find(p->id) == _activeAdapters.end())
+		    if(!p->id.empty() && 
+		       p->waitForActivation && 
+		       _activatedAdapters.find(p->id) == _activatedAdapters.end())
 		    {
 			return;
 		    }

@@ -15,6 +15,7 @@ module Test
 
 interface TestIntf
 {
+    string getReplicaId();
     string getReplicaIdAndShutdown();
 };
 

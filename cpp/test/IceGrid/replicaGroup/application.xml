@@ -11,6 +11,21 @@
       <object identity="RoundRobin" type="::Test::TestIntf"/>
     </replica-group>
 
+    <replica-group id="RoundRobin-2">
+      <load-balancing type="round-robin" n-replicas="2"/>
+      <object identity="RoundRobin-2" type="::Test::TestIntf"/>
+    </replica-group>
+
+    <replica-group id="RoundRobin-All">
+      <load-balancing type="round-robin" n-replicas="0"/>
+      <object identity="RoundRobin-All" type="::Test::TestIntf"/>
+    </replica-group>
+
+    <replica-group id="Ordered">
+      <load-balancing type="ordered" n-replicas="1"/>
+      <object identity="Ordered" type="::Test::TestIntf"/>
+    </replica-group>
+
     <replica-group id="Adaptive">
       <load-balancing type="adaptive" n-replicas="1"/>
       <object identity="Adaptive" type="::Test::TestIntf"/>
@@ -24,8 +39,9 @@
     <server-template id="Server">
       <parameter name="id"/>
       <parameter name="replicaGroup"/>
+      <parameter name="priority" default="0"/>
       <server id="${id}" exe="${test.dir}/server" activation="on-demand" pwd=".">
-        <adapter name="ReplicatedAdapter" endpoints="default" replica-group="${replicaGroup}"/>
+        <adapter name="ReplicatedAdapter" endpoints="default" replica-group="${replicaGroup}" priority="${priority}"/>
         <property name="Identity" value="${replicaGroup}"/>
       </server>
     </server-template>
@@ -33,8 +49,9 @@
     <service-template id="Service">
       <parameter name="name"/>
       <parameter name="replicaGroup"/>
+      <parameter name="priority"/>
       <service name="${name}" entry="TestService:create">
-        <adapter name="${service}" endpoints="default" replica-group="${replicaGroup}">
+        <adapter name="${service}" endpoints="default" replica-group="${replicaGroup}" priority="${priority}">
           <object identity="${service}"/>
         </adapter>
         <property name="Identity" value="${replicaGroup}"/>
@@ -46,9 +63,9 @@
       <parameter name="replicaGroup"/>
       <icebox id="${id}" exe="${icebox.exe}" activation="on-demand" pwd=".">  
         <adapter name="IceBox.ServiceManager" endpoints="tcp -h 127.0.0.1" register-process="true"/>
-        <service-instance template="Service" name="Service1" replicaGroup="${replicaGroup}"/>
-        <service-instance template="Service" name="Service2" replicaGroup="${replicaGroup}"/>
-        <service-instance template="Service" name="Service3" replicaGroup="${replicaGroup}"/>
+        <service-instance template="Service" name="Service1" replicaGroup="${replicaGroup}" priority="3"/>
+        <service-instance template="Service" name="Service2" replicaGroup="${replicaGroup}" priority="2"/>
+        <service-instance template="Service" name="Service3" replicaGroup="${replicaGroup}" priority="1"/>
       </icebox>
     </server-template>
 

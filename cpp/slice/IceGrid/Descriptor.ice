@@ -136,6 +136,15 @@ struct AdapterDescriptor
 
     /**
      *
+     * The adapter priority. This is eventually used when the adapter
+     * is member of a replica group to sort the adapter endpoints by
+     * priority.
+     * 
+     **/
+    string priority;
+
+    /**
+     *
      * Flag to specify if the object adapter will register a process object.
      *
      **/
@@ -610,6 +619,15 @@ class LoadBalancingPolicy
  *
  **/
 class RandomLoadBalancingPolicy extends LoadBalancingPolicy
+{
+};
+
+/**
+ *
+ * Ordered load balancing policy.
+ *
+ **/
+class OrderedLoadBalancingPolicy extends LoadBalancingPolicy
 {
 };
 

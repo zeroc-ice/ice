@@ -151,55 +151,6 @@ allTests(const Ice::CommunicatorPtr& comm)
     svcReplicaIds.insert("IceBox1.Service2.Service2");
     svcReplicaIds.insert("IceBox1.Service3.Service3");
 
-    cout << "testing replication without load balancing... " << flush;
-    {
-	map<string, string> params;
-	params["replicaGroup"] = "Default";
-	params["id"] = "Server1";
-	instantiateServer(admin, "Server", "localnode", params);
-	params["id"] = "Server2";
-	instantiateServer(admin, "Server", "localnode", params);
-	params["id"] = "Server3";
-	instantiateServer(admin, "Server", "localnode", params);
-	set<string> replicaIds = serverReplicaIds;
-	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Default"));
-	try
-	{
-	    test(replicaIds.erase(obj->getReplicaIdAndShutdown()) == 1);
-	    test(replicaIds.erase(obj->getReplicaIdAndShutdown()) == 1);
-	    test(replicaIds.erase(obj->getReplicaIdAndShutdown()) == 1);
-	}
-	catch(const Ice::LocalException& ex)
-	{
-	    cerr << ex << endl;
-	    test(false);
-	}
-	removeServer(admin, "Server1");
-	removeServer(admin, "Server2");
-	removeServer(admin, "Server3");
-    }
-    {
-	map<string, string> params;
-	params["replicaGroup"] = "Default";
-	params["id"] = "IceBox1";
-	instantiateServer(admin, "IceBox", "localnode", params);
-	set<string> replicaIds = svcReplicaIds;
-	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Default"));
-	try
-	{
-	    test(replicaIds.erase(obj->getReplicaIdAndShutdown()) == 1);
-	    test(replicaIds.erase(obj->getReplicaIdAndShutdown()) == 1);
-	    test(replicaIds.erase(obj->getReplicaIdAndShutdown()) == 1);
-	}
-	catch(const Ice::LocalException& ex)
-	{
-	    cerr << ex << endl;
-	    test(false);
-	}
-	removeServer(admin, "IceBox1");
-    }
-    cout << "ok" << endl;
-
     cout << "testing replication with round-robin load balancing... " << flush;
     {
 	map<string, string> params;
@@ -247,6 +198,58 @@ allTests(const Ice::CommunicatorPtr& comm)
     }
     cout << "ok" << endl;
 
+    cout << "testing replication with ordered load balancing... " << flush;
+    {
+	map<string, string> params;
+	params["replicaGroup"] = "Ordered";
+	params["id"] = "Server1";
+	params["priority"] = "3";
+	instantiateServer(admin, "Server", "localnode", params);
+	params["id"] = "Server2";
+	params["priority"] = "1";
+	instantiateServer(admin, "Server", "localnode", params);
+	params["id"] = "Server3";
+	params["priority"] = "2";
+	instantiateServer(admin, "Server", "localnode", params);
+	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Ordered"));
+	try
+	{
+	    test(obj->getReplicaIdAndShutdown() == "Server2.ReplicatedAdapter");
+	    admin->enableServer("Server2", false);
+	    test(obj->getReplicaIdAndShutdown() == "Server3.ReplicatedAdapter");
+	    admin->enableServer("Server3", false);
+	    test(obj->getReplicaIdAndShutdown() == "Server1.ReplicatedAdapter");
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+	removeServer(admin, "Server1");
+	removeServer(admin, "Server2");
+	removeServer(admin, "Server3");
+    }
+    {
+	map<string, string> params;
+	params["replicaGroup"] = "Ordered";
+	params["id"] = "IceBox1";
+	instantiateServer(admin, "IceBox", "localnode", params);
+	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Ordered"));
+	try
+	{
+	    test(obj->getReplicaIdAndShutdown() == "IceBox1.Service3.Service3");
+	    test(obj->getReplicaIdAndShutdown() == "IceBox1.Service2.Service2");
+	    test(obj->getReplicaIdAndShutdown() == "IceBox1.Service1.Service1");
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+	removeServer(admin, "IceBox1");
+    }
+    cout << "ok" << endl;
+
     cout << "testing replication with random load balancing... " << flush;
     {
 	map<string, string> params;
@@ -258,12 +261,14 @@ allTests(const Ice::CommunicatorPtr& comm)
 	params["id"] = "Server3";
 	instantiateServer(admin, "Server", "localnode", params);
 	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Random"));
+	obj = TestIntfPrx::uncheckedCast(obj->ice_locatorCacheTimeout(0));
+	obj = TestIntfPrx::uncheckedCast(obj->ice_connectionCached(false));
 	set<string> replicaIds = serverReplicaIds;
 	while(!replicaIds.empty())
 	{
 	    try
 	    {
-		replicaIds.erase(obj->getReplicaIdAndShutdown());
+		replicaIds.erase(obj->getReplicaId());
 	    }
 	    catch(const Ice::LocalException& ex)
 	    {
@@ -281,12 +286,14 @@ allTests(const Ice::CommunicatorPtr& comm)
 	params["id"] = "IceBox1";
 	instantiateServer(admin, "IceBox", "localnode", params);
 	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Random"));
+	obj = TestIntfPrx::uncheckedCast(obj->ice_locatorCacheTimeout(0));
+	obj = TestIntfPrx::uncheckedCast(obj->ice_connectionCached(false));
 	set<string> replicaIds = svcReplicaIds;
 	while(!replicaIds.empty())
 	{
 	    try
 	    {
-		replicaIds.erase(obj->getReplicaIdAndShutdown());
+		replicaIds.erase(obj->getReplicaId());
 	    }
 	    catch(const Ice::ConnectionRefusedException&)
 	    {
@@ -312,12 +319,14 @@ allTests(const Ice::CommunicatorPtr& comm)
 	params["id"] = "Server3";
 	instantiateServer(admin, "Server", "localnode", params);
 	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Adaptive"));
+	obj = TestIntfPrx::uncheckedCast(obj->ice_locatorCacheTimeout(0));
+	obj = TestIntfPrx::uncheckedCast(obj->ice_connectionCached(false));
 	set<string> replicaIds = serverReplicaIds;
 	while(!replicaIds.empty())
 	{
 	    try
 	    {
-		replicaIds.erase(obj->getReplicaIdAndShutdown());
+		replicaIds.erase(obj->getReplicaId());
 	    }
 	    catch(const Ice::LocalException& ex)
 	    {
@@ -335,12 +344,14 @@ allTests(const Ice::CommunicatorPtr& comm)
 	params["id"] = "IceBox1";
 	instantiateServer(admin, "IceBox", "localnode", params);
 	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Adaptive"));
+	obj = TestIntfPrx::uncheckedCast(obj->ice_locatorCacheTimeout(0));
+	obj = TestIntfPrx::uncheckedCast(obj->ice_connectionCached(false));
 	set<string> replicaIds = svcReplicaIds;
 	while(!replicaIds.empty())
 	{
 	    try
 	    {
-		replicaIds.erase(obj->getReplicaIdAndShutdown());
+		replicaIds.erase(obj->getReplicaId());
 	    }
 	    catch(const Ice::ConnectionRefusedException&)
 	    {
@@ -352,6 +363,113 @@ allTests(const Ice::CommunicatorPtr& comm)
 	    }
 	}
 	removeServer(admin, "IceBox1");
+    }
+    cout << "ok" << endl;
+
+    cout << "testing load balancing n-replicas..." << flush;
+    {
+	map<string, string> params;
+	params["replicaGroup"] = "RoundRobin-2";
+	params["id"] = "Server1";
+	instantiateServer(admin, "Server", "localnode", params);
+	params["id"] = "Server2";
+	instantiateServer(admin, "Server", "localnode", params);
+	params["id"] = "Server3";
+	instantiateServer(admin, "Server", "localnode", params);
+	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("RoundRobin-2"));
+	obj = TestIntfPrx::uncheckedCast(obj->ice_locatorCacheTimeout(-1));
+	obj = TestIntfPrx::uncheckedCast(obj->ice_connectionCached(false));
+	try
+	{
+	    set<string> replicaIds;
+	    set<string> expected;
+	    replicaIds.insert("Server1.ReplicatedAdapter");
+	    replicaIds.insert("Server2.ReplicatedAdapter");
+	    expected = replicaIds;
+	    while(!replicaIds.empty())
+	    {
+		string replicaId = obj->getReplicaId();
+		test(expected.find(replicaId) != expected.end());
+		replicaIds.erase(replicaId);
+	    }
+	    obj->ice_locatorCacheTimeout(0)->ice_ping();
+	    replicaIds.insert("Server2.ReplicatedAdapter");
+	    replicaIds.insert("Server3.ReplicatedAdapter");
+	    expected = replicaIds;
+	    while(!replicaIds.empty())
+	    {
+		string replicaId = obj->getReplicaId();
+		test(expected.find(replicaId) != expected.end());
+		replicaIds.erase(replicaId);
+	    }
+	    obj->ice_locatorCacheTimeout(0)->ice_ping();
+	    replicaIds.insert("Server3.ReplicatedAdapter");
+	    replicaIds.insert("Server1.ReplicatedAdapter");
+	    expected = replicaIds;
+	    while(!replicaIds.empty())
+	    {
+		string replicaId = obj->getReplicaId();
+		test(expected.find(replicaId) != expected.end());
+		replicaIds.erase(replicaId);
+	    }
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+	removeServer(admin, "Server1");
+	removeServer(admin, "Server2");
+	removeServer(admin, "Server3");
+
+    }
+    {
+	map<string, string> params;
+	params["replicaGroup"] = "RoundRobin-All";
+	params["id"] = "Server1";
+	instantiateServer(admin, "Server", "localnode", params);
+	params["id"] = "Server2";
+	instantiateServer(admin, "Server", "localnode", params);
+	params["id"] = "Server3";
+	instantiateServer(admin, "Server", "localnode", params);
+	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("RoundRobin-All"));
+	obj = TestIntfPrx::uncheckedCast(obj->ice_locatorCacheTimeout(-1));
+	obj = TestIntfPrx::uncheckedCast(obj->ice_connectionCached(false));
+	try
+	{
+	    set<string> replicaIds;
+	    set<string> expected;
+	    replicaIds.insert("Server1.ReplicatedAdapter");
+	    replicaIds.insert("Server2.ReplicatedAdapter");
+	    replicaIds.insert("Server3.ReplicatedAdapter");
+	    expected = replicaIds;
+	    while(!replicaIds.empty())
+	    {
+		string replicaId = obj->getReplicaId();
+		test(expected.find(replicaId) != expected.end());
+		replicaIds.erase(replicaId);
+	    }
+	    obj->ice_locatorCacheTimeout(0)->ice_ping();
+	    replicaIds.insert("Server1.ReplicatedAdapter");
+	    replicaIds.insert("Server2.ReplicatedAdapter");
+	    replicaIds.insert("Server3.ReplicatedAdapter");
+	    expected = replicaIds;
+	    while(!replicaIds.empty())
+	    {
+		string replicaId = obj->getReplicaId();
+		test(expected.find(replicaId) != expected.end());
+		replicaIds.erase(replicaId);
+	    }
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+	removeServer(admin, "Server1");
+	removeServer(admin, "Server2");
+	removeServer(admin, "Server3");
+
     }
     cout << "ok" << endl;
 

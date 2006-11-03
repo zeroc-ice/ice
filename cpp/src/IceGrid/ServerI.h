@@ -95,7 +95,6 @@ public:
     void finishPatch();
 
     void adapterActivated(const std::string&);
-    void adapterDeactivated(const std::string&);
     void activationFailed(bool);
     void deactivationFailed();
 
@@ -148,7 +147,7 @@ private:
     ServerAdapterDict _adapters;
     bool _processRegistered;
     Ice::ProcessPrx _process;
-    std::set<std::string> _activeAdapters;
+    std::set<std::string> _activatedAdapters;
     IceUtil::Time _failureTime;
     ServerActivation _previousActivation;
     WaitItemPtr _timer;

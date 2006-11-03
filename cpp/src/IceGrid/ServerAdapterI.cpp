@@ -149,10 +149,6 @@ ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Current&)
     {
 	_server->adapterActivated(_id);
     }
-    else
-    {
-	_server->adapterDeactivated(_id);
-    }
 
     if(_node->getTraceLevels()->adapter > 1)
     {

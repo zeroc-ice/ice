@@ -92,6 +92,7 @@ public:
     void setVariableOverrides(const std::map<std::string, std::string>&);
     void setDescription(const std::string&);
     void addReplicaGroup(const XmlAttributesHelper&);
+    void finishReplicaGroup();
     void setLoadBalancing(const XmlAttributesHelper&);
     void setReplicaGroupDescription(const std::string&);
     void addObject(const XmlAttributesHelper&);

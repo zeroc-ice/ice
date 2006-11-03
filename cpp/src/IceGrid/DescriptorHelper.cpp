@@ -536,6 +536,10 @@ Resolver::asInt(const string& value, const string& name) const
 	    ex.reason = "invalid value `" + value + "' for `" + name + "' in " + _context + ": not an integer";
 	    throw ex;
 	}
+
+	ostringstream os;
+	os << val;
+	v = os.str();
     }
     return v;
 }
@@ -940,6 +944,7 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
 	{
 	    resolve.exception("unknown replica group `" + adapter.replicaGroupId + "'");
 	}
+	adapter.priority = resolve.asInt(p->priority, "object adapter priority");
 	adapter.objects = resolve(p->objects, "well-known");
 	adapter.allocatables = resolve(p->allocatables, "allocatable");
 	instance->adapters.push_back(adapter);
@@ -1032,6 +1037,10 @@ CommunicatorHelper::printObjectAdapter(Output& out, const AdapterDescriptor& ada
     if(!adapter.replicaGroupId.empty())
     {
 	out << nl << "replica group id = `" << adapter.replicaGroupId << "'";
+    }
+    if(!adapter.priority.empty())
+    {
+	out << nl << "priority = `" << adapter.priority << "'";
     }
     string endpoints = getProperty(adapter.name + ".Endpoints");
     if(!endpoints.empty())
@@ -2288,22 +2297,26 @@ ApplicationHelper::ApplicationHelper(const Ice::CommunicatorPtr& communicator, c
 	ReplicaGroupDescriptor desc;
 	desc.id = r->id;
 	desc.description = resolve(r->description, "replica group description");
-	desc.objects = resolve(r->objects, "well-known");
-
-	if(r->loadBalancing)
+	desc.objects = resolve(r->objects, "replica group well-known");
+	if(!r->loadBalancing)
 	{
-	    desc.loadBalancing = LoadBalancingPolicyPtr::dynamicCast(r->loadBalancing->ice_clone());
-	    desc.loadBalancing->nReplicas = resolve(r->loadBalancing->nReplicas, "replica group number of replicas");
-	    AdaptiveLoadBalancingPolicyPtr al = AdaptiveLoadBalancingPolicyPtr::dynamicCast(desc.loadBalancing);
-	    if(al)
+	    resolve.exception("replica group load balancing is not set");
+	}
+	desc.loadBalancing = LoadBalancingPolicyPtr::dynamicCast(r->loadBalancing->ice_clone());
+	desc.loadBalancing->nReplicas = resolve.asInt(r->loadBalancing->nReplicas, "replica group number of replicas");
+	if(desc.loadBalancing->nReplicas[0] == '-')
+	{
+	    resolve.exception("invalid replica group load balancing number of replicas value: inferior to 0");
+	}
+	AdaptiveLoadBalancingPolicyPtr al = AdaptiveLoadBalancingPolicyPtr::dynamicCast(desc.loadBalancing);
+	if(al)
+	{
+	    al->loadSample = resolve(al->loadSample, "replica group load sample");
+	    if(al->loadSample != "" && al->loadSample != "1" && al->loadSample != "5" && al->loadSample != "15")
 	    {
-		al->loadSample = resolve(al->loadSample, "replica group load sample");
-		if(al->loadSample != "" && al->loadSample != "1" && al->loadSample != "5" && al->loadSample != "15")
-		{
-		    resolve.exception("invalid load sample value (allowed values are 1, 5 or 15)");
-		}
+		resolve.exception("invalid load sample value (allowed values are 1, 5 or 15)");
 	    }
-	}	
+	}
 	_instance.replicaGroups.push_back(desc);
     }
     

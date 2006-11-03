@@ -1554,7 +1554,7 @@ Database::load(const ApplicationHelper& app, ServerEntrySeq& entries, const stri
     for(ReplicaGroupDescriptorSeq::const_iterator r = adpts.begin(); r != adpts.end(); ++r)
     {
 	assert(!r->id.empty());
-	_adapterCache.addReplicaGroup(r->id, application, r->loadBalancing);
+	_adapterCache.addReplicaGroup(*r, application);
 	for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
 	{
 	    ObjectInfo info;
@@ -1693,7 +1693,7 @@ Database::reload(const ApplicationHelper& oldApp,
 	}
 	catch(const AdapterNotExistException&)
 	{
-	    _adapterCache.addReplicaGroup(r->id, application, r->loadBalancing);
+	    _adapterCache.addReplicaGroup(*r, application);
 	}
 
 	for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)

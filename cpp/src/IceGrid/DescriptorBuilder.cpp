@@ -253,6 +253,16 @@ ApplicationDescriptorBuilder::addReplicaGroup(const XmlAttributesHelper& attrs)
 }
 
 void
+ApplicationDescriptorBuilder::finishReplicaGroup()
+{
+    if(!_descriptor.replicaGroups.back().loadBalancing)
+    {
+	_descriptor.replicaGroups.back().loadBalancing = new RandomLoadBalancingPolicy();
+	_descriptor.replicaGroups.back().loadBalancing->nReplicas = "0";
+    }
+}
+
+void
 ApplicationDescriptorBuilder::setLoadBalancing(const XmlAttributesHelper& attrs)
 {
     LoadBalancingPolicyPtr policy;
@@ -260,6 +270,10 @@ ApplicationDescriptorBuilder::setLoadBalancing(const XmlAttributesHelper& attrs)
     if(type == "random")
     {
 	policy = new RandomLoadBalancingPolicy();
+    }
+    else if(type == "ordered")
+    {
+	policy = new OrderedLoadBalancingPolicy();
     }
     else if(type == "round-robin")
     {
@@ -275,7 +289,7 @@ ApplicationDescriptorBuilder::setLoadBalancing(const XmlAttributesHelper& attrs)
     {
 	throw "invalid load balancing policy `" + type + "'";
     }
-    policy->nReplicas = attrs("n-replicas", "0");
+    policy->nReplicas = attrs("n-replicas", "1");
     _descriptor.replicaGroups.back().loadBalancing = policy;
 }
 
@@ -611,6 +625,7 @@ CommunicatorDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
 	desc.id = fqn + "." + desc.name;
     }
     desc.replicaGroupId = attrs("replica-group", "");
+    desc.priority = attrs("priority", "");
     desc.registerProcess = attrs.asBool("register-process", false);
     if(desc.id == "")
     {
@@ -817,7 +832,7 @@ IceBoxDescriptorBuilder::init(const IceBoxDescriptorPtr& desc, const XmlAttribut
     ServerDescriptorBuilder::init(desc, attrs);
     _descriptor = desc;
 
-    addProperty(_hiddenProperties, "IceBox.InstanceName", _descriptor->id);    
+    addProperty(_hiddenProperties, "IceBox.InstanceName", "${server}");
     addProperty(_hiddenProperties, "IceBox.ServiceManager.Endpoints", "tcp -h 127.0.0.1");
     addProperty(_hiddenProperties, "IceBox.ServiceManager.RegisterProcess", "1");
 }
