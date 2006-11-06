@@ -181,17 +181,15 @@ class ReplicaGroupEditor extends Editor
 		    {
 			updated();
 
-			Object item = e.getItem();
-			_nReplicasLabel.setVisible(item != RETURN_ALL);
-			_nReplicas.setVisible(item != RETURN_ALL);
-			
+			Object item = e.getItem();	
 			_loadSampleLabel.setVisible(item == ADAPTIVE);
 			_loadSample.setVisible(item == ADAPTIVE);
 		    }
 		}
 	    });
 	_loadBalancing.setToolTipText(
-	    "Specifies how IceGrid selects adapters when resolving a replica group ID");
+	    "<html>Specifies how IceGrid selects adapters and return<br>"
+	    + "their endpoints when resolving a replica group ID</html>");
 
 	//
 	// Associate updateListener with various fields
@@ -206,7 +204,8 @@ class ReplicaGroupEditor extends Editor
 	_nReplicas.getDocument().addDocumentListener(_updateListener);
 	_nReplicas.setToolTipText("<html>IceGrid returns the endpoints of "
 				  + "up to <i>number</i> adapters<br>"
-				  + "when resolving a replica group ID</html>");
+				  + "when resolving a replica group ID.<br>"
+				  + "Enter 0 to returns the endpoints of all adapters.</html>");
 
 	_loadSample.setEditable(true);
 	JTextField loadSampleTextField = (JTextField)
@@ -214,7 +213,6 @@ class ReplicaGroupEditor extends Editor
 	loadSampleTextField.getDocument().addDocumentListener(_updateListener);
 	_loadSample.setToolTipText(
 	    "Use the load average or CPU usage over the last 1, 5 or 15 minutes?");
-
     }
     
     void writeDescriptor()
@@ -227,9 +225,10 @@ class ReplicaGroupEditor extends Editor
 	descriptor.objects = AdapterEditor.mapToObjectDescriptorSeq(_objects.get());
 	
 	Object loadBalancing = _loadBalancing.getSelectedItem();
-	if(loadBalancing == RETURN_ALL)
+	if(loadBalancing == ORDERED)
 	{
-	    descriptor.loadBalancing = null;
+	    descriptor.loadBalancing =  new OrderedLoadBalancingPolicy(
+		_nReplicas.getText().trim());
 	}
 	else if(loadBalancing == RANDOM)
 	{
@@ -294,7 +293,7 @@ class ReplicaGroupEditor extends Editor
 	builder.append("Load Balancing Policy");
 	builder.append(_loadBalancing, 3);
 	builder.nextLine();
-	_nReplicasLabel = builder.append("How many Adapters?");
+	builder.append("How many Adapters? (0 = all)");
 	builder.append(_nReplicas, 3);
 	builder.nextLine();
 	_loadSampleLabel = builder.append("Load Sample");
@@ -344,13 +343,20 @@ class ReplicaGroupEditor extends Editor
 
 	if(descriptor.loadBalancing == null)
 	{
-	    _loadBalancing.setSelectedItem(RETURN_ALL);
-	    _nReplicas.setText("1");
+	    _loadBalancing.setSelectedItem(RANDOM);
+	    _nReplicas.setText("0");
 	    _loadSample.setSelectedItem("1");
 	}
 	else if(descriptor.loadBalancing instanceof RandomLoadBalancingPolicy)
 	{
 	    _loadBalancing.setSelectedItem(RANDOM);
+	    _nReplicas.setText(
+		Utils.substitute(descriptor.loadBalancing.nReplicas, resolver));
+	    _loadSample.setSelectedItem("1");
+	}
+	else if(descriptor.loadBalancing instanceof OrderedLoadBalancingPolicy)
+	{
+	    _loadBalancing.setSelectedItem(ORDERED);
 	    _nReplicas.setText(
 		Utils.substitute(descriptor.loadBalancing.nReplicas, resolver));
 	    _loadSample.setSelectedItem("1");
@@ -391,7 +397,7 @@ class ReplicaGroupEditor extends Editor
 	return (ReplicaGroup)_target;
     }
 
-    static private String RETURN_ALL = "Return all";
+    static private String ORDERED = "Ordered";
     static private String RANDOM = "Random";
     static private String ROUND_ROBIN = "Round-robin";
     static private String ADAPTIVE = "Adaptive";
@@ -400,9 +406,8 @@ class ReplicaGroupEditor extends Editor
     private JTextArea _description = new JTextArea(3, 20);
 
     private JComboBox _loadBalancing = new JComboBox(new Object[]
-	{ADAPTIVE, RANDOM, RETURN_ALL, ROUND_ROBIN}); 
+	{ADAPTIVE, ORDERED, RANDOM, ROUND_ROBIN}); 
     
-    private JLabel _nReplicasLabel;
     private JTextField _nReplicas = new JTextField(20);
 
     private JLabel _loadSampleLabel;

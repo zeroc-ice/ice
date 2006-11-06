@@ -163,6 +163,11 @@ class AdapterEditor extends CommunicatorChildEditor
 	    _replicaGroupId.getEditor().getEditorComponent();
 	replicaGroupIdTextField.getDocument().addDocumentListener(_updateListener);
 	_replicaGroupId.setToolTipText("Select a replica group");
+	
+	_priority.getDocument().addDocumentListener(_updateListener);
+	_priority.setToolTipText("The priority of this adapter; see the Ordered load-balancing "
+				 + "policy in Replica Groups");
+
 
 	JTextField publishedEndpointsTextField = (JTextField)
 	    _publishedEndpoints.getEditor().getEditorComponent();
@@ -184,6 +189,7 @@ class AdapterEditor extends CommunicatorChildEditor
 	descriptor.description = _description.getText();
 	descriptor.id = getIdAsString();
 	descriptor.replicaGroupId = getReplicaGroupIdAsString();
+	descriptor.priority = _priority.getText().trim();
 	descriptor.registerProcess = _registerProcess.isSelected();
 	descriptor.waitForActivation = _waitForActivation.isSelected();
 	descriptor.objects = mapToObjectDescriptorSeq(_objects.get());
@@ -228,11 +234,15 @@ class AdapterEditor extends CommunicatorChildEditor
 	builder.append(_replicaGroupButton);
 	builder.nextLine();
 
+	builder.append("Priority");
+	builder.append(_priority, 3);
+	builder.nextLine();
+
 	builder.append("Endpoints" );
 	builder.append(_endpoints, 3);
 	builder.nextLine();
 
-	builder.append("Published Endpoints" );
+	builder.append("Published Endpoints");
 	builder.append(_publishedEndpoints, 3);
 	builder.nextLine();
 
@@ -353,7 +363,7 @@ class AdapterEditor extends CommunicatorChildEditor
 	    else
 	    {
 		_replicaGroupId.setSelectedItem(replicaGroupId);
-	    }
+	    }   
 	}
     }
     
@@ -390,12 +400,11 @@ class AdapterEditor extends CommunicatorChildEditor
 	    adapter.getResolver() : null;
 
 	boolean isEditable = resolver == null;
-	boolean inIceBox = adapter.inIceBox();
 	
 	_oldName = descriptor.name;
 
 	_name.setText(Utils.substitute(descriptor.name, resolver));
-	_name.setEditable(isEditable && !inIceBox);
+	_name.setEditable(isEditable);
 
 	_description.setText(
 	    Utils.substitute(descriptor.description, resolver));
@@ -448,9 +457,13 @@ class AdapterEditor extends CommunicatorChildEditor
 	    });
 
 	setReplicaGroupId(Utils.substitute(descriptor.replicaGroupId, resolver));
+
 	_replicaGroupId.setEnabled(isEditable);
 	_replicaGroupId.setEditable(isEditable);
 
+	_priority.setText(Utils.substitute(descriptor.priority, resolver));
+	_priority.setEditable(isEditable);
+	
 	if(adapter.isEphemeral())
 	{
 	    _endpoints.setText("default");
@@ -545,6 +558,8 @@ class AdapterEditor extends CommunicatorChildEditor
     private JComboBox _replicaGroupId = new JComboBox();
     private JButton _replicaGroupButton;
 
+    private JTextField _priority = new JTextField(20);
+   
     private JTextField _endpoints = new JTextField(20);
     private JComboBox _publishedEndpoints = new JComboBox(
 	new Object[]{PUBLISH_ACTUAL});

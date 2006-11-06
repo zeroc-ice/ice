@@ -36,6 +36,7 @@ class AdapterEditor extends Editor
 	_description.setOpaque(false);
 	_id.setEditable(false);
 	_replicaGroupId.setEditable(false);
+	_priority.setEditable(false);
 	_endpoints.setEditable(false);
 	_publishedEndpoints.setEditable(false);
 	_registerProcess.setEnabled(false);
@@ -65,6 +66,7 @@ class AdapterEditor extends Editor
 	
 	_description.setText(resolver.substitute(descriptor.description));
 	_replicaGroupId.setText(resolver.substitute(descriptor.replicaGroupId));
+	_priority.setText(resolver.substitute(descriptor.priority));
 
 	java.util.Map properties = adapter.getProperties();
 	
@@ -111,6 +113,10 @@ class AdapterEditor extends Editor
 	
 	builder.append("Replica Group");
 	builder.append(_replicaGroupId, 3);
+	builder.nextLine();
+	
+	builder.append("Priority");
+	builder.append(_priority, 3);
 	builder.nextLine();
 
 	builder.append("Endpoints");
@@ -167,6 +173,7 @@ class AdapterEditor extends Editor
     private JTextArea _description = new JTextArea(3, 20);
     private JTextField _id = new JTextField(20);
     private JTextField _replicaGroupId = new JTextField(20);
+    private JTextField _priority = new JTextField(20);
     private JTextField _endpoints = new JTextField(20);
     private JTextField _publishedEndpoints  = new JTextField(20);
 

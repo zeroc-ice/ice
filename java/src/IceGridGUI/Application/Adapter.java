@@ -159,6 +159,10 @@ class Adapter extends TreeNode implements DescriptorHolder
 	    {
 		attributes.add(createAttribute("replica-group", _descriptor.replicaGroupId));
 	    }
+	    if(_descriptor.priority != null && _descriptor.priority.length() > 0)
+	    {
+		attributes.add(createAttribute("priority", _descriptor.priority));
+	    }
 	    if(!_descriptor.waitForActivation)
 	    {
 		attributes.add(createAttribute("wait-for-activation", "false"));
@@ -183,11 +187,6 @@ class Adapter extends TreeNode implements DescriptorHolder
 		writer.writeEndTag("adapter");
 	    }
 	}
-    }
-
-    boolean inIceBox()
-    {
-	return ((Communicator)_parent).isIceBox();
     }
 
     String getProperty(String property)

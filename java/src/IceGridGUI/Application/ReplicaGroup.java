@@ -176,29 +176,32 @@ class ReplicaGroup extends TreeNode
 		{
 		    writer.writeElement("description", _descriptor.description);
 		}
-		if(_descriptor.loadBalancing != null)
+		assert _descriptor.loadBalancing != null;
+
+		attributes.clear();
+		if(_descriptor.loadBalancing instanceof RandomLoadBalancingPolicy)
 		{
-		    attributes.clear();
-		    if(_descriptor.loadBalancing instanceof RandomLoadBalancingPolicy)
-		    {
-			attributes.add(createAttribute("type", "random")); 
-		    }
-		    else if(_descriptor.loadBalancing instanceof RoundRobinLoadBalancingPolicy)
-		    {
-			attributes.add(createAttribute("type", "round-robin")); 
-		    }
-		    else if(_descriptor.loadBalancing instanceof AdaptiveLoadBalancingPolicy)
-		    {
-			attributes.add(createAttribute("type", "adaptive"));
-			AdaptiveLoadBalancingPolicy policy = 
-			    (AdaptiveLoadBalancingPolicy)_descriptor.loadBalancing;
-			attributes.add(createAttribute("load-sample", policy.loadSample));
-		    }
-		    attributes.add(createAttribute("n-replicas", 
-						   _descriptor.loadBalancing.nReplicas));
-		    writer.writeElement("load-balancing", attributes);
-		} 
-		
+		    attributes.add(createAttribute("type", "random")); 
+		}
+		else if(_descriptor.loadBalancing instanceof OrderedLoadBalancingPolicy)
+		{
+		    attributes.add(createAttribute("type", "ordered")); 
+		}
+		else if(_descriptor.loadBalancing instanceof RoundRobinLoadBalancingPolicy)
+		{
+		    attributes.add(createAttribute("type", "round-robin")); 
+		}
+		else if(_descriptor.loadBalancing instanceof AdaptiveLoadBalancingPolicy)
+		{
+		    attributes.add(createAttribute("type", "adaptive"));
+		    AdaptiveLoadBalancingPolicy policy = 
+			(AdaptiveLoadBalancingPolicy)_descriptor.loadBalancing;
+		    attributes.add(createAttribute("load-sample", policy.loadSample));
+		}
+		attributes.add(createAttribute("n-replicas", 
+					       _descriptor.loadBalancing.nReplicas));
+		writer.writeElement("load-balancing", attributes);
+	     
 		writeObjects("object", writer, _descriptor.objects);
 		writer.writeEndTag("replica-group");
 	    }
