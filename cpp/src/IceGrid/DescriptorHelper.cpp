@@ -2096,15 +2096,13 @@ NodeHelper::hasDistributions(const string& server) const
 	    p = _servers.find(server);
 	    if(p == _servers.end())
 	    {
-		p = _serverInstances.end();
+		return false;
 	    }
 	}
-	if(p != _serverInstances.end())
+
+	if(!p->second.getServerInstance()->distrib.icepatch.empty())
 	{
-	    if(!p->second.getServerInstance()->distrib.icepatch.empty())
-	    {
-		return true;
-	    }
+	    return true;
 	}
     }
 
