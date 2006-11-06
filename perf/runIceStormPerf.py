@@ -379,4 +379,4 @@ outputFile = file(filename, 'w+b')
 outputFile.write(str(results))
 outputFile.close()
 
-TestUtil.PrintResults(rawResults, filename, [('IceStorm', 'CosEvent')])
+TestUtil.PrintResults(results, filename, [('IceStorm', 'CosEvent')])
