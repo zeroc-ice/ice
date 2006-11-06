@@ -4095,10 +4095,10 @@ Slice::Gen::HandleVisitor::visitClassDecl(const ClassDeclPtr& p)
             H << nl << _dllExport << "void ice_read" << name << "(const ::Ice::InputStreamPtr&, " << name << "Ptr&);";
 	}
 
-	H << sp << nl << "void __addObject(const " << name << "Ptr&, ::IceInternal::GCCountMap&);";
-	H << nl << "bool __usesClasses(const " << name << "Ptr&);";
-	H << nl << "void __decRefUnsafe(const " << name << "Ptr&);";
-	H << nl << "void __clearHandleUnsafe(" << name << "Ptr&);";
+	H << sp << nl << _dllExport << "void __addObject(const " << name << "Ptr&, ::IceInternal::GCCountMap&);";
+	H << nl << _dllExport << "bool __usesClasses(const " << name << "Ptr&);";
+	H << nl << _dllExport << "void __decRefUnsafe(const " << name << "Ptr&);";
+	H << nl << _dllExport << "void __clearHandleUnsafe(" << name << "Ptr&);";
     }
 }
 
