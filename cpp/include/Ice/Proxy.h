@@ -414,12 +414,8 @@ namespace IceInternal
 //
 // checkedCast and uncheckedCast functions without facet:
 //
-
-//
-// Out of line implementations
-//
 template<typename P> P 
-checkedCastImpl(const ::Ice::ObjectPrx& b)
+checkedCastImpl(const ::Ice::ObjectPrx& b, const ::Ice::Context* context)
 {
     P d = 0;
     if(b.get())
@@ -427,25 +423,9 @@ checkedCastImpl(const ::Ice::ObjectPrx& b)
 	typedef typename P::element_type T;
 
 	d = dynamic_cast<T*>(b.get());
-	if(!d && b->ice_isA(T::ice_staticId()))
-	{
-	    d = new T;
-	    d->__copyFrom(b);
-	}
-    }
-    return d;
-}
-
-template<typename P> P 
-checkedCastImpl(const ::Ice::ObjectPrx& b, const ::Ice::Context& context)
-{
-    P d = 0;
-    if(b.get())
-    {
-	typedef typename P::element_type T;
-
-	d = dynamic_cast<T*>(b.get());
-	if(!d && b->ice_isA(T::ice_staticId(), context))
+	if(!d && (context == 0 ? 
+		  b->ice_isA(T::ice_staticId()) :
+		  b->ice_isA(T::ice_staticId(), *context)))
 	{
 	    d = new T;
 	    d->__copyFrom(b);
@@ -479,9 +459,8 @@ uncheckedCastImpl(const ::Ice::ObjectPrx& b)
 //
 // Helper with type ID.
 //
-ICE_API ::Ice::ObjectPrx checkedCastImpl(const ::Ice::ObjectPrx&, const std::string&, const std::string&);
 ICE_API ::Ice::ObjectPrx checkedCastImpl(const ::Ice::ObjectPrx&, const std::string&, const std::string&,
-                                         const ::Ice::Context&);
+                                         const ::Ice::Context*);
 
 //
 // Specializations for P = ::Ice::ObjectPrx
@@ -489,13 +468,7 @@ ICE_API ::Ice::ObjectPrx checkedCastImpl(const ::Ice::ObjectPrx&, const std::str
 //
 
 template<> inline ::Ice::ObjectPrx 
-checkedCastImpl< ::Ice::ObjectPrx>(const ::Ice::ObjectPrx& b, const std::string& f)
-{
-    return checkedCastImpl(b, f, "::Ice::Object");
-}
-
-template<> inline ::Ice::ObjectPrx 
-checkedCastImpl< ::Ice::ObjectPrx>(const ::Ice::ObjectPrx& b, const std::string& f, const ::Ice::Context& context)
+checkedCastImpl< ::Ice::ObjectPrx>(const ::Ice::ObjectPrx& b, const std::string& f, const ::Ice::Context* context)
 {
     return checkedCastImpl(b, f, "::Ice::Object", context);
 }
@@ -512,23 +485,7 @@ uncheckedCastImpl< ::Ice::ObjectPrx>(const ::Ice::ObjectPrx& b, const std::strin
 }
 
 template<typename P> P 
-checkedCastImpl(const ::Ice::ObjectPrx& b, const std::string& f)
-{
-    P d = 0;
-
-    typedef typename P::element_type T;
-    ::Ice::ObjectPrx bb = checkedCastImpl(b, f, T::ice_staticId());
-
-    if(bb)
-    {
-	d = new T;
-	d->__copyFrom(bb);
-    }
-    return d;
-}
-
-template<typename P> P 
-checkedCastImpl(const ::Ice::ObjectPrx& b, const std::string& f, const ::Ice::Context& context)
+checkedCastImpl(const ::Ice::ObjectPrx& b, const std::string& f, const ::Ice::Context* context)
 {
     P d = 0;
 
@@ -567,10 +524,11 @@ template<typename P, typename Y> inline P
 checkedCast(const ::IceInternal::ProxyHandle<Y>& b)
 {
     Y* tag = 0;
+    Ice::Context* ctx = 0;
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
-    return ::IceInternal::checkedCastHelper<P::element_type>(b, tag);
+    return ::IceInternal::checkedCastHelper<P::element_type>(b, tag, ctx);
 #else
-    return ::IceInternal::checkedCastHelper<typename P::element_type>(b, tag);
+    return ::IceInternal::checkedCastHelper<typename P::element_type>(b, tag, ctx);
 #endif
 }
 
@@ -579,9 +537,9 @@ checkedCast(const ::IceInternal::ProxyHandle<Y>& b, const ::Ice::Context& contex
 {
     Y* tag = 0;
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
-    return ::IceInternal::checkedCastHelper<P::element_type>(b, tag, context);
+    return ::IceInternal::checkedCastHelper<P::element_type>(b, tag, &context);
 #else
-    return ::IceInternal::checkedCastHelper<typename P::element_type>(b, tag, context);
+    return ::IceInternal::checkedCastHelper<typename P::element_type>(b, tag, &context);
 #endif
 }
 
@@ -599,19 +557,20 @@ uncheckedCast(const ::IceInternal::ProxyHandle<Y>& b)
 template<typename P> inline P 
 checkedCast(const ::Ice::ObjectPrx& b, const std::string& f)
 {
-    return ::IceInternal::checkedCastImpl<P>(b, f);
+    Ice::Context* ctx = 0;
+    return ::IceInternal::checkedCastImpl<P>(b, f, ctx);
 }
 
 template<typename P> inline P 
 checkedCast(const ::Ice::ObjectPrx& b, const std::string& f, const ::Ice::Context& context)
 {
-    return ::IceInternal::checkedCastImpl<P>(b, f, context);
+    return ::IceInternal::checkedCastImpl<P>(b, f, &context);
 }
 
 template<typename P> inline P 
 uncheckedCast(const ::Ice::ObjectPrx& b, const std::string& f)
 {
-    return ::IceInternal::checkedCastImpl<P>(b, f);
+    return ::IceInternal::uncheckedCastImpl<P>(b, f);
 }
 
 #endif

@@ -44,7 +44,7 @@ void IceInternal::decRef(::IceDelegateD::Ice::Object* p) { p->__decRef(); }
 
 
 ::Ice::ObjectPrx
-IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& typeId)
+IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& typeId, const Context* context)
 {
 //
 // COMPILERBUG: Without this work-around, release VC7.0 and VC7.1
@@ -59,41 +59,7 @@ IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& 
 	ObjectPrx bb = b->ice_facet(f);
 	try
 	{
-	    if(bb->ice_isA(typeId))
-	    {
-		return bb;
-	    }
-#ifndef NDEBUG
-	    else
-	    {
-		assert(typeId != "::Ice::Object");
-	    }
-#endif
-	}
-	catch(const FacetNotExistException&)
-	{
-	}
-    }
-    return 0;
-}
-
-::Ice::ObjectPrx
-IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& typeId, const Context& context)
-{
-//
-// COMPILERBUG: Without this work-around, release VC7.0 build crash
-// when FacetNotExistException is raised
-//
-#if defined(_MSC_VER) && (_MSC_VER == 1300)
-    ObjectPrx fooBar;
-#endif
-
-    if(b)
-    {
-	ObjectPrx bb = b->ice_facet(f);
-	try
-	{
-	    if(bb->ice_isA(typeId, context))
+	    if(context == 0 ? bb->ice_isA(typeId) : bb->ice_isA(typeId, *context))
 	    {
 		return bb;
 	    }
