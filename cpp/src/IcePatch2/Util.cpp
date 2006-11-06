@@ -340,6 +340,11 @@ IcePatch2::simplify(const string& path)
 bool
 IcePatch2::isAbsolute(const string& pa)
 {
+    if(pa.empty())
+    {
+	return false;
+    }
+
     unsigned i = 0;
     while(isspace(pa[i]))
     {
