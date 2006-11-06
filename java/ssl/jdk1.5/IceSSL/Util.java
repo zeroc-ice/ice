@@ -113,4 +113,6 @@ public final class Util
 	info.incoming = incoming;
 	return info;
     }
+
+    public final static String jdkTarget = "1.5";
 }

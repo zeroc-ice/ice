@@ -21,16 +21,13 @@ public class Client
 	Test.ServerFactoryPrx factory;
 
 	//
-	// If we're using JDK 1.4, or JDK 1.5 with the 1.4 plugin, we can only
-	// use thread-per-connection. Otherwise, we run the test twice, once for
-	// each concurrency model.
+	// If we're using the JDK 1.4 plugin, we can only use thread-per-connection.
+	// Otherwise, we run the test twice, once for each concurrency model.
 	//
 	System.out.println("testing with thread-per-connection.");
 	factory = AllTests.allTests(communicator, args[0], false);
 
-	boolean threadPerConnection = communicator.getProperties().getPropertyAsInt("Ice.ThreadPerConnection") > 0;
-	String jdkVersion = System.getProperty("java.version");
-	if(jdkVersion.startsWith("1.5") && !threadPerConnection)
+	if(!IceSSL.Util.jdkTarget.equals("1.4"))
 	{
 	    System.out.println("testing with thread pool.");
 	    AllTests.allTests(communicator, args[0], true);
