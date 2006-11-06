@@ -385,7 +385,8 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
 	    return;
 	}
 	LocatorIPtr self = const_cast<LocatorI*>(this);
-	(new Request(cb, self, id, replicaGroup, adapters, count, _database->getTraceLevels()))->execute();
+	RequestPtr request = new Request(cb, self, id, replicaGroup, adapters, count, _database->getTraceLevels());
+	request->execute();
     }
     catch(const AdapterNotExistException&)
     {
