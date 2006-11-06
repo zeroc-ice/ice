@@ -86,27 +86,13 @@ class PlainServer extends Communicator implements Server
 
     static public IceBoxDescriptor newIceBoxDescriptor()
     {
-	AdapterDescriptor serviceManager = new AdapterDescriptor(
-	    "IceBox.ServiceManager",
-	    "", 
-	    "", // direct-adapter by default
-	    "",
-	    true,
-	    true,
-	    new java.util.LinkedList(),
-	    new java.util.LinkedList());
-
-	java.util.LinkedList adapterList = new java.util.LinkedList();
-	adapterList.add(serviceManager);
-	
-	PropertyDescriptor pd = 
-	    new PropertyDescriptor("IceBox.ServiceManager.Endpoints",
-				   "tcp -h 127.0.0.1");
 	java.util.LinkedList properties = new java.util.LinkedList();
-	properties.add(pd);
+	properties.add(new PropertyDescriptor("IceBox.InstanceName", "${server}"));
+	properties.add(new PropertyDescriptor("IceBox.ServiceManager.Endpoints", "tcp -h 127.0.0.1"));
+	properties.add(new PropertyDescriptor("IceBox.RegisterProcess", "1"));
 
 	return new IceBoxDescriptor(
-	    adapterList,
+	    new java.util.LinkedList(),
 	    new PropertySetDescriptor(new String[0], properties),
 	    new java.util.LinkedList(),
 	    "",
