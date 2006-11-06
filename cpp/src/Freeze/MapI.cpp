@@ -224,7 +224,13 @@ Freeze::IteratorHelperI::find(const Key& key) const
 {
     Dbt dbKey;
     initializeInDbt(key, dbKey);
-
+    //
+    // When we have a custom-comparison function, Berkeley DB returns
+    // the key on-disk (when it finds one). We disable this behavior:
+    // (ref Oracle SR 5925672.992)
+    //
+    dbKey.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
+    
     //
     // Keep 0 length since we're not interested in the data
     //
@@ -257,7 +263,9 @@ Freeze::IteratorHelperI::find(const Key& key) const
         }
         catch(const ::DbException& dx)
         {
-            handleDbException(dx, const_cast<Key&>(key), dbKey, __FILE__, __LINE__);
+	    DatabaseException ex(__FILE__, __LINE__);
+	    ex.message = dx.what();
+	    throw ex;
         }
     }
 }
@@ -1470,6 +1478,13 @@ Freeze::MapIndexI::untypedCount(const Key& k, const ConnectionIPtr& connection) 
 {
     Dbt dbKey;
     initializeInDbt(k, dbKey);
+    //
+    // When we have a custom-comparison function, Berkeley DB returns
+    // the key on-disk (when it finds one). We disable this behavior:
+    // (ref Oracle SR 5925672.992)
+    //
+    dbKey.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
+
     
     Dbt dbValue;
     dbValue.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);

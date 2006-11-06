@@ -41,12 +41,14 @@ Freeze::IndexI::untypedFindFirst(const Key& bytes, Int firstN) const
 
     Dbt dbKey;
     initializeInDbt(bytes, dbKey);
+    //
+    // When we have a custom-comparison function, Berkeley DB returns
+    // the key on-disk (when it finds one). We disable this behavior:
+    // (ref Oracle SR 5925672.992)
+    //
+    dbKey.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
 
-    //
-    // Berkeley DB 4.1.25 bug: it should not write into dbKey
-    //
-    dbKey.set_ulen(static_cast<u_int32_t>(bytes.size()));
-    
+
     Key pkey(1024);
     Dbt pdbKey;
     initializeOutDbt(pkey, pdbKey);
@@ -185,6 +187,13 @@ Freeze::IndexI::untypedCount(const Key& bytes) const
 
     Dbt dbKey;
     initializeInDbt(bytes, dbKey);
+    //
+    // When we have a custom-comparison function, Berkeley DB returns
+    // the key on-disk (when it finds one). We disable this behavior:
+    // (ref Oracle SR 5925672.992)
+    //
+    dbKey.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
+
     
     Dbt dbValue;
     dbValue.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
