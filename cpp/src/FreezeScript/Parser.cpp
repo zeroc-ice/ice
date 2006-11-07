@@ -9,7 +9,7 @@
 
 #include <FreezeScript/Parser.h>
 #include <FreezeScript/GrammarUtil.h>
-#include <IceUtil/Mutex.h>
+#include <IceUtil/StaticMutex.h>
 
 using namespace std;
 
@@ -66,7 +66,7 @@ int FreezeScript::parseLine;
 
 static string _input;
 static string::size_type _pos;
-static IceUtil::Mutex _parserMutex;
+static IceUtil::StaticMutex _parserMutex = ICE_STATIC_MUTEX_INITIALIZER;
 
 //
 // parseExpression
@@ -77,7 +77,7 @@ FreezeScript::parseExpression(const string& expr, const DataFactoryPtr& factory,
     //
     // The bison grammar is not thread-safe.
     //
-    IceUtil::Mutex::Lock sync(_parserMutex);
+    IceUtil::StaticMutex::Lock sync(_parserMutex);
 
     parseDataFactory = factory;
     parseErrorReporter = errorReporter;
