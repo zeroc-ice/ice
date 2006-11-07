@@ -923,6 +923,16 @@ local exception SecurityException
     string reason;
 };
 
+/**
+ * 
+ * This exception indicates that an attempt has been made to
+ * change the connection properties of a fixed proxy.
+ *
+ **/
+local exception FixedProxyException
+{
+};
+
 };
 
 #endif

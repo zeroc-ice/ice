@@ -448,47 +448,47 @@ namespace IceInternal
 
 	public override Reference changeSecure(bool sec)
 	{
-	    return this;
+	    throw new Ice.FixedProxyException();
 	}
 
 	public override Reference changeRouter(Ice.RouterPrx newRouter)
 	{
-	    return this;
+	    throw new Ice.FixedProxyException();
 	}
 
 	public override Reference changeLocator(Ice.LocatorPrx newLocator)
 	{
-	    return this;
+	    throw new Ice.FixedProxyException();
 	}
 
 	public override Reference changeCollocationOptimization(bool newCollocationOptimization)
 	{
-	    return this;
+	    throw new Ice.FixedProxyException();
 	}
 
 	public override Reference changeAdapterId(string newAdapterId)
         {
-	    return this;
+	    throw new Ice.FixedProxyException();
 	}
 
 	public override Reference changeEndpoints(EndpointI[] newEndpoints)
         {
-	    return this;
+	    throw new Ice.FixedProxyException();
 	}
 
 	public override Reference changeLocatorCacheTimeout(int newTimeout)
         {
-	    return this;
+	    throw new Ice.FixedProxyException();
 	}
 
 	public override Reference changeCacheConnection(bool newCache)
 	{
-	    return this;
+	    throw new Ice.FixedProxyException();
 	}
 
 	public override Reference changeEndpointSelection(Ice.EndpointSelectionType newType)
 	{
-	    return this;
+	    throw new Ice.FixedProxyException();
 	}
 
 	public override Reference changeCompress(bool newCompress)
@@ -496,31 +496,27 @@ namespace IceInternal
 	    // TODO: FixedReferences should probably have a _compress flag,
 	    // that gets its default from the fixed connection this reference
 	    // refers to. This should be changable with changeCompress().
-	    return this;
+	    throw new Ice.FixedProxyException();
 	}
 
 	public override Reference changeTimeout(int newTimeout)
 	{
-	    return this;
+	    throw new Ice.FixedProxyException();
 	}
 
 	public override Reference changeConnectionId(string connectionId)
 	{
-	    return this;
+	    throw new Ice.FixedProxyException();
 	}
 
 	public override void streamWrite(BasicStream s)
 	{
-	     Ice.MarshalException ex = new Ice.MarshalException();
-	     ex.reason = "Cannot marshal a fixed proxy";
-	     throw ex;
+	    throw new Ice.FixedProxyException();
 	}
 
 	public override string ToString()
 	{
-	     Ice.MarshalException ex = new Ice.MarshalException();
-	     ex.reason = "Cannot marshal a fixed proxy";
-	     throw ex;
+	    throw new Ice.FixedProxyException();
 	}
 
 	public override Ice.ConnectionI getConnection(out bool compress)

@@ -1,7 +1,10 @@
-NOTE: Please keep changes in the appropriate section for HEAD or 3.1.
-
-Changes since version 3.1.1 (HEAD)
+Changes since version 3.1.1
 ---------------------------     
+
+- Attempts to change the properties of a fixed proxy now result in a
+  FixedProxyException rather than just ignoring the change request and
+  returning the same proxy. Also attempts to marshal a fixed proxy now 
+  result in a FixedProxyException rather than a MarshalException.
 
 - Fixed a bug in the IceGrid locator implementation which could cause
   a memory corruption when using replica groups.

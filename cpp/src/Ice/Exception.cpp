@@ -648,3 +648,10 @@ Ice::SecurityException::ice_print(ostream& out) const
 	out << ":\n" << reason;
     }
 }
+
+void
+Ice::FixedProxyException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nfixed proxy exception";
+}

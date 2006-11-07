@@ -83,19 +83,20 @@ main(int argc, char* argv[])
 
     string cppArgs;
     vector<string> optargs = opts.argVec("D");
-    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    vector<string>::const_iterator i;
+    for(i = optargs.begin(); i != optargs.end(); ++i)
     {
 	cppArgs += " -D\"" + *i + "\"";
     }
 
     optargs = opts.argVec("U");
-    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    for(i = optargs.begin(); i != optargs.end(); ++i)
     {
 	cppArgs += " -U\"" + *i + "\"";
     }
 
     optargs = opts.argVec("I");
-    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    for(i = optargs.begin(); i != optargs.end(); ++i)
     {
 	cppArgs += " -I\"" + *i + "\"";
     }

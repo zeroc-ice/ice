@@ -58,11 +58,16 @@ AdminSessionI::setObservers(const RegistryObserverPrx& registryObserver,
 	throw ex;
     }
 
-    setupObserverSubscription(RegistryObserverTopicName, registryObserver);
-    setupObserverSubscription(NodeObserverTopicName, nodeObserver);
-    setupObserverSubscription(ApplicationObserverTopicName, appObserver);
-    setupObserverSubscription(AdapterObserverTopicName, adapterObserver);
-    setupObserverSubscription(ObjectObserverTopicName, objectObserver);
+    setupObserverSubscription(RegistryObserverTopicName, 
+    			      registryObserver ? registryObserver->ice_timeout(_timeout * 1000) : 0);
+    setupObserverSubscription(NodeObserverTopicName, 
+    			      nodeObserver ? nodeObserver->ice_timeout(_timeout * 1000) : 0);
+    setupObserverSubscription(ApplicationObserverTopicName, 
+    			      appObserver ? appObserver->ice_timeout(_timeout * 1000) : 0);
+    setupObserverSubscription(AdapterObserverTopicName,
+    			      adapterObserver ? adapterObserver->ice_timeout(_timeout * 1000) : 0);
+    setupObserverSubscription(ObjectObserverTopicName, 
+    			      objectObserver ? objectObserver->ice_timeout(_timeout * 1000) : 0);
 }
 
 void
@@ -286,7 +291,7 @@ AdminSessionI::setupObserverSubscription(TopicName name, const Ice::ObjectPrx& o
 
     if(observer)
     {
-	_observers[name] = observer->ice_timeout(_timeout * 1000);
+	_observers[name] = observer;
 	_database->getObserverTopic(name)->subscribe(_observers[name]); 
     }
 }

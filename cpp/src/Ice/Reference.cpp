@@ -489,25 +489,25 @@ IceInternal::FixedReference::getEndpointSelection() const
 ReferencePtr
 IceInternal::FixedReference::changeSecure(bool) const
 {
-    return FixedReferencePtr(const_cast<FixedReference*>(this));
+    throw FixedProxyException(__FILE__, __LINE__);
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeRouter(const RouterPrx&) const
 {
-    return FixedReferencePtr(const_cast<FixedReference*>(this));
+    throw FixedProxyException(__FILE__, __LINE__);
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeLocator(const LocatorPrx&) const
 {
-    return FixedReferencePtr(const_cast<FixedReference*>(this));
+    throw FixedProxyException(__FILE__, __LINE__);
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeCollocationOptimization(bool) const
 {
-    return FixedReferencePtr(const_cast<FixedReference*>(this));
+    throw FixedProxyException(__FILE__, __LINE__);
 }
 
 ReferencePtr
@@ -516,61 +516,61 @@ IceInternal::FixedReference::changeCompress(bool) const
     // TODO: FixedReferences should probably have a _compress flag,
     // that gets its default from the fixed connection this reference
     // refers to. This should be changable with changeCompress().
-    return FixedReferencePtr(const_cast<FixedReference*>(this));
+    throw FixedProxyException(__FILE__, __LINE__);
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeTimeout(int) const
 {
-    return FixedReferencePtr(const_cast<FixedReference*>(this));
+    throw FixedProxyException(__FILE__, __LINE__);
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeConnectionId(const string&) const
 {
-    return FixedReferencePtr(const_cast<FixedReference*>(this));
+    throw FixedProxyException(__FILE__, __LINE__);
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeLocatorCacheTimeout(int) const
 {
-    return FixedReferencePtr(const_cast<FixedReference*>(this));
+    throw FixedProxyException(__FILE__, __LINE__);
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeAdapterId(const string& newAdapterId) const
 {
-    return FixedReferencePtr(const_cast<FixedReference*>(this));    
+    throw FixedProxyException(__FILE__, __LINE__);
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeEndpoints(const vector<EndpointIPtr>& newEndpoints) const
 {
-    return FixedReferencePtr(const_cast<FixedReference*>(this));    
+    throw FixedProxyException(__FILE__, __LINE__);
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeCacheConnection(bool) const
 {
-    return FixedReferencePtr(const_cast<FixedReference*>(this));    
+    throw FixedProxyException(__FILE__, __LINE__);
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeEndpointSelection(EndpointSelectionType) const
 {
-    return FixedReferencePtr(const_cast<FixedReference*>(this));
+    throw FixedProxyException(__FILE__, __LINE__);
 }
 
 void
 IceInternal::FixedReference::streamWrite(BasicStream* s) const
 {
-    throw MarshalException(__FILE__, __LINE__, "Cannot marshal a fixed proxy");
+    throw FixedProxyException(__FILE__, __LINE__);
 }
 
 string
 IceInternal::FixedReference::toString() const
 {
-    throw MarshalException(__FILE__, __LINE__, "Cannot marshal a fixed proxy");
+    throw FixedProxyException(__FILE__, __LINE__);
 
     assert(false);   // Cannot be reached.
     return string(); // To keep the compiler from complaining.

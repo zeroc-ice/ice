@@ -75,55 +75,55 @@ public class FixedReference extends Reference
     public Reference
     changeSecure(boolean sec)
     {
-	return this;
+	throw new Ice.FixedProxyException();
     }
 
     public Reference
     changeRouter(Ice.RouterPrx newRouter)
     {
-        return this;
+	throw new Ice.FixedProxyException();
     }
 
     public Reference
     changeLocator(Ice.LocatorPrx newLocator)
     {
-        return this;
+	throw new Ice.FixedProxyException();
     }
 
     public Reference
     changeCollocationOptimization(boolean newCollocationOptimization)
     {
-        return this;
+	throw new Ice.FixedProxyException();
     }
 
     public Reference
     changeAdapterId(String newAdapterId)
     {
-        return this;
+	throw new Ice.FixedProxyException();
     }
 
     public Reference
     changeEndpoints(EndpointI[] newEndpoints)
     {
-        return this;
+	throw new Ice.FixedProxyException();
     }
 
     public Reference
     changeLocatorCacheTimeout(int newTimeout)
     {
-        return this;
+	throw new Ice.FixedProxyException();
     }
 
     public final Reference
     changeCacheConnection(boolean newCache)
     {
-	return this;
+	throw new Ice.FixedProxyException();
     }
 
     public final Reference
     changeEndpointSelection(Ice.EndpointSelectionType newType)
     {
-	return this;
+	throw new Ice.FixedProxyException();
     }
 
     public Reference
@@ -132,33 +132,33 @@ public class FixedReference extends Reference
 	// TODO: FixedReferences should probably have a _compress flag,
 	// that gets its default from the fixed connection this reference
 	// refers to. This should be changable with changeCompress().
-        return this;
+	throw new Ice.FixedProxyException();
     }
 
     public Reference
     changeTimeout(int newTimeout)
     {
-	return this;
+	throw new Ice.FixedProxyException();
     }
 
     public Reference
     changeConnectionId(String connectionId)
     {
-	return this;
+	throw new Ice.FixedProxyException();
     }
 
     public void
     streamWrite(BasicStream s)
 	throws Ice.MarshalException
     {
-	 throw new Ice.MarshalException("Cannot marshal a fixed proxy");
+	throw new Ice.FixedProxyException();
     }
 
     public String
     toString()
 	throws Ice.MarshalException
     {
-	 throw new Ice.MarshalException("Cannot marshal a fixed proxy");
+	throw new Ice.FixedProxyException();
     }
 
     public Ice.ConnectionI
