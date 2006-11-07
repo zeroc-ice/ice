@@ -388,7 +388,14 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
 	v = createString(e.operation);
 	callRuby(rb_iv_set, p, "@operation", v);
     }
-    catch(const Ice::SyscallException& e)
+    catch(const Ice::FileException& e)
+    {
+	volatile VALUE v = INT2FIX(e.error);
+	callRuby(rb_iv_set, p, "@error", v);
+	v = createString(e.path);
+	callRuby(rb_iv_set, p, "@path", v);
+    }
+    catch(const Ice::SyscallException& e) // This must appear after all subclasses of SyscallException.
     {
 	volatile VALUE v = INT2FIX(e.error);
 	callRuby(rb_iv_set, p, "@error", v);
@@ -433,7 +440,7 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
 	v = createString(e.expectedType);
 	callRuby(rb_iv_set, p, "@expectedType", v);
     }
-    catch(const Ice::MarshalException& e)
+    catch(const Ice::ProtocolException& e) // This must appear after all subclasses of ProtocolException.
     {
 	volatile VALUE v = createString(e.reason);
 	callRuby(rb_iv_set, p, "@reason", v);
@@ -463,6 +470,21 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
     {
 	volatile VALUE v = createString(e.operation);
 	callRuby(rb_iv_set, p, "@operation", v);
+    }
+    catch(const Ice::FeatureNotSupportedException& e)
+    {
+	volatile VALUE v = createString(e.unsupportedFeature);
+	callRuby(rb_iv_set, p, "@unsupportedFeature", v);
+    }
+    catch(const Ice::NotSetException& e)
+    {
+	volatile VALUE v = createString(e.key);
+	callRuby(rb_iv_set, p, "@key", v);
+    }
+    catch(const Ice::SecurityException& e)
+    {
+	volatile VALUE v = createString(e.reason);
+	callRuby(rb_iv_set, p, "@reason", v);
     }
     catch(const Ice::LocalException&)
     {

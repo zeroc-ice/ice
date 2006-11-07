@@ -543,10 +543,17 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
         m = PyString_FromString(const_cast<char*>(e.operation.c_str()));
         PyObject_SetAttrString(p, STRCAST("operation"), m.get());
     }
-    catch(const Ice::SyscallException& e)
+    catch(const Ice::FileException& e)
     {
-        IcePy::PyObjectHandle m = PyInt_FromLong(e.error);
-        PyObject_SetAttrString(p, STRCAST("error"), m.get());
+	IcePy::PyObjectHandle m = PyInt_FromLong(e.error);
+	PyObject_SetAttrString(p, STRCAST("error"), m.get());
+	m = PyString_FromString(const_cast<char*>(e.path.c_str()));
+	PyObject_SetAttrString(p, STRCAST("path"), m.get());
+    }
+    catch(const Ice::SyscallException& e) // This must appear after all subclasses of SyscallException.
+    {
+	IcePy::PyObjectHandle m = PyInt_FromLong(e.error);
+	PyObject_SetAttrString(p, STRCAST("error"), m.get());
     }
     catch(const Ice::DNSException& e)
     {
@@ -598,7 +605,7 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
         m = PyString_FromString(const_cast<char*>(e.expectedType.c_str()));
         PyObject_SetAttrString(p, STRCAST("expectedType"), m.get());
     }
-    catch(const Ice::MarshalException& e)
+    catch(const Ice::ProtocolException& e) // This must appear after all subclasses of ProtocolException.
     {
         IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.reason.c_str()));
         PyObject_SetAttrString(p, STRCAST("reason"), m.get());
@@ -628,6 +635,21 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
     {
         IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.operation.c_str()));
         PyObject_SetAttrString(p, STRCAST("operation"), m.get());
+    }
+    catch(const Ice::FeatureNotSupportedException& e)
+    {
+	IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.unsupportedFeature.c_str()));
+	PyObject_SetAttrString(p, STRCAST("unsupportedFeature"), m.get());
+    }
+    catch(const Ice::NotSetException& e)
+    {
+	IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.key.c_str()));
+	PyObject_SetAttrString(p, STRCAST("key"), m.get());
+    }
+    catch(const Ice::SecurityException& e)
+    {
+	IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.reason.c_str()));
+	PyObject_SetAttrString(p, STRCAST("reason"), m.get());
     }
     catch(const Ice::LocalException&)
     {
