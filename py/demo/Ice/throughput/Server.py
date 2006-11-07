@@ -15,9 +15,10 @@ import Demo
 
 class ThroughputI(Demo.Throughput):
     def __init__(self):
-        self.byteSeq = []
-        self.byteSeq[0:Demo.ByteSeqSize] = range(0, Demo.ByteSeqSize)
-        self.byteSeq = [0 for x in self.byteSeq]
+	bytes = []
+	bytes[0:Demo.ByteSeqSize] = range(0, Demo.ByteSeqSize)
+	bytes = ['\x00' for x in bytes]
+	self.byteSeq = ''.join(bytes)
 
         self.stringSeq = []
         self.stringSeq[0:Demo.StringSeqSize] = range(0, Demo.StringSeqSize)
