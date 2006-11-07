@@ -42,16 +42,6 @@ usage(const char* n)
 int
 main(int argc, char* argv[])
 {
-    string cppArgs;
-    bool preprocess;
-    bool standAlone;
-    bool chapter;
-    bool noIndex;
-    bool debug;
-    bool ice;
-    bool caseSensitive;
-    bool sortFields;
-
     IceUtil::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
@@ -84,43 +74,47 @@ main(int argc, char* argv[])
 	usage(argv[0]);
 	return EXIT_SUCCESS;
     }
+
     if(opts.isSet("version"))
     {
 	cout << ICE_STRING_VERSION << endl;
 	return EXIT_SUCCESS;
     }
-    if(opts.isSet("D"))
+
+    string cppArgs;
+    vector<string> optargs = opts.argVec("D");
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
-	vector<string> optargs = opts.argVec("D");
-	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
-	{
-	    cppArgs += " -D\"" + *i + "\"";
-	}
+	cppArgs += " -D\"" + *i + "\"";
     }
-    if(opts.isSet("U"))
+
+    optargs = opts.argVec("U");
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
-	vector<string> optargs = opts.argVec("U");
-	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
-	{
-	    cppArgs += " -U\"" + *i + "\"";
-	}
+	cppArgs += " -U\"" + *i + "\"";
     }
-    if(opts.isSet("I"))
+
+    optargs = opts.argVec("I");
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
-	vector<string> optargs = opts.argVec("I");
-	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
-	{
-	    cppArgs += " -I\"" + *i + "\"";
-	}
+	cppArgs += " -I\"" + *i + "\"";
     }
-    preprocess = opts.isSet("E");
-    standAlone = opts.isSet("stand-alone");
-    chapter = opts.isSet("chapter");
-    noIndex = opts.isSet("noindex");
-    sortFields = opts.isSet("sort-fields");
-    debug = opts.isSet("debug");
-    ice = opts.isSet("ice");
-    caseSensitive = opts.isSet("case-sensitive");
+
+    bool preprocess = opts.isSet("E");
+
+    bool standAlone = opts.isSet("stand-alone");
+
+    bool chapter = opts.isSet("chapter");
+
+    bool noIndex = opts.isSet("noindex");
+
+    bool sortFields = opts.isSet("sort-fields");
+
+    bool debug = opts.isSet("debug");
+
+    bool ice = opts.isSet("ice");
+
+    bool caseSensitive = opts.isSet("case-sensitive");
 
     if(args.empty())
     {

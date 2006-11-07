@@ -41,18 +41,6 @@ usage(const char* n)
 int
 main(int argc, char* argv[])
 {
-    string cppArgs;
-    vector<string> includePaths;
-    bool preprocess;
-    string output;
-    bool tie;
-    bool impl;
-    bool implTie;
-    bool depend;
-    bool debug;
-    bool ice;
-    bool caseSensitive;
-
     IceUtil::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
@@ -86,47 +74,49 @@ main(int argc, char* argv[])
 	usage(argv[0]);
 	return EXIT_SUCCESS;
     }
+
     if(opts.isSet("version"))
     {
 	cout << ICEE_STRING_VERSION << endl;
 	return EXIT_SUCCESS;
     }
-    if(opts.isSet("D"))
+
+    string cppArgs;
+    vector<string> optargs = opts.argVec("D");
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
-        vector<string> optargs = opts.argVec("D");
-	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
-	{
-	    cppArgs += " -D\"" + *i + "\"";
-	}
+	cppArgs += " -D\"" + *i + "\"";
     }
-    if(opts.isSet("U"))
+
+    optargs = opts.argVec("U");
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
-        vector<string> optargs = opts.argVec("U");
-	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
-	{
-	    cppArgs += " -U\"" + *i + "\"";
-	}
+	cppArgs += " -U\"" + *i + "\"";
     }
-    if(opts.isSet("I"))
+
+    vector<string> includePaths = opts.argVec("I");
+    for(vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
     {
-        includePaths = opts.argVec("I");
-	for(vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
-	{
-	    cppArgs += " -I\"" + *i + "\"";
-	}
+	cppArgs += " -I\"" + *i + "\"";
     }
-    preprocess = opts.isSet("E");
-    if(opts.isSet("output-dir"))
-    {
-	output = opts.optArg("output-dir");
-    }
-    tie = opts.isSet("tie");
-    impl = opts.isSet("impl");
-    implTie = opts.isSet("impl-tie");
-    depend = opts.isSet("depend");
-    debug = opts.isSet("debug");
-    ice = opts.isSet("ice");
-    caseSensitive = opts.isSet("case-sensitive");
+
+    bool preprocess = opts.isSet("E");
+
+    string output = opts.optArg("output-dir");
+
+    bool tie = opts.isSet("tie");
+
+    bool impl = opts.isSet("impl");
+
+    bool implTie = opts.isSet("impl-tie");
+
+    bool depend = opts.isSet("depend");
+
+    bool debug = opts.isSet("debug");
+
+    bool ice = opts.isSet("ice");
+
+    bool caseSensitive = opts.isSet("case-sensitive");
 
     if(args.empty())
     {

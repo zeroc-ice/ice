@@ -1073,19 +1073,6 @@ usage(const char* n)
 int
 main(int argc, char* argv[])
 {
-    string cppArgs;
-    vector<string> includePaths;
-    bool preprocess;
-    string include;
-    vector<Dict> dicts;
-    vector<Index> indices;
-    string output;
-    bool depend;
-    bool debug;
-    bool ice;
-    StringList globalMetadata;
-    bool caseSensitive;
-
     IceUtil::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
@@ -1121,158 +1108,152 @@ main(int argc, char* argv[])
 	usage(argv[0]);
 	return EXIT_SUCCESS;
     }
+
     if(opts.isSet("version"))
     {
 	cout << ICE_STRING_VERSION << endl;
 	return EXIT_SUCCESS;
     }
-    if(opts.isSet("D"))
+
+    string cppArgs;
+    vector<string> optargs = opts.argVec("D");
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
-	vector<string> optargs = opts.argVec("D");
-	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	cppArgs += " -D\"" + *i + "\"";
+    }
+
+    optargs = opts.argVec("U");
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    {
+	cppArgs += " -U\"" + *i + "\"";
+    }
+
+    vector<string> includePaths = opts.argVec("I");
+    for(vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
+    {
+	cppArgs += " -I\"" + *i + "\"";
+    }
+
+    bool preprocess = opts.isSet("E");
+
+    string include = opts.optArg("include-dir");
+
+    vector<Dict> dicts;
+    optargs = opts.argVec("dict");
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    {
+	string s = *i;
+	s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+	
+	Dict dict;
+
+	string::size_type pos;
+	pos = s.find(',');
+	if(pos != string::npos)
 	{
-	    cppArgs += " -D\"" + *i + "\"";
+	    dict.name = s.substr(0, pos);
+	    s.erase(0, pos + 1);
 	}
-    }
-    if(opts.isSet("U"))
-    {
-	vector<string> optargs = opts.argVec("U");
-	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	pos = s.find(',');
+	if(pos != string::npos)
 	{
-	    cppArgs += " -U\"" + *i + "\"";
+	    dict.key = s.substr(0, pos);
+	    s.erase(0, pos + 1);
 	}
-    }
-    if(opts.isSet("I"))
-    {
-	includePaths = opts.argVec("I");
-	for(vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
+	dict.value = s;
+
+	if(dict.name.empty())
 	{
-	    cppArgs += " -I\"" + *i + "\"";
+	    cerr << argv[0] << ": " << *i << ": no name specified" << endl;
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
 	}
-    }
-    preprocess = opts.isSet("E");
-    if(opts.isSet("include-dir"))
-    {
-	include = opts.optArg("include-dir");
-    }
-    if(opts.isSet("dict"))
-    {
-	vector<string> optargs = opts.argVec("dict");
-	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+
+	if(dict.key.empty())
 	{
-	    string s = *i;
-	    s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
-	    
-	    Dict dict;
-
-	    string::size_type pos;
-	    pos = s.find(',');
-	    if(pos != string::npos)
-	    {
-		dict.name = s.substr(0, pos);
-		s.erase(0, pos + 1);
-	    }
-	    pos = s.find(',');
-	    if(pos != string::npos)
-	    {
-		dict.key = s.substr(0, pos);
-		s.erase(0, pos + 1);
-	    }
-	    dict.value = s;
-
-	    if(dict.name.empty())
-	    {
-		cerr << argv[0] << ": " << *i << ": no name specified" << endl;
-		usage(argv[0]);
-		return EXIT_FAILURE;
-	    }
-
-	    if(dict.key.empty())
-	    {
-		cerr << argv[0] << ": " << *i << ": no key specified" << endl;
-		usage(argv[0]);
-		return EXIT_FAILURE;
-	    }
-
-	    if(dict.value.empty())
-	    {
-		cerr << argv[0] << ": " << *i << ": no value specified" << endl;
-		usage(argv[0]);
-		return EXIT_FAILURE;
-	    }
-
-	    dicts.push_back(dict);
+	    cerr << argv[0] << ": " << *i << ": no key specified" << endl;
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
 	}
-    }
-    if(opts.isSet("index"))
-    {
-	vector<string> optargs = opts.argVec("index");
-	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+
+	if(dict.value.empty())
 	{
-	    string s = *i;
-	    s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
-	    
-	    Index index;
-
-	    string::size_type pos;
-	    pos = s.find(',');
-	    if(pos != string::npos)
-	    {
-		index.name = s.substr(0, pos);
-		s.erase(0, pos + 1);
-	    }
-	    pos = s.find(',');
-	    if(pos != string::npos)
-	    {
-		index.type = s.substr(0, pos);
-		s.erase(0, pos + 1);
-	    }
-	    pos = s.find(',');
-	    string caseString;
-	    if(pos != string::npos)
-	    {
-		index.member = s.substr(0, pos);
-		s.erase(0, pos + 1);
-		caseString = s;
-	    }
-	    else
-	    {
-		index.member = s;
-		caseString = "case-sensitive";
-	    }
-
-	    if(index.name.empty())
-	    {
-		cerr << argv[0] << ": " << *i << ": no name specified" << endl;
-		usage(argv[0]);
-		return EXIT_FAILURE;
-	    }
-
-	    if(index.type.empty())
-	    {
-		cerr << argv[0] << ": " << *i << ": no type specified" << endl;
-		usage(argv[0]);
-		return EXIT_FAILURE;
-	    }
-
-	    if(index.member.empty())
-	    {
-		cerr << argv[0] << ": " << *i << ": no member specified" << endl;
-		usage(argv[0]);
-		return EXIT_FAILURE;
-	    }
-	    
-	    if(caseString != "case-sensitive" && caseString != "case-insensitive")
-	    {
-		cerr << argv[0] << ": " << *i << ": the case can be `case-sensitive' or `case-insensitive'" << endl;
-		usage(argv[0]);
-		return EXIT_FAILURE;
-	    }
-	    index.caseSensitive = (caseString == "case-sensitive");
-
-	    indices.push_back(index);
+	    cerr << argv[0] << ": " << *i << ": no value specified" << endl;
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
 	}
+
+	dicts.push_back(dict);
     }
+
+    vector<Index> indices;
+    optargs = opts.argVec("index");
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    {
+	string s = *i;
+	s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+	
+	Index index;
+
+	string::size_type pos;
+	pos = s.find(',');
+	if(pos != string::npos)
+	{
+	    index.name = s.substr(0, pos);
+	    s.erase(0, pos + 1);
+	}
+	pos = s.find(',');
+	if(pos != string::npos)
+	{
+	    index.type = s.substr(0, pos);
+	    s.erase(0, pos + 1);
+	}
+	pos = s.find(',');
+	string caseString;
+	if(pos != string::npos)
+	{
+	    index.member = s.substr(0, pos);
+	    s.erase(0, pos + 1);
+	    caseString = s;
+	}
+	else
+	{
+	    index.member = s;
+	    caseString = "case-sensitive";
+	}
+
+	if(index.name.empty())
+	{
+	    cerr << argv[0] << ": " << *i << ": no name specified" << endl;
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
+
+	if(index.type.empty())
+	{
+	    cerr << argv[0] << ": " << *i << ": no type specified" << endl;
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
+
+	if(index.member.empty())
+	{
+	    cerr << argv[0] << ": " << *i << ": no member specified" << endl;
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
+	
+	if(caseString != "case-sensitive" && caseString != "case-insensitive")
+	{
+	    cerr << argv[0] << ": " << *i << ": the case can be `case-sensitive' or `case-insensitive'" << endl;
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
+	index.caseSensitive = (caseString == "case-sensitive");
+
+	indices.push_back(index);
+    }
+
     if(opts.isSet("dict-index"))
     {
 	vector<string> optargs = opts.argVec("dict-index");
@@ -1355,19 +1336,20 @@ main(int argc, char* argv[])
 	    }
 	}
     }
-    if(opts.isSet("output-dir"))
-    {
-	output = opts.optArg("output-dir");
-    }
-    depend = opts.isSet("depend");
-    debug = opts.isSet("debug");
-    ice = opts.isSet("ice");
-    if(opts.isSet("meta"))
-    {
-	vector<string> v = opts.argVec("meta");
-	copy(v.begin(), v.end(), back_inserter(globalMetadata));
-    }
-    caseSensitive = opts.isSet("case-sensitive");
+
+    string output = opts.optArg("output-dir");
+
+    bool depend = opts.isSet("depend");
+
+    bool debug = opts.isSet("debug");
+
+    bool ice = opts.isSet("ice");
+
+    StringList globalMetadata;
+    vector<string> v = opts.argVec("meta");
+    copy(v.begin(), v.end(), back_inserter(globalMetadata));
+
+    bool caseSensitive = opts.isSet("case-sensitive");
 
     if(dicts.empty() && indices.empty())
     {

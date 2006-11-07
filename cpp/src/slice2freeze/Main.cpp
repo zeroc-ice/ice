@@ -1176,20 +1176,6 @@ writeIndex(const string& n, UnitPtr& u, const Index& index, Output& H, Output& C
 int
 main(int argc, char* argv[])
 {
-    string cppArgs;
-    string headerExtension;
-    string sourceExtension;
-    vector<string> includePaths;
-    bool preprocess;
-    string include;
-    string dllExport;
-    vector<Dict> dicts;
-    vector<Index> indices;
-    string output;
-    bool debug = false;
-    bool ice = false;
-    bool caseSensitive = false;
-
     IceUtil::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
@@ -1227,391 +1213,379 @@ main(int argc, char* argv[])
 	usage(argv[0]);
 	return EXIT_SUCCESS;
     }
+
     if(opts.isSet("version"))
     {
 	cout << ICE_STRING_VERSION << endl;
 	return EXIT_SUCCESS;
     }
 
-    headerExtension = opts.optArg("header-ext");
-    sourceExtension = opts.optArg("source-ext");
+    string headerExtension = opts.optArg("header-ext");
+    string sourceExtension = opts.optArg("source-ext");
 
+    string cppArgs;
     vector<string> extraHeaders = opts.argVec("add-header");
+    vector<string> optargs = opts.argVec("D");
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    {
+	cppArgs += " -D\"" + *i + "\"";
+    }
 
-    if(opts.isSet("D"))
+    optargs = opts.argVec("U");
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
-	vector<string> optargs = opts.argVec("D");
-	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
-	{
-	    cppArgs += " -D\"" + *i + "\"";
-	}
+	cppArgs += " -U\"" + *i + "\"";
     }
-    if(opts.isSet("U"))
-    {
-	vector<string> optargs = opts.argVec("U");
-	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
-	{
-	    cppArgs += " -U\"" + *i + "\"";
-	}
-    }
-    if(opts.isSet("I"))
-    {
-	includePaths = opts.argVec("I");
-	for(vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
-	{
-	    cppArgs += " -I\"" + *i + "\"";
-	}
-    }
-    preprocess= opts.isSet("E");
-    if(opts.isSet("include-dir"))
-    {
-	include = opts.optArg("include-dir");
-    }
-    if(opts.isSet("dll-export"))
-    {
-	dllExport = opts.optArg("dll-export");
-    }
-    if(opts.isSet("dict"))
-    {
-	vector<string> optargs = opts.argVec("dict");
-	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
-	{
-	    string s = *i;
-	    s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
-	    
-	    Dict dict;
 
-	    string::size_type pos;
-	    pos = s.find(',');
-	    if(pos != string::npos)
+    vector<string> includePaths = opts.argVec("I");
+    for(vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
+    {
+	cppArgs += " -I\"" + *i + "\"";
+    }
+
+    bool preprocess= opts.isSet("E");
+
+    string include = opts.optArg("include-dir");
+
+    string dllExport = opts.optArg("dll-export");
+
+    vector<Dict> dicts;
+    optargs = opts.argVec("dict");
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    {
+	string s = *i;
+	s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+	
+	Dict dict;
+
+	string::size_type pos;
+	pos = s.find(',');
+	if(pos != string::npos)
+	{
+	    dict.name = s.substr(0, pos);
+	    s.erase(0, pos + 1);
+	}
+	pos = s.find(',');
+	if(pos != string::npos)
+	{
+	    if(s.find("[\"") == 0)
 	    {
-		dict.name = s.substr(0, pos);
-		s.erase(0, pos + 1);
-	    }
-	    pos = s.find(',');
-	    if(pos != string::npos)
-	    {
-	        if(s.find("[\"") == 0)
+		string::size_type end = s.find("\"]");
+		if(end != string::npos && end < pos)
 		{
-		    string::size_type end = s.find("\"]");
-		    if(end != string::npos && end < pos)
-		    {
-		        dict.key = s.substr(end + 2, pos - end - 2);
-			dict.keyMetaData.push_back(s.substr(2, end - 2));
-		    }
-		    else
-		    {
-		        dict.key = s.substr(0, pos);
-		    }
+		    dict.key = s.substr(end + 2, pos - end - 2);
+		    dict.keyMetaData.push_back(s.substr(2, end - 2));
 		}
 		else
 		{
 		    dict.key = s.substr(0, pos);
 		}
-		s.erase(0, pos + 1);
 	    }
-	    pos = s.find(',');
-	    if(pos == string::npos)
+	    else
 	    {
-	        if(s.find("[\"") == 0)
+		dict.key = s.substr(0, pos);
+	    }
+	    s.erase(0, pos + 1);
+	}
+	pos = s.find(',');
+	if(pos == string::npos)
+	{
+	    if(s.find("[\"") == 0)
+	    {
+		string::size_type end = s.find("\"]");
+		if(end != string::npos)
 		{
-		    string::size_type end = s.find("\"]");
-		    if(end != string::npos)
-		    {
-		        dict.value = s.substr(end + 2);
-			dict.valueMetaData.push_back(s.substr(2, end - 2));
-		    }
-		    else
-		    {
-		        dict.value = s;
-		    }
+		    dict.value = s.substr(end + 2);
+		    dict.valueMetaData.push_back(s.substr(2, end - 2));
 		}
 		else
 		{
 		    dict.value = s;
 		}
-		dict.sort = false;
 	    }
 	    else
 	    {
-	        if(s.find("[\"") == 0)
+		dict.value = s;
+	    }
+	    dict.sort = false;
+	}
+	else
+	{
+	    if(s.find("[\"") == 0)
+	    {
+		string::size_type end = s.find("\"]");
+		if(end != string::npos && end < pos)
 		{
-		    string::size_type end = s.find("\"]");
-		    if(end != string::npos && end < pos)
-		    {
-		        dict.value = s.substr(end + 2, pos - end - 2);
-			dict.valueMetaData.push_back(s.substr(2, end - 2));
-		    }
-		    else
-		    {
-		        dict.value = s.substr(0, pos);
-		    }
+		    dict.value = s.substr(end + 2, pos - end - 2);
+		    dict.valueMetaData.push_back(s.substr(2, end - 2));
 		}
 		else
 		{
 		    dict.value = s.substr(0, pos);
 		}
-		s.erase(0, pos + 1);
+	    }
+	    else
+	    {
+		dict.value = s.substr(0, pos);
+	    }
+	    s.erase(0, pos + 1);
 
+	    pos = s.find(',');
+	    if(pos == string::npos)
+	    {
+		if(s != "sort")
+		{
+		    cerr << argv[0] << ": " << *i 
+			 << ": nothing or ',sort' expected after value-type" << endl;
+		    usage(argv[0]);
+		    return EXIT_FAILURE;
+		}
+		dict.sort = true;
+	    }
+	    else
+	    {
+		string sort = s.substr(0, pos);
+		s.erase(0, pos + 1);
+		if(sort != "sort")
+		{
+		    cerr << argv[0] << ": " << *i 
+			 << ": nothing or ',sort' expected after value-type" << endl;
+		    usage(argv[0]);
+		    return EXIT_FAILURE;
+		}
+		dict.sort = true;
+		dict.userCompare = s;
+	    }
+	}
+
+	if(dict.name.empty())
+	{
+	    cerr << argv[0] << ": " << *i << ": no name specified" << endl;
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
+
+	if(dict.key.empty())
+	{
+	    cerr << argv[0] << ": " << *i << ": no key specified" << endl;
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
+
+	if(dict.value.empty())
+	{
+	    cerr << argv[0] << ": " << *i << ": no value specified" << endl;
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
+
+	dicts.push_back(dict);
+    }
+    
+    vector<Index> indices;
+    optargs = opts.argVec("index");
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    {
+	string s = *i;
+	s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+	
+	Index index;
+
+	string::size_type pos;
+	pos = s.find(',');
+	if(pos != string::npos)
+	{
+	    index.name = s.substr(0, pos);
+	    s.erase(0, pos + 1);
+	}
+	pos = s.find(',');
+	if(pos != string::npos)
+	{
+	    index.type = s.substr(0, pos);
+	    s.erase(0, pos + 1);
+	}
+	pos = s.find(',');
+	string caseString;
+	if(pos != string::npos)
+	{
+	    index.member = s.substr(0, pos);
+	    s.erase(0, pos + 1);
+	    caseString = s;
+	}
+	else
+	{
+	    index.member = s;
+	    caseString = "case-sensitive";
+	}
+
+	if(index.name.empty())
+	{
+	    cerr << argv[0] << ": " << *i << ": no name specified" << endl;
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
+
+	if(index.type.empty())
+	{
+	    cerr << argv[0] << ": " << *i << ": no type specified" << endl;
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
+
+	if(index.member.empty())
+	{
+	    cerr << argv[0] << ": " << *i << ": no member specified" << endl;
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
+	
+	if(caseString != "case-sensitive" && caseString != "case-insensitive")
+	{
+	    cerr << argv[0] << ": " << *i << ": the case can be `case-sensitive' or `case-insensitive'" << endl;
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
+	index.caseSensitive = (caseString == "case-sensitive");
+
+	indices.push_back(index);
+    }
+
+    optargs = opts.argVec("dict-index");
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    {
+	string s = *i;
+	s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+	
+	string dictName;
+	DictIndex index;
+	index.sort = false;
+	index.caseSensitive = true;
+
+	string::size_type pos = s.find(',');
+	if(pos == string::npos)
+	{
+	    dictName = s;
+	}
+	else
+	{
+	    dictName = s.substr(0, pos);
+	    s.erase(0, pos + 1);
+
+	    bool done = false;
+	    while(!done)
+	    {
 		pos = s.find(',');
 		if(pos == string::npos)
 		{
-		    if(s != "sort")
+		    if(s == "sort")
 		    {
-			cerr << argv[0] << ": " << *i 
-			     << ": nothing or ',sort' expected after value-type" << endl;
-			usage(argv[0]);
-			return EXIT_FAILURE;
+			index.sort = true;
 		    }
-		    dict.sort = true;
-		}
-		else
-		{
-		    string sort = s.substr(0, pos);
-		    s.erase(0, pos + 1);
-		    if(sort != "sort")
+		    else if(s == "case-sensitive")
 		    {
-			cerr << argv[0] << ": " << *i 
-			     << ": nothing or ',sort' expected after value-type" << endl;
-			usage(argv[0]);
-			return EXIT_FAILURE;
+			index.caseSensitive = true;
 		    }
-		    dict.sort = true;
-		    dict.userCompare = s;
-		}
-	    }
-
-	    if(dict.name.empty())
-	    {
-		cerr << argv[0] << ": " << *i << ": no name specified" << endl;
-		usage(argv[0]);
-		return EXIT_FAILURE;
-	    }
-
-	    if(dict.key.empty())
-	    {
-		cerr << argv[0] << ": " << *i << ": no key specified" << endl;
-		usage(argv[0]);
-		return EXIT_FAILURE;
-	    }
-
-	    if(dict.value.empty())
-	    {
-		cerr << argv[0] << ": " << *i << ": no value specified" << endl;
-		usage(argv[0]);
-		return EXIT_FAILURE;
-	    }
-
-	    dicts.push_back(dict);
-	}
-    }
-    if(opts.isSet("index"))
-    {
-	vector<string> optargs = opts.argVec("index");
-	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
-	{
-	    string s = *i;
-	    s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
-	    
-	    Index index;
-
-	    string::size_type pos;
-	    pos = s.find(',');
-	    if(pos != string::npos)
-	    {
-		index.name = s.substr(0, pos);
-		s.erase(0, pos + 1);
-	    }
-	    pos = s.find(',');
-	    if(pos != string::npos)
-	    {
-		index.type = s.substr(0, pos);
-		s.erase(0, pos + 1);
-	    }
-	    pos = s.find(',');
-	    string caseString;
-	    if(pos != string::npos)
-	    {
-		index.member = s.substr(0, pos);
-		s.erase(0, pos + 1);
-		caseString = s;
-	    }
-	    else
-	    {
-		index.member = s;
-		caseString = "case-sensitive";
-	    }
-
-	    if(index.name.empty())
-	    {
-		cerr << argv[0] << ": " << *i << ": no name specified" << endl;
-		usage(argv[0]);
-		return EXIT_FAILURE;
-	    }
-
-	    if(index.type.empty())
-	    {
-		cerr << argv[0] << ": " << *i << ": no type specified" << endl;
-		usage(argv[0]);
-		return EXIT_FAILURE;
-	    }
-
-	    if(index.member.empty())
-	    {
-		cerr << argv[0] << ": " << *i << ": no member specified" << endl;
-		usage(argv[0]);
-		return EXIT_FAILURE;
-	    }
-	    
-	    if(caseString != "case-sensitive" && caseString != "case-insensitive")
-	    {
-		cerr << argv[0] << ": " << *i << ": the case can be `case-sensitive' or `case-insensitive'" << endl;
-		usage(argv[0]);
-		return EXIT_FAILURE;
-	    }
-	    index.caseSensitive = (caseString == "case-sensitive");
-
-	    indices.push_back(index);
-	}
-    }
-    if(opts.isSet("dict-index"))
-    {
-	vector<string> optargs = opts.argVec("dict-index");
-	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
-	{
-	    string s = *i;
-	    s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
-	    
-	    string dictName;
-	    DictIndex index;
-	    index.sort = false;
-	    index.caseSensitive = true;
-
-	    string::size_type pos = s.find(',');
-	    if(pos == string::npos)
-	    {
-		dictName = s;
-	    }
-	    else
-	    {
-		dictName = s.substr(0, pos);
-		s.erase(0, pos + 1);
-
-		bool done = false;
-		while(!done)
-		{
-		    pos = s.find(',');
-		    if(pos == string::npos)
+		    else if(s == "case-insensitive")
 		    {
-			if(s == "sort")
+			index.caseSensitive = false;
+		    }
+		    else if(index.member.empty())
+		    {
+			if(s == "\\sort")
 			{
-			    index.sort = true;
-			}
-			else if(s == "case-sensitive")
-			{
-			    index.caseSensitive = true;
-			}
-			else if(s == "case-insensitive")
-			{
-			    index.caseSensitive = false;
-			}
-			else if(index.member.empty())
-			{
-			    if(s == "\\sort")
-			    {
-				index.member = "sort";
-			    }
-			    else
-			    {
-				index.member = s;
-			    }
+			    index.member = "sort";
 			}
 			else
 			{
-			    cerr << argv[0] << ": " << *i << ": syntax error" << endl;
-			    usage(argv[0]);
-			    return EXIT_FAILURE;
+			    index.member = s;
 			}
-			done = true;
 		    }
 		    else
 		    {
-			string subs = s.substr(0, pos);
-			s.erase(0, pos + 1);
-			
-			if(subs == "sort")
+			cerr << argv[0] << ": " << *i << ": syntax error" << endl;
+			usage(argv[0]);
+			return EXIT_FAILURE;
+		    }
+		    done = true;
+		}
+		else
+		{
+		    string subs = s.substr(0, pos);
+		    s.erase(0, pos + 1);
+		    
+		    if(subs == "sort")
+		    {
+			index.sort = true;
+			index.userCompare = s;
+			done = true;
+		    }
+		    else if(subs == "case-sensitive")
+		    {
+			index.caseSensitive = true;
+		    }
+		    else if(subs == "case-insensitive")
+		    {
+			index.caseSensitive = false;
+		    }
+		    else if(index.member.empty())
+		    {
+			if(subs == "\\sort")
 			{
-			    index.sort = true;
-			    index.userCompare = s;
-			    done = true;
-			}
-			else if(subs == "case-sensitive")
-			{
-			    index.caseSensitive = true;
-			}
-			else if(subs == "case-insensitive")
-			{
-			    index.caseSensitive = false;
-			}
-			else if(index.member.empty())
-			{
-			    if(subs == "\\sort")
-			    {
-				index.member = "sort";
-			    }
-			    else
-			    {
-				index.member = subs;
-			    }
+			    index.member = "sort";
 			}
 			else
 			{
-			    cerr << argv[0] << ": " << *i << ": syntax error" << endl;
-			    usage(argv[0]);
-			    return EXIT_FAILURE;
+			    index.member = subs;
 			}
 		    }
-		}
-	    }
-		
-	    if(dictName.empty())
-	    {
-		cerr << argv[0] << ": " << *i << ": no dictionary specified" << endl;
-		usage(argv[0]);
-		return EXIT_FAILURE;
-	    }
-
-	    bool found = false;
-	    for(vector<Dict>::iterator p = dicts.begin(); p != dicts.end(); ++p)
-	    {
-		if(p->name == dictName)
-		{
-		    if(find(p->indices.begin(), p->indices.end(), index) != p->indices.end())
+		    else
 		    {
-			cerr << argv[0] << ": --dict-index " << *i 
-			     << ": this dict-index is defined twice" << endl;
+			cerr << argv[0] << ": " << *i << ": syntax error" << endl;
+			usage(argv[0]);
 			return EXIT_FAILURE;
 		    }
-		    p->indices.push_back(index);
-		    found = true;
-		    break;
 		}
 	    }
-	    if(!found)
+	}
+	    
+	if(dictName.empty())
+	{
+	    cerr << argv[0] << ": " << *i << ": no dictionary specified" << endl;
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
+
+	bool found = false;
+	for(vector<Dict>::iterator p = dicts.begin(); p != dicts.end(); ++p)
+	{
+	    if(p->name == dictName)
 	    {
-		cerr << argv[0] << ": " << *i << ": unknown dictionary" << endl;
-		usage(argv[0]);
-		return EXIT_FAILURE;
+		if(find(p->indices.begin(), p->indices.end(), index) != p->indices.end())
+		{
+		    cerr << argv[0] << ": --dict-index " << *i 
+			 << ": this dict-index is defined twice" << endl;
+		    return EXIT_FAILURE;
+		}
+		p->indices.push_back(index);
+		found = true;
+		break;
 	    }
 	}
+	if(!found)
+	{
+	    cerr << argv[0] << ": " << *i << ": unknown dictionary" << endl;
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
     }
-    if(opts.isSet("output-dir"))
-    {
-	output = opts.optArg("output-dir");
-    }
-    debug = opts.isSet("debug");
-    ice = opts.isSet("ice");
-    caseSensitive = opts.isSet("case-sensitive");
+
+    string output = opts.optArg("output-dir");
+
+    bool debug = opts.isSet("debug");
+
+    bool ice = opts.isSet("ice");
+
+    bool caseSensitive = opts.isSet("case-sensitive");
 
     if(dicts.empty() && indices.empty())
     {
