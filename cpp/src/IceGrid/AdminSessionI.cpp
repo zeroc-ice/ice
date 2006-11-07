@@ -59,15 +59,15 @@ AdminSessionI::setObservers(const RegistryObserverPrx& registryObserver,
     }
 
     setupObserverSubscription(RegistryObserverTopicName, 
-    			      registryObserver ? registryObserver->ice_timeout(_timeout * 1000) : 0);
+    			      registryObserver ? registryObserver->ice_timeout(_timeout * 1000) : Ice::ObjectPrx());
     setupObserverSubscription(NodeObserverTopicName, 
-    			      nodeObserver ? nodeObserver->ice_timeout(_timeout * 1000) : 0);
+    			      nodeObserver ? nodeObserver->ice_timeout(_timeout * 1000) : Ice::ObjectPrx());
     setupObserverSubscription(ApplicationObserverTopicName, 
-    			      appObserver ? appObserver->ice_timeout(_timeout * 1000) : 0);
+    			      appObserver ? appObserver->ice_timeout(_timeout * 1000) : Ice::ObjectPrx());
     setupObserverSubscription(AdapterObserverTopicName,
-    			      adapterObserver ? adapterObserver->ice_timeout(_timeout * 1000) : 0);
+    			      adapterObserver ? adapterObserver->ice_timeout(_timeout * 1000) : Ice::ObjectPrx());
     setupObserverSubscription(ObjectObserverTopicName, 
-    			      objectObserver ? objectObserver->ice_timeout(_timeout * 1000) : 0);
+    			      objectObserver ? objectObserver->ice_timeout(_timeout * 1000) : Ice::ObjectPrx());
 }
 
 void
