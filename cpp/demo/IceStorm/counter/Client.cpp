@@ -21,7 +21,7 @@ public:
     virtual int run(int, char*[]);
 private:
 
-    void menu();
+    void menu(const MTPrinterPtr& printer);
 };
 
 int
@@ -51,20 +51,23 @@ Client::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
+    MTPrinterPtr printer = new MTPrinter();
+
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints("Observer", "tcp");
-    CounterObserverPrx observer = CounterObserverPrx::uncheckedCast(adapter->addWithUUID(new CounterObserverI));
+    CounterObserverPrx observer = 
+        CounterObserverPrx::uncheckedCast(adapter->addWithUUID(new CounterObserverI(printer)));
     adapter->activate();
 
     counter->subscribe(observer);
 
-    menu();
+    menu(printer);
 
     char c;
     do
     {
 	try
 	{
-	    cout << "==> ";
+	    printer->print("==> ");
 	    cin >> c;
 	    if(c == 'i')
 	    {
@@ -80,12 +83,12 @@ Client::run(int argc, char* argv[])
 	    }
 	    else if(c == '?')
 	    {
-		menu();
+		menu(printer);
 	    }
 	    else
 	    {
 		cout << "unknown command `" << c << "'" << endl;
-		menu();
+		menu(printer);
 	    }
 	}
 	catch(const Ice::Exception& ex)
@@ -101,12 +104,12 @@ Client::run(int argc, char* argv[])
 }
 
 void
-Client::menu()
+Client::menu(const MTPrinterPtr& printer)
 {
-    cout <<
+    printer->print(
 	"usage:\n"
 	"i: increment the counter\n"
 	"d: decrement the counter\n"
 	"x: exit\n"
-	"?: help\n";
+	"?: help\n");
 }

@@ -13,8 +13,9 @@
 
 using namespace std;
 
-CounterObserverI::CounterObserverI() :
-    _value(0)
+CounterObserverI::CounterObserverI(const MTPrinterPtr& printer) :
+    _value(0),
+    _printer(printer)
 {
 }
 
@@ -23,7 +24,9 @@ CounterObserverI::init(int value, const Ice::Current&)
 {
     Lock sync(*this);
     _value = value;
-    cout << "init: " << value << endl;
+    ostringstream ostr;
+    ostr << "init: " << value << endl;
+    _printer->print(ostr.str());
 }
 
 void
@@ -31,6 +34,8 @@ CounterObserverI::inc(int value, const Ice::Current&)
 {
     Lock sync(*this);
     _value += value;
-    cout << "int: " << value << " total: " << _value << endl;
+    ostringstream ostr;
+    ostr << "int: " << value << " total: " << _value << endl;
+    _printer->print(ostr.str());
 }
 
