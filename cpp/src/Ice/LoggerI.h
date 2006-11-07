@@ -10,7 +10,6 @@
 #ifndef ICE_LOGGER_I_H
 #define ICE_LOGGER_I_H
 
-#include <IceUtil/Mutex.h>
 #include <Ice/Logger.h>
 
 namespace Ice
@@ -32,12 +31,6 @@ private:
     std::string _prefix;
     std::string _emptyPrefix;
     bool _timestamp;
-
-    //
-    // A global mutex is used to avoid garbled output with multiple
-    // communicators.
-    //
-    static IceUtil::Mutex _globalMutex;
 };
 
 }

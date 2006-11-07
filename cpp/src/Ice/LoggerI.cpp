@@ -9,12 +9,13 @@
 
 #include <IceUtil/Time.h>
 #include <Ice/LoggerI.h>
+#include <IceUtil/StaticMutex.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceUtil::Mutex Ice::LoggerI::_globalMutex;
+static IceUtil::StaticMutex outputMutex = ICE_STATIC_MUTEX_INITIALIZER;
 
 Ice::LoggerI::LoggerI(const string& prefix, bool timestamp) : 
     _timestamp(timestamp)
@@ -28,7 +29,7 @@ Ice::LoggerI::LoggerI(const string& prefix, bool timestamp) :
 void
 Ice::LoggerI::print(const string& message)
 {
-    IceUtil::Mutex::Lock sync(_globalMutex);
+    IceUtil::StaticMutex::Lock sync(outputMutex);
 
     cerr << message << endl;
 }
@@ -36,7 +37,7 @@ Ice::LoggerI::print(const string& message)
 void
 Ice::LoggerI::trace(const string& category, const string& message)
 {
-    IceUtil::Mutex::Lock sync(_globalMutex);
+    IceUtil::StaticMutex::Lock sync(outputMutex);
 
     string s = "[ ";
     if(_timestamp)
@@ -62,7 +63,7 @@ Ice::LoggerI::trace(const string& category, const string& message)
 void
 Ice::LoggerI::warning(const string& message)
 {
-    IceUtil::Mutex::Lock sync(_globalMutex);
+    IceUtil::StaticMutex::Lock sync(outputMutex);
     if(_timestamp)
     {
 	cerr << IceUtil::Time::now().toString() << " ";
@@ -73,7 +74,7 @@ Ice::LoggerI::warning(const string& message)
 void
 Ice::LoggerI::error(const string& message)
 {
-    IceUtil::Mutex::Lock sync(_globalMutex);
+    IceUtil::StaticMutex::Lock sync(outputMutex);
     if(_timestamp)
     {
 	cerr << IceUtil::Time::now().toString() << " ";
