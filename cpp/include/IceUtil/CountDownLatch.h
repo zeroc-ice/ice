@@ -24,6 +24,7 @@ class ICE_UTIL_API CountDownLatch
 public:
     
     CountDownLatch(int);
+    ~CountDownLatch();
 
     void await() const;
     void countDown();

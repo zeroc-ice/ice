@@ -19,8 +19,8 @@ IceUtil::CountDownLatch::CountDownLatch(int count) :
     }
 
 #ifdef _WIN32
-    _event = CreateEvent(NULL, TRUE, FALSE, NULL);
-    if(_event == NULL)
+    _event = CreateEvent(0, TRUE, FALSE, 0);
+    if(_event == 0)
     {
 	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
@@ -39,6 +39,18 @@ IceUtil::CountDownLatch::CountDownLatch(int count) :
 #endif
 }
 
+IceUtil::CountDownLatch::~CountDownLatch()
+{
+#ifdef _WIN32
+    CloseHandle(_event);
+#else
+    int rc = 0;
+    rc = pthread_mutex_destroy(&_mutex);
+    assert(rc == 0);
+    rc = pthread_cond_destroy(&_cond);
+    assert(rc == 0);
+#endif
+}
 
 void 
 IceUtil::CountDownLatch::await() const
