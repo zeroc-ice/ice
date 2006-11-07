@@ -115,6 +115,8 @@ class Client(Ice.Application):
 		    menu()
 	    except EOFError:
 		break
+	    except Ice.Exception, ex:
+		print ex
 
 	return True
 
