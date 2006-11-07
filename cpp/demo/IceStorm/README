@@ -3,3 +3,8 @@ Demos in this directory:
 - clock
 
   A simple publisher/subscriber application for IceStorm.
+
+- counter
+
+  A simple couter demo to illistrate implementing the observer
+  pattern using IceStorm.
