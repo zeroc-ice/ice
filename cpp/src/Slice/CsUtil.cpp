@@ -667,7 +667,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 		    out << nl << stream << ".write" << typeS << "Seq(" << param;
 		    if(!isArray)
 		    {
-		        out << ".ToArray()";
+		        out << " == null ? null : " << param << ".ToArray()";
 		    }
 		    out << ");";
 		}
