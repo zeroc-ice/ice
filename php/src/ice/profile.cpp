@@ -322,10 +322,13 @@ parseSlice(const string& argStr, Slice::UnitPtr& unit TSRMLS_DC)
     {
 	args = IceUtil::Options::split(argStr);
     }
-    catch(const IceUtil::Options::Error& ex)
+    catch(const IceUtil::Exception& ex)
     {
+	ostringstream ostr;
+	ex.ice_print(ostr);
+	string msg = ostr.str();
 	php_error_docref(NULL TSRMLS_CC, E_ERROR, "error occurred while parsing Slice options in `%s':\n%s",
-			 argStr.c_str(), ex.reason.c_str());
+			 argStr.c_str(), msg.c_str());
 	return false;
     }
 
@@ -348,10 +351,13 @@ parseSlice(const string& argStr, Slice::UnitPtr& unit TSRMLS_DC)
 	    return false;
 	}
     }
-    catch(const IceUtil::Options::BadOpt& ex)
+    catch(const IceUtil::Exception& ex)
     {
+	ostringstream ostr;
+	ex.ice_print(ostr);
+	string msg = ostr.str();
 	php_error_docref(NULL TSRMLS_CC, E_ERROR, "error occurred while parsing Slice options in `%s':\n%s",
-			 argStr.c_str(), ex.reason.c_str());
+			 argStr.c_str(), msg.c_str());
 	return false;
     }
 
@@ -455,10 +461,13 @@ createProfile(const string& name, const string& config, const string& options, c
 	{
 	    args = IceUtil::Options::split(options);
 	}
-	catch(const IceUtil::Options::Error& ex)
+	catch(const IceUtil::Exception& ex)
 	{
+	    ostringstream ostr;
+	    ex.ice_print(ostr);
+	    string msg = ostr.str();
 	    php_error_docref(NULL TSRMLS_CC, E_ERROR, "error occurred while parsing the options `%s':\n%s",
-			     options.c_str(), ex.reason.c_str());
+			     options.c_str(), msg.c_str());
 	    return false;
 	}
         properties->parseCommandLineOptions("", args);
