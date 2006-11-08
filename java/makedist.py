@@ -17,10 +17,11 @@ def usage():
     print "Usage: " + sys.argv[0] + " [options] [tag]"
     print
     print "Options:"
-    print "-h    Show this message."
-    print "-d    Skip SGML documentation conversion."
-    print "-t    Skip building translators and use the ones in PATH."
-    print "-v    Be verbose."
+    print "-h       Show this message."
+    print "-d       Skip SGML documentation conversion."
+    print "-t       Skip building translators and use the ones in PATH."
+    print "-f       Keep going if precondition checks fail."
+    print "-v       Be verbose."
     print
     print "If no tag is specified, HEAD is used."
 
@@ -91,6 +92,7 @@ tag = "-rHEAD"
 skipDocs = False 
 skipTranslators = False 
 verbose = False 
+keepGoing = False
 for x in sys.argv[1:]:
     if x == "-h":
         usage()
@@ -103,6 +105,8 @@ for x in sys.argv[1:]:
         skipTranslators = True
     elif x == "-v":
         verbose = True 
+    elif x == "-f":
+	keepGoing = True
     elif x.startswith("-"):
         print sys.argv[0] + ": unknown option `" + x + "'"
         print
@@ -171,7 +175,8 @@ else:
 
 if errorOut:
     print "Failed precondition checks! See above messages."
-    sys.exit(1)
+    if not keepGoing:
+	sys.exit(1)
 
 #
 # Copy Slice directories.
