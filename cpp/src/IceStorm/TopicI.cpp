@@ -42,14 +42,16 @@ public:
 
     virtual bool
     ice_invoke(const pair<const Ice::Byte*, const Ice::Byte*>& inParams,
-	       vector<Ice::Byte>&,
+	       Ice::ByteSeq&,
 	       const Ice::Current& current)
     {
-	EventPtr event = new Event;
-	event->op = current.operation;
-	event->mode = current.mode;
-	vector<Ice::Byte>(inParams.first, inParams.second).swap(event->data);
-	event->context = current.ctx;
+	EventPtr event = new Event(
+	    current.operation,
+	    current.mode,
+	    Ice::ByteSeq(),
+	    current.ctx);
+
+	event->data.swap(Ice::ByteSeq(inParams.first, inParams.second));
 	
 	EventSeq v;
 	v.push_back(event);
