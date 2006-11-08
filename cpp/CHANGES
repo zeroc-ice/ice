@@ -41,7 +41,9 @@ Changes since version 3.1.1
 - Added new overload of Ice::initialize() that accepts a StringSeq as
   the first argument.
 
-- Changed IceStorm federation such that IceStorm now detects when a
+- IceStorm changes:
+
+  Changed IceStorm federation such that IceStorm now detects when a
   downstream topic is unavailable. At this point no further events are
   forwarded to the downstream Topic until the Topic becomes available
   again.  This notification is provided by the downstream pinging the
@@ -49,10 +51,28 @@ Changes since version 3.1.1
   IceStorm.KeepAliveTimeout. Added an addition tracing option
   IceStorm.Trace.KeepAlive.
 
-- Added IceStorm::Topic::unlinkByName to unlink a topic if the
+  All message sending is now faster. In particular, oneway QoS is now
+  significantly faster.
+
+  All message propagation is now fully buffered through a dynamic
+  thread pool. The thread pool is controlled through the following
+  properties.
+
+  * IceStorm.SubscriberPool.Max. The initial size of the thread
+    pool, the default being 1.
+  * IceStorm.SubscriberPool.SizeMax. The maximum size of the thread
+    pool, the default being 0, which means unlimited.
+  * IceStorm.SubscriberPool.SizeWarn. If the size of the thread pool
+    exceeds this value a warning is issued. The default is 0, which
+    means never warn.
+  * IceStorm.SubscriberPool.Timeout. Default value is 250ms. If a
+    stall is detected for more than this timeout value (in
+    milliseconds) a new thread is spawned up to the maximum size.
+
+  Added IceStorm::Topic::unlinkByName to unlink a topic if the
   downstream topic is not actually running.
 
-- Added per-subscriber publisher objects to IceStorm.
+  Added per-subscriber publisher objects to IceStorm.
   IceStorm::Topic::subscribeAndGetPublisher now returns a proxy which
   is used to send an event to only that particular subscriber. See
   demo/IceStorm/counter for a demo of this feature.
