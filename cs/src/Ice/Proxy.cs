@@ -114,6 +114,7 @@ namespace Ice
 	[Obsolete("This method has been deprecated, use ice_getConnection instead.")]
         Connection ice_connection();
         Connection ice_getConnection();
+        Connection ice_getCachedConnection();
     }
 
     public class ObjectPrxHelperBase : ObjectPrx
@@ -801,6 +802,28 @@ namespace Ice
                     cnt__ = handleException__(ex__, cnt__);
                 }
             }
+        }
+
+        public Connection ice_getCachedConnection()
+        {
+            ObjectDel_ del__ = null;
+	    lock(this)
+	    {
+	        del__ = _delegate;
+	    }
+
+            if(del__ != null)
+            {
+                try
+                {
+		    bool comp;
+                    return del__.getConnection__(out comp);
+                }
+                catch(CollocationOptimizationException)
+                {
+                }
+            }
+	    return null;
         }
 
         public override bool Equals(object r)

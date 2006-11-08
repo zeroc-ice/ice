@@ -785,6 +785,28 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
+    public final Connection
+    ice_getCachedConnection()
+    {
+    	_ObjectDel __del = null;
+        synchronized(this)
+	{
+	    __del = _delegate;
+	}
+        
+        if(__del != null)
+        {
+            try
+            {
+                return __del.__getConnection(new BooleanHolder());
+            }
+            catch(CollocationOptimizationException ex)
+            {
+            }
+        }
+	return null;
+    }
+
     public final boolean
     equals(java.lang.Object r)
     {

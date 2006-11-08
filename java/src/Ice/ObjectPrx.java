@@ -127,6 +127,7 @@ public interface ObjectPrx
      **/
     Connection ice_connection();
     Connection ice_getConnection();
+    Connection ice_getCachedConnection();
 
     boolean equals(java.lang.Object r);
 }
