@@ -8,21 +8,24 @@
 // **********************************************************************
 
 #include <IceStorm/KeepAliveThread.h>
+#include <IceStorm/Instance.h>
 #include <IceStorm/TraceLevels.h>
 #include <Ice/LocalException.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Communicator.h>
+#include <Ice/Properties.h>
 
 using namespace std;
 using namespace IceStorm;
 
-KeepAliveThread::KeepAliveThread(const Ice::CommunicatorPtr& communicator, const TraceLevelsPtr& traceLevels,
-				 const IceUtil::Time& timeout) :
-    _communicator(communicator),
-    _traceLevels(traceLevels),
-    _timeout(timeout),
+KeepAliveThread::KeepAliveThread(const InstancePtr& instance) :
+    _instance(instance),
+    _timeout(IceUtil::Time::seconds(max(instance->properties()->getPropertyAsIntWithDefault(
+					    "IceStorm.KeepAliveTimeout", 60), 1))), // min 1s.
+    _publish(false),
     _destroy(false)
 {
+    start();
 }
 
 KeepAliveThread::~KeepAliveThread()
@@ -33,28 +36,47 @@ void
 KeepAliveThread::add(const TopicUpstreamLinkPrx& upstream)
 {
     Lock sync(*this);
-    if(_traceLevels->keepAlive > 0)
+    TraceLevelsPtr traceLevels = _instance->traceLevels();
+    if(traceLevels->keepAlive > 0)
     {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->keepAliveCat);
-	out << "add " << _communicator->identityToString(upstream->ice_getIdentity());
+	Ice::Trace out(traceLevels->logger, traceLevels->keepAliveCat);
+	out << "add " << _instance->communicator()->identityToString(upstream->ice_getIdentity());
     }
     _upstream.push_back(upstream);
+    //
+    // If we've added the first item then we need to wake the ping
+    // thread since it sleeps indefinitely if there are no upstream
+    // topics to notify.
+    //
+    if(_upstream.size() == 1)
+    {
+	notify();
+    }
 }
 
 void
 KeepAliveThread::remove(const TopicUpstreamLinkPrx& upstream)
 {
     Lock sync(*this);
-    if(_traceLevels->keepAlive > 0)
+    TraceLevelsPtr traceLevels = _instance->traceLevels();
+    if(traceLevels->keepAlive > 0)
     {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->keepAliveCat);
-	out << "remove " << _communicator->identityToString(upstream->ice_getIdentity());
+	Ice::Trace out(traceLevels->logger, traceLevels->keepAliveCat);
+	out << "remove " << _instance->communicator()->identityToString(upstream->ice_getIdentity());
     }
     list<TopicUpstreamLinkPrx>::iterator p = find(_upstream.begin(), _upstream.end(), upstream);
     if(p != _upstream.end())
     {
 	_upstream.erase(p);
     }
+}
+
+void
+KeepAliveThread::startPinging()
+{
+    Lock sync(*this);
+    _publish = true;
+    notify();
 }
 
 void
@@ -76,10 +98,11 @@ KeepAliveThread::filter(IceStorm::TopicUpstreamLinkPrxSeq& upstream)
 	list<TopicUpstreamLinkPrx>::iterator q = find(_failed.begin(), _failed.end(), *p);
 	if(q != _failed.end())
 	{
-	    if(_traceLevels->keepAlive > 0)
+	    TraceLevelsPtr traceLevels = _instance->traceLevels();
+	    if(traceLevels->keepAlive > 0)
 	    {
-		Ice::Trace out(_traceLevels->logger, _traceLevels->keepAliveCat);
-		out << "filter " << _communicator->identityToString((*p)->ice_getIdentity());
+		Ice::Trace out(traceLevels->logger, traceLevels->keepAliveCat);
+		out << "filter " << _instance->communicator()->identityToString((*p)->ice_getIdentity());
 	    }
 	    _failed.erase(q);
 	    p = upstream.erase(p);
@@ -96,19 +119,35 @@ KeepAliveThread::filter(IceStorm::TopicUpstreamLinkPrxSeq& upstream)
 void
 KeepAliveThread::run()
 {
-    list<TopicUpstreamLinkPrx> upstream;
+    while(true)
     {
-	Lock sync(*this);
-	upstream = _upstream;
-    }
+	list<TopicUpstreamLinkPrx> upstream;
+	while(true)
+	{
+	    Lock sync(*this);
+	    if(!_destroy)
+	    {
+		if(!_publish || _upstream.size() == 0)
+		{
+		    wait();
+		}
+		else
+		{
+		    timedWait(_timeout);
+		}
+	    }
+	    if(_destroy)
+	    {
+		return;
+	    }
+	    if(!_publish)
+	    {
+		continue;
+	    }
+	    upstream = _upstream;
+	    break;
+	}
 
-    //
-    // First all upstream links are notified. Then we wait. It is done
-    // in this order so that any upstream links are notified
-    // immediately upon startup of the service.
-    //
-    for(;;)
-    {
 	for(list<TopicUpstreamLinkPrx>::const_iterator p = upstream.begin(); p != upstream.end(); ++p)
 	{
 	    try
@@ -121,23 +160,14 @@ KeepAliveThread::run()
 	    }
 	    catch(const Ice::Exception&)
 	    {
-		if(_traceLevels->keepAlive > 1)
+		TraceLevelsPtr traceLevels = _instance->traceLevels();
+		if(traceLevels->keepAlive > 1)
 		{
-		    Ice::Trace out(_traceLevels->logger, _traceLevels->keepAliveCat);
-		    out << "unreachable " << _communicator->identityToString((*p)->ice_getIdentity());
+		    Ice::Trace out(traceLevels->logger, traceLevels->keepAliveCat);
+		    out << "unreachable " << _instance->communicator()->identityToString((*p)->ice_getIdentity());
 		}
 		// Ignore
 	    }
-	}
-
-	{
-	    Lock sync(*this);
-	    timedWait(_timeout);
-	    if(_destroy)
-	    {
-		return;
-	    }
-	    upstream = _upstream;
 	}
     }
 }
@@ -146,10 +176,11 @@ void
 KeepAliveThread::failed(const TopicUpstreamLinkPrx& upstream)
 {
     Lock sync(*this);
-    if(_traceLevels->keepAlive > 1)
+    TraceLevelsPtr traceLevels = _instance->traceLevels();
+    if(traceLevels->keepAlive > 1)
     {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->keepAliveCat);
-	out << "failed " << _communicator->identityToString(upstream->ice_getIdentity());
+	Ice::Trace out(traceLevels->logger, traceLevels->keepAliveCat);
+	out << "failed " << _instance->communicator()->identityToString(upstream->ice_getIdentity());
     }
     list<TopicUpstreamLinkPrx>::iterator p = find(_upstream.begin(), _upstream.end(), upstream);
     if(p != _upstream.end())

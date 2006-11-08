@@ -20,24 +20,15 @@ namespace IceStorm
 //
 // Forward declarations.
 //
+class Instance;
+typedef IceUtil::Handle<Instance> InstancePtr;
+
+//
+// Map of TopicI objects.
+//
 class TopicI;
 typedef IceUtil::Handle<TopicI> TopicIPtr;
 
-class TraceLevels;
-typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
-
-class Flusher;
-typedef IceUtil::Handle<Flusher> FlusherPtr;
-
-class SubscriberFactory;
-typedef IceUtil::Handle<SubscriberFactory> SubscriberFactoryPtr;
-
-class KeepAliveThread;
-typedef IceUtil::Handle<KeepAliveThread> KeepAliveThreadPtr;
-
-//
-// Map of TopicImplementation objects.
-//
 typedef std::map<std::string, TopicIPtr> TopicIMap;
 
 //
@@ -47,9 +38,10 @@ class TopicManagerI : public TopicManager, public IceUtil::Mutex
 {
 public:
 
-    TopicManagerI(const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&,
-                  const TraceLevelsPtr&, const std::string&, const std::string&);
-    ~TopicManagerI();
+    TopicManagerI(const InstancePtr&,
+		  const Ice::ObjectAdapterPtr&,
+		  const std::string&,
+		  const std::string&);
 
     virtual TopicPrx create(const std::string&, const Ice::Current&);
     virtual TopicPrx retrieve(const std::string&, const Ice::Current&) const;
@@ -65,18 +57,13 @@ private:
 
     void installTopic(const std::string&, const LinkRecordDict&, bool);
   
-    const Ice::CommunicatorPtr _communicator;
+    const InstancePtr _instance;
     const Ice::ObjectAdapterPtr _topicAdapter;
-    const Ice::ObjectAdapterPtr _publishAdapter;
-    const TraceLevelsPtr _traceLevels;
     const std::string _envName;
     const std::string _dbName;
     const Freeze::ConnectionPtr _connection;
     PersistentTopicMap _topics;
     PersistentUpstreamMap _upstream;
-    const FlusherPtr _flusher;
-    const SubscriberFactoryPtr _factory;
-    /*const*/ KeepAliveThreadPtr _keepAlive;
 
     TopicIMap _topicIMap;
 };

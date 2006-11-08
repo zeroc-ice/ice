@@ -799,6 +799,29 @@ IceProxy::Ice::Object::ice_getConnection()
     }
 }
 
+ConnectionPtr
+IceProxy::Ice::Object::ice_getCachedConnection() const
+{
+    Handle< ::IceDelegate::Ice::Object> __del;
+    {
+	IceUtil::Mutex::Lock sync(*this);
+	__del =  _delegate;
+    }
+
+    if(__del)
+    {
+	try
+	{
+	    bool compress;
+	    return __del->__getConnection(compress);
+	}
+	catch(const CollocationOptimizationException&)
+	{
+	}
+    }
+    return 0;
+}
+
 ReferencePtr
 IceProxy::Ice::Object::__reference() const
 {

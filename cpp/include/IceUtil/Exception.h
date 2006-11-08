@@ -15,7 +15,7 @@
 namespace IceUtil
 {
 
-class ICE_UTIL_API Exception : public std::exception
+class ICE_UTIL_API Exception
 {
 public:
 

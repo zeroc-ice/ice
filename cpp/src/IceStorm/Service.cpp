@@ -7,11 +7,13 @@
 //
 // **********************************************************************
 
-#include <IceStorm/SubscriberFactory.h>
-#include <IceStorm/Flusher.h>
 #include <IceStorm/TopicI.h>
 #include <IceStorm/TopicManagerI.h>
+#include <IceStorm/Instance.h>
 #include <IceStorm/TraceLevels.h>
+#include <IceStorm/BatchFlusher.h>
+#include <IceStorm/SubscriberPool.h>
+#include <IceStorm/KeepAliveThread.h>
 #include <IceStorm/Service.h>
 
 using namespace std;
@@ -48,6 +50,7 @@ private:
 
     TopicManagerIPtr _manager;
     TopicManagerPrx _managerProxy;
+    InstancePtr _instance;
     ObjectAdapterPtr _topicAdapter;
     ObjectAdapterPtr _publishAdapter;
 };
@@ -88,12 +91,13 @@ IceStorm::ServiceI::~ServiceI()
 }
 
 void
-IceStorm::ServiceI::start(const string& name,
-			  const CommunicatorPtr& communicator,
-			  const StringSeq& args)
+IceStorm::ServiceI::start(
+    const string& name,
+    const CommunicatorPtr& communicator,
+    const StringSeq& args)
 {
     PropertiesPtr properties = communicator->getProperties();
-    TraceLevelsPtr traceLevels = new TraceLevels(name, properties, communicator->getLogger());
+
     _topicAdapter = communicator->createObjectAdapter(name + ".TopicManager");
     _publishAdapter = communicator->createObjectAdapter(name + ".Publish");
 
@@ -103,11 +107,30 @@ IceStorm::ServiceI::start(const string& name,
     Identity topicManagerId;
     topicManagerId.category = properties->getPropertyWithDefault(name + ".InstanceName", "IceStorm");
     topicManagerId.name = "TopicManager";
-    _manager = new TopicManagerI(communicator, _topicAdapter, _publishAdapter, traceLevels, name, "topics");
-    _managerProxy = TopicManagerPrx::uncheckedCast(_topicAdapter->add(_manager, topicManagerId));
 
+    _instance = new Instance(name, communicator, _publishAdapter);
+    
+    try
+    {
+	_manager = new TopicManagerI(_instance, _topicAdapter, name, "topics");
+	_managerProxy = TopicManagerPrx::uncheckedCast(_topicAdapter->add(_manager, topicManagerId));
+    }
+    catch(const Ice::Exception&)
+    {
+	_instance->destroy();
+	_instance = 0;
+	throw;
+    }
+	
     _topicAdapter->activate();
     _publishAdapter->activate();
+
+    //
+    // The keep alive thread must be started after all topics are
+    // installed so that any upstream topics are notified immediately
+    // after startup.
+    //
+    _instance->keepAlive()->startPinging();
 }
 
 void
@@ -118,13 +141,22 @@ IceStorm::ServiceI::start(const CommunicatorPtr& communicator,
 			  const Ice::Identity& id,
 			  const string& dbEnv)
 {
-    TraceLevelsPtr traceLevels = new TraceLevels(name, communicator->getProperties(), communicator->getLogger());
+    _instance = new Instance(name, communicator, publishAdapter);
 
     //
     // We use the name of the service for the name of the database environment.
     //
-    _manager = new TopicManagerI(communicator, topicAdapter, publishAdapter, traceLevels, dbEnv, "topics");
-    _managerProxy = TopicManagerPrx::uncheckedCast(topicAdapter->add(_manager, id));
+    try
+    {
+	_manager = new TopicManagerI(_instance, topicAdapter, dbEnv, "topics");
+	_managerProxy = TopicManagerPrx::uncheckedCast(topicAdapter->add(_manager, id));
+    }
+    catch(const Ice::Exception&)
+    {
+	_instance->destroy();
+	_instance = 0;
+	throw;
+    }
 }
 
 TopicManagerPrx
@@ -146,7 +178,27 @@ IceStorm::ServiceI::stop()
     }
 
     //
+    // Instance::shutdown terminates all the thread pools, however, it
+    // does not clear the references. This is because the shutdown has
+    // to be in two stages. First we destroy & join with the threads
+    // so that no further activity can take place. Then we reap()
+    // which has to call on various instance objects (such as the keep
+    // alive thread), then we clear the instance which breaks any
+    // cycles.
+    //
+
+    //
+    // Shutdown the instance.
+    //
+    _instance->shutdown();
+
+    //
     // It's necessary to reap all destroyed topics on shutdown.
     //
     _manager->shutdown();
+
+    //
+    // ... and finally destroy the instance.
+    //
+    _instance->destroy();
 }

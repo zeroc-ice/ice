@@ -9,10 +9,11 @@
 
 #include <IceStorm/TopicManagerI.h>
 #include <IceStorm/TopicI.h>
-#include <IceStorm/Flusher.h>
+#include <IceStorm/SubscriberPool.h>
+#include <IceStorm/BatchFlusher.h>
 #include <IceStorm/TraceLevels.h>
-#include <IceStorm/SubscriberFactory.h>
 #include <IceStorm/KeepAliveThread.h>
+#include <IceStorm/Instance.h>
 #include <Freeze/Initialize.h>
 
 #include <Ice/SliceChecksums.h>
@@ -24,25 +25,19 @@
 using namespace IceStorm;
 using namespace std;
 
-TopicManagerI::TopicManagerI(const Ice::CommunicatorPtr& communicator, const Ice::ObjectAdapterPtr& topicAdapter,
-                             const Ice::ObjectAdapterPtr& publishAdapter, const TraceLevelsPtr& traceLevels,
-                             const string& envName, const string& dbName) :
-    _communicator(communicator),
+TopicManagerI::TopicManagerI(
+    const InstancePtr& instance,
+    const Ice::ObjectAdapterPtr& topicAdapter,
+    const string& envName,
+    const string& dbName) :
+    _instance(instance),
     _topicAdapter(topicAdapter),
-    _publishAdapter(publishAdapter),
-    _traceLevels(traceLevels),
     _envName(envName),
     _dbName(dbName),
-    _connection(Freeze::createConnection(_communicator, envName)),
+    _connection(Freeze::createConnection(instance->communicator(), envName)),
     _topics(_connection, dbName),
-    _upstream(_connection, "upstream"),
-    _flusher(new Flusher(communicator, traceLevels)),
-    _factory(new SubscriberFactory(communicator, traceLevels, _flusher))
+    _upstream(_connection, "upstream")
 {
-    _keepAlive = new KeepAliveThread(communicator, traceLevels, IceUtil::Time::seconds(
-					 communicator->getProperties()->getPropertyAsIntWithDefault(
-					     "IceStorm.KeepAliveTimeout", 60)));
-
     //
     // Recreate each of the topics in the persistent map
     //
@@ -50,20 +45,6 @@ TopicManagerI::TopicManagerI(const Ice::CommunicatorPtr& communicator, const Ice
     {
 	installTopic(p->first, p->second, false);
     }
-
-    //
-    // The keep alive thread must be started after all topics are
-    // installed so that any upstream topics are notified immediately
-    // after startup.
-    //
-    _keepAlive->start();
-}
-
-TopicManagerI::~TopicManagerI()
-{
-    _flusher->stopFlushing();
-    _keepAlive->getThreadControl().join();
-    _keepAlive = 0;
 }
 
 TopicPrx
@@ -167,9 +148,10 @@ TopicManagerI::reap()
     {
         if(i->second->destroyed())
         {
-            if(_traceLevels->topicMgr > 0)
+	    TraceLevelsPtr traceLevels = _instance->traceLevels();
+            if(traceLevels->topicMgr > 0)
             {
-                Ice::Trace out(_traceLevels->logger, _traceLevels->topicMgrCat);
+                Ice::Trace out(traceLevels->logger, traceLevels->topicMgrCat);
                 out << "Reaping " << i->first;
             }
 
@@ -207,7 +189,6 @@ TopicManagerI::shutdown()
     {
 	p->second->reap();
     }
-    _keepAlive->destroy();
 }
 
 void
@@ -217,9 +198,10 @@ TopicManagerI::installTopic(const string& name, const LinkRecordDict& rec, bool 
     // Called by constructor or with 'this' mutex locked. 
     //
 
-    if(_traceLevels->topicMgr > 0)
+    TraceLevelsPtr traceLevels = _instance->traceLevels();
+    if(traceLevels->topicMgr > 0)
     {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->topicMgrCat);
+	Ice::Trace out(traceLevels->logger, traceLevels->topicMgrCat);
 	if(create)
 	{
 	    out << "creating new topic \"" << name << "\"";
@@ -233,8 +215,7 @@ TopicManagerI::installTopic(const string& name, const LinkRecordDict& rec, bool 
     //
     // Create topic implementation
     //
-    TopicIPtr topicI = new TopicI(_communicator, _publishAdapter, _traceLevels, _keepAlive,
-				  name, rec, _factory, _envName, _dbName);
+    TopicIPtr topicI = new TopicI(_instance, name, rec, _envName, _dbName);
     
     //
     // The identity is the name of the Topic.

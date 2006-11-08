@@ -34,6 +34,9 @@ public:
     const int flush;
     const char* flushCat;
 
+    const int subscriberPool;
+    const char* subscriberPoolCat;
+
     const int subscriber;
     const char* subscriberCat;
 

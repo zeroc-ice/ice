@@ -26,25 +26,20 @@ TARGETS         = $(LIBTARGETS) $(SVCLIBTARGETS) $(ADMIN)
 OBJS		= IceStorm.o
 
 SERVICE_OBJS	= IceStorm.o \
+		  Instance.o \
 		  TraceLevels.o \
-		  Flusher.o \
-		  Subscriber.o \
-		  OnewaySubscriber.o \
-		  OnewayBatchSubscriber.o \
-		  LinkSubscriber.o \
-		  SubscriberFactory.o \
+		  BatchFlusher.o \
+		  SubscriberPool.o \
 		  KeepAliveThread.o \
+		  Subscribers.o \
 		  TopicI.o \
 		  TopicManagerI.o \
                   PersistentTopicMap.o \
                   PersistentUpstreamMap.o \
 		  LinkRecord.o \
 		  IceStormInternal.o \
-		  Service.o \
-		  QueuedProxy.o \
-		  OnewayProxy.o \
-		  TwowayProxy.o \
-		  LinkProxy.o
+		  Event.o \
+		  Service.o
 
 AOBJS		= Admin.o \
 		  Grammar.o \
@@ -58,7 +53,8 @@ SRCS		= $(OBJS:.o=.cpp) \
 
 SLICE_SRCS	= $(SDIR)/IceStorm.ice \
 		  ../IceStorm/IceStormInternal.ice \
-		  ../IceStorm/LinkRecord.ice
+		  ../IceStorm/LinkRecord.ice \
+		  ../IceStorm/Event.ice
 
 HDIR		= $(includedir)/IceStorm
 SDIR		= $(slicedir)/IceStorm

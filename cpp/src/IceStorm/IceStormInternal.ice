@@ -11,44 +11,10 @@
 #define ICE_STORM_INTERNAL_ICE
 
 #include <IceStorm/IceStorm.ice>
-#include <Ice/Current.ice>
+#include <IceStorm/Event.ice>
 
 module IceStorm
 {
-
-/**
- *
- * A sequence of bytes.
- *
- **/
-sequence<byte> ByteSeq;
-
-/**
- *
- * Mirror datastructure of Ice::Current::Context.
- *
- **/
-dictionary<string, string> ContextData;
-
-/**
- *
- * The event data.
- *
- **/
-struct EventData
-{
-    /** The operation name. */
-    string op;
-    /** The operation mode. */
-    Ice::OperationMode mode;
-     /** The encoded data for the operation's input parameters. */
-    ByteSeq data;
-    /** The Ice::Current::Context data from the originating request. */
-    ContextData context;
-};
-
-/** A sequence of EventData. */
-sequence<EventData> EventDataSeq;
 
 /**
  *
@@ -67,7 +33,7 @@ interface TopicLink
      * @param events The events to forward.
      *
      **/
-    ["ami"] void forward(EventDataSeq events);
+    ["ami"] void forward(EventSeq events);
 };
 
 /**

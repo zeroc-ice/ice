@@ -18,18 +18,19 @@
 namespace IceStorm
 {
 
-class TraceLevels;
-typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
+class Instance;
+typedef IceUtil::Handle<Instance> InstancePtr;
 
 class KeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    KeepAliveThread(const Ice::CommunicatorPtr&, const TraceLevelsPtr&, const IceUtil::Time&);
+    KeepAliveThread(const InstancePtr&);
     ~KeepAliveThread();
 
     void add(const IceStorm::TopicUpstreamLinkPrx&);
     void remove(const IceStorm::TopicUpstreamLinkPrx&);
+    void startPinging();
     void destroy();
     bool filter(IceStorm::TopicUpstreamLinkPrxSeq&);
     virtual void run();
@@ -38,9 +39,9 @@ private:
 
     void failed(const IceStorm::TopicUpstreamLinkPrx&);
 
-    const Ice::CommunicatorPtr _communicator;
-    const TraceLevelsPtr _traceLevels;
+    const InstancePtr _instance;
     const IceUtil::Time _timeout;
+    bool _publish;
     bool _destroy;
     std::list<IceStorm::TopicUpstreamLinkPrx> _upstream;
     std::list<IceStorm::TopicUpstreamLinkPrx> _failed;

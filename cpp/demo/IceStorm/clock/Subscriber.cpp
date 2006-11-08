@@ -76,7 +76,7 @@ Subscriber::run(int argc, char* argv[])
     // in batches at regular intervals.
     //
     IceStorm::QoS qos;
-    qos["reliability"] = "batch";
+    //qos["reliability"] = "batch";
 
     //
     // Create the servant to receive the events.

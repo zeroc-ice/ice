@@ -105,6 +105,16 @@ exception NoSuchLink
 
 /**
  *
+ * This exception indicates that an attempt was made to subscribe
+ * a proxy for which a subscription already exists.
+ *
+ **/
+exception AlreadySubscribed
+{
+};
+
+/**
+ *
  * Publishers publish information on a particular topic. A topic
  * logically represents a type.
  *
@@ -140,7 +150,8 @@ interface Topic
      *
      * Subscribe with the given [qos] to this topic. If the given
      * [subscriber] proxy has already been registered, it will be
-     * replaced.
+     * replaced. Note that this can cause a loss of events to the
+     * subscribed object.
      *
      * @param qos The quality of service parameters for this
      * subscription.
@@ -167,10 +178,14 @@ interface Topic
      *
      * @return The per-subscriber publisher object.
      *
+     * @throws AlreadySubscribed Raised if the subscriber object is
+     * already subscribed.
+     *
      * @see unsubscribe
      *
      **/
-    Object* subscribeAndGetPublisher(QoS theQoS, Object* subscriber);
+    Object* subscribeAndGetPublisher(QoS theQoS, Object* subscriber)
+	throws AlreadySubscribed;
 
     /**
      *
