@@ -58,16 +58,50 @@ AdminSessionI::setObservers(const RegistryObserverPrx& registryObserver,
 	throw ex;
     }
 
-    setupObserverSubscription(RegistryObserverTopicName, 
-    			      registryObserver ? registryObserver->ice_timeout(_timeout * 1000) : Ice::ObjectPrx());
-    setupObserverSubscription(NodeObserverTopicName, 
-    			      nodeObserver ? nodeObserver->ice_timeout(_timeout * 1000) : Ice::ObjectPrx());
-    setupObserverSubscription(ApplicationObserverTopicName, 
-    			      appObserver ? appObserver->ice_timeout(_timeout * 1000) : Ice::ObjectPrx());
-    setupObserverSubscription(AdapterObserverTopicName,
-    			      adapterObserver ? adapterObserver->ice_timeout(_timeout * 1000) : Ice::ObjectPrx());
-    setupObserverSubscription(ObjectObserverTopicName, 
-    			      objectObserver ? objectObserver->ice_timeout(_timeout * 1000) : Ice::ObjectPrx());
+    if(registryObserver)
+    {
+        setupObserverSubscription(RegistryObserverTopicName, registryObserver->ice_timeout(_timeout * 1000));
+    }
+    else
+    {
+    	setupObserverSubscription(RegistryObserverTopicName, Ice::ObjectPrx());
+    }
+
+    if(nodeObserver)
+    {
+        setupObserverSubscription(NodeObserverTopicName, nodeObserver->ice_timeout(_timeout * 1000));
+    }
+    else
+    {
+        setupObserverSubscription(NodeObserverTopicName, Ice::ObjectPrx());
+    }
+
+    if(appObserver)
+    {
+        setupObserverSubscription(ApplicationObserverTopicName, appObserver->ice_timeout(_timeout * 1000));
+    }
+    else
+    {
+        setupObserverSubscription(ApplicationObserverTopicName, Ice::ObjectPrx());
+    }
+
+    if(adapterObserver)
+    {
+        setupObserverSubscription(AdapterObserverTopicName, adapterObserver->ice_timeout(_timeout * 1000));
+    }
+    else
+    {
+        setupObserverSubscription(AdapterObserverTopicName, Ice::ObjectPrx());
+    }
+
+    if(objectObserver)
+    {
+        setupObserverSubscription(ObjectObserverTopicName, objectObserver->ice_timeout(_timeout * 1000));
+    }
+    else
+    {
+        setupObserverSubscription(ObjectObserverTopicName, Ice::ObjectPrx());
+    }
 }
 
 void

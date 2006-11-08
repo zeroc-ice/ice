@@ -13,6 +13,10 @@
 #include <IceUtil/Config.h>
 #include <cstdlib>
 
+#ifdef __BCPLUSPLUS__
+#include <stdlib.h>
+#endif
+
 void
 inline testFailed(const char* expr, const char* file, unsigned int line)
 {

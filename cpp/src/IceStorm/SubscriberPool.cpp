@@ -64,93 +64,81 @@ private:
     const SubscriberPoolPtr _manager;
 };
 
-class SubscriberPoolMonitor : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+}
+
+SubscriberPoolMonitor::SubscriberPoolMonitor(const SubscriberPoolPtr& manager, const IceUtil::Time& timeout) :
+    _manager(manager),
+    _timeout(timeout),
+    _needCheck(false),
+    _destroy(false)
 {
-public:
+    start();
+}
 
-    SubscriberPoolMonitor(const SubscriberPoolPtr& manager, const IceUtil::Time& timeout) :
-	_manager(manager),
-	_timeout(timeout),
-	_needCheck(false),
-	_destroy(false)
+SubscriberPoolMonitor::~SubscriberPoolMonitor()
+{
+}
+
+void
+SubscriberPoolMonitor::run()
+{
+    for(;;)
     {
-	start();
+        {
+    	    Lock sync(*this);
+    	    if(_destroy)
+    	    {
+    	        return;
+    	    }
+    
+    	    if(_needCheck)
+    	    {
+    	        timedWait(_timeout);
+    	        //
+    	        // Monitoring was stopped.
+    	        //
+    	        if(!_needCheck)
+    	        {
+    		    continue;
+    	        }
+    	    }
+    	    else
+    	    {
+    	        wait();
+    	        continue;
+    	    }
+        }
+        //
+        // Call outside of the lock to prevent any deadlocks.
+        //
+        _manager->check();
     }
+}
 
-    ~SubscriberPoolMonitor()
+void
+SubscriberPoolMonitor::startMonitor()
+{
+    Lock sync(*this);
+    if(!_needCheck)
     {
+        _needCheck = true;
+        notify();
     }
+}
 
-    virtual void
-    run()
-    {
-	for(;;)
-	{
-	    {
-		Lock sync(*this);
-		if(_destroy)
-		{
-		    return;
-		}
+void
+SubscriberPoolMonitor::stopMonitor()
+{
+    Lock sync(*this);
+    _needCheck = false;
+}
 
-		if(_needCheck)
-		{
-		    timedWait(_timeout);
-		    //
-		    // Monitoring was stopped.
-		    //
-		    if(!_needCheck)
-		    {
-			continue;
-		    }
-		}
-		else
-		{
-		    wait();
-		    continue;
-		}
-	    }
-	    //
-	    // Call outside of the lock to prevent any deadlocks.
-	    //
-	    _manager->check();
-	}
-    }
-
-    void
-    startMonitor()
-    {
-	Lock sync(*this);
-	if(!_needCheck)
-	{
-	    _needCheck = true;
-	    notify();
-	}
-    }
-
-    void
-    stopMonitor()
-    {
-	Lock sync(*this);
-	_needCheck = false;
-    }
-
-    void
-    destroy()
-    {
-	Lock sync(*this);
-	_destroy = true;
-	notify();
-    }
-
-private:
-
-    const SubscriberPoolPtr _manager;
-    const IceUtil::Time _timeout;
-    bool _needCheck;
-    bool _destroy;
-};
-
+void
+SubscriberPoolMonitor::destroy()
+{
+    Lock sync(*this);
+    _destroy = true;
+    notify();
 }
 
 SubscriberPool::SubscriberPool(const InstancePtr& instance) :

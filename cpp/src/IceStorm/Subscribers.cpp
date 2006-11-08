@@ -19,6 +19,10 @@
 #include <Ice/LocalException.h>
 #include <Ice/Connection.h>
 
+#ifdef __BCPLUSPLUS__
+#include <iterator>
+#endif
+
 using namespace std;
 using namespace IceStorm;
 
@@ -100,7 +104,7 @@ public:
 private:
     const bool _batch;
     const Ice::ObjectPrx _obj;
-    const Ice::ObjectPrx _objBatch;
+    /*const*/ Ice::ObjectPrx _objBatch;
 };
 
 class SubscriberTwoway : public Subscriber
@@ -167,9 +171,10 @@ SubscriberOneway::SubscriberOneway(
     bool batch) :
     Subscriber(instance, proxy, false, obj->ice_getIdentity()),
     _batch(batch),
-    _obj(obj),
-    _objBatch(obj->ice_isDatagram() ? obj->ice_batchDatagram() : obj->ice_batchOneway())
+    _obj(obj)
 {
+    _objBatch = obj->ice_isDatagram() ? _obj->ice_batchDatagram() : _obj->ice_batchOneway();
+
     if(batch)
     {
 	_instance->batchFlusher()->add(_obj);

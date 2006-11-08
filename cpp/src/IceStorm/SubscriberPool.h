@@ -10,6 +10,8 @@
 #ifndef SUBSCRIBER_POOL_H
 #define SUBSCRIBER_POOL_H
 
+#include <IceStorm/Subscribers.h>
+
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Time.h>
@@ -25,10 +27,30 @@ namespace IceStorm
 class Instance;
 typedef IceUtil::Handle<Instance> InstancePtr;
 
-class Subscriber;
-typedef IceUtil::Handle<Subscriber> SubscriberPtr;
+class SubscriberPool;
+typedef IceUtil::Handle<SubscriberPool> SubscriberPoolPtr;
 
-class SubscriberPoolMonitor;
+class SubscriberPoolMonitor : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    SubscriberPoolMonitor(const SubscriberPoolPtr&, const IceUtil::Time&);
+    ~SubscriberPoolMonitor();
+
+    virtual void run();
+
+    void startMonitor();
+    void stopMonitor();
+    void destroy();
+
+private:
+
+    const SubscriberPoolPtr _manager;
+    const IceUtil::Time _timeout;
+    bool _needCheck;
+    bool _destroy;
+};
+
 typedef IceUtil::Handle<SubscriberPoolMonitor> SubscriberPoolMonitorPtr;
 
 class SubscriberPool : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
@@ -65,8 +87,6 @@ private:
 
     IceUtil::Time _lastNext;
 };
-
-typedef IceUtil::Handle<SubscriberPool> SubscriberPoolPtr;
 
 } // End namespace IceStorm
 
