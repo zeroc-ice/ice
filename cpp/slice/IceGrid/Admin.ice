@@ -37,10 +37,20 @@ enum ServerState
     /**
      *
      * The server is being activated and will change to the active
-     * state when the registered server object adapters are activated.
+     * state when the registered server object adapters are activated
+     * or to the activation timed out state if the activation timeout
+     * expires.
      *
      **/
     Activating,
+
+    /**
+     *
+     * The activation timed out state indicates that the server
+     * activation timed out.
+     *
+     **/
+    ActivationTimedOut,
 
     /**
      *
