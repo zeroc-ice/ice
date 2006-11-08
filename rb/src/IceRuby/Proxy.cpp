@@ -951,7 +951,7 @@ IceRuby_ObjectPrx_ice_getCachedConnection(VALUE self)
     {
 	Ice::ObjectPrx p = getProxy(self);
 	Ice::ConnectionPtr conn = p->ice_getCachedConnection();
-	if(!NIL_P(conn))
+	if(!conn)
 	{
 	    return createConnection(conn);
 	}
