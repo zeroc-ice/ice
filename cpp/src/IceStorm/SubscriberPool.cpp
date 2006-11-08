@@ -174,9 +174,9 @@ SubscriberPool::SubscriberPool(const InstancePtr& instance) :
 	_subscriberPoolMonitor = new SubscriberPoolMonitor(this, _timeout);
 	for(int i = 0; i < _size; ++i)
 	{
-	    _workers.push_back(new SubscriberPoolWorker(this));
 	    ++_running;
 	    ++_inUse;
+	    _workers.push_back(new SubscriberPoolWorker(this));
 	}
     }
     catch(const IceUtil::Exception& ex)
@@ -274,6 +274,7 @@ SubscriberPool::dequeue(const SubscriberPtr& sub)
 	}
 	
     }
+
     assert(_inUse > 0);
     --_inUse;
 
@@ -375,8 +376,8 @@ SubscriberPool::check()
 	    out << "detected stall: creating thread: load: " << _load << " threads: " << _running;
 	}
 	
-	_workers.push_back(new SubscriberPoolWorker(this));
 	++_running;
 	++_inUse;
+	_workers.push_back(new SubscriberPoolWorker(this));
     }
 }
