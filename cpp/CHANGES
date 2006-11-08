@@ -55,8 +55,9 @@ Changes since version 3.1.1
   significantly faster.
 
   All message propagation is now fully buffered through a dynamic
-  thread pool. The thread pool is controlled through the following
-  properties.
+  thread pool. Tracing for which can be enabled through the property
+  IceStorm.Trace.SubscriberPool. The thread pool size is controlled
+  through the following properties.
 
   * IceStorm.SubscriberPool.Max. The initial size of the thread
     pool, the default being 1.
