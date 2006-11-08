@@ -8,7 +8,7 @@
 # **********************************************************************
 
 #
-# This file is included by Make.rules.mak when using Borland C++Builder.
+# This file is included by Make.rules.mak when using MSVC.
 #
 
 CXX		= cl.exe
