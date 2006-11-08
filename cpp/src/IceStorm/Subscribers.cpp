@@ -211,6 +211,7 @@ SubscriberOneway::flush()
 	sync.release();
 	
 	// XXX:
+/*
 	TraceLevelsPtr traceLevels = _instance->traceLevels();
 	if(_obj->ice_getIdentity().name.substr(0, 4) == "slow")
 	{
@@ -218,6 +219,7 @@ SubscriberOneway::flush()
 	    out << "deliberately stalling";
 	    sleep(1);
 	}
+*/
 
 	//
 	// Deliver the events without holding the lock.

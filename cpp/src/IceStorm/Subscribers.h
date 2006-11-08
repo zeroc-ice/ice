@@ -86,7 +86,7 @@ protected:
     EventSeq _events;
 };
 
-bool operator==(const SubscriberPtr&, const Ice::Identity&);
+bool operator==(const IceStorm::SubscriberPtr&, const Ice::Identity&);
 
 }
 

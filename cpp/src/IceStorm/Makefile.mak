@@ -31,25 +31,20 @@ OBJS		= IceStorm.obj \
 
 
 SERVICE_OBJS	= IceStorm.obj \
+		  Instance.obj \
 		  TraceLevels.obj \
-		  Flusher.obj \
-		  Subscriber.obj \
-		  OnewaySubscriber.obj \
-		  OnewayBatchSubscriber.obj \
-		  LinkSubscriber.obj \
-		  SubscriberFactory.obj \
+		  BatchFlusher.obj \
+		  SubscriberPool.obj \
 		  KeepAliveThread.obj \
+		  Subscribers.obj \
 		  TopicI.obj \
 		  TopicManagerI.obj \
                   PersistentTopicMap.obj \
                   PersistentUpstreamMap.obj \
 		  LinkRecord.obj \
 		  IceStormInternal.obj \
-		  Service.obj \
-		  QueuedProxy.obj \
-		  OnewayProxy.obj \
-		  TwowayProxy.obj \
-		  LinkProxy.obj
+		  Event.obj \
+		  Service.obj
 
 AOBJS		= Admin.obj \
 		  Grammar.obj \
@@ -109,6 +104,9 @@ $(ADMIN): $(AOBJS)
 	del /q PersistentUpstreamMap.h PersistentUpstreamMap.cpp
 	$(SLICE2FREEZECMD) --dict IceStorm::PersistentUpstreamMap,string,IceStorm::TopicUpstreamLinkPrxSeq \
 	 PersistentUpstreamMap ../IceStorm/LinkRecord.ice
+
+Event.cpp.cpp Event.h: Event.ice
+	$(SLICE2CPP) --dll-export ICE_STORM_API $(SLICE2CPPFLAGS) Event.ice
 
 IceStorm.cpp $(HDIR)\IceStorm.h: $(SDIR)\IceStorm.ice
 	$(SLICE2CPP) --dll-export ICE_STORM_API $(SLICE2CPPFLAGS) $(SDIR)\IceStorm.ice

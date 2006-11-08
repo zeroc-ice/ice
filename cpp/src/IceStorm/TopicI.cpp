@@ -201,6 +201,25 @@ TopicI::getPublisher(const Ice::Current&) const
     return _publisherPrx;
 }
 
+//
+// COMPILERFIX: For some reason with VC6 find reports an error.
+//
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+vector<SubscriberPtr>::iterator
+find(vector<SubscriberPtr>::iterator start, vector<SubscriberPtr>::iterator end, const Ice::Identity& ident)
+{
+    while(start != end)
+    {
+	if(*start == ident)
+	{
+	    return start;
+	}
+	++start;
+    }
+    return end;
+}
+#endif
+
 void
 TopicI::subscribe(const QoS& qos, const Ice::ObjectPrx& obj, const Ice::Current& current)
 {
