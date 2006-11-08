@@ -135,6 +135,45 @@ os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag +
           " icej ice/bin ice/config ice/doc ice/include ice/lib ice/slice ice/src")
 
 #
+# Check known preconditions for proper distribution building. Failed
+# checks do not result in immediate failure. Error messages are
+# displayed and the precondition checks continue to aide in identifying
+# other problems. If any of the precondition checks fail, the script
+# terminates.
+#
+f = file(os.path.join("icej", "config", "build.properties"))
+buildProperties = f.readlines();
+f.close()
+
+errorOut = False
+for p in buildProperties:
+    checkFilename = None
+    d = p.split("=")
+    if d[0].strip() in ["jgoodies.looks", "jgoodies.forms", "berkeleydb.jar"]:
+	if not os.path.exists(d[1].strip()):
+	    print "ERROR: %s is not in configured location. IceGridGUI.jar will not build correctly!" % d[1].strip()
+	    errorOut = True
+
+if not os.environ.has_key("CLASSPATH"):
+    print "ERROR: No CLASSPATH, unable to find ProGuard jar file."
+    errorOut = True
+else:
+    classpath = os.environ["CLASSPATH"]
+    found = False
+    for e in classpath.split(os.pathsep):
+	if e.find("proguard.jar") != -1:
+	    if os.path.exists(e):
+		found = True
+		break
+    if not found:
+	print "ERROR: Unable to find ProGuard in CLASSPATH"
+	errorOut = True
+
+if errorOut:
+    print "Failed precondition checks! See above messages."
+    sys.exit(1)
+
+#
 # Copy Slice directories.
 #
 print "Copying Slice directories..."
@@ -226,13 +265,13 @@ filesToRemove.extend(find("icej", ".dummy"))
 for x in filesToRemove:
     os.remove(x)
 
+cwd = os.getcwd()
+os.chdir("icej")
+
 #
 # Build sources.
 #
 print "Compiling Java sources..."
-
-cwd = os.getcwd()
-os.chdir("icej")
 
 if verbose:
     quiet = ""
