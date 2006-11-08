@@ -1,0 +1,64 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+#ifndef INSTANCE_H
+#define INSTANCE_H
+
+
+#include <Ice/CommunicatorF.h>
+#include <Ice/ObjectAdapterF.h>
+#include <Ice/PropertiesF.h>
+
+namespace IceStorm
+{
+
+class BatchFlusher;
+typedef IceUtil::Handle<BatchFlusher> BatchFlusherPtr;
+
+class TraceLevels;
+typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
+
+class KeepAliveThread;
+typedef IceUtil::Handle<KeepAliveThread> KeepAliveThreadPtr;
+
+class SubscriberPool;
+typedef IceUtil::Handle<SubscriberPool> SubscriberPoolPtr;
+
+class Instance : public IceUtil::Shared
+{
+public:
+
+    Instance(const std::string&, const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&);
+    ~Instance();
+
+    Ice::CommunicatorPtr communicator() const;
+    Ice::PropertiesPtr properties() const;
+    Ice::ObjectAdapterPtr objectAdapter() const;
+    TraceLevelsPtr traceLevels() const;
+    KeepAliveThreadPtr keepAlive() const;
+    BatchFlusherPtr batchFlusher() const;
+    SubscriberPoolPtr subscriberPool() const;
+
+    void shutdown();
+    void destroy();
+
+private:
+
+    const Ice::CommunicatorPtr _communicator;
+    const Ice::ObjectAdapterPtr _adapter;
+    const TraceLevelsPtr _traceLevels;
+    KeepAliveThreadPtr _keepAlive;
+    BatchFlusherPtr _batchFlusher;
+    SubscriberPoolPtr _subscriberPool;
+};
+typedef IceUtil::Handle<Instance> InstancePtr;
+
+} // End namespace IceStorm
+
+#endif
