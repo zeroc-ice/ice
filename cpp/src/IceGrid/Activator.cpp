@@ -247,6 +247,7 @@ stringToSignal(const string& str)
 	    }
 	}
 	throw BadSignalException("unknown signal `" + str + "'");
+	return SIGTERM; // Keep the compiler happy.
     }
 }
 #endif

@@ -2564,8 +2564,9 @@ ServerI::toServerState(InternalServerState st) const
     case ServerI::Loading:
 	return IceGrid::Inactive;
     case ServerI::WaitForActivation:
-    case ServerI::ActivationTimeout:
 	return IceGrid::Activating;
+    case ServerI::ActivationTimeout:
+	return IceGrid::ActivationTimedOut;
     case ServerI::Active:
 	return IceGrid::Active;
     case ServerI::Deactivating:

@@ -56,7 +56,7 @@ public:
 	Deactivating,
 	DeactivatingWaitForProcess,
 	Destroying,
-	Destroyed,
+	Destroyed
     };
 
     enum ServerActivation

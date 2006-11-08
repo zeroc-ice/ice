@@ -299,11 +299,13 @@ class Server extends ListArrayTreeNode
 	    //
 	    // Regular servers
 	    //
-	    _icons = new Icon[7][2][2];
+	    _icons = new Icon[8][2][2];
 	    _icons[0][0][0] = Utils.getIcon("/icons/16x16/server_unknown.png");
 	    _icons[ServerState.Inactive.value() + 1][0][0]
 		= Utils.getIcon("/icons/16x16/server_inactive.png");
 	    _icons[ServerState.Activating.value() + 1][0][0] = 
+		Utils.getIcon("/icons/16x16/server_activating.png");
+	    _icons[ServerState.ActivationTimedOut.value() + 1][0][0] = 
 		Utils.getIcon("/icons/16x16/server_activating.png");
 	    _icons[ServerState.Active.value() + 1][0][0] = 
 		Utils.getIcon("/icons/16x16/server_active.png");
@@ -322,6 +324,8 @@ class Server extends ListArrayTreeNode
 		= Utils.getIcon("/icons/16x16/icebox_server_inactive.png");
 	    _icons[ServerState.Activating.value() + 1][1][0] = 
 		Utils.getIcon("/icons/16x16/icebox_server_activating.png");
+	    _icons[ServerState.ActivationTimedOut.value() + 1][1][0] = 
+		Utils.getIcon("/icons/16x16/icebox_server_activating.png");
 	    _icons[ServerState.Active.value() + 1][1][0] = 
 		Utils.getIcon("/icons/16x16/icebox_server_active.png");
 	    _icons[ServerState.Deactivating.value() + 1][1][0] = 
@@ -339,6 +343,8 @@ class Server extends ListArrayTreeNode
 		= Utils.getIcon("/icons/16x16/server_disabled_inactive.png");
 	    _icons[ServerState.Activating.value() + 1][0][1] = 
 		Utils.getIcon("/icons/16x16/server_disabled_activating.png");
+	    _icons[ServerState.ActivationTimedOut.value() + 1][0][1] = 
+		Utils.getIcon("/icons/16x16/server_disabled_activating.png");
 	    _icons[ServerState.Active.value() + 1][0][1] = 
 		Utils.getIcon("/icons/16x16/server_disabled_active.png");
 	    _icons[ServerState.Deactivating.value() + 1][0][1] = 
@@ -355,6 +361,8 @@ class Server extends ListArrayTreeNode
 	    _icons[ServerState.Inactive.value() + 1][1][1]
 		= Utils.getIcon("/icons/16x16/icebox_server_disabled_inactive.png");
 	    _icons[ServerState.Activating.value() + 1][1][1] = 
+		Utils.getIcon("/icons/16x16/icebox_server_disabled_activating.png");
+	    _icons[ServerState.ActivationTimedOut.value() + 1][1][1] = 
 		Utils.getIcon("/icons/16x16/icebox_server_disabled_activating.png");
 	    _icons[ServerState.Active.value() + 1][1][1] = 
 		Utils.getIcon("/icons/16x16/icebox_server_disabled_active.png");
