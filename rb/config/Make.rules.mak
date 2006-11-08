@@ -26,7 +26,7 @@ prefix			= C:\IceRuby-$(VERSION)
 OPTIMIZE		= yes
 
 #
-# Set PYTHON_HOME to your Python installation directory.
+# Set RUBY_HOME to your Ruby installation directory.
 #
 
 RUBY_HOME		= C:\ruby
@@ -75,7 +75,7 @@ RUBY_LDFLAGS		= /LIBPATH:"$(RUBY_HOME)\lib"
 RUBY_LIBS		= msvcrt-ruby18.lib
 
 ICECPPFLAGS		= -I$(slicedir)
-SLICE2PYFLAGS		= $(ICECPPFLAGS)
+SLICE2RBFLAGS		= $(ICECPPFLAGS)
 
 SLICE2RB		= $(ICE_HOME)\bin\slice2rb.exe
 
