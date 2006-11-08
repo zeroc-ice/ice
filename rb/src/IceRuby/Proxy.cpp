@@ -945,6 +945,23 @@ IceRuby_ObjectPrx_ice_getConnection(VALUE self)
 
 extern "C"
 VALUE
+IceRuby_ObjectPrx_ice_getCachedConnection(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+	Ice::ObjectPrx p = getProxy(self);
+	Ice::ConnectionPtr conn = p->ice_getCachedConnection();
+	if(!NIL_P(conn))
+	{
+	    return createConnection(conn);
+	}
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
 IceRuby_ObjectPrx_equals(VALUE self, VALUE other)
 {
     ICE_RUBY_TRY
@@ -1337,6 +1354,7 @@ IceRuby::initProxy(VALUE iceModule)
     rb_define_method(_proxyClass, "ice_timeout", CAST_METHOD(IceRuby_ObjectPrx_ice_timeout), 1);
     rb_define_method(_proxyClass, "ice_connectionId", CAST_METHOD(IceRuby_ObjectPrx_ice_connectionId), 1);
     rb_define_method(_proxyClass, "ice_getConnection", CAST_METHOD(IceRuby_ObjectPrx_ice_getConnection), 0);
+    rb_define_method(_proxyClass, "ice_getCachedConnection", CAST_METHOD(IceRuby_ObjectPrx_ice_getCachedConnection), 0);
 
     rb_define_method(_proxyClass, "hash", CAST_METHOD(IceRuby_ObjectPrx_ice_getHash), 0);
     rb_define_method(_proxyClass, "to_s", CAST_METHOD(IceRuby_ObjectPrx_ice_toString), 0);

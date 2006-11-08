@@ -79,6 +79,7 @@ public interface ObjectPrx
      **/
     Connection ice_connection();
     Connection ice_getConnection();
+    Connection ice_getCachedConnection();
 
     //
     // javac 1.1 emits a bogus error about this method causing ambiguity with

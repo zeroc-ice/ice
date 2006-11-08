@@ -691,6 +691,13 @@ IceProxy::Ice::Object::ice_getConnection()
     return _connection;
 }
 
+ConnectionPtr
+IceProxy::Ice::Object::ice_getCachedConnection()
+{
+    ::IceUtil::Mutex::Lock sync(*this);
+    return _connection;
+}
+
 ReferencePtr
 IceProxy::Ice::Object::__reference() const
 {

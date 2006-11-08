@@ -9,8 +9,8 @@
 
 top_srcdir	= ..\..
 
-LIBNAME		= IceRuby$(RBLIBSUFFIX).lib
-DLLNAME         = $(rubydir)\IceRuby$(RBLIBSUFFIX).dll
+LIBNAME		= IceRuby$(LIBSUFFIX).lib
+DLLNAME         = $(rubydir)\IceRuby$(LIBSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 

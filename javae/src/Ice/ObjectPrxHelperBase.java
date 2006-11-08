@@ -542,6 +542,12 @@ public class ObjectPrxHelperBase implements ObjectPrx
 	return _connection;
     }
 
+    public synchronized final Connection
+    ice_getCachedConnection()
+    {
+        return _connection;
+    }
+
     public final boolean
     equals(java.lang.Object r)
     {

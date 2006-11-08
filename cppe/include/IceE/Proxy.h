@@ -159,6 +159,7 @@ public:
 
     ICE_DEPRECATED_API ::Ice::ConnectionPtr ice_connection();
     ::Ice::ConnectionPtr ice_getConnection();
+    ::Ice::ConnectionPtr ice_getCachedConnection() const;
 
     ::IceInternal::ReferencePtr __reference() const;
     void __copyFrom(const ::Ice::ObjectPrx&);

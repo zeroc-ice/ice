@@ -1494,6 +1494,36 @@ proxyIceGetConnection(ProxyObject* self)
 extern "C"
 #endif
 static PyObject*
+proxyIceGetCachedConnection(ProxyObject* self)
+{
+    assert(self->proxy);
+
+    Ice::ConnectionPtr con;
+    try
+    {
+        con = (*self->proxy)->ice_getCachedConnection();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    if(con)
+    {
+	return createConnection(con, *self->communicator);
+    }
+    else
+    {
+	Py_INCREF(Py_None);
+	return Py_None;
+    }
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 proxyIceConnection(ProxyObject* self)
 {
     PyErr_Warn(PyExc_DeprecationWarning, STRCAST("ice_connection is deprecated, use ice_getConnection instead."));
@@ -1916,6 +1946,8 @@ static PyMethodDef ProxyMethods[] =
         PyDoc_STR(STRCAST("ice_connection() -> Ice.Connection")) }, // Deprecated
     { STRCAST("ice_getConnection"), (PyCFunction)proxyIceGetConnection, METH_NOARGS,
         PyDoc_STR(STRCAST("ice_getConnection() -> Ice.Connection")) },
+    { STRCAST("ice_getCachedConnection"), (PyCFunction)proxyIceGetCachedConnection, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_getCachedConnection() -> Ice.Connection")) },
     { STRCAST("ice_checkedCast"), (PyCFunction)proxyIceCheckedCast, METH_VARARGS | METH_CLASS,
         PyDoc_STR(STRCAST("ice_checkedCast(proxy, id[, facetOrCtx[, ctx]]) -> proxy")) },
     { STRCAST("ice_uncheckedCast"), (PyCFunction)proxyIceUncheckedCast, METH_VARARGS | METH_CLASS,

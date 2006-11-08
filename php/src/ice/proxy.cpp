@@ -199,6 +199,7 @@ static function_entry _proxyMethods[] =
     {"ice_timeout",                PHP_FN(Ice_ObjectPrx_ice_timeout),                NULL},
     {"ice_connectionId",           PHP_FN(Ice_ObjectPrx_ice_connectionId),           NULL},
     {"ice_getConnection",          PHP_FN(Ice_ObjectPrx_ice_getConnection),          NULL},
+    {"ice_getCachedConnection",    PHP_FN(Ice_ObjectPrx_ice_getCachedConnection),    NULL},
     {"ice_uncheckedCast",          PHP_FN(Ice_ObjectPrx_ice_uncheckedCast),          NULL},
     {"ice_checkedCast",            PHP_FN(Ice_ObjectPrx_ice_checkedCast),            NULL},
     {NULL, NULL, NULL}
@@ -1532,6 +1533,32 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getConnection)
     {
 	Ice::ConnectionPtr con = _this->getProxy()->ice_getConnection();
 	if(!createConnection(return_value, con TSRMLS_CC))
+	{
+	    RETURN_NULL();
+	}
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+	throwException(ex TSRMLS_CC);
+	RETURN_NULL();
+    }
+}
+
+ZEND_FUNCTION(Ice_ObjectPrx_ice_getCachedConnection)
+{
+    if(ZEND_NUM_ARGS() != 0)
+    {
+	WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
+    assert(obj->ptr);
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
+
+    try
+    {
+	Ice::ConnectionPtr con = _this->getProxy()->ice_getCachedConnection();
+	if(!con || !createConnection(return_value, con TSRMLS_CC))
 	{
 	    RETURN_NULL();
 	}

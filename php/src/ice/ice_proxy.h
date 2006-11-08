@@ -58,6 +58,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_compress);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_timeout);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_connectionId);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_getConnection);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_getCachedConnection);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_uncheckedCast);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_checkedCast);
 
@@ -116,6 +117,7 @@ ZEND_FUNCTION(Ice_Connection_toString);
     ZEND_FE(Ice_ObjectPrx_ice_timeout, 			NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_connectionId, 		NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_getConnection, 		NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_getCachedConnection, 	NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_uncheckedCast, 		NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_checkedCast, 		NULL)
 
