@@ -103,8 +103,10 @@ class AdapterEditor extends CommunicatorChildEditor
 	    };
 	_serverLifetime = new JCheckBox(checkServerLifetime);
 	_serverLifetime.setToolTipText(
-	    "<html>When starting the enclosing server, "
-	    + "does IceGrid<br>wait for this adapter to become active?</html>");
+	    "<html>Is the adapter lifetime the same as the server<br>" +
+            "lifetime? The server is considered to be active<br>" + 
+	    "only if all the adapters with this attribute set<br>" +
+	    "to true are active.</html>");
 	//
 	// Associate updateListener with various fields
 	//
