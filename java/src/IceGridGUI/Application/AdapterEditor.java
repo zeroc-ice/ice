@@ -93,16 +93,16 @@ class AdapterEditor extends CommunicatorChildEditor
 	    + "to enable clean shutdown; you should register<br>"
 	    + "exactly one Process object per server.</html>");
 
-	Action checkWaitForActivation = 
-	    new AbstractAction("Wait for Activation")
+	Action checkServerLifetime = 
+	    new AbstractAction("Server Lifetime")
 	    {
 		public void actionPerformed(ActionEvent e)
 		{
 		    updated();
 		}
 	    };
-	_waitForActivation = new JCheckBox(checkWaitForActivation);
-	_waitForActivation.setToolTipText(
+	_serverLifetime = new JCheckBox(checkServerLifetime);
+	_serverLifetime.setToolTipText(
 	    "<html>When starting the enclosing server, "
 	    + "does IceGrid<br>wait for this adapter to become active?</html>");
 	//
@@ -191,7 +191,7 @@ class AdapterEditor extends CommunicatorChildEditor
 	descriptor.replicaGroupId = getReplicaGroupIdAsString();
 	descriptor.priority = _priority.getText().trim();
 	descriptor.registerProcess = _registerProcess.isSelected();
-	descriptor.waitForActivation = _waitForActivation.isSelected();
+	descriptor.serverLifetime = _serverLifetime.isSelected();
 	descriptor.objects = mapToObjectDescriptorSeq(_objects.get());
 	descriptor.allocatables = mapToObjectDescriptorSeq(_allocatables.get());
     }	    
@@ -248,7 +248,7 @@ class AdapterEditor extends CommunicatorChildEditor
 
 	builder.append("", _registerProcess);
 	builder.nextLine();
-	builder.append("", _waitForActivation);
+	builder.append("", _serverLifetime);
 	builder.nextLine();
 
 	builder.append("Well-known Objects");
@@ -498,8 +498,8 @@ class AdapterEditor extends CommunicatorChildEditor
 	_registerProcess.setSelected(descriptor.registerProcess);
 	_registerProcess.setEnabled(isEditable);
 	
-	_waitForActivation.setSelected(descriptor.waitForActivation);
-	_waitForActivation.setEnabled(isEditable);
+	_serverLifetime.setSelected(descriptor.serverLifetime);
+	_serverLifetime.setEnabled(isEditable);
 
 	_applyButton.setEnabled(adapter.isEphemeral());
 	_discardButton.setEnabled(adapter.isEphemeral());	  
@@ -568,7 +568,7 @@ class AdapterEditor extends CommunicatorChildEditor
     private JTextField _currentEndpoints = new JTextField(20);
 
     private JCheckBox _registerProcess;
-    private JCheckBox _waitForActivation;
+    private JCheckBox _serverLifetime;
 
     private MapField _objects;
     private MapField _allocatables;

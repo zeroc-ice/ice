@@ -40,7 +40,7 @@ class AdapterEditor extends Editor
 	_endpoints.setEditable(false);
 	_publishedEndpoints.setEditable(false);
 	_registerProcess.setEnabled(false);
-	_waitForActivation.setEnabled(false);
+	_serverLifetime.setEnabled(false);
     }
 
 
@@ -76,7 +76,7 @@ class AdapterEditor extends Editor
 	    resolver.substitute((String)properties.get(adapter.getId() + ".PublishedEndpoints")));
 	
 	_registerProcess.setSelected(descriptor.registerProcess);	
-	_waitForActivation.setSelected(descriptor.waitForActivation);
+	_serverLifetime.setSelected(descriptor.serverLifetime);
 
 	_objects.setObjects(descriptor.objects, resolver);
 	_allocatables.setObjects(descriptor.allocatables, resolver);
@@ -129,7 +129,7 @@ class AdapterEditor extends Editor
 
 	builder.append("", _registerProcess);
 	builder.nextLine();
-	builder.append("", _waitForActivation);
+	builder.append("", _serverLifetime);
 	builder.nextLine();
 
 	builder.append("Well-known Objects");
@@ -178,7 +178,7 @@ class AdapterEditor extends Editor
     private JTextField _publishedEndpoints  = new JTextField(20);
 
     private JCheckBox _registerProcess = new JCheckBox("Register Process");
-    private JCheckBox _waitForActivation = new JCheckBox("Wait for Activation");
+    private JCheckBox _serverLifetime = new JCheckBox("Server Lifetime");
     
     private TableField _objects = new TableField("Identity", "Type");
     private TableField _allocatables = new TableField("Identity", "Type");
