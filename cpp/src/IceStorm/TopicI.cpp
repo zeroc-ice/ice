@@ -633,7 +633,7 @@ TopicI::reap()
 	    SubscriberPtr subscriber = *p;
 	    assert(subscriber->persistent()); // Only persistent subscribers need to be reaped.
 
-	    int erased = _topicRecord.erase(subscriber->id().category);
+	    size_t erased = _topicRecord.erase(subscriber->id().category);
 	    if(erased > 0)
 	    {
 		updated = true;
