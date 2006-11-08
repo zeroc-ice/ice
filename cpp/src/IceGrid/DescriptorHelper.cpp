@@ -938,7 +938,7 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
 	adapter.description = resolve(p->description, "object adapter description");
 	adapter.id = resolve(p->id, "object adapter id", false);
 	adapter.registerProcess = p->registerProcess;
-	adapter.waitForActivation = p->waitForActivation;
+	adapter.serverLifetime = p->serverLifetime;
 	adapter.replicaGroupId = resolve(p->replicaGroupId, "object adapter replica group id");
 	if(!adapter.replicaGroupId.empty() && !resolve.hasReplicaGroup(adapter.replicaGroupId))
 	{
@@ -1048,7 +1048,7 @@ CommunicatorHelper::printObjectAdapter(Output& out, const AdapterDescriptor& ada
 	out << nl << "endpoints = `" << endpoints << "'";
     }
     out << nl << "register process = `" << (adapter.registerProcess ? "true" : "false") << "'";
-    out << nl << "wait for activation = `" << (adapter.waitForActivation ? "true" : "false") << "'";
+    out << nl << "server lifetime = `" << (adapter.serverLifetime ? "true" : "false") << "'";
     ObjectDescriptorSeq::const_iterator p;
     for(p = adapter.objects.begin(); p != adapter.objects.end(); ++p)
     {

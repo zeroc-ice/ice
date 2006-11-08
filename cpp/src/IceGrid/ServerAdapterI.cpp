@@ -20,14 +20,12 @@ ServerAdapterI::ServerAdapterI(const NodeIPtr& node,
 			       ServerI* server, 
 			       const string& serverName,
 			       const AdapterPrx& proxy,
-			       const string& id,
-			       Ice::Int waitTime) :
+			       const string& id) :
     _node(node),
     _this(proxy),
     _serverId(serverName),
     _id(id),
-    _server(server),
-    _waitTime(IceUtil::Time::seconds(waitTime))
+    _server(server)
 {
 }
 
@@ -40,6 +38,7 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
 {
     {
 	Lock sync(*this);
+	int timeout;
 	if(_proxy)
 	{
 	    //
@@ -47,6 +46,18 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
 	    //
 	    cb->ice_response(_proxy);
 	    return;
+	}
+	else if(_activateCB.empty())
+	{
+	    //
+	    // Nothing else waits for this adapter so we must make sure that this 
+	    // adapter if still activatable.
+	    //
+	    if(!_server->isAdapterActivatable(_id, timeout))
+	    {
+		cb->ice_response(0);
+		return;
+	    }
 	}
 
 	if(_node->getTraceLevels()->adapter > 2)
@@ -72,20 +83,19 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
 	_server->start(ServerI::OnDemand);
 	return;
     }
-    catch(const ServerStartException&)
+    catch(const ServerStartException& ex)
     {
+	activationFailed(ex.reason);
     }
     catch(const Ice::ObjectNotExistException&)
     {
 	//
 	// The server associated to this adapter doesn't exist anymore. Somehow the database is 
-	// inconsistent if this happens. The best thing to do is to destroy the adapter and throw
-	// an ObjectNotExist exception.
+	// inconsistent if this happens. The best thing to do is to destroy the adapter.
 	//
 	destroy();
+	activationFailed("server destroyed");
     }
-    
-    activationFailed(_server->getState() != IceGrid::Activating);
 }
 
 Ice::ObjectPrx
@@ -104,9 +114,7 @@ ServerAdapterI::getDirectProxy(const Ice::Current& current) const
     else
     {
 	AdapterNotActiveException ex;
-	ServerState state = _server->getState();
-	ex.activatable = _server->canActivateOnDemand() || state == Activating || state == Active;
-	ex.timeout = static_cast<int>(_waitTime.toMilliSeconds());
+	ex.activatable = _server->isAdapterActivatable(_id, ex.timeout);
 	throw ex;
     }
 }
@@ -149,6 +157,10 @@ ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Current&)
     {
 	_server->adapterActivated(_id);
     }
+    else
+    {
+	_server->adapterDeactivated(_id);
+    }
 
     if(_node->getTraceLevels()->adapter > 1)
     {
@@ -175,7 +187,7 @@ ServerAdapterI::clear()
 }
 
 void 
-ServerAdapterI::activationFailed(bool timeout)
+ServerAdapterI::activationFailed(const std::string& reason)
 {
 
     //
@@ -184,14 +196,7 @@ ServerAdapterI::activationFailed(bool timeout)
     if(_node->getTraceLevels()->adapter > 1)
     {
 	Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);
-	if(timeout)
-	{
-	    out << "server `" + _serverId + "' adapter `" << _id << "' activation timed out";
-	}
-	else
-	{
-	    out << "server `" + _serverId + "' adapter `" << _id << "' activation failed: server didn't start";
-	}
+	out << "server `" + _serverId + "' adapter `" << _id << "' activation failed: " << reason;
     }
 
     Lock sync(*this);

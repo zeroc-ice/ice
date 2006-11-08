@@ -173,6 +173,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	waitForServerState(admin, "server", IceGrid::Active);
 	obj->shutdown();
 	waitForServerState(admin, "server", IceGrid::Inactive);
+	nRetry = 4;
+	while(--nRetry > 0)
+	{
+	    obj->shutdown();
+	}
+	waitForServerState(admin, "server", IceGrid::Inactive);
     }
     catch(const Ice::LocalException& ex)
     {
@@ -216,7 +222,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	TestIntfPrx obj = TestIntfPrx::checkedCast(communicator->stringToProxy("server-always"));
 	admin->stopServer("server-always");
 	waitForServerState(admin, "server-always", IceGrid::Active);
-	admin->stopServer("server-always");
+	obj->shutdown();
+	waitForServerState(admin, "server-always", IceGrid::Active);
+	nRetry = 4;
+	while(--nRetry > 0)
+	{
+	    obj->shutdown();
+	}
 	waitForServerState(admin, "server-always", IceGrid::Active);
     }
     catch(const Ice::LocalException& ex)
@@ -246,6 +258,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	waitForServerState(admin, "server-session", IceGrid::Active);
 	obj->shutdown();
 	waitForServerState(admin, "server-session", IceGrid::Inactive);
+	obj->ice_ping();
+	waitForServerState(admin, "server-session", IceGrid::Active);
+	nRetry = 4;
+	while(--nRetry > 0)
+	{
+	    obj->shutdown();
+	}
 	obj->ice_ping();
 	waitForServerState(admin, "server-session", IceGrid::Active);
 	session->releaseObject(obj->ice_getIdentity());

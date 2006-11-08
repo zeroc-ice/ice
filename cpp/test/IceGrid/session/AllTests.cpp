@@ -1785,7 +1785,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	adapter.name = "IceGrid.Node";
 	adapter.id = "IceGrid.Node.node-1";
 	adapter.registerProcess = true;
-	adapter.waitForActivation = false;
+	adapter.serverLifetime = false;
 	server->adapters.push_back(adapter);
 	addProperty(server, "IceGrid.Node.Name", "node-1");
 	addProperty(server, "IceGrid.Node.Data", properties->getProperty("TestDir") + "/db/node-1");
@@ -1837,7 +1837,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	adapter.name = "Server";
 	adapter.id = "ServerAdapter";
 	adapter.registerProcess = true;
-	adapter.waitForActivation = true;
+	adapter.serverLifetime = true;
 	server->adapters.push_back(adapter);
 	addProperty(server, "Server.Endpoints", "default");
 	node = NodeDescriptor();

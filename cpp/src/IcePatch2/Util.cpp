@@ -675,6 +675,15 @@ IcePatch2::createDirectoryRecursive(const string& pa)
 
     if(!isRoot(path + "/"))
     {
+	OS::structstat buf;
+	if(OS::osstat(path, &buf) != -1)
+	{
+	    if(S_ISDIR(buf.st_mode))
+	    {
+		return;
+	    }
+	}
+
         if(OS::mkdir(path, 0777) == -1)
         {
 	    if(errno != EEXIST)

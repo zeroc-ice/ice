@@ -631,7 +631,7 @@ CommunicatorDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
     {
 	throw "empty `id' for adapter `" + desc.name + "'";
     }
-    desc.waitForActivation = attrs.asBool("wait-for-activation", true);
+    desc.serverLifetime = attrs.asBool("server-lifetime", true);
     _descriptor->adapters.push_back(desc);
 
     addProperty(_hiddenProperties, desc.name + ".Endpoints", attrs("endpoints", "default"));

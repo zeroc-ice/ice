@@ -768,21 +768,42 @@ ServerI::setProcess_async(const AMD_Server_setProcessPtr& amdCB, const Ice::Proc
 }
 
 bool
-ServerI::canActivateOnDemand() const
+ServerI::isAdapterActivatable(const string& id, int& timeout) const
 {
     Lock sync(*this);
-    if(!_info.descriptor || _state == Destroying || _state == Destroyed || _activation == Disabled)
+    if(!_info.descriptor || _activation == Disabled)
     {
 	return false;
     }
 
-    if(_info.descriptor->activation  == "on-demand" ||
-       (_info.descriptor->activation == "session" && !_info.sessionId.empty()))
+    if(_info.descriptor->activation == "manual" || 
+       _info.descriptor->activation == "session" && _info.sessionId.empty())
     {
-	return true;
+	return false;
     }
 
-    return false;
+    if(_state <= WaitForActivation)
+    {
+	if(_activatedAdapters.find(id) != _activatedAdapters.end())
+	{
+	    return false; // The adapter was already activated once.
+	}
+	timeout = _activationTimeout;
+	return true;
+    }
+    else if(_state < Deactivating)
+    {
+	return false; // The server is active or its activation timed out.
+    }
+    else if(_state < Destroying)
+    {
+	timeout = _deactivationTimeout + _activationTimeout;
+	return true; // The server is being deactivated.
+    }
+    else
+    {
+	return false;
+    }
 }
 
 const string&
@@ -1125,6 +1146,24 @@ ServerI::adapterActivated(const string& id)
 }
 
 void
+ServerI::adapterDeactivated(const string& id)
+{
+    ServerCommandPtr command;
+    {
+	Lock sync(*this);
+	if(_state == Active && _serverLifetimeAdapters.find(id) != _serverLifetimeAdapters.end())
+	{
+	    setStateNoSync(Deactivating);
+	}
+	command = nextCommand();
+    }
+    if(command)
+    {
+	command->execute();
+    }
+}
+
+void
 ServerI::checkDestroyed() const
 {
     if(_state == Destroyed)
@@ -1222,7 +1261,7 @@ ServerI::activationFailed(bool destroyed)
     {
 	try
 	{
-	    p->second->activationFailed(!destroyed);
+	    p->second->activationFailed(destroyed ? "server destroyed" : "server activation timed out");
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{
@@ -1260,6 +1299,8 @@ ServerI::activate()
 	//
 	waitForReplication = _waitForReplication;
 	_waitForReplication = false;
+
+	_process = 0;
 	
 #ifndef _WIN32
 	uid = _uid;
@@ -1320,12 +1361,14 @@ ServerI::activate()
 	ServerCommandPtr command;
 	{
 	    Lock sync(*this);
-	    assert(_state == Activating);
+	    if(_state != Activating)
+	    {
+		return;
+	    }
 	    _pid = pid;
 	    setStateNoSync(ServerI::WaitForActivation);
- 	    checkActivation();
+	    checkActivation();
 	    command = nextCommand();
-	    notifyAll(); // terminated() might already wait.
 	}
 	if(command)
 	{
@@ -1358,7 +1401,7 @@ ServerI::activate()
     {
 	try
 	{
-	    r->second->activationFailed(false);
+	    r->second->activationFailed(failure);
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{
@@ -1493,14 +1536,14 @@ ServerI::terminated(const string& msg, int status)
     ServerAdapterDict adpts;
     {
 	Lock sync(*this);
-	adpts = _adapters;
+// 	while(_state == ServerI::Activating)
+// 	{
+// 	    wait(); // Wait for activate() to set the state to WaitForActivation
+// 	}
 
-	//
-	// Clear the process proxy and the pid.
-	//
-	_process = 0;
-	_pid = 0;
+	adpts = _adapters;
 	_activatedAdapters.clear();
+	_pid = 0;
 
 	bool failed = false;
 #ifndef _WIN32
@@ -1516,11 +1559,6 @@ ServerI::terminated(const string& msg, int status)
 	if(failed)
 	{
 	    disableOnFailure();
-	}
-
-	while(_state == ServerI::Activating)
-	{
-	    wait(); // Wait for activate() to set the state to WaitForActivation
 	}
 
 	if(_state != ServerI::Deactivating && 
@@ -1703,13 +1741,12 @@ ServerI::updateImpl(const ServerInfo& info)
     _processRegistered = false;
     ServerAdapterDict oldAdapters;
     oldAdapters.swap(_adapters);
+    _serverLifetimeAdapters.clear();
     AdapterDescriptorSeq::const_iterator r;
     for(r = _info.descriptor->adapters.begin(); r != _info.descriptor->adapters.end(); ++r)
     {
-	if(!r->id.empty())
-	{
-	    oldAdapters.erase(addAdapter(*r, _info.descriptor));
-	}
+	assert(!r->id.empty());
+	oldAdapters.erase(addAdapter(*r, _info.descriptor));
 	_processRegistered |= r->registerProcess;
     }
     IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(_info.descriptor);
@@ -1721,10 +1758,8 @@ ServerI::updateImpl(const ServerInfo& info)
 	    CommunicatorDescriptorPtr svc = s->descriptor;
 	    for(r = svc->adapters.begin(); r != svc->adapters.end(); ++r)
 	    {
-		if(!r->id.empty())
-		{
-		    oldAdapters.erase(addAdapter(*r, svc));
-		}
+		assert(!r->id.empty());
+		oldAdapters.erase(addAdapter(*r, svc));
 		_processRegistered |= r->registerProcess;
 	    }
 	}
@@ -2032,33 +2067,11 @@ ServerI::checkActivation()
     //assert(locked());
     if(_state == ServerI::WaitForActivation || _state == ServerI::ActivationTimeout)
     {
-	for(AdapterDescriptorSeq::const_iterator p = _info.descriptor->adapters.begin(); 
-	    p != _info.descriptor->adapters.end(); ++p)
+	if(includes(_activatedAdapters.begin(), _activatedAdapters.end(),
+		    _serverLifetimeAdapters.begin(), _serverLifetimeAdapters.end()))
 	{
-	    if(!p->id.empty() && p->waitForActivation && _activatedAdapters.find(p->id) == _activatedAdapters.end())
-	    {
-		return;
-	    }
+	    setStateNoSync(ServerI::Active);
 	}
-	IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(_info.descriptor);
-	if(iceBox)
-	{
-	    ServiceInstanceDescriptorSeq::const_iterator s;
-	    for(s = iceBox->services.begin(); s != iceBox->services.end(); ++s)
-	    {
-		ServiceDescriptorPtr desc = ServiceDescriptorPtr::dynamicCast(s->descriptor);
-		for(AdapterDescriptorSeq::const_iterator p = desc->adapters.begin(); p != desc->adapters.end(); ++p)
-		{
-		    if(!p->id.empty() && 
-		       p->waitForActivation && 
-		       _activatedAdapters.find(p->id) == _activatedAdapters.end())
-		    {
-			return;
-		    }
-		}
-	    }
-	}
-	setStateNoSync(ServerI::Active);
     }
 }
 
@@ -2354,10 +2367,14 @@ ServerI::addAdapter(const AdapterDescriptor& desc, const CommunicatorDescriptorP
 	ServerAdapterIPtr servant = ServerAdapterIPtr::dynamicCast(_node->getAdapter()->find(id));
 	if(!servant)
 	{
-	    servant = new ServerAdapterI(_node, this, _id, proxy, desc.id, _waitTime);
+	    servant = new ServerAdapterI(_node, this, _id, proxy, desc.id);
 	    _node->getAdapter()->add(servant, id);
 	}
  	_adapters.insert(make_pair(desc.id, servant));
+	if(desc.serverLifetime)
+	{
+	    _serverLifetimeAdapters.insert(desc.id);
+	}
     }
     catch(const Ice::ObjectAdapterDeactivatedException&)
     {

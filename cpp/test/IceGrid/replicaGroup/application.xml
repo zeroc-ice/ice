@@ -51,7 +51,8 @@
       <parameter name="replicaGroup"/>
       <parameter name="priority"/>
       <service name="${name}" entry="TestService:create">
-        <adapter name="${service}" endpoints="default" replica-group="${replicaGroup}" priority="${priority}">
+        <adapter name="${service}" endpoints="default"
+      replica-group="${replicaGroup}" priority="${priority}" server-lifetime="false">
           <object identity="${service}"/>
         </adapter>
         <property name="Identity" value="${replicaGroup}"/>

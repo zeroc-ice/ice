@@ -25,7 +25,7 @@ class ServerAdapterI : public Adapter, public IceUtil::Mutex
 {
 public:
     
-    ServerAdapterI(const NodeIPtr&, ServerI*, const std::string&, const AdapterPrx&, const std::string&, Ice::Int);
+    ServerAdapterI(const NodeIPtr&, ServerI*, const std::string&, const AdapterPrx&, const std::string&);
     virtual ~ServerAdapterI();
 
     virtual void activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Current&);
@@ -33,7 +33,7 @@ public:
     virtual void setDirectProxy(const ::Ice::ObjectPrx&, const ::Ice::Current& = Ice::Current());
     void destroy();
     void clear();
-    void activationFailed(bool);
+    void activationFailed(const std::string&);
 
     AdapterPrx getProxy() const;
 
@@ -45,7 +45,6 @@ private:
     const std::string _id;
     const std::string _replicaId;
     ServerI* _server;
-    const IceUtil::Time _waitTime;
 
     Ice::ObjectPrx _proxy;
     std::vector<AMD_Adapter_activatePtr> _activateCB;

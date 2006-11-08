@@ -46,6 +46,8 @@ public:
 
     enum InternalServerState
     {
+	Loading,
+	Patching,
 	Inactive,
 	Activating,
 	WaitForActivation,
@@ -55,8 +57,6 @@ public:
 	DeactivatingWaitForProcess,
 	Destroying,
 	Destroyed,
-	Loading,
-	Patching
     };
 
     enum ServerActivation
@@ -83,7 +83,7 @@ public:
     virtual bool isEnabled(const ::Ice::Current& = Ice::Current()) const;
     virtual void setProcess_async(const AMD_Server_setProcessPtr&, const ::Ice::ProcessPrx&, const ::Ice::Current&);
 
-    bool canActivateOnDemand() const;
+    bool isAdapterActivatable(const std::string&, int&) const;
     const std::string& getId() const;
     DistributionDescriptor getDistribution() const;
 
@@ -95,6 +95,7 @@ public:
     void finishPatch();
 
     void adapterActivated(const std::string&);
+    void adapterDeactivated(const std::string&);
     void activationFailed(bool);
     void deactivationFailed();
 
@@ -145,6 +146,7 @@ private:
     int _deactivationTimeout;
     typedef std::map<std::string, ServerAdapterIPtr> ServerAdapterDict;
     ServerAdapterDict _adapters;
+    std::set<std::string> _serverLifetimeAdapters;
     bool _processRegistered;
     Ice::ProcessPrx _process;
     std::set<std::string> _activatedAdapters;
