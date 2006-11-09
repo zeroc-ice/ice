@@ -90,6 +90,10 @@ function allTests()
 	$adapters[] = $com->createObjectAdapter("Adapter12", "default");
 	$adapters[] = $com->createObjectAdapter("Adapter13", "default");
 
+	//
+	// Ensure that when a connection is opened it's reused for new
+	// proxies and that all endpoints are eventually tried.
+	//
 	$names = array("Adapter11", "Adapter12", "Adapter13");
 	while(count($names) > 0)
 	{
@@ -112,8 +116,33 @@ function allTests()
 	    $test1->ice_getConnection()->close(false);
 	}
 
-	$com->deactivateObjectAdapter($adapters[0]);
+	//
+	// Ensure that the proxy correctly caches the connection (we
+	// always send the request over the same connection.)
+	//
+	{
+	    foreach($adapters as $p)
+	    {
+		$p->getTestIntf()->ice_ping();
+	    }
 
+	    $test = createTestIntfPrx($adapters);
+	    $name = $test->getAdapterName();
+	    $nRetry = 10;
+	    for($i = 0; $i < $nRetry && $test->getAdapterName() == $name; $i++);
+	    test($i == $nRetry);
+
+	    foreach($adapters as $p)
+	    {
+		$p->getTestIntf()->ice_getConnection()->close(false);
+	    }
+	}
+
+	//
+	// Deactivate an adapter and ensure that we can still
+	// establish the connection to the remaining adapters.
+	//
+	$com->deactivateObjectAdapter($adapters[0]);
 	$names = array("Adapter12", "Adapter13");
 	while(count($names) > 0)
 	{
@@ -136,8 +165,11 @@ function allTests()
 	    $test1->ice_getConnection()->close(false);
 	}
 
+	//
+	// Deactivate an adapter and ensure that we can still
+	// establish the connection to the remaining adapter.
+	//
 	$com->deactivateObjectAdapter($adapters[2]);
-
 	$test = createTestIntfPrx($adapters);
 	test($test->getAdapterName() == "Adapter12");	
 
@@ -231,11 +263,11 @@ function allTests()
 	$adapters[] = $com->createObjectAdapter("Adapter36", $endpoints[2]->toString());
 	for($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter36"; $i++);
 	test($i == $nRetry);
-	$test->ice_getConnection()->close(true);
+	$test->ice_getConnection()->close(false);
 	$adapters[] = $com->createObjectAdapter("Adapter35", $endpoints[1]->toString());
 	for($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter35"; $i++);
 	test($i == $nRetry);
-	$test->ice_getConnection()->close(true);
+	$test->ice_getConnection()->close(false);
 	$adapters[] = $com->createObjectAdapter("Adapter34", $endpoints[0]->toString());
 	for($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter34"; $i++);
 	test($i == $nRetry);
@@ -410,7 +442,11 @@ function allTests()
 	    }
 
 	    $testSecure = $test->ice_secure(true)->ice_uncheckedCast("::Test::TestIntf");
-	    //test($testSecure->ice_getSecure());
+	    test($testSecure->ice_isSecure());
+	    $testSecure = $test->ice_secure(false)->ice_uncheckedCast("::Test::TestIntf");
+	    test(!$testSecure->ice_isSecure());
+	    $testSecure = $test->ice_secure(true)->ice_uncheckedCast("::Test::TestIntf");
+	    test($testSecure->ice_isSecure());
 	    test($test->ice_getConnection() != $testSecure->ice_getConnection());
 
 	    $com->deactivateObjectAdapter($adapters[1]);
