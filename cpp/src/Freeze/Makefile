@@ -18,11 +18,9 @@ TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(li
 
 OBJS		= CatalogData.o \
                   Catalog.o \
-		  ConnectionF.o \
-                  ConnectionI.o \
+		  ConnectionI.o \
                   Connection.o \
 		  DB.o \
-		  EvictorF.o \
 		  EvictorI.o \
                   EvictorIteratorI.o \
 		  Evictor.o \
@@ -55,6 +53,7 @@ SLICE_SRCS	= $(SDIR)/DB.ice \
 
 HDIR		= $(includedir)/Freeze
 SDIR		= $(slicedir)/Freeze
+
 
 include $(top_srcdir)/config/Make.rules
 

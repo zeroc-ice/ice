@@ -46,8 +46,8 @@ OBJS		= Acceptor.obj \
 		  GCShared.obj \
 		  Identity.obj \
 		  IdentityUtil.obj \
-		  ImplicitContext.obj \
 		  ImplicitContextI.obj \
+		  ImplicitContext.obj \
 		  IncomingAsync.obj \
 		  Incoming.obj \
 		  Initialize.obj \

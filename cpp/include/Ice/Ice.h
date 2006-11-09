@@ -32,4 +32,5 @@
 #include <Ice/Connection.h>
 #include <Ice/Functional.h>
 #include <Ice/Stream.h>
+#include <Ice/ImplicitContext.h>
 #endif

@@ -18,12 +18,9 @@ ROUTER		= $(top_srcdir)/bin/glacier2router
 LIBTARGETS      = $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 TARGETS         = $(LIBTARGETS) $(ROUTER)
 
-OBJS		= PermissionsVerifierF.o \
-		  PermissionsVerifier.o \
-		  RouterF.o \
+OBJS		= PermissionsVerifier.o \
 		  Router.o \
 		  SSLInfo.o \
-		  SessionF.o \
 		  Session.o
 
 ROBJS		= Blobject.o \

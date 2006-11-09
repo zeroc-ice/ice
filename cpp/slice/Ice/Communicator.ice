@@ -18,8 +18,8 @@
 #include <Ice/RouterF.ice>
 #include <Ice/LocatorF.ice>
 #include <Ice/PluginF.ice>
+#include <Ice/ImplicitContextF.ice>
 #include <Ice/Current.ice>
-#include <Ice/ImplicitContext.ice>
 
 /**
  *
