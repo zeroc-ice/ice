@@ -142,6 +142,7 @@ sliceChecksums = {}
 import Ice_BuiltinSequences_ice
 import Ice_Communicator_ice
 import Ice_Current_ice
+import Ice_ImplicitContext_ice
 import Ice_Endpoint_ice
 import Ice_Identity_ice
 import Ice_LocalException_ice

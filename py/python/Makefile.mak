@@ -27,6 +27,7 @@ ICE_SRCS	= Ice_LocalException_ice.py \
 		  Ice_ObjectFactoryF_ice.py \
 		  Ice_Identity_ice.py \
 		  Ice_Current_ice.py \
+		  Ice_ImplicitContextF_ice.py \
 		  Ice_ImplicitContext_ice.py \
 		  Ice_Router_ice.py \
 		  Ice_RouterF_ice.py \
