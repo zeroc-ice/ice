@@ -126,10 +126,10 @@ public:
 
     AdapterObserverTopic(const IceStorm::TopicManagerPrx&, const StringAdapterInfoDict&);
 
-    void adapterInit(int, const AdapterInfoSeq&);
-    void adapterAdded(int, const AdapterInfo&);
-    void adapterUpdated(int, const AdapterInfo&);
-    void adapterRemoved(int, const std::string&);
+    void adapterInit(const AdapterInfoSeq&);
+    void adapterAdded(const AdapterInfo&);
+    void adapterUpdated(const AdapterInfo&);
+    void adapterRemoved(const std::string&);
 
     virtual void initObserver(const Ice::ObjectPrx&);
 
@@ -146,13 +146,13 @@ public:
 
     ObjectObserverTopic(const IceStorm::TopicManagerPrx&, const IdentityObjectInfoDict&);
 
-    void objectInit(int, const ObjectInfoSeq&);
-    void objectAdded(int, const ObjectInfo&);
-    void objectUpdated(int, const ObjectInfo&);
-    void objectRemoved(int, const Ice::Identity&);
+    void objectInit(const ObjectInfoSeq&);
+    void objectAdded(const ObjectInfo&);
+    void objectUpdated(const ObjectInfo&);
+    void objectRemoved(const Ice::Identity&);
 
-    void objectsAddedOrUpdated(int, const ObjectInfoSeq&);
-    void objectsRemoved(int, const ObjectInfoSeq&);
+    int objectsAddedOrUpdated(const ObjectInfoSeq&);
+    int objectsRemoved(const ObjectInfoSeq&);
 
     virtual void initObserver(const Ice::ObjectPrx&);
 

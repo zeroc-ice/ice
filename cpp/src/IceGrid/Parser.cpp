@@ -927,6 +927,12 @@ Parser::stateServer(const list<string>& args)
 	    cout << "active (pid = " << pid << ", " << enabled << ")" << endl;
 	    break;
 	}
+	case ActivationTimedOut:
+	{
+	    int pid = _admin->getServerPid(args.front());
+	    cout << "activation timed out (pid = " << pid << ", " << enabled << ")" << endl;
+	    break;
+	}
 	case Deactivating:
 	{
 	    cout << "deactivating (" << enabled << ")" << endl;
