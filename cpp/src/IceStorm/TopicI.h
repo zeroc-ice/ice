@@ -52,13 +52,11 @@ public:
 
     void reap();
 
+    void publish(bool, const EventSeq&);
+
 private:
 
     void removeSubscriber(const Ice::ObjectPrx&);
-    friend class PublisherProxyI;
-    friend class TopicLinkI;
-    void publish(bool, const EventSeq&);
-
     //
     // Immutable members.
     //

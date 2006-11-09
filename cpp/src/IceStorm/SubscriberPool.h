@@ -16,7 +16,9 @@
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Time.h>
 #include <IceUtil/Thread.h>
+#include <Ice/Identity.h>
 #include <list>
+#include <set>
 
 namespace IceStorm
 {
@@ -60,32 +62,40 @@ public:
     SubscriberPool(const InstancePtr&);
     ~SubscriberPool();
 
-    void add(std::list<SubscriberPtr>&);
+    void flush(std::list<SubscriberPtr>&);
+    void add(const SubscriberPtr&);
+    void remove(const SubscriberPtr&);
     void destroy();
+
+    //
+    // For use by the subscriber worker.
+    //
+    SubscriberPtr dequeue(const SubscriberPtr&, bool, const IceUtil::Time&, bool&);
+    //
+    // For use by the monitor.
+    //
+    void check();
 
 private:
     
-    friend class SubscriberPoolWorker;
-    SubscriberPtr dequeue(const SubscriberPtr&);
-    friend class SubscriberPoolMonitor;
-    void check();
-
     const InstancePtr _instance;
-    const int _sizeMax;
-    const int _sizeWarn;
-    const int _size;
+    const unsigned int _sizeMax;
+    const unsigned int _sizeWarn;
+    const unsigned int _size;
     const IceUtil::Time _timeout;
+    const IceUtil::Time _stallCheck;
     SubscriberPoolMonitorPtr _subscriberPoolMonitor;
 
     std::list<SubscriberPtr> _pending;
+    std::list<SubscriberPtr> _subscribers;
     bool _destroy;
     std::list<IceUtil::ThreadPtr> _workers;
 
-    int _inUse;
-    int _running;
-    double _load;
+    int _reap;
+    unsigned int _inUse;
 
-    IceUtil::Time _lastNext;
+    IceUtil::Time _lastStallCheck;
+    IceUtil::Time _lastDequeue;
 };
 
 } // End namespace IceStorm

@@ -49,6 +49,13 @@ public:
     virtual bool flush() = 0;
     virtual void destroy();
 
+    //
+    // These methods must only be called by the SubscriberPool they
+    // are not internally mutex protected.
+    //
+    void flushTime(const IceUtil::Time&);
+    IceUtil::Time pollMaxFlushTime(const IceUtil::Time&);
+
     void setError(const Ice::Exception&);
     void setUnreachable(const Ice::Exception&);
 
@@ -84,6 +91,13 @@ protected:
 
     bool _busy;
     EventSeq _events;
+
+    //
+    // Not protected by _mutex. These members are protected by the
+    // SubscriberPool mutex.
+    //
+    bool _resetMax;
+    IceUtil::Time _maxSend;
 };
 
 bool operator==(const IceStorm::SubscriberPtr&, const Ice::Identity&);
