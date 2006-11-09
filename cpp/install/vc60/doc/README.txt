@@ -85,7 +85,7 @@ Running the PHP demos
 
 Two PHP demos are provided in the demophp directory.
 
-To run the PHP demos, you need PHP 5.1.6. It can be downloaded from:
+To run the PHP demos, you need PHP 5.2.0. It can be downloaded from:
 
 http://www.php.net/downloads.php
 
