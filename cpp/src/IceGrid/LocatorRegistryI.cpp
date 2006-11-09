@@ -252,6 +252,17 @@ LocatorRegistryI::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_set
 		throw Ice::AdapterNotFoundException();
 	    }
 	}
+	catch(const DeploymentException& ex)
+	{
+	    const TraceLevelsPtr traceLevels = _database->getTraceLevels();
+	    if(traceLevels->locator > 0)
+	    {
+		Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
+		out << "couldn't register adapter `" << adapterId << "' endpoints:\n";
+		out << toString(ex) << "\n" << ex.reason;
+	    }
+	    throw Ice::AdapterNotFoundException();
+	}
 	catch(const Ice::Exception& ex)
 	{
 	    const TraceLevelsPtr traceLevels = _database->getTraceLevels();
@@ -329,6 +340,17 @@ LocatorRegistryI::setReplicatedAdapterDirectProxy_async(
 	    {
 		throw Ice::AdapterNotFoundException();
 	    }
+	}
+	catch(const DeploymentException& ex)
+	{
+	    const TraceLevelsPtr traceLevels = _database->getTraceLevels();
+	    if(traceLevels->locator > 0)
+	    {
+		Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
+		out << "couldn't register adapter `" << adapterId << "' endpoints:\n";
+		out << toString(ex) << "\n" << ex.reason;
+	    }
+	    throw Ice::AdapterNotFoundException();
 	}
 	catch(const Ice::Exception& ex)
 	{

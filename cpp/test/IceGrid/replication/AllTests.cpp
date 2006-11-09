@@ -140,11 +140,23 @@ waitForNodeState(const IceGrid::AdminPrx& admin, const std::string& node, bool u
 	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
 	++nRetry;
     }
-    if(admin->pingNode(node) != up)
+    try
     {
-	cerr << "node state change timed out:" << endl;
-	cerr << "node: " << node << endl;
-	cerr << "state: " << up << endl;
+	if(admin->pingNode(node) != up)
+	{
+	    cerr << "node state change timed out:" << endl;
+	    cerr << "node: " << node << endl;
+	    cerr << "state: " << up << endl;
+	}
+    }
+    catch(NodeNotExistException&)
+    {
+	if(up)
+	{
+	    cerr << "node state change timed out:" << endl;
+	    cerr << "node: " << node << endl;
+	    cerr << "state: " << up << endl;
+	}
     }
 }
 
@@ -977,6 +989,10 @@ allTests(const Ice::CommunicatorPtr& comm)
 	// the master.
 	//
  	slave1Admin->shutdownNode("Node1");
+	waitForNodeState(masterAdmin, "Node1", false);
+
+ 	slave2Admin->shutdown();
+ 	waitForRegistryState(admin, "Slave2", false);
 
 	property.name = "Dummy2";
 	property.value = "val";
@@ -991,14 +1007,20 @@ allTests(const Ice::CommunicatorPtr& comm)
 	// of the server so it should be able to load it. Slave1 has 
 	// a more recent version, so it can't load it.
 	//
+	admin->startServer("Slave2");
+	slave2Admin = createAdminSession(slave2Locator, "Slave2");
 
 	admin->startServer("Node1");
 	
-	waitForNodeState(slave1Admin, "Node1", true);
 	waitForNodeState(slave2Admin, "Node1", true);
 
+ 	slave1Admin->shutdown();
+ 	waitForRegistryState(admin, "Slave1", false);
+
 	comm->stringToProxy("test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
-	slave2Admin->stopServer("Server");
+
+	admin->startServer("Slave1");
+	slave1Admin = createAdminSession(slave1Locator, "Slave1");
 
 	try
 	{
@@ -1018,7 +1040,18 @@ allTests(const Ice::CommunicatorPtr& comm)
 	admin->startServer("Master");
 	masterAdmin = createAdminSession(masterLocator, "");
 
+ 	slave1Admin->shutdown();
+ 	waitForRegistryState(admin, "Slave1", false);
+	admin->startServer("Slave1");
+	slave1Admin = createAdminSession(slave1Locator, "Slave1");
+
+ 	slave2Admin->shutdownNode("Node1");
+	waitForNodeState(slave2Admin, "Node1", false);
+	admin->startServer("Node1");
+
 	waitForNodeState(masterAdmin, "Node1", true);
+	waitForNodeState(slave1Admin, "Node1", true);
+	waitForNodeState(slave2Admin, "Node1", true);
 
 	comm->stringToProxy("test")->ice_locator(masterLocator)->ice_locatorCacheTimeout(0)->ice_ping();
 	comm->stringToProxy("test")->ice_locator(slave1Locator)->ice_locatorCacheTimeout(0)->ice_ping();
