@@ -21,6 +21,10 @@ Ice::LocalException::LocalException(const char* file, int line) :
 {
 }
 
+Ice::LocalException::~LocalException() throw()
+{
+}
+
 Ice::AlreadyRegisteredException::AlreadyRegisteredException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line)
@@ -38,6 +42,10 @@ Ice::AlreadyRegisteredException::AlreadyRegisteredException(const char* __file, 
 #endif
     kindOfObject(__kindOfObject),
     id(__id)
+{
+}
+
+Ice::AlreadyRegisteredException::~AlreadyRegisteredException() throw()
 {
 }
 
@@ -81,6 +89,10 @@ Ice::NotRegisteredException::NotRegisteredException(const char* __file, int __li
 {
 }
 
+Ice::NotRegisteredException::~NotRegisteredException() throw()
+{
+}
+
 static const char* __Ice__NotRegisteredException_name = "Ice::NotRegisteredException";
 
 ::std::string
@@ -120,6 +132,10 @@ Ice::TwowayOnlyException::TwowayOnlyException(const char* __file, int __line, co
 {
 }
 
+Ice::TwowayOnlyException::~TwowayOnlyException() throw()
+{
+}
+
 static const char* __Ice__TwowayOnlyException_name = "Ice::TwowayOnlyException";
 
 ::std::string
@@ -146,6 +162,10 @@ Ice::CloneNotImplementedException::CloneNotImplementedException(const char* __fi
 #else
     ::Ice::LocalException(__file, __line)
 #endif
+{
+}
+
+Ice::CloneNotImplementedException::~CloneNotImplementedException() throw()
 {
 }
 
@@ -188,6 +208,10 @@ Ice::UnknownException::UnknownException(const char* __file, int __line, const ::
 {
 }
 
+Ice::UnknownException::~UnknownException() throw()
+{
+}
+
 static const char* __Ice__UnknownException_name = "Ice::UnknownException";
 
 ::std::string
@@ -223,6 +247,10 @@ Ice::UnknownLocalException::UnknownLocalException(const char* __file, int __line
 #else
     ::Ice::UnknownException(__file, __line, __unknown)
 #endif
+{
+}
+
+Ice::UnknownLocalException::~UnknownLocalException() throw()
 {
 }
 
@@ -264,6 +292,10 @@ Ice::UnknownUserException::UnknownUserException(const char* __file, int __line, 
 {
 }
 
+Ice::UnknownUserException::~UnknownUserException() throw()
+{
+}
+
 static const char* __Ice__UnknownUserException_name = "Ice::UnknownUserException";
 
 ::std::string
@@ -293,6 +325,10 @@ Ice::VersionMismatchException::VersionMismatchException(const char* __file, int 
 {
 }
 
+Ice::VersionMismatchException::~VersionMismatchException() throw()
+{
+}
+
 static const char* __Ice__VersionMismatchException_name = "Ice::VersionMismatchException";
 
 ::std::string
@@ -319,6 +355,10 @@ Ice::CommunicatorDestroyedException::CommunicatorDestroyedException(const char* 
 #else
     ::Ice::LocalException(__file, __line)
 #endif
+{
+}
+
+Ice::CommunicatorDestroyedException::~CommunicatorDestroyedException() throw()
 {
 }
 
@@ -360,6 +400,10 @@ Ice::ObjectAdapterDeactivatedException::ObjectAdapterDeactivatedException(const 
     ::Ice::LocalException(__file, __line),
 #endif
     name(__name)
+{
+}
+
+Ice::ObjectAdapterDeactivatedException::~ObjectAdapterDeactivatedException() throw()
 {
 }
 
@@ -408,6 +452,10 @@ Ice::ObjectAdapterIdInUseException::ObjectAdapterIdInUseException(const char* __
     ::Ice::LocalException(__file, __line),
 #endif
     id(__id)
+{
+}
+
+Ice::ObjectAdapterIdInUseException::~ObjectAdapterIdInUseException() throw()
 {
 }
 
@@ -466,6 +514,10 @@ Ice::NoEndpointException::NoEndpointException(const char* __file, int __line, co
 {
 }
 
+Ice::NoEndpointException::~NoEndpointException() throw()
+{
+}
+
 static const char* __Ice__NoEndpointException_name = "Ice::NoEndpointException";
 
 ::std::string
@@ -502,6 +554,10 @@ Ice::EndpointParseException::EndpointParseException(const char* __file, int __li
     ::Ice::LocalException(__file, __line),
 #endif
     str(__str)
+{
+}
+
+Ice::EndpointParseException::~EndpointParseException() throw()
 {
 }
 
@@ -544,6 +600,10 @@ Ice::IdentityParseException::IdentityParseException(const char* __file, int __li
 {
 }
 
+Ice::IdentityParseException::~IdentityParseException() throw()
+{
+}
+
 static const char* __Ice__IdentityParseException_name = "Ice::IdentityParseException";
 
 ::std::string
@@ -583,6 +643,10 @@ Ice::ProxyParseException::ProxyParseException(const char* __file, int __line, co
 {
 }
 
+Ice::ProxyParseException::~ProxyParseException() throw()
+{
+}
+
 static const char* __Ice__ProxyParseException_name = "Ice::ProxyParseException";
 
 ::std::string
@@ -619,6 +683,10 @@ Ice::IllegalIdentityException::IllegalIdentityException(const char* __file, int 
     ::Ice::LocalException(__file, __line),
 #endif
     id(__id)
+{
+}
+
+Ice::IllegalIdentityException::~IllegalIdentityException() throw()
 {
 }
 
@@ -663,6 +731,10 @@ Ice::RequestFailedException::RequestFailedException(const char* __file, int __li
 {
 }
 
+Ice::RequestFailedException::~RequestFailedException() throw()
+{
+}
+
 static const char* __Ice__RequestFailedException_name = "Ice::RequestFailedException";
 
 ::std::string
@@ -698,6 +770,10 @@ Ice::ObjectNotExistException::ObjectNotExistException(const char* __file, int __
 #else
     ::Ice::RequestFailedException(__file, __line, __id, __facet, __operation)
 #endif
+{
+}
+
+Ice::ObjectNotExistException::~ObjectNotExistException() throw()
 {
 }
 
@@ -739,6 +815,10 @@ Ice::FacetNotExistException::FacetNotExistException(const char* __file, int __li
 {
 }
 
+Ice::FacetNotExistException::~FacetNotExistException() throw()
+{
+}
+
 static const char* __Ice__FacetNotExistException_name = "Ice::FacetNotExistException";
 
 ::std::string
@@ -774,6 +854,10 @@ Ice::OperationNotExistException::OperationNotExistException(const char* __file, 
 #else
     ::Ice::RequestFailedException(__file, __line, __id, __facet, __operation)
 #endif
+{
+}
+
+Ice::OperationNotExistException::~OperationNotExistException() throw()
 {
 }
 
@@ -816,6 +900,10 @@ Ice::SyscallException::SyscallException(const char* __file, int __line, ::Ice::I
 {
 }
 
+Ice::SyscallException::~SyscallException() throw()
+{
+}
+
 static const char* __Ice__SyscallException_name = "Ice::SyscallException";
 
 ::std::string
@@ -851,6 +939,10 @@ Ice::SocketException::SocketException(const char* __file, int __line, ::Ice::Int
 #else
     ::Ice::SyscallException(__file, __line, __error)
 #endif
+{
+}
+
+Ice::SocketException::~SocketException() throw()
 {
 }
 
@@ -893,6 +985,10 @@ Ice::FileException::FileException(const char* __file, int __line, ::Ice::Int __e
 {
 }
 
+Ice::FileException::~FileException() throw()
+{
+}
+
 static const char* __Ice__FileException_name = "Ice::FileException";
 
 ::std::string
@@ -928,6 +1024,10 @@ Ice::ConnectFailedException::ConnectFailedException(const char* __file, int __li
 #else
     ::Ice::SocketException(__file, __line, __error)
 #endif
+{
+}
+
+Ice::ConnectFailedException::~ConnectFailedException() throw()
 {
 }
 
@@ -969,6 +1069,10 @@ Ice::ConnectionRefusedException::ConnectionRefusedException(const char* __file, 
 {
 }
 
+Ice::ConnectionRefusedException::~ConnectionRefusedException() throw()
+{
+}
+
 static const char* __Ice__ConnectionRefusedException_name = "Ice::ConnectionRefusedException";
 
 ::std::string
@@ -1004,6 +1108,10 @@ Ice::ConnectionLostException::ConnectionLostException(const char* __file, int __
 #else
     ::Ice::SocketException(__file, __line, __error)
 #endif
+{
+}
+
+Ice::ConnectionLostException::~ConnectionLostException() throw()
 {
 }
 
@@ -1047,6 +1155,10 @@ Ice::DNSException::DNSException(const char* __file, int __line, ::Ice::Int __err
 {
 }
 
+Ice::DNSException::~DNSException() throw()
+{
+}
+
 static const char* __Ice__DNSException_name = "Ice::DNSException";
 
 ::std::string
@@ -1073,6 +1185,10 @@ Ice::TimeoutException::TimeoutException(const char* __file, int __line) :
 #else
     ::Ice::LocalException(__file, __line)
 #endif
+{
+}
+
+Ice::TimeoutException::~TimeoutException() throw()
 {
 }
 
@@ -1105,6 +1221,10 @@ Ice::ConnectTimeoutException::ConnectTimeoutException(const char* __file, int __
 {
 }
 
+Ice::ConnectTimeoutException::~ConnectTimeoutException() throw()
+{
+}
+
 static const char* __Ice__ConnectTimeoutException_name = "Ice::ConnectTimeoutException";
 
 ::std::string
@@ -1134,6 +1254,10 @@ Ice::CloseTimeoutException::CloseTimeoutException(const char* __file, int __line
 {
 }
 
+Ice::CloseTimeoutException::~CloseTimeoutException() throw()
+{
+}
+
 static const char* __Ice__CloseTimeoutException_name = "Ice::CloseTimeoutException";
 
 ::std::string
@@ -1160,6 +1284,10 @@ Ice::ProtocolException::ProtocolException(const char* __file, int __line) :
 #else
     ::Ice::LocalException(__file, __line)
 #endif
+{
+}
+
+Ice::ProtocolException::~ProtocolException() throw()
 {
 }
 
@@ -1199,6 +1327,10 @@ Ice::BadMagicException::BadMagicException(const char* __file, int __line, const 
     ::Ice::ProtocolException(__file, __line),
 #endif
     badMagic(__badMagic)
+{
+}
+
+Ice::BadMagicException::~BadMagicException() throw()
 {
 }
 
@@ -1244,6 +1376,10 @@ Ice::UnsupportedProtocolException::UnsupportedProtocolException(const char* __fi
 {
 }
 
+Ice::UnsupportedProtocolException::~UnsupportedProtocolException() throw()
+{
+}
+
 static const char* __Ice__UnsupportedProtocolException_name = "Ice::UnsupportedProtocolException";
 
 ::std::string
@@ -1286,6 +1422,10 @@ Ice::UnsupportedEncodingException::UnsupportedEncodingException(const char* __fi
 {
 }
 
+Ice::UnsupportedEncodingException::~UnsupportedEncodingException() throw()
+{
+}
+
 static const char* __Ice__UnsupportedEncodingException_name = "Ice::UnsupportedEncodingException";
 
 ::std::string
@@ -1312,6 +1452,10 @@ Ice::UnknownMessageException::UnknownMessageException(const char* __file, int __
 #else
     ::Ice::ProtocolException(__file, __line)
 #endif
+{
+}
+
+Ice::UnknownMessageException::~UnknownMessageException() throw()
 {
 }
 
@@ -1344,6 +1488,10 @@ Ice::ConnectionNotValidatedException::ConnectionNotValidatedException(const char
 {
 }
 
+Ice::ConnectionNotValidatedException::~ConnectionNotValidatedException() throw()
+{
+}
+
 static const char* __Ice__ConnectionNotValidatedException_name = "Ice::ConnectionNotValidatedException";
 
 ::std::string
@@ -1370,6 +1518,10 @@ Ice::UnknownRequestIdException::UnknownRequestIdException(const char* __file, in
 #else
     ::Ice::ProtocolException(__file, __line)
 #endif
+{
+}
+
+Ice::UnknownRequestIdException::~UnknownRequestIdException() throw()
 {
 }
 
@@ -1402,6 +1554,10 @@ Ice::UnknownReplyStatusException::UnknownReplyStatusException(const char* __file
 {
 }
 
+Ice::UnknownReplyStatusException::~UnknownReplyStatusException() throw()
+{
+}
+
 static const char* __Ice__UnknownReplyStatusException_name = "Ice::UnknownReplyStatusException";
 
 ::std::string
@@ -1428,6 +1584,10 @@ Ice::CloseConnectionException::CloseConnectionException(const char* __file, int 
 #else
     ::Ice::ProtocolException(__file, __line)
 #endif
+{
+}
+
+Ice::CloseConnectionException::~CloseConnectionException() throw()
 {
 }
 
@@ -1460,6 +1620,10 @@ Ice::ForcedCloseConnectionException::ForcedCloseConnectionException(const char* 
 {
 }
 
+Ice::ForcedCloseConnectionException::~ForcedCloseConnectionException() throw()
+{
+}
+
 static const char* __Ice__ForcedCloseConnectionException_name = "Ice::ForcedCloseConnectionException";
 
 ::std::string
@@ -1489,6 +1653,10 @@ Ice::IllegalMessageSizeException::IllegalMessageSizeException(const char* __file
 {
 }
 
+Ice::IllegalMessageSizeException::~IllegalMessageSizeException() throw()
+{
+}
+
 static const char* __Ice__IllegalMessageSizeException_name = "Ice::IllegalMessageSizeException";
 
 ::std::string
@@ -1515,6 +1683,10 @@ Ice::FeatureNotSupportedException::FeatureNotSupportedException(const char* __fi
 #else
     ::Ice::LocalException(__file, __line)
 #endif
+{
+}
+
+Ice::FeatureNotSupportedException::~FeatureNotSupportedException() throw()
 {
 }
 
@@ -1557,6 +1729,10 @@ Ice::MarshalException::MarshalException(const char* __file, int __line, const ::
 {
 }
 
+Ice::MarshalException::~MarshalException() throw()
+{
+}
+
 static const char* __Ice__MarshalException_name = "Ice::MarshalException";
 
 ::std::string
@@ -1592,6 +1768,10 @@ Ice::ProxyUnmarshalException::ProxyUnmarshalException(const char* __file, int __
 #else
     ::Ice::MarshalException(__file, __line, __reason)
 #endif
+{
+}
+
+Ice::ProxyUnmarshalException::~ProxyUnmarshalException() throw()
 {
 }
 
@@ -1633,6 +1813,10 @@ Ice::UnmarshalOutOfBoundsException::UnmarshalOutOfBoundsException(const char* __
 {
 }
 
+Ice::UnmarshalOutOfBoundsException::~UnmarshalOutOfBoundsException() throw()
+{
+}
+
 static const char* __Ice__UnmarshalOutOfBoundsException_name = "Ice::UnmarshalOutOfBoundsException";
 
 ::std::string
@@ -1668,6 +1852,10 @@ Ice::MemoryLimitException::MemoryLimitException(const char* __file, int __line, 
 #else
     ::Ice::MarshalException(__file, __line, __reason)
 #endif
+{
+}
+
+Ice::MemoryLimitException::~MemoryLimitException() throw()
 {
 }
 
@@ -1710,6 +1898,10 @@ Ice::StringConversionException::StringConversionException(const char* __file, in
 {
 }
 
+Ice::StringConversionException::~StringConversionException() throw()
+{
+}
+
 static const char* __Ice__StringConversionException_name = "Ice::StringConversionException";
 
 ::std::string
@@ -1748,6 +1940,10 @@ Ice::EncapsulationException::EncapsulationException(const char* __file, int __li
 {
 }
 
+Ice::EncapsulationException::~EncapsulationException() throw()
+{
+}
+
 static const char* __Ice__EncapsulationException_name = "Ice::EncapsulationException";
 
 ::std::string
@@ -1783,6 +1979,10 @@ Ice::NegativeSizeException::NegativeSizeException(const char* __file, int __line
 #else
     ::Ice::MarshalException(__file, __line, __reason)
 #endif
+{
+}
+
+Ice::NegativeSizeException::~NegativeSizeException() throw()
 {
 }
 

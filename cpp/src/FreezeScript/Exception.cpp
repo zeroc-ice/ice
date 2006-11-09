@@ -19,6 +19,10 @@ FreezeScript::FailureException::FailureException(const char* file, int line, con
 {
 }
 
+FreezeScript::FailureException::~FailureException() throw()
+{
+}
+
 const char* FreezeScript::FailureException::_name = "FreezeScript::FailureException";
 
 string

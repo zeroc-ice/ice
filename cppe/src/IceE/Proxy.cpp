@@ -692,7 +692,7 @@ IceProxy::Ice::Object::ice_getConnection()
 }
 
 ConnectionPtr
-IceProxy::Ice::Object::ice_getCachedConnection()
+IceProxy::Ice::Object::ice_getCachedConnection() const
 {
     ::IceUtil::Mutex::Lock sync(*this);
     return _connection;

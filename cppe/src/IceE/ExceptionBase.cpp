@@ -31,7 +31,7 @@ IceUtil::Exception::Exception(const char* file, int line) :
 {
 }
     
-IceUtil::Exception::~Exception()
+IceUtil::Exception::~Exception() throw()
 {
 }
 
@@ -95,6 +95,10 @@ IceUtil::NullHandleException::NullHandleException(const char* file, int line) :
     }
 }
 
+IceUtil::NullHandleException::~NullHandleException() throw()
+{
+}
+
 const char* IceUtil::NullHandleException::_name = "IceUtil::NullHandleException";
 
 string
@@ -123,6 +127,10 @@ IceUtil::IllegalArgumentException::IllegalArgumentException(const char* file, in
 IceUtil::IllegalArgumentException::IllegalArgumentException(const char* file, int line, const string& r) :
     Exception(file, line),
     reason(r)
+{
+}
+
+IceUtil::IllegalArgumentException::~IllegalArgumentException() throw()
 {
 }
 
