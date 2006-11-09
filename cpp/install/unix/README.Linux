@@ -89,7 +89,7 @@ PHP
 ---
 
 The Ice extension for PHP included in this distribution requires
-PHP 5.1.4. The PHP RPM is php-5.1.4-1.
+PHP 5.2.0. The PHP RPM is php-5.2.0-1.
 
 
 ======================================================================
@@ -211,7 +211,7 @@ The Ice extension for PHP must be added to your PHP configuration
 by editing php.ini and adding the following lines:
 
 extension_dir = <ICE_HOME>/lib
-extension = icephp.so
+extension = IcePHP.so
 
 (With the x86_64 distribution, use <ICE_HOME>/lib64 instead of 
 <ICE_HOME>/lib)
@@ -227,31 +227,38 @@ phpinfo() function from a script.
 
 SELinux Notes:
 
-On Fedora Linux and a number of other Linux distributions, SELinux 
-augments the traditional Unix permissions with a number of new features. 
-In particular, SELinux can prevent the httpd daemon from opening
-network connections and reading files without the proper SELinux types.
+SELinux augments the traditional Unix permissions with a number of
+new features. In particular, SELinux can prevent the httpd daemon from
+opening network connections and reading files without the proper
+SELinux types.
 
 If you suspect that your IcePHP application does not work due to
-SELinux restrictions, we recommend to first try with SELinux disabled.
-As root, run:
+SELinux restrictions, we recommend that you first try with SELinux
+disabled. As root, run:
 
 # setenforce 0
 
 to disable SELinux until the next reboot of your computer.
 
-If you want to run httpd with IcePHP and SELinux enabled, you need to:
- - allow httpd to open network connections:
+If you want to run httpd with IcePHP and SELinux enabled, you must do
+the following:
+
+- Allow httpd to open network connections:
+
   # setsebool httpd_can_network_connect=1 
-  (use the -P option to make this setting persistent across reboots)
- - make sure any .ice file used by your PHP scripts can be read by 
+
+  (add the -P option to make this setting persistent across reboots)
+
+- Make sure any .ice file used by your PHP scripts can be read by 
   httpd. The enclosing directory also needs to be accessible. For
   example:
+
   # chcon -R -t httpd_sys_content_t /opt/MyApp/slice 
 
 See this FAQ for more information on SELinux:
 
 http://fedora.redhat.com/docs/selinux-faq/
+
 
 ======================================================================
 Using the IceGrid Administrative Console
@@ -300,9 +307,8 @@ compiled against the <x>.<y>.0 runtime will automatically use the
 <x>.<y>.1 runtime.
 
 Note: Under Mono, binary compatibility currently does not work due to
-      issues with Mono. Until this problem in Mono is fixed, you cannot
-      run applications compiled with previous minor versions of Ice
-      against a newer version of the Ice assemblies. For example, an
-      application compiled with version <x>.<y>.0 of Ice cannot run with
-      the <x>.<y>.1 Ice assemblies.
-
+      issues with Mono. Until this problem in Mono is fixed, you
+      cannot run applications compiled with previous minor versions of
+      Ice against a newer version of the Ice assemblies. For example,
+      an application compiled with version <x>.<y>.0 of Ice cannot run
+      with the <x>.<y>.1 Ice assemblies.
