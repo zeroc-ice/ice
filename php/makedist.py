@@ -82,7 +82,7 @@ os.chdir(distdir)
 #
 # Export sources from CVS.
 #
-os.system("cvs -d cvs.zeroc.com:/home/cvsroot export " + tag + " icephp")
+os.system("cvs -d cvs.zeroc.com:/home/cvsroot export " + tag + " icephp ice/include/IceUtil/Config.h")
 
 #
 # Remove files.
@@ -95,10 +95,10 @@ for x in filesToRemove:
     os.remove(x)
 
 #
-# Get IcePHP version.
+# Get Ice version.
 #
-config = open(os.path.join("icephp", "src", "ice", "php_ice.h"), "r")
-version = re.search("ICEPHP_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
+config = open(os.path.join("ice", "include", "IceUtil", "Config.h"), "r")
+version = re.search("ICE_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
 
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("icephp", "README*"), version)
@@ -127,3 +127,4 @@ shutil.copyfile(os.path.join(icephpver, "CHANGES"), "IcePHP-" + version + "-CHAN
 # Done.
 #
 shutil.rmtree(icephpver)
+shutil.rmtree("ice")
