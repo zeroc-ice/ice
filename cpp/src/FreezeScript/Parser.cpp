@@ -126,10 +126,6 @@ FreezeScript::EvaluateException::EvaluateException(const char* file, int line, c
 {
 }
 
-FreezeScript::EvaluateException::~EvaluateException() throw()
-{
-}
-
 const char* FreezeScript::EvaluateException::_name = "FreezeScript::EvaluateException";
 
 string

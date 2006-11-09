@@ -27,7 +27,6 @@ class ICE_UTIL_API APIException : public IceUtil::Exception
 public:
 
     APIException(const char*, int, const ::std::string&);
-    virtual ~APIException() throw();
     virtual ::std::string ice_name() const;
     virtual ::IceUtil::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -46,7 +45,6 @@ class ICE_UTIL_API BadOptException : public IceUtil::Exception
 public:
 
     BadOptException(const char*, int, const ::std::string&);
-    virtual ~BadOptException() throw();
     virtual ::std::string ice_name() const;
     virtual ::IceUtil::Exception* ice_clone() const;
     virtual void ice_throw() const;

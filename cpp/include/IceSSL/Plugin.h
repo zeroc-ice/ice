@@ -60,7 +60,6 @@ class ICE_SSL_API CertificateReadException : public IceUtil::Exception
 public:
 
     CertificateReadException(const char*, int, const std::string&);
-    virtual ~CertificateReadException() throw();
     virtual std::string ice_name() const;
     virtual IceUtil::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -80,7 +79,6 @@ class ICE_SSL_API CertificateEncodingException : public IceUtil::Exception
 public:
 
     CertificateEncodingException(const char*, int, const std::string&);
-    virtual ~CertificateEncodingException() throw();
     virtual std::string ice_name() const;
     virtual IceUtil::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -100,7 +98,6 @@ class ICE_SSL_API ParseException : public IceUtil::Exception
 public:
 
     ParseException(const char*, int, const std::string&);
-    virtual ~ParseException() throw();
     virtual std::string ice_name() const;
     virtual IceUtil::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -481,7 +478,6 @@ class ICE_SSL_API ConnectionInvalidException : public IceUtil::Exception
 public:
 
     ConnectionInvalidException(const char*, int, const std::string&);
-    virtual ~ConnectionInvalidException() throw();
     virtual std::string ice_name() const;
     virtual IceUtil::Exception* ice_clone() const;
     virtual void ice_throw() const;

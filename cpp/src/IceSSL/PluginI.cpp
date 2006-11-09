@@ -266,10 +266,6 @@ ConnectionInvalidException::ConnectionInvalidException(const char* file, int lin
 {
 }
 
-ConnectionInvalidException::~ConnectionInvalidException() throw()
-{
-}
-
 string
 ConnectionInvalidException::ice_name() const
 {

@@ -20,7 +20,6 @@ class FailureException : public IceUtil::Exception
 public:
     
     FailureException(const char*, int, const std::string&);
-    virtual ~FailureException() throw();
     virtual std::string ice_name() const;
     virtual void ice_print(std::ostream&) const;
     virtual IceUtil::Exception* ice_clone() const;

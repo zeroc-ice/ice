@@ -18,10 +18,6 @@ IceUtil::APIException::APIException(const char* file, int line, const string& r)
 {
 }
 
-IceUtil::APIException::~APIException() throw()
-{
-}
-
 const char* IceUtil::APIException::_name = "IceUtil::APIException";
 
 string
@@ -52,10 +48,6 @@ IceUtil::operator<<(ostream& out, const IceUtil::APIException& ex)
 
 IceUtil::BadOptException::BadOptException(const char* file, int line, const string& r)
     : IceUtil::Exception(file, line), reason(r)
-{
-}
-
-IceUtil::BadOptException::~BadOptException() throw()
 {
 }
 

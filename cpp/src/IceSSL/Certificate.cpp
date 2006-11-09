@@ -28,10 +28,6 @@ CertificateReadException::CertificateReadException(const char* file, int line, c
 {
 }
 
-CertificateReadException::~CertificateReadException() throw()
-{
-}
-
 string
 CertificateReadException::ice_name() const
 {
@@ -56,10 +52,6 @@ const char* IceSSL::CertificateEncodingException::_name = "IceSSL::CertificateEn
 CertificateEncodingException::CertificateEncodingException(const char* file, int line, const string& r) :
     Exception(file, line),
     reason(r)
-{
-}
-
-CertificateEncodingException::~CertificateEncodingException() throw()
 {
 }
 
@@ -232,10 +224,6 @@ const char* ParseException::_name = "IceSSL::ParseException";
 ParseException::ParseException(const char* file, int line, const string& r) :
     Exception(file, line),
     reason(r)
-{
-}
-
-ParseException::~ParseException() throw()
 {
 }
 

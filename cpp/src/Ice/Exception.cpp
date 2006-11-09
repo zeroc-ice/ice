@@ -29,10 +29,6 @@ Ice::LocalException::LocalException(const char* file, int line) :
 {
 }
 
-Ice::LocalException::~LocalException() throw()
-{
-}
-
 #if defined(__SUNPRO_CC)
 ostream&
 Ice::operator<<(ostream& out, const Ice::UserException& ex)

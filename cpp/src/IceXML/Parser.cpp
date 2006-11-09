@@ -28,10 +28,6 @@ IceXML::ParserException::ParserException(const char* file, int line, const strin
 {
 }
 
-IceXML::ParserException::~ParserException() throw()
-{
-}
-
 const char* IceXML::ParserException::_name = "IceXML::ParserException";
 
 string
