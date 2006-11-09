@@ -319,14 +319,26 @@ Glacier2::RouterService::start(int argc, char* argv[])
     //
     // Everything ok, let's go.
     //
-    clientAdapter->activate();
-    if(serverAdapter)
+    try
     {
-	serverAdapter->activate();
+        clientAdapter->activate();
+        if(serverAdapter)
+        {
+	    serverAdapter->activate();
+        }
+        if(adminAdapter)
+        {
+	    adminAdapter->activate();
+        }
     }
-    if(adminAdapter)
+    catch(const Ice::Exception& ex)
     {
-	adminAdapter->activate();
+	ostringstream ostr;
+	ostr << ex;
+	error("caught exception activating object adapters\n" + ostr.str());
+
+    	stop();
+        return false;
     }
 
     return true;
