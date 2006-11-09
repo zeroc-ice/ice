@@ -222,7 +222,7 @@ SubscriberOneway::flush()
 	{
 	    //Ice::Trace out(traceLevels->logger, traceLevels->subscriberCat);
 	    //out << "deliberately stalling";
-	    sleep(2);
+	    IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(2));
 	}
 	if(_obj->ice_getIdentity().name.substr(0, 5) == "block")
 	{
@@ -230,7 +230,7 @@ SubscriberOneway::flush()
 		Ice::Trace out(traceLevels->logger, traceLevels->subscriberCat);
 		out << "-> stall for 100s";
 	    }
-	    sleep(100);
+	    IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(100));
 	    {
 		Ice::Trace out(traceLevels->logger, traceLevels->subscriberCat);
 		out << "<- stall for 100s";
