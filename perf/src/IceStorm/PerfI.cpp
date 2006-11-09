@@ -97,6 +97,15 @@ PingI::started()
 bool
 PingI::stopped()
 {
+    //
+    // It is *very* important to record the stop time be recorded once the
+    // first publisher has stopped. The stop time is used to calculate the
+    // throughput values. We are looking for a throughput value that
+    // reflects the service's ability to process events when fully loaded.
+    // If we keep counting after the first stopped publisher we may end up
+    // including data that skews the results, possibly for better, possibly
+    // for worse.
+    //
     if(_nStoppedPublishers == 0)
     {
 	_stopTime = IceUtil::Time::now();
@@ -122,6 +131,10 @@ void
 PingI::add(Ice::Long time)
 {
     ++_nReceived;
+    //
+    // Do *NOT* add record more events after the first publisher has
+    // stopped. 
+    //
     if(_nStartedPublishers == _nPublishers && _nStoppedPublishers == 0)
     {
 #ifdef WIN32
@@ -129,7 +142,8 @@ PingI::add(Ice::Long time)
 	QueryPerformanceCounter(&t);
 	Ice::Long interval = t.QuadPart - time;
 	QueryPerformanceFrequency(&t);
-	interval /= t.QuadPart/1000000;
+	interval /= t.QuadPart; // Frequency is counts per second.
+	interval *= 1000000; // Convert to microseconds.
 	_results.push_back(interval);
 #else
 	IceUtil::Time t = IceUtil::Time::microSeconds(time);
@@ -169,12 +183,22 @@ PingI::calc()
     }
     deviation = sqrt(x / (_results.size() - 1));
 
+    //
+    // If the expected number of results falls below a the 90% threshold,
+    // we should display a warning. There isn't much else that can be done
+    // fairly. What data there is should still be accurate --if not
+    // statistically sound-- because it is based on what actually occurred,
+    // not expected parameters. 
+    //
     if(originalSize < (_nExpectedTicks * 0.90))
     {
-	cerr << "less than 90% of the expected ticks were used for the test " << originalSize << endl;
+	cerr << "WARNING: Less than 90% of the expected ticks were used for the test. " <<
+	    _nExpectedTicks << " events were expected, but only " << originalSize << " were received.\n" << endl;
+	cerr << "The results are based on a smaller sample size and comparisons with other tests\n"
+	        "may not be fair." << endl; 
     }
-    cout << "{ 'latency' : " << mean << ", 'deviation' : " << deviation << ", 'throughput' : " <<
-	(originalSize * _payloadSize / (double)(1024^2)) / (_stopTime - _startTime).toMicroSeconds() * 1000000.0 << 
+    cout << "{ 'latency' : " << mean / 1000 << ", 'deviation' : " << deviation << ", 'throughput' : " <<
+	((double)(originalSize * _payloadSize) / (1024^2)) / (_stopTime - _startTime).toMilliSecondsDouble() * 1000.0 << 
 	", 'repetitions': " << originalSize << ", 'payload': " << _payloadSize << "}" << endl;
 
     _results.clear();

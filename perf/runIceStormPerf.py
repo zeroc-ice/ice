@@ -130,14 +130,24 @@ class Test(TestUtil.Test) :
 	if len(results) == 0:
 	    return None 
 
+	expected = 0
+	if self.latency:
+	    expected = latencyRepetitions
+	else:
+	    expected = throughputRepetitions
+
         avgLatency = 0.0
 	avgThroughput = 0.0
+	notCompleted = 0
         for r in results:
 	    avgLatency += r['latency']
 	    avgThroughput += r['throughput']
+	    if r['repetitions'] < expected * 0.9:
+		notCompleted += 1
+
         avgLatency /= len(results)
         avgThroughput /= len(results)
-	return { 'latency': avgLatency, 'throughput': avgThroughput, 'data': results }
+	return { 'latency': avgLatency, 'throughput': avgThroughput, 'data': results, 'expected': expected, 'incomplete': notCompleted}
 
 class IceStormTest(Test):
 
@@ -260,6 +270,7 @@ def runIceStormPerfs(expr, results):
 	    if r != None:
 		r['suppliers'] = suppliers
 		r['consumers'] = consumers
+		r['throughput'] = r['throughput'] * consumers
 		results.append(r)
 
 def runCosEventPerfs(expr, results):
@@ -318,6 +329,7 @@ def runCosEventPerfs(expr, results):
 	    if r != None:
 		r['suppliers'] = suppliers
 		r['consumers'] = consumers
+		r['throughput'] = r['throughput'] * consumers
 		results.append(r)
 
 try:
