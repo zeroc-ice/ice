@@ -29,7 +29,13 @@ OPTIMIZE		= yes
 # Set PHP_HOME to your PHP source directory.
 #
 
-PHP_HOME		= C:\php
+PHP_HOME		= C:\php-5.2.0
+
+#
+# Set PHP_BIN_HOME to your PHP binary installation directory.
+#
+
+PHP_BIN_HOME		= C:\php-5.2.0-Win32
 
 #
 # Set STLPORT_HOME to your STLPort installation directory.
@@ -70,7 +76,9 @@ ICE_LIBS		= ice$(LIBSUFFIX).lib iceutil$(LIBSUFFIX).lib slice$(LIBSUFFIX).lib
 ICE_CPPFLAGS		= -I"$(ICE_HOME)\include"
 ICE_LDFLAGS		= /LIBPATH:"$(ICE_HOME)\lib"
 
-PHP_CPPFLAGS		= -I"$(PHP_HOME)" -I"$(PHP_HOME)\main" -I"$(PHP_HOME)\TSRM" -I"$(PHP_HOME)\Zend"
+PHP_CPPFLAGS		= -I"$(PHP_HOME)" -I"$(PHP_HOME)\main" -I"$(PHP_HOME)\TSRM" -I"$(PHP_HOME)\Zend" -DPHP_WIN32 -DZEND_WIN32 -DZEND_DEBUG=0 -DZTS
+PHP_LDFLAGS		= /LIBPATH:"$(PHP_BIN_HOME)\dev"
+PHP_LIBS		= php5ts.lib
 
 ICECPPFLAGS		= -I$(slicedir)
 
@@ -85,7 +93,7 @@ all:: $(SRCS)
 	$(CXX) /c $(CPPFLAGS) $(CXXFLAGS) $<
 
 clean::
-	del /q $(TARGETS) core *.obj *.bak
+	del /q $(TARGETS) *.obj *.bak
 
 all:: $(SRCS) $(TARGETS)
 

@@ -61,27 +61,31 @@ PHP5 from source.
 
 Follow these instructions to build the Ice extension:
 
-1) Download and extract the PHP5 sources so that the PHP header files
-   are available. (It is not necessary for you to build PHP5 from
-   sources.)
+1) Download the PHP5 binary archive or Windows installer and install
+   the distribution.
 
-2) Open a command window.
+2) Download and extract the PHP5 sources (IcePHP requires the PHP
+   header files).
 
-3) Set the ICE_HOME environment variable to the location of your Ice
+3) Open a command window.
+
+4) Set the ICE_HOME environment variable to the location of your Ice
    installation. For example:
 
    > set ICE_HOME=C:\Ice-@ver@-VC60
 
-4) Change to the IcePHP source directory.
+5) Change to the IcePHP source directory.
 
-5) Open config\Make.rules.mak, review the comments, and make any
-   necessary changes.
+6) Open config\Make.rules.mak, review the comments, and make any
+   necessary changes. In particular, you may need to change the values
+   of PHP_HOME and PHP_BIN_HOME to refer to your PHP source and binary
+   installations, respectively.
 
-6) Start NMAKE:
+7) Start NMAKE:
 
    > nmake /f Makefile.mak
 
-7) Upon successful completion, the IcePHP extension is created as
+8) Upon successful completion, the IcePHP extension is created as
    bin\php_ice.dll (Release) or bin\php_iced.dll (Debug).
 
 

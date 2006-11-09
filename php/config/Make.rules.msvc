@@ -26,7 +26,7 @@ CPPFLAGS	= $(CPPFLAGS) -MD -O2 -DNDEBUG
 CPPFLAGS	= $(CPPFLAGS) -MDd -Zi -Gm -GZ -Od -D_DEBUG
 !endif
 
-LDFLAGS		= /LIBPATH:"$(STLPORT_HOME)\lib" /LIBPATH:"$(top_srcdir)\lib" /nologo /FIXED:no
+LDFLAGS		= /LIBPATH:"$(STLPORT_HOME)\lib" /nologo /FIXED:no
 
 !if "$(OPTIMIZE)" != "yes"
 LDFLAGS		= $(LDFLAGS) /debug /incremental:yes

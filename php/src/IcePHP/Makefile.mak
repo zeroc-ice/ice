@@ -30,12 +30,12 @@ CPPFLAGS	= -I. -I.. $(CPPFLAGS) $(ICE_CPPFLAGS) $(PHP_CPPFLAGS)
 PDBFLAGS        = /pdb:$(LIBNAME:.lib=.pdb)
 !endif
 
-LINKWITH        = $(ICE_LIBS) $(CXXLIBS)
+LINKWITH        = $(ICE_LIBS) $(PHP_LIBS) $(CXXLIBS)
 
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS)
-	$(LINK) $(ICE_LDFLAGS) $(LD_DLLFLAGS) $(PDBFLAGS) /export:get_module $(OBJS) \
+	$(LINK) $(ICE_LDFLAGS) $(PHP_LDFLAGS) $(LD_DLLFLAGS) $(PDBFLAGS) /export:get_module $(OBJS) \
 		$(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 

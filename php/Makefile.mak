@@ -11,9 +11,9 @@ top_srcdir	= .
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-SUBDIRS		= src ruby
+SUBDIRS		= src
 
-INSTALL_SUBDIRS = $(install_rubydir) $(install_slicedir)
+INSTALL_SUBDIRS = $(install_bindir) $(install_slicedir)
 
 install::
 	@if not exist $(prefix) \
