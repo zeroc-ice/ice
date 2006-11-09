@@ -34,6 +34,7 @@ public:
 
     ParserException(const std::string&);
     ParserException(const char*, int, const std::string&);
+    virtual ~ParserException() throw();
 
     virtual std::string ice_name() const;
     virtual void ice_print(std::ostream&) const;

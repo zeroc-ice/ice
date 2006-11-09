@@ -503,6 +503,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 	}
 	H << allTypes << epar << ';';
     }
+    H << nl << "virtual ~" << name << "() throw();";
     H << sp;
 
     if(p->isLocal())
@@ -568,6 +569,11 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 	C << sb;
 	C << eb;
     }
+
+    C << sp << nl;
+    C << scoped.substr(2) << "::~" << name << "() throw()";
+    C << sb;
+    C << eb;
 
     H << nl << "virtual ::std::string ice_name() const;";
 
