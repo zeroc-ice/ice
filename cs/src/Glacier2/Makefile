@@ -16,11 +16,8 @@ TARGETS		= $(bindir)/$(LIBNAME)
 SRCS		= AssemblyInfo.cs
 
 SLICE_SRCS	= $(SDIR)/PermissionsVerifier.ice \
-		  $(SDIR)/PermissionsVerifierF.ice \
 		  $(SDIR)/Router.ice \
-		  $(SDIR)/RouterF.ice \
 		  $(SDIR)/Session.ice \
-		  $(SDIR)/SessionF.ice \
 		  $(SDIR)/SSLInfo.ice
 
 SDIR		= $(slicedir)/Glacier2

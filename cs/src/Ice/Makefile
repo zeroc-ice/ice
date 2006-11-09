@@ -94,36 +94,24 @@ SRCS		= Acceptor.cs \
 		  XMLOutput.cs
 
 SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
-		  $(SDIR)/CommunicatorF.ice \
 		  $(SDIR)/Communicator.ice \
 		  $(SDIR)/Connection.ice \
-		  $(SDIR)/ConnectionF.ice \
 		  $(SDIR)/Current.ice \
 		  $(SDIR)/Endpoint.ice \
 		  $(SDIR)/FacetMap.ice \
 		  $(SDIR)/Identity.ice \
 		  $(SDIR)/ImplicitContext.ice \
 		  $(SDIR)/LocalException.ice \
-		  $(SDIR)/LocatorF.ice \
 		  $(SDIR)/Locator.ice \
-		  $(SDIR)/LoggerF.ice \
 		  $(SDIR)/Logger.ice \
-		  $(SDIR)/ObjectAdapterF.ice \
 		  $(SDIR)/ObjectAdapter.ice \
-		  $(SDIR)/ObjectFactoryF.ice \
 		  $(SDIR)/ObjectFactory.ice \
-		  $(SDIR)/PluginF.ice \
 		  $(SDIR)/Plugin.ice \
-		  $(SDIR)/ProcessF.ice \
 		  $(SDIR)/Process.ice \
-		  $(SDIR)/PropertiesF.ice \
 		  $(SDIR)/Properties.ice \
-		  $(SDIR)/RouterF.ice \
 		  $(SDIR)/Router.ice \
-		  $(SDIR)/ServantLocatorF.ice \
 		  $(SDIR)/ServantLocator.ice \
 		  $(SDIR)/SliceChecksumDict.ice \
-		  $(SDIR)/StatsF.ice \
 		  $(SDIR)/Stats.ice
 
 SDIR		= $(slicedir)/Ice
