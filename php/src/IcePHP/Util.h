@@ -7,10 +7,10 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PHP_ICE_UTIL_H
-#define ICE_PHP_ICE_UTIL_H
+#ifndef ICE_PHP_UTIL_H
+#define ICE_PHP_UTIL_H
 
-#include "ice_common.h"
+#include <Config.h>
 
 //
 // Ice_Identity global functions.

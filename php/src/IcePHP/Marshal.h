@@ -7,10 +7,10 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PHP_ICE_MARSHAL_H
-#define ICE_PHP_ICE_MARSHAL_H
+#ifndef ICE_PHP_MARSHAL_H
+#define ICE_PHP_MARSHAL_H
 
-#include "ice_common.h"
+#include <Config.h>
 
 namespace IcePHP
 {

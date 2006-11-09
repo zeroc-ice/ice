@@ -7,15 +7,11 @@
 //
 // **********************************************************************
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include <IceUtil/DisableWarnings.h>
-#include "ice_communicator.h"
-#include "ice_proxy.h"
-#include "ice_marshal.h"
-#include "ice_util.h"
+#include <Communicator.h>
+#include <Proxy.h>
+#include <Marshal.h>
+#include <Util.h>
 
 using namespace std;
 using namespace IcePHP;
@@ -357,7 +353,6 @@ ZEND_FUNCTION(Ice_Communicator_addObjectFactory)
         return;
     }
     assert(obj->ptr);
-    Ice::CommunicatorPtr* _this = static_cast<Ice::CommunicatorPtr*>(obj->ptr);
 
     zval* zfactory;
     char* id;
@@ -426,7 +421,6 @@ ZEND_FUNCTION(Ice_Communicator_findObjectFactory)
         RETURN_NULL();
     }
     assert(obj->ptr);
-    Ice::CommunicatorPtr* _this = static_cast<Ice::CommunicatorPtr*>(obj->ptr);
 
     char* id;
     int len;

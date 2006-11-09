@@ -1,0 +1,227 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+ifndef ICE_HOME
+    $(error ICE_HOME is not defined)
+endif
+
+#
+# Select an installation base directory. The directory will be created
+# if it does not exist.
+#
+
+prefix			= /opt/IcePHP-$(VERSION)
+
+#
+# The "root directory" for runpath embedded in executables. Can be unset
+# to avoid adding a runpath to Ice executables.
+#
+embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
+
+#
+# Define OPTIMIZE as yes if you want to build with optimization.
+# Otherwise the Ice extension is built with debug information.
+#
+
+#OPTIMIZE		= yes
+
+#
+# Define LP64 as yes if you want to build in 64 bit mode on a platform
+# that supports both 32 and 64 bit.
+#
+#LP64			:= yes
+
+#
+# The values below can be overridden by defining them as environment
+# variables.
+#
+
+#
+# If you've built PHP yourself then set PHP_HOME to contain the
+# installation directory; the rest of the PHP-related settings
+# should be correct.
+#
+# If you've installed a distribution, or PHP was included with
+# your system, then you likely need to review the values of
+# PHP_INCLUDE_DIR and PHP_LIB_DIR.
+#
+PHP_HOME		?= /opt/php
+
+ifeq ($(shell test -d $(PHP_HOME) && echo 0),0)
+    PHP_INCLUDE_DIR	= $(PHP_HOME)/include/php
+    PHP_LIB_DIR		= $(PYTHON_HOME)/lib/php
+else
+    PHP_INCLUDE_DIR	= /usr/include/php
+    PHP_LIB_DIR		= /usr/lib/php
+endif
+
+PHP_FLAGS		?= -I$(PHP_INCLUDE_DIR) -I$(PHP_INCLUDE_DIR)/main -I$(PHP_INCLUDE_DIR)/Zend \
+			   -I$(PHP_INCLUDE_DIR)/TSRM
+
+
+# ----------------------------------------------------------------------
+# Don't change anything below this line!
+# ----------------------------------------------------------------------
+
+SHELL			= /bin/sh
+VERSION_MAJOR           = 3
+VERSION_MINOR           = 2
+VERSION_PATCH           = 0
+VERSION			= $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)
+SOVERSION		= $(VERSION_MAJOR)$(VERSION_MINOR)
+libdir			= $(top_srcdir)/lib
+
+install_slicedir	= $(prefix)/slice
+
+INSTALL			= cp -fp
+INSTALL_PROGRAM		= ${INSTALL}
+INSTALL_LIBRARY		= ${INSTALL}
+INSTALL_DATA		= ${INSTALL}
+
+UNAME			:= $(shell uname)
+
+#
+# Platform specific definitions
+#
+ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
+    configdir		= $(top_srcdir)/config
+else
+    configdir		= $(ICE_HOME)/config
+endif
+include	 $(configdir)/Make.rules.$(UNAME)
+
+ifeq ($(LP64),yes)
+   ICE_LIBS             = -L$(ICE_HOME)/lib64 -L$(ICE_HOME)/lib -lIce -lIceUtil -lSlice 
+else 
+   ICE_LIBS		= -L$(ICE_HOME)/lib -lIce -lIceUtil -lSlice
+endif
+
+ICE_FLAGS		= -I$(ICE_HOME)/include
+
+ifeq ($(shell test -d $(top_srcdir)/slice && echo 0),0)
+    slicedir		= $(top_srcdir)/slice
+else
+    slicedir		= $(ICE_HOME)/slice
+endif
+
+ifeq ($(LP64),yes)
+#
+# TODO: Where should the shared library be installed if it is a 64 bit
+# build.
+#
+    install_libdir	= $(prefix)/lib
+else
+    install_libdir	= $(prefix)/lib
+endif
+
+ifeq ($(LP64),yes)
+    libsubdir		  := lib$(lp64suffix)
+else
+    libsubdir		  := lib
+endif
+
+ifneq ($(embedded_runpath_prefix),)
+   ifeq ($(LP64),yes)
+       runpath_libdir	  := $(embedded_runpath_prefix)/lib$(lp64suffix)
+   else
+       runpath_libdir	  := $(embedded_runpath_prefix)/lib
+   endif
+endif
+
+CPPFLAGS		=
+ICECPPFLAGS		= -I$(slicedir)
+
+LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
+
+#
+# Default functions for shared library names. A Python extension library
+# cannot have a "lib" prefix, so Python-specific functions are defined.
+#
+
+ifeq ($(mklibfilename),)
+    mklibfilename	= $(if $(2),lib$(1).so.$(2),lib$(1).so)
+endif
+
+ifeq ($(mksoname),)
+    mksoname		= $(if $(2),lib$(1).so.$(2),lib$(1).so)
+endif
+
+ifeq ($(mklibname),)
+    mklibname		= lib$(1).so
+endif
+
+ifndef mklibtargets
+    mklibtargets	= $(1) $(2) $(3)
+endif
+
+ifeq ($(mkshlib),)
+    $(error You need to define mkshlib in Make.rules.$(UNAME)) 
+endif
+
+ifeq ($(installlib),)
+    installlib		= $(INSTALL) $(2)/$(3) $(1); \
+			  rm -f $(1)/$(4); ln -s $(3) $(1)/$(4); \
+			  rm -f $(1)/$(5); ln -s $(4) $(1)/$(5); \
+			  chmod a+rx $(1)/$(3) 
+endif
+
+ifeq ($(installphplib),)
+    installphplib	= $(INSTALL) $(1) $(2); \
+			  chmod a+rx $(2)/$(notdir $(1))
+endif
+
+ifeq ($(installdata),)
+    installdata		= $(INSTALL_DATA) $(1) $(2); \
+			  chmod a+r $(2)/$(notdir $(1))
+endif
+
+ifeq ($(installprogram),)
+    installprogram	= $(INSTALL_PROGRAM) $(1) $(2); \
+			  chmod a+rx $(2)/$(notdir $(1))
+endif
+
+ifeq ($(mkdir),)
+    mkdir		= mkdir $(1) ; \
+			  chmod a+rx $(1)
+endif
+
+#
+# We don't need the "lib" prefix.
+#
+mkphplibname		= $(subst lib,,$(call mklibname,$(1)))
+
+EVERYTHING		= all depend clean install
+
+.SUFFIXES:
+.SUFFIXES:		.cpp .o .py
+
+all:: $(SRCS)
+
+.cpp.o:
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+
+clean::
+	-rm -f $(TARGETS)
+	-rm -f core *.o *.bak
+
+all:: $(SRCS) $(TARGETS)
+
+depend:: $(SRCS) $(SLICE_SRCS)
+	-rm -f .depend
+	if test -n "$(SRCS)" ; then \
+	    $(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | \
+	    $(configdir)/makedepend.py >> .depend; \
+	fi
+
+ifneq ($(TEMPLATE_REPOSITORY),)
+clean::
+	rm -fr $(TEMPLATE_REPOSITORY)
+endif
+
+install::

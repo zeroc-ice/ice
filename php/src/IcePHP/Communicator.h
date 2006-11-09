@@ -7,10 +7,10 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PHP_ICE_COMMUNICATOR_H
-#define ICE_PHP_ICE_COMMUNICATOR_H
+#ifndef ICE_PHP_COMMUNICATOR_H
+#define ICE_PHP_COMMUNICATOR_H
 
-#include "ice_common.h"
+#include <Config.h>
 
 //
 // Ice_Communicator class methods.

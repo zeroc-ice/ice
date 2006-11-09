@@ -7,15 +7,11 @@
 //
 // **********************************************************************
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
-#include "ice_communicator.h"
-#include "ice_marshal.h"
-#include "ice_profile.h"
-#include "ice_proxy.h"
-#include "ice_util.h"
+#include <Communicator.h>
+#include <Marshal.h>
+#include <Profile.h>
+#include <Proxy.h>
+#include <Util.h>
 
 using namespace std;
 using namespace IcePHP;
@@ -48,9 +44,7 @@ zend_module_entry ice_module_entry =
     STANDARD_MODULE_PROPERTIES
 };
 
-#ifdef COMPILE_DL_ICE
 ZEND_GET_MODULE(ice)
-#endif
 
 //
 // Declare initialization file entries.
@@ -139,8 +133,8 @@ ZEND_RSHUTDOWN_FUNCTION(ice)
     for(ObjectFactoryMap::iterator p = ofm->begin(); p != ofm->end(); ++p)
     {
         zval* factory = p->second;
-        zend_call_method_with_0_params(&p->second, NULL, NULL, "destroy", NULL);
-        zval_ptr_dtor(&p->second);
+        zend_call_method_with_0_params(&factory, NULL, NULL, "destroy", NULL);
+        zval_ptr_dtor(&factory);
     }
     delete ofm;
 
@@ -155,7 +149,6 @@ ZEND_MINFO_FUNCTION(ice)
     php_info_print_table_start();
     php_info_print_table_header(2, "Ice support", "enabled");
     php_info_print_table_row(2, "Ice version", ICE_STRING_VERSION);
-    php_info_print_table_row(2, "IcePHP version", ICEPHP_STRING_VERSION);
     php_info_print_table_end();
 
     DISPLAY_INI_ENTRIES();

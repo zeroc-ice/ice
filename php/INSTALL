@@ -2,275 +2,36 @@
 Requirements
 =========================================================================
 
-- PHP 5.1.4 (http://www.php.net/downloads.php)
+- PHP 5.2.0 (http://www.php.net/downloads.php)
 - Ice for C++ @ver@ Development Kit
 
 
 =========================================================================
-Building PHP with the Ice extension (Linux/Solaris/HP-UX/MacOS X/AIX)
+Building PHP with the Ice extension (Linux)
 =========================================================================
 
-PHP's build system can create several versions of the PHP interpreter.
-There are the command-line interface (CLI) and Common Gateway
-Interface (CGI) interpreters, both of which are standalone
-executables. In addition, the build system can package the interpreter
-as a shared library for use as a Web server module.
+This source distribution only supports building IcePHP as a dynamic
+PHP extension; the product of the build is a shared library that you
+must configure PHP to load.
 
-To further complicate matters, PHP extensions (such as the Ice
-extension) can be either static or dynamic. A static extension is
-compiled into the interpreter, whereas a dynamic extension is created
-as a standalone shared library that is installed in PHP via
-configuration directives.
+Follow the steps below to build IcePHP:
 
-The Ice extension for PHP supports both static and dynamic
-configurations. The only supported way to compile the Ice extension is
-as part of the larger PHP build process. Unfortunately, PHP's build
-system does not completely accommodate extensions written in C++,
-therefore some manual intervention is required on certain platforms.
+1. Edit config/Make.rules and review the build settings. For example,
+   you may want to enable OPTIMIZE. If your PHP installation resides
+   in a non-standard location, modify the PHP_HOME setting to contain
+   the installation directory.
 
-If you are compiling PHP as a Web server module, please be aware that
-you will likely also need to install the Web server's development kit.
-For example, the apxs utility is required to build PHP for Apache, and
-this utility is not typically included in an Apache run time
-installation. You must either build Apache from source, or install an
-additional package that contains Apache's development tools.
+2. Set the ICE_HOME environment variable to the directory containing
+   your Ice installation. For example, if Ice is installed in
+   /opt/Ice-@ver@, set ICE_HOME as follows:
 
+   $ export ICE_HOME=/opt/Ice-@ver@
 
-Adding the Ice extension
-------------------------
+   If you installed Ice using RPMs, set ICE_HOME as shown below:
 
-After downloading and extracting the PHP5 source code, you must
-incorporate the Ice extension sources into the PHP5 source tree.
-There are two ways to do this:
+   $ export ICE_HOME=/usr
 
-1) Copy the extension source directory.
-
-   $ cd <icephpdir>
-   $ cp -r src/ice <phpdir>/ext
-
-2) Create a symbolic link to the extension:
-
-   $ cd <phpdir>/ext
-   $ ln -s <icephpdir>/src/ice ice
-
-
-Updating configure
-------------------
-
-In order to make the PHP build system aware of the Ice extension, the
-configure script must be updated. The IcePHP distribution includes
-a replacement script that you can install:
-
-$ cd <phpdir>
-$ cp <icephpdir>/configure.gz .
-$ gunzip configure.gz
-
-Alternatively, you can regenerate the configure script yourself if you
-have the necessary utilities installed on your system:
-
-$ cd <phpdir>
-$ rm -rf configure autom4te.cache
-$ ./buildconf --force
-
-
-Running configure
------------------
-
-Set the CC and CXX environment variables to the names of your C and
-C++ compilers, respectively.
-
-You are now ready to configure PHP. To include support for a static
-Ice extension, use the --with-ice option to specify the location of
-the Ice installation:
-
-$ ./configure --with-ice=$ICE_HOME ...
-
-If you want to build a dynamic Ice extension, use this version of the
---with-ice option:
-
-$ ./configure --with-ice=shared,$ICE_HOME ...
-
-Note that additional configuration options may be generally necessary.
-Please refer to the PHP documentation for more information.
-
-
-Source patches
---------------
-
-The following changes are necessary on AIX:
-
-- Edit the file <phpdir>/Zend/zend_language_parser.c and remove line
-  2582, indicated below:
-
-  int
-  yyparse ()
-      ;      /* REMOVE THIS LINE */
-
-- Edit the file <phpdir>/Zend/zend_ini_parser.c and remove line 1078,
-  indicated below:
-
-  int
-  yyparse ()
-      ;      /* REMOVE THIS LINE */
-
-
-Platform-specific Issues
-------------------------
-
-Please refer to the relevant section for your platform below before
-proceeding any further.
-
-
-Build PHP
----------
-
-Finally, run make:
-
-$ make
-
-Note that if the Ice extension's config.m4 file is changed, then you
-must repeat the steps above to regenerate the configure script, then
-execute configure again (or use config.nice instead).
-
-See the PHP documentation for more details on the PHP build process.
-
-
-=========================================================================
-Additional Requirements for Linux with GCC
-=========================================================================
-
-If you are building the Ice extension in a dynamic configuration,
-edit the file <phpdir>/Makefile and add the following definition:
-
-     EXTRA_CXXFLAGS = -DCOMPILE_DL_ICE
-
-
-=========================================================================
-Additional Requirements for Solaris with Sun CC
-=========================================================================
-
-1. Edit the file <phpdir>/libtool, search for the line beginning with
-   "archive_cmds=", and change \$LD to \$CXX in the value of both
-   archive_cmds and archive_expsym_cmds.
-
-2. Edit the file <phpdir>/Makefile and add -D__sparc__ to CFLAGS.
-
-3. If you are building the Ice extension in a dynamic configuration,
-   edit the file <phpdir>/Makefile and add the following definition:
-
-     EXTRA_CXXFLAGS = -DCOMPILE_DL_ICE
-
-4. If you are building the Ice extension in a static configuration,
-   edit the file <phpdir>/Makefile and make the following changes:
-
-   - If the command-line interpreter is being built, search for the
-     definition of the BUILD_CLI variable and change "$(CC)" to
-     "$(CXX)".
-
-   - If the CGI interpreter is being built, search for the definition
-     of the BUILD_CGI variable and change "$(CC)" to "$(CXX)".
-
-   - If a Web server module is being built, search for the line
-     beginning with "libphp5.la:", and change "$(CC)" to "$(CXX)" in
-     that rule, as well as in the rule for "libs/libphp5.bundle"
-     below.
-
-Note that PHP 5 cannot be compiled using Sun CC 5.3.
-
-
-=========================================================================
-Additional Requirements for HP-UX with aCC
-=========================================================================
-
-The Ice extension currently cannot be used in a dynamic configuration.
-To build the Ice extension in a static configuration:
-
-- Edit the file <phpdir>/libtool, search for the line beginning with
-  "archive_cmds=", and change \$LD to \$CXX.
-
-- Edit the file <phpdir>/Makefile and make the following changes:
-
-  - Append "-lxnet" to EXTRA_LIBS, as shown below:
-
-    EXTRA_LIBS = -lm -lnsl -lIce -lSlice -lIceUtil -lxnet
-
-  - Add a definition for EXTRA_CXXFLAGS. For 32-bit platforms, use the
-    following setting:
-
-    EXTRA_CXXFLAGS = -AA +Z -mt +DA2.0N
-
-    For 64-bit platforms, use this setting:
-
-    EXTRA_CXXFLAGS = -AA +Z -mt +DD64
-
-  - Modify EXTRA_LDFLAGS_PROGRAM to append "$(EXTRA_CXXFLAGS) -Wl,+s"
-
-  - If the command-line interpreter is being built, search for the
-    definition of the BUILD_CLI variable and change "$(CC)" to
-    "$(CXX)".
-
-  - If the CGI interpreter is being built, search for the definition
-    of the BUILD_CGI variable and change "$(CC)" to "$(CXX)".
-
-  - If a Web server module is being built, search for the line
-    beginning with "libphp5.la:", and change "$(CC)" to "$(CXX)" in
-    that rule, as well as in the rule for "libs/libphp5.bundle" below.
-
-
-=========================================================================
-Additional Requirements for MacOS X
-=========================================================================
-
-Edit the file <phpdir>/libtool, search for the line beginning with
-"archive_cmds=", and change \$CC to \$CXX.
-
-If you are building the Ice extension in a static configuration, edit
-the file <phpdir>/Makefile and make the following changes:
-
-- If the command-line interpreter is being built, search for the
-  definition of the BUILD_CLI variable and change "$(CC)" to "$(CXX)".
-
-- If the CGI interpreter is being built, search for the definition of
-  the BUILD_CGI variable and change "$(CC)" to "$(CXX)".
-
-- If a Web server module is being built, search for the line beginning
-  with "libphp5.la:", and change "$(CC)" to "$(CXX)" in that rule, as
-  well as in the rule for "libs/libphp5.bundle" below.
-
-If you are building the Ice extension in a dynamic configuration,
-edit the file <phpdir>/Makefile and add the following definition:
-
-     EXTRA_CXXFLAGS = -DCOMPILE_DL_ICE
-
-
-=========================================================================
-Additional Requirements for AIX with VisualAge 6.0
-=========================================================================
-
-The Ice extension currently cannot be used in a dynamic configuration.
-To build the Ice extension in a static configuration:
-
-- Edit the file <phpdir>/Makefile and make the following changes:
-
-  - Add a definition for EXTRA_CXXFLAGS. For 32-bit platforms, use the
-    following setting:
-
-    EXTRA_CXXFLAGS = -brtl -qrtti=all -qstaticinline -D_LARGE_FILES
-
-    For 64-bit platforms, use this setting:
-
-    EXTRA_CXXFLAGS = -brtl -qrtti=all -qstaticinline
-
-  - If the command-line interpreter is being built, search for the
-    definition of the BUILD_CLI variable and change "$(CC)" to
-    "$(CXX)".
-
-  - If the CGI interpreter is being built, search for the definition
-    of the BUILD_CGI variable and change "$(CC)" to "$(CXX)".
-
-  - If a Web server module is being built, search for the line
-    beginning with "libphp5.la:", and change "$(CC)" to "$(CXX)" in
-    that rule, as well as in the rule for "libs/libphp5.bundle" below.
+3. Run make.
 
 
 =========================================================================
@@ -295,80 +56,82 @@ distribution results in undefined behavior.
 
 To use a later version of Visual C++, you must obtain (or build) PHP5
 with the desired compiler, and use the same compiler to build the Ice
-extension.
+extension. Refer to the PHP documentation for instructions on building
+PHP5 from source.
 
 Follow these instructions to build the Ice extension:
 
 1) Download and extract the PHP5 sources so that the PHP header files
-   are available.
+   are available. (It is not necessary for you to build PHP5 from
+   sources.)
 
-2) Download and extract the PHP5 binary distribution for Windows.
+2) Open a command window.
 
-3) Have a suitable Ice development environment.
+3) Set the ICE_HOME environment variable to the location of your Ice
+   installation. For example:
 
-4) Configure the include and library paths in Visual C++ for PHP and
-   Ice. Assuming that you've extracted the PHP5 sources into C:\PHP5,
-   the binary distribution into C:\PHP5-Win32, and installed Ice into
-   C:\Ice, then the following paths must be configured:
+   > set ICE_HOME=C:\Ice-@ver@-VC60
 
-   Include:
-     C:\PHP5
-     C:\PHP5\main
-     C:\PHP5\Zend
-     C:\PHP5\TSRM
-     C:\Ice\include
+4) Change to the IcePHP source directory.
 
-   Library:
-     C:\PHP5-Win32\dev
-     C:\Ice\lib
+5) Open config\Make.rules.mak, review the comments, and make any
+   necessary changes.
 
-   If you are using Visual C++ 6.0, then you must also be sure to
-   include the appropriate paths for STLport.
+6) Start NMAKE:
 
-4) Open the workspace icephp.dsw, select the Debug or Release
-   configuration, and build php_ice.dll. Note that the Ice extension
-   must be compiled using the same Debug/Release configuration as PHP
-   itself. If you are linking against the dynamic libraries included
-   in the binary PHP distribution, you must use the Release
-   configuration when compiling the Ice extension.
+   > nmake /f Makefile.mak
+
+7) Upon successful completion, the IcePHP extension is created as
+   bin\php_ice.dll (Release) or bin\php_iced.dll (Debug).
 
 
 =========================================================================
-Installing a Dynamic Extension
+Installing the Extension
 =========================================================================
 
-If you are using the dynamic Ice extension, you must move the
-extension's shared library into PHP's extension directory. This
-directory is determined by the PHP configuration directive
-"extension_dir". You can determine the default value for this
-directive by running the command-line version of PHP with the -i
-option.
+To install the Ice extension, you must move the extension's shared
+library into PHP's extension directory. This directory is determined
+by the PHP configuration directive "extension_dir". You can determine
+the default value for this directive by running the command-line
+version of PHP with the -i option:
 
-After compiling the dynamic extension on Linux and Solaris, the shared
-library can be found in the "modules" subdirectory of the PHP source
-tree. If you've compiled the dynamic Ice extension on Windows, the
-DLL is located in bin/debug/php_ice.dll or bin/release/php_ice.dll,
-depending on the build configuration you selected.
+> php -i
+...
+extension_dir => C:\php5 => C:\php5
+...
 
-Once you've copied the dynamic extension to PHP's extension directory,
-you will need to enable the extension in PHP configuration. In php.ini,
-use the following directive on Linux and Solaris:
+After successfully building the extension on Linux, the shared library
+can be found in lib/IcePHP.so. On Windows, the DLL is located in
+bin/debug/php_ice.dll or bin/release/php_ice.dll, depending on the
+build configuration you selected.
 
-extension = ice.so
+Once you've copied the extension to PHP's extension directory, you
+will need to enable the extension in your PHP configuration. In the
+php.ini file, use the following directive on Linux:
+
+extension = IcePHP.so
 
 On Windows, use this directive:
 
 extension = php_ice.dll
+
+You can use the "php -i" command to determine the proper directory in
+which to place the php.ini file:
+
+> php -i
+...
+Configuration File (php.ini) Path => C:\WINDOWS
+...
 
 
 =========================================================================
 Dependencies
 =========================================================================
 
-Whether you build a dynamic or static Ice extension, PHP will need
-to be able to locate the Ice run-time libraries "Ice", "Slice",
-"IceUtil" and "bzip2" (Windows) or "libbz2" (Unix). In general, these
-libraries must reside in a directory of the user's PATH.
+PHP will need to be able to locate the Ice run-time libraries "Ice",
+"Slice", "IceUtil" and "bzip2" (Windows) or "libbz2" (Unix). In
+general, these libraries must reside in a directory of the user's
+PATH.
 
 For Web servers, the libraries may need to reside in a system
 directory. For example, on Linux you can add the directory containing
@@ -381,7 +144,7 @@ examining the output of the "php -m" command, or by calling the
 phpinfo() function from a script.
 
 Note that if you want to use IceSSL from the Ice extension, then PHP
-will also need access to the shared library for IceSSL.
+will also need access to the shared libraries for IceSSL and OpenSSL.
 
 Finally, the Ice extension will need to execute the Ice preprocessor
 (icecpp), therefore this binary must reside in an accessible directory.
@@ -391,26 +154,32 @@ Finally, the Ice extension will need to execute the Ice preprocessor
 SELinux Notes
 =========================================================================
 
-On Fedora Linux and a number of other Linux distributions, SELinux 
-augments the traditional Unix permissions with a number of new features. 
-In particular, SELinux can prevent the httpd daemon from opening
-network connections and reading files without the proper SELinux types.
+SELinux augments the traditional Unix permissions with a number of
+new features. In particular, SELinux can prevent the httpd daemon from
+opening network connections and reading files without the proper
+SELinux types.
 
 If you suspect that your IcePHP application does not work due to
-SELinux restrictions, we recommend to first try with SELinux disabled.
-As root, run:
+SELinux restrictions, we recommend that you first try it with SELinux
+disabled. As root, run:
 
 # setenforce 0
 
 to disable SELinux until the next reboot of your computer.
 
-If you want to run httpd with IcePHP and SELinux enabled, you need to:
- - allow httpd to open network connections:
+If you want to run httpd with IcePHP and SELinux enabled, you must do
+the following:
+
+- Allow httpd to open network connections:
+
   # setsebool httpd_can_network_connect=1 
-  (use the -P option to make this setting persistent across reboots)
- - make sure any .ice file used by your PHP scripts can be read by 
+
+  (add the -P option to make this setting persistent across reboots)
+
+- Make sure any .ice file used by your PHP scripts can be read by 
   httpd. The enclosing directory also needs to be accessible. For
   example:
+
   # chcon -R -t httpd_sys_content_t /opt/MyApp/slice 
 
 See this FAQ for more information on SELinux:
@@ -428,8 +197,7 @@ or later, and the Ice for C++ tests must be built in the directory
 specified by the ICE_HOME environment variable.
 
 The test scripts require that the CLI version of the PHP interpreter
-be available in your PATH, and assume that the Ice extension was
-built in a static configuration.
+be available in your PATH.
 
 To run all of the tests, do the following:
 
@@ -439,10 +207,3 @@ You can also run tests individually by changing to the test directory
 and running this command:
 
 $ python run.py
-
-In order to run the tests using a dynamic Ice extension, you will
-need to edit the php.ini files in each test directory and add the
-following configuration directives:
-
-extension_dir=<phpdir>/modules
-extension=ice.so

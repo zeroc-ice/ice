@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PHP_ICE_COMMON_H
-#define ICE_PHP_ICE_COMMON_H
+#ifndef ICE_PHP_CONFIG_H
+#define ICE_PHP_CONFIG_H
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1300)
     // Necessary for TryEnterCriticalSection. VC 7.x only.
@@ -39,6 +39,37 @@ extern "C"
 }
 #endif
 
-#include "php_ice.h"
+extern zend_module_entry ice_module_entry;
+#define phpext_ice_ptr &ice_module_entry
+
+#ifdef PHP_WIN32
+#define PHP_ICE_API __declspec(dllexport)
+#else
+#define PHP_ICE_API
+#endif
+
+#ifdef ZTS
+#include "TSRM.h"
+#endif
+
+ZEND_MINIT_FUNCTION(ice);
+ZEND_MSHUTDOWN_FUNCTION(ice);
+ZEND_RINIT_FUNCTION(ice);
+ZEND_RSHUTDOWN_FUNCTION(ice);
+ZEND_MINFO_FUNCTION(ice);
+
+ZEND_BEGIN_MODULE_GLOBALS(ice)
+    zval* communicator;
+    void* marshalerMap;
+    void* profile;
+    void* properties;
+    void* objectFactoryMap;
+ZEND_END_MODULE_GLOBALS(ice)
+
+#ifdef ZTS
+#define ICE_G(v) TSRMG(ice_globals_id, zend_ice_globals*, v)
+#else
+#define ICE_G(v) (ice_globals.v)
+#endif
 
 #endif

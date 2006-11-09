@@ -7,12 +7,8 @@
 //
 // **********************************************************************
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
-#include "ice_profile.h"
-#include "ice_util.h"
+#include <Profile.h>
+#include <Util.h>
 
 #include <Slice/Preprocessor.h>
 #include <IceUtil/Options.h>

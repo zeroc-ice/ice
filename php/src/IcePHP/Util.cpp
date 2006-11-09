@@ -7,11 +7,7 @@
 //
 // **********************************************************************
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
-#include "ice_util.h"
+#include <Util.h>
 #include <IceUtil/DisableWarnings.h>
 #include <Ice/IdentityUtil.h>
 #include <algorithm>
@@ -210,9 +206,6 @@ IcePHP::extractIdentity(zval* zv, Ice::Identity& id TSRMLS_DC)
 bool
 IcePHP::createContext(zval* zv, const Ice::Context& ctx TSRMLS_DC)
 {
-    zend_class_entry* cls = findClass("Ice_Identity" TSRMLS_CC);
-    assert(cls);
-
     array_init(zv);
     for(Ice::Context::const_iterator p = ctx.begin(); p != ctx.end(); ++p)
     {

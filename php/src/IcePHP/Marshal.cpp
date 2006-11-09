@@ -7,14 +7,10 @@
 //
 // **********************************************************************
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
-#include "ice_marshal.h"
-#include "ice_profile.h"
-#include "ice_proxy.h"
-#include "ice_util.h"
+#include <Marshal.h>
+#include <Profile.h>
+#include <Proxy.h>
+#include <Util.h>
 
 #include <IceUtil/InputUtil.h>
 #include <IceUtil/ScopedArray.h>

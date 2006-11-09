@@ -1,0 +1,6 @@
+Communicator$(OBJEXT): Communicator.cpp ./Communicator.h ./Config.h ./Proxy.h ./Marshal.h ./Util.h
+Init$(OBJEXT): Init.cpp ./Communicator.h ./Config.h ./Marshal.h ./Profile.h ./Proxy.h ./Util.h
+Marshal$(OBJEXT): Marshal.cpp ./Marshal.h ./Config.h ./Profile.h ./Proxy.h ./Util.h
+Profile$(OBJEXT): Profile.cpp ./Profile.h ./Config.h ./Util.h
+Proxy$(OBJEXT): Proxy.cpp ./Proxy.h ./Config.h ./Communicator.h ./Marshal.h ./Profile.h ./Util.h
+Util$(OBJEXT): Util.cpp ./Util.h ./Config.h

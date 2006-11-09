@@ -7,16 +7,12 @@
 //
 // **********************************************************************
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include <IceUtil/DisableWarnings.h>
-#include "ice_proxy.h"
-#include "ice_communicator.h"
-#include "ice_marshal.h"
-#include "ice_profile.h"
-#include "ice_util.h"
+#include <Proxy.h>
+#include <Communicator.h>
+#include <Marshal.h>
+#include <Profile.h>
+#include <Util.h>
 
 using namespace std;
 using namespace IcePHP;
@@ -199,7 +195,6 @@ static function_entry _proxyMethods[] =
     {"ice_timeout",                PHP_FN(Ice_ObjectPrx_ice_timeout),                NULL},
     {"ice_connectionId",           PHP_FN(Ice_ObjectPrx_ice_connectionId),           NULL},
     {"ice_getConnection",          PHP_FN(Ice_ObjectPrx_ice_getConnection),          NULL},
-    {"ice_getCachedConnection",    PHP_FN(Ice_ObjectPrx_ice_getCachedConnection),    NULL},
     {"ice_uncheckedCast",          PHP_FN(Ice_ObjectPrx_ice_uncheckedCast),          NULL},
     {"ice_checkedCast",            PHP_FN(Ice_ObjectPrx_ice_checkedCast),            NULL},
     {NULL, NULL, NULL}
@@ -1544,32 +1539,6 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getConnection)
     }
 }
 
-ZEND_FUNCTION(Ice_ObjectPrx_ice_getCachedConnection)
-{
-    if(ZEND_NUM_ARGS() != 0)
-    {
-	WRONG_PARAM_COUNT;
-    }
-
-    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
-    assert(obj->ptr);
-    Proxy* _this = static_cast<Proxy*>(obj->ptr);
-
-    try
-    {
-	Ice::ConnectionPtr con = _this->getProxy()->ice_getCachedConnection();
-	if(!con || !createConnection(return_value, con TSRMLS_CC))
-	{
-	    RETURN_NULL();
-	}
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-	throwException(ex TSRMLS_CC);
-	RETURN_NULL();
-    }
-}
-
 static void
 do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
 {
@@ -2107,7 +2076,7 @@ IcePHP::Operation::throwUserException(Ice::InputStreamPtr& is TSRMLS_DC)
 {
     Slice::UnitPtr unit = _op->unit();
 
-    bool usesClasses = is->readBool();
+    is->readBool(); // usesClasses
 
     string id = is->readString();
     while(!id.empty())
