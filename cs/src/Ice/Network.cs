@@ -747,8 +747,13 @@ namespace IceInternal
                 }
 		IPHostEntry e = Dns.GetHostEntry(host);
 #endif
-		Debug.Assert(e.AddressList.Length != 0);
-		return new IPEndPoint(e.AddressList[0], port);
+		for(int i = 0; i < e.AddressList.Length; ++i)
+		{
+		    if(e.AddressList[i].AddressFamily != AddressFamily.InterNetworkV6)
+		    {
+		        return new IPEndPoint(e.AddressList[i], port);
+		    }
+		}
 	    }
 	    catch(Win32Exception ex)
 	    {
@@ -766,6 +771,13 @@ namespace IceInternal
 		e.host = host;
 		throw e;
 	    }
+
+	    //
+	    // No InterNetworkV4 address available.
+	    //
+	    Ice.DNSException dns = new Ice.DNSException("no IPv4 addresses found ");
+	    dns.host = host;
+	    throw dns;
 	}
 	
 	public static string getNumericHost(string hostname)
@@ -773,14 +785,20 @@ namespace IceInternal
 	    int retry = 5;
 
 	repeatGetHostByName:
-	    string numericHost;
 	    try
 	    {
 #if ICE_DOTNET_1X
-	        numericHost = Dns.GetHostByName(hostname).AddressList[0].ToString();
+	        IPHostEntry e = Dns.GetHostByName(hostname);
 #else
-	        numericHost = Dns.GetHostEntry(hostname).AddressList[0].ToString();
+	        IPHostEntry e = Dns.GetHostEntry(hostname);
 #endif
+		for(int i = 0; i < e.AddressList.Length; ++i)
+		{
+		    if(e.AddressList[i].AddressFamily != AddressFamily.InterNetworkV6)
+		    {
+		        return e.AddressList[i].ToString();
+		    }
+		}
 	    }
 	    catch(Win32Exception ex)
 	    {
@@ -792,13 +810,19 @@ namespace IceInternal
 	        e.host = hostname;
 	        throw e;
 	    }
-		catch(System.Exception ex)
+	    catch(System.Exception ex)
 	    {
 	        Ice.DNSException e = new Ice.DNSException("address lookup failed", ex);
 	        e.host = hostname;
 	        throw e;
 	    }
-	    return numericHost;
+
+	    //
+	    // No InterNetworkV4 address available.
+	    //
+	    Ice.DNSException dns = new Ice.DNSException("no IPv4 addresses found");
+	    dns.host = hostname;
+	    throw dns;
 	}
 
 	public static string[] getLocalHosts()
