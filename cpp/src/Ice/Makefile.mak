@@ -140,6 +140,7 @@ clean::
 	del /q Current.cpp $(HDIR)\Current.h
 	del /q Endpoint.cpp $(HDIR)\Endpoint.h
 	del /q FacetMap.cpp $(HDIR)\FacetMap.h
+	del /q ImplicitContextF.cpp $(HDIR)\ImplicitContextF.h	
 	del /q ImplicitContext.cpp $(HDIR)\ImplicitContext.h	
 	del /q Identity.cpp $(HDIR)\Identity.h
 	del /q LocalException.cpp $(HDIR)\LocalException.h
