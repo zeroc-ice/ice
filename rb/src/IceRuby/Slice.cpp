@@ -35,12 +35,13 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
 	{
 	    argSeq = IceUtil::Options::split(cmd);
 	}
-	catch(const IceUtil::Exception& ex)
+	catch(const IceUtil::BadOptException& ex)
 	{
-	    ostringstream ostr;
-	    ex.ice_print(ostr);
-	    string msg = ostr.str();
-	    throw RubyException(rb_eArgError, "error in Slice options:\n%s", msg.c_str());
+	    throw RubyException(rb_eArgError, "error in Slice options: %s", ex.reason.c_str());
+	}
+	catch(const IceUtil::APIException& ex)
+	{
+	    throw RubyException(rb_eArgError, "error in Slice options: %s", ex.reason.c_str());
 	}
 
 	if(argc > 1)
@@ -71,12 +72,13 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
 		throw RubyException(rb_eArgError, "no Slice files specified in `%s'", cmd.c_str());
 	    }
 	}
-	catch(const IceUtil::Exception& ex)
+	catch(const IceUtil::BadOptException& ex)
 	{
-	    ostringstream ostr;
-	    ex.ice_print(ostr);
-	    string msg = ostr.str();
-	    throw RubyException(rb_eArgError, "error in Slice options:\n%s", msg.c_str());
+	    throw RubyException(rb_eArgError, "error in Slice options: %s", ex.reason.c_str());
+	}
+	catch(const IceUtil::APIException& ex)
+	{
+	    throw RubyException(rb_eArgError, "error in Slice options: %s", ex.reason.c_str());
 	}
 
 	string cppArgs;
