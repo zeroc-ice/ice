@@ -30,6 +30,16 @@ IceUtil::APIException::ice_name() const
     return _name;
 }
 
+void
+IceUtil::APIException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    if(!reason.empty())
+    {
+	out << ": " << reason;
+    }
+}
+
 IceUtil::Exception*
 IceUtil::APIException::ice_clone() const
 {
@@ -46,7 +56,6 @@ ostream&
 IceUtil::operator<<(ostream& out, const IceUtil::APIException& ex)
 {
     ex.ice_print(out);
-    out << ": " << ex.reason;
     return out;
 }
 
@@ -67,6 +76,16 @@ IceUtil::BadOptException::ice_name() const
     return _name;
 }
 
+void
+IceUtil::BadOptException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    if(!reason.empty())
+    {
+	out << ": " << reason;
+    }
+}
+
 IceUtil::Exception*
 IceUtil::BadOptException::ice_clone() const
 {
@@ -83,7 +102,6 @@ ostream&
 IceUtil::operator<<(ostream& out, const IceUtil::BadOptException& ex)
 {
     ex.ice_print(out);
-    out << ": " << ex.reason;
     return out;
 }
 
