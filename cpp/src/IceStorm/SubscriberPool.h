@@ -10,7 +10,7 @@
 #ifndef SUBSCRIBER_POOL_H
 #define SUBSCRIBER_POOL_H
 
-#include <IceStorm/Subscribers.h>
+#include <IceStorm/Subscriber.h>
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>

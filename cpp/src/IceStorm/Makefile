@@ -31,7 +31,7 @@ SERVICE_OBJS	= IceStorm.o \
 		  BatchFlusher.o \
 		  SubscriberPool.o \
 		  KeepAliveThread.o \
-		  Subscribers.o \
+		  Subscriber.o \
 		  TopicI.o \
 		  TopicManagerI.o \
                   PersistentTopicMap.o \

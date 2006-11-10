@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <IceStorm/Subscribers.h>
+#include <IceStorm/Subscriber.h>
 #include <IceStorm/Instance.h>
 #include <IceStorm/TraceLevels.h>
 #include <IceStorm/BatchFlusher.h>
@@ -217,12 +217,13 @@ SubscriberOneway::flush()
 	sync.release();
 	
 	// XXX:
+	/*
 	TraceLevelsPtr traceLevels = _instance->traceLevels();
 	if(_obj->ice_getIdentity().name.substr(0, 4) == "slow")
 	{
 	    //Ice::Trace out(traceLevels->logger, traceLevels->subscriberCat);
 	    //out << "deliberately stalling";
-	    IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(2));
+	    sleep(2);
 	}
 	if(_obj->ice_getIdentity().name.substr(0, 5) == "block")
 	{
@@ -230,12 +231,13 @@ SubscriberOneway::flush()
 		Ice::Trace out(traceLevels->logger, traceLevels->subscriberCat);
 		out << "-> stall for 100s";
 	    }
-	    IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(100));
+	    sleep(100);
 	    {
 		Ice::Trace out(traceLevels->logger, traceLevels->subscriberCat);
 		out << "<- stall for 100s";
 	    }
 	}
+	*/
 
 	//
 	// Deliver the events without holding the lock.

@@ -10,7 +10,7 @@
 #include <IceStorm/SubscriberPool.h>
 #include <IceStorm/Instance.h>
 #include <IceStorm/TraceLevels.h>
-#include <IceStorm/Subscribers.h>
+#include <IceStorm/Subscriber.h>
 
 #include <Ice/Communicator.h>
 #include <Ice/Properties.h>

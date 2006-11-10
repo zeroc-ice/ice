@@ -9,7 +9,7 @@
 
 #include <IceStorm/TopicI.h>
 #include <IceStorm/Instance.h>
-#include <IceStorm/Subscribers.h>
+#include <IceStorm/Subscriber.h>
 #include <IceStorm/TraceLevels.h>
 #include <IceStorm/Event.h>
 #include <IceStorm/KeepAliveThread.h>
