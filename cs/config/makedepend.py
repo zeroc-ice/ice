@@ -8,12 +8,26 @@
 #
 # **********************************************************************
 
-import fileinput, re
+import fileinput, re, os, string
+
+for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+    toplevel = os.path.normpath(toplevel)
+    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
+        break
+else:
+    raise "can't find toplevel directory!"
+
+if os.path.exists(os.path.join(toplevel, "slice")):
+    slicedir = os.path.join(toplevel, "slice")
+else:
+    slicedir = os.path.join(os.getenv("ICE_HOME", ""), "slice")
 
 previous = ""
 
 for line in fileinput.input():
     line = line.strip()
+
+    line = string.replace(line, slicedir, "$(slicedir)")
 
     if(previous):
         line = previous + " " + line
