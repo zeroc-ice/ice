@@ -239,7 +239,7 @@ $(HDIR)/%.h %.cpp: $(SDIR)/%.ice
 
 all:: $(SRCS) $(TARGETS)
 
-depend:: $(SRCS) $(SLICE_SRCS)
+depend:: $(SRCS) $(patsubst $(SDIR)/%.ice,$(HDIR)/%.h,$(wildcard $(SDIR)/*F.ice)) $(SLICE_SRCS)
 	-rm -f .depend
 	if test -n "$(SRCS)" ; then \
 	    $(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | \

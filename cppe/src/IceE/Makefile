@@ -49,10 +49,8 @@ LOCAL_OBJS	= BasicStream.o \
 		  LocalException.o \
 		  LocalObject.o \
 		  Locator.o \
-		  LocatorF.o \
 		  LocatorInfo.o \
 		  Logger.o \
-		  LoggerF.o \
 		  LoggerI.o \
 		  LoggerUtil.o \
 		  Network.o \
@@ -70,7 +68,6 @@ LOCAL_OBJS	= BasicStream.o \
 		  Reference.o \
 		  ReferenceFactory.o \
 		  Router.o \
-		  RouterF.o \
 		  RouterInfo.o \
 		  RWRecMutex.o \
 		  SafeStdio.o \

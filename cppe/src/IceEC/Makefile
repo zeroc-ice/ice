@@ -73,11 +73,8 @@ ICE_OBJS	= BasicStream.o \
 LOCAL_OBJS	= BuiltinSequences.o \
 		  Identity.o \
 		  Locator.o \
-		  LocatorF.o \
 		  Logger.o \
-		  LoggerF.o \
-		  Router.o \
-		  RouterF.o
+		  Router.o
 
 OBJS		= $(LOCAL_OBJS) $(ICE_OBJS) $(TRANSPORT_OBJS)
 
