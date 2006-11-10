@@ -660,6 +660,11 @@ NodeService::stop()
     // Terminate the node sessions with the registries.
     //
     _sessions.destroy();
+
+    //
+    // Break cylic reference counts.
+    //
+    _node->destroy();
     _node = 0;
 
     //

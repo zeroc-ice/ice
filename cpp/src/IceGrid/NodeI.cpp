@@ -510,6 +510,13 @@ NodeI::shutdown(const Ice::Current&) const
     _activator->shutdown();
 }
 
+void
+NodeI::destroy()
+{
+    IceUtil::Mutex::Lock sync(_serversLock);
+    _serversByApplication.clear();
+}
+
 Ice::CommunicatorPtr
 NodeI::getCommunicator() const
 {
@@ -593,10 +600,11 @@ NodeI::checkConsistency(const NodeSessionPrx& session)
 }
 
 void
-NodeI::addObserver(const string& replicaName, const NodeObserverPrx& observer)
+NodeI::addObserver(const NodeSessionPrx& session, const NodeObserverPrx& observer)
 {
     IceUtil::Mutex::Lock sync(_observerMutex);
-    _observers.insert(make_pair(replicaName, observer));
+    assert(_observers.find(session) == _observers.end());
+    _observers.insert(make_pair(session, observer));
 
     ServerDynamicInfoSeq serverInfos;
     AdapterDynamicInfoSeq adapterInfos;
@@ -630,10 +638,11 @@ NodeI::addObserver(const string& replicaName, const NodeObserverPrx& observer)
 }
 
 void
-NodeI::removeObserver(const string& replicaName)
+NodeI::removeObserver(const NodeSessionPrx& session)
 {
     IceUtil::Mutex::Lock sync(_observerMutex);
-    _observers.erase(replicaName);
+    assert(_observers.find(session) != _observers.end());
+    _observers.erase(session);
 }
 
 void
@@ -650,15 +659,26 @@ NodeI::observerUpdateServer(const ServerDynamicInfo& info)
 	_serversDynamicInfo[info.id] = info;
     }
 
-    for(map<string, NodeObserverPrx>::const_iterator p = _observers.begin(); p != _observers.end(); ++p)
+    //
+    // Send the update and make sure we don't send the update twice to
+    // the same observer (it's possible for the observer to be
+    // registered twice if a replica is removed and added right away
+    // after).
+    //
+    set<NodeObserverPrx> sent;
+    for(map<NodeSessionPrx, NodeObserverPrx>::const_iterator p = _observers.begin(); p != _observers.end(); ++p)
     {
-	try
+	if(sent.find(p->second) == sent.end())
 	{
-	    p->second->updateServer(_name, info);
-	}
-	catch(const Ice::LocalException&)
-	{
-	    // IGNORE
+	    try
+	    {
+		p->second->updateServer(_name, info);
+		sent.insert(p->second);
+	    }
+	    catch(const Ice::LocalException&)
+	    {
+		// IGNORE
+	    }
 	}
     }
 }
@@ -677,15 +697,25 @@ NodeI::observerUpdateAdapter(const AdapterDynamicInfo& info)
 	_adaptersDynamicInfo.erase(info.id);
     }
 
-    for(map<string, NodeObserverPrx>::const_iterator p = _observers.begin(); p != _observers.end(); ++p)
+    //
+    // Send the update and make sure we don't send the update twice to
+    // the same observer (it's possible for the observer to be
+    // registered twice if a replica is removed and added right away
+    // after).
+    //
+    set<NodeObserverPrx> sent;
+    for(map<NodeSessionPrx, NodeObserverPrx>::const_iterator p = _observers.begin(); p != _observers.end(); ++p)
     {
-	try
+	if(sent.find(p->second) == sent.end())
 	{
-	    p->second->updateAdapter(_name, info);
-	}
-	catch(const Ice::LocalException&)
-	{
-	    // IGNORE
+	    try
+	    {
+		p->second->updateAdapter(_name, info);
+	    }
+	    catch(const Ice::LocalException&)
+	    {
+		// IGNORE
+	    }
 	}
     }
 }

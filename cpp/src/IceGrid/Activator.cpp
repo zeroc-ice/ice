@@ -989,60 +989,16 @@ Activator::shutdown()
 void
 Activator::destroy()
 {
-    {
-	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
-	assert(_deactivating);
-    }
-
-    //
-    // Deactivate all the processes.
-    //
-    deactivateAll();
-
-    //
-    // Join the termination listener thread. This thread terminates
-    // when there's no more processes and when _deactivating is set to
-    // true.
-    //
-    _thread->getThreadControl().join();
-    _thread = 0;
-}
-
-void
-Activator::runTerminationListener()
-{
-    while(true)
-    {
-	try
-	{
-	    terminationListener();
-	    break;
-	}
-	catch(const Exception& ex)
-	{
-	    Error out(_traceLevels->logger);
-	    out << "exception in process termination listener:\n" << ex;
-	}
-	catch(...)
-	{
-	    Error out(_traceLevels->logger);
-	    out << "unknown exception in process termination listener";
-	}
-    }
-}
-
-void
-Activator::deactivateAll()
-{
-    //
-    // Stop all active processes.
-    //
     map<string, Process> processes;
     {
 	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+	assert(_deactivating);
 	processes = _processes;
     }
 
+    //
+    // Stop all active processes.
+    //
     for(map<string, Process>::iterator p = processes.begin(); p != processes.end(); ++p)
     {
 	//
@@ -1068,6 +1024,38 @@ Activator::deactivateAll()
 	{
 	    Ice::Warning out(_traceLevels->logger);
 	    out << "unexpected exception raised by server `" << p->first << "' stop:\n" << ex;
+	}
+    }
+
+    //
+    // Join the termination listener thread. This thread terminates
+    // when there's no more processes and when _deactivating is set to
+    // true.
+    //
+    _thread->getThreadControl().join();
+    _thread = 0;
+    assert(_processes.empty());
+}
+
+void
+Activator::runTerminationListener()
+{
+    while(true)
+    {
+	try
+	{
+	    terminationListener();
+	    break;
+	}
+	catch(const Exception& ex)
+	{
+	    Error out(_traceLevels->logger);
+	    out << "exception in process termination listener:\n" << ex;
+	}
+	catch(...)
+	{
+	    Error out(_traceLevels->logger);
+	    out << "unknown exception in process termination listener";
 	}
     }
 }

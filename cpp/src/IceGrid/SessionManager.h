@@ -96,7 +96,7 @@ public:
 		//
 		if(_nextAction == None)
 		{
-		    if(_state == Connected || (action == Connect || action == KeepAlive))
+		    if(_state == Connected || action == Connect || action == KeepAlive)
 		    {
 			IceUtil::Time wakeTime = IceUtil::Time::now() + timeout;
 			while(_state != Destroyed && _nextAction == None)

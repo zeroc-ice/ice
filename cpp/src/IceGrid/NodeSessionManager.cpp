@@ -140,14 +140,14 @@ NodeSessionKeepAliveThread::createSessionImpl(const InternalRegistryPrx& registr
     {
 	timeout = IceUtil::Time::seconds(t / 2);
     }
-    _node->addObserver(_name, session->getObserver());
+    _node->addObserver(session, session->getObserver());
     return session;
 }
 
 void 
 NodeSessionKeepAliveThread::destroySession(const NodeSessionPrx& session)
 {
-    _node->removeObserver(_name);
+    _node->removeObserver(session);
 
     try
     {
@@ -185,6 +185,8 @@ NodeSessionKeepAliveThread::keepAlive(const NodeSessionPrx& session)
     }
     catch(const Ice::LocalException& ex)
     {
+	_node->removeObserver(session);
+
 	if(_node->getTraceLevels() && _node->getTraceLevels()->replica > 0)
 	{
 	    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->replicaCat);
@@ -343,6 +345,7 @@ NodeSessionManager::replicaRemoved(const InternalRegistryPrx& replica)
     }
     if(thread)
     {
+	_node->removeObserver(thread->getSession()); // Needs to be done here because we don't destroy the session.
 	thread->terminate(false); // Don't destroy the session, the replica is being shutdown!
 	thread->getThreadControl().join();
     }

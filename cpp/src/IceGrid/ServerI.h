@@ -170,6 +170,8 @@ class ServerCommand : public IceUtil::SimpleShared
 public:
 
     ServerCommand(const ServerIPtr&);
+    virtual ~ServerCommand();
+
     virtual void execute() = 0;
     virtual ServerI::InternalServerState nextState() = 0;
 

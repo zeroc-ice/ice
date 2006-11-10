@@ -103,7 +103,7 @@ WaitQueue::run()
 	    break;
 	}
     }
-    
+
     if(!_waitQueue.empty())
     {
 	for(list<WaitItemPtr>::iterator p = _waitQueue.begin(); p != _waitQueue.end(); ++p)
@@ -111,6 +111,7 @@ WaitQueue::run()
 	    (*p)->expired(true);
 	}
     }
+    _waitQueue.clear(); // Break cyclic reference counts.
 }
 
 void

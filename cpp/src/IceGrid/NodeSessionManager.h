@@ -34,6 +34,8 @@ public:
     virtual void destroySession(const NodeSessionPrx&);
     virtual bool keepAlive(const NodeSessionPrx&);
 
+    std::string getName() const { return _name; }
+
 protected:
 
     virtual NodeSessionPrx createSessionImpl(const InternalRegistryPrx&, IceUtil::Time&);

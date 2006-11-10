@@ -53,6 +53,8 @@ public:
     virtual std::string getHostname(const Ice::Current& = Ice::Current()) const;
     virtual LoadInfo getLoad(const Ice::Current& = Ice::Current()) const;
     virtual void shutdown(const Ice::Current&) const;
+
+    void destroy();
     
     WaitQueuePtr getWaitQueue() const;
     Ice::CommunicatorPtr getCommunicator() const;
@@ -66,8 +68,8 @@ public:
     void checkConsistency(const NodeSessionPrx&);
     NodeSessionPrx getMasterNodeSession() const;
 
-    void addObserver(const std::string&, const NodeObserverPrx&);
-    void removeObserver(const std::string&);
+    void addObserver(const NodeSessionPrx&, const NodeObserverPrx&);
+    void removeObserver(const NodeSessionPrx&);
     void observerUpdateServer(const ServerDynamicInfo&);
     void observerUpdateAdapter(const AdapterDynamicInfo&);
 
@@ -99,7 +101,7 @@ private:
     std::string _tmpDir;
     unsigned long _serial;
     IceUtil::Mutex _observerMutex;
-    std::map<std::string, NodeObserverPrx> _observers;
+    std::map<NodeSessionPrx, NodeObserverPrx> _observers;
     std::map<std::string, ServerDynamicInfo> _serversDynamicInfo;
     std::map<std::string, AdapterDynamicInfo> _adaptersDynamicInfo;
     mutable PlatformInfo _platform;

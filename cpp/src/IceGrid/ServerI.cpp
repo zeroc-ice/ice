@@ -262,21 +262,30 @@ ServerCommand::ServerCommand(const ServerIPtr& server) : _server(server)
 {
 }
 
+ServerCommand::~ServerCommand()
+{
+}
+
 TimedServerCommand::TimedServerCommand(const ServerIPtr& server, const WaitQueuePtr& waitQueue, int timeout) : 
-    ServerCommand(server), _waitQueue(waitQueue), _timer(new CommandTimeoutItem(this)), _timeout(timeout)
+    ServerCommand(server), _waitQueue(waitQueue), _timeout(timeout)
 {
 }
 
 void
 TimedServerCommand::startTimer()
 {
+    _timer = new CommandTimeoutItem(this);
     _waitQueue->add(_timer, IceUtil::Time::seconds(_timeout));
 }
 
 void
 TimedServerCommand::stopTimer()
 {
-    _waitQueue->remove(_timer);
+    if(_timer)
+    {
+	_waitQueue->remove(_timer);
+	_timer = 0;
+    }
 }
 
 LoadCommand::LoadCommand(const ServerIPtr& server) : 
@@ -394,7 +403,7 @@ DestroyCommand::finished()
     for(vector<AMD_Node_destroyServerPtr>::const_iterator p = _destroyCB.begin(); p != _destroyCB.end(); ++p)
     {
         (*p)->ice_response();
-    }	
+    }
 }
 
 PatchCommand::PatchCommand(const ServerIPtr& server) : 

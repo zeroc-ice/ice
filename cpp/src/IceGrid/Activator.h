@@ -57,8 +57,6 @@ public:
 
 private:
 
-    void deactivateAll();    
-
     void terminationListener();
     void clearInterrupt();
     void setInterrupt();
