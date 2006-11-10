@@ -94,36 +94,24 @@ SRCS		= Acceptor.cs \
 		  XMLOutput.cs
 
 GEN_SRCS	= $(GDIR)\BuiltinSequences.cs \
-		  $(GDIR)\CommunicatorF.cs \
 		  $(GDIR)\Communicator.cs \
 		  $(GDIR)\Connection.cs \
-		  $(GDIR)\ConnectionF.cs \
 		  $(GDIR)\Current.cs \
 		  $(GDIR)\Endpoint.cs \
 		  $(GDIR)\FacetMap.cs \
 		  $(GDIR)\Identity.cs \
 		  $(GDIR)\ImplicitContext.cs \
 		  $(GDIR)\LocalException.cs \
-		  $(GDIR)\LocatorF.cs \
 		  $(GDIR)\Locator.cs \
-		  $(GDIR)\LoggerF.cs \
 		  $(GDIR)\Logger.cs \
-		  $(GDIR)\ObjectAdapterF.cs \
 		  $(GDIR)\ObjectAdapter.cs \
-		  $(GDIR)\ObjectFactoryF.cs \
 		  $(GDIR)\ObjectFactory.cs \
-		  $(GDIR)\PluginF.cs \
 		  $(GDIR)\Plugin.cs \
-		  $(GDIR)\ProcessF.cs \
 		  $(GDIR)\Process.cs \
-		  $(GDIR)\PropertiesF.cs \
 		  $(GDIR)\Properties.cs \
-		  $(GDIR)\RouterF.cs \
 		  $(GDIR)\Router.cs \
-		  $(GDIR)\ServantLocatorF.cs \
 		  $(GDIR)\ServantLocator.cs \
 		  $(GDIR)\SliceChecksumDict.cs \
-		  $(GDIR)\StatsF.cs \
 		  $(GDIR)\Stats.cs
 
 SDIR		= $(slicedir)\Ice

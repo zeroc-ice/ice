@@ -16,11 +16,8 @@ TARGETS		= $(bindir)\$(LIBNAME)
 SRCS		= AssemblyInfo.cs
 
 GEN_SRCS	= $(GDIR)\PermissionsVerifier.cs \
-		  $(GDIR)\PermissionsVerifierF.cs \
 		  $(GDIR)\Router.cs \
-		  $(GDIR)\RouterF.cs \
 		  $(GDIR)\Session.cs \
-		  $(GDIR)\SessionF.cs \
 		  $(GDIR)\SSLInfo.cs
 
 SDIR		= $(slicedir)\Glacier2
