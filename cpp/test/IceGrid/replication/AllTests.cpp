@@ -72,40 +72,12 @@ private:
 typedef IceUtil::Handle<SessionKeepAliveThread> SessionKeepAliveThreadPtr;
 
 void
-waitForRegistryState(const IceGrid::AdminPrx& admin, const std::string& registry, bool up)
+waitForServerState(const IceGrid::AdminPrx& admin, const std::string& server, bool up)
 {
-//     int nRetry = 0;
-//     while(nRetry < 15)
-//     {
-// 	try
-// 	{
-// 	    if(admin->pingRegistry(registry) == up) // Wait for the registry to be removed.
-// 	    {
-// 		return;
-// 	    }
-// 	}
-// 	catch(const RegistryNotExistException&)
-// 	{
-// 	    if(!up)
-// 	    {
-// 		return;
-// 	    }
-// 	}
-	
-// 	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
-// 	++nRetry;
-//     }
-//     if(admin->pingRegistry(registry) != up)
-//     {
-// 	cerr << "registry state change timed out:" << endl;
-// 	cerr << "registry: " << registry << endl;
-// 	cerr << "state: " << up << endl;
-//     }
-
     int nRetry = 0;
     while(nRetry < 15)
     {
-	if(admin->getServerState(registry) == (up ? Active : Inactive))
+	if(admin->getServerState(server) == (up ? Active : Inactive))
 	{
 	    return;
 	} 
@@ -366,7 +338,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	test(endpoints[2]->toString() == slave2Locator->ice_getEndpoints()[0]->toString());
 
 	slave2Admin->shutdown();
-	waitForRegistryState(admin, "Slave2", false);
+	waitForServerState(admin, "Slave2", false);
 
 	info = masterAdmin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Locator"));
 	// We eventually need to wait here for the update of the replicated objects to propagate to the replica.
@@ -584,7 +556,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	test(slave2Admin->getObjectInfo(obj.proxy->ice_getIdentity()) == obj);
 	
 	slave2Admin->shutdown();
-	waitForRegistryState(admin, "Slave2", false);
+	waitForServerState(admin, "Slave2", false);
 
 	//
 	// Test sync of application.
@@ -608,7 +580,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	test(slave1Admin->getApplicationInfo("TestApp").descriptor.description == "updated1 application");
 	test(slave2Admin->getApplicationInfo("TestApp").descriptor.description == "updated1 application");
 	slave2Admin->shutdown();
-	waitForRegistryState(admin, "Slave2", false);
+	waitForServerState(admin, "Slave2", false);
 
 	//
 	// Test update of application, adapter, object.
@@ -659,7 +631,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	test(slave2Admin->getObjectInfo(obj.proxy->ice_getIdentity()) == obj);
 	
 	slave2Admin->shutdown();
-	waitForRegistryState(admin, "Slave2", false);
+	waitForServerState(admin, "Slave2", false);
 
 	//
 	// Test removal of application, adapter and object.
@@ -771,7 +743,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	}
 
 	slave2Admin->shutdown();
-	waitForRegistryState(admin, "Slave2", false);
+	waitForServerState(admin, "Slave2", false);
     }
     cout << "ok" << endl;
 
@@ -803,7 +775,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	waitForNodeState(slave2Admin, "Node1", true); // Node should connect.
 
 	slave1Admin->shutdown();
-	waitForRegistryState(admin, "Slave1", false);
+	waitForServerState(admin, "Slave1", false);
 	admin->startServer("Slave1");
 	slave1Admin = createAdminSession(slave1Locator, "Slave1");
 
@@ -817,10 +789,10 @@ allTests(const Ice::CommunicatorPtr& comm)
 	}
 
 	masterAdmin->shutdown();
-	waitForRegistryState(admin, "Master", false);
+	waitForServerState(admin, "Master", false);
 
 	slave2Admin->shutdown();
-	waitForRegistryState(admin, "Slave2", false);
+	waitForServerState(admin, "Slave2", false);
 	admin->startServer("Slave2");
 	slave2Admin = createAdminSession(slave2Locator, "Slave2");
 
@@ -834,7 +806,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	}
 
 	slave1Admin->shutdown();
-	waitForRegistryState(admin, "Slave1", false);
+	waitForServerState(admin, "Slave1", false);
 
 	admin->startServer("Master");
 	masterAdmin = createAdminSession(masterLocator, "");
@@ -879,7 +851,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	}
 
 	slave2Admin->shutdown();
-	waitForRegistryState(admin, "Slave2", false);
+	waitForServerState(admin, "Slave2", false);
 	admin->startServer("Slave2");
 	slave2Admin = createAdminSession(slave2Locator, "Slave2");
 	try
@@ -936,7 +908,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	// Shutdown Slave2 and update application.
 	//
 	slave2Admin->shutdown();
-	waitForRegistryState(admin, "Slave2", false);
+	waitForServerState(admin, "Slave2", false);
 
 	ApplicationUpdateDescriptor update;
 	update.name = "TestApp";
@@ -953,7 +925,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	comm->stringToProxy("test")->ice_locator(slave1Locator)->ice_locatorCacheTimeout(0)->ice_ping();
 
 	masterAdmin->shutdown();
-	waitForRegistryState(admin, "Master", false);
+	waitForServerState(admin, "Master", false);
 
 	admin->startServer("Slave2");
 	slave2Admin = createAdminSession(slave2Locator, "Slave2");
@@ -978,7 +950,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	masterAdmin = createAdminSession(masterLocator, "");
 
  	slave2Admin->shutdown();
- 	waitForRegistryState(admin, "Slave2", false);
+ 	waitForServerState(admin, "Slave2", false);
 	admin->startServer("Slave2");
 	slave2Admin = createAdminSession(slave2Locator, "Slave2");
 
@@ -989,11 +961,10 @@ allTests(const Ice::CommunicatorPtr& comm)
 	// the master.
 	//
  	slave1Admin->shutdownNode("Node1");
-	cerr << "waiting for node to shutdown " << admin->getServerPid("Node1") << " !!!!!!!" << endl;
-	waitForNodeState(masterAdmin, "Node1", false);
+	waitForServerState(admin, "Node1", false);
 
  	slave2Admin->shutdown();
- 	waitForRegistryState(admin, "Slave2", false);
+ 	waitForServerState(admin, "Slave2", false);
 
 	property.name = "Dummy2";
 	property.value = "val";
@@ -1001,7 +972,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	masterAdmin->updateApplication(update);
 
 	masterAdmin->shutdown();
-	waitForRegistryState(admin, "Master", false);
+	waitForServerState(admin, "Master", false);
 
 	//
 	// Restart Node1 and Slave2, Slave2 still has the old version
@@ -1016,7 +987,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	waitForNodeState(slave2Admin, "Node1", true);
 
  	slave1Admin->shutdown();
- 	waitForRegistryState(admin, "Slave1", false);
+ 	waitForServerState(admin, "Slave1", false);
 
 	comm->stringToProxy("test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
 
@@ -1042,13 +1013,18 @@ allTests(const Ice::CommunicatorPtr& comm)
 	masterAdmin = createAdminSession(masterLocator, "");
 
  	slave1Admin->shutdown();
- 	waitForRegistryState(admin, "Slave1", false);
+ 	waitForServerState(admin, "Slave1", false);
 	admin->startServer("Slave1");
 	slave1Admin = createAdminSession(slave1Locator, "Slave1");
 
  	slave2Admin->shutdownNode("Node1");
-	waitForNodeState(slave2Admin, "Node1", false);
+	waitForServerState(admin, "Node1", false);
 	admin->startServer("Node1");
+
+ 	slave2Admin->shutdown();
+ 	waitForServerState(admin, "Slave2", false);
+	admin->startServer("Slave2");
+	slave2Admin = createAdminSession(slave2Locator, "Slave2");
 
 	waitForNodeState(masterAdmin, "Node1", true);
 	waitForNodeState(slave1Admin, "Node1", true);
@@ -1104,9 +1080,9 @@ allTests(const Ice::CommunicatorPtr& comm)
 	// Shutdown the Master, update Slave1 to be the Master.
 	//
 	masterAdmin->shutdown();
-	waitForRegistryState(admin, "Master", false);
+	waitForServerState(admin, "Master", false);
 	slave1Admin->shutdown();
-	waitForRegistryState(admin, "Slave1", false);
+	waitForServerState(admin, "Slave1", false);
 	
 	params["id"] = "Slave1";
 	params["port"] = "12051";
@@ -1133,7 +1109,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	comm->stringToProxy("test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
 
 	slave1Admin->shutdown();
-	waitForRegistryState(admin, "Slave1", false);
+	waitForServerState(admin, "Slave1", false);
 
 	params["id"] = "Slave1";
 	params["replicaName"] = "Slave1";
