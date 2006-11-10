@@ -79,7 +79,7 @@ waitForRegistryState(const IceGrid::AdminPrx& admin, const std::string& registry
 //     {
 // 	try
 // 	{
-// 	    if(admin->pingRegistry(registry) && up) // Wait for the registry to be removed.
+// 	    if(admin->pingRegistry(registry) == up) // Wait for the registry to be removed.
 // 	    {
 // 		return;
 // 	    }
@@ -124,7 +124,7 @@ waitForNodeState(const IceGrid::AdminPrx& admin, const std::string& node, bool u
     {
 	try
 	{
-	    if(admin->pingNode(node) && up) // Wait for the node to be removed.
+	    if(admin->pingNode(node) == up) // Wait for the node to be removed.
 	    {
 		return;
 	    }
@@ -989,6 +989,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	// the master.
 	//
  	slave1Admin->shutdownNode("Node1");
+	cerr << "waiting for node to shutdown " << admin->getServerPid("Node1") << " !!!!!!!" << endl;
 	waitForNodeState(masterAdmin, "Node1", false);
 
  	slave2Admin->shutdown();
