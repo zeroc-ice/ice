@@ -27,13 +27,9 @@ public final class SysLoggerI extends LocalObjectImpl implements Logger
 	// 
 	try
 	{
-	    _host = InetAddress.getLocalHost();
+	    _host = IceInternal.Network.getLocalAddress();
 	    _socket = new DatagramSocket();
 	    _socket.connect(_host, _port);
-	}
-	catch(java.net.UnknownHostException ex)
-	{
-            throw new Ice.DNSException();
 	}
 	catch(java.io.IOException ex)
 	{

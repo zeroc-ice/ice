@@ -547,10 +547,10 @@ final class EndpointI extends IceInternal.EndpointI
     {
     	try
 	{
-            java.net.InetAddress addr = java.net.InetAddress.getByName(_host);
-	    _hashCode = addr.getHostAddress().hashCode();
+	    java.net.InetSocketAddress addr = IceInternal.Network.getAddress(_host, _port);
+	    _hashCode = addr.getAddress().getHostAddress().hashCode();
 	}
-	catch(java.net.UnknownHostException ex)
+	catch(Ice.DNSException ex)
 	{
 	    _hashCode = _host.hashCode();
 	}

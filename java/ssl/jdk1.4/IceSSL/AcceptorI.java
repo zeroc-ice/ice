@@ -292,8 +292,8 @@ class AcceptorI implements IceInternal.Acceptor
 		String s = "attempting to bind to ssl socket " + toString();
 		_logger.trace(_instance.networkTraceCategory(), s);
 	    }
-	    java.net.InetAddress iface = java.net.InetAddress.getByName(host);
-	    _fd = (javax.net.ssl.SSLServerSocket)factory.createServerSocket(port, _backlog, iface);
+	    java.net.InetSocketAddress iface = IceInternal.Network.getAddress(host, port);
+	    _fd = (javax.net.ssl.SSLServerSocket)factory.createServerSocket(port, _backlog, iface.getAddress());
 	    _addr = (java.net.InetSocketAddress)_fd.getLocalSocketAddress();
 
 	    int verifyPeer =

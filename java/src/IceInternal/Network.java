@@ -539,8 +539,14 @@ public final class Network
     {
         try
         {
-            java.net.InetAddress addr = java.net.InetAddress.getByName(host);
-            return new java.net.InetSocketAddress(addr, port);
+            java.net.InetAddress[] addrs = java.net.InetAddress.getAllByName(host);
+	    for(int i = 0; i < addrs.length; ++i)
+	    {
+	        if(addrs[i] instanceof java.net.Inet4Address)
+		{
+            	    return new java.net.InetSocketAddress(addrs[i], port);
+		}
+	    }
         }
         catch(java.net.UnknownHostException ex)
         {
@@ -548,6 +554,13 @@ public final class Network
 	    e.host = host;
 	    throw e;
         }
+
+	//
+	// No Inet4Address available.
+	//
+	Ice.DNSException e = new Ice.DNSException();
+	e.host = host;
+	throw e;
     }
 
     public static java.net.InetAddress
@@ -572,7 +585,7 @@ public final class Network
             //
         }
 
-        if(addr == null)
+        if(addr == null || addr instanceof java.net.Inet6Address)
         {
             //
             // Iterate over the network interfaces and pick an IP

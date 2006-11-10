@@ -547,10 +547,10 @@ final class TcpEndpointI extends EndpointI
     {
         try
         {
-            java.net.InetAddress addr = java.net.InetAddress.getByName(_host);
-            _hashCode = addr.getHostAddress().hashCode();
+            java.net.InetSocketAddress addr = Network.getAddress(_host, _port);
+            _hashCode = addr.getAddress().getHostAddress().hashCode();
         }
-        catch(java.net.UnknownHostException ex)
+        catch(Ice.DNSException ex)
         {
             _hashCode = _host.hashCode();
         }
