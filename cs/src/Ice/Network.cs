@@ -803,7 +803,7 @@ namespace IceInternal
 
 	public static string[] getLocalHosts()
 	{
-	    string[] hosts;
+	    ArrayList hosts;
 
 	    int retry = 5;
 
@@ -815,18 +815,21 @@ namespace IceInternal
 #else
 	        IPHostEntry e = Dns.GetHostEntry(Dns.GetHostName());
 #endif
-		hosts = new string[e.AddressList.Length + 1];
+		hosts = new ArrayList();
 		for(int i = 0; i < e.AddressList.Length; ++i)
 		{
-		    hosts[i] = e.AddressList[i].ToString();
+		    if(e.AddressList[i].AddressFamily != AddressFamily.InterNetworkV6)
+		    {
+		        hosts.Add(e.AddressList[i].ToString());
+		    }
 		}
-		hosts[hosts.Length - 1] = IPAddress.Loopback.ToString();
+		hosts.Add(IPAddress.Loopback.ToString());
 	    }
 	    catch(Win32Exception ex)
 	    {
 	        if(ex.NativeErrorCode == WSATRY_AGAIN && --retry >= 0)
 	        {
-	    	goto repeatGetHostByName;
+	    	    goto repeatGetHostByName;
 	        }
 	        Ice.DNSException e = new Ice.DNSException("address lookup failed", ex);
 	        e.host = "0.0.0.0";
@@ -839,7 +842,7 @@ namespace IceInternal
 	        throw e;
 	    }
 
-	    return hosts;
+	    return (string[])hosts.ToArray(typeof(string));
 	}
 
 	public sealed class SocketPair
