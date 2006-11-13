@@ -75,7 +75,7 @@ void
 waitForServerState(const IceGrid::AdminPrx& admin, const std::string& server, bool up)
 {
     int nRetry = 0;
-    while(nRetry < 15)
+    while(nRetry < 30)
     {
 	if(admin->getServerState(server) == (up ? Active : Inactive))
 	{
@@ -92,7 +92,7 @@ void
 waitForNodeState(const IceGrid::AdminPrx& admin, const std::string& node, bool up)
 {
     int nRetry = 0;
-    while(nRetry < 15)
+    while(nRetry < 30)
     {
 	try
 	{
@@ -195,7 +195,7 @@ bool
 waitAndPing(const Ice::ObjectPrx& obj)
 {
     int nRetry = 0;
-    while(nRetry < 20)
+    while(nRetry < 30)
     {
 	try
 	{
@@ -343,7 +343,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	info = masterAdmin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Locator"));
 	// We eventually need to wait here for the update of the replicated objects to propagate to the replica.
  	int nRetry = 0;
-	while(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Locator")) != info && nRetry < 15)
+	while(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Locator")) != info && nRetry < 30)
 	{
 	    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
 	    ++nRetry;
@@ -357,7 +357,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 
 	info = masterAdmin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Query"));
 	nRetry = 0;
-	while(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Query")) != info && nRetry < 15)
+	while(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Query")) != info && nRetry < 30)
 	{
 	    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
 	    ++nRetry;
