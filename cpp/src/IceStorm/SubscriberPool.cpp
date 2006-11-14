@@ -206,6 +206,14 @@ SubscriberPool::flush(list<SubscriberPtr>& subscribers)
 }
 
 void
+SubscriberPool::flush(const SubscriberPtr& subscriber)
+{
+    Lock sync(*this);
+    _pending.push_back(subscriber);
+    notify();
+}
+
+void
 SubscriberPool::add(const SubscriberPtr& subscriber)
 {
     Lock sync(*this);

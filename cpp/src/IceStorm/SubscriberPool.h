@@ -63,6 +63,7 @@ public:
     ~SubscriberPool();
 
     void flush(std::list<SubscriberPtr>&);
+    void flush(const SubscriberPtr&);
     void add(const SubscriberPtr&);
     void remove(const SubscriberPtr&);
     void destroy();

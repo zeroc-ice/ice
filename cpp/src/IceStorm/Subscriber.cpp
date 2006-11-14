@@ -75,9 +75,7 @@ public:
 
 	if(state == Subscriber::QueueStateFlush)
 	{
-	    list<SubscriberPtr> l;
-	    l.push_back(_subscriber);
-	    _instance->subscriberPool()->flush(l);
+	    _instance->subscriberPool()->flush(_subscriber);
 	}
 	return true;
     }
@@ -454,7 +452,6 @@ SubscriberTwowayOrdered::flush()
 void
 SubscriberTwowayOrdered::response()
 {
-    EventPtr e;
     {
 	IceUtil::Mutex::Lock sync(_mutex);
 	
@@ -465,12 +462,8 @@ SubscriberTwowayOrdered::response()
 	    _busy = false;
 	    return;
 	}
-	
-	e = _events.front();
-	_events.erase(_events.begin());
     }
-
-    _obj->ice_invoke_async(new TwowayOrderedInvokeI(this), e->op, e->mode, e->data, e->context);
+    _instance->subscriberPool()->flush(this);
 }
 
 namespace
@@ -614,7 +607,6 @@ SubscriberLink::flush()
 void
 SubscriberLink::response()
 {
-    EventSeq v;
     {
 	IceUtil::Mutex::Lock sync(_mutex);
 	
@@ -625,11 +617,8 @@ SubscriberLink::response()
 	    _busy = false;
 	    return;
 	}
-
-	v.swap(_events);
     }
-
-    _obj->forward_async(new Topiclink_forwardI(this), v);
+    _instance->subscriberPool()->flush(this);
 }
 
 SubscriberPtr
