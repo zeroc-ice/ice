@@ -26,18 +26,16 @@ public:
     QueryI(const Ice::CommunicatorPtr&, const DatabasePtr&);
     virtual ~QueryI();
 
-    virtual void findObjectById_async(const AMD_Query_findObjectByIdPtr&, const ::Ice::Identity&, 
-				      const ::Ice::Current&) const;
+    virtual Ice::ObjectPrx findObjectById(const ::Ice::Identity&, const ::Ice::Current&) const;
 
-    virtual void findObjectByType_async(const AMD_Query_findObjectByTypePtr&, const ::std::string&, 
-					const ::Ice::Current&) const;
+    virtual Ice::ObjectPrx findObjectByType(const ::std::string&, const ::Ice::Current&) const;
 
-    virtual void findObjectByTypeOnLeastLoadedNode_async(const AMD_Query_findObjectByTypeOnLeastLoadedNodePtr&, 
-							 const ::std::string&, LoadSample, 
-							 const ::Ice::Current&) const;
+    virtual Ice::ObjectPrx findObjectByTypeOnLeastLoadedNode(const ::std::string&, LoadSample,
+							     const ::Ice::Current&) const;
 
-    virtual void findAllObjectsByType_async(const AMD_Query_findAllObjectsByTypePtr&, const ::std::string&, 
-					    const ::Ice::Current&) const;
+    virtual Ice::ObjectProxySeq findAllObjectsByType(const ::std::string&, const ::Ice::Current&) const;
+
+    virtual Ice::ObjectProxySeq findAllReplicas(const Ice::ObjectPrx&, const Ice::Current&) const;
 
 private:
 

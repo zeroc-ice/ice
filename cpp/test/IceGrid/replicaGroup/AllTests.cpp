@@ -151,6 +151,45 @@ allTests(const Ice::CommunicatorPtr& comm)
     svcReplicaIds.insert("IceBox1.Service2.Service2");
     svcReplicaIds.insert("IceBox1.Service3.Service3");
 
+    cout << "testing Query::findAllReplicas... " << flush;
+    {
+	map<string, string> params;
+	params["replicaGroup"] = "RoundRobin";
+	params["id"] = "Server1";
+	instantiateServer(admin, "Server", "localnode", params);
+	params["id"] = "Server2";
+	instantiateServer(admin, "Server", "localnode", params);
+	params["id"] = "Server3";
+	instantiateServer(admin, "Server", "localnode", params);
+
+	QueryPrx query = IceGrid::QueryPrx::checkedCast(comm->stringToProxy("IceGrid/Query"));
+	test(query);
+	
+	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("dummy@RoundRobin"));
+	Ice::ObjectProxySeq objs = query->findAllReplicas(obj);
+	test(objs.size() == 3);
+	test(serverReplicaIds.find(objs[0]->ice_getAdapterId()) != serverReplicaIds.end());
+	test(serverReplicaIds.find(objs[1]->ice_getAdapterId()) != serverReplicaIds.end());
+	test(serverReplicaIds.find(objs[2]->ice_getAdapterId()) != serverReplicaIds.end());
+	
+	obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("dummy@dummy"));
+	objs = query->findAllReplicas(obj);
+	test(objs.empty());
+
+	obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("dummy@Server1.ReplicatedAdapter"));
+	objs = query->findAllReplicas(obj);
+	test(objs.empty());
+
+	obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("dummy:tcp"));
+	objs = query->findAllReplicas(obj);
+	test(objs.empty());
+	
+	removeServer(admin, "Server1");
+	removeServer(admin, "Server2");
+	removeServer(admin, "Server3");
+    }
+    cout << "ok" << endl;
+
     cout << "testing replication with round-robin load balancing... " << flush;
     {
 	map<string, string> params;

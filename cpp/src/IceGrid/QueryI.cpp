@@ -25,40 +25,65 @@ QueryI::~QueryI()
 {
 }
 
-void
-QueryI::findObjectById_async(const AMD_Query_findObjectByIdPtr& cb, const Ice::Identity& id, const Ice::Current&) const
+Ice::ObjectPrx
+QueryI::findObjectById(const Ice::Identity& id, const Ice::Current&) const
 {
     try
     {
-	cb->ice_response(_database->getObjectProxy(id));
+	return _database->getObjectProxy(id);
     }
     catch(const ObjectNotRegisteredException&)
     {
-	cb->ice_response(0);
+	return 0;
     }
 }
 
-void
-QueryI::findObjectByType_async(const AMD_Query_findObjectByTypePtr& cb, const string& type, const Ice::Current&) const
+Ice::ObjectPrx
+QueryI::findObjectByType(const string& type, const Ice::Current&) const
 {
-    cb->ice_response(_database->getObjectByType(type));
+    return _database->getObjectByType(type);
 }
 
-void
-QueryI::findObjectByTypeOnLeastLoadedNode_async(const AMD_Query_findObjectByTypeOnLeastLoadedNodePtr& cb, 
-						const string& type,
-						LoadSample sample, 
-						const Ice::Current&) const
+Ice::ObjectPrx
+QueryI::findObjectByTypeOnLeastLoadedNode(const string& type, LoadSample sample, const Ice::Current&) const
 {
-    cb->ice_response(_database->getObjectByTypeOnLeastLoadedNode(type, sample));
+    return _database->getObjectByTypeOnLeastLoadedNode(type, sample);
 }
 
-void
-QueryI::findAllObjectsByType_async(const AMD_Query_findAllObjectsByTypePtr& cb,
-				   const string& type, 
-				   const Ice::Current&) const
+Ice::ObjectProxySeq
+QueryI::findAllObjectsByType(const string& type, const Ice::Current&) const
 {
-    cb->ice_response(_database->getObjectsByType(type));
+    return _database->getObjectsByType(type);
 }
 
 
+Ice::ObjectProxySeq
+QueryI::findAllReplicas(const Ice::ObjectPrx& proxy, const Ice::Current&) const
+{
+    try
+    {
+	if(!proxy)
+	{
+	    return Ice::ObjectProxySeq();
+	}
+
+	AdapterInfoSeq infos = _database->getAdapterInfo(proxy->ice_getAdapterId());
+	assert(!infos.empty());
+	if(infos[0].replicaGroupId != proxy->ice_getAdapterId()) // The adapter id doesn't refer to a replica group.
+	{
+	    return Ice::ObjectProxySeq();
+	}
+
+	Ice::ObjectProxySeq proxies;
+	for(AdapterInfoSeq::const_iterator p = infos.begin(); p != infos.end(); ++p)
+	{
+	    assert(!p->id.empty());
+	    proxies.push_back(proxy->ice_adapterId(p->id));
+	}
+	return proxies;
+    }
+    catch(const AdapterNotExistException&)
+    {
+	return Ice::ObjectProxySeq();
+    }
+}

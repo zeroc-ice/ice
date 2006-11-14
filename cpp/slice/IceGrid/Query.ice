@@ -40,10 +40,10 @@ enum LoadSample
 /**
  *
  * The &IceGrid; query interface. This interface is accessible to
- * &Ice; clients who wish to lookup well-known objects.
+ * &Ice; clients who wish to query the IceGrid registry.
  *
  **/
-["ami", "amd"] interface Query
+["ami"] interface Query
 {
     /**
      *
@@ -95,6 +95,20 @@ enum LoadSample
      *
      **/
     ["nonmutating", "cpp:const"] idempotent Ice::ObjectProxySeq findAllObjectsByType(string type);
+
+    /**
+     *
+     * Find all the object replicas associated with the given
+     * proxy. If the given proxy is not an indirect proxy from a
+     * replica group, an empty sequence is returned.
+     *
+     * @param proxy The object proxy.
+     *
+     * @return The proxies of each object replica or an empty sequence
+     * if the given proxy is not from a replica group.
+     *
+     **/
+    ["cpp:const"] idempotent Ice::ObjectProxySeq findAllReplicas(Object* proxy);
 };
 
 };
