@@ -185,7 +185,7 @@ final class UnknownEndpointI extends EndpointI
     // only applies for ObjectAdapter endpoints.
     //
     public java.util.ArrayList
-    expand()
+    expand(boolean server)
     {
         assert(false);
 	return null;

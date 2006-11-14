@@ -138,19 +138,6 @@ IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& str) :
 	    }
 	}
     }
-
-    if(_host.empty())
-    {
-	const_cast<string&>(_host) = _instance->defaultHost();
-	if(_host.empty())
-	{
-	    const_cast<string&>(_host) = "0.0.0.0";
-	}
-    }
-    else if(_host == "*")
-    {
-        const_cast<string&>(_host) = "0.0.0.0";
-    }
 }
 
 IceSSL::EndpointI::EndpointI(const InstancePtr& instance, IceInternal::BasicStream* s) :
@@ -306,8 +293,28 @@ IceSSL::EndpointI::acceptor(IceInternal::EndpointIPtr& endp, const string& adapt
 }
 
 vector<IceInternal::EndpointIPtr>
-IceSSL::EndpointI::expand() const
+IceSSL::EndpointI::expand(bool server) const
 {
+    if(_host.empty())
+    {
+        const_cast<string&>(_host) = _instance->defaultHost();
+        if(_host.empty())
+        {
+            if(server)
+            {
+                const_cast<string&>(_host) = "0.0.0.0";
+            }
+            else
+            {
+                const_cast<string&>(_host) = "127.0.0.1";
+            }
+        }
+    }
+    else if(_host == "*")
+    {
+        const_cast<string&>(_host) = "0.0.0.0";
+    }
+
     vector<IceInternal::EndpointIPtr> endps;
     if(_host == "0.0.0.0")
     {

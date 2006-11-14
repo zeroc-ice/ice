@@ -152,21 +152,6 @@ namespace IceSSL
 		    }
 		}
 	    }
-
-	    if(host_ == null)
-	    {
-		host_ = instance_.defaultHost();
-		if(host_ == null)
-		{
-		    host_ = "0.0.0.0";
-		}
-	    }
-	    else if(host_.Equals("*"))
-	    {
-		host_ = "0.0.0.0";
-	    }
-
-	    calcHashValue();
 	}
 
 	internal EndpointI(Instance instance, IceInternal.BasicStream s)
@@ -369,8 +354,28 @@ namespace IceSSL
 	// host if endpoint was configured with no host set. This
 	// only applies for ObjectAdapter endpoints.
 	//
-	public override ArrayList expand()
+	public override ArrayList expand(bool server)
 	{
+	    if(host_ == null)
+	    {
+		host_ = instance_.defaultHost();
+		if(host_ == null)
+		{
+		    if(server)
+		    {
+		        host_ = "0.0.0.0";
+		    }
+		    else
+		    {
+		        host_ = "127.0.0.1";
+		    }
+		}
+	    }
+	    else if(host_.Equals("*"))
+	    {
+		host_ = "0.0.0.0";
+	    }
+
 	    ArrayList endps = new ArrayList();
 	    if(host_.Equals("0.0.0.0"))
 	    {
@@ -383,6 +388,7 @@ namespace IceSSL
 	    }
 	    else
 	    {
+	        calcHashValue();
 		endps.Add(this);
 	    }
 	    return endps;

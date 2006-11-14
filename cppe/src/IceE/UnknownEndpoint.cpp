@@ -88,7 +88,7 @@ IceInternal::UnknownEndpoint::publish() const
 #endif
 
 vector<EndpointPtr>
-IceInternal::UnknownEndpoint::expand() const
+IceInternal::UnknownEndpoint::expand(bool) const
 {
     assert(false);
     vector<EndpointPtr> ret;

@@ -132,21 +132,6 @@ final class TcpEndpointI extends EndpointI
                 }
             }
         }
-
-        if(_host == null)
-        {
-            _host = _instance.defaultsAndOverrides().defaultHost;
-	    if(_host == null)
-	    {
-		_host = "0.0.0.0";
-	    }
-        }
-	else if(_host.equals("*"))
-	{
-	    _host = "0.0.0.0";
-	}
-
-        calcHashValue();
     }
 
     public
@@ -367,8 +352,28 @@ final class TcpEndpointI extends EndpointI
     // only applies for ObjectAdapter endpoints.
     //
     public java.util.ArrayList
-    expand()
+    expand(boolean server)
     {
+        if(_host == null)
+        {
+            _host = _instance.defaultsAndOverrides().defaultHost;
+	    if(_host == null)
+	    {
+	        if(server)
+		{
+		    _host = "0.0.0.0";
+		}
+		else
+		{
+		    _host = "127.0.0.1";
+		}
+	    }
+        }
+	else if(_host.equals("*"))
+	{
+	    _host = "0.0.0.0";
+	}
+
         java.util.ArrayList endps = new java.util.ArrayList();
 	if(_host.equals("0.0.0.0"))
 	{
@@ -383,6 +388,7 @@ final class TcpEndpointI extends EndpointI
 	}
 	else
 	{
+            calcHashValue();
 	    endps.add(this);
 	}
 	return endps;

@@ -138,19 +138,6 @@ IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const strin
 	    }
 	}
     }
-
-    if(_host.empty())
-    {
-	const_cast<string&>(_host) = _instance->defaultsAndOverrides()->defaultHost;
-	if(_host.empty())
-	{
-	    const_cast<string&>(_host) = "0.0.0.0";
-	}
-    }
-    else if(_host == "*")
-    {
-        const_cast<string&>(_host) = "0.0.0.0";
-    }
 }
 
 IceInternal::TcpEndpointI::TcpEndpointI(BasicStream* s) :
@@ -306,8 +293,28 @@ IceInternal::TcpEndpointI::acceptor(EndpointIPtr& endp, const string&) const
 }
 
 vector<EndpointIPtr>
-IceInternal::TcpEndpointI::expand() const
+IceInternal::TcpEndpointI::expand(bool server) const
 {
+    if(_host.empty())
+    {
+	const_cast<string&>(_host) = _instance->defaultsAndOverrides()->defaultHost;
+	if(_host.empty())
+	{
+	    if(server)
+	    {
+	        const_cast<string&>(_host) = "0.0.0.0";
+	    }
+	    else
+	    {
+	        const_cast<string&>(_host) = "127.0.0.1";
+	    }
+	}
+    }
+    else if(_host == "*")
+    {
+        const_cast<string&>(_host) = "0.0.0.0";
+    }
+
     vector<EndpointIPtr> endps;
     if(_host == "0.0.0.0")
     {

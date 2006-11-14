@@ -427,7 +427,7 @@ namespace IceInternal
 		    EndpointI endp = instance_.endpointFactoryManager().create(es);
 		    if(endp != null)
 		    {
-		        ArrayList endps = endp.expand();
+		        ArrayList endps = endp.expand(false);
 			endpoints.AddRange(endps);
 		    }
 		    else

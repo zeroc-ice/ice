@@ -263,21 +263,6 @@ namespace IceInternal
 		    }
 		}
 	    }
-	    
-	    if(_host == null)
-	    {
-		_host = instance.defaultsAndOverrides().defaultHost;
-		if(_host == null)
-		{
-                    _host = "0.0.0.0";
-		}
-	    }
-	    else if(_host.Equals("*"))
-	    {
-	        _host = "0.0.0.0";
-	    }
-	    
-	    calcHashValue();
 	}
 	
 	public UdpEndpointI(BasicStream s)
@@ -521,8 +506,28 @@ namespace IceInternal
         // only applies for ObjectAdapter endpoints.
         //
         public override ArrayList
-        expand()
+        expand(bool server)
         {
+	    if(_host == null)
+	    {
+		_host = instance_.defaultsAndOverrides().defaultHost;
+		if(_host == null)
+		{
+		    if(server)
+		    {
+                        _host = "0.0.0.0";
+		    }
+		    else
+		    {
+                        _host = "127.0.0.1";
+		    }
+		}
+	    }
+	    else if(_host.Equals("*"))
+	    {
+	        _host = "0.0.0.0";
+	    }
+	    
             ArrayList endps = new ArrayList();
             if(_host.Equals("0.0.0.0"))
             {
@@ -535,6 +540,7 @@ namespace IceInternal
             }
             else
             {
+	        calcHashValue();
                 endps.Add(this);
             }
             return endps;

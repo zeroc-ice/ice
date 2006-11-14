@@ -3,6 +3,10 @@ NOTE: Please keep changes in the appropriate section for HEAD or 3.1.
 Changes since version 3.1.1 (HEAD)
 ---------------------------     
 
+- If client endpoint configuration does not contain a hostname setting
+  (-h paramater), the client will try to connect using only the loopback
+  interface (127.0.0.1).
+
 - Passing null for a sequence paramater mapped as a collection (ie. using
   "clr:collection" metadata) no longer results in a NullReferenceException
   but instead causes an empty sequence to be sent.

@@ -122,7 +122,7 @@ namespace IceInternal
 	// Expand endpoint out in to separate endpoints for each local
         // host if endpoint was configured with no host set.
         //
-        public abstract ArrayList expand();
+        public abstract ArrayList expand(bool server);
  
         //
         // Return whether the endpoint should be published in proxies

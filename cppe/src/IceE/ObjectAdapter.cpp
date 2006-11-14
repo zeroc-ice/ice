@@ -880,7 +880,7 @@ Ice::ObjectAdapter::parseEndpoints(const string& str) const
 	    ex.str = s;
 	    throw ex;
 	}
-        vector<EndpointPtr> endps = endp->expand();
+        vector<EndpointPtr> endps = endp->expand(true);
         endpoints.insert(endpoints.end(), endps.begin(), endps.end());
 
 	++end;
