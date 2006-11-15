@@ -245,6 +245,7 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
 	// Instantiate the class.
 	//
 	ServiceInfo info = new ServiceInfo();
+	info.name = service;
 
 	//
 	// Retrieve the assembly name and the type.
@@ -431,7 +432,7 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
 		throw;
 	    }
 
-	    _services[service] = info;
+	    _services.Add(info);
 	}
 	catch(IceBox.FailureException)
 	{
@@ -450,19 +451,18 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
     {
 	//
 	// First, for each service, we call stop on the service and flush its database environment to 
-	// the disk.
+	// the disk. Services are stopped in the reverse order of which they were started.
 	//
-	foreach(DictionaryEntry entry in _services)
+	_services.Reverse();
+	foreach(ServiceInfo info in _services)
 	{
-	    string name = (string)entry.Key;
-	    ServiceInfo info = (ServiceInfo)entry.Value;
 	    try
 	    {
 		info.service.stop();
 	    }
 	    catch(Exception e)
 	    {
-		_logger.warning("ServiceManager: exception in stop for service " + name + "\n" + e.ToString());
+		_logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + e.ToString());
 	    }
 
 	    if(info.communicator != null)
@@ -481,7 +481,7 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
 		}
 		catch(Exception e)
 		{
-		    _logger.warning("ServiceManager: exception in stop for service " + name + "\n" + e.ToString());
+		    _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + e.ToString());
 		}
 	    
 		try
@@ -490,7 +490,7 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
 		}
 		catch(Exception e)
 		{
-		    _logger.warning("ServiceManager: exception in stop for service " + name + "\n" + e.ToString());
+		    _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + e.ToString());
 		}
 	    }
 	}
@@ -500,11 +500,12 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
 
     struct ServiceInfo
     {
+        public string name;
         public IceBox.Service service;
 	public Ice.Communicator communicator;
     }
 
     private Ice.Logger _logger;
     private string[] _argv; // Filtered server argument vector
-    private Hashtable _services = new Hashtable(); // String/ServiceInfo pairs.
+    private ArrayList _services = new ArrayList(); // ServiceInfo
 }
