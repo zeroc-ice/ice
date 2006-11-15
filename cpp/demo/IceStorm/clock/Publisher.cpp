@@ -42,12 +42,18 @@ Publisher::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    Ice::ObjectPrx base = communicator()->stringToProxy(proxy);
-    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
+    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
+	communicator()->stringToProxy(proxy));
     if(!manager)
     {
 	cerr << appName() << ": invalid proxy" << endl;
 	return EXIT_FAILURE;
+    }
+
+    string topicName = "time";
+    if(argc != 1)
+    {
+	topicName = argv[1];
     }
 
     //
@@ -56,31 +62,43 @@ Publisher::run(int argc, char* argv[])
     IceStorm::TopicPrx topic;
     try
     {
-	topic = manager->retrieve("time");
+	topic = manager->retrieve(topicName);
     }
     catch(const IceStorm::NoSuchTopic& e)
     {
-	cerr << appName() << ": " << e << " name: " << e.name << endl;
-	return EXIT_FAILURE;
+	try
+	{
+	    topic = manager->create(topicName);
+	}
+	catch(const IceStorm::TopicExists& e)
+	{
+	    cerr << appName() << ": temporary failure. try again." << endl;
+	    return EXIT_FAILURE;
+	}
     }
-    assert(topic);
 
     //
-    // Get the topic's publisher object, verify that it supports
-    // the Clock type, and create a oneway Clock proxy (for efficiency
-    // reasons).
+    // Get the topic's publisher object, the Clock type, and create a
+    // oneway Clock proxy (for efficiency reasons).
     //
-    Ice::ObjectPrx obj = topic->getPublisher();
-    if(!obj->ice_isDatagram())
-    {
-        obj = obj->ice_oneway();
-    }
-    ClockPrx clock = ClockPrx::uncheckedCast(obj);
+    ClockPrx clock = ClockPrx::uncheckedCast(topic->getPublisher()->ice_oneway());
 
-    cout << "publishing 10 tick events" << endl;
-    for(int i = 0; i < 10; ++i)
+    cout << "publishing tick events. Press ^C to terminate the application." << endl;
+    try
     {
-	clock->tick();
+	while(true)
+	{
+	    clock->tick(IceUtil::Time::now().toString());
+#ifdef WIN32
+	    Sleep(1000);
+#else
+	    sleep(1);
+#endif
+	}
+    }
+    catch(const Ice::CommunicatorDestroyedException&)
+    {
+	// Ignore
     }
 
     return EXIT_SUCCESS;

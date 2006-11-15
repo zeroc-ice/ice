@@ -18,8 +18,7 @@ OBJS		= Clock.o
 
 POBJS		= Publisher.o
 
-SOBJS		= Subscriber.o \
-		  ClockI.o
+SOBJS		= Subscriber.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(POBJS:.o=.cpp) \
