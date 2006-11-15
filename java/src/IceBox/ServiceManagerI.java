@@ -251,6 +251,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
 	// Instantiate the class.
 	//
 	ServiceInfo info = new ServiceInfo();
+	info.name = service;
 	try
 	{
 	    Class c = Class.forName(className);
@@ -415,7 +416,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
 		throw ex;
 	    }
 
-	    _services.put(service, info);
+	    _services.add(info);
 	}
 	catch(FailureException ex)
 	{
@@ -435,14 +436,12 @@ public class ServiceManagerI extends _ServiceManagerDisp
     {
 	//
 	// First, for each service, we call stop on the service and flush its database environment to 
-	// the disk.
+	// the disk. Services are stopped in the reverse order of the order they were started.
 	//
-	java.util.Iterator p = _services.entrySet().iterator();
-	while(p.hasNext())
+	java.util.ListIterator p = _services.listIterator(_services.size());
+	while(p.hasPrevious())
 	{
-	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-	    String name = (String)entry.getKey();
-	    ServiceInfo info = (ServiceInfo)entry.getValue();
+	    ServiceInfo info = (ServiceInfo)p.previous();
 	    try
 	    {
 		info.service.stop();
@@ -453,7 +452,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
 		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
 		e.printStackTrace(pw);
 		pw.flush();
-		_logger.warning("ServiceManager: exception in stop for service " + name + "\n" + sw.toString());
+		_logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + sw.toString());
 	    }
 
 	    if(info.communicator != null)
@@ -476,7 +475,8 @@ public class ServiceManagerI extends _ServiceManagerDisp
 		    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
 		    e.printStackTrace(pw);
 		    pw.flush();
-		    _logger.warning("ServiceManager: exception in stop for service " + name + "\n" + sw.toString());
+		    _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + 
+		    		    sw.toString());
 		}
 	    
 		try
@@ -489,7 +489,8 @@ public class ServiceManagerI extends _ServiceManagerDisp
 		    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
 		    e.printStackTrace(pw);
 		    pw.flush();
-		    _logger.warning("ServiceManager: exception in stop for service " + name + "\n" + sw.toString());
+		    _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + 
+		    		    sw.toString());
 		}
 	    }
 	}
@@ -499,6 +500,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
     class ServiceInfo
     {
+        public String name;
         public Service service;
 	public Ice.Communicator communicator = null;
     }
@@ -506,5 +508,5 @@ public class ServiceManagerI extends _ServiceManagerDisp
     private Ice.Application _server;
     private Ice.Logger _logger;
     private String[] _argv; // Filtered server argument vector
-    private java.util.HashMap _services = new java.util.HashMap();
+    private java.util.List _services = new java.util.LinkedList();
 }
