@@ -12,7 +12,7 @@ top_srcdir	= ..\..\..
 TARGETS		= publisher.exe subscriber.exe
 
 C_SRCS		= Publisher.vb
-S_SRCS		= ClockI.vb Subscriber.vb
+S_SRCS		= Subscriber.vb
 
 GEN_SRCS	= $(GDIR)\Clock.vb
 

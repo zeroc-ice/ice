@@ -14,8 +14,8 @@ Ice.loadSlice('Clock.ice')
 import Demo
 
 class ClockI(Demo.Clock):
-    def tick(self, current=None):
-        print "tick"
+    def tick(self, date, current=None):
+        print date
 
 class Subscriber(Ice.Application):
     def run(self, args):
@@ -28,68 +28,50 @@ class Subscriber(Ice.Application):
             return False
 
         base = self.communicator().stringToProxy(proxy)
-        manager = IceStorm.TopicManagerPrx.checkedCast(base)
+        manager = IceStorm.TopicManagerPrx.checkedCast(self.communicator().stringToProxy(proxy))
         if not manager:
             print args[0] + ": invalid proxy"
             return False
 
-	#
-	# Gather the set of topics to which to subscribe. It is either
-	# the set provided on the command line, or the topic "time".
-	#
-	topics = []
-	if len(args) > 1:
-	    for i in range(1, len(args)):
-	        topics.append(args[i])
-	else:
-	    topics.append("time")
+        topicName = "time"
+        if len(args) != 1:
+            topicName = args[1]
+
+        #
+        # Retrieve the topic.
+        #
+        try:
+            topic = manager.retrieve(topicName)
+        except IceStorm.NoSuchTopic, e:
+            try:
+                topic = manager.create(topicName)
+            except IceStorm.TopicExists, ex:
+                print self.appName() + ": temporay error. try again"
+                return False
+
+	adapter = self.communicator().createObjectAdapter("Clock.Subscriber")
 
 	#
-	# Set the requested quality of service "reliability" =
-	# "batch". This tells IceStorm to send events to the subscriber
-	# in batches at regular intervals.
+	# Add a Servant for the Ice Object.
+	#
+	subscriber = adapter.addWithUUID(ClockI());
+
+	#
+	# This demo requires no quality of service, so it will use
+	# the defaults.
 	#
 	qos = {}
-	qos["reliability"] = "batch"
 
-	#
-	# Create the servant to receive the events.
-	#
-	adapter = self.communicator().createObjectAdapter("Clock.Subscriber")
-	clock = ClockI()
+        topic.subscribe(qos, subscriber)
+        adapter.activate()
 
+        self.shutdownOnInterrupt()
+        self.communicator().waitForShutdown()
 
-	#
-	# List of all subscribers.
-	#
-	subscribers = {}
-
-	#
-	# Add the servant to the adapter for each topic. A ServantLocator
-	# could have been used for the same purpose.
-	#
-	for i in range(0, len(topics)):
-	    object = adapter.addWithUUID(clock)
-	    try:
-	        topic = manager.retrieve(topics[i])
-		topic.subscribe(qos, object)
-	    except IceStorm.NoSuchTopic, e:
-	        print self.appName() + ": no such topic name: " + e.name
-		break
-
-	    subscribers[topics[i]] = object
-
-	if len(subscribers) == len(topics):
-	    adapter.activate()
-	    self.shutdownOnInterrupt()
-	    self.communicator().waitForShutdown()
-
-	for name in subscribers.keys():
-	    try:
-	        topic = manager.retrieve(name)
-		topic.unsubscribe(subscribers[name])
-	    except IceStorm.NoSuchTopic, e:
-	        print self.appName() + ": no such topic  name: " + e.name
+        #
+        # Unsubscribe all subscribed objects.
+        #
+        topic.unsubscribe(subscriber)
 	    
 	return True
 

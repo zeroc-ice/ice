@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import sys, traceback, Ice, IceStorm
+import sys, traceback, time, Ice, IceStorm
 
 Ice.loadSlice('Clock.ice')
 import Demo
@@ -23,35 +23,42 @@ class Publisher(Ice.Application):
 	    print self.appName() + ": property `" + proxyProperty + "' not set"
 	    return False
 
-	base = self.communicator().stringToProxy(proxy)
-	manager = IceStorm.TopicManagerPrx.checkedCast(base)
+	manager = IceStorm.TopicManagerPrx.checkedCast(self.communicator().stringToProxy(proxy))
 	if not manager:
 	    print args[0] + ": invalid proxy"
 	    return False
 
+	topicName = "time"
+	if len(args) != 1:
+	    topicName = args[1]
+
 	#
-	# Retrieve the topic named "time".
+	# Retrieve the topic.
 	#
 	try:
-	    topic = manager.retrieve("time")
+	    topic = manager.retrieve(topicName)
 	except IceStorm.NoSuchTopic, e:
-	    print self.appName() + ": no such topic name: " + e.name
-	    return False
+	    try:
+	        topic = manager.create(topicName)
+	    except IceStorm.TopicExists, ex:
+	        print self.appName() + ": temporay error. try again"
+	        return False
 
 	#
-	# Get the topic's publisher object, verify that it supports
-	# the Clock type, and create a oneway Clock proxy (for efficiency
-	# reasons).
+	# Get the topic's publisher object, the Clock type, and create a 
+	# oneway Clock proxy (for efficiency reasons).
 	#
-	obj = topic.getPublisher()
-	if not obj.ice_isDatagram():
-	    obj = obj.ice_oneway()
-	clock = Demo.ClockPrx.uncheckedCast(obj)
+	clock = Demo.ClockPrx.uncheckedCast(topic.getPublisher().ice_oneway())
 
-	print "publishing 10 tick events"
-	for i in range(0, 10):
-	    clock.tick()
-
+	print "publishing tick events. Press ^C to terminate the application."
+	try:
+	    while 1:
+	        clock.tick(time.strftime("%m/%d/%Y %H:%M:%S"))
+		time.sleep(1)
+	except Ice.CommunicatorDestroyedException, e:
+	    # Ignore
+	    pass
+		
 	return True
 
 app = Publisher()

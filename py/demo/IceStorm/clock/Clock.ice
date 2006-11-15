@@ -15,7 +15,7 @@ module Demo
 
 interface Clock
 {
-    void tick();
+    void tick(string time);
 };
 
 };

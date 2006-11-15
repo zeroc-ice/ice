@@ -17,6 +17,7 @@ Module ClockC
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
             Dim properties As Ice.Properties = communicator().getProperties()
+
             Dim proxyProperty As String = "IceStorm.TopicManager.Proxy"
             Dim proxy As String = properties.getProperty(proxyProperty)
             If proxy.Length = 0 Then
@@ -31,24 +32,35 @@ Module ClockC
                 Return 1
             End If
 
+
+            Dim topicName As String = "time"
+            If not args.Length = 0 Then:
+                topicName = args(0)
+            End If
+
             Dim topic As IceStorm.TopicPrx
-	    Try
-	        topic = manager.retrieve("time")
+            Try
+                topic = manager.retrieve(topicName)
             Catch ex As IceStorm.NoSuchTopic
-                Console.Error.WriteLine(ex)
-		Return 1
+                Try
+                    topic = manager.create(topicName)
+                Catch e As IceStorm.TopicExists
+                    Console.Error.WriteLine("temporary error. try again.")
+                    Return 1
+                End Try
             End Try
 
-	    Dim obj As Ice.ObjectPrx = topic.getPublisher()
-	    If Not obj.ice_isDatagram() Then
-	        obj = obj.ice_oneway()
-	    End If
-	    Dim clock As ClockPrx = ClockPrxHelper.uncheckedCast(obj)
+	    Dim clock As ClockPrx = ClockPrxHelper.uncheckedCast(topic.getPublisher().ice_oneway())
 
-	    Console.Out.WriteLine("publishing 10 tick events")
-	    For i As Integer = 1 To 10
-	        clock.tick()
-	    Next
+	    Console.Out.WriteLine("publishing tick events. Press ^C to terminate the application.")
+	    Try
+	        While 1
+	            clock.tick(DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"))
+
+		    System.Threading.Thread.Sleep(1000)
+	        End While
+	    Catch ex As Ice.CommunicatorDestroyedException
+	    End Try
 
             Return 0
         End Function

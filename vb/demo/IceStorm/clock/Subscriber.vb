@@ -9,8 +9,18 @@
 
 Imports System
 Imports System.Collections
+Imports Demo
+
+Public Class ClockI
+    Inherits ClockDisp_
+
+    Public Overloads Overrides Sub tick(ByVal time as String, ByVal current As Ice.Current)
+        System.Console.Out.WriteLine(time)
+    End Sub
+End Class
 
 Module ClockS
+
 
     Class Subscriber
         Inherits Ice.Application
@@ -32,49 +42,36 @@ Module ClockS
 		Return 1
 	    End If
 
-	    Dim topics As ArrayList = New ArrayList
-	    If args.Length > 0 Then
-	        For i As Integer = 0 To args.Length - 1
-		    topics.Add(args(i))
-		Next
-	    Else
-	        topics.Add("time")
+	    Dim topicName As String = "time"
+	    If not args.Length = 0 Then:
+	        topicName = args(0)
 	    End If
+
+	    Dim topic As IceStorm.TopicPrx 
+	    Try
+	        topic = manager.retrieve(topicName)
+	    Catch ex As IceStorm.NoSuchTopic
+	        Try
+		    topic = manager.create(topicName)
+		Catch e As IceStorm.TopicExists
+	            Console.Error.WriteLine("temporary error. try again.")
+		    Return 1
+		End Try
+	    End Try
+	    
+	    Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("Clock.Subscriber")
+
+	    Dim subscriber As Ice.ObjectPrx = adapter.addWithUUID(New ClockI)
 
 	    Dim qos As IceStorm.Qos = New IceStorm.Qos
-	    qos.Add("reliability", "batch")
 
-	    Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("Clock.Subscriber")
-	    Dim clock As Ice.Object = New ClockI
+	    topic.subscribe(qos, subscriber)
+	    adapter.activate()
 
-	    Dim subscribers As System.Collections.Hashtable = New System.Collections.Hashtable
+	    shutdownOnInterrupt()
+	    communicator().waitForShutdown()
 
-	    For i As Integer = 0 To topics.Count - 1
-	        Dim obj As Ice.ObjectPrx = adapter.addWithUUID(clock)
-		Try
-		    Dim topic As IceStorm.TopicPrx = manager.retrieve(topics(i))
-		    topic.subscribe(qos, obj)
-		Catch ex As IceStorm.NoSuchTopic
-		    Console.Error.WriteLine(ex)
-		End Try
-
-		subscribers.Add(topics(i), obj)
-	    Next
-
-	    If subscribers.Count = topics.Count Then
-	        adapter.activate()
-		shutdownOnInterrupt()
-		communicator().waitForShutdown()
-	    End If
-
-	    For Each entry As DictionaryEntry in subscribers
-	        Try
-		    Dim topic As IceStorm.TopicPrx = manager.retrieve(entry.Key)
-		    topic.unsubscribe(entry.Value)
-		Catch ex As IceStorm.NoSuchTopic
-		    Console.Error.WriteLine(ex)
-		End Try
-	    Next entry
+	    topic.unsubscribe(subscriber)
 
             Return 0
         End Function
