@@ -55,13 +55,13 @@ public class Subscriber : Ice.Application
         {
             topic = manager.retrieve(topicName);
         }
-        catch(IceStorm.NoSuchTopic e)
+        catch(IceStorm.NoSuchTopic)
         {
             try
             {
                 topic = manager.create(topicName);
             }
-            catch(IceStorm.TopicExists ex)
+            catch(IceStorm.TopicExists)
             {
                 Console.WriteLine("temporary error. try again.");
                 return 1;

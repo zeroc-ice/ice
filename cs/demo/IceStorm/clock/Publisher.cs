@@ -48,13 +48,13 @@ public class Publisher : Ice.Application
         {
             topic = manager.retrieve(topicName);
         }
-        catch(IceStorm.NoSuchTopic e)
+        catch(IceStorm.NoSuchTopic)
         {
 	    try
 	    {
                 topic = manager.create(topicName);
 	    }
-	    catch(IceStorm.TopicExists ex)
+	    catch(IceStorm.TopicExists)
 	    {
                 Console.WriteLine("temporary error. try again.");
                 return 1;
@@ -77,7 +77,7 @@ public class Publisher : Ice.Application
 		System.Threading.Thread.Sleep(1000);
             }
 	}
-	catch(Ice.CommunicatorDestroyedException e)
+	catch(Ice.CommunicatorDestroyedException)
 	{
 	    // Ignore
 	}
