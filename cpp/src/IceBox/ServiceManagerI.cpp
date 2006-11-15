@@ -407,7 +407,6 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	    throw;
 	}
 
-cout << "Starting " << info.name << endl;
         info.library = library;
         _services.push_back(info);
     }
@@ -442,7 +441,6 @@ IceBox::ServiceManagerI::stopAll()
     for(p = _services.rbegin(); p != _services.rend(); ++p)
     {
 	ServiceInfo& info = *p;
-cout << "Stopping " << info.name << endl;
 	try
 	{
 	    info.service->stop();
