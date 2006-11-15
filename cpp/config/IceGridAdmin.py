@@ -15,7 +15,7 @@ from threading import Thread
 # Set nreplicas to a number N to test replication with N replicas.
 #
 nreplicas=0
-#nreplicas=2
+#nreplicas=3
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -193,6 +193,12 @@ def killNodeServers():
 
 def iceGridTest(name, application, additionalOptions = "", applicationOptions = ""):
 
+    if not TestUtil.isWin32() and os.getuid() == 0:
+        print
+        print "*** can't run test as root ***"
+        print
+        return
+
     testdir = os.path.join(toplevel, "test", name)
     client = os.path.join(testdir, "client")
 
@@ -200,7 +206,7 @@ def iceGridTest(name, application, additionalOptions = "", applicationOptions = 
 
     startIceGridRegistry(testdir)
     iceGridNodePipe = startIceGridNode(testdir)
-
+    
     if application != "":
         print "adding application...",
         iceGridAdmin('application add ' + os.path.join(testdir, application) + ' ' + \

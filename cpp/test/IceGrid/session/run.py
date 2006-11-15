@@ -21,6 +21,12 @@ sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 import IceGridAdmin
 
+if not TestUtil.isWin32() and os.getuid() == 0:
+    print
+    print "*** can't run test as root ***"
+    print
+    sys.exit(0)
+
 name = os.path.join("IceGrid", "session")
 testdir = os.path.join(toplevel, "test", name)
 
