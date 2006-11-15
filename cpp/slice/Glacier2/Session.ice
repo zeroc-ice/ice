@@ -23,7 +23,9 @@ module Glacier2
  * failed.
  *
  * @see Router::createSession
- * @see SessionManager::createSession
+ * @see Router::createSessionFromSecureConnection
+ * @see SessionManager::create
+ * @see SSLSessionManager::create
  *
  **/
 exception CannotCreateSessionException

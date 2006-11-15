@@ -84,17 +84,6 @@ private:
     LocatorRegistryPrx _registryPrx;
 };
 
-class DummyPermissionsVerifierI : public Glacier2::PermissionsVerifier
-{
-public:
-
-    virtual bool
-    checkPermissions(const string&, const string&, string&, const Ice::Current&) const
-    {
-        return true;
-    }
-};
-
 class ServantLocatorI : virtual public ServantLocator
 {
 public:
@@ -158,7 +147,6 @@ SessionControlServer::run(int, char*[])
 
     communicator()->getProperties()->setProperty("SessionControlAdapter.Endpoints", "tcp -p 12010");
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("SessionControlAdapter");
-    adapter->add(new DummyPermissionsVerifierI, communicator()->stringToIdentity("verifier"));
     adapter->add(new SessionManagerI(controller), communicator()->stringToIdentity("SessionManager"));
     adapter->activate();
 

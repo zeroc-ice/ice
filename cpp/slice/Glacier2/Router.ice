@@ -30,6 +30,7 @@ module Glacier2
  * a session with the router.
  *
  * @see Router::createSession
+ * @see Router::createSessionFromSecureConnection
  *
  **/
 exception PermissionDeniedException

@@ -63,6 +63,27 @@ private:
     SessionRouterIPtr _sessionRouter;
 };
 
+class NullPermissionsVerifierI : public Glacier2::PermissionsVerifier
+{
+public:
+
+    bool checkPermissions(const string& userId, const string& password, string&, const Current&) const
+    {
+        return true;
+    }
+};
+
+class NullSSLPermissionsVerifierI : public Glacier2::SSLPermissionsVerifier
+{
+public:
+
+    virtual bool
+    authorize(const Glacier2::SSLInfo&, std::string&, const Ice::Current&) const
+    {
+        return true;
+    }
+};
+
 };
 
 Glacier2::RouterService::RouterService()
@@ -140,6 +161,15 @@ Glacier2::RouterService::start(int argc, char* argv[])
 	adminAdapter = communicator()->createObjectAdapter("Glacier2.Admin");
     }
 
+    string instanceName = properties->getPropertyWithDefault("Glacier2.InstanceName", "Glacier2");
+
+    //
+    // We need a separate object adapter for any collocated
+    // permissions verifier. We can't use the client adapter.
+    //
+    ObjectAdapterPtr verifierAdapter =
+        communicator()->createObjectAdapterWithEndpoints(IceUtil::generateUUID(), "tcp -h 127.0.0.1");
+
     //
     // Check for a permissions verifier or a password file.
     //
@@ -148,21 +178,34 @@ Glacier2::RouterService::start(int argc, char* argv[])
     string passwordsProperty = properties->getProperty("Glacier2.CryptPasswords");
     if(!verifierProperty.empty())
     {
-    	try
+        Identity nullPermVerifId;
+        nullPermVerifId.category = instanceName;
+        nullPermVerifId.name = "NullPermissionsVerifier";
+
+        verifier = PermissionsVerifierPrx::uncheckedCast(communicator()->stringToProxy(verifierProperty));
+	if(verifier->ice_getIdentity() == nullPermVerifId)
 	{
-	    verifier = PermissionsVerifierPrx::checkedCast(communicator()->stringToProxy(verifierProperty));
+    	    verifier = PermissionsVerifierPrx::uncheckedCast(
+        	verifierAdapter->add(new NullPermissionsVerifierI(), nullPermVerifId)->ice_collocationOptimized(true));
 	}
-	catch(const Ice::Exception& ex)
+	else
 	{
-	    ostringstream ostr;
-	    ostr << ex;
-	    error("unable to contact permissions verifier `" + verifierProperty + "'\n" + ostr.str());
-	    return false;
-	}
-	if(!verifier)
-	{
-	    error("permissions verifier `" + verifierProperty + "' is invalid");
-	    return false;
+    	    try
+	    {
+	        verifier = PermissionsVerifierPrx::checkedCast(communicator()->stringToProxy(verifierProperty));
+	    }
+	    catch(const Ice::Exception& ex)
+	    {
+	        ostringstream ostr;
+	        ostr << ex;
+	        error("unable to contact permissions verifier `" + verifierProperty + "'\n" + ostr.str());
+	        return false;
+	    }
+	    if(!verifier)
+	    {
+	        error("permissions verifier `" + verifierProperty + "' is invalid");
+	        return false;
+	    }
 	}
     }
     else if(!passwordsProperty.empty())
@@ -200,12 +243,6 @@ Glacier2::RouterService::start(int argc, char* argv[])
 
 	PermissionsVerifierPtr verifierImpl = new CryptPermissionsVerifierI(passwords);
 
-	//
-	// We need a separate object adapter for any collocated
-	// permissions verifier. We can't use the client adapter.
-	//
-	ObjectAdapterPtr verifierAdapter =
-	    communicator()->createObjectAdapterWithEndpoints(IceUtil::generateUUID(), "tcp -h 127.0.0.1");
 	verifier = PermissionsVerifierPrx::uncheckedCast(verifierAdapter->addWithUUID(verifierImpl));
     }
 
@@ -244,21 +281,37 @@ Glacier2::RouterService::start(int argc, char* argv[])
     SSLPermissionsVerifierPrx sslVerifier;
     if(!sslVerifierProperty.empty())
     {
-        try
+        Identity nullSSLPermVerifId;
+        nullSSLPermVerifId.category = instanceName;
+        nullSSLPermVerifId.name = "NullSSLPermissionsVerifier";
+
+	sslVerifier = SSLPermissionsVerifierPrx::uncheckedCast(communicator()->stringToProxy(sslVerifierProperty));
+	if(sslVerifier->ice_getIdentity() == nullSSLPermVerifId)
 	{
-	    sslVerifier = SSLPermissionsVerifierPrx::checkedCast(communicator()->stringToProxy(sslVerifierProperty));
+
+            sslVerifier = SSLPermissionsVerifierPrx::uncheckedCast(
+                verifierAdapter->add(new NullSSLPermissionsVerifierI(), nullSSLPermVerifId)->
+			ice_collocationOptimized(true));
 	}
-	catch(const Ice::Exception& ex)
+	else
 	{
-	    ostringstream ostr;
-	    ostr << ex;
-	    error("unable to contact ssl permissions verifier `" + sslVerifierProperty + "'\n" + ostr.str());
-	    return false;
-	}
-	if(!sslVerifier)
-	{
-	    error("ssl permissions verifier `" + sslVerifierProperty + "' is invalid");
-	    return false;
+            try
+	    {
+	        sslVerifier = 
+		    SSLPermissionsVerifierPrx::checkedCast(communicator()->stringToProxy(sslVerifierProperty));
+	    }
+	    catch(const Ice::Exception& ex)
+	    {
+	        ostringstream ostr;
+	        ostr << ex;
+	        error("unable to contact ssl permissions verifier `" + sslVerifierProperty + "'\n" + ostr.str());
+	        return false;
+	    }
+	    if(!sslVerifier)
+	    {
+	        error("ssl permissions verifier `" + sslVerifierProperty + "' is invalid");
+	        return false;
+	    }
 	}
     }
 
@@ -311,7 +364,7 @@ Glacier2::RouterService::start(int argc, char* argv[])
     if(adminAdapter)
     {
 	Identity adminId;
-	adminId.category = properties->getPropertyWithDefault("Glacier2.InstanceName", "Glacier2");
+	adminId.category = instanceName;
 	adminId.name = "admin";
 	adminAdapter->add(new AdminI(communicator()), adminId);
     }

@@ -34,17 +34,6 @@ public:
     }
 };
 
-class PermissionsVerifierI : public Glacier2::PermissionsVerifier
-{
-public:
-
-    virtual bool
-    checkPermissions(const string&, const string&, string&, const Ice::Current& current) const
-    {
-	return true;
-    }
-};
-
 class SessionI : public Glacier2::Session
 {
 public:
@@ -127,7 +116,6 @@ SessionServer::run(int argc, char* argv[])
 {
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints(
 	"SessionServer", "tcp -h 127.0.0.1 -p 12350 -t 10000");
-    adapter->add(new PermissionsVerifierI, communicator()->stringToIdentity("verifier"));
     adapter->add(new SSLPermissionsVerifierI, communicator()->stringToIdentity("sslverifier"));
     adapter->add(new SessionManagerI, communicator()->stringToIdentity("sessionmanager"));
     adapter->add(new SSLSessionManagerI, communicator()->stringToIdentity("sslsessionmanager"));
