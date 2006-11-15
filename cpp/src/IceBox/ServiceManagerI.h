@@ -34,6 +34,7 @@ public:
 
     struct ServiceInfo
     {
+        ::std::string name;
         ServicePtr service;
         ::IceInternal::DynamicLibraryPtr library;
 	::Ice::CommunicatorPtr communicator;
@@ -52,7 +53,7 @@ private:
     ::Ice::CommunicatorPtr _communicator;
     ::Ice::LoggerPtr _logger;
     ::Ice::StringSeq _argv; // Filtered server argument vector, not including program name
-    std::map<std::string, ServiceInfo> _services;
+    std::vector<ServiceInfo> _services;
 };
 
 typedef IceUtil::Handle<ServiceManagerI> ServiceManagerIPtr;

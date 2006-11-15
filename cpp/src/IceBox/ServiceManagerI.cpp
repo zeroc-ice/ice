@@ -251,6 +251,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     //
     SERVICE_FACTORY factory = (SERVICE_FACTORY)sym;
     ServiceInfo info;
+    info.name = service;
     try
     {
         info.service = factory(_communicator);
@@ -406,8 +407,9 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	    throw;
 	}
 
+cout << "Starting " << info.name << endl;
         info.library = library;
-        _services[service] = info;
+        _services.push_back(info);
     }
     catch(const FailureException&)
     {
@@ -428,15 +430,19 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 void
 IceBox::ServiceManagerI::stopAll()
 {
-    map<string,ServiceInfo>::iterator p;
+    //
+    // Services are stopped in the reverse order from which they are started.
+    //
+    vector<ServiceInfo>::reverse_iterator p;
 
     //
     // First, for each service, we call stop on the service and flush its database environment to 
     // the disk.
     //
-    for(p = _services.begin(); p != _services.end(); ++p)
+    for(p = _services.rbegin(); p != _services.rend(); ++p)
     {
-	ServiceInfo& info = p->second;
+	ServiceInfo& info = *p;
+cout << "Stopping " << info.name << endl;
 	try
 	{
 	    info.service->stop();
@@ -444,19 +450,19 @@ IceBox::ServiceManagerI::stopAll()
 	catch(const Ice::Exception& ex)
 	{
             Warning out(_logger);
-	    out << "ServiceManager: exception in stop for service " << p->first << ":\n";
+	    out << "ServiceManager: exception in stop for service " << info.name << ":\n";
 	    out << ex;
 	}
 	catch(...)
 	{
             Warning out(_logger);
-	    out << "ServiceManager: unknown exception in stop for service " << p->first;
+	    out << "ServiceManager: unknown exception in stop for service " << info.name;
 	}
     }
 
-    for(p = _services.begin(); p != _services.end(); ++p)
+    for(p = _services.rbegin(); p != _services.rend(); ++p)
     {
-	ServiceInfo& info = p->second;
+	ServiceInfo& info = *p;
 
 	if(info.communicator)
 	{
@@ -475,7 +481,7 @@ IceBox::ServiceManagerI::stopAll()
 	    catch(const Ice::Exception& ex)
 	    {
 		Warning out(_logger);
-		out << "ServiceManager: exception in stop for service " << p->first << ":\n";
+		out << "ServiceManager: exception in stop for service " << info.name << ":\n";
 		out << ex;
 	    }
 	}
@@ -493,13 +499,13 @@ IceBox::ServiceManagerI::stopAll()
 	catch(const Exception& ex)
 	{
 	    Warning out(_logger);
-	    out << "ServiceManager: exception in stop for service " << p->first << ":\n";
+	    out << "ServiceManager: exception in stop for service " << info.name << ":\n";
 	    out << ex;
 	}
 	catch(...)
 	{
             Warning out(_logger);
-	    out << "ServiceManager: unknown exception in stop for service " << p->first;
+	    out << "ServiceManager: unknown exception in stop for service " << info.name;
 	}
 
 	if(info.communicator)
@@ -512,7 +518,7 @@ IceBox::ServiceManagerI::stopAll()
 	    catch(const Exception& ex)
 	    {
 		Warning out(_logger);
-		out << "ServiceManager: exception in stop for service " << p->first << ":\n";
+		out << "ServiceManager: exception in stop for service " << info.name << ":\n";
 		out << ex;
 	    }
 	}
@@ -524,13 +530,13 @@ IceBox::ServiceManagerI::stopAll()
 	catch(const Exception& ex)
 	{
 	    Warning out(_logger);
-	    out << "ServiceManager: exception in stop for service " << p->first << ":\n";
+	    out << "ServiceManager: exception in stop for service " << info.name << ":\n";
 	    out << ex;
 	}
 	catch(...)
 	{
             Warning out(_logger);
-	    out << "ServiceManager: unknown exception in stop for service " << p->first;
+	    out << "ServiceManager: unknown exception in stop for service " << info.name;
 	}
     }
 
