@@ -64,13 +64,13 @@ Publisher::run(int argc, char* argv[])
     {
 	topic = manager->retrieve(topicName);
     }
-    catch(const IceStorm::NoSuchTopic& e)
+    catch(const IceStorm::NoSuchTopic&)
     {
 	try
 	{
 	    topic = manager->create(topicName);
 	}
-	catch(const IceStorm::TopicExists& e)
+	catch(const IceStorm::TopicExists&)
 	{
 	    cerr << appName() << ": temporary failure. try again." << endl;
 	    return EXIT_FAILURE;
@@ -89,7 +89,7 @@ Publisher::run(int argc, char* argv[])
 	while(true)
 	{
 	    clock->tick(IceUtil::Time::now().toString());
-#ifdef WIN32
+#ifdef _WIN32
 	    Sleep(1000);
 #else
 	    sleep(1);
