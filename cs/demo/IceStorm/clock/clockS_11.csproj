@@ -84,11 +84,6 @@
         <Files>
             <Include>
                 <File
-                    RelPath = "ClockI.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "Subscriber.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

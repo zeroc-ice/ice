@@ -12,7 +12,7 @@ top_srcdir	= ../../..
 TARGETS		= publisher.exe subscriber.exe
 
 C_SRCS		= Publisher.cs
-S_SRCS		= ClockI.cs Subscriber.cs
+S_SRCS		= Subscriber.cs
 
 SLICE_SRCS	= $(SDIR)/Clock.ice
 

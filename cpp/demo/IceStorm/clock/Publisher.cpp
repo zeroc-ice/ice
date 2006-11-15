@@ -57,7 +57,7 @@ Publisher::run(int argc, char* argv[])
     }
 
     //
-    // Retrieve the topic named "time".
+    // Retrieve the topic.
     //
     IceStorm::TopicPrx topic;
     try

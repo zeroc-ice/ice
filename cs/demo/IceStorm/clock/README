@@ -9,7 +9,6 @@ current working directory.
 
 In a separate window:
 
-$ icestormadmin --Ice.Config=config.service -e "create time"
 $ subscriber.exe
 
 In another window:

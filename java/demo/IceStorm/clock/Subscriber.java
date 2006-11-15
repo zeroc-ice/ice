@@ -11,6 +11,15 @@ import Demo.*;
 
 public class Subscriber extends Ice.Application
 {
+    public class ClockI extends _ClockDisp
+    {
+        public void
+	tick(String date, Ice.Current current)
+	{
+	    System.out.println(date);
+	}
+    }
+
     public int
     run(String[] args)
     {
@@ -24,112 +33,64 @@ public class Subscriber extends Ice.Application
             return 1;
         }
 
-        Ice.ObjectPrx base = communicator().stringToProxy(proxy);
-        IceStorm.TopicManagerPrx manager = IceStorm.TopicManagerPrxHelper.checkedCast(base);
+        IceStorm.TopicManagerPrx manager = IceStorm.TopicManagerPrxHelper.checkedCast(
+	    communicator().stringToProxy(proxy));
         if(manager == null)
         {
 	    System.err.println("invalid proxy");
             return 1;
         }
 
-        //
-        // Gather the set of topics to which to subscribe. It is either
-        // the set provided on the command line, or the topic "time".
-        //
-	java.util.List topics = new java.util.ArrayList();;
-        if(args.length > 1)
+        String topicName = "time";
+        if(args.length != 0)
         {
-            for(int i = 0; i < args.length; ++i)
-            {
-                topics.add(args[i]);
-            }
-        }
-        else
-        {
-            topics.add("time");
+            topicName = args[0];
         }
 
         //
-        // Set the requested quality of service "reliability" =
-        // "batch". This tells IceStorm to send events to the subscriber
-        // in batches at regular intervals.
+        // Retrieve the topic named "time".
         //
-	java.util.Map qos = new java.util.HashMap();
-	qos.put("reliability", "batch");
-
-        //
-        // Create the servant to receive the events.
-        //
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Clock.Subscriber");
-        Ice.Object clock = new ClockI();
-
-        //
-        // List of all subscribers.
-        //
-        java.util.Map subscribers = new java.util.HashMap();;
-
-        //
-        // Add the servant to the adapter for each topic. A ServantLocator
-        // could have been used for the same purpose.
-        //
-	java.util.Iterator p = topics.iterator();
-	while(p.hasNext())
+        IceStorm.TopicPrx topic;
+        try
         {
-	    String name = (String)p.next();
-
-            //
-            // Add a Servant for the Ice Object.
-            //
-            Ice.ObjectPrx object = adapter.addWithUUID(clock);
+            topic = manager.retrieve(topicName);
+        }
+        catch(IceStorm.NoSuchTopic e)
+        {
             try
             {
-                IceStorm.TopicPrx topic = manager.retrieve(name);
-                topic.subscribe(qos, object);
+                topic = manager.create(topicName);
             }
-            catch(IceStorm.NoSuchTopic e)
+            catch(IceStorm.TopicExists ex)
             {
-	        System.err.println(e + " name: " + e.name);
-                break;
+                System.err.println("temporary failure, try again.");
+                return 1;
             }
-
-            //
-            // Add to the set of subscribers _after_ subscribing. This
-            // ensures that only subscribed subscribers are unsubscribed
-            // in the case of an error.
-            //
-            subscribers.put(name, object);
         }
 
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Clock.Subscriber");
+
         //
-        // Unless there is a subscriber per topic then there was some
-        // problem. If there was an error the application should terminate
-        // without accepting any events.
+        // Add a Servant for the Ice Object.
         //
-        if(subscribers.size() == topics.size())
-        {
-            adapter.activate();
-            shutdownOnInterrupt();
-            communicator().waitForShutdown();
-        }
+	Ice.ObjectPrx subscriber = adapter.addWithUUID(new ClockI());
+
+        //
+	// This demo requires no quality of service, so it will use
+	// the defaults.
+        //
+	java.util.Map qos = new java.util.HashMap();
+
+        topic.subscribe(qos, subscriber);
+        adapter.activate();
+
+        shutdownOnInterrupt();
+        communicator().waitForShutdown();
 
         //
         // Unsubscribe all subscribed objects.
         //
-	p = subscribers.entrySet().iterator();
-	while(p.hasNext())
-        {
-	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-
-            try
-            {
-                IceStorm.TopicPrx topic = manager.retrieve((String)entry.getKey());
-                topic.unsubscribe((Ice.ObjectPrx)entry.getValue());
-            }
-            catch(IceStorm.NoSuchTopic e)
-            {
-	        System.err.println(e + " name: " + e.name);
-            }
-        }
+        topic.unsubscribe(subscriber);
 
         return 0;
     }

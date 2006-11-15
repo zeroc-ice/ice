@@ -95,10 +95,6 @@ SOURCE=.\Clock.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ClockI.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Subscriber.cpp
 # End Source File
 # End Group
@@ -108,10 +104,6 @@ SOURCE=.\Subscriber.cpp
 # Begin Source File
 
 SOURCE=.\Clock.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ClockI.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

@@ -88,9 +88,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClockI.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="generated\Clock.cs">
       <SubType>Code</SubType>
     </Compile>

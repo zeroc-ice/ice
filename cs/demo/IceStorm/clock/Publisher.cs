@@ -9,6 +9,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using Demo;
 
 public class Publisher : Ice.Application
@@ -16,6 +17,7 @@ public class Publisher : Ice.Application
     public override int run(string[] args)
     {
         Ice.Properties properties = communicator().getProperties();
+
         const String proxyProperty = "IceStorm.TopicManager.Proxy";
         String proxy = properties.getProperty(proxyProperty);
         if(proxy.Length == 0)
@@ -24,46 +26,61 @@ public class Publisher : Ice.Application
             return 1;
         }
 
-        Ice.ObjectPrx basePrx = communicator().stringToProxy(proxy);
-        IceStorm.TopicManagerPrx manager = IceStorm.TopicManagerPrxHelper.checkedCast(basePrx);
+        IceStorm.TopicManagerPrx manager = IceStorm.TopicManagerPrxHelper.checkedCast(
+	    communicator().stringToProxy(proxy));
         if(manager == null)
         {
             Console.WriteLine("invalid proxy");
             return 1;
         }
 
+	string topicName = "time";
+	if(args.Length != 0)
+	{
+	    topicName = args[0];
+	}
+
         //
-        // Retrieve the topic named "time".
+        // Retrieve the topic.
         //
         IceStorm.TopicPrx topic;
         try
         {
-            topic = manager.retrieve("time");
+            topic = manager.retrieve(topicName);
         }
         catch(IceStorm.NoSuchTopic e)
         {
-            Console.WriteLine(e + "name: " + e.name);
-            return 1;
+	    try
+	    {
+                topic = manager.create(topicName);
+	    }
+	    catch(IceStorm.TopicExists ex)
+	    {
+                Console.WriteLine("temporary error. try again.");
+                return 1;
+	    }
         }
-        Debug.Assert(topic != null);
 
         //
-        // Get the topic's publisher object, verify that it supports
-        // the Clock type, and create a oneway Clock proxy (for efficiency
-        // reasons).
+        // Get the topic's publisher object, the Clock type, and create a 
+	// oneway Clock proxy (for efficiency reasons).
         //
-        Ice.ObjectPrx obj = topic.getPublisher();
-        if(!obj.ice_isDatagram())
-        {
-            obj = obj.ice_oneway();
-        }
-        ClockPrx clock = ClockPrxHelper.uncheckedCast(obj);
+	ClockPrx clock = ClockPrxHelper.uncheckedCast(topic.getPublisher().ice_oneway());
 
-        Console.WriteLine("publishing 10 tick events");
-        for(int i = 0; i < 10; ++i)
-        {
-            clock.tick();
-        }
+        Console.WriteLine("publishing tick events. Press ^C to terminate the application.");
+	try
+	{
+            while(true)
+            {
+                clock.tick(System.DateTime.Now.ToString("G", DateTimeFormatInfo.InvariantInfo));
+
+		System.Threading.Thread.Sleep(1000);
+            }
+	}
+	catch(Ice.CommunicatorDestroyedException e)
+	{
+	    // Ignore
+	}
 
         return 0;
     }

@@ -77,8 +77,3 @@ IceStorm.Flush.Timeout=2000
 # database environment for the IceStorm service.
 #
 Freeze.DbEnv.IceStorm.DbHome=db
-
-#
-# If we federate internally we need at least 2 threads.
-#
-Ice.ThreadPool.Server.Size=4

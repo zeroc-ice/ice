@@ -15,6 +15,7 @@ public class Publisher extends Ice.Application
     run(String[] args)
     {
         Ice.Properties properties = communicator().getProperties();
+
         final String proxyProperty = "IceStorm.TopicManager.Proxy";
         String proxy = properties.getProperty(proxyProperty);
         if(proxy.length() == 0)
@@ -23,13 +24,19 @@ public class Publisher extends Ice.Application
             return 1;
         }
 
-	Ice.ObjectPrx base = communicator().stringToProxy(proxy);
-        IceStorm.TopicManagerPrx manager = IceStorm.TopicManagerPrxHelper.checkedCast(base);
+        IceStorm.TopicManagerPrx manager = IceStorm.TopicManagerPrxHelper.checkedCast(
+	    communicator().stringToProxy(proxy));
         if(manager == null)
         {
             System.err.println("invalid proxy");
             return 1;
         }
+
+	String topicName = "time";
+	if(args.length != 0)
+	{
+	    topicName = args[0];
+	}
 
 	//
 	// Retrieve the topic named "time".
@@ -37,32 +44,49 @@ public class Publisher extends Ice.Application
 	IceStorm.TopicPrx topic;
 	try
 	{
-	    topic = manager.retrieve("time");
+	    topic = manager.retrieve(topicName);
 	}
 	catch(IceStorm.NoSuchTopic e)
 	{
-	    System.err.println(e + "name: " + e.name);
-	    return 1;
+	    try
+	    {
+	        topic = manager.create(topicName);
+	    }
+	    catch(IceStorm.TopicExists ex)
+	    {
+	        System.err.println("temporary failure, try again.");
+	        return 1;
+	    }
 	}
-	assert(topic != null);
 
 	//
-	// Get the topic's publisher object, verify that it supports
-	// the Clock type, and create a oneway Clock proxy (for efficiency
-	// reasons).
+	// Get the topic's publisher object, the Clock type, and create a
+	// oneway Clock proxy (for efficiency reasons).
 	//
-        Ice.ObjectPrx obj = topic.getPublisher();
-        if(!obj.ice_isDatagram())
-        {
-            obj = obj.ice_oneway();
-        }
-        ClockPrx clock = ClockPrxHelper.uncheckedCast(obj);
+	ClockPrx clock = ClockPrxHelper.uncheckedCast(topic.getPublisher().ice_oneway());
 
-        System.out.println("publishing 10 tick events");
-        for(int i = 0; i < 10; ++i)
-        {
-            clock.tick();
-        }
+        System.out.println("publishing tick events. Press ^C to terminate the application.");
+	try
+	{
+	    java.text.SimpleDateFormat date = new java.text.SimpleDateFormat("MM/dd/yy HH:mm:ss:SSS");
+	    while(true)
+	    {
+	        
+                clock.tick(date.format(new java.util.Date()));
+
+		try
+		{
+		    Thread.currentThread().sleep(1000);
+		}
+		catch(java.lang.InterruptedException e)
+		{
+		}
+	    }
+	}
+	catch(Ice.CommunicatorDestroyedException ex)
+	{
+	    // Ignore
+	}
 
         return 0;
     }

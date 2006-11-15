@@ -13,6 +13,14 @@ using Demo;
 
 public class Subscriber : Ice.Application
 {
+    public class ClockI : ClockDisp_
+    {
+        public override void tick(string date, Ice.Current current)
+	{
+	    System.Console.Out.WriteLine(date);
+	}
+    }
+
     public override int run(string[] args)
     {
         Ice.Properties properties = communicator().getProperties();
@@ -25,105 +33,64 @@ public class Subscriber : Ice.Application
             return 1;
         }
 
-        Ice.ObjectPrx basePrx = communicator().stringToProxy(proxy);
-        IceStorm.TopicManagerPrx manager = IceStorm.TopicManagerPrxHelper.checkedCast(basePrx);
+        IceStorm.TopicManagerPrx manager = IceStorm.TopicManagerPrxHelper.checkedCast(
+	    communicator().stringToProxy(proxy));
         if(manager == null)
         {
             Console.WriteLine("invalid proxy");
             return 1;
         }
 
-        //
-        // Gather the set of topics to which to subscribe. It is either
-        // the set provided on the command line, or the topic "time".
-        //
-        ArrayList topics = new ArrayList();;
-        if(args.Length > 1)
+        string topicName = "time";
+        if(args.Length != 0)
         {
-            for(int i = 0; i < args.Length; ++i)
-            {
-                topics.Add(args[i]);
-            }
-        }
-        else
-        {
-            topics.Add("time");
+            topicName = args[0];
         }
 
         //
-        // Set the requested quality of service "reliability" =
-        // "batch". This tells IceStorm to send events to the subscriber
-        // in batches at regular intervals.
+        // Retrieve the topic.
         //
-	IceStorm.QoS qos = new IceStorm.QoS();
-        qos["reliability"] = "batch";
-
-        //
-        // Create the servant to receive the events.
-        //
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Clock.Subscriber");
-        Ice.Object clock = new ClockI();
-
-        //
-        // List of all subscribers.
-        //
-	Hashtable subscribers = new Hashtable();
-
-        //
-        // Add the servant to the adapter for each topic. A ServantLocator
-        // could have been used for the same purpose.
-        //
-	for(int i = 0; i < topics.Count; ++i)
+        IceStorm.TopicPrx topic;
+        try
         {
-            //
-            // Add a Servant for the Ice Object.
-            //
-            Ice.ObjectPrx obj = adapter.addWithUUID(clock);
+            topic = manager.retrieve(topicName);
+        }
+        catch(IceStorm.NoSuchTopic e)
+        {
             try
             {
-                IceStorm.TopicPrx topic = manager.retrieve((string)topics[i]);
-                topic.subscribe(qos, obj);
+                topic = manager.create(topicName);
             }
-            catch(IceStorm.NoSuchTopic e)
-            {                               
-                Console.WriteLine(e + " name: " + e.name);
+            catch(IceStorm.TopicExists ex)
+            {
+                Console.WriteLine("temporary error. try again.");
+                return 1;
             }
-
-            //
-            // Add to the set of subscribers _after_ subscribing. This
-            // ensures that only subscribed subscribers are unsubscribed
-            // in the case of an error.
-            //
-            subscribers[(string)topics[i]] = obj;
         }
 
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Clock.Subscriber");
+
         //
-        // Unless there is a subscriber per topic then there was some
-        // problem. If there was an error the application should terminate
-        // without accepting any events.
+        // Add a Servant for the Ice Object.
         //
-        if(subscribers.Count == topics.Count)
-        {
-            adapter.activate();
-            shutdownOnInterrupt();
-            communicator().waitForShutdown();
-        }
+        Ice.ObjectPrx subscriber = adapter.addWithUUID(new ClockI());
+
+        //
+	// This demo requires no quality of service, so it will use
+	// the defaults.
+        //
+	IceStorm.QoS qos = new IceStorm.QoS();
+
+        topic.subscribe(qos, subscriber);
+        adapter.activate();
+
+        shutdownOnInterrupt();
+        communicator().waitForShutdown();
 
         //
         // Unsubscribe all subscribed objects.
         //
-	foreach(DictionaryEntry entry in (Hashtable)subscribers)
-        {
-            try
-            {
-                IceStorm.TopicPrx topic = manager.retrieve((string)entry.Key);
-                topic.unsubscribe((Ice.ObjectPrx)entry.Value);
-            }
-            catch(IceStorm.NoSuchTopic e)
-            {
-                Console.WriteLine(e + " name: " + e.name);
-            }
-        }
+        topic.unsubscribe(subscriber);
 
         return 0;
     }
