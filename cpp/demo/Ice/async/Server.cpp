@@ -32,9 +32,6 @@ QueueServer::run(int argc, char* argv[])
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Queue");
     adapter->add(new QueueI, communicator()->stringToIdentity("queue"));
     adapter->activate();
-
-    shutdownOnInterrupt();
     communicator()->waitForShutdown();
-
     return EXIT_SUCCESS;
 }
