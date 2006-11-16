@@ -63,3 +63,8 @@ Demos in this directory:
 - converter
 
   This demo shows how to use string converters.
+
+- async
+
+  This demo illustrates the use of Aysynchronous Message Invocation (AMI)
+  and Aysynchronous Message Dispatch (AMD).

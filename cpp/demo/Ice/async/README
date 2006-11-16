@@ -1,0 +1,16 @@
+This demo illustrates the use of Aysynchronous Message Invocation (AMI)
+and Aysynchronous Message Dispatch (AMD).
+
+To run the demo, first start the server:
+
+$ server
+
+In a second window, start the publisher:
+
+$ publisher
+
+In a third window, start the consumer:
+
+$ consumer
+
+Multiple publishers and consumers can be used if so desired.

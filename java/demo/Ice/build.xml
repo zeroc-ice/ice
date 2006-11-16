@@ -22,6 +22,7 @@
         <ant dir="throughput"/>
         <ant dir="value"/>
         <ant dir="session"/>
+        <ant dir="async"/>
     </target>
 
     <target name="clean">
@@ -35,6 +36,7 @@
         <ant dir="throughput" target="clean"/>
         <ant dir="value" target="clean"/>
         <ant dir="session" target="clean"/>
+        <ant dir="async" target="clean"/>
     </target>
 
 </project>

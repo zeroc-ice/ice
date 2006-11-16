@@ -21,7 +21,8 @@ SUBDIRS		= minimal \
 		  invoke \
 		  bidir \
 		  session \
-		  converter
+		  converter \
+		  async
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

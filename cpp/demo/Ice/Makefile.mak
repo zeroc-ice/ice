@@ -21,7 +21,8 @@ SUBDIRS		= minimal \
 		  invoke \
 		  bidir \
 		  session \
-		  converter
+		  converter \
+		  async
 
 !if "$(BORLAND_HOME)" == ""
 SUBDIRS		= $(SUBDIRS) MFC
