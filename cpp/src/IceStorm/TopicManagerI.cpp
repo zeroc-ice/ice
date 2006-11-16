@@ -12,7 +12,6 @@
 #include <IceStorm/SubscriberPool.h>
 #include <IceStorm/BatchFlusher.h>
 #include <IceStorm/TraceLevels.h>
-#include <IceStorm/KeepAliveThread.h>
 #include <IceStorm/Instance.h>
 #include <Freeze/Initialize.h>
 
@@ -35,8 +34,7 @@ TopicManagerI::TopicManagerI(
     _envName(envName),
     _dbName(dbName),
     _connection(Freeze::createConnection(instance->communicator(), envName)),
-    _topics(_connection, dbName),
-    _upstream(_connection, "upstream")
+    _topics(_connection, dbName)
 {
     //
     // Recreate each of the topics in the persistent map
@@ -62,7 +60,6 @@ TopicManagerI::create(const string& name, const Ice::Current&)
     }
 
     _topics.put(PersistentTopicMap::value_type(name, LinkRecordDict()));
-    _upstream.put(PersistentUpstreamMap::value_type(name, TopicUpstreamLinkPrxSeq()));
     installTopic(name, LinkRecordDict(), true);
 
     //
@@ -156,8 +153,6 @@ TopicManagerI::reap()
             }
 
             _topics.erase(i->first);
-
-            _upstream.erase(i->first);
 
             try
             {

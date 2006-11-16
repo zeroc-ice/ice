@@ -226,18 +226,6 @@ interface Topic
 
     /**
      *
-     * Destroy the link from this topic to the named given topic
-     * [linkTo].
-     *
-     * @param link The name of the topic to destroy the link to.
-     *
-     * @throws NoSuchLink Raised if a link to the topic does not exist.
-     *
-     **/
-    void unlinkByName(string linkTo) throws NoSuchLink;
-
-    /**
-     *
      * Retrieve information on the current links.
      *
      * @return A sequence of LinkInfo objects.

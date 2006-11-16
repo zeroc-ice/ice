@@ -13,7 +13,6 @@
 #include <IceUtil/RecMutex.h>
 #include <IceStorm/IceStormInternal.h>
 #include <IceStorm/PersistentTopicMap.h>
-#include <IceStorm/PersistentUpstreamMap.h>
 #include <IceStorm/Event.h>
 #include <list>
 
@@ -40,12 +39,8 @@ public:
     virtual TopicLinkPrx getLinkProxy(const Ice::Current&);
     virtual void link(const TopicPrx&, Ice::Int, const Ice::Current&);
     virtual void unlink(const TopicPrx&, const Ice::Current&);
-    virtual void unlinkByName(const std::string&, const Ice::Current&);
     virtual LinkInfoSeq getLinkInfoSeq(const Ice::Current&) const;
     virtual void destroy(const Ice::Current&);
-
-    virtual void linkNotification(const std::string&, const TopicUpstreamLinkPrx&, const Ice::Current&);
-    virtual void unlinkNotification(const std::string&, const TopicUpstreamLinkPrx&, const Ice::Current&);
 
     // Internal methods
     bool destroyed() const;
@@ -68,6 +63,7 @@ private:
 
     // Set of subscribers.
     IceUtil::Mutex _subscribersMutex;
+
     //
     // We keep a vector of subscribers since the optimized behaviour
     // should be publishing events, not searching through the list of
@@ -88,12 +84,6 @@ private:
     PersistentTopicMap _topics;
     IceStorm::LinkRecordDict _topicRecord;
 
-    // The set of upstream topics.
-    IceUtil::RecMutex _upstreamRecordMutex;
-    PersistentUpstreamMap _upstream;
-    IceStorm::TopicUpstreamLinkPrxSeq _upstreamRecord;
-
-    // Protected by either _upstreamRecordMutex or _topicRecordMutex
     bool _destroyed; // Has this Topic been destroyed?
 };
 typedef IceUtil::Handle<TopicI> TopicIPtr;

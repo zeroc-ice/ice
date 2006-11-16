@@ -71,13 +71,15 @@ public:
     //
     // For use by the subscriber worker.
     //
-    SubscriberPtr dequeue(const SubscriberPtr&, bool, const IceUtil::Time&, bool&);
+    void dequeue(SubscriberPtr&, bool, const IceUtil::Time&, bool&);
     //
     // For use by the monitor.
     //
     void check();
 
 private:
+
+    bool invariants();
     
     const InstancePtr _instance;
     const unsigned int _sizeMax;

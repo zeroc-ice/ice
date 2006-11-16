@@ -13,7 +13,6 @@
 #include <IceStorm/TraceLevels.h>
 #include <IceStorm/BatchFlusher.h>
 #include <IceStorm/SubscriberPool.h>
-#include <IceStorm/KeepAliveThread.h>
 #include <IceStorm/Service.h>
 
 using namespace std;
@@ -130,7 +129,7 @@ IceStorm::ServiceI::start(
     // installed so that any upstream topics are notified immediately
     // after startup.
     //
-    _instance->keepAlive()->startPinging();
+    //_instance->keepAlive()->startPinging();
 }
 
 void

@@ -31,7 +31,6 @@ public:
 
     ~Subscriber();
 
-    void reachable();
     Ice::ObjectPrx proxy() const;
     Ice::Identity id() const;
     bool persistent() const;
@@ -56,8 +55,7 @@ public:
     void flushTime(const IceUtil::Time&);
     IceUtil::Time pollMaxFlushTime(const IceUtil::Time&);
 
-    void setError(const Ice::Exception&);
-    void setUnreachable(const Ice::Exception&);
+    void error(const Ice::Exception&);
 
 protected:
 
@@ -71,26 +69,15 @@ protected:
 
     IceUtil::Mutex _mutex;
 
-    enum State
+    enum SubscriberState
     {
-	//
-	// The Subscriber is active.
-	//
-	StateActive,
-	//
-	// The Subscriber encountered an error during event
-	// transmission.
-	//
-	StateError,
-	//
-	// The Subscriber is no longer reachable.
-	//
-	StateUnreachable
+	SubscriberStateOnline,
+	SubscriberStateFlushPending,
+	SubscriberStateOffline,
+	SubscriberStateError
     };
-    State _state;
-
-    bool _busy;
-    EventSeq _events;
+    SubscriberState _state; // The subscriber state.
+    EventSeq _events; // The queue of events to send.
 
     //
     // Not protected by _mutex. These members are protected by the
@@ -101,6 +88,9 @@ protected:
 };
 
 bool operator==(const IceStorm::SubscriberPtr&, const Ice::Identity&);
+bool operator==(const IceStorm::Subscriber&, const IceStorm::Subscriber&);
+bool operator!=(const IceStorm::Subscriber&, const IceStorm::Subscriber&);
+bool operator<(const IceStorm::Subscriber&, const IceStorm::Subscriber&);
 
 }
 

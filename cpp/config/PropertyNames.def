@@ -368,13 +368,14 @@ IceStorm:
     SubscriberPool.SizeMax
     SubscriberPool.SizeWarn
     SubscriberPool.Timeout
-    KeepAliveTimeout
     Trace.Flush
     Trace.Subscriber
     Trace.SubscriberPool
     Trace.Topic
     Trace.TopicManager
     Trace.KeepAlive
+    Send.Timeout
+    Discard.Interval
 
 Glacier2:
     AddUserToAllowCategories

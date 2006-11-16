@@ -71,28 +71,6 @@ interface TopicInternal extends Topic
      *
      **/
     idempotent TopicLink* getLinkProxy();
-
-    /**
-     *
-     * Send a link notification to the downstream topic.
-     *
-     * @param name The topic name.
-     *
-     * @param upstream The upstream topic.
-     * 
-     **/
-    void linkNotification(string name, TopicUpstreamLink* upstream);
-
-    /**
-     *
-     * Send an unlink notification to the downstream topic.
-     *
-     * @param name The topic name.
-     *
-     * @param upstream The upstream topic.
-     * 
-     **/
-    void unlinkNotification(string name, TopicUpstreamLink* upstream);
 };
 
 }; // End module IceStorm

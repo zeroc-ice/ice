@@ -47,13 +47,16 @@ Changes since version 3.1.1
 
 - IceStorm changes:
 
-  Changed IceStorm federation such that IceStorm now detects when a
-  downstream topic is unavailable. At this point no further events are
-  forwarded to the downstream Topic until the Topic becomes available
-  again.  This notification is provided by the downstream pinging the
-  upstream topics on a regular basis. The ping time is controlled by
-  IceStorm.KeepAliveTimeout. Added an addition tracing option
-  IceStorm.Trace.KeepAlive.
+  Changed IceStorm federation such that IceStorm now detects when
+  a downstream topic is unavailable.  Once a link is diagnosed as
+  non-functional, events are thrown out until a timer expires
+  (specified using the property IceStorm.Discard.Interval in seconds,
+  default value is 1 minute).  At that point, delivery of the link
+  is attempted once again.
+
+  Added a new property IceStorm.Send.Timeout. This specifies in
+  milliseconds a timeout value is that is set on all link and
+  subscriber proxies. The default value is 1 minute.
 
   All message sending is now faster. In particular, oneway QoS is now
   significantly faster.
@@ -70,12 +73,12 @@ Changes since version 3.1.1
   * IceStorm.SubscriberPool.SizeWarn. If the size of the thread pool
     exceeds this value a warning is issued. The default is 0, which
     means never warn.
-  * IceStorm.SubscriberPool.Timeout. Default value is 250ms. If a
+  * IceStorm.SubscriberPool.Timeout. Default value is 1s. If a
     stall is detected for more than this timeout value (in
     milliseconds) a new thread is spawned up to the maximum size.
 
-  Added IceStorm::Topic::unlinkByName to unlink a topic if the
-  downstream topic is not actually running.
+  It is now possible to call unlink with a topic proxy which refers
+  to an IceStorm topic that is now currently reachable.
 
   Added per-subscriber publisher objects to IceStorm.
   IceStorm::Topic::subscribeAndGetPublisher now returns a proxy which

@@ -14,6 +14,7 @@
 #include <Ice/CommunicatorF.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/PropertiesF.h>
+#include <IceUtil/Time.h>
 
 namespace IceStorm
 {
@@ -23,9 +24,6 @@ typedef IceUtil::Handle<BatchFlusher> BatchFlusherPtr;
 
 class TraceLevels;
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
-
-class KeepAliveThread;
-typedef IceUtil::Handle<KeepAliveThread> KeepAliveThreadPtr;
 
 class SubscriberPool;
 typedef IceUtil::Handle<SubscriberPool> SubscriberPoolPtr;
@@ -41,9 +39,11 @@ public:
     Ice::PropertiesPtr properties() const;
     Ice::ObjectAdapterPtr objectAdapter() const;
     TraceLevelsPtr traceLevels() const;
-    KeepAliveThreadPtr keepAlive() const;
     BatchFlusherPtr batchFlusher() const;
     SubscriberPoolPtr subscriberPool() const;
+
+    IceUtil::Time discardInterval() const;
+    int sendTimeout() const;
 
     void shutdown();
     void destroy();
@@ -53,7 +53,8 @@ private:
     const Ice::CommunicatorPtr _communicator;
     const Ice::ObjectAdapterPtr _adapter;
     const TraceLevelsPtr _traceLevels;
-    KeepAliveThreadPtr _keepAlive;
+    const IceUtil::Time _discardInterval;
+    const int _sendTimeout;
     BatchFlusherPtr _batchFlusher;
     SubscriberPoolPtr _subscriberPool;
 };

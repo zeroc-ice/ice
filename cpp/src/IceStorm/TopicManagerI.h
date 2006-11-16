@@ -12,7 +12,6 @@
 
 #include <IceStorm/IceStorm.h>
 #include <IceStorm/PersistentTopicMap.h>
-#include <IceStorm/PersistentUpstreamMap.h>
 
 namespace IceStorm
 {
@@ -63,7 +62,6 @@ private:
     const std::string _dbName;
     const Freeze::ConnectionPtr _connection;
     PersistentTopicMap _topics;
-    PersistentUpstreamMap _upstream;
 
     TopicIMap _topicIMap;
 };

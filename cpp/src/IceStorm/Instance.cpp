@@ -11,9 +11,9 @@
 #include <IceStorm/BatchFlusher.h>
 #include <IceStorm/TraceLevels.h>
 #include <IceStorm/SubscriberPool.h>
-#include <IceStorm/KeepAliveThread.h>
 
 #include <Ice/Communicator.h>
+#include <Ice/Properties.h>
 
 using namespace IceStorm;
 using namespace std;
@@ -24,7 +24,11 @@ Instance::Instance(
     const Ice::ObjectAdapterPtr& adapter) :
     _communicator(communicator),
     _adapter(adapter),
-    _traceLevels(new TraceLevels(name, communicator->getProperties(), communicator->getLogger()))
+    _traceLevels(new TraceLevels(name, communicator->getProperties(), communicator->getLogger())),
+    _discardInterval(IceUtil::Time::seconds(communicator->getProperties()->getPropertyAsIntWithDefault(
+						"IceStorm.Discard.Interval", 60))), // default one minute.
+    // default one minute.
+    _sendTimeout(communicator->getProperties()->getPropertyAsIntWithDefault("IceStorm.Send.Timeout", 60 * 1000))
 {
     try
     {
@@ -32,13 +36,13 @@ Instance::Instance(
 
 	_batchFlusher = new BatchFlusher(this);
 	_subscriberPool = new SubscriberPool(this);
-	_keepAlive = new KeepAliveThread(this);
     }
     catch(...)
     {
 	shutdown();
 	destroy();
 	__setNoDelete(false);
+
 	throw;
     }
     __setNoDelete(false);
@@ -72,12 +76,6 @@ Instance::traceLevels() const
     return _traceLevels;
 }
 
-KeepAliveThreadPtr
-Instance::keepAlive() const
-{
-    return _keepAlive;
-}
-
 BatchFlusherPtr
 Instance::batchFlusher() const
 {
@@ -90,15 +88,21 @@ Instance::subscriberPool() const
     return _subscriberPool;
 }
 
+IceUtil::Time
+Instance::discardInterval() const
+{
+    return _discardInterval;
+}
+
+int
+Instance::sendTimeout() const
+{
+    return _sendTimeout;
+}
+
 void
 Instance::shutdown()
 {
-    if(_keepAlive)
-    {
-	_keepAlive->destroy();
-	_keepAlive->getThreadControl().join();
-    }
-
     if(_batchFlusher)
     {
 	_batchFlusher->destroy();
@@ -114,7 +118,6 @@ Instance::shutdown()
 void
 Instance::destroy()
 {
-    _keepAlive = 0;
     _batchFlusher = 0;
     _subscriberPool = 0;
 }

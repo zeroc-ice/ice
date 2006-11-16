@@ -40,7 +40,6 @@ SERVICE_OBJS	= IceStorm.obj \
 		  TopicI.obj \
 		  TopicManagerI.obj \
                   PersistentTopicMap.obj \
-                  PersistentUpstreamMap.obj \
 		  LinkRecord.obj \
 		  IceStormInternal.obj \
 		  Event.obj \
@@ -99,11 +98,6 @@ $(ADMIN): $(AOBJS)
 	del /q PersistentTopicMap.h PersistentTopicMap.cpp
 	$(SLICE2FREEZECMD) --dict IceStorm::PersistentTopicMap,string,IceStorm::LinkRecordDict PersistentTopicMap \
 	..\IceStorm\LinkRecord.ice
-
-..\IceStorm\PersistentUpstreamMap.h PersistentUpstreamMap.cpp: ..\IceStorm\LinkRecord.ice $(slicedir)\Ice\Identity.ice $(SLICE2FREEZE)
-	del /q PersistentUpstreamMap.h PersistentUpstreamMap.cpp
-	$(SLICE2FREEZECMD) --dict IceStorm::PersistentUpstreamMap,string,IceStorm::TopicUpstreamLinkPrxSeq \
-	 PersistentUpstreamMap ../IceStorm/LinkRecord.ice
 
 Event.cpp.cpp Event.h: Event.ice
 	$(SLICE2CPP) --dll-export ICE_STORM_API $(SLICE2CPPFLAGS) Event.ice
