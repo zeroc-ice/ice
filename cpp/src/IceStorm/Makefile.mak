@@ -35,7 +35,6 @@ SERVICE_OBJS	= IceStorm.obj \
 		  TraceLevels.obj \
 		  BatchFlusher.obj \
 		  SubscriberPool.obj \
-		  KeepAliveThread.obj \
 		  Subscriber.obj \
 		  TopicI.obj \
 		  TopicManagerI.obj \
