@@ -74,6 +74,10 @@ public class Consumer : Ice.Application
                 {
                     // Nothing to do
                 }
+                else if(line.Equals("?"))
+                {
+		    menu();
+                }
                 else
                 {
                     Console.Out.WriteLine("unknown command `" + line + "'");
