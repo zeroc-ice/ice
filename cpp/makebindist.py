@@ -597,6 +597,8 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version, mmVersion
 	print "gmake failed for makeInstall(%s, %s, %s, %s, %s, %s, %s)" % (sources, buildDir, installDir, distro, str(clean), version, mmVersion) 
 	raise
 
+    runprog('rm -rf /opt/Ice-%s' % (mmVersion), False)
+
     if distro.startswith('IceCS'):
 	assemblies = ["glacier2cs", "iceboxcs", "icecs", "icegridcs", "icepatch2cs", "icestormcs"]
 
