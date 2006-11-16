@@ -147,6 +147,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "helloIceBoxS", "IceBox\hell
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "asyncS", "Ice\async\asyncS_11.csproj", "{1234ADFF-7802-4A36-8374-C32DE33B0290}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "asyncC", "Ice\async\asyncC_11.csproj", "{5678ADFF-7802-4A36-8374-C32DE33B0290}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "asyncP", "Ice\async\asyncP_11.csproj", "{90ABADFF-7802-4A36-8374-C32DE33B0290}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -301,6 +313,18 @@ Global
 		{8D371651-BFA4-43C9-B143-77F06F02B310}.Debug.Build.0 = Debug|.NET
 		{8D371651-BFA4-43C9-B143-77F06F02B310}.Release.ActiveCfg = Release|.NET
 		{8D371651-BFA4-43C9-B143-77F06F02B310}.Release.Build.0 = Release|.NET
+		{1234ADFF-7802-4A36-8374-C32DE33B0290}.Debug.ActiveCfg = Debug|.NET
+		{1234ADFF-7802-4A36-8374-C32DE33B0290}.Debug.Build.0 = Debug|.NET
+		{1234ADFF-7802-4A36-8374-C32DE33B0290}.Release.ActiveCfg = Release|.NET
+		{1234ADFF-7802-4A36-8374-C32DE33B0290}.Release.Build.0 = Release|.NET
+		{5678ADFF-7802-4A36-8374-C32DE33B0290}.Debug.ActiveCfg = Debug|.NET
+		{5678ADFF-7802-4A36-8374-C32DE33B0290}.Debug.Build.0 = Debug|.NET
+		{5678ADFF-7802-4A36-8374-C32DE33B0290}.Release.ActiveCfg = Release|.NET
+		{5678ADFF-7802-4A36-8374-C32DE33B0290}.Release.Build.0 = Release|.NET
+		{90ABADFF-7802-4A36-8374-C32DE33B0290}.Debug.ActiveCfg = Debug|.NET
+		{90ABADFF-7802-4A36-8374-C32DE33B0290}.Debug.Build.0 = Debug|.NET
+		{90ABADFF-7802-4A36-8374-C32DE33B0290}.Release.ActiveCfg = Release|.NET
+		{90ABADFF-7802-4A36-8374-C32DE33B0290}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

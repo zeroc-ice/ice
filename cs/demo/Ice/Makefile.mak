@@ -20,7 +20,8 @@ SUBDIRS		= bidir \
 		  nested \
 		  session \
 		  throughput \
-		  value
+		  value \
+		  async
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \
