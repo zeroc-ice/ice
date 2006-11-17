@@ -134,6 +134,9 @@ Ice_Current_ice.py: $(slicedir)/Ice/Current.ice
 Ice_ImplicitContext_ice.py: $(slicedir)/Ice/ImplicitContext.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/ImplicitContext.ice
 
+Ice_ImplicitContextF_ice.py: $(slicedir)/Ice/ImplicitContextF.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/ImplicitContextF.ice
+
 Ice_Router_ice.py: $(slicedir)/Ice/Router.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/Router.ice
 
