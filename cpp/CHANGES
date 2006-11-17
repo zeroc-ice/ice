@@ -1,6 +1,11 @@
 Changes since version 3.1.1
 ---------------------------     
 
+- Added a demo to illustrate use of AMI/AMD.
+
+- IceBox services are now stopped in the reverse order from which they 
+  were started.
+
 - If client endpoint configuration does not contain a hostname setting
   (-h paramater), the client will try to connect using only the loopback
   interface (127.0.0.1).
