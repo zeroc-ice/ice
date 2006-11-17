@@ -902,8 +902,7 @@ IceUtil::Options::setOpt(const string& opt1, const string& opt2, const string& v
 
     if(rt == NoRepeat)
     {
-	setNonRepeatingOpt(opt1, val);
-	setNonRepeatingOpt(opt2, val);
+	setNonRepeatingOpt(opt1.empty() ? opt2 : opt1, val);
     }
     else
     {
