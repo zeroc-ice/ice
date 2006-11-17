@@ -38,24 +38,6 @@ interface TopicLink
 
 /**
  *
- * The TopicUpstreamLink interface. This is used to inform an unstream
- * topic that a federated downstream topic is alive.
- *
- * @see TopicInternal
- *
- **/
-interface TopicUpstreamLink
-{
-    /**
-     *
-     *  Inform the upstream topic that a federated downstream topic is alive.
-     *
-     **/
-    void keepAlive();
-};
-
-/**
- *
  * Internal operations for a topic.
  *
  * @see Topic

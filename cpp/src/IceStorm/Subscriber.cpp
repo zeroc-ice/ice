@@ -283,7 +283,7 @@ SubscriberOneway::flush()
 
     if(!_events.empty())
     {
-	_state = SubscriberStateFlushPending;
+	assert(_state == SubscriberStateFlushPending);
 	return true;
     }
     _state = SubscriberStateOnline;
@@ -383,7 +383,7 @@ SubscriberTwoway::flush()
     //
     if(!_events.empty())
     {
-	_state = SubscriberStateFlushPending;
+	assert(_state == SubscriberStateFlushPending);
 	return true;
     }
     _state = SubscriberStateOnline;
@@ -659,35 +659,34 @@ void
 SubscriberLink::offline(const Ice::Exception& e)
 {
     IceUtil::Mutex::Lock sync(_mutex);
-    if(_state != SubscriberStateOffline)
+    assert(_state != SubscriberStateOffline);
+
+    _next = IceUtil::Time::now() + _instance->discardInterval();
+
+    TraceLevelsPtr traceLevels = _instance->traceLevels();
+    if(_warn)
     {
-	_next = IceUtil::Time::now() + _instance->discardInterval();
-	
-	TraceLevelsPtr traceLevels = _instance->traceLevels();
-	if(_warn)
-	{
-	    Ice::Warning warn(traceLevels->logger);
-	    warn << traceLevels->subscriberCat << ":" << _instance->communicator()->identityToString(_id)
-		 << ": link offline: " << e;
-	}
-	else
-	{
-	    if(traceLevels->subscriber > 0)
-	    {
-		Ice::Trace out(traceLevels->logger, traceLevels->subscriberCat);
-		out << _instance->communicator()->identityToString(_id) << ": link offline: " << e
-		    << " discarding events: " << _instance->discardInterval() << "s";
-	    }
-	}
-	
-	_state = SubscriberStateOffline;
-	_warn = false;
-	
-	//
-	// Clear all queued events.
-	//
-	_events.clear();
+	Ice::Warning warn(traceLevels->logger);
+	warn << traceLevels->subscriberCat << ":" << _instance->communicator()->identityToString(_id)
+	     << ": link offline: " << e;
     }
+    else
+    {
+	if(traceLevels->subscriber > 0)
+	{
+	    Ice::Trace out(traceLevels->logger, traceLevels->subscriberCat);
+	    out << _instance->communicator()->identityToString(_id) << ": link offline: " << e
+		<< " discarding events: " << _instance->discardInterval() << "s";
+	}
+    }
+
+    _state = SubscriberStateOffline;
+    _warn = false;
+
+    //
+    // Clear all queued events.
+    //
+    _events.clear();
 }
 
 SubscriberPtr
