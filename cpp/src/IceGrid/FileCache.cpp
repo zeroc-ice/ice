@@ -36,7 +36,11 @@ FileCache::read(const string& filename, Ice::Long offset, int count, Ice::Long& 
 	return Ice::StringSeq();
     }
 
-    is.seekg(offset);
+#ifdef _WIN32
+    is.seekg(static_cast<int>(offset));
+#else
+    is.seekg(static_cast<streampos>(offset));
+#endif
     Ice::StringSeq lines;
     for(int i = 0; i < count && is.good(); ++i)
     {

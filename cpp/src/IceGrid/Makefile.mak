@@ -51,6 +51,7 @@ ADMIN_OBJS	= Grammar.obj \
 COMMON_OBJS	= Internal.obj \
 		  DescriptorParser.obj \
 		  DescriptorBuilder.obj \
+		  FileCache.obj \
 		  TraceLevels.obj \
 		  PlatformInfo.obj
 

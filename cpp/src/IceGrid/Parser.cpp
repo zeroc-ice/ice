@@ -1384,7 +1384,7 @@ Parser::dumpFile(const string& reader, const string& filename, const list<string
 		if(remove > 0)
 		{
 		    lastLines.erase(lastLines.begin(), lastLines.begin() + remove);
-		    assert(lastLines.size() == lineCount);
+		    assert(lastLines.size() == static_cast<unsigned int>(lineCount));
 		}
 
 		if(lines.size() < 20)
