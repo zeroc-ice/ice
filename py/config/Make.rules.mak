@@ -23,18 +23,18 @@ prefix			= C:\IcePy-$(VERSION)
 # Otherwise the Ice extension is built with debug information.
 #
 
-#OPTIMIZE		= yes
+OPTIMIZE		= yes
 
 #
 # Set PYTHON_HOME to your Python installation directory.
 #
 
-PYTHON_HOME		= C:\Python24
+PYTHON_HOME		= C:\Python25
 
 #
 # Define if using STLPort. Required if using MSVC++ 6.0.
 #
-STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty
+#STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
@@ -86,10 +86,10 @@ PYTHON_LDFLAGS		= /LIBPATH:"$(PYTHON_HOME)\libs"
 install_libdir		= $(prefix)\python
 libsubdir		= lib
 
-ICECPPFLAGS		= -I$(slicedir)
+ICECPPFLAGS		= -I"$(slicedir)"
 SLICE2PYFLAGS		= $(ICECPPFLAGS)
 
-SLICE2PY		= $(ICE_HOME)\bin\slice2py.exe
+SLICE2PY		= "$(ICE_HOME)\bin\slice2py.exe"
 
 EVERYTHING		= all clean install
 
