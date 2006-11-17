@@ -16,15 +16,17 @@ S_SRCS		= CallbackSenderI.vb Server.vb
 
 GEN_SRCS	= $(GDIR)\Callback.vb
 
+SLICE_SRCS	= $(SDIR)/Callback.ice
+
 SDIR		= .
 
 GDIR		= generated
 
+SLICE2VBFLAGS 	= -I$(slicedir) $(SLICE2VBFLAGS)
+
 !include $(top_srcdir)\config\Make.rules.mak
 
 VBCFLAGS	= $(VBCFLAGS) -target:exe
-
-SLICE2VBFLAGS	= $(SLICE2VBFLAGS) --ice -I. -I$(slicedir)
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
 	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll $(C_SRCS) $(GEN_SRCS)

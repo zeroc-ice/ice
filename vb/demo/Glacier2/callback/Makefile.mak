@@ -17,6 +17,8 @@ SS_SRCS		= SessionI.vb SessionManagerI.vb SessionServer.vb
 
 GEN_SRCS	= $(GDIR)\Callback.vb
 
+SLICE_SRCS	= $(SDIR)/Callback.ice
+
 SDIR		= .
 
 GDIR		= generated
@@ -24,8 +26,6 @@ GDIR		= generated
 !include $(top_srcdir)\config\Make.rules.mak
 
 VBCFLAGS	= $(VBCFLAGS) -target:exe -rootnamespace:Glacier2Demo
-
-SLICE2VBFLAGS	= $(SLICE2VBFLAGS) --ice -I. -I$(slicedir)
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
 	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll -r:$(csbindir)\glacier2cs.dll $(C_SRCS) $(GEN_SRCS)

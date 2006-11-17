@@ -16,6 +16,8 @@ S_SRCS		= HelloI.vb Server.vb
 
 GEN_SRCS	= $(GDIR)\Hello.vb
 
+SLICE_SRCS	= $(SDIR)/Hello.ice
+
 SDIR		= .
 
 GDIR		= generated
@@ -23,8 +25,6 @@ GDIR		= generated
 !include $(top_srcdir)\config\Make.rules.mak
 
 VBCFLAGS	= $(VBCFLAGS) -target:exe -rootnamespace:Minimal
-
-SLICE2VBFLAGS	= $(SLICE2VBFLAGS) --ice -I. -I$(slicedir)
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
 	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll $(C_SRCS) $(GEN_SRCS)

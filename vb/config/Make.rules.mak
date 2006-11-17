@@ -74,7 +74,7 @@ VBCFLAGS 		= $(VBCFLAGS) -optimize+
 
 SLICE2VB		= $(ICE_HOME)\bin\slice2vb
 
-EVERYTHING		= all clean install config
+EVERYTHING		= all clean depend install config
 
 .SUFFIXES:
 .SUFFIXES:		.vb .ice
@@ -89,6 +89,15 @@ all:: $(TARGETS)
 
 clean::
 	del /q $(TARGETS) *.pdb
+
+
+!if "$(SLICE_SRCS)" != ""
+depend::
+	$(SLICE2VB) --depend $(SLICE2VBFLAGS) $(SLICE_SRCS) | python $(top_srcdir)\config\makedepend.py > .depend
+!else
+depend::
+!endif
+
 
 !if "$(TARGETS)" != ""
 config::

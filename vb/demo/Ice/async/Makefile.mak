@@ -17,6 +17,8 @@ S_SRCS		= QueueI.vb Server.vb
 
 GEN_SRCS	= $(GDIR)\Queue.vb
 
+SLICE_SRCS	= $(SDIR)/Queue.ice
+
 SDIR		= .
 
 GDIR		= generated

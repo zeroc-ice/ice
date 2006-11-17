@@ -16,6 +16,8 @@ S_SRCS		= DerivedPrinterI.vb InitialI.vb PrinterI.vb Server.vb
 
 GEN_SRCS	= $(GDIR)\Value.vb
 
+SLICE_SRCS	= $(SDIR)/Value.ice
+
 SDIR		= .
 
 GDIR		= generated
@@ -23,8 +25,6 @@ GDIR		= generated
 !include $(top_srcdir)\config\Make.rules.mak
 
 VBCFLAGS	= $(VBCFLAGS) -target:exe
-
-SLICE2VBFLAGS	= $(SLICE2VBFLAGS) --ice -I. -I$(slicedir)
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
 	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll $(C_SRCS) $(GEN_SRCS)

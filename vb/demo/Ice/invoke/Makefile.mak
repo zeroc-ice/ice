@@ -16,6 +16,8 @@ S_SRCS		= PrinterI.vb Server.vb
 
 GEN_SRCS	= $(GDIR)\Printer.vb
 
+SLICE_SRCS	= $(SDIR)/Printer.ice
+
 SDIR		= .
 
 GDIR		= generated
@@ -24,7 +26,7 @@ GDIR		= generated
 
 VBCFLAGS	= $(VBCFLAGS) -target:exe
 
-SLICE2VBFLAGS	= $(SLICE2VBFLAGS) --ice --stream -I. -I$(slicedir)
+SLICE2VBFLAGS	= --stream $(SLICE2VBFLAGS)
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
 	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll $(C_SRCS) $(GEN_SRCS)

@@ -16,6 +16,8 @@ S_SRCS		= HelloI.vb ReapThread.vb Server.vb SessionFactoryI.vb SessionI.vb
 
 GEN_SRCS	= $(GDIR)\Session.vb
 
+SLICE_SRCS	= $(SDIR)/Session.ice
+
 SDIR		= .
 
 GDIR		= generated
@@ -23,8 +25,6 @@ GDIR		= generated
 !include $(top_srcdir)\config\Make.rules.mak
 
 VBCFLAGS	= $(VBCFLAGS) -target:exe -rootnamespace:SessionDemo
-
-SLICE2VBFLAGS	= $(SLICE2VBFLAGS) --ice -I. -I$(slicedir)
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
 	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll $(C_SRCS) $(GEN_SRCS)

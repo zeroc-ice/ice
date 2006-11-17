@@ -16,6 +16,8 @@ S_SRCS		= Subscriber.vb
 
 GEN_SRCS	= $(GDIR)\Clock.vb
 
+SLICE_SRCS	= $(SDIR)/Clock.ice
+
 SDIR		= .
 
 GDIR		= generated
@@ -23,8 +25,6 @@ GDIR		= generated
 !include $(top_srcdir)\config\Make.rules.mak
 
 VBCFLAGS	= $(VBCFLAGS) -target:exe
-
-SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --ice -I. -I$(slicedir)
 
 publisher.exe: $(C_SRCS) $(GEN_SRCS)
 	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll -r:$(csbindir)\icestormcs.dll $(C_SRCS) $(GEN_SRCS)
