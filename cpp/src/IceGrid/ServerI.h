@@ -83,6 +83,8 @@ public:
     virtual bool isEnabled(const ::Ice::Current& = Ice::Current()) const;
     virtual void setProcess_async(const AMD_Server_setProcessPtr&, const ::Ice::ProcessPrx&, const ::Ice::Current&);
 
+    virtual Ice::StringSeq readLines(const std::string&, Ice::Long, int, Ice::Long&, const Ice::Current&) const;
+
     bool isAdapterActivatable(const std::string&, int&) const;
     const std::string& getId() const;
     DistributionDescriptor getDistribution() const;
@@ -154,6 +156,8 @@ private:
     ServerActivation _previousActivation;
     WaitItemPtr _timer;
     bool _waitForReplication;
+    std::string _stdErrFile;
+    std::string _stdOutFile;
 
     DestroyCommandPtr _destroy;
     StopCommandPtr _stop;

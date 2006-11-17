@@ -71,6 +71,9 @@ yyerror(const char* s)
 %token ICE_GRID_SERVICE
 %token ICE_GRID_ENABLE
 %token ICE_GRID_DISABLE
+%token ICE_GRID_DUMP
+%token ICE_GRID_STDERR
+%token ICE_GRID_STDOUT
 
 %%
 
@@ -167,6 +170,14 @@ command
 {
     parser->listAllNodes();
 }
+| ICE_GRID_NODE ICE_GRID_DUMP ICE_GRID_STDERR optional_strings ';'
+{
+    parser->dumpFile("node", "stderr", $4);
+}
+| ICE_GRID_NODE ICE_GRID_DUMP ICE_GRID_STDOUT optional_strings ';'
+{
+    parser->dumpFile("node", "stdout", $4);
+}
 | ICE_GRID_REGISTRY ICE_GRID_DESCRIBE optional_strings ';'
 {
     parser->describeRegistry($3);
@@ -182,6 +193,14 @@ command
 | ICE_GRID_REGISTRY ICE_GRID_LIST ';'
 {
     parser->listAllRegistries();
+}
+| ICE_GRID_REGISTRY ICE_GRID_DUMP ICE_GRID_STDERR optional_strings ';'
+{
+    parser->dumpFile("registry", "stderr", $4);
+}
+| ICE_GRID_REGISTRY ICE_GRID_DUMP ICE_GRID_STDOUT optional_strings ';'
+{
+    parser->dumpFile("registry", "stdout", $4);
 }
 | ICE_GRID_SERVER ICE_GRID_REMOVE optional_strings ';'
 {
@@ -234,6 +253,14 @@ command
 | ICE_GRID_SERVER ICE_GRID_LIST ';'
 {
     parser->listAllServers();
+}
+| ICE_GRID_SERVER ICE_GRID_DUMP ICE_GRID_STDERR optional_strings ';'
+{
+    parser->dumpFile("server", "stderr", $4);
+}
+| ICE_GRID_SERVER ICE_GRID_DUMP ICE_GRID_STDOUT optional_strings ';'
+{
+    parser->dumpFile("server", "stdout", $4);
 }
 | ICE_GRID_ADAPTER ICE_GRID_ENDPOINTS optional_strings ';'
 {

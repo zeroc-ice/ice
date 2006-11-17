@@ -66,7 +66,7 @@ class Parser : public ::IceUtil::SimpleShared
 {
 public:
 
-    static ParserPtr createParser(const Ice::CommunicatorPtr&, const IceGrid::AdminPrx&);
+    static ParserPtr createParser(const Ice::CommunicatorPtr&, const AdminSessionPrx&, const AdminPrx&);
 
     void usage();
 
@@ -117,6 +117,8 @@ public:
 
     void shutdown();
 
+    void dumpFile(const std::string&, const std::string&, const std::list<std::string>&);
+
     void showBanner();
     void showCopying();
     void showWarranty();
@@ -141,12 +143,13 @@ public:
 
 private:
 
-    Parser(const Ice::CommunicatorPtr&, const IceGrid::AdminPrx&);
+    Parser(const Ice::CommunicatorPtr&, const AdminSessionPrx&, const AdminPrx&);
     void exception(const Ice::Exception&);
 
     std::string _commands;
     Ice::CommunicatorPtr _communicator;
-    IceGrid::AdminPrx _admin;
+    AdminSessionPrx _session;
+    AdminPrx _admin;
     bool _continue;
     int _errors;
     int _currentLine;

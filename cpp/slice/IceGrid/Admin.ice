@@ -1066,6 +1066,33 @@ interface Admin
     ["nonmutating", "cpp:const"] idempotent Ice::SliceChecksumDict getSliceChecksums();
 };
 
+interface FileIterator
+{
+    /**
+     *
+     * Read up to `nlines' lines from the log file.
+     *
+     * @param nlines The maximum number of lines to return.
+     * 
+     * @return The lines read from the file. If there was nothing to
+     * read from the file since the last call to read, an empty
+     * sequence is returned.
+     *
+     * @throws FileNotAvailableException Raised if there was a problem
+     * to read lines from the file.
+     *
+     **/
+    Ice::StringSeq read(int nlines)
+	throws FileNotAvailableException;
+
+    /**
+     *
+     * Destroy the iterator.
+     *
+     **/
+    void destroy();
+};
+
 interface RegistryObserver;
 interface NodeObserver;
 interface ApplicationObserver;
@@ -1188,6 +1215,141 @@ interface AdminSession extends Glacier2::Session
      *
      **/
     ["cpp:const"] idempotent string getReplicaName();
+
+    /**
+     *
+     * Open the given server stderr file for reading. The file can be
+     * read with the returned file iterator.
+     *
+     * @param id The server id.
+     *
+     * @return An iterator to read the file.
+     *
+     * @throws FileNotAvailableException Raised if the file can't be
+     * read.
+     *
+     * @throws ServerNotExistException Raised if the server doesn't
+     * exist.
+     *
+     * @throws NodeUnreachableException Raised if the node could not
+     * be reached.
+     *
+     * @throws DeploymentException Raised if the server couldn't be
+     * deployed on the node.
+     *
+     **/
+    FileIterator* openServerStdErr(string id)
+	throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException, DeploymentException;
+    /**
+     *
+     * Open the given server stdout file for reading. The file can be
+     * read with the returned file iterator.
+     *
+     * @param id The server id.
+     *
+     * @return An iterator to read the file.
+     *
+     * @throws FileNotAvailableException Raised if the file can't be
+     * read.
+     *
+     * @throws ServerNotExistException Raised if the server doesn't
+     * exist.
+     *
+     * @throws NodeUnreachableException Raised if the node could not
+     * be reached.
+     *
+     * @throws DeploymentException Raised if the server couldn't be
+     * deployed on the node.
+     *
+     **/
+    FileIterator* openServerStdOut(string id)
+	throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException, DeploymentException;
+
+    /**
+     *
+     * Open the given node stderr file for reading. The file can be
+     * read with the returned file iterator.
+     *
+     * @param name The node name.
+     *
+     * @return An iterator to read the file.
+     *
+     * @throws FileNotAvailableException Raised if the file can't be
+     * read.
+     *
+     * @throws NodeNotExistException Raised if the node doesn't exist.
+     *
+     * @throws NodeUnreachableException Raised if the node could not
+     * be reached.
+     *
+     **/
+    FileIterator* openNodeStdErr(string name)
+	throws FileNotAvailableException, NodeNotExistException, NodeUnreachableException;
+
+    /**
+     *
+     * Open the given node stdout file for reading. The file can be
+     * read with the returned file iterator.
+     *
+     * @param name The node name.
+     *
+     * @return An iterator to read the file.
+     *
+     * @throws FileNotAvailableException Raised if the file can't be
+     * read.
+     *
+     * @throws NodeNotExistException Raised if the node doesn't exist.
+     *
+     * @throws NodeUnreachableException Raised if the node could not
+     * be reached.
+     *
+     **/
+    FileIterator* openNodeStdOut(string name)
+	throws FileNotAvailableException, NodeNotExistException, NodeUnreachableException;
+
+    /**
+     *
+     * Open the given registry stderr file for reading. The file can be
+     * read with the returned file iterator.
+     *
+     * @param name The registry name.
+     *
+     * @return An iterator to read the file.
+     *
+     * @throws FileNotAvailableException Raised if the file can't be
+     * read.
+     *
+     * @throws RegistryNotExistException Raised if the registry
+     * doesn't exist.
+     *
+     * @throws RegistryUnreachableException Raised if the registry
+     * could not be reached.
+     *
+     **/
+    FileIterator* openRegistryStdErr(string name)
+	throws FileNotAvailableException, RegistryNotExistException, RegistryUnreachableException;
+
+    /**
+     *
+     * Open the given registry stdout file for reading. The file can be
+     * read with the returned file iterator.
+     *
+     * @param name The registry name.
+     *
+     * @return An iterator to read the file.
+     *
+     * @throws FileNotAvailableException Raised if the file can't be
+     * read.
+     *
+     * @throws RegistryNotExistException Raised if the registry
+     * doesn't exist.
+     *
+     * @throws RegistryUnreachableException Raised if the registry
+     * could not be reached.
+     *
+     **/
+    FileIterator * openRegistryStdOut(string name)
+	throws FileNotAvailableException, RegistryNotExistException, RegistryUnreachableException;
 };
 
 };

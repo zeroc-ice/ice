@@ -19,6 +19,35 @@
 using namespace std;
 using namespace IceGrid;
 
+FileIteratorI::FileIteratorI(const AdminSessionIPtr& session, const FileReaderPrx& reader, const string& filename) :
+    _session(session),
+    _reader(reader),
+    _filename(filename),
+    _offset(0)
+{
+}
+
+Ice::StringSeq
+FileIteratorI::read(int nlines, const Ice::Current& current)
+{
+    try
+    {
+	return _reader->readLines(_filename, _offset, nlines, _offset);
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	ostringstream os;
+	os << ex;
+	throw FileNotAvailableException(os.str());
+    }
+}
+
+void
+FileIteratorI::destroy(const Ice::Current& current)
+{
+    _session->removeFileIterator(current.id, current);
+}
+
 AdminSessionI::AdminSessionI(const string& id, const DatabasePtr& db, int timeout, const string& replicaName) :
     BaseSessionI(id, "admin", db),
     _timeout(timeout),
@@ -163,6 +192,74 @@ AdminSessionI::getReplicaName(const Ice::Current& current) const
     return _replicaName;
 }
 
+FileIteratorPrx 
+AdminSessionI::openServerStdOut(const std::string& id, const Ice::Current& current)
+{
+    return addFileIterator(_database->getServer(id), "stdout", current);
+}
+
+FileIteratorPrx 
+AdminSessionI::openServerStdErr(const std::string& id, const Ice::Current& current)
+{
+    return addFileIterator(_database->getServer(id), "stderr", current);
+}
+
+FileIteratorPrx 
+AdminSessionI::openNodeStdOut(const std::string& name, const Ice::Current& current)
+{
+    return addFileIterator(_database->getNode(name), "stdout", current);
+}
+
+FileIteratorPrx 
+AdminSessionI::openNodeStdErr(const std::string& name, const Ice::Current& current)
+{
+    return addFileIterator(_database->getNode(name), "stderr", current);
+}
+
+FileIteratorPrx 
+AdminSessionI::openRegistryStdOut(const std::string& name, const Ice::Current& current)
+{
+    FileReaderPrx reader;
+    if(name == _replicaName)
+    {
+	Ice::Identity internalRegistryId;
+	internalRegistryId.category = _database->getInstanceName();
+	internalRegistryId.name = "InternalRegistry-" + _replicaName;
+
+	Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
+	string proxyStr = communicator->identityToString(internalRegistryId);
+	reader = FileReaderPrx::uncheckedCast(communicator->stringToProxy(proxyStr));
+    }
+    else 
+    {
+	reader = _database->getReplica(name);
+    }
+
+    return addFileIterator(reader, "stdout", current);
+}
+
+FileIteratorPrx
+AdminSessionI::openRegistryStdErr(const std::string& name, const Ice::Current& current)
+{
+    FileReaderPrx reader;
+    if(name == _replicaName)
+    {
+	Ice::Identity internalRegistryId;
+	internalRegistryId.category = _database->getInstanceName();
+	internalRegistryId.name = "InternalRegistry-" + _replicaName;
+
+	Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
+	string proxyStr = communicator->identityToString(internalRegistryId);
+	reader = FileReaderPrx::uncheckedCast(communicator->stringToProxy(proxyStr));
+    }
+    else 
+    {
+	reader = _database->getReplica(name);
+    }
+
+    return addFileIterator(reader, "stderr", current);
+}
+
 void
 AdminSessionI::destroy(const Ice::Current& current)
 {
@@ -187,6 +284,28 @@ AdminSessionI::destroy(const Ice::Current& current)
     else if(current.adapter)
     {
 	current.adapter->remove(_admin->ice_getIdentity());
+    }
+
+    //
+    // Unregister the iterators from the session servant locator or
+    // object adapter.
+    //
+    for(set<Ice::Identity>::const_iterator p = _iterators.begin(); p != _iterators.end(); ++p)
+    {
+	if(_servantLocator)
+	{
+	    _servantLocator->remove(*p);
+	}
+	else if(current.adapter)
+	{
+	    try
+	    {
+		current.adapter->remove(*p);
+	    }
+	    catch(const Ice::LocalException&)
+	    {
+	    }
+	}
     }
 
     //
@@ -334,4 +453,50 @@ Ice::ObjectPrx
 AdminSessionI::toProxy(const Ice::Identity& id, const Ice::ConnectionPtr& connection)
 {
     return id.name.empty() ? Ice::ObjectPrx() : connection->createProxy(id);
+}
+
+FileIteratorPrx
+AdminSessionI::addFileIterator(const FileReaderPrx& reader, const string& filename, const Ice::Current& current)
+{
+    Lock sync(*this);
+    if(_destroyed)
+    {
+	Ice::ObjectNotExistException ex(__FILE__, __LINE__);
+	ex.id = current.id;
+	throw ex;
+    }
+
+    Ice::ObjectPrx obj;
+    Ice::ObjectPtr servant = new FileIteratorI(this, reader, filename);
+    if(_servantLocator)
+    {
+	obj = _servantLocator->add(servant, current.con);
+    }
+    else
+    {
+	obj = current.adapter->addWithUUID(servant);
+    }
+    _iterators.insert(obj->ice_getIdentity());
+    return FileIteratorPrx::uncheckedCast(obj);
+}
+
+void
+AdminSessionI::removeFileIterator(const Ice::Identity& id, const Ice::Current& current)
+{
+    Lock sync(*this);
+    if(_servantLocator)
+    {
+	_servantLocator->remove(id);
+    }
+    else
+    {
+	try
+	{
+	    current.adapter->remove(id);
+	}
+	catch(const Ice::LocalException&)
+	{
+	}
+    }
+    _iterators.erase(id);
 }

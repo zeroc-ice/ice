@@ -406,7 +406,7 @@ Client::run(int argc, char* argv[])
         }
     }
 
-    ParserPtr p = Parser::createParser(communicator(), admin);
+    ParserPtr p = Parser::createParser(communicator(), session, admin);
 
     int status = EXIT_SUCCESS;
 

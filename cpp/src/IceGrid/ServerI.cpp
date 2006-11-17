@@ -776,6 +776,31 @@ ServerI::setProcess_async(const AMD_Server_setProcessPtr& amdCB, const Ice::Proc
     }
 }
 
+Ice::StringSeq
+ServerI::readLines(const string& filename, Ice::Long pos, int count, Ice::Long& newPos, const Ice::Current&) const
+{
+    if(filename == "stderr")
+    {
+	if(_stdErrFile.empty())
+	{
+	    throw FileNotAvailableException("Ice.StdErr configuration property is not set");
+	}
+	return _node->getFileCache()->read(_stdErrFile, pos, count, newPos);
+    }
+    else if(filename == "stdout")
+    {
+	if(_stdOutFile.empty())
+	{
+	    throw FileNotAvailableException("Ice.StdOut configuration property is not set");
+	}
+	return _node->getFileCache()->read(_stdOutFile, pos, count, newPos);
+    }
+    else
+    {
+	throw FileNotAvailableException("unknown file");
+    }
+}
+
 bool
 ServerI::isAdapterActivatable(const string& id, int& timeout) const
 {
@@ -2421,6 +2446,17 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
 	copy(svrDesc->propertySet.properties.begin(), svrDesc->propertySet.properties.end(), back_inserter(props));
 
 	//
+	// Add Ice.StdOut, Ice.StdErr if necessary.
+	//
+	string outputDir = _node->getOutputDir();
+	if(!outputDir.empty())
+	{
+	    props.push_back(createProperty("Ice.StdOut", outputDir + "/" + _id + ".out"));
+	    string suffix = _node->getRedirectErrToOut() ? ".out" : ".err";
+	    props.push_back(createProperty("Ice.StdErr", outputDir + "/" + _id + suffix));
+	}
+
+	//
 	// Add service properties.
 	//
 	string servicesStr;
@@ -2495,6 +2531,18 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
 	else
 	{
 	    configfile << r->name << "=" << r->value << endl;
+	}
+
+	//
+	// Cache the standard output/error file name.
+	//
+	if(r->name == "Ice.StdErr")
+	{
+	    _stdErrFile = r->value;
+	}
+	else if(r->name == "Ice.StdOut")
+	{
+	    _stdOutFile = r->value;	    
 	}
     }
     configfile.close();

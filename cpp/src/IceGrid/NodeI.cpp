@@ -190,18 +190,22 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     _traceLevels(traceLevels),
     _name(name),
     _proxy(proxy),
+    _redirectErrToOut(false),
     _waitTime(0),
     _userAccountMapper(mapper),
-    _serial(1),
-    _platform("IceGrid.Node", _communicator, _traceLevels)
+    _platform("IceGrid.Node", _communicator, _traceLevels),
+    _fileCache(new FileCache()),
+    _serial(1)
 {
-    _dataDir = _platform.getDataDir();
-    _serversDir = _dataDir + "/servers";
-    _tmpDir = _dataDir + "/tmp";
-
     Ice::PropertiesPtr properties = _communicator->getProperties();
+
+    const_cast<string&>(_dataDir) = _platform.getDataDir();
+    const_cast<string&>(_serversDir) = _dataDir + "/servers";
+    const_cast<string&>(_tmpDir) = _dataDir + "/tmp";
     const_cast<string&>(_instanceName) = _communicator->getDefaultLocator()->ice_getIdentity().category;
     const_cast<Ice::Int&>(_waitTime) = properties->getPropertyAsIntWithDefault("IceGrid.Node.WaitTime", 60);
+    const_cast<string&>(_outputDir) = properties->getProperty("IceGrid.Node.Output");
+    const_cast<bool&>(_redirectErrToOut) = properties->getPropertyAsInt("IceGrid.Node.RedirectErrToOut") > 0;
 }
 
 NodeI::~NodeI()
@@ -510,6 +514,34 @@ NodeI::shutdown(const Ice::Current&) const
     _activator->shutdown();
 }
 
+Ice::StringSeq
+NodeI::readLines(const string& filename, Ice::Long pos, int count, Ice::Long& newPos, const Ice::Current&) const
+{
+    string file;
+    if(filename == "stderr")
+    {
+	file = _communicator->getProperties()->getProperty("Ice.StdErr");
+	if(file.empty())
+	{
+	    throw FileNotAvailableException("Ice.StdErr configuration property is not set");
+	}
+    }
+    else if(filename == "stdout")
+    {
+	file = _communicator->getProperties()->getProperty("Ice.StdOut");
+	if(file.empty())
+	{
+	    throw FileNotAvailableException("Ice.StdOut configuration property is not set");
+	}
+    }
+    else
+    {
+	throw FileNotAvailableException("unknown file");
+    }
+
+    return _fileCache->read(file, pos, count, newPos);
+}
+
 void
 NodeI::destroy()
 {
@@ -551,6 +583,30 @@ UserAccountMapperPrx
 NodeI::getUserAccountMapper() const
 {
     return _userAccountMapper;
+}
+
+PlatformInfo&
+NodeI::getPlatformInfo() const
+{
+    return _platform; 
+}
+
+FileCachePtr
+NodeI::getFileCache() const
+{
+    return _fileCache;
+}
+
+string
+NodeI::getOutputDir() const
+{
+    return _outputDir;
+}
+
+bool
+NodeI::getRedirectErrToOut() const
+{
+    return _redirectErrToOut;
 }
 
 NodeSessionPrx

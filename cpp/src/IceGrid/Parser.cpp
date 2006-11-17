@@ -41,9 +41,9 @@ Parser* parser;
 }
 
 ParserPtr
-Parser::createParser(const CommunicatorPtr& communicator, const AdminPrx& admin)
+Parser::createParser(const CommunicatorPtr& communicator, const AdminSessionPrx& session, const AdminPrx& admin)
 {
-    return new Parser(communicator, admin);
+    return new Parser(communicator, session, admin);
 }
 
 void
@@ -81,7 +81,16 @@ Parser::usage()
         "node describe NAME          Show information about node NAME.\n"
 	"node ping NAME              Ping node NAME.\n"
 	"node load NAME              Print the load of the node NAME.\n"
+	"node dump stderr NAME       Dump node NAME stderr.\n"
+	"node dump stdout NAME       Dump node NAME stdout.\n"
 	"node shutdown NAME          Shutdown node NAME.\n"
+	"\n"
+	"registry list               List all registered registrys.\n"
+        "registry describe NAME      Show information about registry NAME.\n"
+	"registry ping NAME          Ping registry NAME.\n"
+	"registry dump stderr NAME   Dump registry NAME stderr.\n"
+	"registry dump stdout NAME   Dump registry NAME stdout.\n"
+	"registry shutdown NAME      Shutdown registry NAME.\n"
 	"\n"
         "server list                 List all registered servers.\n"
         "server remove ID            Remove server ID.\n"
@@ -94,6 +103,8 @@ Parser::usage()
         "server signal ID SIGNAL     Send SIGNAL (e.g. SIGTERM or 15) to server ID.\n"
         "server stdout ID MESSAGE    Write MESSAGE on server ID's stdout.\n"
 	"server stderr ID MESSAGE    Write MESSAGE on server ID's stderr.\n"
+	"server dump stderr ID       Dump server ID stderr.\n"
+	"server dump stdout ID       Dump server ID stdout.\n"
 	"server enable ID            Enable server ID.\n"
 	"server disable ID           Disable server ID (a disabled server can't be\n"
         "                            started on demand or administratively).\n"
@@ -1243,6 +1254,203 @@ Parser::shutdown()
 }
 
 void
+Parser::dumpFile(const string& reader, const string& filename, const list<string>& origArgs)
+{
+    list<string> copyArgs = origArgs;
+    copyArgs.push_front("icegridadmin");
+    
+    IceUtil::Options opts;
+    opts.addOpt("f", "follow");
+    opts.addOpt("h", "head", IceUtil::Options::NeedArg); //, "20"); // TODO: Fix
+    opts.addOpt("t", "tail", IceUtil::Options::NeedArg); //, "20"); // TODO: Fix
+
+    vector<string> args;
+    try
+    {
+	for(list<string>::const_iterator p = copyArgs.begin(); p != copyArgs.end(); ++p)
+	{
+	    args.push_back(*p);
+	}
+	args = opts.parse(args);
+    }
+    catch(const IceUtil::BadOptException& e)
+    {
+	error(e.reason);
+	return;
+    }
+
+    if(args.size() != 1)
+    {
+	invalidCommand("`" + reader + " dump " + filename + "' requires one argument");
+	return;
+    }
+
+    try
+    {
+	string id = *(args.begin());
+	FileIteratorPrx it;
+	if(reader == "node")
+	{
+	    if(filename == "stderr")
+	    {
+		it = _session->openNodeStdErr(id);
+	    }
+	    else if(filename == "stdout")
+	    {
+		it = _session->openNodeStdOut(id);
+	    }
+	}
+	else if(reader == "registry")
+	{
+	    if(filename == "stderr")
+	    {
+		it = _session->openRegistryStdErr(id);
+	    }
+	    else if(filename == "stdout")
+	    {
+		it = _session->openRegistryStdOut(id);
+	    }
+	}
+	else if(reader == "server")
+	{
+	    if(filename == "stderr")
+	    {
+		it = _session->openServerStdErr(id);
+	    }
+	    else if(filename == "stdout")
+	    {
+		it = _session->openServerStdOut(id);
+	    }
+	}
+
+	cout << reader << " `" << id << "' " << filename << ":" << flush;
+	Ice::StringSeq lines;
+
+	bool head = opts.isSet("head");
+	bool tail = opts.isSet("tail");
+	if(head && tail)
+	{
+	    invalidCommand("can't specify both -h | --head and -t | --tail options");
+	    return;
+	}
+	int lineCount = 20;
+	if(head || tail)
+	{
+	    istringstream is(head ? opts.optArg("head") : opts.optArg("tail"));
+	    is >> lineCount;
+	    if(lineCount <= 0)
+	    {
+		invalidCommand("invalid argument for -h | --head or -t | --tail option");
+		return;
+	    }
+	}
+
+	bool follow = opts.isSet("follow");
+	if(head)
+	{
+	    if(follow)
+	    {
+		invalidCommand("can't use -f | --follow option with -h | --head option");
+		return;
+	    }
+
+	    int i = 0;
+	    while(true)
+	    {
+		lines = it->read(20);
+
+		Ice::StringSeq::const_iterator p = lines.begin();
+		while(i < lineCount && p != lines.end())
+		{
+		    cout << endl << *p++ << flush;
+		    ++i;
+		}
+
+		if(i == lineCount || lines.size() < 20)
+		{
+		    break;
+		}
+	    }
+	}
+	else if(tail)
+	{
+	    deque<string> lastLines;
+	    while(true)
+	    {
+		lines = it->read(20);
+
+		copy(lines.begin(), lines.end(), back_inserter(lastLines));
+		int remove = lastLines.size() - lineCount;
+		if(remove > 0)
+		{
+		    lastLines.erase(lastLines.begin(), lastLines.begin() + remove);
+		    assert(lastLines.size() == lineCount);
+		}
+
+		if(lines.size() < 20)
+		{
+		    break;
+		}
+	    }
+	    
+	    for(deque<string>::const_iterator p = lastLines.begin(); p != lastLines.end(); ++p)
+	    {
+		cout << endl << *p << flush;
+	    }
+	}
+	else
+	{
+	    while(true)
+	    {
+		lines = it->read(20);
+		for(Ice::StringSeq::const_iterator p = lines.begin(); p != lines.end(); ++p)
+		{
+		    cout << endl << *p << flush;
+		}
+
+		if(lines.size() < 20)
+		{
+		    break;
+		}
+	    }
+	}
+
+	if(follow)
+	{
+	    while(true)
+	    {
+		lines = it->read(20);
+		for(Ice::StringSeq::const_iterator p = lines.begin(); p != lines.end(); ++p)
+		{
+		    cout << *p;
+		    if((p + 1) != lines.end())
+		    {
+			cout << endl;
+		    }
+		    else
+		    {
+			cout << flush;
+		    }
+		}
+
+		IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(2));
+	    }
+	}
+
+	if(lines.empty() || !lines.back().empty())
+	{
+	    cout << endl;
+	}
+
+	it->destroy();
+    }
+    catch(const Ice::Exception& ex)
+    {
+	exception(ex);
+    }
+}
+
+void
 Parser::showBanner()
 {
     cout << "Ice " << ICE_STRING_VERSION << "  Copyright 2003-2006 ZeroC, Inc." << endl;
@@ -1585,8 +1793,9 @@ Parser::parse(const std::string& commands, bool debug)
     return status;
 }
 
-Parser::Parser(const CommunicatorPtr& communicator, const AdminPrx& admin) :
+Parser::Parser(const CommunicatorPtr& communicator, const AdminSessionPrx& session, const AdminPrx& admin) :
     _communicator(communicator),
+    _session(session),
     _admin(admin)
 {
 }
@@ -1650,6 +1859,10 @@ Parser::exception(const Ice::Exception& ex)
     catch(const AccessDeniedException& ex)
     {
 	error("couldn't update the registry, the session from `" + ex.lockUserId + "' is updating the registry");
+    }
+    catch(const FileNotAvailableException& ex)
+    {
+	error("couldn't access file:\n" + ex.reason);
     }
     catch(const IceXML::ParserException& ex)
     {

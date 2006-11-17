@@ -75,7 +75,6 @@ private:
     };
 
     TraceLevelsPtr _traceLevels;
-    Ice::PropertiesPtr _properties;
     std::map<std::string, Process> _processes;
     bool _deactivating;
 
@@ -87,9 +86,6 @@ private:
 #endif
 
     std::vector<std::string> _propertiesOverride;
-
-    std::string _outputDir;
-    bool _redirectErrToOut;
 
     IceUtil::ThreadPtr _thread;
 };

@@ -18,6 +18,7 @@
 #include <IceGrid/NodeSessionI.h>
 #include <IceGrid/ReplicaSessionI.h>
 #include <IceGrid/ReplicaSessionManager.h>
+#include <IceGrid/FileCache.h>
 
 using namespace std;
 using namespace IceGrid;
@@ -98,6 +99,7 @@ InternalRegistryI::InternalRegistryI(const RegistryIPtr& registry,
     _database(database),
     _reaper(reaper),
     _wellKnownObjects(wellKnownObjects),
+    _fileCache(new FileCache()),
     _session(session)
 {
     Ice::PropertiesPtr properties = database->getCommunicator()->getProperties();
@@ -182,4 +184,33 @@ void
 InternalRegistryI::shutdown(const Ice::Current& current) const
 {
     _registry->shutdown();
+}
+
+Ice::StringSeq
+InternalRegistryI::readLines(const string& filename, Ice::Long pos, int count, Ice::Long& newPos, 
+			     const Ice::Current&) const
+{
+    string file;
+    if(filename == "stderr")
+    {
+	file = _database->getCommunicator()->getProperties()->getProperty("Ice.StdErr");
+	if(file.empty())
+	{
+	    throw FileNotAvailableException("Ice.StdErr configuration property is not set");
+	}
+    }
+    else if(filename == "stdout")
+    {
+	file = _database->getCommunicator()->getProperties()->getProperty("Ice.StdOut");
+	if(file.empty())
+	{
+	    throw FileNotAvailableException("Ice.StdOut configuration property is not set");
+	}
+    }
+    else
+    {
+	throw FileNotAvailableException("unknown file");
+    }
+
+    return _fileCache->read(file, pos, count, newPos);
 }

@@ -97,7 +97,18 @@ exception AdapterExistsException
 
 dictionary<string, Adapter*> AdapterPrxDict;
 
-interface Server
+interface FileReader
+{
+    /**
+     *
+     * Read and return up to count lines at the specified position.
+     * 
+     **/
+    ["cpp:const"] idempotent Ice::StringSeq readLines(string filename, long pos, int count, out long newPos)
+	throws FileNotAvailableException;
+};
+
+interface Server extends FileReader
 {
     /**
      *
@@ -181,7 +192,7 @@ interface Server
 interface InternalRegistry;
 sequence<InternalRegistry*> InternalRegistryPrxSeq;
 
-interface Node
+interface Node extends FileReader
 {
     /**
      *
@@ -422,7 +433,7 @@ interface ReplicaSession
     void destroy();
 };
 
-interface InternalRegistry
+interface InternalRegistry extends FileReader
 {
     /**
      *

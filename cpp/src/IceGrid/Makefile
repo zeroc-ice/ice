@@ -46,6 +46,7 @@ COMMON_OBJS	= Internal.o \
                   DescriptorParser.o \
                   DescriptorBuilder.o \
 		  TraceLevels.o \
+		  FileCache.o \
 		  PlatformInfo.o
 
 NODE_OBJS	= NodeI.o \

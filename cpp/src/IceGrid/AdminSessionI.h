@@ -13,12 +13,16 @@
 #include <IceGrid/SessionI.h>
 #include <IceGrid/Topics.h>
 #include <IceGrid/ReapThread.h>
+#include <IceGrid/Internal.h>
 
 namespace IceGrid
 {
 
 class RegistryI;
 typedef IceUtil::Handle<RegistryI> RegistryIPtr;
+
+class FileIteratorI;
+typedef IceUtil::Handle<FileIteratorI> FileIteratorIPtr;
 
 class AdminSessionI : public BaseSessionI, public AdminSession
 {
@@ -37,24 +41,37 @@ public:
 			      const AdapterObserverPrx&, const ObjectObserverPrx&, const Ice::Current&);
 
     virtual void setObserversByIdentity(const Ice::Identity&, const Ice::Identity&, const Ice::Identity&,
-					const Ice::Identity&, const Ice::Identity&, const Ice::Current&); 
+					const Ice::Identity&, const Ice::Identity&, const Ice::Current&);
 
     virtual int startUpdate(const Ice::Current&);
     virtual void finishUpdate(const Ice::Current&);
 
     virtual std::string getReplicaName(const Ice::Current&) const;
 
+    virtual FileIteratorPrx openServerStdOut(const std::string&, const Ice::Current&);
+    virtual FileIteratorPrx openServerStdErr(const std::string&, const Ice::Current&);
+
+    virtual FileIteratorPrx openNodeStdOut(const std::string&, const Ice::Current&);
+    virtual FileIteratorPrx openNodeStdErr(const std::string&, const Ice::Current&);
+
+    virtual FileIteratorPrx openRegistryStdOut(const std::string&, const Ice::Current&);
+    virtual FileIteratorPrx openRegistryStdErr(const std::string&, const Ice::Current&);
+
     virtual void destroy(const Ice::Current&);
+
+    void removeFileIterator(const Ice::Identity&, const Ice::Current&);
 
 private:
 
     void setupObserverSubscription(TopicName, const Ice::ObjectPrx&);
     Ice::ObjectPrx toProxy(const Ice::Identity&, const Ice::ConnectionPtr&);
+    FileIteratorPrx addFileIterator(const FileReaderPrx&, const std::string&, const Ice::Current&);
 
     const int _timeout;
     const AdminPrx _admin;
     const std::string _replicaName;
     std::map<TopicName, Ice::ObjectPrx> _observers;
+    std::set<Ice::Identity> _iterators;
 };
 typedef IceUtil::Handle<AdminSessionI> AdminSessionIPtr;
 
@@ -104,6 +121,23 @@ public:
 private:
     
     const AdminSessionFactoryPtr _factory;
+};
+
+class FileIteratorI : public FileIterator
+{
+public:
+
+    FileIteratorI(const AdminSessionIPtr&, const FileReaderPrx&, const std::string&);
+
+    virtual Ice::StringSeq read(int, const Ice::Current&);
+    virtual void destroy(const Ice::Current&);
+
+private:
+
+    AdminSessionIPtr _session;
+    FileReaderPrx _reader;
+    std::string _filename;
+    Ice::Long _offset;
 };
 
 };

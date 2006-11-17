@@ -250,6 +250,23 @@ exception ObserverAlreadyRegisteredException
     Ice::Identity id;
 };
 
+/**
+ *
+ * This exception is raised if a file is not available.
+ *
+ * @see AdminSession::openServerStdOut
+ * @see AdminSession::openServerStdErr
+ * @see AdminSession::openNodeStdOut
+ * @see AdminSession::openNodeStdErr
+ * @see AdminSession::openRegistryStdOut
+ * @see AdminSession::openRegistryStdErr
+ *
+ **/
+exception FileNotAvailableException
+{
+    string reason;
+};
+
 
 };
 

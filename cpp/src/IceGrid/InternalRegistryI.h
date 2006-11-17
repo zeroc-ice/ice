@@ -19,6 +19,9 @@ namespace IceGrid
 class Database;
 typedef IceUtil::Handle<Database> DatabasePtr;
 
+class FileCache;
+typedef IceUtil::Handle<FileCache> FileCachePtr;
+
 class WellKnownObjectsManager;
 typedef IceUtil::Handle<WellKnownObjectsManager> WellKnownObjectsManagerPtr;
 
@@ -49,12 +52,15 @@ public:
 
     virtual void shutdown(const Ice::Current&) const;
 
+    virtual Ice::StringSeq readLines(const std::string&, Ice::Long, int, Ice::Long&, const Ice::Current&) const;
+
 private:    
 
     const RegistryIPtr _registry;
     const DatabasePtr _database;
     const ReapThreadPtr _reaper;
     const WellKnownObjectsManagerPtr _wellKnownObjects;
+    const FileCachePtr _fileCache;
     ReplicaSessionManager& _session;
     int _nodeSessionTimeout;
     int _replicaSessionTimeout;

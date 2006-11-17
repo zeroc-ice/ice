@@ -10,12 +10,13 @@
 #ifndef ICE_GRID_NODE_I_H
 #define ICE_GRID_NODE_I_H
 
+#include <IcePatch2/FileServer.h>
+
 #include <IceGrid/Internal.h>
 #include <IceGrid/WaitQueue.h>
 #include <IceGrid/PlatformInfo.h>
 #include <IceGrid/UserAccountMapper.h>
-
-#include <IcePatch2/FileServer.h>
+#include <IceGrid/FileCache.h>
 
 namespace IceGrid
 {
@@ -54,6 +55,8 @@ public:
     virtual LoadInfo getLoad(const Ice::Current& = Ice::Current()) const;
     virtual void shutdown(const Ice::Current&) const;
 
+    virtual Ice::StringSeq readLines(const std::string&, Ice::Long, int, Ice::Long&, const Ice::Current&) const;
+
     void destroy();
     
     WaitQueuePtr getWaitQueue() const;
@@ -62,7 +65,11 @@ public:
     ActivatorPtr getActivator() const;
     TraceLevelsPtr getTraceLevels() const;
     UserAccountMapperPrx getUserAccountMapper() const;
-    PlatformInfo& getPlatformInfo() const { return _platform; }
+    PlatformInfo& getPlatformInfo() const;
+    FileCachePtr getFileCache() const;
+
+    std::string getOutputDir() const;
+    bool getRedirectErrToOut() const;
 
     NodeSessionPrx registerWithRegistry(const InternalRegistryPrx&);
     void checkConsistency(const NodeSessionPrx&);
@@ -93,18 +100,23 @@ private:
     const TraceLevelsPtr _traceLevels;
     const std::string _name;
     const NodePrx _proxy;
+    const std::string _outputDir;
+    const bool _redirectErrToOut;
     const Ice::Int _waitTime;
     const std::string _instanceName;
     const UserAccountMapperPrx _userAccountMapper;
-    std::string _dataDir;
-    std::string _serversDir;
-    std::string _tmpDir;
+    mutable PlatformInfo _platform;
+    const std::string _dataDir;
+    const std::string _serversDir;
+    const std::string _tmpDir;
+    const FileCachePtr _fileCache;
+
     unsigned long _serial;
+
     IceUtil::Mutex _observerMutex;
     std::map<NodeSessionPrx, NodeObserverPrx> _observers;
     std::map<std::string, ServerDynamicInfo> _serversDynamicInfo;
     std::map<std::string, AdapterDynamicInfo> _adaptersDynamicInfo;
-    mutable PlatformInfo _platform;
 
     IceUtil::Mutex _serversLock;
     std::map<std::string, std::set<ServerIPtr> > _serversByApplication;

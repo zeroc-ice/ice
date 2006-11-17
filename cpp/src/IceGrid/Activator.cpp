@@ -256,7 +256,6 @@ stringToSignal(const string& str)
 
 Activator::Activator(const TraceLevelsPtr& traceLevels, const PropertiesPtr& properties) :
     _traceLevels(traceLevels),
-    _properties(properties),
     _deactivating(false)
 {
 #ifdef _WIN32
@@ -288,13 +287,10 @@ Activator::Activator(const TraceLevelsPtr& traceLevels, const PropertiesPtr& pro
     fcntl(_fdIntrRead, F_SETFL, flags);
 #endif
 
-    _outputDir = _properties->getProperty("IceGrid.Node.Output");
-    _redirectErrToOut = (_properties->getPropertyAsInt("IceGrid.Node.RedirectErrToOut") > 0);
-
     //
     // Parse the properties override property.
     //
-    string props = _properties->getProperty("IceGrid.Node.PropertiesOverride");
+    string props = properties->getProperty("IceGrid.Node.PropertiesOverride");
     if(!props.empty())
     {
 	string::size_type end = 0;
@@ -423,14 +419,6 @@ Activator::activate(const string& name,
     args.insert(args.end(), options.begin(), options.end());
     args.insert(args.end(), _propertiesOverride.begin(), _propertiesOverride.end());
     
-    if(_outputDir.size() > 0)
-    {
-	string outFile = _outputDir + "/" + name + ".out";
-	string errFile = _redirectErrToOut ? outFile : _outputDir + "/" + name + ".err";
-	args.push_back("--Ice.StdOut=" + outFile);
-	args.push_back("--Ice.StdErr=" + errFile);
-    }
-
     if(_traceLevels->activator > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
