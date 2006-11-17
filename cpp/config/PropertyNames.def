@@ -373,7 +373,6 @@ IceStorm:
     Trace.SubscriberPool
     Trace.Topic
     Trace.TopicManager
-    Trace.KeepAlive
     Send.Timeout
     Discard.Interval
 

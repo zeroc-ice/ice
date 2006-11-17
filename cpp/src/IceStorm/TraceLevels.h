@@ -40,9 +40,6 @@ public:
     const int subscriber;
     const char* subscriberCat;
 
-    const int keepAlive;
-    const char* keepAliveCat;
-
     const Ice::LoggerPtr logger;
 };
 
