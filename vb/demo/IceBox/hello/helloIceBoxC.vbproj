@@ -67,7 +67,7 @@
                     HintPath = "..\..\..\bin\icecs.dll"
                 />
                 <Reference
-                    Name = "helloIceBoxCommonD"
+                    Name = "helloIceBoxCommon"
                     Project = "{54B6C934-DFDD-453F-AD83-98556D36B69B}"
                     Package = "{F184B08F-C81C-45F6-A57F-5ABD9991F28F}"
                 />

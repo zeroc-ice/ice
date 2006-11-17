@@ -11,7 +11,8 @@ top_srcdir	= ..\..
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-SUBDIRS		= bidir \
+SUBDIRS		= async \
+		  bidir \
 		  callback \
 		  hello \
 		  invoke \

@@ -66,7 +66,7 @@
                     AssemblyName = "System.Data"
                 />
                 <Reference
-                    Name = "helloCommonD"
+                    Name = "helloCommon"
                     Project = "{59486F58-E9F1-4B78-B0D0-B52570350BE9}"
                     Package = "{F184B08F-C81C-45F6-A57F-5ABD9991F28F}"
                 />
