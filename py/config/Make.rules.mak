@@ -102,7 +102,7 @@ all:: $(SRCS)
 	$(CXX) /c $(CPPFLAGS) $(CXXFLAGS) $<
 
 clean::
-	del /q $(TARGETS) core *.obj *.pyc *.bak
+	del /q $(TARGETS) *.obj *.pyc *.bak
 
 all:: $(SRCS) $(TARGETS)
 

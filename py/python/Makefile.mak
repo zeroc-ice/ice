@@ -258,4 +258,5 @@ install:: $(ALL_SRCS)
 	    copy %i\* $(install_pythondir)\%i
 
 clean::
-	del /q $(PACKAGES) *_ice.py
+	-rmdir /s /q $(PACKAGES)
+	del /q *_ice.py
