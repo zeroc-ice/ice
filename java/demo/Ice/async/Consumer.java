@@ -17,7 +17,7 @@ public class Consumer extends Ice.Application
 	{
 	    _id = id;
 
-	    synchronized(_requestMutex)
+	    synchronized(_requests)
 	    {
 	        _requests.add(id);
 	    }
@@ -25,7 +25,7 @@ public class Consumer extends Ice.Application
 
         public void ice_response(String message)
 	{
-	    synchronized(_requestMutex)
+	    synchronized(_requests)
 	    {
 	        _requests.remove(_id);
 	    }
@@ -35,7 +35,7 @@ public class Consumer extends Ice.Application
 
 	public void ice_exception(Ice.LocalException ex)
 	{
-	    synchronized(_requestMutex)
+	    synchronized(_requests)
 	    {
 	        _requests.remove(_id);
 	    }
@@ -129,7 +129,7 @@ public class Consumer extends Ice.Application
         }
         while(!line.equals("x"));
 
-	synchronized(_requestMutex)
+	synchronized(_requests)
 	{
 	    if(_requests.size() != 0)
 	    {
@@ -155,6 +155,5 @@ public class Consumer extends Ice.Application
         System.exit(status);
     }
 
-    private java.lang.Object _requestMutex = new java.lang.Object();
     private java.util.HashSet _requests = new java.util.HashSet();
 }

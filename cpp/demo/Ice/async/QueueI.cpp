@@ -98,6 +98,7 @@ QueueI::cancel_async(const Demo::AMD_Queue_cancelPtr& cb, const vector<string>& 
 		}
 		list<Request>::iterator erase = q++;
 	        _requestQueue.erase(erase);
+		break;
 	    }
 	    else
 	    {

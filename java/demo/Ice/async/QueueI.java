@@ -92,6 +92,7 @@ public class QueueI extends _QueueDisp
 		        // Ignore
 		    }
 		    p.remove();
+		    break;
 		}
 	    }
 	}

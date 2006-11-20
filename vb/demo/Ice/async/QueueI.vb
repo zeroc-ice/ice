@@ -53,7 +53,6 @@ Public Class QueueI
 
 	SyncLock Me
 	    For i As Integer = 0 To ids.Length
-	    	Dim toRemove As ArrayList = New ArrayList
 		Dim r As Request
 	        For Each r In _requestQueue
 		    If r.id.Equals(ids(i)) Then
@@ -63,12 +62,9 @@ Public Class QueueI
 			    ' Ignore
 			End try
 
-		        toRemove.Add(r)
+		        _requestQueue.Remove(r)
+			Exit For
 		    End If
-		Next
-
-		For Each r In toRemove
-		    _requestQueue.Remove(r)
 		Next
 	    Next
 	End SyncLock
