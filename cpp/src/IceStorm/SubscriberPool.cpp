@@ -201,6 +201,10 @@ void
 SubscriberPool::flush(list<SubscriberPtr>& subscribers)
 {
     Lock sync(*this);
+    if(_destroyed)
+    {
+	return;
+    }
     //
     // Splice on the new set of subscribers to SubscriberPool.
     //
@@ -213,6 +217,10 @@ void
 SubscriberPool::flush(const SubscriberPtr& subscriber)
 {
     Lock sync(*this);
+    if(_destroyed)
+    {
+	return;
+    }
     _pending.push_back(subscriber);
     assert(invariants());
     notify();
@@ -222,6 +230,10 @@ void
 SubscriberPool::add(const SubscriberPtr& subscriber)
 {
     Lock sync(*this);
+    if(_destroyed)
+    {
+	return;
+    }
     _subscribers.push_back(subscriber);
     assert(invariants());
 }
@@ -230,6 +242,10 @@ void
 SubscriberPool::remove(const SubscriberPtr& subscriber)
 {
     Lock sync(*this);
+    if(_destroyed)
+    {
+	return;
+    }
     //
     // Note that this cannot remove based on the subscriber id because
     // the pool is TopicManager scoped and not topic scoped therefore
@@ -401,8 +417,10 @@ SubscriberPool::destroy()
 {
     //
     // First mark the pool as destroyed. This causes all of the worker
-    // threads to unblock and terminate. We also copy the list of subscribers
-    // for shutdown. No new subscribers can be added once _destroyed is set.
+    // threads to unblock and terminate. We also clear the set of
+    // subscribers here since there is a cycle (instance -> pool ->
+    // subscribers -> instance).  No new subscribers can be added once
+    // _destroyed is set.
     //
     {
 	Lock sync(*this);
@@ -412,6 +430,7 @@ SubscriberPool::destroy()
 	{
 	    _subscriberPoolMonitor->destroy();
 	}
+	_subscribers.clear();
     }
     //
     // Next join with each worker.
