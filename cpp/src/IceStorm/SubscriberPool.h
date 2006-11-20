@@ -26,6 +26,9 @@ namespace IceStorm
 //
 // Forward declarations.
 //
+class TraceLevels;
+typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
+
 class Instance;
 typedef IceUtil::Handle<Instance> InstancePtr;
 
@@ -81,7 +84,7 @@ private:
 
     bool invariants();
     
-    const InstancePtr _instance;
+    const TraceLevelsPtr _traceLevels;
     const unsigned int _sizeMax;
     const unsigned int _sizeWarn;
     const unsigned int _size;

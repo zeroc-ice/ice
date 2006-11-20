@@ -23,6 +23,9 @@ namespace IceStorm
 class Instance;
 typedef IceUtil::Handle<Instance> InstancePtr;
 
+class TraceLevels;
+typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
+
 //
 // Responsible for flushing Flushable objects at regular intervals.
 //
@@ -41,7 +44,7 @@ public:
 
 private:
 
-    const InstancePtr _instance;
+    const TraceLevelsPtr _traceLevels;
     const IceUtil::Time _flushTime;
     std::list<Ice::ObjectPrx> _subscribers;
     bool _destroy;

@@ -46,7 +46,6 @@ public:
     int sendTimeout() const;
 
     void shutdown();
-    void destroy();
 
 private:
 

@@ -209,10 +209,6 @@ SubscriberOneway::flush()
     {
 	return false;
     }
-    //
-    // Flush cannot be called with SubscriberStateShutdown because
-    // the pool workers are joined with before flushing.
-    //
     assert(_state == SubscriberStateFlushPending);
     assert(!_events.empty());
 
@@ -290,10 +286,6 @@ SubscriberOneway::flush()
 	return false;
     }
 
-    if(_state == SubscriberStateShutdown)
-    {
-	return false;
-    }
     if(!_events.empty())
     {
 	assert(_state == SubscriberStateFlushPending);
@@ -364,10 +356,6 @@ SubscriberTwoway::flush()
     {
 	return false;
     }
-    //
-    // Flush cannot be called with SubscriberStateShutdown because
-    // the pool workers are joined with before flushing.
-    //
     assert(_state == SubscriberStateFlushPending);
     assert(!_events.empty());
 
@@ -393,11 +381,6 @@ SubscriberTwoway::flush()
     // Reacquire the lock before we check the queue again.
     //
     sync.acquire();
-
-    if(_state == SubscriberStateShutdown)
-    {
-	return false;
-    }
 
     //
     // If there have been more events queued in the meantime then
@@ -466,10 +449,6 @@ SubscriberTwowayOrdered::flush()
 	{
 	    return false;
 	}
-	//
-	// Flush cannot be called with SubscriberStateShutdown because
-	// the pool workers are joined with before flushing.
-	//
 	assert(_state == SubscriberStateFlushPending);
 	assert(!_events.empty());
 	
@@ -488,16 +467,16 @@ SubscriberTwowayOrdered::response()
     IceUtil::Mutex::Lock sync(_mutex);
     
     assert(_state != SubscriberStateError);
-    if(_state == SubscriberStateShutdown)
-    {
-	return;
-    }
     if(_events.empty())
     {
 	_state = SubscriberStateOnline;
 	return;
     }
-    _instance->subscriberPool()->flush(this);
+    SubscriberPoolPtr pool = _instance->subscriberPool();
+    if(pool)
+    {
+	pool->flush(this);
+    }
 }
 
 namespace
@@ -611,10 +590,6 @@ SubscriberLink::queue(bool forwarded, const EventSeq& events)
     {
 	return QueueStateError;
     }
-    if(_state == SubscriberStateShutdown)
-    {
-	return QueueStateNoFlush;
-    }
 
     //
     // If the proxy is offline and its time to send another event then
@@ -689,10 +664,6 @@ SubscriberLink::flush()
 	    return false;
 	}
 
-	//
-	// Flush cannot be called with SubscriberStateShutdown because
-	// the pool workers are joined with before flushing.
-	//
 	assert(_state == SubscriberStateFlushPending);
 	assert(!_events.empty());
 	
@@ -759,10 +730,6 @@ SubscriberLink::response()
     IceUtil::Mutex::Lock sync(_mutex);
     
     assert(_state != SubscriberStateError);
-    if(_state == SubscriberStateShutdown)
-    {
-	return;
-    }
     
     //
     // A successful response means we're no longer retrying, we're
@@ -778,17 +745,17 @@ SubscriberLink::response()
 	_state = SubscriberStateOnline;
 	return;
     }
-    _instance->subscriberPool()->flush(this);
+    SubscriberPoolPtr pool = _instance->subscriberPool();
+    if(pool)
+    {
+	pool->flush(this);
+    }
 }
 
 void
 SubscriberLink::offline(const Ice::Exception& e)
 {
     IceUtil::Mutex::Lock sync(_mutex);
-    if(_state == SubscriberStateShutdown)
-    {
-	return;
-    }
     assert(_state != SubscriberStateOffline);
 
     _next = IceUtil::Time::now() + _instance->discardInterval();
@@ -947,10 +914,6 @@ Subscriber::queue(bool, const EventSeq& events)
     {
 	return QueueStateError;
     }
-    if(_state == SubscriberStateShutdown)
-    {
-	return QueueStateNoFlush;
-    }
 
     copy(events.begin(), events.end(), back_inserter(_events));
     if(_state == SubscriberStateFlushPending)
@@ -986,13 +949,6 @@ Subscriber::destroy()
 }
 
 void
-Subscriber::shutdown()
-{
-    IceUtil::Mutex::Lock sync(_mutex);
-    _state = SubscriberStateShutdown;
-}
-
-void
 Subscriber::flushTime(const IceUtil::Time& interval)
 {
     if(_resetMax || interval > _maxSend)
@@ -1015,7 +971,7 @@ void
 Subscriber::error(const Ice::Exception& e)
 {
     IceUtil::Mutex::Lock sync(_mutex);
-    if(_state != SubscriberStateError && _state != SubscriberStateShutdown)
+    if(_state != SubscriberStateError)
     {
 	_state = SubscriberStateError;
 	_events.clear();

@@ -33,7 +33,7 @@ class Event
     Ice::Context context;
 };
 
-/** A sequence of EventData. */
+/** A sequence of Event. */
 sequence<Event> EventSeq;
 
 };

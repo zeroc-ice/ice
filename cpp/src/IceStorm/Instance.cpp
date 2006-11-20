@@ -40,7 +40,6 @@ Instance::Instance(
     catch(...)
     {
 	shutdown();
-	destroy();
 	__setNoDelete(false);
 
 	throw;
@@ -113,11 +112,4 @@ Instance::shutdown()
     {
 	_subscriberPool->destroy();
     }
-}
-
-void
-Instance::destroy()
-{
-    _batchFlusher = 0;
-    _subscriberPool = 0;
 }

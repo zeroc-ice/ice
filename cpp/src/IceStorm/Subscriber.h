@@ -47,7 +47,6 @@ public:
     //
     virtual bool flush() = 0;
     virtual void destroy();
-    void shutdown();
 
     //
     // These methods must only be called by the SubscriberPool they
@@ -75,8 +74,7 @@ protected:
 	SubscriberStateOnline,
 	SubscriberStateFlushPending,
 	SubscriberStateOffline,
-	SubscriberStateError,
-	SubscriberStateShutdown
+	SubscriberStateError
     };
     SubscriberState _state; // The subscriber state.
     EventSeq _events; // The queue of events to send.

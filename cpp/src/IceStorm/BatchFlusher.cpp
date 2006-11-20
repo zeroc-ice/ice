@@ -22,7 +22,7 @@ using namespace IceStorm;
 using namespace std;
 
 BatchFlusher::BatchFlusher(const InstancePtr& instance) :
-    _instance(instance),
+    _traceLevels(instance->traceLevels()),
     _flushTime(IceUtil::Time::milliSeconds(
 		   max(instance->properties()->getPropertyAsIntWithDefault(
 			   "IceStorm.Flush.Timeout", 1000), 100))), // Minimum of 100ms.
@@ -118,10 +118,9 @@ BatchFlusher::run()
 	// Trace after the flush so that the correct number of objects
 	// are displayed
 	//
-	TraceLevelsPtr traceLevels = _instance->traceLevels();
-	if(traceLevels->flush > 0)
+	if(_traceLevels->flush > 0)
 	{
-	    Ice::Trace out(traceLevels->logger, traceLevels->flushCat);
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->flushCat);
 	    out << "connections: " << flushSet.size() << " subscribers: " << subscribers.size();
 	}
     }

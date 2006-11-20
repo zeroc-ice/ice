@@ -116,7 +116,6 @@ IceStorm::ServiceI::start(
     }
     catch(const Ice::Exception&)
     {
-	_instance->destroy();
 	_instance = 0;
 	throw;
     }
@@ -145,7 +144,6 @@ IceStorm::ServiceI::start(const CommunicatorPtr& communicator,
     }
     catch(const Ice::Exception&)
     {
-	_instance->destroy();
 	_instance = 0;
 	throw;
     }
@@ -169,6 +167,15 @@ IceStorm::ServiceI::stop()
 	_publishAdapter->deactivate();
     }
 
+    if(_topicAdapter)
+    {
+	_topicAdapter->waitForDeactivate();
+    }
+    if(_publishAdapter)
+    {
+	_publishAdapter->waitForDeactivate();
+    }
+
     //
     // Instance::shutdown terminates all the thread pools, however, it
     // does not clear the references. This is because the shutdown has
@@ -187,9 +194,4 @@ IceStorm::ServiceI::stop()
     // It's necessary to reap all destroyed topics on shutdown.
     //
     _manager->shutdown();
-
-    //
-    // ... and finally destroy the instance.
-    //
-    _instance->destroy();
 }
