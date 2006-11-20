@@ -18,14 +18,20 @@ class QueueI : virtual public Demo::Queue, public IceUtil::Mutex
 {
 public:
 
-    virtual void get_async(const Demo::AMD_Queue_getPtr&, const Ice::Current&);
+    virtual void get_async(const Demo::AMD_Queue_getPtr&, const std::string&, const Ice::Current&);
     virtual void add(const std::string&, const Ice::Current&);
-
+    virtual void cancel_async(const Demo::AMD_Queue_cancelPtr&, const std::vector<std::string>&, const Ice::Current&);
 
 private:
 
+    struct Request
+    {
+        std::string id;
+	Demo::AMD_Queue_getPtr request;
+    };
+
     std::list<std::string> _messageQueue;
-    std::list<Demo::AMD_Queue_getPtr> _requestQueue;
+    std::list<Request> _requestQueue;
 };
 
 

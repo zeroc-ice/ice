@@ -12,7 +12,7 @@
 using namespace std;
 
 void
-QueueI::get_async(const Demo::AMD_Queue_getPtr& getCB, const Ice::Current&)
+QueueI::get_async(const Demo::AMD_Queue_getPtr& getCB, const string& id, const Ice::Current&)
 {
     IceUtil::Mutex::Lock lock(*this);
 
@@ -35,12 +35,15 @@ QueueI::get_async(const Demo::AMD_Queue_getPtr& getCB, const Ice::Current&)
     }
     else
     {
-        _requestQueue.push_back(getCB);
+    	Request request;
+	request.id = id;
+	request.request = getCB;
+        _requestQueue.push_back(request);
     }
 }
 
 void
-QueueI::add(const ::std::string& message, const Ice::Current&)
+QueueI::add(const string& message, const Ice::Current&)
 {
     IceUtil::Mutex::Lock lock(*this);
 
@@ -53,7 +56,7 @@ QueueI::add(const ::std::string& message, const Ice::Current&)
     {
         try
 	{
-            _requestQueue.front()->ice_response(message);
+            _requestQueue.front().request->ice_response(message);
 	}
 	catch(const Ice::Exception& ex)
 	{
@@ -65,5 +68,42 @@ QueueI::add(const ::std::string& message, const Ice::Current&)
     else
     {
         _messageQueue.push_back(message);
+    }
+}
+
+void
+QueueI::cancel_async(const Demo::AMD_Queue_cancelPtr& cb, const vector<string>& ids, const Ice::Current&)
+{
+    //
+    // We send immediate response so that later call to ice_exception
+    // on queued requests will not cause deadlocks.
+    //
+    cb->ice_response();
+
+    IceUtil::Mutex::Lock lock(*this);
+
+    for(vector<string>::const_iterator p = ids.begin(); p != ids.end(); ++p)
+    {
+        for(list<Request>::iterator q = _requestQueue.begin(); q != _requestQueue.end(); )
+	{
+	    if((*q).id == *p)
+	    {
+	        try
+		{
+		    (*q).request->ice_exception(Demo::RequestCanceledException());
+		}
+		catch(const Ice::Exception&)
+		{
+		    // Ignore
+		}
+		list<Request>::iterator erase = q++;
+	        _requestQueue.erase(erase);
+	    }
+	    else
+	    {
+	        ++q;
+	    }
+
+	}
     }
 }
