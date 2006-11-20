@@ -355,13 +355,13 @@ public class Slice2FreezeJTask extends SliceTask
         String translator;
         if(_translator == null)
         {
-            if(_iceHome == null)
+            if(getIceHome() == null)
             {
                 translator = "slice2freezej";
             }
             else
             {
-                translator = new File(_iceHome + File.separator + "bin" + File.separator + "slice2freezej").toString();
+                translator = new File(getIceHome() + File.separator + "bin" + File.separator + "slice2freezej").toString();
             }
         }
         else

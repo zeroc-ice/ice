@@ -61,21 +61,6 @@ public class SliceTask extends org.apache.tools.ant.Task
 	_caseSensitive = false;
         _ice = false;
         _includePath = null;
-
-        //
-        // Check for the presence of the ICE_HOME environment variable.
-        //
-        java.util.Vector env = Execute.getProcEnvironment();
-        java.util.Enumeration e = env.elements();
-        while(e.hasMoreElements())
-        {
-            String entry = (String)e.nextElement();
-            if(entry.startsWith("ICE_HOME="))
-            {
-                _iceHome = entry.substring(entry.indexOf('=') + 1);
-                break;
-            }
-        }
     }
 
     public void
@@ -323,6 +308,44 @@ public class SliceTask extends org.apache.tools.ant.Task
 	return dependencies;
 
     }
+    
+    protected String
+    getIceHome()
+    {
+	//
+	// _iceHome used to be set in the constructor. It appears that the
+	// current project isn't available at that point and consequently, the
+	// properties that allow us to find the ice translators based on the
+	// contents the 'ice.dir' property in the ant projects aren't available
+	// yet.
+	//
+	if(_iceHome == null)
+	{
+	    //
+	    // Check for the presence of the ICE_HOME environment variable.
+	    //
+	    java.util.Vector env = Execute.getProcEnvironment();
+	    java.util.Enumeration e = env.elements();
+	    while(e.hasMoreElements())
+	    {
+		String entry = (String)e.nextElement();
+		if(entry.startsWith("ICE_HOME="))
+		{
+		    _iceHome = entry.substring(entry.indexOf('=') + 1);
+		    break;
+		}
+	    }
+
+	    if(_iceHome == null)
+	    {
+		if(getProject().getProperties().containsKey("ice.dir"))
+		{
+		    _iceHome = (String)getProject().getProperties().get("ice.dir");
+		}
+	    }
+	}
+	return _iceHome;
+    }
 
     //
     // A slice dependency.
@@ -380,5 +403,5 @@ public class SliceTask extends org.apache.tools.ant.Task
     protected java.util.List _fileSets = new java.util.LinkedList();
     protected java.util.List _defines = new java.util.LinkedList();
     protected java.util.List _meta = new java.util.LinkedList();
-    protected String _iceHome;
+    private String _iceHome;
 }
