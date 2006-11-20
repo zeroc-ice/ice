@@ -92,7 +92,7 @@ public class QueueI : QueueDisp_
 		    {
 		        r.cb.ice_exception(new RequestCanceledException());
 		    }
-		    catch(Ice.Exception ex)
+		    catch(Ice.Exception)
 		    {
 		        // Ignore
 		    }
