@@ -75,28 +75,6 @@ interface TopicInternal extends Topic
     idempotent TopicLink* getLinkProxy();
 };
 
-/**
- *
- * This is version 2 of the TopicLink interface. This is used to
- * forward events between federated Topic instances for Ice 3.2 and
- * later.
- *
- * @see TopicInternal
- *
- **/
-interface TopicLinkV2
-{
-    /**
-     *
-     * Forward a sequence of events.
-     *
-     * @param events The events to forward.
-     *
-     **/
-    ["ami"] void forward(EventSeq events);
-};
-
-
 }; // End module IceStorm
 
 #endif

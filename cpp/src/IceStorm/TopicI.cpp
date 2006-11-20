@@ -99,26 +99,6 @@ private:
     const TopicIPtr _topic;
 };
 
-class TopicLinkV2I : public TopicLinkV2
-{
-public:
-
-    TopicLinkV2I(const TopicIPtr& topic) :
-	_topic(topic)
-    {
-    }
-
-    virtual void
-    forward(const EventSeq& v, const Ice::Current& current)
-    {
-	_topic->publish(true, v);
-    }
-
-private:
-
-    const TopicIPtr _topic;
-};
-
 }
 
 TopicI::TopicI(
@@ -151,7 +131,6 @@ TopicI::TopicI(
     //
     id.name = "link";
     _linkPrx = TopicLinkPrx::uncheckedCast(_instance->objectAdapter()->add(new TopicLinkI(this), id));
-    _instance->objectAdapter()->addFacet(new TopicLinkV2I(this), id, "V2");
 
     //
     // Re-establish linked subscribers.
