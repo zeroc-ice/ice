@@ -467,11 +467,7 @@ SubscriberTwowayOrdered::response()
 	_state = SubscriberStateOnline;
 	return;
     }
-    SubscriberPoolPtr pool = _instance->subscriberPool();
-    if(pool)
-    {
-	pool->flush(this);
-    }
+    _instance->subscriberPool()->flush(this);
 }
 
 namespace
@@ -666,11 +662,7 @@ SubscriberLink::response()
 	_state = SubscriberStateOnline;
 	return;
     }
-    SubscriberPoolPtr pool = _instance->subscriberPool();
-    if(pool)
-    {
-	pool->flush(this);
-    }
+    _instance->subscriberPool()->flush(this);
 }
 
 void
