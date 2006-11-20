@@ -265,6 +265,12 @@ SubscriberPool::dequeue(SubscriberPtr& subscriber, bool requeue, const IceUtil::
 {
     Lock sync(*this);
 
+    if(_destroyed)
+    {
+	subscriber = 0;
+	return;
+    }
+
     if(subscriber)
     {
 	if(requeue)
@@ -431,6 +437,7 @@ SubscriberPool::destroy()
 	    _subscriberPoolMonitor->destroy();
 	}
 	_subscribers.clear();
+	_pending.clear();
     }
     //
     // Next join with each worker.
