@@ -177,15 +177,6 @@ IceStorm::ServiceI::stop()
     }
 
     //
-    // Instance::shutdown terminates all the thread pools, however, it
-    // does not clear the references. This is because the shutdown has
-    // to be in two stages. First we destroy & join with the threads
-    // so that no further activity can take place. Then we reap()
-    // which has to call on various instance objects, then we clear
-    // the instance which breaks any cycles.
-    //
-
-    //
     // Shutdown the instance.
     //
     _instance->shutdown();
