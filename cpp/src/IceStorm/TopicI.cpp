@@ -83,6 +83,32 @@ public:
     }
 
     virtual void
+    forward(const EventDataSeq& v, const Ice::Current& current)
+    {
+	EventSeq events;
+	events.reserve(v.size());
+	for(EventDataSeq::const_iterator p = v.begin(); p != v.end(); ++p)
+	{
+	    events.push_back(new Event(p->op, p->mode, p->data, p->context));
+	}
+	_topic->publish(true, events);
+    }
+
+private:
+
+    const TopicIPtr _topic;
+};
+
+class TopicLinkV2I : public TopicLinkV2
+{
+public:
+
+    TopicLinkV2I(const TopicIPtr& topic) :
+	_topic(topic)
+    {
+    }
+
+    virtual void
     forward(const EventSeq& v, const Ice::Current& current)
     {
 	_topic->publish(true, v);
@@ -125,6 +151,7 @@ TopicI::TopicI(
     //
     id.name = "link";
     _linkPrx = TopicLinkPrx::uncheckedCast(_instance->objectAdapter()->add(new TopicLinkI(this), id));
+    _instance->objectAdapter()->addFacet(new TopicLinkV2I(this), id, "V2");
 
     //
     // Re-establish linked subscribers.

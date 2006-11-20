@@ -123,13 +123,6 @@ IceStorm::ServiceI::start(
 	
     _topicAdapter->activate();
     _publishAdapter->activate();
-
-    //
-    // The keep alive thread must be started after all topics are
-    // installed so that any upstream topics are notified immediately
-    // after startup.
-    //
-    //_instance->keepAlive()->startPinging();
 }
 
 void
@@ -181,9 +174,8 @@ IceStorm::ServiceI::stop()
     // does not clear the references. This is because the shutdown has
     // to be in two stages. First we destroy & join with the threads
     // so that no further activity can take place. Then we reap()
-    // which has to call on various instance objects (such as the keep
-    // alive thread), then we clear the instance which breaks any
-    // cycles.
+    // which has to call on various instance objects, then we clear
+    // the instance which breaks any cycles.
     //
 
     //

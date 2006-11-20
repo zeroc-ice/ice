@@ -50,7 +50,7 @@ private:
     const SubscriberPoolPtr _manager;
     const IceUtil::Time _timeout;
     bool _needCheck;
-    bool _destroy;
+    bool _destroyed;
 };
 
 typedef IceUtil::Handle<SubscriberPoolMonitor> SubscriberPoolMonitorPtr;
@@ -91,7 +91,7 @@ private:
 
     std::list<SubscriberPtr> _pending;
     std::list<SubscriberPtr> _subscribers;
-    bool _destroy;
+    bool _destroyed;
     std::list<IceUtil::ThreadPtr> _workers;
 
     int _reap;

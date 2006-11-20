@@ -18,6 +18,26 @@ module IceStorm
 
 /**
  *
+ * The event data.
+ *
+ **/
+struct EventData
+{
+    /** The operation name. */
+    string op;
+    /** The operation mode. */
+    Ice::OperationMode mode;
+     /** The encoded data for the operation's input parameters. */
+    Ice::ByteSeq data;
+    /** The Ice::Current::Context data from the originating request. */
+    Ice::Context context;
+};
+
+/** A sequence of EventData. */
+sequence<EventData> EventDataSeq;
+
+/**
+ *
  * The TopicLink interface. This is used to forward events between
  * federated Topic instances.
  *
@@ -33,7 +53,7 @@ interface TopicLink
      * @param events The events to forward.
      *
      **/
-    ["ami"] void forward(EventSeq events);
+    ["ami"] void forward(EventDataSeq events);
 };
 
 /**
@@ -54,6 +74,28 @@ interface TopicInternal extends Topic
      **/
     idempotent TopicLink* getLinkProxy();
 };
+
+/**
+ *
+ * This is version 2 of the TopicLink interface. This is used to
+ * forward events between federated Topic instances for Ice 3.2 and
+ * later.
+ *
+ * @see TopicInternal
+ *
+ **/
+interface TopicLinkV2
+{
+    /**
+     *
+     * Forward a sequence of events.
+     *
+     * @param events The events to forward.
+     *
+     **/
+    ["ami"] void forward(EventSeq events);
+};
+
 
 }; // End module IceStorm
 
