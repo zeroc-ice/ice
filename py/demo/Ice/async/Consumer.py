@@ -8,16 +8,46 @@
 #
 # **********************************************************************
 
-import sys, traceback, Ice
+import sys, os, traceback, threading, Ice
 
-Ice.loadSlice('Queue.ice')
+slice_dir = os.getenv('ICEPY_HOME', '')
+if len(slice_dir) == 0 or not os.path.exists(os.path.join(slice_dir, 'slice')):
+    slice_dir = os.getenv('ICE_HOME', '')
+if len(slice_dir) == 0 or not os.path.exists(os.path.join(slice_dir, 'slice')):
+    slice_dir = os.path.join('/', 'usr', 'share')
+if not os.path.exists(os.path.join(slice_dir, 'slice')):
+    print sys.argv[0] + ': Slice directory not found. Define ICEPY_HOME or ICE_HOME.'
+    sys.exit(1)
+
+Ice.loadSlice('-I' + slice_dir + '/slice Queue.ice')
 import Demo
 
 class AMI_Queue_getI:
+    def __init__(self, id):
+        self._id = id
+
+        requestMutex.acquire()
+	requests.append(id)
+        requestMutex.release()
+
     def ice_response(self, message):
+        requestMutex.acquire()
+        for i in range(0, len(requests)):
+	   if requests[i] == self._id:
+	       del requests[i]
+	       break
+        requestMutex.release()
+
         print message
 
     def ice_exception(self, ex):
+        requestMutex.acquire()
+        for i in range(0, len(requests)):
+	   if requests[i] == self._id:
+	       del requests[i]
+	       break
+        requestMutex.release()
+
         print ex
 
 def menu():
@@ -49,7 +79,8 @@ class Consumer(Ice.Application):
 	    try:
 		c = raw_input("==> ")
 		if c == 'g':
-		    queue.get_async(AMI_Queue_getI())
+		    id = Ice.generateUUID()
+		    queue.get_async(AMI_Queue_getI(id), id)
 		elif c == 'x':
 		    pass # Nothing to do
 		elif c == '?':
@@ -62,7 +93,19 @@ class Consumer(Ice.Application):
 	    except Ice.Exception, ex:
 	        print ex
 
+        requestMutex.acquire()
+	if len(requests) != 0:
+	    try:
+	        queue.cancel(requests)
+	    except Ice.Exception, ex:
+	        pass
+        requestMutex.release()
+
 	return True
+
+
+requests = []
+requestMutex = threading.Lock()
 
 app = Consumer()
 sys.exit(app.main(sys.argv, "config.client"))

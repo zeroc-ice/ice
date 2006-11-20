@@ -8,11 +8,19 @@
 #
 # **********************************************************************
 
-import sys, traceback, Ice
+import sys, os, traceback, Ice
 
-Ice.loadSlice('Queue.ice')
+slice_dir = os.getenv('ICEPY_HOME', '')
+if len(slice_dir) == 0 or not os.path.exists(os.path.join(slice_dir, 'slice')):
+    slice_dir = os.getenv('ICE_HOME', '')
+if len(slice_dir) == 0 or not os.path.exists(os.path.join(slice_dir, 'slice')):
+    slice_dir = os.path.join('/', 'usr', 'share')
+if not os.path.exists(os.path.join(slice_dir, 'slice')):
+    print sys.argv[0] + ': Slice directory not found. Define ICEPY_HOME or ICE_HOME.'
+    sys.exit(1)
+
+Ice.loadSlice('-I' + slice_dir + '/slice Queue.ice')
 import Demo
-
 
 def menu():
     print "Enter /quit to exit."
