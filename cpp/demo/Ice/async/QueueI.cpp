@@ -12,7 +12,7 @@
 using namespace std;
 
 void
-QueueI::get_async(const Demo::AMD_Queue_getPtr& getCB, const string& id, const Ice::Current&)
+QueueI::get_async(const Demo::AMD_Queue_getPtr& cb, const string& id, const Ice::Current&)
 {
     IceUtil::Mutex::Lock lock(*this);
 
@@ -25,7 +25,7 @@ QueueI::get_async(const Demo::AMD_Queue_getPtr& getCB, const string& id, const I
     {
         try
 	{
-            getCB->ice_response(_messageQueue.front());
+            cb->ice_response(_messageQueue.front());
 	    _messageQueue.pop_front();
 	}
 	catch(const Ice::Exception& ex)
@@ -37,7 +37,7 @@ QueueI::get_async(const Demo::AMD_Queue_getPtr& getCB, const string& id, const I
     {
     	Request request;
 	request.id = id;
-	request.request = getCB;
+	request.cb = cb;
         _requestQueue.push_back(request);
     }
 }
@@ -56,7 +56,7 @@ QueueI::add(const string& message, const Ice::Current&)
     {
         try
 	{
-            _requestQueue.front().request->ice_response(message);
+            _requestQueue.front().cb->ice_response(message);
 	}
 	catch(const Ice::Exception& ex)
 	{
@@ -90,7 +90,7 @@ QueueI::cancel_async(const Demo::AMD_Queue_cancelPtr& cb, const vector<string>& 
 	    {
 	        try
 		{
-		    (*q).request->ice_exception(Demo::RequestCanceledException());
+		    (*q).cb->ice_exception(Demo::RequestCanceledException());
 		}
 		catch(const Ice::Exception&)
 		{

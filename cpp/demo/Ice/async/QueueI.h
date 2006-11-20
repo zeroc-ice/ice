@@ -27,7 +27,7 @@ private:
     struct Request
     {
         std::string id;
-	Demo::AMD_Queue_getPtr request;
+	Demo::AMD_Queue_getPtr cb;
     };
 
     std::list<std::string> _messageQueue;
