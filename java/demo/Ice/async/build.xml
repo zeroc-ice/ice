@@ -22,6 +22,9 @@
         <mkdir dir="${generated.dir}"/>
         <slice2java outputdir="${generated.dir}">
 	    <meta value="${java5metadata}"/>
+	    <includepath>
+	        <pathelement path="${slice.dir}"/>
+	    </includepath>
             <fileset dir="." includes="Queue.ice"/>
         </slice2java>
     </target>

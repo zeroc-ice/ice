@@ -13,15 +13,49 @@ public class Consumer extends Ice.Application
 {
     public class AMI_Queue_getI extends AMI_Queue_get
     {
+        public AMI_Queue_getI(String id)
+	{
+	    _id = id;
+
+	    synchronized(_requestMutex)
+	    {
+	        _requests.add(id);
+	    }
+	}
+
         public void ice_response(String message)
 	{
+	    synchronized(_requestMutex)
+	    {
+	        _requests.remove(_id);
+	    }
+
 	    System.out.println(message);
 	}
 
 	public void ice_exception(Ice.LocalException ex)
 	{
+	    synchronized(_requestMutex)
+	    {
+	        _requests.remove(_id);
+	    }
+
 	    ex.printStackTrace();
 	}
+
+	public void ice_exception(Ice.UserException ex)
+	{
+	    if(ex instanceof Demo.RequestCanceledException)
+	    {
+	        System.out.println("Request canceled");
+	    }
+	    else
+	    {
+	        ex.printStackTrace();
+	    }
+	}
+
+	private String _id;
     }
 
     private static void
@@ -71,7 +105,8 @@ public class Consumer extends Ice.Application
                 }
                 if(line.equals("g"))
                 {
-                    queue.get_async(new AMI_Queue_getI());
+		    String id = Ice.Util.generateUUID();
+                    queue.get_async(new AMI_Queue_getI(id), id);
                 }
                 else if(line.equals("x"))
                 {
@@ -94,6 +129,21 @@ public class Consumer extends Ice.Application
         }
         while(!line.equals("x"));
 
+	synchronized(_requestMutex)
+	{
+	    if(_requests.size() != 0)
+	    {
+	        try
+		{
+		    queue.cancel((String[])_requests.toArray(new String[0]));
+		}
+		catch(Ice.LocalException ex)
+		{
+		    // Igmore
+		}
+	    }
+	}
+
         return 0;
     }
 
@@ -104,4 +154,7 @@ public class Consumer extends Ice.Application
         int status = app.main("Consumer", args, "config.client");
         System.exit(status);
     }
+
+    private java.lang.Object _requestMutex = new java.lang.Object();
+    private java.util.HashSet _requests = new java.util.HashSet();
 }

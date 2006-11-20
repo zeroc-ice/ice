@@ -24,6 +24,7 @@ GDIR		= generated
 !include $(top_srcdir)\config\Make.rules.mak
 
 MCSFLAGS	= $(MCSFLAGS) -target:exe
+SLICE2CSFLAGS	= -I$(slicedir) $(SLICE2CSFLAGS)
 
 publisher.exe: $(P_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)\icecs.dll $(P_SRCS) $(GEN_SRCS)

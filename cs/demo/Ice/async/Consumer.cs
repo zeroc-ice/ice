@@ -8,21 +8,51 @@
 // **********************************************************************
 
 using System;
+using System.Collections;
 using Demo;
 
 public class Consumer : Ice.Application
 {
     public class AMI_Queue_getI : AMI_Queue_get
     {
+        public AMI_Queue_getI(string id)
+	{
+	    _id = id;
+
+	    lock(_requests.SyncRoot)
+	    {
+	        _requests.Add(id);
+	    }
+	}
+
         public override void ice_response(string message)
 	{
+	    lock(_requests.SyncRoot)
+	    {
+	        _requests.Remove(_id);
+	    }
+
 	    Console.Out.WriteLine(message);
 	}
 
 	public override void ice_exception(Ice.Exception ex)
 	{
-	    Console.Error.WriteLine(ex);
+	    lock(_requests.SyncRoot)
+	    {
+	        _requests.Remove(_id);
+	    }
+
+	    if(ex is RequestCanceledException)
+	    {
+	        Console.Error.WriteLine("Request canceled");
+	    }
+	    else
+	    {
+	        Console.Error.WriteLine(ex);
+	    }
 	}
+
+	private string _id;
     }
 
     private static void menu()
@@ -68,7 +98,8 @@ public class Consumer : Ice.Application
                 }
                 if(line.Equals("g"))
                 {
-                    queue.get_async(new AMI_Queue_getI());
+		    string id = Ice.Util.generateUUID();
+                    queue.get_async(new AMI_Queue_getI(id), id);
                 }
                 else if(line.Equals("x"))
                 {
@@ -90,6 +121,21 @@ public class Consumer : Ice.Application
             }
         }
         while(!line.Equals("x"));
+	
+	lock(_requests.SyncRoot)
+	{
+	    if(_requests.Count != 0)
+	    {
+	        try
+		{
+		    queue.cancel((string[])_requests.ToArray(typeof(string)));
+		}
+		catch(Ice.Exception)
+		{
+		    // Ignore
+		}
+	    }
+	}
 
         return 0;
     }
@@ -103,4 +149,6 @@ public class Consumer : Ice.Application
 	    System.Environment.Exit(status);
 	}
     }
+
+    static private ArrayList _requests = new ArrayList();
 }

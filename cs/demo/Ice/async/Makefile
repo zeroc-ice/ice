@@ -24,6 +24,7 @@ GDIR		= generated
 include $(top_srcdir)/config/Make.rules.cs
 
 MCSFLAGS	:= $(MCSFLAGS) -target:exe
+SLICE2CSFLAGS	:= -I$(slicedir) $(SLICE2CSFLAGS)
 
 publisher.exe: $(P_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) $(subst /,$(DSEP),$^)
