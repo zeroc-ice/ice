@@ -47,22 +47,6 @@ prefix			= /opt/IceCS-$(VERSION)
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
-#
-# Checks for ICE_HOME environment variable.  If it isn't present it will
-# attempt to find an Ice installation in /usr.
-#
-
-ifeq ($(ICE_HOME),)
-    ICE_DIR = /usr
-    ifneq ($(shell test -f $(ICE_DIR)/bin/icestormadmin && echo 0),0)
-$(error Ice distribution not found, please set ICE_HOME!)
-    endif
-else
-    ICE_DIR = $(ICE_HOME)
-    ifneq ($(shell test -d $(ICE_DIR)/slice && echo 0),0)
-$(error Ice distribution not found, please set ICE_HOME!)
-    endif
-endif
 
 ifeq ($(MONO), yes)
 	DSEP = /
@@ -71,7 +55,37 @@ else
 endif
 
 SHELL			= /bin/sh
-VERSION			= 3.2.0
+VERSION_MAJOR           = 3
+VERSION_MINOR           = 2
+VERSION_PATCH           = 0 
+VERSION			= $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)
+
+#
+# Checks for ICE_HOME environment variable.  If it isn't present,
+# attempt to find an Ice installation in /usr or the default install
+# location.
+#
+ifeq ($(ICE_HOME),)
+    ICE_DIR = /usr
+    ifneq ($(shell test -f $(ICE_DIR)/bin/slice2cs && echo 0),0)
+	NEXTDIR = /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
+	ifneq ($(shell test -f $(NEXTDIR)/bin/slice2cs && echo 0),0)
+$(error Unable to locate Ice distribution, please set ICE_HOME!)
+	else
+	    ICE_DIR = $(NEXTDIR)
+	endif
+    else
+	NEXTDIR = /opt/IceCS-$(VERSION_MAJOR).$(VERSION_MINOR)
+	ifeq ($(shell test -f $(NEXTDIR)/bin/slice2cs && echo 0),0)
+$(warning Ice distribution found in /usr and $(NEXTDIR)! Installation in "/usr" will be used by default. Use ICE_HOME to specify alternate Ice installation.)
+	endif
+    endif
+else
+    ICE_DIR = $(ICE_HOME)
+    ifneq ($(shell test -f $(ICE_DIR)/bin/slice2cs && echo 0),0)
+$(error Ice distribution not found in $(ICE_DIR), please verify ICE_HOME location!)
+    endif
+endif
 
 bindir			= $(top_srcdir)/bin
 libdir			= $(top_srcdir)/lib
