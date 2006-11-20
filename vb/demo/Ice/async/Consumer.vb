@@ -8,6 +8,7 @@
 ' **********************************************************************
 
 Imports System
+Imports System.Collections
 Imports Demo
 
 Module AsyncC
@@ -18,13 +19,35 @@ Module AsyncC
 	Class AMI_Queue_getI
 	    Inherits AMI_Queue_get
 
+	    Public Sub New(ByVal id As String)
+	        _id = id
+
+		SyncLock _requests.SyncRoot
+		    _requests.Add(_id)
+		End SyncLock
+	    End Sub
+
 	    Public Overloads Overrides Sub ice_response(ByVal message As String)
+		SyncLock _requests.SyncRoot
+		    _requests.Remove(_id)
+		End SyncLock
+	        
 	        Console.WriteLine(message)
 	    End Sub
 
 	    Public Overloads Overrides Sub ice_exception(ByVal ex As Ice.Exception)
-	        Console.Error.WriteLine(ex)
+		SyncLock _requests.SyncRoot
+		    _requests.Remove(_id)
+		End SyncLock
+	        
+		If TypeOf ex Is RequestCanceledException Then
+	            Console.Error.WriteLine("Request canceled")
+		Else
+	            Console.Error.WriteLine(ex)
+		End If
 	    End Sub
+
+	    Dim _id As String
 	End Class
 
         Private Sub menu()
@@ -61,7 +84,8 @@ Module AsyncC
                         Exit Try
                     End If
                     If line.Equals("g") Then
-                        queue.get_async(new AMI_Queue_getI)
+		        Dim id As String = Ice.Util.generateUUID()
+                        queue.get_async(new AMI_Queue_getI(id), id)
                     ElseIf line.Equals("x") Then
                         ' Nothing to do
                     ElseIf line.Equals("?") Then
@@ -75,8 +99,20 @@ Module AsyncC
                 End Try
             Loop While Not line.Equals("x")
 
+	    SyncLock _requests.SyncRoot
+	        If not _requests.Count = 0 Then
+		    Try
+		        queue.cancel(_requests.ToArray(GetType(String)))
+		    Catch ex As System.Exception
+		        ' Ignore
+		    End Try
+		End If
+	    End SyncLock
+
             Return 0
         End Function
+
+	Dim Shared _requests As ArrayList = New ArrayList
     End Class
 
     Public Sub Main(ByVal args() As String)

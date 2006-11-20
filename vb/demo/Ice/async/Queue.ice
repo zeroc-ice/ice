@@ -10,13 +10,23 @@
 #ifndef QUEUE_ICE
 #define QUEUE_ICE
 
+#include <Ice/BuiltinSequences.ice>
+
 module Demo
 {
 
+exception RequestCanceledException
+{
+};
+
 interface Queue
 {
-    ["ami", "amd"] string get();
+    ["ami", "amd"] string get(string id)
+        throws RequestCanceledException;
+
     void add(string message);
+
+    ["amd"] void cancel(Ice::StringSeq ids);
 };
 
 };

@@ -14,17 +14,20 @@ Imports System.Collections
 Public Class QueueI
     Inherits QueueDisp_
 
-    Public Overloads Overrides Sub get_async(ByVal getCB As AMD_Queue_get, ByVal current As Ice.Current)
+    Public Overloads Overrides Sub get_async(ByVal cb As AMD_Queue_get, ByVal id As String, ByVal current As Ice.Current)
         SyncLock Me
 	    If not _messageQueue.Count = 0 Then
 	        Try
-		    getCB.ice_response(_messageQueue(0))
+		    cb.ice_response(_messageQueue(0))
 		    _messageQueue.RemoveAt(0)
 		Catch ex As Ice.Exception
 		    Console.Error.WriteLine(ex)
 		End Try
 	    Else
-	        _requestQueue.Add(getCB)
+	        Dim request As Request = New Request
+		request.id = id
+		request.cb = cb
+	        _requestQueue.Add(request)
 	    End If
 	End SyncLock
     End Sub
@@ -33,8 +36,8 @@ Public Class QueueI
         SyncLock Me
 	    If not _requestQueue.Count = 0 Then
 	        Try
-		    Dim cb As AMD_Queue_get = _requestQueue(0)
-		    cb.ice_response(message)
+		    Dim request As Request = _requestQueue(0)
+		    request.cb.ice_response(message)
 		Catch ex As Ice.Exception
 		    Console.Error.WriteLine(ex)
 		End Try
@@ -44,7 +47,38 @@ Public Class QueueI
 	    End If
 	End SyncLock
     End Sub
+    
+    Public Overloads Overrides Sub cancel_async(ByVal cb As AMD_Queue_cancel, ByVal ids As String(), ByVal current As Ice.Current)
+	cb.ice_response()
 
-    private _messageQueue As ArrayList = New ArrayList
-    private _requestQueue As ArrayList = New ArrayList
+	SyncLock Me
+	    For i As Integer = 0 To ids.Length
+	    	Dim toRemove As ArrayList = New ArrayList
+		Dim r As Request
+	        For Each r In _requestQueue
+		    If r.id.Equals(ids(i)) Then
+		        Try
+			    r.cb.ice_exception(New RequestCanceledException())
+			Catch ex As Ice.Exception
+			    ' Ignore
+			End try
+
+		        toRemove.Add(r)
+		    End If
+		Next
+
+		For Each r In toRemove
+		    _requestQueue.Remove(r)
+		Next
+	    Next
+	End SyncLock
+    End Sub
+
+    Private Class Request
+        Public id As String
+	Public cb As AMD_Queue_get
+    End Class
+
+    Private _messageQueue As ArrayList = New ArrayList
+    Private _requestQueue As ArrayList = New ArrayList
 End Class
