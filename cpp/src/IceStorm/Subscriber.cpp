@@ -219,29 +219,6 @@ SubscriberOneway::flush()
 	v.swap(_events);
 	sync.release();
 	
-	// XXX:
-/*
-	TraceLevelsPtr traceLevels = _instance->traceLevels();
-	if(_obj->ice_getIdentity().name.substr(0, 4) == "slow")
-	{
-	    Ice::Trace out(traceLevels->logger, traceLevels->subscriberCat);
-	    out << "deliberately stalling";
-	    sleep(2);
-	}
-	if(_obj->ice_getIdentity().name.substr(0, 5) == "block")
-	{
-	    {
-		Ice::Trace out(traceLevels->logger, traceLevels->subscriberCat);
-		out << "-> stall for 100s";
-	    }
-	    sleep(100);
-	    {
-		Ice::Trace out(traceLevels->logger, traceLevels->subscriberCat);
-		out << "<- stall for 100s";
-	    }
-	}
-*/
-
 	//
 	// Deliver the events without holding the lock.
 	//
