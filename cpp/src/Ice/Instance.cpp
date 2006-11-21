@@ -584,22 +584,17 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 	    {
 		_initData.logger = new EventLoggerI(_initData.properties->getProperty("Ice.ProgramName"));
 	    }
-	    else
-	    {
-		_initData.logger = new LoggerI(_initData.properties->getProperty("Ice.ProgramName"), 
-				      _initData.properties->getPropertyAsInt("Ice.Logger.Timestamp") > 0);
-	    }
 #else
 	    if(_initData.properties->getPropertyAsInt("Ice.UseSyslog") > 0)
 	    {
 		_initData.logger = new SysLoggerI;
 	    }
+#endif
 	    else
 	    {
 		_initData.logger = new LoggerI(_initData.properties->getProperty("Ice.ProgramName"), 
-				      _initData.properties->getPropertyAsInt("Ice.Logger.Timestamp") > 0);
+				      _initData.properties->getPropertyAsIntWithDefault("Ice.Logger.Timestamp", 1) > 0);
 	    }
-#endif
 	}
 
 	const_cast<TraceLevelsPtr&>(_traceLevels) = new TraceLevels(_initData.properties);
