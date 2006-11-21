@@ -72,8 +72,6 @@ yyerror(const char* s)
 %token ICE_GRID_ENABLE
 %token ICE_GRID_DISABLE
 %token ICE_GRID_DUMP
-%token ICE_GRID_STDERR
-%token ICE_GRID_STDOUT
 
 %%
 
