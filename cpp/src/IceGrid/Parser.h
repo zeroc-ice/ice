@@ -62,13 +62,18 @@ typedef ::IceUtil::Handle<Parser> ParserPtr;
 namespace IceGrid
 {
 
-class Parser : public ::IceUtil::SimpleShared
+class Parser : public ::IceUtil::SimpleShared, IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    static ParserPtr createParser(const Ice::CommunicatorPtr&, const AdminSessionPrx&, const AdminPrx&);
+    static ParserPtr createParser(const Ice::CommunicatorPtr&, const AdminSessionPrx&, const AdminPrx&, bool);
 
     void usage();
+
+    void interrupt();
+    bool interrupted() const;
+    void resetInterrupt();
+    void checkInterrupted();
 
     void addApplication(const std::list<std::string>&);
     void removeApplication(const std::list<std::string>&);
@@ -143,7 +148,7 @@ public:
 
 private:
 
-    Parser(const Ice::CommunicatorPtr&, const AdminSessionPrx&, const AdminPrx&);
+    Parser(const Ice::CommunicatorPtr&, const AdminSessionPrx&, const AdminPrx&, bool);
     void exception(const Ice::Exception&);
 
     std::string _commands;
@@ -151,9 +156,11 @@ private:
     AdminSessionPrx _session;
     AdminPrx _admin;
     bool _continue;
+    bool _interrupted;
     int _errors;
     int _currentLine;
     std::string _currentFile;
+    bool _interactive;
 };
 
 extern Parser* parser; // The current parser for bison/flex

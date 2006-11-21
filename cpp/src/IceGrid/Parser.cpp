@@ -41,9 +41,10 @@ Parser* parser;
 }
 
 ParserPtr
-Parser::createParser(const CommunicatorPtr& communicator, const AdminSessionPrx& session, const AdminPrx& admin)
+Parser::createParser(const CommunicatorPtr& communicator, const AdminSessionPrx& session, const AdminPrx& admin,
+		     bool interactive)
 {
-    return new Parser(communicator, session, admin);
+    return new Parser(communicator, session, admin, interactive);
 }
 
 void
@@ -128,6 +129,41 @@ Parser::usage()
 	"\n"
         "shutdown                    Shut the IceGrid registry down.\n"
 	;
+}
+
+void
+Parser::interrupt()
+{
+    Lock sync(*this);
+    _interrupted = true;
+    notifyAll();
+}
+
+bool
+Parser::interrupted() const
+{
+    Lock sync(*this);
+    return _interrupted;
+}
+
+void
+Parser::resetInterrupt()
+{
+    Lock sync(*this);
+    _interrupted = false;
+}
+
+void
+Parser::checkInterrupted()
+{
+    if(!_interactive)
+    {
+	Lock sync(*this);
+	if(_interrupted)
+	{
+	    throw "interrupted with Ctrl-C";
+	}
+    }
 }
 
 void
@@ -1346,6 +1382,7 @@ Parser::dumpFile(const string& reader, const string& filename, const list<string
 	}
 
 	bool follow = opts.isSet("follow");
+	resetInterrupt();
 	if(head)
 	{
 	    if(follow)
@@ -1355,7 +1392,7 @@ Parser::dumpFile(const string& reader, const string& filename, const list<string
 	    }
 
 	    int i = 0;
-	    while(true)
+	    while(!interrupted())
 	    {
 		lines = it->read(20);
 
@@ -1375,7 +1412,7 @@ Parser::dumpFile(const string& reader, const string& filename, const list<string
 	else if(tail)
 	{
 	    deque<string> lastLines;
-	    while(true)
+	    while(!interrupted())
 	    {
 		lines = it->read(20);
 
@@ -1400,7 +1437,7 @@ Parser::dumpFile(const string& reader, const string& filename, const list<string
 	}
 	else
 	{
-	    while(true)
+	    while(!interrupted())
 	    {
 		lines = it->read(20);
 		for(Ice::StringSeq::const_iterator p = lines.begin(); p != lines.end(); ++p)
@@ -1417,7 +1454,7 @@ Parser::dumpFile(const string& reader, const string& filename, const list<string
 
 	if(follow)
 	{
-	    while(true)
+	    while(!interrupted())
 	    {
 		lines = it->read(20);
 		for(Ice::StringSeq::const_iterator p = lines.begin(); p != lines.end(); ++p)
@@ -1433,7 +1470,14 @@ Parser::dumpFile(const string& reader, const string& filename, const list<string
 		    }
 		}
 
-		IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(2));
+		{
+		    Lock sync(*this);
+		    if(_interrupted)
+		    {
+			break;
+		    }
+		    timedWait(IceUtil::Time::seconds(5));
+		}
 	    }
 	}
 
@@ -1467,7 +1511,6 @@ Parser::showWarranty()
 {
     cout << "This command is not implemented." << endl;
 }
-
 
 void
 Parser::getInput(char* buf, int& result, int maxSize)
@@ -1542,7 +1585,6 @@ Parser::getInput(char* buf, int& result, int maxSize)
 		}
 		break;
 	    }
-
 	    line += c;
 
 	    if(c == '\n')
@@ -1793,10 +1835,15 @@ Parser::parse(const std::string& commands, bool debug)
     return status;
 }
 
-Parser::Parser(const CommunicatorPtr& communicator, const AdminSessionPrx& session, const AdminPrx& admin) :
+Parser::Parser(const CommunicatorPtr& communicator, 
+	       const AdminSessionPrx& session, 
+	       const AdminPrx& admin,
+	       bool interactive) :
     _communicator(communicator),
     _session(session),
-    _admin(admin)
+    _admin(admin),
+    _interrupted(false),
+    _interactive(interactive)
 {
 }
 

@@ -9,7 +9,8 @@
 
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Options.h>
-#include <Ice/Application.h>
+#include <IceUtil/CtrlCHandler.h>
+#include <Ice/Ice.h>
 #include <Ice/SliceChecksums.h>
 #include <IceGrid/Parser.h>
 #include <IceGrid/FileParserI.h>
@@ -20,6 +21,11 @@
 using namespace std;
 using namespace Ice;
 using namespace IceGrid;
+
+class Client;
+
+static IceUtil::StaticMutex _staticMutex = ICE_STATIC_MUTEX_INITIALIZER;
+static Client* _globalClient = 0;
 
 class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 {
@@ -70,15 +76,35 @@ private:
 };
 typedef IceUtil::Handle<SessionKeepAliveThread> SessionKeepAliveThreadPtr;
 
-class Client : public Application
+class Client : public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
     void usage();
-    virtual int run(int, char*[]);
+    int main(int argc, char* argv[]);
+    int run(int, char*[]);
+    void interrupted();
+
+    Ice::CommunicatorPtr communicator() const { return _communicator; }
+    const char* appName() const { return _appName; }
 
     string trim(const string&);
+private:
+
+    IceUtil::CtrlCHandler _ctrlCHandler;
+    Ice::CommunicatorPtr _communicator;
+    const char* _appName;
+    ParserPtr _parser;
 };
+
+static void interruptCallback(int signal)
+{
+    IceUtil::StaticMutex::Lock lock(_staticMutex);
+    if(_globalClient)
+    {
+	_globalClient->interrupted();
+    }
+}
 
 int
 main(int argc, char* argv[])
@@ -107,6 +133,107 @@ Client::usage()
         "-s, --ssl            Authenticate through SSL.\n"
         "-r, --routed         Login through a Glacier2 router.\n"
 	;
+}
+
+int
+Client::main(int argc, char* argv[])
+{
+    int status = EXIT_SUCCESS;
+
+    try
+    {
+	_appName = argv[0];
+	_communicator = Ice::initialize(argc, argv);
+	
+	{
+	    IceUtil::StaticMutex::Lock sync(_staticMutex);
+	    _globalClient = this;
+	}
+	_ctrlCHandler.setCallback(interruptCallback);
+
+	try
+	{
+	    run(argc, argv);
+	}
+	catch(const Ice::CommunicatorDestroyedException&)
+	{
+	    // Expected if the client is interrupted during the initialization.
+	}
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+	cerr << _appName << ": " << ex << endl;
+	status = EXIT_FAILURE;
+    }
+    catch(const std::exception& ex)
+    {
+	cerr << _appName << ": std::exception: " << ex.what() << endl;
+	status = EXIT_FAILURE;
+    }
+    catch(const std::string& msg)
+    {
+	cerr << _appName << ": " << msg << endl;
+	status = EXIT_FAILURE;
+    }
+    catch(const char* msg)
+    {
+	cerr << _appName << ": " << msg << endl;
+	status = EXIT_FAILURE;
+    }
+    catch(...)
+    {
+	cerr << _appName << ": unknown exception" << endl;
+	status = EXIT_FAILURE;
+    }
+
+    if(_communicator)
+    {
+	try
+	{
+	    _communicator->destroy();
+	}
+	catch(const Ice::CommunicatorDestroyedException&)
+	{
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cerr << ex << endl;
+	    status = EXIT_FAILURE;
+	}
+    }
+
+    _ctrlCHandler.setCallback(0);
+    {
+	IceUtil::StaticMutex::Lock sync(_staticMutex);
+	_globalClient = 0;
+    }
+
+    return status;
+	
+}
+
+void
+Client::interrupted()
+{
+    Lock sync(*this);
+    if(_parser) // If there's an interactive parser, notify the parser.
+    {
+	_parser->interrupt();
+    }
+    else
+    {
+	//
+	// Otherwise, destroy the communicator.
+	//
+	assert(_communicator);
+	try
+	{
+	    _communicator->destroy();
+	}
+	catch(const Ice::Exception&)
+	{
+	}
+    }
 }
 
 int
@@ -165,7 +292,6 @@ Client::run(int argc, char* argv[])
 	return EXIT_SUCCESS;
     }
 
-
     if(opts.isSet("D"))
     {
 	vector<string> optargs = opts.argVec("D");
@@ -217,8 +343,6 @@ Client::run(int argc, char* argv[])
 	instanceName = communicator()->getProperties()->getPropertyWithDefault("IceGrid.InstanceName", "IceGrid");
     }
     
-    int timeout;
-    AdminSessionPrx session;
     bool ssl = communicator()->getProperties()->getPropertyAsInt("IceGridAdmin.AuthenticateUsingSSL");
     if(opts.isSet("ssl"))
     {
@@ -240,21 +364,24 @@ Client::run(int argc, char* argv[])
     // If a glacier2 router is configured, then set routed to true by
     // default.
     //
-    bool routed = communicator()->getProperties()->getPropertyAsIntWithDefault(
-	"IceGridAdmin.Routed", communicator()->getDefaultRouter());
+    Ice::PropertiesPtr properties = communicator()->getProperties();
+    bool routed = properties->getPropertyAsIntWithDefault("IceGridAdmin.Routed", communicator()->getDefaultRouter());
     if(opts.isSet("routed"))
     {
     	routed = true;
     }
-    string replica = communicator()->getProperties()->getProperty("IceGridAdmin.Replica");
+    string replica = properties->getProperty("IceGridAdmin.Replica");
     if(!opts.optArg("replica").empty())
     {
 	replica = opts.optArg("replica");
     }
 
-
+    AdminSessionPrx session;
+    SessionKeepAliveThreadPtr keepAlive;
+    int status = EXIT_SUCCESS;
     try
     {
+	int timeout;
 	if(routed)
 	{
 	    Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(communicator()->getDefaultRouter());
@@ -372,49 +499,81 @@ Client::run(int argc, char* argv[])
 	    assert(session);
 	    timeout = registry->getSessionTimeout();
 	}
-    }
-    catch(const IceGrid::PermissionDeniedException& ex)
-    {
-	cout << "permission denied:\n" << ex.reason << endl;
-	return EXIT_FAILURE;
-    }
+	
+	keepAlive = new SessionKeepAliveThread(session, timeout / 2);
+	keepAlive->start();
 
-    SessionKeepAliveThreadPtr keepAlive = new SessionKeepAliveThread(session, timeout / 2);
-    keepAlive->start();
+	AdminPrx admin = session->getAdmin();
 
-    AdminPrx admin = session->getAdmin();
+	Ice::SliceChecksumDict serverChecksums = admin->getSliceChecksums();
+	Ice::SliceChecksumDict localChecksums = Ice::sliceChecksums();
 
-    Ice::SliceChecksumDict serverChecksums = admin->getSliceChecksums();
-    Ice::SliceChecksumDict localChecksums = Ice::sliceChecksums();
-
-    //
-    // The following slice types are only used by the admin CLI.
-    //
-    localChecksums.erase("::IceGrid::FileParser");
-    localChecksums.erase("::IceGrid::ParseException");
+	//
+	// The following slice types are only used by the admin CLI.
+	//
+	localChecksums.erase("::IceGrid::FileParser");
+	localChecksums.erase("::IceGrid::ParseException");
 			 
-    for(Ice::SliceChecksumDict::const_iterator q = localChecksums.begin(); q != localChecksums.end(); ++q)
-    {
-        Ice::SliceChecksumDict::const_iterator r = serverChecksums.find(q->first);
-        if(r == serverChecksums.end())
-        {
-            cerr << appName() << ": server is using unknown Slice type `" << q->first << "'" << endl;
-        }
-        else if(q->second != r->second)
-        {
-            cerr << appName() << ": server is using a different Slice definition of `" << q->first << "'" << endl;
-        }
-    }
-
-    ParserPtr p = Parser::createParser(communicator(), session, admin);
-
-    int status = EXIT_SUCCESS;
-
-    if(args.empty()) // No files given
-    {
-	if(!commands.empty()) // Commands were given
+	for(Ice::SliceChecksumDict::const_iterator q = localChecksums.begin(); q != localChecksums.end(); ++q)
 	{
-	    int parseStatus = p->parse(commands, debug);
+	    Ice::SliceChecksumDict::const_iterator r = serverChecksums.find(q->first);
+	    if(r == serverChecksums.end())
+	    {
+		cerr << appName() << ": server is using unknown Slice type `" << q->first << "'" << endl;
+	    }
+	    else if(q->second != r->second)
+	    {
+		cerr << appName() << ": server is using a different Slice definition of `" << q->first << "'" << endl;
+	    }
+	}
+
+	{
+	    Lock sync(*this);
+	    _parser = Parser::createParser(communicator(), session, admin, args.empty() && commands.empty());
+	}    
+
+	if(!args.empty()) // Files given
+	{
+	    // Process files given on the command line
+	    for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
+	    {
+		ifstream test(i->c_str());
+		if(!test)
+		{
+		    cerr << appName() << ": can't open `" << *i << "' for reading: " << strerror(errno) << endl;
+		    return EXIT_FAILURE;
+		}
+		test.close();
+	    
+		string cmd = cpp + " " + *i;
+#ifdef _WIN32
+		FILE* cppHandle = _popen(cmd.c_str(), "r");
+#else
+		FILE* cppHandle = popen(cmd.c_str(), "r");
+#endif
+		if(cppHandle == NULL)
+		{
+		    cerr << appName() << ": can't run C++ preprocessor: " << strerror(errno) << endl;
+		    return EXIT_FAILURE;
+		}
+	    
+		int parseStatus = _parser->parse(cppHandle, debug);
+	    
+#ifdef _WIN32
+		_pclose(cppHandle);
+#else
+		pclose(cppHandle);
+#endif
+
+		if(parseStatus == EXIT_FAILURE)
+		{
+		    status = EXIT_FAILURE;
+		}
+	    }
+	}
+	else if(!commands.empty()) // Commands were given
+	{
+	    int parseStatus = _parser->parse(commands, debug);
 	    if(parseStatus == EXIT_FAILURE)
 	    {
 		status = EXIT_FAILURE;
@@ -422,52 +581,36 @@ Client::run(int argc, char* argv[])
 	}
 	else // No commands, let's use standard input
 	{
-	    p->showBanner();
-
-	    int parseStatus = p->parse(stdin, debug);
+	    _parser->showBanner();
+	    
+	    int parseStatus = _parser->parse(stdin, debug);
 	    if(parseStatus == EXIT_FAILURE)
 	    {
 		status = EXIT_FAILURE;
 	    }
 	}
     }
-    else // Process files given on the command line
+    catch(const IceGrid::PermissionDeniedException& ex)
     {
-	for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
+	cout << "permission denied:\n" << ex.reason << endl;
+	return EXIT_FAILURE;
+    }
+    catch(...)
+    {
+	if(keepAlive)
 	{
-	    ifstream test(i->c_str());
-	    if(!test)
-	    {
-		cerr << appName() << ": can't open `" << *i << "' for reading: " << strerror(errno) << endl;
-		return EXIT_FAILURE;
-	    }
-	    test.close();
-	    
-	    string cmd = cpp + " " + *i;
-#ifdef _WIN32
-	    FILE* cppHandle = _popen(cmd.c_str(), "r");
-#else
-	    FILE* cppHandle = popen(cmd.c_str(), "r");
-#endif
-	    if(cppHandle == NULL)
-	    {
-		cerr << appName() << ": can't run C++ preprocessor: " << strerror(errno) << endl;
-		return EXIT_FAILURE;
-	    }
-	    
-	    int parseStatus = p->parse(cppHandle, debug);
-	    
-#ifdef _WIN32
-	    _pclose(cppHandle);
-#else
-	    pclose(cppHandle);
-#endif
-
-	    if(parseStatus == EXIT_FAILURE)
-	    {
-		status = EXIT_FAILURE;
-	    }
+	    keepAlive->destroy();
+	    keepAlive->getThreadControl().join();
 	}
+
+	try
+	{
+	    session->destroy();
+	}
+	catch(const Ice::Exception&)
+	{
+	}
+	throw;
     }
 
     keepAlive->destroy();

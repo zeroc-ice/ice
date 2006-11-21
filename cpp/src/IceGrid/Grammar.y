@@ -91,11 +91,18 @@ start
 // ----------------------------------------------------------------------
 commands
 // ----------------------------------------------------------------------
-: commands command
+: commands checkInterrupted command
 {
 }
-| command
+| checkInterrupted command
 {
+}
+;
+
+checkInterrupted
+:
+{
+    parser->checkInterrupted();
 }
 ;
 
