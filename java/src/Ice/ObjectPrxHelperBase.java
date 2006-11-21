@@ -529,6 +529,27 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
+    public final boolean
+    ice_isPreferSecure()
+    {
+	return _reference.getPreferSecure();
+    }
+
+    public final ObjectPrx
+    ice_preferSecure(boolean b)
+    {
+        if(b == _reference.getPreferSecure())
+        {
+            return this;
+        }
+        else
+        {
+            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+            proxy.setup(_reference.changePreferSecure(b));
+            return proxy;
+        }
+    }
+
     public final Ice.RouterPrx
     ice_getRouter()
     {

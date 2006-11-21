@@ -548,6 +548,27 @@ IceProxy::Ice::Object::ice_secure(bool b) const
     }
 }
 
+bool
+IceProxy::Ice::Object::ice_isPreferSecure() const
+{
+    return _reference->getPreferSecure();
+}
+
+ObjectPrx
+IceProxy::Ice::Object::ice_preferSecure(bool b) const
+{
+    if(b == _reference->getPreferSecure())
+    {
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
+	proxy->setup(_reference->changePreferSecure(b));
+	return proxy;
+    }
+}
+
 RouterPrx
 IceProxy::Ice::Object::ice_getRouter() const
 {

@@ -39,6 +39,12 @@ public abstract class RoutableReference extends Reference
     }
 
     public final boolean
+    getPreferSecure()
+    {
+	return _preferSecure;
+    }
+
+    public final boolean
     getCollocationOptimization()
     {
         return _collocationOptimization;
@@ -65,6 +71,18 @@ public abstract class RoutableReference extends Reference
 	}
 	RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
 	r._secure = newSecure;
+	return r;
+    }
+
+    public Reference
+    changePreferSecure(boolean newPreferSecure)
+    {
+	if(newPreferSecure == _preferSecure)
+	{
+	    return this;
+	}
+	RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+	r._preferSecure = newPreferSecure;
 	return r;
     }
 
@@ -177,6 +195,10 @@ public abstract class RoutableReference extends Reference
 	{
 	    return false;
 	}
+	if(_preferSecure != rhs._preferSecure)
+	{
+	    return false;
+	}
 	if(_collocationOptimization != rhs._collocationOptimization)
 	{
 	    return false;
@@ -220,11 +242,13 @@ public abstract class RoutableReference extends Reference
 		      String fac,
 		      int md,
 		      boolean sec,
+		      boolean prefSec,
 		      RouterInfo rtrInfo,
 		      boolean collocationOpt)
     {
         super(inst, com, ident, ctx, fac, md);
 	_secure = sec;
+	_preferSecure = prefSec;
 	_routerInfo = rtrInfo;
 	_collocationOptimization = collocationOpt;
 	_cacheConnection = true;
@@ -338,10 +362,9 @@ public abstract class RoutableReference extends Reference
 
         //
         // If a secure connection is requested or secure overrides is
-        // set, remove all non-secure endpoints. Otherwise make
-        // non-secure endpoints preferred over secure endpoints by
-        // partitioning the endpoint vector, so that non-secure
-        // endpoints come first.
+        // set, remove all non-secure endpoints. Otherwise if preferSecure is set
+	// make secure endpoints prefered. By default make non-secure
+	// endpoints preferred over secure endpoints.
         //
 	DefaultsAndOverrides overrides = getInstance().defaultsAndOverrides();
 	if(overrides.overrideSecure ? overrides.overrideSecureValue : getSecure())
@@ -356,9 +379,13 @@ public abstract class RoutableReference extends Reference
                 }
             }
         }
+	else if(getPreferSecure())
+	{
+            java.util.Collections.sort(endpoints, _preferSecureEndpointComparator);
+	}
         else
         {
-            java.util.Collections.sort(endpoints, _endpointComparator);
+            java.util.Collections.sort(endpoints, _preferNonSecureEndpointComparator);
         }
 
 	if(endpoints.size() == 0)
@@ -414,6 +441,11 @@ public abstract class RoutableReference extends Reference
 
     static class EndpointComparator implements java.util.Comparator
     {
+        EndpointComparator(boolean preferSecure)
+	{
+	    _preferSecure = preferSecure;
+	}
+        
 	public int
 	compare(java.lang.Object l, java.lang.Object r)
 	{
@@ -427,18 +459,36 @@ public abstract class RoutableReference extends Reference
 	    }
 	    else if(!ls && rs)
 	    {
-		return -1;
+	        if(_preferSecure)
+		{
+		    return 1;
+		}
+		else
+		{
+		    return -1;
+		}
 	    }
 	    else
 	    {
-		return 1;
+	        if(_preferSecure)
+		{
+		    return -1;
+		}
+		else
+		{
+		    return 1;
+		}
 	    }
 	}
+
+	private boolean _preferSecure;
     }
     
-    private static EndpointComparator _endpointComparator = new EndpointComparator();
+    private static EndpointComparator _preferNonSecureEndpointComparator = new EndpointComparator(false);
+    private static EndpointComparator _preferSecureEndpointComparator = new EndpointComparator(true);
 
     private boolean _secure;
+    private boolean _preferSecure;
     private RouterInfo _routerInfo; // Null if no router is used.
     private boolean _collocationOptimization;
     private boolean _cacheConnection;

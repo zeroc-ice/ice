@@ -450,6 +450,12 @@ IceInternal::FixedReference::getSecure() const
     return false;
 }
 
+bool
+IceInternal::FixedReference::getPreferSecure() const
+{
+    return false;
+}
+
 int
 IceInternal::FixedReference::getLocatorCacheTimeout() const
 {
@@ -488,6 +494,12 @@ IceInternal::FixedReference::getEndpointSelection() const
 
 ReferencePtr
 IceInternal::FixedReference::changeSecure(bool) const
+{
+    throw FixedProxyException(__FILE__, __LINE__);
+}
+
+ReferencePtr
+IceInternal::FixedReference::changePreferSecure(bool) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
 }
@@ -736,6 +748,12 @@ IceInternal::RoutableReference::getSecure() const
 }
 
 bool
+IceInternal::RoutableReference::getPreferSecure() const
+{
+    return _preferSecure;
+}
+
+bool
 IceInternal::RoutableReference::getCollocationOptimization() const
 {
     return _collocationOptimization;
@@ -762,6 +780,18 @@ IceInternal::RoutableReference::changeSecure(bool newSecure) const
     }
     RoutableReferencePtr r = RoutableReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
     r->_secure = newSecure;
+    return r;
+}
+
+ReferencePtr
+IceInternal::RoutableReference::changePreferSecure(bool newPreferSecure) const
+{
+    if(newPreferSecure == _preferSecure)
+    {
+	return RoutableReferencePtr(const_cast<RoutableReference*>(this));
+    }
+    RoutableReferencePtr r = RoutableReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
+    r->_preferSecure = newPreferSecure;
     return r;
 }
 
@@ -874,6 +904,10 @@ IceInternal::RoutableReference::operator==(const Reference& r) const
     {
 	return false;
     }
+    if(_preferSecure != rhs->_preferSecure)
+    {
+	return false;
+    }
     if(_collocationOptimization != rhs->_collocationOptimization)
     {
 	return false;
@@ -927,6 +961,14 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
 	    return true;
 	}
 	else if(rhs->_secure < _secure)
+	{
+	    return false;
+	}
+	else if(!_preferSecure && rhs->_preferSecure)
+	{
+	    return true;
+	}
+	else if(rhs->_preferSecure < _preferSecure)
 	{
 	    return false;
 	}
@@ -1007,10 +1049,11 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
 
 IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const CommunicatorPtr& com,
 						  const Identity& ident, const SharedContextPtr& ctx, const string& fs,
-						  Mode md, bool sec, const RouterInfoPtr& rtrInfo,
+						  Mode md, bool sec, bool prefSec, const RouterInfoPtr& rtrInfo,
 						  bool collocationOpt) :
     Reference(inst, com, ident, ctx, fs, md),
     _secure(sec),
+    _preferSecure(prefSec),
     _routerInfo(rtrInfo),
     _collocationOptimization(collocationOpt),
     _cacheConnection(true),
@@ -1025,6 +1068,7 @@ IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const
 IceInternal::RoutableReference::RoutableReference(const RoutableReference& r) :
     Reference(r),
     _secure(r._secure),
+    _preferSecure(r._preferSecure),
     _routerInfo(r._routerInfo),
     _collocationOptimization(r._collocationOptimization),
     _cacheConnection(r._cacheConnection),
@@ -1100,18 +1144,27 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
 	    break;
 	}
     }
-    
+
     //
     // If a secure connection is requested or secure overrides is set,
-    // remove all non-secure endpoints. Otherwise make non-secure
-    // endpoints preferred over secure endpoints by partitioning the
-    // endpoint vector, so that non-secure endpoints come first.
+    // remove all non-secure endpoints. Otherwise if preferSecure is set
+    // make secure endpoints prefered. By default make non-secure
+    // endpoints preferred over secure endpoints.
     //
     DefaultsAndOverridesPtr overrides = getInstance()->defaultsAndOverrides();
     if(overrides->overrideSecure ? overrides->overrideSecureValue : getSecure())
     {
 	endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), not1(Ice::constMemFun(&EndpointI::secure))),
 			endpoints.end());
+    }
+    else if(getPreferSecure())
+    {
+	//
+	// We must use stable_partition() instead of just simply
+	// partition(), because otherwise some STL implementations
+	// order our now randomized endpoints.
+	//
+	stable_partition(endpoints.begin(), endpoints.end(), Ice::constMemFun(&EndpointI::secure));
     }
     else
     {
@@ -1196,10 +1249,10 @@ void IceInternal::incRef(IceInternal::DirectReference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::DirectReference* p) { p->__decRef(); }
 
 IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const CommunicatorPtr& com,
-					      const Identity& ident, const SharedContextPtr& ctx, const string& fs, Mode md,
-					      bool sec, const vector<EndpointIPtr>& endpts,
+					      const Identity& ident, const SharedContextPtr& ctx, const string& fs,
+					      Mode md, bool sec, bool prefSec, const vector<EndpointIPtr>& endpts,
 					      const RouterInfoPtr& rtrInfo, bool collocationOpt) :
-    RoutableReference(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt),
+    RoutableReference(inst, com, ident, ctx, fs, md, sec, prefSec, rtrInfo, collocationOpt),
     _endpoints(endpts)
 {
 }
@@ -1290,8 +1343,8 @@ IceInternal::DirectReference::changeAdapterId(const string& newAdapterId) const
 	LocatorInfoPtr locatorInfo = 
 	    getInstance()->locatorManager()->get(getInstance()->referenceFactory()->getDefaultLocator());
 	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
-							 getSecure(), newAdapterId, getRouterInfo(), locatorInfo,
-							 getCollocationOptimization(),
+							 getSecure(), getPreferSecure(), newAdapterId, getRouterInfo(),
+							 locatorInfo, getCollocationOptimization(),
 							 getLocatorCacheTimeout());
     }
     else
@@ -1448,11 +1501,11 @@ void IceInternal::incRef(IceInternal::IndirectReference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::IndirectReference* p) { p->__decRef(); }
 
 IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const CommunicatorPtr& com,
-						  const Identity& ident, const SharedContextPtr& ctx, const string& fs, Mode md,
-						  bool sec, const string& adptid, const RouterInfoPtr& rtrInfo,
-						  const LocatorInfoPtr& locInfo, bool collocationOpt,
-						  int locatorCacheTimeout) :
-    RoutableReference(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt),
+						  const Identity& ident, const SharedContextPtr& ctx, const string& fs,
+						  Mode md, bool sec, bool prefSec, const string& adptid, 
+						  const RouterInfoPtr& rtrInfo, const LocatorInfoPtr& locInfo,
+						  bool collocationOpt, int locatorCacheTimeout) :
+    RoutableReference(inst, com, ident, ctx, fs, md, sec, prefSec, rtrInfo, collocationOpt),
     _adapterId(adptid),
     _locatorInfo(locInfo),
     _locatorCacheTimeout(locatorCacheTimeout)
@@ -1514,7 +1567,7 @@ IceInternal::IndirectReference::changeEndpoints(const vector<EndpointIPtr>& newE
     if(!newEndpoints.empty())
     {
 	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
-							 getSecure(), newEndpoints, getRouterInfo(),
+							 getSecure(), getPreferSecure(), newEndpoints, getRouterInfo(),
 							 getCollocationOptimization());
     }
     else

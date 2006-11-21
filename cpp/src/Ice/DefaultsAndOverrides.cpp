@@ -71,4 +71,7 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
 
     const_cast<int&>(defaultLocatorCacheTimeout) = 
 	properties->getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
+
+    const_cast<bool&>(defaultPreferSecure) =
+	properties->getPropertyAsIntWithDefault("Ice.Default.PreferSecure", 0) > 0;
 }

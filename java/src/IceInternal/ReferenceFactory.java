@@ -17,6 +17,7 @@ public final class ReferenceFactory
            String facet,
            int mode,
            boolean secure,
+           boolean preferSecure,
            EndpointI[] endpoints,
            RouterInfo routerInfo,
 	   boolean collocationOptimization)
@@ -35,7 +36,7 @@ public final class ReferenceFactory
         // Create new reference
         //
         DirectReference ref = new DirectReference(_instance, _communicator, ident, context, facet, mode, secure,
-						  endpoints, routerInfo, collocationOptimization);
+						  preferSecure, endpoints, routerInfo, collocationOptimization);
 	return updateCache(ref);
     }
 
@@ -45,6 +46,7 @@ public final class ReferenceFactory
            String facet,
            int mode,
            boolean secure,
+           boolean preferSecure,
            String adapterId,
            RouterInfo routerInfo,
 	   LocatorInfo locatorInfo,
@@ -65,8 +67,8 @@ public final class ReferenceFactory
         // Create new reference
         //
         IndirectReference ref = new IndirectReference(_instance, _communicator, ident, context, facet, mode, secure,
-						      adapterId, routerInfo, locatorInfo, collocationOptimization,
-						      locatorCacheTimeout);
+						      preferSecure, adapterId, routerInfo, locatorInfo,
+						      collocationOptimization, locatorCacheTimeout);
 	return updateCache(ref);
     }
 
@@ -390,7 +392,8 @@ public final class ReferenceFactory
 
 	if(beg == -1)
 	{
-	    return create(ident, _instance.getDefaultContext(), facet, mode, secure, "", routerInfo,
+	    return create(ident, _instance.getDefaultContext(), facet, mode, secure,
+	    		  _instance.defaultsAndOverrides().defaultPreferSecure, "", routerInfo,
 	    		  locatorInfo, _instance.defaultsAndOverrides().defaultCollocationOptimization,
 			  _instance.defaultsAndOverrides().defaultLocatorCacheTimeout);
 	}
@@ -444,7 +447,8 @@ public final class ReferenceFactory
 
 	    EndpointI[] endp = new EndpointI[endpoints.size()];
 	    endpoints.toArray(endp);
-	    return create(ident, _instance.getDefaultContext(), facet, mode, secure, endp, routerInfo,
+	    return create(ident, _instance.getDefaultContext(), facet, mode, secure, 
+	    		  _instance.defaultsAndOverrides().defaultPreferSecure, endp, routerInfo,
 			  _instance.defaultsAndOverrides().defaultCollocationOptimization);
 	}
 	else if(s.charAt(beg) == '@')
@@ -485,7 +489,8 @@ public final class ReferenceFactory
 		throw e;
 	    }
 	    adapter = token.value;
-	    return create(ident, _instance.getDefaultContext(), facet, mode, secure, adapter,
+	    return create(ident, _instance.getDefaultContext(), facet, mode, secure,
+	    		  _instance.defaultsAndOverrides().defaultPreferSecure, adapter,
 	    		  routerInfo, locatorInfo, _instance.defaultsAndOverrides().defaultCollocationOptimization,
 			  _instance.defaultsAndOverrides().defaultLocatorCacheTimeout);
 	}
@@ -548,7 +553,8 @@ public final class ReferenceFactory
 	    {
 		endpoints[i] = _instance.endpointFactoryManager().read(s);
 	    }
-	    return create(ident, _instance.getDefaultContext(), facet, mode, secure, endpoints,
+	    return create(ident, _instance.getDefaultContext(), facet, mode, secure, 
+	    		  _instance.defaultsAndOverrides().defaultPreferSecure, endpoints,
 	    		  routerInfo, _instance.defaultsAndOverrides().defaultCollocationOptimization);
 	}
 	else
@@ -556,7 +562,7 @@ public final class ReferenceFactory
 	    endpoints = new EndpointI[0];
 	    adapterId = s.readString();
 	    return create(ident, _instance.getDefaultContext(), facet, mode, secure,
-	                  adapterId, routerInfo, locatorInfo,
+	    		  _instance.defaultsAndOverrides().defaultPreferSecure, adapterId, routerInfo, locatorInfo,
 			  _instance.defaultsAndOverrides().defaultCollocationOptimization,
 			  _instance.defaultsAndOverrides().defaultLocatorCacheTimeout);
 	}

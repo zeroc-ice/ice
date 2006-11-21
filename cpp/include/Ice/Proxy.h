@@ -203,6 +203,9 @@ public:
     bool ice_isSecure() const;
     ::Ice::ObjectPrx ice_secure(bool) const;
 
+    bool ice_isPreferSecure() const;
+    ::Ice::ObjectPrx ice_preferSecure(bool) const;
+
     ::Ice::RouterPrx ice_getRouter() const;
     ::Ice::ObjectPrx ice_router(const ::Ice::RouterPrx&) const;
 

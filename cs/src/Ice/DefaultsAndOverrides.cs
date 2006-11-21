@@ -87,6 +87,8 @@ namespace IceInternal
 		properties.getPropertyAsIntWithDefault("Ice.Default.CollocationOptimization", 1) > 0;
 
 	    defaultLocatorCacheTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
+
+	    defaultPreferSecure = properties.getPropertyAsIntWithDefault("Ice.Default.PreferSecure", 0) > 0;
 	}
 	
 	public string defaultHost;
@@ -95,6 +97,7 @@ namespace IceInternal
 	public string defaultLocator;
 	public bool defaultCollocationOptimization;
 	public int defaultLocatorCacheTimeout;
+	public bool defaultPreferSecure;
 	
 	public bool overrideTimeout;
 	public int overrideTimeoutValue;

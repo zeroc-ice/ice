@@ -123,6 +123,7 @@ Ice:
     Default.Locator
     Default.LocatorCacheTimeout
     Default.Package
+    Default.PreferSecure
     Default.Protocol
     Default.Router
     GC.Interval

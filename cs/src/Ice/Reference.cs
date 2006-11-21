@@ -73,6 +73,7 @@ namespace IceInternal
 	}
 
 	public abstract bool getSecure();
+	public abstract bool getPreferSecure();
 	public abstract string getAdapterId();
 	public abstract EndpointI[] getEndpoints();
 	public abstract bool getCollocationOptimization();
@@ -137,6 +138,7 @@ namespace IceInternal
 	}
 
 	public abstract Reference changeSecure(bool newSecure);
+	public abstract Reference changePreferSecure(bool newPreferSecure);
 	public abstract Reference changeRouter(Ice.RouterPrx newRouter);
 	public abstract Reference changeLocator(Ice.LocatorPrx newLocator);
 	public abstract Reference changeCompress(bool newCompress);
@@ -416,6 +418,11 @@ namespace IceInternal
 	    return false;
 	}
 
+	public override bool getPreferSecure()
+	{
+	    return false;
+	}
+
 	public override string getAdapterId()
         {
 	    return "";
@@ -447,6 +454,11 @@ namespace IceInternal
 	}
 
 	public override Reference changeSecure(bool sec)
+	{
+	    throw new Ice.FixedProxyException();
+	}
+
+	public override Reference changePreferSecure(bool prefSec)
 	{
 	    throw new Ice.FixedProxyException();
 	}
@@ -625,11 +637,10 @@ namespace IceInternal
 	    }
 
 	    //
-	    // If a secure connection is requested or secure overrides
-	    // is set, remove all non-secure endpoints. Otherwise make
-	    // non-secure endpoints preferred over secure endpoints by
-	    // partitioning the endpoint vector, so that non-secure
-	    // endpoints come first.
+	    // If a secure connection is requested or secure overrides is set, 
+	    // remove all non-secure endpoints. Otherwise if preferSecure is set
+	    // make secure endpoints prefered. By default make non-secure
+	    // endpoints preferred over secure endpoints.
 	    //
 	    DefaultsAndOverrides overrides = getInstance().defaultsAndOverrides();
 	    if(overrides.overrideSecure ? overrides.overrideSecureValue : getSecure())
@@ -644,9 +655,13 @@ namespace IceInternal
 		}
 		connections = tmp;
 	    }
+	    else if(getPreferSecure())
+	    {
+		IceUtil.Arrays.Sort(ref connections, _preferSecureConnectionComparator);
+	    }
 	    else
 	    {
-		IceUtil.Arrays.Sort(ref connections, _connectionComparator);
+		IceUtil.Arrays.Sort(ref connections, _preferNonSecureConnectionComparator);
 	    }
 	    
 	    Ice.ConnectionI[] arr = new Ice.ConnectionI[connections.Count];
@@ -659,6 +674,11 @@ namespace IceInternal
 
 	private class ConnectionComparator : IComparer
 	{
+	    public ConnectionComparator(bool preferSecure)
+	    {
+	        _preferSecure = preferSecure;
+	    }
+
 	    public int Compare(object l, object r)
 	    {
 		Ice.ConnectionI lc = (Ice.ConnectionI)l;
@@ -671,16 +691,33 @@ namespace IceInternal
 		}
 		else if(!ls && rs)
 		{
-		    return -1;
+		    if(_preferSecure)
+		    {
+		        return 1;
+		    }
+		    else
+		    {
+		        return -1;
+		    }
 		}
 		else
 		{
-		    return 1;
+		    if(_preferSecure)
+		    {
+		        return -1;
+		    }
+		    else
+		    {
+		        return 1;
+		    }
 		}
 	    }
+
+	    private bool _preferSecure;
 	}
 	
-	private static ConnectionComparator _connectionComparator = new ConnectionComparator();
+	private static ConnectionComparator _preferNonSecureConnectionComparator = new ConnectionComparator(false);
+	private static ConnectionComparator _preferSecureConnectionComparator = new ConnectionComparator(true);
 	private Ice.ConnectionI[] _fixedConnections;
     }
 
@@ -710,6 +747,11 @@ namespace IceInternal
 	    return _secure;
 	}
 
+	public override bool getPreferSecure()
+	{
+	    return _preferSecure;
+	}
+
 	public override bool getCollocationOptimization()
 	{
 	    return _collocationOptimization;
@@ -733,6 +775,17 @@ namespace IceInternal
 	    }
 	    RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
 	    r._secure = newSecure;
+	    return r;
+	}
+
+	public override Reference changePreferSecure(bool newPreferSecure)
+	{
+	    if(newPreferSecure == _preferSecure)
+	    {
+		return this;
+	    }
+	    RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+	    r._preferSecure = newPreferSecure;
 	    return r;
 	}
 
@@ -833,6 +886,10 @@ namespace IceInternal
 	    {
 		return false;
 	    }
+	    if(_preferSecure != rhs._preferSecure)
+	    {
+		return false;
+	    }
 	    if(_collocationOptimization != rhs._collocationOptimization)
 	    {
 		return false;
@@ -883,11 +940,13 @@ namespace IceInternal
 			            string fac,
 			            Reference.Mode md,
 			            bool sec,
+			            bool prefSec,
 			            RouterInfo rtrInfo,
 			            bool collocationOpt)
 	    : base(inst, com, ident, ctx, fac, md)
 	{
 	    _secure = sec;
+	    _preferSecure = prefSec;
 	    _routerInfo = rtrInfo;
 	    _collocationOptimization = collocationOpt;
 	    _cacheConnection = true;
@@ -1025,9 +1084,13 @@ namespace IceInternal
 		}
 		endpoints = tmp;
 	    }
+	    else if(getPreferSecure())
+	    {
+		IceUtil.Arrays.Sort(ref endpoints, _preferSecureEndpointComparator);
+	    }
 	    else
 	    {
-		IceUtil.Arrays.Sort(ref endpoints, _endpointComparator);
+		IceUtil.Arrays.Sort(ref endpoints, _preferNonSecureEndpointComparator);
 	    }
 	    
 	    if(endpoints.Count == 0)
@@ -1083,6 +1146,11 @@ namespace IceInternal
 
 	private class EndpointComparator : IComparer
 	{
+	    public EndpointComparator(bool preferSecure)
+	    {
+	        _preferSecure = preferSecure;
+	    }
+
 	    public int Compare(object l, object r)
 	    {
 		IceInternal.EndpointI le = (IceInternal.EndpointI)l;
@@ -1095,18 +1163,36 @@ namespace IceInternal
 		}
 		else if(!ls && rs)
 		{
-		    return -1;
+		    if(_preferSecure)
+		    {
+		        return 1;
+		    }
+		    else
+		    {
+		        return -1;
+		    }
 		}
 		else
 		{
-		    return 1;
+		    if(_preferSecure)
+		    {
+		        return -1;
+		    }
+		    else
+		    {
+		        return 1;
+		    }
 		}
 	    }
+
+	    private bool _preferSecure;
 	}
 	
-	private static EndpointComparator _endpointComparator = new EndpointComparator();
+	private static EndpointComparator _preferNonSecureEndpointComparator = new EndpointComparator(false);
+	private static EndpointComparator _preferSecureEndpointComparator = new EndpointComparator(true);
 
 	private bool _secure;
+	private bool _preferSecure;
 	private RouterInfo _routerInfo; // Null if no router is used.
 	private bool _collocationOptimization;
 	private bool _cacheConnection;
@@ -1127,10 +1213,11 @@ namespace IceInternal
 			       string fs,
 			       Reference.Mode md,
 			       bool sec,
+			       bool prefSec,
 			       EndpointI[] endpts,
 			       RouterInfo rtrInfo,
 			       bool collocationOpt)
-	    : base(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt)
+	    : base(inst, com, ident, ctx, fs, md, sec, prefSec, rtrInfo, collocationOpt)
 	{
 	    _endpoints = endpts;
 	}
@@ -1209,8 +1296,8 @@ namespace IceInternal
 	    LocatorInfo locatorInfo = 
 		getInstance().locatorManager().get(getInstance().referenceFactory().getDefaultLocator());
 	    return getInstance().referenceFactory().create(
-		getIdentity(), getContext(), getFacet(), getMode(), getSecure(), newAdapterId, getRouterInfo(),
-		locatorInfo, getCollocationOptimization(), getLocatorCacheTimeout());
+		getIdentity(), getContext(), getFacet(), getMode(), getSecure(), getPreferSecure(), newAdapterId,
+		getRouterInfo(), locatorInfo, getCollocationOptimization(), getLocatorCacheTimeout());
 	}
 
 	public override Reference changeEndpoints(EndpointI[] newEndpoints)
@@ -1336,12 +1423,13 @@ namespace IceInternal
 			         string fs,
 			         Reference.Mode md,
 			         bool sec,
+			         bool prefSec,
 			         string adptid,
 			         RouterInfo rtrInfo,
 			         LocatorInfo locInfo,
 			         bool collocationOpt,
 				 int locatorCacheTimeout)
-	    : base(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt)
+	    : base(inst, com, ident, ctx, fs, md, sec, prefSec, rtrInfo, collocationOpt)
 	{
 	    adapterId_ = adptid;
 	    locatorInfo_ = locInfo;
@@ -1398,8 +1486,8 @@ namespace IceInternal
 		return this;
 	    }
 	    return getInstance().referenceFactory().create(
-		getIdentity(), getContext(), getFacet(), getMode(), getSecure(), newEndpoints, getRouterInfo(),
-		getCollocationOptimization());
+		getIdentity(), getContext(), getFacet(), getMode(), getSecure(), getPreferSecure(), newEndpoints, 
+		getRouterInfo(), getCollocationOptimization());
 	}
 
 	public override Reference changeLocatorCacheTimeout(int newTimeout)

@@ -19,13 +19,14 @@ public class IndirectReference extends RoutableReference
 		      String fs,
 		      int md,
 		      boolean sec,
+		      boolean prefSec,
 		      String adptid,
 		      RouterInfo rtrInfo,
 		      LocatorInfo locInfo,
 		      boolean collocationOpt,
 		      int locatorCacheTimeout)
     {
-    	super(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt);
+    	super(inst, com, ident, ctx, fs, md, sec, prefSec, rtrInfo, collocationOpt);
         _adapterId = adptid;
 	_locatorInfo = locInfo;
 	_locatorCacheTimeout = locatorCacheTimeout;
@@ -88,7 +89,7 @@ public class IndirectReference extends RoutableReference
 	    return this;
 	}
 	return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
-						       getSecure(), newEndpoints, getRouterInfo(),
+						       getSecure(), getPreferSecure(), newEndpoints, getRouterInfo(),
 						       getCollocationOptimization());	
     }
 

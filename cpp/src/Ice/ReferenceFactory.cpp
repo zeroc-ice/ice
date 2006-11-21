@@ -53,6 +53,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 				      const string& facet,
 				      Reference::Mode mode,
 				      bool secure,
+				      bool preferSecure,
 				      const vector<EndpointIPtr>& endpoints,
 				      const RouterInfoPtr& routerInfo,
 				      bool collocationOptimization)
@@ -72,7 +73,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     //
     // Create new reference
     //
-    return new DirectReference(_instance, _communicator, ident, context, facet, mode, secure,
+    return new DirectReference(_instance, _communicator, ident, context, facet, mode, secure, preferSecure,
 			       endpoints, routerInfo, collocationOptimization);
 }
 
@@ -82,6 +83,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 				      const string& facet,
 				      Reference::Mode mode,
 				      bool secure,
+				      bool preferSecure,
 				      const string& adapterId,
 				      const RouterInfoPtr& routerInfo,
 				      const LocatorInfoPtr& locatorInfo,
@@ -103,7 +105,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     //
     // Create new reference
     //
-    return new IndirectReference(_instance, _communicator, ident, context, facet, mode, secure,
+    return new IndirectReference(_instance, _communicator, ident, context, facet, mode, secure, preferSecure,
 				 adapterId, routerInfo, locatorInfo, collocationOptimization, locatorCacheTimeout);
 }
 
@@ -417,7 +419,8 @@ IceInternal::ReferenceFactory::create(const string& str)
 
     if(beg == string::npos)
     {
-	return create(ident, _instance->getDefaultContext(), facet, mode, secure, "", routerInfo,
+	return create(ident, _instance->getDefaultContext(), facet, mode, secure, 
+		      _instance->defaultsAndOverrides()->defaultPreferSecure, "", routerInfo,
 		      locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization, 
 		      _instance->defaultsAndOverrides()->defaultLocatorCacheTimeout);
     }
@@ -471,8 +474,9 @@ IceInternal::ReferenceFactory::create(const string& str)
 		}
 	    }
 
-	    return create(ident, _instance->getDefaultContext(), facet, mode, secure, endpoints, 
-	    		  routerInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization);
+	    return create(ident, _instance->getDefaultContext(), facet, mode, secure,
+	    		  _instance->defaultsAndOverrides()->defaultPreferSecure, endpoints, routerInfo,
+			  _instance->defaultsAndOverrides()->defaultCollocationOptimization);
 	    break;
 	}
 	case '@':
@@ -522,8 +526,9 @@ IceInternal::ReferenceFactory::create(const string& str)
 		adapter = tmpAdapter;
             }
 	    
-	    return create(ident, _instance->getDefaultContext(), facet, mode, secure, adapter,
-	    		  routerInfo, locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization,
+	    return create(ident, _instance->getDefaultContext(), facet, mode, secure, 
+	    		  _instance->defaultsAndOverrides()->defaultPreferSecure, adapter, routerInfo, locatorInfo,
+			  _instance->defaultsAndOverrides()->defaultCollocationOptimization,
 			  _instance->defaultsAndOverrides()->defaultLocatorCacheTimeout);
 	    break;
 	}
@@ -594,14 +599,16 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 	    EndpointIPtr endpoint = _instance->endpointFactoryManager()->read(s);
 	    endpoints.push_back(endpoint);
 	}
-	return create(ident, _instance->getDefaultContext(), facet, mode, secure, endpoints, 
-		      routerInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization);
+	return create(ident, _instance->getDefaultContext(), facet, mode, secure,
+		      _instance->defaultsAndOverrides()->defaultPreferSecure, endpoints, routerInfo,
+		      _instance->defaultsAndOverrides()->defaultCollocationOptimization);
     }
     else
     {
 	s->read(adapterId);
-	return create(ident, _instance->getDefaultContext(), facet, mode, secure, adapterId,
-	  	      routerInfo, locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization,
+	return create(ident, _instance->getDefaultContext(), facet, mode, secure, 
+		      _instance->defaultsAndOverrides()->defaultPreferSecure, adapterId, routerInfo, locatorInfo,
+		      _instance->defaultsAndOverrides()->defaultCollocationOptimization,
 		      _instance->defaultsAndOverrides()->defaultLocatorCacheTimeout);
     }
 }

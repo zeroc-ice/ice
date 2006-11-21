@@ -19,11 +19,12 @@ public class DirectReference extends RoutableReference
 		    String fs,
 		    int md,
 		    boolean sec,
+		    boolean prefSec,
 		    EndpointI[] endpts,
 		    RouterInfo rtrInfo,
 		    boolean collocationOpt)
     {
-    	super(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt);
+    	super(inst, com, ident, ctx, fs, md, sec, prefSec, rtrInfo, collocationOpt);
         _endpoints = endpts;
     }
 
@@ -109,8 +110,9 @@ public class DirectReference extends RoutableReference
 	LocatorInfo locatorInfo = 
 	    getInstance().locatorManager().get(getInstance().referenceFactory().getDefaultLocator());
 	return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
-						       getSecure(), newAdapterId, getRouterInfo(), locatorInfo,
-						       getCollocationOptimization(), getLocatorCacheTimeout());
+						       getSecure(), getPreferSecure(), newAdapterId, getRouterInfo(),
+						       locatorInfo, getCollocationOptimization(),
+						       getLocatorCacheTimeout());
     }
 
     public Reference

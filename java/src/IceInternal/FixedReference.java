@@ -36,6 +36,12 @@ public class FixedReference extends Reference
 	return false;
     }
 
+    public boolean
+    getPreferSecure()
+    {
+	return false;
+    }
+
     public String
     getAdapterId()
     {
@@ -74,6 +80,12 @@ public class FixedReference extends Reference
 
     public Reference
     changeSecure(boolean sec)
+    {
+	throw new Ice.FixedProxyException();
+    }
+
+    public Reference
+    changePreferSecure(boolean prefSec)
     {
 	throw new Ice.FixedProxyException();
     }

@@ -865,7 +865,8 @@ Ice::ObjectAdapterI::newDirectProxy(const Identity& ident, const string& facet) 
     // Create a reference and return a proxy for this reference.
     //
     ReferencePtr ref = _instance->referenceFactory()->create(
-	ident, _instance->getDefaultContext(), facet, Reference::ModeTwoway, false, endpoints, 0,
+	ident, _instance->getDefaultContext(), facet, Reference::ModeTwoway, false,
+	_instance->defaultsAndOverrides()->defaultPreferSecure, endpoints, 0,
 	_instance->defaultsAndOverrides()->defaultCollocationOptimization);
     return _instance->proxyFactory()->referenceToProxy(ref);
 
@@ -878,7 +879,8 @@ Ice::ObjectAdapterI::newIndirectProxy(const Identity& ident, const string& facet
     // Create an indirect reference with the given adapter id.
     //
     ReferencePtr ref = _instance->referenceFactory()->create(
-	ident, _instance->getDefaultContext(), facet, Reference::ModeTwoway, false, id, 0, 
+	ident, _instance->getDefaultContext(), facet, Reference::ModeTwoway, false, 
+	_instance->defaultsAndOverrides()->defaultPreferSecure, id, 0, 
 	_locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization,
 	_instance->defaultsAndOverrides()->defaultLocatorCacheTimeout);
     

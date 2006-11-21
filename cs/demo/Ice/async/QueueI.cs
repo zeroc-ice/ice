@@ -83,7 +83,6 @@ public class QueueI : QueueDisp_
 
 	for(int i = 0; i < ids.Length; ++i)
 	{
-	    ArrayList toRemove = new ArrayList();
 	    foreach(Request r in _requestQueue)
 	    {
 	        if(r.id.Equals(ids[i]))
@@ -96,13 +95,9 @@ public class QueueI : QueueDisp_
 		    {
 		        // Ignore
 		    }
-		    toRemove.Add(r);
+		    _requestQueue.Remove(r);
+		    break;
 		}
-	    }
-
-	    foreach(Request r in toRemove)
-	    {
-	        _requestQueue.Remove(r);
 	    }
 	}
     }

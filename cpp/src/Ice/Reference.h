@@ -65,6 +65,7 @@ public:
 
     virtual Type getType() const = 0;
     virtual bool getSecure() const = 0;
+    virtual bool getPreferSecure() const = 0;
     virtual std::string getAdapterId() const = 0;
     virtual std::vector<EndpointIPtr> getEndpoints() const = 0;
     virtual bool getCollocationOptimization() const = 0;
@@ -83,6 +84,7 @@ public:
     ReferencePtr changeFacet(const std::string&) const;
 
     virtual ReferencePtr changeSecure(bool) const = 0;
+    virtual ReferencePtr changePreferSecure(bool) const = 0;
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const = 0;
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const = 0;
     virtual ReferencePtr changeCompress(bool) const = 0;
@@ -150,6 +152,7 @@ public:
 
     virtual Type getType() const;
     virtual bool getSecure() const;
+    virtual bool getPreferSecure() const;
     virtual std::string getAdapterId() const;
     virtual std::vector<EndpointIPtr> getEndpoints() const;
     virtual bool getCollocationOptimization() const;
@@ -158,6 +161,7 @@ public:
     virtual Ice::EndpointSelectionType getEndpointSelection() const;
 
     virtual ReferencePtr changeSecure(bool) const;
+    virtual ReferencePtr changePreferSecure(bool) const;
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const;
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const;
     virtual ReferencePtr changeCollocationOptimization(bool) const;
@@ -200,11 +204,13 @@ public:
     std::vector<EndpointIPtr> getRoutedEndpoints() const;
 
     virtual bool getSecure() const;
+    virtual bool getPreferSecure() const;
     virtual bool getCollocationOptimization() const;
     virtual bool getCacheConnection() const;
     virtual Ice::EndpointSelectionType getEndpointSelection() const;
 
     virtual ReferencePtr changeSecure(bool) const;
+    virtual ReferencePtr changePreferSecure(bool) const;
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const;
     virtual ReferencePtr changeCollocationOptimization(bool) const;
     virtual ReferencePtr changeCompress(bool) const;
@@ -226,7 +232,7 @@ public:
 protected:
 
     RoutableReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const SharedContextPtr&,
-		      const std::string&, Mode, bool, const RouterInfoPtr&, bool);
+		      const std::string&, Mode, bool, bool, const RouterInfoPtr&, bool);
     RoutableReference(const RoutableReference&);
 
     Ice::ConnectionIPtr createConnection(const std::vector<EndpointIPtr>&, bool&) const;
@@ -235,6 +241,7 @@ protected:
 private:
 
     bool _secure;
+    bool _preferSecure;
     RouterInfoPtr _routerInfo; // Null if no router is used.
     bool _collocationOptimization;
     bool _cacheConnection;
@@ -252,7 +259,7 @@ class DirectReference : public RoutableReference
 public:
 
     DirectReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const SharedContextPtr&,
-		    const std::string&, Mode, bool, const std::vector<EndpointIPtr>&, const RouterInfoPtr&, bool);
+		    const std::string&, Mode, bool, bool, const std::vector<EndpointIPtr>&, const RouterInfoPtr&, bool);
 
     virtual Type getType() const;
     virtual int getLocatorCacheTimeout() const;
@@ -291,8 +298,8 @@ class IndirectReference : public RoutableReference
 public:
 
     IndirectReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const SharedContextPtr&, 
-		      const std::string&, Mode, bool, const std::string&, const RouterInfoPtr&, const LocatorInfoPtr&,
-		      bool, int);
+		      const std::string&, Mode, bool, bool, const std::string&, const RouterInfoPtr&,
+		      const LocatorInfoPtr&, bool, int);
 
     virtual LocatorInfoPtr getLocatorInfo() const { return _locatorInfo; }
 

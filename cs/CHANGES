@@ -3,6 +3,12 @@ NOTE: Please keep changes in the appropriate section for HEAD or 3.1.
 Changes since version 3.1.1 (HEAD)
 ---------------------------     
 
+- Added new property Ice.Default.PreferSecure, which if set to 1
+  causes secure connections to be prefered over non-secure connections.
+  By default this property is set to 0. Also added functions to control
+  this behavior on a per-proxy rather global basis, ice_isPreferSecure()
+  and ice_preferSecure().
+
 - Added a demo to illustrate use of AMI/AMD.
 
 - IceBox services are now stopped in the reverse order from which they 

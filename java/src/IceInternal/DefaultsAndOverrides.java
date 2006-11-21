@@ -89,6 +89,8 @@ public final class DefaultsAndOverrides
 	    properties.getPropertyAsIntWithDefault("Ice.Default.CollocationOptimization", 1) > 0;
 
 	defaultLocatorCacheTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
+
+	defaultPreferSecure = properties.getPropertyAsIntWithDefault("Ice.Default.PreferSecure", 0) > 0;
     }
 
     final public String defaultHost;
@@ -97,6 +99,7 @@ public final class DefaultsAndOverrides
     final public String defaultLocator;
     final public boolean defaultCollocationOptimization;
     final public int defaultLocatorCacheTimeout;
+    final public boolean defaultPreferSecure;
 
     final public boolean overrideTimeout;
     final public int overrideTimeoutValue;

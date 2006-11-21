@@ -75,6 +75,7 @@ public abstract class Reference implements Cloneable
     }
 
     public abstract boolean getSecure();
+    public abstract boolean getPreferSecure();
     public abstract String getAdapterId();
     public abstract EndpointI[] getEndpoints();
     public abstract boolean getCollocationOptimization();
@@ -143,6 +144,7 @@ public abstract class Reference implements Cloneable
     }
 
     public abstract Reference changeSecure(boolean newSecure);
+    public abstract Reference changePreferSecure(boolean newPreferSecure);
     public abstract Reference changeRouter(Ice.RouterPrx newRouter);
     public abstract Reference changeLocator(Ice.LocatorPrx newLocator);
     public abstract Reference changeCompress(boolean newCompress);

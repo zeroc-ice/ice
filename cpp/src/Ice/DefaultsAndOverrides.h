@@ -29,6 +29,7 @@ public:
     std::string defaultLocator;
     bool defaultCollocationOptimization;
     int defaultLocatorCacheTimeout;
+    bool defaultPreferSecure;
 
     bool overrideTimeout;
     Ice::Int overrideTimeoutValue;

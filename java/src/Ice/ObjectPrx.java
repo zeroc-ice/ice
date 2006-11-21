@@ -94,6 +94,9 @@ public interface ObjectPrx
     boolean ice_isSecure();
     ObjectPrx ice_secure(boolean b);
 
+    boolean ice_isPreferSecure();
+    ObjectPrx ice_preferSecure(boolean b);
+
     Ice.RouterPrx ice_getRouter();
     ObjectPrx ice_router(Ice.RouterPrx router);
 

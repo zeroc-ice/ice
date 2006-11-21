@@ -85,6 +85,9 @@ namespace Ice
 	bool ice_isSecure();
         ObjectPrx ice_secure(bool b);
 
+	bool ice_isPreferSecure();
+        ObjectPrx ice_preferSecure(bool b);
+
 	Ice.RouterPrx ice_getRouter();
         ObjectPrx ice_router(Ice.RouterPrx router);
 
@@ -571,6 +574,25 @@ namespace Ice
             {
                 ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
                 proxy.setup(_reference.changeSecure(b));
+                return proxy;
+            }
+        }
+
+        public bool ice_isPreferSecure()
+        {
+            return _reference.getPreferSecure();
+        }
+
+        public ObjectPrx ice_preferSecure(bool b)
+        {
+            if(b == _reference.getPreferSecure())
+            {
+                return this;
+            }
+            else
+            {
+                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+                proxy.setup(_reference.changePreferSecure(b));
                 return proxy;
             }
         }
