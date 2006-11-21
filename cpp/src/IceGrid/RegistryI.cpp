@@ -205,10 +205,6 @@ RegistryI::start(bool nowarn)
 
     _replicaName = properties->getPropertyWithDefault("IceGrid.Registry.ReplicaName", "Master");
     _master = _replicaName == "Master";
-
-    _reaper = new ReapThread();
-    _reaper->start();
-
     _sessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.SessionTimeout", 30);
 
     //
@@ -241,10 +237,33 @@ RegistryI::start(bool nowarn)
     }
 
     //
-    // Create the registry database.
+    // Ensure that nothing is running on this port. This is also
+    // useful to ensure that we don't run twice the same instance of
+    // the service too (which would cause the database environment of
+    // the already running instance to be "corrupted".)
     //
+    try
+    {
+	string strPrx = _instanceName + "/Locator:" + properties->getProperty("IceGrid.Registry.Client.Endpoints");
+	_communicator->stringToProxy(strPrx)->ice_timeout(5000)->ice_ping();
+
+	Error out(_communicator->getLogger());
+	out << "an IceGrid registry is already running and listening on\n";
+	out << "the client endpoints `" << properties->getProperty("IceGrid.Registry.Client.Endpoints") << "'";
+	return false;
+    }
+    catch(const Ice::LocalException&)
+    {
+    }
+    
     properties->setProperty("Freeze.DbEnv.Registry.DbHome", dbPath);
     properties->setProperty("Freeze.DbEnv.Registry.DbPrivate", "0");
+
+    //
+    // Create the reaper thread.
+    //
+    _reaper = new ReapThread();
+    _reaper->start();
 
     //
     // Create the internal registry object adapter.
@@ -266,6 +285,9 @@ RegistryI::start(bool nowarn)
 					  "Registry");
     const IceStorm::TopicManagerPrx topicManager = _iceStorm->getTopicManager();
 
+    //
+    // Create the registry database.
+    //
     _database = new Database(registryAdapter, topicManager, _instanceName, _traceLevels, getInfo(), _master);
     _wellKnownObjects = new WellKnownObjectsManager(_database);
 
