@@ -10,7 +10,7 @@
 top_srcdir	= ..\..
 
 LIBNAME     	= IcePy$(PYLIBSUFFIX).lib
-DLLNAME		= $(top_srcdir)\python\IcePy$(PYLIBSUFFIX).dll
+DLLNAME		= $(top_srcdir)\python\IcePy$(PYLIBSUFFIX).pyd
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
@@ -43,7 +43,7 @@ $(LIBNAME): $(DLLNAME)
 $(DLLNAME): $(OBJS)
 	$(LINK) $(PYTHON_LDFLAGS) $(ICE_LDFLAGS) $(LD_DLLFLAGS) $(PDBFLAGS) /export:initIcePy $(OBJS) \
 		$(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH)
-	move $(DLLNAME:.dll=.lib) $(LIBNAME)
+	move $(DLLNAME:.pyd=.lib) $(LIBNAME)
 
 install:: all
 	copy $(DLLNAME) $(install_libdir)
