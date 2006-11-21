@@ -13,6 +13,11 @@
 module Ice
 {
 
+/**
+ * A mapping from type IDs to Slice checksums. The dictionary
+ * allows verification at run time that client and server
+ * use matching Slice definitions.
+ **/
 dictionary<string, string> SliceChecksumDict;
 
 };
