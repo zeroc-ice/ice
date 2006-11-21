@@ -1,14 +1,15 @@
-Communicator.o: Communicator.cpp ./Communicator.h ./Config.h ./Logger.h ./Util.h ./ObjectAdapter.h ./ObjectFactory.h ./Properties.h ./Proxy.h ./ThreadNotification.h
-Connection.o: Connection.cpp ./Connection.h ./Config.h ./ObjectAdapter.h ./Proxy.h ./Util.h
-Current.o: Current.cpp ./Current.h ./Config.h ./Connection.h ./ObjectAdapter.h ./Util.h
-Init.o: Init.cpp ./Communicator.h ./Config.h ./Connection.h ./Current.h ./Logger.h ./Util.h ./ObjectAdapter.h ./Operation.h ./Properties.h ./Proxy.h ./Slice.h ./Types.h
-Logger.o: Logger.cpp ./Logger.h ./Config.h ./Util.h
-ObjectAdapter.o: ObjectAdapter.cpp ./ObjectAdapter.h ./Config.h ./Communicator.h ./Current.h ./Operation.h ./Proxy.h ./Util.h
-ObjectFactory.o: ObjectFactory.cpp ./ObjectFactory.h ./Config.h ./Types.h ./Util.h
-Operation.o: Operation.cpp ./Operation.h ./Config.h ./Current.h ./Proxy.h ./Types.h ./Util.h
-Properties.o: Properties.cpp ./Properties.h ./Config.h ./Util.h
-Proxy.o: Proxy.cpp ./Proxy.h ./Config.h ./Communicator.h ./Connection.h ./Util.h
-Slice.o: Slice.cpp ./Slice.h ./Config.h ./Util.h
-ThreadNotification.o: ThreadNotification.cpp ./ThreadNotification.h ./Config.h ./Util.h
-Types.o: Types.cpp ./Types.h ./Config.h ./Util.h ./Current.h ./Proxy.h
-Util.o: Util.cpp ./Util.h ./Config.h
+Communicator$(OBJEXT): Communicator.cpp Communicator.h Config.h ImplicitContext.h Logger.h Util.h ObjectAdapter.h ObjectFactory.h Properties.h Proxy.h ThreadNotification.h
+Connection$(OBJEXT): Connection.cpp Connection.h Config.h ObjectAdapter.h Proxy.h Util.h
+Current$(OBJEXT): Current.cpp Current.h Config.h Connection.h ObjectAdapter.h Util.h
+ImplicitContext$(OBJEXT): ImplicitContext.cpp ImplicitContext.h Config.h ObjectAdapter.h Proxy.h Util.h
+Init$(OBJEXT): Init.cpp Communicator.h Config.h Connection.h Current.h ImplicitContext.h Logger.h Util.h ObjectAdapter.h Operation.h Properties.h Proxy.h Slice.h Types.h
+Logger$(OBJEXT): Logger.cpp Logger.h Config.h Util.h
+ObjectAdapter$(OBJEXT): ObjectAdapter.cpp ObjectAdapter.h Config.h Communicator.h Current.h Operation.h Proxy.h Util.h
+ObjectFactory$(OBJEXT): ObjectFactory.cpp ObjectFactory.h Config.h Types.h Util.h
+Operation$(OBJEXT): Operation.cpp Operation.h Config.h Current.h Proxy.h Types.h Util.h
+Properties$(OBJEXT): Properties.cpp Properties.h Config.h Util.h
+Proxy$(OBJEXT): Proxy.cpp Proxy.h Config.h Communicator.h Connection.h Util.h
+Slice$(OBJEXT): Slice.cpp Slice.h Config.h Util.h
+ThreadNotification$(OBJEXT): ThreadNotification.cpp ThreadNotification.h Config.h Util.h
+Types$(OBJEXT): Types.cpp Types.h Config.h Util.h Current.h Proxy.h
+Util$(OBJEXT): Util.cpp Util.h Config.h
