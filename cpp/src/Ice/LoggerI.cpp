@@ -17,8 +17,7 @@ using namespace IceInternal;
 
 static IceUtil::StaticMutex outputMutex = ICE_STATIC_MUTEX_INITIALIZER;
 
-Ice::LoggerI::LoggerI(const string& prefix, bool timestamp) : 
-    _timestamp(timestamp)
+Ice::LoggerI::LoggerI(const string& prefix)
 {
     if(!prefix.empty())
     {
@@ -39,12 +38,7 @@ Ice::LoggerI::trace(const string& category, const string& message)
 {
     IceUtil::StaticMutex::Lock sync(outputMutex);
 
-    string s = "[ ";
-    if(_timestamp)
-    {
-	s += IceUtil::Time::now().toString() + " ";
-    }
-    s += _prefix;
+    string s = "[ " + IceUtil::Time::now().toString() + " " + _prefix;
     if(!category.empty())
     {
         s += category + ": ";
@@ -64,20 +58,12 @@ void
 Ice::LoggerI::warning(const string& message)
 {
     IceUtil::StaticMutex::Lock sync(outputMutex);
-    if(_timestamp)
-    {
-	cerr << IceUtil::Time::now().toString() << " ";
-    }
-    cerr << _prefix << "warning: " << message << endl;
+    cerr << IceUtil::Time::now().toString() << " " << _prefix << "warning: " << message << endl;
 }
 
 void
 Ice::LoggerI::error(const string& message)
 {
     IceUtil::StaticMutex::Lock sync(outputMutex);
-    if(_timestamp)
-    {
-	cerr << IceUtil::Time::now().toString() << " ";
-    }
-    cerr << _prefix << "error: " << message << endl;
+    cerr << IceUtil::Time::now().toString() << " " << _prefix << "error: " << message << endl;
 }

@@ -592,8 +592,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 #endif
 	    else
 	    {
-		_initData.logger = new LoggerI(_initData.properties->getProperty("Ice.ProgramName"), 
-				      _initData.properties->getPropertyAsIntWithDefault("Ice.Logger.Timestamp", 1) > 0);
+		_initData.logger = new LoggerI(_initData.properties->getProperty("Ice.ProgramName"));
 	    }
 	}
 

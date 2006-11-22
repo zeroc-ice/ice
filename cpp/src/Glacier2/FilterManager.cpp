@@ -233,7 +233,7 @@ Glacier2::FilterManager::create(const CommunicatorPtr& communicator, const Objec
     PropertiesPtr props = communicator->getProperties();
     //
     // DEPRECATED PROPERTY: Glacier2.AllowCategories is to be deprecated
-    // and superseded by Glacier2.Filter.Categories.Accept.
+    // and superseded by Glacier2.Filter.Category.Accept.
     //
     string allow = props->getProperty("Glacier2.AllowCategories");
     if(allow.empty())
@@ -246,7 +246,19 @@ Glacier2::FilterManager::create(const CommunicatorPtr& communicator, const Objec
 
     if(allowAddUser)
     {
-	int addUserMode = props->getPropertyAsInt("Glacier2.AddUserToAllowCategories");
+        //
+        // DEPRECATED PROPERTY: Glacier2.AddUserToAllowCategories is to be deprecated
+        // and superseded by Glacier2.Filter.Category.AcceptUser.
+        //
+	int addUserMode;
+	if(!props->getProperty("Glacier2.AddUserToAllowCategories").empty())
+	{
+	    addUserMode = props->getPropertyAsInt("Glacier2.AddUserToAllowCategories");
+	}
+	else
+	{
+	    addUserMode = props->getPropertyAsInt("Glacier2.Filter.Category.AcceptUser");
+	}
        
 	if(addUserMode > 0 && !userId.empty())
 	{

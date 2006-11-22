@@ -12,17 +12,14 @@ package Ice;
 public final class LoggerI extends LocalObjectImpl implements Logger
 {
     public 
-    LoggerI(String prefix, boolean timestamp)
+    LoggerI(String prefix)
     {
 	if(prefix.length() > 0)
 	{
 	    _prefix = prefix + ": ";
 	}
 
-	if(timestamp)
-	{
-	    _date = new java.text.SimpleDateFormat("MM/dd/yy HH:mm:ss:SSS");
-	}
+	_date = new java.text.SimpleDateFormat("MM/dd/yy HH:mm:ss:SSS");
     }
 
     public void
@@ -40,11 +37,8 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 	synchronized(_globalMutex)
 	{
             StringBuffer s = new StringBuffer("[ ");
-	    if(_date != null)
-	    {
-		s.append(_date.format(new java.util.Date()));
-		s.append(' ');
-	    }
+	    s.append(_date.format(new java.util.Date()));
+	    s.append(' ');
 	    s.append(_prefix);
 	    s.append(category);
 	    s.append(": ");
@@ -66,11 +60,8 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 	synchronized(_globalMutex)
 	{
 	    StringBuffer s = new StringBuffer();
-	    if(_date != null)
-	    {
-		s.append(_date.format(new java.util.Date()));
-		s.append(' ');
-	    }
+	    s.append(_date.format(new java.util.Date()));
+	    s.append(' ');
 	    s.append(_prefix);
 	    s.append("warning: ");
 	    s.append(message);
@@ -84,11 +75,8 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 	synchronized(_globalMutex)
 	{
 	    StringBuffer s = new StringBuffer();
-	    if(_date != null)
-	    {
-		s.append(_date.format(new java.util.Date()));
-		s.append(' ');
-	    }
+	    s.append(_date.format(new java.util.Date()));
+	    s.append(' ');
 	    s.append(_prefix);
 	    s.append("error: ");
 	    s.append(message);

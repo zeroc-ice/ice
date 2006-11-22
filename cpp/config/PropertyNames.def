@@ -129,7 +129,6 @@ Ice:
     GC.Interval
     ImplicitContext
     InitPlugins
-    Logger.Timestamp
     MessageSizeMax
     MonitorConnections
     Nohup
@@ -382,7 +381,6 @@ Glacier2:
     Admin.Endpoints
     Admin.PublishedEndpoints
     Admin.RegisterProcess
-    AllowCategories
     Client.AlwaysBatch
     Client.Buffered
     Client.Endpoints
@@ -397,6 +395,7 @@ Glacier2:
     Filter.Address.Accept
     Filter.ProxySizeMax
     Filter.Category.Accept
+    Filter.Category.AcceptUser
     Filter.AdapterId.Accept
     Filter.Identity.Accept
     CryptPasswords

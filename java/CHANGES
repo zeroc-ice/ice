@@ -3,8 +3,8 @@ NOTE: Please keep changes in the appropriate section for HEAD or 3.1.
 Changes since version 3.1.1 (HEAD)
 ---------------------------     
 
-- The Ice.Logger.Timestamp property has been deprecated. Timestamps
-  will now always be shown by default.
+- The Ice.Logger.Timestamp property has been removed. Timestamps
+  will now always be shown by the logger.
 
 - Added new property Ice.Default.PreferSecure, which if set to 1
   causes secure connections to be prefered over non-secure connections.
