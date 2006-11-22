@@ -201,7 +201,6 @@
 	<!-- Ice classpath -->
 	<path id="ice.classpath">
 	    <fileset file="${ice.jar.file}"/>
-	    <fileset file="/usr/share/java/db.jar"/>
 	</path>
     </target>
     
