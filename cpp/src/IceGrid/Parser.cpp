@@ -1728,13 +1728,13 @@ Parser::patchFailed(const Ice::StringSeq& reasons)
 	    {
 		end = reason.size();
 	    }
-	    out.nl();
+	    out.newline();
 	    out << reason.substr(beg, end - beg);
 	}
 	out.dec();
 	if(p + 1 != reasons.end())
 	{
-	    out.nl();
+	    out.newline();
 	}
     }
     warning(os.str());

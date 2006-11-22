@@ -536,8 +536,8 @@ FreezeScript::SliceVisitor::visitClassDefStart(const Slice::ClassDefPtr& v)
         return false;
     }
 
-    _out.nl();
-    _out.nl();
+    _out.newline();
+    _out.newline();
     _out << "<!-- class " << scoped << " -->";
     _out << se("dump") << attr("type", scoped) << ee;
 
@@ -558,8 +558,8 @@ FreezeScript::SliceVisitor::visitStructStart(const Slice::StructPtr& v)
         return false;
     }
 
-    _out.nl();
-    _out.nl();
+    _out.newline();
+    _out.newline();
     _out << "<!-- struct " << scoped << " -->";
     _out << se("dump") << attr("type", scoped) << ee;
 
@@ -580,8 +580,8 @@ FreezeScript::SliceVisitor::visitSequence(const Slice::SequencePtr& v)
         return;
     }
 
-    _out.nl();
-    _out.nl();
+    _out.newline();
+    _out.newline();
     _out << "<!-- sequence " << scoped << " -->";
     _out << se("dump") << attr("type", scoped) << ee;
 }
@@ -600,8 +600,8 @@ FreezeScript::SliceVisitor::visitDictionary(const Slice::DictionaryPtr& v)
         return;
     }
 
-    _out.nl();
-    _out.nl();
+    _out.newline();
+    _out.newline();
     _out << "<!-- dictionary " << scoped << " -->";
     _out << se("dump") << attr("type", scoped) << ee;
 }
@@ -620,8 +620,8 @@ FreezeScript::SliceVisitor::visitEnum(const Slice::EnumPtr& v)
         return;
     }
 
-    _out.nl();
-    _out.nl();
+    _out.newline();
+    _out.newline();
     _out << "<!-- enum " << scoped << " -->";
     _out << se("dump") << attr("type", scoped) << ee;
 }

@@ -157,8 +157,8 @@ FreezeScript::AnalyzeTransformVisitor::visitClassDefStart(const ClassDefPtr& v)
         return false;
     }
 
-    _out.nl();
-    _out.nl();
+    _out.newline();
+    _out.newline();
     _out << "<!-- class " << scoped << " -->";
     _out << se("transform") << attr("type", scoped);
 
@@ -202,8 +202,8 @@ FreezeScript::AnalyzeTransformVisitor::visitStructStart(const StructPtr& v)
         return false;
     }
 
-    _out.nl();
-    _out.nl();
+    _out.newline();
+    _out.newline();
     _out << "<!-- struct " << scoped << " -->";
     _out << se("transform") << attr("type", scoped);
 
@@ -247,8 +247,8 @@ FreezeScript::AnalyzeTransformVisitor::visitSequence(const SequencePtr& v)
         return;
     }
 
-    _out.nl();
-    _out.nl();
+    _out.newline();
+    _out.newline();
     _out << "<!-- sequence " << scoped << " -->";
     _out << se("transform") << attr("type", scoped);
 
@@ -288,8 +288,8 @@ FreezeScript::AnalyzeTransformVisitor::visitDictionary(const DictionaryPtr& v)
         return;
     }
 
-    _out.nl();
-    _out.nl();
+    _out.newline();
+    _out.newline();
     _out << "<!-- dictionary " << scoped << " -->";
     _out << se("transform") << attr("type", scoped);
 
@@ -340,8 +340,8 @@ FreezeScript::AnalyzeTransformVisitor::visitEnum(const EnumPtr& v)
         }
     }
 
-    _out.nl();
-    _out.nl();
+    _out.newline();
+    _out.newline();
     _out << "<!-- enum " << scoped << " -->";
     _out << se("transform") << attr("type", scoped);
 
@@ -352,12 +352,12 @@ FreezeScript::AnalyzeTransformVisitor::visitEnum(const EnumPtr& v)
         map<string, int>::const_iterator q = m.find((*p)->name());
         if(q == m.end())
         {
-            _out.nl();
+            _out.newline();
             _out << "<!-- NOTICE: enumerator `" << (*p)->name() << "' has been removed -->";
         }
         else if(q->second != i)
         {
-            _out.nl();
+            _out.newline();
             _out << "<!-- NOTICE: enumerator `" << (*p)->name() << "' has changed position -->";
         }
     }
@@ -389,7 +389,7 @@ FreezeScript::AnalyzeTransformVisitor::compareMembers(const DataMemberList& oldM
         q = newMap.find(name);
         if(q == newMap.end())
         {
-            _out.nl();
+            _out.newline();
             _out << "<!-- NOTICE: " << name << " has been removed -->";
         }
         else
@@ -412,7 +412,7 @@ FreezeScript::AnalyzeTransformVisitor::compareMembers(const DataMemberList& oldM
     //
     for(q = newMap.begin(); q != newMap.end(); ++q)
     {
-        _out.nl();
+        _out.newline();
         _out << "<!-- NOTICE: " << q->first << " has been added -->";
     }
 }
@@ -816,7 +816,7 @@ FreezeScript::AnalyzeTransformVisitor::typeChange(const string& desc, const Type
 
     if(_ignoreTypeChanges)
     {
-        _out.nl();
+        _out.newline();
         _out << "<!-- NOTICE: " << desc << " has changed from ";
         if(b1)
         {
@@ -954,8 +954,8 @@ FreezeScript::AnalyzeInitVisitor::visitClassDefStart(const ClassDefPtr& v)
         }
     }
 
-    _out.nl();
-    _out.nl();
+    _out.newline();
+    _out.newline();
     _out << "<!-- class " << scoped << " -->";
     _out << se("init") << attr("type", scoped);
     _out << ee;
@@ -986,8 +986,8 @@ FreezeScript::AnalyzeInitVisitor::visitStructStart(const StructPtr& v)
         }
     }
 
-    _out.nl();
-    _out.nl();
+    _out.newline();
+    _out.newline();
     _out << "<!-- struct " << scoped << " -->";
     _out << se("init") << attr("type", scoped);
     _out << ee;
@@ -1018,8 +1018,8 @@ FreezeScript::AnalyzeInitVisitor::visitSequence(const SequencePtr& v)
         }
     }
 
-    _out.nl();
-    _out.nl();
+    _out.newline();
+    _out.newline();
     _out << "<!-- sequence " << scoped << " -->";
     _out << se("init") << attr("type", scoped);
     _out << ee;
@@ -1048,8 +1048,8 @@ FreezeScript::AnalyzeInitVisitor::visitDictionary(const DictionaryPtr& v)
         }
     }
 
-    _out.nl();
-    _out.nl();
+    _out.newline();
+    _out.newline();
     _out << "<!-- dictionary " << scoped << " -->";
     _out << se("init") << attr("type", scoped);
     _out << ee;
@@ -1078,8 +1078,8 @@ FreezeScript::AnalyzeInitVisitor::visitEnum(const EnumPtr& v)
         }
     }
 
-    _out.nl();
-    _out.nl();
+    _out.newline();
+    _out.newline();
     _out << "<!-- enum " << scoped << " -->";
     _out << se("init") << attr("type", scoped);
     _out << ee;
@@ -1093,7 +1093,7 @@ FreezeScript::AnalyzeInitVisitor::typeChange(const TypePtr& t, const string& sco
     ContainedPtr c = ContainedPtr::dynamicCast(t);
     ProxyPtr p = ProxyPtr::dynamicCast(t);
 
-    _out.nl();
+    _out.newline();
     _out << "<!-- NOTICE: " << scoped << " has changed from ";
     if(b)
     {
