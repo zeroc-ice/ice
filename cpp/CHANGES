@@ -1,6 +1,9 @@
 Changes since version 3.1.1
 ---------------------------     
 
+- The Ice.Logger.Timestamp property has been deprecated. Timestamps
+  will now always be shown by default.
+
 - Added new property Ice.Default.PreferSecure, which if set to 1
   causes secure connections to be prefered over non-secure connections.
   By default this property is set to 0. Also added functions to control
