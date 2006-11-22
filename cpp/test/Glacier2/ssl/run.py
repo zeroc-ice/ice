@@ -35,8 +35,6 @@ print "ok"
 router = os.path.join(toplevel, "bin", "glacier2router")
 command = router + TestUtil.clientServerOptions + \
           r' --Ice.Warn.Dispatch=0' + \
-          r' --Glacier2.AllowCategories="c1 c2"' + \
-          r' --Glacier2.AddUserToAllowCategories="2"' + \
           r' --Glacier2.Client.Endpoints="tcp -h 127.0.0.1 -p 12347 -t 10000:ssl -h 127.0.0.1 -p 12348 -t 10000"' + \
           r' --Glacier2.Server.Endpoints="tcp -h 127.0.0.1 -t 10000"' \
           r' --Glacier2.Admin.Endpoints="tcp -h 127.0.0.1 -p 12349 -t 10000"' + \

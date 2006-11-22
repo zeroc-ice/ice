@@ -52,6 +52,7 @@ CallbackClient::run(int argc, char* argv[])
     try
     {
 	Glacier2::SessionPrx session = router->createSession("nossl", "");
+	session->ice_ping();
 	router->destroySession();
     }
     catch(const Ice::ConnectionLostException&)
@@ -90,6 +91,7 @@ CallbackClient::run(int argc, char* argv[])
     try
     {
 	Glacier2::SessionPrx session = router->createSession("nossl", "");
+	session->ice_ping();
 	router->destroySession();
     }
     catch(const Ice::ConnectionLostException&)
@@ -105,6 +107,7 @@ CallbackClient::run(int argc, char* argv[])
     try
     {
 	Glacier2::SessionPrx session = router->createSessionFromSecureConnection();
+	session->ice_ping();
 	router->destroySession();
     }
     catch(const Ice::ConnectionLostException&)
