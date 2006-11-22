@@ -65,6 +65,14 @@ class ServiceTemplate extends Communicator
 	{
 	    actions[PASTE] = true;
 	}
+	else
+	{
+	    Object clipboard = getCoordinator().getClipboard();
+	    actions[PASTE] = clipboard != null && 
+		(clipboard instanceof AdapterDescriptor
+		 || clipboard instanceof DbEnvDescriptor);
+	}
+
 	actions[DELETE] = true;
 
 	actions[NEW_ADAPTER] = !_ephemeral;
@@ -76,10 +84,6 @@ class ServiceTemplate extends Communicator
     {
 	getCoordinator().setClipboard(copyDescriptor(_templateDescriptor));
 	getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
-    }
-    public void paste()
-    {
-	((TreeNode)_parent).paste();
     }
     
     public JPopupMenu getPopupMenu()

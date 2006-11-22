@@ -59,7 +59,11 @@ class PlainService extends Communicator implements Service, Cloneable
 	boolean[] actions = new boolean[ACTION_COUNT];
 	actions[COPY] = true;
 	
-	if(((TreeNode)_parent).getAvailableActions()[PASTE])
+	Object clipboard = getCoordinator().getClipboard();
+	if(clipboard != null && 
+	   (clipboard instanceof ServiceInstanceDescriptor 
+	    || clipboard instanceof AdapterDescriptor
+	    || clipboard instanceof DbEnvDescriptor))
 	{
 	    actions[PASTE] = true;
 	}

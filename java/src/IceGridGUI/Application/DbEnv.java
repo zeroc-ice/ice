@@ -51,7 +51,6 @@ class DbEnv extends TreeNode implements DescriptorHolder
 	    tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
-
     //
     // Actions
     //
@@ -59,13 +58,16 @@ class DbEnv extends TreeNode implements DescriptorHolder
     {
 	boolean[] actions = new boolean[ACTION_COUNT];
 	actions[COPY] = true;
-	boolean[] parentActions = ((TreeNode)_parent).getAvailableActions();
-	
-	actions[PASTE] = parentActions[PASTE];
+
+	Object clipboard = getCoordinator().getClipboard();
+	actions[PASTE] = clipboard != null && 
+	    (clipboard instanceof AdapterDescriptor
+	     || clipboard instanceof DbEnvDescriptor);
 	actions[DELETE] = true;
 	
 	if(!_ephemeral)
 	{
+	    boolean[] parentActions = ((TreeNode)_parent).getAvailableActions();
 	    actions[SHOW_VARS] = parentActions[SHOW_VARS];
 	    actions[SUBSTITUTE_VARS] = parentActions[SUBSTITUTE_VARS];
 	}
@@ -75,11 +77,9 @@ class DbEnv extends TreeNode implements DescriptorHolder
     public void copy()
     {
 	getCoordinator().setClipboard(copyDescriptor(_descriptor));
-	if(((TreeNode)_parent).getAvailableActions()[PASTE])
-	{
-	    getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
-	}
+	getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
     }
+
     public void paste()
     {
 	((TreeNode)_parent).paste();

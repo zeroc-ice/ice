@@ -108,6 +108,11 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
 	getCoordinator().setClipboard(copyDescriptor(_descriptor));
 	getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
     }
+
+    public void paste()
+    {
+	((TreeNode)_parent).paste();
+    }
     
     public void moveUp()
     {

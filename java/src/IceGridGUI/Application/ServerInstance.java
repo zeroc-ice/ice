@@ -60,6 +60,11 @@ class ServerInstance extends TreeNode implements Server
 	getCoordinator().setClipboard(copyDescriptor(_descriptor));
 	getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
     }
+
+    public void paste()
+    {
+	((TreeNode)_parent).paste();
+    }
     
     public Editor getEditor()
     {

@@ -123,7 +123,10 @@ class PlainServer extends Communicator implements Server
 	Object clipboard = getCoordinator().getClipboard();
 	if(clipboard != null && 
 	   (clipboard instanceof ServerDescriptor
-	    || clipboard instanceof ServerInstanceDescriptor))
+	    || clipboard instanceof ServerInstanceDescriptor 
+	    || (isIceBox() && (clipboard instanceof ServiceInstanceDescriptor))
+	    || (!isIceBox() && (clipboard instanceof AdapterDescriptor
+				|| clipboard instanceof DbEnvDescriptor))))
 	{
 	    actions[PASTE] = true;
 	}
@@ -196,15 +199,13 @@ class PlainServer extends Communicator implements Server
 	    _iceboxServerIcon = Utils.getIcon("/icons/16x16/icebox_server_inactive.png");
 	}
 	
-	boolean icebox = _descriptor instanceof IceBoxDescriptor;
-
 	if(expanded)
 	{	
-	    _cellRenderer.setOpenIcon(icebox ? _iceboxServerIcon : _serverIcon);
+	    _cellRenderer.setOpenIcon(isIceBox() ? _iceboxServerIcon : _serverIcon);
 	}
 	else
 	{
-	    _cellRenderer.setClosedIcon(icebox ? _iceboxServerIcon : _serverIcon);
+	    _cellRenderer.setClosedIcon(isIceBox() ? _iceboxServerIcon : _serverIcon);
 	} 
 	return _cellRenderer.getTreeCellRendererComponent(
 	    tree, value, sel, expanded, leaf, row, hasFocus);
@@ -479,7 +480,7 @@ class PlainServer extends Communicator implements Server
 	if(!_ephemeral)
 	{
 	    _adapters.init(_descriptor.adapters);
-	    if(_descriptor instanceof IceBoxDescriptor)
+	    if(isIceBox())
 	    {
 		IceBoxDescriptor iceBoxDescriptor = (IceBoxDescriptor)_descriptor;
 		_services.init(iceBoxDescriptor.services);

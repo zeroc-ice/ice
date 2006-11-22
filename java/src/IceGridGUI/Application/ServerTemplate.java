@@ -92,9 +92,18 @@ class ServerTemplate extends Communicator
     {
 	boolean[] actions = new boolean[ACTION_COUNT];
 	actions[COPY] = true;
+
 	if(((TreeNode)_parent).getAvailableActions()[PASTE])
 	{
 	    actions[PASTE] = true;
+	}
+	else
+	{
+	    Object clipboard = getCoordinator().getClipboard();
+	    actions[PASTE] = clipboard != null && 
+		((isIceBox() && (clipboard instanceof ServiceInstanceDescriptor))
+		 || (!isIceBox() && (clipboard instanceof AdapterDescriptor
+				     || clipboard instanceof DbEnvDescriptor)));
 	}
 
 	actions[DELETE] = true;
@@ -111,11 +120,8 @@ class ServerTemplate extends Communicator
 	getCoordinator().setClipboard(copyDescriptor(_templateDescriptor));
 	getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
     }
-    public void paste()
-    {
-	((TreeNode)_parent).paste();
-    }
    
+ 
     public JPopupMenu getPopupMenu()
     {
 	ApplicationActions actions = getCoordinator().getActionsForPopup();
@@ -304,7 +310,7 @@ class ServerTemplate extends Communicator
 	{
 	    _adapters.init(_templateDescriptor.descriptor.adapters);
 	    
-	    if(_templateDescriptor.descriptor instanceof IceBoxDescriptor)
+	    if(isIceBox())
 	    {
 		IceBoxDescriptor iceBoxDescriptor = 
 		    (IceBoxDescriptor)_templateDescriptor.descriptor;
