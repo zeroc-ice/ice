@@ -55,7 +55,14 @@
     <property name="generated.dir" value="generated"/>
 
     <!-- Figure out file locations -->
-    <condition property="ice.dir" value="${top.dir}/../ice">
+    <path id="ice.dir.path">
+	<pathelement location="${top.dir}/../ice"/>
+    </path>
+
+    <pathconvert property="ice.top.dir" refid="ice.dir.path">
+    </pathconvert>
+
+    <condition property="ice.dir" value="${ice.top.dir}">
 	<and>
 	    <available file="${top.dir}/makedist.py"/>
 	    <available file="${top.dir}/../ice/slice"/>
@@ -100,11 +107,12 @@
 
     <!-- Detect Ice for Java location -->
 
+
     <!-- A slice directory in ${top.dir} indicates a source distribution build. -->
     <condition property="icej.dir" value="${top.dir}">
 	<or>
 	    <available file="${top.dir}/slice"/>
-	    <equals arg1="${ice.dir}" arg2="${top.dir}/../ice"/>
+	    <equals arg1="${ice.dir}" arg2="${ice.top.dir}"/>
 	</or>
     </condition>
 
