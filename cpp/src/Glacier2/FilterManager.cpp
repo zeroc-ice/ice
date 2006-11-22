@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Communicator.h>
+#include <Ice/Logger.h>
 #include <Ice/Properties.h>
 #include <Glacier2/FilterManager.h>
 #include <Glacier2/FilterI.h>
@@ -236,7 +237,12 @@ Glacier2::FilterManager::create(const CommunicatorPtr& communicator, const Objec
     // and superseded by Glacier2.Filter.Category.Accept.
     //
     string allow = props->getProperty("Glacier2.AllowCategories");
-    if(allow.empty())
+    if(!allow.empty())
+    {
+        communicator->getLogger()->warning(
+		"Glacier2.AllowCategories has been deprecated, use Glacier2.Filter.Category.Accept instead.");
+    }
+    else
     {
 	allow = props->getProperty("Glacier2.Filter.Category.Accept");
     }
@@ -253,6 +259,8 @@ Glacier2::FilterManager::create(const CommunicatorPtr& communicator, const Objec
 	int addUserMode;
 	if(!props->getProperty("Glacier2.AddUserToAllowCategories").empty())
 	{
+            communicator->getLogger()->warning(
+	     "Glacier2.AddUserToAllowCategories has been deprecated, use Glacier2.Filter.Category.AcceptUser instead.");
 	    addUserMode = props->getPropertyAsInt("Glacier2.AddUserToAllowCategories");
 	}
 	else
