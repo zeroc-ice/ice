@@ -17,7 +17,7 @@ module Glacier2
 
 /**
  *
- * The &Glacier2; permissions verifier. This is called through the
+ * The Glacier2 permissions verifier. This is called through the
  * process of establishing a session.
  *
  * @see Router
@@ -43,7 +43,7 @@ interface PermissionsVerifier
 
 /**
  *
- * The SSL &Glacier2; permissions verifier. This is called through the
+ * The SSL Glacier2 permissions verifier. This is called through the
  * process of establishing a session.
  *
  * @see Router

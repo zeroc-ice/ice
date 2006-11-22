@@ -18,7 +18,7 @@ module IceGrid
 
 /**
  *
- * A session object is used by &IceGrid; clients to allocate and
+ * A session object is used by IceGrid clients to allocate and
  * release objects. Client sessions are either created with the
  * [Registry] object or the registry client [Glacier2::SessionManager]
  * object.

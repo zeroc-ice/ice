@@ -116,8 +116,8 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix)
 
         if(!package.empty())
         {
-            sp();
-            nl();
+            separator();
+            separator();
             print("package ");
             print(package.c_str());
             print(";");

@@ -27,7 +27,7 @@ local dictionary<string, string> PropertyDict;
 
 /**
  *
- * A property set used to configure &Ice; and &Ice; applications.
+ * A property set used to configure Ice and Ice applications.
  * Properties are key/value pairs, with both keys and values
  * being [string]s. By convention, property keys should have the form
  * <replaceable>application-name</replaceable>\[.<replaceable>category</replaceable>\[.<replaceable>sub-category</replaceable>]].<replaceable>name</replaceable>.

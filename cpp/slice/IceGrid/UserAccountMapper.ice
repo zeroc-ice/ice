@@ -25,7 +25,7 @@ exception UserAccountNotFoundException
 
 /**
  *
- * A user account mapper object is used by &IceGrid; nodes to map
+ * A user account mapper object is used by IceGrid nodes to map
  * session identifiers to user accounts.
  *
  **/
@@ -34,7 +34,7 @@ interface UserAccountMapper
     /**
      *
      * Get the name of the user account for the given user. This is
-     * used by &IceGrid; nodes to figure out the user account to use
+     * used by IceGrid nodes to figure out the user account to use
      * to run servers.
      *
      * @param user The value of the server descriptor's <literal>user</literal>

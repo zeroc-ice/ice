@@ -17,8 +17,8 @@
 
 /**
  *
- * &IceBox; is an application server specifically for &Ice;
- * applications. &IceBox; can easily run and administer Ice services
+ * IceBox is an application server specifically for Ice
+ * applications. IceBox can easily run and administer Ice services
  * that are dynamically loaded as a DLL, shared library, or Java
  * class.
  *

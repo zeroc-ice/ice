@@ -23,7 +23,7 @@
 
 /**
  *
- * The &Ice; core library. Among many other features, the &Ice; core
+ * The Ice core library. Among many other features, the Ice core
  * library manages all the communication tasks using an efficient
  * protocol (including protocol compression and support for both TCP
  * and UDP), provides a thread pool for multi-threaded servers, and
@@ -35,8 +35,8 @@ module Ice
     
 /**
  *
- * The central object in &Ice;. One or more communicators can be
- * instantiated for an &Ice; application. Communicator instantiation
+ * The central object in Ice. One or more communicators can be
+ * instantiated for an Ice application. Communicator instantiation
  * is language specific, and not specified in Slice code.
  *
  * @see Logger
@@ -103,7 +103,7 @@ local interface Communicator
      *
      * Convert a string into a proxy. For example,
      * <literal>MyCategory/MyObject:tcp -h some_host -p
-     * 10000</literal> creates a proxy that refers to the &Ice; object
+     * 10000</literal> creates a proxy that refers to the Ice object
      * having an identity with a name "MyObject" and a category
      * "MyCategory", with the server running on host "some_host", port
      * 10000. If the string does not parse correctly, the operation
@@ -393,7 +393,7 @@ local interface Communicator
 
     /**
      *
-     * Set a default &Ice; locator for this communicator. All newly
+     * Set a default Ice locator for this communicator. All newly
      * created proxy and object adapters will use this default
      * locator. To disable the default locator, null can be used.
      * Note that this operation has no effect on existing proxies or

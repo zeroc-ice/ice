@@ -17,7 +17,7 @@ module Ice
 
 /**
  *
- * The &Ice; router interface. Routers can be set either globally with
+ * The Ice router interface. Routers can be set either globally with
  * [Communicator::setDefaultRouter], or with [ice_router] on specific
  * proxies.
  *

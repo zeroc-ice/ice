@@ -132,6 +132,12 @@ IceUtil::OutputBase::restoreIndent()
     _indentSave.pop();
 }
 
+int
+IceUtil::OutputBase::currIndent()
+{
+    return _indent;
+}
+
 void 
 IceUtil::OutputBase::setIndent(int indentSize)
 {
@@ -145,7 +151,7 @@ IceUtil::OutputBase::setUseTab(bool useTab)
 }
 
 void
-IceUtil::OutputBase::nl()
+IceUtil::OutputBase::newline()
 {
     _out << '\n';
     _pos = 0;
@@ -183,7 +189,7 @@ IceUtil::OutputBase::nl()
 }
 
 void
-IceUtil::OutputBase::sp()
+IceUtil::OutputBase::separator()
 {
     if(_separator)
     {
@@ -255,7 +261,7 @@ IceUtil::Output::sb()
 {
     if(_blockStart.length())
     {
-        nl();
+        newline();
         _out << _blockStart;
     }
     ++_pos;
@@ -269,7 +275,7 @@ IceUtil::Output::eb()
     dec();
     if(_blockEnd.length())
     {
-        nl();
+        newline();
         _out << _blockEnd;
     }
     --_pos;
@@ -357,20 +363,20 @@ IceUtil::XMLOutput::print(const char* s)
 }
 
 void
-IceUtil::XMLOutput::nl()
+IceUtil::XMLOutput::newline()
 {
     if(_se)
     {
 	_se = false;
 	_out << '>';
     }
-    OutputBase::nl();
+    OutputBase::newline();
 }
 
 void
-IceUtil::XMLOutput::se(const string& element)
+IceUtil::XMLOutput::startElement(const string& element)
 {
-    nl();
+    newline();
 
     //
     // If we're not in SGML mode the output of the '>' character is
@@ -404,7 +410,7 @@ IceUtil::XMLOutput::se(const string& element)
 }
 
 void
-IceUtil::XMLOutput::ee()
+IceUtil::XMLOutput::endElement()
 {
     string element = _elementStack.top();
     _elementStack.pop();
@@ -428,7 +434,7 @@ IceUtil::XMLOutput::ee()
     {
 	if(!_text)
 	{
-	    nl();
+	    newline();
 	}
 	_out << "</" << element << '>';
     }

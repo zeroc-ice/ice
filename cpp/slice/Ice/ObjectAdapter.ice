@@ -139,14 +139,14 @@ local interface ObjectAdapter
     /**
      *
      * Add a servant to this object adapter's Active Servant Map. Note
-     * that one servant can implement several &Ice; objects by
+     * that one servant can implement several Ice objects by
      * registering the servant with multiple identities. Adding a
      * servant with an identity that is in the map already throws
      * [AlreadyRegisteredException].
      *
      * @param servant The servant to add.
      *
-     * @param id The identity of the &Ice; object that is
+     * @param id The identity of the Ice object that is
      * implemented by the servant.
      *
      * @return A proxy that matches the given identity and this object
@@ -169,7 +169,7 @@ local interface ObjectAdapter
      *
      * @param servant The servant to add.
      *
-     * @param id The identity of the &Ice; object that is
+     * @param id The identity of the Ice object that is
      * implemented by the servant.
      *
      * @param facet The facet. An empty facet means the default
@@ -236,9 +236,9 @@ local interface ObjectAdapter
      * Remove a servant (that is, the default facet) from the
      * object adapter's Active Servant Map.
      *
-     * @param id The identity of the &Ice; object that is
+     * @param id The identity of the Ice object that is
      * implemented by the servant. If the servant implements multiple
-     * &Ice; objects, [remove] has to be called for all those &Ice;
+     * Ice objects, [remove] has to be called for all those Ice
      * objects. Removing an identity that is not in the map throws
      * [NotRegisteredException].
      *
@@ -257,7 +257,7 @@ local interface ObjectAdapter
      * <literal>remove(id)</literal> is equivalent to calling
      * [removeFacet] with an empty facet.
      *
-     * @param id The identity of the &Ice; object that is
+     * @param id The identity of the Ice object that is
      * implemented by the servant.
      *
      * @param facet The facet. An empty facet means the default
@@ -275,14 +275,14 @@ local interface ObjectAdapter
     /**
      *
      * Remove all facets with the given identity from the Active
-     * Servant Map (that is, completely remove the &Ice; object,
+     * Servant Map (that is, completely remove the Ice object,
      * including its default facet). Removing an identity that
      * is not in the map throws [NotRegisteredException].
      *
-     * @param id The identity of the &Ice; object to be removed.
+     * @param id The identity of the Ice object to be removed.
      *
      * @return A collection containing all the facet names and
-     * servants of the removed &Ice; object.
+     * servants of the removed Ice object.
      *
      * @see remove
      * @see removeFacet
@@ -293,16 +293,16 @@ local interface ObjectAdapter
     /**
      *
      * Look up a servant in this object adapter's Active Servant Map
-     * by the identity of the &Ice; object it implements.
+     * by the identity of the Ice object it implements.
      *
      * <note><para>This operation only tries to lookup a servant in
      * the Active Servant Map. It does not attempt to find a servant
      * by using any installed [ServantLocator].</para></note>
      *
-     * @param id The identity of the &Ice; object for which the
+     * @param id The identity of the Ice object for which the
      * servant should be returned.
      *
-     * @return The servant that implements the &Ice; object with the
+     * @return The servant that implements the Ice object with the
      * given identity, or null if no such servant has been found.
      *
      * @see Identity
@@ -318,13 +318,13 @@ local interface ObjectAdapter
      * <literal>find(id)</literal> is equivalent to calling
      * [findFacet] with an empty facet.
      *
-     * @param id The identity of the &Ice; object for which the
+     * @param id The identity of the Ice object for which the
      * servant should be returned.
      *
      * @param facet The facet. An empty facet means the default
      * facet.
      *
-     * @return The servant that implements the &Ice; object with the
+     * @return The servant that implements the Ice object with the
      * given identity and facet, or null if no such servant has been
      * found.
      *
@@ -340,7 +340,7 @@ local interface ObjectAdapter
      * Find all facets with the given identity in the Active Servant
      * Map.
      *
-     * @param id The identity of the &Ice; object for which the facets
+     * @param id The identity of the Ice object for which the facets
      * should be returned.
      *
      * @return A collection containing all the facet names and
@@ -379,7 +379,7 @@ local interface ObjectAdapter
      * locator for a category for which a servant locator is already
      * registered throws [AlreadyRegisteredException]. To dispatch
      * operation calls on servants, the object adapter tries to find a
-     * servant for a given &Ice; object identity and facet in the
+     * servant for a given Ice object identity and facet in the
      * following order:
      *
      * <orderedlist>
@@ -512,7 +512,7 @@ local interface ObjectAdapter
     ["cpp:const"] Object* createReverseProxy(Identity id);
 
     /**
-     * Set an &Ice; locator for this object adapter. By doing so, the
+     * Set an Ice locator for this object adapter. By doing so, the
      * object adapter will register itself with the locator registry
      * when it is activated for the first time. Furthermore, the proxies
      * created by this object adapter will contain the adapter name instead

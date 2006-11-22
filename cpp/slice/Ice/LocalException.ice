@@ -167,10 +167,10 @@ local exception UnknownException
  *
  * This exception is raised if an operation call on a server raises a
  * local exception. Because local exceptions are not transmitted by
- * the &Ice; protocol, the client receives all local exceptions raised
+ * the Ice protocol, the client receives all local exceptions raised
  * by the server as [UnknownLocalException]. The only exception to this
  * rule are all exceptions derived from [RequestFailedException],
- * which are transmitted by the &Ice; protocol even though they are
+ * which are transmitted by the Ice protocol even though they are
  * declared [local].
  *
  **/
@@ -183,7 +183,7 @@ local exception UnknownLocalException extends UnknownException
  * This exception is raised if an operation call on a server raises a
  * user exception that is not declared in the exception's
  * <literal>throws</literal> clause. Such undeclared exceptions are
- * not transmitted from the server to the client by the &Ice;
+ * not transmitted from the server to the client by the Ice
  * protocol, but instead the client just gets an
  * [UnknownUserException]. This is necessary in order to not violate
  * the contract established by an operation's signature: Only local
@@ -197,8 +197,8 @@ local exception UnknownUserException extends UnknownException
 
 /**
  *
- * This exception is raised if the &Ice; library version does not match
- * the &Ice; header files version.
+ * This exception is raised if the Ice library version does not match
+ * the Ice header files version.
  *
  **/
 local exception VersionMismatchException
@@ -335,7 +335,7 @@ local exception IllegalIdentityException
  *
  * This exception is raised if a request failed. This exception, and
  * all exceptions derived from [RequestFailedException], are
- * transmitted by the &Ice; protocol, even though they are declared
+ * transmitted by the Ice protocol, even though they are declared
  * [local].
  *
  **/
@@ -807,7 +807,7 @@ local exception NoObjectFactoryException extends MarshalException
  * This can happen if client and server are compiled with mismatched Slice
  * definitions or if a class of the wrong type is passed as a parameter
  * or return value using dynamic invocation. This exception can also be
- * raised if &IceStorm; is used to send Slice class instances and
+ * raised if [IceStorm] is used to send Slice class instances and
  * an operation is subscribed to the wrong topic.
  *
  **/

@@ -17,7 +17,7 @@
 
 /**
  *
- * &IceGrid; is a server activation and deployment tool. &IceGrid;,
+ * IceGrid is a server activation and deployment tool. IceGrid,
  * simplifies the complex task of deploying applications in a
  * heterogeneous computer network.
  *
@@ -39,8 +39,8 @@ enum LoadSample
 
 /**
  *
- * The &IceGrid; query interface. This interface is accessible to
- * &Ice; clients who wish to query the IceGrid registry.
+ * The IceGrid query interface. This interface is accessible to
+ * Ice clients who wish to lookup well-known objects.
  *
  **/
 ["ami"] interface Query

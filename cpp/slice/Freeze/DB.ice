@@ -12,7 +12,7 @@
 
 /**
  *
- * &Freeze; provides automatic persistence for &Ice; servants.
+ * Freeze provides automatic persistence for Ice servants.
  *
  **/
 module Freeze

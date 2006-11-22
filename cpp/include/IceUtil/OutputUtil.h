@@ -23,9 +23,9 @@ namespace IceUtil
 // ----------------------------------------------------------------------
 
 //
-// Technically it's not necessary to have print() & nl() as virtual
+// Technically it's not necessary to have print() & newline() as virtual
 // since the opeator<< functions are specific to each OutputBase
-// derivative. However, since it's possible to call print() & nl()
+// derivative. However, since it's possible to call print() & newline()
 // manually I've decided to leave them as virtual.
 //
 
@@ -52,9 +52,10 @@ public:
     void useCurrentPosAsIndent(); // Save the current position as indentation.
     void zeroIndent(); // Use zero identation.
     void restoreIndent(); // Restore indentation.
+    int currIndent(); // Return current indent value.
 
-    virtual void nl(); // Print newline.
-    void sp(); // Print separator.
+    virtual void newline(); // Print newline.
+    void separator(); // Print separator.
 
     bool operator!() const; // Check whether the output state is ok.
 
@@ -155,7 +156,7 @@ template<>
 inline Output&
 operator<<(Output& o, const NextLine&)
 {
-    o.nl();
+    o.newline();
     return o;
 }
 
@@ -163,7 +164,7 @@ template<>
 inline Output&
 operator<<(Output& o, const Separator&)
 {
-    o.sp();
+    o.separator();
     return o;
 }
 
@@ -236,10 +237,10 @@ public:
     void setSGML(bool);
     virtual void print(const char*); // Print a string.
 
-    virtual void nl(); // Print newline.
+    virtual void newline(); // Print newline.
 
-    void se(const std::string&); // Start an element.
-    void ee(); // End an element.
+    void startElement(const std::string&); // Start an element.
+    void endElement(); // End an element.
     void attr(const std::string&, const std::string&); // Add an attribute to an element.
 
     void startEscapes();
@@ -274,7 +275,7 @@ template<>
 inline XMLOutput&
 operator<<(XMLOutput& o, const NextLine&)
 {
-    o.nl();
+    o.newline();
     return o;
 }
 
@@ -282,7 +283,7 @@ template<>
 inline XMLOutput&
 operator<<(XMLOutput& o, const Separator&)
 {
-    o.sp();
+    o.separator();
     return o;
 }
 
@@ -295,7 +296,7 @@ template<>
 inline XMLOutput&
 operator<<(XMLOutput& o, const EndElement&)
 {
-    o.ee();
+    o.endElement();
     return o;
 }
 
@@ -318,7 +319,7 @@ template<>
 inline XMLOutput&
 operator<<(XMLOutput& o, const StartElement& e)
 {
-    o.se(e.getName());
+    o.startElement(e.getName());
     return o;
 }
 

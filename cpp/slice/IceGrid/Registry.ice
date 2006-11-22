@@ -19,7 +19,7 @@ module IceGrid
 
 /**
  *
- * The &IceGrid; registry provides a registry object to allow clients
+ * The IceGrid registry provides a registry object to allow clients
  * or administrative clients to create sessions directly with the
  * registry.
  *

@@ -14,7 +14,7 @@
 
 /**
  *
- * &IcePatch2; can be used to update file hiearchies in a simple and
+ * IcePatch can be used to update file hiearchies in a simple and
  * efficient manner. Checksums ensure file integrity, and data is
  * compressed before download.
  *
@@ -120,7 +120,7 @@ interface FileServer
 
 /**
  *
- * The &IcePatch2; administrative interface. This must only be
+ * The IcePatch administrative interface. This must only be
  * accessible from inside the firewall.
  *
  **/
@@ -128,7 +128,7 @@ interface Admin
 {
     /**
      *
-     * Shut down the &IcePatch2; server.
+     * Shut down the IcePatch server.
      *
      **/
     void shutdown();

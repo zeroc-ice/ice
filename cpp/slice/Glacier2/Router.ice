@@ -15,9 +15,9 @@
 
 /**
  *
- * &Glacier2; is a firewall solution for Ice. &Glacier2; authenticates
+ * Glacier2 is a firewall solution for Ice. Glacier2 authenticates
  * and filters client requests and allows callbacks to the client in a
- * secure fashion. In combination with &IceSSL;, &Glacier2; provides a
+ * secure fashion. In combination with [IceSSL], Glacier2 provides a
  * security solution that is both non-intrusive and easy to configure.
  *
  **/
@@ -57,7 +57,7 @@ exception SessionNotExistException
 
 /**
  *
- * The &Glacier2; specialization of the standard &Ice; router
+ * The Glacier2 specialization of the standard [Ice::Router]
  * interface.
  *
  **/
@@ -166,7 +166,7 @@ interface Router extends Ice::Router
 
 /**
  *
- * The &Glacier2; administrative interface. This must only be
+ * The Glacier2 administrative interface. This must only be
  * accessible from inside the firewall.
  *
  **/
@@ -174,7 +174,7 @@ interface Admin
 {
     /**
      *
-     * Shut down the &Glacier2; router.
+     * Shut down the Glacier2 router.
      *
      **/
     void shutdown();

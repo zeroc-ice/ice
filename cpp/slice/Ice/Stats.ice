@@ -15,7 +15,7 @@ module Ice
 
 /**
  *
- * An interface &Ice; uses to report statistics, such as how much data
+ * An interface Ice uses to report statistics, such as how much data
  * is sent or received. Applications must provide their own [Stats]
  * by implementing this interface and installing it in a communicator.
  *

@@ -77,7 +77,7 @@ enum OperationMode
  *
  * Information about the current method invocation for servers. Each
  * operation on the server has a [Current] as its implicit final
- * parameter. [Current] is mostly used for &Ice; services. Most
+ * parameter. [Current] is mostly used for Ice services. Most
  * applications ignore this parameter.
  *
  **/
@@ -101,7 +101,7 @@ local struct Current
 
     /**
      *
-     * The &Ice; object identity.
+     * The Ice object identity.
      *
      **/
     Identity id;

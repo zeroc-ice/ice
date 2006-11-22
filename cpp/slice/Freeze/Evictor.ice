@@ -39,7 +39,7 @@ local interface ServantInitializer
      * @param adapter The object adapter in which the evictor is
      * installed.
      *
-     * @param identity The identity of the &Ice; object for which the
+     * @param identity The identity of the Ice object for which the
      * servant was created.
      *
      * @param facet The facet. An empty facet means the default
@@ -115,7 +115,7 @@ local exception EvictorDeactivatedException
 
 /**
  *
- * An automatic &Ice; object persistence manager, based on the
+ * An automatic Ice object persistence manager, based on the
  * evictor pattern. The evictor is a servant locator implementation
  * that stores the persistent state of its objects in a database. Any
  * number of objects can be registered with an evictor, but only a
@@ -175,7 +175,7 @@ local interface Evictor extends Ice::ServantLocator
      *
      * @param servant The servant to add.
      *
-     * @param id The identity of the &Ice; object that is implemented by 
+     * @param id The identity of the Ice object that is implemented by 
      * the servant.
      *
      * @return A proxy that matches the given identity and this evictor's
@@ -204,7 +204,7 @@ local interface Evictor extends Ice::ServantLocator
      *
      * @param servant The servant to add.
      *
-     * @param id The identity of the &Ice; object that is implemented by 
+     * @param id The identity of the Ice object that is implemented by 
      * the servant.
      *
      * @param facet The facet. An empty facet means the default
@@ -235,9 +235,9 @@ local interface Evictor extends Ice::ServantLocator
 
     /**
      *
-     * Permanently destroy an &Ice; object.
+     * Permanently destroy an Ice object.
      *
-     * @param id The identity of the &Ice; object.
+     * @param id The identity of the Ice object.
      *
      * @return The removed servant.
      *
@@ -260,7 +260,7 @@ local interface Evictor extends Ice::ServantLocator
      * Like [remove], but with a facet. Calling <literal>remove(id)</literal> 
      * is equivalent to calling [removeFacet] with an empty facet.
      *
-     * @param id The identity of the &Ice; object.
+     * @param id The identity of the Ice object.
      *
      * @param facet The facet. An empty facet means the default
      * facet.
@@ -288,7 +288,7 @@ local interface Evictor extends Ice::ServantLocator
      * by [release] or remove. [release] releases only one lock, while
      * [remove] releases all the locks.
      *
-     * @param id The identity of the &Ice; object.
+     * @param id The identity of the Ice object.
      *
      * @throws NotRegisteredException Raised if this identity was not 
      * registered with the evictor.
@@ -307,7 +307,7 @@ local interface Evictor extends Ice::ServantLocator
      * Like [keep], but with a facet. Calling <literal>keep(id)</literal> 
      * is equivalent to calling [keepFacet] with an empty facet.
      *
-     * @param id The identity of the &Ice; object.
+     * @param id The identity of the Ice object.
      *
      * @param facet The facet. An empty facet means the default
      * facet.
@@ -331,7 +331,7 @@ local interface Evictor extends Ice::ServantLocator
      * object have been released, the object is again subject to the 
      * normal eviction strategy.
      *
-     * @param id The identity of the &Ice; object.
+     * @param id The identity of the Ice object.
      *
      * @throws NotRegisteredException Raised if this object was not
      * "locked" with [keep] or [keepFacet].
@@ -348,7 +348,7 @@ local interface Evictor extends Ice::ServantLocator
      * Like [release], but with a facet. Calling <literal>release(id)</literal> 
      * is equivalent to calling [releaseFacet] with an empty facet.
      *
-     * @param id The identity of the &Ice; object.
+     * @param id The identity of the Ice object.
      *
      * @param facet The facet. An empty facet means the default
      * facet.
@@ -424,7 +424,7 @@ local interface Evictor extends Ice::ServantLocator
      * This operation is deprecated and will be removed in a future release.
      * It is recommended to use add instead.
      *
-     * @param id The identity of the &Ice; object that is implemented by 
+     * @param id The identity of the Ice object that is implemented by 
      * the servant.
      *
      * @param servant The servant to add.
@@ -444,14 +444,14 @@ local interface Evictor extends Ice::ServantLocator
 
     /**
      *
-     * Permanently destroy an &Ice; object. Like remove, except
+     * Permanently destroy an Ice object. Like remove, except
      * destroyObject does not raise any exception when the object does
      * not exist.
      * 
      * This operation is deprecated and will be removed in a future release.
      * It is recommended to use remove instead.
      *
-     * @param id The identity of the &Ice; object.
+     * @param id The identity of the Ice object.
      *
      * @throws DatabaseException Raised if a database failure occurred.
      *

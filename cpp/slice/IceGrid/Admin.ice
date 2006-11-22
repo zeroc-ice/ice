@@ -119,7 +119,7 @@ sequence<ObjectInfo> ObjectInfoSeq;
 
 /**
  *
- * Information about an adapter registered with the &IceGrid; registry.
+ * Information about an adapter registered with the IceGrid registry.
  *
  **/
 struct AdapterInfo
@@ -156,7 +156,7 @@ sequence<AdapterInfo> AdapterInfoSeq;
 
 /**
  *
- * Information about a server managed by an &IceGrid; node.
+ * Information about a server managed by an IceGrid node.
  *
  **/
 struct ServerInfo
@@ -206,7 +206,7 @@ struct ServerInfo
 
 /**
  *
- * Information about an &IceGrid; node.
+ * Information about an IceGrid node.
  *
  **/
 struct NodeInfo
@@ -271,7 +271,7 @@ struct NodeInfo
 
 /**
  *
- * Information about an &IceGrid; registry replica.
+ * Information about an IceGrid registry replica.
  *
  **/
 struct RegistryInfo
@@ -360,16 +360,16 @@ struct ApplicationUpdateInfo
 
 /**
  *
- * The &IceGrid; administrative interface. <warning><para>Allowing
+ * The IceGrid administrative interface. <warning><para>Allowing
  * access to this interface is a security risk! Please see the
- * &IceGrid; documentation for further information.</para></warning>
+ * IceGrid documentation for further information.</para></warning>
  *
  **/
 interface Admin
 {
     /**
      *
-     * Add an application to &IceGrid;.
+     * Add an application to IceGrid.
      *
      * @param descriptor The application descriptor.
      *
@@ -429,7 +429,7 @@ interface Admin
 
     /**
      *
-     * Remove an application from &IceGrid;.
+     * Remove an application from IceGrid.
      *
      * @param name The application name.
      *
@@ -516,7 +516,7 @@ interface Admin
 
     /**
      *
-     * Get all the &IceGrid; applications currently registered.
+     * Get all the IceGrid applications currently registered.
      *
      * @return The application names.
      *
@@ -740,7 +740,7 @@ interface Admin
 
     /**
      *
-     * Get all the server ids registered with &IceGrid;.
+     * Get all the server ids registered with IceGrid.
      *
      * @return The server ids.
      *
@@ -780,7 +780,7 @@ interface Admin
 
     /**
      *
-     * Get all the adapter ids registered with &IceGrid;.
+     * Get all the adapter ids registered with IceGrid.
      *
      * @return The adapter ids.
      *
@@ -789,7 +789,7 @@ interface Admin
 
     /**
      *
-     * Add an object to the object registry. &IceGrid; will get the
+     * Add an object to the object registry. IceGrid will get the
      * object type by calling [ice_id] on the given proxy. The object
      * must be reachable.
      *
@@ -907,7 +907,7 @@ interface Admin
     
     /**
      *
-     * Ping an &IceGrid; node to see if it is active.
+     * Ping an IceGrid node to see if it is active.
      *
      * @param name The node name.
      *
@@ -955,7 +955,7 @@ interface Admin
     
     /**
      *
-     * Shutdown an &IceGrid; node.
+     * Shutdown an IceGrid node.
      * 
      * @param name The node name.
      *
@@ -987,7 +987,7 @@ interface Admin
 
     /**
      *
-     * Get all the &IceGrid; nodes currently registered.
+     * Get all the IceGrid nodes currently registered.
      *
      * @return The node names.
      *
@@ -996,7 +996,7 @@ interface Admin
 
     /**
      *
-     * Ping an &IceGrid; registry to see if it is active.
+     * Ping an IceGrid registry to see if it is active.
      *
      * @param name The registry name.
      *
@@ -1027,7 +1027,7 @@ interface Admin
     
     /**
      *
-     * Shutdown an &IceGrid; registry.
+     * Shutdown an IceGrid registry.
      * 
      * @param name The registry name.
      *
@@ -1042,7 +1042,7 @@ interface Admin
 
     /**
      *
-     * Get all the &IceGrid; registrys currently registered.
+     * Get all the IceGrid registrys currently registered.
      *
      * @return The registry names.
      *
@@ -1051,7 +1051,7 @@ interface Admin
 
     /**
      *
-     * Shut down the &IceGrid; registry.
+     * Shut down the IceGrid registry.
      *
      **/
     void shutdown();
@@ -1102,7 +1102,7 @@ interface ObjectObserver;
 /**
  *
  * An admin session object used by administrative clients to view,
- * update and receive observer updates from the &IceGrid;
+ * update and receive observer updates from the IceGrid
  * registry. Admin sessions are created either with the [Registry]
  * object or the registry admin [Glacier2::SessionManager] object.
  * 

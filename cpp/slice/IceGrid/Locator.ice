@@ -20,9 +20,9 @@ interface Query;
 
 /**
  *
- * The &IceGrid; locator interface extends the &Ice; locator interface
- * to provide access to the &IceGrid query and registry object of the
- * &IceGrid; registry.
+ * The IceGrid locator interface extends the [Ice::Locator] interface
+ * to provide access to the IceGrid query and registry object of the
+ * IceGrid registry.
  *
  * @see Registry
  * @see Query
@@ -32,7 +32,7 @@ interface Locator extends Ice::Locator
 {
     /**
      *
-     * Get the proxy of the registry object hosted by this &IceGrid;
+     * Get the proxy of the registry object hosted by this IceGrid
      * registry.
      *
      * @return The proxy of the registry object.
@@ -42,7 +42,7 @@ interface Locator extends Ice::Locator
 
     /**
      *
-     * Get the proxy of the query object hosted by this &IceGrid;
+     * Get the proxy of the query object hosted by this IceGrid
      * registry.
      *
      * @return The proxy of the query object.

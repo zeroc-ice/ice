@@ -72,7 +72,7 @@ dictionary<string, PropertySetDescriptor> PropertySetDescriptorDict;
 
 /**
  *
- * An &Ice; object descriptor.
+ * An Ice object descriptor.
  * 
  **/
 struct ObjectDescriptor
@@ -101,7 +101,7 @@ struct ObjectDescriptor
 
 /**
  *
- * An &Ice; object adapter descriptor.
+ * An Ice object adapter descriptor.
  *
  **/
 struct AdapterDescriptor
@@ -184,7 +184,7 @@ struct AdapterDescriptor
 
 /**
  *
- * A &Freeze; database environment descriptor.
+ * A [Freeze] database environment descriptor.
  *
  **/
 struct DbEnvDescriptor
@@ -266,7 +266,7 @@ class CommunicatorDescriptor
 
 /**
  *
- * A distribution descriptor defines an &IcePatch2; server and the
+ * A distribution descriptor defines an [IcePatch2] server and the
  * directories to retrieve from the patch server.
  *
  **/
@@ -281,7 +281,7 @@ struct DistributionDescriptor
 
 /**
  *
- * An &Ice; server descriptor.
+ * An Ice server descriptor.
  *
  **/
 class ServerDescriptor extends CommunicatorDescriptor
@@ -384,7 +384,7 @@ class ServerDescriptor extends CommunicatorDescriptor
 
 /**
  *
- * An &IceBox; service descriptor.
+ * An [IceBox] service descriptor.
  *
  **/
 class ServiceDescriptor extends CommunicatorDescriptor
@@ -398,7 +398,7 @@ class ServiceDescriptor extends CommunicatorDescriptor
 
     /**
      *
-     * The entry point of the &IceBox; service.
+     * The entry point of the [IceBox] service.
      * 
      **/
     string entry;
@@ -529,7 +529,7 @@ struct ServiceInstanceDescriptor
 
 /**
  *
- * An &IceBox; server descriptor.
+ * An [IceBox] server descriptor.
  *
  **/
 class IceBoxDescriptor extends ServerDescriptor
