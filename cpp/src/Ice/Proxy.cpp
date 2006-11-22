@@ -908,18 +908,21 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
 	_delegate = 0;
     }
 
-    ProxyFactoryPtr proxyFactory = _reference->getInstance()->proxyFactory();
-    if(proxyFactory)
+    ProxyFactoryPtr proxyFactory;
+    try
     {
-	proxyFactory->checkRetryAfterException(ex, _reference, cnt);
+        proxyFactory = _reference->getInstance()->proxyFactory();
     }
-    else
+    catch(const CommunicatorDestroyedException&)
     {
 	//
 	// The communicator is already destroyed, so we cannot retry.
 	//
         ex.ice_throw();
+        
     }
+
+    proxyFactory->checkRetryAfterException(ex, _reference, cnt);
 }
 
 void

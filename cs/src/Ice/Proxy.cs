@@ -931,12 +931,12 @@ namespace Ice
                 _delegate = null;
             }
 
-            IceInternal.ProxyFactory proxyFactory = _reference.getInstance().proxyFactory();
-            if(proxyFactory != null)
-            {
-                return proxyFactory.checkRetryAfterException(ex, _reference, cnt);
-            }
-            else
+            IceInternal.ProxyFactory proxyFactory;
+	    try
+	    {
+            	proxyFactory = _reference.getInstance().proxyFactory();
+	    }
+	    catch(CommunicatorDestroyedException)
             {
 		//
 		// The communicator is already destroyed, so we cannot
@@ -944,6 +944,8 @@ namespace Ice
 		//
                 throw ex;
             }
+
+            return proxyFactory.checkRetryAfterException(ex, _reference, cnt);
         }
 
         public void handleExceptionWrapper__(IceInternal.LocalExceptionWrapper ex)

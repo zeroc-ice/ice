@@ -921,12 +921,12 @@ public class ObjectPrxHelperBase implements ObjectPrx
 	    _delegate = null;
 	}
 
-	IceInternal.ProxyFactory proxyFactory = _reference.getInstance().proxyFactory();
-	if(proxyFactory != null)
+	IceInternal.ProxyFactory proxyFactory;
+	try
 	{
-	    return proxyFactory.checkRetryAfterException(ex, _reference, cnt);
+	    proxyFactory = _reference.getInstance().proxyFactory();
 	}
-	else
+	catch(CommunicatorDestroyedException e)
 	{
 	    //
             // The communicator is already destroyed, so we cannot
@@ -934,6 +934,8 @@ public class ObjectPrxHelperBase implements ObjectPrx
 	    //
 	    throw ex;
 	}
+
+	return proxyFactory.checkRetryAfterException(ex, _reference, cnt);
     }
 
     public final void
