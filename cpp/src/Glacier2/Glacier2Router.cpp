@@ -165,10 +165,10 @@ Glacier2::RouterService::start(int argc, char* argv[])
 
     //
     // We need a separate object adapter for any collocated
-    // permissions verifier. We can't use the client adapter.
+    // permissions verifiers. We can't use the client adapter.
     //
-    ObjectAdapterPtr verifierAdapter =
-        communicator()->createObjectAdapterWithEndpoints(IceUtil::generateUUID(), "tcp -h 127.0.0.1");
+    properties->setProperty("Glacier2Internal.Verifiers.AdapterId", IceUtil::generateUUID());
+    ObjectAdapterPtr verifierAdapter = communicator()->createObjectAdapter("Glacier2Internal.Verifiers");
 
     //
     // Check for a permissions verifier or a password file.
