@@ -17,7 +17,6 @@
         <property name="IceGrid.Node.Trace.Replica" value="0"/> 
         <property name="IceGrid.Node.Trace.Adapter" value="0"/> 
         <property name="Ice.Trace.Network" value="0"/>
-        <property name="Ice.Logger.Timestamp" value="1"/> 
       </server>
     </server-template>
 
@@ -47,7 +46,6 @@
         <property name="IceGrid.Registry.Trace.Replica" value="0"/> 
         <property name="IceGrid.Registry.Trace.Node" value="0"/> 
         <property name="Ice.Trace.Network" value="0"/>
-        <property name="Ice.Logger.Timestamp" value="1"/> 
         <property name="IceGrid.Registry.Trace.Locator" value="0"/> 
         <property name="IceGrid.Registry.UserAccounts" value="${test.dir}/useraccounts.txt"/>
       </server>
