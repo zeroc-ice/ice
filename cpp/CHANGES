@@ -1,6 +1,9 @@
 Changes since version 3.1.1
 ---------------------------     
 
+- Added ["cpp:class"] C++ metadata to map a slice struct to a
+  reference counted class.
+
 - Glacier2.AllowCategories is now deprecated and superseded by
   Glacier2.Filter.Category.Accept.
 
