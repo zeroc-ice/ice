@@ -74,12 +74,14 @@ public:
     void addOpt(const ::std::string&, const ::std::string& = "",
                 ArgType = NoArg, ::std::string = "", RepeatType = NoRepeat);
 
-    static ::std::vector< ::std::string> split(const ::std::string&);
-    ::std::vector< ::std::string> parse(const ::std::vector< ::std::string>&);
-    ::std::vector< ::std::string> parse(int, const char* const []);
+    typedef ::std::vector< ::std::string> StringVector;
+
+    static StringVector split(const ::std::string&);
+    StringVector parse(const StringVector&);
+    StringVector parse(int, const char* const []);
     bool isSet(const ::std::string&) const;
     ::std::string optArg(const ::std::string&) const;
-    ::std::vector< ::std::string> argVec(const ::std::string&) const;
+    StringVector argVec(const ::std::string&) const;
 
 private:
 

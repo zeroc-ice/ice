@@ -190,7 +190,7 @@ IceUtil::Options::addOpt(const string& shortOpt, const string& longOpt, ArgType 
 // quotes removed.
 //
 
-vector<string>
+IceUtil::Options::StringVector
 IceUtil::Options::split(const string& line)
 {
     const string IFS = " \t\n"; // Internal Field Separator.
@@ -201,14 +201,14 @@ IceUtil::Options::split(const string& line)
     string::size_type start = line.find_first_not_of(IFS);
     if(start == string::npos)
     {
-        return vector<string>();
+        return StringVector();
     }
     string::size_type end = line.find_last_not_of(IFS);
     assert(end != string::npos);
 
     string l(line, start, end - start + 1);
 
-    vector<string> vec;
+    StringVector vec;
 
     enum ParseState { Normal, DoubleQuote, SingleQuote, ANSIQuote };
     ParseState state = Normal;
@@ -585,8 +585,8 @@ IceUtil::Options::split(const string& line)
 // of the executable.
 //
 
-vector<string>
-IceUtil::Options::parse(const vector<string>& args)
+IceUtil::Options::StringVector
+IceUtil::Options::parse(const StringVector& args)
 {
     IceUtil::RecMutex::Lock sync(_m);
 
@@ -598,7 +598,7 @@ IceUtil::Options::parse(const vector<string>& args)
 
     set<string> seenNonRepeatableOpts; // To catch repeated non-repeatable options.
 
-    vector<string> result;
+    StringVector result;
 
     string::size_type i;
     for(i = 1; i < args.size(); ++i)
@@ -747,10 +747,10 @@ IceUtil::Options::parse(const vector<string>& args)
 // arguments as the return value.
 //
 
-vector<string>
+IceUtil::Options::StringVector
 IceUtil::Options::parse(int argc, const char* const argv[])
 {
-    vector<string> vec;
+    StringVector vec;
     for(int i = 0; i < argc; ++i)
     {
         vec.push_back(argv[i]);
@@ -804,7 +804,7 @@ IceUtil::Options::optArg(const string& opt) const
     return p->second->val;
 }
 
-vector<string>
+IceUtil::Options::StringVector
 IceUtil::Options::argVec(const string& opt) const
 {
     IceUtil::RecMutex::Lock sync(_m);
@@ -828,7 +828,7 @@ IceUtil::Options::argVec(const string& opt) const
     }
 
     ROpts::const_iterator p = _ropts.find(opt);
-    return p == _ropts.end() ? vector<string>() : p->second->vals;
+    return p == _ropts.end() ? StringVector() : p->second->vals;
 }
 
 void
@@ -902,7 +902,8 @@ IceUtil::Options::setOpt(const string& opt1, const string& opt2, const string& v
 
     if(rt == NoRepeat)
     {
-	setNonRepeatingOpt(opt1.empty() ? opt2 : opt1, val);
+	setNonRepeatingOpt(opt1, val);
+	setNonRepeatingOpt(opt2, val);
     }
     else
     {
@@ -919,7 +920,11 @@ IceUtil::Options::setNonRepeatingOpt(const string& opt, const string& val)
         return;
     }
 
-    assert(_opts.find(opt) == _opts.end());
+    //
+    // The option must not have been set before or, if it was set, it must have
+    // been because of a default value.
+    //
+    assert(_opts.find(opt) == _opts.end() || _validOpts.find(opt)->second->hasDefault);
 
     OValPtr ovp = new OptionValue;
     ovp->val = val;
