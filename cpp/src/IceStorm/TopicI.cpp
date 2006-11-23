@@ -11,7 +11,6 @@
 #include <IceStorm/Instance.h>
 #include <IceStorm/Subscriber.h>
 #include <IceStorm/TraceLevels.h>
-#include <IceStorm/Event.h>
 #include <IceStorm/SubscriberPool.h>
 
 #include <Ice/LoggerUtil.h>
@@ -44,7 +43,7 @@ public:
 	       Ice::ByteSeq&,
 	       const Ice::Current& current)
     {
-	EventPtr event = new Event(
+	EventDataPtr event = new EventData(
 	    current.operation,
 	    current.mode,
 	    Ice::ByteSeq(),
@@ -57,7 +56,7 @@ public:
 	Ice::ByteSeq data(inParams.first, inParams.second);
 	event->data.swap(data);
 	
-	EventSeq v;
+	EventDataSeq v;
 	v.push_back(event);
 	_topic->publish(false, v);
 
@@ -85,13 +84,7 @@ public:
     virtual void
     forward(const EventDataSeq& v, const Ice::Current& current)
     {
-	EventSeq events;
-	events.reserve(v.size());
-	for(EventDataSeq::const_iterator p = v.begin(); p != v.end(); ++p)
-	{
-	    events.push_back(new Event(p->op, p->mode, p->data, p->context));
-	}
-	_topic->publish(true, events);
+	_topic->publish(true, v);
     }
 
 private:
@@ -152,6 +145,10 @@ TopicI::TopicI(
 	_subscribers.push_back(subscriber);
 	_instance->subscriberPool()->add(subscriber);
     }
+}
+
+TopicI::~TopicI()
+{
 }
 
 string
@@ -492,7 +489,7 @@ TopicI::reap()
 }
 
 void
-TopicI::publish(bool forwarded, const EventSeq& events)
+TopicI::publish(bool forwarded, const EventDataSeq& events)
 {
     //
     // Copy of the subscriber list so that event publishing can occur

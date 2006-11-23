@@ -11,7 +11,8 @@
 #define ICE_STORM_INTERNAL_ICE
 
 #include <IceStorm/IceStorm.ice>
-#include <IceStorm/Event.ice>
+#include <Ice/Current.ice>
+#include <Ice/BuiltinSequences.ice>
 
 module IceStorm
 {
@@ -21,7 +22,7 @@ module IceStorm
  * The event data.
  *
  **/
-struct EventData
+["cpp:class"] struct EventData
 {
     /** The operation name. */
     string op;

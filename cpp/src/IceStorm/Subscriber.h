@@ -11,7 +11,6 @@
 #define SUBSCRIBERS_H
 
 #include <IceStorm/IceStormInternal.h> // F
-#include <IceStorm/Event.h>
 
 namespace IceStorm
 {
@@ -41,7 +40,7 @@ public:
 	QueueStateFlush,
 	QueueStateNoFlush
     };
-    virtual QueueState queue(bool, const std::vector<EventPtr>&);
+    virtual QueueState queue(bool, const std::vector<EventDataPtr>&);
     //
     // Return true if flush() must be called again, false otherwise.
     //
@@ -77,7 +76,7 @@ protected:
 	SubscriberStateError
     };
     SubscriberState _state; // The subscriber state.
-    EventSeq _events; // The queue of events to send.
+    EventDataSeq _events; // The queue of events to send.
 
     //
     // Not protected by _mutex. These members are protected by the

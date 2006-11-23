@@ -13,7 +13,6 @@
 #include <IceUtil/RecMutex.h>
 #include <IceStorm/IceStormInternal.h>
 #include <IceStorm/PersistentTopicMap.h>
-#include <IceStorm/Event.h>
 #include <list>
 
 namespace IceStorm
@@ -30,6 +29,7 @@ class TopicI : public TopicInternal
 public:
 
     TopicI(const InstancePtr&, const std::string&, const LinkRecordDict&, const std::string&, const std::string&);
+    ~TopicI();
 
     virtual std::string getName(const Ice::Current&) const;
     virtual Ice::ObjectPrx getPublisher(const Ice::Current&) const;
@@ -47,7 +47,7 @@ public:
 
     void reap();
 
-    void publish(bool, const EventSeq&);
+    void publish(bool, const EventDataSeq&);
 
 private:
 

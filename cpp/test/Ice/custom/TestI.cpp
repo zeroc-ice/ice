@@ -281,6 +281,18 @@ TestIntfI::opCList(const std::list< ::Test::CPtr>& inSeq,
     return inSeq;
 }
 
+::Test::ClassStructPtr
+TestIntfI::opClassStruct(const ::Test::ClassStructPtr& inS,
+			 const ::Test::ClassStructSeq& inSeq,
+			 ::Test::ClassStructPtr& out,
+			 ::Test::ClassStructSeq& outSeq,
+			 const Ice::Current&)
+{
+    outSeq = inSeq;
+    out = inS;
+    return inS;
+}
+
 void
 TestIntfI::shutdown(const Ice::Current& current)
 {

@@ -161,6 +161,16 @@ Slice::typeToString(const TypePtr& type, bool useWstring, const StringList& meta
     {
 	return fixKwd(cl->scoped() + "Ptr");
     }
+
+    StructPtr st = StructPtr::dynamicCast(type);
+    if(st)
+    {
+	if(findMetaData(st->getMetaData(), false) == "class")
+	{
+	    return fixKwd(st->scoped() + "Ptr");
+	}
+	return fixKwd(st->scoped());
+    }
 	    
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
@@ -283,13 +293,23 @@ Slice::inputTypeToString(const TypePtr& type, bool useWstring, const StringList&
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-	return "const " + fixKwd(cl->scoped() + "Ptr") + "&";
+	return "const " + fixKwd(cl->scoped()) + "Ptr&";
+    }
+
+    StructPtr st = StructPtr::dynamicCast(type);
+    if(st)
+    {
+	if(findMetaData(st->getMetaData(), false) == "class")
+	{
+	    return "const " + fixKwd(st->scoped()) + "Ptr&";
+	}
+	return "const " + fixKwd(st->scoped()) + "&";
     }
 	    
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
     {
-	return "const " + fixKwd(proxy->_class()->scoped() + "Prx") + "&";
+	return "const " + fixKwd(proxy->_class()->scoped()) + "Prx&";
     }
 	    
     EnumPtr en = EnumPtr::dynamicCast(type);
@@ -304,7 +324,6 @@ Slice::inputTypeToString(const TypePtr& type, bool useWstring, const StringList&
         string seqType = findMetaData(metaData, true);
         if(!seqType.empty())
         {
-	    
             if(seqType == "array" || seqType == "range:array")
             {
                 TypePtr elemType = seq->type();
@@ -383,13 +402,23 @@ Slice::outputTypeToString(const TypePtr& type, bool useWstring, const StringList
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-	return fixKwd(cl->scoped() + "Ptr") + "&";
+	return fixKwd(cl->scoped()) + "Ptr&";
+    }
+
+    StructPtr st = StructPtr::dynamicCast(type);
+    if(st)
+    {
+	if(findMetaData(st->getMetaData(), false) == "class")
+	{
+	    return fixKwd(st->scoped()) + "Ptr&";
+	}
+	return fixKwd(st->scoped()) + "&";
     }
 	    
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
     {
-	return fixKwd(proxy->_class()->scoped() + "Prx") + "&";
+	return fixKwd(proxy->_class()->scoped()) + "Prx&";
     }
 	    
     SequencePtr seq = SequencePtr::dynamicCast(type);
@@ -600,7 +629,19 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     StructPtr st = StructPtr::dynamicCast(type);
     if(st)
     {
-	out << nl << fixedParam << ".__" << func << (pointer ? "" : "&") << stream << ");";
+	string deref;
+	if(findMetaData(st->getMetaData(), false) == "class")
+	{
+	    if(!marshal)
+	    {
+		out << nl << fixedParam << " = new " << fixKwd(st->scoped()) << ";";
+	    }
+	    out << nl << fixedParam << "->__" << func << (pointer ? "" : "&") << stream << ");";
+	}
+	else
+	{
+	    out << nl << fixedParam << ".__" << func << (pointer ? "" : "&") << stream << ");";
+	}
 	return;
     }
     
@@ -978,17 +1019,32 @@ Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const TypePtr
 {
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
-	out << nl << typeToString((*p)->type(), useWstring, (*p)->getMetaData(), inParam) << ' ' << fixKwd((*p)->name())
-	    << ';';
+	out << nl << typeToString((*p)->type(), useWstring, (*p)->getMetaData(), inParam) << ' '
+	    << fixKwd((*p)->name());
+	StructPtr st = StructPtr::dynamicCast((*p)->type());
+	if(st && findMetaData(st->getMetaData(), false) == "class")
+	{
+	    out << " = new " << fixKwd(st->scoped());
+	}
+	out << ';';
+
 	//
 	// If using a range we need to allocate the range container as well now to ensure they
 	// are always in the same scope.
 	//
 	writeRangeAllocateCode(out, (*p)->type(), fixKwd((*p)->name()), (*p)->getMetaData(), inParam);
     }
+
     if(ret)
     {
-        out << nl << typeToString(ret, useWstring, metaData, inParam) << " __ret;";
+	out << nl << typeToString(ret, useWstring, metaData, inParam) << " __ret";
+	StructPtr st = StructPtr::dynamicCast(ret);
+	if(st && findMetaData(st->getMetaData(), false) == "class")
+	{
+	    out << " = new " << fixKwd(st->scoped());
+	}
+	out << ";";
+
 	//
 	// If using a range we need to allocate the range container as well now to ensure they
 	// are always in the same scope.
@@ -1190,6 +1246,10 @@ Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const s
 	}
 	else
 	{
+	    if(findMetaData(st->getMetaData(), false) == "class")
+	    {
+		out << nl << fixedParam << " = new " << fixKwd(st->scoped()) << ";";
+	    }
             out << nl << scope << "ice_read" << st->name() << "(" << stream << ", " << fixedParam << ");";
 	}
 
@@ -1432,6 +1492,11 @@ Slice::findMetaData(const StringList& metaData, bool inParam)
 	if(str.find(prefix) == 0)
 	{
 	    string::size_type pos = str.find(':', prefix.size());
+	    //
+	    // If the form is cpp:type:<...> the data after cpp:type:
+	    // is returned.  If the form is cpp:range:<...> (and this
+	    // is an inParam) the data after cpp: is returned.
+	    //
 	    if(pos != string::npos)
 	    {
 	        string ss = str.substr(prefix.size(), pos - prefix.size());
@@ -1444,6 +1509,10 @@ Slice::findMetaData(const StringList& metaData, bool inParam)
 		    return str.substr(prefix.size());
 		}
 	    }
+	    //
+	    // If the data is an inParam and the metadata is cpp:array
+	    // or cpp:range then array or range is returned.
+	    //
 	    else if(inParam)
 	    {
 	        string ss = str.substr(prefix.size());
@@ -1451,7 +1520,17 @@ Slice::findMetaData(const StringList& metaData, bool inParam)
 		{
 		    return ss;
 		}
-
+	    }
+	    //
+	    // Otherwise if the data is "class" it is returned.
+	    //
+	    else
+	    {
+	        string ss = str.substr(prefix.size());
+		if(ss == "class")
+		{
+		    return ss;
+		}
 	    }
 	}
     }

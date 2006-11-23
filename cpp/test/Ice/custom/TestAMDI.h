@@ -136,6 +136,11 @@ public:
 			       const Test::CList&,
 			       const Ice::Current&);
 
+    virtual void opClassStruct_async(const ::Test::AMD_TestIntf_opClassStructPtr&,
+				     const ::Test::ClassStructPtr&,
+				     const ::Test::ClassStructSeq&,
+				     const ::Ice::Current&);
+
     virtual void shutdown_async(const Test::AMD_TestIntf_shutdownPtr&,
 				const Ice::Current&);
 

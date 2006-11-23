@@ -36,7 +36,6 @@ SERVICE_OBJS	= IceStorm.o \
                   PersistentTopicMap.o \
 		  LinkRecord.o \
 		  IceStormInternal.o \
-		  Event.o \
 		  Service.o
 
 AOBJS		= Admin.o \
@@ -51,8 +50,7 @@ SRCS		= $(OBJS:.o=.cpp) \
 
 SLICE_SRCS	= $(SDIR)/IceStorm.ice \
 		  ../IceStorm/IceStormInternal.ice \
-		  ../IceStorm/LinkRecord.ice \
-		  ../IceStorm/Event.ice
+		  ../IceStorm/LinkRecord.ice
 
 HDIR		= $(includedir)/IceStorm
 SDIR		= $(slicedir)/IceStorm

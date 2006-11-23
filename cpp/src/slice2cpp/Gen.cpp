@@ -877,9 +877,60 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     string name = fixKwd(p->name());
 
-    H << sp << nl << "struct " << name;
-    H << sb;
+    if(findMetaData(p->getMetaData(), false) == "class")
+    {
+	H << sp << nl << _dllExport << "class " << name << " : public IceUtil::Shared";
+	H << sb;
+	H.dec();
+	H << nl << "public:";
+	H.inc();
+	H << nl;
+	H << nl << name << "() {}";
 
+	DataMemberList dataMembers = p->dataMembers();
+	if(!dataMembers.empty())
+	{
+	    DataMemberList::const_iterator q;
+	    vector<string> paramDecls;
+	    vector<string> types;
+	    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+	    {
+		string typeName = inputTypeToString((*q)->type(), _useWstring, (*q)->getMetaData());
+		types.push_back(typeName);
+		paramDecls.push_back(typeName + " __ice_" + (*q)->name());
+	    }
+	    
+	    H << nl;
+	    if(paramDecls.size() == 1)
+	    {
+		H << "explicit ";
+	    }
+	    H << name << spar << types << epar << ';';
+
+	    C << sp << nl << p->scoped().substr(2) << "::" << fixKwd(p->name()) << spar << paramDecls << epar << " :";
+	    C.inc();
+	    
+	    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+	    {
+		if(q != dataMembers.begin())
+		{
+		    C << ',' << nl;
+		}
+		string memberName = fixKwd((*q)->name());
+		C << memberName << '(' << "__ice_" << (*q)->name() << ')';
+	    }
+	    
+	    C.dec();
+	    C << sb;
+	    C << eb;
+	}
+    }
+    else
+    {
+	H << sp << nl << "struct " << name;
+	H << sb;
+    }
+    
     return true;
 }
 
@@ -1011,26 +1062,52 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     }
 
     H << eb << ';';
-
-    if(!p->isLocal() && _stream)
+    if(findMetaData(p->getMetaData(), false) == "class")
     {
-        H << sp << nl << _dllExport << "void ice_write" << p->name() << "(const ::Ice::OutputStreamPtr&, const "
-          << name << "&);";
-        H << nl << _dllExport << "void ice_read" << p->name() << "(const ::Ice::InputStreamPtr&, " << name << "&);";
+	H << sp << nl << "typedef ::IceUtil::Handle< " << scoped << "> " << name << "Ptr;";
 
-        C << sp << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
-          << "(const ::Ice::OutputStreamPtr& __outS, const " << scoped << "& __v)";
-        C << sb;
-        C << nl << "__v.ice_write(__outS);";
-        C << eb;
-
-        C << sp << nl << "void" << nl << scope.substr(2) << "ice_read" << p->name()
-          << "(const ::Ice::InputStreamPtr& __inS, " << scoped << "& __v)";
-        C << sb;
-        C << nl << "__v.ice_read(__inS);";
-        C << eb;
+	if(!p->isLocal() && _stream)
+	{
+	    H << sp << nl << _dllExport << "void ice_write" << p->name() << "(const ::Ice::OutputStreamPtr&, const "
+	      << name << "Ptr&);";
+	    H << nl << _dllExport << "void ice_read" << p->name() << "(const ::Ice::InputStreamPtr&, " << name
+	      << "Ptr&);";
+	    
+	    C << sp << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
+	      << "(const ::Ice::OutputStreamPtr& __outS, const " << scoped << "Ptr& __v)";
+	    C << sb;
+	    C << nl << "__v->ice_write(__outS);";
+	    C << eb;
+	    
+	    C << sp << nl << "void" << nl << scope.substr(2) << "ice_read" << p->name()
+	      << "(const ::Ice::InputStreamPtr& __inS, " << scoped << "Ptr& __v)";
+	    C << sb;
+	    C << nl << "__v->ice_read(__inS);";
+	    C << eb;
+	}
     }
-
+    else
+    {
+	if(!p->isLocal() && _stream)
+	{
+	    H << sp << nl << _dllExport << "void ice_write" << p->name() << "(const ::Ice::OutputStreamPtr&, const "
+	      << name << "&);";
+	    H << nl << _dllExport << "void ice_read" << p->name() << "(const ::Ice::InputStreamPtr&, " << name << "&);";
+	    
+	    C << sp << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
+	      << "(const ::Ice::OutputStreamPtr& __outS, const " << scoped << "& __v)";
+	    C << sb;
+	    C << nl << "__v.ice_write(__outS);";
+	    C << eb;
+	    
+	    C << sp << nl << "void" << nl << scope.substr(2) << "ice_read" << p->name()
+	      << "(const ::Ice::InputStreamPtr& __inS, " << scoped << "& __v)";
+	    C << sb;
+	    C << nl << "__v.ice_read(__inS);";
+	    C << eb;
+	}
+    }
+	
     _useWstring = resetUseWstring(_useWstringHist);
 }
 
@@ -2305,6 +2382,14 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << eb;
 
     writeAllocateCode(C, ParamDeclList(), ret, p->getMetaData(), _useWstring);
+    for(ParamDeclList::const_iterator opi = outParams.begin(); opi != outParams.end(); ++opi)
+    {
+	StructPtr st = StructPtr::dynamicCast((*opi)->type());
+	if(st && findMetaData(st->getMetaData(), false) == "class")
+	{
+	    C << nl << fixKwd((*opi)->name()) << " = new " << fixKwd(st->scoped()) << ";";
+	}
+    }
     writeUnmarshalCode(C, outParams, ret, p->getMetaData());
     if(p->returnsClasses())
     {
@@ -5287,6 +5372,10 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
                         continue;
                     }
                 }
+                if(StructPtr::dynamicCast(cont) && ss.find("class") == 0)
+		{
+		    continue;
+		}
 
                 cout << file << ":" << line << ": warning: ignoring invalid metadata `" << s << "'" << endl;
             }

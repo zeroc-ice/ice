@@ -870,6 +870,37 @@ private:
 
 typedef IceUtil::Handle<AMI_TestIntf_opCListI> AMI_TestIntf_opCListIPtr;
 
+class AMI_TestIntf_opClassStructI : public Test::AMI_TestIntf_opClassStruct, public CallbackBase
+{
+public:
+
+    AMI_TestIntf_opClassStructI(const Test::ClassStructPtr& cs, const Test::ClassStructSeq& csseq1) :
+	_cs(cs), _csseq1(csseq1)
+    {
+    }
+
+    virtual void ice_response(const ::Test::ClassStructPtr& ret,
+			      const ::Test::ClassStructPtr& cs1,
+			      const ::Test::ClassStructSeq& seq)
+    {
+	test(ret == _cs);
+	test(cs1 == _cs);
+	test(seq == _csseq1);
+        called();
+    }
+
+    virtual void ice_exception(const ::Ice::Exception&)
+    {
+        test(false);
+    }
+
+private:
+
+    const Test::ClassStructPtr _cs;
+    const Test::ClassStructSeq _csseq1;
+};
+typedef IceUtil::Handle<AMI_TestIntf_opClassStructI> AMI_TestIntf_opClassStructIPtr;
+
 class AMI_Test1_opStringI : public Test1::AMI_WstringClass_opString, public CallbackBase
 {
 public:
@@ -1932,6 +1963,34 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
 
         cout << "ok" << endl;
+    }
+
+    cout << "testing class mapped structs ... " << flush;
+    Test::ClassStructPtr cs = new Test::ClassStruct();
+    cs->y = 10;
+    cs->other = new Test::ClassOtherStruct;
+    cs->other->x = 20;
+    cs->otherSeq.push_back(new Test::ClassOtherStruct);
+    cs->otherSeq[0]->x = 30;
+    cs->otherSeq.push_back(new Test::ClassOtherStruct);
+    cs->otherSeq[1]->x = 40;
+    Test::ClassStructSeq csseq1;
+    csseq1.push_back(cs);
+    Test::ClassStructPtr cs2;
+    Test::ClassStructSeq csseq2;
+    Test::ClassStructPtr cs3 = t->opClassStruct(cs, csseq1, cs2, csseq2);
+    assert(cs3 == cs);
+    assert(csseq1.size() == csseq2.size());
+    assert(csseq1[0] == csseq2[0]);
+    cout << "ok" << endl;
+
+    if(!collocated)
+    {
+        cout << "testing class mapped structs with AMI... " << flush;
+	AMI_TestIntf_opClassStructIPtr cb = new AMI_TestIntf_opClassStructI(cs, csseq1);
+	t->opClassStruct_async(cb, cs, csseq1);
+	test(cb->check());
+	cout << "ok" << endl;
     }
 
     cout << "testing wstring... " << flush;

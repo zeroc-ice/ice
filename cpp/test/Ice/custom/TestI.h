@@ -138,6 +138,12 @@ public:
                                                 std::list< ::Test::CPtr>&,
                                                 const Ice::Current&);
 
+    virtual ::Test::ClassStructPtr opClassStruct(const ::Test::ClassStructPtr&,
+						 const ::Test::ClassStructSeq&,
+						 ::Test::ClassStructPtr& out,
+						 ::Test::ClassStructSeq& outSeq,
+						 const Ice::Current&);
+
     virtual void shutdown(const Ice::Current&);
 
 private:

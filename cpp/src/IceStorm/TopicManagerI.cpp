@@ -45,6 +45,10 @@ TopicManagerI::TopicManagerI(
     }
 }
 
+TopicManagerI::~TopicManagerI()
+{
+}
+
 TopicPrx
 TopicManagerI::create(const string& name, const Ice::Current&)
 {

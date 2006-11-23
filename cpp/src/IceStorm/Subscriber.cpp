@@ -56,7 +56,7 @@ public:
 	       vector<Ice::Byte>&,
 	       const Ice::Current& current)
     {
-	EventPtr event = new Event(
+	EventDataPtr event = new EventData(
 	    current.operation,
 	    current.mode,
 	    Ice::ByteSeq(),
@@ -69,7 +69,7 @@ public:
 	Ice::ByteSeq data(inParams.first, inParams.second);
 	event->data.swap(data);
 
-	EventSeq e;
+	EventDataSeq e;
 	e.push_back(event);
 	Subscriber::QueueState state = _subscriber->queue(false, e);
 
@@ -156,7 +156,7 @@ public:
 		   const TopicLinkPrx&,
 		   int);
 
-    virtual QueueState queue(bool, const std::vector<EventPtr>&);
+    virtual QueueState queue(bool, const std::vector<EventDataPtr>&);
     virtual bool flush();
     void response();
 
@@ -185,7 +185,6 @@ SubscriberOneway::SubscriberOneway(
     _obj(obj),
     _objBatch(obj->ice_isDatagram() ? obj->ice_batchDatagram() : obj->ice_batchOneway())
 {
-
     if(batch)
     {
 	_instance->batchFlusher()->add(_obj);
@@ -215,10 +214,10 @@ SubscriberOneway::flush()
 	// to add events in case we block (such as during connection
 	// establishment).
 	//
-	EventSeq v;
+	EventDataSeq v;
 	v.swap(_events);
 	sync.release();
-	
+
 	//
 	// Deliver the events without holding the lock.
 	//
@@ -229,7 +228,7 @@ SubscriberOneway::flush()
 	vector<Ice::Byte> dummy;
 	if(v.size() > 1 && !_batch)
 	{
-	    for(EventSeq::const_iterator p = v.begin(); p != v.end(); ++p)
+	    for(EventDataSeq::const_iterator p = v.begin(); p != v.end(); ++p)
 	    {
 		_objBatch->ice_invoke((*p)->op, (*p)->mode, (*p)->data, dummy, (*p)->context);
 	    }
@@ -239,7 +238,7 @@ SubscriberOneway::flush()
 	}
 	else
 	{
-	    for(EventSeq::const_iterator p = v.begin(); p != v.end(); ++p)
+	    for(EventDataSeq::const_iterator p = v.begin(); p != v.end(); ++p)
 	    {
 		_obj->ice_invoke((*p)->op, (*p)->mode, (*p)->data, dummy, (*p)->context);
 	    }
@@ -337,14 +336,14 @@ SubscriberTwoway::flush()
     // to add events in case we block (such as during connection
     // establishment).
     //
-    EventSeq v;
+    EventDataSeq v;
     v.swap(_events);
     sync.release();
 
     //
     // Deliver the events without holding the lock.
     //
-    for(EventSeq::const_iterator p = v.begin(); p != v.end(); ++p)
+    for(EventDataSeq::const_iterator p = v.begin(); p != v.end(); ++p)
     {
 	_obj->ice_invoke_async(new TwowayInvokeI(this), (*p)->op, (*p)->mode, (*p)->data, (*p)->context);
     }
@@ -410,7 +409,7 @@ SubscriberTwowayOrdered::SubscriberTwowayOrdered(
 bool
 SubscriberTwowayOrdered::flush()
 {
-    EventPtr e;
+    EventDataPtr e;
     {
 	IceUtil::Mutex::Lock sync(_mutex);
 	
@@ -501,7 +500,7 @@ SubscriberLink::SubscriberLink(
 }
 
 Subscriber::QueueState
-SubscriberLink::queue(bool forwarded, const EventSeq& events)
+SubscriberLink::queue(bool forwarded, const EventDataSeq& events)
 {
     if(forwarded)
     {
@@ -546,7 +545,7 @@ SubscriberLink::queue(bool forwarded, const EventSeq& events)
     }
     
     int queued = 0;
-    for(EventSeq::const_iterator p = events.begin(); p != events.end(); ++p)
+    for(EventDataSeq::const_iterator p = events.begin(); p != events.end(); ++p)
     {
 	if(_cost != 0)
 	{
@@ -582,7 +581,7 @@ SubscriberLink::queue(bool forwarded, const EventSeq& events)
 bool
 SubscriberLink::flush()
 {
-    EventSeq v;
+    EventDataSeq v;
     {
 	IceUtil::Mutex::Lock sync(_mutex);
 	
@@ -600,21 +599,7 @@ SubscriberLink::flush()
 	v.swap(_events);
     }
 
-    //
-    // Transform the event sequence into a EventData.
-    //
-    EventDataSeq events;
-    events.reserve(v.size());
-    for(EventSeq::const_iterator p = v.begin(); p != v.end(); ++p)
-    {
-	EventData data;
-	data.op = (*p)->op;
-	data.mode = (*p)->mode;
-	data.data = (*p)->data;
-	data.context = (*p)->context;
-	events.push_back(data);
-    }
-    _obj->forward_async(new Topiclink_forwardI(this), events);
+    _obj->forward_async(new Topiclink_forwardI(this), v);
     return false;
 }
 
@@ -796,7 +781,7 @@ Subscriber::persistent() const
 }
 
 Subscriber::QueueState
-Subscriber::queue(bool, const EventSeq& events)
+Subscriber::queue(bool, const EventDataSeq& events)
 {
     IceUtil::Mutex::Lock sync(_mutex);
     

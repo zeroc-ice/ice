@@ -41,6 +41,7 @@ public:
 		  const Ice::ObjectAdapterPtr&,
 		  const std::string&,
 		  const std::string&);
+    ~TopicManagerI();
 
     virtual TopicPrx create(const std::string&, const Ice::Current&);
     virtual TopicPrx retrieve(const std::string&, const Ice::Current&) const;

@@ -95,6 +95,20 @@ sequence<CPrxList> CPrxListSeq;
 
 sequence<double> DoubleSeq;
 
+["cpp:class"] struct ClassOtherStruct
+{
+    int x;
+};
+sequence<ClassOtherStruct> ClassOtherStructSeq;
+
+["cpp:class"] struct ClassStruct
+{
+    ClassOtherStructSeq otherSeq;
+    ClassOtherStruct other;
+    int y;
+};
+sequence<ClassStruct> ClassStructSeq;
+
 ["ami"] class TestIntf
 {
     DoubleSeq opDoubleArray(["cpp:array"] DoubleSeq inSeq, out DoubleSeq outSeq);
@@ -171,6 +185,8 @@ sequence<double> DoubleSeq;
     opCSeq(["cpp:type:std::deque< ::Test::CPtr>"] CSeq inSeq, out ["cpp:type:std::deque< ::Test::CPtr>"] CSeq outSeq);
 
     CList opCList(CList inSeq, out CList outSeq);
+
+    ClassStruct opClassStruct(ClassStruct inS, ClassStructSeq inSeq, out ClassStruct outS, out ClassStructSeq outSeq);
 
     void shutdown();
 };

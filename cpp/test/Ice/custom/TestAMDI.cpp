@@ -281,6 +281,15 @@ TestIntfI::opCList_async(const Test::AMD_TestIntf_opCListPtr& opCListCB,
 }
 
 void
+TestIntfI::opClassStruct_async(const ::Test::AMD_TestIntf_opClassStructPtr& cb,
+			       const ::Test::ClassStructPtr& inS,
+			       const ::Test::ClassStructSeq& inSeq,
+			       const ::Ice::Current&)
+{
+    cb->ice_response(inS, inS, inSeq);
+}
+
+void
 TestIntfI::shutdown_async(const Test::AMD_TestIntf_shutdownPtr& shutdownCB,
 			  const Ice::Current& current)
 {
