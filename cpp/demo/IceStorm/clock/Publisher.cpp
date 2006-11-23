@@ -88,7 +88,7 @@ Publisher::run(int argc, char* argv[])
     {
 	while(true)
 	{
-	    clock->tick(IceUtil::Time::now().toString());
+	    clock->tick(IceUtil::Time::now().toDateTime());
 #ifdef _WIN32
 	    Sleep(1000);
 #else
