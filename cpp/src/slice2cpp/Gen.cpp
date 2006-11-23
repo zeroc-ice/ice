@@ -952,19 +952,25 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	params.push_back(fixKwd((*q)->name()));
     }
 
+    string dllExport;
+    if(findMetaData(p->getMetaData(), false) != "class")
+    {
+	dllExport = _dllExport;
+    }
+
     H << sp;
-    H << nl << _dllExport << "bool operator==(const " << name << "&) const;";
-    H << nl << _dllExport << "bool operator!=(const " << name << "&) const;";
-    H << nl << _dllExport << "bool operator<(const " << name << "&) const;";
-    H << nl << _dllExport << "bool operator<=(const " << name << "& __rhs) const";
+    H << nl << dllExport << "bool operator==(const " << name << "&) const;";
+    H << nl << dllExport << "bool operator!=(const " << name << "&) const;";
+    H << nl << dllExport << "bool operator<(const " << name << "&) const;";
+    H << nl << dllExport << "bool operator<=(const " << name << "& __rhs) const";
     H << sb;
     H << nl << "return operator<(__rhs) || operator==(__rhs);";
     H << eb;
-    H << nl << _dllExport << "bool operator>(const " << name << "& __rhs) const";
+    H << nl << dllExport << "bool operator>(const " << name << "& __rhs) const";
     H << sb;
     H << nl << "return !operator<(__rhs) && !operator==(__rhs);";
     H << eb;
-    H << nl << _dllExport << "bool operator>=(const " << name << "& __rhs) const";
+    H << nl << dllExport << "bool operator>=(const " << name << "& __rhs) const";
     H << sb;
     H << nl << "return !operator<(__rhs);";
     H << eb;
@@ -1013,13 +1019,13 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	//
 	// None of these member functions is virtual!
 	//
-	H << sp << nl << _dllExport << "void __write(::IceInternal::BasicStream*) const;";
-	H << nl << _dllExport << "void __read(::IceInternal::BasicStream*);";
+	H << sp << nl << dllExport << "void __write(::IceInternal::BasicStream*) const;";
+	H << nl << dllExport << "void __read(::IceInternal::BasicStream*);";
 
         if(_stream)
         {
-            H << sp << nl << _dllExport << "void ice_write(const ::Ice::OutputStreamPtr&) const;";
-            H << nl << _dllExport << "void ice_read(const ::Ice::InputStreamPtr&);";
+            H << sp << nl << dllExport << "void ice_write(const ::Ice::OutputStreamPtr&) const;";
+            H << nl << dllExport << "void ice_read(const ::Ice::InputStreamPtr&);";
         }
 
 	C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::BasicStream* __os) const";
@@ -1068,9 +1074,9 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
 	if(!p->isLocal() && _stream)
 	{
-	    H << sp << nl << _dllExport << "void ice_write" << p->name() << "(const ::Ice::OutputStreamPtr&, const "
+	    H << sp << nl << "void ice_write" << p->name() << "(const ::Ice::OutputStreamPtr&, const "
 	      << name << "Ptr&);";
-	    H << nl << _dllExport << "void ice_read" << p->name() << "(const ::Ice::InputStreamPtr&, " << name
+	    H << nl << "void ice_read" << p->name() << "(const ::Ice::InputStreamPtr&, " << name
 	      << "Ptr&);";
 	    
 	    C << sp << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
@@ -1090,9 +1096,9 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     {
 	if(!p->isLocal() && _stream)
 	{
-	    H << sp << nl << _dllExport << "void ice_write" << p->name() << "(const ::Ice::OutputStreamPtr&, const "
+	    H << sp << nl << dllExport << "void ice_write" << p->name() << "(const ::Ice::OutputStreamPtr&, const "
 	      << name << "&);";
-	    H << nl << _dllExport << "void ice_read" << p->name() << "(const ::Ice::InputStreamPtr&, " << name << "&);";
+	    H << nl << dllExport << "void ice_read" << p->name() << "(const ::Ice::InputStreamPtr&, " << name << "&);";
 	    
 	    C << sp << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
 	      << "(const ::Ice::OutputStreamPtr& __outS, const " << scoped << "& __v)";

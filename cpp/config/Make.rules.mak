@@ -29,22 +29,24 @@ prefix			= C:\Ice-$(VERSION)
 # If third party libraries are not installed in the default location
 # change the following setting to reflect the installation location.
 #
-THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty
+#THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty-VC60
+THIRDPARTY_HOME		= C:\Ice-3.2.0-ThirdParty-VC60
 
 #
 # Define USE_STLPORT if using STLPort. Required if using MSVC++ 6.0.
 # STLPort must be installed in the same directory as the other third
 # party libraries.
 #
-#USE_STLPORT		= yes
+STLPORT_HOME		= $(THIRDPARTY_HOME)
+USE_STLPORT		= yes
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION			= 4.0.0
-SOVERSION		= 40
+VERSION			= 3.2.0
+SOVERSION		= 32
 bindir			= $(top_srcdir)\bin
 libdir			= $(top_srcdir)\lib
 includedir		= $(top_srcdir)\include
