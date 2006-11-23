@@ -37,42 +37,32 @@ ReplicaCache::ReplicaCache(const Ice::CommunicatorPtr& communicator, const IceSt
 ReplicaEntryPtr
 ReplicaCache::add(const string& name, const ReplicaSessionIPtr& session)
 {
-    ReplicaEntryPtr entry;
+    Lock sync(*this);
+    
+    while(true)
     {
-	Lock sync(*this);
-
-	while(true)
+	ReplicaEntryPtr entry = getImpl(name);
+	if(entry)
 	{
-	    ReplicaEntryPtr entry = getImpl(name);
-	    if(entry)
+	    if(entry->getSession()->isDestroyed())
 	    {
-		if(entry->getSession()->isDestroyed())
-		{
-		    wait();
-		    continue;
-		}
-		else
-		{
-		    throw ReplicaActiveException();
-		}
+		wait();
+		continue;
 	    }
-	    break;
+	    else
+	    {
+		throw ReplicaActiveException();
+	    }
 	}
-    
-	if(_traceLevels && _traceLevels->replica > 0)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
-	    out << "replica `" << name << "' up";
-	}
-    
-	entry = addImpl(name, new ReplicaEntry(name, session));
+	break;
     }
-
-    //
-    // Note: it's safe to do this outside the synchronization because
-    // remove() can't be called until this method returns (and until
-    // the replica session is fully created).
-    //
+    
+    if(_traceLevels && _traceLevels->replica > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
+	out << "replica `" << name << "' up";
+    }
+    
     try
     {
 	_nodes->replicaAdded(session->getInternalRegistry());
@@ -91,25 +81,23 @@ ReplicaCache::add(const string& name, const ReplicaSessionIPtr& session)
 	}
     }
 
-    return entry;
+    return addImpl(name, new ReplicaEntry(name, session));
 }
 
 ReplicaEntryPtr
 ReplicaCache::remove(const string& name, bool shutdown)
 {
-    ReplicaEntryPtr entry;
+    Lock sync(*this);
+
+    ReplicaEntryPtr entry = getImpl(name);
+    assert(entry);
+    removeImpl(name);
+    notifyAll();
+    
+    if(_traceLevels && _traceLevels->replica > 0)
     {
-	Lock sync(*this);
-	entry = getImpl(name);
-	assert(entry);
-	removeImpl(name);
-	notifyAll();
-	
-	if(_traceLevels && _traceLevels->replica > 0)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
-	    out << "replica `" << name << "' down";
-	}
+	Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
+	out << "replica `" << name << "' down";
     }
 
     if(!shutdown)
@@ -219,6 +207,24 @@ ReplicaCache::getEndpoints(const string& name, const Ice::ObjectPrx& proxy) cons
     }
 
     return _communicator->stringToProxy("dummy")->ice_endpoints(endpoints);
+}
+
+void
+ReplicaCache::setInternalRegistry(const InternalRegistryPrx& proxy)
+{
+    // 
+    // Setup this replica internal registry proxy.
+    //
+    _self = proxy;
+}
+
+InternalRegistryPrx
+ReplicaCache::getInternalRegistry() const
+{
+    // 
+    // This replica internal registry proxy.
+    //
+    return _self;
 }
 
 ReplicaEntry::ReplicaEntry(const std::string& name, const ReplicaSessionIPtr& session) : 

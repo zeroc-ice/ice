@@ -26,19 +26,20 @@ namespace IceGrid
 
     struct AddCommunicator : std::unary_function<CommunicatorDescriptorPtr&, void>
     {
-	AddCommunicator(ServerCache& serverCache, const ServerEntryPtr& entry) :
-	    _serverCache(serverCache), _entry(entry)
+	AddCommunicator(ServerCache& serverCache, const ServerEntryPtr& entry, const string& application) :
+	    _serverCache(serverCache), _entry(entry), _application(application)
 	{
 	}
 	
 	void
 	operator()(const CommunicatorDescriptorPtr& desc)
 	{
-	    _serverCache.addCommunicator(desc, _entry);
+	    _serverCache.addCommunicator(desc, _entry, _application);
 	}
 	
 	ServerCache& _serverCache;
 	const ServerEntryPtr _entry;
+	const string _application;
     };
 
     struct RemoveCommunicator : std::unary_function<CommunicatorDescriptorPtr&, void>
@@ -86,7 +87,7 @@ ServerCache::add(const ServerInfo& info)
     entry->update(info);
     _nodeCache.get(info.node, true)->addServer(entry);
 
-    forEachCommunicator(AddCommunicator(*this, entry))(info.descriptor);
+    forEachCommunicator(AddCommunicator(*this, entry, info.application))(info.descriptor);
 
     if(_traceLevels && _traceLevels->server > 0)
     {
@@ -153,13 +154,14 @@ ServerCache::clear(const string& id)
 }
 
 void
-ServerCache::addCommunicator(const CommunicatorDescriptorPtr& comm, const ServerEntryPtr& server)
+ServerCache::addCommunicator(const CommunicatorDescriptorPtr& comm, 
+			     const ServerEntryPtr& server,
+			     const string& application)
 {
-    const string application = server->getApplication();
     for(AdapterDescriptorSeq::const_iterator q = comm->adapters.begin() ; q != comm->adapters.end(); ++q)
     {
 	assert(!q->id.empty());
-	_adapterCache.addServerAdapter(*q, server);
+	_adapterCache.addServerAdapter(*q, server, application);
 
 	ObjectDescriptorSeq::const_iterator r;
 	for(r = q->objects.begin(); r != q->objects.end(); ++r)
@@ -208,7 +210,7 @@ ServerEntry::ServerEntry(ServerCache& cache, const string& id) :
 }
 
 void
-ServerEntry::sync()
+ServerEntry::load()
 {
     try
     {
@@ -218,6 +220,18 @@ ServerEntry::sync()
     {
 	// Ignore
     }
+}
+
+void
+ServerEntry::unload()
+{
+    Lock sync(*this);
+    if(_loaded.get())
+    {
+	_load = _loaded;
+    }
+    _proxy = 0;
+    _adapters.clear();
 }
 
 void
@@ -324,28 +338,15 @@ ServerEntry::getId() const
 ServerPrx
 ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& node, bool upToDate)
 {
-    ServerPrx proxy;
     {
 	Lock sync(*this);
 	if(_loaded.get() || _proxy && !upToDate) // Synced or if not up to date is fine
 	{
 	    assert(_loaded.get() || _load.get());
-	    proxy = _proxy;
 	    activationTimeout = _activationTimeout;
 	    deactivationTimeout = _deactivationTimeout;
 	    node = _loaded.get() ? _loaded->node : _load->node;
-	}
-    }
-
-    if(proxy)
-    {
-	try
-	{
-	    proxy->ice_ping();
-	    return proxy;
-	}
-	catch(const Ice::LocalException&)
-	{
+	    return _proxy;
 	}
     }
 
@@ -378,8 +379,6 @@ ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& 
 AdapterPrx
 ServerEntry::getAdapter(const string& id, bool upToDate)
 {
-    AdapterPrx proxy;
-
     {
 	Lock sync(*this);
 	if(_loaded.get() || _proxy && !upToDate) // Synced or if not up to date is fine
@@ -387,25 +386,13 @@ ServerEntry::getAdapter(const string& id, bool upToDate)
 	    AdapterPrxDict::const_iterator p = _adapters.find(id);
 	    if(p != _adapters.end())
 	    {
-		proxy = p->second;
-		assert(proxy);
+		assert(p->second);
+		return p->second;
 	    }
 	    else
 	    {
 		throw AdapterNotExistException(id);
 	    }
-	}
-    }
-
-    if(proxy)
-    {
-	try
-	{
-	    proxy->ice_ping();
- 	    return proxy;
-	}
-	catch(const Ice::LocalException&)
-	{
 	}
     }
 
@@ -437,28 +424,6 @@ ServerEntry::getAdapter(const string& id, bool upToDate)
 	    }
 	}
     }
-}
-
-NodeEntryPtr
-ServerEntry::getNode() const
-{
-    Lock sync(*this);
-    if(!_loaded.get() && !_load.get())
-    {
-	throw ServerNotExistException();
-    }
-    return _loaded.get() ? _cache.getNodeCache().get(_loaded->node) : _cache.getNodeCache().get(_load->node);
-}
-
-string
-ServerEntry::getApplication() const
-{
-    Lock sync(*this);
-    if(!_loaded.get() && !_load.get())
-    {
-	throw ServerNotExistException();
-    }
-    return _loaded.get() ? _loaded->application : _load->application;
 }
 
 float

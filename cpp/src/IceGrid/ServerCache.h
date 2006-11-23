@@ -36,7 +36,9 @@ public:
     
     ServerEntry(ServerCache&, const std::string&);
 
-    void sync();
+    void load();
+    void unload();
+
     void update(const ServerInfo&);
     void destroy();
 
@@ -45,8 +47,6 @@ public:
 
     ServerPrx getProxy(int&, int&, std::string&, bool);
     AdapterPrx getAdapter(const std::string&, bool);
-    NodeEntryPtr getNode() const;
-    std::string getApplication() const;
     float getLoad(LoadSample) const;
 
     bool canRemove();
@@ -103,7 +103,7 @@ public:
 
 private:
     
-    void addCommunicator(const CommunicatorDescriptorPtr&, const ServerEntryPtr&);
+    void addCommunicator(const CommunicatorDescriptorPtr&, const ServerEntryPtr&, const std::string&);
     void removeCommunicator(const CommunicatorDescriptorPtr&, const ServerEntryPtr&);
 
     friend struct AddCommunicator;

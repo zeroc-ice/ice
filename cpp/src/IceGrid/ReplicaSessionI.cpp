@@ -172,7 +172,7 @@ ReplicaSessionI::destroy(const Ice::Current& current)
 	_wellKnownObjects->updateReplicatedWellKnownObjects(); // No need to update these if we're shutting down.
     }
 
-    _database->removeReplica(_name, this, shutdown);
+    _database->removeReplica(_name, shutdown);
 
     if(current.adapter)
     {

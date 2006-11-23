@@ -219,44 +219,14 @@ AdminSessionI::openNodeStdErr(const std::string& name, const Ice::Current& curre
 FileIteratorPrx 
 AdminSessionI::openRegistryStdOut(const std::string& name, const Ice::Current& current)
 {
-    FileReaderPrx reader;
-    if(name == _replicaName)
-    {
-	Ice::Identity internalRegistryId;
-	internalRegistryId.category = _database->getInstanceName();
-	internalRegistryId.name = "InternalRegistry-" + _replicaName;
-
-	Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
-	string proxyStr = communicator->identityToString(internalRegistryId);
-	reader = FileReaderPrx::uncheckedCast(communicator->stringToProxy(proxyStr));
-    }
-    else 
-    {
-	reader = _database->getReplica(name);
-    }
-
+    FileReaderPrx reader = name == _replicaName ? _database->getInternalRegistry() : _database->getReplica(name);
     return addFileIterator(reader, "stdout", current);
 }
 
 FileIteratorPrx
 AdminSessionI::openRegistryStdErr(const std::string& name, const Ice::Current& current)
 {
-    FileReaderPrx reader;
-    if(name == _replicaName)
-    {
-	Ice::Identity internalRegistryId;
-	internalRegistryId.category = _database->getInstanceName();
-	internalRegistryId.name = "InternalRegistry-" + _replicaName;
-
-	Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
-	string proxyStr = communicator->identityToString(internalRegistryId);
-	reader = FileReaderPrx::uncheckedCast(communicator->stringToProxy(proxyStr));
-    }
-    else 
-    {
-	reader = _database->getReplica(name);
-    }
-
+    FileReaderPrx reader = name == _replicaName ? _database->getInternalRegistry() : _database->getReplica(name);
     return addFileIterator(reader, "stderr", current);
 }
 

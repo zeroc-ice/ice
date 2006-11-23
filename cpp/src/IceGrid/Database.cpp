@@ -382,7 +382,7 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session)
     {
 	try
 	{
-	    for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
+	    for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::load));
 	}
 	catch(const DeploymentException& ex)
 	{
@@ -595,7 +595,7 @@ Database::removeApplication(const string& name, AdminSessionI* session)
     {
 	try
 	{
-	    for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
+	    for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::load));
 	}
 	catch(const DeploymentException&)
 	{
@@ -636,6 +636,12 @@ Database::addNode(const string& name, const NodeSessionIPtr& session)
     info.type = Node::ice_staticId();
     info.proxy = session->getNode();
     addInternalObject(info, true);
+}
+
+void
+Database::setNodeProxy(const string& name, const NodePrx& node)
+{
+    _nodeCache.get(name)->setProxy(node);
 }
 
 NodePrx 
@@ -730,7 +736,7 @@ Database::waitForApplicationReplication(const AMD_NodeSession_waitForApplication
 }
 
 void
-Database::removeReplica(const string& name, const ReplicaSessionIPtr& session, bool shutdown)
+Database::removeReplica(const string& name, bool shutdown)
 {
     _registryObserverTopic->registryDown(name);
     _replicaCache.remove(name, shutdown);
@@ -740,6 +746,30 @@ Ice::StringSeq
 Database::getAllReplicas(const string& expression)
 {
     return _replicaCache.getAll(expression);
+}
+
+void
+Database::setInternalRegistry(const InternalRegistryPrx& proxy)
+{
+    _replicaCache.setInternalRegistry(proxy);
+}
+
+InternalRegistryPrx
+Database::getInternalRegistry() const
+{
+    return _replicaCache.getInternalRegistry();
+}
+
+void
+Database::loadServer(const std::string& id)
+{
+    _serverCache.get(id)->load();
+}
+
+void
+Database::unloadServer(const std::string& id)
+{
+    _serverCache.get(id)->unload();
 }
 
 ServerInfo
@@ -1659,12 +1689,12 @@ Database::finishApplicationUpdate(ServerEntrySeq& entries,
     if(_master)
     {
 	//
-	// Synchronize the servers on the nodes. If a server couldn't be
+	// Load the servers on the nodes. If a server couldn't be
 	// deployed we unload the application and throw.
 	//
 	try
 	{
-	    for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
+	    for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::load));
 	}
 	catch(const DeploymentException& ex)
 	{
@@ -1681,7 +1711,7 @@ Database::finishApplicationUpdate(ServerEntrySeq& entries,
 
 	    try
 	    {
-		for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
+		for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::load));
 	    }
 	    catch(const DeploymentException& ex)
 	    {

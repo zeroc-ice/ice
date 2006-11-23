@@ -58,7 +58,7 @@ public:
     void terminate();
     void destroy();
 
-    NodeSessionKeepAliveThreadPtr replicaAdded(const InternalRegistryPrx&);
+    void replicaAdded(const InternalRegistryPrx&, bool);
     void replicaRemoved(const InternalRegistryPrx&);
 
     NodeSessionPrx getMasterNodeSession() const { return _thread->getSession(); }

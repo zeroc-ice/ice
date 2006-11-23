@@ -94,7 +94,7 @@ NodeSessionI::loadServers(const Ice::Current& current) const
     {
 	try
 	{
-	    _database->getServer(*p);
+	    _database->loadServer(*p);
 	}
 	catch(const Ice::UserException&)
 	{
@@ -128,6 +128,19 @@ NodeSessionI::destroy(const Ice::Current& current)
 	    throw Ice::ObjectNotExistException(__FILE__, __LINE__);
 	}	
 	_destroy = true;
+    }
+
+    Ice::StringSeq servers = _database->getAllNodeServers(_name);
+    for(Ice::StringSeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
+    {
+	try
+	{
+	    _database->unloadServer(*p);
+	}
+	catch(const Ice::UserException&)
+	{
+	    // Ignore.
+	}
     }
 
     _database->removeNode(_name, this, !current.adapter);

@@ -81,6 +81,7 @@ public:
     Ice::StringSeq getAllApplications(const std::string& = std::string());
 
     void addNode(const std::string&, const NodeSessionIPtr&);
+    void setNodeProxy(const std::string&, const NodePrx&);
     NodePrx getNode(const std::string&) const;
     NodeInfo getNodeInfo(const std::string&) const;
     void removeNode(const std::string&, const NodeSessionIPtr&, bool);
@@ -92,11 +93,15 @@ public:
     void replicaReceivedUpdate(const std::string&, TopicName, int, const std::string&);
     void waitForApplicationReplication(const AMD_NodeSession_waitForApplicationReplicationPtr&, const std::string&, 
 				       int);
-    void removeReplica(const std::string&, const ReplicaSessionIPtr&, bool);
+    void removeReplica(const std::string&, bool);
     Ice::StringSeq getAllReplicas(const std::string& = std::string());
+    void setInternalRegistry(const InternalRegistryPrx&);
+    InternalRegistryPrx getInternalRegistry() const;
 
     ServerInfo getServerInfo(const std::string&, bool = false);
     ServerPrx getServer(const std::string&, bool = true);
+    void loadServer(const std::string&);
+    void unloadServer(const std::string&);
     ServerPrx getServerWithTimeouts(const std::string&, int&, int&, std::string&, bool = true);
     Ice::StringSeq getAllServers(const std::string& = std::string());
     Ice::StringSeq getAllNodeServers(const std::string&);

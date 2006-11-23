@@ -481,7 +481,7 @@ NodeI::registerWithReplica(const InternalRegistryPrx& replica, const Ice::Curren
 void
 NodeI::replicaAdded(const InternalRegistryPrx& replica, const Ice::Current&)
 {
-    _sessions.replicaAdded(replica);
+    _sessions.replicaAdded(replica, false);
 }
 
 void

@@ -28,25 +28,26 @@ typedef std::vector<ServerEntryPtr> ServerEntrySeq;
 class AdapterEntry;
 typedef IceUtil::Handle<AdapterEntry> AdapterEntryPtr;
 
-class AdapterEntry : virtual public IceUtil::Shared, public IceUtil::Mutex
+class AdapterEntry : virtual public IceUtil::Shared
 {
 public:
     
-    AdapterEntry(AdapterCache&, const std::string&);
+    AdapterEntry(AdapterCache&, const std::string&, const std::string&);
 
     virtual std::vector<std::pair<std::string, AdapterPrx> > getProxies(int&, bool&) = 0;
     virtual float getLeastLoadedNodeLoad(LoadSample) const = 0;
-    virtual std::string getApplication() const = 0;
     virtual AdapterInfoSeq getAdapterInfo() const = 0;
 
     virtual bool canRemove();
 
     std::string getId() const;
+    std::string getApplication() const;
     
 protected:
 
     AdapterCache& _cache;
     const std::string _id;
+    const std::string _application;
 };
 typedef IceUtil::Handle<AdapterEntry> AdapterEntryPtr;
 
@@ -54,11 +55,11 @@ class ServerAdapterEntry : public AdapterEntry
 {
 public:
 
-    ServerAdapterEntry(AdapterCache&, const std::string&, const std::string&, int, const ServerEntryPtr&);
+    ServerAdapterEntry(AdapterCache&, const std::string&, const std::string&, const std::string&, int, 
+		       const ServerEntryPtr&);
 
     virtual std::vector<std::pair<std::string, AdapterPrx> > getProxies(int&, bool&);
     virtual float getLeastLoadedNodeLoad(LoadSample) const;
-    virtual std::string getApplication() const;
     virtual AdapterInfoSeq getAdapterInfo() const;
     virtual const std::string& getReplicaGroupId() const { return _replicaGroupId; }
 
@@ -66,8 +67,6 @@ public:
     int getPriority() const;
     
 private:
-    
-    ServerEntryPtr getServer() const;
 
     const std::string _replicaGroupId;
     const int _priority;
@@ -75,7 +74,7 @@ private:
 };
 typedef IceUtil::Handle<ServerAdapterEntry> ServerAdapterEntryPtr;
 
-class ReplicaGroupEntry : public AdapterEntry
+class ReplicaGroupEntry : public AdapterEntry, public IceUtil::Mutex
 {
 public:
 
@@ -83,7 +82,6 @@ public:
 
     virtual std::vector<std::pair<std::string, AdapterPrx> > getProxies(int&, bool&);
     virtual float getLeastLoadedNodeLoad(LoadSample) const;
-    virtual std::string getApplication() const;
     virtual AdapterInfoSeq getAdapterInfo() const;
 
     void addReplica(const std::string&, const ServerAdapterEntryPtr&);
@@ -92,8 +90,6 @@ public:
     void update(const LoadBalancingPolicyPtr&);
 
 private:
-
-    const std::string _application;
 
     LoadBalancingPolicyPtr _loadBalancing;
     int _loadBalancingNReplicas;
@@ -107,7 +103,7 @@ class AdapterCache : public CacheByString<AdapterEntry>
 {
 public:
 
-    ServerAdapterEntryPtr addServerAdapter(const AdapterDescriptor&, const ServerEntryPtr&);
+    ServerAdapterEntryPtr addServerAdapter(const AdapterDescriptor&, const ServerEntryPtr&, const std::string&);
     ReplicaGroupEntryPtr addReplicaGroup(const ReplicaGroupDescriptor&, const std::string&);
 
     AdapterEntryPtr get(const std::string&) const;

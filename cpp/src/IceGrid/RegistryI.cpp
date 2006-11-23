@@ -303,7 +303,6 @@ RegistryI::start(bool nowarn)
     for(p = proxies.begin(); p != proxies.end(); ++p)
     {
 	nodes.push_back(NodePrx::uncheckedCast(*p));
-	_database->removeInternalObject((*p)->ice_getIdentity());
     }
 
     InternalRegistryPrxSeq replicas;
@@ -311,7 +310,6 @@ RegistryI::start(bool nowarn)
     for(p = proxies.begin(); p != proxies.end(); ++p)
     {
 	replicas.push_back(InternalRegistryPrx::uncheckedCast(*p));
-	_database->removeObject((*p)->ice_getIdentity());
     }
 
     //
@@ -457,7 +455,10 @@ RegistryI::setupInternalRegistry(const Ice::ObjectAdapterPtr& registryAdapter)
     ObjectPtr internalRegistry = new InternalRegistryI(this, _database, _reaper, _wellKnownObjects, _session);
     Ice::ObjectPrx proxy = registryAdapter->add(internalRegistry, internalRegistryId);
     _wellKnownObjects->add(proxy, InternalRegistry::ice_staticId());
-    return InternalRegistryPrx::uncheckedCast(proxy);
+
+    InternalRegistryPrx registry = InternalRegistryPrx::uncheckedCast(proxy);
+    _database->setInternalRegistry(registry);
+    return registry;
 }
 
 void
@@ -1182,6 +1183,18 @@ RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry,
 	    }
 	    catch(const Ice::LocalException& ex)
 	    {
+		//
+		// Clear the proxy from the database if we can't
+		// contact the replica.
+		//
+		try
+		{
+		    _database->removeObject((*r)->ice_getIdentity());
+		}
+		catch(const ObjectNotRegisteredException&)
+		{
+		}
+
 		if(_traceLevels && _traceLevels->replica > 1)
 		{
 		    Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
@@ -1206,39 +1219,27 @@ RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry,
 void
 RegistryI::registerNodes(const InternalRegistryPrx& internalRegistry, const NodePrxSeq& nodes)
 {
+    const string prefix("Node-");
     for(NodePrxSeq::const_iterator p = nodes.begin(); p != nodes.end(); ++p)
     {
-	string nodeName;
-	if(_traceLevels && _traceLevels->node > 1)
-	{
-	    nodeName = (*p)->ice_getIdentity().name;
-	    const string prefix("Node-");
-	    string::size_type pos = nodeName.find(prefix);
-	    if(pos != string::npos)
-	    {
-		nodeName = nodeName.substr(prefix.size());
-	    }
-	    
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->nodeCat);
-	    out << "creating node `" << nodeName << "' session";
-	}
-	
+	assert((*p)->ice_getIdentity().name.find(prefix) != string::npos);
 	try
 	{
-	    NodePrx::uncheckedCast(*p)->registerWithReplica(internalRegistry);
-	    
-	    if(_traceLevels && _traceLevels->node > 1)
-	    {
-		Ice::Trace out(_traceLevels->logger, _traceLevels->nodeCat);
-		out << "node `" << nodeName << "' session created";
-	    }
+	    _database->setNodeProxy((*p)->ice_getIdentity().name.substr(prefix.size()), *p);
 	}
-	catch(const Ice::LocalException& ex)
+	catch(const NodeNotExistException&)
 	{
-	    if(_traceLevels && _traceLevels->node > 1)
+	    //
+	    // Ignore, if nothing's deployed on the node we won't need
+	    // to contact it for locator requests so we don't need to
+	    // keep its proxy.
+	    //
+	    try
 	    {
-		Ice::Trace out(_traceLevels->logger, _traceLevels->nodeCat);
-		out << "node `" << nodeName << "' session creation failed:\n" << ex;
+		_database->removeInternalObject((*p)->ice_getIdentity());
+	    }
+	    catch(const ObjectNotRegisteredException&)
+	    {
 	    }
 	}
     }

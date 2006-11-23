@@ -50,14 +50,7 @@ public:
     pair<float, ServerAdapterEntryPtr>
     operator()(const ServerAdapterEntryPtr& value)
     {
-	try
-	{
-	    return make_pair(value->getLeastLoadedNodeLoad(_loadSample), value);
-	}
-	catch(const Ice::Exception&)
-	{
-	    return make_pair(1.0f, value);
-	}
+	return make_pair(value->getLeastLoadedNodeLoad(_loadSample), value);
     }
 
     LoadSample _loadSample;
@@ -75,7 +68,7 @@ struct TransformToReplica : public unary_function<const pair<string, ServerAdapt
 }
 
 ServerAdapterEntryPtr
-AdapterCache::addServerAdapter(const AdapterDescriptor& desc, const ServerEntryPtr& server)
+AdapterCache::addServerAdapter(const AdapterDescriptor& desc, const ServerEntryPtr& server, const string& app)
 {
     Lock sync(*this);
     assert(!getImpl(desc.id));
@@ -84,7 +77,7 @@ AdapterCache::addServerAdapter(const AdapterDescriptor& desc, const ServerEntryP
     int priority = 0;
     is >> priority;
 
-    ServerAdapterEntryPtr entry = new ServerAdapterEntry(*this, desc.id, desc.replicaGroupId, priority, server);
+    ServerAdapterEntryPtr entry = new ServerAdapterEntry(*this, desc.id, app, desc.replicaGroupId, priority, server);
     addImpl(desc.id, entry);
 
     if(!desc.replicaGroupId.empty())
@@ -190,9 +183,10 @@ AdapterCache::removeImpl(const string& id)
     Cache<string, AdapterEntry>::removeImpl(id);
 }
 
-AdapterEntry::AdapterEntry(AdapterCache& cache, const string& id) :
+AdapterEntry::AdapterEntry(AdapterCache& cache, const string& id, const string& application) :
     _cache(cache),
-    _id(id)
+    _id(id),
+    _application(application)
 {
 }
 
@@ -208,12 +202,19 @@ AdapterEntry::getId() const
     return _id;
 }
 
+string
+AdapterEntry::getApplication() const
+{
+    return _application;
+}
+
 ServerAdapterEntry::ServerAdapterEntry(AdapterCache& cache,
 				       const string& id,
+				       const string& application,
 				       const string& replicaGroupId, 
 				       int priority,
 				       const ServerEntryPtr& server) : 
-    AdapterEntry(cache, id),
+    AdapterEntry(cache, id, application),
     _replicaGroupId(replicaGroupId),
     _priority(priority),
     _server(server)
@@ -239,13 +240,27 @@ ServerAdapterEntry::getProxies(int& nReplicas, bool& replicaGroup)
 float
 ServerAdapterEntry::getLeastLoadedNodeLoad(LoadSample loadSample) const
 {
-    return getServer()->getLoad(loadSample);
-}
-
-string
-ServerAdapterEntry::getApplication() const
-{
-    return getServer()->getApplication();
+    try
+    {
+	return _server->getLoad(loadSample);
+    }
+    catch(const ServerNotExistException&)
+    {
+	// This might happen if the application is updated concurrently.
+    }
+    catch(const NodeNotExistException&)
+    {
+	// This might happen if the application is updated concurrently.
+    }
+    catch(const NodeUnreachableException&)
+    {
+    }
+    catch(const Ice::Exception& ex)
+    {
+	Ice::Error error(_cache.getTraceLevels()->logger);
+	error << "unexpected exception while getting node load:\n" << ex;
+    }
+    return 999.9f;
 }
 
 AdapterInfoSeq
@@ -271,11 +286,10 @@ ServerAdapterEntry::getProxy(const string& replicaGroupId, bool upToDate) const
 {
     if(replicaGroupId.empty())
     {
-	return getServer()->getAdapter(_id, upToDate);
+	return _server->getAdapter(_id, upToDate);
     }
     else
     {
-	Lock sync(*this);
 	if(_replicaGroupId != replicaGroupId)
 	{
 	    throw Ice::InvalidReplicaGroupIdException();
@@ -290,20 +304,11 @@ ServerAdapterEntry::getPriority() const
     return _priority;
 }
 
-ServerEntryPtr
-ServerAdapterEntry::getServer() const
-{
-    Lock sync(*this);
-    assert(_server);
-    return _server;
-}
-
 ReplicaGroupEntry::ReplicaGroupEntry(AdapterCache& cache,
 				     const string& id,
 				     const string& application,
 				     const LoadBalancingPolicyPtr& policy) : 
-    AdapterEntry(cache, id),
-    _application(application),
+    AdapterEntry(cache, id, application),
     _lastReplica(0)
 {
     update(policy);
@@ -469,23 +474,22 @@ ReplicaGroupEntry::getLeastLoadedNodeLoad(LoadSample loadSample) const
 	replicas = _replicas;
     }
 
-    //
-    // This must be done outside the synchronization block since
-    // min_element() will call and lock each server entry.
-    //
-    RandomNumberGenerator rng;
-    random_shuffle(replicas.begin(), replicas.end(), rng);
-    vector<pair<float, ServerAdapterEntryPtr> > rl;
-    transform(replicas.begin(), replicas.end(), back_inserter(rl), TransformToReplicaLoad(loadSample));
-    AdapterEntryPtr adpt = min_element(rl.begin(), rl.end(), ReplicaLoadComp())->second;
-    return adpt->getLeastLoadedNodeLoad(loadSample);
-}
-
-string
-ReplicaGroupEntry::getApplication() const
-{
-    Lock sync(*this);
-    return _application;
+    if(replicas.empty())
+    {
+	return 999.9f;
+    }
+    else if(replicas.size() == 1)
+    {
+	return replicas.back()->getLeastLoadedNodeLoad(loadSample);
+    }
+    else
+    {
+	RandomNumberGenerator rng;
+	random_shuffle(replicas.begin(), replicas.end(), rng);
+	vector<pair<float, ServerAdapterEntryPtr> > rl;
+	transform(replicas.begin(), replicas.end(), back_inserter(rl), TransformToReplicaLoad(loadSample));
+	return min_element(rl.begin(), rl.end(), ReplicaLoadComp())->first;
+    }
 }
 
 AdapterInfoSeq

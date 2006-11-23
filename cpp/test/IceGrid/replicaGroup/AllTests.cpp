@@ -522,7 +522,15 @@ allTests(const Ice::CommunicatorPtr& comm)
 	params["id"] = "Server2";
 	instantiateServer(admin, "Server", "localnode", params);
 	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Random"));
-	test(obj->getReplicaIdAndShutdown() == "Server2.ReplicatedAdapter");
+	test(obj->getReplicaId() == "Server2.ReplicatedAdapter");
+
+	//
+	// Also make sure that findObjectByTypeOnLeastLoadedNode still work.
+	//
+	QueryPrx query = IceGrid::QueryPrx::checkedCast(comm->stringToProxy("IceGrid/Query"));
+	obj = TestIntfPrx::uncheckedCast(query->findObjectByTypeOnLeastLoadedNode("::Test::TestIntf", LoadSample1));
+	test(obj->getReplicaId() == "Server2.ReplicatedAdapter");
+	
 	removeServer(admin, "Server1");
 	removeServer(admin, "Server2");
 
@@ -532,7 +540,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	params["id"] = "Server2";
 	instantiateServer(admin, "Server", "localnode", params);
 	obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("RoundRobin"));
-	test(obj->getReplicaIdAndShutdown() == "Server2.ReplicatedAdapter");
+	test(obj->getReplicaId() == "Server2.ReplicatedAdapter");
 	removeServer(admin, "Server1");
 	removeServer(admin, "Server2");
 
@@ -542,7 +550,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	params["id"] = "Server2";
 	instantiateServer(admin, "Server", "localnode", params);
 	obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Adaptive"));
-	test(obj->getReplicaIdAndShutdown() == "Server2.ReplicatedAdapter");
+	test(obj->getReplicaId() == "Server2.ReplicatedAdapter");
 	removeServer(admin, "Server1");
 	removeServer(admin, "Server2");
 
@@ -552,7 +560,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	params["id"] = "Server1";
 	instantiateServer(admin, "Server", "inactivenode", params);
 	obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Random"));
-	test(svcReplicaIds.find(obj->getReplicaIdAndShutdown()) != svcReplicaIds.end());
+	test(svcReplicaIds.find(obj->getReplicaId()) != svcReplicaIds.end());
 	removeServer(admin, "IceBox1");
 	removeServer(admin, "Server1");
     };

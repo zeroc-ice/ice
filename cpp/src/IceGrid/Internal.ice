@@ -229,10 +229,12 @@ interface Node extends FileReader
 
     /**
      *
-     * Establish a session to the given replica.
+     * Establish a session to the given replica, this method only
+     * returns once the registration was attempted (unlike
+     * replicaAdded below).
      * 
      **/
-    void registerWithReplica(InternalRegistry* replica);
+    ["ami"] void registerWithReplica(InternalRegistry* replica);
 
     /**
      *

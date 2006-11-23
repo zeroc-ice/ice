@@ -31,7 +31,7 @@ typedef IceUtil::Handle<ServerEntry> ServerEntryPtr;
 
 class ReplicaCache;
 
-class NodeEntry : public IceUtil::Monitor<IceUtil::Mutex>
+class NodeEntry : public IceUtil::Monitor<IceUtil::RecMutex>
 {
 public:
     
@@ -44,6 +44,7 @@ public:
     void addServer(const ServerEntryPtr&);
     void removeServer(const ServerEntryPtr&);
     void setSession(const NodeSessionIPtr&);
+    void setSavedProxy(const NodePrx&);
 
     NodePrx getProxy() const;
     NodeInfo getInfo() const;
@@ -59,6 +60,11 @@ public:
     void __incRef();
     void __decRef();
 
+    void checkSession() const;
+    void setProxy(const NodePrx&);
+    void finishedRegistration();
+    void finishedRegistration(const Ice::Exception&);
+
 private:
     
     ServerDescriptorPtr getServerDescriptor(const ServerInfo&, const SessionIPtr&);
@@ -70,6 +76,9 @@ private:
     NodeSessionIPtr _session;
     std::map<std::string, ServerEntryPtr> _servers;
     std::map<std::string, NodeDescriptor> _descriptors;
+
+    mutable bool _registering;
+    mutable NodePrx _proxy;
 };
 typedef IceUtil::Handle<NodeEntry> NodeEntryPtr;
 

@@ -253,13 +253,13 @@ NodeSessionManager::create(const InternalRegistryPrx& replica)
     if(replica->ice_getIdentity() == _master->ice_getIdentity())
     {
 	thread = _thread;
+	thread->setRegistry(replica);
+	thread->tryCreateSession();
     }
     else
     {
-	thread = replicaAdded(replica);
+	replicaAdded(replica, true);
     }
-    thread->setRegistry(replica);
-    thread->tryCreateSession();
 }
 
 bool
@@ -301,27 +301,30 @@ NodeSessionManager::destroy()
     }
 }
 
-NodeSessionKeepAliveThreadPtr
-NodeSessionManager::replicaAdded(const InternalRegistryPrx& replica)
+void
+NodeSessionManager::replicaAdded(const InternalRegistryPrx& replica, bool waitTryCreateSession)
 {
     Lock sync(*this);
     if(_destroyed)
     {
-	return 0;
+	return;
     }
 
     ++_serial;
     NodeSessionMap::const_iterator p = _sessions.find(replica->ice_getIdentity());
+    NodeSessionKeepAliveThreadPtr thread;
     if(p != _sessions.end())
     {
-	return p->second;
+	thread = p->second;
+	thread->setRegistry(replica);
     }
-
-    NodeSessionKeepAliveThreadPtr thread = new NodeSessionKeepAliveThread(replica, _node, _queryObjects);
-    _sessions.insert(make_pair(replica->ice_getIdentity(), thread));
-    thread->start();
-    thread->tryCreateSession(false);
-    return thread;
+    else
+    {
+	thread = new NodeSessionKeepAliveThread(replica, _node, _queryObjects);
+	_sessions.insert(make_pair(replica->ice_getIdentity(), thread));
+	thread->start();
+    }
+    thread->tryCreateSession(waitTryCreateSession);
 }
 
 void

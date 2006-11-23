@@ -58,11 +58,15 @@ public:
 
     Ice::ObjectPrx getEndpoints(const std::string&, const Ice::ObjectPrx&) const;
 
+    void setInternalRegistry(const InternalRegistryPrx&);
+    InternalRegistryPrx getInternalRegistry() const;
+
 private:
 
     const Ice::CommunicatorPtr _communicator;
     const IceStorm::TopicPrx _topic;
     const NodePrx _nodes;
+    InternalRegistryPrx _self; // This replica internal registry proxy.
 };
 
 };

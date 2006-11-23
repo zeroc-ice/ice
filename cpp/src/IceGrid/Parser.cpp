@@ -1297,8 +1297,8 @@ Parser::dumpFile(const string& reader, const string& filename, const list<string
     
     IceUtil::Options opts;
     opts.addOpt("f", "follow");
-    opts.addOpt("h", "head", IceUtil::Options::NeedArg); //, "20"); // TODO: Fix
-    opts.addOpt("t", "tail", IceUtil::Options::NeedArg); //, "20"); // TODO: Fix
+    opts.addOpt("h", "head", IceUtil::Options::NeedArg);
+    opts.addOpt("t", "tail", IceUtil::Options::NeedArg);
 
     vector<string> args;
     try

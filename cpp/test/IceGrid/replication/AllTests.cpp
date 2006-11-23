@@ -752,6 +752,16 @@ allTests(const Ice::CommunicatorPtr& comm)
     instantiateServer(admin, "IceGridNode", params);
 
     //
+    // Add an application which is using Node1. Otherwise, when a
+    // registry restarts it would throw aways the proxy of the nodes
+    // because the node isn't used by any application.
+    //
+    ApplicationDescriptor app;
+    app.name = "DummyApp";
+    app.nodes["Node1"].description = "dummy node";
+    masterAdmin->addApplication(app);
+
+    //
     // Test node session establishment.
     //
     // - start master, start slave1, start node, start slave2
