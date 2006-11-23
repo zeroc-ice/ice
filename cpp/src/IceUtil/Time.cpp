@@ -134,15 +134,6 @@ IceUtil::Time::toDateTime() const
     return os.str();
 }
 
-//
-// TODO: toString() is deprecated. Leave for two more releases after 3.0.0 and then remove it.
-//
-std::string
-IceUtil::Time::toString() const
-{
-    return toDateTime();
-}
-
 std::string
 IceUtil::Time::toDuration() const
 {

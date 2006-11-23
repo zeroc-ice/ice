@@ -847,26 +847,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	}
     }
 
-    /**
-     * @deprecated
-     **/
-    public void
-    destroyObject(Ice.Identity ident)
-    {
-	checkIdentity(ident);
-
-	try
-	{
-	    remove(ident);
-	}
-	catch(Ice.NotRegisteredException e)
-	{
-	    //
-	    // Ignored
-	    //
-	}
-    }
-
     public void
     keep(Ice.Identity ident)
     {

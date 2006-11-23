@@ -77,8 +77,8 @@ main(int argc, char* argv[])
 	    count++;
 	} while(++p != m.end());
 
-	cout << "Read " << IceUtil::Time::milliSeconds(oldMs).toString() << " in all records;" 
-	     << " updating with " << time.toString() << " ... " << flush;
+	cout << "Read " << IceUtil::Time::milliSeconds(oldMs).toDateTime() << " in all records;" 
+	     << " updating with " << time.toDateTime() << " ... " << flush;
 	  
 	txHolder.commit();
 	cout << "done" << endl;

@@ -38,7 +38,7 @@ Ice::LoggerI::trace(const string& category, const string& message)
 {
     IceUtil::StaticMutex::Lock sync(outputMutex);
 
-    string s = "[ " + IceUtil::Time::now().toString() + " " + _prefix;
+    string s = "[ " + IceUtil::Time::now().toDateTime() + " " + _prefix;
     if(!category.empty())
     {
         s += category + ": ";
@@ -58,12 +58,12 @@ void
 Ice::LoggerI::warning(const string& message)
 {
     IceUtil::StaticMutex::Lock sync(outputMutex);
-    cerr << IceUtil::Time::now().toString() << " " << _prefix << "warning: " << message << endl;
+    cerr << IceUtil::Time::now().toDateTime() << " " << _prefix << "warning: " << message << endl;
 }
 
 void
 Ice::LoggerI::error(const string& message)
 {
     IceUtil::StaticMutex::Lock sync(outputMutex);
-    cerr << IceUtil::Time::now().toString() << " " << _prefix << "error: " << message << endl;
+    cerr << IceUtil::Time::now().toDateTime() << " " << _prefix << "error: " << message << endl;
 }

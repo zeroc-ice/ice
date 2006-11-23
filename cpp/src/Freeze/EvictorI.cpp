@@ -610,104 +610,6 @@ Freeze::EvictorI::addFacet(const ObjectPtr& servant, const Identity& ident, cons
     return obj;
 }
 
-//
-// Deprecated
-//
-void
-Freeze::EvictorI::createObject(const Identity& ident, const ObjectPtr& servant)
-{
-    checkIdentity(ident);
-    DeactivateController::Guard deactivateGuard(_deactivateController);
-  
-    ObjectStore* store = findStore("");
-    assert(store != 0);
-  
-    for(;;)
-    {
-	//
-	// Create a new entry
-	//
-	
-	EvictorElementPtr element = new EvictorElement(*store);
-	element->status = EvictorElement::dead;
-	EvictorElementPtr oldElt = store->putIfAbsent(ident, element);
-      
-	if(oldElt != 0)
-	{
-	    element = oldElt;
-	}
-
-	{
-	    Lock sync(*this);
-
-	    if(element->stale)
-	    {
-		//
-		// Try again
-		// 
-		continue;
-	    }
-	    fixEvictPosition(element);
-
-	    IceUtil::Mutex::Lock lock(element->mutex);
-	
-	    switch(element->status)
-	    {
-		case EvictorElement::clean:
-		{
-		    element->status = EvictorElement::modified;
-		    element->rec.servant = servant;
-		    addToModifiedQueue(element);
-		    break;
-		}
-		case EvictorElement::created:
-		case EvictorElement::modified:
-		{
-		    element->rec.servant = servant;
-		    break;
-		}  
-		case EvictorElement::destroyed:
-		{
-		    element->status = EvictorElement::modified;
-		    element->rec.servant = servant;
-		    
-		    //
-		    // No need to push it on the modified queue, as a destroyed object
-		    // is either already on the queue or about to be saved. When saved,
-		    // it becomes dead.
-		    //
-		    break;
-		}
-		case EvictorElement::dead:
-		{
-		    element->status = EvictorElement::created;
-		    ObjectRecord& rec = element->rec;
-
-		    rec.servant = servant;
-		    rec.stats.creationTime = IceUtil::Time::now().toMilliSeconds();
-		    rec.stats.lastSaveTime = 0;
-		    rec.stats.avgSaveTime = 0;
-
-		    addToModifiedQueue(element);
-		    break;
-		}
-		default:
-		{
-		    assert(0);
-		    break;
-		}
-	    }
-	}
-	break; // for(;;)
-    }
-
-    if(_trace >= 1)
-    {
-	Trace out(_communicator->getLogger(), "Freeze.Evictor");
-	out << "added or updated object \"" << _communicator->identityToString(ident) << "\"";
-    }
-}
-
 Ice::ObjectPtr
 Freeze::EvictorI::remove(const Identity& ident)
 {
@@ -829,26 +731,6 @@ Freeze::EvictorI::removeFacet(const Identity& ident, const string& facet)
 	}
     }
     return servant;
-}
-
-//
-// Deprecated
-//
-void
-Freeze::EvictorI::destroyObject(const Identity& ident)
-{
-    checkIdentity(ident);
-
-    try
-    {
-	remove(ident);
-    }
-    catch(NotRegisteredException&)
-    {
-	//
-	// Ignored
-	//
-    }
 }
 
 void
