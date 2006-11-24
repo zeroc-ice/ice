@@ -39,13 +39,15 @@ protected:
     void start(const ::std::string&, const ::std::string& = ::std::string());
     void end();
 
-    ::std::string getComment(const ContainedPtr&, const ContainerPtr&, bool);
-    void printComment(const ContainedPtr&, const ::std::string&);
+    void printComment(const ContainedPtr&, const ::std::string&, bool = false);
     void printMetaData(const ContainedPtr&);
-    void printSummary(const ContainedPtr&, bool);
+    void printSummary(const ContainedPtr&, const ContainerPtr&, bool);
 
-    ::std::string toString(const SyntaxTreeBasePtr&, const ContainerPtr&, bool = true);
-    ::std::string toString(const ::std::string&, const ContainerPtr&, bool = true);
+    static ::std::string getAnchor(const SyntaxTreeBasePtr&);
+    static ::std::string getLinkPath(const SyntaxTreeBasePtr&, const ContainerPtr&, bool);
+    static ::std::string toString(const SyntaxTreeBasePtr&, const ContainerPtr&, bool = true, bool = false);
+    static ::std::string toString(const ::std::string&, const ContainerPtr&, bool = true, bool = false);
+    static ::std::string getComment(const ContainedPtr&, const ContainerPtr&, bool, bool = false);
 
     ::IceUtil::XMLOutput& _out;
 
@@ -53,11 +55,13 @@ protected:
 
 private:
 
-    StringList getTagged(const ::std::string&, ::std::string&);
-    ::std::string getScopedMinimized(const ContainedPtr&, const ContainerPtr&);
-    ::std::string containedToId(const ContainedPtr&, bool);
     void openStream(const ::std::string&);
 
+    static ::std::string containedToId(const ContainedPtr&, bool);
+    static StringList getTagged(const ::std::string&, ::std::string&);
+    static ::std::string getScopedMinimized(const ContainedPtr&, const ContainerPtr&);
+    static StringList getContained(const SyntaxTreeBasePtr&);
+    static StringList getContainer(const SyntaxTreeBasePtr&);
     static StringList toStringList(const ContainedPtr&);
     static void makeDir(const ::std::string&);
     static ::std::string readFile(const ::std::string&);

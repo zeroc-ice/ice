@@ -32,7 +32,7 @@ usage(const char* n)
 	"--output-dir DIR     Create files in the directory DIR.\n"
         "--header FILE        Use the contents of FILE as the header.\n"
 	"--footer FILe        Use the contents of FILE as the footer.\n"
-	"--index NUM          Generate subindex if it has more than NUM entries (-1 for no index).\n"
+	"--index NUM          Generate subindex if it has at least NUM entries (0 for no index, default=1).\n"
         "-d, --debug          Print debug messages.\n"
         "--ice                Permit `Ice' prefix (for building Ice source code only).\n"
         ;
@@ -51,7 +51,7 @@ main(int argc, char* argv[])
     opts.addOpt("", "output-dir", IceUtil::Options::NeedArg, ".");
     opts.addOpt("", "header", IceUtil::Options::NeedArg);
     opts.addOpt("", "footer", IceUtil::Options::NeedArg);
-    opts.addOpt("", "index", IceUtil::Options::NeedArg);
+    opts.addOpt("", "index", IceUtil::Options::NeedArg, "1");
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
 

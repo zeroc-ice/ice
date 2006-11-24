@@ -1252,7 +1252,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
     modules.erase(remove_if(modules.begin(), modules.end(), ::IceUtil::constMemFun(&Contained::includeLevel)),
 		  modules.end());
 
-    if(_indexCount > 0 && modules.size() >= _indexCount)
+    if(!modules.empty())
     {
 	start("dt", "Heading");
 	_out << "Module Index";
@@ -1286,7 +1286,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
     remove_copy_if(classesAndInterfaces.begin(), classesAndInterfaces.end(), back_inserter(interfaces),
 		   not1(::IceUtil::constMemFun(&ClassDef::isInterface)));
 
-    if(_indexCount > 0 && classes.size() >= _indexCount)
+    if(!classes.empty())
     {
 	start("dt", "Heading");
 	_out << "Class Index";
@@ -1309,7 +1309,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
 
     assert(_out.currIndent() == indent);
 
-    if(_indexCount > 0 && interfaces.size() >= _indexCount)
+    if(!interfaces.empty())
     {
 	start("dt", "Heading");
 	_out << "Interface Index";
@@ -1336,7 +1336,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
     exceptions.erase(remove_if(exceptions.begin(), exceptions.end(), ::IceUtil::constMemFun(&Contained::includeLevel)),
 		     exceptions.end());
 
-    if(_indexCount > 0 && exceptions.size() >= _indexCount)
+    if(!exceptions.empty())
     {
 	start("dt", "Heading");
 	_out << "Exception Index";
@@ -1363,7 +1363,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
     structs.erase(remove_if(structs.begin(), structs.end(), ::IceUtil::constMemFun(&Contained::includeLevel)),
 		  structs.end());
 
-    if(_indexCount > 0 && structs.size() >= _indexCount)
+    if(!structs.empty())
     {
 	start("dt", "Heading");
 	_out << "Structure Index";
@@ -1390,7 +1390,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
     sequences.erase(remove_if(sequences.begin(), sequences.end(), ::IceUtil::constMemFun(&Contained::includeLevel)),
 		    sequences.end());
 
-    if(_indexCount > 0 && sequences.size() >= _indexCount)
+    if(!sequences.empty())
     {
 	start("dt", "Heading");
 	_out << "Sequence Index";
@@ -1418,7 +1418,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
 				 ::IceUtil::constMemFun(&Contained::includeLevel)),
 		       dictionaries.end());
 
-    if(_indexCount > 0 && dictionaries.size() >= _indexCount)
+    if(!dictionaries.empty())
     {
 	start("dt", "Heading");
 	_out << "Dictionary Index";
@@ -1445,7 +1445,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
     enums.erase(remove_if(enums.begin(), enums.end(), ::IceUtil::constMemFun(&Contained::includeLevel)),
 		enums.end());
 
-    if(_indexCount > 0 && enums.size() >= _indexCount)
+    if(!enums.empty())
     {
 	start("dt", "Heading");
 	_out << "Enumeration Index";
@@ -1613,6 +1613,28 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
     end();
 
     DataMemberList dataMembers = e->dataMembers();
+
+    if(_indexCount > 0 && dataMembers.size() >= _indexCount)
+    {
+	start("dt", "Heading");
+	_out << "Data Member Index";
+	end();
+	start("dd");
+	start("dl");
+	for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+	{
+	    start("dt", "Symbol");
+	    _out << toString(*q, e, false);
+	    end();
+	    start("dd");
+	    string metadata;
+	    printSummary(*q, e, (*q)->findMetaData("deprecate", metadata));
+	    end();
+	}
+	end();
+	end();
+    }
+
     if(!dataMembers.empty())
     {
 	start("dt", "Heading");
@@ -1734,6 +1756,51 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
     end();
 
     OperationList operations = c->operations();
+
+    if(_indexCount > 0 && operations.size() >= _indexCount)
+    {
+	start("dt", "Heading");
+	_out << "Operation Index";
+	end();
+	start("dd");
+	start("dl");
+	for(OperationList::const_iterator q = operations.begin(); q != operations.end(); ++q)
+	{
+	    start("dt", "Symbol");
+	    _out << toString(*q, c, false);
+	    end();
+	    start("dd");
+	    string metadata;
+	    printSummary(*q, c, (*q)->findMetaData("deprecate", metadata));
+	    end();
+	}
+	end();
+	end();
+    }
+
+    DataMemberList dataMembers = c->dataMembers();
+
+    if(_indexCount > 0 && dataMembers.size() >= _indexCount)
+    {
+	start("dt", "Heading");
+	_out << "Data Member Index";
+	end();
+	start("dd");
+	start("dl");
+	for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+	{
+	    start("dt", "Symbol");
+	    _out << toString(*q, c, false);
+	    end();
+	    start("dd");
+	    string metadata;
+	    printSummary(*q, c, (*q)->findMetaData("deprecate", metadata));
+	    end();
+	}
+	end();
+	end();
+    }
+
     if(!operations.empty())
     {
 	start("dt", "Heading");
@@ -1803,13 +1870,12 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
 	end();
     }
 
-    DataMemberList dataMembers = c->dataMembers();
     if(!dataMembers.empty())
     {
-	start("dl");
 	start("dt", "Heading");
 	_out << "Data Members";
 	end();
+	start("dd");
 	start("dl");
 	for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
 	{
@@ -1903,6 +1969,28 @@ Slice::StructGenerator::generate(const StructPtr& s)
     end();
 
     DataMemberList dataMembers = s->dataMembers();
+
+    if(_indexCount > 0 && dataMembers.size() >= _indexCount)
+    {
+	start("dt", "Heading");
+	_out << "Data Member Index";
+	end();
+	start("dd");
+	start("dl");
+	for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+	{
+	    start("dt", "Symbol");
+	    _out << toString(*q, s, false);
+	    end();
+	    start("dd");
+	    string metadata;
+	    printSummary(*q, s, (*q)->findMetaData("deprecate", metadata));
+	    end();
+	}
+	end();
+	end();
+    }
+
     if(!dataMembers.empty())
     {
 	start("dt", "Heading");
