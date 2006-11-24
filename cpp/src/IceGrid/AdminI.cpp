@@ -35,7 +35,7 @@ public:
 
     ServerProxyWrapper(const DatabasePtr& database, const string& id) : _id(id)
     {
-	_proxy = database->getServerWithTimeouts(id, _activationTimeout, _deactivationTimeout, _node);
+	_proxy = database->getServer(_id)->getProxy(_activationTimeout, _deactivationTimeout, _node);
     }
     
     void
@@ -372,8 +372,9 @@ AdminI::patchApplication_async(const AMD_Admin_patchApplicationPtr& amdCB,
 	AMI_Node_patchPtr cb = new PatchCB(aggregator, *p);
 	try
 	{
-	    Resolver resolve(_database->getNodeInfo(*p), _database->getCommunicator());
-	    _database->getNode(*p)->patch_async(cb, name, "", resolve(appDistrib), shutdown);
+	    NodeEntryPtr node = _database->getNode(*p);
+	    Resolver resolve(node->getInfo(), _database->getCommunicator());
+	    node->getProxy()->patch_async(cb, name, "", resolve(appDistrib), shutdown);
 	}
 	catch(const Ice::Exception& ex)
 	{
@@ -451,7 +452,7 @@ AdminI::getAllApplicationNames(const Current&) const
 ServerInfo
 AdminI::getServerInfo(const string& id, const Current&) const
 {
-    return _database->getServerInfo(id, true);
+    return _database->getServer(id)->getInfo(true);
 }
 
 ServerState
@@ -521,7 +522,7 @@ void
 AdminI::patchServer_async(const AMD_Admin_patchServerPtr& amdCB, const string& id, bool shutdown,
 			  const Current& current)
 {
-    ServerInfo info = _database->getServerInfo(id);
+    ServerInfo info = _database->getServer(id)->getInfo();
     ApplicationInfo appInfo = _database->getApplicationInfo(info.application);
     ApplicationHelper helper(current.adapter->getCommunicator(), appInfo.descriptor);
     DistributionDescriptor appDistrib;
@@ -540,8 +541,9 @@ AdminI::patchServer_async(const AMD_Admin_patchServerPtr& amdCB, const string& i
     AMI_Node_patchPtr amiCB = new ServerPatchCB(amdCB, _traceLevels, id, *p);
     try
     {
-	Resolver resolve(_database->getNodeInfo(*p), _database->getCommunicator());
-	_database->getNode(*p)->patch_async(amiCB, info.application, id, resolve(appDistrib), shutdown);
+	NodeEntryPtr node = _database->getNode(*p);
+	Resolver resolve(node->getInfo(), _database->getCommunicator());
+	node->getProxy()->patch_async(amiCB, info.application, id, resolve(appDistrib), shutdown);
     }
     catch(const Ice::Exception& ex)
     {
@@ -577,11 +579,10 @@ AdminI::writeMessage(const string& id, const string& message, Int fd, const Curr
     }
 }
 
-
 StringSeq
 AdminI::getAllServerIds(const Current&) const
 {
-    return _database->getAllServers();
+    return _database->getServerCache().getAll("");
 }
 
 void 
@@ -716,7 +717,7 @@ AdminI::getAllObjectInfos(const string& expression, const Ice::Current&) const
 NodeInfo
 AdminI::getNodeInfo(const string& name, const Ice::Current&) const
 {
-    return _database->getNodeInfo(name);
+    return _database->getNode(name)->getInfo();
 }
 
 bool
@@ -724,7 +725,7 @@ AdminI::pingNode(const string& name, const Current&) const
 {
     try
     {
-	_database->getNode(name)->ice_ping();
+	_database->getNode(name)->getProxy()->ice_ping();
 	return true;
     }
     catch(const NodeUnreachableException&)
@@ -746,7 +747,7 @@ AdminI::getNodeLoad(const string& name, const Current&) const
 {
     try
     {
-	return _database->getNode(name)->getLoad();
+	return _database->getNode(name)->getProxy()->getLoad();
     }
     catch(const Ice::ObjectNotExistException&)
     {
@@ -764,10 +765,9 @@ AdminI::getNodeLoad(const string& name, const Current&) const
 void
 AdminI::shutdownNode(const string& name, const Current&)
 {
-    NodePrx node = _database->getNode(name);
     try
     {
-	node->shutdown();
+	_database->getNode(name)->getProxy()->shutdown();
     }
     catch(const Ice::ObjectNotExistException&)
     {
@@ -784,10 +784,9 @@ AdminI::shutdownNode(const string& name, const Current&)
 string
 AdminI::getNodeHostname(const string& name, const Current&) const
 {
-    NodePrx node = _database->getNode(name);
     try
     {
-	return node->getHostname();
+	return _database->getNode(name)->getInfo().hostname;
     }
     catch(const Ice::ObjectNotExistException&)
     {
@@ -806,7 +805,7 @@ AdminI::getNodeHostname(const string& name, const Current&) const
 StringSeq
 AdminI::getAllNodeNames(const Current&) const
 {
-    return _database->getAllNodes();
+    return _database->getNodeCache().getAll("");
 }
 
 RegistryInfo
@@ -818,7 +817,7 @@ AdminI::getRegistryInfo(const string& name, const Ice::Current&) const
     }
     else
     {
-	return _database->getReplicaInfo(name);
+	return _database->getReplica(name)->getInfo();
     }
 }
 
@@ -832,7 +831,7 @@ AdminI::pingRegistry(const string& name, const Current&) const
 
     try
     {
-	_database->getReplica(name)->ice_ping();
+	_database->getReplica(name)->getProxy()->ice_ping();
 	return true;
     }
     catch(const Ice::ObjectNotExistException&)
@@ -855,10 +854,9 @@ AdminI::shutdownRegistry(const string& name, const Current&)
 	return;
     }
 
-    InternalRegistryPrx registry = _database->getReplica(name);
     try
     {
-	registry->shutdown();
+	_database->getReplica(name)->getProxy()->shutdown();
     }
     catch(const Ice::ObjectNotExistException&)
     {
@@ -875,7 +873,7 @@ AdminI::shutdownRegistry(const string& name, const Current&)
 StringSeq
 AdminI::getAllRegistryNames(const Current&) const
 {
-    Ice::StringSeq replicas = _database->getAllReplicas();
+    Ice::StringSeq replicas = _database->getReplicaCache().getAll("");
     replicas.push_back(_registry->getName());
     return replicas;
 }

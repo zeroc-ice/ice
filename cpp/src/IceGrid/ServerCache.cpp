@@ -127,7 +127,7 @@ ServerCache::remove(const string& id, bool destroy)
     Lock sync(*this);
 
     ServerEntryPtr entry = getImpl(id);
-    ServerInfo info = entry->getServerInfo();
+    ServerInfo info = entry->getInfo();
     if(destroy)
     {
 	entry->destroy();
@@ -296,7 +296,7 @@ ServerEntry::destroy()
 }
 
 ServerInfo
-ServerEntry::getServerInfo(bool resolve) const
+ServerEntry::getInfo(bool resolve) const
 {
     ServerInfo info;
     SessionIPtr session;
@@ -333,6 +333,14 @@ string
 ServerEntry::getId() const
 {
     return _id;
+}
+
+ServerPrx
+ServerEntry::getProxy(bool upToDate)
+{
+    int actTimeout, deactTimeout;
+    string node;
+    return getProxy(actTimeout, deactTimeout, node, upToDate);
 }
 
 ServerPrx

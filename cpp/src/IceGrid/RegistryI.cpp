@@ -457,7 +457,7 @@ RegistryI::setupInternalRegistry(const Ice::ObjectAdapterPtr& registryAdapter)
     _wellKnownObjects->add(proxy, InternalRegistry::ice_staticId());
 
     InternalRegistryPrx registry = InternalRegistryPrx::uncheckedCast(proxy);
-    _database->setInternalRegistry(registry);
+    _database->getReplicaCache().setInternalRegistry(registry);
     return registry;
 }
 
@@ -1225,7 +1225,7 @@ RegistryI::registerNodes(const InternalRegistryPrx& internalRegistry, const Node
 	assert((*p)->ice_getIdentity().name.find(prefix) != string::npos);
 	try
 	{
-	    _database->setNodeProxy((*p)->ice_getIdentity().name.substr(prefix.size()), *p);
+	    _database->getNode((*p)->ice_getIdentity().name.substr(prefix.size()))->setProxy(*p);
 	}
 	catch(const NodeNotExistException&)
 	{

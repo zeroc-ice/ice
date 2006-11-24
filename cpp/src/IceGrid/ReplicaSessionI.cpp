@@ -16,6 +16,17 @@
 using namespace std;
 using namespace IceGrid;
 
+namespace IceGrid
+{
+
+static bool
+operator==(const ObjectInfo& info, const Ice::Identity& id)
+{
+    return info.proxy->ice_getIdentity() == id;
+}
+
+}
+
 ReplicaSessionI::ReplicaSessionI(const DatabasePtr& database, 
 				 const WellKnownObjectsManagerPtr& wellKnownObjects,
 				 const string& name, 
@@ -35,7 +46,9 @@ ReplicaSessionI::ReplicaSessionI(const DatabasePtr& database,
     __setNoDelete(true);
     try
     {
-	_database->addReplica(name, this);
+	_database->getReplicaCache().add(name, this);
+	ObserverTopicPtr obsv = _database->getObserverTopic(RegistryObserverTopicName);
+	RegistryObserverTopicPtr::dynamicCast(obsv)->registryUp(_info);
     }
     catch(...)
     {
@@ -130,15 +143,20 @@ ReplicaSessionI::setAdapterDirectProxy(const string& adapterId,
 }
 
 void
-ReplicaSessionI::receivedUpdate(TopicName topic, int serial, const string& failure, const Ice::Current&)
+ReplicaSessionI::receivedUpdate(TopicName topicName, int serial, const string& failure, const Ice::Current&)
 {
-    _database->replicaReceivedUpdate(_name, topic, serial, failure);
+    ObserverTopicPtr topic = _database->getObserverTopic(topicName);
+    if(topic)
+    {
+	topic->receivedUpdate(_name, serial, failure);
+    }
 }
 
 void
 ReplicaSessionI::destroy(const Ice::Current& current)
 {
-    bool shutdown = !current.adapter;
+    const bool shutdown = !current.adapter; // adapter is null if we're shutting down, see InternalRegistryI.cpp
+
     {
 	Lock sync(*this);
 	if(_destroy)
@@ -157,14 +175,16 @@ ReplicaSessionI::destroy(const Ice::Current& current)
 
     if(!_replicaWellKnownObjects.empty())
     {
-	_database->removeObjectsInDatabase(_replicaWellKnownObjects);
-	if(shutdown)
+	if(shutdown) // Don't remove the replica proxy from the database if the registry is being shutdown.
 	{
-	    ObjectInfo info;
-	    info.type = InternalRegistry::ice_staticId();
-	    info.proxy = _internalRegistry;
-	    _database->addObject(info, true);
+	    ObjectInfoSeq::iterator p = find(_replicaWellKnownObjects.begin(), _replicaWellKnownObjects.end(), 
+					     _internalRegistry->ice_getIdentity());
+	    if(p != _replicaWellKnownObjects.end())
+	    {
+		_replicaWellKnownObjects.erase(p);
+	    }
 	}
+	_database->removeObjectsInDatabase(_replicaWellKnownObjects);
     }
 
     if(!shutdown)
@@ -172,7 +192,18 @@ ReplicaSessionI::destroy(const Ice::Current& current)
 	_wellKnownObjects->updateReplicatedWellKnownObjects(); // No need to update these if we're shutting down.
     }
 
-    _database->removeReplica(_name, shutdown);
+    //
+    // Notify the observer that the registry is down.
+    //
+    ObserverTopicPtr obsv = _database->getObserverTopic(RegistryObserverTopicName);
+    RegistryObserverTopicPtr::dynamicCast(obsv)->registryDown(_name);
+
+    //
+    // Remove the replica from the cache. This must be done last. As
+    // soon as the replica is removed another session might be
+    // created.
+    //
+    _database->getReplicaCache().remove(_name, shutdown);
 
     if(current.adapter)
     {

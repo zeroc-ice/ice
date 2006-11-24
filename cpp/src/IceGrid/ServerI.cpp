@@ -167,11 +167,11 @@ private:
     const TraceLevelsPtr _traceLevels;
 };
 
-class WaitForApplicationReplicationCB : public AMI_NodeSession_waitForApplicationReplication
+class WaitForApplicationUpdateCB : public AMI_NodeSession_waitForApplicationUpdate
 {
 public:
 
-    WaitForApplicationReplicationCB(const ServerIPtr& server) : _server(server)
+    WaitForApplicationUpdateCB(const ServerIPtr& server) : _server(server)
     {
     }
 
@@ -1352,8 +1352,8 @@ ServerI::activate()
 	NodeSessionPrx session = _node->getMasterNodeSession();
 	if(session)
 	{
-	    AMI_NodeSession_waitForApplicationReplicationPtr cb = new WaitForApplicationReplicationCB(this);
-	    _node->getMasterNodeSession()->waitForApplicationReplication_async(cb, info.uuid, info.revision);
+	    AMI_NodeSession_waitForApplicationUpdatePtr cb = new WaitForApplicationUpdateCB(this);
+	    _node->getMasterNodeSession()->waitForApplicationUpdate_async(cb, info.uuid, info.revision);
 	    return;
 	}
     }

@@ -149,7 +149,7 @@ public:
 	string failure;
 	try
 	{
-	    _database->addObject(info, true);
+	    _database->addOrUpdateObject(info);
 	}
 	catch(const ObjectExistsException& ex)
 	{
@@ -167,7 +167,14 @@ public:
 	string failure;
 	try
 	{
-	    _database->addObject(info, true);
+	    _database->addOrUpdateObject(info);
+	}
+	catch(const ObjectExistsException& ex)
+	{
+	    ostringstream os;
+	    os << ex << ":\n";
+	    os << "id: " << info.proxy->ice_getCommunicator()->identityToString(info.proxy->ice_getIdentity());
+	    failure = os.str();
 	}
 	catch(const DeploymentException& ex)
 	{

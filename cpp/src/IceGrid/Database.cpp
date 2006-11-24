@@ -348,12 +348,6 @@ Database::syncObjects(const ObjectInfoSeq& objects)
     txHolder.commit();
 }
 
-Ice::ObjectPrx
-Database::getReplicatedEndpoints(const string& name, const Ice::ObjectPrx& proxy)
-{
-    return _replicaCache.getEndpoints(name, proxy);
-}
-
 void
 Database::addApplication(const ApplicationInfo& info, AdminSessionI* session)
 {
@@ -627,104 +621,13 @@ Database::getAllApplications(const string& expression)
     return getMatchingKeys<StringApplicationInfoDict>(descriptors, expression);
 }
 
-void 
-Database::addNode(const string& name, const NodeSessionIPtr& session)
-{
-    _nodeCache.get(name, true)->setSession(session);
-
-    ObjectInfo info;
-    info.type = Node::ice_staticId();
-    info.proxy = session->getNode();
-    addInternalObject(info, true);
-}
-
 void
-Database::setNodeProxy(const string& name, const NodePrx& node)
-{
-    _nodeCache.get(name)->setProxy(node);
-}
-
-NodePrx 
-Database::getNode(const string& name) const
-{
-    return _nodeCache.get(name)->getProxy();
-}
-
-NodeInfo
-Database::getNodeInfo(const string& name) const
-{
-    return _nodeCache.get(name)->getInfo();
-}
-
-void 
-Database::removeNode(const string& name, const NodeSessionIPtr& session, bool shutdown)
-{
-    //
-    // If the registry isn't being shutdown and this registry is the
-    // master we remove the node well-known proxy from the object
-    // adapter. Replicas will be notified through replication.
-    // 
-    if(!shutdown)
-    {
-	removeInternalObject(session->getNode()->ice_getIdentity());
-    }
-
-    //
-    // We must notify the observer first (there's an assert in the
-    // observer to ensure that only nodes which are up are teared
-    // down).
-    //
-    _nodeObserverTopic->nodeDown(name);
-
-    //
-    // Clear the node session. Once this is called, the node can
-    // create a new session.
-    //
-    _nodeCache.get(name)->setSession(0);
-}
-
-Ice::StringSeq
-Database::getAllNodes(const string& expression)
-{
-    return _nodeCache.getAll(expression);
-}
-
-void
-Database::addReplica(const string& name, const ReplicaSessionIPtr& session)
-{
-    _replicaCache.add(name, session);
-    _registryObserverTopic->registryUp(session->getInfo());
-}
-
-InternalRegistryPrx 
-Database::getReplica(const string& name) const
-{
-    return _replicaCache.get(name)->getProxy();
-}
-
-RegistryInfo
-Database::getReplicaInfo(const string& name) const
-{
-    return _replicaCache.get(name)->getInfo();
-}
-
-void
-Database::replicaReceivedUpdate(const string& replica, TopicName name, int serial, const string& failure)
-{
-    ObserverTopicPtr topic = getObserverTopic(name);
-    if(topic)
-    {
-	topic->receivedUpdate(replica, serial, failure);
-    }
-}
-
-void
-Database::waitForApplicationReplication(const AMD_NodeSession_waitForApplicationReplicationPtr& cb,
-					const string& application, 
-					int revision)
+Database::waitForApplicationUpdate(const AMD_NodeSession_waitForApplicationUpdatePtr& cb,
+				   const string& application, 
+				   int revision)
 {
     Lock sync(*this);
-    map<string, vector<AMD_NodeSession_waitForApplicationReplicationPtr> >::iterator p = _updating.find(application);
+    map<string, vector<AMD_NodeSession_waitForApplicationUpdatePtr> >::iterator p = _updating.find(application);
     if(p != _updating.end())
     {
 	p->second.push_back(cb);
@@ -735,73 +638,52 @@ Database::waitForApplicationReplication(const AMD_NodeSession_waitForApplication
     }
 }
 
-void
-Database::removeReplica(const string& name, bool shutdown)
+NodeCache&
+Database::getNodeCache()
 {
-    _registryObserverTopic->registryDown(name);
-    _replicaCache.remove(name, shutdown);
+    return _nodeCache;
 }
 
-Ice::StringSeq
-Database::getAllReplicas(const string& expression)
+NodeEntryPtr
+Database::getNode(const string& name, bool create) const
 {
-    return _replicaCache.getAll(expression);
+    return _nodeCache.get(name, create);
 }
 
-void
-Database::setInternalRegistry(const InternalRegistryPrx& proxy)
+ReplicaCache&
+Database::getReplicaCache()
 {
-    _replicaCache.setInternalRegistry(proxy);
+    return _replicaCache;
 }
 
-InternalRegistryPrx
-Database::getInternalRegistry() const
+ReplicaEntryPtr
+Database::getReplica(const string& name) const
 {
-    return _replicaCache.getInternalRegistry();
+    return _replicaCache.get(name);
 }
 
-void
-Database::loadServer(const std::string& id)
+ServerCache&
+Database::getServerCache()
 {
-    _serverCache.get(id)->load();
+    return _serverCache;
 }
 
-void
-Database::unloadServer(const std::string& id)
+ServerEntryPtr
+Database::getServer(const string& id) const
 {
-    _serverCache.get(id)->unload();
+    return _serverCache.get(id);
 }
 
-ServerInfo
-Database::getServerInfo(const std::string& id, bool resolve)
+AllocatableObjectCache& 
+Database::getAllocatableObjectCache()
 {
-    return _serverCache.get(id)->getServerInfo(resolve);
+    return _allocatableObjectCache;
 }
 
-ServerPrx
-Database::getServer(const string& id, bool upToDate)
+AllocatableObjectEntryPtr
+Database::getAllocatableObject(const Ice::Identity& id) const
 {
-    int activationTimeout, deactivationTimeout;
-    string node;
-    return getServerWithTimeouts(id, activationTimeout, deactivationTimeout, node, upToDate);
-}
-
-ServerPrx
-Database::getServerWithTimeouts(const string& id, int& actTimeout, int& deactTimeout, string& node, bool upToDate)
-{
-    return _serverCache.get(id)->getProxy(actTimeout, deactTimeout, node, upToDate);
-}
-
-Ice::StringSeq
-Database::getAllServers(const string& expression)
-{
-    return _serverCache.getAll(expression);
-}
-
-Ice::StringSeq
-Database::getAllNodeServers(const string& node)
-{
-    return _nodeCache.get(node)->getServers();
+    return _allocatableObjectCache.get(id);
 }
 
 bool
@@ -1096,7 +978,7 @@ Database::getAllAdapters(const string& expression)
 }
 
 void
-Database::addObject(const ObjectInfo& info, bool replaceIfExistsInDatabase)
+Database::addObject(const ObjectInfo& info)
 {
     Lock sync(*this);	
     const Ice::Identity id = info.proxy->ice_getIdentity();
@@ -1106,40 +988,48 @@ Database::addObject(const ObjectInfo& info, bool replaceIfExistsInDatabase)
 	throw ObjectExistsException(id);
     }
 
-    bool update = false;
     if(_objects.find(id) != _objects.end())
     {
-	if(!replaceIfExistsInDatabase)
-	{
-	    throw ObjectExistsException(id);
-	}
-	else
-	{
-	    update = true;
-	}
+	throw ObjectExistsException(id);
     }
     _objects.put(IdentityObjectInfoDict::value_type(id, info));
 
-    if(!update)
-    {
-	_objectObserverTopic->objectAdded(info);
-    }
-    else
-    {
-	_objectObserverTopic->objectUpdated(info);
-    }
-	
+    _objectObserverTopic->objectAdded(info);
+
     if(_traceLevels->object > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-	if(!update)
-	{
-	    out << "added object `" << _communicator->identityToString(id) << "'";
-	}
-	else
-	{
-	    out << "updated object `" << _communicator->identityToString(id) << "'";
-	}
+	out << "added object `" << _communicator->identityToString(id) << "'";
+    }
+}
+
+void
+Database::addOrUpdateObject(const ObjectInfo& info)
+{
+    Lock sync(*this);	
+    const Ice::Identity id = info.proxy->ice_getIdentity();
+
+    if(_objectCache.has(id))
+    {
+	throw ObjectExistsException(id);
+    }
+
+    bool update = _objects.find(id) != _objects.end();
+    _objects.put(IdentityObjectInfoDict::value_type(id, info));
+
+    if(update)
+    {
+	_objectObserverTopic->objectUpdated(info);
+    }
+    else
+    {
+	_objectObserverTopic->objectAdded(info);
+    }
+
+    if(_traceLevels->object > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
+	out << (!update ? "added" : "updated") << " object `" << _communicator->identityToString(id) << "'";
     }
 }
 
@@ -1239,24 +1129,6 @@ Database::removeObjectsInDatabase(const ObjectInfoSeq& objects)
     }
     _objectObserverTopic->objectsRemoved(objects);
     txHolder.commit();
-}
-
-void
-Database::allocateObject(const Ice::Identity& id, const ObjectAllocationRequestPtr& request)
-{
-    _allocatableObjectCache.get(id)->allocate(request);
-}
-
-void
-Database::allocateObjectByType(const string& type, const ObjectAllocationRequestPtr& request)
-{
-    _allocatableObjectCache.allocateByType(type, request);
-}
-
-void
-Database::releaseObject(const Ice::Identity& id, const SessionIPtr& session)
-{
-    _allocatableObjectCache.get(id)->release(session);
 }
 
 Ice::ObjectPrx
@@ -1752,16 +1624,16 @@ void
 Database::startUpdating(const string& name)
 {
     // Must be called within the synchronization.
-    _updating.insert(make_pair(name, vector<AMD_NodeSession_waitForApplicationReplicationPtr>()));
+    _updating.insert(make_pair(name, vector<AMD_NodeSession_waitForApplicationUpdatePtr>()));
 }
 
 void
 Database::finishUpdating(const string& name)
 {
     // Must be called within the synchronization.
-    map<string, vector<AMD_NodeSession_waitForApplicationReplicationPtr> >::iterator p = _updating.find(name);
+    map<string, vector<AMD_NodeSession_waitForApplicationUpdatePtr> >::iterator p = _updating.find(name);
     assert(p != _updating.end());
-    for(vector<AMD_NodeSession_waitForApplicationReplicationPtr>::const_iterator q = p->second.begin(); 
+    for(vector<AMD_NodeSession_waitForApplicationUpdatePtr>::const_iterator q = p->second.begin(); 
 	q != p->second.end(); ++q)
     {
 	(*q)->ice_response();

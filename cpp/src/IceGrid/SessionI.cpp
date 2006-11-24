@@ -226,7 +226,7 @@ SessionI::allocateObjectById_async(const AMD_Session_allocateObjectByIdPtr& cb,
 				   const Ice::Identity& id, 
 				   const Ice::Current&)
 {
-    _database->allocateObject(id, newAllocateObject(this, cb));
+    _database->getAllocatableObject(id)->allocate(newAllocateObject(this, cb));
 }
 
 void
@@ -234,13 +234,13 @@ SessionI::allocateObjectByType_async(const AMD_Session_allocateObjectByTypePtr& 
 				     const string& type,
 				     const Ice::Current&)
 {
-    _database->allocateObjectByType(type, newAllocateObject(this, cb));
+    _database->getAllocatableObjectCache().allocateByType(type, newAllocateObject(this, cb));
 }
 
 void
 SessionI::releaseObject(const Ice::Identity& id, const Ice::Current&)
 {
-    _database->releaseObject(id, this);
+    _database->getAllocatableObject(id)->release(this);
 }
 
 void

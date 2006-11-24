@@ -332,10 +332,14 @@ interface NodeSession
 
     /**
      *
-     * Wait for the replication of the given application to be done.
+     * Wait for the application update to complete (the application is
+     * completely updated once all the registry replicas have been
+     * updated). This is used by the node to ensure that before to
+     * start a server all the replicas have the up-to-date descriptor
+     * of the server.
      *
      **/
-    ["amd", "ami", "cpp:const"] void waitForApplicationReplication(string application, int revision);
+    ["amd", "ami", "cpp:const"] void waitForApplicationUpdate(string application, int revision);
 
     /**
      *

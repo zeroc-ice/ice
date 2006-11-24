@@ -415,7 +415,7 @@ LocatorRegistryI::setServerProcessProxy_async(const Ice::AMD_LocatorRegistry_set
 	// the server is released during the server startup.
 	//
 	AMI_Server_setProcessPtr amiCB = new AMI_Server_setProcessI(cb);
-        _database->getServer(id, false)->setProcess_async(amiCB, proxy);
+        _database->getServer(id)->getProxy(false)->setProcess_async(amiCB, proxy);
 
 	const TraceLevelsPtr traceLevels = _database->getTraceLevels();
 	if(traceLevels->locator > 1)

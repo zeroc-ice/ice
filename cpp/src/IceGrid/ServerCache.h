@@ -42,10 +42,11 @@ public:
     void update(const ServerInfo&);
     void destroy();
 
-    ServerInfo getServerInfo(bool = false) const;
+    ServerInfo getInfo(bool = false) const;
     std::string getId() const;
 
-    ServerPrx getProxy(int&, int&, std::string&, bool);
+    ServerPrx getProxy(int&, int&, std::string&, bool = true);
+    ServerPrx getProxy(bool = true);
     AdapterPrx getAdapter(const std::string&, bool);
     float getLoad(LoadSample) const;
 

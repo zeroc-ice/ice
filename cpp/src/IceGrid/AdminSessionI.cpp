@@ -195,38 +195,54 @@ AdminSessionI::getReplicaName(const Ice::Current& current) const
 FileIteratorPrx 
 AdminSessionI::openServerStdOut(const std::string& id, const Ice::Current& current)
 {
-    return addFileIterator(_database->getServer(id), "stdout", current);
+    return addFileIterator(_database->getServer(id)->getProxy(), "stdout", current);
 }
 
 FileIteratorPrx 
 AdminSessionI::openServerStdErr(const std::string& id, const Ice::Current& current)
 {
-    return addFileIterator(_database->getServer(id), "stderr", current);
+    return addFileIterator(_database->getServer(id)->getProxy(), "stderr", current);
 }
 
 FileIteratorPrx 
 AdminSessionI::openNodeStdOut(const std::string& name, const Ice::Current& current)
 {
-    return addFileIterator(_database->getNode(name), "stdout", current);
+    return addFileIterator(_database->getNode(name)->getProxy(), "stdout", current);
 }
 
 FileIteratorPrx 
 AdminSessionI::openNodeStdErr(const std::string& name, const Ice::Current& current)
 {
-    return addFileIterator(_database->getNode(name), "stderr", current);
+    return addFileIterator(_database->getNode(name)->getProxy(), "stderr", current);
 }
 
 FileIteratorPrx 
 AdminSessionI::openRegistryStdOut(const std::string& name, const Ice::Current& current)
 {
-    FileReaderPrx reader = name == _replicaName ? _database->getInternalRegistry() : _database->getReplica(name);
+    FileReaderPrx reader;
+    if(name == _replicaName)
+    {
+	reader = _database->getReplicaCache().getInternalRegistry();
+    }
+    else
+    {
+	reader = _database->getReplica(name)->getProxy();
+    }
     return addFileIterator(reader, "stdout", current);
 }
 
 FileIteratorPrx
 AdminSessionI::openRegistryStdErr(const std::string& name, const Ice::Current& current)
 {
-    FileReaderPrx reader = name == _replicaName ? _database->getInternalRegistry() : _database->getReplica(name);
+    FileReaderPrx reader;
+    if(name == _replicaName)
+    {
+	reader = _database->getReplicaCache().getInternalRegistry();
+    }
+    else
+    {
+	reader = _database->getReplica(name)->getProxy();
+    }
     return addFileIterator(reader, "stderr", current);
 }
 

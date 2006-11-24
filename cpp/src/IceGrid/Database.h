@@ -69,42 +69,27 @@ public:
     void syncApplications(const ApplicationInfoSeq&);
     void syncAdapters(const AdapterInfoSeq&);
     void syncObjects(const ObjectInfoSeq&);
-    Ice::ObjectPrx getReplicatedEndpoints(const std::string&, const Ice::ObjectPrx&);
 
     void addApplication(const ApplicationInfo&, AdminSessionI* = 0);
     void updateApplication(const ApplicationUpdateInfo&, AdminSessionI* = 0);
     void syncApplicationDescriptor(const ApplicationDescriptor&, AdminSessionI* = 0);
     void instantiateServer(const std::string&, const std::string&, const ServerInstanceDescriptor&, AdminSessionI* =0);
     void removeApplication(const std::string&, AdminSessionI* = 0);
-
     ApplicationInfo getApplicationInfo(const std::string&);
     Ice::StringSeq getAllApplications(const std::string& = std::string());
+    void waitForApplicationUpdate(const AMD_NodeSession_waitForApplicationUpdatePtr&, const std::string&, int);
 
-    void addNode(const std::string&, const NodeSessionIPtr&);
-    void setNodeProxy(const std::string&, const NodePrx&);
-    NodePrx getNode(const std::string&) const;
-    NodeInfo getNodeInfo(const std::string&) const;
-    void removeNode(const std::string&, const NodeSessionIPtr&, bool);
-    Ice::StringSeq getAllNodes(const std::string& = std::string());
+    NodeCache& getNodeCache();
+    NodeEntryPtr getNode(const std::string&, bool = false) const;
 
-    void addReplica(const std::string&, const ReplicaSessionIPtr&);
-    RegistryInfo getReplicaInfo(const std::string&) const;
-    InternalRegistryPrx getReplica(const std::string&) const;
-    void replicaReceivedUpdate(const std::string&, TopicName, int, const std::string&);
-    void waitForApplicationReplication(const AMD_NodeSession_waitForApplicationReplicationPtr&, const std::string&, 
-				       int);
-    void removeReplica(const std::string&, bool);
-    Ice::StringSeq getAllReplicas(const std::string& = std::string());
-    void setInternalRegistry(const InternalRegistryPrx&);
-    InternalRegistryPrx getInternalRegistry() const;
+    ReplicaCache& getReplicaCache();
+    ReplicaEntryPtr getReplica(const std::string&) const;
+    
+    ServerCache& getServerCache();
+    ServerEntryPtr getServer(const std::string&) const;
 
-    ServerInfo getServerInfo(const std::string&, bool = false);
-    ServerPrx getServer(const std::string&, bool = true);
-    void loadServer(const std::string&);
-    void unloadServer(const std::string&);
-    ServerPrx getServerWithTimeouts(const std::string&, int&, int&, std::string&, bool = true);
-    Ice::StringSeq getAllServers(const std::string& = std::string());
-    Ice::StringSeq getAllNodeServers(const std::string&);
+    AllocatableObjectCache& getAllocatableObjectCache();
+    AllocatableObjectEntryPtr getAllocatableObject(const Ice::Identity&) const;
 
     bool setAdapterDirectProxy(const std::string&, const std::string&, const Ice::ObjectPrx&);
     Ice::ObjectPrx getAdapterDirectProxy(const std::string&);
@@ -114,16 +99,12 @@ public:
     AdapterInfoSeq getAdapterInfo(const std::string&);
     Ice::StringSeq getAllAdapters(const std::string& = std::string());
 
-    void addObject(const ObjectInfo&, bool = false);
+    void addObject(const ObjectInfo&);
+    void addOrUpdateObject(const ObjectInfo&);
     void removeObject(const Ice::Identity&);
     void updateObject(const Ice::ObjectPrx&);
-
     int addOrUpdateObjectsInDatabase(const ObjectInfoSeq&);
     void removeObjectsInDatabase(const ObjectInfoSeq&);
-
-    void allocateObject(const Ice::Identity&, const ObjectAllocationRequestPtr&);
-    void allocateObjectByType(const std::string&, const ObjectAllocationRequestPtr&);
-    void releaseObject(const Ice::Identity&, const SessionIPtr&);
 
     Ice::ObjectPrx getObjectProxy(const Ice::Identity&);
     Ice::ObjectPrx getObjectByType(const std::string&);
@@ -198,7 +179,7 @@ private:
     int _replicaApplicationSerial;
     int _adapterSerial;
     int _objectSerial;
-    std::map<std::string, std::vector<AMD_NodeSession_waitForApplicationReplicationPtr> > _updating;
+    std::map<std::string, std::vector<AMD_NodeSession_waitForApplicationUpdatePtr> > _updating;
 };
 typedef IceUtil::Handle<Database> DatabasePtr;
 

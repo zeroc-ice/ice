@@ -549,7 +549,7 @@ NodeEntry::__decRef()
 	
 	if(_ref == 1)
 	{
-	    doRemove = _servers.empty() && !_session && _descriptors.empty();
+	    doRemove = canRemove();
 	}
 	else if(_ref == 0)
 	{

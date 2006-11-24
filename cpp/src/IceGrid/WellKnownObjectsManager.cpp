@@ -93,7 +93,7 @@ WellKnownObjectsManager::updateReplicatedWellKnownObjects()
     
     Lock sync(*this);
 
-    Ice::ObjectPrx replicatedClientProxy = _database->getReplicatedEndpoints("Client", _endpoints["Client"]);
+    Ice::ObjectPrx replicatedClientProxy = _database->getReplicaCache().getEndpoints("Client", _endpoints["Client"]);
 
     id.name = "Query";
     info.type = Query::ice_staticId();

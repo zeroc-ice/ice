@@ -104,7 +104,7 @@ ReplicaCache::remove(const string& name, bool shutdown)
     {
 	try
 	{
-	    _nodes->replicaRemoved(entry->getSession()->getInternalRegistry());
+	    _nodes->replicaRemoved(entry->getProxy());
 	}
 	catch(const Ice::ConnectionRefusedException&)
 	{

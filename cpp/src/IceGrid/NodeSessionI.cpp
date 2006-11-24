@@ -33,7 +33,12 @@ NodeSessionI::NodeSessionI(const DatabasePtr& database,
     __setNoDelete(true);
     try
     {
-	_database->addNode(name, this);
+	_database->getNode(name, true)->setSession(this);
+
+	ObjectInfo info;
+	info.type = Node::ice_staticId();
+	info.proxy = _node;
+	_database->addInternalObject(info, true); // Add or update previous node proxy.
     }
     catch(...)
     {
@@ -72,15 +77,7 @@ NodeSessionI::getTimeout(const Ice::Current& current) const
 NodeObserverPrx
 NodeSessionI::getObserver(const Ice::Current& current) const
 {
-    NodeObserverTopicPtr topic = NodeObserverTopicPtr::dynamicCast(_database->getObserverTopic(NodeObserverTopicName));
-    if(topic)
-    {
-	return topic->getPublisher();
-    }
-    else
-    {
-	return 0;
-    }
+    return NodeObserverTopicPtr::dynamicCast(_database->getObserverTopic(NodeObserverTopicName))->getPublisher();
 }
 
 void
@@ -89,12 +86,12 @@ NodeSessionI::loadServers(const Ice::Current& current) const
     //
     // Get the server proxies to load them on the node.
     //
-    Ice::StringSeq servers = _database->getAllNodeServers(_name);
+    Ice::StringSeq servers = _database->getNode(_name)->getServers();
     for(Ice::StringSeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
     {
 	try
 	{
-	    _database->loadServer(*p);
+	    _database->getServer(*p)->load();
 	}
 	catch(const Ice::UserException&)
 	{
@@ -106,21 +103,23 @@ NodeSessionI::loadServers(const Ice::Current& current) const
 Ice::StringSeq
 NodeSessionI::getServers(const Ice::Current& current) const
 {
-    return _database->getAllNodeServers(_name);
+    return _database->getNode(_name)->getServers();
 }
 
 void
-NodeSessionI::waitForApplicationReplication_async(const AMD_NodeSession_waitForApplicationReplicationPtr& cb, 
-						  const std::string& application, 
-						  int revision, 
-						  const Ice::Current&) const
+NodeSessionI::waitForApplicationUpdate_async(const AMD_NodeSession_waitForApplicationUpdatePtr& cb, 
+					     const std::string& application, 
+					     int revision, 
+					     const Ice::Current&) const
 {
-    _database->waitForApplicationReplication(cb, application, revision);
+    _database->waitForApplicationUpdate(cb, application, revision);
 }
 
 void
 NodeSessionI::destroy(const Ice::Current& current)
 {
+    const bool shutdown = !current.adapter; // adapter is null if we're shutting down, see InternalRegistryI.cpp
+
     {
 	Lock sync(*this);
 	if(_destroy)
@@ -130,12 +129,12 @@ NodeSessionI::destroy(const Ice::Current& current)
 	_destroy = true;
     }
 
-    Ice::StringSeq servers = _database->getAllNodeServers(_name);
+    Ice::StringSeq servers = _database->getNode(_name)->getServers();
     for(Ice::StringSeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
     {
 	try
 	{
-	    _database->unloadServer(*p);
+	    _database->getServer(*p)->unload();
 	}
 	catch(const Ice::UserException&)
 	{
@@ -143,9 +142,29 @@ NodeSessionI::destroy(const Ice::Current& current)
 	}
     }
 
-    _database->removeNode(_name, this, !current.adapter);
+    //
+    // If the registry isn't being shutdown we remove the node
+    // internal proxy from the database.
+    // 
+    if(!shutdown)
+    {
+	_database->removeInternalObject(_node->ice_getIdentity());
+    }
 
-    if(current.adapter)
+    //
+    // Next we notify the observer.
+    //
+    NodeObserverTopicPtr::dynamicCast(_database->getObserverTopic(NodeObserverTopicName))->nodeDown(_name);
+    
+
+    //
+    // Finally, we clear the session, this must be done last. As soon
+    // as the node entry session is set to 0 another session might be
+    // created.
+    //
+    _database->getNode(_name)->setSession(0);
+
+    if(!shutdown)
     {
 	try
 	{
