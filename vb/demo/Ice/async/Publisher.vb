@@ -20,7 +20,7 @@ Module AsyncC
         End Sub
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
-            Dim queue As QueuePrx = QueuePrxHelper.checkedCast(communicator().propertyToProxy("Queue.Proxy")
+            Dim queue As QueuePrx = QueuePrxHelper.checkedCast(communicator().propertyToProxy("Queue.Proxy"))
             If queue Is Nothing Then
                 Console.Error.WriteLine("invalid proxy")
                 Return 1
