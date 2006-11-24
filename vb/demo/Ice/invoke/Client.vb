@@ -32,15 +32,7 @@ Module InvokeC
         End Sub
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
-            Dim properties As Ice.Properties = communicator().getProperties()
-            Dim proxyProperty As String = "Printer.Proxy"
-            Dim proxy As String = properties.getProperty(proxyProperty)
-            If proxy.Length = 0 Then
-                Console.Error.WriteLine("property `" & proxyProperty & "' not set")
-                Return 1
-            End If
-
-            Dim obj As Ice.ObjectPrx = communicator().stringToProxy(proxy)
+            Dim obj As Ice.ObjectPrx = communicator().propertyToProxy("Printer.Proxy")
 
             menu()
 

@@ -71,16 +71,7 @@ public class Consumer extends Ice.Application
     public int
     run(String[] args)
     {
-        Ice.Properties properties = communicator().getProperties();
-        final String proxyProperty = "Queue.Proxy";
-        String proxy = properties.getProperty(proxyProperty);
-        if(proxy.length() == 0)
-        {
-            System.err.println("property `" + proxyProperty + "' not set");
-            return 1;
-        }
-
-        QueuePrx queue = QueuePrxHelper.checkedCast(communicator().stringToProxy(proxy));
+        QueuePrx queue = QueuePrxHelper.checkedCast(communicator().propertyToProxy("Queue.Proxy"));
         if(queue == null)
         {
             System.err.println("invalid proxy");

@@ -33,16 +33,7 @@ public class Client extends Ice.Application
     public int
     run(String[] args)
     {
-        Ice.Properties properties = communicator().getProperties();
-        final String proxyProperty = "Printer.Proxy";
-        String proxy = properties.getProperty(proxyProperty);
-        if(proxy.length() == 0)
-        {
-            System.err.println("property `" + proxyProperty + "' not set");
-            return 1;
-        }
-
-        Ice.ObjectPrx obj = communicator().stringToProxy(proxy);
+        Ice.ObjectPrx obj = communicator().propertyToProxy("Printer.Proxy");
 
         menu();
 

@@ -79,16 +79,7 @@ public class Client : Ice.Application
 	}
 	while(name.Length == 0);
 
-	Ice.Properties properties = communicator().getProperties();
-	string proxyProperty = "SessionFactory.Proxy";
-	string proxy = properties.getProperty(proxyProperty);
-	if(proxy.Length == 0)
-	{
-	    Console.Error.WriteLine("property `" + proxyProperty + "' not set");
-	    return 1;
-	}
-
-	Ice.ObjectPrx basePrx = communicator().stringToProxy(proxy);
+	Ice.ObjectPrx basePrx = communicator().propertyToProxy("SessionFactory.Proxy");
 	SessionFactoryPrx factory = SessionFactoryPrxHelper.checkedCast(basePrx);
 	if(factory == null)
 	{

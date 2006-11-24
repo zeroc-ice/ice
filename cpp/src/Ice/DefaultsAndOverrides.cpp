@@ -32,8 +32,6 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
 
     const_cast<string&>(defaultHost) = properties->getProperty("Ice.Default.Host");
 
-    const_cast<string&>(defaultRouter) = properties->getProperty("Ice.Default.Router");
-
     string value;
     
     value = properties->getProperty("Ice.Override.Timeout");
@@ -63,8 +61,6 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
 	const_cast<bool&>(overrideSecure) = true;
 	const_cast<bool&>(overrideSecureValue) = properties->getPropertyAsInt("Ice.Override.Secure");
     }
-
-    const_cast<string&>(defaultLocator) = properties->getProperty("Ice.Default.Locator");
 
     const_cast<bool&>(defaultCollocationOptimization) =
 	properties->getPropertyAsIntWithDefault("Ice.Default.CollocationOptimization", 1) > 0;

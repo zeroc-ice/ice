@@ -31,16 +31,7 @@ main(int argc, char* argv[])
 int
 ValueClient::run(int argc, char* argv[])
 {
-    Ice::PropertiesPtr properties = communicator()->getProperties();
-    const char* refProperty = "Value.Initial";
-    std::string ref = properties->getProperty(refProperty);
-    if(ref.empty())
-    {
-	cerr << argv[0] << ": property `" << refProperty << "' not set" << endl;
-	return EXIT_FAILURE;
-    }
-
-    Ice::ObjectPrx base = communicator()->stringToProxy(ref);
+    Ice::ObjectPrx base = communicator()->propertyToProxy("Value.Initial");
     InitialPrx initial = InitialPrx::checkedCast(base);
     if(!initial)
     {

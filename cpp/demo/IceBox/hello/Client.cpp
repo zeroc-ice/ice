@@ -51,17 +51,8 @@ HelloClient::menu()
 int
 HelloClient::run(int argc, char* argv[])
 {
-    Ice::PropertiesPtr properties = communicator()->getProperties();
-    const char* proxyProperty = "Hello.Proxy";
-    std::string proxy = properties->getProperty(proxyProperty);
-    if(proxy.empty())
-    {
-	cerr << argv[0] << ": property `" << proxyProperty << "' not set" << endl;
-	return EXIT_FAILURE;
-    }
-
     HelloPrx twoway = HelloPrx::checkedCast(
-	communicator()->stringToProxy(proxy)->ice_twoway()->ice_timeout(-1)->ice_secure(false));
+	communicator()->propertyToProxy("Hello.Proxy")->ice_twoway()->ice_timeout(-1)->ice_secure(false));
     if(!twoway)
     {
 	cerr << argv[0] << ": invalid proxy" << endl;

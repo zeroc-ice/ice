@@ -1,6 +1,11 @@
 Changes since version 3.1.1
 ---------------------------     
 
+- Added Communicator::propertyToProxy() which creates a proxy from
+  a set of properties. This function allows you to set various local
+  proxy settings, such as the Locator cache timeout, which cannot be
+  set using stringToProxy().
+
 - Added ["cpp:class"] C++ metadata to map a slice struct to a
   reference counted class.
 

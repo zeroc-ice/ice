@@ -26,8 +26,6 @@ namespace IceInternal
 		defaultHost = val;
 	    }
 	    
-	    defaultRouter = properties.getProperty("Ice.Default.Router");
-	    
 	    val = properties.getProperty("Ice.Override.Timeout");
 	    if(val.Length > 0)
 	    {
@@ -81,8 +79,6 @@ namespace IceInternal
 		overrideSecureValue = false;
 	    }
 
-	    defaultLocator = properties.getProperty("Ice.Default.Locator");
-
 	    defaultCollocationOptimization =
 		properties.getPropertyAsIntWithDefault("Ice.Default.CollocationOptimization", 1) > 0;
 
@@ -93,8 +89,6 @@ namespace IceInternal
 	
 	public string defaultHost;
 	public string defaultProtocol;
-	public string defaultRouter;
-	public string defaultLocator;
 	public bool defaultCollocationOptimization;
 	public int defaultLocatorCacheTimeout;
 	public bool defaultPreferSecure;

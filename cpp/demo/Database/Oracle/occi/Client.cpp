@@ -156,16 +156,7 @@ HRClient::help() const
 int
 HRClient::run(int argc, char* argv[])
 {
-    Ice::PropertiesPtr properties = communicator()->getProperties();
-    const string proxyProperty = "HR.DeptFactory";
-    std::string proxy = properties->getProperty(proxyProperty);
-    if(proxy.empty())
-    {
-	cerr << argv[0] << ": property `" << proxyProperty << "' not set" << endl;
-	return EXIT_FAILURE;
-    }
-
-    Ice::ObjectPrx base = communicator()->stringToProxy(proxy);
+    Ice::ObjectPrx base = communicator()->propertyToProxy("HR.DeptFactory");
     _factory = DeptFactoryPrx::checkedCast(base);
     if(_factory == 0)
     {

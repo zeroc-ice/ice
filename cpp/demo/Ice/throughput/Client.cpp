@@ -36,16 +36,7 @@ main(int argc, char* argv[])
 int
 ThroughputClient::run(int argc, char* argv[])
 {
-    Ice::PropertiesPtr properties = communicator()->getProperties();
-    const char* proxyProperty = "Throughput.Throughput";
-    std::string proxy = properties->getProperty(proxyProperty);
-    if(proxy.empty())
-    {
-	cerr << argv[0] << ": property `" << proxyProperty << "' not set" << endl;
-	return EXIT_FAILURE;
-    }
-
-    Ice::ObjectPrx base = communicator()->stringToProxy(proxy);
+    Ice::ObjectPrx base = communicator()->propertyToProxy("Throughput.Throughput");
     ThroughputPrx throughput = ThroughputPrx::checkedCast(base);
     if(!throughput)
     {

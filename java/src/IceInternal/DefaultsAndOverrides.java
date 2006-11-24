@@ -27,8 +27,6 @@ public final class DefaultsAndOverrides
 	    defaultHost = null;
 	}
 	
-	defaultRouter = properties.getProperty("Ice.Default.Router");
-	
 	value = properties.getProperty("Ice.Override.Timeout");
 	if(value.length() > 0)
 	{
@@ -83,8 +81,6 @@ public final class DefaultsAndOverrides
 	    overrideSecureValue = false;
 	}
 
-	defaultLocator = properties.getProperty("Ice.Default.Locator");
-
 	defaultCollocationOptimization =
 	    properties.getPropertyAsIntWithDefault("Ice.Default.CollocationOptimization", 1) > 0;
 
@@ -95,8 +91,6 @@ public final class DefaultsAndOverrides
 
     final public String defaultHost;
     final public String defaultProtocol;
-    final public String defaultRouter;
-    final public String defaultLocator;
     final public boolean defaultCollocationOptimization;
     final public int defaultLocatorCacheTimeout;
     final public boolean defaultPreferSecure;

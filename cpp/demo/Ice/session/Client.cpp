@@ -96,16 +96,7 @@ SessionClient::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    Ice::PropertiesPtr properties = communicator()->getProperties();
-    const char* proxyProperty = "SessionFactory.Proxy";
-    string proxy = properties->getProperty(proxyProperty);
-    if(proxy.empty())
-    {
-	cerr << argv[0] << ": property `" << proxyProperty << "' not set" << endl;
-	return EXIT_FAILURE;
-    }
-
-    Ice::ObjectPrx base = communicator()->stringToProxy(proxy);
+    Ice::ObjectPrx base = communicator()->propertyToProxy("SessionFactory.Proxy");
     SessionFactoryPrx factory = SessionFactoryPrx::checkedCast(base);
     if(!factory)
     {

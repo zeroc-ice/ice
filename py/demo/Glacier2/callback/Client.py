@@ -61,14 +61,7 @@ class Client(Ice.Application):
 	callbackReceiverFakeIdent.name = "callbackReceiver"
 	callbackReceiverFakeIdent.category = "fake"
 
-        properties = self.communicator().getProperties()
-        proxyProperty = 'Callback.Proxy'
-        proxy = properties.getProperty(proxyProperty)
-        if len(proxy) == 0:
-            print self.appName() + ": property `" + proxyProperty + "' not set"
-            return 1
-
-        base = self.communicator().stringToProxy(proxy)
+        base = self.communicator().propertyToProxy('Callback.Proxy')
         twoway = Demo.CallbackPrx.checkedCast(base)
 	oneway = Demo.CallbackPrx.uncheckedCast(twoway.ice_oneway())
 	batchOneway = Demo.CallbackPrx.uncheckedCast(twoway.ice_batchOneway())

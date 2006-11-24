@@ -30,23 +30,15 @@ menu()
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator1, const Ice::CommunicatorPtr& communicator2)
 {
-    Ice::PropertiesPtr properties = communicator1->getProperties();
-    const char* proxyProperty = "Echo.Proxy";
-    string proxy = properties->getProperty(proxyProperty);
-    if(proxy.empty())
-    {
-	cerr << argv[0] << ": property `" << proxyProperty << "' not set" << endl;
-	return EXIT_FAILURE;
-    }
-
-    EchoPrx echo1 = EchoPrx::checkedCast(communicator1->stringToProxy(proxy));
+    const string proxyProperty = "Echo.Proxy";
+    EchoPrx echo1 = EchoPrx::checkedCast(communicator1->propertyToProxy(proxyProperty));
     if(!echo1)
     {
 	cerr << argv[0] << ": invalid proxy" << endl;
 	return EXIT_FAILURE;
     }
 
-    EchoPrx echo2 = EchoPrx::checkedCast(communicator2->stringToProxy(proxy));
+    EchoPrx echo2 = EchoPrx::checkedCast(communicator2->propertyToProxy(proxyProperty));
     if(!echo2)
     {
 	cerr << argv[0] << ": invalid proxy" << endl;

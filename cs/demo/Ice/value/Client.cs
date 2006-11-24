@@ -15,16 +15,7 @@ public class Client : Ice.Application
 {
     public override int run(string[] args)
     {
-        Ice.Properties properties = communicator().getProperties();
-        string refProperty = "Value.Initial";
-        string @ref = properties.getProperty(refProperty);
-        if(@ref.Length == 0)
-        {
-            Console.Error.WriteLine("property `" + refProperty + "' not set");
-            return 1;
-        }
-        
-        Ice.ObjectPrx @base = communicator().stringToProxy(@ref);
+        Ice.ObjectPrx @base = communicator().propertyToProxy("Value.Initial");
         InitialPrx initial = InitialPrxHelper.checkedCast(@base);
         if(initial == null)
         {

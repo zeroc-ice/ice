@@ -3,6 +3,11 @@ NOTE: Please keep changes in the appropriate section for HEAD or 3.1.
 Changes since version 3.1.1 (HEAD)
 ---------------------------     
 
+- Added Communicator::propertyToProxy() which creates a proxy from
+  a set of properties. This function allows you to set various local
+  proxy settings, such as the Locator cache timeout, which cannot be
+  set using stringToProxy().
+
 - Added a demo to illustrate use of AMI/AMD.
 
 - New feature: implicit context 

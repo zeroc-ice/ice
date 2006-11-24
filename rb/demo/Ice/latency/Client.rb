@@ -14,14 +14,7 @@ Ice::loadSlice('Latency.ice')
 
 class Client < Ice::Application
     def run(args)
-	properties = Ice::Application::communicator().getProperties()
-	proxy = properties.getProperty('Latency.Ping')
-	if proxy.length == 0:
-	    puts " property `Latency.Ping' not set"
-	    return false
-	end
-
-	ping = Demo::PingPrx::checkedCast(Ice::Application::communicator().stringToProxy(proxy))
+	ping = Demo::PingPrx::checkedCast(Ice::Application::communicator().propertyToProxy('Latency.Ping'))
 	if not ping
 	    puts "invalid proxy"
 	    return false

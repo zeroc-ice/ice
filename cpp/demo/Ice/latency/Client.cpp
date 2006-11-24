@@ -30,16 +30,7 @@ main(int argc, char* argv[])
 int
 LatencyClient::run(int argc, char* argv[])
 {
-    Ice::PropertiesPtr properties = communicator()->getProperties();
-    const char* proxyProperty = "Latency.Ping";
-    std::string proxy = properties->getProperty(proxyProperty);
-    if(proxy.empty())
-    {
-	cerr << argv[0] << ": property `" << proxyProperty << "' not set" << endl;
-	return EXIT_FAILURE;
-    }
-
-    Ice::ObjectPrx base = communicator()->stringToProxy(proxy);
+    Ice::ObjectPrx base = communicator()->propertyToProxy("Latency.Ping");
     PingPrx ping = PingPrx::checkedCast(base);
     if(!ping)
     {

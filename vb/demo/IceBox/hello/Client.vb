@@ -38,15 +38,7 @@ Module HelloIceBoxC
             Catch ex As Ice.NotRegisteredException
             End Try
 
-            Dim properties As Ice.Properties = communicator().getProperties()
-            Dim proxyProperty As String = "Hello.Proxy"
-            Dim proxy As String = properties.getProperty(proxyProperty)
-            If proxy.Length = 0 Then
-                Console.Error.WriteLine("property `" & proxyProperty & "' not set")
-                Return 1
-            End If
-
-            Dim twoway As HelloPrx = HelloPrxHelper.checkedCast(communicator().stringToProxy(proxy).ice_twoway().ice_timeout(-1).ice_secure(False))
+            Dim twoway As HelloPrx = HelloPrxHelper.checkedCast(communicator().propertyToProxy("Hello.Proxy").ice_twoway().ice_timeout(-1).ice_secure(False))
             If twoway Is Nothing Then
                 Console.Error.WriteLine("invalid proxy")
                 Return 1

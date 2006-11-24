@@ -14,16 +14,7 @@ class Client extends Ice.Application
     public int
     run(String[] args)
     {
-        Ice.Properties properties = communicator().getProperties();
-        final String refProperty = "Latency.Ping";
-        String ref = properties.getProperty(refProperty);
-        if(ref.length() == 0)
-        {
-            System.err.println("property `" + refProperty + "' not set");
-            return 1;
-        }
-
-        PingPrx ping = PingPrxHelper.checkedCast(communicator().stringToProxy(ref));
+        PingPrx ping = PingPrxHelper.checkedCast(communicator().propertyToProxy("Latency.Ping"));
         if(ping == null)
         {
             System.err.println("invalid proxy");

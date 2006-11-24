@@ -37,15 +37,8 @@ end
 
 class Client < Ice::Application
     def run(args)
-	properties = Ice::Application::communicator().getProperties()
-	proxyProperty = 'Throughput.Throughput'
-	proxy = properties.getProperty(proxyProperty)
-	if proxy.length == 0
-	    puts $0 + ": property `" + proxyProperty + "' not set"
-	    return false
-	end
-
-	throughput = Demo::ThroughputPrx::checkedCast(Ice::Application::communicator().stringToProxy(proxy))
+	throughput = Demo::ThroughputPrx::checkedCast(
+	    Ice::Application::communicator().propertyToProxy('Throughput.Throughput'))
 	if not throughput
 	    puts $0 + ": invalid proxy"
 	    return false

@@ -690,12 +690,8 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     {
     	if(!router)
 	{
-	    string routerStr = _instance->initializationData().properties->getProperty(_name + ".Router");
-	    if(!routerStr.empty())
-	    {
-	        const_cast<RouterPrx&>(router) =
-		    RouterPrx::uncheckedCast(_instance->proxyFactory()->stringToProxy(routerStr));
-	    }
+	    const_cast<RouterPrx&>(router) =
+	        RouterPrx::uncheckedCast(_instance->proxyFactory()->propertyToProxy(_name + ".Router"));
 	}
 	if(router)
 	{
@@ -778,10 +774,10 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 				      not1(Ice::constMemFun(&EndpointI::publish))), _publishedEndpoints.end());
 	}
 
-	string locator = _instance->initializationData().properties->getProperty(_name + ".Locator");
-	if(!locator.empty())
+	string locatorProperty = _name + ".Locator";
+	if(!_instance->initializationData().properties->getProperty(locatorProperty).empty())
 	{
-	    setLocator(LocatorPrx::uncheckedCast(_instance->proxyFactory()->stringToProxy(locator)));
+	    setLocator(LocatorPrx::uncheckedCast(_instance->proxyFactory()->propertyToProxy(locatorProperty)));
 	}
 	else
 	{

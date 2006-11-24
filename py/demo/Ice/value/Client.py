@@ -29,14 +29,7 @@ class ObjectFactory(Ice.ObjectFactory):
 
 class Client(Ice.Application):
     def run(self, args):
-	properties = self.communicator().getProperties()
-	refProperty = 'Value.Initial'
-	proxy = properties.getProperty(refProperty)
-	if len(proxy) == 0:
-	    print args[0] + ": property `" + refProperty + "' not set"
-	    return False
-
-	base = self.communicator().stringToProxy(proxy)
+	base = self.communicator().propertyToProxy('Value.Initial')
 	initial = Demo.InitialPrx.checkedCast(base)
 	if not initial:
 	    print args[0] + ": invalid proxy"

@@ -14,18 +14,8 @@ public class Publisher extends Ice.Application
     public int
     run(String[] args)
     {
-        Ice.Properties properties = communicator().getProperties();
-
-        final String proxyProperty = "IceStorm.TopicManager.Proxy";
-        String proxy = properties.getProperty(proxyProperty);
-        if(proxy.length() == 0)
-        {
-            System.err.println("property `" + proxyProperty + "' not set");
-            return 1;
-        }
-
         IceStorm.TopicManagerPrx manager = IceStorm.TopicManagerPrxHelper.checkedCast(
-	    communicator().stringToProxy(proxy));
+	    communicator().propertyToProxy("IceStorm.TopicManager.Proxy"));
         if(manager == null)
         {
             System.err.println("invalid proxy");

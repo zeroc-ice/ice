@@ -27,16 +27,7 @@ public class Client extends Ice.Application
     public int
     run(String[] args)
     {
-        Ice.Properties properties = communicator().getProperties();
-        final String refProperty = "Value.Initial";
-        String ref = properties.getProperty(refProperty);
-        if(ref.length() == 0)
-        {
-            System.err.println("property `" + refProperty + "' not set");
-            return 1;
-        }
-
-        Ice.ObjectPrx base = communicator().stringToProxy(ref);
+        Ice.ObjectPrx base = communicator().propertyToProxy("Value.Initial");
         InitialPrx initial = InitialPrxHelper.checkedCast(base);
         if(initial == null)
         {

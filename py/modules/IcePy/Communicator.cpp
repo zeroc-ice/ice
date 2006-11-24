@@ -427,6 +427,33 @@ communicatorProxyToString(CommunicatorObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
+communicatorPropertyToProxy(CommunicatorObject* self, PyObject* args)
+{
+    char* str;
+    if(!PyArg_ParseTuple(args, STRCAST("s"), &str))
+    {
+        return NULL;
+    }
+
+    assert(self->communicator);
+    Ice::ObjectPrx proxy;
+    try
+    {
+        proxy = (*self->communicator)->propertyToProxy(str);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    return createProxy(proxy, *self->communicator);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 communicatorStringToIdentity(CommunicatorObject* self, PyObject* args)
 {
     char* str;
@@ -1025,6 +1052,8 @@ static PyMethodDef CommunicatorMethods[] =
         PyDoc_STR(STRCAST("stringToProxy(str) -> Ice.ObjectPrx")) },
     { STRCAST("proxyToString"), (PyCFunction)communicatorProxyToString, METH_VARARGS,
         PyDoc_STR(STRCAST("proxyToString(Ice.ObjectPrx) -> string")) },
+    { STRCAST("propertyToProxy"), (PyCFunction)communicatorPropertyToProxy, METH_VARARGS,
+        PyDoc_STR(STRCAST("propertyToProxy(str) -> Ice.ObjectPrx")) },
     { STRCAST("stringToIdentity"), (PyCFunction)communicatorStringToIdentity, METH_VARARGS,
         PyDoc_STR(STRCAST("stringToIdentity(str) -> Ice.Identity")) },
     { STRCAST("identityToString"), (PyCFunction)communicatorIdentityToString, METH_VARARGS,

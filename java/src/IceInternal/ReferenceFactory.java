@@ -501,6 +501,76 @@ public final class ReferenceFactory
     }
 
     public Reference
+    createFromProperties(String propertyPrefix)
+    {
+        Ice.Properties properties = _instance.initializationData().properties;
+
+	Reference ref = create(properties.getProperty(propertyPrefix));
+	if(ref == null)
+	{
+	    return null;
+	}
+
+	String property = propertyPrefix + ".Locator";
+	if(properties.getProperty(property).length() != 0)
+	{
+	    ref = ref.changeLocator(Ice.LocatorPrxHelper.uncheckedCast(_communicator.propertyToProxy(property)));
+	}
+
+	property = propertyPrefix + ".LocatorCacheTimeout";
+	if(properties.getProperty(property).length() != 0)
+	{
+	    ref = ref.changeLocatorCacheTimeout(properties.getPropertyAsInt(property));
+	}
+
+	property = propertyPrefix + ".Router";
+	if(properties.getProperty(property).length() != 0)
+	{
+	    ref = ref.changeRouter(Ice.RouterPrxHelper.uncheckedCast(_communicator.propertyToProxy(property)));
+	}
+
+	property = propertyPrefix + ".PreferSecure";
+	if(properties.getProperty(property).length() != 0)
+	{
+	    ref = ref.changePreferSecure(properties.getPropertyAsInt(property) > 0);
+	}
+
+	property = propertyPrefix + ".ConnectionCached";
+	if(properties.getProperty(property).length() != 0)
+	{
+	    ref = ref.changeCacheConnection(properties.getPropertyAsInt(property) > 0);
+	}
+
+	property = propertyPrefix + ".EndpointSelection";
+	if(properties.getProperty(property).length() != 0)
+	{
+	    String type = properties.getProperty(property);
+	    if(type.equals("Random"))
+	    {
+	        ref = ref.changeEndpointSelection(Ice.EndpointSelectionType.Random);
+	    }
+	    else if(type.equals("Ordered"))
+	    {
+	        ref = ref.changeEndpointSelection(Ice.EndpointSelectionType.Ordered);
+	    }
+	    else
+	    {
+	        Ice.EndpointSelectionTypeParseException ex = new Ice.EndpointSelectionTypeParseException();
+		ex.str = type;
+		throw ex;
+	    }
+	}
+
+	property = propertyPrefix + ".CollocationOptimization";
+	if(properties.getProperty(property).length() != 0)
+	{
+	    ref = ref.changeCollocationOptimization(properties.getPropertyAsInt(property) > 0);
+	}
+
+	return ref;
+    }
+
+    public Reference
     create(Ice.Identity ident, BasicStream s)
     {
         //

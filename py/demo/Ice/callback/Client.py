@@ -34,14 +34,7 @@ class CallbackReceiverI(Demo.CallbackReceiver):
 
 class Client(Ice.Application):
     def run(self, args):
-        properties = self.communicator().getProperties()
-        proxyProperty = 'Callback.Client.CallbackServer'
-        proxy = properties.getProperty(proxyProperty)
-        if len(proxy) == 0:
-            print self.appName() + ": property `" + proxyProperty + "' not set"
-            return 1
-
-        base = self.communicator().stringToProxy(proxy)
+        base = self.communicator().propertyToProxy('Callback.Client.CallbackServer')
         twoway = Demo.CallbackSenderPrx.checkedCast(base.ice_twoway().ice_timeout(-1).ice_secure(False))
         if not twoway:
             print self.appName() + ": invalid proxy"

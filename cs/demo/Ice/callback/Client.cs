@@ -41,17 +41,9 @@ public class Client : Ice.Application
 	{
 	}
 
-        Ice.Properties properties = communicator().getProperties();
-        string proxyProperty = "Callback.Client.CallbackServer";
-        string proxy = properties.getProperty(proxyProperty);
-        if(proxy.Length == 0)
-        {
-            Console.Error.WriteLine("property `" + proxyProperty + "' not set");
-            return 1;
-        }
-        
         CallbackSenderPrx twoway = CallbackSenderPrxHelper.checkedCast(
-	    communicator().stringToProxy(proxy).ice_twoway().ice_timeout(-1).ice_secure(false));
+	    communicator().propertyToProxy("Callback.Client.CallbackServer").
+	        ice_twoway().ice_timeout(-1).ice_secure(false));
         if(twoway == null)
         {
             Console.Error.WriteLine("invalid proxy");

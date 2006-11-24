@@ -20,15 +20,7 @@ Module AsyncC
         End Sub
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
-            Dim properties As Ice.Properties = communicator().getProperties()
-            Dim proxyProperty As String = "Queue.Proxy"
-            Dim proxy As String = properties.getProperty(proxyProperty)
-            If proxy.Length = 0 Then
-                Console.Error.WriteLine("property `" & proxyProperty & "' not set")
-                Return 1
-            End If
-
-            Dim queue As QueuePrx = QueuePrxHelper.checkedCast(communicator().stringToProxy(proxy).ice_twoway().ice_timeout(-1).ice_secure(False))
+            Dim queue As QueuePrx = QueuePrxHelper.checkedCast(communicator().propertyToProxy("Queue.Proxy")
             If queue Is Nothing Then
                 Console.Error.WriteLine("invalid proxy")
                 Return 1

@@ -89,16 +89,7 @@ public class Client extends Ice.Application
 	callbackReceiverFakeIdent.name = "callbackReceiver";
 	callbackReceiverFakeIdent.category = "fake";
 
-        Ice.Properties properties = communicator().getProperties();
-        final String proxyProperty = "Callback.Proxy";
-        String proxy = properties.getProperty(proxyProperty);
-        if(proxy.length() == 0)
-        {
-            System.err.println("property `" + proxyProperty + "' not set");
-            return 1;
-        }
-
-        Ice.ObjectPrx base = communicator().stringToProxy(proxy);
+        Ice.ObjectPrx base = communicator().propertyToProxy("Callback.Proxy");
         CallbackPrx twoway = CallbackPrxHelper.checkedCast(base);
         CallbackPrx oneway = CallbackPrxHelper.uncheckedCast(twoway.ice_oneway());
         CallbackPrx batchOneway = CallbackPrxHelper.uncheckedCast(twoway.ice_batchOneway());

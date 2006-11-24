@@ -17,13 +17,8 @@ class Publisher(Ice.Application):
     def run(self, args):
 	properties = self.communicator().getProperties()
 
-	proxyProperty = 'IceStorm.TopicManager.Proxy'
-	proxy = properties.getProperty(proxyProperty)
-	if len(proxy) == 0:
-	    print self.appName() + ": property `" + proxyProperty + "' not set"
-	    return False
-
-	manager = IceStorm.TopicManagerPrx.checkedCast(self.communicator().stringToProxy(proxy))
+	manager = IceStorm.TopicManagerPrx.checkedCast(\
+	    self.communicator().propertyToProxy('IceStorm.TopicManager.Proxy'))
 	if not manager:
 	    print args[0] + ": invalid proxy"
 	    return False

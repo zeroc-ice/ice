@@ -482,17 +482,11 @@ public final class Instance
 	// initialization before the plug-in initialization!!! The proxies
 	// might depend on endpoint factories to be installed by plug-ins.
 	//
-	if(_defaultsAndOverrides.defaultRouter.length() > 0)
-	{
-	    _referenceFactory.setDefaultRouter(Ice.RouterPrxHelper.uncheckedCast(
-		    _proxyFactory.stringToProxy(_defaultsAndOverrides.defaultRouter)));
-	}
+	_referenceFactory.setDefaultRouter(Ice.RouterPrxHelper.uncheckedCast(
+	    _proxyFactory.propertyToProxy("Ice.Default.Router")));
 
-	if(_defaultsAndOverrides.defaultLocator.length() > 0)
-	{
-	    _referenceFactory.setDefaultLocator(Ice.LocatorPrxHelper.uncheckedCast(
-		    _proxyFactory.stringToProxy(_defaultsAndOverrides.defaultLocator)));
-	}
+	_referenceFactory.setDefaultLocator(Ice.LocatorPrxHelper.uncheckedCast(
+	    _proxyFactory.propertyToProxy("Ice.Default.Locator")));
 	
 	//
 	// Start connection monitor if necessary.

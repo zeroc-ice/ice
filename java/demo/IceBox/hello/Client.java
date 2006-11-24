@@ -30,17 +30,8 @@ public class Client extends Ice.Application
     public int
     run(String[] args)
     {
-        Ice.Properties properties = communicator().getProperties();
-        final String refProperty = "Hello.Proxy";
-        String ref = properties.getProperty(refProperty);
-        if(ref.length() == 0)
-        {
-            System.err.println("property `" + refProperty + "' not set");
-            return 1;
-        }
-
         HelloPrx twoway = HelloPrxHelper.checkedCast(
-	    communicator().stringToProxy(ref).ice_twoway().ice_timeout(-1).ice_secure(false));
+	    communicator().propertyToProxy("Hello.Proxy").ice_twoway().ice_timeout(-1).ice_secure(false));
         if(twoway == null)
         {
             System.err.println("invalid object reference");

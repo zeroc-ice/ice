@@ -15,13 +15,7 @@ import Demo
 
 class Client(Ice.Application):
     def run(self, args):
-	properties = self.communicator().getProperties()
-	proxy = properties.getProperty('Latency.Ping')
-	if len(proxy) == 0:
-	    print " property `Latency.Ping' not set"
-	    return False
-
-	ping = Demo.PingPrx.checkedCast(self.communicator().stringToProxy(proxy))
+	ping = Demo.PingPrx.checkedCast(self.communicator().propertyToProxy('Latency.Ping'))
 	if not ping:
 	    print "invalid proxy"
 	    return False

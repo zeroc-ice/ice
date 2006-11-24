@@ -15,16 +15,7 @@ public class Client : Ice.Application
     public override int
     run(string[] args)
     {
-        Ice.Properties properties = communicator().getProperties();
-        string refProperty = "Latency.Ping";
-        string @ref = properties.getProperty(refProperty);
-        if(@ref.Length == 0)
-        {
-            Console.Error.WriteLine("property `" + refProperty + "' not set");
-            return 1;
-        }
-        
-        PingPrx ping = PingPrxHelper.checkedCast(communicator().stringToProxy(@ref));
+        PingPrx ping = PingPrxHelper.checkedCast(communicator().propertyToProxy("Latency.Ping"));
         if(ping == null)
         {
             Console.Error.WriteLine("invalid proxy");

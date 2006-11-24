@@ -30,16 +30,7 @@ main(int argc, char* argv[])
 int
 NestedClient::run(int argc, char* argv[])
 {
-    Ice::PropertiesPtr properties = communicator()->getProperties();
-    const char* proxyProperty = "Nested.Client.NestedServer";
-    std::string proxy = properties->getProperty(proxyProperty);
-    if(proxy.empty())
-    {
-	cerr << appName() << ": property `" << proxyProperty << "' not set" << endl;
-	return EXIT_FAILURE;
-    }
-
-    NestedPrx nested = NestedPrx::checkedCast(communicator()->stringToProxy(proxy));
+    NestedPrx nested = NestedPrx::checkedCast(communicator()->propertyToProxy("Nested.Client.NestedServer"));
     if(!nested)
     {
 	cerr << appName() << ": invalid proxy" << endl;

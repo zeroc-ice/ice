@@ -91,16 +91,7 @@ CallbackClient::run(int argc, char* argv[])
     callbackReceiverFakeIdent.name = "callbackReceiver";
     callbackReceiverFakeIdent.category = "fake";
 
-    Ice::PropertiesPtr properties = communicator()->getProperties();
-    const char* proxyProperty = "Callback.Proxy";
-    std::string proxy = properties->getProperty(proxyProperty);
-    if(proxy.empty())
-    {
-	cerr << appName() << ": property `" << proxyProperty << "' not set" << endl;
-	return EXIT_FAILURE;
-    }
-
-    Ice::ObjectPrx base = communicator()->stringToProxy(proxy);
+    Ice::ObjectPrx base = communicator()->propertyToProxy("Callback.Proxy");
     CallbackPrx twoway = CallbackPrx::checkedCast(base);
     CallbackPrx oneway = CallbackPrx::uncheckedCast(twoway->ice_oneway());
     CallbackPrx batchOneway = CallbackPrx::uncheckedCast(twoway->ice_batchOneway());

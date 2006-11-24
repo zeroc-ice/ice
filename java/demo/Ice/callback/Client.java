@@ -31,17 +31,9 @@ public class Client extends Ice.Application
     public int
     run(String[] args)
     {
-        Ice.Properties properties = communicator().getProperties();
-        final String proxyProperty = "Callback.Client.CallbackServer";
-        String proxy = properties.getProperty(proxyProperty);
-        if(proxy.length() == 0)
-        {
-            System.err.println("property `" + proxyProperty + "' not set");
-            return 1;
-        }
-
         CallbackSenderPrx twoway = CallbackSenderPrxHelper.checkedCast(
-	    communicator().stringToProxy(proxy).ice_twoway().ice_timeout(-1).ice_secure(false));
+	    communicator().propertyToProxy("Callback.Client.CallbackServer").
+	        ice_twoway().ice_timeout(-1).ice_secure(false));
         if(twoway == null)
         {
             System.err.println("invalid proxy");

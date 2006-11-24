@@ -69,16 +69,7 @@ main(int argc, char* argv[])
 int
 QueueConsumer::run(int argc, char* argv[])
 {
-    Ice::PropertiesPtr properties = communicator()->getProperties();
-    const char* proxyProperty = "Queue.Proxy";
-    string proxy = properties->getProperty(proxyProperty);
-    if(proxy.empty())
-    {
-	cerr << argv[0] << ": property `" << proxyProperty << "' not set" << endl;
-	return EXIT_FAILURE;
-    }
-
-    QueuePrx queue = QueuePrx::checkedCast(communicator()->stringToProxy(proxy));
+    QueuePrx queue = QueuePrx::checkedCast(communicator()->propertyToProxy("Queue.Proxy"));
     if(!queue)
     {
 	cerr << argv[0] << ": invalid proxy" << endl;

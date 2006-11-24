@@ -26,16 +26,7 @@ Module ClockS
         Inherits Ice.Application
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
-	    Dim properties As Ice.Properties = communicator().getProperties()
-
-	    Dim proxyProperty As String = "IceStorm.TopicManager.Proxy"
-	    Dim proxy As String = properties.getProperty(proxyProperty)
-	    If proxy.Length = 0 Then
-	        Console.Error.WriteLine("property `" & proxyProperty & "' not set")
-		Return 1
-	    End If
-
-	    Dim basePrx As Ice.ObjectPrx = communicator().stringToProxy(proxy)
+	    Dim basePrx As Ice.ObjectPrx = communicator().propertyToProxy("IceStorm.TopicManager.Proxy")
 	    Dim manager As IceStorm.TopicManagerPrx = IceStorm.TopicManagerPrxHelper.checkedCast(basePrx)
 	    If manager Is Nothing Then
 	        Console.Error.WriteLine("invalid proxy")

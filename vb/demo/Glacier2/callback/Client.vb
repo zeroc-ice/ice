@@ -73,15 +73,7 @@ Module Glacier2callbackC
             callbackReceiverFakeIdent.name = "callbackReceiver"
             callbackReceiverFakeIdent.category = "fake"
 
-            Dim properties As Ice.Properties = communicator().getProperties()
-            Const proxyProperty As String = "Callback.Proxy"
-            Dim proxy As String = properties.getProperty(proxyProperty)
-            If proxy.Length = 0 Then
-                Console.Error.WriteLine("property `" & proxyProperty & "' not set")
-                Return 1
-            End If
-
-            Dim base As Ice.ObjectPrx = communicator().stringToProxy(proxy)
+            Dim base As Ice.ObjectPrx = communicator().propertyToProxy("Callback.Proxy")
             Dim twoway As CallbackPrx = CallbackPrxHelper.checkedCast(base)
             Dim oneway As CallbackPrx = CallbackPrxHelper.uncheckedCast(twoway.ice_oneway())
             Dim batchOneway As CallbackPrx = CallbackPrxHelper.uncheckedCast(twoway.ice_batchOneway())

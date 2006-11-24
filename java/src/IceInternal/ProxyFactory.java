@@ -33,6 +33,13 @@ public final class ProxyFactory
     }
 
     public Ice.ObjectPrx
+    propertyToProxy(String prefix)
+    {
+        Reference ref = _instance.referenceFactory().createFromProperties(prefix);
+        return referenceToProxy(ref);
+    }
+
+    public Ice.ObjectPrx
     streamToProxy(BasicStream s)
     {
         Ice.Identity ident = new Ice.Identity();

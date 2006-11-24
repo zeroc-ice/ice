@@ -64,15 +64,7 @@ class Client < Ice::Application
 	    end
 	end
 
-	properties = Ice::Application::communicator().getProperties()
-	proxyProperty = 'SessionFactory.Proxy'
-	proxy = properties.getProperty(proxyProperty)
-	if proxy.length == 0
-	    puts $0 + ": property `" + proxyProperty + "' not set"
-	    return false
-	end
-
-	base = Ice::Application::communicator().stringToProxy(proxy)
+	base = Ice::Application::communicator().propertyToProxy('SessionFactory.Proxy')
 	factory = Demo::SessionFactoryPrx::checkedCast(base)
 	if not factory
 	    puts $0 + ": invalid proxy"

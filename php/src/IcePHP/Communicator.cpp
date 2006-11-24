@@ -48,6 +48,7 @@ static function_entry _methods[] =
     {"getProperty",            PHP_FN(Ice_Communicator_getProperty),            NULL},
     {"stringToProxy",          PHP_FN(Ice_Communicator_stringToProxy),          NULL},
     {"proxyToString",          PHP_FN(Ice_Communicator_proxyToString),          NULL},
+    {"propertyToProxy",        PHP_FN(Ice_Communicator_propertyToProxy),        NULL},
     {"stringToIdentity",       PHP_FN(Ice_Communicator_stringToIdentity),          NULL},
     {"identityToString",       PHP_FN(Ice_Communicator_identityToString),          NULL},
     {"addObjectFactory",       PHP_FN(Ice_Communicator_addObjectFactory),       NULL},
@@ -270,6 +271,46 @@ ZEND_FUNCTION(Ice_Communicator_proxyToString)
     {
         throwException(ex TSRMLS_CC);
         RETURN_EMPTY_STRING();
+    }
+}
+
+ZEND_FUNCTION(Ice_Communicator_propertyToProxy)
+{
+    if(ZEND_NUM_ARGS() != 1)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = getObject(getThis() TSRMLS_CC);
+    if(!obj)
+    {
+        return;
+    }
+    assert(obj->ptr);
+    Ice::CommunicatorPtr* _this = static_cast<Ice::CommunicatorPtr*>(obj->ptr);
+
+    char *str;
+    int len;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &str, &len) == FAILURE)
+    {
+        RETURN_NULL();
+    }
+
+    Ice::ObjectPrx proxy;
+    try
+    {
+        proxy = (*_this)->propertyToProxy(str);
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+
+    if(!createProxy(return_value, proxy TSRMLS_CC))
+    {
+        RETURN_NULL();
     }
 }
 

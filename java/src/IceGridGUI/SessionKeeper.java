@@ -324,17 +324,14 @@ class SessionKeeper
 	    //
 	    // Registry properties
 	    //
-	    String defaultLocator = properties.getProperty("Ice.Default.Locator");
 	    Ice.ObjectPrx defaultLocatorProxy = null;
-	    if(!defaultLocator.equals(""))
+	    try
 	    {
-		try
-		{
-		    defaultLocatorProxy = coordinator.getCommunicator().stringToProxy(defaultLocator);
-		}
-		catch(Ice.LocalException e)
-		{
-		}
+	        defaultLocatorProxy = coordinator.getCommunicator().propertyToProxy("Ice.Default.Locator");
+	    }
+	    catch(Ice.LocalException e)
+	    {
+	        // Ignored, keep null defaultLocatorProxy
 	    }
 	    if(defaultLocatorProxy != null)
 	    {
@@ -366,18 +363,14 @@ class SessionKeeper
 	    //
 	    // Glacier2 properties
 	    //
-	    String defaultRouter = properties.getProperty("Ice.Default.Router");
 	    Ice.ObjectPrx defaultRouterProxy = null;
-	    if(!defaultRouter.equals(""))
+	    try
 	    {
-		try
-		{
-		    defaultRouterProxy = coordinator.getCommunicator().stringToProxy(defaultRouter);
-		}
-		catch(Ice.LocalException e)
-		{
-		    // Ignored, keep null defaultRouterProxy
-		}
+	        defaultRouterProxy = coordinator.getCommunicator().propertyToProxy("Ice.Default.Router");
+	    }
+	    catch(Ice.LocalException e)
+	    {
+	        // Ignored, keep null defaultRouterProxy
 	    }
 	    if(defaultRouterProxy != null)
 	    {

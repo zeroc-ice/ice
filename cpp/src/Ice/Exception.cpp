@@ -136,6 +136,13 @@ Ice::EndpointParseException::ice_print(ostream& out) const
 }
 
 void
+Ice::EndpointSelectionTypeParseException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nerror while parsing endpoint selection type `" << str << "'";
+}
+
+void
 Ice::IdentityParseException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);

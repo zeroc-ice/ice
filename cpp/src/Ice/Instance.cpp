@@ -748,17 +748,11 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     // initialization before the plug-in initialization!!! The proxies
     // might depend on endpoint factories to be installed by plug-ins.
     //
-    if(!_defaultsAndOverrides->defaultRouter.empty())
-    {
-	_referenceFactory->setDefaultRouter(
-	    RouterPrx::uncheckedCast(_proxyFactory->stringToProxy(_defaultsAndOverrides->defaultRouter)));
-    }
+    _referenceFactory->setDefaultRouter(
+        RouterPrx::uncheckedCast(_proxyFactory->propertyToProxy("Ice.Default.Router")));
 
-    if(!_defaultsAndOverrides->defaultLocator.empty())
-    {
-	_referenceFactory->setDefaultLocator(
-	    LocatorPrx::uncheckedCast(_proxyFactory->stringToProxy(_defaultsAndOverrides->defaultLocator)));
-    }
+    _referenceFactory->setDefaultLocator(
+        LocatorPrx::uncheckedCast(_proxyFactory->propertyToProxy("Ice.Default.Locator")));
 
     //
     // Show process id if requested (but only once).

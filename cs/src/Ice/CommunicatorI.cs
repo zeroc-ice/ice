@@ -37,6 +37,11 @@ namespace Ice
 	    return instance_.proxyFactory().proxyToString(proxy);
 	}
 
+	public Ice.ObjectPrx propertyToProxy(string s)
+	{
+	    return instance_.proxyFactory().propertyToProxy(s);
+	}
+	
 	public Ice.Identity stringToIdentity(string s)
 	{
 	    return instance_.stringToIdentity(s);

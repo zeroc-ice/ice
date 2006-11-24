@@ -75,7 +75,7 @@ Module SessionC
                 Return 1
             End If
 
-            Dim basePrx As Ice.ObjectPrx = communicator().stringToProxy(proxy)
+            Dim basePrx As Ice.ObjectPrx = communicator().propertyToProxy("SessionFactory.Proxy")
             Dim factory As SessionFactoryPrx = SessionFactoryPrxHelper.checkedCast(basePrx)
             If factory Is Nothing Then
                 Console.Error.WriteLine("invalid proxy")

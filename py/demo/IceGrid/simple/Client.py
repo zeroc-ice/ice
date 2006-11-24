@@ -29,8 +29,7 @@ class Client(Ice.Application):
 	try:
 	    hello = Demo.HelloPrx.checkedCast(self.communicator().stringToProxy("hello"))
 	except Ice.NotRegisteredException:
-	    proxy = "DemoIceGrid/Query"
-	    query = IceGrid.QueryPrx.checkedCast(self.communicator().stringToProxy(proxy))
+	    query = IceGrid.QueryPrx.checkedCast(self.communicator().stringToProxy("DemoIceGrid/Query"))
 	    hello = Demo.HelloPrx.checkedCast(query.findObjectByType("::Demo::Hello"))
 
 	if not hello:

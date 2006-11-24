@@ -52,6 +52,11 @@ public:
     ReferencePtr create(const ::std::string&);
 
     //
+    // Create a reference from a property set.
+    //
+    ReferencePtr createFromProperties(const ::std::string&);
+
+    //
     // Create a reference by unmarshaling it from a stream.
     //
     ReferencePtr create(const ::Ice::Identity&, BasicStream*);

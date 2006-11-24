@@ -37,14 +37,7 @@ x: exit
 
 class Client(Ice.Application):
     def run(self, args):
-	properties = self.communicator().getProperties()
-	proxyProperty = 'Throughput.Throughput'
-	proxy = properties.getProperty(proxyProperty)
-	if len(proxy) == 0:
-	    print args[0] + ": property `" + proxyProperty + "' not set"
-	    return False
-
-	throughput = Demo.ThroughputPrx.checkedCast(self.communicator().stringToProxy(proxy))
+	throughput = Demo.ThroughputPrx.checkedCast(self.communicator().propertyToProxy('Throughput.Throughput'))
 	if not throughput:
 	    print args[0] + ": invalid proxy"
 	    return False

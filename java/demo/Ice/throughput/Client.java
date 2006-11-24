@@ -38,16 +38,7 @@ public class Client extends Ice.Application
     public int
     run(String[] args)
     {
-        Ice.Properties properties = communicator().getProperties();
-        final String refProperty = "Throughput.Throughput";
-        String ref = properties.getProperty(refProperty);
-        if(ref.length() == 0)
-        {
-            System.err.println("property `" + refProperty + "' not set");
-            return 1;
-        }
-
-        Ice.ObjectPrx base = communicator().stringToProxy(ref);
+        Ice.ObjectPrx base = communicator().propertyToProxy("Throughput.Throughput");
         ThroughputPrx throughput = ThroughputPrxHelper.checkedCast(base);
         if(throughput == null)
         {

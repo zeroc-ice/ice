@@ -14,16 +14,7 @@ public class Client extends Ice.Application
     public int
     run(String[] args)
     {
-        Ice.Properties properties = communicator().getProperties();
-        final String proxyProperty = "Nested.Client.NestedServer";
-        String proxy = properties.getProperty(proxyProperty);
-        if(proxy.length() == 0)
-        {
-            System.err.println("property `" + proxyProperty + "' not set");
-            return 1;
-        }
-
-        NestedPrx nested = NestedPrxHelper.checkedCast(communicator().stringToProxy(proxy));
+        NestedPrx nested = NestedPrxHelper.checkedCast(communicator().propertyToProxy("Nested.Client.NestedServer"));
         if(nested == null)
         {
             System.err.println("invalid proxy");
@@ -31,7 +22,8 @@ public class Client extends Ice.Application
         }
 
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Nested.Client");
-        NestedPrx self = NestedPrxHelper.uncheckedCast(adapter.createProxy(communicator().stringToIdentity("nestedClient")));
+        NestedPrx self =
+	    NestedPrxHelper.uncheckedCast(adapter.createProxy(communicator().stringToIdentity("nestedClient")));
         adapter.add(new NestedI(self), communicator().stringToIdentity("nestedClient"));
         adapter.activate();
 

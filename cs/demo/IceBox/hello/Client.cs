@@ -43,17 +43,8 @@ public class Client : Ice.Application
 	{
 	}
 
-        Ice.Properties properties = communicator().getProperties();
-        string proxyProperty = "Hello.Proxy";
-        string proxy = properties.getProperty(proxyProperty);
-        if(proxy.Length == 0)
-        {
-            Console.Error.WriteLine("property `" + proxyProperty + "' not set");
-            return 1;
-        }
-        
         HelloPrx twoway = HelloPrxHelper.checkedCast(
-	    communicator().stringToProxy(proxy).ice_twoway().ice_timeout(-1).ice_secure(false));
+	    communicator().propertyToProxy("Hello.Proxy").ice_twoway().ice_timeout(-1).ice_secure(false));
         if(twoway == null)
         {
             Console.Error.WriteLine("invalid proxy");

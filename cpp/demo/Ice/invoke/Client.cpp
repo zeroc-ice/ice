@@ -52,16 +52,7 @@ operator<<(ostream& out, Demo::Color c)
 int
 InvokeClient::run(int argc, char* argv[])
 {
-    Ice::PropertiesPtr properties = communicator()->getProperties();
-    const char* proxyProperty = "Printer.Proxy";
-    string proxy = properties->getProperty(proxyProperty);
-    if(proxy.empty())
-    {
-        cerr << argv[0] << ": property `" << proxyProperty << "' not set" << endl;
-        return EXIT_FAILURE;
-    }
-
-    Ice::ObjectPrx obj = communicator()->stringToProxy(proxy);
+    Ice::ObjectPrx obj = communicator()->propertyToProxy("Printer.Proxy");
 
     menu();
 

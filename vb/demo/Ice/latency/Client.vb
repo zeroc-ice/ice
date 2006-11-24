@@ -16,15 +16,7 @@ Module LatencyC
         Inherits Ice.Application
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
-            Dim properties As Ice.Properties = communicator().getProperties()
-            Dim refProperty As String = "Latency.Ping"
-            Dim ref As String = properties.getProperty(refProperty)
-            If ref.Length = 0 Then
-                Console.Error.WriteLine("property `" & refProperty & "' not set")
-                Return 1
-            End If
-
-            Dim ping As PingPrx = PingPrxHelper.checkedCast(communicator().stringToProxy(ref))
+            Dim ping As PingPrx = PingPrxHelper.checkedCast(communicator().propertyToProxy("Latency.Ping"))
             If ping Is Nothing Then
                 Console.Error.WriteLine("invalid proxy")
                 Return 1

@@ -50,15 +50,7 @@ end
 
 class Client < Ice::Application
     def run(args)
-	properties = Ice::Application::communicator().getProperties()
-	refProperty = 'Value.Initial'
-	proxy = properties.getProperty(refProperty)
-	if proxy.length == 0
-	    puts $0 + ": property `" + refProperty + "' not set"
-	    return false
-	end
-
-	base = Ice::Application::communicator().stringToProxy(proxy)
+	base = Ice::Application::communicator().propertyToProxy('Value.Initial')
 	initial = Demo::InitialPrx::checkedCast(base)
 	if not initial
 	    puts $0 + ": invalid proxy"

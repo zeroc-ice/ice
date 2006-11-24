@@ -42,16 +42,8 @@ main(int argc, char* argv[])
 int
 CallbackClient::run(int argc, char* argv[])
 {
-    Ice::PropertiesPtr properties = communicator()->getProperties();
-    const char* proxyProperty = "Callback.Client.CallbackServer";
-    std::string proxy = properties->getProperty(proxyProperty);
-    if(proxy.empty())
-    {
-	cerr << appName() << ": property `" << proxyProperty << "' not set" << endl;
-	return EXIT_FAILURE;
-    }
-
-    CallbackSenderPrx server = CallbackSenderPrx::checkedCast(communicator()->stringToProxy(proxy));
+    CallbackSenderPrx server = 
+        CallbackSenderPrx::checkedCast(communicator()->propertyToProxy("Callback.Client.CallbackServer"));
     if(!server)
     {
 	cerr << appName() << ": invalid proxy" << endl;

@@ -63,16 +63,7 @@ class RunParser
 	    }
 	}
 
-	Ice.Properties properties = communicator.getProperties();
-	String refProperty = "PhoneBook.Proxy";
-	String ref = properties.getProperty(refProperty);
-	if(ref.length() == 0)
-	{
-	    System.err.println(appName +  ": property `" + refProperty + "' not set");
-	    return 1;
-	}
-
-	Ice.ObjectPrx base = communicator.stringToProxy(ref);
+	Ice.ObjectPrx base = communicator.propertyToProxy("PhoneBook.Proxy");
 	PhoneBookPrx phoneBook = PhoneBookPrxHelper.checkedCast(base);
 	if(phoneBook == null)
 	{

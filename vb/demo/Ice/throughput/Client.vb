@@ -37,15 +37,7 @@ Module ThroughputC
         End Sub
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
-            Dim properties As Ice.Properties = communicator().getProperties()
-            Dim refProperty As String = "Throughput.Throughput"
-            Dim r As String = properties.getProperty(refProperty)
-            If r.Length = 0 Then
-                Console.Error.WriteLine("property `" & r & "' not set")
-                Return 1
-            End If
-
-            Dim throughput As ThroughputPrx = ThroughputPrxHelper.checkedCast(communicator.stringToProxy(r))
+            Dim throughput As ThroughputPrx = ThroughputPrxHelper.checkedCast(communicator.propertyToProxy("Throughput.Throughput"))
             If throughput Is Nothing Then
                 Console.Error.WriteLine("invalid proxy")
                 Return 1

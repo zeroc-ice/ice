@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <Ice/Communicator.h>
 #include <Ice/ReferenceFactory.h>
 #include <Ice/ProxyFactory.h>
 #include <Ice/LocalException.h>
@@ -14,7 +15,9 @@
 #include <Ice/EndpointI.h>
 #include <Ice/EndpointFactoryManager.h>
 #include <Ice/RouterInfo.h>
+#include <Ice/Router.h>
 #include <Ice/LocatorInfo.h>
+#include <Ice/Locator.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/BasicStream.h>
 #include <Ice/Properties.h>
@@ -541,6 +544,78 @@ IceInternal::ReferenceFactory::create(const string& str)
     }
 
     return 0; // Unreachable, prevents compiler warning.
+}
+
+ReferencePtr
+IceInternal::ReferenceFactory::createFromProperties(const string& propertyPrefix)
+{
+    PropertiesPtr properties = _instance->initializationData().properties;
+
+    ReferencePtr ref = create(properties->getProperty(propertyPrefix));
+    if(!ref)
+    {
+        return 0;
+    }
+
+    string property = propertyPrefix + ".Locator";
+    if(!properties->getProperty(property).empty())
+    {
+        ref = ref->changeLocator(
+	    LocatorPrx::uncheckedCast(_communicator->propertyToProxy(property)));
+    }
+
+    property = propertyPrefix + ".LocatorCacheTimeout";
+    if(!properties->getProperty(property).empty())
+    {
+        ref = ref->changeLocatorCacheTimeout(properties->getPropertyAsInt(property));
+    }
+
+    property = propertyPrefix + ".Router";
+    if(!properties->getProperty(property).empty())
+    {
+        ref = ref->changeRouter(
+	    RouterPrx::uncheckedCast(_communicator->propertyToProxy(property)));
+    }
+
+    property = propertyPrefix + ".PreferSecure";
+    if(!properties->getProperty(property).empty())
+    {
+        ref = ref->changePreferSecure(properties->getPropertyAsInt(property) > 0);
+    }
+
+    property = propertyPrefix + ".ConnectionCached";
+    if(!properties->getProperty(property).empty())
+    {
+        ref = ref->changeCacheConnection(properties->getPropertyAsInt(property) > 0);
+    }
+
+    property = propertyPrefix + ".EndpointSelection";
+    if(!properties->getProperty(property).empty())
+    {
+        string type = properties->getProperty(property);
+        if(type == "Random")
+	{
+	    ref = ref->changeEndpointSelection(Random);
+	} 
+	else if(type == "Ordered")
+	{
+	    ref = ref->changeEndpointSelection(Ordered);
+	}
+	else
+	{
+	    EndpointSelectionTypeParseException ex(__FILE__, __LINE__);
+	    ex.str = type;
+	    throw ex;
+	}
+    }
+
+    property = propertyPrefix + ".CollocationOptimization";
+    if(!properties->getProperty(property).empty())
+    {
+        ref = ref->changeCollocationOptimization(properties->getPropertyAsInt(property) > 0);
+    }
+
+    return ref;
 }
 
 ReferencePtr

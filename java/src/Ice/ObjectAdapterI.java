@@ -702,11 +702,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         {
 	    if(router == null)
 	    {
-	        String routerStr = _instance.initializationData().properties.getProperty(name + ".Router");
-	        if(routerStr.length() > 0)
-	        {
-		    router = RouterPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(routerStr));
-	        }
+	        router = RouterPrxHelper.uncheckedCast(_instance.proxyFactory().propertyToProxy(name + ".Router"));
 	    }
 	    if(router != null)
 	    {
@@ -821,10 +817,10 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	        }
 	    }
 
-	    String locator = _instance.initializationData().properties.getProperty(name + ".Locator");
-	    if(locator.length() > 0)
+	    String locatorProperty = name + ".Locator";
+	    if(_instance.initializationData().properties.getProperty(locatorProperty).length() > 0)
 	    {
-		setLocator(LocatorPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(locator)));
+		setLocator(LocatorPrxHelper.uncheckedCast(_instance.proxyFactory().propertyToProxy(locatorProperty)));
 	    }
 	    else
 	    {

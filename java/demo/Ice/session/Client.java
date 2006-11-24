@@ -94,16 +94,7 @@ public class Client extends Ice.Application
 	    return 0;
 	}
 
-        Ice.Properties properties = communicator().getProperties();
-        final String proxyProperty = "SessionFactory.Proxy";
-        String proxy = properties.getProperty(proxyProperty);
-        if(proxy.length() == 0)
-        {
-            System.err.println("property `" + proxyProperty + "' not set");
-            return 1;
-        }
-
-        Ice.ObjectPrx base = communicator().stringToProxy(proxy);
+        Ice.ObjectPrx base = communicator().propertyToProxy("SessionFactory.Proxy");
         SessionFactoryPrx factory = SessionFactoryPrxHelper.checkedCast(base);
         if(factory == null)
         {

@@ -32,15 +32,8 @@ x: exit
 
 class Client(Ice.Application):
     def run(self, args):
-	properties = self.communicator().getProperties()
-	refProperty = 'Hello.Proxy'
-	proxy = properties.getProperty(refProperty)
-	if len(proxy) == 0:
-	    print args[0] + ": property `" + refProperty + "' not set"
-	    return False
-
 	twoway = Demo.HelloPrx.checkedCast(\
-	    self.communicator().stringToProxy(proxy).ice_twoway().ice_timeout(-1).ice_secure(False))
+	    self.communicator().propertyToProxy('Hello.Proxy').ice_twoway().ice_timeout(-1).ice_secure(False))
 	if not twoway:
 	    print args[0] + ": invalid proxy"
 	    return False

@@ -37,16 +37,7 @@ public class Client : Ice.Application
     public override int
     run(string[] args)
     {
-        Ice.Properties properties = communicator().getProperties();
-        string refProperty = "Throughput.Throughput";
-        string r = properties.getProperty(refProperty);
-        if(r.Length == 0)
-        {
-            Console.Error.WriteLine("property `" + r + "' not set");
-            return 1;
-        }
-        
-        Ice.ObjectPrx b = communicator().stringToProxy(r);
+        Ice.ObjectPrx b = communicator().propertyToProxy("Throughput.Throughput");
         ThroughputPrx throughput = ThroughputPrxHelper.checkedCast(b);
         if(throughput == null)
         {

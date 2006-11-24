@@ -91,16 +91,7 @@ runParser(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    Ice::PropertiesPtr properties = communicator->getProperties();
-    const char* proxyProperty = "PhoneBook.Proxy";
-    string proxy = properties->getProperty(proxyProperty);
-    if(proxy.empty())
-    {
-	cerr << argv[0] << ": property `" << proxyProperty << "' not set" << endl;
-	return EXIT_FAILURE;
-    }
-
-    PhoneBookPrx phoneBook = PhoneBookPrx::checkedCast(communicator->stringToProxy(proxy));
+    PhoneBookPrx phoneBook = PhoneBookPrx::checkedCast(communicator->propertyToProxy("PhoneBook.Proxy"));
     if(!phoneBook)
     {
 	cerr << argv[0] << ": invalid proxy" << endl;

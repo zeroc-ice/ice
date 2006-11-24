@@ -16,18 +16,8 @@ public class Publisher : Ice.Application
 {
     public override int run(string[] args)
     {
-        Ice.Properties properties = communicator().getProperties();
-
-        const String proxyProperty = "IceStorm.TopicManager.Proxy";
-        String proxy = properties.getProperty(proxyProperty);
-        if(proxy.Length == 0)
-        {
-            Console.WriteLine("property `" + proxyProperty + "' not set");
-            return 1;
-        }
-
         IceStorm.TopicManagerPrx manager = IceStorm.TopicManagerPrxHelper.checkedCast(
-	    communicator().stringToProxy(proxy));
+	    communicator().propertyToProxy("IceStorm.TopicManager.Proxy"));
         if(manager == null)
         {
             Console.WriteLine("invalid proxy");

@@ -13,16 +13,8 @@ public class Client : Ice.Application
 {
     public override int run(string[] args)
     {
-        Ice.Properties properties = communicator().getProperties();
-	string proxyProperty = "Callback.Client.CallbackServer";
-        string proxy = properties.getProperty(proxyProperty);
-        if(proxy.Length == 0)
-        {
-	    System.Console.Error.WriteLine("property `" + proxyProperty + "' not set");
-            return 1;
-        }
-
-        CallbackSenderPrx server = CallbackSenderPrxHelper.checkedCast(communicator().stringToProxy(proxy));
+        CallbackSenderPrx server = 
+	    CallbackSenderPrxHelper.checkedCast(communicator().propertyToProxy("Callback.Client.CallbackServer"));
         if(server == null)
         {
             System.Console.Error.WriteLine("invalid proxy");

@@ -44,17 +44,9 @@ main(int argc, char* argv[])
 int
 CallbackClient::run(int argc, char* argv[])
 {
-    Ice::PropertiesPtr properties = communicator()->getProperties();
-    const char* proxyProperty = "Callback.Client.CallbackServer";
-    std::string proxy = properties->getProperty(proxyProperty);
-    if(proxy.empty())
-    {
-	cerr << appName() << ": property `" << proxyProperty << "' not set" << endl;
-	return EXIT_FAILURE;
-    }
-
     CallbackSenderPrx twoway = CallbackSenderPrx::checkedCast(
-	communicator()->stringToProxy(proxy)->ice_twoway()->ice_timeout(-1)->ice_secure(false));
+	communicator()->propertyToProxy("Callback.Client.CallbackServer")->
+	    ice_twoway()->ice_timeout(-1)->ice_secure(false));
     if(!twoway)
     {
 	cerr << appName() << ": invalid proxy" << endl;

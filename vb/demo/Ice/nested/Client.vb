@@ -16,15 +16,7 @@ Module NestedC
         Inherits Ice.Application
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
-            Dim properties As Ice.Properties = communicator().getProperties()
-            Dim proxyProperty As String = "Nested.Client.NestedServer"
-            Dim proxy As String = properties.getProperty(proxyProperty)
-            If proxy.Length = 0 Then
-                Console.Error.WriteLine("property `" & proxyProperty & "' not set")
-                Return 1
-            End If
-
-            Dim nested As NestedPrx = NestedPrxHelper.checkedCast(communicator().stringToProxy(proxy))
+            Dim nested As NestedPrx = NestedPrxHelper.checkedCast(communicator().propertyToProxy("Nested.Client.NestedServer"))
             If nested Is Nothing Then
                 Console.Error.WriteLine("invalid proxy")
                 Return 1

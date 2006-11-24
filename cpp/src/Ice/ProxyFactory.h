@@ -30,6 +30,8 @@ public:
     Ice::ObjectPrx stringToProxy(const std::string&) const;
     std::string proxyToString(const Ice::ObjectPrx&) const;
 
+    Ice::ObjectPrx propertyToProxy(const std::string&) const;
+
     Ice::ObjectPrx streamToProxy(BasicStream*) const;
     void proxyToStream(const Ice::ObjectPrx&, BasicStream*) const;
 

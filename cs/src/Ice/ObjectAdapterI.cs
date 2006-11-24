@@ -711,11 +711,7 @@ namespace Ice
 	    {
 	        if(router == null)
 		{
-		    string routerStr = instance_.initializationData().properties.getProperty(name + ".Router");
-		    if(routerStr.Length > 0)
-		    {
-		        router = RouterPrxHelper.uncheckedCast(instance_.proxyFactory().stringToProxy(routerStr));
-		    }
+		    router = RouterPrxHelper.uncheckedCast(instance_.proxyFactory().propertyToProxy(name + ".Router"));
 		}
 		if(router != null)
 		{
@@ -829,10 +825,11 @@ namespace Ice
 		    _publishedEndpoints = tmp;
 		}
 
-		string locator = instance_.initializationData().properties.getProperty(name + ".Locator");
-		if(locator.Length > 0)
+		string locatorProperty = name + ".Locator";
+		if(instance_.initializationData().properties.getProperty(locatorProperty).Length > 0)
 		{
-		    setLocator(LocatorPrxHelper.uncheckedCast(instance_.proxyFactory().stringToProxy(locator)));
+		    setLocator(LocatorPrxHelper.uncheckedCast(
+		        instance_.proxyFactory().propertyToProxy(locatorProperty)));
 		}
 		else
 		{

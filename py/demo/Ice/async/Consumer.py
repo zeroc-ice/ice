@@ -60,14 +60,7 @@ x: exit
 
 class Consumer(Ice.Application):
     def run(self, args):
-	properties = self.communicator().getProperties()
-	refProperty = 'Queue.Proxy'
-	proxy = properties.getProperty(refProperty)
-	if len(proxy) == 0:
-	    print args[0] + ": property `" + refProperty + "' not set"
-	    return False
-
-	queue = Demo.QueuePrx.checkedCast(self.communicator().stringToProxy(proxy))
+	queue = Demo.QueuePrx.checkedCast(self.communicator().propertyToProxy('Queue.Proxy'))
 	if not queue:
 	    print args[0] + ": invalid proxy"
 	    return False

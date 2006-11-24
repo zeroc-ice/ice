@@ -25,7 +25,7 @@ Module ClockC
                 Return 1
             End If
 
-            Dim basePrx As Ice.ObjectPrx = communicator().stringToProxy(proxy)
+            Dim basePrx As Ice.ObjectPrx = communicator().propertyToProxy("IceStorm.TopicManager.Proxy")
             Dim manager As IceStorm.TopicManagerPrx = IceStorm.TopicManagerPrxHelper.checkedCast(basePrx)
             If manager Is Nothing Then
                 Console.Error.WriteLine("invalid proxy")

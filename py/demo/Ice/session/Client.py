@@ -51,14 +51,7 @@ class Client(Ice.Application):
             if len(name) != 0:
                 break
 
-        properties = self.communicator().getProperties()
-        proxyProperty = 'SessionFactory.Proxy'
-        proxy = properties.getProperty(proxyProperty)
-        if len(proxy) == 0:
-            print args[0] + ": property `" + proxyProperty + "' not set"
-            return False
-
-        base = self.communicator().stringToProxy(proxy)
+        base = self.communicator().propertyToProxy('SessionFactory.Proxy')
         factory = Demo.SessionFactoryPrx.checkedCast(base)
         if not factory:
             print args[0] + ": invalid proxy"

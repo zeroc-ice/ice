@@ -33,6 +33,12 @@ namespace IceInternal
 	    }
 	}
 	
+	public Ice.ObjectPrx propertyToProxy(string prefix)
+	{
+	    Reference r = instance_.referenceFactory().createFromProperties(prefix);
+	    return referenceToProxy(r);
+	}
+	
 	public Ice.ObjectPrx streamToProxy(BasicStream s)
 	{
 	    Ice.Identity ident = new Ice.Identity();

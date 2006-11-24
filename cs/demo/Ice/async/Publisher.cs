@@ -19,16 +19,7 @@ public class Publisher : Ice.Application
 
     public override int run(string[] args)
     {
-        Ice.Properties properties = communicator().getProperties();
-        string proxyProperty = "Queue.Proxy";
-        string proxy = properties.getProperty(proxyProperty);
-        if(proxy.Length == 0)
-        {
-            Console.Error.WriteLine("property `" + proxyProperty + "' not set");
-            return 1;
-        }
-
-        QueuePrx queue = QueuePrxHelper.checkedCast(communicator().stringToProxy(proxy));
+        QueuePrx queue = QueuePrxHelper.checkedCast(communicator().propertyToProxy("Queue.Proxy"));
         if(queue == null)
         {
             Console.Error.WriteLine("invalid proxy");

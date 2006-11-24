@@ -131,6 +131,18 @@ local interface Communicator
      **/
     ["cpp:const"] string proxyToString(Object* obj);
 
+
+    /**
+     * 
+     * Convert a set of proxy properties into a proxy.
+     *
+     * @param prefix The property name prefix.
+     * 
+     * @return The proxy.
+     *
+     **/
+    ["cpp:const"] Object* propertyToProxy(string prefix);
+
     /**
      *
      * Convert a string into an identity.

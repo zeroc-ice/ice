@@ -31,16 +31,9 @@ end
 
 class Client < Ice::Application
     def run(args)
-	properties = Ice::Application::communicator().getProperties()
-	refProperty = 'Hello.Proxy'
-	proxy = properties.getProperty(refProperty)
-	if proxy.length == 0
-	    puts $0 + ": property `" + refProperty + "' not set"
-	    return false
-	end
-
 	twoway = Demo::HelloPrx::checkedCast(
-	    Ice::Application::communicator().stringToProxy(proxy).ice_twoway().ice_timeout(-1).ice_secure(false))
+	    Ice::Application::communicator().propertyToProxy('Hello.Proxy').
+	        ice_twoway().ice_timeout(-1).ice_secure(false))
 	if not twoway
 	    puts $0 + ": invalid proxy"
 	    return false

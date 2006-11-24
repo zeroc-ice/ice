@@ -286,6 +286,22 @@ local exception EndpointParseException
 
 /**
  *
+ * This exception is raised if there was an error while parsing an
+ * endpoint selection type.
+ *
+ **/
+local exception EndpointSelectionTypeParseException
+{
+    /**
+     *
+     * The string that could not be parsed.
+     *
+     **/
+    string str;
+};
+
+/**
+ *
  * This exception is raised if there was an error while parsing a
  * stringified identity.
  *

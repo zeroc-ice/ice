@@ -16,15 +16,7 @@ Module ValueC
         Inherits Ice.Application
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
-            Dim properties As Ice.Properties = communicator().getProperties()
-            Dim refProperty As String = "Value.Initial"
-            Dim ref As String = properties.getProperty(refProperty)
-            If ref.Length = 0 Then
-                Console.Error.WriteLine("property `" & refProperty & "' not set")
-                Return 1
-            End If
-
-            Dim initial As InitialPrx = InitialPrxHelper.checkedCast(communicator().stringToProxy(ref))
+            Dim initial As InitialPrx = InitialPrxHelper.checkedCast(communicator().propertyToProxy("Value.Initial"))
             If initial Is Nothing Then
                 Console.Error.WriteLine("invalid object reference")
                 Return 1

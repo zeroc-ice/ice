@@ -45,18 +45,8 @@ main(int argc, char* argv[])
 int
 Subscriber::run(int argc, char* argv[])
 {
-    Ice::PropertiesPtr properties = communicator()->getProperties();
-
-    const string proxyProperty = "IceStorm.TopicManager.Proxy";
-    string proxy = properties->getProperty(proxyProperty);
-    if(proxy.empty())
-    {
-	cerr << appName() << ": property `" << proxyProperty << "' not set" << endl;
-	return EXIT_FAILURE;
-    }
-
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
-	communicator()->stringToProxy(proxy));
+	communicator()->propertyToProxy("IceStorm.TopicManager.Proxy"));
     if(!manager)
     {
 	cerr << appName() << ": invalid proxy" << endl;
