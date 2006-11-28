@@ -295,11 +295,11 @@ LocatorRegistryI::setAdapterDirectProxy(const AMI_Adapter_setDirectProxyPtr& ami
 		amiCB->ice_response();
 		return;
 	    }
-	    catch(const AdapterExistsException& ex)
+	    catch(const AdapterExistsException&)
 	    {
 		// Continue
 	    }
-	    catch(const AdapterNotExistException& ex)
+	    catch(const AdapterNotExistException&)
 	    {
 		throw Ice::AdapterNotFoundException(); // Dynamic registration not allowed on the master.
 	    }

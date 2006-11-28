@@ -186,7 +186,6 @@ NodeSessionKeepAliveThread::keepAlive(const NodeSessionPrx& session)
     catch(const Ice::LocalException& ex)
     {
 	_node->removeObserver(session);
-
 	if(_node->getTraceLevels() && _node->getTraceLevels()->replica > 0)
 	{
 	    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->replicaCat);
