@@ -26,7 +26,7 @@ static const string clientTraceOverride = "Glacier2.Client.Trace.Override";
 static const string serverSleepTime = "Glacier2.Server.SleepTime";
 static const string clientSleepTime = "Glacier2.Client.SleepTime";
 
-Glacier2::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) :
+Glacier2::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse, const Ice::Context& sslContext) :
     _communicator(communicator),
     _properties(_communicator->getProperties()),
     _logger(_communicator->getLogger()),
@@ -45,7 +45,8 @@ Glacier2::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) 
 		       _properties->getPropertyAsInt(clientTraceRequest)),
     _overrideTraceLevel(reverse ?
 			_properties->getPropertyAsInt(serverTraceOverride) :
-			_properties->getPropertyAsInt(clientTraceOverride))
+			_properties->getPropertyAsInt(clientTraceOverride)),
+    _sslContext(sslContext)
 {
 
     if(_buffered)
@@ -266,7 +267,8 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Array_Object_ice_invokePt
 	bool override;
 	try
 	{
-	    override = _requestQueue->addRequest(new Request(proxy, inParams, current, _forwardContext, amdCB));
+	    override = 
+	        _requestQueue->addRequest(new Request(proxy, inParams, current, _forwardContext, _sslContext, amdCB));
 	}
 	catch(const ObjectNotExistException& ex)
 	{
@@ -317,11 +319,27 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Array_Object_ice_invokePt
 	{
 	    if(_forwardContext)
 	    {
-		ok = proxy->ice_invoke(current.operation, current.mode, inParams, outParams, current.ctx);
+	        if(_sslContext.size() > 0)
+		{
+		    Ice::Context ctx = current.ctx;
+		    ctx.insert(_sslContext.begin(), _sslContext.end());
+		    ok = proxy->ice_invoke(current.operation, current.mode, inParams, outParams, ctx);
+		}
+		else
+		{
+		    ok = proxy->ice_invoke(current.operation, current.mode, inParams, outParams, current.ctx);
+		}
 	    }
 	    else
 	    {
-		ok = proxy->ice_invoke(current.operation, current.mode, inParams, outParams);
+	        if(_sslContext.size() > 0)
+		{
+		    ok = proxy->ice_invoke(current.operation, current.mode, inParams, outParams, _sslContext);
+		}
+		else
+		{
+		    ok = proxy->ice_invoke(current.operation, current.mode, inParams, outParams);
+		}
 	    }
 
 	    pair<const Byte*, const Byte*> outPair;

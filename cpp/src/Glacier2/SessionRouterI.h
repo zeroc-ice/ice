@@ -73,7 +73,7 @@ public:
 private:
 
     SessionPrx createSessionInternal(const std::string&, bool, const AuthorizerPtr&, const SessionFactoryPtr&,
-				     const Ice::Current&);
+				     const Ice::Context&, const Ice::Current&);
 
     const Ice::PropertiesPtr _properties;
     const Ice::LoggerPtr _logger;

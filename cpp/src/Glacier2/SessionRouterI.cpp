@@ -399,7 +399,7 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
 	factory = new UserSessionFactory(_sessionManager, userId);
     }
     return createSessionInternal(userId, true, new UserPasswordAuthorizer(_verifier, userId, password), factory,
-				 current);
+				 Ice::Context(), current);
 }
 
 SessionPrx
@@ -414,6 +414,7 @@ Glacier2::SessionRouterI::createSessionFromSecureConnection(const Current& curre
 
     string userDN;
     SSLInfo sslinfo;
+    Ice::Context sslCtx;
 
     //
     // Populate the SSL context information.
@@ -437,6 +438,24 @@ Glacier2::SessionRouterI::createSessionFromSecureConnection(const Current& curre
 	    }
 	    userDN = info.certs[0]->getSubjectDN();
 	}
+
+	if(_properties->getPropertyAsInt("Glacier2.AddSSLContext") > 0)
+	{
+	    sslCtx["SSL.Active"] = "1";
+	    sslCtx["SSL.Cipher"] = sslinfo.cipher;
+	    ostringstream os;
+	    os << sslinfo.remotePort;
+	    sslCtx["SSL.Remote.Port"] = os.str();
+	    sslCtx["SSL.Remote.Host"] = sslinfo.remoteHost;
+	    os.str("");
+	    os << ntohs(info.localAddr.sin_port);
+	    sslCtx["SSL.Local.Port"] = os.str();
+	    sslCtx["SSL.Local.Host"] = sslinfo.localHost;
+	    if(info.certs.size() > 0)
+	    {
+	        sslCtx["SSL.PeerCert"] = info.certs[0]->encode();
+	    }
+	}
     }
     catch(const IceSSL::ConnectionInvalidException&)
     {
@@ -456,7 +475,8 @@ Glacier2::SessionRouterI::createSessionFromSecureConnection(const Current& curre
     {
 	factory = new SSLSessionFactory(_sslSessionManager, sslinfo);
     }
-    return createSessionInternal(userDN, false, new SSLPasswordAuthorizer(_sslVerifier, sslinfo), factory, current);
+    return createSessionInternal(userDN, false, new SSLPasswordAuthorizer(_sslVerifier, sslinfo), factory, sslCtx, 
+    				 current);
 }
 
 void
@@ -685,7 +705,7 @@ Glacier2::SessionRouterI::expireSessions()
 SessionPrx
 Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allowAddUserMode,
 						const AuthorizerPtr& authorizer, const SessionFactoryPtr& factory,
-						const Current& current)
+						const Ice::Context& sslContext, const Current& current)
 {
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
@@ -864,7 +884,7 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 	// Add a new per-client router.
 	//
 	router = new RouterI(_clientAdapter, _serverAdapter, _adminAdapter, current.con, userId, 
-			     session, controlId, filterManager);
+			     session, controlId, filterManager, sslContext);
     }
     catch(const Exception& ex)
     {

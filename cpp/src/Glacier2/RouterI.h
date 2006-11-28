@@ -31,7 +31,7 @@ public:
 
     RouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&,
     	    const Ice::ConnectionPtr&, const std::string&, const SessionPrx&, 
-	    const Ice::Identity&, const FilterManagerPtr&);
+	    const Ice::Identity&, const FilterManagerPtr&, const Ice::Context& sslContext);
 	    
     virtual ~RouterI();
     void destroy();
@@ -67,6 +67,7 @@ private:
     const std::string _userId;
     const SessionPrx _session;
     const Ice::Identity _controlId;
+    const Ice::Context _sslContext;
     mutable IceUtil::Time _timestamp;
 };
 

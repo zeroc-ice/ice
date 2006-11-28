@@ -20,16 +20,17 @@ using namespace Glacier2;
 
 Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAdapterPtr& serverAdapter,
 			   const ObjectAdapterPtr& adminAdapter, const ConnectionPtr& connection, 
-			   const string& userId, const SessionPrx& session,
-			   const Identity& controlId, const FilterManagerPtr& filters) :
+			   const string& userId, const SessionPrx& session, const Identity& controlId,
+			   const FilterManagerPtr& filters, const Ice::Context& sslContext) :
     _communicator(clientAdapter->getCommunicator()),
     _clientProxy(clientAdapter->createProxy(_communicator->stringToIdentity("dummy"))),
-    _clientBlobject(new ClientBlobject(_communicator, filters)),
+    _clientBlobject(new ClientBlobject(_communicator, filters, sslContext)),
     _adminAdapter(adminAdapter),
     _connection(connection),
     _userId(userId),
     _session(session),
     _controlId(controlId),
+    _sslContext(sslContext),
     _timestamp(IceUtil::Time::now())
 {
     if(serverAdapter)
@@ -94,7 +95,14 @@ Glacier2::RouterI::destroy()
 	// This can raise an exception, therefore it must be the last
 	// statement in this destroy() function.
 	//
-	_session->destroy();
+	if(_sslContext.size() > 0)
+	{
+	    _session->destroy(_sslContext);
+	}
+	else
+	{
+	    _session->destroy();
+	}
     }
 }
 

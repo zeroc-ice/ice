@@ -20,7 +20,7 @@ class Blobject : public Ice::BlobjectArrayAsync
 {
 public:
     
-    Blobject(const Ice::CommunicatorPtr&, bool);
+    Blobject(const Ice::CommunicatorPtr&, bool, const Ice::Context&);
     virtual ~Blobject();
 
     virtual void destroy();
@@ -43,6 +43,7 @@ private:
     const int _requestTraceLevel;
     const int _overrideTraceLevel;
     const RequestQueuePtr _requestQueue;
+    const Ice::Context _sslContext;
 };
 
 }

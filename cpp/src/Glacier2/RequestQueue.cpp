@@ -57,11 +57,13 @@ private:
 }
 
 Glacier2::Request::Request(const ObjectPrx& proxy, const std::pair<const Byte*, const Byte*>& inParams,
-			   const Current& current, bool forwardContext, const AMD_Array_Object_ice_invokePtr& amdCB) :
+			   const Current& current, bool forwardContext, const Ice::Context& sslContext,
+			   const AMD_Array_Object_ice_invokePtr& amdCB) :
     _proxy(proxy),
     _inParams(inParams.first, inParams.second),
     _current(current),
     _forwardContext(forwardContext),
+    _sslContext(sslContext),
     _amdCB(amdCB)
 {
     //
@@ -101,11 +103,27 @@ Glacier2::Request::invoke(const RequestQueuePtr& requestQueue)
 	AMI_Array_Object_ice_invokePtr cb = new AMI_Array_Object_ice_invokeI(requestQueue, _amdCB);
 	if(_forwardContext)
 	{
-	    _proxy->ice_invoke_async(cb, _current.operation, _current.mode, inPair, _current.ctx);
+	    if(_sslContext.size() > 0)
+	    {
+	        Ice::Context ctx = _current.ctx;
+		ctx.insert(_sslContext.begin(), _sslContext.end());
+	        _proxy->ice_invoke_async(cb, _current.operation, _current.mode, inPair, ctx);
+	    }
+	    else
+	    {
+	        _proxy->ice_invoke_async(cb, _current.operation, _current.mode, inPair, _current.ctx);
+	    }
 	}
 	else
 	{
-	    _proxy->ice_invoke_async(cb, _current.operation, _current.mode, inPair);
+	    if(_sslContext.size() > 0)
+	    {
+	        _proxy->ice_invoke_async(cb, _current.operation, _current.mode, inPair, _sslContext);
+	    }
+	    else
+	    {
+	        _proxy->ice_invoke_async(cb, _current.operation, _current.mode, inPair);
+	    }
 	}
 	return true; // A twoway method is being dispatched.
     }
@@ -116,11 +134,27 @@ Glacier2::Request::invoke(const RequestQueuePtr& requestQueue)
 	    ByteSeq outParams;
 	    if(_forwardContext)
 	    {
-		_proxy->ice_invoke(_current.operation, _current.mode, inPair, outParams, _current.ctx);
+	        if(_sslContext.size() > 0)
+		{
+	            Ice::Context ctx = _current.ctx;
+		    ctx.insert(_sslContext.begin(), _sslContext.end());
+		    _proxy->ice_invoke(_current.operation, _current.mode, inPair, outParams, ctx);
+		}
+		else
+		{
+		    _proxy->ice_invoke(_current.operation, _current.mode, inPair, outParams, _current.ctx);
+		}
 	    }
 	    else
 	    {
-		_proxy->ice_invoke(_current.operation, _current.mode, inPair, outParams);
+	        if(_sslContext.size() > 0)
+		{
+		    _proxy->ice_invoke(_current.operation, _current.mode, inPair, outParams, _sslContext);
+		}
+		else
+		{
+		    _proxy->ice_invoke(_current.operation, _current.mode, inPair, outParams);
+		}
 	    }
 	}
 	catch(const LocalException&)

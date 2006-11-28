@@ -377,7 +377,7 @@ IceStorm:
     Discard.Interval
 
 Glacier2:
-    AddUserToAllowCategories
+    AddSSLContext
     Admin.Endpoints
     Admin.PublishedEndpoints
     Admin.RegisterProcess

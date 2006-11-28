@@ -17,9 +17,10 @@ using namespace Ice;
 using namespace Glacier2;
 
 Glacier2::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
-					 const FilterManagerPtr& filters):
+					 const FilterManagerPtr& filters,
+					 const Ice::Context& sslContext):
 					 
-    Glacier2::Blobject(communicator, false),
+    Glacier2::Blobject(communicator, false, sslContext),
     _routingTable(new RoutingTable(communicator)),
     _filters(filters),
     _rejectTraceLevel(_properties->getPropertyAsInt("Glacier2.Client.Trace.Reject"))

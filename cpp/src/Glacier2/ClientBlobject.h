@@ -31,6 +31,7 @@ class ClientBlobject : public Glacier2::Blobject
 {
 public:
 
+    ClientBlobject(const Ice::CommunicatorPtr&, const FilterManagerPtr&, const Ice::Context&); 
     virtual ~ClientBlobject();
 
     virtual void ice_invoke_async(const Ice::AMD_Array_Object_ice_invokePtr&,
@@ -38,19 +39,15 @@ public:
 
     Ice::ObjectProxySeq add(const Ice::ObjectProxySeq&, const Ice::Current&); // Returns evicted proxies.
 
-    ClientBlobject(const Ice::CommunicatorPtr&, const FilterManagerPtr& _filterManager); 
-
     StringSetPtr categories();
     StringSetPtr adapterIds();
     IdentitySetPtr identities();
 
 private:
+
     const RoutingTablePtr _routingTable;
-
-    FilterManagerPtr _filters;
-
+    const FilterManagerPtr _filters;
     const int _rejectTraceLevel;
-
 };
 }
 

@@ -38,13 +38,21 @@ class SessionI : public Glacier2::Session
 {
 public:
 
-    SessionI(bool shutdown) : _shutdown(shutdown)
+    SessionI(bool shutdown, bool ssl) : _shutdown(shutdown), _ssl(ssl)
     {
     }
 
     virtual void
     destroy(const Ice::Current& current)
     {
+    	//
+	// If SSL, test that Glacier2.AddSSLContext is working.
+	//
+        if(_ssl)
+	{
+	    assert(current.ctx.at("SSL.Active") == "1");
+	}
+
 	current.adapter->remove(current.id);
 	if(_shutdown)
 	{
@@ -53,6 +61,7 @@ public:
     }
 private:
     const bool _shutdown;
+    const bool _ssl;
 };
 
 class SessionManagerI : public Glacier2::SessionManager
@@ -62,7 +71,7 @@ public:
     virtual Glacier2::SessionPrx
     create(const string& userId, const Glacier2::SessionControlPrx&, const Ice::Current& current)
     {
-	Glacier2::SessionPtr session = new SessionI(false);
+	Glacier2::SessionPtr session = new SessionI(false, false);
 	return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
     }
 };
@@ -92,7 +101,7 @@ public:
 	    test(false);
 	}
 
-	Glacier2::SessionPtr session = new SessionI(true);
+	Glacier2::SessionPtr session = new SessionI(true, true);
 	return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
     }
 };
