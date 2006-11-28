@@ -63,7 +63,7 @@ public:
     virtual AdapterInfoSeq getAdapterInfo() const;
     virtual const std::string& getReplicaGroupId() const { return _replicaGroupId; }
 
-    AdapterPrx getProxy(const std::string&, bool) const;
+    AdapterPrx getProxy(const std::string& = std::string(), bool = true) const;
     int getPriority() const;
     
 private:
@@ -107,8 +107,6 @@ public:
     ReplicaGroupEntryPtr addReplicaGroup(const ReplicaGroupDescriptor&, const std::string&);
 
     AdapterEntryPtr get(const std::string&) const;
-    ServerAdapterEntryPtr getServerAdapter(const std::string&) const;
-    ReplicaGroupEntryPtr getReplicaGroup(const std::string&) const;
     
     void removeServerAdapter(const std::string&);
     void removeReplicaGroup(const std::string&);

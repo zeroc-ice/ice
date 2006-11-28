@@ -34,78 +34,6 @@ const string Database::_internalObjectDbName = "internal-objects";
 namespace IceGrid
 {
 
-//
-// A default servant for adapter objects registered directly in the
-// registry database.
-//
-class AdapterI : public Adapter
-{
-public:
-
-    AdapterI(const DatabasePtr& database) : _database(database)
-    {
-    }
-
-    virtual void
-    activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Current& current)
-    {
-	assert(false);
-    }
-
-    virtual Ice::ObjectPrx
-    getDirectProxy(const Ice::Current& current) const
-    {
-	Ice::ObjectPrx proxy = _database->getAdapterDirectProxy(current.id.name);
-	if(!proxy)
-	{
-	    throw Ice::ObjectNotExistException(__FILE__, __LINE__);
-	}
-	return proxy;
-    }
-
-    virtual void 
-    setDirectProxy(const ::Ice::ObjectPrx& proxy, const ::Ice::Current& current)
-    {
-	assert(false);
-    }
-
-private:
-
-    const DatabasePtr _database;
-};
-
-//
-// A servant locator for the default servant above.
-//
-class AdapterServantLocator : public Ice::ServantLocator
-{
-public:
-
-    AdapterServantLocator(const DatabasePtr& database) : _adapter(new AdapterI(database))
-    {
-    }
-
-    virtual Ice::ObjectPtr
-    locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie)
-    {
-	return _adapter;
-    }
-
-    virtual void
-    finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&)
-    {
-    }
-
-    virtual void
-    deactivate(const std::string&)
-    {
-    }
-    
-private:
-
-    const AdapterPtr _adapter;
-};
-
 struct ObjectLoadCI : binary_function<pair<Ice::ObjectPrx, float>&, pair<Ice::ObjectPrx, float>&, bool>
 {
     bool operator()(const pair<Ice::ObjectPrx, float>& lhs, const pair<Ice::ObjectPrx, float>& rhs)
@@ -170,21 +98,6 @@ Database::Database(const Ice::ObjectAdapterPtr& registryAdapter,
     _objectObserverTopic = new ObjectObserverTopic(_topicManager, _objects);
 
     _registryObserverTopic->registryUp(info);
-
-    //
-    // Register a default servant to manage manually registered object adapters.
-    //
-    __setNoDelete(true);
-    try
-    {
-	_internalAdapter->addServantLocator(new AdapterServantLocator(this), "IceGridAdapter");
-    }
-    catch(...)
-    {
-	__setNoDelete(false);
-	throw;
-    }
-    __setNoDelete(false);
 }
 
 Database::~Database()
@@ -686,13 +599,13 @@ Database::getAllocatableObject(const Ice::Identity& id) const
     return _allocatableObjectCache.get(id);
 }
 
-bool
+void
 Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGroupId, const Ice::ObjectPrx& proxy)
 {
     Lock sync(*this);
     if(_adapterCache.has(adapterId))
     {
-	return false;
+	throw AdapterExistsException(adapterId);
     }
 
     StringAdapterInfoDict::iterator p = _adapters.find(adapterId);
@@ -720,7 +633,7 @@ Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGr
     {
 	if(p == _adapters.end())
 	{
-	    return true;
+	    return;
 	}
 	_adapters.erase(p);
     }
@@ -750,21 +663,31 @@ Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGr
     {
 	_adapterObserverTopic->adapterRemoved(adapterId);
     }
-
-    return true;
 }
 
 Ice::ObjectPrx
-Database::getAdapterDirectProxy(const string& adapterId)
+Database::getAdapterDirectProxy(const string& id)
 {
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     StringAdapterInfoDict adapters(connection, _adapterDbName); 
-    StringAdapterInfoDict::const_iterator p = adapters.find(adapterId);
+    StringAdapterInfoDict::const_iterator p = adapters.find(id);
     if(p != adapters.end())
     {
 	return p->second.proxy;
     }
-    return 0;
+
+    Ice::EndpointSeq endpoints;
+    for(p = adapters.findByReplicaGroupId(id, true); p != adapters.end(); ++p)
+    {
+	Ice::EndpointSeq edpts = p->second.proxy->ice_getEndpoints();
+	endpoints.insert(endpoints.end(), edpts.begin(), edpts.end());
+    }
+    if(!endpoints.empty())
+    {
+	return _communicator->stringToProxy("dummy:default")->ice_endpoints(endpoints);
+    }
+
+    throw AdapterNotExistException(id);
 }
 
 void
@@ -827,73 +750,10 @@ Database::removeAdapter(const string& adapterId)
     txHolder.commit();
 }
 
-AdapterPrx
-Database::getAdapter(const string& id, const string& replicaGroupId, bool upToDate)
+AdapterEntryPtr
+Database::getAdapter(const string& id) const
 {
-    return _adapterCache.getServerAdapter(id)->getProxy(replicaGroupId, upToDate);
-}
-
-vector<pair<string, AdapterPrx> >
-Database::getAdapters(const string& id, int& endpointCount, bool& replicaGroup)
-{
-    //
-    // First we check if the given adapter id is associated to a
-    // server, if that's the case we get the adapter proxy from the
-    // server.
-    //
-    try
-    {
-	return _adapterCache.get(id)->getProxies(endpointCount, replicaGroup);
-    }
-    catch(AdapterNotExistException&)
-    {
-    }
-
-    //
-    // Otherwise, we check the adapter endpoint table -- if there's an
-    // entry the adapter is managed by the registry itself.
-    //
-    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
-    StringAdapterInfoDict adapters(connection, _adapterDbName); 
-    StringAdapterInfoDict::const_iterator p = adapters.find(id);
-    if(p != adapters.end())
-    {
-	vector<pair<string, AdapterPrx> > adpts;
-	Ice::Identity identity;
-	identity.category = "IceGridAdapter";
-	identity.name = id;
-	Ice::ObjectPrx adpt = _internalAdapter->createDirectProxy(identity);
-	adpts.push_back(make_pair(id, AdapterPrx::uncheckedCast(adpt)));
-	replicaGroup = false;
-	endpointCount = 1;
-	return adpts;
-    }
-
-    //
-    // If it's not a regular object adapter, perhaps it's a replica
-    // group...
-    //
-    p = adapters.findByReplicaGroupId(id, true);
-    if(p != adapters.end())
-    {
-	vector<pair<string, AdapterPrx> > adpts;
-	while(p != adapters.end())
-	{
-	    Ice::Identity identity;
-	    identity.category = "IceGridAdapter";
-	    identity.name = p->first;
-	    AdapterPrx adpt = AdapterPrx::uncheckedCast(_internalAdapter->createDirectProxy(identity));
-	    adpts.push_back(make_pair(p->first, adpt));
-	    ++p;
-	}
-	RandomNumberGenerator rng;
-	random_shuffle(adpts.begin(), adpts.end(), rng);
-	replicaGroup = true;
-	endpointCount = static_cast<int>(adpts.size());
-	return adpts;
-    }
-
-    throw AdapterNotExistException(id);
+    return _adapterCache.get(id);
 }
 
 AdapterInfoSeq
@@ -1367,9 +1227,9 @@ Database::checkAdapterForAddition(const string& id)
 void
 Database::checkObjectForAddition(const Ice::Identity& objectId)
 {
-    if(_objectCache.has(objectId) 
-       || _allocatableObjectCache.has(objectId) 
-       || _objects.find(objectId) != _objects.end())
+    if(_objectCache.has(objectId) ||
+       _allocatableObjectCache.has(objectId) ||
+       _objects.find(objectId) != _objects.end())
     {
 	DeploymentException ex;
 	ex.reason = "object `" + _communicator->identityToString(objectId) + "' is already registered"; 
@@ -1525,7 +1385,8 @@ Database::reload(const ApplicationHelper& oldApp,
     {
 	try
 	{
-	    ReplicaGroupEntryPtr entry = _adapterCache.getReplicaGroup(r->id);
+	    ReplicaGroupEntryPtr entry = ReplicaGroupEntryPtr::dynamicCast(_adapterCache.get(r->id));
+	    assert(entry);
 	    entry->update(r->loadBalancing);
 	}
 	catch(const AdapterNotExistException&)

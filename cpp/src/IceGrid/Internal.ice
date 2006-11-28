@@ -386,7 +386,7 @@ interface ReplicaSession
      * Return the replica session timeout.
      *
      **/ 
-    ["nonmutating", "cpp:const"] idempotent int getTimeout();
+    ["cpp:const"] idempotent int getTimeout();
 
     /**
      *
@@ -420,7 +420,7 @@ interface ReplicaSession
      *
      **/
     ["ami"] idempotent void setAdapterDirectProxy(string adapterId, string replicaGroupId, Object* proxy)
-	throws AdapterNotExistException, AdapterActiveException, Ice::InvalidReplicaGroupIdException;	
+	throws AdapterNotExistException, AdapterExistsException;
 
     /**
      *
@@ -467,9 +467,9 @@ interface InternalRegistry extends FileReader
 
     void registerWithReplica(InternalRegistry* prx);
 
-    ["nonmutating", "cpp:const"] idempotent NodePrxSeq getNodes();
+    ["cpp:const"] idempotent NodePrxSeq getNodes();
 
-    ["nonmutating", "cpp:const"] idempotent InternalRegistryPrxSeq getReplicas();
+    ["cpp:const"] idempotent InternalRegistryPrxSeq getReplicas();
 
     ["cpp:const"] idempotent void shutdown();
 };

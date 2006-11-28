@@ -356,7 +356,9 @@ RegistryI::start(bool nowarn)
 
     QueryPrx query = setupQuery(_clientAdapter);
     RegistryPrx registry = setupRegistry(_clientAdapter);
-    LocatorPrx internalLocator = setupLocator(_clientAdapter, serverAdapter, registryAdapter, registry, query);
+
+    Ice::LocatorRegistryPrx locatorRegistry = setupLocatorRegistry(serverAdapter);
+    LocatorPrx internalLocator = setupLocator(_clientAdapter, registryAdapter, locatorRegistry, registry, query);
 
     //
     // Add a default servant locator to the client object adapter. The
@@ -392,33 +394,35 @@ RegistryI::start(bool nowarn)
     return true;
 }
 
-IceGrid::LocatorPrx
-RegistryI::setupLocator(const Ice::ObjectAdapterPtr& clientAdapter, 
-			const Ice::ObjectAdapterPtr& serverAdapter,
-			const Ice::ObjectAdapterPtr& registryAdapter,
-			const RegistryPrx& registry,
-			const QueryPrx& query)
+Ice::LocatorRegistryPrx
+RegistryI::setupLocatorRegistry(const Ice::ObjectAdapterPtr& serverAdapter)
 {
-    //
-    // Create the locator registry and locator interfaces.
-    //
     bool dynReg = _communicator->getProperties()->getPropertyAsInt("IceGrid.Registry.DynamicRegistration") > 0;
     Identity locatorRegId;
     locatorRegId.category = _instanceName;
-    locatorRegId.name = IceUtil::generateUUID();
+    locatorRegId.name = "LocatorRegistry-" + _replicaName;
     ObjectPrx obj = serverAdapter->add(new LocatorRegistryI(_database, dynReg, _master, _session), locatorRegId);
-    Ice::LocatorRegistryPrx locatorRegistry = LocatorRegistryPrx::uncheckedCast(obj);
+    return LocatorRegistryPrx::uncheckedCast(obj);
+}
 
+IceGrid::LocatorPrx
+RegistryI::setupLocator(const Ice::ObjectAdapterPtr& clientAdapter, 
+			const Ice::ObjectAdapterPtr& registryAdapter,
+			const Ice::LocatorRegistryPrx& locatorRegistry,
+			const RegistryPrx& registry,
+			const QueryPrx& query)
+{
+    LocatorPtr locator = new LocatorI(_communicator, _database, locatorRegistry, registry, query);
     Identity locatorId;
     locatorId.category = _instanceName;
+
     locatorId.name = "Locator";
-    LocatorPtr locator = new LocatorI(_communicator, _database, locatorRegistry, registry, query);
     clientAdapter->add(locator, locatorId);
+
     locatorId.name = "Locator-" + _replicaName;
     clientAdapter->add(locator, locatorId);
     
-    obj = registryAdapter->addWithUUID(new LocatorI(_communicator, _database, locatorRegistry, registry, query));
-    return LocatorPrx::uncheckedCast(obj);
+    return LocatorPrx::uncheckedCast(registryAdapter->addWithUUID(locator));
 }
 
 QueryPrx

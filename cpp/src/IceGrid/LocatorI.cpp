@@ -76,7 +76,8 @@ private:
 };
 
 //
-// Callback from asynchrnous call to LocatorI::findAdapterById_async() invoked in LocatorI::findObjectById_async().
+// Callback from asynchrnous call to LocatorI::findAdapterById_async()
+// invoked in LocatorI::findObjectById_async().
 //
 class AMD_Locator_findAdapterByIdI : public Ice::AMD_Locator_findAdapterById
 {
@@ -193,9 +194,17 @@ LocatorI::Request::execute()
 	    ++_lastAdapter;
 	}
     }
-    for(vector<AdapterPrx>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+
+    if(adapters.empty())
     {
-	requestAdapter(*p);
+	sendResponse();
+    }
+    else
+    {
+	for(vector<AdapterPrx>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+	{
+	    requestAdapter(*p);
+	}
     }
 }
 
@@ -272,17 +281,18 @@ LocatorI::Request::sendResponse()
     }
     else if(_proxies.empty())
     {
-	if(_exception.get() && _traceLevels->locator > 0)
+	//
+	// If there's no proxies, it's either because we couldn't
+	// contact the adapters or because the replica group has
+	// no members.
+	//
+	assert(_exception.get() || _replicaGroup && _adapters.empty());
+
+	if(_traceLevels->locator > 0)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->locatorCat);
-	    if(_replicaGroup)
-	    {
-		out << "couldn't resolve replica group `" << _id << "' endpoints:\n" << toString(*_exception);
-	    }
-	    else
-	    {
-		out << "couldn't resolve adapter `" << _id << "' endpoints:\n" << toString(*_exception);
-	    }
+	    out << "couldn't resolve " << (_replicaGroup ? "replica group `" : "adapter `") << _id << "' endpoints:\n";
+	    out << (_exception.get() ? toString(*_exception) : "replica group is empty");
 	}
 	_amdCB->ice_response(0);
     }
@@ -308,7 +318,7 @@ LocatorI::LocatorI(const Ice::CommunicatorPtr& communicator,
 		   const QueryPrx& query) :
     _communicator(communicator),
     _database(database),
-    _locatorRegistry(Ice::LocatorRegistryPrx::uncheckedCast(locatorRegistry->ice_collocationOptimized(false))),
+    _locatorRegistry(locatorRegistry),
     _localRegistry(registry),
     _localQuery(query)
 {
@@ -365,32 +375,28 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
     bool replicaGroup = false;
     try
     {
+	//
+	// NOTE: getProxies() might throw if the adapter is a server
+	// adapter and the node is unreachable (it doesn't throw for 
+	// replica groups).
+	//
 	int count;
-	vector<pair<string, AdapterPrx> > adapters = _database->getAdapters(id, count, replicaGroup);
-	if(adapters.empty())
-	{
-	    //
-	    // If no adapters are returned, this means the id refers
-	    // to a replica group and the replica group has no
-	    // members.
-	    //
-	    assert(replicaGroup);
-	    const TraceLevelsPtr traceLevels = _database->getTraceLevels();
-	    if(traceLevels->locator > 0)
-	    {
-		Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
-		out << "couldn't resolve replica group `" << id << "' endpoints: replica group is empty";
-	    }
-	    cb->ice_response(0);
-	    return;
-	}
+	vector<pair<string, AdapterPrx> > adapters = _database->getAdapter(id)->getProxies(count, replicaGroup);
+
 	LocatorIPtr self = const_cast<LocatorI*>(this);
 	RequestPtr request = new Request(cb, self, id, replicaGroup, adapters, count, _database->getTraceLevels());
 	request->execute();
     }
     catch(const AdapterNotExistException&)
     {
-	cb->ice_exception(Ice::AdapterNotFoundException());
+	try
+	{
+	    cb->ice_response(_database->getAdapterDirectProxy(id));
+	}
+	catch(const AdapterNotExistException&)
+	{
+	    cb->ice_exception(Ice::AdapterNotFoundException());
+	}
 	return;
     }
     catch(const Ice::Exception& ex)

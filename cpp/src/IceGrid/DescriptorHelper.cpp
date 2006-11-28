@@ -2302,7 +2302,11 @@ ApplicationHelper::ApplicationHelper(const Ice::CommunicatorPtr& communicator, c
 	}
 	desc.loadBalancing = LoadBalancingPolicyPtr::dynamicCast(r->loadBalancing->ice_clone());
 	desc.loadBalancing->nReplicas = resolve.asInt(r->loadBalancing->nReplicas, "replica group number of replicas");
-	if(desc.loadBalancing->nReplicas[0] == '-')
+	if(desc.loadBalancing->nReplicas.empty())
+	{
+	    resolve.exception("invalid replica group load balancing number of replicas value: empty value");
+	}
+	else if(desc.loadBalancing->nReplicas[0] == '-')
 	{
 	    resolve.exception("invalid replica group load balancing number of replicas value: inferior to 0");
 	}

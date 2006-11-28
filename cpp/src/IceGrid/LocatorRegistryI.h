@@ -38,6 +38,9 @@ public:
 					     const ::std::string&, const ::Ice::ProcessPrx&, const ::Ice::Current&);
 
 private:
+
+    void setAdapterDirectProxy(const AMI_Adapter_setDirectProxyPtr&, const std::string&, const std::string&,
+			       const Ice::ObjectPrx&);
     
     const DatabasePtr _database;
     const bool _dynamicRegistration;

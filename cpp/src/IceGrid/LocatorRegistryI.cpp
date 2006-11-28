@@ -19,21 +19,38 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
+template<class AmdCB>
 class SetDirectProxyCB : public AMI_Adapter_setDirectProxy
 {
 public:
 
-    SetDirectProxyCB(const Ice::AMD_LocatorRegistry_setAdapterDirectProxyPtr& cb) : _cb(cb)
+    SetDirectProxyCB(const AmdCB& cb, 
+		     const TraceLevelsPtr& traceLevels, 
+		     const string& id, 
+		     const Ice::ObjectPrx& proxy) : 
+	_cb(cb), _traceLevels(traceLevels), _id(id), _proxy(proxy)						    
     {
     }
 
     virtual void ice_response()
     {
+	if(_traceLevels->locator > 1)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->locatorCat);
+	    out << "registered adapter `" << _id << "' endpoints: `";
+	    out << (_proxy ? _proxy->ice_toString() : string("")) << "'";
+	}
 	_cb->ice_response();
     }
 
     virtual void ice_exception(const ::Ice::Exception& ex)
     {
+	if(_traceLevels->locator > 1)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->locatorCat);
+	    out << "failed to register adapter `" << _id << "' endpoints:\n" << ex;
+	}
+	
 	try
 	{
 	    ex.ice_throw();
@@ -50,7 +67,7 @@ public:
 	}
 	catch(const Ice::LocalException&)
 	{
-	    _cb->ice_response();
+	    _cb->ice_exception(Ice::AdapterNotFoundException());
 	    return;
 	}
 
@@ -59,80 +76,62 @@ public:
 
 private:
 
-    Ice::AMD_LocatorRegistry_setAdapterDirectProxyPtr _cb;
+    const AmdCB _cb;
+    const TraceLevelsPtr _traceLevels;
+    const string _id;
+    const Ice::ObjectPrx _proxy;
 };
 
-class SetDirectProxyForReplicatedAdapterCB : public AMI_Adapter_setDirectProxy
+template<class AmdCB> SetDirectProxyCB<AmdCB>*
+newSetDirectProxyCB(const AmdCB& cb, const TraceLevelsPtr& traceLevels, const string& id, const Ice::ObjectPrx& p)
 {
-public:
-
-    SetDirectProxyForReplicatedAdapterCB(const Ice::AMD_LocatorRegistry_setReplicatedAdapterDirectProxyPtr& cb) : 
-	_cb(cb)
-    {
-    }
-
-    virtual void ice_response()
-    {
-	_cb->ice_response();
-    }
-
-    virtual void ice_exception(const ::Ice::Exception& ex)
-    {
-	try
-	{
-	    ex.ice_throw();
-	}
-	catch(const AdapterActiveException&)
-	{
-	    _cb->ice_exception(Ice::AdapterAlreadyActiveException());
-	    return;
-	}
-	catch(const Ice::ObjectNotExistException&)
-	{
-	    _cb->ice_exception(Ice::AdapterNotFoundException()); // Expected if the adapter was destroyed.
-	    return;
-	}
-	catch(const Ice::LocalException&)
-	{
-	    _cb->ice_response();
-	    return;
-	}
-
-	assert(false);
-    }
-
-private:
-
-    Ice::AMD_LocatorRegistry_setReplicatedAdapterDirectProxyPtr _cb;
-};
+    return new SetDirectProxyCB<AmdCB>(cb, traceLevels, id, p);
+}
 
 class AMI_Server_setProcessI : public AMI_Server_setProcess
 {
 public:
 
-    AMI_Server_setProcessI(const Ice::AMD_LocatorRegistry_setServerProcessProxyPtr& cb) : _cb(cb)
+    AMI_Server_setProcessI(const Ice::AMD_LocatorRegistry_setServerProcessProxyPtr& cb,
+			   const TraceLevelsPtr& traceLevels,
+			   const string& id,
+			   const Ice::ObjectPrx& proxy) : 
+	_cb(cb), _traceLevels(traceLevels), _id(id), _proxy(proxy)
     {
     }
 
     virtual void ice_response()
     {
+	if(_traceLevels->locator > 1)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->locatorCat);
+	    out << "registered server `" << _id << "' process proxy: `";
+	    out << (_proxy ? _proxy->ice_toString() : string("")) << "'";
+	}
 	_cb->ice_response();
     }
 
     virtual void ice_exception(const ::Ice::Exception& ex)
     {
+	if(_traceLevels->locator > 1)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->locatorCat);
+	    out << "failed to register server process proxy `" << _id << "':\n" << ex;
+	}
+
 	try
 	{
 	    ex.ice_throw();
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{
-	    _cb->ice_exception(Ice::ServerNotFoundException()); // Expected if the adapter was destroyed.
+	    // Expected if the server was destroyed.
+	    _cb->ice_exception(Ice::ServerNotFoundException()); 
 	    return;
 	}
 	catch(const Ice::LocalException&)
 	{
-	    _cb->ice_response();
+	    _cb->ice_exception(Ice::ServerNotFoundException());
 	    return;
 	}
 
@@ -141,66 +140,11 @@ public:
 
 private:
 
-    Ice::AMD_LocatorRegistry_setServerProcessProxyPtr _cb;
+    const Ice::AMD_LocatorRegistry_setServerProcessProxyPtr _cb;
+    const TraceLevelsPtr _traceLevels;
+    const string _id;
+    const Ice::ObjectPrx _proxy;
 };
-
-template<class AmdCB>
-class MasterSetDirectProxyCB : public AMI_ReplicaSession_setAdapterDirectProxy
-{
-public:
-
-    MasterSetDirectProxyCB(const AmdCB& cb) : 
-	_cb(cb)
-    {
-    }
-
-    virtual void ice_response()
-    {
-	_cb->ice_response();
-    }
-
-    virtual void ice_exception(const ::Ice::Exception& ex)
-    {
-	try
-	{
-	    ex.ice_throw();
-	}
-	catch(const AdapterActiveException&)
-	{
-	    _cb->ice_exception(Ice::AdapterAlreadyActiveException());
-	    return;
-	}
-	catch(const AdapterNotExistException&)
-	{
-	    _cb->ice_exception(Ice::AdapterNotFoundException());
-	    return;
-	}
-	catch(const Ice::UserException& ex)
-	{
-	    _cb->ice_exception(ex);
-	    return;
-	}
-	catch(const Ice::LocalException&) // Master unreachable.
-	{
-	    //
-	    // TODO: Add a better exception?
-	    // 
-	    _cb->ice_exception(Ice::AdapterNotFoundException());
-	    return;
-	}
-	assert(false);
-    }
-
-private:
-
-    AmdCB _cb;
-};
-
-template<class AmdCB> MasterSetDirectProxyCB<AmdCB>*
-newMasterSetDirectProxyCB(const AmdCB& cb)
-{
-    return new MasterSetDirectProxyCB<AmdCB>(cb);
-}
 
 };
 
@@ -221,91 +165,10 @@ LocatorRegistryI::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_set
 					      const Ice::ObjectPrx& proxy,
 					      const Ice::Current&)
 {
-    while(true)
-    {
-	try
-	{
-	    //
-	    // Get the adapter from the registry and set its direct proxy.
-	    //
-	    // NOTE: We pass false to the getAdapter call to indicate
-	    // that we don't necessarily want an up-to-date adapter
-	    // proxy. This is needed for the session activation mode
-	    // for cases where the server is released during the
-	    // server startup.
-	    //
-	    AMI_Adapter_setDirectProxyPtr amiCB = new SetDirectProxyCB(cb);
-	    _database->getAdapter(adapterId, "", false)->setDirectProxy_async(amiCB, proxy);
-	    const TraceLevelsPtr traceLevels = _database->getTraceLevels();
-	    if(traceLevels->locator > 1)
-	    {
-		Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
-		out << "registered adapter `" << adapterId << "' endpoints: `" 
-		    << (proxy ? proxy->ice_toString() : string("")) << "'";
-	    }
-	    return;
-	}
-	catch(const AdapterNotExistException&)
-	{
-	    if(!_dynamicRegistration)
-	    {
-		throw Ice::AdapterNotFoundException();
-	    }
-	}
-	catch(const DeploymentException& ex)
-	{
-	    const TraceLevelsPtr traceLevels = _database->getTraceLevels();
-	    if(traceLevels->locator > 0)
-	    {
-		Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
-		out << "couldn't register adapter `" << adapterId << "' endpoints:\n";
-		out << toString(ex) << "\n" << ex.reason;
-	    }
-	    throw Ice::AdapterNotFoundException();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    const TraceLevelsPtr traceLevels = _database->getTraceLevels();
-	    if(traceLevels->locator > 0)
-	    {
-		Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
-		out << "couldn't register adapter `" << adapterId << "' endpoints:\n" << toString(ex);
-	    }
-	    cb->ice_response();
-	    return;
-	}
-
-	assert(_dynamicRegistration);
-	if(_master)
-	{
-	    if(_database->setAdapterDirectProxy(adapterId, "", proxy))
-	    {
-		cb->ice_response();
-		return;
-	    }
-	}
-	else
-	{
-	    ReplicaSessionPrx session = _session.getSession();
-	    if(session)
-	    {
-		try
-		{
-		    session->setAdapterDirectProxy_async(newMasterSetDirectProxyCB(cb), adapterId, "", proxy);
-		    return;
-		}
-		catch(const Ice::LocalException&)
-		{
-		}
-	    }
-
-	    //
-	    // TODO: Add a better exception?
-	    //
-	    cb->ice_exception(Ice::AdapterNotFoundException());
-	    return;
-	}
-    }
+    setAdapterDirectProxy(newSetDirectProxyCB(cb, _database->getTraceLevels(), adapterId, proxy),
+			  adapterId, 
+			  "",
+			  proxy);
 }
 
 void 
@@ -316,86 +179,10 @@ LocatorRegistryI::setReplicatedAdapterDirectProxy_async(
     const Ice::ObjectPrx& proxy,
     const Ice::Current&)
 {
-    while(true)
-    {
-	try
-	{
-	    //
-	    // Get the adapter from the registry and set its direct proxy.
-	    //
-	    AMI_Adapter_setDirectProxyPtr amiCB = new SetDirectProxyForReplicatedAdapterCB(cb);
-	    _database->getAdapter(adapterId, replicaGroupId, false)->setDirectProxy_async(amiCB, proxy);
-	    const TraceLevelsPtr traceLevels = _database->getTraceLevels();
-	    if(traceLevels->locator > 1)
-	    {
-		Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
-		out << "registered replicated adapter `" << adapterId << "' endpoints: `" 
-		    << (proxy ? proxy->ice_toString() : string("")) << "'";
-	    }
-	    return;
-	}
-	catch(const AdapterNotExistException&)
-	{
-	    if(!_dynamicRegistration)
-	    {
-		throw Ice::AdapterNotFoundException();
-	    }
-	}
-	catch(const DeploymentException& ex)
-	{
-	    const TraceLevelsPtr traceLevels = _database->getTraceLevels();
-	    if(traceLevels->locator > 0)
-	    {
-		Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
-		out << "couldn't register adapter `" << adapterId << "' endpoints:\n";
-		out << toString(ex) << "\n" << ex.reason;
-	    }
-	    throw Ice::AdapterNotFoundException();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    const TraceLevelsPtr traceLevels = _database->getTraceLevels();
-	    if(traceLevels->locator > 0)
-	    {
-		Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
-		out << "couldn't register replicated adapter `" << adapterId << "' endpoints:\n" << toString(ex);
-	    }	    
-	    cb->ice_response();
-	    return;
-	}
-	
-	assert(_dynamicRegistration);
-	if(_master)
-	{
-	    if(_database->setAdapterDirectProxy(adapterId, replicaGroupId, proxy))
-	    {
-		cb->ice_response();
-		return;
-	    }
-	}
-	else
-	{
-	    ReplicaSessionPrx session = _session.getSession();
-	    if(session)
-	    {
-		try
-		{
-		    session->setAdapterDirectProxy_async(newMasterSetDirectProxyCB(cb), adapterId, replicaGroupId, 
-							 proxy);
-		    return;
-		}
-		catch(const Ice::LocalException&)
-		{
-		}
-	    }
-	    
-	    //
-	    // TODO: Add a better exception?
-	    //
-	    cb->ice_exception(Ice::AdapterNotFoundException());
-	    return;
-	}
-    }
+    setAdapterDirectProxy(newSetDirectProxyCB(cb, _database->getTraceLevels(), adapterId, proxy),
+			  adapterId, 
+			  replicaGroupId,
+			  proxy);
 }
 
 void
@@ -414,20 +201,12 @@ LocatorRegistryI::setServerProcessProxy_async(const Ice::AMD_LocatorRegistry_set
 	// is needed for the session activation mode for cases where
 	// the server is released during the server startup.
 	//
-	AMI_Server_setProcessPtr amiCB = new AMI_Server_setProcessI(cb);
+	AMI_Server_setProcessPtr amiCB = new AMI_Server_setProcessI(cb, _database->getTraceLevels(), id, proxy);
         _database->getServer(id)->getProxy(false)->setProcess_async(amiCB, proxy);
-
-	const TraceLevelsPtr traceLevels = _database->getTraceLevels();
-	if(traceLevels->locator > 1)
-	{
-	    Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
-	    out << "registered server `" << id << "' process proxy: `" << (proxy ? proxy->ice_toString() : string(""))
-	        << "'";
-	}
-        return;
     }
     catch(const ServerNotExistException&)
     {
+	cb->ice_exception(Ice::ServerNotFoundException());
     }
     catch(const Ice::Exception& ex)
     {
@@ -437,9 +216,105 @@ LocatorRegistryI::setServerProcessProxy_async(const Ice::AMD_LocatorRegistry_set
 	    Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
 	    out << "couldn't register server `" << id << "' process proxy:\n" << toString(ex);
 	}
-	cb->ice_response();
-	return;
+	cb->ice_exception(Ice::ServerNotFoundException());
     }
+}
 
-    throw Ice::ServerNotFoundException();
+void
+LocatorRegistryI::setAdapterDirectProxy(const AMI_Adapter_setDirectProxyPtr& amiCB,
+					const string& adapterId, 
+					const string& replicaGroupId,
+					const Ice::ObjectPrx& proxy)
+{
+    int nRetry = 5;
+    do
+    {
+	try
+	{
+	    //
+	    // Get the adapter from the registry and set its direct proxy.
+	    //
+	    ServerAdapterEntryPtr adapter = ServerAdapterEntryPtr::dynamicCast(_database->getAdapter(adapterId));
+	    if(!adapter)
+	    {
+		throw Ice::AdapterNotFoundException();
+	    }
+	    adapter->getProxy(replicaGroupId, false)->setDirectProxy_async(amiCB, proxy);
+	    return;
+	}
+	catch(const AdapterNotExistException&)
+	{
+	    if(!_dynamicRegistration)
+	    {
+		throw Ice::AdapterNotFoundException();
+	    }
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    const TraceLevelsPtr traceLevels = _database->getTraceLevels();
+	    if(traceLevels->locator > 0)
+	    {
+		Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
+		out << "couldn't register adapter `" << adapterId << "' endpoints:\n" << toString(ex);
+	    }	    
+	    throw Ice::AdapterNotFoundException();
+	}
+	
+	assert(_dynamicRegistration);
+	if(_master)
+	{
+	    try
+	    {
+		_database->setAdapterDirectProxy(adapterId, replicaGroupId, proxy);
+		amiCB->ice_response();
+		return;
+	    }
+	    catch(const AdapterExistsException&)
+	    {
+		// Continue
+	    }
+	}
+	else
+	{
+	    ReplicaSessionPrx session = _session.getSession();
+	    if(!session)
+	    {
+		const TraceLevelsPtr traceLevels = _database->getTraceLevels();
+		if(traceLevels->locator > 0)
+		{
+		    Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
+		    out << "couldn't register adapter `" << adapterId << "' endpoints with master:\n";
+		    out << "no session established with the master";
+		}
+		throw Ice::AdapterNotFoundException();
+	    }
+
+	    try
+	    {
+		session->setAdapterDirectProxy(adapterId, replicaGroupId, proxy);
+		amiCB->ice_response();
+		return;
+	    }
+	    catch(const AdapterExistsException& ex)
+	    {
+		// Continue
+	    }
+	    catch(const AdapterNotExistException& ex)
+	    {
+		throw Ice::AdapterNotFoundException(); // Dynamic registration not allowed on the master.
+	    }
+	    catch(const Ice::LocalException& ex)
+	    {
+		const TraceLevelsPtr traceLevels = _database->getTraceLevels();
+		if(traceLevels->locator > 0)
+		{
+		    Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
+		    out << "couldn't register adapter `" << adapterId << "' endpoints with master:\n" << toString(ex);
+		}
+		throw Ice::AdapterNotFoundException();
+	    }
+	}
+    }
+    while(nRetry-- > 0);
+    throw Ice::AdapterNotFoundException();
 }

@@ -63,7 +63,7 @@ public:
     virtual AdminSessionPrx createAdminSessionFromSecureConnection(const Ice::Current&);
 
     virtual int getSessionTimeout(const Ice::Current& = Ice::Current()) const;
-
+    
     std::string getName() const;
     RegistryInfo getInfo() const;
 
@@ -72,7 +72,8 @@ public:
     
 private:
 
-    LocatorPrx setupLocator(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&,
+    Ice::LocatorRegistryPrx setupLocatorRegistry(const Ice::ObjectAdapterPtr&); 
+    LocatorPrx setupLocator(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::LocatorRegistryPrx&,
 			    const RegistryPrx&, const QueryPrx&); 
     QueryPrx setupQuery(const Ice::ObjectAdapterPtr&);
     RegistryPrx setupRegistry(const Ice::ObjectAdapterPtr&);
@@ -109,8 +110,6 @@ private:
     int _sessionTimeout;
     ReplicaSessionManager _session;
     mutable PlatformInfo _platform;
-
-    Ice::LocatorRegistryPrx _locatorRegistry;
 
     Glacier2::PermissionsVerifierPrx _nullPermissionsVerifier;
     Glacier2::SSLPermissionsVerifierPrx _nullSSLPermissionsVerifier;

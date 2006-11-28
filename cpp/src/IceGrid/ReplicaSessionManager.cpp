@@ -107,7 +107,11 @@ public:
     adapterAdded(const AdapterInfo& info, const Ice::Current& current)
     {
 	string failure;
-	if(!_database->setAdapterDirectProxy(info.id, info.replicaGroupId, info.proxy))
+	try
+	{
+	    _database->setAdapterDirectProxy(info.id, info.replicaGroupId, info.proxy);
+	}
+	catch(const AdapterExistsException&)
 	{
 	    failure = "adapter `" + info.id + "' already exists and belongs to an application";
 	}
@@ -118,7 +122,11 @@ public:
     adapterUpdated(const AdapterInfo& info, const Ice::Current& current)
     {
 	string failure;
-	if(!_database->setAdapterDirectProxy(info.id, info.replicaGroupId, info.proxy))
+	try
+	{
+	    _database->setAdapterDirectProxy(info.id, info.replicaGroupId, info.proxy);
+	}
+	catch(const AdapterExistsException&)
 	{
 	    failure = "adapter `" + info.id + "' already exists and belongs to an application";
 	}
@@ -129,7 +137,11 @@ public:
     adapterRemoved(const std::string& id, const Ice::Current& current)
     {
 	string failure;
-	if(!_database->setAdapterDirectProxy(id, "", 0))
+	try
+	{
+	    _database->setAdapterDirectProxy(id, "", 0);
+	}
+	catch(const AdapterExistsException&)
 	{
 	    failure = "adapter `" + id + "' already exists and belongs to an application";
 	}
@@ -263,7 +275,6 @@ ReplicaSessionManager::create(const string& name,
 	Ice::Identity id;
 	id.category = comm->getDefaultLocator()->ice_getIdentity().category;
 	id.name = "InternalRegistry-Master";
-
 	
 	_master = InternalRegistryPrx::uncheckedCast(comm->stringToProxy(comm->identityToString(id)));
 	_name = name;
@@ -471,7 +482,7 @@ ReplicaSessionManager::createSession(InternalRegistryPrx& registry, IceUtil::Tim
     {
 	exception.reset(ex.ice_clone());
     }
-	
+
     if(session)
     {
 	//

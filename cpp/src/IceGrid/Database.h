@@ -91,10 +91,12 @@ public:
     AllocatableObjectCache& getAllocatableObjectCache();
     AllocatableObjectEntryPtr getAllocatableObject(const Ice::Identity&) const;
 
-    bool setAdapterDirectProxy(const std::string&, const std::string&, const Ice::ObjectPrx&);
+    void setAdapterDirectProxy(const std::string&, const std::string&, const Ice::ObjectPrx&);
     Ice::ObjectPrx getAdapterDirectProxy(const std::string&);
+
     void removeAdapter(const std::string&);
-    AdapterPrx getAdapter(const std::string&, const std::string&, bool = true);
+    AdapterEntryPtr getAdapter(const std::string&) const;
+
     std::vector<std::pair<std::string, AdapterPrx> > getAdapters(const std::string&, int&, bool&);
     AdapterInfoSeq getAdapterInfo(const std::string&);
     Ice::StringSeq getAllAdapters(const std::string& = std::string());

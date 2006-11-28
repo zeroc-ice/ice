@@ -112,30 +112,6 @@ AdapterCache::get(const string& id) const
     return entry;
 }
 
-ServerAdapterEntryPtr
-AdapterCache::getServerAdapter(const string& id) const
-{
-    Lock sync(*this);
-    ServerAdapterEntryPtr svrEntry = ServerAdapterEntryPtr::dynamicCast(getImpl(id));
-    if(!svrEntry)
-    {
-	throw AdapterNotExistException(id);
-    }
-    return svrEntry;
-}
-
-ReplicaGroupEntryPtr
-AdapterCache::getReplicaGroup(const string& id) const
-{
-    Lock sync(*this);
-    ReplicaGroupEntryPtr repEntry = ReplicaGroupEntryPtr::dynamicCast(getImpl(id));
-    if(!repEntry)
-    {
-	throw AdapterNotExistException(id);
-    }
-    return repEntry;
-}
-
 void
 AdapterCache::removeServerAdapter(const string& id)
 {
@@ -227,12 +203,13 @@ ServerAdapterEntry::getProxies(int& nReplicas, bool& replicaGroup)
     vector<pair<string, AdapterPrx> > adapters;
     nReplicas = 1;
     replicaGroup = false;
+    
     // 
     // COMPILEFIX: We need to use a temporary here to work around a
     // compiler bug with xlC on AIX which causes a segfault if
     // getProxy raises an exception.
     //
-    AdapterPrx adpt = getProxy("", true); 
+    AdapterPrx adpt = getProxy(); 
     adapters.push_back(make_pair(_id, adpt));
     return adapters;
 }
@@ -271,7 +248,7 @@ ServerAdapterEntry::getAdapterInfo() const
     info.replicaGroupId = _replicaGroupId;
     try
     {
-	info.proxy = getProxy("", true)->getDirectProxy();
+	info.proxy = getProxy()->getDirectProxy();
     }
     catch(const Ice::Exception&)
     {
@@ -290,7 +267,7 @@ ServerAdapterEntry::getProxy(const string& replicaGroupId, bool upToDate) const
     }
     else
     {
-	if(_replicaGroupId != replicaGroupId)
+	if(_replicaGroupId != replicaGroupId) // Validate the replica group.
 	{
 	    throw Ice::InvalidReplicaGroupIdException();
 	}
@@ -448,7 +425,7 @@ ReplicaGroupEntry::getProxies(int& nReplicas, bool& replicaGroup)
 	    // compiler bug with xlC on AIX which causes a segfault if
 	    // getProxy raises an exception.
 	    //
-	    AdapterPrx adpt = (*p)->getProxy(_id, true);
+	    AdapterPrx adpt = (*p)->getProxy(_id);
 	    adapters.push_back(make_pair((*p)->getId(), adpt));
 	}
 	catch(const AdapterNotExistException&)
@@ -458,6 +435,9 @@ ReplicaGroupEntry::getProxies(int& nReplicas, bool& replicaGroup)
 	{
 	}
 	catch(const NodeUnreachableException&)
+	{
+	}
+	catch(const DeploymentException&)
 	{
 	}
     }
