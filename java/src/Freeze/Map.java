@@ -1189,6 +1189,14 @@ public abstract class Map extends java.util.AbstractMap
 
 	    com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry(k);
 	    com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry();
+	    
+	    //
+	    // When we have a custom-comparison function, Berkeley DB returns
+	    // the key on-disk (when it finds one). We disable this behavior:
+	    // (ref Oracle SR 5925672.992)
+	    //
+	    dbKey.setPartial(true);
+
 	    //
 	    // dlen is 0, so we should not retrieve any value 
 	    // 

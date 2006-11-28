@@ -72,6 +72,12 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
 	{
 	    com.sleepycat.db.DatabaseEntry key = new com.sleepycat.db.DatabaseEntry(k);
 	    
+	    // When we have a custom-comparison function, Berkeley DB returns
+	    // the key on-disk (when it finds one). We disable this behavior:
+	    // (ref Oracle SR 5925672.992)
+	    //
+	    key.setPartial(true);
+
 	    com.sleepycat.db.DatabaseEntry pkey = new com.sleepycat.db.DatabaseEntry();
 	    com.sleepycat.db.DatabaseEntry value = new com.sleepycat.db.DatabaseEntry();
 	    //
@@ -196,6 +202,13 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
 	try
 	{
 	    com.sleepycat.db.DatabaseEntry key = new com.sleepycat.db.DatabaseEntry(k);
+
+	    // When we have a custom-comparison function, Berkeley DB returns
+	    // the key on-disk (when it finds one). We disable this behavior:
+	    // (ref Oracle SR 5925672.992)
+	    //
+	    key.setPartial(true);
+
 	    com.sleepycat.db.DatabaseEntry value = new com.sleepycat.db.DatabaseEntry();
 	    //
 	    // dlen is 0, so we should not retrieve any value 
