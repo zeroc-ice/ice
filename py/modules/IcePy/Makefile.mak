@@ -44,6 +44,7 @@ $(DLLNAME): $(OBJS)
 	$(LINK) $(PYTHON_LDFLAGS) $(ICE_LDFLAGS) $(LD_DLLFLAGS) $(PDBFLAGS) /export:initIcePy $(OBJS) \
 		$(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH)
 	move $(DLLNAME:.pyd=.lib) $(LIBNAME)
+	-if exist $(DLLNAME).manifest mt -nologo -manifest $(DLLNAME).manifest -outputresource:$(DLLNAME);#2
 
 install:: all
 	copy $(DLLNAME) $(install_libdir)
