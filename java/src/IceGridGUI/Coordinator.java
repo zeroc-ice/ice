@@ -1287,12 +1287,23 @@ public class Coordinator
 	{
 	    if(file != null)
 	    {
-		_fileChooser.setSelectedFile(file);
+		_saveChooser.setSelectedFile(file);
 	    }
-	    int result = _fileChooser.showSaveDialog(_mainFrame);
+	    else
+	    {
+		_saveChooser.setCurrentDirectory(_openChooser.getCurrentDirectory());
+	    }
+
+	    int result = _saveChooser.showSaveDialog(_mainFrame);
+	 
+	    if(file == null || result == JFileChooser.APPROVE_OPTION)
+	    {
+		_openChooser.setCurrentDirectory(_saveChooser.getCurrentDirectory());
+	    }
+
 	    if(result == JFileChooser.APPROVE_OPTION)
 	    {
-		file = _fileChooser.getSelectedFile();
+		file = _saveChooser.getSelectedFile();
 	    }
 	    else
 	    {
@@ -1301,6 +1312,11 @@ public class Coordinator
 	}
 	if(file != null)
 	{
+	    if(!file.exists() && file.getName().indexOf('.') == -1)
+	    {
+		file = new File(file.getAbsolutePath() + ".xml");
+	    }
+
 	    try
 	    {
 		XMLWriter writer = new XMLWriter(file);
@@ -1392,8 +1408,11 @@ public class Coordinator
 	    };
 	Runtime.getRuntime().addShutdownHook(_shutdownHook);
 
-	_fileChooser = new JFileChooser();
-	_fileChooser.addChoosableFileFilter(new FileFilter()
+
+	_saveChooser = new JFileChooser(
+	    _prefs.get("current directory", null));
+	
+	_saveChooser.addChoosableFileFilter(new FileFilter()
 	    {
 		public boolean accept(File f)
 		{
@@ -1405,6 +1424,12 @@ public class Coordinator
 		    return ".xml files";
 		}
 	    });
+
+	javax.swing.UIManager.put("FileChooser.readOnly", Boolean.TRUE);
+
+	_openChooser = new JFileChooser(_saveChooser.getCurrentDirectory());
+	
+	_openChooser.addChoosableFileFilter(_saveChooser.getChoosableFileFilters()[1]);
 
 
 	final int MENU_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
@@ -1488,11 +1513,11 @@ public class Coordinator
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    int result = _fileChooser.showOpenDialog(_mainFrame);
+		    int result = _openChooser.showOpenDialog(_mainFrame);
 		    if(result == JFileChooser.APPROVE_OPTION)
 		    {
-			File file = _fileChooser.getSelectedFile();
-
+			File file = _openChooser.getSelectedFile();
+		
 			ApplicationDescriptor desc = parseFile(file);
 
 			if(desc != null)
@@ -1829,6 +1854,15 @@ public class Coordinator
 
     void exit(int status)
     {
+	if(_openChooser != null)
+	{
+	    File dir = _openChooser.getCurrentDirectory();
+	    if(dir != null)
+	    {
+		_prefs.put("current directory", dir.getAbsolutePath()); 
+	    }
+	}
+
 	storeWindowPrefs();
 	destroyIceGridAdmin();
 	destroyCommunicator();
@@ -2074,7 +2108,8 @@ public class Coordinator
 
     private final Thread _shutdownHook;
 
-    private JFileChooser _fileChooser;
+    private JFileChooser _openChooser;
+    private JFileChooser _saveChooser;
     
     private Process _icegridadminProcess;
     private String _fileParser;
