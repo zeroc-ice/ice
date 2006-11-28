@@ -274,7 +274,7 @@ bool
 Freeze::IteratorHelperI::lowerBound(const Key& key) const
 {
     //
-    // We retrieve the action key for upperBound
+    // We retrieve the actual key for upperBound
     //
     Dbt dbKey;
     _key = key;
