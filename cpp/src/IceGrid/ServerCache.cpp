@@ -128,14 +128,15 @@ ServerCache::remove(const string& id, bool destroy)
 
     ServerEntryPtr entry = getImpl(id);
     ServerInfo info = entry->getInfo();
-    if(destroy)
-    {
-	entry->destroy();
-    }
+    forEachCommunicator(RemoveCommunicator(*this, entry))(info.descriptor);
 
     _nodeCache.get(info.node)->removeServer(entry);
 
-    forEachCommunicator(RemoveCommunicator(*this, entry))(info.descriptor);
+    if(destroy)
+    {
+	entry->destroy(); // This must be done after otherwise some allocatable objects
+	                  // might allocate a destroyed server.
+    }
 
     if(_traceLevels && _traceLevels->server > 0)
     {
@@ -258,11 +259,7 @@ ServerEntry::update(const ServerInfo& info)
 
     _load = descriptor;
     _loaded.reset(0);
-
-    //
-    // Update the allocatable flag.
-    //
-    const_cast<bool&>(_allocatable) = info.descriptor->allocatable || info.descriptor->activation == "session";
+    _allocatable = info.descriptor->allocatable || info.descriptor->activation == "session";
 }
 
 void
@@ -289,6 +286,7 @@ ServerEntry::destroy()
     
     _load.reset(0);
     _loaded.reset(0);
+    _allocatable = false;
 }
 
 ServerInfo
@@ -346,10 +344,10 @@ ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& 
 	Lock sync(*this);
 	if(_loaded.get() || _proxy && _synchronizing && !upToDate) // Synced or if not up to date is fine
 	{
-	    assert(_loaded.get() || _load.get());
+	    assert(_loaded.get() || _load.get() || _destroy.get());
 	    activationTimeout = _activationTimeout;
 	    deactivationTimeout = _deactivationTimeout;
-	    node = _loaded.get() ? _loaded->node : _load->node;
+	    node = _loaded.get() ? _loaded->node : (_load.get() ? _load->node : _destroy->node);
 	    return _proxy;
 	}
     }
@@ -362,10 +360,10 @@ ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& 
 	    Lock sync(*this);
 	    if(_loaded.get() || _proxy && _synchronizing && !upToDate) // Synced or if not up to date is fine
 	    {
-	        assert(_loaded.get() || _load.get());
+	        assert(_loaded.get() || _load.get() || _destroy.get());
 		activationTimeout = _activationTimeout;
 		deactivationTimeout = _deactivationTimeout;
-		node = _loaded.get() ? _loaded->node : _load->node;
+		node = _loaded.get() ? _loaded->node : (_load.get() ? _load->node : _destroy->node);
 		return _proxy;
 	    }
 	    else if(_load.get())
@@ -748,6 +746,11 @@ ServerEntry::canRemove()
 void
 ServerEntry::allocated(const SessionIPtr& session)
 {
+    if(!_loaded.get() && !_load.get())
+    {
+	return;
+    }
+
     TraceLevelsPtr traceLevels = _cache.getTraceLevels();
     if(traceLevels && traceLevels->server > 1)
     {
@@ -755,7 +758,6 @@ ServerEntry::allocated(const SessionIPtr& session)
 	out << "server `" << _id << "' allocated by `" << session->getId() << "' (" << _count << ")";
     }
 
-    assert(_loaded.get() || _load.get());
     ServerDescriptorPtr desc = _loaded.get() ? _loaded->descriptor : _load->descriptor;
 
     //
@@ -834,7 +836,11 @@ ServerEntry::allocatedNoSync(const SessionIPtr& session)
 void
 ServerEntry::released(const SessionIPtr& session)
 {
-    assert(_loaded.get() || _load.get());
+    if(!_loaded.get() && !_load.get())
+    {
+	return;
+    }
+
     ServerDescriptorPtr desc = _loaded.get() ? _loaded->descriptor : _load->descriptor;
     
     //

@@ -162,28 +162,37 @@ AllocatableObjectCache::get(const Ice::Identity& id) const
     return entry;
 }
 
-AllocatableObjectEntryPtr
+void
 AllocatableObjectCache::remove(const Ice::Identity& id)
 {
-    Lock sync(*this);
-    AllocatableObjectEntryPtr entry = getImpl(id);
-    assert(entry);
-    removeImpl(id);
+    AllocatableObjectEntryPtr entry;
+    {
+	Lock sync(*this);
+	entry = getImpl(id);
+	assert(entry);
+	removeImpl(id);
 
-    map<string, TypeEntry>::iterator p = _types.find(entry->getType());
-    assert(p != _types.end());
-    if(p->second.remove(entry))
-    {	
-	_types.erase(p);
+	map<string, TypeEntry>::iterator p = _types.find(entry->getType());
+	assert(p != _types.end());
+	if(p->second.remove(entry))
+	{	
+	    _types.erase(p);
+	}
+
+	if(_traceLevels && _traceLevels->object > 0)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
+	    out << "removed allocatable object `" << _communicator->identityToString(id) << "'";	
+	}    
     }
 
-    if(_traceLevels && _traceLevels->object > 0)
-    {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-	out << "removed allocatable object `" << _communicator->identityToString(id) << "'";	
-    }    
-
-    return entry;
+    //
+    // This must be done outside the synchronization because destroy
+    // might release the object and release might try to callback on
+    // the cache.
+    //
+    assert(entry);
+    entry->destroy();
 }
 
 void
@@ -345,7 +354,16 @@ AllocatableObjectEntry::destroy()
 	_destroyed = true;
 	session = _session;
     }
-    release(session);
+    if(session)
+    {
+	try
+	{
+	    release(session);
+	}
+	catch(const AllocationException&)
+	{
+	}
+    }
 }
 
 void

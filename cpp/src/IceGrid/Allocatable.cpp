@@ -482,8 +482,6 @@ Allocatable::allocateFromChild(const AllocationRequestPtr& request,
 			       bool tryAllocate,
 			       bool fromRelease)
 {
-    assert(_allocatable);
-
     if(_parent && !_parent->allocateFromChild(request, child, tryAllocate, fromRelease))
     {
 	return false;

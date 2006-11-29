@@ -103,7 +103,7 @@ protected:
     void queueAllocationAttempt(const AllocatablePtr&, const AllocationRequestPtr&, bool);
     AllocatablePtr dequeueAllocationAttempt(AllocationRequestPtr&);
 
-    const bool _allocatable;
+    bool _allocatable;
     const AllocatablePtr _parent;
     
     std::list<std::pair<AllocatablePtr, AllocationRequestPtr> > _requests;

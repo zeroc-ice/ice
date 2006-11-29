@@ -1378,14 +1378,12 @@ ServerI::activate()
 	ServerCommandPtr command;
 	{
 	    Lock sync(*this);
-	    if(_state != Activating)
-	    {
-		return;
-	    }
+	    assert(_state == Activating);
 	    _pid = pid;
 	    setStateNoSync(ServerI::WaitForActivation);
 	    checkActivation();
 	    command = nextCommand();
+	    notifyAll(); // Terminated might be waiting for the state change.
 	}
 	if(command)
 	{
@@ -1553,10 +1551,10 @@ ServerI::terminated(const string& msg, int status)
     ServerAdapterDict adpts;
     {
 	Lock sync(*this);
-// 	while(_state == ServerI::Activating)
-// 	{
-// 	    wait(); // Wait for activate() to set the state to WaitForActivation
-// 	}
+ 	while(_state == ServerI::Activating)
+ 	{
+ 	    wait(); // Wait for activate() to set the state to WaitForActivation
+ 	}
 
 	adpts = _adapters;
 	_activatedAdapters.clear();

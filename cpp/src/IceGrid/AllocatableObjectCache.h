@@ -79,7 +79,7 @@ public:
 
     void add(const ObjectInfo&, const AllocatablePtr&);
     AllocatableObjectEntryPtr get(const Ice::Identity&) const;
-    AllocatableObjectEntryPtr remove(const Ice::Identity&);
+    void remove(const Ice::Identity&);
 
     void allocateByType(const std::string&, const ObjectAllocationRequestPtr&);
     bool canTryAllocate(const AllocatableObjectEntryPtr&);

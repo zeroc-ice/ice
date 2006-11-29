@@ -1359,7 +1359,7 @@ Parser::dumpFile(const string& reader, const string& filename, const list<string
 	    }
 	}
 
-	cout << reader << " `" << id << "' " << filename << ":" << flush;
+	cout << reader << " `" << id << "' " << filename << ": " << flush;
 	Ice::StringSeq lines;
 
 	bool head = opts.isSet("head");
