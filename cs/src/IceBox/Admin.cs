@@ -20,6 +20,8 @@ public class Admin : Ice.Application
             "-h, --help          Show this message.\n" +
             "\n" +
             "Commands:\n" +
+            "start SERVICE       Start a service." +
+            "stop SERVICE        Stop a service." +
             "shutdown            Shutdown the server.");
     }
 
@@ -90,12 +92,57 @@ public class Admin : Ice.Application
             return 1;
         }
 
-	foreach(string command in commands)
+	for(int i = 0; i < commands.Count; ++i)
 	{
+	    string command = (string)commands[i];
             if(command.Equals("shutdown"))
             {
                 manager.shutdown();
             }
+            else if(command.Equals("start"))
+	    {
+	        if(++i >= commands.Count)
+		{
+                    Console.Error.WriteLine(appName() + ": no service name specified.");
+		    return 1;
+		}
+
+		string service = (string)commands[i];
+		try
+		{
+		    manager.startService(service);
+		}
+		catch(IceBox.NoSuchServiceException)
+		{
+                    Console.Error.WriteLine(appName() + ": unknown service `" + service + "'");
+		}
+		catch(IceBox.AlreadyStartedException)
+		{
+                    Console.Error.WriteLine(appName() + ": service already started.");
+		}
+	    }
+            else if(command.Equals("stop"))
+	    {
+	        if(++i >= commands.Count)
+		{
+                    Console.Error.WriteLine(appName() + ": no service name specified.");
+		    return 1;
+		}
+
+		string service = (string)commands[i];
+		try
+		{
+		    manager.stopService(service);
+		}
+		catch(IceBox.NoSuchServiceException)
+		{
+                    Console.Error.WriteLine(appName() + ": unknown service `" + service + "'");
+		}
+		catch(IceBox.AlreadyStoppedException)
+		{
+                    Console.Error.WriteLine(appName() + ": service already stopped.");
+		}
+	    }
             else
             {
                 Console.Error.WriteLine(appName() + ": unknown command `" + command + "'");
