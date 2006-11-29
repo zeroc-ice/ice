@@ -318,7 +318,13 @@ allTests(const Ice::CommunicatorPtr& comm)
 	slave2Admin = createAdminSession(slave2Locator, "Slave2");
 
 	info = masterAdmin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Locator"));
-	test(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Locator")) == info);
+	// We eventually need to wait here for the update of the replicated objects to propagate to the replica.
+ 	int nRetry = 0;
+	while(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Locator")) != info && nRetry < 30)
+	{
+	    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+	    ++nRetry;
+	}
 	test(slave2Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Locator")) == info);
 	test(info.type == Ice::Locator::ice_staticId());
 	endpoints = info.proxy->ice_getEndpoints();
@@ -328,7 +334,13 @@ allTests(const Ice::CommunicatorPtr& comm)
 	test(endpoints[2]->toString() == slave2Locator->ice_getEndpoints()[0]->toString());
 
 	info = masterAdmin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Query"));
-	test(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Query")) == info);
+	// We eventually need to wait here for the update of the replicated objects to propagate to the replica.
+ 	nRetry = 0;
+	while(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Query")) != info && nRetry < 30)
+	{
+	    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+	    ++nRetry;
+	}
 	test(slave2Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Query")) == info);
 	test(info.type == IceGrid::Query::ice_staticId());
 	endpoints = info.proxy->ice_getEndpoints();
@@ -342,7 +354,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 
 	info = masterAdmin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Locator"));
 	// We eventually need to wait here for the update of the replicated objects to propagate to the replica.
- 	int nRetry = 0;
+ 	nRetry = 0;
 	while(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Locator")) != info && nRetry < 30)
 	{
 	    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
