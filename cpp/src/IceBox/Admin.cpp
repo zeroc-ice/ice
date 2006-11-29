@@ -42,6 +42,8 @@ Client::usage()
         "-v, --version        Display the Ice version.\n"
         "\n"
         "Commands:\n"
+        "start SERVICE        Start a service.\n"
+        "stop SERVICE         Stop a service.\n"
         "shutdown             Shutdown the server.\n"
         ;
 }
@@ -134,6 +136,7 @@ Client::run(int argc, char* argv[])
         }
     }
 
+    
     vector<string>::const_iterator r;
     for(r = commands.begin(); r != commands.end(); ++r)
     {
@@ -141,6 +144,48 @@ Client::run(int argc, char* argv[])
         {
             manager->shutdown();
         }
+	else if((*r) == "start")
+	{
+	    if(++r == commands.end())
+	    {
+                cerr << appName() << ": no service name specified." << endl;
+                return EXIT_FAILURE;
+	    }
+
+	    try
+	    {
+	        manager->startService(*r);
+	    }
+	    catch(const IceBox::NoSuchServiceException&)
+	    {
+                cerr << appName() << ": unknown service `" << *r << "'" << endl;
+	    }
+	    catch(const IceBox::AlreadyStartedException&)
+	    {
+                cerr << appName() << ": service already started." << endl;
+	    }
+	}
+	else if((*r) == "stop")
+	{
+	    if(++r == commands.end())
+	    {
+                cerr << appName() << ": no service name specified." << endl;
+                return EXIT_FAILURE;
+	    }
+
+	    try
+	    {
+	        manager->stopService(*r);
+	    }
+	    catch(const IceBox::NoSuchServiceException&)
+	    {
+                cerr << appName() << ": unknown service `" << *r << "'" << endl;
+	    }
+	    catch(const IceBox::AlreadyStoppedException&)
+	    {
+                cerr << appName() << ": service already stopped." << endl;
+	    }
+	}
         else
         {
             cerr << appName() << ": unknown command `" << *r << "'" << endl;

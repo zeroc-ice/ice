@@ -19,7 +19,7 @@
 namespace IceBox
 {
 
-class ServiceManagerI : public ServiceManager
+class ServiceManagerI : public ServiceManager, public IceUtil::Mutex
 {
 public:
 
@@ -28,6 +28,8 @@ public:
 
     virtual Ice::SliceChecksumDict getSliceChecksums(const Ice::Current&) const;
 
+    virtual void startService(const std::string&, const ::Ice::Current&);
+    virtual void stopService(const std::string&, const ::Ice::Current&);
     virtual void shutdown(const ::Ice::Current&);
 
     int run();
@@ -39,6 +41,8 @@ public:
         ::IceInternal::DynamicLibraryPtr library;
 	::Ice::CommunicatorPtr communicator;
 	::std::string envName;
+	bool active;
+	Ice::StringSeq args;
     };
 
     bool start();

@@ -47,4 +47,5 @@ void
 HelloServiceI::stop()
 {
     _adapter->deactivate();
+    _adapter->waitForDeactivate();
 }

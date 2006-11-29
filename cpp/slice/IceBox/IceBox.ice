@@ -43,6 +43,34 @@ local exception FailureException
     string reason;
 };
 
+
+/**
+ *
+ * Thrown is service is already started.
+ *
+ **/
+exception AlreadyStartedException
+{
+};
+
+/**
+ *
+ * Thrown is service is already stopped.
+ *
+ **/
+exception AlreadyStoppedException
+{
+};
+
+/**
+ *
+ * Thrown if service does not exist
+ *
+ **/
+exception NoSuchServiceException
+{
+};
+
 /**
  *
  * An application service managed by a [ServiceManager].
@@ -98,6 +126,26 @@ interface ServiceManager
      *
      **/
     ["nonmutating", "cpp:const"] idempotent Ice::SliceChecksumDict getSliceChecksums();
+
+    /**
+     *
+     * Start an individual service.
+     * 
+     * @param service The service name.
+     *
+     **/
+    void startService(string service)
+        throws AlreadyStartedException, NoSuchServiceException;
+
+    /**
+     *
+     * Stop an individual service.
+     * 
+     * @param service The service name.
+     *
+     **/
+    void stopService(string service)
+        throws AlreadyStoppedException, NoSuchServiceException;
 
     /**
      *

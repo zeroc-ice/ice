@@ -42,7 +42,95 @@ IceBox::ServiceManagerI::getSliceChecksums(const Current&) const
 }
 
 void
-IceBox::ServiceManagerI::shutdown(const Current& current)
+IceBox::ServiceManagerI::startService(const string& name, const Current&)
+{
+    IceUtil::Mutex::Lock lock(*this);
+
+    //
+    // Search would be more efficient if services were contained in
+    // a map, but order is required for shutdown.
+    //
+    vector<ServiceInfo>::iterator p;
+    for(p = _services.begin(); p != _services.end(); ++p)
+    {
+	ServiceInfo& info = *p;
+	if(info.name == name)
+	{
+	    if(info.active)
+	    {
+	        throw AlreadyStartedException();
+	    }
+
+	    try
+	    {
+	        info.service->start(name, info.communicator == 0 ? _communicator : info.communicator, info.args);
+		info.active = true;
+	    }
+	    catch(const Ice::Exception& ex)
+	    {
+                Warning out(_logger);
+	        out << "ServiceManager: exception in start for service " << info.name << ":\n";
+	        out << ex;
+	    }
+	    catch(...)
+	    {
+                Warning out(_logger);
+	        out << "ServiceManager: unknown exception in start for service " << info.name;
+	    }
+
+	    return;
+	}
+    }
+
+    throw NoSuchServiceException();
+}
+
+void
+IceBox::ServiceManagerI::stopService(const string& name, const Current&)
+{
+    IceUtil::Mutex::Lock lock(*this);
+
+    //
+    // Search would be more efficient if services were contained in
+    // a map, but order is required for shutdown.
+    //
+    vector<ServiceInfo>::iterator p;
+    for(p = _services.begin(); p != _services.end(); ++p)
+    {
+	ServiceInfo& info = *p;
+	if(info.name == name)
+	{
+	    if(!info.active)
+	    {
+	        throw AlreadyStoppedException();
+	    }
+
+	    try
+	    {
+	        info.service->stop();
+		info.active = false;
+	    }
+	    catch(const Ice::Exception& ex)
+	    {
+                Warning out(_logger);
+	        out << "ServiceManager: exception in stop for service " << info.name << ":\n";
+	        out << ex;
+	    }
+	    catch(...)
+	    {
+                Warning out(_logger);
+	        out << "ServiceManager: unknown exception in stop for service " << info.name;
+	    }
+
+	    return;
+	}
+    }
+
+    throw NoSuchServiceException();
+}
+
+void
+IceBox::ServiceManagerI::shutdown(const Current&)
 {
     _communicator->shutdown();
 }
@@ -208,6 +296,8 @@ IceBox::ServiceManagerI::load(const string& name, const string& value)
 void
 IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, const StringSeq& args)
 {
+    IceUtil::Mutex::Lock lock(*this);
+
     //
     // Create the service property set from the service arguments and
     // the server arguments. The service property set will be used to
@@ -215,17 +305,18 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     // communicator, depending on the value of the
     // IceBox.UseSharedCommunicator property.
     //
-    StringSeq serviceArgs;
+    ServiceInfo info;
+    info.name = service;
     StringSeq::size_type j;
     for(j = 0; j < args.size(); j++)
     {
-        serviceArgs.push_back(args[j]);
+        info.args.push_back(args[j]);
     }
     for(j = 0; j < _argv.size(); j++)
     {
         if(_argv[j].find("--" + service + ".") == 0)
         {
-            serviceArgs.push_back(_argv[j]);
+            info.args.push_back(_argv[j]);
         }
     }
 
@@ -250,8 +341,6 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     // Invoke the factory function.
     //
     SERVICE_FACTORY factory = (SERVICE_FACTORY)sym;
-    ServiceInfo info;
-    info.name = service;
     try
     {
         info.service = factory(_communicator);
@@ -285,7 +374,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 
 	if(properties->getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
 	{
-	    PropertiesPtr serviceProperties = createProperties(serviceArgs, properties);
+	    PropertiesPtr serviceProperties = createProperties(info.args, properties);
 
 	    //
 	    // Erase properties in 'properties'
@@ -308,12 +397,12 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	    // Parse <service>.* command line options
 	    // (the Ice command line options were parse by the createProperties above)
 	    //
-	    serviceArgs = properties->parseCommandLineOptions(service, serviceArgs);
+	    info.args = properties->parseCommandLineOptions(service, info.args);
 	}
 	else
 	{	
 	    string name = properties->getProperty("Ice.ProgramName");
-	    PropertiesPtr serviceProperties = createProperties(serviceArgs, properties);
+	    PropertiesPtr serviceProperties = createProperties(info.args, properties);
 	 
 	    if(name == serviceProperties->getProperty("Ice.ProgramName"))
 	    {
@@ -333,17 +422,17 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	    // Parse <service>.* command line options
 	    // (the Ice command line options were parsed by the createProperties above)
 	    //
-	    serviceArgs = serviceProperties->parseCommandLineOptions(service, serviceArgs);
+	    info.args = serviceProperties->parseCommandLineOptions(service, info.args);
 
 	    //
 	    // Remaining command line options are passed to the
 	    // communicator with argc/argv. This is necessary for Ice
 	    // plugin properties (e.g.: IceSSL).
 	    //
-	    int argc = static_cast<int>(serviceArgs.size());
+	    int argc = static_cast<int>(info.args.size());
 	    char** argv = new char*[argc + 1];
 	    int i = 0;
-	    for(Ice::StringSeq::const_iterator p = serviceArgs.begin(); p != serviceArgs.end(); ++p, ++i)
+	    for(Ice::StringSeq::const_iterator p = info.args.begin(); p != info.args.end(); ++p, ++i)
 	    {
 		argv[i] = strdup(p->c_str());
 	    }
@@ -367,7 +456,8 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	//
 	try
 	{
-	    info.service->start(service, communicator, serviceArgs);
+	    info.service->start(service, communicator, info.args);
+	    info.active = true;
 	}
 	catch(...)
 	{
@@ -429,6 +519,8 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 void
 IceBox::ServiceManagerI::stopAll()
 {
+    IceUtil::Mutex::Lock lock(*this);
+
     //
     // Services are stopped in the reverse order from which they are started.
     //
@@ -444,6 +536,7 @@ IceBox::ServiceManagerI::stopAll()
 	try
 	{
 	    info.service->stop();
+	    info.active = false;
 	}
 	catch(const Ice::Exception& ex)
 	{
