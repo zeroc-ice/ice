@@ -3,7 +3,7 @@ Requirements
 =========================================================================
 
 - Ice @ver@
-- Python 2.3 or 2.4 built with a C++ compiler compatible with C++
+- Python 2.3, 2.4, or 2.5 built with a C++ compiler compatible with C++
   compiler used to build Ice for C++.
 
 Depending on your platform, you may need to download the Python source
