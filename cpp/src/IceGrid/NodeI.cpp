@@ -218,46 +218,53 @@ NodeI::loadServer_async(const AMD_Node_loadServerPtr& amdCB,
 			bool fromMaster,
 			const Ice::Current& current)
 {
-    Lock sync(*this);
-    ++_serial;
-    
-    Ice::Identity id = createServerIdentity(info.descriptor->id);
-    
-    //
-    // Check if we already have a servant for this server. If that's
-    // the case, the server is already loaded and we just need to
-    // update it.
-    //
-    while(true)
+    ServerCommandPtr command;
     {
-	bool added = false;
-	ServerIPtr server = ServerIPtr::dynamicCast(_adapter->find(id));
-	if(!server)
-	{
-	    ServerPrx proxy = ServerPrx::uncheckedCast(_adapter->createProxy(id));
-	    server = new ServerI(this, proxy, _serversDir, info.descriptor->id, _waitTime);
-	    _adapter->add(server, id);
-	    added = true;
-	}
+	Lock sync(*this);
+	++_serial;
 	
-	try
+	Ice::Identity id = createServerIdentity(info.descriptor->id);
+	
+	//
+	// Check if we already have a servant for this server. If that's
+	// the case, the server is already loaded and we just need to
+	// update it.
+	//
+	while(true)
 	{
-	    server->load(amdCB, info, fromMaster);
-	}
-	catch(const Ice::ObjectNotExistException&)
-	{
-	    assert(!added);
-	    continue;
-	}
-	catch(const Ice::Exception&)
-	{
-	    if(added)
+	    bool added = false;
+	    ServerIPtr server = ServerIPtr::dynamicCast(_adapter->find(id));
+	    if(!server)
 	    {
-		_adapter->remove(id);
+		ServerPrx proxy = ServerPrx::uncheckedCast(_adapter->createProxy(id));
+		server = new ServerI(this, proxy, _serversDir, info.descriptor->id, _waitTime);
+		_adapter->add(server, id);
+		added = true;
 	    }
-	    throw;
+	    
+	    try
+	    {
+		command = server->load(amdCB, info, fromMaster);
+	    }
+	    catch(const Ice::ObjectNotExistException&)
+	    {
+		assert(!added);
+		continue;
+	    }
+	    catch(const Ice::Exception&)
+	    {
+		if(added)
+		{
+		    _adapter->remove(id);
+		}
+		throw;
+	    }
+	    break;
 	}
-	break;
+    }
+    if(command)
+    {
+	command->execute();
     }
 }
 
@@ -268,24 +275,31 @@ NodeI::destroyServer_async(const AMD_Node_destroyServerPtr& amdCB,
 			   int revision,
 			   const Ice::Current& current)
 {
-    Lock sync(*this);
-    ++_serial;
-
-    ServerIPtr server = ServerIPtr::dynamicCast(_adapter->find(createServerIdentity(serverId)));
-    if(!server)
+    ServerCommandPtr command;
     {
-	server = new ServerI(this, 0, _serversDir, serverId, _waitTime);
+	Lock sync(*this);
+	++_serial;
+	
+	ServerIPtr server = ServerIPtr::dynamicCast(_adapter->find(createServerIdentity(serverId)));
+	if(!server)
+	{
+	    server = new ServerI(this, 0, _serversDir, serverId, _waitTime);
+	}
+	
+	//
+	// Destroy the server object if it's loaded.
+	//
+	try
+	{
+	    command = server->destroy(amdCB, uuid, revision);
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	}
     }
-    
-    //
-    // Destroy the server object if it's loaded.
-    //
-    try
+    if(command)
     {
-	server->destroy(amdCB, uuid, revision);
-    }
-    catch(const Ice::ObjectNotExistException&)
-    {
+	command->execute();
     }
 }
 
@@ -697,7 +711,6 @@ void
 NodeI::removeObserver(const NodeSessionPrx& session)
 {
     IceUtil::Mutex::Lock sync(_observerMutex);
-    assert(_observers.find(session) != _observers.end());
     _observers.erase(session);
 }
 

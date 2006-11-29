@@ -197,7 +197,8 @@ NodeSessionKeepAliveThread::keepAlive(const NodeSessionPrx& session)
 
 NodeSessionManager::NodeSessionManager() : 
     _serial(1), 
-    _destroyed(false)
+    _destroyed(false),
+    _activated(false)
 {
 }
 
@@ -241,7 +242,7 @@ NodeSessionManager::create(const NodeIPtr& node)
     // to load the servers on the node (when createSession invokes
     // loadServers() on the session).
     //
-    _thread->tryCreateSession(false);
+    _thread->tryCreateSession(true);
 }
 
 void
@@ -258,6 +259,25 @@ NodeSessionManager::create(const InternalRegistryPrx& replica)
     else
     {
 	replicaAdded(replica, true);
+    }
+}
+
+void
+NodeSessionManager::activated()
+{
+    {
+	Lock sync(*this);
+	_activated = true;
+    }
+    NodeSessionPrx session = _thread->getSession();
+    if(!session)
+    {
+	_thread->tryCreateSession(true);
+	session = _thread->getSession();
+    }
+    if(session)
+    {
+	syncServers(session);
     }
 }
 
@@ -360,6 +380,7 @@ NodeSessionManager::syncReplicas(const InternalRegistryPrxSeq& replicas)
     _sessions.swap(sessions);
 
     NodeSessionKeepAliveThreadPtr thread;
+    vector<NodeSessionKeepAliveThreadPtr> newSessions;
     for(InternalRegistryPrxSeq::const_iterator p = replicas.begin(); p != replicas.end(); ++p)
     {
 	if((*p)->ice_getIdentity() == _master->ice_getIdentity())
@@ -377,6 +398,7 @@ NodeSessionManager::syncReplicas(const InternalRegistryPrxSeq& replicas)
 	    thread = new NodeSessionKeepAliveThread(*p, _node, _queryObjects);
 	    thread->start();
 	    thread->tryCreateSession(false);
+	    newSessions.push_back(thread);
 	}
 	_sessions.insert(make_pair((*p)->ice_getIdentity(), thread));
     }
@@ -401,6 +423,44 @@ NodeSessionManager::syncReplicas(const InternalRegistryPrxSeq& replicas)
     for(q = sessions.begin(); q != sessions.end(); ++q)
     {
 	q->second->getThreadControl().join();
+    }
+
+    //
+    // If the node is being started, we wait for the new sessions to
+    // be created. This ensures that once the node is activated all
+    // the known replicas are connected.
+    //
+    if(!_activated)
+    {
+	for(vector<NodeSessionKeepAliveThreadPtr>::const_iterator t = newSessions.begin(); t != newSessions.end(); ++t)
+	{
+	    (*t)->tryCreateSession(true);
+	}
+    }
+}
+
+void
+NodeSessionManager::syncServers(const NodeSessionPrx& session)
+{
+    //
+    // Ask the session to load the servers on the node. Once this is
+    // done we check the consistency of the node to make sure old
+    // servers are removed.
+    //
+    // NOTE: it's important for this to be done after trying to
+    // register with the replicas. When the master loads the server
+    // some server might get activated and it's better if at that time
+    // the registry replicas (at least the ones which are up) have all
+    // established their session with the node.
+    //
+    assert(session);
+    try
+    {
+	session->loadServers();
+	_node->checkConsistency(session);
+    }
+    catch(const Ice::LocalException&)
+    {
     }
 }
 
@@ -473,27 +533,21 @@ NodeSessionManager::createdSession(const NodeSessionPrx& session)
     }
 
     //
-    // Ask the master to load the servers on the node. Once this is
-    // done we check the consistency of the node to make sure old
-    // servers are removed.
+    // Synchronize the servers if the session is active and if the
+    // node adapter has been activated (otherwise, the servers will be
+    // synced after the node adapter activation, see activated()).
     //
-    // NOTE: it's important for this to be done after trying to
-    // register with the replicas. When the master loads the server
-    // some server might get activated and it's better if at that time
-    // the registry replicas (at least the ones which are up) have all
-    // established their session with the node.
-    //
-    try
+    if(session)
     {
-	if(session)
+	bool activated;
 	{
-	    session->loadServers();
-	    _node->checkConsistency(session);
+	    Lock sync(*this);
+	    activated = _activated;
 	}
-    }
-    catch(const Ice::LocalException&)
-    {
-	// IGNORE
+	if(activated)
+	{
+	    syncServers(session);
+	}
     }
 }
 

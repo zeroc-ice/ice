@@ -196,7 +196,7 @@ public:
 	{
 	    Lock sync(*this);
 	    // Wait until the action is executed and the state changes.
-	    while((_nextAction == Connect || _nextAction == KeepAlive) || _state == InProgress)
+	    while(_nextAction == Connect || _nextAction == KeepAlive || _state == InProgress)
 	    {
 		wait();
 	    }

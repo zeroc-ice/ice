@@ -482,6 +482,12 @@ NodeService::start(int argc, char* argv[])
     //
     _adapter->activate();
 
+    //
+    // Notify the node session manager that the node can start
+    // accepting incoming connections.
+    //
+    _sessions.activated();
+
     string bundleName = properties->getProperty("IceGrid.Node.PrintServersReady");
     if(!bundleName.empty() || !desc.empty())
     {

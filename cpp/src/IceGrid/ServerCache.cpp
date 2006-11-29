@@ -258,8 +258,6 @@ ServerEntry::update(const ServerInfo& info)
 
     _load = descriptor;
     _loaded.reset(0);
-//    _proxy = 0;
-//    _adapters.clear();
 
     //
     // Update the allocatable flag.
@@ -291,8 +289,6 @@ ServerEntry::destroy()
     
     _load.reset(0);
     _loaded.reset(0);
-    _proxy = 0;
-    _adapters.clear();
 }
 
 ServerInfo
@@ -348,7 +344,7 @@ ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& 
 {
     {
 	Lock sync(*this);
-	if(_loaded.get() || _proxy && !upToDate) // Synced or if not up to date is fine
+	if(_loaded.get() || _proxy && _synchronizing && !upToDate) // Synced or if not up to date is fine
 	{
 	    assert(_loaded.get() || _load.get());
 	    activationTimeout = _activationTimeout;
@@ -364,7 +360,7 @@ ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& 
 
 	{
 	    Lock sync(*this);
-	    if(_loaded.get() || _proxy && !upToDate) // Synced or if not up to date is fine
+	    if(_loaded.get() || _proxy && _synchronizing && !upToDate) // Synced or if not up to date is fine
 	    {
 	        assert(_loaded.get() || _load.get());
 		activationTimeout = _activationTimeout;
@@ -389,7 +385,7 @@ ServerEntry::getAdapter(const string& id, bool upToDate)
 {
     {
 	Lock sync(*this);
-	if(_loaded.get() || _proxy && !upToDate) // Synced or if not up to date is fine
+	if(_loaded.get() || _proxy && _synchronizing && !upToDate) // Synced or if not up to date is fine
 	{
 	    AdapterPrxDict::const_iterator p = _adapters.find(id);
 	    if(p != _adapters.end())
@@ -410,7 +406,7 @@ ServerEntry::getAdapter(const string& id, bool upToDate)
 
 	{
 	    Lock sync(*this);
-	    if(_loaded.get() || _proxy && !upToDate) // Synced or if not up to date is fine
+	    if(_loaded.get() || _proxy && _synchronizing && !upToDate) // Synced or if not up to date is fine
 	    {
 		AdapterPrxDict::const_iterator p = _adapters.find(id);
 		if(p != _adapters.end())
@@ -500,8 +496,6 @@ ServerEntry::syncImpl(bool waitForUpdate)
 	if(!_load.get() && !_destroy.get())
 	{
 	    _load = _loaded; // Re-load the current server.
-//	    _proxy = 0;
-//	    _adapters.clear();
 	}
 
 	_updated = false;
@@ -657,6 +651,8 @@ ServerEntry::destroyCallback()
     {
 	Lock sync(*this);
 	_destroy.reset(0);
+	_proxy = 0;
+	_adapters.clear();
 
 	if(!_load.get())
 	{
@@ -703,6 +699,8 @@ ServerEntry::exception(const Ice::Exception& ex)
 	    remove = _destroy.get();
 	    _destroy.reset(0);
 	    _exception.reset(ex.ice_clone());
+	    _proxy = 0;
+	    _adapters.clear();
 	    _synchronizing = false;
 	    notifyAll();
 	}
@@ -773,8 +771,6 @@ ServerEntry::allocated(const SessionIPtr& session)
 	{
 	    _load = _loaded;
 	}
-//	_proxy = 0;
-//	_adapters.clear();
 	_session = session;
 	_load->sessionId = session->getId();
     }
@@ -828,7 +824,7 @@ ServerEntry::allocatedNoSync(const SessionIPtr& session)
 	   _loaded.get() && _loaded->descriptor->activation != "session" || 
 	   _load.get() && _load->descriptor->activation != "session")
 	{
-		return;
+	    return;
 	}
     }
     
@@ -855,8 +851,6 @@ ServerEntry::released(const SessionIPtr& session)
 	{
 	    _load = _loaded;
 	}
-//	_proxy = 0;
-//	_adapters.clear();
 	_load->sessionId = "";
 	_session = 0;
     }

@@ -40,7 +40,7 @@ public:
 
 protected:
 
-    void addExpectedUpdate(int);
+    void addExpectedUpdate(int, const std::string& = std::string());
     void waitForSyncedSubscribersNoSync(int, const std::string& = std::string());
     void updateSerial(int);
     Ice::Context getContext(int) const;
@@ -106,10 +106,10 @@ public:
 
     ApplicationObserverTopic(const IceStorm::TopicManagerPrx&, const StringApplicationInfoDict&);
 
-    void applicationInit(int, const ApplicationInfoSeq&);
-    void applicationAdded(int, const ApplicationInfo&);
-    void applicationRemoved(int, const std::string&);
-    void applicationUpdated(int, const ApplicationUpdateInfo&);
+    int applicationInit(int, const ApplicationInfoSeq&);
+    int applicationAdded(int, const ApplicationInfo&);
+    int applicationRemoved(int, const std::string&);
+    int applicationUpdated(int, const ApplicationUpdateInfo&);
 
     virtual void initObserver(const Ice::ObjectPrx&);
 
@@ -126,10 +126,10 @@ public:
 
     AdapterObserverTopic(const IceStorm::TopicManagerPrx&, const StringAdapterInfoDict&);
 
-    void adapterInit(const AdapterInfoSeq&);
-    void adapterAdded(const AdapterInfo&);
-    void adapterUpdated(const AdapterInfo&);
-    void adapterRemoved(const std::string&);
+    int adapterInit(const AdapterInfoSeq&);
+    int adapterAdded(const AdapterInfo&);
+    int adapterUpdated(const AdapterInfo&);
+    int adapterRemoved(const std::string&);
 
     virtual void initObserver(const Ice::ObjectPrx&);
 
@@ -146,10 +146,10 @@ public:
 
     ObjectObserverTopic(const IceStorm::TopicManagerPrx&, const IdentityObjectInfoDict&);
 
-    void objectInit(const ObjectInfoSeq&);
-    void objectAdded(const ObjectInfo&);
-    void objectUpdated(const ObjectInfo&);
-    void objectRemoved(const Ice::Identity&);
+    int objectInit(const ObjectInfoSeq&);
+    int objectAdded(const ObjectInfo&);
+    int objectUpdated(const ObjectInfo&);
+    int objectRemoved(const Ice::Identity&);
 
     int objectsAddedOrUpdated(const ObjectInfoSeq&);
     int objectsRemoved(const ObjectInfoSeq&);

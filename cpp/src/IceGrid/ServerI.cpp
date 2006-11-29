@@ -939,156 +939,139 @@ ServerI::start(ServerActivation activation, const AMD_Server_startPtr& amdCB)
     }
 }
 
-void
+ServerCommandPtr
 ServerI::load(const AMD_Node_loadServerPtr& amdCB, const ServerInfo& info, bool fromMaster)
 {
-    ServerCommandPtr command;
+    Lock sync(*this);
+    checkDestroyed();
+    
+    //
+    // Don't reload the server if:
+    //
+    // - the application uuid, the application revision and the
+    //   session id didn't change.
+    //
+    // - the load command if from a slave and the given descriptor
+    //   is from another application or doesn't have the same
+    //   version.
+    //
+    // - the descriptor and the session id didn't change.
+    //
+    // In any case, we update the server application revision if
+    // it needs to be updated.
+    //
+    if(!_info.uuid.empty() && !fromMaster)
     {
-	Lock sync(*this);
-	checkDestroyed();
-
-	//
-	// Don't reload the server if:
-	//
-	// - the application uuid, the application revision and the
-	//   session id didn't change.
-	//
-	// - the load command if from a slave and the given descriptor
-	//   is from another application or doesn't have the same
-	//   version.
-	//
-	// - the descriptor and the session id didn't change.
-	//
-	// In any case, we update the server application revision if
-	// it needs to be updated.
-	//
-	if(!_info.uuid.empty() && !fromMaster)
+	if(_info.uuid != info.uuid)
 	{
-	    if(_info.uuid != info.uuid)
-	    {
-		DeploymentException ex;
-		ex.reason = "server descriptor from replica is from another application (`" + info.uuid + "')";
-		throw ex;
-	    }
-	    else if(_info.revision != info.revision)
-	    {
-		ostringstream os;
-		os << "server descriptor from replica has different version:\n";
-		os << "current revision: " << _info.revision << "\n";
- 		os << "replica revision: " << info.revision;
-		throw DeploymentException(os.str());
-	    }
+	    DeploymentException ex;
+	    ex.reason = "server descriptor from replica is from another application (`" + info.uuid + "')";
+	    throw ex;
 	}
-
-	//
-	// Otherwise, if the following conditions are met:
-	//
-	// - the server is already loaded.
-	// - the descriptor is from the master and the session id didn't change or it's coming from a slave.
-	// - the descriptor is the same as the one loaded.
-	//
-	// we don't re-load the server. We just return the server
-	// proxy and the proxies of its adapters.
-	// 
-	if(_info.descriptor &&
-	   (!fromMaster || _info.sessionId == info.sessionId) &&
-	   (_info.uuid == info.uuid && _info.revision == info.revision || 
-	    descriptorEqual(_node->getCommunicator(), _info.descriptor, info.descriptor)))
+	else if(_info.revision != info.revision)
 	{
-	    if(_info.uuid == info.uuid && _info.revision < info.revision)
-	    {
-		//
-		// If the application was updated but the server didn't change
-		// we just update the application revision.
-		//
-		_info.revision = info.revision;
-		updateRevisionFile();
-	    }
+	    ostringstream os;
+	    os << "server descriptor from replica has different version:\n";
+	    os << "current revision: " << _info.revision << "\n";
+	    os << "replica revision: " << info.revision;
+	    throw DeploymentException(os.str());
+	}
+    }
 
-	    if(amdCB)
-	    {
-		AdapterPrxDict adapters;
-		for(ServerAdapterDict::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
-		{
-		    adapters.insert(make_pair(p->first, p->second->getProxy()));
-		}
-		amdCB->ice_response(_this, adapters, _activationTimeout, _deactivationTimeout);
-	    }
-	    return;
+    //
+    // Otherwise, if the following conditions are met:
+    //
+    // - the server is already loaded.
+    // - the descriptor is from the master and the session id didn't change or it's coming from a slave.
+    // - the descriptor is the same as the one loaded.
+    //
+    // we don't re-load the server. We just return the server
+    // proxy and the proxies of its adapters.
+    // 
+    if(_info.descriptor &&
+       (!fromMaster || _info.sessionId == info.sessionId) &&
+       (_info.uuid == info.uuid && _info.revision == info.revision || 
+	descriptorEqual(_node->getCommunicator(), _info.descriptor, info.descriptor)))
+    {
+	if(_info.uuid != info.uuid || _info.revision != info.revision)
+	{
+	    _info.uuid = info.uuid;
+	    _info.revision = info.revision;
+	    updateRevisionFile();
 	}
 
-	assert(fromMaster || _info.uuid.empty() || _info.uuid == info.uuid && _info.revision <= info.revision);
-	if(!StopCommand::isStopped(_state) && !_stop)
-	{
-	    _stop = new StopCommand(this, _node->getWaitQueue(), _deactivationTimeout);
-	}
-	if(!_load)
-	{
-	    _load = new LoadCommand(this);
-	}
-	_load->setUpdate(info, _destroy);
-	if(_destroy && _state != Destroying)
-	{
-	    _destroy->finished();
-	    _destroy = 0;
-	}
 	if(amdCB)
 	{
-	    _load->addCallback(amdCB);
+	    AdapterPrxDict adapters;
+	    for(ServerAdapterDict::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
+	    {
+		adapters.insert(make_pair(p->first, p->second->getProxy()));
+	    }
+	    amdCB->ice_response(_this, adapters, _activationTimeout, _deactivationTimeout);
 	}
-	command = nextCommand();
+	return 0;
     }
-    if(command)
+
+    assert(fromMaster || _info.uuid.empty() || _info.uuid == info.uuid && _info.revision == info.revision);
+    if(!StopCommand::isStopped(_state) && !_stop)
     {
-	command->execute();
+	_stop = new StopCommand(this, _node->getWaitQueue(), _deactivationTimeout);
     }
+    if(!_load)
+    {
+	_load = new LoadCommand(this);
+    }
+    _load->setUpdate(info, _destroy);
+    if(_destroy && _state != Destroying)
+    {
+	_destroy->finished();
+	_destroy = 0;
+    }
+    if(amdCB)
+    {
+	_load->addCallback(amdCB);
+    }
+    return nextCommand();
 }
 
-void
+ServerCommandPtr
 ServerI::destroy(const AMD_Node_destroyServerPtr& amdCB, const string& uuid, int revision)
 {
-    ServerCommandPtr command;
-    {
-	Lock sync(*this);
-	checkDestroyed();
+    Lock sync(*this);
+    checkDestroyed();
 
-	if(!uuid.empty()) // Empty if from checkConsistency.
-	{
-	    if(_info.uuid.empty())
-	    {
-		amdCB->ice_response();
-		return; // Server doesn't exist.
-	    }
-	    else if(_info.uuid != uuid)
-	    {
-		DeploymentException ex;
-		ex.reason = "server descriptor from replica is from another application (`" + uuid + "')";
-		throw ex;
-	    }
-	    else if(_info.revision > revision)
-	    {
-		ostringstream os;
-		os << "server descriptor from replica is too old:\n";
-		os << "current revision: " << _info.revision << "\n";
- 		os << "replica revision: " << revision;
-		throw DeploymentException(os.str());
-	    }
-	}
-
-	if(!_destroy)
-	{
-	    _destroy = new DestroyCommand(this, _state != Inactive && _state != Loading && _state != Patching);
-	}
-	if(amdCB)
-	{
-	    _destroy->addCallback(amdCB);
-	}
-	command = nextCommand();
-    }
-    if(command)
+    if(!uuid.empty()) // Empty if from checkConsistency.
     {
-	command->execute();
+	if(_info.uuid.empty())
+	{
+	    amdCB->ice_response();
+	    return 0; // Server doesn't exist.
+	}
+	else if(_info.uuid != uuid)
+	{
+	    DeploymentException ex;
+	    ex.reason = "server descriptor from replica is from another application (`" + uuid + "')";
+	    throw ex;
+	}
+	else if(_info.revision > revision)
+	{
+	    ostringstream os;
+	    os << "server descriptor from replica is too old:\n";
+	    os << "current revision: " << _info.revision << "\n";
+	    os << "replica revision: " << revision;
+	    throw DeploymentException(os.str());
+	}
     }
+
+    if(!_destroy)
+    {
+	_destroy = new DestroyCommand(this, _state != Inactive && _state != Loading && _state != Patching);
+    }
+    if(amdCB)
+    {
+	_destroy->addCallback(amdCB);
+    }
+    return nextCommand();
 }
 
 bool

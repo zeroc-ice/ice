@@ -54,6 +54,7 @@ public:
     
     void create(const NodeIPtr&);
     void create(const InternalRegistryPrx&);
+    void activated();
     bool waitForCreate();
     void terminate();
     void destroy();
@@ -66,6 +67,7 @@ public:
 private:
 
     void syncReplicas(const InternalRegistryPrxSeq&);
+    void syncServers(const NodeSessionPrx&);
 
     class Thread : public NodeSessionKeepAliveThread
     {
@@ -100,6 +102,7 @@ private:
     InternalRegistryPrx _master;
     unsigned long _serial;
     bool _destroyed;
+    bool _activated;
 
     typedef std::map<Ice::Identity, NodeSessionKeepAliveThreadPtr> NodeSessionMap;
     NodeSessionMap _sessions;
