@@ -22,6 +22,8 @@ public final class Admin
                 "-h, --help          Show this message.\n" +
                 "\n" +
                 "Commands:\n" +
+                "start SERVICE       Start a service." +
+                "stop SERVICE        Stop a service." +
                 "shutdown            Shutdown the server.");
         }
 
@@ -102,6 +104,50 @@ public final class Admin
                 {
                     manager.shutdown();
                 }
+                else if(command.equals("start"))
+		{
+		    if(++i >= commands.size())
+		    {
+                        System.err.println(appName() + ": no service name specified.");
+                        return 1;
+		    }
+
+		    String service = (String)commands.get(i);
+		    try
+		    {
+		        manager.startService(service);
+		    }
+		    catch(IceBox.NoSuchServiceException ex)
+		    {
+                        System.err.println(appName() + ": unknown service `" + service + "'");
+		    }
+		    catch(IceBox.AlreadyStartedException ex)
+		    {
+		        System.err.println(appName() + "service already started.");
+		    }
+		}
+                else if(command.equals("stop"))
+		{
+		    if(++i >= commands.size())
+		    {
+                        System.err.println(appName() + ": no service name specified.");
+                        return 1;
+		    }
+
+		    String service = (String)commands.get(i);
+		    try
+		    {
+		        manager.stopService(service);
+		    }
+		    catch(IceBox.NoSuchServiceException ex)
+		    {
+                        System.err.println(appName() + ": unknown service `" + service + "'");
+		    }
+		    catch(IceBox.AlreadyStoppedException ex)
+		    {
+		        System.err.println(appName() + "service already stopped.");
+		    }
+		}
                 else
                 {
                     System.err.println(appName() + ": unknown command `" + command + "'");

@@ -29,6 +29,89 @@ public class ServiceManagerI extends _ServiceManagerDisp
 	return SliceChecksums.checksums;
     }
 
+    synchronized public void
+    startService(String name, Ice.Current current)
+        throws AlreadyStartedException, NoSuchServiceException
+    {
+        //
+	// Search would be more efficient if services were contained in
+	// a map, but order is required for shutdown.
+	//
+	java.util.Iterator p = _services.iterator();
+	while(p.hasNext())
+	{
+	    ServiceInfo info = (ServiceInfo)p.next();
+	    if(info.name.equals(name))
+	    {
+	        if(info.active)
+		{
+		    throw new AlreadyStartedException();
+		}
+
+	        try
+	        {
+		    info.service.start(name, info.communicator == null ? _server.communicator() : info.communicator,
+		    		       info.args);
+		    info.active = true;
+	        }
+	        catch(java.lang.Exception e)
+	        {
+		    java.io.StringWriter sw = new java.io.StringWriter();
+		    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+		    e.printStackTrace(pw);
+		    pw.flush();
+		    _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + 
+		    		    sw.toString());
+	        }
+
+	        return;
+	    }
+	}
+
+	throw new NoSuchServiceException();
+    }
+
+    synchronized public void
+    stopService(String name, Ice.Current current)
+        throws AlreadyStoppedException, NoSuchServiceException
+    {
+        //
+	// Search would be more efficient if services were contained in
+	// a map, but order is required for shutdown.
+	//
+	java.util.Iterator p = _services.iterator();
+	while(p.hasNext())
+	{
+	    ServiceInfo info = (ServiceInfo)p.next();
+	    if(info.name.equals(name))
+	    {
+	        if(!info.active)
+		{
+		    throw new AlreadyStoppedException();
+		}
+
+	        try
+	        {
+		    info.service.stop();
+		    info.active = false;
+	        }
+	        catch(java.lang.Exception e)
+	        {
+		    java.io.StringWriter sw = new java.io.StringWriter();
+		    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+		    e.printStackTrace(pw);
+		    pw.flush();
+		    _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + 
+		    		    sw.toString());
+	        }
+
+	        return;
+	    }
+	}
+
+	throw new NoSuchServiceException();
+    }
+
     public void
     shutdown(Ice.Current current)
     {
@@ -220,7 +303,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
 	start(name, className, args);
     }
 
-    private void
+    synchronized private void
     start(String service, String className, String[] args)
         throws FailureException
     {
@@ -371,7 +454,9 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
 	    try
 	    {
-		info.service.start(service, communicator, serviceArgs.value);
+	        info.args = serviceArgs.value;
+		info.service.start(service, communicator, info.args);
+		info.active = true;
 	    }
 	    catch(Throwable ex)
 	    {
@@ -431,7 +516,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
 	}
     }
 
-    private void
+    synchronized private void
     stopAll()
     {
 	//
@@ -442,17 +527,22 @@ public class ServiceManagerI extends _ServiceManagerDisp
 	while(p.hasPrevious())
 	{
 	    ServiceInfo info = (ServiceInfo)p.previous();
-	    try
+	    if(info.active)
 	    {
-		info.service.stop();
-	    }
-	    catch(java.lang.Exception e)
-	    {
-		java.io.StringWriter sw = new java.io.StringWriter();
-		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-		e.printStackTrace(pw);
-		pw.flush();
-		_logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + sw.toString());
+	        try
+	        {
+		    info.service.stop();
+		    info.active = false;
+	        }
+	        catch(java.lang.Exception e)
+	        {
+		    java.io.StringWriter sw = new java.io.StringWriter();
+		    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+		    e.printStackTrace(pw);
+		    pw.flush();
+		    _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + 
+		    		    sw.toString());
+	        }
 	    }
 
 	    if(info.communicator != null)
@@ -503,6 +593,8 @@ public class ServiceManagerI extends _ServiceManagerDisp
         public String name;
         public Service service;
 	public Ice.Communicator communicator = null;
+	public boolean active;
+	public String[] args;
     }
 
     private Ice.Application _server;

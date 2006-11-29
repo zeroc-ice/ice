@@ -21,6 +21,7 @@ public class HelloServiceI extends Ice.LocalObjectImpl implements IceBox.Service
     stop()
     {
         _adapter.deactivate();
+	_adapter.waitForDeactivate();
     }
 
     private Ice.ObjectAdapter _adapter;
