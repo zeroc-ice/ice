@@ -50,7 +50,8 @@ public:
 	//
         if(_ssl)
 	{
-	    assert(current.ctx.at("SSL.Active") == "1");
+	    Ice::Context::const_iterator p = current.ctx.find("SSL.Active");
+	    assert(p != current.ctx.end() && p->second == "1");
 	}
 
 	current.adapter->remove(current.id);
