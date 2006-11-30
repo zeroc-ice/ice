@@ -485,6 +485,34 @@ public class AllTests
 	    }
 	    fact.destroyServer(server);
 	    comm.destroy();
+
+	    //
+	    // Verify that IceSSL.CheckCertName has no effect in a server.
+	    //
+	    initData = createClientProps(defaultDir, defaultHost, threadPool);
+	    initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
+	    initData.properties.setProperty("IceSSL.Password", "password");
+	    initData.properties.setProperty("IceSSL.Truststore", "cacert1.jks");
+	    comm = Ice.Util.initialize(args, initData);
+
+	    fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+	    test(fact != null);
+	    d = createServerProps(defaultDir, defaultHost, threadPool);
+	    d.put("IceSSL.Keystore", "s_rsa_ca1.jks");
+	    d.put("IceSSL.Password", "password");
+	    d.put("IceSSL.Truststore", "cacert1.jks");
+	    d.put("IceSSL.CheckCertName", "1");
+	    server = fact.createServer(d);
+	    try
+	    {
+		server.ice_ping();
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		test(false);
+	    }
+	    fact.destroyServer(server);
+	    comm.destroy();
 	}
 	System.out.println("ok");
 
