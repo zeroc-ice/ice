@@ -188,7 +188,7 @@ if len(testcases) == 0:
     print "         configuration for this host does not permit the other tests "
     print "         to run correctly."
     sys.exit(0)
-elif len(testcases) < 4:
+elif len(testcases) < 6:
     print "WARNING: The network configuration for this host does not permit all "
     print "         tests to run correctly, some tests have been disabled."
 
