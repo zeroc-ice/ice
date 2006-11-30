@@ -11,8 +11,12 @@ using Demo;
 
 public class HelloI : HelloDisp_
 {
-    public override void sayHello(Ice.Current current)
+    public override void sayHello(int delay, Ice.Current current)
     {
+        if(delay > 0)
+	{
+	    System.Threading.Thread.Sleep(delay);
+	}
         System.Console.Out.WriteLine("Hello World!");
     }
     

@@ -8,3 +8,7 @@ mapping.
 After starting the server, run the Ruby client:
 
 $ ruby Client.rb
+
+To test timeouts you can use 'T' to set a timeout on
+the client proxy and 'P' to set a delayed response in
+the server to cause a timeout.

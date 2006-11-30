@@ -23,7 +23,6 @@ Module HelloIceBoxC
             Console.WriteLine("d: send greeting as datagram")
             Console.WriteLine("D: send greeting as batch datagram")
             Console.WriteLine("f: flush all batch requests")
-            Console.WriteLine("T: set a timeout")
             If _haveSSL Then
                 Console.WriteLine("S: switch secure mode on/off")
             End If
@@ -49,7 +48,6 @@ Module HelloIceBoxC
             Dim batchDatagram As HelloPrx = HelloPrxHelper.uncheckedCast(twoway.ice_batchDatagram())
 
             Dim secure As Boolean = False
-            Dim timeout As Integer = -1
 
             menu()
 
@@ -82,22 +80,6 @@ Module HelloIceBoxC
                         End If
                     ElseIf line.Equals("f") Then
                         communicator.flushBatchRequests()
-                    ElseIf line.Equals("T") Then
-                        If timeout = -1 Then
-                            timeout = 2000
-                        Else
-                            timeout = -1
-                        End If
-
-                        twoway = HelloPrxHelper.uncheckedCast(twoway.ice_timeout(timeout))
-                        oneway = HelloPrxHelper.uncheckedCast(oneway.ice_timeout(timeout))
-                        batchOneway = HelloPrxHelper.uncheckedCast(batchOneway.ice_timeout(timeout))
-
-                        If timeout = -1 Then
-                            Console.WriteLine("timeout is now switched off")
-                        Else
-                            Console.WriteLine("timeout is now set to 2000ms")
-                        End If
                     ElseIf _haveSSL And line.Equals("S") Then
                         secure = Not secure
 

@@ -48,6 +48,7 @@ HelloClient::run(int argc, char* argv[])
 
     bool secure = false;
     int timeout = -1;
+    int delay = 0;
 
     menu();
 
@@ -60,15 +61,15 @@ HelloClient::run(int argc, char* argv[])
 	    cin >> c;
 	    if(c == 't')
 	    {
-		twoway->sayHello();
+		twoway->sayHello(delay);
 	    }
 	    else if(c == 'o')
 	    {
-		oneway->sayHello();
+		oneway->sayHello(delay);
 	    }
 	    else if(c == 'O')
 	    {
-		batchOneway->sayHello();
+		batchOneway->sayHello(delay);
 	    }
 	    else if(c == 'd')
 	    {
@@ -78,7 +79,7 @@ HelloClient::run(int argc, char* argv[])
 		}
 		else
 		{
-		    datagram->sayHello();
+		    datagram->sayHello(delay);
 		}
 	    }
 	    else if(c == 'D')
@@ -89,7 +90,7 @@ HelloClient::run(int argc, char* argv[])
 		}
 		else
 		{
-		    batchDatagram->sayHello();
+		    batchDatagram->sayHello(delay);
 		}
 	    }
 	    else if(c == 'f')
@@ -118,6 +119,26 @@ HelloClient::run(int argc, char* argv[])
 		else
 		{
 		    cout << "timeout is now set to 2000ms" << endl;
+		}
+	    }
+	    else if(c == 'P')
+	    {
+		if(delay == 0)
+		{
+		    delay = 2500;
+		}
+		else
+		{
+		    delay = 0;
+		}
+		
+		if(delay == -1)
+		{
+		    cout << "server delay is now disabled" << endl;
+		}
+		else
+		{
+		    cout << "server delay is now set to 2500ms" << endl;
 		}
 	    }
 	    else if(c == 'S')
@@ -179,6 +200,7 @@ HelloClient::menu()
 	"D: send greeting as batch datagram\n"
 	"f: flush all batch requests\n"
 	"T: set a timeout\n"
+	"P: set server delay\n"
 	"S: switch secure mode on/off\n"
 	"s: shutdown server\n"
 	"x: exit\n"

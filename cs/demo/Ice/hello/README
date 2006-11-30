@@ -9,3 +9,7 @@ $ server.exe
 In a separate window, start the client:
 
 $ client.exe
+
+To test timeouts you can use 'T' to set a timeout on
+the client proxy and 'P' to set a delayed response in
+the server to cause a timeout.

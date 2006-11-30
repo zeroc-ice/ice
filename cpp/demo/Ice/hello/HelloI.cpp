@@ -13,8 +13,12 @@
 using namespace std;
 
 void
-HelloI::sayHello(const Ice::Current&) const
+HelloI::sayHello(int delay, const Ice::Current&) const
 {
+    if(delay != 0)
+    {
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(delay));
+    }
     cout << "Hello World!" << endl;
 }
 

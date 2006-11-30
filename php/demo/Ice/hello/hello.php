@@ -70,7 +70,7 @@ if(isset($_POST["submitted"]))
 
         if(isset($_POST["sayHello"]))
         {
-            $hello->sayHello();
+            $hello->sayHello(0);
         }
         elseif(isset($_POST["shutdown"]))
         {

@@ -12,7 +12,10 @@ Imports Demo
 Public Class HelloI
     Inherits HelloDisp_
 
-    Public Overloads Overrides Sub sayHello(ByVal current As Ice.Current)
+    Public Overloads Overrides Sub sayHello(ByVal delay As Integer, ByVal current As Ice.Current)
+        If delay > 0 Then
+	    System.Threading.Thread.Sleep(delay)
+	End If
 	System.Console.Out.WriteLine("Hello World!")
     End Sub
 

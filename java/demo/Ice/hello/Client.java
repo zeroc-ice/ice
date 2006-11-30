@@ -23,6 +23,7 @@ public class Client extends Ice.Application
             "D: send greeting as batch datagram\n" +
             "f: flush all batch requests\n" +
             "T: set a timeout\n" +
+            "P: set a server delay\n" +
             "S: switch secure mode on/off\n" +
             "s: shutdown server\n" +
             "x: exit\n" +
@@ -46,6 +47,7 @@ public class Client extends Ice.Application
 
 	boolean secure = false;
         int timeout = -1;
+	int delay = 0;
 
         menu();
 
@@ -65,15 +67,15 @@ public class Client extends Ice.Application
                 }
                 if(line.equals("t"))
                 {
-                    twoway.sayHello();
+                    twoway.sayHello(delay);
                 }
                 else if(line.equals("o"))
                 {
-                    oneway.sayHello();
+                    oneway.sayHello(delay);
                 }
                 else if(line.equals("O"))
                 {
-                    batchOneway.sayHello();
+                    batchOneway.sayHello(delay);
                 }
                 else if(line.equals("d"))
                 {
@@ -83,7 +85,7 @@ public class Client extends Ice.Application
 		    }
 		    else
 		    {
-			datagram.sayHello();
+			datagram.sayHello(delay);
 		    }
                 }
                 else if(line.equals("D"))
@@ -94,7 +96,7 @@ public class Client extends Ice.Application
 		    }
 		    else
 		    {
-			batchDatagram.sayHello();
+			batchDatagram.sayHello(delay);
 		    }
                 }
                 else if(line.equals("f"))
@@ -123,6 +125,26 @@ public class Client extends Ice.Application
                     else
                     {
                         System.out.println("timeout is now set to 2000ms");
+                    }
+                }
+                else if(line.equals("P"))
+                {
+                    if(delay == 0)
+                    {
+                        delay = 2500;
+                    }
+                    else
+                    {
+                        delay = 0;
+                    }
+
+                    if(delay == 0)
+                    {
+                        System.out.println("delay is now deactivated");
+                    }
+                    else
+                    {
+                        System.out.println("delay is now set to 2500ms");
                     }
                 }
                 else if(line.equals("S"))

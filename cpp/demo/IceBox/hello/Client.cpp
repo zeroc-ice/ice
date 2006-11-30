@@ -42,7 +42,6 @@ HelloClient::menu()
 	"d: send greeting as datagram\n"
 	"D: send greeting as batch datagram\n"
 	"f: flush all batch requests\n"
-	"T: set a timeout\n"
 	"S: switch secure mode on/off\n"
 	"x: exit\n"
 	"?: help\n";
@@ -64,7 +63,6 @@ HelloClient::run(int argc, char* argv[])
     HelloPrx batchDatagram = HelloPrx::uncheckedCast(twoway->ice_batchDatagram());
 
     bool secure = false;
-    int timeout = -1;
 
     menu();
 
@@ -112,30 +110,6 @@ HelloClient::run(int argc, char* argv[])
 	    else if(c == 'f')
 	    {
 		communicator()->flushBatchRequests();
-	    }
-	    else if(c == 'T')
-	    {
-		if(timeout == -1)
-		{
-		    timeout = 2000;
-		}
-		else
-		{
-		    timeout = -1;
-		}
-		
-		twoway = HelloPrx::uncheckedCast(twoway->ice_timeout(timeout));
-		oneway = HelloPrx::uncheckedCast(oneway->ice_timeout(timeout));
-		batchOneway = HelloPrx::uncheckedCast(batchOneway->ice_timeout(timeout));
-		
-		if(timeout == -1)
-		{
-		    cout << "timeout is now switched off" << endl;
-		}
-		else
-		{
-		    cout << "timeout is now set to 2000ms" << endl;
-		}
 	    }
 	    else if(c == 'S')
 	    {

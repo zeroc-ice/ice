@@ -22,7 +22,8 @@ public class Client : Ice.Application
 	    "d: send greeting as datagram\n" +
 	    "D: send greeting as batch datagram\n" +
 	    "f: flush all batch requests\n" +
-	    "T: set a timeout");
+	    "T: set a timeout" +
+	    "P: set a server delay");
 	if(_haveSSL)
 	{
             Console.Write("\nS: switch secure mode on/off");
@@ -58,6 +59,7 @@ public class Client : Ice.Application
 
 	bool secure = false;
         int timeout = -1;
+	int delay = 0;
 
         menu();
 
@@ -75,15 +77,15 @@ public class Client : Ice.Application
                 }
                 if(line.Equals("t"))
                 {
-                    twoway.sayHello();
+                    twoway.sayHello(delay);
                 }
                 else if(line.Equals("o"))
                 {
-                    oneway.sayHello();
+                    oneway.sayHello(delay);
                 }
                 else if(line.Equals("O"))
                 {
-                    batchOneway.sayHello();
+                    batchOneway.sayHello(delay);
                 }
                 else if(line.Equals("d"))
                 {
@@ -93,7 +95,7 @@ public class Client : Ice.Application
 		    }
 		    else
 		    {
-			datagram.sayHello();
+			datagram.sayHello(delay);
 		    }
                 }
                 else if(line.Equals("D"))
@@ -104,7 +106,7 @@ public class Client : Ice.Application
 		    }
 		    else
 		    {
-			batchDatagram.sayHello();
+			batchDatagram.sayHello(delay);
 		    }
                 }
                 else if(line.Equals("f"))
@@ -133,6 +135,26 @@ public class Client : Ice.Application
                     else
                     {
                         Console.WriteLine("timeout is now set to 2000ms");
+                    }
+		}
+                else if(line.Equals("P"))
+                {
+                    if(delay == 0)
+                    {
+                        delay = 2500;
+                    }
+                    else
+                    {
+                        delay = 0;
+                    }
+                    
+                    if(delay == 0)
+                    {
+                        Console.WriteLine("server delay is now deactivated");
+                    }
+                    else
+                    {
+                        Console.WriteLine("server delay is now set to 2500ms");
                     }
                 }
 		else if(_haveSSL && line.Equals("S"))

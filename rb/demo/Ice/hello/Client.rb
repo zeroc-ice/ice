@@ -22,6 +22,7 @@ d: send greeting as datagram
 D: send greeting as batch datagram
 f: flush all batch requests
 T: set a timeout
+P: set a server delay
 S: switch secure mode on/off
 s: shutdown server
 x: exit
@@ -46,6 +47,7 @@ class Client < Ice::Application
 
 	secure = false
 	timeout = -1
+	delay = 0
 
 	menu()
 
@@ -57,22 +59,22 @@ class Client < Ice::Application
 		line = STDIN.readline
 		c = line[0..0]
 		if c == 't'
-		    twoway.sayHello()
+		    twoway.sayHello(delay)
 		elsif c == 'o'
-		    oneway.sayHello()
+		    oneway.sayHello(delay)
 		elsif c == 'O'
-		    batchOneway.sayHello()
+		    batchOneway.sayHello(delay)
 		elsif c == 'd'
 		    if secure
 			puts "secure datagrams are not supported"
 		    else
-			datagram.sayHello()
+			datagram.sayHello(delay)
 		    end
 		elsif c == 'D'
 		    if secure
 			puts "secure datagrams are not supported"
 		    else
-			batchDatagram.sayHello()
+			batchDatagram.sayHello(delay)
 		    end
 		elsif c == 'f'
 		    Ice::Application::communicator().flushBatchRequests()
@@ -91,6 +93,18 @@ class Client < Ice::Application
 			puts "timeout is now switched off"
 		    else
 			puts "timeout is now set to 2000ms"
+		    end
+		elsif c == 'P'
+		    if delay == 0
+			delay = 2500
+		    else
+			delay = 0
+		    end
+
+		    if delay == 0
+			puts "server delay is now deactivated"
+		    else
+			puts "server delay is now set to 2500ms"
 		    end
 		elsif c == 'S'
 		    secure = !secure

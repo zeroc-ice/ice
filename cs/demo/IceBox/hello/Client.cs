@@ -21,12 +21,11 @@ public class Client : Ice.Application
 	    "O: send greeting as batch oneway\n" +
 	    "d: send greeting as datagram\n" +
 	    "D: send greeting as batch datagram\n" +
-	    "f: flush all batch requests\n" +
-	    "T: set a timeout");
+	    "f: flush all batch requests\n");
 	if(_haveSSL)
 	{
 	    Console.Write("\nS: switch secure mode on/off");
-	    }
+	}
 	Console.WriteLine(
 	    "\nx: exit\n" +
 	    "?: help\n");
@@ -56,7 +55,6 @@ public class Client : Ice.Application
         HelloPrx batchDatagram = HelloPrxHelper.uncheckedCast(twoway.ice_batchDatagram());
         
 	bool secure = false;
-        int timeout = -1;
         
         menu();
         
@@ -109,30 +107,6 @@ public class Client : Ice.Application
                 else if(line.Equals("f"))
                 {
                     communicator().flushBatchRequests();
-                }
-                else if(line.Equals("T"))
-                {
-                    if(timeout == -1)
-                    {
-                        timeout = 2000;
-                    }
-                    else
-                    {
-                        timeout = -1;
-                    }
-                    
-                    twoway = HelloPrxHelper.uncheckedCast(twoway.ice_timeout(timeout));
-                    oneway = HelloPrxHelper.uncheckedCast(oneway.ice_timeout(timeout));
-                    batchOneway = HelloPrxHelper.uncheckedCast(batchOneway.ice_timeout(timeout));
-                    
-                    if(timeout == -1)
-                    {
-                        Console.WriteLine("timeout is now switched off");
-                    }
-                    else
-                    {
-                        Console.WriteLine("timeout is now set to 2000ms");
-                    }
                 }
                 else if(_haveSSL && line.Equals("S"))
                 {

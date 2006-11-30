@@ -22,7 +22,6 @@ public class Client extends Ice.Application
             "d: send greeting as datagram\n" +
             "D: send greeting as batch datagram\n" +
             "f: flush all batch requests\n" +
-            "T: set a timeout\n" +
             "x: exit\n" +
             "?: help\n");
     }
@@ -41,8 +40,6 @@ public class Client extends Ice.Application
         HelloPrx batchOneway = HelloPrxHelper.uncheckedCast(twoway.ice_batchOneway());
         HelloPrx datagram = HelloPrxHelper.uncheckedCast(twoway.ice_datagram());
         HelloPrx batchDatagram = HelloPrxHelper.uncheckedCast(twoway.ice_batchDatagram());
-
-        int timeout = -1;
 
         menu();
 
@@ -83,30 +80,6 @@ public class Client extends Ice.Application
                 else if(line.equals("f"))
                 {
 		    communicator().flushBatchRequests();
-                }
-                else if(line.equals("T"))
-                {
-                    if(timeout == -1)
-                    {
-                        timeout = 2000;
-                    }
-                    else
-                    {
-                        timeout = -1;
-                    }
-
-                    twoway = HelloPrxHelper.uncheckedCast(twoway.ice_timeout(timeout));
-                    oneway = HelloPrxHelper.uncheckedCast(oneway.ice_timeout(timeout));
-                    batchOneway = HelloPrxHelper.uncheckedCast(batchOneway.ice_timeout(timeout));
-
-                    if(timeout == -1)
-                    {
-                        System.out.println("timeout is now switched off");
-                    }
-                    else
-                    {
-                        System.out.println("timeout is now set to 2000ms");
-                    }
                 }
                 else if(line.equals("x"))
                 {

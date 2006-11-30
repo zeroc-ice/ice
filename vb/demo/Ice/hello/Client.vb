@@ -24,6 +24,7 @@ Module HelloC
             Console.WriteLine("D: send greeting as batch datagram")
             Console.WriteLine("f: flush all batch requests")
             Console.WriteLine("T: set a timeout")
+            Console.WriteLine("P: set a server delay")
             If _haveSSL Then
                 Console.WriteLine("S: switch secure mode on/off")
             End If
@@ -51,6 +52,7 @@ Module HelloC
 
             Dim secure As Boolean = False
             Dim timeout As Integer = -1
+            Dim delay As Integer = 0
 
             menu()
 
@@ -64,22 +66,22 @@ Module HelloC
                         Exit Try
                     End If
                     If line.Equals("t") Then
-                        twoway.sayHello()
+                        twoway.sayHello(delay)
                     ElseIf line.Equals("o") Then
-                        oneway.sayHello()
+                        oneway.sayHello(delay)
                     ElseIf line.Equals("O") Then
-                        batchOneway.sayHello()
+                        batchOneway.sayHello(delay)
                     ElseIf line.Equals("d") Then
                         If secure Then
                             Console.WriteLine("secure datagrams are not supported")
                         Else
-                            datagram.sayHello()
+                            datagram.sayHello(delay)
                         End If
                     ElseIf line.Equals("D") Then
                         If secure Then
                             Console.WriteLine("secure datagrams are not supported")
                         Else
-                            batchDatagram.sayHello()
+                            batchDatagram.sayHello(delay)
                         End If
                     ElseIf line.Equals("f") Then
                         communicator().flushBatchRequests()
@@ -98,6 +100,18 @@ Module HelloC
                             Console.WriteLine("timeout is now switched off")
                         Else
                             Console.WriteLine("timeout is now set to 2000ms")
+                        End If
+                    ElseIf line.Equals("P") Then
+                        If delay = 0 Then
+                            delay = 2500
+                        Else
+                            delay = 0 
+                        End If
+
+                        If delay = 0 Then
+                            Console.WriteLine("server delay is now deactivated")
+                        Else
+                            Console.WriteLine("server delay is now set to 2500ms")
                         End If
                     ElseIf _haveSSL And line.Equals("S") Then
                         secure = Not secure
