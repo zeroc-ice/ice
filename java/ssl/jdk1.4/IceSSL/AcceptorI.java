@@ -132,7 +132,7 @@ class AcceptorI implements IceInternal.Acceptor
 	    }
 
 	    connInfo = Util.populateConnectionInfo(fd, _adapterName, true);
-	    _instance.verifyPeer(connInfo, fd, _adapterName, true);
+	    _instance.verifyPeer(connInfo, fd, "", true);
 	}
 	catch(java.net.SocketTimeoutException ex)
 	{
