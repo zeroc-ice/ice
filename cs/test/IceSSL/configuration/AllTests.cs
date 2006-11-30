@@ -388,6 +388,34 @@ public class AllTests
 		}
 		fact.destroyServer(server);
 		comm.destroy();
+
+		//
+		// Verify that IceSSL.CheckCertName has no effect in a server.
+		//
+	    	initData = new Ice.InitializationData();
+		initData.properties = createClientProps(testDir, defaultHost);
+		initData.properties.setProperty("IceSSL.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
+		initData.properties.setProperty("IceSSL.Password", "password");
+		comm = Ice.Util.initialize(ref args, initData);
+		fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+		test(fact != null);
+		d = createServerProps(testDir, defaultHost);
+		d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
+		d["IceSSL.Password"] = "password";
+		d["IceSSL.CheckCertName"] = "1";
+		store.Add(caCert1);
+		server = fact.createServer(d);
+		try
+		{
+		    server.ice_ping();
+		}
+		catch(Ice.LocalException)
+		{
+		    test(false);
+		}
+		fact.destroyServer(server);
+		store.Remove(caCert1);
+		comm.destroy();
 	    }
 	    Console.Out.WriteLine("ok");
 
