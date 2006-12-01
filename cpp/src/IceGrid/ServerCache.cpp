@@ -233,6 +233,8 @@ ServerEntry::unload()
     }
     _proxy = 0;
     _adapters.clear();
+    _activationTimeout = -1;
+    _deactivationTimeout = -1;
 }
 
 void
@@ -473,6 +475,7 @@ ServerEntry::syncImpl(bool waitForUpdate)
     ServerInfo load;
     SessionIPtr session;
     ServerInfo destroy;
+    int timeout = -1;
 
     {
 	Lock sync(*this);
@@ -507,6 +510,7 @@ ServerEntry::syncImpl(bool waitForUpdate)
 	{
 	    load = *_load;
 	    session = _session;
+	    timeout = _deactivationTimeout; // loadServer might block to deactivate the previous server.
 	}
 	else
 	{
@@ -531,7 +535,7 @@ ServerEntry::syncImpl(bool waitForUpdate)
     {
 	try
 	{
-	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session);
+	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session, timeout);
 	}
 	catch(NodeNotExistException&)
 	{
@@ -576,6 +580,7 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
     ServerInfo load;
     SessionIPtr session;
     ServerInfo destroy;
+    int timeout = -1;
 
     {
 	Lock sync(*this);
@@ -611,6 +616,7 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
 	    {
 		load = *_load;
 		session = _session;
+		timeout = _deactivationTimeout; // loadServer might block to deactivate the previous server.
 	    }
 	}
     }
@@ -631,7 +637,7 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
     {
 	try
 	{
-	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session);
+	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session, timeout);
 	}
 	catch(NodeNotExistException&)
 	{
@@ -651,6 +657,8 @@ ServerEntry::destroyCallback()
 	_destroy.reset(0);
 	_proxy = 0;
 	_adapters.clear();
+	_activationTimeout = -1;
+	_deactivationTimeout = -1;
 
 	if(!_load.get())
 	{
@@ -670,7 +678,7 @@ ServerEntry::destroyCallback()
     {
 	try
 	{
-	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session);
+	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session, -1);
 	}
 	catch(NodeNotExistException&)
 	{
@@ -689,6 +697,7 @@ ServerEntry::exception(const Ice::Exception& ex)
     ServerInfo load;
     SessionIPtr session;
     bool remove = false;
+    int timeout = -1;
 
     {
 	Lock sync(*this);
@@ -699,6 +708,8 @@ ServerEntry::exception(const Ice::Exception& ex)
 	    _exception.reset(ex.ice_clone());
 	    _proxy = 0;
 	    _adapters.clear();
+	    _activationTimeout = -1;
+	    _deactivationTimeout = -1;
 	    _synchronizing = false;
 	    notifyAll();
 	}
@@ -708,6 +719,7 @@ ServerEntry::exception(const Ice::Exception& ex)
 	    _updated = false;
 	    load = *_load.get();
 	    session = _session;
+	    timeout = _deactivationTimeout; // loadServer might block to deactivate the previous server.
 	}
     }
 
@@ -715,7 +727,7 @@ ServerEntry::exception(const Ice::Exception& ex)
     {
 	try
 	{
-	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session);
+	    _cache.getNodeCache().get(load.node)->loadServer(this, load, session, timeout);
 	}
 	catch(NodeNotExistException&)
 	{

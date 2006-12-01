@@ -30,10 +30,9 @@ public:
 
     LoadCB(const TraceLevelsPtr& traceLevels, 
 	   const ServerEntryPtr& server, 
-	   const string& id, 
 	   const string& node,
 	   int timeout) : 
-	_traceLevels(traceLevels), _server(server), _id(id), _node(node), _timeout(timeout)
+	_traceLevels(traceLevels), _server(server), _id(server->getId()), _node(node), _timeout(timeout)
     {
     }
 
@@ -47,7 +46,7 @@ public:
 	}
 
 	//
-	// Apply the node session timeout on the proxies.
+	// Add the node session timeout on the proxies.
 	//
 	ServerPrx server = ServerPrx::uncheckedCast(proxy->ice_timeout(_timeout * 1000));
 	AdapterPrxDict adapters;
@@ -105,8 +104,8 @@ class DestroyCB : public AMI_Node_destroyServer
 {
 public:
 
-    DestroyCB(const TraceLevelsPtr& traceLevels, const ServerEntryPtr& server, const string& id, const string& node) : 
-	_traceLevels(traceLevels), _server(server), _id(id), _node(node)
+    DestroyCB(const TraceLevelsPtr& traceLevels, const ServerEntryPtr& server, const string& node) : 
+	_traceLevels(traceLevels), _server(server), _id(server->getId()), _node(node)
     {
     }
 
@@ -408,18 +407,30 @@ NodeEntry::canRemove()
 }
 
 void
-NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, const SessionIPtr& session)
+NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, const SessionIPtr& session, int timeout)
 {
     try
     {
 	NodePrx node;
-	int timeout;
+	int sessionTimeout;
 	ServerDescriptorPtr desc;
 	{
 	    Lock sync(*this);
 	    checkSession();
 	    node = _session->getNode();
-	    timeout = _session->getTimeout();
+	    sessionTimeout = _session->getTimeout();
+
+	    //
+	    // Check if we should use a specific timeout (the load
+	    // call can deactivate the server and it can take some
+	    // time to deactivate, up to "deactivation-timeout"
+	    // seconds).
+	    // 
+	    if(timeout > 0 && timeout != sessionTimeout)
+	    {
+		node = NodePrx::uncheckedCast(node->ice_timeout(sessionTimeout));
+	    }
+
 	    try
 	    {
 		desc = getServerDescriptor(server, session);
@@ -452,7 +463,7 @@ NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, con
 	    }
 	}
 	
-	AMI_Node_loadServerPtr amiCB = new LoadCB(_cache.getTraceLevels(), entry, entry->getId(), _name, timeout);
+	AMI_Node_loadServerPtr amiCB = new LoadCB(_cache.getTraceLevels(), entry, _name, sessionTimeout);
 	ServerInfo info = server;
 	info.descriptor = desc;
 	node->loadServer_async(amiCB, info, _cache.isMaster());
@@ -473,7 +484,7 @@ NodeEntry::destroyServer(const ServerEntryPtr& entry, const ServerInfo& info)
 	    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
 	    out << "unloading `" << info.descriptor->id << "' on node `" << _name << "'";	
 	}
-	AMI_Node_destroyServerPtr amiCB = new DestroyCB(_cache.getTraceLevels(), entry, info.descriptor->id, _name);
+	AMI_Node_destroyServerPtr amiCB = new DestroyCB(_cache.getTraceLevels(), entry, _name);
 	getProxy()->destroyServer_async(amiCB, info.descriptor->id, info.uuid, info.revision);
     }
     catch(const NodeUnreachableException& ex)
