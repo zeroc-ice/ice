@@ -8,13 +8,15 @@
 #
 # **********************************************************************
 
-import sys, traceback, Ice
+import sys, traceback, time, Ice
 
 Ice.loadSlice('Hello.ice')
 import Demo
 
 class HelloI(Demo.Hello):
-    def sayHello(self, current=None):
+    def sayHello(self, delay, current=None):
+        if delay != 0:
+	    time.sleep(delay / 1000.0)
         print "Hello World!"
 
     def shutdown(self, current=None):

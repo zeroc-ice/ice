@@ -24,6 +24,7 @@ d: send greeting as datagram
 D: send greeting as batch datagram
 f: flush all batch requests
 T: set a timeout
+P: set a server delay
 S: switch secure mode on/off
 s: shutdown server
 x: exit
@@ -45,6 +46,7 @@ class Client(Ice.Application):
 
 	secure = False
 	timeout = -1
+	delay = 0
 
 	menu()
 
@@ -53,21 +55,21 @@ class Client(Ice.Application):
 	    try:
 		c = raw_input("==> ")
 		if c == 't':
-		    twoway.sayHello()
+		    twoway.sayHello(delay)
 		elif c == 'o':
-		    oneway.sayHello()
+		    oneway.sayHello(delay)
 		elif c == 'O':
-		    batchOneway.sayHello()
+		    batchOneway.sayHello(delay)
 		elif c == 'd':
 		    if secure:
 			print "secure datagrams are not supported"
 		    else:
-			datagram.sayHello()
+			datagram.sayHello(delay)
 		elif c == 'D':
 		    if secure:
 			print "secure datagrams are not supported"
 		    else:
-			batchDatagram.sayHello()
+			batchDatagram.sayHello(delay)
 		elif c == 'f':
 		    self.communicator().flushBatchRequests()
 		elif c == 'T':
@@ -84,6 +86,16 @@ class Client(Ice.Application):
 			print "timeout is now switched off"
 		    else:
 			print "timeout is now set to 2000ms"
+		elif c == 'P':
+		    if delay == 0:
+			delay = 2500
+		    else:
+			delay = 0
+
+		    if delay == 0:
+			print "server delay is now deactivated"
+		    else:
+			print "server delay is now set to 2500ms"
 		elif c == 'S':
 		    secure = not secure
 
