@@ -21,6 +21,7 @@ public class Client
             "O: send greeting as batch oneway\n" +
             "f: flush all batch requests\n" +
             "T: set a timeout\n" +
+            "P: set a server delay\n" +
             "s: shutdown server\n" +
             "x: exit\n" +
             "?: help\n");
@@ -49,6 +50,7 @@ public class Client
         HelloPrx batchOneway = HelloPrxHelper.uncheckedCast(twoway.ice_batchOneway());
 
         int timeout = -1;
+	int delay = 0;
 
         menu();
 
@@ -68,15 +70,15 @@ public class Client
                 }
                 if(line.equals("t"))
                 {
-                    twoway.sayHello();
+                    twoway.sayHello(delay);
                 }
                 else if(line.equals("o"))
                 {
-                    oneway.sayHello();
+                    oneway.sayHello(delay);
                 }
                 else if(line.equals("O"))
                 {
-                    batchOneway.sayHello();
+                    batchOneway.sayHello(delay);
                 }
                 else if(line.equals("f"))
                 {
@@ -104,6 +106,26 @@ public class Client
                     else
                     {
                         System.out.println("timeout is now set to 2000ms");
+                    }
+                }
+                else if(line.equals("P"))
+                {
+                    if(delay == 0)
+                    {
+                        delay = 2500;
+                    }
+                    else
+                    {
+                        delay = 0;
+                    }
+
+                    if(delay == 0)
+                    {
+                        System.out.println("server delay is now deactivated");
+                    }
+                    else
+                    {
+                        System.out.println("server delay is now set to 2500ms");
                     }
                 }
                 else if(line.equals("s"))

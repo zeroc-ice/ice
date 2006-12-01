@@ -12,8 +12,18 @@ import Demo.*;
 public class HelloI extends _HelloDisp
 {
     public void
-    sayHello(Ice.Current current)
+    sayHello(int delay, Ice.Current current)
     {
+        if(delay > 0)
+        {
+            try
+            {
+                Thread.currentThread().sleep(delay);
+            }
+            catch(InterruptedException ex1)
+            {
+            }
+        }
         System.out.println("Hello World!");
     }
 

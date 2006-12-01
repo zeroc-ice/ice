@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice-E is licensed to you under the terms described in the
-// ICEE_LICENSE file included in this distribution.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -15,7 +15,7 @@ module Demo
 
 interface Hello
 {
-    idempotent void sayHello();
+    ["cpp:const"] idempotent void sayHello(int delay);
     idempotent void shutdown();
 };
 
