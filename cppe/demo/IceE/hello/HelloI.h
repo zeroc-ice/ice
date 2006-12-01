@@ -12,11 +12,11 @@
 
 #include <Hello.h>
 
-class HelloI : public ::Demo::Hello
+class HelloI : public Demo::Hello
 {
 public:
 
-    virtual void sayHello(const Ice::Current&) const;
+    virtual void sayHello(int delay, const Ice::Current&) const;
     virtual void shutdown(const Ice::Current&);
 };
 

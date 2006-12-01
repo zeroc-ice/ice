@@ -7,14 +7,18 @@
 //
 // **********************************************************************
 
-#include <IceE/IceE.h>
 #include <HelloI.h>
+#include <IceE/IceE.h>
 
 using namespace std;
 
 void
-HelloI::sayHello(const Ice::Current& c) const
+HelloI::sayHello(int delay, const Ice::Current&) const
 {
+    if(delay != 0)
+    {
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(delay));
+    }
     printf("Hello World!\n");
 }
 

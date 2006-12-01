@@ -24,6 +24,7 @@ menu()
     printf("f: flush all batch requests\n");
 #endif
     printf("T: set a timeout\n");
+    printf("P: set a server delay\n");
     printf("s: shutdown server\n");
     printf("x: exit\n");
     printf("?: help\n");
@@ -54,6 +55,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 #endif
 
     int timeout = -1;
+    int delay = 0;
 
     menu();
 
@@ -70,16 +72,16 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    while(c != EOF && c == '\n');
 	    if(c == 't')
 	    {
-		twoway->sayHello();
+		twoway->sayHello(delay);
 	    }
 	    else if(c == 'o')
 	    {
-		oneway->sayHello();
+		oneway->sayHello(delay);
 	    }
 #ifdef ICEE_HAS_BATCH
 	    else if(c == 'O')
 	    {
-		batchOneway->sayHello();
+		batchOneway->sayHello(delay);
 	    }
 	    else if(c == 'f')
 	    {
@@ -109,6 +111,26 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		else
 		{
 		    printf("timeout is now set to 2000ms\n");
+		}
+	    }
+	    else if(c == 'P')
+	    {
+		if(delay == 0)
+		{
+		    delay = 2500;
+		}
+		else
+		{
+		    delay = 0;
+		}
+		
+		if(delay == 0)
+		{
+		    printf("server delay is now deactivated\n");
+		}
+		else
+		{
+		    printf("server delay is now set to 2500ms\n");
 		}
 	    }
 	    else if(c == 's')
