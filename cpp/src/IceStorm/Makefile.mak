@@ -98,7 +98,7 @@ $(ADMIN): $(AOBJS)
 	$(SLICE2FREEZECMD) --dict IceStorm::PersistentTopicMap,string,IceStorm::LinkRecordDict PersistentTopicMap \
 	..\IceStorm\LinkRecord.ice
 
-Event.cpp.cpp Event.h: Event.ice
+Event.cpp Event.h: Event.ice
 	$(SLICE2CPP) --dll-export ICE_STORM_API $(SLICE2CPPFLAGS) Event.ice
 
 IceStorm.cpp $(HDIR)\IceStorm.h: $(SDIR)\IceStorm.ice
