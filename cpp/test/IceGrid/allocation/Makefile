@@ -28,7 +28,7 @@ VOBJS		= PermissionsVerifier.o
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp) \
-		  $(VOBJS:.obj=.cpp)
+		  $(VOBJS:.o=.cpp)
 
 SLICE_SRCS	= Test.ice
 
