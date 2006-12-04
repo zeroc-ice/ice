@@ -9,7 +9,7 @@
 
 top_srcdir	= ..\..\..
 
-CLIENT		= client.exe
+CLIENT		= patch.exe
 
 TARGETS		= $(CLIENT)
 
@@ -21,7 +21,7 @@ SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I. $(CPPFLAGS) -D_AFXDLL -DVC_EXTRALEAN
+CPPFLAGS	= -I. $(CPPFLAGS) -D_AFXDLL -DVC_EXTRALEAN -D_UNICODE
 LINKWITH	= icepatch2$(LIBSUFFIX).lib $(LIBS)
 
 !if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
@@ -29,8 +29,8 @@ PDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 !endif
 
 $(CLIENT): $(OBJS) $(COBJS) PatchClient.res
-	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) /subsystem:windows $(OBJS) $(COBJS) PatchClient.res \
-	  $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
+	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) /entry:wWinMainCRTStartup /subsystem:windows $(OBJS) $(COBJS) \
+	  PatchClient.res $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 
 PatchClient.res: PatchClient.rc
 	rc.exe PatchClient.rc

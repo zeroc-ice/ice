@@ -46,7 +46,12 @@ CPatchClientApp::InitInstance()
     Ice::CommunicatorPtr communicator;
     try
     {
-        communicator = Ice::initialize(__argc, __argv);
+        Ice::StringSeq args;
+        for(int i = 0; i < __argc; ++i)
+        {
+            args.push_back(IceUtil::wstringToString(__wargv[i]));
+        }
+        communicator = Ice::initialize(args);
     }
     catch(const IceUtil::Exception& ex)
     {

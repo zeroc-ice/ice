@@ -34,7 +34,7 @@ public:
     virtual bool
     noFileSummary(const string& reason)
     {
-	return IDYES == AfxMessageBox("Cannot load file summary. Perform a thorough patch?", MB_YESNO|MB_ICONSTOP);
+	return IDYES == AfxMessageBox(L"Cannot load file summary. Perform a thorough patch?", MB_YESNO|MB_ICONSTOP);
     }
 
     virtual bool
@@ -115,7 +115,7 @@ CPatchDlg::CPatchDlg(const Ice::CommunicatorPtr& communicator, CWnd* pParent /*=
 bool
 CPatchDlg::checksumStart()
 {
-    _status->SetWindowText(CString(" Calculating checksums..."));
+    _status->SetWindowText(CString(L" Calculating checksums..."));
 
     _progress->SetRange(0, 0);
     _progress->SetPos(0);
@@ -130,7 +130,7 @@ CPatchDlg::checksumProgress(const string& path)
     // TODO: indicate busy progress
  
     CString file;
-    file.Format(" %s", IcePatch2::getBasename(path).c_str());
+    file.Format(L" %s", IceUtil::stringToWstring(IcePatch2::getBasename(path)).c_str());
     _file->SetWindowText(file);
 
     processMessages();
@@ -147,7 +147,7 @@ CPatchDlg::checksumEnd()
 bool
 CPatchDlg::fileListStart()
 {
-    _status->SetWindowText(CString(" Retrieving file list..."));
+    _status->SetWindowText(CString(L" Retrieving file list..."));
 
     _progress->SetRange(0, 100);
     _progress->SetPos(0);
@@ -160,7 +160,7 @@ bool
 CPatchDlg::fileListProgress(Ice::Int pcnt)
 {
     CString percent;
-    percent.Format("%d%%", pcnt);
+    percent.Format(L"%d%%", pcnt);
     _percent->SetWindowText(percent);
 
     _progress->SetPos(pcnt);
@@ -182,13 +182,13 @@ CPatchDlg::patchStart(const string& path, Ice::Long size, Ice::Long totalProgres
     if(!_isPatch)
     {
 	_startTime = IceUtil::Time::now();
-	_status->SetWindowText(CString(" Patching..."));
-	_speed->SetWindowText(CString(" 0.0 KB/s"));
+	_status->SetWindowText(CString(L" Patching..."));
+	_speed->SetWindowText(CString(L" 0.0 KB/s"));
 	_isPatch = true;
     }
 
     CString file;
-    file.Format(" %s", IcePatch2::getBasename(path).c_str());
+    file.Format(L" %s", IceUtil::stringToWstring(IcePatch2::getBasename(path)).c_str());
     _file->SetWindowText(file);
 
     return patchProgress(0, size, totalProgress, totalSize);
@@ -201,7 +201,7 @@ CPatchDlg::patchProgress(Ice::Long, Ice::Long, Ice::Long totalProgress, Ice::Lon
     if(elapsed.toSeconds() > 0)
     {
 	CString speed;
-	speed.Format(" %s/s", convertSize(totalProgress / elapsed.toSeconds()));
+	speed.Format(L" %s/s", convertSize(totalProgress / elapsed.toSeconds()));
 	_speed->SetWindowText(speed);
     }
 
@@ -211,11 +211,11 @@ CPatchDlg::patchProgress(Ice::Long, Ice::Long, Ice::Long totalProgress, Ice::Lon
 	pcnt = static_cast<int>(totalProgress * 100 / totalSize);
     }
     CString percent;
-    percent.Format("%d%%", pcnt);
+    percent.Format(L"%d%%", pcnt);
     _percent->SetWindowText(percent);
 
     CString total;
-    total.Format(" %s / %s", convertSize(totalProgress), convertSize(totalSize));
+    total.Format(L" %s / %s", convertSize(totalProgress), convertSize(totalSize));
     _total->SetWindowText(total);
 
     _progress->SetPos(pcnt);
@@ -276,19 +276,19 @@ CPatchDlg::OnInitDialog()
     // Set the patch directory and thorough flag from properties.
     //
     Ice::PropertiesPtr properties = _communicator->getProperties();
-    CString path = properties->getPropertyWithDefault("IcePatch2.Directory", "").c_str();
+    CString path = IceUtil::stringToWstring(properties->getPropertyWithDefault("IcePatch2.Directory", "")).c_str();
     _path->SetWindowText(path);
 
-    CString thorough = properties->getPropertyWithDefault("IcePatch2.Thorough", "0").c_str();
+    CString thorough = IceUtil::stringToWstring(properties->getPropertyWithDefault("IcePatch2.Thorough", "0")).c_str();
     _thorough->SetCheck(thorough != "0");
 
-    CString remove = properties->getPropertyWithDefault("IcePatch2.Remove", "0").c_str();
+    CString remove = IceUtil::stringToWstring(properties->getPropertyWithDefault("IcePatch2.Remove", "0")).c_str();
     _remove->SetCheck(remove != "0");
 
     //
     // Indicate ready status.
     //
-    reset(" Ready");
+    reset(L" Ready");
 
     return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -374,10 +374,10 @@ CPatchDlg::OnStartPatch()
 	_path->GetWindowText(path);
 	if(path.IsEmpty())
 	{
-	    AfxMessageBox(CString("Please select a patch directory."), MB_OK|MB_ICONEXCLAMATION);
+	    AfxMessageBox(CString(L"Please select a patch directory."), MB_OK|MB_ICONEXCLAMATION);
 	    return;
 	}
-	properties->setProperty("IcePatch2.Directory", string(path));
+	properties->setProperty("IcePatch2.Directory", IceUtil::wstringToString(wstring(path)));
 
 	//
 	// Set the thorough patch flag.
@@ -419,7 +419,7 @@ CPatchDlg::OnStartPatch()
 	//
 	// Reset and indicate the completion status.
 	//
-	reset(aborted ? " Aborted" : " Completed");
+	reset(aborted ? L" Aborted" : L" Completed");
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -435,7 +435,7 @@ void
 CPatchDlg::OnCancel()
 {
     _isCancel = true;
-    _status->SetWindowText(CString(" Canceled"));
+    _status->SetWindowText(CString(L" Canceled"));
     CDialog::OnCancel();
 }
 
@@ -485,7 +485,7 @@ CPatchDlg::handleException(const IceUtil::Exception& e)
         AfxMessageBox(CString(s.c_str()), MB_OK|MB_ICONEXCLAMATION);
     }
 
-    reset(" Ready");
+    reset(L" Ready");
 }
 
 CString
@@ -496,31 +496,31 @@ CPatchDlg::convertSize(Ice::Long size) const
     double final = start / gigabyte;
     if(final >= 1)
     {
-        units = "GB";
+        units = L"GB";
     }
     else
     {
 	final = start / megabyte;
 	if(final >= 1)
 	{
-	    units = "MB";
+	    units = L"MB";
 	}
 	else
 	{
 	    final = start / kilobyte;
 	    if(final >= 1)
 	    {
-		units = "KB";
+		units = L"KB";
 	    }
 	    else
 	    {
 		final = start;
-		units = "B";
+		units = L"B";
 	    }
 	}
     }
 
     CString convert;
-    convert.Format("%.1f %s", final, units);
+    convert.Format(L"%.1f %s", final, units);
     return convert;
 }
