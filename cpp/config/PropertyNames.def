@@ -121,11 +121,25 @@ Ice:
     Default.CollocationOptimization
     Default.Host
     Default.Locator
+    Default.Locator.EndpointSelection
+    Default.Locator.ConnectionCached
+    Default.Locator.PreferSecure
+    Default.Locator.LocatorCacheTimeout
+    Default.Locator.Locator
+    Default.Locator.Router
+    Default.Locator.CollocationOptimization
     Default.LocatorCacheTimeout
     Default.Package
     Default.PreferSecure
     Default.Protocol
     Default.Router
+    Default.Router.EndpointSelection
+    Default.Router.ConnectionCached
+    Default.Router.PreferSecure
+    Default.Router.LocatorCacheTimeout
+    Default.Router.Locator
+    Default.Router.Router
+    Default.Router.CollocationOptimization
     GC.Interval
     ImplicitContext
     InitPlugins
@@ -378,9 +392,11 @@ IceStorm:
 
 Glacier2:
     AddSSLContext
+    AddUserToAllowCategories
     Admin.Endpoints
     Admin.PublishedEndpoints
     Admin.RegisterProcess
+    AllowCategories
     Client.AlwaysBatch
     Client.Buffered
     Client.Endpoints
@@ -401,7 +417,21 @@ Glacier2:
     CryptPasswords
     InstanceName
     PermissionsVerifier
+    PermissionsVerifier.EndpointSelection
+    PermissionsVerifier.ConnectionCached
+    PermissionsVerifier.PreferSecure
+    PermissionsVerifier.LocatorCacheTimeout
+    PermissionsVerifier.Locator
+    PermissionsVerifier.Router
+    PermissionsVerifier.CollocationOptimization
     SSLPermissionsVerifier
+    SSLPermissionsVerifier.EndpointSelection
+    SSLPermissionsVerifier.ConnectionCached
+    SSLPermissionsVerifier.PreferSecure
+    SSLPermissionsVerifier.LocatorCacheTimeout
+    SSLPermissionsVerifier.Locator
+    SSLPermissionsVerifier.Router
+    SSLPermissionsVerifier.CollocationOptimization
     RoutingTable.MaxSize
     Server.AlwaysBatch
     Server.Buffered
@@ -413,9 +443,21 @@ Glacier2:
     Server.Trace.Override
     Server.Trace.Request
     SessionManager
+    SessionManager.EndpointSelection
+    SessionManager.ConnectionCached
+    SessionManager.PreferSecure
     SessionManager.LocatorCacheTimeout
+    SessionManager.Locator
+    SessionManager.Router
+    SessionManager.CollocationOptimization
     SSLSessionManager
+    SSLSessionManager.EndpointSelection
+    SSLSessionManager.ConnectionCached
+    SSLSessionManager.PreferSecure
     SSLSessionManager.LocatorCacheTimeout
+    SSLSessionManager.Locator
+    SSLSessionManager.Router
+    SSLSessionManager.CollocationOptimization
     SessionTimeout
     Trace.RoutingTable
     Trace.Session
