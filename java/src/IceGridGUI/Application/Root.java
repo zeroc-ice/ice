@@ -103,6 +103,13 @@ public class Root extends ListTreeNode
 
 	_tree = new JTree(this, true);
 	_treeModel = (DefaultTreeModel)_tree.getModel();
+
+	//
+	// Rebind "copy" and "paste"
+	//
+	javax.swing.ActionMap am = _tree.getActionMap();
+	am.put("copy", _coordinator.getActionsForMenu().get(COPY));
+	am.put("paste", _coordinator.getActionsForMenu().get(PASTE));
     }
 
 
@@ -927,6 +934,10 @@ public class Root extends ListTreeNode
 		assert ok;
 	    }
 	    _concurrentUpdates.clear();
+
+	    _coordinator.getSaveAction().setEnabled(false);
+	    _coordinator.getDiscardUpdatesAction().setEnabled(false);
+	    _coordinator.getSaveToRegistryAction().setEnabled(false);
 	}
     }
 
@@ -959,7 +970,7 @@ public class Root extends ListTreeNode
 
     public boolean needsSaving()
     {
-	return _updated;
+	return _updated || !_registryUpdatesEnabled;
     }
 
     Editor getEditor(Class c, TreeNode node)
@@ -1025,23 +1036,22 @@ public class Root extends ListTreeNode
     //
     void disableRegistryUpdates()
     {
-	_registryUpdatesEnabled = false;
+	if(_registryUpdatesEnabled)
+	{
+	    _registryUpdatesEnabled = false;
+	    _coordinator.getSaveAction().setEnabled(_live && _coordinator.connectedToMaster() || _file != null);
+	    _coordinator.getDiscardUpdatesAction().setEnabled(_live || _file != null);
+	    _coordinator.getSaveToRegistryAction().setEnabled(_coordinator.connectedToMaster());
+	}
     }
 
     void updated()
     {
 	_updated = true;
-	_registryUpdatesEnabled = false; // can be true before that when updated() is called by destroy()
-
+	disableRegistryUpdates(); // can be still enabled when updated() is called by destroy()
+       
 	_concurrentUpdates.clear();
-	
-	_coordinator.getSaveAction().setEnabled(_live && _coordinator.connectedToMaster() || _file != null);
-	_coordinator.getDiscardUpdatesAction().setEnabled(_live || _file != null);
-
-	_coordinator.getSaveToRegistryAction().setEnabled(_coordinator.connectedToMaster());
-	_coordinator.getSaveToFileAction().setEnabled(true);
     }
-
   
     void rebuild() throws UpdateFailedException
     {
@@ -1208,7 +1218,7 @@ public class Root extends ListTreeNode
     private boolean _discardMe = false;
 
     //
-    // True when any update was applies to this application 
+    // True when any update was applied to this application 
     // (including children)
     //
     private boolean _updated = false;

@@ -1261,9 +1261,7 @@ class Node extends TreeNode implements PropertySetParent
 	
 	if(t == null)
 	{
-	    t = (ServerTemplate)root.getServerTemplates().getChildAt(0);
-	    
-	    if(t == null)
+	    if(root.getServerTemplates().getChildCount() == 0)
 	    {
 		JOptionPane.showMessageDialog(
 		    getCoordinator().getMainFrame(),
@@ -1272,11 +1270,10 @@ class Node extends TreeNode implements PropertySetParent
 		    JOptionPane.INFORMATION_MESSAGE);
 		return;
 	    }
-	    else
-	    {
-		descriptor.template = t.getId();
-		descriptor.parameterValues = new java.util.HashMap();
-	    }
+	    
+	    t = (ServerTemplate)root.getServerTemplates().getChildAt(0);
+	    descriptor.template = t.getId();
+	    descriptor.parameterValues = new java.util.HashMap();
 	}
 
 	ServerInstance server = new ServerInstance(this, id, descriptor);

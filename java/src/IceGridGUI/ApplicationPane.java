@@ -129,6 +129,14 @@ public class ApplicationPane extends JSplitPane implements Tab
 
     public void back()
     {
+	//
+	// Auto-apply changes
+	//
+	if(_currentEditor != null && !_currentEditor.save(false))
+	{
+	    return;
+	}
+
 	TreeNode previousNode = null;
 	do
 	{
@@ -159,6 +167,11 @@ public class ApplicationPane extends JSplitPane implements Tab
 
     public void forward()
     {
+	if(_currentEditor != null && !_currentEditor.save(false))
+	{
+	    return;
+	}
+
 	TreeNode nextNode = null;
 	do
 	{
@@ -247,21 +260,21 @@ public class ApplicationPane extends JSplitPane implements Tab
 
     public void save()
     {
-	if(_currentEditor == null || _currentEditor.save())
+	if(_currentEditor == null || _currentEditor.save(true))
 	{
 	    _root.save();
 	}
     }
     public void saveToRegistry()
     {
-	if(_currentEditor == null || _currentEditor.save())
+	if(_currentEditor == null || _currentEditor.save(true))
 	{
 	    _root.saveToRegistry();
 	}
     }
     public void saveToFile()
     {
-	if(_currentEditor == null || _currentEditor.save())
+	if(_currentEditor == null || _currentEditor.save(true))
 	{
 	    _root.saveToFile();
 	}
@@ -276,6 +289,18 @@ public class ApplicationPane extends JSplitPane implements Tab
 	return true;
     }
 
+    private void registerAction(Coordinator c, int index)
+    {
+	Action action = c.getActionsForMenu().get(index);
+
+	javax.swing.ActionMap am = _leftPane.getActionMap();
+	javax.swing.InputMap im = _leftPane.getInputMap();
+
+	im.put((KeyStroke)action.getValue(Action.ACCELERATOR_KEY), (String)action.getValue(Action.NAME));
+	am.put((String)action.getValue(Action.NAME), action);
+    }
+
+
     ApplicationPane(Root root)
     {
 	super(JSplitPane.HORIZONTAL_SPLIT, true);
@@ -283,7 +308,11 @@ public class ApplicationPane extends JSplitPane implements Tab
 	
 	_leftPane = new SimpleInternalFrame("Descriptors");
 	_leftPane.setPreferredSize(new Dimension(280, 350));
-
+	Coordinator c = root.getCoordinator();
+	registerAction(c, TreeNode.COPY);
+	registerAction(c, TreeNode.PASTE);
+	registerAction(c, TreeNode.DELETE);
+	
 	//
 	// Right pane
 	//
@@ -374,24 +403,41 @@ public class ApplicationPane extends JSplitPane implements Tab
 	{
 	    if(_root.isSelectionListenerEnabled())
 	    {
-		TreePath path = null;
-		if(e.isAddedPath())
+		//
+		// Auto-apply changes
+		//
+		if(_currentEditor != null && !_currentEditor.save(false))
 		{
-		    path = e.getPath();
-		}
-
-		if(path == null)
-		{
-		    showNode(null);
+		    //
+		    // Go back to this path
+		    //
+		    _root.disableSelectionListener();
+		    _root.setSelectedNode(_currentEditor.getTarget());
+		    _root.enableSelectionListener();
 		}
 		else
 		{
-		    showNode((TreeNode)path.getLastPathComponent());
+		    if(e.isAddedPath())
+		    {
+			TreePath path = e.getPath();
+			
+			if(path == null)
+			{
+			    showNode(null);
+			}
+			else
+			{
+			    showNode((TreeNode)path.getLastPathComponent());
+			}
+		    }
+		    else
+		    {
+			showNode(null);
+		    }
 		}
 	    }
 	}
     }
-
 
     private Root _root;
     private SimpleInternalFrame _leftPane;

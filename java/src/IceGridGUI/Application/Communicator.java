@@ -737,9 +737,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 		
 		if(t == null)
 		{
-		    t = (ServiceTemplate)getRoot().getServiceTemplates().getChildAt(0);
-		    
-		    if(t == null)
+		    if(getRoot().getServiceTemplates().getChildCount() == 0)
 		    {
 			JOptionPane.showMessageDialog(
 			    getCoordinator().getMainFrame(),
@@ -750,6 +748,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 		    }
 		    else
 		    {
+			t = (ServiceTemplate)getRoot().getServiceTemplates().getChildAt(0);
 			descriptor.template = t.getId();
 			descriptor.parameterValues = new java.util.HashMap();
 		    }

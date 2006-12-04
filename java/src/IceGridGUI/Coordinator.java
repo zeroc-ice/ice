@@ -41,6 +41,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -51,9 +52,11 @@ import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.TransferHandler;
 
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.text.JTextComponent;
 
 import com.jgoodies.looks.Options;
 import com.jgoodies.looks.HeaderStyle;
@@ -105,6 +108,180 @@ public class Coordinator
 	JLabel _connectedLabel;
 	JLabel _text;
     }
+
+    private class ActionWrapper extends AbstractAction implements java.beans.PropertyChangeListener
+    {
+	public ActionWrapper(String name)
+	{
+	    super(name);
+	    setEnabled(false);
+	}
+
+	public void actionPerformed(ActionEvent e) 
+	{
+	    if(_target != null)
+	    {
+		_target.actionPerformed(e);
+	    }
+	}
+
+	public void propertyChange(java.beans.PropertyChangeEvent e)
+	{
+	    //
+	    // The only property we're interested in is isEnabled
+	    //
+
+	    java.beans.PropertyChangeListener[] l = getPropertyChangeListeners();
+	    for(int i = 0; i < l.length; ++i)
+	    {
+		l[i].propertyChange(e);
+	    }
+	}
+
+	void setTarget(Action t)
+	{
+	    if(_target != t)
+	    {
+		if(_target != null)
+		{
+		    _target.removePropertyChangeListener(this);
+		}
+		_target = t;
+		if(_target != null)
+		{
+		    _target.addPropertyChangeListener(this);
+		    setEnabled(_target.isEnabled());
+		}
+		else
+		{
+		    setEnabled(false);
+		}
+	    }
+	}
+
+	Action getTarget()
+	{
+	    return _target;
+	}
+
+	private Action _target;
+    }
+
+    private class DeleteTextAction extends AbstractAction
+    {
+	public DeleteTextAction(String name)
+	{
+	    super(name);
+	}
+
+	public void actionPerformed(ActionEvent e) 
+	{
+	    if(_target != null)
+	    {
+		Action a = _target.getActionMap().get("delete-next");
+		if(a != null)
+		{
+		    a.actionPerformed(new ActionEvent(_target, ActionEvent.ACTION_PERFORMED, null)); 
+		}
+	    }
+	}
+
+	void setTarget(JTextComponent t)
+	{
+	    _target = t;
+	}
+
+	private JTextComponent _target;
+
+    }
+
+    private class FocusListener implements java.beans.PropertyChangeListener 
+    {  
+	public void propertyChange(java.beans.PropertyChangeEvent e) 
+	{
+	    Object o = e.getNewValue();
+	    if(o == null)
+	    {
+		unknownTarget();
+	    }
+	    else if(o instanceof JTextComponent)
+	    {
+		enableTextEditActions((JTextComponent)o);
+	    }
+	    else if(o instanceof JTree)
+	    {
+		JTree tree = (JTree)o;
+		if(tree.getModel().getRoot() instanceof IceGridGUI.Application.Root)
+		{
+		    enableTreetEditActions();
+		}
+		else
+		{
+		    disableAllEditMenusAndButtons();
+		}
+	    }
+	    else
+	    {
+		unknownTarget();
+	    }
+	}
+
+	private void unknownTarget()
+	{
+	    if(_copy.getTarget() == _copyText)
+	    {
+		disableAllEditMenusAndButtons();
+	    }
+	    //
+	    // Otherwise (for good tree), do nothing.
+	    //
+	}
+
+	private void disableAllEditMenusAndButtons()
+	{
+	    _cut.setTarget(null);
+	    _copy.setTarget(null);
+	    _paste.setTarget(null);
+	    _delete.setTarget(null);
+	    _moveUp.setTarget(null);
+	    _moveDown.setTarget(null);
+	}
+
+	private void enableTextEditActions(JTextComponent target)
+	{
+	    boolean editable = target.isEditable() && target.isEnabled();
+		    
+	    _cutText.setEnabled(editable);
+	    _copyText.setEnabled(true);
+	    _pasteText.setEnabled(editable);
+	    _deleteText.setEnabled(editable);
+	    _deleteText.setTarget(target);
+
+	    if(_copy.getTarget() != _copyText)
+	    {
+		_cut.setTarget(_cutText);
+		_copy.setTarget(_copyText);
+		_paste.setTarget(_pasteText);
+		_delete.setTarget(_deleteText);
+		_moveUp.setTarget(null);
+		_moveDown.setTarget(null);
+	    }
+	}
+
+	private void enableTreetEditActions()
+	{
+	    if(_copy.getTarget() != _appActionsForMenu.get(IceGridGUI.Application.TreeNode.COPY))
+	    {
+		_cut.setTarget(null);
+		_copy.setTarget(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.COPY));
+		_paste.setTarget(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.PASTE));
+		_delete.setTarget(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.DELETE));
+		_moveUp.setTarget(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.MOVE_UP));
+		_moveDown.setTarget(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.MOVE_DOWN));
+	    }
+	}
+    }
+
 
     private class MenuBar extends JMenuBar
     {
@@ -196,13 +373,14 @@ public class Coordinator
 	    JMenu editMenu = new JMenu("Edit");
 	    editMenu.setMnemonic(java.awt.event.KeyEvent.VK_E);
 	    add(editMenu);
-	    editMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.COPY));
-	    editMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.PASTE));
+
+	    editMenu.add(_cut);
+	    editMenu.add(_copy);
+	    editMenu.add(_paste);
+	    editMenu.add(_delete);
 	    editMenu.addSeparator();
-	    editMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.DELETE));
-	    editMenu.addSeparator();
-	    editMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.MOVE_UP));
-	    editMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.MOVE_DOWN));
+	    editMenu.add(_moveUp);
+	    editMenu.add(_moveDown);
 
 	    //
 	    // View menu
@@ -340,15 +518,15 @@ public class Coordinator
 
 	    addSeparator();
 
-	    button = new JButton(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.COPY));
+	    button = new JButton(_copy);
 	    button.setText(null);
 	    button.setIcon(Utils.getIcon("/icons/24x24/copy.png"));
 	    add(button);
-	    button = new JButton(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.PASTE));
+	    button = new JButton(_paste);
 	    button.setText(null);
 	    button.setIcon(Utils.getIcon("/icons/24x24/paste.png"));
 	    add(button);
-	    button = new JButton(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.DELETE));
+	    button = new JButton(_delete);
 	    button.setText(null);
 	    button.setIcon(Utils.getIcon("/icons/24x24/delete.png"));
 	    add(button);
@@ -1709,6 +1887,30 @@ public class Coordinator
 	    };
 	_patchApplication.setEnabled(false);
 
+	
+	_cut = new ActionWrapper("Cut");
+	_cut.putValue(Action.ACCELERATOR_KEY, 
+		       KeyStroke.getKeyStroke(KeyEvent.VK_X, MENU_MASK));
+	_cut.putValue(Action.SHORT_DESCRIPTION, "Cut");
+	
+	_copy = new ActionWrapper("Copy");
+	_copy.putValue(Action.ACCELERATOR_KEY, 
+		       KeyStroke.getKeyStroke(KeyEvent.VK_C, MENU_MASK));
+	_copy.putValue(Action.SHORT_DESCRIPTION, "Copy");
+	
+	_paste = new ActionWrapper("Paste");
+	_paste.putValue(Action.ACCELERATOR_KEY, 
+			KeyStroke.getKeyStroke(KeyEvent.VK_V, MENU_MASK));
+	_paste.putValue(Action.SHORT_DESCRIPTION, "Paste");
+	
+	_delete = new ActionWrapper("Delete");
+	_delete.putValue(Action.ACCELERATOR_KEY, 
+			 KeyStroke.getKeyStroke("DELETE"));
+	_delete.putValue(Action.SHORT_DESCRIPTION, "Delete");
+
+	_moveUp = new ActionWrapper("Move up");
+	_moveDown = new ActionWrapper("Move down");
+
 	_showVarsMenuItem = new
 	    JCheckBoxMenuItem(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.SHOW_VARS));
 	_showVarsTool = new 
@@ -1742,6 +1944,11 @@ public class Coordinator
 	_mainFrame.getContentPane().add((StatusBarI)_statusBar, 
 					BorderLayout.PAGE_END);
 
+	
+	java.awt.KeyboardFocusManager kbm = java.awt.KeyboardFocusManager.
+	    getCurrentKeyboardFocusManager();
+	kbm.addPropertyChangeListener("permanentFocusOwner", new FocusListener());
+	
 	_liveDeploymentPane = new LiveDeploymentPane(_liveDeploymentRoot);
 	_mainPane = new MainPane(this);
 	_mainFrame.getContentPane().add(_mainPane, BorderLayout.CENTER);	
@@ -2081,6 +2288,21 @@ public class Coordinator
     private Action _about;
     private Action _patchApplication;
 
+    private Action _cutText = new javax.swing.text.DefaultEditorKit.CutAction();
+    private Action _copyText = new javax.swing.text.DefaultEditorKit.CopyAction();
+    private Action _pasteText = new javax.swing.text.DefaultEditorKit.PasteAction();
+    private DeleteTextAction _deleteText = new DeleteTextAction("Delete");
+
+    //
+    // These actions delegate to the "active" action
+    //
+    private ActionWrapper _cut;
+    private ActionWrapper _copy;
+    private ActionWrapper _paste;
+    private ActionWrapper _delete;
+    private ActionWrapper _moveUp;
+    private ActionWrapper _moveDown;
+
     //
     // Two sets of actions because the popup's target and the menu/toolbar's target
     // can be different.
@@ -2096,7 +2318,6 @@ public class Coordinator
     private JCheckBoxMenuItem _substituteMenuItem;
     private JCheckBoxMenuItem _showVarsMenuItem;
     
-
     private JMenu _newMenu;
     private JMenu _newServerMenu;
     private JMenu _newServiceMenu;

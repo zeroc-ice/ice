@@ -21,7 +21,7 @@ abstract class CommunicatorChildEditor extends Editor
 
     void postUpdate() {}
     
-    protected boolean applyUpdate()
+    protected boolean applyUpdate(boolean refresh)
     {
 	Root root = _target.getRoot();
 	root.disableSelectionListener();
@@ -68,7 +68,10 @@ abstract class CommunicatorChildEditor extends Editor
 		//
 		_target = childList.findChildWithDescriptor(descriptor);
 		root.updated();
-		root.setSelectedNode(_target);
+		if(refresh)
+		{
+		    root.setSelectedNode(_target);
+		}
 	    }
 	    else if(isSimpleUpdate())
 	    {
@@ -104,12 +107,18 @@ abstract class CommunicatorChildEditor extends Editor
 		//
 		_target = childList.findChildWithDescriptor(_target.getDescriptor());
 		root.updated();
-		root.setSelectedNode(_target);
+		if(refresh)
+		{
+		    root.setSelectedNode(_target);
+		}
 	    }
 	    
 	    postUpdate();
 
-	    root.getCoordinator().getCurrentTab().showNode(_target);
+	    if(refresh)
+	    {
+		root.getCoordinator().getCurrentTab().showNode(_target);
+	    }
 	    _applyButton.setEnabled(false);
 	    _discardButton.setEnabled(false);
 	    return true;

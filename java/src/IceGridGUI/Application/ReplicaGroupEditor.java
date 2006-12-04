@@ -32,7 +32,7 @@ import IceGridGUI.*;
 
 class ReplicaGroupEditor extends Editor
 {
-    protected boolean applyUpdate()
+    protected boolean applyUpdate(boolean refresh)
     {
 	ReplicaGroup replicaGroup = (ReplicaGroup)_target;
 	Root root = replicaGroup.getRoot();
@@ -138,10 +138,17 @@ class ReplicaGroupEditor extends Editor
 
 		_target = replicaGroups.findChildWithDescriptor(descriptor);
 		root.updated();
-		root.setSelectedNode(_target);
+
+		if(refresh)
+		{
+		    root.setSelectedNode(_target);
+		}
 	    }
 	    
-	    root.getCoordinator().getCurrentTab().showNode(_target);
+	    if(refresh)
+	    {
+		root.getCoordinator().getCurrentTab().showNode(_target);
+	    }
 	    _applyButton.setEnabled(false);
 	    _discardButton.setEnabled(false);
 	    return true;

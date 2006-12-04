@@ -37,7 +37,7 @@ abstract class AbstractServerEditor extends Editor
 	_propertiesPanel.setName("Server Properties");
     }
 
-    protected boolean applyUpdate()
+    protected boolean applyUpdate(boolean refresh)
     {
 	Root root = _target.getRoot();
 	Server server = (Server)_target;
@@ -90,9 +90,13 @@ abstract class AbstractServerEditor extends Editor
 		// Success
 		//
 		_target = (TreeNode)node.findChildWithDescriptor(server.getDescriptor());
-		
 		root.updated();
-		root.setSelectedNode(_target);
+	
+		if(refresh)
+		{
+		    root.setSelectedNode(_target);
+		}
+	
 	    }
 	    else if(isSimpleUpdate())
 	    {
@@ -154,10 +158,16 @@ abstract class AbstractServerEditor extends Editor
 		
 		_target = node.findChildWithDescriptor(server.getDescriptor());
 		root.updated();
-		root.setSelectedNode(_target);
+		if(refresh)
+		{
+		    root.setSelectedNode(_target);
+		}
 	    }
 	    
-	    root.getCoordinator().getCurrentTab().showNode(_target);
+	    if(refresh)
+	    {
+		root.getCoordinator().getCurrentTab().showNode(_target);
+	    }
 	    _applyButton.setEnabled(false);
 	    _discardButton.setEnabled(false);
 	    return true;

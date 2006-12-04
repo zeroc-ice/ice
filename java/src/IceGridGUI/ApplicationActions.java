@@ -178,34 +178,29 @@ public class ApplicationActions
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
+		    assert isEnabled();
 		    _target.copy();
 		}
 	    };
-	_array[TreeNode.COPY].putValue(Action.ACCELERATOR_KEY, 
-				       KeyStroke.getKeyStroke(KeyEvent.VK_C, MENU_MASK));
-	_array[TreeNode.COPY].putValue(Action.SHORT_DESCRIPTION, "Copy");
 	
 	_array[TreeNode.PASTE] = new AbstractAction("Paste")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
+		    assert isEnabled();
 		    _target.paste();
 		}
 	    };
-	_array[TreeNode.PASTE].putValue(Action.ACCELERATOR_KEY, 
-					KeyStroke.getKeyStroke(KeyEvent.VK_V, MENU_MASK));
-	_array[TreeNode.PASTE].putValue(Action.SHORT_DESCRIPTION, "Paste");
 	
 	_array[TreeNode.DELETE] = new AbstractAction("Delete")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
+		    assert isEnabled();
 		    _target.delete();
 		}
 	    };
-	_array[TreeNode.DELETE].putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("DELETE"));
-	_array[TreeNode.DELETE].putValue(Action.SHORT_DESCRIPTION, "Delete");
-   
+
 	_array[TreeNode.SHOW_VARS] = new 
 	    AbstractAction("Show variables")
 	    {

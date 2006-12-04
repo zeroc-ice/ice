@@ -28,7 +28,7 @@ import IceGridGUI.*;
 
 class ApplicationEditor extends Editor
 {
-    protected boolean applyUpdate()
+    protected boolean applyUpdate(boolean refresh)
     {
 	Root root = (Root)_target;
 	MainPane mainPane = _target.getCoordinator().getMainPane();

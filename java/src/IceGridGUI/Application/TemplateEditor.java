@@ -98,7 +98,7 @@ class TemplateEditor extends Editor
 	_parameters.set(descriptor.parameters, descriptor.parameterDefaults);
     }
 
-    protected boolean applyUpdate()
+    protected boolean applyUpdate(boolean refresh)
     {
 	Root root = _target.getRoot();
 	root.disableSelectionListener();
@@ -144,8 +144,11 @@ class TemplateEditor extends Editor
 		//
 		_target = parent.findChildWithDescriptor(descriptor);
 		root.updated();
-		root.setSelectedNode(_target);
 		_template.setEditable(false);
+		if(refresh)
+		{
+		    root.setSelectedNode(_target);
+		}
 	    }
 	    else if(isSimpleUpdate())
 	    {
@@ -188,11 +191,17 @@ class TemplateEditor extends Editor
 		((Communicator)_target).getEnclosingEditable().markModified();
 		root.updated();
 
-		_target = parent.findChildWithDescriptor(getDescriptor());	
-		root.setSelectedNode(_target);
+		_target = parent.findChildWithDescriptor(getDescriptor());
+		if(refresh)
+		{
+		    root.setSelectedNode(_target);
+		}
 	    }
 
-	    root.getCoordinator().getCurrentTab().showNode(_target);
+	    if(refresh)
+	    {
+		root.getCoordinator().getCurrentTab().showNode(_target);
+	    }
 	    _applyButton.setEnabled(false);
 	    _discardButton.setEnabled(false);
 	    return true;

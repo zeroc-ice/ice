@@ -32,7 +32,7 @@ import IceGridGUI.*;
 
 class PropertySetEditor extends Editor
 {
-    protected boolean applyUpdate()
+    protected boolean applyUpdate(boolean refresh)
     {
 	PropertySet nps = (PropertySet)_target;
 	Root root = nps.getRoot();
@@ -79,9 +79,12 @@ class PropertySetEditor extends Editor
 		// Success
 		//
 		_target = ((TreeNode)parent).findChildWithDescriptor(descriptor);
-		root.updated();
-		root.setSelectedNode(_target);
 		_id.setEditable(false);
+		root.updated();
+		if(refresh)
+		{
+		    root.setSelectedNode(_target);
+		}
 	    }
 	    else
 	    {
@@ -90,7 +93,10 @@ class PropertySetEditor extends Editor
 		nps.getEditable().markModified();
 	    }
 	    
-	    root.getCoordinator().getCurrentTab().showNode(_target);
+	    if(refresh)
+	    {
+		root.getCoordinator().getCurrentTab().showNode(_target);
+	    }
 	    _applyButton.setEnabled(false);
 	    _discardButton.setEnabled(false);
 	    return true;

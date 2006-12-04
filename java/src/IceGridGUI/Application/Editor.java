@@ -57,11 +57,11 @@ public class Editor extends EditorBase
 	return result;
     }
 
-    public boolean save()
+    public boolean save(boolean refresh)
     {
 	if(_applyButton.isEnabled())
 	{
-	    return validate() && applyUpdate();
+	    return validate() && applyUpdate(refresh);
 	}
 	else
 	{
@@ -74,7 +74,7 @@ public class Editor extends EditorBase
 	return true;
     }
 
-    protected boolean applyUpdate()
+    protected boolean applyUpdate(boolean refresh)
     {
 	assert false;
 	return false;
@@ -122,7 +122,10 @@ public class Editor extends EditorBase
 		{
 		    if(validate())
 		    {
-			applyUpdate();
+			if(applyUpdate(true))
+			{
+			    _target.getRoot().getTree().grabFocus();
+			}
 		    }
 		}
 	    };
@@ -137,6 +140,7 @@ public class Editor extends EditorBase
 		public void actionPerformed(ActionEvent e) 
 		{
 		    discardUpdate();
+		    _target.getRoot().getTree().grabFocus();
 		}
 	    };
 	_discardButton = new JButton(discard);
@@ -174,7 +178,7 @@ public class Editor extends EditorBase
 	return null;
     }
 
-    TreeNode getTarget()
+    public TreeNode getTarget()
     {
 	return _target;
     }

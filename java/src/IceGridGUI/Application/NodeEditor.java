@@ -36,7 +36,7 @@ class NodeEditor extends Editor
 	_propertiesPanel.setName("Node Properties");
     }
 
-    protected boolean applyUpdate()
+    protected boolean applyUpdate(boolean refresh)
     {
 	Root root = _target.getRoot();
 
@@ -81,7 +81,10 @@ class NodeEditor extends Editor
 		//
 		_target = nodes.findChildWithDescriptor(descriptor);
 		root.updated();
-		root.setSelectedNode(_target);
+		if(refresh)
+		{
+		    root.setSelectedNode(_target);
+		}
 	    }
 	    else if(isSimpleUpdate())
 	    {
@@ -109,7 +112,7 @@ class NodeEditor extends Editor
 		}
 		catch(UpdateFailedException e)
 		{
-		    ((Node)_target) .restoreDescriptor(savedDescriptor);
+		    ((Node)_target).restoreDescriptor(savedDescriptor);
 		    JOptionPane.showMessageDialog(
 			root.getCoordinator().getMainFrame(),
 			e.toString(),
@@ -129,7 +132,10 @@ class NodeEditor extends Editor
 		root.updated();
 	    }
 
-	    root.getCoordinator().getCurrentTab().showNode(_target);
+	    if(refresh)
+	    {
+		root.getCoordinator().getCurrentTab().showNode(_target);
+	    }
 	    _applyButton.setEnabled(false);
 	    _discardButton.setEnabled(false);
 	    return true;

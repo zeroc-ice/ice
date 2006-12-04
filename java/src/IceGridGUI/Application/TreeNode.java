@@ -26,8 +26,7 @@ public abstract class TreeNode extends TreeNodeBase
     abstract void write(XMLWriter writer) throws java.io.IOException;
  
     //
-    // Ephemeral objects are destroyed when you switch selection
-    // without "apply"ing the changes.
+    // Ephemeral objects are destroyed when discard their changes
     //
     public boolean isEphemeral()
     {
@@ -362,7 +361,19 @@ public abstract class TreeNode extends TreeNodeBase
     }
     public void delete()
     {
+	boolean enabled = getRoot().isSelectionListenerEnabled();
+
+	if(enabled)
+	{
+	    getRoot().disableSelectionListener();
+	}
 	destroy();
+	getCoordinator().getCurrentTab().showNode(null);
+	if(enabled)
+	{
+	    getRoot().enableSelectionListener();
+	}
+
 	if(_parent != null)
 	{
 	    getRoot().setSelectedNode((TreeNode)_parent);
