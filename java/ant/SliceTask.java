@@ -338,9 +338,9 @@ public class SliceTask extends org.apache.tools.ant.Task
 
 	    if(_iceHome == null)
 	    {
-		if(getProject().getProperties().containsKey("ice.dir"))
+		if(getProject().getProperties().containsKey("ice.bin.dir"))
 		{
-		    _iceHome = (String)getProject().getProperties().get("ice.dir");
+		    _iceHome = (String)getProject().getProperties().get("ice.bin.dir");
 		}
 	    }
 	}
