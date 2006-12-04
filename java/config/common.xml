@@ -62,16 +62,18 @@
     <pathconvert property="ice.top.dir" refid="ice.dir.path">
     </pathconvert>
 
-    <condition property="ice.dir" value="${ice.top.dir}">
-	<and>
-	    <available file="${top.dir}/makedist.py"/>
-	    <available file="${top.dir}/../ice/slice"/>
-	</and>
-    </condition>
-
     <condition property="ice.dir" value="${top.dir}">
 	<and>
             <available file="${top.dir}/slice"/>
+            <not>
+                <isset property="ice.dir"/>
+            </not>
+	</and>
+    </condition>
+
+    <condition property="ice.dir" value="${ice.top.dir}">
+	<and>
+	    <available file="${top.dir}/../ice/slice"/>
             <not>
                 <isset property="ice.dir"/>
             </not>
@@ -105,8 +107,14 @@
 	</and>
     </condition>
 
-    <!-- Detect Ice for Java location -->
+    <condition property="ice.bin.dir" value="${ice.dir}">
+	<or>
+	    <available file="${ice.dir}/bin/slice2java"/>
+	    <available file="${ice.dir}/bin/slice2java.exe"/>
+	</or>
+    </condition>
 
+    <!-- Detect Ice for Java location -->
 
     <!-- A slice directory in ${top.dir} indicates a source distribution build. -->
     <condition property="icej.dir" value="${top.dir}">
