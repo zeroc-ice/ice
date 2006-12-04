@@ -54,19 +54,23 @@ public:
     
     void create(const NodeIPtr&);
     void create(const InternalRegistryPrx&);
-    void activated();
+    void activate();
     bool waitForCreate();
     void terminate();
     void destroy();
 
-    void replicaAdded(const InternalRegistryPrx&, bool);
+    void replicaInit(const InternalRegistryPrxSeq&);
+    void replicaAdded(const InternalRegistryPrx&);
     void replicaRemoved(const InternalRegistryPrx&);
 
     NodeSessionPrx getMasterNodeSession() const { return _thread->getSession(); }
 
 private:
 
-    void syncReplicas(const InternalRegistryPrxSeq&);
+    void createReplicaSession(const InternalRegistryPrx&, bool);
+
+    void reapReplicas();
+
     void syncServers(const NodeSessionPrx&);
 
     class Thread : public NodeSessionKeepAliveThread
@@ -84,7 +88,23 @@ private:
         {
 	    NodeSessionPrx session = NodeSessionKeepAliveThread::createSession(master, timeout);
 	    _manager.createdSession(session);
+	    _manager.reapReplicas();
 	    return session;
+	}
+
+	virtual void 
+	destroySession(const NodeSessionPrx& session)
+        {
+	    NodeSessionKeepAliveThread::destroySession(session);
+	    _manager.reapReplicas();
+	}
+
+	virtual bool 
+	keepAlive(const NodeSessionPrx& session)
+        {
+	    bool alive = NodeSessionKeepAliveThread::keepAlive(session);
+	    _manager.reapReplicas();
+	    return alive;
 	}
 
     private:
@@ -106,6 +126,7 @@ private:
 
     typedef std::map<Ice::Identity, NodeSessionKeepAliveThreadPtr> NodeSessionMap;
     NodeSessionMap _sessions;
+    std::set<Ice::Identity> _replicas;
 };
 
 }

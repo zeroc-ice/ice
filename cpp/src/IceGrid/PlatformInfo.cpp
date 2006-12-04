@@ -42,28 +42,28 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
-string
-getLocalizedPerfName(const map<string, string>& perfNames, const string& name)
-{
-    unsigned long idx;
-    map<string, string>::const_iterator p = perfNames.find(name);
-    if(p == perfNames.end())
+    string
+    getLocalizedPerfName(const map<string, string>& perfNames, const string& name)
     {
-	return "";
-    }
-    istringstream is(p->second);
-    is >> idx;
+	unsigned long idx;
+	map<string, string>::const_iterator p = perfNames.find(name);
+	if(p == perfNames.end())
+	{
+	    return "";
+	}
+	istringstream is(p->second);
+	is >> idx;
     
-    vector<char> localized;
-    unsigned long size = 256;
-    localized.resize(size);
-    while(PdhLookupPerfNameByIndex(0, idx, &localized[0], &size) == PDH_MORE_DATA)
-    {
-	size += 256;
+	vector<char> localized;
+	unsigned long size = 256;
 	localized.resize(size);
+	while(PdhLookupPerfNameByIndex(0, idx, &localized[0], &size) == PDH_MORE_DATA)
+	{
+	    size += 256;
+	    localized.resize(size);
+	}
+	return string(&localized[0]);
     }
-    return string(&localized[0]);
-}
 
 };
 

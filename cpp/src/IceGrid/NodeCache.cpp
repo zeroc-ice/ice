@@ -258,20 +258,37 @@ NodeEntry::setSession(const NodeSessionIPtr& session)
 {
     Lock sync(*this);
 
-    if(session && _session)
+    if(session)
     {
-	if(_session->isDestroyed())
+	while(_session)
 	{
-	    // If the current session has just been destroyed, wait for the setSession(0) call.
-	    assert(session != _session);
-	    while(_session) 
+	    if(_session->isDestroyed())
 	    {
+		// If the current session has just been destroyed, wait for the setSession(0) call.
+		assert(session != _session);
 		wait();
 	    }
-	}
-	else
-	{
-	    throw NodeActiveException();
+	    else
+	    {
+		NodeSessionIPtr session = _session;
+		sync.release();
+		try
+		{
+		    session->getNode()->ice_ping();
+		    throw NodeActiveException();
+		}
+		catch(const Ice::LocalException&)
+		{
+		    try
+		    {
+			session->destroy();
+		    }
+		    catch(const Ice::ObjectNotExistException&)
+		    {
+		    }
+		}
+		sync.acquire();
+	    }
 	}
     }
     else if(!session && !_session)
@@ -281,16 +298,10 @@ NodeEntry::setSession(const NodeSessionIPtr& session)
     
     if(!session && _session)
     {
-	_cache.getReplicaCache().nodeRemoved(_session->getNode());
     }
     
     _session = session;
     notifyAll();
-
-    if(_session)
-    {
-	_cache.getReplicaCache().nodeAdded(session->getNode());
-    }
 
     //
     // Clear the saved proxy, the node has established a session

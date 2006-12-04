@@ -704,13 +704,12 @@ RegistryI::createSession(const string& user, const string& password, const Curre
     }
 
     SessionIPtr session = _clientSessionFactory->createSessionServant(user, 0);
-    session->setServantLocator(_sessionServantLocator);
-    SessionPrx proxy = SessionPrx::uncheckedCast(_sessionServantLocator->add(session, current.con));
+    Ice::ObjectPrx proxy = session->registerWithServantLocator(_sessionServantLocator, current.con);
     if(_sessionTimeout > 0)
     {
-	_reaper->add(new SessionReapable(current.adapter, session, proxy->ice_getIdentity()), _sessionTimeout);
+	_reaper->add(new SessionReapable<SessionI>(_traceLevels->logger, session), _sessionTimeout);
     }
-    return proxy;    
+    return SessionPrx::uncheckedCast(proxy);
 }
 
 AdminSessionPrx
@@ -758,15 +757,12 @@ RegistryI::createAdminSession(const string& user, const string& password, const 
     }
 
     AdminSessionIPtr session = _adminSessionFactory->createSessionServant(user);
-    ObjectPrx admin = _sessionServantLocator->add(new AdminI(_database, this, session), current.con);
-    session->setAdmin(AdminPrx::uncheckedCast(admin));
-    session->setServantLocator(_sessionServantLocator);
-    AdminSessionPrx proxy = AdminSessionPrx::uncheckedCast(_sessionServantLocator->add(session, current.con));
+    Ice::ObjectPrx proxy = session->registerWithServantLocator(_sessionServantLocator, current.con, this);
     if(_sessionTimeout > 0)
     {
-	_reaper->add(new SessionReapable(current.adapter, session, proxy->ice_getIdentity()), _sessionTimeout);
+	_reaper->add(new SessionReapable<AdminSessionI>(_traceLevels->logger, session), _sessionTimeout);
     }
-    return proxy;    
+    return AdminSessionPrx::uncheckedCast(proxy); 
 }
 
 SessionPrx
@@ -823,13 +819,12 @@ RegistryI::createSessionFromSecureConnection(const Current& current)
     }
 
     SessionIPtr session = _clientSessionFactory->createSessionServant(userDN, 0);
-    session->setServantLocator(_sessionServantLocator);
-    SessionPrx proxy = SessionPrx::uncheckedCast(_sessionServantLocator->add(session, current.con));
+    Ice::ObjectPrx proxy = session->registerWithServantLocator(_sessionServantLocator, current.con);
     if(_sessionTimeout > 0)
     {
-	_reaper->add(new SessionReapable(current.adapter, session, proxy->ice_getIdentity()), _sessionTimeout);
+	_reaper->add(new SessionReapable<SessionI>(_traceLevels->logger, session), _sessionTimeout);
     }
-    return proxy;
+    return SessionPrx::uncheckedCast(proxy);
 }
 
 AdminSessionPrx
@@ -875,15 +870,12 @@ RegistryI::createAdminSessionFromSecureConnection(const Current& current)
     // We let the connection access the administrative interface.
     //
     AdminSessionIPtr session = _adminSessionFactory->createSessionServant(userDN);
-    ObjectPrx admin = _sessionServantLocator->add(new AdminI(_database, this, session), current.con);
-    session->setAdmin(AdminPrx::uncheckedCast(admin));
-    session->setServantLocator(_sessionServantLocator);
-    AdminSessionPrx proxy = AdminSessionPrx::uncheckedCast(_sessionServantLocator->add(session, current.con));
+    Ice::ObjectPrx proxy = session->registerWithServantLocator(_sessionServantLocator, current.con, this);
     if(_sessionTimeout > 0)
     {
-	_reaper->add(new SessionReapable(current.adapter, session, proxy->ice_getIdentity()), _sessionTimeout);
+	_reaper->add(new SessionReapable<AdminSessionI>(_traceLevels->logger, session), _sessionTimeout);
     }
-    return proxy;    
+    return AdminSessionPrx::uncheckedCast(proxy);
 }
 
 int

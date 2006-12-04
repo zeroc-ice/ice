@@ -192,7 +192,28 @@ interface Server extends FileReader
 interface InternalRegistry;
 sequence<InternalRegistry*> InternalRegistryPrxSeq;
 
-interface Node extends FileReader
+interface ReplicaObserver
+{
+    void replicaInit(InternalRegistryPrxSeq replicas);
+
+    /**
+     *
+     * Notification that a replica has been added. The node should 
+     * establish a session with this new replica.
+     *
+     **/
+    void replicaAdded(InternalRegistry* replica);
+
+    /**
+     *
+     * Notification that a replica has been removed. The node should
+     * destroy the session to this replica.
+     *
+     **/
+    void replicaRemoved(InternalRegistry* replica);
+};
+
+interface Node extends FileReader, ReplicaObserver
 {
     /**
      *
@@ -235,22 +256,6 @@ interface Node extends FileReader
      * 
      **/
     ["ami"] void registerWithReplica(InternalRegistry* replica);
-
-    /**
-     *
-     * Notification that a replica has been added. The node should 
-     * establish a session with this new replica.
-     *
-     **/
-    void replicaAdded(InternalRegistry* replica);
-
-    /**
-     *
-     * Notification that a replica has been removed. The node should
-     * destroy the session to this replica.
-     *
-     **/
-    void replicaRemoved(InternalRegistry* replica);
 
     /**
      *
@@ -301,6 +306,13 @@ interface NodeSession
      *
      **/
     void keepAlive(LoadInfo load);
+
+    /**
+     *
+     * Set the replica observer.
+     *
+     **/
+    void setReplicaObserver(ReplicaObserver* observer);
 
     /**
      *
@@ -447,22 +459,20 @@ interface InternalRegistry extends FileReader
      * is already registered, [registerNode] will overide the previous
      * node only if it's not active.
      *
-     * @param name The name of the node to register.
-     *
-     * @param nd The proxy of the node.
-     *
      * @param info Some information on the node.
+     *
+     * @param prx The proxy of the node.
      * 
-     * @return The name of the servers currently deployed on the node.
+     * @return The node session proxy.
      * 
      * @throws NodeActiveException Raised if the node is already
      * registered and currently active.
      *
      **/
-    NodeSession* registerNode(string name, Node* nd, NodeInfo info)
+    NodeSession* registerNode(NodeInfo info, Node* prx)
 	throws NodeActiveException;
 
-    ReplicaSession* registerReplica(string name, RegistryInfo info, InternalRegistry* prx)
+    ReplicaSession* registerReplica(RegistryInfo info, InternalRegistry* prx)
 	throws ReplicaActiveException;
 
     void registerWithReplica(InternalRegistry* prx);

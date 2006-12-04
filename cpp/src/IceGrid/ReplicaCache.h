@@ -53,8 +53,8 @@ public:
     ReplicaEntryPtr remove(const std::string&, bool);
     ReplicaEntryPtr get(const std::string&) const;
 
-    void nodeAdded(const NodePrx&);
-    void nodeRemoved(const NodePrx&);
+    void subscribe(const ReplicaObserverPrx&);
+    void unsubscribe(const ReplicaObserverPrx&);
 
     Ice::ObjectPrx getEndpoints(const std::string&, const Ice::ObjectPrx&) const;
 
@@ -65,7 +65,7 @@ private:
 
     const Ice::CommunicatorPtr _communicator;
     const IceStorm::TopicPrx _topic;
-    const NodePrx _nodes;
+    const ReplicaObserverPrx _observers;
     InternalRegistryPrx _self; // This replica internal registry proxy.
 };
 

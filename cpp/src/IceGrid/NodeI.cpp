@@ -493,9 +493,15 @@ NodeI::registerWithReplica(const InternalRegistryPrx& replica, const Ice::Curren
 }
 
 void
+NodeI::replicaInit(const InternalRegistryPrxSeq& replicas, const Ice::Current&)
+{
+    _sessions.replicaInit(replicas);
+}
+
+void
 NodeI::replicaAdded(const InternalRegistryPrx& replica, const Ice::Current&)
 {
-    _sessions.replicaAdded(replica, false);
+    _sessions.replicaAdded(replica);
 }
 
 void
@@ -611,6 +617,12 @@ NodeI::getFileCache() const
     return _fileCache;
 }
 
+NodePrx
+NodeI::getProxy() const
+{
+    return _proxy;
+}
+
 string
 NodeI::getOutputDir() const
 {
@@ -626,7 +638,7 @@ NodeI::getRedirectErrToOut() const
 NodeSessionPrx
 NodeI::registerWithRegistry(const InternalRegistryPrx& registry)
 {
-    return registry->registerNode(_name, _proxy, _platform.getNodeInfo());
+    return registry->registerNode(_platform.getNodeInfo(), _proxy);
 }
 
 void

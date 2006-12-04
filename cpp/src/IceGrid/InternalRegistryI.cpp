@@ -23,73 +23,6 @@
 using namespace std;
 using namespace IceGrid;
 
-namespace IceGrid
-{
-
-template<class T>
-class SessionReapable : public Reapable
-{
-    typedef IceUtil::Handle<T> TPtr;
-    
-public:
-    
-    SessionReapable(const Ice::ObjectAdapterPtr& adapter, const TPtr& session, const Ice::ObjectPrx& proxy) : 
-	_adapter(adapter),
-	_session(session),
-	_proxy(proxy)
-    {
-    }
-
-    virtual ~SessionReapable()
-    {
-    }
-	
-    virtual IceUtil::Time
-    timestamp() const
-    {
-	return _session->timestamp();
-    }
-
-    virtual void
-    destroy(bool destroy)
-    {
-	try
-	{
-	    //
-	    // Invoke on the servant directly instead of the
-	    // proxy. Invoking on the proxy might not always work if the
-	    // communicator is being shutdown/destroyed. We have to create
-	    // a fake "current" because the session destroy methods needs
-	    // the adapter and object identity to unregister the servant
-	    // from the adapter.
-	    //
-	    Ice::Current current;
-	    if(!destroy)
-	    {
-		current.adapter = _adapter;
-		current.id = _proxy->ice_getIdentity();
-	    }
-	    _session->destroy(current);
-	}
-	catch(const Ice::ObjectNotExistException&)
-	{
-	}
-	catch(const Ice::LocalException& ex)
-	{
-	    Ice::Warning out(_proxy->ice_getCommunicator()->getLogger());
-	    out << "unexpected exception while reaping session:\n" << ex;
-	}
-    }
-
-private:
-
-    const Ice::ObjectAdapterPtr _adapter;
-    const TPtr _session;
-    const Ice::ObjectPrx _proxy;
-};
-
-}
-
 InternalRegistryI::InternalRegistryI(const RegistryIPtr& registry,
 				     const DatabasePtr& database, 
 				     const ReapThreadPtr& reaper,
@@ -112,17 +45,14 @@ InternalRegistryI::~InternalRegistryI()
 }
 
 NodeSessionPrx
-InternalRegistryI::registerNode(const std::string& name,
-				const NodePrx& node, 
-				const NodeInfo& info,
-				const Ice::Current& current)
+InternalRegistryI::registerNode(const NodeInfo& info, const NodePrx& node, const Ice::Current& current)
 {
+    const Ice::LoggerPtr logger = _database->getTraceLevels()->logger;
     try
     {
-	NodeSessionIPtr session = new NodeSessionI(_database, name, node, info, _nodeSessionTimeout);
-	NodeSessionPrx proxy = NodeSessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
-	_reaper->add(new SessionReapable<NodeSessionI>(current.adapter, session, proxy), _nodeSessionTimeout);
-	return proxy;
+	NodeSessionIPtr session = new NodeSessionI(_database, node, info, _nodeSessionTimeout);
+	_reaper->add(new SessionReapable<NodeSessionI>(logger, session), _nodeSessionTimeout);
+	return session->getProxy();
     }
     catch(const Ice::ObjectAdapterDeactivatedException&)
     {
@@ -131,18 +61,16 @@ InternalRegistryI::registerNode(const std::string& name,
 }
 
 ReplicaSessionPrx
-InternalRegistryI::registerReplica(const std::string& name,
-				   const RegistryInfo& info,
-				   const InternalRegistryPrx& registry,
+InternalRegistryI::registerReplica(const RegistryInfo& info,
+				   const InternalRegistryPrx& prx,
 				   const Ice::Current& current)
 {
+    const Ice::LoggerPtr logger = _database->getTraceLevels()->logger;
     try
     {
-	ReplicaSessionIPtr session = new ReplicaSessionI(_database, _wellKnownObjects, name, info, registry, 
-							 _replicaSessionTimeout);
-	ReplicaSessionPrx proxy = ReplicaSessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
-	_reaper->add(new SessionReapable<ReplicaSessionI>(current.adapter, session, proxy), _replicaSessionTimeout);
-	return proxy;
+	ReplicaSessionIPtr s = new ReplicaSessionI(_database, _wellKnownObjects, info, prx, _replicaSessionTimeout);
+	_reaper->add(new SessionReapable<ReplicaSessionI>(logger, s), _replicaSessionTimeout);
+	return s->getProxy();
     }
     catch(const Ice::ObjectAdapterDeactivatedException&)
     {

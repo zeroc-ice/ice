@@ -25,24 +25,31 @@ class NodeSessionI : public NodeSession, public IceUtil::Mutex
 {
 public:
 
-    NodeSessionI(const DatabasePtr&, const std::string&, const NodePrx&, const NodeInfo&, int);
+    NodeSessionI(const DatabasePtr&, const NodePrx&, const NodeInfo&, int);
 
     virtual void keepAlive(const LoadInfo&, const Ice::Current&);
+    virtual void setReplicaObserver(const ReplicaObserverPrx&, const Ice::Current&);
     virtual int getTimeout(const Ice::Current& = Ice::Current()) const;
     virtual NodeObserverPrx getObserver(const Ice::Current&) const;
     virtual void loadServers(const Ice::Current&) const;
     virtual Ice::StringSeq getServers(const Ice::Current&) const;
     virtual void waitForApplicationUpdate_async(const AMD_NodeSession_waitForApplicationUpdatePtr&,
 						const std::string&, int, const Ice::Current&) const;
-    virtual void destroy(const Ice::Current&);
+    virtual void destroy(const Ice::Current& = Ice::Current());
     
+    virtual IceUtil::Time timestamp() const;
+    virtual void shutdown();
+
     const NodePrx& getNode() const;
     const NodeInfo& getInfo() const;
     const LoadInfo& getLoadInfo() const;
-    virtual IceUtil::Time timestamp() const;
+    NodeSessionPrx getProxy() const;
+
     bool isDestroyed() const;
 
 private:
+
+    void destroyImpl(bool);
     
     const DatabasePtr _database;
     const TraceLevelsPtr _traceLevels;
@@ -50,6 +57,8 @@ private:
     const NodePrx _node;
     const NodeInfo _info;
     const int _timeout;
+    NodeSessionPrx _proxy;
+    ReplicaObserverPrx _replicaObserver;
     IceUtil::Time _timestamp;
     LoadInfo _load;
     bool _destroy;

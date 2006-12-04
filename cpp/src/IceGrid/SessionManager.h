@@ -54,7 +54,7 @@ public:
     {
 	TPrx session;
 	InternalRegistryPrx registry;
-	IceUtil::Time timeout = IceUtil::Time::seconds(10); 
+	IceUtil::Time timeout = IceUtil::Time::seconds(15); 
 	Action action = Connect;
 
 	while(true)
@@ -213,6 +213,21 @@ public:
 	}
 	_nextAction = Disconnect;
 	notifyAll();
+    }
+
+    bool
+    terminateIfDisconnected()
+    {
+	Lock sync(*this);
+	if(_state != Disconnected)
+	{
+	    return false; // Nothing we can do for now.
+	}
+	assert(_state != Destroyed);
+	_state = Destroyed;
+	_nextAction = None;
+	notifyAll();
+	return true;
     }
 
     void

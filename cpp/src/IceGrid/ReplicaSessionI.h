@@ -29,7 +29,7 @@ class ReplicaSessionI : public ReplicaSession, public IceUtil::Mutex
 {
 public:
 
-    ReplicaSessionI(const DatabasePtr&, const WellKnownObjectsManagerPtr&, const std::string&, const RegistryInfo&,
+    ReplicaSessionI(const DatabasePtr&, const WellKnownObjectsManagerPtr&, const RegistryInfo&,
 		    const InternalRegistryPrx&, int);
 
     virtual void keepAlive(const Ice::Current&);
@@ -40,25 +40,29 @@ public:
     virtual void setAdapterDirectProxy(const std::string&, const std::string&, const Ice::ObjectPrx&, 
 				       const Ice::Current&);
     virtual void receivedUpdate(TopicName, int, const std::string&, const Ice::Current&);
-    virtual void destroy(const Ice::Current&);
+    virtual void destroy(const Ice::Current& = Ice::Current());
     
     virtual IceUtil::Time timestamp() const;
+    virtual void shutdown();
 
-    const InternalRegistryPrx& getInternalRegistry() const { return _internalRegistry; }
-    const RegistryInfo& getInfo() const { return _info; }
+    const InternalRegistryPrx& getInternalRegistry() const;
+    const RegistryInfo& getInfo() const;
+    ReplicaSessionPrx getProxy() const;
 
     Ice::ObjectPrx getEndpoint(const std::string&);
     bool isDestroyed() const;
 
 private:
+
+    void destroyImpl(bool);
     
     const DatabasePtr _database;
     const WellKnownObjectsManagerPtr _wellKnownObjects;
     const TraceLevelsPtr _traceLevels;
-    const std::string _name;
     const InternalRegistryPrx _internalRegistry;
     const RegistryInfo _info;
     const int _timeout;
+    ReplicaSessionPrx _proxy;
     DatabaseObserverPrx _observer;
     ObjectInfoSeq _replicaWellKnownObjects;
     StringObjectProxyDict _replicaEndpoints;

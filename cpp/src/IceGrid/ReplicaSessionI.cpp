@@ -29,14 +29,12 @@ operator==(const ObjectInfo& info, const Ice::Identity& id)
 
 ReplicaSessionI::ReplicaSessionI(const DatabasePtr& database, 
 				 const WellKnownObjectsManagerPtr& wellKnownObjects,
-				 const string& name, 
 				 const RegistryInfo& info,
 				 const InternalRegistryPrx& proxy,
 				 int timeout) :
     _database(database),
     _wellKnownObjects(wellKnownObjects),
     _traceLevels(database->getTraceLevels()),
-    _name(name),
     _internalRegistry(InternalRegistryPrx::uncheckedCast(proxy->ice_timeout(timeout * 1000))),
     _info(info),
     _timeout(timeout),
@@ -46,9 +44,11 @@ ReplicaSessionI::ReplicaSessionI(const DatabasePtr& database,
     __setNoDelete(true);
     try
     {
-	_database->getReplicaCache().add(name, this);
+	_database->getReplicaCache().add(info.name, this);
 	ObserverTopicPtr obsv = _database->getObserverTopic(RegistryObserverTopicName);
 	RegistryObserverTopicPtr::dynamicCast(obsv)->registryUp(_info);
+
+	_proxy = ReplicaSessionPrx::uncheckedCast(_database->getInternalAdapter()->addWithUUID(this));
     }
     catch(...)
     {
@@ -72,7 +72,7 @@ ReplicaSessionI::keepAlive(const Ice::Current& current)
     if(_traceLevels->replica > 2)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
-	out << "replica `" << _name << "' keep alive ";
+	out << "replica `" << _info.name << "' keep alive ";
     }
 }
 
@@ -91,9 +91,9 @@ ReplicaSessionI::setDatabaseObserver(const DatabaseObserverPrx& observer, const 
 	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }	
     _observer = observer;
-    _database->getObserverTopic(ApplicationObserverTopicName)->subscribe(_observer, _name);
-    _database->getObserverTopic(AdapterObserverTopicName)->subscribe(_observer, _name);
-    _database->getObserverTopic(ObjectObserverTopicName)->subscribe(_observer, _name);
+    _database->getObserverTopic(ApplicationObserverTopicName)->subscribe(_observer, _info.name);
+    _database->getObserverTopic(AdapterObserverTopicName)->subscribe(_observer, _info.name);
+    _database->getObserverTopic(ObjectObserverTopicName)->subscribe(_observer, _info.name);
 }
 
 void
@@ -130,7 +130,7 @@ ReplicaSessionI::registerWellKnownObjects(const ObjectInfoSeq& objects, const Ic
     // are correctly setup when the replica starts accepting requests
     // from clients (if the replica is being started).
     //
-    _database->getObserverTopic(ObjectObserverTopicName)->waitForSyncedSubscribers(serial, _name);
+    _database->getObserverTopic(ObjectObserverTopicName)->waitForSyncedSubscribers(serial, _info.name);
 }
 
 void
@@ -152,15 +152,72 @@ ReplicaSessionI::receivedUpdate(TopicName topicName, int serial, const string& f
     ObserverTopicPtr topic = _database->getObserverTopic(topicName);
     if(topic)
     {
-	topic->receivedUpdate(_name, serial, failure);
+	topic->receivedUpdate(_info.name, serial, failure);
     }
 }
 
 void
-ReplicaSessionI::destroy(const Ice::Current& current)
+ReplicaSessionI::destroy(const Ice::Current&)
 {
-    const bool shutdown = !current.adapter; // adapter is null if we're shutting down, see InternalRegistryI.cpp
+    destroyImpl(false);
+}
 
+IceUtil::Time
+ReplicaSessionI::timestamp() const
+{
+    Lock sync(*this);
+    if(_destroy)
+    {
+	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
+    return _timestamp;
+}
+
+void
+ReplicaSessionI::shutdown()
+{
+    destroyImpl(true);
+}
+
+const InternalRegistryPrx& 
+ReplicaSessionI::getInternalRegistry() const
+{
+    return _internalRegistry;
+}
+ 
+const RegistryInfo& 
+ReplicaSessionI::getInfo() const
+{
+    return _info;
+}
+
+ReplicaSessionPrx
+ReplicaSessionI::getProxy() const
+{
+    return _proxy;
+}
+
+Ice::ObjectPrx
+ReplicaSessionI::getEndpoint(const std::string& name)
+{
+    Lock sync(*this);
+    if(_destroy)
+    {
+	return 0;
+    }
+    return _replicaEndpoints[name];
+}
+
+bool
+ReplicaSessionI::isDestroyed() const
+{
+    Lock sync(*this);
+    return _destroy;
+}
+
+void
+ReplicaSessionI::destroyImpl(bool shutdown)
+{
     {
 	Lock sync(*this);
 	if(_destroy)
@@ -172,9 +229,9 @@ ReplicaSessionI::destroy(const Ice::Current& current)
 
     if(_observer)
     {
-	_database->getObserverTopic(ApplicationObserverTopicName)->unsubscribe(_observer, _name);
-	_database->getObserverTopic(AdapterObserverTopicName)->unsubscribe(_observer, _name);
-	_database->getObserverTopic(ObjectObserverTopicName)->unsubscribe(_observer, _name);
+	_database->getObserverTopic(ApplicationObserverTopicName)->unsubscribe(_observer, _info.name);
+	_database->getObserverTopic(AdapterObserverTopicName)->unsubscribe(_observer, _info.name);
+	_database->getObserverTopic(ObjectObserverTopicName)->unsubscribe(_observer, _info.name);
     }
 
     if(!_replicaWellKnownObjects.empty())
@@ -200,52 +257,23 @@ ReplicaSessionI::destroy(const Ice::Current& current)
     // Notify the observer that the registry is down.
     //
     ObserverTopicPtr obsv = _database->getObserverTopic(RegistryObserverTopicName);
-    RegistryObserverTopicPtr::dynamicCast(obsv)->registryDown(_name);
+    RegistryObserverTopicPtr::dynamicCast(obsv)->registryDown(_info.name);
 
     //
     // Remove the replica from the cache. This must be done last. As
     // soon as the replica is removed another session might be
     // created.
     //
-    _database->getReplicaCache().remove(_name, shutdown);
+    _database->getReplicaCache().remove(_info.name, shutdown);
 
-    if(current.adapter)
+    if(!shutdown)
     {
 	try
 	{
-	    current.adapter->remove(current.id);
+	    _database->getInternalAdapter()->remove(_proxy->ice_getIdentity());
 	}
 	catch(const Ice::ObjectAdapterDeactivatedException&)
 	{
 	}
     }
-}
-
-IceUtil::Time
-ReplicaSessionI::timestamp() const
-{
-    Lock sync(*this);
-    if(_destroy)
-    {
-	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
-    }
-    return _timestamp;
-}
-
-Ice::ObjectPrx
-ReplicaSessionI::getEndpoint(const std::string& name)
-{
-    Lock sync(*this);
-    if(_destroy)
-    {
-	return 0;
-    }
-    return _replicaEndpoints[name];
-}
-
-bool
-ReplicaSessionI::isDestroyed() const
-{
-    Lock sync(*this);
-    return _destroy;
 }

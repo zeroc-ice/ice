@@ -333,9 +333,10 @@ ReplicaSessionManager::create(const InternalRegistryPrx& replica)
 NodePrxSeq
 ReplicaSessionManager::getNodes(const NodePrxSeq& nodes) const
 {
+    assert(_thread && _thread->getRegistry());
     try
     {
-	return _master->getNodes();
+	return _thread->getRegistry()->getNodes();
     }
     catch(const Ice::LocalException&)
     {
@@ -526,7 +527,7 @@ ReplicaSessionManager::createSessionImpl(const InternalRegistryPrx& registry, Ic
 {	    
     try
     {
-	ReplicaSessionPrx session = registry->registerReplica(_name, _info, _internalRegistry);
+	ReplicaSessionPrx session = registry->registerReplica(_info, _internalRegistry);
 	int t = session->getTimeout();
 	if(t > 0)
 	{

@@ -59,10 +59,25 @@ AdminSessionI::~AdminSessionI()
 {
 }
 
-void
-AdminSessionI::setAdmin(const AdminPrx& admin)
+Ice::ObjectPrx
+AdminSessionI::registerWithServantLocator(const SessionServantLocatorIPtr& servantLoc, 
+					  const Ice::ConnectionPtr& con,
+					  const RegistryIPtr& registry)
 {
-    const_cast<AdminPrx&>(_admin) = admin;
+    Ice::ObjectPrx proxy = BaseSessionI::registerWithServantLocator(servantLoc, con);
+    _admin = AdminPrx::uncheckedCast(servantLoc->add(new AdminI(_database, registry, this), con));
+    return proxy;
+}
+
+Ice::ObjectPrx
+AdminSessionI::registerWithObjectAdapter(const Ice::ObjectAdapterPtr& adapter, const RegistryIPtr& registry)
+{
+    Ice::ObjectPrx proxy = BaseSessionI::registerWithObjectAdapter(adapter);
+    Ice::Identity identity;
+    identity.category = _database->getInstanceName();
+    identity.name = IceUtil::generateUUID();
+    _admin = AdminPrx::uncheckedCast(adapter->add(new AdminI(_database, registry, this), identity));
+    return proxy;
 }
 
 AdminPrx
@@ -247,10 +262,86 @@ AdminSessionI::openRegistryStdErr(const std::string& name, const Ice::Current& c
 }
 
 void
-AdminSessionI::destroy(const Ice::Current& current)
+AdminSessionI::destroy(const Ice::Current&)
 {
-    BaseSessionI::destroy(current);
-    
+    destroyImpl(false);
+}
+
+void
+AdminSessionI::setupObserverSubscription(TopicName name, const Ice::ObjectPrx& observer)
+{
+    if(_observers[name] && _observers[name] != observer)
+    {
+	_database->getObserverTopic(name)->unsubscribe(_observers[name]);
+	_observers[name] = 0;
+    }
+
+    if(observer)
+    {
+	_observers[name] = observer;
+	_database->getObserverTopic(name)->subscribe(_observers[name]); 
+    }
+}
+
+Ice::ObjectPrx
+AdminSessionI::toProxy(const Ice::Identity& id, const Ice::ConnectionPtr& connection)
+{
+    return id.name.empty() ? Ice::ObjectPrx() : connection->createProxy(id);
+}
+
+FileIteratorPrx
+AdminSessionI::addFileIterator(const FileReaderPrx& reader, const string& filename, const Ice::Current& current)
+{
+    Lock sync(*this);
+    if(_destroyed)
+    {
+	Ice::ObjectNotExistException ex(__FILE__, __LINE__);
+	ex.id = current.id;
+	throw ex;
+    }
+
+    Ice::ObjectPrx obj;
+    Ice::ObjectPtr servant = new FileIteratorI(this, reader, filename);
+    if(_servantLocator)
+    {
+	obj = _servantLocator->add(servant, current.con);
+    }
+    else
+    {
+	assert(_adapter);
+	obj = _adapter->addWithUUID(servant);
+    }
+    _iterators.insert(obj->ice_getIdentity());
+    return FileIteratorPrx::uncheckedCast(obj);
+}
+
+void
+AdminSessionI::removeFileIterator(const Ice::Identity& id, const Ice::Current& current)
+{
+    Lock sync(*this);
+    if(_servantLocator)
+    {
+	_servantLocator->remove(id);
+    }
+    else
+    {
+	try
+	{
+	    assert(_adapter);
+	    _adapter->remove(id);
+	}
+	catch(const Ice::ObjectAdapterDeactivatedException&)
+	{
+	}
+    }
+    _iterators.erase(id);
+}
+
+void
+AdminSessionI::destroyImpl(bool shutdown)
+{
+    BaseSessionI::destroyImpl(shutdown);
+
     try
     {
 	_database->unlock(this);
@@ -263,42 +354,48 @@ AdminSessionI::destroy(const Ice::Current& current)
     // Unregister the admin servant from the session servant locator
     // or object adapter.
     //
-    if(_servantLocator)
-    {
-	_servantLocator->remove(_admin->ice_getIdentity());
-    }
-    else if(current.adapter)
-    {
-	current.adapter->remove(_admin->ice_getIdentity());
-    }
-
-    //
-    // Unregister the iterators from the session servant locator or
-    // object adapter.
-    //
-    for(set<Ice::Identity>::const_iterator p = _iterators.begin(); p != _iterators.end(); ++p)
+    if(!shutdown)
     {
 	if(_servantLocator)
 	{
-	    _servantLocator->remove(*p);
+	    _servantLocator->remove(_admin->ice_getIdentity());
 	}
-	else if(current.adapter)
+	else if(_adapter)
 	{
 	    try
 	    {
-		current.adapter->remove(*p);
+		_adapter->remove(_admin->ice_getIdentity());
 	    }
-	    catch(const Ice::LocalException&)
+	    catch(const Ice::ObjectAdapterDeactivatedException&)
 	    {
 	    }
 	}
-    }
 
-    //
-    // Unsubscribe from the topics.
-    //
-    if(current.adapter) // Not shutting down
-    {
+	//
+	// Unregister the iterators from the session servant locator or
+	// object adapter.
+	//
+	for(set<Ice::Identity>::const_iterator p = _iterators.begin(); p != _iterators.end(); ++p)
+	{
+	    if(_servantLocator)
+	    {
+		_servantLocator->remove(*p);
+	    }
+	    else if(_adapter)
+	    {
+		try
+		{
+		    _adapter->remove(*p);
+		}
+		catch(const Ice::ObjectAdapterDeactivatedException&)
+		{
+		}
+	    }
+	}
+
+	//
+	// Unsubscribe from the topics.
+	//
 	setupObserverSubscription(RegistryObserverTopicName, 0);
 	setupObserverSubscription(NodeObserverTopicName, 0);
 	setupObserverSubscription(ApplicationObserverTopicName, 0);
@@ -324,26 +421,17 @@ AdminSessionFactory::createGlacier2Session(const string& sessionId, const Glacie
 {
     assert(_adapter);
 
-    Ice::IdentitySeq ids; // Identities of the object the session is allowed to access.
-
-    Ice::Identity id;
-    id.category = _database->getInstanceName();
-
-    // The per-session admin object.
-    id.name = IceUtil::generateUUID();
     AdminSessionIPtr session = createSessionServant(sessionId);
-    AdminPrx admin = AdminPrx::uncheckedCast(_adapter->add(new AdminI(_database, _registry, session), id));
-    session->setAdmin(admin);
-    ids.push_back(id);
+    Ice::ObjectPrx proxy = session->registerWithObjectAdapter(_adapter, _registry);
 
-    // The session admin object.
-    id.name = IceUtil::generateUUID();
-    Glacier2::SessionPrx s = Glacier2::SessionPrx::uncheckedCast(_adapter->add(session, id));
-    ids.push_back(id);
+    Ice::Identity queryId;
+    queryId.category = _database->getInstanceName();
+    queryId.name = "Query";
 
-    // The IceGrid::Query object
-    id.name = "Query";
-    ids.push_back(id);
+    Ice::IdentitySeq ids; // Identities of the object the session is allowed to access.
+    ids.push_back(queryId); // The IceGrid::Query object
+    ids.push_back(proxy->ice_getIdentity()); // The session object.
+    ids.push_back(session->getAdmin()->ice_getIdentity()); // The per-session admin object.
 
     int timeout = 0;
     if(ctl)
@@ -354,7 +442,7 @@ AdminSessionFactory::createGlacier2Session(const string& sessionId, const Glacie
 	}
 	catch(const Ice::LocalException&)
 	{
-	    s->destroy();
+	    session->destroy(Ice::Current());
 	    return 0;
 	}
 	timeout = ctl->getSessionTimeout();
@@ -362,10 +450,10 @@ AdminSessionFactory::createGlacier2Session(const string& sessionId, const Glacie
 
     if(timeout > 0)
     {
-	_reaper->add(new SessionReapable(_adapter, session, s->ice_getIdentity()), timeout);
+	_reaper->add(new SessionReapable<AdminSessionI>(_database->getTraceLevels()->logger, session), timeout);
     }
 
-    return s;
+    return Glacier2::SessionPrx::uncheckedCast(proxy);
 }
 
 AdminSessionIPtr
@@ -419,70 +507,3 @@ AdminSSLSessionManagerI::create(const Glacier2::SSLInfo& info,
     return _factory->createGlacier2Session(userDN, ctl);
 }
 
-void
-AdminSessionI::setupObserverSubscription(TopicName name, const Ice::ObjectPrx& observer)
-{
-    if(_observers[name] && _observers[name] != observer)
-    {
-	_database->getObserverTopic(name)->unsubscribe(_observers[name]);
-	_observers[name] = 0;
-    }
-
-    if(observer)
-    {
-	_observers[name] = observer;
-	_database->getObserverTopic(name)->subscribe(_observers[name]); 
-    }
-}
-
-Ice::ObjectPrx
-AdminSessionI::toProxy(const Ice::Identity& id, const Ice::ConnectionPtr& connection)
-{
-    return id.name.empty() ? Ice::ObjectPrx() : connection->createProxy(id);
-}
-
-FileIteratorPrx
-AdminSessionI::addFileIterator(const FileReaderPrx& reader, const string& filename, const Ice::Current& current)
-{
-    Lock sync(*this);
-    if(_destroyed)
-    {
-	Ice::ObjectNotExistException ex(__FILE__, __LINE__);
-	ex.id = current.id;
-	throw ex;
-    }
-
-    Ice::ObjectPrx obj;
-    Ice::ObjectPtr servant = new FileIteratorI(this, reader, filename);
-    if(_servantLocator)
-    {
-	obj = _servantLocator->add(servant, current.con);
-    }
-    else
-    {
-	obj = current.adapter->addWithUUID(servant);
-    }
-    _iterators.insert(obj->ice_getIdentity());
-    return FileIteratorPrx::uncheckedCast(obj);
-}
-
-void
-AdminSessionI::removeFileIterator(const Ice::Identity& id, const Ice::Current& current)
-{
-    Lock sync(*this);
-    if(_servantLocator)
-    {
-	_servantLocator->remove(id);
-    }
-    else
-    {
-	try
-	{
-	    current.adapter->remove(id);
-	}
-	catch(const Ice::LocalException&)
-	{
-	}
-    }
-    _iterators.erase(id);
-}

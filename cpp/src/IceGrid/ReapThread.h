@@ -13,6 +13,11 @@
 #include <IceUtil/Thread.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
+
+#include <Ice/Logger.h>
+#include <Ice/LocalException.h>
+#include <Ice/LoggerUtil.h>
+
 #include <list>
 
 namespace IceGrid
@@ -29,6 +34,58 @@ public:
 
 };
 typedef IceUtil::Handle<Reapable> ReapablePtr;
+
+template<class T>
+class SessionReapable : public Reapable
+{
+    typedef IceUtil::Handle<T> TPtr;
+    
+public:
+    
+    SessionReapable(const Ice::LoggerPtr& logger, const TPtr& session) : 
+	_logger(logger), _session(session)
+    {
+    }
+
+    virtual ~SessionReapable()
+    {
+    }
+	
+    virtual IceUtil::Time
+    timestamp() const
+    {
+	return _session->timestamp();
+    }
+
+    virtual void
+    destroy(bool shutdown)
+    {
+	try
+	{
+	    if(shutdown)
+	    {
+		_session->shutdown();
+	    }
+	    else
+	    {
+		_session->destroy(Ice::Current());
+	    }
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    Ice::Warning out(_logger);
+	    out << "unexpected exception while reaping session:\n" << ex;
+	}
+    }
+
+private:
+
+    const Ice::LoggerPtr _logger;
+    const TPtr _session;
+};
 
 class ReapThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 {

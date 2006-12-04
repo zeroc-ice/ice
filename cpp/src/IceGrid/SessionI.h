@@ -36,21 +36,25 @@ typedef IceUtil::Handle<WaitQueue> WaitQueuePtr;
 class SessionI;
 typedef IceUtil::Handle<SessionI> SessionIPtr;
 
-class BaseSessionI : public IceUtil::Mutex
+class BaseSessionI : virtual Ice::Object, public IceUtil::Mutex
 {
 public:
 
     virtual ~BaseSessionI();
 
     virtual void keepAlive(const Ice::Current&);
-    virtual void destroy(const Ice::Current&);
 
     IceUtil::Time timestamp() const;
-    void setServantLocator(const SessionServantLocatorIPtr&);
+    void shutdown();
+
+    virtual Ice::ObjectPrx registerWithServantLocator(const SessionServantLocatorIPtr&, const Ice::ConnectionPtr&);
+    virtual Ice::ObjectPrx registerWithObjectAdapter(const Ice::ObjectAdapterPtr&);
 
     const std::string& getId() const { return _id; }
 
 protected:
+
+    virtual void destroyImpl(bool);
 
     BaseSessionI(const std::string&, const std::string&, const DatabasePtr&);
 
@@ -58,7 +62,9 @@ protected:
     const std::string _prefix;
     const TraceLevelsPtr _traceLevels;
     const DatabasePtr _database;
-    const SessionServantLocatorIPtr _servantLocator;
+    SessionServantLocatorIPtr _servantLocator;
+    Ice::ObjectAdapterPtr _adapter;
+    Ice::Identity _identity;
     bool _destroyed;
     IceUtil::Time _timestamp;
 };
@@ -66,24 +72,6 @@ typedef IceUtil::Handle<BaseSessionI> BaseSessionIPtr;
 
 class SessionDestroyedException
 {
-};
-
-class SessionReapable : public Reapable
-{
-public:
-
-    SessionReapable(const Ice::ObjectAdapterPtr&, const Ice::ObjectPtr&, const Ice::Identity&);
-    virtual ~SessionReapable();
-	
-    virtual IceUtil::Time timestamp() const;
-    virtual void destroy(bool);
-
-private:
-
-    const Ice::ObjectAdapterPtr _adapter;
-    const Ice::ObjectPtr _servant;
-    BaseSessionI* _session;
-    const Ice::Identity _id;
 };
 
 class SessionI : public BaseSessionI, public Session
@@ -114,6 +102,8 @@ public:
     void removeAllocation(const AllocatablePtr&);
 
 protected:
+
+    virtual void destroyImpl(bool);
 
     const WaitQueuePtr _waitQueue;
     const Glacier2::SessionControlPrx _sessionControl;

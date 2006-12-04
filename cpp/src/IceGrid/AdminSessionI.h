@@ -31,11 +31,13 @@ public:
     AdminSessionI(const std::string&, const DatabasePtr&, int, const std::string&);
     virtual ~AdminSessionI();
 
-    void setAdmin(const AdminPrx&);
+    virtual Ice::ObjectPrx registerWithServantLocator(const SessionServantLocatorIPtr&, const Ice::ConnectionPtr&, 
+						      const RegistryIPtr&);
+    virtual Ice::ObjectPrx registerWithObjectAdapter(const Ice::ObjectAdapterPtr&, const RegistryIPtr&);
 
     virtual void keepAlive(const Ice::Current& current) { BaseSessionI::keepAlive(current); }
 
-    virtual AdminPrx getAdmin(const Ice::Current&) const;
+    virtual AdminPrx getAdmin(const Ice::Current& = Ice::Current()) const;
 
     virtual void setObservers(const RegistryObserverPrx&, const NodeObserverPrx&, const ApplicationObserverPrx&,
 			      const AdapterObserverPrx&, const ObjectObserverPrx&, const Ice::Current&);
@@ -67,9 +69,11 @@ private:
     Ice::ObjectPrx toProxy(const Ice::Identity&, const Ice::ConnectionPtr&);
     FileIteratorPrx addFileIterator(const FileReaderPrx&, const std::string&, const Ice::Current&);
 
+    virtual void destroyImpl(bool);
+
     const int _timeout;
-    const AdminPrx _admin;
     const std::string _replicaName;
+    AdminPrx _admin;
     std::map<TopicName, Ice::ObjectPrx> _observers;
     std::set<Ice::Identity> _iterators;
 };

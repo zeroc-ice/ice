@@ -47,6 +47,8 @@ public:
 		       const Ice::Current&);
 
     virtual void registerWithReplica(const InternalRegistryPrx&, const Ice::Current&);
+
+    virtual void replicaInit(const InternalRegistryPrxSeq&, const Ice::Current&);
     virtual void replicaAdded(const InternalRegistryPrx&, const Ice::Current&);
     virtual void replicaRemoved(const InternalRegistryPrx&, const Ice::Current&);
 
@@ -67,6 +69,7 @@ public:
     UserAccountMapperPrx getUserAccountMapper() const;
     PlatformInfo& getPlatformInfo() const;
     FileCachePtr getFileCache() const;
+    NodePrx getProxy() const;
 
     std::string getOutputDir() const;
     bool getRedirectErrToOut() const;

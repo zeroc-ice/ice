@@ -106,29 +106,32 @@ BaseSessionI::keepAlive(const Ice::Current& current)
 }
 
 void
-BaseSessionI::destroy(const Ice::Current& current)
+BaseSessionI::destroyImpl(bool shutdown)
 {
     Lock sync(*this);
     if(_destroyed)
     {
 	Ice::ObjectNotExistException ex(__FILE__, __LINE__);
-	ex.id = current.id;
+	ex.id = _identity;
 	throw ex;
     }
     _destroyed = true;
 
-    if(_servantLocator)
+    if(!shutdown)
     {
-	_servantLocator->remove(current.id);
-    }
-    else if(current.adapter)
-    {
-	try
+	if(_servantLocator)
 	{
-	    current.adapter->remove(current.id);
+	    _servantLocator->remove(_identity);
 	}
-	catch(const Ice::ObjectAdapterDeactivatedException&)
+	else if(_adapter)
 	{
+	    try
+	    {
+		_adapter->remove(_identity);
+	    }
+	    catch(const Ice::ObjectAdapterDeactivatedException&)
+	    {
+	    }
 	}
     }
 	
@@ -147,63 +150,33 @@ BaseSessionI::timestamp() const
 }
 
 void
-BaseSessionI::setServantLocator(const SessionServantLocatorIPtr& servantLocator)
+BaseSessionI::shutdown()
+{
+    destroyImpl(true);
+}
+
+Ice::ObjectPrx
+BaseSessionI::registerWithServantLocator(const SessionServantLocatorIPtr& servantLoc, const Ice::ConnectionPtr& con)
 {
     //
-    // This is supposed to be called after creation only.
+    // This is supposed to be called after creation only, no need to synchronize.
     //
-    const_cast<SessionServantLocatorIPtr&>(_servantLocator) = servantLocator;
+    _servantLocator = servantLoc;
+    Ice::ObjectPrx proxy = servantLoc->add(this, con);
+    _identity = proxy->ice_getIdentity();
+    return proxy;
 }
 
-SessionReapable::SessionReapable(const Ice::ObjectAdapterPtr& adapter,
-				 const Ice::ObjectPtr& session,
-				 const Ice::Identity& id) : 
-    _adapter(adapter),
-    _servant(session),
-    _session(dynamic_cast<BaseSessionI*>(_servant.get())),
-    _id(id)
+Ice::ObjectPrx
+BaseSessionI::registerWithObjectAdapter(const Ice::ObjectAdapterPtr& adapter)
 {
-}
-
-SessionReapable::~SessionReapable()
-{
-}
-
-IceUtil::Time
-SessionReapable::timestamp() const
-{
-    return _session->timestamp();
-}
-
-void
-SessionReapable::destroy(bool destroy)
-{
-    try
-    {
-	//
-	// Invoke on the servant directly instead of the
-	// proxy. Invoking on the proxy might not always work if the
-	// communicator is being shutdown/destroyed. We have to create
-	// a fake "current" because the session destroy methods needs
-	// the adapter and object identity to unregister the servant
-	// from the adapter.
-	//
-	Ice::Current current;
-	if(!destroy)
-	{
-	    current.adapter = _adapter;
-	    current.id = _id;
-	}
-	_session->destroy(current);
-    }
-    catch(const Ice::ObjectNotExistException&)
-    {
-    }
-    catch(const Ice::LocalException& ex)
-    {
-	Ice::Warning out(_adapter->getCommunicator()->getLogger());
-	out << "unexpected exception while reaping node session:\n" << ex;
-    }
+    //
+    // This is supposed to be called after creation only, no need to synchronize.
+    //
+    _adapter = adapter;
+    _identity.category = _database->getInstanceName();
+    _identity.name = IceUtil::generateUUID();
+    return _adapter->add(this, _identity);
 }
 
 SessionI::SessionI(const string& id, 
@@ -251,33 +224,9 @@ SessionI::setAllocationTimeout(int timeout, const Ice::Current&)
 }
 
 void
-SessionI::destroy(const Ice::Current& current)
+SessionI::destroy(const Ice::Current&)
 {
-    BaseSessionI::destroy(current);
-
-    //
-    // NOTE: The _requests and _allocations attributes are immutable
-    // once the session is destroyed so we don't need mutex protection
-    // here to access them.
-    //
-
-    for(set<AllocationRequestPtr>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
-    {
-	(*p)->cancel(AllocationException("session destroyed"));
-    }
-    _requests.clear();
-
-    for(set<AllocatablePtr>::const_iterator q = _allocations.begin(); q != _allocations.end(); ++q)
-    {
-	try
-	{
-	    (*q)->release(this);
-	}
-	catch(const AllocationException&)
-	{
-	}
-    }
-    _allocations.clear();
+    destroyImpl(false);
 }
 
 int
@@ -332,6 +281,36 @@ SessionI::removeAllocation(const AllocatablePtr& allocatable)
     _allocations.erase(allocatable);
 }
 
+void
+SessionI::destroyImpl(bool shutdown)
+{
+    BaseSessionI::destroyImpl(shutdown);
+
+    //
+    // NOTE: The _requests and _allocations attributes are immutable
+    // once the session is destroyed so we don't need mutex protection
+    // here to access them.
+    //
+
+    for(set<AllocationRequestPtr>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
+    {
+	(*p)->cancel(AllocationException("session destroyed"));
+    }
+    _requests.clear();
+
+    for(set<AllocatablePtr>::const_iterator q = _allocations.begin(); q != _allocations.end(); ++q)
+    {
+	try
+	{
+	    (*q)->release(this);
+	}
+	catch(const AllocationException&)
+	{
+	}
+    }
+    _allocations.clear();
+}
+
 ClientSessionFactory::ClientSessionFactory(const Ice::ObjectAdapterPtr& adapter,
 					   const DatabasePtr& database, 
 					   const WaitQueuePtr& waitQueue,
@@ -348,20 +327,16 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const Glaci
 {
     assert(_adapter);
 
-    Ice::IdentitySeq ids; // Identities of the object the session is allowed to access.
-
-    Ice::Identity id;
-    id.category = _database->getInstanceName();
-
-    // The session object
-    id.name = IceUtil::generateUUID();
-    ids.push_back(id);
     SessionIPtr session = createSessionServant(sessionId, ctl);
-    Glacier2::SessionPrx s = Glacier2::SessionPrx::uncheckedCast(_adapter->add(session, id));
+    Ice::ObjectPrx proxy = session->registerWithObjectAdapter(_adapter);
 
-    // The IceGrid::Query object
-    id.name = "Query";
-    ids.push_back(id);
+    Ice::Identity queryId;
+    queryId.category = _database->getInstanceName();
+    queryId.name = "Query";
+
+    Ice::IdentitySeq ids; // Identities of the object the session is allowed to access.
+    ids.push_back(proxy->ice_getIdentity()); // Session object
+    ids.push_back(queryId);
 
     int timeout = 0;
     if(ctl)
@@ -372,7 +347,7 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const Glaci
 	}
 	catch(const Ice::LocalException&)
 	{
-	    s->destroy();
+	    session->destroy(Ice::Current());
 	    return 0;
 	}
 	timeout = ctl->getSessionTimeout();
@@ -380,10 +355,10 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const Glaci
 
     if(timeout > 0)
     {
-	_reaper->add(new SessionReapable(_adapter, session, s->ice_getIdentity()), timeout);
+	_reaper->add(new SessionReapable<SessionI>(_database->getTraceLevels()->logger, session), timeout);
     }
 
-    return s;
+    return Glacier2::SessionPrx::uncheckedCast(proxy);
 }
 
 SessionIPtr
@@ -413,7 +388,8 @@ ClientSSLSessionManagerI::ClientSSLSessionManagerI(const ClientSessionFactoryPtr
 }
 
 Glacier2::SessionPrx
-ClientSSLSessionManagerI::create(const Glacier2::SSLInfo& info, const Glacier2::SessionControlPrx& ctl, 
+ClientSSLSessionManagerI::create(const Glacier2::SSLInfo& info,
+				 const Glacier2::SessionControlPrx& ctl, 
 				 const Ice::Current& current)
 {
     string userDN;
