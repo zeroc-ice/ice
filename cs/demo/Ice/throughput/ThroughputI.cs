@@ -13,6 +13,8 @@ public sealed class ThroughputI : ThroughputDisp_
 {
     public ThroughputI()
     {
+        _warmup = true;
+
         _byteSeq = new byte[ByteSeqSize.value];
         _stringSeq = new string[StringSeqSize.value];
         for(int i = 0; i < StringSeqSize.value; ++i)
@@ -35,13 +37,25 @@ public sealed class ThroughputI : ThroughputDisp_
         }
     }
 
+    public override void endWarmup(Ice.Current current)
+    {
+        _warmup = false;
+    }
+
     public override void sendByteSeq(byte[] seq, Ice.Current current)
     {
     }
 
     public override byte[] recvByteSeq(Ice.Current current)
     {
-        return _byteSeq;
+        if(_warmup)
+	{
+            return _emptyByteSeq;
+	}
+	else
+	{
+            return _byteSeq;
+	}
     }
 
     public override byte[] echoByteSeq(byte[] seq, Ice.Current current)
@@ -55,7 +69,14 @@ public sealed class ThroughputI : ThroughputDisp_
 
     public override string[] recvStringSeq(Ice.Current current)
     {
-        return _stringSeq;
+        if(_warmup)
+	{
+            return _emptyStringSeq;
+	}
+	else
+	{
+            return _stringSeq;
+	}
     }
 
     public override string[] echoStringSeq(string[] seq, Ice.Current current)
@@ -69,7 +90,14 @@ public sealed class ThroughputI : ThroughputDisp_
 
     public override StringDouble[] recvStructSeq(Ice.Current current)
     {
-        return _structSeq;
+        if(_warmup)
+	{
+            return _emptyStructSeq;
+	}
+	else
+	{
+            return _structSeq;
+	}
     }
 
     public override StringDouble[] echoStructSeq(StringDouble[] seq, Ice.Current current)
@@ -83,7 +111,14 @@ public sealed class ThroughputI : ThroughputDisp_
 
     public override Fixed[] recvFixedSeq(Ice.Current current)
     {
-        return _fixedSeq;
+        if(_warmup)
+	{
+            return _emptyFixedSeq;
+	}
+	else
+	{
+            return _fixedSeq;
+	}
     }
 
     public override Fixed[] echoFixedSeq(Fixed[] seq, Ice.Current current)
@@ -100,4 +135,11 @@ public sealed class ThroughputI : ThroughputDisp_
     private string[] _stringSeq;
     private StringDouble[] _structSeq;
     private Fixed[] _fixedSeq;
+
+    private byte[] _emptyByteSeq = new byte[0];
+    private string[] _emptyStringSeq = new string[0];
+    private StringDouble[] _emptyStructSeq = new StringDouble[0];
+    private Fixed[] _emptyFixedSeq = new Fixed[0];
+
+    private bool _warmup;
 }

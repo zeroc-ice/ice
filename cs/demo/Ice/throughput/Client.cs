@@ -72,7 +72,7 @@ public class Client : Ice.Application
         
         menu();
         
-        throughput.ice_ping(); // Initial ping to setup the connection.
+        throughput.endWarmup(); // Initial ping to setup the connection.
 
         //
         // By default use byte sequence.
