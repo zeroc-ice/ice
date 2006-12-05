@@ -14,7 +14,8 @@ ThroughputI::ThroughputI() :
     _byteSeq(Demo::ByteSeqSize),
     _stringSeq(Demo::StringSeqSize, "hello"),
     _structSeq(Demo::StringDoubleSeqSize),
-    _fixedSeq(Demo::FixedSeqSize)
+    _fixedSeq(Demo::FixedSeqSize),
+    _warmup(true)
 {
     int i;
     for(i = 0; i < Demo::StringDoubleSeqSize; ++i)
@@ -31,6 +32,12 @@ ThroughputI::ThroughputI() :
 }
 
 void
+ThroughputI::endWarmup(const Ice::Current&)
+{
+    _warmup = false;
+}
+
+void
 ThroughputI::sendByteSeq(const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&)
 {
 }
@@ -38,7 +45,14 @@ ThroughputI::sendByteSeq(const std::pair<const Ice::Byte*, const Ice::Byte*>&, c
 Demo::ByteSeq
 ThroughputI::recvByteSeq(const Ice::Current&)
 {
-    return _byteSeq;
+    if(_warmup)
+    {
+        return Demo::ByteSeq();
+    }
+    else
+    {
+        return _byteSeq;
+    }
 }
 
 Demo::ByteSeq
@@ -55,7 +69,14 @@ ThroughputI::sendStringSeq(const Demo::StringSeq&, const Ice::Current&)
 Demo::StringSeq
 ThroughputI::recvStringSeq(const Ice::Current&)
 {
-    return _stringSeq;
+    if(_warmup)
+    {
+        return Demo::StringSeq();
+    }
+    else
+    {
+        return _stringSeq;
+    }
 }
 
 Demo::StringSeq
@@ -72,7 +93,14 @@ ThroughputI::sendStructSeq(const Demo::StringDoubleSeq&, const Ice::Current&)
 Demo::StringDoubleSeq
 ThroughputI::recvStructSeq(const Ice::Current&)
 {
-    return _structSeq;
+    if(_warmup)
+    {
+        return Demo::StringDoubleSeq();
+    }
+    else
+    {
+        return _structSeq;
+    }
 }
 
 Demo::StringDoubleSeq
@@ -89,7 +117,14 @@ ThroughputI::sendFixedSeq(const Demo::FixedSeq&, const Ice::Current&)
 Demo::FixedSeq
 ThroughputI::recvFixedSeq(const Ice::Current&)
 {
-    return _fixedSeq;
+    if(_warmup)
+    {
+        return Demo::FixedSeq();
+    }
+    else
+    {
+        return _fixedSeq;
+    }
 }
 
 Demo::FixedSeq

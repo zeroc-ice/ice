@@ -18,6 +18,7 @@ public:
 
     ThroughputI();
 
+    virtual void endWarmup(const Ice::Current&);
     virtual void sendByteSeq(const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&);
     virtual Demo::ByteSeq recvByteSeq(const Ice::Current&);
     virtual Demo::ByteSeq echoByteSeq(const Demo::ByteSeq& seq, const Ice::Current&);
@@ -38,6 +39,8 @@ private:
     Demo::StringSeq _stringSeq;
     Demo::StringDoubleSeq _structSeq;
     Demo::FixedSeq _fixedSeq;
+
+    bool _warmup;
 };
 
 #endif

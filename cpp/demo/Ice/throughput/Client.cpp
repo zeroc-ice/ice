@@ -70,7 +70,7 @@ ThroughputClient::run(int argc, char* argv[])
 
     menu();
 
-    throughput->ice_ping(); // Initial ping to setup the connection.
+    throughput->endWarmup(); // Initial ping to setup the connection.
 
     //
     // By default use byte sequence.
