@@ -72,6 +72,44 @@ public class Client extends Ice.Application
 	    fixedSeq[i].d = 0;
 	}
 
+        //
+        // A method needs to be invoked thousands of times before the JIT compiler
+        // will convert it to native code. To ensure an accurate throughput measurement,
+        // we need to "warm up" the JIT compiler.
+        //
+        {
+            byte[] emptyBytes= new byte[0];
+	    String[] emptyStrings = new String[0];
+	    StringDouble[] emptyStructs = new StringDouble[0];
+	    Fixed[] emptyFixed = new Fixed[0];
+
+            final int repetitions = 20000;
+            System.out.print("warming up the JIT compiler...");
+            System.out.flush();
+            for(int i = 0; i < repetitions; i++)
+            {
+	        throughput.sendByteSeq(emptyBytes);
+	        throughput.sendStringSeq(emptyStrings);
+	        throughput.sendStructSeq(emptyStructs);
+	        throughput.sendFixedSeq(emptyFixed);
+
+		throughput.recvByteSeq();
+		throughput.recvStringSeq();
+		throughput.recvStructSeq();
+		throughput.recvFixedSeq();
+		
+		throughput.echoByteSeq(emptyBytes);
+		throughput.echoStringSeq(emptyStrings);
+		throughput.echoStructSeq(emptyStructs);
+		throughput.echoFixedSeq(emptyFixed);
+            }
+
+	    throughput.endWarmup();
+	    
+            System.out.println(" ok");
+        }
+
+
 	menu();
 
         java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));

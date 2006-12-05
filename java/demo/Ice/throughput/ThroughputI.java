@@ -14,6 +14,8 @@ public final class ThroughputI extends _ThroughputDisp
     public
     ThroughputI()
     {
+        _warmup = true; 
+
         _byteSeq = new byte[ByteSeqSize.value];
 
 	_stringSeq = new String[StringSeqSize.value];
@@ -41,6 +43,12 @@ public final class ThroughputI extends _ThroughputDisp
     }
 
     public void
+    endWarmup(Ice.Current current)
+    {
+        _warmup = false;
+    }
+
+    public void
     sendByteSeq(byte[] seq, Ice.Current current)
     {
     }
@@ -48,7 +56,14 @@ public final class ThroughputI extends _ThroughputDisp
     public byte[]
     recvByteSeq(Ice.Current current)
     {
-        return _byteSeq;
+        if(_warmup)
+	{
+            return _emptyByteSeq;
+	}
+	else
+	{
+            return _byteSeq;
+	}
     }
 
     public byte[]
@@ -65,7 +80,14 @@ public final class ThroughputI extends _ThroughputDisp
     public String[]
     recvStringSeq(Ice.Current current)
     {
-        return _stringSeq;
+        if(_warmup)
+	{
+            return _emptyStringSeq;
+	}
+	else
+	{
+            return _stringSeq;
+	}
     }
 
     public String[]
@@ -82,7 +104,14 @@ public final class ThroughputI extends _ThroughputDisp
     public StringDouble[]
     recvStructSeq(Ice.Current current)
     {
-        return _structSeq;
+        if(_warmup)
+	{
+            return _emptyStructSeq;
+	}
+	else
+	{
+            return _structSeq;
+	}
     }
 
     public StringDouble[]
@@ -99,7 +128,14 @@ public final class ThroughputI extends _ThroughputDisp
     public Fixed[]
     recvFixedSeq(Ice.Current current)
     {
-        return _fixedSeq;
+        if(_warmup)
+	{
+            return _emptyFixedSeq;
+	}
+	else
+	{
+            return _fixedSeq;
+	}
     }
 
     public Fixed[]
@@ -118,4 +154,11 @@ public final class ThroughputI extends _ThroughputDisp
     private String[] _stringSeq;
     private StringDouble[] _structSeq;
     private Fixed[] _fixedSeq;
+
+    private byte[] _emptyByteSeq = new byte[0];
+    private String[] _emptyStringSeq = new String[0];
+    private StringDouble[] _emptyStructSeq = new StringDouble[0];
+    private Fixed[] _emptyFixedSeq = new Fixed[0];
+
+    private boolean _warmup;
 }
