@@ -32,11 +32,19 @@ Public NotInheritable Class ThroughputI
         Next
     End Sub
 
+    Public Overloads Overrides Sub endWarmup(ByVal current As Ice.Current)
+        _warmup = True
+    End Sub
+
     Public Overloads Overrides Sub sendByteSeq(ByVal seq() As Byte, ByVal current As Ice.Current)
     End Sub
 
     Public Overloads Overrides Function recvByteSeq(ByVal current As Ice.Current) As Byte()
-        Return _byteSeq
+        If _warmup Is True Then
+            Return _emptyByteSeq
+	Else
+            Return _byteSeq
+	End If
     End Function
 
     Public Overloads Overrides Function echoByteSeq(ByVal seq() As Byte, ByVal current As Ice.Current) As Byte()
@@ -47,7 +55,11 @@ Public NotInheritable Class ThroughputI
     End Sub
 
     Public Overloads Overrides Function recvStringSeq(ByVal current As Ice.Current) As String()
-        Return _stringSeq
+        If _warmup Is True Then
+            Return _emptyStringSeq
+	Else
+            Return _stringSeq
+	End If
     End Function
 
     Public Overloads Overrides Function echoStringSeq(ByVal seq() As String, ByVal current As Ice.Current) As String()
@@ -58,7 +70,11 @@ Public NotInheritable Class ThroughputI
     End Sub
 
     Public Overloads Overrides Function recvStructSeq(ByVal current As Ice.Current) As StringDouble()
-        Return _structSeq
+        If _warmup Is True Then
+            Return _emptyStructSeq
+	Else
+            Return _structSeq
+	End If
     End Function
 
     Public Overloads Overrides Function echoStructSeq(ByVal seq As StringDouble(), ByVal current As Ice.Current) As StringDouble()
@@ -69,7 +85,11 @@ Public NotInheritable Class ThroughputI
     End Sub
 
     Public Overloads Overrides Function recvFixedSeq(ByVal current As Ice.Current) As Fixed()
-        Return _fixedSeq
+        If _warmup Is True Then
+            Return _emptyFixedSeq
+	Else
+            Return _fixedSeq
+	End If
     End Function
 
     Public Overloads Overrides Function echoFixedSeq(ByVal seq As Fixed(), ByVal current As Ice.Current) As Fixed()
@@ -84,5 +104,12 @@ Public NotInheritable Class ThroughputI
     Private _stringSeq() As String
     Private _structSeq() As StringDouble
     Private _fixedSeq() As Fixed
+
+    Private _emptyByteSeq() As Byte = new Byte(0) {}
+    Private _emptyStringSeq() As String = New String(0) {}
+    Private _emptyStructSeq() As StringDouble = New StringDouble(0) {}
+    Private _emptyFixedSeq() As Fixed = New Fixed(0) {}
+
+    Private _warmup As Boolean
 
 End Class
