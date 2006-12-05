@@ -202,7 +202,7 @@ class ApplicationEditor extends Editor
 	    (ApplicationDescriptor)root.getDescriptor();
 
 	_name.setText(descriptor.name);
-	_name.setEditable(!root.isLive());
+	_name.setEditable(!root.isLive() && isEditable);
 
 	_description.setText(
 	    Utils.substitute(descriptor.description, resolver));
@@ -235,6 +235,18 @@ class ApplicationEditor extends Editor
 	detectUpdates(true);
     }
     
+    Utils.Resolver getDetailResolver()
+    {
+	if(_target.getCoordinator().substitute())
+	{
+	    return _target.getResolver();
+	}
+	else
+	{
+	    return null;
+	}
+    }
+
     static private final Object NO_DISTRIB = new Object()
 	{
 	    public String toString()

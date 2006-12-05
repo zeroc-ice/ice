@@ -381,7 +381,7 @@ interface Admin
      * failed.
      *
      **/
-    void addApplication(ApplicationDescriptor descriptor)
+    ["ami"] void addApplication(ApplicationDescriptor descriptor)
 	throws AccessDeniedException, DeploymentException;
 
     /**
@@ -403,7 +403,7 @@ interface Admin
      * doesn't exist.
      *
      **/
-    void syncApplication(ApplicationDescriptor descriptor)
+    ["ami"] void syncApplication(ApplicationDescriptor descriptor)
 	throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
 
     /**
@@ -424,7 +424,7 @@ interface Admin
      * doesn't exist.
      *
      **/
-    void updateApplication(ApplicationUpdateDescriptor descriptor)
+    ["ami"] void updateApplication(ApplicationUpdateDescriptor descriptor)
 	throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
 
     /**
@@ -441,7 +441,7 @@ interface Admin
      * doesn't exist.
      *
      **/
-    void removeApplication(string name)
+    ["ami"] void removeApplication(string name)
 	throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
 
     /**
@@ -712,7 +712,7 @@ interface Admin
      * by the target server.
      *
      **/
-    void sendSignal(string id, string signal)
+    ["ami"] void sendSignal(string id, string signal)
 	throws ServerNotExistException, NodeUnreachableException, DeploymentException, BadSignalException;
 
     /**
@@ -735,7 +735,7 @@ interface Admin
      * deployed on the node.
      *
      **/
-    void writeMessage(string id, string message, int fd)
+    ["ami"] void writeMessage(string id, string message, int fd)
 	throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
     /**
@@ -803,7 +803,7 @@ interface Admin
      * get the object type failed.
      *
      **/
-    void addObject(Object* obj)
+    ["ami"] void addObject(Object* obj)
 	throws ObjectExistsException, DeploymentException;
 
     /**
@@ -839,7 +839,7 @@ interface Admin
      * registered.
      *
      **/
-    void addObjectWithType(Object* obj, string type)
+    ["ami"] void addObjectWithType(Object* obj, string type)
 	throws ObjectExistsException, DeploymentException;
 
     /**

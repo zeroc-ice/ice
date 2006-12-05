@@ -14,6 +14,7 @@ import java.awt.Cursor;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -385,9 +386,38 @@ public class Root extends ListTreeNode
 	//
 	Runnable runnable = new Runnable()
 	    {
+		private void release()
+		{
+		    _coordinator.releaseExclusiveWriteAccess();
+		    _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		}
+
+		private void handleFailure(String prefix, String title, String message)
+		{
+		    release();
+
+		    if(isSelected())
+		    {
+			_coordinator.getSaveAction().setEnabled(isLive() && _coordinator.connectedToMaster() || hasFile());
+			_coordinator.getSaveToRegistryAction().setEnabled(true);
+			_coordinator.getDiscardUpdatesAction().setEnabled(true);
+		    }
+
+		    _coordinator.getStatusBar().setText(prefix + "failed!");
+
+		    JOptionPane.showMessageDialog(
+			_coordinator.getMainFrame(),
+			message,
+			title,
+			JOptionPane.ERROR_MESSAGE);
+		}
+		
+
 		public void run()
 		{
 		    _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		    boolean asyncRelease = false;
+		    
 		    try
 		    {
 			if(_live && _canUseUpdateDescriptor)
@@ -395,9 +425,67 @@ public class Root extends ListTreeNode
 			    ApplicationUpdateDescriptor updateDescriptor = createUpdateDescriptor();
 			    if(updateDescriptor != null)
 			    {
-				_coordinator.getAdmin().updateApplication(updateDescriptor);
-				commit();
+				final String prefix = "Updating application '" + _id + "'...";
+				_coordinator.getStatusBar().setText(prefix);
+				
+				AMI_Admin_updateApplication cb = new AMI_Admin_updateApplication()
+				    {
+					public void ice_response()
+					{
+					    SwingUtilities.invokeLater(new Runnable() 
+						{	
+						    public void run() 
+						    {
+							commit();
+							release();
+							_coordinator.getStatusBar().setText(prefix + "done.");
+						    }
+						});
+					}
+					
+					public void ice_exception(final Ice.UserException e)
+					{
+					    SwingUtilities.invokeLater(new Runnable() 
+						{
+						    public void run() 
+						    {
+							_skipUpdates--;
+							handleFailure(prefix, "Update failed", 
+								      "IceGrid exception: " + e.toString());
+						    }
+						    
+						});
+					}
+					    
+					public void ice_exception(final Ice.LocalException e)
+					{
+					    SwingUtilities.invokeLater(new Runnable() 
+						{
+						    public void run() 
+						    {
+							_skipUpdates--;
+							handleFailure(prefix, "Update failed", 
+								      "Communication exception: " + e.toString());
+						    }
+						});
+					}
+
+				    };
+
+				_coordinator.getAdmin().updateApplication_async(cb, updateDescriptor);
+				asyncRelease = true;
+
+				//
+				// If updateApplication fails, we know we can't get other updates
+				// since we have exclusive write access
+				//
 				_skipUpdates++;
+			    }
+			    else
+			    {
+				final String prefix = "Application '" + _id + "' is already up-to-date";
+				_coordinator.getStatusBar().setText(prefix);
+				commit();
 			    }
 			}
 			else
@@ -408,41 +496,142 @@ public class Root extends ListTreeNode
 			    if(_coordinator.getLiveDeploymentRoot().getApplicationDescriptor(_id) == null)
 			    {
 				assert _live == false;
-				_coordinator.getAdmin().addApplication(_descriptor);
-				commit();
-				liveReset();
-				_coordinator.addLiveApplication(Root.this);
+
+
+				final String prefix = "Adding application '" + _id + "'...";
+				_coordinator.getStatusBar().setText(prefix);
+				
+				AMI_Admin_addApplication cb = new AMI_Admin_addApplication()
+				    {
+					public void ice_response()
+					{
+					    SwingUtilities.invokeLater(new Runnable() 
+						{	
+						    public void run() 
+						    {
+							commit();
+							liveReset();
+							_coordinator.addLiveApplication(Root.this);
+							release();
+							_coordinator.getStatusBar().setText(prefix + "done.");
+						    }
+						});
+					}
+					
+					public void ice_exception(final Ice.UserException e)
+					{
+					    SwingUtilities.invokeLater(new Runnable() 
+						{
+						    public void run() 
+						    {
+							handleFailure(prefix, "Add failed", 
+								      "IceGrid exception: " + e.toString());
+						    }
+						    
+						});
+					}
+					    
+					public void ice_exception(final Ice.LocalException e)
+					{
+					    SwingUtilities.invokeLater(new Runnable() 
+						{
+						    public void run() 
+						    {
+							handleFailure(prefix, "Add failed", 
+								      "Communication exception: " + e.toString());
+						    }
+						});
+					}
+
+				    };
+
+				_coordinator.getAdmin().addApplication_async(cb, _descriptor);
+				asyncRelease = true;
 			    }
 			    else
 			    {
-				_coordinator.getAdmin().syncApplication(_descriptor);
-				commit();
+				final String prefix = "Synchronizing application '" + _id + "'...";
+				_coordinator.getStatusBar().setText(prefix);
 
+				AMI_Admin_syncApplication cb = new AMI_Admin_syncApplication()
+				    {
+					public void ice_response()
+					{
+					    SwingUtilities.invokeLater(new Runnable() 
+						{	
+						    public void run() 
+						    {
+							commit();
+							if(!_live)
+							{
+							    //
+							    // Make this tab live or close it if there is one already open
+							    //
+							    ApplicationPane app = _coordinator.getLiveApplication(_id);
+							    if(app == null)
+							    {
+								liveReset();
+								_coordinator.addLiveApplication(Root.this);
+							    }
+							    else
+							    {
+								boolean selected = isSelected();
+								_coordinator.getMainPane().removeApplication(Root.this);
+								if(selected)
+								{
+								    _coordinator.getMainPane().setSelectedComponent(app);
+								}
+							    }
+							}
+
+							release();
+							_coordinator.getStatusBar().setText(prefix + "done.");
+						    }
+						});
+					}
+					
+					public void ice_exception(final Ice.UserException e)
+					{
+					    SwingUtilities.invokeLater(new Runnable() 
+						{
+						    public void run() 
+						    {
+							if(_live)
+							{
+							    _skipUpdates--;
+							}
+
+							handleFailure(prefix, "Sync failed", 
+								      "IceGrid exception: " + e.toString());
+						    }
+						    
+						});
+					}
+					    
+					public void ice_exception(final Ice.LocalException e)
+					{
+					    SwingUtilities.invokeLater(new Runnable() 
+						{
+						    public void run() 
+						    {
+							if(_live)
+							{
+							    _skipUpdates--;
+							}
+
+							handleFailure(prefix, "Sync failed", 
+								      "Communication exception: " + e.toString());
+						    }
+						});
+					}
+
+				    };
+
+				_coordinator.getAdmin().syncApplication_async(cb, _descriptor);
+				asyncRelease = true;
 				if(_live)
 				{
-				    liveReset();
 				    _skipUpdates++;
-				}
-				else
-				{
-				    //
-				    // Make this tab live or close it if there is one already open
-				    //
-				    ApplicationPane app = _coordinator.getLiveApplication(_id);
-				    if(app == null)
-				    {
-					liveReset();
-					_coordinator.addLiveApplication(Root.this);
-				    }
-				    else
-				    {
-					boolean selected = isSelected();
-					_coordinator.getMainPane().removeApplication(Root.this);
-					if(selected)
-					{
-					    _coordinator.getMainPane().setSelectedComponent(app);
-					}
-				    }
 				}
 			    }
 			}
@@ -452,32 +641,6 @@ public class Root extends ListTreeNode
 			    _coordinator.getSaveToRegistryAction().setEnabled(false);
 			    _coordinator.getDiscardUpdatesAction().setEnabled(false);
 			}
-		    }
-		    catch(DeploymentException e)
-		    {
-			JOptionPane.showMessageDialog(
-			    _coordinator.getMainFrame(),
-			    "Application '" + _id + "': "+ e.reason,
-			    "Deployment Exception",
-			    JOptionPane.ERROR_MESSAGE);
-		    }
-		    catch(ApplicationNotExistException e)
-		    {
-			//
-			// Should never happen
-			//
-			JOptionPane.showMessageDialog(
-			    _coordinator.getMainFrame(),
-			    "Application '" + _id + "' was not found in the IceGrid registry",
-			    "Deployment Exception",
-			    JOptionPane.ERROR_MESSAGE);
-		    }
-		    catch(AccessDeniedException e)
-		    {
-			//
-			// Should never happen
-			//
-			_coordinator.accessDenied(e);
 		    }
 		    catch(Ice.LocalException e)
 		    {
@@ -489,8 +652,11 @@ public class Root extends ListTreeNode
 		    }
 		    finally
 		    {
-			_coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-			_coordinator.releaseExclusiveWriteAccess();
+			if(!asyncRelease)
+			{
+			    _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			    _coordinator.releaseExclusiveWriteAccess();
+			}
 		    }
 		}
 	    };
@@ -573,6 +739,7 @@ public class Root extends ListTreeNode
     private void liveReset()
     {
 	_live = true;
+	_skipUpdates = 0;
 	_file = null;
 	_coordinator.getMainPane().resetIcon(this);
     }
@@ -937,7 +1104,7 @@ public class Root extends ListTreeNode
 
 	    _coordinator.getSaveAction().setEnabled(false);
 	    _coordinator.getDiscardUpdatesAction().setEnabled(false);
-	    _coordinator.getSaveToRegistryAction().setEnabled(false);
+	    _coordinator.getSaveToRegistryAction().setEnabled(hasFile());
 	}
     }
 

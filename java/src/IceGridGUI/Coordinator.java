@@ -722,7 +722,7 @@ public class Coordinator
     void adapterInit(AdapterInfo[] adapters)
     {
 	_liveDeploymentRoot.adapterInit(adapters);
-	// _liveDeploymentPane.refresh(); // TODO: XXX: Is is it necessary to call refresh()?
+	_liveDeploymentPane.refresh();
     }
 
     void adapterAdded(AdapterInfo info)
@@ -793,32 +793,107 @@ public class Coordinator
 	root.setSelectedNode(root);
     }
     
-    public void removeApplicationFromRegistry(String name)
+    public void removeApplicationFromRegistry(final String name)
     {
 	_mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	
-	boolean acquired = false;
 	try
 	{
-	    acquireExclusiveWriteAccess(null);
-	    acquired = true;
-	    _sessionKeeper.getAdmin().removeApplication(name);
+	    Runnable runnable = new Runnable()
+		{
+		    private void release()
+		    {
+			releaseExclusiveWriteAccess();
+			getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		    }
+
+		    private void handleFailure(String prefix, String title, String message)
+		    {
+			release();
+			getStatusBar().setText(prefix + "failed!");
+			
+			JOptionPane.showMessageDialog(
+			    getMainFrame(),
+			    message,
+			    title,
+			    JOptionPane.ERROR_MESSAGE);
+		    }
+
+		    public void run()
+		    {
+			getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			boolean asyncRelease = false;
+			
+
+			final String prefix = "Deleting application '" + name + "'...";
+			AMI_Admin_removeApplication cb = new AMI_Admin_removeApplication()
+			    {
+				public void ice_response()
+				{
+				    SwingUtilities.invokeLater(new Runnable() 
+					{	
+					    public void run() 
+					    {
+						release();
+						getStatusBar().setText(prefix + "done.");
+					    }
+					});
+				}
+				
+				public void ice_exception(final Ice.UserException e)
+				{
+				    SwingUtilities.invokeLater(new Runnable() 
+					{
+					    public void run() 
+					    {
+						handleFailure(prefix, "Delete failed", 
+							      "IceGrid exception: " + e.toString());
+					    }
+					    
+					});
+				}
+				
+				public void ice_exception(final Ice.LocalException e)
+				{
+				    SwingUtilities.invokeLater(new Runnable() 
+					{
+					    public void run() 
+					    {
+						handleFailure(prefix, "Delete failed", 
+							      "Communication exception: " + e.toString());
+					    }
+					});
+				}
+			    };
+
+			try
+			{
+			    _sessionKeeper.getAdmin().removeApplication_async(cb, name);
+			}
+			catch(Ice.LocalException e)
+			{
+			    JOptionPane.showMessageDialog(
+				getMainFrame(),
+				e.toString(),
+				"Communication Exception",
+				JOptionPane.ERROR_MESSAGE);
+			}
+			finally
+			{
+			    if(!asyncRelease)
+			    {
+				releaseExclusiveWriteAccess();
+				getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			    }
+			}
+		    }
+		};
+
+	    acquireExclusiveWriteAccess(runnable);
 	}
 	catch(AccessDeniedException e)
 	{
 	    accessDenied(e);
-	}
-	catch(DeploymentException e)
-	{
-	    // 
-	    // TODO: XXX: The application couldn't be removed (probably because we tried to remove it from a slave).
-	    //
-	}
-	catch(ApplicationNotExistException e)
-	{
-	    //
-	    // Somebody else deleted this application at about the same time
-	    //
 	}
 	catch(Ice.LocalException e)
 	{
@@ -828,14 +903,6 @@ public class Coordinator
 		"' from IceGrid registry:\n" + e.toString(),
 		"Trouble with IceGrid registry",
 		JOptionPane.ERROR_MESSAGE);
-	}
-	finally
-	{
-	    if(acquired)
-	    {
-		releaseExclusiveWriteAccess();
-	    }
-	    _mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
     }
 
