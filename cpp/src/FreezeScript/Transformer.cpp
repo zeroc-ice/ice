@@ -418,9 +418,17 @@ public:
     DatabaseDescriptor(const DescriptorPtr&, int, const TransformInfoIPtr&, const IceXML::Attributes&);
 
     virtual void addChild(const DescriptorPtr&);
+    virtual void execute(const SymbolTablePtr&);
+
+    string name() const;
 
 private:
 
+    string _name;
+    string _oldKeyName;
+    string _oldValueName;
+    string _newKeyName;
+    string _newValueName;
     RecordDescriptorPtr _record;
 };
 typedef IceUtil::Handle<DatabaseDescriptor> DatabaseDescriptorPtr;
@@ -441,7 +449,7 @@ public:
 
 private:
 
-    DatabaseDescriptorPtr _database;
+    map<string, DatabaseDescriptorPtr> _databases;
     vector<DescriptorPtr> _children;
 };
 typedef IceUtil::Handle<TransformDBDescriptor> TransformDBDescriptorPtr;
@@ -2038,7 +2046,15 @@ FreezeScript::DatabaseDescriptor::DatabaseDescriptor(const DescriptorPtr& parent
 {
     DescriptorErrorContext ctx(_info->errorReporter, "database", _line);
 
-    IceXML::Attributes::const_iterator p = attributes.find("key");
+    IceXML::Attributes::const_iterator p;
+
+    p = attributes.find("name");
+    if(p != attributes.end())
+    {
+	_name = p->second;
+    }
+
+    p = attributes.find("key");
     if(p == attributes.end())
     {
         _info->errorReporter->error("required attribute `key' is missing");
@@ -2052,8 +2068,6 @@ FreezeScript::DatabaseDescriptor::DatabaseDescriptor(const DescriptorPtr& parent
     }
     string valueTypes = p->second;
 
-    string oldKeyName, newKeyName;
-    string oldValueName, newValueName;
     string::size_type pos;
 
     pos = keyTypes.find(',');
@@ -2063,13 +2077,13 @@ FreezeScript::DatabaseDescriptor::DatabaseDescriptor(const DescriptorPtr& parent
     }
     if(pos == string::npos)
     {
-        oldKeyName = keyTypes;
-        newKeyName = keyTypes;
+	_oldKeyName = keyTypes;
+	_newKeyName = keyTypes;
     }
     else
     {
-        oldKeyName = keyTypes.substr(0, pos);
-        newKeyName = keyTypes.substr(pos + 1);
+	_oldKeyName = keyTypes.substr(0, pos);
+	_newKeyName = keyTypes.substr(pos + 1);
     }
 
     pos = valueTypes.find(',');
@@ -2079,37 +2093,14 @@ FreezeScript::DatabaseDescriptor::DatabaseDescriptor(const DescriptorPtr& parent
     }
     if(pos == string::npos)
     {
-        oldValueName = valueTypes;
-        newValueName = valueTypes;
+	_oldValueName = valueTypes;
+	_newValueName = valueTypes;
     }
     else
     {
-        oldValueName = valueTypes.substr(0, pos);
-        newValueName = valueTypes.substr(pos + 1);
+	_oldValueName = valueTypes.substr(0, pos);
+	_newValueName = valueTypes.substr(pos + 1);
     }
-
-    //
-    // Look up the Slice definitions for the key and value types.
-    //
-    _info->oldKeyType = findType(_info->oldUnit, oldKeyName);
-    _info->newKeyType = findType(_info->newUnit, newKeyName);
-    _info->oldValueType = findType(_info->oldUnit, oldValueName);
-    _info->newValueType = findType(_info->newUnit, newValueName);
-
-    if(_info->connection != 0)
-    {
-	Freeze::Catalog catalog(_info->connection, Freeze::catalogName());
-	Freeze::CatalogData catalogData;
-	catalogData.evictor = false;
-	catalogData.key = _info->newKeyType->typeId(); 
-	catalogData.value = _info->newValueType->typeId();
-	catalog.put(Freeze::Catalog::value_type(_info->newDbName, catalogData));
-    }
-
-    //
-    // TODO: it looks like _info is not destroyed before the new dbEnv is closed.
-    //
-    _info->connection = 0;
 }
 
 void
@@ -2128,6 +2119,43 @@ FreezeScript::DatabaseDescriptor::addChild(const DescriptorPtr& child)
     }
 
     ExecutableContainerDescriptor::addChild(child);
+}
+
+void
+FreezeScript::DatabaseDescriptor::execute(const SymbolTablePtr& st)
+{
+    DescriptorErrorContext ctx(_info->errorReporter, "database", _line);
+
+    //
+    // Look up the Slice definitions for the key and value types.
+    //
+    _info->oldKeyType = findType(_info->oldUnit, _oldKeyName);
+    _info->newKeyType = findType(_info->newUnit, _newKeyName);
+    _info->oldValueType = findType(_info->oldUnit, _oldValueName);
+    _info->newValueType = findType(_info->newUnit, _newValueName);
+
+    if(_info->connection != 0)
+    {
+	Freeze::Catalog catalog(_info->connection, Freeze::catalogName());
+	Freeze::CatalogData catalogData;
+	catalogData.evictor = false;
+	catalogData.key = _info->newKeyType->typeId(); 
+	catalogData.value = _info->newValueType->typeId();
+	catalog.put(Freeze::Catalog::value_type(_info->newDbName, catalogData));
+    }
+
+    //
+    // TODO: it looks like _info is not destroyed before the new dbEnv is closed.
+    //
+    _info->connection = 0;
+
+    ExecutableContainerDescriptor::execute(st);
+}
+
+string
+FreezeScript::DatabaseDescriptor::name() const
+{
+    return _name;
 }
 
 //
@@ -2154,15 +2182,24 @@ FreezeScript::TransformDBDescriptor::addChild(const DescriptorPtr& child)
 
     if(db)
     {
-        if(_database)
-        {
-            _info->errorReporter->error("only one <database> element can be specified");
-        }
-        else
-        {
-            _database = db;
-            _children.push_back(db);
-        }
+	string name = db->name();
+	map<string, DatabaseDescriptorPtr>::iterator p = _databases.find(name);
+	if(p != _databases.end())
+	{
+	    if(name.empty())
+	    {
+		_info->errorReporter->error("duplicate <database> element");
+	    }
+	    else
+	    {
+		_info->errorReporter->error(string("duplicate <database> element for ") + name);
+	    }
+	}
+	else
+	{
+	    _databases[name] = db;
+	    _children.push_back(db);
+	}
     }
     else if(transform)
     {
@@ -2204,9 +2241,9 @@ FreezeScript::TransformDBDescriptor::validate()
 {
     DescriptorErrorContext ctx(_info->errorReporter, "transformdb", _line);
 
-    if(!_database)
+    if(_databases.empty())
     {
-        _info->errorReporter->error("no <database> element specified");
+	_info->errorReporter->error("no <database> element defined");
     }
 
     for(vector<DescriptorPtr>::iterator p = _children.begin(); p != _children.end(); ++p)
@@ -2218,7 +2255,18 @@ FreezeScript::TransformDBDescriptor::validate()
 void
 FreezeScript::TransformDBDescriptor::execute(const SymbolTablePtr& sym)
 {
-    _database->execute(sym);
+    map<string, DatabaseDescriptorPtr>::iterator p = _databases.find(_info->newDbName);
+    if(p == _databases.end())
+    {
+	p = _databases.find("");
+    }
+
+    if(p == _databases.end())
+    {
+	_info->errorReporter->error("no <database> element found for `" + _info->newDbName + "'");
+    }
+
+    p->second->execute(sym);
 }
 
 //

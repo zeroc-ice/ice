@@ -9,7 +9,12 @@
 
 #include <FreezeScript/Util.h>
 #include <FreezeScript/Exception.h>
+#include <Freeze/Catalog.h>
+#include <Freeze/Connection.h>
+#include <Freeze/Initialize.h>
 #include <Slice/Preprocessor.h>
+#include <db_cxx.h>
+#include <sys/stat.h>
 
 using namespace std;
 using namespace Slice;
@@ -197,4 +202,55 @@ FreezeScript::parseSlice(const string& n, const Slice::UnitPtr& u, const vector<
     u->mergeModules();
 
     return true;
+}
+
+FreezeScript::CatalogDataMap
+FreezeScript::readCatalog(const Ice::CommunicatorPtr& communicator, const string& dbEnvName)
+{
+    CatalogDataMap result;
+
+    DbEnv dbEnv(0);
+#ifdef _WIN32
+    int mode = 0;
+#else
+    int mode = S_IRUSR | S_IWUSR;
+#endif
+    try
+    {
+#ifdef _WIN32
+	//
+	// Berkeley DB may use a different C++ runtime.
+	//
+	dbEnv.set_alloc(::malloc, ::realloc, ::free);
+#endif
+
+	//
+	// Open the database environment.
+	//
+	{
+	    u_int32_t flags = DB_INIT_LOG | DB_INIT_MPOOL | DB_INIT_TXN | DB_CREATE | DB_THREAD | DB_RECOVER;
+	    dbEnv.open(dbEnvName.c_str(), flags, mode);
+	}
+
+	Freeze::ConnectionPtr connection = Freeze::createConnection(communicator, dbEnvName, dbEnv);
+	Freeze::Catalog catalog(connection, Freeze::catalogName());
+	for(Freeze::Catalog::const_iterator p = catalog.begin(); p != catalog.end(); ++p)
+	{
+	    result.insert(make_pair(p->first, p->second));
+	}
+    }
+    catch(const DbException& ex)
+    {
+	dbEnv.close(0);
+	throw FailureException(__FILE__, __LINE__, string("database error: ") + ex.what());
+    }
+    catch(...)
+    {
+	dbEnv.close(0);
+	throw FailureException(__FILE__, __LINE__, "unknown exception");
+    }
+
+    dbEnv.close(0);
+
+    return result;
 }

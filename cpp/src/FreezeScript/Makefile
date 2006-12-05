@@ -48,7 +48,7 @@ $(TRANSFORMDB): $(TRANSFORM_OBJS) $(COMMON_OBJS)
 
 $(DUMPDB): $(DUMP_OBJS) $(COMMON_OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(DUMP_OBJS) $(COMMON_OBJS) -lSlice $(EXPAT_RPATH_LINK) -lIceXML $(LIBS) $(DB_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(DUMP_OBJS) $(COMMON_OBJS) -lSlice $(EXPAT_RPATH_LINK) -lIceXML $(DB_RPATH_LINK) -lFreeze $(LIBS) $(DB_LIBS)
 
 clean::
 	rm -f Grammar.cpp Grammar.h

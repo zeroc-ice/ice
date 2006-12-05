@@ -78,7 +78,7 @@ private:
 static void
 usage(const char* n)
 {
-    cerr << "Usage: " << n << " [options] [dbenv db]\n";
+    cerr << "Usage: " << n << " [options] [dbenv [db]]\n";
     cerr <<
         "Options:\n"
         "-h, --help            Show this message.\n"
@@ -96,8 +96,26 @@ usage(const char* n)
         "--key TYPE            Specifies the Slice type of the database key.\n"
         "--value TYPE          Specifies the Slice type of the database value.\n"
         "--select EXPR         Dump a record only if EXPR is true.\n"
+        "-c, --catalog         Display information about the databases in an\n"
+        "                      environment, or about a particular database.\n"
         ;
     // Note: --case-sensitive is intentionally not shown here!
+}
+
+static void
+printCatalogData(const string& dbName, const Freeze::CatalogData& data)
+{
+    cout << dbName << ": ";
+    if(data.evictor)
+    {
+	cout << "Evictor database" << endl;
+    }
+    else
+    {
+	cout << "Map database" << endl;
+	cout << "  key type   = " << data.key << endl;
+	cout << "  value type = " << data.value << endl;
+    }
 }
 
 static int
@@ -131,6 +149,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     opts.addOpt("", "key", IceUtil::Options::NeedArg);
     opts.addOpt("", "value", IceUtil::Options::NeedArg);
     opts.addOpt("", "select", IceUtil::Options::NeedArg);
+    opts.addOpt("c", "catalog");
     opts.addOpt("", "case-sensitive");
 
     vector<string> args;
@@ -154,6 +173,60 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     {
 	cout << ICE_STRING_VERSION << endl;
 	return EXIT_SUCCESS;
+    }
+    if(opts.isSet("c"))
+    {
+	if(args.empty())
+	{
+	    cerr << argv[0] << ": no database environment specified." << endl;
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
+	else if(args.size() > 2)
+	{
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
+	try
+	{
+	    FreezeScript::CatalogDataMap catalog = FreezeScript::readCatalog(communicator, args[0]);
+	    if(args.size() == 1)
+	    {
+		if(catalog.empty())
+		{
+		    cout << "Catalog is empty." << endl;
+		}
+		else
+		{
+		    cout << "Catalog contents:" << endl;
+		    for(FreezeScript::CatalogDataMap::const_iterator p = catalog.begin(); p != catalog.end(); ++p)
+		    {
+			cout << endl;
+			printCatalogData(p->first, p->second);
+		    }
+		}
+	    }
+	    else
+	    {
+		FreezeScript::CatalogDataMap::const_iterator p = catalog.find(args[1]);
+		if(p == catalog.end())
+		{
+		    cerr << argv[0] << ": database `" << args[1] << "' not found in environment `" << args[0] << "'."
+			 << endl;
+		    return EXIT_FAILURE;
+		}
+		else
+		{
+		    printCatalogData(p->first, p->second);
+		}
+	    }
+	    return EXIT_SUCCESS;
+	}
+	catch(const FreezeScript::FailureException& ex)
+	{
+	    cerr << argv[0] << ": " << ex.reason() << endl;
+	    return EXIT_FAILURE;
+	}
     }
     if(opts.isSet("D"))
     {
@@ -214,7 +287,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
     caseSensitive = opts.isSet("case-sensitive");
 
-    if(outputFile.empty() && args.size() < 2)
+    if(outputFile.empty() && args.size() != 2)
     {
         usage(argv[0]);
         return EXIT_FAILURE;
@@ -255,15 +328,55 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     string descriptors;
     if(inputFile.empty())
     {
+	const string evictorKeyTypeName = "::Ice::Identity";
+	const string evictorValueTypeName = "::Freeze::ObjectRecord";
+
+	if((!keyTypeName.empty() && valueTypeName.empty()) || (keyTypeName.empty() && !valueTypeName.empty()))
+	{
+	    cerr << argv[0] << ": a key type and a value type must be specified" << endl;
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
+	else if(!evictor && keyTypeName.empty() && valueTypeName.empty())
+	{
+	    try
+	    {
+		FreezeScript::CatalogDataMap catalog = FreezeScript::readCatalog(communicator, dbEnvName);
+		FreezeScript::CatalogDataMap::iterator p = catalog.find(dbName);
+		if(p == catalog.end())
+		{
+		    cerr << argv[0] << ": database `" << dbName << "' not found in catalog." << endl;
+		    cerr << "Current catalog databases:" << endl;
+		    for(p = catalog.begin(); p != catalog.end(); ++p)
+		    {
+			cerr << "  " << p->first << endl;
+		    }
+		    return EXIT_FAILURE;
+		}
+		else
+		{
+		    if(p->second.evictor)
+		    {
+			evictor = true;
+		    }
+		    else
+		    {
+			keyTypeName = p->second.key;
+			valueTypeName = p->second.value;
+		    }
+		}
+	    }
+	    catch(const FreezeScript::FailureException& ex)
+	    {
+		cerr << argv[0] << ": " << ex.reason() << endl;
+		return EXIT_FAILURE;
+	    }
+	}
+
         if(evictor)
         {
-            keyTypeName = "::Ice::Identity";
-            valueTypeName = "::Freeze::ObjectRecord";
-        }
-        else if(keyTypeName.empty() || valueTypeName.empty())
-        {
-            usage(argv[0]);
-            return EXIT_FAILURE;
+	    keyTypeName = evictorKeyTypeName;
+	    valueTypeName = evictorValueTypeName;
         }
 
         Slice::TypePtr keyType, valueType;

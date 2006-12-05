@@ -27,8 +27,9 @@ class AnalyzeTransformVisitor : public ParserVisitor
 {
 public:
 
-    AnalyzeTransformVisitor(XMLOutput&, const UnitPtr&, const TypePtr&, const TypePtr&, const TypePtr&, const TypePtr&,
-                            bool, vector<string>&, vector<string>&);
+    AnalyzeTransformVisitor(XMLOutput&, const UnitPtr&, bool, vector<string>&, vector<string>&);
+
+    void addDatabase(const string&, const TypePtr&, const TypePtr&, const TypePtr&, const TypePtr&);
 
     virtual bool visitClassDefStart(const ClassDefPtr&);
     virtual bool visitStructStart(const StructPtr&);
@@ -81,42 +82,58 @@ private:
 ////////////////////////////////////
 
 FreezeScript::AnalyzeTransformVisitor::AnalyzeTransformVisitor(XMLOutput& out, const UnitPtr& newUnit,
-                                                               const TypePtr& oldKey, const TypePtr& newKey,
-                                                               const TypePtr& oldValue, const TypePtr& newValue,
                                                                bool ignoreTypeChanges, vector<string>& missingTypes,
                                                                vector<string>& errors) :
     _out(out), _newUnit(newUnit), _ignoreTypeChanges(ignoreTypeChanges), _missingTypes(missingTypes), _errors(errors)
 {
-    out << se("database");
+}
 
-    string oldKeyName = typeToString(oldKey);
-    string newKeyName = typeToString(newKey);
+void
+FreezeScript::AnalyzeTransformVisitor::addDatabase(const string& name, const TypePtr& oldKey, const TypePtr& newKey,
+						   const TypePtr& oldValue, const TypePtr& newValue)
+{
+    _out << "\n";
+    _out << se("database");
+
+    if(!name.empty())
+    {
+	_out << attr("name", name);
+    }
+
+    string oldKeyName = oldKey ? typeToString(oldKey) : "UNKNOWN";
+    string newKeyName = newKey ? typeToString(newKey) : "UNKNOWN";
     if(oldKeyName == newKeyName)
     {
-        out << attr("key", oldKeyName);
+	_out << attr("key", oldKeyName);
     }
     else
     {
-        out << attr("key", oldKeyName + "," + newKeyName);
+	_out << attr("key", oldKeyName + "," + newKeyName);
     }
 
-    string oldValueName = typeToString(oldValue);
-    string newValueName = typeToString(newValue);
+    string oldValueName = oldValue ? typeToString(oldValue) : "UNKNOWN";
+    string newValueName = newValue ? typeToString(newValue) : "UNKNOWN";
     if(oldValueName == newValueName)
     {
-        out << attr("value", oldValueName);
+	_out << attr("value", oldValueName);
     }
     else
     {
-        out << attr("value", oldValueName + "," + newValueName);
+	_out << attr("value", oldValueName + "," + newValueName);
     }
 
-    out << se("record");
-    compareTypes("database key", oldKey, newKey);
-    compareTypes("database value", oldValue, newValue);
-    out << ee;
+    _out << se("record");
+    if(oldKey && newKey)
+    {
+	compareTypes("database key", oldKey, newKey);
+    }
+    if(oldValue && newValue)
+    {
+	compareTypes("database value", oldValue, newValue);
+    }
+    _out << ee;
 
-    out << ee;
+    _out << ee;
 }
 
 bool
@@ -1112,27 +1129,34 @@ FreezeScript::AnalyzeInitVisitor::typeChange(const TypePtr& t, const string& sco
 }
 
 FreezeScript::TransformAnalyzer::TransformAnalyzer(const UnitPtr& oldUnit, const UnitPtr& newUnit,
-                                                   bool ignoreTypeChanges) :
-    _old(oldUnit), _new(newUnit), _ignoreTypeChanges(ignoreTypeChanges)
+                                                   bool ignoreTypeChanges, ostream& os, vector<string>& missingTypes,
+						   vector<string>& errors) :
+    _old(oldUnit), _new(newUnit), _out(os),
+    _visitor(new AnalyzeTransformVisitor(_out, newUnit, ignoreTypeChanges, missingTypes, errors))
 {
+    _out << se("transformdb");
+}
+
+FreezeScript::TransformAnalyzer::~TransformAnalyzer()
+{
+    delete _visitor;
 }
 
 void
-FreezeScript::TransformAnalyzer::analyze(const TypePtr& oldKey, const TypePtr& newKey, const TypePtr& oldValue,
-                                         const TypePtr& newValue, ostream& os, vector<string>& missingTypes,
-                                         vector<string>& errors)
+FreezeScript::TransformAnalyzer::addDatabase(const string& name, const TypePtr& oldKey, const TypePtr& newKey,
+					     const TypePtr& oldValue, const TypePtr& newValue)
 {
-    XMLOutput out(os);
+    _visitor->addDatabase(name, oldKey, newKey, oldValue, newValue);
+}
 
-    out << se("transformdb");
+void
+FreezeScript::TransformAnalyzer::finish()
+{
+    _old->visit(_visitor, false);
 
-    AnalyzeTransformVisitor transformVisitor(out, _new, oldKey, newKey, oldValue, newValue, _ignoreTypeChanges,
-                                             missingTypes, errors);
-    _old->visit(&transformVisitor, false);
-
-    AnalyzeInitVisitor initVisitor(out, _old);
+    AnalyzeInitVisitor initVisitor(_out, _old);
     _new->visit(&initVisitor, false);
 
-    out << ee;
-    out << '\n';
+    _out << ee;
+    _out << '\n';
 }

@@ -32,37 +32,38 @@ static void
 usage(const char* n)
 {
  
-//
-// -a is not fully implemented yet
-//  cerr << "Usage: " << n << " [options] [dbenv db newdbenv | dbenv newdbenv]\n";
-//  
-    cerr << "Usage: " << n << " [options] [dbenv db newdbenv] \n";
+    cerr << "Usage:\n";
+    cerr << "\n";
+    cerr << n << " -o FILE [-i] [slice-options] [type-options]\n";
+    cerr << "  Generates descriptors in FILE for a database.\n";
+    cerr << "\n";
+    cerr << n << " -o FILE [-i] [slice-options] DBENV\n";
+    cerr << "  Generates descriptors in FILE for all databases in the environment DBENV.\n";
+    cerr << "\n";
+    cerr << n << " [options] [slice-options] [type-options] DBENV DB NEWDBENV\n";
+    cerr << "  Transform the database DB in the environment DBENV. A database of the\n";
+    cerr << "  same name is created in the environment NEWDBENV.\n";
+    cerr << "\n";
+    cerr << n << " [options] [slice-options] DBENV NEWDBENV\n";
+    cerr << "  Transform all databases from the environment DBENV into the\n";
+    cerr << "  environment NEWDBENV.\n";
+    cerr << "\n";
     cerr <<
-        "Options:\n"
-        "-h, --help            Show this message.\n"
-        "-v, --version         Display the Ice version.\n"
+        "Slice Options:\n"
         "-DNAME                Define NAME as 1.\n"
         "-DNAME=DEF            Define NAME as DEF.\n"
         "-UNAME                Remove any definition for NAME.\n"
         "-d, --debug           Print debug messages.\n"
-        "--ice                 Permit `Ice' prefix (for building Ice source code only)\n"
-        "-o FILE               Output transformation descriptors into the file FILE.\n"
-        "                      Database transformation is not performed.\n"
-// 
-// -a is not fully implemented yet
-//
-//      "-a                    Transform all databases in the dbenv\n"
-        "-i                    Ignore incompatible type changes.\n"
-        "-p                    Purge objects whose types no longer exist.\n"
-        "-c                    Use catastrophic recovery on the old database environment.\n"
-        "-w                    Suppress duplicate warnings during transformation.\n"
-        "-f FILE               Execute the transformation descriptors in the file FILE.\n"
         "--include-old DIR     Put DIR in the include file search path for old Slice\n"
         "                      definitions.\n"
         "--include-new DIR     Put DIR in the include file search path for new Slice\n"
         "                      definitions.\n"
         "--old SLICE           Load old Slice definitions from the file SLICE.\n"
         "--new SLICE           Load new Slice definitions from the file SLICE.\n"
+        ;
+    cerr << "\n";
+    cerr <<
+        "Type Options:\n"
         "-e                    Indicates the database is an Evictor database.\n"
         "--key TYPE[,TYPE]     Specifies the Slice types of the database key. If the\n"
         "                      type names have not changed, only one needs to be\n"
@@ -73,19 +74,43 @@ usage(const char* n)
         "                      specified. Otherwise, the type names are specified as\n"
         "                      old-type,new-type.\n"
         ;
+    cerr << "\n";
+    cerr <<
+        "Options:\n"
+        "-h, --help            Show this message.\n"
+        "-v, --version         Display the Ice version.\n"
+        "-i                    Ignore incompatible type changes.\n"
+        "-p                    Purge objects whose types no longer exist.\n"
+        "-c                    Use catastrophic recovery on the old database environment.\n"
+        "-w                    Suppress duplicate warnings during migration.\n"
+        "-f FILE               Execute the transformation descriptors in the file FILE.\n"
+        ;
     // Note: --case-sensitive is intentionally not shown here!
 }
 
 static Slice::TypePtr
-findType(const string& prog, const Slice::UnitPtr& u, const string& type)
+findType(const Slice::UnitPtr& u, const string& type)
 {
     Slice::TypeList l;
 
-    l = u->lookupType(type, false);
+    string t;
+    if(type == "::Ice::Object")
+    {
+	t = "Object";
+    }
+    else if(type == "::Ice::Object*")
+    {
+	t = "Object*";
+    }
+    else
+    {
+	t = type;
+    }
+
+    l = u->lookupType(t, false);
     if(l.empty())
     {
-        cerr << prog << ": error: unknown type `" << type << "'" << endl;
-        return 0;
+	return 0;
     }
 
     return l.front();
@@ -195,7 +220,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     bool debug;
     bool ice = true; // Needs to be true in order to create default definitions.
     string outputFile;
-    bool allDb;
     bool ignoreTypeChanges;
     bool purgeObjects;
     bool catastrophicRecover;
@@ -208,6 +232,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     string keyTypeNames;
     string valueTypeNames;
     string dbEnvName, dbName, dbEnvNameNew;
+    bool allDb = false;
 
     IceUtil::Options opts;
     opts.addOpt("h", "help");
@@ -215,9 +240,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     opts.addOpt("D", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("d", "debug");
-    opts.addOpt("", "ice");
     opts.addOpt("o", "", IceUtil::Options::NeedArg);
-    opts.addOpt("a");
     opts.addOpt("i");
     opts.addOpt("p");
     opts.addOpt("c");
@@ -227,6 +250,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     opts.addOpt("", "include-new", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("", "old", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("", "new", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("a");
     opts.addOpt("e");
     opts.addOpt("", "key", IceUtil::Options::NeedArg);
     opts.addOpt("", "value", IceUtil::Options::NeedArg);
@@ -274,13 +298,10 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
     debug = opts.isSet("debug");
 
-    // No need to set --ice here, it is always true.
-
     if(opts.isSet("o"))
     {
 	outputFile = opts.optArg("o");
     }
-    allDb = opts.isSet("a");
     ignoreTypeChanges = opts.isSet("i");
     purgeObjects = opts.isSet("p");
     catastrophicRecover = opts.isSet("c");
@@ -332,15 +353,46 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
     caseSensitive = opts.isSet("case-sensitive");
 
-    if(outputFile.empty() && (allDb && args.size() != 2 || !allDb && args.size() != 3))
+    if(outputFile.empty())
     {
-        usage(argv[0]);
-        return EXIT_FAILURE;
+	if(args.size() == 2)
+	{
+	    allDb = true;
+	}
+	else if(args.size() != 3)
+	{
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
+    }
+    else
+    {
+	if(args.size() == 1)
+	{
+	    allDb = true;
+	}
+	else if(args.size() != 0)
+	{
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
     }
 
-    if(!args.empty())
+    if(allDb && (!keyTypeNames.empty() || !valueTypeNames.empty()))
     {
-        dbEnvName = args[0];
+	usage(argv[0]);
+	return EXIT_FAILURE;
+    }
+
+    if(inputFile.empty() && !allDb && !evictor && (keyTypeNames.empty() || valueTypeNames.empty()))
+    {
+	usage(argv[0]);
+	return EXIT_FAILURE;
+    }
+
+    if(args.size() > 0)
+    {
+	dbEnvName = args[0];
     }
     if(args.size() > 1)
     {
@@ -379,6 +431,28 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     FreezeScript::createEvictorSliceTypes(newUnit);
 
     //
+    // Read the catalog if necessary.
+    //
+    FreezeScript::CatalogDataMap catalog;
+    if(allDb)
+    {
+	try
+	{
+	    catalog = FreezeScript::readCatalog(communicator, dbEnvName);
+	}
+	catch(const FreezeScript::FailureException& ex)
+	{
+	    cerr << argv[0] << ": " << ex.reason() << endl;
+	    return EXIT_FAILURE;
+	}
+	if(catalog.empty())
+	{
+	    cerr << argv[0] << ": no databases in environment `" << dbEnvName << "'" << endl;
+	    return EXIT_FAILURE;
+	}
+    }
+
+    //
     // If no input file was provided, then we need to analyze the Slice types.
     //
     string descriptors;
@@ -389,69 +463,166 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         vector<string> missingTypes;
         vector<string> analyzeErrors;
 
-        string oldKeyName, newKeyName, oldValueName, newValueName;
+	FreezeScript::TransformAnalyzer analyzer(oldUnit, newUnit, ignoreTypeChanges, out, missingTypes, analyzeErrors);
 
-	if(evictor)
-        {
-            oldKeyName = newKeyName = "::Ice::Identity";
-            oldValueName = newValueName = "::Freeze::ObjectRecord";
-        }
-        else
-        {
-            string::size_type pos;
+	const string evictorKeyName = "::Ice::Identity";
+	const string evictorValueName = "::Freeze::ObjectRecord";
 
-            if(keyTypeNames.empty() || valueTypeNames.empty())
-            {
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
+	if(allDb)
+	{
+	    //
+	    // Add a <database> element for each database in the catalog.
+	    //
+	    for(FreezeScript::CatalogDataMap::iterator p = catalog.begin(); p != catalog.end(); ++p)
+	    {
+		string keyName, valueName;
 
-            pos = keyTypeNames.find(',');
-            if(pos == 0 || pos == keyTypeNames.size())
-            {
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
-            if(pos == string::npos)
-            {
-                oldKeyName = keyTypeNames;
-                newKeyName = keyTypeNames;
-            }
-            else
-            {
-                oldKeyName = keyTypeNames.substr(0, pos);
-                newKeyName = keyTypeNames.substr(pos + 1);
-            }
+		if(p->second.evictor)
+		{
+		    keyName = evictorKeyName;
+		    valueName = evictorValueName;
+		}
+		else
+		{
+		    keyName = p->second.key;
+		    valueName = p->second.value;
+		}
 
-            pos = valueTypeNames.find(',');
-            if(pos == 0 || pos == valueTypeNames.size())
-            {
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
-            if(pos == string::npos)
-            {
-                oldValueName = valueTypeNames;
-                newValueName = valueTypeNames;
-            }
-            else
-            {
-                oldValueName = valueTypeNames.substr(0, pos);
-                newValueName = valueTypeNames.substr(pos + 1);
-            }
-        }
+		//
+		// Look up the key and value types in the old and new Slice definitions.
+		//
+		Slice::TypePtr oldKeyType = findType(oldUnit, keyName);
+		if(!oldKeyType)
+		{
+		    cerr << argv[0] << ": type `" << keyName << "' from database `" << p->first
+			 << "' not found in old Slice definitions" << endl;
+		}
+		Slice::TypePtr newKeyType = findType(newUnit, keyName);
+		if(!newKeyType)
+		{
+		    cerr << argv[0] << ": type `" << keyName << "' from database `" << p->first
+			 << "' not found in new Slice definitions" << endl;
+		}
+		Slice::TypePtr oldValueType = findType(oldUnit, valueName);
+		if(!oldValueType)
+		{
+		    cerr << argv[0] << ": type `" << valueName << "' from database `" << p->first
+			 << "' not found in old Slice definitions" << endl;
+		}
+		Slice::TypePtr newValueType = findType(newUnit, valueName);
+		if(!newValueType)
+		{
+		    cerr << argv[0] << ": type `" << valueName << "' from database `" << p->first
+			 << "' not found in new Slice definitions" << endl;
+		}
 
-        Slice::TypePtr oldKeyType = findType(argv[0], oldUnit, oldKeyName);
-        Slice::TypePtr newKeyType = findType(argv[0], newUnit, newKeyName);
-        Slice::TypePtr oldValueType = findType(argv[0], oldUnit, oldValueName);
-        Slice::TypePtr newValueType = findType(argv[0], newUnit, newValueName);
-        if(!oldKeyType || !newKeyType || !oldValueType || !newValueType)
-        {   
-            return EXIT_FAILURE;
-        }
+		//
+		// If we are generating an output file, we do not consider a missing type to be
+		// an error. Since the type information comes from the catalog of the old
+		// environment, it's possible that the key or value types are not present in
+		// the new Slice definitions. Rather than abort at this point, we simply emit
+		// a partially-defined <database> element that must be edited by the user.
+		//
+		// If we are not generating an output file, we have to stop now.
+		//
+		if(outputFile.empty() && (!oldKeyType || !newKeyType || !oldValueType || !newValueType))
+		{   
+		    return EXIT_FAILURE;
+		}
 
-        FreezeScript::TransformAnalyzer analyzer(oldUnit, newUnit, ignoreTypeChanges);
-        analyzer.analyze(oldKeyType, newKeyType, oldValueType, newValueType, out, missingTypes, analyzeErrors);
+		analyzer.addDatabase(p->first, oldKeyType, newKeyType, oldValueType, newValueType);
+	    }
+	}
+	else
+	{
+	    string oldKeyName, newKeyName, oldValueName, newValueName;
+
+	    if(evictor)
+	    {
+		oldKeyName = newKeyName = evictorKeyName;
+		oldValueName = newValueName = evictorValueName;
+	    }
+	    else
+	    {
+		string::size_type pos;
+
+		if(keyTypeNames.empty() || valueTypeNames.empty())
+		{
+		    usage(argv[0]);
+		    return EXIT_FAILURE;
+		}
+
+		pos = keyTypeNames.find(',');
+		if(pos == 0 || pos == keyTypeNames.size())
+		{
+		    usage(argv[0]);
+		    return EXIT_FAILURE;
+		}
+		if(pos == string::npos)
+		{
+		    oldKeyName = keyTypeNames;
+		    newKeyName = keyTypeNames;
+		}
+		else
+		{
+		    oldKeyName = keyTypeNames.substr(0, pos);
+		    newKeyName = keyTypeNames.substr(pos + 1);
+		}
+
+		pos = valueTypeNames.find(',');
+		if(pos == 0 || pos == valueTypeNames.size())
+		{
+		    usage(argv[0]);
+		    return EXIT_FAILURE;
+		}
+		if(pos == string::npos)
+		{
+		    oldValueName = valueTypeNames;
+		    newValueName = valueTypeNames;
+		}
+		else
+		{
+		    oldValueName = valueTypeNames.substr(0, pos);
+		    newValueName = valueTypeNames.substr(pos + 1);
+		}
+	    }
+
+	    //
+	    // Look up the key and value types in the old and new Slice definitions.
+	    //
+	    Slice::TypePtr oldKeyType = findType(oldUnit, oldKeyName);
+	    if(!oldKeyType)
+	    {
+		cerr << argv[0] << ": type `" << oldKeyName << "' not found in old Slice definitions" << endl;
+	    }
+	    Slice::TypePtr newKeyType = findType(newUnit, newKeyName);
+	    if(!newKeyType)
+	    {
+		cerr << argv[0] << ": type `" << newKeyName << "' not found in new Slice definitions" << endl;
+	    }
+	    Slice::TypePtr oldValueType = findType(oldUnit, oldValueName);
+	    if(!oldValueType)
+	    {
+		cerr << argv[0] << ": type `" << oldValueName << "' not found in old Slice definitions" << endl;
+	    }
+	    Slice::TypePtr newValueType = findType(newUnit, newValueName);
+	    if(!newValueType)
+	    {
+		cerr << argv[0] << ": type `" << newValueName << "' not found in new Slice definitions" << endl;
+	    }
+
+	    //
+	    // Stop now if any of the types could not be found.
+	    //
+	    if(!oldKeyType || !newKeyType || !oldValueType || !newValueType)
+	    {   
+		return EXIT_FAILURE;
+	    }
+
+	    analyzer.addDatabase("", oldKeyType, newKeyType, oldValueType, newValueType);
+	}
+
+	analyzer.finish();
 
         if(!analyzeErrors.empty())
         {
@@ -573,71 +744,25 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         }
 
 	//
-	// TODO: handle properly DbHome config (curremtly it will break if it's set for the new env)
+	// TODO: handle properly DbHome config (currently it will break if it's set for the new env)
 	//
 
 	//
-	// Open the catalog of the new environment, and start a transaction
+	// Open the catalog of the new environment, and start a transaction.
 	//
 	Freeze::ConnectionPtr connectionNew = Freeze::createConnection(communicator, dbEnvNameNew, dbEnvNew);
 	txNew = connectionNew->beginTransaction();
 	DbTxn* txnNew = Freeze::getTxn(txNew);
 
-
 	if(allDb)
 	{
 	    //
-	    // Transform all the databases listed in the old catalog
+	    // Transform all databases in the old catalog.
 	    //
-	    //
-	    // Create each time a new descriptor with the appropriate default database element
-	    //
-
-	    Freeze::ConnectionPtr connection = Freeze::createConnection(communicator, dbEnvName, dbEnv);
-	    Freeze::Catalog catalog(connection, Freeze::catalogName());
-	    for(Freeze::Catalog::const_iterator p = catalog.begin(); p != catalog.end(); ++p)
+	    for(FreezeScript::CatalogDataMap::iterator p = catalog.begin(); p != catalog.end(); ++p)
 	    {
-		string dbElement;
-		if(p->second.evictor)
-		{
-		    dbElement = "<database key=\"::Ice::Identity\" value=\"::Freeze::ObjectRecord\"> <record/> </database>";
-		}
-		else
-		{
-		    //
-		    // Temporary: FreezeScript should accept type-ids
-		    //
-		    string value = p->second.value;
-		    if(value == "::Ice::Object")
-		    {
-			value = "Object";
-		    }
-		    else if(value == "::Ice::Object*")
-		    {
-			value = "Object*";
-		    }
-
-		    dbElement = "<database key=\"" + p->second.key + "\" value=\"" + value + "\"> <record/> </database>"; 
-		}
-		
-		string localDescriptor = descriptors;
-		string transformdbTag = "<transformdb>";
-		size_t pos = localDescriptor.find(transformdbTag);
-		if(pos == string::npos)
-		{
-		    cerr << argv[0] << ": Invalid descriptor " << endl;
-		    status = EXIT_FAILURE;
-		    break;
-		}
-		localDescriptor.replace(pos, transformdbTag.size(), transformdbTag + dbElement); 
-		
-		if(debug)
-		{
-		    cout << "Processing database " << p->first << " with descriptor: " << localDescriptor << endl;
-		}
-
 		transformDb(p->second.evictor, communicator, objectFactory, dbEnv, dbEnvNew, p->first, connectionNew,
-			    dbs, oldUnit, newUnit, txnNew, purgeObjects, suppress, localDescriptor);
+			    dbs, oldUnit, newUnit, txnNew, purgeObjects, suppress, descriptors);
 	    }
 	}
 	else
