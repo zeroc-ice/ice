@@ -33,14 +33,14 @@ Public NotInheritable Class ThroughputI
     End Sub
 
     Public Overloads Overrides Sub endWarmup(ByVal current As Ice.Current)
-        _warmup = True
+        _warmup = False
     End Sub
 
     Public Overloads Overrides Sub sendByteSeq(ByVal seq() As Byte, ByVal current As Ice.Current)
     End Sub
 
     Public Overloads Overrides Function recvByteSeq(ByVal current As Ice.Current) As Byte()
-        If _warmup Is True Then
+        If _warmup Then
             Return _emptyByteSeq
 	Else
             Return _byteSeq
@@ -55,7 +55,7 @@ Public NotInheritable Class ThroughputI
     End Sub
 
     Public Overloads Overrides Function recvStringSeq(ByVal current As Ice.Current) As String()
-        If _warmup Is True Then
+        If _warmup Then
             Return _emptyStringSeq
 	Else
             Return _stringSeq
@@ -70,7 +70,7 @@ Public NotInheritable Class ThroughputI
     End Sub
 
     Public Overloads Overrides Function recvStructSeq(ByVal current As Ice.Current) As StringDouble()
-        If _warmup Is True Then
+        If _warmup Then
             Return _emptyStructSeq
 	Else
             Return _structSeq
@@ -85,7 +85,7 @@ Public NotInheritable Class ThroughputI
     End Sub
 
     Public Overloads Overrides Function recvFixedSeq(ByVal current As Ice.Current) As Fixed()
-        If _warmup Is True Then
+        If _warmup Then
             Return _emptyFixedSeq
 	Else
             Return _fixedSeq
