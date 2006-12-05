@@ -15,6 +15,8 @@ import Demo
 
 class ThroughputI(Demo.Throughput):
     def __init__(self):
+        warmup = True
+	
 	bytes = []
 	bytes[0:Demo.ByteSeqSize] = range(0, Demo.ByteSeqSize)
 	bytes = ['\x00' for x in bytes]
@@ -39,11 +41,17 @@ class ThroughputI(Demo.Throughput):
 	    self.fixedSeq[i].j = 0
 	    self.fixedSeq[i].d = 0.0
 
+    def endWarmup(self, current=None):
+        self.warmup = False
+	
     def sendByteSeq(self, seq, current=None):
         pass
 
     def recvByteSeq(self, current=None):
-        return self.byteSeq
+        if self.warmup:
+	    return []
+	else:
+            return self.byteSeq
 
     def echoByteSeq(self, seq, current=None):
         return seq
@@ -52,7 +60,10 @@ class ThroughputI(Demo.Throughput):
         pass
 
     def recvStringSeq(self, current=None):
-        return self.stringSeq
+        if self.warmup:
+	    return []
+	else:
+            return self.stringSeq
 
     def echoStringSeq(self, seq, current=None):
         return seq
@@ -61,7 +72,10 @@ class ThroughputI(Demo.Throughput):
         pass
 
     def recvStructSeq(self, current=None):
-        return self.structSeq
+        if self.warmup:
+	    return []
+	else:
+            return self.structSeq
 
     def echoStructSeq(self, seq, current=None):
         return seq
@@ -70,7 +84,10 @@ class ThroughputI(Demo.Throughput):
         pass
 
     def recvFixedSeq(self, current=None):
-        return self.fixedSeq
+        if self.warmup:
+	    return []
+	else:
+            return self.fixedSeq
 
     def echoFixedSeq(self, seq, current=None):
         return seq

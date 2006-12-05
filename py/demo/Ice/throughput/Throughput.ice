@@ -38,6 +38,8 @@ const int FixedSeqSize = 50000;
 
 interface Throughput
 {
+    void endWarmup();
+    
     void sendByteSeq(ByteSeq seq);
     ByteSeq recvByteSeq();
     ByteSeq echoByteSeq(ByteSeq seq);
