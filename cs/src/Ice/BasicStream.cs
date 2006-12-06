@@ -995,17 +995,10 @@ namespace IceInternal
 		writeSize(0);
 		return;
 	    }
-	    try
-	    {
-		byte[] arr = utf8.GetBytes(v);
-		writeSize(arr.Length);
-		expand(arr.Length);
-		_buf.put(arr);
-	    }
-	    catch(Exception)
-	    {
-		Debug.Assert(false);
-	    }
+	    byte[] arr = utf8.GetBytes(v);
+	    writeSize(arr.Length);
+	    expand(arr.Length);
+	    _buf.put(arr);
 	}
 	
 	public virtual void writeStringSeq(string[] v)
