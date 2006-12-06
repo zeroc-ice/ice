@@ -444,6 +444,9 @@ public class Coordinator
 	    _serverMenu.add(_liveActionsForMenu.get(
 				IceGridGUI.LiveDeployment.TreeNode.PATCH_SERVER));
 	    _serverMenu.addSeparator();
+	    _serverMenu.add(_liveActionsForMenu.get(
+				IceGridGUI.LiveDeployment.TreeNode.WRITE_MESSAGE));
+	    _serverMenu.addSeparator();
 	    _signalMenu = new JMenu("Send signal");
 	    _serverMenu.add(_signalMenu);
 	    _signalMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.SIGHUP));

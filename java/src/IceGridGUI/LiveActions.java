@@ -120,6 +120,16 @@ public class LiveActions
 	_array[TreeNode.SIGUSR2] = new SendSignal("SIGUSR2");
 	_array[TreeNode.SIGTERM] = new SendSignal("SIGTERM");
 
+	_array[TreeNode.WRITE_MESSAGE] = new AbstractAction("Write message")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _target.writeMessage();
+		}
+	    };
+	_array[TreeNode.WRITE_MESSAGE].putValue(Action.SHORT_DESCRIPTION, 
+					       "Write message to stdout or stderr");
+	
 
 	_array[TreeNode.SHUTDOWN_NODE] = new AbstractAction("Shutdown")
 	    {

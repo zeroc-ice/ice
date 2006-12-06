@@ -54,7 +54,7 @@ class ObjectDialog extends JDialog
 			type = _type.getSelectedItem().toString();
 		    }
 
-		    if(root.addObject(_proxy.getText(),type))
+		    if(root.addObject(_proxy.getText(), type))
 		    {
 			setVisible(false);
 		    }

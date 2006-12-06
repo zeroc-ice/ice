@@ -41,10 +41,12 @@ class Server extends ListArrayTreeNode
 	    actions[STOP] = _state != ServerState.Inactive;
 	    actions[ENABLE] = !_enabled;
 	    actions[DISABLE] = _enabled;
+	    actions[WRITE_MESSAGE] = _state != ServerState.Inactive;
+
 	    actions[PATCH_SERVER] = 
 		!_serverDescriptor.distrib.icepatch.equals("");
 
-	    if(_state != ServerState.Inactive && _enabled)
+	    if(_state != ServerState.Inactive)
 	    {
 		Node node = (Node)_parent;
 		if(!node.isRunningWindows())
@@ -154,6 +156,15 @@ class Server extends ListArrayTreeNode
     public void disable()
     {
 	enableServer(false);
+    }
+
+    public void writeMessage()
+    {
+	if(_writeMessageDialog == null)
+	{
+	    _writeMessageDialog = new WriteMessageDialog(getRoot());
+	}
+	_writeMessageDialog.showDialog(_id);
     }
 
     public void signal(final String s)
@@ -320,7 +331,9 @@ class Server extends ListArrayTreeNode
 	    _popup.addSeparator();
 	    _popup.add(la.get(PATCH_SERVER));
 	    _popup.addSeparator();
-	    
+	    _popup.add(la.get(WRITE_MESSAGE));
+	    _popup.addSeparator();
+
 	    JMenu signalMenu = new JMenu("Send signal");
 	    _popup.add(signalMenu);
 	    
@@ -807,4 +820,5 @@ class Server extends ListArrayTreeNode
 
     static private ServerEditor _editor;
     static private JPopupMenu _popup;
+    static private WriteMessageDialog _writeMessageDialog;
 }
