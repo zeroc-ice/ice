@@ -22,8 +22,21 @@ public class Client : Ice.Application
             return 1;
         }
         
-        // Initial ping to setup the connection.
-        ping.ice_ping();
+	//
+	// A method needs to be invoked thousands of times before the JIT compiler
+	// will convert it to native code. To ensure an accurate latency measurement,
+	// we need to "warm up" the JIT compiler.
+	//
+	{
+	    int reps = 20000;
+	    Console.Error.Write("warming up the JIT compiler...");
+	    Console.Error.Flush();
+	    for(int i = 0; i < reps; i++)
+	    {
+	        ping.ice_ping();
+	    }
+	    Console.Error.WriteLine("ok");
+	}
         
         long tv1 = (System.DateTime.Now.Ticks - 621355968000000000) / 10000;
         int repetitions = 100000;

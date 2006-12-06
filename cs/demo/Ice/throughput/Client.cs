@@ -69,11 +69,44 @@ public class Client : Ice.Application
 	    fixedSeq[i].j = 0;
 	    fixedSeq[i].d = 0;
 	}
+
+        //
+        // A method needs to be invoked thousands of times before the JIT compiler
+        // will convert it to native code. To ensure an accurate throughput measurement,
+        // we need to "warm up" the JIT compiler.
+        //
+        {
+	    byte[] emptyBytes = new byte[0];
+	    string[] emptyStrings = new string[0];
+	    StringDouble[] emptyStructs = new StringDouble[0];
+	    Fixed[] emptyFixed = new Fixed[0];
+
+            int reps = 10000;
+            Console.Error.Write("warming up the JIT compiler...");
+            Console.Error.Flush();
+            for(int i = 0; i < reps; i++)
+            {
+                throughput.sendByteSeq(emptyBytes);
+                throughput.sendStringSeq(emptyStrings);
+                throughput.sendStructSeq(emptyStructs);
+                throughput.sendFixedSeq(emptyFixed);
+
+                throughput.recvByteSeq();
+                throughput.recvStringSeq();
+                throughput.recvStructSeq();
+                throughput.recvFixedSeq();
+
+                throughput.echoByteSeq(emptyBytes);
+                throughput.echoStringSeq(emptyStrings);
+                throughput.echoStructSeq(emptyStructs);
+                throughput.echoFixedSeq(emptyFixed);
+            }
+            throughput.endWarmup();
+            Console.Error.WriteLine("ok");
+        }
         
         menu();
         
-        throughput.endWarmup(); // Initial ping to setup the connection.
-
         //
         // By default use byte sequence.
         //
