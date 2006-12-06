@@ -20,6 +20,24 @@ import IceGridGUI.LiveDeployment.*;
 //
 public class LiveActions
 {
+    class SendSignal extends AbstractAction
+    {
+	SendSignal(String name)
+	{
+	    super(name);
+	    _name = name;
+	    putValue(Action.SHORT_DESCRIPTION, 
+		     "Send " + _name);
+	}
+
+	public void actionPerformed(ActionEvent e) 
+	{
+	    _target.signal(_name);
+	}
+	private String _name;
+    };
+
+
     public Action get(int index)
     {
 	return _array[index];
@@ -93,6 +111,14 @@ public class LiveActions
 	    };
 	_array[TreeNode.DISABLE].putValue(Action.SHORT_DESCRIPTION, 
 					      "Disable this server");
+
+	_array[TreeNode.SIGHUP] = new SendSignal("SIGHUP");
+	_array[TreeNode.SIGINT] = new SendSignal("SIGINT");
+	_array[TreeNode.SIGQUIT] = new SendSignal("SIGQUIT");
+	_array[TreeNode.SIGKILL] = new SendSignal("SIGKILL");
+	_array[TreeNode.SIGUSR1] = new SendSignal("SIGUSR1");
+	_array[TreeNode.SIGUSR2] = new SendSignal("SIGUSR2");
+	_array[TreeNode.SIGTERM] = new SendSignal("SIGTERM");
 
 
 	_array[TreeNode.SHUTDOWN_NODE] = new AbstractAction("Shutdown")

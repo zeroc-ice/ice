@@ -330,7 +330,8 @@ public class Coordinator
 	    _newServerMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.NEW_SERVER));
 	    _newServerMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.NEW_SERVER_ICEBOX));
 	    _newServerMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.NEW_SERVER_FROM_TEMPLATE));
-	    
+	   
+
 	    //
 	    // New service sub-sub-menu
 	    //
@@ -442,7 +443,17 @@ public class Coordinator
 	    _serverMenu.addSeparator();
 	    _serverMenu.add(_liveActionsForMenu.get(
 				IceGridGUI.LiveDeployment.TreeNode.PATCH_SERVER));
-
+	    _serverMenu.addSeparator();
+	    _signalMenu = new JMenu("Send signal");
+	    _serverMenu.add(_signalMenu);
+	    _signalMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.SIGHUP));
+	    _signalMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.SIGINT));
+	    _signalMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.SIGQUIT));
+	    _signalMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.SIGKILL));
+	    _signalMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.SIGUSR1));
+	    _signalMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.SIGUSR2));
+	    _signalMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.SIGTERM));
+	
 	    //
 	    // Help menu
 	    //
@@ -1829,7 +1840,10 @@ public class Coordinator
 		}
 	    };
 	_closeApplication.putValue(Action.SHORT_DESCRIPTION, "Close application");
+	_closeApplication.putValue(Action.ACCELERATOR_KEY, 
+				   KeyStroke.getKeyStroke(KeyEvent.VK_F4, MENU_MASK));
 	_closeApplication.setEnabled(false);
+	
 
 	_save = new AbstractAction("Save")
 	    {
@@ -2270,6 +2284,9 @@ public class Coordinator
 	    availableActions[IceGridGUI.LiveDeployment.TreeNode.ENABLE] ||
 	    availableActions[IceGridGUI.LiveDeployment.TreeNode.DISABLE] ||
 	    availableActions[IceGridGUI.LiveDeployment.TreeNode.PATCH_SERVER]);
+
+	_signalMenu.setEnabled(
+	    availableActions[IceGridGUI.LiveDeployment.TreeNode.SIGHUP]);
     }
 	
     public void showActions(IceGridGUI.Application.TreeNode node)
@@ -2393,6 +2410,7 @@ public class Coordinator
     private JMenu _nodeMenu;
     private JMenu _registryMenu;
     private JMenu _serverMenu;
+    private JMenu _signalMenu;
 
     private final Thread _shutdownHook;
 

@@ -36,15 +36,24 @@ public abstract class TreeNode extends TreeNodeBase
     public static final int STOP = 1;
     public static final int ENABLE = 2;
     public static final int DISABLE = 3;
+    
+    public static final int SIGHUP = 4;
+    public static final int SIGINT = 5;
+    public static final int SIGQUIT = 6;
+    public static final int SIGKILL = 7;
+    public static final int SIGUSR1 = 8;
+    public static final int SIGUSR2 = 9;
+    public static final int SIGTERM = 10;
 
-    public static final int SHUTDOWN_NODE = 4;
-    public static final int SHUTDOWN_REGISTRY = 5;
 
-    public static final int PATCH_SERVER = 6;
+    public static final int SHUTDOWN_NODE = 11;
+    public static final int SHUTDOWN_REGISTRY = 12;
 
-    public static final int ADD_OBJECT = 7;
+    public static final int PATCH_SERVER = 13;
 
-    static public final int ACTION_COUNT = 8;
+    public static final int ADD_OBJECT = 14;
+
+    static public final int ACTION_COUNT = 15;
     
     public boolean[] getAvailableActions()
     {
@@ -67,6 +76,11 @@ public abstract class TreeNode extends TreeNodeBase
     {
 	assert false;
     }
+    public void signal(String s)
+    {
+	assert false;
+    }
+
     public void shutdownNode()
     {
 	assert false;

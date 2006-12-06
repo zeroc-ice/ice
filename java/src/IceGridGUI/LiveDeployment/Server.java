@@ -12,6 +12,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 
 import javax.swing.Icon;
+import javax.swing.JMenu;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
@@ -42,6 +43,18 @@ class Server extends ListArrayTreeNode
 	    actions[DISABLE] = _enabled;
 	    actions[PATCH_SERVER] = 
 		!_serverDescriptor.distrib.icepatch.equals("");
+
+	    if(_state != ServerState.Inactive && _enabled)
+	    {
+		Node node = (Node)_parent;
+		if(!node.isRunningWindows())
+		{
+		    for(int i = SIGHUP; i <= SIGTERM; ++i)
+		    {
+			actions[i] = true;
+		    }
+		}
+	    }
 	}
 
 	return actions;
@@ -141,6 +154,49 @@ class Server extends ListArrayTreeNode
     public void disable()
     {
 	enableServer(false);
+    }
+
+    public void signal(final String s)
+    {
+	final String prefix = "Sending '" + s + "' to server '" + _id + "'...";
+	getCoordinator().getStatusBar().setText(prefix);
+
+	AMI_Admin_sendSignal cb = new AMI_Admin_sendSignal()
+	    {
+		//
+		// Called by another thread!
+		//
+		public void ice_response()
+		{
+		    amiSuccess(prefix);
+		}
+		
+		public void ice_exception(Ice.UserException e)
+		{
+		    amiFailure(prefix, "Failed to deliver signal " + s + " to " + _id, e);
+		}
+
+		public void ice_exception(Ice.LocalException e)
+		{
+		    amiFailure(prefix, "Failed to deliver signal " + s + " to " + _id, e.toString());
+		}
+	    };
+	
+	try
+	{   
+	    getCoordinator().getMainFrame().setCursor(
+		Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+	    getCoordinator().getAdmin().sendSignal_async(cb, _id, s);
+	}
+	catch(Ice.LocalException e)
+	{
+	    failure(prefix, "Failed to deliver signal " + s + " to " + _id, e.toString());
+	}
+	finally
+	{
+	    getCoordinator().getMainFrame().setCursor(
+		Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	}
     }
 
     public void patchServer()
@@ -263,6 +319,18 @@ class Server extends ListArrayTreeNode
 	    _popup.add(la.get(DISABLE));
 	    _popup.addSeparator();
 	    _popup.add(la.get(PATCH_SERVER));
+	    _popup.addSeparator();
+	    
+	    JMenu signalMenu = new JMenu("Send signal");
+	    _popup.add(signalMenu);
+	    
+	    signalMenu.add(la.get(SIGHUP));
+	    signalMenu.add(la.get(SIGINT));
+	    signalMenu.add(la.get(SIGQUIT));
+	    signalMenu.add(la.get(SIGKILL));
+	    signalMenu.add(la.get(SIGUSR1));
+	    signalMenu.add(la.get(SIGUSR2));
+	    signalMenu.add(la.get(SIGTERM));
 	}
 	
 	la.setTarget(this);
