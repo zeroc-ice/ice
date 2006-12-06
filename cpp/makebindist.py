@@ -1296,7 +1296,7 @@ def main():
 	if os.path.exists(cf):
 	    shutil.copy(cf, os.path.join('Ice-' + version, psf))
 
-    makePHPbinary(sources, buildDir, installDir, version, mmVersion, clean)
+    # makePHPbinary(sources, buildDir, installDir, version, mmVersion, clean)
 
     runprog('tar cf Ice-' + version + '-bin-' + getPlatform() + '.tar Ice-' + version)
     runprog('gzip -9 Ice-' + version + '-bin-' + getPlatform() + '.tar')
@@ -1312,12 +1312,12 @@ def main():
         shutil.copy(installFiles + '/unix/SOURCES.Linux', '/usr/src/redhat/SOURCES/SOURCES')
         shutil.copy(installFiles + '/unix/THIRD_PARTY_LICENSE.Linux', '/usr/src/redhat/SOURCES/THIRD_PARTY_LICENSE')
 	shutil.copy(installFiles + '/unix/README.Linux-RPM', installDir + '/Ice-' + version + '/README')
-	shutil.copy(installFiles + '/thirdparty/php/ice.ini', installDir + '/Ice-' + version + '/ice.ini')
-
-        shutil.copy(sources + '/php-5.1.4.tar.bz2', '/usr/src/redhat/SOURCES')
-        shutil.copy(installFiles + '/thirdparty/php/ice.ini', '/usr/src/redhat/SOURCES')
-        shutil.copy(buildDir + '/ice/install/thirdparty/php/configure-5.1.4.gz',
-                    '/usr/src/redhat/SOURCES/configure.gz')
+#	shutil.copy(installFiles + '/thirdparty/php/ice.ini', installDir + '/Ice-' + version + '/ice.ini')
+#
+        #shutil.copy(sources + '/php-5.1.4.tar.bz2', '/usr/src/redhat/SOURCES')
+        #shutil.copy(installFiles + '/thirdparty/php/ice.ini', '/usr/src/redhat/SOURCES')
+        #shutil.copy(buildDir + '/ice/install/thirdparty/php/configure-5.1.4.gz',
+        #            '/usr/src/redhat/SOURCES/configure.gz')
         iceArchives = glob.glob(sources + '/Ice*' + version + '*.gz')
         for f in iceArchives:
             shutil.copy(f, '/usr/src/redhat/SOURCES')

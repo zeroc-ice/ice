@@ -13,6 +13,10 @@ import os, sys, shutil, string, logging, compileall
 # TODO: Setup a table for the dependencies so you don't have to 'flit'
 # through the package descriptions to set the dependencies.
 #
+# TODO: BuildRequires needs to include our db45 package for building
+# on RHEL or CentOS. It really shouldn't need it for other RPM based
+# distributions
+#
 
 iceDescription = '''Ice is a modern alternative to object middleware
 such as CORBA or COM/DCOM/COM+.  It is easy to learn, yet provides a
@@ -25,7 +29,6 @@ solution, and much more.'''
 
 #
 # Represents the 'main' package of an RPM spec file.
-# TODO: The package should really write the RPM header has well.
 #
 class Package:
 
@@ -71,13 +74,13 @@ class Package:
 	ofile.write('Source2: http://www.zeroc.com/download/Ice/' + minorVer + '/IcePy-%{version}.tar.gz\n')
 	ofile.write('Source3: http://www.zeroc.com/download/Ice/' + minorVer + '/IceCS-%{version}.tar.gz\n')
 	ofile.write('Source4: http://www.zeroc.com/download/Ice/' + minorVer + '/README.Linux-RPM\n')
-        ofile.write('Source4: http://www.zeroc.com/download/Ice/' + minorVer + '/SOURCES\n')
-        ofile.write('Source4: http://www.zeroc.com/download/Ice/' + minorVer + '/THIRD_PARTY_LICENSE\n')
-	ofile.write('Source5: http://www.zeroc.com/download/Ice/' + minorVer + '/ice.ini\n')
-	ofile.write('Source6: http://www.zeroc.com/download/Ice/' + minorVer + '/configure.gz\n')
-	ofile.write('Source7: http://www.zeroc.com/download/Ice/' + minorVer + '/php-5.1.4.tar.bz2\n')
-	ofile.write('Source8: http://www.zeroc.com/download/Ice/' + minorVer + '/IcePHP-%{version}.tar.gz\n')
-	ofile.write('Source9: http://www.zeroc.com/download/Ice/' + minorVer + '/IceJ-%{version}-java5.tar.gz\n')
+        ofile.write('Source5: http://www.zeroc.com/download/Ice/' + minorVer + '/SOURCES\n')
+        ofile.write('Source6: http://www.zeroc.com/download/Ice/' + minorVer + '/THIRD_PARTY_LICENSE\n')
+	#ofile.write('Source5: http://www.zeroc.com/download/Ice/' + minorVer + '/ice.ini\n')
+	#ofile.write('Source6: http://www.zeroc.com/download/Ice/' + minorVer + '/configure.gz\n')
+	#ofile.write('Source7: http://www.zeroc.com/download/Ice/' + minorVer + '/php-5.1.4.tar.bz2\n')
+	#ofile.write('Source8: http://www.zeroc.com/download/Ice/' + minorVer + '/IcePHP-%{version}.tar.gz\n')
+	ofile.write('Source7: http://www.zeroc.com/download/Ice/' + minorVer + '/IceJ-%{version}-java5.tar.gz\n')
 	ofile.write('\n')
 	if len(installDir) != 0:
 	    ofile.write('BuildRoot: ' + installDir + '\n')
@@ -97,9 +100,10 @@ class Package:
 
 	ofile.write('\n%endif\n')
 
-        for f in ['python >= 2.4.1', 'python-devel >= 2.4.1', 'bzip2-devel >= 1.0.2', 'bzip2-libs >= 1.0.2', 
-		  'expat-devel >= 1.9', 'expat >= 1.9', 'libstdc++ >= 3.2', 'gcc >= 3.2', 'gcc-c++ >= 3.2', 'tar', 
-		  'binutils >= 2.10', 'openssl >= 0.9.7f', 'openssl-devel >= 0.9.7f',  'ncurses >= 5.4']:
+        for f in ['python >= 2.3.4', 'python-devel >= 2.3.4', 'bzip2-devel >= 1.0.2', 'bzip2-libs >= 1.0.2', 
+		  'expat-devel >= 0.5.0', 'expat >= 0.5.0', 'libstdc++ >= 3.2', 'gcc >= 3.2', 'gcc-c++ >= 3.2', 'tar', 
+		  'binutils >= 2.10', 'openssl >= 0.9.7a', 'openssl-devel >= 0.9.7a',  'ncurses >= 5.4',
+                  'db45 >= 4.5.20']:
             ofile.write('BuildRequires: ' + f  + '\n')
 
 	ofile.write('\n')
@@ -123,7 +127,7 @@ class Package:
 	ofile.write('%clean\n')
 	ofile.write('\n')
 	ofile.write('%changelog\n')
-	ofile.write('* Fri Sep 29 2006 ZeroC Staff\n')
+	ofile.write('* Fri Dec 6 2006 ZeroC Staff\n')
 	ofile.write('- See source distributions or the ZeroC website for more information\n')
 	ofile.write('  about the changes in this release\n') 
 	ofile.write('\n')
@@ -276,10 +280,9 @@ done
 #
 # NOTE: File transforms should be listed before directory transforms.
 #
-transforms = [ ('file', 'ice.ini', 'etc/php.d/ice.ini'),
+transforms = [ 
 	       ('dir', 'lib', 'usr/lib'),
 	       ('dir', '%{icelibdir}', 'usr/%{icelibdir}'),
-	       ('file', 'usr/%{icelibdir}/icephp.so', 'usr/%{icelibdir}/php/modules/icephp.so'),
 	       ('file', 'usr/lib/Ice.jar', 'usr/lib/Ice-%version%/Ice.jar' ),
 	       ('dir', 'usr/lib/java5', 'usr/lib/Ice-%version%/java5' ),
 	       ('file', 'usr/lib/IceGridGUI.jar', 'usr/lib/Ice-%version%/IceGridGUI.jar' ),
@@ -355,14 +358,14 @@ fileLists = [
 	     ('file', 'share/doc/Ice-%version%/config/templates.xml'),
 	     ('exe', 'share/doc/Ice-%version%/config/convertssl.py'),
              ('exe', 'share/doc/Ice-%version%/config/upgradeicegrid.py'),
-             ('file', 'share/doc/Ice-%version%/config/icegrid-slice.3.0.ice.gz'),
-             ('xdir', 'share/doc/Ice-%version%/config/ca'),
-	     ('exe', 'share/doc/Ice-%version%/config/ca/cautil.py'),
-	     ('exe', 'share/doc/Ice-%version%/config/ca/ImportKey.class'),
-	     ('exe', 'share/doc/Ice-%version%/config/ca/import.py'),
-	     ('exe', 'share/doc/Ice-%version%/config/ca/initca.py'),
-	     ('exe', 'share/doc/Ice-%version%/config/ca/req.py'),
-	     ('exe', 'share/doc/Ice-%version%/config/ca/sign.py')]),
+             ('file', 'share/doc/Ice-%version%/config/icegrid-slice.3.0.ice.gz')]),
+##              ('xdir', 'share/doc/Ice-%version%/config/ca'),
+## 	     ('exe', 'share/doc/Ice-%version%/config/ca/cautil.py'),
+## 	     ('exe', 'share/doc/Ice-%version%/config/ca/ImportKey.class'),
+## 	     ('exe', 'share/doc/Ice-%version%/config/ca/import.py'),
+## 	     ('exe', 'share/doc/Ice-%version%/config/ca/initca.py'),
+## 	     ('exe', 'share/doc/Ice-%version%/config/ca/req.py'),
+## 	     ('exe', 'share/doc/Ice-%version%/config/ca/sign.py')]),
     Subpackage('c++-devel',
                'ice = %version%',
                'Tools for developing Ice applications in C++',
@@ -419,7 +422,7 @@ fileLists = [
 		('xdir', 'share/doc/Ice-%version%/config'),
 	        ('file', 'share/doc/Ice-%version%/config/build.properties')]),
     Subpackage('python',
-               'ice = %version%, python >= 2.4.1',
+               'ice = %version%, python >= 2.3.4',
                'The Ice runtime for Python applications',
                'System Environment/Libraries',
 	       iceDescription,
@@ -432,16 +435,8 @@ fileLists = [
 	       iceDescription,
 	       'Requires: ice-%{_arch}',
                [('exe', 'bin/slice2py')]),
-    Subpackage('php',
-	       'ice = %version%, php = 5.1.4',
-	       'The Ice runtime for PHP applications',
-	       'System Environment/Libraries',
-	       iceDescription,
-	       'Requires: ice-%{_arch}',
-	       [('lib', '%{icelibdir}/php/modules'), ('cfg', '/etc/php.d/ice.ini')]
-	       ),
     NoarchSubpackage('java',
-		     'ice = %version%, db4-java >= 4.3.29',
+		     'ice = %version%, db45-java >= 4.5.20',
 		     'The Ice runtime for Java',
 		     'System Environment/Libraries',
 		     iceDescription,
@@ -600,14 +595,26 @@ sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IcePy-%{ve
 %setup -q -n IceCS-%{version} -T -D -b 3 
 sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IceCS-%{version}/config/Make.rules.cs
 sed -i -e 's/^cvs_build.*$/cvs_build = no/' $RPM_BUILD_DIR/IceCS-%{version}/config/Make.rules.cs
-%setup -q -n IceJ-%{version}-java5 -T -D -b 9
+%setup -q -n IceJ-%{version}-java5 -T -D -b 7
 cd $RPM_BUILD_DIR
-tar xfz $RPM_SOURCE_DIR/IcePHP-%{version}.tar.gz
-tar xfj $RPM_SOURCE_DIR/php-5.1.4.tar.bz2
-rm -f $RPM_BUILD_DIR/php-5.1.4/ext/ice
-ln -s $RPM_BUILD_DIR/IcePHP-%{version}/src/ice $RPM_BUILD_DIR/php-5.1.4/ext
-cp $RPM_SOURCE_DIR/ice.ini $RPM_BUILD_DIR/IcePHP-%{version}
-gzip -dc $RPM_SOURCE_DIR/configure.gz > $RPM_BUILD_DIR/php-5.1.4/configure
+
+#
+# Create links to the Berkeley DB that we want. This should allow us to bypass
+# the older installed links.
+#
+if ! test -h $RPM_BUILD_DIR/Ice-%{version}/include/Ice/db.h; then
+    ln -s /usr/include/db45/db.h $RPM_BUILD_DIR/Ice-%{version}/include/Ice/db.h
+fi
+if ! test -h $RPM_BUILD_DIR/Ice-%{version}/include/Ice/db_cxx.h; then
+    ln -s /usr/include/db45/db_cxx.h $RPM_BUILD_DIR/Ice-%{version}/include/Ice/db_cxx.h
+fi
+if ! test -h $RPM_BUILD_DIR/Ice-%{version}/lib/libdb.so; then
+    ln -s /lib/lidbdb-4.5.so $RPM_BUILD_DIR/Ice-%{version}/lib/libdb.so
+fi
+if ! test -h $RPM_BUILD_DIR/Ice-%{version}/lib/libdb_cxx.so; then
+    ln -s /usr/lib/libdb_cxx-4.5.so $RPM_BUILD_DIR/Ice-%{version}/lib/libdb_cxx.so
+fi
+
 """)
 
 def writeBuildCommands(ofile, version):
@@ -620,14 +627,6 @@ cd $RPM_BUILD_DIR/IceCS-%{version}
 export PATH=$RPM_BUILD_DIR/Ice-%{version}/bin:$PATH
 export LD_LIBRARY_PATH=$RPM_BUILD_DIR/Ice-%{version}/lib:$LD_LIBRARY_PATH
 gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT
-cd $RPM_BUILD_DIR/php-5.1.4
-./configure --with-ice=shared,$RPM_BUILD_DIR/Ice-%{version}
-cp Makefile Makefile.tmp
-echo "EXTRA_CXXFLAGS= -DCOMPILE_DL_ICE" > Makefile
-cat Makefile.tmp >> Makefile
-escbr=`echo $RPM_BUILD_DIR | sed -e 's/\//\\\\\\\\\//g'`
-sed -i -e "s/^ICE_SHARED_LIBADD.*$/ICE_SHARED_LIBADD = -L$escbr\/Ice-%{version}\/lib -lIce -lSlice -lIceUtil/" Makefile
-gmake
 """)
 
 def writeInstallCommands(ofile, version):
@@ -657,12 +656,10 @@ gmake NOGAC=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD
 cp $RPM_SOURCE_DIR/README.Linux-RPM $RPM_BUILD_ROOT/README
 cp $RPM_SOURCE_DIR/THIRD_PARTY_LICENSE $RPM_BUILD_ROOT/THIRD_PARTY_LICENSE
 cp $RPM_SOURCE_DIR/SOURCES $RPM_BUILD_ROOT/SOURCES
-cp $RPM_SOURCE_DIR/ice.ini $RPM_BUILD_ROOT/ice.ini
 if test ! -d $RPM_BUILD_ROOT/%{icelibdir};
 then
     mkdir -p $RPM_BUILD_ROOT/%{icelibdir}
 fi
-cp $RPM_BUILD_DIR/php-5.1.4/modules/ice.so $RPM_BUILD_ROOT/%{icelibdir}/icephp.so
 cp $RPM_BUILD_DIR/IceJ-%{version}-java2/config/build.properties $RPM_BUILD_ROOT/config
 if test ! -d $RPM_BUILD_ROOT/%{icelibdir}/pkgconfig ; 
 then 
