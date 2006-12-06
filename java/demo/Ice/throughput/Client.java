@@ -83,7 +83,7 @@ public class Client extends Ice.Application
 	    StringDouble[] emptyStructs = new StringDouble[0];
 	    Fixed[] emptyFixed = new Fixed[0];
 
-            final int repetitions = 20000;
+            final int repetitions = 10000;
             System.out.print("warming up the JIT compiler...");
             System.out.flush();
             for(int i = 0; i < repetitions; i++)
