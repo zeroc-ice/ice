@@ -244,101 +244,115 @@ def editMakeRules(filename, version):
     these files to make them appropriate to accompany binary
     distributions.
     '''
-    state = 'header'
     reIceLocation = re.compile('^[a-z]*dir.*=\s*\$\(top_srcdir\)')
 
     makefile =  fileinput.input(filename, True)
     for line in makefile:
-	if state == 'done':
-
-	    if line.startswith('slicedir'):
-		state = 'untilblank'
-		print """
+	if line.startswith('slicedir'):
+	    print """
 ifeq ($(ICE_DIR),/usr)
    slicedir = $(ICE_DIR)/share/slice
 else
    slicedir = $(ICE_DIR)/slice
 endif
 """
-            elif line.startswith('embedded_runpath_prefix'):
+	elif line.startswith('embedded_runpath_prefix'):
 		state = 'untilblank'
 		print """
 ifneq ($(ICE_DIR),/usr)
    embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
 endif
 """
-	    elif reIceLocation.search(line) <> None:
-		output = line.rstrip('\n').replace('top_srcdir', 'ICE_DIR', 10)
-		if line.startswith('libdir'):
-		    print 'ifeq ($(LP64),yes)'
-		    print '    ' + output + '$(lp64suffix)'
-		    print 'else'
-		    print '    '  + output
-		    print 'endif'
-		elif line.startswith('bindir'):
-		    print output
-		    #
-		    # NOTE!!! Magic occurs...
-		    # It simplifies building the demos for the user if
-		    # we try to detect whether the executables are 64
-		    # bit and, if so, set LP64=yes automagically.
-		    #
-		    print ''
-		    print '#'
-		    print '# If LP64 is unset, sample an Ice executable to see if it is 64 bit'
-		    print '# and set automatically. This avoids having to set LP64 if there is'
-		    print '# Ice installation in a well-known location.'
-		    print '#'
-		    print 'ifeq ($(LP64),)'
-		    print '    ifneq ($(shell file $(bindir)/slice2cpp | grep 64-bit),)'
-		    print '        LP64=yes'	    
-		    print '    endif'
-		    print 'endif'
-		    print ''
-		else:
-		    print output
-
-	    elif line.startswith('install_'):
+	elif line.startswith('embedded_runpath_prefix'):
+	    # 
+	    # embedded_runpath_prefix is moved down to after the version
+	    # information is set.
+	    #
+	    pass
+	elif reIceLocation.search(line) <> None:
+	    output = line.rstrip('\n').replace('top_srcdir', 'ICE_DIR', 10)
+	    if line.startswith('libdir'):
+		print 'ifeq ($(LP64),yes)'
+		print '    ' + output + '$(lp64suffix)'
+		print 'else'
+		print '    '  + output
+		print 'endif'
+	    elif line.startswith('bindir'):
+		print output
 		#
-		# Do nothing.
+		# NOTE!!! Magic occurs...
+		# It simplifies building the demos for the user if
+		# we try to detect whether the executables are 64
+		# bit and, if so, set LP64=yes automagically.
 		#
-		pass
+		print ''
+		print '#'
+		print '# If LP64 is unset, sample an Ice executable to see if it is 64 bit'
+		print '# and set automatically. This avoids having to set LP64 if there is'
+		print '# Ice installation in a well-known location.'
+		print '#'
+		print 'ifeq ($(LP64),)'
+		print '    ifneq ($(shell file $(bindir)/slice2cpp | grep 64-bit),)'
+		print '        LP64=yes'	    
+		print '    endif'
+		print 'endif'
+		print ''
 	    else:
-		print line.rstrip('\n')
-	elif state == 'untilblank':
-	    if line.isspace():
-		state = 'done'
-	elif state == 'header':
-	    #
-	    # Reading header.
-	    #
-	    print line.rstrip('\n')
-	    if line.strip() == "":
-		state = 'untilprefix'
-		print """
-#
-# Checks for ICE_HOME environment variable.  If it isn't present it will
-# attempt to find an Ice installation in /usr.
-#
+		print output
 
+	elif line.startswith('install_'):
+	    #
+	    # Do nothing.
+	    #
+	    pass
+	elif line.startswith('SOVERSION'):
+	    print line.rstrip('\n')
+	    print """
+
+#
+# Checks for ICE_HOME environment variable.  If it isn't present,
+# attempt to find an Ice installation in /usr or the default install
+# location.
+#
 ifeq ($(ICE_HOME),)
-   ICE_DIR = /usr
-   ifneq ($(shell test -f $(ICE_DIR)/bin/icestormadmin && echo 0),0)
-$(error Ice distribution not found, please set ICE_HOME!)
-   endif
+    ICE_DIR = /usr
+    ifneq ($(shell test -f $(ICE_DIR)/bin/icestormadmin && echo 0),0)
+	NEXTDIR = /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
+	ifneq ($(shell test -f $(NEXTDIR)/bin/icestormadmin && echo 0),0)
+$(error Unable to locate Ice distribution, please set ICE_HOME!)
+	else
+	    ICE_DIR = $(NEXTDIR)
+	endif
+    else
+	NEXTDIR = /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
+	ifeq ($(shell test -f $(NEXTDIR)/bin/icestormadmin && echo 0),0)
+$(warning Ice distribution found in /usr and $(NEXTDIR)! Installation in "/usr" will be used by default. Use ICE_HOME to specify alternate Ice installation.)
+	endif
+    endif
 else
-   ICE_DIR = $(ICE_HOME)
-   ifneq ($(shell test -d $(ICE_DIR)/slice && echo 0),0)
-$(error Ice distribution not found, please set ICE_HOME!)
-   endif
+    ICE_DIR = $(ICE_HOME)
+    ifneq ($(shell test -f $(ICE_DIR)/bin/icestormadmin && echo 0),0)
+$(error Ice distribution not found in $(ICE_DIR), please verify ICE_HOME location!)
+    endif
+endif
+
+ifneq ($(ICE_DIR),/usr)
+embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
 endif
 
 prefix = $(ICE_DIR)
 
 """
-	elif state == 'untilprefix':
-	    if line.startswith('prefix'):
-		state = 'done'
+	elif line.startswith('prefix'):
+	    #
+	    # Delete the prefix line. It will be set later on after
+	    # SOVERSION.
+	    #
+	    print "# 'prefix' is automatically defined later on in this file using default"
+	    print "# locations or ICE_HOME"
+	else:
+	    print line.rstrip('\n')
+
     #
     # Dependency files are all going to be bogus since they contain relative
     # paths to Ice headers. We need to adjust this.
@@ -390,9 +404,17 @@ def editMakeRulesMak(filename, version):
 # Checks for ICE_HOME environment variable.
 #
 
-!if "$(ICE_HOME)" == ""
-!error Ice distribution not found, please set ICE_HOME!
-!endif
+ifeq ($(ICE_HOME),)
+   ICE_DIR = /usr
+   ifneq ($(shell test -f $(ICE_DIR)/bin/icestormadmin && echo 0),0)
+$(error Ice distribution not found, please set ICE_HOME!)
+   endif
+else
+   ICE_DIR = $(ICE_HOME)
+   ifneq ($(shell test -d $(ICE_DIR)/slice && echo 0),0)
+$(error Ice distribution not found, please set ICE_HOME!)
+   endif
+endif
 
 ICE_DIR = $(ICE_HOME)
 prefix = $(ICE_DIR)
@@ -401,8 +423,70 @@ prefix = $(ICE_DIR)
 	elif state == 'untilprefix':
 	    if line.startswith('prefix'):
 		state = 'done'
-
+    #
+    # Dependency files are all going to be bogus since they contain relative
+    # paths to Ice headers. We need to adjust this.
+    #
+    # XXX: The following will not work for demos not in demo/A/B type dir
+    #
+    os.chdir("..")
+    runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\.\/slice/$(slicedir)/g' $f ; done")
+    runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\./$(ICE_DIR)/g' $f ; done")
     makefile.close()
+# 
+# def editMakeRulesMak(filename, version):
+#     '''
+#     Ice distributions contain files with useful build rules. However,
+#     these rules are source distribution specific. This script edits
+#     these files to make them appropriate to accompany binary
+#     distributions.
+#     '''
+#     state = 'header'
+#     reIceLocation = re.compile('^[a-z]*dir.*=\s*\$\(top_srcdir\)')
+# 
+#     makefile =  fileinput.input(filename, True)
+#     for line in makefile:
+# 	if state == 'done':
+# 	    if reIceLocation.search(line) <> None:
+# 		output = line.rstrip('\n').replace('top_srcdir', 'ICE_DIR', 10)
+# 		print output
+# 	    elif line.startswith('install_'):
+# 		#
+# 		# Do nothing.
+# 		#
+# 		pass
+# 	    elif line.startswith('THIRDPARTY_HOME'):
+# 		#
+# 		# Do nothing.
+# 		#
+# 		pass
+# 	    else:
+# 		print line.rstrip('\n')
+# 	elif state == 'header':
+# 	    #
+# 	    # Reading header.
+# 	    #
+# 	    print line.rstrip('\n')
+# 	    if line.strip() == "":
+# 		state = 'untilprefix'
+# 		print """
+# #
+# # Checks for ICE_HOME environment variable.
+# #
+# 
+# !if "$(ICE_HOME)" == ""
+# !error Ice distribution not found, please set ICE_HOME!
+# !endif
+# 
+# ICE_DIR = $(ICE_HOME)
+# prefix = $(ICE_DIR)
+# 
+# """
+# 	elif state == 'untilprefix':
+# 	    if line.startswith('prefix'):
+# 		state = 'done'
+# 
+#     makefile.close()
 
 def updateIceVersion(filename, version):
     print 'Updating ice version in ' + filename + ' to ' + version
@@ -430,11 +514,11 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
     # be nicer to make the toExtract list more tailored for each
     # distribution.
     #
-    toExtract = "%s/demo %s/config " % (distro, distro)
+    toExtract = "%s/demo " % distro
     if demoDir == '':
 	toExtract = toExtract + " %s/ICE_LICENSE" % distro
     if not demoDir == 'php':
-	toExtract = toExtract + " %s/certs" % distro
+	toExtract = toExtract + " %s/certs %s/config" % (distro, distro)
 	
     runprog("gzip -dc " + os.path.join(sources, distro) + ".tar.gz | tar xf - " + toExtract, False)
 	
