@@ -13,6 +13,8 @@ Public NotInheritable Class ThroughputI
     Inherits ThroughputDisp_
 
     Public Sub New()
+        _warmup = True
+
 	_byteSeq = New Byte(ByteSeqSize.value) {}
         _stringSeq = New String(StringSeqSize.value - 1) {}
         For i As Integer = 0 To StringSeqSize.value - 1
@@ -105,10 +107,10 @@ Public NotInheritable Class ThroughputI
     Private _structSeq() As StringDouble
     Private _fixedSeq() As Fixed
 
-    Private _emptyByteSeq() As Byte = new Byte(0) {}
-    Private _emptyStringSeq() As String = New String(0) {}
-    Private _emptyStructSeq() As StringDouble = New StringDouble(0) {}
-    Private _emptyFixedSeq() As Fixed = New Fixed(0) {}
+    Private _emptyByteSeq() As Byte = Nothing
+    Private _emptyStringSeq() As String = Nothing
+    Private _emptyStructSeq() As StringDouble = Nothing
+    Private _emptyFixedSeq() As Fixed = Nothing
 
     Private _warmup As Boolean
 

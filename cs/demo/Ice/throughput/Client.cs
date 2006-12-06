@@ -76,10 +76,11 @@ public class Client : Ice.Application
         // we need to "warm up" the JIT compiler.
         //
         {
-	    byte[] emptyBytes = new byte[0];
-	    string[] emptyStrings = new string[0];
-	    StringDouble[] emptyStructs = new StringDouble[0];
-	    Fixed[] emptyFixed = new Fixed[0];
+	    byte[] emptyBytes = new byte[1];
+	    string[] emptyStrings = new string[1];
+	    StringDouble[] emptyStructs = new StringDouble[1];
+	    emptyStructs[0] = new StringDouble();
+	    Fixed[] emptyFixed = new Fixed[1];
 
             int reps = 10000;
             Console.Error.Write("warming up the JIT compiler...");
