@@ -1,0 +1,63 @@
+<icegrid>
+
+  <application name="DemoIceStorm">
+
+    <service-template id="IceStorm">
+      <parameter name="instance-name" default="${application}.IceStorm"/>
+      <parameter name="index" default=""/>
+      <parameter name="topic-manager-endpoints" default="default"/>
+      <parameter name="publish-endpoints" default="default"/>
+      <parameter name="flush-timeout" default="1000"/>
+
+      <service name="IceStorm${index}" entry="IceStormService,32:createIceStorm">
+
+        <dbenv name="${service}"/>
+
+        <adapter name="${service}.TopicManager"
+                 id="${instance-name}.TopicManager" 
+                 endpoints="${topic-manager-endpoints}">
+           <object identity="${instance-name}/TopicManager" type="::IceStorm::TopicManager"/>
+        </adapter>
+
+ 	<adapter name="${service}.Publish" 
+		 id="${instance-name}.Publish" 
+		 endpoints="${publish-endpoints}" 
+                 replica-group="IceStormPublishReplicaGroup"/>
+         <properties>
+           <property name="${service}.InstanceName" value="${instance-name}"/>
+           <property name="${service}.Flush.Timeout" value="${flush-timeout}"/>
+           <property name="${service}.Trace.TopicManager" value="2"/>
+           <property name="${service}.Trace.Topic" value="1"/>
+           <property name="${service}.Trace.Subscriber" value="1"/>
+         </properties>
+       </service>
+     </service-template>
+
+   
+     <server-template id="IceStorm">
+       <parameter name="instance-name" default="${application}.IceStorm"/>
+       <parameter name="topic-manager-endpoints" default="default"/>
+       <parameter name="publish-endpoints" default="default"/>
+       <parameter name="flush-timeout" default="1000"/>
+
+       <icebox id="${instance-name}" exe="icebox" activation="on-demand">
+         <service-instance template="IceStorm"
+	 		  instance-name="${instance-name}" 
+			  topic-manager-endpoints="${topic-manager-endpoints}"
+			  publish-endpoints="${publish-endpoints}"
+			  flush-timeout="${flush-timeout}"/>
+       </icebox>
+     </server-template>
+
+     <node name="localhost">
+       <server-instance template="IceStorm" instance-name="DemoIceStorm-1"/>
+       <server-instance template="IceStorm" instance-name="DemoIceStorm-2"/>
+     </node>
+
+     <replica-group id="IceStormPublishReplicaGroup">
+       <load-balancing type="round-robin"/>
+     </replica-group>
+
+  </application>
+
+</icegrid>

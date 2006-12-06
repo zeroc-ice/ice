@@ -8,3 +8,7 @@ Demos in this directory:
 
   A simple couter demo to illistrate implementing the observer
   pattern using IceStorm.
+
+- replicated
+
+  Shows how to replicate IceStorm services using IceGrid.
