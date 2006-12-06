@@ -78,10 +78,12 @@ public class Client extends Ice.Application
         // we need to "warm up" the JIT compiler.
         //
         {
-            byte[] emptyBytes= new byte[0];
-	    String[] emptyStrings = new String[0];
-	    StringDouble[] emptyStructs = new StringDouble[0];
-	    Fixed[] emptyFixed = new Fixed[0];
+            byte[] emptyBytes= new byte[1];
+	    String[] emptyStrings = new String[1];
+	    StringDouble[] emptyStructs = new StringDouble[1];
+	    emptyStructs[0] = new StringDouble();
+	    Fixed[] emptyFixed = new Fixed[1];
+	    emptyFixed[0] = new Fixed();
 
             final int repetitions = 10000;
             System.out.print("warming up the JIT compiler...");
