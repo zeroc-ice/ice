@@ -51,9 +51,12 @@ public:
 
     virtual void shutdown(const Ice::Current&) const;
 
-    virtual Ice::StringSeq readLines(const std::string&, Ice::Long, int, Ice::Long&, const Ice::Current&) const;
+    virtual Ice::Long getOffsetFromEnd(const std::string&, int, const Ice::Current&) const;
+    virtual bool read(const std::string&, Ice::Long, int, int, Ice::Long&, Ice::StringSeq&, const Ice::Current&) const;
 
 private:    
+
+    std::string getFilePath(const std::string&) const;
 
     const RegistryIPtr _registry;
     const DatabasePtr _database;

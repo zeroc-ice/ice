@@ -1073,6 +1073,8 @@ interface FileIterator
      * Read up to `nlines' lines from the log file.
      *
      * @param nlines The maximum number of lines to return.
+     *
+     * @param size The maximum number of bytes to read from the file.
      * 
      * @return The lines read from the file. If there was nothing to
      * read from the file since the last call to read, an empty
@@ -1082,7 +1084,7 @@ interface FileIterator
      * to read lines from the file.
      *
      **/
-    Ice::StringSeq read(int nlines)
+    bool read(int nlines, int size, out Ice::StringSeq lines)
 	throws FileNotAvailableException;
 
     /**
@@ -1223,6 +1225,10 @@ interface AdminSession extends Glacier2::Session
      *
      * @param id The server id.
      *
+     * @param count Specifies where to start reading the file. If
+     * negative, the file is read from the begining. If 0 or positive,
+     * the file is read from the last <literal>count</literal> lines.
+     *
      * @return An iterator to read the file.
      *
      * @throws FileNotAvailableException Raised if the file can't be
@@ -1238,7 +1244,7 @@ interface AdminSession extends Glacier2::Session
      * deployed on the node.
      *
      **/
-    FileIterator* openServerStdErr(string id)
+    FileIterator* openServerStdErr(string id, int count)
 	throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException, DeploymentException;
     /**
      *
@@ -1247,6 +1253,10 @@ interface AdminSession extends Glacier2::Session
      *
      * @param id The server id.
      *
+     * @param count Specifies where to start reading the file. If
+     * negative, the file is read from the begining. If 0 or positive,
+     * the file is read from the last <literal>count</literal> lines.
+     *
      * @return An iterator to read the file.
      *
      * @throws FileNotAvailableException Raised if the file can't be
@@ -1262,7 +1272,7 @@ interface AdminSession extends Glacier2::Session
      * deployed on the node.
      *
      **/
-    FileIterator* openServerStdOut(string id)
+    FileIterator* openServerStdOut(string id, int count)
 	throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException, DeploymentException;
 
     /**
@@ -1272,6 +1282,10 @@ interface AdminSession extends Glacier2::Session
      *
      * @param name The node name.
      *
+     * @param count Specifies where to start reading the file. If
+     * negative, the file is read from the begining. If 0 or positive,
+     * the file is read from the last <literal>count</literal> lines.
+     *
      * @return An iterator to read the file.
      *
      * @throws FileNotAvailableException Raised if the file can't be
@@ -1283,7 +1297,7 @@ interface AdminSession extends Glacier2::Session
      * be reached.
      *
      **/
-    FileIterator* openNodeStdErr(string name)
+    FileIterator* openNodeStdErr(string name, int count)
 	throws FileNotAvailableException, NodeNotExistException, NodeUnreachableException;
 
     /**
@@ -1293,6 +1307,10 @@ interface AdminSession extends Glacier2::Session
      *
      * @param name The node name.
      *
+     * @param count Specifies where to start reading the file. If
+     * negative, the file is read from the begining. If 0 or positive,
+     * the file is read from the last <literal>count</literal> lines.
+     *
      * @return An iterator to read the file.
      *
      * @throws FileNotAvailableException Raised if the file can't be
@@ -1304,7 +1322,7 @@ interface AdminSession extends Glacier2::Session
      * be reached.
      *
      **/
-    FileIterator* openNodeStdOut(string name)
+    FileIterator* openNodeStdOut(string name, int count)
 	throws FileNotAvailableException, NodeNotExistException, NodeUnreachableException;
 
     /**
@@ -1314,6 +1332,10 @@ interface AdminSession extends Glacier2::Session
      *
      * @param name The registry name.
      *
+     * @param count Specifies where to start reading the file. If
+     * negative, the file is read from the begining. If 0 or positive,
+     * the file is read from the last <literal>count</literal> lines.
+     *
      * @return An iterator to read the file.
      *
      * @throws FileNotAvailableException Raised if the file can't be
@@ -1326,7 +1348,7 @@ interface AdminSession extends Glacier2::Session
      * could not be reached.
      *
      **/
-    FileIterator* openRegistryStdErr(string name)
+    FileIterator* openRegistryStdErr(string name, int count)
 	throws FileNotAvailableException, RegistryNotExistException, RegistryUnreachableException;
 
     /**
@@ -1336,6 +1358,10 @@ interface AdminSession extends Glacier2::Session
      *
      * @param name The registry name.
      *
+     * @param count Specifies where to start reading the file. If
+     * negative, the file is read from the begining. If 0 or positive,
+     * the file is read from the last <literal>count</literal> lines.
+     *
      * @return An iterator to read the file.
      *
      * @throws FileNotAvailableException Raised if the file can't be
@@ -1348,7 +1374,7 @@ interface AdminSession extends Glacier2::Session
      * could not be reached.
      *
      **/
-    FileIterator * openRegistryStdOut(string name)
+    FileIterator * openRegistryStdOut(string name, int count)
 	throws FileNotAvailableException, RegistryNotExistException, RegistryUnreachableException;
 };
 

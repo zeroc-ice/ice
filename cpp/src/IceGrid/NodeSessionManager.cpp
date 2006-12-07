@@ -254,11 +254,15 @@ NodeSessionManager::create(const InternalRegistryPrx& replica)
     {
 	thread = _thread;
 	thread->setRegistry(replica);
-	thread->tryCreateSession();
     }
     else
     {
-	createReplicaSession(replica, true);
+	thread = addReplicaSession(replica);
+    }
+
+    if(thread)
+    {
+	thread->tryCreateSession();
     }
 }
 
@@ -336,42 +340,33 @@ NodeSessionManager::destroy()
 void
 NodeSessionManager::replicaInit(const InternalRegistryPrxSeq& replicas)
 {
+    Lock sync(*this);
+    if(_destroyed)
     {
-	Lock sync(*this);
-	if(_destroyed)
-	{
-	    return;
-	}
-
-	//
-	// Initialize the set of replicas known by the master.
-	//
-	_replicas.clear();
-	for(InternalRegistryPrxSeq::const_iterator p = replicas.begin(); p != replicas.end(); ++p)
-	{
-	    _replicas.insert((*p)->ice_getIdentity());
-	}
+	return;
     }
-
+    
+    //
+    // Initialize the set of replicas known by the master.
+    //
+    _replicas.clear();
     for(InternalRegistryPrxSeq::const_iterator p = replicas.begin(); p != replicas.end(); ++p)
     {
-	createReplicaSession(*p, false);
+	_replicas.insert((*p)->ice_getIdentity());
+	addReplicaSession(*p)->tryCreateSession(false);
     }
 }
 
 void
 NodeSessionManager::replicaAdded(const InternalRegistryPrx& replica)
 {
+    Lock sync(*this);
+    if(_destroyed)
     {
-	Lock sync(*this);
-	if(_destroyed)
-	{
-	    return;
-	}
-	_replicas.insert(replica->ice_getIdentity());
+	return;
     }
-
-    createReplicaSession(replica, false);
+    _replicas.insert(replica->ice_getIdentity());
+    addReplicaSession(replica)->tryCreateSession(false);
 }
 
 void
@@ -392,14 +387,10 @@ NodeSessionManager::replicaRemoved(const InternalRegistryPrx& replica)
     //
 }
 
-void
-NodeSessionManager::createReplicaSession(const InternalRegistryPrx& replica, bool waitTryCreateSession)
+NodeSessionKeepAliveThreadPtr
+NodeSessionManager::addReplicaSession(const InternalRegistryPrx& replica)
 {
-    Lock sync(*this);
-    if(_destroyed)
-    {
-	return;
-    }
+    assert(!_destroyed);
 
     NodeSessionMap::const_iterator p = _sessions.find(replica->ice_getIdentity());
     NodeSessionKeepAliveThreadPtr thread;
@@ -414,7 +405,7 @@ NodeSessionManager::createReplicaSession(const InternalRegistryPrx& replica, boo
 	_sessions.insert(make_pair(replica->ice_getIdentity(), thread));
 	thread->start();
     }
-    thread->tryCreateSession(waitTryCreateSession);
+    return thread;
 }
 
 void
@@ -465,8 +456,8 @@ NodeSessionManager::syncServers(const NodeSessionPrx& session)
     // established their session with the node.
     //
     assert(session);
-    session->loadServers();
     _node->checkConsistency(session);
+    session->loadServers();
 }
 
 void
@@ -551,9 +542,14 @@ NodeSessionManager::createdSession(const NodeSessionPrx& session)
 	}
     }
 
+    vector<NodeSessionKeepAliveThreadPtr> sessions;
     {
 	Lock sync(*this);
-	
+	if(_destroyed)
+	{
+	    return;
+	}
+
 	//
 	// If the node adapter was activated since we last check, we don't need
 	// to initialize the replicas here, it will be done by replicaInit().
@@ -566,30 +562,22 @@ NodeSessionManager::createdSession(const NodeSessionPrx& session)
 		if((*p)->ice_getIdentity() != _master->ice_getIdentity())
 		{
 		    _replicas.insert((*p)->ice_getIdentity());
+		    NodeSessionKeepAliveThreadPtr session = addReplicaSession(*p);
+		    session->tryCreateSession(false);
+		    sessions.push_back(session);
 		}
 	    }
 	}
     }
-	
+
     //
-    // Create the replica sessions and wait for the creation. It's
-    // important to wait to ensure that the replica sessions are
-    // created before the node adapter is activated.
+    // Wait for the creation. It's important to wait to ensure that
+    // the replica sessions are created before the node adapter is
+    // activated.
     //
-    InternalRegistryPrxSeq::const_iterator t;
-    for(t = replicas.begin(); t != replicas.end(); ++t)
+    for(vector<NodeSessionKeepAliveThreadPtr>::const_iterator p = sessions.begin(); p != sessions.end(); ++p)
     {
-	if((*t)->ice_getIdentity() != _master->ice_getIdentity())
-	{
-	    createReplicaSession(*t, false);
-	}
-    }
-    for(t = replicas.begin(); t != replicas.end(); ++t)
-    {
-	if((*t)->ice_getIdentity() != _master->ice_getIdentity())
-	{
-	    createReplicaSession(*t, true);
-	}
+	(*p)->tryCreateSession(true);
     }
 }
 

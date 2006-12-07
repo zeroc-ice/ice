@@ -114,9 +114,21 @@ InternalRegistryI::shutdown(const Ice::Current& current) const
     _registry->shutdown();
 }
 
-Ice::StringSeq
-InternalRegistryI::readLines(const string& filename, Ice::Long pos, int count, Ice::Long& newPos, 
-			     const Ice::Current&) const
+Ice::Long
+InternalRegistryI::getOffsetFromEnd(const string& filename, int count, const Ice::Current&) const
+{
+    return _fileCache->getOffsetFromEnd(getFilePath(filename), count);
+}
+
+bool
+InternalRegistryI::read(const string& filename, Ice::Long pos, int count, int size, Ice::Long& newPos, 
+			Ice::StringSeq& lines, const Ice::Current&) const
+{
+    return _fileCache->read(getFilePath(filename), pos, count, size, newPos, lines);
+}
+
+string
+InternalRegistryI::getFilePath(const string& filename) const
 {
     string file;
     if(filename == "stderr")
@@ -139,6 +151,5 @@ InternalRegistryI::readLines(const string& filename, Ice::Long pos, int count, I
     {
 	throw FileNotAvailableException("unknown file");
     }
-
-    return _fileCache->read(file, pos, count, newPos);
+    return file;
 }

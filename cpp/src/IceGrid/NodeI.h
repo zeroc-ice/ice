@@ -43,8 +43,8 @@ public:
     virtual void loadServer_async(const AMD_Node_loadServerPtr&, const ServerInfo&, bool, const Ice::Current&);
     virtual void destroyServer_async(const AMD_Node_destroyServerPtr&, const std::string&, const std::string&,
 				     int, const Ice::Current&);
-    virtual void patch(const std::string&, const std::string&, const DistributionDescriptor&, bool,
-		       const Ice::Current&);
+    virtual void patch_async(const AMD_Node_patchPtr&, const PatcherFeedbackPrx&, const std::string&, 
+			     const std::string&, const DistributionDescriptor&, bool, const Ice::Current&);
 
     virtual void registerWithReplica(const InternalRegistryPrx&, const Ice::Current&);
 
@@ -57,7 +57,8 @@ public:
     virtual LoadInfo getLoad(const Ice::Current& = Ice::Current()) const;
     virtual void shutdown(const Ice::Current&) const;
 
-    virtual Ice::StringSeq readLines(const std::string&, Ice::Long, int, Ice::Long&, const Ice::Current&) const;
+    virtual Ice::Long getOffsetFromEnd(const std::string&, int, const Ice::Current&) const;
+    virtual bool read(const std::string&, Ice::Long, int, int, Ice::Long&, Ice::StringSeq&, const Ice::Current&) const;
 
     void destroy();
     
@@ -94,6 +95,7 @@ private:
     
     std::set<ServerIPtr> getApplicationServers(const std::string&) const;
     Ice::Identity createServerIdentity(const std::string&) const;
+    std::string getFilePath(const std::string&) const;
 
     const Ice::CommunicatorPtr _communicator;
     const Ice::ObjectAdapterPtr _adapter;

@@ -776,29 +776,17 @@ ServerI::setProcess_async(const AMD_Server_setProcessPtr& amdCB, const Ice::Proc
     }
 }
 
-Ice::StringSeq
-ServerI::readLines(const string& filename, Ice::Long pos, int count, Ice::Long& newPos, const Ice::Current&) const
+Ice::Long
+ServerI::getOffsetFromEnd(const string& filename, int count, const Ice::Current&) const
 {
-    if(filename == "stderr")
-    {
-	if(_stdErrFile.empty())
-	{
-	    throw FileNotAvailableException("Ice.StdErr configuration property is not set");
-	}
-	return _node->getFileCache()->read(_stdErrFile, pos, count, newPos);
-    }
-    else if(filename == "stdout")
-    {
-	if(_stdOutFile.empty())
-	{
-	    throw FileNotAvailableException("Ice.StdOut configuration property is not set");
-	}
-	return _node->getFileCache()->read(_stdOutFile, pos, count, newPos);
-    }
-    else
-    {
-	throw FileNotAvailableException("unknown file");
-    }
+    return _node->getFileCache()->getOffsetFromEnd(getFilePath(filename), count);
+}
+
+bool
+ServerI::read(const string& filename, Ice::Long pos, int count, int size, Ice::Long& newPos, Ice::StringSeq& lines,
+		   const Ice::Current&) const
+{
+    return _node->getFileCache()->read(getFilePath(filename), pos, count, size, newPos, lines);
 }
 
 bool
@@ -2663,3 +2651,29 @@ ServerI::getDynamicInfo() const
     info.enabled = _activation != Disabled;
     return info;
 }
+
+string
+ServerI::getFilePath(const string& filename) const
+{
+    if(filename == "stderr")
+    {
+	if(_stdErrFile.empty())
+	{
+	    throw FileNotAvailableException("Ice.StdErr configuration property is not set");
+	}
+	return _stdErrFile;
+    }
+    else if(filename == "stdout")
+    {
+	if(_stdOutFile.empty())
+	{
+	    throw FileNotAvailableException("Ice.StdOut configuration property is not set");
+	}
+	return _stdOutFile;
+    }
+    else
+    {
+	throw FileNotAvailableException("unknown file");
+    }
+}
+

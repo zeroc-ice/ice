@@ -72,4 +72,3 @@ IceGrid::getProperty(const PropertyDescriptorSeq& properties, const string& name
     }
     return def;
 }
-

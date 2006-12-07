@@ -67,7 +67,7 @@ public:
 
 private:
 
-    void createReplicaSession(const InternalRegistryPrx&, bool);
+    NodeSessionKeepAliveThreadPtr addReplicaSession(const InternalRegistryPrx&);
 
     void reapReplicas();
 

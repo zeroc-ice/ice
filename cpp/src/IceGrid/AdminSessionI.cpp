@@ -19,20 +19,23 @@
 using namespace std;
 using namespace IceGrid;
 
-FileIteratorI::FileIteratorI(const AdminSessionIPtr& session, const FileReaderPrx& reader, const string& filename) :
+FileIteratorI::FileIteratorI(const AdminSessionIPtr& session, 
+			     const FileReaderPrx& reader, 
+			     const string& filename,
+			     Ice::Long offset) :
     _session(session),
     _reader(reader),
     _filename(filename),
-    _offset(0)
+    _offset(offset)
 {
 }
 
-Ice::StringSeq
-FileIteratorI::read(int nlines, const Ice::Current& current)
+bool
+FileIteratorI::read(int nlines, int size, Ice::StringSeq& lines, const Ice::Current& current)
 {
     try
     {
-	return _reader->readLines(_filename, _offset, nlines, _offset);
+	return _reader->read(_filename, _offset, nlines, size, _offset, lines);
     }
     catch(const Ice::LocalException& ex)
     {
@@ -208,31 +211,31 @@ AdminSessionI::getReplicaName(const Ice::Current& current) const
 }
 
 FileIteratorPrx 
-AdminSessionI::openServerStdOut(const std::string& id, const Ice::Current& current)
+AdminSessionI::openServerStdOut(const std::string& id, int nLines, const Ice::Current& current)
 {
-    return addFileIterator(_database->getServer(id)->getProxy(), "stdout", current);
+    return addFileIterator(_database->getServer(id)->getProxy(), "stdout", nLines, current);
 }
 
 FileIteratorPrx 
-AdminSessionI::openServerStdErr(const std::string& id, const Ice::Current& current)
+AdminSessionI::openServerStdErr(const std::string& id, int nLines, const Ice::Current& current)
 {
-    return addFileIterator(_database->getServer(id)->getProxy(), "stderr", current);
+    return addFileIterator(_database->getServer(id)->getProxy(), "stderr", nLines, current);
 }
 
 FileIteratorPrx 
-AdminSessionI::openNodeStdOut(const std::string& name, const Ice::Current& current)
+AdminSessionI::openNodeStdOut(const std::string& name, int nLines, const Ice::Current& current)
 {
-    return addFileIterator(_database->getNode(name)->getProxy(), "stdout", current);
+    return addFileIterator(_database->getNode(name)->getProxy(), "stdout", nLines, current);
 }
 
 FileIteratorPrx 
-AdminSessionI::openNodeStdErr(const std::string& name, const Ice::Current& current)
+AdminSessionI::openNodeStdErr(const std::string& name, int nLines, const Ice::Current& current)
 {
-    return addFileIterator(_database->getNode(name)->getProxy(), "stderr", current);
+    return addFileIterator(_database->getNode(name)->getProxy(), "stderr", nLines, current);
 }
 
 FileIteratorPrx 
-AdminSessionI::openRegistryStdOut(const std::string& name, const Ice::Current& current)
+AdminSessionI::openRegistryStdOut(const std::string& name, int nLines, const Ice::Current& current)
 {
     FileReaderPrx reader;
     if(name == _replicaName)
@@ -243,11 +246,11 @@ AdminSessionI::openRegistryStdOut(const std::string& name, const Ice::Current& c
     {
 	reader = _database->getReplica(name)->getProxy();
     }
-    return addFileIterator(reader, "stdout", current);
+    return addFileIterator(reader, "stdout", nLines, current);
 }
 
 FileIteratorPrx
-AdminSessionI::openRegistryStdErr(const std::string& name, const Ice::Current& current)
+AdminSessionI::openRegistryStdErr(const std::string& name, int nLines, const Ice::Current& current)
 {
     FileReaderPrx reader;
     if(name == _replicaName)
@@ -258,7 +261,7 @@ AdminSessionI::openRegistryStdErr(const std::string& name, const Ice::Current& c
     {
 	reader = _database->getReplica(name)->getProxy();
     }
-    return addFileIterator(reader, "stderr", current);
+    return addFileIterator(reader, "stderr", nLines, current);
 }
 
 void
@@ -290,7 +293,10 @@ AdminSessionI::toProxy(const Ice::Identity& id, const Ice::ConnectionPtr& connec
 }
 
 FileIteratorPrx
-AdminSessionI::addFileIterator(const FileReaderPrx& reader, const string& filename, const Ice::Current& current)
+AdminSessionI::addFileIterator(const FileReaderPrx& reader, 
+			       const string& filename, 
+			       int nLines, 
+			       const Ice::Current& current)
 {
     Lock sync(*this);
     if(_destroyed)
@@ -300,8 +306,23 @@ AdminSessionI::addFileIterator(const FileReaderPrx& reader, const string& filena
 	throw ex;
     }
 
+    Ice::Long offset = 0;
+    if(nLines > 0)
+    {
+	try
+	{
+	    offset = reader->getOffsetFromEnd(filename, nLines);
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    ostringstream os;
+	    os << ex;
+	    throw FileNotAvailableException(os.str());
+	}
+    }
+
     Ice::ObjectPrx obj;
-    Ice::ObjectPtr servant = new FileIteratorI(this, reader, filename);
+    Ice::ObjectPtr servant = new FileIteratorI(this, reader, filename, offset);
     if(_servantLocator)
     {
 	obj = _servantLocator->add(servant, current.con);

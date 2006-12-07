@@ -88,44 +88,95 @@ private:
     string _node;
 };
 
-class PatchAggregator : public IceUtil::Mutex, public IceUtil::Shared
+template<class AmdCB>
+class PatcherFeedbackI : public PatcherFeedback, public IceUtil::Mutex
 {
 public:
 
-    PatchAggregator(const AMD_Admin_patchApplicationPtr& cb, 
-		    const TraceLevelsPtr& traceLevels, 
-		    const string& application,
-		    int nodeCount) : 
-	_cb(cb), _traceLevels(traceLevels), _application(application), _count(nodeCount), _nSuccess(0), _nFailure(0)
+    PatcherFeedbackI(const AmdCB& cb,
+		     const AdminIPtr& admin,
+		     Ice::Identity id,
+		     const TraceLevelsPtr& traceLevels,
+		     const string& type,
+		     const string& name,
+		     int nodeCount) : 
+	_cb(cb), 
+	_admin(admin),
+	_id(id),
+	_traceLevels(traceLevels),
+	_type(type),
+	_name(name),
+	_count(nodeCount),
+	_nSuccess(0), 
+	_nFailure(0)
     {
     }
 
-    void
-    finished(const string& node, const string& failure)
+    ~PatcherFeedbackI()
     {
 	Lock sync(*this);
-	if(failure.empty())
+	if((_nSuccess + _nFailure) < _count)
 	{
-	    if(_traceLevels->patch > 0)
-	    {
-		Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-		out << "finished patching of application `" << _application << "' on node `" << node << "'";
-	    }
-
-	    ++_nSuccess;
+	    PatchException ex;
+	    ex.reasons.push_back("admin session destroyed");
+	    _cb->ice_exception(ex);
 	}
-	else
+    }
+
+    void
+    finished(const string& node, const Ice::Current&)
+    {
+	Lock sync(*this);
+	if(_traceLevels->patch > 0)
 	{
-	    if(_traceLevels->patch > 0)
-	    {
-		Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-		out << "patching of application `" << _application << "' on node `" << node <<"' failed:\n" << failure;
-	    }
-
-	    ++_nFailure;
-	    _reasons.push_back(failure);
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+	    out << "finished patching of " << _type << " `" << _name << "' on node `" << node << "'";
 	}
+	++_nSuccess;
+	checkIfDone();
+    }
 
+    void
+    failed(const string& node, const string& failure, const Ice::Current& = Ice::Current())
+    {
+	Lock sync(*this);
+	if(_traceLevels->patch > 0)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+	    out << "patching of " << _type << " `" << _name << "' on node `" << node <<"' failed:\n" << failure;
+	}
+	
+	++_nFailure;
+	_reasons.push_back("patch on node `" + node + "' failed:\n" + failure);
+	checkIfDone();
+    }
+
+    void
+    failed(const string& node, const Ice::Exception& ex)
+    {
+	try
+	{
+	    ex.ice_throw();
+	}
+	catch(const NodeNotExistException&)
+	{
+	    failed(node, "node doesn't exist");
+	}
+	catch(const NodeUnreachableException& e)
+	{
+	    failed(node, "node is unreachable: " + e.reason);
+	}
+	catch(const Ice::Exception& e)
+	{
+	    ostringstream os;
+	    os << e;
+	    failed(node, "node is unreachable:\n" + os.str());
+	}
+    }
+
+    void
+    checkIfDone()
+    {
 	if((_nSuccess + _nFailure) == _count)
 	{
 	    if(_nFailure)
@@ -139,145 +190,23 @@ public:
 	    {
 		_cb->ice_response();
 	    }
+
+	    _admin->removeFeedbackIdentity(_id);
 	}
     }
 
 private:
 
-    const AMD_Admin_patchApplicationPtr _cb;
+    const AmdCB _cb;
+    const AdminIPtr _admin;
+    const Ice::Identity _id;
     const TraceLevelsPtr _traceLevels;
-    const string _application;
+    const string _type;
+    const string _name;
     const int _count;
     int _nSuccess;
     int _nFailure;
     Ice::StringSeq _reasons;    
-};
-typedef IceUtil::Handle<PatchAggregator> PatchAggregatorPtr;
-
-class PatchCB : public AMI_Node_patch
-{
-public:
-
-    PatchCB(const PatchAggregatorPtr& cb, const string& node) : 
-	_cb(cb), _node(node)
-    {
-    }
-
-    void
-    ice_response()
-    {
-	_cb->finished(_node, "");
-    }
-
-    void
-    ice_exception(const Ice::Exception& ex)
-    {
-	string reason;
-	try
-	{
-	    ex.ice_throw();
-	}
-	catch(const PatchException& ex)
-	{
-	    if(!ex.reasons.empty())
-	    {
-		reason = ex.reasons[0];
-	    }
-	}
-	catch(const NodeNotExistException&)
-	{
-	    reason = "patch on node `" + _node + "' failed: node doesn't exist";
-	}
-	catch(const NodeUnreachableException& e)
-	{
-	    reason = "patch on node `" + _node + "' failed: node is unreachable:\n" + e.reason;
-	}
-	catch(const Ice::Exception& e)
-	{
-	    ostringstream os;
-	    os << e;
-	    reason = "patch on node `" + _node + "' failed: node is unreachable:\n" + os.str();
-	}	
-	_cb->finished(_node, reason);
-    }
-
-private:
-
-    const PatchAggregatorPtr _cb;
-    const string _node;
-};
-
-class ServerPatchCB : public AMI_Node_patch
-{
-public:
-
-    ServerPatchCB(const AMD_Admin_patchServerPtr& cb, 
-		  const TraceLevelsPtr& traceLevels,
-		  const string& server, 
-		  const string& node) : 
-	_cb(cb), _traceLevels(traceLevels), _server(server), _node(node)
-    {
-    }
-
-    void
-    ice_response()
-    {
-	if(_traceLevels->patch > 0)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-	    out << "finished patching of server `" << _server << "' on node `" << _node << "'";
-	}
-
-	_cb->ice_response();
-    }
-
-    void
-    ice_exception(const Ice::Exception& ex)
-    {
-	string reason;
-	try
-	{
-	    ex.ice_throw();
-	}
-	catch(const PatchException& ex)
-	{
-	    if(!ex.reasons.empty())
-	    {
-		reason = ex.reasons[0];
-	    }
-	}
-	catch(const NodeNotExistException&)
-	{
-	    reason = "patch on node `" + _node + "' failed: node doesn't exist";
-	}
-	catch(const NodeUnreachableException& e)
-	{
-	    reason = "patch on node `" + _node + "' failed: node is unreachable:\n" + e.reason;
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    ostringstream os;
-	    os << ex;
-	    reason = "patch on node `" + _node + "' failed: node is unreachable:\n" + os.str();
-	}
-
-	if(_traceLevels->patch > 0)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-	    out << "patching of server `" << _server << "' on node `" << _node << "' failed:\n" << reason;
-	}
-
-	PatchException e;
-	e.reasons.push_back(reason);
-	_cb->ice_exception(e);
-    }
-
-private:
-
-    const AMD_Admin_patchServerPtr _cb;
-    const TraceLevelsPtr _traceLevels;
-    const string _server;
-    const string _node;
 };
 
 }
@@ -292,7 +221,24 @@ AdminI::AdminI(const DatabasePtr& database, const RegistryIPtr& registry, const 
 
 AdminI::~AdminI()
 {
+    try
+    {
+	for(set<Ice::Identity>::const_iterator p = _feedbackIdentities.begin(); p != _feedbackIdentities.end(); ++p)
+	{
+	    try
+	    {
+		_database->getInternalAdapter()->remove(*p);
+	    }
+	    catch(Ice::NotRegisteredException&)
+	    {
+	    }
+	}
+    }
+    catch(const Ice::LocalException& ex)
+    {
+    }
 }
+
 
 void
 AdminI::addApplication(const ApplicationDescriptor& descriptor, const Current&)
@@ -360,25 +306,38 @@ AdminI::patchApplication_async(const AMD_Admin_patchApplicationPtr& amdCB,
 	return;
     }
 
-    PatchAggregatorPtr aggregator = new PatchAggregator(amdCB, _traceLevels, name, static_cast<int>(nodes.size()));
+    Ice::Identity id;
+    id.category = current.id.category;
+    id.name = IceUtil::generateUUID();
+
+    PatcherFeedbackI<AMD_Admin_patchApplicationPtr>* feedback = 
+	new PatcherFeedbackI<AMD_Admin_patchApplicationPtr>(amdCB, this, id, _traceLevels, "application", name,
+							    static_cast<int>(nodes.size()));
+
+    PatcherFeedbackPtr servant = feedback;
+    PatcherFeedbackPrx prx = PatcherFeedbackPrx::uncheckedCast(_database->getInternalAdapter()->add(servant, id));
+    {
+	Lock sync(*this);
+	_feedbackIdentities.insert(prx->ice_getIdentity());
+    }
+
     for(vector<string>::const_iterator p = nodes.begin(); p != nodes.end(); ++p)
     {
-	if(_traceLevels->patch > 0)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-	    out << "started patching of application `" << name << "' on node `" << *p << "'";
-	}
-
-	AMI_Node_patchPtr cb = new PatchCB(aggregator, *p);
 	try
 	{
+	    if(_traceLevels->patch > 0)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+		out << "started patching of application `" << name << "' on node `" << *p << "'";
+	    }
+
 	    NodeEntryPtr node = _database->getNode(*p);
 	    Resolver resolve(node->getInfo(), _database->getCommunicator());
-	    node->getProxy()->patch_async(cb, name, "", resolve(appDistrib), shutdown);
+	    node->getProxy()->patch(prx, name, "", resolve(appDistrib), shutdown);
 	}
 	catch(const Ice::Exception& ex)
 	{
-	    cb->ice_exception(ex);
+	    feedback->failed(*p, ex);
 	}
     }
 }
@@ -537,17 +496,38 @@ AdminI::patchServer_async(const AMD_Admin_patchServerPtr& amdCB, const string& i
 
     assert(nodes.size() == 1);
 
+    Ice::Identity identity;
+    identity.category = current.id.category;
+    identity.name = IceUtil::generateUUID();
+
+    PatcherFeedbackI<AMD_Admin_patchServerPtr>* feedback = 
+	new PatcherFeedbackI<AMD_Admin_patchServerPtr>(amdCB, this, identity, _traceLevels, "server", id,
+						       static_cast<int>(nodes.size()));
+
+    PatcherFeedbackPtr servant = feedback;
+    PatcherFeedbackPrx prx = PatcherFeedbackPrx::uncheckedCast(_database->getInternalAdapter()->add(servant, 
+												    identity));
+    {
+	Lock sync(*this);
+	_feedbackIdentities.insert(prx->ice_getIdentity());
+    }
+
     vector<string>::const_iterator p = nodes.begin();
-    AMI_Node_patchPtr amiCB = new ServerPatchCB(amdCB, _traceLevels, id, *p);
     try
     {
+	if(_traceLevels->patch > 0)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+	    out << "started patching of server `" << id << "' on node `" << *p << "'";
+	}
+
 	NodeEntryPtr node = _database->getNode(*p);
 	Resolver resolve(node->getInfo(), _database->getCommunicator());
-	node->getProxy()->patch_async(amiCB, info.application, id, resolve(appDistrib), shutdown);
+	node->getProxy()->patch(prx, info.application, id, resolve(appDistrib), shutdown);
     }
     catch(const Ice::Exception& ex)
     {
-	amiCB->ice_exception(ex);
+	feedback->failed(*p, ex);
     }
 }
 
@@ -891,6 +871,21 @@ AdminI::getSliceChecksums(const Current&) const
 }
 
 void
+AdminI::removeFeedbackIdentity(const Ice::Identity& id)
+{
+    Lock sync(*this);
+    _feedbackIdentities.erase(id);
+    
+    try
+    {
+	_database->getInternalAdapter()->remove(id);
+    }
+    catch(const Ice::LocalException&)
+    {
+    }
+}
+
+void
 AdminI::checkIsMaster() const
 {
     if(!_database->isMaster())
@@ -900,3 +895,4 @@ AdminI::checkIsMaster() const
 	throw ex;
     }
 }
+

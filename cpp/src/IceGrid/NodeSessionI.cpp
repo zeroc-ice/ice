@@ -99,8 +99,16 @@ NodeSessionI::getObserver(const Ice::Current& current) const
 }
 
 void
-NodeSessionI::loadServers(const Ice::Current& current) const
+NodeSessionI::loadServers_async(const AMD_NodeSession_loadServersPtr& amdCB, const Ice::Current& current) const
 {
+    //
+    // No need to wait for the servers to be loaded. If we were
+    // waiting, we would have to figure out an appropriate timeout for
+    // calling this method since each load() call might take time to
+    // complete.
+    //
+    amdCB->ice_response();
+
     //
     // Get the server proxies to load them on the node.
     //

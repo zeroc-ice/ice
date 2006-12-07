@@ -50,14 +50,14 @@ public:
 
     virtual std::string getReplicaName(const Ice::Current&) const;
 
-    virtual FileIteratorPrx openServerStdOut(const std::string&, const Ice::Current&);
-    virtual FileIteratorPrx openServerStdErr(const std::string&, const Ice::Current&);
+    virtual FileIteratorPrx openServerStdOut(const std::string&, int, const Ice::Current&);
+    virtual FileIteratorPrx openServerStdErr(const std::string&, int, const Ice::Current&);
 
-    virtual FileIteratorPrx openNodeStdOut(const std::string&, const Ice::Current&);
-    virtual FileIteratorPrx openNodeStdErr(const std::string&, const Ice::Current&);
+    virtual FileIteratorPrx openNodeStdOut(const std::string&, int, const Ice::Current&);
+    virtual FileIteratorPrx openNodeStdErr(const std::string&, int, const Ice::Current&);
 
-    virtual FileIteratorPrx openRegistryStdOut(const std::string&, const Ice::Current&);
-    virtual FileIteratorPrx openRegistryStdErr(const std::string&, const Ice::Current&);
+    virtual FileIteratorPrx openRegistryStdOut(const std::string&, int, const Ice::Current&);
+    virtual FileIteratorPrx openRegistryStdErr(const std::string&, int, const Ice::Current&);
 
     virtual void destroy(const Ice::Current&);
 
@@ -67,7 +67,7 @@ private:
 
     void setupObserverSubscription(TopicName, const Ice::ObjectPrx&);
     Ice::ObjectPrx toProxy(const Ice::Identity&, const Ice::ConnectionPtr&);
-    FileIteratorPrx addFileIterator(const FileReaderPrx&, const std::string&, const Ice::Current&);
+    FileIteratorPrx addFileIterator(const FileReaderPrx&, const std::string&, int, const Ice::Current&);
 
     virtual void destroyImpl(bool);
 
@@ -131,9 +131,9 @@ class FileIteratorI : public FileIterator
 {
 public:
 
-    FileIteratorI(const AdminSessionIPtr&, const FileReaderPrx&, const std::string&);
+    FileIteratorI(const AdminSessionIPtr&, const FileReaderPrx&, const std::string&, Ice::Long);
 
-    virtual Ice::StringSeq read(int, const Ice::Current&);
+    virtual bool read(int, int, Ice::StringSeq&, const Ice::Current&);
     virtual void destroy(const Ice::Current&);
 
 private:

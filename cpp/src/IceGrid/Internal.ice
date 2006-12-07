@@ -101,10 +101,20 @@ interface FileReader
 {
     /**
      *
-     * Read and return up to count lines at the specified position.
+     * Count the number of given lines from the end of the file and
+     * return the file offset.
+     *
+     **/
+    ["cpp:const"] idempotent long getOffsetFromEnd(string filename, int lines)
+	throws FileNotAvailableException;
+
+    /**
+     *
+     * Read and return up to count lines (or size bytes) at the specified position.
      * 
      **/
-    ["cpp:const"] idempotent Ice::StringSeq readLines(string filename, long pos, int count, out long newPos)
+    ["cpp:const"] idempotent bool read(string filename, long pos, int count, int size, out long newPos, 
+				       out Ice::StringSeq lines)
 	throws FileNotAvailableException;
 };
 
@@ -194,6 +204,11 @@ sequence<InternalRegistry*> InternalRegistryPrxSeq;
 
 interface ReplicaObserver
 {
+    /**
+     *
+     * Initialization of the replica observer.
+     *
+     **/ 
     void replicaInit(InternalRegistryPrxSeq replicas);
 
     /**
@@ -211,6 +226,23 @@ interface ReplicaObserver
      *
      **/
     void replicaRemoved(InternalRegistry* replica);
+};
+
+interface PatcherFeedback
+{
+    /**
+     *
+     * The patch on the given node completed successfully.
+     *
+     **/
+    void finished(string node);
+
+    /**
+     *
+     * The patch on the given node failed for the given reason.
+     *
+     **/
+    void failed(string node, string reason);
 };
 
 interface Node extends FileReader, ReplicaObserver
@@ -245,8 +277,11 @@ interface Node extends FileReader, ReplicaObserver
      * which case the servers will be shutdown.
      * 
      **/
-    ["ami"] idempotent void patch(string application, string server, DistributionDescriptor appDistrib, bool shutdown)
-	throws  PatchException;
+    ["amd"] idempotent void patch(PatcherFeedback* feedback, 
+				  string application, 
+				  string server, 
+				  DistributionDescriptor appDistrib, 
+				  bool shutdown);
 
     /**
      *
@@ -309,7 +344,9 @@ interface NodeSession
 
     /**
      *
-     * Set the replica observer.
+     * Set the replica observer. The node calls this method when it's
+     * ready to receive notifications for the replicas. It only calls
+     * this for the session with the master.
      *
      **/
     void setReplicaObserver(ReplicaObserver* observer);
@@ -323,7 +360,7 @@ interface NodeSession
 
     /**
      *
-     * Return the registry observer.
+     * Return the node observer.
      *
      **/
     ["nonmutating", "cpp:const"] idempotent NodeObserver* getObserver();
@@ -333,7 +370,7 @@ interface NodeSession
      * Ask the registry to load the servers on the node.
      * 
      **/
-    ["nonmutating", "cpp:const"] idempotent void loadServers();
+    ["amd", "nonmutating", "cpp:const"] idempotent void loadServers();
 
     /**
      *

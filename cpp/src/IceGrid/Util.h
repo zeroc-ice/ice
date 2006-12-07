@@ -86,7 +86,7 @@ struct ObjFunc : std::unary_function<A, void>
 
 public:
 
-    explicit ObjFunc(T& obj, void (T::*f)(A)) : _obj(obj), _mfn(f) { }
+     explicit ObjFunc(T& obj, void (T::*f)(A)) : _obj(obj), _mfn(f) { }
     void operator()(A arg) const
     {
 	(_obj.*_mfn)(arg);

@@ -86,6 +86,8 @@ public:
 
     virtual Ice::SliceChecksumDict getSliceChecksums(const Ice::Current&) const;
 
+    void removeFeedbackIdentity(const Ice::Identity&);
+
 private:
 
     void checkIsMaster() const;
@@ -94,7 +96,10 @@ private:
     const RegistryIPtr _registry;
     const TraceLevelsPtr _traceLevels;
     const AdminSessionIPtr _session;
+
+    std::set<Ice::Identity> _feedbackIdentities;
 };
+typedef IceUtil::Handle<AdminI> AdminIPtr;
 
 }
 

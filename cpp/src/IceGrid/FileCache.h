@@ -22,8 +22,8 @@ public:
 
     FileCache();
 
-    Ice::StringSeq read(const std::string&, Ice::Long, int, Ice::Long&);
-
+    Ice::Long getOffsetFromEnd(const std::string&, int);
+    bool read(const std::string&, Ice::Long, int, int, Ice::Long&, Ice::StringSeq&);
 };
 typedef IceUtil::Handle<FileCache> FileCachePtr;
 

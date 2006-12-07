@@ -23,7 +23,10 @@ using namespace std;
 using namespace IcePatch2;
 using namespace IceGrid;
 
-class LogPatcherFeedback : public PatcherFeedback
+namespace
+{
+
+class LogPatcherFeedback : public IcePatch2::PatcherFeedback
 {
 public:
 
@@ -165,6 +168,16 @@ public:
 	return true;
     }
 
+    void
+    finishPatch()
+    {
+	if(_traceLevels->patch > 0)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+	    out << _dest << ": downloading completed";
+	}
+    }
+
 private:
 
     const TraceLevelsPtr _traceLevels;
@@ -173,6 +186,8 @@ private:
     string _path;
     string _dest;
 };
+
+}
 
 NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
 	     NodeSessionManager& sessions,
@@ -304,12 +319,16 @@ NodeI::destroyServer_async(const AMD_Node_destroyServerPtr& amdCB,
 }
 
 void
-NodeI::patch(const string& application, 
-	     const string& server,
-	     const DistributionDescriptor& appDistrib,
-	     bool shutdown, 
-	     const Ice::Current&)
+NodeI::patch_async(const AMD_Node_patchPtr& amdCB,
+		   const PatcherFeedbackPrx& feedback,
+		   const string& application, 
+		   const string& server,
+		   const DistributionDescriptor& appDistrib,
+		   bool shutdown, 
+		   const Ice::Current&)
 {
+    amdCB->ice_response();
+
     {
 	Lock sync(*this);
 	while(_patchInProgress.find(application) != _patchInProgress.end())
@@ -361,6 +380,7 @@ NodeI::patch(const string& application,
 	}
     }
 
+    string failure;
     try
     {
 	set<ServerIPtr>::iterator s = servers.begin(); 
@@ -387,18 +407,14 @@ NodeI::patch(const string& application,
 
 	if((servers.empty() || !appDistrib.icepatch.empty()) && !running.empty())
 	{
-	    PatchException ex;
-	    string reason = "patch on node `" + _name + "' failed:\n";
 	    if(running.size() == 1)
 	    {
-		reason += "server `" + toString(running) + "' is active";
+		throw "server `" + toString(running) + "' is active";
 	    }
 	    else
 	    {
-		reason += "servers `" + toString(running, ", ") + "' are active";
+		throw "servers `" + toString(running, ", ") + "' are active";
 	    }
-	    ex.reasons.push_back(reason);
-	    throw ex;
 	}
 
 	for(s = servers.begin(); s != servers.end(); ++s)
@@ -406,83 +422,84 @@ NodeI::patch(const string& application,
 	    (*s)->waitForPatch();
 	}
 
-	try
+	// 
+	// Patch the application.
+	//
+	FileServerPrx icepatch;
+	if(!appDistrib.icepatch.empty())
 	{
-	    // 
-	    // Patch the application.
-	    //
-	    FileServerPrx icepatch;
-	    if(!appDistrib.icepatch.empty())
+	    icepatch = FileServerPrx::checkedCast(_communicator->stringToProxy(appDistrib.icepatch));
+	    if(!icepatch)
 	    {
-		icepatch = FileServerPrx::checkedCast(_communicator->stringToProxy(appDistrib.icepatch));
-		if(!icepatch)
-		{
-		    throw "proxy `" + appDistrib.icepatch + "' is not a file server.";
-		}
-		patch(icepatch, "distrib/" + application, appDistrib.directories);
+		throw "proxy `" + appDistrib.icepatch + "' is not a file server.";
 	    }
-
-	    //
-	    // Patch the server(s).
-	    //
-	    for(s = servers.begin(); s != servers.end(); ++s)
-	    {
-		DistributionDescriptor dist = (*s)->getDistribution();
-		if(dist.icepatch.empty() || (!server.empty() && (*s)->getId() != server))
-		{
-		    continue;
-		}
-
-		icepatch = FileServerPrx::checkedCast(_communicator->stringToProxy(dist.icepatch));
-		if(!icepatch)
-		{
-		    throw "proxy `" + dist.icepatch + "' is not a file server.";
-		}
-		patch(icepatch, "servers/" + (*s)->getId() + "/distrib", dist.directories);
-
-		if(!server.empty())
-		{
-		    break;
-		}
-	    }
+	    patch(icepatch, "distrib/" + application, appDistrib.directories);
 	}
-	catch(const Ice::LocalException& e)
-	{
-	    ostringstream os;
-	    os << "patch on node `" + _name + "' failed:\n" << e;
-	    PatchException ex;
-	    ex.reasons.push_back(os.str());
-	    throw ex;
-	}
-	catch(const string& e)
-	{
-	    PatchException ex;
-	    ex.reasons.push_back("patch on node `" + _name + "' failed:\n" + e);
-	    throw ex;
-	}
-
+	
+	//
+	// Patch the server(s).
+	//
 	for(s = servers.begin(); s != servers.end(); ++s)
 	{
-	    (*s)->finishPatch();
-	}
-	{
-	    Lock sync(*this);
-	    _patchInProgress.erase(application);
-	    notifyAll();
+	    DistributionDescriptor dist = (*s)->getDistribution();
+	    if(dist.icepatch.empty() || (!server.empty() && (*s)->getId() != server))
+	    {
+		continue;
+	    }
+	    
+	    icepatch = FileServerPrx::checkedCast(_communicator->stringToProxy(dist.icepatch));
+	    if(!icepatch)
+	    {
+		throw "proxy `" + dist.icepatch + "' is not a file server.";
+	    }
+	    patch(icepatch, "servers/" + (*s)->getId() + "/distrib", dist.directories);
+	    
+	    if(!server.empty())
+	    {
+		break;
+	    }
 	}
     }
-    catch(...)
+    catch(const Ice::LocalException& e)
     {
-	for(set<ServerIPtr>::const_iterator s = servers.begin(); s != servers.end(); ++s)
+	ostringstream os;
+	os << e;
+	failure = os.str();
+    }
+    catch(const string& e)
+    {
+	failure = e;
+    }
+    catch(const char* e)
+    {
+	failure = e;
+    }
+
+    for(set<ServerIPtr>::const_iterator s = servers.begin(); s != servers.end(); ++s)
+    {
+	(*s)->finishPatch();
+    }
+
+    {
+	Lock sync(*this);
+	_patchInProgress.erase(application);
+	notifyAll();
+    }
+ 
+    try
+    {
+	if(failure.empty())
 	{
-	    (*s)->finishPatch();
+	    feedback->finished(_name);
 	}
+	else
 	{
-	    Lock sync(*this);
-	    _patchInProgress.erase(application);
-	    notifyAll();
+	    feedback->failed(_name, failure);
 	}
-	throw;
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	cerr << ex << endl;
     }
 }
 
@@ -534,32 +551,17 @@ NodeI::shutdown(const Ice::Current&) const
     _activator->shutdown();
 }
 
-Ice::StringSeq
-NodeI::readLines(const string& filename, Ice::Long pos, int count, Ice::Long& newPos, const Ice::Current&) const
+Ice::Long
+NodeI::getOffsetFromEnd(const string& filename, int count, const Ice::Current&) const
 {
-    string file;
-    if(filename == "stderr")
-    {
-	file = _communicator->getProperties()->getProperty("Ice.StdErr");
-	if(file.empty())
-	{
-	    throw FileNotAvailableException("Ice.StdErr configuration property is not set");
-	}
-    }
-    else if(filename == "stdout")
-    {
-	file = _communicator->getProperties()->getProperty("Ice.StdOut");
-	if(file.empty())
-	{
-	    throw FileNotAvailableException("Ice.StdOut configuration property is not set");
-	}
-    }
-    else
-    {
-	throw FileNotAvailableException("unknown file");
-    }
+    return _fileCache->getOffsetFromEnd(getFilePath(filename), count);
+}
 
-    return _fileCache->read(file, pos, count, newPos);
+bool
+NodeI::read(const string& filename, Ice::Long pos, int count, int size, Ice::Long& newPos, Ice::StringSeq& lines,
+	    const Ice::Current&) const
+{
+    return _fileCache->read(getFilePath(filename), pos, count, size, newPos, lines);
 }
 
 void
@@ -1024,7 +1026,7 @@ NodeI::canRemoveServerDirectory(const string& name)
 void
 NodeI::patch(const FileServerPrx& icepatch, const string& dest, const vector<string>& directories)
 {
-    PatcherFeedbackPtr feedback = new LogPatcherFeedback(_traceLevels, dest);
+    IcePatch2::PatcherFeedbackPtr feedback = new LogPatcherFeedback(_traceLevels, dest);
     IcePatch2::createDirectory(_dataDir + "/" + dest);
     PatcherPtr patcher = new Patcher(icepatch, feedback, _dataDir + "/" + dest, false, 100, 1);
     bool aborted = !patcher->prepare();
@@ -1033,6 +1035,7 @@ NodeI::patch(const FileServerPrx& icepatch, const string& dest, const vector<str
 	if(directories.empty())
 	{
 	    aborted = !patcher->patch("");
+	    dynamic_cast<LogPatcherFeedback*>(feedback.get())->finishPatch();
 	}
 	else
 	{
@@ -1044,6 +1047,7 @@ NodeI::patch(const FileServerPrx& icepatch, const string& dest, const vector<str
 		    aborted = true;
 		    break;
 		}
+		dynamic_cast<LogPatcherFeedback*>(feedback.get())->finishPatch();
 	    }
 	}
     }
@@ -1055,7 +1059,6 @@ NodeI::patch(const FileServerPrx& icepatch, const string& dest, const vector<str
     //
     // Update the files owner/group
     //    
-    
 }
 
 set<ServerIPtr>
@@ -1078,4 +1081,31 @@ NodeI::createServerIdentity(const string& name) const
     id.category = _instanceName + "-Server";
     id.name = name;
     return id;
+}
+
+string
+NodeI::getFilePath(const string& filename) const
+{
+    string file;
+    if(filename == "stderr")
+    {
+	file = _communicator->getProperties()->getProperty("Ice.StdErr");
+	if(file.empty())
+	{
+	    throw FileNotAvailableException("Ice.StdErr configuration property is not set");
+	}
+    }
+    else if(filename == "stdout")
+    {
+	file = _communicator->getProperties()->getProperty("Ice.StdOut");
+	if(file.empty())
+	{
+	    throw FileNotAvailableException("Ice.StdOut configuration property is not set");
+	}
+    }
+    else
+    {
+	throw FileNotAvailableException("unknown file");
+    }
+    return file;
 }

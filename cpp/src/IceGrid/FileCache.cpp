@@ -10,6 +10,7 @@
 #include <IceGrid/FileCache.h>
 #include <IceGrid/Exception.h>
 
+#include <deque>
 #include <fstream>
 
 using namespace std;
@@ -19,40 +20,139 @@ FileCache::FileCache()
 {
 }
 
-Ice::StringSeq
-FileCache::read(const string& filename, Ice::Long offset, int count, Ice::Long& newOffset)
+Ice::Long
+FileCache::getOffsetFromEnd(const string& file, int originalCount)
 {
-    ifstream is(filename.c_str());
+    ifstream is(file.c_str());
     if(is.fail())
     {
-	throw FileNotAvailableException("failed to open file `" + filename + "'");
+	throw FileNotAvailableException("failed to open file `" + file + "'");
     }
 
-    newOffset = offset;
+    int blockSize = 16 * 1024; // Start reading a block of 16K from the end of the file.
+    is.seekg(0, ios::end);
+    Ice::Long endOfFileOffset = is.tellg();
+    Ice::Long lastBlockOffset = endOfFileOffset;
+    int totalCount = 0;
+    int totalSize = 0;
+    string line;
+    do
+    {
+	//
+	// Move the current position of the stream to the new block to
+	// read.
+	//
+	is.clear();
+	if(lastBlockOffset - blockSize > 0)
+	{
+	    is.seekg(lastBlockOffset - blockSize);
+	    getline(is, line); // Ignore the first line as it's most likely not complete.
+	}
+	else
+	{
+	    is.seekg(0); // We've reach the begining of the file.
+	}
+	
+	//
+	// Read the block and count the number of lines in the block
+	// as well as the number of bytes read. If we found the "first
+	// last N line", we start throwing out the lines read at the
+	// begining of the file. The total size read will give us the
+	// position from the end of the file.
+	//
+	deque<string> lines;
+	int count = originalCount - totalCount; // Number of lines left to find.
+	while(is.good() && is.tellg() < lastBlockOffset)
+	{
+	    getline(is, line);
+
+	    lines.push_back(line);
+	    ++totalCount;
+	    totalSize += line.size() + 1;
+	    if(lines.size() == static_cast<unsigned int>(count + 1))
+	    {
+		--totalCount;
+		totalSize -= lines.front().size() + 1;
+		lines.pop_front();
+	    }
+	}
+
+	if(lastBlockOffset - blockSize < 0)
+	{
+	    break; // We're done if the block started at the begining of the file.
+	}
+	else if(totalCount < originalCount)
+	{
+	    //
+	    // Otherwise, it we still didn't find the required number of lines, 
+	    // read another block of text before this block.
+	    //
+	    lastBlockOffset -= blockSize; // Position of the block we just read.
+	    blockSize *= 2; // Read a bigger block.
+	}
+    }
+    while(totalCount  < originalCount && !is.bad());
+
+    if(is.bad())
+    {
+	throw FileNotAvailableException("unrecoverable error occured while reading file `" + file + "'");
+    }
+
+    return endOfFileOffset - totalSize;
+}
+
+bool
+FileCache::read(const string& file, Ice::Long offset, int count, int size, Ice::Long& newOffset, Ice::StringSeq& lines)
+{
+    assert(size > 0 && count > 0);
+
+    ifstream is(file.c_str());
+    if(is.fail())
+    {
+	throw FileNotAvailableException("failed to open file `" + file + "'");
+    }
+
+    //
+    // Check if the requested offset is past the end of the file, if
+    // that's the case return an empty sequence of lines and indicate
+    // the EOF.
+    //
     is.seekg(0, ios::end);
     if(offset >= is.tellg())
     {
 	newOffset = is.tellg();
-	return Ice::StringSeq();
+	lines = Ice::StringSeq();
+	return true;
     }
 
+    //
+    // Read lines from the file until we read enough or reached EOF.
+    // 
+    newOffset = offset;
+    lines = Ice::StringSeq();
 #ifdef _WIN32
     is.seekg(static_cast<int>(offset));
 #else
     is.seekg(static_cast<streampos>(offset));
 #endif
-    Ice::StringSeq lines;
-    for(int i = 0; i < count && is.good(); ++i)
+    int totalSize = 0;
+    string line;
+    for(int i = 0; i < count && is.good() && totalSize < size; ++i)
     {
-	assert(!is.eof());
-	string line;
 	getline(is, line);
+	totalSize += line.size() + (is.eof() ? 0 : 1);
 	if(!is.fail())
 	{
 	    newOffset = is.tellg();
-	    assert(newOffset >= 0);
 	}
 	lines.push_back(line);
     }
-    return lines;
+
+    if(is.bad())
+    {
+	throw FileNotAvailableException("unrecoverable error occured while reading file `" + file + "'");
+    }
+
+    return is.eof();
 }
+
