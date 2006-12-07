@@ -1,3 +1,6 @@
+#
+# The Default Locator
+#
 Ice.Default.Locator=DemoIceGrid/Locator:default -p 12000
 
 #
@@ -5,11 +8,6 @@ Ice.Default.Locator=DemoIceGrid/Locator:default -p 12000
 # subscriber adapter.
 #
 Clock.Subscriber.Endpoints=tcp
-
-#
-# This property is used by the clients to connect to IceStorm.
-#
-#IceStorm.TopicManager.Proxy=DemoIceStorm/TopicManager:default -p 10000
 
 #
 # Network Tracing

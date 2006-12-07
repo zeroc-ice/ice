@@ -36,7 +36,8 @@ Publisher::run(int argc, char* argv[])
     Ice::PropertiesPtr properties = communicator()->getProperties();
 
     IceGrid::QueryPrx query = IceGrid::QueryPrx::uncheckedCast(communicator()->stringToProxy("DemoIceGrid/Query"));
-    Ice::ObjectProxySeq objects = query->findAllObjectsByType("::IceStorm::TopicManager");
+    IceStorm::TopicManagerPrx manager = 
+        IceStorm::TopicManagerPrx::checkedCast(query->findObjectByType("::IceStorm::TopicManager"));
 
     string topicName = "time";
     if(argc != 1)
@@ -44,44 +45,25 @@ Publisher::run(int argc, char* argv[])
         topicName = argv[1];
     }
 
-    Ice::ObjectPrx obj;
-    for(Ice::ObjectProxySeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
+    IceStorm::TopicPrx topic;
+    try
     {
-	IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(*p);
-	IceStorm::TopicPrx topic;
-	try
-	{
-	    topic = manager->create(topicName);
-	}
-	catch(const IceStorm::TopicExists&)
-	{
-	    try
-	    {
-	        topic = manager->retrieve(topicName);
-	    }
-	    catch(const IceStorm::TopicExists&)
-	    {
-	        cerr << appName() << ": temporary failure. try again." << endl;
-		return EXIT_FAILURE;
-	    }
-	}
-
-	if(!obj)
-	{
-	    //
-	    // Use per-request load balancing with round robin from the
-	    // IceGrid locator for the publisher object.
-	    //
-	    obj = topic->getPublisher()->ice_locatorCacheTimeout(0)->ice_connectionCached(false);
-	}
+        topic = manager->retrieve(topicName);
+    }
+    catch(const IceStorm::NoSuchTopic&)
+    {
+        cerr << appName() << ": topics not created yet, run subscriber." << endl;
+	return EXIT_FAILURE;
     }
 
     //
     // Get the topic's publisher object, verify that it supports
     // the Clock type, and create a oneway Clock proxy (for efficiency
-    // reasons). 
+    // reasons). Use per-request load balancing with round robin from the
+    // IceGrid locator for the publisher object.
     //
-    ClockPrx clock = ClockPrx::uncheckedCast(obj->ice_oneway());
+    ClockPrx clock = ClockPrx::uncheckedCast(topic->getPublisher()->ice_oneway()->
+    					     ice_locatorCacheTimeout(0)->ice_connectionCached(false));
 
     try
     {

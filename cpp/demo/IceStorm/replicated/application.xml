@@ -15,16 +15,16 @@
 
         <adapter name="${service}.TopicManager"
                  id="${instance-name}.TopicManager" 
-                 endpoints="${topic-manager-endpoints}">
-           <object identity="${instance-name}/TopicManager" type="::IceStorm::TopicManager"/>
-        </adapter>
+                 endpoints="${topic-manager-endpoints}"
+                 replica-group="IceStormTopicManagerReplicaGroup"/>
 
  	<adapter name="${service}.Publish" 
 		 id="${instance-name}.Publish" 
 		 endpoints="${publish-endpoints}" 
                  replica-group="IceStormPublishReplicaGroup"/>
+
          <properties>
-           <property name="${service}.InstanceName" value="${instance-name}"/>
+           <property name="${service}.InstanceName" value="DemoIceStorm"/>
            <property name="${service}.Flush.Timeout" value="${flush-timeout}"/>
            <property name="${service}.Trace.TopicManager" value="2"/>
            <property name="${service}.Trace.Topic" value="1"/>
@@ -42,7 +42,7 @@
 
        <icebox id="${instance-name}" exe="icebox" activation="on-demand">
          <service-instance template="IceStorm"
-	 		  instance-name="${instance-name}" 
+	 		  instance-name="${instance-name}"
 			  topic-manager-endpoints="${topic-manager-endpoints}"
 			  publish-endpoints="${publish-endpoints}"
 			  flush-timeout="${flush-timeout}"/>
@@ -52,10 +52,16 @@
      <node name="localhost">
        <server-instance template="IceStorm" instance-name="DemoIceStorm-1"/>
        <server-instance template="IceStorm" instance-name="DemoIceStorm-2"/>
+       <server-instance template="IceStorm" instance-name="DemoIceStorm-3"/>
      </node>
 
      <replica-group id="IceStormPublishReplicaGroup">
        <load-balancing type="round-robin"/>
+     </replica-group>
+
+     <replica-group id="IceStormTopicManagerReplicaGroup">
+       <load-balancing type="round-robin"/>
+       <object identity="DemoIceStorm/TopicManager" type="::IceStorm::TopicManager"/>
      </replica-group>
 
   </application>

@@ -50,7 +50,7 @@ Subscriber::run(int argc, char* argv[])
     Ice::PropertiesPtr properties = communicator()->getProperties();
 
     IceGrid::QueryPrx query = IceGrid::QueryPrx::uncheckedCast(communicator()->stringToProxy("DemoIceGrid/Query"));
-    Ice::ObjectProxySeq managers = query->findAllObjectsByType("::IceStorm::TopicManager");
+    Ice::ObjectProxySeq managers = query->findAllReplicas(query->findObjectByType("::IceStorm::TopicManager"));
 
     string topicName = "time";
     if(argc != 1)
@@ -72,14 +72,15 @@ Subscriber::run(int argc, char* argv[])
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Clock.Subscriber");
     Ice::ObjectPrx clock = adapter->addWithUUID(new ClockI);
 
-    vector<IceStorm::TopicPrx> topics;
-    for(Ice::ObjectProxySeq::const_iterator p = managers.begin(); p != managers.end(); ++p)
+    IceStorm::TopicPrx topic;
+    Ice::ObjectProxySeq::const_iterator p;
+    for(p = managers.begin(); p != managers.end(); ++p)
     {
 	//
 	// Add a Servant for the Ice Object.
 	//
-	IceStorm::TopicPrx topic;
 	IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(*p);
+
 	try
 	{
             topic = manager->retrieve(topicName);
@@ -96,8 +97,13 @@ Subscriber::run(int argc, char* argv[])
 		return EXIT_FAILURE;
 	    }
 	}
+    }
+
+    Ice::ObjectProxySeq topics = query->findAllReplicas(topic);
+    for(p = topics.begin(); p != topics.end(); ++p)
+    {
+        topic = IceStorm::TopicPrx::uncheckedCast(*p);
 	topic->subscribe(qos, clock);
-	topics.push_back(topic);
     }
 
     adapter->activate();
@@ -107,9 +113,10 @@ Subscriber::run(int argc, char* argv[])
     //
     // Unsubscribe all subscribed objects.
     //
-    for(unsigned int i = 0; i < topics.size(); ++i)
+    for(p = topics.begin(); p != topics.end(); ++p)
     {
-        topics[i]->unsubscribe(clock);
+        topic = IceStorm::TopicPrx::uncheckedCast(*p);
+        topic->unsubscribe(clock);
     }
 
     return EXIT_SUCCESS;
