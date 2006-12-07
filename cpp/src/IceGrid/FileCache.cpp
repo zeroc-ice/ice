@@ -45,7 +45,11 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
 	is.clear();
 	if(lastBlockOffset - blockSize > 0)
 	{
-	    is.seekg(lastBlockOffset - blockSize);
+#ifdef _WIN32
+	    is.seekg(static_cast<int>(lastBlockOffset - blockSize));
+#else
+	    is.seekg(static_cast<streampos>(lastBlockOffset - blockSize));
+#endif
 	    getline(is, line); // Ignore the first line as it's most likely not complete.
 	}
 	else

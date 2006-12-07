@@ -234,7 +234,7 @@ AdminI::~AdminI()
 	    }
 	}
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::LocalException&)
     {
     }
 }
