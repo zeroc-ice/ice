@@ -36,8 +36,10 @@ public:
     
     ServerEntry(ServerCache&, const std::string&);
 
-    void load();
-    void unload();
+    void sync();
+    void syncAndWait();
+    void waitNoThrow();
+    void unsync();
 
     void update(const ServerInfo&);
     void destroy();
@@ -64,8 +66,9 @@ public:
 
 private:
     
-    void syncImpl(bool);
-
+    void syncImpl();
+    void waitImpl();
+    
     ServerCache& _cache;
     const std::string _id;
     std::auto_ptr<ServerInfo> _loaded;

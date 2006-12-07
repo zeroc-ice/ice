@@ -211,20 +211,42 @@ ServerEntry::ServerEntry(ServerCache& cache, const string& id) :
 }
 
 void
-ServerEntry::load()
+ServerEntry::sync()
 {
+    syncImpl();
+}
+
+void
+ServerEntry::syncAndWait()
+{
+    syncImpl();
     try
     {
-	syncImpl(true);
+	waitImpl();
     }
     catch(const NodeUnreachableException&)
     {
-	// Ignore
+	//
+	// The node being unreachable isn't considered as a failure to
+	// synchronize the server.
+	//
     }
 }
 
 void
-ServerEntry::unload()
+ServerEntry::waitNoThrow()
+{
+    try
+    {
+	waitImpl();
+    }
+    catch(const Ice::Exception&)
+    {
+    }
+}
+
+void
+ServerEntry::unsync()
 {
     Lock sync(*this);
     if(_loaded.get())
@@ -356,7 +378,12 @@ ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& 
 
     while(true)
     {
-	syncImpl(true);
+	//
+	// Note that we don't call syncAndWait() because we want
+	// NodeUnreachableException exceptions to go through.
+	//
+	syncImpl();
+	waitImpl();
 
 	{
 	    Lock sync(*this);
@@ -402,7 +429,12 @@ ServerEntry::getAdapter(const string& id, bool upToDate)
 
     while(true)
     {    
-	syncImpl(true);
+	//
+	// Note that we don't call syncAndWait() because we want
+	// NodeUnreachableException exceptions to go through.
+	//
+	syncImpl();
+	waitImpl();
 
 	{
 	    Lock sync(*this);
@@ -470,7 +502,7 @@ ServerEntry::getLoad(LoadSample sample) const
 }
 
 void
-ServerEntry::syncImpl(bool waitForUpdate)
+ServerEntry::syncImpl()
 {
     ServerInfo load;
     SessionIPtr session;
@@ -481,17 +513,7 @@ ServerEntry::syncImpl(bool waitForUpdate)
 	Lock sync(*this);
 	if(_synchronizing)
 	{
-	    if(waitForUpdate)
-	    {
-		while(_synchronizing)
-		{
-		    wait();
-		}
-	    }
-	    else
-	    {
-		return;
-	    }
+	    return;
 	}
 
 	if(!_load.get() && !_destroy.get())
@@ -505,6 +527,7 @@ ServerEntry::syncImpl(bool waitForUpdate)
 	if(_destroy.get())
 	{
 	    destroy = *_destroy;
+	    timeout = _deactivationTimeout;
 	}
 	else if(_load.get())
 	{
@@ -524,7 +547,7 @@ ServerEntry::syncImpl(bool waitForUpdate)
     {
 	try
 	{
-	    _cache.getNodeCache().get(destroy.node)->destroyServer(this, destroy);
+	    _cache.getNodeCache().get(destroy.node)->destroyServer(this, destroy, timeout);
 	}
 	catch(NodeNotExistException&)
 	{
@@ -541,39 +564,47 @@ ServerEntry::syncImpl(bool waitForUpdate)
 	{
 	    exception(NodeUnreachableException(load.node, "node is not active"));
 	}
-    }
-    
-    if(waitForUpdate)
+    }    
+}
+
+void
+ServerEntry::waitImpl()
+{
+    Lock sync(*this);
+    while(_synchronizing)
     {
-	Lock sync(*this);
-	while(_synchronizing)
+	wait();
+    }
+
+    if(_exception.get())
+    {
+	try
 	{
-	    wait();
+	    _exception->ice_throw();
 	}
-	if(_exception.get())
+	catch(const DeploymentException&)
 	{
-	    try
+	    throw;
+	}
+	catch(const NodeUnreachableException&)
+	{
+	    throw;
+	}
+	catch(const Ice::Exception& ex) // This shouln't happen.
+	{
+	    ostringstream os;
+	    os << "unexpected exception while synchronizing server `" + _id + "':\n" << ex;
+	    TraceLevelsPtr traceLevels = _cache.getTraceLevels();
+	    if(traceLevels)
 	    {
-		_exception->ice_throw();
+		Ice::Error err(traceLevels->logger);
+		err << os.str();
 	    }
-	    catch(const DeploymentException&)
-	    {
-		throw;
-	    }
-	    catch(const NodeUnreachableException&)
-	    {
-		throw;
-	    }
-	    catch(const Ice::Exception& ex)
-	    {
-		ostringstream os;
-		os << "unexpected exception while synchronizing server `" + _id + "':\n" << ex;
-		throw DeploymentException(os.str());
-	    }
+	    throw DeploymentException(os.str());
 	}
     }
 }
-
+    
 void
 ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, int at, int dt)
 {
@@ -626,7 +657,7 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
     {
 	try
 	{
-	    _cache.getNodeCache().get(destroy.node)->destroyServer(this, destroy);
+	    _cache.getNodeCache().get(destroy.node)->destroyServer(this, destroy, timeout);
 	}
 	catch(NodeNotExistException&)
 	{
@@ -842,7 +873,8 @@ ServerEntry::allocatedNoSync(const SessionIPtr& session)
 	}
     }
     
-    syncImpl(true); // We sync here to ensure the "session" server will be activated.
+    sync();
+    waitNoThrow();
 }
 
 void
@@ -933,6 +965,7 @@ ServerEntry::releasedNoSync(const SessionIPtr& session)
 	    return;
 	}
     }
-    
-    syncImpl(true); // We sync here to ensure the "session" server will be shutdown.
+
+    sync();
+    waitNoThrow();
 }

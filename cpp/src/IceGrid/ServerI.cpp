@@ -363,13 +363,7 @@ DestroyCommand::DestroyCommand(const ServerIPtr& server, bool kill) :
 bool
 DestroyCommand::canExecute(ServerI::InternalServerState state)
 {
-    return
-        state == ServerI::Inactive || 
-        state == ServerI::WaitForActivation ||
-        state == ServerI::Active || 
-        state == ServerI::ActivationTimeout ||
-        state == ServerI::Deactivating || 
-        state == ServerI::DeactivatingWaitForProcess;
+    return state == ServerI::Inactive;
 }
 
 ServerI::InternalServerState
@@ -1051,9 +1045,14 @@ ServerI::destroy(const AMD_Node_destroyServerPtr& amdCB, const string& uuid, int
 	}
     }
 
+    if(!StopCommand::isStopped(_state) && !_stop)
+    {
+	_stop = new StopCommand(this, _node->getWaitQueue(), _deactivationTimeout);
+    }
     if(!_destroy)
     {
-	_destroy = new DestroyCommand(this, _state != Inactive && _state != Loading && _state != Patching);
+	//_destroy = new DestroyCommand(this, _state != Inactive && _state != Loading && _state != Patching);
+	_destroy = new DestroyCommand(this, false);
     }
     if(amdCB)
     {
@@ -2097,13 +2096,13 @@ ServerCommandPtr
 ServerI::nextCommand()
 {
     ServerCommandPtr command;
-    if(_destroy && _destroy->canExecute(_state))
-    {
-	command = _destroy;
-    }
-    else if(_stop && _stop->canExecute(_state))
+    if(_stop && _stop->canExecute(_state))
     {
 	command = _stop;
+    }
+    else if(_destroy && _destroy->canExecute(_state))
+    {
+	command = _destroy;
     }
     else if(_load && _load->canExecute(_state))
     {
@@ -2159,7 +2158,7 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
 	assert(_state == Deactivating);
 	break;
     case Destroying:
-	assert(_destroy && _destroy->canExecute(_state));
+	assert(_state == Inactive && _destroy && _destroy->canExecute(_state));
 	break;
     case Destroyed:
 	assert(_destroy);

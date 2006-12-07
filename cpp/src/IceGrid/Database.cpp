@@ -301,7 +301,7 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session)
     {
 	try
 	{
-	    for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::load));
+	    for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::syncAndWait));
 	}
 	catch(const DeploymentException& ex)
 	{
@@ -516,14 +516,8 @@ Database::removeApplication(const string& name, AdminSessionI* session)
 
     if(_master)
     {
-	try
-	{
-	    for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::load));
-	}
-	catch(const DeploymentException&)
-	{
-	    // Ignore, this is traced by the node cache.
-	}
+	for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
+	for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::waitNoThrow));
     }
 
     _applicationObserverTopic->waitForSyncedSubscribers(serial);
@@ -1468,7 +1462,7 @@ Database::finishApplicationUpdate(ServerEntrySeq& entries,
 	//
 	try
 	{
-	    for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::load));
+	    for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::syncAndWait));
 	}
 	catch(const DeploymentException& ex)
 	{
@@ -1485,7 +1479,7 @@ Database::finishApplicationUpdate(ServerEntrySeq& entries,
 
 	    try
 	    {
-		for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::load));
+		for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::syncAndWait));
 	    }
 	    catch(const DeploymentException& ex)
 	    {

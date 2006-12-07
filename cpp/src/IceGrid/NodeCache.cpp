@@ -350,16 +350,16 @@ NodeEntry::getInfo() const
     return _session->getInfo();
 }
 
-Ice::StringSeq
+ServerEntrySeq
 NodeEntry::getServers() const
 {
     Lock sync(*this);
-    Ice::StringSeq names;
+    ServerEntrySeq entries;
     for(map<string, ServerEntryPtr>::const_iterator p = _servers.begin(); p != _servers.end(); ++p)
     {
-	names.push_back(p->second->getId());
+	entries.push_back(p->second);
     }
-    return names;
+    return entries;
 }
 
 LoadInfo
@@ -439,7 +439,7 @@ NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, con
 	    // 
 	    if(timeout > 0 && timeout != sessionTimeout)
 	    {
-		node = NodePrx::uncheckedCast(node->ice_timeout(sessionTimeout));
+		node = NodePrx::uncheckedCast(node->ice_timeout(timeout + sessionTimeout));
 	    }
 
 	    try
@@ -486,17 +486,37 @@ NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, con
 }
 
 void
-NodeEntry::destroyServer(const ServerEntryPtr& entry, const ServerInfo& info)
+NodeEntry::destroyServer(const ServerEntryPtr& entry, const ServerInfo& info, int timeout)
 {
     try
     {
+	NodePrx node;
+	{
+	    Lock sync(*this);
+	    checkSession();
+	    node = _session->getNode();
+	    int sessionTimeout = _session->getTimeout();
+
+	    //
+	    // Check if we should use a specific timeout (the load
+	    // call can deactivate the server and it can take some
+	    // time to deactivate, up to "deactivation-timeout"
+	    // seconds).
+	    // 
+	    if(timeout > 0 && timeout != sessionTimeout)
+	    {
+		node = NodePrx::uncheckedCast(node->ice_timeout(timeout + sessionTimeout));
+	    }
+	}
+	
 	if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 2)
 	{
 	    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
 	    out << "unloading `" << info.descriptor->id << "' on node `" << _name << "'";	
 	}
+
 	AMI_Node_destroyServerPtr amiCB = new DestroyCB(_cache.getTraceLevels(), entry, _name);
-	getProxy()->destroyServer_async(amiCB, info.descriptor->id, info.uuid, info.revision);
+	node->destroyServer_async(amiCB, info.descriptor->id, info.uuid, info.revision);
     }
     catch(const NodeUnreachableException& ex)
     {

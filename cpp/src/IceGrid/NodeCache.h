@@ -28,6 +28,7 @@ typedef IceUtil::Handle<NodeSessionI> NodeSessionIPtr;
 
 class ServerEntry;
 typedef IceUtil::Handle<ServerEntry> ServerEntryPtr;
+typedef std::vector<ServerEntryPtr> ServerEntrySeq;
 
 class ReplicaCache;
 
@@ -48,13 +49,13 @@ public:
 
     NodePrx getProxy() const;
     NodeInfo getInfo() const;
-    Ice::StringSeq getServers() const;
+    ServerEntrySeq getServers() const;
     LoadInfo getLoadInfoAndLoadFactor(const std::string&, float&) const;
 
     bool canRemove();
     
     void loadServer(const ServerEntryPtr&, const ServerInfo&, const SessionIPtr&, int);
-    void destroyServer(const ServerEntryPtr&, const ServerInfo&);
+    void destroyServer(const ServerEntryPtr&, const ServerInfo&, int);
     ServerInfo getServerInfo(const ServerInfo&, const SessionIPtr&);
 
     void __incRef();

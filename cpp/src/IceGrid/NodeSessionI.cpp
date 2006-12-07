@@ -112,24 +112,20 @@ NodeSessionI::loadServers_async(const AMD_NodeSession_loadServersPtr& amdCB, con
     //
     // Get the server proxies to load them on the node.
     //
-    Ice::StringSeq servers = _database->getNode(_info.name)->getServers();
-    for(Ice::StringSeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
-    {
-	try
-	{
-	    _database->getServer(*p)->load();
-	}
-	catch(const Ice::UserException&)
-	{
-	    // Ignore.
-	}
-    }
+    ServerEntrySeq servers = _database->getNode(_info.name)->getServers();
+    for_each(servers.begin(), servers.end(), IceUtil::voidMemFun(&ServerEntry::sync));
 }
 
 Ice::StringSeq
 NodeSessionI::getServers(const Ice::Current& current) const
 {
-    return _database->getNode(_info.name)->getServers();
+    ServerEntrySeq servers =  _database->getNode(_info.name)->getServers();
+    Ice::StringSeq names;
+    for(ServerEntrySeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
+    {
+	names.push_back((*p)->getId());
+    }
+    return names;
 }
 
 void
@@ -208,18 +204,8 @@ NodeSessionI::destroyImpl(bool shutdown)
 	_destroy = true;
     }
 
-    Ice::StringSeq servers = _database->getNode(_info.name)->getServers();
-    for(Ice::StringSeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
-    {
-	try
-	{
-	    _database->getServer(*p)->unload();
-	}
-	catch(const Ice::UserException&)
-	{
-	    // Ignore.
-	}
-    }
+    ServerEntrySeq servers = _database->getNode(_info.name)->getServers();
+    for_each(servers.begin(), servers.end(), IceUtil::voidMemFun(&ServerEntry::unsync));
 
     //
     // If the registry isn't being shutdown we remove the node
