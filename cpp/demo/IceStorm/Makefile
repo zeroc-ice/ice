@@ -11,7 +11,7 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= clock counter
+SUBDIRS		= clock counter replicated
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
