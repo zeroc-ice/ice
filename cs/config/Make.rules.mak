@@ -38,7 +38,7 @@ prefix			= C:\IceCS-$(VERSION)
 # assertions enabled.
 #
 
-#DEBUG			= yes
+DEBUG			= yes
 
 #
 # Define OPTIMIZE as yes if you want to build with optimized.
