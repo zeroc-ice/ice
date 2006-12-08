@@ -449,17 +449,12 @@ ServerInstanceDescriptorBuilder::createPropertySet(const XmlAttributesHelper& at
 void
 ServerInstanceDescriptorBuilder::addPropertySet(const string& service, const PropertySetDescriptor& desc)
 {
-    if(service.empty())
-    {
-	_descriptor.propertySet = desc;
-    }
-    else
-    {
-	if(!_descriptor.servicePropertySets.insert(make_pair(service, desc)).second)
-	{
-	    throw "duplicate property set for service `" + service + "'";
-	}
-    }
+    //
+    // Allow re-opening of unamed property sets.
+    //
+    PropertySetDescriptor& p = service.empty() ? _descriptor.propertySet : _descriptor.servicePropertySets[service];
+    p.references.insert(p.references.end(), desc.references.begin(), desc.references.end());
+    p.properties.insert(p.properties.end(), desc.properties.begin(), desc.properties.end());
 }
 
 NodeDescriptorBuilder::NodeDescriptorBuilder(ApplicationDescriptorBuilder& app, 
@@ -646,7 +641,12 @@ CommunicatorDescriptorBuilder::createPropertySet() const
 void
 CommunicatorDescriptorBuilder::addPropertySet(const PropertySetDescriptor& desc)
 {
-    _descriptor->propertySet = desc;
+    //
+    // Allow re-opening of unamed property sets.
+    //
+    PropertySetDescriptor& p = _descriptor->propertySet;
+    p.references.insert(p.references.end(), desc.references.begin(), desc.references.end());
+    p.properties.insert(p.properties.end(), desc.properties.begin(), desc.properties.end());
 }
 
 void
@@ -781,7 +781,12 @@ ServiceInstanceDescriptorBuilder::createPropertySet() const
 void
 ServiceInstanceDescriptorBuilder::addPropertySet(const PropertySetDescriptor& desc)
 {
-    _descriptor.propertySet = desc;
+    //
+    // Allow re-opening of unamed property sets.
+    //
+    PropertySetDescriptor& p = _descriptor.propertySet;
+    p.references.insert(p.references.end(), desc.references.begin(), desc.references.end());
+    p.properties.insert(p.properties.end(), desc.properties.begin(), desc.properties.end());
 }
 
 ServerDescriptorBuilder::ServerDescriptorBuilder(const Ice::CommunicatorPtr& communicator,
