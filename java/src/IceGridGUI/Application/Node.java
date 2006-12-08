@@ -332,7 +332,8 @@ class Node extends TreeNode implements PropertySetParent
 	ServerInstanceDescriptor descriptor = 
 	    new ServerInstanceDescriptor("",
 					 new java.util.HashMap(),
-					 new PropertySetDescriptor(new String[0], new java.util.LinkedList()));
+					 new PropertySetDescriptor(new String[0], new java.util.LinkedList()),
+					 new java.util.HashMap());
 
 	newServer(descriptor);
     }
