@@ -104,8 +104,8 @@ def getMakeRulesSuffix():
         return None
     
 def initDirectory(d):
-    '''Check for the existance of the directory. If it isn't there make
-    it.'''
+    """Check for the existance of the directory. If it isn't there make
+    it."""
     if os.path.exists(d):
         #
         # Make sure its a directory and has correct permissions.
@@ -433,60 +433,6 @@ prefix = $(ICE_DIR)
     runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\.\/slice/$(slicedir)/g' $f ; done")
     runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\./$(ICE_DIR)/g' $f ; done")
     makefile.close()
-# 
-# def editMakeRulesMak(filename, version):
-#     '''
-#     Ice distributions contain files with useful build rules. However,
-#     these rules are source distribution specific. This script edits
-#     these files to make them appropriate to accompany binary
-#     distributions.
-#     '''
-#     state = 'header'
-#     reIceLocation = re.compile('^[a-z]*dir.*=\s*\$\(top_srcdir\)')
-# 
-#     makefile =  fileinput.input(filename, True)
-#     for line in makefile:
-# 	if state == 'done':
-# 	    if reIceLocation.search(line) <> None:
-# 		output = line.rstrip('\n').replace('top_srcdir', 'ICE_DIR', 10)
-# 		print output
-# 	    elif line.startswith('install_'):
-# 		#
-# 		# Do nothing.
-# 		#
-# 		pass
-# 	    elif line.startswith('THIRDPARTY_HOME'):
-# 		#
-# 		# Do nothing.
-# 		#
-# 		pass
-# 	    else:
-# 		print line.rstrip('\n')
-# 	elif state == 'header':
-# 	    #
-# 	    # Reading header.
-# 	    #
-# 	    print line.rstrip('\n')
-# 	    if line.strip() == "":
-# 		state = 'untilprefix'
-# 		print """
-# #
-# # Checks for ICE_HOME environment variable.
-# #
-# 
-# !if "$(ICE_HOME)" == ""
-# !error Ice distribution not found, please set ICE_HOME!
-# !endif
-# 
-# ICE_DIR = $(ICE_HOME)
-# prefix = $(ICE_DIR)
-# 
-# """
-# 	elif state == 'untilprefix':
-# 	    if line.startswith('prefix'):
-# 		state = 'done'
-# 
-#     makefile.close()
 
 def updateIceVersion(filename, version):
     print 'Updating ice version in ' + filename + ' to ' + version
@@ -657,10 +603,6 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version, mmVersion
         os.chdir(cwd)
         return
 
-    if distro.startswith('IcePHP'):
-        os.chdir(cwd)
-	return
-
     if distro.startswith('IcePy'):
         try:
             pyHome = os.environ['PYTHON_HOME']
@@ -785,212 +727,6 @@ def copyExpatFiles(expatLocation, version):
     if not os.path.exists('Ice-' + version + '/' + fileList[0].strip()):
 	shutil.copy(expatLocation + '/' + fileList[0].strip(), 'Ice-' + version + '/' + fileList[0].strip())
 	os.symlink(os.path.basename(fileList[0].strip()), 'Ice-' + version + '/' + linkList[0].strip())
-
-def makePHPbinary(sources, buildDir, installDir, version, mmVersion, clean):
-    """ Create the IcePHP binaries and install to Ice installation directory """
-
-    platform = getPlatform()
-    if not platform in ['linux', 'linux64']:
-        return         
-        
-    #
-    # We currently run configure each time even if clean=false.  This is
-    # because a large part of the IcePHP build process is actually the
-    # configure step.  This could probably be bypassed afterwards.
-    #
-    phpMatches = glob.glob(sources + '/php*.tar.[bg]z*')
-    if len(phpMatches) == 0:
-	print 'Unable to find PHP source tarball in %s' % sources
-    	sys.exit(1)
-
-    phpFile = ''
-    phpVersion = ''
-    #
-    # There is more than one php archive in the sources directory.  Try
-    # and determine which one is the newest version.  If you want a
-    # specific version its best to remove the other distributions. 
-    #
-    if len(phpMatches) > 1:
-	#
-	# We need to decide which file to use.
-	#
-	newest = 0
-	for f in phpMatches:
-	    m = re.search('php-([0-9]+)\.([0-9]+)\.([0-9]?).tar.*', f)
-            verString = ''
-	    for gr in m.groups():
-		verString = verString + gr
-		if len(phpVersion) == 0:
-		    phpVersion = gr
-		else:
-		    phpVersion = phpVersion + '.'  + gr
-
-	    #
-	    # We want to make sure that version string have the same
-	    # number of significant digits no matter how many version
-	    # number components there are.
-	    # 
-	    while len(verString) < 5:
-		verString = verString + '0'
-
-	    intVersion = int(verString)
-	    if intVersion > newest:
-		phpFile = f
-		newest = intVersion
-    else:
-	phpFile = phpMatches[0]
-	m = re.search('php-([0-9]+)\.([0-9]+)\.([0-9]+).tar.*', phpFile)
-
-	for gr in m.groups():
-	    if len(phpVersion) == 0:
-		phpVersion = gr
-	    else:
-		phpVersion = phpVersion + '.'  + gr
-
-    logging.info('Using PHP archive :' + phpFile)
-    
-    root, ext = os.path.splitext(phpFile)
-    untarCmd = ''
-    if ext.endswith('bz2'):
-	uncompress = 'bunzip2 -d '
-	compress = 'bzip2 -9 '
-    else:
-	uncompress = 'gzip -d '
-	compress = 'gzip -9 '
-
-    origWD = os.getcwd()
-    os.chdir(buildDir)
-    runprog(uncompress + phpFile)
-    runprog('tar xf %s' % root)
-    runprog(compress + root)
-    os.chdir(origWD)
-
-    # 
-    # return the likely root directory name for the php distro.
-    #
-    phpDir = buildDir + '/php-' + phpVersion
-    runprog('ln -sf ' + buildDir + '/IcePHP-' + version + '/src/ice ' + phpDir + '/ext')
-    cwd = os.getcwd()
-    os.chdir(phpDir)
-    platform = getPlatform()
-
-    if platform == 'solaris':
-	os.environ['CC'] = 'cc'
-	os.environ['CXX'] = 'CC'
-
-    if platform == 'hpux':
-	runprog('gzip -dc ' + buildDir + '/IcePHP-' + version + '/configure-hpux.gz > configure', False)
-    elif platform.startswith('linux'):
-	runprog('gzip -dc ' + buildDir + '/ice/install/thirdparty/php/configure-5.1.4.gz > configure', False)
-    else:
-	runprog('gzip -dc ' + buildDir + '/IcePHP-' + version + '/configure.gz > configure', False)
-
-    if platform == 'hpux':
-	#
-	# Our HP-UX platform doesn't seem to have a libxml installed.
-	#
-	runprog('./configure --disable-libxml --with-ice=shared,' + installDir + '/Ice-' + version)
-    else:
-	#
-	# Everything else should be dynamic and pretty much basic.
-	#
-	runprog('./configure --with-ice=shared,' + installDir + '/Ice-' + version)
-
-    # 
-    # Need to make some changes to the PHP distribution.
-    #
-    
-    #
-    # libtool changes
-    #
-    # This is almost universally an LD => CXX conversion. 
-    #
-    if not platform.startswith('linux'):
-	if platform in ['solaris', 'macosx']:
-	    libtool = fileinput.input('libtool', True)
-	    for line in libtool :
-		if line.startswith('archive_cmds='):
-		    if platform == 'macosx':
-			print line.replace('\$CC', '\$CXX').rstrip('\n')
-		    else:
-			print line.replace('\$LD', '\$CXX').rstrip('\n')
-		else:
-		    print line.rstrip('\n')
-
-	    libtool.close()
-
-    #
-    # Makefile changes
-    #
-    xtraCXXFlags = True
-    if platform.startswith('linux'):
-        makefile = fileinput.input('Makefile', True)
-        for line in makefile:
-            if line.startswith('EXTRA_CXXFLAGS ='):
-                xtraCXXFlags = False
-                print line.rstrip('\n') + ' -DCOMPILE_DL_ICE'
-	    elif line.startswith('ICE_SHARED_LIBADD'):
-                print "ICE_SHARED_LIBADD = -Wl,-rpath,/opt/Ice-%s/lib -L%s/Ice-%s/lib -lIce -lSlice -lIceUtil" % (mmVersion, buildDir, version)
-            else:
-                print line.strip('\n')
-
-        makefile.close()
-
-    elif platform == 'macosx':
-        replacingCC = False
-        makefile = fileinput.input('Makefile', True)
-        for line in makefile: 
-            if not replacingCC:
-                if line.startswith('EXTRA_CXXFLAGS ='):
-                    xtraCXXFlags = False
-                    print line.rstrip('\n') + ' -DCOMPILE_DL_ICE'
-                elif line.find('BUILD_CLI') != -1:
-                    print line.replace('$(CC)', '$(CXX)').rstrip('\n')
-                elif line.find('BUILD_CGI') != -1:
-                    print line.replace('$(CC)', '$(CXX)').rstrip('\n')
-                elif line.startswith('libphp5.la:'):
-                    replacingCC = True
-                    print line.strip('\n')
-                elif line.startswith('libs/libphp5.bundle:'):
-                    replacingCC = True
-                    print line.strip('\n')
-                else:
-                    print line.rstrip('\n')
-            else:
-                if len(line.rstrip('\n').strip()) == 0:
-                    replacingCC = False
-                    print 
-                else:
-                    print line.strip('\n'). replace('$(CC)', '$(CXX)')
-
-        makefile.close()
-        
-    if xtraCXXFlags:
-        makefile = fileinput.input('Makefile', True)
-        start = True
-        for line in makefile:
-            if start:
-                print 'EXTRA_CXXFLAGS = -DCOMPILE_DL_ICE'
-                start = False
-            else:
-                print line.rstrip('\n')
-                
-    makefile.close()
-
-    runprog('gmake')
-
-    if platform == 'macosx':
-        phpModuleExtension = '.so'
-    else:
-        phpModuleExtension = getPlatformLibExtension()
-        
-    moduleName = '%s/modules/ice%s' % (phpDir, phpModuleExtension)
-    if platform == 'linux64':
-	shutil.copy(moduleName, '%s/Ice-%s/lib64/icephp%s' % (installDir, version, phpModuleExtension))
-    else:
-	shutil.copy(moduleName, '%s/Ice-%s/lib/icephp%s' % (installDir, version, phpModuleExtension))
-        
-    os.chdir(cwd)
 
 def usage():
     """Print usage/help information"""
@@ -1380,8 +1116,6 @@ def main():
 	if os.path.exists(cf):
 	    shutil.copy(cf, os.path.join('Ice-' + version, psf))
 
-    # makePHPbinary(sources, buildDir, installDir, version, mmVersion, clean)
-
     runprog('tar cf Ice-' + version + '-bin-' + getPlatform() + '.tar Ice-' + version)
     runprog('gzip -9 Ice-' + version + '-bin-' + getPlatform() + '.tar')
     os.chdir(cwd)
@@ -1396,12 +1130,8 @@ def main():
         shutil.copy(installFiles + '/unix/SOURCES.Linux', '/usr/src/redhat/SOURCES/SOURCES')
         shutil.copy(installFiles + '/unix/THIRD_PARTY_LICENSE.Linux', '/usr/src/redhat/SOURCES/THIRD_PARTY_LICENSE')
 	shutil.copy(installFiles + '/unix/README.Linux-RPM', installDir + '/Ice-' + version + '/README')
-#	shutil.copy(installFiles + '/thirdparty/php/ice.ini', installDir + '/Ice-' + version + '/ice.ini')
-#
-        #shutil.copy(sources + '/php-5.1.4.tar.bz2', '/usr/src/redhat/SOURCES')
-        #shutil.copy(installFiles + '/thirdparty/php/ice.ini', '/usr/src/redhat/SOURCES')
-        #shutil.copy(buildDir + '/ice/install/thirdparty/php/configure-5.1.4.gz',
-        #            '/usr/src/redhat/SOURCES/configure.gz')
+	shutil.copy(installFiles + '/thirdparty/php/ice.ini', installDir + '/Ice-' + version + '/ice.ini')
+        shutil.copy(installFiles + '/thirdparty/php/ice.ini', '/usr/src/redhat/SOURCES')
         iceArchives = glob.glob(sources + '/Ice*' + version + '*.gz')
         for f in iceArchives:
             shutil.copy(f, '/usr/src/redhat/SOURCES')

@@ -76,10 +76,10 @@ class Package:
 	ofile.write('Source4: http://www.zeroc.com/download/Ice/' + minorVer + '/README.Linux-RPM\n')
         ofile.write('Source5: http://www.zeroc.com/download/Ice/' + minorVer + '/SOURCES\n')
         ofile.write('Source6: http://www.zeroc.com/download/Ice/' + minorVer + '/THIRD_PARTY_LICENSE\n')
-	#ofile.write('Source5: http://www.zeroc.com/download/Ice/' + minorVer + '/ice.ini\n')
+	ofile.write('Source5: http://www.zeroc.com/download/Ice/' + minorVer + '/ice.ini\n')
 	#ofile.write('Source6: http://www.zeroc.com/download/Ice/' + minorVer + '/configure.gz\n')
-	#ofile.write('Source7: http://www.zeroc.com/download/Ice/' + minorVer + '/php-5.1.4.tar.bz2\n')
-	#ofile.write('Source8: http://www.zeroc.com/download/Ice/' + minorVer + '/IcePHP-%{version}.tar.gz\n')
+	#ofile.write('Source7: http://www.zeroc.com/download/Ice/' + minorVer + '/php-5.1.6.tar.bz2\n')
+	ofile.write('Source6: http://www.zeroc.com/download/Ice/' + minorVer + '/IcePHP-%{version}.tar.gz\n')
 	ofile.write('Source7: http://www.zeroc.com/download/Ice/' + minorVer + '/IceJ-%{version}-java5.tar.gz\n')
 	ofile.write('\n')
 	if len(installDir) != 0:
@@ -280,9 +280,10 @@ done
 #
 # NOTE: File transforms should be listed before directory transforms.
 #
-transforms = [ 
+transforms = [ ('file', 'ice.ini', 'etc/php.d/ice.ini'),
 	       ('dir', 'lib', 'usr/lib'),
 	       ('dir', '%{icelibdir}', 'usr/%{icelibdir}'),
+	       ('file', 'usr/%{icelibdir}/IcePHP.so', 'usr/%{icelibdir}/php/modules/IcePHP.so'),
 	       ('file', 'usr/lib/Ice.jar', 'usr/lib/Ice-%version%/Ice.jar' ),
 	       ('dir', 'usr/lib/java5', 'usr/lib/Ice-%version%/java5' ),
 	       ('file', 'usr/lib/IceGridGUI.jar', 'usr/lib/Ice-%version%/IceGridGUI.jar' ),
@@ -301,8 +302,6 @@ transforms = [
 	       ('dir', 'config', 'usr/share/doc/Ice-%version%/config'),
 	       ('dir', 'slice', 'usr/share/slice'),
 	       ('dir', 'bin', 'usr/bin'),
-               ('file', 'src/ca/iceca', '/usr/bin/iceca'),
-               ('file', 'src/ca/ImportKey.class', '/usr/bin/ImportKey.class'),
 	       ('dir', 'include', 'usr/include'),
 	       ('dir', 'python', 'usr/%{icelibdir}/Ice-%version%/python'),
                ('dir', 'doc', 'usr/share/doc/Ice-%version%/doc'),
@@ -432,6 +431,14 @@ fileLists = [
 	       iceDescription,
 	       'Requires: ice-%{_arch}',
                [('exe', 'bin/slice2py')]),
+    Subpackage('php',
+	       'ice = %version%, php = 5.1.6',
+	       'The Ice runtime for PHP applications',
+	       'System Environment/Libraries',
+	       iceDescription,
+	       'Requires: ice-%{_arch}',
+	       [('lib', '%{icelibdir}/php/modules'), ('cfg', '/etc/php.d/ice.ini')]
+	       ),
     NoarchSubpackage('java',
 		     'ice = %version%, db45-java >= 4.5.20',
 		     'The Ice runtime for Java',
@@ -592,8 +599,11 @@ sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IcePy-%{ve
 %setup -q -n IceCS-%{version} -T -D -b 3 
 sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IceCS-%{version}/config/Make.rules.cs
 sed -i -e 's/^cvs_build.*$/cvs_build = no/' $RPM_BUILD_DIR/IceCS-%{version}/config/Make.rules.cs
+%setup -q -n IceJ-%{version}-java5 -T -D -b 6 
+sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IcePHP-%{version}/config/Make.rules
 %setup -q -n IceJ-%{version}-java5 -T -D -b 7
 cd $RPM_BUILD_DIR
+# cp $RPM_SOURCE_DIR/ice.ini $RPM_BUILD_DIR/IcePHP-%{version}
 
 #
 # Create links to the Berkeley DB that we want. This should allow us to bypass
@@ -624,6 +634,8 @@ cd $RPM_BUILD_DIR/IceCS-%{version}
 export PATH=$RPM_BUILD_DIR/Ice-%{version}/bin:$PATH
 export LD_LIBRARY_PATH=$RPM_BUILD_DIR/Ice-%{version}/lib:$LD_LIBRARY_PATH
 gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT
+cd $RPM_BUILD_DIR/IcePHP-%{version}
+gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT
 """)
 
 def writeInstallCommands(ofile, version):
@@ -653,10 +665,13 @@ gmake NOGAC=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD
 cp $RPM_SOURCE_DIR/README.Linux-RPM $RPM_BUILD_ROOT/README
 cp $RPM_SOURCE_DIR/THIRD_PARTY_LICENSE $RPM_BUILD_ROOT/THIRD_PARTY_LICENSE
 cp $RPM_SOURCE_DIR/SOURCES $RPM_BUILD_ROOT/SOURCES
+cp $RPM_SOURCE_DIR/ice.ini $RPM_BUILD_ROOT/ice.ini
 if test ! -d $RPM_BUILD_ROOT/%{icelibdir};
 then
     mkdir -p $RPM_BUILD_ROOT/%{icelibdir}
 fi
+cd $RPM_BUILD_DIR/IcePHP-%{version}
+gmake NOGAC=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT install
 cp $RPM_BUILD_DIR/IceJ-%{version}-java2/config/build.properties $RPM_BUILD_ROOT/config
 if test ! -d $RPM_BUILD_ROOT/%{icelibdir}/pkgconfig ; 
 then 
