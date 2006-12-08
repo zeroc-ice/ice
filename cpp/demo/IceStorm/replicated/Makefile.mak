@@ -28,7 +28,7 @@ SRCS		= $(OBJS:.obj=.cpp) \
 !include $(top_srcdir)/config/Make.rules.mak
 
 CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
-LIBS		= $(top_srcdir)\lib\icestorm$(LIBSUFFIX).lib $(LIBS)
+LIBS		= $(top_srcdir)\lib\icestorm$(LIBSUFFIX).lib $(top_srcdir)\lib\icegrid$(LIBSUFFIX).lib $(LIBS)
 
 !if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
 PPDBFLAGS        = /pdb:$(PUBLISHER:.exe=.pdb)
