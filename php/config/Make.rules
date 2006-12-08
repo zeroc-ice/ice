@@ -16,7 +16,7 @@ endif
 # if it does not exist.
 #
 
-prefix			= /opt/IcePHP-$(VERSION)
+prefix			?= /opt/IcePHP-$(VERSION)
 
 #
 # The "root directory" for runpath embedded in executables. Can be unset
@@ -55,7 +55,7 @@ PHP_HOME		?= /opt/php
 
 ifeq ($(shell test -d $(PHP_HOME) && echo 0),0)
     PHP_INCLUDE_DIR	= $(PHP_HOME)/include/php
-    PHP_LIB_DIR		= $(PYTHON_HOME)/lib/php
+    PHP_LIB_DIR		= $(PHP_HOME)/lib/php
 else
     PHP_INCLUDE_DIR	= /usr/include/php
     PHP_LIB_DIR		= /usr/lib/php
