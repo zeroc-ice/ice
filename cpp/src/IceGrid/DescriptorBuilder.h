@@ -58,10 +58,14 @@ class PropertySetDescriptorBuilder : DescriptorBuilder
 {
 public:
     
-    PropertySetDescriptorBuilder(const XmlAttributesHelper&);
+    PropertySetDescriptorBuilder();
     PropertySetDescriptorBuilder(const PropertySetDescriptor&);
     
+    void setId(const std::string&);
+    void setService(const std::string&);
+
     const std::string& getId() const;
+    const std::string& getService() const;
     const PropertySetDescriptor& getDescriptor() const;
     
     void addProperty(const XmlAttributesHelper&);
@@ -71,6 +75,7 @@ public:
 private:
 
     std::string _id;
+    std::string _service;
     PropertySetDescriptor _descriptor;
     bool _inPropertySetRef;
 };
@@ -132,8 +137,8 @@ public:
     ServerInstanceDescriptorBuilder(const XmlAttributesHelper&);
     const ServerInstanceDescriptor& getDescriptor() const { return _descriptor; }
 
-    virtual PropertySetDescriptorBuilder* createPropertySet() const;
-    virtual void addPropertySet(const PropertySetDescriptor&);
+    virtual PropertySetDescriptorBuilder* createPropertySet(const XmlAttributesHelper& attrs) const;
+    virtual void addPropertySet(const std::string&, const PropertySetDescriptor&);
     
 private:
 

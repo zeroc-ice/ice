@@ -554,11 +554,13 @@ NodeEntry::getServerDescriptor(const ServerInfo& server, const SessionIPtr& sess
     IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(server.descriptor);
     if(iceBox)
     {
-	return IceBoxHelper(_cache.getCommunicator(), iceBox).instantiate(resolve, PropertyDescriptorSeq());
+	return IceBoxHelper(_cache.getCommunicator(), iceBox).instantiate(resolve, PropertyDescriptorSeq(),
+									  PropertySetDescriptorDict());
     }
     else
     {
-	return ServerHelper(_cache.getCommunicator(), server.descriptor).instantiate(resolve, PropertyDescriptorSeq());
+	return ServerHelper(_cache.getCommunicator(), server.descriptor).instantiate(resolve, PropertyDescriptorSeq(),
+										     PropertySetDescriptorDict());
     }
 }
 

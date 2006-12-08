@@ -115,13 +115,15 @@ public:
     bool operator!=(const ServiceHelper&) const;    
 
     ServiceDescriptorPtr getDescriptor() const;
-    ServiceDescriptorPtr instantiate(const Resolver&, const PropertyDescriptorSeq&) const;
+    ServiceDescriptorPtr instantiate(const Resolver&, const PropertyDescriptorSeq&, 
+				     const PropertySetDescriptorDict&) const;
 
     void print(IceUtil::Output&) const;
 
 protected:
 
-    void instantiateImpl(const ServiceDescriptorPtr&, const Resolver&, const PropertyDescriptorSeq&) const;
+    void instantiateImpl(const ServiceDescriptorPtr&, const Resolver&, const PropertyDescriptorSeq&,
+			 const PropertySetDescriptorDict&) const;
 
 private:
     
@@ -139,7 +141,8 @@ public:
     bool operator!=(const ServerHelper&) const;    
 
     ServerDescriptorPtr getDescriptor() const;
-    virtual ServerDescriptorPtr instantiate(const Resolver&, const PropertyDescriptorSeq&) const;
+    virtual ServerDescriptorPtr instantiate(const Resolver&, const PropertyDescriptorSeq&,
+ 					    const PropertySetDescriptorDict&) const;
 
     void print(IceUtil::Output&) const;
     void print(IceUtil::Output&, const ServerInfo&) const;
@@ -176,7 +179,7 @@ public:
     bool operator==(const ServiceInstanceHelper&) const;
     bool operator!=(const ServiceInstanceHelper&) const;
 
-    ServiceInstanceDescriptor instantiate(const Resolver&) const;
+    ServiceInstanceDescriptor instantiate(const Resolver&, const PropertySetDescriptorDict&) const;
     void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
 
     void print(IceUtil::Output&) const;
@@ -198,7 +201,8 @@ public:
     bool operator==(const IceBoxHelper&) const;
     bool operator!=(const IceBoxHelper&) const;    
 
-    virtual ServerDescriptorPtr instantiate(const Resolver&, const PropertyDescriptorSeq&) const;
+    virtual ServerDescriptorPtr instantiate(const Resolver&, const PropertyDescriptorSeq&, 
+					    const PropertySetDescriptorDict&) const;
 
     virtual void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
 
@@ -207,7 +211,8 @@ public:
 
 protected:
 
-    void instantiateImpl(const IceBoxDescriptorPtr&, const Resolver&, const PropertyDescriptorSeq&) const;
+    void instantiateImpl(const IceBoxDescriptorPtr&, const Resolver&, const PropertyDescriptorSeq&,
+			 const PropertySetDescriptorDict&) const;
 
 private:
     

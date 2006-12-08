@@ -18,7 +18,16 @@
       <target name="moreservices">
         <service-instance template="ServiceTemplate" name="Service3" NodeVarOverridedByParam="Overrided"/>
       </target>
-
+      
+      <service name="Service4" entry="TestService:create">
+        <adapter name="${service}" endpoints="default">
+	  <object identity="${server}-${service}" type="::Test"/>
+        </adapter>
+        <properties>
+          <property name="${service}.Identity" value="${server}-${service}"/>
+        </properties>
+      </service>
+     
       <properties>
         <properties refid="AppProperties"/>
         <properties refid="NodeProperties"/>

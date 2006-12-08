@@ -344,7 +344,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    }
 	    else if(_currentServerInstance.get())
 	    {
-		_currentPropertySet.reset(_currentServerInstance->createPropertySet());
+		_currentPropertySet.reset(_currentServerInstance->createPropertySet(attributes));
 	    }
 	    else if(_currentCommunicator)
 	    {
@@ -576,7 +576,8 @@ DescriptorHandler::endElement(const string& name, int line, int column)
 		}
 		else if(_currentServerInstance.get())
 		{
-		    _currentServerInstance->addPropertySet(_currentPropertySet->getDescriptor());
+		    _currentServerInstance->addPropertySet(_currentPropertySet->getService(), 
+							   _currentPropertySet->getDescriptor());
 		}
 		else if(_currentCommunicator)
 		{

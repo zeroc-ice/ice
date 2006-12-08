@@ -438,6 +438,14 @@ struct ServerInstanceDescriptor
      *
      **/
     PropertySetDescriptor propertySet;
+
+    /**
+     *
+     * The services property sets. It's only valid to set these
+     * property sets if the template is an IceBox server template.
+     *
+     **/
+    PropertySetDescriptorDict servicePropertySets;
 };
 
 /**

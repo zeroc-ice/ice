@@ -150,8 +150,7 @@ DescriptorBuilder::addVariable(const XmlAttributesHelper&)
     throw "the <variable> element can't be a child of this element";
 }
 
-PropertySetDescriptorBuilder::PropertySetDescriptorBuilder(const XmlAttributesHelper& attrs) : 
-    _id(attrs("id")),
+PropertySetDescriptorBuilder::PropertySetDescriptorBuilder() : 
     _inPropertySetRef(false)
 {
 }
@@ -160,6 +159,24 @@ PropertySetDescriptorBuilder::PropertySetDescriptorBuilder(const PropertySetDesc
     _descriptor(desc),
     _inPropertySetRef(false)
 {
+}
+
+void
+PropertySetDescriptorBuilder::setId(const string& id)
+{
+    _id = id;
+}
+
+void
+PropertySetDescriptorBuilder::setService(const string& service)
+{
+    _service = service;
+}
+
+const string&
+PropertySetDescriptorBuilder::getService() const
+{
+    return _service;
 }
 
 const string&
@@ -342,7 +359,11 @@ ApplicationDescriptorBuilder::createServiceTemplate(const XmlAttributesHelper& a
 PropertySetDescriptorBuilder*
 ApplicationDescriptorBuilder::createPropertySet(const XmlAttributesHelper& attrs) const
 {
-    return new PropertySetDescriptorBuilder(attrs);
+    string id = attrs("id");
+
+    PropertySetDescriptorBuilder* builder = new PropertySetDescriptorBuilder();
+    builder->setId(id);
+    return builder;
 }
 
 void
@@ -412,15 +433,33 @@ ServerInstanceDescriptorBuilder::ServerInstanceDescriptorBuilder(const XmlAttrib
 }
 
 PropertySetDescriptorBuilder*
-ServerInstanceDescriptorBuilder::createPropertySet() const
+ServerInstanceDescriptorBuilder::createPropertySet(const XmlAttributesHelper& attrs) const
 {
-    return new PropertySetDescriptorBuilder(_descriptor.propertySet);
+    string service;
+    if(attrs.contains("service"))
+    {
+	service = attrs("service"); // Can't be empty.
+    }
+
+    PropertySetDescriptorBuilder* builder = new PropertySetDescriptorBuilder();
+    builder->setService(service);
+    return builder;
 }
 
 void
-ServerInstanceDescriptorBuilder::addPropertySet(const PropertySetDescriptor& desc)
+ServerInstanceDescriptorBuilder::addPropertySet(const string& service, const PropertySetDescriptor& desc)
 {
-    _descriptor.propertySet = desc;
+    if(service.empty())
+    {
+	_descriptor.propertySet = desc;
+    }
+    else
+    {
+	if(!_descriptor.servicePropertySets.insert(make_pair(service, desc)).second)
+	{
+	    throw "duplicate property set for service `" + service + "'";
+	}
+    }
 }
 
 NodeDescriptorBuilder::NodeDescriptorBuilder(ApplicationDescriptorBuilder& app, 
@@ -454,7 +493,11 @@ NodeDescriptorBuilder::createServerInstance(const XmlAttributesHelper& attrs)
 PropertySetDescriptorBuilder*
 NodeDescriptorBuilder::createPropertySet(const XmlAttributesHelper& attrs) const
 {
-    return new PropertySetDescriptorBuilder(attrs);
+    string id = attrs("id");
+
+    PropertySetDescriptorBuilder* builder = new PropertySetDescriptorBuilder();
+    builder->setId(id);
+    return builder;
 }
 
 void

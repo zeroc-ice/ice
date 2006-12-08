@@ -1147,22 +1147,31 @@ ServiceHelper::getDescriptor() const
 }
 
 ServiceDescriptorPtr
-ServiceHelper::instantiate(const Resolver& resolver, const PropertyDescriptorSeq& props) const
+ServiceHelper::instantiate(const Resolver& resolver, const PropertyDescriptorSeq& props, 
+			   const PropertySetDescriptorDict& serviceProps) const
 {
     ServiceDescriptorPtr service = new ServiceDescriptor();
-    instantiateImpl(service, resolver, props);
+    instantiateImpl(service, resolver, props, serviceProps);
     return service;
 }
 
 void
 ServiceHelper::instantiateImpl(const ServiceDescriptorPtr& instance, 
 			       const Resolver& resolve, 
-			       const PropertyDescriptorSeq& props) const
+			       const PropertyDescriptorSeq& props,
+			       const PropertySetDescriptorDict& serviceProps) const
 {
     CommunicatorHelper::instantiateImpl(instance, resolve);
     instance->name = resolve(_desc->name, "name", false);
     instance->entry = resolve(_desc->entry, "entry", false);
     instance->propertySet.properties.insert(instance->propertySet.properties.end(), props.begin(), props.end());
+    PropertySetDescriptorDict::const_iterator p = serviceProps.find(instance->name);
+    if(p != serviceProps.end())
+    {
+	instance->propertySet.properties.insert(instance->propertySet.properties.end(), 
+						p->second.properties.begin(),
+						p->second.properties.end());
+    }
 }
 
 void
@@ -1262,8 +1271,15 @@ ServerHelper::getDescriptor() const
 }
 
 ServerDescriptorPtr
-ServerHelper::instantiate(const Resolver& resolver, const PropertyDescriptorSeq& props) const
+ServerHelper::instantiate(const Resolver& resolver,
+			  const PropertyDescriptorSeq& props, 
+			  const PropertySetDescriptorDict& serviceProps) const
 {
+    if(!serviceProps.empty())
+    {
+	resolver.exception("service property sets are only allowed in IceBox server instances");
+    }
+
     ServerDescriptorPtr server = new ServerDescriptor();
     instantiateImpl(server, resolver, props);
     return server;
@@ -1408,10 +1424,12 @@ IceBoxHelper::operator!=(const IceBoxHelper& helper) const
 }
 
 ServerDescriptorPtr
-IceBoxHelper::instantiate(const Resolver& resolver, const PropertyDescriptorSeq& props) const
+IceBoxHelper::instantiate(const Resolver& resolver, 
+			  const PropertyDescriptorSeq& props,
+			  const PropertySetDescriptorDict& serviceProps) const
 {
     IceBoxDescriptorPtr iceBox = new IceBoxDescriptor();
-    instantiateImpl(iceBox, resolver, props);
+    instantiateImpl(iceBox, resolver, props, serviceProps);
     return iceBox;
 }
 
@@ -1449,12 +1467,24 @@ IceBoxHelper::print(Output& out, const ServerInfo& info) const
 void
 IceBoxHelper::instantiateImpl(const IceBoxDescriptorPtr& instance, 
 			      const Resolver& resolver, 
-			      const PropertyDescriptorSeq& props) const
+			      const PropertyDescriptorSeq& props,
+			      const PropertySetDescriptorDict& serviceProps) const
 {
     ServerHelper::instantiateImpl(instance, resolver, props);
+    set<string> serviceNames;
     for(vector<ServiceInstanceHelper>::const_iterator p = _services.begin(); p != _services.end(); ++p)
     {
-	instance->services.push_back(p->instantiate(resolver));
+	ServiceInstanceDescriptor desc = p->instantiate(resolver, serviceProps);
+	assert(desc.descriptor);
+	serviceNames.insert(desc.descriptor->name);
+	instance->services.push_back(desc);
+    }
+    for(PropertySetDescriptorDict::const_iterator q = serviceProps.begin(); q != serviceProps.end(); ++q)
+    {
+	if(serviceNames.find(q->first) == serviceNames.end())
+	{
+	    resolver.exception("invalid service property set: service `" + q->first + "' doesn't exist");
+	}
     }
 }
 
@@ -1553,7 +1583,7 @@ ServiceInstanceHelper::operator!=(const ServiceInstanceHelper& helper) const
 }
 
 ServiceInstanceDescriptor
-ServiceInstanceHelper::instantiate(const Resolver& resolve) const
+ServiceInstanceHelper::instantiate(const Resolver& resolve, const PropertySetDescriptorDict& serviceProps) const
 { 
     ServiceHelper def = _service;
     std::map<std::string, std::string> parameterValues;
@@ -1580,7 +1610,7 @@ ServiceInstanceHelper::instantiate(const Resolver& resolve) const
     // Instantiate the service instance.
     //
     ServiceInstanceDescriptor desc;
-    desc.descriptor = def.instantiate(svcResolve, svcResolve(_def.propertySet).properties);    
+    desc.descriptor = def.instantiate(svcResolve, svcResolve(_def.propertySet).properties, serviceProps);
 
     //
     // NOTE: We can't keep the following attributes in the service
@@ -1704,12 +1734,18 @@ ServerInstanceHelper::init(const ServerDescriptorPtr& definition, const Resolver
 	_instance._cpp_template = _def._cpp_template;
 	_instance.parameterValues = parameterValues;
 	_instance.propertySet = svrResolve(_def.propertySet);
+	for(PropertySetDescriptorDict::const_iterator p = _def.servicePropertySets.begin();
+	    p != _def.servicePropertySets.end(); ++p)
+	{
+	    _instance.servicePropertySets.insert(make_pair(p->first, svrResolve(p->second)));
+	}
     }
     
     //
     // Instantiate the server definition.
     //
-    ServerDescriptorPtr inst = _serverDefinition->instantiate(svrResolve, _instance.propertySet.properties);
+    ServerDescriptorPtr inst = _serverDefinition->instantiate(svrResolve, _instance.propertySet.properties,
+							      _instance.servicePropertySets);
     _serverInstance = createHelper(svrResolve.getCommunicator(), inst);
 }
 
@@ -1724,7 +1760,8 @@ ServerInstanceHelper::operator==(const ServerInstanceHelper& helper) const
     {
 	return _def._cpp_template == helper._def._cpp_template && 
 	    _def.parameterValues == helper._def.parameterValues &&
-	    _def.propertySet == helper._def.propertySet;
+	    _def.propertySet == helper._def.propertySet && 
+	    _def.servicePropertySets == helper._def.servicePropertySets;
     }
 }
 

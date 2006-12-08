@@ -64,10 +64,20 @@
       <variable name="varpe" value="$${escaped}"/>
       <variable name="varpde" value="$$${escaped}"/>
 
-      <server-instance template="IceBoxTemplate" name="IceBox1" AppVarOverridedByParam="Overrided"/>
+      <server-instance template="IceBoxTemplate" name="IceBox1" AppVarOverridedByParam="Overrided">
+        <properties service="Service1">
+          <property name="ServerInstanceServiceProperty" value="service1"/>           
+        </properties>
+        <properties service="Service4">
+          <property name="ServerInstanceServiceProperty" value="service4"/>
+        </properties>
+      </server-instance>
       <server-instance template="IceBoxTemplate" name="IceBox2" AppVarOverridedByParam="Overrided">
         <properties>
           <property name="IceBoxInstanceProperty" value="${name}"/>
+        </properties>
+        <properties service="Service4">
+          <property name="IceBoxInstanceProperty" value="overriden"/>
         </properties>
       </server-instance>
 
