@@ -13,6 +13,7 @@
 #include <Ice/Plugin.h>
 #include <Ice/InstanceF.h>
 #include <Ice/CommunicatorF.h>
+#include <Ice/LoggerF.h>
 #include <Ice/DynamicLibraryF.h>
 #include <Ice/BuiltinSequences.h>
 #include <IceUtil/Mutex.h>
@@ -36,7 +37,8 @@ private:
     friend class IceInternal::Instance;
 
     void loadPlugins(int&, char*[]);
-    void loadPlugin(const std::string&, const std::string&, StringSeq&);
+    void loadPlugin(const std::string&, const std::string&, StringSeq&, bool);
+    LoggerPtr getLogger() const;
 
     CommunicatorPtr _communicator;
     IceInternal::DynamicLibraryListPtr _libraries;
@@ -45,6 +47,8 @@ private:
     std::vector<PluginPtr> _initOrder;
     bool _initialized;
     static const char * const _kindOfObject;
+
+    LoggerPtr _logger;
 };
 
 }
