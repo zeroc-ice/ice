@@ -476,6 +476,11 @@ public final class Instance
         //
 	Ice.PluginManagerI pluginManagerImpl = (Ice.PluginManagerI)_pluginManager;
         pluginManagerImpl.loadPlugins(args);
+	Ice.Logger logger = pluginManagerImpl.getLogger();
+	if(logger != null)
+	{
+	    _initData.logger = logger;
+	}
 
 	//
 	// Get default router and locator proxies. Don't move this

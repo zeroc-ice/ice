@@ -111,6 +111,7 @@ public final class PluginManagerI extends LocalObjectImpl implements PluginManag
 		p.destroy();
 	    }
 
+	    _logger = null;
 	    _communicator = null;
 	}
     }
@@ -159,7 +160,7 @@ public final class PluginManagerI extends LocalObjectImpl implements PluginManag
 		if(plugins.containsKey(key))
 		{
 		    final String value = (String)plugins.get(key);
-		    loadPlugin(names[i], value, cmdArgs);
+		    loadPlugin(names[i], value, cmdArgs, false);
 		    plugins.remove(key);
 		}
 		else
@@ -180,8 +181,17 @@ public final class PluginManagerI extends LocalObjectImpl implements PluginManag
 	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
             String name = ((String)entry.getKey()).substring(prefix.length());
             String value = (String)entry.getValue();
-            loadPlugin(name, value, cmdArgs);
+            loadPlugin(name, value, cmdArgs, false);
         }
+
+	//
+	// Check for a Logger Plugin
+	//
+	String loggerStr = properties.getProperty("Ice.LoggerPlugin");
+	if(loggerStr.length() != 0)
+	{
+	    loadPlugin("Logger", loggerStr, cmdArgs, true);
+	}
 
 	//
 	// An application can set Ice.InitPlugins=0 if it wants to postpone
@@ -195,7 +205,7 @@ public final class PluginManagerI extends LocalObjectImpl implements PluginManag
     }
 
     private void
-    loadPlugin(String name, String pluginSpec, StringSeqHolder cmdArgs)
+    loadPlugin(String name, String pluginSpec, StringSeqHolder cmdArgs, boolean isLogger)
     {
 	assert(_communicator != null);
 
@@ -236,19 +246,28 @@ public final class PluginManagerI extends LocalObjectImpl implements PluginManag
         //
         // Instantiate the class.
         //
-        PluginFactory factory = null;
+        PluginFactory pluginFactory = null;
+        LoggerFactory loggerFactory = null;
         try
         {
             Class c = Class.forName(className);
             java.lang.Object obj = c.newInstance();
             try
             {
-                factory = (PluginFactory)obj;
+	        if(isLogger)
+		{
+                    loggerFactory = (LoggerFactory)obj;
+		}
+		else
+		{
+                    pluginFactory = (PluginFactory)obj;
+		}
             }
             catch(ClassCastException ex)
             {
                 PluginInitializationException e = new PluginInitializationException();
-                e.reason = "class " + className + " does not implement Ice.PluginFactory";
+                e.reason = "class " + className + " does not implement " + 
+			   (isLogger ? "Ice.LoggerFactory" : "Ice.PluginFactory");
                 e.initCause(ex);
                 throw e;
             }
@@ -278,36 +297,67 @@ public final class PluginManagerI extends LocalObjectImpl implements PluginManag
         //
         // Invoke the factory.
         //
-        Plugin plugin = null;
-        try
-        {
-            plugin = factory.create(_communicator, name, args);
-        }
-        catch(PluginInitializationException ex)
-        {
-            throw ex;
-        }
-        catch(Throwable ex)
-        {
-            PluginInitializationException e = new PluginInitializationException();
-            e.reason = "exception in factory " + className;
-            e.initCause(ex);
-            throw e;
-        }
-
-	if(plugin == null)
+	if(isLogger)
 	{
-            PluginInitializationException e = new PluginInitializationException();
-            e.reason = "failure in factory " + className;
-            throw e;
-	}
+            try
+            {
+                _logger = loggerFactory.create(_communicator, args);
+            }
+            catch(Throwable ex)
+            {
+                PluginInitializationException e = new PluginInitializationException();
+                e.reason = "exception in factory " + className;
+                e.initCause(ex);
+                throw e;
+            }
 
-        _plugins.put(name, plugin);
-	_initOrder.add(plugin);
+	    if(_logger == null)
+	    {
+                PluginInitializationException e = new PluginInitializationException();
+                e.reason = "failure in factory " + className;
+                throw e;
+	    }
+	}
+	else
+	{
+            Plugin plugin = null;
+            try
+            {
+                plugin = pluginFactory.create(_communicator, name, args);
+            }
+            catch(PluginInitializationException ex)
+            {
+                throw ex;
+            }
+            catch(Throwable ex)
+            {
+                PluginInitializationException e = new PluginInitializationException();
+                e.reason = "exception in factory " + className;
+                e.initCause(ex);
+                throw e;
+            }
+
+	    if(plugin == null)
+	    {
+                PluginInitializationException e = new PluginInitializationException();
+                e.reason = "failure in factory " + className;
+                throw e;
+	    }
+
+            _plugins.put(name, plugin);
+	    _initOrder.add(plugin);
+	}
+    }
+
+    public Logger
+    getLogger()
+    {
+        return _logger;
     }
 
     private Communicator _communicator;
     private java.util.HashMap _plugins = new java.util.HashMap();
     private java.util.ArrayList _initOrder = new java.util.ArrayList();
+    private Logger _logger = null;
     private boolean _initialized;
 }
