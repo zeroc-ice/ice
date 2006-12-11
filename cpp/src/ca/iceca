@@ -36,13 +36,33 @@ caroot = os.path.join(home, "ca")
 cadb = os.path.join(caroot, "db")
 
 def usage():
-    print "usage: " + sys.argv[0] + " import sign request init"
+    print "usage: " + sys.argv[0] + " [--verbose --keep] import sign request init"
     sys.exit(1)
 
 if len(sys.argv) == 1:
     usage()
 
-if sys.argv[1] == "import":
+# Work out the position of the script.
+script = 1
+while sys.argv[script].startswith("--"):
+    script = script+1
+#
+# Parse the global options.
+#
+try:
+    opts, args = getopt.getopt(sys.argv[1:script], "", [ "verbose", "keep"])
+except getopt.GetoptError:
+    usage()
+
+verbose = False
+keep = False
+for o, a in opts:
+    if o == "--verbose":
+	verbose = True
+    if o == "--keep":
+	keep = True
+
+if sys.argv[script] == "import":
     #
     # dirname handles finding the .py under Windows since it will
     # contain the location of the script. ICE_HOME handles the case
@@ -59,7 +79,7 @@ if sys.argv[1] == "import":
 	raise "can't locate simple CA package"
 
     def usage():
-	print "usage: " + sys.argv[1] + " [--overwrite] [--java alias cert key keystore] [--cs cert key out-file]"
+	print "usage: " + sys.argv[script] + " [--overwrite] [--java alias cert key keystore] [--cs cert key out-file]"
 	sys.exit(1)
 
     try:
@@ -79,7 +99,7 @@ if sys.argv[1] == "import":
 	    cs = True
 
     if not java and not cs:
-	print sys.argv[1] + ": one of --java or --cs must be provided"
+	print sys.argv[script] + ": one of --java or --cs must be provided"
 	usage()
 
     if java:
@@ -141,14 +161,14 @@ if sys.argv[1] == "import":
 	    cmd = "openssl pkcs12 -in " + cert + " -inkey " + key + " -export -out " + pkcs12cert + " -name " + \
 	    	alias + " -passout file:" + keypassfile1 + " -certfile " + os.path.join(home, "ca_cert.pem")
 
-	#print cmd
 	print "converting to pkcs12 format... ",
+	if verbose: print cmd
 	status = os.system(cmd)
 	if status != 0:
 	    print "openssl command failed"
-	    os.remove(keypassfile1)
-	    os.remove(keypassfile2)
-	    os.remove(storepassfile)
+	    if not keep: os.remove(keypassfile1)
+	    if not keep: os.remove(keypassfile2)
+	    if not keep: os.remove(storepassfile)
 	    sys.exit(1)
 	print "ok"
 
@@ -160,6 +180,7 @@ if sys.argv[1] == "import":
 
 	#print cmd
 	print "importing into the keystore...", 
+	if verbose: print cmd
 	status = os.system(cmd)
 	if status != 0:
 	    print "java command failed"
@@ -167,10 +188,10 @@ if sys.argv[1] == "import":
 	    print "ok"
 
 	# Cleanup.
-	os.remove(pkcs12cert)
-	os.remove(keypassfile1)
-	os.remove(keypassfile2)
-	os.remove(storepassfile)
+	if not keep: os.remove(pkcs12cert)
+	if not keep: os.remove(keypassfile1)
+	if not keep: os.remove(keypassfile2)
+	if not keep: os.remove(storepassfile)
 
     if cs:
 	if len(args) != 3:
@@ -208,13 +229,13 @@ if sys.argv[1] == "import":
 	else:
 	    cmd = "openssl pkcs12 -in " + cert + " -inkey " + key + " -export -out " + pkcs12cert + " -passout pass:"
 
-	#print cmd
 	print "converting to pkcs12 format...",
+	if verbose: print cmd
 	status = os.system(cmd)
 	if keypassfile1 != None:
-	    os.remove(keypassfile1)
+	    if not keep: os.remove(keypassfile1)
 	if keypassfile2 != None:
-	    os.remove(keypassfile2)
+	    if not keep: os.remove(keypassfile2)
 	if status != 0:
 	    print "openssl command failed"
 	    sys.exit(1)
@@ -222,13 +243,13 @@ if sys.argv[1] == "import":
 
     sys.exit(0)
 
-if sys.argv[1] == "init":
+if sys.argv[script] == "init":
     def usage():
-	print "usage: " + sys.argv[1] + " [--no-password] [--overwrite]"
+	print "usage: " + sys.argv[script] + " [--no-password] [--overwrite]"
 	sys.exit(1)
 
     try:
-	opts, args = getopt.getopt(sys.argv[2:], "", [ "no-password", "overwrite"])
+	opts, args = getopt.getopt(sys.argv[script+1:], "", [ "no-password", "overwrite"])
     except getopt.GetoptError:
 	usage()
 
@@ -477,8 +498,9 @@ keyUsage = nonRepudiation, digitalSignature, keyEncipherment\n\
 	cmd += " -nodes"
 
     #print cmd
+    if verbose: print cmd
     status = os.system(cmd)
-    os.remove(cacnfname)
+    if not keep: os.remove(cacnfname)
     if status != 0:
 	print "openssl command failed"
 	sys.exit(1)
@@ -500,9 +522,9 @@ keyUsage = nonRepudiation, digitalSignature, keyEncipherment\n\
 
     sys.exit(0)
 
-if sys.argv[1] == "request":
+if sys.argv[script] == "request":
     def usage():
-	print "usage: " + sys.argv[1] + " [--overwrite] [--node|--registry|--server|--user] [--no-password]"
+	print "usage: " + sys.argv[script] + " [--overwrite] [--node|--registry|--server|--user] [--no-password]"
 	sys.exit(1)
 
     def setType(type):
@@ -518,7 +540,7 @@ if sys.argv[1] == "request":
 	return type, keyfile, reqfile
 
     try:
-	opts, args = getopt.getopt(sys.argv[2:], "", \
+	opts, args = getopt.getopt(sys.argv[script+1:], "", \
 				   [ "overwrite", "node", "registry", "server", "user", "no-password" ])
     except getopt.GetoptError:
 	usage()
@@ -588,9 +610,9 @@ if sys.argv[1] == "request":
     if nopassphrase:
 	cmd += " -nodes"
 
-    #print cmd
+    if verbose: print cmd
     status = os.system(cmd)
-    os.remove(tempname)
+    if not keep: os.remove(tempname)
     if status != 0:
 	print "openssl command failed"
 	sys.exit(1)
@@ -601,17 +623,19 @@ if sys.argv[1] == "request":
     print
     print "The certificate request must be signed by the CA. Send the certificate"
     print "request file to the CA at the following email address:"
-    os.system("openssl x509 -in " + os.path.join(home, "ca_cert.pem") + " -email -noout")
+    cmd = "openssl x509 -in " + os.path.join(home, "ca_cert.pem") + " -email -noout"
+    if verbose: print cmd
+    os.system(cmd)
 
     sys.exit(0)
 
-if sys.argv[1] == "sign":
+if sys.argv[script] == "sign":
     def usage():
-	print "usage: " + sys.argv[1] + " --in <req> --out <cert>"
+	print "usage: " + sys.argv[script] + " --in <req> --out <cert> [--ip <ip> --dns <dns>]"
 	sys.exit(1)
 
     try:
-	opts, args = getopt.getopt(sys.argv[2:], "", [ "in=", "out=" ])
+	opts, args = getopt.getopt(sys.argv[script+1:], "", [ "in=", "out=", "ip=", "dns=" ])
     except getopt.GetoptError:
 	usage()
 
@@ -620,17 +644,44 @@ if sys.argv[1] == "sign":
 
     infile = None
     outfile = None
+    subjectAltName = ""
     for o, a in opts:
 	if o == "--in":
 	    infile = a
 	elif o == "--out":
 	    outfile = a
+	elif o == "--ip":
+	    if len(subjectAltName) > 0:
+		subjectAltName += ","
+	    subjectAltName += "IP:" + a
+	elif o == "--dns":
+	    if len(subjectAltName) > 0:
+		subjectAltName += ","
+	    subjectAltName += "DNS:" + a
 
     if infile == None or outfile == None:
 	usage()
 
-    cmd = "openssl ca -config " + os.path.join(caroot, "sign.cnf") + " -in " + infile + " -out " + outfile
+    #
+    # Create a temporary configuration file.
+    #
+    template = open(os.path.join(caroot, "sign.cnf"), "r")
+    if not template:
+	print "cannot open " + os.path.join(caroot, "sign.cnf")
+	sys.exit(1)
+
+    data = template.read()
+    template.close()
+    temp, tempname = tempfile.mkstemp(".cnf", "sign")
+    os.write(temp, data)
+    if len(subjectAltName) > 0:
+	os.write(temp, "\n[certificate_extensions]\nsubjectAltName=" + subjectAltName + "\n")
+    os.close(temp)
+
+    cmd = "openssl ca -config " + tempname + " -in " + infile + " -out " + outfile
+    if verbose: print cmd
     status = os.system(cmd)
+    if not keep: os.remove(tempname)
     if status != 0:
 	print "openssl command failed"
 	sys.exit(1)
