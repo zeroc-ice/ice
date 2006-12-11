@@ -1076,9 +1076,11 @@ interface FileIterator
      *
      * @param size The maximum number of bytes to read from the file.
      * 
-     * @return The lines read from the file. If there was nothing to
+     * @param The lines read from the file. If there was nothing to
      * read from the file since the last call to read, an empty
      * sequence is returned.
+     *
+     * @return True if EOF is encountered.
      *
      * @throws FileNotAvailableException Raised if there was a problem
      * to read lines from the file.
