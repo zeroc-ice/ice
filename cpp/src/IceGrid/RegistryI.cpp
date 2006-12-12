@@ -1150,6 +1150,9 @@ RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry,
     set<NodePrx> nodes;
     nodes.insert(dbNodes.begin(), dbNodes.end());
 
+    int timeout =
+	_communicator->getProperties()->getPropertyAsIntWithDefault("IceGrid.Registry.ReplicaSessionTimeout", 30);
+
     for(InternalRegistryPrxSeq::const_iterator r = replicas.begin(); r != replicas.end(); ++r)
     {
 	if((*r)->ice_getIdentity() != internalRegistry->ice_getIdentity())
@@ -1171,6 +1174,7 @@ RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry,
 
 	    try
 	    {
+		InternalRegistryPrx replica = InternalRegistryPrx::uncheckedCast((*r)->ice_timeout(timeout * 1000));
 		(*r)->registerWithReplica(internalRegistry);
 		NodePrxSeq nds = (*r)->getNodes();
 		nodes.insert(nds.begin(), nds.end());
@@ -1220,12 +1224,16 @@ void
 RegistryI::registerNodes(const InternalRegistryPrx& internalRegistry, const NodePrxSeq& nodes)
 {
     const string prefix("Node-");
+
+    int timeout = 
+	_communicator->getProperties()->getPropertyAsIntWithDefault("IceGrid.Registry.NodeSessionTimeout", 30);
     for(NodePrxSeq::const_iterator p = nodes.begin(); p != nodes.end(); ++p)
     {
 	assert((*p)->ice_getIdentity().name.find(prefix) != string::npos);
 	try
 	{
-	    _database->getNode((*p)->ice_getIdentity().name.substr(prefix.size()))->setProxy(*p);
+	    NodePrx node = NodePrx::uncheckedCast((*p)->ice_timeout(timeout * 1000));
+	    _database->getNode((*p)->ice_getIdentity().name.substr(prefix.size()))->setProxy(node);
 	}
 	catch(const NodeNotExistException&)
 	{

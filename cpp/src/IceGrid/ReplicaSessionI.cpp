@@ -48,7 +48,8 @@ ReplicaSessionI::ReplicaSessionI(const DatabasePtr& database,
 	ObserverTopicPtr obsv = _database->getObserverTopic(RegistryObserverTopicName);
 	RegistryObserverTopicPtr::dynamicCast(obsv)->registryUp(_info);
 
-	_proxy = ReplicaSessionPrx::uncheckedCast(_database->getInternalAdapter()->addWithUUID(this));
+	Ice::ObjectPrx prx = _database->getInternalAdapter()->addWithUUID(this)->ice_timeout(timeout * 1000);
+	_proxy = ReplicaSessionPrx::uncheckedCast(prx);
     }
     catch(...)
     {

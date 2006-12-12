@@ -76,6 +76,7 @@ public:
 		{
 		    _registry = registry;
 		}
+
 		if(_nextAction == Connect && _state == Connected)
 		{
 		    _nextAction = KeepAlive;
@@ -121,7 +122,7 @@ public:
 		assert(_nextAction != None);
 		
 		action = _nextAction;
-		registry = _registry;
+		registry = InternalRegistryPrx::uncheckedCast(_registry->ice_timeout(timeout.toMilliSeconds()));
 		_nextAction = None;
 		_state = InProgress;
 		notifyAll();

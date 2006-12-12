@@ -38,7 +38,8 @@ NodeSessionI::NodeSessionI(const DatabasePtr& database,
 	info.proxy = _node;
 	_database->addInternalObject(info, true); // Add or update previous node proxy.
 
-	_proxy = NodeSessionPrx::uncheckedCast(_database->getInternalAdapter()->addWithUUID(this));
+	Ice::ObjectPrx prx = _database->getInternalAdapter()->addWithUUID(this)->ice_timeout(timeout * 1000);
+	_proxy = NodeSessionPrx::uncheckedCast(prx);
     }
     catch(...)
     {
@@ -219,7 +220,7 @@ NodeSessionI::destroyImpl(bool shutdown)
     //
     // Next we notify the observer.
     //
-    NodeObserverTopicPtr::dynamicCast(_database->getObserverTopic(NodeObserverTopicName))->nodeDown(_info.name);    
+    NodeObserverTopicPtr::dynamicCast(_database->getObserverTopic(NodeObserverTopicName))->nodeDown(_info.name);
 
     //
     // Unsubscribe the node replica observer.

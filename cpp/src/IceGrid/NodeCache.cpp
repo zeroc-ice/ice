@@ -84,7 +84,7 @@ public:
 		Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
 		out << "couldn't load `" << _id << "' on node `" << _node << "':\n" << ex;
 	    }
-	    
+
 	    ostringstream os;
 	    os << ex;
 	    _server->exception(NodeUnreachableException(_node, os.str()));
@@ -290,26 +290,25 @@ NodeEntry::setSession(const NodeSessionIPtr& session)
 		sync.acquire();
 	    }
 	}
+	
+	//
+	// Clear the saved proxy, the node has established a session
+	// so we won't need anymore to try to register it with this
+	// registry.
+	//
+	_proxy = 0;
     }
-    else if(!session && !_session)
+    else
     {
-	return;
-    }
-    
-    if(!session && _session)
-    {
+	if(!_session)
+	{
+	    return;
+	}
     }
     
     _session = session;
     notifyAll();
 
-    //
-    // Clear the saved proxy, the node has established a session
-    // so we won't need anymore to try to register it with this
-    // registry.
-    //
-    _proxy = 0;
-	
     if(_registering)
     {
 	_registering = false;
@@ -636,13 +635,13 @@ NodeEntry::checkSession() const
 	    out << "creating node `" << _name << "' session";
 	}
 
-	NodeEntry* self = const_cast<NodeEntry*>(this);
 	//
 	// NOTE: setting _registering to true must be done before the
 	// call otherwise if the callback is call immediately we'll
 	// hang in the while loop.
 	//
 	_registering = true; 
+	NodeEntry* self = const_cast<NodeEntry*>(this);
 	_proxy->registerWithReplica_async(new RegisterCB(self), _cache.getReplicaCache().getInternalRegistry());
 	_proxy = 0; // Registration with the proxy is only attempted once.
     }
