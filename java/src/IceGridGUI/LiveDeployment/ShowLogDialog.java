@@ -262,7 +262,7 @@ class ShowLogDialog extends JDialog
 
 		    try
 		    {
-			eofEncountered = _p.read(maxReadLines, _maxReadSize, linesHolder); 
+			eofEncountered = _p.read(_maxReadSize, linesHolder); 
 		    }
 		    catch(IceGrid.FileNotAvailableException e)
 		    {
