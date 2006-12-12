@@ -777,10 +777,10 @@ ServerI::getOffsetFromEnd(const string& filename, int count, const Ice::Current&
 }
 
 bool
-ServerI::read(const string& filename, Ice::Long pos, int count, int size, Ice::Long& newPos, Ice::StringSeq& lines,
-		   const Ice::Current&) const
+ServerI::read(const string& filename, Ice::Long pos, int size, Ice::Long& newPos, Ice::StringSeq& lines, 
+	      const Ice::Current&) const
 {
-    return _node->getFileCache()->read(getFilePath(filename), pos, count, size, newPos, lines);
+    return _node->getFileCache()->read(getFilePath(filename), pos, size, newPos, lines);
 }
 
 bool

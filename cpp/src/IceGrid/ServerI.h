@@ -84,7 +84,7 @@ public:
     virtual void setProcess_async(const AMD_Server_setProcessPtr&, const ::Ice::ProcessPrx&, const ::Ice::Current&);
 
     virtual Ice::Long getOffsetFromEnd(const std::string&, int, const Ice::Current&) const;
-    virtual bool read(const std::string&, Ice::Long, int, int, Ice::Long&, Ice::StringSeq&, const Ice::Current&) const;
+    virtual bool read(const std::string&, Ice::Long, int, Ice::Long&, Ice::StringSeq&, const Ice::Current&) const;
 
     bool isAdapterActivatable(const std::string&, int&) const;
     const std::string& getId() const;

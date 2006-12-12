@@ -113,8 +113,7 @@ interface FileReader
      * Read and return up to count lines (or size bytes) at the specified position.
      * 
      **/
-    ["cpp:const"] idempotent bool read(string filename, long pos, int count, int size, out long newPos, 
-				       out Ice::StringSeq lines)
+    ["cpp:const"] idempotent bool read(string filename, long pos, int size, out long newPos, out Ice::StringSeq lines)
 	throws FileNotAvailableException;
 };
 

@@ -22,20 +22,22 @@ using namespace IceGrid;
 FileIteratorI::FileIteratorI(const AdminSessionIPtr& session, 
 			     const FileReaderPrx& reader, 
 			     const string& filename,
-			     Ice::Long offset) :
+			     Ice::Long offset,
+			     int messageSizeMax) :
     _session(session),
     _reader(reader),
     _filename(filename),
-    _offset(offset)
+    _offset(offset),
+    _messageSizeMax(messageSizeMax)
 {
 }
 
 bool
-FileIteratorI::read(int nlines, int size, Ice::StringSeq& lines, const Ice::Current& current)
+FileIteratorI::read(int size, Ice::StringSeq& lines, const Ice::Current& current)
 {
     try
     {
-	return _reader->read(_filename, _offset, nlines, size, _offset, lines);
+	return _reader->read(_filename, _offset, size > _messageSizeMax ? _messageSizeMax : size, _offset, lines);
     }
     catch(const Ice::LocalException& ex)
     {
@@ -321,8 +323,11 @@ AdminSessionI::addFileIterator(const FileReaderPrx& reader,
 	}
     }
 
+    Ice::PropertiesPtr properties = reader->ice_getCommunicator()->getProperties();
+    int messageSizeMax = properties->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024) * 1024;
+
     Ice::ObjectPrx obj;
-    Ice::ObjectPtr servant = new FileIteratorI(this, reader, filename, offset);
+    Ice::ObjectPtr servant = new FileIteratorI(this, reader, filename, offset, messageSizeMax);
     if(_servantLocator)
     {
 	obj = _servantLocator->add(servant, current.con);

@@ -52,7 +52,7 @@ public:
     virtual void shutdown(const Ice::Current&) const;
 
     virtual Ice::Long getOffsetFromEnd(const std::string&, int, const Ice::Current&) const;
-    virtual bool read(const std::string&, Ice::Long, int, int, Ice::Long&, Ice::StringSeq&, const Ice::Current&) const;
+    virtual bool read(const std::string&, Ice::Long, int, Ice::Long&, Ice::StringSeq&, const Ice::Current&) const;
 
 private:    
 

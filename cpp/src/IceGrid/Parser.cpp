@@ -1336,7 +1336,7 @@ Parser::dumpFile(const string& reader, const string& filename, const list<string
 	    return;
 	}
 	int lineCount = 20;
-	const int maxBytes = 512 * 1024;
+	int maxBytes = _communicator->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024) * 1024;
 	if(head || tail)
 	{
 	    istringstream is(head ? opts.optArg("head") : opts.optArg("tail"));
@@ -1397,7 +1397,7 @@ Parser::dumpFile(const string& reader, const string& filename, const list<string
 	    bool eof = false;
 	    while(!interrupted() && !eof && i < lineCount)
 	    {
-		eof = it->read(20, maxBytes, lines);
+		eof = it->read(maxBytes, lines);
 		for(Ice::StringSeq::const_iterator p = lines.begin(); i < lineCount && p != lines.end(); ++p, ++i)
 		{
 		    cout << endl << *p << flush;
@@ -1409,7 +1409,7 @@ Parser::dumpFile(const string& reader, const string& filename, const list<string
 	    bool eof = false;
 	    while(!interrupted() && !eof)
 	    {
-		eof = it->read(20, maxBytes, lines);
+		eof = it->read(maxBytes, lines);
 		for(Ice::StringSeq::const_iterator p = lines.begin(); p != lines.end(); ++p)
 		{
 		    cout << endl << *p << flush;
@@ -1421,7 +1421,7 @@ Parser::dumpFile(const string& reader, const string& filename, const list<string
 	{
 	    while(!interrupted())
 	    {
-		bool eof = it->read(20, maxBytes, lines);
+		bool eof = it->read(maxBytes, lines);
 		for(Ice::StringSeq::const_iterator p = lines.begin(); p != lines.end(); ++p)
 		{
 		    cout << *p;

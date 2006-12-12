@@ -12,6 +12,7 @@
 
 #include <IceUtil/Shared.h>
 #include <Ice/BuiltinSequences.h>
+#include <Ice/CommunicatorF.h>
 
 namespace IceGrid
 {
@@ -20,10 +21,14 @@ class FileCache : public IceUtil::Shared
 {
 public:
 
-    FileCache();
+    FileCache(const Ice::CommunicatorPtr&);
 
     Ice::Long getOffsetFromEnd(const std::string&, int);
-    bool read(const std::string&, Ice::Long, int, int, Ice::Long&, Ice::StringSeq&);
+    bool read(const std::string&, Ice::Long, int, Ice::Long&, Ice::StringSeq&);
+
+private:
+
+    const int _messageSizeMax;
 };
 typedef IceUtil::Handle<FileCache> FileCachePtr;
 

@@ -131,17 +131,18 @@ class FileIteratorI : public FileIterator
 {
 public:
 
-    FileIteratorI(const AdminSessionIPtr&, const FileReaderPrx&, const std::string&, Ice::Long);
+    FileIteratorI(const AdminSessionIPtr&, const FileReaderPrx&, const std::string&, Ice::Long, int);
 
-    virtual bool read(int, int, Ice::StringSeq&, const Ice::Current&);
+    virtual bool read(int, Ice::StringSeq&, const Ice::Current&);
     virtual void destroy(const Ice::Current&);
 
 private:
 
-    AdminSessionIPtr _session;
-    FileReaderPrx _reader;
-    std::string _filename;
+    const AdminSessionIPtr _session;
+    const FileReaderPrx _reader;
+    const std::string _filename;
     Ice::Long _offset;
+    const int _messageSizeMax;
 };
 
 };

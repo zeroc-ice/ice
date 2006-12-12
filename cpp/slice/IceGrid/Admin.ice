@@ -1070,15 +1070,17 @@ interface FileIterator
 {
     /**
      *
-     * Read up to `nlines' lines from the log file.
+     * Read lines from the log file.
      *
-     * @param nlines The maximum number of lines to return.
-     *
-     * @param size The maximum number of bytes to read from the file.
+     * @param size Specifies the maximum number of bytes to be
+     * received. The server will ensure that the returned message
+     * doesn't exceed the given size.
      * 
      * @param The lines read from the file. If there was nothing to
      * read from the file since the last call to read, an empty
-     * sequence is returned.
+     * sequence is returned. The last line of the sequence is always
+     * incomplete (and therefore no '\n' should be added when writing
+     * the last line to the to the output device).
      *
      * @return True if EOF is encountered.
      *
@@ -1086,7 +1088,7 @@ interface FileIterator
      * to read lines from the file.
      *
      **/
-    bool read(int nlines, int size, out Ice::StringSeq lines)
+    bool read(int size, out Ice::StringSeq lines)
 	throws FileNotAvailableException;
 
     /**
@@ -1248,6 +1250,7 @@ interface AdminSession extends Glacier2::Session
      **/
     FileIterator* openServerStdErr(string id, int count)
 	throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException, DeploymentException;
+
     /**
      *
      * Open the given server stdout file for reading. The file can be

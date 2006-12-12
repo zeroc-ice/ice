@@ -209,7 +209,7 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     _waitTime(0),
     _userAccountMapper(mapper),
     _platform("IceGrid.Node", _communicator, _traceLevels),
-    _fileCache(new FileCache()),
+    _fileCache(new FileCache(_communicator)),
     _serial(1)
 {
     Ice::PropertiesPtr properties = _communicator->getProperties();
@@ -558,10 +558,10 @@ NodeI::getOffsetFromEnd(const string& filename, int count, const Ice::Current&) 
 }
 
 bool
-NodeI::read(const string& filename, Ice::Long pos, int count, int size, Ice::Long& newPos, Ice::StringSeq& lines,
+NodeI::read(const string& filename, Ice::Long pos, int size, Ice::Long& newPos, Ice::StringSeq& lines,
 	    const Ice::Current&) const
 {
-    return _fileCache->read(getFilePath(filename), pos, count, size, newPos, lines);
+    return _fileCache->read(getFilePath(filename), pos, size, newPos, lines);
 }
 
 void

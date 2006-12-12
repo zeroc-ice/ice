@@ -7,6 +7,9 @@
 //
 // **********************************************************************
 
+#include <Ice/Communicator.h>
+#include <Ice/Properties.h>
+
 #include <IceGrid/FileCache.h>
 #include <IceGrid/Exception.h>
 
@@ -16,7 +19,8 @@
 using namespace std;
 using namespace IceGrid;
 
-FileCache::FileCache()
+FileCache::FileCache(const Ice::CommunicatorPtr& communicator) : 
+    _messageSizeMax(communicator->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024) * 1024)
 {
 }
 
@@ -106,9 +110,14 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
 }
 
 bool
-FileCache::read(const string& file, Ice::Long offset, int count, int size, Ice::Long& newOffset, Ice::StringSeq& lines)
+FileCache::read(const string& file, Ice::Long offset, int size, Ice::Long& newOffset, Ice::StringSeq& lines)
 {
-    assert(size > 0 && count > 0);
+    assert(size > 0);
+
+    if(size > _messageSizeMax)
+    {
+	size = _messageSizeMax;
+    }
 
     ifstream is(file.c_str());
     if(is.fail())
@@ -139,12 +148,12 @@ FileCache::read(const string& file, Ice::Long offset, int count, int size, Ice::
 #else
     is.seekg(static_cast<streampos>(offset));
 #endif
-    int totalSize = 0;
+    int totalSize = 1024; // Some room for the message header.
     string line;
-    for(int i = 0; i < count && is.good() && totalSize < size; ++i)
+    for(int i = 0; is.good() && totalSize < size; ++i)
     {
 	getline(is, line);
-	totalSize += line.size() + (is.eof() ? 0 : 1);
+	totalSize += line.size() + 5; // 5 bytes for the encoding of the string size (worst case scenario)
 	if(!is.fail())
 	{
 	    newOffset = is.tellg();

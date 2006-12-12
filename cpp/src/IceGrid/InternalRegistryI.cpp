@@ -32,7 +32,7 @@ InternalRegistryI::InternalRegistryI(const RegistryIPtr& registry,
     _database(database),
     _reaper(reaper),
     _wellKnownObjects(wellKnownObjects),
-    _fileCache(new FileCache()),
+    _fileCache(new FileCache(database->getCommunicator())),
     _session(session)
 {
     Ice::PropertiesPtr properties = database->getCommunicator()->getProperties();
@@ -121,10 +121,10 @@ InternalRegistryI::getOffsetFromEnd(const string& filename, int count, const Ice
 }
 
 bool
-InternalRegistryI::read(const string& filename, Ice::Long pos, int count, int size, Ice::Long& newPos, 
-			Ice::StringSeq& lines, const Ice::Current&) const
+InternalRegistryI::read(const string& filename, Ice::Long pos, int size, Ice::Long& newPos, Ice::StringSeq& lines, 
+			const Ice::Current&) const
 {
-    return _fileCache->read(getFilePath(filename), pos, count, size, newPos, lines);
+    return _fileCache->read(getFilePath(filename), pos, size, newPos, lines);
 }
 
 string
