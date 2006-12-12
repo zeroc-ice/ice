@@ -29,7 +29,7 @@ SLICE_SRCS	= Clock.ice
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
-LIBS		:= -lIceStorm -lIceGrid $(LIBS)
+LIBS		:= -lIceStorm -lIceGrid -lGlacier2 $(LIBS)
 
 $(PUBLISHER): $(OBJS) $(POBJS)
 	rm -f $@
