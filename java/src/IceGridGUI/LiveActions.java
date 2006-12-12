@@ -131,6 +131,27 @@ public class LiveActions
 					       "Write message to stdout or stderr");
 	
 
+	_array[TreeNode.RETRIEVE_STDOUT] = new AbstractAction("Retrieve stdout")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _target.retrieveOutput(true);
+		}
+	    };
+	_array[TreeNode.RETRIEVE_STDOUT].putValue(Action.SHORT_DESCRIPTION, 
+					       "Retrieve stdout");
+
+	_array[TreeNode.RETRIEVE_STDERR] = new AbstractAction("Retrieve stderr")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _target.retrieveOutput(false);
+		}
+	    };
+	_array[TreeNode.RETRIEVE_STDERR].putValue(Action.SHORT_DESCRIPTION, 
+					       "Retrieve stderr");
+
+
 	_array[TreeNode.SHUTDOWN_NODE] = new AbstractAction("Shutdown")
 	    {
 		public void actionPerformed(ActionEvent e) 

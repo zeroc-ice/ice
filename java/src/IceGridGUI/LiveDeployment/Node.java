@@ -36,8 +36,37 @@ class Node extends ListTreeNode
     {
 	boolean[] actions = new boolean[ACTION_COUNT];
 	actions[SHUTDOWN_NODE] = _up;
+	actions[RETRIEVE_STDOUT] = _up;
+	actions[RETRIEVE_STDERR] = _up;
 	return actions;
     }
+
+    public void retrieveOutput(final boolean stdout)
+    {
+	getRoot().openShowLogDialog(new ShowLogDialog.FileIteratorFactory()
+	    {
+		public FileIteratorPrx open(int count)
+		    throws FileNotAvailableException, NodeNotExistException, NodeUnreachableException
+		{
+		    AdminSessionPrx adminSession = getRoot().getCoordinator().getSession();
+
+		    if(stdout)
+		    {
+			return adminSession.openNodeStdOut(_id, count);
+		    }
+		    else
+		    {
+			return adminSession.openNodeStdErr(_id, count);
+		    }
+		}
+
+		public String getTitle()
+		{
+		    return "Node " + _id + " " + (stdout ? "Stdout" : "Stderr");
+		}
+	    });
+    } 
+
 
     public void shutdownNode()
     {
@@ -91,6 +120,9 @@ class Node extends ListTreeNode
 	if(_popup == null)
 	{
 	    _popup = new JPopupMenu();
+	    _popup.add(la.get(RETRIEVE_STDOUT));
+	    _popup.add(la.get(RETRIEVE_STDERR));
+	    _popup.addSeparator();
 	    _popup.add(la.get(SHUTDOWN_NODE));
 	}
 	

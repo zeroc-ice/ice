@@ -42,6 +42,8 @@ class Server extends ListArrayTreeNode
 	    actions[ENABLE] = !_enabled;
 	    actions[DISABLE] = _enabled;
 	    actions[WRITE_MESSAGE] = _state != ServerState.Inactive;
+	    actions[RETRIEVE_STDOUT] = true;
+	    actions[RETRIEVE_STDERR] = true;
 
 	    actions[PATCH_SERVER] = 
 		!_serverDescriptor.distrib.icepatch.equals("");
@@ -167,6 +169,32 @@ class Server extends ListArrayTreeNode
 	_writeMessageDialog.showDialog(_id);
     }
 
+    public void retrieveOutput(final boolean stdout)
+    {
+	getRoot().openShowLogDialog(new ShowLogDialog.FileIteratorFactory()
+	    {
+		public FileIteratorPrx open(int count)
+		    throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException, DeploymentException
+		{
+		    AdminSessionPrx adminSession = getRoot().getCoordinator().getSession();
+
+		    if(stdout)
+		    {
+			return adminSession.openServerStdOut(_id, count);
+		    }
+		    else
+		    {
+			return adminSession.openServerStdErr(_id, count);
+		    }
+		}
+
+		public String getTitle()
+		{
+		    return "Server " + _id + " " + (stdout ? "Stdout" : "Stderr");
+		}
+	    });
+    } 
+	
     public void signal(final String s)
     {
 	final String prefix = "Sending '" + s + "' to server '" + _id + "'...";
@@ -332,6 +360,8 @@ class Server extends ListArrayTreeNode
 	    _popup.add(la.get(PATCH_SERVER));
 	    _popup.addSeparator();
 	    _popup.add(la.get(WRITE_MESSAGE));
+	    _popup.add(la.get(RETRIEVE_STDOUT));
+	    _popup.add(la.get(RETRIEVE_STDERR));
 	    _popup.addSeparator();
 
 	    JMenu signalMenu = new JMenu("Send signal");

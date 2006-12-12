@@ -1356,6 +1356,8 @@ public class Coordinator
     
     void destroySession(AdminSessionPrx session)
     {
+	_liveDeploymentRoot.closeAllShowLogDialogs();
+
 	Ice.RouterPrx router = _communicator.getDefaultRouter();
 
 	try
@@ -1883,7 +1885,7 @@ public class Coordinator
 	_saveToFile.putValue(Action.SHORT_DESCRIPTION, "Save to file");
 
 	
-	_discardUpdates = new AbstractAction("Discard updates...")
+	_discardUpdates = new AbstractAction("Discard updates")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1891,7 +1893,8 @@ public class Coordinator
 		}
 	    };
 	_discardUpdates.setEnabled(false);
-	_discardUpdates.putValue(Action.SHORT_DESCRIPTION, "Discard updates");
+	_discardUpdates.putValue(Action.SHORT_DESCRIPTION, 
+				 "Discard updates and reload application");
 
 
 	_exit = new AbstractAction("Exit")
@@ -2238,7 +2241,7 @@ public class Coordinator
 	return _sessionKeeper;
     }
 
-    Preferences getPrefs()
+    public Preferences getPrefs()
     {
 	return _prefs;
     }

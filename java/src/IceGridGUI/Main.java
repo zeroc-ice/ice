@@ -45,7 +45,7 @@ public class Main extends JFrame
 
 	setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 	addWindowListener(new WindowAdapter() 
-	    { 
+	    {
 		public void windowClosing(WindowEvent e) 
 		{
 		    if(_coordinator != null)

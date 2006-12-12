@@ -48,6 +48,7 @@ class WriteMessageDialog extends JDialog
 	super(root.getCoordinator().getMainFrame(), 
 	      "Write Message - IceGrid Admin", true);
 	setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+
 	_mainFrame = root.getCoordinator().getMainFrame();
 	
 	_stdOut = new JRadioButton("Write to stdout");
@@ -160,7 +161,8 @@ class WriteMessageDialog extends JDialog
 	    builder.setDefaultDialogBorder();
 	    builder.setRowGroupingEnabled(true);
 	    builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
-	    
+
+	    _message.setLineWrap(true);
 	    JScrollPane scrollPane = new JScrollPane(_message,
 						     JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
 						     JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);

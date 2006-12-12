@@ -21,6 +21,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
 import java.util.Enumeration;
+import java.util.prefs.Preferences;
 
 import IceGrid.*;
 import IceGridGUI.*;
@@ -40,6 +41,8 @@ public class Root extends ListArrayTreeNode
 	_tree = new JTree(this, true);
 	_treeModel = (DefaultTreeModel)_tree.getModel();
 	_objectDialog = new ObjectDialog(this);
+       
+	loadLogPrefs();
     }
 
     public boolean[] getAvailableActions()
@@ -47,6 +50,8 @@ public class Root extends ListArrayTreeNode
 	boolean[] actions = new boolean[ACTION_COUNT];
 	actions[ADD_OBJECT] = _coordinator.connectedToMaster();
 	actions[SHUTDOWN_REGISTRY] = true;
+	actions[RETRIEVE_STDOUT] = true;
+	actions[RETRIEVE_STDERR] = true;
 	return actions;
     }
 
@@ -163,6 +168,8 @@ public class Root extends ListArrayTreeNode
 
     public void applicationInit(String instanceName, String replicaName, java.util.List applications)
     {
+	closeAllShowLogDialogs();
+
 	_replicaName = replicaName;
 	_label = instanceName + " (" + _replicaName + ")";
 	_tree.setRootVisible(true);	
@@ -576,6 +583,9 @@ public class Root extends ListArrayTreeNode
 	    _popup = new JPopupMenu();
 	    _popup.add(la.get(ADD_OBJECT));
 	    _popup.addSeparator();
+	    _popup.add(la.get(RETRIEVE_STDOUT));
+	    _popup.add(la.get(RETRIEVE_STDERR));
+	    _popup.addSeparator();
 	    _popup.add(la.get(SHUTDOWN_REGISTRY));
 	}
 	
@@ -832,6 +842,32 @@ public class Root extends ListArrayTreeNode
 		Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
     }
+    
+    public void retrieveOutput(final boolean stdout)
+    {
+	getRoot().openShowLogDialog(new ShowLogDialog.FileIteratorFactory()
+	    {
+		public FileIteratorPrx open(int count)
+		    throws FileNotAvailableException, RegistryNotExistException, RegistryUnreachableException
+		{
+		    AdminSessionPrx session = _coordinator.getSession();
+
+		    if(stdout)
+		    {
+			return session.openRegistryStdOut(_replicaName, count);
+		    }
+		    else
+		    {
+			return session.openRegistryStdErr(_replicaName, count);
+		    }
+		}
+
+		public String getTitle()
+		{
+		    return "Registry " + _label + " " + (stdout ? "Stdout" : "Stderr");
+		}
+	    });
+    } 
 
 
     PropertySetDescriptor findNamedPropertySet(String name, String applicationName)
@@ -840,6 +876,62 @@ public class Root extends ListArrayTreeNode
 	    _descriptorMap.get(applicationName);
 	return (PropertySetDescriptor)descriptor.propertySets.get(name);
     }
+
+
+    void openShowLogDialog(ShowLogDialog.FileIteratorFactory factory)
+    {
+	ShowLogDialog d = (ShowLogDialog)_showLogDialogMap.get(factory.getTitle());
+	if(d == null)
+	{
+	    d = new ShowLogDialog(this, factory, 
+				  _logPeriod, _logInitialLines, 
+				  _logMaxLines, _logMaxSize, _logMaxReadLines);
+	    
+	    _showLogDialogMap.put(factory.getTitle(), d);
+	}
+	else
+	{
+	    d.toFront();
+	}
+    }
+
+    void removeShowLogDialog(String title)
+    {
+	_showLogDialogMap.remove(title);
+    }
+
+    public void closeAllShowLogDialogs()
+    {
+	java.util.Iterator p = _showLogDialogMap.values().iterator();
+	while(p.hasNext())
+	{
+	    ShowLogDialog d = (ShowLogDialog)p.next();
+	    d.close(false);
+	}
+	_showLogDialogMap.clear();
+    }
+
+    
+    private void loadLogPrefs()
+    {
+	Preferences logPrefs = _coordinator.getPrefs().node("Log");
+	_logPeriod = logPrefs.getInt("period", 300);
+	_logInitialLines = logPrefs.getInt("initialLines", 10);
+	_logMaxLines = logPrefs.getInt("maxLines", 500);
+	_logMaxSize = logPrefs.getInt("maxSize", 20000);
+	_logMaxReadLines = logPrefs.getInt("maxReadLines", 50);
+    }
+
+    private void storeLogPrefs()
+    {
+	Preferences logPrefs = _coordinator.getPrefs().node("Log");
+	logPrefs.putInt("period", _logPeriod);
+	logPrefs.putInt("initialLines", _logInitialLines);
+	logPrefs.putInt("maxLines", _logMaxLines);
+	logPrefs.putInt("maxSize", _logMaxSize);
+	logPrefs.putInt("maxReadLines", _logMaxReadLines);
+    }
+
 
     private Node findNode(String nodeName)
     {
@@ -904,6 +996,16 @@ public class Root extends ListArrayTreeNode
     private String _label;
 
     private ObjectDialog _objectDialog;
+
+    //
+    // ShowLogDialog
+    //
+    java.util.Map _showLogDialogMap = new java.util.HashMap();
+    int _logPeriod;
+    int _logInitialLines;
+    int _logMaxLines;
+    int _logMaxSize;
+    int _logMaxReadLines;
 
     static private RegistryEditor _editor;
     static private JPopupMenu _popup;
