@@ -96,7 +96,11 @@ for o, a in opts:
 	else:
 	    def rematch(x): return not regexp.search(x)
 	tests = filter(rematch, tests)
-    if o in ( "--protocol", "--host" ):
+    if o == "--protocol":
+    	if a not in ( "ssl", "tcp"):
+    	    usage()
+	args += " " + o + " " + a
+    if o == "--host" :
 	args += " " + o + " " + a
     if o in ( "--debug", "-m", "--mono", "--compress", "--threadPerConnection" ):
 	args += " " + o

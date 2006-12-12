@@ -134,7 +134,7 @@ if isCygwin() == 0:
       ]
 
 def usage():
-    print "usage: " + sys.argv[0] + " -l -r <regex> -R <regex> --debug --protocol protocol --compress --host host --threadPerConnection --disablePool"
+    print "usage: " + sys.argv[0] + " -l -r <regex> -R <regex> --debug --protocol tcp|ssl --compress --host host --threadPerConnection --disablePool"
     sys.exit(2)
 
 try:
@@ -159,7 +159,11 @@ for o, a in opts:
 	else:
 	    def rematch(x): return not regexp.search(x)
 	tests = filter(rematch, tests)
-    if o in ( "--protocol", "--host" ):
+    if o == "--protocol":
+    	if a not in ( "ssl", "tcp"):
+    	    usage()
+	args += " " + o + " " + a
+    if o == "--host" :
 	args += " " + o + " " + a
     if o in ( "--debug", "--compress", "--threadPerConnection", "--disablePool" ):
 	args += " " + o 

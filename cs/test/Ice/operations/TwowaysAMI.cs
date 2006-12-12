@@ -1392,7 +1392,7 @@ public class TwowaysAMI
 	    for(int i = 0; i < 3; i++)
 	    {
 		Ice.InitializationData initData = new Ice.InitializationData();
-		initData.properties = Ice.Util.createProperties();
+		initData.properties = communicator.getProperties().ice_clone_();
 		initData.properties.setProperty("Ice.ImplicitContext", impls[i]);
 		
 		Ice.Communicator ic = Ice.Util.initialize(initData);

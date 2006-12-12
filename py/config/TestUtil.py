@@ -68,6 +68,8 @@ for o, a in opts:
     if o == "--debug":
     	debug = 1
     if o == "--protocol":
+    	if a not in ( "tcp", "ssl"):
+    	    usage()
 	protocol = a
     if o == "--compress":
 	compress = 1

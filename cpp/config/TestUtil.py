@@ -10,8 +10,8 @@
 # **********************************************************************
 
 #
-# Set protocol to "ssl" in case you want to run the tests with the SSL
-# protocol. Otherwise TCP is used.
+# Set protocol to "ssl" in case you want to run the tests with the
+# SSL protocol. Otherwise TCP is used.
 #
 protocol = ""
 #protocol = "ssl"
@@ -53,7 +53,7 @@ import sys, os, re, errno, getopt
 from threading import Thread
 
 def usage():
-    print "usage: " + sys.argv[0] + " --debug --protocol protocol --compress --host host --threadPerConnection num"
+    print "usage: " + sys.argv[0] + " --debug --protocol ssl|tcp --compress --host host --threadPerConnection num"
     sys.exit(2)
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", ["debug", "protocol=", "compress", "host=", "threadPerConnection="])
@@ -64,6 +64,8 @@ for o, a in opts:
     if o == "--debug":
     	debug = 1
     if o == "--protocol":
+    	if a not in ( "tcp", "ssl"):
+    	    usage()
 	protocol = a
     if o == "--compress":
 	compress = 1

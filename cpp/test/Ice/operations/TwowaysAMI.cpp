@@ -1331,7 +1331,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	    for(int i = 0; i < 3; i++)
 	    {
 		Ice::InitializationData initData;
-		initData.properties = Ice::createProperties();
+		initData.properties = communicator->getProperties()->clone();
 		initData.properties->setProperty("Ice.ImplicitContext", impls[i]);
 		
 		Ice::CommunicatorPtr ic = Ice::initialize(initData);

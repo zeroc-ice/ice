@@ -694,7 +694,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	    for(int i = 0; i < 3; i++)
 	    {
 		Ice::InitializationData initData;
-		initData.properties = Ice::createProperties();
+		initData.properties = communicator->getProperties()->clone();
 		initData.properties->setProperty("Ice.ImplicitContext", impls[i]);
 		
 		Ice::CommunicatorPtr ic = Ice::initialize(initData);
@@ -704,10 +704,8 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 		ctx["two"] = "TWO";
 		ctx["three"] = "THREE";
 
-
 		Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(
 	    				ic->stringToProxy("test:default -p 12010 -t 10000"));
-		
 		
 		ic->getImplicitContext()->setContext(ctx);
 		test(ic->getImplicitContext()->getContext() == ctx);

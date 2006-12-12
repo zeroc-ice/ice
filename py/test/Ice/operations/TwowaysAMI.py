@@ -861,7 +861,7 @@ def twowaysAMI(communicator, p):
     impls = ( 'Shared', 'SharedWithoutLocking', 'PerThread' )
     for i in impls:
         initData = Ice.InitializationData()
-        initData.properties = Ice.createProperties()
+        initData.properties = communicator.getProperties().clone()
         initData.properties.setProperty('Ice.ImplicitContext', i)
         ic = Ice.initialize(data=initData)
         
