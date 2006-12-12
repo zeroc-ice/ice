@@ -64,6 +64,11 @@ class Node extends ListTreeNode
 		{
 		    return "Node " + _id + " " + (stdout ? "Stdout" : "Stderr");
 		}
+
+		public String getDefaultFilename()
+		{
+		    return _id + (stdout ? ".out" : ".err");
+		}
 	    });
     } 
 

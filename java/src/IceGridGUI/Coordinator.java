@@ -1548,23 +1548,23 @@ public class Coordinator
 	{
 	    if(file != null)
 	    {
-		_saveChooser.setSelectedFile(file);
+		_saveXMLChooser.setSelectedFile(file);
 	    }
 	    else
 	    {
-		_saveChooser.setCurrentDirectory(_openChooser.getCurrentDirectory());
+		_saveXMLChooser.setCurrentDirectory(_openChooser.getCurrentDirectory());
 	    }
 
-	    int result = _saveChooser.showSaveDialog(_mainFrame);
+	    int result = _saveXMLChooser.showSaveDialog(_mainFrame);
 	 
 	    if(file == null || result == JFileChooser.APPROVE_OPTION)
 	    {
-		_openChooser.setCurrentDirectory(_saveChooser.getCurrentDirectory());
+		_openChooser.setCurrentDirectory(_saveXMLChooser.getCurrentDirectory());
 	    }
 
 	    if(result == JFileChooser.APPROVE_OPTION)
 	    {
-		file = _saveChooser.getSelectedFile();
+		file = _saveXMLChooser.getSelectedFile();
 	    }
 	    else
 	    {
@@ -1608,8 +1608,12 @@ public class Coordinator
 	}
 	return file;
     }
+ 
+    public JFileChooser getSaveLogChooser()
+    {
+	return _saveLogChooser;
+    } 
 
-    
     static private Ice.Properties createProperties(Ice.StringSeqHolder args)
     {
 	Ice.Properties properties = Ice.Util.createProperties();
@@ -1670,10 +1674,10 @@ public class Coordinator
 	Runtime.getRuntime().addShutdownHook(_shutdownHook);
 
 
-	_saveChooser = new JFileChooser(
+	_saveXMLChooser = new JFileChooser(
 	    _prefs.get("current directory", null));
 	
-	_saveChooser.addChoosableFileFilter(new FileFilter()
+	_saveXMLChooser.addChoosableFileFilter(new FileFilter()
 	    {
 		public boolean accept(File f)
 		{
@@ -1686,11 +1690,31 @@ public class Coordinator
 		}
 	    });
 
+	_saveLogChooser = new JFileChooser(
+	    _prefs.get("current directory", null));
+	
+	_saveLogChooser.addChoosableFileFilter(new FileFilter()
+	    {
+		public boolean accept(File f)
+		{
+		    return f.isDirectory() || 
+			f.getName().endsWith(".out") ||
+			f.getName().endsWith(".err") ||
+			f.getName().endsWith(".log") ||
+			f.getName().endsWith(".txt");
+		}
+		
+		public String getDescription()
+		{
+		    return ".out .err .log .txt files";
+		}
+	    });
+
 	javax.swing.UIManager.put("FileChooser.readOnly", Boolean.TRUE);
 
-	_openChooser = new JFileChooser(_saveChooser.getCurrentDirectory());
+	_openChooser = new JFileChooser(_saveXMLChooser.getCurrentDirectory());
 	
-	_openChooser.addChoosableFileFilter(_saveChooser.getChoosableFileFilters()[1]);
+	_openChooser.addChoosableFileFilter(_saveXMLChooser.getChoosableFileFilters()[1]);
 
 
 	final int MENU_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
@@ -2421,7 +2445,8 @@ public class Coordinator
     private final Thread _shutdownHook;
 
     private JFileChooser _openChooser;
-    private JFileChooser _saveChooser;
+    private JFileChooser _saveXMLChooser;
+    private JFileChooser _saveLogChooser;
     
     private Process _icegridadminProcess;
     private String _fileParser;

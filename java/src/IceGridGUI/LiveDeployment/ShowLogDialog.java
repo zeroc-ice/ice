@@ -16,21 +16,24 @@ import java.awt.Frame;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
+import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import com.jgoodies.looks.BorderStyle;
@@ -49,6 +52,8 @@ class ShowLogDialog extends JDialog
 	    throws Ice.UserException;
 
 	String getTitle();
+
+	String getDefaultFilename();
     }
 
     private class FIFOTextArea extends JTextArea
@@ -116,14 +121,15 @@ class ShowLogDialog extends JDialog
     {
 	ReaderThread()
 	{
-	    _threadInitialLines = _initialLines;
 	    _threadMaxLines = _maxLines;
 	    _threadMaxSize = _maxSize;
-	    _threadMaxReadLines = _maxReadLines;
+	    _threadInitialLines = _initialLines;
+	    _threadMaxReadSize = _maxReadSize;
+	    _threadPeriod = _period;
 
-	    _play.setEnabled(false);
+	    _playButton.setSelected(true);
+	    _playItem.setSelected(true);
 	    _pause.setEnabled(true);
-	    _stop.setEnabled(true);
 	}
 
 	private void openError(final String message)
@@ -219,7 +225,7 @@ class ShowLogDialog extends JDialog
 			{
 			    try
 			    {
-				wait(_period);
+				wait(_threadPeriod);
 			    }
 			    catch(InterruptedException e)
 			    {
@@ -244,8 +250,8 @@ class ShowLogDialog extends JDialog
 		{
 		    int maxLines;
 		    int maxSize;
-		    int maxReadLines;
-
+		    int maxReadSize;
+	
 		    synchronized(this)
 		    {
 			if(_done || _paused)
@@ -255,14 +261,14 @@ class ShowLogDialog extends JDialog
 
 			maxLines = _threadMaxLines;
 			maxSize = _threadMaxSize;
-			maxReadLines = _threadMaxReadLines;
+			maxReadSize = _threadMaxReadSize;
 		    }
 		    
 		    Ice.StringSeqHolder linesHolder = new Ice.StringSeqHolder();
 
 		    try
 		    {
-			eofEncountered = _p.read(_maxReadSize, linesHolder); 
+			eofEncountered = _p.read(maxReadSize, linesHolder); 
 		    }
 		    catch(IceGrid.FileNotAvailableException e)
 		    {
@@ -321,41 +327,49 @@ class ShowLogDialog extends JDialog
 
 	synchronized void pause()
 	{
-	    assert !_paused;
-	    _paused = true;
-	    notify();
+	    if(!_paused)
+	    {
+		_paused = true;
+		notify();
+	    }
 	}
 
 	synchronized void terminate()
 	{
-	    _done = true;
-	    notify();
+	    if(!_done)
+	    {
+		_done = true;
+		notify();
+	    }
 	}
 
 	synchronized void play()
 	{
-	    assert _paused;
-	    _paused = false;
-	    notify();
+	    if(_paused)
+	    {
+		_paused = false;
+		notify();
+	    }
 	}
 	
-	synchronized void setPrefs(int initialLines, int maxLines, int maxSize, int maxReadLines)
+	synchronized void setPrefs()
 	{
-	    _threadInitialLines = initialLines;
-	    _threadMaxLines = maxLines;
-	    _threadMaxSize = maxSize;
-	    _threadMaxReadLines = maxReadLines;
+	    _threadMaxLines = _maxLines;
+	    _threadMaxSize = _maxSize;
+	    _threadInitialLines = _initialLines;
+	    _threadMaxReadSize = _maxReadSize;
+	    _threadPeriod = _period;
 	}
 
 	private  FileIteratorPrx _p;
 	private boolean _done = false;
 	private boolean _paused = false;
 
-	private int _threadInitialLines;
 	private int _threadMaxLines;
 	private int _threadMaxSize;
-	private int _threadMaxReadLines;
-
+	private int _threadInitialLines;
+	private int _threadMaxReadSize;
+	private int _threadPeriod;
     }
     
     private class MenuBar extends JMenuBar
@@ -365,24 +379,99 @@ class ShowLogDialog extends JDialog
 	    putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.BOTH);
 	    putClientProperty(PlasticLookAndFeel.BORDER_STYLE_KEY, BorderStyle.SEPARATOR);
 
+	    final int MENU_MASK = java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+
 	    //
 	    // File menu
 	    // 
 	    JMenu fileMenu = new JMenu("File");
 	    fileMenu.setMnemonic(java.awt.event.KeyEvent.VK_F);
 	    add(fileMenu);
-	    fileMenu.add(_pause);
-	    fileMenu.add(_play);
-	    fileMenu.add(_stop);
-	    fileMenu.addSeparator();
-	    fileMenu.add(new AbstractAction("Save as...")
-		{
-		    public void actionPerformed(ActionEvent e)
-		    {
-			// todo
-		    }
 
-		});
+	    ButtonGroup bg = new ButtonGroup();
+
+	    _pauseItem = new JRadioButtonMenuItem(_pause);
+	    fileMenu.add(_pauseItem);
+	    bg.add(_pauseItem);
+	    _playItem = new JRadioButtonMenuItem(_play);
+	    fileMenu.add(_playItem);
+	    bg.add(_playItem);
+	    _stopItem = new JRadioButtonMenuItem(_stop);
+	    fileMenu.add(_stopItem);
+	    bg.add(_stopItem);
+	    fileMenu.addSeparator();
+   
+	    Action save = new AbstractAction("Save As...")
+		{
+		    public void actionPerformed(ActionEvent e) 
+		    {
+			JFileChooser fileChooser = _root.getCoordinator().getSaveLogChooser();
+			
+			fileChooser.setSelectedFile(new java.io.File(fileChooser.getCurrentDirectory(),
+								     _factory.getDefaultFilename()));
+			
+			java.io.File file = null;
+
+			while(file == null)
+			{
+			    int result = fileChooser.showSaveDialog(ShowLogDialog.this);
+			    if(result == JFileChooser.APPROVE_OPTION)
+			    {
+				file = fileChooser.getSelectedFile();
+				
+				if(file != null)
+				{
+				    if(!file.exists() && file.getName().indexOf('.') == -1)
+				    {
+					file = new java.io.File(file.getAbsolutePath() + ".log");
+				    }
+
+				    java.io.OutputStreamWriter os = null;
+				    
+				    try
+				    {
+					os = new java.io.OutputStreamWriter(new java.io.FileOutputStream(file));
+					String txt = _textArea.getText();
+					if(txt == null)
+					{
+					    txt = "";
+					}
+					os.write(txt, 0, txt.length());
+				    }
+				    catch(java.io.IOException io)
+				    {
+					JOptionPane.showMessageDialog(
+					    ShowLogDialog.this,
+					    io.toString(),
+					    "Cannot write file",
+					    JOptionPane.ERROR_MESSAGE);
+				    }
+				    finally
+				    {
+					if(os != null)
+					{
+					    try
+					    {
+						os.close();
+					    }
+					    catch(java.io.IOException io)
+					    {
+					    }
+					}
+				    }
+				}
+			    }
+			    else
+			    {
+				break; // while
+			    }
+			}
+		    }
+		};
+	    save.putValue(Action.ACCELERATOR_KEY, 
+			  KeyStroke.getKeyStroke(KeyEvent.VK_S, MENU_MASK));
+	    save.putValue(Action.SHORT_DESCRIPTION, "Save As...");
+	    fileMenu.add(save);
 	    fileMenu.addSeparator();
 
 	    fileMenu.add(new AbstractAction("Close")
@@ -395,30 +484,40 @@ class ShowLogDialog extends JDialog
 	    JMenu editMenu = new JMenu("Edit");
 	    editMenu.setMnemonic(java.awt.event.KeyEvent.VK_E);
 	    add(editMenu);
-	    editMenu.add(new AbstractAction("Copy")
+
+	    Action copy = new AbstractAction("Copy")
 		{
 		    public void actionPerformed(ActionEvent e)
 		    {
 			_textArea.copy();
 		    }
+		    
+		};
+	    copy.putValue(Action.ACCELERATOR_KEY, 
+			  KeyStroke.getKeyStroke(KeyEvent.VK_C, MENU_MASK));
+	    copy.putValue(Action.SHORT_DESCRIPTION, "Copy");
+	    editMenu.add(copy);
 
-		});
 	    editMenu.addSeparator();
-	    editMenu.add(new AbstractAction("Select all")
+	    Action selectAll = new AbstractAction("Select All")
 		{
 		    public void actionPerformed(ActionEvent e)
 		    {
 			_textArea.grabFocus();
 			_textArea.selectAll();
 		    }
+		};
+	    selectAll.putValue(Action.ACCELERATOR_KEY, 
+			  KeyStroke.getKeyStroke(KeyEvent.VK_A, MENU_MASK));
+	    selectAll.putValue(Action.SHORT_DESCRIPTION, "Select All");
 
-		});
+	    editMenu.add(selectAll);
 	    editMenu.addSeparator();
-	    editMenu.add(new AbstractAction("Preferences")
+	    editMenu.add(new AbstractAction("Preferences...")
 		{
 		    public void actionPerformed(ActionEvent e)
 		    {
-			// todo
+			new ShowLogPrefsDialog(ShowLogDialog.this);
 		    }
 		});	  
 	}
@@ -433,33 +532,37 @@ class ShowLogDialog extends JDialog
 	    setFloatable(false);
 	    putClientProperty("JToolBar.isRollover", Boolean.TRUE);
 
-	    JButton button = new JButton(_pause);
-	    button.setText(null);
-	    button.setIcon(Utils.getIcon("/icons/16x16/pause.png"));
-	    add(button);
-	    button = new JButton(_play);
-	    button.setText(null);
-	    button.setIcon(Utils.getIcon("/icons/16x16/start.png"));
-	    add(button);
-	    button = new JButton(_stop);
-	    button.setText(null);
-	    button.setIcon(Utils.getIcon("/icons/16x16/stop.png"));
-	    add(button);
-	    
+	    _pauseButton = new JToggleButton(_pause);
+	    _pauseButton.setText(null);
+	    _pauseButton.setIcon(Utils.getIcon("/icons/16x16/pause.png"));
+	    add(_pauseButton);
+	    _playButton = new JToggleButton(_play);
+	    _playButton.setText(null);
+	    _playButton.setIcon(Utils.getIcon("/icons/16x16/start.png"));
+	    add(_playButton);
+	    _stopButton = new JToggleButton(_stop);
+	    _stopButton.setText(null);
+	    _stopButton.setIcon(Utils.getIcon("/icons/16x16/stop.png"));
+	    add(_stopButton);
+
+	    ButtonGroup bg = new ButtonGroup();
+	    bg.add(_pauseButton);
+	    bg.add(_playButton);
+	    bg.add(_stopButton);
 	}
     }
 
 
     ShowLogDialog(Root root, FileIteratorFactory factory, 
-		  int period, int initialLines, int maxLines, int maxSize, int maxReadLines)
+		  int maxLines, int maxSize, int initialLines, int maxReadSize, int period)
     {
 	super(root.getCoordinator().getMainFrame(), factory.getTitle() + " - IceGrid Admin", false);
 	
-	_period = period;
-	_initialLines = initialLines;
 	_maxLines = maxLines;
 	_maxSize = maxSize;
-	_maxReadLines = maxReadLines;
+	_initialLines = initialLines;
+	_maxReadSize = maxReadSize;
+	_period = period;
 	_factory = factory;
 	_root = root;
 
@@ -479,8 +582,6 @@ class ShowLogDialog extends JDialog
 		    pause();
 		}
 	    };
-	_pause.setEnabled(false);
-
 	
 	_play = new AbstractAction("Play")
 	    {
@@ -488,9 +589,7 @@ class ShowLogDialog extends JDialog
 		{
 		    play();
 		}
-	    };
-	_play.setEnabled(false);
-	    
+	    };	    
 	
 	_stop = new AbstractAction("Stop")
 	    {
@@ -499,7 +598,6 @@ class ShowLogDialog extends JDialog
 		    stopReading();
 		}
 	    };
-	_stop.setEnabled(false);
 	
 	setJMenuBar(new MenuBar());
 	getContentPane().add(new ToolBar(),
@@ -521,8 +619,8 @@ class ShowLogDialog extends JDialog
     void pause()
     {
 	_thread.pause();
-	_pause.setEnabled(false);
-	_play.setEnabled(true);
+	_pauseItem.setSelected(true);
+	_pauseButton.setSelected(true);
     }
 
     void stopReading()
@@ -540,8 +638,8 @@ class ShowLogDialog extends JDialog
 	    }
 	    
 	    _thread = null;
-	    _stop.setEnabled(false);
-	    _play.setEnabled(true);
+	    _stopItem.setSelected(true);
+	    _stopButton.setSelected(true);
 	    _pause.setEnabled(false);
 	}
     }
@@ -551,15 +649,85 @@ class ShowLogDialog extends JDialog
 	if(_thread != null)
 	{
 	    _thread.play();
-	    _play.setEnabled(false);
+	    _playItem.setSelected(true);
+	    _playButton.setSelected(true);
 	    _pause.setEnabled(true);
-	    _stop.setEnabled(true);
 	}
 	else
 	{
 	    _thread = new ReaderThread();
 	    _thread.start();
 	}
+    }
+
+    int getMaxLines()
+    {
+	return _maxLines;
+    }
+
+    int getMaxSize()
+    {
+	return _maxSize;
+    }
+
+    int getInitialLines()
+    {
+	return _initialLines;
+    }
+    
+    int getMaxReadSize()
+    {
+	return _maxReadSize;
+    }
+
+    int getPeriod()
+    {
+	return _period;
+    }
+
+    void setPrefs(int maxLines, int maxSize, int initialLines, int maxReadSize, int period)
+    {
+	if(maxLines < 50)
+	{
+	    maxLines = 50;
+	}
+	_maxLines = maxLines;
+	
+	if(maxSize < 1000)
+	{
+	    maxSize = 1000;
+	}
+	_maxSize = maxSize;
+	
+	_initialLines = initialLines;
+	
+	if(maxReadSize < 100)
+	{
+	    maxReadSize = 100;
+	}
+	else if(maxReadSize + 512 > _root.getMessageSizeMax())
+	{
+	    maxReadSize =  _root.getMessageSizeMax() - 512;
+	}
+	_maxReadSize = maxReadSize;
+	
+	if(period < 200)
+	{
+	    period = 200;
+	}
+	else if(period > 5000)
+	{
+	    period = 5000;
+	}
+	_period = period;
+	
+	if(_thread != null)
+	{
+	    _thread.setPrefs();
+	}
+	
+	_root.setLogPrefs(_maxLines, _maxSize, _initialLines, _maxReadSize, _period);
+
     }
 
     void close(boolean notifyRoot)
@@ -575,17 +743,24 @@ class ShowLogDialog extends JDialog
 
     private final Root _root;
     private final FileIteratorFactory _factory;
-    private final int _maxReadSize = 800000; // TODO, compute from MessageSizeMax or remove
 
-    private int _period;
-    private int _initialLines;
     private int _maxLines;
     private int _maxSize;
-    private int _maxReadLines;
+    private int _initialLines;
+    private int _maxReadSize;
+    private int _period;
 
     private Action _play;
     private Action _pause;
     private Action _stop;
+
+    private JRadioButtonMenuItem _playItem;
+    private JRadioButtonMenuItem _pauseItem;
+    private JRadioButtonMenuItem _stopItem;
+
+    private JToggleButton _playButton;
+    private JToggleButton _pauseButton;
+    private JToggleButton _stopButton;
 
     private FIFOTextArea _textArea = new FIFOTextArea(20, 45);
     private ReaderThread _thread;

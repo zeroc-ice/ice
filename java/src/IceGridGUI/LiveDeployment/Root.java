@@ -37,7 +37,8 @@ public class Root extends ListArrayTreeNode
 	_coordinator = coordinator;
 	_childrenArray[0] = _slaves;
 	_childrenArray[1] = _nodes;
-	
+	_messageSizeMax = Ice.Util.getInstance(_coordinator.getCommunicator()).messageSizeMax();
+
 	_tree = new JTree(this, true);
 	_treeModel = (DefaultTreeModel)_tree.getModel();
 	_objectDialog = new ObjectDialog(this);
@@ -866,6 +867,12 @@ public class Root extends ListArrayTreeNode
 		{
 		    return "Registry " + _label + " " + (stdout ? "Stdout" : "Stderr");
 		}
+		
+		public String getDefaultFilename()
+		{
+		    return _replicaName + (stdout ? ".out" : ".err");
+		}
+
 	    });
     } 
 
@@ -884,8 +891,7 @@ public class Root extends ListArrayTreeNode
 	if(d == null)
 	{
 	    d = new ShowLogDialog(this, factory, 
-				  _logPeriod, _logInitialLines, 
-				  _logMaxLines, _logMaxSize, _logMaxReadLines);
+				  _logMaxLines, _logMaxSize, _logInitialLines, _logMaxReadSize, _logPeriod);
 	    
 	    _showLogDialogMap.put(factory.getTitle(), d);
 	}
@@ -911,25 +917,47 @@ public class Root extends ListArrayTreeNode
 	_showLogDialogMap.clear();
     }
 
+    public int getMessageSizeMax()
+    {
+	return _messageSizeMax;
+    }
+
+
+    public void setLogPrefs(int maxLines, int maxSize, int initialLines, int maxReadSize, int period)
+    {
+	_logMaxLines = maxLines;
+	_logMaxSize = maxSize;
+	_logInitialLines = initialLines;
+	_logMaxReadSize = maxReadSize;
+	_logPeriod = period;
+
+	storeLogPrefs();
+    }
+
     
     private void loadLogPrefs()
     {
 	Preferences logPrefs = _coordinator.getPrefs().node("Log");
-	_logPeriod = logPrefs.getInt("period", 300);
-	_logInitialLines = logPrefs.getInt("initialLines", 10);
 	_logMaxLines = logPrefs.getInt("maxLines", 500);
 	_logMaxSize = logPrefs.getInt("maxSize", 20000);
-	_logMaxReadLines = logPrefs.getInt("maxReadLines", 50);
+	_logInitialLines = logPrefs.getInt("initialLines", 10);
+	_logMaxReadSize = logPrefs.getInt("maxReadSize", 10000);
+	_logPeriod = logPrefs.getInt("period", 300);
+
+	if(_logMaxReadSize + 512 > _messageSizeMax)
+	{
+	    _logMaxReadSize = _messageSizeMax - 512;
+	}
     }
 
     private void storeLogPrefs()
     {
 	Preferences logPrefs = _coordinator.getPrefs().node("Log");
-	logPrefs.putInt("period", _logPeriod);
-	logPrefs.putInt("initialLines", _logInitialLines);
 	logPrefs.putInt("maxLines", _logMaxLines);
 	logPrefs.putInt("maxSize", _logMaxSize);
-	logPrefs.putInt("maxReadLines", _logMaxReadLines);
+	logPrefs.putInt("initialLines", _logInitialLines);
+	logPrefs.putInt("maxReadSize", _logMaxReadSize);
+	logPrefs.putInt("period", _logPeriod);
     }
 
 
@@ -1000,13 +1028,16 @@ public class Root extends ListArrayTreeNode
     //
     // ShowLogDialog
     //
+    final int _messageSizeMax;
+
     java.util.Map _showLogDialogMap = new java.util.HashMap();
-    int _logPeriod;
-    int _logInitialLines;
+   
     int _logMaxLines;
     int _logMaxSize;
-    int _logMaxReadLines;
-
+    int _logInitialLines;
+    int _logMaxReadSize;
+    int _logPeriod;
+  
     static private RegistryEditor _editor;
     static private JPopupMenu _popup;
     static private DefaultTreeCellRenderer _cellRenderer;

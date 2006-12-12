@@ -192,6 +192,11 @@ class Server extends ListArrayTreeNode
 		{
 		    return "Server " + _id + " " + (stdout ? "Stdout" : "Stderr");
 		}
+
+		public String getDefaultFilename()
+		{
+		    return _id + (stdout ? ".out" : ".err");
+		}
 	    });
     } 
 	
