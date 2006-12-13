@@ -1323,8 +1323,9 @@ Parser::dumpFile(const string& reader, const list<string>& origArgs)
 
     try
     {
-	string id = *(args.begin());
-	string filename = *(++args.begin());
+	vector<string>::const_iterator p = args.begin();
+	string id = *p++;
+	string filename = *p++;
 
 	cout << reader << " `" << id << "' " << filename << ": " << flush;
 	Ice::StringSeq lines;

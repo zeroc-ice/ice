@@ -122,7 +122,8 @@ public:
 		assert(_nextAction != None);
 		
 		action = _nextAction;
-		registry = InternalRegistryPrx::uncheckedCast(_registry->ice_timeout(timeout.toMilliSeconds()));
+		registry = InternalRegistryPrx::uncheckedCast(
+		    _registry->ice_timeout(static_cast<int>(timeout.toMilliSeconds())));
 		_nextAction = None;
 		_state = InProgress;
 		notifyAll();
