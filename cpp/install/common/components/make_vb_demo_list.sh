@@ -6,7 +6,7 @@ cat >$1 <<\_CMTFILE
 # To create an explicit listing for the demos run the following command
 # in the demo directory of the IceVB distribution:
 # find . -name "*" -type f | sed -e '/generated\|obj\|.exe$\|.dll$\|.depend\|\
-#      Makefile\|.pdb$\|\*.bat$\|\.dummy\|[^D].vbproj.*$/d' # | \
+#      Makefile\|.pdb$\|\*.bat$\|\.dummy/d' # | \
 #      sed -e 's/^\.\///' \
 # >> file
 # find . -name "*" -type d | grep \/db |  sed -e 's/^\.\///' | sed -e '/^Freeze\/backup/d'  >> file
@@ -33,5 +33,5 @@ cat >$1 <<\_CMTFILE
 _CMTFILE
 
 
-find . -name "*" -type f | sed -e '/generated\|obj\|.exe$\|.dll$\|.depend\|Makefile\|.pdb$\|*.bat$\|\.dummy\|[^D].vbproj.*$/d' | sed -e 's/^\.\///' >> $1
+find . -name "*" -type f | sed -e '/generated\|obj\|.exe$\|.dll$\|.depend\|Makefile\|.pdb$\|*.bat$\|\.dummy/d' | sed -e 's/^\.\///' >> $1
 find . -name "*" -type d | grep \/db |  sed -e 's/^\.\///' | sed -e '/^Freeze\/backup/d'  >> $1
