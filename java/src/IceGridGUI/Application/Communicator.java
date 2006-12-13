@@ -575,6 +575,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 		new ServiceDescriptor(new java.util.LinkedList(),
 				      new PropertySetDescriptor(new String[0], new java.util.LinkedList()),
 				      new java.util.LinkedList(),
+				      new LogDescriptor[0],
 				      "",
 				      "NewService",
 				      "");
