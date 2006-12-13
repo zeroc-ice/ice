@@ -840,7 +840,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 		    (ServiceInstanceDescriptor)service.getDescriptor();
 		if(d.template.equals(template))
 		{
-		    _services.removeChild(service);
+		    p.remove();
 		    _services.removeDescriptor(d);
 		    getEnclosingEditable().markModified();
 		}
