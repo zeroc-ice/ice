@@ -447,7 +447,7 @@ public class Coordinator
 	    _serverMenu.add(_liveActionsForMenu.get(
 				IceGridGUI.LiveDeployment.TreeNode.WRITE_MESSAGE));
 	    _serverMenu.addSeparator();
-	    _signalMenu = new JMenu("Send signal");
+	    _signalMenu = new JMenu("Send Signal");
 	    _serverMenu.add(_signalMenu);
 	    _signalMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.SIGHUP));
 	    _signalMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.SIGINT));
@@ -1649,9 +1649,6 @@ public class Coordinator
 	
 	if(args.value.length > 0)
 	{
-	    //
-	    // TODO: use proper logging
-	    //
 	    System.err.println("WARNING: extra command-line arguments");
 	    for(int i = 0; i < args.value.length; ++i)
 	    {
@@ -1731,7 +1728,7 @@ public class Coordinator
 	    };
 
 	_newApplicationWithDefaultTemplates = 
-	    new AbstractAction("Application with default templates from registry")
+	    new AbstractAction("Application with Default Templates from Registry")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1748,7 +1745,7 @@ public class Coordinator
 		}
 	    };
 	_login.putValue(Action.SHORT_DESCRIPTION, 
-			"Log into an IceGrid registry");
+			"Log into an IceGrid Registry");
 
 	_logout = new AbstractAction("Logout")
 	    {
@@ -1760,7 +1757,7 @@ public class Coordinator
 	_logout.putValue(Action.SHORT_DESCRIPTION, "Logout");
 	_logout.setEnabled(false);
 
-	_acquireExclusiveWriteAccess = new AbstractAction("Acquire exclusive write access")
+	_acquireExclusiveWriteAccess = new AbstractAction("Acquire Exclusive Write Access")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1781,7 +1778,7 @@ public class Coordinator
 	_acquireExclusiveWriteAccess.setEnabled(false);
 
 	
-	_releaseExclusiveWriteAccess = new AbstractAction("Release exclusive write access")
+	_releaseExclusiveWriteAccess = new AbstractAction("Release Exclusive Write Access")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1794,7 +1791,7 @@ public class Coordinator
 					      "Release exclusive write access on the registry");
 	_releaseExclusiveWriteAccess.setEnabled(false);
 
-	_openApplicationFromFile = new AbstractAction("Application from file")
+	_openApplicationFromFile = new AbstractAction("Application from File")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1820,7 +1817,7 @@ public class Coordinator
 	_openApplicationFromFile.putValue(Action.SHORT_DESCRIPTION, "Open application from file");
 	_openApplicationFromFile.setEnabled(true);
 	
-	_openApplicationFromRegistry = new AbstractAction("Application from registry")
+	_openApplicationFromRegistry = new AbstractAction("Application from Registry")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1856,7 +1853,7 @@ public class Coordinator
 	_openApplicationFromRegistry.putValue(Action.SHORT_DESCRIPTION, "Open application from registry");
 	_openApplicationFromRegistry.setEnabled(false);
 
-	_closeApplication = new AbstractAction("Close application")
+	_closeApplication = new AbstractAction("Close Application")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1869,8 +1866,17 @@ public class Coordinator
 		}
 	    };
 	_closeApplication.putValue(Action.SHORT_DESCRIPTION, "Close application");
-	_closeApplication.putValue(Action.ACCELERATOR_KEY, 
-				   KeyStroke.getKeyStroke(KeyEvent.VK_F4, MENU_MASK));
+	
+	if(System.getProperty("os.name").startsWith("Mac OS"))
+	{
+	    _closeApplication.putValue(Action.ACCELERATOR_KEY, 
+				       KeyStroke.getKeyStroke("ctrl w"));
+	}
+	else
+	{
+	    _closeApplication.putValue(Action.ACCELERATOR_KEY, 
+				       KeyStroke.getKeyStroke(KeyEvent.VK_F4, MENU_MASK));
+	}
 	_closeApplication.setEnabled(false);
 	
 
@@ -1887,7 +1893,7 @@ public class Coordinator
 	_save.putValue(Action.SHORT_DESCRIPTION, "Save");
 
 	
-	_saveToRegistry = new AbstractAction("Save to registry")
+	_saveToRegistry = new AbstractAction("Save to Registry")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1898,7 +1904,7 @@ public class Coordinator
 	_saveToRegistry.putValue(Action.SHORT_DESCRIPTION, "Save to registry");
 
 	
-	_saveToFile = new AbstractAction("Save to file")
+	_saveToFile = new AbstractAction("Save to File")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1909,7 +1915,7 @@ public class Coordinator
 	_saveToFile.putValue(Action.SHORT_DESCRIPTION, "Save to file");
 
 	
-	_discardUpdates = new AbstractAction("Discard updates")
+	_discardUpdates = new AbstractAction("Discard Updates")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1931,7 +1937,7 @@ public class Coordinator
 	_exit.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("alt F4"));
 
 
-	_back = new AbstractAction("Go back to the previous node")
+	_back = new AbstractAction("Go Back to the Previous Node")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1941,7 +1947,7 @@ public class Coordinator
 	_back.setEnabled(false);
 	_back.putValue(Action.SHORT_DESCRIPTION, "Go back to the previous node");
 
-	_forward =  new AbstractAction("Go to the next node")
+	_forward =  new AbstractAction("Go to the Next Node")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1949,7 +1955,7 @@ public class Coordinator
 		}
 	    };
 	_forward.setEnabled(false);
-	_forward.putValue(Action.SHORT_DESCRIPTION, "Go to the next node");
+	_forward.putValue(Action.SHORT_DESCRIPTION, "Go to the mext node");
 
 	_helpContents = new AbstractAction("Contents")
 	    {
@@ -1967,7 +1973,7 @@ public class Coordinator
 		}
 	    };
 	
-	_patchApplication = new AbstractAction("Patch distribution")
+	_patchApplication = new AbstractAction("Patch Distribution")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -2019,8 +2025,8 @@ public class Coordinator
 			 KeyStroke.getKeyStroke("DELETE"));
 	_delete.putValue(Action.SHORT_DESCRIPTION, "Delete");
 
-	_moveUp = new ActionWrapper("Move up");
-	_moveDown = new ActionWrapper("Move down");
+	_moveUp = new ActionWrapper("Move Up");
+	_moveDown = new ActionWrapper("Move Down");
 
 	_showVarsMenuItem = new
 	    JCheckBoxMenuItem(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.SHOW_VARS));

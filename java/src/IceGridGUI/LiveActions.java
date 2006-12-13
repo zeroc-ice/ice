@@ -120,7 +120,7 @@ public class LiveActions
 	_array[TreeNode.SIGUSR2] = new SendSignal("SIGUSR2");
 	_array[TreeNode.SIGTERM] = new SendSignal("SIGTERM");
 
-	_array[TreeNode.WRITE_MESSAGE] = new AbstractAction("Write message")
+	_array[TreeNode.WRITE_MESSAGE] = new AbstractAction("Write Message")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -131,7 +131,7 @@ public class LiveActions
 					       "Write message to stdout or stderr");
 	
 
-	_array[TreeNode.RETRIEVE_STDOUT] = new AbstractAction("Retrieve stdout")
+	_array[TreeNode.RETRIEVE_STDOUT] = new AbstractAction("Retrieve Stdout")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -141,7 +141,7 @@ public class LiveActions
 	_array[TreeNode.RETRIEVE_STDOUT].putValue(Action.SHORT_DESCRIPTION, 
 					       "Retrieve stdout");
 
-	_array[TreeNode.RETRIEVE_STDERR] = new AbstractAction("Retrieve stderr")
+	_array[TreeNode.RETRIEVE_STDERR] = new AbstractAction("Retrieve Stderr")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -169,7 +169,7 @@ public class LiveActions
 	    };
 	
 	_array[TreeNode.PATCH_SERVER] = 
-	    new AbstractAction("Patch distribution")
+	    new AbstractAction("Patch Distribution")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -178,7 +178,7 @@ public class LiveActions
 	    };
 
 	_array[TreeNode.ADD_OBJECT] = 
-	    new AbstractAction("Add well-known object")
+	    new AbstractAction("Add Well-known Object")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{

@@ -56,7 +56,7 @@ public class ApplicationActions
 	final int MENU_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
 	_array[TreeNode.NEW_ADAPTER] = new AbstractAction(
-	    popup ? "New adapter" : "Adapter")
+	    popup ? "New Adapter" : "Adapter")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -65,7 +65,7 @@ public class ApplicationActions
 	    };
 
 	_array[TreeNode.NEW_DBENV] = new AbstractAction(
-	    popup ? "New database environment" : "Database environment")
+	    popup ? "New Database Environment" : "Database Environment")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -74,7 +74,7 @@ public class ApplicationActions
 	    };
 	
 	_array[TreeNode.NEW_NODE] = new AbstractAction(
-	    popup ? "New node" : "Node")
+	    popup ? "New Node" : "Node")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -83,7 +83,7 @@ public class ApplicationActions
 	    };
 
 	_array[TreeNode.NEW_PROPERTY_SET] = new AbstractAction(
-	    popup ? "New property set" : "Property set")
+	    popup ? "New Property Set" : "Property Set")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -92,7 +92,7 @@ public class ApplicationActions
 	    };
 
 	_array[TreeNode.NEW_REPLICA_GROUP] = new AbstractAction(
-	    popup ? "New replica group" : "Replica group" )
+	    popup ? "New Replica Group" : "Replica Group" )
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -101,7 +101,7 @@ public class ApplicationActions
 	    };
 
 	_array[TreeNode.NEW_SERVER] = new AbstractAction(
-	    popup ? "New server" : "Server")
+	    popup ? "New Server" : "Server")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -110,7 +110,7 @@ public class ApplicationActions
 	    };
 
 	_array[TreeNode.NEW_SERVER_ICEBOX] = new AbstractAction(
-	    popup ? "New IceBox server" : "IceBox server")
+	    popup ? "New IceBox Server" : "IceBox Server")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -119,7 +119,7 @@ public class ApplicationActions
 	    };
 
 	_array[TreeNode.NEW_SERVER_FROM_TEMPLATE] = new AbstractAction(
-	    popup ? "New server from template" : "Server from template")
+	    popup ? "New Server from Template" : "Server from Template")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -129,7 +129,7 @@ public class ApplicationActions
 
 
 	_array[TreeNode.NEW_SERVICE] = new AbstractAction(
-	    popup ? "New service" : "Service")
+	    popup ? "New Service" : "Service")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -138,7 +138,7 @@ public class ApplicationActions
 	    };
 
 	_array[TreeNode.NEW_SERVICE_FROM_TEMPLATE] = new AbstractAction(
-	    popup ? "New service from template" : "Service from template")
+	    popup ? "New Service from Template" : "Service from Template")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -147,7 +147,7 @@ public class ApplicationActions
 	    };
 
 	_array[TreeNode.NEW_TEMPLATE_SERVER] = new AbstractAction(
-	    popup ? "New Server template" : "Server template")
+	    popup ? "New Server Template" : "Server Template")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -156,7 +156,7 @@ public class ApplicationActions
 	    };
 	
 	_array[TreeNode.NEW_TEMPLATE_SERVER_ICEBOX] = new AbstractAction(
-	    popup ? "New IceBox server template" : "IceBox server template")
+	    popup ? "New IceBox Server Template" : "IceBox Server Template")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -166,7 +166,7 @@ public class ApplicationActions
 
 
 	_array[TreeNode.NEW_TEMPLATE_SERVICE] = new AbstractAction(
-	    popup ? "New service template" : "Service template")
+	    popup ? "New Service Template" : "Service Template")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -202,7 +202,7 @@ public class ApplicationActions
 	    };
 
 	_array[TreeNode.SHOW_VARS] = new 
-	    AbstractAction("Show variables")
+	    AbstractAction("Show Variables")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -215,7 +215,7 @@ public class ApplicationActions
 
 
 	_array[TreeNode.SUBSTITUTE_VARS] = new 
-	    AbstractAction("Substitute variables")
+	    AbstractAction("Substitute Variables")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -228,7 +228,7 @@ public class ApplicationActions
 	    "Substitute variables and parameters with their values in the Properties pane");
 
 	
-	_array[TreeNode.MOVE_UP] = new AbstractAction("Move up")
+	_array[TreeNode.MOVE_UP] = new AbstractAction("Move Up")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -236,7 +236,7 @@ public class ApplicationActions
 		}
 	    };
 			   
-	_array[TreeNode.MOVE_DOWN] = new AbstractAction("Move down")
+	_array[TreeNode.MOVE_DOWN] = new AbstractAction("Move Down")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{

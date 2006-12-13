@@ -369,7 +369,7 @@ class Server extends ListArrayTreeNode
 	    _popup.add(la.get(RETRIEVE_STDERR));
 	    _popup.addSeparator();
 
-	    JMenu signalMenu = new JMenu("Send signal");
+	    JMenu signalMenu = new JMenu("Send Signal");
 	    _popup.add(signalMenu);
 	    
 	    signalMenu.add(la.get(SIGHUP));
