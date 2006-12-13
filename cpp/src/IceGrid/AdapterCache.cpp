@@ -197,21 +197,15 @@ ServerAdapterEntry::ServerAdapterEntry(AdapterCache& cache,
 {
 }
 
-vector<pair<string, AdapterPrx> >
-ServerAdapterEntry::getProxies(int& nReplicas, bool& replicaGroup)
+void
+ServerAdapterEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& nReplicas, bool& replicaGroup)
 {
-    vector<pair<string, AdapterPrx> > adapters;
     nReplicas = 1;
     replicaGroup = false;
-    
-    // 
-    // COMPILEFIX: We need to use a temporary here to work around a
-    // compiler bug with xlC on AIX which causes a segfault if
-    // getProxy raises an exception.
-    //
-    AdapterPrx adpt = getProxy(); 
-    adapters.push_back(make_pair(_id, adpt));
-    return adapters;
+    LocatorAdapterInfo info;
+    info.id = _id;
+    info.proxy = _server->getAdapter(info.activationTimeout, info.deactivationTimeout, _id, true);
+    adapters.push_back(info);
 }
 
 float
@@ -248,7 +242,7 @@ ServerAdapterEntry::getAdapterInfo() const
     info.replicaGroupId = _replicaGroupId;
     try
     {
-	info.proxy = getProxy()->getDirectProxy();
+	info.proxy = _server->getAdapter(_id, true)->getDirectProxy();
     }
     catch(const Ice::Exception&)
     {
@@ -348,8 +342,8 @@ ReplicaGroupEntry::update(const LoadBalancingPolicyPtr& policy)
     }
 }
 
-vector<pair<string, AdapterPrx> >
-ReplicaGroupEntry::getProxies(int& nReplicas, bool& replicaGroup)
+void
+ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& nReplicas, bool& replicaGroup)
 {
     vector<ServerAdapterEntryPtr> replicas;
     bool adaptive = false;
@@ -357,13 +351,13 @@ ReplicaGroupEntry::getProxies(int& nReplicas, bool& replicaGroup)
     {
 	Lock sync(*this);
 	replicaGroup = true;
-	
+	nReplicas = _loadBalancingNReplicas > 0 ? _loadBalancingNReplicas : static_cast<int>(_replicas.size());
+
 	if(_replicas.empty())
 	{
-	    return vector<pair<string, AdapterPrx> >();
+	    return;
 	}
 
-	nReplicas = _loadBalancingNReplicas > 0 ? _loadBalancingNReplicas : static_cast<int>(_replicas.size());
 	replicas.reserve(_replicas.size());
 	if(RoundRobinLoadBalancingPolicyPtr::dynamicCast(_loadBalancing))
 	{
@@ -415,23 +409,15 @@ ReplicaGroupEntry::getProxies(int& nReplicas, bool& replicaGroup)
     // might not exist anymore at this time or the node might not be
     // reachable.
     //
-    vector<pair<string, AdapterPrx> > adapters;
     for(vector<ServerAdapterEntryPtr>::const_iterator p = replicas.begin(); p != replicas.end(); ++p)
     {
 	try
 	{
-	    // 
-	    // COMPILEFIX: We need to use a temporary here to work around a
-	    // compiler bug with xlC on AIX which causes a segfault if
-	    // getProxy raises an exception.
-	    //
-	    AdapterPrx adpt = (*p)->getProxy(_id);
-	    adapters.push_back(make_pair((*p)->getId(), adpt));
+	    int dummy;
+	    bool dummy2;
+	    (*p)->getLocatorAdapterInfo(adapters, dummy, dummy2);
 	}
 	catch(const AdapterNotExistException&)
-	{
-	}
-	catch(const Ice::InvalidReplicaGroupIdException&)
 	{
 	}
 	catch(const NodeUnreachableException&)
@@ -441,8 +427,6 @@ ReplicaGroupEntry::getProxies(int& nReplicas, bool& replicaGroup)
 	{
 	}
     }
-
-    return adapters;
 }
 
 float

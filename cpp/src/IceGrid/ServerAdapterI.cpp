@@ -38,7 +38,6 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
 {
     {
 	Lock sync(*this);
-	int timeout;
 	if(_proxy)
 	{
 	    //
@@ -53,7 +52,7 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
 	    // Nothing else waits for this adapter so we must make sure that this 
 	    // adapter if still activatable.
 	    //
-	    if(!_server->isAdapterActivatable(_id, timeout))
+	    if(!_server->isAdapterActivatable(_id))
 	    {
 		cb->ice_response(0);
 		return;
@@ -114,7 +113,7 @@ ServerAdapterI::getDirectProxy(const Ice::Current& current) const
     else
     {
 	AdapterNotActiveException ex;
-	ex.activatable = _server->isAdapterActivatable(_id, ex.timeout);
+	ex.activatable = _server->isAdapterActivatable(_id);
 	throw ex;
     }
 }

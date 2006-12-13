@@ -784,7 +784,7 @@ ServerI::read(const string& filename, Ice::Long pos, int size, Ice::Long& newPos
 }
 
 bool
-ServerI::isAdapterActivatable(const string& id, int& timeout) const
+ServerI::isAdapterActivatable(const string& id) const
 {
     Lock sync(*this);
     if(!_info.descriptor || _activation == Disabled)
@@ -804,7 +804,6 @@ ServerI::isAdapterActivatable(const string& id, int& timeout) const
 	{
 	    return false; // The adapter was already activated once.
 	}
-	timeout = _activationTimeout;
 	return true;
     }
     else if(_state < Deactivating)
@@ -813,7 +812,6 @@ ServerI::isAdapterActivatable(const string& id, int& timeout) const
     }
     else if(_state < Destroying)
     {
-	timeout = (_deactivationTimeout + _activationTimeout);
 	return true; // The server is being deactivated.
     }
     else

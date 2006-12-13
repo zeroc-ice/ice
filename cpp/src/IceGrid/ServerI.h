@@ -86,7 +86,7 @@ public:
     virtual Ice::Long getOffsetFromEnd(const std::string&, int, const Ice::Current&) const;
     virtual bool read(const std::string&, Ice::Long, int, Ice::Long&, Ice::StringSeq&, const Ice::Current&) const;
 
-    bool isAdapterActivatable(const std::string&, int&) const;
+    bool isAdapterActivatable(const std::string&) const;
     const std::string& getId() const;
     DistributionDescriptor getDistribution() const;
 

@@ -36,9 +36,6 @@ exception AdapterNotActiveException
 {
     /** True if the adapter can be activated on demand. */
     bool activatable;
-    
-    /** How long to wait for the adapter to become active. */
-    int timeout;
 };
 
 interface Adapter

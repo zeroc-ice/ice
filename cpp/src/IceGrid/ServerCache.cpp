@@ -410,6 +410,13 @@ ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& 
 AdapterPrx
 ServerEntry::getAdapter(const string& id, bool upToDate)
 {
+    int activationTimeout, deactivationTimeout;
+    return getAdapter(activationTimeout, deactivationTimeout, id, upToDate);
+}
+
+AdapterPrx
+ServerEntry::getAdapter(int& activationTimeout, int& deactivationTimeout, const string& id, bool upToDate)
+{
     {
 	Lock sync(*this);
 	if(_loaded.get() || _proxy && _synchronizing && !upToDate) // Synced or if not up to date is fine
@@ -418,6 +425,8 @@ ServerEntry::getAdapter(const string& id, bool upToDate)
 	    if(p != _adapters.end())
 	    {
 		assert(p->second);
+		activationTimeout = _activationTimeout;
+		deactivationTimeout = _deactivationTimeout;
 		return p->second;
 	    }
 	    else
@@ -443,11 +452,13 @@ ServerEntry::getAdapter(const string& id, bool upToDate)
 		AdapterPrxDict::const_iterator p = _adapters.find(id);
 		if(p != _adapters.end())
 		{
+		    activationTimeout = _activationTimeout;
+		    deactivationTimeout = _deactivationTimeout;
 		    return p->second;
 		}
 		else
 		{
-		    throw AdapterNotExistException(id);		    
+		    throw AdapterNotExistException(id);
 		}
 	    }
 	    else if(_load.get())

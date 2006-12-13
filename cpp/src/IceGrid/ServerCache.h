@@ -50,6 +50,7 @@ public:
     ServerPrx getProxy(int&, int&, std::string&, bool = true);
     ServerPrx getProxy(bool = true);
     AdapterPrx getAdapter(const std::string&, bool);
+    AdapterPrx getAdapter(int&, int&, const std::string&, bool);
     float getLoad(LoadSample) const;
 
     bool canRemove();

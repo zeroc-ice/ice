@@ -26,7 +26,7 @@ class AMI_Adapter_getDirectProxyI : public AMI_Adapter_getDirectProxy
 {
 public:
 
-    AMI_Adapter_getDirectProxyI(const LocatorIPtr& locator, const string& id, const AdapterPrx& adapter) : 
+    AMI_Adapter_getDirectProxyI(const LocatorIPtr& locator, const string& id, const LocatorAdapterInfo& adapter) : 
 	_locator(locator), _id(id), _adapter(adapter)
     {
     }
@@ -34,7 +34,7 @@ public:
     virtual void ice_response(const ::Ice::ObjectPrx& obj)
     {
 	assert(obj);
-	_locator->getDirectProxyCallback(_adapter->ice_getIdentity(), obj);
+	_locator->getDirectProxyCallback(_adapter.proxy->ice_getIdentity(), obj);
     }
 
     virtual void ice_exception(const ::Ice::Exception& ex)
@@ -46,21 +46,21 @@ private:
 
     const LocatorIPtr _locator;
     const string _id;
-    const AdapterPrx _adapter;
+    const LocatorAdapterInfo _adapter;
 };
 
 class AMI_Adapter_activateI : public AMI_Adapter_activate
 {
 public:
 
-    AMI_Adapter_activateI(const LocatorIPtr& locator, const string& id, const AdapterPrx& adapter) : 
+    AMI_Adapter_activateI(const LocatorIPtr& locator, const string& id, const LocatorAdapterInfo& adapter) : 
 	_locator(locator), _id(id), _adapter(adapter)
     {
     }
 
     virtual void ice_response(const ::Ice::ObjectPrx& obj)
     {
-	_locator->getDirectProxyCallback(_adapter->ice_getIdentity(), obj);
+	_locator->getDirectProxyCallback(_adapter.proxy->ice_getIdentity(), obj);
     }
 
     virtual void ice_exception(const ::Ice::Exception& ex)
@@ -72,7 +72,7 @@ private:
 
     const LocatorIPtr _locator;
     const string _id;
-    const AdapterPrx _adapter;
+    const LocatorAdapterInfo _adapter;
 };
 
 //
@@ -158,7 +158,7 @@ LocatorI::Request::Request(const Ice::AMD_Locator_findAdapterByIdPtr& amdCB,
 			   const LocatorIPtr& locator,
 			   const string& id,
 			   bool replicaGroup,
-			   const vector<pair<string, AdapterPrx> >& adapters,
+			   const LocatorAdapterInfoSeq& adapters,
 			   int count,
 			   const TraceLevelsPtr& traceLevels) : 
     _amdCB(amdCB),
@@ -179,7 +179,7 @@ LocatorI::Request::execute()
     //
     // Request as many adapters as required.
     //
-    vector<AdapterPrx> adapters;
+    LocatorAdapterInfoSeq adapters;
     {
 	Lock sync(*this);
 	for(unsigned int i = 0; i < _count; ++i)
@@ -189,8 +189,8 @@ LocatorI::Request::execute()
 		_count = i;
 		break;
 	    }
-	    assert(_lastAdapter->second);
-	    adapters.push_back(_lastAdapter->second);
+	    assert(_lastAdapter->proxy);
+	    adapters.push_back(*_lastAdapter);
 	    ++_lastAdapter;
 	}
     }
@@ -201,7 +201,7 @@ LocatorI::Request::execute()
     }
     else
     {
-	for(vector<AdapterPrx>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+	for(LocatorAdapterInfoSeq::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
 	{
 	    requestAdapter(*p);
 	}
@@ -211,7 +211,7 @@ LocatorI::Request::execute()
 void
 LocatorI::Request::exception(const Ice::Exception& ex)
 {
-    AdapterPrx adapter;
+    LocatorAdapterInfo adapter;
     {
 	Lock sync(*this);
 
@@ -236,7 +236,7 @@ LocatorI::Request::exception(const Ice::Exception& ex)
 	}
 	else
 	{
-	    adapter = _lastAdapter->second;
+	    adapter = *_lastAdapter;
 	    ++_lastAdapter;
 	}
     }
@@ -262,13 +262,13 @@ LocatorI::Request::response(const Ice::ObjectPrx& proxy)
 }
 
 void
-LocatorI::Request::requestAdapter(const AdapterPrx& adapter)
+LocatorI::Request::requestAdapter(const LocatorAdapterInfo& adapter)
 {
-    assert(adapter);
+    assert(adapter.proxy);
     if(_locator->getDirectProxyRequest(this, adapter))
     {
 	AMI_Adapter_getDirectProxyPtr amiCB = new AMI_Adapter_getDirectProxyI(_locator, _id, adapter);
-	adapter->getDirectProxy_async(amiCB);
+	adapter.proxy->getDirectProxy_async(amiCB);
     }
 }
 
@@ -381,7 +381,8 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
 	// replica groups).
 	//
 	int count;
-	vector<pair<string, AdapterPrx> > adapters = _database->getAdapter(id)->getProxies(count, replicaGroup);
+	LocatorAdapterInfoSeq adapters;
+	_database->getAdapter(id)->getLocatorAdapterInfo(adapters, count, replicaGroup);
 
 	LocatorIPtr self = const_cast<LocatorI*>(this);
 	RequestPtr request = new Request(cb, self, id, replicaGroup, adapters, count, _database->getTraceLevels());
@@ -438,7 +439,7 @@ LocatorI::getLocalQuery(const Ice::Current&) const
 }
 
 bool
-LocatorI::getDirectProxyRequest(const RequestPtr& request, const AdapterPrx& adapter)
+LocatorI::getDirectProxyRequest(const RequestPtr& request, const LocatorAdapterInfo& adapter)
 {
     Lock sync(*this);
 
@@ -448,13 +449,13 @@ LocatorI::getDirectProxyRequest(const RequestPtr& request, const AdapterPrx& ada
     // a call on the adapter to get its direct proxy.
     //
     PendingRequestsMap::iterator p;
-    p = _pendingRequests.insert(make_pair(adapter->ice_getIdentity(), PendingRequests())).first;
+    p = _pendingRequests.insert(make_pair(adapter.proxy->ice_getIdentity(), PendingRequests())).first;
     p->second.push_back(request);
     return p->second.size() == 1;
 }
 
 void
-LocatorI::getDirectProxyException(const AdapterPrx& adapter, const string& id, const Ice::Exception& ex)
+LocatorI::getDirectProxyException(const LocatorAdapterInfo& adpt, const string& id, const Ice::Exception& ex)
 {
     try
     {
@@ -465,12 +466,15 @@ LocatorI::getDirectProxyException(const AdapterPrx& adapter, const string& id, c
 	if(ex.activatable)
 	{
 	    //
-	    // Activate the adapter if it can be activated on demand. NOTE: we use the timeout
-	    // provided in the exception to activate the adapter. The timeout correspond to the
-	    // wait time configured for the server.
+	    // Activate the adapter if it can be activated on demand.
 	    //
-	    AMI_Adapter_activatePtr amiCB = new AMI_Adapter_activateI(this, id, adapter);
-	    AdapterPrx::uncheckedCast(adapter->ice_timeout(ex.timeout * 1000))->activate_async(amiCB);
+	    // NOTE: we use a timeout large enough to ensure that the
+	    // activate() call won't timeout if the server hangs in
+	    // deactivation and/or activation.
+	    //
+	    AMI_Adapter_activatePtr amiCB = new AMI_Adapter_activateI(this, id, adpt);
+	    int timeout = adpt.activationTimeout + adpt.deactivationTimeout;
+	    AdapterPrx::uncheckedCast(adpt.proxy->ice_timeout(timeout * 1000))->activate_async(amiCB);
 	    return;
 	}
     }
@@ -481,7 +485,7 @@ LocatorI::getDirectProxyException(const AdapterPrx& adapter, const string& id, c
     PendingRequests requests;
     {
 	Lock sync(*this);
-	PendingRequestsMap::iterator p = _pendingRequests.find(adapter->ice_getIdentity());
+	PendingRequestsMap::iterator p = _pendingRequests.find(adpt.proxy->ice_getIdentity());
 	assert(p != _pendingRequests.end());
 	requests.swap(p->second);
 	_pendingRequests.erase(p);

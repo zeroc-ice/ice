@@ -25,6 +25,9 @@ typedef IceUtil::Handle<LocatorI> LocatorIPtr;
 class TraceLevels;
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
+struct LocatorAdapterInfo;
+typedef std::vector<LocatorAdapterInfo> LocatorAdapterInfoSeq;
+
 class LocatorI : public Locator, public IceUtil::Mutex
 {
     class Request : public IceUtil::Mutex, public IceUtil::Shared
@@ -32,7 +35,7 @@ class LocatorI : public Locator, public IceUtil::Mutex
     public:
 
 	Request(const Ice::AMD_Locator_findAdapterByIdPtr&, const LocatorIPtr&, const std::string&, bool,
-		const std::vector<std::pair<std::string, AdapterPrx> >&, int, const TraceLevelsPtr&);
+		const LocatorAdapterInfoSeq&, int, const TraceLevelsPtr&);
 
 	void execute();
 	void response(const Ice::ObjectPrx&);
@@ -40,17 +43,17 @@ class LocatorI : public Locator, public IceUtil::Mutex
 
     private:
 
-	void requestAdapter(const AdapterPrx&);
+	void requestAdapter(const LocatorAdapterInfo&);
 	void sendResponse();
 
 	const Ice::AMD_Locator_findAdapterByIdPtr _amdCB;
 	const LocatorIPtr _locator;
 	const std::string _id;
 	const bool _replicaGroup;
-	const std::vector<std::pair<std::string, AdapterPrx> > _adapters;
+	LocatorAdapterInfoSeq _adapters;
 	const TraceLevelsPtr _traceLevels;
 	unsigned int _count;
-	std::vector<std::pair<std::string, AdapterPrx> >::const_iterator _lastAdapter;
+	LocatorAdapterInfoSeq::const_iterator _lastAdapter;
 	std::vector<Ice::ObjectPrx> _proxies;
 	std::auto_ptr<Ice::Exception> _exception;
     };
@@ -71,8 +74,8 @@ public:
     virtual RegistryPrx getLocalRegistry(const Ice::Current&) const;
     virtual QueryPrx getLocalQuery(const Ice::Current&) const;
 
-    bool getDirectProxyRequest(const RequestPtr&, const AdapterPrx&);
-    void getDirectProxyException(const AdapterPrx&, const std::string&, const Ice::Exception&);
+    bool getDirectProxyRequest(const RequestPtr&, const LocatorAdapterInfo&);
+    void getDirectProxyException(const LocatorAdapterInfo&, const std::string&, const Ice::Exception&);
     void getDirectProxyCallback(const Ice::Identity&, const Ice::ObjectPrx&);
     
     const Ice::CommunicatorPtr& getCommunicator() const;

@@ -28,13 +28,22 @@ typedef std::vector<ServerEntryPtr> ServerEntrySeq;
 class AdapterEntry;
 typedef IceUtil::Handle<AdapterEntry> AdapterEntryPtr;
 
+struct LocatorAdapterInfo
+{
+    std::string id;
+    AdapterPrx proxy;
+    int activationTimeout;
+    int deactivationTimeout;
+};
+typedef std::vector<LocatorAdapterInfo> LocatorAdapterInfoSeq;
+
 class AdapterEntry : virtual public IceUtil::Shared
 {
 public:
     
     AdapterEntry(AdapterCache&, const std::string&, const std::string&);
 
-    virtual std::vector<std::pair<std::string, AdapterPrx> > getProxies(int&, bool&) = 0;
+    virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&) = 0;
     virtual float getLeastLoadedNodeLoad(LoadSample) const = 0;
     virtual AdapterInfoSeq getAdapterInfo() const = 0;
 
@@ -58,12 +67,12 @@ public:
     ServerAdapterEntry(AdapterCache&, const std::string&, const std::string&, const std::string&, int, 
 		       const ServerEntryPtr&);
 
-    virtual std::vector<std::pair<std::string, AdapterPrx> > getProxies(int&, bool&);
+    virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&);
     virtual float getLeastLoadedNodeLoad(LoadSample) const;
     virtual AdapterInfoSeq getAdapterInfo() const;
     virtual const std::string& getReplicaGroupId() const { return _replicaGroupId; }
 
-    AdapterPrx getProxy(const std::string& = std::string(), bool = true) const;
+    AdapterPrx getProxy(const std::string&, bool) const;
     int getPriority() const;
     
 private:
@@ -80,7 +89,7 @@ public:
 
     ReplicaGroupEntry(AdapterCache&, const std::string&, const std::string&, const LoadBalancingPolicyPtr&);
 
-    virtual std::vector<std::pair<std::string, AdapterPrx> > getProxies(int&, bool&);
+    virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&);
     virtual float getLeastLoadedNodeLoad(LoadSample) const;
     virtual AdapterInfoSeq getAdapterInfo() const;
 
