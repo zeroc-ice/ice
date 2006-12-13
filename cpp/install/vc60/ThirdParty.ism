@@ -52,13 +52,13 @@
 	<summary>
 		<codepage>1252</codepage>
 		<title>Installation Database</title>
-		<subject>Ice 3.1.0 Third Party Packages for Visual Studio 6.0</subject>
+		<subject>##ID_STRING54##</subject>
 		<author>##COMPANY_NAME##</author>
 		<keywords>Installer,MSI,Database</keywords>
 		<comments>##ID_STRING5##</comments>
 		<template>Intel;1033</template>
 		<lastauthor>Administrator</lastauthor>
-		<revnumber>{48FC3CB9-51F9-421C-9BF4-AA6E67141617}</revnumber>
+		<revnumber>{62BB2BA2-1FA5-460D-B499-0BE1ABE49898}</revnumber>
 		<lastprinted/>
 		<createdtm>06/21/1999 04:30</createdtm>
 		<lastsavedtm>07/14/2000 08:20</lastsavedtm>
@@ -73,6 +73,7 @@
 		<col key="yes" def="s72">Action</col>
 		<col def="L64">Description</col>
 		<col def="L128">Template</col>
+		<row><td>Action1</td><td/><td/></row>
 		<row><td>Advertise</td><td>##IDS_ACTIONTEXT_Advertising##</td><td/></row>
 		<row><td>AllocateRegistrySpace</td><td>##IDS_ACTIONTEXT_AllocatingRegistry##</td><td>##IDS_ACTIONTEXT_FreeSpace##</td></row>
 		<row><td>AppSearch</td><td>##IDS_ACTIONTEXT_SearchInstalled##</td><td>##IDS_ACTIONTEXT_PropertySignature##</td></row>
@@ -1155,8 +1156,9 @@
 		<row><td>FavoritesFolder</td><td>TARGETDIR</td><td>.:FAVORI~1|Favorites</td><td/><td>0</td><td/></row>
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
-		<row><td>ICE_TP_INSTALL_DIR</td><td>WindowsVolume</td><td>ICE-3_~0|Ice-3.1.0-ThirdParty-VC60</td><td/><td>0</td><td/></row>
-		<row><td>INSTALLDIR</td><td>ICE_TP_INSTALL_DIR</td><td>.</td><td/><td>0</td><td/></row>
+		<row><td>ICE_3.2.0_THIRDPARTY_VC60</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.2.0-ThirdParty-VC60</td><td/><td>0</td><td/></row>
+		<row><td>ICE_TP_INSTALL_DIR</td><td>WindowsVolume</td><td>ICE-3_~0|Ice-3.2.0-ThirdParty-VC60</td><td/><td>0</td><td/></row>
+		<row><td>INSTALLDIR</td><td>ICE_3.2.0_THIRDPARTY_VC60</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
 		<row><td>ISMyProductDir</td><td>ISMyCompanyDir</td><td>MYPROD~1|My Product Name</td><td/><td>0</td><td/></row>
@@ -1814,8 +1816,11 @@
 		<col key="yes" def="s72">ISProductConfiguration_</col>
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
-		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>ThirdParty-3.1.0-VC60</td></row>
+		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>ThirdParty-3.2.0-VC60</td></row>
+		<row><td>ZEROC</td><td>PackageCode</td><td>{A93F543D-1363-4E23-9078-832485CBA10D}</td></row>
+		<row><td>ZEROC</td><td>ProductCode</td><td>{D71F1C1D-AD30-4FA8-9F54-F1B5F2E4D4DF}</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
+		<row><td>ZEROC</td><td>UpgradeCode</td><td>{EEA9B032-D474-46C2-AD45-EBAC7BBE3051}</td></row>
 	</table>
 
 	<table name="ISRelease">
@@ -1916,7 +1921,7 @@
 		<col def="I4">TimeStamp</col>
 		<row><td>COMPANY_NAME</td><td>1033</td><td>ZeroC, Inc.</td><td>0</td><td/><td>1234816852</td></row>
 		<row><td>DN_AlwaysInstall</td><td>1033</td><td>Always Install</td><td>0</td><td>	</td><td>479664453</td></row>
-		<row><td>ICE_VERSION</td><td>1033</td><td>3.0.1</td><td>0</td><td/><td>622405993</td></row>
+		<row><td>ICE_VERSION</td><td>1033</td><td>3.2.0</td><td>0</td><td/><td>1973063787</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_COLOR</td><td>1033</td><td>The color settings of your system are not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_OS</td><td>1033</td><td>The operating system is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_PROCESSOR</td><td>1033</td><td>The processor is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
@@ -2451,7 +2456,7 @@
 		<row><td>IDS__TargetReq_DESC_PROCESSOR</td><td>1033</td><td>The processor is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDS__TargetReq_DESC_RAM</td><td>1033</td><td>The amount of RAM is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDS__TargetReq_DESC_RESOLUTION</td><td>1033</td><td>The screen resolution is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
-		<row><td>ID_STRING1</td><td>1033</td><td>Ice 3.1.0 Third Party Packages</td><td>0</td><td/><td>622421519</td></row>
+		<row><td>ID_STRING1</td><td>1033</td><td>Ice 3.2.0 Third Party Packages</td><td>0</td><td/><td>1973069931</td></row>
 		<row><td>ID_STRING10</td><td>1033</td><td>Dialog Normal Description</td><td>0</td><td/><td>1033470955</td></row>
 		<row><td>ID_STRING11</td><td>1033</td><td>[ProductName] - InstallShield Wizard</td><td>0</td><td/><td>1033470955</td></row>
 		<row><td>ID_STRING12</td><td>1033</td><td>{&amp;MSSWhiteSerif8}InstallShield</td><td>0</td><td/><td>1033470955</td></row>
@@ -2484,7 +2489,7 @@
 		<row><td>ID_STRING37</td><td>1033</td><td>{&amp;Tahoma8}InstallShield</td><td>0</td><td/><td>1033487467</td></row>
 		<row><td>ID_STRING38</td><td>1033</td><td>&amp;Next &gt;</td><td>0</td><td/><td>1033477259</td></row>
 		<row><td>ID_STRING39</td><td>1033</td><td>&lt; &amp;Back</td><td>0</td><td/><td>1033477259</td></row>
-		<row><td>ID_STRING4</td><td>1033</td><td>Ice 3.1.0 Third Party Packages for Visual Studio 6.0</td><td>0</td><td/><td>622429711</td></row>
+		<row><td>ID_STRING4</td><td>1033</td><td>Ice 3.2.0 Third Party Packages for Visual Studio 6.0</td><td>0</td><td/><td>1973078123</td></row>
 		<row><td>ID_STRING40</td><td>1033</td><td>Cancel</td><td>0</td><td/><td>1033477259</td></row>
 		<row><td>ID_STRING41</td><td>1033</td><td>{&amp;MSSansBold8}Dialog Bold Title</td><td>0</td><td/><td>1033477259</td></row>
 		<row><td>ID_STRING42</td><td>1033</td><td>Dialog Normal Description</td><td>0</td><td/><td>1033477259</td></row>
@@ -2500,6 +2505,7 @@
 		<row><td>ID_STRING51</td><td>1033</td><td>[ProductName] - InstallShield Wizard</td><td>0</td><td/><td>1671051817</td></row>
 		<row><td>ID_STRING52</td><td>1033</td><td>{&amp;MSSWhiteSerif8}InstallShield</td><td>0</td><td/><td>1671051817</td></row>
 		<row><td>ID_STRING53</td><td>1033</td><td>{&amp;Tahoma8}InstallShield</td><td>0</td><td/><td>1671051817</td></row>
+		<row><td>ID_STRING54</td><td>1033</td><td>Ice 3.2.0 Third Party Packages for Visual Studio 6.0</td><td>0</td><td/><td>1973033067</td></row>
 		<row><td>ID_STRING6</td><td>1033</td><td>&amp;Next &gt;</td><td>0</td><td/><td>1033470955</td></row>
 		<row><td>ID_STRING7</td><td>1033</td><td>&lt; &amp;Back</td><td>0</td><td/><td>1033470955</td></row>
 		<row><td>ID_STRING8</td><td>1033</td><td>Cancel</td><td>0</td><td/><td>1033470955</td></row>
@@ -2946,11 +2952,11 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>NewProperty22</td><td>0</td><td/></row>
 		<row><td>NewProperty3</td><td>0</td><td/></row>
 		<row><td>PIDTemplate</td><td>12345&lt;###-%%%%%%%&gt;@@@@@</td><td/></row>
-		<row><td>ProductCode</td><td>{9F9731EA-DF88-4333-A799-6E03A4C4ED80}</td><td/></row>
+		<row><td>ProductCode</td><td>{86DDB1C1-40F9-4CF1-ADB7-D9B159036700}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 3.1.0 Third Party Packages for Visual Studio 6.0</td><td/></row>
-		<row><td>ProductVersion</td><td>3.1.0</td><td/></row>
+		<row><td>ProductName</td><td>Ice 3.2.0 Third Party Packages for Visual Studio 6.0</td><td/></row>
+		<row><td>ProductVersion</td><td>3.2.0</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -2959,7 +2965,7 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>ReinstallModeText</td><td>omus</td><td/></row>
 		<row><td>SHOWLAUNCHPROGRAM</td><td>0</td><td/></row>
 		<row><td>SetupType</td><td>Typical</td><td/></row>
-		<row><td>UpgradeCode</td><td>{4D183D21-A249-4B59-A14C-BFF2ADC1A1DD}</td><td/></row>
+		<row><td>UpgradeCode</td><td>{46B073D9-8163-4C05-B31E-CBEF2FFCF9BA}</td><td/></row>
 		<row><td>_IsMaintenance</td><td>Change</td><td/></row>
 		<row><td>_IsSetupTypeMin</td><td>Typical</td><td/></row>
 	</table>

@@ -144,9 +144,7 @@ Ice/nested/Client.java
 Ice/nested/config.client
 Ice/nested/config.server
 Ice/nested/Nested.ice
-Ice/nested/NestedClient.java
 Ice/nested/NestedI.java
-Ice/nested/NestedServer.java
 Ice/nested/README
 Ice/nested/Server.java
 Ice/README
@@ -225,7 +223,7 @@ IceGrid/simple/Server.java
 IceStorm/build.xml
 IceStorm/clock/build.xml
 IceStorm/clock/Clock.ice
-IceStorm/clock/ClockI.java
+#IceStorm/clock/ClockI.java
 IceStorm/clock/config.icebox
 IceStorm/clock/config.pub
 IceStorm/clock/config.service

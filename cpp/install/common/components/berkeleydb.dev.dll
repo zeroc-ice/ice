@@ -1,1 +1,1 @@
-f,build_win32/Debug/libdb%(dbver)sd.dll
+f,build_windows/Debug/libdb%(dbver)sd.dll

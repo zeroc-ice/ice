@@ -52,13 +52,13 @@
 	<summary>
 		<codepage>1252</codepage>
 		<title>Installation Database</title>
-		<subject>##ID_STRING1##</subject>
+		<subject>Ice 3.2.0 Third Party Packages for Visual Studio 2005</subject>
 		<author>##COMPANY_NAME##</author>
 		<keywords>Installer,MSI,Database</keywords>
 		<comments>##ID_STRING5##</comments>
 		<template>Intel;1033</template>
 		<lastauthor>Administrator</lastauthor>
-		<revnumber>{6962D982-EE55-42D1-B042-7FEE435C4A10}</revnumber>
+		<revnumber>{76FF897B-18AF-49F0-8ED3-9ADFA1FB78E5}</revnumber>
 		<lastprinted/>
 		<createdtm>06/21/1999 04:30</createdtm>
 		<lastsavedtm>07/14/2000 08:20</lastsavedtm>
@@ -1135,8 +1135,8 @@
 		<row><td>FavoritesFolder</td><td>TARGETDIR</td><td>.:FAVORI~1|Favorites</td><td/><td>0</td><td/></row>
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
-		<row><td>ICE_3.1.0_THIRDPARTY_VC80</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.1.0-ThirdParty-VC80</td><td/><td>0</td><td/></row>
-		<row><td>INSTALLDIR</td><td>ICE_3.1.0_THIRDPARTY_VC80</td><td>.</td><td/><td>0</td><td/></row>
+		<row><td>ICE_3.2.0_THIRDPARTY_VC80</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.2.0-ThirdParty-VC80</td><td/><td>0</td><td/></row>
+		<row><td>INSTALLDIR</td><td>ICE_3.2.0_THIRDPARTY_VC80</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
 		<row><td>ISMyProductDir</td><td>ISMyCompanyDir</td><td>MYPROD~1|My Product Name</td><td/><td>0</td><td/></row>
@@ -1791,8 +1791,11 @@
 		<col key="yes" def="s72">ISProductConfiguration_</col>
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
-		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>ThirdParty-3.1.0-VC80</td></row>
+		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>ThirdParty-3.2.0-VC80</td></row>
+		<row><td>ZEROC</td><td>PackageCode</td><td>{86BE4F6F-D347-4810-942B-5B053A3F045D}</td></row>
+		<row><td>ZEROC</td><td>ProductCode</td><td>{85F1BCEA-9267-461B-97B6-AAB8BD7ECCEA}</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
+		<row><td>ZEROC</td><td>UpgradeCode</td><td>{F78FBBAE-5D9A-4594-8E8B-D999CFF4B5A3}</td></row>
 	</table>
 
 	<table name="ISRelease">
@@ -2427,7 +2430,7 @@
 		<row><td>IDS__TargetReq_DESC_PROCESSOR</td><td>1033</td><td>The processor is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDS__TargetReq_DESC_RAM</td><td>1033</td><td>The amount of RAM is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDS__TargetReq_DESC_RESOLUTION</td><td>1033</td><td>The screen resolution is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
-		<row><td>ID_STRING1</td><td>1033</td><td>Ice 3.1.0 Third Party Packages for Visual Studio 2005</td><td>0</td><td/><td>857343407</td></row>
+		<row><td>ID_STRING1</td><td>1033</td><td>Ice 3.2.0 Third Party Packages for Visual Studio 2005</td><td>0</td><td/><td>857343407</td></row>
 		<row><td>ID_STRING11</td><td>1033</td><td>[ProductName] - InstallShield Wizard</td><td>0</td><td/><td>1033470955</td></row>
 		<row><td>ID_STRING12</td><td>1033</td><td>{&amp;MSSWhiteSerif8}InstallShield</td><td>0</td><td/><td>1033470955</td></row>
 		<row><td>ID_STRING13</td><td>1033</td><td>{&amp;Tahoma8}InstallShield</td><td>0</td><td/><td>1033470955</td></row>
@@ -2453,6 +2456,7 @@
 		<row><td>ID_STRING37</td><td>1033</td><td>{&amp;Tahoma8}InstallShield</td><td>0</td><td/><td>1033487467</td></row>
 		<row><td>ID_STRING38</td><td>1033</td><td>&amp;Next &gt;</td><td>0</td><td/><td>1033477259</td></row>
 		<row><td>ID_STRING39</td><td>1033</td><td>&lt; &amp;Back</td><td>0</td><td/><td>1033477259</td></row>
+		<row><td>ID_STRING4</td><td>1033</td><td>3.2.0</td><td>0</td><td/><td>2107267722</td></row>
 		<row><td>ID_STRING40</td><td>1033</td><td>Cancel</td><td>0</td><td/><td>1033477259</td></row>
 		<row><td>ID_STRING43</td><td>1033</td><td>[ProductName] - InstallShield Wizard</td><td>0</td><td/><td>1033477259</td></row>
 		<row><td>ID_STRING44</td><td>1033</td><td>{&amp;MSSWhiteSerif8}InstallShield</td><td>0</td><td/><td>1033477259</td></row>
@@ -2896,8 +2900,8 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>ProductCode</td><td>{16888E89-D574-48F5-8241-9CE2BB41CDBF}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice Third Party Packages for Visual Studio 2005</td><td/></row>
-		<row><td>ProductVersion</td><td/><td/></row>
+		<row><td>ProductName</td><td>Ice 3.2.0 Third Party Packages for Visual Studio 2005</td><td/></row>
+		<row><td>ProductVersion</td><td>3.2.0</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -2906,7 +2910,7 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>ReinstallModeText</td><td>omus</td><td/></row>
 		<row><td>SHOWLAUNCHPROGRAM</td><td>0</td><td/></row>
 		<row><td>SetupType</td><td>Typical</td><td/></row>
-		<row><td>UpgradeCode</td><td>{971B4527-FA6E-4681-A185-451FF13233AC}</td><td/></row>
+		<row><td>UpgradeCode</td><td>{2105326A-E260-46E0-951A-A9440FE5D608}</td><td/></row>
 		<row><td>_IsMaintenance</td><td>Change</td><td/></row>
 		<row><td>_IsSetupTypeMin</td><td>Typical</td><td/></row>
 	</table>

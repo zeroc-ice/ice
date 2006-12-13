@@ -348,8 +348,8 @@ IcePatch2/MFC/stdafx.h
 IcePatch2/README
 IceStorm/clock/Clock.ice
 IceStorm/clock/clockC.dsp
-IceStorm/clock/ClockI.cpp
-IceStorm/clock/ClockI.h
+#IceStorm/clock/ClockI.cpp
+#IceStorm/clock/ClockI.h
 IceStorm/clock/clockS.dsp
 IceStorm/clock/config.icebox
 IceStorm/clock/config.pub

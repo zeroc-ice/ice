@@ -135,7 +135,6 @@ IceUtil/IceUtil
 IceUtil/Monitor
 IceUtil/Functional
 IceUtil/Base64
-IceUtil/AutoArray
 IceUtil/Shared
 IceUtil/ThreadException
 IceUtil/Unicode
@@ -163,8 +162,7 @@ IceStorm/IceStorm
 Glacier2/Router
 Glacier2/Glacier2
 Glacier2/PermissionsVerifierF
-Glacier2/RouterF
-Glacier2/SessionF
+Ice/RouterF
 Glacier2/SSLInfo
 Glacier2/PermissionsVerifier
 Glacier2/Session

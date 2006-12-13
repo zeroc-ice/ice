@@ -1,2 +1,2 @@
-f,build_win32/db.h
-f,build_win32/db_cxx.h
+f,build_windows/db.h
+f,build_windows/db_cxx.h

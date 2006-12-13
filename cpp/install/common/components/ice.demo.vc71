@@ -332,12 +332,6 @@ IceBox/hello/HelloI.cpp
 IceBox/hello/HelloI.h
 IceBox/hello/helloiceboxC.vcproj
 IceBox/hello/helloiceboxS.vcproj
-IceBox/hello/helloservice.dll
-IceBox/hello/helloservice.exp
-IceBox/hello/helloservice.lib
-IceBox/hello/helloserviced.dll
-IceBox/hello/helloserviced.exp
-IceBox/hello/helloserviced.lib
 IceBox/hello/HelloServiceI.cpp
 IceBox/hello/HelloServiceI.h
 IceBox/hello/README
@@ -409,8 +403,8 @@ IceStorm/clock/Clock.cpp
 IceStorm/clock/Clock.h
 IceStorm/clock/Clock.ice
 IceStorm/clock/clockC.vcproj
-IceStorm/clock/ClockI.cpp
-IceStorm/clock/ClockI.h
+#IceStorm/clock/ClockI.cpp
+#IceStorm/clock/ClockI.h
 IceStorm/clock/clockS.vcproj
 IceStorm/clock/config.icebox
 IceStorm/clock/config.pub

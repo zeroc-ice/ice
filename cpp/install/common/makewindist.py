@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import getopt, os, re, shutil, string, sys, zipfile
+import getopt, os, re, shutil, string, sys, zipfile, fileinput
 import logging, cStringIO, glob
 import components
 import textwrap
@@ -16,11 +16,11 @@ import textwrap
 # 
 # Current default third party library versions.
 #
-OpenSSLVer = '0.9.8b'
+OpenSSLVer = '0.9.8d'
 Bzip2Ver = '1.0.3'
 STLPortVer = '4.6.2'
-ExpatVer = '1.95.8'
-DBVer = '4.3.29'
+ExpatVer = '2.0.0'
+DBVer = '4.5.20'
 
 DistPrefixes = ["Ice-%s", "IceJ-%s-java2", "IceJ-%s-java5", "IceCS-%s", "IcePy-%s", "IcePHP-%s", "IceVB-%s"]
 
@@ -163,6 +163,26 @@ def checkSources(sourceDir):
 
     return keyVersion
 
+def setMakefileOption(filename, optionName, value):
+    optre = re.compile("^\#?\s*?%s\s*?=.*" % optionName)
+    optionString = "no"
+    if value:
+	optionString = "yes"
+    f = fileinput.input(filename, True)
+    for line in f:
+	l = line.rstrip('\n')
+	if optre.search(l):
+            print "%s = %s" % (optionName, optionString)
+	else:
+	    print l
+    f.close()
+
+def setOptimize(filename, optimizeOn):
+    setMakefileOption(filename, "OPTIMIZE", optimizeOn)
+
+def setDebug(filename, debugOn):
+    setMakefileOption(filename, "DEBUG", debugOn)
+
 def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
     """Build all Ice distributions."""
 
@@ -202,49 +222,109 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 	include.append(os.path.join(stageDir, "stlport", "dev", "include", "stlport"))
     prependEnvPathList('INCLUDE', include)
 
-    iceHome = os.environ['ICE_HOME']
+    #
+    # XXX Rewrite starts here.
+    #
+
+    #
+    # Run debug builds first.
+    #
+    origPath = os.environ['PATH']
+    origLib = os.environ['LIB']
+    origInclude = os.environ['INCLUDE']
+    iceHome = os.path.join(sourcesDir, "debug", "Ice-%s" % sourcesVersion)
+    os.environ['ICE_HOME'] = iceHome
     prependEnvPath('PATH', os.path.join(iceHome, "bin"))
     prependEnvPath('LIB', os.path.join(iceHome, "lib"))
     prependEnvPath('INCLUDE', os.path.join(iceHome, "include"))
 
+    os.chdir(iceHome)
+    setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), False)
+    runprog("nmake /f Makefile.mak")
+
     if installVersion in ["vc80", "vc71"]:
-	#
-	# Ice for C++ 
-	#
-	os.chdir(os.path.join(sourcesDir, "Ice-" + sourcesVersion))
-	print "Building in " + os.getcwd() + "..."
-	runprog("devenv all.sln /useenv /build Debug")
-	runprog("devenv all.sln /useenv /build Release")
-
-	#
-	# Ice for Java  
-	#
-	# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	# Leave Ice for Java alone. Everything that is needed is already
-	# included in the source distribution.
-	# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	#
-
 	#
 	# Ice for C#
 	#
-	os.chdir(os.path.join(sourcesDir, "IceCS-" + sourcesVersion))
+	os.chdir(os.path.join(sourcesDir, "debug", "IceCS-" + sourcesVersion))
 	print "Building in " + os.getcwd() + "..."
+        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), False)
+        setDebug(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
 	if installVersion == "vc71":
-	    runprog("devenv all_11.sln /useenv /build Debug")
-	else:
-	    runprog("devenv all.sln /useenv /build Debug")
+	    setMakefileOption(os.path.join(os.getcwd(), "config", "Make.rules.mak"), "DOTNET_1", True)
+	runprog("nmake /f Makefile.mak") 
+
 
 	#
 	# Ice for Visual Basic
 	#
-	os.chdir(os.path.join(sourcesDir, "IceVB-" + sourcesVersion))
+	os.chdir(os.path.join(sourcesDir, "debug", "IceVB-" + sourcesVersion))
 	print "Building in " + os.getcwd() + "..."
-	runprog("devenv all.sln /useenv /build Debug")
+        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), False)
+	if installVersion == "vc71":
+	    setMakefileOption(os.path.join(os.getcwd(), "config", "Make.rules.mak"), "DOTNET_1", True)
+	f = fileinput.input(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
+	for l in f:
+	    i = l.find("icecs") 
+	    if i <> -1:
+		print l.rstrip('\n').replace("icecs", "IceCS-%s" % sourcesVersion)
+	    else:
+		print l.rstrip('\n')
 
-    if installVersion == "vc80":
+	f.close()
+
+	runprog("nmake /f Makefile.mak")
+
+	#
+	# Ice for C#
+	#
+	os.chdir(os.path.join(sourcesDir, "release", "IceCS-" + sourcesVersion))
+	print "Building in " + os.getcwd() + "..."
+        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
+        setDebug(os.path.join(os.getcwd(), "config", "Make.rules.mak"), False)
+	if installVersion == "vc71":
+	    setMakefileOption(os.path.join(os.getcwd(), "config", "Make.rules.mak"), "DOTNET_1", True)
+	runprog("nmake /f Makefile.mak") 
+
+	#
+	# Ice for Visual Basic
+	#
+	os.chdir(os.path.join(sourcesDir, "release", "IceVB-" + sourcesVersion))
+	print "Building in " + os.getcwd() + "..."
+        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
+	if installVersion == "vc71":
+	    setMakefileOption(os.path.join(os.getcwd(), "config", "Make.rules.mak"), "DOTNET_1", True)
+	f = fileinput.input(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
+	for l in f:
+	    i = l.find("icecs") 
+	    if i <> -1:
+		print l.rstrip('\n').replace("icecs", "IceCS-%s" % sourcesVersion)
+	    else:
+		print l.rstrip('\n')
+
+	f.close()
+
+	runprog("nmake /f Makefile.mak")
 
 
+    #
+    # Now run the release mode builds.
+    #
+    os.environ['PATH'] = origPath
+    os.environ['LIB'] = origLib
+    os.environ['INCLUDE'] = origInclude
+
+    iceHome = os.path.join(sourcesDir, "release", "Ice-%s" % sourcesVersion)
+    os.environ['ICE_HOME'] = iceHome
+    prependEnvPath('PATH', os.path.join(iceHome, "bin"))
+    prependEnvPath('LIB', os.path.join(iceHome, "lib"))
+    prependEnvPath('INCLUDE', os.path.join(iceHome, "include"))
+
+    os.chdir(iceHome)
+    setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
+    runprog("nmake /f Makefile.mak")
+
+    if installVersion == "vc71":
 	#
 	# Ice for Python
 	#
@@ -252,17 +332,19 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 	prependEnvPath('LIB', os.path.join(pythonHome, "libs"))
 	prependEnvPath('INCLUDE', os.path.join(pythonHome, "include"))
 
-	os.chdir(os.path.join(sourcesDir, "IcePy-" + sourcesVersion))
+	os.chdir(os.path.join(sourcesDir, "release", "IcePy-" + sourcesVersion))
 	print "Building in " + os.getcwd() + "..."
-	runprog("devenv all.sln /useenv /build Release")
-    elif installVersion == "vc60":
+        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
+	runprog("nmake /f Makefile.mak")
+        
+    if installVersion == "vc60":
 	#
 	# Ice for C++ 
 	#
-	os.chdir(os.path.join(sourcesDir, "Ice-" + sourcesVersion))
+	os.chdir(os.path.join(sourcesDir, "release", "Ice-" + sourcesVersion))
+        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
 	print "Building in " + os.getcwd() + "..."
-	runprog('msdev all.dsw /useenv /make "all - Win32 Debug"')
-	runprog('msdev all.dsw /useenv /make "all - Win32 Release"')
+	runprog("nmake /f Makefile.mak") 
 	#
 	# Ice for PHP
 	#
@@ -282,17 +364,10 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 	]
 	prependEnvPathList('INCLUDE', phpInc)
 
-	os.chdir(os.path.join(sourcesDir, "IcePHP-" + sourcesVersion))
+	os.chdir(os.path.join(sourcesDir, "release", "IcePHP-" + sourcesVersion))
 	print "Building in " + os.getcwd() + "..."
-	runprog('msdev icephp.dsw /useenv /make "php_ice - Win32 Release"')
-    elif installVersion in ["vc80_x64"]:
-	#
-	# Ice for C++ 
-	#
-	os.chdir(os.path.join(sourcesDir, "Ice-" + sourcesVersion))
-	print "Building in " + os.getcwd() + "..."
-	runprog('devenv all.sln /useenv /build Debug /project all')
-	runprog('devenv all.sln /useenv /build Release /project all')
+        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
+	runprog("nmake /f Makefile.mak") 
 
 def list2english(l):
     if len(l) == 1:
@@ -630,30 +705,8 @@ def main():
 
 	sourcesVersion = checkSources(os.environ['SOURCES'])
 
-	#
-	# XXX - implement 'refresher'
-	#
-
-	# 
-	# Screw clean rules, run the ultimate clean!
-	#
-	if clean:
-	    shutil.rmtree(buildDir)
-	    os.mkdir(buildDir)
-
-	for z in DistPrefixes:
-            #
-	    # TODO: See if this can be replaced by ZipFile and native
-	    # Python code somehow.
-	    #
-	    filename = os.path.join(os.environ['SOURCES'], z % sourcesVersion + ".zip")
-	    if not os.path.exists(os.path.join(os.environ['BUILD_DIR'], z %  sourcesVersion)):
-		runprog("unzip -q %s -d %s" % (filename, os.environ['BUILD_DIR']))
-
-	os.environ['ICE_HOME'] = os.path.join(os.environ['BUILD_DIR'], "Ice-%s" % sourcesVersion)
-
 	defaults = os.environ
-	defaults['dbver'] = '43'
+	defaults['dbver'] = '45'
 	defaults['version'] = sourcesVersion
 	defaults['dllversion'] = sourcesVersion.replace('.', '')[:2]
 	
@@ -687,7 +740,6 @@ libraries."""
 	components.stage(os.path.join(os.path.dirname(components.__file__), "components", "components.ini"),
 		os.path.join(os.path.dirname(components.__file__), "components"), stageDir, "packages", defaults)
 
-
 	#
 	# Build the merge module projects.
 	# 
@@ -695,11 +747,35 @@ libraries."""
 	    buildMergeModules(targetDir, stageDir, sourcesVersion, target)
 	    buildInstallers(targetDir, stageDir, sourcesVersion, target, [("ThirdParty", "THIRD_PARTY_MSI")])
 
+	# 
+	# Screw clean rules, run the ultimate clean!
+	#
+	if clean:
+	    shutil.rmtree(buildDir)
+
+	if not os.path.exists(buildDir):
+	    os.mkdir(buildDir)
+	if not os.path.exists(os.path.join(buildDir, "debug")):
+	    os.mkdir(os.path.join(buildDir, "debug"))
+	if not os.path.exists(os.path.join(buildDir, "release")):
+	    os.mkdir(os.path.join(buildDir, "release"))
+
+	for z in DistPrefixes:
+            #
+	    # TODO: See if this can be replaced by ZipFile and native
+	    # Python code somehow.
+	    #
+	    filename = os.path.join(os.environ['SOURCES'], z % sourcesVersion + ".zip")
+	    if not os.path.exists(os.path.join(buildDir, "debug", z %  sourcesVersion)):
+		runprog("unzip -o -q %s -d %s" % (filename, os.path.join(buildDir, "debug")))
+	    if not os.path.exists(os.path.join(buildDir, "release", z %  sourcesVersion)):
+		runprog("unzip -o -q %s -d %s" % (filename, os.path.join(buildDir, "release")))
+
 	#
 	# Build the Ice distributions.
 	#
 	if build:
-	    buildIceDists(stageDir, os.environ['BUILD_DIR'], sourcesVersion, target)
+	    buildIceDists(stageDir, buildDir, sourcesVersion, target)
 
 	# 
 	# Stage Ice!

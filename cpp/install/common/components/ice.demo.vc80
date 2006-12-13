@@ -403,8 +403,8 @@ IceStorm/clock/Clock.cpp
 IceStorm/clock/Clock.h
 IceStorm/clock/Clock.ice
 IceStorm/clock/clockC.vcproj
-IceStorm/clock/ClockI.cpp
-IceStorm/clock/ClockI.h
+#IceStorm/clock/ClockI.cpp
+#IceStorm/clock/ClockI.h
 IceStorm/clock/clockS.vcproj
 IceStorm/clock/config.icebox
 IceStorm/clock/config.pub
