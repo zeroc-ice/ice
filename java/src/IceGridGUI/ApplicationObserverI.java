@@ -30,22 +30,12 @@ class ApplicationObserverI extends _ApplicationObserverDisp
 	//
 	long timeout = 10000;
 
-	long start = System.currentTimeMillis();
-
-	while(!_initialized)
+	try
 	{
-	    try
-	    {
-		wait(timeout);
-	    }
-	    catch(InterruptedException e)
-	    {
-	    }
-
-	    if((start + timeout) < System.currentTimeMillis())
-	    {
-		break;
-	    }
+	    wait(timeout);
+	}
+	catch(InterruptedException e)
+	{
 	}
 	
 	if(_initialized)
@@ -57,7 +47,6 @@ class ApplicationObserverI extends _ApplicationObserverDisp
 	    throw new Ice.TimeoutException();
 	}
     }
-
 
     public synchronized void applicationInit(int serial, java.util.List applications, Ice.Current current)
     {

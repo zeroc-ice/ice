@@ -87,6 +87,14 @@ class SessionKeeper
 	    }
 	}
 	
+	void logout(boolean destroySession)
+	{
+	    close(destroySession);
+	    _coordinator.sessionLost();
+	    _connectedToMaster = false;
+	    _replicaName = "";
+	}
+
 	AdminSessionPrx getSession()
 	{
 	    return _session;
@@ -1253,11 +1261,8 @@ class SessionKeeper
     {
 	if(_session != null)
 	{
-	    _session.close(destroySession);
-	    _coordinator.sessionLost();
+	    _session.logout(destroySession);
 	    _session = null;
-	    _connectedToMaster = false;
-	    _replicaName = "";
 	}
     }
    
