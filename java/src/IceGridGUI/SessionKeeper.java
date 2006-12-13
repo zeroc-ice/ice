@@ -204,7 +204,7 @@ class SessionKeeper
 		category = "observer";
 
 		_adapter = 
-		    _coordinator.getCommunicator().createObjectAdapter("IceGrid.AdminGUI");
+		    _coordinator.getCommunicator().createObjectAdapter("");
 		_adapter.activate();
 		_session.ice_getConnection().setAdapter(_adapter);
 	    }
