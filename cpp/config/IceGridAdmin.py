@@ -58,6 +58,7 @@ registryOptions = r' --Ice.Warn.Connections=0' + \
                   r' --IceGrid.Registry.Trace.Locator=0' + \
                   r' --Ice.ThreadPool.Server.Size=0 ' + \
                   r' --Ice.ThreadPool.Client.SizeWarn=0' + \
+                  r' --IceGrid.Registry.Client.ThreadPool.SizeWarn=0' + \
                   r' --Ice.ServerIdleTime=0' + \
                   r' --IceGrid.Registry.DefaultTemplates=' + os.path.join(toplevel, "config", "templates.xml")
 
@@ -174,10 +175,8 @@ def iceGridAdmin(cmd, ignoreFailure = False):
     iceGridAdminPipe = os.popen(command + " 2>&1")
 
     output = iceGridAdminPipe.readlines()
-        
     iceGridAdminStatus = TestUtil.closePipe(iceGridAdminPipe)
     if not ignoreFailure and iceGridAdminStatus:
-        print "icegridadmin command failed: " + cmd
         for line in output:
             print line
         TestUtil.killServers()

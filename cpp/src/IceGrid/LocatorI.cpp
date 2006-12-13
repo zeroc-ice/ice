@@ -470,7 +470,7 @@ LocatorI::getDirectProxyException(const AdapterPrx& adapter, const string& id, c
 	    // wait time configured for the server.
 	    //
 	    AMI_Adapter_activatePtr amiCB = new AMI_Adapter_activateI(this, id, adapter);
-	    AdapterPrx::uncheckedCast(adapter->ice_timeout(ex.timeout))->activate_async(amiCB);
+	    AdapterPrx::uncheckedCast(adapter->ice_timeout(ex.timeout * 1000))->activate_async(amiCB);
 	    return;
 	}
     }

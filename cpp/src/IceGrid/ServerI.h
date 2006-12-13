@@ -160,6 +160,7 @@ private:
     bool _waitForReplication;
     std::string _stdErrFile;
     std::string _stdOutFile;
+    std::set<std::string> _logs;
 
     DestroyCommandPtr _destroy;
     StopCommandPtr _stop;

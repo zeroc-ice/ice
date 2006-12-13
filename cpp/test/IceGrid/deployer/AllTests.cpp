@@ -206,12 +206,19 @@ allTests(const Ice::CommunicatorPtr& comm)
     test(obj->getProperty("NameEscapeEscaped") == "$Server1");
     test(obj->getProperty("NameEscapedEscapeEscaped") == "$${name}");
     test(obj->getProperty("ManyEscape") == "$$$${name}");    
+    test(obj->getProperty("TestServer1Identity") == "Server1");
+    test(obj->getProperty("LogFilePath") == "test-Server1.log");
+    test(obj->getProperty("LogFilePath-Server1") == "test.log");
     cout << "ok" << endl;
 
     cout << "testing service configuration... " << flush;
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
     test(obj->getProperty("Service1.Type") == "standard");
     test(obj->getProperty("Service1.ServiceName") == "Service1");
+    test(obj->getProperty("TestService1Identity") == "IceBox1-Service1");
+    test(obj->getProperty("LogFilePath") == "test-Service1.log");
+    test(obj->getProperty("LogFilePath-Service1") == "test.log");
+
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
     test(obj->getProperty("Service2.Type") == "freeze");
     test(obj->getProperty("Service2.ServiceName") == "Service2");

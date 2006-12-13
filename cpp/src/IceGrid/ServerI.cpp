@@ -813,7 +813,7 @@ ServerI::isAdapterActivatable(const string& id, int& timeout) const
     }
     else if(_state < Destroying)
     {
-	timeout = _deactivationTimeout + _activationTimeout;
+	timeout = (_deactivationTimeout + _activationTimeout);
 	return true; // The server is being deactivated.
     }
     else
@@ -2483,6 +2483,35 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
 		props.push_back(createProperty(q->name + ".RegisterProcess", "1"));
 	    }
 	}
+
+	for(ObjectDescriptorSeq::const_iterator o = q->objects.begin(); o != q->objects.end(); ++o)
+	{
+	    if(!o->property.empty())
+	    {
+		props.push_back(createProperty(o->property, _node->getCommunicator()->identityToString(o->id)));
+	    }
+	}
+    }
+
+    //
+    // Add log properties.
+    //
+    props.push_back(createProperty("# Log paths"));
+    _logs.clear();
+    if(!descriptor->logs.empty())
+    {
+	for(LogDescriptorSeq::const_iterator l = descriptor->logs.begin(); l != descriptor->logs.end(); ++l)
+	{
+	    if(!l->property.empty())
+	    {
+		props.push_back(createProperty(l->property, l->path));
+	    }
+	    
+	    //
+	    // Cache the path of each log file.
+	    //
+	    _logs.insert(IcePatch2::simplify(l->path));
+	}
     }
 
     ofstream configfile(configFilePath.c_str());
@@ -2669,6 +2698,15 @@ ServerI::getFilePath(const string& filename) const
 	    throw FileNotAvailableException("Ice.StdOut configuration property is not set");
 	}
 	return _stdOutFile;
+    }
+    else if(!filename.empty() && filename[0] == '#')
+    {
+	string path = IcePatch2::simplify(filename.substr(1));
+	if(_logs.find(path) == _logs.end())
+	{
+	    throw FileNotAvailableException("unknown log file `" + path + "'");
+	}
+	return path;
     }
     else
     {

@@ -175,13 +175,9 @@ command
 {
     parser->listAllNodes();
 }
-| ICE_GRID_NODE ICE_GRID_DUMP ICE_GRID_STDERR optional_strings ';'
+| ICE_GRID_NODE ICE_GRID_DUMP strings_and_log_filename ';'
 {
-    parser->dumpFile("node", "stderr", $4);
-}
-| ICE_GRID_NODE ICE_GRID_DUMP ICE_GRID_STDOUT optional_strings ';'
-{
-    parser->dumpFile("node", "stdout", $4);
+    parser->dumpFile("node", $3);
 }
 | ICE_GRID_REGISTRY ICE_GRID_DESCRIBE optional_strings ';'
 {
@@ -199,13 +195,9 @@ command
 {
     parser->listAllRegistries();
 }
-| ICE_GRID_REGISTRY ICE_GRID_DUMP ICE_GRID_STDERR optional_strings ';'
+| ICE_GRID_REGISTRY ICE_GRID_DUMP strings_and_log_filename ';'
 {
-    parser->dumpFile("registry", "stderr", $4);
-}
-| ICE_GRID_REGISTRY ICE_GRID_DUMP ICE_GRID_STDOUT optional_strings ';'
-{
-    parser->dumpFile("registry", "stdout", $4);
+    parser->dumpFile("registry", $3);
 }
 | ICE_GRID_SERVER ICE_GRID_REMOVE optional_strings ';'
 {
@@ -259,13 +251,9 @@ command
 {
     parser->listAllServers();
 }
-| ICE_GRID_SERVER ICE_GRID_DUMP ICE_GRID_STDERR optional_strings ';'
+| ICE_GRID_SERVER ICE_GRID_DUMP strings_and_log_filename ';'
 {
-    parser->dumpFile("server", "stderr", $4);
-}
-| ICE_GRID_SERVER ICE_GRID_DUMP ICE_GRID_STDOUT optional_strings ';'
-{
-    parser->dumpFile("server", "stdout", $4);
+    parser->dumpFile("server", $3);
 }
 | ICE_GRID_ADAPTER ICE_GRID_ENDPOINTS optional_strings ';'
 {
@@ -398,6 +386,27 @@ command
 }
 | ';'
 {
+}
+;
+
+
+// ----------------------------------------------------------------------
+strings_and_log_filename
+// ----------------------------------------------------------------------
+: ICE_GRID_STRING strings
+{
+    $$ = $2;
+    $$.push_front($1.front());
+}
+| strings ICE_GRID_STDERR
+{
+    $$ = $2;
+    $$.push_back("stderr");
+}
+| strings ICE_GRID_STDOUT
+{
+    $$ = $2;
+    $$.push_back("stdout");
 }
 ;
 

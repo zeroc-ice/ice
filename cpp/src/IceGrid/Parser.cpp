@@ -82,15 +82,15 @@ Parser::usage()
         "node describe NAME          Show information about node NAME.\n"
 	"node ping NAME              Ping node NAME.\n"
 	"node load NAME              Print the load of the node NAME.\n"
-	"node dump stderr NAME       Dump node NAME stderr.\n"
-	"node dump stdout NAME       Dump node NAME stdout.\n"
+	"node dump NAME [stderr | stdout]\n"
+        "                            Dump node NAME stderr or stdout.\n"
 	"node shutdown NAME          Shutdown node NAME.\n"
 	"\n"
 	"registry list               List all registered registrys.\n"
         "registry describe NAME      Show information about registry NAME.\n"
 	"registry ping NAME          Ping registry NAME.\n"
-	"registry dump stderr NAME   Dump registry NAME stderr.\n"
-	"registry dump stdout NAME   Dump registry NAME stdout.\n"
+	"registry dump NAME [stderr | stdout]\n"
+        "                            Dump registry NAME stderr or stdout.\n"
 	"registry shutdown NAME      Shutdown registry NAME.\n"
 	"\n"
         "server list                 List all registered servers.\n"
@@ -104,8 +104,8 @@ Parser::usage()
         "server signal ID SIGNAL     Send SIGNAL (e.g. SIGTERM or 15) to server ID.\n"
         "server stdout ID MESSAGE    Write MESSAGE on server ID's stdout.\n"
 	"server stderr ID MESSAGE    Write MESSAGE on server ID's stderr.\n"
-	"server dump stderr ID       Dump server ID stderr.\n"
-	"server dump stdout ID       Dump server ID stdout.\n"
+	"server dump ID [stderr | stdout | LOGFILE ]\n"
+        "                            Dump server ID stderr, stdout or log file LOGFILE.\n"
 	"server enable ID            Enable server ID.\n"
 	"server disable ID           Disable server ID (a disabled server can't be\n"
         "                            started on demand or administratively).\n"
@@ -1290,7 +1290,7 @@ Parser::shutdown()
 }
 
 void
-Parser::dumpFile(const string& reader, const string& filename, const list<string>& origArgs)
+Parser::dumpFile(const string& reader, const list<string>& origArgs)
 {
     list<string> copyArgs = origArgs;
     copyArgs.push_front("icegridadmin");
@@ -1315,15 +1315,16 @@ Parser::dumpFile(const string& reader, const string& filename, const list<string
 	return;
     }
 
-    if(args.size() != 1)
+    if(args.size() != 2)
     {
-	invalidCommand("`" + reader + " dump " + filename + "' requires one argument");
+	invalidCommand("`" + reader + " dump' requires two arguments");
 	return;
     }
 
     try
     {
 	string id = *(args.begin());
+	string filename = *(++args.begin());
 
 	cout << reader << " `" << id << "' " << filename << ": " << flush;
 	Ice::StringSeq lines;
@@ -1359,6 +1360,11 @@ Parser::dumpFile(const string& reader, const string& filename, const list<string
 	    {
 		it = _session->openNodeStdOut(id, tail ? lineCount : -1);
 	    }
+	    else
+	    {
+		invalidCommand("invalid node log filename `" + filename + "'");
+		return;
+	    }
 	}
 	else if(reader == "registry")
 	{
@@ -1370,6 +1376,11 @@ Parser::dumpFile(const string& reader, const string& filename, const list<string
 	    {
 		it = _session->openRegistryStdOut(id, tail ? lineCount : -1);
 	    }
+	    else
+	    {
+		invalidCommand("invalid registry log filename `" + filename + "'");
+		return;
+	    }
 	}
 	else if(reader == "server")
 	{
@@ -1380,6 +1391,10 @@ Parser::dumpFile(const string& reader, const string& filename, const list<string
 	    else if(filename == "stdout")
 	    {
 		it = _session->openServerStdOut(id, tail ? lineCount : -1);
+	    }
+	    else
+	    {
+		it = _session->openServerLog(id, filename, tail ? lineCount : -1);
 	    }
 	}
 

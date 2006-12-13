@@ -212,32 +212,38 @@ AdminSessionI::getReplicaName(const Ice::Current& current) const
     return _replicaName;
 }
 
+FileIteratorPrx
+AdminSessionI::openServerLog(const string& id, const string& path, int nLines, const Ice::Current& current)
+{
+    return addFileIterator(_database->getServer(id)->getProxy(), "#" + path, nLines, current);
+}
+
 FileIteratorPrx 
-AdminSessionI::openServerStdOut(const std::string& id, int nLines, const Ice::Current& current)
+AdminSessionI::openServerStdOut(const string& id, int nLines, const Ice::Current& current)
 {
     return addFileIterator(_database->getServer(id)->getProxy(), "stdout", nLines, current);
 }
 
 FileIteratorPrx 
-AdminSessionI::openServerStdErr(const std::string& id, int nLines, const Ice::Current& current)
+AdminSessionI::openServerStdErr(const string& id, int nLines, const Ice::Current& current)
 {
     return addFileIterator(_database->getServer(id)->getProxy(), "stderr", nLines, current);
 }
 
 FileIteratorPrx 
-AdminSessionI::openNodeStdOut(const std::string& name, int nLines, const Ice::Current& current)
+AdminSessionI::openNodeStdOut(const string& name, int nLines, const Ice::Current& current)
 {
     return addFileIterator(_database->getNode(name)->getProxy(), "stdout", nLines, current);
 }
 
 FileIteratorPrx 
-AdminSessionI::openNodeStdErr(const std::string& name, int nLines, const Ice::Current& current)
+AdminSessionI::openNodeStdErr(const string& name, int nLines, const Ice::Current& current)
 {
     return addFileIterator(_database->getNode(name)->getProxy(), "stderr", nLines, current);
 }
 
 FileIteratorPrx 
-AdminSessionI::openRegistryStdOut(const std::string& name, int nLines, const Ice::Current& current)
+AdminSessionI::openRegistryStdOut(const string& name, int nLines, const Ice::Current& current)
 {
     FileReaderPrx reader;
     if(name == _replicaName)
@@ -252,7 +258,7 @@ AdminSessionI::openRegistryStdOut(const std::string& name, int nLines, const Ice
 }
 
 FileIteratorPrx
-AdminSessionI::openRegistryStdErr(const std::string& name, int nLines, const Ice::Current& current)
+AdminSessionI::openRegistryStdErr(const string& name, int nLines, const Ice::Current& current)
 {
     FileReaderPrx reader;
     if(name == _replicaName)

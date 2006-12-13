@@ -438,6 +438,14 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    _currentCommunicator->addDbEnv(attributes);
 	    _inDbEnv = true;
 	}
+	else if(name == "log")
+	{
+	    if(!_currentCommunicator)
+	    {
+		error("the <log> element can only be a child of a <server> or <service> element");
+	    }
+	    _currentCommunicator->addLog(attributes);
+	}
 	else if(name == "dbproperty")
 	{
 	    if(!_inDbEnv)

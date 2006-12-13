@@ -7,8 +7,12 @@
     <service name="${name}" entry="TestService:create">
 
       <adapter name="${service}" endpoints="default">
-	<object identity="${server}-${service}" type="::Test"/>
+	<object identity="${server}-${service}" type="::Test" property="Test${service}Identity"/>
       </adapter>
+
+      <log path="test-${service}.log" property="LogFilePath"/>
+      <log path="test.log" property="LogFilePath-${service}"/>
+
       <property name="${name}.Identity" value="${server}-${name}"/>
       <property name="${name}.Type" value="standard"/>
       <property name="${name}.ServiceName" value="${name}"/>

@@ -490,6 +490,7 @@ Resolver::operator()(const ObjectDescriptorSeq& objects, const string& type) con
 	ObjectDescriptor obj;
 	obj.type = operator()(q->type, type + " object type");
 	obj.id = operator()(q->id, type + " object identity");
+	obj.property = operator()(q->property, type + " object property");
 	result.push_back(obj);
     }
     return result;
@@ -892,6 +893,11 @@ CommunicatorHelper::operator==(const CommunicatorHelper& helper) const
 	return false;
     }
 
+    if(_desc->logs != helper._desc->logs)
+    {
+	return false;
+    }
+
     return true;
 }
 
@@ -968,6 +974,14 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
 	dbEnv.properties = resolve(s->properties, "database environment property");
 	instance->dbEnvs.push_back(dbEnv);
     }
+
+    for(LogDescriptorSeq::const_iterator l = _desc->logs.begin(); l != _desc->logs.end(); ++l)
+    {
+	LogDescriptor desc;
+	desc.path = resolve(l->path, "log path", false);
+	desc.property = resolve(l->property, "log property");
+	instance->logs.push_back(desc);
+    }
 }
 
 void
@@ -993,7 +1007,12 @@ CommunicatorHelper::print(Output& out) const
 	    printObjectAdapter(out, *p);
 	}
     }
-
+    {
+	for(LogDescriptorSeq::const_iterator p = _desc->logs.begin(); p != _desc->logs.end(); ++p)
+	{
+	    out << nl << "log `" << p->path << "' (property = `" + p->property +"')";
+	}
+    }
 }
 
 void 
@@ -1053,24 +1072,32 @@ CommunicatorHelper::printObjectAdapter(Output& out, const AdapterDescriptor& ada
     for(p = adapter.objects.begin(); p != adapter.objects.end(); ++p)
     {
 	out << nl << "well-known object";
+	out << sb;
+	out << nl << "identity = `" << _communicator->identityToString(p->id) << "' ";
 	if(!p->type.empty())
 	{
-	    out << sb;
-	    out << nl << "identity = `" << _communicator->identityToString(p->id) << "' ";
 	    out << nl << "type = `" << p->type << "'";
-	    out << eb;
 	}
+	if(!p->property.empty())
+	{
+	    out << nl << "property = `" << p->property << "'";
+	}
+	out << eb;
     }
     for(p = adapter.allocatables.begin(); p != adapter.allocatables.end(); ++p)
     {
 	out << nl << "allocatable";
+	out << sb;
+	out << nl << "identity = `" << _communicator->identityToString(p->id) << "' ";
 	if(!p->type.empty())
 	{
-	    out << sb;
-	    out << nl << "identity = `" << _communicator->identityToString(p->id) << "' ";
 	    out << nl << "type = `" << p->type << "'";
-	    out << eb;
 	}
+	if(!p->property.empty())
+	{
+	    out << nl << "property = `" << p->property << "'";
+	}
+	out << eb;
     }
     if(!adapter.description.empty())
     {

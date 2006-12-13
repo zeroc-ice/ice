@@ -50,6 +50,7 @@ public:
 
     virtual std::string getReplicaName(const Ice::Current&) const;
 
+    virtual FileIteratorPrx openServerLog(const std::string&, const std::string&, int, const Ice::Current&);
     virtual FileIteratorPrx openServerStdOut(const std::string&, int, const Ice::Current&);
     virtual FileIteratorPrx openServerStdErr(const std::string&, int, const Ice::Current&);
 

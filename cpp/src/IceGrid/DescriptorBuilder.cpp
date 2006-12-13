@@ -322,6 +322,10 @@ ApplicationDescriptorBuilder::addObject(const XmlAttributesHelper& attrs)
     ObjectDescriptor object;
     object.type = attrs("type", "");
     object.id = _communicator->stringToIdentity(attrs("identity"));
+    if(attrs.contains("property"))
+    {
+	object.property = attrs("property");
+    }
     _descriptor.replicaGroups.back().objects.push_back(object);
 }
 
@@ -692,6 +696,10 @@ CommunicatorDescriptorBuilder::addObject(const XmlAttributesHelper& attrs)
     ObjectDescriptor object;
     object.type = attrs("type", "");
     object.id = _communicator->stringToIdentity(attrs("identity"));
+    if(attrs.contains("property"))
+    {
+	object.property = attrs("property");
+    }
     _descriptor->adapters.back().objects.push_back(object);
 }
 
@@ -754,6 +762,18 @@ void
 CommunicatorDescriptorBuilder::setDbEnvDescription(const string& value)
 {
     _descriptor->dbEnvs.back().description = value;
+}
+
+void
+CommunicatorDescriptorBuilder::addLog(const XmlAttributesHelper& attrs)
+{
+    LogDescriptor desc;
+    desc.path = attrs("path");
+    if(attrs.contains("property"))
+    {
+	desc.property = attrs("property");
+    }
+    _descriptor->logs.push_back(desc);
 }
 
 void
@@ -925,6 +945,12 @@ void
 IceBoxDescriptorBuilder::addDbEnv(const XmlAttributesHelper& attrs)
 {
     throw "<dbenv> element can't be a child of an <icebox> element";
+}
+
+void
+IceBoxDescriptorBuilder::addLog(const XmlAttributesHelper& attrs)
+{
+    throw "<log> element can't be a child of an <icebox> element";
 }
 
 void

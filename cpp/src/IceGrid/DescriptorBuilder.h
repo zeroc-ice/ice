@@ -218,6 +218,7 @@ public:
     virtual void addDbEnv(const XmlAttributesHelper&);
     virtual void addDbEnvProperty(const XmlAttributesHelper&);
     virtual void setDbEnvDescription(const std::string&);
+    virtual void addLog(const XmlAttributesHelper&);
 
     virtual PropertySetDescriptorBuilder* createPropertySet() const;
 
@@ -287,6 +288,7 @@ public:
 
     virtual void addAdapter(const XmlAttributesHelper&);
     virtual void addDbEnv(const XmlAttributesHelper&);
+    virtual void addLog(const XmlAttributesHelper&);
     virtual void addServiceInstance(const ServiceInstanceDescriptor&);
     virtual void addService(const ServiceDescriptorPtr&);
 

@@ -122,7 +122,7 @@ public:
 
     void shutdown();
 
-    void dumpFile(const std::string&, const std::string&, const std::list<std::string>&);
+    void dumpFile(const std::string&, const std::list<std::string>&);
 
     void showBanner();
     void showCopying();

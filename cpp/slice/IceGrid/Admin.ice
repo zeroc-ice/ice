@@ -1224,6 +1224,39 @@ interface AdminSession extends Glacier2::Session
 
     /**
      *
+     * Open the given server log file for reading. The file can be
+     * read with the returned file iterator.
+     *
+     * @param id The server id.
+     *
+     * @param path The path of the log file. A log file can be opened
+     * only if it's declared in the server or service deployment
+     * descriptor.
+     *
+     * @param count Specifies where to start reading the file. If
+     * negative, the file is read from the begining. If 0 or positive,
+     * the file is read from the last <literal>count</literal> lines.
+     *
+     * @return An iterator to read the file.
+     *
+     * @throws FileNotAvailableException Raised if the file can't be
+     * read.
+     *
+     * @throws ServerNotExistException Raised if the server doesn't
+     * exist.
+     *
+     * @throws NodeUnreachableException Raised if the node could not
+     * be reached.
+     *
+     * @throws DeploymentException Raised if the server couldn't be
+     * deployed on the node.
+     *
+     **/
+    FileIterator* openServerLog(string id, string path, int count)
+	throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException, DeploymentException;
+
+    /**
+     *
      * Open the given server stderr file for reading. The file can be
      * read with the returned file iterator.
      *

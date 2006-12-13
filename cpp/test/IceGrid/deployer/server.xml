@@ -16,9 +16,12 @@
       <option>--Test.Test1=0</option>
 
       <adapter name="Server" endpoints="default">
-	<object identity="${server}" type="::Test"/>
+	<object identity="${server}" type="::Test" property="Test${server}Identity"/>
       </adapter>
       <adapter name="ReplicatedAdapter" endpoints="default" replica-group="ReplicatedAdapter"/>
+
+      <log path="test-${server}.log" property="LogFilePath"/>
+      <log path="test.log" property="LogFilePath-${server}"/>
 
       <properties>
         <properties refid="AppProperties"/>
