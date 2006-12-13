@@ -28,7 +28,7 @@ FileIteratorI::FileIteratorI(const AdminSessionIPtr& session,
     _reader(reader),
     _filename(filename),
     _offset(offset),
-    _messageSizeMax(messageSizeMax)
+    _messageSizeMax(messageSizeMax - 256) // Room for the header
 {
 }
 

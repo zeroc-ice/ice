@@ -493,14 +493,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(admin->getServerState("server-activation-timeout") == IceGrid::Inactive);
 	const int nThreads = 5;
 	Ice::ObjectPrx proxy = communicator->stringToProxy("server-activation-timeout");
-	try
-	{
-	    proxy->ice_ping();
-	}
-	catch(const Ice::LocalException& ex)
-	{
-	    cerr << ex << endl;
-	}
 	vector<PingThreadPtr> threads;
 	threads.reserve(nThreads);
 	vector<PingThreadPtr>::const_iterator p;

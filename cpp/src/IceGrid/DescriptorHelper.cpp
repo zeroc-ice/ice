@@ -1764,7 +1764,7 @@ ServerInstanceHelper::init(const ServerDescriptorPtr& definition, const Resolver
 	for(PropertySetDescriptorDict::const_iterator p = _def.servicePropertySets.begin();
 	    p != _def.servicePropertySets.end(); ++p)
 	{
-	    _instance.servicePropertySets.insert(make_pair(p->first, svrResolve(p->second)));
+	    _instance.servicePropertySets.insert(make_pair(svrResolve(p->first), svrResolve(p->second)));
 	}
     }
     

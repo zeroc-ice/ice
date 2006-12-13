@@ -19,8 +19,8 @@
 using namespace std;
 using namespace IceGrid;
 
-FileCache::FileCache(const Ice::CommunicatorPtr& communicator) : 
-    _messageSizeMax(communicator->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024) * 1024)
+FileCache::FileCache(const Ice::CommunicatorPtr& com) : 
+    _messageSizeMax(com->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024) * 1024 - 256)
 {
 }
 
@@ -119,6 +119,11 @@ FileCache::read(const string& file, Ice::Long offset, int size, Ice::Long& newOf
 	size = _messageSizeMax;
     }
 
+    if(size <= 5)
+    {
+	throw FileNotAvailableException("maximum bytes per read request is too low");
+    }
+
     ifstream is(file.c_str());
     if(is.fail())
     {
@@ -148,12 +153,28 @@ FileCache::read(const string& file, Ice::Long offset, int size, Ice::Long& newOf
 #else
     is.seekg(static_cast<streampos>(offset));
 #endif
-    int totalSize = 1024; // Some room for the message header.
+    int totalSize = 0;
     string line;
-    for(int i = 0; is.good() && totalSize < size; ++i)
+    for(int i = 0; is.good(); ++i)
     {
 	getline(is, line);
-	totalSize += line.size() + 5; // 5 bytes for the encoding of the string size (worst case scenario)
+	int lineSize = line.size() + 5; // 5 bytes for the encoding of the string size (worst case scenario)
+	if(lineSize + totalSize > size)
+	{
+	    if(size - totalSize - 5) // If there's some room left for a part of the string, return a partial string
+	    {
+		line.substr(0, size - totalSize - 5);
+		lines.push_back(line);
+		newOffset += line.size();
+	    }
+	    else
+	    {
+		lines.push_back("");
+	    }
+	    break;
+	}
+
+	totalSize += lineSize;
 	if(!is.fail())
 	{
 	    newOffset = is.tellg();

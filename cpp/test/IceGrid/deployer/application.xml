@@ -44,6 +44,7 @@
     <variable name="ObjectIdSlash" value="/"/>
     <variable name="ObjectName2" value="n2\/n2"/>
     <variable name="ObjectCategory2" value="c2\/c2"/>
+    <variable name="service4" value="Service4"/>
 
     <node name="localnode">
       <description>NODE ${NodeVar}</description>
@@ -76,7 +77,7 @@
         <properties>
           <property name="IceBoxInstanceProperty" value="${name}"/>
         </properties>
-        <properties service="Service4">
+        <properties service="${service4}">
           <property name="IceBoxInstanceProperty" value="overriden"/>
         </properties>
       </server-instance>
