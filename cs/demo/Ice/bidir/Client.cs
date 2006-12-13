@@ -21,7 +21,7 @@ public class Client : Ice.Application
             return 1;
         }
 
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Callback.Client");
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("");
 	Ice.Identity ident = new Ice.Identity();
 	ident.name = Ice.Util.generateUUID();
 	ident.category = "";

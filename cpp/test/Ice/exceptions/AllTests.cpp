@@ -572,7 +572,19 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 {
     cout << "testing object adapter registration exceptions... " << flush;
     {
-	Ice::ObjectAdapterPtr first = communicator->createObjectAdapter("TestAdapter0");
+	Ice::ObjectAdapterPtr first;
+        try
+	{
+	    first = communicator->createObjectAdapter("TestAdapter0");
+	    test(false);
+	}
+	catch(const Ice::InitializationException&)
+	{
+	    // Expected
+	}
+
+	communicator->getProperties()->setProperty("TestAdapter0.Endpoints", "default");
+	first = communicator->createObjectAdapter("TestAdapter0");
 	try
 	{
 	    Ice::ObjectAdapterPtr second = communicator->createObjectAdapter("TestAdapter0");
@@ -583,7 +595,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	    // Expected
 	}
 
-	communicator->getProperties()->setProperty("TestAdapter0.Endpoints", "");
 	try
 	{
 	    Ice::ObjectAdapterPtr second = 
@@ -597,13 +608,14 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	//
 	// Properties must remain unaffected if an exception occurs.
 	//
-	test(communicator->getProperties()->getProperty("TestAdapter0.Endpoints") == "");
+	test(communicator->getProperties()->getProperty("TestAdapter0.Endpoints") == "default");
 	first->deactivate();
     }
     cout << "ok" << endl;
     
     cout << "testing servant registration exceptions... " << flush;
     {
+	communicator->getProperties()->setProperty("TestAdapter1.Endpoints", "default");
 	Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter1");
 	Ice::ObjectPtr obj = new EmptyI;
 	adapter->add(obj, communicator->stringToIdentity("x"));
@@ -632,6 +644,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
     cout << "testing servant locator registrations exceptions... " << flush;
     {
+	communicator->getProperties()->setProperty("TestAdapter2.Endpoints", "default");
 	Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter2");
 	Ice::ServantLocatorPtr loc = new ServantLocatorI;
 	adapter->addServantLocator(loc, "x");

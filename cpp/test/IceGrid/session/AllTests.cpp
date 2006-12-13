@@ -1182,7 +1182,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	AdminPrx admin1 = session1->getAdmin();
 	AdminPrx admin2 = session2->getAdmin();
 	
-	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("Observer1");
+	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("");
 	ApplicationObserverIPtr appObs1 = new ApplicationObserverI("appObs1.1");
 	Ice::ObjectPrx app1 = adpt1->addWithUUID(appObs1);
 	NodeObserverIPtr nodeObs1 = new NodeObserverI("nodeObs1");
@@ -1407,7 +1407,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	keepAlive->add(session1);
 	
-	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("Observer1.1");
+	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("");
 	ApplicationObserverIPtr appObs1 = new ApplicationObserverI("appObs1.2");
 	Ice::ObjectPrx app1 = adpt1->addWithUUID(appObs1);
 	adpt1->activate();
@@ -1504,7 +1504,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	keepAlive->add(session1);
 	
-	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("Observer1.1");
+	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("");
 	AdapterObserverIPtr adptObs1 = new AdapterObserverI("adptObs1");
 	Ice::ObjectPrx adapter1 = adpt1->addWithUUID(adptObs1);
 	adpt1->activate();
@@ -1589,7 +1589,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	keepAlive->add(session1);
 	
-	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("Observer1.1");
+	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("");
 	ObjectObserverIPtr objectObs1 = new ObjectObserverI("objectObs1");
 	Ice::ObjectPrx object1 = adpt1->addWithUUID(objectObs1);
 	adpt1->activate();
@@ -1755,7 +1755,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	
 	keepAlive->add(session1);
 	
-	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("Observer1.2");
+	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("");
 	ApplicationObserverIPtr appObs1 = new ApplicationObserverI("appObs1.3");
 	Ice::ObjectPrx app1 = adpt1->addWithUUID(appObs1);
 	NodeObserverIPtr nodeObs1 = new NodeObserverI("nodeObs1");
@@ -1902,7 +1902,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	
 	keepAlive->add(session1);
 	
-	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("Observer1.3");
+	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("");
 	ApplicationObserverIPtr appObs1 = new ApplicationObserverI("appObs1.4");
 	Ice::ObjectPrx app1 = adpt1->addWithUUID(appObs1);
 	RegistryObserverIPtr registryObs1 = new RegistryObserverI("registryObs1");

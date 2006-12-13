@@ -50,7 +50,7 @@ CallbackClient::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Callback.Client");
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("");
     Ice::Identity ident;
     ident.name = IceUtil::generateUUID();
     ident.category = "";

@@ -51,7 +51,7 @@ Ice::ObjectAdapterI::getName() const
     //
     // No mutex lock necessary, _name is immutable.
     //
-    return _name;
+    return _noConfig ? "" : _name;
 }
 
 CommunicatorPtr
@@ -97,8 +97,13 @@ Ice::ObjectAdapterI::activate()
 	_waitForActivate = true;
 
 	locatorInfo = _locatorInfo;
-	printAdapterReady = _instance->initializationData().properties->getPropertyAsInt("Ice.PrintAdapterReady") > 0;
-	registerProcess = _instance->initializationData().properties->getPropertyAsInt(_name + ".RegisterProcess") > 0;
+	if(!_noConfig)
+	{
+	    printAdapterReady = 
+	        _instance->initializationData().properties->getPropertyAsInt("Ice.PrintAdapterReady") > 0;
+	    registerProcess = 
+	        _instance->initializationData().properties->getPropertyAsInt(_name + ".RegisterProcess") > 0;
+	}
     }
 
     try
@@ -671,7 +676,7 @@ Ice::ObjectAdapterI::getServantManager() const
 
 Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const CommunicatorPtr& communicator,
 				    const ObjectAdapterFactoryPtr& objectAdapterFactory, const string& name,
-				    const string& endpointInfo, const RouterPrx& router) :
+				    const string& endpointInfo, const RouterPrx& router, bool noConfig) :
     _deactivated(false),
     _instance(instance),
     _communicator(communicator),
@@ -679,12 +684,34 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     _servantManager(new ServantManager(instance, name)),
     _activateOneOffDone(false),
     _name(name),
-    _id(instance->initializationData().properties->getProperty(name + ".AdapterId")),
-    _replicaGroupId(instance->initializationData().properties->getProperty(name + ".ReplicaGroupId")),
     _directCount(0),
     _waitForActivate(false),
-    _waitForDeactivate(false)
+    _waitForDeactivate(false),
+    _noConfig(noConfig)
 {
+    if(_noConfig)
+    {
+        return;
+    }
+
+    //
+    // Make sure named adapter has some configuration
+    //
+    if(endpointInfo.empty() && router == 0)
+    {
+        PropertyDict oaProps = instance->initializationData().properties->getPropertiesForPrefix(_name + ".");
+        if(oaProps.size() == 0)
+	{
+            InitializationException ex(__FILE__, __LINE__);
+	    ex.reason = "Object adapter \"" + _name + "\" requires configuration.";
+	    throw ex;
+        }
+    }
+
+    const_cast<string&>(_id) = instance->initializationData().properties->getProperty(name + ".AdapterId");
+    const_cast<string&>(_replicaGroupId) =
+        instance->initializationData().properties->getProperty(name + ".ReplicaGroupId");
+
     __setNoDelete(true);
     try
     {
@@ -809,12 +836,12 @@ Ice::ObjectAdapterI::~ObjectAdapterI()
     if(!_deactivated)
     {
 	Warning out(_instance->initializationData().logger);
-	out << "object adapter `" << _name << "' has not been deactivated";
+	out << "object adapter `" << getName() << "' has not been deactivated";
     }
     else if(_instance)
     {
 	Warning out(_instance->initializationData().logger);
-	out << "object adapter `" << _name << "' deactivation had not been waited for";
+	out << "object adapter `" << getName() << "' deactivation had not been waited for";
     }
     else
     {
@@ -892,7 +919,7 @@ Ice::ObjectAdapterI::checkForDeactivation() const
     if(_deactivated)
     {
 	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
-	ex.name = _name;
+	ex.name = getName();
 	throw ex;
     }
 }
@@ -988,12 +1015,12 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
 	if(!locatorRegistry)
 	{
 	    Warning out(_instance->initializationData().logger);
-	    out << "object adapter `" << _name << "' cannot register the process without a locator registry";
+	    out << "object adapter `" << getName() << "' cannot register the process without a locator registry";
 	}
 	else if(serverId.empty())
 	{
 	    Warning out(_instance->initializationData().logger);
-	    out << "object adapter `" << _name << "' cannot register the process without a value for Ice.ServerId";
+	    out << "object adapter `" << getName() << "' cannot register the process without a value for Ice.ServerId";
 	}
     }
 

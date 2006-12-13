@@ -127,8 +127,24 @@ public final class ObjectAdapterFactory
 	    throw new Ice.AlreadyRegisteredException("object adapter", name);
         }
 
-        adapter = new Ice.ObjectAdapterI(_instance, _communicator, this, name, endpoints, router);
-        _adapters.put(name, adapter);
+	if(name.length() == 0 && (endpoints.length() != 0 || router != null))
+	{
+	    Ice.InitializationException ex = new Ice.InitializationException();
+	    ex.reason = "Cannot configure endpoints or router with nameless object adapter";
+	    throw ex;
+	}
+
+	if(name.length() == 0)
+	{
+	    String uuid = Ice.Util.generateUUID();
+            adapter = new Ice.ObjectAdapterI(_instance, _communicator, this, uuid, "", null, true);
+            _adapters.put(uuid, adapter);
+	}
+	else
+	{
+            adapter = new Ice.ObjectAdapterI(_instance, _communicator, this, name, endpoints, router, false);
+            _adapters.put(name, adapter);
+	}
         return adapter;
     }
 

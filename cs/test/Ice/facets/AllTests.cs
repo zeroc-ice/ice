@@ -23,6 +23,7 @@ public class AllTests
     public static GPrx allTests(Ice.Communicator communicator)
     {
         Console.Write("testing facet registration exceptions... ");
+	communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "default");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter");
         Ice.Object obj = new EmptyI();
         adapter.add(obj, communicator.stringToIdentity("d"));

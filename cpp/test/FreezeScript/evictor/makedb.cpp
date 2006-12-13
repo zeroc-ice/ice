@@ -69,8 +69,7 @@ run(const Ice::CommunicatorPtr& communicator, const string& envName, const strin
     Ice::ObjectFactoryPtr factory = new Factory;
     communicator->addObjectFactory(factory, "");
 
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("test");
-
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("");
     Freeze::EvictorPtr evictor = Freeze::createEvictor(adapter, envName, dbName);
 
     for(int i = 0; i < 10; ++i)

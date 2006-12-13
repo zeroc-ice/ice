@@ -1,5 +1,4 @@
 Callback.Client.CallbackServer=sender:tcp -p 10000
-Callback.Client.Endpoints=
 
 # Active connection management must be disabled when using
 # bidirectional connections.

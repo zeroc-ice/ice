@@ -719,7 +719,18 @@ public class AllTests
     {
 	{
 	    System.out.print("testing object adapter registration exceptions... ");
-	    Ice.ObjectAdapter first = communicator.createObjectAdapter("TestAdapter0");
+	    Ice.ObjectAdapter first;
+	    try
+	    {
+	        first = communicator.createObjectAdapter("TestAdapter0");
+	    }
+	    catch(Ice.InitializationException ex)
+	    {
+	        // Expected
+	    }
+
+	    communicator.getProperties().setProperty("TestAdapter0.Endpoints", "default");
+	    first = communicator.createObjectAdapter("TestAdapter0");
 	    try
 	    {
 		Ice.ObjectAdapter second = communicator.createObjectAdapter("TestAdapter0");
@@ -730,7 +741,6 @@ public class AllTests
 		// Expected
 	    }
 	    
-	    communicator.getProperties().setProperty("TestAdapter0.Endpoints", "");
 	    try
 	    {
 		Ice.ObjectAdapter second = 
@@ -741,13 +751,14 @@ public class AllTests
 	    {
 		// Expected
 	    }
-	    test(communicator.getProperties().getProperty("TestAdapter0.Endpoints").equals(""));
+	    test(communicator.getProperties().getProperty("TestAdapter0.Endpoints").equals("default"));
 	    first.deactivate();
 	    System.out.println("ok");
 	}
 	
         {
 	    System.out.print("testing servant registration exceptions... ");
+	    communicator.getProperties().setProperty("TestAdapter1.Endpoints", "default");
 	    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");
 	    Ice.Object obj = new EmptyI();
 	    adapter.add(obj, communicator.stringToIdentity("x"));
@@ -775,6 +786,7 @@ public class AllTests
 
 	{
 	    System.out.print("testing servant locator registration exceptions... ");
+	    communicator.getProperties().setProperty("TestAdapter2.Endpoints", "default");
 	    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter2");
 	    Ice.ServantLocator loc = new ServantLocatorI();
 	    adapter.addServantLocator(loc, "x");

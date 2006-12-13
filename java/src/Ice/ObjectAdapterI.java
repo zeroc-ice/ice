@@ -17,7 +17,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	//
         // No mutex lock necessary, _name is immutable.
 	//
-        return _name;
+        return _noConfig ? "" : _name;
     }
 
     public synchronized Communicator
@@ -66,9 +66,12 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    _waitForActivate = true;
 	    
 	    locatorInfo = _locatorInfo;
-	    final Properties properties = _instance.initializationData().properties;
-	    registerProcess = properties.getPropertyAsInt(_name +".RegisterProcess") > 0;
-	    printAdapterReady = properties.getPropertyAsInt("Ice.PrintAdapterReady") > 0;
+	    if(!_noConfig)
+	    {
+	        final Properties properties = _instance.initializationData().properties;
+	        registerProcess = properties.getPropertyAsInt(_name +".RegisterProcess") > 0;
+	        printAdapterReady = properties.getPropertyAsInt("Ice.PrintAdapterReady") > 0;
+	    }
 	}
 
 	try
@@ -683,7 +686,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     public
     ObjectAdapterI(IceInternal.Instance instance, Communicator communicator, 
     		   IceInternal.ObjectAdapterFactory objectAdapterFactory, String name, String endpointInfo,
-		   RouterPrx router)
+		   RouterPrx router, boolean noConfig)
     {
 	_deactivated = false;
         _instance = instance;
@@ -692,11 +695,34 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	_servantManager = new IceInternal.ServantManager(instance, name);
 	_activateOneOffDone = false;
         _name = name;
-	_id = instance.initializationData().properties.getProperty(name + ".AdapterId");
-	_replicaGroupId = instance.initializationData().properties.getProperty(name + ".ReplicaGroupId");
 	_directCount = 0;
  	_waitForActivate = false;
 	_waitForDeactivate = false;
+	_noConfig = noConfig;
+
+	if(_noConfig)
+	{
+	    _id = "";
+	    _replicaGroupId = "";
+	    return;
+	}
+
+	//
+	// Make sure named adapter has some configuration.
+	//
+	if(endpointInfo.length() == 0 && router == null)
+	{
+	    java.util.Map oaProps = instance.initializationData().properties.getPropertiesForPrefix(_name + ".");
+	    if(oaProps.size() == 0)
+	    {
+	        InitializationException ex = new InitializationException();
+		ex.reason = "Object adapter \"" + _name + "\" requires configuration.";
+		throw ex;
+	    }
+	}
+
+	_id = instance.initializationData().properties.getProperty(name + ".AdapterId");
+	_replicaGroupId = instance.initializationData().properties.getProperty(name + ".ReplicaGroupId");
 	
         try
         {
@@ -855,7 +881,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    // For compatibility with C#, we do not invoke methods on other objects
 	    // in a finalizer.
 	    //
-            //_instance.initializationData().logger.warning("object adapter `" + _name + "' has not been deactivated");
+            //_instance.initializationData().logger.warning("object adapter `" + getName() + "' has not been deactivated");
         }
         else if(_instance != null)
         {
@@ -863,7 +889,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    // For compatibility with C#, we do not invoke methods on other objects
 	    // in a finalizer.
 	    //
-            //_instance.initializationData().logger.warning("object adapter `" + _name + "' deactivation had not been waited for");
+            //_instance.initializationData().logger.warning("object adapter `" + getName() + "' deactivation had not been waited for");
         }
 	else
 	{
@@ -952,7 +978,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	if(_deactivated)
 	{
             ObjectAdapterDeactivatedException ex = new ObjectAdapterDeactivatedException();
-	    ex.name = _name;
+	    ex.name = getName();
 	    throw ex;
 	}
     }
@@ -1051,12 +1077,12 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    if(locatorRegistry == null)
 	    {
 		_instance.initializationData().logger.warning(
-		    "object adapter `" + _name + "' cannot register the process without a locator registry");
+		    "object adapter `" + getName() + "' cannot register the process without a locator registry");
 	    }
 	    else if(serverId.length() == 0)
 	    {
 		_instance.initializationData().logger.warning(
-		    "object adapter `" + _name + "' cannot register the process without a value for Ice.ServerId");
+		    "object adapter `" + getName() + "' cannot register the process without a value for Ice.ServerId");
 	    }
 	}
 
@@ -1170,4 +1196,5 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     private int _directCount;
     private boolean _waitForActivate;
     private boolean _waitForDeactivate;
+    private boolean _noConfig;
 }

@@ -33,7 +33,7 @@ class Client(Ice.Application):
             print self.appName() + ": invalid proxy"
             return 1
 
-        adapter = self.communicator().createObjectAdapter("Callback.Client")
+        adapter = self.communicator().createObjectAdapter("")
 	ident = Ice.Identity()
 	ident.name = Ice.generateUUID()
 	ident.category = ""

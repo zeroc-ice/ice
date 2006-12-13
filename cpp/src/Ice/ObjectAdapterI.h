@@ -85,7 +85,7 @@ private:
 
     ObjectAdapterI(const IceInternal::InstancePtr&, const CommunicatorPtr&, 
 		   const IceInternal::ObjectAdapterFactoryPtr&, const std::string&, const std::string&,
-		   const RouterPrx&);
+		   const RouterPrx&, bool);
     virtual ~ObjectAdapterI();
     friend class IceInternal::ObjectAdapterFactory;
     
@@ -115,6 +115,7 @@ private:
     int _directCount; // The number of direct proxies dispatching on this object adapter.
     bool _waitForActivate;
     bool _waitForDeactivate;
+    bool _noConfig;
 
     class ProcessI : public Process
     {

@@ -1,6 +1,11 @@
 Changes since version 3.1.1
 ---------------------------     
 
+- The communcator object adapter now throw an InitializationException
+  if the adapter has no configuration. It is possible to explicitly
+  create a adapter with no configuration, useful for use with
+  bi-directional connections, by calling createObjectAdapter("").
+
 - Fixed a bug that could cause the marshaling code to assert
   if Ice.MessageSizeMax was exceeded during marshaling of a string.
 

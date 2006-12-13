@@ -20,7 +20,7 @@ namespace Ice
 	    //
 	    // No mutex lock necessary, _name is immutable.
 	    //
-	    return _name;
+	    return _noConfig ? "" : _name;
 	}
 
 	public Communicator getCommunicator()
@@ -66,9 +66,12 @@ namespace Ice
 		_waitForActivate = true;
 		
 		locatorInfo = _locatorInfo;
-		Properties properties = instance_.initializationData().properties;
-		registerProcess = properties.getPropertyAsInt(_name + ".RegisterProcess") > 0;
-		printAdapterReady = properties.getPropertyAsInt("Ice.PrintAdapterReady") > 0;
+		if(!_noConfig)
+		{
+		    Properties properties = instance_.initializationData().properties;
+		    registerProcess = properties.getPropertyAsInt(_name + ".RegisterProcess") > 0;
+		    printAdapterReady = properties.getPropertyAsInt("Ice.PrintAdapterReady") > 0;
+		}
 	    }
 	    
 	    try
@@ -688,7 +691,7 @@ namespace Ice
 	//
 	public ObjectAdapterI(IceInternal.Instance instance, Communicator communicator,
 			      IceInternal.ObjectAdapterFactory objectAdapterFactory, string name, 
-			      string endpointInfo, RouterPrx router)
+			      string endpointInfo, RouterPrx router, bool noConfig)
 	{
 	    _deactivated = false;
 	    instance_ = instance;
@@ -697,8 +700,6 @@ namespace Ice
 	    _servantManager = new IceInternal.ServantManager(instance, name);
 	    _activateOneOffDone = false;
 	    _name = name;
-	    _id = instance.initializationData().properties.getProperty(name + ".AdapterId");
-	    _replicaGroupId = instance.initializationData().properties.getProperty(name + ".ReplicaGroupId");
 	    _incomingConnectionFactories = new ArrayList();
 	    _publishedEndpoints = new ArrayList();
 	    _routerEndpoints = new ArrayList();
@@ -706,7 +707,30 @@ namespace Ice
 	    _directCount = 0;
 	    _waitForActivate = false;
 	    _waitForDeactivate = false;
+	    _noConfig = noConfig;
+
+	    if(_noConfig)
+	    {
+	        return;
+	    }
+
+	    //
+	    // Make sure named adapter has configuration.
+	    //
+	    if(endpointInfo.Length == 0 && router == null)
+	    {
+	        PropertyDict oaProps = instance.initializationData().properties.getPropertiesForPrefix(_name + ".");
+		if(oaProps.Count == 0)
+		{
+		    InitializationException ex = new InitializationException();
+		    ex.reason = "Object adapter \"" + _name + "\" requires configuration.";
+		    throw ex;
+		}
+	    }
 	    
+	    _id = instance.initializationData().properties.getProperty(name + ".AdapterId");
+	    _replicaGroupId = instance.initializationData().properties.getProperty(name + ".ReplicaGroupId");
+
 	    try
 	    {
 	        if(router == null)
@@ -864,24 +888,25 @@ namespace Ice
 		{
 		    if(!Environment.HasShutdownStarted)
 		    {
-			instance_.initializationData().logger.warning("object adapter `" + _name +
+			instance_.initializationData().logger.warning("object adapter `" + getName() +
 								      "' has not been deactivated");
 		    }
 		    else
 		    {
-			Console.Error.WriteLine("object adapter `" + _name + "' has not been deactivated");
+			Console.Error.WriteLine("object adapter `" + getName() + "' has not been deactivated");
 		    }
 		}
 		else if(instance_ != null)
 		{
 		    if(!Environment.HasShutdownStarted)
 		    {
-			instance_.initializationData().logger.warning("object adapter `" + _name +
+			instance_.initializationData().logger.warning("object adapter `" + getName() +
 			                           "' deactivation had not been waited for");
 		    }
 		    else
 		    {
-			Console.Error.WriteLine("object adapter `" + _name + "' deactivation had not been waited for");
+			Console.Error.WriteLine("object adapter `" + getName() + 
+						"' deactivation had not been waited for");
 		    }
 		}
 		else
@@ -972,7 +997,7 @@ namespace Ice
 	    if(_deactivated)
 	    {
 		ObjectAdapterDeactivatedException ex = new ObjectAdapterDeactivatedException();
-		ex.name = _name;
+		ex.name = getName();
 		throw ex;
 	    }
 	}
@@ -1075,12 +1100,13 @@ namespace Ice
 		if(locatorRegistry == null)
 		{
 		    instance_.initializationData().logger.warning(
-			"object adapter `" + _name + "' cannot register the process without a locator registry");
+			"object adapter `" + getName() + "' cannot register the process without a locator registry");
 		}
 		else if(serverId.Length == 0)
 		{
 		    instance_.initializationData().logger.warning(
-			"object adapter `" + _name + "' cannot register the process without a value for Ice.ServerId");
+			"object adapter `" + getName() + 
+			"' cannot register the process without a value for Ice.ServerId");
 		}
 	    }
 
@@ -1193,6 +1219,7 @@ namespace Ice
 	private int _directCount;
 	private bool _waitForActivate;
 	private bool _waitForDeactivate;
+	private bool _noConfig;
     }
 
 }

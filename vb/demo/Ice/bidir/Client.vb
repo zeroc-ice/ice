@@ -20,7 +20,7 @@ Module BidirC
                 Return 1
             End If
 
-            Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("Callback.Client")
+            Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("")
             Dim ident As Ice.Identity = New Ice.Identity
             ident.name = Ice.Util.generateUUID()
             ident.category = ""

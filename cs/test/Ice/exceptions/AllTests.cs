@@ -666,7 +666,18 @@ public class AllTests
     {
         {
             Console.Write("testing object adapter registration exceptions... ");
-            Ice.ObjectAdapter first = communicator.createObjectAdapter("TestAdapter0");
+            Ice.ObjectAdapter first;
+	    try
+	    {
+	        first = communicator.createObjectAdapter("TestAdapter0");
+	    }
+	    catch(Ice.InitializationException)
+	    {
+	        // Expected
+	    }
+
+	    communicator.getProperties().setProperty("TestAdapter0.Endpoints", "default");
+	    first = communicator.createObjectAdapter("TestAdapter0");
             try
             {
 	        communicator.createObjectAdapter("TestAdapter0");
@@ -677,7 +688,6 @@ public class AllTests
                 // Expected.
             }
 
-	    communicator.getProperties().setProperty("TestAdapter0.Endpoints", "");
 	    try
 	    {
 		Ice.ObjectAdapter second = 
@@ -693,13 +703,14 @@ public class AllTests
 	    {
 		// Expected
 	    }
-	    test(communicator.getProperties().getProperty("TestAdapter0.Endpoints").Equals(""));
+	    test(communicator.getProperties().getProperty("TestAdapter0.Endpoints").Equals("default"));
             first.deactivate();
             Console.WriteLine("ok");
         }
 
         {
             Console.Write("testing servant registration exceptions... ");
+	    communicator.getProperties().setProperty("TestAdapter1.Endpoints", "default");
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");
             Ice.Object obj = new EmptyI();
             adapter.add(obj, communicator.stringToIdentity("x"));
@@ -727,6 +738,7 @@ public class AllTests
         
         {
             Console.Write("testing servant locator registration exceptions... ");
+	    communicator.getProperties().setProperty("TestAdapter2.Endpoints", "default");
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter2");
             Ice.ServantLocator loc = new ServantLocatorI();
             adapter.addServantLocator(loc, "x");
