@@ -73,11 +73,6 @@ public class ApplicationPane extends JSplitPane implements Tab
     {
 	if(_currentNode != null)
 	{
-	    if(_currentEditor != null)
-	    {
-		_currentEditor.save(true);
-	    }
-
 	    _currentEditor = _currentNode.getEditor();
 	    if(_root.getCoordinator().getCurrentTab() == this)
 	    {
@@ -231,6 +226,7 @@ public class ApplicationPane extends JSplitPane implements Tab
 	}
 
 	_root = newRoot;
+	_root.setPane(this);
 	
 	//
 	// Tree display
@@ -297,6 +293,18 @@ public class ApplicationPane extends JSplitPane implements Tab
     {
 	_root.getCoordinator().getMainPane().remove(this);
 	return true;
+    }
+
+    public boolean applyUpdates(boolean refresh)
+    {
+	if(_currentEditor == null)
+	{
+	    return true;
+	}
+	else
+	{
+	    return _currentEditor.save(refresh);
+	}
     }
 
     private void registerAction(Coordinator c, int index)

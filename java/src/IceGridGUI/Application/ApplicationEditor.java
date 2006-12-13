@@ -72,6 +72,7 @@ class ApplicationEditor extends Editor
 		if(!savedDescriptor.name.equals(root.getId()))
 		{
 		    mainPane.resetTitle(root);
+		    root.getTreeModel().nodeChanged(root);
 		}
 	    }
 	      

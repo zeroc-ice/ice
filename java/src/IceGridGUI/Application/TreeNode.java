@@ -46,7 +46,7 @@ public abstract class TreeNode extends TreeNodeBase
 	super(parent, id);
     }
 
-    Root getRoot()
+    public Root getRoot()
     {
 	assert _parent != null;
 	return ((TreeNode)_parent).getRoot();

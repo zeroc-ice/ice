@@ -1140,6 +1140,17 @@ public class Root extends ListTreeNode
 	return _updated || !_registryUpdatesEnabled;
     }
 
+    public void setPane(ApplicationPane app)
+    {
+	_applicationPane = app;
+    }
+
+    public ApplicationPane getPane()
+    {
+	return _applicationPane;
+    }
+
+
     Editor getEditor(Class c, TreeNode node)
     {
 	Editor result = (Editor)_editorMap.get(c);
@@ -1319,7 +1330,7 @@ public class Root extends ListTreeNode
 	return _replicaGroups;
     }
 
-    Root getRoot()
+    public Root getRoot()
     {
 	return this;
     }
@@ -1421,6 +1432,8 @@ public class Root extends ListTreeNode
     // Map editor-class to Editor object
     //
     private java.util.Map _editorMap = new java.util.HashMap();
+
+    private ApplicationPane _applicationPane;
 
     static private DefaultTreeCellRenderer _cellRenderer;    
     static private JPopupMenu _popup;

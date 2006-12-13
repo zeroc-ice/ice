@@ -1399,6 +1399,17 @@ public class Coordinator
 	{
 	    _substitute = newValue;
 
+	    boolean refresh = true;
+	    if(getCurrentTab() instanceof ApplicationPane)
+	    {
+		ApplicationPane app = (ApplicationPane)getCurrentTab();
+		if(!app.applyUpdates(false))
+		{
+		    _substitute = !_substitute;
+		    refresh = false;
+		}
+	    }
+
 	    if(_substitute)
 	    {
 		_substituteMenuItem.setSelected(true);
@@ -1409,7 +1420,11 @@ public class Coordinator
 		_showVarsMenuItem.setSelected(true);
 		_showVarsTool.setSelected(true);
 	    }
-	    getCurrentTab().refresh();
+
+	    if(refresh)
+	    {
+		getCurrentTab().refresh();
+	    }
 	}
     }
 

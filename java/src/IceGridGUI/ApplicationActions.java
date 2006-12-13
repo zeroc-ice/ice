@@ -60,7 +60,10 @@ public class ApplicationActions
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    _target.newAdapter();
+		    if(apply(_target))
+		    {
+			_target.newAdapter();
+		    }
 		}
 	    };
 
@@ -69,7 +72,10 @@ public class ApplicationActions
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    _target.newDbEnv();
+		    if(apply(_target))
+		    {
+			_target.newDbEnv();
+		    }
 		}
 	    };
 	
@@ -78,7 +84,10 @@ public class ApplicationActions
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    _target.newNode();
+		    if(apply(_target))
+		    {
+			_target.newNode();
+		    }
 		}
 	    };
 
@@ -87,7 +96,10 @@ public class ApplicationActions
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    _target.newPropertySet();
+		    if(apply(_target))
+		    {
+			_target.newPropertySet();
+		    }
 		}
 	    };
 
@@ -96,7 +108,10 @@ public class ApplicationActions
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    _target.newReplicaGroup();
+		    if(apply(_target))
+		    {
+			_target.newReplicaGroup();
+		    }
 		}
 	    };
 
@@ -105,7 +120,10 @@ public class ApplicationActions
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    _target.newServer();
+		    if(apply(_target))
+		    {
+			_target.newServer();
+		    }
 		}
 	    };
 
@@ -114,7 +132,10 @@ public class ApplicationActions
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    _target.newServerIceBox();
+		    if(apply(_target))
+		    {
+			_target.newServerIceBox();
+		    }
 		}
 	    };
 
@@ -123,7 +144,10 @@ public class ApplicationActions
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    _target.newServerFromTemplate();
+		    if(apply(_target))
+		    {
+			_target.newServerFromTemplate();
+		    }
 		}
 	    };
 
@@ -133,7 +157,10 @@ public class ApplicationActions
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    _target.newService();
+		    if(apply(_target))
+		    {
+			_target.newService();
+		    }
 		}
 	    };
 
@@ -142,7 +169,10 @@ public class ApplicationActions
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    _target.newServiceFromTemplate();
+		    if(apply(_target))
+		    {
+			_target.newServiceFromTemplate();
+		    }
 		}
 	    };
 
@@ -151,7 +181,10 @@ public class ApplicationActions
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    _target.newTemplateServer();
+		    if(apply(_target))
+		    {
+			_target.newTemplateServer();
+		    }
 		}
 	    };
 	
@@ -160,7 +193,10 @@ public class ApplicationActions
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    _target.newTemplateServerIceBox();
+		    if(apply(_target))
+		    {
+			_target.newTemplateServerIceBox();
+		    }
 		}
 	    };
 
@@ -170,7 +206,10 @@ public class ApplicationActions
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    _target.newTemplateService();
+		    if(apply(_target))
+		    {
+			_target.newTemplateService();
+		    }
 		}
 	    };
 	
@@ -178,7 +217,6 @@ public class ApplicationActions
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    assert isEnabled();
 		    _target.copy();
 		}
 	    };
@@ -187,8 +225,10 @@ public class ApplicationActions
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    assert isEnabled();
-		    _target.paste();
+		    if(apply(_target))
+		    {
+			_target.paste();
+		    }
 		}
 	    };
 	
@@ -196,7 +236,6 @@ public class ApplicationActions
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    assert isEnabled();
 		    _target.delete();
 		}
 	    };
@@ -232,7 +271,10 @@ public class ApplicationActions
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    _target.moveUp();
+		    if(apply(_target))
+		    {
+			_target.moveUp();
+		    }
 		}
 	    };
 			   
@@ -240,10 +282,19 @@ public class ApplicationActions
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    _target.moveDown();
+		    if(apply(_target))
+		    {
+			_target.moveDown();
+		    }
 		}
 	    };
     }
+
+    static private boolean apply(TreeNode target)
+    {
+	return target.getRoot().getPane().applyUpdates(false);
+    } 
+
 
     private TreeNode _target;
     private Action[] _array = new Action[TreeNode.ACTION_COUNT];
