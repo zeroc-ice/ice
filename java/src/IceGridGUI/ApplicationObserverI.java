@@ -30,14 +30,17 @@ class ApplicationObserverI extends _ApplicationObserverDisp
 	//
 	long timeout = 10000;
 
-	try
+	if(!_initialized)
 	{
-	    wait(timeout);
+	    try
+	    {
+		wait(timeout);
+	    }
+	    catch(InterruptedException e)
+	    {
+	    }   
 	}
-	catch(InterruptedException e)
-	{
-	}
-	
+
 	if(_initialized)
 	{
 	    _coordinator.applicationInit(_instanceName, _serial, _applications);
