@@ -17,7 +17,7 @@
       <server id="SessionServer" exe="python" activation="session">
         <option>Server.py</option>
 	<adapter name="Hello" endpoints="tcp" register-process="true">
-	  <allocatable identity="hello"/>
+	  <allocatable identity="hello" property="Identity"/>
 	</adapter>
 	<property name="Identity" value="hello"/>
       </server>
