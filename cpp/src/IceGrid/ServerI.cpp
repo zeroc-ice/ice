@@ -1979,16 +1979,16 @@ ServerI::updateImpl(const ServerInfo& info)
     _stdOutFile = outputDir.empty() ? string() : (outputDir + "/" + _id + ".out");
     string suffix = _node->getRedirectErrToOut() ? ".out" : ".err";
     _stdErrFile = outputDir.empty() ? string() : (outputDir + "/" + _id + suffix);
-    PropertyDescriptorSeq::const_iterator t;
-    for(t = _info.descriptor->propertySet.properties.begin(); t != _info.descriptor->propertySet.properties.end(); ++t)
+    PropertyDescriptorSeq::const_iterator s;
+    for(s = _info.descriptor->propertySet.properties.begin(); s != _info.descriptor->propertySet.properties.end(); ++s)
     {
-	if(t->name == "Ice.StdErr")
+	if(s->name == "Ice.StdErr")
 	{
-	    _stdErrFile = t->value;
+	    _stdErrFile = s->value;
 	}
-	else if(t->name == "Ice.StdOut")
+	else if(s->name == "Ice.StdOut")
 	{
-	    _stdOutFile = t->value;	    
+	    _stdOutFile = s->value;	    
 	}
     }
 
