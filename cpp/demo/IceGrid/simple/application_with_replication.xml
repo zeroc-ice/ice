@@ -28,8 +28,6 @@
     <node name="localhost">
       <server-instance template="SimpleServer" index="1"/>
       <server-instance template="SimpleServer" index="2"/>
-    </node>
-    <node name="localhost1">
       <server-instance template="SimpleServer" index="3"/>
     </node>
 

@@ -482,7 +482,7 @@ Resolver::operator()(const PropertySetDescriptorDict& propertySets) const
 }
 
 ObjectDescriptorSeq
-Resolver::operator()(const ObjectDescriptorSeq& objects, const string& type) const
+Resolver::operator()(const ObjectDescriptorSeq& objects, const string& type, bool allowProperty) const
 {
     ObjectDescriptorSeq result;
     for(ObjectDescriptorSeq::const_iterator q = objects.begin(); q != objects.end(); ++q)
@@ -490,6 +490,10 @@ Resolver::operator()(const ObjectDescriptorSeq& objects, const string& type) con
 	ObjectDescriptor obj;
 	obj.type = operator()(q->type, type + " object type");
 	obj.id = operator()(q->id, type + " object identity");
+	if(!allowProperty && !q->property.empty())
+	{
+	    exception("invalid object descriptor: property attribute is not allowed to be set in this context");
+	}
 	obj.property = operator()(q->property, type + " object property");
 	result.push_back(obj);
     }
@@ -951,8 +955,8 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
 	    resolve.exception("unknown replica group `" + adapter.replicaGroupId + "'");
 	}
 	adapter.priority = resolve.asInt(p->priority, "object adapter priority");
-	adapter.objects = resolve(p->objects, "well-known");
-	adapter.allocatables = resolve(p->allocatables, "allocatable");
+	adapter.objects = resolve(p->objects, "well-known", true);
+	adapter.allocatables = resolve(p->allocatables, "allocatable", true);
 	instance->adapters.push_back(adapter);
 
 	//
@@ -2359,7 +2363,7 @@ ApplicationHelper::ApplicationHelper(const Ice::CommunicatorPtr& communicator, c
 	ReplicaGroupDescriptor desc;
 	desc.id = r->id;
 	desc.description = resolve(r->description, "replica group description");
-	desc.objects = resolve(r->objects, "replica group well-known");
+	desc.objects = resolve(r->objects, "replica group well-known", false);
 	if(!r->loadBalancing)
 	{
 	    resolve.exception("replica group load balancing is not set");

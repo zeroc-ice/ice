@@ -16,9 +16,8 @@
     <node name="localhost">
       <server id="SessionServer" exe="./server" activation="session">
 	<adapter name="Hello" endpoints="tcp" register-process="true">
-	  <allocatable identity="hello"/>
+	  <allocatable identity="hello" property="Identity"/>
 	</adapter>
-	<property name="Identity" value="hello"/>
       </server>
     </node>
 

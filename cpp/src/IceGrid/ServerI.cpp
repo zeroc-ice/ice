@@ -1727,6 +1727,17 @@ ServerI::updateImpl(const ServerInfo& info)
 {
     assert(_load);
 
+    //
+    // Remember if the server was just released by a session, this
+    // will be used later to not update the configuration on the disk
+    // (as an optimization and to allow users to review the
+    // configuration file after allocating a server -- that's useful
+    // if the server configuration is bogus and the session server 
+    // can't start).
+    //
+    bool serverSessionReleased = _info.descriptor && _info.descriptor->activation == "session" && 
+	_info.revision == info.revision && !_info.sessionId.empty() && info.sessionId.empty();
+
     _info = info;
     _waitForReplication = true;
 
@@ -1940,17 +1951,69 @@ ServerI::updateImpl(const ServerInfo& info)
     }
 
     //
+    // Cache the path of each log file.
+    //
+    _logs.clear();
+    LogDescriptorSeq::const_iterator l;
+    for(l = _info.descriptor->logs.begin(); l != _info.descriptor->logs.end(); ++l)
+    {
+	_logs.insert(IcePatch2::simplify(l->path));
+    }
+    if(iceBox)
+    {
+	ServiceInstanceDescriptorSeq::const_iterator s;
+	for(s = iceBox->services.begin(); s != iceBox->services.end(); ++s)
+	{
+	    CommunicatorDescriptorPtr svc = s->descriptor;
+	    for(l = svc->logs.begin(); l != svc->logs.end(); ++l)
+	    {
+		_logs.insert(IcePatch2::simplify(l->path));
+	    }
+	}
+    }
+
+    //
+    // Cache the path of the stderr/stdout file.
+    //
+    string outputDir = _node->getOutputDir();
+    _stdOutFile = outputDir.empty() ? string() : (outputDir + "/" + _id + ".out");
+    string suffix = _node->getRedirectErrToOut() ? ".out" : ".err";
+    _stdErrFile = outputDir.empty() ? string() : (outputDir + "/" + _id + suffix);
+    PropertyDescriptorSeq::const_iterator t;
+    for(t = _info.descriptor->propertySet.properties.begin(); t != _info.descriptor->propertySet.properties.end(); ++t)
+    {
+	if(t->name == "Ice.StdErr")
+	{
+	    _stdErrFile = t->value;
+	}
+	else if(t->name == "Ice.StdOut")
+	{
+	    _stdOutFile = t->value;	    
+	}
+    }
+
+    //
+    // If the server is a session server and it wasn't udpated but
+    // just released by a session, we don't update the configuration,
+    // it will be done when the server is re-allocated.
+    //
+    if(serverSessionReleased)
+    {
+	return;
+    }
+
+    //
+    // Update the revision file.
+    //
+    updateRevisionFile();
+
+    //
     // Create or update the server directories exists.
     //
     createOrUpdateDirectory(_serverDir);
     createOrUpdateDirectory(_serverDir + "/config");
     createOrUpdateDirectory(_serverDir + "/dbs");
     createOrUpdateDirectory(_serverDir + "/distrib");
-
-    //
-    // Update the revision file.
-    //
-    updateRevisionFile();
 
     //
     // Update the configuration file(s) of the server if necessary.
@@ -2409,7 +2472,6 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
 	props.push_back(createProperty("Ice.ProgramName", _id));
 	props.push_back(createProperty("Ice.Default.Locator",
 				       _node->getCommunicator()->getProperties()->getProperty("Ice.Default.Locator")));
-	copy(svrDesc->propertySet.properties.begin(), svrDesc->propertySet.properties.end(), back_inserter(props));
 
 	//
 	// Add Ice.StdOut, Ice.StdErr if necessary.
@@ -2421,6 +2483,11 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
 	    string suffix = _node->getRedirectErrToOut() ? ".out" : ".err";
 	    props.push_back(createProperty("Ice.StdErr", outputDir + "/" + _id + suffix));
 	}
+
+	//
+	// Add server descriptor properties.
+	//
+	copy(svrDesc->propertySet.properties.begin(), svrDesc->propertySet.properties.end(), back_inserter(props));
 
 	//
 	// Add service properties.
@@ -2482,7 +2549,15 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
 	    }
 	}
 
-	for(ObjectDescriptorSeq::const_iterator o = q->objects.begin(); o != q->objects.end(); ++o)
+	ObjectDescriptorSeq::const_iterator o;
+	for(o = q->objects.begin(); o != q->objects.end(); ++o)
+	{
+	    if(!o->property.empty())
+	    {
+		props.push_back(createProperty(o->property, _node->getCommunicator()->identityToString(o->id)));
+	    }
+	}
+	for(o = q->allocatables.begin(); o != q->allocatables.end(); ++o)
 	{
 	    if(!o->property.empty())
 	    {
@@ -2494,21 +2569,15 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
     //
     // Add log properties.
     //
-    props.push_back(createProperty("# Log paths"));
-    _logs.clear();
     if(!descriptor->logs.empty())
     {
+	props.push_back(createProperty("# Log paths"));
 	for(LogDescriptorSeq::const_iterator l = descriptor->logs.begin(); l != descriptor->logs.end(); ++l)
 	{
 	    if(!l->property.empty())
 	    {
 		props.push_back(createProperty(l->property, l->path));
 	    }
-	    
-	    //
-	    // Cache the path of each log file.
-	    //
-	    _logs.insert(IcePatch2::simplify(l->path));
 	}
     }
 
@@ -2526,18 +2595,6 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
 	else
 	{
 	    configfile << r->name << "=" << r->value << endl;
-	}
-
-	//
-	// Cache the standard output/error file name.
-	//
-	if(r->name == "Ice.StdErr")
-	{
-	    _stdErrFile = r->value;
-	}
-	else if(r->name == "Ice.StdOut")
-	{
-	    _stdOutFile = r->value;	    
 	}
     }
     configfile.close();

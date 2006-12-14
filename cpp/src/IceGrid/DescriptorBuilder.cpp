@@ -324,7 +324,7 @@ ApplicationDescriptorBuilder::addObject(const XmlAttributesHelper& attrs)
     object.id = _communicator->stringToIdentity(attrs("identity"));
     if(attrs.contains("property"))
     {
-	object.property = attrs("property");
+	throw "property attribute is not allowed in object descriptors from a replica group";	
     }
     _descriptor.replicaGroups.back().objects.push_back(object);
 }
@@ -709,6 +709,10 @@ CommunicatorDescriptorBuilder::addAllocatable(const XmlAttributesHelper& attrs)
     ObjectDescriptor object;
     object.type = attrs("type", "");
     object.id = _communicator->stringToIdentity(attrs("identity"));
+    if(attrs.contains("property"))
+    {
+	object.property = attrs("property");
+    }
     _descriptor->adapters.back().allocatables.push_back(object);
 }
 

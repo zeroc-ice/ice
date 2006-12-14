@@ -16,9 +16,8 @@
     <node name="localhost">
       <server id="AllocateServer" exe="./server" activation="on-demand">
 	<adapter name="Hello" endpoints="tcp" register-process="true">
-	  <allocatable identity="hello" type="::Demo::Hello"/>
+	  <allocatable identity="hello" type="::Demo::Hello" property="Identity"/>
 	</adapter>
-	<property name="Identity" value="hello"/>
       </server>
     </node>
 

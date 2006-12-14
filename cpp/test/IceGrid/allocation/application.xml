@@ -30,7 +30,7 @@
 
       <server id="ObjectAllocation" exe="${test.dir}/server" activation="on-demand" pwd=".">
         <adapter name="Server" endpoints="default">
-  	  <allocatable identity="allocatable" type="::Test"/>
+  	  <allocatable identity="allocatable" type="::Test" property="Alloc"/>
   	  <allocatable identity="allocatablebis" type="::TestBis"/>
 
           <object identity="nonallocatable" type="::Test"/>
