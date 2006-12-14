@@ -32,7 +32,7 @@ Server::run(int argc, char* argv[])
     string name = properties->getProperty("Ice.ProgramName");
 
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Server");
-    adapter->add(new TestI(adapter, properties), communicator()->stringToIdentity(properties->getProperty("Alloc")));
+    adapter->add(new TestI(adapter, properties), communicator()->stringToIdentity("allocatable"));
     adapter->add(new TestI(adapter, properties), communicator()->stringToIdentity("nonallocatable"));
     adapter->add(new TestI(adapter, properties), communicator()->stringToIdentity("allocatable1"));
     adapter->add(new TestI(adapter, properties), communicator()->stringToIdentity("allocatable2"));
