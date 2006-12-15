@@ -383,7 +383,7 @@ final class UdpEndpointI extends EndpointI
     public EndpointI
     connectionId(String connectionId)
     {
-        if(connectionId == _connectionId)
+        if(connectionId.equals(_connectionId))
         {
             return this;
         }

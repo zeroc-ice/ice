@@ -231,7 +231,7 @@ final class EndpointI extends IceInternal.EndpointI
     public IceInternal.EndpointI
     connectionId(String connectionId)
     {
-	if(connectionId == _connectionId)
+	if(connectionId.equals(_connectionId))
 	{
 	    return this;
 	}
