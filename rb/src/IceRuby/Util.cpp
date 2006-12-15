@@ -338,6 +338,37 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
     {
 	ex.ice_throw();
     }
+    catch(const Ice::InitializationException& e)
+    {
+	volatile VALUE v = createString(e.reason);
+	callRuby(rb_iv_set, p, "@reason", v);
+    }
+    catch(const Ice::PluginInitializationException& e)
+    {
+	volatile VALUE v = createString(e.reason);
+	callRuby(rb_iv_set, p, "@reason", v);
+    }
+    catch(const Ice::AlreadyRegisteredException& e)
+    {
+	volatile VALUE v;
+	v = createString(e.kindOfObject);
+	callRuby(rb_iv_set, p, "@kindOfObject", v);
+	v = createString(e.id);
+	callRuby(rb_iv_set, p, "@id", v);
+    }
+    catch(const Ice::NotRegisteredException& e)
+    {
+	volatile VALUE v;
+	v = createString(e.kindOfObject);
+	callRuby(rb_iv_set, p, "@kindOfObject", v);
+	v = createString(e.id);
+	callRuby(rb_iv_set, p, "@id", v);
+    }
+    catch(const Ice::TwowayOnlyException& e)
+    {
+	volatile VALUE v = createString(e.operation);
+	callRuby(rb_iv_set, p, "@operation", v);
+    }
     catch(const Ice::UnknownException& e)
     {
 	volatile VALUE v = createString(e.unknown);
@@ -444,32 +475,6 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
     {
 	volatile VALUE v = createString(e.reason);
 	callRuby(rb_iv_set, p, "@reason", v);
-    }
-    catch(const Ice::PluginInitializationException& e)
-    {
-	volatile VALUE v = createString(e.reason);
-	callRuby(rb_iv_set, p, "@reason", v);
-    }
-    catch(const Ice::AlreadyRegisteredException& e)
-    {
-	volatile VALUE v;
-	v = createString(e.kindOfObject);
-	callRuby(rb_iv_set, p, "@kindOfObject", v);
-	v = createString(e.id);
-	callRuby(rb_iv_set, p, "@id", v);
-    }
-    catch(const Ice::NotRegisteredException& e)
-    {
-	volatile VALUE v;
-	v = createString(e.kindOfObject);
-	callRuby(rb_iv_set, p, "@kindOfObject", v);
-	v = createString(e.id);
-	callRuby(rb_iv_set, p, "@id", v);
-    }
-    catch(const Ice::TwowayOnlyException& e)
-    {
-	volatile VALUE v = createString(e.operation);
-	callRuby(rb_iv_set, p, "@operation", v);
     }
     catch(const Ice::FeatureNotSupportedException& e)
     {

@@ -493,6 +493,37 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
     {
         ex.ice_throw();
     }
+    catch(const Ice::InitializationException& e)
+    {
+	IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.reason.c_str()));
+	PyObject_SetAttrString(p, STRCAST("reason"), m.get());
+    }
+    catch(const Ice::PluginInitializationException& e)
+    {
+	IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.reason.c_str()));
+	PyObject_SetAttrString(p, STRCAST("reason"), m.get());
+    }
+    catch(const Ice::AlreadyRegisteredException& e)
+    {
+	IcePy::PyObjectHandle m;
+	m = PyString_FromString(const_cast<char*>(e.kindOfObject.c_str()));
+	PyObject_SetAttrString(p, STRCAST("kindOfObject"), m.get());
+	m = PyString_FromString(const_cast<char*>(e.id.c_str()));
+	PyObject_SetAttrString(p, STRCAST("id"), m.get());
+    }
+    catch(const Ice::NotRegisteredException& e)
+    {
+	IcePy::PyObjectHandle m;
+	m = PyString_FromString(const_cast<char*>(e.kindOfObject.c_str()));
+	PyObject_SetAttrString(p, STRCAST("kindOfObject"), m.get());
+	m = PyString_FromString(const_cast<char*>(e.id.c_str()));
+	PyObject_SetAttrString(p, STRCAST("id"), m.get());
+    }
+    catch(const Ice::TwowayOnlyException& e)
+    {
+	IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.operation.c_str()));
+	PyObject_SetAttrString(p, STRCAST("operation"), m.get());
+    }
     catch(const Ice::UnknownException& e)
     {
         IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.unknown.c_str()));
@@ -609,32 +640,6 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
     {
         IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.reason.c_str()));
         PyObject_SetAttrString(p, STRCAST("reason"), m.get());
-    }
-    catch(const Ice::PluginInitializationException& e)
-    {
-        IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.reason.c_str()));
-        PyObject_SetAttrString(p, STRCAST("reason"), m.get());
-    }
-    catch(const Ice::AlreadyRegisteredException& e)
-    {
-        IcePy::PyObjectHandle m;
-        m = PyString_FromString(const_cast<char*>(e.kindOfObject.c_str()));
-        PyObject_SetAttrString(p, STRCAST("kindOfObject"), m.get());
-        m = PyString_FromString(const_cast<char*>(e.id.c_str()));
-        PyObject_SetAttrString(p, STRCAST("id"), m.get());
-    }
-    catch(const Ice::NotRegisteredException& e)
-    {
-        IcePy::PyObjectHandle m;
-        m = PyString_FromString(const_cast<char*>(e.kindOfObject.c_str()));
-        PyObject_SetAttrString(p, STRCAST("kindOfObject"), m.get());
-        m = PyString_FromString(const_cast<char*>(e.id.c_str()));
-        PyObject_SetAttrString(p, STRCAST("id"), m.get());
-    }
-    catch(const Ice::TwowayOnlyException& e)
-    {
-        IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.operation.c_str()));
-        PyObject_SetAttrString(p, STRCAST("operation"), m.get());
     }
     catch(const Ice::FeatureNotSupportedException& e)
     {
