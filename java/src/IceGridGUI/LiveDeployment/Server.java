@@ -797,7 +797,6 @@ class Server extends ListArrayTreeNode
     private void createService(ServiceInstanceDescriptor descriptor)
     {
 	ServiceDescriptor serviceDescriptor = null;
-	PropertySetDescriptor serverInstancePSDescriptor = null;
 	String serviceName = null;
 	Utils.Resolver serviceResolver = null;
 	
@@ -816,8 +815,6 @@ class Server extends ListArrayTreeNode
 						 templateDescriptor.parameterDefaults);
 	    serviceName = serviceResolver.substitute(serviceDescriptor.name);
 	    serviceResolver.put("service", serviceName);
-
-	    serverInstancePSDescriptor = (PropertySetDescriptor)_servicePropertySets.get(serviceName);
 	}
 	else
 	{
@@ -828,6 +825,9 @@ class Server extends ListArrayTreeNode
 	    serviceName = _resolver.substitute(serviceDescriptor.name);
 	    serviceResolver.put("service", serviceName);
 	}
+
+	PropertySetDescriptor serverInstancePSDescriptor = 
+	    (PropertySetDescriptor)_servicePropertySets.get(serviceName);
 
 	_services.add(new Service(this, serviceName, serviceResolver,
 				  descriptor, serviceDescriptor, serverInstancePSDescriptor));
