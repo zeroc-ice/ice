@@ -9,7 +9,7 @@
 
 top_srcdir	= ../..
 
-PKG		= icecsssl
+PKG		= icesslcs
 LIBNAME		= $(PKG).dll
 TARGETS		= $(bindir)/$(LIBNAME)
 
