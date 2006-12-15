@@ -135,7 +135,7 @@ module Ice
 
 		status = run(args)
 	    rescue => ex
-		puts $!
+		puts $!.inspect
 		puts ex.backtrace.join("\n")
 		status = 1
 	    end
