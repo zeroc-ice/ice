@@ -23,7 +23,7 @@ prefix			= C:\IcePy-$(VERSION)
 # Otherwise the Ice extension is built with debug information.
 #
 
-OPTIMIZE		= yes
+#OPTIMIZE		= yes
 
 #
 # Set PYTHON_HOME to your Python installation directory.
@@ -34,7 +34,7 @@ PYTHON_HOME		= C:\Python25
 #
 # Define if using STLPort. Required if using MSVC++ 6.0.
 #
-#STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty
+#STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty-VC60
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
@@ -51,18 +51,7 @@ libdir			= $(top_srcdir)\python
 install_slicedir	= $(prefix)\slice
 install_pythondir	= $(prefix)\python
 
-!if exist ($(top_srcdir)\config\Make.rules.msvc)
-configdir		= $(top_srcdir)\config
-!else
-configdir		= $(ICE_HOME)\config
-!endif
-
-!if "$(STLPORT_HOME)" != ""
-CPPFLAGS		= -I"$(STLPORT_HOME)\include\stlport"
-LDFLAGS			= /LIBPATH:"$(STLPORT_HOME)\lib"
-!endif
-
-!include $(configdir)\Make.rules.msvc
+!include $(top_srcdir)\config\Make.rules.msvc
 
 !if "$(OPTIMIZE)" != "yes"
 LIBSUFFIX       = $(LIBSUFFIX)d
