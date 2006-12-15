@@ -85,8 +85,15 @@ class PropertySet extends TreeNode
 
 	if(!_ephemeral)
 	{
-	    parent.removeDescriptor(_id);
-	    parent.getEditable().removeElement(_id, _editable, PropertySet.class);
+	    parent.removeDescriptor(_unsubstitutedId);
+	    if(_editable != null)
+	    {
+		parent.getEditable().removeElement(_unsubstitutedId, _editable, PropertySet.class);
+	    }
+	    else
+	    {
+		parent.getEditable().markModified();
+	    }
 	    getRoot().updated();
 	}
     }
@@ -95,21 +102,41 @@ class PropertySet extends TreeNode
     {
 	if(_editor == null)
 	{
-	    _editor = (PropertySetEditor)getRoot().
-		getEditor(PropertySetEditor.class, this);
+	    if(_inServerInstance)
+	    {
+		_editor = (PropertySetEditor)getRoot().
+		    getEditor(ServerInstancePropertySetEditor.class, this);
+	    }
+	    else
+	    {
+		_editor = (PropertySetEditor)getRoot().
+		    getEditor(PropertySetEditor.class, this);
+	    }
 	}
-	_editor.show(this);
+	_editor.show(_unsubstitutedId, this);
 	return _editor;
     }
 
     protected Editor createEditor()
     {
-	return new PropertySetEditor();
+	if(_inServerInstance)
+	{
+	    return new ServerInstancePropertySetEditor();
+	}
+	else
+	{
+	    return new PropertySetEditor();
+	}
     }
 
     public boolean isEphemeral()
     {
 	return _ephemeral;
+    }
+
+    public String unsubstitutedId()
+    {
+	return _unsubstitutedId;
     }
 
     Object getDescriptor()
@@ -130,28 +157,57 @@ class PropertySet extends TreeNode
 
     void commit()
     {
-	_editable.commit();
+	if(_editable != null)
+	{
+	    _editable.commit();
+	}
     }
     
     Editable getEditable()
     {
-	return _editable;
+	if(_editable != null)
+	{
+	    return _editable;
+	}
+	else
+	{
+	    return ((PropertySetParent)_parent).getEditable();
+	}
     }
    
     PropertySet(boolean brandNew,
 		TreeNode parent,
 		String id,
+		String unsubstitutedId,
 		PropertySetDescriptor descriptor)
     {
 	super(parent, id);
+	_unsubstitutedId = unsubstitutedId;
+	_inServerInstance = (parent instanceof ServerInstance);
 	_ephemeral = false;
 	_editable = new Editable(brandNew);
 	rebuild(descriptor);
     }
+
+    PropertySet(TreeNode parent,
+		String id,
+		String unsubstitutedId,
+		PropertySetDescriptor descriptor)
+    {
+	super(parent, id);
+	_unsubstitutedId = unsubstitutedId;
+	_inServerInstance = (parent instanceof ServerInstance);
+	_ephemeral = false;
+	_editable = null;
+	rebuild(descriptor);
+    }
+
     
     PropertySet(TreeNode parent, String id, PropertySetDescriptor descriptor)
     {
 	super(parent, id);
+	_unsubstitutedId = id;
+	_inServerInstance = (parent instanceof ServerInstance);
 	_ephemeral = true;
 	_editable = null;
 	rebuild(descriptor);
@@ -161,7 +217,9 @@ class PropertySet extends TreeNode
     {
 	if(!_ephemeral)
 	{
-	    writePropertySet(writer, _id, _descriptor, null);
+	    writePropertySet(writer, _unsubstitutedId, 
+			     _inServerInstance ? "service" : "id",
+			     _descriptor, null);
 	}
     }
 
@@ -171,8 +229,10 @@ class PropertySet extends TreeNode
     }
 
     private PropertySetDescriptor _descriptor;
+    private String _unsubstitutedId;
     private final boolean _ephemeral;
     private final Editable _editable;
+    private final boolean _inServerInstance;
     private PropertySetEditor _editor;
 
     static private DefaultTreeCellRenderer _cellRenderer;  

@@ -334,7 +334,7 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
 	    else
 	    {
 		writer.writeStartTag("service-instance", attributes);
-		writePropertySet(writer, "", _descriptor.propertySet, null);
+		writePropertySet(writer, _descriptor.propertySet, null);
 		writer.writeEndTag("service-instance");
 	    }
 	}

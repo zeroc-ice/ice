@@ -11,6 +11,7 @@ package IceGridGUI.Application;
 import java.awt.Component;
 
 import javax.swing.Icon;
+import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 
 import javax.swing.tree.TreeCellRenderer;
@@ -19,7 +20,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import IceGrid.*;
 import IceGridGUI.*;
 
-class ServerInstance extends TreeNode implements Server
+class ServerInstance extends ListTreeNode implements Server, PropertySetParent
 { 
     static public ServerInstanceDescriptor
     copyDescriptor(ServerInstanceDescriptor sid)
@@ -29,6 +30,14 @@ class ServerInstance extends TreeNode implements Server
 	return copy;
     }
     
+    //
+    // Overrides ListTreeNode
+    //
+    public boolean getAllowsChildren()
+    {
+	return _isIceBox;
+    }
+
     //
     // Actions
     //
@@ -40,7 +49,8 @@ class ServerInstance extends TreeNode implements Server
 	Object clipboard = getCoordinator().getClipboard();
 	if(clipboard != null && 
 	   (clipboard instanceof ServerDescriptor
-	    || clipboard instanceof ServerInstanceDescriptor))
+	    || clipboard instanceof ServerInstanceDescriptor
+	    || (_isIceBox && clipboard instanceof PropertySetDescriptor)))
 	{
 	    actions[PASTE] = true;
 	}
@@ -50,6 +60,11 @@ class ServerInstance extends TreeNode implements Server
 	{
 	    actions[SHOW_VARS] = true;
 	    actions[SUBSTITUTE_VARS] = true;
+	    
+	    if(_isIceBox)
+	    {
+		actions[NEW_PROPERTY_SET] = true;
+	    }
 	}
 	
 	return actions;
@@ -63,9 +78,45 @@ class ServerInstance extends TreeNode implements Server
 
     public void paste()
     {
+	if(_isIceBox)
+	{
+	    Object descriptor =  getCoordinator().getClipboard();
+	    if(descriptor instanceof PropertySetDescriptor)
+	    {
+		newPropertySet(PropertySet.copyDescriptor((PropertySetDescriptor)descriptor));
+		return;
+	    }
+	}
+
 	((TreeNode)_parent).paste();
     }
     
+    public void newPropertySet()
+    {
+	newPropertySet(new PropertySetDescriptor(
+			   new String[0], new java.util.LinkedList()));
+    }
+
+
+    public JPopupMenu getPopupMenu()
+    {
+	if(_isIceBox)
+	{
+	    ApplicationActions actions = getCoordinator().getActionsForPopup();
+	    if(_popup == null)
+	    {
+		_popup = new JPopupMenu();
+		_popup.add(actions.get(NEW_PROPERTY_SET));
+	    }
+	    actions.setTarget(this);
+	    return _popup;
+	}
+	else
+	{
+	    return null;
+	}
+    }
+
     public Editor getEditor()
     {
 	if(_editor == null)
@@ -100,9 +151,11 @@ class ServerInstance extends TreeNode implements Server
 
 	    _serverIcon = Utils.getIcon("/icons/16x16/server_inactive.png");
 	    _iceboxServerIcon = Utils.getIcon("/icons/16x16/icebox_server_inactive.png");
+	    
+	    _cellRenderer.setLeafIcon(_serverIcon);
+	    _cellRenderer.setOpenIcon(_iceboxServerIcon);
+	    _cellRenderer.setClosedIcon(_iceboxServerIcon);
 	}
-
-	_cellRenderer.setLeafIcon(_isIceBox ? _iceboxServerIcon : _serverIcon);
 
 	return _cellRenderer.getTreeCellRendererComponent(
 	    tree, value, sel, expanded, leaf, row, hasFocus);
@@ -142,7 +195,7 @@ class ServerInstance extends TreeNode implements Server
 
 	_descriptor.template = copy.template;
 	_descriptor.parameterValues = copy.parameterValues;
-	_descriptor.propertySet = copy.propertySet;	
+	_descriptor.propertySet = copy.propertySet;
     }
 
     //
@@ -154,19 +207,24 @@ class ServerInstance extends TreeNode implements Server
 		   boolean isIceBox) 
 	throws UpdateFailedException
     {
-	super(parent, serverId);
+	super(brandNew, parent, serverId);
 	_ephemeral = false;
-	_editable = new Editable(brandNew);
 	rebuild(resolver, instanceDescriptor, isIceBox);
     }
 
     ServerInstance(TreeNode parent, String serverId, 
 		   ServerInstanceDescriptor instanceDescriptor)
     {
-	super(parent, serverId);
+	super(false, parent, serverId);
 	_ephemeral = true;
-	_editable = null;
-	rebuild(null, instanceDescriptor, false);
+	try
+	{
+	    rebuild(null, instanceDescriptor, false);
+	}
+	catch(UpdateFailedException e)
+	{
+	    assert false;
+	}
     }
 
     void write(XMLWriter writer) throws java.io.IOException
@@ -181,14 +239,23 @@ class ServerInstance extends TreeNode implements Server
 	    attributes.addFirst(createAttribute("template", _descriptor.template));
 		
 	    if(_descriptor.propertySet.references.length == 0 &&
-	       _descriptor.propertySet.properties.size() == 0)
+	       _descriptor.propertySet.properties.size() == 0 &&
+	       _children.size() == 0)
 	    {
 		writer.writeElement("server-instance", attributes);
 	    }
 	    else
 	    {
 		writer.writeStartTag("server-instance", attributes);
-		writePropertySet(writer, "", _descriptor.propertySet, null);
+		writePropertySet(writer, _descriptor.propertySet, null);
+		
+		java.util.Iterator p = _children.iterator();
+		while(p.hasNext())
+		{
+		    PropertySet ps = (PropertySet)p.next();
+		    ps.write(writer);
+		}
+
 		writer.writeEndTag("server-instance");
 	    }
 	}
@@ -202,7 +269,12 @@ class ServerInstance extends TreeNode implements Server
 
     void isIceBox(boolean newValue)
     {
-	_isIceBox = newValue;
+	if(newValue != _isIceBox)
+	{
+	    _isIceBox = newValue;
+	    _children.clear();
+	    getRoot().getTreeModel().nodeStructureChanged(this);
+	}
     }
     
     static private class Backup
@@ -218,9 +290,9 @@ class ServerInstance extends TreeNode implements Server
 
     public Object rebuild(java.util.List editables) throws UpdateFailedException
     {
-	Backup backup = new Backup(((Node)_parent).getEditable().save());
 	Node node = (Node)_parent;
-	
+	Backup backup = new Backup(node.getEditable().save());
+
 	TemplateDescriptor templateDescriptor 
 	    = getRoot().findServerTemplateDescriptor(_descriptor.template);
 
@@ -309,26 +381,164 @@ class ServerInstance extends TreeNode implements Server
 	}
     }
 
+
+    public void tryAdd(String unsubstitutedId, PropertySetDescriptor descriptor)
+	throws UpdateFailedException
+    {
+	insertPropertySet(new PropertySet(this,
+					  Utils.substitute(unsubstitutedId, _resolver),
+					  unsubstitutedId,
+					  descriptor), 
+			  true);
+	_descriptor.servicePropertySets.put(unsubstitutedId, descriptor);
+	_editable.markModified();
+    }
+
+    public void tryRename(String oldId, String oldUnresolvedId, 
+			  String newUnsubstitutedId)
+	throws UpdateFailedException
+    {
+	PropertySet oldChild = (PropertySet)findChild(oldId);
+	assert oldChild != null;
+	removePropertySet(oldChild);
+	PropertySetDescriptor descriptor = (PropertySetDescriptor)oldChild.getDescriptor();
+
+	try
+	{
+	    insertPropertySet(
+		new PropertySet(this, 
+				Utils.substitute(newUnsubstitutedId, _resolver), 
+				newUnsubstitutedId, descriptor),
+		true);
+	}
+	catch(UpdateFailedException ex)
+	{
+	    try
+	    {
+		insertPropertySet(oldChild, true);
+	    }
+	    catch(UpdateFailedException ufe)
+	    {
+		assert false;
+	    }
+	    throw ex;
+	}
+	
+	_editable.markModified();
+	_descriptor.servicePropertySets.remove(oldUnresolvedId);
+	_descriptor.servicePropertySets.put(newUnsubstitutedId, descriptor);
+    }
+    
+
+    public void insertPropertySet(PropertySet nps, boolean fireEvent)
+	throws UpdateFailedException
+    {
+	insertChild(nps, fireEvent);
+    }
+
+    public void removePropertySet(PropertySet nps)
+    {
+	removeChild(nps);
+    }
+
+    public void removeDescriptor(String unsubstitutedId)
+    {
+	_descriptor.servicePropertySets.remove(unsubstitutedId);
+    }
+
+    public Editable getEditable()
+    {
+	return _editable;
+    }
+    
+    Object[] getServiceNames()
+    {
+	assert _isIceBox;
+
+	//
+	// Retrieve the list of service instances
+	//
+	
+	Communicator.ChildList services = getRoot().
+	    findServerTemplate(_descriptor.template).getServices();
+	
+	Object[] result = new Object[services.size()];
+	int i = 0;
+	
+	java.util.Iterator p = services.iterator();
+	while(p.hasNext())
+	{
+	    TreeNode n = (TreeNode)p.next();
+	    ServiceInstanceDescriptor d = (ServiceInstanceDescriptor)n.getDescriptor();
+
+	    if(d.template.length() > 0)
+	    {
+		TemplateDescriptor templateDescriptor 
+		    = (TemplateDescriptor)getRoot().findServiceTemplateDescriptor(d.template);
+		assert templateDescriptor != null;
+		Utils.Resolver serviceResolver = new Utils.Resolver(_resolver, 
+								    d.parameterValues,
+								    templateDescriptor.parameterDefaults);
+		
+		ServiceDescriptor serviceDescriptor = (ServiceDescriptor)templateDescriptor.descriptor;
+
+		result[i++] = serviceResolver.substitute(serviceDescriptor.name);
+	    }
+	    else
+	    {
+		result[i++] = _resolver.substitute(d.descriptor.name);
+	    }
+	}
+	return result;
+    }
+
     //
-    // Update the server
+    // Update the server and its children
     //
     void rebuild(Utils.Resolver resolver,  
 		 ServerInstanceDescriptor instanceDescriptor,
-		 boolean isIceBox)
+		 boolean isIceBox) throws UpdateFailedException
     {
 	_resolver = resolver;
 	_isIceBox = isIceBox;
 	_descriptor = instanceDescriptor;
+	
+	_children.clear();
+
+	java.util.Iterator p = _descriptor.servicePropertySets.entrySet().iterator();
+	while(p.hasNext())
+	{
+	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+	    String unsubstitutedId = (String)entry.getKey();
+
+	    insertPropertySet(new PropertySet(this, 
+					      Utils.substitute(unsubstitutedId, _resolver),
+					      unsubstitutedId,
+					      (PropertySetDescriptor)entry.getValue()),
+			      false);
+	}
     }
+
+    private void newPropertySet(PropertySetDescriptor descriptor)
+    {
+	String id = makeNewChildId("Service");
+	
+	PropertySet ps = new PropertySet(this, id, descriptor);
+	try
+	{
+	    insertChild(ps, true);
+	}
+	catch(UpdateFailedException e)
+	{
+	    assert false;
+	}
+	getRoot().setSelectedNode(ps);
+    }
+
 
     Utils.Resolver getResolver()
     {
 	return _resolver;
-    }
- 
-    public Editable getEditable()
-    {
-	return _editable;
     }
 
     public boolean isEphemeral()
@@ -355,10 +565,9 @@ class ServerInstance extends TreeNode implements Server
     private ServerInstanceEditor _editor;
 
     private Utils.Resolver _resolver;
-    private Editable _editable;
     
     static private DefaultTreeCellRenderer _cellRenderer;
     static private Icon _serverIcon;
     static private Icon _iceboxServerIcon;
-
+    static private JPopupMenu _popup;
 }

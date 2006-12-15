@@ -56,13 +56,15 @@ class Service extends ListArrayTreeNode
 
     Service(Server parent, String serviceName, Utils.Resolver resolver,
 	    ServiceInstanceDescriptor descriptor, 
-	    ServiceDescriptor serviceDescriptor)
+	    ServiceDescriptor serviceDescriptor,
+	    PropertySetDescriptor serverInstancePSDescriptor)
     {
 	super(parent, serviceName, 2);
 	_resolver = resolver;
 	
 	_instanceDescriptor = descriptor;
 	_serviceDescriptor = serviceDescriptor;
+	_serverInstancePSDescriptor = serverInstancePSDescriptor;
 	
 	_childrenArray[0] = _adapters;
 	_childrenArray[1] = _dbEnvs;
@@ -127,22 +129,28 @@ class Service extends ListArrayTreeNode
 
     java.util.SortedMap getProperties()
     {
-	Utils.ExpandedPropertySet instancePropertySet = null;
+	java.util.List psList = new java.util.LinkedList();
 	Node node = (Node)_parent.getParent();
 
 	String applicationName = ((Server)_parent).getApplication().name;
 
+	psList.add(node.expand(_serviceDescriptor.propertySet,
+			       applicationName, _resolver));
+
 	if(_instanceDescriptor != null)
 	{
-	    instancePropertySet = node.expand(_instanceDescriptor.propertySet, 
-					      applicationName, _resolver);
+	    psList.add(node.expand(_instanceDescriptor.propertySet, 
+				   applicationName, _resolver));
+	}	   
+
+	if(_serverInstancePSDescriptor != null)
+	{
+	    psList.add(node.expand(_serverInstancePSDescriptor, 
+				   applicationName, _resolver));
+
 	}
 
-	Utils.ExpandedPropertySet propertySet = 
-	    node.expand(_serviceDescriptor.propertySet,
-			applicationName, _resolver);
-
-	return Utils.propertySetToMap(propertySet, instancePropertySet, _resolver);
+	return Utils.propertySetsToMap(psList, _resolver);
     }
 
     private void createAdapters()
@@ -179,12 +187,13 @@ class Service extends ListArrayTreeNode
 	}
     }    
 
-    private ServiceInstanceDescriptor _instanceDescriptor;
-    private ServiceDescriptor _serviceDescriptor;
-    private Utils.Resolver _resolver;
+    private final ServiceInstanceDescriptor _instanceDescriptor;
+    private final ServiceDescriptor _serviceDescriptor;
+    private final PropertySetDescriptor _serverInstancePSDescriptor;
+    private final Utils.Resolver _resolver;
 
-    private java.util.List _adapters = new java.util.LinkedList();
-    private java.util.List _dbEnvs = new java.util.LinkedList();
+    private final java.util.List _adapters = new java.util.LinkedList();
+    private final java.util.List _dbEnvs = new java.util.LinkedList();
 
     static private ServiceEditor _editor;
     static private DefaultTreeCellRenderer _cellRenderer;   

@@ -16,6 +16,9 @@ interface PropertySetParent
     void tryAdd(String id, PropertySetDescriptor descriptor)
 	throws UpdateFailedException;
 
+    void tryRename(String oldId, String oldUnresolveId, String newUnresolvedId)
+	throws UpdateFailedException;
+
     void insertPropertySet(PropertySet nps, boolean fireEvent)
 	throws UpdateFailedException;
 

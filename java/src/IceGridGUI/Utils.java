@@ -377,19 +377,27 @@ public class Utils
 	public java.util.List properties;       // list of PropertyDescriptor 
     }
 
-    static public java.util.SortedMap propertySetToMap(
-	ExpandedPropertySet propertySet,
-	ExpandedPropertySet instancePropertySet, // can be null
+    static public java.util.SortedMap propertySetsToMap(
+	java.util.List propertySets,
 	Resolver resolver)
     {
 	java.util.SortedMap toMap = new java.util.TreeMap();
-	
-	addSet(propertySet, resolver, toMap);
-	if(instancePropertySet != null)
+	java.util.Iterator p = propertySets.iterator();
+	while(p.hasNext())
 	{
-	    addSet(instancePropertySet, resolver, toMap);
+	    ExpandedPropertySet propertySet = (ExpandedPropertySet)p.next();
+	    addSet(propertySet, resolver, toMap);
 	}
 	return toMap;
+    }
+
+    static public java.util.SortedMap propertySetToMap(
+	ExpandedPropertySet propertySet,
+	Resolver resolver)
+    {
+	java.util.List list = new java.util.LinkedList();
+	list.add(propertySet);
+	return propertySetsToMap(list, resolver);
     }
 
     static private void addSet(ExpandedPropertySet set, Resolver resolver,

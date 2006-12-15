@@ -17,7 +17,7 @@ import javax.swing.Action;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -50,7 +50,7 @@ class PropertySetEditor extends Editor
 		
 		try
 		{
-		    parent.tryAdd(_id.getText().trim(), descriptor);
+		    parent.tryAdd(getIdText(), descriptor);
 		}
 		catch(UpdateFailedException e)
 		{
@@ -79,7 +79,36 @@ class PropertySetEditor extends Editor
 		// Success
 		//
 		_target = ((TreeNode)parent).findChildWithDescriptor(descriptor);
-		_id.setEditable(false);
+		root.updated();
+		if(refresh)
+		{
+		    root.setSelectedNode(_target);
+		}
+	    }
+	    else if(!isSimpleUpdate())
+	    {
+		PropertySetDescriptor descriptor = 
+		    (PropertySetDescriptor)nps.getDescriptor();
+
+		try
+		{
+		    parent.tryRename(_target.getId(), _oldId, getIdText());
+		}
+		catch(UpdateFailedException e)
+		{
+		    JOptionPane.showMessageDialog(
+			root.getCoordinator().getMainFrame(),
+			e.toString(),
+			"Apply failed",
+			JOptionPane.ERROR_MESSAGE);
+		    return false;
+		}
+
+		//
+		// Success
+		//
+		_target = ((TreeNode)parent).findChildWithDescriptor(descriptor);
+		writeDescriptor();
 		root.updated();
 		if(refresh)
 		{
@@ -123,12 +152,15 @@ class PropertySetEditor extends Editor
 
     PropertySetEditor()
     {
-	//
-	// Associate updateListener with various fields
-	//
-	_id.getDocument().addDocumentListener(_updateListener);
+	this("ID");
 	_id.setToolTipText("The id of this Property Set");
-	
+	_id.getDocument().addDocumentListener(_updateListener);
+    }
+
+    protected PropertySetEditor(String label)
+    {
+	_idLabel = new JLabel(label);
+
 	_propertySets.getDocument().addDocumentListener(_updateListener);
 	_propertySets.setToolTipText("Property Set References");
 	_properties = new PropertiesField(this);
@@ -146,13 +178,13 @@ class PropertySetEditor extends Editor
     
     boolean isSimpleUpdate()
     {
-	return true;
+	return getIdText().equals(_oldId);
     }
 
     protected void appendProperties(DefaultFormBuilder builder)
     {
-	builder.append("ID" );
-	builder.append(_id, 3);
+	builder.append(_idLabel);
+	builder.append(getIdComponent(), 3);
 	builder.nextLine();
 	
 	builder.append("Property Sets");
@@ -184,10 +216,10 @@ class PropertySetEditor extends Editor
   
     protected boolean validate()
     {
-	return check(new String[]{"ID", _id.getText()});
+	return check(new String[]{_idLabel.getText(), getIdText()});
     }
 
-    void show(PropertySet nps)
+    void show(String unsubstitutedId, PropertySet nps)
     {
 	detectUpdates(false);
 	_target = nps;
@@ -198,9 +230,9 @@ class PropertySetEditor extends Editor
 	PropertySetDescriptor descriptor = 
 	    (PropertySetDescriptor)nps.getDescriptor();
 	
-	_id.setText(_target.getId());
-	_id.setEditable(_target.isEphemeral());
-	
+	showId(unsubstitutedId, resolver);
+	_oldId = unsubstitutedId;
+
 	_propertySets.setList(java.util.Arrays.asList(descriptor.references),
 			      resolver);
 	_propertySets.setEditable(isEditable);
@@ -213,13 +245,36 @@ class PropertySetEditor extends Editor
 	detectUpdates(true);
     }
 
+    protected JComponent getIdComponent()
+    {
+	return _id;
+    }
+
+    protected String getIdText()
+    {
+	return _id.getText().trim();
+    }
+
+    protected void showId(String unsubstitutedId, Utils.Resolver resolver)
+    {
+	//
+	// This version does NOT substitute the ID
+	//
+	_id.setText(unsubstitutedId);
+	_id.setEditable(resolver == null);
+    }
+
+
     private PropertySet getPropertySet()
     {
 	return (PropertySet)_target;
     }
 
-    private JTextField _id = new JTextField(20);
-    
+    private String _oldId;
+
+    private final JTextField _id = new JTextField(20);
+    private final JLabel _idLabel;
+
     private ListTextField _propertySets = new ListTextField(20);
     private PropertiesField _properties;  
 }

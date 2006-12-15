@@ -608,6 +608,7 @@ class Server extends ListArrayTreeNode
 	    _dbEnvs.clear();
 	    createDbEnvs();
 	    _services.clear();
+	    _servicePropertySets.clear();
 	    createServices();
 	    
 	    getRoot().getTreeModel().nodeStructureChanged(this);
@@ -615,6 +616,7 @@ class Server extends ListArrayTreeNode
 	else if(serviceTemplates.size() > 0 && _serverDescriptor instanceof IceBoxDescriptor)
 	{
 	    _services.clear();
+	    _servicePropertySets.clear();
 	    createServices();
 	    getRoot().getTreeModel().nodeStructureChanged(this);
 	}
@@ -718,20 +720,20 @@ class Server extends ListArrayTreeNode
 
     java.util.SortedMap getProperties()
     {
-	Utils.ExpandedPropertySet instancePropertySet = null;
+	java.util.List psList = new java.util.LinkedList();
 	Node node = (Node)_parent;
+
+	
+	psList.add(node.expand(_serverDescriptor.propertySet,
+			       _application.name, _resolver));
 
 	if(_instanceDescriptor != null)
 	{
-	    instancePropertySet = node.expand(_instanceDescriptor.propertySet, 
-					      _application.name, _resolver);
+	    psList.add(node.expand(_instanceDescriptor.propertySet, 
+				   _application.name, _resolver));
 	}
 
-	Utils.ExpandedPropertySet propertySet = 
-	    node.expand(_serverDescriptor.propertySet,
-			_application.name, _resolver);
-
-	return Utils.propertySetToMap(propertySet, instancePropertySet, _resolver);
+	return Utils.propertySetsToMap(psList, _resolver);
     }
 
     private void createAdapters()
@@ -771,8 +773,18 @@ class Server extends ListArrayTreeNode
     {
 	if(_serverDescriptor instanceof IceBoxDescriptor)
 	{
+	    if(_instanceDescriptor != null)
+	    {
+		java.util.Iterator p = _instanceDescriptor.servicePropertySets.entrySet().iterator();
+		while(p.hasNext())
+		{
+		    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+		    _servicePropertySets.put(_resolver.substitute((String)entry.getKey()), entry.getValue());
+		}
+	    }
+
 	    IceBoxDescriptor iceBoxDescriptor = (IceBoxDescriptor)_serverDescriptor;
-	    
+	 
 	    java.util.Iterator p = iceBoxDescriptor.services.iterator();
 	    while(p.hasNext())
 	    {
@@ -785,6 +797,7 @@ class Server extends ListArrayTreeNode
     private void createService(ServiceInstanceDescriptor descriptor)
     {
 	ServiceDescriptor serviceDescriptor = null;
+	PropertySetDescriptor serverInstancePSDescriptor = null;
 	String serviceName = null;
 	Utils.Resolver serviceResolver = null;
 	
@@ -803,6 +816,8 @@ class Server extends ListArrayTreeNode
 						 templateDescriptor.parameterDefaults);
 	    serviceName = serviceResolver.substitute(serviceDescriptor.name);
 	    serviceResolver.put("service", serviceName);
+
+	    serverInstancePSDescriptor = (PropertySetDescriptor)_servicePropertySets.get(serviceName);
 	}
 	else
 	{
@@ -815,7 +830,7 @@ class Server extends ListArrayTreeNode
 	}
 
 	_services.add(new Service(this, serviceName, serviceResolver,
-				  descriptor, serviceDescriptor));
+				  descriptor, serviceDescriptor, serverInstancePSDescriptor));
     }
     
     static private String toolTip(ServerState state, int pid, boolean enabled)
@@ -836,6 +851,8 @@ class Server extends ListArrayTreeNode
 
 
     private ServerInstanceDescriptor _instanceDescriptor;
+    private java.util.Map _servicePropertySets = new java.util.HashMap(); // with substituted names!
+
     private ServerDescriptor _serverDescriptor;
     private ApplicationDescriptor _application;
 

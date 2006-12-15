@@ -114,7 +114,13 @@ public abstract class TreeNode extends TreeNodeBase
 	}
     }
 
-    static void writePropertySet(XMLWriter writer, String id, 
+    static void writePropertySet(XMLWriter writer, PropertySetDescriptor psd, java.util.List adapters)
+	throws java.io.IOException
+    {
+	writePropertySet(writer, "", "", psd, adapters);
+    }
+
+    static void writePropertySet(XMLWriter writer, String id, String idAttrName,
 				 PropertySetDescriptor psd, java.util.List adapters)
 	throws java.io.IOException
     {
@@ -142,7 +148,7 @@ public abstract class TreeNode extends TreeNodeBase
 	java.util.List attributes = new java.util.LinkedList();
 	if(id.length() > 0)
 	{
-	    attributes.add(createAttribute("id", id));
+	    attributes.add(createAttribute(idAttrName, id));
 	}
 	if(psd.references.length == 0 && psd.properties.size() == 0)
 	{

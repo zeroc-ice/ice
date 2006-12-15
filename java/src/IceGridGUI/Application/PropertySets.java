@@ -92,8 +92,9 @@ class PropertySets extends ListTreeNode implements PropertySetParent
 	{
 	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
 	    
-	    insertChild(new PropertySet(false, this, 
-					(String)entry.getKey(),
+	    String id = (String)entry.getKey();
+
+	    insertChild(new PropertySet(false, this, id, id,
 					(PropertySetDescriptor)entry.getValue()), false);
 	}
     }
@@ -125,7 +126,7 @@ class PropertySets extends ListTreeNode implements PropertySetParent
 	    if(child == null)
 	    {
 		newChildren.add(
-		    new PropertySet(false, this, id, psd));
+		    new PropertySet(false, this, id, id, psd));
 	    }
 	    else
 	    {
@@ -170,11 +171,44 @@ class PropertySets extends ListTreeNode implements PropertySetParent
 	throws UpdateFailedException
     {
 	insertChild(
-	    new PropertySet(true, this, id, descriptor),
+	    new PropertySet(true, this, id, id, descriptor),
 	    true);
 
 	_descriptors.put(id, descriptor);
     }
+
+    public void tryRename(String oldId, String oldId2, String newId)
+	throws UpdateFailedException
+    {
+	PropertySet oldChild = (PropertySet)findChild(oldId);
+	assert oldChild != null;
+	removeChild(oldChild);
+	PropertySetDescriptor descriptor = (PropertySetDescriptor)oldChild.getDescriptor();
+
+	try
+	{
+	    insertChild(
+		new PropertySet(true, this, newId, newId, descriptor),
+		true);
+	}
+	catch(UpdateFailedException ex)
+	{
+	    try
+	    {
+		insertChild(oldChild, true);
+	    }
+	    catch(UpdateFailedException ufe)
+	    {
+		assert false;
+	    }
+	    throw ex;
+	}
+	
+	_editable.removeElement(oldId, oldChild.getEditable(), PropertySet.class);
+	_descriptors.remove(oldId);
+	_descriptors.put(newId, descriptor);
+    }
+
     
     public void insertPropertySet(PropertySet nps, boolean fireEvent)
 	throws UpdateFailedException
@@ -199,8 +233,10 @@ class PropertySets extends ListTreeNode implements PropertySetParent
 
     private void newPropertySet(PropertySetDescriptor descriptor)
     {
+	String id = makeNewChildId("PropertySet");
+
 	PropertySet propertySet =
-	    new PropertySet(this, makeNewChildId("PropertySet"), descriptor);
+	    new PropertySet(this, id, descriptor);
 
 	try
 	{

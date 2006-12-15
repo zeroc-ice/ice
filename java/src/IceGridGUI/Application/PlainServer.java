@@ -346,7 +346,7 @@ class PlainServer extends Communicator implements Server
 		writeOptions(writer, _descriptor.options);
 		writeEnvs(writer, _descriptor.envs);
 		
-		writePropertySet(writer, "", _descriptor.propertySet, _descriptor.adapters);
+		writePropertySet(writer, "", "", _descriptor.propertySet, _descriptor.adapters);
 		writeDistribution(writer, _descriptor.distrib);
 
 		_adapters.write(writer);
@@ -365,7 +365,7 @@ class PlainServer extends Communicator implements Server
 		writeOptions(writer, _descriptor.options);
 		writeEnvs(writer, _descriptor.envs);
 		
-		writePropertySet(writer, "", _descriptor.propertySet, _descriptor.adapters);
+		writePropertySet(writer, _descriptor.propertySet, _descriptor.adapters);
 		writeDistribution(writer, _descriptor.distrib);
 
 		_adapters.write(writer);

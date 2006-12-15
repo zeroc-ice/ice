@@ -785,7 +785,7 @@ class Node extends TreeNode implements PropertySetParent
 		}
 		else
 		{
-		    ps = new PropertySet(false, this, id, psd);
+		    ps = new PropertySet(false, this, id, id, psd);
 		    newPropertySets.add(ps);
 		    _descriptor.propertySets.put(id, psd);
 		}
@@ -1016,8 +1016,9 @@ class Node extends TreeNode implements PropertySetParent
 	while(p.hasNext())
 	{
 	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+	    String id = (String)entry.getKey();
 	    insertPropertySet(new PropertySet(false, this, 
-					      (String)entry.getKey(), 
+					      id, id, 
 					      (PropertySetDescriptor)entry.getValue()),
 			      false);
 	}
@@ -1146,11 +1147,42 @@ class Node extends TreeNode implements PropertySetParent
     public void tryAdd(String id, PropertySetDescriptor descriptor) 
 	throws UpdateFailedException
     {
-	insertPropertySet(new PropertySet(true, this, id, descriptor), 
+	insertPropertySet(new PropertySet(true, this, id, id, descriptor), 
 			  true);
 	_descriptor.propertySets.put(id, descriptor);
     }
 
+    public void tryRename(String oldId, String oldId2, String newId)
+	throws UpdateFailedException
+    {
+	PropertySet oldChild = findPropertySet(oldId);
+	assert oldChild != null;
+	removePropertySet(oldChild);
+	PropertySetDescriptor descriptor = (PropertySetDescriptor)oldChild.getDescriptor();
+
+	try
+	{
+	    insertPropertySet(
+		new PropertySet(true, this, newId, newId, descriptor),
+		true);
+	}
+	catch(UpdateFailedException ex)
+	{
+	    try
+	    {
+		insertPropertySet(oldChild, true);
+	    }
+	    catch(UpdateFailedException ufe)
+	    {
+		assert false;
+	    }
+	    throw ex;
+	}
+
+	_editable.removeElement(oldId, oldChild.getEditable(), PropertySet.class);
+	_descriptor.propertySets.remove(oldId);
+	_descriptor.propertySets.put(newId, descriptor);
+    }
 
     void tryAdd(ServerInstanceDescriptor instanceDescriptor,
 		boolean addDescriptor) throws UpdateFailedException
