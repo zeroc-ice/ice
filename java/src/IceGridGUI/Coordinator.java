@@ -1254,7 +1254,18 @@ public class Coordinator
 	    try
 	    {
 		IceGrid.LocatorPrx defaultLocator = IceGrid.LocatorPrxHelper.
-		    uncheckedCast(_communicator.stringToProxy(str));
+		    checkedCast(_communicator.stringToProxy(str));
+
+		if(defaultLocator == null)
+		{
+		    JOptionPane.showMessageDialog(
+			parent,
+			"This version of IceGrid Admin requires an IceGrid Registry version 3.2 or higher",
+			"Version Mismatch",
+			JOptionPane.ERROR_MESSAGE);
+		    return null;
+		}
+
 		localRegistry = defaultLocator.getLocalRegistry();
 
 		_communicator.setDefaultLocator(defaultLocator);
@@ -1663,15 +1674,17 @@ public class Coordinator
 	_prefs = prefs;
 	_initData = new Ice.InitializationData();
 
+	_initData.logger = new Logger(mainFrame);
 	_initData.properties = createProperties(args);
 	
 	if(args.value.length > 0)
 	{
-	    System.err.println("WARNING: extra command-line arguments");
+	    String msg = "Extra command-line arguments: ";
 	    for(int i = 0; i < args.value.length; ++i)
 	    {
-		System.err.println(args.value[i]);
+		msg += args.value[i] + " ";
 	    }
+	    _initData.logger.warning(msg);
 	}
 
 	_liveDeploymentRoot = new IceGridGUI.LiveDeployment.Root(this);
