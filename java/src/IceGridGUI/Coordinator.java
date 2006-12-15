@@ -365,8 +365,11 @@ public class Coordinator
 	    fileMenu.add(_saveToRegistry);
 	    fileMenu.addSeparator();
 	    fileMenu.add(_discardUpdates);
-	    fileMenu.addSeparator();
-	    fileMenu.add(_exit);
+	    if(!System.getProperty("os.name").startsWith("Mac OS"))
+	    {
+		fileMenu.addSeparator();
+		fileMenu.add(_exit);
+	    }
 	   
 	    //
 	    // Edit menu
@@ -1881,11 +1884,11 @@ public class Coordinator
 		}
 	    };
 	_closeApplication.putValue(Action.SHORT_DESCRIPTION, "Close application");
-	
+
 	if(System.getProperty("os.name").startsWith("Mac OS"))
 	{
 	    _closeApplication.putValue(Action.ACCELERATOR_KEY, 
-				       KeyStroke.getKeyStroke("ctrl w"));
+				       KeyStroke.getKeyStroke(KeyEvent.VK_W, MENU_MASK));
 	}
 	else
 	{
@@ -1950,7 +1953,6 @@ public class Coordinator
 		}
 	    };
 	_exit.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("alt F4"));
-
 
 	_back = new AbstractAction("Go Back to the Previous Node")
 	    {
