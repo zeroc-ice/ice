@@ -62,6 +62,15 @@
     <pathconvert property="ice.top.dir" refid="ice.dir.path">
     </pathconvert>
 
+    <condition property="ice.dir" value="${env.ICE_HOME}">
+	<and>
+	     <available file="${env.ICE_HOME}/slice" />
+            <not>
+                <isset property="ice.dir"/>
+	    </not>
+	</and>
+    </condition>
+
     <condition property="ice.dir" value="${top.dir}">
 	<and>
             <available file="${top.dir}/slice"/>
@@ -89,15 +98,6 @@
 	</and>
     </condition>
 
-    <condition property="ice.dir" value="${env.ICE_HOME}">
-	<and>
-	     <available file="${env.ICE_HOME}/slice" />
-            <not>
-                <isset property="ice.dir"/>
-	    </not>
-	</and>
-    </condition>
-
     <condition property="ice.dir" value="/opt/Ice-${ice.version.major}.${ice.version.minor}">
 	<and>
 	    <available file="/opt/Ice-${ice.version.major}.${ice.version.minor}/slice" />
@@ -116,9 +116,11 @@
 
     <!-- Detect Ice for Java location -->
 
-    <!-- A slice directory in ${top.dir} indicates a source distribution build. -->
+    <!-- A slice directory in ${top.dir} indicates a source distribution build. 
+         A makedist.py script indicates a CVS checkout. -->
     <condition property="icej.dir" value="${top.dir}">
 	<or>
+	    <available file="${top.dir}/makedist.py"/>
 	    <available file="${top.dir}/slice"/>
 	    <equals arg1="${ice.dir}" arg2="${ice.top.dir}"/>
 	</or>
@@ -154,6 +156,15 @@
 	<and>
 	    <equals arg1="${icej.dir}" arg2="/usr"/>
 	</and>
+    </condition>
+
+    <!-- Catch all for development tree purposes. If none of the above
+	 checks work, assume the developer knows what they are doing and the
+	 current top.dir is the ice dir. -->
+    <condition property="icej.dir" value="${top.dir}">
+	<not>
+	    <isset property="icej.dir"/>
+	</not>
     </condition>
     
     <fail message="Unable to detect a valid Ice installation." unless="ice.dir" />
