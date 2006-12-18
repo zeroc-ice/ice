@@ -49,15 +49,16 @@ public abstract class TreeNode extends TreeNodeBase
 
     public static final int RETRIEVE_STDOUT = 12;
     public static final int RETRIEVE_STDERR = 13;
+    public static final int RETRIEVE_LOG = 14;
     
-    public static final int SHUTDOWN_NODE = 14;
-    public static final int SHUTDOWN_REGISTRY = 15;
+    public static final int SHUTDOWN_NODE = 15;
+    public static final int SHUTDOWN_REGISTRY = 16;
 
-    public static final int PATCH_SERVER = 16;
+    public static final int PATCH_SERVER = 17;
 
-    public static final int ADD_OBJECT = 17;
+    public static final int ADD_OBJECT = 18;
 
-    static public final int ACTION_COUNT = 18;
+    static public final int ACTION_COUNT = 19;
     
     public boolean[] getAvailableActions()
     {
@@ -85,6 +86,10 @@ public abstract class TreeNode extends TreeNodeBase
 	assert false;
     }
     public void retrieveOutput(boolean stdout)
+    {
+	assert false;
+    }
+    public void retrieveLog()
     {
 	assert false;
     }

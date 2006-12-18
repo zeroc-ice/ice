@@ -9,6 +9,8 @@
 package IceGridGUI.LiveDeployment;
 
 import java.awt.Component;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeModel;
@@ -20,6 +22,73 @@ import IceGridGUI.*;
 
 class Service extends ListArrayTreeNode
 {
+    //
+    // Actions
+    //
+    public boolean[] getAvailableActions()
+    {
+	boolean[] actions = new boolean[ACTION_COUNT];
+
+	if(((Server)_parent).getState() != null)
+	{
+	    actions[RETRIEVE_LOG] = _serviceDescriptor.logs.length > 0;
+	}
+	return actions;
+    }
+
+    public void retrieveLog()
+    {
+	assert _serviceDescriptor.logs.length > 0;
+
+	String path = null;
+	
+	if(_serviceDescriptor.logs.length == 1)
+	{
+	    path = _resolver.substitute(_serviceDescriptor.logs[0].path);
+	}
+	else
+	{
+	    Object[] pathArray = new Object[_serviceDescriptor.logs.length];
+	    for(int i = 0; i < _serviceDescriptor.logs.length; ++i)
+	    {
+		pathArray[i] = _resolver.substitute(_serviceDescriptor.logs[i].path);
+	    }
+	
+	    path = (String)JOptionPane.showInputDialog(
+		getCoordinator().getMainFrame(), 
+		"Which log file do you want to retrieve?", 
+		"Retrieve Log File",	 
+		JOptionPane.QUESTION_MESSAGE, null,
+		pathArray, pathArray[0]);
+	}
+ 
+	if(path != null)
+	{
+	    final String fPath = path;
+	  
+	    getRoot().openShowLogDialog(new ShowLogDialog.FileIteratorFactory()
+		{
+		    public FileIteratorPrx open(int count)
+			throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException, 
+			DeploymentException
+		    {
+			AdminSessionPrx adminSession = getRoot().getCoordinator().getSession();
+			return adminSession.openServerLog(_parent.getId(), fPath, count);
+		    }
+		    
+		    public String getTitle()
+		    {
+			return "Service " + _parent.getId() + "/" + _id + " " + new java.io.File(fPath).getName();
+		    }
+		    
+		    public String getDefaultFilename()
+		    {
+			return new java.io.File(fPath).getName();
+		    }
+		});
+	}	
+    }
+
     public Component getTreeCellRendererComponent(
 	    JTree tree,
 	    Object value,
@@ -51,6 +120,20 @@ class Service extends ListArrayTreeNode
 	}
 	_editor.show(this);
 	return _editor;
+    }
+
+    public JPopupMenu getPopupMenu()
+    {
+	LiveActions la = getCoordinator().getLiveActionsForPopup();
+
+	if(_popup == null)
+	{
+	    _popup = new JPopupMenu();
+	    _popup.add(la.get(RETRIEVE_LOG));
+	}
+	
+	la.setTarget(this);
+	return _popup;
     }
 
 
@@ -196,5 +279,6 @@ class Service extends ListArrayTreeNode
     private final java.util.List _dbEnvs = new java.util.LinkedList();
 
     static private ServiceEditor _editor;
-    static private DefaultTreeCellRenderer _cellRenderer;   
+    static private DefaultTreeCellRenderer _cellRenderer;
+    static private JPopupMenu _popup;
 }

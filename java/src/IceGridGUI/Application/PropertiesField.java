@@ -77,6 +77,7 @@ public class PropertiesField extends JTable
 
     public void setProperties(java.util.List properties,
 			      java.util.List adapters,
+			      java.util.List logProps,
 			      Utils.Resolver resolver, boolean editable)
     {
 	_editable = editable;
@@ -96,6 +97,15 @@ public class PropertiesField extends JTable
 		AdapterDescriptor ad = (AdapterDescriptor)p.next();
 		hiddenPropertyNames.add("Ice.OA." + ad.name + ".Endpoints");
 		hiddenPropertyNames.add("Ice.OA." + ad.name + ".PublishedEndpoints");
+	    }
+	}
+
+	if(logProps != null)
+	{
+	    java.util.Iterator p = logProps.iterator();
+	    while(p.hasNext())
+	    {
+		hiddenPropertyNames.add(p.next());
 	    }
 	}
 
@@ -173,7 +183,6 @@ public class PropertiesField extends JTable
 	    getDefaultRenderer(String.class);
 	cr.setOpaque(_editable);	
     }
-
 
     public java.util.LinkedList getProperties()
     {

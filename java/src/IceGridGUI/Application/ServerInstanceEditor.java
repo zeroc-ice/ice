@@ -211,7 +211,7 @@ class ServerInstanceEditor extends AbstractServerEditor
 			      getDetailResolver());
 	_propertySets.setEditable(isEditable);
 
-	_properties.setProperties(descriptor.propertySet.properties, null, 
+	_properties.setProperties(descriptor.propertySet.properties, null, null, 
 				  getDetailResolver(), isEditable);
 
 	_applyButton.setEnabled(server.isEphemeral());

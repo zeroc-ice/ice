@@ -44,7 +44,8 @@ class Server extends ListArrayTreeNode
 	    actions[WRITE_MESSAGE] = _state != ServerState.Inactive;
 	    actions[RETRIEVE_STDOUT] = true;
 	    actions[RETRIEVE_STDERR] = true;
-
+	    actions[RETRIEVE_LOG] = _serverDescriptor.logs.length > 0;
+	    
 	    actions[PATCH_SERVER] = 
 		!_serverDescriptor.distrib.icepatch.equals("");
 
@@ -199,7 +200,60 @@ class Server extends ListArrayTreeNode
 		}
 	    });
     } 
+
+    public void retrieveLog()
+    {
+	assert _serverDescriptor.logs.length > 0;
+
+	String path = null;
 	
+	if(_serverDescriptor.logs.length == 1)
+	{
+	    path = _resolver.substitute(_serverDescriptor.logs[0].path);
+	}
+	else
+	{
+	    Object[] pathArray = new Object[_serverDescriptor.logs.length];
+	    for(int i = 0; i < _serverDescriptor.logs.length; ++i)
+	    {
+		pathArray[i] = _resolver.substitute(_serverDescriptor.logs[i].path);
+	    }
+	
+	    path  = (String)JOptionPane.showInputDialog(
+		getCoordinator().getMainFrame(), 
+		"Which log file do you want to retrieve?", 
+		"Retrieve Log File",	 
+		JOptionPane.QUESTION_MESSAGE, null,
+		pathArray, pathArray[0]);
+	}
+ 
+	if(path != null)
+	{
+	    final String fPath = path;
+	  
+	    getRoot().openShowLogDialog(new ShowLogDialog.FileIteratorFactory()
+		{
+		    public FileIteratorPrx open(int count)
+			throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException, 
+			DeploymentException
+		    {
+			AdminSessionPrx adminSession = getRoot().getCoordinator().getSession();
+			return adminSession.openServerLog(_id, fPath, count);
+		    }
+		    
+		    public String getTitle()
+		    {
+			return "Server " + _id + " " + new java.io.File(fPath).getName();
+		    }
+		    
+		    public String getDefaultFilename()
+		    {
+			return new java.io.File(fPath).getName();
+		    }
+		});
+	}	
+    }
+    
     public void signal(final String s)
     {
 	final String prefix = "Sending '" + s + "' to server '" + _id + "'...";
@@ -367,21 +421,23 @@ class Server extends ListArrayTreeNode
 	    _popup.add(la.get(WRITE_MESSAGE));
 	    _popup.add(la.get(RETRIEVE_STDOUT));
 	    _popup.add(la.get(RETRIEVE_STDERR));
+	    _popup.add(la.get(RETRIEVE_LOG));
 	    _popup.addSeparator();
 
-	    JMenu signalMenu = new JMenu("Send Signal");
-	    _popup.add(signalMenu);
+	    _signalMenu = new JMenu("Send Signal");
+	    _popup.add(_signalMenu);
 	    
-	    signalMenu.add(la.get(SIGHUP));
-	    signalMenu.add(la.get(SIGINT));
-	    signalMenu.add(la.get(SIGQUIT));
-	    signalMenu.add(la.get(SIGKILL));
-	    signalMenu.add(la.get(SIGUSR1));
-	    signalMenu.add(la.get(SIGUSR2));
-	    signalMenu.add(la.get(SIGTERM));
+	    _signalMenu.add(la.get(SIGHUP));
+	    _signalMenu.add(la.get(SIGINT));
+	    _signalMenu.add(la.get(SIGQUIT));
+	    _signalMenu.add(la.get(SIGKILL));
+	    _signalMenu.add(la.get(SIGUSR1));
+	    _signalMenu.add(la.get(SIGUSR2));
+	    _signalMenu.add(la.get(SIGTERM));
 	}
 	
 	la.setTarget(this);
+	_signalMenu.setEnabled(la.get(SIGHUP).isEnabled());
 	return _popup;
     }
 
@@ -872,5 +928,6 @@ class Server extends ListArrayTreeNode
 
     static private ServerEditor _editor;
     static private JPopupMenu _popup;
+    static private JMenu _signalMenu;
     static private WriteMessageDialog _writeMessageDialog;
 }

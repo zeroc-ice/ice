@@ -170,7 +170,7 @@ public class MapField extends JTable
 		 key = key.trim(); 
 		 if(!key.equals(""))
 		 {
-		     String val = (String) row.elementAt(1);
+		     String val = (String)row.elementAt(1);
 		     if(val == null)
 		     {
 			 val = "";

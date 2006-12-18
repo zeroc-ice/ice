@@ -149,7 +149,17 @@ public class LiveActions
 		}
 	    };
 	_array[TreeNode.RETRIEVE_STDERR].putValue(Action.SHORT_DESCRIPTION, 
-					       "Retrieve stderr");
+						  "Retrieve stderr");
+
+	_array[TreeNode.RETRIEVE_LOG] = new AbstractAction("Retrieve Log")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _target.retrieveLog();
+		}
+	    };
+	_array[TreeNode.RETRIEVE_LOG].putValue(Action.SHORT_DESCRIPTION, 
+					       "Retrieve log file from the server");
 
 
 	_array[TreeNode.SHUTDOWN_NODE] = new AbstractAction("Shutdown")

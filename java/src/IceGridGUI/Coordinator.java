@@ -449,6 +449,12 @@ public class Coordinator
 	    _serverMenu.addSeparator();
 	    _serverMenu.add(_liveActionsForMenu.get(
 				IceGridGUI.LiveDeployment.TreeNode.WRITE_MESSAGE));
+	    _serverMenu.add(_liveActionsForMenu.get(
+				IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_STDOUT));
+	    _serverMenu.add(_liveActionsForMenu.get(
+				IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_STDERR));
+	    _serverMenu.add(_liveActionsForMenu.get(
+				IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_LOG));
 	    _serverMenu.addSeparator();
 	    _signalMenu = new JMenu("Send Signal");
 	    _serverMenu.add(_signalMenu);
@@ -460,6 +466,15 @@ public class Coordinator
 	    _signalMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.SIGUSR2));
 	    _signalMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.SIGTERM));
 	
+	    //
+	    // Service sub-menu
+	    //
+	    _serviceMenu = new JMenu("Service");
+	    _serviceMenu.setEnabled(false);
+	    toolsMenu.add(_serviceMenu);
+	    _serviceMenu.add(_liveActionsForMenu.get(
+				 IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_LOG));
+
 	    //
 	    // Help menu
 	    //
@@ -2344,15 +2359,23 @@ public class Coordinator
 	    availableActions[IceGridGUI.LiveDeployment.TreeNode.ADD_OBJECT] ||
 	    availableActions[IceGridGUI.LiveDeployment.TreeNode.SHUTDOWN_REGISTRY]);
 
+	_signalMenu.setEnabled(
+	    availableActions[IceGridGUI.LiveDeployment.TreeNode.SIGHUP]);
+
 	_serverMenu.setEnabled(
 	    availableActions[IceGridGUI.LiveDeployment.TreeNode.START] ||
 	    availableActions[IceGridGUI.LiveDeployment.TreeNode.STOP] ||
 	    availableActions[IceGridGUI.LiveDeployment.TreeNode.ENABLE] ||
 	    availableActions[IceGridGUI.LiveDeployment.TreeNode.DISABLE] ||
-	    availableActions[IceGridGUI.LiveDeployment.TreeNode.PATCH_SERVER]);
-
-	_signalMenu.setEnabled(
+	    availableActions[IceGridGUI.LiveDeployment.TreeNode.PATCH_SERVER] ||
+	    availableActions[IceGridGUI.LiveDeployment.TreeNode.WRITE_MESSAGE] ||
+	    availableActions[IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_STDOUT] ||
+	    availableActions[IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_STDERR] ||
+	    availableActions[IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_LOG] ||
 	    availableActions[IceGridGUI.LiveDeployment.TreeNode.SIGHUP]);
+	
+	_serviceMenu.setEnabled(
+	    availableActions[IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_LOG]);
     }
 	
     public void showActions(IceGridGUI.Application.TreeNode node)
@@ -2377,7 +2400,9 @@ public class Coordinator
 	_appMenu.setEnabled(false);
 	_nodeMenu.setEnabled(false);
 	_registryMenu.setEnabled(false);
+	_signalMenu.setEnabled(false);
 	_serverMenu.setEnabled(false);
+	_serviceMenu.setEnabled(false);
     }	
 
 
@@ -2476,6 +2501,7 @@ public class Coordinator
     private JMenu _nodeMenu;
     private JMenu _registryMenu;
     private JMenu _serverMenu;
+    private JMenu _serviceMenu;
     private JMenu _signalMenu;
 
     private final Thread _shutdownHook;

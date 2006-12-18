@@ -37,6 +37,10 @@ class CommunicatorSubEditor
 	    _mainEditor.getUpdateListener());
 	_properties = new PropertiesField(mainEditor);
 	_description.setToolTipText("Property Set References");
+
+	_logFiles = new MapField(mainEditor, "Path", "Property name",
+				 true);
+	_logFiles.setToolTipText("Log files used by this server or service");
     }
 
   
@@ -62,7 +66,6 @@ class CommunicatorSubEditor
 	builder.append("");
 	builder.nextLine();
 	builder.append("");
-
 	builder.nextLine();
 	builder.append("");
 
@@ -72,6 +75,18 @@ class CommunicatorSubEditor
 		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
 	builder.nextRow(6);
 	builder.nextLine();
+
+	builder.append("Log files");
+	builder.nextLine();
+	builder.append("");
+	builder.nextLine();
+	builder.append("");
+	builder.nextRow(-4);
+	scrollPane = new JScrollPane(_logFiles);
+	builder.add(scrollPane, 
+		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 5));
+	builder.nextRow(4);
+	builder.nextLine();
     }
 
     void writeDescriptor(CommunicatorDescriptor descriptor)
@@ -80,6 +95,24 @@ class CommunicatorSubEditor
 	    (String[])_propertySets.getList().toArray(new String[0]);
 	descriptor.propertySet.properties = _properties.getProperties();
 	descriptor.description = _description.getText();
+
+	java.util.TreeMap tm = _logFiles.get();
+	java.util.Iterator p = tm.entrySet().iterator();
+	descriptor.logs = new LogDescriptor[tm.size()];
+	int i = 0;
+
+	while(p.hasNext())
+	{
+	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+	    String path = (String)entry.getKey();
+	    String prop = ((String)entry.getValue()).trim();
+
+	    descriptor.logs[i++] = new LogDescriptor(path, "");
+	    if(!prop.equals(""))
+	    {
+		setProperty((java.util.LinkedList)descriptor.propertySet.properties, prop, path);
+	    }
+	}
     }
 
     void show(CommunicatorDescriptor descriptor, boolean isEditable)
@@ -87,12 +120,28 @@ class CommunicatorSubEditor
 	Utils.Resolver detailResolver = _mainEditor.getDetailResolver();
 	isEditable = isEditable && (detailResolver == null);
 
+	java.util.Map map = new java.util.TreeMap();
+	java.util.List logProps = new java.util.LinkedList();
+	for(int i = 0; i < descriptor.logs.length; ++i)
+	{
+	    String prop = lookupKey(descriptor.propertySet.properties,
+				    descriptor.logs[i].path);
+	    
+	    map.put(descriptor.logs[i].path, prop);
+	    if(!prop.equals(""))
+	    {
+		logProps.add(prop);
+	    }
+	}
+
+	_logFiles.set(map, detailResolver, isEditable);
+
 	_propertySets.setList(java.util.Arrays.asList(descriptor.propertySet.references),
 			      detailResolver);
 	_propertySets.setEditable(isEditable);
-	
 	_properties.setProperties(descriptor.propertySet.properties,
 				  descriptor.adapters,
+				  logProps,
 				  detailResolver, isEditable);
 
 	_description.setText(
@@ -101,9 +150,48 @@ class CommunicatorSubEditor
 	_description.setOpaque(isEditable);
     }
 
+
+    //
+    // Returns first key matching this value, if there is one
+    //
+    private String lookupKey(java.util.List props, String value)
+    {
+	java.util.Iterator p = props.iterator();
+	while(p.hasNext())
+	{
+	    PropertyDescriptor pd = (PropertyDescriptor)p.next();
+	    if(pd.value.equals(value))
+	    {
+		return pd.name;
+	    }
+	}
+	return "";
+    }
+
+    private void setProperty(java.util.LinkedList props, String key, String newValue)
+    {
+	removeProperty(props, key);
+	props.addFirst(new PropertyDescriptor(key, newValue));
+    }
+
+    private void removeProperty(java.util.List props, String key)
+    {
+	java.util.Iterator p = props.iterator();
+	while(p.hasNext())
+	{
+	    PropertyDescriptor pd = (PropertyDescriptor)p.next();
+	    if(pd.name.equals(key))
+	    {
+		p.remove();
+	    }
+	}
+    }
+    
+
     protected Editor _mainEditor;
  
     private JTextArea _description = new JTextArea(3, 20);
     private ListTextField _propertySets = new ListTextField(20); 
     private PropertiesField _properties;
+    private MapField _logFiles;
 }
