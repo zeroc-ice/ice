@@ -1138,7 +1138,7 @@ Slice::GeneratorBase::makeDir(const string& dir)
 	return;
     }
 #ifdef _WIN32
-    rc = mkdir(dir.c_str())
+    rc = mkdir(dir.c_str());
 #else
     rc = mkdir(dir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
 #endif

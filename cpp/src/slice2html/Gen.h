@@ -18,6 +18,8 @@ namespace Slice
 
 void generate(const UnitPtr&, const ::std::string&, const ::std::string&, const ::std::string&, unsigned);
 
+typedef ::std::set< ::std::string> Files;
+
 class GeneratorBase : private ::IceUtil::noncopyable
 {
 public:
@@ -29,7 +31,7 @@ public:
 
 protected:
 
-    GeneratorBase(::IceUtil::XMLOutput&);
+    GeneratorBase(::IceUtil::XMLOutput&, const Files&);
     virtual ~GeneratorBase() = 0;
 
     void openDoc(const ::std::string&, const std::string&);
@@ -43,11 +45,12 @@ protected:
     void printMetaData(const ContainedPtr&);
     void printSummary(const ContainedPtr&, const ContainerPtr&, bool);
 
+    ::std::string toString(const SyntaxTreeBasePtr&, const ContainerPtr&, bool = true, bool = false);
+    ::std::string toString(const ::std::string&, const ContainerPtr&, bool = true, bool = false);
+    ::std::string getComment(const ContainedPtr&, const ContainerPtr&, bool, bool = false);
+
     static ::std::string getAnchor(const SyntaxTreeBasePtr&);
     static ::std::string getLinkPath(const SyntaxTreeBasePtr&, const ContainerPtr&, bool);
-    static ::std::string toString(const SyntaxTreeBasePtr&, const ContainerPtr&, bool = true, bool = false);
-    static ::std::string toString(const ::std::string&, const ContainerPtr&, bool = true, bool = false);
-    static ::std::string getComment(const ContainedPtr&, const ContainerPtr&, bool, bool = false);
 
     ::IceUtil::XMLOutput& _out;
 
@@ -67,6 +70,8 @@ private:
     static ::std::string readFile(const ::std::string&);
     static void readFile(const ::std::string&, ::std::string&, ::std::string&);
 
+    const Files& _files;
+
     static ::std::string _dir;
     static ::std::string _header1;
     static ::std::string _header2;
@@ -77,7 +82,7 @@ class IndexGenerator : private GeneratorBase
 {
 public:
 
-    IndexGenerator();
+    IndexGenerator(const Files&);
     ~IndexGenerator();
     void generate(const ModulePtr&);
 
@@ -88,11 +93,32 @@ private:
     ::IceUtil::XMLOutput _out;
 };
 
+class TypesVisitor : private ::IceUtil::noncopyable, public ParserVisitor
+{
+public:
+
+    TypesVisitor(Files&);
+
+    virtual bool visitUnitStart(const UnitPtr&);
+    virtual bool visitModuleStart(const ModulePtr&);
+    virtual bool visitExceptionStart(const ExceptionPtr&);
+    virtual bool visitClassDefStart(const ClassDefPtr&);
+    virtual void visitClassDecl(const ClassDeclPtr&);
+    virtual bool visitStructStart(const StructPtr&);
+    virtual void visitSequence(const SequencePtr&);
+    virtual void visitDictionary(const DictionaryPtr&);
+    virtual void visitEnum(const EnumPtr&);
+
+private:
+
+    Files& _files;
+};
+
 class IndexVisitor : private ::IceUtil::noncopyable, public ParserVisitor
 {
 public:
 
-    IndexVisitor();
+    IndexVisitor(const Files&);
 
     virtual bool visitUnitStart(const UnitPtr&);
     virtual bool visitModuleStart(const ModulePtr&);
@@ -106,7 +132,7 @@ class ModuleGenerator : private GeneratorBase
 {
 public:
 
-    ModuleGenerator(::IceUtil::XMLOutput&);
+    ModuleGenerator(::IceUtil::XMLOutput&, const Files&);
     void generate(const ModulePtr&);
 
 private:
@@ -119,7 +145,7 @@ class ExceptionGenerator : private GeneratorBase
 {
 public:
 
-    ExceptionGenerator(::IceUtil::XMLOutput&);
+    ExceptionGenerator(::IceUtil::XMLOutput&, const Files&);
     void generate(const ExceptionPtr&);
 };
 
@@ -127,7 +153,7 @@ class ClassGenerator : private GeneratorBase
 {
 public:
 
-    ClassGenerator(::IceUtil::XMLOutput&);
+    ClassGenerator(::IceUtil::XMLOutput&, const Files&);
     void generate(const ClassDefPtr&);
 };
 
@@ -135,7 +161,7 @@ class StructGenerator : private GeneratorBase
 {
 public:
 
-    StructGenerator(::IceUtil::XMLOutput&);
+    StructGenerator(::IceUtil::XMLOutput&, const Files&);
     void generate(const StructPtr&);
 };
 
@@ -143,7 +169,7 @@ class EnumGenerator : private GeneratorBase
 {
 public:
 
-    EnumGenerator(::IceUtil::XMLOutput&);
+    EnumGenerator(::IceUtil::XMLOutput&, const Files&);
     void generate(const EnumPtr&);
 };
 
@@ -151,7 +177,7 @@ class Visitor : private ::IceUtil::noncopyable, public ParserVisitor
 {
 public:
 
-    Visitor();
+    Visitor(const Files&);
 
     virtual bool visitUnitStart(const UnitPtr&);
     virtual bool visitModuleStart(const ModulePtr&);
@@ -159,6 +185,10 @@ public:
     virtual bool visitClassDefStart(const ClassDefPtr&);
     virtual bool visitStructStart(const StructPtr&);
     virtual void visitEnum(const EnumPtr&);
+
+private:
+
+    const Files& _files;
 };
 
 }
