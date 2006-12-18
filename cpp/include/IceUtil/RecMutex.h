@@ -46,7 +46,8 @@ public:
     void lock() const;
 
     //
-    // Returns true if the lock was acquired, and false otherwise.
+    // Returns true if the lock was acquired or was already acquired
+    // by the calling thread, and false otherwise.
     //
     bool tryLock() const;
 
