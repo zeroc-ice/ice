@@ -152,7 +152,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	adapter.name = "Server";
 	adapter.id = "ServerAdapter";
 	adapter.registerProcess = true;
-	addProperty(server, "Server.Endpoints", "default");
+	addProperty(server, "Ice.OA.Server.Endpoints", "default");
 	ObjectDescriptor object;
 	object.id = communicator->stringToIdentity("test");
 	object.type = "::Test::TestIntf";
@@ -215,7 +215,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	adapter.name = "Server";
 	adapter.id = "${server}";
 	adapter.registerProcess = true;
-	addProperty(server, "Server.Endpoints", "default");
+	addProperty(server, "Ice.OA.Server.Endpoints", "default");
 	object = ObjectDescriptor();
 	object.id = communicator->stringToIdentity("${server}");
 	object.type = "::Test::TestIntf";
@@ -486,7 +486,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	adapter.name = "${service}";
 	adapter.id = "${server}.${service}";
 	adapter.registerProcess = true;
-	addProperty(service, "${service}.Endpoints", "default");
+	addProperty(service, "Ice.OA.${service}.Endpoints", "default");
 	service->adapters.push_back(adapter);
  	
 	IceBoxDescriptorPtr server = new IceBoxDescriptor();
@@ -1042,7 +1042,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	addProperty(server, "IceGrid.Node.Name", "node-${index}");
 	addProperty(server, "IceGrid.Node.Data", properties->getProperty("TestDir") + "/db/node-${index}");
-	addProperty(server, "IceGrid.Node.Endpoints", "default");
+	addProperty(server, "Ice.OA.IceGrid.Node.Endpoints", "default");
 	addProperty(server, "IceGrid.Node.PropertiesOverride", properties->getProperty("NodePropertiesOverride"));
 
 	nodeApp.serverTemplates["nodeTemplate"].descriptor = server;
@@ -1103,7 +1103,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	adapter.registerProcess = true;
 	adapter.serverLifetime = true;
 	server->adapters.push_back(adapter);
-	addProperty(server, "Server.Endpoints", "default");
+	addProperty(server, "Ice.OA.Server.Endpoints", "default");
 	testApp.nodes["node-1"].servers.push_back(server);
 
 	try

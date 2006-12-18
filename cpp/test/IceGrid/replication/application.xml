@@ -31,10 +31,10 @@
           <dbproperty name="set_flags" value="DB_TXN_NOSYNC"/>
         </dbenv>
         <property name="IceGrid.InstanceName" value="TestIceGrid"/>
-        <property name="IceGrid.Registry.Client.Endpoints" value="default -h 127.0.0.1 -p ${port}"/>
-        <property name="IceGrid.Registry.Server.Endpoints" value="default"/>
-        <property name="IceGrid.Registry.Internal.Endpoints" value="default"/>
-        <property name="IceGrid.Registry.SessionManager.Endpoints" value="default"/>
+        <property name="Ice.OA.IceGrid.Registry.Client.Endpoints" value="default -h 127.0.0.1 -p ${port}"/>
+        <property name="Ice.OA.IceGrid.Registry.Server.Endpoints" value="default"/>
+        <property name="Ice.OA.IceGrid.Registry.Internal.Endpoints" value="default"/>
+        <property name="Ice.OA.IceGrid.Registry.SessionManager.Endpoints" value="default"/>
         <property name="IceGrid.Registry.ReplicaName" value="${replicaName}"/>
         <property name="IceGrid.Registry.Data" value="${node.datadir}/servers/${server}/dbs/data"/>
         <property name="IceGrid.Registry.PermissionsVerifier" value="TestIceGrid/NullPermissionsVerifier"/>

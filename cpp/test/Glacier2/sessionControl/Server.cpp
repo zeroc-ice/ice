@@ -32,7 +32,7 @@ main(int argc, char* argv[])
 int
 SessionControlServer::run(int argc, char* argv[])
 {
-    communicator()->getProperties()->setProperty("SessionControlAdapter.Endpoints", "tcp -p 12010 -t 10000");
+    communicator()->getProperties()->setProperty("Ice.OA.SessionControlAdapter.Endpoints", "tcp -p 12010 -t 10000");
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("SessionControlAdapter");
     adapter->add(new SessionManagerI, communicator()->stringToIdentity("SessionManager"));
     adapter->activate();

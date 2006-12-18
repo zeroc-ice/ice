@@ -2,7 +2,7 @@
 # This property is used to configure the endpoints of the clock
 # subscriber adapter.
 #
-Clock.Subscriber.Endpoints=tcp
+Ice.OA.Clock.Subscriber.Endpoints=tcp
 
 #
 # This property is used by the clients to connect to IceStorm.

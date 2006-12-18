@@ -221,11 +221,11 @@ def writeEntry(lang, label, entry):
 	file.write("    \"" + label + '.' + string.replace(entry, "<any>", "*") + "\",\n")
     elif lang == "java":
 	pattern = string.replace(entry, ".", "\\\\.")
-	pattern = string.replace(pattern, "<any>", "[^\\\\s.]+")
+	pattern = string.replace(pattern, "<any>", "[^\\\\s]+")
 	file.write("        " + "\"^" + label + "\\\\." + pattern + "$\",\n")
     elif lang == "cs":
 	pattern = string.replace(entry, ".", "\\.")
-	pattern = string.replace(pattern, "<any>", "[^\\s.]+")
+	pattern = string.replace(pattern, "<any>", "[^\\s]+")
 	file.write("            " + "@\"^" + label + "\\." + pattern + "$\",\n")
 
 def processFile(lang):

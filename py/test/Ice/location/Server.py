@@ -85,10 +85,10 @@ class ServerManagerI(Test.ServerManager):
 	self._registry = registry
         self._communicators = []
         self._initData = initData
-        self._initData.properties.setProperty("TestAdapter.Endpoints", "default")
-        self._initData.properties.setProperty("TestAdapter.AdapterId", "TestAdapter")
-        self._initData.properties.setProperty("TestAdapter2.Endpoints", "default")
-        self._initData.properties.setProperty("TestAdapter2.AdapterId", "TestAdapter2")
+        self._initData.properties.setProperty("Ice.OA.TestAdapter.Endpoints", "default")
+        self._initData.properties.setProperty("Ice.OA.TestAdapter.AdapterId", "TestAdapter")
+        self._initData.properties.setProperty("Ice.OA.TestAdapter2.Endpoints", "default")
+        self._initData.properties.setProperty("Ice.OA.TestAdapter2.AdapterId", "TestAdapter2")
 
     def startServer(self, current=None):
       
@@ -154,7 +154,7 @@ def run(args, communicator, initData):
     #
     properties = communicator.getProperties()
     properties.setProperty("Ice.ThreadPool.Server.Size", "2")
-    properties.setProperty("ServerManager.Endpoints", "default -p 12010:udp")
+    properties.setProperty("Ice.OA.ServerManager.Endpoints", "default -p 12010:udp")
 
     adapter = communicator.createObjectAdapter("ServerManager")
 

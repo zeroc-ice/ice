@@ -69,7 +69,11 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    if(!_noConfig)
 	    {
 	        final Properties properties = _instance.initializationData().properties;
-	        registerProcess = properties.getPropertyAsInt(_name +".RegisterProcess") > 0;
+		//
+		// DEPRECATED PROPERTY: Remove extra code in future release.
+		//
+	        registerProcess = properties.getPropertyAsIntWithDefault(_propertyPrefix + _name +".RegisterProcess",
+			properties.getPropertyAsInt(_name +".RegisterProcess")) > 0;
 	        printAdapterReady = properties.getPropertyAsInt("Ice.PrintAdapterReady") > 0;
 	    }
 	}
@@ -708,12 +712,18 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	}
 
 	//
+	// DEPRECATED PROPERTIES: Remove extra code in future release.
+	//
+
+	//
 	// Make sure named adapter has some configuration.
 	//
+	final Properties properties = instance.initializationData().properties;
+	String[] oldProps = filterProperties(_name + ".");
 	if(endpointInfo.length() == 0 && router == null)
 	{
-	    java.util.Map oaProps = instance.initializationData().properties.getPropertiesForPrefix(_name + ".");
-	    if(oaProps.size() == 0)
+	    String[] props = filterProperties(_propertyPrefix + _name + ".");
+	    if(props.length == 0 && oldProps.length == 0)
 	    {
 	        InitializationException ex = new InitializationException();
 		ex.reason = "Object adapter \"" + _name + "\" requires configuration.";
@@ -721,14 +731,32 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    }
 	}
 
-	_id = instance.initializationData().properties.getProperty(name + ".AdapterId");
-	_replicaGroupId = instance.initializationData().properties.getProperty(name + ".ReplicaGroupId");
+	if(oldProps.length != 0)
+	{
+	    String message = "The following properties have been deprecated, please prepend \"Ice.OA.\":";
+	    for(int i = 0; i < oldProps.length; ++i)
+	    {
+	        message += "\n    " + oldProps[i];
+	    }
+	    _instance.initializationData().logger.warning(message);
+	}
+
+	_id = properties.getPropertyWithDefault(_propertyPrefix + _name + ".AdapterId",
+		properties.getProperty(_name + ".AdapterId"));
+	_replicaGroupId = properties.getPropertyWithDefault(_propertyPrefix + _name + ".ReplicaGroupId",
+		properties.getProperty(_name + ".ReplicaGroupId"));
 	
         try
         {
 	    if(router == null)
 	    {
-	        router = RouterPrxHelper.uncheckedCast(_instance.proxyFactory().propertyToProxy(name + ".Router"));
+	        router = RouterPrxHelper.uncheckedCast(
+		    _instance.proxyFactory().propertyToProxy(_propertyPrefix + name + ".Router"));
+		if(router == null)
+		{
+	            router = RouterPrxHelper.uncheckedCast(
+		        _instance.proxyFactory().propertyToProxy(name + ".Router"));
+		}
 	    }
 	    if(router != null)
 	    {
@@ -796,7 +824,16 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	        // The connection factory might change it, for example, to
 	        // fill in the real port number.
 	        //
-	        java.util.ArrayList endpoints = parseEndpoints(endpointInfo);
+	        java.util.ArrayList endpoints;
+		if(endpointInfo.length() == 0)
+		{
+		    endpoints = parseEndpoints(properties.getPropertyWithDefault(_propertyPrefix + _name + ".Endpoints",
+		    	properties.getProperty(_name + ".Endpoints")));
+		}
+		else
+		{
+		    endpoints = parseEndpoints(endpointInfo);
+		}
 	        for(int i = 0; i < endpoints.size(); ++i)
 	        {
 		    IceInternal.EndpointI endp = (IceInternal.EndpointI)endpoints.get(i);
@@ -817,7 +854,8 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	        // Parse published endpoints. If set, these are used in proxies
 	        // instead of the connection factory Endpoints.
 	        //
-	        String endpts = _instance.initializationData().properties.getProperty(name + ".PublishedEndpoints");
+	        String endpts = properties.getPropertyWithDefault(_propertyPrefix + _name + ".PublishedEndpoints",
+			properties.getProperty(_name + ".PublishedEndpoints"));
 	        _publishedEndpoints = parseEndpoints(endpts);
 	        if(_publishedEndpoints.size() == 0)
 	        {
@@ -843,10 +881,15 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	        }
 	    }
 
-	    String locatorProperty = name + ".Locator";
-	    if(_instance.initializationData().properties.getProperty(locatorProperty).length() > 0)
+	    String locatorProperty = _propertyPrefix + _name + ".Locator";
+	    if(properties.getProperty(locatorProperty).length() > 0)
 	    {
 		setLocator(LocatorPrxHelper.uncheckedCast(_instance.proxyFactory().propertyToProxy(locatorProperty)));
+	    }
+	    else if(properties.getProperty(_name + ".Locator").length() > 0)
+	    {
+	        setLocator(LocatorPrxHelper.uncheckedCast(
+		    _instance.proxyFactory().propertyToProxy(_name + ".Locator")));
 	    }
 	    else
 	    {
@@ -855,11 +898,24 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 
 	    if(!_instance.threadPerConnection())
 	    {
-		int size = _instance.initializationData().properties.getPropertyAsInt(_name + ".ThreadPool.Size");
-		int sizeMax = _instance.initializationData().properties.getPropertyAsInt(_name + ".ThreadPool.SizeMax");
-		if(size > 0 || sizeMax > 0)
+	        if(properties.getProperty(_propertyPrefix + _name + ".ThreadPool.Size").length() != 0 ||
+		   properties.getProperty(_propertyPrefix + _name + ".ThreadPool.SizeMax").length() != 0)
+ 		{
+		    int size = properties.getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.Size");
+		    int sizeMax = properties.getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.SizeMax");
+		    if(size > 0 || sizeMax > 0)
+		    {
+		        _threadPool = new IceInternal.ThreadPool(_instance, _propertyPrefix + _name + ".ThreadPool", 0);
+		    }
+		}
+		else
 		{
-		    _threadPool = new IceInternal.ThreadPool(_instance, _name + ".ThreadPool", 0);
+		    int size = properties.getPropertyAsInt(_name + ".ThreadPool.Size");
+		    int sizeMax = properties.getPropertyAsInt(_name + ".ThreadPool.SizeMax");
+		    if(size > 0 || sizeMax > 0)
+		    {
+		        _threadPool = new IceInternal.ThreadPool(_instance, _name + ".ThreadPool", 0);
+		    }
 		}
 	    }
         }
@@ -1144,6 +1200,37 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	}
     }    
 
+    static private String[] _suffixes = 
+    {
+        "AdapterId",
+        "Endpoints",
+        "Locator",
+        "PublishedEndpoints",
+        "RegisterProcess",
+        "ReplicaGroupId",
+        "Router",
+        "ThreadPool.Size",
+        "ThreadPool.SizeMax",
+        "ThreadPool.SizeWarn",
+        "ThreadPool.StackSize"
+    };
+
+    String[]
+    filterProperties(String prefix)
+    {
+        java.util.ArrayList propertySet = new java.util.ArrayList();
+	java.util.Map props = _instance.initializationData().properties.getPropertiesForPrefix(prefix);
+	for(int i = 0; i < _suffixes.length; ++i)
+	{
+	    if(props.containsKey(prefix + _suffixes[i]))
+	    {
+	        propertySet.add(prefix + _suffixes[i]);
+	    }
+	}
+
+	return (String[])propertySet.toArray(new String[0]);
+    }
+
     private static class ProcessI extends _ProcessDisp
     {
         ProcessI(Communicator communicator)
@@ -1197,4 +1284,5 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     private boolean _waitForActivate;
     private boolean _waitForDeactivate;
     private boolean _noConfig;
+    static private String _propertyPrefix = "Ice.OA.";
 }

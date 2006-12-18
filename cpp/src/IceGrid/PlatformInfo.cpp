@@ -175,20 +175,46 @@ PlatformInfo::PlatformInfo(const string& prefix,
     _machine = utsinfo.machine;
 #endif
 
+    //
+    // DEPRECATED PROPERTIES: Remove extra code in future release.
+    //
     Ice::PropertiesPtr properties = communicator->getProperties();
+    string endpointsPrefix;
+    string oldEndpointsPrefix;
     if(prefix == "IceGrid.Registry")
     {
 	_name = properties->getPropertyWithDefault("IceGrid.Registry.ReplicaName", "Master");
-	const string endpointsPrefix = prefix + ".Client";
-	_endpoints = properties->getPropertyWithDefault(
-	    endpointsPrefix + ".PublishedEndpoints", properties->getProperty(endpointsPrefix + ".Endpoints"));	
+	endpointsPrefix = "Ice.OA." + prefix + ".Client";
+	oldEndpointsPrefix = prefix + ".Client";
     }
     else
     {
 	_name = properties->getProperty(prefix + ".Name");
-	_endpoints = properties->getPropertyWithDefault(
-	    prefix + ".PublishedEndpoints", properties->getProperty(prefix + ".Endpoints"));
+	endpointsPrefix = prefix;
+	oldEndpointsPrefix = prefix;
     }
+
+    Ice::PropertyDict props = properties->getPropertiesForPrefix(endpointsPrefix);
+    Ice::PropertyDict::const_iterator p = props.find(endpointsPrefix + ".PublishedEndpoints");
+    if(p != props.end())
+    {
+        _endpoints = p->second;
+    }
+    else
+    {
+        Ice::PropertyDict oldProps = properties->getPropertiesForPrefix(oldEndpointsPrefix);
+        p = props.find(oldEndpointsPrefix + ".PublishedEndpoints");
+        if(p != props.end())
+        {
+            _endpoints = p->second;
+        }
+        else
+        {
+            _endpoints = properties->getPropertyWithDefault(
+                endpointsPrefix + ".Endpoints", properties->getProperty(oldEndpointsPrefix + ".Endpoints"));	
+        }
+    }
+
     _dataDir = properties->getProperty(prefix + ".Data");    
     if(!IcePatch2::isAbsolute(_dataDir))
     {

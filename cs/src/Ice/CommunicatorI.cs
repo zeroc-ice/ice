@@ -54,7 +54,7 @@ namespace Ice
 
 	public ObjectAdapter createObjectAdapter(string name)
 	{
-	    return createObjectAdapterWithEndpoints(name, getProperties().getProperty(name + ".Endpoints"));
+	    return instance_.objectAdapterFactory().createObjectAdapter(name, "", null);
 	}
 	
 	public ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints)

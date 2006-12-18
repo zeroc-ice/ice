@@ -18,12 +18,12 @@ ServerManagerI::ServerManagerI(const Ice::ObjectAdapterPtr& adapter,
 			       const Ice::InitializationData& initData) :
     _adapter(adapter), _registry(registry), _initData(initData)
 {
-    _initData.properties->setProperty("TestAdapter.Endpoints", "default");
-    _initData.properties->setProperty("TestAdapter.AdapterId", "TestAdapter");
-    _initData.properties->setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
+    _initData.properties->setProperty("Ice.OA.TestAdapter.Endpoints", "default");
+    _initData.properties->setProperty("Ice.OA.TestAdapter.AdapterId", "TestAdapter");
+    _initData.properties->setProperty("Ice.OA.TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
     
-    _initData.properties->setProperty("TestAdapter2.Endpoints", "default");
-    _initData.properties->setProperty("TestAdapter2.AdapterId", "TestAdapter2");
+    _initData.properties->setProperty("Ice.OA.TestAdapter2.Endpoints", "default");
+    _initData.properties->setProperty("Ice.OA.TestAdapter2.AdapterId", "TestAdapter2");
 
     _initData.properties->setProperty("Ice.PrintAdapterReady", "0");
 }

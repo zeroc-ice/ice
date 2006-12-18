@@ -19,7 +19,7 @@ class EmptyI(Test.Empty):
 
 def allTests(communicator):
     print "testing facet registration exceptions... ",
-    communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "default")
+    communicator.getProperties().setProperty("Ice.OA.FacetExceptionTestAdapter.Endpoints", "default")
     adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter")
     obj = EmptyI()
     adapter.add(obj, communicator.stringToIdentity("d"))

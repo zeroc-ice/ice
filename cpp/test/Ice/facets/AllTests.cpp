@@ -22,7 +22,7 @@ GPrx
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     cout << "testing facet registration exceptions... " << flush;
-    communicator->getProperties()->setProperty("FacetExceptionTestAdapter.Endpoints", "default");
+    communicator->getProperties()->setProperty("Ice.OA.FacetExceptionTestAdapter.Endpoints", "default");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("FacetExceptionTestAdapter");
     Ice::ObjectPtr obj = new EmptyI;
     adapter->add(obj, communicator->stringToIdentity("d"));

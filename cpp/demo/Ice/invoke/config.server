@@ -1,1 +1,1 @@
-Printer.Endpoints=tcp -p 10000
+Ice.OA.Printer.Endpoints=tcp -p 10000

@@ -2534,17 +2534,23 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
     {
 	if(!q->id.empty() || q->registerProcess)
 	{
+	    //
+	    // DEPREACTED PROPERTIES: Removed extra code in future release
+	    //
 	    props.push_back(createProperty("# Object adapter " + q->name));
 	    if(!q->id.empty())
 	    {
+		props.push_back(createProperty("Ice.OA." + q->name + ".AdapterId", q->id));
 		props.push_back(createProperty(q->name + ".AdapterId", q->id));
 		if(!q->replicaGroupId.empty())
 		{
+		    props.push_back(createProperty("Ice.OA." + q->name + ".ReplicaGroupId", q->replicaGroupId));
 		    props.push_back(createProperty(q->name + ".ReplicaGroupId", q->replicaGroupId));
 		}
 	    }
 	    if(q->registerProcess)
 	    {
+		props.push_back(createProperty("Ice.OA." + q->name + ".RegisterProcess", "1"));
 		props.push_back(createProperty(q->name + ".RegisterProcess", "1"));
 	    }
 	}

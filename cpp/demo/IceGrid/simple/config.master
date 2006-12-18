@@ -2,9 +2,9 @@ IceGrid.InstanceName=DemoIceGrid
 
 Ice.ProgramName=Master
 
-IceGrid.Registry.Client.Endpoints=default -p 12000
-IceGrid.Registry.Server.Endpoints=default
-IceGrid.Registry.Internal.Endpoints=default
+Ice.OA.IceGrid.Registry.Client.Endpoints=default -p 12000
+Ice.OA.IceGrid.Registry.Server.Endpoints=default
+Ice.OA.IceGrid.Registry.Internal.Endpoints=default
 IceGrid.Registry.Data=db/registry
 IceGrid.Registry.PermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
 IceGrid.Registry.AdminPermissionsVerifier=DemoIceGrid/NullPermissionsVerifier

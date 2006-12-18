@@ -88,7 +88,7 @@ class CustomI(Test.Custom):
         self._adapter.getCommunicator().shutdown()
 
 def run(args, communicator):
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000")
+    communicator.getProperties().setProperty("Ice.OA.TestAdapter.Endpoints", "default -p 12010 -t 10000")
     adapter = communicator.createObjectAdapter("TestAdapter")
     object = CustomI(adapter)
     adapter.add(object, communicator.stringToIdentity("test"))

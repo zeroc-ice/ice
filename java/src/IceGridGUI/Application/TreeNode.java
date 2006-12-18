@@ -141,7 +141,7 @@ public abstract class TreeNode extends TreeNodeBase
 	    while(p.hasNext())
 	    {
 		AdapterDescriptor ad = (AdapterDescriptor)p.next();
-		hiddenPropertyNames.add(ad.name + ".Endpoints");
+		hiddenPropertyNames.add("Ice.OA." + ad.name + ".Endpoints");
 	    }
 	}
 

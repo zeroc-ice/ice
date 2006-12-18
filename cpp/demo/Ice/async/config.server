@@ -3,7 +3,7 @@
 # "Queue". The following line sets the endpoints for this
 # adapter.
 #
-Queue.Endpoints=tcp -p 10000
+Ice.OA.Queue.Endpoints=tcp -p 10000
 
 #
 # Warn about connection exceptions

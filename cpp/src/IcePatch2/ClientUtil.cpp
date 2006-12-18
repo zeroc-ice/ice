@@ -156,11 +156,12 @@ IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFe
 {
     PropertiesPtr properties = communicator->getProperties();
 
-    const char* endpointsProperty = "IcePatch2.Endpoints";
-    const string endpoints = properties->getProperty(endpointsProperty);
+    const char* endpointsProperty = "Ice.OA.IcePatch2.Endpoints";
+    string endpoints = properties->getPropertyWithDefault(endpointsProperty,
+    							  properties->getProperty("IcePatch2.Endpoints"));
     if(endpoints.empty())
     {
-	throw string("property `") + endpointsProperty + "' is not set";
+        throw string("property `") + endpointsProperty + "' is not set";
     }
 
     Identity id;

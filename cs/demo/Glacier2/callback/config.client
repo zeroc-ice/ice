@@ -15,14 +15,14 @@ Ice.Default.Router=DemoGlacier2/router:tcp -p 10006 -h 127.0.0.1:ssl -p 10005 -h
 # match the value of Glacier2.Client.Endpoints.
 # (The SSL endpoint is ignored with .NET 1.1.)
 #
-Callback.Client.Router=DemoGlacier2/router:tcp -p 10006 -h 127.0.0.1: ssl -p 10005 -h 127.0.0.1
+Ice.OA.Callback.Client.Router=DemoGlacier2/router:tcp -p 10006 -h 127.0.0.1: ssl -p 10005 -h 127.0.0.1
 
 #
 # We don't need any endpoints for the client if we use a
 # router. Incoming requests are received through connections
 # established from the client to the router.
 #
-Callback.Client.Endpoints=
+Ice.OA.Callback.Client.Endpoints=
 
 #
 # This must match the value of Callback.Server.Endpoints in

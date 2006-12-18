@@ -18,7 +18,7 @@ Ice.ThreadPerConnection.StackSize=262144
 # The client-visible endpoint of Glacier2. This should be an endpoint
 # visible from the public Internet, and it should be secure.
 # 
-Glacier2.Client.Endpoints=ssl -p 10005 -h 127.0.0.1
+Ice.OA.Glacier2.Client.Endpoints=ssl -p 10005 -h 127.0.0.1
 
 #
 # The server-visible endpoint of Glacier2. This endpoint is only
@@ -27,7 +27,7 @@ Glacier2.Client.Endpoints=ssl -p 10005 -h 127.0.0.1
 # on the loopback, so that the server is not directly accessible from
 # the Internet.
 #
-Glacier2.Server.Endpoints=tcp -h 127.0.0.1
+Ice.OA.Glacier2.Server.Endpoints=tcp -h 127.0.0.1
 
 # 
 # The configures the session manager. If no external session manager

@@ -50,8 +50,7 @@ public:
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const string& envName)
 {
-    communicator->getProperties()->setProperty("Factory.Endpoints", "default -p 12010 -t 30000");
-
+    communicator->getProperties()->setProperty("Ice.OA.Factory.Endpoints", "default -p 12010 -t 30000");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Factory");
 
     Test::RemoteEvictorFactoryPtr factory = new Test::RemoteEvictorFactoryI(adapter, envName);

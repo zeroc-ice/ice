@@ -16,7 +16,7 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator,
     const Ice::InitializationData& initData)
 {
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
+    communicator->getProperties()->setProperty("Ice.OA.TestAdapter.Endpoints", "default -p 12010 -t 10000");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::Identity id = communicator->stringToIdentity("test");
     adapter->add(new MyDerivedClassI(adapter, id), id);

@@ -139,19 +139,19 @@ SessionControlServer::run(int, char*[])
     // servant, allowing us to use any reference as long as the client
     // expects to use a proxy for the correct type of object.
     //
-    communicator()->getProperties()->setProperty("TestControllerAdapter.Endpoints", "tcp -p 12013");
+    communicator()->getProperties()->setProperty("Ice.OA.TestControllerAdapter.Endpoints", "tcp -p 12013");
     ObjectAdapterPtr controllerAdapter = communicator()->createObjectAdapter("TestControllerAdapter");
     TestControllerIPtr controller = new TestControllerI;
     controllerAdapter->add(controller, communicator()->stringToIdentity("testController"));
     controllerAdapter->activate();
 
-    communicator()->getProperties()->setProperty("SessionControlAdapter.Endpoints", "tcp -p 12010");
+    communicator()->getProperties()->setProperty("Ice.OA.SessionControlAdapter.Endpoints", "tcp -p 12010");
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("SessionControlAdapter");
     adapter->add(new SessionManagerI(controller), communicator()->stringToIdentity("SessionManager"));
     adapter->activate();
 
     BackendPtr backend = new BackendI;
-    communicator()->getProperties()->setProperty("BackendAdapter.Endpoints", "default -p 12012");
+    communicator()->getProperties()->setProperty("Ice.OA.BackendAdapter.Endpoints", "default -p 12012");
     ObjectAdapterPtr backendAdapter = communicator()->createObjectAdapter("BackendAdapter");
     backendAdapter->addServantLocator(new ServantLocatorI(backend), "");
     backendAdapter->activate();

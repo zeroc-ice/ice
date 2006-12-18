@@ -152,7 +152,7 @@ Ice::CommunicatorI::identityToString(const Identity& ident) const
 ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapter(const string& name)
 {
-    return createObjectAdapterWithEndpoints(name, getProperties()->getProperty(name + ".Endpoints"));
+    return _instance->objectAdapterFactory()->createObjectAdapter(name, "", 0);
 }
 
 ObjectAdapterPtr

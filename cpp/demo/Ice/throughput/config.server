@@ -1,4 +1,4 @@
-Throughput.Endpoints=default -p 10000
+Ice.OA.Throughput.Endpoints=default -p 10000
 
 #
 # SSL Configuration

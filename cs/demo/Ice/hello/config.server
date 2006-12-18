@@ -3,7 +3,7 @@
 # "Hello". The following line sets the endpoints for this
 # adapter. (The SSL endpoint is ignored with .NET 1.1.)
 #
-Hello.Endpoints=tcp -p 10000:udp -c -p 10000:ssl -p 10001
+Ice.OA.Hello.Endpoints=tcp -p 10000:udp -c -p 10000:ssl -p 10001
 
 #
 # Warn about connection exceptions.

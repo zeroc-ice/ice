@@ -9,14 +9,14 @@ Ice.Default.Router=DemoGlacier2/router:ssl -p 10005 -h 127.0.0.1
 # object adapter named Chat.Client. This router proxy must
 # match the value of Glacier2.Client.Endpoints.
 #
-Chat.Client.Router=DemoGlacier2/router:ssl -p 10005 -h 127.0.0.1
+Ice.OA.Chat.Client.Router=DemoGlacier2/router:ssl -p 10005 -h 127.0.0.1
 
 #
 # We don't need any endpoints for the client if we use a
 # router. Incoming requests are received through connections
 # established from the client to the router.
 #
-Chat.Client.Endpoints=
+Ice.OA.Chat.Client.Endpoints=
 
 #
 # No active connection management is permitted with Glacier2.

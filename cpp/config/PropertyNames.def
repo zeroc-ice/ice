@@ -148,6 +148,17 @@ Ice:
     MonitorConnections
     Nohup
     NullHandleAbort
+    OA.<any>.AdapterId
+    OA.<any>.Endpoints
+    OA.<any>.Locator
+    OA.<any>.PublishedEndpoints
+    OA.<any>.RegisterProcess
+    OA.<any>.ReplicaGroupId
+    OA.<any>.Router
+    OA.<any>.ThreadPool.Size
+    OA.<any>.ThreadPool.SizeMax
+    OA.<any>.ThreadPool.SizeWarn
+    OA.<any>.ThreadPool.StackSize
     Override.Compress
     Override.ConnectTimeout
     Override.Timeout
@@ -336,8 +347,8 @@ IceSSL:
     DefaultDir
     DH.<any>
     EntropyDaemon
-    FindCert.<any>.<any>
-    ImportCert.<any>.<any>
+    FindCert.<any>
+    ImportCert.<any>
     KeyFile
     Keystore
     KeystorePassword
@@ -470,11 +481,11 @@ Freeze:
     DbEnv.<any>.DbRecoverFatal
     DbEnv.<any>.OldLogsAutoDelete
     DbEnv.<any>.PeriodicCheckpointMinSize
-    Evictor.<any>.<any>.MaxTxSize
-    Evictor.<any>.<any>.SavePeriod
-    Evictor.<any>.<any>.SaveSizeTrigger
-    Evictor.<any>.<any>.StreamTimeout
-    Evictor.<any>.<any>.PopulateEmptyIndices
+    Evictor.<any>.MaxTxSize
+    Evictor.<any>.SavePeriod
+    Evictor.<any>.SaveSizeTrigger
+    Evictor.<any>.StreamTimeout
+    Evictor.<any>.PopulateEmptyIndices
     Evictor.UseNonmutating
     Trace.DbEnv
     Trace.Evictor

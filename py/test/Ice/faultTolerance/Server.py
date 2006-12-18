@@ -64,7 +64,7 @@ def run(args, communicator):
         return False
 
     endpts = "default -p " + str(port) + ":udp"
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", endpts)
+    communicator.getProperties().setProperty("Ice.OA.TestAdapter.Endpoints", endpts)
     adapter = communicator.createObjectAdapter("TestAdapter")
     object = TestI(adapter)
     adapter.add(object, communicator.stringToIdentity("test"))

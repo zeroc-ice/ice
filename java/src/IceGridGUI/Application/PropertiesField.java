@@ -94,8 +94,8 @@ public class PropertiesField extends JTable
 	    while(p.hasNext())
 	    {
 		AdapterDescriptor ad = (AdapterDescriptor)p.next();
-		hiddenPropertyNames.add(ad.name + ".Endpoints");
-		hiddenPropertyNames.add(ad.name + ".PublishedEndpoints");
+		hiddenPropertyNames.add("Ice.OA." + ad.name + ".Endpoints");
+		hiddenPropertyNames.add("Ice.OA." + ad.name + ".PublishedEndpoints");
 	    }
 	}
 

@@ -50,7 +50,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     ostringstream endpts;
     endpts << "default  -p " << port << ":udp";
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", endpts.str());
+    communicator->getProperties()->setProperty("Ice.OA.TestAdapter.Endpoints", endpts.str());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectPtr object = new TestI(adapter);
     adapter->add(object, communicator->stringToIdentity("test"));

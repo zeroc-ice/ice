@@ -117,7 +117,7 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
 	throw AlreadyRegisteredException(__FILE__, __LINE__, "object adapter", name);
     }
 
-    if(name.empty() && (!name.empty() || router != 0))
+    if(name.empty() && (!endpoints.empty() || router != 0))
     {
         InitializationException ex(__FILE__, __LINE__);
 	ex.reason = "Cannot configure endpoints or router with nameless object adapter";

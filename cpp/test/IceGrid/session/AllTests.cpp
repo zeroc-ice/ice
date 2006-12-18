@@ -1657,7 +1657,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 // 	server->adapters.push_back(adapter);
 // 	addProperty(server, "IceGrid.Node.Name", "node-1");
 // 	addProperty(server, "IceGrid.Node.Data", properties->getProperty("TestDir") + "/db/node-1");
-// 	addProperty(server, "IceGrid.Node.Endpoints", "default");
+// 	addProperty(server, "Ice.OA.IceGrid.Node.Endpoints", "default");
 // 	NodeDescriptor node;
 // 	node.servers.push_back(server);
 // 	nodeApp.nodes["localnode"] = node;
@@ -1789,7 +1789,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	server->adapters.push_back(adapter);
 	addProperty(server, "IceGrid.Node.Name", "node-1");
 	addProperty(server, "IceGrid.Node.Data", properties->getProperty("TestDir") + "/db/node-1");
-	addProperty(server, "IceGrid.Node.Endpoints", "default");
+	addProperty(server, "Ice.OA.IceGrid.Node.Endpoints", "default");
 	NodeDescriptor node;
 	node.servers.push_back(server);
 	nodeApp.nodes["localnode"] = node;
@@ -1839,7 +1839,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	adapter.registerProcess = true;
 	adapter.serverLifetime = true;
 	server->adapters.push_back(adapter);
-	addProperty(server, "Server.Endpoints", "default");
+	addProperty(server, "Ice.OA.Server.Endpoints", "default");
 	node = NodeDescriptor();
 	node.servers.push_back(server);
 	testApp.nodes["localnode"] = node;

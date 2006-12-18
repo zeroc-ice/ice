@@ -69,7 +69,12 @@ namespace Ice
 		if(!_noConfig)
 		{
 		    Properties properties = instance_.initializationData().properties;
-		    registerProcess = properties.getPropertyAsInt(_name + ".RegisterProcess") > 0;
+		    //
+		    // DEPRECATED PROPERTY: Remove extra code in future release.
+		    //
+		    registerProcess = properties.getPropertyAsIntWithDefault(
+		    	_propertyPrefix + _name + ".RegisterProcess",
+			properties.getPropertyAsInt(_name + ".RegisterProcess")) > 0;
 		    printAdapterReady = properties.getPropertyAsInt("Ice.PrintAdapterReady") > 0;
 		}
 	    }
@@ -715,27 +720,51 @@ namespace Ice
 	    }
 
 	    //
+	    // DEPRECATED PROPERTIES: Remove extra code in future release.
+	    //
+
+	    //
 	    // Make sure named adapter has configuration.
 	    //
+	    Properties properties = instance_.initializationData().properties;
+	    string[] oldProps = filterProperties(_name + ".");
 	    if(endpointInfo.Length == 0 && router == null)
 	    {
-	        PropertyDict oaProps = instance.initializationData().properties.getPropertiesForPrefix(_name + ".");
-		if(oaProps.Count == 0)
+	        string[] props = filterProperties(_propertyPrefix + _name + ".");
+		if(props.Length == 0 && oldProps.Length == 0)
 		{
 		    InitializationException ex = new InitializationException();
 		    ex.reason = "Object adapter \"" + _name + "\" requires configuration.";
 		    throw ex;
 		}
 	    }
+
+	    if(oldProps.Length != 0)
+	    {
+	        string message = "The following properties have been deprecated, please prepend \"Ice.OA.\":";
+		for(int i = 0; i < oldProps.Length; ++i)
+		{
+		    message += "\n    " + oldProps[i];
+		}
+	        instance_.initializationData().logger.warning(message);
+	    }
 	    
-	    _id = instance.initializationData().properties.getProperty(name + ".AdapterId");
-	    _replicaGroupId = instance.initializationData().properties.getProperty(name + ".ReplicaGroupId");
+	    _id = properties.getPropertyWithDefault(_propertyPrefix + _name + ".AdapterId",
+	    	properties.getProperty(_name + ".AdapterId"));
+	    _replicaGroupId = properties.getPropertyWithDefault(_propertyPrefix + _name + ".ReplicaGroupId",
+	    	properties.getProperty(_name + ".ReplicaGroupId"));
 
 	    try
 	    {
 	        if(router == null)
 		{
-		    router = RouterPrxHelper.uncheckedCast(instance_.proxyFactory().propertyToProxy(name + ".Router"));
+		    router = RouterPrxHelper.uncheckedCast(
+		        instance_.proxyFactory().propertyToProxy(_propertyPrefix + _name + ".Router"));
+		    if(router == null)
+		    {
+		        router = RouterPrxHelper.uncheckedCast(
+		            instance_.proxyFactory().propertyToProxy(_name + ".Router"));
+		    }
 		}
 		if(router != null)
 		{
@@ -804,7 +833,17 @@ namespace Ice
 		    // The connection factory might change it, for example, to
 		    // fill in the real port number.
 		    //
-		    ArrayList endpoints = parseEndpoints(endpointInfo);
+		    ArrayList endpoints;
+		    if(endpointInfo.Length == 0)
+		    {
+		        endpoints = parseEndpoints(properties.getPropertyWithDefault(
+				_propertyPrefix + _name + ".Endpoints",
+				properties.getProperty(_name + ".Endpoints")));
+		    }
+		    else
+		    {
+		        endpoints = parseEndpoints(endpointInfo);
+		    }
 		    for(int i = 0; i < endpoints.Count; ++i)
 		    {
 		        IceInternal.EndpointI endp = (IceInternal.EndpointI)endpoints[i];
@@ -817,7 +856,7 @@ namespace Ice
 			if(tl.network >= 2)
 			{
 			    instance_.initializationData().logger.trace(tl.networkCat,
-								    "created adapter `" + name + "' without endpoints");
+				 "created adapter `" + _name + "' without endpoints");
 			}
 		    }
 		
@@ -825,7 +864,8 @@ namespace Ice
 		    // Parse published endpoints. If set, these are used in proxies
 		    // instead of the connection factory endpoints.
 		    //
-		    string endpts = instance_.initializationData().properties.getProperty(name + ".PublishedEndpoints");
+		    string endpts = properties.getPropertyWithDefault(_propertyPrefix + _name + ".PublishedEndpoints",
+		    	properties.getProperty(_name + ".PublishedEndpoints"));
 		    _publishedEndpoints = parseEndpoints(endpts);
 		    if(_publishedEndpoints.Count == 0)
 		    {
@@ -849,11 +889,16 @@ namespace Ice
 		    _publishedEndpoints = tmp;
 		}
 
-		string locatorProperty = name + ".Locator";
-		if(instance_.initializationData().properties.getProperty(locatorProperty).Length > 0)
+		string locatorProperty = _propertyPrefix + _name + ".Locator";
+		if(properties.getProperty(locatorProperty).Length > 0)
 		{
 		    setLocator(LocatorPrxHelper.uncheckedCast(
 		        instance_.proxyFactory().propertyToProxy(locatorProperty)));
+		}
+		else if(properties.getProperty(_name + ".Locator").Length > 0)
+		{
+		    setLocator(LocatorPrxHelper.uncheckedCast(
+		        instance_.proxyFactory().propertyToProxy(_name + ".Locator")));
 		}
 		else
 		{
@@ -862,12 +907,26 @@ namespace Ice
 		
 		if(!instance_.threadPerConnection())
 		{
-		    int size = instance_.initializationData().properties.getPropertyAsInt(_name + ".ThreadPool.Size");
-		    int sizeMax =
-		        instance_.initializationData().properties.getPropertyAsInt(_name + ".ThreadPool.SizeMax");
-		    if(size > 0 || sizeMax > 0)
+		    if(properties.getProperty(_propertyPrefix + _name + ".ThreadPool.Size").Length != 0 ||
+		       properties.getProperty(_propertyPrefix + _name + ".ThreadPool.SizeMax").Length != 0)
 		    {
-			_threadPool = new IceInternal.ThreadPool(instance_, _name + ".ThreadPool", 0);
+		        int size = properties.getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.Size");
+		        int sizeMax = properties.getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.SizeMax");
+		        if(size > 0 || sizeMax > 0)
+		        {
+			    _threadPool = 
+			        new IceInternal.ThreadPool(instance_, _propertyPrefix + _name + ".ThreadPool", 0);
+		        }
+		    }
+		    else
+		    {
+		        int size = properties.getPropertyAsInt(_name + ".ThreadPool.Size");
+		        int sizeMax = properties.getPropertyAsInt(_name + ".ThreadPool.SizeMax");
+		        if(size > 0 || sizeMax > 0)
+		        {
+			    _threadPool = 
+			        new IceInternal.ThreadPool(instance_, _name + ".ThreadPool", 0);
+		        }
 		    }
 		}
 	    }
@@ -1168,6 +1227,37 @@ namespace Ice
 	    }
 	}
 
+	static private readonly string[] _suffixes = 
+	{
+            "AdapterId",
+            "Endpoints",
+            "Locator",
+            "PublishedEndpoints",
+            "RegisterProcess",
+            "ReplicaGroupId",
+            "Router",
+            "ThreadPool.Size",
+            "ThreadPool.SizeMax",
+            "ThreadPool.SizeWarn",
+            "ThreadPool.StackSize"
+	};
+	    
+	private string[]
+	filterProperties(string prefix)
+	{
+	    ArrayList propertySet = new ArrayList();
+	    PropertyDict props = instance_.initializationData().properties.getPropertiesForPrefix(prefix);
+	    for(int i = 0; i < _suffixes.Length; ++i)
+	    {
+	        if(props.Contains(prefix + _suffixes[i]))
+		{
+		    propertySet.Add(prefix + _suffixes[i]);
+		}
+	    }
+
+	    return (string[])propertySet.ToArray(typeof(string));
+	}
+
 	private sealed class ProcessI : ProcessDisp_
 	{
 	    public ProcessI(Communicator communicator)
@@ -1220,6 +1310,6 @@ namespace Ice
 	private bool _waitForActivate;
 	private bool _waitForDeactivate;
 	private bool _noConfig;
+	static private string _propertyPrefix = "Ice.OA.";
     }
-
 }

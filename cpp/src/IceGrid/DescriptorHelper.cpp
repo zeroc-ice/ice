@@ -962,8 +962,10 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
 	//
 	// Make sure the endpoints are defined.
 	//
-	string endpoints = IceGrid::getProperty(instance->propertySet.properties, adapter.name + ".Endpoints");
-	if(endpoints.empty())
+	// DEPRECATED PROPERY: Remove extra code in future release.
+	//
+	if(IceGrid::getProperty(instance->propertySet.properties, "Ice.OA." + adapter.name + ".Endpoints").empty() &&
+	   IceGrid::getProperty(instance->propertySet.properties, adapter.name + ".Endpoints").empty())
 	{
 	    resolve.exception("invalid endpoints for adapter `" + adapter.name + "': empty string");
 	}
@@ -1065,7 +1067,14 @@ CommunicatorHelper::printObjectAdapter(Output& out, const AdapterDescriptor& ada
     {
 	out << nl << "priority = `" << adapter.priority << "'";
     }
-    string endpoints = getProperty(adapter.name + ".Endpoints");
+    //
+    // DEPRECATED PROPERTY: Remove extra code in future release.
+    //
+    string endpoints = getProperty("Ice.OA." + adapter.name + ".Endpoints");
+    if(endpoints.empty())
+    {
+        endpoints = getProperty(adapter.name + ".Endpoints");
+    }
     if(!endpoints.empty())
     {
 	out << nl << "endpoints = `" << endpoints << "'";
@@ -1485,7 +1494,15 @@ IceBoxHelper::print(Output& out, const ServerInfo& info) const
 {
     out << "icebox `" + _desc->id + "'";
     out << sb;
-    out << nl << "service manager endpoints = `" << getProperty("IceBox.ServiceManager.Endpoints") << "'";
+    //
+    // DEPRECATED PROPERTY: Remove extra code in future release.
+    //
+    string endpoints = getProperty("Ice.OA.IceBox.ServiceManager.Endpoints");
+    if(endpoints.empty())
+    {
+        endpoints = getProperty("IceBox.ServiceManager.Endpoints");
+    }
+    out << nl << "service manager endpoints = `" << endpoints << "'";
     printImpl(out, info);
     for(vector<ServiceInstanceHelper>::const_iterator p = _services.begin(); p != _services.end(); ++p)
     {

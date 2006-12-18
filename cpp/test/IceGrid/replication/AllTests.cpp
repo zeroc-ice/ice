@@ -906,7 +906,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	adapter.id = "TestAdapter.Server";
 	adapter.registerProcess = true;
 	PropertyDescriptor property;
-	property.name = "TestAdapter.Endpoints";
+	property.name = "Ice.OA.TestAdapter.Endpoints";
 	property.value = "default";
 	server->propertySet.properties.push_back(property);
 	property.name = "Identity";
@@ -1078,7 +1078,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	adapter.id = "TestAdapter.Server";
 	adapter.registerProcess = true;
 	PropertyDescriptor property;
-	property.name = "TestAdapter.Endpoints";
+	property.name = "Ice.OA.TestAdapter.Endpoints";
 	property.value = "default";
 	server->propertySet.properties.push_back(property);
 	property.name = "Identity";

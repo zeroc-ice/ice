@@ -127,10 +127,10 @@ int
 BackendServer::run(int argc, char* argv[])
 {
     string endpoints = 
-	communicator()->getProperties()->getPropertyWithDefault("BackendAdapter.Endpoints", 
+	communicator()->getProperties()->getPropertyWithDefault("Ice.OA.BackendAdapter.Endpoints", 
 								"tcp -p 12010 -t 20000:ssl -p 12011 -t 20000");
 
-    communicator()->getProperties()->setProperty("BackendAdapter.Endpoints", endpoints);
+    communicator()->getProperties()->setProperty("Ice.OA.BackendAdapter.Endpoints", endpoints);
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("BackendAdapter");
     BackendPtr backend = new BackendI;
     Ice::LocatorPtr locator = new ServerLocatorI(backend, adapter);

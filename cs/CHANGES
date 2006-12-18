@@ -1,6 +1,12 @@
 Changes since version 3.1.1
 ---------------------------     
 
+- Object adapter properties are now prefixed by "Ice.OA.". For example,
+  "Ice.OA.<Adpater name>.Endpoints" instead of "<Adpater name>.Endpoints".
+  The new properties can be set from the command line. The old style 
+  property names have been deprecated and support will be removed in a
+  future release.
+
 - The communcator object adapter now throw an InitializationException
   if the adapter has no configuration. It is possible to explicitly
   create a adapter with no configuration, useful for use with

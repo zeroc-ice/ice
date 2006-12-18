@@ -17,9 +17,9 @@ public class Server
 	// overridden by configuration. If it isn't then we assume
 	// defaults.
 	//
-	if(communicator.getProperties().getProperty("TestAdapter.Endpoints").length() == 0)
+	if(communicator.getProperties().getProperty("Ice.OA.TestAdapter.Endpoints").length() == 0)
 	{
-	    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
+	    communicator.getProperties().setProperty("Ice.OA.TestAdapter.Endpoints", "default -p 12010 -t 10000");
 	}
 
 	Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

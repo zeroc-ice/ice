@@ -337,51 +337,50 @@ IceUtil::checkQuote(const string& s, string::size_type start)
 
 //
 // Match `s' against the pattern `pat'. A * in the pattern acts
-// as a wildcard: it matches any non-empty sequence of characters
-// other than a period (`.'). We match by hand here because
-// it's portable across platforms (whereas regex() isn't).
+// as a wildcard: it matches any non-empty sequence of characters.
+// We match by hand here because it's portable across platforms 
+// (whereas regex() isn't). Only one * per pattern is supported.
 //
 bool
-IceUtil::match(const string& s, const string& pat, bool matchPeriod)
+IceUtil::match(const string& s, const string& pat, bool emptyMatch)
 {
     assert(!s.empty());
     assert(!pat.empty());
 
-    if(pat.find('*') == string::npos)
+    //
+    // If pattern does not contain a wildcard just compare strings.
+    //
+    string::size_type beginIndex = pat.find('*');
+    if(beginIndex == string::npos)
     {
         return s == pat;
     }
 
-    string::size_type sIndex = 0;
-    string::size_type patIndex = 0;
-    do
+    //
+    // Make sure start of the strings match
+    //
+    if(s.substr(0, beginIndex) != pat.substr(0, beginIndex))
     {
-        if(pat[patIndex] == '*')
-	{
-	    //
-	    // Don't allow matching x..y against x.*.y if requested -- star matches non-empty sequence only.
-	    //
-	    if(!matchPeriod && s[sIndex] == '.')
-	    {
-		return false;
-	    }
-	    while(sIndex < s.size() && (matchPeriod || s[sIndex] != '.'))
-	    {
-	        ++sIndex;
-	    }
-	    patIndex++;
-	}
-	else
-	{
-	    if(pat[patIndex] != s[sIndex])
-	    {
-		return false;
-	    }
-	    ++sIndex;
-	    ++patIndex;
-	}
+        return false;
     }
-    while(sIndex < s.size() && patIndex < pat.size());
 
-    return sIndex == s.size() && patIndex == pat.size();
+    //
+    // Make sure there is something present in the middle to match the
+    // wildcard. If emptyMatch is true, allow a match of "".
+    //
+    string::size_type endIndex = s.length() - (pat.length() - beginIndex - 1);
+    if(endIndex < beginIndex || (!emptyMatch && endIndex == beginIndex))
+    {
+        return false;
+    }
+
+    //
+    // Make sure end of the strings match
+    //
+    if(s.substr(endIndex, s.length()) != pat.substr(beginIndex + 1, pat.length()))
+    {
+        return false;
+    }
+
+    return true;
 }

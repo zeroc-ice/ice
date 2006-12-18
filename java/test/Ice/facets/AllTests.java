@@ -24,7 +24,7 @@ public class AllTests
     allTests(Ice.Communicator communicator)
     {
         System.out.print("testing facet registration exceptions... ");
-	communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "default");
+	communicator.getProperties().setProperty("Ice.OA.FacetExceptionTestAdapter.Endpoints", "default");
 	Ice.ObjectAdapter adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter");
 	Ice.Object obj = new EmptyI();
         adapter.add(obj, communicator.stringToIdentity("d"));

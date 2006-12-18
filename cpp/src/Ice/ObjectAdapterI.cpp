@@ -45,6 +45,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+string Ice::ObjectAdapterI::_propertyPrefix = "Ice.OA.";
+
 string
 Ice::ObjectAdapterI::getName() const
 {
@@ -99,10 +101,13 @@ Ice::ObjectAdapterI::activate()
 	locatorInfo = _locatorInfo;
 	if(!_noConfig)
 	{
-	    printAdapterReady = 
-	        _instance->initializationData().properties->getPropertyAsInt("Ice.PrintAdapterReady") > 0;
-	    registerProcess = 
-	        _instance->initializationData().properties->getPropertyAsInt(_name + ".RegisterProcess") > 0;
+	    PropertiesPtr properties = _instance->initializationData().properties;
+	    printAdapterReady = properties->getPropertyAsInt("Ice.PrintAdapterReady") > 0;
+	    //
+	    // DEPREACTED PROPERTY: Remove extra code in future release
+	    //
+	    registerProcess = properties->getPropertyAsIntWithDefault(_propertyPrefix + _name + ".RegisterProcess",
+	    	properties->getPropertyAsInt(_name + ".RegisterProcess")) > 0;
 	}
     }
 
@@ -695,12 +700,18 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     }
 
     //
+    // DEPRECATED PROPERTIES: Remove extra code in future release
+    //
+
+    //
     // Make sure named adapter has some configuration
     //
+    PropertiesPtr properties = instance->initializationData().properties;
+    StringSeq oldProps = filterProperties(_name + ".");
     if(endpointInfo.empty() && router == 0)
     {
-        PropertyDict oaProps = instance->initializationData().properties->getPropertiesForPrefix(_name + ".");
-        if(oaProps.size() == 0)
+        StringSeq props = filterProperties(_propertyPrefix + _name + ".");
+        if(oldProps.size() == 0 && props.size() == 0)
 	{
             InitializationException ex(__FILE__, __LINE__);
 	    ex.reason = "Object adapter \"" + _name + "\" requires configuration.";
@@ -708,17 +719,34 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
         }
     }
 
-    const_cast<string&>(_id) = instance->initializationData().properties->getProperty(name + ".AdapterId");
-    const_cast<string&>(_replicaGroupId) =
-        instance->initializationData().properties->getProperty(name + ".ReplicaGroupId");
+    if(oldProps.size() != 0)
+    {
+	Warning out(_instance->initializationData().logger);
+	out << "The following properties have been deprecated, please prepend \"Ice.OA.\":";
+	for(unsigned int i = 0; i < oldProps.size(); ++i)
+	{
+	    out << "\n    " << oldProps[i];
+	}
+    }
+
+    const_cast<string&>(_id) = properties->getPropertyWithDefault(_propertyPrefix + _name + ".AdapterId",
+    	properties->getProperty(_name + ".AdapterId"));
+    const_cast<string&>(_replicaGroupId) = 
+    	properties->getPropertyWithDefault(_propertyPrefix + _name + ".ReplicaGroupId",
+	properties->getProperty(_name + ".ReplicaGroupId"));
 
     __setNoDelete(true);
     try
     {
     	if(!router)
 	{
-	    const_cast<RouterPrx&>(router) =
-	        RouterPrx::uncheckedCast(_instance->proxyFactory()->propertyToProxy(_name + ".Router"));
+	    const_cast<RouterPrx&>(router) = RouterPrx::uncheckedCast(
+	    	_instance->proxyFactory()->propertyToProxy(_propertyPrefix + _name + ".Router"));
+	    if(!router)
+	    {
+	        const_cast<RouterPrx&>(router) = RouterPrx::uncheckedCast(
+	    	    _instance->proxyFactory()->propertyToProxy(_name + ".Router"));
+	    }
 	}
 	if(router)
 	{
@@ -767,7 +795,16 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 	    // The connection factory might change it, for example, to
 	    // fill in the real port number.
 	    //
-	    vector<EndpointIPtr> endpoints = parseEndpoints(endpointInfo);
+	    vector<EndpointIPtr> endpoints;
+	    if(endpointInfo.empty())
+	    {
+	        endpoints = parseEndpoints(properties->getPropertyWithDefault(_propertyPrefix + _name + ".Endpoints",
+			properties->getProperty(_name + ".Endpoints")));
+	    }
+	    else
+	    {
+	        endpoints = parseEndpoints(endpointInfo);
+	    }
 	    for(vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
     	    {
 	        _incomingConnectionFactories.push_back(new IncomingConnectionFactory(instance, *p, this, _name));
@@ -786,7 +823,8 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 	    // Parse published endpoints. If set, these are used in proxies
 	    // instead of the connection factory endpoints. 
 	    //
-	    string endpts = _instance->initializationData().properties->getProperty(name + ".PublishedEndpoints");
+	    string endpts = properties->getPropertyWithDefault(_propertyPrefix + _name + ".PublishedEndpoints",
+			properties->getProperty(_name + ".PublishedEndpoints"));
 	    _publishedEndpoints = parseEndpoints(endpts);
 	    if(_publishedEndpoints.empty())
     	    {
@@ -801,10 +839,14 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 				      not1(Ice::constMemFun(&EndpointI::publish))), _publishedEndpoints.end());
 	}
 
-	string locatorProperty = _name + ".Locator";
-	if(!_instance->initializationData().properties->getProperty(locatorProperty).empty())
+	string locatorProperty = _propertyPrefix + _name + ".Locator";
+	if(!properties->getProperty(locatorProperty).empty())
 	{
 	    setLocator(LocatorPrx::uncheckedCast(_instance->proxyFactory()->propertyToProxy(locatorProperty)));
+	}
+	else if(!properties->getProperty(_name + ".Locator").empty())
+	{
+	    setLocator(LocatorPrx::uncheckedCast(_instance->proxyFactory()->propertyToProxy(_name + ".Locator")));
 	}
 	else
 	{
@@ -813,11 +855,24 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 
 	if(!_instance->threadPerConnection())
 	{
-	    int size = _instance->initializationData().properties->getPropertyAsInt(_name + ".ThreadPool.Size");
-	    int sizeMax = _instance->initializationData().properties->getPropertyAsInt(_name + ".ThreadPool.SizeMax");
-	    if(size > 0 || sizeMax > 0)
+	    if(!properties->getProperty(_propertyPrefix + _name + ".ThreadPool.Size").empty() ||
+	       !properties->getProperty(_propertyPrefix + _name + ".ThreadPool.SizeMax").empty())
 	    {
-		_threadPool = new ThreadPool(_instance, _name + ".ThreadPool", 0);
+	        int size = properties->getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.Size");
+	        int sizeMax = properties->getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.SizeMax");
+	        if(size > 0 || sizeMax > 0)
+	        {
+		    _threadPool = new ThreadPool(_instance, _propertyPrefix + _name + ".ThreadPool", 0);
+	        }
+	    }
+	    else
+	    {
+	        int size = properties->getPropertyAsInt(_name + ".ThreadPool.Size");
+	        int sizeMax = properties->getPropertyAsInt(_name + ".ThreadPool.SizeMax");
+	        if(size > 0 || sizeMax > 0)
+	        {
+		    _threadPool = new ThreadPool(_instance, _name + ".ThreadPool", 0);
+	        }
 	    }
 	}
     }
@@ -1080,6 +1135,37 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
 	    throw ex;
 	}
     }
+}
+
+StringSeq
+Ice::ObjectAdapterI::filterProperties(const string& prefix)
+{
+    static const string suffixes[] = 
+    { 
+    	"AdapterId",
+	"Endpoints",
+	"Locator",
+	"PublishedEndpoints",
+	"RegisterProcess",
+	"ReplicaGroupId",
+    	"Router",
+	"ThreadPool.Size",
+	"ThreadPool.SizeMax",
+	"ThreadPool.SizeWarn",
+	"ThreadPool.StackSize"
+    };
+
+    StringSeq propertySet;
+    PropertyDict props = _instance->initializationData().properties->getPropertiesForPrefix(prefix);
+    for(unsigned int i = 0; i < sizeof(suffixes)/sizeof(*suffixes); ++i)
+    {
+        if(props.find(prefix + suffixes[i]) != props.end())
+	{
+	    propertySet.push_back(prefix + suffixes[i]);
+	}
+    }
+
+    return propertySet;
 }
 
 Ice::ObjectAdapterI::ProcessI::ProcessI(const CommunicatorPtr& communicator) :

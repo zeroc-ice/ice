@@ -26,7 +26,7 @@ import Test, TestI, AllTests
 
 class TestServer(Ice.Application):
     def run(self, args):
-        self.communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000")
+        self.communicator().getProperties().setProperty("Ice.OA.TestAdapter.Endpoints", "default -p 12010 -t 10000")
         adapter = self.communicator().createObjectAdapter("TestAdapter")
         locator = TestI.ServantLocatorI()
 

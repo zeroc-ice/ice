@@ -46,8 +46,7 @@ public class Server
     static int
     run(String[] args, Ice.Communicator communicator, String envName)
     {
-        communicator.getProperties().setProperty("Evictor.Endpoints", "default -p 12010");
-
+        communicator.getProperties().setProperty("Ice.OA.Evictor.Endpoints", "default -p 12010");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("Evictor");
     
         RemoteEvictorFactoryI factory = new RemoteEvictorFactoryI(adapter, envName);

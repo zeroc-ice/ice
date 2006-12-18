@@ -1,4 +1,4 @@
-Callback.Server.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
+Ice.OA.Callback.Server.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
 
 #
 # Warn about connection exceptions

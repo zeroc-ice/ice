@@ -1,4 +1,4 @@
-Library.Endpoints=default -p 10000
+Ice.OA.Library.Endpoints=default -p 10000
 Library.EvictorSize=3
 
 Freeze.Trace.Map=1

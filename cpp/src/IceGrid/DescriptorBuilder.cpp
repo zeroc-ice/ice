@@ -681,6 +681,10 @@ CommunicatorDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
     desc.serverLifetime = attrs.asBool("server-lifetime", true);
     _descriptor->adapters.push_back(desc);
 
+    //
+    // DEPRECATED PROPERTY: Remove extra code in future release.
+    //
+    addProperty(_hiddenProperties, "Ice.OA." + desc.name + ".Endpoints", attrs("endpoints", "default"));
     addProperty(_hiddenProperties, desc.name + ".Endpoints", attrs("endpoints", "default"));
 }
 
@@ -904,8 +908,13 @@ IceBoxDescriptorBuilder::init(const IceBoxDescriptorPtr& desc, const XmlAttribut
     ServerDescriptorBuilder::init(desc, attrs);
     _descriptor = desc;
 
+    //
+    // DEPRECATED PROPERTY: Remove extra code in future release.
+    //
     addProperty(_hiddenProperties, "IceBox.InstanceName", "${server}");
+    addProperty(_hiddenProperties, "Ice.OA.IceBox.ServiceManager.Endpoints", "tcp -h 127.0.0.1");
     addProperty(_hiddenProperties, "IceBox.ServiceManager.Endpoints", "tcp -h 127.0.0.1");
+    addProperty(_hiddenProperties, "Ice.OA.IceBox.ServiceManager.RegisterProcess", "1");
     addProperty(_hiddenProperties, "IceBox.ServiceManager.RegisterProcess", "1");
 }
 
@@ -932,7 +941,13 @@ IceBoxDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
     PropertyDescriptorSeq::iterator p = _hiddenProperties.begin();
     while(p != _hiddenProperties.end())
     {
-	if(p->name == "IceBox.ServiceManager.Endpoints" || p->name == "IceBox.ServiceManager.RegisterProcess")
+        //
+	// DEPRECATED PROPERTY: Remove extra code in future release
+	//
+	if(p->name == "Ice.OA.IceBox.ServiceManager.Endpoints" || 
+	   p->name == "IceBox.ServiceManager.Endpoints" ||
+	   p->name == "Ice.OA.IceBox.ServiceManager.RegisterProcess" ||
+	   p->name == "IceBox.ServiceManager.RegisterProcess")
 	{
 	    p = _hiddenProperties.erase(p);
 	}

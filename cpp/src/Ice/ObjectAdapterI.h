@@ -27,6 +27,7 @@
 #include <Ice/ThreadPoolF.h>
 #include <Ice/Exception.h>
 #include <Ice/Process.h>
+#include <Ice/BuiltinSequences.h>
 #include <list>
 
 namespace Ice
@@ -96,6 +97,7 @@ private:
     static void checkIdentity(const Identity&);
     std::vector<IceInternal::EndpointIPtr> parseEndpoints(const std::string&) const;
     void updateLocatorRegistry(const IceInternal::LocatorInfoPtr&, const Ice::ObjectPrx&, bool);
+    Ice::StringSeq filterProperties(const std::string&);
 
     bool _deactivated;
     IceInternal::InstancePtr _instance;
@@ -116,6 +118,8 @@ private:
     bool _waitForActivate;
     bool _waitForDeactivate;
     bool _noConfig;
+
+    static std::string _propertyPrefix;
 
     class ProcessI : public Process
     {

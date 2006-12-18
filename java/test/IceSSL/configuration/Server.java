@@ -12,7 +12,7 @@ public class Server
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
-	communicator.getProperties().setProperty("TestAdapter.Endpoints", "tcp -p 12010");
+	communicator.getProperties().setProperty("Ice.OA.TestAdapter.Endpoints", "tcp -p 12010");
 	Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
 	Ice.Identity id = communicator.stringToIdentity("factory");
 	adapter.add(new ServerFactoryI(), id);

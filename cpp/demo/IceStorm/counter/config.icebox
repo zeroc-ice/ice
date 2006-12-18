@@ -1,7 +1,7 @@
 #
 # The IceBox server endpoint configuration
 #
-IceBox.ServiceManager.Endpoints=tcp -p 9998
+Ice.OA.IceBox.ServiceManager.Endpoints=tcp -p 9998
 
 #
 # The IceStorm service

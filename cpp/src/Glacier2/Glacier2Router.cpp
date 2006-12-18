@@ -131,8 +131,11 @@ Glacier2::RouterService::start(int argc, char* argv[])
     //
     // Initialize the client object adapter.
     //
-    const string clientEndpointsProperty = "Glacier2.Client.Endpoints";
-    if(properties->getProperty(clientEndpointsProperty).empty())
+    // DEPRECATED PROPERTY: Remove extra code in future release
+    //
+    const string clientEndpointsProperty = "Ice.OA.Glacier2.Client.Endpoints";
+    if(properties->getProperty(clientEndpointsProperty).empty() && 
+       properties->getProperty("Glacier2.Client.Endpoints").empty())
     {
 	error("property `" + clientEndpointsProperty + "' is not set");
 	return false;
@@ -143,9 +146,12 @@ Glacier2::RouterService::start(int argc, char* argv[])
     // Initialize the server object adapter only if server endpoints
     // are defined.
     //
-    const string serverEndpointsProperty = "Glacier2.Server.Endpoints";
+    // DEPRECATED PROPERTY: Remove extra code in future release
+    //
+    const string serverEndpointsProperty = "Ice.OA.Glacier2.Server.Endpoints";
     ObjectAdapterPtr serverAdapter;
-    if(!properties->getProperty(serverEndpointsProperty).empty())
+    if(!properties->getProperty(serverEndpointsProperty).empty() ||
+       !properties->getProperty("Glacier2.Server.Endpoints").empty())
     {
 	serverAdapter = communicator()->createObjectAdapter("Glacier2.Server");
     }
@@ -154,9 +160,12 @@ Glacier2::RouterService::start(int argc, char* argv[])
     // Initialize the admin object adapter only if admin endpoints
     // are defined.
     //
-    const string adminEndpointsProperty = "Glacier2.Admin.Endpoints";
+    // DEPRECATED PROPERTY: Remove extra code in future release
+    //
+    const string adminEndpointsProperty = "Ice.OA.Glacier2.Admin.Endpoints";
     ObjectAdapterPtr adminAdapter;
-    if(!properties->getProperty(adminEndpointsProperty).empty())
+    if(!properties->getProperty(adminEndpointsProperty).empty() ||
+       !properties->getProperty("Glacier2.Admin.Endpoints").empty())
     {
 	adminAdapter = communicator()->createObjectAdapter("Glacier2.Admin");
     }
@@ -167,7 +176,7 @@ Glacier2::RouterService::start(int argc, char* argv[])
     // We need a separate object adapter for any collocated
     // permissions verifiers. We can't use the client adapter.
     //
-    properties->setProperty("Glacier2Internal.Verifiers.AdapterId", IceUtil::generateUUID());
+    properties->setProperty("Ice.OA.Glacier2Internal.Verifiers.AdapterId", IceUtil::generateUUID());
     ObjectAdapterPtr verifierAdapter = communicator()->createObjectAdapter("Glacier2Internal.Verifiers");
 
     //
