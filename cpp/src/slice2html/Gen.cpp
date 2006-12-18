@@ -48,10 +48,29 @@ generate(const UnitPtr& unit, const ::std::string& dir,
     GeneratorBase::setFooter(footer);
     GeneratorBase::setIndexCount(indexCount);
 
-    IndexVisitor iv;
+    //
+    // The types visitor first runs over the tree and records
+    // the names of all files in this documentation set.
+    // This information is used later to check whether a referenced
+    // symbol is defined in this documentation set (as opposed to
+    // being defined in an included fiel that is not part of this
+    // documentation set. If the former, we can generate a link
+    // to the symbol; if the latter, we cannot.
+    //
+    Files files;
+    TypesVisitor tv(files);
+    unit->visit(&tv, false);
+
+    //
+    // Generate the main module index.
+    //
+    IndexVisitor iv(files);
     unit->visit(&iv, false);
 
-    Visitor v;
+    //
+    // Generate the individual HTML pages.
+    //
+    Visitor v(files);
     unit->visit(&v, false);
 }
 
@@ -63,6 +82,10 @@ string Slice::GeneratorBase::_header2;
 string Slice::GeneratorBase::_footer;
 unsigned Slice::GeneratorBase::_indexCount = 0;
 
+//
+// Set the output directory, creating it if necessary.
+//
+
 void
 Slice::GeneratorBase::setOutputDir(const string& dir)
 {
@@ -72,6 +95,14 @@ Slice::GeneratorBase::setOutputDir(const string& dir)
 	makeDir(_dir);
     }
 }
+
+//
+// Set a header. If "header" is empty, use a default header.
+// If a header file is specified, it is expected to end in <body>
+// and to contain a "TITLE" placeholder line (in column 1, no leading
+// or trailing white space). The actual document title is later substituted
+// where that TITLE placeholder appears.
+//
 
 void
 Slice::GeneratorBase::setHeader(const string& header)
@@ -107,6 +138,11 @@ Slice::GeneratorBase::setHeader(const string& header)
     }
 }
 
+//
+// Set a footer. If "footer" is empty, use a default footer.
+// The footer is expected to start with </body>.
+//
+
 void
 Slice::GeneratorBase::setFooter(const string& footer)
 {
@@ -124,20 +160,32 @@ Slice::GeneratorBase::setFooter(const string& footer)
     _footer = ftr.str();
 }
 
+//
+// Set the threshold at which we start generating sub-indexes.
+// If a page has fewer entries than this, we don't generate a
+// sub-index. (For example, with "ic" set to 3, we generate
+// a sub-index only if, say, a structure has 3 or more members.
+//
+
 void
 Slice::GeneratorBase::setIndexCount(int ic)
 {
     _indexCount = ic;
 }
 
-Slice::GeneratorBase::GeneratorBase(XMLOutput& o)
-    : _out(o)
+Slice::GeneratorBase::GeneratorBase(XMLOutput& o, const Files& files)
+    : _out(o), _files(files)
 {
 }
 
 Slice::GeneratorBase::~GeneratorBase()
 {
 }
+
+//
+// Open a file for writing in the output directory (the output directory
+// is created if necessary) and write the HTML header into the file.
+//
 
 void
 Slice::GeneratorBase::openDoc(const string& file, const string& title)
@@ -151,6 +199,13 @@ Slice::GeneratorBase::openDoc(const string& file, const string& title)
     _out.inc();
     _out.inc();
 }
+
+//
+// Open an HTML file for writing for the specified construct. The
+// path name of the file is relative to the output directory and
+// is constructed from the Slice scoped name. Sub-directories are
+// created as needed and the header is written to the file.
+//
 
 void
 Slice::GeneratorBase::openDoc(const ContainedPtr& c)
@@ -177,6 +232,10 @@ Slice::GeneratorBase::openDoc(const ContainedPtr& c)
     _out.inc();
     _out.inc();
 }
+
+//
+// Close an open HTML file after writing the footer.
+//
 
 void
 Slice::GeneratorBase::closeDoc()
@@ -267,7 +326,7 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const string& deprecat
 	    }
 	    
 	    start("dt", "Symbol");
-	    _out << toString(term, container, true, inIndex);
+	    _out << term;
 	    end();
 	    start("dd");
 	    _out << nl << item;
@@ -552,71 +611,6 @@ Slice::GeneratorBase::printSummary(const ContainedPtr& p, const ContainerPtr& mo
 }
 
 string
-Slice::GeneratorBase::getAnchor(const SyntaxTreeBasePtr& p)
-{
-    StringList symbols = getContained(p);
-    string anchor;
-    for(StringList::const_iterator i = symbols.begin(); i != symbols.end(); ++i)
-    {
-	if(i != symbols.begin())
-	{
-	    anchor += "::";
-	}
-	anchor += *i;
-    }
-    return anchor;
-}
-
-string
-Slice::GeneratorBase::getLinkPath(const SyntaxTreeBasePtr& p, const ContainerPtr& container, bool inIndex)
-{
-    StringList target = getContainer(p);
-    ContainerPtr c = container;
-    if(inIndex)
-    {
-	if(ContainedPtr::dynamicCast(container))
-	{
-	    c = ContainedPtr::dynamicCast(c)->container();
-	}
-    }
-    StringList from = getContainer(c);
-
-    //
-    // Find the first component where the two scopes differ.
-    //
-    while(!target.empty() && !from.empty() && target.front() == from.front())
-    {
-	target.pop_front();
-	from.pop_front();
-    }
-
-    string path;
-    if(!from.empty())
-    {
-	from.pop_front();
-    }
-    while(!from.empty())
-    {
-	if(!path.empty())
-	{
-	    path += "/";
-	}
-	path += "..";
-	from.pop_front();
-    }
-    while(!target.empty())
-    {
-	if(!path.empty())
-	{
-	    path += "/";
-	}
-	path += target.front();
-	target.pop_front();
-    }
-    return path;
-}
-
-string
 Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container, bool asTarget, bool inIndex)
 {
     string anchor;
@@ -645,17 +639,10 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 	return s;
     }
 
-    //
-    // TODO: the include level check prevents some links from being generated, even though
-    // the link target is part of this documentation set. For, IceGrid uses #include quite
-    // a bit--if a comment refers to a type defined in an included file, we don't get a link
-    // as we should. We should probably somehow check whether the unit for the link target
-    // is part of this documentation set instead.
-    //
     ProxyPtr proxy = ProxyPtr::dynamicCast(p);
     if(proxy)
     {
-	if(proxy->_class()->includeLevel() == 0)
+	if(_files.find(p->definitionContext()->filename()) != _files.end())
 	{
 	    anchor = getAnchor(proxy->_class()->definition());
 	    linkpath = getLinkPath(proxy->_class()->definition(), container, inIndex);
@@ -671,7 +658,7 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
         // declaration, provided that a definition is available.
 	//
 	ContainedPtr definition = cl->definition();
-	if(definition && definition->includeLevel() == 0)
+	if(definition && _files.find(p->definitionContext()->filename()) != _files.end())
 	{
 	    anchor = getAnchor(definition);
 	    linkpath = getLinkPath(definition, container, inIndex);
@@ -682,7 +669,7 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
     ExceptionPtr ex = ExceptionPtr::dynamicCast(p);
     if(ex)
     {
-	if(ex->includeLevel() == 0)
+	if(_files.find(p->definitionContext()->filename()) != _files.end())
 	{
 	    anchor = getAnchor(ex);
 	    linkpath = getLinkPath(ex, container, inIndex);
@@ -693,7 +680,7 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
     StructPtr st = StructPtr::dynamicCast(p);
     if(st)
     {
-	if(st->includeLevel() == 0)
+	if(_files.find(p->definitionContext()->filename()) != _files.end())
 	{
 	    anchor = getAnchor(st);
 	    linkpath = getLinkPath(st, container, inIndex);
@@ -704,7 +691,7 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
     EnumeratorPtr en = EnumeratorPtr::dynamicCast(p);
     if(en)
     {
-	if(en->includeLevel() == 0)
+	if(_files.find(p->definitionContext()->filename()) != _files.end())
 	{
 	    anchor = getAnchor(en);
 	    linkpath = getLinkPath(en, container, inIndex);
@@ -715,7 +702,7 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
     OperationPtr op = OperationPtr::dynamicCast(p);
     if(op)
     {
-	if(op->includeLevel() == 0)
+	if(_files.find(p->definitionContext()->filename()) != _files.end())
 	{
 	    anchor = getAnchor(op);
 	    linkpath = getLinkPath(op, container, inIndex);
@@ -728,22 +715,33 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
     {
 	op = OperationPtr::dynamicCast(pd->container());
 	assert(op);
-	if(pd->includeLevel() == 0)
+	if(_files.find(p->definitionContext()->filename()) != _files.end())
 	{
 	    anchor = getAnchor(op);
 	    linkpath = getLinkPath(op, container, inIndex);
 	}
 	s = getScopedMinimized(op, container);
     }
-
+    
     if(s.empty())
     {
 	ContainedPtr contained = ContainedPtr::dynamicCast(p);
 	assert(contained);
-	if(contained->includeLevel() == 0)
+	if(_files.find(p->definitionContext()->filename()) != _files.end())
 	{
 	    anchor = getAnchor(contained);
-	    linkpath = getLinkPath(contained, container, inIndex);
+	    //
+	    // Sequences and dictionaries are documented on the page for their
+	    // enclosing module.
+	    //
+	    if(SequencePtr::dynamicCast(p) || DictionaryPtr::dynamicCast(p))
+	    {
+		linkpath = getLinkPath(contained->container(), container, inIndex);
+	    }
+	    else
+	    {
+		linkpath = getLinkPath(contained, container, inIndex);
+	    }
 	}
 	s = getScopedMinimized(contained, container);
     }
@@ -849,6 +847,94 @@ Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerP
 
     }
     return comment;
+}
+
+string
+Slice::GeneratorBase::getAnchor(const SyntaxTreeBasePtr& p)
+{
+    StringList symbols = getContained(p);
+    string anchor;
+    for(StringList::const_iterator i = symbols.begin(); i != symbols.end(); ++i)
+    {
+	if(i != symbols.begin())
+	{
+	    anchor += "::";
+	}
+	anchor += *i;
+    }
+    return anchor;
+}
+
+string
+Slice::GeneratorBase::getLinkPath(const SyntaxTreeBasePtr& p, const ContainerPtr& container, bool inIndex)
+{
+    ContainerPtr c = container;
+
+    //
+    // If we are in a sub-index, we need to "step up" one level, because the links all
+    // point at a section in the same file.
+    //
+    if(inIndex)
+    {
+	if(ContainedPtr::dynamicCast(container))
+	{
+	    c = ContainedPtr::dynamicCast(c)->container();
+	}
+    }
+
+    //
+    // Find the first component where the two scopes differ.
+    //
+    bool commonEnclosingScope = false;
+    StringList target = getContainer(p);
+    StringList from = getContainer(c);
+    while(!target.empty() && !from.empty() && target.front() == from.front())
+    {
+	target.pop_front();
+	from.pop_front();
+	commonEnclosingScope = true;
+    }
+
+    if(commonEnclosingScope && target.empty())
+    {
+	ModulePtr module = ModulePtr::dynamicCast(p);
+	if(module)
+	{
+	    target.push_front(module->name());
+	}
+    }
+    else if(!from.empty())
+    {
+	from.pop_front();
+    }
+
+    //
+    // For each component in the source path, step up a level.
+    //
+    string path;
+    while(!from.empty())
+    {
+	if(!path.empty())
+	{
+	    path += "/";
+	}
+	path += "..";
+	from.pop_front();
+    }
+
+    //
+    // Now append the scope to the target.
+    //
+    while(!target.empty())
+    {
+	if(!path.empty())
+	{
+	    path += "/";
+	}
+	path += target.front();
+	target.pop_front();
+    }
+    return path;
 }
 
 void
@@ -969,8 +1055,12 @@ StringList
 Slice::GeneratorBase::getContained(const SyntaxTreeBasePtr& p)
 {
     StringList result;
+    if(!p)
+    {
+	return result;
+    }
+
     SyntaxTreeBasePtr c = p;
-    assert(c);
 
     do
     {
@@ -1119,8 +1209,8 @@ Slice::GeneratorBase::readFile(const string& file, string& part1, string& part2)
     part2 = p2.str();
 }
 
-Slice::IndexGenerator::IndexGenerator()
-    : GeneratorBase(_out)
+Slice::IndexGenerator::IndexGenerator(const Files& files)
+    : GeneratorBase(_out, files)
 {
     openDoc("index.html", "Slice Documentation Index");
 }
@@ -1166,7 +1256,71 @@ Slice::IndexGenerator::generate(const ModulePtr& m)
     _modules.push_back(make_pair(name, comment));
 }
 
-Slice::IndexVisitor::IndexVisitor()
+Slice::TypesVisitor::TypesVisitor(Files& files)
+    : _files(files)
+{
+}
+
+bool
+Slice::TypesVisitor::visitUnitStart(const UnitPtr& u)
+{
+    return true;
+}
+
+bool
+Slice::TypesVisitor::visitModuleStart(const ModulePtr& m)
+{
+    _files.insert(m->definitionContext()->filename());
+    return true;
+}
+
+bool
+Slice::TypesVisitor::visitExceptionStart(const ExceptionPtr& e)
+{
+    _files.insert(e->definitionContext()->filename());
+    return false;
+}
+
+bool
+Slice::TypesVisitor::visitClassDefStart(const ClassDefPtr& c)
+{
+    _files.insert(c->definitionContext()->filename());
+    return false;
+}
+
+void
+Slice::TypesVisitor::visitClassDecl(const ClassDeclPtr& c)
+{
+    _files.insert(c->definitionContext()->filename());
+}
+
+bool
+Slice::TypesVisitor::visitStructStart(const StructPtr& s)
+{
+    _files.insert(s->definitionContext()->filename());
+    return false;
+}
+
+void
+Slice::TypesVisitor::visitSequence(const SequencePtr& s)
+{
+    _files.insert(s->definitionContext()->filename());
+}
+
+void
+Slice::TypesVisitor::visitDictionary(const DictionaryPtr& d)
+{
+    _files.insert(d->definitionContext()->filename());
+}
+
+void
+Slice::TypesVisitor::visitEnum(const EnumPtr& e)
+{
+    _files.insert(e->definitionContext()->filename());
+}
+
+Slice::IndexVisitor::IndexVisitor(const Files& files)
+    : _ig(files)
 {
 }
 
@@ -1183,8 +1337,8 @@ Slice::IndexVisitor::visitModuleStart(const ModulePtr& m)
     return false;
 }
 
-Slice::ModuleGenerator::ModuleGenerator(XMLOutput& o)
-    : GeneratorBase(o)
+Slice::ModuleGenerator::ModuleGenerator(XMLOutput& o, const Files& files)
+    : GeneratorBase(o, files)
 {
 }
 
@@ -1199,7 +1353,7 @@ Slice::ModuleGenerator::generate(const ModulePtr& m)
 
     start("dl");
     start("dt", "Symbol");
-    _out << m->name();
+    _out << toString(m, m, true);
     end();
 
     start("dd");
@@ -1249,8 +1403,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
 #endif
 
     ModuleList modules = p->modules();
-    modules.erase(remove_if(modules.begin(), modules.end(), ::IceUtil::constMemFun(&Contained::includeLevel)),
-		  modules.end());
+    //modules.erase(remove_if(modules.begin(), modules.end(), ::IceUtil::constMemFun(&Contained::includeLevel)), modules.end());
 
     if(!modules.empty())
     {
@@ -1276,9 +1429,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
     assert(_out.currIndent() == indent);
 
     ClassList classesAndInterfaces = p->classes();
-    classesAndInterfaces.erase(remove_if(classesAndInterfaces.begin(), classesAndInterfaces.end(),
-					 ::IceUtil::constMemFun(&Contained::includeLevel)),
-			       classesAndInterfaces.end());
+    //classesAndInterfaces.erase(remove_if(classesAndInterfaces.begin(), classesAndInterfaces.end(), ::IceUtil::constMemFun(&Contained::includeLevel)), classesAndInterfaces.end());
     ClassList classes;
     ClassList interfaces;
     remove_copy_if(classesAndInterfaces.begin(), classesAndInterfaces.end(), back_inserter(classes),
@@ -1333,8 +1484,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
     assert(_out.currIndent() == indent);
 
     ExceptionList exceptions = p->exceptions();
-    exceptions.erase(remove_if(exceptions.begin(), exceptions.end(), ::IceUtil::constMemFun(&Contained::includeLevel)),
-		     exceptions.end());
+    //exceptions.erase(remove_if(exceptions.begin(), exceptions.end(), ::IceUtil::constMemFun(&Contained::includeLevel)), exceptions.end());
 
     if(!exceptions.empty())
     {
@@ -1360,8 +1510,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
     assert(_out.currIndent() == indent);
 
     StructList structs = p->structs();
-    structs.erase(remove_if(structs.begin(), structs.end(), ::IceUtil::constMemFun(&Contained::includeLevel)),
-		  structs.end());
+    //structs.erase(remove_if(structs.begin(), structs.end(), ::IceUtil::constMemFun(&Contained::includeLevel)), structs.end());
 
     if(!structs.empty())
     {
@@ -1387,8 +1536,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
     assert(_out.currIndent() == indent);
 
     SequenceList sequences = p->sequences();
-    sequences.erase(remove_if(sequences.begin(), sequences.end(), ::IceUtil::constMemFun(&Contained::includeLevel)),
-		    sequences.end());
+    //sequences.erase(remove_if(sequences.begin(), sequences.end(), ::IceUtil::constMemFun(&Contained::includeLevel)), sequences.end());
 
     if(!sequences.empty())
     {
@@ -1414,9 +1562,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
     assert(_out.currIndent() == indent);
 
     DictionaryList dictionaries = p->dictionaries();
-    dictionaries.erase(remove_if(dictionaries.begin(), dictionaries.end(),
-				 ::IceUtil::constMemFun(&Contained::includeLevel)),
-		       dictionaries.end());
+    //dictionaries.erase(remove_if(dictionaries.begin(), dictionaries.end(), ::IceUtil::constMemFun(&Contained::includeLevel)), dictionaries.end());
 
     if(!dictionaries.empty())
     {
@@ -1442,8 +1588,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
     assert(_out.currIndent() == indent);
 
     EnumList enums = p->enums();
-    enums.erase(remove_if(enums.begin(), enums.end(), ::IceUtil::constMemFun(&Contained::includeLevel)),
-		enums.end());
+    //enums.erase(remove_if(enums.begin(), enums.end(), ::IceUtil::constMemFun(&Contained::includeLevel)), enums.end());
 
     if(!enums.empty())
     {
@@ -1549,8 +1694,8 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
     }
 }
 
-Slice::ExceptionGenerator::ExceptionGenerator(XMLOutput& o)
-    : GeneratorBase(o)
+Slice::ExceptionGenerator::ExceptionGenerator(XMLOutput& o, const Files& files)
+    : GeneratorBase(o, files)
 {
 }
 
@@ -1565,7 +1710,7 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
 
     start("dl");
     start("dt", "Symbol, Heading");
-    _out << e->name();
+    _out << toString(e, e, true);
     end();
 
     string metadata, deprecateReason;
@@ -1678,8 +1823,8 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
     assert(_out.currIndent() == indent);
 }
 
-Slice::ClassGenerator::ClassGenerator(XMLOutput& o)
-    : GeneratorBase(o)
+Slice::ClassGenerator::ClassGenerator(XMLOutput& o, const Files& files)
+    : GeneratorBase(o, files)
 {
 }
 
@@ -1694,7 +1839,7 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
 
     start("dl");
     start("dt", "Symbol");
-    _out << c->name();
+    _out << toString(c, c, true);
     end();
 
     string metadata, deprecateReason;
@@ -1813,10 +1958,6 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
 	    start("dt");
 	    start("span", "Synopsis");
 	    TypePtr returnType = (*q)->returnType();
-	    //
-	    // TODO: return type target is wrong for Maps and Sequences (they are defined in the module html file,
-	    // so the link path needs to be adjusted
-	    //
 	    _out << (returnType ? toString(returnType, c, false) : string("void")) << " "
 		 << toString(*q, c) << "(";
 	    ParamDeclList params = (*q)->parameters();
@@ -1915,8 +2056,8 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
     assert(_out.currIndent() == indent);
 }
 
-Slice::StructGenerator::StructGenerator(XMLOutput& o)
-    : GeneratorBase(o)
+Slice::StructGenerator::StructGenerator(XMLOutput& o, const Files& files)
+    : GeneratorBase(o, files)
 {
 }
 
@@ -1931,7 +2072,7 @@ Slice::StructGenerator::generate(const StructPtr& s)
 
     start("dl");
     start("dt", "Symbol, Heading");
-    _out << s->name();
+    _out << toString(s, s, true);
     end();
 
     string metadata, deprecateReason;
@@ -2034,8 +2175,8 @@ Slice::StructGenerator::generate(const StructPtr& s)
     assert(_out.currIndent() == indent);
 }
 
-Slice::EnumGenerator::EnumGenerator(XMLOutput& o)
-    : GeneratorBase(o)
+Slice::EnumGenerator::EnumGenerator(XMLOutput& o, const Files& files)
+    : GeneratorBase(o, files)
 {
 }
 
@@ -2050,7 +2191,7 @@ Slice::EnumGenerator::generate(const EnumPtr& e)
 
     start("dl");
     start("dt", "Symbol, Heading");
-    _out << e->name();
+    _out << toString(e, e->container(), true);
     end();
 
     string metadata, deprecateReason;
@@ -2123,7 +2264,8 @@ Slice::EnumGenerator::generate(const EnumPtr& e)
     assert(_out.currIndent() == indent);
 }
 
-Slice::Visitor::Visitor()
+Slice::Visitor::Visitor(const Files& files)
+    : _files(files)
 {
 }
 
@@ -2137,7 +2279,7 @@ bool
 Slice::Visitor::visitModuleStart(const ModulePtr& m)
 {
     XMLOutput O;
-    ModuleGenerator mg(O);
+    ModuleGenerator mg(O, _files);
     mg.generate(m);
     return true;
 }
@@ -2146,7 +2288,7 @@ bool
 Slice::Visitor::visitExceptionStart(const ExceptionPtr& e)
 {
     XMLOutput O;
-    ExceptionGenerator eg(O);
+    ExceptionGenerator eg(O, _files);
     eg.generate(e);
     return true;
 }
@@ -2155,7 +2297,7 @@ bool
 Slice::Visitor::visitClassDefStart(const ClassDefPtr& c)
 {
     XMLOutput O;
-    ClassGenerator cg(O);
+    ClassGenerator cg(O, _files);
     cg.generate(c);
     return true;
 }
@@ -2164,7 +2306,7 @@ bool
 Slice::Visitor::visitStructStart(const StructPtr& s)
 {
     XMLOutput O;
-    StructGenerator sg(O);
+    StructGenerator sg(O, _files);
     sg.generate(s);
     return true;
 }
@@ -2173,6 +2315,6 @@ void
 Slice::Visitor::visitEnum(const EnumPtr& e)
 {
     XMLOutput O;
-    EnumGenerator eg(O);
+    EnumGenerator eg(O, _files);
     eg.generate(e);
 }
