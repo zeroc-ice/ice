@@ -299,11 +299,16 @@ class Server extends ListArrayTreeNode
 
     public void patchServer()
     {
-	int shutdown = JOptionPane.showConfirmDialog(
-	    getCoordinator().getMainFrame(),
+	String message = _serverDescriptor.applicationDistrib ?
 	    "You are about to install or refresh your" 
 	    + " server distribution and your application distribution onto this node.\n"
-	    + " Do you want shut down all servers affected by this update?", 
+	    + "Do you want shut down all servers affected by this update?" :
+	    "You are about to install or refresh the distribution for this server\n" 
+	    + "Do you want to shut down the server for this update?";
+
+	int shutdown = JOptionPane.showConfirmDialog(
+	    getCoordinator().getMainFrame(),
+	    message, 
 	    "Patch Confirmation",
 	    JOptionPane.YES_NO_CANCEL_OPTION);
        
