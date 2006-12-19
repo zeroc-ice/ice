@@ -19,7 +19,7 @@ class LoggerI : public Logger
 {
 public:
 
-    LoggerI(const std::string&);
+    LoggerI(const std::string&, const std::string&);
 
     virtual void print(const std::string&);
     virtual void trace(const std::string&, const std::string&);
@@ -29,7 +29,7 @@ public:
 private:
 
     std::string _prefix;
-    std::string _emptyPrefix;
+    std::string _dateFormat;
 };
 
 }

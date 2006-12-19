@@ -26,8 +26,10 @@ Changes since version 3.1.1
 - Glacier2.AllowCategories is now deprecated and superseded by
   Glacier2.Filter.Category.Accept.
 
-- The Ice.Logger.Timestamp property has been remove. Timestamps
-  will now always be shown in loger messages.
+- The Ice.Logger.Timestamp property has been removed and replaced by
+  Ice.Logger.DateFormat. It can be set to a string repesenting the date
+  format as recognized by strftime(). By default it uses "%x %H:%M:%S".
+  Passing "0" will result in no timestamp being printed.
 
 - Added new property Ice.Default.PreferSecure, which if set to 1
   causes secure connections to be prefered over non-secure connections.

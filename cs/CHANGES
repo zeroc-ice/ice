@@ -23,8 +23,10 @@ Changes since version 3.1.1
   proxy settings, such as the Locator cache timeout, which cannot be
   set using stringToProxy().
 
-- The Ice.Logger.Timestamp property has been removed. Timestamps
-  will now always be shown by the logger.
+- The Ice.Logger.Timestamp property has been removed and replaced by
+  Ice.Logger.DateFormat. It can be set to a string repesenting the date
+  format as recognized by System.DateTime.Now.ToString(). By default it
+  uses "G". Passing "0" will result in no timestamp being printed.
 
 - Added new property Ice.Default.PreferSecure, which if set to 1
   causes secure connections to be prefered over non-secure connections.

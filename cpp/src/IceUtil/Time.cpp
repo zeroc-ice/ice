@@ -110,7 +110,7 @@ IceUtil::Time::toMicroSecondsDouble() const
 }
 
 std::string
-IceUtil::Time::toDateTime() const
+IceUtil::Time::toDateTime(const std::string& format) const
 {
     time_t time = static_cast<long>(_usec / 1000000);
 
@@ -124,7 +124,7 @@ IceUtil::Time::toDateTime() const
 #endif
 
     char buf[32];
-    strftime(buf, sizeof(buf), "%x %H:%M:%S", t);
+    strftime(buf, sizeof(buf), format.c_str(), t);
 
     std::ostringstream os;
     os << buf << ".";

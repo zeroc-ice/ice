@@ -14,14 +14,17 @@ namespace Ice
 
     public sealed class LoggerI : LocalObjectImpl, Logger
     {
-	public LoggerI(string prefix)
+	public LoggerI(string prefix, string dateFormat)
 	{
 	    if(prefix.Length > 0)
 	    {
 		_prefix = prefix + ": ";
 	    }
 	    
-	    _date = "G";
+	    if(!dateFormat.Equals("0"))
+	    {
+	        _date = dateFormat;
+	    }
 	}
 	
 	public void print(string message)
@@ -37,8 +40,11 @@ namespace Ice
 	    lock(_globalMutex)
 	    {
 		System.Text.StringBuilder s = new System.Text.StringBuilder("[ ");
-		s.Append(System.DateTime.Now.ToString(_date, DateTimeFormatInfo.InvariantInfo));
-		s.Append(' ');
+		if(_date != null)
+		{
+		    s.Append(System.DateTime.Now.ToString(_date, DateTimeFormatInfo.InvariantInfo));
+		    s.Append(' ');
+		}
 		s.Append(_prefix);
 		s.Append(category);
 		s.Append(": ");
@@ -54,8 +60,11 @@ namespace Ice
 	    lock(_globalMutex)
 	    {
 		System.Text.StringBuilder s = new System.Text.StringBuilder();
-		s.Append(System.DateTime.Now.ToString(_date, DateTimeFormatInfo.InvariantInfo));
-		s.Append(' ');
+		if(_date != null)
+		{
+		    s.Append(System.DateTime.Now.ToString(_date, DateTimeFormatInfo.InvariantInfo));
+		    s.Append(' ');
+		}
 		s.Append(_prefix);
 		s.Append("warning: ");
 		s.Append(message);
@@ -68,8 +77,11 @@ namespace Ice
 	    lock(_globalMutex)
 	    {
 		System.Text.StringBuilder s = new System.Text.StringBuilder();
-		s.Append(System.DateTime.Now.ToString(_date, DateTimeFormatInfo.InvariantInfo));
-		s.Append(' ');
+		if(_date != null)
+		{
+		    s.Append(System.DateTime.Now.ToString(_date, DateTimeFormatInfo.InvariantInfo));
+		    s.Append(' ');
+		}
 		s.Append(_prefix);
 		s.Append("error: ");
 		s.Append(message);

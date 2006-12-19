@@ -115,6 +115,7 @@
 Ice:
     ACM.Client
     ACM.Server
+    AllowableEndpoints
     ChangeUser
     Compression.Level
     Config
@@ -143,6 +144,7 @@ Ice:
     GC.Interval
     ImplicitContext
     InitPlugins
+    Logger.DateFormat
     LoggerPlugin
     MessageSizeMax
     MonitorConnections
@@ -199,7 +201,6 @@ Ice:
     Warn.Datagrams
     Warn.Dispatch
     Warn.Endpoints
-    AllowableEndpoints
 
 IceBox:
     InstanceName
