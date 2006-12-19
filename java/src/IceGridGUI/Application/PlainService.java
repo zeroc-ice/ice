@@ -57,7 +57,7 @@ class PlainService extends Communicator implements Service, Cloneable
     public boolean[] getAvailableActions()
     {
 	boolean[] actions = new boolean[ACTION_COUNT];
-	actions[COPY] = true;
+	actions[COPY] = !_ephemeral;
 	
 	Object clipboard = getCoordinator().getClipboard();
 	if(clipboard != null && 

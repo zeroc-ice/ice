@@ -120,7 +120,6 @@ class PlainServer extends Communicator implements Server
     public boolean[] getAvailableActions()
     {
 	boolean[] actions = new boolean[ACTION_COUNT];
-	actions[COPY] = true;
 	
 	Object clipboard = getCoordinator().getClipboard();
 	if(clipboard != null && 
@@ -136,14 +135,15 @@ class PlainServer extends Communicator implements Server
 	actions[DELETE] = true;
 	if(!_ephemeral)
 	{
+	    actions[COPY] = true;
 	    actions[SHOW_VARS] = true;
 	    actions[SUBSTITUTE_VARS] = true;
+
+	    actions[NEW_ADAPTER] = !_services.initialized();
+	    actions[NEW_DBENV] = !_services.initialized();
+	    actions[NEW_SERVICE] = _services.initialized();
+	    actions[NEW_SERVICE_FROM_TEMPLATE] = _services.initialized();
 	}
-	
-	actions[NEW_ADAPTER] = !_services.initialized();
-	actions[NEW_DBENV] = !_services.initialized();
-	actions[NEW_SERVICE] = _services.initialized();
-	actions[NEW_SERVICE_FROM_TEMPLATE] = _services.initialized();
 	return actions;
     }
     public JPopupMenu getPopupMenu()

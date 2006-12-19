@@ -91,7 +91,7 @@ class ServerTemplate extends Communicator
     public boolean[] getAvailableActions()
     {
 	boolean[] actions = new boolean[ACTION_COUNT];
-	actions[COPY] = true;
+	actions[COPY] = !_ephemeral;
 
 	if(((TreeNode)_parent).getAvailableActions()[PASTE])
 	{
@@ -108,10 +108,13 @@ class ServerTemplate extends Communicator
 
 	actions[DELETE] = true;
 
-	actions[NEW_ADAPTER] = !_services.initialized();
-	actions[NEW_SERVICE] = _services.initialized();
-	actions[NEW_SERVICE_FROM_TEMPLATE] = _services.initialized();
-	actions[NEW_DBENV] = _dbEnvs.initialized();
+	if(!_ephemeral)
+	{
+	    actions[NEW_ADAPTER] = !_services.initialized();
+	    actions[NEW_SERVICE] = _services.initialized();
+	    actions[NEW_SERVICE_FROM_TEMPLATE] = _services.initialized();
+	    actions[NEW_DBENV] = _dbEnvs.initialized();
+	}
 
 	return actions;
     }

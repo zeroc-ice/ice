@@ -444,7 +444,21 @@ public class ApplicationPane extends JSplitPane implements Tab
 			}
 			else
 			{
-			    showNode((TreeNode)path.getLastPathComponent());
+			    TreeNode node = (TreeNode)path.getLastPathComponent();
+			    Root root = node.getRoot();
+			    if(root.hasNode(node))
+			    {
+				showNode(node);
+			    }
+			    else
+			    {
+				node = root.findNodeLike(path, false);
+				if(node == null)
+				{
+				    node = root;
+				}
+				root.setSelectedNode(node);
+			    }
 			}
 		    }
 		    else

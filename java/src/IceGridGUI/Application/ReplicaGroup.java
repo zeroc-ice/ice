@@ -49,7 +49,7 @@ class ReplicaGroup extends TreeNode
     public boolean[] getAvailableActions()
     {
 	boolean[] actions = new boolean[ACTION_COUNT];
-	actions[COPY] = true;
+	actions[COPY] = !_ephemeral;
 	
 	if(((TreeNode)_parent).getAvailableActions()[PASTE])
 	{

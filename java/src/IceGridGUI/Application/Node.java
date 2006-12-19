@@ -248,7 +248,7 @@ class Node extends TreeNode implements PropertySetParent
     {
 	boolean[] actions = new boolean[ACTION_COUNT];
 
-	actions[COPY] = true;
+	actions[COPY] = !_ephemeral;
 	actions[DELETE] = true;
 
 	Object descriptor =  getCoordinator().getClipboard();

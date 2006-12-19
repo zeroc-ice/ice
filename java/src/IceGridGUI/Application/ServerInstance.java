@@ -44,7 +44,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
     public boolean[] getAvailableActions()
     {
 	boolean[] actions = new boolean[ACTION_COUNT];
-	actions[COPY] = true;
+	actions[COPY] = !_ephemeral;
 	
 	Object clipboard = getCoordinator().getClipboard();
 	if(clipboard != null && 

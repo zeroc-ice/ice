@@ -57,7 +57,7 @@ class DbEnv extends TreeNode implements DescriptorHolder
     public boolean[] getAvailableActions()
     {
 	boolean[] actions = new boolean[ACTION_COUNT];
-	actions[COPY] = true;
+	actions[COPY] = !_ephemeral;
 
 	Object clipboard = getCoordinator().getClipboard();
 	actions[PASTE] = clipboard != null && 

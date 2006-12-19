@@ -72,7 +72,7 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
     public boolean[] getAvailableActions()
     {
 	boolean[] actions = new boolean[ACTION_COUNT];
-	actions[COPY] = true;
+	actions[COPY] = !_ephemeral;
 	
 	if(((TreeNode)_parent).getAvailableActions()[PASTE])
 	{

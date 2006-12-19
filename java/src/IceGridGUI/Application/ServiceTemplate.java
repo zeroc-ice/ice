@@ -60,7 +60,7 @@ class ServiceTemplate extends Communicator
     public boolean[] getAvailableActions()
     {
 	boolean[] actions = new boolean[ACTION_COUNT];
-	actions[COPY] = true;
+
 	if(((TreeNode)_parent).getAvailableActions()[PASTE])
 	{
 	    actions[PASTE] = true;
@@ -75,9 +75,13 @@ class ServiceTemplate extends Communicator
 
 	actions[DELETE] = true;
 
-	actions[NEW_ADAPTER] = !_ephemeral;
-	actions[NEW_DBENV] = !_ephemeral;
-
+	if(!_ephemeral)
+	{	
+	    actions[COPY] = true;
+	    actions[NEW_ADAPTER] = true;
+	    actions[NEW_DBENV] = true;
+	}
+	
 	return actions;
     }
     public void copy()
