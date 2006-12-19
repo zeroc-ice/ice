@@ -400,6 +400,9 @@ class ObjectAdapterI(ObjectAdapter):
     def createDirectProxy(self, id):
         return self._impl.createDirectProxy(id)
 
+    def createIndirectProxy(self, id):
+        return self._impl.createIndirectProxy(id)
+
     def createReverseProxy(self, id):
         return self._impl.createReverseProxy(id)
 

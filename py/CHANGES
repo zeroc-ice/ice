@@ -3,6 +3,9 @@ NOTE: Please keep changes in the appropriate section for HEAD or 3.1.
 Changes since version 3.1.1
 ---------------------------
 
+- Added missing implementation of the createIndirectProxy() method to
+  the ObjectAdapter interface.
+
 - Object adapter properties are now prefixed by "Ice.OA.". For example,
   "Ice.OA.<Adpater name>.Endpoints" instead of "<Adpater name>.Endpoints".
   The new properties can be set from the command line. The old style 

@@ -8,9 +8,9 @@ Ice.Default.Locator=DemoIceGrid/Locator:default -p 12000
 #
 # IceGrid registry configuration.
 #
-IceGrid.Registry.Client.Endpoints=default -p 12000
-IceGrid.Registry.Server.Endpoints=default
-IceGrid.Registry.Internal.Endpoints=default
+Ice.OA.IceGrid.Registry.Client.Endpoints=default -p 12000
+Ice.OA.IceGrid.Registry.Server.Endpoints=default
+Ice.OA.IceGrid.Registry.Internal.Endpoints=default
 IceGrid.Registry.Data=db/registry
 IceGrid.Registry.PermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
 IceGrid.Registry.AdminPermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
@@ -21,7 +21,7 @@ IceGrid.Registry.AdminSSLPermissionsVerifier=DemoIceGrid/NullSSLPermissionsVerif
 # IceGrid node configuration.
 #
 IceGrid.Node.Name=localhost
-IceGrid.Node.Endpoints=default
+Ice.OA.IceGrid.Node.Endpoints=default
 IceGrid.Node.Data=db/node
 IceGrid.Node.CollocateRegistry=1
 #IceGrid.Node.Output=db
