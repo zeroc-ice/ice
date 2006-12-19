@@ -35,8 +35,8 @@ class AdapterEditor extends CommunicatorChildEditor
 {
     AdapterEditor()
     {
-	_objects = new MapField(this, "Identity", "Type", true);
-	_allocatables = new MapField(this, "Identity", "Type", true);
+	_objects = new MapField(this, "Identity", new String[]{"Type", "Property"}, true);
+	_allocatables = new MapField(this, "Identity", new String[]{"Type", "Property"}, true);
 
 	//
 	// Create buttons
@@ -316,6 +316,35 @@ class AdapterEditor extends CommunicatorChildEditor
 				published.toString().trim());
 
 	}
+
+	//
+	// Set all objects and allocatables properties
+	//
+	java.util.Map map = _objects.get();
+	java.util.Iterator p = map.entrySet().iterator();
+	while(p.hasNext())
+	{
+	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+	    String key = (String)entry.getKey();
+	    String[] value = (String[]) entry.getValue();
+	    if(!value[1].equals(""))
+	    {
+		adapter.setProperty(value[1], key);
+	    }
+	}
+
+	map = _allocatables.get();
+	p = map.entrySet().iterator();
+	while(p.hasNext())
+	{
+	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+	    String key = (String)entry.getKey();
+	    String[] value = (String[]) entry.getValue();
+	    if(!value[1].equals(""))
+	    {
+		adapter.setProperty(value[1], key);
+	    }
+	}
     }
       
     private void setId(String id)
@@ -513,20 +542,21 @@ class AdapterEditor extends CommunicatorChildEditor
 	return (Adapter)_target;
     }
 
-    static java.util.Map objectDescriptorSeqToMap(java.util.List objects)
+    private java.util.Map objectDescriptorSeqToMap(java.util.List objects)
     {
 	java.util.Map result = new java.util.TreeMap();
 	java.util.Iterator p = objects.iterator();
 	while(p.hasNext())
 	{
 	    ObjectDescriptor od = (ObjectDescriptor)p.next();
-	    result.put(Ice.Util.identityToString(od.id), 
-		       od.type);
+	    String k = Ice.Util.identityToString(od.id);
+
+	    result.put(k, new String[]{od.type, getAdapter().lookupPropertyValue(k)});
 	}
 	return result;
     }
     
-    static java.util.LinkedList mapToObjectDescriptorSeq(java.util.Map map)
+    private java.util.LinkedList mapToObjectDescriptorSeq(java.util.Map map)
     {
 	java.util.LinkedList result = new java.util.LinkedList();
 	java.util.Iterator p = map.entrySet().iterator();
@@ -535,8 +565,8 @@ class AdapterEditor extends CommunicatorChildEditor
 	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
 	    Ice.Identity id = 
 		Ice.Util.stringToIdentity((String)entry.getKey());
-	    String type = (String)entry.getValue();
-	    result.add(new ObjectDescriptor(id, type, "")); // TODO: Benoit: Add support for "property"
+	    String[] val = (String[])entry.getValue();
+	    result.add(new ObjectDescriptor(id, val[0], "")); // TODO: Bernard: Remove "property"
 	}
 	return result;
     }

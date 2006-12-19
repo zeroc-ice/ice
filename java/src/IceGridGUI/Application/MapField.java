@@ -24,23 +24,27 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
-
 //
 // A special field used to show/edit a map 
 //
 
 public class MapField extends JTable
 {
-    public MapField(Editor editor, String headKey, String headValue, boolean substituteKey)
+    public MapField(Editor editor, String headKey, String[] headValues, boolean substituteKey)
     {
-	_substituteKey = substituteKey;
-
-	_columnNames = new java.util.Vector(2);
-	_columnNames.add(headKey);
-	_columnNames.add(headValue);
-
 	_editor = editor;
+	_substituteKey = substituteKey;
+	_vectorSize = headValues.length + 1;
 
+	_columnNames = new java.util.Vector(_vectorSize);
+	_columnNames.add(headKey);
+	for(int i = 0; i < headValues.length; ++i)
+	{
+	    _columnNames.add(headValues[i]);
+	}
+
+	assert _vectorSize >= 2;
+	
 	Action deleteRow = new AbstractAction("Delete selected row(s)")
 	    {
 		public void actionPerformed(ActionEvent e) 
@@ -70,7 +74,11 @@ public class MapField extends JTable
 	getActionMap().put("delete", deleteRow);
 	getInputMap().put(
 	    KeyStroke.getKeyStroke("DELETE"), "delete");
+    }
 
+    public MapField(Editor editor, String headKey, String headValue, boolean substituteKey)
+    {
+	this(editor, headKey, new String[]{headValue}, substituteKey);
     }
 
     public void set(java.util.Map map, Utils.Resolver resolver, 
@@ -85,7 +93,7 @@ public class MapField extends JTable
 	java.util.Iterator p = map.entrySet().iterator();
 	while(p.hasNext())
 	{
-	    java.util.Vector row = new java.util.Vector(2);
+	    java.util.Vector row = new java.util.Vector(_vectorSize);
 	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
 	    
 	    if(_substituteKey)
@@ -96,15 +104,30 @@ public class MapField extends JTable
 	    {
 		row.add((String)entry.getKey());
 	    }
-	    row.add(Utils.substitute((String)entry.getValue(), resolver));
+
+	    if(_vectorSize == 2)
+	    {
+		row.add(Utils.substitute((String)entry.getValue(), resolver));
+	    }
+	    else
+	    {
+		String[] val = (String[])entry.getValue();
+
+		for(int i = 0; i < val.length; ++i)
+		{
+		    row.add(Utils.substitute(val[i], resolver));
+		}
+	    }
 	    vector.add(row);
 	}
 
 	if(_editable)
 	{
-	    java.util.Vector newRow = new java.util.Vector(2);
-	    newRow.add("");
-	    newRow.add("");
+	    java.util.Vector newRow = new java.util.Vector(_vectorSize);
+	    for(int i = 0; i < _vectorSize; ++i)
+	    {
+		newRow.add("");
+	    }
 	    vector.add(newRow);
 	}
 
@@ -126,7 +149,12 @@ public class MapField extends JTable
 			    _model.getRowCount() - 1 , 0);
 			if(lastKey != null && !lastKey.equals(""))
 			{
-			    _model.addRow(new Object[]{"", ""});
+			    Object[] emptyRow = new Object[_vectorSize];
+			    for(int i = 0; i < _vectorSize; ++i)
+			    {
+				emptyRow[i] = "";
+			    }
+			    _model.addRow(emptyRow);
 			}
 			_editor.updated();
 		    }
@@ -170,17 +198,35 @@ public class MapField extends JTable
 		 key = key.trim(); 
 		 if(!key.equals(""))
 		 {
-		     String val = (String)row.elementAt(1);
-		     if(val == null)
+		     if(_vectorSize == 2)
 		     {
-			 val = "";
+			 String val = (String)row.elementAt(1);
+			 if(val == null)
+			 {
+			     val = "";
+			 }
+			 result.put(key, val);
 		     }
-		     result.put(key, val);
+		     else
+		     {
+			 String[] val = new String[_vectorSize - 1];
+			 for(int i = 1; i < _vectorSize; ++i)
+			 {
+			     val[i - 1] = (String)row.elementAt(i);
+			     if(val[i - 1] == null)
+			     {
+				 val[i - 1] = "";
+			     }
+			 }
+			 result.put(key, val);
+		     }
 		 }
 	     }
 	}
 	return result;
     }
+
+    private final int _vectorSize;
 
     private DefaultTableModel _model;
     private java.util.Vector _columnNames;

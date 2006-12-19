@@ -194,15 +194,24 @@ class Adapter extends TreeNode implements DescriptorHolder
     {
 	return ((Communicator)_parent).getProperty(_descriptor.name + "." + property);
     }
+    String lookupPropertyValue(String val)
+    {
+	return ((Communicator)_parent).lookupPropertyValue(val);
+    }
     void setProperty(String name, String property, String newValue)
     {
 	((Communicator)_parent).setProperty(name + "." + property, newValue);
+    }
+    void setProperty(String property, String newValue)
+    {
+	((Communicator)_parent).setProperty(property, newValue);
     }
     void removeProperty(String name, String property)
     {
 	((Communicator)_parent).removeProperty(name + "." + property);
     }
     
+
     String getDefaultAdapterId()
     {
 	return getDefaultAdapterId(_id);

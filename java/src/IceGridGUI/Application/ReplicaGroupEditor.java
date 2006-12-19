@@ -229,7 +229,7 @@ class ReplicaGroupEditor extends Editor
 
 	descriptor.id = _id.getText().trim();
 	descriptor.description = _description.getText();
-	descriptor.objects = AdapterEditor.mapToObjectDescriptorSeq(_objects.get());
+	descriptor.objects = mapToObjectDescriptorSeq(_objects.get());
 	
 	Object loadBalancing = _loadBalancing.getSelectedItem();
 	if(loadBalancing == ORDERED)
@@ -344,7 +344,7 @@ class ReplicaGroupEditor extends Editor
 	_description.setEditable(isEditable);
 	_description.setOpaque(isEditable);
 
-	_objects.set(AdapterEditor.objectDescriptorSeqToMap(descriptor.objects), resolver, isEditable);
+	_objects.set(objectDescriptorSeqToMap(descriptor.objects), resolver, isEditable);
 
 	_loadBalancing.setEnabled(true);
 
@@ -403,6 +403,35 @@ class ReplicaGroupEditor extends Editor
     {
 	return (ReplicaGroup)_target;
     }
+
+    private java.util.Map objectDescriptorSeqToMap(java.util.List objects)
+    {
+	java.util.Map result = new java.util.TreeMap();
+	java.util.Iterator p = objects.iterator();
+	while(p.hasNext())
+	{
+	    ObjectDescriptor od = (ObjectDescriptor)p.next();
+	    result.put(Ice.Util.identityToString(od.id), 
+		       od.type);
+	}
+	return result;
+    }
+    
+    private java.util.LinkedList mapToObjectDescriptorSeq(java.util.Map map)
+    {
+	java.util.LinkedList result = new java.util.LinkedList();
+	java.util.Iterator p = map.entrySet().iterator();
+	while(p.hasNext())
+	{
+	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+	    Ice.Identity id = 
+		Ice.Util.stringToIdentity((String)entry.getKey());
+	    String type = (String)entry.getValue();
+	    result.add(new ObjectDescriptor(id, type, "")); // TODO: Bernard: remove property!
+	}
+	return result;
+    }
+
 
     static private String ORDERED = "Ordered";
     static private String RANDOM = "Random";

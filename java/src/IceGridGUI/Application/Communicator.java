@@ -873,6 +873,22 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 	return null;
     }
 
+    String lookupPropertyValue(String val)
+    {
+	CommunicatorDescriptor descriptor = getCommunicatorDescriptor();
+	java.util.Iterator p = descriptor.propertySet.properties.iterator();
+	while(p.hasNext())
+	{
+	    PropertyDescriptor pd = (PropertyDescriptor)p.next();
+	    if(pd.value.equals(val))
+	    {
+		return pd.name;
+	    }
+	}
+	return "";
+    }
+
+
     void setProperty(String key, String newValue)
     {
 	CommunicatorDescriptor descriptor = getCommunicatorDescriptor();
