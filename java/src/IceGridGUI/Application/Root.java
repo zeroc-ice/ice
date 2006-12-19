@@ -693,6 +693,7 @@ public class Root extends ListTreeNode
 	    commit();
 	    _coordinator.getSaveAction().setEnabled(false);
 	    _coordinator.getDiscardUpdatesAction().setEnabled(false);
+	    _coordinator.getSaveToRegistryAction().setEnabled(_coordinator.connectedToMaster());
 	}
     }
 
@@ -1104,7 +1105,8 @@ public class Root extends ListTreeNode
 
 	    _coordinator.getSaveAction().setEnabled(false);
 	    _coordinator.getDiscardUpdatesAction().setEnabled(false);
-	    _coordinator.getSaveToRegistryAction().setEnabled(hasFile());
+	    _coordinator.getSaveToRegistryAction().setEnabled(hasFile() 
+							      && _coordinator.connectedToMaster());
 	}
     }
 

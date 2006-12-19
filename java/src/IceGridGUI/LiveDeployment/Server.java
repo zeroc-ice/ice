@@ -650,7 +650,7 @@ class Server extends ListArrayTreeNode
 		 java.util.Set serverTemplates)
     {
 	if(variablesChanged || 
-	   (_instanceDescriptor != null && serverTemplates.contains(_instanceDescriptor.template)))
+	   (_instanceDescriptor != null && serverTemplates != null && serverTemplates.contains(_instanceDescriptor.template)))
 	{
 	    if(_instanceDescriptor != null)
 	    {
@@ -663,6 +663,11 @@ class Server extends ListArrayTreeNode
 		_resolver.put("server", _id);
 		_serverDescriptor = (ServerDescriptor)templateDescriptor.descriptor;
 	    }
+	    else
+	    {
+		_resolver.reset(resolver);
+		_resolver.put("server", _id);
+	    }
 	    
 	    _adapters.clear();
 	    createAdapters();
@@ -674,7 +679,7 @@ class Server extends ListArrayTreeNode
 	    
 	    getRoot().getTreeModel().nodeStructureChanged(this);
 	}
-	else if(serviceTemplates.size() > 0 && _serverDescriptor instanceof IceBoxDescriptor)
+	else if(serviceTemplates != null && serviceTemplates.size() > 0 && _serverDescriptor instanceof IceBoxDescriptor)
 	{
 	    _services.clear();
 	    _servicePropertySets.clear();

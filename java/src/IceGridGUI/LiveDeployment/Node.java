@@ -264,6 +264,7 @@ class Node extends ListTreeNode
 	data.resolver = new Utils.Resolver(new java.util.Map[]{appDesc.variables, nodeDesc.variables});
 	data.resolver.put("application", appDesc.name);
 	data.resolver.put("node", _id);
+	putInfoVariables(data.resolver);
 
 	_map.put(appDesc.name, data);
 	
@@ -281,8 +282,6 @@ class Node extends ListTreeNode
 	    insertServer(createServer(appDesc, data.resolver, desc));
 	}
     }
-
-   
 
     boolean remove(String appName)
     {
@@ -434,17 +433,20 @@ class Node extends ListTreeNode
 	if(variablesChanged || !serviceTemplates.isEmpty() || !serverTemplates.isEmpty())
 	{
 	    //
-	    // Rebuild every other server
+	    // Rebuild every other server in this application
 	    //
 	    java.util.Iterator p = _children.iterator();
 	    while(p.hasNext())
 	    {
 		Server server = (Server)p.next();
-		if(!freshServers.contains(server))
+		if(server.getApplication() == appDesc)
 		{
-		    server.rebuild(data.resolver,
-				   variablesChanged, 
-				   serviceTemplates, serverTemplates);
+		    if(!freshServers.contains(server))
+		    {
+			server.rebuild(data.resolver,
+				       variablesChanged, 
+				       serviceTemplates, serverTemplates);
+		    }
 		}
 	    }
 	}
@@ -467,6 +469,24 @@ class Node extends ListTreeNode
 	return _windows;
     }
 
+    private boolean putInfoVariables(Utils.Resolver resolver)
+    {
+	if(_info == null)
+	{
+	    return false;
+	}
+	else
+	{
+	    boolean updated = resolver.put("node.os", _info.info.os);
+	    updated = resolver.put("node.hostname", _info.info.hostname) || updated;
+	    updated = resolver.put("node.release", _info.info.release) || updated; 
+	    updated = resolver.put("node.version", _info.info.version) || updated;
+	    updated = resolver.put("node.machine", _info.info.machine) || updated;
+	    updated = resolver.put("node.datadir", _info.info.dataDir) || updated;
+	    return updated;
+	}
+    }
+
     void up(NodeDynamicInfo info, boolean fireEvent)
     {
 	_up = true;
@@ -474,10 +494,34 @@ class Node extends ListTreeNode
 	_windows = info.info.os.toLowerCase().startsWith("windows");
 	
 	//
+	// Update variables and rebuild all affected servers
+	//
+	java.util.Iterator p = _map.values().iterator();
+	while(p.hasNext())
+	{
+	    ApplicationData data = (ApplicationData)p.next();
+
+	    if(putInfoVariables(data.resolver))
+	    {
+		String appName = data.resolver.find("application");
+
+		java.util.Iterator q = _children.iterator();
+		while(q.hasNext())
+		{
+		    Server server = (Server)q.next();
+		    if(server.getApplication().name.equals(appName))
+		    {
+			server.rebuild(data.resolver, true, null, null);
+		    }
+		}
+	    }
+	}
+	
+	//
 	// Tell every server on this node
 	//
 	java.util.Set updatedServers = new java.util.HashSet();
-	java.util.Iterator p = _info.servers.iterator();
+	p = _info.servers.iterator();
 	while(p.hasNext())
 	{
 	    ServerDynamicInfo sinfo = (ServerDynamicInfo)p.next();

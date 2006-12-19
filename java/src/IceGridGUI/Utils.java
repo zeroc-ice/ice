@@ -232,11 +232,20 @@ public class Utils
 	}
 
 	//
-	// Set a pre-defined variable
+	// Set a pre-defined variable; returns true if value was updated
 	//
-	public void put(String name, String value)
+	public boolean put(String name, String value)
 	{
-	    _predefinedVariables.put(name, value);
+	    String oldVal = (String)_predefinedVariables.get(name);
+	    if(oldVal == null || !oldVal.equals(value))
+	    {
+		_predefinedVariables.put(name, value);
+		return true;
+	    }
+	    else
+	    {
+		return false;
+	    }
 	}
 
 	//
@@ -250,6 +259,22 @@ public class Utils
 	   
 	    _parameters = parent.substituteParameterValues(parameters, defaults);
 	    _subResolver = new Resolver(_variables, _predefinedVariables);
+	}
+
+	public void reset(Resolver parent)
+	{
+	    assert _variables == parent._variables;
+	    _predefinedVariables = new java.util.HashMap(parent._predefinedVariables);
+	   
+	    assert _parameters == parent._parameters;
+	    if(_parameters == null)
+	    {
+		_subResolver = this;
+	    }
+	    else
+	    {
+		_subResolver = new Resolver(_variables, _predefinedVariables);
+	    }
 	}
 
 	//
