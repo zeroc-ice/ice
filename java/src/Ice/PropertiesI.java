@@ -210,8 +210,9 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
     {
         try
         {
-            java.io.FileReader fr = new java.io.FileReader(file);
-            java.io.BufferedReader br = new java.io.BufferedReader(fr);
+	    java.io.FileInputStream fis = new java.io.FileInputStream(file);
+            java.io.InputStreamReader isr = new java.io.InputStreamReader(fis, "UTF-8");
+            java.io.BufferedReader br = new java.io.BufferedReader(isr);
             parse(br);
         }
         catch(java.io.IOException ex)
