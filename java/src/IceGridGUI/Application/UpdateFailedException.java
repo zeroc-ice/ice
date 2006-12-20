@@ -8,7 +8,7 @@
 // **********************************************************************
 package IceGridGUI.Application;
 
-class UpdateFailedException extends Exception
+public class UpdateFailedException extends Exception
 {
     UpdateFailedException(TreeNode parent, String id)
     {

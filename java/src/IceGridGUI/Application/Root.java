@@ -32,7 +32,7 @@ public class Root extends ListTreeNode
     // Construct a normal, existing Application
     //
     public Root(Coordinator coordinator, ApplicationDescriptor desc, 
-		boolean live, File file)
+		boolean live, File file) throws UpdateFailedException
     {
 	super(false, null, desc.name);
 	_coordinator = coordinator;
@@ -41,18 +41,8 @@ public class Root extends ListTreeNode
 	_file = file;
 	_live = live;
 
-	try
-	{
-	    init();
-	}
-	catch(UpdateFailedException e)
-	{
-	    //
-	    // Impossible
-	    //
-	    System.err.println(e.toString());
-	    assert false;
-	}
+
+	init();
     }
    
     //
@@ -720,7 +710,22 @@ public class Root extends ListTreeNode
 	    assert false;
 	}
 
-	Root newRoot = new Root(_coordinator, desc, _live, _file);
+	Root newRoot;
+
+	try
+	{
+	    newRoot = new Root(_coordinator, desc, _live, _file);
+	}
+	catch(UpdateFailedException e)
+	{
+	    JOptionPane.showMessageDialog(
+		_coordinator.getMainFrame(),
+		e.toString(),
+		"Bad Application Descriptor: Unable reload Application",
+		JOptionPane.ERROR_MESSAGE);
+	    return;
+	}
+
 	ApplicationPane app = _coordinator.getMainPane().findApplication(this);
 	assert app != null;
 	app.setRoot(newRoot);

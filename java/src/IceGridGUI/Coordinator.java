@@ -654,12 +654,28 @@ public class Coordinator
 		    "The application '" + applicationName + "' was not found in the registry.",
 		    "No such application",
 		    JOptionPane.ERROR_MESSAGE);
+		return null;
 	    }
 	    //
 	    // Essential: deep-copy desc!
 	    //
 	    desc = IceGridGUI.Application.Root.copyDescriptor(desc);
-	    app = new ApplicationPane(new IceGridGUI.Application.Root(this, desc, true, null));
+	    IceGridGUI.Application.Root root;
+	    try
+	    {
+		root = new IceGridGUI.Application.Root(this, desc, true, null);
+	    }
+	    catch(IceGridGUI.Application.UpdateFailedException e)
+	    {
+		JOptionPane.showMessageDialog(
+		    _mainFrame,
+		    e.toString(),
+		    "Bad Application Descriptor: Unable load from Registry",
+		    JOptionPane.ERROR_MESSAGE);
+		return null;
+	    }
+	   
+	    app = new ApplicationPane(root);
 	    _mainPane.addApplication(app);
 	    _liveApplications.put(applicationName, app);
 	}
@@ -1850,8 +1866,21 @@ public class Coordinator
 
 			if(desc != null)
 			{
-			    IceGridGUI.Application.Root root = 
-				new IceGridGUI.Application.Root(Coordinator.this, desc, false, file);
+			    IceGridGUI.Application.Root root;
+			    try
+			    {
+				root = new IceGridGUI.Application.Root(Coordinator.this, desc, false, file);
+			    }
+			    catch(IceGridGUI.Application.UpdateFailedException ex)
+			    {
+				JOptionPane.showMessageDialog(
+				    _mainFrame,
+				    ex.toString(),
+				    "Bad Application Descriptor: Unable load from file",
+				    JOptionPane.ERROR_MESSAGE);
+				return;
+			    }
+			    
 			    ApplicationPane app = new ApplicationPane(root);
 			    _mainPane.addApplication(app);
 			    _mainPane.setSelectedComponent(app);
@@ -1887,10 +1916,14 @@ public class Coordinator
 			
 			if(appName != null)
 			{
-			    IceGridGUI.Application.Root root = openLiveApplication(appName).getRoot();
-			    if(root.getSelectedNode() == null)
+			    ApplicationPane app = openLiveApplication(appName);
+			    if(app != null)
 			    {
-				root.setSelectedNode(root);
+				IceGridGUI.Application.Root root = app.getRoot();
+				if(root.getSelectedNode() == null)
+				{
+				    root.setSelectedNode(root);
+				}
 			    }
 			}
 		    }
