@@ -23,6 +23,103 @@
 module IceGrid
 {
 
+class InternalDbEnvDescriptor
+{
+    /** The name of the database environment. */
+    string name;
+    
+    /** The database properties. */
+    PropertyDescriptorSeq properties;
+};
+sequence<InternalDbEnvDescriptor> InternalDbEnvDescriptorSeq;
+
+class InternalAdapterDescriptor
+{
+    /** The identifier of the server. */
+    string id;
+
+    /** Specifies if the lifetime of the adapter is the same as the server. */
+    bool serverLifetime;
+};
+sequence<InternalAdapterDescriptor> InternalAdapterDescriptorSeq;
+
+class InternalDistributionDescriptor
+{
+    /** The proxy of the IcePatch2 server. */
+    string icepatch;
+
+    /** The source directories. */
+    ["java:type:{java.util.LinkedList}"] Ice::StringSeq directories;
+};
+
+dictionary<string, PropertyDescriptorSeq> PropertyDescriptorSeqDict;
+
+class InternalServerDescriptor
+{
+    /** The server ID. */
+    string id;
+
+    /** The server application */
+    string application;
+
+    /** The application uuid. */
+    string uuid;
+    
+    /** The application revision. */
+    int revision;
+
+    /** The id of the session which allocated the server. */
+    string sessionId;
+
+    /** The server executable. */
+    string exe;
+    
+    /** The server working directory. */
+    string pwd;
+
+    /** The user ID to use to run the server. */
+    string user;
+    
+    /** The server activation mode. */
+    string activation;
+
+    /** The server activation timeout. */
+    string activationTimeout;
+    
+    /** The server activation timeout. */
+    string deactivationTimeout;
+
+    /** The Ice version used by the server. */
+    string iceVersion;
+
+    /** Specifies if the server depends on the application distrib. */
+    bool applicationDistrib;
+
+    /** The distribution descriptor of this server. */
+    InternalDistributionDescriptor distrib;
+
+    /** Specifies if a process object is registered. */
+    bool processRegistered;
+    
+    /** The server command line options. */
+    Ice::StringSeq options;
+    
+    /** The server environment variables. */
+    Ice::StringSeq envs;
+
+    /** The path of the server logs. */
+    Ice::StringSeq logs;
+
+    /** The indirect object adapters. */
+    InternalAdapterDescriptorSeq adapters;
+
+    /** The database environments. */
+    InternalDbEnvDescriptorSeq dbEnvs;
+
+    /** The configuration files of the server. */
+    PropertyDescriptorSeqDict properties;
+};
+
 /**
  *
  * This exception is raised if an adapter is active.
@@ -250,8 +347,8 @@ interface Node extends FileReader, ReplicaObserver
      * they will be created.
      *
      **/
-    ["amd", "ami"] idempotent Server* loadServer(ServerInfo svr,
-						 bool fromMaster,
+    ["amd", "ami"] idempotent Server* loadServer(InternalServerDescriptor svr,
+						 string replicaName,
 						 out AdapterPrxDict adapters, 
 						 out int actTimeout, 
 						 out int deactTimeout)
@@ -262,7 +359,7 @@ interface Node extends FileReader, ReplicaObserver
      * Destroy the given server.
      *
      **/
-    ["amd", "ami"] idempotent void destroyServer(string name, string uuid, int revision)
+    ["amd", "ami"] idempotent void destroyServer(string name, string uuid, int revision, string replicaName)
 	throws DeploymentException;
 
     /**
@@ -276,7 +373,7 @@ interface Node extends FileReader, ReplicaObserver
     ["amd"] idempotent void patch(PatcherFeedback* feedback, 
 				  string application, 
 				  string server, 
-				  DistributionDescriptor appDistrib, 
+				  InternalDistributionDescriptor appDistrib, 
 				  bool shutdown);
 
     /**
@@ -484,6 +581,101 @@ interface ReplicaSession
     void destroy();
 };
 
+/**
+ *
+ * Information about an IceGrid node.
+ *
+ **/
+class InternalNodeInfo
+{
+    /**
+     *
+     * The name of the node.
+     *
+     **/
+    string name;
+
+    /**
+     *
+     * The operating system name.
+     *
+     **/
+    string os;
+
+    /**
+     *
+     * The network name of the host running this node (as defined in
+     * uname()).
+     *
+     **/
+    string hostname;
+
+    /**
+     *
+     * The operation system release level (as defined in uname()).
+     * 
+     **/
+    string release;
+
+    /**
+     *
+     * The operation system version (as defined in uname()).
+     *
+     **/
+    string version;
+
+    /**
+     *
+     * The machine hardware type (as defined in uname()).
+     *
+     **/
+    string machine;    
+
+    /**
+     *
+     * The number of processors.
+     *
+     **/
+    int nProcessors;
+    
+    /**
+     *
+     * The path to the node data directory.
+     *
+     **/
+    string dataDir;
+};
+
+/**
+ *
+ * Information about an IceGrid registry replica.
+ *
+ **/
+class InternalReplicaInfo
+{
+    /**
+     *
+     * The name of the registry.
+     *
+     **/
+    string name;
+
+    /**
+     *
+     * The network name of the host running this registry (as defined in
+     * uname()).
+     *
+     **/
+    string hostname;
+
+    /**
+     *
+     * The client endpoints of the registry.
+     *
+     **/
+    string endpoints;
+};
+
 interface InternalRegistry extends FileReader
 {
     /**
@@ -502,10 +694,10 @@ interface InternalRegistry extends FileReader
      * registered and currently active.
      *
      **/
-    NodeSession* registerNode(NodeInfo info, Node* prx)
+    NodeSession* registerNode(InternalNodeInfo info, Node* prx)
 	throws NodeActiveException;
 
-    ReplicaSession* registerReplica(RegistryInfo info, InternalRegistry* prx)
+    ReplicaSession* registerReplica(InternalReplicaInfo info, InternalRegistry* prx)
 	throws ReplicaActiveException;
 
     void registerWithReplica(InternalRegistry* prx);

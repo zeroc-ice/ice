@@ -48,17 +48,16 @@ Database::Database(const Ice::ObjectAdapterPtr& registryAdapter,
 		   const IceStorm::TopicManagerPrx& topicManager,
 		   const string& instanceName,
 		   const TraceLevelsPtr& traceLevels,
-		   const RegistryInfo& info,
-		   bool master) :
+		   const RegistryInfo& info) :
     _communicator(registryAdapter->getCommunicator()),
     _internalAdapter(registryAdapter),
     _topicManager(topicManager),
     _envName("Registry"),
     _instanceName(instanceName),
     _traceLevels(traceLevels),  
-    _master(master),
+    _master(info.name == "Master"),
     _replicaCache(_communicator, topicManager),
-    _nodeCache(_communicator, _replicaCache, _master),
+    _nodeCache(_communicator, _replicaCache, info.name),
     _objectCache(_communicator),
     _allocatableObjectCache(_communicator),
     _serverCache(_communicator, _nodeCache, _adapterCache, _objectCache, _allocatableObjectCache),
@@ -310,14 +309,13 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session)
 		Lock sync(*this);
 		entries.clear();
 		unload(ApplicationHelper(_communicator, info.descriptor), entries);
-		finishUpdating(info.descriptor.name);
-		notifyAll();
 	    }
 	    catch(const DeploymentException& ex)
 	    {
 		Ice::Error err(_traceLevels->logger);
 		err << "failed to rollback previous application `" << info.descriptor.name << "':\n" << ex.reason;
 	    }
+	    finishUpdating(info.descriptor.name);
 	    throw ex;
 	}
     }
@@ -1473,8 +1471,6 @@ Database::finishApplicationUpdate(ServerEntrySeq& entries,
 		ApplicationHelper previous(_communicator, newDesc);
 		ApplicationHelper helper(_communicator, oldApp.descriptor);
 		reload(previous, helper, entries, oldApp.uuid, oldApp.revision);
-		finishUpdating(newDesc.name);
-		notifyAll();
 	    }
 
 	    try
@@ -1486,6 +1482,8 @@ Database::finishApplicationUpdate(ServerEntrySeq& entries,
 		Ice::Error err(_traceLevels->logger);
 		err << "failed to rollback previous application `" << oldApp.descriptor.name << "':\n" << ex.reason;
 	    }
+
+	    finishUpdating(newDesc.name);
 	    throw ex;
 	}
     }

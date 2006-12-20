@@ -12,6 +12,7 @@
 #include <IceGrid/ReplicaSessionI.h>
 #include <IceGrid/Database.h>
 #include <IceGrid/WellKnownObjectsManager.h>
+#include <IceGrid/PlatformInfo.h>
 
 using namespace std;
 using namespace IceGrid;
@@ -29,7 +30,7 @@ operator==(const ObjectInfo& info, const Ice::Identity& id)
 
 ReplicaSessionI::ReplicaSessionI(const DatabasePtr& database, 
 				 const WellKnownObjectsManagerPtr& wellKnownObjects,
-				 const RegistryInfo& info,
+				 const InternalReplicaInfoPtr& info,
 				 const InternalRegistryPrx& proxy,
 				 int timeout) :
     _database(database),
@@ -44,9 +45,9 @@ ReplicaSessionI::ReplicaSessionI(const DatabasePtr& database,
     __setNoDelete(true);
     try
     {
-	_database->getReplicaCache().add(info.name, this);
+	_database->getReplicaCache().add(info->name, this);
 	ObserverTopicPtr obsv = _database->getObserverTopic(RegistryObserverTopicName);
-	RegistryObserverTopicPtr::dynamicCast(obsv)->registryUp(_info);
+	RegistryObserverTopicPtr::dynamicCast(obsv)->registryUp(toRegistryInfo(_info));
 
 	Ice::ObjectPrx prx = _database->getInternalAdapter()->addWithUUID(this)->ice_timeout(timeout * 1000);
 	_proxy = ReplicaSessionPrx::uncheckedCast(prx);
@@ -73,7 +74,7 @@ ReplicaSessionI::keepAlive(const Ice::Current& current)
     if(_traceLevels->replica > 2)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
-	out << "replica `" << _info.name << "' keep alive ";
+	out << "replica `" << _info->name << "' keep alive ";
     }
 }
 
@@ -92,9 +93,9 @@ ReplicaSessionI::setDatabaseObserver(const DatabaseObserverPrx& observer, const 
 	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }	
     _observer = observer;
-    _database->getObserverTopic(ApplicationObserverTopicName)->subscribe(_observer, _info.name);
-    _database->getObserverTopic(AdapterObserverTopicName)->subscribe(_observer, _info.name);
-    _database->getObserverTopic(ObjectObserverTopicName)->subscribe(_observer, _info.name);
+    _database->getObserverTopic(ApplicationObserverTopicName)->subscribe(_observer, _info->name);
+    _database->getObserverTopic(AdapterObserverTopicName)->subscribe(_observer, _info->name);
+    _database->getObserverTopic(ObjectObserverTopicName)->subscribe(_observer, _info->name);
 }
 
 void
@@ -131,7 +132,7 @@ ReplicaSessionI::registerWellKnownObjects(const ObjectInfoSeq& objects, const Ic
     // are correctly setup when the replica starts accepting requests
     // from clients (if the replica is being started).
     //
-    _database->getObserverTopic(ObjectObserverTopicName)->waitForSyncedSubscribers(serial, _info.name);
+    _database->getObserverTopic(ObjectObserverTopicName)->waitForSyncedSubscribers(serial, _info->name);
 }
 
 void
@@ -153,7 +154,7 @@ ReplicaSessionI::receivedUpdate(TopicName topicName, int serial, const string& f
     ObserverTopicPtr topic = _database->getObserverTopic(topicName);
     if(topic)
     {
-	topic->receivedUpdate(_info.name, serial, failure);
+	topic->receivedUpdate(_info->name, serial, failure);
     }
 }
 
@@ -186,7 +187,7 @@ ReplicaSessionI::getInternalRegistry() const
     return _internalRegistry;
 }
  
-const RegistryInfo& 
+const InternalReplicaInfoPtr& 
 ReplicaSessionI::getInfo() const
 {
     return _info;
@@ -230,9 +231,9 @@ ReplicaSessionI::destroyImpl(bool shutdown)
 
     if(_observer)
     {
-	_database->getObserverTopic(ApplicationObserverTopicName)->unsubscribe(_observer, _info.name);
-	_database->getObserverTopic(AdapterObserverTopicName)->unsubscribe(_observer, _info.name);
-	_database->getObserverTopic(ObjectObserverTopicName)->unsubscribe(_observer, _info.name);
+	_database->getObserverTopic(ApplicationObserverTopicName)->unsubscribe(_observer, _info->name);
+	_database->getObserverTopic(AdapterObserverTopicName)->unsubscribe(_observer, _info->name);
+	_database->getObserverTopic(ObjectObserverTopicName)->unsubscribe(_observer, _info->name);
     }
 
     if(!_replicaWellKnownObjects.empty())
@@ -258,14 +259,14 @@ ReplicaSessionI::destroyImpl(bool shutdown)
     // Notify the observer that the registry is down.
     //
     ObserverTopicPtr obsv = _database->getObserverTopic(RegistryObserverTopicName);
-    RegistryObserverTopicPtr::dynamicCast(obsv)->registryDown(_info.name);
+    RegistryObserverTopicPtr::dynamicCast(obsv)->registryDown(_info->name);
 
     //
     // Remove the replica from the cache. This must be done last. As
     // soon as the replica is removed another session might be
     // created.
     //
-    _database->getReplicaCache().remove(_info.name, shutdown);
+    _database->getReplicaCache().remove(_info->name, shutdown);
 
     if(!shutdown)
     {

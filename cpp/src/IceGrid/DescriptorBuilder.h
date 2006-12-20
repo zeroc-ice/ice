@@ -288,7 +288,6 @@ public:
 
     virtual void addAdapter(const XmlAttributesHelper&);
     virtual void addDbEnv(const XmlAttributesHelper&);
-    virtual void addLog(const XmlAttributesHelper&);
     virtual void addServiceInstance(const ServiceInstanceDescriptor&);
     virtual void addService(const ServiceDescriptorPtr&);
 

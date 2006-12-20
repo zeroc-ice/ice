@@ -18,11 +18,129 @@
 #include <IceGrid/ReplicaCache.h>
 #include <IceGrid/DescriptorHelper.h>
 
+#include <IcePatch2/Util.h>
+
 using namespace std;
 using namespace IceGrid;
 
 namespace IceGrid
 {
+
+struct ToInternalServerDescriptor : std::unary_function<CommunicatorDescriptorPtr&, void>
+{
+    ToInternalServerDescriptor(const InternalServerDescriptorPtr& descriptor, const InternalNodeInfoPtr& node) :
+	_desc(descriptor),
+	_node(node)
+    {
+    }
+    
+    void
+    operator()(const CommunicatorDescriptorPtr& desc)
+    {
+	//
+	// Figure out the configuration file name for the communicator
+	// (if it's a service, it's "config_<service name>", if it's
+	// the server, it's just "config").
+	//
+	string filename = "config";
+	ServiceDescriptorPtr svc = ServiceDescriptorPtr::dynamicCast(desc);
+	if(svc)
+	{
+	    filename += "_" + svc->name;
+	}
+	PropertyDescriptorSeq& props = _desc->properties[filename];
+
+	PropertyDescriptorSeq communicatorProps = desc->propertySet.properties;
+
+	//
+	// Add the adapters and their configuration.
+	//
+	string oaPropertyPrefix = "Ice.OA.";
+	if(getMMVersion(_desc->iceVersion) < 30200)
+	{
+	    oaPropertyPrefix = "";
+	}
+
+	for(AdapterDescriptorSeq::const_iterator q = desc->adapters.begin(); q != desc->adapters.end(); ++q)
+	{
+	    _desc->adapters.push_back(new InternalAdapterDescriptor(q->id, q->serverLifetime));
+
+	    props.push_back(createProperty("# Object adapter " + q->name));
+	    PropertyDescriptor prop = removeProperty(communicatorProps, "Ice.OA." + q->name + ".Endpoints");
+	    prop.name = oaPropertyPrefix + q->name + ".Endpoints";
+	    props.push_back(prop);
+	    props.push_back(createProperty(oaPropertyPrefix + q->name + ".AdapterId", q->id));
+	    if(!q->replicaGroupId.empty())
+	    {
+		props.push_back(createProperty(oaPropertyPrefix + q->name + ".ReplicaGroupId", q->replicaGroupId));
+	    }
+	    if(q->registerProcess)
+	    {
+		props.push_back(createProperty(oaPropertyPrefix + q->name + ".RegisterProcess", "1"));
+		_desc->processRegistered = true;
+	    }
+	}
+
+	_desc->logs.insert(_desc->logs.end(), desc->logs.begin(), desc->logs.end());
+
+	const string dbsPath = _node->dataDir + "/servers/" + _desc->id + "/dbs/";
+	for(DbEnvDescriptorSeq::const_iterator p = desc->dbEnvs.begin(); p != desc->dbEnvs.end(); ++p)
+	{
+	    props.push_back(createProperty("# Database environment " + p->name));
+	    if(p->dbHome.empty())
+	    {
+		_desc->dbEnvs.push_back(new InternalDbEnvDescriptor(p->name, p->properties));
+		props.push_back(createProperty("Freeze.DbEnv." + p->name + ".DbHome", dbsPath + p->name));
+	    }
+	    else
+	    {
+		props.push_back(createProperty("Freeze.DbEnv." + p->name + ".DbHome", p->dbHome));
+	    }
+	}
+
+	//
+	// Copy the communicator descriptor properties.
+	//
+	if(!communicatorProps.empty())
+	{
+	    if(svc)
+	    {
+		props.push_back(createProperty("# Service descriptor properties"));
+	    }
+	    else
+	    {
+		props.push_back(createProperty("# Server descriptor properties"));
+	    }
+	    copy(communicatorProps.begin(), communicatorProps.end(), back_inserter(props));
+	}
+    }
+
+    PropertyDescriptor
+    removeProperty(PropertyDescriptorSeq& properties, const string& name)
+    {
+	string value;
+	PropertyDescriptorSeq::iterator p = properties.begin();
+	while(p != properties.end())
+	{
+	    if(p->name == name)
+	    {
+		value = p->value; 
+		p = properties.erase(p);
+	    }
+	    else
+	    {
+		++p;
+	    }
+	}
+	PropertyDescriptor desc;
+	desc.name = name;
+	desc.value = value;
+	return desc;
+    }
+
+    InternalServerDescriptorPtr _desc;
+    InternalNodeInfoPtr _node;
+};
 
 class LoadCB : public AMI_Node_loadServer
 {
@@ -186,9 +304,9 @@ private:
 
 };
 
-NodeCache::NodeCache(const Ice::CommunicatorPtr& communicator, ReplicaCache& replicaCache, bool master) :
+NodeCache::NodeCache(const Ice::CommunicatorPtr& communicator, ReplicaCache& replicaCache, const string& replicaName) :
     _communicator(communicator),
-    _master(master),
+    _replicaName(replicaName),
     _replicaCache(replicaCache)
 {
 }
@@ -341,7 +459,7 @@ NodeEntry::getProxy() const
     return _session->getNode();
 }
 
-NodeInfo
+InternalNodeInfoPtr
 NodeEntry::getInfo() const
 {
     Lock sync(*this);
@@ -385,7 +503,7 @@ NodeEntry::getLoadInfoAndLoadFactor(const string& application, float& loadFactor
     }
     if(loadFactor < 0.0f)
     {
-	if(_session->getInfo().os != "Windows")
+	if(_session->getInfo()->os != "Windows")
 	{
 	    //
 	    // On Unix platforms, we divide the load averages by the
@@ -393,7 +511,7 @@ NodeEntry::getLoadInfoAndLoadFactor(const string& application, float& loadFactor
 	    // machine is the same as a load of 1 on a single process
 	    // machine.
 	    //
-	    loadFactor = 1.0f / _session->getInfo().nProcessors;
+	    loadFactor = 1.0f / _session->getInfo()->nProcessors;
 	}
 	else
 	{
@@ -423,7 +541,7 @@ NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, con
     {
 	NodePrx node;
 	int sessionTimeout;
-	ServerDescriptorPtr desc;
+	InternalServerDescriptorPtr desc;
 	{
 	    Lock sync(*this);
 	    checkSession();
@@ -441,9 +559,10 @@ NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, con
 		node = NodePrx::uncheckedCast(node->ice_timeout(timeout + sessionTimeout));
 	    }
 
+	    ServerInfo info = server;
 	    try
 	    {
-		desc = getServerDescriptor(server, session);
+		info.descriptor = getServerDescriptor(server, session);
 	    }
 	    catch(const DeploymentException&)
 	    {
@@ -453,13 +572,8 @@ NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, con
 		// being defined because the server isn't
 		// allocated...)
 		//
-		// TODO: Once we have node-bound & not node-bound
-		// servers, we shouldn't ignore errors anymore
-		// (session servers will only be bound to the node if
-		// they are allocated by a session).
-		//
-		desc = server.descriptor;
 	    }
+	    desc = getInternalServerDescriptor(info);
 	}
 	assert(desc);
 	
@@ -474,9 +588,7 @@ NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, con
 	}
 	
 	AMI_Node_loadServerPtr amiCB = new LoadCB(_cache.getTraceLevels(), entry, _name, sessionTimeout);
-	ServerInfo info = server;
-	info.descriptor = desc;
-	node->loadServer_async(amiCB, info, _cache.isMaster());
+	node->loadServer_async(amiCB, desc, _cache.getReplicaName());
     }
     catch(const NodeUnreachableException& ex)
     {
@@ -515,7 +627,7 @@ NodeEntry::destroyServer(const ServerEntryPtr& entry, const ServerInfo& info, in
 	}
 
 	AMI_Node_destroyServerPtr amiCB = new DestroyCB(_cache.getTraceLevels(), entry, _name);
-	node->destroyServer_async(amiCB, info.descriptor->id, info.uuid, info.revision);
+	node->destroyServer_async(amiCB, info.descriptor->id, info.uuid, info.revision, _cache.getReplicaName());
     }
     catch(const NodeUnreachableException& ex)
     {
@@ -713,4 +825,74 @@ NodeEntry::finishedRegistration(const Ice::Exception& ex)
 	_registering = false;
 	notifyAll();
     }
+}
+
+InternalServerDescriptorPtr
+NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
+{
+    assert(_session);
+
+    InternalServerDescriptorPtr server = new InternalServerDescriptor();
+    server->id = info.descriptor->id;
+    server->application = info.application;
+    server->uuid = info.uuid;
+    server->revision = info.revision;
+    server->sessionId = info.sessionId;
+    server->exe = info.descriptor->exe;
+    server->pwd = info.descriptor->pwd;
+    server->user = info.descriptor->user;
+    server->activation = info.descriptor->activation;
+    server->activationTimeout = info.descriptor->activationTimeout;
+    server->deactivationTimeout = info.descriptor->deactivationTimeout;
+    if(!info.descriptor->iceVersion.empty())
+    {
+	server->iceVersion = info.descriptor->iceVersion;
+    }
+    else
+    {
+	server->iceVersion = string(ICE_STRING_VERSION);
+    }
+    server->applicationDistrib = info.descriptor->applicationDistrib;
+    if(!info.descriptor->distrib.icepatch.empty())
+    {
+	server->distrib = new InternalDistributionDescriptor(info.descriptor->distrib.icepatch, 
+							     info.descriptor->distrib.directories);
+    }
+    server->options = info.descriptor->options;
+    server->envs = info.descriptor->envs;
+    server->processRegistered = false; // Assigned for each communicator (see below)
+    // server->logs: assigned for each communicator (see below)
+    // server->adapters: assigned for each communicator (see below)
+    // server->dbEnvs: assigned for each communicator (see below)
+    // server->properties: assigned for each communicator (see below)
+
+    //
+    // Add server properties.
+    //
+    PropertyDescriptorSeq& props = server->properties["config"];
+    props.push_back(createProperty("# Server configuration"));
+    props.push_back(createProperty("Ice.ServerId", info.descriptor->id));
+    props.push_back(createProperty("Ice.ProgramName", info.descriptor->id));
+    string servicesStr;
+    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(info.descriptor);
+    if(iceBox)
+    {
+	for(ServiceInstanceDescriptorSeq::const_iterator p = iceBox->services.begin(); p != iceBox->services.end();++p)
+	{
+	    ServiceDescriptorPtr s = p->descriptor;
+	    const string path = _session->getInfo()->dataDir + "/servers/" + server->id + "/config/config_" + s->name;
+	    props.push_back(
+		createProperty("IceBox.Service." + s->name, s->entry + " --Ice.Config=\"" + path + "\""));
+	    servicesStr += s->name + " ";
+	}
+	props.push_back(createProperty("IceBox.LoadOrder", servicesStr));
+    }
+
+    //
+    // Now, for each communicator of the descriptor, add the necessary
+    // logs, adapters, db envs and properties to the internal server 
+    // descriptor.
+    //
+    forEachCommunicator(ToInternalServerDescriptor(server, _session->getInfo()))(info.descriptor);
+    return server;
 }

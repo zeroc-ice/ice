@@ -373,31 +373,31 @@ Resolver::Resolver(const Resolver& resolve,
     }
 }
 
-Resolver::Resolver(const NodeInfo& info, const Ice::CommunicatorPtr& com) :
+Resolver::Resolver(const InternalNodeInfoPtr& info, const Ice::CommunicatorPtr& com) :
     _application(0),
     _communicator(com),
     _escape(true),
-    _context("node `" + info.name + "'"),
+    _context("node `" + info->name + "'"),
     _reserved(getReserved())
 {
-    setReserved("node", info.name);
-    setReserved("node.os", info.os);
-    setReserved("node.hostname", info.hostname);
-    setReserved("node.release", info.release);
-    setReserved("node.version", info.version);
-    setReserved("node.machine", info.machine);
-    setReserved("node.datadir", info.dataDir);
+    setReserved("node", info->name);
+    setReserved("node.os", info->os);
+    setReserved("node.hostname", info->hostname);
+    setReserved("node.release", info->release);
+    setReserved("node.version", info->version);
+    setReserved("node.machine", info->machine);
+    setReserved("node.datadir", info->dataDir);
 }
 
 string 
-Resolver::operator()(const string& value, const string& name, bool allowEmpty, bool useParams) const
+Resolver::operator()(const string& value, const string& name, bool allowEmpty) const
 {
     try
     {
 	string val;
 	try
 	{
-	    val = substitute(value, useParams);
+	    val = substitute(value, true, true);
 	}
 	catch(const string& reason)
 	{
@@ -416,18 +416,18 @@ Resolver::operator()(const string& value, const string& name, bool allowEmpty, b
 	    }
 	    else if(val.empty())
 	    {
-		throw "the value of the variable `" + value + "' is an empty string";
+		throw "the value of `" + value + "' is an empty string";
 	    }
 	}
 	return val;
     }
     catch(const string& reason)
     {
-	exception("invalid value for attribute `" + name + "': " + reason);
+	exception("invalid value for attribute `" + name + "':\n" + reason);
     }
     catch(const char* reason)
     {
-	exception("invalid value for attribute `" + name + "': " + reason);
+	exception("invalid value for attribute `" + name + "':\n" + reason);
     }
     return ""; // To prevent compiler warning.
 }
@@ -482,7 +482,7 @@ Resolver::operator()(const PropertySetDescriptorDict& propertySets) const
 }
 
 ObjectDescriptorSeq
-Resolver::operator()(const ObjectDescriptorSeq& objects, const string& type, bool allowProperty) const
+Resolver::operator()(const ObjectDescriptorSeq& objects, const string& type) const
 {
     ObjectDescriptorSeq result;
     for(ObjectDescriptorSeq::const_iterator q = objects.begin(); q != objects.end(); ++q)
@@ -490,11 +490,6 @@ Resolver::operator()(const ObjectDescriptorSeq& objects, const string& type, boo
 	ObjectDescriptor obj;
 	obj.type = operator()(q->type, type + " object type");
 	obj.id = operator()(q->id, type + " object identity");
-	if(!allowProperty && !q->property.empty())
-	{
-	    exception("invalid object descriptor: property attribute is not allowed to be set in this context");
-	}
-	obj.property = operator()(q->property, type + " object property");
 	result.push_back(obj);
     }
     return result;
@@ -504,7 +499,7 @@ Ice::Identity
 Resolver::operator()(const Ice::Identity& value, const string& name) const
 {
     assert(_communicator);
-    string str = operator()(_communicator->identityToString(value), name, false);
+    string str = asId(_communicator->identityToString(value), name, false);
     Ice::Identity id = _communicator->stringToIdentity(str);
     if(id.name.empty())
     {
@@ -537,9 +532,7 @@ Resolver::asInt(const string& value, const string& name) const
 	istringstream is(v);
 	if(!(is >> val) || !is.eof())
 	{
-	    DeploymentException ex;
-	    ex.reason = "invalid value `" + value + "' for `" + name + "' in " + _context + ": not an integer";
-	    throw ex;
+	    exception("invalid value `" + value + "' for `" + name + "':\nnot an integer");
 	}
 
 	ostringstream os;
@@ -563,12 +556,51 @@ Resolver::asFloat(const string& value, const string& name) const
 	istringstream is(v);
 	if(!(is >> val) || !is.eof())
 	{
-	    DeploymentException ex;
-	    ex.reason = "invalid value `" + value + "' for `" + name + "' in " + _context + ": not a float";
-	    throw ex;
+	    exception("invalid value `" + value + "' for `" + name + "':\nnot a float");
 	}
     }
     return v;
+}
+
+string
+Resolver::asId(const string& value, const string& name, bool allowEmpty) const
+{
+    try
+    {
+	if(!allowEmpty && value.empty())
+	{
+	    throw "empty string";
+	}
+
+	string val;
+	try
+	{
+	    val = substitute(value, true, false);
+	}
+	catch(const string& reason)
+	{
+	    throw "invalid variable `" + value + "':\n" + reason;
+	}
+	catch(const char* reason)
+	{
+	    throw "invalid variable `" + value + "':\n" + reason;
+	}
+
+	if(!allowEmpty && val.empty())
+	{
+	    throw "the value of `" + value + "' is an empty string";
+	}
+	return val;
+    }
+    catch(const string& reason)
+    {
+	exception("invalid value for attribute `" + name + "':\n" + reason);
+    }
+    catch(const char* reason)
+    {
+	exception("invalid value for attribute `" + name + "':\n" + reason);
+    }
+    return ""; // To prevent compiler warning.
 }
 
 void
@@ -583,7 +615,7 @@ Resolver::setContext(const string& context)
 {
     try
     {
-	_context = substitute(context, true);
+	_context = substitute(context, true, true);
     }
     catch(const string& reason)
     {
@@ -646,7 +678,7 @@ Resolver::addIgnored(const string& name)
 void
 Resolver::exception(const string& reason) const
 {
-    throw DeploymentException(_context + ": " + reason);
+    throw DeploymentException(_context + ":\n" + reason);
 }
 
 TemplateDescriptor
@@ -699,7 +731,7 @@ Resolver::hasReplicaGroup(const string& id) const
 }
 
 string
-Resolver::substitute(const string& v, bool useParams) const
+Resolver::substitute(const string& v, bool useParams, bool useIgnored) const
 {
     string value(v);
     string::size_type beg = 0;
@@ -739,7 +771,7 @@ Resolver::substitute(const string& v, bool useParams) const
 
 	//
 	// Get the name of the variable and get its value if the
-	// variable is not current ignored (in which case we do
+	// variable is not currently ignored (in which case we do
 	// nothing, the variable will be substituted later). If the
 	// name refered to a parameter we don't do any recursive
 	// substitution: the parameter value is computed at the point
@@ -748,14 +780,22 @@ Resolver::substitute(const string& v, bool useParams) const
 	string name = value.substr(beg + 2, end - beg - 2);
 	if(_ignore.find(name) != _ignore.end())
 	{
-	    ++beg;
-	    continue;
+	    if(useIgnored)
+	    {
+		++beg;
+		continue;
+	    }
+	    else
+	    {
+		throw "use of the `" + name + "' variable is now allowed here";
+	    }
 	}
+
 	bool param;
 	string val = getVariable(name, useParams, param);
 	if(!param)
 	{
-	    val = substitute(val, false); // Recursive resolution
+	    val = substitute(val, false, useIgnored); // Recursive resolution
 	}
 	value.replace(beg, end - beg + 1, val);
 	beg += val.length();
@@ -946,26 +986,23 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
 	AdapterDescriptor adapter;
 	adapter.name = resolve(p->name, "object adapter name", false);
 	adapter.description = resolve(p->description, "object adapter description");
-	adapter.id = resolve(p->id, "object adapter id", false);
+	adapter.id = resolve.asId(p->id, "object adapter id");
 	adapter.registerProcess = p->registerProcess;
 	adapter.serverLifetime = p->serverLifetime;
-	adapter.replicaGroupId = resolve(p->replicaGroupId, "object adapter replica group id");
+	adapter.replicaGroupId = resolve.asId(p->replicaGroupId, "object adapter replica group id", true);
 	if(!adapter.replicaGroupId.empty() && !resolve.hasReplicaGroup(adapter.replicaGroupId))
 	{
 	    resolve.exception("unknown replica group `" + adapter.replicaGroupId + "'");
 	}
 	adapter.priority = resolve.asInt(p->priority, "object adapter priority");
-	adapter.objects = resolve(p->objects, "well-known", true);
-	adapter.allocatables = resolve(p->allocatables, "allocatable", true);
+	adapter.objects = resolve(p->objects, "well-known");
+	adapter.allocatables = resolve(p->allocatables, "allocatable");
 	instance->adapters.push_back(adapter);
 
 	//
 	// Make sure the endpoints are defined.
 	//
-	// DEPRECATED PROPERY: Remove extra code in future release.
-	//
-	if(IceGrid::getProperty(instance->propertySet.properties, "Ice.OA." + adapter.name + ".Endpoints").empty() &&
-	   IceGrid::getProperty(instance->propertySet.properties, adapter.name + ".Endpoints").empty())
+	if(IceGrid::getProperty(instance->propertySet.properties, "Ice.OA." + adapter.name + ".Endpoints").empty())
 	{
 	    resolve.exception("invalid endpoints for adapter `" + adapter.name + "': empty string");
 	}
@@ -981,12 +1018,9 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
 	instance->dbEnvs.push_back(dbEnv);
     }
 
-    for(LogDescriptorSeq::const_iterator l = _desc->logs.begin(); l != _desc->logs.end(); ++l)
+    for(Ice::StringSeq::const_iterator l = _desc->logs.begin(); l != _desc->logs.end(); ++l)
     {
-	LogDescriptor desc;
-	desc.path = resolve(l->path, "log path", false);
-	desc.property = resolve(l->property, "log property");
-	instance->logs.push_back(desc);
+	instance->logs.push_back(resolve(*l, "log path", false));
     }
 }
 
@@ -1000,7 +1034,7 @@ CommunicatorHelper::print(Output& out) const
 	out << nl << _desc->description;
 	out << eb;
     }
-    printPropertySet(out, _desc->propertySet);
+    set<string> hiddenProperties;
     {
 	for(DbEnvDescriptorSeq::const_iterator p = _desc->dbEnvs.begin(); p != _desc->dbEnvs.end(); ++p)
 	{
@@ -1010,14 +1044,33 @@ CommunicatorHelper::print(Output& out) const
     {
 	for(AdapterDescriptorSeq::const_iterator p = _desc->adapters.begin(); p != _desc->adapters.end(); ++p)
 	{
+	    hiddenProperties.insert("Ice.OA." + p->name + ".Endpoints");
 	    printObjectAdapter(out, *p);
 	}
     }
     {
-	for(LogDescriptorSeq::const_iterator p = _desc->logs.begin(); p != _desc->logs.end(); ++p)
+	for(Ice::StringSeq::const_iterator p = _desc->logs.begin(); p != _desc->logs.end(); ++p)
 	{
-	    out << nl << "log `" << p->path << "' (property = `" + p->property +"')";
+	    out << nl << "log `" << *p << "'";
 	}
+    }
+    if(!_desc->propertySet.properties.empty() || !_desc->propertySet.references.empty())
+    {
+	out << nl << "properties";
+	out << sb;
+	if(!_desc->propertySet.references.empty())
+	{
+	    out << nl << "references = " << toString(_desc->propertySet.references);
+	}
+	PropertyDescriptorSeq::const_iterator q;
+	for(q = _desc->propertySet.properties.begin(); q != _desc->propertySet.properties.end(); ++q)
+	{
+	    if(hiddenProperties.find(q->name) == hiddenProperties.end())
+	    {
+		out << nl << q->name << " = `" << q->value << "'";
+	    }
+	}
+	out << eb;
     }
 }
 
@@ -1067,14 +1120,8 @@ CommunicatorHelper::printObjectAdapter(Output& out, const AdapterDescriptor& ada
     {
 	out << nl << "priority = `" << adapter.priority << "'";
     }
-    //
-    // DEPRECATED PROPERTY: Remove extra code in future release.
-    //
+
     string endpoints = getProperty("Ice.OA." + adapter.name + ".Endpoints");
-    if(endpoints.empty())
-    {
-        endpoints = getProperty(adapter.name + ".Endpoints");
-    }
     if(!endpoints.empty())
     {
 	out << nl << "endpoints = `" << endpoints << "'";
@@ -1091,10 +1138,6 @@ CommunicatorHelper::printObjectAdapter(Output& out, const AdapterDescriptor& ada
 	{
 	    out << nl << "type = `" << p->type << "'";
 	}
-	if(!p->property.empty())
-	{
-	    out << nl << "property = `" << p->property << "'";
-	}
 	out << eb;
     }
     for(p = adapter.allocatables.begin(); p != adapter.allocatables.end(); ++p)
@@ -1106,37 +1149,11 @@ CommunicatorHelper::printObjectAdapter(Output& out, const AdapterDescriptor& ada
 	{
 	    out << nl << "type = `" << p->type << "'";
 	}
-	if(!p->property.empty())
-	{
-	    out << nl << "property = `" << p->property << "'";
-	}
 	out << eb;
     }
     if(!adapter.description.empty())
     {
 	out << nl << "description = `" << adapter.description << "'";
-    }
-    out << eb;
-}
-
-void
-CommunicatorHelper::printPropertySet(Output& out, const PropertySetDescriptor& propertySet) const
-{
-    if(propertySet.properties.empty() && propertySet.references.empty())
-    {
-	return;
-    }
-
-    out << nl << "properties";
-    out << sb;
-    if(!propertySet.references.empty())
-    {
-	out << nl << "references = " << toString(propertySet.references);
-    }
-    PropertyDescriptorSeq::const_iterator q;
-    for(q = propertySet.properties.begin(); q != propertySet.properties.end(); ++q)
-    {
-	out << nl << q->name << " = `" << q->value << "'";
     }
     out << eb;
 }
@@ -1295,6 +1312,11 @@ ServerHelper::operator==(const ServerHelper& helper) const
 	return false;
     }
 
+    if(_desc->iceVersion != helper._desc->iceVersion)
+    {
+	return false;
+    }
+
     return true;
 }
 
@@ -1375,6 +1397,10 @@ ServerHelper::printImpl(Output& out, const ServerInfo& info) const
     {
 	out << nl << "user = `" << _desc->user << "'";
     }
+    if(!_desc->iceVersion.empty())
+    {
+	out << nl << "ice version = `" << _desc->iceVersion << "'";
+    }
     if(!_desc->applicationDistrib)
     {
 	out << nl << "application distribution = `false'";
@@ -1408,13 +1434,27 @@ ServerHelper::instantiateImpl(const ServerDescriptorPtr& instance,
 {
     CommunicatorHelper::instantiateImpl(instance, resolve);
 
-    instance->id = resolve(_desc->id, "id", false);
+    instance->id = resolve.asId(_desc->id, "id", false);
     instance->exe = resolve(_desc->exe, "executable", false);
     instance->pwd = resolve(_desc->pwd, "working directory path");
     instance->activation = resolve(_desc->activation, "activation");
     instance->applicationDistrib = _desc->applicationDistrib;
     instance->allocatable = _desc->allocatable;
     instance->user = resolve(_desc->user, "user");
+    instance->iceVersion = resolve(_desc->iceVersion, "ice version");
+    if(!instance->iceVersion.empty())
+    {
+	int version = getMMVersion(instance->iceVersion);
+	if(version < 0)
+	{
+	    resolve.exception("invalid  ice version: " + instance->iceVersion);
+	}
+	else if(version > ICE_INT_VERSION)
+	{
+	    resolve.exception("invalid ice version: " + instance->iceVersion + " is superior to the IceGrid \n"
+			      "registry version (" + ICE_STRING_VERSION + ")");
+	}
+    }
     if(!instance->activation.empty() && 
        instance->activation != "manual" &&
        instance->activation != "on-demand" &&
@@ -1494,14 +1534,8 @@ IceBoxHelper::print(Output& out, const ServerInfo& info) const
 {
     out << "icebox `" + _desc->id + "'";
     out << sb;
-    //
-    // DEPRECATED PROPERTY: Remove extra code in future release.
-    //
+
     string endpoints = getProperty("Ice.OA.IceBox.ServiceManager.Endpoints");
-    if(endpoints.empty())
-    {
-        endpoints = getProperty("IceBox.ServiceManager.Endpoints");
-    }
     out << nl << "service manager endpoints = `" << endpoints << "'";
     printImpl(out, info);
     for(vector<ServiceInstanceHelper>::const_iterator p = _services.begin(); p != _services.end(); ++p)
@@ -2378,9 +2412,9 @@ ApplicationHelper::ApplicationHelper(const Ice::CommunicatorPtr& communicator, c
     for(r = _def.replicaGroups.begin(); r != _def.replicaGroups.end(); ++r)
     {
 	ReplicaGroupDescriptor desc;
-	desc.id = r->id;
+	desc.id = resolve.asId(r->id, "replica group id", false);
 	desc.description = resolve(r->description, "replica group description");
-	desc.objects = resolve(r->objects, "replica group well-known", false);
+	desc.objects = resolve(r->objects, "replica group well-known");
 	if(!r->loadBalancing)
 	{
 	    resolve.exception("replica group load balancing is not set");

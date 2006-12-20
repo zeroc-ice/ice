@@ -88,11 +88,11 @@ public:
 
     bool isAdapterActivatable(const std::string&) const;
     const std::string& getId() const;
-    DistributionDescriptor getDistribution() const;
+    InternalDistributionDescriptorPtr getDistribution() const;
 
     void start(ServerActivation, const AMD_Server_startPtr& = AMD_Server_startPtr());
-    ServerCommandPtr load(const AMD_Node_loadServerPtr&, const ServerInfo&, bool);
-    ServerCommandPtr destroy(const AMD_Node_destroyServerPtr&, const std::string&, int);
+    ServerCommandPtr load(const AMD_Node_loadServerPtr&, const InternalServerDescriptorPtr&, const std::string&);
+    ServerCommandPtr destroy(const AMD_Node_destroyServerPtr&, const std::string&, int, const std::string&);
     bool startPatch(bool);
     bool waitForPatch();
     void finishPatch();
@@ -111,8 +111,9 @@ public:
 
 private:
     
-    void updateImpl(const ServerInfo&);
-    void updateRevisionFile();
+    void updateImpl(const InternalServerDescriptorPtr&);
+    void checkRevision(const std::string&, const std::string&, int) const;
+    void updateRevision(const std::string&, int);
     void checkActivation();
     void checkDestroyed() const;
     void disableOnFailure();
@@ -122,10 +123,6 @@ private:
     ServerCommandPtr nextCommand();
     void setStateNoSync(InternalServerState, const std::string& = std::string());
     
-    std::string addAdapter(const AdapterDescriptor&, const CommunicatorDescriptorPtr&);
-    void updateConfigFile(const std::string&, const CommunicatorDescriptorPtr&);
-    void updateDbEnv(const std::string&, const DbEnvDescriptor&);
-    PropertyDescriptor createProperty(const std::string&, const std::string& = std::string());
     void createOrUpdateDirectory(const std::string&);
     ServerState toServerState(InternalServerState) const;
     ServerActivation toServerActivation(const std::string&) const;
@@ -139,7 +136,7 @@ private:
     const std::string _serverDir;
     const int _disableOnFailure;
 
-    ServerInfo _info;
+    InternalServerDescriptorPtr _desc;
 #ifndef _WIN32
     uid_t _uid;
     gid_t _gid;
@@ -160,7 +157,8 @@ private:
     bool _waitForReplication;
     std::string _stdErrFile;
     std::string _stdOutFile;
-    std::set<std::string> _logs;
+    Ice::StringSeq _logs;
+    PropertyDescriptorSeq _properties;
 
     DestroyCommandPtr _destroy;
     StopCommandPtr _stop;
@@ -210,7 +208,7 @@ class DestroyCommand : public ServerCommand
 {
 public:
 
-    DestroyCommand(const ServerIPtr&, bool);
+    DestroyCommand(const ServerIPtr&, bool = false);
 
     bool canExecute(ServerI::InternalServerState);
     ServerI::InternalServerState nextState();
@@ -218,10 +216,11 @@ public:
 
     void addCallback(const AMD_Node_destroyServerPtr&);
     void finished();
+    bool loadFailure() const;
 
 private:
 
-    const bool _kill;
+    const bool _loadFailure;
     std::vector<AMD_Node_destroyServerPtr> _destroyCB;
 };
 
@@ -297,9 +296,9 @@ public:
     ServerI::InternalServerState nextState();
     void execute();
 
-    void setUpdate(const ServerInfo&, bool);
+    void setUpdate(const InternalServerDescriptorPtr&, bool);
     bool clearDir() const;
-    ServerInfo getServerInfo() const;
+    InternalServerDescriptorPtr getInternalServerDescriptor() const;
     void addCallback(const AMD_Node_loadServerPtr&);
     void failed(const Ice::Exception&);
     void finished(const ServerPrx&, const AdapterPrxDict&, int, int);
@@ -308,7 +307,7 @@ private:
 
     std::vector<AMD_Node_loadServerPtr> _loadCB;
     bool _clearDir;
-    ServerInfo _info;
+    InternalServerDescriptorPtr _desc;
     std::auto_ptr<DeploymentException> _exception;
 };
 

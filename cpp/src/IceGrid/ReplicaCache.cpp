@@ -267,7 +267,7 @@ ReplicaEntry::getSession() const
     return _session;
 }
 
-RegistryInfo
+InternalReplicaInfoPtr
 ReplicaEntry::getInfo() const
 {
     return _session->getInfo();

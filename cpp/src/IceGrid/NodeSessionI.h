@@ -25,7 +25,7 @@ class NodeSessionI : public NodeSession, public IceUtil::Mutex
 {
 public:
 
-    NodeSessionI(const DatabasePtr&, const NodePrx&, const NodeInfo&, int);
+    NodeSessionI(const DatabasePtr&, const NodePrx&, const InternalNodeInfoPtr&, int);
 
     virtual void keepAlive(const LoadInfo&, const Ice::Current&);
     virtual void setReplicaObserver(const ReplicaObserverPrx&, const Ice::Current&);
@@ -41,7 +41,7 @@ public:
     virtual void shutdown();
 
     const NodePrx& getNode() const;
-    const NodeInfo& getInfo() const;
+    const InternalNodeInfoPtr& getInfo() const;
     const LoadInfo& getLoadInfo() const;
     NodeSessionPrx getProxy() const;
 
@@ -55,7 +55,7 @@ private:
     const TraceLevelsPtr _traceLevels;
     const std::string _name;
     const NodePrx _node;
-    const NodeInfo _info;
+    const InternalNodeInfoPtr _info;
     const int _timeout;
     NodeSessionPrx _proxy;
     ReplicaObserverPrx _replicaObserver;

@@ -14,8 +14,8 @@ from threading import Thread
 #
 # Set nreplicas to a number N to test replication with N replicas.
 #
-nreplicas=0
-#nreplicas=2
+#nreplicas=0
+nreplicas=1
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -34,7 +34,7 @@ nodeOptions = r' --Ice.Warn.Connections=0' + \
               r' --IceGrid.Node.Trace.Activator=0' + \
               r' --IceGrid.Node.Trace.Adapter=0' + \
               r' --IceGrid.Node.Trace.Server=0' + \
-              r' --IceGrid.Node.ThreadPool.SizeWarn=0' + \
+              r' --Ice.OA.IceGrid.Node.ThreadPool.SizeWarn=0' + \
               r' --IceGrid.Node.PrintServersReady=node' + \
 	      r' --Ice.NullHandleAbort' + \
               r' --Ice.ThreadPool.Server.Size=0' + \

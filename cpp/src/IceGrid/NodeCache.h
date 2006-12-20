@@ -48,7 +48,7 @@ public:
     void setSavedProxy(const NodePrx&);
 
     NodePrx getProxy() const;
-    NodeInfo getInfo() const;
+    InternalNodeInfoPtr getInfo() const;
     ServerEntrySeq getServers() const;
     LoadInfo getLoadInfoAndLoadFactor(const std::string&, float&) const;
 
@@ -69,6 +69,7 @@ public:
 private:
     
     ServerDescriptorPtr getServerDescriptor(const ServerInfo&, const SessionIPtr&);
+    InternalServerDescriptorPtr getInternalServerDescriptor(const ServerInfo&) const;
 
     NodeCache& _cache;
     IceUtil::Mutex _refMutex;
@@ -87,18 +88,18 @@ class NodeCache : public CacheByString<NodeEntry>
 {
 public:
 
-    NodeCache(const Ice::CommunicatorPtr&, ReplicaCache&, bool);
+    NodeCache(const Ice::CommunicatorPtr&, ReplicaCache&, const std::string&);
 
     NodeEntryPtr get(const std::string&, bool = false) const;
 
     const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
-    bool isMaster() const { return _master; }
+    const std::string& getReplicaName() const { return _replicaName; }
     ReplicaCache& getReplicaCache() const { return _replicaCache; }
 
 private:
     
     const Ice::CommunicatorPtr _communicator;
-    const bool _master;
+    const std::string _replicaName;
     ReplicaCache& _replicaCache;
 };
 

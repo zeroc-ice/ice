@@ -263,7 +263,7 @@ ReplicaSessionManager::ReplicaSessionManager()
 
 void
 ReplicaSessionManager::create(const string& name, 
-			      const RegistryInfo& info,
+			      const InternalReplicaInfoPtr& info,
 			      const DatabasePtr& database,
 			      const WellKnownObjectsManagerPtr& wellKnownObjects,
 			      const InternalRegistryPrx& internalRegistry)

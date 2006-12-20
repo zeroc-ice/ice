@@ -309,7 +309,7 @@ RegistryI::start(bool nowarn)
     //
     // Create the registry database.
     //
-    _database = new Database(registryAdapter, topicManager, _instanceName, _traceLevels, getInfo(), _master);
+    _database = new Database(registryAdapter, topicManager, _instanceName, _traceLevels, getInfo());
     _wellKnownObjects = new WellKnownObjectsManager(_database);
 
     //
@@ -347,7 +347,8 @@ RegistryI::start(bool nowarn)
     }
     else
     {
-	_session.create(_replicaName, getInfo(), _database, _wellKnownObjects, internalRegistry);
+	InternalReplicaInfoPtr info = _platform.getInternalReplicaInfo();
+	_session.create(_replicaName, info, _database, _wellKnownObjects, internalRegistry);
 	registerNodes(internalRegistry, _session.getNodes(nodes));
     }
 

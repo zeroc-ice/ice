@@ -71,8 +71,8 @@ public:
 
     ReplicaSessionManager();
     
-    void create(const std::string&, const RegistryInfo&, const DatabasePtr&, const WellKnownObjectsManagerPtr&, 
-		const InternalRegistryPrx&);
+    void create(const std::string&, const InternalReplicaInfoPtr&, const DatabasePtr&, 
+		const WellKnownObjectsManagerPtr&, const InternalRegistryPrx&);
     void create(const InternalRegistryPrx&);
     NodePrxSeq getNodes(const NodePrxSeq&) const;
     void destroy();
@@ -91,7 +91,7 @@ private:
 
     ThreadPtr _thread;
     std::string _name;
-    RegistryInfo _info;
+    InternalReplicaInfoPtr _info;
     InternalRegistryPrx _master;
     RegistryPrx _registry;
     InternalRegistryPrx _internalRegistry;

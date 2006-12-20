@@ -29,7 +29,7 @@ class ReplicaSessionI : public ReplicaSession, public IceUtil::Mutex
 {
 public:
 
-    ReplicaSessionI(const DatabasePtr&, const WellKnownObjectsManagerPtr&, const RegistryInfo&,
+    ReplicaSessionI(const DatabasePtr&, const WellKnownObjectsManagerPtr&, const InternalReplicaInfoPtr&,
 		    const InternalRegistryPrx&, int);
 
     virtual void keepAlive(const Ice::Current&);
@@ -46,7 +46,7 @@ public:
     virtual void shutdown();
 
     const InternalRegistryPrx& getInternalRegistry() const;
-    const RegistryInfo& getInfo() const;
+    const InternalReplicaInfoPtr& getInfo() const;
     ReplicaSessionPrx getProxy() const;
 
     Ice::ObjectPrx getEndpoint(const std::string&);
@@ -60,7 +60,7 @@ private:
     const WellKnownObjectsManagerPtr _wellKnownObjects;
     const TraceLevelsPtr _traceLevels;
     const InternalRegistryPrx _internalRegistry;
-    const RegistryInfo _info;
+    const InternalReplicaInfoPtr _info;
     const int _timeout;
     ReplicaSessionPrx _proxy;
     DatabaseObserverPrx _observer;

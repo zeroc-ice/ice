@@ -13,6 +13,7 @@
 #include <IceUtil/OutputUtil.h>
 #include <IceXML/Parser.h>
 #include <IceGrid/Admin.h>
+#include <IceGrid/Internal.h>
 
 namespace IceGrid
 {
@@ -24,19 +25,20 @@ public:
 
     Resolver(const ApplicationDescriptor&, const Ice::CommunicatorPtr&);
     Resolver(const Resolver&, const std::map<std::string, std::string>&, bool);
-    Resolver(const NodeInfo&, const Ice::CommunicatorPtr&);
+    Resolver(const InternalNodeInfoPtr&, const Ice::CommunicatorPtr&);
 
-    std::string operator()(const std::string&, const std::string& = std::string(), bool = true, bool = true) const;
+    std::string operator()(const std::string&, const std::string& = std::string(), bool = true) const;
     Ice::StringSeq operator()(const Ice::StringSeq&, const std::string&) const;
     DistributionDescriptor operator()(const DistributionDescriptor&) const;
     PropertyDescriptorSeq operator()(const PropertyDescriptorSeq&, const std::string& = std::string("property")) const;
     PropertySetDescriptorDict operator()(const PropertySetDescriptorDict&) const;
-    ObjectDescriptorSeq operator()(const ObjectDescriptorSeq&, const std::string&, bool) const;
+    ObjectDescriptorSeq operator()(const ObjectDescriptorSeq&, const std::string&) const;
     Ice::Identity operator()(const Ice::Identity&, const std::string&) const;
     PropertySetDescriptor operator()(const PropertySetDescriptor&) const;
 
     std::string asInt(const std::string&, const std::string& = std::string()) const;
     std::string asFloat(const std::string&, const std::string& = std::string()) const;
+    std::string asId(const std::string&, const std::string& = std::string(), bool = false) const;
 
     void setReserved(const std::string&, const std::string&);
     void setContext(const std::string&);
@@ -55,7 +57,7 @@ public:
 
 private:
 
-    std::string substitute(const std::string&, bool = false) const;
+    std::string substitute(const std::string&, bool, bool) const;
     std::string getVariable(const std::string&, bool, bool&) const;
     PropertyDescriptorSeq getProperties(const Ice::StringSeq&, std::set<std::string>&) const;
 

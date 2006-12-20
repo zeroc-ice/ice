@@ -45,7 +45,7 @@ InternalRegistryI::~InternalRegistryI()
 }
 
 NodeSessionPrx
-InternalRegistryI::registerNode(const NodeInfo& info, const NodePrx& node, const Ice::Current& current)
+InternalRegistryI::registerNode(const InternalNodeInfoPtr& info, const NodePrx& node, const Ice::Current& current)
 {
     const Ice::LoggerPtr logger = _database->getTraceLevels()->logger;
     try
@@ -61,7 +61,7 @@ InternalRegistryI::registerNode(const NodeInfo& info, const NodePrx& node, const
 }
 
 ReplicaSessionPrx
-InternalRegistryI::registerReplica(const RegistryInfo& info,
+InternalRegistryI::registerReplica(const InternalReplicaInfoPtr& info,
 				   const InternalRegistryPrx& prx,
 				   const Ice::Current& current)
 {

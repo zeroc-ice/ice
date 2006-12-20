@@ -681,11 +681,7 @@ CommunicatorDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
     desc.serverLifetime = attrs.asBool("server-lifetime", true);
     _descriptor->adapters.push_back(desc);
 
-    //
-    // DEPRECATED PROPERTY: Remove extra code in future release.
-    //
     addProperty(_hiddenProperties, "Ice.OA." + desc.name + ".Endpoints", attrs("endpoints", "default"));
-    addProperty(_hiddenProperties, desc.name + ".Endpoints", attrs("endpoints", "default"));
 }
 
 void
@@ -702,7 +698,7 @@ CommunicatorDescriptorBuilder::addObject(const XmlAttributesHelper& attrs)
     object.id = _communicator->stringToIdentity(attrs("identity"));
     if(attrs.contains("property"))
     {
-	object.property = attrs("property");
+	addProperty(_hiddenProperties, attrs("property"), attrs("identity"));
     }
     _descriptor->adapters.back().objects.push_back(object);
 }
@@ -715,7 +711,7 @@ CommunicatorDescriptorBuilder::addAllocatable(const XmlAttributesHelper& attrs)
     object.id = _communicator->stringToIdentity(attrs("identity"));
     if(attrs.contains("property"))
     {
-	object.property = attrs("property");
+	addProperty(_hiddenProperties, attrs("property"), attrs("identity"));
     }
     _descriptor->adapters.back().allocatables.push_back(object);
 }
@@ -760,6 +756,13 @@ CommunicatorDescriptorBuilder::addDbEnv(const XmlAttributesHelper& attrs)
 void
 CommunicatorDescriptorBuilder::addDbEnvProperty(const XmlAttributesHelper& attrs)
 {
+    if(!_descriptor->dbEnvs.back().dbHome.empty())
+    {
+	throw "can't add property to the database environment:\n"
+	      "properties are only allowed if the database\n"
+	      "environment home directory is managed by the node";
+    }
+
     PropertyDescriptor prop;
     prop.name = attrs("name");
     prop.value = attrs("value", "");
@@ -775,13 +778,11 @@ CommunicatorDescriptorBuilder::setDbEnvDescription(const string& value)
 void
 CommunicatorDescriptorBuilder::addLog(const XmlAttributesHelper& attrs)
 {
-    LogDescriptor desc;
-    desc.path = attrs("path");
     if(attrs.contains("property"))
     {
-	desc.property = attrs("property");
+	addProperty(_hiddenProperties, attrs("property"), attrs("path"));
     }
-    _descriptor->logs.push_back(desc);
+    _descriptor->logs.push_back(attrs("path"));
 }
 
 void
@@ -843,6 +844,7 @@ ServerDescriptorBuilder::init(const ServerDescriptorPtr& desc, const XmlAttribut
     _descriptor->applicationDistrib = attrs.asBool("application-distrib", true);
     _descriptor->allocatable = attrs.asBool("allocatable", false);
     _descriptor->user = attrs("user", "");
+    _descriptor->iceVersion = attrs("ice-version", "");
 }
 
 ServiceDescriptorBuilder*
@@ -908,14 +910,9 @@ IceBoxDescriptorBuilder::init(const IceBoxDescriptorPtr& desc, const XmlAttribut
     ServerDescriptorBuilder::init(desc, attrs);
     _descriptor = desc;
 
-    //
-    // DEPRECATED PROPERTY: Remove extra code in future release.
-    //
     addProperty(_hiddenProperties, "IceBox.InstanceName", "${server}");
     addProperty(_hiddenProperties, "Ice.OA.IceBox.ServiceManager.Endpoints", "tcp -h 127.0.0.1");
-    addProperty(_hiddenProperties, "IceBox.ServiceManager.Endpoints", "tcp -h 127.0.0.1");
     addProperty(_hiddenProperties, "Ice.OA.IceBox.ServiceManager.RegisterProcess", "1");
-    addProperty(_hiddenProperties, "IceBox.ServiceManager.RegisterProcess", "1");
 }
 
 ServiceDescriptorBuilder*
@@ -941,13 +938,8 @@ IceBoxDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
     PropertyDescriptorSeq::iterator p = _hiddenProperties.begin();
     while(p != _hiddenProperties.end())
     {
-        //
-	// DEPRECATED PROPERTY: Remove extra code in future release
-	//
 	if(p->name == "Ice.OA.IceBox.ServiceManager.Endpoints" || 
-	   p->name == "IceBox.ServiceManager.Endpoints" ||
-	   p->name == "Ice.OA.IceBox.ServiceManager.RegisterProcess" ||
-	   p->name == "IceBox.ServiceManager.RegisterProcess")
+	   p->name == "Ice.OA.IceBox.ServiceManager.RegisterProcess")
 	{
 	    p = _hiddenProperties.erase(p);
 	}
@@ -964,12 +956,6 @@ void
 IceBoxDescriptorBuilder::addDbEnv(const XmlAttributesHelper& attrs)
 {
     throw "<dbenv> element can't be a child of an <icebox> element";
-}
-
-void
-IceBoxDescriptorBuilder::addLog(const XmlAttributesHelper& attrs)
-{
-    throw "<log> element can't be a child of an <icebox> element";
 }
 
 void

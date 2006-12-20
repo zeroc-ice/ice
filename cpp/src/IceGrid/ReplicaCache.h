@@ -33,7 +33,7 @@ public:
 
     bool canRemove() const { return true; }
     const ReplicaSessionIPtr& getSession() const;
-    RegistryInfo getInfo() const;
+    InternalReplicaInfoPtr getInfo() const;
     InternalRegistryPrx getProxy() const;
     
 private:

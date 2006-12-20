@@ -30,6 +30,9 @@ typedef IceUtil::Handle<Activator> ActivatorPtr;
 class ServerI;
 typedef IceUtil::Handle<ServerI> ServerIPtr;
 
+class ServerCommand;
+typedef IceUtil::Handle<ServerCommand> ServerCommandPtr;
+
 class NodeSessionManager;
 
 class NodeI : public Node, public IceUtil::Monitor<IceUtil::Mutex>
@@ -40,11 +43,20 @@ public:
 	  const TraceLevelsPtr&, const NodePrx&, const std::string&, const UserAccountMapperPrx&);
     virtual ~NodeI();
 
-    virtual void loadServer_async(const AMD_Node_loadServerPtr&, const ServerInfo&, bool, const Ice::Current&);
-    virtual void destroyServer_async(const AMD_Node_destroyServerPtr&, const std::string&, const std::string&,
-				     int, const Ice::Current&);
+    virtual void loadServer_async(const AMD_Node_loadServerPtr&, 
+				  const InternalServerDescriptorPtr&, 
+				  const std::string&,
+				  const Ice::Current&);
+
+    virtual void destroyServer_async(const AMD_Node_destroyServerPtr&, 
+				     const std::string&, 
+				     const std::string&,
+				     int, 
+				     const std::string&,
+				     const Ice::Current&);
+
     virtual void patch_async(const AMD_Node_patchPtr&, const PatcherFeedbackPrx&, const std::string&, 
-			     const std::string&, const DistributionDescriptor&, bool, const Ice::Current&);
+			     const std::string&, const InternalDistributionDescriptorPtr&, bool, const Ice::Current&);
 
     virtual void registerWithReplica(const InternalRegistryPrx&, const Ice::Current&);
 
@@ -89,7 +101,7 @@ public:
 
 private:
 
-    void checkConsistencyNoSync(const Ice::StringSeq&);
+    std::vector<ServerCommandPtr> checkConsistencyNoSync(const Ice::StringSeq&);
     bool canRemoveServerDirectory(const std::string&);
     void patch(const IcePatch2::FileServerPrx&, const std::string&, const std::vector<std::string>&);
     

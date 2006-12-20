@@ -38,36 +38,61 @@
 using namespace std;
 using namespace IceGrid;
 
-#ifdef _WIN32
+
 namespace IceGrid
 {
 
-    string
-    getLocalizedPerfName(const map<string, string>& perfNames, const string& name)
+#ifdef _WIN32
+static string
+getLocalizedPerfName(const map<string, string>& perfNames, const string& name)
+{
+    unsigned long idx;
+    map<string, string>::const_iterator p = perfNames.find(name);
+    if(p == perfNames.end())
     {
-	unsigned long idx;
-	map<string, string>::const_iterator p = perfNames.find(name);
-	if(p == perfNames.end())
-	{
-	    return "";
-	}
-	istringstream is(p->second);
-	is >> idx;
-    
-	vector<char> localized;
-	unsigned long size = 256;
-	localized.resize(size);
-	while(PdhLookupPerfNameByIndex(0, idx, &localized[0], &size) == PDH_MORE_DATA)
-	{
-	    size += 256;
-	    localized.resize(size);
-	}
-	return string(&localized[0]);
+	return "";
     }
-
-};
-
+    istringstream is(p->second);
+    is >> idx;
+    
+    vector<char> localized;
+    unsigned long size = 256;
+    localized.resize(size);
+    while(PdhLookupPerfNameByIndex(0, idx, &localized[0], &size) == PDH_MORE_DATA)
+    {
+	size += 256;
+	localized.resize(size);
+    }
+    return string(&localized[0]);
+}
 #endif
+
+RegistryInfo
+toRegistryInfo(const InternalReplicaInfoPtr& replica)
+{
+    RegistryInfo info;
+    info.name = replica->name;
+    info.hostname = replica->hostname;
+    info.endpoints = replica->endpoints;
+    return info;
+}
+
+NodeInfo
+toNodeInfo(const InternalNodeInfoPtr& node)
+{
+    NodeInfo info;
+    info.name = node->name;
+    info.os = node->os;
+    info.hostname = node->hostname;
+    info.release = node->release;
+    info.version = node->version;
+    info.machine = node->machine;
+    info.nProcessors = node->nProcessors;
+    info.dataDir = node->dataDir;
+    return info;
+}
+
+}
 
 PlatformInfo::PlatformInfo(const string& prefix, 
 			   const Ice::CommunicatorPtr& communicator, 
@@ -190,7 +215,7 @@ PlatformInfo::PlatformInfo(const string& prefix,
     else
     {
 	_name = properties->getProperty(prefix + ".Name");
-	endpointsPrefix = prefix;
+	endpointsPrefix = "Ice.OA." + prefix;
 	oldEndpointsPrefix = prefix;
     }
 
@@ -255,25 +280,37 @@ PlatformInfo::~PlatformInfo()
 NodeInfo
 PlatformInfo::getNodeInfo() const
 {
-    NodeInfo info;
-    info.name = _name;
-    info.os = _os;
-    info.hostname = _hostname;
-    info.release = _release;
-    info.version = _version;
-    info.machine = _machine;
-    info.nProcessors = _nProcessors;
-    info.dataDir = _dataDir;
-    return info;
+    return toNodeInfo(getInternalNodeInfo());
 }
 
 RegistryInfo
 PlatformInfo::getRegistryInfo() const
 {
-    RegistryInfo info;
-    info.name = _name;
-    info.hostname = _hostname;
-    info.endpoints = _endpoints;
+    return toRegistryInfo(getInternalReplicaInfo());
+}
+
+InternalNodeInfoPtr
+PlatformInfo::getInternalNodeInfo() const
+{
+    InternalNodeInfoPtr info = new InternalNodeInfo();
+    info->name = _name;
+    info->os = _os;
+    info->hostname = _hostname;
+    info->release = _release;
+    info->version = _version;
+    info->machine = _machine;
+    info->nProcessors = _nProcessors;
+    info->dataDir = _dataDir;
+    return info;
+}
+
+InternalReplicaInfoPtr
+PlatformInfo::getInternalReplicaInfo() const
+{
+    InternalReplicaInfoPtr info = new InternalReplicaInfo();
+    info->name = _name;
+    info->hostname = _hostname;
+    info->endpoints = _endpoints;
     return info;
 }
 

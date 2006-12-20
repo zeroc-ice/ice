@@ -72,3 +72,60 @@ IceGrid::getProperty(const PropertyDescriptorSeq& properties, const string& name
     }
     return def;
 }
+
+PropertyDescriptor
+IceGrid::createProperty(const string& name, const string& value)
+{
+    PropertyDescriptor prop;
+    prop.name = name;
+    prop.value = value;
+    return prop;
+}
+
+int
+IceGrid::getMMVersion(const string& version)
+{
+    string::size_type minorPos = version.find('.');
+    if(minorPos == string::npos || minorPos >= version.size())
+    {
+	return -1;
+    }
+    string::size_type patchPos = version.find('.', minorPos + 1);
+    
+    int v, ver;
+
+    istringstream major(version.substr(0, minorPos));
+    major >> v;
+    if(major.fail() || v > 99 || v < 1)
+    {
+	return -1;
+    }
+    ver = v;
+    ver *= 100;
+
+    istringstream minor(version.substr(minorPos + 1, patchPos != string::npos ? patchPos : version.size()));
+    minor >> v;
+    if(minor.fail() || v > 99 || v < 0)
+    {
+	return -1;
+    }
+    ver += v;
+    ver *= 100;
+
+    //
+    // No need to get the patch number, we're only interested in
+    // MAJOR.MINOR
+    //
+//     if(patchPos != string::npos)
+//     {
+// 	istringstream patch(version.substr(patchPos + 1));
+// 	patch >> v;
+// 	if(patch.fail() || v > 99 || v < 0)
+// 	{
+// 	    return -1;
+// 	}
+// 	ver += v;
+//     }
+
+    return ver;
+}

@@ -153,6 +153,11 @@ instantiateServer(const AdminPrx& admin, const string& templ, const map<string, 
 	cerr << ex.reason << endl;
 	test(false);
     }
+    catch(const Ice::LocalException& ex)
+    {
+	cerr << ex << endl;
+	test(false);
+    }
 }
 
 void
@@ -771,7 +776,15 @@ allTests(const Ice::CommunicatorPtr& comm)
     ApplicationDescriptor app;
     app.name = "DummyApp";
     app.nodes["Node1"].description = "dummy node";
-    masterAdmin->addApplication(app);
+    try
+    {
+	masterAdmin->addApplication(app);
+    }
+    catch(const Ice::Exception& ex)
+    {
+	cerr << ex << endl;
+	test(false);
+    }
 
     //
     // Test node session establishment.

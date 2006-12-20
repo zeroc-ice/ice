@@ -18,7 +18,7 @@ using namespace IceGrid;
 
 NodeSessionI::NodeSessionI(const DatabasePtr& database, 
 			   const NodePrx& node, 
-			   const NodeInfo& info,
+			   const InternalNodeInfoPtr& info,
 			   int timeout) :
     _database(database),
     _traceLevels(database->getTraceLevels()),
@@ -31,12 +31,12 @@ NodeSessionI::NodeSessionI(const DatabasePtr& database,
     __setNoDelete(true);
     try
     {
-	_database->getNode(info.name, true)->setSession(this);
+	_database->getNode(info->name, true)->setSession(this);
 
-	ObjectInfo info;
-	info.type = Node::ice_staticId();
-	info.proxy = _node;
-	_database->addInternalObject(info, true); // Add or update previous node proxy.
+	ObjectInfo objInfo;
+	objInfo.type = Node::ice_staticId();
+	objInfo.proxy = _node;
+	_database->addInternalObject(objInfo, true); // Add or update previous node proxy.
 
 	Ice::ObjectPrx prx = _database->getInternalAdapter()->addWithUUID(this)->ice_timeout(timeout * 1000);
 	_proxy = NodeSessionPrx::uncheckedCast(prx);
@@ -64,7 +64,7 @@ NodeSessionI::keepAlive(const LoadInfo& load, const Ice::Current& current)
     if(_traceLevels->node > 2)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->nodeCat);
-	out << "node `" << _info.name << "' keep alive ";
+	out << "node `" << _info->name << "' keep alive ";
 	out << "(load = " << _load.avg1 << ", " << _load.avg5 << ", " << _load.avg15 << ")";
     }
 }
@@ -113,14 +113,14 @@ NodeSessionI::loadServers_async(const AMD_NodeSession_loadServersPtr& amdCB, con
     //
     // Get the server proxies to load them on the node.
     //
-    ServerEntrySeq servers = _database->getNode(_info.name)->getServers();
+    ServerEntrySeq servers = _database->getNode(_info->name)->getServers();
     for_each(servers.begin(), servers.end(), IceUtil::voidMemFun(&ServerEntry::sync));
 }
 
 Ice::StringSeq
 NodeSessionI::getServers(const Ice::Current& current) const
 {
-    ServerEntrySeq servers =  _database->getNode(_info.name)->getServers();
+    ServerEntrySeq servers =  _database->getNode(_info->name)->getServers();
     Ice::StringSeq names;
     for(ServerEntrySeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
     {
@@ -167,7 +167,7 @@ NodeSessionI::getNode() const
     return _node;
 }
 
-const NodeInfo&
+const InternalNodeInfoPtr&
 NodeSessionI::getInfo() const
 {
     return _info;
@@ -205,7 +205,7 @@ NodeSessionI::destroyImpl(bool shutdown)
 	_destroy = true;
     }
 
-    ServerEntrySeq servers = _database->getNode(_info.name)->getServers();
+    ServerEntrySeq servers = _database->getNode(_info->name)->getServers();
     for_each(servers.begin(), servers.end(), IceUtil::voidMemFun(&ServerEntry::unsync));
 
     //
@@ -220,7 +220,7 @@ NodeSessionI::destroyImpl(bool shutdown)
     //
     // Next we notify the observer.
     //
-    NodeObserverTopicPtr::dynamicCast(_database->getObserverTopic(NodeObserverTopicName))->nodeDown(_info.name);
+    NodeObserverTopicPtr::dynamicCast(_database->getObserverTopic(NodeObserverTopicName))->nodeDown(_info->name);
 
     //
     // Unsubscribe the node replica observer.
@@ -236,7 +236,7 @@ NodeSessionI::destroyImpl(bool shutdown)
     // as the node entry session is set to 0 another session might be
     // created.
     //
-    _database->getNode(_info.name)->setSession(0);
+    _database->getNode(_info->name)->setSession(0);
 
     if(!shutdown)
     {

@@ -51,7 +51,7 @@ class Database : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 public:
 
     Database(const Ice::ObjectAdapterPtr&, const IceStorm::TopicManagerPrx&, const std::string&, const TraceLevelsPtr&,
-	     const RegistryInfo&, bool);
+	     const RegistryInfo&);
     virtual ~Database();
     
     std::string getInstanceName() const;

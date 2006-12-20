@@ -333,7 +333,11 @@ AdminI::patchApplication_async(const AMD_Admin_patchApplicationPtr& amdCB,
 
 	    NodeEntryPtr node = _database->getNode(*p);
 	    Resolver resolve(node->getInfo(), _database->getCommunicator());
-	    node->getProxy()->patch(prx, name, "", resolve(appDistrib), shutdown);
+	    DistributionDescriptor desc = resolve(appDistrib);
+	    InternalDistributionDescriptorPtr intAppDistrib = new InternalDistributionDescriptor(desc.icepatch, 
+												 desc.directories);
+
+	    node->getProxy()->patch(prx, name, "", intAppDistrib, shutdown);
 	}
 	catch(const Ice::Exception& ex)
 	{
@@ -523,7 +527,10 @@ AdminI::patchServer_async(const AMD_Admin_patchServerPtr& amdCB, const string& i
 
 	NodeEntryPtr node = _database->getNode(*p);
 	Resolver resolve(node->getInfo(), _database->getCommunicator());
-	node->getProxy()->patch(prx, info.application, id, resolve(appDistrib), shutdown);
+	DistributionDescriptor desc = resolve(appDistrib);
+	InternalDistributionDescriptorPtr intAppDistrib = new InternalDistributionDescriptor(desc.icepatch, 
+											     desc.directories);
+	node->getProxy()->patch(prx, info.application, id, intAppDistrib, shutdown);
     }
     catch(const Ice::Exception& ex)
     {
@@ -697,7 +704,7 @@ AdminI::getAllObjectInfos(const string& expression, const Ice::Current&) const
 NodeInfo
 AdminI::getNodeInfo(const string& name, const Ice::Current&) const
 {
-    return _database->getNode(name)->getInfo();
+    return toNodeInfo(_database->getNode(name)->getInfo());
 }
 
 bool
@@ -766,7 +773,7 @@ AdminI::getNodeHostname(const string& name, const Current&) const
 {
     try
     {
-	return _database->getNode(name)->getInfo().hostname;
+	return _database->getNode(name)->getInfo()->hostname;
     }
     catch(const Ice::ObjectNotExistException&)
     {
@@ -797,7 +804,7 @@ AdminI::getRegistryInfo(const string& name, const Ice::Current&) const
     }
     else
     {
-	return _database->getReplica(name)->getInfo();
+	return toRegistryInfo(_database->getReplica(name)->getInfo());
     }
 }
 

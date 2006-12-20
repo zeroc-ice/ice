@@ -23,12 +23,19 @@ namespace IceGrid
 class TraceLevels;
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
+
+NodeInfo toNodeInfo(const InternalNodeInfoPtr&);
+RegistryInfo toRegistryInfo(const InternalReplicaInfoPtr&);
+
 class PlatformInfo
 {
 public:
 
     PlatformInfo(const std::string&, const Ice::CommunicatorPtr&, const TraceLevelsPtr&);
     ~PlatformInfo();
+
+    InternalNodeInfoPtr getInternalNodeInfo() const;
+    InternalReplicaInfoPtr getInternalReplicaInfo() const;
 
     NodeInfo getNodeInfo() const;
     RegistryInfo getRegistryInfo() const;
