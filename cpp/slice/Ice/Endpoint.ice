@@ -48,6 +48,10 @@ local interface Endpoint
      **/
     ["cpp:const"] string toString();
 };
+
+/**
+ * A sequence of [Endpoint] interfaces.
+ **/
 local sequence<Endpoint> EndpointSeq;
 
 };
