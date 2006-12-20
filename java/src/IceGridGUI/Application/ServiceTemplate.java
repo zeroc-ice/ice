@@ -155,8 +155,9 @@ class ServiceTemplate extends Communicator
 		writer.writeElement("description", descriptor.description);
 	    }
 	    
-	    writePropertySet(writer, descriptor.propertySet, descriptor.adapters);
-	    _adapters.write(writer);
+	    writePropertySet(writer, descriptor.propertySet, descriptor.adapters, descriptor.logs);
+	    writeLogs(writer, descriptor.logs, descriptor.propertySet.properties);
+	    _adapters.write(writer, descriptor.propertySet.properties);
 	    _dbEnvs.write(writer);
 	    writer.writeEndTag("service");
 	    writer.writeEndTag("service-template");

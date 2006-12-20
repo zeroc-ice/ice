@@ -265,8 +265,10 @@ class PlainService extends Communicator implements Service, Cloneable
 	    }
 	    
 	    writePropertySet(writer,  _descriptor.descriptor.propertySet,
-			     _descriptor.descriptor.adapters);
-	    _adapters.write(writer);
+			     _descriptor.descriptor.adapters, _descriptor.descriptor.logs);
+	    writeLogs(writer, _descriptor.descriptor.logs, _descriptor.descriptor.propertySet.properties);
+
+	    _adapters.write(writer, _descriptor.descriptor.propertySet.properties);
 	    _dbEnvs.write(writer);
 	    writer.writeEndTag("service");
 	}

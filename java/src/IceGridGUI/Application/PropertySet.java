@@ -219,7 +219,7 @@ class PropertySet extends TreeNode
 	{
 	    writePropertySet(writer, _unsubstitutedId, 
 			     _inServerInstance ? "service" : "id",
-			     _descriptor, null);
+			     _descriptor, null, null);
 	}
     }
 

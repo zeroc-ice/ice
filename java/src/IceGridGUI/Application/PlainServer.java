@@ -346,10 +346,12 @@ class PlainServer extends Communicator implements Server
 		writeOptions(writer, _descriptor.options);
 		writeEnvs(writer, _descriptor.envs);
 		
-		writePropertySet(writer, "", "", _descriptor.propertySet, _descriptor.adapters);
+		writePropertySet(writer, "", "", _descriptor.propertySet, 
+				 _descriptor.adapters, _descriptor.logs);
+		writeLogs(writer, _descriptor.logs, _descriptor.propertySet.properties);
 		writeDistribution(writer, _descriptor.distrib);
 
-		_adapters.write(writer);
+		_adapters.write(writer, _descriptor.propertySet.properties);
 		_services.write(writer);
 		writer.writeEndTag("icebox");
 	    }
@@ -365,10 +367,11 @@ class PlainServer extends Communicator implements Server
 		writeOptions(writer, _descriptor.options);
 		writeEnvs(writer, _descriptor.envs);
 		
-		writePropertySet(writer, _descriptor.propertySet, _descriptor.adapters);
+		writePropertySet(writer, _descriptor.propertySet, _descriptor.adapters, _descriptor.logs);
+		writeLogs(writer, _descriptor.logs, _descriptor.propertySet.properties);
 		writeDistribution(writer, _descriptor.distrib);
 
-		_adapters.write(writer);
+		_adapters.write(writer, _descriptor.propertySet.properties);
 		_dbEnvs.write(writer);
 		writer.writeEndTag("server");
 	    }

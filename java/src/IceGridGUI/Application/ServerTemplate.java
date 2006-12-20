@@ -263,10 +263,11 @@ class ServerTemplate extends Communicator
 		PlainServer.writeOptions(writer, descriptor.options);
 		PlainServer.writeEnvs(writer, descriptor.envs);
 	
-		writePropertySet(writer, "", "", descriptor.propertySet, descriptor.adapters);
+		writePropertySet(writer, "", "", descriptor.propertySet, descriptor.adapters, descriptor.logs);
+		writeLogs(writer, descriptor.logs, descriptor.propertySet.properties);
 		writeDistribution(writer, descriptor.distrib);
 
-		_adapters.write(writer);
+		_adapters.write(writer, descriptor.propertySet.properties);
 		_services.write(writer);
 		writer.writeEndTag("icebox");
 	    }
@@ -284,10 +285,11 @@ class ServerTemplate extends Communicator
 		PlainServer.writeOptions(writer, descriptor.options);
 		PlainServer.writeEnvs(writer, descriptor.envs);
 		
-		writePropertySet(writer, descriptor.propertySet, descriptor.adapters);
+		writePropertySet(writer, descriptor.propertySet, descriptor.adapters, descriptor.logs);
+		writeLogs(writer, descriptor.logs, descriptor.propertySet.properties);
 		writeDistribution(writer, descriptor.distrib);
 
-		_adapters.write(writer);
+		_adapters.write(writer, descriptor.propertySet.properties);
 		_dbEnvs.write(writer);
 		writer.writeEndTag("server");
 	    }  

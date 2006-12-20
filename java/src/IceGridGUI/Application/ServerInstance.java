@@ -247,7 +247,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
 	    else
 	    {
 		writer.writeStartTag("server-instance", attributes);
-		writePropertySet(writer, _descriptor.propertySet, null);
+		writePropertySet(writer, _descriptor.propertySet, null, null);
 		
 		java.util.Iterator p = _children.iterator();
 		while(p.hasNext())

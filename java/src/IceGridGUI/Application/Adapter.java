@@ -146,6 +146,11 @@ class Adapter extends TreeNode implements DescriptorHolder
    
     void write(XMLWriter writer) throws java.io.IOException
     {
+	assert false;
+    }
+
+    void write(XMLWriter writer, java.util.List properties) throws java.io.IOException
+    {
 	if(!_ephemeral)
 	{
 	    java.util.List attributes = new java.util.LinkedList();
@@ -183,8 +188,8 @@ class Adapter extends TreeNode implements DescriptorHolder
 		{
 		    writer.writeElement("description", _descriptor.description);
 		}
-		writeObjects("object", writer, _descriptor.objects);
-		writeObjects("allocatable", writer, _descriptor.allocatables);
+		writeObjects("object", writer, _descriptor.objects, properties);
+		writeObjects("allocatable", writer, _descriptor.allocatables, properties);
 		writer.writeEndTag("adapter");
 	    }
 	}

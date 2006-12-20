@@ -114,14 +114,16 @@ public abstract class TreeNode extends TreeNodeBase
 	}
     }
 
-    static void writePropertySet(XMLWriter writer, PropertySetDescriptor psd, java.util.List adapters)
+    static void writePropertySet(XMLWriter writer, PropertySetDescriptor psd, 
+				 java.util.List adapters, LogDescriptor[] logs)
 	throws java.io.IOException
     {
-	writePropertySet(writer, "", "", psd, adapters);
+	writePropertySet(writer, "", "", psd, adapters, logs);
     }
 
     static void writePropertySet(XMLWriter writer, String id, String idAttrName,
-				 PropertySetDescriptor psd, java.util.List adapters)
+				 PropertySetDescriptor psd, 
+				 java.util.List adapters, LogDescriptor[] logs)
 	throws java.io.IOException
     {
 	if(id.length() == 0 && psd.references.length == 0 && psd.properties.size() == 0)
@@ -130,10 +132,11 @@ public abstract class TreeNode extends TreeNodeBase
 	}
 
 	//
-	// We don't show the .Endpoint and .PublishedEndpoints of adapters,
+	// We don't show the .Endpoint of adapters,
 	// since they already appear in the Adapter descriptors
 	//
 	java.util.Set hiddenPropertyNames = new java.util.HashSet();
+	java.util.Set hiddenPropertyValues = new java.util.HashSet();
 
 	if(adapters != null)
 	{
@@ -142,6 +145,27 @@ public abstract class TreeNode extends TreeNodeBase
 	    {
 		AdapterDescriptor ad = (AdapterDescriptor)p.next();
 		hiddenPropertyNames.add("Ice.OA." + ad.name + ".Endpoints");
+
+		java.util.Iterator q = ad.objects.iterator();
+		while(q.hasNext())
+		{
+		    ObjectDescriptor od = (ObjectDescriptor)q.next();
+		    hiddenPropertyValues.add(Ice.Util.identityToString(od.id));
+		}
+		q = ad.allocatables.iterator();
+		while(q.hasNext())
+		{
+		    ObjectDescriptor od = (ObjectDescriptor)q.next();
+		    hiddenPropertyValues.add(Ice.Util.identityToString(od.id));
+		}
+	    }
+	}
+
+	if(logs != null)
+	{
+	    for(int i = 0; i < logs.length; ++i)
+	    {
+		hiddenPropertyValues.add(logs[i].path);
 	    }
 	}
 
@@ -176,6 +200,10 @@ public abstract class TreeNode extends TreeNodeBase
 		    //
 		    hiddenPropertyNames.remove(pd.name);
 		}
+		else if(hiddenPropertyValues.contains(pd.value))
+		{
+		    hiddenPropertyValues.remove(pd.value);
+		}
 		else
 		{
 		    attributes.clear();
@@ -187,6 +215,37 @@ public abstract class TreeNode extends TreeNodeBase
 	    writer.writeEndTag("properties");
 	}
     }
+
+    static void writeLogs(XMLWriter writer, LogDescriptor[] logs, java.util.List properties)
+	throws java.io.IOException
+    {
+	for(int i = 0; i < logs.length; ++i)
+	{
+	    java.util.List attributes = new java.util.LinkedList();
+	    attributes.add(createAttribute("path", logs[i].path));
+	    String prop = lookupName(logs[i].path, properties);
+	    if(prop != null)
+	    {
+		attributes.add(createAttribute("property", prop));
+	    }
+	    writer.writeElement("log", attributes);
+	}
+    }
+
+    static String lookupName(String val, java.util.List properties)
+    {
+	java.util.Iterator p = properties.iterator();
+	while(p.hasNext())
+	{
+	    PropertyDescriptor pd = (PropertyDescriptor)p.next();
+	    if(pd.value.equals(val))
+	    {
+		return pd.name;
+	    }
+	}
+	return null;
+    }
+
 
     static void writeDistribution(XMLWriter writer, 
 				  DistributionDescriptor descriptor)
@@ -214,7 +273,8 @@ public abstract class TreeNode extends TreeNodeBase
 	}
     }
     
-    static void writeObjects(String elt, XMLWriter writer, java.util.List objects)
+    static void writeObjects(String elt, XMLWriter writer, java.util.List objects, 
+			     java.util.List properties)
 	throws java.io.IOException
     {
 	java.util.Iterator p = objects.iterator();
@@ -222,11 +282,21 @@ public abstract class TreeNode extends TreeNodeBase
 	{
 	    ObjectDescriptor od = (ObjectDescriptor)p.next();
 	    java.util.List attributes = new java.util.LinkedList();
-	    attributes.add(createAttribute("identity", Ice.Util.identityToString(od.id)));
+	    String strId = Ice.Util.identityToString(od.id);
+	    attributes.add(createAttribute("identity", strId));
 	    if(od.type.length() > 0)
 	    {
 		attributes.add(createAttribute("type", od.type));
 	    }
+	    if(properties != null)
+	    {
+		String prop = lookupName(strId, properties);
+		if(prop != null)
+		{
+		    attributes.add(createAttribute("property", prop));
+		}
+	    }
+	    
 	    writer.writeElement(elt, attributes);
 	}
     }	  

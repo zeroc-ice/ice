@@ -478,6 +478,16 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 	{
 	    super(true);
 	}
+
+	void write(XMLWriter writer, java.util.List props) throws java.io.IOException
+	{
+	    java.util.Iterator p = _children.iterator();
+	    while(p.hasNext())
+	    {
+		Adapter child = (Adapter)p.next();
+		child.write(writer, props);
+	    }
+	}
 	
 	void newChild()
 	{
