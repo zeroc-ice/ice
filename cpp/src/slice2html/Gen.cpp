@@ -1403,7 +1403,6 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
 #endif
 
     ModuleList modules = p->modules();
-    //modules.erase(remove_if(modules.begin(), modules.end(), ::IceUtil::constMemFun(&Contained::includeLevel)), modules.end());
 
     if(!modules.empty())
     {
@@ -1429,7 +1428,6 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
     assert(_out.currIndent() == indent);
 
     ClassList classesAndInterfaces = p->classes();
-    //classesAndInterfaces.erase(remove_if(classesAndInterfaces.begin(), classesAndInterfaces.end(), ::IceUtil::constMemFun(&Contained::includeLevel)), classesAndInterfaces.end());
     ClassList classes;
     ClassList interfaces;
     remove_copy_if(classesAndInterfaces.begin(), classesAndInterfaces.end(), back_inserter(classes),
@@ -1484,7 +1482,6 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
     assert(_out.currIndent() == indent);
 
     ExceptionList exceptions = p->exceptions();
-    //exceptions.erase(remove_if(exceptions.begin(), exceptions.end(), ::IceUtil::constMemFun(&Contained::includeLevel)), exceptions.end());
 
     if(!exceptions.empty())
     {
@@ -1510,7 +1507,6 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
     assert(_out.currIndent() == indent);
 
     StructList structs = p->structs();
-    //structs.erase(remove_if(structs.begin(), structs.end(), ::IceUtil::constMemFun(&Contained::includeLevel)), structs.end());
 
     if(!structs.empty())
     {
@@ -1536,7 +1532,6 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
     assert(_out.currIndent() == indent);
 
     SequenceList sequences = p->sequences();
-    //sequences.erase(remove_if(sequences.begin(), sequences.end(), ::IceUtil::constMemFun(&Contained::includeLevel)), sequences.end());
 
     if(!sequences.empty())
     {
@@ -1562,7 +1557,6 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
     assert(_out.currIndent() == indent);
 
     DictionaryList dictionaries = p->dictionaries();
-    //dictionaries.erase(remove_if(dictionaries.begin(), dictionaries.end(), ::IceUtil::constMemFun(&Contained::includeLevel)), dictionaries.end());
 
     if(!dictionaries.empty())
     {
@@ -1588,7 +1582,6 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
     assert(_out.currIndent() == indent);
 
     EnumList enums = p->enums();
-    //enums.erase(remove_if(enums.begin(), enums.end(), ::IceUtil::constMemFun(&Contained::includeLevel)), enums.end());
 
     if(!enums.empty())
     {

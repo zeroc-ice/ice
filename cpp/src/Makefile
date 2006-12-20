@@ -25,6 +25,7 @@ SUBDIRS		= IceUtil \
 		  slice2cppe \
 		  slice2javae \
 		  slice2rb \
+		  slice2html \
 		  Ice \
 		  IceXML \
 		  IceSSL \
